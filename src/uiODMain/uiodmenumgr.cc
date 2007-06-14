@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.83 2007-06-12 15:28:21 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.84 2007-06-14 11:22:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "timer.h"
 #include "ioman.h"
 #include "strmprov.h"
+#include "filepath.h"
 #include "survinfo.h"
 
 
@@ -358,16 +359,9 @@ void uiODMenuMgr::fillViewMenu()
 }
 
 
-void uiODMenuMgr::mkViewIconsMnu()
+void uiODMenuMgr::addIconMnuItems( const DirList& dl, uiPopupMenu* iconsmnu,
+				   int& nradded )
 {
-    DirList dl( GetDataFileName(0), DirList::DirsOnly, "icons.*" );
-    if ( dl.size() < 2 )
-	return;
-
-    uiPopupMenu* iconsmnu = new uiPopupMenu( &appl_, "&Icons" );
-    viewmnu_->insertItem( iconsmnu );
-    mInsertItem( iconsmnu, "&Default", mViewIconsMnuItm+0 );
-    int nradded = 0;
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	const BufferString nm( dl.get( idx ).buf() + 6 );
@@ -378,6 +372,23 @@ void uiODMenuMgr::mkViewIconsMnu()
 	BufferString mnunm( "&" ); mnunm += nm;
 	mInsertItem( iconsmnu, mnunm, mViewIconsMnuItm+nradded );
     }
+}
+
+
+void uiODMenuMgr::mkViewIconsMnu()
+{
+    DirList dlsite( FilePath(GetSiteDataDir()).add("data").fullPath(),
+	    	    DirList::DirsOnly, "icons.*" );
+    DirList dlrel( GetDataFileDir(), DirList::DirsOnly, "icons.*" );
+    if ( dlsite.size() + dlrel.size() < 2 )
+	return;
+
+    uiPopupMenu* iconsmnu = new uiPopupMenu( &appl_, "&Icons" );
+    viewmnu_->insertItem( iconsmnu );
+    mInsertItem( iconsmnu, "&Default", mViewIconsMnuItm+0 );
+    int nradded = 0;
+    addIconMnuItems( dlsite, iconsmnu, nradded );
+    addIconMnuItems( dlrel, iconsmnu, nradded );
 }
 
 
@@ -620,6 +631,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 		uiMSG().error( "Icon directory seems to be invalid" );
 		break;
 	    }
+
 	    const BufferString targetdir( GetDataFileName("icons.cur") );
 	    File_remove( targetdir, YES );
 	    File_copy( sourcedir, targetdir, YES );

@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.24 2006-12-19 18:17:45 cvsbert Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.25 2007-06-14 11:22:37 cvsbert Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
@@ -68,8 +68,7 @@ static std::ostream& logMsgStrm()
     if ( !File_isDirectory(dirnm) )
 	mErrRet( "Cannot create proper directory for log file" )
 
-    FilePath fphome( _GetHomeDir() );
-    BufferString fnm( fphome.fileName() );
+    BufferString fnm( FilePath(GetPersonalDir()).fileName() );
     const char* odusr = GetSoftwareUser();
     if ( odusr && *odusr )
 	{ fnm += "_"; fnm += odusr; }

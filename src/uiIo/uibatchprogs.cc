@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.27 2006-12-18 17:51:40 cvsbert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.28 2007-06-14 11:22:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,11 +98,17 @@ BatchProgInfoList::BatchProgInfoList()
 	getEntries( fromenv );
     else
     {
-	DirList dl( GetDataFileName(0), DirList::FilesOnly, "BatchPrograms*" );
-	for ( int idx=0; idx<dl.size(); idx++ )
-	    getEntries( dl.fullPath(idx) );
+	FilePath fp( GetSiteDataDir() ); fp.add( "data" );
+	DirList dlsite( fp.fullPath(), DirList::FilesOnly, "BatchPrograms*" );
+	for ( int idx=0; idx<dlsite.size(); idx++ )
+	    getEntries( dlsite.fullPath(idx) );
+
+	DirList dlrel( GetDataFileDir(), DirList::FilesOnly, "BatchPrograms*" );
+	for ( int idx=0; idx<dlrel.size(); idx++ )
+	    getEntries( dlrel.fullPath(idx) );
     }
 }
+
 
 void BatchProgInfoList::getEntries( const char* fnm )
 {

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.24 2007-01-11 15:48:45 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.25 2007-06-14 11:22:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,8 @@ class uiMenuItem;
 class uiODHelpMenuMgr;
 class uiPopupMenu;
 class uiToolBar;
+class DirList;
+class uiPopupMenu;
 
 
 /*!\brief The OpendTect menu manager
@@ -131,6 +133,7 @@ protected:
 
     void		showLogFile();
     void		mkViewIconsMnu();
+    void		addIconMnuItems(const DirList&,uiPopupMenu*,int&);
 };
 
 

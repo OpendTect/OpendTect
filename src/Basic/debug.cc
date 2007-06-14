@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          June 2003
- RCS:           $Id: debug.cc,v 1.24 2007-05-08 05:45:57 cvsnanne Exp $
+ RCS:           $Id: debug.cc,v 1.25 2007-06-14 11:22:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: debug.cc,v 1.24 2007-05-08 05:45:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: debug.cc,v 1.25 2007-06-14 11:22:37 cvsbert Exp $";
 
 #include "debug.h"
 #include "debugmasks.h"
@@ -128,7 +128,7 @@ void putProgInfo( int argc, char** argv )
 	FilePath fp( argv[0] );
 	msg = fp.fileName();
     }
-    msg += " started on "; msg += GetHostName();
+    msg += " started on "; msg += GetLocalHostName();
     msg += " at "; msg += Time_getFullDateString();
     if ( !ison ) msg += "\n";
     message( msg );

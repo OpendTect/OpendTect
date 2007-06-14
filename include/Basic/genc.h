@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: genc.h,v 1.29 2005-08-26 18:19:27 cvsbert Exp $
+ RCS:		$Id: genc.h,v 1.30 2007-06-14 11:22:37 cvsbert Exp $
 ________________________________________________________________________
 
 Some general utilities, that need to be accessible in many places:
@@ -28,13 +28,14 @@ const char*	GetProjectVersionName(void);
 int		GetPID();
 		/*!< returns process ID */
 
-const char*	GetHostName();
-		/*!< returns local host name */
+const char*	GetLocalHostName();
+		/*!< returns (as expected) local host name */
 
 int		ExitProgram( int ret );
 		/*!< Win32: kills progam itself and ignores ret.
-		     Unix: uses exit(ret). return value is there to keep
-		     compiler satisfied, like: return exitProgram( retval );
+		     Unix: uses exit(ret).
+		     Return value is convenience only, so you can use like:
+		     return exitProgram( retval );
                 */
 
 void		PutIsLittleEndian(unsigned char*);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.54 2007-06-12 11:43:54 cvsraman Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.55 2007-06-14 11:22:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -786,15 +786,17 @@ void uiAttribDescSetEd::defaultSet( CallBacker* )
 }
 
 
-void uiAttribDescSetEd::getDefaultAttribsets( BufferStringSet& attribfiles,
-					      BufferStringSet& attribnames )
+static void gtDefaultAttribsets( const char* dirnm, bool is2d,
+				 BufferStringSet& attribfiles,
+				 BufferStringSet& attribnames )
 {
-    const bool is2d = adsman ? adsman->is2D() : attrset->is2D();
-    const char* ptr = GetDataFileName(0);
-    DirList attrdl( ptr, DirList::DirsOnly, "*Attribs" );
+    if ( !dirnm || !File_exists(dirnm) )
+	return;
+
+    DirList attrdl( dirnm, DirList::DirsOnly, "*Attribs" );
     for ( int idx=0; idx<attrdl.size(); idx++ )
     {
-	FilePath fp( ptr );
+	FilePath fp( dirnm );
 	fp.add( attrdl[idx]->buf() ).add( "index" );
 	IOPar iopar("AttributeSet Table");
 	iopar.read( fp.fullPath(), sKey::Pars, false );
@@ -816,6 +818,15 @@ void uiAttribDescSetEd::getDefaultAttribsets( BufferStringSet& attribfiles,
 	    attribfiles.add( attrfnm );
 	}
     }
+}
+
+
+void uiAttribDescSetEd::getDefaultAttribsets( BufferStringSet& attribfiles,
+					      BufferStringSet& attribnames )
+{
+    const bool is2d = adsman ? adsman->is2D() : attrset->is2D();
+    gtDefaultAttribsets( GetSiteDataDir(), is2d, attribfiles, attribnames );
+    gtDefaultAttribsets( GetDataFileDir(), is2d, attribfiles, attribnames );
 }
 
 

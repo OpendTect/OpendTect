@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodhelpmenumgr.cc,v 1.8 2007-05-21 04:40:11 cvsnanne Exp $
+ RCS:           $Id: uiodhelpmenumgr.cc,v 1.9 2007-06-14 11:22:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.8 2007-05-21 04:40:11 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.9 2007-06-14 11:22:37 cvsbert Exp $";
 
 #include "uiodhelpmenumgr.h"
 #include "uiodmenumgr.h"
@@ -71,7 +71,7 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
 	, helpmnu_(mm->helpMnu())
     	, mnumgr_(mm)
 {
-    const BufferString datadir( GetDataFileName(0) );
+    const BufferString datadir( GetDataFileDir() );
     DirList dl( datadir, DirList::DirsOnly, "*Doc" );
     int mnuidx = 1;
     for ( int hidx=0, idx=0; idx<dl.size(); idx++ )

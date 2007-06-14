@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.84 2007-06-13 16:29:34 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.85 2007-06-14 11:22:37 cvsbert Exp $";
 
 #include "oddirs.h"
 #include "genc.h"
@@ -24,9 +24,11 @@ static const char* rcsID = "$Id: genc.c,v 1.84 2007-06-13 16:29:34 cvsbert Exp $
 #ifndef __win__
 # include <unistd.h>
 # define sDirSep	"/"
+static const char* lostinspace = "/tmp";
 #else
 # include <float.h>
 # define sDirSep	"\\"
+static const char* lostinspace = "C:\\";
 #endif
 
 #ifdef __mac__
@@ -37,7 +39,8 @@ static const char* rcsID = "$Id: genc.c,v 1.84 2007-06-13 16:29:34 cvsbert Exp $
 static FileNameString surveyname;
 static int surveynamedirty = YES;
 static const char* dirsep = sDirSep;
-static char dbgbuf[256];
+static char tmpbuf[PATH_LENGTH+1];
+
 
 /*-> oddirs.h */
 
@@ -91,26 +94,11 @@ const char* GetSoftwareDir()
 #ifndef __win__
 
     dir = GetEnvVar( "DTECT_APPL" );
-    if ( !dir ) dir = GetEnvVar( "dGB_APPL" );
 
 #else
 
     dir = GetEnvVar( "DTECT_WINAPPL" );
-    if ( !dir ) dir = GetEnvVar( "dGB_WINAPPL" );
-
     if ( !dir ) dir = getCleanWinPath( GetEnvVar("DTECT_APPL") );
-    if ( !dir ) dir = getCleanWinPath( GetEnvVar("dGB_APPL") );
-
-#if 0
-    if ( !dir )
-    {
-	TCHAR szPath[_MAX_PATH];
-	if ( GetModuleFileName(NULL,szPath,_MAX_PATH) ) 
-//.....
-// TODO  : extract DTECT_APPL from full executable path.
-
-    }
-#endif
 
     if ( dir && *dir && !GetEnvVar("DTECT_WINAPPL") )
 	SetEnvVar( "DTECT_WINAPPL" , dir );
@@ -136,10 +124,6 @@ const char* GetSoftwareDir()
 	    SetEnvVar( "DTECT_APPL" , dir );
 	}
     }
-#endif
-
-#ifdef __lux__
-// TODO : use /proc/self/exe symlink to find full path to current running exe
 #endif
 
     if ( !dir )
@@ -168,8 +152,8 @@ const char* GetSoftwareDir()
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	sprintf( dbgbuf, "GetSoftwareDir: '%s'", dir );
-	od_debug_message( dbgbuf );
+	sprintf( tmpbuf, "GetSoftwareDir: '%s'", dir );
+	od_debug_message( tmpbuf );
     }
 
     cachedDir = mMALLOC( strlen(dir)+ 1, char );
@@ -193,7 +177,7 @@ const char* GetPlfSubDir()
 
 const char* GetSiteDataDir()
 {
-    static const char* ret = 0;
+    static char* ret = 0;
     static FileNameString filenamebuf;
     const char* envstr;
     if ( ret )
@@ -203,10 +187,10 @@ const char* GetSiteDataDir()
     ret = filenamebuf;
 
     envstr = GetEnvVar( "DTECT_SITE_DATA" );
-    if ( !envstr )
+    if ( !envstr || !*envstr )
 	return 0;
 
-    strcpy( filenamebuf, envstr );
+    strcpy( ret, envstr );
     return ret;
 }
 
@@ -240,6 +224,14 @@ const char* GetExecScript( int remote )
 }
 
 
+const char* GetDataFileDir()
+{
+    static FileNameString dirnmbuf;
+    strcpy( dirnmbuf, mkFullPath( GetSoftwareDir(), "data" ) );
+    return dirnmbuf;
+}
+
+
 static const char* gtDataFileName( const char* basedir, const char* fname )
 {
     static FileNameString filenamebuf;
@@ -252,8 +244,11 @@ static const char* gtDataFileName( const char* basedir, const char* fname )
 
 const char* GetDataFileName( const char* fname )
 {
-    const char* ret;
-    const char* basedir = fname ? GetSiteDataDir() : 0;
+    const char* ret; const char* basedir;
+    if ( !fname || !*fname )
+	return GetDataFileDir();
+
+    basedir = GetSiteDataDir();
     if ( basedir )
     {
 	ret = gtDataFileName( basedir, fname );
@@ -294,23 +289,21 @@ static const char* checkFile( const char* path, const char* subdir,
 const char* SearchODFile( const char* fname )
 { // NOTE: recompile SearchODFile in spec/General when making changes here...
 
-    const char* nm = checkFile( GetEnvVar("OD_FILES"), "", fname );
-    if ( !nm ) nm = checkFile( GetSiteDataDir(), "", fname );
-    if ( !nm ) nm = checkFile( GetSiteDataDir(), "data", fname );
-    if ( !nm ) nm = checkFile( GetSiteDataDir(), "bin", fname );
-    if ( !nm ) nm = checkFile( GetPersonalDir(), ".od", fname );
+    const char* nm = checkFile( GetPersonalDir(), ".od", fname );
     if ( !nm ) nm = checkFile( GetSettingsDir(), "", fname );
-    if ( !nm ) nm = checkFile( GetEnvVar("ALLUSERSPROFILE"), ".od", fname );
-    if ( !nm ) nm = checkFile( GetSoftwareDir(), "data", fname );
-    if ( !nm ) nm = checkFile( GetSoftwareDir(), "bin", fname );
-    if ( !nm ) nm = checkFile( GetSoftwareDir(), "", fname );
     if ( !nm ) nm = checkFile( GetBaseDataDir(), "", fname );
+    if ( !nm ) nm = checkFile( GetSiteDataDir(), "data", fname );
+    if ( !nm ) nm = checkFile( GetSoftwareDir(), "data", fname );
+    if ( !nm ) nm = checkFile( GetSiteDataDir(), "bin", fname );
+    if ( !nm ) nm = checkFile( GetSoftwareDir(), "bin", fname );
+    if ( !nm ) nm = checkFile( GetSiteDataDir(), "", fname );
+    if ( !nm ) nm = checkFile( GetSoftwareDir(), "", fname );
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	sprintf( dbgbuf, "SearchODFile for '%s': '%s'",
+	sprintf( tmpbuf, "SearchODFile for '%s': '%s'",
 			 fname ? fname : "(null)", nm ? nm : "<none>");
-	od_debug_message( dbgbuf );
+	od_debug_message( tmpbuf );
     }
 
     return nm;
@@ -320,155 +313,166 @@ const char* SearchODFile( const char* fname )
 const char* GetSoftwareUser()
 {
     const char* ptr = 0;
+    static const char* ret = 0;
+    if ( !ret )
+    {
+
 #ifdef __win__
 
-    ptr = GetEnvVar( "DTECT_WINUSER" );
-    if ( !ptr ) ptr = GetEnvVar( "dGB_WINUSER" );
+	ptr = GetEnvVar( "DTECT_WINUSER" );
 
 #endif
 
-    if ( !ptr ) ptr = GetEnvVar( "DTECT_USER" );
-    if ( !ptr ) ptr = GetEnvVar( "dGB_USER" );
+	if ( !ptr ) ptr = GetEnvVar( "DTECT_USER" );
 
-    if ( od_debug_isOn(DBG_SETTINGS) )
-    {
-	sprintf( dbgbuf, "GetSoftwareUser: '%s'", ptr ? ptr : "<None>" );
-	od_debug_message( dbgbuf );
+	if ( od_debug_isOn(DBG_SETTINGS) )
+	{
+	    sprintf( tmpbuf, "GetSoftwareUser: '%s'", ptr ? ptr : "<None>" );
+	    od_debug_message( tmpbuf );
+	}
+
+	ret = ptr ? ptr : "";
     }
 
-    return ptr;
+    return *ret ? ret : 0;
 }
 
-const char* _GetHomeDir()
+static const char* getHomeDir( char* val )
 {
+    const char* dir;
+
 #ifndef __win__
 
-    const char* ptr = GetEnvVar( "DTECT_HOME" );
-    if ( !ptr ) ptr = GetEnvVar( "dGB_HOME" );
-    if ( !ptr ) ptr = GetEnvVar( "HOME" );
-    return ptr;
+    dir = GetEnvVar( "DTECT_HOME" );
+    if ( !dir ) dir = GetEnvVar( "HOME" );
 
 #else
 
-    static FileNameString home = "";
-
-    const char* ptr = GetEnvVar( "DTECT_WINHOME" );
-    if ( !ptr ) ptr = GetEnvVar( "dGB_WINHOME" );
-
-    if ( !ptr ) ptr = getCleanWinPath( GetEnvVar("DTECT_HOME") );
+    dir = GetEnvVar( "DTECT_WINHOME" );
+    if ( !dir ) dir = getCleanWinPath( GetEnvVar("DTECT_HOME") );
     				// should always at least be set
-    if ( !ptr && od_debug_isOn(DBG_SETTINGS) )
+    if ( !dir ) dir = getCleanWinPath( GetEnvVar("HOME") );
+
+    if ( !dir && GetEnvVar("HOMEDRIVE") && GetEnvVar("HOMEPATH") )
     {
-	sprintf( dbgbuf, "\nWarning: No DTECT_HOME nor DTECT_WINHOME set. \n"
-			 " Falling back to USERPROFILE, APPDATA, etc.\n" );
-	od_debug_message( dbgbuf );
+	/* This may be not be trustworthy */
+	strcpy( val, GetEnvVar("HOMEDRIVE") );
+	strcat( val, GetEnvVar("HOMEPATH") );
+	if ( *val && !caseInsensitiveEqual(val,"c:\\",0)
+	  && File_isDirectory(val) )
+	    dir = val;
     }
+
+    if ( !dir && od_debug_isOn(DBG_SETTINGS) )
+	od_debug_message( "Problem: No DTECT_WINHOME, DTECT_HOME "
+			  "or HOMEDRIVE/HOMEPATH. Result may be bad." );
     
-    if ( !ptr ) ptr = getCleanWinPath( GetEnvVar("dGB_HOME") );
-    if ( !ptr ) ptr = getCleanWinPath( GetEnvVar("HOME") );
-
-    if ( !ptr ) ptr = GetEnvVar( "USERPROFILE" ); // set by OS
-    if ( !ptr ) ptr = GetEnvVar( "APPDATA" );     // set by OS -- but is hidden 
-
-    if ( !ptr )
-	ptr = GetEnvVar( "DTECT_USERPROFILE_DIR" ); // set by init script
-
-    if ( !ptr && (!GetEnvVar("HOMEDRIVE") || !GetEnvVar("HOMEPATH")) ) 
-    {
-	if ( !ptr ) // Last resort. Is known to cause problems when used 
-		    // during initialisation of statics. (0xc0000005)
-	    ptr = GetSpecialFolderLocation( CSIDL_PROFILE ); // "User profile"
-    }
-
-    if ( ptr && *ptr )
-    {
-	strcpy( home, ptr );
-	if ( !GetEnvVar("DTECT_WINHOME") )
-	    SetEnvVar( "DTECT_WINHOME" , home );
-	return home;
-    }
-
-    if ( !GetEnvVar("HOMEDRIVE") || !GetEnvVar("HOMEPATH") ) return 0;
-
-    strcpy( home, GetEnvVar("HOMEDRIVE") );
-    strcat( home, GetEnvVar("HOMEPATH") );
-
-    if ( strcmp( home, "" ) && strcmp( home, "c:\\" ) && strcmp( home, "C:\\" ) 
-	&& File_isDirectory( home ) ) // Apparantly, home has been set...
-    {
-	return home;
-    }
-
-    return 0;
+    if ( !dir ) dir = getCleanWinPath( GetEnvVar("HOME") );
+    if ( !dir ) dir = GetEnvVar( "USERPROFILE" ); // set by OS
+    if ( !dir ) dir = GetEnvVar( "APPDATA" );     // set by OS -- but is hidden 
+    if ( !dir ) dir = GetEnvVar( "DTECT_USERPROFILE_DIR" );// set by init script
+    if ( !dir ) // Last resort. Is known to cause problems when used 
+		// during initialisation of statics. (0xc0000005)
+	dir = GetSpecialFolderLocation( CSIDL_PROFILE ); // "User profile"
 
 #endif
+
+    if ( !dir )
+    {
+	dir = lostinspace;
+	od_debug_message( "Serious problem: Cannot find any good value for "
+			  "'Personal directory'. Using:\n" );
+	od_debug_message( dir );
+    }
+
+    if ( dir != val )
+	strcpy( val, dir );
+
+#ifdef __win__
+    if ( !GetEnvVar("DTECT_WINHOME") )
+	SetEnvVar( "DTECT_WINHOME", val );
+    replaceCharacter( val, '\r', '\0' );
+#endif
 }
+
+
+const char* GetPersonalDir( void )
+{
+    static FileNameString dirnm;
+    static const char* ret = 0;
+    const char* ptr;
+
+    if ( !ret )
+    {
+	ptr = GetEnvVar( "DTECT_PERSONAL_DIR" );
+	if ( ptr )
+	    strcpy( dirnm, ptr );
+	else
+	    getHomeDir( dirnm );
+
+	if ( od_debug_isOn(DBG_SETTINGS) )
+	{
+	    sprintf( tmpbuf, "GetPersonalDir: '%s'", dirnm );
+	    od_debug_message( tmpbuf );
+	}
+
+	ret = dirnm;
+    }
+
+    return ret;
+}
+
 
 const char* GetSettingsDir(void)
-{ // NOTE: recompile SearchODFile in spec/General when making changes here...
+{
+    static FileNameString dirnm;
+    static const char* ret = 0;
+    const char* ptr = 0;
 
-    int mkfullpth = YES;
-    
-#ifndef __win__
-
-    const char* ptr = GetEnvVar( "DTECT_SETTINGS" );
-
-    if ( ptr )
-	mkfullpth = NO;
-    else
-	ptr = _GetHomeDir();
-
-#else    
-
-    const char* ptr = GetEnvVar( "DTECT_WINSETTINGS" );
-    if( !ptr) ptr = getCleanWinPath( GetEnvVar("DTECT_SETTINGS") );
-
-    if ( ptr )
-	mkfullpth = NO;
-    else
-	ptr = _GetHomeDir();
-
-    if ( !ptr )
-	return 0;
-
-    char* chptr = (char*)ptr;
-    while ( chptr && *chptr++ ) { if ( *chptr == '\r' ) *chptr='\0'; }
-
+    if ( !ret )
+    {
+#ifdef __win__
+	ptr = GetEnvVar( "DTECT_WINSETTINGS" );
+	if( !ptr ) ptr = getCleanWinPath( GetEnvVar("DTECT_SETTINGS") );
+#else
+	ptr = GetEnvVar( "DTECT_SETTINGS" );
 #endif
 
-    if ( mkfullpth ) ptr = mkFullPath( ptr, ".od" );
+	if ( ptr )
+	    strcpy( dirnm, ptr );
+	else
+	{
+	    getHomeDir( dirnm );
+	    strcpy( dirnm, mkFullPath(dirnm,".od") );
+	}
 
-    if ( !File_isDirectory(ptr) )
-    {
-	if ( File_exists(ptr) ) ptr = 0;
-	else if ( !File_createDir(ptr,0) ) ptr = 0;
+	if ( !File_isDirectory(dirnm) )
+	{
+	    if ( File_exists(dirnm) )
+		File_remove( dirnm, NO );
+	    if ( !File_createDir(dirnm,0) )
+	    {
+		fprintf( stderr, "Fatal: Cannot create '.od' directory in home "
+				    "directory:\n%s\n", dirnm );
+		ExitProgram( 1 );
+	    }
+	    if ( od_debug_isOn(DBG_SETTINGS) )
+	    {
+		sprintf( tmpbuf, "Had to create SettingsDir: '%s'", dirnm );
+		od_debug_message( tmpbuf );
+	    }
+	}
+
+	if ( od_debug_isOn(DBG_SETTINGS) )
+	{
+	    sprintf( tmpbuf, "GetSettingsDir: '%s'", dirnm );
+	    od_debug_message( tmpbuf );
+	}
+
+	ret = dirnm;
     }
 
-    if ( od_debug_isOn(DBG_SETTINGS) )
-    {
-	sprintf( dbgbuf, "GetSettingsDir: '%s'", ptr ? ptr : "<none>" );
-	od_debug_message( dbgbuf );
-    }
-
-    return ptr;
-}
-
-
-const char* GetPersonalDir(void)
-{ // NOTE: recompile SearchODFile in spec/General when making changes here...
-
-    const char* ptr = GetEnvVar( "OD_PERSONAL_DIR" );
-
-    if ( !ptr )
-	ptr = _GetHomeDir();
-
-    if ( od_debug_isOn(DBG_SETTINGS) )
-    {
-	sprintf( dbgbuf, "GetPersonalDir: '%s'", ptr ? ptr : "<not found>" );
-	od_debug_message( dbgbuf );
-    }
-
-    return ptr;
+    return ret;
 }
 
 
@@ -481,7 +485,6 @@ const char* GetSurveyFileName()
     if ( !inited )
     {
 	ptr = GetSettingsDir();
-	if ( !ptr ) return 0;
 	strcpy( sfname, mkFullPath(ptr,"survey") );
 	ptr = GetSoftwareUser();
 	if ( ptr )
@@ -494,8 +497,8 @@ const char* GetSurveyFileName()
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	sprintf( dbgbuf, "GetSurveyFileName: '%s'", sfname );
-	od_debug_message( dbgbuf );
+	sprintf( tmpbuf, "GetSurveyFileName: '%s'", sfname );
+	od_debug_message( tmpbuf );
     }
 
     return sfname;
@@ -504,57 +507,36 @@ const char* GetSurveyFileName()
 
 void SetSurveyName( const char* newnm )
 {
+    skipLeadingBlanks( newnm );
     strcpy( surveyname, newnm );
+    removeTrailingBlanks( surveyname );
     surveynamedirty = 0;
 }
 
 
 const char* GetSurveyName()
 {
-    int len;
-    FILE* fp;
-    const char* fnm;
+    FILE* fp; char* ptr;
+    if ( !surveynamedirty ) return surveyname;
 
-    if ( surveynamedirty )
-    {
-	fnm = GetSurveyFileName();
-	if ( !fnm )
-	{
-	    if ( od_debug_isOn(DBG_SETTINGS) )
-	    {
-		sprintf( dbgbuf,
-		    "GetSurveyName: GetSurveyFileName returned NULL\n" );
-		od_debug_message( dbgbuf );
-	    }
-	    return 0;
-	}
+    fp = fopen( GetSurveyFileName(), "r" );
+    if ( !fp ) return 0;
 
-	fp = fopen( fnm, "r" );
-	if ( !fp )
-	{
-	    if ( od_debug_isOn(DBG_SETTINGS) )
-	    {
-		sprintf( dbgbuf,
-		    "GetSurveyName: Could not open SurveyFile: '%s'", fnm );
-		od_debug_message( dbgbuf );
-	    }
-	    return 0;
-	}
+    ptr = tmpbuf; *ptr = '\0';		/* Don't use tmpbuf between here ... */
+    fgets( ptr, PATH_LENGTH, fp );
+    fclose( fp );
 
-	surveyname[0] = '\0';
-	fgets( surveyname, PATH_LENGTH, fp );
-	len = strlen( surveyname );
-	if ( len == 0 ) return 0;
-	if ( surveyname[len-1] == '\n' ) surveyname[len-1] = '\0';
+    skipLeadingBlanks( ptr );
+    removeTrailingBlanks( ptr );
+    if ( !*ptr ) return 0;
 
-	fclose( fp );
-	surveynamedirty = 0;
-    }
+    strcpy( surveyname, ptr );		/* ... and here */
+    surveynamedirty = 0;
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	sprintf( dbgbuf, "GetSurveyName: %s", surveyname );
-	od_debug_message( dbgbuf );
+	sprintf( tmpbuf, "GetSurveyName: %s", surveyname );
+	od_debug_message( tmpbuf );
     }
 
     return surveyname;
@@ -570,10 +552,8 @@ const char* GetBaseDataDir()
 #ifdef __win__
 
     dir = GetEnvVar( "DTECT_WINDATA" );
-    if ( !dir ) dir = GetEnvVar( "dGB_WINDATA" );
 
     if ( !dir ) dir = getCleanWinPath( GetEnvVar("DTECT_DATA") );
-    if ( !dir ) dir = getCleanWinPath( GetEnvVar("dGB_DATA") );
     if ( !dir ) dir = getCleanWinPath( GetSettingsDataDir() );
 
     if ( dir && *dir && !GetEnvVar("DTECT_WINDATA") )
@@ -582,8 +562,6 @@ const char* GetBaseDataDir()
 #else
 
     if ( !dir ) dir = GetEnvVar( "DTECT_DATA" );
-    if ( !dir ) dir = GetEnvVar( "dGB_DATA" );
-
     if ( !dir ) dir = GetSettingsDataDir();
 
 #endif
@@ -597,17 +575,16 @@ const char* GetDataDir()
     static FileNameString filenamebuf;
     const char* survnm;
     const char* basedir = GetBaseDataDir();
-    if ( !basedir || !*basedir ) return 0;
+    if ( !basedir || !*basedir ) return lostinspace;
 
     survnm = GetSurveyName();
-    if ( !survnm || !*survnm ) return basedir;
-
+    if ( !survnm || !*survnm ) survnm = "_no_current_survey_";
     strcpy( filenamebuf, mkFullPath(basedir,survnm) );
 
     if ( od_debug_isOn(DBG_SETTINGS) )
     {
-	sprintf( dbgbuf, "GetDataDir: '%s'", filenamebuf );
-	od_debug_message( dbgbuf );
+	sprintf( tmpbuf, "GetDataDir: '%s'", filenamebuf );
+	od_debug_message( tmpbuf );
     }
 
     return filenamebuf;
@@ -616,7 +593,7 @@ const char* GetDataDir()
 
 /*-> genc.h */
 
-const char* GetHostName()
+const char* GetLocalHostName()
 {
     static char ret[256];
     gethostname( ret, 256 );

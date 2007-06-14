@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.7 2007-06-13 16:29:34 cvsbert Exp $
+ RCS:		$Id: oddirs.h,v 1.8 2007-06-14 11:22:37 cvsbert Exp $
 ________________________________________________________________________
 
 For historic reasons, also dGB_ instead of DTECT_ or OD_ will be scanned.
@@ -85,85 +85,52 @@ const char*	GetExecScript(int remote);
 const char*	GetSoftwareUser(void);
 
 
-/*! gets user's home directory.
+/*! Directory for personal settings: 'Home directory'
 
- This gets the user's home directory, if available.
+ This gets the user's home directory. Even on Windows, something will be
+ assigned as being the home directory.
 
- Since this is not guaranteed on Windows, it is recommended
- to use GetSettingsDir() or GetPersonalDir(), which will
- map to "Application Data" resp. "My Documents" if a home directory
- is not availabile.
+ The personal directory is linked to environment variables:
 
- The home directory is linked to environment variables:
+ First of all, DTECT_PERSONAL_DIR is checked. If it's set, that is returned.
 
  On windows:
 
     DTECT_WINHOME
     DTECT_HOME	-> converted from unix to windows path (cygpath -w)
-    HOME	-> ""
-    HOMEDRIVE+HOMEPATH if exists and _not_ equal to "C:\"
+    HOMEDRIVE+HOMEPATH if exists and not equal to "C:\"
 
-    else returns 0;
-
- in that order.
+    That should be it. If that still fails, we try HOME, USERPROFILE, APPDATA,
+    DTECT_USERPROFILE_DIR. As a last resort,
+    GetSpecialFolderLocation( CSIDL_PROFILE ) is used.
 
  On unix:
 
-    DTECT_HOME
-    HOME
+    DTECT_HOME, HOME; in that order.
 
- in that order.
-
-*/
-const char*	_GetHomeDir(void);
-
-
-/*! Home dir or "Application Data"
-
-  Returns OD_SETTINGS_DIR if set.
-
-  else:
-  
-    On Unix: returns _GetHomeDir();
-
-    On Windows:
-	returns 
-
-	    if OD_PREFER_HOME is set: _GetHomeDir()
-	    APPDATA
-	    DTECT_APPLICATION_DATA
-	    _GetHomeDir()
-	    location of "Application Data"
-
-    in that order.
-
-*/
-const char*	GetSettingsDir(void);
-
-
-/*! Home dir or "My Documents"
-
-  Returns OD_PERSONAL_DIR if set.
-  else returns _GetHomeDir() if set.
-
-  else, on Windows:
-    returns 
-
-	USERPROFILE
-	DTECT_USERPROFILE_DIR
-	DTECT_MYDOCUMENTS_DIR
-	location of "User Profile"
-
-    in that order.
+ If all else fails, "C:\\" or "/tmp" are returned.
 
 */
 const char*	GetPersonalDir(void);
 
 
+/*! Directory with the user settings
+
+  Returns GetPersonalDir()/.od, unless DTECT_PERSONAL_DIR is set.
+
+*/
+const char*	GetSettingsDir(void);
+
+
+const char*	GetDataFileDir();
+		/*!< Returns the directory where the release's data files
+		  are stored. This will be $DTECT_APPL/data. Beware that in
+		  many cases you also need to look in GetSiteDataDir() */
+
 const char*	GetDataFileName(const char*);
-		/*!< Application data file in $DTECT_SITE_DATA/data (if set),
-		     or $DTECT_APPL/data. Pass null for the $DTECT_APPL/data
-		     directory itself. */
+		/*!< This function will search in first the GetSiteDataDir()
+		     and then GetDataFileDir() for a file. It returns the first
+		     that exists. */
 
 const char*	GetProcFileName(const char*);
 		/*!< Job processing spec file in $DTECT_DATA/Proc.
@@ -171,13 +138,15 @@ const char*	GetProcFileName(const char*);
 
 const char*	SearchODFile(const char*);
 		/*!< Search for a <configuration> file in:
-		    $OD_FILES
                     GetPersonalDir() + ".od"
                     GetSettingsDir() + ".od"
-		    $DTECT_APPL/data
-		    $DTECT_APPL/bin
-		    $DTECT_APPL
 		    GetBaseDataDir()
+		    $DTECT_SITE_DATA/data
+		    $DTECT_APPL/data
+		    $DTECT_SITE_DATA/bin
+		    $DTECT_APPL/bin
+		    $DTECT_SITE_DATA
+		    $DTECT_APPL
 		*/
 
 
