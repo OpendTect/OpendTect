@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.28 2007-06-14 11:22:37 cvsbert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.29 2007-06-14 17:25:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,12 +98,17 @@ BatchProgInfoList::BatchProgInfoList()
 	getEntries( fromenv );
     else
     {
-	FilePath fp( GetSiteDataDir() ); fp.add( "data" );
-	DirList dlsite( fp.fullPath(), DirList::FilesOnly, "BatchPrograms*" );
-	for ( int idx=0; idx<dlsite.size(); idx++ )
-	    getEntries( dlsite.fullPath(idx) );
+	BufferString dirnm = mGetApplSetupDataDir();
+	if ( !dirnm.isEmpty() )
+	{
+	    FilePath fp( dirnm ); fp.add( "data" );
+	    DirList dlsite( fp.fullPath(), DirList::FilesOnly,"BatchPrograms*");
+	    for ( int idx=0; idx<dlsite.size(); idx++ )
+		getEntries( dlsite.fullPath(idx) );
+	}
 
-	DirList dlrel( GetDataFileDir(), DirList::FilesOnly, "BatchPrograms*" );
+	dirnm = mGetSWDirDataDir();
+	DirList dlrel( dirnm, DirList::FilesOnly, "BatchPrograms*" );
 	for ( int idx=0; idx<dlrel.size(); idx++ )
 	    getEntries( dlrel.fullPath(idx) );
     }
@@ -266,7 +271,7 @@ void uiBatchProgLaunch::exButPush( CallBacker* )
     const BatchProgInfo& bpi = *pil[selidx];
     if ( bpi.exampleinput.isEmpty() )
 	{ pErrMsg("In CB that shouldn't be called for entry"); return; }
-    BufferString sourceex( GetDataFileName(bpi.exampleinput) );
+    BufferString sourceex( mGetSetupFileName(bpi.exampleinput) );
     if ( File_isEmpty(sourceex) )
 	{ pErrMsg("Installation problem"); return; }
 

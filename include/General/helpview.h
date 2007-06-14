@@ -37,10 +37,7 @@ public:
 
 
     static void		doHelp( const char* relurl, const char* wintitl=0);
-			/*!< Pops up help viewer with url relative to data/ dir
-			    \sa GetDataFileName() 
-			    i.e. calls use( GetDataFileName(relurl) );
-			*/
+			/*!< Pops up help viewer with url relative to data/ */
 
 
     static BufferString	applnm;

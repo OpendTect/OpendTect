@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.88 2007-06-14 11:22:37 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.89 2007-06-14 17:25:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,7 +136,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	    		    .add( orgdirname ).fullPath();
 	if ( File_exists(dirnm) )
 	    File_remove( dirnm, YES );
-	if ( !copySurv(GetDataFileName("BasicSurvey"),0,
+	if ( !copySurv(mGetSetupFileName("BasicSurvey"),0,
 		       orgstorepath,orgdirname) )
 	    return;
 	File_makeWritable( dirnm, YES, YES );

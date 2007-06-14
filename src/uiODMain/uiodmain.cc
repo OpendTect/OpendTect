@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.76 2007-05-22 08:41:43 cvsbert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.77 2007-06-14 17:25:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ int ODMain( int argc, char** argv )
     uiODMain* odmain = new uiODMain( *new uicMain(argc,argv) );
 
 #ifndef USEQT3
-    ioPixmap pm( GetDataFileName("splash.png") );
+    ioPixmap pm( mGetSetupFileName("splash.png") );
     uiSplashScreen splash( pm );
     splash.show();
     splash.showMessage( "Loading plugins ..." );

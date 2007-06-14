@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.30 2007-03-22 16:15:05 cvsdgb Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.31 2007-06-14 17:25:11 cvsbert Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -229,9 +229,11 @@ void HelpViewer::use( const char* url, const char* wintitl )
 }
 
 
+#define mGetDataFileName(fnm) GetSetupDataFileName(ODSetupLoc_SWDirOnly,fnm)
+
 void HelpViewer::doHelp( const char* relurl, const char* wt )
 {
-    BufferString docpath( GetDataFileName(relurl) );
+    BufferString docpath( mGetDataFileName(relurl) );
     BufferString wintitle( wt );
     replaceCharacter( wintitle.buf(), ' ', '_' );
     use( docpath, wintitle );
@@ -242,12 +244,12 @@ static StreamData openHFile( const char* nm, const char* scope )
 {
     FileNameString fnm;
     BufferString subfnm( HelpViewer::subdirNm(scope) );
-    if ( !File_exists(GetDataFileName(subfnm)) )
-	fnm = GetDataFileName( sNotInstHtml );
+    if ( !File_exists(mGetDataFileName(subfnm)) )
+	fnm = mGetDataFileName( sNotInstHtml );
     else
     {
 	subfnm = FilePath( subfnm ).add( nm ).fullPath();
-	fnm = GetDataFileName( subfnm );
+	fnm = mGetDataFileName( subfnm );
     }
 
     StreamData sd = StreamProvider( fnm ).makeIStream();
@@ -405,7 +407,7 @@ BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* scope )
     }
 
     if ( !File_exists(url) )
-	url = GetDataFileName( istodo ? "todo.html" : "notfound.html" );
+	url = mGetDataFileName( istodo ? "todo.html" : "notfound.html" );
     else if ( linknm != sMainIndex && !istodo )
 	{ url += "#"; url += linknm; }
 
@@ -417,8 +419,8 @@ BufferString HelpViewer::getURLForWinID( const char* winid )
 {
     BufferString scope( getScope(winid) );
     BufferString subfnm( HelpViewer::subdirNm(scope) );
-    if ( !File_exists(GetDataFileName(subfnm)) )
-	return BufferString( GetDataFileName(sNotInstHtml) );
+    if ( !File_exists(mGetDataFileName(subfnm)) )
+	return BufferString( mGetDataFileName(sNotInstHtml) );
 
     BufferString lnm = getLinkNameForWinID( winid );
     if ( lnm.isEmpty() ) return lnm;

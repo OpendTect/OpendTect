@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.84 2007-06-14 11:22:37 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.85 2007-06-14 17:25:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -377,9 +377,8 @@ void uiODMenuMgr::addIconMnuItems( const DirList& dl, uiPopupMenu* iconsmnu,
 
 void uiODMenuMgr::mkViewIconsMnu()
 {
-    DirList dlsite( FilePath(GetSiteDataDir()).add("data").fullPath(),
-	    	    DirList::DirsOnly, "icons.*" );
-    DirList dlrel( GetDataFileDir(), DirList::DirsOnly, "icons.*" );
+    DirList dlsite( mGetApplSetupDataDir(), DirList::DirsOnly, "icons.*" );
+    DirList dlrel( mGetSWDirDataDir(), DirList::DirsOnly, "icons.*" );
     if ( dlsite.size() + dlrel.size() < 2 )
 	return;
 
@@ -625,14 +624,14 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	{
 	    BufferString dirnm( "icons." );
 	    dirnm += itm->name().buf() + 1; // Skip the leading '&'
-	    const BufferString sourcedir( GetDataFileName(dirnm) );
+	    const BufferString sourcedir( mGetSetupFileName(dirnm) );
 	    if ( !File_isDirectory(sourcedir) )
 	    {
 		uiMSG().error( "Icon directory seems to be invalid" );
 		break;
 	    }
 
-	    const BufferString targetdir( GetDataFileName("icons.cur") );
+	    const BufferString targetdir( mGetSetupFileName("icons.cur") );
 	    File_remove( targetdir, YES );
 	    File_copy( sourcedir, targetdir, YES );
 	    for ( int idx=0; idx<uiToolBar::toolBars().size(); idx++ )

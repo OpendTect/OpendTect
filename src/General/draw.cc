@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.65 2007-05-16 16:31:33 cvskris Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.66 2007-06-14 17:25:11 cvsbert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -107,13 +107,17 @@ static ObjectSet<IOPar>& stdTabPars()
 
 static IOPar* readStdTabs()
 {
-    StreamData sd = StreamProvider( GetDataFileName("ColTabs") ).makeIStream();
     IOPar* iop = 0;
-    if ( sd.usable() )
+    BufferString fnm = mGetSetupFileName("ColTabs");
+    if ( File_exists(fnm) )
     {
-	ascistream astrm( *sd.istrm );
-	iop = new IOPar( astrm );
-	sd.close();
+	StreamData sd = StreamProvider( fnm ).makeIStream();
+	if ( sd.usable() )
+	{
+	    ascistream astrm( *sd.istrm );
+	    iop = new IOPar( astrm );
+	    sd.close();
+	}
     }
     return iop;
 }
@@ -121,7 +125,11 @@ static IOPar* readStdTabs()
 
 bool ColorTable::putStdTabPars( const ObjectSet<IOPar>& parset )
 {
-    BufferString fname = GetDataFileName("ColTabs");
+    BufferString fname = GetSetupDataFileName( ODSetupLoc_ApplSetupOnly,
+	    					"ColTabs" );
+    if ( fname.isEmpty() )
+	fname = GetSetupDataFileName(ODSetupLoc_SWDirOnly,"ColTabs");
+
     if ( File_exists(fname) && !File_isWritable(fname)
 	&& !File_makeWritable(fname,NO,YES) )
     {
@@ -129,7 +137,7 @@ bool ColorTable::putStdTabPars( const ObjectSet<IOPar>& parset )
 	return false;
     }
 
-    StreamData sd = StreamProvider( GetDataFileName("ColTabs") ).makeOStream();
+    StreamData sd = StreamProvider( fname ).makeOStream();
     if ( !sd.usable() || !sd.ostrm->good() )
     {
 	ErrMsg( "Cannot open standard color tables file for write" );

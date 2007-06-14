@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodhelpmenumgr.cc,v 1.9 2007-06-14 11:22:37 cvsbert Exp $
+ RCS:           $Id: uiodhelpmenumgr.cc,v 1.10 2007-06-14 17:25:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.9 2007-06-14 11:22:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.10 2007-06-14 17:25:11 cvsbert Exp $";
 
 #include "uiodhelpmenumgr.h"
 #include "uiodmenumgr.h"
@@ -71,7 +71,7 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
 	, helpmnu_(mm->helpMnu())
     	, mnumgr_(mm)
 {
-    const BufferString datadir( GetDataFileDir() );
+    const BufferString datadir( mGetSWDirDataDir() );
     DirList dl( datadir, DirList::DirsOnly, "*Doc" );
     int mnuidx = 1;
     for ( int hidx=0, idx=0; idx<dl.size(); idx++ )
@@ -161,7 +161,7 @@ static const char* getHelpF( const char* subdir, const char* infnm,
     fp.add( infnm );
     static BufferString fnm;
     fnm = fp.fullPath();
-    fnm = GetDataFileName( fnm.buf() );
+    fnm = GetSetupDataFileName( ODSetupLoc_SWDirOnly, fnm.buf() );
     return fnm.buf();
 }
 
@@ -184,7 +184,8 @@ void uiODHelpMenuMgr::handle( int id, const char* itemname )
     {
 	title = "About OpendTect";
 	const char* htmlfnm = "about.html";
-	const BufferString dddirnm = GetDataFileName( "dTectDoc" );
+	const BufferString dddirnm
+		= GetSetupDataFileName( ODSetupLoc_SWDirOnly, "dTectDoc" );
 	helpurl = FilePath(dddirnm).add(htmlfnm).fullPath();
 	helpurl = File_exists(helpurl) ? getHelpF(0,htmlfnm) : htmlfnm;
     } break;

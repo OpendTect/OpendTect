@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.78 2007-06-05 08:35:06 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.79 2007-06-14 17:25:11 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -62,7 +62,7 @@ void IOMan::init()
     const IOObjContext::StdDirData* prevdd = 0;
     const bool needsurvtype = SI().isValid() && !SI().survdatatypeknown_;
     bool needwrite = false;
-    FilePath basicfp = FilePath( GetDataFileName("BasicSurvey") );
+    FilePath basicfp = FilePath( mGetSetupFileName("BasicSurvey") );
     FilePath rootfp = FilePath( rootdir );
     basicfp.add( "X" ); rootfp.add( "X" );
     for ( int idx=0; idx<nrstddirdds; idx++ )

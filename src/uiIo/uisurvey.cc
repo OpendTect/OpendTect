@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.79 2007-03-28 12:20:46 cvsbert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.80 2007-06-14 17:25:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,7 +112,7 @@ public:
 static bool copy()
 {
     static const char* dirnm = "Tutorial";
-    BufferString from = GetDataFileName( dirnm );
+    BufferString from = mGetSetupFileName( dirnm );
     if ( !File_exists(from) )
     {
         uiMSG().error( "Tutorial not installed" );
@@ -139,7 +139,7 @@ static void fill()
     }
 
     BufferString fname( iostrm->fileName() );
-    fname = GetDataFileName( fname );
+    fname = mGetSetupFileName( fname );
     iostrm->setFileName( fname );
     IOM().commitChanges( *iostrm );
 }
@@ -208,7 +208,7 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
     {
 	static const char* tutdirnm = "Tutorial";
 	const bool direxists = dirlist.indexOf(tutdirnm) >= 0;
-	BufferString dirnm( GetDataFileName(tutdirnm) );
+	BufferString dirnm( mGetSetupFileName(tutdirnm) );
 	const bool tutinst = File_exists( dirnm );
 	if ( tutinst && !direxists )
 	{

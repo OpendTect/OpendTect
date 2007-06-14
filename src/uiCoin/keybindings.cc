@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2003
- RCS:           $Id: keybindings.cc,v 1.8 2006-12-13 08:18:33 cvsnanne Exp $
+ RCS:           $Id: keybindings.cc,v 1.9 2007-06-14 17:25:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ KeyBindMan::KeyBindMan()
     , ctrlpress(false)
     , curkeyb( "Default" )
 {
-    StreamData sd = StreamProvider( GetDataFileName("MouseControls") )
+    StreamData sd = StreamProvider( mGetSetupFileName("MouseControls") )
 			.makeIStream();
     if ( !sd.usable() ) return;
 

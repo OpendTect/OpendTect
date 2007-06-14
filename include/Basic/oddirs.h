@@ -7,13 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.8 2007-06-14 11:22:37 cvsbert Exp $
+ RCS:		$Id: oddirs.h,v 1.9 2007-06-14 17:25:11 cvsbert Exp $
 ________________________________________________________________________
 
-For historic reasons, also dGB_ instead of DTECT_ or OD_ will be scanned.
+OpendTect directories.
 
-Beware that all functions may return a pointer to _the_ _same_ static
-buffer of length PATH_LENGTH!
+Beware that all functions may return a pointer to *the same* static buffer!
 
 -*/
 
@@ -25,149 +24,128 @@ buffer of length PATH_LENGTH!
 extern "C" {
 #endif
 
+    /* Functions delivering files/directies in the 'survey data' scope */
 
-/*! Directory of the installed software = $DTECT_APPL 
+const char* GetBaseDataDir(void);
+/*!< Base data directory: DTECT_[WIN]DATA or from User Settings. */
 
- GetSoftwareDir returns the full path of the root of where the executables,
- program data, etc. is located.
+const char* GetDataDir(void);
+/*!< Survey directory: GetBaseDataDir()/<current survey> */
 
- On windows:
-    DTECT_WINAPPL
- On unix:
-    DTECT_APPL
+const char* GetProcFileName(const char*);
+/*!< Returns file name in GetDataDir()/Proc. Pass null for directory. */
 
- If that fails, it will try to extract the location out of argv[0] 
+
+    /* Functions delivering files/directies in the 'sytem' scope */
+
+const char* GetSoftwareDir(void);
+/*!< Directory of the installed software = $DTECT_[WIN]APPL 
+
+ GetSoftwareDir returns the full path of the root of the release.
+ If no DTECT_[WIN]APPL set, the location will be determined from argv[0] or
+ the 'bundle' location (Mac only).
 
 */
-const char*	GetSoftwareDir(void);
 
-
-/*! Site-specific site directory with setup files and scripts overruling
-    current software release's. Tied to environment DTECT_SITE_DATA. If
+const char* GetApplSetupDir(void);
+/*!< Directory with setup files and scripts overruling current software
+     release's default setup files.
+    
+    Tied to environment DTECT_[WIN]APPL_SETUP. If
     the environment is not set (see GetEnvVar), this function returns null.
 */
 
-const char*	GetSiteDataDir(void);
+typedef enum
+{
+    ODSetupLoc_ApplSetupOnly,
+    ODSetupLoc_ApplSetupPref, /* Usual choice for GetSetupDataFileName */
+    ODSetupLoc_SWDirPref,
+    ODSetupLoc_SWDirOnly
+} ODSetupLocType;
 
+const char* GetSetupDataFileDir(ODSetupLocType);
+/*!< Returns the name of the "data" subdir of the release or the
+     site setup directory.
+*/
+#define mGetApplSetupDataDir() GetSetupDataFileDir(ODSetupLoc_ApplSetupOnly)
+#define mGetSWDirDataDir() GetSetupDataFileDir(ODSetupLoc_SWDirOnly)
 
-/*! Platform subdirectory for platforms
+const char* GetSetupDataFileName(ODSetupLocType,const char*);
+/*!< Returns the name of a file in the "data" subdir of the release or the
+     appl setup directory.
+
+     For the 'Pref' types, it returns the first existing
+     file.
+*/
+#define mGetSetupFileName(x) GetSetupDataFileName(ODSetupLoc_ApplSetupPref,x)
+/*!< Usual choice: first look in ApplSetup, if not there, look in release */
+
+const char* GetPlfSubDir(void);
+/*!< Platform subdirectory for platforms
 
   Tries PLFSUBDIR, if not set: binsubdir, if not set: HDIR
+  Ouput medio 2007 is one of lux32, lux64, sol32, mac or win.
  
  */
-const char*	GetPlfSubDir(void);
 
-
-/*! Location of launch script for external programs
-
-    local:
-	GetSoftwareDir()/bin/od_exec     on *nix
-	GetSoftwareDir()\bin\od_exec.bat on win32
-    remote:
-	GetSoftwareDir()/bin/od_exec_rmt     on *nix
-	GetSoftwareDir()\bin\od_exec_rmt.bat on win32
-
-    In the above, if a GetSiteDataDir()/bin/od_xx script exists, this will be
-    returned.
-
+const char* GetExecScript(int remote);
+/*!< Location of launch script for external programs
+  
+  In GetSiteDataDir() or GetSoftwareDir(): bin/od_exec[_rmt][.bat]
 */
-const char*	GetExecScript(int remote);
 #define		mGetExecScript()	GetExecScript(0)
 
-/*! DTECT_USER
+const char* GetSoftwareUser(void);
+/*!< Sub-user of software: $DTECT_USER
 
- returns the value as set in DTECT_USER.
- This may be null - in fact it is most often null!
-
- /sa GetSoftwareDir(void)
-
+ When multiple people want to run under a single account, they need to
+ set DTECT_USER. The output of GetSoftwareUser() will therefore most often
+ be null!
 */
-const char*	GetSoftwareUser(void);
 
 
-/*! Directory for personal settings: 'Home directory'
+    /* Functions delivering files/directies in the 'user-specific' scope */
+
+const char* GetPersonalDir(void);
+/*!< Directory for personal settings: 'Home directory'
 
  This gets the user's home directory. Even on Windows, something will be
  assigned as being the home directory.
 
- The personal directory is linked to environment variables:
-
- First of all, DTECT_PERSONAL_DIR is checked. If it's set, that is returned.
-
- On windows:
-
+Windows:
     DTECT_WINHOME
     DTECT_HOME	-> converted from unix to windows path (cygpath -w)
     HOMEDRIVE+HOMEPATH if exists and not equal to "C:\"
-
     That should be it. If that still fails, we try HOME, USERPROFILE, APPDATA,
-    DTECT_USERPROFILE_DIR. As a last resort,
-    GetSpecialFolderLocation( CSIDL_PROFILE ) is used.
+    DTECT_USERPROFILE_DIR. As a last resort, GetSpecialFolderLocation is used.
 
- On unix:
-
+UNIX:
     DTECT_HOME, HOME; in that order.
 
- If all else fails, "C:\\" or "/tmp" are returned.
+ Before anything else, DTECT_PERSONAL_DIR is checked. If it's set, that is
+ returned. If all else fails, "C:\\" or "/tmp" are returned.
 
 */
-const char*	GetPersonalDir(void);
 
-
-/*! Directory with the user settings
+const char* GetSettingsDir(void);
+/*!< Directory with the user settings
 
   Returns GetPersonalDir()/.od, unless DTECT_PERSONAL_DIR is set.
 
 */
-const char*	GetSettingsDir(void);
+
+const char* GetSettingsFileName(const char*);
+/*!< Returns GetSettingsDir()/filenm */
 
 
-const char*	GetDataFileDir();
-		/*!< Returns the directory where the release's data files
-		  are stored. This will be $DTECT_APPL/data. Beware that in
-		  many cases you also need to look in GetSiteDataDir() */
+    /* Function delivering files/directies in all scopes */
 
-const char*	GetDataFileName(const char*);
-		/*!< This function will search in first the GetSiteDataDir()
-		     and then GetDataFileDir() for a file. It returns the first
-		     that exists. */
+const char* SearchODFile(const char*);
+/*!< Search for a configuration file in all scopes.
+ 
+  Starts with user-specific, then system, then survey data.
+ */
 
-const char*	GetProcFileName(const char*);
-		/*!< Job processing spec file in $DTECT_DATA/Proc.
-		  	Pass null for directory name. */
-
-const char*	SearchODFile(const char*);
-		/*!< Search for a <configuration> file in:
-                    GetPersonalDir() + ".od"
-                    GetSettingsDir() + ".od"
-		    GetBaseDataDir()
-		    $DTECT_SITE_DATA/data
-		    $DTECT_APPL/data
-		    $DTECT_SITE_DATA/bin
-		    $DTECT_APPL/bin
-		    $DTECT_SITE_DATA
-		    $DTECT_APPL
-		*/
-
-
-/*! Data directory
-
- The data directory is linked to environment variables;
- the project data is first searched in:
-
- On windows:
-
-    DTECT_WINDATA
-
- On unix:
-
-    DTECT_DATA
-
- If it is not found, it will try to find it in the settings.
-
-*/
-const char*	GetDataDir(void);
-const char*	GetBaseDataDir(void);
 
 #ifdef __cpp__
 }

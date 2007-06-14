@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: repos.h,v 1.2 2007-01-10 19:01:49 cvsbert Exp $
+ RCS:		$Id: repos.h,v 1.3 2007-06-14 17:25:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 namespace Repos
 {
 
-    enum Source	{ Temp, Appl, Data, Survey, User };
+    enum Source	{ Temp, ApplSetup, Rel, Data, Survey, User };
 
 /*!\brief constructs repository file names.
  
@@ -25,11 +25,12 @@ namespace Repos
   e.g. UnitsOfMeasure.
   
   Then the files to find are:
-  Temp: temp stor dir (/tmp on unix) "UnitsOfMeasure"
-  Appl: Software dir, data subdir "UnitsOfMeasure"
-  Data: survey data root ".unitsofmeasure"
-  Survey: survey directory ".unitsofmeasure"
-  User: home/user dir, .od subdir "unitsofmeasure"
+  Temp: temp stor dir (/tmp on unix), file "UnitsOfMeasure"
+  Appl: Application setup dir, data subdir, file "UnitsOfMeasure"
+  Rel: Software (release) dir, data subdir, file "UnitsOfMeasure"
+  Data: survey data root, file ".unitsofmeasure"
+  Survey: survey directory, file ".unitsofmeasure"
+  User: home/user dir, .od subdir, file "unitsofmeasure"
 
   The 'Temp' will not be visited by the 'next' iterator, it's more or less
   added for as an undef or initial value.

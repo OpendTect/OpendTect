@@ -254,7 +254,8 @@ IOPar* uiShortcutsMgr::getStored( const char* subsel )
 	return ret;
     delete ret;
 
-    StreamData sd = StreamProvider(GetDataFileName("ShortCuts")).makeIStream();
+    StreamData sd = StreamProvider(
+	    		mGetSetupFileName("ShortCuts")).makeIStream();
     if ( !sd.usable() )
 	{ sd.close(); return 0; }
 

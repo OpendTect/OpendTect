@@ -5,7 +5,7 @@
  * FUNCTION : Default user settings
 -*/
  
-static const char* rcsID = "$Id: settings.cc,v 1.35 2007-03-15 16:14:28 cvsbert Exp $";
+static const char* rcsID = "$Id: settings.cc,v 1.36 2007-06-14 17:25:11 cvsbert Exp $";
 
 #include "settings.h"
 #include "filegen.h"
@@ -118,7 +118,7 @@ bool Settings::doRead( bool ext )
 
 	BufferString tmplfname( iscommon ? "od" : name().buf() );
 	tmplfname += "Settings";
-	tmplfname = GetDataFileName(tmplfname);
+	tmplfname = mGetSetupFileName(tmplfname);
 	bool okaftercopy = false;
 	if ( File_exists(tmplfname) )
 	{

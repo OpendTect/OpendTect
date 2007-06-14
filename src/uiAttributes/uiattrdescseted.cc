@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.55 2007-06-14 11:22:37 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.56 2007-06-14 17:25:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,6 @@ ________________________________________________________________________
 const char* uiAttribDescSetEd::sKeyUseAutoAttrSet = "dTect.Auto Attribute set";
 const char* uiAttribDescSetEd::sKeyAutoAttrSetID = "Attrset.Auto ID";
 
-extern "C" const char* GetBaseDataDir();
 static bool prevsavestate = true;
 static bool evaldlgpoppedup = false;
 
@@ -825,8 +824,9 @@ void uiAttribDescSetEd::getDefaultAttribsets( BufferStringSet& attribfiles,
 					      BufferStringSet& attribnames )
 {
     const bool is2d = adsman ? adsman->is2D() : attrset->is2D();
-    gtDefaultAttribsets( GetSiteDataDir(), is2d, attribfiles, attribnames );
-    gtDefaultAttribsets( GetDataFileDir(), is2d, attribfiles, attribnames );
+    gtDefaultAttribsets( mGetApplSetupDataDir(), is2d, attribfiles,
+	    		 attribnames );
+    gtDefaultAttribsets( mGetSWDirDataDir(), is2d, attribfiles, attribnames );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.19 2007-01-30 11:41:25 cvsnanne Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.20 2007-06-14 17:25:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,7 +139,7 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
     BufferString datadir = inpdatadir;
 
     const BufferString omffnm = FilePath( datadir ).add( ".omf" ).fullPath();
-    const BufferString stdomf( GetDataFileName("omf") );
+    const BufferString stdomf( mGetSetupFileName("omf") );
     bool trycpdemosurv = false;
 
     if ( !File_exists(datadir) )
