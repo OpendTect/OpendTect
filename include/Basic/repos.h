@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: repos.h,v 1.3 2007-06-14 17:25:11 cvsbert Exp $
+ RCS:		$Id: repos.h,v 1.4 2007-06-15 10:52:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 namespace Repos
 {
 
-    enum Source	{ Temp, ApplSetup, Rel, Data, Survey, User };
+    enum Source	{ Temp, Rel, ApplSetup, Data, Survey, User };
 
 /*!\brief constructs repository file names.
  
@@ -26,8 +26,8 @@ namespace Repos
   
   Then the files to find are:
   Temp: temp stor dir (/tmp on unix), file "UnitsOfMeasure"
-  Appl: Application setup dir, data subdir, file "UnitsOfMeasure"
   Rel: Software (release) dir, data subdir, file "UnitsOfMeasure"
+  Appl: Application setup dir, data subdir, file "UnitsOfMeasure"
   Data: survey data root, file ".unitsofmeasure"
   Survey: survey directory, file ".unitsofmeasure"
   User: home/user dir, .od subdir, file "unitsofmeasure"
@@ -56,7 +56,7 @@ public:
     BufferString	fileName() const	{ return fileName(cursource_); }
 
     BufferString	fileName(Source) const;
-    bool		next(Source&);
+    static bool		next(Source&);
 
 protected:
 
