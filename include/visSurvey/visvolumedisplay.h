@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.42 2007-05-30 16:09:36 cvskris Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.43 2007-06-15 21:51:43 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -103,8 +103,6 @@ public:
     visSurvey::SurveyObject*	duplicate() const;
 
     void			allowShading(bool yn ) { allowshading_ = yn; }
-    bool			isShadingAllowed() const {return allowshading_;}
-    bool			isShadingUsed() const	{ return true; }
 
     SoNode*			getInventorNode();
 

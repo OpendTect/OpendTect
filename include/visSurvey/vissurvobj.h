@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.78 2007-05-22 04:42:27 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.79 2007-06-15 21:51:43 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -172,8 +172,6 @@ public:
     virtual void		selectTexture(int attrib,int texture) {}
     virtual int			selectedTexture(int attrib) const { return 0; }
     virtual void		allowShading(bool)		{}
-    bool			isShadingAllowed() const	{ return false;}
-    bool			isShadingUsed() const		{ return false;}
     virtual void		getMousePosInfo(const visBase::EventInfo&,
 					    const Coord3& xyzpos,
 					    BufferString& val,
