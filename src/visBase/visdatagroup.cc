@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2002
- RCS:           $Id: visdatagroup.cc,v 1.7 2007-03-20 20:52:52 cvskris Exp $
+ RCS:           $Id: visdatagroup.cc,v 1.8 2007-06-15 21:47:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,15 +26,13 @@ const char* DataObjectGroup::kidprefix = "Child ";
 DataObjectGroup::DataObjectGroup()
     : group_ ( 0 )
     , separate_( true )
+    , change( this )
 { }
 
 
 DataObjectGroup::~DataObjectGroup()
 {
-    const int sz = size();
-
-    for ( int idx=0; idx<sz; idx++ )
-	objects_[idx]->unRef();
+    deepUnRef( objects_ );
 
     group_->unref();
 }
@@ -66,6 +64,7 @@ void DataObjectGroup::addObject( DataObject* no )
     nodes_ += no->getInventorNode();
 
     no->ref();
+    change.trigger();
 }
 
 
@@ -105,6 +104,7 @@ void DataObjectGroup::insertObject( int insertpos, DataObject* no )
     ensureGroup();
     group_->insertChild( no->getInventorNode(), insertpos );
     no->ref();
+    change.trigger();
 }
 
 
@@ -133,6 +133,7 @@ void DataObjectGroup::removeObject( int idx )
     objects_.remove( idx );
 
     sceneobject->unRef();
+    change.trigger();
 }
 
 

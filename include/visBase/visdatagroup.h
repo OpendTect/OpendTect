@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdatagroup.h,v 1.4 2007-02-15 23:38:28 cvskris Exp $
+ RCS:		$Id: visdatagroup.h,v 1.5 2007-06-15 21:47:37 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ public:
 					    with a trans, or null if none of
 					    the childrens has a trans */
 
+    Notifier<DataObjectGroup>	change; //triggers on add/insert/remove
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);
 
