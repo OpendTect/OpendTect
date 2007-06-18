@@ -5,13 +5,13 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.4 2007-06-12 10:24:46 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.5 2007-06-18 16:39:49 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uifileinput.h"
-#include "uigeninputdlg.h"
+#include "uimadbldcmd.h"
 #include "uilistbox.h"
 #include "uibutton.h"
 #include "uiseparator.h"
@@ -26,7 +26,7 @@ static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.4 2007-06-12 10:24:46 c
 
 
 uiMadagascarMain::uiMadagascarMain( uiParent* p )
-	: uiDialog( p, Setup( "Madagacar processing",
+	: uiDialog( p, Setup( "Madagascar processing",
 			      "Processing flow",
 			      "0.0.0") )
 	, in3dctio_(*mMkCtxtIOObj(SeisTrc)), in2dctio_(*mMkCtxtIOObj(SeisTrc))
@@ -80,6 +80,9 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     inpmadfld_ = new uiFileInput( inpgrp, "Input file", uiFileInput::Setup() );
     inpmadfld_->attach( alignedBelow, intypfld_ );
     inpgrp->setHAlignObj( inpseis3dfld_ ? inpseis3dfld_ : inpseis2dfld_ );
+    subselmadfld_ = new uiGenInput( inpgrp,
+				    "sfheaderwindow parameters [empty=all]" );
+    subselmadfld_->attach( alignedBelow, inpmadfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep 1", true );
     sep->attach( stretchedBelow, inpgrp, -2 );
@@ -184,6 +187,7 @@ void uiMadagascarMain::typSel( CallBacker* cb )
 	subsel3dfld_->display( choice == idx3d_ || choice == idxps_ );
     if ( subsel2dfld_ )
 	subsel2dfld_->display( choice == idx2d_ );
+    subselmadfld_->display( choice == idxmad_ );
 }
 
 
@@ -210,16 +214,14 @@ void uiMadagascarMain::butPush( CallBacker* cb )
     else if ( pb == addbut_ || pb == editbut_ )
     {
 	const bool isadd = pb == addbut_;
-	BufferString curcmd( isadd ? "" : procsfld_->getText() );
-	uiGenInputDlg dlg( this, "Madagascar command specification",
-			   "Command line", new StringInpSpec(curcmd) );
+	BufferString cmd( isadd ? "" : procsfld_->getText() );
+	uiMadagascarBldCmd dlg( this, cmd );
 	if ( dlg.go() )
 	{
-	    curcmd = dlg.text( 0 );
 	    if ( isadd )
-		procsfld_->addItem( curcmd );
+		procsfld_->addItem( cmd );
 	    else
-		procsfld_->setItemText( procsfld_->currentItem(), curcmd );
+		procsfld_->setItemText( procsfld_->currentItem(), cmd );
 	}
     }
     setButStates();

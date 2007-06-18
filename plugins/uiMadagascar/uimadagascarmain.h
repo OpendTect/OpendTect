@@ -1,10 +1,10 @@
-#ifndef uitutseistools_h
-#define uitutseistools_h
+#ifndef uimadagascarmain_h
+#define uimadagascarmain_h
 /*+
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : May 2007
- * ID       : $Id: uimadagascarmain.h,v 1.3 2007-06-12 10:24:46 cvsbert Exp $
+ * ID       : $Id: uimadagascarmain.h,v 1.4 2007-06-18 16:39:49 cvsbert Exp $
 -*/
 
 #include "uidialog.h"
@@ -44,6 +44,7 @@ protected:
     uiSeis3DSubSel*		subsel3dfld_;
     uiSeis2DSubSel*		subsel2dfld_;
     uiSeis3DSubSel*		subselpsfld_;
+    uiGenInput*			subselmadfld_;
 
     uiGenInput*			outtypfld_;
     uiSeisSel*			outseis3dfld_;
