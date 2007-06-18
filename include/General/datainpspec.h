@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.64 2007-02-05 14:29:43 cvsnanne Exp $
+ RCS:           $Id: datainpspec.h,v 1.65 2007-06-18 20:03:13 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "undefval.h"
 #include "bufstringset.h"
 #include "position.h"
+#include "keystrs.h"
 
 class RCol2Coord;
 class IOPar;
@@ -531,11 +532,11 @@ public:
 
 /*! \brief Specifications for boolean inputs.
 
-This specifies a boolean input field. If the second char string is "" or NULL, 
-then a checkbox will be created. Otherwise two connected radio buttons
-will do the job. Default will create two radio buttons "Yes" and "No".
-When calling setText("xx") on the resulting uiGenInput, it will try to set the
-boolean value according to the given true/false text's or "Yes"/"No".
+This specifies a boolean input field. If the second char string is "" or NULL,
+then a checkbox will be created. Otherwise two connected
+radio buttons will do the job. Default will create two radio buttons "Yes" and
+"No".  When calling setText("xx") on the resulting uiGenInput, it will try to
+set the boolean value according to the given true/false text's or "Yes"/"No".
 It does not change the underlying true/false texts.
 
 */
@@ -544,8 +545,8 @@ It does not change the underlying true/false texts.
 class BoolInpSpec : public DataInpSpec
 {
 public:
-			BoolInpSpec(bool yesno,const char* truetxt=0,
-				    const char* falsetxt=0,
+			BoolInpSpec(bool yesno,const char* truetxt=sKey::Yes,
+				    const char* falsetxt=sKey::No,
 				    bool isset=true);
 			BoolInpSpec(const BoolInpSpec&);
 
