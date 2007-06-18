@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.89 2007-05-21 06:54:22 cvsnanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.90 2007-06-18 19:14:19 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -500,7 +500,7 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
     { \
 	bid.inl = reqbid.inl + step.inl * (inladd); \
 	bid.crl = reqbid.crl + step.crl * (crladd); \
-	trcidx = cache_[0]->find( bid ); \
+	trcidx = cache_[idx]->find( bid ); \
     }
 
 
