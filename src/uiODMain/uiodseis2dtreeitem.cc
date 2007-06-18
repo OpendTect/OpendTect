@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.17 2007-03-20 14:28:41 cvshelene Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.18 2007-06-18 11:13:44 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -245,6 +245,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 			      "\nDo you want to continue?") )
 	    return;
 
+	prepareForShutdown();
 	while ( children_.size() )
 	{
 	    uiOD2DLineSetSubItem* itm = (uiOD2DLineSetSubItem*)children_[0];
@@ -396,8 +397,8 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
     mDynamicCastGet(uiMenuHandler*,menu,caller);
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
 		    visserv->getObject(displayid_));
-    if ( !menu || !s2d || menu->menuID()!=displayID() || 
-	 mnuid==-1 || menu->isHandled() )
+    if ( !menu || !s2d || menu->isHandled() ||
+	 menu->menuID() != displayID() || mnuid==-1 )
 	return;
 
     if ( mnuid==linenmitm_.id )
