@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.46 2007-02-22 20:01:00 cvskris Exp $
+ RCS:		$Id: ranges.h,v 1.47 2007-06-19 06:58:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,30 +29,32 @@ template <class T>
 class Interval
 {
 public:
-    inline			Interval();
-    inline			Interval( const T& t1, const T& t2 );
-    inline virtual Interval<T>* clone() const;
+    inline		Interval();
+    inline		Interval(const T& start,const T& stop);
+    inline
+    virtual Interval<T>* clone() const;
 
+    inline void		set(const T& start,const T& stop);
     inline bool		isEqual(const Interval<T>& i,const T& eps) const;
-    inline bool		operator==( const Interval<T>& i ) const;
-    inline bool		operator!=( const Interval<T>& i ) const;
-    inline Interval<T>	operator+( const Interval<T>& i ) const;
+    inline bool		operator==(const Interval<T>&) const;
+    inline bool		operator!=(const Interval<T>&) const;
+    inline Interval<T>	operator+(const Interval<T>&) const;
     template <class X>
-    const Interval<T>&	setFrom( const Interval<X>& );
+    const Interval<T>&	setFrom(const Interval<X>&);
 
-    inline T		width( bool allowrev=true ) const;
+    inline T		width(bool allowrev=true) const;
     inline T		center() const;
-    inline void		shift( const T& len );
-    inline void		widen( const T& len, bool allowrev=true );
+    inline void		shift(const T& len);
+    inline void		widen(const T& len,bool allowrev=true);
     inline virtual void	scale(const T&);
 
-    inline T		atIndex(int, const T& step) const;
+    inline T		atIndex(int,const T& step) const;
     template <class X>
     inline int		getIndex(const X&,const T& step) const;
     template <class X>
     inline float	getfIndex(const X&,const T& step) const;
     template <class X>
-    inline int		nearestIndex( const X& x, const T& step ) const;
+    inline int		nearestIndex(const X& x,const T& step) const;
 
     template <class X>
     inline void		limitTo( const Interval<X>& i )
@@ -91,15 +93,16 @@ class StepInterval : public Interval<T>
 {
 public:
     inline		StepInterval();
-    inline		StepInterval( const T& start, const T& stop,
-	    			      const T& step );
+    inline		StepInterval(const T& start,const T& stop,
+				     const T& step);
     inline
     virtual cloneTp*	clone() const;
+    inline void		set(const T& start,const T& stop,const T& step);
 
     template <class X>
-    const StepInterval<T>& setFrom( const StepInterval<X>& );
+    const StepInterval<T>& setFrom(const StepInterval<X>&);
     template <class X>
-    const StepInterval<T>& setFrom( const Interval<X>& );
+    const StepInterval<T>& setFrom(const Interval<X>&);
 
     inline bool		isEqual(const StepInterval<T>& i,const T& eps) const;
     inline T		atIndex(int) const;
@@ -113,7 +116,7 @@ public:
     inline T		snap(const X&) const;
 
     inline int		nrSteps() const;
-    virtual inline void	sort( bool asc=true );
+    virtual inline void	sort(bool asc=true);
     inline void		scale(const T&);
 
     inline bool		isCompatible(const StepInterval<T>&,
@@ -121,7 +124,7 @@ public:
 			/*!< epsilon refers to the steps,
 			  	i.e eps=0.1 allows b to be 0.1 steps apart.
 			*/
-    inline T		snapStep( const T& inpstep ) const;
+    inline T		snapStep(const T& inpstep) const;
     			/*!<Snaps inpstep to a positive multiple of step. */
 
      T			step;
@@ -146,13 +149,13 @@ public:
     template <class X> inline
     void 			setRange(const X& val);
     template <class X> inline
-    void			setRange(const X& start, const X& stop);
+    void			setRange(const X& start,const X& stop);
     template <class X> inline
     void			include(const X& val);
 
     template <class X> inline
-    bool			includes( const X& val ) const;
-    inline bool			intersects( const IntervalND<T>& ) const;
+    bool			includes(const X& val) const;
+    inline bool			intersects(const IntervalND<T>&) const;
 
 protected:
 
@@ -281,73 +284,8 @@ inline void assign( StepInterval<T1>& i1, const StepInterval<T2>& i2 )
 { i1.start = (T1)i2.start; i1.stop = (T1)i2.stop; i1.step = (T1)i2.step; }
 
 
-#define mDefIntNrSteps(typ) \
-template <> \
-inline int StepInterval<typ>::nrSteps() const \
-{ \
-    if ( !step ) return 0; \
-    int ret = ((int)start - stop) / step; \
-    return ret < 0 ? -ret : ret; \
-}
 
-mDefIntNrSteps(int)
-mDefIntNrSteps(long)
-mDefIntNrSteps(short)
-mDefIntNrSteps(char)
-mDefIntNrSteps(unsigned int)
-mDefIntNrSteps(unsigned long)
-mDefIntNrSteps(unsigned short)
-mDefIntNrSteps(unsigned char)
-
-#define mDefFNrSteps(typ,eps) \
-template <> \
-inline int StepInterval<typ>::nrSteps() const \
-{ \
-    if ( !step ) return 0; \
-    typ ns = ( (start > stop ? start : stop) \
-	    - (start > stop ? stop : start) ) \
-	      / (step > 0 ? step : -step); \
-    return (int)(ns * (1. + eps)); \
-}
-
-mDefFNrSteps(float,1e-4)
-mDefFNrSteps(double,1e-8)
-
-#define mDefIntisCompat(typ) \
-template <> \
-inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
-	typ ) const \
-{ \
-    if ( step>b.step || b.step%step ) return false; \
-\
-    const typ diff = start - b.start; \
-    return !(diff%step);	\
-}
-
-mDefIntisCompat(int)
-mDefIntisCompat(long)
-mDefIntisCompat(short)
-mDefIntisCompat(char)
-mDefIntisCompat(unsigned int)
-mDefIntisCompat(unsigned long)
-mDefIntisCompat(unsigned short)
-mDefIntisCompat(unsigned char)
-
-#define mDefFltisCompat(typ) \
-template <> \
-inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
-			typ eps ) const \
-{ \
-    if ( !mIsEqual(step,b.step,mDefEps) ) return false; \
- \
-    typ nrsteps = (start - b.start) / step; \
-    int nrstepsi = mNINT( nrsteps ); \
-    typ diff = nrsteps - nrstepsi; \
-    return ( (diff) < (eps) && (diff) > (-eps) ); \
-}
-
-mDefFltisCompat(float)
-mDefFltisCompat(double)
+// ---------------- Interval ---------------------
 
 template <class T> template <class X> inline
 int Interval<T>::nearestIndex( const X& x, const T& step ) const
@@ -372,6 +310,11 @@ template <class T> inline Interval<T>::Interval( const T& t1, const T& t2 )
 template <class T> inline
 Interval<T>* Interval<T>::clone() const		
 { return new Interval<T>( *this ); }
+
+
+template <class T> inline
+void Interval<T>::set( const T& t1, const T& t2 )
+{ start = t1; stop = t2; }
 
 
 template <class T> inline
@@ -401,7 +344,6 @@ const Interval<T>& Interval<T>::setFrom( const Interval<X>& i )
     stop = (T) i.stop;
     return *this;
 }
-		
 
 
 template <class T> inline
@@ -499,6 +441,9 @@ void Interval<T>::sort( bool asc )
 }
 
 
+
+// ---------------- StepInterval --------------------
+
 template <class T>
 StepInterval<T>::StepInterval()
 { step = 1; }
@@ -514,6 +459,10 @@ template <class T> inline
 cloneTp* StepInterval<T>::clone() const	
 { return new StepInterval<T>( *this ); }
 
+
+template <class T> inline
+void StepInterval<T>::set( const T& t1, const T& t2, const T& t3 )
+{ set( t1, t2 ); step = t3; }
 
 template <class T> inline
 bool StepInterval<T>::isEqual( const StepInterval<T>& i, const T& eps ) const
@@ -535,8 +484,6 @@ const StepInterval<T>& StepInterval<T>::setFrom( const Interval<X>& i )
     Interval<T>::setFrom( i );
     return *this;
 }
-		
-
 
 
 template <class T> inline
@@ -590,7 +537,75 @@ T StepInterval<T>::snapStep( const T& inputstep ) const
 }
 
 
-#undef cloneTp
+#define mDefIntNrSteps(typ) \
+template <> \
+inline int StepInterval<typ>::nrSteps() const \
+{ \
+    if ( !step ) return 0; \
+    int ret = ((int)start - stop) / step; \
+    return ret < 0 ? -ret : ret; \
+}
 
+mDefIntNrSteps(int)
+mDefIntNrSteps(long)
+mDefIntNrSteps(short)
+mDefIntNrSteps(char)
+mDefIntNrSteps(unsigned int)
+mDefIntNrSteps(unsigned long)
+mDefIntNrSteps(unsigned short)
+mDefIntNrSteps(unsigned char)
+
+#define mDefFNrSteps(typ,eps) \
+template <> \
+inline int StepInterval<typ>::nrSteps() const \
+{ \
+    if ( !step ) return 0; \
+    typ ns = ( (start > stop ? start : stop) \
+	    - (start > stop ? stop : start) ) \
+	      / (step > 0 ? step : -step); \
+    return (int)(ns * (1. + eps)); \
+}
+
+mDefFNrSteps(float,1e-4)
+mDefFNrSteps(double,1e-8)
+
+#define mDefIntisCompat(typ) \
+template <> \
+inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
+	typ ) const \
+{ \
+    if ( step>b.step || b.step%step ) return false; \
+\
+    const typ diff = start - b.start; \
+    return !(diff%step);	\
+}
+
+mDefIntisCompat(int)
+mDefIntisCompat(long)
+mDefIntisCompat(short)
+mDefIntisCompat(char)
+mDefIntisCompat(unsigned int)
+mDefIntisCompat(unsigned long)
+mDefIntisCompat(unsigned short)
+mDefIntisCompat(unsigned char)
+
+#define mDefFltisCompat(typ) \
+template <> \
+inline bool StepInterval<typ>::isCompatible( const StepInterval<typ>& b, \
+			typ eps ) const \
+{ \
+    if ( !mIsEqual(step,b.step,mDefEps) ) return false; \
+ \
+    typ nrsteps = (start - b.start) / step; \
+    int nrstepsi = mNINT( nrsteps ); \
+    typ diff = nrsteps - nrstepsi; \
+    return ( (diff) < (eps) && (diff) > (-eps) ); \
+}
+
+mDefFltisCompat(float)
+mDefFltisCompat(double)
+
+
+#undef cloneTp
 
 #endif
