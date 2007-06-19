@@ -5,15 +5,22 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID = "$Id: uitutpi.cc,v 1.6 2007-06-01 06:34:08 cvsraman Exp $";
+static const char* rcsID = "$Id: uitutpi.cc,v 1.7 2007-06-19 10:01:43 cvsraman Exp $";
 
 #include "uitutseistools.h"
 #include "uituthortools.h"
+#include "uitutwelltools.h"
 #include "uitutorialattrib.h"
 #include "uiodmenumgr.h"
 #include "uimenu.h"
 #include "uimsg.h"
+#include "uivismenuitemhandler.h"
+#include "uivispartserv.h"
+#include "viswelldisplay.h"
+
 #include "plugins.h"
+
+static const int sTutIdx = -1100;
 
 extern "C" int GetuiTutPluginType()
 {
@@ -37,18 +44,23 @@ class uiTutMgr :  public CallBacker
 public:
 			uiTutMgr(uiODMain*);
 
-    uiODMain*		appl;
+    uiODMain*		appl_;
+    uiVisMenuItemHandler	wellmnuitmhandler_;
 
     void		doSeis(CallBacker*);
     void		doHor(CallBacker*);
+    void		doWells(CallBacker*);
 };
 
 
 uiTutMgr::uiTutMgr( uiODMain* a )
-	: appl(a)
+	: appl_(a)
+	, wellmnuitmhandler_(visSurvey::WellDisplay::getStaticClassName(),
+		  	      *a->applMgr().visServer(),"Tut Well Tools ...",
+			      mCB(this,uiTutMgr,doWells),sTutIdx)
 {
-    uiODMenuMgr& mnumgr = appl->menuMgr();
-    uiPopupMenu* mnu = new uiPopupMenu( appl, "&Tut Tools" );
+    uiODMenuMgr& mnumgr = appl_->menuMgr();
+    uiPopupMenu* mnu = new uiPopupMenu( appl_, "&Tut Tools" );
     mnu->insertItem( new uiMenuItem("&Seismic (Direct) ...",
 			mCB(this,uiTutMgr,doSeis)) );
     mnu->insertItem( new uiMenuItem("&Horizon ...",
@@ -59,14 +71,30 @@ uiTutMgr::uiTutMgr( uiODMain* a )
 
 void uiTutMgr::doSeis( CallBacker* )
 {
-    uiTutSeisTools dlg( appl );
+    uiTutSeisTools dlg( appl_ );
     dlg.go();
 }
 
 
 void uiTutMgr::doHor( CallBacker* )
 {
-    uiTutHorTools dlg( appl );
+    uiTutHorTools dlg( appl_ );
+    dlg.go();
+}
+
+
+void uiTutMgr::doWells( CallBacker* )
+{
+    const int displayid = wellmnuitmhandler_.getDisplayID();
+    mDynamicCastGet(visSurvey::WellDisplay*,wd,
+	    		appl_->applMgr().visServer()->getObject(displayid))
+    if ( !wd )
+    {
+	return;
+    }
+
+    MultiID wellid = wd->getMultiID();
+    uiTutWellTools dlg( appl_, wellid );
     dlg.go();
 }
 
