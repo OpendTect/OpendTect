@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.66 2007-06-14 17:25:11 cvsbert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.67 2007-06-19 15:35:45 cvsbert Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -161,7 +161,7 @@ float ColorTable::defPercClip()
 {
     if ( mIsUdf(defpercclip_) )
     {
-	defpercclip_ = 2.5;
+	defpercclip_ = 1;
 	Settings::common().get( "dTect.Disp.Default clip perc", defpercclip_ );
     }
     return defpercclip_;
