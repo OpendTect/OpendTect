@@ -6,7 +6,7 @@ Ui.ToolTips.enable:		Yes
 dTect.Dump OI Menu:		No
 dTect.Use shading:		Yes
 dTect.Color table.Name:		Red-White-Black
-dTect.Disp.Default clip perc:	2.5
+dTect.Disp.Default clip perc:	1
 dTect.ColorBar.show vertical:	No
 dTect.ColorBar.show on top:	No
 dTect.MouseControls.Default:	Default
