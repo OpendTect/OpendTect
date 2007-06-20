@@ -4,17 +4,18 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: viscolortab.cc,v 1.33 2007-01-04 22:43:13 cvskris Exp $
+ RCS:           $Id: viscolortab.cc,v 1.34 2007-06-20 04:08:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "viscolortab.h"
-#include "dataclipper.h"
-#include "visdataman.h"
-#include "scaler.h"
+
 #include "colortab.h"
+#include "dataclipper.h"
 #include "iopar.h"
+#include "scaler.h"
+#include "visdataman.h"
 
 mCreateFactoryEntry( visBase::VisColorTab );
 
@@ -34,7 +35,7 @@ VisColorTab::VisColorTab()
     , colseq_( 0 )
     , scale_( *new LinScaler )
     , autoscale_( true )
-    , cliprate_( 0.025 )
+    , cliprate_( ColorTable::defPercClip()/100 )
 {
     setColorSeq( ColorSequence::create() );
 }
@@ -217,7 +218,7 @@ int VisColorTab::usePar( const IOPar& par )
 
     setColorSeq( cs );
 
-    float cliprate = 0.025;
+    float cliprate = ColorTable::defPercClip()/100;
     par.get( sKeyClipRate(), cliprate );
     setClipRate( cliprate );
 

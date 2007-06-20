@@ -4,16 +4,18 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2003
- RCS:           $Id: viscoltabmod.cc,v 1.7 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: viscoltabmod.cc,v 1.8 2007-06-20 04:08:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "viscoltabmod.h"
+
+#include "colortab.h"
 #include "dataclipper.h"
-#include "visdataman.h"
-#include "scaler.h"
 #include "iopar.h"
+#include "scaler.h"
+#include "visdataman.h"
 
 mCreateFactoryEntry( visBase::VisColTabMod );
 
@@ -28,8 +30,8 @@ const char* VisColTabMod::useclipstr 	= "Use clipping";
 
 VisColTabMod::VisColTabMod()
     : range(Interval<float>(0,0))
-    , cliprate0(0.025)
-    , cliprate1(0.025)
+    , cliprate0(ColorTable::defPercClip()/100)
+    , cliprate1(ColorTable::defPercClip()/100)
     , useclip(true)
     , reverse(false)
     , datascale( *new LinScaler(0,1) )
