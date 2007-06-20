@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.61 2007-05-30 16:09:36 cvskris Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.62 2007-06-20 11:47:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,8 @@ VolumeDisplay::~VolumeDisplay()
     for ( int idx=0; idx<children.size(); idx++ )
 	removeChild( children[idx] );
 
-    scalarfield_->unRef();
+    if ( scalarfield_ )
+	scalarfield_->unRef();
 
     boxdragger_->finished.remove( mCB(this,VolumeDisplay,manipMotionFinishCB) );
     boxdragger_->unRef();
@@ -671,10 +672,6 @@ int VolumeDisplay::usePar( const IOPar& par )
     int res =  visBase::VisualObject::usePar( par );
     if ( res!=1 ) return res;
 
-    CubeSampling cs;
-    if ( cs.usePar(par) )
-	setCubeSampling( cs );
-
     if ( !as_.usePar(par) ) return -1;
 
     int textureid;
@@ -737,6 +734,10 @@ int VolumeDisplay::usePar( const IOPar& par )
     }
 
     setColorTab( getColorTab() );
+
+    CubeSampling cs;
+    if ( cs.usePar(par) )
+	setCubeSampling( cs );
 
     return 1;
 }
