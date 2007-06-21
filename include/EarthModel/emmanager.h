@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.30 2007-06-21 19:35:21 cvskris Exp $
+ RCS:		$Id: emmanager.h,v 1.31 2007-06-21 21:07:03 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "sets.h"
 #include "bufstring.h"
+#include "callback.h"
 #include "factory.h"
 #include "ptrman.h"
 #include "multiid.h"
@@ -36,7 +37,7 @@ class SurfaceIODataSelection;
 
 */
 
-class EMManager
+class EMManager : public CallBacker
 {
 public:
 			EMManager();
@@ -61,6 +62,9 @@ public:
 			     it will be removed!! Check in advance with
 			     findObject().
 			*/
+
+    Notifier<EMManager>	addRemove;
+
     void		sendRemovalSignal(const ObjectID&);
     BufferString	objectName(const MultiID&) const;
     			/*!<\returns the name of the object */

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.56 2007-06-21 19:35:21 cvskris Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.57 2007-06-21 21:07:03 cvskris Exp $";
 
 #include "emmanager.h"
 
@@ -13,10 +13,8 @@ static const char* rcsID = "$Id: emmanager.cc,v 1.56 2007-06-21 19:35:21 cvskris
 #include "emhistory.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
-//#include "emhorizontaltube.h"
 #include "emhorizonztransform.h"
 #include "emobject.h"
-//#include "emsticksettransl.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "errh.h"
@@ -49,6 +47,7 @@ mImplFactory1Param( EMObject, EMManager&, EMOF );
 
 EMManager::EMManager()
     : history_( *new History(*this) )
+    , addRemove( this )
 {}
 
 
@@ -76,6 +75,8 @@ void EMManager::empty()
 
     if ( objects_.size() )
 	pErrMsg( "All objects are not unreffed" );
+
+    addRemove.trigger();
 
     history_.empty();
 }
@@ -199,12 +200,14 @@ void EMManager::addObject( EMObject* obj )
     }
 
     objects_ += obj;
+    addRemove.trigger();
 }
 
 
 void EMManager::removeObject( EMObject* obj )
 {
     objects_ -= obj;
+    addRemove.trigger();
 }
 
 
