@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.9 2007-01-10 19:01:58 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.10 2007-06-21 16:17:28 cvsbert Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -183,7 +183,7 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp )
     }
     if ( !tree )
     {
-	BufferString msg( "No name specified for Straigraphic tree in:\n" );
+	BufferString msg( "No name specified for Stratigraphic tree in:\n" );
 	msg += fnm; ErrMsg( fnm );
 	sd.close(); delete tree; return;
     }
