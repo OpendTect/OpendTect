@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.70 2007-05-29 07:20:16 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.71 2007-06-21 05:36:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -413,8 +413,12 @@ DataPack::ID uiAttribPartServer::createOutput( const CubeSampling& cs,
     DataPackMgr& dpman = DPM( isflat ? DataPackMgr::FlatID
 	    			     : DataPackMgr::CubeID );
     const DataPack* datapack = dpman.obtain( cacheid, true );
+    const Attrib::DataCubes* cache = 0;
     mDynamicCastGet(const Attrib::CubeDataPack*,cdp,datapack);
-    const DataCubes* output = createOutput( cs, cdp ? &cdp->cube() : 0 );
+    if ( cdp ) cache = &cdp->cube();
+    mDynamicCastGet(const Attrib::Flat3DDataPack*,fdp,datapack);
+    if ( fdp ) cache = &fdp->cube();
+    const DataCubes* output = createOutput( cs, cache );
     if ( !output ) return -1;
 
     DataPack* newpack;
