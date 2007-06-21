@@ -5,7 +5,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : May 2007
- * ID       : $Id: tuthortools.h,v 1.5 2007-06-08 06:15:27 cvsraman Exp $
+ * ID       : $Id: tuthortools.h,v 1.6 2007-06-21 11:45:10 cvsraman Exp $
 -*/
 
 #include "executor.h"
@@ -80,7 +80,7 @@ class HorSmoothener : public HorTools
 {
 public:
 			HorSmoothener()
-			    : HorTools("Horizon Smoothening")
+			    : HorTools("Horizon Smoothing")
 			{}
 
     int			nextStep();
