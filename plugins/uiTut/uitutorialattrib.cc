@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: uitutorialattrib.cc,v 1.4 2007-06-12 11:20:28 cvsraman Exp $
+ RCS:           $Id: uitutorialattrib.cc,v 1.5 2007-06-21 11:49:31 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
     actionfld_->valuechanged.notify( mCB(this,uiTutorialAttrib,actionSel) );
     actionfld_->attach( alignedBelow, inpfld_ );
 
-    smoothdirfld_ = new uiGenInput( this, "Smoothening direction",
+    smoothdirfld_ = new uiGenInput( this, "Smoothing direction",
 	                        BoolInpSpec(true,"Horizontal","Vertical") );
     smoothdirfld_->valuechanged.notify( mCB(this,uiTutorialAttrib,actionSel) );
     smoothdirfld_->attach( alignedBelow, actionfld_ );

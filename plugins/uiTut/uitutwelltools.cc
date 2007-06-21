@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: uitutwelltools.cc,v 1.1 2007-06-19 10:01:43 cvsraman Exp $";
+static const char* rcsID = "$Id: uitutwelltools.cc,v 1.2 2007-06-21 11:49:31 cvsraman Exp $";
 
 #include "uitutwelltools.h"
 #include "uigeninput.h"
@@ -29,8 +29,8 @@ static const char* rcsID = "$Id: uitutwelltools.cc,v 1.1 2007-06-19 10:01:43 cvs
 static const StepInterval<int> sSampleGateRange( 3, 99, 2 );
 
 uiTutWellTools::uiTutWellTools( uiParent* p, const MultiID& wellid )
-	: uiDialog( p, Setup( "Log Smoothening",
-			      "Specify parameters for smoothening",
+	: uiDialog( p, Setup( "Log Smoothing",
+			      "Specify parameters for smoothing",
 			      "tut:105.0.3") )
 	, wellid_(wellid)
 	, wd_(Well::MGR().get(wellid))
