@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.98 2007-05-22 04:42:27 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.99 2007-06-21 19:35:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -193,7 +193,7 @@ void EMObjectDisplay::removeEMStuff()
 
     if ( emobject_ )
     {
-	emobject_->notifier.remove( mCB(this,EMObjectDisplay,emChangeCB));
+	emobject_->change.remove( mCB(this,EMObjectDisplay,emChangeCB));
 	const int trackeridx = MPE::engine().getTrackerByObject(emobject_->id());
 	if ( trackeridx >= 0 )
 	    MPE::engine().removeTracker( trackeridx );
@@ -218,7 +218,7 @@ bool EMObjectDisplay::setEMObject( const EM::ObjectID& newid )
 
     emobject_ = emobject;
     emobject_->ref();
-    emobject_->notifier.notify( mCB(this,EMObjectDisplay,emChangeCB) );
+    emobject_->change.notify( mCB(this,EMObjectDisplay,emChangeCB) );
 
     restoresessupdate_ = !editor_ && parmid_!=MultiID(-1);
     bool res = updateFromEM();

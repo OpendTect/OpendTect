@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.89 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.90 2007-06-21 19:35:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -255,14 +255,7 @@ const Horizon3DGeometry& Horizon3D::geometry() const
 { return geometry_; }
 
 
-const char* Horizon3D::typeStr() { return EMHorizon3DTranslatorGroup::keyword; }
-
-void Horizon3D::initClass( EMManager& emm )
-{
-    emm.addFactory( new ObjectFactory( create,
-				       EMHorizon3DTranslatorGroup::ioContext(),
-				       typeStr()) );
-}
+mImplementEMObjFuncs( Horizon3D, EMHorizon3DTranslatorGroup::keyword );
 
 
 Array2D<float>* Horizon3D::createArray2D( SectionID sid )
@@ -334,10 +327,6 @@ bool Horizon3D::setArray2D( const Array2D<float>& arr, SectionID sid,
     geometry().sectionGeometry( sid )->trimUndefParts();
     return true;
 }
-
-
-EMObject* Horizon3D::create( EMManager& emm )
-{ return new Horizon3D( emm ); }
 
 
 const IOObjContext& Horizon3D::getIOObjContext() const

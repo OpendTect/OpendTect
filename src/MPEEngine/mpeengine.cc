@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.80 2007-05-22 04:08:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.81 2007-06-21 19:35:21 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -661,8 +661,8 @@ void Engine::init()
 }; // namespace MPE
 
 
-#include "emhortubeeditor.h"
-#include "emhortubetracker.h"
+//#include "emhortubeeditor.h"
+//#include "emhortubetracker.h"
 #include "faulteditor.h"
 #include "faulttracker.h"
 #include "horizoneditor.h"
@@ -673,8 +673,8 @@ void Engine::init()
 void MPE::initStandardClasses()
 {
 #ifdef __debug__
-    MPE::HorizontalTubeEditor::initClass();
-    MPE::HorizontalTubeTracker::initClass();
+    //MPE::HorizontalTubeEditor::initClass();
+    //MPE::HorizontalTubeTracker::initClass();
     MPE::FaultEditor::initClass();
     MPE::FaultTracker::initClass();
 #endif

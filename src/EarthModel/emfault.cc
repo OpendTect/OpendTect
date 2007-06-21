@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.35 2006-04-27 15:29:13 cvskris Exp $
+ RCS:           $Id: emfault.cc,v 1.36 2007-06-21 19:35:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,21 +18,7 @@ ________________________________________________________________________
 
 namespace EM {
 
-
-const char* Fault::typeStr() { return EMFaultTranslatorGroup::keyword; }
-
-
-void Fault::initClass(EMManager& emm)
-{
-    emm.addFactory( new ObjectFactory( create,
-				       EMFaultTranslatorGroup::ioContext(),
-				       typeStr()) );
-}
-
-
-EMObject* Fault::create( EMManager& emm )
-{ return new Fault( emm ); }
-
+mImplementEMObjFuncs( Fault, EMFaultTranslatorGroup::keyword ) 
 
 Fault::Fault( EMManager& em )
     : Surface(em)
@@ -40,6 +26,10 @@ Fault::Fault( EMManager& em )
 {
     geometry_.addSection( "", false );
 }
+
+
+Fault::~Fault()
+{}
 
 
 FaultGeometry& Fault::geometry()

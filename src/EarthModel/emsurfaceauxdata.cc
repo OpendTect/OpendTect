@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurfaceauxdata.cc,v 1.13 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:           $Id: emsurfaceauxdata.cc,v 1.14 2007-06-21 19:35:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -181,12 +181,12 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
 {
     PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
     if ( !ioobj )
-	{ horizon_.errmsg = "Cannot find surface"; return 0; }
+	{ horizon_.errmsg_ = "Cannot find surface"; return 0; }
 
     PtrMan<EMSurfaceTranslator> tr = 
 			(EMSurfaceTranslator*)ioobj->getTranslator();
     if ( !tr || !tr->startRead(*ioobj) )
-    { horizon_.errmsg = tr ? tr->errMsg() : "Cannot find Translator"; return 0; }
+    { horizon_.errmsg_ = tr ? tr->errMsg() : "Cannot find Translator";return 0;}
 
     SurfaceIODataSelection& sel = tr->selections();
     int nrauxdata = sel.sd.valnames.size();
@@ -214,7 +214,7 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 {
     PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
     if ( !ioobj )
-	{ horizon_.errmsg = "Cannot find surface"; return 0; }
+	{ horizon_.errmsg_ = "Cannot find surface"; return 0; }
     StreamConn* conn = dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Read));
     if ( !conn ) return 0;
 

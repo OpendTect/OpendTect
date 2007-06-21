@@ -4,14 +4,13 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.72 2007-03-29 11:37:13 cvsjaap Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.73 2007-06-21 19:35:21 cvskris Exp $";
 
 #include "emobject.h"
 
 #include "color.h"
 #include "emhistoryimpl.h"
 #include "emsurfacetr.h"
-#include "emsticksettransl.h"
 #include "emmanager.h"
 #include "errh.h"
 #include "geomelement.h"
@@ -37,74 +36,31 @@ const char* EMObject::posattrposidstr 	= " SubID";
 const char* EMObject::nrposattrstr 	= "Nr Pos Attribs";
 const char* EMObject::markerstylestr	= " Marker Style";
 
-
-ObjectFactory::ObjectFactory( EMObjectCreationFunc cf, 
-			      const IOObjContext& ctx,
-			      const char* tstr )
-    : creationfunc( cf )
-    , context( ctx )
-    , typestr( tstr )
-{}
-
-
-EMObject* ObjectFactory::loadObject( const MultiID& mid ) const
-{
-    PtrMan<IOObj> ioobj = IOM().get( mid );
-
-    if ( !ioobj || strcmp(ioobj->group(),typeStr()) )
-	return 0;
-
-    EMObject* emobj = creationfunc( EMM() );
-    if ( !emobj ) return 0;
-
-    emobj->setMultiID( ioobj->key() );
-    return emobj;
-}
-
-
-EMObject* ObjectFactory::createObject( const char* name, bool tmpobj ) const
-{
-    if ( tmpobj )
-	return creationfunc( EM::EMM() );
-
-    CtxtIOObj ctio(context);
-    ctio.ctxt.forread = false;
-    ctio.ioobj = 0;
-    ctio.setName( name );
-    ctio.fillObj();
-    if ( !ctio.ioobj ) return 0;
-
-    EMObject* emobj = creationfunc( EMM() );
-    if ( !emobj ) return 0;
-
-    emobj->setMultiID( ctio.ioobj->key() );
-    return emobj;
-}
-
-
 EMObject::EMObject( EMManager& emm )
-    : manager( emm )
-    , notifier( this )
+    : manager_( emm )
+    , change( this )
     , id_( -1 )
-    , preferredcolor( *new Color(255,0,0) )
-    , changed( false )
-    , storageid( -1 )
-    , fullyloaded( false )
-    , locked( false )
-    , burstalertcount( 0 )
+    , preferredcolor_( *new Color(255,0,0) )
+    , changed_( false )
+    , storageid_( -1 )
+    , fullyloaded_( false )
+    , locked_( false )
+    , burstalertcount_( 0 )
 {
-    id_ = manager.addObject( this );
-    notifier.notify( mCB(this,EMObject,posIDChangeCB) );
+    static EM::ObjectID oid = 0;
+    id_ = oid++;
+
+    change.notify( mCB(this,EMObject,posIDChangeCB) );
 }
 
 
 EMObject::~EMObject()
 {
-    manager.removeObject(this);
-    deepErase( posattribs );
-    delete &preferredcolor;
+    manager_.removeObject(this);
+    deepErase( posattribs_ );
+    delete &preferredcolor_;
 
-    notifier.remove( mCB( this, EMObject, posIDChangeCB ) );
+    change.remove( mCB( this, EMObject, posIDChangeCB ) );
     id_ = -2;	//To check easier if it has been deleted
 }
 
@@ -117,7 +73,7 @@ BufferString EMObject::name() const
 
 
 void EMObject::setMultiID( const MultiID& mid )
-{ storageid = mid; }
+{ storageid_ = mid; }
 
 
 int EMObject::sectionIndex( const SectionID& sid ) const
@@ -174,7 +130,7 @@ Coord3 EMObject::getPos( const EM::SectionID& sid,
 }
 
 
-#define mRetErr( msg ) { errmsg = msg; return false; }
+#define mRetErr( msg ) { errmsg_ = msg; return false; }
 
 bool EMObject::setPos(	const PosID& pid, const Coord3& newpos,
 			bool addtohistory ) 
@@ -201,14 +157,14 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 
     if ( !newpos.isDefined() )
     {
-	for ( int idx=0; idx<posattribs.size(); idx++ )
+	for ( int idx=0; idx<posattribs_.size(); idx++ )
 	{
-	    TypeSet<PosID>& nodes = posattribs[idx]->posids_;
+	    TypeSet<PosID>& nodes = posattribs_[idx]->posids_;
 	    if ( !&nodes ) continue;
 
 	    const int idy = nodes.indexOf(pid);
 	    if ( idy!=-1 )
-		setPosAttrib( pid, attribs[idx], false, addtohistory );
+		setPosAttrib( pid, attribs_[idx], false, addtohistory );
 	}
     }
 
@@ -221,9 +177,9 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::PositionChange;
     cbdata.pid0 = pid;
-    notifier.trigger( cbdata );
+    change.trigger( cbdata );
 
-    changed = true;
+    changed_ = true;
     return true;
 }
 
@@ -236,32 +192,32 @@ bool EMObject::isAtEdge( const PosID& ) const
 
 
 const Color& EMObject::preferredColor() const
-{ return preferredcolor; }
+{ return preferredcolor_; }
 
 
 void EMObject::setPreferredColor( const Color& col )
 {
-    if ( col==preferredcolor )
+    if ( col==preferredcolor_ )
 	return;
 
-    changed = true;
-    preferredcolor = col;
+    changed_ = true;
+    preferredcolor_ = col;
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::PrefColorChange;
-    notifier.trigger( cbdata );
+    change.trigger( cbdata );
 }
 
 
 void EMObject::setBurstAlert( bool yn )
 {
-    if ( !yn ) burstalertcount--;
-    if ( !burstalertcount )
+    if ( !yn ) burstalertcount_--;
+    if ( !burstalertcount_ )
     {
 	EMObjectCallbackData cbdata;
 	cbdata.event = EMObjectCallbackData::BurstAlert;
-	notifier.trigger( cbdata );
+	change.trigger( cbdata );
     }
-    if ( yn ) burstalertcount++;
+    if ( yn ) burstalertcount_++;
 }
 
 
@@ -311,7 +267,7 @@ void EMObject::changePosID( const PosID& from, const PosID& to,
     cbdata.event = EMObjectCallbackData::PosIDChange;
     cbdata.pid0 = from;
     cbdata.pid1 = to;
-    notifier.trigger( cbdata );
+    change.trigger( cbdata );
 
     /*The unset must be after the trigger, becaues otherwise the old pos
 	cannot be retrieved for the cb. In addition, the posattrib status of 
@@ -341,24 +297,24 @@ bool EMObject::isDefined( const EM::SectionID& sid,
 
 void EMObject::addPosAttrib( int attr )
 {
-    if ( attribs.indexOf(attr) < 0 )
+    if ( attribs_.indexOf(attr) < 0 )
     {
-	attribs += attr;
-	posattribs += new PosAttrib();
-	const int idx = attribs.indexOf( attr );
-	posattribs[idx]->type_ = (PosAttrib::Type)attr;
-	posattribs[idx]->locked_ = false;
+	attribs_ += attr;
+	posattribs_ += new PosAttrib();
+	const int idx = attribs_.indexOf( attr );
+	posattribs_[idx]->type_ = (PosAttrib::Type)attr;
+	posattribs_[idx]->locked_ = false;
     }
 }    
 
 
 void EMObject::removePosAttribList( int attr, bool addtohistory )
 {
-    const int idx=attribs.indexOf( attr );
+    const int idx=attribs_.indexOf( attr );
     if ( idx==-1 )
 	return;
 
-    const TypeSet<PosID>& attrlist = posattribs[idx]->posids_;
+    const TypeSet<PosID>& attrlist = posattribs_[idx]->posids_;
 
     while ( attrlist.size() ) 
 	setPosAttrib( attrlist[0], attr, false, addtohistory );
@@ -376,11 +332,11 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
     if ( yn )
 	addPosAttrib( attr );
 
-    const int idx = attribs.indexOf(attr);
+    const int idx = attribs_.indexOf(attr);
     if ( idx == -1 )
 	return;
     
-    TypeSet<PosID>& posids = posattribs[idx]->posids_;
+    TypeSet<PosID>& posids = posattribs_[idx]->posids_;
     const int idy=posids.indexOf( pid );
 
     if ( idy==-1 && yn )
@@ -396,15 +352,15 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
 	EMM().history().addEvent( event, 0, 0 );
     }
 
-    notifier.trigger( cbdata );
-    changed = true;
+    change.trigger( cbdata );
+    changed_ = true;
 }
 
 
 bool EMObject::isPosAttrib( const PosID& pid, int attr ) const
 {
-    const int idx = attribs.indexOf( attr );
-    return idx != -1 && posattribs[idx]->posids_.indexOf( pid ) != -1;
+    const int idx = attribs_.indexOf( attr );
+    return idx != -1 && posattribs_[idx]->posids_.indexOf( pid ) != -1;
 }
 
 
@@ -412,10 +368,10 @@ const char* EMObject::posAttribName( int idx ) const
 { return 0; }
 
 int EMObject::nrPosAttribs() const
-{ return attribs.size(); }
+{ return attribs_.size(); }
 
 int EMObject::posAttrib(int idx) const
-{ return attribs[idx]; }
+{ return attribs_[idx]; }
 
 int EMObject::addPosAttribName( const char* nm )
 { return -1; }
@@ -423,45 +379,45 @@ int EMObject::addPosAttribName( const char* nm )
 
 const TypeSet<PosID>* EMObject::getPosAttribList( int attr ) const
 {
-    const int idx=attribs.indexOf( attr );
-    return idx!=-1 ? &posattribs[idx]->posids_ : 0;
+    const int idx=attribs_.indexOf( attr );
+    return idx!=-1 ? &posattribs_[idx]->posids_ : 0;
 }
 
 
 const MarkerStyle3D& EMObject::getPosAttrMarkerStyle( int attr ) 
 {
     addPosAttrib( attr );
-    const int idx=attribs.indexOf( attr );
-    return posattribs[idx]->style_;
+    const int idx=attribs_.indexOf( attr );
+    return posattribs_[idx]->style_;
 }
 
 
 void EMObject::setPosAttrMarkerStyle( int attr, const MarkerStyle3D& ms ) 
 {
     addPosAttrib( attr );
-    const int idx=attribs.indexOf( attr );
-    posattribs[idx]->style_ = ms;
+    const int idx=attribs_.indexOf( attr );
+    posattribs_[idx]->style_ = ms;
     
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::AttribChange;
     cbdata.attrib = attr;
-    notifier.trigger( cbdata );
-    changed = true;
+    change.trigger( cbdata );
+    changed_ = true;
 }
 
 
 void EMObject::lockPosAttrib( int attr, bool yn )
 {
     addPosAttrib( attr );
-    const int idx=attribs.indexOf( attr );
-    posattribs[idx]->locked_ = yn;
+    const int idx=attribs_.indexOf( attr );
+    posattribs_[idx]->locked_ = yn;
 }
 
 
 bool EMObject::isPosAttribLocked( int attr ) const
 {
-    const int idx=attribs.indexOf( attr );
-    return idx!=-1 ? posattribs[idx]->locked_ : false; 
+    const int idx=attribs_.indexOf( attr );
+    return idx!=-1 ? posattribs_[idx]->locked_ : false; 
 }
 
 
@@ -469,6 +425,12 @@ bool EMObject::isEmpty() const
 {
     PtrMan<EM::EMObjectIterator> iterator = createIterator( -1 );
     return iterator->next().objectID()==-1;
+}
+
+
+const char* EMObject::errMsg() const
+{
+    return errmsg_[0] ? errmsg_.buf() : 0;
 }
 
 
@@ -516,7 +478,7 @@ bool EMObject::usePar( const IOPar& par )
 	    setPosAttrib( pid, attrib, true, false );
 	}
 
-	const int curposattridx = posattribs.size()-1;
+	const int curposattridx = posattribs_.size()-1;
 	if ( curposattridx<0 )
 	    continue;
 
@@ -524,7 +486,7 @@ bool EMObject::usePar( const IOPar& par )
 	markerstylekey += markerstylestr;
 	BufferString markerstyleparstr;
 	if ( par.get(markerstylekey,markerstyleparstr) )
-	    posattribs[curposattridx]->style_.fromString( markerstyleparstr );
+	    posattribs_[curposattridx]->style_.fromString( markerstyleparstr );
     }
 
     return true;
@@ -565,7 +527,7 @@ void EMObject::fillPar( IOPar& par ) const
 	BufferString markerstylekey = attribkey;
 	markerstylekey += markerstylestr;
 	BufferString markerstyleparstr;
-	posattribs[idx]->style_.toString( markerstyleparstr );
+	posattribs_[idx]->style_.toString( markerstyleparstr );
 	par.set( markerstylekey, markerstyleparstr );
     }
 
@@ -579,9 +541,9 @@ void EMObject::posIDChangeCB(CallBacker* cb)
     if ( cbdata.event != EMObjectCallbackData::PosIDChange )
 	return;
 
-    for ( int idx=0; idx<posattribs.size(); idx++ )
+    for ( int idx=0; idx<posattribs_.size(); idx++ )
     {
-	TypeSet<PosID>& nodes = posattribs[idx]->posids_;
+	TypeSet<PosID>& nodes = posattribs_[idx]->posids_;
 	if ( !&nodes ) continue;
 
 	while ( true )

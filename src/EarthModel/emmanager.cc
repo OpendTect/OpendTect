@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.55 2007-05-22 03:23:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.56 2007-06-21 19:35:21 cvskris Exp $";
 
 #include "emmanager.h"
 
@@ -13,10 +13,10 @@ static const char* rcsID = "$Id: emmanager.cc,v 1.55 2007-05-22 03:23:23 cvsnann
 #include "emhistory.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
-#include "emhorizontaltube.h"
+//#include "emhorizontaltube.h"
 #include "emhorizonztransform.h"
 #include "emobject.h"
-#include "emsticksettransl.h"
+//#include "emsticksettransl.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "errh.h"
@@ -31,7 +31,12 @@ EM::EMManager& EM::EMM()
 {
     static PtrMan<EMManager> emm = 0;
 
-    if ( !emm ) emm = new EM::EMManager;
+    if ( !emm )
+    {
+	EM::EMManager::initClasses();
+	emm = new EM::EMManager;
+    }
+
     return *emm;
 }
 
@@ -39,12 +44,12 @@ EM::EMManager& EM::EMM()
 namespace EM
 {
 
+
+mImplFactory1Param( EMObject, EMManager&, EMOF );
+
 EMManager::EMManager()
     : history_( *new History(*this) )
-    , freeid( 0 )
-{
-    init();
-}
+{}
 
 
 EMManager::~EMManager()
@@ -56,23 +61,21 @@ EMManager::~EMManager()
 
 void EMManager::empty()
 {   
-    for ( int idx=0; idx<objects.size(); idx++ )
+    for ( int idx=0; idx<objects_.size(); idx++ )
     {
 	EMObjectCallbackData cbdata;
 	cbdata.event = EMObjectCallbackData::Removal;
 
-	const int oldsize = objects.size();
-	objects[idx]->notifier.trigger(cbdata);
-	if ( oldsize!=objects.size() ) idx--;
+	const int oldsize = objects_.size();
+	objects_[idx]->change.trigger(cbdata);
+	if ( oldsize!=objects_.size() ) idx--;
     }
 
-    deepRef( objects );		//Removes all non-reffed 
-    deepUnRef( objects );
+    deepRef( objects_ );		//Removes all non-reffed 
+    deepUnRef( objects_ );
 
-    if ( objects.size() )
+    if ( objects_.size() )
 	pErrMsg( "All objects are not unreffed" );
-
-    deepErase( objectfactories );
 
     history_.empty();
 }
@@ -103,35 +106,33 @@ const char* EMManager::objectType( const MultiID& mid ) const
     if ( !ioobj ) 
 	return 0;
 
-    const ObjectFactory* fact = getFactory( ioobj->group() );
-    return fact->typeStr();
+    const int idx = EMOF().getNames().indexOf( ioobj->group() );
+    if ( idx<0 )
+	return 0;
+
+    return EMOF().getNames()[idx]->buf();
 }
 
 
-void EMManager::init()
+void EMManager::initClasses()
 {
-    Horizon3D::initClass( *this );
-    Fault::initClass( *this );
-    HorizontalTube::initClass(*this);
-    StickSet::initClass(*this);
-    Horizon2D::initClass(*this);
+    Horizon3D::initClass();
+    Fault::initClass();
+    //HorizontalTube::initClass(*this);
+    //StickSet::initClass(*this);
+    Horizon2D::initClass();
     HorizonZTransform::initClass();
 } 
 
 
 ObjectID EMManager::createObject( const char* type, const char* name )
 {
-    const ObjectFactory* fact = getFactory( type );
-    EMObject* object = fact ? fact->createObject( name, false ) : 0;
-
-    if ( !object )
-	return -1;
-
-    object->setFullyLoaded( true );
+    EMObject* object = EMOF().create( type, *this );
+    if ( !object ) return -1;
     return object->id();
-} 
+}
 
-
+/*
 MultiID EMManager::findObject( const char* type, const char* name ) const
 {
     const IOObjContext* context = getContext(type);
@@ -145,14 +146,15 @@ MultiID EMManager::findObject( const char* type, const char* name ) const
 
     return -1;
 }
+*/
 
 
 EMObject* EMManager::getObject( const ObjectID& id )
 {
-    for ( int idx=0; idx<objects.size(); idx++ )
+    for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	if ( objects[idx]->id()==id )
-	    return objects[idx];
+	if ( objects_[idx]->id()==id )
+	    return objects_[idx];
     }
 
     return 0;
@@ -165,10 +167,10 @@ const EMObject* EMManager::getObject( const ObjectID& id ) const
 
 ObjectID EMManager::getObjectID( const MultiID& mid ) const
 {
-    for ( int idx=0; idx<objects.size(); idx++ )
+    for ( int idx=0; idx<objects_.size(); idx++ )
     {
-	if ( objects[idx]->multiID()==mid )
-	    return objects[idx]->id();
+	if ( objects_[idx]->multiID()==mid )
+	    return objects_[idx]->id();
     }
 
     return -1;
@@ -182,36 +184,38 @@ MultiID EMManager::getMultiID( const ObjectID& oid ) const
 }
 
 
-ObjectID EMManager::addObject( EMObject* obj )
+void EMManager::addObject( EMObject* obj )
 {
     if ( !obj )
     {
 	pErrMsg("No object provided!");
-	return -1;
+	return;
     }
 
-    objects += obj;
-    return freeid++;
+    if ( objects_.indexOf( obj )!=-1 )
+    {
+	pErrMsg("Adding object twice");
+	return;
+    }
+
+    objects_ += obj;
 }
 
 
 void EMManager::removeObject( EMObject* obj )
 {
-    objects -= obj;
+    objects_ -= obj;
 }
 
 
 EMObject* EMManager::createTempObject( const char* type )
 {
-    const ObjectFactory* fact = getFactory( type );
-    if ( !fact ) return 0;
-
-    return fact->createObject( 0, true );
+    return EMOF().create( type, *this );
 }
 
 
 ObjectID EMManager::objectID( int idx ) const
-{ return idx>=0 && idx<objects.size() ? objects[idx]->id() : -1; }
+{ return idx>=0 && idx<objects_.size() ? objects_[idx]->id() : -1; }
 
 
 Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
@@ -233,7 +237,7 @@ Executor* EMManager::objectLoader( const TypeSet<MultiID>& mids,
 Executor* EMManager::objectLoader( const MultiID& mid,
 				   const SurfaceIODataSelection* iosel )
 {
-    ObjectID id = getObjectID( mid );
+    const ObjectID id = getObjectID( mid );
     EMObject* obj = getObject( id );
    
     if ( !obj )
@@ -241,8 +245,9 @@ Executor* EMManager::objectLoader( const MultiID& mid,
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj ) return 0;
 
-	const ObjectFactory* fact = getFactory( ioobj->group() );
-	obj = fact ? fact->loadObject( mid ) : 0;
+	obj = EMOF().create( ioobj->group(), *this );
+	if ( !obj ) return 0;
+	obj->setMultiID( mid );
     }
 
     mDynamicCastGet(Surface*,surface,obj)
@@ -292,38 +297,5 @@ const char* EMManager::getSurfaceData( const MultiID& id, SurfaceIOData& sd )
     return 0;
 }
 
-
-void EMManager::addFactory( ObjectFactory* fact )
-{
-    const ObjectFactory* existingfact = getFactory( fact->typeStr() );
-    if ( existingfact )
-    {
-	delete fact;
-	return;
-    }
-
-    objectfactories += fact;
-}
-
-
-const IOObjContext* EMManager::getContext( const char* type ) const
-{
-    const ObjectFactory* fact = getFactory( type );
-    return fact ? &fact->ioContext() : 0;
-}
-
-
-const ObjectFactory* EMManager::getFactory( const char* type ) const
-{
-    for ( int idx=0; idx<objectfactories.size(); idx++ )
-    {
-	if ( !strcmp(type,objectfactories[idx]->typeStr()) )
-	{
-	    return objectfactories[idx];
-	}
-    }
-
-    return 0;
-}
 
 } // namespace EM

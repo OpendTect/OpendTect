@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.36 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.37 2007-06-21 19:35:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -312,7 +312,7 @@ bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtohistory )
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::SectionChange;
     cbdata.pid0 = PosID( surface_.id(), sid, 0 );
-    surface_.notifier.trigger(cbdata);
+    surface_.change.trigger(cbdata);
 
     changed_ = true;
     return true;
@@ -959,12 +959,12 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 {
     PtrMan<IOObj> ioobj = IOM().get( surface_.multiID() );
     if ( !ioobj )
-	{ surface_.errmsg = "Cannot find surface"; return 0; }
+	{ surface_.errmsg_ = "Cannot find surface"; return 0; }
 
     PtrMan<EMSurfaceTranslator> tr = 
 			(EMSurfaceTranslator*)ioobj->getTranslator();
     if ( !tr || !tr->startRead(*ioobj) )
-	{ surface_.errmsg = tr ? tr->errMsg() :
+	{ surface_.errmsg_ = tr ? tr->errMsg() :
 	    "Cannot find Translator"; return 0; }
 
     SurfaceIODataSelection& sel = tr->selections();
@@ -979,7 +979,7 @@ Executor* SurfaceGeometry::loader( const SurfaceIODataSelection* newsel )
 	sel.selvalues.erase();
 
     Executor* exec = tr->reader( surface_ );
-    surface_.errmsg = tr->errMsg();
+    surface_.errmsg_ = tr->errMsg();
     return exec;
 }
 
@@ -990,7 +990,7 @@ Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
     const MultiID& mid = key && !(*key=="") ? *key : surface_.multiID();
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
-	{ surface_.errmsg = "Cannot find surface"; return 0; }
+	{ surface_.errmsg_ = "Cannot find surface"; return 0; }
 
     /*
     int nrknots = 0;
@@ -998,13 +998,13 @@ Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
 	nrknots += sections_[idx]->nrKnots();
 
     if ( nrknots == 0 )
-	{ surface_.errmsg = "Empty surface"; return 0; }
+	{ surface_.errmsg_ = "Empty surface"; return 0; }
 	*/
 
     PtrMan<EMSurfaceTranslator> tr = 
 			(EMSurfaceTranslator*)ioobj->getTranslator();
     if ( !tr || !tr->startWrite(surface_) )
-	{ surface_.errmsg = tr ? tr->errMsg() : "No Translator"; return 0; }
+	{ surface_.errmsg_ = tr ? tr->errMsg() : "No Translator"; return 0; }
 
     SurfaceIODataSelection& sel = tr->selections();
     if ( newsel )
@@ -1015,7 +1015,7 @@ Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
     }
 
     Executor* exec = tr->writer(*ioobj);
-    surface_.errmsg = tr->errMsg();
+    surface_.errmsg_ = tr->errMsg();
     return exec;
 }
 
@@ -1065,7 +1065,7 @@ SectionID SurfaceGeometry::addSectionInternal( Geometry::Element* surf,
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::SectionChange;
     cbdata.pid0 = PosID( surface_.id(), sid, 0 );
-    surface_.notifier.trigger(cbdata);
+    surface_.change.trigger(cbdata);
 
     changed_ = true;
     return sid;

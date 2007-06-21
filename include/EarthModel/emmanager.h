@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.29 2006-04-28 15:19:52 cvsnanne Exp $
+ RCS:		$Id: emmanager.h,v 1.30 2007-06-21 19:35:21 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "sets.h"
 #include "bufstring.h"
+#include "factory.h"
 #include "ptrman.h"
 #include "multiid.h"
 #include "emposid.h"
@@ -25,7 +26,6 @@ class Executor;
 
 namespace EM
 {
-class ObjectFactory;
 class EMObject;
 class History;
 class SurfaceIOData;
@@ -42,13 +42,13 @@ public:
 			EMManager();
 			~EMManager();
 
-    void		init();
+    static void		initClasses();
     void		empty();
 
     History&		history();
     const History&	history() const;
 
-    int			nrLoadedObjects() const	{ return objects.size(); }
+    int			nrLoadedObjects() const	{ return objects_.size(); }
     EM::ObjectID	objectID(int idx) const;
     Executor*		objectLoader(const MultiID&,
 	    			     const SurfaceIODataSelection* =0);
@@ -61,7 +61,6 @@ public:
 			     it will be removed!! Check in advance with
 			     findObject().
 			*/
-    MultiID		findObject( const char* type, const char* name ) const;
     void		sendRemovalSignal(const ObjectID&);
     BufferString	objectName(const MultiID&) const;
     			/*!<\returns the name of the object */
@@ -76,13 +75,10 @@ public:
     const char*		getSurfaceData(const MultiID&, SurfaceIOData&);
     			// returns err msg or null if OK
 
-    void		addFactory( ObjectFactory* fact );
-
     			/*Interface from EMObject to report themselves */
-    ObjectID		addObject(EMObject*);
+    void		addObject(EMObject*);
     void		removeObject(EMObject*);
 
-    const IOObjContext*	getContext( const char* type ) const;
     ObjectID		getObjectID( const MultiID& ) const;
     			/*!<\note that the relationship between storage id 
 			     (MultiID) and EarthModel id (ObjectID) may change
@@ -92,17 +88,15 @@ public:
 			     (MultiID) and EarthModel id (ObjectID) may change
 			     due to "Save as" operations and similar. */
 
+
 protected:
-    const ObjectFactory*	getFactory( const char* type ) const;
-    ObjectSet<ObjectFactory>	objectfactories;
-
     History&			history_;
-    int				freeid;
 
-    ObjectSet<EMObject>		objects;
-    BufferString		errmsg;
+    ObjectSet<EMObject>		objects_;
 };
 
+
+mDefineFactory1Param( EMObject, EMManager&, EMOF );
 
 EMManager& EMM();
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.6 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.7 2007-06-21 19:35:21 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -73,13 +73,8 @@ position's subid is formed by RowCol( lineid, tracenr ).getSerialized(). If
 multiple z-values per trace is needed, multiple sections can be added. */
 
 class Horizon2D : public Horizon
-{
+{ mDefineEMObjFuncs( Horizon2D );
 public:
-    static const char*		typeStr();
-    static EMObject*		create(EMManager&);
-    static void			initClass(EMManager&);
-
-    const char*			getTypeStr() const	{ return typeStr(); }
 
     bool			unSetPos(const EM::PosID&,bool addtohistory);
     bool			unSetPos(const EM::SectionID&,const EM::SubID&,
@@ -89,7 +84,6 @@ public:
     const Horizon2DGeometry&	geometry() const	{ return geometry_; }
 
 protected:
-    				Horizon2D(EMManager&);
 
     const IOObjContext&		getIOObjContext() const;
     Horizon2DGeometry		geometry_;

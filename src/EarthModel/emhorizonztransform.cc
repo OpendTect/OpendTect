@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizonztransform.cc,v 1.6 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:           $Id: emhorizonztransform.cc,v 1.7 2007-06-21 19:35:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,14 +47,14 @@ void HorizonZTransform::setHorizon( const Horizon3D& hor )
     if ( horizon_ )
     {
 	const_cast<Horizon3D*>(horizon_)
-	    ->notifier.remove( mCB(this,HorizonZTransform,horChangeCB) );
+	    ->change.remove( mCB(this,HorizonZTransform,horChangeCB) );
 	horizon_->unRef();
     }
 
     horizon_ = &hor;
     horizon_->ref();
     const_cast<Horizon3D*>(horizon_)
-	->notifier.notify( mCB(this,HorizonZTransform,horChangeCB) );
+	->change.notify( mCB(this,HorizonZTransform,horChangeCB) );
 
     horchanged_ = true;
     calculateHorizonRange();

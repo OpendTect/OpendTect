@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.33 2007-05-22 03:23:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.34 2007-06-21 19:35:21 cvskris Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -64,7 +64,7 @@ EdgeLineSegment::EdgeLineSegment( const EdgeLineSegment& templ)
 EdgeLineSegment::~EdgeLineSegment()
 {
     if ( notifier )
-	horizon_.notifier.remove(mCB(this,EdgeLineSegment,posChangeCB));
+	horizon_.change.remove(mCB(this,EdgeLineSegment,posChangeCB));
 
     delete notifier;
 }

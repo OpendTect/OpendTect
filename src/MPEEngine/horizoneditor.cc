@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: horizoneditor.cc,v 1.3 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:           $Id: horizoneditor.cc,v 1.4 2007-06-21 19:35:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ HorizonEditor::HorizonEditor( EM::Horizon3D& horizon )
     , horbox( false )
     , vertstyle( 0 )
 {
-    emobject.notifier.notify( mCB(this,HorizonEditor,emChangeCB) );
+    emobject.change.notify( mCB(this,HorizonEditor,emChangeCB) );
     vertstylenames.add("Sinus");
     vertstylenames.add("Pyramid");
     vertstylenames.add("Box");
@@ -38,7 +38,7 @@ HorizonEditor::HorizonEditor( EM::Horizon3D& horizon )
 
 HorizonEditor::~HorizonEditor()
 {
-    emobject.notifier.remove( mCB(this,HorizonEditor,emChangeCB) );
+    emobject.change.remove( mCB(this,HorizonEditor,emChangeCB) );
 }
 
 

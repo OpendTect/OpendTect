@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.51 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.52 2007-06-21 19:35:21 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -77,13 +77,10 @@ the knots.
 */
 
 class Horizon3D : public Horizon
-{
+{ mDefineEMObjFuncs( Horizon3D );
 public:
-    static const char*		typeStr();
-    static EMObject*		create(EMManager&);
-    static void			initClass(EMManager&);
-    void			removeAll();
 
+    void			removeAll();
     Horizon3DGeometry&		geometry();
     const Horizon3DGeometry&	geometry() const;
 
@@ -92,7 +89,6 @@ public:
 	    				   bool onlyfillundefs);
     				//!< Returns true on succes
 
-    const char*			getTypeStr() const { return typeStr(); }
     Executor*			importer(const ObjectSet<BinIDValueSet>&,
 	    				 const RowCol& step);
     					/*!< Removes all data and creates 
@@ -106,8 +102,6 @@ public:
     EdgeLineManager&		edgelinesets;
 
 protected:
-	    			Horizon3D(EMManager&);
-	    			~Horizon3D();
     void			fillPar(IOPar&) const;
     bool			usePar( const IOPar& );
     const IOObjContext&		getIOObjContext() const;

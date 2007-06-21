@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.9 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.10 2007-06-21 19:35:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -209,6 +209,9 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 }
 
 
+mImplementEMObjFuncs( Horizon2D, EMHorizon2DTranslatorGroup::keyword )
+
+
 
 Horizon2D::Horizon2D( EMManager& emm )
     : Horizon( emm )
@@ -218,20 +221,8 @@ Horizon2D::Horizon2D( EMManager& emm )
 }
 
 
-const char* Horizon2D::typeStr()
-{ return EMHorizon2DTranslatorGroup::keyword; }
-
-
-EMObject* Horizon2D::create( EMManager& emm )
-{ return new Horizon2D( emm ); }
-
-
-void Horizon2D::initClass( EMManager& emm )
-{
-    ObjectFactory* no = new ObjectFactory( create,
-	    EMHorizon2DTranslatorGroup::ioContext(), typeStr());
-    emm.addFactory( no );
-}
+Horizon2D::~Horizon2D()
+{}
 
 
 bool Horizon2D::unSetPos( const PosID& pid, bool addtohistory )

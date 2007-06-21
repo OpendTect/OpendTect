@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.63 2007-01-16 14:25:28 cvsjaap Exp $
+ RCS:		$Id: emobject.h,v 1.64 2007-06-21 19:35:21 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -92,11 +92,10 @@ public:
 class EMObject : public CallBacker
 { mRefCountImpl( EMObject );    
 public:
-    				EMObject( EMManager& );
-    const ObjectID&		id() const { return id_; }
+    const ObjectID&		id() const		{ return id_; }
     virtual const char*		getTypeStr() const			= 0;
-    const MultiID&		multiID() const { return storageid; }
-    void			setMultiID( const MultiID& mid );
+    const MultiID&		multiID() const		{ return storageid_; }
+    void			setMultiID(const MultiID&);
 
     BufferString		name() const;
 
@@ -106,8 +105,8 @@ public:
     virtual bool		canSetSectionName() const;
     virtual bool		setSectionName(const SectionID&,const char*,
 	    				       bool addtohistory);
-    virtual int			sectionIndex( const SectionID&) const;
-    virtual bool		removeSection( SectionID, bool hist )
+    virtual int			sectionIndex(const SectionID&) const;
+    virtual bool		removeSection(SectionID,bool hist )
     					{ return false; }
 
     const Geometry::Element*	sectionGeometry(const SectionID&) const;
@@ -176,24 +175,21 @@ public:
     virtual void		lockPosAttrib(int attr,bool yn);
     virtual bool		isPosAttribLocked(int attr) const;
 
-    CNotifier<EMObject,const EMObjectCallbackData&>	notifier;
+    CNotifier<EMObject,const EMObjectCallbackData&>	change;
 
     virtual Executor*		loader()		{ return 0; }
     virtual bool		isLoaded() const	{ return false; }
     virtual Executor*		saver()			{ return 0; }
-    virtual bool		isChanged() const	{ return changed; }
+    virtual bool		isChanged() const	{ return changed_; }
     virtual bool		isEmpty() const;
-    virtual void		resetChangedFlag()	{ changed=false; }
-    bool			isFullyLoaded() const	{ return fullyloaded; }
-    void			setFullyLoaded(bool yn) { fullyloaded=yn; }
+    virtual void		resetChangedFlag()	{ changed_=false; }
+    bool			isFullyLoaded() const	{ return fullyloaded_; }
+    void			setFullyLoaded(bool yn) { fullyloaded_=yn; }
 
-    virtual bool		isLocked() const	{ return locked; }
-    virtual void		lock(bool yn)		{ locked=yn;}
+    virtual bool		isLocked() const	{ return locked_; }
+    virtual void		lock(bool yn)		{ locked_=yn;}
 
-    const char*			errMsg() const
-    				{ return errmsg[0]
-				    ? (const char*) errmsg : (const char*) 0; }
-
+    const char*			errMsg() const;
 
     virtual bool		usePar( const IOPar& );
     virtual void		fillPar( IOPar& ) const;
@@ -204,26 +200,29 @@ public:
     static int			sTerminationNode;
     static int			sSeedNode;
 
+    virtual const IOObjContext&	getIOObjContext() const = 0;
+
 protected:
+    				EMObject( EMManager& );
+    				//!<must be called after creation
     virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
 
     void			posIDChangeCB(CallBacker*);
-    virtual const IOObjContext&	getIOObjContext() const = 0;
     ObjectID			id_;
-    MultiID			storageid;
-    class EMManager&		manager;
-    BufferString		errmsg;
+    MultiID			storageid_;
+    class EMManager&		manager_;
+    BufferString		errmsg_;
 
 
-    Color&			preferredcolor;
+    Color&			preferredcolor_;
 
-    ObjectSet<PosAttrib>	posattribs;
-    TypeSet<int>		attribs;
+    ObjectSet<PosAttrib>	posattribs_;
+    TypeSet<int>		attribs_;
 
-    bool			changed;
-    bool			fullyloaded;
-    bool			locked;
-    int				burstalertcount;
+    bool			changed_;
+    bool			fullyloaded_;
+    bool			locked_;
+    int				burstalertcount_;
 
     static const char*		prefcolorstr;
     static const char*		nrposattrstr;
@@ -235,31 +234,35 @@ protected:
 };
 
 
-typedef EMObject*(*EMObjectCreationFunc)(EMManager&);
-
-class ObjectFactory
-{
-public:
-    				ObjectFactory( EMObjectCreationFunc,
-				       	       const IOObjContext&,
-				       	       const char* );
-    EMObject*			loadObject( const MultiID& mid ) const;
-    EMObject*			createObject( const char* name,
-	    				      bool tmpobj ) const;
-    				/*!<\Creates a new object. If tmobj is false,
-				     a IOObj entry will be created for this
-				     object.*/
-    const char*			typeStr() const { return typestr; }
-    const IOObjContext&		ioContext() const { return context; }
-protected:
-    EMObjectCreationFunc	creationfunc;
-    const IOObjContext&		context;
-    const char*			typestr;
-};
-
-
-
 }; // Namespace
+
+#define mDefineEMObjFuncs( clss ) \
+public: \
+    static void			initClass(); \
+    static EMObject*		create( EM::EMManager& emm ); \
+    static const char*		typeStr(); \
+    const char*			getTypeStr() const; \
+protected: \
+				clss( EM::EMManager& ); \
+				~clss()
+
+#define mImplementEMObjFuncs( clss, typenm ) \
+void clss::initClass() \
+{ \
+    EMOF().addCreator( create, typeStr() ); \
+} \
+ \
+ \
+EMObject* clss::create( EM::EMManager& emm ) \
+{ \
+    EMObject* obj = new clss( emm ); \
+    emm.addObject( obj ); \
+    return obj; \
+} \
+ \
+ \
+const char* clss::typeStr() { return typenm; } \
+const char* clss::getTypeStr() const { return typeStr(); }
 
 /*!\mainpage Earth Model objects
 

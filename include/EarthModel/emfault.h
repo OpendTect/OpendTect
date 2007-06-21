@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.26 2006-04-27 15:29:13 cvskris Exp $
+ RCS:		$Id: emfault.h,v 1.27 2007-06-21 19:35:21 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -42,19 +42,12 @@ protected:
 
 */
 class Fault : public Surface
-{
+{ mDefineEMObjFuncs( Fault );
 public:
-    static const char*		typeStr(); 
-    static EMObject*		create( EMManager& );
-    static void			initClass(EMManager&);
-
-    const char*			getTypeStr() const { return typeStr(); }
 
     FaultGeometry&		geometry();
 
 protected:
-				Fault(EMManager&);
-
     const IOObjContext&		getIOObjContext() const;
 
 

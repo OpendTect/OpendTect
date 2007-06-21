@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.108 2007-06-08 06:11:38 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.109 2007-06-21 19:35:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -241,8 +241,7 @@ void uiEMPartServer::askUserToSave( const EM::ObjectID& emid ) const
         mustsave = uiMSG().askGoOn( msg );
 	if ( !mustsave ) return;
 
-	const IOObjContext* ctxt = EM::EMM().getContext( emobj->getTypeStr() );
-	CtxtIOObj ctio( *ctxt ); ctio.setName( emobj->name() );
+	CtxtIOObj ctio(emobj->getIOObjContext()); ctio.setName( emobj->name() );
 	IOM().getEntry( ctio ); IOM().commitChanges( *ctio.ioobj );
 	ioobj = ctio.ioobj;
     }

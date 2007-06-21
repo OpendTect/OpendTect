@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.75 2007-05-22 04:08:58 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.76 2007-06-21 19:35:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,6 +132,21 @@ static const char* sLineManualInfo( const BufferString& trackertype )
 }
 
 
+static const IOObjContext* getContext( const char* type )
+{
+    if ( !strcmp(type,EMFaultTranslatorGroup::keyword ) )
+	return &EMFaultTranslatorGroup::ioContext();
+
+    if ( !strcmp(type,EMHorizon2DTranslatorGroup::keyword ) )
+	return &EMHorizon2DTranslatorGroup::ioContext();
+
+    if ( !strcmp(type,EMHorizon3DTranslatorGroup::keyword ) )
+	return &EMHorizon3DTranslatorGroup::ioContext();
+
+    return 0;
+}
+
+
 Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
     : uiWizard( p, uiDialog::Setup("Tracking Wizard",0,"108.0.0").modal(false) )
     , mpeserv(mps)
@@ -166,9 +181,9 @@ Wizard::~Wizard()
 uiIOObjSelGrp* Wizard::createNamePage()
 {
     // TODO: Make nice for Horizon(2D) & Fault (trackertype not yet set here!!)
-    const IOObjContext* ctxttemplate = EM::EMM().getContext( trackertype );
+    const IOObjContext* ctxttemplate = getContext( trackertype );
     if ( !ctxttemplate )
-	ctxttemplate = EM::EMM().getContext("Fault");
+	ctxttemplate = &EMFaultTranslatorGroup::ioContext();
 
     PtrMan<IOObjContext> ctxt = new IOObjContext( *ctxttemplate );
     ctxt->forread = false;
@@ -268,7 +283,7 @@ uiGroup* Wizard::createFinalizePage()
 
 bool Wizard::prepareNamePage()
 {
-    const IOObjContext* ctxttemplate = EM::EMM().getContext(trackertype);
+    const IOObjContext* ctxttemplate = getContext(trackertype);
     if ( !ctxttemplate )
     {
 	pErrMsg("Cannot find context");
