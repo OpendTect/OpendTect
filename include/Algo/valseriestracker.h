@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Dec 2006
- RCS:		$Id: valseriestracker.h,v 1.1 2007-05-31 22:03:34 cvskris Exp $
+ RCS:		$Id: valseriestracker.h,v 1.2 2007-06-21 21:27:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ class ValSeriesTracker
 public:
     			ValSeriesTracker();
     virtual		~ValSeriesTracker()		{}
+    virtual const char* type()				= 0;
 
     virtual bool	isOK() const;
     			/*!<\returns whether the settings are OK, and it is
@@ -60,6 +61,8 @@ class EventTracker : public ValSeriesTracker
 {
 public:
     			EventTracker();
+    const char*		type()		{ return sType(); }
+    static const char*	sType()		{ return "EventTracker"; }
 
     virtual bool	isOK() const;
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		May 2007
- RCS:		$Id: smoother1d.h,v 1.1 2007-05-22 13:09:28 cvskris Exp $
+ RCS:		$Id: smoother1d.h,v 1.2 2007-06-21 21:27:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,6 +95,9 @@ bool Smoother1D<T>::setWindow( const char* nm, float param, int length )
 	return false;
 
     if ( wf->hasVariable() && !wf->setVariable( param ) )
+	return false;
+
+    if ( length<0 )
 	return false;
 
     window_.setSize( length );
