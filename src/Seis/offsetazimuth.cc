@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: offsetazimuth.cc,v 1.1 2007-03-05 13:01:35 cvskris Exp $";
+static const char* rcsID = "$Id: offsetazimuth.cc,v 1.2 2007-06-21 21:26:28 cvskris Exp $";
 
 #include "offsetazimuth.h"
 
@@ -116,8 +116,25 @@ void OffsetAzimuth::setAzimuth( float azi )
 }
 
 
+float OffsetAzimuth::distanceTo( const OffsetAzimuth& b, bool sq ) const
+{
+    const Coord myvec = srcRcvPos( Coord(0,0), true );
+    if ( !myvec.isDefined() )
+	return mUdf(float);
+
+    const Coord bvec = b.srcRcvPos( Coord(0,0), true );
+    if ( !bvec.isDefined() )
+	return mUdf(float);
+
+    return sq ? myvec.sqDistTo( bvec ) : myvec.distTo( bvec );
+}
+
+
 Coord OffsetAzimuth::srcRcvPos( const Coord& center, bool add ) const
 {
+    if ( isOffsetUndef() || isAzimuthUndef() )
+	return Coord::udf();
+
     const float azi = azimuth();
     const float off = offset();
 

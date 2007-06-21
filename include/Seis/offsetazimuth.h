@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: offsetazimuth.h,v 1.2 2007-03-26 18:21:19 cvskris Exp $
+ RCS:		$Id: offsetazimuth.h,v 1.3 2007-06-21 21:26:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,8 @@ public:
     bool		isOffsetUndef() const;
     void		setOffset(float);
     void		setAzimuth(float);
+    float		distanceTo(const OffsetAzimuth&,bool sq=false) const;
+    			/*!\If sq is true, the square distance is returned. */
 
     Coord		srcRcvPos(const Coord& center,bool add=true) const;
 			/*!<\returns center + (or - depending on variable add)
