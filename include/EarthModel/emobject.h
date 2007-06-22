@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.64 2007-06-21 19:35:21 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.65 2007-06-22 14:49:04 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -90,7 +90,9 @@ public:
 /*!\brief Earth Model Object */
 
 class EMObject : public CallBacker
-{ mRefCountImpl( EMObject );    
+{
+mRefCountImplWithDestructor(EMObject,virtual ~EMObject(),
+{ prepareForDelete(); delete this; } );
 public:
     const ObjectID&		id() const		{ return id_; }
     virtual const char*		getTypeStr() const			= 0;
@@ -206,6 +208,7 @@ protected:
     				EMObject( EMManager& );
     				//!<must be called after creation
     virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
+    virtual void		prepareForDelete() const;
 
     void			posIDChangeCB(CallBacker*);
     ObjectID			id_;
