@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.31 2007-06-21 21:07:03 cvskris Exp $
+ RCS:		$Id: emmanager.h,v 1.32 2007-06-22 14:47:46 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -81,7 +81,7 @@ public:
 
     			/*Interface from EMObject to report themselves */
     void		addObject(EMObject*);
-    void		removeObject(EMObject*);
+    void		removeObject(const EMObject*);
 
     ObjectID		getObjectID( const MultiID& ) const;
     			/*!<\note that the relationship between storage id 

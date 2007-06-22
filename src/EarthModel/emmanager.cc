@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.57 2007-06-21 21:07:03 cvskris Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.58 2007-06-22 14:47:46 cvsyuancheng Exp $";
 
 #include "emmanager.h"
 
@@ -204,9 +204,11 @@ void EMManager::addObject( EMObject* obj )
 }
 
 
-void EMManager::removeObject( EMObject* obj )
+void EMManager::removeObject( const EMObject* obj )
 {
-    objects_ -= obj;
+    const int idx = objects_.indexOf( obj );
+    if ( idx<0 ) return;
+    objects_.remove( idx );
     addRemove.trigger();
 }
 
