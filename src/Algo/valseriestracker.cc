@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: valseriestracker.cc,v 1.1 2007-05-31 22:03:34 cvskris Exp $";
+static const char* rcsID = "$Id: valseriestracker.cc,v 1.2 2007-06-25 21:45:10 cvskris Exp $";
 
 #include "valseriestracker.h"
 
@@ -12,6 +12,36 @@ static const char* rcsID = "$Id: valseriestracker.cc,v 1.1 2007-05-31 22:03:34 c
 #include "iopar.h"
 #include "samplfunc.h"
 
+
+const char** EventTracker::sEventNames() 
+{ 
+    static const char* event_names[] = { "Min", "Max", "0+-", "0-+", 0 }; 
+    return event_names; 
+} 
+ 
+ 
+const VSEvent::Type* EventTracker::cEventTypes() 
+{ 
+    static const VSEvent::Type event_types[] = { VSEvent::Min, VSEvent::Max, 
+						 VSEvent::ZCPosNeg, VSEvent::ZCNegPos };
+	 
+    return event_types; 
+} 
+
+
+int EventTracker::getEventTypeIdx( VSEvent::Type type )
+{
+    const char** evnames = sEventNames();
+    const VSEvent::Type* types = cEventTypes();
+    for ( int idx=0; evnames[idx]; idx++ )
+    {
+	if ( type==types[idx] )
+	    return idx;
+    }
+
+    return -1;
+}
+ 
 
 ValSeriesTracker::ValSeriesTracker()
     : sourcevs_( 0 )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Dec 2006
- RCS:		$Id: valseriestracker.h,v 1.2 2007-06-21 21:27:10 cvskris Exp $
+ RCS:		$Id: valseriestracker.h,v 1.3 2007-06-25 21:45:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,36 +60,42 @@ protected:
 class EventTracker : public ValSeriesTracker
 {
 public:
-    			EventTracker();
-    const char*		type()		{ return sType(); }
-    static const char*	sType()		{ return "EventTracker"; }
+    				EventTracker();
+    const char*			type()		{ return sType(); }
+    static const char*		sType()		{ return "EventTracker"; }
 
-    virtual bool	isOK() const;
+    static const char**		sEventNames();
+    static const VSEvent::Type*	cEventTypes();
+    static int			getEventTypeIdx(VSEvent::Type);
 
-    void		setPermittedZRange(const Interval<int>& rg);
-    const Interval<int>&permittedZRange() const;
-    void		setTrackEvent(VSEvent::Type ev);
-    VSEvent::Type	trackEvent() const;
+    virtual bool		isOK() const;
 
-    void		useSimilarity(bool yn);
-    bool		usesSimilarity() const;
-    void		setAmplitudeThreshold(float th);
-    float		amplitudeThreshold() const;
-    void		setAllowedVariance(float v);
-    float		allowedVariance() const;
-    void		setUseAbsThreshold(bool abs);
-    bool		useAbsThreshold() const; 
+    void			setPermittedZRange(const Interval<int>& rg);
+    				/*!<In samples*/
+    const Interval<int>&	permittedZRange() const;
+    				/*!<In samples*/
+    void			setTrackEvent(VSEvent::Type ev);
+    VSEvent::Type		trackEvent() const;
 
-    void		setSimilarityWindow(const Interval<int>& rg);
-    const Interval<int>&similarityWindow() const;
-    void		setSimilarityThreshold(float th);
-    float		similarityThreshold() const;
+    void			useSimilarity(bool yn);
+    bool			usesSimilarity() const;
+    void			setAmplitudeThreshold(float th);
+    float			amplitudeThreshold() const;
+    void			setAllowedVariance(float v);
+    float			allowedVariance() const;
+    void			setUseAbsThreshold(bool abs);
+    bool			useAbsThreshold() const; 
 
-    bool		track();
-    float		quality() const		{ return quality_; }
+    void			setSimilarityWindow(const Interval<int>& rg);
+    const Interval<int>&	similarityWindow() const;
+    void			setSimilarityThreshold(float th);
+    float			similarityThreshold() const;
 
-    void		fillPar(IOPar& par) const;
-    bool		usePar(const IOPar& par);
+    bool			track();
+    float			quality() const		{ return quality_; }
+
+    void			fillPar(IOPar& par) const;
+    bool			usePar(const IOPar& par);
 protected:
 
     bool		snap(float threshold);
