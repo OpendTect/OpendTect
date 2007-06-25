@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Float lists + Features
- RCS:		$Id: windowfunction.h,v 1.1 2007-05-16 19:52:48 cvskris Exp $
+ RCS:		$Id: windowfunction.h,v 1.2 2007-06-25 16:35:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,7 +116,7 @@ public:
     bool			hasVariable() const	{ return true; }
     float			getVariable() const	{ return threshold_; }
     bool  			setVariable(float);
-    const char*			variableName()		{ return "Threshold"; }
+    const char*			variableName() const	{ return "Threshold"; }
 
 protected:
 
