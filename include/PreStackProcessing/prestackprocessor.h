@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.4 2007-05-15 21:28:22 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.5 2007-06-25 15:36:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -63,24 +63,29 @@ protected:
 
 mDefineFactory( Processor, PF );
 
-class ProcessManager
+class ProcessManager : public CallBacker
 {
 public:
-    			ProcessManager();
-    			~ProcessManager();
-    void		setInput(DataPack::ID);
-    bool		process(bool forceall);
-    DataPack::ID	getOutput() const;
+    				ProcessManager();
+    				~ProcessManager();
+    void			setInput(DataPack::ID);
+    bool			process(bool forceall);
+    DataPack::ID		getOutput() const;
 
-    void		addProcessor(Processor*);
-    int			nrProcessors() const;
-    void		removeProcessor(int);
-    void		swapProcessors(int,int);
-    Processor*		getProcessor(int);
-    const Processor*	getProcessor(int) const;
+    void			addProcessor(Processor*);
+    int				nrProcessors() const;
+    void			removeProcessor(int);
+    void			swapProcessors(int,int);
 
-    void		fillPar(IOPar&) const;
-    bool		usePar(const IOPar&);
+    Processor*			getProcessor(int);
+    void			notifyChange()	{ setupChange.trigger(); }
+
+    const Processor*		getProcessor(int) const;
+
+    Notifier<ProcessManager>	setupChange;
+
+    void			fillPar(IOPar&) const;
+    bool			usePar(const IOPar&);
 
 protected:
 

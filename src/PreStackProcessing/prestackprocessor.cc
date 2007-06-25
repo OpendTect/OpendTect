@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.6 2007-05-15 21:28:22 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.7 2007-06-25 15:36:34 cvskris Exp $";
 
 #include "prestackprocessor.h"
 
@@ -74,6 +74,7 @@ int Processor::nrOffsets() const
 ProcessManager::ProcessManager()
     : input_( 0 )
     , output_( 0 )
+    , setupChange( this )
 {}
 
 
@@ -124,7 +125,10 @@ DataPack::ID ProcessManager::getOutput() const
 
 
 void ProcessManager::addProcessor( Processor* sgp )
-{ processors_ += sgp; }
+{
+    processors_ += sgp;
+    setupChange.trigger();
+}
 
 
 int ProcessManager::nrProcessors() const
@@ -132,11 +136,17 @@ int ProcessManager::nrProcessors() const
 
 
 void ProcessManager::removeProcessor( int idx )
-{ delete processors_.remove( idx ); }
+{
+    delete processors_.remove( idx );
+    setupChange.trigger();
+}
 
 
 void ProcessManager::swapProcessors( int i0, int i1 )
-{ processors_.swap( i0, i1 ); }
+{
+    processors_.swap( i0, i1 );
+    setupChange.trigger();
+}
 
 
 Processor* ProcessManager::getProcessor( int idx )
@@ -165,6 +175,8 @@ void ProcessManager::fillPar( IOPar& par ) const
 
 bool ProcessManager::usePar( const IOPar& par )
 {
+    NotifyStopper stopper( setupChange );
+
     deepErase( processors_ );
 
     int nrprocessors;
@@ -194,6 +206,9 @@ bool ProcessManager::usePar( const IOPar& par )
 
 	addProcessor( proc );
     }
+
+    stopper.disable();
+    setupChange.trigger();
 
     return true;
 }
