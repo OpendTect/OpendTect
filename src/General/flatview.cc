@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.19 2007-05-16 16:22:52 cvskris Exp $
+ RCS:           $Id: flatview.cc,v 1.20 2007-06-25 21:41:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -392,17 +392,18 @@ FlatView::Data& FlatView::Viewer::data()
 }
 
 
-void FlatView::Viewer::setPack( bool wva, DataPack::ID id )
+void FlatView::Viewer::setPack( bool wva, DataPack::ID id, bool usedefs )
 {
     const DataPack* pack = DPM(DataPackMgr::FlatID).obtain(id);
     mDynamicCastGet(const FlatDataPack*,fdp,pack)
-    doSetPack( wva, fdp, true );
+    doSetPack( wva, fdp, usedefs );
 }
 
 
-void FlatView::Viewer::setPack( bool wva, const FlatDataPack* newpack )
+void FlatView::Viewer::setPack( bool wva, const FlatDataPack* newpack,
+				bool usedefs )
 {
-    doSetPack( wva, newpack, true );
+    doSetPack( wva, newpack, usedefs );
 }
 
 
