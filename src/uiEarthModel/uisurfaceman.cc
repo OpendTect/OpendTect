@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.37 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.38 2007-06-25 14:36:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "oddirs.h"
 #include "pixmap.h"
+#include "strmprov.h"
+#include "ascstream.h"
 
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
@@ -74,11 +76,9 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
     butgrp->addButton( uiManipButGrp::Remove,
 	    	       mCB(this,uiSurfaceMan,removeAttribCB),
 		       "Remove selected attribute(s)" );
-#ifdef __debug__
     butgrp->addButton( uiManipButGrp::Rename,
 	    	       mCB(this,uiSurfaceMan,renameAttribCB),
 	    	       "Rename selected attribute" );
-#endif
     butgrp->attach( rightTo, attribfld );
 
     uiPushButton* relbut = new uiPushButton( this, "&Relations", false );
@@ -155,14 +155,57 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
 
     const char* newnm = dlg.text();
     if ( attribfld->isPresent(newnm) )
-	mErrRet("Name is already in use")
+	mErrRet( "Name is already in use" )
 
     const BufferString filename =
 		SurfaceAuxData::getAuxDataFileName( *curioobj_, attribnm );
-    if ( !File_exists(filename) )
-	mErrRet( "Cannot find file to change attribute name" )
+    if ( File_isEmpty(filename) )
+	mErrRet( "Cannot find attribute file" )
+    else if ( !File_isWritable(filename) )
+	mErrRet( "The attribute data file is not writable" )
 
-// TODO: Read file, replace attribute name and write file again.
+    StreamData sdin( StreamProvider(filename).makeIStream() );
+    if ( !sdin.usable() )
+	mErrRet( "Cannot open attribute file for read" )
+    BufferString ofilename( filename ); ofilename += "_new";
+    StreamData sdout( StreamProvider(ofilename).makeOStream() );
+    if ( !sdout.usable() )
+    {
+	sdin.close();
+	mErrRet( "Cannot open new attribute file for write" )
+    }
+
+    ascistream aistrm( *sdin.istrm );
+    ascostream aostrm( *sdout.ostrm );
+    aostrm.putHeader( aistrm.fileType() );
+    IOPar iop( aistrm );
+    iop.set( sKey::Attribute, newnm );
+    iop.putTo( aostrm );
+
+    char c;
+    while ( *sdin.istrm )
+	{ sdin.istrm->read( &c, 1 ); sdout.ostrm->write( &c, 1 ); }
+    const bool writeok = sdout.ostrm->good();
+    sdin.close(); sdout.close();
+    BufferString tmpfnm( filename ); tmpfnm += "_old";
+    if ( !writeok )
+    {
+	File_remove( ofilename, NO );
+	mErrRet( "Error during write. Reverting to old name" )
+    }
+
+    if ( File_rename(filename,tmpfnm) )
+	File_rename(ofilename,filename);
+    else
+    {
+	File_remove( ofilename, NO );
+	mErrRet( "Cannot rename file(s). Reverting to old name" )
+    }
+
+    if ( File_exists(tmpfnm) )
+	File_remove( tmpfnm, NO );
+
+    selChg( this );
 }
 
 
