@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmute.h,v 1.2 2007-03-15 20:05:34 cvskris Exp $
+ RCS:		$Id: prestackmute.h,v 1.3 2007-06-25 15:53:35 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,8 @@ public:
     static const char*	sMuteDef()		{ return "Mute Definition";}
 
     const MultiID&	muteDefID() const	{ return id_; }
+    const MuteDef&	muteDef() const		{ return def_; }
+    MuteDef&		muteDef()		{ return def_; }
     bool		isTailMute() const	{ return tail_; }
     float		taperLength() const	{ return taperlen_; }
     void		setMuteDefID( const MultiID& id ) { id_ = id; }
