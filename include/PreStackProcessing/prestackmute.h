@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmute.h,v 1.3 2007-06-25 15:53:35 cvsyuancheng Exp $
+ RCS:		$Id: prestackmute.h,v 1.4 2007-06-26 21:38:38 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -49,7 +49,7 @@ public:
     MuteDef&		muteDef()		{ return def_; }
     bool		isTailMute() const	{ return tail_; }
     float		taperLength() const	{ return taperlen_; }
-    void		setMuteDefID( const MultiID& id ) { id_ = id; }
+    bool		setMuteDefID( const MultiID& id );
     void		setTailMute( bool yn=true )	  { tail_ = yn; }
     void		setTaperLength( float l )	  { taperlen_ = l; }
 

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackmute.cc,v 1.1 2007-03-15 17:28:52 cvskris Exp $";
+static const char* rcsID = "$Id: prestackmute.cc,v 1.2 2007-06-26 21:38:38 cvsyuancheng Exp $";
 
 #include "prestackmute.h"
 
@@ -57,16 +57,27 @@ bool Mute::prepareWork()
 
     if ( muter_ ) return true;
 
-    if ( id_.isEmpty() )
+    muter_ = new Muter( taperlen_, tail_ );
+    return true;
+}
+
+
+bool Mute::setMuteDefID( const MultiID& mid )
+{
+    if ( id_==mid )
+	return true;
+
+    if ( mid.isEmpty() )
 	mErrRet("No MuteDef ID provided")
-    PtrMan<IOObj> ioobj = IOM().get( id_ );
+    PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj ) 
 	mErrRet("Cannot find MuteDef ID in Object Manager")
 
     if ( !MuteDefTranslator::retrieve(def_,ioobj,errmsg_) )
 	mErrRet(errmsg_)
-
-    muter_ = new Muter( taperlen_, tail_ );
+    
+    id_ = mid;
+    
     return true;
 }
 
