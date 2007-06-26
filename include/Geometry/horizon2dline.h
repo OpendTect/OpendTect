@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          March 2006
-RCS:           $Id: horizon2dline.h,v 1.2 2007-01-31 11:41:00 cvsjaap Exp $
+RCS:           $Id: horizon2dline.h,v 1.3 2007-06-26 08:04:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,8 +37,9 @@ public:
     			/*!<\returns id of new path. */
     int			addUdfRow(int start,int stop,int step);
     			/*!<\returns id of new path. */
-    void		removeRow(int);
     void		setRow(int,const TypeSet<Coord>&,int start,int step);
+    void		removeRow(int);
+    void		removeCols(int rowid,int start,int stop);
 
     StepInterval<int>	rowRange() const;
     StepInterval<int>	colRange(int) const;
@@ -47,14 +48,21 @@ public:
     bool		setKnot(const RCol&,const Coord3&);
     bool		isKnotDefined(const RCol&) const;
 
+    virtual void	trimUndefParts();
+    bool		hasSupport(const RCol&) const;
+    void		checkSupport( bool yn )	{ checksupport_ = yn; }
+    bool		checksSupport() const	{ return checksupport_; }
+
 protected:
-    int			colIndex( int rowidx, int colid ) const;
+    int			colIndex(int rowidx,int colid) const;
+
+    bool		checksupport_;
+    int			firstrow_;
 
     ObjectSet<TypeSet<Coord3> >	rows_;
     TypeSet<SamplingData<int> >	colsampling_;
-    int				firstrow_;
 };
 
-};
+} // namespace Geometry
 
 #endif
