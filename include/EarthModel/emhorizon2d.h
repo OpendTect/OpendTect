@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.7 2007-06-21 19:35:21 cvskris Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.8 2007-06-26 07:59:00 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -31,6 +31,8 @@ public:
     const Geometry::Horizon2DLine* sectionGeometry(const SectionID&) const;
 
     int				nrLines() const;
+    int				lineIndex(int id) const;
+    int				lineIndex(const char* linenm) const;
     int				lineID(int idx) const;
     const char*			lineName(int id) const;
     const MultiID&		lineSet(int id) const;
@@ -39,7 +41,7 @@ public:
 					const MultiID& lineset,
 					const char* linename);
 				/*!<\returns id of new line. */
-    void			removeLine( int id );
+    void			removeLine(int id);
     bool			isAtEdge(const PosID&) const;
     PosID			getNeighbor(const PosID&,bool nextcol,
 	    				    bool retundef=false) const;

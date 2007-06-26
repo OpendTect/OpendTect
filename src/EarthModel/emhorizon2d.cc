@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.10 2007-06-21 19:35:21 cvskris Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.11 2007-06-26 07:59:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,14 @@ Horizon2DGeometry::sectionGeometry( const SectionID& sid ) const
 
 int Horizon2DGeometry::nrLines() const
 { return linenames_.size(); }
+
+
+int Horizon2DGeometry::lineIndex( int lineid ) const
+{ return lineids_.indexOf( lineid ); }
+
+
+int Horizon2DGeometry::lineIndex( const char* linenm ) const
+{ return linenames_.indexOf( linenm ); }
 
 
 int Horizon2DGeometry::lineID( int idx ) const
@@ -212,10 +220,9 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 mImplementEMObjFuncs( Horizon2D, EMHorizon2DTranslatorGroup::keyword )
 
 
-
 Horizon2D::Horizon2D( EMManager& emm )
-    : Horizon( emm )
-    , geometry_( *this )
+    : Horizon(emm)
+    , geometry_(*this)
 {
     geometry_.addSection( "", false );
 }
@@ -243,6 +250,6 @@ bool Horizon2D::unSetPos( const EM::SectionID& sid, const EM::SubID& subid,
 
 
 const IOObjContext& Horizon2D::getIOObjContext() const
-{ return EMHorizon2DTranslatorGroup::ioContext(); }  //Fix onw tr
+{ return EMHorizon2DTranslatorGroup::ioContext(); }
 
 } // namespace EM
