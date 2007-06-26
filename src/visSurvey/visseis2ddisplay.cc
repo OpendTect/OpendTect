@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.17 2007-05-18 12:40:12 cvshelene Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.18 2007-06-26 06:39:01 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -12,27 +12,21 @@
 
 #include "visseis2ddisplay.h"
 
-#include "vistristripset.h"
 #include "viscoord.h"
-#include "vistexturecoords.h"
-#include "vistransform.h"
-#include "viscolortab.h"
 #include "visdataman.h"
 #include "vismultitexture2.h"
 #include "vistext.h"
-//#include "vismaterial.h"
-//#include "viscolortab.h"
+#include "vistexturecoords.h"
+#include "vistransform.h"
+#include "vistristripset.h"
 
 #include "arrayndimpl.h"
 #include "attribdataholder.h"
 #include "attribdatapack.h"
-//#include "colortab.h"
 #include "idxable.h"
 #include "iopar.h"
 #include "segposinfo.h"
-//#include "seis2dline.h"
 #include "seisinfo.h"
-//#include "survinfo.h"
 
 //For parsing old pars
 #include "attribsel.h"
@@ -55,9 +49,9 @@ const char* Seis2DDisplay::sKeyTextureID()	{ return "Texture ID"; }
 Seis2DDisplay::Seis2DDisplay()
     : transformation_(0)
     , linename_(0)
-    , geometry_( *new PosInfo::Line2DData )
+    , geometry_(*new PosInfo::Line2DData)
     , geomchanged_(this)
-    , maxtrcnrrg_( INT_MAX, INT_MIN )
+    , maxtrcnrrg_(INT_MAX,INT_MIN)
     , zrg_(-1,-1)
     , trcnrrg_(-1,-1)
 {
@@ -99,7 +93,7 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
 {
     geometry_ = geometry;
     const TypeSet<PosInfo::Line2DPos>& linepositions = geometry.posns;
-    maxtrcnrrg_.start = INT_MAX; maxtrcnrrg_.stop = INT_MIN;
+    maxtrcnrrg_.set( INT_MAX, INT_MIN );
 
     for ( int idx=linepositions.size()-1; idx>=0; idx-- )
 	maxtrcnrrg_.include( linepositions[idx].nr_, false );
