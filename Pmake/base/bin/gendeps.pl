@@ -2,7 +2,7 @@
 # Puts the header file dependencies for a module into a file '.deps'
 # Author: Bert, May 2007
 #
-# $Id: gendeps.pl,v 1.7 2007-06-26 15:16:02 cvsbert Exp $
+# $Id: gendeps.pl,v 1.8 2007-06-26 17:47:00 cvskris Exp $
 #______________________________________________________________________________
 
 
@@ -96,6 +96,8 @@ sub cleanDeps
 	if ( $addfil ) { @tmplist = (@tmplist, $fil); }
     }
 
+    print "Cleaned deps: @tmplist\n" if ( $dbglvl == 2 );
+
     @deps = ();
     @alreadyadded = ();
     foreach $fil ( @tmplist )
@@ -110,6 +112,8 @@ sub cleanDeps
 
 	@deps = (@deps, $fil);
     }
+
+    print "Cleaned deps step 2: @deps\n" if ( $dbglvl == 2 );
 
     # Now remove duplicates
     undef %fil;
@@ -137,7 +141,7 @@ sub outputDeps
 
 sub setDefaults
 {
-    $dbglvl = 0;
+    $dbglvl = 2;
     $cpp = "$ENV{'GNUCC'}";
     $cpp = "gcc" if ( "$cpp" eq "" );
     $cppflags = "-D$ENV{'HDIR'} -D$ENV{'PLFSUBDIR'} -MM";
