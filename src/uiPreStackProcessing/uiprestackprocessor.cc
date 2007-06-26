@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.5 2007-05-22 15:52:10 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.6 2007-06-26 21:39:44 cvsyuancheng Exp $";
 
 #include "uiprestackprocessor.h"
 
@@ -130,7 +130,11 @@ void uiProcessorManager::showPropDialog( int idx )
     if ( !dlg ) return;
 
     if ( dlg->go() )
+    {
 	change.trigger();
+	manager_.notifyChange();
+    }
+	
 }
 
 
