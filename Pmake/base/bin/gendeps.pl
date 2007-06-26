@@ -2,7 +2,7 @@
 # Puts the header file dependencies for a module into a file '.deps'
 # Author: Bert, May 2007
 #
-# $Id: gendeps.pl,v 1.8 2007-06-26 17:47:00 cvskris Exp $
+# $Id: gendeps.pl,v 1.9 2007-06-26 18:10:50 cvskris Exp $
 #______________________________________________________________________________
 
 
@@ -141,7 +141,7 @@ sub outputDeps
 
 sub setDefaults
 {
-    $dbglvl = 2;
+    $dbglvl = 0;
     $cpp = "$ENV{'GNUCC'}";
     $cpp = "gcc" if ( "$cpp" eq "" );
     $cppflags = "-D$ENV{'HDIR'} -D$ENV{'PLFSUBDIR'} -MM";
@@ -178,9 +178,12 @@ sub parseCmdLine
 	shift( @ARGV );
     }
 
-    @ipathnames = @idirectives;
+    @ipathnames = sort { length $b <=> length $a } @idirectives;
+
     foreach ( @ipathnames )
 	{ s/-I//g; s/(\.)/\\$1/g; }
+
+    print "Pathnames: @ipathnames\n" if ( $dbglvl == 2 );
 
     @gendepcmdstart = ($cpp, $cppflags, @idirectives);
 }
