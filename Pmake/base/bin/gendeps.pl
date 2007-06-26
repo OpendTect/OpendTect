@@ -2,7 +2,7 @@
 # Puts the header file dependencies for a module into a file '.deps'
 # Author: Bert, May 2007
 #
-# $Id: gendeps.pl,v 1.9 2007-06-26 18:10:50 cvskris Exp $
+# $Id: gendeps.pl,v 1.10 2007-06-26 18:24:54 cvskris Exp $
 #______________________________________________________________________________
 
 
@@ -177,7 +177,10 @@ sub parseCmdLine
 	@srcfiles = (@srcfiles, $_);
 	shift( @ARGV );
     }
-
+    
+    #sort pathsnames from longest to shortest
+    #to make the substitution take the best
+    #match first
     @ipathnames = sort { length $b <=> length $a } @idirectives;
 
     foreach ( @ipathnames )
