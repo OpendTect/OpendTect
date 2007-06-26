@@ -4,12 +4,13 @@
  * DATE     : Dec 2003
 -*/
 
-static const char* rcsID = "$Id: stratunit.cc,v 1.11 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunit.cc,v 1.12 2007-06-26 16:13:44 cvsbert Exp $";
 
 #include "stratunitref.h"
 #include "stratlith.h"
 #include "property.h"
 #include "separstr.h"
+#include "errh.h"
 
 
 const Strat::Lithology& Strat::Lithology::undef()
@@ -120,7 +121,7 @@ CompoundKey Strat::UnitRef::fullCode() const
 {
     CompoundKey kc;
 
-    for ( int idx=level()-1; idx>=0; idx-- )
+    for ( int idx=treeDepth()-1; idx>=0; idx-- )
 	kc += upNode( idx )->code_;
     kc += code_;
 
@@ -133,6 +134,21 @@ bool Strat::UnitRef::isBelow( const Strat::UnitRef* un ) const
     if ( !un || !upnode_ || un->isLeaf() )
 	return false;
     return upnode_ == un || upnode_->isBelow( un );
+}
+
+
+bool Strat::UnitRef::precedes( const UnitRef& ur ) const
+{
+    Iter it( *topNode() );
+    do
+    {
+	if ( it.unit() == this ) return true;
+	if ( it.unit() == &ur ) return false;
+    }
+    while ( it.next() );
+
+    pErrMsg( "Unreachable code reached. Iterator bug." );
+    return false;
 }
 
 

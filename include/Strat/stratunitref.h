@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.8 2005-01-26 11:54:37 bert Exp $
+ RCS:		$Id: stratunitref.h,v 1.9 2007-06-26 16:13:44 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -60,9 +60,11 @@ public:
     NodeUnitRef*	topNode();
     const NodeUnitRef*	topNode() const;
 
-    int			level() const;
+    int			treeDepth() const;
     bool		isBelow(const UnitRef*) const;
-    			//!< Any number of levels
+    			//!< is given ref parent, grandparent, grandgrand... 
+    bool		precedes(const UnitRef&) const;
+    			//!< in terms of iterating through tree
 
     virtual void	fill(BufferString&) const; //!< Without Unit code
     virtual bool	use(const char*); //!< a string produced by fill()
@@ -174,8 +176,8 @@ protected:
 };
 
 
-inline int UnitRef::level() const
-{ return upnode_ ? upnode_->level() + 1 : 0; }
+inline int UnitRef::treeDepth() const
+{ return upnode_ ? upnode_->treeDepth() + 1 : 0; }
 inline NodeUnitRef* UnitRef::topNode()
 { return upnode_ ? upnode_->topNode() : (NodeUnitRef*)this; }
 inline const NodeUnitRef* UnitRef::topNode() const

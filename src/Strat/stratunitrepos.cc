@@ -4,10 +4,11 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.10 2007-06-21 16:17:28 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.11 2007-06-26 16:13:44 cvsbert Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
+#include "stratlevel.h"
 #include "strmprov.h"
 #include "ascstream.h"
 #include "separstr.h"
@@ -15,6 +16,7 @@ static const char* rcsID = "$Id: stratunitrepos.cc,v 1.10 2007-06-21 16:17:28 cv
 #include "keystrs.h"
 #include "errh.h"
 #include "debug.h"
+#include "iopar.h"
 
 
 static const char* filenamebase = "StratUnits";
@@ -22,7 +24,7 @@ static const char* filetype = "Stratigraphic Tree";
 const char* Strat::UnitRepository::sKeyLith = "Lithology";
 
 
-Strat::UnitRepository& Strat::UnR()
+const Strat::UnitRepository& Strat::UnRepo()
 {
     static Strat::UnitRepository* unrepo = 0;
     if ( !unrepo )
@@ -35,13 +37,19 @@ Strat::UnitRepository& Strat::UnR()
 	    msg += unrepo->nrTrees();
 	    if ( unrepo->nrTrees() > 0 )
 	    {
-		msg += "; first tree name: ";
-		msg += unrepo->tree(0)->treeName();
+		msg += "; last tree name: ";
+		msg += unrepo->tree(unrepo->nrTrees()-1)->treeName();
 	    }
 	    DBG::message( msg );
 	}
     }
     return *unrepo;
+}
+
+
+Strat::RefTree::~RefTree()
+{
+    deepErase( lvls_ );
 }
 
 
@@ -88,7 +96,7 @@ void Strat::RefTree::removeEmptyNodes()
 }
 
 
-const Strat::RefTree::Level* Strat::RefTree::getLevel( const char* nm ) const
+const Strat::Level* Strat::RefTree::getLevel( const char* nm ) const
 {
     for ( int idx=0; idx<lvls_.size(); idx++ )
     {
@@ -99,8 +107,8 @@ const Strat::RefTree::Level* Strat::RefTree::getLevel( const char* nm ) const
 }
 
 
-const Strat::RefTree::Level* Strat::RefTree::getLevel( const Strat::UnitRef* u,
-							bool top ) const
+const Strat::Level* Strat::RefTree::getLevel( const Strat::UnitRef* u,
+					      bool top ) const
 {
     for ( int idx=0; idx<lvls_.size(); idx++ )
     {
@@ -111,11 +119,11 @@ const Strat::RefTree::Level* Strat::RefTree::getLevel( const Strat::UnitRef* u,
 }
 
 
-void Strat::RefTree::remove( const Strat::RefTree::Level*& lvl )
+void Strat::RefTree::remove( const Strat::Level*& lvl )
 {
     for ( int idx=0; idx<lvls_.size(); idx++ )
     {
-	Strat::RefTree::Level* curlvl = lvls_[idx];
+	Strat::Level* curlvl = lvls_[idx];
 	if ( curlvl == lvl )
 	{
 	    lvls_ -= curlvl;
@@ -148,11 +156,13 @@ void Strat::UnitRepository::reRead()
     deepErase( liths_ );
 
     Repos::FileProvider rfp( filenamebase );
-    while ( rfp.next() )
-	addTreeFromFile( rfp );
+    addTreeFromFile( rfp, Repos::Rel );
+    addTreeFromFile( rfp, Repos::ApplSetup );
+    addTreeFromFile( rfp, Repos::Data );
+    addTreeFromFile( rfp, Repos::User );
+    addTreeFromFile( rfp, Repos::Survey );
 
-    if ( curtreeidx_ < 0 || curtreeidx_ > trees_.size() )
-	curtreeidx_ = -1;
+    curtreeidx_ = trees_.size() - 1;
 }
 
 
@@ -164,14 +174,14 @@ bool Strat::UnitRepository::write( Repos::Source )
 }
 
 
-void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp )
+void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
+       					     Repos::Source src )
 {
-    BufferString fnm = rfp.fileName();
+    BufferString fnm = rfp.fileName( src );
     if ( !File_exists(fnm) ) return;
     StreamData sd = StreamProvider( fnm ).makeIStream();
     if ( !sd.usable() ) return;
 
-    const Repos::Source src = rfp.source();
     ascistream astrm( *sd.istrm, true );
     Strat::RefTree* tree = 0;
     while ( !atEndOfSection( astrm.next() ) )
@@ -207,8 +217,10 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp )
 	if ( !ur || !*astrm.keyWord() )
 	    continue;
 
-	const bool isbot = *fms[1] == 'B'; 
-	tree->addLevel( new Strat::RefTree::Level(astrm.keyWord(),ur,!isbot) );
+	Strat::Level* lvl = new Strat::Level(
+		astrm.keyWord(), ur, *fms[1] != 'B', atof(fms[2]) );
+	lvl->pars_.getFrom( fms[3] );
+	tree->addLevel( lvl );
     }
 
     sd.close();

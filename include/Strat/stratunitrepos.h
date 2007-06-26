@@ -1,5 +1,5 @@
-#ifndef stratfw_h
-#define stratfw_h
+#ifndef stratunitrepos_h
+#define stratunitrepos_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.9 2005-01-20 17:17:30 bert Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.10 2007-06-26 16:13:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,13 +15,19 @@ ________________________________________________________________________
 #include "stratunitref.h"
 #include "repos.h"
 class PropertyRef;
+class IOPar;
 
 namespace Strat
 {
 
 class Lithology;
 class UnitRepository;
-UnitRepository& UnR();
+class Level;
+class RefTree;
+
+const UnitRepository& UnRepo();
+const RefTree& RT();
+
 
 /*!\brief Tree of UnitRef's  */
 
@@ -33,6 +39,7 @@ public:
 			: NodeUnitRef(0,"","Top Node")
 			, treename_(nm)
 			, src_(src)			{}
+			~RefTree();
 
     const BufferString&	treeName() const		{ return treename_; }
     void		setTreeName( const char* nm )	{ treename_ = nm; }
@@ -40,16 +47,6 @@ public:
 
     bool		addUnit(const char* fullcode,const char* unit_dump);
     void		removeEmptyNodes(); //!< recommended after add
-
-    struct Level
-    {
-			Level( const char* nm, const UnitRef* u, bool tp=true )
-			: name_(nm), unit_(u), top_(tp)	{}
-
-	BufferString	name_;
-	const UnitRef*	unit_;
-	bool		top_;
-    };
 
     void		addLevel( Level* l )		{ lvls_ += l; }
     int			nrLevels() const		{ return lvls_.size(); }
@@ -79,8 +76,8 @@ public:
     const RefTree*	tree(int idx=0) const	{ return trees_[idx]; }
     RefTree*		tree(int idx=0)		{ return trees_[idx]; }
     int			indexOf(const char* treename) const;
-    void		setCurrentTree( int idx ) { curtreeidx_ = idx; }
-    int			currentTree() const	{ return curtreeidx_; }
+    inline void		setCurrentTree( int idx ) { curtreeidx_ = idx; }
+    inline int		currentTree() const	{ return curtreeidx_; }
 
     UnitRef*		find( const char* code )	{ return fnd(code); }
     const UnitRef*	find( const char* code ) const	{ return fnd(code); }
@@ -115,12 +112,27 @@ protected:
 
 private:
 
-    friend UnitRepository& UnR();
+    friend const UnitRepository& UnRepo();
+    friend const RefTree& RT();
 
     ObjectSet<Lithology> unusedliths_;
-    void		addTreeFromFile(const Repos::FileProvider&);
+    void		addTreeFromFile(const Repos::FileProvider&,
+	    				Repos::Source);
+
+    inline const RefTree&	curTree() const	{ return *tree(curtreeidx_); }
 
 };
+
+inline const RefTree& RT()
+{
+    return UnRepo().curTree();
+}
+
+
+inline UnitRepository& eUnRepo() //!< editable UnRepo
+{
+    return const_cast<UnitRepository&>( UnRepo() );
+}
 
 
 }; // namespace Strat
