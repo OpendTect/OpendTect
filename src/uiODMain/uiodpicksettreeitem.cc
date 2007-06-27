@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.24 2007-05-25 10:16:34 cvsbert Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.25 2007-06-27 10:38:13 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ___________________________________________________________________
 #include "uipickpropdlg.h"
 #include "vispicksetdisplay.h"
 #include "vissurvscene.h"
+#include "vispolylinedisplay.h"
 
 
 uiODPickSetParentTreeItem::uiODPickSetParentTreeItem()
@@ -189,7 +190,7 @@ uiODPickSetTreeItem::~uiODPickSetTreeItem()
     const int setidx = Pick::Mgr().indexOf( set_ );
     if ( setidx>= 0 )
 	Pick::Mgr().set( Pick::Mgr().id(setidx), 0 );
-
+    
     Pick::Mgr().removeCBs( this );
 }
 
@@ -255,9 +256,21 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
 
 void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 {
-    uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet( uiMenuHandler*, menu, caller );
+    mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
+	                            visserv->getObject(displayid_));
+    if ( mnuid==removemnuitem_.id )
+    {
+	visSurvey::PolyLineDisplay* pl = psd->getLine();
+	if ( pl )
+	{
+	    const int plid = pl->id();
+	    visserv->removeObject( plid, sceneID() );
+	}
+    }
+
+    uiODDisplayTreeItem::handleMenuCB(cb);
     if ( menu->menuID()!=displayID() || mnuid==-1 || menu->isHandled() )
 	return;
 
@@ -278,15 +291,29 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==onlyatsectmnuitem_.id )
     {
-	mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
-			visserv->getObject(displayid_));
 	if ( psd )
 	    showAllPicks( !psd->allShown() );
     }
     else if ( mnuid==propertymnuitem_.id )
     {
-	uiPickPropDlg dlg( getUiParent(), set_ );
-	dlg.go();
+	uiPickPropDlg dlg( getUiParent(), set_, drawline_ );
+	if ( dlg.go() )
+	{
+	    drawline_ = dlg.toDraw();
+	    visSurvey::PolyLineDisplay* pl = psd->getLine();
+	    if ( drawline_ && !pl)
+	    {
+		pl = psd->createLine();
+		mDynamicCastGet(visBase::DataObject*,doobj,pl);
+		visserv->addObject( doobj, sceneID(), true );
+	    }
+
+	    if ( pl )
+	    {
+		int plid = pl->id();
+		visserv->turnOn( plid, drawline_ );
+	    }
+	}
     }
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
