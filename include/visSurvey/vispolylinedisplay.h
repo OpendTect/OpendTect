@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          November 2005
- RCS:           $Id: vispolylinedisplay.h,v 1.1 2005-11-15 16:16:56 cvshelene Exp $
+ RCS:           $Id: vispolylinedisplay.h,v 1.2 2007-06-27 10:40:02 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "vistransform.h"
 
 class Coord;
+class Coord3;
 
 namespace visBase { class PolyLine; }
 
@@ -36,6 +37,7 @@ public:
     				~PolyLineDisplay();
 
     void			fillPolyLine(const TypeSet<Coord>&);
+    void                        fillPolyLine(const Coord3&);
     void                        setDisplayTransformation(mVisTrans*);
     mVisTrans*                  getDisplayTransformation();
 

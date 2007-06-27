@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.91 2007-03-06 07:46:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.92 2007-06-27 10:41:05 cvsraman Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -28,6 +28,7 @@ const char* PickSetDisplay::sKeyPickPrefix()    { return "Pick "; }
 
 
 PickSetDisplay::PickSetDisplay()
+    : vispolyline_(0)
 {}
 
 
@@ -38,6 +39,26 @@ visBase::VisualObject* PickSetDisplay::createLocation() const
     marker->setScreenSize( set_->disp_.pixsize_ );
     marker->setMaterial( 0 );
     return marker;
+}
+
+
+PolyLineDisplay* PickSetDisplay::createLine()
+{
+    vispolyline_ = visSurvey::PolyLineDisplay::create();
+    if ( !vispolyline_ ) return 0;
+    for ( int idx=0; idx<set_->size(); idx++ )
+	vispolyline_->fillPolyLine( (*set_)[idx].pos );
+
+    if ( set_->size() ) 
+	vispolyline_->fillPolyLine( (*set_)[0].pos );
+
+    return vispolyline_;
+} 
+
+
+PolyLineDisplay* PickSetDisplay::getLine()
+{
+    return vispolyline_;
 }
 
 

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: vispolylinedisplay.cc,v 1.1 2005-11-15 16:16:57 cvshelene Exp $";
+static const char* rcsID = "$Id: vispolylinedisplay.cc,v 1.2 2007-06-27 10:41:05 cvsraman Exp $";
 
 #include "vispolylinedisplay.h"
 #include "survinfo.h"
@@ -35,8 +35,14 @@ void PolyLineDisplay::fillPolyLine( const TypeSet<Coord>& coords )
 {
     for ( int idx=0; idx<coords.size(); idx++ )
     {
-	polyline_->addPoint( Coord3(coords[idx], SI().sampling(0).zrg.start) );
+	fillPolyLine( Coord3(coords[idx], SI().sampling(0).zrg.start) );
     }
+}
+
+
+void PolyLineDisplay::fillPolyLine( const Coord3& pos )
+{
+	polyline_->addPoint( pos );
 }
 
 

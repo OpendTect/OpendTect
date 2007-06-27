@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.57 2007-03-06 07:46:20 cvsnanne Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.58 2007-06-27 10:40:02 cvsraman Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "vislocationdisplay.h"
-
+#include "vispolylinedisplay.h"
 
 namespace visSurvey
 {
@@ -32,6 +32,8 @@ public:
     static PickSetDisplay*	create()
 				mCreateDataObj(PickSetDisplay);
 
+    PolyLineDisplay*            createLine();
+    PolyLineDisplay*            getLine();
     int				usePar(const IOPar&);
 protected:
     visBase::VisualObject*	createLocation() const;
@@ -39,6 +41,8 @@ protected:
     Coord3			getPosition(int loc) const;
     ::Sphere			getDirection(int loc) const;
     int				isMarkerClick(const TypeSet<int>&) const;
+
+    PolyLineDisplay*		vispolyline_;
 
     void			dispChg(CallBacker*);
 
