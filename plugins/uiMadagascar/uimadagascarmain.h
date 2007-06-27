@@ -4,16 +4,17 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : May 2007
- * ID       : $Id: uimadagascarmain.h,v 1.4 2007-06-18 16:39:49 cvsbert Exp $
+ * ID       : $Id: uimadagascarmain.h,v 1.5 2007-06-27 16:41:59 cvsbert Exp $
 -*/
 
 #include "uidialog.h"
+class uiLabel;
 class CtxtIOObj;
-class uiGenInput;
 class uiSeisSel;
+class uiListBox;
+class uiGenInput;
 class uiIOObjSel;
 class uiFileInput;
-class uiListBox;
 class uiPushButton;
 class uiSeis2DSubSel;
 class uiSeis3DSubSel;
@@ -45,6 +46,7 @@ protected:
     uiSeis2DSubSel*		subsel2dfld_;
     uiSeis3DSubSel*		subselpsfld_;
     uiGenInput*			subselmadfld_;
+    uiLabel*			subselmadlbl_;
 
     uiGenInput*			outtypfld_;
     uiSeisSel*			outseis3dfld_;
@@ -56,12 +58,15 @@ protected:
     uiPushButton*		addbut_;
     uiPushButton*		editbut_;
     uiPushButton*		rmbut_;
+    uiPushButton*		upbut_;
+    uiPushButton*		downbut_;
 
     void			initWin(CallBacker*);
     bool			acceptOK(CallBacker*);
     void			butPush(CallBacker*);
     void			typSel(CallBacker*);
     void			inpSel(CallBacker*);
+    void			selChg(CallBacker*);
 
     void			dispFlds(int,uiSeisSel*,uiSeisSel*,
 	    				 uiIOObjSel*,uiFileInput*);

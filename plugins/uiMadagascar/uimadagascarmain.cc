@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.5 2007-06-18 16:39:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.6 2007-06-27 16:41:59 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiseissel.h"
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.5 2007-06-18 16:39:49 c
 #include "uimadbldcmd.h"
 #include "uilistbox.h"
 #include "uibutton.h"
+#include "uilabel.h"
 #include "uiseparator.h"
 #include "uimsg.h"
 #include "seistrctr.h"
@@ -21,6 +22,7 @@ static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.5 2007-06-18 16:39:49 c
 #include "seispsioprov.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
+#include "pixmap.h"
 #include "survinfo.h"
 #include "filegen.h"
 
@@ -37,6 +39,8 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
 	, subsel3dfld_(0), subsel2dfld_(0), subselpsfld_(0)
     	, idx3d_(-1), idx2d_(-1), idxps_(-1), idxmad_(-1)
 {
+    setCtrlStyle( uiDialog::DoAndStay );
+
     BufferStringSet seistypes;
 #   define mAdd(s,idx) { seistypes.add( s ); idx = seistypes.size() - 1; }
     if ( SI().has3D() ) mAdd( "3D cube", idx3d_ );
@@ -80,9 +84,10 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     inpmadfld_ = new uiFileInput( inpgrp, "Input file", uiFileInput::Setup() );
     inpmadfld_->attach( alignedBelow, intypfld_ );
     inpgrp->setHAlignObj( inpseis3dfld_ ? inpseis3dfld_ : inpseis2dfld_ );
-    subselmadfld_ = new uiGenInput( inpgrp,
-				    "sfheaderwindow parameters [empty=all]" );
+    subselmadfld_ = new uiGenInput( inpgrp, "sfheaderwindow parameters" );
     subselmadfld_->attach( alignedBelow, inpmadfld_ );
+    subselmadlbl_ = new uiLabel( inpgrp, "[Empty=All]" );
+    subselmadlbl_->attach( rightOf, subselmadfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "Hor sep 1", true );
     sep->attach( stretchedBelow, inpgrp, -2 );
@@ -90,15 +95,32 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     const CallBack butpushcb( mCB(this,uiMadagascarMain,butPush) );
     uiGroup* procgrp = new uiGroup( this, "Proc group" );
     procsfld_ = new uiListBox( procgrp, "Procs fld" );
+    procsfld_->setPrefHeightInChar( 8 );
+    procsfld_->selectionChanged.notify( mCB(this,uiMadagascarMain,selChg) );
     addbut_ = new uiPushButton( procgrp, "&Add", butpushcb, false );
+    addbut_->setToolTip( "Add command to flow" );
     addbut_->setPrefWidthInChar( 10 );
     addbut_->attach( rightOf, procsfld_ );
     editbut_ = new uiPushButton( procgrp, "&Edit", butpushcb, false );
+    editbut_->setToolTip( "Edit current command" );
     editbut_->setPrefWidthInChar( 10 );
     editbut_->attach( alignedBelow, addbut_ );
-    rmbut_ = new uiPushButton( procgrp, "&Remove", butpushcb, false );
+    upbut_ = new uiPushButton( procgrp, "", ioPixmap("uparrow.png"),
+	    			butpushcb, true );
+    upbut_->setToolTip( "Move current command up" );
+    upbut_->attach( alignedBelow, editbut_ );
+    upbut_->setPrefWidthInChar( 4 );
+    downbut_ = new uiPushButton( procgrp, "", ioPixmap("downarrow.png"),
+	    			butpushcb, true );
+    downbut_->setToolTip( "Move current command down" );
+    downbut_->attach( rightAlignedBelow, editbut_ );
+    downbut_->setPrefWidthInChar( 4 );
+    uiSeparator* bsep = new uiSeparator( procgrp, "Small hor sep", true );
+    bsep->attach( alignedBelow, upbut_ ); bsep->attach( widthSameAs, editbut_ );
+    rmbut_ = new uiPushButton( procgrp, "&Remove", butpushcb, true );
+    rmbut_->setToolTip( "Remove current command from flow" );
     rmbut_->setPrefWidthInChar( 10 );
-    rmbut_->attach( alignedBelow, editbut_ );
+    rmbut_->attach( alignedWith, editbut_ ); rmbut_->attach( ensureBelow, bsep);
     procgrp->setHAlignObj( addbut_ );
     procgrp->attach( ensureBelow, sep );
 
@@ -188,6 +210,7 @@ void uiMadagascarMain::typSel( CallBacker* cb )
     if ( subsel2dfld_ )
 	subsel2dfld_->display( choice == idx2d_ );
     subselmadfld_->display( choice == idxmad_ );
+    subselmadlbl_->display( choice == idxmad_ );
 }
 
 
@@ -204,35 +227,69 @@ void uiMadagascarMain::dispFlds( int choice, uiSeisSel* fld3d, uiSeisSel* fld2d,
 void uiMadagascarMain::butPush( CallBacker* cb )
 {
     mDynamicCastGet(uiPushButton*,pb,cb)
+    int curidx = procsfld_->currentItem();
+    const int sz = procsfld_->size();
+
     if ( pb == rmbut_ )
     {
-	const int curidx = procsfld_->currentItem();
+	if ( curidx < 0 ) return;
 	procsfld_->removeItem( curidx );
-	if ( curidx > 0 && curidx >= procsfld_->size() )
-	    procsfld_->setCurrentItem( curidx-1 );
+	if ( curidx >= procsfld_->size() )
+	    curidx--;
     }
     else if ( pb == addbut_ || pb == editbut_ )
     {
 	const bool isadd = pb == addbut_;
+	if ( !isadd && curidx < 0 ) return;
+
 	BufferString cmd( isadd ? "" : procsfld_->getText() );
 	uiMadagascarBldCmd dlg( this, cmd );
 	if ( dlg.go() )
 	{
-	    if ( isadd )
-		procsfld_->addItem( cmd );
+	    if ( !isadd )
+		procsfld_->setItemText( curidx, cmd );
 	    else
-		procsfld_->setItemText( procsfld_->currentItem(), cmd );
+	    {
+		procsfld_->addItem( cmd );
+		curidx = procsfld_->size() - 1;
+	    }
 	}
     }
+    else if ( pb == upbut_ || pb == downbut_ )
+    {
+	if ( curidx < 0 ) return;
+	const bool isup = pb == upbut_;
+	const int newcur = curidx + (isup ? -1 : 1);
+	if ( newcur >= 0 && newcur < sz )
+	{
+	    BufferString tmp( procsfld_->textOfItem(newcur) );
+	    procsfld_->setItemText( newcur, procsfld_->getText() );
+	    procsfld_->setItemText( curidx, tmp );
+	    curidx = newcur;
+	}
+    }
+
+    if ( curidx >= 0 )
+	procsfld_->setCurrentItem( curidx );
     setButStates();
 }
 
 
 void uiMadagascarMain::setButStates()
 {
-    const bool havesel = !procsfld_->isEmpty() && procsfld_->currentItem() >= 0;
+    const bool havesel = !procsfld_->isEmpty();
     editbut_->setSensitive( havesel );
     rmbut_->setSensitive( havesel );
+    selChg( 0 );
+}
+
+
+void uiMadagascarMain::selChg( CallBacker* )
+{
+    const int curidx = procsfld_->isEmpty() ? -1 : procsfld_->currentItem();
+    const int sz = procsfld_->size();
+    upbut_->setSensitive( sz > 1 && curidx > 0 );
+    downbut_->setSensitive( sz > 1 && curidx >= 0 && curidx < sz-1 );
 }
 
 #define mErrRet(s1,s2,s3) { uiMSG().error(s1,s2,s3); return false; }
