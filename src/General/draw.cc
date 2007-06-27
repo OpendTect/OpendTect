@@ -4,7 +4,7 @@
  * DATE     : 18-4-1996
 -*/
 
-static const char* rcsID = "$Id: draw.cc,v 1.67 2007-06-19 15:35:45 cvsbert Exp $";
+static const char* rcsID = "$Id: draw.cc,v 1.68 2007-06-27 10:34:47 cvsraman Exp $";
 
 /*! \brief Several implementations for UI-related things.
 
@@ -34,7 +34,7 @@ The main chunk is color table related.
 DefineEnumNames(MarkerStyle2D,Type,2,"Marker type")
     { "None", "Square", "Circle", "Cross", 0 };
 DefineEnumNames(MarkerStyle3D,Type,0,"Marker type")
-    { "Cube", "Cone", "Cylinder", "Sphere", "Arrow", "Cross", 0 };
+    { "None", "Cube", "Cone", "Cylinder", "Sphere", "Arrow", "Cross", 0 };
 DefineEnumNames(LineStyle,Type,0,"Line style")
     { "None", "Solid", "Dashed", "Dotted", "Dash-Dotted", "Dash-Dot-Dotted",0 };
 DefineEnumNames(Alignment,Pos,3,"Alignment position")
