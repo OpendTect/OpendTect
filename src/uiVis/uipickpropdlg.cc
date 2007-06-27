@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uipickpropdlg.cc,v 1.2 2006-08-09 10:04:41 cvsjaap Exp $
+ RCS:           $Id: uipickpropdlg.cc,v 1.3 2007-06-27 10:09:52 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,9 +15,19 @@ ________________________________________________________________________
 #include "draw.h"
 #include "pickset.h"
 
+#include "uibutton.h"
 #include "uicolor.h"
 #include "uigeninput.h"
 #include "uislider.h"
+
+
+uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set, bool drawline )
+    : uiMarkerStyleDlg(p,"Pick properties"), set_(set)
+{
+    linefld_ = new uiCheckBox( this, "Draw line" ); 
+    linefld_->setChecked( drawline );
+    linefld_->attach( rightTo, typefld );
+}
 
 
 void uiPickPropDlg::doFinalise( CallBacker* )
@@ -39,6 +49,7 @@ void uiPickPropDlg::sliderMove( CallBacker* )
 void uiPickPropDlg::typeSel( CallBacker* )
 {
     set_.disp_.markertype_ = typefld->getIntValue();
+    if ( !typefld->getIntValue() ) linefld_->setChecked( true );
     Pick::Mgr().reportDispChange( this, set_ );
 }
 
@@ -47,4 +58,11 @@ void uiPickPropDlg::colSel( CallBacker* )
 {
     set_.disp_.color_ = colselfld->color();
     Pick::Mgr().reportDispChange( this, set_ );
+}
+
+
+bool uiPickPropDlg::acceptOK( CallBacker* )
+{
+    drawline_ = linefld_->isChecked();
+    return true;
 }
