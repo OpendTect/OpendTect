@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.62 2007-06-20 11:47:19 cvsnanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.63 2007-06-27 11:28:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -579,6 +579,8 @@ bool VolumeDisplay::allowPicks() const
 visSurvey::SurveyObject* VolumeDisplay::duplicate() const
 {
     VolumeDisplay* vd = create();
+
+    SoNode* node = vd->getInventorNode();
 
 //  const char* ctnm = getColorTab().colorSeq().colors().name();
 //  vd->getColorTab().colorSeq().loadFromStorage( ctnm );
