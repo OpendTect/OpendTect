@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.24 2007-01-16 09:02:09 cvsnanne Exp $
+ RCS:           $Id: vismarker.cc,v 1.25 2007-06-27 10:45:26 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,6 +126,9 @@ void Marker::setType( MarkerStyle3D::Type type )
 {
     switch ( type )
     {
+    case MarkerStyle3D::None: {
+	removeChild(shape);
+	} break;
     case MarkerStyle3D::Cube: {
 	setMarkerShape(new SoCube);
 	setRotation( Coord3(0,0,1), 0 );
