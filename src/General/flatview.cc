@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.20 2007-06-25 21:41:55 cvskris Exp $
+ RCS:           $Id: flatview.cc,v 1.21 2007-06-28 21:48:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -261,6 +261,7 @@ FlatView::Annotation::AuxData::AuxData(const FlatView::Annotation::AuxData& aux)
     , enabled_( aux.enabled_ )
     , editpermissions_( aux.editpermissions_
 	    ? new EditPermissions(*aux.editpermissions_) : 0 )
+    , poly_( aux.poly_ )
 {}
 
 
