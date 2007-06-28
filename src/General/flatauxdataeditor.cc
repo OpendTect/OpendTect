@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.10 2007-05-14 13:34:03 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.cc,v 1.11 2007-06-28 21:49:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -226,6 +226,10 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 	viewer_.appearance().annot_.auxdata_ -= feedback_;
 	delete feedback_;
 	feedback_ = 0;
+
+	if ( selptidx_!=-1 )
+	    viewer_.appearance().annot_.auxdata_ += auxdata_[seldatasetidx_];
+
 	viewer_.handleChange( Viewer::Annot );
     }
 }
@@ -263,10 +267,18 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
     {
 	feedback_ = new Annotation::AuxData( *auxdata_[seldatasetidx_] );
 	viewer_.appearance().annot_.auxdata_ += feedback_;
-	feedback_->poly_.erase();
-        feedback_->poly_ += selptcoord_;
+	if ( selptidx_==-1 )
+	{
+	    feedback_->poly_.erase();
+	    feedback_->poly_ += selptcoord_;
+	}
+	else
+	    viewer_.appearance().annot_.auxdata_ -= auxdata_[seldatasetidx_];
     }
-    else feedback_->poly_[0] = selptcoord_;
+    else if ( selptidx_==-1 )
+	feedback_->poly_[0] = selptcoord_;
+    else 
+	feedback_->poly_[selptidx_] = selptcoord_;
 
     viewer_.handleChange( Viewer::Annot );
     mousehandler_.setHandled( true );
