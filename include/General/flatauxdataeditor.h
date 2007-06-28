@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.5 2007-05-03 19:18:04 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.6 2007-06-28 22:28:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,6 @@ class AuxDataEditor : public CallBacker
 public:
 			AuxDataEditor(Viewer&,MouseEventHandler&);
     virtual		~AuxDataEditor();
-    Viewer&		getViewer();
     int			addAuxData(FlatView::Annotation::AuxData*,
 	    			   bool doedit);
     			/*!<\param doedit says whether this object

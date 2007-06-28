@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.11 2007-06-28 21:49:41 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.cc,v 1.12 2007-06-28 22:28:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,10 +42,6 @@ AuxDataEditor::~AuxDataEditor()
     mousehandler_.buttonReleased.remove(mCB(this,AuxDataEditor,mouseReleaseCB));
     mousehandler_.movement.remove( mCB(this,AuxDataEditor,mouseMoveCB) );
 }
-
-
-Viewer& AuxDataEditor::getViewer()
-{ return viewer_; }
 
 
 int AuxDataEditor::addAuxData( FlatView::Annotation::AuxData* nd, bool doedit )
