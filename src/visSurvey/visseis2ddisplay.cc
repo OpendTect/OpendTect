@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.18 2007-06-26 06:39:01 cvsnanne Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.19 2007-06-28 16:16:55 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@
 #include "iopar.h"
 #include "segposinfo.h"
 #include "seisinfo.h"
+#include "zaxistransform.h"
 
 //For parsing old pars
 #include "attribsel.h"
@@ -54,6 +55,8 @@ Seis2DDisplay::Seis2DDisplay()
     , maxtrcnrrg_(INT_MAX,INT_MIN)
     , zrg_(-1,-1)
     , trcnrrg_(-1,-1)
+    , datatransform_(0)
+    , datatransformvoihandle_(-1)
 {
     geometry_.zrg.start = geometry_.zrg.stop = mUdf(float);
     cache_.allowNull();
@@ -231,6 +234,9 @@ void Seis2DDisplay::setData( int attrib,
     for ( int idx=0; idx<totalsz; idx++ )
 	(*arrptr++) = mUdf(float);
 
+    const char* depthdomain = getSelSpec(attrib)->depthDomainKey();
+    const bool alreadytransformed = depthdomain && *depthdomain;
+
     for ( int dataidx=0; dataidx<dataset.size(); dataidx++ )
     {
 	const int trcnr = dataset.trcinfoset_[dataidx]->nr;
@@ -280,7 +286,6 @@ void Seis2DDisplay::setData( int attrib,
 				     !isClassification( attrib ), arr, true );
     }
 }
-
 
 
 void Seis2DDisplay::updateVizPath()
@@ -553,7 +558,7 @@ void Seis2DDisplay::getMousePosInfo( const visBase::EventInfo&,
 
     int dataidx = -1;
     float mindist;
-    if ( getNearestTrace( pos, dataidx, mindist ) )
+    if ( getNearestTrace(pos,dataidx,mindist) )
     {
 	info += "   Tracenr: ";
 	info += geometry_.posns[dataidx].nr_;
@@ -635,6 +640,63 @@ bool Seis2DDisplay::getNearestTrace( const Coord3& pos,
     }
 
     return trcidx!=-1;
+}
+
+
+Coord Seis2DDisplay::getCoord( int trcnr ) const
+{
+    for ( int idx=0; idx<geometry_.posns.size(); idx++ )
+    {
+	if ( geometry_.posns[idx].nr_ == trcnr )
+	    return geometry_.posns[idx].coord_;
+    }
+    return Coord::udf();
+}
+
+
+bool Seis2DDisplay::setDataTransform( ZAxisTransform* zat )
+{
+    const bool haddatatransform = datatransform_;
+    if ( datatransform_ )
+    {
+	if ( datatransformvoihandle_!=-1 )
+	    datatransform_->removeVolumeOfInterest(datatransformvoihandle_);
+	if ( datatransform_->changeNotifier() )
+	    datatransform_->changeNotifier()->remove(
+		    mCB(this,Seis2DDisplay,dataTransformCB) );
+	datatransform_->unRef();
+	datatransform_ = 0;
+    }
+
+    datatransform_ = zat;
+    datatransformvoihandle_ = -1;
+
+    if ( datatransform_ )
+    {
+	datatransform_->ref();
+	updateRanges( false, !haddatatransform );
+	if ( datatransform_->changeNotifier() )
+	    datatransform_->changeNotifier()->notify(
+		    mCB(this,Seis2DDisplay,dataTransformCB) );
+    }
+
+    return true;
+}
+
+
+const ZAxisTransform* Seis2DDisplay::getDataTransform() const
+{ return datatransform_; }
+
+
+void Seis2DDisplay::dataTransformCB( CallBacker* )
+{
+    updateRanges( false, true );
+    updateDataFromCache();
+}
+
+
+void Seis2DDisplay::updateRanges( bool trc, bool z )
+{
 }
 
 

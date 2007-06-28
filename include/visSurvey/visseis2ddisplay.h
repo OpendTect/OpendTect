@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.12 2007-05-22 04:42:27 cvsnanne Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.13 2007-06-28 16:16:55 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -17,24 +17,17 @@ ________________________________________________________________________
 #include "vismultiattribsurvobj.h"
 #include "multiid.h"
 
-//class ColorTable;
 class SeisTrcInfo;
-
-namespace Attrib 
-{ 
-    //class SelSpec; 
-    class Data2DHolder;
-}
+class ZAxisTransform;
 
 namespace visBase
 {
-    //class Material;
     class Text2;
     class Transformation;
     class TriangleStripSet;
-    //class MultiTexture2;
-};
+}
 
+namespace Attrib  { class Data2DHolder; }
 namespace PosInfo { class Line2DData; }
 
 namespace visSurvey
@@ -106,7 +99,12 @@ public:
     void			setLineSetID(const MultiID& mid);
     const MultiID&		lineSetID() const;
 
-    NotifierAccess*		getMovementNotifier()	
+    Coord			getCoord(int trcnr) const;
+
+    bool			setDataTransform(ZAxisTransform*);
+    const ZAxisTransform*	getDataTransform() const;
+
+    NotifierAccess*		getMovementNotifier()
     				{ return &geomchanged_; }
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
@@ -135,6 +133,8 @@ protected:
     void			setData(int attrib,const Attrib::Data2DHolder&);
     bool			getNearestTrace(const Coord3&,int& idx,
 						float& sqdist) const;
+    void			dataTransformCB(CallBacker*);
+    void			updateRanges(bool trc,bool z);
 
     ObjectSet<const Attrib::Data2DHolder>	cache_;
     TypeSet<DataPack::ID>			datapackids_;
@@ -150,6 +150,9 @@ protected:
     visBase::Transformation*			transformation_;
     visBase::Text2*				linename_;
     Notifier<Seis2DDisplay>			geomchanged_;
+
+    ZAxisTransform*				datatransform_;
+    int						datatransformvoihandle_;
 
     static const char*				sKeyLineSetID();
     static const char*				sKeyTrcNrRange();
