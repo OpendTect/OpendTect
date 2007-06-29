@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.79 2007-06-15 21:51:43 cvsyuancheng Exp $
+ RCS:		$Id: vissurvobj.h,v 1.80 2007-06-29 11:52:53 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -225,6 +225,7 @@ public:
     //TODO: as for now: vertical viewer is the only one available,
     //later on: allow timeslices and horizons with horizontal viewer
     virtual bool		canBDispOn2DViewer() const	{ return false;}
+    virtual bool		isVerticalPlane() const		{ return true;}
     
     static float		sDefMaxDist;
 

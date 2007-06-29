@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.349 2007-05-22 04:42:27 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.350 2007-06-29 11:52:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -1564,6 +1564,13 @@ bool uiVisPartServer::canBDispOn2DViewer( int id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->canBDispOn2DViewer() : false;
+}
+
+
+bool uiVisPartServer::isVerticalDisp( int id ) const
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    return so ? so->isVerticalPlane() : true;
 }
 
 

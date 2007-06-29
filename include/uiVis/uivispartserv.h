@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.190 2007-03-22 17:38:11 cvsdgb Exp $
+ RCS:           $Id: uivispartserv.h,v 1.191 2007-06-29 11:52:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -291,6 +291,7 @@ public:
     void			fillPar(IOPar&) const;
 
     bool			canBDispOn2DViewer(int id) const;
+    bool			isVerticalDisp(int id) const;
     
 protected:
 

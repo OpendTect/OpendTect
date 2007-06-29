@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.97 2007-05-22 04:42:27 cvsnanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.98 2007-06-29 11:52:53 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -124,7 +124,7 @@ public:
 						 the plane setting should be
 						 returned.
 				    \returns	combination of OD::ButtonState*/
-    bool                	canBDispOn2DViewer() const;
+    bool                	isVerticalPlane() const;
 
     static const char*		sKeyDepthKey()		{ return "DepthKey"; }
     static const char*		sKeyPlaneKey()		{ return "PlaneKey"; }

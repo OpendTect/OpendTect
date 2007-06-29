@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.106 2007-06-08 06:12:59 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.107 2007-06-29 11:52:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -816,7 +816,8 @@ void uiODSceneMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     if ( !curvwr )
 	curvwr = &addViewer2D( visid );
 
-    curvwr->setData( visServ().getDataPackID(visid,attribid), dowva );
+    bool isvert = visServ().isVerticalDisp(visid);
+    curvwr->setUpView( visServ().getDataPackID(visid,attribid), dowva, isvert );
 }
 
 
@@ -908,35 +909,47 @@ uiODSceneMgr::Viewer2D::~Viewer2D()
 }
 
 
-void uiODSceneMgr::Viewer2D::setData( DataPack::ID packid, bool wva )
+void uiODSceneMgr::Viewer2D::setUpView( DataPack::ID packid,
+					bool wva, bool isvert )
 {
     if ( !viewwin_ )
-    {
-	bool wantdock = false;
-	Settings::common().getYN( "FlatView.Use Dockwin", wantdock );
-	uiParent* controlparent = 0;
-	if ( !wantdock )
-	    viewwin_ = new uiFlatViewMainWin( 0,
-				       uiFlatViewMainWin::Setup(basetxt_) );
-	else
-	{
-	    uiFlatViewDockWin* dwin = new uiFlatViewDockWin( &appl_,
-				       uiFlatViewDockWin::Setup(basetxt_) );
-	    appl_.addDockWindow( *dwin, uiMainWin::Top );
-	    dwin->setFloating( true );
-	    viewwin_ = dwin;
-	    controlparent = &appl_;
-	}
-	uiFlatViewer& vwr = viewwin_->viewer();
-	vwr.setInitialSize( uiSize(600,400) );
-	vwr.setDarkBG( wantdock );
-	vwr.appearance().setGeoDefaults(true); //TODO when horizontal slices
-	vwr.appearance().annot_.setAxesAnnot(true);
-	viewwin_->addControl( new uiFlatViewStdControl( vwr,
-		    	      uiFlatViewStdControl::Setup(controlparent) ) );
-    }
+	createViewWin( isvert );
 
+    setData( packid, wva );
+}
+
+
+void uiODSceneMgr::Viewer2D::createViewWin( bool isvert )
+{    
+    bool wantdock = false;
+    Settings::common().getYN( "FlatView.Use Dockwin", wantdock );
+    uiParent* controlparent = 0;
+    if ( !wantdock )
+	viewwin_ = new uiFlatViewMainWin( 0,
+				   uiFlatViewMainWin::Setup(basetxt_) );
+    else
+    {
+	uiFlatViewDockWin* dwin = new uiFlatViewDockWin( &appl_,
+				   uiFlatViewDockWin::Setup(basetxt_) );
+	appl_.addDockWindow( *dwin, uiMainWin::Top );
+	dwin->setFloating( true );
+	viewwin_ = dwin;
+	controlparent = &appl_;
+    }
+    uiFlatViewer& vwr = viewwin_->viewer();
+    vwr.setInitialSize( uiSize(600,400) );
+    vwr.setDarkBG( wantdock );
+    vwr.appearance().setGeoDefaults(isvert);
+    vwr.appearance().annot_.setAxesAnnot(true);
+    viewwin_->addControl( new uiFlatViewStdControl( vwr,
+		    	      uiFlatViewStdControl::Setup(controlparent) ) );
+}
+
+
+void uiODSceneMgr::Viewer2D::setData( DataPack::ID packid, bool wva )
+{
     viewwin_->viewer().setPack( wva, packid );
     viewwin_->viewer().appearance().ddpars_.show( true, true );
     viewwin_->start();
 }
+
