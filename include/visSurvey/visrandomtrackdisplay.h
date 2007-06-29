@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.55 2007-05-22 04:42:27 cvsnanne Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.56 2007-06-29 11:31:20 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -128,7 +128,7 @@ public:
 
     int				getSelKnotIdx() const	{ return selknotidx_; }
 
-    virtual NotifierAccess*	getMovementNotifier()	  { return &moving_; }
+    virtual NotifierAccess*	getMovementNotifier() 	{ return &moving_; }
     NotifierAccess*		getManipulationNotifier() {return &knotmoving_;}
 
     Coord3			getNormal(const Coord3&) const;
@@ -141,6 +141,9 @@ public:
     bool			canBDispOn2DViewer() const	{ return true; }
     TypeSet<BinID>*             getPath()		{ return &trcspath_; }
     
+    Notifier<RandomTrackDisplay> moving_;
+    Notifier<RandomTrackDisplay> knotmoving_;
+
 protected:
 				~RandomTrackDisplay();
 
@@ -169,9 +172,6 @@ protected:
 
     bool			ismanip_;
     int				namenr_;
-
-    Notifier<RandomTrackDisplay> moving_;
-    Notifier<RandomTrackDisplay> knotmoving_;
 
     static const char*		sKeyTrack();
     static const char*		sKeyNrKnots();
