@@ -1,11 +1,10 @@
-
 /*+
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: maddefs.cc,v 1.3 2007-06-28 18:11:32 cvsbert Exp $";
+static const char* rcsID = "$Id: maddefs.cc,v 1.4 2007-06-29 11:58:53 cvsbert Exp $";
 
 #include "maddefs.h"
 #include "envvars.h"
@@ -98,7 +97,11 @@ ProgInfoScanner( ODMad::ProgInfo& pi )
 
 const char* message() const
 {
-    if ( !dl_ ) return pi_.errMsg();
+    if ( !dl_ )
+	return pi_.errMsg();
+    if ( curnr_ < 0 || curnr_ >= dl_->size() )
+	return "Scanning files";
+
     msg_ = "Scanning "; msg_ += dl_->get( curnr_ );
     return msg_;
 }

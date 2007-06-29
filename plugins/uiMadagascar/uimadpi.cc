@@ -5,11 +5,12 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.1 2007-05-23 17:05:28 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.2 2007-06-29 11:58:53 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiodmenumgr.h"
 #include "uimenu.h"
+#include "uitoolbar.h"
 #include "uimsg.h"
 #include "plugins.h"
 
@@ -22,7 +23,7 @@ extern "C" int GetuiMadagascarPluginType()
 extern "C" PluginInfo* GetuiMadagascarPluginInfo()
 {
     static PluginInfo retpi = {
-	"Madagascar connection",
+	"Madagascar link",
 	"dGB (Bert)",
 	"3.0",
     	"Enables the Madagascar link." };
@@ -45,8 +46,9 @@ uiMadagascarLink::uiMadagascarLink( uiODMain* a )
 	: appl(a)
 {
     uiODMenuMgr& mnumgr = appl->menuMgr();
-    mnumgr.utilMnu()->insertItem( new uiMenuItem("&Madagascar ...",
-				  mCB(this,uiMadagascarLink,doMain)) );
+    const CallBack cb( mCB(this,uiMadagascarLink,doMain) );
+    mnumgr.utilMnu()->insertItem( new uiMenuItem("&Madagascar ...",cb) );
+    mnumgr.dtectTB()->addButton( "madagascar.png", cb, "Madagascar link" );
 }
 
 

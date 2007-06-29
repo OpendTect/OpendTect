@@ -5,12 +5,14 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.2 2007-06-28 18:11:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.3 2007-06-29 11:58:53 cvsbert Exp $";
 
 #include "uimadbldcmd.h"
 #include "uimsg.h"
 #include "uilabel.h"
 #include "uigeninput.h"
+#include "uilistbox.h"
+#include "uicombobox.h"
 #include "uiseparator.h"
 #include "uiexecutor.h"
 #include "maddefs.h"
@@ -54,11 +56,21 @@ uiMadagascarBldCmd::~uiMadagascarBldCmd()
 
 uiSeparator* uiMadagascarBldCmd::createMainPart()
 {
-    BufferString msg( "Found " ); msg += ODMad::PI().defs().size();
-    msg += " in "; msg += ODMad::PI().groups().size(); msg += " groups.";
-    uiLabel* lbl = new uiLabel( this, msg );
+    BufferStringSet grps( ODMad::PI().groups() );
+    grps.sort();
+    grps.insertAt( new BufferString("All"), 0 );
+    uiLabeledComboBox* groupfld = new uiLabeledComboBox( this, grps, "Group" );
+    groupfld_ = groupfld->box();
+
+    uiLabeledListBox* progfld = new uiLabeledListBox( this, "Program" );
+    progfld_ = progfld->box();
+    const ObjectSet<ODMad::ProgDef>& defs = ODMad::PI().defs();
+    for ( int idx=0; idx<defs.size(); idx++ )
+	progfld_->addItem( defs[idx]->name_ );
+    progfld->attach( alignedBelow, groupfld );
+
     uiSeparator* sep = new uiSeparator( this, "low sep" );
-    sep->attach( stretchedBelow, lbl );
+    sep->attach( stretchedBelow, progfld );
     return sep;
 }
 
