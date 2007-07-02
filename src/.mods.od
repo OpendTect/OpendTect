@@ -5,6 +5,7 @@ Geometry
 EarthModel
 Batch
 NLA
+Strat
 Seis
 AttributeEngine
 Attributes
@@ -18,6 +19,7 @@ uiFlatView
 uiIo
 uiEarthModel
 uiNLA
+uiStrat
 uiSeis
 uiAttributes
 uiPreStackProcessing
