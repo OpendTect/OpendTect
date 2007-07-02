@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolyline.h,v 1.9 2004-07-23 12:58:17 kristofer Exp $
+ RCS:		$Id: vispolyline.h,v 1.10 2007-07-02 12:10:24 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -18,9 +18,12 @@ ________________________________________________________________________
 
 class SoLineSet;
 class SoIndexedLineSet;
+class LineStyle;
 
 namespace visBase
 {
+
+class DrawStyle;
 
 /*!\brief
 
@@ -34,6 +37,7 @@ public:
 			mCreateDataObj(PolyLine);
 
     int 		size() const;
+    void		setLineStyle(const LineStyle&);
     void		addPoint( const Coord3& pos );
     Coord3		getPoint( int ) const;
     void		setPoint( int, const Coord3& );
@@ -41,6 +45,8 @@ public:
 
 protected:
     SoLineSet*		lineset;
+
+    DrawStyle*		drawstyle_;
 };
 
 
