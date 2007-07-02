@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.42 2007-01-25 12:49:40 cvsnanne Exp $
+ RCS:		$Id: sets.h,v 1.43 2007-07-02 15:53:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -429,6 +429,15 @@ inline int indexOf( const ObjectSet<T>& os, const S& val )
 	    return idx;
     }
     return -1;
+}
+
+
+//! Get const object in set
+template <class T,class S>
+inline const T* find( const ObjectSet<T>& os, const S& val )
+{
+    int idx = indexOf( os, val );
+    return idx == -1 ? 0 : os[idx];
 }
 
 
