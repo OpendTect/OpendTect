@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Apr 2002
- RCS:           $Id: vispolyline.cc,v 1.12 2006-04-13 15:29:08 cvskris Exp $
+ RCS:           $Id: vispolyline.cc,v 1.13 2007-07-02 12:09:05 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "vispolyline.h"
 #include "viscoord.h"
+#include "visdrawstyle.h"
 
 #include "SoIndexedLineSet3D.h"
 
@@ -27,11 +28,24 @@ namespace visBase
 PolyLine::PolyLine()
     : VertexShape( new SoLineSet )
     , lineset( dynamic_cast<SoLineSet*>( shape_ ) )
+    , drawstyle_(0)
+
 { }
 
 
 int PolyLine::size() const { return coords_->size(); }
 
+
+void PolyLine::setLineStyle( const LineStyle& lst )
+{
+    if ( !drawstyle_ ) 
+    {
+	drawstyle_ = DrawStyle::create();
+	insertNode( drawstyle_->getInventorNode() );
+    }
+
+    drawstyle_->setLineStyle( lst );
+}
 
 void PolyLine::addPoint( const Coord3& pos )
 {
