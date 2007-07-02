@@ -4,12 +4,12 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.11 2007-06-26 16:13:44 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.12 2007-07-02 15:16:40 cvsbert Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
 #include "stratlevel.h"
-#include "strmprov.h"
+#include "safefileio.h"
 #include "ascstream.h"
 #include "separstr.h"
 #include "filegen.h"
@@ -135,6 +135,54 @@ void Strat::RefTree::remove( const Strat::Level*& lvl )
 }
 
 
+bool Strat::RefTree::write( std::ostream& strm ) const
+{
+    ascostream astrm( strm );
+    astrm.putHeader( filetype );
+    astrm.put( sKey::Name, treename_ );
+    const UnitRepository& repo = UnRepo();
+    BufferString str;
+    for ( int idx=0; idx<repo.nrLiths(); idx++ )
+    {
+	const Lithology& lith = repo.lith( idx );
+	if ( lith.source() == src_ )
+	{
+	    lith.fill( str );
+	    astrm.put( Strat::UnitRepository::sKeyLith, str );
+	}
+    }
+
+    astrm.newParagraph();
+    Strat::UnitRef::Iter it( *this );
+    while ( it.next() )
+    {
+	const UnitRef& un = *it.unit(); un.fill( str );
+	astrm.put( un.fullCode(), str );
+    }
+
+    astrm.newParagraph();
+    for ( int idx=0; idx<lvls_.size(); idx ++ )
+    {
+	const Strat::Level& lvl = *lvls_[idx];
+	if ( !lvl.unit_ ) continue;
+
+	FileMultiString fms( lvl.unit_->fullCode().buf() );
+	fms += lvl.top_ ? "T" : "B";
+	if ( mIsUdf(lvl.time_) ) fms += "1e30";
+	else			 fms += lvl.time_;
+	if ( lvl.pars_.size() )
+	{
+	    lvl.pars_.putTo( str );
+	    fms += str;
+	}
+	astrm.put( lvl.name_, fms );
+    }
+
+    astrm.newParagraph();
+    return strm.good();
+}
+
+
 Strat::UnitRepository::UnitRepository()
     	: curtreeidx_(-1)
 {
@@ -166,10 +214,27 @@ void Strat::UnitRepository::reRead()
 }
 
 
-bool Strat::UnitRepository::write( Repos::Source )
+bool Strat::UnitRepository::write( Repos::Source src ) const
 {
-    //TODO implement
-    pErrMsg("Not impl: Strat::UnitRepository::write");
+    const Strat::RefTree* tree = 0;
+    for ( int idx=0; idx<trees_.size(); idx++ )
+    {
+	if ( trees_[idx]->source() == src )
+	    { tree = trees_[idx]; break; }
+    }
+    if ( !tree )
+	return false;
+
+    Repos::FileProvider rfp( filenamebase );
+    const BufferString fnm = rfp.fileName( src );
+    SafeFileIO sfio( fnm );
+    if ( !sfio.open(false) )
+	{ ErrMsg(sfio.errMsg()); return false; }
+
+    if ( !tree->write(sfio.ostrm()) )
+	{ sfio.closeFail(); return false; }
+
+    sfio.closeSuccess();
     return true;
 }
 
@@ -177,12 +242,14 @@ bool Strat::UnitRepository::write( Repos::Source )
 void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
        					     Repos::Source src )
 {
-    BufferString fnm = rfp.fileName( src );
-    if ( !File_exists(fnm) ) return;
-    StreamData sd = StreamProvider( fnm ).makeIStream();
-    if ( !sd.usable() ) return;
+    const BufferString fnm( rfp.fileName(src) );
+    SafeFileIO sfio( fnm );
+    if ( !sfio.open(true) ) return;
 
-    ascistream astrm( *sd.istrm, true );
+    ascistream astrm( sfio.istrm(), true );
+    if ( !astrm.isOfFileType(filetype) )
+	{ sfio.closeFail(); return; }
+
     Strat::RefTree* tree = 0;
     while ( !atEndOfSection( astrm.next() ) )
     {
@@ -195,7 +262,7 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
     {
 	BufferString msg( "No name specified for Stratigraphic tree in:\n" );
 	msg += fnm; ErrMsg( fnm );
-	sd.close(); delete tree; return;
+	sfio.closeFail(); delete tree; return;
     }
 
     while ( !atEndOfSection( astrm.next() ) )
@@ -219,11 +286,11 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 
 	Strat::Level* lvl = new Strat::Level(
 		astrm.keyWord(), ur, *fms[1] != 'B', atof(fms[2]) );
-	lvl->pars_.getFrom( fms[3] );
+	lvl->pars_.getFrom( fms.from(3) );
 	tree->addLevel( lvl );
     }
 
-    sd.close();
+    sfio.closeSuccess();
     if ( tree->nrRefs() > 0 )
 	trees_ += tree;
     else
@@ -254,7 +321,7 @@ void Strat::UnitRepository::addLith( const char* str, Repos::Source src )
     if ( !newlith->use(str) )
 	{ delete newlith; return; }
     newlith->setSource( src );
-    if ( findLith(str) >= 0 )
+    if ( findLith(newlith->name()) >= 0 )
 	unusedliths_ += newlith;
     else
 	liths_ += newlith;

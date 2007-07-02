@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.10 2007-06-26 16:13:44 cvsbert Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.11 2007-07-02 15:16:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,10 @@ public:
     void		remove(const Level*&);
     			//!< the pointer will be set to null if found
 
+    bool		write(std::ostream&) const;
+    				//!< for printing, export or something.
+    				//!< otherwise, use UnitRepository::write()
+
 protected:
 
     Repos::Source	src_;
@@ -93,7 +97,7 @@ public:
     int			findLith(const char*) const;
     static const char*	sKeyLith;
 
-    bool		write(Repos::Source);
+    bool		write(Repos::Source) const;
     void		reRead();
 
 protected:
