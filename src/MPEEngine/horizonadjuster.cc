@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.44 2007-05-31 22:31:10 cvskris Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.45 2007-07-02 10:57:18 cvsjaap Exp $";
 
 #include "horizonadjuster.h"
 
@@ -37,6 +37,8 @@ HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor,
     , attribsel_(0)
     , attrdata_(0)
     , tracker_( new EventTracker )
+    , permzrange_( -5*SI().zStep(), 5*SI().zStep() )
+    , similaritywin_( -10*SI().zStep(), 10*SI().zStep() )
 { }
 
 
