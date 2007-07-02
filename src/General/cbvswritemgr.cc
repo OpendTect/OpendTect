@@ -5,7 +5,7 @@
  * FUNCTION : CBVS pack writer
 -*/
 
-static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.33 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvswritemgr.cc,v 1.34 2007-07-02 10:41:59 cvsbert Exp $";
 
 #include "cbvswritemgr.h"
 #include "cbvswriter.h"
@@ -124,13 +124,6 @@ CBVSWriteMgr::CBVSWriteMgr( const char* fnm, const CBVSInfo& i,
 	if ( !strm ) return;
 	CBVSWriter* wr = new CBVSWriter( strm, info_, pai, coordpol_ );
 	
-#ifdef __GNUC__
-# if __GNUC__ < 3 || __GNUC_MINOR__ < 4
-	if ( !single_file )
-	    wr->setByteThreshold( 1900000000 );
-# endif
-#endif
-
 	writers_ += wr;
 	endsamps_ += totsamps-1;
 	return;
