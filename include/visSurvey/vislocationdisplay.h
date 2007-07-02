@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.12 2007-03-29 22:19:40 cvskris Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.13 2007-07-02 12:12:48 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -100,8 +100,8 @@ protected:
     void			setUnpickable(bool yn);
 
     void			pickCB(CallBacker* cb);
-    void			locChg(CallBacker* cb);
-    void			setChg(CallBacker* cb);
+    virtual void		locChg(CallBacker* cb);
+    virtual void		setChg(CallBacker* cb);
     virtual void		dispChg(CallBacker* cb);
 
     Pick::Set*			set_;

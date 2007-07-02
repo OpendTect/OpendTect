@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.92 2007-06-27 10:41:05 cvsraman Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.93 2007-07-02 12:12:42 cvsraman Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -14,9 +14,10 @@ static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.92 2007-06-27 10:41:05
 #include "pickset.h"
 #include "picksettr.h"
 #include "separstr.h"
+#include "visdrawstyle.h"
 #include "vismarker.h"
 #include "vismaterial.h"
-
+#include "vispolyline.h"
 
 
 mCreateFactoryEntry( visSurvey::PickSetDisplay );
@@ -28,8 +29,15 @@ const char* PickSetDisplay::sKeyPickPrefix()    { return "Pick "; }
 
 
 PickSetDisplay::PickSetDisplay()
-    : vispolyline_(0)
+    : polyline_(0)
+    , needline_(false)
 {}
+
+
+PickSetDisplay::~PickSetDisplay()
+{
+    if ( polyline_ ) removeChild( polyline_->getInventorNode() );
+}
 
 
 visBase::VisualObject* PickSetDisplay::createLocation() const
@@ -42,23 +50,47 @@ visBase::VisualObject* PickSetDisplay::createLocation() const
 }
 
 
-PolyLineDisplay* PickSetDisplay::createLine()
+void PickSetDisplay::createLine()
 {
-    vispolyline_ = visSurvey::PolyLineDisplay::create();
-    if ( !vispolyline_ ) return 0;
-    for ( int idx=0; idx<set_->size(); idx++ )
-	vispolyline_->fillPolyLine( (*set_)[idx].pos );
+    if ( !polyline_ ) 
+    {
+	polyline_ = visBase::PolyLine::create();
+	addChild( polyline_->getInventorNode() );
+	polyline_->setDisplayTransformation( transformation_ );
+	polyline_->setMaterial( 0 );
+    }
 
-    if ( set_->size() ) 
-	vispolyline_->fillPolyLine( (*set_)[0].pos );
+    int pixsize = set_->disp_.pixsize_;
+    LineStyle ls;
+    ls.width = pixsize;
+    polyline_->setLineStyle( ls );
+    while ( polyline_->size() > group_->size() )
+	polyline_->removePoint( 0 );
 
-    return vispolyline_;
+    for ( int idx=0; idx<group_->size(); idx++ )
+    {
+	mDynamicCastGet(visBase::Marker*,marker,group_->getObject(idx));
+	polyline_->setPoint( idx, marker->centerPos() );
+    }
+
+    int nrnodes = polyline_->size();
+    if ( nrnodes ) 
+	polyline_->setPoint( nrnodes, polyline_->getPoint(0) );
 } 
 
 
-PolyLineDisplay* PickSetDisplay::getLine()
+void PickSetDisplay::showLine( bool yn )
 {
-    return vispolyline_;
+    if ( yn ) needline_ = true;
+    if ( !needline_ ) return;
+    if ( !polyline_ ) createLine();
+    polyline_->turnOn( yn );
+}
+
+
+bool PickSetDisplay::lineShown()
+{
+    return polyline_ ? polyline_->isOn() : false;
 }
 
 
@@ -84,6 +116,13 @@ Coord3 PickSetDisplay::getPosition( int loc ) const
 }
 
 
+void PickSetDisplay::locChg( CallBacker* cb )
+{
+    LocationDisplay::locChg( cb );
+    if ( needline_ ) createLine();
+}
+
+
 void PickSetDisplay::dispChg( CallBacker* cb )
 {
     mDynamicCastGet(visBase::Marker*,firstmarker,group_->getObject(0));
@@ -92,6 +131,12 @@ void PickSetDisplay::dispChg( CallBacker* cb )
 	const int oldpixsz = (int)(firstmarker->getScreenSize() + .5);
 	if ( oldpixsz != set_->disp_.pixsize_ )
 	{
+	    if ( needline_ && polyline_ )
+	    {
+		LineStyle ls; ls.width = set_->disp_.pixsize_;
+		polyline_->setLineStyle( ls );
+	    }
+
 	    for ( int idx=0; idx<group_->size(); idx++ )
 	    {
 		mDynamicCastGet(visBase::Marker*,marker,
@@ -133,6 +178,13 @@ int PickSetDisplay::isMarkerClick( const TypeSet<int>& path ) const
     }
 
     return -1;
+}
+
+
+void PickSetDisplay::setDisplayTransformation( visBase::Transformation* newtr )
+{
+    LocationDisplay::setDisplayTransformation( newtr );
+    if (polyline_ ) polyline_->setDisplayTransformation( newtr );
 }
 
 
