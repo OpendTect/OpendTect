@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		22-3-2000
- RCS:		$Id: color.h,v 1.11 2007-03-28 12:17:26 cvsbert Exp $
+ RCS:		$Id: color.h,v 1.12 2007-07-03 10:53:04 cvsbert Exp $
 ________________________________________________________________________
 
 Color is an RGB color object, with a transparancy. The storage is in a 4-byte
@@ -87,6 +87,9 @@ public:
 
     static unsigned char getUChar( float v )
     { return v > 254.5 ? 255 : (v < 0.5 ? 0 : (unsigned char)(v+.5)); }
+
+    static int		nrStdDrawColors();
+    static Color	stdDrawColor(int);
 
 protected:
 
