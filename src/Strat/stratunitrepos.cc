@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.12 2007-07-02 15:16:40 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.13 2007-07-03 10:38:17 cvsbert Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -164,18 +164,11 @@ bool Strat::RefTree::write( std::ostream& strm ) const
     for ( int idx=0; idx<lvls_.size(); idx ++ )
     {
 	const Strat::Level& lvl = *lvls_[idx];
-	if ( !lvl.unit_ ) continue;
-
-	FileMultiString fms( lvl.unit_->fullCode().buf() );
-	fms += lvl.top_ ? "T" : "B";
-	if ( mIsUdf(lvl.time_) ) fms += "1e30";
-	else			 fms += lvl.time_;
-	if ( lvl.pars_.size() )
+	if ( lvl.unit_ )
 	{
-	    lvl.pars_.putTo( str );
-	    fms += str;
+	    lvl.fill( str );
+	    astrm.put( lvl.name_, str );
 	}
-	astrm.put( lvl.name_, fms );
     }
 
     astrm.newParagraph();
@@ -279,14 +272,8 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 
     while ( !atEndOfSection( astrm.next() ) )
     {
-	FileMultiString fms( astrm.value() );
-	const UnitRef* ur = tree->find( fms[0] );
-	if ( !ur || !*astrm.keyWord() )
-	    continue;
-
-	Strat::Level* lvl = new Strat::Level(
-		astrm.keyWord(), ur, *fms[1] != 'B', atof(fms[2]) );
-	lvl->pars_.getFrom( fms.from(3) );
+	Strat::Level* lvl = new Strat::Level( astrm.keyWord(), 0, true );
+	lvl->use( astrm.value(), *tree );
 	tree->addLevel( lvl );
     }
 
