@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: maddefs.cc,v 1.4 2007-06-29 11:58:53 cvsbert Exp $";
+static const char* rcsID = "$Id: maddefs.cc,v 1.5 2007-07-03 16:58:19 cvsbert Exp $";
 
 #include "maddefs.h"
 #include "envvars.h"
@@ -166,7 +166,7 @@ void ODMad::ProgInfo::addEntry( const char* fnm )
 	{
 	    if ( doingcomment )
 	    {
-		tmp = buf; tmp += '\n';
+		tmp = buf; tmp += "\n";
 		def->comment_ += tmp;
 	    }
 	    continue;

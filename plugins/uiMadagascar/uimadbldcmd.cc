@@ -5,26 +5,51 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.3 2007-06-29 11:58:53 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.4 2007-07-03 16:58:19 cvsbert Exp $";
 
 #include "uimadbldcmd.h"
 #include "uimsg.h"
 #include "uilabel.h"
-#include "uigeninput.h"
+#include "uilineedit.h"
 #include "uilistbox.h"
 #include "uicombobox.h"
+#include "uibutton.h"
 #include "uiseparator.h"
 #include "uiexecutor.h"
+#include "uitextedit.h"
 #include "maddefs.h"
 #include "executor.h"
 
 
-uiMadagascarBldCmd::uiMadagascarBldCmd( uiParent* p, BufferString& cmd )
+static BufferString& sepProgName( const char* cmd, bool wantprog )
+{
+    static BufferString ret;
+    ret = cmd; // resize to fit
+
+    while ( *cmd && isspace(*cmd) ) cmd++;
+    char* retptr = ret.buf();
+    *retptr = '\0';
+    if ( wantprog )
+	while ( *cmd && !isspace(*cmd) ) *retptr++ = *cmd++; 
+    else
+    {
+	while ( *cmd && !isspace(*cmd) ) cmd++; 
+	while ( *cmd && isspace(*cmd) ) cmd++; 
+	while ( *cmd ) *retptr++ = *cmd++; 
+    }
+    *retptr = '\0';
+    return ret;
+}
+
+
+uiMadagascarBldCmd::uiMadagascarBldCmd( uiParent* p, const char* cmd,
+					bool ismodal )
 	: uiDialog( p, Setup( "Madagascar command building",
 			      "Build Madagascar command",
-			      "0.0.0") )
-	, cmd_(cmd)
+			      "0.0.0").modal(ismodal) )
+	, applyReq(this)
 {
+    const bool ised = cmd && *cmd;
     bool allok = ODMad::PI().errMsg().isEmpty();
     if ( allok && !ODMad::PI().scanned() )
     {
@@ -44,8 +69,21 @@ uiMadagascarBldCmd::uiMadagascarBldCmd( uiParent* p, BufferString& cmd )
 	sep->attach( stretchedBelow, lbl );
     }
 
-    cmdfld_ = new uiGenInput( this, "Command line", cmd );
-    cmdfld_->attach( centeredBelow, sep );
+    cmdfld_ = new uiLineEdit( this, "", "Command line edit line" );
+    if ( allok )
+	cmdfld_->attach( alignedBelow, synopsfld_ );
+    else
+	cmdfld_->attach( ensureBelow, sep );
+    cmdfld_->setStretch( 0, 2 );
+    cmdfld_->setHSzPol( uiObject::WideMax );
+    new uiLabel( this, "Command line", cmdfld_ );
+    cmdfld_->setText( cmd );
+
+    uiPushButton* but = new uiPushButton( this,
+	    		ised ? "&Add as new" : "&Add now", true );
+    but->activated.notify( mCB(this,uiMadagascarBldCmd,doAdd) );
+    but->attach( rightTo, cmdfld_ );
+    but->attach( rightBorder );
 }
 
 
@@ -54,27 +92,161 @@ uiMadagascarBldCmd::~uiMadagascarBldCmd()
 }
 
 
+const char*  uiMadagascarBldCmd::command() const
+{
+    return cmdfld_->text();
+}
+
+
 uiSeparator* uiMadagascarBldCmd::createMainPart()
 {
+    uiGroup* selgrp = new uiGroup( this, "Selection group" );
+    uiGroup* lsgrp = new uiGroup( selgrp, "Left Selection group" );
+    selgrp->setHAlignObj( lsgrp );
+
     BufferStringSet grps( ODMad::PI().groups() );
     grps.sort();
     grps.insertAt( new BufferString("All"), 0 );
-    uiLabeledComboBox* groupfld = new uiLabeledComboBox( this, grps, "Group" );
+    uiLabeledComboBox* groupfld = new uiLabeledComboBox( lsgrp, grps,"Group" );
     groupfld_ = groupfld->box();
-
-    uiLabeledListBox* progfld = new uiLabeledListBox( this, "Program" );
-    progfld_ = progfld->box();
-    const ObjectSet<ODMad::ProgDef>& defs = ODMad::PI().defs();
-    for ( int idx=0; idx<defs.size(); idx++ )
-	progfld_->addItem( defs[idx]->name_ );
+    groupfld_->selectionChanged.notify( mCB(this,uiMadagascarBldCmd,groupChg) );
+    groupfld_->setStretch( 0, 0 );
+    lsgrp->setHAlignObj( groupfld );
+    uiLabeledListBox* progfld = new uiLabeledListBox( lsgrp, "Program" );
     progfld->attach( alignedBelow, groupfld );
+    progfld_ = progfld->box();
+    progfld_->selectionChanged.notify( mCB(this,uiMadagascarBldCmd,progChg) );
+    progfld_->doubleClicked.notify( mCB(this,uiMadagascarBldCmd,dClick) );
+    progfld_->setStretch( 0, 1 );
+    progfld_->setPrefHeightInChar( 16 );
+
+    uiSeparator* vsep = new uiSeparator( selgrp, "vert sep", false );
+    vsep->attach( rightOf, lsgrp );
+    vsep->setStretch( 0, 2 );
+    descfld_ = new uiLineEdit( selgrp, "", "Desc fld" );
+    descfld_->attach( rightOf, vsep );
+    descfld_->setReadOnly( true );
+    descfld_->setPrefWidthInChar( 50 );
+    descfld_->setStretch( 0, 2 );
+    descfld_->setHSzPol( uiObject::WideMax );
+    commentfld_ = new uiTextEdit( selgrp, "Comments", true );
+    commentfld_->attach( alignedBelow, descfld_ );
+    commentfld_->setStretch( 1, 1 );
+    commentfld_->setPrefWidthInChar( 50 );
+    commentfld_->setPrefHeightInChar( 16 );
 
     uiSeparator* sep = new uiSeparator( this, "low sep" );
-    sep->attach( stretchedBelow, progfld );
+    sep->attach( stretchedBelow, selgrp );
+
+    synopsfld_ = new uiLineEdit( this, "", "Synopsis edit line" );
+    synopsfld_->attach( alignedBelow, selgrp );
+    synopsfld_->attach( ensureBelow, sep );
+    synopsfld_->setReadOnly( true );
+    synopsfld_->setStretch( 0, 2 );
+    synopsfld_->setHSzPol( uiObject::WideMax );
+    new uiLabel( this, "Synopsis", synopsfld_ );
+
+    finaliseDone.notify( mCB(this,uiMadagascarBldCmd,onPopup) );
     return sep;
 }
 
-bool uiMadagascarBldCmd::acceptOK( CallBacker* )
+
+void uiMadagascarBldCmd::onPopup( CallBacker* c )
+{
+    const BufferString prognm = sepProgName( command(), true );
+    if ( !prognm.isEmpty() )
+    {
+	const ODMad::ProgDef* def = getDef( prognm );
+	if ( def )
+	{
+	    setGroupProgs( def->group_ );
+	    if ( def->group_ )
+		groupfld_->setCurrentItem( def->group_->buf() );
+	}
+    }
+    progfld_->setCurrentItem( prognm );
+    groupChg( c );
+}
+
+
+void uiMadagascarBldCmd::setGroupProgs( const BufferString* curgrp )
+{
+    progfld_->empty();
+    const ObjectSet<ODMad::ProgDef>& defs = ODMad::PI().defs();
+    for ( int idx=0; idx<defs.size(); idx++ )
+    {
+	const ODMad::ProgDef& def = *defs[idx];
+	if ( !curgrp || def.group_ == curgrp )
+	    progfld_->addItem( def.name_ );
+    }
+}
+
+
+void uiMadagascarBldCmd::groupChg( CallBacker* c )
+{
+    const BufferString prognm = progfld_->getText();
+    const BufferString* curgrp = find( ODMad::PI().groups(), groupfld_->text());
+    setGroupProgs( curgrp );
+
+    if ( !progfld_->isPresent(prognm) )
+	setInput( 0 );
+    else
+    {
+	setInput( getDef(prognm) );
+	progfld_->setCurrentItem( prognm );
+    }
+}
+
+
+const ODMad::ProgDef* uiMadagascarBldCmd::getDef( const char* prognm )
+{
+    const ObjectSet<ODMad::ProgDef>& defs = ODMad::PI().defs();
+    for ( int idx=0; idx<defs.size(); idx++ )
+    {
+	const ODMad::ProgDef& def = *defs[idx];
+	if ( def.name_ == prognm )
+	    return &def;
+    }
+    return 0;
+}
+
+void uiMadagascarBldCmd::dClick( CallBacker* c )
+{
+    BufferString txt( progfld_->getText() ); txt += " ";
+    cmdfld_->setText( txt );
+}
+
+
+void uiMadagascarBldCmd::progChg( CallBacker* )
+{
+    setInput( getDef( progfld_->getText() ) );
+}
+
+
+void uiMadagascarBldCmd::setInput( const ODMad::ProgDef* def )
+{
+    descfld_->setText( def ? def->shortdesc_.buf() : "" );
+    commentfld_->setText( def ? def->comment_.buf() : "" );
+    synopsfld_->setText( def ? def->synopsis_.buf() : "" );
+    if ( !def ) return;
+
+    BufferString cmd = cmdfld_->text();
+    if ( sepProgName(cmdfld_->text(),false).isEmpty() )
+    {
+	BufferString txt( def->name_ ); txt += " ";
+	cmdfld_->setText( txt );
+    }
+}
+
+
+void uiMadagascarBldCmd::doAdd( CallBacker* )
+{
+    if ( !cmdOK() ) return;
+    applyReq.trigger();
+}
+
+
+bool uiMadagascarBldCmd::cmdOK()
 {
     BufferString newcmd = cmdfld_->text();
     if ( newcmd.isEmpty() )
@@ -82,7 +254,11 @@ bool uiMadagascarBldCmd::acceptOK( CallBacker* )
 	uiMSG().error( "Please specify a command" );
 	return false;
     }
-
-    cmd_ = newcmd;
     return true;
+}
+
+
+bool uiMadagascarBldCmd::acceptOK( CallBacker* )
+{
+    return cmdOK();
 }

@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.6 2007-06-27 16:41:59 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.7 2007-07-03 16:58:19 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiseissel.h"
@@ -243,14 +243,15 @@ void uiMadagascarMain::butPush( CallBacker* cb )
 	if ( !isadd && curidx < 0 ) return;
 
 	BufferString cmd( isadd ? "" : procsfld_->getText() );
-	uiMadagascarBldCmd dlg( this, cmd );
+	uiMadagascarBldCmd dlg( this, cmd, true );
+	dlg.applyReq.notify( mCB(this,uiMadagascarMain,immediateAdd) );
 	if ( dlg.go() )
 	{
 	    if ( !isadd )
-		procsfld_->setItemText( curidx, cmd );
+		procsfld_->setItemText( curidx, dlg.command() );
 	    else
 	    {
-		procsfld_->addItem( cmd );
+		procsfld_->addItem( dlg.command() );
 		curidx = procsfld_->size() - 1;
 	    }
 	}
@@ -272,6 +273,14 @@ void uiMadagascarMain::butPush( CallBacker* cb )
     if ( curidx >= 0 )
 	procsfld_->setCurrentItem( curidx );
     setButStates();
+}
+
+
+void uiMadagascarMain::immediateAdd( CallBacker* c )
+{
+    mDynamicCastGet(uiMadagascarBldCmd*,dlg,c)
+    if ( !dlg ) return;
+    procsfld_->addItem( dlg->command() );
 }
 
 
