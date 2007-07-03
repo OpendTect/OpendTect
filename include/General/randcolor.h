@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		November 2006
- RCS:		$Id: randcolor.h,v 1.1 2006-11-06 16:13:46 cvsnanne Exp $
+ RCS:		$Id: randcolor.h,v 1.2 2007-07-03 10:53:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,33 +15,32 @@ ________________________________________________________________________
 #include "color.h"
 #include "statrand.h"
 
-static const int ncols = 10;
-static Color drawcols[] = {
-    Color( 220,  50,  50 ), // red
-    Color(  50,  50, 220 ), // blue
-    Color(  50, 200,  50 ), // green
-    Color(  50, 200, 200 ), // cyan
-    Color( 255, 210,   0 ), // gold
-    Color( 220,   0, 220 ), // magenta
-    Color( 140, 130,  80 ), // khaki
-    Color( 100, 160,   0 ), // orange
-    Color( 140,  35,  80 ), // dark violet red
-    Color( 204, 133,  61 ), // peru
-};
-
-
-static const Color& getRandomColor()
+inline Color getRandomColor( bool withtransp=false )
 {
-    static int lastidx = -1;
     Stats::RandGen::init();
-    int newidx = Stats::RandGen::getIndex( ncols );
-    if ( newidx == lastidx )
+    return Color( Stats::RandGen::getIndex(255),
+	          Stats::RandGen::getIndex(255),
+		  Stats::RandGen::getIndex(255),
+		  withtransp ? Stats::RandGen::getIndex(255) : 0 );
+}
+
+
+static Color getRandStdDrawColor()
+{
+    static int curidx = -1;
+    if ( curidx == -1 )
     {
-	newidx++;
-	if ( newidx == ncols ) newidx = 0;
+	Stats::RandGen::init();
+	curidx = Stats::RandGen::getIndex( Color::nrStdDrawColors() );
     }
-    lastidx = newidx;
-    return drawcols[lastidx];
+    else
+    {
+	curidx++;
+	if ( curidx == Color::nrStdDrawColors() )
+	    curidx = 0;
+    }
+
+    return Color::stdDrawColor( curidx );
 }
 
 #endif
