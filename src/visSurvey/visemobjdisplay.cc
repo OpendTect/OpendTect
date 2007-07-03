@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.99 2007-06-21 19:35:21 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.100 2007-07-03 10:54:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -389,7 +389,7 @@ Color EMObjectDisplay::getColor() const
 
     if ( !nontexturecolisset_ )
     {
-	nontexturecol_ = getRandomColor();
+	nontexturecol_ = getRandStdDrawColor();
 	nontexturecolisset_ = true;
     }
 

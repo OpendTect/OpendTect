@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.76 2007-06-21 19:35:21 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.77 2007-07-03 10:54:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -209,7 +209,7 @@ uiGroup* Wizard::createTrackModePage()
 {
     uiGroup* grp = new uiGroup( this, "Page 2" );
 
-    colorfld = new uiColorInput( grp, getRandomColor(), "Object color" );
+    colorfld = new uiColorInput( grp, getRandStdDrawColor(), "Object color" );
     colorfld->colorchanged.notify( mCB(this,Wizard,colorChangeCB) );
 
     mDefSeedConModeGrp( hmodegrp, Horizon3D ); 
@@ -532,7 +532,7 @@ bool Wizard::finalizeCycle()
 void Wizard::isStarting()
 {
     seedbox.setEmpty();
-    colorfld->setColor( getRandomColor() );
+    colorfld->setColor( getRandStdDrawColor() );
 }
 
 
