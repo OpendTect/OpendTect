@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.23 2007-06-08 06:08:10 cvsnanne Exp $
+ RCS:           $Id: treeitem.cc,v 1.24 2007-07-03 10:55:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -255,7 +255,7 @@ bool AnnotTreeItem::showSubMenu()
 		return false;
 
 	    Pick::Set* set = new Pick::Set(txt);
-	    set->disp_.color_ = getRandomColor();
+	    set->disp_.color_ = getRandStdDrawColor();
 	    if ( defScale()!=-1 ) set->disp_.pixsize_ = defScale();
 	    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 	    mgr.set( mid, set );
