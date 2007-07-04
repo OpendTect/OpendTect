@@ -1,11 +1,10 @@
-
 /*+
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.5 2007-07-04 09:44:54 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.6 2007-07-04 11:24:08 cvsbert Exp $";
 
 #include "uimadbldcmd.h"
 #include "uimsg.h"
@@ -81,6 +80,7 @@ uiMadagascarBldCmd::uiMadagascarBldCmd( uiParent* p, const char* cmd,
 
     uiPushButton* but = new uiPushButton( this,
 	    		ised ? "&Add as new" : "&Add now", true );
+    but->setToolTip( "Add immediately to process flow" );
     but->activated.notify( mCB(this,uiMadagascarBldCmd,doAdd) );
     but->attach( rightTo, cmdfld_ );
     but->attach( rightBorder );
@@ -131,16 +131,18 @@ uiSeparator* uiMadagascarBldCmd::createMainPart()
     descfld_->setHSzPol( uiObject::WideMax );
     commentfld_ = new uiTextEdit( selgrp, "Comments", true );
     commentfld_->attach( alignedBelow, descfld_ );
-    commentfld_->setStretch( 1, 1 );
-    commentfld_->setPrefWidthInChar( 50 );
+    commentfld_->setStretch( 2, 1 );
+    // commentfld_->setPrefWidthInChar( 50 );
     commentfld_->setPrefHeightInChar( 15 );
 
     srchfld_ = new uiLineEdit( selgrp, "", "Search field" );
     srchfld_->attach( alignedBelow, commentfld_ );
-    uiPushButton* srchbut = new uiPushButton( selgrp, "&Search", true );
+    srchfld_->returnPressed.notify( mCB(this,uiMadagascarBldCmd,doSearch) );
+    uiPushButton* srchbut = new uiPushButton( selgrp, "&Search >>", true );
     srchbut->activated.notify( mCB(this,uiMadagascarBldCmd,doSearch) );
     srchbut->attach( rightOf, srchfld_ );
     srchresfld_ = new uiComboBox( selgrp, "Search results" );
+    srchresfld_->setToolTip( "Programs matching search" );
     srchresfld_->selectionChanged.notify(
 	    		mCB(this,uiMadagascarBldCmd,searchBoxSel) );
     srchresfld_->attach( rightTo, srchbut );
