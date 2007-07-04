@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.56 2007-06-14 17:25:11 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.57 2007-07-04 11:17:59 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -711,6 +711,7 @@ void uiAttribDescSetEd::newSet( CallBacker* )
 
     attrset->removeAll();
     setctio.ioobj = 0;
+    setid = -1;
     updateUserRefs();
     newList( -1 );
     attrsetfld->setText( "" );
