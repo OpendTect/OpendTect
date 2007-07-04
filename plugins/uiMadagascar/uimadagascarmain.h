@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : May 2007
- * ID       : $Id: uimadagascarmain.h,v 1.6 2007-07-03 16:58:19 cvsbert Exp $
+ * ID       : $Id: uimadagascarmain.h,v 1.7 2007-07-04 11:23:43 cvsbert Exp $
 -*/
 
 #include "uidialog.h"
@@ -67,6 +67,7 @@ protected:
     void			typSel(CallBacker*);
     void			inpSel(CallBacker*);
     void			selChg(CallBacker*);
+    void			dClick(CallBacker*);
     void			immediateAdd(CallBacker*);
 
     void			dispFlds(int,uiSeisSel*,uiSeisSel*,

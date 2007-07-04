@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.8 2007-07-04 09:44:54 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.9 2007-07-04 11:23:43 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiseissel.h"
@@ -97,6 +97,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     procsfld_ = new uiListBox( procgrp, "Procs fld" );
     procsfld_->setPrefHeightInChar( 8 );
     procsfld_->selectionChanged.notify( mCB(this,uiMadagascarMain,selChg) );
+    procsfld_->doubleClicked.notify( mCB(this,uiMadagascarMain,dClick) );
     addbut_ = new uiPushButton( procgrp, "&Add", butpushcb, false );
     addbut_->setToolTip( "Add command to flow" );
     addbut_->setPrefWidthInChar( 10 );
@@ -221,6 +222,12 @@ void uiMadagascarMain::dispFlds( int choice, uiSeisSel* fld3d, uiSeisSel* fld2d,
     if ( fld2d ) fld2d->display( choice == idx2d_ );
     if ( fldps ) fldps->display( choice == idxps_ );
     fldmad->display( choice == idxmad_ );
+}
+
+
+void uiMadagascarMain::dClick( CallBacker* )
+{
+    butPush( editbut_ );
 }
 
 
