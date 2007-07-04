@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2003
- RCS:           $Id: plugins.cc,v 1.51 2006-12-08 13:58:42 cvsbert Exp $
+ RCS:           $Id: plugins.cc,v 1.52 2007-07-04 08:24:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -469,7 +469,11 @@ void PluginManager::loadAuto( bool late )
 	static bool shw_load = GetEnvVarYN( "OD_SHOW_PLUGIN_LOAD" );
 	if ( shw_load )
 	{
-	    BufferString msg( "Successfully loaded plugin '" );
+	    BufferString msg;
+	    if ( data.sla_ )
+		msg = "Successfully loaded plugin '";
+	    else
+		msg = "Failed to load plugin '";
 	    msg += userName(data.name_); msg += "'";
 	    UsrMsg( msg );
 	}
