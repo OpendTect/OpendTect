@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : June 2007
- * ID       : $Id: maddefs.h,v 1.3 2007-06-28 18:11:32 cvsbert Exp $
+ * ID       : $Id: maddefs.h,v 1.4 2007-07-04 09:44:54 cvsbert Exp $
 -*/
 
 #include "bufstringset.h"
@@ -43,6 +43,9 @@ public:
 
     const ObjectSet<ProgDef>&	defs() const	{ return defs_; }
     const BufferStringSet&	groups() const	{ return groups_; }
+    void			search(const char* globexpr,
+	    			       ObjectSet<const ProgDef>&) const;
+    				//!< name_, shortdesc_, comment_
 
 			ProgInfo();
 			~ProgInfo()		{ cleanUp(); }

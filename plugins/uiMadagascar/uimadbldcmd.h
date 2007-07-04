@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : June 2007
- * ID       : $Id: uimadbldcmd.h,v 1.4 2007-07-03 16:58:19 cvsbert Exp $
+ * ID       : $Id: uimadbldcmd.h,v 1.5 2007-07-04 09:44:54 cvsbert Exp $
 -*/
 
 #include "uidialog.h"
@@ -31,10 +31,12 @@ public:
 protected:
 
     uiComboBox*		groupfld_;
+    uiComboBox*		srchresfld_;
     uiListBox*		progfld_;
     uiLineEdit*		cmdfld_;
     uiLineEdit*		descfld_;
     uiLineEdit*		synopsfld_;
+    uiLineEdit*		srchfld_;
     uiTextEdit*		commentfld_;
 
     uiSeparator*	createMainPart();
@@ -44,7 +46,10 @@ protected:
     void		progChg(CallBacker*);
     void		doAdd(CallBacker*);
     void		dClick(CallBacker*);
+    void		doSearch(CallBacker*);
+    void		searchBoxSel(CallBacker*);
 
+    void		setProgName(const char*);
     void		setInput(const ODMad::ProgDef*);
     const ODMad::ProgDef* getDef(const char*);
     void		setGroupProgs(const BufferString*);

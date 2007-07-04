@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.7 2007-07-03 16:58:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.8 2007-07-04 09:44:54 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiseissel.h"
@@ -251,7 +251,12 @@ void uiMadagascarMain::butPush( CallBacker* cb )
 		procsfld_->setItemText( curidx, dlg.command() );
 	    else
 	    {
-		procsfld_->addItem( dlg.command() );
+		const int sz = procsfld_->size();
+		const BufferString lastcmd(
+				sz ? procsfld_->textOfItem(sz-1) : "" );
+		const BufferString newcmd( dlg.command() );
+		if ( newcmd != lastcmd )
+		    procsfld_->addItem( newcmd );
 		curidx = procsfld_->size() - 1;
 	    }
 	}

@@ -4,7 +4,7 @@
  * DATE     : July 2007
 -*/
 
-static const char* rcsID = "$Id: madpi.cc,v 1.1 2007-07-04 08:01:47 cvsbert Exp $";
+static const char* rcsID = "$Id: madpi.cc,v 1.2 2007-07-04 09:44:54 cvsbert Exp $";
 
 #include "maddefs.h"
 #include "plugins.h"
@@ -28,6 +28,6 @@ extern "C" PluginInfo* GetMadagascarPluginInfo()
 
 extern "C" const char* InitMadagascarPlugin( int, char** )
 {
-
-    return 0; // All OK - no error messages
+    static BufferString prescanmsg = ODMad::PI().errMsg();
+    return prescanmsg.isEmpty() ? 0 : prescanmsg.buf();
 }

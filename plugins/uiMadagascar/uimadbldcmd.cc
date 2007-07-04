@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.4 2007-07-03 16:58:19 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.5 2007-07-04 09:44:54 cvsbert Exp $";
 
 #include "uimadbldcmd.h"
 #include "uimsg.h"
@@ -21,7 +21,7 @@ static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.4 2007-07-03 16:58:19 cvsber
 #include "executor.h"
 
 
-static BufferString& sepProgName( const char* cmd, bool wantprog )
+static BufferString& separateProgName( const char* cmd, bool wantprog )
 {
     static BufferString ret;
     ret = cmd; // resize to fit
@@ -133,7 +133,18 @@ uiSeparator* uiMadagascarBldCmd::createMainPart()
     commentfld_->attach( alignedBelow, descfld_ );
     commentfld_->setStretch( 1, 1 );
     commentfld_->setPrefWidthInChar( 50 );
-    commentfld_->setPrefHeightInChar( 16 );
+    commentfld_->setPrefHeightInChar( 15 );
+
+    srchfld_ = new uiLineEdit( selgrp, "", "Search field" );
+    srchfld_->attach( alignedBelow, commentfld_ );
+    uiPushButton* srchbut = new uiPushButton( selgrp, "&Search", true );
+    srchbut->activated.notify( mCB(this,uiMadagascarBldCmd,doSearch) );
+    srchbut->attach( rightOf, srchfld_ );
+    srchresfld_ = new uiComboBox( selgrp, "Search results" );
+    srchresfld_->selectionChanged.notify(
+	    		mCB(this,uiMadagascarBldCmd,searchBoxSel) );
+    srchresfld_->attach( rightTo, srchbut );
+    srchresfld_->attach( rightBorder );
 
     uiSeparator* sep = new uiSeparator( this, "low sep" );
     sep->attach( stretchedBelow, selgrp );
@@ -153,7 +164,13 @@ uiSeparator* uiMadagascarBldCmd::createMainPart()
 
 void uiMadagascarBldCmd::onPopup( CallBacker* c )
 {
-    const BufferString prognm = sepProgName( command(), true );
+    setProgName( separateProgName( command(), true ) );
+}
+
+
+void uiMadagascarBldCmd::setProgName( const char* pnm )
+{
+    const BufferString prognm( pnm );
     if ( !prognm.isEmpty() )
     {
 	const ODMad::ProgDef* def = getDef( prognm );
@@ -165,7 +182,7 @@ void uiMadagascarBldCmd::onPopup( CallBacker* c )
 	}
     }
     progfld_->setCurrentItem( prognm );
-    groupChg( c );
+    groupChg( 0 );
 }
 
 
@@ -179,6 +196,31 @@ void uiMadagascarBldCmd::setGroupProgs( const BufferString* curgrp )
 	if ( !curgrp || def.group_ == curgrp )
 	    progfld_->addItem( def.name_ );
     }
+}
+
+
+void uiMadagascarBldCmd::doSearch( CallBacker* )
+{
+    const BufferString srchkey( srchfld_->text() );
+    if ( srchkey.isEmpty() ) return;
+
+    ObjectSet<const ODMad::ProgDef> defs;
+    ODMad::PI().search( srchkey, defs );
+    srchresfld_->empty();
+    if ( defs.size() < 1 ) return;
+
+    for ( int idx=0; idx<defs.size(); idx++ )
+	srchresfld_->addItem( defs[idx]->name_ );
+
+    srchresfld_->setCurrentItem( 0 );
+    searchBoxSel( srchresfld_ );
+}
+
+
+void uiMadagascarBldCmd::searchBoxSel( CallBacker* )
+{
+    if ( srchresfld_->size() < 1 ) return;
+    setProgName( srchresfld_->text() );
 }
 
 
@@ -231,7 +273,7 @@ void uiMadagascarBldCmd::setInput( const ODMad::ProgDef* def )
     if ( !def ) return;
 
     BufferString cmd = cmdfld_->text();
-    if ( sepProgName(cmdfld_->text(),false).isEmpty() )
+    if ( separateProgName(cmdfld_->text(),false).isEmpty() )
     {
 	BufferString txt( def->name_ ); txt += " ";
 	cmdfld_->setText( txt );

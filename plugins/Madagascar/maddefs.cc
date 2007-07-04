@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: maddefs.cc,v 1.5 2007-07-03 16:58:19 cvsbert Exp $";
+static const char* rcsID = "$Id: maddefs.cc,v 1.6 2007-07-04 09:44:54 cvsbert Exp $";
 
 #include "maddefs.h"
 #include "envvars.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: maddefs.cc,v 1.5 2007-07-03 16:58:19 cvsbert Ex
 #include "dirlist.h"
 #include "strmprov.h"
 #include "executor.h"
+#include "globexpr.h"
 #include <iostream>
 
 
@@ -137,6 +138,33 @@ int nextStep()
 Executor* ODMad::ProgInfo::getScanner() const
 {
     return new ProgInfoScanner( const_cast<ODMad::ProgInfo&>( *this ) );
+}
+
+
+void ODMad::ProgInfo::search( const char* str,
+			      ObjectSet<const ProgDef>& res ) const
+{
+    if ( !str || !*str || !scanned_ ) return;
+
+    BufferString gestr;
+    if ( strchr(str,'*') )
+	gestr = str;
+    else
+	{ gestr = "*"; gestr += str; gestr += "*"; }
+
+    const GlobExpr ge( gestr );
+    for ( int ityp=0; ityp<3; ityp++ )
+    {
+    for ( int idx=0; idx<defs_.size(); idx++ )
+    {
+	const ProgDef* def = defs_[idx];
+	const BufferString& matchstr( ityp == 0 ? def->name_
+				   : (ityp == 1 ? def->shortdesc_
+						: def->comment_) );
+	if ( ge.matches(matchstr) && !res[def] )
+	    res += def;
+    }
+    }
 }
 
 
