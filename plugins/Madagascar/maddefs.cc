@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: maddefs.cc,v 1.6 2007-07-04 09:44:54 cvsbert Exp $";
+static const char* rcsID = "$Id: maddefs.cc,v 1.7 2007-07-04 11:22:37 cvsbert Exp $";
 
 #include "maddefs.h"
 #include "envvars.h"
@@ -152,7 +152,7 @@ void ODMad::ProgInfo::search( const char* str,
     else
 	{ gestr = "*"; gestr += str; gestr += "*"; }
 
-    const GlobExpr ge( gestr );
+    const GlobExpr ge( gestr, false );
     for ( int ityp=0; ityp<3; ityp++ )
     {
     for ( int idx=0; idx<defs_.size(); idx++ )
