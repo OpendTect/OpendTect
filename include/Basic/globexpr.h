@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		15-1-2001
- RCS:		$Id: globexpr.h,v 1.2 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: globexpr.h,v 1.3 2007-07-04 11:11:44 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -27,34 +27,39 @@ class GlobExpr
 {
 public:
 
-			GlobExpr( const char* s = 0 )
-			: expr_(""), errmsg_(0)			{ set(s); }
+			GlobExpr( const char* s = 0, bool casesens=true )
+			: expr_(""), errmsg_(0), ci_(!casesens)	{ set(s); }
 			GlobExpr( const GlobExpr& ge )
-			: expr_(ge.expr_), errmsg_(0)		{}
+			: expr_(ge.expr_), errmsg_(0), ci_(ge.ci_) {}
     GlobExpr&		operator=( const GlobExpr& ge )
-			{ expr_ = ge.expr_; errmsg_ = 0; return *this; }
+			{ expr_ = ge.expr_; errmsg_ = 0; ci_ = ge.ci_;
+			  return *this; }
     bool		operator==( const GlobExpr& ge ) const
-			{ return expr_ == ge.expr_; }
-			
+			{ return expr_ == ge.expr_ && ci_ == ge.ci_; }
+
+    void		setCaseInSensitive( bool yn=true )	{ ci_ = yn; }
+
     void		set(const char*);
     inline		operator const char*() const
 			{ return (const char*)expr_; }
 
     inline bool		matches( const char* t ) const
 			{ return matches( expr_, t,
-				 const_cast<const char*&>(errmsg_) ); }
+				 const_cast<const char*&>(errmsg_), ci_ ); }
     const char*		expressionFailMessage() const	{ return errmsg_; }
 			//!< Normally null, only filled if invalid expression
 
     static bool		matches(const char* expression,const char* txt,
-				const char*& errmsg_if_expression_is_incorrect);
+				const char*& errmsg_if_expression_is_incorrect,
+				bool caseinsens);
 
 protected:
 
     BufferString	expr_;
     const char*		errmsg_;
+    bool		ci_;
 
-    static bool		starMatches(const char*,const char*,const char*&);
+    static bool		starMatches(const char*,const char*,const char*&,bool);
 };
 
 

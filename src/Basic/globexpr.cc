@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: globexpr.cc,v 1.5 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: globexpr.cc,v 1.6 2007-07-04 11:11:39 cvsbert Exp $";
 
 #include "globexpr.h"
 
@@ -25,7 +25,8 @@ void GlobExpr::set( const char* str )
 }
 
 
-bool GlobExpr::matches( const char* p, const char* t, const char*& errmsg )
+bool GlobExpr::matches( const char* p, const char* t, const char*& errmsg,
+       			bool ci )
 {
     errmsg = 0;
     if ( !t || !*t ) return !*p;
@@ -39,7 +40,7 @@ bool GlobExpr::matches( const char* p, const char* t, const char*& errmsg )
 	switch ( *p )
 	{
 	case '?':	break;
-	case '*':	return starMatches( p, t, errmsg );
+	case '*':	return starMatches( p, t, errmsg, ci );
 
 	case '[':
 	{
@@ -127,8 +128,16 @@ bool GlobExpr::matches( const char* p, const char* t, const char*& errmsg )
 
 	    /* must match this character exactly */
 	    default:
-		if (*p != *t)
-		    return false;
+		if ( !ci )
+		{
+		    if ( *p != *t )
+			return false;
+		}
+		else
+		{
+		    if ( toupper(*p) != toupper(*t) )
+			return false;
+		}
 	}
     }
 
@@ -137,7 +146,8 @@ bool GlobExpr::matches( const char* p, const char* t, const char*& errmsg )
 }
 
 
-bool GlobExpr::starMatches( const char* p, const char* t, const char*& errmsg )
+bool GlobExpr::starMatches( const char* p, const char* t, const char*& errmsg,
+			    bool ci )
 {
     /* pass over existing ? and * in pattern */
     while ( *p == '?' || *p == '*' ) {
@@ -165,11 +175,14 @@ bool GlobExpr::starMatches( const char* p, const char* t, const char*& errmsg )
         nextp = p[1];
 
     /* Continue until we run out of text or definite result seen */
-    bool matched = false;
+    bool matched = false, needmatched;
     while ( !matched )
     {
-        if ( nextp == *t || nextp == '[' )
-            matched = matches( p, t, errmsg );
+	needmatched = nextp == '[';
+	if ( !needmatched )
+	    needmatched = ci ? toupper(nextp) == toupper(*t) : nextp == *t;
+        if ( needmatched )
+            matched = matches( p, t, errmsg, ci );
 
         /* if the end of text is reached then no match */
         if ( !*t++ )
