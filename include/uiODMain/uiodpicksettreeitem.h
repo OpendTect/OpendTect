@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodpicksettreeitem.h,v 1.6 2007-06-27 10:38:46 cvsraman Exp $
+ RCS:		$Id: uiodpicksettreeitem.h,v 1.7 2007-07-05 06:34:36 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -58,7 +58,6 @@ protected:
     			{ return typeid(uiODPickSetParentTreeItem).name(); }
 
     Pick::Set&		set_;
-    bool		drawline_;
 
     MenuItem		storemnuitem_;
     MenuItem		storeasmnuitem_;

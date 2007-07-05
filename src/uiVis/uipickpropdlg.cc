@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uipickpropdlg.cc,v 1.3 2007-06-27 10:09:52 cvsraman Exp $
+ RCS:           $Id: uipickpropdlg.cc,v 1.4 2007-07-05 06:35:27 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ void uiPickPropDlg::doFinalise( CallBacker* )
 {
     sliderfld->sldr()->setValue( set_.disp_.pixsize_ );
     colselfld->setColor( set_.disp_.color_ );
-    typefld->setValue( set_.disp_.markertype_ );
+    typefld->setValue( set_.disp_.markertype_ + 1 );
 }
 
 
@@ -48,8 +48,8 @@ void uiPickPropDlg::sliderMove( CallBacker* )
 
 void uiPickPropDlg::typeSel( CallBacker* )
 {
-    set_.disp_.markertype_ = typefld->getIntValue();
-    if ( !typefld->getIntValue() ) linefld_->setChecked( true );
+    set_.disp_.markertype_ = typefld->getIntValue() - 1;
+    if ( typefld->getIntValue()==0 ) linefld_->setChecked( true );
     Pick::Mgr().reportDispChange( this, set_ );
 }
 
