@@ -5,15 +5,17 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.9 2007-07-04 11:23:43 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.10 2007-07-05 15:33:06 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
+#include "uimadbldcmd.h"
 #include "uiseissel.h"
 #include "uiseissubsel.h"
 #include "uifileinput.h"
-#include "uimadbldcmd.h"
 #include "uilistbox.h"
 #include "uibutton.h"
+#include "uimenu.h"
+#include "uitoolbar.h"
 #include "uilabel.h"
 #include "uiseparator.h"
 #include "uimsg.h"
@@ -30,7 +32,7 @@ static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.9 2007-07-04 11:23:43 c
 uiMadagascarMain::uiMadagascarMain( uiParent* p )
 	: uiDialog( p, Setup( "Madagascar processing",
 			      "Processing flow",
-			      "0.0.0") )
+			      "0.0.0").menubar(true) )
 	, in3dctio_(*mMkCtxtIOObj(SeisTrc)), in2dctio_(*mMkCtxtIOObj(SeisTrc))
 	, out3dctio_(*mMkCtxtIOObj(SeisTrc)), out2dctio_(*mMkCtxtIOObj(SeisTrc))
 	, inpsctio_(*mMkCtxtIOObj(SeisPS)), outpsctio_(*mMkCtxtIOObj(SeisPS))
@@ -40,6 +42,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     	, idx3d_(-1), idx2d_(-1), idxps_(-1), idxmad_(-1)
 {
     setCtrlStyle( uiDialog::DoAndStay );
+    createMenus();
 
     BufferStringSet seistypes;
 #   define mAdd(s,idx) { seistypes.add( s ); idx = seistypes.size() - 1; }
@@ -49,15 +52,71 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     mAdd( "Madagascar file", idxmad_ );
     mAdd( "None", idxnone_ );
 
+    uiGroup* inpgrp = crInpGroup( seistypes );
+
+    uiSeparator* sep = new uiSeparator( this, "Hor sep 1", true );
+    sep->attach( stretchedBelow, inpgrp, -2 );
+
+    uiGroup* procgrp = crProcGroup();
+    procgrp->attach( ensureBelow, sep );
+
+    sep = new uiSeparator( this, "Hor sep 2", true );
+    sep->attach( stretchedBelow, procgrp, -2 );
+
+    uiGroup* outgrp = crOutGroup( seistypes );
+    outgrp->attach( alignedWith, inpgrp );
+    outgrp->attach( ensureBelow, sep );
+
+    finaliseDone.notify( mCB(this,uiMadagascarMain,initWin) );
+}
+
+
+uiMadagascarMain::~uiMadagascarMain()
+{
+    delete in3dctio_.ioobj; delete &in3dctio_;
+    delete in2dctio_.ioobj; delete &in2dctio_;
+    delete inpsctio_.ioobj; delete &inpsctio_;
+    delete out3dctio_.ioobj; delete &out3dctio_;
+    delete out2dctio_.ioobj; delete &out2dctio_;
+    delete outpsctio_.ioobj; delete &outpsctio_;
+}
+
+
+#define mInsertItem( txt, func ) \
+    mnu->insertItem( new uiMenuItem(txt,mCB(this,uiMadagascarMain,func)) )
+#define mAddButton(pm,func,tip) \
+    toolbar->addButton( pm, mCB(this,uiMadagascarMain,func), tip )
+
+void uiMadagascarMain::createMenus()
+{
+    uiMenuBar* menubar = menuBar();
+    if ( !menubar ) { pErrMsg("huh?"); return; }
+
+    uiPopupMenu* mnu = new uiPopupMenu( this, "&File" );
+    mInsertItem( "&New flow ...", newFlow );
+    mInsertItem( "&Open flow ...", openFlow );
+    mInsertItem( "&Save flow ...", saveFlow );
+    mnu->insertSeparator();
+    mInsertItem( "&Import flow ...", importFlow );
+    mInsertItem( "&Export flow ...", exportFlow );
+    menubar->insertItem( mnu );
+
+    uiToolBar* toolbar = new uiToolBar( this, "Flow tools" );
+    mAddButton( "newflow.png", newFlow, "Empty this flow" );
+    mAddButton( "openflow.png", openFlow, "Open saved flow" );
+    mAddButton( "saveflow.png", saveFlow, "Save flow" );
+}
+
+
+uiGroup* uiMadagascarMain::crInpGroup( const BufferStringSet& seistypes )
+{
     uiGroup* inpgrp = new uiGroup( this, "Input group" );
     intypfld_ = new uiGenInput( inpgrp, "Input",
 	    			 StringListInpSpec(seistypes) );
     intypfld_->valuechanged.notify( mCB(this,uiMadagascarMain,typSel) );
-    SeisSelSetup sss3d; sss3d.is2d_ = false;
-    SeisSelSetup sss2d; sss2d.is2d_ = true;
     if ( SI().has3D() )
     {
-	inpseis3dfld_ = new uiSeisSel( inpgrp, in3dctio_, sss3d );
+	inpseis3dfld_ = new uiSeisSel( inpgrp, in3dctio_, SeisSelSetup(false) );
 	inpseis3dfld_->attach( alignedBelow, intypfld_ );
 	inpseis3dfld_->selectiondone.notify(
 			mCB(this,uiMadagascarMain,inpSel) );
@@ -66,7 +125,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     }
     if ( SI().has2D() )
     {
-	inpseis2dfld_ = new uiSeisSel( inpgrp, in2dctio_, sss2d );
+	inpseis2dfld_ = new uiSeisSel( inpgrp, in2dctio_, SeisSelSetup(true) );
 	inpseis2dfld_->attach( alignedBelow, intypfld_ );
 	inpseis2dfld_->selectiondone.notify(
 			mCB(this,uiMadagascarMain,inpSel) );
@@ -83,29 +142,36 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     }
     inpmadfld_ = new uiFileInput( inpgrp, "Input file", uiFileInput::Setup() );
     inpmadfld_->attach( alignedBelow, intypfld_ );
-    inpgrp->setHAlignObj( inpseis3dfld_ ? inpseis3dfld_ : inpseis2dfld_ );
     subselmadfld_ = new uiGenInput( inpgrp, "sfheaderwindow parameters" );
     subselmadfld_->attach( alignedBelow, inpmadfld_ );
     subselmadlbl_ = new uiLabel( inpgrp, "[Empty=All]" );
     subselmadlbl_->attach( rightOf, subselmadfld_ );
 
-    uiSeparator* sep = new uiSeparator( this, "Hor sep 1", true );
-    sep->attach( stretchedBelow, inpgrp, -2 );
+    inpgrp->setHAlignObj( inpseis3dfld_ ? inpseis3dfld_ : inpseis2dfld_ );
+    return inpgrp;
+}
 
-    const CallBack butpushcb( mCB(this,uiMadagascarMain,butPush) );
+
+uiGroup* uiMadagascarMain::crProcGroup()
+{
     uiGroup* procgrp = new uiGroup( this, "Proc group" );
+    const CallBack butpushcb( mCB(this,uiMadagascarMain,butPush) );
+
     procsfld_ = new uiListBox( procgrp, "Procs fld" );
     procsfld_->setPrefHeightInChar( 8 );
     procsfld_->selectionChanged.notify( mCB(this,uiMadagascarMain,selChg) );
     procsfld_->doubleClicked.notify( mCB(this,uiMadagascarMain,dClick) );
+
     addbut_ = new uiPushButton( procgrp, "&Add", butpushcb, false );
     addbut_->setToolTip( "Add command to flow" );
     addbut_->setPrefWidthInChar( 10 );
     addbut_->attach( rightOf, procsfld_ );
+
     editbut_ = new uiPushButton( procgrp, "&Edit", butpushcb, false );
     editbut_->setToolTip( "Edit current command" );
     editbut_->setPrefWidthInChar( 10 );
     editbut_->attach( alignedBelow, addbut_ );
+
     upbut_ = new uiPushButton( procgrp, "", ioPixmap("uparrow.png"),
 	    			butpushcb, true );
     upbut_->setToolTip( "Move current command up" );
@@ -116,17 +182,22 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     downbut_->setToolTip( "Move current command down" );
     downbut_->attach( rightAlignedBelow, editbut_ );
     downbut_->setPrefWidthInChar( 4 );
+
     uiSeparator* bsep = new uiSeparator( procgrp, "Small hor sep", true );
     bsep->attach( alignedBelow, upbut_ ); bsep->attach( widthSameAs, editbut_ );
+
     rmbut_ = new uiPushButton( procgrp, "&Remove", butpushcb, true );
     rmbut_->setToolTip( "Remove current command from flow" );
     rmbut_->setPrefWidthInChar( 10 );
     rmbut_->attach( alignedWith, editbut_ ); rmbut_->attach( ensureBelow, bsep);
-    procgrp->setHAlignObj( addbut_ );
-    procgrp->attach( ensureBelow, sep );
 
-    sep = new uiSeparator( this, "Hor sep 2", true );
-    sep->attach( stretchedBelow, procgrp, -2 );
+    procgrp->setHAlignObj( addbut_ );
+    return procgrp;
+}
+
+
+uiGroup* uiMadagascarMain::crOutGroup( const BufferStringSet& seistypes )
+{
 
     uiGroup* outgrp = new uiGroup( this, "Output group" );
     outtypfld_ = new uiGenInput( outgrp, "Output",
@@ -136,12 +207,12 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
 			    = outpsctio_.ctxt.forread = false;
     if ( SI().has3D() )
     {
-	outseis3dfld_ = new uiSeisSel( outgrp, out3dctio_, sss3d );
+	outseis3dfld_ = new uiSeisSel( outgrp, out3dctio_, SeisSelSetup(false));
 	outseis3dfld_->attach( alignedBelow, outtypfld_ );
     }
     if ( SI().has2D() )
     {
-	outseis2dfld_ = new uiSeisSel( outgrp, out2dctio_, sss2d );
+	outseis2dfld_ = new uiSeisSel( outgrp, out2dctio_, SeisSelSetup(true) );
 	outseis2dfld_->attach( alignedBelow, outtypfld_ );
     }
     if ( SI().has3D() )
@@ -152,22 +223,9 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     outmadfld_ = new uiFileInput( outgrp, "Output file",
 	    			  uiFileInput::Setup().forread(false) );
     outmadfld_->attach( alignedBelow, outtypfld_ );
+
     outgrp->setHAlignObj( outseis3dfld_ ? outseis3dfld_ : outseis2dfld_ );
-    outgrp->attach( alignedWith, inpgrp );
-    outgrp->attach( ensureBelow, sep );
-
-    finaliseDone.notify( mCB(this,uiMadagascarMain,initWin) );
-}
-
-
-uiMadagascarMain::~uiMadagascarMain()
-{
-    delete in3dctio_.ioobj; delete &in3dctio_;
-    delete in2dctio_.ioobj; delete &in2dctio_;
-    delete inpsctio_.ioobj; delete &inpsctio_;
-    delete out3dctio_.ioobj; delete &out3dctio_;
-    delete out2dctio_.ioobj; delete &out2dctio_;
-    delete outpsctio_.ioobj; delete &outpsctio_;
+    return outgrp;
 }
 
 
@@ -313,6 +371,31 @@ void uiMadagascarMain::selChg( CallBacker* )
     downbut_->setSensitive( sz > 1 && curidx >= 0 && curidx < sz-1 );
 }
 
+
+void uiMadagascarMain::newFlow( CallBacker* )
+{
+}
+
+
+void uiMadagascarMain::openFlow( CallBacker* )
+{
+}
+
+
+void uiMadagascarMain::saveFlow( CallBacker* )
+{
+}
+
+
+void uiMadagascarMain::importFlow( CallBacker* )
+{
+}
+
+
+void uiMadagascarMain::exportFlow( CallBacker* )
+{
+}
+
 #define mErrRet(s1,s2,s3) { uiMSG().error(s1,s2,s3); return false; }
 
 bool uiMadagascarMain::ioOK( int choice, bool inp )
@@ -351,9 +434,5 @@ bool uiMadagascarMain::acceptOK( CallBacker* )
     if ( !ioOK(inpchoice,true) || !ioOK(outchoice,false) )
 	return false;
 
-    // MadagascarExecutor exec;
-    // exec.set ...
-    // uiExecutor dlg( this, tst_ );
-    // return dlg.go();
-    return true;
+    return false;
 }

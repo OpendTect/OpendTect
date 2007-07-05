@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : May 2007
- * ID       : $Id: uimadagascarmain.h,v 1.7 2007-07-04 11:23:43 cvsbert Exp $
+ * ID       : $Id: uimadagascarmain.h,v 1.8 2007-07-05 15:33:06 cvsbert Exp $
 -*/
 
 #include "uidialog.h"
@@ -18,6 +18,7 @@ class uiFileInput;
 class uiPushButton;
 class uiSeis2DSubSel;
 class uiSeis3DSubSel;
+class BufferStringSet;
 
 
 class uiMadagascarMain : public uiDialog
@@ -69,10 +70,21 @@ protected:
     void			selChg(CallBacker*);
     void			dClick(CallBacker*);
     void			immediateAdd(CallBacker*);
+    void			newFlow(CallBacker*);
+    void			openFlow(CallBacker*);
+    void			saveFlow(CallBacker*);
+    void			importFlow(CallBacker*);
+    void			exportFlow(CallBacker*);
+
+    void			createMenus();
+    uiGroup*			crInpGroup(const BufferStringSet&);
+    uiGroup*			crProcGroup();
+    uiGroup*			crOutGroup(const BufferStringSet&);
 
     void			dispFlds(int,uiSeisSel*,uiSeisSel*,
 	    				 uiIOObjSel*,uiFileInput*);
     void			setButStates();
+
     bool			ioOK(int,bool);
 
 };
