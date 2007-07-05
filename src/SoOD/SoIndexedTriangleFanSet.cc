@@ -27,7 +27,7 @@ ___________________________________________________________________
 #include <Inventor/elements/SoTextureCoordinateBindingElement.h>
 #include <Inventor/system/gl.h>
 
-static const char* rcsID = "$Id: SoIndexedTriangleFanSet.cc,v 1.5 2007-01-16 09:02:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: SoIndexedTriangleFanSet.cc,v 1.6 2007-07-05 05:55:13 cvsnanne Exp $";
 
 SO_NODE_SOURCE(SoIndexedTriangleFanSet);
 
@@ -471,7 +471,8 @@ SbBool SoIndexedTriangleFanSet::generateDefaultNormals( SoState* state,
     {
 	case SoNormalBindingElement::PER_VERTEX:
 	case SoNormalBindingElement::PER_VERTEX_INDEXED:
-	    nc->generatePerVertex(coords,vp->vertex.getNum(),
+	    nc->generatePerVertex(coords,
+//				    vp->vertex.getNum(),
 				    coordIndex.getValues(0),
 				    coordIndex.getNum(),
 				    SoCreaseAngleElement::get(state),
@@ -479,7 +480,8 @@ SbBool SoIndexedTriangleFanSet::generateDefaultNormals( SoState* state,
 	    break;
 	case SoNormalBindingElement::PER_FACE:
 	case SoNormalBindingElement::PER_FACE_INDEXED:
-	    nc->generatePerFaceStrip(coords,vp->vertex.getNum(),
+	    nc->generatePerFaceStrip(coords,
+//				    vp->vertex.getNum(),
 				    coordIndex.getValues(0),
 				    coordIndex.getNum(),
 				    ccw);
@@ -487,7 +489,8 @@ SbBool SoIndexedTriangleFanSet::generateDefaultNormals( SoState* state,
 
 	case SoNormalBindingElement::PER_PART:
 	case SoNormalBindingElement::PER_PART_INDEXED:
-	    nc->generatePerStrip(coords,vp->vertex.getNum(),
+	    nc->generatePerStrip(coords,
+//				    vp->vertex.getNum(),
 				    coordIndex.getValues(0),
 				    coordIndex.getNum(),
 				    ccw);
