@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.63 2007-06-27 11:28:20 cvsnanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.64 2007-07-05 12:04:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -695,20 +695,22 @@ int VolumeDisplay::usePar( const IOPar& par )
     insertChild( 0, scalarfield_->getInventorNode() );
 
     int volid;
-    if ( !par.get(volumestr,volid) ) return -1;
-    dataobj = visBase::DM().getObject( volid );
-    if ( !dataobj ) return 0;
-    mDynamicCastGet(visBase::VolrenDisplay*,vr,dataobj)
-    if ( !vr ) return -1;
-    if ( volren_ )
+    if ( par.get(volumestr,volid) )
     {
-	if ( childIndex(volren_->getInventorNode())!=-1 )
-	    VisualObjectImpl::removeChild(volren_->getInventorNode());
-	volren_->unRef();
+	dataobj = visBase::DM().getObject( volid );
+	if ( !dataobj ) return 0;
+	mDynamicCastGet(visBase::VolrenDisplay*,vr,dataobj)
+	if ( !vr ) return -1;
+	if ( volren_ )
+	{
+	    if ( childIndex(volren_->getInventorNode())!=-1 )
+		VisualObjectImpl::removeChild(volren_->getInventorNode());
+	    volren_->unRef();
+	}
+	volren_ = vr;
+	volren_->ref();
+	addChild( volren_->getInventorNode() );
     }
-    volren_ = vr;
-    volren_->ref();
-    addChild( volren_->getInventorNode() );
 
     while ( slices_.size() )
 	removeChild( slices_[0]->id() );
