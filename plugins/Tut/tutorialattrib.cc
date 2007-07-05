@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: tutorialattrib.cc,v 1.3 2007-06-08 11:55:35 cvsraman Exp $
+ RCS:           $Id: tutorialattrib.cc,v 1.4 2007-07-05 06:36:21 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -228,7 +228,7 @@ bool Tutorial::computeData( const DataHolder& output, const BinID& relpos,
 		    count ++;
 		}
 	    }
-	    outval = sum / count;
+	    outval = count ? sum/count : mUdf(float);
 	}
 
 	setOutputValue( output, 0, idx, z0, outval );
