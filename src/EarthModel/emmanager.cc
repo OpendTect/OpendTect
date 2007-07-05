@@ -4,13 +4,13 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.58 2007-06-22 14:47:46 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.59 2007-07-05 17:27:24 cvskris Exp $";
 
 #include "emmanager.h"
 
 #include "ctxtioobj.h"
+#include "history.h"
 #include "emfault.h"
-#include "emhistory.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emhorizonztransform.h"
@@ -46,7 +46,7 @@ namespace EM
 mImplFactory1Param( EMObject, EMManager&, EMOF );
 
 EMManager::EMManager()
-    : history_( *new History(*this) )
+    : history_( *new History() )
     , addRemove( this )
 {}
 
@@ -78,7 +78,7 @@ void EMManager::empty()
 
     addRemove.trigger();
 
-    history_.empty();
+    history_.removeAll();
 }
 
 

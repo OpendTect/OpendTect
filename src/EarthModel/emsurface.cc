@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurface.cc,v 1.86 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:           $Id: emsurface.cc,v 1.87 2007-07-05 17:27:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "emsurface.h"
 
 #include "cubesampling.h"
-#include "emhistoryimpl.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emrowcoliterator.h"

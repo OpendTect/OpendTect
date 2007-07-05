@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.59 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.60 2007-07-05 17:27:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uivisemobj.h"
 
 #include "attribsel.h"
-#include "emhistory.h"
+#include "history.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
@@ -430,9 +430,9 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 	{
 	    if ( emobj->setSectionName(sid,dlg.text(), true ) )
 	    {
-		EM::History& history = EM::EMM().history();
-		const int currentevent = history.currentEventNr();
-		history.setLevel(currentevent,mEMHistoryUserInteractionLevel);
+		History& history = EM::EMM().history();
+		const int currentevent = history.currentEventID();
+		history.setUserInteractionEnd(currentevent);
 		break;
 	    }
 	}
@@ -508,9 +508,9 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 
 	emobj->removeSection(sid, true );
 
-	EM::History& history = EM::EMM().history();
-	const int currentevent = history.currentEventNr();
-	history.setLevel(currentevent,mEMHistoryUserInteractionLevel);
+	History& history = EM::EMM().history();
+	const int currentevent = history.currentEventID();
+	history.setUserInteractionEnd(currentevent);
     }
 }
 

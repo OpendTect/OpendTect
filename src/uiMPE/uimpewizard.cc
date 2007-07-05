@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.77 2007-07-03 10:54:48 cvsbert Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.78 2007-07-05 17:27:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uimpewizard.h"
 
 #include "ctxtioobj.h"
-#include "emhistory.h"
+#include "history.h"
 #include "emmanager.h"
 #include "emhorizon.h"
 #include "emseedpicker.h"
@@ -448,7 +448,7 @@ bool Wizard::prepareSeedSetupPage()
     if ( surfchangenotifier ) 
 	surfchangenotifier->notify( mCB(this,Wizard,updateFinishButton) );
     updateFinishButton(0);
-    initialhistorynr = EM::EMM().history().currentEventNr();
+    initialhistorynr = EM::EMM().history().currentEventID();
 
     return true;
 }
@@ -544,8 +544,8 @@ void Wizard::restoreObject()
 	emobj->setBurstAlert( true );
 	
 	EM::EMM().history().unDo(
-	                EM::EMM().history().currentEventNr()-initialhistorynr);
-	EM::EMM().history().setCurrentEventAsLast();
+	                EM::EMM().history().currentEventID()-initialhistorynr);
+	EM::EMM().history().removeAllAfterCurrentEvent();
 
 	emobj->setBurstAlert( false );
     }
@@ -841,10 +841,9 @@ void Wizard::retrackCB( CallBacker* )
     if ( curvol.nrInl()==1 || curvol.nrCrl()==1 )
 	mpeserv->loadAttribData();
 
-    EM::History& history = EM::EMM().history();
-    int cureventnr = history.currentEventNr();
-    if ( history.getLevel(cureventnr) == EM::History::cUserInteraction )
-	history.setLevel( cureventnr, 0 );
+    History& history = EM::EMM().history();
+    int cureventnr = history.currentEventID();
+    history.setUserInteractionEnd( cureventnr, false );
 
     EM::EMObject* emobj = EM::EMM().getObject( currentobject );
     emobj->setBurstAlert( true );
@@ -853,7 +852,7 @@ void Wizard::retrackCB( CallBacker* )
     uiCursor::restoreOverride();
     emobj->setBurstAlert( false );
 
-    history.setCurEventAsUserInteraction();
+    history.setUserInteractionEnd( history.currentEventID() );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.32 2007-06-22 14:47:46 cvsyuancheng Exp $
+ RCS:		$Id: emmanager.h,v 1.33 2007-07-05 17:27:24 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "emposid.h"
 
+class History;
 class IOObj;
 class IOObjContext;
 class Executor;
@@ -28,7 +29,6 @@ class Executor;
 namespace EM
 {
 class EMObject;
-class History;
 class SurfaceIOData;
 class SurfaceIODataSelection;
 

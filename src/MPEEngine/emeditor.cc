@@ -8,11 +8,11 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.19 2007-05-22 03:23:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.20 2007-07-05 17:27:24 cvskris Exp $";
 
 #include "emeditor.h"
 
-#include "emhistory.h"
+#include "history.h"
 #include "emmanager.h"
 #include "emhorizon3d.h"
 #include "emsurfacegeometry.h"
@@ -122,7 +122,8 @@ void ObjectEditor::finishEdit()
 	tracker->snapPositions(alongmovingnodes);
     }
 
-    EM::EMM().history().setCurEventAsUserInteraction();
+    EM::EMM().history().setUserInteractionEnd(
+	    EM::EMM().history().currentEventID() );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: horizon2dtracker.cc,v 1.2 2006-12-22 10:17:14 cvsjaap Exp $
+ RCS:           $Id: horizon2dtracker.cc,v 1.3 2007-07-05 17:27:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "horizon2dtracker.h"
 
 #include "cubicbeziercurve.h"
-#include "emhistory.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
 #include "horizonadjuster.h"

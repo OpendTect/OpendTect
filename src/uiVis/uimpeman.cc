@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.120 2007-05-22 04:08:58 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.121 2007-07-05 17:27:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uimpeman.h"
 
 #include "attribsel.h"
-#include "emhistory.h"
+#include "history.h"
 #include "emobject.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
@@ -381,7 +381,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	}
     }
 
-    const int currentevent = EM::EMM().history().currentEventNr();
+    const int currentevent = EM::EMM().history().currentEventID();
     uiCursor::setOverride( uiCursor::Wait );
     emobj->setBurstAlert( true );
     
@@ -843,7 +843,7 @@ void uiMPEMan::loadPostponedData()
 void uiMPEMan::undoPush( CallBacker* )
 {
     mBurstAlertToAllEMObjects(true);
-    if ( !EM::EMM().history().unDo( 1, mEMHistoryUserInteractionLevel ) )
+    if ( !EM::EMM().history().unDo( 1, true  ) )
 	uiMSG().error("Could not undo everything.");
     mBurstAlertToAllEMObjects(false);
 
@@ -854,7 +854,7 @@ void uiMPEMan::undoPush( CallBacker* )
 void uiMPEMan::redoPush( CallBacker* )
 {
     mBurstAlertToAllEMObjects(true);
-    if ( !EM::EMM().history().reDo( 1, mEMHistoryUserInteractionLevel) )
+    if ( !EM::EMM().history().reDo( 1, true ) )
 	uiMSG().error("Could not redo everything.");
     mBurstAlertToAllEMObjects(false);
 
@@ -1007,7 +1007,7 @@ void uiMPEMan::trackForward( CallBacker* )
     uiCursorChanger cursorlock( uiCursor::Wait );
     const int nrsteps = nrstepsbox->getValue();
     mGetDisplays(false)
-    const int currentevent = EM::EMM().history().currentEventNr();
+    const int currentevent = EM::EMM().history().currentEventID();
     for ( int idx=0; idx<displays.size(); idx++ )
 	displays[idx]->moveMPEPlane( nrsteps );
     setHistoryLevel(currentevent);
@@ -1019,7 +1019,7 @@ void uiMPEMan::trackBackward( CallBacker* )
     uiCursorChanger cursorlock( uiCursor::Wait );
     const int nrsteps = nrstepsbox->getValue();
     mGetDisplays(false)
-    const int currentevent = EM::EMM().history().currentEventNr();
+    const int currentevent = EM::EMM().history().currentEventID();
     for ( int idx=0; idx<displays.size(); idx++ )
 	displays[idx]->moveMPEPlane( -nrsteps );
     setHistoryLevel(currentevent);
@@ -1042,7 +1042,7 @@ void uiMPEMan::trackInVolume( CallBacker* )
     PtrMan<Executor> exec = engine().trackInVolume();
     if ( exec )
     {
-	const int currentevent = EM::EMM().history().currentEventNr();
+	const int currentevent = EM::EMM().history().currentEventID();
 	uiExecutor uiexec( toolbar, *exec );
 	if ( !uiexec.go() )
 	{
@@ -1185,8 +1185,8 @@ void uiMPEMan::initFromDisplay()
 
 void uiMPEMan::setHistoryLevel( int preveventnr )
 {
-    EM::History& history = EM::EMM().history();
-    const int currentevent = history.currentEventNr();
+    History& history = EM::EMM().history();
+    const int currentevent = history.currentEventID();
     if ( currentevent != preveventnr )
-	history.setLevel(currentevent,mEMHistoryUserInteractionLevel);
+	history.setUserInteractionEnd(currentevent);
 }

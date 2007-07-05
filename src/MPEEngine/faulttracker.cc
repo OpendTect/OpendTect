@@ -8,14 +8,13 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulttracker.cc,v 1.1 2005-12-12 17:26:39 cvskris Exp $";
+static const char* rcsID = "$Id: faulttracker.cc,v 1.2 2007-07-05 17:27:24 cvskris Exp $";
 
 #include "faulttracker.h"
 
 #include "cubicbeziercurve.h"
 #include "emfault.h"
 #include "emmanager.h"
-#include "emhistory.h"
 #include "faultseedpicker.h"
 #include "mpeengine.h"
 #include "faultextender.h"

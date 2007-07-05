@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.109 2007-06-21 19:35:21 cvskris Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.110 2007-07-05 17:27:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "datainpspec.h"
 #include "emfault.h"
-#include "emhistory.h"
+#include "history.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
@@ -600,7 +600,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 
 void uiEMPartServer::removeHistory()
 {
-    em_.history().empty();
+    em_.history().removeAll();
 }
 
 

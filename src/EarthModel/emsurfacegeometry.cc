@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.37 2007-06-21 19:35:21 cvskris Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.38 2007-07-05 17:27:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 
 #include "emsurfaceedgeline.h"
-#include "emhistoryimpl.h"
+#include "history.h"
 #include "emmanager.h"
 #include "parametricsurface.h"
 #include "mathfunc.h"
@@ -299,7 +299,7 @@ bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtohistory )
     if ( addtohistory )
     {
 	pErrMsg("History not implemented for remove section");
-	EMM().history().setCurrentEventAsFirst();
+	EMM().history().removeAllBeforeCurrentEvent();
 	/*
 
 	HistoryEvent* history =
@@ -1057,7 +1057,7 @@ SectionID SurfaceGeometry::addSectionInternal( Geometry::Element* surf,
     if ( addtohistory )
     {
 	pErrMsg("History not implemented for add section");
-	EMM().history().setCurrentEventAsFirst();
+	EMM().history().removeAllBeforeCurrentEvent();
     }
 
     enableChecks( isChecksEnabled() ); 

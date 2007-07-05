@@ -8,14 +8,13 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.34 2007-06-21 19:35:21 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.35 2007-07-05 17:27:24 cvskris Exp $";
    
 
 #include "emsurfaceedgeline.h"
 #include "emmanager.h"
 #include "emhorizon3d.h"
 #include "emsurfacegeometry.h"
-#include "emhistory.h"
 #include "executor.h"
 #include "iopar.h"
 #include "mathfunc.h"
@@ -1860,14 +1859,12 @@ EdgeLineManager::EdgeLineManager( EM::Horizon3D& surf )
     , addremovenotify( this )
 {
     linesets.allowNull();
-    EMM().history().undoredo.notify( mCB(this,EdgeLineManager,updateEL) );
 }
 
 
 EdgeLineManager::~EdgeLineManager()
 {
     removeAll();
-    EMM().history().undoredo.remove( mCB(this,EdgeLineManager,updateEL) );
 }
 
 

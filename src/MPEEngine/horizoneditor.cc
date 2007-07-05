@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: horizoneditor.cc,v 1.4 2007-06-21 19:35:21 cvskris Exp $
+ RCS:           $Id: horizoneditor.cc,v 1.5 2007-07-05 17:27:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "binidsurface.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
-#include "emhistory.h"
+#include "history.h"
 #include "mpeengine.h"
 
 #define mSinus		0
@@ -87,7 +87,8 @@ void HorizonEditor::getEditIDs( TypeSet<EM::PosID>& ids ) const
 bool HorizonEditor::addEditID( const EM::PosID& pid )
 {
     emobject.setPosAttrib( pid, EM::EMObject::sPermanentControlNode, true,true);
-    EM::EMM().history().setCurEventAsUserInteraction();
+    EM::EMM().history().setUserInteractionEnd(
+	    EM::EMM().history().currentEventID() );
     return true;
 }
 

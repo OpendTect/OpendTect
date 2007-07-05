@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: surfacecutter.cc,v 1.10 2007-02-22 18:14:40 cvskris Exp $
+ RCS:           $Id: surfacecutter.cc,v 1.11 2007-07-05 17:27:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "surfacecutter.h"
 #include "emmanager.h"
-#include "emhistory.h"
+#include "history.h"
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "emsurfacerelations.h"
@@ -120,7 +120,7 @@ bool SurfaceCutter::doCut()
     if ( !cuttingsurf || !cuttingsurf->geometry().hasSection(cuttingsectionid_) )
 	return false;
 
-    const int initialhistnr = EM::EMM().history().currentEventNr();
+    const int initialhistnr = EM::EMM().history().currentEventID();
     const EM::SectionID newsectionid =
 		    cuttedsurf->geometry().cloneSection( cuttedsectionid_ );
     if ( newsectionid == -1 )
@@ -134,13 +134,13 @@ bool SurfaceCutter::doCut()
     }
 
     while ( EM::EMM().history().canUnDo() &&
-	    EM::EMM().history().currentEventNr()!=initialhistnr )
+	    EM::EMM().history().currentEventID()!=initialhistnr )
     {
 	bool res = EM::EMM().history().unDo(1);
 	if ( !res ) break;
     }
 
-    EM::EMM().history().setCurrentEventAsLast();
+    EM::EMM().history().removeAllAfterCurrentEvent();
     return false;
 }
 

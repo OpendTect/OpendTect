@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.20 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:           $Id: uiemhorizoneditor.cc,v 1.21 2007-07-05 17:27:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "datainpspec.h"
 #include "horizoneditor.h"
-#include "emhistory.h"
+#include "history.h"
 #include "emmanager.h"
 #include "emsurfaceedgelineimpl.h"
 #include "emhorizon3d.h"
@@ -309,10 +309,10 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 	for ( int idx=0; idx<nodestoremove.size(); idx++ )
 	    surface.unSetPos( nodestoremove[idx], true );
 
-	 EM::History& history = EM::EMM().history();
-	 const int cureventnr = history.currentEventNr();
-	 if ( cureventnr>=history.firstEventNr() )
-	     history.setLevel( cureventnr, mEMHistoryUserInteractionLevel );
+	 History& history = EM::EMM().history();
+	 const int cureventnr = history.currentEventID();
+	 if ( cureventnr>=history.firstEventID() )
+	     history.setUserInteractionEnd( cureventnr );
 
     }
 
