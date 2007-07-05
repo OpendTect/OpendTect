@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.36 2006-12-12 17:47:28 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.37 2007-07-05 10:04:44 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.36 2006-12-12 17:47:28 c
 #include "seisresampler.h"
 #include "cubesampling.h"
 #include "multiid.h"
+#include "survinfo.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "ioman.h"
@@ -38,6 +39,9 @@ static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.36 2006-12-12 17:47:28 c
     	, trcsperstep_(10) \
     	, scaler_(0) \
     	, skipnull_(false) \
+    	, fillnull_(false) \
+    	, fillhs_(true) \
+    	, filltrc_(0) \
     	, resampler_(0) \
     	, is3d_(true) \
 { \
@@ -211,7 +215,28 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 	totnr_ = -1;
 
     nextObj();
+    if ( fillnull_ )
+	prepareNullFilling();
+
     return true;
+}
+
+
+void SeisSingleTraceProc::prepareNullFilling()
+{
+    if ( rdrset_.isEmpty() || !is3d_ || pswrr_ )
+	{ fillnull_ = false; return; }
+
+    const SeisTrcReader& rdr = *rdrset_[0];
+    const SeisSelData* sd = rdr.selData();
+    if ( sd && !sd->all_ && sd->type_ == Seis::Range )
+    {
+	fillhs_.start.inl = sd->inlrg_.start;
+	fillhs_.stop.inl = sd->inlrg_.stop;
+	fillhs_.start.crl = sd->crlrg_.start;
+	fillhs_.stop.crl = sd->crlrg_.stop;
+    }
+    fillbid_ = BinID( fillhs_.start.inl, fillhs_.start.crl );
 }
 
 
@@ -295,70 +320,151 @@ static void scaleTrc( SeisTrc& trc, Scaler& sclr )
 }
 
 
+int SeisSingleTraceProc::getNextTrc()
+{
+    SeisTrcReader& currdr = *rdrset_[currentobj_];
+
+    int rv = currdr.get( intrc_.info() );
+    if ( rv == 0 )
+    { 
+	currentobj_++;
+	if ( currentobj_ == nrobjs_ )
+	    { wrapUp(); return Executor::Finished; }
+	nextObj();
+	return Executor::MoreToDo;
+    }
+    else if ( rv < 0 )
+	{ curmsg_ = currdr.errMsg(); return Executor::ErrorOccurred; }
+    else if ( rv == 2 )
+	return 2;
+
+    worktrc_ = &intrc_;
+    skipcurtrc_ = false;
+    selcb_.doCall( this );
+    if ( skipcurtrc_ )
+	{ nrskipped_++; return 2; }
+
+    if ( !currdr.get(intrc_) )
+	{ curmsg_ = currdr.errMsg(); return Executor::ErrorOccurred; }
+
+    return Executor::MoreToDo;
+}
+
+
+int SeisSingleTraceProc::getFillTrc()
+{
+    if ( !filltrc_ )
+    {
+	while ( true )
+	{
+	    int rv = getNextTrc();
+	    if ( rv < 1 )
+		return rv;
+	    if ( rv == 1 )
+	    {
+		if ( prepareTrc() )
+		{
+		    break;
+		}
+	    }
+	}
+	filltrc_ = new SeisTrc( *worktrc_ );
+	filltrc_->zero();
+	filltrc_->info().nr = 0;
+	filltrc_->info().offset = 0;
+	filltrc_->info().azimuth = 0;
+	filltrc_->info().refpos = filltrc_->info().pick = mUdf(float);
+    }
+
+    SeisTrcReader& currdr = *rdrset_[currentobj_];
+    if ( !currdr.seisTranslator()->goTo(fillbid_) )
+    {
+	worktrc_ = &intrc_;
+	*worktrc_ = *filltrc_;
+	worktrc_->info().binid = fillbid_;
+	worktrc_->info().coord = SI().transform( fillbid_ );
+    }
+    else
+    {
+	int rv = getNextTrc();
+	if ( rv < 1 )
+	    return rv;
+    }
+
+    fillbid_.crl += fillhs_.step.crl;
+    if ( fillbid_.crl > fillhs_.stop.crl )
+    {
+	fillbid_.inl += fillhs_.step.inl;
+	if ( fillbid_.inl > fillhs_.stop.inl )
+	    return Executor::Finished;
+	fillbid_.crl = fillhs_.start.crl;
+    }
+
+    return Executor::MoreToDo;
+}
+
+
+bool SeisSingleTraceProc::prepareTrc()
+{
+    if ( resampler_ )
+    {
+	worktrc_ = resampler_->get(intrc_);
+	if ( !worktrc_ ) { nrskipped_++; return false; }
+    }
+
+    if ( skipnull_ && worktrc_->isNull() )
+	skipcurtrc_ = true;
+
+    if ( !skipcurtrc_ )
+	proccb_.doCall( this );
+    if ( skipcurtrc_ ) { nrskipped_++; return false; }
+
+    if ( scaler_ )
+	const_cast<SeisTrc*>(worktrc_)->data().scale( *scaler_ );
+
+    return true;
+}
+
+
+bool SeisSingleTraceProc::writeTrc()
+{
+    if ( nrwr_ < 1 && wrr_ && wrr_->seisTranslator() )
+    {
+	const SeisTrcReader& currdr = *rdrset_[currentobj_];
+	wrr_->seisTranslator()->setCurLineKey( currdr.lineKey() );
+	if ( currdr.is2D() )
+	    wrr_->seisTranslator()->packetInfo().crlrg = currdr.curTrcNrRange();
+    }
+
+    if ( wrr_ && !wrr_->put(*worktrc_) )
+	{ curmsg_ = wrr_->errMsg(); return Executor::ErrorOccurred; }
+    else if ( pswrr_ && !pswrr_->put(*worktrc_) )
+	{ curmsg_ = pswrr_->errMsg(); return Executor::ErrorOccurred; }
+
+    nrwr_++;
+    return true;
+}
+
+
 int SeisSingleTraceProc::nextStep()
 {
     if ( rdrset_.size() <= currentobj_ || !rdrset_[currentobj_]
 	|| (!wrr_ && !pswrr_) )
-	return -1;
+	return Executor::ErrorOccurred;
 
-    int retval = 1;
     for ( int idx=0; idx<trcsperstep_; idx++ )
     {
-	SeisTrcReader* currdr = rdrset_[currentobj_];
-	int rv = rdrset_[currentobj_]->get( intrc_.info() );
-	if ( !rv )
-	{ 
-	    currentobj_++;
-	    if ( currentobj_ == nrobjs_ )
-		{ wrapUp(); return 0; }
-	    nextObj();
-	    return 1;
-	}
-	else if ( rv < 0 )
-	    { curmsg_ = currdr->errMsg(); return -1; }
-	else if ( rv == 2 )
+	int rv = fillnull_ ? getFillTrc() : getNextTrc();
+	if ( rv < 1 )		return rv;
+	else if ( rv > 1 )	continue;
+
+	if ( !prepareTrc() )
 	    continue;
 
-	worktrc_ = &intrc_;
-	skipcurtrc_ = false;
-	selcb_.doCall( this );
-	if ( skipcurtrc_ ) { nrskipped_++; continue; }
-
-	if ( !currdr->get(intrc_) )
-	    { curmsg_ = currdr->errMsg(); return -1; }
-
-	if ( resampler_ )
-	{
-	    worktrc_ = resampler_->get(intrc_);
-	    if ( !worktrc_ ) { nrskipped_++; continue; }
-	}
-
-	if ( skipnull_ && worktrc_->isNull() )
-	    skipcurtrc_ = true;
-
-	if ( !skipcurtrc_ )
-	    proccb_.doCall( this );
-	if ( skipcurtrc_ ) { nrskipped_++; continue; }
-
-	if ( scaler_ )
-	    const_cast<SeisTrc*>(worktrc_)->data().scale( *scaler_ );
-
-	if ( nrwr_ < 1 && wrr_ && wrr_->seisTranslator() )
-	{
-	    wrr_->seisTranslator()->setCurLineKey( currdr->lineKey() );
-	    if ( currdr->is2D() )
-		wrr_->seisTranslator()->packetInfo().crlrg
-		    	= currdr->curTrcNrRange();
-	}
-
-	if ( wrr_ && !wrr_->put(*worktrc_) )
-	    { curmsg_ = wrr_->errMsg(); return -1; }
-	else if ( pswrr_ && !pswrr_->put(*worktrc_) )
-	    { curmsg_ = pswrr_->errMsg(); return -1; }
-
-	nrwr_++;
+	if ( !writeTrc() )
+	    return Executor::ErrorOccurred;
     }
-    return 1;
+    return Executor::MoreToDo;
 }
 
 

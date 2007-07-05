@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.21 2006-12-12 11:16:57 cvsbert Exp $
+ RCS:           $Id: uiseistransf.h,v 1.22 2007-07-05 10:04:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,14 +34,16 @@ public:
 			Setup()
 			    : geom_(Seis::Vol)
 			    , withstep_(true) //!< Can user specify steps?
+			    , withnullfill_(false) //!< Enable add null traces
 			    , multi2dlines_(false) //!< Allow 'all' lines (2D)
 			    , fornewentry_(true) //!< New line or existing (2D)
 			    			{}
 
 	mDefSetupMemb(Seis::GeomType,geom)
-	mDefSetupMemb(bool,fornewentry)
 	mDefSetupMemb(bool,withstep)
+	mDefSetupMemb(bool,withnullfill)
 	mDefSetupMemb(bool,multi2dlines)
+	mDefSetupMemb(bool,fornewentry)
     };
 
 			uiSeisTransfer(uiParent*,const Setup&);
@@ -69,6 +71,7 @@ public:
     SeisIOObjInfo::SpaceInfo spaceInfo() const;
 
     bool		removeNull() const;
+    bool		fillNull() const;
 
 protected:
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.38 2007-05-30 10:46:47 cvsbert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.39 2007-07-05 10:04:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,8 +41,13 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
     else
 	selfld = new uiSeis3DSubSel( this, setup_.withstep_ );
 
-    remnullfld = new uiGenInput( this, "Null traces",
-				 BoolInpSpec(true,"Discard","Pass") );
+    static const char* choices[] = { "Discard", "Pass", "Add", 0 };
+    if ( setup_.withnullfill_ )
+	remnullfld = new uiGenInput( this, "Null traces",
+				     StringListInpSpec(choices) );
+    else
+	remnullfld = new uiGenInput( this, "Null traces",
+				     BoolInpSpec(true,choices[0],choices[1]) );
     remnullfld->attach( alignedBelow, selfld->attachObj() );
 
     scfmtfld = new uiSeisFmtScale( this, setup_.geom_, !setup_.fornewentry_ );
@@ -101,7 +106,13 @@ SeisIOObjInfo::SpaceInfo uiSeisTransfer::spaceInfo() const
 
 bool uiSeisTransfer::removeNull() const
 {
-    return remnullfld->getBoolValue();
+    return remnullfld->getIntValue() == 0;
+}
+
+
+bool uiSeisTransfer::fillNull() const
+{
+    return remnullfld->getIntValue() == 2;
 }
 
 
@@ -147,6 +158,7 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
 	    						worktxt );
     stp->setScaler( scfmtfld->getScaler() );
     stp->skipNullTraces( removeNull() );
+    stp->fillNullTraces( fillNull() );
     stp->setResampler( getResampler() );
 
     return stp;

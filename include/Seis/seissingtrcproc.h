@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.15 2005-10-21 10:56:50 cvsbert Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.16 2007-07-05 10:04:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "executor.h"
+#include "cubesampling.h"
 class IOObj;
 class IOPar;
 class Scaler;
@@ -78,6 +79,7 @@ public:
     			//!< Scaler becomes mine.
     void		setResampler(SeisResampler*);
     void		skipNullTraces( bool yn=true )	{ skipnull_ = yn; }
+    void		fillNullTraces( bool yn=true )	{ fillnull_ = yn; }
 
     void		setInput(const IOObj*,const IOObj*,const char*,
 				 const IOPar*,const char*);
@@ -105,11 +107,21 @@ protected:
     Scaler*		scaler_;
     bool		skipnull_;
     bool		is3d_;
+    bool		fillnull_;
+    BinID		fillbid_;
+    HorSampling		fillhs_;
+    SeisTrc*		filltrc_;
 
     bool		mkWriter(const IOObj*);
     void		nextObj();
     bool		init(ObjectSet<IOObj>&,ObjectSet<IOPar>&);
     virtual void	wrapUp();
+
+    int			getNextTrc();
+    int			getFillTrc();
+    bool		prepareTrc();
+    bool		writeTrc();
+    void		prepareNullFilling();
 };
 
 
