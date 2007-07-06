@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.17 2006-12-27 15:28:46 cvsnanne Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.18 2007-07-06 06:06:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -226,7 +226,8 @@ bool HorizonScanner::analyzeData()
 	while ( *ptr )
 	{
 	    ptr = getNextWord( ptr, valbuf );
-	    validx++;
+	    if ( *valbuf )
+		validx++;
 	}
 
 	nrattribvals = validx;
@@ -289,6 +290,8 @@ int HorizonScanner::nextStep()
 	    while ( *ptr )
 	    {
 		ptr = getNextWord( ptr, valbuf );
+		if ( !*valbuf ) break;
+
 		if ( firsttime )
 		    valranges += Interval<float>(mUdf(float),-mUdf(float));
 		const float val = atof( valbuf );
