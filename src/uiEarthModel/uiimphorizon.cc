@@ -4,42 +4,41 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.80 2007-07-03 10:54:47 cvsbert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.81 2007-07-06 06:05:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiimphorizon.h"
 
-#include "emsurfacetr.h"
-#include "emmanager.h"
-#include "emhorizon3d.h"
-
 #include "arrayndimpl.h"
 #include "binidselimpl.h"
 #include "binidvalset.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
+#include "emhorizon3d.h"
+#include "emmanager.h"
+#include "emsurfacetr.h"
 #include "filegen.h"
 #include "horizonscanner.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "randcolor.h"
 #include "scaler.h"
 #include "streamconn.h"
 #include "strmdata.h"
 #include "strmprov.h"
 #include "survinfo.h"
-#include "keystrs.h"
 
 #include "uiarray2dchg.h"
+#include "uibinidsubsel.h"
+#include "uibutton.h"
+#include "uicolor.h"
 #include "uicombobox.h"
+#include "uicursor.h"
 #include "uiexecutor.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
-#include "uibutton.h"
-#include "uibinidsubsel.h"
-#include "uicolor.h"
-#include "uicursor.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uiscaler.h"
@@ -220,7 +219,7 @@ bool uiImportHorizon::checkInpFlds()
     BufferStringSet filenames;
     if ( !getFileNames(filenames) ) return false;
 
-    if ( !outfld->commitInput( true ) )
+    if ( !outfld->commitInput(true) )
 	mErrRet( "Please select the output" )
 
     return true;
@@ -258,6 +257,7 @@ bool uiImportHorizon::doWork()
     if ( !horizon )
 	mErrRet( "Cannot create horizon" );
 
+    horizon->setMultiID( ctio_.ioobj->key() );
     horizon->setPreferredColor( colbut->color() );
     BufferStringSet filenames;
     if ( !getFileNames(filenames) ) return false;
