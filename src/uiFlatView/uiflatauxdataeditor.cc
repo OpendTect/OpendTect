@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          April 2007
- RCS:           $Id: uiflatauxdataeditor.cc,v 1.1 2007-04-04 18:19:49 cvskris Exp $
+ RCS:           $Id: uiflatauxdataeditor.cc,v 1.2 2007-07-06 16:51:26 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,14 +14,14 @@ ________________________________________________________________________
 #include "uiflatviewer.h"
 #include "uirgbarraycanvas.h"
 
-uiFlatViewAuxDataEditor::uiFlatViewAuxDataEditor( uiFlatViewer& viewer )
-    : FlatView::AuxDataEditor( viewer,
-	    		       viewer.rgbCanvas().getMouseEventHandler() )
+uiFlatViewAuxDataEditor::uiFlatViewAuxDataEditor( uiFlatViewer& vw )
+    : FlatView::AuxDataEditor( vw,
+	    		       vw.rgbCanvas().getMouseEventHandler() )
 {
-    viewer.rgbCanvas().newFillNeeded.notify(
+    vw.rgbCanvas().newFillNeeded.notify(
 	    mCB(this,uiFlatViewAuxDataEditor,sizeChangeCB) );
-    viewer.viewChanged.notify( mCB(this,uiFlatViewAuxDataEditor,viewChangeCB) );
-    viewer.viewChanged.notify( mCB(this,uiFlatViewAuxDataEditor,sizeChangeCB) );
+    vw.viewChanged.notify( mCB(this,uiFlatViewAuxDataEditor,viewChangeCB) );
+    vw.viewChanged.notify( mCB(this,uiFlatViewAuxDataEditor,sizeChangeCB) );
 
     viewChangeCB( 0 );
     sizeChangeCB( 0 );
@@ -30,9 +30,9 @@ uiFlatViewAuxDataEditor::uiFlatViewAuxDataEditor( uiFlatViewer& viewer )
 
 uiFlatViewAuxDataEditor::~uiFlatViewAuxDataEditor()
 {
-    mDynamicCastGet( uiFlatViewer&, viewer, viewer_ );
-    viewer.viewChanged.remove( mCB(this,uiFlatViewAuxDataEditor,viewChangeCB) );
-    viewer.rgbCanvas().newFillNeeded.remove(
+    mDynamicCastGet( uiFlatViewer&, uivw, viewer_ );
+    uivw.viewChanged.remove( mCB(this,uiFlatViewAuxDataEditor,viewChangeCB) );
+    uivw.rgbCanvas().newFillNeeded.remove(
 	    mCB(this,uiFlatViewAuxDataEditor,sizeChangeCB) );
 }
 
@@ -41,8 +41,8 @@ void uiFlatViewAuxDataEditor::viewChangeCB( CallBacker* cb )
 {
     if ( mousedown_ ) return;
     
-    mDynamicCastGet( uiFlatViewer&, viewer, viewer_ );
-    curview_ = viewer.curView();
+    mDynamicCastGet( uiFlatViewer&, uivw, viewer_ );
+    curview_ = uivw.curView();
 }
 
 
@@ -51,6 +51,6 @@ void uiFlatViewAuxDataEditor::sizeChangeCB( CallBacker* )
     if ( mousedown_ )
 	return;
 
-    mDynamicCastGet( uiFlatViewer&, viewer, viewer_ );
-    mousearea_ = viewer.rgbCanvas().arrArea();
+    mDynamicCastGet( uiFlatViewer&, uivw, viewer_ );
+    mousearea_ = uivw.rgbCanvas().arrArea();
 }
