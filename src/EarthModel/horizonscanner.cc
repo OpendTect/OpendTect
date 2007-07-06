@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.18 2007-07-06 06:06:29 cvsnanne Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.19 2007-07-06 12:05:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -306,6 +306,9 @@ int HorizonScanner::nextStep()
 		validx++;
 	    }
 
+	    if ( validpos && validx == 0 )
+		validpos = false;
+
 	    if ( validpos )
 		geomdetector.add( bid, crd );
 	    else if ( rejectedlines.size()<1024 )
@@ -337,4 +340,3 @@ bool HorizonScanner::gapsFound( bool inl ) const
 
 int HorizonScanner::nrAttribValues() const
 { return nrattribvals; }
-
