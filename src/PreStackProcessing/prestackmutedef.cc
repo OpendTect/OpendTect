@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmutedef.cc,v 1.1 2007-03-15 17:28:52 cvskris Exp $
+ RCS:		$Id: prestackmutedef.cc,v 1.2 2007-07-06 16:44:27 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,10 @@ int MuteDef::size() const
 { return fns_.size(); }
 
 
+int MuteDef::indexOf( const BinID& bid ) const
+{ return pos_.indexOf( bid ); }
+
+
 PointBasedMathFunction& MuteDef::getFn( int idx )
 { return *fns_[idx]; }
 
@@ -49,6 +53,16 @@ const BinID& MuteDef::getPos( int idx ) const
 
 void MuteDef::add( PointBasedMathFunction* fn , const BinID& pos )
 { fns_ += fn; pos_ += pos; }
+
+
+void MuteDef::remove( int idx )
+{
+    if ( idx<0 || idx>=size() )
+	return;
+
+    delete fns_.remove( idx );
+    pos_.remove( idx );
+}
 
 
 float MuteDef::value( float offs, const BinID& pos ) const

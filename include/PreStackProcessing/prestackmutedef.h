@@ -1,5 +1,5 @@
 #ifndef prestackmutedef_h
-#define muting_hprestackmutedef_h
+#define prestackmutedef_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmutedef.h,v 1.1 2007-03-15 17:28:52 cvskris Exp $
+ RCS:		$Id: prestackmutedef.h,v 1.2 2007-07-06 16:44:27 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,9 @@ public:
 					MuteDef( const char* nm=0 );
 					~MuteDef();
 
+
     int					size() const;
+    int					indexOf(const BinID&) const;
     PointBasedMathFunction&		getFn(int idx);
     BinID&				getPos(int idx);
     const PointBasedMathFunction&	getFn(int idx) const;
@@ -38,7 +40,8 @@ public:
 
     void				add(PointBasedMathFunction*,
 	    				    const BinID& pos );
-
+    					//!<Function becomes mine.
+    void				remove(int idx);
     float				value(float offs,const BinID&) const;
 					//!< Interpolates between defined
 					//!< positions
