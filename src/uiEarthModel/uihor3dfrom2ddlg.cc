@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.11 2007-06-21 19:35:21 cvskris Exp $
+ RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.12 2007-07-06 08:29:43 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,9 +84,9 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
 	return false;
     
     EM::EMManager& em = EM::EMM();
-    const MultiID mid = ioobj->key();
-	
-    emserv_->removeTreeObject( em.getObjectID(mid) );
+
+    if ( nameandtypeexist )
+	emserv_->removeTreeObject( em.getObjectID(ioobj->key()) );
     
     const EM::ObjectID emobjid = em.createObject( typ, nm );
     mDynamicCastGet(EM::Horizon3D*,hor3d,em.getObject(emobjid));
