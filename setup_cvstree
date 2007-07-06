@@ -1,6 +1,6 @@
 #!/bin/csh
 # This script initialises a work dir after CVS checkout
-# $Id: setup_cvstree,v 1.4 2007-06-13 06:38:17 cvsnanne Exp $
+# $Id: setup_cvstree,v 1.5 2007-07-06 14:16:21 cvskris Exp $
 
 if ( $#argv < 1 ) then
     set od_wdir=`pwd`
@@ -59,6 +59,19 @@ ln -s ../lmhostid* .
 
 cd "$od_wdir/plugins"
 if ( ! -e Makefile ) ln -s Makefile.od Makefile
+
+
+# create documentation dirs
+
+if ( -e $od_wdir/data ) then
+    if ( ! -e ${od_wdir}/data/dTectDoc ) mkdir ${od_wdir}/data/dTectDoc
+    if ( ! -e ${od_wdir}/data/dTectDoc/Programmer ) then
+	mkdir ${od_wdir}/data/dTectDoc/Programmer
+    endif
+    if ( ! -e ${od_wdir}/data/dTectDoc/Programmer/Generated ) then
+	mkdir ${od_wdir}/data/dTectDoc/Programmer/Generated
+    endif
+endif
 
 # copy relevant libraries to $WORK/bin/$binsubdir/so
 cd "$od_wdir/bin/$binsubdir/so"
