@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: mathfunc.cc,v 1.4 2006-11-16 22:21:54 cvskris Exp $";
+static const char* rcsID = "$Id: mathfunc.cc,v 1.5 2007-07-06 16:43:16 cvsyuancheng Exp $";
 
 
 #include "mathfunc.h"
@@ -60,6 +60,16 @@ void PointBasedMathFunction::add( float x, float y )
 	x_[idx] = prevx; y_[idx] = prevy;
 	prevx = tmpx; prevy = tmpy;
     }
+}
+
+
+void PointBasedMathFunction::remove( int idx )
+{
+    if ( idx<0 || idx>=size() )
+	return;
+
+    x_.remove( idx );
+    y_.remove( idx );
 }
 
 

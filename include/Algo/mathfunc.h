@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.20 2006-11-15 17:05:40 cvsbert Exp $
+ RCS:		$Id: mathfunc.h,v 1.21 2007-07-06 16:43:16 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,6 +156,7 @@ public:
 
     int			size() const		{ return x_.size(); }
     void		add(float x,float y);
+    void		remove(int idx);
     float		getValue( float x ) const
 			{ return itype_ == Snap ? snapVal(x) : interpVal(x); }
 
