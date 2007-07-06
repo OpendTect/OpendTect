@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.59 2007-07-05 17:27:24 cvskris Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.60 2007-07-06 08:24:02 cvsjaap Exp $";
 
 #include "emmanager.h"
 
@@ -130,6 +130,15 @@ ObjectID EMManager::createObject( const char* type, const char* name )
 {
     EMObject* object = EMOF().create( type, *this );
     if ( !object ) return -1;
+
+    CtxtIOObj ctio( object->getIOObjContext() );
+    ctio.ctxt.forread = false;
+    ctio.ioobj = 0;
+    ctio.setName( name );
+    if ( ctio.fillObj() ) 
+    	object->setMultiID( ctio.ioobj->key() );
+    
+    object->setFullyLoaded( true );
     return object->id();
 }
 
