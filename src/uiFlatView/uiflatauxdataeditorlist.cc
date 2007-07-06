@@ -3,8 +3,8 @@ ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
- Date:          April 2007
- RCS:           $Id: uiflatauxdataeditorlist.cc,v 1.2 2007-05-10 13:12:51 cvskris Exp $
+ Date:          June 2007
+ RCS:           $Id: uiflatauxdataeditorlist.cc,v 1.3 2007-07-06 16:52:04 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,104 +12,145 @@ ________________________________________________________________________
 #include "uiflatauxdataeditorlist.h"
 
 #include "flatauxdataeditor.h"
-#include "uibutton.h"
 #include "uilistbox.h"
 
 
-uiFlatViewAuxDataEditorList::uiFlatViewAuxDataEditorList(uiParent* p,
-					FlatView::AuxDataEditor* editor )
+uiFlatViewAuxDataEditorList::uiFlatViewAuxDataEditorList( uiParent* p )
     : uiGroup( p )
-    , editor_( editor )
+    , change_( this )  
 {
     listbox_ = new uiListBox( this );
     listbox_->setMultiSelect( true );
     listbox_->selectionChanged.notify(
-	    mCB(this,uiFlatViewAuxDataEditorList,listSelChangeCB) );
-
-    addbutton_ = new uiPushButton( this, "Add", false );
-    addbutton_->attach( alignedBelow, listbox_ );
-
-    removebutton_ = new uiPushButton( this, "Remove", true );
-    removebutton_->attach( rightOf, addbutton_ );
-
-    updateList( 0 );
+	    mCB(this, uiFlatViewAuxDataEditorList, listSelChangeCB) );
 }
 
 
 uiFlatViewAuxDataEditorList::~uiFlatViewAuxDataEditorList()
-{ }
-
-
-void uiFlatViewAuxDataEditorList::setEditor( FlatView::AuxDataEditor* newed )
 {
-    editor_ = newed;
-    updateList( 0 );
+    listbox_->selectionChanged.remove(
+	    mCB(this, uiFlatViewAuxDataEditorList, listSelChangeCB) );
+}
+
+
+void uiFlatViewAuxDataEditorList::addEditor( FlatView::AuxDataEditor* newed )
+{
+    editors_ += newed;
+    updateList();
+}
+
+
+void uiFlatViewAuxDataEditorList::removeEditor( FlatView::AuxDataEditor* ed )
+{
+    editors_ -= ed;
+    updateList();
 }
 
 
 void uiFlatViewAuxDataEditorList::updateList( CallBacker* )
 {
-    const TypeSet<int>* ids = editor_ ? &editor_->getIds() : 0;
-    const ObjectSet<FlatView::Annotation::AuxData>* auxdata =
-	editor_ ? &editor_->getAuxData() : 0;
+    ObjectSet<FlatView::AuxDataEditor> selectededitors;
+    TypeSet<int> selectedids;
+    getSelections( selectededitors, selectedids );
+
+    NotifyStopper block( listbox_->selectionChanged );
 
     listbox_->empty();
-    ids_.erase();
+    listboxeditors_.erase();
+    listboxids_.erase();
 
-    if ( ids ) 
+    for ( int idx=editors_.size()-1; idx>=0; idx-- )
     {
-	for ( int idx=0; idx<ids->size(); idx++ )
+	FlatView::AuxDataEditor& editor = *editors_[idx];
+	const TypeSet<int>& ids = editor.getIds();
+
+        const ObjectSet<FlatView::Annotation::AuxData>& auxdata =
+	    editor.getAuxData();
+
+	for ( int idy=0; idy<ids.size(); idy++ )
 	{
-	    const FlatView::Annotation::AuxData* ad = (*auxdata)[idx];
+	    const FlatView::Annotation::AuxData* ad = auxdata[idy];
 	    if ( !ad->markerstyle_.color.isVisible() || !ad->enabled_ )
 		continue;
 
 	    listbox_->insertItem( ad->name_, ad->markerstyle_.color,
-		    		  listbox_->size() );
-	    ids_ += (*ids)[idx];
+		    			listbox_->size() );
+
+	    listboxids_ += ids[idy];
+	    listboxeditors_ += editors_[idx];
 	}
     }
-
-    const int selidx =
-	ids_.size() ? ids_.indexOf( editor_->getAddAuxData() ) : -1;
     
-    NotifyStopper block( listbox_->selectionChanged );
-    if ( selidx<0 )
-	listbox_->selectAll( false );
-    else
-	listbox_->setSelected( selidx, true );
+    listbox_->selectAll( false );
 
-    removebutton_->setSensitive( ids_.size() );
+    for ( int idy=selectededitors.size()-1; idy>=0; idy-- )
+    {
+	const int idx = findEditorIDPair( selectededitors[idy],
+					  selectedids[idy] );
+	if ( idx==-1 )
+	    continue;
+
+       listbox_->setSelected( idx, true );
+    }
+
+    block.restore();
+    listbox_->selectionChanged.trigger();
+    change_.trigger();
 }
 
 
-void uiFlatViewAuxDataEditorList::setSelection( int id )
+void uiFlatViewAuxDataEditorList::getSelections( 
+	ObjectSet<FlatView::AuxDataEditor>& editors, TypeSet<int>& ids ) 
 {
-    const int idx = ids_.indexOf( id );
+    for ( int idx=listbox_->size()-1; idx >= 0; idx-- )
+    {
+	if ( listbox_->isSelected( idx ) )
+	{
+	    editors += listboxeditors_[idx];
+	    ids += listboxids_[idx];
+	 }
+    }
+}
+
+
+void uiFlatViewAuxDataEditorList::setSelection( 
+	const FlatView::AuxDataEditor* editor, int id )
+{
+    const int idx = findEditorIDPair( editor, id );
     if ( idx<0 ) return;
 
+    NotifyStopper block( listbox_->selectionChanged );
     listbox_->selectAll( false );
+    block.restore();
+
     listbox_->setSelected( idx, true );
-}
-
-
-NotifierAccess* uiFlatViewAuxDataEditorList::addNotifier()
-{ return &addbutton_->activated; }
-
-
-NotifierAccess* uiFlatViewAuxDataEditorList::removeNotifier()
-{ return &removebutton_->activated; }
-
-
-void uiFlatViewAuxDataEditorList::enableAdd( bool yn )
-{
-    addbutton_->setSensitive( yn );
+    change_.trigger();
 }
 
 
 void uiFlatViewAuxDataEditorList::listSelChangeCB( CallBacker* )
 {
-    const int nrsel = listbox_->nrSelected();
-    if ( nrsel!=1 ) editor_->setAddAuxData( -1 );
-    else editor_->setAddAuxData( ids_[listbox_->nextSelected()] );
+    for ( int idx = editors_.size()-1; idx>=0; idx-- )
+	editors_[idx]->setAddAuxData( -1 );
+	
+    if ( listbox_->nrSelected()==1 ) 
+    {
+	const int idx = listbox_->nextSelected();
+	listboxeditors_[idx]->setAddAuxData( listboxids_[idx] );
+    }
+    
+    change_.trigger();
+}
+
+
+int uiFlatViewAuxDataEditorList::findEditorIDPair( 
+	const FlatView::AuxDataEditor* editor, int id ) const
+{
+    for ( int idx=0; idx<listboxeditors_.size(); idx++ )
+    {
+	if ( listboxeditors_[idx]==editor && listboxids_[idx]==id )
+	    return idx;
+    }
+    
+    return -1;
 }

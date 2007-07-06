@@ -1,12 +1,13 @@
 #ifndef uiflatauxdataeditorlist_h
 #define uiflatauxdataeditorlist_h
+
 /*+
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
- Date:          April 2007
- RCS:           $Id: uiflatauxdataeditorlist.h,v 1.2 2007-05-14 21:53:15 cvskris Exp $
+ Date:          June 2007
+ RCS:           $Id: uiflatauxdataeditorlist.h,v 1.3 2007-07-06 16:52:04 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +15,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 
 class uiListBox;
-class uiButton;
 namespace FlatView { class AuxDataEditor; }
 
 
@@ -24,28 +24,37 @@ namespace FlatView { class AuxDataEditor; }
 class uiFlatViewAuxDataEditorList : public uiGroup
 {
 public:
-		uiFlatViewAuxDataEditorList(uiParent*,FlatView::AuxDataEditor*);
-		~uiFlatViewAuxDataEditorList();
+			uiFlatViewAuxDataEditorList(uiParent*);
+			~uiFlatViewAuxDataEditorList();
 
-    void	setEditor(FlatView::AuxDataEditor*);
-    void	updateList(CallBacker* = 0);
-    void	setSelection(int id);
-    		/*!<Set which data in the editor that should be active. */
+    void		addEditor(FlatView::AuxDataEditor*);
+    			/*!<Does not take over ownership. */
+    void		removeEditor(FlatView::AuxDataEditor*);
 
-    NotifierAccess*	addNotifier();
-    NotifierAccess*	removeNotifier();
+    void		updateList(CallBacker* = 0);
+    void		setSelection(const FlatView::AuxDataEditor*,int id);
+    			//!<Set which data in the editor that should be active. 
 
-    void		enableAdd(bool yn);
+    NotifierAccess&	selectionChange() { return change_; }
+    void		getSelections(ObjectSet<FlatView::AuxDataEditor>&,
+	    			      TypeSet<int>& ids );
 
 protected:
-    virtual void		listSelChangeCB(CallBacker*);
 
-    uiListBox*			listbox_;
-    uiButton*			addbutton_;
-    uiButton*			removebutton_;
+    virtual void	listSelChangeCB(CallBacker*);
+    int			findEditorIDPair( const FlatView::AuxDataEditor*,
+					  int id) const;
 
-    FlatView::AuxDataEditor*	editor_;
-    TypeSet<int>		ids_;
+    ObjectSet<FlatView::AuxDataEditor>		editors_;
+
+    TypeSet<int>				listboxids_;    
+    						//coupled, 1 per row in the list
+    ObjectSet<FlatView::AuxDataEditor>		listboxeditors_;
+    						//coupled, 1 per row in the list
+
+    uiListBox*					listbox_;
+
+    Notifier<uiFlatViewAuxDataEditorList>	change_;
 };
 
 #endif
