@@ -5,7 +5,7 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.3 2007-07-04 09:44:54 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.4 2007-07-06 10:07:50 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiodmenumgr.h"
@@ -66,5 +66,10 @@ extern "C" const char* InituiMadagascarPlugin( int, char** )
     static uiMadagascarLink* lnk = 0; if ( lnk ) return 0;
     if ( ODMad::PI().errMsg().isEmpty() )
 	lnk = new uiMadagascarLink( ODMainWin() );
+#ifdef MAD_UIMSG_IF_FAIL
+    else
+	uiMSG().error( ODMad::PI().errMsg() );
+#endif
+
     return lnk ? 0 : ODMad::PI().errMsg().buf();
 }
