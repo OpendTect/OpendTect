@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.78 2007-07-05 17:27:24 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.79 2007-07-06 14:11:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uimpewizard.h"
 
 #include "ctxtioobj.h"
-#include "history.h"
+#include "undo.h"
 #include "emmanager.h"
 #include "emhorizon.h"
 #include "emseedpicker.h"
@@ -157,7 +157,7 @@ Wizard::Wizard( uiParent* p, uiMPEPartServer* mps )
     , ioparentrycreated(false)
     , typefld(0)
     , anotherfld(0)
-    , initialhistorynr(mUdf(int))
+    , initialundoid_(mUdf(int))
     , oldsettingsseeds(0)
 {
     objselgrp = createNamePage();
@@ -448,7 +448,7 @@ bool Wizard::prepareSeedSetupPage()
     if ( surfchangenotifier ) 
 	surfchangenotifier->notify( mCB(this,Wizard,updateFinishButton) );
     updateFinishButton(0);
-    initialhistorynr = EM::EMM().history().currentEventID();
+    initialundoid_ = EM::EMM().undo().currentEventID();
 
     return true;
 }
@@ -538,14 +538,14 @@ void Wizard::isStarting()
 
 void Wizard::restoreObject()
 {
-    if ( !mIsUdf(initialhistorynr) )
+    if ( !mIsUdf(initialundoid_) )
     {
 	EM::EMObject* emobj = EM::EMM().getObject( currentobject );
 	emobj->setBurstAlert( true );
 	
-	EM::EMM().history().unDo(
-	                EM::EMM().history().currentEventID()-initialhistorynr);
-	EM::EMM().history().removeAllAfterCurrentEvent();
+	EM::EMM().undo().unDo(
+	                EM::EMM().undo().currentEventID()-initialundoid_);
+	EM::EMM().undo().removeAllAfterCurrentEvent();
 
 	emobj->setBurstAlert( false );
     }
@@ -581,7 +581,7 @@ void Wizard::restoreObject()
     trackercreated = false;
     objectcreated = false;
     currentobject = -1;
-    initialhistorynr = mUdf(int);
+    initialundoid_ = mUdf(int);
     sid = -1;
 }
 
@@ -714,7 +714,7 @@ void Wizard::reset()
     ioparentrycreated = false;
     trackercreated = false;
     currentobject = -1;
-    initialhistorynr = mUdf(int);
+    initialundoid_ = mUdf(int);
 
     for ( int idx=0; idx<nrPages(); idx++ )
 	displayPage( idx, true );
@@ -841,9 +841,9 @@ void Wizard::retrackCB( CallBacker* )
     if ( curvol.nrInl()==1 || curvol.nrCrl()==1 )
 	mpeserv->loadAttribData();
 
-    History& history = EM::EMM().history();
-    int cureventnr = history.currentEventID();
-    history.setUserInteractionEnd( cureventnr, false );
+    Undo& undo = EM::EMM().undo();
+    int cureventnr = undo.currentEventID();
+    undo.setUserInteractionEnd( cureventnr, false );
 
     EM::EMObject* emobj = EM::EMM().getObject( currentobject );
     emobj->setBurstAlert( true );
@@ -852,7 +852,7 @@ void Wizard::retrackCB( CallBacker* )
     uiCursor::restoreOverride();
     emobj->setBurstAlert( false );
 
-    history.setUserInteractionEnd( history.currentEventID() );
+    undo.setUserInteractionEnd( undo.currentEventID() );
 }
 
 

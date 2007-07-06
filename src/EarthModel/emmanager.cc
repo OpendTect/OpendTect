@@ -4,12 +4,11 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.60 2007-07-06 08:24:02 cvsjaap Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.61 2007-07-06 14:11:05 cvskris Exp $";
 
 #include "emmanager.h"
 
 #include "ctxtioobj.h"
-#include "history.h"
 #include "emfault.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
@@ -23,6 +22,7 @@ static const char* rcsID = "$Id: emmanager.cc,v 1.60 2007-07-06 08:24:02 cvsjaap
 #include "iopar.h"
 #include "ioman.h"
 #include "ptrman.h"
+#include "undo.h"
 
 
 EM::EMManager& EM::EMM()
@@ -46,7 +46,7 @@ namespace EM
 mImplFactory1Param( EMObject, EMManager&, EMOF );
 
 EMManager::EMManager()
-    : history_( *new History() )
+    : undo_( *new Undo() )
     , addRemove( this )
 {}
 
@@ -54,7 +54,7 @@ EMManager::EMManager()
 EMManager::~EMManager()
 {
     empty();
-    delete &history_;
+    delete &undo_;
 }
 
 
@@ -78,12 +78,12 @@ void EMManager::empty()
 
     addRemove.trigger();
 
-    history_.removeAll();
+    undo_.removeAll();
 }
 
 
-const History& EMManager::history() const	{ return history_; }
-History& EMManager::history()			{ return history_; }
+const Undo& EMManager::undo() const	{ return undo_; }
+Undo& EMManager::undo()			{ return undo_; }
 
 
 BufferString EMManager::objectName( const MultiID& mid ) const

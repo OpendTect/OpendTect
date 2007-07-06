@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.18 2006-10-23 09:16:23 cvsjaap Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.19 2007-07-06 14:11:05 cvskris Exp $";
 
 #include "sectiontracker.h"
 
@@ -146,7 +146,7 @@ void SectionTracker::removeUnSupported( TypeSet<EM::SubID>& subids ) const
 
 bool SectionTracker::erasePositions( const TypeSet<EM::SubID>& origsubids,
 				     const TypeSet<EM::SubID>& excludedpos,
-				     bool addtohistory ) const
+				     bool addtoundo ) const
 {
     TypeSet<EM::SubID> subids( origsubids );
     EM::PosID pid(emobject.id(),sid,0 );
@@ -159,7 +159,7 @@ bool SectionTracker::erasePositions( const TypeSet<EM::SubID>& origsubids,
 	{
 	    pid.setSubID(subids[idx]);
 	    if ( excludedpos.indexOf(subids[idx])!=-1 || 
-		 emobject.unSetPos(pid,addtohistory) )
+		 emobject.unSetPos(pid,addtoundo) )
 	    {
 		subids.remove(idx--);
 		change = true;

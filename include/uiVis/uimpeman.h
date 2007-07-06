@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.h,v 1.43 2007-03-06 11:46:26 cvsjaap Exp $
+ RCS:           $Id: uimpeman.h,v 1.44 2007-07-06 14:11:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,7 @@ protected:
     void 			finishMPEDispIntro(CallBacker*);
     void			loadPostponedData();
 
-    void			setHistoryLevel(int);
+    void			setUndoLevel(int);
 
     void			seedClick(CallBacker*);
     void			updateClickCatcher();

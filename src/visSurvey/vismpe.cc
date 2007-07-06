@@ -1,15 +1,15 @@
-/*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Oct 1999
--*/
+    /*+
+     * COPYRIGHT: (C) dGB Beheer B.V.
+     * AUTHOR   : K. Tingdahl
+     * DATE     : Oct 1999
+    -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.53 2007-07-05 17:27:24 cvskris Exp $";
+    static const char* rcsID = "$Id: vismpe.cc,v 1.54 2007-07-06 14:11:05 cvskris Exp $";
 
 #include "vismpe.h"
 
 #include "arrayndsubsel.h"
-#include "history.h"
+#include "undo.h"
 #include "emmanager.h"
 #include "mpeengine.h"
 #include "survinfo.h"
@@ -527,17 +527,17 @@ void MPEDisplay::rectangleMovedCB( CallBacker* )
 
 void MPEDisplay::rectangleStartCB( CallBacker* )
 {
-    History& history = EM::EMM().history();
-    lasteventnr_ = history.currentEventID();
+    Undo& undo = EM::EMM().undo();
+    lasteventnr_ = undo.currentEventID();
 }
 
 
 void MPEDisplay::rectangleStopCB( CallBacker* )
 {
-    History& history = EM::EMM().history();
-    const int currentevent = history.currentEventID();
+    Undo& undo = EM::EMM().undo();
+    const int currentevent = undo.currentEventID();
     if ( currentevent!=lasteventnr_ )
-	history.setUserInteractionEnd(currentevent);
+	undo.setUserInteractionEnd(currentevent);
 }
 
 

@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: surfacecutter.cc,v 1.11 2007-07-05 17:27:24 cvskris Exp $
+ RCS:           $Id: surfacecutter.cc,v 1.12 2007-07-06 14:11:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "surfacecutter.h"
 #include "emmanager.h"
-#include "history.h"
+#include "undo.h"
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "emsurfacerelations.h"
@@ -120,7 +120,7 @@ bool SurfaceCutter::doCut()
     if ( !cuttingsurf || !cuttingsurf->geometry().hasSection(cuttingsectionid_) )
 	return false;
 
-    const int initialhistnr = EM::EMM().history().currentEventID();
+    const int initialhistnr = EM::EMM().undo().currentEventID();
     const EM::SectionID newsectionid =
 		    cuttedsurf->geometry().cloneSection( cuttedsectionid_ );
     if ( newsectionid == -1 )
@@ -133,14 +133,14 @@ bool SurfaceCutter::doCut()
 	return res;
     }
 
-    while ( EM::EMM().history().canUnDo() &&
-	    EM::EMM().history().currentEventID()!=initialhistnr )
+    while ( EM::EMM().undo().canUnDo() &&
+	    EM::EMM().undo().currentEventID()!=initialhistnr )
     {
-	bool res = EM::EMM().history().unDo(1);
+	bool res = EM::EMM().undo().unDo(1);
 	if ( !res ) break;
     }
 
-    EM::EMM().history().removeAllAfterCurrentEvent();
+    EM::EMM().undo().removeAllAfterCurrentEvent();
     return false;
 }
 

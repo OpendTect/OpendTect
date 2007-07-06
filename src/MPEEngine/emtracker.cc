@@ -8,14 +8,14 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.33 2007-07-05 17:27:24 cvskris Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.34 2007-07-06 14:11:05 cvskris Exp $";
 
 #include "emtracker.h"
 
 #include "attribsel.h"
 #include "autotracker.h"
 #include "consistencychecker.h"
-#include "history.h"
+#include "undo.h"
 #include "emmanager.h"
 #include "emobject.h"
 #include "executor.h"
@@ -67,7 +67,7 @@ bool EMTracker::trackSections( const TrackPlane& plane )
 	return true;
 
 
-    const int initialhistnr = EM::EMM().history().currentEventID();
+    const int initialhistnr = EM::EMM().undo().currentEventID();
     ConsistencyChecker* consistencychecker = getConsistencyChecker();
     if ( consistencychecker ) consistencychecker->reset();
 

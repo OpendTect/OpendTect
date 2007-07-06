@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.33 2007-07-05 17:27:24 cvskris Exp $
+ RCS:		$Id: emmanager.h,v 1.34 2007-07-06 14:11:05 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "emposid.h"
 
-class History;
+class Undo;
 class IOObj;
 class IOObjContext;
 class Executor;
@@ -46,8 +46,8 @@ public:
     static void		initClasses();
     void		empty();
 
-    History&		history();
-    const History&	history() const;
+    Undo&		undo();
+    const Undo&		undo() const;
 
     int			nrLoadedObjects() const	{ return objects_.size(); }
     EM::ObjectID	objectID(int idx) const;
@@ -94,7 +94,7 @@ public:
 
 
 protected:
-    History&			history_;
+    Undo&			undo_;
 
     ObjectSet<EMObject>		objects_;
 };

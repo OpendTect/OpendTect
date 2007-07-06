@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.65 2007-06-22 14:49:04 cvsyuancheng Exp $
+ RCS:		$Id: emobject.h,v 1.66 2007-07-06 14:11:05 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -282,7 +282,7 @@ const char* clss::getTypeStr() const { return typeStr(); }
   - EM::EMManager, responsible for the loading and deleting of the objects
 
   Earth models have the nasty habit of changing over time. Therefore, edit
-  history matters are handled by the EM::History objects.
+  history matters are handled by the Undo objects.
 
 */
 

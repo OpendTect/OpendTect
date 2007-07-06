@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.188 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.189 2007-07-06 14:11:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,7 +130,7 @@ void uiODApplMgr::resetServers()
     attrserv_ = new uiAttribPartServer( applservice_ );
     mpeserv_ = new uiMPEPartServer( applservice_ );
     visserv_->deleteAllObjects();
-    emserv_->removeHistory();
+    emserv_->removeUndo();
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.90 2007-06-21 19:35:21 cvskris Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.91 2007-07-06 14:11:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -404,14 +404,14 @@ bool Horizon3DGeometry::isFullResolution() const
 }
 
 
-bool Horizon3DGeometry::removeSection( const SectionID& sid, bool addtohistory )
+bool Horizon3DGeometry::removeSection( const SectionID& sid, bool addtoundo )
 {
     int idx=sids_.indexOf(sid);
     if ( idx==-1 ) return false;
 
     ((Horizon3D&) surface_).edgelinesets.removeSection( sid );
     ((Horizon3D&) surface_).auxdata.removeSection( sid );
-    return SurfaceGeometry::removeSection( sid, addtohistory );
+    return SurfaceGeometry::removeSection( sid, addtoundo );
 }
 
 

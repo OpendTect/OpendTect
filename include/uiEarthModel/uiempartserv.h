@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.49 2007-05-31 12:16:08 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.50 2007-07-06 14:11:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,7 +93,7 @@ public:
     bool		getAllAuxData(const EM::ObjectID&,BufferStringSet&,
 	    			      ObjectSet<BinIDValueSet>&) const;
 
-    void		removeHistory();
+    void		removeUndo();
 
     static const int	evDisplayHorizon;
     static const int	evRemoveTreeObject;

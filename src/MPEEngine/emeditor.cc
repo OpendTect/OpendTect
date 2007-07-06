@@ -8,11 +8,11 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.20 2007-07-05 17:27:24 cvskris Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.21 2007-07-06 14:11:05 cvskris Exp $";
 
 #include "emeditor.h"
 
-#include "history.h"
+#include "undo.h"
 #include "emmanager.h"
 #include "emhorizon3d.h"
 #include "emsurfacegeometry.h"
@@ -122,8 +122,8 @@ void ObjectEditor::finishEdit()
 	tracker->snapPositions(alongmovingnodes);
     }
 
-    EM::EMM().history().setUserInteractionEnd(
-	    EM::EMM().history().currentEventID() );
+    EM::EMM().undo().setUserInteractionEnd(
+	    EM::EMM().undo().currentEventID() );
 }
 
 
@@ -188,11 +188,11 @@ Coord3 ObjectEditor::getPosition( const EM::PosID& pid ) const
 
 bool ObjectEditor::setPosition( const EM::PosID& pid,  const Coord3& np )
 {
-    const bool addtohistory = changedpids.indexOf(pid) == -1;
-    if ( addtohistory )
+    const bool addtoundo = changedpids.indexOf(pid) == -1;
+    if ( addtoundo )
 	changedpids += pid;
 
-    return emobject.setPos( pid, np, addtohistory );
+    return emobject.setPos( pid, np, addtoundo );
 }
 
 #define mMayFunction( func ) \

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.38 2007-07-05 17:27:24 cvskris Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.39 2007-07-06 14:11:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 
 #include "emsurfaceedgeline.h"
-#include "history.h"
+#include "undo.h"
 #include "emmanager.h"
 #include "parametricsurface.h"
 #include "mathfunc.h"
@@ -39,10 +39,10 @@ static const char* sValnms = "Value Names";
 static const char* sSections = "Patches";
 
 
-class SurfaceSectionHistoryEvent : public HistoryEvent
+class SurfaceSectionUndoEvent : public UndoEvent
 {
 public:
-			SurfaceSectionHistoryEvent( bool add,
+			SurfaceSectionUndoEvent( bool add,
 				ObjectID, const SectionID&,
 				const char* name );
     const char*         getStandardDesc() const;
@@ -66,7 +66,7 @@ protected:
 };
 
 
-SurfaceSectionHistoryEvent::SurfaceSectionHistoryEvent(
+SurfaceSectionUndoEvent::SurfaceSectionUndoEvent(
 	bool doadd, ObjectID oid,
         const SectionID& sectionid, const char* nm)
     : object( oid )
@@ -76,31 +76,31 @@ SurfaceSectionHistoryEvent::SurfaceSectionHistoryEvent(
 {}
 
 
-const char* SurfaceSectionHistoryEvent::getStandardDesc() const
+const char* SurfaceSectionUndoEvent::getStandardDesc() const
 {
     return "Modified surface section";
 }
 
 
-bool SurfaceSectionHistoryEvent::unDo()
+bool SurfaceSectionUndoEvent::unDo()
 {
     return action( !add );
 }
 
 
-bool SurfaceSectionHistoryEvent::reDo()
+bool SurfaceSectionUndoEvent::reDo()
 {
     return action( add );
 }
 
 
-const char* SurfaceSectionHistoryEvent::addKey() { return "Add"; }
-const char* SurfaceSectionHistoryEvent::objKey() { return "Object"; }
-const char* SurfaceSectionHistoryEvent::sectionKey() { return "Section"; }
-const char* SurfaceSectionHistoryEvent::nameKey() { return "Name"; }
+const char* SurfaceSectionUndoEvent::addKey() { return "Add"; }
+const char* SurfaceSectionUndoEvent::objKey() { return "Object"; }
+const char* SurfaceSectionUndoEvent::sectionKey() { return "Section"; }
+const char* SurfaceSectionUndoEvent::nameKey() { return "Name"; }
 
 
-void SurfaceSectionHistoryEvent::fillPar( IOPar& iopar ) const
+void SurfaceSectionUndoEvent::fillPar( IOPar& iopar ) const
 {
     iopar.setYN( addKey(), add );
     iopar.set( objKey(), object );
@@ -109,7 +109,7 @@ void SurfaceSectionHistoryEvent::fillPar( IOPar& iopar ) const
 }
 
 
-bool SurfaceSectionHistoryEvent::usePar( const IOPar& iopar )
+bool SurfaceSectionUndoEvent::usePar( const IOPar& iopar )
 {
     int tmpsection;
     bool res = iopar.getYN( addKey(), add ) && iopar.get( objKey(), object )
@@ -127,7 +127,7 @@ bool SurfaceSectionHistoryEvent::usePar( const IOPar& iopar )
 }
 
 
-bool SurfaceSectionHistoryEvent::action( bool doadd ) const
+bool SurfaceSectionUndoEvent::action( bool doadd ) const
 {
     EMManager& manager = EMM();
     EMObject* objectptr = manager.getObject(object);
@@ -229,7 +229,7 @@ const char* SurfaceGeometry::sectionName( const SectionID& sid ) const
 
 
 bool SurfaceGeometry::setSectionName( const SectionID& sid, const char* nm,
-				      bool addtohistory )
+				      bool addtoundo )
 {
     const int idx = sids_.indexOf(sid);
     if ( !nm || !*nm || idx<0 )
@@ -237,8 +237,8 @@ bool SurfaceGeometry::setSectionName( const SectionID& sid, const char* nm,
 
     sectionnames_.get(idx) = nm;
 
-    if ( addtohistory )
-	pErrMsg("Section namechange history not implemented" );
+    if ( addtoundo )
+	pErrMsg("Section namechange undo not implemented" );
 
     changed_ = true;
     return true;
@@ -254,24 +254,24 @@ int SurfaceGeometry::sectionIndex( const SectionID& sid ) const
 
 
 
-SectionID SurfaceGeometry::addSection( const char* nm, bool addtohistory )
+SectionID SurfaceGeometry::addSection( const char* nm, bool addtoundo )
 {
     SectionID res = 0;
     while ( sids_.indexOf(res)!=-1 ) res++;
 
-    return addSection( nm, res, addtohistory );
+    return addSection( nm, res, addtoundo );
 }
 
 
 SectionID SurfaceGeometry::addSection( const char* nm, const SectionID& sid, 
-				       bool addtohistory )
+				       bool addtoundo )
 {
     Geometry::Element* newsurf = createSectionGeometry();
-    return newsurf ? addSectionInternal( newsurf, nm, sid, addtohistory ) : -1;
+    return newsurf ? addSectionInternal( newsurf, nm, sid, addtoundo ) : -1;
 }
 
 
-bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtohistory )
+bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtoundo )
 {
     int idx=sids_.indexOf(sid);
     if ( idx==-1 ) return false;
@@ -296,16 +296,16 @@ bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtohistory )
     sids_.remove( idx );
     sectionnames_.remove( idx );
 
-    if ( addtohistory )
+    if ( addtoundo )
     {
-	pErrMsg("History not implemented for remove section");
-	EMM().history().removeAllBeforeCurrentEvent();
+	pErrMsg("Undo not implemented for remove section");
+	EMM().undo().removeAllBeforeCurrentEvent();
 	/*
 
-	HistoryEvent* history =
-	    new SurfaceSectionHistoryEvent( false, surface_.id(),
+	UndoEvent* undo =
+	    new SurfaceSectionUndoEvent( false, surface_.id(),
 					    sid, name );
-	EMM().history().addEvent( history, 0, 0 );
+	EMM().undo().addEvent( undo, 0, 0 );
 	*/
     }
 
@@ -1035,7 +1035,7 @@ EMObjectIterator* SurfaceGeometry::createIterator( const SectionID&,
 
 SectionID SurfaceGeometry::addSectionInternal( Geometry::Element* surf,
 				   const char* nm, const SectionID& wantedsid,
-				   bool addtohistory )
+				   bool addtoundo )
 {
     if ( !surf ) return -1;
 
@@ -1054,10 +1054,10 @@ SectionID SurfaceGeometry::addSectionInternal( Geometry::Element* surf,
     sectionnames_ += new BufferString(name);
     sections_ += surf;
 
-    if ( addtohistory )
+    if ( addtoundo )
     {
-	pErrMsg("History not implemented for add section");
-	EMM().history().removeAllBeforeCurrentEvent();
+	pErrMsg("Undo not implemented for add section");
+	EMM().undo().removeAllBeforeCurrentEvent();
     }
 
     enableChecks( isChecksEnabled() ); 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.121 2007-07-05 17:27:24 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.122 2007-07-06 14:11:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uimpeman.h"
 
 #include "attribsel.h"
-#include "history.h"
+#include "undo.h"
 #include "emobject.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
@@ -85,7 +85,7 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 #endif
     updateAttribNames();
 
-    EM::EMM().history().changenotifier.notify(
+    EM::EMM().undo().changenotifier.notify(
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     engine().trackplanechange.notify(
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
@@ -181,7 +181,7 @@ void uiMPEMan::addButtons()
 
 uiMPEMan::~uiMPEMan()
 {
-    EM::EMM().history().changenotifier.remove(
+    EM::EMM().undo().changenotifier.remove(
 	    		mCB(this,uiMPEMan,updateButtonSensitivity) );
     deleteVisObjects();
     engine().trackplanechange.remove(
@@ -381,7 +381,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	}
     }
 
-    const int currentevent = EM::EMM().history().currentEventID();
+    const int currentevent = EM::EMM().undo().currentEventID();
     uiCursor::setOverride( uiCursor::Wait );
     emobj->setBurstAlert( true );
     
@@ -403,7 +403,7 @@ void uiMPEMan::seedClick( CallBacker* )
     
     emobj->setBurstAlert( false );
     uiCursor::restoreOverride();
-    setHistoryLevel(currentevent);
+    setUndoLevel(currentevent);
     
     if ( !isPickingInWizard() )
 	restoreActiveVol();
@@ -843,7 +843,7 @@ void uiMPEMan::loadPostponedData()
 void uiMPEMan::undoPush( CallBacker* )
 {
     mBurstAlertToAllEMObjects(true);
-    if ( !EM::EMM().history().unDo( 1, true  ) )
+    if ( !EM::EMM().undo().unDo( 1, true  ) )
 	uiMSG().error("Could not undo everything.");
     mBurstAlertToAllEMObjects(false);
 
@@ -854,7 +854,7 @@ void uiMPEMan::undoPush( CallBacker* )
 void uiMPEMan::redoPush( CallBacker* )
 {
     mBurstAlertToAllEMObjects(true);
-    if ( !EM::EMM().history().reDo( 1, true ) )
+    if ( !EM::EMM().undo().reDo( 1, true ) )
 	uiMSG().error("Could not redo everything.");
     mBurstAlertToAllEMObjects(false);
 
@@ -879,8 +879,8 @@ MPE::EMTracker* uiMPEMan::getSelectedTracker()
 void uiMPEMan::updateButtonSensitivity( CallBacker* ) 
 {
     //Undo/Redo
-    toolbar->setSensitive( undoidx, EM::EMM().history().canUnDo() );
-    toolbar->setSensitive( redoidx, EM::EMM().history().canReDo() );
+    toolbar->setSensitive( undoidx, EM::EMM().undo().canUnDo() );
+    toolbar->setSensitive( redoidx, EM::EMM().undo().canReDo() );
 
     //Seed button
     updateSeedPickState();
@@ -1007,10 +1007,10 @@ void uiMPEMan::trackForward( CallBacker* )
     uiCursorChanger cursorlock( uiCursor::Wait );
     const int nrsteps = nrstepsbox->getValue();
     mGetDisplays(false)
-    const int currentevent = EM::EMM().history().currentEventID();
+    const int currentevent = EM::EMM().undo().currentEventID();
     for ( int idx=0; idx<displays.size(); idx++ )
 	displays[idx]->moveMPEPlane( nrsteps );
-    setHistoryLevel(currentevent);
+    setUndoLevel(currentevent);
 }
 
 
@@ -1019,10 +1019,10 @@ void uiMPEMan::trackBackward( CallBacker* )
     uiCursorChanger cursorlock( uiCursor::Wait );
     const int nrsteps = nrstepsbox->getValue();
     mGetDisplays(false)
-    const int currentevent = EM::EMM().history().currentEventID();
+    const int currentevent = EM::EMM().undo().currentEventID();
     for ( int idx=0; idx<displays.size(); idx++ )
 	displays[idx]->moveMPEPlane( -nrsteps );
-    setHistoryLevel(currentevent);
+    setUndoLevel(currentevent);
 }
 
 
@@ -1037,19 +1037,19 @@ void uiMPEMan::trackInVolume( CallBacker* )
     engine().setTrackMode(TrackPlane::Extend);
     updateButtonSensitivity();
    
-    NotifyStopper selstopper( EM::EMM().history().changenotifier );
+    NotifyStopper selstopper( EM::EMM().undo().changenotifier );
     uiCursor::setOverride( uiCursor::Wait );
     PtrMan<Executor> exec = engine().trackInVolume();
     if ( exec )
     {
-	const int currentevent = EM::EMM().history().currentEventID();
+	const int currentevent = EM::EMM().undo().currentEventID();
 	uiExecutor uiexec( toolbar, *exec );
 	if ( !uiexec.go() )
 	{
 	    if ( engine().errMsg() )
 		uiMSG().error( engine().errMsg() );
 	}
-	setHistoryLevel(currentevent);
+	setUndoLevel(currentevent);
     }
 
     uiCursor::restoreOverride();
@@ -1183,10 +1183,10 @@ void uiMPEMan::initFromDisplay()
 }
 
 
-void uiMPEMan::setHistoryLevel( int preveventnr )
+void uiMPEMan::setUndoLevel( int preveventnr )
 {
-    History& history = EM::EMM().history();
-    const int currentevent = history.currentEventID();
+    Undo& undo = EM::EMM().undo();
+    const int currentevent = undo.currentEventID();
     if ( currentevent != preveventnr )
-	history.setUserInteractionEnd(currentevent);
+	    undo.setUserInteractionEnd(currentevent);
 }

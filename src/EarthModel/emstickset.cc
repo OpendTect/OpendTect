@@ -9,7 +9,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emstickset.cc,v 1.10 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: emstickset.cc,v 1.11 2007-07-06 14:11:05 cvskris Exp $";
 
 #include "emstickset.h"
 
@@ -60,7 +60,7 @@ EM::StickID EM::StickSet::stickID(int idx) const
 }
 
 
-EM::StickID EM::StickSet::addStick(bool addtohistory)
+EM::StickID EM::StickSet::addStick(bool addtoundo)
 {
     StickID stickid = 0;
     while ( getStickIndex(stickid)!=-1 ) stickid++;
@@ -69,7 +69,7 @@ EM::StickID EM::StickSet::addStick(bool addtohistory)
     stickids += stickid;
     firstknots += -1;
 
-    //TODO Add to history
+    //TODO Add to undo
     
     return stickid;
 }
@@ -111,7 +111,7 @@ EM::KnotID EM::StickSet::firstKnot(const StickID& stickid) const
 
 
 bool EM::StickSet::setPos( const StickID& stickid, const KnotID& knotid,
-			   const Coord3& newpos, bool addtohistory )
+			   const Coord3& newpos, bool addtoundo )
 {
     const int idx = getStickIndex(stickid);
 
@@ -147,15 +147,15 @@ bool EM::StickSet::setPos( const StickID& stickid, const KnotID& knotid,
 	stick[relpos]=bidval;
     }
 
-    //TODO Add to history
+    //TODO Add to undo
     return true;
 }
 
 
 bool EM::StickSet::setPos( const EM::PosID& posid, const Coord3& newpos,
-			   bool addtohistory )
+			   bool addtoundo )
 {
-    return setPos( posid.sectionID(), posid.subID(), newpos, addtohistory );
+    return setPos( posid.sectionID(), posid.subID(), newpos, addtoundo );
 }
 
 

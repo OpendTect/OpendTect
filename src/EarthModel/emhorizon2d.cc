@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.11 2007-06-26 07:59:00 cvsnanne Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.12 2007-07-06 14:11:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -232,20 +232,20 @@ Horizon2D::~Horizon2D()
 {}
 
 
-bool Horizon2D::unSetPos( const PosID& pid, bool addtohistory )
+bool Horizon2D::unSetPos( const PosID& pid, bool addtoundo )
 {
     Coord3 pos = getPos( pid );
     pos.z = mUdf(float);
-    return setPos( pid, pos, addtohistory );
+    return setPos( pid, pos, addtoundo );
 }
 
 
 bool Horizon2D::unSetPos( const EM::SectionID& sid, const EM::SubID& subid,
-			  bool addtohistory )
+			  bool addtoundo )
 {
     Coord3 pos = getPos( sid, subid );
     pos.z = mUdf(float);
-    return setPos( sid, subid, pos, addtohistory );
+    return setPos( sid, subid, pos, addtoundo );
 }
 
 

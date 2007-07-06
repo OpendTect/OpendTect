@@ -4,12 +4,12 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.75 2007-07-05 17:27:24 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.76 2007-07-06 14:11:05 cvskris Exp $";
 
 #include "emobject.h"
 
 #include "color.h"
-#include "emhistory.h"
+#include "emundo.h"
 #include "emsurfacetr.h"
 #include "emmanager.h"
 #include "errh.h"
@@ -138,17 +138,17 @@ Coord3 EMObject::getPos( const EM::SectionID& sid,
 #define mRetErr( msg ) { errmsg_ = msg; return false; }
 
 bool EMObject::setPos(	const PosID& pid, const Coord3& newpos,
-			bool addtohistory ) 
+			bool addtoundo ) 
 {
     if ( pid.objectID()!=id() )
 	mRetErr("");
 
-    return setPos( pid.sectionID(), pid.subID(), newpos, addtohistory );
+    return setPos( pid.sectionID(), pid.subID(), newpos, addtoundo );
 }
 
 
 bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
-			const Coord3& newpos, bool addtohistory ) 
+			const Coord3& newpos, bool addtoundo ) 
 {
     Geometry::Element* element = sectionGeometryInternal( sid );
     if ( !element ) mRetErr( "" );
@@ -169,14 +169,14 @@ bool EMObject::setPos(	const SectionID& sid, const SubID& subid,
 
 	    const int idy = nodes.indexOf(pid);
 	    if ( idy!=-1 )
-		setPosAttrib( pid, attribs_[idx], false, addtohistory );
+		setPosAttrib( pid, attribs_[idx], false, addtoundo );
 	}
     }
 
-    if ( addtohistory )
+    if ( addtoundo )
     {
-	HistoryEvent* history = new SetPosHistoryEvent( oldpos, pid );
-	EMM().history().addEvent( history, 0 );
+	UndoEvent* undo = new SetPosUndoEvent( oldpos, pid );
+	EMM().undo().addEvent( undo, 0 );
     }
 
     EMObjectCallbackData cbdata;
@@ -226,16 +226,16 @@ void EMObject::setBurstAlert( bool yn )
 }
 
 
-bool EMObject::unSetPos(const PosID& pid, bool addtohistory )
+bool EMObject::unSetPos(const PosID& pid, bool addtoundo )
 {
-    return setPos( pid, Coord3::udf(), addtohistory );
+    return setPos( pid, Coord3::udf(), addtoundo );
 }
 
 
 bool EMObject::unSetPos( const EM::SectionID& sid, const EM::SubID& subid,
-			 bool addtohistory )
+			 bool addtoundo )
 {
-    return setPos( sid, subid, Coord3::udf(), addtohistory );
+    return setPos( sid, subid, Coord3::udf(), addtoundo );
 }
 
 
@@ -248,7 +248,7 @@ bool EMObject::isGeometryChecksEnabled() const
 
 
 void EMObject::changePosID( const PosID& from, const PosID& to,
-			    bool addtohistory )
+			    bool addtoundo )
 {
     if ( from==to )
     {
@@ -262,10 +262,10 @@ void EMObject::changePosID( const PosID& from, const PosID& to,
     const Coord3 tosprevpos = getPos( to );
     setPos( to, getPos(from), false );
 
-    if ( addtohistory )
+    if ( addtoundo )
     {
 	PosIDChangeEvent* event = new PosIDChangeEvent( from, to, tosprevpos );
-	EMM().history().addEvent( event, 0 );
+	EMM().undo().addEvent( event, 0 );
     }
 
     EMObjectCallbackData cbdata;
@@ -313,7 +313,7 @@ void EMObject::addPosAttrib( int attr )
 }    
 
 
-void EMObject::removePosAttribList( int attr, bool addtohistory )
+void EMObject::removePosAttribList( int attr, bool addtoundo )
 {
     const int idx=attribs_.indexOf( attr );
     if ( idx==-1 )
@@ -322,12 +322,12 @@ void EMObject::removePosAttribList( int attr, bool addtohistory )
     const TypeSet<PosID>& attrlist = posattribs_[idx]->posids_;
 
     while ( attrlist.size() ) 
-	setPosAttrib( attrlist[0], attr, false, addtohistory );
+	setPosAttrib( attrlist[0], attr, false, addtoundo );
 }
 
 
 void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
-			     bool addtohistory )
+			     bool addtoundo )
 {
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::AttribChange;
@@ -351,10 +351,10 @@ void EMObject::setPosAttrib( const PosID& pid, int attr, bool yn,
     else 
 	return;
 
-    if ( addtohistory )
+    if ( addtoundo )
     {
-	HistoryEvent* event = new SetPosAttribHistoryEvent( pid, attr, yn );
-	EMM().history().addEvent( event, 0 );
+	UndoEvent* event = new SetPosAttribUndoEvent( pid, attr, yn );
+	EMM().undo().addEvent( event, 0 );
     }
 
     change.trigger( cbdata );
