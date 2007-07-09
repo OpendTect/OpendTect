@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.1 2007-06-21 16:17:28 cvsbert Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.2 2007-07-09 10:12:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,16 +19,22 @@ ________________________________________________________________________
     lv_->setColumnWidth( nr, wdth )
 
 uiStratRefTree::uiStratRefTree( uiParent* p, const Strat::RefTree* rt )
-	: uiGroup(p,"Strat RefTree viewer group")
-	, tree_(0)
+	: tree_(0)
 {
-    lv_ = new uiListView( this, "RefTree viewer" );
+    lv_ = new uiListView( p, "RefTree viewer" );
     mAddCol( "Unit", 300, 0 );
     mAddCol( "Name", 200, 1 );
     lv_->setPrefWidth( 500 );
     lv_->setStretch( 2, 2 );
+    lv_->setTreeStepSize(30);
 
     setTree( rt );
+}
+
+
+uiStratRefTree::~uiStratRefTree()
+{
+    delete lv_;
 }
 
 
@@ -55,10 +61,10 @@ void uiStratRefTree::addNode( uiListViewItem* parlvit,
 
     for ( int iref=0; iref<nur.nrRefs(); iref++ )
     {
-	const Strat::UnitRef& ref = tree_->ref( iref );
+	const Strat::UnitRef& ref = nur.ref( iref );
 	if ( ref.isLeaf() )
 	{
-	    mDynamicCastGet(const Strat::NodeUnitRef&,lur,ref);
+	    mDynamicCastGet(const Strat::LeafUnitRef&,lur,ref);
 	    new uiListViewItem( lvit, uiListViewItem::Setup()
 				.label(lur.code()).label(lur.description()) );
 	}
@@ -68,4 +74,10 @@ void uiStratRefTree::addNode( uiListViewItem* parlvit,
 	    addNode( lvit, chldnur );
 	}
     }
+}
+
+
+const Strat::UnitRef* uiStratRefTree::findUnit( const char* s ) const
+{
+    return tree_->find( s );
 }

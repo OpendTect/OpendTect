@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.189 2007-07-06 14:11:05 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.190 2007-07-09 10:12:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,10 @@ ________________________________________________________________________
 #include "uisurvey.h"
 #include "uistereodlg.h"
 #include "uishortcuts.h"
+
+#include "stratunitrepos.h"
+#include "uistrattreewin.h"
+
 
 static BufferString retstr;
 
@@ -254,9 +258,22 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 	case Imp:	seisserv_->importWavelets();	break;
 	default:	seisserv_->manageWavelets();	break;
 	}
+    case Strat:
+	switch ( at )
+	{
+	default:	manStrat();	break;
+	}
     break;
     }
 }
+
+
+void uiODApplMgr::manStrat()
+{
+    uiStratTreeWin treewin( &appl_, &Strat::RT() );
+    treewin.show();
+}
+
 
 void uiODApplMgr::importLMKFault()
 { emserv_->importLMKFault(); }

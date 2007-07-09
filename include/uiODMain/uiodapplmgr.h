@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.48 2007-01-23 16:24:31 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.49 2007-07-09 10:12:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ public:
 
     // Survey menu operations
     int				manageSurvey();
-    enum ObjType		{ Seis, Hor, Flt, Wll, Attr, NLA, Pick, Sess, Wvlt };
+    enum ObjType		{ Seis, Hor, Flt, Wll, Attr, NLA, Pick, Sess, Strat, Wvlt };
     enum ActType		{ Imp, Exp, Man };
     void			doOperation(ObjType,ActType,int opt=0);
     				//!< Not all combinations are available ...!
@@ -184,6 +184,8 @@ protected:
     void			setHistogram(int visid,int attrib);
     void			setupRdmLinePreview(const TypeSet<Coord>&);
     void			cleanPreview();
+
+    void			manStrat();
 
     friend class		uiODApplService;
 

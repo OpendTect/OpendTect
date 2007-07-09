@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.25 2007-06-14 11:22:37 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.26 2007-07-09 10:12:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,6 +119,7 @@ protected:
     void		manWll(CallBacker*);
     void		manPick(CallBacker*);
     void		manWvlt(CallBacker*);
+    void		manStrat(CallBacker*);
     void		updateDTectToolBar(CallBacker*);
     void		updateDTectMnus(CallBacker*);
 
