@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.37 2007-07-05 10:04:44 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.38 2007-07-09 10:15:25 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -215,28 +215,7 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 	totnr_ = -1;
 
     nextObj();
-    if ( fillnull_ )
-	prepareNullFilling();
-
     return true;
-}
-
-
-void SeisSingleTraceProc::prepareNullFilling()
-{
-    if ( rdrset_.isEmpty() || !is3d_ || pswrr_ )
-	{ fillnull_ = false; return; }
-
-    const SeisTrcReader& rdr = *rdrset_[0];
-    const SeisSelData* sd = rdr.selData();
-    if ( sd && !sd->all_ && sd->type_ == Seis::Range )
-    {
-	fillhs_.start.inl = sd->inlrg_.start;
-	fillhs_.stop.inl = sd->inlrg_.stop;
-	fillhs_.start.crl = sd->crlrg_.start;
-	fillhs_.stop.crl = sd->crlrg_.stop;
-    }
-    fillbid_ = BinID( fillhs_.start.inl, fillhs_.start.crl );
 }
 
 
@@ -351,10 +330,32 @@ int SeisSingleTraceProc::getNextTrc()
 }
 
 
+void SeisSingleTraceProc::prepareNullFilling()
+{
+    if ( rdrset_.isEmpty() || !is3d_ || pswrr_ )
+	{ fillnull_ = false; return; }
+
+    const SeisTrcReader& rdr = *rdrset_[0];
+    const SeisSelData* sd = rdr.selData();
+    if ( sd && !sd->all_ && sd->type_ == Seis::Range )
+    {
+	fillhs_.start.inl = sd->inlrg_.start;
+	fillhs_.stop.inl = sd->inlrg_.stop;
+	fillhs_.start.crl = sd->crlrg_.start;
+	fillhs_.stop.crl = sd->crlrg_.stop;
+    }
+    fillbid_ = BinID( fillhs_.start.inl, fillhs_.start.crl );
+}
+
+
 int SeisSingleTraceProc::getFillTrc()
 {
     if ( !filltrc_ )
     {
+	prepareNullFilling();
+	if ( !fillnull_ )
+	    return getNextTrc();
+
 	while ( true )
 	{
 	    int rv = getNextTrc();
