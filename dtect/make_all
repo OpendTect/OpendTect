@@ -47,8 +47,10 @@ if ( $hostnm == dgb3 ) then
     cd ..
     set oddir=$WORK:t
     set dgbdir=`echo $oddir | sed 's/od/dgb/'`
-    echo "dvs update $oddir $dgbdir"
-    dvs update $oddir $dgbdir
+    if ( $doupd == yes ) then
+	echo "dvs update $oddir $dgbdir"
+	dvs update $oddir $dgbdir
+    endif
     cdw
     /users/dgb/bin/publish_all
     goto programmer_doc
