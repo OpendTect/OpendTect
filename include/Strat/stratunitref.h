@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.9 2007-06-26 16:13:44 cvsbert Exp $
+ RCS:		$Id: stratunitref.h,v 1.10 2007-07-09 10:08:39 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -39,9 +39,9 @@ class UnitRef
 {
 public:
 
-			UnitRef( NodeUnitRef* up, const char* code,
+			UnitRef( NodeUnitRef* up, const char* unitcode,
 			      const char* descr=0 )
-			: code_(code)
+			: code_(unitcode)
 			, upnode_(up)
 			, desc_(descr)			{}
     virtual		~UnitRef();
@@ -134,8 +134,8 @@ public:
     int			indexOf( const UnitRef* ur ) const
     						{ return refs_.indexOf(ur); }
 
-    UnitRef*		find( const char* code )	{ return fnd(code); }
-    const UnitRef*	find( const char* code ) const	{ return fnd(code); }
+    UnitRef*		find( const char* urcode )	{ return fnd(urcode); }
+    const UnitRef*	find( const char* urcode ) const{ return fnd(urcode); }
 
     void		add( UnitRef* ur )		{ refs_ += ur; }
     void		remove( int uridx ) 
