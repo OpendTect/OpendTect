@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.26 2007-06-12 09:27:26 cvsnanne Exp $
+ RCS:           $Id: iodraw.cc,v 1.27 2007-07-09 16:47:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,13 +69,13 @@ void ioDrawTool::drawText( int x, int y, const char* txt, const Alignment& al )
 
     uiPoint bl( x, y );
     const uiSize sz( font_->width(txt), font_->ascent() );
-    if ( al.hor == Alignment::Middle )
+    if ( al.hor_ == Alignment::Middle )
 	bl.x -= sz.width() / 2;
-    else if ( al.hor == Alignment::Stop )
+    else if ( al.hor_ == Alignment::Stop )
 	bl.x -= sz.width();
-    if ( al.ver == Alignment::Middle )
+    if ( al.ver_ == Alignment::Middle )
 	bl.y += sz.height() / 2;
-    else if ( al.ver == Alignment::Start )
+    else if ( al.ver_ == Alignment::Start )
 	bl.y += sz.height();
 
     qpainter_->drawText( bl.x, bl.y, QString(txt) );
@@ -265,22 +265,22 @@ int ioDrawTool::getDevWidth() const
 void ioDrawTool::drawMarker( const uiPoint& pt, const MarkerStyle2D& mstyle,
 			    const char* txt, bool below )
 {
-    setPenColor( mstyle.color );
-    setFillColor( mstyle.color );
-    switch ( mstyle.type )
+    setPenColor( mstyle.color_ );
+    setFillColor( mstyle.color_ );
+    switch ( mstyle.type_ )
     {
     case MarkerStyle2D::Square:
-	drawRect( pt.x-mstyle.size, pt.y-mstyle.size,
-		  2 * mstyle.size, 2 * mstyle.size );
+	drawRect( pt.x-mstyle.size_, pt.y-mstyle.size_,
+		  2 * mstyle.size_, 2 * mstyle.size_ );
     break;
     case MarkerStyle2D::Circle:
-	drawCircle( pt.x - mstyle.size, pt.y - mstyle.size, mstyle.size );
+	drawCircle( pt.x - mstyle.size_, pt.y - mstyle.size_, mstyle.size_ );
     break;
     case MarkerStyle2D::Cross:
-	drawLine( pt.x-mstyle.size, pt.y-mstyle.size,
-		  pt.x+mstyle.size, pt.y+mstyle.size );
-	drawLine( pt.x-mstyle.size, pt.y+mstyle.size,
-		  pt.x+mstyle.size, pt.y-mstyle.size );
+	drawLine( pt.x-mstyle.size_, pt.y-mstyle.size_,
+		  pt.x+mstyle.size_, pt.y+mstyle.size_ );
+	drawLine( pt.x-mstyle.size_, pt.y+mstyle.size_,
+		  pt.x+mstyle.size_, pt.y-mstyle.size_ );
     break;
     }
 
@@ -288,21 +288,30 @@ void ioDrawTool::drawMarker( const uiPoint& pt, const MarkerStyle2D& mstyle,
     {
 	Alignment al( Alignment::Middle, Alignment::Middle );
 	int yoffs = 0;
-	if ( mstyle.type != MarkerStyle2D::None )
+	if ( mstyle.type_ != MarkerStyle2D::None )
 	{
-	    al.ver = below ? Alignment::Start : Alignment::Stop;
-	    yoffs = below ? mstyle.size+1 : -mstyle.size-1;
+	    al.ver_ = below ? Alignment::Start : Alignment::Stop;
+	    yoffs = below ? mstyle.size_+1 : -mstyle.size_-1;
 	}
 	drawText( uiPoint(pt.x,pt.y+yoffs), txt, al );
     }
 }
 
 
+void ioDrawTool::drawArrow( const Arrow2D& arrow )
+{
+    LineStyle ls( arrow.linestyle_ );
+    setLineStyle( ls );
+    drawLine( arrow.start_, arrow.stop_);
+    // TODO support all of it
+}
+
+
 void ioDrawTool::setLineStyle( const LineStyle& ls )
 {
-    qpen_.setStyle( (Qt::PenStyle) ls.type);
-    qpen_.setColor( QColor( QRgb( ls.color.rgb() )));
-    qpen_.setWidth( ls.width );
+    qpen_.setStyle( (Qt::PenStyle) ls.type_ );
+    qpen_.setColor( QColor( QRgb( ls.color_.rgb() )));
+    qpen_.setWidth( ls.width_ );
 
     if ( qpainter_ )
 	qpainter_->setPen( qpen_ ); 
@@ -419,4 +428,4 @@ ioDrawTool& ioDrawAreaImpl::drawTool()
     if ( !dt_ )
 	dt_ = new ioDrawTool( qPaintDevice() );
     return *dt_;
-};
+}

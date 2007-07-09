@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          July 2002
- RCS:           $Id: vismarker.cc,v 1.25 2007-06-27 10:45:26 cvsraman Exp $
+ RCS:           $Id: vismarker.cc,v 1.26 2007-07-09 16:47:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,14 +111,14 @@ Coord3 Marker::centerPos(bool displayspace) const
 
 void Marker::setMarkerStyle( const MarkerStyle3D& ms )
 {
-    setType( ms.type );
-    setScreenSize( (float)ms.size );
+    setType( ms.type_ );
+    setScreenSize( (float)ms.size_ );
 }
 
 
 MarkerStyle3D::Type Marker::getType() const
 {
-    return markerstyle.type;
+    return markerstyle.type_;
 }
 
 
@@ -173,7 +173,7 @@ void Marker::setType( MarkerStyle3D::Type type )
 	break;
     }
 
-    markerstyle.type = type;
+    markerstyle.type_ = type;
 }
 
 
@@ -188,7 +188,7 @@ void Marker::setMarkerShape(SoNode* newshape)
 void Marker::setScreenSize( const float sz )
 {
     markerscale->screenSize.setValue( sz );
-    markerstyle.size = (int)sz;
+    markerstyle.size_ = (int)sz;
 }
 
 

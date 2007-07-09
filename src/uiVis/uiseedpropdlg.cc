@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseedpropdlg.cc,v 1.1 2006-08-17 14:08:28 cvsjaap Exp $
+ RCS:           $Id: uiseedpropdlg.cc,v 1.2 2007-07-09 16:47:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,9 +29,9 @@ uiSeedPropDlg::uiSeedPropDlg( uiParent* p, EM::EMObject* emobj )
 
 void uiSeedPropDlg::doFinalise( CallBacker* )
 {
-    sliderfld->sldr()->setValue( markerstyle_.size );
-    colselfld->setColor( markerstyle_.color );
-    typefld->setValue( markerstyle_.type );
+    sliderfld->sldr()->setValue( markerstyle_.size_ );
+    colselfld->setColor( markerstyle_.color_ );
+    typefld->setValue( markerstyle_.type_ );
 }
 
 
@@ -39,9 +39,9 @@ void uiSeedPropDlg::sliderMove( CallBacker* )
 {
     const float sldrval = sliderfld->sldr()->getValue();
     const int newsize = mNINT(sldrval);
-    if ( markerstyle_.size == newsize ) 
+    if ( markerstyle_.size_ == newsize ) 
 	return;
-    markerstyle_.size = newsize;
+    markerstyle_.size_ = newsize;
     updateMarkerStyle();
 }
 
@@ -50,9 +50,9 @@ void uiSeedPropDlg::typeSel( CallBacker* )
 {
     const MarkerStyle3D::Type newtype = 
 			      (MarkerStyle3D::Type) typefld->getIntValue();
-    if ( markerstyle_.type == newtype ) 
+    if ( markerstyle_.type_ == newtype ) 
 	return;
-    markerstyle_.type = newtype;
+    markerstyle_.type_ = newtype;
     updateMarkerStyle();
 }
 
@@ -60,9 +60,9 @@ void uiSeedPropDlg::typeSel( CallBacker* )
 void uiSeedPropDlg::colSel( CallBacker* )
 {
     const Color newcolor = colselfld->color();
-    if ( markerstyle_.color == newcolor )
+    if ( markerstyle_.color_ == newcolor )
     	return;
-    markerstyle_.color = newcolor;
+    markerstyle_.color_ = newcolor;
     updateMarkerStyle();
 }
 

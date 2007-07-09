@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.12 2007-06-28 22:28:02 cvsyuancheng Exp $
+ RCS:           $Id: flatauxdataeditor.cc,v 1.13 2007-07-09 16:47:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -292,7 +292,7 @@ bool AuxDataEditor::updateSelection( const Geom::Point2D<int>& pt )
 	if ( !auxdata_[idx] )
 	    continue;
 
-	const int rng = auxdata_[idx]->markerstyle_.size;
+	const int rng = auxdata_[idx]->markerstyle_.size_;
 	const Geom::PixRectangle<int> markerrect( pt.x-rng, pt.y-rng,
 						  pt.x+rng, pt.y+rng );
 

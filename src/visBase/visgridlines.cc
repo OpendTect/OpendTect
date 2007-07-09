@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2005
- RCS:           $Id: visgridlines.cc,v 1.7 2007-02-02 15:38:48 cvsnanne Exp $
+ RCS:           $Id: visgridlines.cc,v 1.8 2007-07-09 16:47:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ GridLines::~GridLines()
 void GridLines::setLineStyle( const LineStyle& ls )
 {
     for ( int idx=0; idx<polylineset_.size(); idx++ )
-	polylineset_[idx]->getMaterial()->setColor( ls.color );
+	polylineset_[idx]->getMaterial()->setColor( ls.color_ );
 
     drawstyle_->setLineStyle( ls );
 }
@@ -64,7 +64,7 @@ void GridLines::getLineStyle( LineStyle& ls ) const
     if ( polylineset_.size() == 0 ) return;
 
     ls = drawstyle_->lineStyle();
-    ls.color = polylineset_[0]->getMaterial()->getColor();
+    ls.color_ = polylineset_[0]->getMaterial()->getColor();
 }
 
 

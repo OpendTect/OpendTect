@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.93 2007-07-02 12:12:42 cvsraman Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.94 2007-07-09 16:47:00 cvsbert Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -62,7 +62,7 @@ void PickSetDisplay::createLine()
 
     int pixsize = set_->disp_.pixsize_;
     LineStyle ls;
-    ls.width = pixsize;
+    ls.width_ = pixsize;
     polyline_->setLineStyle( ls );
     while ( polyline_->size() > group_->size() )
 	polyline_->removePoint( 0 );
@@ -133,7 +133,7 @@ void PickSetDisplay::dispChg( CallBacker* cb )
 	{
 	    if ( needline_ && polyline_ )
 	    {
-		LineStyle ls; ls.width = set_->disp_.pixsize_;
+		LineStyle ls; ls.width_ = set_->disp_.pixsize_;
 		polyline_->setLineStyle( ls );
 	    }
 

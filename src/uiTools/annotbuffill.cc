@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          September 2006
- RCS:           $Id: annotbuffill.cc,v 1.7 2006-10-02 11:17:13 cvshelene Exp $
+ RCS:           $Id: annotbuffill.cc,v 1.8 2007-07-09 16:47:00 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ void AnnotBufferFiller::fillInterWithBufArea( const uiWorldRect& worldarea,
 	if ( worldarea.isOutside( pts[0], 1e-6 ) )
 	    return;
 	iPoint ipt = w2u_->transform( pts[0] );
-	buf.set( ipt.x, ipt.y, line->linestyle_.color );
+	buf.set( ipt.x, ipt.y, line->linestyle_.color_ );
     }
     else
     {
@@ -95,7 +95,7 @@ void AnnotBufferFiller::setLine( const iPoint& startpt, const iPoint& stoppt,
     {
 	if ( curpt.x>0 && curpt.x<=buffer.getSize(true) && 
 	     curpt.y>0 && curpt.y<=buffer.getSize(false) )
-	    buffer.set( curpt.x, curpt.y, line->linestyle_.color );
+	    buffer.set( curpt.x, curpt.y, line->linestyle_.color_ );
 	discriminator += discriminator<0 ? dincnegd : dincposd;
 	int xcoord = curpt.x + (discriminator<0 ? xincnegd : xincposd);
 	int ycoord = curpt.y + (discriminator<0 ? yincnegd : yincposd);

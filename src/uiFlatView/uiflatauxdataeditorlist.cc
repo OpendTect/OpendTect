@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2007
- RCS:           $Id: uiflatauxdataeditorlist.cc,v 1.3 2007-07-06 16:52:04 cvsyuancheng Exp $
+ RCS:           $Id: uiflatauxdataeditorlist.cc,v 1.4 2007-07-09 16:47:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,10 +70,10 @@ void uiFlatViewAuxDataEditorList::updateList( CallBacker* )
 	for ( int idy=0; idy<ids.size(); idy++ )
 	{
 	    const FlatView::Annotation::AuxData* ad = auxdata[idy];
-	    if ( !ad->markerstyle_.color.isVisible() || !ad->enabled_ )
+	    if ( !ad->markerstyle_.color_.isVisible() || !ad->enabled_ )
 		continue;
 
-	    listbox_->insertItem( ad->name_, ad->markerstyle_.color,
+	    listbox_->insertItem( ad->name_, ad->markerstyle_.color_,
 		    			listbox_->size() );
 
 	    listboxids_ += ids[idy];

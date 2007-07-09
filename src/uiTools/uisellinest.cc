@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.cc,v 1.16 2007-02-05 18:19:48 cvsbert Exp $
+ RCS:           $Id: uisellinest.cc,v 1.17 2007-07-09 16:47:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,14 +35,14 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
     {
 	BufferStringSet itms( LineStyle::TypeNames );
 	stylesel = new uiComboBox( this, itms, "Line Style" );
-	stylesel->setCurrentItem( (int)linestyle.type );
+	stylesel->setCurrentItem( (int)linestyle.type_ );
 	stylesel->selectionChanged.notify( mCB(this,uiSelLineStyle,changeCB) );
 	new uiLabel( this, txt, stylesel );
     }
 
     if ( wcol )
     {
-	colinp = new uiColorInput( this, linestyle.color );
+	colinp = new uiColorInput( this, linestyle.color_ );
 	colinp->colorchanged.notify( mCB(this,uiSelLineStyle,changeCB) );
 	if ( stylesel )
 	    colinp->attach( rightTo, stylesel );
@@ -55,7 +55,7 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
 	widthbox = new uiLabeledSpinBox( this, "Width" );
 	widthbox->box()->valueChanged.notify( 
 					mCB(this,uiSelLineStyle,changeCB) );
-	widthbox->box()->setValue( linestyle.width );
+	widthbox->box()->setValue( linestyle.width_ );
 	widthbox->box()->setMinValue( sMinWidth );
   	widthbox->box()->setMaxValue( sMaxWidth );
 	if ( colinp )
@@ -87,59 +87,59 @@ const LineStyle& uiSelLineStyle::getStyle() const
 
 void uiSelLineStyle::setStyle( const LineStyle& ls )
 {
-    setColor( ls.color );
-    setWidth( ls.width );
-    setType( (int)ls.type );
+    setColor( ls.color_ );
+    setWidth( ls.width_ );
+    setType( (int)ls.type_ );
 }
 
 
 void uiSelLineStyle::setColor( const Color& col )
 {
-    linestyle.color = col;
+    linestyle.color_ = col;
     if ( colinp ) colinp->setColor( col );
 }
 
 
 const Color& uiSelLineStyle::getColor() const
 {
-    return linestyle.color;
+    return linestyle.color_;
 }
 
 
 void uiSelLineStyle::setWidth( int width )
 {
-    linestyle.width = width;
+    linestyle.width_ = width;
     if ( widthbox ) widthbox->box()->setValue( width );
 }
 
 
 int uiSelLineStyle::getWidth() const
 {
-    return linestyle.width;
+    return linestyle.width_;
 }
 
 
 void uiSelLineStyle::setType( int tp )
 {
-    linestyle.type = (LineStyle::Type)tp;
+    linestyle.type_ = (LineStyle::Type)tp;
     if ( stylesel ) stylesel->setCurrentItem( tp );
 }
 
 
 int uiSelLineStyle::getType() const
 {
-    return (int)linestyle.type;
+    return (int)linestyle.type_;
 }
 
 
 void uiSelLineStyle::changeCB( CallBacker* cb )
 {
     if ( stylesel )
-	linestyle.type = (LineStyle::Type)stylesel->currentItem();
+	linestyle.type_ = (LineStyle::Type)stylesel->currentItem();
     if ( colinp ) 
-	linestyle.color = colinp->color();
+	linestyle.color_ = colinp->color();
     if ( widthbox ) 
-	linestyle.width = widthbox->box()->getValue();
+	linestyle.width_ = widthbox->box()->getValue();
     changed.trigger(cb);
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.13 2007-05-16 16:28:07 cvskris Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.14 2007-07-09 16:47:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -486,7 +486,7 @@ void uiFVAnnotPropTab::getFromAuxFld( int idx )
     if ( permissions_[idx]->linestyle_ && permissions_[idx]->linecolor_ )
 	linestyles_[idx] = linestylefld_->getStyle();
     else if ( permissions_[idx]->linestyle_ && !permissions_[idx]->linecolor_ )
-	linestyles_[idx].color = linestylenocolorfld_->getStyle().color;
+	linestyles_[idx].color_ = linestylenocolorfld_->getStyle().color_;
 
     if ( permissions_[idx]->fillcolor_ )
 	fillcolors_[idx] = fillcolorfld_->color();

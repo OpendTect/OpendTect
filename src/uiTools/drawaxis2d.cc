@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     ( C ) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mar. 2005
- RCS:           $Id: drawaxis2d.cc,v 1.10 2007-03-28 12:20:46 cvsbert Exp $
+ RCS:           $Id: drawaxis2d.cc,v 1.11 2007-07-09 16:47:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,7 +116,7 @@ void DrawAxis2D::drawXAxis( bool topside ) const
 	dt.drawLine( wx, baseline, wx, baseline+bias );
 
 	Alignment al( Alignment::Middle, Alignment::Start );
-	if ( bias<0 ) al.ver = Alignment::Stop;
+	if ( bias<0 ) al.ver_ = Alignment::Stop;
 	dt.drawText( wx, baseline+bias, text.buf(), al );
     }
 }
@@ -155,7 +155,7 @@ void DrawAxis2D::drawYAxis( bool leftside ) const
 	dt.drawLine( baseline, wy, baseline+bias, wy );
 
 	Alignment al( Alignment::Start, Alignment::Middle );
-	if ( bias < 0 ) al.hor = Alignment::Stop;
+	if ( bias < 0 ) al.hor_ = Alignment::Stop;
 	dt.drawText( baseline+bias, wy , text.buf(), al );
     }
 }

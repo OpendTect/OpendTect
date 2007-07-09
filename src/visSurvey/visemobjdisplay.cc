@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.100 2007-07-03 10:54:48 cvsbert Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.101 2007-07-09 16:47:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,7 @@ EMObjectDisplay::EMObjectDisplay()
     drawstyle_->ref();
     addChild( drawstyle_->getInventorNode() );
 
-    LineStyle defls; defls.width = 3;
+    LineStyle defls; defls.width_ = 3;
     drawstyle_->setLineStyle( defls );
 
     getMaterial()->setAmbience( 0.3 );
@@ -599,7 +599,7 @@ void EMObjectDisplay::updatePosAttrib(int attrib)
     
     mDynamicCastGet(visBase::Material*, posattrmat,
 		    posattribmarkers_[attribindex]->getObject(0) );
-    posattrmat->setColor( emobject_->getPosAttrMarkerStyle(attrib).color );
+    posattrmat->setColor( emobject_->getPosAttrMarkerStyle(attrib).color_ );
 
     if ( !pids )
 	return;

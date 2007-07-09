@@ -6,13 +6,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.15 2007-06-28 11:15:55 cvsraman Exp $
+ RCS:           $Id: draw.h,v 1.16 2007-07-09 16:47:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "enums.h"
 #include "color.h"
+#include "geometry.h"
 
 
 class Alignment
@@ -23,10 +24,10 @@ public:
 			DeclareEnumUtils(Pos)
 
 			Alignment( Pos h=Start, Pos v=Start )
-			: hor(h), ver(v)	{}
+			: hor_(h), ver_(v)	{}
 
-    Pos			hor;
-    Pos			ver;
+    Pos			hor_;
+    Pos			ver_;
 
 };
 
@@ -43,19 +44,19 @@ public:
 			MarkerStyle2D( Type tp=Square, int sz=2,
 				       Color col=Color::Black,
 				       const char* fk=0 )
-			: type(tp), size(sz), color(col), fontkey(fk)	{}
+			: type_(tp), size_(sz), color_(col), fontkey_(fk) {}
 
     bool		operator==(const MarkerStyle2D& a) const
-			{ return a.type==type && a.size==size &&
-			         a.color==color && a.fontkey==a.fontkey; }
+			{ return a.type_==type_ && a.size_==size_ &&
+			         a.color_==color_ && a.fontkey_==a.fontkey_; }
 
-    Type		type;
-    int			size;
-    Color		color;
-    BufferString	fontkey;
+    Type		type_;
+    int			size_;
+    Color		color_;
+    BufferString	fontkey_;
 
     inline bool		isVisible() const
-			{ return type!=None && size>0 && color.isVisible(); }
+			{ return type_!=None && size_>0 && color_.isVisible(); }
 
     void		toString(BufferString&) const;
     void		fromString(const char*);
@@ -67,19 +68,20 @@ class MarkerStyle3D
 {
 public:
 
-    enum Type		{ None=-1, Cube=0, Cone, Cylinder, Sphere, Arrow, Cross };
+    enum Type		{ None=-1,
+			  Cube=0, Cone, Cylinder, Sphere, Arrow, Cross };
 			DeclareEnumUtils(Type)
 
 			MarkerStyle3D( Type tp=Cube, int sz=3,
 				       Color col=Color::White )
-			: type(tp), size(sz), color(col)	{}
+			: type_(tp), size_(sz), color_(col)	{}
 
-    Type		type;
-    int			size;
-    Color		color;
+    Type		type_;
+    int			size_;
+    Color		color_;
 
     inline bool		isVisible() const
-			{ return size>0 && color.isVisible(); }
+			{ return size_>0 && color_.isVisible(); }
 
     void		toString(BufferString&) const;
     void		fromString(const char*);
@@ -97,22 +99,65 @@ public:
 			DeclareEnumUtils(Type)
 
 			LineStyle( Type t=Solid,int w=1,Color c=Color::Black )
-			: type(t), width(w), color(c)	{}
+			: type_(t), width_(w), color_(c)	{}
 
-    bool		operator==(const LineStyle& b) const;
-    bool		operator!=(const LineStyle& b) const;
+    bool		operator ==( const LineStyle& ls ) const
+			{ return type_ == ls.type_ && width_ == ls.width_
+			      && color_ == ls.color_; }
+    bool		operator !=( const LineStyle& ls ) const
+			{ return !(*this == ls); }
 
-    Type		type;
-    int			width;
-    Color		color;
+    Type		type_;
+    int			width_;
+    Color		color_;
 
     inline bool		isVisible() const
-			{ return type!=None && width>0 && color.isVisible(); }
+			{ return type_!=None && width_>0 && color_.isVisible();}
 
     void		toString(BufferString&) const;
     void		fromString(const char*);
 
 };
+
+
+template <class PTCLSS,class T>
+class Arrow
+{
+public:
+
+    enum Type		{ HeadOnly, TwoSided, TailOnly };
+    enum HeadType	{ Line, Triangle, Square, Circle, Cross };
+    enum HandedNess	{ TwoHanded, LeftHanded, RightHanded };
+
+			Arrow( T boldness=1, Type t=HeadOnly )
+			: linestyle_(LineStyle::Solid,boldness)
+			, headtype_(Line)
+			, headsz_(2*boldness)
+			, tailtype_(Line)
+			, tailsz_(2*boldness)
+			, handedness_(TwoHanded)		{}
+
+    inline bool		operator ==( const Arrow& a ) const
+			{ return start_ == a.start_ && stop_ == a.stop_; }
+    inline bool		operator !=( const Arrow& a ) const
+			{ return !(*this == a); }
+
+    void		setBoldNess( T b )
+			{ linestyle_.width_ = b; headsz_ = tailsz_ = 2*b; }
+
+    PTCLSS		start_;
+    PTCLSS		stop_;
+    LineStyle		linestyle_;	//!< contains the color of the arrow
+    HeadType		headtype_;
+    T			headsz_;
+    HeadType		tailtype_;
+    T			tailsz_;
+    HandedNess		handedness_;
+
+};
+
+#define Arrow2D Arrow<Geom::Point2D<int>,int>
+#define Arrow3D Arrow<Geom::Point3D<int>,int>
 
 
 #endif

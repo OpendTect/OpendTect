@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.67 2007-05-14 12:09:01 cvsraman Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.68 2007-07-09 16:47:00 cvsbert Exp $";
 
 #include "viswelldisplay.h"
 
@@ -174,7 +174,7 @@ bool WellDisplay::setMultiID( const MultiID& multiid )
 
 Color WellDisplay::getColor() const
 {
-    return well_->lineStyle().color;
+    return well_->lineStyle().color_;
 }
 
 
@@ -605,7 +605,7 @@ void WellDisplay::addPick( Coord3 pos )
 	marker->setCenterPos( pos );
 	marker->setScreenSize( mPickSz );
 	marker->setType( (MarkerStyle3D::Type)mPickType );
-	marker->getMaterial()->setColor( lineStyle()->color );
+	marker->getMaterial()->setColor( lineStyle()->color_ );
     }
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: viswell.cc,v 1.29 2007-05-14 12:07:19 cvsraman Exp $
+ RCS:           $Id: viswell.cc,v 1.30 2007-07-09 16:47:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,7 +140,7 @@ void Well::setTrack( const TypeSet<Coord3>& pts )
 
 void Well::setLineStyle( const LineStyle& lst )
 {
-    track->getMaterial()->setColor( lst.color );
+    track->getMaterial()->setColor( lst.color_ );
     drawstyle->setLineStyle( lst ); 
 }
 
@@ -148,9 +148,9 @@ void Well::setLineStyle( const LineStyle& lst )
 const LineStyle& Well::lineStyle() const
 {
     static LineStyle ls;
-    ls.type = drawstyle->lineStyle().type;
-    ls.width = drawstyle->lineStyle().width;
-    ls.color = track->getMaterial()->getColor();
+    ls.type_ = drawstyle->lineStyle().type_;
+    ls.width_ = drawstyle->lineStyle().width_;
+    ls.color_ = track->getMaterial()->getColor();
     return ls;
 }
 

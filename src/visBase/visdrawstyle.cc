@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: visdrawstyle.cc,v 1.7 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: visdrawstyle.cc,v 1.8 2007-07-09 16:47:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,15 +86,15 @@ SoNode* DrawStyle::getInventorNode()
 
 void DrawStyle::updateLineStyle()
 {
-    drawstyle->lineWidth.setValue( linestyle.width );
+    drawstyle->lineWidth.setValue( linestyle.width_ );
 
     unsigned short pattern;
 
-    if ( linestyle.type==LineStyle::None )      pattern = 0;
-    else if ( linestyle.type==LineStyle::Solid )pattern = 0xFFFF;
-    else if ( linestyle.type==LineStyle::Dash ) pattern = 0xF0F0;
-    else if ( linestyle.type==LineStyle::Dot )  pattern = 0xAAAA;
-    else if ( linestyle.type==LineStyle::DashDot ) pattern = 0xF6F6;
+    if ( linestyle.type_==LineStyle::None )      pattern = 0;
+    else if ( linestyle.type_==LineStyle::Solid )pattern = 0xFFFF;
+    else if ( linestyle.type_==LineStyle::Dash ) pattern = 0xF0F0;
+    else if ( linestyle.type_==LineStyle::Dot )  pattern = 0xAAAA;
+    else if ( linestyle.type_==LineStyle::DashDot ) pattern = 0xF6F6;
     else pattern = 0xEAEA;
 
     drawstyle->linePattern.setValue( pattern );

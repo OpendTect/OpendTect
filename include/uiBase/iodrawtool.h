@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.20 2007-03-28 15:16:41 cvsbert Exp $
+ RCS:           $Id: iodrawtool.h,v 1.21 2007-07-09 16:47:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,17 +15,14 @@ ________________________________________________________________________
 #include "iodraw.h"
 #include "uigeom.h"
 #include "sets.h"
-#include "color.h"
+#include "draw.h"
 
-class ioPixmap;
-class uiFont;
 class Color;
-class Alignment;
-class LineStyle;
-class MarkerStyle2D;
-class QPaintDevice;
-class QPainter;
+class uiFont;
+class ioPixmap;
 class QPen;
+class QPainter;
+class QPaintDevice;
 #ifdef USEQT3
 class QPaintDeviceMetrics; 
 #endif
@@ -78,6 +75,7 @@ public:
 
     void	drawMarker(const uiPoint&,const MarkerStyle2D&,
 	    		   const char* txt=0,bool below=true);
+    void	drawArrow(const Arrow2D&);
 
     void	drawBackgroundPixmap(const Color* c=0);
     void 	drawPixmap(const uiPoint& destTopLeft,const ioPixmap*, 

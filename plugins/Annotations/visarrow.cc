@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: visarrow.cc,v 1.10 2007-06-13 03:07:52 cvsnanne Exp $
+ RCS:           $Id: visarrow.cc,v 1.11 2007-07-09 16:47:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,7 @@ void ArrowDisplay::setLineWidth( int nw )
 
 int ArrowDisplay::getLineWidth() const
 {
-    return linestyle_->lineStyle().width;
+    return linestyle_->lineStyle().width_;
 }
 
 
