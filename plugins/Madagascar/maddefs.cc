@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: maddefs.cc,v 1.7 2007-07-04 11:22:37 cvsbert Exp $";
+static const char* rcsID = "$Id: maddefs.cc,v 1.8 2007-07-09 11:04:00 cvsbert Exp $";
 
 #include "maddefs.h"
 #include "envvars.h"
@@ -186,13 +186,13 @@ void ODMad::ProgInfo::addEntry( const char* fnm )
 
     ptr += 3; def->shortdesc_ = ptr;
 
-    bool doingcomment = false;
+    bool buildingcomment = false;
     BufferString tmp;
     while ( sd.istrm->getline( buf, 1024 ) )
     {
 	if ( buf[0] != '[' )
 	{
-	    if ( doingcomment )
+	    if ( buildingcomment )
 	    {
 		tmp = buf; tmp += "\n";
 		def->comment_ += tmp;
@@ -200,8 +200,13 @@ void ODMad::ProgInfo::addEntry( const char* fnm )
 	    continue;
 	}
 
-	doingcomment = !strcmp(buf,"[COMMENTS]");
-	if ( doingcomment )
+	const bool iscomment = !strcmp(buf,"[COMMENTS]");
+	const bool isparams = !strcmp(buf,"[PARAMETERS]");
+	if ( isparams )
+	    { def->comment_ += "\n\nParameters:\n"; }
+	    //TODO use PARAMETERS properly
+	buildingcomment = iscomment || isparams;
+	if ( buildingcomment )
 	    continue;
 
 	if ( !strcmp(buf,"[SYNOPSIS]") )
@@ -215,7 +220,6 @@ void ODMad::ProgInfo::addEntry( const char* fnm )
 	    groups_.addIfNew( buf );
 	    def->group_ = find( groups_, buf );
 	}
-	//TODO use PARAMETERS section
     }
     sd.close();
 
