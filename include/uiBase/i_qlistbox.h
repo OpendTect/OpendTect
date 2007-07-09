@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: i_qlistbox.h,v 1.8 2007-05-14 07:32:54 cvsnanne Exp $
+ RCS:           $Id: i_qlistbox.h,v 1.9 2007-07-09 14:24:15 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,11 @@ protected:
 				this,
 				SLOT(itemDoubleClicked(QListWidgetItem*)) );
 
+			    connect( sender,
+				SIGNAL(itemClicked(QListWidgetItem*)),
+				this,
+				SLOT(itemClicked(QListWidgetItem*)) );
+
 			    connect( sender, SIGNAL(itemSelectionChanged()),
 				     this, SLOT(itemSelectionChanged()) );
 			}
@@ -52,6 +57,9 @@ private slots:
 
     void		itemDoubleClicked( QListWidgetItem* cur )
 			{ receiver_->doubleClicked.trigger( *receiver_ ); }
+
+    void		itemClicked( QListWidgetItem* cur )
+			{ receiver_->rightButtonClicked.trigger( *receiver_ ); }
 
     void		itemSelectionChanged()
 			{
