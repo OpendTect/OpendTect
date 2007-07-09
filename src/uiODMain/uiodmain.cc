@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.77 2007-06-14 17:25:11 cvsbert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.78 2007-07-09 10:19:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -477,15 +477,18 @@ void uiODMain::doRestoreSession()
 
 void uiODMain::handleStartupSession( CallBacker* )
 {
-    bool douse = false; MultiID id;
-    ODSession::getStartupData( douse, id );
-    if ( !douse || id == "" ) 
-	return;
+    if ( !Settings::common().isTrue( "Disable auto-load sessions" ) )
+    {
+	bool douse = false; MultiID id;
+	ODSession::getStartupData( douse, id );
+	if ( !douse || id == "" ) 
+	    return;
 
-    PtrMan<IOObj> ioobj = IOM().get( id );
-    if ( !ioobj ) return;
-    cursessid = id;
-    restoreSession( ioobj );
+	PtrMan<IOObj> ioobj = IOM().get( id );
+	if ( !ioobj ) return;
+	cursessid = id;
+	restoreSession( ioobj );
+    }
     sceneMgr().layoutScenes();
 }
 
