@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.25 2007-01-26 17:54:58 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.26 2007-07-09 10:52:39 cvsnanne Exp $";
 
 #include "vismultitexture2.h"
 
@@ -291,15 +291,13 @@ void TextureInfo::updateTransparency( int version )
 
 void TextureInfo::setColorTab( int version, VisColorTab& ct )
 {
-    if ( versioncoltab_[version] )
+    VisColorTab* vct = versioncoltab_[version];
+    if ( vct )
     {
-	versioncoltab_[version]->rangechange.remove(
-				mCB(this,TextureInfo,rangeChangeCB ) );
-	versioncoltab_[version]->sequencechange.remove(
-				mCB(this,TextureInfo,sequenceChangeCB ) );
-	versioncoltab_[version]->autoscalechange.remove(
-				mCB(this,TextureInfo,autoscaleChangeCB) );
-	versioncoltab_[version]->unRef();
+	vct->rangechange.remove( mCB(this,TextureInfo,rangeChangeCB) );
+	vct->sequencechange.remove( mCB(this,TextureInfo,sequenceChangeCB) );
+	vct->autoscalechange.remove( mCB(this,TextureInfo,autoscaleChangeCB) );
+	vct->unRef();
     }
 
     versioncoltab_.replace( version, &ct );
@@ -308,8 +306,15 @@ void TextureInfo::setColorTab( int version, VisColorTab& ct )
     ct.sequencechange.notify( mCB(this,TextureInfo,sequenceChangeCB) );
     ct.autoscalechange.notify( mCB(this,TextureInfo,autoscaleChangeCB) );
 
-    if ( version )
-	versioncoltab_[version]->setColorSeq( &versioncoltab_[0]->colorSeq() );
+    if ( version > 0 )
+    {
+	VisColorTab* ct0 = versioncoltab_[0];
+	ct.setColorSeq( &ct0->colorSeq() );
+	ct.setAutoScale( ct0->autoScale() );
+	ct.setClipRate( ct0->clipRate() );
+	ct.scaleTo( ct0->getInterval() );
+	ct.setNrSteps( ct0->nrSteps() );
+    }
 }
 
 
