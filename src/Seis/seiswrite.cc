@@ -134,7 +134,6 @@ Conn* SeisTrcWriter::crConn( int inl, bool first )
 
 bool SeisTrcWriter::start3DWrite( Conn* conn, const SeisTrc& trc )
 {
-    strl()->cleanUp();
     if ( !conn || conn->bad() )
     {
 	errmsg = "Cannot write to ";
@@ -143,6 +142,7 @@ bool SeisTrcWriter::start3DWrite( Conn* conn, const SeisTrc& trc )
 	return false;
     }
 
+    strl()->cleanUp();
     if ( !strl()->initWrite(conn,trc) )
     {
 	errmsg = strl()->errMsg();
