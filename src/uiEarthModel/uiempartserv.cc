@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.111 2007-07-06 14:11:05 cvskris Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.112 2007-07-10 09:57:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,6 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uiiosurfacedlg.h"
 #include "uilistbox.h"
-#include "uimenu.h"
 #include "uimsg.h"
 #include "uimultisurfaceread.h"
 #include "uiselsimple.h"
