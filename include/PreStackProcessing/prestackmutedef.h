@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmutedef.h,v 1.2 2007-07-06 16:44:27 cvsyuancheng Exp $
+ RCS:		$Id: prestackmutedef.h,v 1.3 2007-07-11 21:06:34 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -27,9 +27,10 @@ class MuteDef : public NamedObject
 {
 public:
 
-					MuteDef( const char* nm=0 );
+					MuteDef(const char* nm=0);
+					MuteDef(const MuteDef&);
 					~MuteDef();
-
+    MuteDef&				operator=(const MuteDef&);
 
     int					size() const;
     int					indexOf(const BinID&) const;
@@ -45,10 +46,14 @@ public:
     float				value(float offs,const BinID&) const;
 					//!< Interpolates between defined
 					//!< positions
+    bool				isChanged() const { return ischanged_; }
+    void				setChanged(bool yn) { ischanged_=yn; }
+
 protected:
 
     ObjectSet<PointBasedMathFunction>	fns_;
     TypeSet<BinID>			pos_;
+    bool				ischanged_;
 };
 
 

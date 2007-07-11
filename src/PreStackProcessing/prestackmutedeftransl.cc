@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmutedeftransl.cc,v 1.1 2007-03-15 17:28:52 cvskris Exp $
+ RCS:		$Id: prestackmutedeftransl.cc,v 1.2 2007-07-11 21:06:34 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,9 @@ bool MuteDefTranslator::store( const PreStack::MuteDef& md, const IOObj* ioobj,
     if ( !conn )
         { bs = "Cannot open "; bs += ioobj->fullUserExpr(false); }
     else
+    {
 	bs = tr->write( md, *conn );
+    }
 
     delete tr;
     return bs.isEmpty();
@@ -82,6 +84,7 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
     if ( atEndOfSection(astrm) )
 	return "Input file contains no Mute Definition locations";
 
+    while ( md.size() ) md.remove( 0 );
     md.setName( conn.ioobj ? (const char*)conn.ioobj->name() : "" );
 
     for ( int ifn=0; !atEndOfSection(astrm); ifn++ )
@@ -138,12 +141,17 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	astrm.next();
     }
 
-    return md.size() ? 0 : "No valid mute points found";
+    if ( md.size() )
+    {
+	md.setChanged( false );
+	return 0;
+    }
+
+    return "No valid mute points found";
 }
 
 
-const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,
-					 Conn& conn )
+const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,Conn& conn)
 {
     if ( !conn.forWrite() || !conn.isStream() )
 	return "Internal error: bad connection";
@@ -173,6 +181,11 @@ const char* dgbMuteDefTranslator::write( const PreStack::MuteDef& md,
 	astrm.newParagraph();
     }
 
-    return strm.good() ? 0
-	:  "Error during write to output Mute Definition file";
+    if ( strm.good() )
+    {
+	const_cast<PreStack::MuteDef&>(md).setChanged( false );
+	return 0;
+    }
+
+    return "Error during write to output Mute Definition file";
 }

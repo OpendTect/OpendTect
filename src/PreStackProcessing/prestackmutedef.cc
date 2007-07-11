@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmutedef.cc,v 1.2 2007-07-06 16:44:27 cvsyuancheng Exp $
+ RCS:		$Id: prestackmutedef.cc,v 1.3 2007-07-11 21:06:34 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,11 +20,26 @@ using namespace PreStack;
 
 MuteDef::MuteDef( const char* nm )
     : NamedObject( nm )
+    , ischanged_( false )  
 {}
+
+
+MuteDef::MuteDef( const MuteDef& b )
+{ (*this) = b; }
 
 
 MuteDef::~MuteDef()
 { deepErase( fns_ ); }
+
+
+MuteDef& MuteDef::operator=(const MuteDef& b)
+{
+    setName( b.name() );
+    deepCopy( fns_, b.fns_ );
+    pos_ = b.pos_;
+    ischanged_ = b.ischanged_;
+    return *this;
+}
 
 
 int MuteDef::size() const
@@ -52,7 +67,11 @@ const BinID& MuteDef::getPos( int idx ) const
 
 
 void MuteDef::add( PointBasedMathFunction* fn , const BinID& pos )
-{ fns_ += fn; pos_ += pos; }
+{ 
+    fns_ += fn; 
+    pos_ += pos; 
+    ischanged_ = true;
+}
 
 
 void MuteDef::remove( int idx )
@@ -62,6 +81,7 @@ void MuteDef::remove( int idx )
 
     delete fns_.remove( idx );
     pos_.remove( idx );
+    ischanged_ = true;
 }
 
 
