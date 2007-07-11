@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.16 2007-07-09 16:47:00 cvsbert Exp $
+ RCS:           $Id: draw.h,v 1.17 2007-07-11 15:39:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,44 +120,38 @@ public:
 };
 
 
-template <class PTCLSS,class T>
-class Arrow
+class ArrowStyle
 {
 public:
 
-    enum Type		{ HeadOnly, TwoSided, TailOnly };
+    enum Type		{ HeadOnly, TwoSided, TailOnly, HeadNorTail };
     enum HeadType	{ Line, Triangle, Square, Circle, Cross };
     enum HandedNess	{ TwoHanded, LeftHanded, RightHanded };
 
-			Arrow( T boldness=1, Type t=HeadOnly )
-			: linestyle_(LineStyle::Solid,boldness)
-			, headtype_(Line)
-			, headsz_(2*boldness)
-			, tailtype_(Line)
-			, tailsz_(2*boldness)
-			, handedness_(TwoHanded)		{}
+			ArrowStyle( int boldness=1, Type t=HeadOnly )
+			: type_(t)
+			, linestyle_(LineStyle::Solid,boldness)
+			, headtype_(Line), tailtype_(Line)
+			, handedness_(TwoHanded)
+					{ setBoldNess(boldness); }
 
-    inline bool		operator ==( const Arrow& a ) const
-			{ return start_ == a.start_ && stop_ == a.stop_; }
-    inline bool		operator !=( const Arrow& a ) const
-			{ return !(*this == a); }
+    inline void		setBoldNess( int b )
+			{ linestyle_.width_ = b; headsz_ = 3*b; tailsz_ = 2*b; }
 
-    void		setBoldNess( T b )
-			{ linestyle_.width_ = b; headsz_ = tailsz_ = 2*b; }
+    inline bool		hasHead() const
+    			{ return type_ < TailOnly; }
+    inline bool		hasTail() const
+    			{ return type_ == TwoSided || type_ == TailOnly; }
 
-    PTCLSS		start_;
-    PTCLSS		stop_;
-    LineStyle		linestyle_;	//!< contains the color of the arrow
+    Type		type_;
+    LineStyle		linestyle_;	//!< contains the color
     HeadType		headtype_;
-    T			headsz_;
+    int			headsz_;
     HeadType		tailtype_;
-    T			tailsz_;
+    int			tailsz_;
     HandedNess		handedness_;
 
 };
-
-#define Arrow2D Arrow<Geom::Point2D<int>,int>
-#define Arrow3D Arrow<Geom::Point3D<int>,int>
 
 
 #endif

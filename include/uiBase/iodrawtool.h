@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.21 2007-07-09 16:47:00 cvsbert Exp $
+ RCS:           $Id: iodrawtool.h,v 1.22 2007-07-11 15:39:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,9 +73,10 @@ public:
     inline void	drawCircle( const uiPoint& p, int r )
        		{ drawEllipse( p, uiSize(2*r,2*r) ); }	
 
-    void	drawMarker(const uiPoint&,const MarkerStyle2D&,
-	    		   const char* txt=0,bool below=true);
-    void	drawArrow(const Arrow2D&);
+    void	drawMarker(const uiPoint&,const MarkerStyle2D&,float angle=0,
+	    		   int side=0); //!< side -1=left half, 1=right half
+    void	drawArrow(const uiPoint& tail,const uiPoint& head,
+	    		  const ArrowStyle&);
 
     void	drawBackgroundPixmap(const Color* c=0);
     void 	drawPixmap(const uiPoint& destTopLeft,const ioPixmap*, 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.27 2007-07-09 16:47:00 cvsbert Exp $
+ RCS:           $Id: iodraw.cc,v 1.28 2007-07-11 15:39:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -263,10 +263,14 @@ int ioDrawTool::getDevWidth() const
 
 
 void ioDrawTool::drawMarker( const uiPoint& pt, const MarkerStyle2D& mstyle,
-			    const char* txt, bool below )
+       			     float angle, int side )
 {
-    setPenColor( mstyle.color_ );
-    setFillColor( mstyle.color_ );
+    setPenColor( mstyle.color_ ); setFillColor( mstyle.color_ );
+    if ( side != 0 )
+	pErrMsg( "TODO: implement single-sided markers" );
+    if ( !mIsZero(angle,1e-3) )
+	pErrMsg( "TODO: implement tilted markers" );
+
     switch ( mstyle.type_ )
     {
     case MarkerStyle2D::Square:
@@ -283,27 +287,32 @@ void ioDrawTool::drawMarker( const uiPoint& pt, const MarkerStyle2D& mstyle,
 		  pt.x+mstyle.size_, pt.y-mstyle.size_ );
     break;
     }
-
-    if ( txt && *txt )
-    {
-	Alignment al( Alignment::Middle, Alignment::Middle );
-	int yoffs = 0;
-	if ( mstyle.type_ != MarkerStyle2D::None )
-	{
-	    al.ver_ = below ? Alignment::Start : Alignment::Stop;
-	    yoffs = below ? mstyle.size_+1 : -mstyle.size_-1;
-	}
-	drawText( uiPoint(pt.x,pt.y+yoffs), txt, al );
-    }
 }
 
 
-void ioDrawTool::drawArrow( const Arrow2D& arrow )
+static void drawArrowHead( ioDrawTool& dt, ArrowStyle::HeadType ht, int sz,
+			   const Geom::Point2D<int>& pos,
+			   const Geom::Point2D<int>& comingfrom )
 {
-    LineStyle ls( arrow.linestyle_ );
-    setLineStyle( ls );
-    drawLine( arrow.start_, arrow.stop_);
-    // TODO support all of it
+    if ( ht == ArrowStyle::Circle )
+    {
+	dt.drawCircle( pos, sz );
+	return;
+    }
+    const Geom::Point2D<int> relvec = pos - comingfrom;
+    const double ang( atan2(relvec.y,relvec.x) );
+}
+
+
+void ioDrawTool::drawArrow( const uiPoint& tail, const uiPoint& head,
+			    const ArrowStyle& as )
+{
+    setLineStyle( as.linestyle_ );
+    drawLine( tail, head );
+    if ( as.hasHead() )
+	drawArrowHead( *this, as.headtype_, as.headsz_, head, tail );
+    if ( as.hasTail() )
+	drawArrowHead( *this, as.headtype_, as.headsz_, tail, head );
 }
 
 
