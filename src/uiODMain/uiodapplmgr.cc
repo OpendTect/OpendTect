@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.190 2007-07-09 10:12:07 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.191 2007-07-11 10:34:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -258,6 +258,7 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 	case Imp:	seisserv_->importWavelets();	break;
 	default:	seisserv_->manageWavelets();	break;
 	}
+    break;
     case Strat:
 	switch ( at )
 	{
