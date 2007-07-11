@@ -7,13 +7,42 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Nov 2005
- RCS:		$Id: arrayndsubsel.h,v 1.3 2005-11-29 21:35:34 cvskris Exp $
+ RCS:		$Id: arrayndsubsel.h,v 1.4 2007-07-11 20:45:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "arraynd.h"
+/*! Makes a subselection of an Array2D cube. */
+
+
+template <class T>
+class Array2DSubSelection : public Array2D<T>
+{
+public:
+    		Array2DSubSelection( int start0, int start1,
+				     int sz0, int sz1,
+				     Array2D<T>& data );
+		/*!<\param start0	position of the subselection in data.
+		    \param start1	position of the subselection in data.
+		    \param sz0		size of the subselection.
+		    \param sz1		size of the subselection.
+		    \param data		The array in which the subselection
+		    			is done. */
+
+    T		get( int, int ) const;
+    void	set( int, int, T );
+    bool	isOK() const;
+
+    const Array2DInfo&	info() const;
+
+protected:
+
+    int			start_[2];
+    Array2DInfoImpl	info_;
+    Array2D<T>&		src_;
+};
 
 /*! Makes a subselection of an Array3D cube. */
 
@@ -42,24 +71,75 @@ public:
 
 protected:
 
-    int			start[3];
+    int			start_[3];
     Array3DInfoImpl	info_;
-    Array3D<T>&		src;
+    Array3D<T>&		src_;
 };
 
 
 #define mSetupDim( dim ) \
-    start[dim] = s##dim; \
-    info_.setSize( dim, mMIN( sz##dim, src.info().getSize(dim)-s##dim) );
+    start_[dim] = s##dim; \
+    info_.setSize( dim, mMIN( sz##dim, src_.info().getSize(dim)-s##dim) );
 
 
+template <class T>
+Array2DSubSelection<T>::Array2DSubSelection( int s0, int s1, 
+					     int sz0, int sz1, 
+					     Array2D<T>& data )
+    : src_( data )
+{
+    mSetupDim(0); mSetupDim(1);
+}
+
+
+template <class T>
+void Array2DSubSelection<T>::set( int s0, int s1, T val )
+{
+    s0 += start_[0];
+    s1 += start_[1];
+
+    if ( !src_.info().validPos( s0, s1 ) )
+	pErrMsg("Position is outside of src" );
+    else
+	src_.set( s0, s1, val );
+}
+
+
+template <class T>
+T Array2DSubSelection<T>::get( int s0, int s1 ) const
+{
+    s0 += start_[0];
+    s1 += start_[1];
+
+    return src_.info().validPos( s0, s1 )
+	? src_.get( s0, s1 ) : mUdf(T);
+}
+
+
+template <class T>
+bool Array2DSubSelection<T>::isOK() const
+{
+    for ( int dim=info_.getNDim()-1; dim>=0; dim-- )
+    {
+	if ( start_[dim]<0 || start_[dim]>=src_.info().getSize(dim) ||
+	     info_.getSize(dim)<=0 )
+	    return false;
+    }
+
+    return true;
+}
+
+
+template <class T>
+const Array2DInfo& Array2DSubSelection<T>::info() const
+{ return info_; }
 
 
 template <class T>
 Array3DSubSelection<T>::Array3DSubSelection( int s0, int s1, int s2,
 					     int sz0, int sz1, int sz2,
 					     Array3D<T>& data )
-    : src( data )
+    : src_( data )
 {
     mSetupDim(0);
     mSetupDim(1);
@@ -70,26 +150,26 @@ Array3DSubSelection<T>::Array3DSubSelection( int s0, int s1, int s2,
 template <class T>
 void Array3DSubSelection<T>::set( int s0, int s1, int s2, T val )
 {
-    s0 += start[0];
-    s1 += start[1];
-    s2 += start[2];
+    s0 += start_[0];
+    s1 += start_[1];
+    s2 += start_[2];
 
-    if ( !src.info().validPos( s0, s1, s2 ) )
+    if ( !src_.info().validPos( s0, s1, s2 ) )
 	pErrMsg("Position is outside of src" );
     else
-	src.set( s0, s1, s2, val );
+	src_.set( s0, s1, s2, val );
 }
 
 
 template <class T>
 T Array3DSubSelection<T>::get( int s0, int s1, int s2 ) const
 {
-    s0 += start[0];
-    s1 += start[1];
-    s2 += start[2];
+    s0 += start_[0];
+    s1 += start_[1];
+    s2 += start_[2];
 
-    return src.info().validPos( s0, s1, s2 )
-	? src.get( s0, s1, s2 ) : mUdf(T);
+    return src_.info().validPos( s0, s1, s2 )
+	? src_.get( s0, s1, s2 ) : mUdf(T);
 }
 
 
@@ -98,7 +178,7 @@ bool Array3DSubSelection<T>::isOK() const
 {
     for ( int dim=info_.getNDim()-1; dim>=0; dim-- )
     {
-	if ( start[dim]<0 || start[dim]>=src.info().getSize(dim) ||
+	if ( start_[dim]<0 || start_[dim]>=src_.info().getSize(dim) ||
 	     info_.getSize(dim)<=0 )
 	    return false;
     }
