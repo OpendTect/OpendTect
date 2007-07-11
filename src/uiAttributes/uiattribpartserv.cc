@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.71 2007-06-21 05:36:41 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.72 2007-07-11 14:58:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -286,11 +286,10 @@ void uiAttribPartServer::directShowAttr( CallBacker* cb )
 
 void uiAttribPartServer::updateSelSpec( SelSpec& ss ) const
 {
-    //TODO how to get real is2d?
-    bool is2d = false;//TODO remove!!!!!
+    bool is2d = ss.is2D();
     if ( ss.isNLA() )
     {
-	const NLAModel* nlamod = getNLAModel(is2d);
+	const NLAModel* nlamod = getNLAModel( is2d );
 	if ( nlamod )
 	{
 	    ss.setIDFromRef( *nlamod );
@@ -301,7 +300,7 @@ void uiAttribPartServer::updateSelSpec( SelSpec& ss ) const
     }
     else
     {
-	if ( ss.is2D() ) return;
+	if ( is2d ) return;
 	const DescSet& ads = *adsman3d_->descSet();
 	ss.setIDFromRef( ads );
 	IOObj* ioobj = IOM().get( adsman3d_->attrsetid_ );
