@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.35 2007-05-14 06:48:27 cvsnanne Exp $
+ RCS:           $Id: uilistbox.h,v 1.36 2007-07-11 06:48:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
 #include "pixmap.h"
+#include "keyenum.h"
 
 class BufferStringSet;
 class Color;
@@ -26,6 +27,7 @@ class QString;
 class uiListBox : public uiObject
 {
 friend class i_listMessenger;
+friend class uiListBoxBody;
 public:
 
                         uiListBox(uiParent* parnt=0, 
@@ -99,10 +101,12 @@ public:
     Notifier<uiListBox> selectionChanged;
     Notifier<uiListBox> doubleClicked;
     Notifier<uiListBox> rightButtonClicked;
+    Notifier<uiListBox> leftButtonClicked;
 
 protected:
 
     mutable BufferString	rettxt;
+    OD::ButtonState	buttonstate_;
 
 private:
 

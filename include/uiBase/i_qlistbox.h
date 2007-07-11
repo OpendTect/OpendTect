@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: i_qlistbox.h,v 1.9 2007-07-09 14:24:15 cvsyuancheng Exp $
+ RCS:           $Id: i_qlistbox.h,v 1.10 2007-07-11 06:48:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,24 +55,29 @@ private:
 
 private slots:
 
-    void		itemDoubleClicked( QListWidgetItem* cur )
-			{ receiver_->doubleClicked.trigger( *receiver_ ); }
+void itemDoubleClicked( QListWidgetItem* cur )
+{ receiver_->doubleClicked.trigger( *receiver_ ); }
 
-    void		itemClicked( QListWidgetItem* cur )
-			{ receiver_->rightButtonClicked.trigger( *receiver_ ); }
 
-    void		itemSelectionChanged()
-			{
-			    // TODO: Remove this hack when using Qt 4.3
-			    QList<QListWidgetItem*> selitems =
-						sender_->selectedItems();
-			    if ( selitems.count() == 0 )
-				sender_->setCurrentItem( 0 );
-			    else if ( selitems.count() == 1 )
-				sender_->setCurrentItem( selitems.first() );
+void itemClicked( QListWidgetItem* )
+{
+    if ( receiver_->buttonstate_ == OD::RightButton )
+	receiver_->rightButtonClicked.trigger( *receiver_ );
+    else if ( receiver_->buttonstate_ == OD::LeftButton )
+	receiver_->leftButtonClicked.trigger( *receiver_ );
+}
 
-			    receiver_->selectionChanged.trigger( *receiver_ );
-			}
+void itemSelectionChanged()
+{
+// TODO: Remove this hack when using Qt 4.3
+    QList<QListWidgetItem*> selitems = sender_->selectedItems();
+    if ( selitems.count() == 0 )
+	sender_->setCurrentItem( 0 );
+    else if ( selitems.count() == 1 )
+	sender_->setCurrentItem( selitems.first() );
+
+    receiver_->selectionChanged.trigger( *receiver_ );
+}
 
 };
 

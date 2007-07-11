@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.79 2007-05-22 13:08:32 cvskris Exp $
+ RCS:           $Id: uilistbox.cc,v 1.80 2007-07-11 06:48:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "pixmap.h"
 
 #include "i_q4listbox.h"
+#include <QMouseEvent>
+
 #define mNoSelection QAbstractItemView::NoSelection
 #define mExtended QAbstractItemView::ExtendedSelection
 #define mSingle QAbstractItemView::SingleSelection
@@ -39,7 +41,7 @@ public:
 
     void 		setLines( int prefNrLines, bool adaptVStretch )
 			{ 
-			    if( prefNrLines >= 0 ) prefnrlines=prefNrLines;
+			    if( prefNrLines >= 0 ) prefnrlines_=prefNrLines;
 
 			    if( adaptVStretch )
 			    {
@@ -50,10 +52,13 @@ public:
 
     virtual uiSize	minimumsize() const; //!< \reimp
     virtual int 	nrTxtLines() const
-			    { return prefnrlines ? prefnrlines : 7; }
+			    { return prefnrlines_ ? prefnrlines_ : 7; }
 
-    int 		fieldwidth;
-    int 		prefnrlines;
+    int 		fieldwidth_;
+    int 		prefnrlines_;
+
+protected:
+    void		mouseReleaseEvent(QMouseEvent*);
 
 private:
 
@@ -62,14 +67,13 @@ private:
 };
 
 
-
 uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt, 
 			const char* nm, bool ismultiselect,
 			int preferrednrlines, int preferredfieldwidth )
-	: uiObjBodyImpl<uiListBox,QListWidget>( handle, parnt, nm, true )
-	, messenger_(*new i_listMessenger(this,&handle))
-	, fieldwidth(preferredfieldwidth)
-	, prefnrlines(preferrednrlines)
+    : uiObjBodyImpl<uiListBox,QListWidget>( handle, parnt, nm, true )
+    , messenger_(*new i_listMessenger(this,&handle))
+    , fieldwidth_(preferredfieldwidth)
+    , prefnrlines_(preferrednrlines)
 {
     setObjectName( nm );
     setDragDropMode( QAbstractItemView::NoDragDrop );
@@ -85,19 +89,36 @@ uiListBoxBody::uiListBoxBody( uiListBox& handle, uiParent* parnt,
 
 uiSize uiListBoxBody::minimumsize() const
 { 
-    int totHeight = fontHgt() * prefnrlines;
-    int totWidth  = fontWdt( true ) * fieldwidth;
+    const int totHeight = fontHgt() * prefnrlines_;
+    const int totWidth  = fontWdt( true ) * fieldwidth_;
+    return uiSize( totWidth, totHeight );
+}
 
-    return uiSize ( totWidth , totHeight );
+
+void uiListBoxBody::mouseReleaseEvent( QMouseEvent* event )
+{
+    if ( !event ) return;
+
+    if ( event->button() == Qt::RightButton )
+	handle_.buttonstate_ = OD::RightButton;
+    else if ( event->button() == Qt::LeftButton )
+	handle_.buttonstate_ = OD::LeftButton;
+    else
+	handle_.buttonstate_ = OD::NoButton;
+
+    QListWidget::mouseReleaseEvent( event );
+    handle_.buttonstate_ = OD::NoButton;
 }
 
 
 // -------------- uiListBox ---------------
 uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw )
     : uiObject( p, nm, mkbody(p,nm,ms,nl,pfw) )
+    , buttonstate_(OD::NoButton)
     , selectionChanged(this)
     , doubleClicked(this)
     , rightButtonClicked(this)
+    , leftButtonClicked(this)
 {
 }
 
@@ -105,18 +126,23 @@ uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw )
 uiListBox::uiListBox( uiParent* p, const BufferStringSet& items,
 		      const char* txt, bool ms, int nl, int pfw )
     : uiObject( p, txt, mkbody(p,txt,ms,nl,pfw))
+    , buttonstate_(OD::NoButton)
     , selectionChanged(this)
     , doubleClicked(this)
     , rightButtonClicked(this)
+    , leftButtonClicked(this)
 {
     addItems( items );
 }
 
 
+static const int sIconSz = 16;
+
 uiListBoxBody& uiListBox::mkbody( uiParent* p, const char* nm, bool ms,
 				  int nl, int pfw )
 {
     body_ = new uiListBoxBody(*this,p,nm,ms,nl,pfw);
+    body_->setIconSize( QSize(sIconSz,sIconSz) );
     return *body_;
 }
 
@@ -262,9 +288,8 @@ void uiListBox::setPixmap( int index, const Color& col )
     if ( index<0 || index>=size() || !body_->item(index) )
 	return;
 
-    QSize sz = body_->item(index)->sizeHint();
-    ioPixmap pm( sz.width(), sz.height() );
-    pm.fill( col );
+    QSize sz = body_->iconSize();
+    ioPixmap pm( sz.width(), sz.height() ); pm.fill( col );
     setPixmap( index, pm );
 }
 
@@ -283,7 +308,7 @@ ioPixmap uiListBox::pixmap( int index ) const
     if ( index<0 || index>=size() || !body_->item(index) )
 	return ioPixmap();
     QIcon qicon = body_->item(index)->icon();
-    return ioPixmap( qicon.pixmap(16,16) );
+    return ioPixmap( qicon.pixmap(body_->iconSize()) );
 }
 
 
@@ -427,7 +452,7 @@ void uiListBox::getSelectedItems( TypeSet<int>& items )
 
 void uiListBox::setFieldWidth( int fw )
 {
-    body_->fieldwidth = fw;
+    body_->fieldwidth_ = fw;
 }
 
 
