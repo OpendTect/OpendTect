@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: uitutorialattrib.cc,v 1.5 2007-06-21 11:49:31 cvsraman Exp $
+ RCS:           $Id: uitutorialattrib.cc,v 1.6 2007-07-11 06:53:16 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,6 +124,7 @@ bool uiTutorialAttrib::getParameters( Desc& desc )
     if ( strcmp(desc.attribName(),Tutorial::attribName()) )
 	return false;
 
+    bool dosteer = false;
     mSetEnum( Tutorial::actionStr(), actionfld_->getIntValue() );
     if ( actionfld_->getIntValue() == 0 )
     {
@@ -139,12 +140,14 @@ bool uiTutorialAttrib::getParameters( Desc& desc )
 	    if ( stepout == BinID(0,0) )
 		stepout.inl = stepout.crl = mUdf(int);
     	    mSetBinID( Tutorial::stepoutStr(), stepout );
-	    mSetBool( Tutorial::steeringStr(), steerfld_->willSteer() );
+	    dosteer = steerfld_->willSteer();
 	}
 	else
 	    mSetBool( Tutorial::weaksmoothStr(),
 		    		smoothstrengthfld_->getBoolValue() );
     }
+
+    mSetBool( Tutorial::steeringStr(), dosteer );
 
     return true;
 }
