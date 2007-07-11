@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.44 2007-07-11 04:52:29 cvsnanne Exp $
+ RCS:           $Id: uislicesel.cc,v 1.45 2007-07-11 04:57:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,8 +20,8 @@ ________________________________________________________________________
 #include "thread.h"
 #include "timer.h"
 
-static const char* sButTxtAdvance = "Advance >>";
-static const char* sButTxtPause = "Pause";
+static const char* sButTxtAdvance = "&Advance >>";
+static const char* sButTxtPause = "&Pause";
 
 
 uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& curcs,
@@ -162,7 +162,7 @@ uiSliceScroll( uiSliceSel* ss )
     ctrlbut = new uiPushButton( this, sButTxtAdvance, true );
     ctrlbut->activated.notify( mCB(this,uiSliceScroll,butPush) );
     ctrlbut->attach( alignedBelow, typfld );
-    backbut = new uiPushButton( this, "<< Step Back", true );
+    backbut = new uiPushButton( this, "<< Step &Back", true );
     backbut->activated.notify( mCB(this,uiSliceScroll,butPush) );
     backbut->attach( leftOf, ctrlbut );
 
@@ -202,8 +202,8 @@ void butPush( CallBacker* cb )
 	doAdvance( cb != ctrlbut );
     else
     {
-	/*new*/paused = *ctrlbut->text() == 'P';
-	ctrlbut->setText( paused ? "Go" : sButTxtPause );
+	/*new*/paused = ctrlbut->text()[1] == 'P';
+	ctrlbut->setText( paused ? "&Go" : sButTxtPause );
     }
 }
 
