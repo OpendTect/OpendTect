@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.86 2007-07-09 10:12:07 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.87 2007-07-11 04:13:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -167,11 +167,6 @@ void uiODMenuMgr::enableActButton( bool yn )
 
 void uiODMenuMgr::fillSurveyMenu()
 {
-//    mCleanUpImpExpSets(impmnus_)
-//    mCleanUpImpExpSets(expmnus_)
-    impmnus_.erase();
-    expmnus_.erase();
-
     mInsertItem( surveymnu_, "&Select/Setup ...", mManSurveyMnuItm );
 
     uiPopupMenu* sessionitm = new uiPopupMenu( &appl_, "S&ession");
@@ -182,6 +177,26 @@ void uiODMenuMgr::fillSurveyMenu()
     surveymnu_->insertSeparator();
 
     impmnu_ = new uiPopupMenu( &appl_, "&Import" );
+    fillImportMenu();
+    surveymnu_->insertItem( impmnu_ );
+
+    expmnu_ = new uiPopupMenu( &appl_, "E&xport" );
+    fillExportMenu();
+    surveymnu_->insertItem( expmnu_ );
+
+    manmnu_ = new uiPopupMenu( &appl_, "&Manage");
+    fillManMenu();
+    surveymnu_->insertItem( manmnu_ );
+
+    surveymnu_->insertSeparator();
+    mInsertItem( surveymnu_, "E&xit", mExitMnuItm );
+}
+
+
+
+void uiODMenuMgr::fillImportMenu()
+{
+    impmnu_->clear();
     uiPopupMenu* impseis = new uiPopupMenu( &appl_, "&Seismics" );
     uiPopupMenu* imphor = new uiPopupMenu( &appl_, "&Horizons" );
     uiPopupMenu* impfault = new uiPopupMenu( &appl_, "&Faults" );
@@ -218,7 +233,16 @@ void uiODMenuMgr::fillSurveyMenu()
     mInsertItem( impwellasc, "&Markers ...", mImpWellAsciiMarkersMnuItm );
     impwell->insertItem( impwellasc );
 
-    expmnu_ = new uiPopupMenu( &appl_, "E&xport" );
+    impmnus_.erase();
+    impmnus_.allowNull();
+    impmnus_ += impseis; impmnus_ += imphor; impmnus_ += impfault; 
+    impmnus_ += impwell; impmnus_ += 0;
+}
+
+
+void uiODMenuMgr::fillExportMenu()
+{
+    expmnu_->clear();
     uiPopupMenu* expseis = new uiPopupMenu( &appl_, "&Seismics" );
     uiPopupMenu* expseissgy = new uiPopupMenu( &appl_, "&SEG-Y" );
     mInsertItem( expseissgy, "&3D ...", mExpSeisSEGY3DMnuItm );
@@ -235,10 +259,16 @@ void uiODMenuMgr::fillSurveyMenu()
     mInsertItem( expmnu_, "&Picksets ...", mExpPickMnuItm );
     expmnu_->insertItem( exphor );
 
-    surveymnu_->insertItem( impmnu_ );
-    surveymnu_->insertItem( expmnu_ );
-    manmnu_ = new uiPopupMenu( &appl_, "&Manage");
+    expmnus_.erase();
+    expmnus_.allowNull();
+    expmnus_ += expseis; expmnus_ += exphor;
+    expmnus_+= 0; expmnus_+=0; expmnus_+= 0;
+}
 
+
+void uiODMenuMgr::fillManMenu()
+{
+    manmnu_->clear();
     mInsertItem( manmnu_, "&AttributeSets ...", mManAttrMnuItm );
 #ifdef __debug__
     mInsertItem( manmnu_, "&Faults ...", mManFaultMnuItm );
@@ -254,22 +284,12 @@ void uiODMenuMgr::fillSurveyMenu()
     mInsertItem( manmnu_, "&Seismics ...", mManSeisMnuItm );
     mInsertItem( manmnu_, "Wa&velets ...", mManWvltMnuItm );
     mInsertItem( manmnu_, "&Wells ...", mManWellMnuItm );
-    surveymnu_->insertItem( manmnu_ );
-
-    surveymnu_->insertSeparator();
-    mInsertItem( surveymnu_, "E&xit", mExitMnuItm );
-
-    impmnus_.allowNull();
-    impmnus_ += impseis; impmnus_ += imphor; impmnus_ += impfault; 
-    impmnus_ += impwell; impmnus_ += 0;
-    expmnus_.allowNull();
-    expmnus_ += expseis; expmnus_ += exphor;
-    expmnus_+= 0; expmnus_+=0; expmnus_+= 0;
 }
 
 
 void uiODMenuMgr::fillProcMenu()
 {
+    procmnu_->clear();
     if ( SI().getSurvDataType() == SurveyInfo::Both2DAnd3D )
     {
 	uiPopupMenu* aitm = new uiPopupMenu( &appl_, "Attributes" );
@@ -335,21 +355,21 @@ void uiODMenuMgr::fillViewMenu()
     uiPopupMenu* stereoitm = new uiPopupMenu( &appl_, "&Stereo viewing" );
     viewmnu_->insertItem( stereoitm );
 
-#define mInsertStereoItem(itm,txt,docheck,id,idx) \
+#define mInsertStereoItem(itm,txt,docheck,id) \
     itm = new uiMenuItem( txt, mCB(this,uiODMenuMgr,handleClick) ); \
-    stereoitm->insertItem( itm, id, idx ); \
+    stereoitm->insertItem( itm, id ); \
     itm->setCheckable( true ); \
     itm->setChecked( docheck );
 
-    mInsertStereoItem( stereooffitm_, "&Off", true, mStereoOffMnuItm, 0 )
+    mInsertStereoItem( stereooffitm_, "&Off", true, mStereoOffMnuItm )
     mInsertStereoItem( stereoredcyanitm_, "&Red/Cyan", false,
-	    		mStereoRCMnuItm, 1 )
+	    		mStereoRCMnuItm )
     mInsertStereoItem( stereoquadbufitm_, "&Quad buffer", false,
-	    		mStereoQuadMnuItm, 2 )
+	    		mStereoQuadMnuItm )
 
     stereooffsetitm_ = new uiMenuItem( "&Stereo offset ...",
 				mCB(this,uiODMenuMgr,handleClick) );
-    stereoitm->insertItem( stereooffsetitm_, mStereoOffsetMnuItm, 3 );
+    stereoitm->insertItem( stereooffsetitm_, mStereoOffsetMnuItm );
     stereooffsetitm_->setEnabled( false );
 
     mkViewIconsMnu();
@@ -617,7 +637,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mStereoRCMnuItm : 
     case mStereoQuadMnuItm :
     {
-	sceneMgr().setStereoType( itm->index() );
+	const int type = id == mStereoRCMnuItm ? 1 
+	    				: (id == mStereoQuadMnuItm ? 2 : 0 );
+	sceneMgr().setStereoType( type );
 	updateStereoMenu();
     } break;
 
@@ -684,9 +706,10 @@ void uiODMenuMgr::updateDTectToolBar( CallBacker* )
 
 void uiODMenuMgr::updateDTectMnus( CallBacker* )
 {
-    surveymnu_->clear();
-    procmnu_->clear();
-    fillSurveyMenu();
+    fillImportMenu();
+    fillExportMenu();
+    fillManMenu();
+
     fillProcMenu();
     dTectMnuChanged.trigger();
 }

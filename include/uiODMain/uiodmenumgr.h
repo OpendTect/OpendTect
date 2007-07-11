@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.26 2007-07-09 10:12:07 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.27 2007-07-11 04:13:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,9 @@ protected:
     uiToolBar*		mantb_;
 
     void		fillSurveyMenu();
+    void		fillImportMenu();
+    void		fillExportMenu();
+    void		fillManMenu();
     void		fillProcMenu();
     void		fillWinMenu();
     void		fillViewMenu();
