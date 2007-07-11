@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.79 2007-07-11 09:56:51 cvsbert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.80 2007-07-11 10:45:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -343,14 +343,17 @@ uiODMainAutoSessionDlg( uiODMain* p )
     bool douse = false; MultiID id;
     ODSession::getStartupData( douse, id );
 
-    usefld_ = new uiGenInput( this, "Enable auto-load sessions",
-	    		      BoolInpSpec(true) );
-    usefld_->setValue( douse );
+    usefld_ = new uiGenInput( this, "Auto-load sessions",
+	    		      BoolInpSpec(douse,"Enabled","Disabled") );
     usefld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
+    doselfld_ = new uiGenInput( this, "Use one for this survey",
+	    		      BoolInpSpec(id != "") );
+    doselfld_->valuechanged.notify( mCB(this,uiODMainAutoSessionDlg,useChg) );
+    doselfld_->attach( alignedBelow, usefld_ );
 
     ctio_.setObj( id ); ctio_.ctxt.forread = true;
     selgrp_ = new uiIOObjSelGrp( this, ctio_ );
-    selgrp_->attach( alignedBelow, usefld_ );
+    selgrp_->attach( alignedBelow, doselfld_ );
     lbl_ = new uiLabel( this, "Session to use" );
     lbl_->attach( centeredLeftOf, selgrp_ );
 
@@ -369,20 +372,28 @@ uiODMainAutoSessionDlg( uiODMain* p )
 void useChg( CallBacker* )
 {
     const bool douse = usefld_->getBoolValue();
-    selgrp_->display( douse );
-    loadnowfld_->display( douse );
-    lbl_->display( douse );
+    const bool dosel = douse ? doselfld_->getBoolValue() : false;
+    doselfld_->display( douse );
+    selgrp_->display( dosel );
+    loadnowfld_->display( dosel );
+    lbl_->display( dosel );
 }
 
 
 bool acceptOK( CallBacker* )
 {
     const bool douse = usefld_->getBoolValue();
-    selgrp_->processInput();
-    if ( douse && selgrp_->nrSel() < 1 )
-	{ uiMSG().error("Please select a session"); return false; }
-    if ( selgrp_->nrSel() > 0 )
-	ctio_.setObj( selgrp_->selected(0) );
+    const bool dosel = douse ? doselfld_->getBoolValue() : false;
+    if ( !dosel )
+	ctio_.setObj( 0 );
+    else
+    {
+	selgrp_->processInput();
+	if ( selgrp_->nrSel() < 1 )
+	    { uiMSG().error("Please select a session"); return false; }
+	if ( selgrp_->nrSel() > 0 )
+	    ctio_.setObj( selgrp_->selected(0) );
+    }
 
     const MultiID id( ctio_.ioobj ? ctio_.ioobj->key() : MultiID("") );
     ODSession::setStartupData( douse, id );
@@ -393,6 +404,7 @@ bool acceptOK( CallBacker* )
     CtxtIOObj&		ctio_;
 
     uiGenInput*		usefld_;
+    uiGenInput*		doselfld_;
     uiGenInput*		loadnowfld_;
     uiIOObjSelGrp*	selgrp_;
     uiLabel*		lbl_;
