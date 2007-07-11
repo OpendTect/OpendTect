@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2007
- RCS:           $Id: uiflatauxdataeditorlist.cc,v 1.4 2007-07-09 16:47:00 cvsbert Exp $
+ RCS:           $Id: uiflatauxdataeditorlist.cc,v 1.5 2007-07-11 21:08:43 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,10 @@ uiFlatViewAuxDataEditorList::uiFlatViewAuxDataEditorList( uiParent* p )
     listbox_->setMultiSelect( true );
     listbox_->selectionChanged.notify(
 	    mCB(this, uiFlatViewAuxDataEditorList, listSelChangeCB) );
+    listbox_->rightButtonClicked.notify(
+	    mCB(this, uiFlatViewAuxDataEditorList, rightClickedCB) );
+    uimenuhandler_ = new uiMenuHandler( p, 0 );
+    uimenuhandler_->ref();
 }
 
 
@@ -30,6 +34,11 @@ uiFlatViewAuxDataEditorList::~uiFlatViewAuxDataEditorList()
 {
     listbox_->selectionChanged.remove(
 	    mCB(this, uiFlatViewAuxDataEditorList, listSelChangeCB) );
+
+    listbox_->rightButtonClicked.remove(
+	    mCB(this, uiFlatViewAuxDataEditorList, rightClickedCB) );
+
+    uimenuhandler_->unRef();
 }
 
 
@@ -96,6 +105,12 @@ void uiFlatViewAuxDataEditorList::updateList( CallBacker* )
     block.restore();
     listbox_->selectionChanged.trigger();
     change_.trigger();
+}
+
+
+void uiFlatViewAuxDataEditorList:: rightClickedCB(CallBacker*)
+{
+    uimenuhandler_->executeMenu( uimenuhandler_->fromTree, 0 );
 }
 
 

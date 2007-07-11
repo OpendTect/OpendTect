@@ -7,14 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2007
- RCS:           $Id: uiflatauxdataeditorlist.h,v 1.3 2007-07-06 16:52:04 cvsyuancheng Exp $
+ RCS:           $Id: uiflatauxdataeditorlist.h,v 1.4 2007-07-11 21:08:43 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
+#include "uimenuhandler.h"
 
+class MenuHandler;
 class uiListBox;
+
 namespace FlatView { class AuxDataEditor; }
 
 
@@ -39,8 +42,11 @@ public:
     void		getSelections(ObjectSet<FlatView::AuxDataEditor>&,
 	    			      TypeSet<int>& ids );
 
+    MenuHandler&	menuhandler() { return *uimenuhandler_; }
+
 protected:
 
+    void		rightClickedCB(CallBacker*);
     virtual void	listSelChangeCB(CallBacker*);
     int			findEditorIDPair( const FlatView::AuxDataEditor*,
 					  int id) const;
@@ -53,6 +59,7 @@ protected:
     						//coupled, 1 per row in the list
 
     uiListBox*					listbox_;
+    uiMenuHandler*				uimenuhandler_;
 
     Notifier<uiFlatViewAuxDataEditorList>	change_;
 };
