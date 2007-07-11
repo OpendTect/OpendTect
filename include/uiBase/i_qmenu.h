@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qmenu.h,v 1.6 2006-12-05 16:32:33 cvsjaap Exp $
+ RCS:           $Id: i_qmenu.h,v 1.7 2007-07-11 04:23:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <qobject.h>
-#include <qevent.h>
+#include <QObject>
+#include <QEvent>
 #include "uimenu.h"
 
 //! Helper class for uiMenuItem to relay Qt's 'activated' messages to uiMenuItem.
@@ -34,7 +34,7 @@ protected:
                                 : _receiver( receiver )
 				{}
 
-    bool			event( QEvent* ev ) 
+    bool			event( QEvent* ev )
 					  { return _receiver->handleEvent(ev); }
 
 private:

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.126 2007-05-31 05:30:40 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.127 2007-07-11 04:23:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,6 @@ ________________________________________________________________________
 # define mFlagType	Qt::WFlags
 # define mDockType	Qt::ToolBarDock
 # include <QMainWindow>
-# include <Q3PopupMenu>
 # include <QDockWidget>
 # include <QTextStream>
 # include <QCloseEvent>
@@ -60,16 +59,6 @@ ________________________________________________________________________
 #include <qapplication.h>
 #include <qpixmap.h>
 #include <qlayout.h>
-
-#ifdef SUPPORT_PERSISTENCE
-// for positions of dock area's
-#ifdef USEQT3
-# include <qdockarea.h>
-# else
-#  include <Q3DockArea>
-# endif
-#include <qfile.h>
-#endif
 
 #include "dtect.xpm"
 
@@ -150,11 +139,6 @@ public:
     virtual QMenu*	createPopupMenu()	{ return 0; }
     QMenu*		createToolbarMenu()
 			{ return QMainWindow::createPopupMenu(); }
-
-#ifdef SUPPORT_PERSISTENCE
-    void		storePositions();
-    void		restorePositions();
-#endif
 
     void		setModal( bool yn )	{ modal_ = yn; }
     bool		isModal() const		{ return modal_; }
@@ -354,77 +338,10 @@ void uiMainWinBody::moveDockWindows()
 {
     if ( !poppedUp() ) return;
 
-//    for( int idx=0; idx<wins2move.size(); idx++ )
-//	moveDockWindow( wins2move[idx]->qwidget(), qdock(docks4wins[idx]) );
-
     wins2move.erase();
     docks4wins.erase();
 }
 
-#ifdef SUPPORT_PERSISTENCE
-void uiMainWinBody::storePositions()
-{
-#ifdef USE_FILE
-    QFile outfil( "/tmp/qpositions.txt");
-# ifdef USEQT3
-    outfil.open( IO_WriteOnly );
-# else
-    outfil.open( QIODevice::WriteOnly );
-# endif
-    QTextStream ts( &outfil );
-#else
-    static QString str;
-    str="";
-# ifdef USEQT3
-    QTextStream ts( &str, IO_WriteOnly  );
-# else
-    QTextStream ts( &str, QIODevice::WriteOnly  );
-# endif
-#endif
-
-    mQDockArea* dck = leftDock();
-    if ( dck ) { ts << *dck; }
-
-    dck = rightDock();
-    if ( dck ) { ts << *dck; }
-
-    dck = topDock();
-    if ( dck ) { ts << *dck; }
-
-    dck = bottomDock();
-    if ( dck ) { ts << *dck; }
-
-#ifdef USE_FILE
-    outfil.close();
-#else
-    cout << str;
-#endif
-}
-
-void uiMainWinBody::restorePositions()
-{
-storePositions();
-
-    QFile infil( "/tmp/qpositions.txt");
-    infil.open( QIODevice::ReadOnly );
-    QTextStream ts( &infil );
-
-    mQDockArea* dck = leftDock();
-    if ( dck ) { ts >> *dck; }
-
-    dck = rightDock();
-    if ( dck ) { ts >> *dck; }
-
-    dck = topDock();
-    if ( dck ) { ts >> *dck; }
-
-    dck = bottomDock();
-    if ( dck ) { ts >> *dck; }
-
-    infil.close();
-storePositions();
-}
-#endif
 
 mDockType uiMainWinBody::qdock( uiMainWin::Dock d )
 {
@@ -645,9 +562,8 @@ uiPopupMenu& uiMainWin::createDockWindowMenu()
     QPopupMenu* qmnu = body_->createDockWindowMenu();
     return *new uiPopupMenu(this,qmnu,"Toolbars");
 #else
-    Q3PopupMenu* q3mnu = new Q3PopupMenu();
-    q3mnu->addActions( body_->createToolbarMenu()->actions() );
-    return *new uiPopupMenu(this,q3mnu,"Toolbars");
+    QMenu* qmnu = body_->createToolbarMenu();
+    return *new uiPopupMenu(this,qmnu,"Toolbars");
 #endif
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.34 2007-05-13 15:42:36 cvsjaap Exp $
+ RCS:           $Id: uimenu.h,v 1.35 2007-07-11 04:23:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,16 +24,12 @@ class uiPopupItem;
 class uiMenuItemContainerBody;
 class i_MenuMessenger;
 
-#ifdef USEQT3
-# define mQPopupMenu QPopupMenu
-#else
 template<class> class uiMenuItemContainerBodyImpl;
-# define mQPopupMenu Q3PopupMenu
-#endif
 
-class QMenuBar;
-class mQPopupMenu;
+class QAction;
 class QEvent;
+class QMenu;
+class QMenuBar;
 
 template<class T> class ObjectSet;
 
@@ -47,17 +43,7 @@ public:
 
 class uiMenuItemContainer : public uiObjHandle
 {
-#ifdef USEQT3
-friend class			uiMenuItemContainerBody;
-protected:
-				uiMenuItemContainer(const char* nm,
-					    uiMenuItemContainerBody*);
-#else
 template<class> friend class	uiMenuItemContainerBodyImpl;
-protected:
-				uiMenuItemContainer(const char*,uiBody*,
-					    uiMenuItemContainerBody*);
-#endif
 
 public:
 				~uiMenuItemContainer();
@@ -68,63 +54,41 @@ public:
     uiMenuItem*			find(const MenuItemSeparString&);
     uiMenuItem*			find(const char* itmtxt);
 	
-    int				insertItem(uiMenuItem*,int id=-1,int idx=-1);
+    int				insertItem(uiMenuItem*,int id=-1);
     				/*!<\param id The id that is returned if the
 				  	      item is selected
-				    \param idx pecifies the position in the
-				    	       menu. The menu item is appended
-					       at the end of the list if
-					       negative.
 			        */
-    int				insertItem(const char* text, const CallBack& cb,
-					   int id=-1,int idx=-1);
+    int				insertItem(uiPopupMenu*,int id=-1);
     				/*!<\param id The id that is returned if the
 				  	      item is selected
-				    \param idx pecifies the position in the
-				    	       menu. The menu item is appended
-					       at the end of the list if
-					       negative.
-			        */
-    int				insertItem(uiPopupMenu*,int id=-1,int idx=-1);
-    				/*!<\param id The id that is returned if the
-				  	      item is selected
-				    \param idx pecifies the position in the
-				    	       menu. The menu item is appended
-					       at the end of the list if
-					       negative.
 			        */
     void			insertSeparator(int idx=-1);
 
-    int				idAt(int idx) const;
-    int				indexOf(int id) const;
     void			clear();
 
 protected:
-#ifdef USEQT3
-    void			setMenuBody(uiMenuItemContainerBody*);
-#endif
-    uiMenuItemContainerBody*	body_;
+				uiMenuItemContainer(const char*,uiBody*,
+					    uiMenuItemContainerBody*);
 
+    uiMenuItemContainerBody*	body_;
 };
 
-/*! 
 
+/*! 
     Stores the id of the item in Qt and has a 
     messenger, so Qt's signals can be relayed.
-
 */
+
 class uiMenuItem : public NamedObject
 {
-#ifdef USEQT3
-friend class			uiMenuItemContainerBody;
-#else
 template<class> friend class	uiMenuItemContainerBodyImpl;
-#endif
 
 public:
 				uiMenuItem(const char* nm);
 				uiMenuItem(const char* nm,const CallBack& cb);
 				~uiMenuItem();
+
+    const QAction*		qAction() const		{ return qaction_; }
 
 				//! sets a new text 2b displayed
     void			setText(const char*);
@@ -135,8 +99,8 @@ public:
 				          to it's parent, since parent will
 					  overwrite this setting. */
 
-    virtual bool		isCheckable() const	{ return checkable_; }
-    virtual void		setCheckable( bool yn ) { checkable_ = yn; }
+    bool			isCheckable() const;
+    void			setCheckable(bool);
 
     bool			isChecked() const;
     void 			setChecked(bool);
@@ -152,16 +116,17 @@ public:
     bool			handleEvent(const QEvent*);
 
     int				id() const		{ return id_; }
-    int				index() const;
 
 protected:
 
     void 			setId( int newid )	{ id_ = newid; }
     void			setMenu( uiMenuItemContainerBody* mb )
 				{ menu_ = mb; }
+    void			setAction( QAction* act ) { qaction_ = act; }
 
     i_MenuMessenger*		messenger()		{ return &messenger_; }
     uiMenuItemContainerBody*	menu_;
+    QAction*			qaction_;
 
 private:
 
@@ -179,11 +144,10 @@ class uiPopupItem : public uiMenuItem
 {
 friend class uiPopupMenu;
 protected:
-                                uiPopupItem(uiPopupMenu&,const char* nm);
+                                uiPopupItem( uiPopupMenu& pm, const char* nm )
+				    : uiMenuItem(nm)
+				    , popmenu_(&pm)	{}
 public:
-
-    virtual bool		isCheckable() const;
-    virtual void		setCheckable(bool);
 
     uiPopupMenu&		menu()		{ return *popmenu_; }
     const uiPopupMenu&		menu() const	{ return *popmenu_; }
@@ -222,10 +186,9 @@ class uiPopupMenu : public uiMenuItemContainer
 {
 
 public:                        
-				uiPopupMenu(uiParent* parnt,
+				uiPopupMenu(uiParent*,
 					    const char* nm="uiPopupMenu");
-				uiPopupMenu(uiParent* parnt,
-					    mQPopupMenu* qmnu,
+				uiPopupMenu(uiParent*,QMenu*,
 					    const char* nm="uiPopupMenu");
 
 				~uiPopupMenu();
@@ -253,6 +216,7 @@ public:
 
 private:
 
+    int				findIdForAction(QAction*) const;
     uiPopupItem&		item_;
 };
 
