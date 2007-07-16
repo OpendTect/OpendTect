@@ -6,14 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.27 2007-07-11 04:13:05 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.28 2007-07-16 06:46:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiodapplmgr.h"
 
-class Timer;
 class uiMenuItem;
 class uiODHelpMenuMgr;
 class uiPopupMenu;
@@ -82,7 +81,6 @@ protected:
     void		initSceneMgrDepObjs(uiODApplMgr*,uiODSceneMgr*);
 
     uiODMain&		appl_;
-    Timer&		timer_;
     uiODHelpMenuMgr*	helpmgr_;
 
     uiPopupMenu*	surveymnu_;
@@ -115,7 +113,6 @@ protected:
     void		fillManTB();
 
     void		handleClick(CallBacker*);
-    void		timerCB(CallBacker*);
     void		manSeis(CallBacker*);
     void		manHor(CallBacker*);
     void		manFlt(CallBacker*);

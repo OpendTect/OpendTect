@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.87 2007-07-11 04:13:05 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.88 2007-07-16 06:46:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,6 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "oddirs.h"
 #include "pixmap.h"
-#include "timer.h"
 #include "ioman.h"
 #include "strmprov.h"
 #include "filepath.h"
@@ -39,7 +38,6 @@ ________________________________________________________________________
 
 uiODMenuMgr::uiODMenuMgr( uiODMain* a )
 	: appl_(*a)
-    	, timer_(*new Timer("popup timer"))
     	, helpmgr_(0)
     	, dTectTBChanged(this)
     	, dTectMnuChanged(this)
@@ -67,7 +65,6 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     appl_.applMgr().visServer()->createToolBars();
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectMnus) );
-    timer_.tick.notify( mCB(this,uiODMenuMgr,timerCB) );
 }
 
 
@@ -542,8 +539,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     {
     case mManSurveyMnuItm: 	applMgr().manageSurvey(); break;
     case mSessSaveMnuItm: 	appl_.saveSession(); break;
-    case mSessRestMnuItm: 	{ appl_.restoreSession(); 
-				  timer_.start(200,true);  break; }
+    case mSessRestMnuItm: 	appl_.restoreSession(); break;
     case mSessAutoMnuItm: 	appl_.autoSession(); break;
     case mImpSeisSEGY3DMnuItm:	mDoOp(Imp,Seis,0); break;
     case mImpSeisSEGY2DMnuItm:	mDoOp(Imp,Seis,1); break;
@@ -680,12 +676,6 @@ mDefManCBFn(Wll)
 mDefManCBFn(Pick)
 mDefManCBFn(Wvlt)
 mDefManCBFn(Strat)
-
-
-void uiODMenuMgr::timerCB( CallBacker* )
-{
-    sceneMgr().layoutScenes();
-}
 
 
 void uiODMenuMgr::showLogFile()

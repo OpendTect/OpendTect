@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.80 2007-07-11 10:45:16 cvsbert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.81 2007-07-16 06:46:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,33 +111,35 @@ int ODMain( int argc, char** argv )
 
 
 uiODMain::uiODMain( uicMain& a )
-	: uiMainWin(0,"OpendTect Main Window",4,true)
-    	, uiapp(a)
-	, failed(true)
-    	, menumgr(0)
-    	, scenemgr(0)
-    	, ctabed(0)
-    	, ctabwin(0)
-    	, lastsession(*new ODSession)
-    	, cursession(0)
-    	, sessionSave(this)
-    	, sessionRestore(this)
-        , applicationClosing(this)
+    : uiMainWin(0,"OpendTect Main Window",4,true)
+    , uiapp_(a)
+    , failed_(true)
+    , applmgr_(0)
+    , menumgr_(0)
+    , scenemgr_(0)
+    , ctabed_(0)
+    , ctabwin_(0)
+    , timer_(*new Timer("Session restore timer"))
+    , lastsession_(*new ODSession)
+    , cursession_(0)
+    , sessionSave(this)
+    , sessionRestore(this)
+    , applicationClosing(this)
 {
     uiMSG().setMainWin( this );
-    uiapp.setTopLevel( this );
+    uiapp_.setTopLevel( this );
     uiSurveyInfoEditor::addInfoProvider( new ui2DSurvInfoProvider );
 
     if ( !ensureGoodDataDir()
       || (IOM().bad() && !ensureGoodSurveySetup()) )
 	::exit( 0 );
 
-    applmgr = new uiODApplMgr( *this );
-
+    applmgr_ = new uiODApplMgr( *this );
     if ( buildUI() )
-	failed = false;
+	failed_ = false;
 
     IOM().afterSurveyChange.notify( mCB(this,uiODMain,handleStartupSession) );
+    timer_.tick.notify( mCB(this,uiODMain,timerCB) );
 }
 
 
@@ -146,9 +148,10 @@ uiODMain::~uiODMain()
     if ( ODMainWin()==this )
 	manODMainWin( 0 );
 
-    delete ctabed;
-    delete ctabwin;
-    delete &lastsession;
+    delete ctabed_;
+    delete ctabwin_;
+    delete &lastsession_;
+    delete &timer_;
 }
 
 
@@ -175,7 +178,7 @@ bool uiODMain::ensureGoodSurveySetup()
     }
     else if ( !IOM().isReady() )
     {
-	while ( !applmgr->manageSurvey() )
+	while ( !applmgr_->manageSurvey() )
 	{
 	    if ( uiMSG().askGoOn( "No survey selected. Do you wish to quit?" ) )
 		return false;
@@ -191,9 +194,9 @@ bool uiODMain::ensureGoodSurveySetup()
 
 bool uiODMain::buildUI()
 {
-    scenemgr = new uiODSceneMgr( this );
-    menumgr = new uiODMenuMgr( this );
-    menumgr->initSceneMgrDepObjs( applmgr, scenemgr );
+    scenemgr_ = new uiODSceneMgr( this );
+    menumgr_ = new uiODMenuMgr( this );
+    menumgr_->initSceneMgrDepObjs( applmgr_, scenemgr_ );
 
     const char* s = GetEnvVar( "DTECT_CBAR_POS" );
     bool isvert = s && (*s == 'v' || *s == 'V');
@@ -220,22 +223,22 @@ bool uiODMain::buildUI()
 
     if ( isvert )
     {
-	ctabwin = new uiDockWin( this, "Color Table" );
-	ctabed = new uiVisColTabEd( ctabwin, true );
-	ctabed->coltabChange.notify( mCB(applmgr,uiODApplMgr,coltabChg) );
-	ctabed->setPrefHeight( cCTHeight );
-	ctabed->colTabGrp()->attach( hCentered );
+	ctabwin_ = new uiDockWin( this, "Color Table" );
+	ctabed_ = new uiVisColTabEd( ctabwin_, true );
+	ctabed_->coltabChange.notify( mCB(applmgr_,uiODApplMgr,coltabChg) );
+	ctabed_->setPrefHeight( cCTHeight );
+	ctabed_->colTabGrp()->attach( hCentered );
 
-	addDockWindow( *ctabwin, isontop ? uiMainWin::TornOff
+	addDockWindow( *ctabwin_, isontop ? uiMainWin::TornOff
 					 : uiMainWin::Left );
-	ctabwin->setResizeEnabled( true );
+	ctabwin_->setResizeEnabled( true );
     }
     else
     {
 	uiToolBar* tb = new uiToolBar( this, "Color Table" );
-	ctabed = new uiVisColTabEd( ctabwin, false );
-	ctabed->coltabChange.notify( mCB(applmgr,uiODApplMgr,coltabChg) );
-	tb->addObject( ctabed->colTabGrp()->attachObj() );
+	ctabed_ = new uiVisColTabEd( ctabwin_, false );
+	ctabed_->coltabChange.notify( mCB(applmgr_,uiODApplMgr,coltabChg) );
+	tb->addObject( ctabed_->colTabGrp()->attachObj() );
     }
 
     return true;
@@ -244,14 +247,14 @@ bool uiODMain::buildUI()
 
 void uiODMain::initScene()
 {
-    scenemgr->initMenuMgrDepObjs();
+    scenemgr_->initMenuMgrDepObjs();
     applMgr().visServer()->showMPEToolbar( false );
 }
 
 
 IOPar& uiODMain::sessionPars()
 {
-    return cursession->pluginpars();
+    return cursession_->pluginpars();
 }
 
 
@@ -259,7 +262,7 @@ CtxtIOObj* uiODMain::getUserSessionIOData( bool restore )
 {
     CtxtIOObj* ctio = mMkCtxtIOObj(ODSession);
     ctio->ctxt.forread = restore;
-    ctio->setObj( cursessid );
+    ctio->setObj( cursessid_ );
     uiIOObjSelDlg dlg( this, *ctio );
     if ( !dlg.go() )
 	{ delete ctio->ioobj; delete ctio; ctio = 0; }
@@ -267,7 +270,7 @@ CtxtIOObj* uiODMain::getUserSessionIOData( bool restore )
     { 
 	delete ctio->ioobj; ctio->ioobj = dlg.ioObj()->clone(); 
         const MultiID id( ctio->ioobj ? ctio->ioobj->key() : MultiID("") );
-	cursessid = id;
+	cursessid_ = id;
     }
 
     return ctio;
@@ -298,10 +301,10 @@ bool uiODMain::hasSessionChanged()
 	return false;
 
     ODSession sess;
-    cursession = &sess;
+    cursession_ = &sess;
     updateSession();
-    cursession = &lastsession;
-    return !( sess == lastsession );
+    cursession_ = &lastsession_;
+    return !( sess == lastsession_ );
 }
 
 
@@ -311,13 +314,13 @@ void uiODMain::saveSession()
 {
     CtxtIOObj* ctio = getUserSessionIOData( false );
     if ( !ctio ) { delete ctio; return; }
-    ODSession sess; cursession = &sess;
+    ODSession sess; cursession_ = &sess;
     if ( !updateSession() ) mDelCtioRet()
     BufferString bs;
     if ( !ODSessionTranslator::store(sess,ctio->ioobj,bs) )
 	{ uiMSG().error( bs ); mDelCtioRet() }
 
-    lastsession = sess; cursession = &lastsession;
+    lastsession_ = sess; cursession_ = &lastsession_;
     mDelCtioRet()
 }
 
@@ -326,7 +329,7 @@ void uiODMain::restoreSession()
 {
     CtxtIOObj* ctio = getUserSessionIOData( true );
     if ( !ctio ) { delete ctio; return; }
-    restoreSession(ctio->ioobj);
+    restoreSession( ctio->ioobj );
     mDelCtioRet()
 }
 
@@ -429,24 +432,25 @@ void uiODMain::restoreSession( const IOObj* ioobj )
     if ( !ODSessionTranslator::retrieve(sess,ioobj,bs) )
 	{ uiMSG().error( bs ); return; }
 
-    cursession = &sess;
+    cursession_ = &sess;
     doRestoreSession();
-    cursession = &lastsession; lastsession.clear();
-    ctabed->updateColTabList();
+    cursession_ = &lastsession_; lastsession_.clear();
+    ctabed_->updateColTabList();
+    timer_.start( 200, true );
 }
 
 
 bool uiODMain::updateSession()
 {
-    cursession->clear();
-    applMgr().visServer()->fillPar( cursession->vispars() );
-    applMgr().attrServer()->fillPar( cursession->attrpars(true), true );
-    applMgr().attrServer()->fillPar( cursession->attrpars(false), false );
-    sceneMgr().getScenePars( cursession->scenepars() );
+    cursession_->clear();
+    applMgr().visServer()->fillPar( cursession_->vispars() );
+    applMgr().attrServer()->fillPar( cursession_->attrpars(true), true );
+    applMgr().attrServer()->fillPar( cursession_->attrpars(false), false );
+    sceneMgr().getScenePars( cursession_->scenepars() );
     if ( applMgr().nlaServer()
-      && !applMgr().nlaServer()->fillPar( cursession->nlapars() ) ) 
+      && !applMgr().nlaServer()->fillPar( cursession_->nlapars() ) ) 
 	return false;
-    applMgr().mpeServer()->fillPar( cursession->mpepars() );
+    applMgr().mpeServer()->fillPar( cursession_->mpepars() );
 
     sessionSave.trigger();
     return true;
@@ -460,20 +464,19 @@ void uiODMain::doRestoreSession()
     applMgr().resetServers();
 
     if ( applMgr().nlaServer() )
-	applMgr().nlaServer()->usePar( cursession->nlapars() );
+	applMgr().nlaServer()->usePar( cursession_->nlapars() );
     if ( SI().has2D() )
-	applMgr().attrServer()->usePar( cursession->attrpars(true), true );
+	applMgr().attrServer()->usePar( cursession_->attrpars(true), true );
     if ( SI().has3D() )
-	applMgr().attrServer()->usePar( cursession->attrpars(false), false );
-    applMgr().mpeServer()->usePar( cursession->mpepars() );
-    const bool visok = applMgr().visServer()->usePar( cursession->vispars() );
-    sessionRestore.trigger();
-
+	applMgr().attrServer()->usePar( cursession_->attrpars(false), false );
+    applMgr().mpeServer()->usePar( cursession_->mpepars() );
+    const bool visok = applMgr().visServer()->usePar( cursession_->vispars() );
     if ( visok )
-    {
-	sceneMgr().useScenePars( cursession->scenepars() );
+	sceneMgr().useScenePars( cursession_->scenepars() );
+
+    sessionRestore.trigger();
+    if ( visok )
 	applMgr().visServer()->calculateAllAttribs();
-    }
     else
     {
 	uiCursor::restoreOverride();
@@ -496,29 +499,35 @@ void uiODMain::handleStartupSession( CallBacker* )
 
     PtrMan<IOObj> ioobj = IOM().get( id );
     if ( !ioobj ) return;
-    cursessid = id;
+    cursessid_ = id;
     restoreSession( ioobj );
+}
+
+
+void uiODMain::timerCB( CallBacker* )
+{
+    sceneMgr().layoutScenes();
 }
 
 
 bool uiODMain::go()
 {
-    if ( failed ) return false;
+    if ( failed_ ) return false;
 
     show();
     uiSurvey::updateViewsGlobal();
-    Timer tm( "Auto session restore timer" );
+    Timer tm( "Handle startup session" );
     tm.tick.notify( mCB(this,uiODMain,handleStartupSession) );
     tm.start( 200, true );
-    int rv = uiapp.exec();
-    delete applmgr; applmgr = 0;
+    int rv = uiapp_.exec();
+    delete applmgr_; applmgr_ = 0;
     return rv ? false : true;
 }
 
 
 bool uiODMain::askStore( bool& askedanything )
 {
-    if ( !applmgr->attrServer() ) return false;
+    if ( !applmgr_->attrServer() ) return false;
 
     bool doask = false;
     Settings::common().getYN( "dTect.Ask store session", doask );
@@ -534,13 +543,13 @@ bool uiODMain::askStore( bool& askedanything )
 
     doask = true;
     Settings::common().getYN( "dTect.Ask store picks", doask );
-    if ( doask && !applmgr->pickSetsStored() )
+    if ( doask && !applmgr_->pickSetsStored() )
     {
 	askedanything = true;
 	int res = uiMSG().askGoOnAfter( "Pick sets have changed.\n"
 					"Store the changes now?");
 	if ( res == 0 )
-	    applmgr->storePickSets();
+	    applmgr_->storePickSets();
 	else if ( res == 2 )
 	    return false;
     }
@@ -555,13 +564,13 @@ bool uiODMain::askStoreAttribs( bool is2d, bool& askedanything )
 {
     bool doask = true;
     Settings::common().getYN( "dTect.Ask store attributeset", doask );
-    if ( doask && !applmgr->attrServer()->setSaved( is2d ) )
+    if ( doask && !applmgr_->attrServer()->setSaved( is2d ) )
     {
 	askedanything = true;
 	int res = uiMSG().askGoOnAfter( "Current attribute set has changed.\n"
 					"Store the changes now?" );
 	if ( res == 0 )
-	    applmgr->attrServer()->saveSet( is2d );
+	    applmgr_->attrServer()->saveSet( is2d );
 	else if ( res == 2 )
 	    return false;
     }
@@ -573,12 +582,12 @@ bool uiODMain::closeOK()
 {
     applicationClosing.trigger();
 
-    if ( failed ) return true;
+    if ( failed_ ) return true;
 
-    menumgr->storePositions();
-    scenemgr->storePositions();
-    if ( ctabwin )
-	ctabwin->storePosition();
+    menumgr_->storePositions();
+    scenemgr_->storePositions();
+    if ( ctabwin_ )
+	ctabwin_->storePosition();
 
     bool askedanything = false;
     if ( !askStore(askedanything) )
@@ -592,9 +601,9 @@ bool uiODMain::closeOK()
 	    return false;
     }
 
-    removeDockWindow( ctabwin );
-    delete scenemgr;
-    delete menumgr;
+    removeDockWindow( ctabwin_ );
+    delete scenemgr_;
+    delete menumgr_;
 
     return true;
 }
@@ -604,5 +613,5 @@ void uiODMain::exit()
 {
     if ( !closeOK() ) return;
 
-    uiapp.exit(0);
+    uiapp_.exit(0);
 }

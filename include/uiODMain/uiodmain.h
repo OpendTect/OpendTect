@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.15 2007-05-17 05:12:51 cvsraman Exp $
+ RCS:           $Id: uiodmain.h,v 1.16 2007-07-16 06:46:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,14 +14,15 @@ ________________________________________________________________________
 #include "uimainwin.h"
 #include "multiid.h"
 
-class IOPar;
-class IOObj;
-class uicMain;
-class uiODMain;
-class ODSession;
 class CtxtIOObj;
+class IOObj;
+class IOPar;
+class ODSession;
+class Timer;
+class uicMain;
 class uiDockWin;
 class uiODApplMgr;
+class uiODMain;
 class uiODMenuMgr;
 class uiODSceneMgr;
 class uiVisColTabEd;
@@ -43,10 +44,10 @@ public:
     bool		go();
     void		exit();
 
-    uiODApplMgr&	applMgr()	{ return *applmgr; }
-    uiODMenuMgr&	menuMgr()	{ return *menumgr; } //!< + toolbar
-    uiODSceneMgr&	sceneMgr()	{ return *scenemgr; }
-    uiVisColTabEd&	colTabEd()	{ return *ctabed; }
+    uiODApplMgr&	applMgr()	{ return *applmgr_; }
+    uiODMenuMgr&	menuMgr()	{ return *menumgr_; } //!< + toolbar
+    uiODSceneMgr&	sceneMgr()	{ return *scenemgr_; }
+    uiVisColTabEd&	colTabEd()	{ return *ctabed_; }
 
     Notifier<uiODMain>	sessionSave;	//!< When triggered, put data in pars
     Notifier<uiODMain>	sessionRestore;	//!< When triggered, get data from pars
@@ -68,17 +69,17 @@ public:
 
 protected:
 
-    uiODApplMgr*	applmgr;
-    uiODMenuMgr*	menumgr;
-    uiODSceneMgr*	scenemgr;
-    uiVisColTabEd*	ctabed;
-    uicMain&		uiapp;
-    ODSession*		cursession;
-    ODSession&		lastsession;
-    uiDockWin*		ctabwin;
+    uiODApplMgr*	applmgr_;
+    uiODMenuMgr*	menumgr_;
+    uiODSceneMgr*	scenemgr_;
+    uiVisColTabEd*	ctabed_;
+    uicMain&		uiapp_;
+    ODSession*		cursession_;
+    ODSession&		lastsession_;
+    uiDockWin*		ctabwin_;
 
-    MultiID		cursessid;
-    bool		failed;
+    MultiID		cursessid_;
+    bool		failed_;
 
     virtual bool	closeOK();
     void		handleStartupSession(CallBacker*);
@@ -97,10 +98,13 @@ private:
     bool		updateSession();
     void		doRestoreSession();
 
+    Timer&		timer_;
+    void		timerCB(CallBacker*);
+
 public:
 
-    bool		sceneMgrAvailable() const	{ return scenemgr; }
-    bool		menuMgrAvailable() const	{ return menumgr; }
+    bool		sceneMgrAvailable() const	{ return scenemgr_; }
+    bool		menuMgrAvailable() const	{ return menumgr_; }
 
 };
 
