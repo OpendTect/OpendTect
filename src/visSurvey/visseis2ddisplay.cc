@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.19 2007-06-28 16:16:55 cvsnanne Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.20 2007-07-17 09:55:21 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ Seis2DDisplay::Seis2DDisplay()
     , geometry_(*new PosInfo::Line2DData)
     , geomchanged_(this)
     , maxtrcnrrg_(INT_MAX,INT_MIN)
-    , zrg_(-1,-1)
+    , samplerg_(-1,-1)
     , trcnrrg_(-1,-1)
     , datatransform_(0)
     , datatransformvoihandle_(-1)
@@ -101,10 +101,10 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
     for ( int idx=linepositions.size()-1; idx>=0; idx-- )
 	maxtrcnrrg_.include( linepositions[idx].nr_, false );
 
-    if ( zrg_.start==-1 )
+    if ( samplerg_.start==-1 )
     {
-	zrg_.start = 0;
-	zrg_.stop = geometry_.zrg.nrSteps();
+	samplerg_.start = 0;
+	samplerg_.stop = geometry_.zrg.nrSteps();
 	trcnrrg_ = maxtrcnrrg_;
     }
 
@@ -117,7 +117,7 @@ const StepInterval<float>& Seis2DDisplay::getMaxZRange() const
 { return geometry_.zrg; }
 
 
-bool Seis2DDisplay::setZRange( const Interval<int>& nzrg )
+bool Seis2DDisplay::setSampleRange( const Interval<int>& nsrg )
 {
     if ( mIsUdf(geometry_.zrg.start) )
     {
@@ -125,24 +125,24 @@ bool Seis2DDisplay::setZRange( const Interval<int>& nzrg )
 	return false;
     }
 
-    const Interval<int> zrg( mMAX( nzrg.start, 0 ),
-	    		     mMIN( nzrg.stop, geometry_.zrg.nrSteps()) );
+    const Interval<int> samplerg( mMAX(nsrg.start,0),
+				  mMIN(nsrg.stop,geometry_.zrg.nrSteps()) );
 
-    if ( !zrg.width() || zrg_==zrg )
+    if ( !samplerg.width() || samplerg_==samplerg )
 	return false;
 
-    const bool isbigger = !zrg_.includes( zrg.start, false ) ||
-			  !zrg_.includes( zrg.stop, false );
+    const bool isbigger = !samplerg_.includes( samplerg.start, false ) ||
+			  !samplerg_.includes( samplerg.stop, false );
 
-    zrg_ = zrg;
+    samplerg_ = samplerg;
 
     updateVizPath();
     return !isbigger;
 }
 
 
-const Interval<int>& Seis2DDisplay::getZRange() const
-{ return zrg_; }
+const Interval<int>& Seis2DDisplay::getSampleRange() const
+{ return samplerg_; }
 
 
 bool Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
@@ -224,7 +224,7 @@ void Seis2DDisplay::setData( int attrib,
 
     const SamplingData<float>& sd = dataset.trcinfoset_[0]->sampling;
 
-    const int nrsamp = zrg_.width()+1;
+    const int nrsamp = samplerg_.width()+1;
 
     PtrMan<Array2DImpl<float> > arr =
 	new Array2DImpl<float>( nrsamp,trcnrrg_.width()+1 );
@@ -249,7 +249,7 @@ void Seis2DDisplay::setData( int attrib,
 	if ( !dh )
 	    continue;
 
-	const float firstz = geometry_.zrg.atIndex( zrg_.start );
+	const float firstz = geometry_.zrg.atIndex( samplerg_.start );
 	const float firstdhsamplef = sd.getIndex( firstz );
 	const int firstdhsample = sd.nearestIndex( firstz );
 	const bool samplebased = mIsEqual(firstdhsamplef,firstdhsample,1e-3) &&
@@ -297,8 +297,8 @@ void Seis2DDisplay::updateVizPath()
 	coords += geometry_.posns[idx].coord_;
     }
 
-    const Interval<float> zrg( geometry_.zrg.atIndex( zrg_.start ),
-			       geometry_.zrg.atIndex( zrg_.stop ) );
+    const Interval<float> zrg( geometry_.zrg.atIndex(samplerg_.start),
+			       geometry_.zrg.atIndex(samplerg_.stop) );
 
     const int nrcrds = coords.size();
     TypeSet<Interval<int> > stripinterval;
@@ -417,7 +417,7 @@ SurveyObject* Seis2DDisplay::duplicate() const
 {
     Seis2DDisplay* s2dd = create();
     s2dd->setGeometry( geometry_ );
-    s2dd->setZRange( zrg_ );
+    s2dd->setSampleRange( samplerg_ );
     s2dd->setTraceNrRange( trcnrrg_ );
     s2dd->setResolution( getResolution() );
 
@@ -695,8 +695,23 @@ void Seis2DDisplay::dataTransformCB( CallBacker* )
 }
 
 
-void Seis2DDisplay::updateRanges( bool trc, bool z )
+void Seis2DDisplay::updateRanges( bool updatetrc, bool updatez )
 {
+    // TODO: handle update trcrg
+    if ( updatez && datatransform_ )
+    {
+	Interval<float> zrg = datatransform_->getZInterval( false );
+	Interval<int> samplerg;
+	setSampleRange( samplerg );
+    }
+}
+
+
+void Seis2DDisplay::clearTexture( int attribnr )
+{
+    for ( int idx=0; idx<texture_->nrVersions(attribnr); idx++ )
+	texture_->setData( attribnr, idx, 0 );
+    texture_->enableTexture( attribnr, false );
 }
 
 
@@ -707,7 +722,7 @@ void Seis2DDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyLineSetID(), linesetid_ );
     par.setYN( sKeyShowLineName(), lineNameShown() );
     par.set( sKeyTrcNrRange(), trcnrrg_.start, trcnrrg_.stop );
-    par.set( sKeyZRange(), zrg_.start, zrg_.stop );
+    par.set( sKeyZRange(), samplerg_.start, samplerg_.stop );
 }
 
 
@@ -736,7 +751,7 @@ int Seis2DDisplay::usePar( const IOPar& par )
 	if ( res!=1 ) return res;
 
 	par.get( sKeyTrcNrRange(), trcnrrg_.start, trcnrrg_.stop );
-	par.get( sKeyZRange(), zrg_.start, zrg_.stop );
+	par.get( sKeyZRange(), samplerg_.start, samplerg_.stop );
 	bool showlinename = false;
 	par.getYN( sKeyShowLineName(), showlinename );
 	showLineName( showlinename );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.13 2007-06-28 16:16:55 cvsnanne Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.14 2007-07-17 09:55:21 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -47,13 +47,13 @@ public:
 
     void			setGeometry(const PosInfo::Line2DData&);
     const StepInterval<float>&	getMaxZRange() const;
-    bool			setZRange(const Interval<int>&);
+    bool			setSampleRange(const Interval<int>&);
     				/*!<The values in the range refers to samples
 				    in the interval retrieved by getMaxZRange().
     				    \returns wether a cache update is enough.
 				*/
 				
-    const Interval<int>&	getZRange() const;
+    const Interval<int>&	getSampleRange() const;
 
     bool			setTraceNrRange(const Interval<int>&);
     				/*!<\returns wether a cache update is enough.*/
@@ -104,6 +104,8 @@ public:
     bool			setDataTransform(ZAxisTransform*);
     const ZAxisTransform*	getDataTransform() const;
 
+    void			clearTexture(int);
+
     NotifierAccess*		getMovementNotifier()
     				{ return &geomchanged_; }
 
@@ -141,7 +143,7 @@ protected:
     MultiID					linesetid_;
 
     PosInfo::Line2DData&			geometry_;
-    Interval<int>				zrg_;
+    Interval<int>				samplerg_;
     Interval<int>				trcnrrg_;
     Interval<int>				maxtrcnrrg_;
 
@@ -163,7 +165,7 @@ protected:
     static const char*				sKeyTextureID();
 };
 
-};
+} // namespace visSurvey
 
 
 #endif
