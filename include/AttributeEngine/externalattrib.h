@@ -7,15 +7,17 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: externalattrib.h,v 1.3 2006-03-20 07:44:48 cvsnanne Exp $
+ RCS:		$Id: externalattrib.h,v 1.4 2007-07-17 08:01:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "datapack.h"
 #include "sets.h"
 
 class BinIDValueSet;
 class CubeSampling;
+class LineKey;
 class SeisTrcBuf;
 
 
@@ -34,11 +36,13 @@ public:
     virtual bool		setTargetSelSpec(const SelSpec&)	= 0;
     				/*!<\returns if this object can 
 				     compute it or not. */
-    virtual const DataCubes*	createAttrib( const CubeSampling&,
-				              const DataCubes* ) 	= 0;
-    virtual bool		createAttrib( ObjectSet<BinIDValueSet>&) = 0;
+    virtual const DataCubes*	createAttrib(const CubeSampling&,
+				             const DataCubes*)		= 0;
+    virtual bool		createAttrib(ObjectSet<BinIDValueSet>&) = 0;
     virtual bool		createAttrib(const BinIDValueSet&,
 						     SeisTrcBuf&)	= 0;
+    virtual DataPack::ID	createAttrib(const CubeSampling&,
+	    				     const LineKey&)		= 0;
 
     virtual bool		isIndexes() const			= 0;
 };
@@ -54,24 +58,14 @@ class ExtAttribCalcFact
 {
 public:
     void			add( ExtAttribCalcCreator* nc )
-				{ creators += nc; }
-    ExtAttribCalc*		createCalculator( const SelSpec& spec )
-				{
-			    	    for ( int idx=0; idx<creators.size(); idx++)
-				    {
-					ExtAttribCalc* res =
-						creators[idx]->make( spec );
-					if ( res )
-					    return res;
-				    }
-
-				    return 0;
-				}
+				{ creators_ += nc; }
+    ExtAttribCalc*		createCalculator(const SelSpec&);
 
 protected:
 
-    ObjectSet<ExtAttribCalcCreator>	creators;
+    ObjectSet<ExtAttribCalcCreator>	creators_;
 };
+
 
 ExtAttribCalcFact& ExtAttrFact();
 

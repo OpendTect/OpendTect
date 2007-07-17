@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2006
- RCS:           $Id: externalattrib.cc,v 1.1 2006-03-20 07:44:48 cvsnanne Exp $
+ RCS:           $Id: externalattrib.cc,v 1.2 2007-07-17 08:01:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,18 @@ ________________________________________________________________________
 
 namespace Attrib
 {
+
+ExtAttribCalc* ExtAttribCalcFact::createCalculator( const SelSpec& spec )
+{
+    for ( int idx=0; idx<creators_.size(); idx++)
+    {
+	ExtAttribCalc* res = creators_[idx]->make( spec );
+	if ( res ) return res;
+    }
+
+    return 0;
+}
+
 
 ExtAttribCalcFact& ExtAttrFact()
 {
