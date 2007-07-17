@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacegeometry.h,v 1.22 2006-11-06 10:35:55 cvsjaap Exp $
+ RCS:		$Id: emsurfacegeometry.h,v 1.23 2007-07-17 08:52:05 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -65,7 +65,6 @@ public:
     			/*!<Return false if the sectionid allready exists */
     virtual bool	removeSection(const SectionID&,bool addtohistory);
     virtual SectionID	cloneSection(const SectionID&);
-    //void		checkSections();
     
     virtual const Geometry::Element*	sectionGeometry(const SectionID&) const;
     virtual Geometry::Element*		sectionGeometry(const SectionID&);
@@ -92,36 +91,6 @@ public:
 	    			const Interval<float>& y,
 				const Interval<float>& z,TypeSet<PosID>*) const;
     virtual int		findPos(const CubeSampling&,TypeSet<PosID>*) const;
-
-    //bool		findClosestNodes(TopList<float,PosID>& res,
-//					 const Coord3& pos) const;
- //   bool		findClosestNodes(const SectionID&,
-//					 TopList<float,PosID>& res,
-//					 const Coord3& pos) const;
- //   bool		computeNormal(Coord3& res,const PosID& posid,
-//				      bool normalize=true) const;
-
- //   float		normalDistance(const Coord3&) const;
-			/*!< Computes the distance along normal of the closest
-			     mesh's plane.
-			  \returns the distance. Note that the distance is
-			   negative on the back side of the surface.
-			  \param meshvariation
-				      If set, the variation of the mesh's
-				      coordinates' own distance along the
-				      normal is set. If the returned value
-				      lies inside this range, it cannot be
-				      said on which side of the surface
-				      the given coord is.
-			*/
-
-  //  char		whichSide(const Coord3&, float fuzzyness=0) const;
-			/*!< Determies wich side of the surface the position is.
-			  \retval	1	The positive side
-			  \retval	0	Is on the surface
-			  \retval	-1	The negative side
-			  \retval	-2	Side could not be determined
-			*/
 
     virtual EMObjectIterator*	createIterator(const EM::SectionID&,
 	    				       const CubeSampling* =0) const;
@@ -166,20 +135,11 @@ public:
     virtual EMObjectIterator*	createIterator(const EM::SectionID&,
 	    				       const CubeSampling* =0) const;
 
-    //Interval<float>	getZRange(const Interval<int>& rowrg,
-	    			  //const Interval<int>& colrg) const;
-
 protected:
-
-//    SubID		getSurfSubID(const RowCol&,const SectionID&) const;
-
-    //bool		insertRowOrCol( const SectionID&, int rc, bool row,
-//	    				bool hist );
-    			/*!<Implementation of insertRow and insertCol. */
 
 };
 
 
-}; // Namespace
+}; // namespace EM
 
 #endif
