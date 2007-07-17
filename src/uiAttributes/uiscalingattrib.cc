@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.cc,v 1.12 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uiscalingattrib.cc,v 1.13 2007-07-17 16:10:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,7 +175,7 @@ bool uiScalingAttrib::getParameters( Desc& desc )
     mSetFloat( Scaling::powervalStr(), nfld->getfValue() );
     mSetEnum( Scaling::statsTypeStr(), statsfld->getIntValue() );
 
-    TypeSet<TimeGate> tgs;
+    TypeSet<ZGate> tgs;
     TypeSet<float> factors;
     for ( int idx=0; idx<table->nrRows(); idx++ )
     {
@@ -183,7 +183,7 @@ bool uiScalingAttrib::getParameters( Desc& desc )
 	int stop = table->getIntValue( RowCol(idx,stopcol) );
 	if ( mIsUdf(start) && mIsUdf(stop) ) continue;
 	
-	tgs += TimeGate(start,stop );
+	tgs += ZGate( start, stop );
 
 	if ( statsfld->getIntValue() == 3 )
 	{
@@ -197,7 +197,7 @@ bool uiScalingAttrib::getParameters( Desc& desc )
     for ( int idx=0; idx<tgs.size(); idx++ )
     {
 	ZGateParam& zgparam = (ZGateParam&)(*gateset)[idx];
-	zgparam.setValue( Interval<float>(tgs[idx].start,tgs[idx].stop) );
+	zgparam.setValue( tgs[idx] );
     }
 
     mDescGetParamGroup(ValParam,factorset,desc,Scaling::factorStr())
