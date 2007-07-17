@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.80 2007-06-29 11:52:53 cvshelene Exp $
+ RCS:		$Id: vissurvobj.h,v 1.81 2007-07-17 11:01:55 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -243,8 +243,6 @@ protected:
     BufferString		errmsg;
     Scene*			scene_;
     bool			locked_;
-
-    virtual void		setUpConnections()		{}
 };
 
 
