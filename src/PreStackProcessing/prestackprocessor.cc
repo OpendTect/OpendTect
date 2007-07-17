@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.7 2007-06-25 15:36:34 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.8 2007-07-17 15:23:34 cvskris Exp $";
 
 #include "prestackprocessor.h"
 
@@ -34,11 +34,7 @@ Processor::~Processor()
 
 void Processor::setInput( DataPack::ID id )
 {
-    if ( input_ ) DPM( DataPackMgr::FlatID ).release( input_->id() );
-    DataPack* dp = DPM( DataPackMgr::FlatID ).obtain( id, false );
-    mDynamicCastGet( Gather*, gather, dp );
-    if ( gather ) input_ = gather;
-    else if ( dp ) DPM( DataPackMgr::FlatID ).release( dp->id() );
+    mObtainDataPack( input_, Gather*, DataPackMgr::FlatID, id );
 }
 
 
@@ -88,12 +84,7 @@ ProcessManager::~ProcessManager()
 
 void ProcessManager::setInput( DataPack::ID id )
 {
-    if ( input_ ) DPM( DataPackMgr::FlatID ).release( input_->id() );
-    input_ = 0;
-    DataPack* dp = DPM( DataPackMgr::FlatID ).obtain( id, false );
-    mDynamicCastGet( Gather*, gather, dp );
-    if ( gather ) input_ = gather;
-    else if ( dp ) DPM( DataPackMgr::FlatID ).release( dp->id() );
+    mObtainDataPack( input_, Gather*, DataPackMgr::FlatID, id );
 }
 
 
@@ -109,12 +100,7 @@ bool ProcessManager::process(bool forceall)
 	curinput = processors_[idx]->getOutput();
     }
 
-    if ( output_ ) DPM( DataPackMgr::FlatID ).release( output_->id() );
-    output_ = 0;
-    DataPack* dp = DPM( DataPackMgr::FlatID ).obtain( curinput, false );
-    mDynamicCastGet( Gather*, gather, dp );
-    if ( gather ) output_ = gather;
-    else if ( dp ) DPM( DataPackMgr::FlatID ).release( dp->id() );
+    mObtainDataPack( output_, Gather*, DataPackMgr::FlatID,curinput);
 
     return true;
 }
