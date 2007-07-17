@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.4 2007-05-29 20:09:29 cvskris Exp $
+ RCS:		$Id: prestackgather.h,v 1.5 2007-07-17 15:18:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -38,6 +38,8 @@ public:
     static int			zDim()			{ return 1; }
 
     const TypeSet<float>&	offsets() const		{ return offsets_; }
+    int				closestOffset(float offset) const;
+    				//!<\returns the index of the closest offset
     const TypeSet<float>&	azimuths() const	{ return azimuths_; }
     const TypeSet<int>&		traceOrder() const	{ return traceorder_; }
 

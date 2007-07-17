@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.4 2007-05-29 20:09:29 cvskris Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.5 2007-07-17 15:18:52 cvskris Exp $";
 
 #include "prestackgather.h"
 
@@ -149,6 +149,27 @@ bool Gather::readFrom( const MultiID& mid, const BinID& bid,
     setName( ioobj->name() );
 
     return true;
+}
+
+
+int Gather::closestOffset( float offset ) const
+{
+    if ( !offsets_.size() )
+	return -1;
+
+    int res;
+    float mindiff;
+    for ( int idx=0; idx<offsets_.size(); idx++ )
+    {
+	const float diff = fabs( offset-offsets_[idx] );
+	if ( !idx || diff<mindiff )
+	{
+	    res = idx;
+	    mindiff = diff;
+	}
+    }
+
+    return res;
 }
 
 
