@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.27 2007-02-19 16:41:45 cvsbert Exp $
+ RCS:		$Id: seistrc.h,v 1.28 2007-07-17 16:10:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,6 +91,10 @@ public:
     inline bool		dataPresent( float t ) const
 			{ return info_.dataPresent(t,size()); }
     SampleGate		sampleGate(const Interval<float>&,bool check) const;
+
+    SeisTrc*		getRelTrc(const ZGate&,float sr=mUdf(float)) const;
+    			//!< Resample around pick. No pick: returns null.
+    			//!< ZGate is relative to pick
 
 protected:
 

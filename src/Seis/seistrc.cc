@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.32 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.33 2007-07-17 16:10:17 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -111,6 +111,36 @@ SampleGate SeisTrc::sampleGate( const Interval<float>& tg, bool check ) const
     if ( sg.start > maxsz ) sg.start = maxsz;
     if ( sg.stop > maxsz ) sg.stop = maxsz;
     return sg;
+}
+
+
+SeisTrc* SeisTrc::getRelTrc( const ZGate& zgate, float sr ) const
+{
+    const float pick = info_.pick;
+    if ( mIsUdf(pick) )
+	const_cast<float&>(pick) = info_.refpos;
+    if ( mIsUdf(pick) )
+	return 0;
+
+    ZGate zg( zgate ); zg.sort();
+    SeisTrc* ret = new SeisTrc;
+    ret->info_ = info_;
+    ret->info_.sampling.start = zg.start;
+    if ( mIsUdf(sr) ) sr = info_.sampling.step;
+    ret->info_.sampling.step = sr;
+    ret->info_.pick = 0;
+
+    const int nrsamps = (int)( (zg.stop - zg.start) / sr + 1.00001);
+    ret->reSize( nrsamps, false );
+
+    for ( int idx=0; idx<nrsamps; idx++ )
+    {
+	const float curt = zg.start + sr * idx;
+	for ( int icomp=0; icomp<nrComponents(); icomp++ )
+	    ret->set( idx, getValue(curt,icomp), icomp );
+    }
+
+    return ret;
 }
 
 
