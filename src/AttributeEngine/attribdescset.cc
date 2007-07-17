@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.57 2007-06-06 08:17:51 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.58 2007-07-17 08:03:41 cvsnanne Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: attribdescset.cc,v 1.57 2007-06-06 08:17:51 cvs
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "bufstringset.h"
+#include "keystrs.h"
 #include "separstr.h"
 #include "iopar.h"
 #include "ioman.h"
@@ -197,6 +198,7 @@ void DescSet::fillPar( IOPar& par ) const
     }
 
     par.set( highestIDStr(), maxid );
+    par.set( sKey::Type, is2D() ? "2D" : "3D" );
 }
 
 
