@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.43 2007-06-15 21:51:43 cvsyuancheng Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.44 2007-07-17 11:01:21 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,7 @@ ________________________________________________________________________
 class ColorAttribSel;
 class CubeSampling;
 class IsoSurface;
+class ZAxisTransform;
 
 namespace Attrib { class SelSpec; class DataCubes; }
 
@@ -33,21 +34,21 @@ namespace visBase
     class VolumeRenderScalarField;
     class VolrenDisplay;
     class OrthogonalSlice;
-};
+}
+
 
 namespace visSurvey
 {
+
 class Scene;
 
-
-class VolumeDisplay :  public visBase::VisualObjectImpl,
-			public visSurvey::SurveyObject
+class VolumeDisplay : public visBase::VisualObjectImpl,
+		      public visSurvey::SurveyObject
 {
 public:
-
     static VolumeDisplay*	create()
 				mCreateDataObj(VolumeDisplay);
-    bool			isInlCrl() const { return true; }
+    bool			isInlCrl() const	{ return true; }
 
     static int			cInLine() 		{ return 2; }
     static int			cCrossLine() 		{ return 1; }
@@ -107,10 +108,11 @@ public:
     SoNode*			getInventorNode();
 
     Notifier<VolumeDisplay>	slicemoving;
-    BufferString		sliceposition;
-    BufferString		slicename;
 
     void			getChildren(TypeSet<int>&) const;
+
+    bool			setDataTransform(ZAxisTransform*);
+    const ZAxisTransform*	getDataTransform() const;
 
     virtual void		fillPar(IOPar&,TypeSet<int>&) const;
     virtual int			usePar(const IOPar&);
@@ -118,7 +120,6 @@ public:
 protected:
 				~VolumeDisplay();
     CubeSampling		getCubeSampling(bool manippos,int attrib) const;
-    void			setUpConnections();
 
     visBase::Transformation*		voltrans_;
     visBase::BoxDragger*		boxdragger_;
@@ -132,12 +133,18 @@ protected:
     void			setData(const Attrib::DataCubes*,
 	    				int datatype=0);
 
-    int				useOldPar(const IOPar&);
+    void			dataTransformCB(CallBacker*);
+    void			updateRanges(bool updateic,bool updatez);
+
+    ZAxisTransform*		datatransform_;
+    int				datatransformvoihandle_;
 
     DataPack::ID		cacheid_;
     const Attrib::DataCubes*	cache_;
     Attrib::SelSpec&		as_;
     bool			allowshading_;
+    BufferString		sliceposition_;
+    BufferString		slicename_;
 
     static visBase::FactoryEntry oldnameentry;
 
@@ -159,7 +166,7 @@ protected:
 
 };
 
-};
+} // namespace visSurvey
 
 
 #endif

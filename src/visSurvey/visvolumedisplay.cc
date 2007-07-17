@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.64 2007-07-05 12:04:39 cvsnanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.65 2007-07-17 11:01:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,27 +12,27 @@ ________________________________________________________________________
 
 #include "visvolumedisplay.h"
 
-#include "attribdatapack.h"
-#include "isosurface.h"
 #include "visboxdragger.h"
 #include "viscolortab.h"
+#include "visdataman.h"
 #include "visisosurface.h"
+#include "vismaterial.h"
+#include "visselman.h"
+#include "vistransform.h"
 #include "visvolorthoslice.h"
 #include "visvolrenscalarfield.h"
 #include "visvolren.h"
-#include "vistransform.h"
 
-#include "cubesampling.h"
-#include "attribsel.h"
-#include "attribdatacubes.h"
 #include "arrayndimpl.h"
-#include "survinfo.h"
-#include "visselman.h"
-#include "visdataman.h"
-#include "sorting.h"
-#include "iopar.h"
-#include "vismaterial.h"
+#include "attribdatacubes.h"
+#include "attribdatapack.h"
+#include "attribsel.h"
 #include "colortab.h"
+#include "cubesampling.h"
+#include "iopar.h"
+#include "isosurface.h"
+#include "sorting.h"
+#include "survinfo.h"
 #include "zaxistransform.h"
 
 mCreateFactoryEntry( visSurvey::VolumeDisplay );
@@ -54,18 +54,18 @@ const char* VolumeDisplay::slicestr = "SliceID ";
 const char* VolumeDisplay::texturestr = "TextureID";
 
 
-
 VolumeDisplay::VolumeDisplay()
     : VisualObjectImpl(true)
     , boxdragger_(visBase::BoxDragger::create())
-    , scalarfield_( 0 )
+    , scalarfield_(0)
     , volren_(0)
     , as_(*new Attrib::SelSpec)
     , cache_(0)
-    , cacheid_( DataPack::cNoID )
+    , cacheid_(DataPack::cNoID)
     , slicemoving(this)
-    , voltrans_( visBase::Transformation::create() )
-    , allowshading_( false )
+    , voltrans_(visBase::Transformation::create())
+    , allowshading_(false)
+    , datatransform_(0)
 {
     boxdragger_->ref();
     addChild( boxdragger_->getInventorNode() );
@@ -75,7 +75,7 @@ VolumeDisplay::VolumeDisplay()
     getMaterial()->setDiffIntensity( 0.8 );
     voltrans_->ref();
     addChild( voltrans_->getInventorNode() );
-    voltrans_->setRotation( Coord3( 0, 1, 0 ), M_PI_2 );
+    voltrans_->setRotation( Coord3(0,1,0), M_PI_2 );
 }
 
 
@@ -101,15 +101,52 @@ VolumeDisplay::~VolumeDisplay()
 }
 
 
-void VolumeDisplay::setUpConnections()
+bool VolumeDisplay::setDataTransform( ZAxisTransform* zat )
 {
-    if ( !scene_ || !scene_->getDataTransform() ) return;
+    const bool haddatatransform = datatransform_;
+    if ( datatransform_ )
+    {
+	if ( datatransformvoihandle_!=-1 )
+	    datatransform_->removeVolumeOfInterest(datatransformvoihandle_);
+	if ( datatransform_->changeNotifier() )
+	    datatransform_->changeNotifier()->remove(
+		    mCB(this,VolumeDisplay,dataTransformCB) );
+	datatransform_->unRef();
+	datatransform_ = 0;
+    }
 
-    ZAxisTransform* datatransform = scene_->getDataTransform();
-    Interval<float> zrg = datatransform->getZInterval( false );
+    datatransform_ = zat;
+    datatransformvoihandle_ = -1;
+
+    if ( datatransform_ )
+    {
+	datatransform_->ref();
+	updateRanges( false, !haddatatransform );
+	if ( datatransform_->changeNotifier() )
+	    datatransform_->changeNotifier()->notify(
+		    mCB(this,VolumeDisplay,dataTransformCB) );
+    }
+
+    return true;
+}
+
+
+const ZAxisTransform* VolumeDisplay::getDataTransform() const
+{ return datatransform_; }
+
+
+void VolumeDisplay::dataTransformCB( CallBacker* )
+{
+}
+
+
+void VolumeDisplay::updateRanges( bool updateic, bool updatez )
+{
+    if ( !datatransform_ ) return;
+
+    Interval<float> zrg = datatransform_->getZInterval( false );
     CubeSampling cs = getCubeSampling( 0 );
-    cs.zrg.start = zrg.start;
-    cs.zrg.stop = zrg.stop;
+    assign( cs.zrg, zrg );
     setCubeSampling( cs );
 }
 
@@ -354,7 +391,7 @@ void VolumeDisplay::manipMotionFinishCB( CallBacker* )
 
 BufferString VolumeDisplay::getManipulationString() const
 {
-    BufferString str = slicename; str += ": "; str += sliceposition;
+    BufferString str = slicename_; str += ": "; str += sliceposition_;
     return str;
 }
 
@@ -364,8 +401,8 @@ void VolumeDisplay::sliceMoving( CallBacker* cb )
     mDynamicCastGet( visBase::OrthogonalSlice*, slice, cb );
     if ( !slice ) return;
 
-    slicename = slice->name();
-    sliceposition = slicePosition( slice );
+    slicename_ = slice->name();
+    sliceposition_ = slicePosition( slice );
     slicemoving.trigger();
 }
 
@@ -374,24 +411,24 @@ float VolumeDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
 {
     if ( !slice ) return 0;
     const int dim = slice->getDim();
-    float slicepositionf = slice->getPosition();
-    slicepositionf *= -voltrans_->getScale()[dim];
+    float slicepos = slice->getPosition();
+    slicepos *= -voltrans_->getScale()[dim];
 
     float pos;    
     if ( dim == 2 )
     {
-	slicepositionf += voltrans_->getTranslation()[0];
-	pos = SI().inlRange(true).snap(slicepositionf);
+	slicepos += voltrans_->getTranslation()[0];
+	pos = SI().inlRange(true).snap(slicepos);
     }
     else if ( dim == 1 )
     {
-	slicepositionf += voltrans_->getTranslation()[1];
-	pos = SI().crlRange(true).snap(slicepositionf);
+	slicepos += voltrans_->getTranslation()[1];
+	pos = SI().crlRange(true).snap(slicepos);
     }
     else
     {
-	slicepositionf += voltrans_->getTranslation()[2];
-	pos = mNINT(slicepositionf*1000);
+	slicepos += voltrans_->getTranslation()[2];
+	pos = mNINT(slicepos*1000);
     }
 
     return pos;
