@@ -1,14 +1,13 @@
-/*
-___________________________________________________________________
+/*+
+________________________________________________________________________
 
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : K. Tingdahl
- * DATE     : Sep 2005
-___________________________________________________________________
+ CopyRight:	(C) dGB Beheer B.V.
+ Author:	K. Tingdahl
+ Date:		Sep 2005
+ RCS:		$Id: horizon2dseedpicker.cc,v 1.7 2007-07-17 08:12:48 cvsnanne Exp $
+________________________________________________________________________
 
 -*/
-
-static const char* rcsID = "$Id: horizon2dseedpicker.cc,v 1.6 2007-03-29 11:37:47 cvsjaap Exp $";
 
 #include "horizon2dseedpicker.h"
 
@@ -76,9 +75,8 @@ EM::SectionID Horizon2DSeedPicker::getSectionID() const
 
 #define mGetHorizon(hor,escval) \
     const EM::ObjectID emobjid = tracker_.objectID(); \
-    mDynamicCastGet( EM::Horizon2D*, hor, EM::EMM().getObject(emobjid) ); \
-    if ( !hor ) \
-	return escval;
+    mDynamicCastGet(EM::Horizon2D*,hor,EM::EMM().getObject(emobjid)) \
+    if ( !hor ) return escval;
 
 
 bool Horizon2DSeedPicker::startSeedPick()
@@ -414,13 +412,13 @@ bool Horizon2DSeedPicker::retrackFromSeedList()
     }
 
     extender->unsetExtBoundary();
-    
+
     return true;
 }
-	    
+
 
 bool Horizon2DSeedPicker::doesModeUseSetup() const
-{ return seedconmode_!=DrawBetweenSeeds; }
+{ return seedconmode_ != DrawBetweenSeeds; }
 
 
 bool Horizon2DSeedPicker::reTrack()
