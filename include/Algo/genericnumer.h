@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.21 2007-03-16 18:20:59 cvshelene Exp $
+ RCS:           $Id: genericnumer.h,v 1.22 2007-07-17 16:08:10 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -140,7 +140,7 @@ found in an interval, a high precision search is started in that interval.
 */
 
 float findValueInAperture(const FloatMathFunction&,float startx, 
-	 	const TimeGate& aperture,float dx,float target=0,
+	 	const Interval<float>& aperture,float dx,float target=0,
 		float tol=1e-5);
 
 /*!>

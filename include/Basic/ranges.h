@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.47 2007-06-19 06:58:26 cvsnanne Exp $
+ RCS:		$Id: ranges.h,v 1.48 2007-07-17 16:08:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,8 +80,7 @@ public:
 
 
 typedef Interval<int> SampleGate;
-typedef Interval<double> TimeGate;
-typedef Interval<double> DepthGate;
+typedef Interval<float> ZGate;
 
 
 #define cloneTp	mPolyRet( Interval<T>, StepInterval<T> )

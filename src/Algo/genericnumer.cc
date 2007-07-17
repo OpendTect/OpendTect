@@ -101,8 +101,8 @@ bool findValue( const FloatMathFunction& func, float x1, float x2, float& res,
 #undef EPS
 
 float findValueInAperture( const FloatMathFunction& func, float startx, 
-			   const TimeGate& aperture, float dx, float target,
-			   float tol)
+			   const Interval<float>& aperture, float dx,
+			   float target, float tol )
 {
     float aperturecenter = (aperture.start + aperture.stop) / 2;
     const float halfaperture = aperture.stop - aperturecenter;
