@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.42 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.43 2007-07-18 09:25:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -220,7 +220,7 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, bool for_new_entry, bool mln )
     butPush.notify( mCB(this,uiSeis2DSubSel,doDlg) );
 
     uiGenInput* fld;
-    if ( for_new_entry )
+    if ( for_new_entry && !multiln_ )
 	fld = lnmfld = new uiGenInput( this, "Store in Set as" );
     else
     {
