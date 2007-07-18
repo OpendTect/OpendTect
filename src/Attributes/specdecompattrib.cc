@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: specdecompattrib.cc,v 1.18 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: specdecompattrib.cc,v 1.19 2007-07-18 12:48:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -251,6 +251,8 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
 	    float imag = imdata_->series(imagidx_)? 
 			-imdata_->series(imagidx_)->value(samp-imdata_->z0_) :0;
 
+	    if ( mIsUdf(real) ) real = 0;
+	    if ( mIsUdf(imag) ) imag = 0;
 	    signal_->set( ids, float_complex(real,imag) );
 	    samp++;
 	}
@@ -334,7 +336,8 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
     int nrsamp = nrsamples;
     if ( nrsamples < 256 ) nrsamp = 256;
     mGetNextPow2( nrsamp );
-    if ( !redata_->series(realidx_) || !imdata_->series(imagidx_) ) return false;
+    if ( !redata_->series(realidx_) || !imdata_->series(imagidx_) )
+	return false;
 
     const int off = (nrsamp-nrsamples)/2;
     Array1DImpl<float_complex> inputdata( nrsamp );
@@ -342,12 +345,14 @@ bool SpecDecomp::calcCWT(const DataHolder& output, int z0, int nrsamples ) const
     {
 	const int cursample = z0 + idx - off;
 	const int reidx = cursample-redata_->z0_;
-	const float real = reidx < 0 || reidx >= redata_->nrsamples_
-		? 0 : redata_->series(realidx_)->value( reidx );
+	float real = reidx < 0 || reidx >= redata_->nrsamples_
+		    ? 0 : redata_->series(realidx_)->value( reidx );
+	if ( mIsUdf(real) ) real = 0;
 
 	const int imidx = cursample-imdata_->z0_;
-	const float imag = imidx < 0 || imidx >= imdata_->nrsamples_
-		? 0 : -imdata_->series(imagidx_)->value( imidx );
+	float imag = imidx < 0 || imidx >= imdata_->nrsamples_
+		    ? 0 : -imdata_->series(imagidx_)->value( imidx );
+	if ( mIsUdf(imag) ) imag = 0;
         inputdata.set( idx, float_complex(real,imag) );
     }
 
