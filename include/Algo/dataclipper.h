@@ -7,46 +7,81 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		09-02-2002
- RCS:		$Id: dataclipper.h,v 1.8 2007-01-04 22:36:16 cvskris Exp $
+ RCS:		$Id: dataclipper.h,v 1.9 2007-07-18 14:37:38 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
+
+#include "sets.h"
+#include "ranges.h"
+
+template <class T> class ValueSeries;
+template <class T> class ArrayND;
 
 /*!\brief
 
 A DataClipper gets a bunch of data and determines at what value to clip
 if a certain clippercentag is desired.
 
-Usage:
-1. Create and set cliprate
-2. putData() untill you have put all your data.
-3. calculateRange
-4. get the cliprange with getRange
+For simple cases, where no subselection is needed (i.e. the stats will be
+performed on all values, and only one dataset is used) the static function
+calculateRange is good enough:
 
-Step 2-4 can be repeted any number of times.
+\code
+    TypeSet<float> mydata;
+    Interval<float> range;
+    DataClipper::calculateRange( mydata.arr(), mydata.size(), 0.05, 0.05,
+    				 range );
+\endcode
+
+If there are more than one dataset, or if a subselection is wanted, the class
+is used as follows:
+
+-# Create object
+-# If subselection is wanted, set total nr of samples and statsize with
+   setApproxNrValues
+-# Add all your sources putData
+-# If you only want a fixed range, call calculateRange.
+-# If you want to come back an get multiple ranges, call fullSort. After
+   fullSort, the getRange functions can be called, any number of times.
+-# To prepare the object for a new set of data, call reset.
+
+Example
+\code
+    Array3D<float> somedata;
+    TypeSet<float> moredata;
+    float	   otherdata;
+
+    DataClipper clipper;
+    setApproxNrValues( somedata.info().getTotalSz()+moredata.size()+1, 2000 );
+    clipper.putData( somedata );
+    clipper.putData( moredata.arr(), moredata.size() );
+    clipper.putData( otherdata );
+
+    clipper.fullSort();
+   
+    Interval<float> clip99;
+    Interval<float> clip95;
+    Interval<float> clip90;
+    clipper.getRange( 0.01, clip99 );
+    clipper.getRange( 0.05, clip95 );
+    clipper.getRange( 0.10, clip90 );
+\endcode
 
 */
 
-#include "sets.h"
-#include "ranges.h"
-
-template <class T> class ValueSeries;
 
 class DataClipper
 {
 public:
-    				DataClipper(float cliprate,float cliprate1=-1 );
+    				DataClipper();
 				/*!< cliprate is between 0 and 0.5,
 				     cliprate0 is the bottom cliprate,
 				     cliprate1 is the top cliprate, when
 				     cliprate1 is -1, it will get the value of
 				     cliprate0 */
 
-    void			setClipRate(float cr0,float cr1=-1);
-    float			clipRate(bool bottom=true) const
-				{ return bottom ? cliprate0 : cliprate1; }
-	
     void			setApproxNrValues(int nrsamples,
 						  int statsize=2000);
     				/*!< Will make it faster if large amount
@@ -58,23 +93,37 @@ public:
     void			putData(float);
     void			putData(const float*, int sz );
     void			putData(const ValueSeries<float>&, int sz );
+    void			putData(const ArrayND<float>&);
 
-    bool			calculateRange();
-    				/*!< Will also reset the stats so the
-				     object becomes ready for new data
-				*/
+    bool			calculateRange(float cliprate,Interval<float>&);
+    				/*!<Does not do a full sort. Also performes
+				    reset */
+    bool			calculateRange(float lowcliprate,
+	    				       float highcliprate,
+					       Interval<float>&);
+    				/*!<Does not do a full sort. Also performes
+				    reset */
+    static bool			calculateRange(float* vals, int nrvals,
+	    				       float lowcliprate,
+	    				       float highcliprate,
+					       Interval<float>&);
+    				/*!<Does not do a full sort.\note vals
+				    are modified. */
+    bool			fullSort();
+    bool			getRange(float cliprate,Interval<float>&) const;
+    bool			getRange(float lowcliprate,float highcliprate,
+	    				 Interval<float>&) const;
+    bool			getSymmetricRange(float cliprate,float midval,
+	    				 Interval<float>&) const;
+    void			reset();
 
-    const Interval<float>&	getRange() const { return range; }
-
+    const TypeSet<float>&	statPts() const { return samples_; }
 
 protected:
-    int				approxstatsize;
-    float			sampleprob;
-    bool			subselect;
-    float			cliprate0;
-    float			cliprate1;
-    TypeSet<float>		samples;
-    Interval<float>		range;
+    int				approxstatsize_;
+    float			sampleprob_;
+    bool			subselect_;
+    TypeSet<float>		samples_;
 };
 
 

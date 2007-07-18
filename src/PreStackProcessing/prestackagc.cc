@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackagc.cc,v 1.1 2007-03-15 17:28:52 cvskris Exp $";
+static const char* rcsID = "$Id: prestackagc.cc,v 1.2 2007-07-18 14:37:39 cvskris Exp $";
 
 #include "prestackagc.h"
 
@@ -80,7 +80,7 @@ bool AGC::doWork( int start, int stop, int )
     const int nrsamples = input_->data().info().getSize(Gather::zDim());
 
     const bool doclip = !mIsZero( mutefraction_, 1e-5 );
-    DataClipper clipper( mutefraction_, 0 );
+    DataClipper clipper;
 
     for ( int offsetidx=start; offsetidx<=stop; offsetidx++ )
     {
@@ -91,10 +91,11 @@ bool AGC::doWork( int start, int stop, int )
 	    energies[sampleidx] = mIsUdf( value ) ? value : value*value;
 	}
 
+	Interval<float> cliprange;
 	if ( doclip )
 	{
 	    clipper.putData( energies, nrsamples );
-	    if ( !clipper.calculateRange() )
+	    if ( !clipper.calculateRange(mutefraction_,0,cliprange) )
 	    {
 		//todo: copy old trace
 		continue;
@@ -116,7 +117,7 @@ bool AGC::doWork( int start, int stop, int )
 		if ( mIsUdf( energy ) )
 		    continue;
 
-		if ( doclip && !clipper.getRange().includes( energy ) )
+		if ( doclip && !cliprange.includes( energy ) )
 		    continue;
 		
 		energysum += energy;

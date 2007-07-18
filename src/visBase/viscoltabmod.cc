@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2003
- RCS:           $Id: viscoltabmod.cc,v 1.8 2007-06-20 04:08:53 cvsnanne Exp $
+ RCS:           $Id: viscoltabmod.cc,v 1.9 2007-07-18 14:37:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,13 +72,12 @@ void VisColTabMod::setScale( const float* values, int nrvalues )
 {
     if ( !values ) return;
 
-    Interval<float> intv(0,0);
     if ( useclip )
     {
-	DataClipper clipper( cliprate0, cliprate1 );
+	DataClipper clipper;
+	clipper.setApproxNrValues( nrvalues, 5000 );
 	clipper.putData( values, nrvalues );
-	clipper.calculateRange();
-	range = clipper.getRange();
+	clipper.calculateRange(cliprate0, cliprate1, range );
     }
 
     datascale.factor = 1.0/range.width();

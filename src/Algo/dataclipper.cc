@@ -4,98 +4,77 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.14 2007-01-04 22:36:16 cvskris Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.15 2007-07-18 14:37:39 cvskris Exp $";
 
 
 #include "dataclipper.h"
+
+#include "arraynd.h"
 #include "statrand.h"
 #include "sorting.h"
 #include "valseries.h"
 #include "undefval.h"
+#include "idxable.h"
 
 
-DataClipper::DataClipper( float cr0, float cr1 )
-    : sampleprob( 1 )
-    , subselect( false )
-    , cliprate0( cr0 )
-    , cliprate1( cr1 )
-    , approxstatsize( 2000 )
+DataClipper::DataClipper()
+    : sampleprob_( 1 )
+    , subselect_( false )
+    , approxstatsize_( 2000 )
 {
-    if ( cliprate1 < 0 )
-	cliprate1 = cliprate0;
-
     Stats::RandGen::init();
 } 
 
 
-void DataClipper::setClipRate( float cr0, float cr1 )
-{
-    cliprate0 = cr0;
-    cliprate1 = cr1 < 0 ? cr0 : cr1;
-}
-
-
 void DataClipper::setApproxNrValues( int n, int statsz )
 {
-    sampleprob = ((float) statsz) / n;
-    approxstatsize = statsz;
+    sampleprob_ = ((float) statsz) / n;
+    approxstatsize_ = statsz;
 
-    sampleprob = mMIN( sampleprob, 1 );
-    subselect = true;
+    subselect_ = sampleprob_<1;
+    sampleprob_ = mMIN( sampleprob_, 1 );
 }
 
 
 void DataClipper::putData( float v )
 {
-    if ( subselect )
+    if ( subselect_ )
     {
 	double rand = Stats::RandGen::get();
 
-	if ( rand > sampleprob )
+	if ( rand>sampleprob_ )
 	    return;
     }
 
-    if ( !mIsUdf( v ) ) samples += v;
+    if ( !mIsUdf( v ) ) samples_ += v;
 }
 
+#define mPutDataImpl( getfunc ) \
+    const int nrsamples = mNINT(nrvals * sampleprob_); \
+    if ( subselect_ && nrsamples<nrvals ) \
+    { \
+	for ( int idx=0; idx<nrsamples; idx++ ) \
+	{ \
+	    double rand = Stats::RandGen::get(); \
+	    rand *= (nrvals-1); \
+	    const int sampidx = mNINT(rand); \
+	    getfunc; \
+	    if ( !mIsUdf( val ) ) \
+		samples_ += val; \
+	} \
+    } \
+    else \
+    { \
+	for ( int sampidx=0; sampidx<nrvals; sampidx++ ) \
+	{ \
+	    getfunc; \
+	    if ( !mIsUdf( val ) ) samples_ += val; \
+	} \
+    }
 
 void DataClipper::putData( const float* vals, int nrvals )
 {
-    if ( subselect )
-    {
-	int nrsamples = approxstatsize-samples.size();
-	if ( nrsamples>nrvals )
-	{
-	    for ( int idx=0; idx<nrvals; idx++ )
-	    {
-		double rand = Stats::RandGen::get();
-		if ( rand > sampleprob )
-		    continue;
-
-		float val =  vals[idx];
-		if ( !mIsUdf( val ) ) samples += val;
-	    }
-	}
-	else
-	{
-	    for ( int idx=0; idx<nrsamples; idx++ )
-	    {
-		double rand = Stats::RandGen::get();
-		rand *= (nrvals-1);
-		float val =  vals[mNINT(rand)];
-		if ( !mIsUdf( val ) )
-		    samples += val;
-	    }
-	}
-    }
-    else
-    {
-	for ( int idx=0; idx<nrvals; idx++ )
-	{
-	    float val = vals[idx];
-	    if ( !mIsUdf( val ) ) samples += val;
-	}
-    }
+    mPutDataImpl( const float val = vals[sampidx] );
 }
 
 
@@ -106,62 +85,173 @@ void DataClipper::putData( const ValueSeries<float>& vals, int nrvals )
 	putData( vals.arr(), nrvals );
 	return;
     }
-	   
-    if ( subselect )
-    {
-	int nrsamples = approxstatsize-samples.size();
-	if ( nrsamples>nrvals )
-	{
-	    for ( int idx=0; idx<nrvals; idx++ )
-	    {
-		double rand = Stats::RandGen::get();
-		if ( rand > sampleprob )
-		    continue;
 
-		float val =  vals.value(idx);
-		if ( !mIsUdf( val ) ) samples += val;
-	    }
-	}
-	else
-	{
-	    for ( int idx=0; idx<nrsamples; idx++ )
-	    {
-		double rand = Stats::RandGen::get();
-		rand *= (nrvals-1);
-		float val =  vals.value(mNINT(rand));
-		if ( !mIsUdf( val ) )
-		    samples += val;
-	    }
-	}
+    mPutDataImpl( const float val = vals.value( sampidx ) );
+}
+
+
+void DataClipper::putData( const ArrayND<float>& vals )
+{
+    const int nrvals = vals.info().getTotalSz();
+    if ( vals.getStorage() )
+    {
+	putData( *vals.getStorage(), nrvals );
+	return;
+    }
+
+    const ArrayNDInfo& info = vals.info();
+
+    int idxs[info.getNDim()];
+
+    mPutDataImpl(info.getArrayPos(sampidx,idxs); float val=vals.get(idxs) );
+}
+
+
+bool DataClipper::calculateRange( float cliprate, Interval<float>& range )
+				  
+{
+    return calculateRange( cliprate, cliprate, range );
+}
+
+
+bool DataClipper::calculateRange( float* vals, int nrvals, float lowcliprate,
+				  float highcliprate, Interval<float>& range )
+{
+    if ( !nrvals ) return false;
+
+    int firstidx = mNINT(lowcliprate*nrvals);
+    int topnr = mNINT(highcliprate*nrvals);
+    int lastidx = nrvals-topnr-1;
+
+    if ( firstidx && topnr )
+    {
+	sortFor( vals, nrvals, firstidx );
+	range.start = vals[firstidx];
+
+	sortFor( vals, nrvals, lastidx );
+	range.stop = vals[lastidx];
     }
     else
     {
+	float min, max;
+	bool isset = false;
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
-	    float val = vals.value(idx);
-	    if ( !mIsUdf( val ) ) samples += val;
+	    const float val = vals[idx];
+
+	    if ( mIsUdf(val) )
+		continue;
+
+	    if ( !isset || min>val )
+		min = val;
+
+	    if ( !isset || max<val )
+		max = val;
+
+	    isset = true;
 	}
+
+	if ( !isset )
+	    return false;
+
+	range.start = min;
+	range.stop = max;
     }
-}
 
-
-bool DataClipper::calculateRange()
-{
-    int nrvals = samples.size();
-    if ( !nrvals ) return false;
-
-    int firstidx = mNINT(cliprate0*nrvals);
-    int topnr = mNINT(cliprate1*nrvals);
-    int lastidx = nrvals-topnr-1;
-
-    sortFor( samples.arr(), nrvals, firstidx );
-    range.start = samples[firstidx];
-
-    sortFor( samples.arr(), nrvals, lastidx );
-    range.stop = samples[lastidx];
-
-    samples.erase();
-    subselect = false;
-    sampleprob = 1;
     return true;
 }
+
+
+bool DataClipper::calculateRange( float lowcliprate, float highcliprate,
+				  Interval<float>& range )
+				  
+{
+    const bool res = calculateRange( samples_.arr(), samples_.size(),
+	    lowcliprate, highcliprate, range );
+
+    reset();
+
+    return res;
+}
+
+
+bool DataClipper::fullSort()
+{
+    int nrvals = samples_.size();
+    if ( !nrvals ) return false;
+
+    if ( nrvals>100 )
+	quickSort( samples_.arr(), nrvals );
+    else
+	sort_array( samples_.arr(), nrvals );
+
+    return true;
+}
+
+
+bool DataClipper::getRange( float cliprate, Interval<float>& range ) const
+{
+    return getRange( cliprate/2, cliprate/2, range );
+}
+
+
+bool DataClipper::getRange( float lowclip, float highclip,
+			    Interval<float>& range ) const
+{
+    int nrvals = samples_.size();
+    if ( !nrvals ) return false;
+
+    int firstidx = mNINT(lowclip*nrvals);
+    int topnr = mNINT(highclip*nrvals);
+    int lastidx = nrvals-topnr-1;
+
+    range.start = samples_[firstidx];
+    range.stop = samples_[lastidx];
+    return true;
+}
+
+
+bool DataClipper::getSymmetricRange( float cliprate, float midval,
+				     Interval<float>& range ) const
+{
+    int nrvals = samples_.size();
+    if ( !nrvals ) return false;
+
+    const int nrincludedsamples = nrvals-mNINT(cliprate*nrvals);
+    const int halfnrsamples = nrincludedsamples/2;
+
+    int centeridx = -1;
+    IdxAble::findFPPos( samples_.arr(), samples_.size(), midval,-1,
+			centeridx );
+    if ( centeridx==-1 )
+    {
+	range.stop = samples_[nrincludedsamples-1];
+	range.start = 2 * midval-range.stop;
+    }
+    else if ( centeridx>=nrvals-1 )
+    {
+	range.start = samples_[nrvals-nrincludedsamples-1];
+	range.stop = 2*midval-range.start;
+    }
+    else if ( centeridx<halfnrsamples )
+    {
+	range.stop = samples_[centeridx+halfnrsamples];
+	range.start = 2 * midval-range.stop;
+    }
+    else 
+    {
+	range.start = samples_[centeridx-halfnrsamples];
+	range.stop = 2*midval-range.start;
+    }
+
+    return true;
+}
+
+
+void DataClipper::reset()
+{
+    samples_.erase();
+    subselect_ = false;
+    sampleprob_ = 1;
+}
+    
