@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.12 2007-02-26 17:54:11 cvsbert Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.13 2007-07-18 14:58:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "sets.h"
 #include "arraynd.h"
+#include "dataclipper.h"
 
 
 typedef Array2D<char>	A2DBitMap;
@@ -30,6 +31,7 @@ struct A2DBitMapGenPars
 		  , fliplr_(false)
 		  , fliptb_(false)
 		  , clipratio_(0.025)
+		  , midvalue_( mUdf(float) )
 		  , scale_(0,1)			{}
 
     bool	nointerpol_;	//!< Do not interpolate between actual samples
@@ -38,6 +40,7 @@ struct A2DBitMapGenPars
     bool	fliptb_;	//!< Flip top/bottom
     float	clipratio_;	//!< ratio of numbers to be clipped before
     				//!< determining min/max, only when autoscale_
+    float	midvalue_;	//!< if mUdf(float), use the median data value
     Interval<float> scale_;	//!< Used when autoscale_ is false
 
     static const char cNoFill;	//!< -127, = background/transparent
@@ -52,23 +55,18 @@ class A2DBitMapInpData
 public:
 
     			A2DBitMapInpData( const Array2D<float>& d )
-			    : data_(d)	{ collectData(); }
+			    : data_(d) { collectData(); }
 
     const Array2D<float>& data() const	{ return data_; }
-    int			nrPts() const	{ return statpts_.size(); }
-    Interval<float>	scale(float clipratio) const;
-    virtual float	midVal() const
-					{ return statpts_[nrPts()/2]; }
+    Interval<float>	scale(float clipratio,float midval) const;
+    virtual float	midVal() const;
 
     void		collectData(); //!< again.
 
 protected:
+    DataClipper			clipper_;
 
     const Array2D<float>&	data_;
-    TypeSet<float>		statpts_;
-
-    void		selectData();
-
 };
 
 

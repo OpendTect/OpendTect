@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.21 2007-06-25 21:41:55 cvskris Exp $
+ RCS:           $Id: flatview.h,v 1.22 2007-07-18 14:58:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,6 +152,7 @@ public:
 	Interval<float>	rg_;	   // default=mUdf(float)
 	float		clipperc_; // default from ColorTable
 	bool		blocky_;   // default=false
+	float		midvalue_; //!< undef => auto data mid
 
     };
 
@@ -160,7 +161,7 @@ public:
     {
     public:
 
-			VD()			{}
+			VD()		{}	
 
 	BufferString	ctab_;
 
@@ -175,16 +176,13 @@ public:
 			, mid_(Color::NoColor)
 			, left_(Color::NoColor)
 			, right_(Color::DgbColor)
-			, midvalue_(0)
-			, overlap_(1)		{}
+			, overlap_(1)		{ midvalue_ = 0; }
 
 	Color		wigg_;
 	Color		mid_;
 	Color		left_;
 	Color		right_;
 	float		overlap_;
-	float		midvalue_; //!< undef => auto data mid
-
     };
 
     			DataDispPars()		{}

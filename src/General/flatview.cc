@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.22 2007-07-17 15:21:28 cvskris Exp $
+ RCS:           $Id: flatview.cc,v 1.23 2007-07-18 14:58:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,6 +122,7 @@ FlatView::DataDispPars::Common::Common()
     , rg_(mUdf(float),mUdf(float))
     , clipperc_(ColorTable::defPercClip())
     , blocky_(false)
+    , midvalue_( mUdf(float) )
 {
 }
 
@@ -297,6 +298,7 @@ void FlatView::DataDispPars::fillPar( IOPar& iop ) const
     mIOPDoVD( set, sKeyColTab, vd_.ctab_ );
     mIOPDoVD( setYN, sKeyBlocky, vd_.blocky_ );
     mIOPDoVD( set, sKeyClipPerc, vd_.clipperc_ );
+    mIOPDoVD( set, sKeyMidValue, vd_.midvalue_ );
 
     mIOPDoWVA( setYN, sKeyShow, wva_.show_ );
     mIOPDoWVA2( set, sKeyDispRg, wva_.rg_.start, wva_.rg_.stop );
@@ -318,6 +320,7 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
     mIOPDoVD( get, sKeyColTab, vd_.ctab_ );
     mIOPDoVD( getYN, sKeyBlocky, vd_.blocky_ );
     mIOPDoVD( get, sKeyClipPerc, vd_.clipperc_ );
+    mIOPDoVD( get, sKeyMidValue, vd_.midvalue_ );
 
     mIOPDoWVA( getYN, sKeyShow, wva_.show_ );
     mIOPDoWVA2( get, sKeyDispRg, wva_.rg_.start, wva_.rg_.stop );

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmapimpl.h,v 1.7 2007-02-15 13:24:36 cvsbert Exp $
+ RCS:           $Id: array2dbitmapimpl.h,v 1.8 2007-07-18 14:58:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,9 +23,8 @@ struct WVAA2DBitMapGenPars : public A2DBitMapGenPars
 		  , drawmid_(false)
 		  , fillleft_(false)
 		  , fillright_(true)
-		  , midvalue_(0)
 		  , minpixperdim0_(2)
-		  , overlap_(0.5)	{}
+		  , overlap_(0.5)	{ midvalue_ = 0; }
 
     bool	drawwiggles_;	//!< Draw the wiggles themselves
     bool	drawmid_;	//!< Draw mid line for each trace
@@ -35,7 +34,6 @@ struct WVAA2DBitMapGenPars : public A2DBitMapGenPars
     float	overlap_;	//!< If > 0, part of the trace is drawn on
     				//!< both neighbours' display strip
     				//!< If < 0, uses less than entire strip
-    float	midvalue_;	//!< if mUdf(float), use the median data value
     int		minpixperdim0_;	//!< Set to 0 or neg for dump everything
 
     static const char	cZeroLineFill;		// => -126

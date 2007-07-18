@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.22 2007-03-10 12:13:46 cvsbert Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.23 2007-07-18 14:58:09 cvskris Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -23,75 +23,35 @@ const char VDA2DBitMapGenPars::cMinFill		= -120;
 const char VDA2DBitMapGenPars::cMaxFill		= 120;
 
 #define cNrFillSteps 241
-#define mMaxNrStatPts 2000
-#define mMinNrStatPts 100
+#define mMaxNrStatPts 5000
 #define mXPMStartLn '"'
 #define mXPMEndLn "\",\n"
 
 
-Interval<float> A2DBitMapInpData::scale( float clipratio ) const
+Interval<float> A2DBitMapInpData::scale( float clipratio, float midval ) const
 {
-    const int nrstatpts = nrPts();
-    int nroffs = (int)(clipratio * nrstatpts + .5);
-    if ( nroffs > nrstatpts / 2 - 1 )
-	nroffs = nrstatpts / 2 - 1;
-    if ( nroffs < 0 )
-	nroffs = 0;
+    Interval<float> res;
+    if ( mIsUdf(midval) )
+	clipper_.getRange( clipratio, res );
+    else
+	clipper_.getSymmetricRange( clipratio, midval, res );
+    return res;
+}
 
-    return Interval<float>( statpts_[nroffs], statpts_[nrstatpts-nroffs-1] );
+
+float A2DBitMapInpData::midVal() const
+{
+    const TypeSet<float>& statpts = clipper_.statPts();
+    return statpts[statpts.size()/2];
 }
 
 
 void A2DBitMapInpData::collectData()
 {
-    selectData();
-    quickSort( statpts_.arr(), statpts_.size() );
-}
-
-
-void A2DBitMapInpData::selectData()
-{
-    const int szdim0 = data_.info().getSize( 0 );
-    const int szdim1 = data_.info().getSize( 1 );
-    const int totnrsamps = szdim0 * szdim1;
-
-    if ( totnrsamps > mMaxNrStatPts )
-    {
-	const int maxtries = mMaxNrStatPts * 1000;
-	Stats::RandGen::init();
-	for ( int itry=0; itry<maxtries; itry++ )
-	{
-	    const int totidx = Stats::RandGen::getIndex( totnrsamps );
-	    const float val = data_.get( totidx / szdim1, totidx % szdim1 );
-	    if ( !mIsUdf(val) )
-	    {
-		statpts_ += val;
-		if ( statpts_.size() >= mMaxNrStatPts )
-		    return;
-	    }
-	}
-    }
-
-    if ( statpts_.size() >= mMinNrStatPts ) return;
-
-    for ( int idim0=0; idim0<szdim0; idim0++ )
-    {
-	for ( int idim1=0; idim1<szdim1; idim1++ )
-	{
-	    const float val = data_.get( idim0, idim1 );
-	    if ( !mIsUdf(val) )
-	    {
-		statpts_ += val;
-		if ( statpts_.size() >= mMaxNrStatPts )
-		    return;
-	    }
-	}
-    }
-
-    if ( statpts_.size() < 1 )
-	{ statpts_ += 0; statpts_ += 0; }
-    else if ( statpts_.size() < 2 )
-	statpts_ += statpts_[0];
+    clipper_.reset();
+    clipper_.setApproxNrValues( data_.info().getTotalSz(), mMaxNrStatPts );
+    clipper_.putData( data_ );
+    clipper_.fullSort();
 }
 
 
@@ -233,7 +193,7 @@ void A2DBitMapGenerator::fill()
     dim0perpix_ = 1. / setup_.getPixPerDim(0);
     dim1perpix_ = 1. / setup_.getPixPerDim(1);
 
-    scalerg_ = pars_.autoscale_ ? data_.scale( pars_.clipratio_ )
+    scalerg_ = pars_.autoscale_ ? data_.scale( pars_.clipratio_, pars_.midvalue_ )
 				: pars_.scale_;
     scalewidth_ = scalerg_.stop - scalerg_.start;
     if ( mIsZero(scalewidth_,1e-8) )
