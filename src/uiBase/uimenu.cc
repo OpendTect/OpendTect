@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.40 2007-07-11 04:23:29 cvsnanne Exp $
+ RCS:           $Id: uimenu.cc,v 1.41 2007-07-19 07:32:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -343,6 +343,8 @@ void uiMenuBar::setIcon( const QPixmap& pm )
 void uiMenuBar::setSensitive( bool yn )
 { body_->setSensitive( yn ); }
 
+bool uiMenuBar::isSensitive() const
+{ return body_->bar() && body_->bar()->isEnabled(); }
 
 // -----------------------------------------------------------------------
 

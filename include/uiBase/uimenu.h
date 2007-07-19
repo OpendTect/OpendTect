@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.35 2007-07-11 04:23:29 cvsnanne Exp $
+ RCS:           $Id: uimenu.h,v 1.36 2007-07-19 07:32:33 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -172,6 +172,7 @@ public:
     void			setIcon(const QPixmap&);
     void			setSensitive(bool yn);
     				/*!< Works on complete menubar */
+    bool			isSensitive() const;
 
 protected:
 				uiMenuBar(uiParent*,const char* nm);
