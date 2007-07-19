@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2005
- RCS:		$Id: valseriesevent.h,v 1.2 2007-06-27 10:44:34 cvsraman Exp $
+ RCS:		$Id: valseriesevent.h,v 1.3 2007-07-19 11:16:06 cvsraman Exp $
 ________________________________________________________________________
 
 */
@@ -73,6 +73,9 @@ public:
 
     ValueSeriesEvent<VT,PT>	find(VSEvent::Type,Interval<PT>,
 	    				int occ=1) const;
+    bool			findEvents(VSEvent::Type,
+	    				   TypeSet< ValueSeriesEvent<VT,PT> >&,
+					   Interval<PT>);
 
     static ValueSeriesEvent<VT,PT> exactExtreme(VSEvent::Type,
 	    				   int idxminus1,int idx0,int idx1,
@@ -336,6 +339,43 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::find(
 
     return retev;
 }
+
+
+//  Gives a TypeSet of all the Max/Min events making sure that there is a 
+//  reverse event type i.e. Min/Max between any two of these events:
+template <class VT,class PT>
+inline bool ValueSeriesEvFinder<VT,PT>::findEvents( VSEvent::Type evtype,
+				TypeSet< ValueSeriesEvent<VT,PT> >& evset,
+				Interval<PT> pg)
+{
+    Interval<PT> curg( pg );
+    VSEvent::Type revtype;
+    if ( evtype == VSEvent::Max )
+	revtype = VSEvent::Min;
+    else if ( evtype == VSEvent::Min )
+	revtype = VSEvent::Max;
+    else 
+	return false;
+
+    evset.erase();
+    while ( true )
+    {
+	ValueSeriesEvent<VT,PT> reqev = find( evtype, curg, 1 );
+	if ( mIsUdf(reqev.pos) ) break;
+
+	evset += reqev;
+	curg.start = reqev.pos;
+	ValueSeriesEvent<VT,PT> revev = find( revtype, curg, 1 );
+	if ( mIsUdf(reqev.pos) ) break;
+
+	curg.start = revev.pos;
+    }
+
+    if ( !evset.size() ) return false;
+
+    return true;
+}
+
 
 #undef mIncSampIdx
 #undef mDecrOccAtZero
