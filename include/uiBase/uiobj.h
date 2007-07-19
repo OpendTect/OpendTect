@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.48 2007-05-11 12:43:35 cvsjaap Exp $
+ RCS:           $Id: uiobj.h,v 1.49 2007-07-19 07:34:11 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,6 +84,7 @@ public:
     void		setBackgroundPixmap(const ioPixmap&);
     void		setSensitive(bool yn=true);
     bool		sensitive() const;
+    bool		visible() const;
 
     int			prefHNrPics() const;
     virtual void	setPrefWidth(int);

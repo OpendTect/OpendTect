@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.cc,v 1.13 2007-03-22 13:23:07 cvsdgb Exp $
+ RCS:           $Id: uiobjbody.cc,v 1.14 2007-07-19 07:34:11 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,6 +134,10 @@ void uiObjectBody::uisetSensitive( bool yn )
 
 bool uiObjectBody::uisensitive() const
 { return qwidget() ? qwidget()->isEnabled() : false; }
+
+
+bool uiObjectBody::uivisible() const
+{ return qwidget() ? qwidget()->isVisible() : false; }
 
 
 void uiObjectBody::reDraw( bool deep )

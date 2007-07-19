@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.65 2007-05-09 16:53:08 cvsjaap Exp $
+ RCS:           $Id: uiobj.cc,v 1.66 2007-07-19 07:34:11 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -252,12 +252,16 @@ void uiObject::setBackgroundPixmap( const char* img[] )
 void uiObject::setBackgroundPixmap( const ioPixmap& pm )
     { mBody()->uisetBackgroundPixmap( pm ); }
 
+
 void uiObject::setSensitive(bool yn)	
     { mBody()->uisetSensitive(yn); }
 
-
 bool uiObject::sensitive() const
     { return mConstBody()->uisensitive(); }
+
+
+bool uiObject::visible() const
+    { return mConstBody()->uivisible(); }
 
 
 int uiObject::prefHNrPics() const
