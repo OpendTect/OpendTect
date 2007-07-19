@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.33 2007-05-09 16:52:40 cvsjaap Exp $
+ RCS:           $Id: uigroup.h,v 1.34 2007-07-19 12:28:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,9 +86,6 @@ public:
     void		setHCentreObj( uiObject* o );
     void		setHCentreObj( uiGroup* o )
 			    { setHCentreObj(o->mainObject()); }
-
-    virtual bool	fillPar( IOPar& ) const		{ return true; }
-    virtual void	usePar( const IOPar& )		{}
 
     //! internal use only. Tells the layout manager it's a toplevel mngr.
     void		setIsMain( bool ); 
