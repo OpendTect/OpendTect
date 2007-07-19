@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qbutton.h,v 1.13 2007-05-09 16:52:40 cvsjaap Exp $
+ RCS:           $Id: i_qbutton.h,v 1.14 2007-07-19 07:30:04 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,8 @@ public:
 
 protected:
     bool			event( QEvent* ev )
-					{ return _receiver->handleEvent(ev); }
+				{ return _receiver->handleEvent(ev)
+						? true : QObject::event(ev); }
 
 private:
 

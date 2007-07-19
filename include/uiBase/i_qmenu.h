@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qmenu.h,v 1.7 2007-07-11 04:23:29 cvsnanne Exp $
+ RCS:           $Id: i_qmenu.h,v 1.8 2007-07-19 07:30:36 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,8 +34,9 @@ protected:
                                 : _receiver( receiver )
 				{}
 
-    bool			event( QEvent* ev )
-					  { return _receiver->handleEvent(ev); }
+    bool			event( QEvent* ev ) 
+				{ return _receiver->handleEvent(ev) 
+						? true : QObject::event(ev); }
 
 private:
 
