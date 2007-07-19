@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.48 2007-07-17 16:08:10 cvsbert Exp $
+ RCS:		$Id: ranges.h,v 1.49 2007-07-19 20:30:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,6 +94,7 @@ public:
     inline		StepInterval();
     inline		StepInterval(const T& start,const T& stop,
 				     const T& step);
+
     inline
     virtual cloneTp*	clone() const;
     inline void		set(const T& start,const T& stop,const T& step);
@@ -104,6 +105,8 @@ public:
     const StepInterval<T>& setFrom(const Interval<X>&);
 
     inline bool		isEqual(const StepInterval<T>& i,const T& eps) const;
+    inline bool		operator==(const StepInterval<T>&) const;
+    inline bool		operator!=(const StepInterval<T>&) const;
     inline T		atIndex(int) const;
     template <class X>
     inline int		getIndex(const X&) const;
@@ -466,6 +469,16 @@ void StepInterval<T>::set( const T& t1, const T& t2, const T& t3 )
 template <class T> inline
 bool StepInterval<T>::isEqual( const StepInterval<T>& i, const T& eps ) const
 { return Interval<T>::isEqual(i,eps) && mIsEqual(step,i.step,eps); }
+
+
+template <class T> inline
+bool StepInterval<T>::operator==( const StepInterval<T>& i ) const
+{ return Interval<T>::operator==(i) && i.step==step; }
+
+
+template <class T> inline
+bool StepInterval<T>::operator!=( const StepInterval<T>& i ) const
+{ return ! (i == *this); }
 
 
 template <class T> template <class X> inline
