@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.127 2007-07-11 04:23:29 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.128 2007-07-19 07:31:47 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,11 +54,16 @@ ________________________________________________________________________
 # include <QCloseEvent>
 #endif
 
-#include <qwidget.h>
-#include <qstatusbar.h>
 #include <qapplication.h>
-#include <qpixmap.h>
+#include <qcolordialog.h>
+#include <qdialog.h>
+#include <qfiledialog.h>
+#include <qfontdialog.h>
 #include <qlayout.h>
+#include <qmessagebox.h>
+#include <qpixmap.h>
+#include <qstatusbar.h>
+#include <qwidget.h>
 
 #include "dtect.xpm"
 
@@ -119,6 +124,9 @@ public:
 
     void		close();
 
+    void		activateClose();  //! force activation in GUI thread
+    void		activateQDlg( int retval ); 
+
     bool		poppedUp() const { return popped_up; }
     bool		touch()
 			{
@@ -147,8 +155,11 @@ protected:
 
     virtual void	finalise( bool trigger_finalise_start_stop=true );
     void		closeEvent(QCloseEvent*);
+    void 		closeQDlgChild(int retval,bool parentcheck=true);
+    bool		event(QEvent*);
 
     bool		exitapponclose_;
+    int			qdlgretval_;
 
     uiStatusBar* 	statusbar;
     uiMenuBar* 		menubar;
@@ -305,6 +316,56 @@ void uiMainWinBody::close()
 }
 
 
+void uiMainWinBody::closeQDlgChild( int retval, bool parentcheck )
+{
+    QWidget* _amw = qApp->activeModalWidget();
+    if ( !_amw ) 
+	return;
+
+    QDialog* _qdlg = dynamic_cast<QDialog*>(_amw);
+    if ( !_qdlg ) 
+	return;
+    if ( parentcheck && _qdlg->parent()!=this )
+	return;
+
+    _qdlg->done( retval );
+}
+
+
+static const QEvent::Type sQEventActClose = (QEvent::Type) (QEvent::User+0);
+static const QEvent::Type sQEventActQDlg  = (QEvent::Type) (QEvent::User+1);
+
+bool uiMainWinBody::event( QEvent* ev )
+{
+    if ( ev->type() == sQEventActClose )
+	close(); 
+    else if ( ev->type() == sQEventActQDlg )
+	closeQDlgChild( qdlgretval_, false );
+	// Using parentcheck=true would be neat, but it turns out that
+	// QDialogs not always have their parent set correctly (yet).
+    else
+	return QMainWindow::event( ev );
+    
+    handle_.activatedone.trigger(handle_);
+    return true; 
+}
+
+
+void uiMainWinBody::activateClose()
+{
+    QEvent* actcloseevent = new QEvent( sQEventActClose );
+    QApplication::postEvent( this, actcloseevent );
+}
+
+
+void uiMainWinBody::activateQDlg( int retval )
+{
+    qdlgretval_ = retval;
+    QEvent* actqdlgevent = new QEvent( sQEventActQDlg );
+    QApplication::postEvent( this, actqdlgevent );
+}
+
+
 uiStatusBar* uiMainWinBody::uistatusbar()
 {
     return statusbar;
@@ -365,6 +426,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
     , body_( 0 )
     , parent_( parnt )			
     , windowClosed(this)
+    , activatedone( this )
 { 
     body_= new uiMainWinBody( *this, parnt, nm, modal ); 
     setBody( body_ );
@@ -374,11 +436,12 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
 }
 
 
-uiMainWin::uiMainWin( const char* nm )
+uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
     : uiParent( nm, 0 )
     , body_( 0 )			
-    , parent_( 0 )			
+    , parent_( parnt )
     , windowClosed(this)
+    , activatedone( this )
 {}
 
 
@@ -403,6 +466,8 @@ uiMenuBar* uiMainWin::menuBar()			{ return body_->uimenubar(); }
 
 void uiMainWin::show()				{ body_->go(); }
 void uiMainWin::close()				{ body_->close(); }
+void uiMainWin::activateClose()			{ body_->activateClose(); }
+void uiMainWin::activateQDlg( int retval )	{ body_->activateQDlg(retval); }
 void uiMainWin::setCaption( const char* txt )	{ body_->setCaption(txt); }
 void uiMainWin::reDraw(bool deep)		{ body_->reDraw(deep); }
 bool uiMainWin::poppedUp() const		{ return body_->poppedUp(); }
@@ -410,6 +475,7 @@ bool uiMainWin::touch() 			{ return body_->touch(); }
 bool uiMainWin::finalised() const		{ return body_->finalised(); }
 void uiMainWin::setExitAppOnClose( bool yn )	{ body_->exitapponclose_ = yn; }
 bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
+bool uiMainWin::isModal() const			{ return body_->isModal(); }
 
 void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d, int index )
     { body_->uimoveDockWindow(dwin,d,index); }
@@ -500,16 +566,89 @@ uiMainWin* uiMainWin::activeWindow()
 }
 
 
-uiMainWin* uiMainWin::activeModalWidget()
+uiMainWin::ActModalTyp uiMainWin::activeModalType()
 {
-    QWidget* _amw = qApp->activeModalWidget();
-    if ( !_amw )	return 0;
+    QWidget* amw = qApp->activeModalWidget();
+    if ( !amw )					return None;
 
-    uiMainWinBody* _awb = dynamic_cast<uiMainWinBody*>(_amw);
-    if ( !_awb )	return 0;
+    if ( dynamic_cast<uiMainWinBody*>(amw) ) 	return Main;
+    if ( dynamic_cast<QMessageBox*>(amw) ) 	return Message;
+    if ( dynamic_cast<QFileDialog*>(amw) ) 	return File;
+    if ( dynamic_cast<QColorDialog*>(amw) ) 	return Colour;
+    if ( dynamic_cast<QFontDialog*>(amw) ) 	return Font;
 
-    return &_awb->handle();
+    return Unknown;
+}
+    
 
+uiMainWin* uiMainWin::activeModalWindow()
+{
+    QWidget* amw = qApp->activeModalWidget();
+    if ( !amw )	return 0;
+
+    uiMainWinBody* mwb = dynamic_cast<uiMainWinBody*>( amw );
+    if ( !mwb )	return 0;
+
+    return &mwb->handle();
+}
+
+
+char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
+{
+    const ActModalTyp typ = activeModalType();
+    QWidget* amw = qApp->activeModalWidget();
+
+    if ( typ == Message )
+    {
+        const QMessageBox* qmb = dynamic_cast<QMessageBox*>( amw );
+	const char* buttext = qmb->buttonText( buttonnr );
+	return const_cast<char*>( buttext );
+    }
+
+    if ( typ==Colour || typ==Font )
+    {
+	if ( buttonnr == 0 ) return "Cancel";
+	if ( buttonnr == 1 ) return "OK";
+	return "";
+    }
+
+    if ( typ == File )
+    {
+	if ( buttonnr == 0 ) return "Cancel";
+	if ( buttonnr == 1 )
+	{
+	    const QFileDialog* qfd = dynamic_cast<QFileDialog*>( amw );
+
+	    if ( qfd->acceptMode() == QFileDialog::AcceptOpen ) return "Open";
+	    if ( qfd->acceptMode() == QFileDialog::AcceptSave ) return "Save";
+	}
+	return "";
+    }
+    
+    return 0;
+}
+
+
+int uiMainWin::activeModalQDlgRetVal( int buttonnr )
+{
+    return buttonnr;
+}
+
+
+void uiMainWin::getTopLevelWindows( ObjectSet<uiMainWin>& windowlist )
+{
+    windowlist.erase();
+    const QWidgetList toplevelwigs = qApp->topLevelWidgets();
+    for ( int idx=0; idx<toplevelwigs.count(); idx++ )
+    {
+	QWidget* widget = toplevelwigs.at( idx );
+	if ( widget && !widget->isHidden() )
+	{
+	    uiMainWinBody* uimwb = dynamic_cast<uiMainWinBody*>(widget);
+	    if ( uimwb )
+		windowlist += &uimwb->handle();
+	}
+    }
 }
 
 
@@ -1000,7 +1139,7 @@ void uiDialogBody::provideHelp( CallBacker* )
 #define mBody static_cast<uiDialogBody*>(body_)
 
 uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
-	: uiMainWin(s.wintitle_)
+	: uiMainWin( s.wintitle_, p )
     	, cancelpushed_(false)
 {
     body_= new uiDialogBody( *this, p, s );

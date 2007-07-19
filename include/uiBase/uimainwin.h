@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.48 2007-05-15 15:05:22 cvsbert Exp $
+ RCS:           $Id: uimainwin.h,v 1.49 2007-07-19 07:31:47 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,13 +64,27 @@ public:
     uiMenuBar* 		menuBar();
 
     static uiMainWin*	activeWindow();
-    static uiMainWin*	activeModalWidget();
+
+    enum ActModalTyp	{ None=0, Main, Message, File, Colour, Font, Unknown };
+    static ActModalTyp	activeModalType();
+    static uiMainWin*	activeModalWindow();
+
+    static char*	activeModalQDlgButTxt(int butnr);
+    static int		activeModalQDlgRetVal(int butnr);
+
+    static void		getTopLevelWindows( ObjectSet<uiMainWin>& );
 
     void		setCaption( const char* txt );
     void		setIcon(const char* img[],const char* icntxt); //!< XPM
     void                show();
     void                close();
+
+    void		activateClose();    //! Force activation in GUI thread
+    void		activateQDlg(int retval);
+    Notifier<uiMainWin> activatedone;
+
     bool		isHidden() const;
+    bool		isModal() const;
 
     void		setSensitive(bool yn=true);
 
@@ -114,7 +128,7 @@ protected:
 
     virtual bool	closeOK() 	{return true;}//!< confirm window close
 
-			uiMainWin( const char* );
+			uiMainWin(const char*,uiParent*);
     uiObject*		mainobject();
 
     uiMainWinBody*	body_;
