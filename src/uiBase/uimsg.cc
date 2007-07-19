@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.32 2007-01-08 14:02:27 cvsnanne Exp $
+ RCS:           $Id: uimsg.cc,v 1.33 2007-07-19 07:33:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,8 +123,7 @@ void uiMsg::message( mDeclArgs )
 void uiMsg::warning( mDeclArgs )
 {
     mPrepTxt();
-    QMessageBox::warning( popParnt(), mCapt("Warning"), mTxt, QMessageBox::Ok,
-			  QMessageBox::NoButton, QMessageBox::NoButton );
+    QMessageBox::warning( popParnt(), mCapt("Warning"), mTxt, QString("&Ok") );
 }
 
 
