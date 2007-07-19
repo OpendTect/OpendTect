@@ -39,21 +39,22 @@ class uiCmdDriverMgr : public CallBacker
 public:
     			uiCmdDriverMgr(uiODMain&);
 
-    uiODMain&		appl;
-    CmdDriver*		drv;
+    uiODMain&		appl_;
+    CmdDriver*		drv_;
+    uiMenuItem*		cmddrvmnuitm_;
     void		doIt(CallBacker*);
 
 };
 
 
 uiCmdDriverMgr::uiCmdDriverMgr( uiODMain& a )
-    	: appl(a)
-    	, drv(0)
+    	: appl_(a)
+    	, drv_(0)
 {
-    uiODMenuMgr& mnumgr = appl.menuMgr();
-    uiMenuItem* newitem = new uiMenuItem( "Command &Driver ...",
-	    				  mCB(this,uiCmdDriverMgr,doIt) );
-    mnumgr.utilMnu()->insertItem( newitem );
+    uiODMenuMgr& mnumgr = appl_.menuMgr();
+    cmddrvmnuitm_ = new uiMenuItem( "Command &Driver ...",
+				    mCB(this,uiCmdDriverMgr,doIt) );
+    mnumgr.utilMnu()->insertItem( cmddrvmnuitm_ );
 }
 
 
@@ -122,18 +123,16 @@ bool acceptOK( CallBacker* )
 
 void uiCmdDriverMgr::doIt( CallBacker* )
 {
-    if ( drv ) delete drv;
-    drv = new CmdDriver;
-    uiCmdDriverInps* dlg = new uiCmdDriverInps( &appl, *drv );
+    if ( drv_ ) delete drv_;
+    drv_ = new CmdDriver( cmddrvmnuitm_ );
+    uiCmdDriverInps* dlg = new uiCmdDriverInps( &appl_, *drv_ );
     bool ret = dlg->go();
     delete dlg;
     if ( !ret )
-    	{ delete drv; drv = 0; return; }
+    	{ delete drv_; drv_ = 0; return; }
 
-    drv->execute();
+    drv_->execute();
 }
-
-
 
 
 extern "C" const char* InitCmdDriverPlugin( int, char** )
