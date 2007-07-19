@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.49 2007-07-19 07:31:47 cvsjaap Exp $
+ RCS:           $Id: uimainwin.h,v 1.50 2007-07-19 13:23:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ public:
 
     void		setCaption( const char* txt );
     void		setIcon(const char* img[],const char* icntxt); //!< XPM
-    void                show();
+    virtual void        show();
     void                close();
 
     void		activateClose();    //! Force activation in GUI thread
