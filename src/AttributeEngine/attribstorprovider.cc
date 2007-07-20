@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.67 2007-05-10 08:21:13 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.68 2007-07-20 15:47:00 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -281,7 +281,10 @@ bool StorageProvider::getPossibleVolume( int, CubeSampling& res )
     
     *possiblevolume = storedvolume_;
     res.limitToWithUdf( *possiblevolume );
-    if ( res.hrg.inlRange().width(false)<0 || res.hrg.crlRange().width(false)<0)
+    const bool is2d = mscprov_->is2D();
+    bool isseltable = seldata_ && seldata_->type_ == Seis::Table;
+    if ( !( is2d && isseltable ) && res.hrg.inlRange().width(false)<0
+	 || res.hrg.crlRange().width(false)<0 )
 	return false;
 
     return true;
