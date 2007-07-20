@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2006
- RCS:           $Id: uidlggroup.cc,v 1.2 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: uidlggroup.cc,v 1.3 2007-07-20 15:49:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ bool uiTabStackDlg::acceptOK(CallBacker*)
 {
     for ( int idx=groups_.size()-1; idx>=0; idx-- )
     {
+	tabstack_->setCurrentPage( groups_[idx] );
 	if ( !groups_[idx]->acceptOK() )
 	{
 	    const char* errmsg = groups_[idx]->errMsg();
