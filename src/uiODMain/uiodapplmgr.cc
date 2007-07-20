@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.191 2007-07-11 10:34:48 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.192 2007-07-20 15:49:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,6 @@ ________________________________________________________________________
 #include "uistereodlg.h"
 #include "uishortcuts.h"
 
-#include "stratunitrepos.h"
 #include "uistrattreewin.h"
 
 
@@ -271,7 +270,7 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 
 void uiODApplMgr::manStrat()
 {
-    uiStratTreeWin treewin( &appl_, &Strat::RT() );
+    uiStratTreeWin treewin( &appl_ );
     treewin.show();
 }
 

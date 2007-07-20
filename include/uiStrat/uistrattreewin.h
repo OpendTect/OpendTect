@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.1 2007-07-09 10:12:07 cvshelene Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.2 2007-07-20 15:49:36 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class uiStratTreeWin : public uiMainWin
 {
 public:
 
-			uiStratTreeWin(uiParent*,const Strat::RefTree*);
+			uiStratTreeWin(uiParent*);
 			~uiStratTreeWin();
 
 protected:
