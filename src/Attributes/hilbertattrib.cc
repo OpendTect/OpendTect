@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.19 2007-04-13 07:59:14 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.20 2007-07-20 14:41:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,11 +94,8 @@ float operator[]( int idx ) const
     const int pos = shift_ + idx;
     float val = mUdf(float);
     if ( pos < 0 )
-    {
-	
 	val = data_->series(dataidx_)->value(0) - avg_;
-    }
-    if ( pos >= data_->nrsamples_ )
+    else if ( pos >= data_->nrsamples_ )
 	val = data_->series(dataidx_)->value(data_->nrsamples_-1) - avg_;
     else
 	val = data_->series(dataidx_)->value( pos );
