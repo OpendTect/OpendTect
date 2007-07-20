@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.20 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: uiseissel.h,v 1.21 2007-07-20 15:32:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ public:
     const char*		attrNm() const		{ return attrnm.buf(); }
     virtual void	processInput();
     virtual bool	existingTyped() const;
+    virtual void	updateInput();
 
 protected:
 
@@ -72,7 +73,6 @@ protected:
     IOPar&		dlgiopar;
     IOPar&		orgparconstraints;
 
-    virtual void	updateInput();
     virtual void	newSelection(uiIOObjRetDlg*);
     virtual const char*	userNameFromKey(const char*) const;
     virtual uiIOObjRetDlg* mkDlg();
