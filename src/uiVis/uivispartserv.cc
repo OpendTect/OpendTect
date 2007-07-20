@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.350 2007-06-29 11:52:53 cvshelene Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.351 2007-07-20 14:12:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , mpetools_(0)
     , slicepostools_(0)
     , pickretriever_( new uiVisPickRetriever )
+    , nrsceneschange_( this )
 {
     menu_.ref();
     menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
@@ -154,6 +155,7 @@ int uiVisPartServer::addScene( visSurvey::Scene* newscene )
     newscene->ref();
     scenes_ += newscene;
     pickretriever_->addScene( newscene );
+    nrsceneschange_.trigger();
     return newscene->id();
 }
 
@@ -167,6 +169,7 @@ void uiVisPartServer::removeScene( int sceneid )
 	pickretriever_->removeScene( scene );
 	scene->unRef();
 	scenes_ -= scene;
+	nrsceneschange_.trigger();
 	return;
     }
 }
@@ -790,6 +793,7 @@ bool uiVisPartServer::deleteAllObjects()
 	removeScene( scenes_[0]->id() );
 
     scenes_.erase();
+    nrsceneschange_.trigger();
     return visBase::DM().removeAll();
 }
 

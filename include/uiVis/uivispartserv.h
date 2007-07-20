@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.191 2007-06-29 11:52:52 cvshelene Exp $
+ RCS:           $Id: uivispartserv.h,v 1.192 2007-07-20 14:12:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,6 +82,7 @@ public:
 			    Don't use the argument when calling from outside.
 			*/
     void		removeScene(int);
+    NotifierAccess&	nrScenesChange() { return nrsceneschange_; }
     bool		clickablesInScene(const char* trackertype, 
 					  int sceneid) const;
 
@@ -361,6 +362,7 @@ protected:
     uiVisModeMgr*		vismgr_;
     bool			blockmenus_;
     uiVisPickRetriever*		pickretriever_;
+    Notifier<uiVisPartServer>	nrsceneschange_;
 };
 
 
