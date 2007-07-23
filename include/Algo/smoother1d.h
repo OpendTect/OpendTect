@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		May 2007
- RCS:		$Id: smoother1d.h,v 1.2 2007-06-21 21:27:10 cvskris Exp $
+ RCS:		$Id: smoother1d.h,v 1.3 2007-07-23 17:01:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ public:
 	    				  int lenght );
     int				getWindowLength() const {return window_.size();}
     const char*			getWindowName() const{return windowname_.buf();}
+    float			getWindowParam() const{return windowparam_;}
 
     inline void			fillPar(IOPar&) const;
     inline bool			usePar(const IOPar&);
