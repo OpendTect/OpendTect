@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2005
- RCS:		$Id: valseriesevent.h,v 1.4 2007-07-23 05:39:52 cvsraman Exp $
+ RCS:		$Id: valseriesevent.h,v 1.5 2007-07-23 11:36:36 cvsraman Exp $
 ________________________________________________________________________
 
 */
@@ -331,8 +331,8 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::find(
     {
 	retev = getExtreme( sg, occ, evtype );
 	if ( mIsUdf(retev.pos) ) break;
-	if ( ( inc > 0 && retev.pos < pg.start ) || 
-	     ( inc < 0 && retev.pos > pg.start ) )
+	if ( ( inc > 0 && retev.pos <= pg.start ) || 
+	     ( inc < 0 && retev.pos >= pg.start ) )
 	    occ++;
 	else break;
     }
