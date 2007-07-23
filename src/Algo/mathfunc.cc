@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: mathfunc.cc,v 1.5 2007-07-06 16:43:16 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: mathfunc.cc,v 1.6 2007-07-23 15:09:40 cvskris Exp $";
 
 
 #include "mathfunc.h"
@@ -77,7 +77,7 @@ float PointBasedMathFunction::outsideVal( float x ) const
 {
     if ( !extrapol_ ) return mUdf(float);
     const int sz = x_.size();
-    return x-x_[0] < x_[sz-1]-x ? x_[0] : x_[sz-1];
+    return x-x_[0] < x_[sz-1]-x ? y_[0] : y_[sz-1];
 }
 
 
@@ -95,7 +95,7 @@ float PointBasedMathFunction::snapVal( float x ) const
 	return y_[0];
     if ( baseidx > sz-2 )
 	return y_[sz - 1];
-    return x - x_[baseidx] < x_[baseidx+1] - x ? x_[baseidx] : x_[baseidx+1];
+    return x - x_[baseidx] < x_[baseidx+1] - x ? y_[baseidx] : y_[baseidx+1];
 }
 
 
