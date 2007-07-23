@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmutedef.cc,v 1.3 2007-07-11 21:06:34 cvsyuancheng Exp $
+ RCS:		$Id: prestackmutedef.cc,v 1.4 2007-07-23 15:09:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,10 +87,20 @@ void MuteDef::remove( int idx )
 
 float MuteDef::value( float offs, const BinID& pos ) const
 {
+    if ( pos.inl<0 || pos.crl<0 )
+	return mUdf(float);
+
     if ( fns_.size() < 1 )
-	return 0;
+	return mUdf(float);
     else if ( fns_.size() == 1 )
 	return fns_[0]->getValue( offs );
+
+    const Coord si00 = SI().transform(
+	    BinID(SI().inlRange(true).start, SI().crlRange(true).start ) );
+    const Coord si11 = SI().transform(
+	    BinID(SI().inlRange(true).stop, SI().crlRange(true).stop ) );
+
+    const double normalweight = si00.sqDistTo( si11 );
 
     const Coord centercrd( SI().transform(pos) );
     Stats::RunCalcSetup rcsetup( true ); //weighted
@@ -102,7 +112,7 @@ float MuteDef::value( float offs, const BinID& pos ) const
 	const float val = fns_[iloc]->getValue( offs );
 	const double sqdist = crd.sqDistTo( centercrd );
 	if ( sqdist < 1 ) return val;
-	calc.addValue( val, 1 / sqdist );
+	calc.addValue( val, normalweight / sqdist );
     }
 
     return calc.mean();
