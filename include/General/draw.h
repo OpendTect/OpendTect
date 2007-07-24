@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.17 2007-07-11 15:39:33 cvsbert Exp $
+ RCS:           $Id: draw.h,v 1.18 2007-07-24 17:16:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,24 +132,26 @@ public:
 			: type_(t)
 			, linestyle_(LineStyle::Solid,boldness)
 			, headtype_(Line), tailtype_(Line)
+			, fixedheadsz_(true)
 			, handedness_(TwoHanded)
 					{ setBoldNess(boldness); }
 
     inline void		setBoldNess( int b )
-			{ linestyle_.width_ = b; headsz_ = 3*b; tailsz_ = 2*b; }
+			{ linestyle_.width_ = b; headsz_ = 3*b; }
 
     inline bool		hasHead() const
-    			{ return type_ < TailOnly; }
+    			{ return headsz_ > 0 && type_ < TailOnly; }
     inline bool		hasTail() const
-    			{ return type_ == TwoSided || type_ == TailOnly; }
+    			{ return headsz_ > 0
+			      && (type_ == TwoSided || type_ == TailOnly); }
 
     Type		type_;
     LineStyle		linestyle_;	//!< contains the color
     HeadType		headtype_;
-    int			headsz_;
     HeadType		tailtype_;
-    int			tailsz_;
     HandedNess		handedness_;
+    int			headsz_; //!< also the tail size
+    bool		fixedheadsz_; //!< if false, headsz_ is % of arrow len
 
 };
 
