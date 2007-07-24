@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.29 2007-05-28 15:13:46 cvskris Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.30 2007-07-24 17:17:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -280,11 +280,28 @@ void uiFlatViewer::drawGridAnnot()
     axesdrawer_.draw( datarect, wr_ );
 
     const uiSize totsz( canvas_.width(), canvas_.height() );
+    const int ynameannpos = totsz.height() - 2;
+    const ArrowStyle arrowstyle( 3 );
     if ( showanyx1annot && !ad1.name_.isEmpty() )
-	dt.drawText( uiPoint(totsz.width()-2,totsz.height()-2), ad1.name_,
+    {
+	uiPoint from( totsz.width()-12, ynameannpos-5 );
+	uiPoint to( totsz.width()-2, ynameannpos-5 );
+	if ( ad1.reversed_ ) Swap( from, to );
+	dt.drawArrow( from, to, arrowstyle );
+	dt.drawText( uiPoint(totsz.width()-14,ynameannpos), ad1.name_,
 		     mAlign(Stop,Stop) );
+    }
     if ( showanyx2annot && !ad2.name_.isEmpty() )
-	dt.drawText( uiPoint(2,2), ad2.name_, mAlign(Start,Start) );
+    {
+	const int left = datarect.left();
+	uiPoint from( left, ynameannpos );
+	uiPoint to( left, ynameannpos-12 );
+	if ( ad2.reversed_ ) Swap( from, to );
+	dt.drawArrow( from, to, arrowstyle );
+	dt.drawText( uiPoint(left+10,ynameannpos), ad2.name_,
+		     mAlign(Start,Stop) );
+    }
+
 }
 
 
