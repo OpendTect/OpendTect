@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2004
- RCS:		$Id: filepath.h,v 1.6 2005-12-06 15:33:09 cvskris Exp $
+ RCS:		$Id: filepath.h,v 1.7 2007-07-24 09:56:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,7 @@ public:
     BufferString	dirUpTo(int) const;
     			//!< nr < 0 returns last dir, including prefix
 
+    static BufferString	getTempDir();
     static BufferString	getTempName(const char* ext=0);
     static BufferString	mkCleanPath(const char* path, Style fmt);
 

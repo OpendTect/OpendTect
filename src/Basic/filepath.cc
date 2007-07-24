@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.19 2006-11-21 14:00:06 cvsbert Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.20 2007-07-24 09:56:15 cvsnanne Exp $";
 
 #include "filepath.h"
 #include "envvars.h"
@@ -239,7 +239,7 @@ BufferString FilePath::dirUpTo( int lvl ) const
 }
 
 
-BufferString FilePath::getTempName( const char* ext )
+BufferString FilePath::getTempDir()
 {
     BufferString fname;
 
@@ -263,14 +263,21 @@ BufferString FilePath::getTempName( const char* ext )
 	}
     }
 
-    fname += dirSep(Local); fname += "od";
-
 #else
 
-    fname = "/tmp/od";
+    fname = "/tmp";
 
 #endif
 
+    return fname;
+}
+
+
+BufferString FilePath::getTempName( const char* ext )
+{
+    FilePath fp( getTempDir() );
+
+    BufferString fname( "od" );
     static int counter = 0;
     int time_stamp = time( (time_t*)0 ) + counter++;
     char uniquestr[80];
@@ -283,7 +290,8 @@ BufferString FilePath::getTempName( const char* ext )
 	fname += ext;
     }
 
-    return fname;
+    fp.add( fname );
+    return fp.fullPath();
 }
 
 
