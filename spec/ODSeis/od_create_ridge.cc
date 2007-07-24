@@ -1,0 +1,101 @@
+/*+
+ * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
+ * AUTHOR   : R. K. Singh
+ * DATE     : July 2007
+ * RCS      : $Id: od_create_ridge.cc,v 1.1 2007-07-24 04:30:59 cvsraman Exp $
+-*/
+
+#include "conn.h"
+#include "cubesampling.h"
+#include "filegen.h"
+#include "filepath.h"
+#include "iostrm.h"
+#include "ptrman.h"
+#include "seistrc.h"
+#include "seiscbvs.h"
+#include "strmprov.h"
+#include "valseriesevent.h"
+
+#include "prog.h"
+
+
+static int doWork( int argc, char** argv )
+{
+    if ( argc < 3 )
+    {
+	FilePath fp( argv[0] );
+	std::cerr << "Usage: " << fp.fileName()
+		  << " [Event Type (Min/Max)] inpfile outpfile"
+		  << std::endl;
+	return 1;
+    }
+
+    bool is2d = false;
+
+    FilePath fp( argv[2] ); 
+    if ( !File_exists(fp.fullPath()) )
+    {
+        std::cerr << fp.fullPath() << " does not exist" << std::endl;
+        return 1;
+    }
+    else if ( !fp.isAbsolute() )
+        fp.insert( File_getCurrentDir() );
+
+    BufferString fname=fp.fullPath();
+
+    PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
+    tri->set2D( is2d );
+    if ( !tri->initRead(new StreamConn(fname,Conn::Read)) )
+        { std::cerr << tri->errMsg() << std::endl; return 1; }
+
+    fp.set( argv[3] ); 
+    if ( !fp.isAbsolute() ) { fp.insert( File_getCurrentDir() ); }
+    fname = fp.fullPath();
+
+    PtrMan<CBVSSeisTrcTranslator> tro = CBVSSeisTrcTranslator::getInstance();
+    tro->set2D( is2d );
+    tro->packetInfo() = tri->packetInfo();
+
+    VSEvent::Type evtype;
+    if ( !strcmp( argv[1], "Max" ) ) evtype = VSEvent::Max; 
+    else if ( !strcmp( argv[1], "Min" ) ) evtype = VSEvent::Min;
+    else return 1;
+
+    SeisTrc inptrc; int nrwr = 0;
+    while ( tri->read(inptrc) )
+    {
+	SeisTrc outptrc( inptrc );
+	outptrc.zero();
+
+	SeisTrcValueSeries stvs( inptrc, 0 );
+	SamplingData<float> sd( 0, 1 ) ;
+	ValueSeriesEvFinder<float,float> evf( stvs, outptrc.size() - 1, sd );
+	Interval<float> trcrg( 0, outptrc.size() - 1 );
+
+	TypeSet<float> evset;
+	evf.findEvents( evtype, evset, trcrg );
+	for ( int idx=0; idx<evset.size(); idx++ )
+	{
+	    const int sampnr = mNINT( evset[idx] );
+	    outptrc.set( sampnr, 1, 0 );
+	}
+
+	if ( nrwr == 0
+	  && !tro->initWrite(new StreamConn(fname,Conn::Write),outptrc) )
+	    { std::cerr << tro->errMsg() << std::endl; return 1; }
+
+	if ( !tro->write(outptrc) )
+	    { std::cerr << "Cannot write!" << std::endl; return 1; }
+
+	nrwr++;
+    }
+
+    std::cerr << nrwr << " traces written." << std::endl;
+    return nrwr ? 0 : 1;
+}
+
+
+int main( int argc, char** argv )
+{
+    return ExitProgram( doWork(argc,argv) );
+}
