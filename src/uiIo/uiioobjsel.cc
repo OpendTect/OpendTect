@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.100 2007-05-25 10:16:34 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.101 2007-07-24 21:02:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -405,7 +405,10 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 
     BufferString nm( "Select " );
     nm += c.ctxt.forread ? "input " : "output ";
-    nm += c.ctxt.trgroup->userName();
+    if ( c.ctxt.name().isEmpty() )
+	nm += c.ctxt.trgroup->userName();
+    else
+	nm += c.ctxt.name();
     if ( ismultisel ) nm += "(s)";
     setTitleText( nm );
     setOkText( "&Ok (Select)" );
@@ -441,7 +444,10 @@ uiIOObjSel::uiIOObjSel( uiParent* p, CtxtIOObj& c, const char* txt,
 			bool wclr, const char* st, const char* buttxt, 
 			bool keepmytxt )
 	: uiIOSelect( p, mCB(this,uiIOObjSel,doObjSel),
-		      txt ? txt : (const char*)c.ctxt.trgroup->userName(), 
+		      txt ? txt :
+		         (c.ctxt.name().isEmpty()
+			     ? (const char*)c.ctxt.trgroup->userName() 
+			     : (const char*) c.ctxt.name() ),
 		      wclr, buttxt, keepmytxt )
 	, ctio(c)
 	, forread(c.ctxt.forread)
