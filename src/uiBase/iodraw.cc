@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.28 2007-07-11 15:39:33 cvsbert Exp $
+ RCS:           $Id: iodraw.cc,v 1.29 2007-07-24 17:17:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,17 @@ void ioDrawTool::drawLine( const uiPoint& p1, const uiPoint& p2 )
 }
 
 
+void ioDrawTool::drawLine( const uiPoint& pt, double angle, double len )
+{
+    uiPoint endpt( pt );
+    double delta = len * cos( angle );
+    endpt.x += mNINT(delta);
+    delta = len * sin( angle );
+    endpt.y += mNINT(delta);
+    drawLine( pt, endpt );
+}
+
+
 void ioDrawTool::drawLine( const TypeSet<uiPoint>& pts, bool close )
 {
     const int nrpoints = pts.size();
@@ -160,6 +171,38 @@ void ioDrawTool::drawEllipse( const uiPoint& topLeft, const uiSize& sz )
 void ioDrawTool::drawEllipse( const uiRect& r )
 {
     drawEllipse( r.left(), r.top(), r.hNrPics(), r.vNrPics() );
+}
+
+
+void ioDrawTool::drawHalfCircle( const uiPoint& from, const uiPoint& to,
+				 bool left )
+{
+    const uiPoint relvec( to - from );
+    QRectF qr;
+    if ( left )
+	qr.setCoords( from.x - 0.5 * relvec.y,
+	       	      from.y + 0.5 * relvec.x,
+	       	      to.x - 0.5 * relvec.y,
+	       	      to.y + 0.5 * relvec.x );
+    else
+	qr.setCoords( from.x + 0.5 * relvec.y,
+	       	      from.y - 0.5 * relvec.x,
+	       	      to.x + 0.5 * relvec.y,
+	       	      to.y - 0.5 * relvec.x );
+
+    qpainter_->drawArc( qr, 0, 2880 /* 180 degrees * 16 (see Qt manual) */ );
+}
+
+
+void ioDrawTool::drawHalfCircle( const uiPoint& from, double ang, double d,
+				 bool left )
+{
+    uiPoint to( from );
+    double delta = d * cos( ang );
+    to.x += mNINT( delta );
+    delta = d * sin( ang );
+    to.y += mNINT( delta );
+    drawHalfCircle( from, to, left );
 }
 
 
@@ -290,17 +333,61 @@ void ioDrawTool::drawMarker( const uiPoint& pt, const MarkerStyle2D& mstyle,
 }
 
 
-static void drawArrowHead( ioDrawTool& dt, ArrowStyle::HeadType ht, int sz,
+static double get135DegAng( double ang, bool left )
+{
+    if ( left )
+	ang += M_PI * .75;
+    else
+	ang -= M_PI * .75;
+    if ( ang < -M_PI ) ang += 2 * M_PI;
+    if ( ang > M_PI ) ang -= 2 * M_PI;
+    return ang;
+}
+
+
+static void drawArrowHead( ioDrawTool& dt,
+			   ArrowStyle::HeadType ht, ArrowStyle::HandedNess hn,
+			   int sz,
 			   const Geom::Point2D<int>& pos,
 			   const Geom::Point2D<int>& comingfrom )
 {
-    if ( ht == ArrowStyle::Circle )
-    {
-	dt.drawCircle( pos, sz );
-	return;
-    }
     const Geom::Point2D<int> relvec = pos - comingfrom;
     const double ang( atan2(relvec.y,relvec.x) );
+
+    if ( hn == ArrowStyle::TwoHanded )
+    {
+	switch ( ht )
+	{
+	case ArrowStyle::Circle:
+	    dt.drawCircle( pos, sz );
+	break;
+	case ArrowStyle::Line:
+	    dt.drawLine( pos, get135DegAng(ang,true), sz );
+	    dt.drawLine( pos, get135DegAng(ang,false), sz );
+	break;
+	default:
+	    pFreeFnErrMsg( "Needs impl", "drawArrowHead" );
+	break;
+	}
+    }
+    else
+    {
+	const bool isleft = hn == ArrowStyle::LeftHanded;
+
+	switch ( ht )
+	{
+	case ArrowStyle::Circle:
+	    dt.drawHalfCircle( pos, ang, sz, isleft );
+	break;
+	case ArrowStyle::Line:
+	    dt.drawLine( pos, get135DegAng(ang,isleft), sz );
+	break;
+	default:
+	    pFreeFnErrMsg( "Needs impl", "drawArrowHead" );
+	break;
+	}
+    }
+
 }
 
 
@@ -308,17 +395,22 @@ void ioDrawTool::drawArrow( const uiPoint& tail, const uiPoint& head,
 			    const ArrowStyle& as )
 {
     setLineStyle( as.linestyle_ );
+    float fhtsz = as.headsz_;
+    if ( !as.fixedheadsz_ )
+	fhtsz = .01 * as.headsz_ * tail.distTo(head);
+    const int htsz = mNINT(fhtsz);
+
     drawLine( tail, head );
     if ( as.hasHead() )
-	drawArrowHead( *this, as.headtype_, as.headsz_, head, tail );
+	drawArrowHead( *this, as.headtype_, as.handedness_, htsz, head, tail );
     if ( as.hasTail() )
-	drawArrowHead( *this, as.headtype_, as.headsz_, tail, head );
+	drawArrowHead( *this, as.headtype_, as.handedness_, htsz, tail, head );
 }
 
 
 void ioDrawTool::setLineStyle( const LineStyle& ls )
 {
-    qpen_.setStyle( (Qt::PenStyle) ls.type_ );
+    qpen_.setStyle( (Qt::PenStyle)ls.type_ );
     qpen_.setColor( QColor( QRgb( ls.color_.rgb() )));
     qpen_.setWidth( ls.width_ );
 
