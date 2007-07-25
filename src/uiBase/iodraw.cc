@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.29 2007-07-24 17:17:25 cvsbert Exp $
+ RCS:           $Id: iodraw.cc,v 1.30 2007-07-25 12:18:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,8 @@ void ioDrawTool::drawLine( const uiPoint& pt, double angle, double len )
     uiPoint endpt( pt );
     double delta = len * cos( angle );
     endpt.x += mNINT(delta);
-    delta = len * sin( angle );
+    // In UI, Y is positive downward
+    delta = -len * sin( angle );
     endpt.y += mNINT(delta);
     drawLine( pt, endpt );
 }
@@ -177,18 +178,15 @@ void ioDrawTool::drawEllipse( const uiRect& r )
 void ioDrawTool::drawHalfCircle( const uiPoint& from, const uiPoint& to,
 				 bool left )
 {
+    // This function is not right, not only because Y is reversed
     const uiPoint relvec( to - from );
     QRectF qr;
     if ( left )
-	qr.setCoords( from.x - 0.5 * relvec.y,
-	       	      from.y + 0.5 * relvec.x,
-	       	      to.x - 0.5 * relvec.y,
-	       	      to.y + 0.5 * relvec.x );
+	qr.setCoords( from.x - 0.5 * relvec.y, from.y + 0.5 * relvec.x,
+	       	      to.x, to.y );
     else
-	qr.setCoords( from.x + 0.5 * relvec.y,
-	       	      from.y - 0.5 * relvec.x,
-	       	      to.x + 0.5 * relvec.y,
-	       	      to.y - 0.5 * relvec.x );
+	qr.setCoords( from.x, from.y,
+	       	      to.x + 0.5 * relvec.y, to.y - 0.5 * relvec.x );
 
     qpainter_->drawArc( qr, 0, 2880 /* 180 degrees * 16 (see Qt manual) */ );
 }
@@ -200,7 +198,8 @@ void ioDrawTool::drawHalfCircle( const uiPoint& from, double ang, double d,
     uiPoint to( from );
     double delta = d * cos( ang );
     to.x += mNINT( delta );
-    delta = d * sin( ang );
+    // In UI, Y is positive downward
+    delta = -d * sin( ang );
     to.y += mNINT( delta );
     drawHalfCircle( from, to, left );
 }
@@ -333,14 +332,11 @@ void ioDrawTool::drawMarker( const uiPoint& pt, const MarkerStyle2D& mstyle,
 }
 
 
-static double get135DegAng( double ang, bool left )
+static double getAddedAngle( double ang, float ratiopi )
 {
-    if ( left )
-	ang += M_PI * .75;
-    else
-	ang -= M_PI * .75;
-    if ( ang < -M_PI ) ang += 2 * M_PI;
-    if ( ang > M_PI ) ang -= 2 * M_PI;
+    ang += ratiopi * M_PI;
+    while ( ang < -M_PI ) ang += 2 * M_PI;
+    while ( ang > M_PI ) ang -= 2 * M_PI;
     return ang;
 }
 
@@ -351,19 +347,22 @@ static void drawArrowHead( ioDrawTool& dt,
 			   const Geom::Point2D<int>& pos,
 			   const Geom::Point2D<int>& comingfrom )
 {
-    const Geom::Point2D<int> relvec = pos - comingfrom;
+    static const float headangfac = .8; // bigger => lines closer to main line
+
+    // In UI, Y is positive downward
+    const Geom::Point2D<int> relvec( pos.x - comingfrom.x,
+	    			     comingfrom.y - pos.y );
     const double ang( atan2(relvec.y,relvec.x) );
 
     if ( hn == ArrowStyle::TwoHanded )
     {
 	switch ( ht )
 	{
-	case ArrowStyle::Circle:
-	    dt.drawCircle( pos, sz );
-	break;
+	case ArrowStyle::Triangle:
+	    pFreeFnErrMsg( "Triangle impl as Line", "drawArrowHead" );
 	case ArrowStyle::Line:
-	    dt.drawLine( pos, get135DegAng(ang,true), sz );
-	    dt.drawLine( pos, get135DegAng(ang,false), sz );
+	    dt.drawLine( pos, getAddedAngle(ang,headangfac), sz );
+	    dt.drawLine( pos, getAddedAngle(ang,-headangfac), sz );
 	break;
 	default:
 	    pFreeFnErrMsg( "Needs impl", "drawArrowHead" );
@@ -377,10 +376,12 @@ static void drawArrowHead( ioDrawTool& dt,
 	switch ( ht )
 	{
 	case ArrowStyle::Circle:
-	    dt.drawHalfCircle( pos, ang, sz, isleft );
+	    dt.drawHalfCircle( pos, ang+M_PI, sz, isleft );
 	break;
+	case ArrowStyle::Triangle:
+	    pFreeFnErrMsg( "Triangle impl as Line", "drawArrowHead" );
 	case ArrowStyle::Line:
-	    dt.drawLine( pos, get135DegAng(ang,isleft), sz );
+	    dt.drawLine( pos, getAddedAngle(ang,headangfac*(isleft?1:-1)), sz );
 	break;
 	default:
 	    pFreeFnErrMsg( "Needs impl", "drawArrowHead" );
