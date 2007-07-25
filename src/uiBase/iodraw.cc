@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.30 2007-07-25 12:18:09 cvsbert Exp $
+ RCS:           $Id: iodraw.cc,v 1.31 2007-07-25 17:09:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -159,40 +159,44 @@ void ioDrawTool::drawRect( const uiRect& r )
 void ioDrawTool::drawEllipse ( int x, int y, int w, int h )
 {
     preparePainter();
-    qpainter_->drawEllipse ( x, y, w, h );
+    qpainter_->drawEllipse( QRect( x - w/2, y - h/2, w, h ) );
 }
 
 
-void ioDrawTool::drawEllipse( const uiPoint& topLeft, const uiSize& sz )
+void ioDrawTool::drawEllipse( const uiPoint& center, const uiSize& sz )
 {
-    drawEllipse( topLeft.x, topLeft.y, sz.hNrPics(), sz.vNrPics());
+    drawEllipse( center.x, center.y, sz.hNrPics(), sz.vNrPics());
 }
 
 
-void ioDrawTool::drawEllipse( const uiRect& r )
-{
-    drawEllipse( r.left(), r.top(), r.hNrPics(), r.vNrPics() );
-}
-
-
-void ioDrawTool::drawHalfCircle( const uiPoint& from, const uiPoint& to,
+void ioDrawTool::drawHalfSquare( const uiPoint& from, const uiPoint& to,
 				 bool left )
 {
-    // This function is not right, not only because Y is reversed
-    const uiPoint relvec( to - from );
-    QRectF qr;
-    if ( left )
-	qr.setCoords( from.x - 0.5 * relvec.y, from.y + 0.5 * relvec.x,
-	       	      to.x, to.y );
-    else
-	qr.setCoords( from.x, from.y,
-	       	      to.x + 0.5 * relvec.y, to.y - 0.5 * relvec.x );
+    // Alas, qpainter_->drawArc can only draw arcs that are horizontal ...
+    // In UI, Y is positive downward
 
-    qpainter_->drawArc( qr, 0, 2880 /* 180 degrees * 16 (see Qt manual) */ );
+    // The bounding rectangle's coords are:
+    // 
+    const uiPoint halfrel( (to.x - from.x)/2, (to.y - from.y)/2 );
+    if ( left )
+    {
+	drawLine( from.x, from.y, from.x + halfrel.y, from.y - halfrel.x );
+	drawLine( from.x + halfrel.y, from.y - halfrel.x,
+		  to.x + halfrel.y, to.y - halfrel.x );
+	drawLine( to.x + halfrel.y, to.y - halfrel.x, to.x, to.y );
+    }
+    else
+    {
+	drawLine( from.x, from.y, from.x - halfrel.y, from.y + halfrel.x );
+	drawLine( from.x - halfrel.y, from.y + halfrel.x,
+		  to.x - halfrel.y, to.y + halfrel.x );
+	drawLine( to.x - halfrel.y, to.y + halfrel.x, to.x, to.y );
+    }
+
 }
 
 
-void ioDrawTool::drawHalfCircle( const uiPoint& from, double ang, double d,
+void ioDrawTool::drawHalfSquare( const uiPoint& from, double ang, double d,
 				 bool left )
 {
     uiPoint to( from );
@@ -201,7 +205,7 @@ void ioDrawTool::drawHalfCircle( const uiPoint& from, double ang, double d,
     // In UI, Y is positive downward
     delta = -d * sin( ang );
     to.y += mNINT( delta );
-    drawHalfCircle( from, to, left );
+    drawHalfSquare( from, to, left );
 }
 
 
@@ -320,7 +324,7 @@ void ioDrawTool::drawMarker( const uiPoint& pt, const MarkerStyle2D& mstyle,
 		  2 * mstyle.size_, 2 * mstyle.size_ );
     break;
     case MarkerStyle2D::Circle:
-	drawCircle( pt.x - mstyle.size_, pt.y - mstyle.size_, mstyle.size_ );
+	drawCircle( pt.x, pt.y, mstyle.size_ / 2 );
     break;
     case MarkerStyle2D::Cross:
 	drawLine( pt.x-mstyle.size_, pt.y-mstyle.size_,
@@ -341,50 +345,64 @@ static double getAddedAngle( double ang, float ratiopi )
 }
 
 
-static void drawArrowHead( ioDrawTool& dt,
-			   ArrowStyle::HeadType ht, ArrowStyle::HandedNess hn,
-			   int sz,
+static void drawArrowHead( ioDrawTool& dt, const ArrowHeadStyle& hs,
 			   const Geom::Point2D<int>& pos,
 			   const Geom::Point2D<int>& comingfrom )
 {
-    static const float headangfac = .8; // bigger => lines closer to main line
+    static const float headangfac = .82; // bigger => lines closer to main line
 
     // In UI, Y is positive downward
-    const Geom::Point2D<int> relvec( pos.x - comingfrom.x,
-	    			     comingfrom.y - pos.y );
+    const uiPoint relvec( pos.x - comingfrom.x, comingfrom.y - pos.y );
     const double ang( atan2(relvec.y,relvec.x) );
 
-    if ( hn == ArrowStyle::TwoHanded )
+    if ( hs.handedness_ == ArrowHeadStyle::TwoHanded )
     {
-	switch ( ht )
+	switch ( hs.type_ )
 	{
-	case ArrowStyle::Triangle:
-	    pFreeFnErrMsg( "Triangle impl as Line", "drawArrowHead" );
-	case ArrowStyle::Line:
-	    dt.drawLine( pos, getAddedAngle(ang,headangfac), sz );
-	    dt.drawLine( pos, getAddedAngle(ang,-headangfac), sz );
+	case ArrowHeadStyle::Square:
+	    dt.drawHalfSquare( pos, ang+M_PI, hs.sz_, true );
+	    dt.drawHalfSquare( pos, ang+M_PI, hs.sz_, false );
 	break;
-	default:
-	    pFreeFnErrMsg( "Needs impl", "drawArrowHead" );
+	case ArrowHeadStyle::Cross:
+	    dt.drawLine( pos, getAddedAngle(ang,.25), hs.sz_/2 );
+	    dt.drawLine( pos, getAddedAngle(ang,.75), hs.sz_/2 );
+	    dt.drawLine( pos, getAddedAngle(ang,-.25), hs.sz_/2 );
+	    dt.drawLine( pos, getAddedAngle(ang,-.75), hs.sz_/2 );
+	break;
+	case ArrowHeadStyle::Triangle:
+	    pFreeFnErrMsg( "Triangle impl as Line", "drawArrowHead" );
+	case ArrowHeadStyle::Line:
+	    dt.drawLine( pos, getAddedAngle(ang,headangfac), hs.sz_ );
+	    dt.drawLine( pos, getAddedAngle(ang,-headangfac), hs.sz_ );
 	break;
 	}
     }
     else
     {
-	const bool isleft = hn == ArrowStyle::LeftHanded;
+	const bool isleft = hs.handedness_ == ArrowHeadStyle::LeftHanded;
 
-	switch ( ht )
+	switch ( hs.type_ )
 	{
-	case ArrowStyle::Circle:
-	    dt.drawHalfCircle( pos, ang+M_PI, sz, isleft );
+	case ArrowHeadStyle::Square:
+	    dt.drawHalfSquare( pos, ang+M_PI, hs.sz_, isleft );
 	break;
-	case ArrowStyle::Triangle:
+	case ArrowHeadStyle::Cross:
+	    if ( isleft )
+	    {
+		dt.drawLine( pos, getAddedAngle(ang,.25), hs.sz_/2 );
+		dt.drawLine( pos, getAddedAngle(ang,.75), hs.sz_/2 );
+	    }
+	    else
+	    {
+		dt.drawLine( pos, getAddedAngle(ang,-.25), hs.sz_/2 );
+		dt.drawLine( pos, getAddedAngle(ang,-.75), hs.sz_/2 );
+	    }
+	break;
+	case ArrowHeadStyle::Triangle:
 	    pFreeFnErrMsg( "Triangle impl as Line", "drawArrowHead" );
-	case ArrowStyle::Line:
-	    dt.drawLine( pos, getAddedAngle(ang,headangfac*(isleft?1:-1)), sz );
-	break;
-	default:
-	    pFreeFnErrMsg( "Needs impl", "drawArrowHead" );
+	case ArrowHeadStyle::Line:
+	    dt.drawLine( pos, getAddedAngle(ang,headangfac*(isleft?1:-1)),
+		    	 hs.sz_ );
 	break;
 	}
     }
@@ -396,16 +414,12 @@ void ioDrawTool::drawArrow( const uiPoint& tail, const uiPoint& head,
 			    const ArrowStyle& as )
 {
     setLineStyle( as.linestyle_ );
-    float fhtsz = as.headsz_;
-    if ( !as.fixedheadsz_ )
-	fhtsz = .01 * as.headsz_ * tail.distTo(head);
-    const int htsz = mNINT(fhtsz);
 
     drawLine( tail, head );
     if ( as.hasHead() )
-	drawArrowHead( *this, as.headtype_, as.handedness_, htsz, head, tail );
+	drawArrowHead( *this, as.headstyle_, head, tail );
     if ( as.hasTail() )
-	drawArrowHead( *this, as.headtype_, as.handedness_, htsz, tail, head );
+	drawArrowHead( *this, as.tailstyle_, tail, head );
 }
 
 

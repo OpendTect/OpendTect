@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.18 2007-07-24 17:16:11 cvsbert Exp $
+ RCS:           $Id: draw.h,v 1.19 2007-07-25 17:09:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,38 +120,51 @@ public:
 };
 
 
+class ArrowHeadStyle
+{
+public:
+    enum Type		{ Line, Triangle, Square, Cross };
+    enum HandedNess	{ TwoHanded, LeftHanded, RightHanded };
+
+			ArrowHeadStyle( int sz=1, Type t=Line,
+			      HandedNess h=TwoHanded )
+			    : sz_(sz), type_(t), handedness_(h)	{}
+
+    inline void		setBoldNess( int b )	{ sz_ = 3*b; }
+
+    int		sz_;
+    Type	type_;
+    HandedNess	handedness_;
+
+};
+
+
 class ArrowStyle
 {
 public:
 
     enum Type		{ HeadOnly, TwoSided, TailOnly, HeadNorTail };
-    enum HeadType	{ Line, Triangle, Square, Circle, Cross };
-    enum HandedNess	{ TwoHanded, LeftHanded, RightHanded };
 
 			ArrowStyle( int boldness=1, Type t=HeadOnly )
 			: type_(t)
 			, linestyle_(LineStyle::Solid,boldness)
-			, headtype_(Line), tailtype_(Line)
-			, fixedheadsz_(true)
-			, handedness_(TwoHanded)
-					{ setBoldNess(boldness); }
+			{ setBoldNess(boldness); }
 
     inline void		setBoldNess( int b )
-			{ linestyle_.width_ = b; headsz_ = 3*b; }
+			{ linestyle_.width_ = b;
+			  headstyle_.setBoldNess(b);
+			  tailstyle_.setBoldNess(b); }
 
     inline bool		hasHead() const
-    			{ return headsz_ > 0 && type_ < TailOnly; }
+    			{ return headstyle_.sz_ > 0 && type_ < TailOnly; }
     inline bool		hasTail() const
-    			{ return headsz_ > 0
+    			{ return tailstyle_.sz_ > 0
 			      && (type_ == TwoSided || type_ == TailOnly); }
 
     Type		type_;
     LineStyle		linestyle_;	//!< contains the color
-    HeadType		headtype_;
-    HeadType		tailtype_;
-    HandedNess		handedness_;
-    int			headsz_; //!< also the tail size
-    bool		fixedheadsz_; //!< if false, headsz_ is % of arrow len
+    ArrowHeadStyle	headstyle_;
+    ArrowHeadStyle	tailstyle_;
 
 };
 
