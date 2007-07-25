@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.14 2007-07-17 09:55:21 cvsnanne Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.15 2007-07-25 12:23:36 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,7 @@ public:
     void			setLineName(const char*);
 
     void			setGeometry(const PosInfo::Line2DData&);
-    const StepInterval<float>&	getMaxZRange() const;
+    StepInterval<float>		getMaxZRange() const;
     bool			setSampleRange(const Interval<int>&);
     				/*!<The values in the range refers to samples
 				    in the interval retrieved by getMaxZRange().

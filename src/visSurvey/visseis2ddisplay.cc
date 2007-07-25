@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.20 2007-07-17 09:55:21 cvsnanne Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.21 2007-07-25 12:23:36 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -49,7 +49,6 @@ const char* Seis2DDisplay::sKeyTextureID()	{ return "Texture ID"; }
 
 Seis2DDisplay::Seis2DDisplay()
     : transformation_(0)
-    , linename_(0)
     , geometry_(*new PosInfo::Line2DData)
     , geomchanged_(this)
     , maxtrcnrrg_(INT_MAX,INT_MIN)
@@ -60,12 +59,20 @@ Seis2DDisplay::Seis2DDisplay()
 {
     geometry_.zrg.start = geometry_.zrg.stop = mUdf(float);
     cache_.allowNull();
+
+    linename_ = visBase::Text2::create();
+    linename_->ref();
+    addChild( linename_->getInventorNode() );
 }
 
 
 Seis2DDisplay::~Seis2DDisplay()
 {
-    if ( linename_ ) removeChild( linename_->getInventorNode() );
+    if ( linename_ )
+    {
+	removeChild( linename_->getInventorNode() );
+	linename_->unRef();
+    }
 
     for ( int idx=0; idx<planes_.size(); idx++ )
     {
@@ -104,7 +111,7 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
     if ( samplerg_.start==-1 )
     {
 	samplerg_.start = 0;
-	samplerg_.stop = geometry_.zrg.nrSteps();
+	samplerg_.stop = getMaxZRange().nrSteps();
 	trcnrrg_ = maxtrcnrrg_;
     }
 
@@ -113,8 +120,16 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
 }
 
 
-const StepInterval<float>& Seis2DDisplay::getMaxZRange() const
-{ return geometry_.zrg; }
+StepInterval<float> Seis2DDisplay::getMaxZRange() const
+{
+    if ( !datatransform_ )
+	return geometry_.zrg;
+
+    StepInterval<float> zrg;
+    zrg.setFrom( datatransform_->getZInterval(false) );
+    zrg.step = geometry_.zrg.step;
+    return zrg;
+}
 
 
 bool Seis2DDisplay::setSampleRange( const Interval<int>& nsrg )
@@ -153,8 +168,8 @@ bool Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
 	return false;
     }
 
-    const Interval<int> rg( maxtrcnrrg_.limitValue( trcrg.start ),
-			    maxtrcnrrg_.limitValue( trcrg.stop ) );
+    const Interval<int> rg( maxtrcnrrg_.limitValue(trcrg.start),
+			    maxtrcnrrg_.limitValue(trcrg.stop) );
 
     if ( !rg.width() || trcnrrg_==rg )
 	return false;
@@ -175,6 +190,7 @@ const Interval<int>& Seis2DDisplay::getTraceNrRange() const
 
 const Interval<int>& Seis2DDisplay::getMaxTraceNrRange() const
 { return maxtrcnrrg_; }
+
 
 bool Seis2DDisplay::setDataPackID( int attrib, DataPack::ID dpid )
 {
@@ -471,14 +487,13 @@ visBase::Transformation* Seis2DDisplay::getDisplayTransformation()
 
 void Seis2DDisplay::showLineName( bool yn )
 {
-    if ( linename_ ) linename_->turnOn( yn );
-    else if ( yn )
-    {
-	linename_ = visBase::Text2::create();
-	linename_->ref();
-	updateLineNamePos();
-    }
+    if ( !linename_ )
+	return;
+
+    linename_->turnOn( yn );
+    updateLineNamePos();
 }
+
 
 bool Seis2DDisplay::lineNameShown() const
 { return linename_ ? linename_->isOn() : false; }
@@ -712,6 +727,9 @@ void Seis2DDisplay::clearTexture( int attribnr )
     for ( int idx=0; idx<texture_->nrVersions(attribnr); idx++ )
 	texture_->setData( attribnr, idx, 0 );
     texture_->enableTexture( attribnr, false );
+
+    Attrib::SelSpec as;
+    setSelSpec( attribnr, as );
 }
 
 
