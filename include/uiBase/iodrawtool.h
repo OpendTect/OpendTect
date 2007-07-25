@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.24 2007-07-25 17:09:21 cvsbert Exp $
+ RCS:           $Id: iodrawtool.h,v 1.25 2007-07-25 17:15:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,12 +66,12 @@ public:
     inline void	drawPolygon( const TypeSet<uiPoint>& pts )
 		{ drawLine( pts, true ); }
 
-    void 	drawEllipse(int x,int y,int w,int h); 
+    void 	drawEllipse(int x,int y,int rx,int ry); 
     void	drawEllipse(const uiPoint&,const uiSize&);
     inline void	drawCircle( int x, int y, int r )
-       		{ drawEllipse( x, y, 2*r, 2*r ); }	
+       		{ drawEllipse( x, y, r, r ); }	
     inline void	drawCircle( const uiPoint& p, int r )
-       		{ drawEllipse( p, uiSize(2*r,2*r) ); }	
+       		{ drawEllipse( p, uiSize(r,r) ); }	
     void	drawHalfSquare(const uiPoint& from,double angle,double diameter,
 	    		       bool left);
     void	drawHalfSquare(const uiPoint& from,const uiPoint& to,bool left);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.31 2007-07-25 17:09:21 cvsbert Exp $
+ RCS:           $Id: iodraw.cc,v 1.32 2007-07-25 17:15:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,10 +156,10 @@ void ioDrawTool::drawRect( const uiRect& r )
 }
 
 
-void ioDrawTool::drawEllipse ( int x, int y, int w, int h )
+void ioDrawTool::drawEllipse ( int x, int y, int rx, int ry )
 {
     preparePainter();
-    qpainter_->drawEllipse( QRect( x - w/2, y - h/2, w, h ) );
+    qpainter_->drawEllipse( QRect( x - rx, y - ry, rx*2, ry*2 ) );
 }
 
 
