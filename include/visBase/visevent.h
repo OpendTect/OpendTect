@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.16 2006-08-08 11:21:54 cvsnanne Exp $
+ RCS:		$Id: visevent.h,v 1.17 2007-07-26 21:40:46 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -56,16 +56,11 @@ public:
 				     If it is false, the button has been
 				     released.
 				*/
-    Transformation*		objecttoworldtrans;
-    				/*!<The transformation from the coordinates
-				    given to OI to the world coordinates
-				    (i.e. the transform that is accumulated
-				          while traversing the scene-graph).
-				*/
 
     TypeSet<int>		pickedobjids;
-    Coord3			pickedpos;
-    Coord3			localpickedpos;
+    Coord3			displaypickedpos;	//display space
+    Coord3			localpickedpos; 	//object space
+    Coord3			worldpickedpos; 	//world space
     Detail*			detail;
     
     int				key;
@@ -86,7 +81,7 @@ public:
 				mCreateDataObj(EventCatcher);
 
     void			setEventType( int type );
-    int				eventType() const { return type; }
+    int				eventType() const { return type_; }
 
     CNotifier<EventCatcher, const EventInfo&>		eventhappened;
 
@@ -100,6 +95,8 @@ public:
     void			fillPar( IOPar&, TypeSet<int>& ) const;
     int				usePar( const IOPar& );
 
+    void			setUtm2Display(ObjectSet<Transformation>&);
+
 protected:
     void			_init();
     void			removeCBs();
@@ -108,8 +105,9 @@ protected:
 				~EventCatcher();
     static void			internalCB( void*, SoEventCallback* );
 
-    int				type;
-    SoEventCallback*		node;
+    int				type_;
+    SoEventCallback*		node_;
+    ObjectSet<Transformation>	utm2display_;
 
     static const char*		eventtypestr;
 };

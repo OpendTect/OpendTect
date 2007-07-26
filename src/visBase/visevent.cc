@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: visevent.cc,v 1.22 2005-10-11 22:14:36 cvskris Exp $
+ RCS:           $Id: visevent.cc,v 1.23 2007-07-26 21:40:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,25 +39,26 @@ const char EventInfo::middleMouseButton() { return 1; }
 const char EventInfo::rightMouseButton() { return 2; }
 
 EventInfo::EventInfo()
-    : objecttoworldtrans( Transformation::create() )
-    , detail(0)
-{ objecttoworldtrans->ref(); }
+    : detail(0)
+    , worldpickedpos( Coord3::udf() )
+    , localpickedpos( Coord3::udf() )
+    , displaypickedpos( Coord3::udf() )
+{}
 
 
 EventInfo::~EventInfo()
 {
-    objecttoworldtrans->unRef();
     delete detail;
 }
 
 
 EventCatcher::EventCatcher()
-    : node( new SoEventCallback )
+    : node_( new SoEventCallback )
     , eventhappened( this )
     , nothandled( this )
-    , type( Any )
+    , type_( Any )
 {
-    node->ref();
+    node_->ref();
 
     setCBs();
 }
@@ -71,18 +72,26 @@ void EventCatcher::_init()
 }
 
 
-void EventCatcher::setEventType( int type_ )
+void EventCatcher::setEventType( int type )
 {
     removeCBs();
-    type = type_;
+    type_ = type;
     setCBs();
+}
+
+
+void EventCatcher::setUtm2Display( ObjectSet<Transformation>& nt )
+{
+    deepUnRef( utm2display_ );
+    utm2display_ = nt;
+    deepRef( utm2display_ );
 }
 
 
 void EventCatcher::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( par, saveids );
-    par.set( eventtypestr, (int) type );
+    par.set( eventtypestr, (int) type_ );
 }
 
 
@@ -103,28 +112,28 @@ int EventCatcher::usePar( const IOPar& par )
     
 void EventCatcher::setCBs()
 {
-    if ( type==MouseClick || type==Any )
-	node->addEventCallback( SoMouseButtonEvent::getClassTypeId(),
+    if ( type_==MouseClick || type_==Any )
+	node_->addEventCallback( SoMouseButtonEvent::getClassTypeId(),
 				   internalCB, this );
-    if ( type==Keyboard || type==Any )
-	node->addEventCallback( SoKeyboardEvent::getClassTypeId(),
+    if ( type_==Keyboard || type_==Any )
+	node_->addEventCallback( SoKeyboardEvent::getClassTypeId(),
 				   internalCB, this );
-    if ( type==MouseMovement || type==Any )
-	node->addEventCallback( SoLocation2Event::getClassTypeId(),
+    if ( type_==MouseMovement || type_==Any )
+	node_->addEventCallback( SoLocation2Event::getClassTypeId(),
 				    internalCB, this );
 }
 
 
 void EventCatcher::removeCBs()
 {
-    if ( type==MouseClick || type==Any )
-	node->removeEventCallback( SoMouseButtonEvent::getClassTypeId(),
+    if ( type_==MouseClick || type_==Any )
+	node_->removeEventCallback( SoMouseButtonEvent::getClassTypeId(),
 				   internalCB, this );
-    if ( type==Keyboard || type==Any )
-	node->removeEventCallback( SoKeyboardEvent::getClassTypeId(),
+    if ( type_==Keyboard || type_==Any )
+	node_->removeEventCallback( SoKeyboardEvent::getClassTypeId(),
 				   internalCB, this );
-    if ( type==MouseMovement || type==Any )
-	node->removeEventCallback( SoLocation2Event::getClassTypeId(),
+    if ( type_==MouseMovement || type_==Any )
+	node_->removeEventCallback( SoLocation2Event::getClassTypeId(),
 				    internalCB, this );
 }
 
@@ -132,7 +141,8 @@ void EventCatcher::removeCBs()
 EventCatcher::~EventCatcher()
 {
     removeCBs();
-    node->unref();
+    node_->unref();
+    deepUnRef( utm2display_ );
 }
 
 
@@ -142,9 +152,9 @@ bool EventCatcher::isEventHandled() const
     For some reason, the action associated with some events
     is NULL on Mac, which causes an undesired effect...
 */
-    if ( !node || !node->getAction() ) return true;
+    if ( !node_ || !node_->getAction() ) return true;
 
-    return node->isHandled();
+    return node_->isHandled();
 }
 
 
@@ -154,12 +164,12 @@ void EventCatcher::eventIsHandled()
     For some reason, the action associated with some events
     is NULL on Mac, which causes an undesired effect...
 */
-    if ( node && node->getAction() ) node->setHandled();
+    if ( node_ && node_->getAction() ) node_->setHandled();
 }
 
 
 SoNode* EventCatcher::getInventorNode()
-{ return node; }
+{ return node_; }
 
 
 void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
@@ -191,9 +201,6 @@ void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
     const Coord3 stopcoord(stoppos[0], stoppos[1], stoppos[2] );
     eventinfo.mouseline = Line3( startcoord, stopcoord-startcoord );
 
-    const SbMatrix& mat = SoModelMatrixElement::get(state);
-    eventinfo.objecttoworldtrans->setA(mat);
-
     if ( pickedpoint && pickedpoint->isOnGeometry() )
     {
 	const SoPath* path = pickedpoint->getPath();
@@ -203,14 +210,22 @@ void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
 	    if ( eventinfo.pickedobjids.size() )
 	    {
 		SbVec3f pos3d = pickedpoint->getPoint();
-		eventinfo.pickedpos.x = pos3d[0];
-		eventinfo.pickedpos.y = pos3d[1];
-		eventinfo.pickedpos.z = pos3d[2];
+		eventinfo.displaypickedpos.x = pos3d[0];
+		eventinfo.displaypickedpos.y = pos3d[1];
+		eventinfo.displaypickedpos.z = pos3d[2];
 		SbVec3f localpos;
 		pickedpoint->getWorldToObject().multVecMatrix(pos3d, localpos );
 		eventinfo.localpickedpos.x = localpos[0];
 		eventinfo.localpickedpos.y = localpos[1];
 		eventinfo.localpickedpos.z = localpos[2];
+
+		eventinfo.worldpickedpos = eventinfo.displaypickedpos;
+		for ( int idx=eventcatcher->utm2display_.size()-1;idx>=0; idx--)
+		{
+		    eventinfo.worldpickedpos =
+			eventcatcher->utm2display_[idx]->transformBack(
+				eventinfo.worldpickedpos);
+		}
 
 		const SoDetail* detail = pickedpoint->getDetail();
 		mDynamicCastGet( const SoFaceDetail*, facedetail, detail );
