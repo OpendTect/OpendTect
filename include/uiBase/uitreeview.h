@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.21 2007-03-15 16:16:05 cvsbert Exp $
+ RCS:           $Id: uitreeview.h,v 1.22 2007-07-26 07:02:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -210,7 +210,8 @@ public:
 			uiListViewItem( uiListView* parent, const Setup& );
 
     bool		isCheckable() const;
-    void		setChecked( bool ); //!< does nothing if not checkable
+    void		setChecked(bool,bool trigger=false);
+    			//!< does nothing if not checkable
     bool		isChecked() const;  //!< returns false if not checkable
 
     virtual		~uiListViewItem() {}

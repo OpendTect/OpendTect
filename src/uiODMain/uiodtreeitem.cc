@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.197 2007-01-02 11:17:28 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.198 2007-07-26 07:02:57 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -165,9 +165,9 @@ void uiODTreeItem::handleStandardItems( int mnuid )
     for ( int idx=0; idx<children_.size(); idx++ )
     {
 	if ( mnuid == 101 )
-	    children_[idx]->setChecked( true );
+	    children_[idx]->setChecked( true, true );
 	else if ( mnuid == 102 )
-	    children_[idx]->setChecked( false );
+	    children_[idx]->setChecked( false, true );
     }
 
     if ( mnuid==103 )

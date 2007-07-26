@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.19 2007-07-17 09:55:20 cvsnanne Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.20 2007-07-26 07:02:57 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -260,7 +260,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	const bool turnon = mnuid==showlineitm_.id;
 	for ( int idx=0; idx<children_.size(); idx++ )
-	    children_[idx]->setChecked( turnon );
+	    children_[idx]->setChecked( turnon, true );
     }
     else if ( mnuid==showlblitm_.id || mnuid==hidelblitm_.id )
     {
@@ -499,6 +499,7 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
     if ( !s2d ) return;
 
     CubeSampling cs;
+    cs.hrg.start.inl = cs.hrg.stop.inl = 0;
     cs.hrg.start.crl = s2d->getTraceNrRange().start;
     cs.hrg.stop.crl = s2d->getTraceNrRange().stop;
     cs.zrg.start = s2d->getMaxZRange().atIndex( s2d->getSampleRange().start );
@@ -507,20 +508,22 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
     Attrib::SelSpec as = *s2d->getSelSpec( attribnr );
     as.set2DFlag();
 
-
     DataPack::ID dpid = -1;
+    LineKey lk( s2d->name() );
     if ( as.id() == Attrib::SelSpec::cOtherAttrib() )
     {
 	PtrMan<Attrib::ExtAttribCalc> calc =
 	    Attrib::ExtAttrFact().createCalculator( as );
 	if ( !calc )
 	{
+	    uiMSG().error( "Attribute cannot be created" );
 	    return;
 	}
+
+	dpid = calc->createAttrib( cs, lk );
     }
     else
     {
-	LineKey lk( s2d->name() );
 	if ( !strcmp( lk.attrName(), "Seis" ) && strcmp( as.userRef(), "" ) )
 	    lk.setAttrName( as.userRef() );
 

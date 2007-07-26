@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.29 2007-03-22 11:33:27 cvsjaap Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.30 2007-07-26 07:02:57 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -44,7 +44,7 @@ public:
     virtual int			selectionKey() const { return -1; }
     virtual bool		select();
     				/*!<Selects this item */
-    void			setChecked(bool yn);
+    void			setChecked(bool yn,bool trigger=false);
     bool			isChecked() const;
     NotifierAccess*		checkStatusChange();
 
