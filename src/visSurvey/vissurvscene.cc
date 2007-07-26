@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.98 2007-06-12 10:06:06 cvsnanne Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.99 2007-07-26 22:13:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,6 +136,11 @@ void Scene::createTransforms( const HorSampling& hs )
 	utm2disptransform_ = STM().createUTM2DisplayTransform( hs );
 	utm2disptransform_->ref();
     }
+
+    ObjectSet<visBase::Transformation> utm2display;
+    utm2display += utm2disptransform_;
+    utm2display += zscaletransform_;
+    events_.setUtm2Display( utm2display );
 }
 
 
@@ -335,9 +340,7 @@ void Scene::mouseMoveCB( CallBacker* cb )
     const int sz = eventinfo.pickedobjids.size();
     if ( sz )
     {
-	const Coord3 displayspacepos = 
-		zscaletransform_->transformBack( eventinfo.pickedpos );
-	xytmousepos_ = utm2disptransform_->transformBack( displayspacepos );
+	xytmousepos_ = eventinfo.worldpickedpos;
 
 	for ( int idx=0; idx<sz; idx++ )
 	{
