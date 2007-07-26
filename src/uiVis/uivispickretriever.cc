@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivispickretriever.cc,v 1.2 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uivispickretriever.cc,v 1.3 2007-07-26 22:12:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,13 +87,7 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
 	status_ = Failed;
     else
     {
-	pickedpos_ = scene->getZScaleTransform()->
-		transformBack( eventinfo.pickedpos );
-
-	if ( scene->getDisplayTransformation() )
-	    pickedpos_ = scene->getDisplayTransformation()->
-		transformBack( pickedpos_ );
-
+	pickedpos_ = eventinfo.worldpickedpos;
 	pickedscene_ = scene->id();
 	status_ = Success;
     }
