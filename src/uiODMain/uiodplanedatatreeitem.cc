@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.13 2007-05-22 04:42:27 cvsnanne Exp $
+ RCS:		$Id: uiodplanedatatreeitem.cc,v 1.14 2007-07-26 22:32:37 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -231,8 +231,11 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
     else
     {
 	menu->setIsHandled(true);
-	const Coord3 inlcrlpos = visserv->getMousePos(false);
-	const BinID bid( (int)inlcrlpos.x, (int)inlcrlpos.y );
+	const Coord xyzpos = menu->getPickedPos();
+	if ( !xyzpos.isDefined() )
+	    return;
+
+	const BinID bid( SI().transform(xyzpos) );
 	applMgr()->seisServer()->handleGatherSubMenu( mnuid, bid );
     }
 }
