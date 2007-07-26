@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.22 2007-05-22 03:23:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.23 2007-07-26 22:20:22 cvskris Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -161,7 +161,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
     info().setCtrlClicked( eventinfo.ctrl );
     info().setShiftClicked( eventinfo.shift );
     info().setAltClicked( eventinfo.alt );
-    info().setPos( eventinfo.pickedpos );
+    info().setPos( eventinfo.displaypickedpos );
 
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
@@ -287,7 +287,8 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	
 	if ( lineid < 0 )
 	{
-	    float disttoseis2d = seis2ddisp->calcDist( eventinfo.pickedpos );
+	    float disttoseis2d = seis2ddisp->calcDist(
+		    eventinfo.displaypickedpos );
 	    
 	    if ( !seis2dclosest || disttoseis2d<mindisttoseis2d )
 	    {
@@ -346,12 +347,9 @@ void MPEClickCatcher::sendUnderlyingPlanes(
     if ( !nodepos.isDefined() )
     {
 	 if ( eventinfo.ctrl != eventinfo.shift ) return;
-
-	 Scene* scene = STM().currentScene();
-	 const Coord3 disppos = scene->getZScaleTransform()->
-					transformBack( eventinfo.pickedpos );
-	 nodepos = scene->getUTM2DisplayTransform()->transformBack( disppos );
+	 nodepos = eventinfo.worldpickedpos;
     }
+
     const BinID nodebid = SI().transform( nodepos );
 
     TypeSet<int> mpedisplays;

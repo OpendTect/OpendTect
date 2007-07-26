@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.101 2007-07-09 16:47:00 cvsbert Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.102 2007-07-26 22:20:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,12 +154,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
 
     if ( !keycb && !mousecb ) return;
 
-    const mVisTrans* ztrans = scene_->getZScaleTransform();
-    Coord3 newpos = ztrans->transformBack( eventinfo.pickedpos );
-    if ( transformation_ )
-	newpos = transformation_->transformBack( newpos );
-
-    EM::PosID closestnode = findClosestNode( eventinfo.pickedpos );
+    EM::PosID closestnode = findClosestNode( eventinfo.displaypickedpos );
     if ( mousecb && editor_ )
     {
 	editor_->mouseClick( closestnode, eventinfo.shift, eventinfo.alt,

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.68 2007-07-09 16:47:00 cvsbert Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.69 2007-07-26 22:20:22 cvskris Exp $";
 
 #include "viswelldisplay.h"
 
@@ -510,7 +510,8 @@ void WellDisplay::pickCB( CallBacker* cb )
     if ( eventinfo.pressed )
     {
 	mousepressid_ = eventid;
-	mousepressposition_ = eventid==-1 ? Coord3::udf() : eventinfo.pickedpos;
+	mousepressposition_ = eventid==-1
+	    ? Coord3::udf() : eventinfo.displaypickedpos;
 	eventcatcher_->eventIsHandled();
     }
     else
@@ -560,10 +561,7 @@ void WellDisplay::pickCB( CallBacker* cb )
 
 		if ( validpicksurface )
 		{
-		    Coord3 newpos = scene_->getZScaleTransform()->
-			transformBack( eventinfo.pickedpos );
-		    if ( transformation_ )
-			newpos = transformation_->transformBack(newpos);
+		    Coord3 newpos = eventinfo.worldpickedpos;
 		    mDynamicCastGet(SurveyObject*,so,
 				    visBase::DM().getObject(eventid))
 		    if ( so ) so->snapToTracePos( newpos );
