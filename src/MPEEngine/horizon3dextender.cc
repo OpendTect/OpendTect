@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dextender.cc,v 1.11 2007-05-22 04:08:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizon3dextender.cc,v 1.12 2007-07-27 14:55:32 cvskris Exp $";
 
 #include "horizon3dextender.h"
 
@@ -122,8 +122,8 @@ int Horizon3DExtender::nextStep()
 		    const RowCol dst( (RowCol(addedpos_[previndex]))/step );
 		    const RowCol cursrc( srcbid/step );
 
-		    const int olddist = oldsrc.distanceSq(dst);
-		    if ( cursrc.distanceSq( dst )<olddist ) 
+		    const int olddist = oldsrc.sqDistTo(dst);
+		    if ( cursrc.sqDistTo( dst )<olddist ) 
 		    {
 			addedpossrc_[previndex] = srcbid.getSerialized();
 			surface.setPos( neighbor, Coord3(0,0,depth), true );
