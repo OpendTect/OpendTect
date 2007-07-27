@@ -1,6 +1,6 @@
 #!/bin/csh
 # This script initialises a work dir after CVS checkout
-# $Id: setup_cvstree,v 1.5 2007-07-06 14:16:21 cvskris Exp $
+# $Id: setup_cvstree,v 1.6 2007-07-27 15:17:17 cvsyuancheng Exp $
 
 if ( $#argv < 1 ) then
     set od_wdir=`pwd`
@@ -17,7 +17,13 @@ if ( ! -d "$od_wdir" ) then
 endif
 
 cd "$od_wdir"
-dvs update
+if ( ! $?DGB_CVS_DIR ) then
+    setenv DGB_CVS_DIR $od_wdir/dvs
+    if ( $?WORK ) then
+        if ( -e $WORK/dvs ) setenv DGB_CVS_DIR $WORK/dvs
+    endif
+endif
+$DGB_CVS_DIR/dvs update
 
 ln -s Pmake/RootMakefile Makefile
 
