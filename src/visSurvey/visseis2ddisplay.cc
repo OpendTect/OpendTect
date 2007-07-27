@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.21 2007-07-25 12:23:36 cvsnanne Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.22 2007-07-27 10:54:00 cvsjaap Exp $
  ________________________________________________________________________
 
 -*/
@@ -593,24 +593,28 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
     if ( attrib>=cache_.size() || !cache_[attrib] )
 	return false;
 
-    int dataidx = -1;
+    int trcidx = -1;
     float mindist;
-    if ( !getNearestTrace( pos, dataidx, mindist ) || 
-	 dataidx>=cache_[attrib]->dataset_.size() ||
-	 !cache_[attrib]->dataset_[dataidx] )
+    if ( !getNearestTrace(pos, trcidx, mindist) )
 	return false;
 
-    const DataHolder* dh = cache_[attrib]->dataset_[dataidx];
-    const int trcnr = cache_[attrib]->trcinfoset_[dataidx]->nr;
-    const int sampidx =
-       mNINT(pos.z/cache_[attrib]->trcinfoset_[dataidx]->sampling.step)-dh->z0_;
-
-    if ( sampidx >= 0 && sampidx < dh->nrsamples_ )
+    const int trcnr = geometry_.posns[trcidx].nr_;
+    for ( int idx=0; idx<cache_[attrib]->trcinfoset_.size(); idx++ )
     {
-	res = dh->series(dh->validSeriesIdx()[version])->value(sampidx);
-	return true;
+	if ( cache_[attrib]->trcinfoset_[idx]->nr != trcnr )
+	    continue;
+	
+	const DataHolder* dh = cache_[attrib]->dataset_[idx];
+	const int sampidx = -dh->z0_ +
+		mNINT(pos.z/cache_[attrib]->trcinfoset_[idx]->sampling.step);
+	
+	if ( sampidx >= 0 && sampidx < dh->nrsamples_ )
+	{
+	    res = dh->series(dh->validSeriesIdx()[version])->value(sampidx);
+	    return true;
+	}
     }
-
+	
     return false;
 }
 
