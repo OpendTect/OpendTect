@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.7 2007-05-23 06:34:20 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.8 2007-07-27 15:27:07 cvskris Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -175,11 +175,7 @@ void uiODVolrenTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( &addmnuid_, &addlcrlslicemnuid_, true, false );
     mAddMenuItem( &addmnuid_, &addltimeslicemnuid_, true, false );
     mAddMenuItem( &addmnuid_, &addvolumemnuid_, !hasVolume(), false );
-#ifdef __debug__
     mAddMenuItem( &addmnuid_, &addisosurfacemnuid_, true, false );
-#else
-    mResetMenuItem( &addisosurfacemnuid_ );
-#endif
 }
 
 
@@ -243,8 +239,19 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==addisosurfacemnuid_.id )
     {
-	addChild( new uiODVolrenSubTreeItem(voldisp->addIsoSurface()), true );
 	menu->setIsHandled( true );
+	static bool isshown = false;
+	if ( !isshown )
+	{
+	    if ( !uiMSG().askGoOn("The iso surface generation is experimental\n"
+		    "and may generate large amounts of display data\n"
+		    "that could destabilize OpendTect.\n"
+		    "Do you want to continue?" ) )
+	    return;
+	}
+
+	isshown = true;
+	addChild( new uiODVolrenSubTreeItem(voldisp->addIsoSurface()), true );
     }
     else if ( uiODAttribTreeItem::handleSelMenu( mnuid, displayID(), 0 ) )
     {
