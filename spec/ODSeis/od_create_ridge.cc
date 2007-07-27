@@ -2,7 +2,7 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : R. K. Singh
  * DATE     : July 2007
- * RCS      : $Id: od_create_ridge.cc,v 1.1 2007-07-24 04:30:59 cvsraman Exp $
+ * RCS      : $Id: od_create_ridge.cc,v 1.2 2007-07-27 04:54:00 cvsraman Exp $
 -*/
 
 #include "conn.h"
@@ -73,7 +73,7 @@ static int doWork( int argc, char** argv )
 	Interval<float> trcrg( 0, outptrc.size() - 1 );
 
 	TypeSet<float> evset;
-	evf.findEvents( evtype, evset, trcrg );
+	evf.findEvents( evset, trcrg, evtype );
 	for ( int idx=0; idx<evset.size(); idx++ )
 	{
 	    const int sampnr = mNINT( evset[idx] );
