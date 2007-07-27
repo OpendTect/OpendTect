@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2005
- RCS:		$Id: valseriesevent.h,v 1.6 2007-07-24 08:31:43 cvsraman Exp $
+ RCS:		$Id: valseriesevent.h,v 1.7 2007-07-27 05:53:33 cvsraman Exp $
 ________________________________________________________________________
 
 */
@@ -73,9 +73,8 @@ public:
 
     ValueSeriesEvent<VT,PT>	find(VSEvent::Type,Interval<PT>,
 	    				int occ=1) const;
-    bool			findEvents(VSEvent::Type,
-	    				   TypeSet<PT>&,
-					   Interval<PT>);
+    bool			findEvents(TypeSet<PT>&,Interval<PT>,
+	    				   VSEvent::Type=VSEvent::None);
 
     static ValueSeriesEvent<VT,PT> exactExtreme(VSEvent::Type,
 	    				   int idxminus1,int idx0,int idx1,
@@ -344,16 +343,20 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::find(
 //  Gives a TypeSet of all the Max/Min events making sure that there is a 
 //  reverse event type i.e. Min/Max between any two of these events:
 template <class VT,class PT>
-inline bool ValueSeriesEvFinder<VT,PT>::findEvents( VSEvent::Type evtype,
-				TypeSet<PT>& posset,
-				Interval<PT> pg)
+inline bool ValueSeriesEvFinder<VT,PT>::findEvents( TypeSet<PT>& posset,
+					Interval<PT> pg, VSEvent::Type evtype )
 {
     Interval<PT> curg( pg );
+    VSEvent::Type reqtype = evtype;
     VSEvent::Type revtype;
+    bool isboth = false;
+
     if ( evtype == VSEvent::Max )
 	revtype = VSEvent::Min;
     else if ( evtype == VSEvent::Min )
 	revtype = VSEvent::Max;
+    else if ( evtype == VSEvent::None )
+    { reqtype = VSEvent::Max; revtype = VSEvent::Min; isboth = true;}
     else 
 	return false;
 
@@ -361,14 +364,15 @@ inline bool ValueSeriesEvFinder<VT,PT>::findEvents( VSEvent::Type evtype,
     posset.erase();
     while ( isascending == curg.stop>curg.start )
     {
-	ValueSeriesEvent<VT,PT> reqev = find( evtype, curg, 1 );
+	ValueSeriesEvent<VT,PT> reqev = find( reqtype, curg, 1 );
 	if ( mIsUdf(reqev.pos) ) break;
 
 	posset += reqev.pos;
 	curg.start = reqev.pos;
 	ValueSeriesEvent<VT,PT> revev = find( revtype, curg, 1 );
-	if ( mIsUdf(reqev.pos) ) break;
+	if ( mIsUdf(revev.pos) ) break;
 
+	if ( isboth ) posset += revev.pos;
 	curg.start = revev.pos;
     }
 
