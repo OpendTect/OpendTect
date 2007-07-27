@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.24 2007-07-03 10:55:21 cvsbert Exp $
+ RCS:           $Id: treeitem.cc,v 1.25 2007-07-27 06:06:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -578,6 +578,7 @@ bool TextSubItem::init()
 	visserv->addObject( cd, sceneID(), true );
 	displayid_ = cd->id();
 	cd->setName( name_ );
+	defscale_ = set_->disp_.pixsize_;
 	cd->setScale( defscale_ );
     }
 
