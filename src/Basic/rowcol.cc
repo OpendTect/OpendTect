@@ -4,7 +4,7 @@
  * DATE     : 31/05/04
 -*/
 
-static const char* rcsID = "$Id: rowcol.cc,v 1.14 2007-01-16 08:26:25 cvsbert Exp $";
+static const char* rcsID = "$Id: rowcol.cc,v 1.15 2007-07-27 14:44:14 cvskris Exp $";
 
 #include "rowcol.h"
 #include "bufstring.h"
@@ -87,7 +87,7 @@ float RCol::angleTo(const RCol& rc) const
 }
 
 
-int RCol::distanceSq( const RCol& rc ) const
+int RCol::sqDistTo( const RCol& rc ) const
 {
     int rdiff = r()-rc.r();
     int cdiff = c()-rc.c();

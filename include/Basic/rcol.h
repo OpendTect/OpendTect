@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.10 2007-01-03 17:48:46 cvsbert Exp $
+ RCS:		$Id: rcol.h,v 1.11 2007-07-27 14:44:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,7 @@ public:
 			      0,0 to the object and the vector going from 0,0
 			      to rc in the counterclockwise direction.*/
 
-    int			distanceSq(const RCol& rc ) const;
+    int			sqDistTo(const RCol& rc) const;
     			/*!<\returns the square of the distance between this
 			  	     object and the provided one. The square
 				     distance is easier to compute than the
