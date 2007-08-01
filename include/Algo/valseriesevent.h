@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2005
- RCS:		$Id: valseriesevent.h,v 1.8 2007-07-31 10:07:31 cvsraman Exp $
+ RCS:		$Id: valseriesevent.h,v 1.9 2007-08-01 09:44:49 cvsraman Exp $
 ________________________________________________________________________
 
 */
@@ -318,25 +318,25 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::find(
 	    evtype = VSEvent::ZCNegPos;
     }
 
+    bool iszc = false;
     if ( evtype==VSEvent::GateMax || evtype==VSEvent::GateMin )
 	return getGateExtr( sg, evtype == VSEvent::GateMax );
     else if ( sg.start == sg.stop )
 	return ev;
     else if ( evtype >= VSEvent::ZC && evtype <= VSEvent::ZCPosNeg )
-	return getZC( sg, occ, evtype );
+	iszc = true;
 
-    ValueSeriesEvent<VT,PT> retev;
     while ( true )
     {
-	retev = getExtreme( sg, occ, evtype );
-	if ( mIsUdf(retev.pos) ) break;
-	if ( ( inc > 0 && retev.pos <= pg.start ) || 
-	     ( inc < 0 && retev.pos >= pg.start ) )
+	ev = iszc ? getZC( sg, occ, evtype ) : getExtreme( sg, occ, evtype );
+	if ( mIsUdf(ev.pos) ) break;
+	if ( ( inc > 0 && ev.pos <= pg.start ) || 
+	     ( inc < 0 && ev.pos >= pg.start ) )
 	    occ++;
 	else break;
     }
 
-    return retev;
+    return ev;
 }
 
 
