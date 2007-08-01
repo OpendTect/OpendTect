@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.69 2007-07-26 22:20:22 cvskris Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.70 2007-08-01 07:46:25 cvsnanne Exp $";
 
 #include "viswelldisplay.h"
 
@@ -624,7 +624,7 @@ void WellDisplay::setDisplayTransformForPicks( visBase::Transformation* newtr )
     if ( !group_ ) return;
     for ( int idx=0; idx<group_->size(); idx++ )
     {
-	mDynamicCastGet( visBase::Marker*, marker, group_->getObject(idx));
+	mDynamicCastGet(visBase::Marker*,marker,group_->getObject(idx));
 	marker->setDisplayTransformation( transformation_ );
     }
 }
@@ -656,6 +656,12 @@ void WellDisplay::setupPicking( bool yn )
 	group_ = visBase::DataObjectGroup::create();
 	pseudotrack_ = new Well::Track();
 	addChild( group_->getInventorNode() );
+    }
+
+    for ( int idx=0; idx<group_->size(); idx++ )
+    {
+	mDynamicCastGet(visBase::Marker*,marker,group_->getObject(idx));
+	marker->turnOn( yn );
     }
 }
 
