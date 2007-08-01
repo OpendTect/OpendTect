@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodwelltreeitem.cc,v 1.12 2007-05-14 12:14:12 cvsraman Exp $
+ RCS:		$Id: uiodwelltreeitem.cc,v 1.13 2007-08-01 07:46:54 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -207,6 +207,7 @@ void uiODWellTreeItem::initMenuItems()
     markermnuitem_.checkable = true;
     markernamemnuitem_.checkable = true;
     showlogmnuitem_.checkable = true;
+    editmnuitem_.checkable = true;
 }
 
 
@@ -253,7 +254,7 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
 		  applMgr()->wellServer()->hasLogs(wd->getMultiID()), false );
     mAddMenuItem( menu, &attrmnuitem_, true, false );
     mAddMenuItem( menu, &propertiesmnuitem_, true, false );
-    mAddMenuItem( menu, &editmnuitem_, true, false );
+    mAddMenuItem( menu, &editmnuitem_, true, wd->isHomeMadeWell() );
     mAddMenuItem( menu, &storemnuitem_, true, false );
     mAddMenuItem( menu, &showmnuitem_, true, false );
     mAddMenuItem( &showmnuitem_, &nametopmnuitem_, true,  
@@ -354,8 +355,8 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid == editmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	bool yn = wd->isHomeMadeWell();
-	wd->setupPicking(!yn);
+	const bool yn = wd->isHomeMadeWell();
+	wd->setupPicking( !yn );
 	if ( !yn )
 	{
 	    uiCursorChanger cursorchgr( uiCursor::Wait );
@@ -370,7 +371,7 @@ bool uiODWellTreeItem::askContinueAndSaveIfNeeded()
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv->getObject(displayid_));
     if ( wd->hasChanged() )
     {
-	BufferString warnstr = "this well has changed since the last save.\n";
+	BufferString warnstr = "This well has changed since the last save.\n";
 	warnstr += "Do you want to save it?";
 	int retval = uiMSG().notSaved(warnstr.buf());
 	if ( !retval ) return true;
