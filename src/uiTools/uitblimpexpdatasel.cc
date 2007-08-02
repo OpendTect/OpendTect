@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.28 2007-02-20 09:47:01 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.29 2007-08-02 07:08:32 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -490,7 +490,7 @@ void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
 	const char* fmtnm = dlg.text();
 	IOPar* newiop = new IOPar;
 	fd_.fillPar( *newiop );
-	Repos::Source src = (Repos::Source)(srcfld->getIntValue()+2);
+	Repos::Source src = (Repos::Source)(srcfld->getIntValue()+3);
 	Table::FFR().set( fd_.name(), fmtnm, newiop, src );
 	if ( !Table::FFR().write(src) )
 	    uiMSG().error( "Cannot write format" );
