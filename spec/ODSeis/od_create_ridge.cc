@@ -2,7 +2,7 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : R. K. Singh
  * DATE     : July 2007
- * RCS      : $Id: od_create_ridge.cc,v 1.2 2007-07-27 04:54:00 cvsraman Exp $
+ * RCS      : $Id: od_create_ridge.cc,v 1.3 2007-08-02 04:28:10 cvsraman Exp $
 -*/
 
 #include "conn.h"
@@ -25,7 +25,7 @@ static int doWork( int argc, char** argv )
     {
 	FilePath fp( argv[0] );
 	std::cerr << "Usage: " << fp.fileName()
-		  << " [Event Type (Min/Max)] inpfile outpfile"
+		  << " [Event Type (Min/Max/Both)] inpfile outpfile"
 		  << std::endl;
 	return 1;
     }
@@ -57,8 +57,16 @@ static int doWork( int argc, char** argv )
     tro->packetInfo() = tri->packetInfo();
 
     VSEvent::Type evtype;
+    VSEvent::Type revtype;
+    bool isboth = false;
     if ( !strcmp( argv[1], "Max" ) ) evtype = VSEvent::Max; 
     else if ( !strcmp( argv[1], "Min" ) ) evtype = VSEvent::Min;
+    else if ( !strcmp( argv[1], "Both" ) ) 
+    {
+	evtype = VSEvent::Max;
+	revtype = VSEvent::Min;
+	isboth = true;
+    }
     else return 1;
 
     SeisTrc inptrc; int nrwr = 0;
@@ -78,6 +86,16 @@ static int doWork( int argc, char** argv )
 	{
 	    const int sampnr = mNINT( evset[idx] );
 	    outptrc.set( sampnr, 1, 0 );
+	}
+
+	if ( isboth )
+	{
+	    evf.findEvents( evset, trcrg, revtype );
+    	    for ( int idx=0; idx<evset.size(); idx++ )
+    	    {
+    		const int sampnr = mNINT( evset[idx] );
+    		outptrc.set( sampnr, -1, 0 );
+    	    }
 	}
 
 	if ( nrwr == 0
