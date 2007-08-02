@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:		$Id: uistrattreewin.cc,v 1.2 2007-07-20 15:49:36 cvshelene Exp $
+ RCS:		$Id: uistrattreewin.cc,v 1.3 2007-08-02 14:38:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
 	    				mCB( this,uiStratTreeWin,unitSelCB ) );
     uistrattab_ = new uiStratUnitDescTab( this, 0 );
     uistrattab_->table()->attach( alignedBelow, (uiObject*)uitree_->listView());
+    setExpCB(0);
 }
 
 
@@ -49,22 +50,23 @@ void uiStratTreeWin::createMenus()
     viewmnu->insertItem( expandmnuitem_ );
     expandmnuitem_->setCheckable( true );
     expandmnuitem_->setChecked( true );
-    menubar->insertItem( viewmnu );
-	    
+    menubar->insertItem( viewmnu );	    
 }
 
 
-void uiStratTreeWin::setExpCB(CallBacker*)
+void uiStratTreeWin::setExpCB( CallBacker* )
 {
+    uitree_->expand( expandmnuitem_->isChecked() );
 }
 
 
 void uiStratTreeWin::unitSelCB(CallBacker*)
 {
+    uistrattab_->clearLevDesc();
     uiListViewItem* item = uitree_->listView()->selectedItem();
     BufferString bs = item->text();
     int itemdepth = item->depth();
-    for ( int idx=itemdepth-2; idx>=0; idx-- )
+    for ( int idx=itemdepth-1; idx>=0; idx-- )
     {
 	item = item->parent();
 	CompoundKey kc( item->text() );
@@ -72,11 +74,11 @@ void uiStratTreeWin::unitSelCB(CallBacker*)
 	bs = kc.buf();
     }
     const Strat::UnitRef* ur = uitree_->findUnit( bs.buf() ); 
-    uistrattab_->setUnitRef( ur );
     const Strat::Level* toplvl = Strat::RT().getLevel( ur, true );
     const Strat::Level* botlvl = Strat::RT().getLevel( ur, false );
     if ( toplvl )
 	uistrattab_->setLevDesc( true, toplvl->name_, toplvl->color() );
     if ( botlvl )
 	uistrattab_->setLevDesc( false, botlvl->name_, botlvl->color() );
+    uistrattab_->setUnitRef( ur );
 } 

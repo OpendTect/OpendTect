@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.2 2007-07-09 10:12:07 cvshelene Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.3 2007-08-02 14:38:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,17 +47,17 @@ void uiStratRefTree::setTree( const Strat::RefTree* rt )
     tree_ = rt;
     if ( !tree_ ) return;
 
-    addNode( 0, *tree_ );
+    addNode( 0, *tree_, true );
 }
 
 
 void uiStratRefTree::addNode( uiListViewItem* parlvit,
-			      const Strat::NodeUnitRef& nur )
+			      const Strat::NodeUnitRef& nur, bool flattened )
 {
     uiListViewItem* lvit = parlvit
 		? new uiListViewItem( parlvit, uiListViewItem::Setup()
 			.label(nur.code()).label(nur.description()) )
-		: new uiListViewItem( lv_, nur.code() );
+		: flattened ? 0 : new uiListViewItem( lv_, nur.code() );
 
     for ( int iref=0; iref<nur.nrRefs(); iref++ )
     {
@@ -65,13 +65,17 @@ void uiStratRefTree::addNode( uiListViewItem* parlvit,
 	if ( ref.isLeaf() )
 	{
 	    mDynamicCastGet(const Strat::LeafUnitRef&,lur,ref);
-	    new uiListViewItem( lvit, uiListViewItem::Setup()
-				.label(lur.code()).label(lur.description()) );
+	    uiListViewItem::Setup setup = uiListViewItem::Setup()
+				    .label(lur.code()).label(lur.description());
+	    if ( lvit )
+		new uiListViewItem( lvit, setup );
+	    else
+		new uiListViewItem( lv_, setup );
 	}
 	else
 	{
 	    mDynamicCastGet(const Strat::NodeUnitRef&,chldnur,ref);
-	    addNode( lvit, chldnur );
+	    addNode( lvit, chldnur, false );
 	}
     }
 }
@@ -80,4 +84,15 @@ void uiStratRefTree::addNode( uiListViewItem* parlvit,
 const Strat::UnitRef* uiStratRefTree::findUnit( const char* s ) const
 {
     return tree_->find( s );
+}
+
+
+void uiStratRefTree::expand( bool yn ) const
+{
+    uiListViewItem* lvit = lv_->firstChild();
+    while ( lvit )
+    {
+	lvit->setOpen( yn );
+	lvit = lvit->itemBelow();
+    }
 }

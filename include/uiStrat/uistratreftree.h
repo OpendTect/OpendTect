@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.2 2007-07-09 10:12:07 cvshelene Exp $
+ RCS:           $Id: uistratreftree.h,v 1.3 2007-08-02 14:38:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ public:
 
     uiListView*		listView()		{ return lv_; }
     const uiListView*	listView() const	{ return lv_; }
+    void                expand(bool) const;
 
     const Strat::UnitRef*	findUnit(const char*) const;
 
@@ -44,7 +45,7 @@ protected:
 
     uiListView*		lv_;
 
-    void		addNode(uiListViewItem*,const Strat::NodeUnitRef&);
+    void		addNode(uiListViewItem*,const Strat::NodeUnitRef&,bool);
 
 };
 
