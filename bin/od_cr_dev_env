@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.24 2006-07-03 10:33:58 cvsbert Exp $
+# $Id: od_cr_dev_env,v 1.25 2007-08-02 12:12:48 cvsnanne Exp $
 #
 # Script copies sources and libs into a development directory
 #
@@ -57,7 +57,7 @@ endif
 
 cd "$outdir"
 
-foreach item ( plugins src include Pmake )
+foreach item ( plugins src include Pmake spec )
     $cpcmd "$inpdir/$item" .
 end
 
