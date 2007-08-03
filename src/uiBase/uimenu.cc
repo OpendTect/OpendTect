@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.41 2007-07-19 07:32:33 cvsjaap Exp $
+ RCS:           $Id: uimenu.cc,v 1.42 2007-08-03 15:03:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,6 +211,12 @@ void uiMenuItem::setChecked( bool yn )
 void uiMenuItem::setText( const char* txt )
 {
     if ( qaction_ ) qaction_->setText( txt );
+}
+
+
+const char* uiMenuItem::text() const
+{
+    return qaction_ ? qaction_->text() : "";
 }
 
 

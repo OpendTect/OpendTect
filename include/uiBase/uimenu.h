@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.36 2007-07-19 07:32:33 cvsjaap Exp $
+ RCS:           $Id: uimenu.h,v 1.37 2007-08-03 15:03:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,7 @@ public:
 
 				//! sets a new text 2b displayed
     void			setText(const char*);
+    const char*			text() const;
 
     bool			isEnabled() const;
     void			setEnabled(bool);
