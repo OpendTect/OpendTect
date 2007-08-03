@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.28 2007-03-29 15:08:14 cvskris Exp $
+ RCS:		$Id: pickset.h,v 1.29 2007-08-03 09:47:15 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,8 +17,8 @@ ________________________________________________________________________
 #include "sets.h"
 #include "trigonometry.h"
 #include "color.h"
+#include "tableascio.h"
 class MultiID;
-
 
 namespace Pick
 {
@@ -209,5 +209,19 @@ inline SetMgr& Mgr()
 
 }; // namespace Pick
 
+
+class PickSetAscIO : public Table::AscIO
+{
+public:
+    				PickSetAscIO( const Table::FormatDesc& fd )
+				    : Table::AscIO(fd)          {}
+
+    static Table::FormatDesc*   getDesc(bool,bool);
+
+    bool			get(std::istream&,Pick::Set&,bool,bool,
+	    			    const float) const;
+    bool                        put(std::ostream&) const;
+
+};
 
 #endif
