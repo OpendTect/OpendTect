@@ -5,13 +5,14 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.44 2007-03-29 21:28:04 cvskris Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.45 2007-08-03 09:48:17 cvsraman Exp $";
 
 #include "pickset.h"
 #include "survinfo.h"
 #include "multiid.h"
 #include "ioman.h"
 #include "separstr.h"
+#include "tabledef.h"
 #include <ctype.h>
 
 
@@ -385,3 +386,52 @@ void Pick::SetMgr::objRm( CallBacker* cb )
     if ( indexOf(ky) >= 0 )
 	set( ky, 0 );
 }
+
+
+Table::FormatDesc* PickSetAscIO::getDesc( bool isxy, bool iszreq )
+{
+    Table::FormatDesc* fd = new Table::FormatDesc( "PickSet" );
+    fd->bodyinfos_ += new Table::TargetInfo( isxy ? "X Coordinate" : "Inl No.", 
+				 FloatInpSpec(), Table::Required );
+    fd->bodyinfos_ += new Table::TargetInfo( isxy ? "Y Coordinate" : "Crl No.",
+				 FloatInpSpec(), Table::Required );
+    if ( iszreq )
+	fd->bodyinfos_ += new Table::TargetInfo( "Z Values", FloatInpSpec(), 
+				 Table::Required, PropertyRef::surveyZType() );
+
+    return fd;
+}
+
+#define mErrRet(s) { if ( s ) errmsg_ = s; return 0; }
+
+bool PickSetAscIO::get( std::istream& strm, Pick::Set& ps, bool isxy, 
+			bool iszreq, const float constz ) const
+{
+    while ( true )
+    {
+	int ret = getNextBodyVals( strm );
+	if ( ret < 0 ) mErrRet(0)
+	if ( ret == 0 ) break;
+
+	const float xread = getfValue( 0 );
+	const float yread = getfValue( 1 );
+	if ( mIsUdf(xread) || mIsUdf(yread) ) continue;
+
+	Coord pos( xread, yread );
+	if ( !isxy || !SI().isReasonable(pos) )
+	{
+	    BinID bid( mNINT(xread), mNINT(yread) );
+	    SI().snap( bid );
+	    pos = SI().transform( bid );
+	}
+
+	if ( !SI().isReasonable(pos) ) continue;
+	
+	const float zread = iszreq ? getfValue( 2 ) : constz;
+	Pick::Location ploc( pos, mIsUdf(zread) ? 0 : zread );
+	ps += ploc;
+    }
+
+    return true;
+}
+
