@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.14 2005-01-12 16:13:43 arend Exp $
+ RCS:           $Id: uilineedit.h,v 1.15 2007-08-03 15:39:02 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,11 +48,15 @@ public:
     Notifier<uiLineEdit> returnPressed;	
     Notifier<uiLineEdit> textChanged;	
 
-protected:
+    			//! Force activation in GUI thread
+    void                activate(const char* txt=0,bool enter=true);
+    Notifier<uiLineEdit> activatedone;
 
     virtual const char*	getvalue_() const;
     virtual void	setvalue_( const char* );
 
+protected:
+    
     virtual bool	notifyValueChanging_( const CallBack& cb )
 			    { textChanged.notify(cb); return true;}
     virtual bool	notifyValueChanged_( const CallBack& cb ) 

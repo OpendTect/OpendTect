@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.24 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: uilineedit.cc,v 1.25 2007-08-03 15:39:02 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "uiobjbody.h"
 #include <datainpspec.h>
 
+#include <qapplication.h>
+#include <qevent.h>
 #include <qsize.h> 
 
 
@@ -29,13 +31,18 @@ public:
 
     virtual int 	nrTxtLines() const		{ return 1; }
 
+    void 		activate(const char* txt=0,bool enter=true);
+    bool 		event(QEvent*);
+
+protected:
+    const char*		activatetxt_;
+    bool 		activateenter_;
+
 private:
 
     i_lineEditMessenger& messenger_;
 
 };
-
-
 
 
 uiLineEditBody::uiLineEditBody( uiLineEdit& handle,uiParent* parnt, 
@@ -47,11 +54,38 @@ uiLineEditBody::uiLineEditBody( uiLineEdit& handle,uiParent* parnt,
     setHSzPol( uiObject::Medium );
 }
 
+
+static const QEvent::Type sQEventActivate = (QEvent::Type) (QEvent::User+0);
+
+void uiLineEditBody::activate( const char* txt, bool enter )
+{
+    activatetxt_ = txt;
+    activateenter_ = enter;
+    QEvent* actevent = new QEvent( sQEventActivate );
+    QApplication::postEvent( this, actevent );
+}
+
+
+bool uiLineEditBody::event( QEvent* ev )
+{
+    if ( ev->type() != sQEventActivate ) 
+	return QLineEdit::event( ev );
+
+    if ( activatetxt_ )
+	handle_.setvalue_( activatetxt_ );
+    if ( activateenter_ )
+	handle_.returnPressed.trigger();
+    
+    handle_.activatedone.trigger();
+    return true;
+}
+
+
 //------------------------------------------------------------------------------
 
 uiLineEdit::uiLineEdit( uiParent* parnt, const char* deftxt, const char* nm ) 
     : uiObject( parnt, nm, mkbody(parnt,nm) )
-    , returnPressed(this), textChanged(this)
+    , returnPressed(this), textChanged(this), activatedone(this)
     , UserInputObjImpl<const char*>()
 {
     setText( deftxt ? deftxt : "" );
@@ -60,7 +94,7 @@ uiLineEdit::uiLineEdit( uiParent* parnt, const char* deftxt, const char* nm )
 uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
 			const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
-    , returnPressed(this), textChanged(this)
+    , returnPressed(this), textChanged(this), activatedone(this)
     , UserInputObjImpl<const char*>()
 {
     setText( spec.text() ? spec.text() : "" );
@@ -71,6 +105,10 @@ uiLineEditBody& uiLineEdit::mkbody( uiParent* parnt, const char* nm)
     body_ = new uiLineEditBody(*this,parnt,nm);
     return *body_; 
 }
+
+
+void uiLineEdit::activate(const char* txt, bool enter)
+{ body_->activate( txt, enter ); }
 
 
 const char* uiLineEdit::getvalue_() const
