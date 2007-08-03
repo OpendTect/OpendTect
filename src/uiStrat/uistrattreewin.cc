@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:		$Id: uistrattreewin.cc,v 1.3 2007-08-02 14:38:34 cvshelene Exp $
+ RCS:		$Id: uistrattreewin.cc,v 1.4 2007-08-03 15:05:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,8 +17,13 @@ ________________________________________________________________________
 #include "uilistview.h"
 #include "uimenu.h"
 #include "uistratreftree.h"
-#include "uistratunitdesctab.h"
+#include "uistratunitdescedtab.h"
 #include "uitable.h"
+
+#define	mExpandTxt	"&Expand all"
+#define	mCollapseTxt	"&Collapse all"
+#define	mEditTxt	"&Edit"
+#define	mLockTxt	"&Lock"
 
 
 uiStratTreeWin::uiStratTreeWin( uiParent* p )
@@ -28,7 +33,7 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     uitree_ = new uiStratRefTree( this, &Strat::RT() );
     const_cast<uiStratRefTree*>(uitree_)->listView()->selectionChanged.notify( 
 	    				mCB( this,uiStratTreeWin,unitSelCB ) );
-    uistrattab_ = new uiStratUnitDescTab( this, 0 );
+    uistrattab_ = new uiStratUnitDescEdTab( this, 0 );
     uistrattab_->table()->attach( alignedBelow, (uiObject*)uitree_->listView());
     setExpCB(0);
 }
@@ -45,18 +50,30 @@ void uiStratTreeWin::createMenus()
 {
     uiMenuBar* menubar =  menuBar();
     uiPopupMenu* viewmnu = new uiPopupMenu( this, "&View" );
-    expandmnuitem_ = new uiMenuItem( "Expand all",
-					mCB(this, uiStratTreeWin, setExpCB ) );
+    expandmnuitem_ = new uiMenuItem( mExpandTxt,
+				     mCB(this, uiStratTreeWin, setExpCB ) );
     viewmnu->insertItem( expandmnuitem_ );
-    expandmnuitem_->setCheckable( true );
-    expandmnuitem_->setChecked( true );
-    menubar->insertItem( viewmnu );	    
+    menubar->insertItem( viewmnu );
+
+    uiPopupMenu* actmnu = new uiPopupMenu( this, "&Action" );
+    editmnuitem_ = new uiMenuItem( mEditTxt, mCB(this,uiStratTreeWin,editCB) );
+    actmnu->insertItem( editmnuitem_ );
+    saveasmnuitem_ = new uiMenuItem( "Save &As",
+				     mCB( this, uiStratTreeWin, saveAsCB ) );
+    actmnu->insertItem( saveasmnuitem_ );
+    savemnuitem_ = new uiMenuItem( "&Save", mCB(this,uiStratTreeWin,saveCB) );
+    actmnu->insertItem( savemnuitem_ );
+    resetmnuitem_ = new uiMenuItem( "&Reset", mCB(this,uiStratTreeWin,resetCB));
+    actmnu->insertItem( resetmnuitem_ );
+    menubar->insertItem( actmnu );	    
 }
 
 
 void uiStratTreeWin::setExpCB( CallBacker* )
 {
-    uitree_->expand( expandmnuitem_->isChecked() );
+    bool expand = !strcmp( expandmnuitem_->text(), mExpandTxt );
+    uitree_->expand( expand );
+    expandmnuitem_->setText( expand ? mCollapseTxt : mExpandTxt );
 }
 
 
@@ -81,4 +98,32 @@ void uiStratTreeWin::unitSelCB(CallBacker*)
     if ( botlvl )
 	uistrattab_->setLevDesc( false, botlvl->name_, botlvl->color() );
     uistrattab_->setUnitRef( ur );
-} 
+}
+
+
+void uiStratTreeWin::editCB( CallBacker* )
+{
+    bool doedit = !strcmp( editmnuitem_->text(), mEditTxt );
+    uistrattab_->setEditable( doedit );
+    editmnuitem_->setText( doedit ? mLockTxt : mEditTxt );
+}
+
+
+void uiStratTreeWin::saveAsCB( CallBacker* )
+{
+    pErrMsg("Not implemented yet: uiStratTreeWin::saveAsCB");
+}
+
+
+void uiStratTreeWin::saveCB( CallBacker* )
+{
+    pErrMsg("Not implemented yet: uiStratTreeWin::saveCB");
+}
+
+
+void uiStratTreeWin::resetCB( CallBacker* )
+{
+    pErrMsg("Not implemented yet: uiStratTreeWin::resetCB");
+}
+
+

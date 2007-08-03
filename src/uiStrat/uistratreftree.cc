@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.3 2007-08-02 14:38:34 cvshelene Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.4 2007-08-03 15:05:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ uiStratRefTree::uiStratRefTree( uiParent* p, const Strat::RefTree* rt )
 {
     lv_ = new uiListView( p, "RefTree viewer" );
     mAddCol( "Unit", 300, 0 );
-    mAddCol( "Name", 200, 1 );
+    mAddCol( "Description", 200, 1 );
     lv_->setPrefWidth( 500 );
     lv_->setStretch( 2, 2 );
     lv_->setTreeStepSize(30);
@@ -55,9 +55,10 @@ void uiStratRefTree::addNode( uiListViewItem* parlvit,
 			      const Strat::NodeUnitRef& nur, bool flattened )
 {
     uiListViewItem* lvit = parlvit
-		? new uiListViewItem( parlvit, uiListViewItem::Setup()
-			.label(nur.code()).label(nur.description()) )
-		: flattened ? 0 : new uiListViewItem( lv_, nur.code() );
+	? new uiListViewItem( parlvit, uiListViewItem::Setup()
+				.label(nur.code()).label(nur.description()) )
+	: flattened ? 0 : new uiListViewItem( lv_,uiListViewItem::Setup()
+				.label(nur.code()).label(nur.description()) );
 
     for ( int iref=0; iref<nur.nrRefs(); iref++ )
     {
