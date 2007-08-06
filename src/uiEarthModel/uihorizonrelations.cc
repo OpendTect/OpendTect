@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2006
- RCS:		$Id: uihorizonrelations.cc,v 1.6 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:		$Id: uihorizonrelations.cc,v 1.7 2007-08-06 08:51:43 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ ________________________________________________________________________
 
 uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
     : uiDialog(p,Setup("Horizon relations","",""))
+    , is2d_( is2d )
 {
     read();
     relationfld_ = new uiLabeledListBox( this, "Order (top to bottom)",

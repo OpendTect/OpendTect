@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.192 2007-07-20 15:49:36 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.193 2007-08-06 08:51:43 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -212,9 +212,11 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 	case Man:
 	    if ( opt == 0 )
 		emserv_->manageSurfaces(
-				 EMHorizon3DTranslatorGroup::keyword );
+				 EMAnyHorizonTranslatorGroup::keyword );
 	    else if ( opt == 1 )
 		emserv_->manageSurfaces( EMHorizon2DTranslatorGroup::keyword );
+	    else if ( opt == 2 )
+		emserv_->manageSurfaces( EMHorizon3DTranslatorGroup::keyword );
 	    break;
 	}
     break;

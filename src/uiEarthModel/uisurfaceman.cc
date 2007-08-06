@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.38 2007-06-25 14:36:50 cvsbert Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.39 2007-08-06 08:51:43 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,20 +38,24 @@ ________________________________________________________________________
 #include "uitextedit.h"
 
 
-#define mGet( typ, hor2d, hor3d, flt ) \
+#define mGet( typ, hor2d, hor3d, anyhor, flt ) \
     !strcmp(typ,EMHorizon2DTranslatorGroup::keyword) ? hor2d : \
-    (!strcmp(typ,EMHorizon3DTranslatorGroup::keyword) ? hor3d : flt)
+    (!strcmp(typ,EMHorizon3DTranslatorGroup::keyword) ? hor3d : \
+    (!strcmp(typ,EMAnyHorizonTranslatorGroup::keyword) ? anyhor : flt) )
 
 #define mGetIoContext(typ) \
     mGet( typ, EMHorizon2DTranslatorGroup::ioContext(), \
 	       EMHorizon3DTranslatorGroup::ioContext(), \
+	       EMAnyHorizonTranslatorGroup::ioContext(), \
 	       EMFaultTranslatorGroup::ioContext() )
 
 #define mGetManageStr(typ) \
-    mGet( typ, "Manage 2D horizons", "Manage horizons", "Manage faults" )
+    mGet( typ, "Manage 2D horizons", "Manage 3D horizons", "Manage horizons", \
+	       "Manage faults" )
 
 #define mGetCopyStr(typ) \
-    mGet( typ, "Copy 2D horizon", "Copy horizon", "Copy fault" )
+    mGet( typ, "Copy 2D horizon", "Copy 3D horizon", "Copy horizon", \
+	       "Copy fault" )
 
 using namespace EM;
 
@@ -60,7 +64,6 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
                                      mGetManageStr(typ),
                                      "104.2.0").nrstatusflds(1),
 		   mGetIoContext(typ) )
-    , is2d_(mGet(typ,true,false,false))
 {
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
@@ -95,6 +98,13 @@ uiSurfaceMan::~uiSurfaceMan()
 {}
 
 
+bool uiSurfaceMan::isCur2D() const
+{
+    return curioobj_ && 
+	   !strcmp(curioobj_->group(),EMHorizon2DTranslatorGroup::keyword);
+}
+
+
 void uiSurfaceMan::copyCB( CallBacker* )
 {
     if ( !curioobj_ ) return;
@@ -107,7 +117,7 @@ void uiSurfaceMan::copyCB( CallBacker* )
 
 void uiSurfaceMan::setRelations( CallBacker* )
 {
-    uiHorizonRelationsDlg dlg( this, is2d_ );
+    uiHorizonRelationsDlg dlg( this, isCur2D() );
     dlg.go();
 }
 
@@ -231,8 +241,17 @@ void uiSurfaceMan::mkFileInfo()
     if ( !res )
     {
 	fillAttribList( sd.valnames );
-	txt = "Inline range: "; mRangeTxt(inl);
-	txt += "Crossline range: "; mRangeTxt(crl);
+	if ( isCur2D() )
+	{
+	    txt = "Nr. 2D lines: "; 
+	    txt += sd.rg.stop.inl - sd.rg.start.inl + 1; 
+	    txt += "\n";
+	}
+	else
+	{
+	    txt = "Inline range: "; mRangeTxt(inl);
+	    txt += "Crossline range: "; mRangeTxt(crl);
+	}
     }
 
     txt += getFileInfo();

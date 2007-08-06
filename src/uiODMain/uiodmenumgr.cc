@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.88 2007-07-16 06:46:44 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.89 2007-08-06 08:51:43 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -566,7 +566,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpLmkFaultMnuItm: 	applMgr().importLMKFault(); break;
 
     case mManSeisMnuItm: 	mDoOp(Man,Seis,0); break;
-    case mManHor3DMnuItm: 	mDoOp(Man,Hor,0); break;
+    case mManHor3DMnuItm: 	mDoOp(Man,Hor,2); break;
     case mManHor2DMnuItm: 	mDoOp(Man,Hor,1); break;
     case mManFaultMnuItm: 	mDoOp(Man,Flt,0); break;
     case mManWellMnuItm: 	mDoOp(Man,Wll,0); break;

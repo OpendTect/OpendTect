@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.13 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.14 2007-08-06 08:51:43 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,8 @@ protected:
 
     uiListBox*		attribfld;
 
+    bool		isCur2D() const;
+
     void		copyCB(CallBacker*);
     void		setRelations(CallBacker*);
     void		removeAttribCB(CallBacker*);
@@ -33,8 +35,6 @@ protected:
 
     void		mkFileInfo();
     void		fillAttribList(const BufferStringSet&);
-
-    bool		is2d_;
 };
 
 
