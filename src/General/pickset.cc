@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.45 2007-08-03 09:48:17 cvsraman Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.46 2007-08-07 05:04:08 cvsraman Exp $";
 
 #include "pickset.h"
 #include "survinfo.h"
@@ -391,6 +391,14 @@ void Pick::SetMgr::objRm( CallBacker* cb )
 Table::FormatDesc* PickSetAscIO::getDesc( bool isxy, bool iszreq )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "PickSet" );
+    createDescBody( fd, isxy, iszreq );
+    return fd;
+}
+
+
+void PickSetAscIO::createDescBody( Table::FormatDesc* fd, bool isxy, 
+							  bool iszreq )
+{
     fd->bodyinfos_ += new Table::TargetInfo( isxy ? "X Coordinate" : "Inl No.", 
 				 FloatInpSpec(), Table::Required );
     fd->bodyinfos_ += new Table::TargetInfo( isxy ? "Y Coordinate" : "Crl No.",
@@ -398,9 +406,15 @@ Table::FormatDesc* PickSetAscIO::getDesc( bool isxy, bool iszreq )
     if ( iszreq )
 	fd->bodyinfos_ += new Table::TargetInfo( "Z Values", FloatInpSpec(), 
 				 Table::Required, PropertyRef::surveyZType() );
-
-    return fd;
 }
+
+
+void PickSetAscIO::updateDesc( Table::FormatDesc& fd, bool isxy, bool iszreq )
+{
+    fd.bodyinfos_.erase();
+    createDescBody( &fd, isxy, iszreq );
+}
+    
 
 #define mErrRet(s) { if ( s ) errmsg_ = s; return 0; }
 
@@ -428,7 +442,7 @@ bool PickSetAscIO::get( std::istream& strm, Pick::Set& ps, bool isxy,
 	if ( !SI().isReasonable(pos) ) continue;
 	
 	const float zread = iszreq ? getfValue( 2 ) : constz;
-	Pick::Location ploc( pos, mIsUdf(zread) ? 0 : zread );
+	Pick::Location ploc( pos, zread );
 	ps += ploc;
     }
 

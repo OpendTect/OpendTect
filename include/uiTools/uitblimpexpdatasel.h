@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.h,v 1.9 2007-02-05 18:19:47 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.h,v 1.10 2007-08-07 05:08:18 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ public:
     const BufferString&		fmtName()	{ return fmtname_; }
     				//!< May not be correct: it's the last selected
 
+    void			updateSummary();
     bool			commit();
     int				nrHdrLines() const; //!< '-1' = variable
 

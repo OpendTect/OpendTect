@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.29 2007-08-02 07:08:32 cvsraman Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.30 2007-08-07 05:09:18 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -745,4 +745,10 @@ bool uiTableImpDataSel::commit()
     }
 
     return true;
+}
+
+
+void uiTableImpDataSel::updateSummary()
+{
+    fmtdeffld_->updateSummary();
 }

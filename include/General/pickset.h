@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.29 2007-08-03 09:47:15 cvsraman Exp $
+ RCS:		$Id: pickset.h,v 1.30 2007-08-07 05:02:35 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -217,6 +217,8 @@ public:
 				    : Table::AscIO(fd)          {}
 
     static Table::FormatDesc*   getDesc(bool,bool);
+    static void			updateDesc(Table::FormatDesc&,bool,bool);
+    static void                 createDescBody(Table::FormatDesc*,bool,bool);
 
     bool			get(std::istream&,Pick::Set&,bool,bool,
 	    			    const float) const;
