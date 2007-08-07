@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.89 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.90 2007-08-07 09:26:32 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -1515,19 +1515,21 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
     const int row = firstrow_+rowindex_ *
 		    (writerowrange_?writerowrange_->step:rowrange_.step);
 
+    const StepInterval<int> colrange = geometry_.colRange( row );
+
     const SectionID sectionid = sectionsel_[sectionindex_];
     TypeSet<Coord3> colcoords;
 
     int firstcol = -1;
     const int nrcols =
-	(writecolrange_?writecolrange_->nrSteps():colrange_.nrSteps())+1;
+	(writecolrange_?writecolrange_->nrSteps():colrange.nrSteps())+1;
 
     mDynamicCastGet(const Horizon2D*,hor2d,&surface_)
     mDynamicCastGet(const Horizon3D*,hor3d,&surface_)
     for ( int colindex=0; colindex<nrcols; colindex++ )
     {
 	const int col = writecolrange_ ? writecolrange_->atIndex(colindex) :
-	    				colrange_.atIndex(colindex);
+	    				colrange.atIndex(colindex);
 
 	const PosID posid(  surface_.id(), sectionid,
 				RowCol(row,col).getSerialized() );
@@ -1627,8 +1629,8 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 
 	writtenrowrange_.include( row, false );
 	writtencolrange_.include( firstcol, false );
-	writtencolrange_.include( firstcol+colrange_.step*(colcoords.size()-1),
-				  false );
+	writtencolrange_.include( firstcol+colrange.step*(colcoords.size()-1),
+				 false );
     }
 
     return true;
