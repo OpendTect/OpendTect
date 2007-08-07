@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.352 2007-07-26 22:12:08 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.353 2007-08-07 04:53:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,14 +71,15 @@ static const int sResetManipIdx = 800;
 static const int sColorIdx = 700;
 static const int sPropertiesIdx = 600;
 static const int sResolutionIdx = 500;
+static const int sHideIdx = -950;
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , menu_( *new uiMenuHandler(appserv().parent(),-1) )
     , resetmanipmnuitem_("Reset Manipulation",sResetManipIdx)
-    , changecolormnuitem_("Color...",sColorIdx)
     , changematerialmnuitem_("Properties ...",sPropertiesIdx)
     , resmnuitem_("Resolution",sResolutionIdx)
+    , hidemnuitem_("Hide",sHideIdx)
     , eventmutex_(*new Threads::Mutex)
     , viewmode_(false)
     , issolomode_(false)
@@ -1440,17 +1441,20 @@ void uiVisPartServer::mouseMoveCB( CallBacker* cb )
 }
 
 
-void uiVisPartServer::createMenuCB(CallBacker* cb)
+void uiVisPartServer::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(uiMenuHandler*,menu,cb);
+    if ( !menu ) return;
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(menu->menuID()));
     if ( !so ) return;
+
+    const bool usehide = menu->getMenuType()==uiMenuHandler::fromScene &&
+						!isSoloMode();
+    mAddMenuItemCond( menu, &hidemnuitem_, true, false, usehide );
 
     mAddMenuItemCond( menu, &resetmanipmnuitem_, 
 	    	      so->isManipulated() && !isLocked(menu->menuID()), false,
 		      so->canResetManipulation() );
-    //mAddMenuItemCond( menu, &changecolormnuitem_, true, false, so->hasColor() );
-    changecolormnuitem_.id = -1;
 
     mAddMenuItemCond( menu, &changematerialmnuitem_, true, false, 
 		      so->allowMaterialEdit() );
@@ -1470,7 +1474,7 @@ void uiVisPartServer::createMenuCB(CallBacker* cb)
 	mAddMenuItem(menu, &resmnuitem_, true, false );
     }
     else
-	mResetMenuItem(&resmnuitem_);
+	mResetMenuItem( &resmnuitem_ );
 }
 
 
@@ -1486,26 +1490,26 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
     
     if ( mnuid==resetmanipmnuitem_.id )
     {
-	resetManipulation(id);
-	menu->setIsHandled(true);
-    }
-    else if ( mnuid==changecolormnuitem_.id )
-    {
-	Color col = so->getColor();
-	if ( selectColor(col,appserv().parent(),"Color selection",false) )
-	    so->setColor( col );
-	menu->setIsHandled(true);
+	resetManipulation( id );
+	menu->setIsHandled( true );
     }
     else if ( mnuid==changematerialmnuitem_.id )
     {
-	setMaterial(id);
-	menu->setIsHandled(true);
+	setMaterial( id );
+	menu->setIsHandled( true );
+    }
+    else if ( mnuid==hidemnuitem_.id )
+    {
+	mDynamicCastGet(visBase::VisualObject*,vo,getObject(id));
+	if ( vo ) vo->turnOn( false );
+	sendEvent( evUpdateTree );
+	menu->setIsHandled( true );
     }
     else if ( resmnuitem_.id!=-1 && resmnuitem_.itemIndex(mnuid)!=-1 )
     {
 	uiCursorChanger cursorlock( uiCursor::Wait );
-	so->setResolution(resmnuitem_.itemIndex(mnuid));
-	menu->setIsHandled(true);
+	so->setResolution( resmnuitem_.itemIndex(mnuid) );
+	menu->setIsHandled( true );
     }
 }
 

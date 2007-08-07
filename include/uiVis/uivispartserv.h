@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.192 2007-07-20 14:12:29 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.193 2007-08-07 04:53:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -350,9 +350,9 @@ protected:
     void			colTabChangeCB(CallBacker*);
 
     MenuItem			resetmanipmnuitem_;
-    MenuItem			changecolormnuitem_;
     MenuItem			changematerialmnuitem_;
     MenuItem			resmnuitem_;
+    MenuItem			hidemnuitem_;
 
     TypeSet< TypeSet<int> >	displayids_;
 
