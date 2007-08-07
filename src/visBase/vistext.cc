@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Apr 2002
- RCS:           $Id: vistext.cc,v 1.14 2007-01-31 20:53:18 cvskris Exp $
+ RCS:           $Id: vistext.cc,v 1.15 2007-08-07 04:57:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -202,10 +202,14 @@ void TextBox::setText( const char* newtext )
 
 const char* TextBox::getText() const
 {
-    SbString val;
-    text_->string.get( val );
     static BufferString res;
-    res = val.getString();
+    res = "";
+    for ( int idx=0; idx<text_->string.getNum(); idx++ )
+    {
+	if ( idx>0 ) res += "\n";
+	res += text_->string[idx].getString();
+    }
+
     return res;
 }
 
