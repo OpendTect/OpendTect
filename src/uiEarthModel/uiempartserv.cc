@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.112 2007-07-10 09:57:59 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.113 2007-08-07 05:06:00 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,9 +25,11 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
+#include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "parametricsurface.h"
+#include "pickset.h"
 #include "ptrman.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"
@@ -650,6 +652,20 @@ void uiEMPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
 }
 
 
+void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
+{
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
+    const ObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    {
+	const IOObj* ioobj = ioobjs[idx];
+	if ( !strcmp(ioobj->group(),"Horizon") &&
+	     !strcmp(ioobj->translator(),"dGB") )
+	    hinfos += new SurfaceInfo( ioobj->name(), ioobj->key() );
+    }
+}
+
+
 void uiEMPartServer::getSurfaceDef( const TypeSet<EM::ObjectID>& selhorids,
 				    BinIDValueSet& bivs,
 				    const BinIDRange* br ) const
@@ -733,3 +749,35 @@ void uiEMPartServer::getSurfaceDef( const TypeSet<EM::ObjectID>& selhorids,
     hor3d->unRef();
     if ( hor3d2 ) hor3d2->unRef();
 }
+
+
+void uiEMPartServer::fillPickSet( Pick::Set& ps, MultiID horid )
+{
+    EM::ObjectID id = getObjectID( horid );
+    if ( id<0 || !isFullyLoaded(id) )
+	loadSurface( horid );
+
+    id = getObjectID( horid );
+    if ( id < 0 )
+	return;
+
+    EM::EMObject* obj = em_.getObject( id );
+    mDynamicCastGet(EM::Horizon3D*,hor,obj)
+    int idx = 0;
+    while ( idx < ps.size() )
+    {
+	const Coord pos( ps[idx].pos.x, ps[idx].pos.y );
+	const BinID bid = SI().transform( pos );
+	const EM::SubID subid = bid.getSerialized();
+	const float z = hor->getPos( hor->sectionID(0), subid ).z;
+	if ( mIsUdf(z) )
+	{
+	    ps.remove( idx );
+	    continue;
+	}
+
+	ps[idx].pos.z = z;
+	idx++;
+    }
+}
+

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.50 2007-07-06 14:11:05 cvskris Exp $
+ RCS:           $Id: uiempartserv.h,v 1.51 2007-08-07 05:05:32 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,9 @@ class BufferStringSet;
 class MultiID;
 class SurfaceInfo;
 class uiPopupMenu;
+
+namespace Pick { class Set; }
+
 template <class T> class Interval;
 
 namespace EM { class EMManager; class SurfaceIODataSelection; };
@@ -57,6 +60,7 @@ public:
 
     void		fillHoles(const EM::ObjectID&);
     void		filterSurface(const EM::ObjectID&);
+    void		fillPickSet(Pick::Set&,MultiID);
     void		deriveHor3DFrom2D(const EM::ObjectID&);
     void		askUserToSave(const EM::ObjectID&) const;
     			/*!< If object has changed, user is asked whether
@@ -76,6 +80,7 @@ public:
     bool		loadSurface(const MultiID&,
 	    			    const EM::SurfaceIODataSelection* s=0);
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&);
+    void                getAllSurfaceInfo(ObjectSet<SurfaceInfo>&);
     void		getSurfaceDef(const TypeSet<EM::ObjectID>&,
 	    			      BinIDValueSet&,
 				      const BinIDRange* br=0) const;
