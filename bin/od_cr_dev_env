@@ -2,7 +2,7 @@
 #_______________________________________________________________________________
 #
 # (C) dGB Beheer B.V.
-# $Id: od_cr_dev_env,v 1.25 2007-08-02 12:12:48 cvsnanne Exp $
+# $Id: od_cr_dev_env,v 1.26 2007-08-07 03:29:04 cvsnanne Exp $
 #
 # Script copies sources and libs into a development directory
 #
@@ -85,7 +85,6 @@ endif
 mkdir bin
 cd bin
 mkdir "$binsubdir"
-if ( "$binsubdir" != "$HDIR" ) ln -s "$binsubdir" "$HDIR"
 cd "$binsubdir"
 ln -s . G
 ln -s . O
@@ -102,16 +101,13 @@ cd "$outdir"
 mkdir lib
 cd lib
 mkdir "$binsubdir"
-if ( "$binsubdir" != "$HDIR" ) ln -s "$binsubdir" "$HDIR"
 cd "$binsubdir"
 ln -s . G
 ln -s . O
-ln -s ../../bin/"$binsubdir"/so/{libqt-mt.so.3,libfftw3f.so.3,libCoin.so.*,libSoQt.so.*} .
-ln -s libqt-mt.so.3 libqt-mt.so
+ln -s ../../bin/"$binsubdir"/so/{libQt*.so.4,libfftw3f.so.3,libCoin.so.*,libSoQt.so.*} .
 ln -s libfftw3f.so.3 libfftw3f.so
 ln -s libCoin.so.* libCoin.so
 ln -s libSoQt.so.* libSoQt.so
-
 
 
 cd "$outdir"
