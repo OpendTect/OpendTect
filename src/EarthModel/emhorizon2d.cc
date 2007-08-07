@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.12 2007-07-06 14:11:05 cvskris Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.13 2007-08-07 06:00:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,10 +87,10 @@ const MultiID& Horizon2DGeometry::lineSet( int lid ) const
 
 
 int Horizon2DGeometry::addLine( const TypeSet<Coord>& path, int start, int step,
-				const MultiID& lineset, const char* line )
+				const MultiID& linesetid, const char* line )
 {
     linenames_.add( line );
-    linesets_ +=  lineset;
+    linesets_ += linesetid;
 
     for ( int idx=sections_.size()-1; idx>=0; idx-- )
     {
@@ -104,6 +104,24 @@ int Horizon2DGeometry::addLine( const TypeSet<Coord>& path, int start, int step,
     }
 
     return lineids_[lineids_.size()-1];
+}
+
+
+void Horizon2DGeometry::setLineInfo( int lineid, const char* line,
+				     const MultiID& linesetid )
+{
+    const int lineidx = lineIndex( lineid );
+    if ( lineidx < 0 )
+    {
+	lineids_ += lineid;
+	linenames_.add( line );
+	linesets_ += linesetid;
+    }
+    else
+    {
+	linenames_.get( lineidx ) = line;
+	linesets_[lineidx] = linesetid;
+    }
 }
 
 

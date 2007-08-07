@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.8 2007-06-26 07:59:00 cvsnanne Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.9 2007-08-07 06:00:54 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,8 @@ public:
 					const MultiID& lineset,
 					const char* linename);
 				/*!<\returns id of new line. */
+    void			setLineInfo(int id,const char* linenm,
+	    				    const MultiID& linesetid);
     void			removeLine(int id);
     bool			isAtEdge(const PosID&) const;
     PosID			getNeighbor(const PosID&,bool nextcol,
