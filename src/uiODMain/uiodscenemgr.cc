@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.107 2007-06-29 11:52:53 cvshelene Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.108 2007-08-07 04:46:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -655,6 +655,7 @@ void uiODSceneMgr::updateTrees()
 	Scene& scene = *scenes_[idx];
 	scene.itemmanager_->updateColumnText( cNameColumn() );
 	scene.itemmanager_->updateColumnText( cColorColumn() );
+	scene.itemmanager_->updateCheckStatus();
     }
 }
 

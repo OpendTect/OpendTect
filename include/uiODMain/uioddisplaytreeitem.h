@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uioddisplaytreeitem.h,v 1.2 2006-05-09 11:00:53 cvsbert Exp $
+ RCS:		$Id: uioddisplaytreeitem.h,v 1.3 2007-08-07 04:46:12 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -32,6 +32,7 @@ public:
     void		updateColumnText(int);
     bool		showSubMenu();
     virtual bool	actModeWhenSelected() const	{ return false; }
+    void		updateCheckStatus();
 
     int			displayID() const		{ return displayid_; }
 

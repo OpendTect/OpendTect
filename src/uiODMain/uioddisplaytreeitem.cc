@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddisplaytreeitem.cc,v 1.9 2007-02-02 15:44:43 cvsnanne Exp $
+ RCS:		$Id: uioddisplaytreeitem.cc,v 1.10 2007-08-07 04:46:12 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -122,7 +122,7 @@ bool uiODDisplayTreeItem::init()
     }
 
     visserv->setSelObjectId( displayid_ );
-    uilistviewitem_->setChecked( visserv->isOn(displayid_) );
+    setChecked( visserv->isOn(displayid_) );
     checkStatusChange()->notify(mCB(this,uiODDisplayTreeItem,checkCB));
 
     name_ = createDisplayName();
@@ -132,6 +132,17 @@ bool uiODDisplayTreeItem::init()
     menu->handlenotifier.notify( mCB(this,uiODDisplayTreeItem,handleMenuCB) );
 
     return true;
+}
+
+
+void uiODDisplayTreeItem::updateCheckStatus()
+{
+    const bool ison = visserv->isOn( displayid_ );
+    const bool ischecked = isChecked();
+    if ( ison != ischecked )
+	setChecked( ison );
+
+    uiTreeItem::updateCheckStatus();
 }
 
 
