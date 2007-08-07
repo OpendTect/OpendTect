@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.41 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.42 2007-08-07 04:46:34 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,8 @@ ________________________________________________________________________
 
 const int uiPickPartServer::evGetHorInfo = 0;
 const int uiPickPartServer::evGetHorDef = 1;
+const int uiPickPartServer::evGetAllHorInfo = 2;
+const int uiPickPartServer::evFillPickSet = 3;
 
 
 uiPickPartServer::uiPickPartServer( uiApplService& a )
@@ -53,8 +55,15 @@ void uiPickPartServer::managePickSets()
 
 void uiPickPartServer::impexpSet( bool import )
 {
-    uiImpExpPickSet dlg( parent(), import );
+    uiImpExpPickSet dlg( this, import );
     dlg.go();
+}
+
+
+void uiPickPartServer::fetchAllHors()
+{
+    deepErase( allhinfos_ );
+    sendEvent( evGetAllHorInfo );
 }
 
 
@@ -199,4 +208,12 @@ void uiPickPartServer::setMisclassSet( const BinIDValueSet& bivs )
 	if ( ioobj )
 	    doStore( *ps, *ioobj );
     }
+}
+
+
+void uiPickPartServer::fillZValsFrmHor( Pick::Set* ps, int horidx )
+{
+    ps_ = ps;
+    horid_ = allhinfos_[horidx]->multiid;
+    sendEvent( evFillPickSet );
 }

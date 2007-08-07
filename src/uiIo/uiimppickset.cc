@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.24 2007-08-03 09:50:11 cvsraman Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.25 2007-08-07 04:46:34 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uipickpartserv.h"
 #include "uiseparator.h"
 #include "uitblimpexpdatasel.h"
 
@@ -21,6 +22,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "strmdata.h"
 #include "strmprov.h"
+#include "surfaceinfo.h"
 #include "survinfo.h"
 #include "tabledef.h"
 #include "filegen.h"
@@ -33,18 +35,23 @@ static const char* zoptions[] =
 {
     "Input file",
     "Constant Z",
+    "Horizon",
     0
 };
 
 
-uiImpExpPickSet::uiImpExpPickSet( uiParent* p, bool imp )
-    : uiDialog(p,uiDialog::Setup(imp ? "Import Pickset" : "Export PickSet",
-				 "Specify pickset parameters",
-				 imp ? "105.0.1" : "105.0.2"))
+uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
+    : uiDialog(p->parent(),uiDialog::Setup(imp ? "Import Pickset"
+			: "Export PickSet", "Specify pickset parameters",
+			imp ? "105.0.1" : "105.0.2"))
+    , serv_(p)
     , ctio_(*mMkCtxtIOObj(PickSet))
     , import_(imp)
     , fd_(*PickSetAscIO::getDesc(true,true))
     , xyfld_(0)
+    , zfld_(0)
+    , constzfld_(0)
+    , dataselfld_(0)
 {
     BufferString label( import_ ? "Input " : "Output " );
     label += "Ascii file";
@@ -72,10 +79,20 @@ uiImpExpPickSet::uiImpExpPickSet( uiParent* p, bool imp )
 		    		formatSel) );
 	zfld_->attach( alignedBelow, xyfld_ );
 
-	constzfld_ = new uiGenInput( this, "Specify Constatnt Z value",
-				FloatInpSpec(0) );
+	BufferString constzlbl = "Specify Constatnt Z value";
+	constzlbl += SI().zIsTime() ? "(milliseconds)"
+	    			    : SI().zInMeter() ? "(metres)" : "(ft)";
+	constzfld_ = new uiGenInput( this, constzlbl, FloatInpSpec(0) );
 	constzfld_->attach( alignedBelow, zfld_ );
 	constzfld_->display( zfld_->box()->currentItem() == 1 );
+
+	horinpfld_ = new uiLabeledComboBox( this, "Select Horizon" );
+	serv_->fetchAllHors();
+	const ObjectSet<SurfaceInfo> hinfos = serv_->allhorInfos();
+	for ( int idx=0; idx<hinfos.size(); idx++ )
+	    horinpfld_->box()->addItem( hinfos[idx]->name );
+	horinpfld_->attach( alignedBelow, zfld_ );
+	horinpfld_->display( zfld_->box()->currentItem() == 2 );
 
 	uiSeparator* sep = new uiSeparator( this, "H sep" );
 	sep->attach( stretchedBelow, constzfld_ );
@@ -87,7 +104,7 @@ uiImpExpPickSet::uiImpExpPickSet( uiParent* p, bool imp )
 	sep = new uiSeparator( this, "H sep" );
 	sep->attach( stretchedBelow, dataselfld_ );
 
-	objfld_->attach( alignedBelow, sep );
+	objfld_->attach( alignedBelow, constzfld_ );
 	objfld_->attach( ensureBelow, sep );
     }
     else
@@ -107,27 +124,13 @@ void uiImpExpPickSet::formatSel( CallBacker* cb )
     const int zchoice = zfld_->box()->currentItem(); 
     const bool iszreq = zchoice == 0;
     constzfld_->display( zchoice == 1 );
-    Table::FormatDesc& fd = dataselfld_->desc();
-    fd.bodyinfos_[0]->setName( isxy ? "X Coordinate" : "Inl No." );
-    fd.bodyinfos_[1]->setName( isxy ? "Y Coordinate" : "Crl No." );
-    if ( iszreq )
-    {
-	if ( fd.bodyinfos_.size() == 2 )
-	    fd.bodyinfos_ += new Table::TargetInfo( "Z Values", FloatInpSpec(),
-		    		 Table::Required, PropertyRef::surveyZType() );
-    }
-    else
-    {
-	if ( fd.bodyinfos_.size() == 3 )
-	{
-	    Table::TargetInfo* ti = fd.bodyinfos_.remove( 2 );
-	    delete ti;
-	}
-    }
+    horinpfld_->display( zchoice == 2 );
+    PickSetAscIO::updateDesc( fd_, isxy, iszreq );
+    dataselfld_->updateSummary();
 }
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
 
+#define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool uiImpExpPickSet::doImport()
 {
@@ -143,11 +146,18 @@ bool uiImpExpPickSet::doImport()
     Pick::Set ps( psnm );
     bool isxy = xyfld_ ? xyfld_->getBoolValue() : true;
     const int zchoice = zfld_->box()->currentItem();
-    const float constz = zchoice==1 ? constzfld_->getfValue() : 0;
+    float constz = zchoice==1 ? constzfld_->getfValue() : 0;
+    if ( SI().zIsTime() ) constz /= 1000;
+
     ps.disp_.color_ = Color::DgbColor;
     PickSetAscIO aio( fd_ );
     aio.get( *sdi.istrm, ps, isxy, zchoice==0, constz );
     sdi.close();
+
+    if ( zchoice == 2 )
+    {
+	serv_->fillZValsFrmHor( &ps, horinpfld_->box()->currentItem() );
+    }
 
     BufferString errmsg;
     if ( !PickSetTranslator::store(ps,ctio_.ioobj,errmsg) )
@@ -204,6 +214,19 @@ bool uiImpExpPickSet::checkInpFlds()
 
     if ( !objfld_->commitInput( true ) )
 	mErrRet( "Please select PickSet" );
+
+    if ( !dataselfld_->commit() )
+	mErrRet( "Please specify data format" );
+
+    const int zchoice = zfld_->box()->currentItem();
+    if ( zchoice == 1 )
+    {
+	float constz = constzfld_->getfValue();
+	if ( SI().zIsTime() ) constz /= 1000;
+
+	if ( !SI().zRange(false).includes( constz ) )
+	    mErrRet( "Please Enter a valid Z value" );
+    }
 
     return true;
 }
