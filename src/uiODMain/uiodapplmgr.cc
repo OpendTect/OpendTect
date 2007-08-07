@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.194 2007-08-07 05:01:39 cvsraman Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.195 2007-08-07 06:01:55 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -818,7 +818,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
     {
 	emserv_->getSurfaceInfo( pickserv_->horInfos() );
     }
-    if ( evid == uiPickPartServer::evGetAllHorInfo )
+    else if ( evid == uiPickPartServer::evGetAllHorInfo )
     {
 	emserv_->getAllSurfaceInfo( pickserv_->allhorInfos() );
     }
