@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.24 2007-07-26 22:20:22 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.25 2007-08-07 07:21:51 cvsnanne Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -340,6 +340,17 @@ bool LocationDisplay::getPickSurface( const visBase::EventInfo& evi,
     if ( so ) so->snapToTracePos( newpos );
 
     return true;
+}
+
+
+Coord3 LocationDisplay::display2World( const Coord3& pos ) const
+{
+    Coord3 res = pos;
+    if ( scene_ )
+	res = scene_->getZScaleTransform()->transformBack( pos );
+    if ( transformation_ )
+	res = transformation_->transformBack( res );
+    return res;
 }
 
 
