@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.h,v 1.5 2007-08-03 09:49:13 cvsraman Exp $
+ RCS:           $Id: uiimppickset.h,v 1.6 2007-08-07 04:45:31 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,10 +15,12 @@ ________________________________________________________________________
 #include "uidialog.h"
 
 class CtxtIOObj;
+class IOObj;
 class uiLabeledComboBox;
 class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
+class uiPickPartServer;
 class uiTableImpDataSel;
 namespace Table { class FormatDesc; }
 
@@ -27,18 +29,21 @@ namespace Table { class FormatDesc; }
 class uiImpExpPickSet : public uiDialog
 {
 public:
-			uiImpExpPickSet(uiParent*,bool);
+			uiImpExpPickSet(uiPickPartServer*,bool);
 			~uiImpExpPickSet();
 
 protected:
 
     uiIOObjSel*		objfld_;
+    uiIOObjSel*		horinputfld_;
     uiGenInput*		xyfld_;
     uiLabeledComboBox*	zfld_;
+    uiLabeledComboBox*  horinpfld_;
     uiGenInput*		constzfld_;
     uiTableImpDataSel*  dataselfld_;
     uiFileInput*	filefld_;
 
+    uiPickPartServer*	serv_;
 
     virtual bool	acceptOK(CallBacker*);
     void		formatSel(CallBacker*);
