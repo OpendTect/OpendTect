@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.193 2007-08-06 08:51:43 cvsjaap Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.194 2007-08-07 05:01:39 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -818,6 +818,10 @@ bool uiODApplMgr::handlePickServEv( int evid )
     {
 	emserv_->getSurfaceInfo( pickserv_->horInfos() );
     }
+    if ( evid == uiPickPartServer::evGetAllHorInfo )
+    {
+	emserv_->getAllSurfaceInfo( pickserv_->allhorInfos() );
+    }
     else if ( evid == uiPickPartServer::evGetHorDef )
     {
 	TypeSet<EM::ObjectID> horids;
@@ -828,6 +832,8 @@ bool uiODApplMgr::handlePickServEv( int evid )
 	emserv_->getSurfaceDef( horids, pickserv_->genDef(),
 			       pickserv_->selBinIDRange() );
     }
+    else if ( evid == uiPickPartServer::evFillPickSet )
+	emserv_->fillPickSet( *pickserv_->pickSet(), pickserv_->horID() );
     else
 
 	pErrMsg("Unknown event from pickserv");
