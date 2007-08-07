@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.30 2007-07-26 07:02:57 cvsnanne Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.31 2007-08-07 04:43:34 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -125,6 +125,7 @@ public:
 				*/
 
     virtual void		updateColumnText(int col);
+    virtual void		updateCheckStatus();
 
 protected:
     virtual int			uiListViewItemType() const;
