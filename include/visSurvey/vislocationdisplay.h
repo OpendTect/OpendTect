@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.13 2007-07-02 12:12:48 cvsraman Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.14 2007-08-08 12:28:34 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -17,14 +17,17 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 
 class Sphere;
+class SoSeparator;
 namespace Pick { class Set; class Location; class SetMgr; }
 
 namespace visBase
 {
     class DataObjectGroup;
+    class DrawStyle;
     class EventCatcher;
-    class Transformation;
     class PickStyle;
+    class PolyLine;
+    class Transformation;
 };
 
 
@@ -54,6 +57,9 @@ public:
     void			showAll(bool yn);
     bool			allShown() const	{ return showall_; }
 
+    void                        createLine();
+    void                        showLine(bool);
+    bool                        lineShown();
     virtual BufferString	getManipulationString() const;
     virtual void		getMousePosInfo(const visBase::EventInfo&,
 						const Coord3&,BufferString&,
@@ -90,7 +96,7 @@ protected:
 
     bool			addPick(const Coord3&,const Sphere&,bool);
     void			removePick(int);
-    void			addDisplayPick(const Pick::Location&);
+    void			addDisplayPick(const Pick::Location&,int);
 
     bool			getPickSurface(const visBase::EventInfo&,
 					   Coord3& pos, Coord3& normal) const;
@@ -112,13 +118,17 @@ protected:
 
     TypeSet<int>		invalidpicks_;
 
+    bool			needline_;
     bool			showall_;
     int				mousepressid_;
 
     visBase::PickStyle*		pickstyle_;
     visBase::DataObjectGroup*	group_;
+    visBase::DrawStyle*         drawstyle_;
     visBase::EventCatcher*	eventcatcher_;
+    visBase::PolyLine*          polyline_;
     visBase::Transformation*	transformation_;
+    SoSeparator*                linesep_;
     ZAxisTransform*		datatransform_;
 
     MultiID			storedmid_;

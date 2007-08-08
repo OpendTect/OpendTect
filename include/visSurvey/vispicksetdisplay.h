@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.59 2007-07-02 12:12:48 cvsraman Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.60 2007-08-08 12:28:34 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -35,23 +35,13 @@ public:
 				mCreateDataObj(PickSetDisplay);
     				~PickSetDisplay();
 
-    void		        createLine();
-    void		        showLine(bool);
-    bool			lineShown();
     int				usePar(const IOPar&);
-    void			setDisplayTransformation(mVisTrans*);
-    void			locChg(CallBacker*);
 protected:
     visBase::VisualObject*	createLocation() const;
     void			setPosition(int loc,const Pick::Location&);
     Coord3			getPosition(int loc) const;
     ::Sphere			getDirection(int loc) const;
     int				isMarkerClick(const TypeSet<int>&) const;
-
-    visBase::PolyLine*		polyline_;
-    visBase::DrawStyle*         drawstyle_;
-    SoSeparator*		linesep_;
-    bool			needline_;
 
     void			dispChg(CallBacker*);
 
