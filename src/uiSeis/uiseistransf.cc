@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.39 2007-07-05 10:04:44 cvsbert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.40 2007-08-08 11:24:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,8 @@ SeisIOObjInfo::SpaceInfo uiSeisTransfer::spaceInfo() const
 
 bool uiSeisTransfer::removeNull() const
 {
-    return remnullfld->getIntValue() == 0;
+    return setup_.withnullfill_ ? remnullfld->getIntValue() == 0
+				: remnullfld->getBoolValue();
 }
 
 
