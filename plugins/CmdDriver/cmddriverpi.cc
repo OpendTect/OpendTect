@@ -73,11 +73,15 @@ uiCmdDriverInps( uiParent* p, CmdDriver& d )
 				.withexamine(true) );
     const BufferString procdir = GetProcFileName(0);
     fnmfld->setDefaultSelectionDir( procdir );
-    outdirfld = new uiFileInput( this, "Output directory", uiFileInput::Setup()
+    outdirfld = new uiFileInput( this, "Output directory",
+	    			uiFileInput::Setup(procdir)
 				.forread(false)
 				.directories(true) );
     outdirfld->attach( alignedBelow, fnmfld );
     outdirfld->setDefaultSelectionDir( procdir );
+    popupfld = new uiGenInput( this, "Pop up status window",
+	    			BoolInpSpec(true) );
+    popupfld->attach( alignedBelow, outdirfld );
 }
 
 bool acceptOK( CallBacker* )
@@ -115,6 +119,7 @@ bool acceptOK( CallBacker* )
 
     uiFileInput*	fnmfld;
     uiFileInput*	outdirfld;
+    uiGenInput*	popupfld;
     BufferString	fnm;
     CmdDriver&		drv_;
 
