@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: viscallout.cc,v 1.18 2007-06-08 06:08:10 cvsnanne Exp $
+ RCS:           $Id: viscallout.cc,v 1.19 2007-08-08 05:12:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -270,8 +270,7 @@ void Callout::setPick( const Pick::Location& loc )
     rotdragger_->set( rot1 );
 
     BufferString text;
-    if ( loc.getText( CalloutDisplay::sKeyText(), text ) &&
-	 strcmp( text.buf(), fronttext_->getText() ) )
+    if ( loc.getText(CalloutDisplay::sKeyText(),text) )
 	setText( text.buf() );
 
     anchor_->enable( loc.getText( CalloutDisplay::sKeyURL(), text ) );
