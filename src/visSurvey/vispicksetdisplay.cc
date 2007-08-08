@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.94 2007-07-09 16:47:00 cvsbert Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.95 2007-08-08 12:21:59 cvsraman Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -29,8 +29,6 @@ const char* PickSetDisplay::sKeyPickPrefix()    { return "Pick "; }
 
 
 PickSetDisplay::PickSetDisplay()
-    : polyline_(0)
-    , needline_(false)
 {}
 
 
@@ -47,50 +45,6 @@ visBase::VisualObject* PickSetDisplay::createLocation() const
     marker->setScreenSize( set_->disp_.pixsize_ );
     marker->setMaterial( 0 );
     return marker;
-}
-
-
-void PickSetDisplay::createLine()
-{
-    if ( !polyline_ ) 
-    {
-	polyline_ = visBase::PolyLine::create();
-	addChild( polyline_->getInventorNode() );
-	polyline_->setDisplayTransformation( transformation_ );
-	polyline_->setMaterial( 0 );
-    }
-
-    int pixsize = set_->disp_.pixsize_;
-    LineStyle ls;
-    ls.width_ = pixsize;
-    polyline_->setLineStyle( ls );
-    while ( polyline_->size() > group_->size() )
-	polyline_->removePoint( 0 );
-
-    for ( int idx=0; idx<group_->size(); idx++ )
-    {
-	mDynamicCastGet(visBase::Marker*,marker,group_->getObject(idx));
-	polyline_->setPoint( idx, marker->centerPos() );
-    }
-
-    int nrnodes = polyline_->size();
-    if ( nrnodes ) 
-	polyline_->setPoint( nrnodes, polyline_->getPoint(0) );
-} 
-
-
-void PickSetDisplay::showLine( bool yn )
-{
-    if ( yn ) needline_ = true;
-    if ( !needline_ ) return;
-    if ( !polyline_ ) createLine();
-    polyline_->turnOn( yn );
-}
-
-
-bool PickSetDisplay::lineShown()
-{
-    return polyline_ ? polyline_->isOn() : false;
 }
 
 
@@ -113,13 +67,6 @@ Coord3 PickSetDisplay::getPosition( int loc ) const
 {
     mDynamicCastGet( visBase::Marker*, marker, group_->getObject(loc) );
     return marker->getDirection();
-}
-
-
-void PickSetDisplay::locChg( CallBacker* cb )
-{
-    LocationDisplay::locChg( cb );
-    if ( needline_ ) createLine();
 }
 
 
@@ -178,13 +125,6 @@ int PickSetDisplay::isMarkerClick( const TypeSet<int>& path ) const
     }
 
     return -1;
-}
-
-
-void PickSetDisplay::setDisplayTransformation( visBase::Transformation* newtr )
-{
-    LocationDisplay::setDisplayTransformation( newtr );
-    if (polyline_ ) polyline_->setDisplayTransformation( newtr );
 }
 
 

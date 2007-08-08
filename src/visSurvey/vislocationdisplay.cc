@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.25 2007-08-07 07:21:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.26 2007-08-08 12:21:59 cvsraman Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -13,11 +13,14 @@ static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.25 2007-08-07 07:21:5
 #include "iopar.h"
 #include "pickset.h"
 #include "picksettr.h"
+#include "separstr.h"
 #include "survinfo.h"
 #include "visevent.h"
 #include "visdataman.h"
+#include "visdrawstyle.h"
 #include "vismaterial.h"
 #include "vispickstyle.h"
+#include "vispolyline.h"
 #include "vistransform.h"
 #include "zaxistransform.h"
 
@@ -28,6 +31,25 @@ const char* LocationDisplay::sKeyMgrName()	{ return "Location.Manager"; }
 const char* LocationDisplay::sKeyShowAll()	{ return "Show all"; }
 const char* LocationDisplay::sKeyMarkerType()	{ return "Shape"; }
 const char* LocationDisplay::sKeyMarkerSize()	{ return "Size"; }
+
+static const float sEps = 0.1;
+
+float findDistance( const Coord3& p1, const Coord3& p2, const Coord3& p )
+{
+    Coord3 vec = p2 - p1;
+    Coord3 newvec = p - p1;
+    const float prod = vec.dot(newvec);
+    const float sq = vec.sqAbs();
+    if ( mIsZero(sq,sEps) ) return 0;
+
+    const float factor = prod / sq;
+    if ( factor<0 || factor>1 )
+	return mUdf(float);
+
+    Coord3 proj = p1 + vec * factor;
+    float dist = proj.distTo( p );
+    return dist;    
+}
 
 
 LocationDisplay::LocationDisplay()
@@ -43,6 +65,8 @@ LocationDisplay::LocationDisplay()
     , waitsforpositionid_( -1 )
     , datatransform_( 0 )
     , pickstyle_( 0 )
+    , polyline_(0)
+    , needline_(false)
 {
     group_->ref();
     addChild( group_->getInventorNode() );
@@ -133,7 +157,7 @@ void LocationDisplay::fullRedraw( CallBacker* )
 	if ( idx<group_->size() )
 	    setPosition( idx, loc );
 	else
-	    addDisplayPick( loc );
+	    addDisplayPick( loc, group_->size() );
 
 	mDynamicCastGet( visBase::VisualObject*, vo,
 			 group_->getObject( idx ) );
@@ -162,6 +186,50 @@ void LocationDisplay::showAll( bool yn )
 
 	vo->turnOn( true );
     }
+}
+
+
+void LocationDisplay::createLine()
+{
+    if ( !polyline_ ) 
+    {
+	polyline_ = visBase::PolyLine::create();
+	addChild( polyline_->getInventorNode() );
+	polyline_->setDisplayTransformation( transformation_ );
+	polyline_->setMaterial( 0 );
+    }
+
+    int pixsize = set_->disp_.pixsize_;
+    LineStyle ls;
+    ls.width_ = pixsize;
+    polyline_->setLineStyle( ls );
+    while ( polyline_->size() > set_->size() )
+	polyline_->removePoint( 0 );
+
+    for ( int idx=0; idx<set_->size(); idx++ )
+    {
+	Coord3 pos = (*set_)[idx].pos;
+	polyline_->setPoint( idx, pos );
+    }
+
+    int nrnodes = polyline_->size();
+    if ( nrnodes ) 
+	polyline_->setPoint( nrnodes, polyline_->getPoint(0) );
+} 
+
+
+void LocationDisplay::showLine( bool yn )
+{
+    if ( yn ) needline_ = true;
+    if ( !needline_ ) return;
+    if ( !polyline_ ) createLine();
+    polyline_->turnOn( yn );
+}
+
+
+bool LocationDisplay::lineShown()
+{
+    return polyline_ ? polyline_->isOn() : false;
 }
 
 
@@ -413,7 +481,7 @@ void LocationDisplay::locChg( CallBacker* cb )
 	    turnon = false;
 	}
 
-	addDisplayPick( loc );
+	addDisplayPick( loc, cd->loc_ );
 
 	mDynamicCastGet( visBase::VisualObject*, vo,
 			 group_->getObject( cd->loc_ ) );
@@ -444,6 +512,8 @@ void LocationDisplay::locChg( CallBacker* cb )
 	if ( vo ) vo->turnOn( turnon );
 	setPosition( cd->loc_, loc );
     }
+
+    if ( needline_ ) createLine();
 }
 
 
@@ -481,8 +551,34 @@ bool LocationDisplay::isPicking() const
 bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 			       bool notif )
 {
-    *set_ += Pick::Location( pos, dir );
-    const int locidx = set_->size()-1;
+    int locidx = -1;
+    if ( lineShown() )
+    {
+	float mindist = mUdf(float);
+	for ( int idx=0; idx<set_->size(); idx++ )
+	{
+	    int pidx = idx>0 ? idx-1 : set_->size()-1;
+	    const float dist = findDistance( (*set_)[pidx].pos,
+		    			     (*set_)[idx].pos, pos );
+	    if ( mIsUdf(dist) ) continue;
+
+	    if ( mIsUdf(mindist) || dist<mindist )
+	    {
+		mindist = dist;
+		locidx = idx;
+	    }
+	}
+
+	if ( locidx < 0 ) return false;
+
+	set_->insert( locidx, Pick::Location(pos,dir) );
+    }
+    else
+    {
+	*set_ += Pick::Location( pos, dir );
+	locidx = set_->size()-1;
+    }
+
     if ( notif && picksetmgr_ )
     {
 	Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::Added,
@@ -507,20 +603,19 @@ void LocationDisplay::removePick( int removeidx )
     if ( !picksetmgr_ )
 	return;
 
+    set_->remove( removeidx );
     Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::ToBeRemoved,
 				 set_, removeidx );
     picksetmgr_->reportChange( 0, cd );
-    set_->remove( removeidx );
 }
 
 
-void LocationDisplay::addDisplayPick( const Pick::Location& loc )
+void LocationDisplay::addDisplayPick( const Pick::Location& loc, int idx )
 {
     RefMan<visBase::VisualObject> visobj = createLocation();
     visobj->setDisplayTransformation( transformation_ );
 
-    const int idx = group_->size();
-    group_->addObject( visobj );
+    group_->insertObject( idx, visobj );
     setPosition( idx, loc );
 }
 
@@ -607,6 +702,9 @@ void LocationDisplay::setDisplayTransformation( visBase::Transformation* newtr )
 
     if ( transformation_ )
 	transformation_->ref();
+    
+    if ( polyline_ )
+	polyline_->setDisplayTransformation( transformation_ );
 
     for ( int idx=0; idx<group_->size(); idx++ )
 	group_->getObject(idx)->setDisplayTransformation( transformation_ );
