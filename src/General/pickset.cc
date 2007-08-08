@@ -5,16 +5,20 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.46 2007-08-07 05:04:08 cvsraman Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.47 2007-08-08 04:13:30 cvsnanne Exp $";
 
 #include "pickset.h"
-#include "survinfo.h"
-#include "multiid.h"
+
 #include "ioman.h"
+#include "multiid.h"
 #include "separstr.h"
+#include "survinfo.h"
 #include "tabledef.h"
 #include <ctype.h>
 
+
+static char pipechar = '|';
+static char newlinechar = '\n';
 
 Pick::Location::~Location()
 {
@@ -105,6 +109,10 @@ bool Pick::Location::fromString( const char* s, bool doxy )
 	{
 	    *stop = '\0';
 	    s += stop - start + 1;
+
+	    SeparString separstring( text->buf(), pipechar );
+	    separstring.replaceSepChar( newlinechar );
+	    *text = separstring.buf();
 	}
     }
 
@@ -146,27 +154,30 @@ bool Pick::Location::fromString( const char* s, bool doxy )
 }
 
 
-void Pick::Location::toString(BufferString& str) const
+void Pick::Location::toString( BufferString& str ) const
 {
+    str = "";
     if ( text )
     {
+	SeparString separstring( text->buf(), newlinechar );
+	separstring.replaceSepChar( pipechar );
+
 	str = "\"";
-	str += text->buf();
+	str += separstring.buf();
 	str += "\"";
 	str += "\t";
-	str += getStringFromDouble(0,pos.x);
     }
-    else
-	str = getStringFromDouble(0,pos.x);
 
-    str += "\t"; str += getStringFromDouble(0,pos.y);
-    str += "\t"; str += getStringFromDouble(0,pos.z);
+    str += getStringFromDouble( 0, pos.x );
+
+    str += "\t"; str += getStringFromDouble( 0, pos.y );
+    str += "\t"; str += getStringFromDouble( 0, pos.z );
 
     if ( hasDir() )
     {
-	str += "\t"; str += getStringFromDouble(0,dir.radius);
-	str += "\t"; str += getStringFromDouble(0,dir.theta);
-	str += "\t"; str += getStringFromDouble(0,dir.phi);
+	str += "\t"; str += getStringFromDouble( 0, dir.radius );
+	str += "\t"; str += getStringFromDouble( 0, dir.theta );
+	str += "\t"; str += getStringFromDouble( 0, dir.phi );
     }
 }
 
@@ -220,7 +231,7 @@ Pick::SetMgr& Pick::SetMgr::getMgr( const char* nm )
     if ( !newmgr )
 	newmgr = new Pick::SetMgr( nm );
     *mgrs += newmgr;
-    IOM().surveyChanged.notify( mCB(newmgr,Pick::SetMgr,survChg) );
+    IOM().surveyToBeChanged.notify( mCB(newmgr,Pick::SetMgr,survChg) );
     IOM().entryRemoved.notify( mCB(newmgr,Pick::SetMgr,objRm) );
     return *newmgr;
 }
