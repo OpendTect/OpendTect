@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.89 2007-08-06 08:51:43 cvsjaap Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.90 2007-08-08 11:28:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -486,7 +486,7 @@ void uiODMenuMgr::fillManTB()
     mAddTB(mantb_,"man_picks.png","Manage Pick Sets",false,manPick);
     mAddTB(mantb_,"man_wvlt.png","Manage Wavelets",false,manWvlt);
 #ifdef __debug__
-    mAddTB(mantb_,"man_wvlt.png","Manage Stratigraphy",false,manStrat);
+    mAddTB(mantb_,"man_strat.png","Manage Stratigraphy",false,manStrat);
 #endif
 }
 
