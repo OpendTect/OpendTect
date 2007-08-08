@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.40 2007-08-08 11:24:21 cvsbert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.41 2007-08-08 11:27:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
 	, setup_(s)
 {
     const bool is2d = Seis::is2D(setup_.geom_);
+    const bool isps = Seis::isPS(setup_.geom_);
     if ( is2d )
 	selfld = new uiSeis2DSubSel( this, setup_.fornewentry_,
 				     setup_.multi2dlines_ );
@@ -42,7 +43,7 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
 	selfld = new uiSeis3DSubSel( this, setup_.withstep_ );
 
     static const char* choices[] = { "Discard", "Pass", "Add", 0 };
-    if ( setup_.withnullfill_ )
+    if ( !is2d && !isps && setup_.withnullfill_ )
 	remnullfld = new uiGenInput( this, "Null traces",
 				     StringListInpSpec(choices) );
     else
