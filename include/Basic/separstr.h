@@ -1,5 +1,5 @@
-#ifndef separstr_H
-#define separstr_H
+#ifndef separstr_h
+#define separstr_h
 
 /*+
 ________________________________________________________________________
@@ -8,12 +8,12 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 1995
  Contents:	String with a separator between the items
- RCS:		$Id: separstr.h,v 1.10 2007-05-15 10:23:07 cvsjaap Exp $
+ RCS:		$Id: separstr.h,v 1.11 2007-08-08 04:09:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <bufstring.h>
+#include "bufstring.h"
 
 #define mMaxSepItem 1023
 
@@ -34,10 +34,10 @@ class SeparString
 public:
 			SeparString(const char* str=0,char separ=',');
 			SeparString( const SeparString& s )
-			: sep(s.sep), rep(s.rep)
-			{ sepstr[0] = s.sepstr[0]; sepstr[1] = s.sepstr[1]; }
+			: sep_(s.sep_), rep_(s.rep_)
+			{ sepstr_[0] = s.sepstr_[0]; sepstr_[1] = s.sepstr_[1];}
     SeparString&	operator=( const char* s )
-			{ rep = s; return *this; }
+			{ rep_ = s; return *this; }
 
     const char*		operator[](unsigned int) const;
     inline const char*	operator[](int x) const
@@ -49,18 +49,19 @@ public:
     SeparString&	operator +=(int);
     SeparString&	operator +=(float);
     SeparString&	operator +=(double);
-    			operator const char*() const	{ return rep; }
-    char*		buf()				{ return rep.buf(); }
+    			operator const char*() const	{ return rep_; }
+    char*		buf()				{ return rep_.buf(); }
     unsigned int	size() const;
     bool		isEmpty() const			{ return !size(); }
-    char		sepChar() const			{ return sep; }
-    void		setSepChar( char );
+    char		sepChar() const			{ return sep_; }
+    void		setSepChar(char);
+    void		replaceSepChar(char newsep);
 
 private:
 
-    char		sep;
-    char		sepstr[2];
-    BufferString	rep;
+    char		sep_;
+    char		sepstr_[2];
+    BufferString	rep_;
 
 };
 
