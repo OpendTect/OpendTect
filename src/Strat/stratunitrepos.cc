@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.13 2007-07-03 10:38:17 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.14 2007-08-08 14:55:46 cvshelene Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: stratunitrepos.cc,v 1.13 2007-07-03 10:38:17 cv
 #include "errh.h"
 #include "debug.h"
 #include "iopar.h"
+#include "color.h"
 
 
 static const char* filenamebase = "StratUnits";
@@ -168,6 +169,8 @@ bool Strat::RefTree::write( std::ostream& strm ) const
 	{
 	    lvl.fill( str );
 	    astrm.put( lvl.name_, str );
+	    lvl.color().fill( str.buf() );
+	    astrm.put( lvl.name_, str );
 	}
     }
 
@@ -272,8 +275,19 @@ void Strat::UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 
     while ( !atEndOfSection( astrm.next() ) )
     {
-	Strat::Level* lvl = new Strat::Level( astrm.keyWord(), 0, true );
+	BufferString lvldesc = astrm.keyWord();
+	Strat::Level* lvl = new Strat::Level( lvldesc, 0, true );
 	lvl->use( astrm.value(), *tree );
+	ascistream tmpastrm = astrm;
+	if ( !atEndOfSection( tmpastrm.next() ) &&
+	     !strcmp( lvldesc += ".Color", tmpastrm.keyWord() ) )
+	{
+	    Color color;
+	    color.use( tmpastrm.value() );
+	    lvl->setColor( color );
+	    astrm = tmpastrm;
+	}
+	
 	tree->addLevel( lvl );
     }
 
@@ -300,6 +314,17 @@ int Strat::UnitRepository::findLith( const char* str ) const
 }
 
 
+int Strat::UnitRepository::findLith( int lithid ) const
+{
+    for ( int idx=0; idx<liths_.size(); idx++ )
+    {
+	if ( liths_[idx]->id() == lithid )
+	    return idx;
+    }
+    return -1;
+}
+
+
 void Strat::UnitRepository::addLith( const char* str, Repos::Source src )
 {
     if ( !str || !*str ) return;
@@ -312,6 +337,14 @@ void Strat::UnitRepository::addLith( const char* str, Repos::Source src )
 	unusedliths_ += newlith;
     else
 	liths_ += newlith;
+}
+
+
+BufferString Strat::UnitRepository::getLithName( int lithid ) const
+{
+    int idx = findLith( lithid );
+    if ( idx<0 || idx>= liths_.size() ) return "";
+    return liths_[idx] ? liths_[idx]->name() : "";
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.12 2007-07-03 10:38:02 cvsbert Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.13 2007-08-08 14:55:46 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,8 @@ public:
     const Lithology&	lith( int idx ) const		{ return *liths_[idx]; }
     Lithology&		lith( int idx )			{ return *liths_[idx]; }
     int			findLith(const char*) const;
+    int			findLith(int) const;
+    BufferString	getLithName(int lithid) const;
     static const char*	sKeyLith;
 
     bool		write(Repos::Source) const;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.10 2007-07-09 10:08:39 cvshelene Exp $
+ RCS:		$Id: stratunitref.h,v 1.11 2007-08-08 14:55:46 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -75,6 +75,10 @@ public:
     			{ return gtProp(p); }
     const Property*	property( const PropertyRef* p ) const
     			{ return gtProp(p); }
+    Property*		property( int propidx )
+    			{ return properties_[propidx]; }
+    int			nrProperties() const
+			{ return properties_.size(); }
 
     //! Iterator. When constructed, returns unit itself (regardless of Pol).
     //!< First next() goes to first (valid) unit.

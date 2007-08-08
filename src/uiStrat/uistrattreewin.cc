@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:		$Id: uistrattreewin.cc,v 1.4 2007-08-03 15:05:13 cvshelene Exp $
+ RCS:		$Id: uistrattreewin.cc,v 1.5 2007-08-08 14:55:46 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,11 +14,12 @@ ________________________________________________________________________
 #include "compoundkey.h"
 #include "stratlevel.h"
 #include "stratunitrepos.h"
+#include "uigroup.h"
+#include "uilistbox.h"
 #include "uilistview.h"
 #include "uimenu.h"
+#include "uisplitter.h"
 #include "uistratreftree.h"
-#include "uistratunitdescedtab.h"
-#include "uitable.h"
 
 #define	mExpandTxt	"&Expand all"
 #define	mCollapseTxt	"&Collapse all"
@@ -26,15 +27,13 @@ ________________________________________________________________________
 #define	mLockTxt	"&Lock"
 
 
+using namespace Strat;
+
 uiStratTreeWin::uiStratTreeWin( uiParent* p )
-    : uiMainWin(p,"Strat RefTree viewer group", 0, true, true)
+    : uiMainWin(p,"Manage Stratigraphy", 0, true, true)
 {
     createMenus();
-    uitree_ = new uiStratRefTree( this, &Strat::RT() );
-    const_cast<uiStratRefTree*>(uitree_)->listView()->selectionChanged.notify( 
-	    				mCB( this,uiStratTreeWin,unitSelCB ) );
-    uistrattab_ = new uiStratUnitDescEdTab( this, 0 );
-    uistrattab_->table()->attach( alignedBelow, (uiObject*)uitree_->listView());
+    createGroups();
     setExpCB(0);
 }
 
@@ -42,7 +41,6 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
 uiStratTreeWin::~uiStratTreeWin()
 {
     delete uitree_;
-    delete uistrattab_;
 }
 
     
@@ -69,6 +67,26 @@ void uiStratTreeWin::createMenus()
 }
 
 
+void uiStratTreeWin::createGroups()
+{
+    uiGroup* leftgrp = new uiGroup( this, "LeftGroup" );
+    leftgrp->setStretch( 1, 1 );
+    uiGroup* rightgrp = new uiGroup( this, "RightGroup" );
+    rightgrp->setStretch( 1, 1 );
+    uitree_ = new uiStratRefTree( leftgrp, &Strat::RT() );
+    const_cast<uiStratRefTree*>(uitree_)->listView()->selectionChanged.notify( 
+	    				mCB( this,uiStratTreeWin,unitSelCB ) );
+    lvllistfld_ = new uiListBox( rightgrp, "Existing Levels" );
+    lvllistfld_->setStretch( 2, 2 );
+    lvllistfld_->selectionChanged.notify( mCB(this,uiStratTreeWin,selLvlChgCB));
+    fillLvlList();
+    
+    uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
+    splitter->addGroup( leftgrp );
+    splitter->addGroup( rightgrp );
+}
+
+
 void uiStratTreeWin::setExpCB( CallBacker* )
 {
     bool expand = !strcmp( expandmnuitem_->text(), mExpandTxt );
@@ -79,7 +97,7 @@ void uiStratTreeWin::setExpCB( CallBacker* )
 
 void uiStratTreeWin::unitSelCB(CallBacker*)
 {
-    uistrattab_->clearLevDesc();
+/*    uistrattab_->clearLevDesc();
     uiListViewItem* item = uitree_->listView()->selectedItem();
     BufferString bs = item->text();
     int itemdepth = item->depth();
@@ -98,13 +116,15 @@ void uiStratTreeWin::unitSelCB(CallBacker*)
     if ( botlvl )
 	uistrattab_->setLevDesc( false, botlvl->name_, botlvl->color() );
     uistrattab_->setUnitRef( ur );
-}
+*/}
 
 
 void uiStratTreeWin::editCB( CallBacker* )
 {
     bool doedit = !strcmp( editmnuitem_->text(), mEditTxt );
-    uistrattab_->setEditable( doedit );
+//    uitree_->listView()->setRenameEnabled( doedit );
+//    uitree_->listView()->setDragEnabled( doedit );
+//    uitree_->listView()->setDropEnabled( doedit );
     editmnuitem_->setText( doedit ? mLockTxt : mEditTxt );
 }
 
@@ -127,3 +147,20 @@ void uiStratTreeWin::resetCB( CallBacker* )
 }
 
 
+void uiStratTreeWin::selLvlChgCB( CallBacker* )
+{
+    pErrMsg("Not implemented yet: uiStratTreeWin::selLvlChgCB");
+}
+
+
+void uiStratTreeWin::fillLvlList()
+{
+    lvllistfld_->empty();
+    int nrlevels = RT().nrLevels();
+    for ( int idx=0; idx<nrlevels; idx++ )
+    {
+	const Level* lvl = RT().level( idx );
+	if ( !lvl ) return;
+	lvllistfld_->addItem( lvl->name_, lvl->color() );
+    }
+}

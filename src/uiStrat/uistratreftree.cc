@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.4 2007-08-03 15:05:13 cvshelene Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.5 2007-08-08 14:55:46 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,13 +18,17 @@ ________________________________________________________________________
     lv_->setColumnWidthMode( nr, uiListView::Manual ); \
     lv_->setColumnWidth( nr, wdth )
 
-uiStratRefTree::uiStratRefTree( uiParent* p, const Strat::RefTree* rt )
+using namespace Strat;
+
+uiStratRefTree::uiStratRefTree( uiParent* p, const RefTree* rt )
 	: tree_(0)
 {
     lv_ = new uiListView( p, "RefTree viewer" );
     mAddCol( "Unit", 300, 0 );
     mAddCol( "Description", 200, 1 );
-    lv_->setPrefWidth( 500 );
+    mAddCol( "Lithology", 150, 2 );
+    lv_->setPrefWidth( 650 );
+    lv_->setPrefHeight( 400 );
     lv_->setStretch( 2, 2 );
     lv_->setTreeStepSize(30);
 
@@ -38,7 +42,7 @@ uiStratRefTree::~uiStratRefTree()
 }
 
 
-void uiStratRefTree::setTree( const Strat::RefTree* rt )
+void uiStratRefTree::setTree( const RefTree* rt )
 {
     if ( rt == tree_ ) return;
 
@@ -52,7 +56,7 @@ void uiStratRefTree::setTree( const Strat::RefTree* rt )
 
 
 void uiStratRefTree::addNode( uiListViewItem* parlvit,
-			      const Strat::NodeUnitRef& nur, bool flattened )
+			      const NodeUnitRef& nur, bool flattened )
 {
     uiListViewItem* lvit = parlvit
 	? new uiListViewItem( parlvit, uiListViewItem::Setup()
@@ -62,12 +66,14 @@ void uiStratRefTree::addNode( uiListViewItem* parlvit,
 
     for ( int iref=0; iref<nur.nrRefs(); iref++ )
     {
-	const Strat::UnitRef& ref = nur.ref( iref );
+	const UnitRef& ref = nur.ref( iref );
 	if ( ref.isLeaf() )
 	{
-	    mDynamicCastGet(const Strat::LeafUnitRef&,lur,ref);
+	    mDynamicCastGet(const LeafUnitRef&,lur,ref);
 	    uiListViewItem::Setup setup = uiListViewItem::Setup()
-				    .label(lur.code()).label(lur.description());
+				.label( lur.code() )
+				.label( lur.description() )
+				.label( UnRepo().getLithName(lur.lithology()) );
 	    if ( lvit )
 		new uiListViewItem( lvit, setup );
 	    else
@@ -75,14 +81,14 @@ void uiStratRefTree::addNode( uiListViewItem* parlvit,
 	}
 	else
 	{
-	    mDynamicCastGet(const Strat::NodeUnitRef&,chldnur,ref);
+	    mDynamicCastGet(const NodeUnitRef&,chldnur,ref);
 	    addNode( lvit, chldnur, false );
 	}
     }
 }
 
 
-const Strat::UnitRef* uiStratRefTree::findUnit( const char* s ) const
+const UnitRef* uiStratRefTree::findUnit( const char* s ) const
 {
     return tree_->find( s );
 }
