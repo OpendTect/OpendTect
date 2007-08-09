@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jul 2007
- RCS:           $Id: eventfreqattrib.h,v 1.1 2007-07-26 16:35:22 cvsbert Exp $
+ RCS:           $Id: eventfreqattrib.h,v 1.2 2007-08-09 16:27:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,12 +34,22 @@ protected:
     static Provider*	createInstance(Desc&);
 
     bool		allowParallelComputation() const	{ return true; }
-    bool		getInputData(const BinID&,int zintv);
+    bool		getInputData(const BinID&,int);
     bool		computeData(const DataHolder&,const BinID&,
 	    			    int,int,int) const;
 
     const DataHolder*	inpdata_;
     ValueSeries<float>*	inpseries_;
+    Interval<int>	dessamps_;
+    Interval<int>	cubeintv_;
+
+    mutable TypeSet<float> evposns_;
+
+    void		findEvents(int,int) const;
+    void		fillOutput(const DataHolder&,int,int) const;
+
+    const Interval<int>* desZSampMargin(int,int) const;
+    float		getPDz(float*,int) const;
 
 };
 
