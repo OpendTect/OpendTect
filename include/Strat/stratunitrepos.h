@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.13 2007-08-08 14:55:46 cvshelene Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.14 2007-08-09 14:16:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "stratreftree.h"
+#include "callback.h"
 
 namespace Strat
 {
@@ -27,7 +28,7 @@ const RefTree& RT();
 /*!\brief Repository of all stratigraphic descriptions defining the building
 	  blocks of subsurface descriptions */
 
-class UnitRepository
+class UnitRepository : public CallBacker
 {
 public:
 
@@ -70,6 +71,8 @@ protected:
     UnitRef*		fnd(const char*,int) const;
     UnitRef*		fndAny(const char*) const;
     void		addLith(const char*,Repos::Source);
+
+    void		survChg(CallBacker*);
 
 private:
 
