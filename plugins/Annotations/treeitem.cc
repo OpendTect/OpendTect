@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.25 2007-07-27 06:06:09 cvsnanne Exp $
+ RCS:           $Id: treeitem.cc,v 1.26 2007-08-09 11:43:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ ParentTreeItem::~ParentTreeItem()
 bool ParentTreeItem::rightClick( uiListViewItem* itm )
 {
     if ( itm == uilistviewitem_ && !uilistviewitem_->isOpen() )
-	uilistviewitem_->setOpen();
+	uilistviewitem_->setOpen( true );
 
     return uiTreeItem::rightClick( itm );
 }
