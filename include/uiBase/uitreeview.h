@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.22 2007-07-26 07:02:57 cvsnanne Exp $
+ RCS:           $Id: uitreeview.h,v 1.23 2007-08-09 10:34:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -245,9 +245,9 @@ public:
     int			childCount() const;
 
     bool		isOpen() const;
-    void		setOpen( bool yn=true );
+    void		setOpen(bool yn);
 
-    void		setSelected( bool yn=true );
+    void		setSelected(bool yn);
     bool		isSelected() const;
 
     uiListViewItem*	firstChild() const;
@@ -259,30 +259,30 @@ public:
 
     uiListView*		listView() const;
 
-    void		setSelectable( bool yn=true );
+    void		setSelectable(bool yn);
     bool		isSelectable() const;
 
-    void		setExpandable( bool yn=true );
+    void		setExpandable(bool yn);
     bool		isExpandable() const;
 
     void		moveItem( uiListViewItem* after );
 
 
-    void		setDragEnabled( bool yn=true );
-    void		setDropEnabled( bool yn=true );
+    void		setDragEnabled(bool);
+    void		setDropEnabled(bool);
     bool		dragEnabled() const;
     bool		dropEnabled() const;
 
-    void		setVisible( bool yn=true );
+    void		setVisible(bool yn);
     bool		isVisible() const;
 
-    void		setRenameEnabled( int column, bool yn=true );
-    bool		renameEnabled( int column ) const;
+    void		setRenameEnabled(int column,bool);
+    bool		renameEnabled(int column) const;
 
-    void		setEnabled( bool yn=true );
+    void		setEnabled(bool);
     bool		isEnabled() const;
 
-    void		setMultiLinesEnabled( bool yn=true );
+    void		setMultiLinesEnabled(bool);
     bool		multiLinesEnabled() const;
 
     Notifier<uiListViewItem> stateChanged; //!< only works for CheckBox type
