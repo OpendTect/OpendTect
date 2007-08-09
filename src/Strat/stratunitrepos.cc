@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.15 2007-08-09 13:51:50 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.16 2007-08-09 14:15:55 cvsbert Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: stratunitrepos.cc,v 1.15 2007-08-09 13:51:50 cv
 #include "errh.h"
 #include "debug.h"
 #include "iopar.h"
+#include "ioman.h"
 #include "color.h"
 
 
@@ -180,6 +181,7 @@ Strat::UnitRepository::UnitRepository()
     	: curtreeidx_(-1)
 {
     reRead();
+    IOM().afterSurveyChange.notify( mCB(this,Strat::UnitRepository,survChg) );
 }
 
 
@@ -188,6 +190,12 @@ Strat::UnitRepository::~UnitRepository()
     deepErase( trees_ );
     deepErase( liths_ );
     deepErase( unusedliths_ );
+}
+
+
+void Strat::UnitRepository::survChg( CallBacker* )
+{
+    reRead();
 }
 
 
