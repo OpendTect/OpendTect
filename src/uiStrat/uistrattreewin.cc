@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:		$Id: uistrattreewin.cc,v 1.5 2007-08-08 14:55:46 cvshelene Exp $
+ RCS:		$Id: uistrattreewin.cc,v 1.6 2007-08-09 10:15:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,9 +76,11 @@ void uiStratTreeWin::createGroups()
     uitree_ = new uiStratRefTree( leftgrp, &Strat::RT() );
     const_cast<uiStratRefTree*>(uitree_)->listView()->selectionChanged.notify( 
 	    				mCB( this,uiStratTreeWin,unitSelCB ) );
-    lvllistfld_ = new uiListBox( rightgrp, "Existing Levels" );
+    lvllistfld_ = new uiLabeledListBox( rightgrp, "Existing Levels", false,
+	    				uiLabeledListBox::AboveMid );
     lvllistfld_->setStretch( 2, 2 );
-    lvllistfld_->selectionChanged.notify( mCB(this,uiStratTreeWin,selLvlChgCB));
+    lvllistfld_->box()->selectionChanged.notify( mCB( this, uiStratTreeWin,
+						      selLvlChgCB ) );
     fillLvlList();
     
     uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
@@ -122,6 +124,7 @@ void uiStratTreeWin::unitSelCB(CallBacker*)
 void uiStratTreeWin::editCB( CallBacker* )
 {
     bool doedit = !strcmp( editmnuitem_->text(), mEditTxt );
+    uitree_->makeTreeEditable( doedit );
 //    uitree_->listView()->setRenameEnabled( doedit );
 //    uitree_->listView()->setDragEnabled( doedit );
 //    uitree_->listView()->setDropEnabled( doedit );
@@ -155,12 +158,12 @@ void uiStratTreeWin::selLvlChgCB( CallBacker* )
 
 void uiStratTreeWin::fillLvlList()
 {
-    lvllistfld_->empty();
+    lvllistfld_->box()->empty();
     int nrlevels = RT().nrLevels();
     for ( int idx=0; idx<nrlevels; idx++ )
     {
 	const Level* lvl = RT().level( idx );
 	if ( !lvl ) return;
-	lvllistfld_->addItem( lvl->name_, lvl->color() );
+	lvllistfld_->box()->addItem( lvl->name_, lvl->color() );
     }
 }
