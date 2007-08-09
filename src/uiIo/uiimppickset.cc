@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.25 2007-08-07 04:46:34 cvsraman Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.26 2007-08-09 10:43:36 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,8 +87,8 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
 	constzfld_->display( zfld_->box()->currentItem() == 1 );
 
 	horinpfld_ = new uiLabeledComboBox( this, "Select Horizon" );
-	serv_->fetchAllHors();
-	const ObjectSet<SurfaceInfo> hinfos = serv_->allhorInfos();
+	serv_->fetchHors();
+	const ObjectSet<SurfaceInfo> hinfos = serv_->horInfos();
 	for ( int idx=0; idx<hinfos.size(); idx++ )
 	    horinpfld_->box()->addItem( hinfos[idx]->name );
 	horinpfld_->attach( alignedBelow, zfld_ );

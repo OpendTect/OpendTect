@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.42 2007-08-07 04:46:34 cvsraman Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.43 2007-08-09 10:43:36 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,8 +28,7 @@ ________________________________________________________________________
 
 const int uiPickPartServer::evGetHorInfo = 0;
 const int uiPickPartServer::evGetHorDef = 1;
-const int uiPickPartServer::evGetAllHorInfo = 2;
-const int uiPickPartServer::evFillPickSet = 3;
+const int uiPickPartServer::evFillPickSet = 2;
 
 
 uiPickPartServer::uiPickPartServer( uiApplService& a )
@@ -60,17 +59,16 @@ void uiPickPartServer::impexpSet( bool import )
 }
 
 
-void uiPickPartServer::fetchAllHors()
+void uiPickPartServer::fetchHors()
 {
-    deepErase( allhinfos_ );
-    sendEvent( evGetAllHorInfo );
+    deepErase( hinfos_ );
+    sendEvent( evGetHorInfo );
 }
 
 
 bool uiPickPartServer::fetchSets()
 {
-    deepErase( hinfos_ );
-    sendEvent( evGetHorInfo );
+    fetchHors();
     BufferStringSet hornms;
     for ( int idx=0; idx<hinfos_.size(); idx++ )
 	hornms.add( hinfos_[idx]->name );
@@ -214,6 +212,6 @@ void uiPickPartServer::setMisclassSet( const BinIDValueSet& bivs )
 void uiPickPartServer::fillZValsFrmHor( Pick::Set* ps, int horidx )
 {
     ps_ = ps;
-    horid_ = allhinfos_[horidx]->multiid;
+    horid_ = hinfos_[horidx]->multiid;
     sendEvent( evFillPickSet );
 }
