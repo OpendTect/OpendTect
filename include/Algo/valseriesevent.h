@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2005
- RCS:		$Id: valseriesevent.h,v 1.9 2007-08-01 09:44:49 cvsraman Exp $
+ RCS:		$Id: valseriesevent.h,v 1.10 2007-08-09 16:27:54 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -67,7 +67,11 @@ public:
 				ValueSeriesEvFinder( const ValueSeries<VT>& v,
 						     int maxidx,
 						     const SamplingData<PT>& s )
-				: vs_(v), maxidx_(maxidx), sd_(s)	{}
+				: vs_(v)
+				, maxidx_(maxidx)
+				, sd_(s)
+				, lastfound_(VSEvent::None)	{}
+
     const ValueSeries<VT>&	valueSeries() const { return vs_; }
     const SamplingData<PT>&	samplingData() const { return sd_; }
 
@@ -83,11 +87,15 @@ public:
     				//!< 2nd order polynome where values
     				//!< can be separated more than 1 sample
 
+    VSEvent::Type		lastFound() const	{ return lastfound_; }
+    				//!< Useful when finding Extr or ZC
+
 protected:
 
     const ValueSeries<VT>&	vs_;
     const SamplingData<PT>	sd_;
     int				maxidx_;
+    mutable VSEvent::Type	lastfound_;
 
     ValueSeriesEvent<VT,PT>	getZC(const Interval<int>&,int,
 	    				VSEvent::Type) const;
@@ -149,12 +157,15 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::getZC(
 	}
 	// Here, both v0 and v1 are non-zero
 	// Now we can do the main thing:
-	if ( ( v0 < 0 && v1 > 0 && needtopos )
-	  || ( v0 > 0 && v1 < 0 && needtoneg ) )
+	const bool istopos = v0 < 0 && v1 > 0;
+	const bool istoneg = v0 > 0 && v1 < 0;
+	if ( ( istopos && needtopos ) || ( istoneg && needtoneg ) )
 	{
 	    occ--;
 	    if ( occ < 1 )
 	    {
+		lastfound_ = istopos ? VSEvent::VSEvent::ZCNegPos
+		    		     : VSEvent::ZCPosNeg;
 		PT pos = idx - inc * (v1 / ( v1 - v0 ));
 		return ValueSeriesEvent<VT,PT>( 0, sd_.start + pos * sd_.step );
 	    }
@@ -260,9 +271,12 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::getExtreme(
 	    const bool atmax = upw0 && !upw1;
 	    ishit = (evtype != VSEvent::Min && atmax)
 		 || (evtype != VSEvent::Max && !atmax);
+	    if ( ishit )
+	    {
+		lastfound_ = atmax ? VSEvent::Max : VSEvent::Min;
+		occ--;
+	    }
 	}
-	if ( ishit )
-	    occ--;
 
 	if ( occ < 1 )
 	    return exactExtreme( evtype, idx0-inc, idx0, idx1,
@@ -280,6 +294,8 @@ template <class VT,class PT>
 inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::find(
 		VSEvent::Type evtype, Interval<PT> pg, int occ ) const
 {
+    lastfound_ = evtype;
+
     ValueSeriesEvent<VT,PT> ev;
     if ( occ < 1 )
     {
@@ -328,12 +344,23 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::find(
 
     while ( true )
     {
-	ev = iszc ? getZC( sg, occ, evtype ) : getExtreme( sg, occ, evtype );
-	if ( mIsUdf(ev.pos) ) break;
+	if ( !iszc )
+	    ev = getExtreme( sg, occ, evtype );
+	else
+	{
+	    ev = getZC( sg, occ, evtype );
+	    if ( inc < 0 )
+		lastfound_ = lastfound_ == VSEvent::ZCPosNeg
+		    	   ? VSEvent::ZCNegPos : VSEvent::ZCPosNeg;
+	}
+	if ( mIsUdf(ev.pos) )
+	    break;
+
 	if ( ( inc > 0 && ev.pos <= pg.start ) || 
 	     ( inc < 0 && ev.pos >= pg.start ) )
 	    occ++;
-	else break;
+	else
+	    break;
     }
 
     return ev;
