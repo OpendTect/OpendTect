@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.195 2007-08-07 06:01:55 cvsraman Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.196 2007-08-09 10:48:25 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -816,18 +816,21 @@ bool uiODApplMgr::handlePickServEv( int evid )
 {
     if ( evid == uiPickPartServer::evGetHorInfo )
     {
-	emserv_->getSurfaceInfo( pickserv_->horInfos() );
-    }
-    else if ( evid == uiPickPartServer::evGetAllHorInfo )
-    {
-	emserv_->getAllSurfaceInfo( pickserv_->allhorInfos() );
+	emserv_->getAllSurfaceInfo( pickserv_->horInfos() );
     }
     else if ( evid == uiPickPartServer::evGetHorDef )
     {
 	TypeSet<EM::ObjectID> horids;
 	const ObjectSet<MultiID>& storids = pickserv_->selHorIDs();
 	for ( int idx=0; idx<storids.size(); idx++ )
-	    horids += emserv_->getObjectID(*storids[idx]);
+	{
+	    const MultiID horid = *storids[idx];
+	    const EM::ObjectID id = emserv_->getObjectID(horid);
+	    if ( id<0 || !emserv_->isFullyLoaded(id) )
+		emserv_->loadSurface( horid );
+
+	    horids += emserv_->getObjectID(horid);
+	}
 	
 	emserv_->getSurfaceDef( horids, pickserv_->genDef(),
 			       pickserv_->selBinIDRange() );
