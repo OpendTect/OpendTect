@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.29 2007-08-07 04:45:31 cvsraman Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.30 2007-08-09 10:44:56 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,13 +42,12 @@ public:
     void			managePickSets();
     Pick::Set*			pickSet()		{ return ps_; }
     void			impexpSet(bool import);
-    void			fetchAllHors();
+    void			fetchHors();
     bool			fetchSets();	//!< Fetch set(s) by user sel
     void			setMisclassSet(const BinIDValueSet&);
     void			fillZValsFrmHor(Pick::Set*,int);
 
     static const int		evGetHorInfo;
-    static const int            evGetAllHorInfo;
     static const int		evGetHorDef;
     static const int            evFillPickSet;
 
@@ -56,7 +55,6 @@ public:
 				// Interaction stuff
     BinIDValueSet&		genDef() 		{ return gendef_; }
     ObjectSet<SurfaceInfo>& 	horInfos()		{ return hinfos_; }
-    ObjectSet<SurfaceInfo>&     allhorInfos()		{ return allhinfos_; }
     const ObjectSet<MultiID>&	selHorIDs() const	{ return selhorids_; }
     const BinIDRange*		selBinIDRange() const	{ return selbr_; }
     MultiID			horID()			{ return horid_; }
@@ -68,7 +66,6 @@ protected:
 
     BinIDValueSet 		gendef_;
     ObjectSet<SurfaceInfo> 	hinfos_;
-    ObjectSet<SurfaceInfo>      allhinfos_;
     ObjectSet<MultiID>		selhorids_;
     const BinIDRange*		selbr_;
     Pick::Set*			ps_;
