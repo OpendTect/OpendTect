@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.26 2007-08-08 12:21:59 cvsraman Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.27 2007-08-09 04:43:10 cvsraman Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -40,10 +40,10 @@ float findDistance( const Coord3& p1, const Coord3& p2, const Coord3& p )
     Coord3 newvec = p - p1;
     const float prod = vec.dot(newvec);
     const float sq = vec.sqAbs();
-    if ( mIsZero(sq,sEps) ) return 0;
+    if ( mIsZero(sq,sEps) ) return mUdf(float);		// p1 and p2 coincide.
 
     const float factor = prod / sq;
-    if ( factor<0 || factor>1 )
+    if ( factor<0 || factor>1 )		// projected point outside the segment.
 	return mUdf(float);
 
     Coord3 proj = p1 + vec * factor;
