@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.14 2007-08-08 14:55:46 cvshelene Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.15 2007-08-09 13:51:50 cvsbert Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -146,11 +146,8 @@ bool Strat::RefTree::write( std::ostream& strm ) const
     for ( int idx=0; idx<repo.nrLiths(); idx++ )
     {
 	const Lithology& lith = repo.lith( idx );
-	if ( lith.source() == src_ )
-	{
-	    lith.fill( str );
-	    astrm.put( Strat::UnitRepository::sKeyLith, str );
-	}
+	lith.fill( str );
+	astrm.put( Strat::UnitRepository::sKeyLith, str );
     }
 
     astrm.newParagraph();
