@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.16 2007-08-09 14:15:55 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.17 2007-08-09 14:17:31 cvsbert Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -181,7 +181,7 @@ Strat::UnitRepository::UnitRepository()
     	: curtreeidx_(-1)
 {
     reRead();
-    IOM().afterSurveyChange.notify( mCB(this,Strat::UnitRepository,survChg) );
+    IOM().surveyChanged.notify( mCB(this,Strat::UnitRepository,survChg) );
 }
 
 
