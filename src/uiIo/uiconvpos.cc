@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.cc,v 1.19 2006-12-20 14:58:58 cvsbert Exp $
+ RCS:           $Id: uiconvpos.cc,v 1.20 2007-08-10 12:17:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,16 +12,15 @@ ________________________________________________________________________
 #include "uiconvpos.h"
 #include "pixmap.h"
 #include "survinfo.h"
-#include "oddirs.h"
 #include "uibutton.h"
 #include "uidialog.h"
 #include "uigeninput.h"
+
 
 uiConvertPos::uiConvertPos( uiParent* p, SurveyInfo* si )
 	: uiDialog(p, uiDialog::Setup("Position conversion",
 		   "Coordinates vs Inline/X-line","0.3.7"))
 	, survinfo(si)
-
 {
     uiGroup* fldgrp = new uiGroup( this );
     inlfld = new uiGenInput( fldgrp, "In-line", IntInpSpec() );
@@ -40,9 +39,9 @@ uiConvertPos::uiConvertPos( uiParent* p, SurveyInfo* si )
     uiGroup* butgrp = new uiGroup( this );
     const ioPixmap right( "forward.xpm" );
     const ioPixmap left( "back.xpm" );
-    docoordbut = new uiToolButton( butgrp, "", right );
+    uiToolButton* docoordbut = new uiToolButton( butgrp, "", right );
     docoordbut->activated.notify( mCB(this,uiConvertPos,getCoord) );
-    dobinidbut = new uiToolButton( butgrp, "", left );
+    uiToolButton* dobinidbut = new uiToolButton( butgrp, "", left );
     dobinidbut->activated.notify( mCB(this,uiConvertPos,getBinID) );
     docoordbut->attach( rightOf, dobinidbut, 0 );
 
@@ -50,15 +49,23 @@ uiConvertPos::uiConvertPos( uiParent* p, SurveyInfo* si )
     setCtrlStyle( LeaveOnly );
 }
 
+
 void uiConvertPos::getCoord()
 {
     BinID binid( inlfld->getIntValue(), crlfld->getIntValue() );
+    if ( mIsUdf(binid.inl) || mIsUdf(binid.crl) )
+    {
+	xfld->setText( "" ); yfld->setText( "" );
+	return;
+    }
+
     Coord coord( survinfo->transform( binid ) );
     xfld->setValue( coord.x );
     yfld->setValue( coord.y );
     inlfld->setValue( binid.inl );
     crlfld->setValue( binid.crl );
 }
+
 
 void uiConvertPos::getBinID()
 {
@@ -69,4 +76,3 @@ void uiConvertPos::getBinID()
     if ( mIsZero(coord.x,mDefEps) ) xfld->setValue( 0 );
     if ( mIsZero(coord.y,mDefEps) ) yfld->setValue( 0 );
 }
-
