@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.47 2007-02-16 16:36:30 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.48 2007-08-10 12:15:18 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -231,12 +231,15 @@ public:
     bool		setInfo( const ArrayNDInfo& ni )
 			{
 			    if ( ni.getNDim() != 1 ) return false; 
-			    setSize( ni.getSize( 0 ) );
-			    return true;
+			    return setSize( ni.getSize(0) );
 			}
 
 
-    void		setSize( int s ) { in.setSize(0,s); stor_->setSize(s); }
+    bool		setSize( int s )
+    			{
+			    in.setSize(0,s);
+			    return stor_->setSize(s);
+			}
 
 			// ValueSeries interface
     T*			arr()			{ return stor_->arr(); }
@@ -322,15 +325,14 @@ public:
     bool		setInfo( const ArrayNDInfo& ni )
 			{
 			    if ( ni.getNDim() != 2 ) return false; 
-			    setSize( ni.getSize( 0 ), ni.getSize( 1 ) );
-			    return true;
+			    return setSize( ni.getSize(0), ni.getSize(1) );
 			}
 
-    void		setSize( int d0, int d1 )
+    bool		setSize( int d0, int d1 )
 			{
 			    in.setSize(0,d0);
 			    in.setSize(1,d1);
-			    stor_->setSize(in.getTotalSz());
+			    return stor_->setSize( in.getTotalSz() );
 			}
 
 protected:
@@ -411,18 +413,17 @@ public:
     bool		setInfo( const ArrayNDInfo& ni )
 			{
 			    if ( ni.getNDim() != 3 ) return false; 
-			    setSize( ni.getSize( 0 ), ni.getSize( 1 ),
-				     ni.getSize( 2 ) );
-			    return true;
+			    return setSize( ni.getSize(0), ni.getSize(1),
+					    ni.getSize(2) );
 			}
 
 
-    void		setSize( int d0, int d1, int d2 )
+    bool		setSize( int d0, int d1, int d2 )
 			{
 			    in.setSize(0,d0);
 			    in.setSize(1,d1);
 			    in.setSize(2,d2);
-			    stor_->setSize(in.getTotalSz());
+			    return stor_->setSize( in.getTotalSz() );
 			}
 protected:
 
@@ -512,16 +513,15 @@ static ArrayND<T>*	create(const ArrayNDInfo& nsz,bool file=false);
 			    int ndim = in->getNDim();
 			    for ( int idx=0; idx<ndim; idx++ )
 				{ in->setSize( idx, ni.getSize(idx) ); }
-			    stor_->setSize( in->getTotalSz() );
-			    return true;
+			    return stor_->setSize( in->getTotalSz() );
 			}
  
-    void		setSize( const int* d )
+    bool		setSize( const int* d )
 			{
 			    const int ndim = in->getNDim();
 			    for ( int idx=0; idx<ndim; idx++ )
-				in->setSize(idx,d[idx]);
-			    stor_->setSize(in->getTotalSz());
+				in->setSize( idx, d[idx] );
+			    return stor_->setSize( in->getTotalSz() );
 			}
 
 protected:
