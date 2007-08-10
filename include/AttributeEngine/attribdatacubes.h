@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: attribdatacubes.h,v 1.14 2007-04-02 14:10:39 cvshelene Exp $
+ RCS:           $Id: attribdatacubes.h,v 1.15 2007-08-10 12:18:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,9 +40,9 @@ public:
     				//!<Adds the cube and inits it to the given val.
     void			removeCube(int);
 
-    void			setSizeAndPos(const CubeSampling&);
+    bool			setSizeAndPos(const CubeSampling&);
     				/*!<\note that all data will be lost. */
-    void			setSize(int nrinl,int nrcrl,int nrz);
+    bool			setSize(int nrinl,int nrcrl,int nrz);
     				/*!<\note that all data will be lost. */
     void			setValue(int array,int inlidx,int crlidx,
 	    				 int zidx,float val);

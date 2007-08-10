@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.23 2007-04-02 14:10:39 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.24 2007-08-10 12:18:53 cvsnanne Exp $";
 
 #include "attribdatacubes.h"
 #include "arrayndimpl.h"
@@ -39,7 +39,6 @@ bool DataCubes::addCube( bool maydofile, const  BinDataDesc* desc )
     if ( !desc || (*desc)==floatdesc )
     {
         arr = new Array3DImpl<float>( inlsz_, crlsz_, zsz_, false);
-
 	if ( !arr->getData() )
 	{
 	    if ( maydofile )
@@ -97,7 +96,7 @@ void DataCubes::removeCube( int idx )
 }
 
 
-void DataCubes::setSizeAndPos( const CubeSampling& cs )
+bool DataCubes::setSizeAndPos( const CubeSampling& cs )
 {
     inlsampling.start = cs.hrg.start.inl;
     crlsampling.start = cs.hrg.start.crl;
@@ -106,19 +105,28 @@ void DataCubes::setSizeAndPos( const CubeSampling& cs )
     z0 = mNINT(cs.zrg.start/cs.zrg.step);
     zstep = cs.zrg.step;
 
-    setSize( cs.nrInl(), cs.nrCrl(), cs.nrZ() );
+    return setSize( cs.nrInl(), cs.nrCrl(), cs.nrZ() );
 }
 
 
 
-void  DataCubes::setSize( int nrinl, int nrcrl, int nrz )
+bool DataCubes::setSize( int nrinl, int nrcrl, int nrz )
 {
     inlsz_ = nrinl;
     crlsz_ = nrcrl;
     zsz_ = nrz;
 
-    for ( int idx=0; idx<cubes_.size(); idx++ )
-	cubes_[idx]->setSize( inlsz_, crlsz_, zsz_ );
+    bool res = true;
+    for ( int idx=0; idx<cubes_.size() && res; idx++ )
+	res = cubes_[idx]->setSize( inlsz_, crlsz_, zsz_ );
+
+    if ( res )
+	return true;
+
+    while ( cubes_.size() )
+	removeCube( 0 );
+
+    return false;
 }
 
 
