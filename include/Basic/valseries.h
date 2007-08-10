@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.7 2007-05-22 13:05:43 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.8 2007-08-10 12:06:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,8 +160,10 @@ ArrayValueSeries<T>::ArrayValueSeries( T* ptr, bool memmine )
 
 template <class T>
 ArrayValueSeries<T>::ArrayValueSeries( int64 sz )
-    : ptr_( new T[sz]), mine_(true), cursize_( sz )
-{}
+    : mine_(true), cursize_( sz )
+{
+    mTryAlloc( ptr_, T[sz] )
+}
 
 
 template <class T>
@@ -171,7 +173,7 @@ bool ArrayValueSeries<T>::setSize( int64 sz )
     if ( cursize_!=-1 && cursize_==sz && ptr_ ) return true;
 
     delete [] ptr_;
-    ptr_ = new T[sz];
+    mTryAlloc( ptr_, T[sz] )
     cursize_ = sz;
     return ptr_;
 }
