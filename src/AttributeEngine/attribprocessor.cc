@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.49 2007-04-11 14:55:47 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.50 2007-08-10 11:56:56 cvsbert Exp $";
 
 #include "attribprocessor.h"
 
@@ -133,9 +133,9 @@ void Processor::useFullProcess( int& res )
 
     if ( res == 0 && !nrdone_ )
     {
-	errmsg_ = "No position to process.\n";
-	errmsg_ += "You may not be in the possible volume,\n";
-	errmsg_ += "mind the stepout...";
+	errmsg_ = "No positions processed.\n"
+	"Most probably, your input volume(s) are not available in the "
+	"selected region\nor the required stepout traces are not available";
 	return;
     }
     else if ( res != 0 )
