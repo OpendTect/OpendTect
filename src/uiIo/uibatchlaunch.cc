@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.56 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.57 2007-08-10 09:52:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -246,7 +246,7 @@ uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const Setup& s )
 }
 
 
-void uiFullBatchDialog::addStdFields()
+void uiFullBatchDialog::addStdFields( bool forread )
 {
     uiGroup* dogrp = new uiGroup( this, "Proc details" );
     if ( !redo_ )
@@ -263,7 +263,7 @@ void uiFullBatchDialog::addStdFields()
     const char* txt = redo_ ? "Processing specification file"
 			    : "Store processing specification as";
     parfnamefld = new uiFileInput( dogrp, txt, uiFileInput::Setup(singparfname)
-					       .forread(false)
+					       .forread(forread)
 					       .filter("*.par;;*") );
     parfnamefld->attach( alignedBelow, singmachfld );
 
@@ -399,5 +399,5 @@ uiRestartBatchDialog::uiRestartBatchDialog( uiParent* p, const char* ppn,
     setHelpID( "101.2.1" );
     setTitleText( "Run a saved processing job" );
     setCtrlStyle( DoAndLeave );
-    addStdFields();
+    addStdFields( true );
 }
