@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.41 2007-08-08 07:19:43 cvsjaap Exp $
+ RCS:           $Id: uibutton.cc,v 1.42 2007-08-10 12:20:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -426,4 +426,10 @@ void uiToolButton::setPixmap( const ioPixmap& pm )
 #else
     body_->setIcon( QIcon(*pm.qpixmap()) );
 #endif
+}
+
+
+void uiToolButton::setArrowType( ArrowType type )
+{
+    body_->setArrowType( (Qt::ArrowType)(int)type );
 }

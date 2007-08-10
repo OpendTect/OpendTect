@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.21 2007-05-15 10:28:57 cvsjaap Exp $
+ RCS:           $Id: uibutton.h,v 1.22 2007-08-10 12:20:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,6 +139,9 @@ public:
 				uiToolButton(uiParent*,const char*,
 					     const ioPixmap&,const CallBack&);
 
+    enum ArrowType		{ NoArrow, UpArrow, DownArrow,
+				  LeftArrow, RightArrow };
+
     bool			isOn();
     void			setOn(bool yn=true);
 
@@ -146,6 +149,7 @@ public:
     bool			isToggleButton();
 
     void			setPixmap(const ioPixmap&);
+    void			setArrowType(ArrowType);
     
     void			click();
 
