@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jul 2007
- RCS:           $Id: eventfreqattrib.h,v 1.2 2007-08-09 16:27:38 cvsbert Exp $
+ RCS:           $Id: eventfreqattrib.h,v 1.3 2007-08-10 11:57:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,9 +44,11 @@ protected:
     Interval<int>	cubeintv_;
 
     mutable TypeSet<float> evposns_;
+    mutable bool	firstevmax_;
 
     void		findEvents(int,int) const;
-    void		fillOutput(const DataHolder&,int,int) const;
+    void		fillFreqOutput(const DataHolder&,int,int) const;
+    void		fillPhaseOutput(const DataHolder&,int,int) const;
 
     const Interval<int>* desZSampMargin(int,int) const;
     float		getPDz(float*,int) const;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jul 2007
- RCS:           $Id: eventfreqattrib.cc,v 1.2 2007-08-09 16:27:38 cvsbert Exp $
+ RCS:           $Id: eventfreqattrib.cc,v 1.3 2007-08-10 11:57:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,8 @@ void EventFreq::initClass()
 {
     mAttrStartInitClass
     desc->addInput( InputSpec("Input Data",true) );
-    desc->setNrOutputs( Seis::Frequency, 1 );
+    desc->addOutputDataType( Seis::Frequency );
+    desc->addOutputDataType( Seis::Phase );
     mAttrEndInitClass
 }
 
@@ -92,8 +93,12 @@ void EventFreq::findEvents( int z0, int nrsamples ) const
 	    float prevpos = evposns_[evposns_.size()-1];
 	    evposns_ += (curev.pos + prevpos) * .5;
 	}
+
 	evposns_ += curev.pos;
 	prevpos = curev.pos;
+	if ( prevtype == VSEvent::None )
+	    firstevmax_ = evf.lastFound() == VSEvent::Max;
+	prevtype = evf.lastFound();
     }
 }
 
@@ -112,13 +117,13 @@ float EventFreq::getPDz( float* dz, int idx ) const
 }
 
 
-void EventFreq::fillOutput( const DataHolder& output,
-			    int z0, int nrsamples ) const
+void EventFreq::fillFreqOutput( const DataHolder& output,
+				int z0, int nrsamples ) const
 {
     if ( evposns_.size() < 3 )
     {
 	const float val = evposns_.size() < 2 ? mUdf(float)
-	    		: 1. / (2 * refstep * (evposns_[1] - evposns_[0]));
+			: 1. / (2 * refstep * (evposns_[1] - evposns_[0]));
 	for ( int idx=0; idx<nrsamples; idx++ )
 	    setOutputValue( output, 0, idx, z0, val );
 	return;
@@ -149,6 +154,48 @@ void EventFreq::fillOutput( const DataHolder& output,
 }
 
 
+void EventFreq::fillPhaseOutput( const DataHolder& output,
+				 int z0, int nrsamples ) const
+{
+    if ( evposns_.size() == 0 )
+    {
+	for ( int idx=0; idx<nrsamples; idx++ )
+	    setOutputValue( output, 0, idx, z0, mUdf(float) );
+    }
+    if ( evposns_.size() == 1 )
+    {
+	firstevmax_ = !firstevmax_;
+	evposns_.insert( 0, z0 );
+	evposns_ += z0 + nrsamples - 1;
+    }
+
+    int evidxafter = 0;
+    float dz[3];
+    while ( evidxafter < evposns_.size()-1 && evposns_[evidxafter+1] < z0 )
+	evidxafter++;
+    float p1 = getPDz( dz, evidxafter-1 );
+
+    for ( int idx=0; idx<nrsamples; idx++ )
+    {
+	const float zpos = z0 + idx;
+
+	while ( evidxafter < evposns_.size()-1
+	     && evposns_[evidxafter+1] < zpos )
+	{
+	    evidxafter++;
+	    p1 = getPDz( dz, evidxafter-1 );
+	}
+
+	float r = (zpos - p1) / dz[1];
+	float ph = r*M_PI;
+	bool oddevnr = evidxafter % 2;
+	bool aftermin = (oddevnr && !firstevmax_) || (!oddevnr && firstevmax_);
+	if ( aftermin ) ph -= M_PI;
+	setOutputValue( output, 1, idx, z0, ph );
+    }
+}
+
+
 bool EventFreq::computeData( const DataHolder& output, const BinID& relpos, 
 			  int z0, int nrsamples, int threadid ) const
 {
@@ -156,7 +203,10 @@ bool EventFreq::computeData( const DataHolder& output, const BinID& relpos,
 
     evposns_.erase();
     findEvents( z0, nrsamples );
-    fillOutput( output, z0, nrsamples );
+    if ( outputinterest[0] )
+	fillFreqOutput( output, z0, nrsamples );
+    if ( outputinterest[1] )
+	fillPhaseOutput( output, z0, nrsamples );
 
     return true;
 }
