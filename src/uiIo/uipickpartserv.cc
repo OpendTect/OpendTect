@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.43 2007-08-09 10:43:36 cvsraman Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.44 2007-08-13 04:35:04 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,11 +12,13 @@ ________________________________________________________________________
 #include "uipickpartserv.h"
 
 #include "uicursor.h"
-#include "uifetchpicks.h"
+#include "uicreatepicks.h"
 #include "uiimppickset.h"
+#include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uipicksetman.h"
 
+#include "ioman.h"
 #include "pickset.h"
 #include "picksettr.h"
 #include "surfaceinfo.h"
@@ -65,65 +67,73 @@ void uiPickPartServer::fetchHors()
     sendEvent( evGetHorInfo );
 }
 
+bool uiPickPartServer::loadSets()
+{
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(PickSet);
+    ctio->ctxt.forread = true;
+    uiIOObjSelDlg dlg( appserv().parent(), *ctio, 0, true );
+    if ( !dlg.go() ) return false;
 
-bool uiPickPartServer::fetchSets()
+    bool retval = false;
+    const int nrsel = dlg.nrSel();
+    for ( int idx=0; idx<nrsel; idx++ )
+    {
+	const MultiID id = dlg.selected(idx);
+	PtrMan<IOObj> ioobj = IOM().get( id );
+	if ( setmgr_.indexOf(ioobj->key()) >= 0 )
+	    continue;
+
+	Pick::Set* newps = new Pick::Set;
+	BufferString bs;
+	if ( PickSetTranslator::retrieve(*newps,ioobj,bs) )
+	{
+	    setmgr_.set( ioobj->key(), newps );
+	    retval = true;
+	}
+	else
+	{
+	    delete newps;
+	    if ( idx == 0 )
+	    {
+		uiMSG().error( bs );
+		return false;
+	    }
+	    else
+	    {
+		BufferString msg( ioobj->name() );
+		msg += ": "; msg += bs;
+		uiMSG().warning( msg );
+	    }
+	}
+    }
+
+    return retval;
+}
+
+
+bool uiPickPartServer::createSet()
 {
     fetchHors();
     BufferStringSet hornms;
     for ( int idx=0; idx<hinfos_.size(); idx++ )
 	hornms.add( hinfos_[idx]->name );
 
-    uiFetchPicks dlg( parent(), setmgr_, hornms );
+    uiCreatePicks3D dlg( parent(), hornms );
     if ( !dlg.go() )
-	{ deepErase( hinfos_ ); return false; }
+    { deepErase( hinfos_ ); return false; }
 
-    bool rv = false;
-    if ( dlg.mkNew() )
+    Pick::Set* newps = new Pick::Set( dlg.getName() );
+    newps->disp_.color_ = dlg.getPickColor();
+    if ( dlg.genRand() )
     {
-	Pick::Set* newps = new Pick::Set( dlg.getName() );
-	newps->disp_.color_ = dlg.getPickColor();
-	if ( dlg.genRand() )
-	{
-	    if ( !mkRandLocs(*newps,dlg.randPars()) )
-		{ delete newps; newps = 0; }
-	}
-	if ( newps )
-	    rv = storeNewSet( newps );
+	if ( !mkRandLocs(*newps,dlg.randPars()) )
+	    { delete newps; newps = 0; }
     }
-    else
-    {
-	for ( int idx=0; dlg.ioobj(idx); idx++ )
-	{
-	    const IOObj* ioobj = dlg.ioobj( idx );
-	    if ( setmgr_.indexOf(ioobj->name()) >= 0 )
-		continue;
+    
+    if ( newps )
+	return storeNewSet( newps );
 
-	    Pick::Set* newps = new Pick::Set;
-	    BufferString bs;
-	    if ( PickSetTranslator::retrieve(*newps,ioobj,bs) )
-	    {
-		rv = true;
-		setmgr_.set( ioobj->key(), newps );
-	    }
-	    else
-	    {
-		delete newps;
-		if ( idx == 0 )
-		{
-		    uiMSG().error( bs );
-		    return false;
-		}
-		else
-		{
-		    BufferString msg( dlg.ioobj(idx)->name() );
-		    msg += ": "; msg += bs;
-		    uiMSG().warning( msg );
-		}
-	    }
-	}
-    }
-
-    return rv;
+    return false;
 }
 
 
