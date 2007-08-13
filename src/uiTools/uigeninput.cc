@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.78 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: uigeninput.cc,v 1.79 2007-08-13 13:11:16 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -235,6 +235,10 @@ protected:
 			    }
 };
 
+
+#define mName( dis, idx, defnm ) \
+    ( dis.name(idx) ? dis.name(idx) : defnm )
+				      
 template <class T>
 class uiSimpleInputFld : public uiInputFld
 {
@@ -243,7 +247,7 @@ public:
 					 const DataInpSpec& dis,
 					 const char* nm="Line Edit Field" ) 
 			    : uiInputFld( p, dis )
-			    , usrinpobj( *new T(p, dis) ) 
+			    , usrinpobj( *new T(p, dis, mName(dis,0,nm)) ) 
 			    {
 				init();
 
@@ -278,7 +282,8 @@ public:
 			uiFileInputFld( uiGenInput* p, 
 					 const DataInpSpec& dis,
 					 const char* nm="File Input Field" ) 
-			    : uiSimpleInputFld<uiLineEdit>( p, dis, nm )
+			    : uiSimpleInputFld<uiLineEdit>( p, dis, 
+				    			    mName(dis,0,nm) )
 			    { setText( dis.text() ? dis.text() : "", 0 ); }
 
     virtual void	setText( const char* s, int idx )
@@ -295,7 +300,8 @@ public:
 			uiBoolInpFld( uiGenInput* p, 
 					 const DataInpSpec& dis,
 					 const char* nm="Bool Input Field" ) 
-			    : uiSimpleInputFld<uiBoolInput>( p, dis, nm )
+			    : uiSimpleInputFld<uiBoolInput>( p, dis, 
+				    			     mName(dis,0,nm) )
 			    {}
 
     virtual uiObject*	mainObj()	{ return usrinpobj.mainObject(); }
@@ -345,8 +351,8 @@ uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& dis,
 			      const char* nm ) 
     : uiInputFld( p, dis )
     , binidGrp( *new uiGroup(p,nm) )
-    , inl_x( *new uiLineEdit(&binidGrp,0,nm) )
-    , crl_y( *new uiLineEdit(&binidGrp,0,nm) )
+    , inl_x( *new uiLineEdit(&binidGrp,0,mName(dis,0,nm)) )
+    , crl_y( *new uiLineEdit(&binidGrp,0,mName(dis,1,nm)) )
     , ofrmBut( 0 )
     , b2c(0)
     , valueChanged(this)
@@ -456,8 +462,8 @@ uiIntervalInpFld<T>::uiIntervalInpFld(uiGenInput* p, const DataInpSpec& dis,
 				    const char* nm) 
     : uiInputFld( p, dis )
     , intvalGrp( *new uiGroup(p,nm) ) 
-    , start( *new uiLineEdit(&intvalGrp,0,nm) )
-    , stop( *new uiLineEdit(&intvalGrp,0,nm) )
+    , start( *new uiLineEdit(&intvalGrp,0,mName(dis,0,nm)) )
+    , stop( *new uiLineEdit(&intvalGrp,0,mName(dis,1,nm)) )
     , step( 0 )
 {
     mDynamicCastGet(const NumInpIntervalSpec<T>*,spc,&dis)
@@ -474,7 +480,7 @@ uiIntervalInpFld<T>::uiIntervalInpFld(uiGenInput* p, const DataInpSpec& dis,
 
     if ( spc->hasStep() )
     {
-	step = new uiLineEdit(&intvalGrp,"",nm);
+	step = new uiLineEdit(&intvalGrp,"",mName(dis,2,nm));
 
 	step->notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
 	step->notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
@@ -507,7 +513,6 @@ bool uiIntervalInpFld<T>::update_( const DataInpSpec& dis )
 }
 
 
-
 class uiStrLstInpFld : public uiInputFld
 {
 public:
@@ -515,7 +520,7 @@ public:
 					 const DataInpSpec& dis,
 					 const char* nm="uiStrLstInpFld" ) 
 			    : uiInputFld( p, dis )
-			    , cbb( *new uiComboBox(p,nm) ) 
+			    , cbb( *new uiComboBox(p,mName(dis,0,nm)) ) 
 			{
 			    init();
 
