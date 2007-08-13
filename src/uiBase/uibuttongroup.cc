@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.cc,v 1.14 2007-05-09 16:53:08 cvsjaap Exp $
+ RCS:           $Id: uibuttongroup.cc,v 1.15 2007-08-13 12:48:58 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,11 +112,32 @@ uiButtonGroupObj::uiButtonGroupObj( uiButtonGroup* uibg, uiParent* p,
 {
     body_ = new uiButtonGroupObjBody( *this, p, nm, vertical, strips );
     setBody( body_ );
+
+    uibutgrp_->deleteNotify( mCB(this,uiButtonGroupObj,grpDel) );
+    body_->deleteNotify( mCB(this,uiButtonGroupObj,bodyDel) );
 }
+
+
+uiButtonGroupObj::~uiButtonGroupObj()
+{ if(uibutgrp_) { uibutgrp_->grpobj_ =0; delete uibutgrp_; }  }
 
 
 const ObjectSet<uiObjHandle>* uiButtonGroupObj::childList() const
 { return uibutgrp_ ? uibutgrp_->childList() : 0; }
+
+
+void uiButtonGroupObj::bodyDel( CallBacker* cb )
+{
+    if( body_ == cb ) body_ = 0;
+    else pErrMsg("huh?");
+}
+
+
+void uiButtonGroupObj::grpDel( CallBacker* cb )
+{
+    if( cb == uibutgrp_ ) uibutgrp_ = 0;
+    else pErrMsg("huh?");
+}
 
 
 uiButtonGroup::uiButtonGroup( uiParent* p, const char* nm,
@@ -140,6 +161,18 @@ uiButtonGroup::uiButtonGroup( uiParent* p, const char* nm,
 
     p->manageChld( *grpobj_, *grpobj_->body_ );
     displayFrame( false );
+}
+
+
+uiButtonGroup::~uiButtonGroup()
+{
+    if ( grpobj_ ) { grpobj_->uibutgrp_ = 0; delete grpobj_; }
+	if ( body_ )
+	{
+	    uiButtonGroupParentBody* bd = body_;
+	    body_ = 0;
+	    delete bd;
+	}
 }
 
 
