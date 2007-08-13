@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.cc,v 1.20 2007-08-10 12:17:34 cvsnanne Exp $
+ RCS:           $Id: uiconvpos.cc,v 1.21 2007-08-13 13:33:07 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,13 +23,17 @@ uiConvertPos::uiConvertPos( uiParent* p, SurveyInfo* si )
 	, survinfo(si)
 {
     uiGroup* fldgrp = new uiGroup( this );
-    inlfld = new uiGenInput( fldgrp, "In-line", IntInpSpec() );
+    inlfld = new uiGenInput( fldgrp, "In-line", 
+			     IntInpSpec().setName("Inl-field") );
     inlfld->setElemSzPol( uiObject::Small );
-    crlfld = new uiGenInput( fldgrp, "Cross-line", IntInpSpec() );
+    crlfld = new uiGenInput( fldgrp, "Cross-line", 
+	    		     IntInpSpec().setName("Crl-field") );
     crlfld->setElemSzPol( uiObject::Small );
-    xfld = new uiGenInput( fldgrp, "X-coordinate", DoubleInpSpec() );
+    xfld = new uiGenInput( fldgrp, "X-coordinate",
+			   DoubleInpSpec().setName("X-field") );
     xfld->setElemSzPol( uiObject::Small );
-    yfld = new uiGenInput( fldgrp, "Y-coordinate", DoubleInpSpec() );
+    yfld = new uiGenInput( fldgrp, "Y-coordinate", 
+	    		   DoubleInpSpec().setName("Y-field") );
     yfld->setElemSzPol( uiObject::Small );
     crlfld->attach( alignedBelow, inlfld );
     xfld->attach( rightTo, inlfld );
@@ -39,10 +43,10 @@ uiConvertPos::uiConvertPos( uiParent* p, SurveyInfo* si )
     uiGroup* butgrp = new uiGroup( this );
     const ioPixmap right( "forward.xpm" );
     const ioPixmap left( "back.xpm" );
-    uiToolButton* docoordbut = new uiToolButton( butgrp, "", right );
-    docoordbut->activated.notify( mCB(this,uiConvertPos,getCoord) );
-    uiToolButton* dobinidbut = new uiToolButton( butgrp, "", left );
+    uiToolButton* dobinidbut = new uiToolButton( butgrp, "Left", left );
     dobinidbut->activated.notify( mCB(this,uiConvertPos,getBinID) );
+    uiToolButton* docoordbut = new uiToolButton( butgrp, "Right", right );
+    docoordbut->activated.notify( mCB(this,uiConvertPos,getCoord) );
     docoordbut->attach( rightOf, dobinidbut, 0 );
 
     fldgrp->attach( centeredBelow, butgrp );
