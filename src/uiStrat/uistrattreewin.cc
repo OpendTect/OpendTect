@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:		$Id: uistrattreewin.cc,v 1.6 2007-08-09 10:15:28 cvshelene Exp $
+ RCS:		$Id: uistrattreewin.cc,v 1.7 2007-08-13 15:16:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "compoundkey.h"
 #include "stratlevel.h"
 #include "stratunitrepos.h"
+#include "uidialog.h"
 #include "uigroup.h"
 #include "uilistbox.h"
 #include "uilistview.h"
@@ -26,6 +27,15 @@ ________________________________________________________________________
 #define	mEditTxt	"&Edit"
 #define	mLockTxt	"&Lock"
 
+
+static const char* infolvltrs[] =
+{
+    "Survey level",
+    "OpendTect data level",
+    "User level",
+    "Global level",
+    0
+};
 
 using namespace Strat;
 
@@ -56,13 +66,16 @@ void uiStratTreeWin::createMenus()
     uiPopupMenu* actmnu = new uiPopupMenu( this, "&Action" );
     editmnuitem_ = new uiMenuItem( mEditTxt, mCB(this,uiStratTreeWin,editCB) );
     actmnu->insertItem( editmnuitem_ );
-    saveasmnuitem_ = new uiMenuItem( "Save &As",
-				     mCB( this, uiStratTreeWin, saveAsCB ) );
-    actmnu->insertItem( saveasmnuitem_ );
     savemnuitem_ = new uiMenuItem( "&Save", mCB(this,uiStratTreeWin,saveCB) );
     actmnu->insertItem( savemnuitem_ );
     resetmnuitem_ = new uiMenuItem( "&Reset", mCB(this,uiStratTreeWin,resetCB));
     actmnu->insertItem( resetmnuitem_ );
+    actmnu->insertSeparator();
+    openmnuitem_ = new uiMenuItem( "&Open...", mCB(this,uiStratTreeWin,openCB));
+    actmnu->insertItem( openmnuitem_ );
+    saveasmnuitem_ = new uiMenuItem( "Save&As...",
+	    			     mCB(this,uiStratTreeWin,saveAsCB) );
+    actmnu->insertItem( saveasmnuitem_ );
     menubar->insertItem( actmnu );	    
 }
 
@@ -78,7 +91,8 @@ void uiStratTreeWin::createGroups()
 	    				mCB( this,uiStratTreeWin,unitSelCB ) );
     lvllistfld_ = new uiLabeledListBox( rightgrp, "Existing Levels", false,
 	    				uiLabeledListBox::AboveMid );
-    lvllistfld_->setStretch( 2, 2 );
+    lvllistfld_->box()->setStretch( 2, 2 );
+    lvllistfld_->box()->setFieldWidth( 12 );
     lvllistfld_->box()->selectionChanged.notify( mCB( this, uiStratTreeWin,
 						      selLvlChgCB ) );
     fillLvlList();
@@ -99,8 +113,7 @@ void uiStratTreeWin::setExpCB( CallBacker* )
 
 void uiStratTreeWin::unitSelCB(CallBacker*)
 {
-/*    uistrattab_->clearLevDesc();
-    uiListViewItem* item = uitree_->listView()->selectedItem();
+    /*uiListViewItem* item = uitree_->listView()->selectedItem();
     BufferString bs = item->text();
     int itemdepth = item->depth();
     for ( int idx=itemdepth-1; idx>=0; idx-- )
@@ -111,13 +124,6 @@ void uiStratTreeWin::unitSelCB(CallBacker*)
 	bs = kc.buf();
     }
     const Strat::UnitRef* ur = uitree_->findUnit( bs.buf() ); 
-    const Strat::Level* toplvl = Strat::RT().getLevel( ur, true );
-    const Strat::Level* botlvl = Strat::RT().getLevel( ur, false );
-    if ( toplvl )
-	uistrattab_->setLevDesc( true, toplvl->name_, toplvl->color() );
-    if ( botlvl )
-	uistrattab_->setLevDesc( false, botlvl->name_, botlvl->color() );
-    uistrattab_->setUnitRef( ur );
 */}
 
 
@@ -125,28 +131,39 @@ void uiStratTreeWin::editCB( CallBacker* )
 {
     bool doedit = !strcmp( editmnuitem_->text(), mEditTxt );
     uitree_->makeTreeEditable( doedit );
-//    uitree_->listView()->setRenameEnabled( doedit );
-//    uitree_->listView()->setDragEnabled( doedit );
-//    uitree_->listView()->setDropEnabled( doedit );
     editmnuitem_->setText( doedit ? mLockTxt : mEditTxt );
-}
-
-
-void uiStratTreeWin::saveAsCB( CallBacker* )
-{
-    pErrMsg("Not implemented yet: uiStratTreeWin::saveAsCB");
 }
 
 
 void uiStratTreeWin::saveCB( CallBacker* )
 {
-    pErrMsg("Not implemented yet: uiStratTreeWin::saveCB");
+    const_cast<UnitRepository*>(&UnRepo())->copyCurTreeAtLoc( Repos::Survey );
+    UnRepo().write( Repos::Survey );
+}
+
+
+void uiStratTreeWin::saveAsCB( CallBacker* )
+{
+    const char* dlgtit = "Save the stratigraphy at:";
+    const char* helpid = 0;
+    uiDialog savedlg( this, uiDialog::Setup( "Save Stratigraphy",
+					     dlgtit, helpid ) );
+    BufferStringSet bfset( infolvltrs );
+    uiListBox saveloclist( savedlg.parent(), bfset );
+    savedlg.go();
+    pErrMsg("Not implemented yet: uiStratTreeWin::saveAsCB");
 }
 
 
 void uiStratTreeWin::resetCB( CallBacker* )
 {
     pErrMsg("Not implemented yet: uiStratTreeWin::resetCB");
+}
+
+
+void uiStratTreeWin::openCB( CallBacker* )
+{
+    pErrMsg("Not implemented yet: uiStratTreeWin::openCB");
 }
 
 

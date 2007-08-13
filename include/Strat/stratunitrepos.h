@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.14 2007-08-09 14:16:03 cvsbert Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.15 2007-08-13 15:16:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,8 @@ public:
     BufferString	getLithName(int lithid) const;
     static const char*	sKeyLith;
 
+    void		copyCurTreeAtLoc(Repos::Source);
+    const RefTree*	getTreeFromSource(Repos::Source) const;
     bool		write(Repos::Source) const;
     void		reRead();
 

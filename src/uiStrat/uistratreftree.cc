@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.7 2007-08-09 10:31:56 cvsnanne Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.8 2007-08-13 15:16:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,10 @@ ________________________________________________________________________
     lv_->addColumn( nm ); \
     lv_->setColumnWidthMode( nr, uiListView::Manual ); \
     lv_->setColumnWidth( nr, wdth )
+
+static const int sUnitsCol	= 0;
+static const int sDescCol	= 1;
+static const int sLithoCol	= 2;
 
 using namespace Strat;
 
@@ -110,8 +114,8 @@ void uiStratRefTree::makeTreeEditable( bool yn ) const
     uiListViewItem* lvit = lv_->firstChild();
     while ( lvit )
     {
-	lvit->setRenameEnabled( 0, yn );
-	lvit->setRenameEnabled( 1, yn );
+	lvit->setRenameEnabled( sUnitsCol, yn );
+	lvit->setRenameEnabled( sDescCol, yn );
 	lvit->setDragEnabled( yn );
 	lvit->setDropEnabled( yn );
 	lvit = lvit->itemBelow();

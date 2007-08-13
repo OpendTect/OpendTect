@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.5 2007-08-09 10:15:28 cvshelene Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.6 2007-08-13 15:16:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,8 +36,9 @@ protected:
     uiLabeledListBox*	 	lvllistfld_;
     uiMenuItem*			expandmnuitem_;
     uiMenuItem*			editmnuitem_;
-    uiMenuItem*			saveasmnuitem_;
     uiMenuItem*			savemnuitem_;
+    uiMenuItem*			saveasmnuitem_;
+    uiMenuItem*			openmnuitem_;
     uiMenuItem*			resetmnuitem_;
 
     void			createMenus();
@@ -46,9 +47,10 @@ protected:
     void			fillLvlList();
 
     void			editCB(CallBacker*);
+    void			openCB(CallBacker*);
     void			resetCB(CallBacker*);
-    void			saveAsCB(CallBacker*);
     void			saveCB(CallBacker*);
+    void			saveAsCB(CallBacker*);
     void			selLvlChgCB(CallBacker*);
     void			setExpCB(CallBacker*);
     void			unitSelCB(CallBacker*);
