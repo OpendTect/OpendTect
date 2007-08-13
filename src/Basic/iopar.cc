@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.61 2007-08-13 14:30:24 cvsbert Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.62 2007-08-13 15:15:40 cvshelene Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -962,6 +962,12 @@ static const char* endsep	= "] ##.";
 void IOPar::putTo( BufferString& str ) const
 {
     str = name();
+    putParsTo( str );
+}
+
+
+void IOPar::putParsTo( BufferString& str ) const
+{
     BufferString buf;
     for ( int idx=0; idx<size(); idx++ )
     {
@@ -1007,6 +1013,26 @@ void IOPar::getFrom( const char* str )
 
 	vals_.add( ptrstart );
 
+	ptrstart = ptr; mAdvanceSep( ptr, startsep )
+    }
+}
+
+
+void IOPar::getParsFrom( const char* str )
+{
+    clear();
+
+    BufferString buf = str;
+    char* ptrstart = buf.buf();
+    char* ptr = ptrstart;
+    mAdvanceSep( ptr, startsep )
+
+    while ( *ptr )
+    {
+	ptrstart = ptr;	mAdvanceSep( ptr, midsep )
+	keys_.add( ptrstart );
+	ptrstart = ptr;	mAdvanceSep( ptr, endsep )
+	vals_.add( ptrstart );
 	ptrstart = ptr; mAdvanceSep( ptr, startsep )
     }
 }

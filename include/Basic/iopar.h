@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.43 2007-05-03 11:21:43 cvsraman Exp $
+ RCS:		$Id: iopar.h,v 1.44 2007-08-13 15:15:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,9 @@ public:
 
 			// serialisation
     void		getFrom(const char*);
+    void		getParsFrom(const char*);
     void		putTo(BufferString&) const;
+    void		putParsTo(BufferString&) const;
 
     int			size() const;
     const char*		getKey(int) const;
