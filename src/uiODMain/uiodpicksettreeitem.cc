@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.26 2007-07-03 04:01:28 cvsraman Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.27 2007-08-13 04:29:50 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -107,20 +107,21 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getDataTransform();
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("New/Load ..."), 0 );
+    mnu.insertItem( new uiMenuItem("Load ..."), 0 );
+    mnu.insertItem( new uiMenuItem("New ..."), 1 );
     if ( children_.size()>0 )
     {
-	mnu.insertItem( new uiMenuItem("Save changes"), 1 );
+	mnu.insertItem( new uiMenuItem("Save changes"), 2 );
 	mnu.insertSeparator();
 	uiMenuItem* filteritem =
 	    new uiMenuItem( "Display picks only at sections" );
-	mnu.insertItem( filteritem, 2 );
+	mnu.insertItem( filteritem, 3 );
 	filteritem->setEnabled( !hastransform );
 	uiMenuItem* shwallitem = new uiMenuItem( "Show all picks" );
-	mnu.insertItem( shwallitem, 3 );
+	mnu.insertItem( shwallitem, 4 );
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
-	mnu.insertItem( new uiMenuItem("Merge Sets"), 4 );
+	mnu.insertItem( new uiMenuItem("Merge Sets"), 5 );
     }
 
     addStandardItems( mnu );
@@ -128,22 +129,27 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid<0 )
 	return false;
-    if ( mnuid==0 )
+    else if ( mnuid==0 )
     {
 	display_on_add = true;
-	bool res = applMgr()->pickServer()->fetchSets();
+	bool res = applMgr()->pickServer()->loadSets();
 	display_on_add = false;
 	if ( !res )
 	    return -1;
+    }    
+    if ( mnuid==1 )
+    {
+	if ( !applMgr()->pickServer()->createSet() )
+	    return -1;
     }
-    else if ( mnuid==1 )
+    else if ( mnuid==2 )
     {
 	if ( !applMgr()->pickServer()->storeSets() )
 	    uiMSG().error( "Problem saving changes. Check write protection." );
     }
-    else if ( mnuid==2 || mnuid==3 )
+    else if ( mnuid==3 || mnuid==4 )
     {
-	const bool showall = mnuid == 3;
+	const bool showall = mnuid == 4;
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiODPickSetTreeItem*,itm,children_[idx])
@@ -153,7 +159,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	    itm->updateColumnText( uiODSceneMgr::cColorColumn() );
 	}
     }
-    else if ( mnuid==4 )
+    else if ( mnuid==5 )
 	{ MultiID mid; applMgr()->pickServer()->mergeSets( mid ); }
     else
 	handleStandardItems( mnuid );
