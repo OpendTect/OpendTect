@@ -4,12 +4,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2006
- RCS:		$Id: horizon2dline.cc,v 1.5 2007-06-26 08:04:40 cvsnanne Exp $
+ RCS:		$Id: horizon2dline.cc,v 1.6 2007-08-13 07:23:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "horizon2dline.h"
+
+#include "segposinfo.h"
 #include "undefval.h"
 
 namespace Geometry
@@ -150,7 +152,40 @@ StepInterval<int> Horizon2DLine::colRange( int rowid ) const
     return StepInterval<int>( sd.start, sd.atIndex(rows_[rowidx]->size()-1),
 	    		      sd.step );
 }
-    
+
+
+Interval<float> Horizon2DLine::zRange( int rowid ) const
+{
+    Interval<float> zrange( mUdf(float), -mUdf(float) );
+    StepInterval<int> colrg = colRange( rowid );
+    for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+    {
+	const float z = getKnot( RowCol(rowid,col) ).z;
+	if ( !mIsUdf(z) )
+	    zrange.include( z, false );
+    }
+
+    return zrange;
+}
+
+
+void Horizon2DLine::geometry( int rowid, PosInfo::Line2DData& ld ) const
+{
+    ld.posns.erase();
+    const int rowidx = rowid - firstrow_;
+    if ( !rows_.validIdx(rowidx) )
+	return;
+
+    assign( ld.zrg, zRange(rowid) );
+    for ( int idx=0; idx<rows_[rowidx]->size(); idx++ )
+    {
+	PosInfo::Line2DPos pos;
+	pos.nr_ = colsampling_[rowidx].atIndex( idx );
+	pos.coord_ = (*rows_[rowidx])[idx];
+	ld.posns += pos;
+    }
+}
+
 
 Coord3 Horizon2DLine::getKnot( const RCol& rc ) const
 {

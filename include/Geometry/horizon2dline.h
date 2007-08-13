@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          March 2006
-RCS:           $Id: horizon2dline.h,v 1.3 2007-06-26 08:04:40 cvsnanne Exp $
+RCS:           $Id: horizon2dline.h,v 1.4 2007-08-13 07:23:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,8 @@ ________________________________________________________________________
 
 class Plane3;
 class RowCol;
+
+namespace PosInfo { class Line2DData; }
 
 namespace Geometry
 {
@@ -43,6 +45,9 @@ public:
 
     StepInterval<int>	rowRange() const;
     StepInterval<int>	colRange(int) const;
+    Interval<float>	zRange(int) const;
+
+    void		geometry(int rowid,PosInfo::Line2DData&) const;
 
     Coord3		getKnot(const RCol&) const;
     bool		setKnot(const RCol&,const Coord3&);
