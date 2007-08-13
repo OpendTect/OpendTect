@@ -41,8 +41,11 @@ public:
 
     uiODMain&		appl_;
     CmdDriver*		drv_;
-    uiMenuItem*		cmddrvmnuitm_;
+    uiPopupMenu*	cmddrvmnu_;
+    uiMenuItem*		runcmddrvitm_;
+    uiMenuItem*		nameguideitm_;
     void		doIt(CallBacker*);
+    void		toolTipChange(CallBacker*);
 
 };
 
@@ -52,9 +55,16 @@ uiCmdDriverMgr::uiCmdDriverMgr( uiODMain& a )
     	, drv_(0)
 {
     uiODMenuMgr& mnumgr = appl_.menuMgr();
-    cmddrvmnuitm_ = new uiMenuItem( "Command &Driver ...",
+    cmddrvmnu_ = new uiPopupMenu( &appl_, "Command &Driver" );
+    mnumgr.utilMnu()->insertItem( cmddrvmnu_ );
+    runcmddrvitm_ = new uiMenuItem( "&Run ...",
 				    mCB(this,uiCmdDriverMgr,doIt) );
-    mnumgr.utilMnu()->insertItem( cmddrvmnuitm_ );
+    cmddrvmnu_->insertItem( runcmddrvitm_ );
+    nameguideitm_ = new uiMenuItem( "&Tooltip name guide",
+				    mCB(this,uiCmdDriverMgr,toolTipChange) );
+    cmddrvmnu_->insertItem( nameguideitm_ );
+    nameguideitm_->setCheckable( true );
+    nameguideitm_->setChecked( false );
 }
 
 
@@ -79,7 +89,7 @@ uiCmdDriverInps( uiParent* p, CmdDriver& d )
 				.directories(true) );
     outdirfld->attach( alignedBelow, fnmfld );
     outdirfld->setDefaultSelectionDir( procdir );
-    popupfld = new uiGenInput( this, "Pop up status window",
+    popupfld = new uiGenInput( this, "Show status window",
 	    			BoolInpSpec(true) );
     popupfld->attach( alignedBelow, outdirfld );
 }
@@ -119,7 +129,7 @@ bool acceptOK( CallBacker* )
 
     uiFileInput*	fnmfld;
     uiFileInput*	outdirfld;
-    uiGenInput*	popupfld;
+    uiGenInput*		popupfld;
     BufferString	fnm;
     CmdDriver&		drv_;
 
@@ -129,14 +139,20 @@ bool acceptOK( CallBacker* )
 void uiCmdDriverMgr::doIt( CallBacker* )
 {
     if ( drv_ ) delete drv_;
-    drv_ = new CmdDriver( cmddrvmnuitm_ );
+    drv_ = new CmdDriver( cmddrvmnu_ );
     uiCmdDriverInps* dlg = new uiCmdDriverInps( &appl_, *drv_ );
     bool ret = dlg->go();
     delete dlg;
     if ( !ret )
     	{ delete drv_; drv_ = 0; return; }
-
+    
     drv_->execute();
+}
+
+
+void uiCmdDriverMgr::toolTipChange( CallBacker* cb )
+{
+    uiObject::useNameToolTip( nameguideitm_->isChecked() );
 }
 
 
