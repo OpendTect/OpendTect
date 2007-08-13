@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.66 2007-07-19 07:34:11 cvsjaap Exp $
+ RCS:           $Id: uiobj.cc,v 1.67 2007-08-13 12:57:15 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -179,14 +179,26 @@ void uiParentBody::clearChildren()
 }
 
 
+bool uiObject::nametooltipactive_ = false;
+
+static TypeSet<uiObject*>& getUiObjList()
+{
+    static TypeSet<uiObject*>* theinst = 0;
+    if ( !theinst )
+	theinst = new TypeSet<uiObject*>();
+    return *theinst;
+}
 
 uiObject::uiObject( uiParent* p, const char* nm )
     : uiObjHandle( nm, 0 )
     , setGeometry(this)
     , closed(this)
     , parent_( p )				
+    , normaltooltiptxt_("")
 { 
     if ( p ) p->addChild( *this );  
+    getUiObjList() += this;
+    doSetToolTip();
 }
 
 uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
@@ -194,9 +206,18 @@ uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
     , setGeometry(this)
     , closed(this)
     , parent_( p )				
+    , normaltooltiptxt_("")
 { 
     if ( p ) p->manageChld( *this, b );  
+    getUiObjList() += this;
+    doSetToolTip(); 
 }
+
+uiObject::~uiObject()
+{
+    getUiObjList() -= this;
+}
+
 
 void uiObject::setHSzPol( SzPolicy p )
     { mBody()->setHSzPol(p); }
@@ -204,12 +225,35 @@ void uiObject::setHSzPol( SzPolicy p )
 void uiObject::setVSzPol( SzPolicy p )
     { mBody()->setVSzPol(p); }
 
-
 uiObject::SzPolicy uiObject::szPol(bool hor) const
     { return mConstBody()->szPol(hor); }
 
+
+const char* uiObject::toolTip() const
+    { return normaltooltiptxt_; }
+
+
 void uiObject::setToolTip(const char* t)
-    { mBody()->setToolTip(t); }
+{
+    normaltooltiptxt_ = t;
+    doSetToolTip();
+}
+
+void uiObject::doSetToolTip()
+{
+    if ( !mBody() )
+	return;
+
+    if ( nametooltipactive_ )
+    {
+	BufferString namestr = "\""; namestr += name(); namestr += "\"";
+	removeCharacter( namestr.buf(), '&' );
+	mBody()->setToolTip( namestr );
+    }
+    else
+	mBody()->setToolTip( normaltooltiptxt_ );
+} 
+
 
 #ifdef USEQT3
 void uiObject::enableToolTips(bool yn)	{ uiObjectBody::enableToolTips(yn); }
@@ -401,3 +445,11 @@ int uiObject::height() const
 
 int uiObject::baseFldSize()	{ return basefldsize_; }
 
+
+void uiObject::useNameToolTip( bool yn ) 
+{
+    nametooltipactive_ = yn;
+
+    for ( int idx=getUiObjList().size()-1; idx>=0; idx-- )
+	getUiObjList()[idx]->doSetToolTip();
+}

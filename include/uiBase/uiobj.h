@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.49 2007-07-19 07:34:11 cvsjaap Exp $
+ RCS:           $Id: uiobj.h,v 1.50 2007-08-13 12:57:15 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uigeom.h"
 #include "uilayout.h"
 #include "errh.h"
+#include "sets.h"
 
 #include <stdlib.h>
 
@@ -41,7 +42,7 @@ class uiObject : public uiObjHandle
 public:
 			uiObject(uiParent*,const char* nm);
 			uiObject(uiParent*,const char* nm,uiObjectBody&);
-			~uiObject()			{}
+			~uiObject();			
 
 /*! \brief How should the object's size behave? 
     Undef       : use default.
@@ -66,6 +67,10 @@ public:
     virtual int		height() const;	//!< Actual size in pixels
 
     void		setToolTip(const char*);
+    const char*		toolTip() const;
+
+    static void		useNameToolTip(bool);
+    
 #ifdef USEQT3
     static void		enableToolTips(bool yn=true);
     static bool		toolTipsEnabled();
@@ -156,6 +161,10 @@ protected:
 
 			//! setGeometry should be triggered by this's layoutItem
     void 		triggerSetGeometry(const i_LayoutItem*, uiRect&);
+    
+    void		doSetToolTip();
+    static bool		nametooltipactive_;
+    const char*		normaltooltiptxt_;
 
 private:
 
