@@ -7,17 +7,19 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.35 2006-08-21 17:14:44 cvsbert Exp $
+ RCS:		$Id: seis2dline.h,v 1.36 2007-08-13 07:25:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
  
-#include "ranges.h"
 #include "namedobj.h"
+
 #include "linekey.h"
 #include "position.h"
+#include "ranges.h"
 #include "seistrctr.h"
 #include <iosfwd>
+
 class IOPar;
 class Executor;
 class SeisTrcBuf;
@@ -61,6 +63,7 @@ public:
 			    	: NamedObject("")	{ init( fnm ); }
 			Seis2DLineSet( const Seis2DLineSet& lg )
 			    	: NamedObject(lg.name()) { init(lg.fname_); }
+			Seis2DLineSet(const IOObj&);
     Seis2DLineSet&	operator=(const Seis2DLineSet&);
     virtual		~Seis2DLineSet();
     void		setReadOnly( bool yn=true )	{ readonly_ = yn; }

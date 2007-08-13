@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.56 2007-04-11 10:10:19 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.57 2007-08-13 07:25:46 cvsnanne Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -85,6 +85,21 @@ bool TwoDSeisTrcTranslator::initRead_()
 }
 
 
+// ----- Seis2DLineSet -----
+
+Seis2DLineSet::Seis2DLineSet( const IOObj& ioobj )
+    : NamedObject("")
+{
+    init( ioobj.fullUserExpr(true) );
+}
+
+
+Seis2DLineSet::~Seis2DLineSet()
+{
+    deepErase( pars_ );
+}
+
+
 static BufferStringSet& preSetFiles()
 {
     static BufferStringSet* psf = 0; if ( !psf ) psf = new BufferStringSet;
@@ -101,12 +116,6 @@ void Seis2DLineSet::addPreSetLS( const char* fnm, const char* def )
 {
     preSetFiles().add( fnm );
     preSetContents().add( def );
-}
-
-
-Seis2DLineSet::~Seis2DLineSet()
-{
-    deepErase( pars_ );
 }
 
 
