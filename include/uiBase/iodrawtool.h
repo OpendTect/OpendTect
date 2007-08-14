@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.25 2007-07-25 17:15:24 cvsbert Exp $
+ RCS:           $Id: iodrawtool.h,v 1.26 2007-08-14 08:16:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,8 @@ public:
 	    		       bool left);
     void	drawHalfSquare(const uiPoint& from,const uiPoint& to,bool left);
 
+    void	drawPoint(const uiPoint&,bool highlight=false);
+    				//!< Draws 3x3, h/v cross, square if highlight
     void	drawMarker(const uiPoint&,const MarkerStyle2D&,float angle=0,
 	    		   int side=0); //!< side -1=left half, 1=right half
     void	drawArrow(const uiPoint& tail,const uiPoint& head,

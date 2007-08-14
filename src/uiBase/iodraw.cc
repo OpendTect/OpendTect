@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.32 2007-07-25 17:15:24 cvsbert Exp $
+ RCS:           $Id: iodraw.cc,v 1.33 2007-08-14 08:16:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -305,6 +305,23 @@ int ioDrawTool::getDevWidth() const
 #else
     return qpaintdev_.width(); 
 #endif
+}
+
+
+void ioDrawTool::drawPoint( const uiPoint& pt, bool hl )
+{
+    qpainter_->drawPoint( pt.x, pt.y );
+    qpainter_->drawPoint( pt.x-1, pt.y );
+    qpainter_->drawPoint( pt.x+1, pt.y );
+    qpainter_->drawPoint( pt.x, pt.y-1 );
+    qpainter_->drawPoint( pt.x, pt.y+1 );
+    if ( hl )
+    {
+	qpainter_->drawPoint( pt.x-1, pt.y-1 );
+	qpainter_->drawPoint( pt.x+1, pt.y-1 );
+	qpainter_->drawPoint( pt.x-1, pt.y+1 );
+	qpainter_->drawPoint( pt.x+1, pt.y+1 );
+    }
 }
 
 
