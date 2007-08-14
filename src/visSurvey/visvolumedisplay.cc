@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.65 2007-07-17 11:01:21 cvsnanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.66 2007-08-14 05:54:14 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -553,7 +553,7 @@ const Attrib::DataCubes* VolumeDisplay::getCacheVolume( int attrib ) const
 
 
 DataPack::ID VolumeDisplay::getDataPackID( int attrib ) const
-{ return attrib ? DataPack::cNoID : cacheid_; }
+{ return attrib==0 ? cacheid_ : DataPack::cNoID; }
 
 
 void VolumeDisplay::getMousePosInfo( const visBase::EventInfo&,
