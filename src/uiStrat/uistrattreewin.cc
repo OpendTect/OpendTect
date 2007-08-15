@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:		$Id: uistrattreewin.cc,v 1.7 2007-08-13 15:16:39 cvshelene Exp $
+ RCS:		$Id: uistrattreewin.cc,v 1.8 2007-08-15 15:01:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ using namespace Strat;
 
 uiStratTreeWin::uiStratTreeWin( uiParent* p )
     : uiMainWin(p,"Manage Stratigraphy", 0, true, true)
+    , tmptree_( 0 )
 {
     createMenus();
     createGroups();
@@ -51,6 +52,7 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
 uiStratTreeWin::~uiStratTreeWin()
 {
     delete uitree_;
+    if ( tmptree_ ) delete tmptree_;
 }
 
     
@@ -132,13 +134,33 @@ void uiStratTreeWin::editCB( CallBacker* )
     bool doedit = !strcmp( editmnuitem_->text(), mEditTxt );
     uitree_->makeTreeEditable( doedit );
     editmnuitem_->setText( doedit ? mLockTxt : mEditTxt );
+    if ( doedit && !tmptree_ )
+    {
+	const Strat::RefTree* rt = &Strat::RT();
+	tmptree_ = new Strat::RefTree( rt->treeName(), rt->source() );
+/*	for ( int idx=0; idx<rt->nrLevels(); idx++ )
+	{
+	    Level* lvl = new Level( *rt->level(idx) );
+	    tmptree_->addLevel( lvl );
+	}*/ //TODO solve level pb
+    }
 }
 
 
+#define mSaveAtLoc( loc )\
+{\
+    const_cast<UnitRepository*>(&UnRepo())->copyCurTreeAtLoc( loc );\
+    UnRepo().write( loc );\
+}\
+    
+
 void uiStratTreeWin::saveCB( CallBacker* )
 {
-    const_cast<UnitRepository*>(&UnRepo())->copyCurTreeAtLoc( Repos::Survey );
-    UnRepo().write( Repos::Survey );
+    if ( tmptree_ )
+	prepTreeForSave();
+    
+    mSaveAtLoc( Repos::Survey );
+    if ( tmptree_ ) delete tmptree_;
 }
 
 
@@ -149,15 +171,30 @@ void uiStratTreeWin::saveAsCB( CallBacker* )
     uiDialog savedlg( this, uiDialog::Setup( "Save Stratigraphy",
 					     dlgtit, helpid ) );
     BufferStringSet bfset( infolvltrs );
-    uiListBox saveloclist( savedlg.parent(), bfset );
+    uiListBox saveloclist( &savedlg, bfset );
     savedlg.go();
-    pErrMsg("Not implemented yet: uiStratTreeWin::saveAsCB");
+    if ( savedlg.uiResult() == 1 )
+    {
+	if ( tmptree_ )
+	    prepTreeForSave();
+	const char* savetxt = saveloclist.getText();
+	if ( !strcmp( savetxt, infolvltrs[1] ) )
+	    mSaveAtLoc( Repos::Data )
+	else if ( !strcmp( savetxt, infolvltrs[2] ) )
+	    mSaveAtLoc( Repos::User )
+	else if ( !strcmp( savetxt, infolvltrs[3] ) )
+	    mSaveAtLoc( Repos::ApplSetup )
+	else
+	    mSaveAtLoc( Repos::Survey )
+	if ( tmptree_ ) delete tmptree_;
+    }
 }
 
 
 void uiStratTreeWin::resetCB( CallBacker* )
 {
-    pErrMsg("Not implemented yet: uiStratTreeWin::resetCB");
+    uitree_->setTree( &Strat::RT(), true );
+    uitree_->expand( true );
 }
 
 
@@ -183,4 +220,57 @@ void uiStratTreeWin::fillLvlList()
 	if ( !lvl ) return;
 	lvllistfld_->box()->addItem( lvl->name_, lvl->color() );
     }
+}
+
+
+void uiStratTreeWin::fillTmpTreeFromListview()
+{
+    const uiListView* lv = uitree_->listView();
+    uiListViewItem* lvit = lv->firstChild();
+    while ( lvit )
+    {
+	BufferString lithodesc;
+	const char* lithotxt = lvit->text(2);
+	if ( lithotxt )
+	{
+	    int lithid = UnRepo().getLithID( lithotxt );
+	    if ( lithid >-1 )
+	    {
+		lithodesc = lithid;
+		lithodesc += "`";
+	    }
+	}
+	lithodesc += lvit->text(1);
+	tmptree_->addUnit( getCodeFromLVIt( lvit ), lithodesc, true );
+	lvit = lvit->itemBelow();
+    }
+}
+
+
+BufferString uiStratTreeWin::getCodeFromLVIt( const uiListViewItem* item ) const
+{
+    BufferString bs = item->text();
+    int itemdepth = item->depth();
+    for ( int idx=itemdepth-1; idx>=0; idx-- )
+    {
+	item = item->parent();
+	CompoundKey kc( item->text() );
+	kc += bs.buf();
+	bs = kc.buf();
+    }
+
+    return bs;
+}
+
+
+void uiStratTreeWin::prepTreeForSave()
+{
+    fillTmpTreeFromListview();
+    eUnRepo().replaceTree( tmptree_ );
+}
+
+
+void uiStratTreeWin::updateTreeLevels()
+{
+    
 }

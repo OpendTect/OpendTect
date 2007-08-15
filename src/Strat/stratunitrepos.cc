@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.18 2007-08-13 15:16:39 cvshelene Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.19 2007-08-15 15:01:00 cvshelene Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -57,7 +57,7 @@ RefTree::~RefTree()
 }
 
 
-bool RefTree::addUnit( const char* code, const char* dumpstr )
+bool RefTree::addUnit( const char* code, const char* dumpstr, bool rev )
 {
     if ( !code || !*code )
 	use( dumpstr );
@@ -75,7 +75,7 @@ bool RefTree::addUnit( const char* code, const char* dumpstr )
     if ( !newun->use(dumpstr) )
 	{ delete newun; return false; }
 
-    parnode->add( newun );
+    parnode->add( newun, rev );
     return true;
 }
 
@@ -339,6 +339,14 @@ BufferString UnitRepository::getLithName( int lithid ) const
 }
 
 
+int UnitRepository::getLithID( BufferString name ) const
+{
+    int idx = findLith( name );
+    if ( idx<0 || idx>= liths_.size() ) return -1;
+    return liths_[idx] ? liths_[idx]->id() : -1;
+}
+
+
 int UnitRepository::indexOf( const char* tnm ) const
 {
     for ( int idx=0; idx<trees_.size(); idx++ )
@@ -441,6 +449,15 @@ void UnitRepository::copyCurTreeAtLoc( Repos::Source loc )
     }
 
     trees_ += tree;
+}
+
+
+void UnitRepository::replaceTree( RefTree* newtree, int treeidx )
+{
+    if ( treeidx == -1 )
+	treeidx = currentTree();
+
+    delete trees_.replace( treeidx, newtree );
 }
 
 };//namespace

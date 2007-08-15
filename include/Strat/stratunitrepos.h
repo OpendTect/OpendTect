@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.15 2007-08-13 15:16:39 cvshelene Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.16 2007-08-15 15:01:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ public:
     int			indexOf(const char* treename) const;
     inline void		setCurrentTree( int idx ) { curtreeidx_ = idx; }
     inline int		currentTree() const	{ return curtreeidx_; }
+    void                replaceTree(RefTree*,int treeidx =-1);
 
     UnitRef*		find( const char* code )	{ return fnd(code); }
     const UnitRef*	find( const char* code ) const	{ return fnd(code); }
@@ -53,6 +54,7 @@ public:
     int			findLith(const char*) const;
     int			findLith(int) const;
     BufferString	getLithName(int lithid) const;
+    int			getLithID(BufferString) const;
     static const char*	sKeyLith;
 
     void		copyCurTreeAtLoc(Repos::Source);

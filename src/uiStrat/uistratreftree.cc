@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.8 2007-08-13 15:16:39 cvshelene Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.9 2007-08-15 15:01:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,15 +46,14 @@ uiStratRefTree::~uiStratRefTree()
 }
 
 
-void uiStratRefTree::setTree( const RefTree* rt )
+void uiStratRefTree::setTree( const RefTree* rt, bool force )
 {
-    if ( rt == tree_ ) return;
-
-    //TODO Empty the listview. How?
+    if ( !force && rt == tree_ ) return;
 
     tree_ = rt;
     if ( !tree_ ) return;
 
+    lv_->clear();
     addNode( 0, *tree_, true );
 }
 

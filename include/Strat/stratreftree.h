@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.1 2007-07-03 10:38:02 cvsbert Exp $
+ RCS:		$Id: stratreftree.h,v 1.2 2007-08-15 15:01:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,8 @@ public:
     void		setTreeName( const char* nm )	{ treename_ = nm; }
     Repos::Source	source() const			{ return src_; }
 
-    bool		addUnit(const char* fullcode,const char* unit_dump);
+    bool		addUnit(const char* fullcode,const char* unit_dump,
+	    			bool rev=false);
     void		removeEmptyNodes(); //!< recommended after add
 
     void		addLevel( Level* l )		{ lvls_ += l; }

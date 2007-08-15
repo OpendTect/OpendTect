@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.6 2007-08-13 15:16:39 cvshelene Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.7 2007-08-15 15:01:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uimainwin.h"
 
 class uiLabeledListBox;
+class uiListViewItem;
 class uiMenuItem;
 class uiStratRefTree;
 namespace Strat { class RefTree; }
@@ -32,7 +33,7 @@ public:
 
 protected:
 
-    const uiStratRefTree* 	uitree_;
+    uiStratRefTree*		uitree_;
     uiLabeledListBox*	 	lvllistfld_;
     uiMenuItem*			expandmnuitem_;
     uiMenuItem*			editmnuitem_;
@@ -45,6 +46,10 @@ protected:
     void			createGroups();
 
     void			fillLvlList();
+    void			prepTreeForSave();
+    void			updateTreeLevels();
+    BufferString		getCodeFromLVIt(const uiListViewItem*) const;
+    void			fillTmpTreeFromListview();
 
     void			editCB(CallBacker*);
     void			openCB(CallBacker*);
@@ -54,6 +59,8 @@ protected:
     void			selLvlChgCB(CallBacker*);
     void			setExpCB(CallBacker*);
     void			unitSelCB(CallBacker*);
+
+    Strat::RefTree*		tmptree_;
 };
 
 
