@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.81 2007-07-06 06:05:26 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.82 2007-08-16 04:50:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -257,6 +257,7 @@ bool uiImportHorizon::doWork()
     if ( !horizon )
 	mErrRet( "Cannot create horizon" );
 
+    NotifyStopper stopper( horizon->change );
     horizon->setMultiID( ctio_.ioobj->key() );
     horizon->setPreferredColor( colbut->color() );
     BufferStringSet filenames;
