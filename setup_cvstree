@@ -1,6 +1,6 @@
 #!/bin/csh
 # This script initialises a work dir after CVS checkout
-# $Id: setup_cvstree,v 1.6 2007-07-27 15:17:17 cvsyuancheng Exp $
+# $Id: setup_cvstree,v 1.7 2007-08-16 04:18:15 cvsnanne Exp $
 
 if ( $#argv < 1 ) then
     set od_wdir=`pwd`
@@ -64,6 +64,8 @@ if ( ! -e so ) ln -s ../so .
 ln -s ../lmhostid* .
 
 cd "$od_wdir/plugins"
+if ( ! -e Makefile ) ln -s Makefile.od Makefile
+cd "$od_wdir/spec"
 if ( ! -e Makefile ) ln -s Makefile.od Makefile
 
 
