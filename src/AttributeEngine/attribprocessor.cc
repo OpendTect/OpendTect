@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.50 2007-08-10 11:56:56 cvsbert Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.51 2007-08-17 12:45:26 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -225,16 +225,15 @@ void Processor::init()
 	provider_->enableOutput(globaloutputinterest[idx], true );
 
     computeAndSetPosAndDesVol( globalcs );
+    for ( int idx=0; idx<outputs_.size(); idx++ )
+	outputs_[idx]->adjustInlCrlStep( *provider_->getPossibleVolume() );
+
     mDynamicCastGet( DataCubesOutput*, dcoutp, outputs_[0] );
     if ( dcoutp && provider_->getDesc().isStored() )
     	useshortcuts_ = true;
     else
-    {
-	for ( int idx=0; idx<outputs_.size(); idx++ )
-	    outputs_[idx]->adjustInlCrlStep( *provider_->getPossibleVolume() );
-
 	provider_->prepareForComputeData();
-    }
+
     isinited_ = true;
 }
 
