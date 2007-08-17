@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispickretriever.h,v 1.1 2006-08-26 15:50:17 cvskris Exp $
+ RCS:           $Id: uivispickretriever.h,v 1.2 2007-08-17 09:27:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,10 @@ public:
     			uiVisPickRetriever();
     bool		enable(const TypeSet<int>* allowedscenes);
     NotifierAccess*	finished()		{ return &finished_; }
+
+    void		reset();
     bool		success() const		{ return status_==Success; }
+    bool		waiting() const		{ return status_==Waiting; }
     const Coord3&	getPos() const		{ return pickedpos_; }
     int			getSceneID() const	{ return pickedscene_; }
     			

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivispickretriever.cc,v 1.3 2007-07-26 22:12:08 cvskris Exp $
+ RCS:           $Id: uivispickretriever.cc,v 1.4 2007-08-17 09:27:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,4 +97,11 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
     finished_.trigger();
 
     status_ = Idle;
+}
+
+
+void uiVisPickRetriever::reset()
+{
+    status_ = Idle;
+    allowedscenes_.erase();
 }

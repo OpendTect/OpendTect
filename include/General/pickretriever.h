@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: pickretriever.h,v 1.1 2006-08-26 15:48:10 cvskris Exp $
+ RCS:           $Id: pickretriever.h,v 1.2 2007-08-17 09:27:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,9 @@ public:
     				/*!<Triggers when it does not look for pick
 				    any longer. The outcome can be retrieved
 				    bu success(), getPos() and getSceneID(). */
+    virtual void		reset()					= 0;
     virtual bool		success() const				= 0;
+    virtual bool		waiting() const				= 0;
     virtual const Coord3&	getPos() const				= 0;
     virtual int			getSceneID() const			= 0;
 
