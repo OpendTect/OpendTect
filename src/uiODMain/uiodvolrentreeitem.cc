@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.8 2007-07-27 15:27:07 cvskris Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.9 2007-08-20 09:27:55 cvssatyaki Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.8 2007-07-27 15:27:07
 #include "uiodattribtreeitem.h"
 #include "uiodscenemgr.h"
 #include "uislicesel.h"
+#include "uistatisticsdlg.h"
 #include "uivisisosurface.h"
 #include "uivispartserv.h"
 #include "visvolorthoslice.h"
@@ -89,6 +90,7 @@ const char* uiODVolrenTreeItemFactory::getName()
 
 uiODVolrenTreeItem::uiODVolrenTreeItem( int displayid )
     : positionmnuid_("Position ...")
+    , statisticsmnuid_("Show Histogram ...") 
     , addmnuid_("Add")
     , addlinlslicemnuid_("In-line slice")
     , addlcrlslicemnuid_("Cross-line slice")
@@ -170,6 +172,7 @@ void uiODVolrenTreeItem::createMenuCB( CallBacker* cb )
 			!visserv->isLocked(displayID()), false );
 
     mAddMenuItem( menu, &positionmnuid_, true, false );
+    mAddMenuItem( menu, &statisticsmnuid_, true, false );
     mAddMenuItem( menu, &addmnuid_, true, false );
     mAddMenuItem( &addmnuid_, &addlinlslicemnuid_, true, false );
     mAddMenuItem( &addmnuid_, &addlcrlslicemnuid_, true, false );
@@ -212,6 +215,15 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	visserv->calculateAttrib( displayid_, 0, false );
 	updateColumnText(0);
     }
+    else if ( mnuid==statisticsmnuid_.id )
+    {
+        const DataPack::ID dpid = visserv->getDataPackID( displayID(), 0 );
+        const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
+        uiStatisticsDlg dlg( applMgr()->applService().parent() );
+        dlg.setDataPackID( dpid, dmid );
+        dlg.go();
+        menu->setIsHandled( true );
+    }	
     else if ( mnuid==addlinlslicemnuid_.id )
     {
 	addChild( new uiODVolrenSubTreeItem(voldisp->addSlice(

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.12 2007-05-25 08:42:44 cvshelene Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.13 2007-08-20 09:27:55 cvssatyaki Exp $
 ___________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ___________________________________________________________________
 #include "uioddisplaytreeitem.h"
 #include "uiodscenemgr.h"
 #include "uivispartserv.h"
-
+#include "uistatisticsdlg.h"
 #include "attribsel.h"
 #include "colortab.h"
 #include "pixmap.h"
@@ -42,6 +42,7 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , movedownmnuitem_( "down" )
     , removemnuitem_("Remove" )
     , changetransparencyitem_( "Change transparency ..." )
+    , statisticsitem_("Show Histogram ...")					  
     , addto2dvieweritem_( "Display in a 2D Viewer as" )
     , view2dwvaitem_("Wiggle")
     , view2dvditem_("VD")
@@ -204,6 +205,12 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &movemnuitem_ );
     }
 
+    const DataPack::ID dpid = visserv->getDataPackID( displayID(), attribNr() );
+    if ( dpid >= 0 )
+	mAddMenuItem( menu, &statisticsitem_, true, false )
+    else
+	mResetMenuItem( &statisticsitem_ )
+
     mAddMenuItem( menu, &removemnuitem_,
 		  !islocked && visserv->getNrAttribs( displayID())>1, false );
     if ( visserv->canHaveMultipleAttribs(displayID()) && hasTransparencyMenu() )
@@ -303,6 +310,16 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==changetransparencyitem_.id )
     {
 	visserv->showAttribTransparencyDlg( displayID(), attribNr() );
+	menu->setIsHandled( true );
+    }
+    else if ( mnuid==statisticsitem_.id )
+    {
+	const DataPack::ID dpid = visserv->getDataPackID( displayID(),
+							  attribNr() );
+	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
+	uiStatisticsDlg dlg( applMgr()->applService().parent() );
+	dlg.setDataPackID( dpid, dmid );
+	dlg.go();
 	menu->setIsHandled( true );
     }
     else if ( mnuid==view2dwvaitem_.id || mnuid==view2dvditem_.id )
