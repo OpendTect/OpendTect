@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.99 2007-08-20 09:20:32 cvssatyaki Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.100 2007-08-20 09:48:42 cvssulochana Exp $
 ________________________________________________________________________
 
 
@@ -181,10 +181,11 @@ protected:
 
     static const char*		sKeyOrientation() { return "Orientation"; }
     static const char*		sKeyTextureRect() { return "Texture rectangle";}
-    static const char*		sKeyResolution()  { return "Resolution";}
+    static const char*		sKeyResolution()  { return "Resolution"; }
+    static const char*		sKeyGridLinesID() { return "GridLines ID"; }
 };
 
-};
+} // namespace visSurvey
 
 
 #endif

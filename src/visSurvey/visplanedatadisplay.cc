@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.176 2007-06-29 11:52:53 cvshelene Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.177 2007-08-20 09:48:42 cvssulochana Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.176 2007-06-29 11:52
 #include "vismaterial.h"
 #include "vistexturecoords.h"
 #include "viscoord.h"
+#include "visdataman.h"
 #include "visdepthtabplanedragger.h"
 #include "visdrawstyle.h"
 #include "visgridlines.h"
@@ -39,7 +40,6 @@ namespace visSurvey {
 
 DefineEnumNames(PlaneDataDisplay,Orientation,1,"Orientation")
 { "Inline", "Crossline", "Timeslice", 0 };
-
 
 PlaneDataDisplay::PlaneDataDisplay()
     : rectangle_( visBase::FaceSet::create() )
@@ -1082,6 +1082,10 @@ void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     par.set( sKeyOrientation(), eString(Orientation,orientation_) );
     getCubeSampling( false, true ).fillPar( par );
+
+    const int gridlinesid = gridlines_->id();
+    par.set( sKeyGridLinesID(), gridlinesid );
+    if ( saveids.indexOf(gridlinesid) == -1 ) saveids += gridlinesid;
 }
 
 
@@ -1098,6 +1102,22 @@ int PlaneDataDisplay::usePar( const IOPar& par )
     if ( cs.usePar( par ) )
 	setCubeSampling( cs );
 
+    int gridlinesid;
+    if ( par.get(sKeyGridLinesID(),gridlinesid) )
+    { 
+        DataObject* dataobj = visBase::DM().getObject( gridlinesid );
+        if ( !dataobj ) return 0;
+        mDynamicCastGet(visBase::GridLines*,gl,dataobj)
+        if ( !gl ) return -1;
+	removeChild( gridlines_->getInventorNode() );
+	gridlines_->unRef();
+	gridlines_ = gl;
+	gridlines_->ref();
+	gridlines_->setPlaneCubeSampling( cs );
+	insertChild( childIndex(texture_->getInventorNode()),
+		     gridlines_->getInventorNode() );
+    }
+
     return 1;
 }
 
@@ -1108,3 +1128,4 @@ bool PlaneDataDisplay::isVerticalPlane() const
 }
 
 } // namespace visSurvey
+
