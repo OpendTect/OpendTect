@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		December 2005
- RCS:		$Id: visgridlines.h,v 1.5 2006-03-01 12:39:52 cvsnanne Exp $
+ RCS:		$Id: visgridlines.h,v 1.6 2007-08-20 09:45:44 cvssulochana Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "visobject.h"
 #include "cubesampling.h"
 
+class IOPar;
 class LineStyle;
 
 namespace visBase
@@ -52,6 +53,9 @@ public:
     void			showZlines(bool);
     bool			areZlinesShown() const;
 
+    virtual void                fillPar(IOPar&,TypeSet<int>&) const;
+    virtual int			usePar(const IOPar&);
+
 protected:
 
     CubeSampling		gridcs_;
@@ -77,9 +81,14 @@ protected:
     void			drawInlines();
     void			drawCrosslines();
     void			drawZlines();
+
+    static const char*		sKeyLineStyle;
+    static const char*		sKeyInlShown;
+    static const char*		sKeyCrlShown;
+    static const char*		sKeyZShown;
 };
 
 
-}; // Namespace visBase
+} // Namespace visBase
 
 #endif

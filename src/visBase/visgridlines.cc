@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2005
- RCS:           $Id: visgridlines.cc,v 1.8 2007-07-09 16:47:00 cvsbert Exp $
+ RCS:           $Id: visgridlines.cc,v 1.9 2007-08-20 09:45:44 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,11 +17,17 @@ ________________________________________________________________________
 #include "vismaterial.h"
 #include "vistransform.h"
 #include "draw.h"
+#include "iopar.h"
 
 mCreateFactoryEntry( visBase::GridLines );
 
 namespace visBase
 {
+
+const char* GridLines::sKeyLineStyle = "Line style";
+const char* GridLines::sKeyInlShown = "Inlines shown";
+const char* GridLines::sKeyCrlShown = "Crosslines shown";
+const char* GridLines::sKeyZShown = "Zlines shown";
 
 GridLines::GridLines()
     : VisualObjectImpl(false)
@@ -234,4 +240,54 @@ void GridLines::setDisplayTransformation( Transformation* tf )
 	transformation_->ref();
 }
 
-} // namespace visBase
+
+void GridLines::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    VisualObjectImpl::fillPar( par, saveids );
+
+    LineStyle ls;
+    getLineStyle( ls );
+    BufferString lsstr;
+    ls.toString( lsstr );
+    par.set( sKeyLineStyle, lsstr );
+
+    gridcs_.fillPar( par );
+
+    par.setYN( sKeyInlShown, areInlinesShown() );
+    par.setYN( sKeyCrlShown, areCrosslinesShown() );
+    par.setYN( sKeyZShown, areZlinesShown() );
+}
+
+
+int GridLines::usePar( const IOPar& par )
+{
+    const int res = VisualObjectImpl::usePar( par );
+    if ( res != 1 ) return res;
+
+    gridcs_.usePar( par );
+
+    bool inlshown = false;
+    par.getYN( sKeyInlShown, inlshown );
+    showInlines( inlshown );
+
+    bool crlshown = false;
+    par.getYN( sKeyCrlShown, crlshown );
+    showCrosslines( crlshown );
+
+    bool zshown = false;
+    par.getYN( sKeyZShown, zshown );
+    showZlines( zshown );
+
+    BufferString lsstr;
+    if ( par.get(sKeyLineStyle,lsstr) )
+    {
+	LineStyle ls;
+	ls.fromString( lsstr );
+	setLineStyle( ls );
+    }
+
+    return 1;
+}
+
+}; // namespace visBase
+
