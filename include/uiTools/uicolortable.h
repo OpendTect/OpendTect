@@ -7,18 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uicolortable.h,v 1.1 2007-08-16 15:55:55 cvsbert Exp $
+ RCS:           $Id: uicolortable.h,v 1.2 2007-08-20 16:00:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
-class ColorTable;
-class ColTabScaling;
 class uiLineEdit;
 class uiComboBox;
-class uiRGBArray;
-class uiRGBArrayCanvas;
+class ColorTable;
+class ColTabScaling;
+class uiColorTableCanvas;
 
 
 class uiColorTable : public uiGroup
@@ -44,12 +43,11 @@ public:
 
 protected:
 
-    uiRGBArray&		rgbarr_;
     ColorTable&		coltab_;
     ColTabScaling&	scale_;
     const bool		vertical_;
 
-    uiRGBArrayCanvas*	dispfld_;
+    uiColorTableCanvas*	dispfld_;
     uiLineEdit*		minfld_;
     uiLineEdit*		maxfld_;
     uiComboBox*		selfld_;
@@ -58,8 +56,13 @@ protected:
     void		rangeEntered(CallBacker*);
     void		doEdit(CallBacker*);
     void		doFlip(CallBacker*);
+    void		doApply4Man(CallBacker*);
     void		makeSymmetrical(CallBacker*);
-    void		mkDispFld(const Interval<float>&);
+    void		mkCanvas(const Interval<float>&);
+
+    bool		isEditable() const	{ return maxfld_; }
+    void		fillTabList();
+    void		setRangeFields();
 };
 
 

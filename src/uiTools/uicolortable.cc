@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.1 2007-08-16 15:55:46 cvsbert Exp $
+ RCS:           $Id: uicolortable.cc,v 1.2 2007-08-20 16:01:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,9 +19,9 @@ ________________________________________________________________________
 
 #define mStdInitList \
 	  vertical_(vert) \
-	, rgbarr_(*new uiRGBArray) \
 	, coltab_(*new ColorTable) \
 	, scale_(*new ColTabScaling) \
+	, coltabrg_(0,1) \
 	, tableSelected(this) \
 	, scaleChanged(this)
 
@@ -32,16 +32,21 @@ uiColorTable::uiColorTable( uiParent* p, bool vert )
 {
     maxfld_ = new uiLineEdit( this, "", "Max" );
     maxfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
+    maxfld_->setHSzPol( uiObject::Small );
 
-    mkDispFld( Interval<float>(0,1) );
+    canvas_ = new uiColorTableCanvas( this, coltab_, vertical_ );
+    canvas_->getMouseEventHandler().buttonPressed.notify(
+			mCB(this,uiColorTable,canvasClick) );
 
     minfld_ = new uiLineEdit( this, "", "Min" );
-    minfld_->attach( vertical_ ? rightAlignedBelow : rightOf, dispfld_ );
+    minfld_->setHSzPol( uiObject::Small );
+    minfld_->attach( vertical_ ? rightAlignedBelow : rightOf, canvas_ );
     minfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
 
     selfld_ = new uiComboBox( this, "Table selection" );
     selfld_->attach( vertical_ ? alignedBelow : rightOf, minfld_ );
     selfld_->selectionChanged.notify( mCB(this,uiColorTable,tabSel) );
+    selfld_->setStretch( 0, vertical_ ? 1 : 0 );
 
     setHAlignObj(selfld_); setHCentreObj(selfld_);
 }
@@ -54,20 +59,47 @@ uiColorTable::uiColorTable( uiParent* p, const ColorTable& c,
 	, maxfld_(0)
 	, selfld_(0)
 {
-    mkDispFld( rg );
-    setHAlignObj(dispfld_); setHCentreObj(dispfld_);
+    canvas_ = new uiColorTableCanvas( this, coltab_, vertical_ );
+    canvas_->setRange( rg );
+    setHAlignObj(canvas_); setHCentreObj(canvas_);
 }
 
 
 uiColorTable::~uiColorTable()
 {
-    delete &rgbarr_;
     delete &coltab_;
 }
 
 
-void uiColorTable::mkDispFld( const Interval<float>& rg )
+void uiColorTable::fillTabList()
 {
+    selfld_->empty();
+    NamedBufferStringSet ctabs( "Color table" );
+    ColorTable::getNames( ctabs ); ctabs.sort();
+    coltabsel_->addItems( ctabs );
+    coltabsel_->setCurrentItem( coltab_.name() );
+    for ( int idx=0; idx<ctabs.size(); idx++ )
+	coltabsel_->setPixmap( ioPixmap(ctabs.get(idx),16,10) );
+}
+
+
+void uiColorTable::doApply4Man
+{
+    mDynamicCastGet(uiColorTableMan*,dlg,cb) if ( !dlg ) return;
+    IOPar par; dlg->currentColTab().fillPar( par );
+    ColorTable::get( ct.name(), coltab_ );
+    coltab_.usePar( par ); coltab_.scaleTo( coltabrg_ );
+    selfld_->setCurrentItem( coltab_.name() );
+    canvas_->forceNewFill();
+    setRangeFields();
+}
+
+
+void uiColorTable::setRangeFields()
+{
+    if ( !isEditable() ) return;
+    minfld_->setValue( coltabrg_.start );
+    maxfld_->setValue( coltabrg_.stop );
 }
 
 
