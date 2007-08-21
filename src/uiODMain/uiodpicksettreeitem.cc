@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.27 2007-08-13 04:29:50 cvsraman Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.28 2007-08-21 05:44:58 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ___________________________________________________________________
 #include "uivispartserv.h"
 
 #include "pickset.h"
+#include "survinfo.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
 #include "uiodscenemgr.h"
@@ -139,8 +140,10 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     }    
     if ( mnuid==1 )
     {
-	if ( !applMgr()->pickServer()->createSet() )
+	display_on_add = true;
+	if ( !applMgr()->pickServer()->createSet( SI().has2D() ) )
 	    return -1;
+	display_on_add = false;
     }
     else if ( mnuid==2 )
     {

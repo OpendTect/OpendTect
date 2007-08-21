@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.196 2007-08-09 10:48:25 cvsraman Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.197 2007-08-21 05:44:58 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -814,9 +814,13 @@ bool uiODApplMgr::handleEMServEv( int evid )
 
 bool uiODApplMgr::handlePickServEv( int evid )
 {
-    if ( evid == uiPickPartServer::evGetHorInfo )
+    if ( evid == uiPickPartServer::evGetHorInfo3D )
     {
-	emserv_->getAllSurfaceInfo( pickserv_->horInfos() );
+	emserv_->getAllSurfaceInfo( pickserv_->horInfos(), false );
+    }
+    else if ( evid == uiPickPartServer::evGetHorInfo2D )
+    {
+	emserv_->getAllSurfaceInfo( pickserv_->horInfos(), true );
     }
     else if ( evid == uiPickPartServer::evGetHorDef )
     {
@@ -837,8 +841,21 @@ bool uiODApplMgr::handlePickServEv( int evid )
     }
     else if ( evid == uiPickPartServer::evFillPickSet )
 	emserv_->fillPickSet( *pickserv_->pickSet(), pickserv_->horID() );
+    else if ( evid == uiPickPartServer::evGet2DLineInfo )
+	seisserv_->get2DLineInfo(pickserv_->lineSets(),pickserv_->lineSetIds(),
+				 pickserv_->lineNames());
+    else if ( evid == uiPickPartServer::evGet2DLineDef )
+    {
+	BufferStringSet& lnms = pickserv_->selectLines();
+	for ( int idx=0; idx<lnms.size(); idx++ )
+	{
+	    PosInfo::Line2DData geom;
+	    seisserv_->get2DLineGeometry( pickserv_->lineSetID(), *lnms[idx],
+		   			  geom );
+	    pickserv_->lineGeoms() += new PosInfo::Line2DData( geom );
+	}
+    }
     else
-
 	pErrMsg("Unknown event from pickserv");
 
     return true;
