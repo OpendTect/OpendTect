@@ -7,22 +7,25 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Aug 2007
- RCS:           $Id: uicreatepicks.h,v 1.1 2007-08-13 04:33:10 cvsraman Exp $
+ RCS:           $Id: uicreatepicks.h,v 1.2 2007-08-21 05:35:26 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 #include "binidselimpl.h"
+#include "bufstringset.h"
+
 class Color;
 class IOObj;
 class uiGroup;
-class uiGenInput;
 class uiComboBox;
 class uiColorInput;
 class uiBinIDSubSel;
-class BufferStringSet;
+class uiGenInput;
 class uiLabeledComboBox;
+class uiLabeledListBox;
+class uiSeis2DSubSel;
 
 /*! \brief Dialog for creating (a) pick set(s) */
 
@@ -31,17 +34,18 @@ class RandLocGenPars
 public:
 
 			RandLocGenPars()
-			    : nr(1), iscube(true)
-			    , horidx(-1), horidx2(-1)	{}
+			    : nr_(1), iscube_(true)
+			    , horidx_(-1), horidx2_(-1)	{}
 
 
-    int			nr;
-    bool		iscube;
-    BinIDRange		bidrg;
-    Interval<float>	zrg;
-    int			horidx;
-    int			horidx2;
-
+    int			nr_;
+    bool		iscube_;
+    BinIDRange		bidrg_;
+    Interval<float>	zrg_;
+    int			horidx_;
+    int			horidx2_;
+    int			lsetidx_;
+    BufferStringSet	linenms_;
 };
 
 
@@ -58,6 +62,7 @@ public:
     			//!< If non-null, user wants to store the new set
 
     void		randSel(CallBacker*);
+    virtual void	randHorSel(CallBacker*)			=0;
 
 protected:
 			uiCreatePicks(uiParent*,const BufferStringSet&);
@@ -78,7 +83,6 @@ protected:
     void                hor2Sel(CallBacker*);
     void		horSel(uiComboBox*,uiComboBox*);
 
-    virtual void	randHorSel(CallBacker*)			=0;
     virtual void	mkRandPars()				=0;
 
 };
@@ -89,16 +93,39 @@ class uiCreatePicks3D : public uiCreatePicks
 public:
 			uiCreatePicks3D(uiParent*,const BufferStringSet&);
 
+    void                randHorSel(CallBacker*);
+
 protected:
 
     uiBinIDSubSel*	randvolsubselfld_;
     uiBinIDSubSel*	randhorsubselfld_;
 
-    void		randHorSel(CallBacker*);
     bool		acceptOK(CallBacker*);
     void		mkRandPars();
 
 };
 
+
+class uiCreatePicks2D : public uiCreatePicks
+{
+public:
+    			uiCreatePicks2D(uiParent*,const BufferStringSet&,
+					const BufferStringSet&,
+					const TypeSet<BufferStringSet>&);
+
+    void                randHorSel(CallBacker*);
+
+protected:
+    
+    uiGenInput*		linesetfld_;
+    uiLabeledListBox*	linenmfld_;
+    uiGenInput*		zfld_;
+
+    TypeSet<BufferStringSet>	linenms_;
+
+    void		lineSetSel(CallBacker*);
+    bool                acceptOK(CallBacker*);
+    void                mkRandPars();
+};
 
 #endif

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.1 2007-08-13 04:35:04 cvsraman Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.2 2007-08-21 05:35:54 cvsraman Exp $";
 
 #include "uicreatepicks.h"
 
@@ -32,9 +32,11 @@ static const char* rcsID = "$Id: uicreatepicks.cc,v 1.1 2007-08-13 04:35:04 cvsr
 #include "pickset.h"
 #include "picksettr.h"
 #include "randcolor.h"
+#include "survinfo.h"
 
 static int sLastNrPicks = 500;
-static const char* sGeoms[] = { "Cube", "On Horizon", "Between Horizons", 0 };
+static const char* sGeoms3D[] = { "Cube", "On Horizon", "Between Horizons", 0 };
+static const char* sGeoms2D[] = { "Z Range", "Between Horizons", 0 };
 
 uiCreatePicks::uiCreatePicks( uiParent* p, const BufferStringSet& hornms )
 	: uiDialog(p,uiDialog::Setup("Pick Set Creation",
@@ -60,26 +62,16 @@ uiCreatePicks::uiCreatePicks( uiParent* p, const BufferStringSet& hornms )
 
     if ( hornms_.size() )
     {
-	randvolfld_ = new uiGenInput( randgrp_, "Geometry",
-				     StringListInpSpec(sGeoms) );
-	randvolfld_->attach( alignedBelow, randnrfld_ );
-	randvolfld_->valuechanged.notify( mCB(this,uiCreatePicks,randHorSel) );
-    }
-
-    if ( randvolfld_ )
-    {
 	randhorselfld_ = new uiLabeledComboBox( randgrp_, "Horizon selection" );
 	randhorselfld_->box()->addItem( "Select" );
 	randhorselfld_->box()->addItems( hornms_ );
 	randhorselfld_->box()->selectionChanged.notify(mCB(this,
 		    					uiCreatePicks,hor1Sel));
-	randhorselfld_->attach( alignedBelow, randvolfld_ );
 	randhorsel2fld_ = new uiComboBox( randgrp_, "" );
 	randhorsel2fld_->addItem( "Select" );
 	randhorsel2fld_->addItems( hornms_ );
 	randhorsel2fld_->selectionChanged.notify( mCB(this,
 		    				 uiCreatePicks,hor2Sel) );
-	randhorsel2fld_->attach( rightOf, randhorselfld_ );
     }
 }
 
@@ -170,6 +162,14 @@ uiCreatePicks3D::uiCreatePicks3D( uiParent* p, const BufferStringSet& hornms )
     : uiCreatePicks(p,hornms)
     , randhorsubselfld_(0)
 {
+    if ( hornms.size() )
+    {
+	randvolfld_ = new uiGenInput( randgrp_, "Geometry",
+				     StringListInpSpec(sGeoms3D) );
+	randvolfld_->attach( alignedBelow, randnrfld_ );
+	randvolfld_->valuechanged.notify( mCB(this,uiCreatePicks,randHorSel) );
+    }
+
     randvolsubselfld_ = new uiBinIDSubSel( randgrp_, uiBinIDSubSel::Setup()
 	    			.withz(true)
 				.withstep(false)
@@ -180,6 +180,8 @@ uiCreatePicks3D::uiCreatePicks3D( uiParent* p, const BufferStringSet& hornms )
 	    			randvolfld_ ? randvolfld_ : randnrfld_ );
     if ( randvolfld_ )
     {
+	randhorselfld_->attach( alignedBelow, randvolfld_ );
+	randhorsel2fld_->attach( rightOf, randhorselfld_ );
 	randhorsubselfld_ = new uiBinIDSubSel( randgrp_, uiBinIDSubSel::Setup()
 				.withz(false)
 				.withstep(false)
@@ -209,25 +211,23 @@ void uiCreatePicks3D::randHorSel( CallBacker* cb )
 
 void uiCreatePicks3D::mkRandPars()
 {
-    randpars_.nr = randnrfld_->getIntValue();
-    randpars_.iscube = !randvolfld_ || randvolfld_->getIntValue() == 0;
+    randpars_.nr_ = randnrfld_->getIntValue();
+    randpars_.iscube_ = !randvolfld_ || randvolfld_->getIntValue() == 0;
 
     const HorSampling& hs =
-	(randpars_.iscube ? randvolsubselfld_ : randhorsubselfld_)
+	(randpars_.iscube_ ? randvolsubselfld_ : randhorsubselfld_)
 			->getInput().cs_.hrg;
-    randpars_.bidrg.start = hs.start; randpars_.bidrg.stop = hs.stop; 
-    randpars_.bidrg.setStepOut( hs.step );
+    randpars_.bidrg_.start = hs.start; randpars_.bidrg_.stop = hs.stop; 
+    randpars_.bidrg_.setStepOut( hs.step );
 
-    if ( randpars_.iscube )
-	randpars_.zrg = randvolsubselfld_->getInput().cs_.zrg;
+    if ( randpars_.iscube_ )
+	randpars_.zrg_ = randvolsubselfld_->getInput().cs_.zrg;
     else
     {
-	randpars_.horidx = hornms_.indexOf( randhorselfld_->box()->text() );
-	randpars_.horidx2 = -1;
+	randpars_.horidx_ = hornms_.indexOf( randhorselfld_->box()->text() );
+	randpars_.horidx2_ = -1;
 	if ( randvolfld_->getIntValue() == 2 )
-	    randpars_.horidx2 = hornms_.indexOf( randhorsel2fld_->text() );
-	if ( randpars_.horidx2 == randpars_.horidx )
-	    randpars_.horidx2 = -1;
+	    randpars_.horidx2_ = hornms_.indexOf( randhorsel2fld_->text() );
     }
 }
 
@@ -255,6 +255,114 @@ bool uiCreatePicks3D::acceptOK( CallBacker* )
     skipLeadingBlanks(ptr); removeTrailingBlanks(ptr);
     if ( ! *ptr ) mErrRet( "Please enter a name" )
 
-    sLastNrPicks = randpars_.nr;
+    sLastNrPicks = randpars_.nr_;
+    return true;
+}
+
+
+uiCreatePicks2D::uiCreatePicks2D( uiParent* p, const BufferStringSet& hornms,
+       				  const BufferStringSet& lsets,
+				  const TypeSet<BufferStringSet>& lnms )
+    : uiCreatePicks(p,hornms)
+    , linenms_(lnms)
+{
+    linesetfld_ = new uiGenInput( randgrp_, "Line Set",
+	    			  StringListInpSpec(lsets) );
+    linesetfld_->attach( alignedBelow, randnrfld_ );
+    linesetfld_->valuechanged.notify( mCB(this,uiCreatePicks2D,lineSetSel) );
+
+    linenmfld_ = new uiLabeledListBox( randgrp_, lnms[0], "Select Lines", true);
+    linenmfld_->attach( alignedBelow, linesetfld_ );
+
+    if ( hornms.size() )
+    {
+	randvolfld_ = new uiGenInput( randgrp_, "Geometry",
+				     StringListInpSpec(sGeoms2D) );
+	randvolfld_->attach( alignedBelow, linenmfld_ );
+	randvolfld_->valuechanged.notify( mCB(this,uiCreatePicks,randHorSel) );
+	randhorselfld_->attach( alignedBelow, randvolfld_ );
+	randhorsel2fld_->attach( rightOf, randhorselfld_ );
+    }
+
+    BufferString zlbl = "Z Range";
+    zlbl += SI().zIsTime() ? "(milliseconds)" : SI().zInFeet() ? "(ft)"
+							       : "{metres)";
+    zfld_ = new uiGenInput( randgrp_, zlbl, FloatInpIntervalSpec() );
+    if ( randvolfld_ ) zfld_->attach( alignedBelow, randvolfld_ );
+    else zfld_->attach( alignedBelow, linenmfld_ );
+
+    finaliseStart.notify( mCB(this,uiCreatePicks,randSel) );
+}
+
+
+void uiCreatePicks2D::randHorSel( CallBacker* cb )
+{
+    if ( !randvolfld_ ) return;
+
+    const bool dodisp = genRand();
+    const int randgeomtyp = randvolfld_->getIntValue();
+    const bool needhor = randgeomtyp == 1;
+    linesetfld_->display( dodisp );
+    linenmfld_->display( dodisp );
+    zfld_->display( dodisp && !needhor );
+    randhorselfld_->display( dodisp && needhor );
+    randhorsel2fld_->display( dodisp && needhor );
+}
+
+
+void uiCreatePicks2D::lineSetSel( CallBacker* cb )
+{
+    const int setidx = linesetfld_->getIntValue();
+    linenmfld_->box()->empty();
+    if ( setidx<0 || setidx>=linenms_.size() ) return;
+
+    linenmfld_->box()->addItems( linenms_[setidx] );
+}
+
+
+void uiCreatePicks2D::mkRandPars()
+{
+    randpars_.nr_ = randnrfld_->getIntValue();
+    randpars_.iscube_ = !randvolfld_ || randvolfld_->getIntValue() == 0;
+
+    randpars_.lsetidx_ = linesetfld_->getIntValue();
+    linenmfld_->box()->getSelectedItems( randpars_.linenms_ );
+    if ( randpars_.iscube_ )
+    {
+	randpars_.zrg_ = zfld_->getFInterval();
+	if ( SI().zIsTime() ) randpars_.zrg_.scale( 0.001 );
+    }
+    else
+    {
+	randpars_.horidx_ = hornms_.indexOf( randhorselfld_->box()->text() );
+	randpars_.horidx2_ = hornms_.indexOf( randhorsel2fld_->text() );
+    }
+}
+
+
+#define mErrRet(s) { uiMSG().error(s); return false; }
+
+bool uiCreatePicks2D::acceptOK( CallBacker* )
+{
+    if ( genRand() )
+    {
+	const int choice = randvolfld_->getIntValue();
+	if ( choice ) mErrRet( "This feature is not implemented yet" );
+/*	{
+	    if ( !strcmp(randhorselfld_->box()->text(),"Select") )
+		mErrRet( "Please Select a valid horizon" );
+	    if ( !strcmp(randhorsel2fld_->text(),"Select") )
+		mErrRet( "Please Select a valid second horizon" );
+	}
+*/
+	mkRandPars();
+    }
+
+    BufferString res = getName();
+    char* ptr = res.buf();
+    skipLeadingBlanks(ptr); removeTrailingBlanks(ptr);
+    if ( ! *ptr ) mErrRet( "Please enter a name" )
+
+    sLastNrPicks = randpars_.nr_;
     return true;
 }
