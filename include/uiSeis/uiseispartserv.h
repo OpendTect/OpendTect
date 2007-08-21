@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.21 2007-02-20 18:15:23 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.22 2007-08-21 05:38:46 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,8 @@ public:
     bool		get2DLineGeometry(const MultiID& mid,const char* linenm,
 	    				  PosInfo::Line2DData&) const;
     void		get2DLineSetName(const MultiID&,BufferString&) const;
+    void		get2DLineInfo(BufferStringSet&,TypeSet<MultiID>&,
+	    			      TypeSet<BufferStringSet>&);
     void		get2DStoredAttribs(const MultiID&,const char* linenm,
 	    				   BufferStringSet&) const;
     bool		create2DOutput(const MultiID&,const char* linekey,
