@@ -4,14 +4,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.9 2007-08-15 15:01:00 cvshelene Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.10 2007-08-21 12:40:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uistratreftree.h"
-#include "uilistview.h"
+
 #include "stratunitrepos.h"
+#include "uilistview.h"
+#include "uimenu.h"
+#include "uistratutildlgs.h"
 
 #define mAddCol(nm,wdth,nr) \
     lv_->addColumn( nm ); \
@@ -35,6 +38,7 @@ uiStratRefTree::uiStratRefTree( uiParent* p, const RefTree* rt )
     lv_->setPrefHeight( 400 );
     lv_->setStretch( 2, 2 );
     lv_->setTreeStepSize(30);
+    lv_->rightButtonClicked.notify( mCB( this,uiStratRefTree,rClickCB ) );
 
     setTree( rt );
 }
@@ -120,3 +124,43 @@ void uiStratRefTree::makeTreeEditable( bool yn ) const
 	lvit = lvit->itemBelow();
     }
 }
+
+
+void uiStratRefTree::rClickCB( CallBacker* )
+{
+    //TODO: as soon as Qt4 in, check for column number: 0,1 as follow 2 lithodlg
+    uiListViewItem* lvit = lv_->itemNotified();
+    if ( !lvit || !lvit->renameEnabled(sUnitsCol) ) return;
+
+    uiPopupMenu mnu( lv_->parent(), "Action" );
+    mnu.insertItem( new uiMenuItem("Add sub-unit ..."), 0 );
+    mnu.insertItem( new uiMenuItem("Insert ..."), 1 );
+    mnu.insertItem( new uiMenuItem("Remove"), 2 );
+/*    mnu.insertSeparator();
+    mnu.insertItem( new uiMenuItem("Rename"), 3 );*/
+
+    const int mnuid = mnu.exec();
+    if ( mnuid<0 ) return;
+    else if ( mnuid==0 )
+	insertSubUnit( 0 );
+    else if ( mnuid==1 )
+	insertSubUnit( lvit );
+    else if ( mnuid==2 )
+	removeUnit( lvit );
+}
+
+
+void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
+{
+    bool insert = lvit ? true : false;
+    uiStratUnitDlg newurdlg( lv_->parent(), insert );
+    newurdlg.go();
+}
+
+
+void uiStratRefTree::removeUnit( uiListViewItem* lvit )
+{
+}
+
+
+

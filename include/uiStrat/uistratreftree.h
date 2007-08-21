@@ -7,10 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.5 2007-08-15 15:01:00 cvshelene Exp $
+ RCS:           $Id: uistratreftree.h,v 1.6 2007-08-21 12:40:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
+
+#include "callback.h"
 
 class uiParent;
 class uiListView;
@@ -24,7 +26,7 @@ namespace Strat {
 
 /*!\brief Displays a Strat::RefTree */
 
-class uiStratRefTree 
+class uiStratRefTree : public CallBacker 
 {
 public:
 
@@ -46,8 +48,11 @@ protected:
 
     uiListView*		lv_;
 
-    void		addNode(uiListViewItem*,const Strat::NodeUnitRef&,bool);
+    void		rClickCB(CallBacker*);
 
+    void		insertSubUnit(uiListViewItem*);
+    void		removeUnit(uiListViewItem*);
+    void		addNode(uiListViewItem*,const Strat::NodeUnitRef&,bool);
 };
 
 
