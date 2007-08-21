@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.113 2007-08-07 05:06:00 cvsraman Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.114 2007-08-21 05:41:09 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -652,15 +652,17 @@ void uiEMPartServer::getSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
 }
 
 
-void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos )
+void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
+					bool is2d )
 {
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
-    const ObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
+    const char* groupstr = is2d ? "2D Horizon" : "Horizon";
+    ObjectSet<IOObj> ioobjs = IOM().dirPtr()->getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj* ioobj = ioobjs[idx];
-	if ( !strcmp(ioobj->group(),"Horizon") &&
-	     !strcmp(ioobj->translator(),"dGB") )
+	if ( strcmp(ioobj->translator(),"dGB") ) continue;
+	if ( !strcmp(ioobj->group(), groupstr ) )
 	    hinfos += new SurfaceInfo( ioobj->name(), ioobj->key() );
     }
 }
