@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.65 2007-06-12 15:28:21 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.66 2007-08-21 05:38:05 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,6 +157,27 @@ bool uiSeisPartServer::select2DLines( const MultiID& mid, BufferStringSet& res )
 
     dlg.selFld()->getSelectedItems( res );
     return res.size();
+}
+
+
+void uiSeisPartServer::get2DLineInfo( BufferStringSet& linesets,
+				      TypeSet<MultiID>& setids,
+				      TypeSet<BufferStringSet>& linenames )
+{
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
+    ObjectSet<IOObj> ioobjs = IOM().dirPtr()->getObjs();
+    for ( int idx=0; idx<ioobjs.size(); idx++ )
+    {
+	const IOObj* ioobj = ioobjs[idx];
+	if ( strcmp(ioobj->translator(),"2D") ) continue;
+
+	uiSeisIOObjInfo oinf(*ioobj,false);
+	BufferStringSet lnms;
+	oinf.getLineNames( lnms );
+	linesets.add( ioobj->name() );
+	setids += ioobj->key();
+	linenames += lnms;
+    }
 }
 
 
