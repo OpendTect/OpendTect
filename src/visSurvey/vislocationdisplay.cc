@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.27 2007-08-09 04:43:10 cvsraman Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.28 2007-08-22 04:17:13 cvsraman Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -34,10 +34,10 @@ const char* LocationDisplay::sKeyMarkerSize()	{ return "Size"; }
 
 static const float sEps = 0.1;
 
-float findDistance( const Coord3& p1, const Coord3& p2, const Coord3& p )
+float findDistance( Coord3 p1, Coord3 p2, Coord3 p )
 {
-    Coord3 vec = p2 - p1;
-    Coord3 newvec = p - p1;
+    const Coord3 vec = p2 - p1;
+    const Coord3 newvec = p - p1;
     const float prod = vec.dot(newvec);
     const float sq = vec.sqAbs();
     if ( mIsZero(sq,sEps) ) return mUdf(float);		// p1 and p2 coincide.
@@ -46,9 +46,8 @@ float findDistance( const Coord3& p1, const Coord3& p2, const Coord3& p )
     if ( factor<0 || factor>1 )		// projected point outside the segment.
 	return mUdf(float);
 
-    Coord3 proj = p1 + vec * factor;
-    float dist = proj.distTo( p );
-    return dist;    
+    const Coord3 proj = p1 + vec * factor;
+    return proj.distTo( p );
 }
 
 
@@ -558,8 +557,9 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 	for ( int idx=0; idx<set_->size(); idx++ )
 	{
 	    int pidx = idx>0 ? idx-1 : set_->size()-1;
-	    const float dist = findDistance( (*set_)[pidx].pos,
-		    			     (*set_)[idx].pos, pos );
+	    const float dist = findDistance( world2Display((*set_)[pidx].pos),
+		    			     world2Display((*set_)[idx].pos),
+					     world2Display(pos) );
 	    if ( mIsUdf(dist) ) continue;
 
 	    if ( mIsUdf(mindist) || dist<mindist )
