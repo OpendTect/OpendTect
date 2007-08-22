@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.66 2007-08-14 05:54:14 cvssatyaki Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.67 2007-08-22 07:33:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -281,6 +281,7 @@ int VolumeDisplay::addIsoSurface()
 {
     visBase::IsoSurface* isosurface = visBase::IsoSurface::create();
     isosurface->ref();
+    isosurface->setMaterial( 0 );
     RefMan<IsoSurface> surface = new IsoSurface();
     isosurface->setSurface( *surface );
     if ( cache_ )
@@ -295,7 +296,9 @@ int VolumeDisplay::addIsoSurface()
 
     isosurface->setName( "Iso surface" );
 
-    insertChild( 0, isosurface->getInventorNode() );
+    //Insert before the volume transform
+    insertChild( childIndex(voltrans_->getInventorNode()),
+	    		    isosurface->getInventorNode() );
     isosurfaces_ += isosurface;
     return isosurface->id();
 }
@@ -635,8 +638,21 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate() const
 	slice->setSliceNr( slices_[idx]->getSliceNr() );
     }
 
+    for ( int idx=0; idx<isosurfaces_.size(); idx++ )
+    {
+	const int isosurfid = vd->addIsoSurface();
+	mDynamicCastGet(visBase::IsoSurface*,isosurface,
+			visBase::DM().getObject(isosurfid));
+	isosurface->getSurface()->setThreshold(
+		isosurfaces_[idx]->getSurface()->getThreshold() );
+    }
+
+    vd->showVolRen( isVolRenShown() );
+
     vd->setCubeSampling( getCubeSampling(false,0) );
 
+    vd->setSelSpec( 0, as_ );
+    vd->setDataVolume( 0, cache_ );
     return vd;
 }
 
