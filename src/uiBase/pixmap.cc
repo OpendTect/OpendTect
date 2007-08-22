@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.24 2007-06-14 17:25:11 cvsbert Exp $
+ RCS:           $Id: pixmap.cc,v 1.25 2007-08-22 10:53:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,12 +86,17 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
     FilePath fp( fname );
     if ( !fp.isAbsolute() )
     {
-	fp.setPath( mGetSetupFileName("icons.cur") );
+	fp.setPath( GetSettingsFileName("icons") );
 	fname = fp.fullPath();
 	if ( !File_exists(fname) )
 	{
-	    fp.setPath( mGetSetupFileName("icons.Default") );
+	    fp.setPath( mGetSetupFileName("icons.cur") );
 	    fname = fp.fullPath();
+	    if ( !File_exists(fname) )
+	    {
+		fp.setPath( mGetSetupFileName("icons.Default") );
+		fname = fp.fullPath();
+	    }
 	}
     }
 
