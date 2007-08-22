@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.29 2007-08-22 05:32:13 cvsraman Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.30 2007-08-22 12:25:37 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -109,29 +109,32 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Load ..."), 0 );
-
+    uiPopupMenu* newmnu = new uiPopupMenu( getUiParent(), "New" );
     if ( SI().has2D() )
     {
-	uiPopupMenu* newmnu = new uiPopupMenu( getUiParent(), "New" );
-	newmnu->insertItem( new uiMenuItem("3D..."), 1 );
-	newmnu->insertItem( new uiMenuItem("2D..."), 11 );
-	mnu.insertItem( newmnu );
+	uiPopupMenu* randmnu = new uiPopupMenu( getUiParent(), "Random" );
+	randmnu->insertItem( new uiMenuItem("3D..."), 1 );
+	randmnu->insertItem( new uiMenuItem("2D..."), 11 );
+	newmnu->insertItem( randmnu );
     }
     else
-	mnu.insertItem( new uiMenuItem("New ..."), 1 );
+	newmnu->insertItem( new uiMenuItem("Random"), 1 );
+
+    newmnu->insertItem( new uiMenuItem("Empty"), 2 );
+    mnu.insertItem( newmnu );
     if ( children_.size()>0 )
     {
-	mnu.insertItem( new uiMenuItem("Save changes"), 2 );
+	mnu.insertItem( new uiMenuItem("Save changes"), 3 );
 	mnu.insertSeparator();
 	uiMenuItem* filteritem =
 	    new uiMenuItem( "Display picks only at sections" );
-	mnu.insertItem( filteritem, 3 );
+	mnu.insertItem( filteritem, 4 );
 	filteritem->setEnabled( !hastransform );
 	uiMenuItem* shwallitem = new uiMenuItem( "Show all picks" );
-	mnu.insertItem( shwallitem, 4 );
+	mnu.insertItem( shwallitem, 5 );
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
-	mnu.insertItem( new uiMenuItem("Merge Sets"), 5 );
+	mnu.insertItem( new uiMenuItem("Merge Sets"), 6 );
     }
 
     addStandardItems( mnu );
@@ -150,25 +153,32 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     else if ( mnuid==1 )
     {
 	display_on_add = true;
-	if ( !applMgr()->pickServer()->createSet( false ) )
+	if ( !applMgr()->pickServer()->createSet( true, false ) )
 	    return -1;
 	display_on_add = false;
     }
     else if ( mnuid==11)
     {
 	display_on_add = true;
-	if ( !applMgr()->pickServer()->createSet( true ) )
+	if ( !applMgr()->pickServer()->createSet( true, true ) )
 	    return -1;
 	display_on_add = false;
     }
     else if ( mnuid==2 )
     {
+	display_on_add = true;
+	if ( !applMgr()->pickServer()->createSet() )
+	    return -1;
+	display_on_add = false;
+    }
+    else if ( mnuid==3 )
+    {
 	if ( !applMgr()->pickServer()->storeSets() )
 	    uiMSG().error( "Problem saving changes. Check write protection." );
     }
-    else if ( mnuid==3 || mnuid==4 )
+    else if ( mnuid==4 || mnuid==5 )
     {
-	const bool showall = mnuid == 4;
+	const bool showall = mnuid == 5;
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiODPickSetTreeItem*,itm,children_[idx])
@@ -178,7 +188,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	    itm->updateColumnText( uiODSceneMgr::cColorColumn() );
 	}
     }
-    else if ( mnuid==5 )
+    else if ( mnuid==6 )
 	{ MultiID mid; applMgr()->pickServer()->mergeSets( mid ); }
     else
 	handleStandardItems( mnuid );
