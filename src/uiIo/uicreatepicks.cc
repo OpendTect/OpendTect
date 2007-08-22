@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.2 2007-08-21 05:35:54 cvsraman Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.3 2007-08-22 05:34:10 cvsraman Exp $";
 
 #include "uicreatepicks.h"
 
@@ -199,13 +199,12 @@ void uiCreatePicks3D::randHorSel( CallBacker* cb )
 {
     if ( !randvolfld_ ) return;
 
-    const bool dodisp = genRand();
     const int randgeomtyp = randvolfld_->getIntValue();
     const bool randvol = randgeomtyp == 0;
-    randhorsubselfld_->display( dodisp && !randvol );
-    randvolsubselfld_->display( dodisp && randvol );
-    randhorselfld_->display( dodisp && !randvol );
-    randhorsel2fld_->display( dodisp && randgeomtyp == 2 );
+    randhorsubselfld_->display( !randvol );
+    randvolsubselfld_->display( randvol );
+    randhorselfld_->display( !randvol );
+    randhorsel2fld_->display( randgeomtyp == 2 );
 }
 
 
@@ -238,7 +237,7 @@ bool uiCreatePicks3D::acceptOK( CallBacker* )
 {
     if ( genRand() )
     {
-	const int choice = randvolfld_->getIntValue();
+	const int choice = randvolfld_ ? randvolfld_->getIntValue() : 0;
 	if ( choice )
 	{
 	    if ( !strcmp(randhorselfld_->box()->text(),"Select") )
@@ -299,14 +298,17 @@ void uiCreatePicks2D::randHorSel( CallBacker* cb )
 {
     if ( !randvolfld_ ) return;
 
-    const bool dodisp = genRand();
     const int randgeomtyp = randvolfld_->getIntValue();
     const bool needhor = randgeomtyp == 1;
-    linesetfld_->display( dodisp );
-    linenmfld_->display( dodisp );
-    zfld_->display( dodisp && !needhor );
-    randhorselfld_->display( dodisp && needhor );
-    randhorsel2fld_->display( dodisp && needhor );
+    if ( needhor )
+    {	
+	uiMSG().error( "This feature is not implemented yet" );		//TODO
+	randvolfld_->setValue( 0 ); return;
+    }
+
+    zfld_->display( !needhor );
+    randhorselfld_->display( needhor );
+    randhorsel2fld_->display( needhor );
 }
 
 
@@ -346,15 +348,15 @@ bool uiCreatePicks2D::acceptOK( CallBacker* )
 {
     if ( genRand() )
     {
-	const int choice = randvolfld_->getIntValue();
-	if ( choice ) mErrRet( "This feature is not implemented yet" );
-/*	{
+	const int choice = randvolfld_ ? randvolfld_->getIntValue() : 0;
+	if ( choice )
+	{
 	    if ( !strcmp(randhorselfld_->box()->text(),"Select") )
 		mErrRet( "Please Select a valid horizon" );
 	    if ( !strcmp(randhorsel2fld_->text(),"Select") )
 		mErrRet( "Please Select a valid second horizon" );
 	}
-*/
+
 	mkRandPars();
     }
 
