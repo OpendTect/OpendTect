@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackmute.cc,v 1.2 2007-06-26 21:38:38 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: prestackmute.cc,v 1.3 2007-08-22 06:28:34 cvskris Exp $";
 
 #include "prestackmute.h"
 
@@ -84,7 +84,10 @@ bool Mute::setMuteDefID( const MultiID& mid )
 
 void Mute::fillPar( IOPar& par ) const
 {
-    par.set( sMuteDef(), id_ );
+    PtrMan <IOObj> ioobj = IOM().get( id_ );
+    if ( ioobj )
+	par.set( sMuteDef(), id_ );
+
     par.set( sTaperLength(), taperlen_ );
     par.setYN( sTailMute(), tail_ );
 }
@@ -94,11 +97,14 @@ bool Mute::usePar( const IOPar& par )
 {
     par.get( sTaperLength(), taperlen_ );
     par.getYN( sTailMute(), tail_ );
-    if ( !par.get(sMuteDef(),id_) && id_.isEmpty() )
+
+    MultiID mid;
+    if ( par.get(sMuteDef(),mid) && !setMuteDefID(mid) )
     {
 	errmsg_ = "No Mute definition ID found";
 	return false;
     }
+
     return true;
 }
 
