@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.28 2007-08-21 05:44:58 cvsraman Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.29 2007-08-22 05:32:13 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -109,7 +109,16 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("Load ..."), 0 );
-    mnu.insertItem( new uiMenuItem("New ..."), 1 );
+
+    if ( SI().has2D() )
+    {
+	uiPopupMenu* newmnu = new uiPopupMenu( getUiParent(), "New" );
+	newmnu->insertItem( new uiMenuItem("3D..."), 1 );
+	newmnu->insertItem( new uiMenuItem("2D..."), 11 );
+	mnu.insertItem( newmnu );
+    }
+    else
+	mnu.insertItem( new uiMenuItem("New ..."), 1 );
     if ( children_.size()>0 )
     {
 	mnu.insertItem( new uiMenuItem("Save changes"), 2 );
@@ -138,10 +147,17 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	if ( !res )
 	    return -1;
     }    
-    if ( mnuid==1 )
+    else if ( mnuid==1 )
     {
 	display_on_add = true;
-	if ( !applMgr()->pickServer()->createSet( SI().has2D() ) )
+	if ( !applMgr()->pickServer()->createSet( false ) )
+	    return -1;
+	display_on_add = false;
+    }
+    else if ( mnuid==11)
+    {
+	display_on_add = true;
+	if ( !applMgr()->pickServer()->createSet( true ) )
 	    return -1;
 	display_on_add = false;
     }
