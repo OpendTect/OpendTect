@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.2 2007-08-20 16:01:22 cvsbert Exp $
+ RCS:           $Id: uicolortable.cc,v 1.3 2007-08-22 10:42:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,6 @@ ________________________________________________________________________
 	  vertical_(vert) \
 	, coltab_(*new ColorTable) \
 	, scale_(*new ColTabScaling) \
-	, coltabrg_(0,1) \
 	, tableSelected(this) \
 	, scaleChanged(this)
 
@@ -88,15 +87,18 @@ void uiColorTable::doApply4Man
     mDynamicCastGet(uiColorTableMan*,dlg,cb) if ( !dlg ) return;
     IOPar par; dlg->currentColTab().fillPar( par );
     ColorTable::get( ct.name(), coltab_ );
-    coltab_.usePar( par ); coltab_.scaleTo( coltabrg_ );
+    coltab_.usePar( par );
+    applyScaling();
     selfld_->setCurrentItem( coltab_.name() );
     canvas_->forceNewFill();
     setRangeFields();
 }
 
 
-void uiColorTable::setRangeFields()
+void uiColorTable::applyScaling()
 {
+    if ( scale_.autoscale_ )
+    coltab_.scaleTo( scale_.range_ );
     if ( !isEditable() ) return;
     minfld_->setValue( coltabrg_.start );
     maxfld_->setValue( coltabrg_.stop );
