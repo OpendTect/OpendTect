@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
 Date:		Aug 2007
- RCS:           $Id: uicoltabtools.cc,v 1.1 2007-08-20 16:01:22 cvsbert Exp $
+ RCS:           $Id: uicoltabtools.cc,v 1.2 2007-08-22 09:09:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ void uiColorTableCanvas::reFill( CallBacker* )
     const int sz = rgbarr_->getSize( vertical_ );
 
     ColorTable ct( ctab_ );
-    ct.calcList( 255 );
+    ct.calcList( nrcol );
     for ( int idx=0; idx<nrcol; idx++ )
     {
 	const Color color = ct.tableColor( idx );
