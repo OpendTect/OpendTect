@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uiprestackprocessor.h,v 1.3 2007-05-22 15:52:10 cvskris Exp $
+ RCS:		$Id: uiprestackprocessor.h,v 1.4 2007-08-22 06:30:21 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -32,8 +32,7 @@ class Processor;
 class uiProcessorManager : public uiGroup
 {
 public:
-				uiProcessorManager(uiParent*,
-					ProcessManager&);
+				uiProcessorManager(uiParent*,ProcessManager&);
 
     Notifier<uiProcessorManager>change;
     bool			restore();
@@ -54,7 +53,7 @@ protected:
 
     IOPar			restorepar_;
 
-    ProcessManager&	manager_;
+    ProcessManager&		manager_;
 
     uiListBox*			factorylist_;
     uiButton*			addprocessorbutton_;
