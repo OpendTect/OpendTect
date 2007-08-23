@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.25 2007-06-07 15:21:55 cvsbert Exp $
+ RCS:           $Id: uisettings.cc,v 1.26 2007-08-23 15:25:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ bool uiSettings::acceptOK( CallBacker* )
 }
 
 
-#define mIconsKey	"dTect.Icons"
+static int iconsize = -1;
 #define mCBarKey        "dTect.ColorBar"
 #define mHVKey          "show vertical"
 #define mTopKey         "show on top"
@@ -87,7 +87,7 @@ bool uiSettings::acceptOK( CallBacker* )
 struct LooknFeelSettings
 {
     		LooknFeelSettings()
-		    : iconsz(24)
+		    : iconsz(iconsize < 0 ? uiObject::iconSize() : iconsize)
 		    , isvert(true)
 		    , isontop(false)
 		    , noshading(false)	
@@ -108,10 +108,7 @@ uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
     	, lfsetts(*new LooknFeelSettings)
 	, changed(false)
 {
-    IOPar* iopar = setts.subselect( mIconsKey );
-    if ( iopar )
-	iopar->get( "size", lfsetts.iconsz );
-    delete iopar; iopar = setts.subselect( mCBarKey );
+    IOPar* iopar = setts.subselect( mCBarKey );
     if ( iopar )
     {
 	iopar->getYN( mHVKey, lfsetts.isvert );
@@ -185,6 +182,7 @@ bool uiLooknFeelSettings::acceptOK( CallBacker* )
 	setts.mergeComp( *iopar, mIconsKey );
 	changed = true;
 	delete iopar;
+	iconsize = newsetts.iconsz;
     }
 
     if ( newsetts.isvert != lfsetts.isvert ||
