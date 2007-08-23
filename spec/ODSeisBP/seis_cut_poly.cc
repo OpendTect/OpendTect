@@ -1,16 +1,17 @@
 /*+
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
- * AUTHOR   : A.H. Bril / J.C. Glas
+ * AUTHOR   : A.H. Bril 
  * DATE     : 2-12-2005
 -*/
 
-static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.6 2007-04-19 15:12:46 cvsjaap Exp $";
+static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.7 2007-08-23 08:06:39 cvsjaap Exp $";
 
 #include "prog.h"
 #include "batchprog.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "polygon.h"
 #include "seisread.h"
 #include "seiswrite.h"
 #include "seistrc.h"
@@ -24,7 +25,7 @@ static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.6 2007-04-19 15:12:46 cvsj
 #include <math.h>
 
 
-static void addCoord( const char* str, TypeSet<Coord>& coords )
+static void addCoord( const char* str, Polygon& poly )
 {
     if ( !str || !*str ) return;
 
@@ -32,103 +33,7 @@ static void addCoord( const char* str, TypeSet<Coord>& coords )
     if ( fms.size() < 2 ) return;
 
     BinID bid( atoi(fms[0]), atoi(fms[1]) );
-    coords += SI().transform( bid );
-}
-
-
-static bool doCoincide( const Coord& point1, const Coord& point2,
-			double eps = mDefEps )
-{
-    return point1.sqDistTo( point2 ) <= eps * eps;
-}
-
-
-static double sgnDistToLine( const Coord& point, 
-			     const Coord& dirvec, const Coord& posvec )
-{
-    const double nolinedist = 0;
-
-    const double dirveclen = dirvec.distTo( Coord(0,0) );
-    if ( mIsZero( dirveclen, mDefEps ) )
-	return nolinedist;
-    const double substpointinlineeqn =   dirvec.y * ( point.x - posvec.x )
-				       - dirvec.x * ( point.y - posvec.y );
-    return substpointinlineeqn / dirveclen;
-}
-
-
-static bool isRightOfLine( const Coord& point,
-			   const Coord& dirvec, const Coord& posvec )
-{
-    return sgnDistToLine( point, dirvec, posvec ) > 0;
-}
-
-
-static bool isOnLine( const Coord& point,
-		      const Coord& dirvec, const Coord& posvec,
-		      double eps = mDefEps )
-{
-    const double signeddist = sgnDistToLine( point, dirvec, posvec );
-    return signeddist * signeddist <= eps * eps;
-}
-
-
-static bool isOnHalfLine( const Coord& point,
-			  const Coord& dirvec, const Coord& endvec, 
-			  double eps = mDefEps )
-{
-    if ( doCoincide( point, endvec, eps ) )
-	return true;
-    if ( !isOnLine( point, dirvec, endvec, eps ) )
-	return false;
-    const Coord rot90dirvec( -dirvec.y, dirvec.x );
-    return isRightOfLine( point, rot90dirvec, endvec );
-}
-
-
-static bool isOnSegment( const Coord& point,
-			 const Coord& vtx1, const Coord& vtx2, 
-			 double eps = mDefEps )
-{
-    return    isOnHalfLine( point, vtx2 - vtx1, vtx1, eps )
-	   && isOnHalfLine( point, vtx1 - vtx2, vtx2, eps );
-}
-
-
-static bool isEdgeCrossing( const Coord& raydir, const Coord& raysrc,
-			    const Coord& vtx1, const Coord& vtx2 )
-{
-    const bool vtx1right = isRightOfLine( vtx1, raydir, raysrc );
-    const bool vtx2right = isRightOfLine( vtx2, raydir, raysrc );
-
-    if ( vtx1right && !vtx2right )
-	return isRightOfLine( raysrc, vtx2 - vtx1, vtx1 );
-    if ( !vtx1right && vtx2right )
-	return isRightOfLine( raysrc, vtx1 - vtx2, vtx2 );
-    return false;
-}
-
-
-//! Draws (horizontal) ray from a given point to the far (right)
-//! and checks for odd number of edge crossings with polygon.
-
-static bool isInside( const TypeSet<Coord>& poly, const Coord& point,
-		      bool incborder, double eps = mDefEps )
-{
-    const Coord arbitrarydir( 1, 0 );
-
-    bool nrcrossingsodd = false;
-    for ( int idx=0; idx<poly.size(); idx++ )
-    {
-	const Coord& vtxcurr = poly[ idx ];
-	const Coord& vtxnext = poly[ idx+1 < poly.size() ? idx+1 : 0 ] ;
-
-	if ( isOnSegment( point, vtxcurr, vtxnext, eps ) )
-	    return incborder;
-	if ( isEdgeCrossing( arbitrarydir, point, vtxcurr, vtxnext ) )
-	    nrcrossingsodd = !nrcrossingsodd;
-    }
-    return nrcrossingsodd;
+    poly.add( SI().transform( bid ) );
 }
 
 
@@ -145,7 +50,7 @@ bool BatchProgram::go( std::ostream& strm )
 
     const char* vrtcspsid = pars().find( "Vertices PickSet.ID" );
 
-    TypeSet<Coord> edgecoords;
+    Polygon poly;
     if ( vrtcspsid )
     {
 	PtrMan<IOObj> ioobj = IOM().get( MultiID(vrtcspsid) );
@@ -164,7 +69,7 @@ bool BatchProgram::go( std::ostream& strm )
 	    mErrRet("Cannot read Pick Set")
 
 	for ( int idx=0; idx<pickset->size(); idx++ )
-	    edgecoords += (*pickset)[idx].pos;
+	    poly.add( (*pickset)[idx].pos );
     }
 
     PtrMan<IOPar> edgesubpar = pars().subselect( "Edge" );
@@ -176,11 +81,11 @@ bool BatchProgram::go( std::ostream& strm )
 	    const char* edgestr = edgesubpar->find( idxstr.buf() );
 	    if ( !edgestr )
 		{ if ( !idx ) continue; else break; }
-	    addCoord( edgestr, edgecoords );
+	    addCoord( edgestr, poly );
 	}
     }
 
-    if ( edgecoords.size() < 3 )
+    if ( poly.size() < 3 )
 	mErrRet("Less than 3 valid positions defined")
 
 
@@ -195,8 +100,7 @@ bool BatchProgram::go( std::ostream& strm )
     bool incborder = true; pars().getYN( "Border is inside", incborder );
     while ( rdr.get(trc) )
     {
-	const bool inside = 
-		isInside( edgecoords, trc.info().coord, incborder, 0.001 );
+	const bool inside = poly.isInside( trc.info().coord, incborder, 0.001 );
 	if ( (needinside && !inside) || (!needinside && inside) )
 	    { nrexcl++; continue; }
 
