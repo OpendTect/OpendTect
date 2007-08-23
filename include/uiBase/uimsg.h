@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.18 2007-01-08 14:02:20 cvsnanne Exp $
+ RCS:           $Id: uimsg.h,v 1.19 2007-08-23 07:09:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,13 +66,31 @@ private:
 
 };
 
-
 inline uiMsg& uiMSG()
 {
     if ( !uiMsg::theinst_ )
 	uiMsg::theinst_ = new uiMsg;
     return *uiMsg::theinst_;
 }
+
+
+//!Sets the uiMSG's main window temporary during the scope of the object
+class uiMsgMainWinSetter
+{
+public:
+    			uiMsgMainWinSetter( uiMainWin* np )
+			    : isset_( np )
+			    , oldparent_( 0 )
+			{
+			    if ( np ) oldparent_ = ::uiMSG().setMainWin( np );
+			}
+
+			~uiMsgMainWinSetter()
+			{ if ( isset_ ) ::uiMSG().setMainWin( oldparent_ ); }
+protected:
+    uiMainWin*		oldparent_;
+    bool		isset_;
+};
 
 
 #endif
