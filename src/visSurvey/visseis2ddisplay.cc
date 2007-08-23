@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.22 2007-07-27 10:54:00 cvsjaap Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.23 2007-08-23 15:26:23 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -245,7 +245,11 @@ void Seis2DDisplay::setData( int attrib,
     PtrMan<Array2DImpl<float> > arr =
 	new Array2DImpl<float>( nrsamp,trcnrrg_.width()+1 );
 
+    if ( !arr->isOK() )
+	return;
+
     float* arrptr = arr->getData();
+
     const int totalsz = arr->info().getTotalSz();
     for ( int idx=0; idx<totalsz; idx++ )
 	(*arrptr++) = mUdf(float);
