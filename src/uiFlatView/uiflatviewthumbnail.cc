@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Aug 2007
- RCS:           $Id: uiflatviewthumbnail.cc,v 1.1 2007-08-23 15:27:31 cvsbert Exp $
+ RCS:           $Id: uiflatviewthumbnail.cc,v 1.2 2007-08-23 15:36:35 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -41,8 +41,12 @@ void uiFlatViewThumbnail::reDrawHandler( uiRect updarea )
     dt.setBackgroundColor( bgcolor_ );
     dt.clear();
 
-    const uiWorldRect bb = viewer_.boundingBox();
+    uiWorldRect bb = viewer_.boundingBox();
     const uiWorldRect wr = viewer_.curView();
+    if ( wr.left() > wr.right() )
+	{ double tmp = bb.left(); bb.setLeft(bb.right()); bb.setRight(tmp); }
+    if ( wr.bottom() > wr.top() )
+	{ double tmp = bb.top(); bb.setTop(bb.bottom()); bb.setBottom(tmp); }
     uiWorld2Ui w2u( bb, uiSize(width(),height()) );
     dt.setPenColor( Color::Black );
     dt.drawRect( w2u.transform(bb) );
