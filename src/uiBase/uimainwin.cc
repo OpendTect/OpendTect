@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.128 2007-07-19 07:31:47 cvsjaap Exp $
+ RCS:           $Id: uimainwin.cc,v 1.129 2007-08-23 15:25:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,6 @@ ________________________________________________________________________
 #include "helpview.h"
 #include "msgh.h"
 #include "pixmap.h"
-#include "settings.h"
 #include "timer.h"
 
 #include <iostream>
@@ -204,8 +203,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* p,
 #ifdef USEQT3
     setDockMenuEnabled( false );
 #else
-    iconsz_ = 32;
-    Settings::common().get( "dTect.Icons.size", iconsz_ );
+    iconsz_ = uiObject::iconSize();
     setIconSize( QSize(iconsz_,iconsz_) );
 
     setWindowModality( modal ? Qt::WindowModal : Qt::NonModal );

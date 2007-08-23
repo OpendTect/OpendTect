@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.67 2007-08-13 12:57:15 cvsjaap Exp $
+ RCS:           $Id: uiobj.cc,v 1.68 2007-08-23 15:25:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,10 +17,9 @@ ________________________________________________________________________
 #include "errh.h"
 #include "timer.h"
 #include "color.h"
+#include "settings.h"
 
 #include <qsettings.h> 
-
-int uiObject::basefldsize_ = 10;
 
 
 #define mBody_( imp_ )	dynamic_cast<uiObjectBody*>( imp_ )
@@ -443,7 +442,21 @@ int uiObject::height() const
 }
 
 
-int uiObject::baseFldSize()	{ return basefldsize_; }
+#define mDefSzFn(nm,key,def) \
+\
+int uiObject::nm##Size() \
+{ \
+    static int sz = -1; \
+    if ( sz < 0 ) \
+    { \
+	sz = def; \
+	Settings::common().get( key, sz ); \
+    } \
+    return sz; \
+}
+
+mDefSzFn(icon,"dTect.Icons.size",32)
+mDefSzFn(baseFld,"dTect.Field.size",10)
 
 
 void uiObject::useNameToolTip( bool yn ) 

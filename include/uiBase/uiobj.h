@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.50 2007-08-13 12:57:15 cvsjaap Exp $
+ RCS:           $Id: uiobj.h,v 1.51 2007-08-23 15:25:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,6 +153,7 @@ public:
     CNotifier<uiObject,uiRect&>	setGeometry;
 
     static int		baseFldSize();
+    static int		iconSize();
 
 protected:
 
@@ -168,7 +169,6 @@ protected:
 
 private:
 
-    static int		basefldsize_; 
     uiParent*		parent_;
 
 };

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.38 2007-05-10 05:41:07 cvsnanne Exp $
+ RCS:           $Id: uimain.cc,v 1.39 2007-08-23 15:25:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,8 +157,7 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     if ( !enab )
 	uiObject::enableToolTips( false );
 
-    int iconsz = 24;
-    Settings::common().get( "dTect.Icons.size", iconsz );
+    const int iconsz = uiObject::iconSize();
     QIconSet::setIconSize( QIconSet::Small, QSize(iconsz,iconsz) );
     QIconSet::setIconSize( QIconSet::Automatic, QSize(iconsz,iconsz) );
     QIconSet::setIconSize( QIconSet::Large, QSize(iconsz,iconsz) );
