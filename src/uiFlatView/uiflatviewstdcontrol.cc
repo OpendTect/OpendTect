@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.cc,v 1.4 2007-03-13 10:37:48 cvshelene Exp $
+ RCS:           $Id: uiflatviewstdcontrol.cc,v 1.5 2007-08-23 15:27:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiflatviewstdcontrol.h"
 #include "flatviewzoommgr.h"
 #include "uiflatviewer.h"
+#include "uiflatviewthumbnail.h"
 #include "uibutton.h"
 #include "uimenuhandler.h"
 #include "uitoolbar.h"
@@ -58,6 +59,9 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     menu_.ref();
     menu_.createnotifier.notify(mCB(this,uiFlatViewStdControl,createMenuCB));
     menu_.handlenotifier.notify(mCB(this,uiFlatViewStdControl,handleMenuCB));
+
+    uiFlatViewThumbnail* tn = new uiFlatViewThumbnail( this, vwr );
+    tn->setColors( Color(0,0,200), Color::White );
 }
 
 
