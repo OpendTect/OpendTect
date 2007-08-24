@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.54 2007-08-24 11:56:55 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.55 2007-08-24 12:17:07 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emposid.h"
 #include "multiid.h"
+#include "segposinfo.h"
 #include "uiapplserv.h"
 
 
@@ -81,9 +82,13 @@ public:
 	    			    const EM::SurfaceIODataSelection* s=0);
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&);
     void                getAllSurfaceInfo(ObjectSet<SurfaceInfo>&,bool);
-    void		getSurfaceDef(const TypeSet<EM::ObjectID>&,
-	    			      BinIDValueSet&,
-				      const BinIDRange* br=0) const;
+    void		getSurfaceDef3D(const TypeSet<EM::ObjectID>&,
+	    			        BinIDValueSet&,
+				        const BinIDRange* br=0) const;
+    void		getSurfaceDef2D(const ObjectSet<MultiID>&,
+	    				ObjectSet<PosInfo::Line2DData>,
+	    				BufferStringSet&,TypeSet<Coord>&,
+					TypeSet< Interval<float> >&);
 
     bool		storeObject(const EM::ObjectID&,
 	    			    bool storeas=false) const;

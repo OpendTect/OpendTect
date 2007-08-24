@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.116 2007-08-24 11:56:55 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.117 2007-08-24 12:16:37 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -683,7 +683,7 @@ void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
 }
 
 
-void uiEMPartServer::getSurfaceDef( const TypeSet<EM::ObjectID>& selhorids,
+void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 				    BinIDValueSet& bivs,
 				    const BinIDRange* br ) const
 {
@@ -765,6 +765,62 @@ void uiEMPartServer::getSurfaceDef( const TypeSet<EM::ObjectID>& selhorids,
     
     hor3d->unRef();
     if ( hor3d2 ) hor3d2->unRef();
+}
+
+
+#define mGetObjId( num, id ) \
+{ \
+    MultiID horid = *selhorids[num]; \
+    id = getObjectID(horid); \
+    if ( id<0 || !isFullyLoaded(id) ) \
+	loadSurface( horid ); \
+    id = getObjectID(horid); \
+}
+void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
+				      ObjectSet<PosInfo::Line2DData> geoms,
+				      BufferStringSet& selectlines,
+				      TypeSet<Coord>& coords,
+				      TypeSet< Interval<float> >& zrgs )
+{
+    EM::ObjectID id;
+    mGetObjId(0,id);
+    mDynamicCastGet(EM::Horizon2D*,hor2d1,em_.getObject(id));
+    
+    mGetObjId(1,id);
+    mDynamicCastGet(EM::Horizon2D*,hor2d2,em_.getObject(id));
+    if ( !hor2d1 || !hor2d2 ) return;
+
+    for ( int lidx=0; lidx<selectlines.size(); lidx++ )
+    {
+	PosInfo::Line2DData* line = geoms[lidx];
+	if ( !line ) continue;
+
+	BufferString lnm = *selectlines[lidx];
+	int lineidx = hor2d1->geometry().lineIndex( lnm );
+	const int lineid1 = hor2d1->geometry().lineID( lineidx );
+
+	lineidx = hor2d2->geometry().lineIndex( lnm );
+	const int lineid2 = hor2d2->geometry().lineID( lineidx );
+	if ( lineid1<0 || lineid2<0 ) continue;
+
+	for ( int trcidx=0; trcidx<line->posns.size(); trcidx++ )
+	{
+	    const EM::SubID subid1 = 
+		RowCol( lineid1, line->posns[trcidx].nr_ ).getSerialized();
+	    const EM::SubID subid2 =
+		RowCol( lineid2, line->posns[trcidx].nr_ ).getSerialized();
+
+	    const float z1 = hor2d1->getPos(0,subid1).z;
+	    const float z2 = hor2d2->getPos(0,subid2).z;
+
+	    if ( !mIsUdf(z1) && !mIsUdf(z2) )
+	    {
+		Interval<float> zrg( z1, z2 );	
+		zrgs += zrg;
+		coords += line->posns[trcidx].coord_;
+	    }
+	}
+    }
 }
 
 
