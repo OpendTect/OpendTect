@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.4 2007-08-22 12:27:57 cvsraman Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.5 2007-08-24 12:01:26 cvsraman Exp $";
 
 #include "uicreatepicks.h"
 
@@ -265,12 +265,6 @@ void uiGenRandPicks2D::geomSel( CallBacker* cb )
 
     const int geomtyp = geomfld_->getIntValue();
     const bool needhor = geomtyp == 1;
-    if ( needhor )
-    {	
-	uiMSG().error( "This feature is not implemented yet" );		//TODO
-	geomfld_->setValue( 0 ); return;
-    }
-
     zfld_->display( !needhor );
     horselfld_->display( needhor );
     horsel2fld_->display( needhor );

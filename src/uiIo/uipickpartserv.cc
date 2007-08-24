@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.46 2007-08-22 12:27:57 cvsraman Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.47 2007-08-24 12:01:26 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,10 +30,11 @@ ________________________________________________________________________
 
 const int uiPickPartServer::evGetHorInfo2D = 0;
 const int uiPickPartServer::evGetHorInfo3D = 1;
-const int uiPickPartServer::evGetHorDef = 2;
-const int uiPickPartServer::evFillPickSet = 3;
-const int uiPickPartServer::evGet2DLineInfo = 4;
-const int uiPickPartServer::evGet2DLineDef = 5;
+const int uiPickPartServer::evGetHorDef3D = 2;
+const int uiPickPartServer::evGetHorDef2D = 3;
+const int uiPickPartServer::evFillPickSet = 4;
+const int uiPickPartServer::evGet2DLineInfo = 5;
+const int uiPickPartServer::evGet2DLineDef = 6;
 
 
 uiPickPartServer::uiPickPartServer( uiApplService& a )
@@ -131,7 +132,7 @@ bool uiPickPartServer::createSet( bool rand, bool is2d )
 	    return storeNewSet( newps );
     }
 
-    fetchHors( false );
+    fetchHors( is2d );
     BufferStringSet hornms;
     for ( int idx=0; idx<hinfos_.size(); idx++ )
 	hornms.add( hinfos_[idx]->name );
@@ -177,7 +178,7 @@ bool uiPickPartServer::mkRandLocs3D( Pick::Set& ps, const RandLocGenPars& rp )
 	selhorids_ += new MultiID( hinfos_[rp.horidx_]->multiid );
 	if ( do2hors )
 	    selhorids_ += new MultiID( hinfos_[rp.horidx2_]->multiid );
-	sendEvent( evGetHorDef );
+	sendEvent( evGetHorDef3D );
     }
     else
     {
@@ -220,31 +221,37 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
     selectlines_ = rp.linenms_;
     deepErase( linegeoms_ );
     deepErase( selhorids_ );
+    sendEvent( evGet2DLineDef );
+    if ( !linegeoms_.size() ) return false;
+
+    coords2d_.erase();
     if ( rp.needhor_ )
-	return false;
+    {
+	selhorids_ += new MultiID( hinfos_[rp.horidx_]->multiid );
+	selhorids_ += new MultiID( hinfos_[rp.horidx2_]->multiid );
+	hor2dzrgs_.erase();
+	sendEvent( evGetHorDef2D );
+    }
     else
     {
-	sendEvent( evGet2DLineDef );
-	if ( !linegeoms_.size() ) return false;
-
-	TypeSet<Coord> coords;
 	for ( int ldx=0; ldx<linegeoms_.size(); ldx++ )
 	    for ( int tdx=0; tdx<linegeoms_[ldx]->posns.size(); tdx++ )
-		coords += linegeoms_[ldx]->posns[tdx].coord_;
-
-	const int nrpos = coords.size();
-	if ( !nrpos ) return false;
-
-	for ( int ipt=0; ipt<rp.nr_; ipt++ )
-	{
-	    const int posidx = Stats::RandGen::getIndex( nrpos );
-	    float val = rp.zrg_.start 
-				+ Stats::RandGen::get() * rp.zrg_.width(false);
-	    ps += Pick::Location( coords[posidx], val );
-	}
+		coords2d_ += linegeoms_[ldx]->posns[tdx].coord_;
+	
+	deepErase( linegeoms_ );
     }
 
-    deepErase( linegeoms_ );
+    const int nrpos = coords2d_.size();
+    if ( !nrpos ) return false;
+
+    for ( int ipt=0; ipt<rp.nr_; ipt++ )
+    {
+	const int posidx = Stats::RandGen::getIndex( nrpos );
+	Interval<float> zrg = rp.needhor_ ? hor2dzrgs_[posidx] : rp.zrg_;
+	float val = zrg.start + Stats::RandGen::get() * zrg.width(false);
+	ps += Pick::Location( coords2d_[posidx], val );
+    }
+
     return true;
 }
 
