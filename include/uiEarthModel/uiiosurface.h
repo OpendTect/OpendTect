@@ -7,24 +7,25 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.19 2007-01-24 15:45:09 cvsjaap Exp $
+ RCS:           $Id: uiiosurface.h,v 1.20 2007-08-24 11:56:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
 
-class uiBinIDSubSel;
-class uiGenInput;
-class uiIOObjSel;
-class uiLabeledListBox;
+class BufferStringSet;
 class CtxtIOObj;
 class HorSampling;
 class IODirEntryList;
 class IOObj;
 class MultiID;
-class uiObject;
-class BufferStringSet;
+
+class uiBinIDSubSel;
+class uiGenInput;
+class uiIOObjSel;
+class uiLabeledListBox;
+
 
 namespace EM { class Surface; class SurfaceIODataSelection; };
 
@@ -46,7 +47,7 @@ public:
 
 protected:
 			uiIOSurface(uiParent*,bool forread,
-				    const BufferString& typ);
+				    const char* type);
 
     void		fillFields(const MultiID&);
     void		fillSectionFld(const BufferStringSet&);
@@ -75,7 +76,7 @@ class uiSurfaceWrite : public uiIOSurface
 {
 public:
 			uiSurfaceWrite(uiParent*,const EM::Surface&,
-				       const BufferString& typ);
+				       const char* type);
 
     virtual bool	processInput();
 
@@ -86,7 +87,7 @@ protected:
 class uiSurfaceRead : public uiIOSurface
 {
 public:
-    			uiSurfaceRead(uiParent*,const BufferString& typ,
+    			uiSurfaceRead(uiParent*,const char* type,
 				      bool showattribfld=true);
 
     virtual bool	processInput();

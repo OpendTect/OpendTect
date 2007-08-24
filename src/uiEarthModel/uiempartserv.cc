@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.115 2007-08-24 06:55:44 cvsjaap Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.116 2007-08-24 11:56:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -288,7 +288,7 @@ void uiEMPartServer::selectFaults( TypeSet<EM::ObjectID>& ids )
 
 
 void uiEMPartServer::selectSurfaces( TypeSet<EM::ObjectID>& objids,
-				     const BufferString& typ )
+				     const char* typ )
 {
     BufferString lbl( typ ); lbl += " selection";
     uiDialog dlg( appserv().parent(), uiDialog::Setup(lbl,0,"104.3.1") );

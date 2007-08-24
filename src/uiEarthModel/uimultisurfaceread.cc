@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uimultisurfaceread.cc,v 1.9 2007-05-07 10:20:45 cvsjaap Exp $
+ RCS:           $Id: uimultisurfaceread.cc,v 1.10 2007-08-24 11:56:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,15 +24,15 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
-uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const BufferString& typ )
-    : uiIOSurface(p,true,typ)
+uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* type )
+    : uiIOSurface(p,true,type)
     , singleSurfaceSelected(this)
 {
     IOM().to( ctio.ctxt.getSelKey() );
     entrylist_ = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
     entrylist_->sort();
 
-    BufferString lbl( "Select " ); lbl += typ; lbl += "(s)";
+    BufferString lbl( "Select " ); lbl += type; lbl += "(s)";
     surfacefld_ = new uiLabeledListBox( this, lbl, true,
 				       uiLabeledListBox::AboveMid );
     for ( int idx=0; idx<entrylist_->size(); idx++ )
@@ -49,7 +49,7 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const BufferString& typ )
     mkRangeFld();
     rgfld->attach( leftAlignedBelow, surfacefld_ );
 
-    if ( typ == EMHorizon2DTranslatorGroup::keyword )
+    if ( !strcmp(type,EMHorizon2DTranslatorGroup::keyword) )
     {
 	sectionfld->display( false, true );
 	rgfld->display( false, true );

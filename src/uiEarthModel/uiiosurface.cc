@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.42 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.43 2007-08-24 11:56:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,11 +31,12 @@ ________________________________________________________________________
 const int cListHeight = 5;
 
 #define mMakeCtxtIOObj(typ) \
-    typ==EMHorizon2DTranslatorGroup::keyword ? *mMkCtxtIOObj(EMHorizon2D) : \
-    typ==EMHorizon3DTranslatorGroup::keyword ? *mMkCtxtIOObj(EMHorizon3D) : \
-    *mMkCtxtIOObj(EMFault)  
+    !strcmp(typ,EMHorizon2DTranslatorGroup::keyword) ? \
+			*mMkCtxtIOObj(EMHorizon2D) : \
+    !strcmp(typ,EMHorizon3DTranslatorGroup::keyword) ? \
+			*mMkCtxtIOObj(EMHorizon3D) : *mMkCtxtIOObj(EMFault)  
 
-uiIOSurface::uiIOSurface( uiParent* p, bool forread_, const BufferString& typ )
+uiIOSurface::uiIOSurface( uiParent* p, bool forread_, const char* typ )
     : uiGroup(p,"Surface selection")
     , ctio( mMakeCtxtIOObj(typ) )
     , sectionfld(0)
@@ -212,7 +213,7 @@ void uiIOSurface::attrSel( CallBacker* )
 
 
 uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_, 
-				const BufferString& typ )
+				const char* typ )
     : uiIOSurface(p,false,typ)
 {
     if ( typ != EMHorizon2DTranslatorGroup::keyword )
@@ -255,7 +256,7 @@ bool uiSurfaceWrite::processInput()
 
 
 
-uiSurfaceRead::uiSurfaceRead( uiParent* p, const BufferString& typ, 
+uiSurfaceRead::uiSurfaceRead( uiParent* p, const char* typ, 
 			      bool showattribfld )
     : uiIOSurface(p,true,typ)
 {

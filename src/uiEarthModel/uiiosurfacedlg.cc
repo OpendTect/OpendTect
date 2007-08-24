@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.21 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.22 2007-08-24 11:56:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ IOObj* uiWriteSurfaceDlg::ioObj() const
 }
 
 
-uiReadSurfaceDlg::uiReadSurfaceDlg( uiParent* p, const BufferString& typ )
+uiReadSurfaceDlg::uiReadSurfaceDlg( uiParent* p, const char* typ )
     : uiDialog(p,uiDialog::Setup("Input selection","","104.3.0"))
 {
     iogrp_ = new uiSurfaceRead( this, typ , false );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.14 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.15 2007-08-24 11:56:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ protected:
 class uiReadSurfaceDlg : public uiDialog
 {
 public:
-			uiReadSurfaceDlg(uiParent*,const BufferString& typ);
+			uiReadSurfaceDlg(uiParent*,const char* type);
 
     IOObj*		ioObj() const;
     void		getSelection(EM::SurfaceIODataSelection&);

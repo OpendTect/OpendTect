@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.53 2007-08-24 06:55:44 cvsjaap Exp $
+ RCS:           $Id: uiempartserv.h,v 1.54 2007-08-24 11:56:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,8 +111,7 @@ public:
     void		removeTreeObject(const EM::ObjectID&);  
 
 protected:
-    void		selectSurfaces(TypeSet<EM::ObjectID>&,
-				       const BufferString& typ);
+    void		selectSurfaces(TypeSet<EM::ObjectID>&,const char* type);
     bool		loadAuxData(const EM::ObjectID&,const TypeSet<int>&);
     void		syncGeometry(CallBacker*);
 
