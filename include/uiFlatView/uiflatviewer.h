@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.13 2007-05-04 11:54:00 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.14 2007-08-24 11:23:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ class BufferStringSet;
 class uiRGBArrayCanvas;
 class uiRGBArray;
 class uiWorld2Ui;
+class uiFlatViewControl;
 
 
 /*!\brief Fulfills the FlatView::Viewer specifications using 'ui' classes. */
@@ -58,6 +59,8 @@ public:
     Notifier<uiFlatViewer> viewChanged; //!< setView
     Notifier<uiFlatViewer> dataChanged; //!< WVA or VD data changed
 
+    uiFlatViewControl*	control()	{ return control_; }
+
 protected:
 
     uiRGBArrayCanvas&		canvas_;
@@ -89,6 +92,9 @@ protected:
     void		drawGridAnnot();
     void		drawAux(const FlatView::Annotation::AuxData&);
     void		initView();
+
+    friend class	uiFlatViewControl;
+    uiFlatViewControl*	control_;
 };
 
 #endif

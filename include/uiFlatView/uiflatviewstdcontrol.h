@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.3 2007-03-13 10:37:48 cvshelene Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.4 2007-08-24 11:23:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,10 +42,6 @@ protected:
     uiToolBar*		tb_;
     uiToolButton*	zoominbut_;
     uiToolButton*	zoomoutbut_;
-    uiToolButton*	panupbut_;
-    uiToolButton*	panleftbut_;
-    uiToolButton*	panrightbut_;
-    uiToolButton*	pandownbut_;
     uiToolButton*	manipbut_;
     uiToolButton*	drawbut_;
     uiToolButton*	parsbut_;
