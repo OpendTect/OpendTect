@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.33 2007-08-22 12:27:41 cvsraman Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.34 2007-08-24 12:00:43 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,8 @@ public:
 
     static const int		evGetHorInfo2D;
     static const int		evGetHorInfo3D;
-    static const int		evGetHorDef;
+    static const int		evGetHorDef3D;
+    static const int            evGetHorDef2D;
     static const int            evFillPickSet;
     static const int		evGet2DLineInfo;
     static const int		evGet2DLineDef;
@@ -65,11 +66,14 @@ public:
     const ObjectSet<MultiID>&	selHorIDs() const	{ return selhorids_; }
     const BinIDRange*		selBinIDRange() const	{ return selbr_; }
     MultiID			horID()			{ return horid_; }
+
     BufferStringSet&		lineSets()		{ return linesets_; }
     TypeSet<BufferStringSet>&	lineNames()		{ return linenms_; }
     TypeSet<MultiID>&		lineSetIds()		{ return setids_; }
     MultiID&			lineSetID()		{ return setid_; }
     BufferStringSet&		selectLines()		{ return selectlines_; }
+    TypeSet<Coord>&		getPos2D()		{ return coords2d_; }
+    TypeSet< Interval<float> >& getHor2DZRgs()		{ return hor2dzrgs_; }
 
     uiParent*			parent()
     				{ return appserv().parent(); }
@@ -81,14 +85,17 @@ protected:
 
     ObjectSet<SurfaceInfo> 	hinfos_;
     ObjectSet<MultiID>		selhorids_;
+    const BinIDRange*		selbr_;
+    Pick::Set*			ps_;
+    MultiID			horid_;
+
     BufferStringSet		linesets_;
     TypeSet<BufferStringSet>	linenms_;
     TypeSet<MultiID>		setids_;
     MultiID			setid_;
     BufferStringSet		selectlines_;
-    const BinIDRange*		selbr_;
-    Pick::Set*			ps_;
-    MultiID			horid_;
+    TypeSet<Coord>		coords2d_;
+    TypeSet< Interval<float> >	hor2dzrgs_;
 
     bool			mkRandLocs3D(Pick::Set&,const RandLocGenPars&);
     bool                        mkRandLocs2D(Pick::Set&,const RandLocGenPars&);
