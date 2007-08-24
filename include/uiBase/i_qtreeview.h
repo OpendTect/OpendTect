@@ -7,15 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: i_qtreeview.h,v 1.5 2006-04-28 15:23:20 cvsnanne Exp $
+ RCS:           $Id: i_qtreeview.h,v 1.6 2007-08-24 04:11:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uilistview.h>
+#include "uilistview.h"
 
-#include <qobject.h>
-#include <qwidget.h>
+#include <QObject>
 #include <string.h>
 #include <q3listview.h>
 
@@ -88,7 +87,7 @@ protected:
 	connect( &sender, SIGNAL( expanded( Q3ListViewItem* )), 
 		 this, SLOT( expanded( Q3ListViewItem* )));
 
-	connect( &sender, SIGNAL( collapsed( Q3ListViewItem* )), 
+	connect( &sender, SIGNAL(collapsed(Q3ListViewItem*)), 
 		 this, SLOT( collapsed( Q3ListViewItem* )));
 
 	connect( &sender, SIGNAL( itemRenamed( Q3ListViewItem*, int )), 
@@ -100,7 +99,6 @@ protected:
 
     void		setNotifiedItem( Q3ListViewItem* item )
 			    { _receiver.setNotifiedItem(item); }
-   
 private:
 
     uiListView&		_receiver;
@@ -150,33 +148,43 @@ private slots:
 		    _receiver.spacePressed.trigger(_receiver);
 		}
 
-    void	rightButtonClicked( Q3ListViewItem* item, const QPoint&, int )
+    void	rightButtonClicked( Q3ListViewItem* item, const QPoint&,
+	    			    int col )
 		{
 		    setNotifiedItem( item );
+		    _receiver.setNotifiedColumn( col );
 		    _receiver.rightButtonClicked.trigger(_receiver);
 		}
 
-    void	rightButtonPressed( Q3ListViewItem* item, const QPoint&, int )
+    void	rightButtonPressed( Q3ListViewItem* item, const QPoint&,
+	    			    int col )
 		{
 		    setNotifiedItem( item );
+		    _receiver.setNotifiedColumn( col );
 		    _receiver.rightButtonPressed.trigger(_receiver);
 		}
 
-    void	mouseButtonPressed(int, Q3ListViewItem* item,const QPoint&, int)
+    void	mouseButtonPressed( int, Q3ListViewItem* item,const QPoint&,
+	    			    int col )
 		{
 		    setNotifiedItem( item );
+		    _receiver.setNotifiedColumn( col );
 		    _receiver.mouseButtonPressed.trigger(_receiver);
 		}
 
-    void	mouseButtonClicked(int, Q3ListViewItem* item, const QPoint&,int)
+    void	mouseButtonClicked( int, Q3ListViewItem* item, const QPoint&,
+	    			    int col )
 		{
 		    setNotifiedItem( item );
+		    _receiver.setNotifiedColumn( col );
 		    _receiver.mouseButtonClicked.trigger(_receiver);
 		}
 
-    void	contextMenuRequested( Q3ListViewItem* item, const QPoint &, int)
+    void	contextMenuRequested( Q3ListViewItem* item, const QPoint&,
+	    			      int col )
 		{
 		    setNotifiedItem( item );
+		    _receiver.setNotifiedColumn( col );
 		    _receiver.contextMenuRequested.trigger(_receiver);
 		}
 
@@ -197,12 +205,11 @@ private slots:
 		    setNotifiedItem( item );
 		    _receiver.collapsed.trigger(_receiver);
 		}
-/*
-    void dropped( QDropEvent *e );
-*/
+
     void	itemRenamed( Q3ListViewItem* item, int col  )
 		{
 		    setNotifiedItem( item );
+		    _receiver.setNotifiedColumn( col );
 		    _receiver.itemRenamed.trigger(_receiver);
 		}
 };

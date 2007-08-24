@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.23 2007-08-09 10:34:26 cvsnanne Exp $
+ RCS:           $Id: uitreeview.h,v 1.24 2007-08-24 04:11:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,15 +108,15 @@ public:
     void		setItemMargin( int );
     int			itemMargin() const;
 
-    void		setSorting( int column, bool increasing = true );
+    void		setSorting(int column,bool increasing=true);
     void		sort();
 
-    void		setShowSortIndicator( bool yn );
+    void		setShowSortIndicator(bool);
     bool		showSortIndicator() const;
-    void		setShowToolTips( bool yn );
+    void		setShowToolTips(bool);
     bool		showToolTips() const;
 
-    uiListViewItem*	findItem( const char* text, int column ) const;
+    uiListViewItem*	findItem(const char*,int column) const;
 
     void		clear();
     void		invertSelection();
@@ -128,6 +128,7 @@ public:
 			//! item last notified. See notifiers below
     uiListViewItem*	itemNotified()		{ return lastitemnotified; }
     void		unNotify()		{ lastitemnotified = 0; }
+    int			columnNotified()	{ return column_; }
 
     Notifier<uiListView> selectionChanged;
     Notifier<uiListView> currentChanged;
@@ -152,8 +153,10 @@ protected:
 
     mutable BufferString rettxt;
     uiListViewItem*	lastitemnotified;
+    int			column_;
 
     void		setNotifiedItem( mQListViewItem* );
+    void		setNotifiedColumn( int col )	{ column_ = col; }
 
     uiListViewBody*	lvbody()	{ return body_; }
 
