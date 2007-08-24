@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.26 2007-08-23 15:25:47 cvsbert Exp $
+ RCS:           $Id: uisettings.cc,v 1.27 2007-08-24 08:13:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,7 @@ bool uiSettings::acceptOK( CallBacker* )
 
 
 static int iconsize = -1;
+#define mIconsKey	"dTect.Icons"
 #define mCBarKey        "dTect.ColorBar"
 #define mHVKey          "show vertical"
 #define mTopKey         "show on top"
