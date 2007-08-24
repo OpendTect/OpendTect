@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          March 2006
-RCS:           $Id: horizon2dline.h,v 1.4 2007-08-13 07:23:18 cvsnanne Exp $
+RCS:           $Id: horizon2dline.h,v 1.5 2007-08-24 06:55:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ public:
     int			addUdfRow(int start,int stop,int step);
     			/*!<\returns id of new path. */
     void		setRow(int,const TypeSet<Coord>&,int start,int step);
+    void		syncRow(int,const PosInfo::Line2DData&);
     void		removeRow(int);
     void		removeCols(int rowid,int start,int stop);
 

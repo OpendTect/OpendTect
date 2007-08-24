@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2006
- RCS:		$Id: horizon2dline.cc,v 1.6 2007-08-13 07:23:18 cvsnanne Exp $
+ RCS:		$Id: horizon2dline.cc,v 1.7 2007-08-24 06:55:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,68 @@ int Horizon2DLine::addUdfRow( int start, int stop, int step )
 }
 
 
+void Horizon2DLine::syncRow( int rowid ,const PosInfo::Line2DData& geom )
+{
+    const int rowidx = rowid - firstrow_;
+    if ( rowidx<0 || rowidx>=rows_.size() )
+	return;
+
+    for ( int colidx=rows_[rowidx]->size()-1; colidx>=0; colidx-- )
+    {
+	const double z = (*rows_[rowidx])[colidx].z;
+	(*rows_[rowidx])[colidx] = Coord3( Coord::udf(), z );
+    }
+
+    const int nrtraces = geom.posns.size();
+    for ( int tridx=geom.posns.size()-1; tridx>=0; tridx-- )
+    {
+	int colidx = colsampling_[rowidx].nearestIndex( geom.posns[tridx].nr_ );
+	if ( colsampling_[rowidx].atIndex(colidx) != geom.posns[tridx].nr_ )
+	    continue;
+	
+	if ( !rows_[rowidx]->size() )
+	{
+	    *rows_[rowidx] += Coord3::udf();
+	    colsampling_[rowidx].start = geom.posns[tridx].nr_;
+	    colidx = 0;
+	}
+
+	while ( colidx<0 )
+	{
+	    rows_[rowidx]->insert( 0, Coord3::udf() );
+	    colsampling_[rowidx].start -= colsampling_[rowidx].step;
+	    colidx++;
+	}
+
+	int udfstoadd = colidx + 1 - rows_[rowidx]->size();
+	while ( udfstoadd > 0 )
+	{
+	    *rows_[rowidx] += Coord3::udf();
+	    udfstoadd--;
+	}
+
+	const double z = (*rows_[rowidx])[colidx].z;
+	(*rows_[rowidx])[colidx] = Coord3( geom.posns[tridx].coord_, z );
+    }
+
+    for ( int colidx=rows_[rowidx]->size()-1; colidx>=0; colidx-- )
+    {
+	if ( Coord((*rows_[rowidx])[colidx]).isDefined() )
+	    break;
+	
+	rows_[rowidx]->remove( colidx );
+    }
+
+    while ( rows_[rowidx]->size() && !Coord((*rows_[rowidx])[0]).isDefined() )
+    {
+	rows_[rowidx]->remove( 0 );
+	colsampling_[rowidx].start += colsampling_[rowidx].step;
+    }
+
+    triggerNrPosCh();
+}
+
+	
 void Horizon2DLine::removeRow( int id )
 {
     const int rowidx = id-firstrow_;

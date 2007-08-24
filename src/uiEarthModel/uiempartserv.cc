@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.114 2007-08-21 05:41:09 cvsraman Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.115 2007-08-24 06:55:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,7 @@ ________________________________________________________________________
 
 const int uiEMPartServer::evDisplayHorizon	= 0;
 const int uiEMPartServer::evRemoveTreeObject	= 1;
+const int uiEMPartServer::evSyncGeometry	= 2;
 
 #define mErrRet(s) { BufferString msg( "Cannot load '" ); msg += s; msg += "'";\
     			uiMSG().error( msg ); return false; }
@@ -71,11 +72,13 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     , selemid_(-1)
     , em_(EM::EMM())
 {
+    em_.syncGeomReq.notify( mCB(this,uiEMPartServer,syncGeometry) );
 }
 
 
 uiEMPartServer::~uiEMPartServer()
 {
+    em_.syncGeomReq.remove( mCB(this,uiEMPartServer,syncGeometry) );
     em_.empty();
 }
 
@@ -207,6 +210,18 @@ void uiEMPartServer::removeTreeObject( const EM::ObjectID& emid )
     selemid_ = emid;
     sendEvent( evRemoveTreeObject );
 }
+
+
+void uiEMPartServer::syncGeometry( CallBacker* cb )
+{
+    mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
+    selemid_ = emid;
+    sendEvent( evSyncGeometry );
+}
+
+
+EM::EMObject* uiEMPartServer::selEMObject()
+{ return em_.getObject( selemid_ ); }
 
 
 void uiEMPartServer::deriveHor3DFrom2D( const EM::ObjectID& emid )

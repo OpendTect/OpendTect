@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.197 2007-08-21 05:44:58 cvsraman Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.198 2007-08-24 06:55:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "vispolylinedisplay.h"
 #include "visrandomtrackdisplay.h"
 
+#include "emhorizon2d.h"
 #include "emseedpicker.h"
 #include "emsurfacetr.h"
 #include "emtracker.h"
@@ -49,6 +50,7 @@ ________________________________________________________________________
 #include "helpview.h"
 #include "filegen.h"
 #include "ptrman.h"
+#include "segposinfo.h"
 
 #include "uimsg.h"
 #include "uifontsel.h"
@@ -804,6 +806,19 @@ bool uiODApplMgr::handleEMServEv( int evid )
 
 	sceneMgr().updateTrees();
 	return true;
+    }
+    else if ( evid == uiEMPartServer::evSyncGeometry )
+    {
+	mDynamicCastGet( EM::Horizon2D*, h2d, emserv_->selEMObject() );
+	for ( int lidx=0; h2d && lidx<h2d->geometry().nrLines(); lidx++ )
+	{
+	    const int lineid = h2d->geometry().lineID( lidx );
+	    const MultiID& lset = h2d->geometry().lineSet( lineid );
+	    const char* lnm = h2d->geometry().lineName( lineid );
+	    PosInfo::Line2DData ldat;
+	    seisserv_->get2DLineGeometry( lset, lnm, ldat );
+	    h2d->geometry().syncLine( lset, lnm, ldat );
+	}
     }
     else
 	pErrMsg("Unknown event from emserv");

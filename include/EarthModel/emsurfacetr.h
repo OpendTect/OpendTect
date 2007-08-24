@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacetr.h,v 1.6 2007-08-06 08:51:43 cvsjaap Exp $
+ RCS:		$Id: emsurfacetr.h,v 1.7 2007-08-24 06:55:44 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -178,7 +178,7 @@ public:
 
 protected:
     virtual bool		readOnlyZ() const		{return false;}
-    virtual bool		writeOnlyZ() const		{return false;}
+    virtual bool		writeOnlyZ() const		{return true;}
     virtual bool		hasRangeSelection() const	{return false;}
 };
 

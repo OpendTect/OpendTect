@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.61 2007-07-06 14:11:05 cvskris Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.62 2007-08-24 06:55:44 cvsjaap Exp $";
 
 #include "emmanager.h"
 
@@ -48,6 +48,7 @@ mImplFactory1Param( EMObject, EMManager&, EMOF );
 EMManager::EMManager()
     : undo_( *new Undo() )
     , addRemove( this )
+    , syncGeomReq( this )
 {}
 
 
@@ -309,6 +310,12 @@ const char* EMManager::getSurfaceData( const MultiID& id, SurfaceIOData& sd )
 
     pErrMsg("(read surface): unknown tr group");
     return 0;
+}
+
+
+void EMManager::syncGeometry( const ObjectID& id )
+{
+    syncGeomReq.trigger( id );
 }
 
 

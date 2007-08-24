@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.25 2006-07-03 20:56:03 cvskris Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.26 2007-08-24 06:55:44 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -107,6 +107,8 @@ public:
     static const char*		sKeyNrSectionsV1();
     static BufferString		sSectionIDKey(int idx);
     static BufferString		sSectionNameKey(int idx);
+    static BufferString		sColStepKey(int rowidx);
+    static const char*		sKeyDepthOnly();
     static const char*		sKeyRowRange();
     static const char*		sKeyColRange();
     static const char*		sKeyInt16DataChar();
@@ -184,7 +186,7 @@ protected:
     bool			readVersion2Row(std::istream&,int,int);
 
 //Version 3 stuff 
-    bool			readVersion3Row(std::istream&,int,int);
+    bool			readVersion3Row(std::istream&,int,int,int);
     DataInterpreter<int>*	int16interpreter_;
     DataInterpreter<int64>*	int64interpreter_;
     TypeSet<int64>		rowoffsets_;

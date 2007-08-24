@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.13 2007-08-07 06:00:54 cvsnanne Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.14 2007-08-24 06:55:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,6 +104,26 @@ int Horizon2DGeometry::addLine( const TypeSet<Coord>& path, int start, int step,
     }
 
     return lineids_[lineids_.size()-1];
+}
+
+
+bool Horizon2DGeometry::syncLine( const MultiID& linesetid, const char* linenm,
+				  const PosInfo::Line2DData& linegeom )
+{
+    for ( int lidx=0; lidx<linenames_.size(); lidx++ )
+    {
+	if ( linesets_[lidx]==linesetid && *linenames_[lidx]==linenm )
+	{
+	    for ( int idx=0; idx<sections_.size(); idx++ )
+	    {
+		Geometry::Horizon2DLine* section =
+		    reinterpret_cast<Geometry::Horizon2DLine*>(sections_[idx]);
+		section->syncRow( lineids_[lidx], linegeom );
+	    }
+	    return true;
+	}
+    }
+    return false;
 }
 
 
@@ -231,6 +251,7 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	linesets_ += par.get(linesetkey,mid) ? mid : MultiID(-1);
     }
 
+    ((Horizon2D&) surface_).syncGeometry();
     return true;
 }
 
@@ -265,6 +286,10 @@ bool Horizon2D::unSetPos( const EM::SectionID& sid, const EM::SubID& subid,
     pos.z = mUdf(float);
     return setPos( sid, subid, pos, addtoundo );
 }
+
+
+void Horizon2D::syncGeometry()
+{ manager_.syncGeometry( id() ); }
 
 
 const IOObjContext& Horizon2D::getIOObjContext() const

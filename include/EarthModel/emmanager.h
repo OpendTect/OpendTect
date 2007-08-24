@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.34 2007-07-06 14:11:05 cvskris Exp $
+ RCS:		$Id: emmanager.h,v 1.35 2007-08-24 06:55:44 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -25,6 +25,7 @@ class Undo;
 class IOObj;
 class IOObjContext;
 class Executor;
+class uiEMPartServer;
 
 namespace EM
 {
@@ -63,7 +64,8 @@ public:
 			     findObject().
 			*/
 
-    Notifier<EMManager>	addRemove;
+    Notifier<EMManager>				addRemove;
+    CNotifier<EMManager,const ObjectID&>	syncGeomReq;
 
     void		sendRemovalSignal(const ObjectID&);
     BufferString	objectName(const MultiID&) const;
@@ -92,6 +94,7 @@ public:
 			     (MultiID) and EarthModel id (ObjectID) may change
 			     due to "Save as" operations and similar. */
 
+    void		syncGeometry( const ObjectID& );
 
 protected:
     Undo&			undo_;

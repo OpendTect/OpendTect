@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.9 2007-08-07 06:00:54 cvsnanne Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.10 2007-08-24 06:55:44 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,8 @@ public:
 					const MultiID& lineset,
 					const char* linename);
 				/*!<\returns id of new line. */
+    bool    			syncLine(const MultiID& lset,const char* lnm,
+					 const PosInfo::Line2DData&);
     void			setLineInfo(int id,const char* linenm,
 	    				    const MultiID& linesetid);
     void			removeLine(int id);
@@ -86,6 +88,8 @@ public:
 
     Horizon2DGeometry&		geometry()		{ return geometry_; }
     const Horizon2DGeometry&	geometry() const	{ return geometry_; }
+
+    void			syncGeometry();
 
 protected:
 

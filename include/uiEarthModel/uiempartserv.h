@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.52 2007-08-21 05:40:07 cvsraman Exp $
+ RCS:           $Id: uiempartserv.h,v 1.53 2007-08-24 06:55:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ namespace Pick { class Set; }
 
 template <class T> class Interval;
 
-namespace EM { class EMManager; class SurfaceIODataSelection; };
+namespace EM { class EMObject; class EMManager; class SurfaceIODataSelection; };
 
 /*! \brief Earth Model UI Part Server */
 
@@ -102,16 +102,19 @@ public:
 
     static const int	evDisplayHorizon;
     static const int	evRemoveTreeObject;
+    static const int	evSyncGeometry;
 
 			// Interaction stuff
     const EM::ObjectID&	selEMID() const			{ return selemid_; }
+    EM::EMObject*	selEMObject();
 
     void		removeTreeObject(const EM::ObjectID&);  
 
 protected:
     void		selectSurfaces(TypeSet<EM::ObjectID>&,
 				       const BufferString& typ);
-    bool		loadAuxData(const EM::ObjectID&, const TypeSet<int>& );
+    bool		loadAuxData(const EM::ObjectID&,const TypeSet<int>&);
+    void		syncGeometry(CallBacker*);
 
     EM::ObjectID	selemid_;
     EM::EMManager&	em_;

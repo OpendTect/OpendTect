@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.90 2007-08-07 09:26:32 cvsjaap Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.91 2007-08-24 06:55:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ const char* dgbSurfaceReader::sKeyNrSectionsV1()  { return "Nr Subhorizons" ; }
 const char* dgbSurfaceReader::sKeyNrSections()    { return "Nr Patches"; }
 const char* dgbSurfaceReader::sKeyRowRange()	  { return "Row range"; }
 const char* dgbSurfaceReader::sKeyColRange()	  { return "Col range"; }
+const char* dgbSurfaceReader::sKeyDepthOnly()	  { return "Depth only"; }
 const char* dgbSurfaceReader::sKeyDBInfo()	  { return "DB info"; }
 const char* dgbSurfaceReader::sKeyVersion()	  { return "Format version"; }
 
@@ -63,6 +64,9 @@ BufferString dgbSurfaceReader::sSectionIDKey( int idx )
 
 BufferString dgbSurfaceReader::sSectionNameKey( int idx )
 { BufferString res = "Patch Name "; res += idx; return res;  }
+
+BufferString dgbSurfaceReader::sColStepKey( int idx )
+{ BufferString res = "Col step "; res += idx; return res;  }
 
 
 dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
@@ -516,6 +520,7 @@ int dgbSurfaceReader::nextStep()
 
 	if ( surface_ ) surface_->enableGeometryChecks( false );
 	setGeometry();
+	par_->getYN( sKeyDepthOnly(), readonlyz_ );
     }
 
     if ( sectionindex_>=sectionids_.size() )
@@ -570,15 +575,25 @@ int dgbSurfaceReader::nextStep()
 	return ErrorOccurred;
     }
 
+    int colstep = colrange_.step;
+    par_->get( sColStepKey( currentRow() ), colstep );
+
+    mDynamicCastGet(Horizon2D*,hor2d,surface_);
+    if ( hor2d )
+    {
+	hor2d->geometry().sectionGeometry( sectionid )->
+	    addUdfRow(firstcol, firstcol+nrcols-1, colstep );
+    }
+
     if ( !nrcols )
     {
 	goToNextRow();
 	return MoreToDo;
     }
 
-    if ( (version_==3 && !readVersion3Row( strm, firstcol, nrcols ) ) ||
-         ( version_==2 && !readVersion2Row( strm, firstcol, nrcols ) ) ||
-         ( version_==1 && !readVersion1Row( strm, firstcol, nrcols ) ) )
+    if ( (version_==3 && !readVersion3Row(strm, firstcol, nrcols, colstep) ) ||
+         ( version_==2 && !readVersion2Row(strm, firstcol, nrcols) ) ||
+         ( version_==1 && !readVersion1Row(strm, firstcol, nrcols) ) )
 	return ErrorOccurred;
 
     goToNextRow();
@@ -823,7 +838,7 @@ void dgbSurfaceReader::goToNextRow()
 
 
 bool dgbSurfaceReader::readVersion3Row( std::istream& strm,
-				       int firstcol, int nrcols )
+				        int firstcol, int nrcols, int colstep )
 {
     SamplingData<float> zsd;
     if ( readonlyz_ )
@@ -836,8 +851,8 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm,
 
     if ( readcolrange_ )
     {
-	const StepInterval<int> colrg( firstcol,
-		    firstcol+(nrcols-1)*colrange_.step, colrange_.step );
+	const StepInterval<int> colrg( firstcol, firstcol+(nrcols-1)*colstep, 
+				       colstep );
 	if ( colrg.stop<readcolrange_->start ||
 	     colrg.start>readcolrange_->stop )
 	{
@@ -865,16 +880,9 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm,
     const SectionID sectionid = sectionids_[sectionindex_];
     const int cubezidx = sectionsel_.indexOf( sectionid );
 
-    mDynamicCastGet(Horizon2D*,hor2d,surface_);
-    if ( hor2d )
-    {
-	hor2d->geometry().sectionGeometry( sectionid )->
-	    		addUdfRow(firstcol, firstcol+nrcols, colrange_.step );
-    }
-
     for ( ; colindex<nrcols; colindex++ )
     {
-	rc.col = firstcol+colindex*colrange_.step;
+	rc.col = firstcol+colindex*colstep;
 	Coord3 pos;
 	if ( !readonlyz_ )
 	{
@@ -1121,19 +1129,23 @@ dgbSurfaceWriter::~dgbSurfaceWriter()
 	writeInt64( strm, nrsectionsoffset, sEOL() );
 	strm.seekp( secondparoffset, std::ios::beg );
 
-	if ( writtenrowrange_.width(false)>=0 )
-	{
-	    par_.set( dgbSurfaceReader::sKeyRowRange(),
-		writtenrowrange_.start, writtenrowrange_.stop,
-		writerowrange_ ? writerowrange_->step : rowrange_.step );
-	}
+	par_.setYN( dgbSurfaceReader::sKeyDepthOnly(), writeonlyz_ );
 
-	if ( writtencolrange_.width(false)>=0 )
-	{
-	    par_.set( dgbSurfaceReader::sKeyColRange(),
-		writtencolrange_.start, writtencolrange_.stop,
-		writecolrange_ ? writecolrange_->step : colrange_.step );
+	const int rowrgstep = writerowrange_ ? 
+			      writerowrange_->step : rowrange_.step;
+	par_.set( dgbSurfaceReader::sKeyRowRange(),
+		  writtenrowrange_.start, writtenrowrange_.stop, rowrgstep );
 
+	const int colrgstep = writecolrange_ ? 
+			      writecolrange_->step : colrange_.step;
+	par_.set( dgbSurfaceReader::sKeyColRange(),
+		  writtencolrange_.start, writtencolrange_.stop, colrgstep );
+	
+	for ( int idx=firstrow_; idx<firstrow_+nrrows_; idx+=rowrange_.step )
+	{
+	    const int idxcolstep = geometry_.colRange(idx).step;
+	    if ( idxcolstep != colrgstep )
+		par_.set( dgbSurfaceReader::sColStepKey(idx), idxcolstep );
 	}
 
 	ascostream astream( strm );
@@ -1524,7 +1536,6 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
     const int nrcols =
 	(writecolrange_?writecolrange_->nrSteps():colrange.nrSteps())+1;
 
-    mDynamicCastGet(const Horizon2D*,hor2d,&surface_)
     mDynamicCastGet(const Horizon3D*,hor3d,&surface_)
     for ( int colindex=0; colindex<nrcols; colindex++ )
     {
@@ -1537,7 +1548,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 	if ( hor3d && pos.isDefined() )
 	    pos.z += hor3d->geometry().getShift() / SI().zFactor();
 
-	if ( !hor2d && colcoords.isEmpty() && !pos.isDefined() )
+	if ( colcoords.isEmpty() && !pos.isDefined() )
 	    continue;
 
 	if ( colcoords.isEmpty() )
@@ -1548,7 +1559,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 
     for ( int idx=colcoords.size()-1; idx>=0; idx-- )
     {
-	if ( hor2d || colcoords[idx].isDefined() )
+	if ( colcoords[idx].isDefined() )
 	    break;
 
 	colcoords.remove(idx);
