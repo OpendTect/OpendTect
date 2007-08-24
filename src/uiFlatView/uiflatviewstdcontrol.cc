@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.cc,v 1.5 2007-08-23 15:27:31 cvsbert Exp $
+ RCS:           $Id: uiflatviewstdcontrol.cc,v 1.6 2007-08-24 11:25:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,10 +44,6 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     mDefBut(zoominbut_,"zoomforward.png",zoomCB,"Zoom in");
     mDefBut(zoomoutbut_,"zoombackward.png",zoomCB,"Zoom out");
-    mDefBut(panupbut_,"uparrow.png",panCB,"Pan up");
-    mDefBut(panleftbut_,"leftarrow.png",panCB,"Pan left");
-    mDefBut(panrightbut_,"rightarrow.png",panCB,"Pan right");
-    mDefBut(pandownbut_,"downarrow.png",panCB,"Pan down");
     uiToolButton* 
     mDefBut(fliplrbut,"flip_lr.png",flipCB,"Flip left/right");
 
@@ -61,7 +57,8 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     menu_.handlenotifier.notify(mCB(this,uiFlatViewStdControl,handleMenuCB));
 
     uiFlatViewThumbnail* tn = new uiFlatViewThumbnail( this, vwr );
-    tn->setColors( Color(0,0,200), Color::White );
+
+    //TODO attach keyboard events to panCB
 }
 
 
@@ -80,35 +77,6 @@ void uiFlatViewStdControl::finalPrepare()
 void uiFlatViewStdControl::updatePosButtonStates()
 {
     zoomoutbut_->setSensitive( !zoommgr_.atStart() );
-
-    const uiWorldRect bb( getBoundingBox() );
-    const uiWorldRect cv( vwrs_[0]->curView() );
-    const bool isrevx = cv.left() > cv.right();
-    const bool isrevy = cv.bottom() > cv.top();
-    const Geom::Size2D<double> bbsz( bb.size() );
-
-    double bbeps = bb.width() * 1e-5;
-    if ( cv.left() > cv.right() )
-    {
-	panleftbut_->setSensitive( cv.left() < bb.right() - bbeps );
-	panrightbut_->setSensitive( cv.right() > bb.left() + bbeps );
-    }
-    else
-    {
-	panleftbut_->setSensitive( cv.left() > bb.left() + bbeps );
-	panrightbut_->setSensitive( cv.right() < bb.right() - bbeps );
-    }
-    bbeps = bb.height() * 1e-5;
-    if ( cv.bottom() > cv.top() )
-    {
-	pandownbut_->setSensitive( cv.bottom() < bb.top() - bbeps );
-	panupbut_->setSensitive( cv.top() > bb.bottom() + bbeps );
-    }
-    else
-    {
-	pandownbut_->setSensitive( cv.bottom() > bb.bottom() + bbeps );
-	panupbut_->setSensitive( cv.top() < bb.top() - bbeps );
-    }
 }
 
 
@@ -137,10 +105,10 @@ void uiFlatViewStdControl::zoomCB( CallBacker* but )
 
 void uiFlatViewStdControl::panCB( CallBacker* but )
 {
-    const bool isleft = but == panleftbut_;
-    const bool isright = but == panrightbut_;
-    const bool isup = but == panupbut_;
-    const bool isdown = but == pandownbut_;
+    const bool isleft = true;
+    const bool isright = false;
+    const bool isup = false;
+    const bool isdown = false;
     const bool ishor = isleft || isright;
 
     const uiWorldRect cv( vwrs_[0]->curView() );
