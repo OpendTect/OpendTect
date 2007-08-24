@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.23 2007-05-16 16:30:20 cvskris Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.24 2007-08-24 11:24:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ void uiFlatViewControl::addViewer( uiFlatViewer& vwr )
 {
     vwrs_ += &vwr;
     vwr.dataChanged.notify( mCB(this,uiFlatViewControl,dataChangeCB) );
+    vwr.control_ = this;
 
     uiRGBArrayCanvas& cnvs = vwr.rgbCanvas();
     if ( haverubber_ )
