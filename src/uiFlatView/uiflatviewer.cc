@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.30 2007-07-24 17:17:42 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.31 2007-08-24 11:24:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , annotsz_(50,20) //TODO: should be dep on font size
     , viewChanged(this)
     , dataChanged(this)
+    , control_(0)
 {
     bmp2rgb_ = new FlatView::BitMap2RGB( appearance(), canvas_.rgbArray() );
     canvas_.newFillNeeded.notify( mCB(this,uiFlatViewer,canvasNewFill) );
