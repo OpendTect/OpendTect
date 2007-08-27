@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Aug 2007
- RCS:           $Id: uiflatviewthumbnail.cc,v 1.3 2007-08-24 11:25:37 cvsbert Exp $
+ RCS:           $Id: uiflatviewthumbnail.cc,v 1.4 2007-08-27 12:30:55 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -53,9 +53,31 @@ void uiFlatViewThumbnail::reDrawHandler( uiRect updarea )
 
     mDeclW2UVars;
     dt.setPenColor( Color::Black );
-    dt.drawRect( w2u.transform(br) );
+    const uiRect uibr( w2u.transform(br) );
+    dt.drawRect( uibr );
+
+    uiRect uiwr( w2u.transform(wr) );
+    uiSize sz( uiwr.size() );
+    if ( uiwr.width() < 2 || uiwr.height() < 2 )
+    {
+	const int toadd = 2 - mMIN(sz.width(),sz.height());
+	int addl = 1; int addr = toadd - 1;
+	if ( uiwr.left() < 1 )
+	    { addl = 0; addr = toadd; }
+	else if ( uiwr.right() >= uibr.right() )
+	    { addl = toadd; addr = 0; }
+	uiwr.setLeft( uiwr.left() - addl );
+	uiwr.setRight( uiwr.right() + addr );
+	int addt = 1; int addb = toadd - 1;
+	if ( uiwr.top() < 1 )
+	    { addt = 0; addb = toadd; }
+	else if ( uiwr.bottom() >= uibr.bottom() )
+	    { addt = toadd; addb = 0; }
+	uiwr.setTop( uiwr.top() - addt );
+	uiwr.setBottom( uiwr.bottom() + addb );
+    }
     dt.setPenColor( fgcolor_ );
-    dt.drawRect( w2u.transform(wr) );
+    dt.drawRect( uiwr );
 }
 
 
