@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.33 2007-08-14 08:16:18 cvsbert Exp $
+ RCS:           $Id: iodraw.cc,v 1.34 2007-08-27 11:00:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ ioDrawTool::ioDrawTool( QPaintDevice* pd )
 #endif
 {
     if ( !pd )
-	pErrMsg("Null paint device passed. Crash will follow");
+	pErrMsg( "Null paint device passed. Crash will follow" );
 
     setLineStyle( LineStyle() );
 }
@@ -101,7 +101,8 @@ void ioDrawTool::drawLine( const uiPoint& p1, const uiPoint& p2 )
 }
 
 
-void ioDrawTool::drawLine( const uiPoint& pt, double angle, double len )
+inline
+static uiPoint getEndPoint( const uiPoint& pt, double angle, double len )
 {
     uiPoint endpt( pt );
     double delta = len * cos( angle );
@@ -109,7 +110,13 @@ void ioDrawTool::drawLine( const uiPoint& pt, double angle, double len )
     // In UI, Y is positive downward
     delta = -len * sin( angle );
     endpt.y += mNINT(delta);
-    drawLine( pt, endpt );
+    return endpt;
+}
+
+
+void ioDrawTool::drawLine( const uiPoint& pt, double angle, double len )
+{
+    drawLine( pt, getEndPoint(pt,angle,len) );
 }
 
 
@@ -387,10 +394,16 @@ static void drawArrowHead( ioDrawTool& dt, const ArrowHeadStyle& hs,
 	    dt.drawLine( pos, getAddedAngle(ang,-.75), hs.sz_/2 );
 	break;
 	case ArrowHeadStyle::Triangle:
-	    pFreeFnErrMsg( "Triangle impl as Line", "drawArrowHead" );
 	case ArrowHeadStyle::Line:
-	    dt.drawLine( pos, getAddedAngle(ang,headangfac), hs.sz_ );
-	    dt.drawLine( pos, getAddedAngle(ang,-headangfac), hs.sz_ );
+	{
+	    const uiPoint rightend = getEndPoint( pos,
+				     getAddedAngle(ang,headangfac), hs.sz_ );
+	    const uiPoint leftend = getEndPoint( pos,
+				    getAddedAngle(ang,-headangfac), hs.sz_ );
+	    dt.drawLine( pos, rightend ); dt.drawLine( pos, leftend );
+	    if ( hs.type_ == ArrowHeadStyle::Triangle )
+		dt.drawLine( leftend, rightend );
+	}
 	break;
 	}
     }
@@ -416,10 +429,23 @@ static void drawArrowHead( ioDrawTool& dt, const ArrowHeadStyle& hs,
 	    }
 	break;
 	case ArrowHeadStyle::Triangle:
-	    pFreeFnErrMsg( "Triangle impl as Line", "drawArrowHead" );
 	case ArrowHeadStyle::Line:
-	    dt.drawLine( pos, getAddedAngle(ang,headangfac*(isleft?1:-1)),
-		    	 hs.sz_ );
+	{
+	    const uiPoint endpt = getEndPoint( pos,
+				  getAddedAngle(ang,headangfac*(isleft?1:-1)),
+				  hs.sz_ );
+	    dt.drawLine( pos, endpt );
+	    if ( hs.type_ == ArrowHeadStyle::Triangle  )
+	    {
+		const float dx = comingfrom.x - pos.x;
+		const float dy = comingfrom.y - pos.y;
+		const float t = ((endpt.x-pos.x)*dx + (endpt.y-pos.y)*dy)
+			      / (dx*dx + dy*dy);
+		const Geom::Point2D<float> fpp( pos.x + t*dx, pos.y + t*dy );
+		const uiPoint pp( mNINT(fpp.x), mNINT(fpp.y) ); // projected pt
+		dt.drawLine( endpt, pp );
+	    }
+	}
 	break;
 	}
     }
