@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          April 2007
- RCS:           $Id: uiflatauxdataeditor.cc,v 1.2 2007-07-06 16:51:26 cvsyuancheng Exp $
+ RCS:           $Id: uiflatauxdataeditor.cc,v 1.3 2007-08-27 13:05:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,10 +21,8 @@ uiFlatViewAuxDataEditor::uiFlatViewAuxDataEditor( uiFlatViewer& vw )
     vw.rgbCanvas().newFillNeeded.notify(
 	    mCB(this,uiFlatViewAuxDataEditor,sizeChangeCB) );
     vw.viewChanged.notify( mCB(this,uiFlatViewAuxDataEditor,viewChangeCB) );
-    vw.viewChanged.notify( mCB(this,uiFlatViewAuxDataEditor,sizeChangeCB) );
 
     viewChangeCB( 0 );
-    sizeChangeCB( 0 );
 }
 
 
@@ -43,6 +41,8 @@ void uiFlatViewAuxDataEditor::viewChangeCB( CallBacker* cb )
     
     mDynamicCastGet( uiFlatViewer&, uivw, viewer_ );
     curview_ = uivw.curView();
+
+    sizeChangeCB( cb );
 }
 
 
