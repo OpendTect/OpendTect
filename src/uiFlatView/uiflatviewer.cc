@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.31 2007-08-24 11:24:31 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.32 2007-08-27 11:01:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -282,11 +282,12 @@ void uiFlatViewer::drawGridAnnot()
 
     const uiSize totsz( canvas_.width(), canvas_.height() );
     const int ynameannpos = totsz.height() - 2;
-    const ArrowStyle arrowstyle( 3 );
+    ArrowStyle arrowstyle( 1 );
+    arrowstyle.headstyle_.type_ = ArrowHeadStyle::Triangle;
     if ( showanyx1annot && !ad1.name_.isEmpty() )
     {
-	uiPoint from( totsz.width()-12, ynameannpos-5 );
-	uiPoint to( totsz.width()-2, ynameannpos-5 );
+	uiPoint from( totsz.width()-12, ynameannpos-6 );
+	uiPoint to( totsz.width()-2, ynameannpos-6 );
 	if ( ad1.reversed_ ) Swap( from, to );
 	dt.drawArrow( from, to, arrowstyle );
 	dt.drawText( uiPoint(totsz.width()-14,ynameannpos), ad1.name_,
@@ -295,8 +296,8 @@ void uiFlatViewer::drawGridAnnot()
     if ( showanyx2annot && !ad2.name_.isEmpty() )
     {
 	const int left = datarect.left();
-	uiPoint from( left, ynameannpos );
-	uiPoint to( left, ynameannpos-12 );
+	uiPoint from( left, ynameannpos-1 );
+	uiPoint to( left, ynameannpos-13 );
 	if ( ad2.reversed_ ) Swap( from, to );
 	dt.drawArrow( from, to, arrowstyle );
 	dt.drawText( uiPoint(left+10,ynameannpos), ad2.name_,
