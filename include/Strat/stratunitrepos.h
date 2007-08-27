@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.16 2007-08-15 15:01:00 cvshelene Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.17 2007-08-27 11:52:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,8 @@ class UnitRepository : public CallBacker
 public:
 
     int			nrTrees() const		{ return trees_.size(); }
-    const RefTree*	tree(int idx=0) const	{ return trees_[idx]; }
-    RefTree*		tree(int idx=0)		{ return trees_[idx]; }
+    const RefTree*	tree(int idx=0) const	{ return idx<0? 0: trees_[idx];}
+    RefTree*		tree(int idx=0)		{ return idx<0? 0: trees_[idx];}
     int			indexOf(const char* treename) const;
     inline void		setCurrentTree( int idx ) { curtreeidx_ = idx; }
     inline int		currentTree() const	{ return curtreeidx_; }
@@ -55,6 +55,8 @@ public:
     int			findLith(int) const;
     BufferString	getLithName(int lithid) const;
     int			getLithID(BufferString) const;
+    int			getFreeLithID() const;
+    void		addLith(Lithology*);
     static const char*	sKeyLith;
 
     void		copyCurTreeAtLoc(Repos::Source);
@@ -86,6 +88,7 @@ private:
     ObjectSet<Lithology> unusedliths_;
     void		addTreeFromFile(const Repos::FileProvider&,
 	    				Repos::Source);
+    void		createDefaultTree();
 
     inline const RefTree&	curTree() const	{ return *tree(curtreeidx_); }
 

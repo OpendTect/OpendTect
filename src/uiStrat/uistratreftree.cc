@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.10 2007-08-21 12:40:10 cvshelene Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.11 2007-08-27 11:52:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,12 +63,12 @@ void uiStratRefTree::setTree( const RefTree* rt, bool force )
 
 
 void uiStratRefTree::addNode( uiListViewItem* parlvit,
-			      const NodeUnitRef& nur, bool flattened )
+			      const NodeUnitRef& nur, bool root )
 {
     uiListViewItem* lvit = parlvit
 	? new uiListViewItem( parlvit, uiListViewItem::Setup()
 				.label(nur.code()).label(nur.description()) )
-	: flattened ? 0 : new uiListViewItem( lv_,uiListViewItem::Setup()
+	: root ? 0 : new uiListViewItem( lv_,uiListViewItem::Setup()
 				.label(nur.code()).label(nur.description()) );
 
     for ( int iref=0; iref<nur.nrRefs(); iref++ )
@@ -128,38 +128,71 @@ void uiStratRefTree::makeTreeEditable( bool yn ) const
 
 void uiStratRefTree::rClickCB( CallBacker* )
 {
-    //TODO: as soon as Qt4 in, check for column number: 0,1 as follow 2 lithodlg
     uiListViewItem* lvit = lv_->itemNotified();
     if ( !lvit || !lvit->renameEnabled(sUnitsCol) ) return;
 
-    uiPopupMenu mnu( lv_->parent(), "Action" );
-    mnu.insertItem( new uiMenuItem("Add sub-unit ..."), 0 );
-    mnu.insertItem( new uiMenuItem("Insert ..."), 1 );
-    mnu.insertItem( new uiMenuItem("Remove"), 2 );
-/*    mnu.insertSeparator();
-    mnu.insertItem( new uiMenuItem("Rename"), 3 );*/
+    int col = lv_->columnNotified();
+    if ( col == sUnitsCol || col == sDescCol )
+    {
+	uiPopupMenu mnu( lv_->parent(), "Action" );
+	mnu.insertItem( new uiMenuItem("Add unit ..."), 0 );
+	mnu.insertItem( new uiMenuItem("Create sub-unit..."), 1 );
+	mnu.insertItem( new uiMenuItem("Remove"), 2 );
+    /*    mnu.insertSeparator();
+	mnu.insertItem( new uiMenuItem("Rename"), 3 );*/
 
-    const int mnuid = mnu.exec();
-    if ( mnuid<0 ) return;
-    else if ( mnuid==0 )
+	const int mnuid = mnu.exec();
+	if ( mnuid<0 ) return;
+	else if ( mnuid==0 )
 	insertSubUnit( 0 );
-    else if ( mnuid==1 )
-	insertSubUnit( lvit );
-    else if ( mnuid==2 )
-	removeUnit( lvit );
+	else if ( mnuid==1 )
+	    insertSubUnit( lvit );
+	else if ( mnuid==2 )
+	    removeUnit( lvit );
+    }
+    else if ( col == sLithoCol )
+    {
+	uiLithoDlg lithdlg( lv_->parent() );
+	lithdlg.setSelectedLith( lvit->text( sLithoCol ) );
+	if ( lithdlg.go() )
+	    lvit->setText( lithdlg.getLithName(), sLithoCol );
+    }
 }
 
 
 void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 {
-    bool insert = lvit ? true : false;
-    uiStratUnitDlg newurdlg( lv_->parent(), insert );
-    newurdlg.go();
+    uiStratUnitDlg newurdlg( lv_->parent() );
+    if ( newurdlg.go() )
+    {
+	uiListViewItem* newitem;
+	uiListViewItem::Setup setup = uiListViewItem::Setup()
+				    .label( newurdlg.getUnitName() )
+				    .label( newurdlg.getUnitDesc() )
+				    .label( newurdlg.getUnitLith() );
+	if ( lvit )
+	    newitem = new uiListViewItem( lvit, setup );
+	else
+	    newitem = new uiListViewItem( lv_, setup );
+
+	newitem->setRenameEnabled( sUnitsCol, true );
+	newitem->setRenameEnabled( sDescCol, true );
+	newitem->setDragEnabled( true );
+	newitem->setDropEnabled( true );
+	if ( newitem->parent() )
+	    newitem->parent()->setOpen( true );
+    }
 }
 
 
 void uiStratRefTree::removeUnit( uiListViewItem* lvit )
 {
+    if ( lvit->parent() )
+	lvit->parent()->removeItem( lvit );
+    else
+	delete lvit;
+
+    lv_->triggerUpdate();
 }
 
 

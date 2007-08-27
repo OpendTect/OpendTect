@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:		$Id: uistrattreewin.cc,v 1.8 2007-08-15 15:01:00 cvshelene Exp $
+ RCS:		$Id: uistrattreewin.cc,v 1.9 2007-08-27 11:52:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,7 +160,8 @@ void uiStratTreeWin::saveCB( CallBacker* )
 	prepTreeForSave();
     
     mSaveAtLoc( Repos::Survey );
-    if ( tmptree_ ) delete tmptree_;
+    tmptree_ = 0;
+    editCB(0);
 }
 
 
@@ -186,8 +187,10 @@ void uiStratTreeWin::saveAsCB( CallBacker* )
 	    mSaveAtLoc( Repos::ApplSetup )
 	else
 	    mSaveAtLoc( Repos::Survey )
-	if ( tmptree_ ) delete tmptree_;
+	tmptree_ = 0;
     }
+
+    editCB(0);
 }
 
 

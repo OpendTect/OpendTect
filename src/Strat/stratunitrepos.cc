@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.19 2007-08-15 15:01:00 cvshelene Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.20 2007-08-27 11:52:18 cvshelene Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -213,6 +213,9 @@ void UnitRepository::reRead()
     addTreeFromFile( rfp, Repos::User );
     addTreeFromFile( rfp, Repos::Survey );
 
+    if ( trees_.isEmpty() )
+	createDefaultTree();
+
     curtreeidx_ = trees_.size() - 1;
 }
 
@@ -331,6 +334,17 @@ void UnitRepository::addLith( const char* str, Repos::Source src )
 }
 
 
+void UnitRepository::addLith( Lithology* newlith )
+{
+    if ( !newlith ) return;
+
+    if ( findLith(newlith->name()) >= 0 )
+	unusedliths_ += newlith;
+    else
+	liths_ += newlith;
+}
+
+
 BufferString UnitRepository::getLithName( int lithid ) const
 {
     int idx = findLith( lithid );
@@ -422,14 +436,8 @@ const RefTree* UnitRepository::getTreeFromSource( Repos::Source src ) const
 
 void UnitRepository::copyCurTreeAtLoc( Repos::Source loc )
 {
-    const RefTree* oldsrctree  = getTreeFromSource( loc );
-    if ( oldsrctree )
-    {
-	if ( oldsrctree->source() == loc )
-	    return;
-	else
-	    delete trees_.remove( trees_.indexOf(oldsrctree) );
-    }
+    if ( tree( currentTree() )->source() == loc )
+	return;
     
     BufferString str;
     const RefTree* curtree = tree( currentTree() );
@@ -448,7 +456,11 @@ void UnitRepository::copyCurTreeAtLoc( Repos::Source loc )
 	tree->addUnit( un.fullCode(), str );
     }
 
-    trees_ += tree;
+    const RefTree* oldsrctree  = getTreeFromSource( loc );
+    if ( oldsrctree )
+	replaceTree( tree, trees_.indexOf(oldsrctree) );
+    else
+	trees_ += tree;
 }
 
 
@@ -458,6 +470,24 @@ void UnitRepository::replaceTree( RefTree* newtree, int treeidx )
 	treeidx = currentTree();
 
     delete trees_.replace( treeidx, newtree );
+}
+
+
+void UnitRepository::createDefaultTree()
+{
+    RefTree* tree = new RefTree( "Stratigraphic tree", Repos::Survey );
+    tree->addUnit( "base", "example of unit" );
+    trees_ += tree;
+}
+
+
+int UnitRepository::getFreeLithID() const
+{
+    int id = 0;
+    while ( findLith(id)!=-1 )
+	id++;
+
+    return id;
 }
 
 };//namespace
