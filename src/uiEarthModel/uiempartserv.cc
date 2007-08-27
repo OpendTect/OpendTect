@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.117 2007-08-24 12:16:37 cvsraman Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.118 2007-08-27 10:50:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -495,12 +495,11 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id,
 
     BinID bid;
     BinIDValueSet::Pos pos;
-    const int nrvals = hor3d->auxdata.nrAuxData();
-    float vals[nrvals];
     for ( int sidx=0; sidx<data.size(); sidx++ )
     {
 	const EM::SectionID sectionid = hor3d->sectionID( sidx );
 	const BinIDValueSet& bivs = *data[sidx];
+	float vals[bivs.nrVals()];
 
 	EM::PosID posid( id, sectionid );
 	while ( bivs.next(pos) )
