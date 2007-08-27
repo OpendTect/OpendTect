@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.198 2007-08-24 06:55:44 cvsjaap Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.199 2007-08-27 08:49:19 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -837,7 +837,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
     {
 	emserv_->getAllSurfaceInfo( pickserv_->horInfos(), true );
     }
-    else if ( evid == uiPickPartServer::evGetHorDef )
+    else if ( evid == uiPickPartServer::evGetHorDef3D )
     {
 	TypeSet<EM::ObjectID> horids;
 	const ObjectSet<MultiID>& storids = pickserv_->selHorIDs();
@@ -851,14 +851,21 @@ bool uiODApplMgr::handlePickServEv( int evid )
 	    horids += emserv_->getObjectID(horid);
 	}
 	
-	emserv_->getSurfaceDef( horids, pickserv_->genDef(),
+	emserv_->getSurfaceDef3D( horids, pickserv_->genDef(),
 			       pickserv_->selBinIDRange() );
     }
+    else if ( evid == uiPickPartServer::evGetHorDef2D )
+	emserv_->getSurfaceDef2D( pickserv_->selHorIDs(),
+				  pickserv_->lineGeoms(),
+				  pickserv_->selectLines(),
+				  pickserv_->getPos2D(),
+				  pickserv_->getHor2DZRgs() );
     else if ( evid == uiPickPartServer::evFillPickSet )
 	emserv_->fillPickSet( *pickserv_->pickSet(), pickserv_->horID() );
     else if ( evid == uiPickPartServer::evGet2DLineInfo )
-	seisserv_->get2DLineInfo(pickserv_->lineSets(),pickserv_->lineSetIds(),
-				 pickserv_->lineNames());
+	seisserv_->get2DLineInfo( pickserv_->lineSets(),
+				  pickserv_->lineSetIds(),
+				  pickserv_->lineNames());
     else if ( evid == uiPickPartServer::evGet2DLineDef )
     {
 	BufferStringSet& lnms = pickserv_->selectLines();
