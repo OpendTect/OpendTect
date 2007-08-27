@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.20 2007-07-26 07:02:57 cvsnanne Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.21 2007-08-27 10:04:19 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -412,13 +412,12 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 
 	CubeSampling maxcs;
-	assign( maxcs.zrg, s2d->getMaxZRange()  );
+	assign( maxcs.zrg, s2d->getMaxZRange(true)  );
 	maxcs.hrg.start.crl = s2d->getMaxTraceNrRange().start;
 	maxcs.hrg.stop.crl = s2d->getMaxTraceNrRange().stop;
 
 	CubeSampling curcs;
-	curcs.zrg.start = maxcs.zrg.atIndex( s2d->getSampleRange().start );
-	curcs.zrg.stop = maxcs.zrg.atIndex( s2d->getSampleRange().stop );
+	curcs.zrg.setFrom( s2d->getZRange(true) );
 	curcs.hrg.start.crl = s2d->getTraceNrRange().start;
 	curcs.hrg.stop.crl = s2d->getTraceNrRange().stop;
 
@@ -430,18 +429,16 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 
 	bool doupdate = false;
 	bool usecache = true;
-	const Interval<int> nzrg( maxcs.zrg.nearestIndex(newcs.zrg.start),
-				  maxcs.zrg.nearestIndex(newcs.zrg.stop) );
-	const Interval<int> ntrcnrrg( newcs.hrg.start.crl, newcs.hrg.stop.crl );
-
-	if ( nzrg != s2d->getSampleRange() )
+	const Interval<float> newzrg( newcs.zrg.start, newcs.zrg.stop );
+	if ( !newzrg.isEqual(s2d->getZRange(true),mDefEps) )
 	{
 	    doupdate = true;
-	    if ( !s2d->setSampleRange(nzrg) )
+	    if ( !s2d->setZRange(newzrg) )
 		usecache = false;
 	}
 
-	if ( ntrcnrrg!=s2d->getTraceNrRange() )
+	const Interval<int> ntrcnrrg( newcs.hrg.start.crl, newcs.hrg.stop.crl );
+	if ( ntrcnrrg != s2d->getTraceNrRange() )
 	{
 	    doupdate = true;
 	    if ( !s2d->setTraceNrRange( ntrcnrrg ) )
@@ -502,8 +499,7 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
     cs.hrg.start.inl = cs.hrg.stop.inl = 0;
     cs.hrg.start.crl = s2d->getTraceNrRange().start;
     cs.hrg.stop.crl = s2d->getTraceNrRange().stop;
-    cs.zrg.start = s2d->getMaxZRange().atIndex( s2d->getSampleRange().start );
-    cs.zrg.stop = s2d->getMaxZRange().atIndex( s2d->getSampleRange().stop );
+    cs.zrg.setFrom( s2d->getZRange(false) );
 
     Attrib::SelSpec as = *s2d->getSelSpec( attribnr );
     as.set2DFlag();
@@ -551,10 +547,7 @@ void uiOD2DLineSetSubItem::setZRange( const Interval<float> newzrg )
 		    visserv->getObject(displayid_))
     if ( !s2d ) return;
 
-    const StepInterval<float>& maxrg = s2d->getMaxZRange();
-    const Interval<int> samplerg( maxrg.nearestIndex(newzrg.start),
-	    			  maxrg.nearestIndex(newzrg.stop) );
-    if ( s2d->setSampleRange(samplerg) )
+    if ( s2d->setZRange(newzrg) )
 	s2d->updateDataFromCache();
     else
     {
@@ -683,8 +676,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm )
     CubeSampling cs;
     cs.hrg.start.crl = s2d->getTraceNrRange().start;
     cs.hrg.stop.crl = s2d->getTraceNrRange().stop;
-    cs.zrg.start = s2d->getMaxZRange().atIndex( s2d->getSampleRange().start );
-    cs.zrg.stop = s2d->getMaxZRange().atIndex( s2d->getSampleRange().stop );
+    cs.zrg.setFrom( s2d->getZRange(false) );
 
     const DataPack::ID dpid =
 	applMgr()->attrServer()->create2DOutput( cs, linekey );
@@ -711,8 +703,7 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas )
     CubeSampling cs;
     cs.hrg.start.crl = s2d->getTraceNrRange().start;
     cs.hrg.stop.crl = s2d->getTraceNrRange().stop;
-    cs.zrg.start = s2d->getMaxZRange().atIndex( s2d->getSampleRange().start );
-    cs.zrg.stop = s2d->getMaxZRange().atIndex( s2d->getSampleRange().stop );
+    cs.zrg.setFrom( s2d->getZRange(false) );
 
     LineKey lk( s2d->name() );
     applMgr()->attrServer()->setTargetSelSpec( myas );

@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.23 2007-08-23 15:26:23 cvsbert Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.24 2007-08-27 10:04:19 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -21,12 +21,17 @@
 #include "vistristripset.h"
 
 #include "arrayndimpl.h"
+#include "arrayndslice.h"
 #include "attribdataholder.h"
 #include "attribdatapack.h"
+#include "genericnumer.h"
 #include "idxable.h"
 #include "iopar.h"
+#include "ptrman.h"
+#include "samplfunc.h"
 #include "segposinfo.h"
 #include "seisinfo.h"
+#include "survinfo.h"
 #include "zaxistransform.h"
 
 //For parsing old pars
@@ -52,10 +57,9 @@ Seis2DDisplay::Seis2DDisplay()
     , geometry_(*new PosInfo::Line2DData)
     , geomchanged_(this)
     , maxtrcnrrg_(INT_MAX,INT_MIN)
-    , samplerg_(-1,-1)
     , trcnrrg_(-1,-1)
     , datatransform_(0)
-    , datatransformvoihandle_(-1)
+    , voiidx_(-1)
 {
     geometry_.zrg.start = geometry_.zrg.stop = mUdf(float);
     cache_.allowNull();
@@ -88,6 +92,8 @@ Seis2DDisplay::~Seis2DDisplay()
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
     for ( int idx=0; idx<datapackids_.size(); idx++ )
 	dpman.release( datapackids_[idx] );
+
+    setDataTransform( 0 );
 }
 
 
@@ -108,21 +114,18 @@ void Seis2DDisplay::setGeometry( const PosInfo::Line2DData& geometry )
     for ( int idx=linepositions.size()-1; idx>=0; idx-- )
 	maxtrcnrrg_.include( linepositions[idx].nr_, false );
 
-    if ( samplerg_.start==-1 )
-    {
-	samplerg_.start = 0;
-	samplerg_.stop = getMaxZRange().nrSteps();
-	trcnrrg_ = maxtrcnrrg_;
-    }
+    trcnrrg_ = maxtrcnrrg_;
+    setZRange( geometry_.zrg );
+    updateRanges( false, true );
 
     updateVizPath();
     geomchanged_.trigger();
 }
 
 
-StepInterval<float> Seis2DDisplay::getMaxZRange() const
+StepInterval<float> Seis2DDisplay::getMaxZRange( bool displayspace ) const
 {
-    if ( !datatransform_ )
+    if ( !datatransform_ || displayspace )
 	return geometry_.zrg;
 
     StepInterval<float> zrg;
@@ -132,32 +135,40 @@ StepInterval<float> Seis2DDisplay::getMaxZRange() const
 }
 
 
-bool Seis2DDisplay::setSampleRange( const Interval<int>& nsrg )
+bool Seis2DDisplay::setZRange( const Interval<float>& nzrg )
 {
     if ( mIsUdf(geometry_.zrg.start) )
-    {
-	pErrMsg("Geometry not set");
-	return false;
-    }
-
-    const Interval<int> samplerg( mMAX(nsrg.start,0),
-				  mMIN(nsrg.stop,geometry_.zrg.nrSteps()) );
-
-    if ( !samplerg.width() || samplerg_==samplerg )
 	return false;
 
-    const bool isbigger = !samplerg_.includes( samplerg.start, false ) ||
-			  !samplerg_.includes( samplerg.stop, false );
+    const StepInterval<float> maxzrg = getMaxZRange( true );
+    const Interval<float> zrg( mMAX(maxzrg.start,nzrg.start),
+			       mMIN(maxzrg.stop,nzrg.stop) );
+    if ( curzrg_.isEqual(zrg,mDefEps) )
+	return true;
 
-    samplerg_ = samplerg;
-
+    const bool usecache = curzrg_.includes( zrg.start ) &&
+			  curzrg_.includes( zrg.stop );
+    curzrg_.setFrom( zrg );
     updateVizPath();
-    return !isbigger;
+    return usecache;
 }
 
 
-const Interval<int>& Seis2DDisplay::getSampleRange() const
-{ return samplerg_; }
+Interval<float> Seis2DDisplay::getZRange( bool displayspace ) const
+{
+    if ( datatransform_ && !displayspace )
+	return datatransform_->getZInterval( true );
+    return curzrg_;
+}
+
+
+const Interval<int> Seis2DDisplay::getSampleRange() const
+{
+    StepInterval<float> maxzrg = getMaxZRange( true );
+    Interval<int> samplerg( maxzrg.nearestIndex(curzrg_.start),
+	    		    maxzrg.nearestIndex(curzrg_.stop) );
+    return samplerg;
+}
 
 
 bool Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
@@ -239,11 +250,10 @@ void Seis2DDisplay::setData( int attrib,
     if ( dataset.isEmpty() ) return;
 
     const SamplingData<float>& sd = dataset.trcinfoset_[0]->sampling;
-
-    const int nrsamp = samplerg_.width()+1;
+    const int nrsamp = dataset.dataset_[0]->nrsamples_;
 
     PtrMan<Array2DImpl<float> > arr =
-	new Array2DImpl<float>( nrsamp,trcnrrg_.width()+1 );
+	new Array2DImpl<float>( trcnrrg_.width()+1, nrsamp );
 
     if ( !arr->isOK() )
 	return;
@@ -253,9 +263,6 @@ void Seis2DDisplay::setData( int attrib,
     const int totalsz = arr->info().getTotalSz();
     for ( int idx=0; idx<totalsz; idx++ )
 	(*arrptr++) = mUdf(float);
-
-    const char* depthdomain = getSelSpec(attrib)->depthDomainKey();
-    const bool alreadytransformed = depthdomain && *depthdomain;
 
     for ( int dataidx=0; dataidx<dataset.size(); dataidx++ )
     {
@@ -269,7 +276,7 @@ void Seis2DDisplay::setData( int attrib,
 	if ( !dh )
 	    continue;
 
-	const float firstz = geometry_.zrg.atIndex( samplerg_.start );
+	const float firstz = dataset.dataset_[0]->z0_ * sd.step;
 	const float firstdhsamplef = sd.getIndex( firstz );
 	const int firstdhsample = sd.nearestIndex( firstz );
 	const bool samplebased = mIsEqual(firstdhsamplef,firstdhsample,1e-3) &&
@@ -289,7 +296,7 @@ void Seis2DDisplay::setData( int attrib,
 		else
 		    val=mUdf(float);
 
-		arr->set( idx, trcidx, val );
+		arr->set( trcidx, idx, val );
 	    }
 	}
 	else
@@ -298,12 +305,62 @@ void Seis2DDisplay::setData( int attrib,
 	}
     }
 
-    if ( !resolution_ )
-	texture_->setData( attrib, 0, arr, true );
+    PtrMan<Array2D<float> > tmparr = 0;
+    Array2D<float>* usedarr = 0;
+    const char* depthdomain = getSelSpec(attrib)->depthDomainKey();
+    const bool alreadytransformed = depthdomain && *depthdomain;
+    if ( alreadytransformed || !datatransform_ )
+	usedarr = arr;
     else
     {
-	texture_->setDataOversample( attrib, 0, resolution_,
-				     !isClassification( attrib ), arr, true );
+	CubeSampling cs;
+	cs.hrg.start.inl = cs.hrg.stop.inl = 0;
+	cs.hrg.start.crl = trcnrrg_.start;
+	cs.hrg.stop.crl = trcnrrg_.stop;
+	assign( cs.zrg, curzrg_ );
+	if ( voiidx_ < 0 )
+	    voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
+	else
+	    datatransform_->setVolumeOfInterest( voiidx_, cs, true );
+	datatransform_->loadDataIfMissing( voiidx_ );
+
+	ZAxisTransformSampler outpsampler( *datatransform_, true, BinID(0,0),
+			    SamplingData<double>(cs.zrg.start,cs.zrg.step) );
+
+	tmparr = new Array2DImpl<float>( cs.nrCrl(), cs.nrZ() );
+	usedarr = tmparr;
+	for ( int crlidx=0; crlidx<cs.nrCrl(); crlidx++ )
+	{
+	    const BinID bid = cs.hrg.atIndex( 0, crlidx );
+	    outpsampler.setBinID( bid );
+	    outpsampler.computeCache( Interval<int>(0,cs.nrZ()-1) );
+
+	    const float* inputptr = arr->getData() +
+				    arr->info().getOffset( crlidx, 0 );
+	    const float z0 = dataset.dataset_[0]->z0_ * sd.step;
+	    SampledFunctionImpl<float,const float*>
+		inputfunc( inputptr, nrsamp, z0, sd.step );
+	    inputfunc.setHasUdfs( true );
+	    inputfunc.setInterpolate( !isClassification(attrib) );
+
+	    float* outputptr = tmparr->getData() +
+			       tmparr->info().getOffset( crlidx, 0 );	
+	    reSample( inputfunc, outpsampler, outputptr, cs.nrZ() );
+	}
+    }
+
+    Array2DSlice<float> slice( *usedarr );
+    slice.setDimMap( 0, 1 );
+    slice.setDimMap( 1, 0 );
+    if ( slice.init() )
+    {
+	if ( !resolution_ )
+	    texture_->setData( attrib, 0, &slice, true );
+	else
+	{
+	    texture_->setDataOversample( attrib, 0, resolution_,
+				 !isClassification(attrib), &slice, true );
+	}
     }
 }
 
@@ -316,9 +373,6 @@ void Seis2DDisplay::updateVizPath()
 	if ( !trcnrrg_.includes( geometry_.posns[idx].nr_ ) ) continue;
 	coords += geometry_.posns[idx].coord_;
     }
-
-    const Interval<float> zrg( geometry_.zrg.atIndex(samplerg_.start),
-			       geometry_.zrg.atIndex(samplerg_.stop) );
 
     const int nrcrds = coords.size();
     TypeSet<Interval<int> > stripinterval;
@@ -338,7 +392,7 @@ void Seis2DDisplay::updateVizPath()
 	    stripinterval += Interval<int>(currentstart,coords.size()-1);
 
 	for ( int idx=0; idx<stripinterval.size(); idx++ )
-	    setStrip( coords, zrg, idx, stripinterval[idx] );
+	    setStrip( coords, curzrg_, idx, stripinterval[idx] );
 
 	updateLineNamePos();
     }
@@ -437,7 +491,7 @@ SurveyObject* Seis2DDisplay::duplicate() const
 {
     Seis2DDisplay* s2dd = create();
     s2dd->setGeometry( geometry_ );
-    s2dd->setSampleRange( samplerg_ );
+    s2dd->setZRange( curzrg_ );
     s2dd->setTraceNrRange( trcnrrg_ );
     s2dd->setResolution( getResolution() );
 
@@ -682,8 +736,8 @@ bool Seis2DDisplay::setDataTransform( ZAxisTransform* zat )
     const bool haddatatransform = datatransform_;
     if ( datatransform_ )
     {
-	if ( datatransformvoihandle_!=-1 )
-	    datatransform_->removeVolumeOfInterest(datatransformvoihandle_);
+	if ( voiidx_!=-1 )
+	    datatransform_->removeVolumeOfInterest(voiidx_);
 	if ( datatransform_->changeNotifier() )
 	    datatransform_->changeNotifier()->remove(
 		    mCB(this,Seis2DDisplay,dataTransformCB) );
@@ -692,7 +746,7 @@ bool Seis2DDisplay::setDataTransform( ZAxisTransform* zat )
     }
 
     datatransform_ = zat;
-    datatransformvoihandle_ = -1;
+    voiidx_ = -1;
 
     if ( datatransform_ )
     {
@@ -722,11 +776,7 @@ void Seis2DDisplay::updateRanges( bool updatetrc, bool updatez )
 {
     // TODO: handle update trcrg
     if ( updatez && datatransform_ )
-    {
-	Interval<float> zrg = datatransform_->getZInterval( false );
-	Interval<int> samplerg;
-	setSampleRange( samplerg );
-    }
+	setZRange( datatransform_->getZInterval(false) );
 }
 
 
@@ -748,7 +798,8 @@ void Seis2DDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyLineSetID(), linesetid_ );
     par.setYN( sKeyShowLineName(), lineNameShown() );
     par.set( sKeyTrcNrRange(), trcnrrg_.start, trcnrrg_.stop );
-    par.set( sKeyZRange(), samplerg_.start, samplerg_.stop );
+    const Interval<int> samplerg = getSampleRange();
+    par.set( sKeyZRange(), samplerg.start, samplerg.stop );
 }
 
 
@@ -777,7 +828,7 @@ int Seis2DDisplay::usePar( const IOPar& par )
 	if ( res!=1 ) return res;
 
 	par.get( sKeyTrcNrRange(), trcnrrg_.start, trcnrrg_.stop );
-	par.get( sKeyZRange(), samplerg_.start, samplerg_.stop );
+//	par.get( sKeyZRange(), samplerg_.start, samplerg_.stop );
 	bool showlinename = false;
 	par.getYN( sKeyShowLineName(), showlinename );
 	showLineName( showlinename );

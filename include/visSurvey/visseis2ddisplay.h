@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.15 2007-07-25 12:23:36 cvsnanne Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.16 2007-08-27 10:04:19 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -46,17 +46,13 @@ public:
     void			setLineName(const char*);
 
     void			setGeometry(const PosInfo::Line2DData&);
-    StepInterval<float>		getMaxZRange() const;
-    bool			setSampleRange(const Interval<int>&);
-    				/*!<The values in the range refers to samples
-				    in the interval retrieved by getMaxZRange().
-    				    \returns wether a cache update is enough.
-				*/
-				
-    const Interval<int>&	getSampleRange() const;
+    StepInterval<float>		getMaxZRange(bool displayspace) const;
+    bool			setZRange(const Interval<float>&);
+    				//!<\returns whether a cache update is enough.
+    Interval<float>		getZRange(bool displayspace) const;
 
     bool			setTraceNrRange(const Interval<int>&);
-    				/*!<\returns wether a cache update is enough.*/
+    				//!<\returns whether a cache update is enough.
     const Interval<int>&	getTraceNrRange() const;
     const Interval<int>&	getMaxTraceNrRange() const;
 
@@ -122,6 +118,7 @@ protected:
     bool			getCacheValue(int attrib,int version,
 					      const Coord3&,float&) const;
 
+    const Interval<int>		getSampleRange() const;
     void			updateVizPath();
     				/*!<Sets the coordinates to the path in
 				    geometry_, limited by the current
@@ -143,7 +140,7 @@ protected:
     MultiID					linesetid_;
 
     PosInfo::Line2DData&			geometry_;
-    Interval<int>				samplerg_;
+    Interval<float>				curzrg_;
     Interval<int>				trcnrrg_;
     Interval<int>				maxtrcnrrg_;
 
@@ -154,7 +151,7 @@ protected:
     Notifier<Seis2DDisplay>			geomchanged_;
 
     ZAxisTransform*				datatransform_;
-    int						datatransformvoihandle_;
+    int						voiidx_;
 
     static const char*				sKeyLineSetID();
     static const char*				sKeyTrcNrRange();
