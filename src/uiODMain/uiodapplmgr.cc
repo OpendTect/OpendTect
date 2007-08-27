@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.199 2007-08-27 08:49:19 cvsraman Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.200 2007-08-27 09:58:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1092,10 +1092,16 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	Attrib::SelSpec as( "Evaluation", Attrib::SelSpec::cOtherAttrib() );
 	const int attrib = visserv_->getSelAttribNr();
 	if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
+	{
+	    uiMSG().error( "Please select an attribute treeitem" );
 	    return false;
+	}
 	visserv_->setSelSpec( visid, attrib, as );
 	if ( !evaluateAttribute(visid,attrib) )
+	{
+	    uiMSG().error( "Could not evaluate this attribute" );
 	    return false;
+	}
 	sceneMgr().updateTrees();
     }
     else if ( evid==uiAttribPartServer::evEvalShowSlice )
