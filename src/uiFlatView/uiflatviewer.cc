@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.33 2007-08-28 15:25:12 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.34 2007-08-28 20:38:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -392,14 +392,19 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
     const bool drawfill = ad.close_ && ad.fillcolor_.isVisible();
     if ( ad.linestyle_.isVisible() || drawfill )
     {
-	dt.setFillColor( ad.fillcolor_ );
 	dt.setLineStyle( ad.linestyle_ );
 
-	if ( ad.close_ )
+	if ( drawfill )
+	{
+	    dt.setFillColor( ad.fillcolor_ );
 	    //TODO clip polygon
 	    dt.drawLine( ptlist, true );
+	}
 	else
 	{
+	    if ( ad.close_ && ptlist.size()>3 )
+		ptlist += ptlist[0]; // close poly
+
 	    ObjectSet<TypeSet<uiPoint> > lines;
 	    clipPolyLine( datarect, ptlist, lines );
 
