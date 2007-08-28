@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.14 2007-07-09 16:47:00 cvsbert Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.15 2007-08-28 20:39:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -419,6 +419,12 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
 
     fillcolorfld_ = new uiColorInput( this, fillcolors_[0] );
     fillcolorfld_->attach( alignedBelow, linestylefld_ );
+
+    x1rgfld_ = new uiGenInput( this, "X-Range", FloatInpIntervalSpec() );
+    x1rgfld_->attach( alignedBelow, fillcolorfld_ );
+
+    x2rgfld_ = new uiGenInput( this, "Y-Range", FloatInpIntervalSpec() );
+    x2rgfld_->attach( alignedBelow, x1rgfld_ );
 }
 
 
@@ -490,6 +496,12 @@ void uiFVAnnotPropTab::getFromAuxFld( int idx )
 
     if ( permissions_[idx]->fillcolor_ )
 	fillcolors_[idx] = fillcolorfld_->color();
+
+    if ( permissions_[idx]->x1rg_ )
+	x1rgs_[idx] = x1rgfld_->getDInterval();
+
+    if ( permissions_[idx]->x2rg_ )
+	x2rgs_[idx] = x2rgfld_->getDInterval();
 }
 
 
@@ -516,6 +528,22 @@ void uiFVAnnotPropTab::updateAuxFlds( int idx )
     }
     else
 	fillcolorfld_->display( false );
+
+    if ( permissions_[idx]->x1rg_ && annot_.auxdata_[indices_[idx]]->x1rg_ )
+    {
+	x1rgfld_->setValue( x1rgs_[idx] );
+	x1rgfld_->display( true );
+    }
+    else
+	x1rgfld_->display( false );
+
+    if ( permissions_[idx]->x2rg_ && annot_.auxdata_[indices_[idx]]->x2rg_ )
+    {
+	x2rgfld_->setValue( x2rgs_[idx] );
+	x2rgfld_->display( true );
+    }
+    else
+	x2rgfld_->display( false );
 }
 
 

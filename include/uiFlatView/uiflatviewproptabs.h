@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewproptabs.h,v 1.4 2007-05-16 16:28:07 cvskris Exp $
+ RCS:           $Id: uiflatviewproptabs.h,v 1.5 2007-08-28 20:39:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -190,6 +190,8 @@ protected:
     uiSelLineStyle*	linestylenocolorfld_;
     //uiSelLineStyle*	markerstylefld_;
     uiColorInput*	fillcolorfld_;
+    uiGenInput*		x1rgfld_;
+    uiGenInput*		x2rgfld_;
 
     ObjectSet<FlatView::Annotation::AuxData::EditPermissions>	permissions_;
     BoolTypeSet							enabled_;
