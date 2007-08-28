@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.32 2007-08-27 11:01:40 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.33 2007-08-28 15:25:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,10 @@ ________________________________________________________________________
 #include "uiworld2ui.h"
 #include "uimsg.h"
 #include "linerectangleclipper.h"
+#include "debugmasks.h"
 
+
+float uiFlatViewer::bufextendratio_ = 0.4; // 0.5 = 50% means 3 times more area
 
 uiFlatViewer::uiFlatViewer( uiParent* p )
     : uiGroup(p,"Flat viewer")
@@ -143,13 +146,15 @@ uiWorldRect uiFlatViewer::boundingBox() const
 void uiFlatViewer::setView( uiWorldRect wr )
 {
     anysetviewdone_ = true;
+
     wr_ = wr;
     if ( wr_.left() > wr.right() != appearance().annot_.x1_.reversed_ )
 	wr_.swapHor();
     if ( wr_.bottom() > wr.top() != appearance().annot_.x2_.reversed_ )
 	wr_.swapVer();
-    handleChange( All );
+
     viewChanged.trigger();
+    canvas_.forceNewFill();
 }
 
 
@@ -168,6 +173,7 @@ void uiFlatViewer::handleChange( DataChangeType dct )
 	l += annotsz_.width();
     if ( annot.haveAxisAnnot(true) )
 	{ b += annotsz_.height(); t += annotsz_.height(); }
+
     canvas_.setBorders( uiSize(l,t), uiSize(r,b) );
     canvas_.forceNewFill();
 }
@@ -185,32 +191,82 @@ void uiFlatViewer::drawBitMaps()
 	    { datachgd = true; break; }
     }
     reportedchanges_.erase();
-
-    uiRGBArray& rgbarr = canvas_.rgbArray();
-    uiSize uisz( rgbarr.getSize(true), rgbarr.getSize(false) );
-
-    bool neednewbitmaps = datachgd;
     if ( datachgd )
 	dataChanged.trigger();
-    else
-	neednewbitmaps = prevwr_ != wr_ || prevsz_ != uisz;
-    prevwr_ = wr_; prevsz_ = uisz;
 
-    //TODO: better optimisation
-    if ( neednewbitmaps )
+    uiPoint offs( mUdf(int), mUdf(int) );
+    if ( !wvabmpmgr_ )
     {
-	delete wvabmpmgr_; wvabmpmgr_ = new FlatView::BitMapMgr(*this,true);
-	delete vdbmpmgr_; vdbmpmgr_ = new FlatView::BitMapMgr(*this,false);
+	wvabmpmgr_ = new FlatView::BitMapMgr(*this,true);
+	vdbmpmgr_ = new FlatView::BitMapMgr(*this,false);
+    }
+    else if ( !datachgd )
+    {
+	const uiRGBArray& rgbarr = canvas_.rgbArray();
+	offs = wvabmpmgr_->dataOffs( wr_,
+			uiSize(rgbarr.getSize(true),rgbarr.getSize(false)) );
+    }
 
-	if ( !wvabmpmgr_->generate(wr_,uisz) || !vdbmpmgr_->generate(wr_,uisz) )
+    if ( mIsUdf(offs.x) )
+    {
+	wvabmpmgr_->setupChg(); vdbmpmgr_->setupChg();
+	if ( !mkBitmaps(offs) )
 	{
-	    uiMSG().error( "No memory for bitmaps" );
 	    delete wvabmpmgr_; wvabmpmgr_ = 0; delete vdbmpmgr_; vdbmpmgr_ = 0;
+	    uiMSG().error( "No memory for bitmaps" );
 	    return;
 	}
     }
 
-    bmp2rgb_->draw( wvabmpmgr_->bitMap(), vdbmpmgr_->bitMap() );
+    if ( mIsUdf(offs.x) )
+    {
+	ErrMsg( "Internal error during bitmap generation" );
+	return;
+    }
+
+    bmp2rgb_->draw( wvabmpmgr_->bitMap(), vdbmpmgr_->bitMap(), offs );
+}
+
+
+bool uiFlatViewer::mkBitmaps( uiPoint& offs )
+{
+    uiRGBArray& rgbarr = canvas_.rgbArray();
+    const uiSize uisz( rgbarr.getSize(true), rgbarr.getSize(false) );
+    const Geom::Size2D<double> wrsz = wr_.size();
+
+    // Worldrect per pixel. Must be preserved.
+    const double xratio = wrsz.width() / uisz.width();
+    const double yratio = wrsz.height() / uisz.height();
+
+    // Extend the viewed worldrect; check bounds
+    uiWorldRect bufwr( wr_.grownBy(1+bufextendratio_) );
+    const uiWorldRect bb( boundingBox() );
+#define mChkBound(bufside,op,bbside,Side) \
+    if ( bufwr.bufside() op bb.bbside() ) bufwr.set##Side( bb.bbside() )
+    mChkBound(left,<,left,Left); mChkBound(left,>,right,Left);
+    mChkBound(right,<,left,Right); mChkBound(right,>,right,Right);
+    mChkBound(bottom,<,bottom,Bottom); mChkBound(top,<,bottom,Top);
+    mChkBound(top,>,top,Top); mChkBound(bottom,>,top,Bottom);
+
+    // Calculate buffer size, snap buffer world rect
+    Geom::Size2D<double> bufwrsz( bufwr.size() );
+    const uiSize bufsz( (int)(bufwrsz.width() / xratio + .5),
+			(int)(bufwrsz.height() / yratio + .5) );
+    bufwrsz.setWidth( bufsz.width() * xratio );
+    bufwrsz.setHeight( bufsz.height() * yratio );
+    const bool xrev = bufwr.left() > bufwr.right();
+    const bool yrev = bufwr.bottom() > bufwr.top();
+    bufwr.setRight( bufwr.left() + (xrev?-1:1) * bufwrsz.width() );
+    bufwr.setTop( bufwr.bottom() + (yrev?-1:1) * bufwrsz.height() );
+
+    if ( DBG::isOn(DBG_DBG) )
+	DBG::message( "Re-generating bitmaps" );
+    if ( !wvabmpmgr_->generate(bufwr,bufsz)
+      || !vdbmpmgr_->generate(bufwr,bufsz) )
+	return false;
+
+    offs = wvabmpmgr_->dataOffs( wr_, uisz );
+    return true;
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewbitmap.cc,v 1.7 2007-03-28 12:20:46 cvsbert Exp $
+ RCS:           $Id: flatviewbitmap.cc,v 1.8 2007-08-28 15:25:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,8 @@ FlatView::BitMapMgr::BitMapMgr( const FlatView::Viewer& vwr, bool wva )
     , data_(0)
     , gen_(0)
     , wva_(wva)
+    , sz_(mUdf(int),mUdf(int))
+    , wr_(mUdf(double),mUdf(double),mUdf(double),mUdf(double))
 {
     setupChg();
 }
@@ -83,6 +85,44 @@ void FlatView::BitMapMgr::setupChg()
 }
 
 
+Geom::Point2D<int> FlatView::BitMapMgr::dataOffs(
+			const Geom::PosRectangle<double>& inpwr,
+			const Geom::Size2D<int>& inpsz ) const
+{
+    Geom::Point2D<int> ret( mUdf(int), mUdf(int) );
+    if ( mIsUdf(wr_.left()) ) return ret;
+
+    // First see if we have different zooms:
+    const Geom::Size2D<double> wrsz = wr_.size();
+    const double xratio = wrsz.width() / sz_.width();
+    const double yratio = wrsz.height() / sz_.height();
+    const Geom::Size2D<double> inpwrsz = inpwr.size();
+    const double inpxratio = inpwrsz.width() / inpsz.width();
+    const double inpyratio = inpwrsz.height() / inpsz.height();
+    if ( !mIsZero(xratio-inpxratio,mDefEps)
+      || !mIsZero(yratio-inpyratio,mDefEps) )
+	return ret;
+
+    // Now check whether we have a pan outside buffered area:
+    const bool xrev = wr_.right() < wr_.left();
+    const bool yrev = wr_.top() < wr_.bottom();
+    const double xoffs = fabs(xrev ? inpwr.right() - wr_.right()
+	    			   : inpwr.left() - wr_.left()) / xratio;
+    const double yoffs = fabs(yrev ? inpwr.top() - wr_.top()
+	    			   : inpwr.bottom() - wr_.bottom()) / yratio;
+    if ( xoffs <= -0.5 || yoffs <= -0.5 )
+	return ret;
+    const double maxxoffs = sz_.width() - inpsz.width() + .5;
+    const double maxyoffs = sz_.height() - inpsz.height() + .5;
+    if ( xoffs >= maxxoffs || yoffs >= maxyoffs )
+	return ret;
+
+    // No, we're cool. Return nearest integers
+    ret.x = mNINT(xoffs); ret.y = mNINT(yoffs);
+    return ret;
+}
+
+
 bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
 				    const Geom::Size2D<int>& sz )
 {
@@ -94,8 +134,9 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
     bmp_ = new A2DBitMapImpl( sz.width(), sz.height() );
     if ( !bmp_ || !bmp_->getData() )
 	{ delete bmp_; bmp_ = 0; return false; }
-    A2DBitMapGenerator::initBitMap( *bmp_ );
 
+    wr_ = wr; sz_ = sz;
+    A2DBitMapGenerator::initBitMap( *bmp_ );
     gen_->setBitMap( *bmp_ );
     gen_->fill();
     return true;
@@ -110,16 +151,18 @@ FlatView::BitMap2RGB::BitMap2RGB( const FlatView::Appearance& a,
 }
 
 
-void FlatView::BitMap2RGB::draw( const A2DBitMap* wva, const A2DBitMap* vd )
+void FlatView::BitMap2RGB::draw( const A2DBitMap* wva, const A2DBitMap* vd,
+       				 const Geom::Point2D<int>& offs )
 {
     if ( vd )
-	drawVD( *vd );
+	drawVD( *vd, offs );
     if ( wva )
-	drawWVA( *wva );
+	drawWVA( *wva, offs );
 }
 
 
-void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp )
+void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp,
+				   const Geom::Point2D<int>& offs )
 {
     const Geom::Size2D<int> bmpsz(bmp.info().getSize(0),bmp.info().getSize(1));
     const Geom::Size2D<int> arrsz(arr_.getSize(true),arr_.getSize(false));
@@ -135,7 +178,7 @@ void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp )
 	for ( int iy=0; iy<arrsz.height(); iy++ )
 	{
 	    if ( iy >= bmpsz.height() ) break;
-	    const char bmpval = bmp.get( ix, iy );
+	    const char bmpval = bmp.get( ix + offs.x, iy + offs.y );
 	    if ( bmpval == A2DBitMapGenPars::cNoFill )
 		continue;
 
@@ -147,7 +190,8 @@ void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp )
 }
 
 
-void FlatView::BitMap2RGB::drawWVA( const A2DBitMap& bmp )
+void FlatView::BitMap2RGB::drawWVA( const A2DBitMap& bmp,
+				    const Geom::Point2D<int>& offs )
 {
     const Geom::Size2D<int> bmpsz(bmp.info().getSize(0),bmp.info().getSize(1));
     const Geom::Size2D<int> arrsz(arr_.getSize(true),arr_.getSize(false));
@@ -159,7 +203,7 @@ void FlatView::BitMap2RGB::drawWVA( const A2DBitMap& bmp )
 	for ( int iy=0; iy<arrsz.height(); iy++ )
 	{
 	    if ( iy >= bmpsz.height() ) break;
-	    const char bmpval = bmp.get( ix, iy );
+	    const char bmpval = bmp.get( ix + offs.x, iy + offs.y );
 	    if ( bmpval == A2DBitMapGenPars::cNoFill )
 		continue;
 

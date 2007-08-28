@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: flatviewbmp2rgb.h,v 1.2 2007-03-10 12:13:46 cvsbert Exp $
+ RCS:           $Id: flatviewbmp2rgb.h,v 1.3 2007-08-28 15:25:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,8 @@ public:
 
 			BitMap2RGB(const Appearance&,uiRGBArray&);
 
-    void		draw(const A2DBitMap* wva,const A2DBitMap* vd);
+    void		draw(const A2DBitMap* wva,const A2DBitMap* vd,
+	    		     const Geom::Point2D<int>& offset);
 
     uiRGBArray&		rgbArray()		{ return arr_; }
 
@@ -37,8 +38,8 @@ protected:
     const Appearance&	app_;
     uiRGBArray&		arr_;
 
-    void		drawVD(const A2DBitMap&);
-    void		drawWVA(const A2DBitMap&);
+    void		drawVD(const A2DBitMap&,const Geom::Point2D<int>&);
+    void		drawWVA(const A2DBitMap&,const Geom::Point2D<int>&);
 };
 
 } // namespace FlatView

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.14 2007-08-24 11:23:49 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.15 2007-08-28 15:25:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,11 +61,15 @@ public:
 
     uiFlatViewControl*	control()	{ return control_; }
 
+
+    static float	bufextendratio_;
+    			//!< Must be > 0. default 0.4
+    			//!< Controls how much extra bitmap is generated
+
 protected:
 
     uiRGBArrayCanvas&		canvas_;
-    FlatView::AxesDrawer& 	axesdrawer_;
-    				//!<Needs to be declared *after* canvas_
+    FlatView::AxesDrawer& 	axesdrawer_; //!< Must be declared after canvas_
     uiWorldRect			wr_;
 
     TypeSet<DataChangeType>	reportedchanges_;
@@ -91,7 +95,9 @@ protected:
     void		drawAnnot();
     void		drawGridAnnot();
     void		drawAux(const FlatView::Annotation::AuxData&);
+
     void		initView();
+    bool		mkBitmaps(uiPoint&);
 
     friend class	uiFlatViewControl;
     uiFlatViewControl*	control_;
