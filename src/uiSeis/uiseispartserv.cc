@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.66 2007-08-21 05:38:05 cvsraman Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.67 2007-08-28 13:17:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -272,7 +272,7 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
 	IOM().getLocal( storedgathermenuitem.getItem(mnuindex)->text );
     if ( !ioobj )
 	mErrRet( "No valid gather selected" )
-    SeisPSReader* rdr = SPSIOPF().getReader( *ioobj, bid.inl );
+    PtrMan<SeisPSReader> rdr = SPSIOPF().getReader( *ioobj, bid.inl );
     if ( !rdr )
 	mErrRet( "This Pre-Stack data store cannot be handled" )
     SeisTrcBuf* tbuf = new SeisTrcBuf;
