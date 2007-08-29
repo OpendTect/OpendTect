@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.26 2007-05-08 17:18:52 cvsbert Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.27 2007-08-29 15:57:09 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -110,6 +110,25 @@ void Threads::ReadWriteLock::writeUnLock()
 
     statuscond_.signal( true );
     statuscond_.unlock();
+}
+
+
+bool Threads::ReadWriteLock::convToWriteLock()
+{
+    statuscond_.lock();
+    if ( status_==1 )
+    {
+	status_ = -1;
+	statuscond_.unlock();
+	return true;
+    }
+    else if ( status_<1 )
+	pErrMsg( "Object is not readlocked.");
+
+    statuscond_.unlock();
+    readUnLock();
+    writeLock();
+    return false;
 }
 
 
