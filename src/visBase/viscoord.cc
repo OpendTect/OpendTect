@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: viscoord.cc,v 1.24 2006-08-28 08:56:47 cvskris Exp $
+ RCS:           $Id: viscoord.cc,v 1.25 2007-08-29 20:44:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -200,11 +200,21 @@ void Coordinates::setPosWithoutLock( int idx, const Coord3& pos )
     if ( postoset.isDefined() )
     {
 	if ( transformation )
+	{
 	    postoset = transformation->transform( postoset );
 
+	    //HACK: Moved here since it blocks the transform setting
+	    //      on inl/crl/t objects
+	    if ( !utmposition && !idx && !size(false) &&
+		    (fabs(postoset.x)>1e5 || fabs(postoset.y)>1e5) )
+		setLocalTranslationWithoutLock(postoset);
+	}
+
+	/* 
 	if ( !utmposition && !idx && !size(false) &&
 		(fabs(postoset.x)>1e5 || fabs(postoset.y)>1e5) )
 	    setLocalTranslationWithoutLock(postoset);
+	*/
 
 	if ( utmposition )
 	{
