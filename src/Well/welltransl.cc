@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: welltransl.cc,v 1.11 2006-12-28 21:10:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: welltransl.cc,v 1.12 2007-08-29 12:21:29 cvsbert Exp $";
 
 
 #include "welltransl.h"
@@ -33,12 +33,12 @@ mDefSimpleTranslatorioContext(Well,WllInf)
     if ( !prov.fn ) return false;
 
 
-#define mRemove(ext,nr) \
+#define mRemove(ext,nr,required) \
 { \
     StreamProvider sp( Well::IO::mkFileName(bnm,ext,nr) ); \
     sp.addPathIfNecessary( pathnm ); \
-    if ( !sp.exists(true) )  return true; \
-    if ( !sp.remove(false) ) return false; \
+    if ( !sp.exists(true) ) { if ( required ) return false; } \
+    else if ( !sp.remove(false) ) return false; \
 }
 
 bool WellTranslator::implRemove( const IOObj* ioobj ) const
@@ -47,23 +47,23 @@ bool WellTranslator::implRemove( const IOObj* ioobj ) const
 
     FilePath fp( filenm ); fp.setExtension( 0, true );
     const BufferString bnm = fp.fullPath();
-    mRemove(Well::IO::sExtMarkers,0)
-    mRemove(Well::IO::sExtD2T,0)
+    mRemove(Well::IO::sExtMarkers,0,false)
+    mRemove(Well::IO::sExtD2T,0,false)
     for ( int idx=1; ; idx++ )
-	mRemove(Well::IO::sExtLog,idx)
+	mRemove(Well::IO::sExtLog,idx,true)
 
     return true;
 }
 
 
-#define mRename(ext,nr) \
+#define mRename(ext,nr,required) \
 { \
     StreamProvider sp( Well::IO::mkFileName(bnm,ext,nr) ); \
     sp.addPathIfNecessary( pathnm ); \
     StreamProvider spnew( Well::IO::mkFileName(newbnm,ext,nr) ); \
     spnew.addPathIfNecessary( pathnm ); \
-    if ( !sp.exists(true) )  return true; \
-    if ( !sp.rename(spnew.fileName(),cb) ) return false; \
+    if ( !sp.exists(true) ) { if ( required ) return false; } \
+    else if ( !sp.rename(spnew.fileName(),cb) ) return false; \
 }
 
 bool WellTranslator::implRename( const IOObj* ioobj, const char* newnm,
@@ -75,11 +75,11 @@ bool WellTranslator::implRename( const IOObj* ioobj, const char* newnm,
     const BufferString bnm = fp.fullPath();
     fp.set( newnm ); fp.setExtension( 0, true );
     const BufferString newbnm = fp.fullPath();
-    mRename(Well::IO::sExtMarkers,0)
-    mRename(Well::IO::sExtD2T,0)
+    mRename(Well::IO::sExtMarkers,0,false)
+    mRename(Well::IO::sExtD2T,0,false)
 
     for ( int idx=1; ; idx++ )
-	mRename(Well::IO::sExtLog,idx)
+	mRename(Well::IO::sExtLog,idx,true)
     
     return true;
 }
