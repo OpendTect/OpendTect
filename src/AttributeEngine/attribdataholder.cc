@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.8 2007-02-28 16:50:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.9 2007-08-29 19:49:14 cvskris Exp $";
 
 #include "attribdataholder.h"
 
@@ -58,7 +58,7 @@ DataHolder* DataHolder::clone() const
 ValueSeries<float>* DataHolder::add( bool addnull )
 {
     ValueSeries<float>* res = addnull ? 0
-	: new ArrayValueSeries<float>( new float[nrsamples_], true );
+	: new ArrayValueSeries<float,float>( new float[nrsamples_], true );
     data_ += res;
     return res;
 }
