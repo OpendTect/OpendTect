@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.8 2007-08-10 12:06:35 cvsnanne Exp $
+ RCS:           $Id: valseries.h,v 1.9 2007-08-29 19:46:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,25 +68,30 @@ protected:
 };
 
 
-/*\brief series of values from a pointer to some kind of array */
+#define mImplArr \
+{ return typeid(RT)==typeid(AT) ? (RT*) ptr_ : (RT*) 0;}
 
-template <class T>
-class ArrayValueSeries : public ValueSeries<T>
+/*\brief series of values from a pointer to some kind of array. If a more
+         advanced conversion between the return type and the array type is
+	 wanted, use ConvValueSeries instead. */
+
+template <class RT, class AT>
+class ArrayValueSeries : public ValueSeries<RT>
 {
 public:
 
-    		ArrayValueSeries( T* ptr, bool memmine );
+    		ArrayValueSeries( AT* ptr, bool memmine );
     		ArrayValueSeries( int64 sz );
     		~ArrayValueSeries()		{ if ( mine_ ) delete [] ptr_; }
 
     bool	isOK()				{ return ptr_; }
 
-    T		value( int64 idx ) const	{ return ptr_[idx]; }
+    RT		value( int64 idx ) const	{ return ptr_[idx]; }
     bool	writable() const		{ return true; }
-    void	setValue( int64 idx, T v )	{ ptr_[idx] = v; }
+    void	setValue( int64 idx, RT v )	{ ptr_[idx] = (AT) v; }
 
-    const T*	arr() const			{ return ptr_; }
-    T*		arr()				{ return ptr_; }
+    const RT*	arr() const			mImplArr;
+    RT*		arr()				mImplArr;
 
     bool	reSizeable() const		{ return mine_; }
     inline bool	setSize(int64);
@@ -94,10 +99,12 @@ public:
 
 protected:
 
-    T*		ptr_;
+    AT*		ptr_;
     bool	mine_;
     int64	cursize_;
 };
+
+#undef mImplArr
 
 
 
@@ -152,28 +159,28 @@ bool OffsetValueSeries<T>::writable() const
 { return writable_; }
 
 
-template <class T>
-ArrayValueSeries<T>::ArrayValueSeries( T* ptr, bool memmine )
+template <class RT, class AT>
+ArrayValueSeries<RT,AT>::ArrayValueSeries( AT* ptr, bool memmine )
     : ptr_(ptr), mine_(memmine), cursize_( -1 )
 {}
 
 
-template <class T>
-ArrayValueSeries<T>::ArrayValueSeries( int64 sz )
+template <class RT, class AT>
+ArrayValueSeries<RT,AT>::ArrayValueSeries( int64 sz )
     : mine_(true), cursize_( sz )
 {
-    mTryAlloc( ptr_, T[sz] )
+    mTryAlloc( ptr_, AT[sz] )
 }
 
 
-template <class T>
-bool ArrayValueSeries<T>::setSize( int64 sz )
+template <class RT,class AT>
+bool ArrayValueSeries<RT,AT>::setSize( int64 sz )
 {
     if ( !mine_ ) return false;
     if ( cursize_!=-1 && cursize_==sz && ptr_ ) return true;
 
     delete [] ptr_;
-    mTryAlloc( ptr_, T[sz] )
+    mTryAlloc( ptr_, AT[sz] )
     cursize_ = sz;
     return ptr_;
 }
