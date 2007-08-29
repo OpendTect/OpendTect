@@ -4,12 +4,11 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.9 2007-08-20 09:27:55 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.10 2007-08-29 14:26:55 cvskris Exp $";
 
 
 #include "uiodvolrentreeitem.h"
 
-#include "isosurface.h"
 #include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
@@ -20,6 +19,7 @@ static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.9 2007-08-20 09:27:55
 #include "uislicesel.h"
 #include "uistatisticsdlg.h"
 #include "uivisisosurface.h"
+#include "vismarchingcubessurface.h"
 #include "uivispartserv.h"
 #include "visvolorthoslice.h"
 #include "visvolren.h"
@@ -330,7 +330,7 @@ bool uiODVolrenSubTreeItem::isVolume() const
 
 bool uiODVolrenSubTreeItem::isIsoSurface() const
 {
-    mDynamicCastGet(visBase::IsoSurface*,isosurface,
+    mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
 	    	    visserv->getObject(displayid_));
     return isosurface;
 }
@@ -348,7 +348,7 @@ bool uiODVolrenSubTreeItem::init()
 	    	    visserv->getObject(displayid_));
     mDynamicCastGet(visBase::OrthogonalSlice*,slice,
 	    	    visserv->getObject(displayid_));
-    mDynamicCastGet(visBase::IsoSurface*,isosurface,
+    mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
 	    	    visserv->getObject(displayid_));
     if ( !volren && !slice && !isosurface )
 	return false;
@@ -392,11 +392,11 @@ void uiODVolrenSubTreeItem::updateColumnText(int col)
 	uilistviewitem_->setText( coltext, col );
     }
 
-    mDynamicCastGet(visBase::IsoSurface*,isosurface,
+    mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
 	    	    visserv->getObject(displayid_));
     if ( isosurface && isosurface->getSurface() )
     {
-	BufferString coltext = isosurface->getSurface()->getThreshold();
+	BufferString coltext = vd->isoValue(isosurface);
 	uilistviewitem_->setText( coltext, col );
     }
 }
@@ -429,7 +429,7 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==setisovaluemnuid_.id )
     {
 	menu->setIsHandled( true );
-	mDynamicCastGet(visBase::IsoSurface*,isosurface,
+	mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
 			visserv->getObject(displayid_));
 	mDynamicCastGet(visSurvey::VolumeDisplay*,vd,
 			visserv->getObject(parent_->selectionKey()));
@@ -437,8 +437,7 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 	if ( vd->getHistogram(0) ) histogram = *vd->getHistogram(0);
 
 	uiSingleGroupDlg dlg(getUiParent(), uiDialog::Setup(0,0,0) );
-	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg( &dlg, *isosurface,
-		      histogram, SamplingData<float>(0,1) ) );
+	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg( &dlg, isosurface, vd ) );
 	dlg.go();
     }
 }
