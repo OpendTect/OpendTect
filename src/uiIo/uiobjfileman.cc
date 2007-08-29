@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiobjfileman.cc,v 1.14 2006-12-14 15:40:57 cvsbert Exp $
+ RCS:           $Id: uiobjfileman.cc,v 1.15 2007-08-29 09:50:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "ioobj.h"
 #include "ioman.h"
+#include "dirlist.h"
 #include "ctxtioobj.h"
 #include "uitextedit.h"
 #include "filegen.h"
@@ -74,6 +75,31 @@ void uiObjFileMan::selChg( CallBacker* cb )
 }
 
 
+double uiObjFileMan::getFileSize( const char* filenm, int& nrfiles ) const
+{
+    nrfiles = File_exists(filenm) ? 1 : 0;
+    if ( nrfiles == 0 )
+	return 0;
+
+    double ret = (double)File_getKbSize( filenm );
+    if ( ret < 0 ) ret = -ret;
+    if ( !File_isDirectory(filenm) )
+	return ret;
+
+    DirList dl( filenm );
+    nrfiles = 0;
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	int extranrfiles = 0;
+	const BufferString subfnm( dl.fullPath(idx) );
+	ret += getFileSize( subfnm, extranrfiles );
+	nrfiles += extranrfiles;
+    }
+
+    return ret;
+}
+
+
 BufferString uiObjFileMan::getFileSizeString( double filesz )
 {
     BufferString szstr;
@@ -84,14 +110,14 @@ BufferString uiObjFileMan::getFileSizeString( double filesz )
 	szstr = nr/100; 
 	const int rest = nr%100; 
 	szstr += rest < 10 ? ".0" : "."; szstr += rest;
-	szstr += doGb ? " (Gb)" : " (Mb)";
+	szstr += doGb ? " GB" : " MB";
     }
     else if ( filesz == 0 )
-	szstr = "< 1 (kB)";
+	szstr = "< 1 kB";
     else
     {
 	szstr = filesz;
-	szstr += " (kB)";
+	szstr += " kB";
     }
 
     return szstr;
@@ -115,9 +141,16 @@ BufferString uiObjFileMan::getFileInfo()
 
     BufferString fname( conn->fileName() );
     FilePath fp( fname );
+    const bool isdir = File_isDirectory( fname );
+    int nrfiles = 1;
+    const double totsz = getFileSize( fname, nrfiles );
+
     txt += "Location: "; txt += fp.pathOnly();
-    txt += "\nFile name: "; txt += fp.fileName();
-    txt += "\nFile size: "; txt += getFileSizeString( getFileSize(fname) );
+    txt += isdir ? "\nDirectory name: " : "\nFile name: ";
+    txt += fp.fileName();
+    txt += "\nSize on disk: "; txt += getFileSizeString( totsz );
+    if ( nrfiles > 1 )
+	{ txt += "\nNumber of files: "; txt += nrfiles; }
     txt += "\nLast modified: "; txt += File_getTime( fname );
     if ( txt.lastChar() != '\n' ) txt += '\n';
     txt += "Object ID: "; txt += curioobj_->key();
@@ -125,12 +158,4 @@ BufferString uiObjFileMan::getFileInfo()
     conn->close();
     delete conn;
     return txt;
-}
-
-
-double uiObjFileMan::getFileSize( const char* filenm )
-{
-    double ret = (double)File_getKbSize( filenm );
-    if ( ret < 0 ) ret = -ret;
-    return ret;
 }
