@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdataholder.h,v 1.17 2006-12-11 17:13:51 cvskris Exp $
+ RCS:           $Id: attribdataholder.h,v 1.18 2007-08-29 19:49:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ class DataCubes;
       N = N times the Z step. z0_ is therefore the amount of steps away from 0.
 
       The AE will work with any type of ValueSeries<float>. Internally,
-      ArrayValueSeries<float> objects are always allocated.
+      ArrayValueSeries<float,float> objects are always allocated.
 
       */
 
