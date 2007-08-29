@@ -4,15 +4,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.62 2006-12-11 14:34:55 cvsbert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.63 2007-08-29 09:52:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uiseisfileman.h"
-#include "ioobj.h"
+#include "uiseispsman.h"
 #include "iostrm.h"
+#include "ioman.h"
 #include "iopar.h"
 #include "cbvsreadmgr.h"
 #include "ctxtioobj.h"
@@ -20,6 +21,7 @@ ________________________________________________________________________
 #include "seistrctr.h"
 #include "seis2dline.h"
 #include "seiscbvs.h"
+#include "seispsioprov.h"
 #include "uiseisioobjinfo.h"
 #include "uiioobjsel.h"
 #include "uibutton.h"
@@ -66,6 +68,17 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
 
     selgrp->setPrefWidthInChar( cPrefWidth );
     infofld->setPrefWidthInChar( cPrefWidth );
+
+    IOObjContext psctxt( SeisPSTranslatorGroup::ioContext() );
+    IOObj* psioobj = IOM().getFirst( psctxt );
+    if ( psioobj )
+    {
+	delete psioobj;
+	uiPushButton* psbut = new uiPushButton( selgrp, "&Pre-Stack",
+				  mCB(this,uiSeisFileMan,manPS), false );
+	psbut->attach( rightBorder );
+    }
+
     selChg(0);
 }
 
@@ -156,17 +169,19 @@ void uiSeisFileMan::mkFileInfo()
 }
 
 
-double uiSeisFileMan::getFileSize( const char* filenm )
+double uiSeisFileMan::getFileSize( const char* filenm, int& nrfiles ) const
 {
     if ( File_isEmpty(filenm) ) return -1;
 
     double totalsz = 0;
-    for ( int inr=0; ; inr++ )
+    nrfiles = 0;
+    while ( true )
     {
-	BufferString fullnm( CBVSIOMgr::getFileName(filenm,inr) );
+	BufferString fullnm( CBVSIOMgr::getFileName(filenm,nrfiles) );
 	if ( !File_exists(fullnm) ) break;
 	
 	totalsz += (double)File_getKbSize( fullnm );
+	nrfiles++;
     }
 
     return totalsz;
@@ -467,4 +482,11 @@ void uiSeisFileMan::copyMan2DPush( CallBacker* )
     }
 
     selgrp->fullUpdate( key );
+}
+
+
+void uiSeisFileMan::manPS( CallBacker* )
+{
+    uiSeisPreStackMan dlg( this );
+    dlg.go();
 }

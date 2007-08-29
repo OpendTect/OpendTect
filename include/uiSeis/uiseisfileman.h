@@ -6,14 +6,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uiseisfileman.h,v 1.11 2004-12-06 17:15:04 bert Exp $
+ RCS:           $Id: uiseisfileman.h,v 1.12 2007-08-29 09:52:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobjfileman.h"
-
 class uiToolButton;
+
 
 class uiSeisFileMan : public uiObjFileMan
 {
@@ -30,9 +30,10 @@ protected:
 
     void		mergeDump2DPush(CallBacker*);
     void		copyMan2DPush(CallBacker*);
+    void		manPS(CallBacker*);
 
     void		mkFileInfo();
-    double		getFileSize(const char*);
+    double		getFileSize(const char*,int&) const;
 };
 
 
