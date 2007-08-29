@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.26 2007-08-09 11:43:15 cvshelene Exp $
+ RCS:           $Id: treeitem.cc,v 1.27 2007-08-29 12:17:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -162,7 +162,7 @@ bool AnnotTreeItem::init()
 	uiTreeItem* item = createSubItem( dispids.size() ? dispids[0] : -1,
 					  mgr.get(idx) );
 	addChild( item, true );
-	item->setChecked( false );
+	item->setChecked( true );
     }
 
     return true;
@@ -818,12 +818,12 @@ bool ArrowSubItem::init()
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );
     PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
-    int arrowtype;
-    if ( ioobj->pars().get(sKeyArrowType(), arrowtype) )
-	ad->setType( (ArrowDisplay::Type) arrowtype );
+    arrowtype_;
+    if ( ioobj->pars().get(sKeyArrowType(),arrowtype_) )
+	ad->setType( (ArrowDisplay::Type)arrowtype_ );
 
     int linewidth;
-    if ( ioobj->pars().get(sKeyLineWidth(), linewidth) )
+    if ( ioobj->pars().get(sKeyLineWidth(),linewidth) )
 	ad->setLineWidth( linewidth );
 
     //Read Old format orientation
