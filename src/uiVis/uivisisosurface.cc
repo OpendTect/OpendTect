@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2006
- RCS:		$Id: uivisisosurface.cc,v 1.2 2007-03-28 12:20:46 cvsbert Exp $
+ RCS:		$Id: uivisisosurface.cc,v 1.3 2007-08-29 14:25:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,15 +18,19 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uihistogramdisplay.h"
 #include "uibutton.h"
-#include "visisosurface.h"
+#include "visvolumedisplay.h"
 
 uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
-	visBase::IsoSurface& isosurface, const TypeSet<float>& histogram,
-	const SamplingData<float>& xaxis )
+	visBase::MarchingCubesSurface* isosurface,
+	visSurvey::VolumeDisplay* vd )
     : uiDlgGroup( p, "Iso surface threshold" )
     , isosurfacedisplay_( isosurface )
-    , initialvalue_( isosurface.getSurface()->getThreshold() )
+    , initialvalue_( vd->isoValue( isosurface ) )
+    , vd_( vd )
 {
+    TypeSet<float> histogram;
+    if ( vd->getHistogram(0) ) histogram = *vd->getHistogram(0);
+
     histogramdisplay_ = new uiCanvas( this );
     histogramdisplay_->setPrefWidth( 200 );
     histogramdisplay_->setPrefHeight( 100 );
@@ -36,8 +40,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
 	    mCB( this, uiVisIsoSurfaceThresholdDlg,doubleClick) );
 
     histogrampainter_ = new uiHistogramDisplay( histogramdisplay_ );
-    //histogrampainter_->setTransform( 
-    histogrampainter_->setHistogram( histogram, xaxis, true );
+    histogrampainter_->setHistogram( histogram,SamplingData<float>(0,1), true );
     histogrampainter_->setColor( Color(128,128,128,0) );
 
     thresholdfld_ = new uiGenInput( this, "Threshold",
@@ -62,7 +65,7 @@ uiVisIsoSurfaceThresholdDlg::~uiVisIsoSurfaceThresholdDlg()
 
 bool uiVisIsoSurfaceThresholdDlg::acceptOK()
 {
-    const float curvalue = isosurfacedisplay_.getSurface()->getThreshold();
+    const float curvalue = vd_->isoValue( isosurfacedisplay_ );
     const float fldvalue = thresholdfld_->getfValue();
     const float prec = (curvalue+fldvalue)/2000;
     if ( !mIsEqual(curvalue,fldvalue,prec) )
@@ -80,7 +83,7 @@ bool uiVisIsoSurfaceThresholdDlg::rejectOK()
 
 bool uiVisIsoSurfaceThresholdDlg::revertChanges()
 {
-    const float curvalue = isosurfacedisplay_.getSurface()->getThreshold();
+    const float curvalue = vd_->isoValue( isosurfacedisplay_ );
     const float prec = (curvalue+initialvalue_)/2000;
     if ( !mIsEqual(curvalue,initialvalue_,prec) )
 	updateIsoDisplay(initialvalue_);
@@ -130,8 +133,7 @@ void uiVisIsoSurfaceThresholdDlg::handleClick( CallBacker* cb, bool isdouble )
 
 void uiVisIsoSurfaceThresholdDlg::updateIsoDisplay( float nv )
 {
-    isosurfacedisplay_.getSurface()->setThreshold( nv );
-    isosurfacedisplay_.touch();
+    vd_->setIsoValue( isosurfacedisplay_, nv );
 }
 
 
@@ -145,7 +147,8 @@ void uiVisIsoSurfaceThresholdDlg::updateHistogramDisplay( CallBacker* )
     dt.drawLine( pt.x, 0, pt.x, dt.getDevHeight() );
 
     dt.setPenColor( Color(255,0,0,0) );
-    wpt.x = isosurfacedisplay_.getSurface()->getThreshold();
+    
+    wpt.x = vd_->isoValue( isosurfacedisplay_ );
     pt =  histogrampainter_->getTransform().transform( wpt );
     dt.drawLine( pt.x, 0, pt.x, dt.getDevHeight() );
 }

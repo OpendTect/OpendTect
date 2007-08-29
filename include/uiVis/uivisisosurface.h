@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uivisisosurface.h,v 1.2 2007-03-28 12:20:46 cvsbert Exp $
+ RCS:		$Id: uivisisosurface.h,v 1.3 2007-08-29 14:25:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,8 @@ class uiCanvas;
 class uiHistogramDisplay;
 class uiGenInput;
 class uiPushButton;
-namespace visBase { class IsoSurface; }
+namespace visBase { class MarchingCubesSurface; }
+namespace visSurvey { class VolumeDisplay; }
 template <class T> class SamplingData;
 template <class T> class TypeSet;
 
@@ -28,9 +29,9 @@ template <class T> class TypeSet;
 class uiVisIsoSurfaceThresholdDlg : public uiDlgGroup
 {
 public:
-    		uiVisIsoSurfaceThresholdDlg(uiParent*,visBase::IsoSurface&,
-					    const TypeSet<float>& histogram,
-					    const SamplingData<float>& xaxis);
+    		uiVisIsoSurfaceThresholdDlg(uiParent*,
+			visBase::MarchingCubesSurface*,
+			visSurvey::VolumeDisplay*);
 		~uiVisIsoSurfaceThresholdDlg();
     bool	acceptOK();
     bool	rejectOK();
@@ -45,13 +46,14 @@ protected:
     void		updateIsoDisplay(float nv);
     void		updateHistogramDisplay(CallBacker* = 0);
 
-    uiCanvas*		histogramdisplay_;
-    uiHistogramDisplay*	histogrampainter_;
-    uiGenInput*		thresholdfld_;
-    uiPushButton*	updatebutton_;
+    uiCanvas*				histogramdisplay_;
+    uiHistogramDisplay*			histogrampainter_;
+    uiGenInput*				thresholdfld_;
+    uiPushButton*			updatebutton_;
 
-    visBase::IsoSurface& isosurfacedisplay_;
-    float		initialvalue_;
+    visBase::MarchingCubesSurface*	isosurfacedisplay_;
+    visSurvey::VolumeDisplay*		vd_;
+    float				initialvalue_;
 
 };
 
