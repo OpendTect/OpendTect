@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seispsioprov.cc,v 1.7 2007-08-28 18:47:15 cvskris Exp $";
+static const char* rcsID = "$Id: seispsioprov.cc,v 1.8 2007-08-29 09:46:02 cvsbert Exp $";
 
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -74,5 +74,5 @@ bool CBVSSeisPSTranslator::implRemove( const IOObj* ioobj ) const
     BufferString fnm( ioobj->fullUserExpr(true) );
     if ( File_exists(fnm) )
 	File_remove( fnm, File_isDirectory(fnm) );
-    return File_exists(fnm);
+    return !File_exists(fnm);
 }
