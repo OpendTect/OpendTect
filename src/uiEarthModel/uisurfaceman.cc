@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.39 2007-08-06 08:51:43 cvsjaap Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.40 2007-08-29 12:32:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -267,4 +267,23 @@ void uiSurfaceMan::mkFileInfo()
     }
 
     infofld->setText( txt );
+}
+
+
+double uiSurfaceMan::getFileSize( const char* filenm, int& nrfiles ) const
+{
+    if ( File_isEmpty(filenm) ) return -1;
+    double totalsz = (double)File_getKbSize( filenm );
+    nrfiles = 1;
+
+    const BufferString basefnm( filenm );
+    for ( int idx=0; ; idx++ )
+    {
+	BufferString fnm( basefnm ); fnm += "^"; fnm += idx; fnm += ".hov";
+	if ( !File_exists(fnm) ) break;
+	totalsz += (double)File_getKbSize( fnm );
+	nrfiles++;
+    }
+
+    return totalsz;
 }

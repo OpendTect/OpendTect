@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.14 2007-08-06 08:51:43 cvsjaap Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.15 2007-08-29 12:32:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ protected:
 
     void		mkFileInfo();
     void		fillAttribList(const BufferStringSet&);
+    double		getFileSize(const char*,int&) const;
 };
 
 
