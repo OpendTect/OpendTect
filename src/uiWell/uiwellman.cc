@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.35 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: uiwellman.cc,v 1.36 2007-08-29 12:21:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -346,4 +346,41 @@ void uiWellMan::mkFileInfo()
 
     txt += getFileInfo();
     infofld->setText( txt );
+}
+
+
+static bool addSize( const char* basefnm, const char* fnmend,
+		     double& totalsz, int& nrfiles )
+{
+    BufferString fnm( basefnm ); fnm += fnmend;
+    if ( !File_exists(fnm) ) return false;
+
+    totalsz += (double)File_getKbSize( fnm );
+    nrfiles++;
+    return true;
+}
+
+
+double uiWellMan::getFileSize( const char* filenm, int& nrfiles ) const
+{
+    if ( File_isEmpty(filenm) ) return -1;
+
+    double totalsz = (double)File_getKbSize( filenm );
+    nrfiles = 1;
+
+    FilePath fp( filenm ); fp.setExtension( 0 );
+    const BufferString basefnm( fp.fullPath() );
+
+    addSize( basefnm, Well::IO::sExtMarkers, totalsz, nrfiles );
+    addSize( basefnm, Well::IO::sExtD2T, totalsz, nrfiles );
+
+    for ( int idx=1; ; idx++ )
+    {
+	BufferString fnmend( "^" ); fnmend += idx;
+	fnmend += Well::IO::sExtLog;
+	if ( !addSize(basefnm,fnmend,totalsz,nrfiles) )
+	    break;
+    }
+
+    return totalsz;
 }
