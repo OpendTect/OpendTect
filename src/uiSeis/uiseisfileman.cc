@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.63 2007-08-29 09:52:23 cvsbert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.64 2007-08-29 11:45:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,8 +74,10 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
     if ( psioobj )
     {
 	delete psioobj;
-	uiPushButton* psbut = new uiPushButton( selgrp, "&Pre-Stack",
-				  mCB(this,uiSeisFileMan,manPS), false );
+	uiToolButton* psbut = new uiToolButton( this, "&Pre-Stack",
+				    ioPixmap("man_ps.png"),
+				    mCB(this,uiSeisFileMan,manPS) );
+	psbut->setToolTip( "Manage Pre-Stack data" );
 	psbut->attach( rightBorder );
     }
 
