@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodwelltreeitem.cc,v 1.13 2007-08-01 07:46:54 cvsnanne Exp $
+ RCS:		$Id: uiodwelltreeitem.cc,v 1.14 2007-08-29 11:33:17 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -255,7 +255,7 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &attrmnuitem_, true, false );
     mAddMenuItem( menu, &propertiesmnuitem_, true, false );
     mAddMenuItem( menu, &editmnuitem_, true, wd->isHomeMadeWell() );
-    mAddMenuItem( menu, &storemnuitem_, true, false );
+    mAddMenuItem( menu, &storemnuitem_, wd->hasChanged(), false );
     mAddMenuItem( menu, &showmnuitem_, true, false );
     mAddMenuItem( &showmnuitem_, &nametopmnuitem_, true,  
 	    					wd->wellTopNameShown() );
