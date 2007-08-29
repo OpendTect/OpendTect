@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.16 2007-05-16 16:30:20 cvskris Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.17 2007-08-29 16:22:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ public:
     			//!< If not set, returns data pack's category()
 
     Notifier<uiFlatViewControl>  infoChanged;	// CallBacker: CBCapsule<IOPar>
+    Notifier<uiFlatViewControl>  viewerAdded;
 
 protected:
 

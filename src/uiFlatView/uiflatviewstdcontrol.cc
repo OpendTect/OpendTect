@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.cc,v 1.6 2007-08-24 11:25:37 cvsbert Exp $
+ RCS:           $Id: uiflatviewstdcontrol.cc,v 1.7 2007-08-29 16:22:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,7 +56,8 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     menu_.createnotifier.notify(mCB(this,uiFlatViewStdControl,createMenuCB));
     menu_.handlenotifier.notify(mCB(this,uiFlatViewStdControl,handleMenuCB));
 
-    uiFlatViewThumbnail* tn = new uiFlatViewThumbnail( this, vwr );
+    new uiFlatViewThumbnail( this, vwr );
+    viewerAdded.notify( mCB(this,uiFlatViewStdControl,vwrAdded) );
 
     //TODO attach keyboard events to panCB
 }
@@ -71,6 +72,11 @@ uiFlatViewStdControl::~uiFlatViewStdControl()
 void uiFlatViewStdControl::finalPrepare()
 {
     updatePosButtonStates();
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	MouseEventHandler& mevh = mouseEventHandler( idx );
+	mevh.wheelMove.notify( mCB(this,uiFlatViewStdControl,wheelMoveCB) );
+    }
 }
 
 
@@ -80,9 +86,32 @@ void uiFlatViewStdControl::updatePosButtonStates()
 }
 
 
-void uiFlatViewStdControl::vwChgCB( CallBacker* but )
+void uiFlatViewStdControl::vwrAdded( CallBacker* )
+{
+    MouseEventHandler& mevh = mouseEventHandler( vwrs_.size()-1 );
+    mevh.wheelMove.notify( mCB(this,uiFlatViewStdControl,wheelMoveCB) );
+}
+
+
+void uiFlatViewStdControl::vwChgCB( CallBacker* )
 {
     updatePosButtonStates();
+}
+
+
+void uiFlatViewStdControl::wheelMoveCB( CallBacker* )
+{
+    for ( int idx=0; idx<vwrs_.size(); idx++ )
+    {
+	if ( !mouseEventHandler( idx ).hasEvent() )
+	    continue;
+
+	const MouseEvent& ev = mouseEventHandler(idx).event();
+	if ( mIsZero(ev.angle(),0.01) )
+	    continue;
+
+	zoomCB( ev.angle() < 0 ? zoominbut_ : zoomoutbut_ );
+    }
 }
 
 

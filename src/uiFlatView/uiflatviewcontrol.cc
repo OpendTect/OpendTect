@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.24 2007-08-24 11:24:57 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.25 2007-08-29 16:22:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p,
     , haverubber_(wrubb)
     , propdlg_(0)
     , infoChanged(this)
+    , viewerAdded(this)
 {
     setBorder( 0 );
     addViewer( vwr );
@@ -61,6 +62,8 @@ void uiFlatViewControl::addViewer( uiFlatViewer& vwr )
     MouseEventHandler& mevh = mouseEventHandler( vwrs_.size()-1 );
     mevh.movement.notify( mCB( this, uiFlatViewControl, mouseMoveCB ) );
     mevh.buttonReleased.notify( mCB(this,uiFlatViewControl,usrClickCB) );
+
+    viewerAdded.trigger();
 }
 
 

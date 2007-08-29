@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.37 2007-03-28 15:16:41 cvsbert Exp $
+ RCS:           $Id: uicanvas.cc,v 1.38 2007-08-29 16:22:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,6 +147,7 @@ protected:
     virtual void	contentsMouseMoveEvent(QMouseEvent*);
     virtual void	contentsMouseReleaseEvent(QMouseEvent*);
     virtual void	contentsMouseDoubleClickEvent(QMouseEvent*);
+    virtual void	contentsWheelEvent(QWheelEvent*);
 
     uiRect		rubber;
     int			rbidx;
@@ -238,7 +239,7 @@ void uiScrollViewBody::contentsMousePressEvent ( QMouseEvent * e )
 }
 
 
-void uiScrollViewBody::contentsMouseMoveEvent( QMouseEvent * e )
+void uiScrollViewBody::contentsMouseMoveEvent( QMouseEvent* e )
 {
 // TODO: start a timer, so no move-events required to continue scrolling
 
@@ -303,7 +304,7 @@ void uiScrollViewBody::contentsMouseMoveEvent( QMouseEvent * e )
 }
 
 
-void uiScrollViewBody::contentsMouseReleaseEvent ( QMouseEvent * e )
+void uiScrollViewBody::contentsMouseReleaseEvent ( QMouseEvent* e )
 {
     if ( mRubberBanding && mButState( e ) == rubberstate )
     {
@@ -338,11 +339,20 @@ void uiScrollViewBody::contentsMouseReleaseEvent ( QMouseEvent * e )
 }
 
 
-void uiScrollViewBody::contentsMouseDoubleClickEvent ( QMouseEvent * e )
+void uiScrollViewBody::contentsMouseDoubleClickEvent ( QMouseEvent* e )
 {
     OD::ButtonState bSt = ( OD::ButtonState )(  mButState( e ) );
     MouseEvent evt( bSt, e->x(), e->y() );
     handle_.getMouseEventHandler().triggerDoubleClick( evt );
+}
+
+
+void uiScrollViewBody::contentsWheelEvent( QWheelEvent* e )
+{
+    OD::ButtonState bSt = (OD::ButtonState)( e->state() | e->buttons() );
+    static const float delta2angle = M_PI / (180 * 8);
+    MouseEvent evt( bSt, e->x(), e->y(), e->delta()*delta2angle );
+    handle_.getMouseEventHandler().triggerWheel( evt );
 }
 
 

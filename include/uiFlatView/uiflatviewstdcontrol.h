@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.4 2007-08-24 11:23:49 cvsbert Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.5 2007-08-29 16:22:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,8 @@ protected:
     void		updatePosButtonStates();
 
     void		vwChgCB(CallBacker*);
+    void		vwrAdded(CallBacker*);
+    void		wheelMoveCB(CallBacker*);
     void		zoomCB(CallBacker*);
     void		panCB(CallBacker*);
     void		flipCB(CallBacker*);

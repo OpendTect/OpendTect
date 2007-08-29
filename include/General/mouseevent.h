@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2005
- RCS:           $Id: mouseevent.h,v 1.5 2007-04-10 20:58:45 cvskris Exp $
+ RCS:           $Id: mouseevent.h,v 1.6 2007-08-29 16:22:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,10 +20,17 @@ class MouseEvent
 {
 public:
 
- 				MouseEvent(OD::ButtonState st=OD::NoButton,
-				      int xx=0, int yy=0 );
+ 				MouseEvent( OD::ButtonState st=OD::NoButton,
+					    int xx=0, int yy=0, float aa=0 )
+				    : butstate_(st), pos_(xx,yy), angle_(aa)
+				    			{}
 
-    OD::ButtonState		buttonState() const;
+    OD::ButtonState		buttonState() const	{ return butstate_; }
+    const Geom::Point2D<int>&	pos() const		{ return pos_; }
+    int				x() const		{ return pos_.x; }
+    int				y() const		{ return pos_.y; }
+    float			angle() const		{ return angle_; }
+    				//!< used for wheel events
 
     bool			leftButton() const;
     bool			rightButton() const;
@@ -32,17 +39,16 @@ public:
     bool			altStatus() const;
     bool			shiftStatus() const;
 
-    const Geom::Point2D<int>&	pos() const;
-    int				x() const;
-    int				y() const;
-
     bool			operator ==( const MouseEvent& ev ) const;
-    bool			operator !=( const MouseEvent& ev ) const;
+    bool			operator !=( const MouseEvent& ev ) const
+							{ return !(*this==ev); }
 
 protected:
 
     OD::ButtonState		butstate_;
     Geom::Point2D<int>		pos_;
+    float			angle_;
+
 };
 
 /*!
@@ -86,22 +92,27 @@ public:
     void			triggerButtonPressed(const MouseEvent&);
     void			triggerButtonReleased(const MouseEvent&);
     void			triggerDoubleClick(const MouseEvent&);
+    void			triggerWheel(const MouseEvent&);
 
     Notifier<MouseEventHandler>	buttonPressed;
     Notifier<MouseEventHandler>	buttonReleased;
     Notifier<MouseEventHandler>	movement;
     Notifier<MouseEventHandler>	doubleClick;
+    Notifier<MouseEventHandler>	wheelMove;
 
     bool			hasEvent() const	{ return event_; }
     const MouseEvent&		event() const		{ return *event_; }
-    				/*!<\note only ok to call in function triggered
+    				/*!<\note only call in function triggered
 				     by an event from this class. */
+
     bool			isHandled() const	{ return ishandled_; }
     void			setHandled(bool yn)	{ ishandled_ = yn; }
 
 protected:
+
     const MouseEvent*		event_;
     bool			ishandled_;
+
 };
 
 
