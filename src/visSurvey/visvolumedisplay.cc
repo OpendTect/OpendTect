@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.67 2007-08-22 07:33:19 cvskris Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.68 2007-08-29 14:24:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "visboxdragger.h"
 #include "viscolortab.h"
 #include "visdataman.h"
-#include "visisosurface.h"
+#include "vismarchingcubessurface.h"
 #include "vismaterial.h"
 #include "visselman.h"
 #include "vistransform.h"
@@ -30,7 +30,7 @@ ________________________________________________________________________
 #include "colortab.h"
 #include "cubesampling.h"
 #include "iopar.h"
-#include "isosurface.h"
+#include "marchingcubes.h"
 #include "sorting.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
@@ -252,6 +252,7 @@ void VolumeDisplay::removeChild( int displayid )
 	    VisualObjectImpl::removeChild(isosurfaces_[idx]->getInventorNode());
 	    isosurfaces_[idx]->unRef();
 	    isosurfaces_.removeFast(idx);
+	    isovalues_.removeFast(idx);
 	    return;
 	}
     }
@@ -279,18 +280,20 @@ bool VolumeDisplay::isVolRenShown() const
 
 int VolumeDisplay::addIsoSurface()
 {
-    visBase::IsoSurface* isosurface = visBase::IsoSurface::create();
+    visBase::MarchingCubesSurface* isosurface =
+				    visBase::MarchingCubesSurface::create();
     isosurface->ref();
     isosurface->setMaterial( 0 );
-    RefMan<IsoSurface> surface = new IsoSurface();
+    RefMan<MarchingCubesSurface> surface = new MarchingCubesSurface();
     isosurface->setSurface( *surface );
+    float threshold = 0;
     if ( cache_ )
     {
-	surface->setAxisScales( cache_->inlsampling, cache_->crlsampling,
+	isosurface->setScales( cache_->inlsampling, cache_->crlsampling,
 				SamplingData<float>( cache_->z0*cache_->zstep,
 				    		     cache_->zstep ) );
-	surface->setVolumeData( &cache_->getCube(0),
-		scalarfield_->getColorTab().getInterval().center() );
+	threshold = scalarfield_->getColorTab().getInterval().center();
+	surface->setVolumeData( 0, 0, 0, cache_->getCube(0), threshold );
 	isosurface->touch();
     }
 
@@ -300,6 +303,7 @@ int VolumeDisplay::addIsoSurface()
     insertChild( childIndex(voltrans_->getInventorNode()),
 	    		    isosurface->getInventorNode() );
     isosurfaces_ += isosurface;
+    isovalues_ += threshold;
     return isosurface->id();
 }
 
@@ -328,7 +332,7 @@ void VolumeDisplay::setCubeSampling( const CubeSampling& cs )
 
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
     {
-	isosurfaces_[idx]->getSurface()->setVolumeData( 0 );
+	isosurfaces_[idx]->getSurface()->removeAll();
 	isosurfaces_[idx]->touch();
     }
 
@@ -347,6 +351,27 @@ float VolumeDisplay::getValue( const Coord3& pos_ ) const
 	return mUdf(float);
 
     return val;
+}
+
+
+float VolumeDisplay::isoValue( const visBase::MarchingCubesSurface* mcd ) const
+{
+    const int idx = isosurfaces_.indexOf( mcd );
+    return idx<0 ? mUdf(float) : isovalues_[idx];
+}
+
+
+void VolumeDisplay::setIsoValue( const visBase::MarchingCubesSurface* mcd,
+				 float nv )
+{
+    const int idx = isosurfaces_.indexOf( mcd );
+    if ( idx<0 )
+	return;
+
+    isovalues_[idx] = nv;
+
+    isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
+	    cache_->getCube(0), isovalues_[idx] );
 }
 
 
@@ -484,7 +509,7 @@ void VolumeDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
 
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
     {
-	isosurfaces_[idx]->getSurface()->setVolumeData( 0 );
+	isosurfaces_[idx]->getSurface()->removeAll();
 	isosurfaces_[idx]->touch();
     }
 }
@@ -540,10 +565,12 @@ bool VolumeDisplay::setDataVolume( int attrib,
 
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
     {
-	isosurfaces_[idx]->getSurface()->setAxisScales(
+	isosurfaces_[idx]->setScales(
 		cache_->inlsampling, cache_->crlsampling,
 		SamplingData<float>( cache_->z0*cache_->zstep, cache_->zstep ));
-	isosurfaces_[idx]->getSurface()->setVolumeData( &cache_->getCube(0) );
+	isosurfaces_[idx]->getSurface()->removeAll();
+	isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
+		cache_->getCube(0), isovalues_[idx] );
 	isosurfaces_[idx]->touch();
     }
 
@@ -641,10 +668,9 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate() const
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
     {
 	const int isosurfid = vd->addIsoSurface();
-	mDynamicCastGet(visBase::IsoSurface*,isosurface,
+	mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
 			visBase::DM().getObject(isosurfid));
-	isosurface->getSurface()->setThreshold(
-		isosurfaces_[idx]->getSurface()->getThreshold() );
+	vd->isovalues_[idx] = isovalues_[idx];
     }
 
     vd->showVolRen( isVolRenShown() );

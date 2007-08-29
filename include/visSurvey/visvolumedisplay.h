@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.45 2007-08-20 09:21:38 cvssatyaki Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.46 2007-08-29 14:24:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -20,14 +20,14 @@ ________________________________________________________________________
 
 class ColorAttribSel;
 class CubeSampling;
-class IsoSurface;
+class MarchingCubesSurface;
 class ZAxisTransform;
 
 namespace Attrib { class SelSpec; class DataCubes; }
 
 namespace visBase
 {
-    class IsoSurface;
+    class MarchingCubesSurface;
     class VisColorTab;
     class Material;
     class BoxDragger;
@@ -82,6 +82,10 @@ public:
 
     float			slicePosition(visBase::OrthogonalSlice*) const;
     float			getValue(const Coord3&) const;
+    float			isoValue(
+	    			    const visBase::MarchingCubesSurface*) const;
+    void			setIsoValue(
+	    			    const visBase::MarchingCubesSurface*,float);
 
     CubeSampling		getCubeSampling(int attrib) const;
     void			setCubeSampling(const CubeSampling&);
@@ -123,12 +127,13 @@ protected:
 				~VolumeDisplay();
     CubeSampling		getCubeSampling(bool manippos,int attrib) const;
 
-    visBase::Transformation*		voltrans_;
-    visBase::BoxDragger*		boxdragger_;
-    visBase::VolumeRenderScalarField*	scalarfield_;
-    visBase::VolrenDisplay*		volren_;
-    ObjectSet<visBase::OrthogonalSlice>	slices_;
-    ObjectSet<visBase::IsoSurface>	isosurfaces_;
+    visBase::Transformation*			voltrans_;
+    visBase::BoxDragger*			boxdragger_;
+    visBase::VolumeRenderScalarField*		scalarfield_;
+    visBase::VolrenDisplay*			volren_;
+    ObjectSet<visBase::OrthogonalSlice>		slices_;
+    ObjectSet<visBase::MarchingCubesSurface>	isosurfaces_;
+    TypeSet<float>				isovalues_;
 
     void			manipMotionFinishCB(CallBacker*);
     void			sliceMoving(CallBacker*);
