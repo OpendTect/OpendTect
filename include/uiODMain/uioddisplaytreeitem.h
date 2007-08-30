@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uioddisplaytreeitem.h,v 1.3 2007-08-07 04:46:12 cvsnanne Exp $
+ RCS:		$Id: uioddisplaytreeitem.h,v 1.4 2007-08-30 21:26:35 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -58,7 +58,7 @@ protected:
     virtual void	createMenuCB(CallBacker*);
     virtual void	handleMenuCB(CallBacker*);
     
-    uiVisPartServer*	visserv;
+    uiVisPartServer*	visserv_;
     int			displayid_;
 
     MenuItem		selattrmnuitem_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodemsurftreeitem.h,v 1.1 2006-05-09 11:00:53 cvsbert Exp $
+ RCS:		$Id: uiodemsurftreeitem.h,v 1.2 2007-08-30 21:26:35 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,7 @@ class uiODEarthModelSurfaceTreeItem : public uiODDisplayTreeItem
 {
 public:
 
-    uiVisEMObject*	visEMObject() const	{ return uivisemobj; }
+    uiVisEMObject*	visEMObject() const	{ return uivisemobj_; }
 
 protected:
     			uiODEarthModelSurfaceTreeItem(const EM::ObjectID&);
@@ -37,8 +37,8 @@ protected:
     void		finishedEditingCB(CallBacker*);
     void		prepareForShutdown();
 
-    EM::ObjectID	emid;
-    uiVisEMObject*	uivisemobj;
+    EM::ObjectID	emid_;
+    uiVisEMObject*	uivisemobj_;
 
 private:
     bool		init();
@@ -46,7 +46,7 @@ private:
 
     virtual void	checkCB(CallBacker*);
 
-    bool		prevtrackstatus;
+    bool		prevtrackstatus_;
 
     MenuItem		savemnuitem_;
     MenuItem		saveasmnuitem_;
@@ -71,8 +71,8 @@ protected:
     MenuItem		depthattribmnuitem_;
     MenuItem		savesurfacedatamnuitem_;
     MenuItem		loadsurfacedatamnuitem_;
-    EM::ObjectID	emid;
-    uiVisEMObject*	uivisemobj;
+    EM::ObjectID	emid_;
+    uiVisEMObject*	uivisemobj_;
 };
 
 
