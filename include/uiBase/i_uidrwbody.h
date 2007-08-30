@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.23 2007-08-29 16:22:59 cvsbert Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.24 2007-08-30 10:13:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,7 +81,7 @@ protected:
     virtual void	mouseMoveEvent(QMouseEvent*);
     virtual void	mouseReleaseEvent(QMouseEvent*);
     virtual void	mouseDoubleClickEvent(QMouseEvent*);
-    virtual void	contentsWheelEvent(QWheelEvent*);
+    virtual void	wheelEvent(QWheelEvent*);
 
     uiRubberBand*	rubberband_;
     bool		havemousetracking_;
@@ -216,7 +216,7 @@ void uiDrawableObjBody<C,T>::mouseDoubleClickEvent( QMouseEvent* qev )
 
 
 template <class C,class T>
-void uiDrawableObjBody<C,T>::contentsWheelEvent( QWheelEvent* qev )
+void uiDrawableObjBody<C,T>::wheelEvent( QWheelEvent* qev )
 {
     OD::ButtonState bs = OD::ButtonState( qev->state() | qev->buttons() );
     static float delta2angle = M_PI / (180 * 8);
