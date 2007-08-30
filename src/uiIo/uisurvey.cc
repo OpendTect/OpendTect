@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.80 2007-06-14 17:25:11 cvsbert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.81 2007-08-30 10:12:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -655,6 +655,7 @@ void uiSurvey::updateViewsGlobal()
 {
     BufferString capt( "OpendTect V" );
     capt += GetFullODVersion();
+    capt += "/"; capt += __plfsubdir__;
 
     const char* usr = GetSoftwareUser();
     if ( usr && *usr )
