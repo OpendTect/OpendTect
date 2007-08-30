@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kris Tingdahl
  Date:          Oct 2006
- RCS:           $Id: convmemvalseries.h,v 1.5 2007-01-03 21:14:38 cvskris Exp $
+ RCS:           $Id: convmemvalseries.h,v 1.6 2007-08-30 14:11:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ public:
 	    				   bool doundef=true);
 
     inline		~ConvMemValueSeries();
-
+    inline bool		isOK() const;
 
     inline int64	size() const;
     inline bool		writable() const;
@@ -84,6 +84,16 @@ ConvMemValueSeries<T>::~ConvMemValueSeries()
 {
     delete [] ptr_;
     delete undefhandler_;
+}
+
+
+template <class T> inline
+bool ConvMemValueSeries<T>::isOK() const
+{
+    if ( undefhandler_ && !undefhandler_->isOK() )
+	return false;
+
+    return ptr_;
 }
 
 
