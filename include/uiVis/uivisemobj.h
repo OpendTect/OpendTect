@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.23 2007-02-07 11:06:20 cvsnanne Exp $
+ RCS:		$Id: uivisemobj.h,v 1.24 2007-08-30 20:46:04 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -37,13 +37,13 @@ public:
     bool		isOK() const;
 
     static const char*	getObjectType(int displayid);
-    int			id() const { return displayid; }
+    int			id() const { return displayid_; }
     EM::ObjectID	getObjectID() const;
 
     float		getShift() const;
     void		setDepthAsAttrib(int attrib);
     void		setOnlyAtSectionsDisplay(bool);
-    uiMenuHandler&	getNodeMenu() { return nodemenu; }
+    uiMenuHandler&	getNodeMenu() { return nodemenu_; }
 
     int			nrSections() const;
     EM::SectionID	getSectionID(int idx) const;
@@ -81,43 +81,32 @@ protected:
 
 
 
-    uiParent*		uiparent;
-    uiVisPartServer*	visserv;
+    uiParent*		uiparent_;
+    uiVisPartServer*	visserv_;
 
-    uiMenuHandler&	nodemenu;
-    uiMenuHandler&	edgelinemenu;
-    uiMenuHandler&	interactionlinemenu;
+    uiMenuHandler&	nodemenu_;
+    uiMenuHandler&	edgelinemenu_;
+    uiMenuHandler&	interactionlinemenu_;
     
-    int			displayid;
+    int			displayid_;
 
-    MenuItem		singlecolmnuitem;
-    MenuItem		wireframemnuitem;
-    MenuItem		trackmenuitem;
-    MenuItem		editmnuitem;
-    MenuItem		shiftmnuitem;
-    MenuItem		removesectionmnuitem;
-    MenuItem		seedsmenuitem;
-    MenuItem		showseedsmnuitem;
-    MenuItem		seedpropmnuitem;
-    MenuItem		lockseedsmnuitem;
+    MenuItem		singlecolmnuitem_;
+    MenuItem		wireframemnuitem_;
+    MenuItem		trackmenuitem_;
+    MenuItem		editmnuitem_;
+    MenuItem		shiftmnuitem_;
+    MenuItem		removesectionmnuitem_;
+    MenuItem		seedsmenuitem_;
+    MenuItem		showseedsmnuitem_;
+    MenuItem		seedpropmnuitem_;
+    MenuItem		lockseedsmnuitem_;
 
-    MenuItem		showonlyatsectionsmnuitem;
-    MenuItem		changesectionnamemnuitem;
-    bool		showedtexture;
-//
-    MenuItem		makepermnodemnuitem;
-    MenuItem		removecontrolnodemnuitem;
-    //int			removenodenodemnuitem;
-    //int			tooglesnappingnodemnuitem;
-////
-    //int			cutsmalllinemnuitem;
-    //int			cutlargelinemnuitem;
-    //int			splitlinemnuitem;
-    //int			mkstoplinemnuitem;
-//
-    //int			removetermedgelinemnuitem;
-    //int			removeconnedgelinemnuitem;
-    //int			joinedgelinemnuitem;
+    MenuItem		showonlyatsectionsmnuitem_;
+    MenuItem		changesectionnamemnuitem_;
+    bool		showedtexture_;
+
+    MenuItem		makepermnodemnuitem_;
+    MenuItem		removecontrolnodemnuitem_;
 };
 
 #endif
