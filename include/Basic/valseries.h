@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.9 2007-08-29 19:46:23 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.10 2007-08-30 14:10:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,7 @@ public:
     		ArrayValueSeries( int64 sz );
     		~ArrayValueSeries()		{ if ( mine_ ) delete [] ptr_; }
 
-    bool	isOK()				{ return ptr_; }
+    bool	isOK() const			{ return ptr_; }
 
     RT		value( int64 idx ) const	{ return ptr_[idx]; }
     bool	writable() const		{ return true; }
