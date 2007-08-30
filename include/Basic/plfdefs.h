@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Contents:	Defines that encapsulate system things
- RCS:		$Id: plfdefs.h,v 1.18 2006-09-11 09:19:00 cvsbert Exp $
+ RCS:		$Id: plfdefs.h,v 1.19 2007-08-30 09:07:23 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -20,12 +20,12 @@ For every platform, the HDIR variable should be put in a -D$HDIR by make.
 HDIR can be:
 
 	lux		Linux
-	sun5		Sun Solaris 5.x
 	win		M$ Windows
 	mac		Apple Mac OSX
+	sun5		Sun Solaris 5.x
 
 Also, PLFSUBDIR should be defined. It is identical to HDIR, except for:
-Linux: lux32 or lux64
+Linux:   lux32 or lux64
 Solaris: sol32
 
 Then you get:
@@ -37,8 +37,19 @@ OS type:
 Machine:
 
 	__sun__		Sun
-	__ibm__		IBM RS/6000
 	__pc__		PC
+			(Mac is just __mac__ below)
+
+Platform:
+
+	__win__		Windows
+	__mac__		Mac
+	__lux32__	Linux 32 bits (x86)
+	__lux64__	Linux 64 bits (AMD)
+	__sol32__	Solaris (Sparc)
+
+	__plfsubdir__	String like "win", "lux32" etc.
+	__plfname__	String like "MS WIndows", "Linux 32 bits"
 
 Compiler type:
 
@@ -73,11 +84,13 @@ Always defined:
 #endif
 #ifdef lux
 # define __unix__ 1
+# ifdef lux64
+#  define __lux64__ 1
+# else
+#  define __lux32__ 1
+# endif
 #endif
 #ifdef sun5
-# define __unix__ 1
-#endif
-#ifdef ibm
 # define __unix__ 1
 #endif
 #ifdef mac
@@ -101,9 +114,9 @@ Always defined:
 /* Machine type	*/
 
 #undef __sun__
-#undef __ibm__
 #undef __pc__
 #undef __little__
+
 #ifdef sun5
 # define __sun__ 1
 #endif
@@ -115,13 +128,10 @@ Always defined:
 # undef __sun__
 # define __sun__ 3
 #endif
-#ifdef _AIX
-# define __ibm__ 1
+#ifdef __sun__
+# define __sol32__ 1
 #endif
-#ifdef ibm
-# undef __ibm__
-# define __ibm__ 2
-#endif
+
 #ifdef lux
 # define __pc__ 1
 #endif
@@ -140,6 +150,26 @@ Always defined:
 #  define __islittle__ false
 #endif
 
+#ifdef __win__
+# define __plfsubdir__	"win"
+# define __plfname__	"MS Windows"
+#endif
+#ifdef __lux32__
+# define __plfsubdir__	"lux32"
+# define __plfname__	"Linux 32 bits"
+#endif
+#ifdef __lux64__
+# define __plfsubdir__	"lux64"
+# define __plfname__	"Linux 64 bits"
+#endif
+#ifdef __mac__
+# define __plfsubdir__	"mac"
+# define __plfname__	"Mac"
+#endif
+#ifdef __sol32__
+# define __plfsubdir__	"sol32"
+# define __plfname__	"Solaris/Sparc"
+#endif
 
 /*____________________________________________________________________________*/
 /* Language type */
