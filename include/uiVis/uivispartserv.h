@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.193 2007-08-07 04:53:33 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.194 2007-08-30 09:59:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -206,7 +206,8 @@ public:
     			/*!< Get selSpec with getSelSpec */
 
     void		calculateAllAttribs();
-    bool		calculateAttrib(int id,int attrib,bool newsel);
+    bool		calculateAttrib(int id,int attrib,bool newsel,
+	    				bool ignorelocked=false);
 
     bool		canHaveMultipleTextures(int) const;
     int			nrTextures(int id,int attrib) const;
