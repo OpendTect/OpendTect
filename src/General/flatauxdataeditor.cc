@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.13 2007-07-09 16:47:00 cvsbert Exp $
+ RCS:           $Id: flatauxdataeditor.cc,v 1.14 2007-08-30 14:34:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "flatauxdataeditor.h"
 
 #include "mouseevent.h"
+#include "rcol2coord.h"
 
 
 namespace FlatView
@@ -29,6 +30,7 @@ AuxDataEditor::AuxDataEditor( Viewer& v, MouseEventHandler& meh )
     , movementFinished( this )
     , seldatasetidx_( -1 )
     , selptidx_( -1 )
+    , polygonsellst_( LineStyle::Solid, 1, Color( 255, 0, 0 ) )
 {
     meh.buttonPressed.notify( mCB(this,AuxDataEditor,mousePressCB) );
     meh.buttonReleased.notify( mCB(this,AuxDataEditor,mouseReleaseCB) );
@@ -41,6 +43,24 @@ AuxDataEditor::~AuxDataEditor()
     mousehandler_.buttonPressed.remove( mCB(this,AuxDataEditor,mousePressCB) );
     mousehandler_.buttonReleased.remove(mCB(this,AuxDataEditor,mouseReleaseCB));
     mousehandler_.movement.remove( mCB(this,AuxDataEditor,mouseMoveCB) );
+
+    if ( feedback_ )
+    {
+	viewer_.appearance().annot_.auxdata_ -= feedback_;
+	delete feedback_;
+    }
+
+    removeSelectionPolygon();
+    viewer_.handleChange( Viewer::Annot );
+}
+
+
+void AuxDataEditor::removeSelectionPolygon()
+{
+    for ( int idx=0; idx<polygonsel_.size(); idx++ )
+	viewer_.appearance().annot_.auxdata_ -= polygonsel_[idx];
+
+    deepErase( polygonsel_ );
 }
 
 
@@ -119,8 +139,78 @@ int AuxDataEditor::getSelPtIdx() const
 { return selptidx_; }
 
 
-const Point& AuxDataEditor::getSepPtPos() const
+const Point& AuxDataEditor::getSelPtPos() const
 { return selptcoord_; }
+
+
+void AuxDataEditor::setSelectionPolygonStyle( const LineStyle& lst )
+{
+    polygonsellst_ = lst;
+
+    for ( int idx=0; idx<polygonsel_.size(); idx++ )
+	polygonsel_[idx]->linestyle_ = lst;
+
+    if ( polygonsel_.size() )
+	viewer_.handleChange( Viewer::Annot );
+}
+
+
+const LineStyle& AuxDataEditor::getSelectionPolygonStyle() const
+{
+    return polygonsellst_;
+}
+
+
+void AuxDataEditor::getPointSelections( TypeSet<int>& ids,
+	                                TypeSet<int>& idxs) const
+{
+    RCol2Coord polytrans;
+    polytrans.set3Pts( curview_.topLeft(), curview_.topRight(),
+	    curview_.bottomLeft(), 
+	    RowCol( mousearea_.topLeft().x, mousearea_.topLeft().y ),
+	    RowCol( mousearea_.topRight().x, mousearea_.topRight().y ),
+	    mousearea_.bottomLeft().y );
+
+    for ( int idx=0; idx<polygonsel_.size(); idx++ )
+    {
+	if ( polygonsel_[idx]->poly_.size()<3 )
+	    continue;
+
+	TypeSet<Geom::Point2D<int> > displayselpoly;
+	for ( int idy=0; idy<polygonsel_[idx]->poly_.size(); idy++ )
+	{
+	    const RowCol& rc =
+		polytrans.transformBack(polygonsel_[idx]->poly_[idy]);
+	    displayselpoly += Geom::Point2D<int>( rc.row, rc.col );
+	}
+
+	//Polygon polygon( displayselpoly );
+
+	for ( int idy=0; idy<auxdata_.size(); idx++ )
+	{
+	    const int auxdataid = ids_[idy];
+	    const Rect wr = getWorldRect( auxdataid );
+	    RCol2Coord trans;
+	    trans.set3Pts( wr.topLeft(), wr.topRight(),wr.bottomLeft(), 
+		       RowCol( mousearea_.topLeft().x, mousearea_.topLeft().y ),
+		       RowCol( mousearea_.topRight().x,mousearea_.topRight().y),
+		       mousearea_.bottomLeft().y );
+
+	    for ( int idz=0; idz<auxdata_[idy]->poly_.size(); idz++ )
+	    {
+		const RowCol& rc =
+		    trans.transformBack(auxdata_[idy]->poly_[idz]);
+		const Geom::Point2D<int> testpos( rc.row, rc.col );
+
+	//	if ( !polygon.isInside( Geom::Point2D<int>( rc.row, rc.col ) ) )
+	//	    continue;
+
+		ids += auxdataid;
+		idxs += idz;
+	    }
+	}
+    }
+}
 
 
 const TypeSet<int>& AuxDataEditor::getIds() const
@@ -149,31 +239,35 @@ void AuxDataEditor::mousePressCB( CallBacker* cb )
 	return;
     }
 
-    if ( !updateSelection( ev.pos() ) &&
-	 !ev.ctrlStatus() && !ev.shiftStatus() && !ev.altStatus() )
+    prevpt_ = ev.pos();
+
+    updateSelection( ev.pos() );
+
+    if ( seldatasetidx_!=-1 )
     {
-	seldatasetidx_ = ids_.indexOf( addauxdataid_ );
-	if ( seldatasetidx_!=-1 && !allowadd_[seldatasetidx_] )
-	    seldatasetidx_ = -1;
+	const Rect wr = getWorldRect( ids_[seldatasetidx_] );
+	RCol2Coord trans;
+	trans.set3Pts( wr.topLeft(), wr.topRight(),wr.bottomLeft(), 
+		   RowCol( mousearea_.topLeft().x, mousearea_.topLeft().y ),
+		   RowCol( mousearea_.topRight().x, mousearea_.topRight().y ),
+		   mousearea_.bottomLeft().y );
+
+	selptcoord_ = selptidx_!=-1 ? auxdata_[seldatasetidx_]->poly_[selptidx_]
+				    : trans.transform(
+					RowCol(ev.pos().x,ev.pos().y ) );
     }
 
-    if ( seldatasetidx_==-1 )
-	return;
-
-    const Rect wr = movementlimit_ = getWorldRect( ids_[seldatasetidx_] );
-    seldatatransform_.set3Pts( wr.topLeft(), wr.topRight(), wr.bottomLeft(), 
-	       RowCol( mousearea_.topLeft().x, mousearea_.topLeft().y ),
-	       RowCol( mousearea_.topRight().x, mousearea_.topRight().y ),
-	       mousearea_.bottomLeft().y );
-
-    selptcoord_ = selptidx_!=-1 ? auxdata_[seldatasetidx_]->poly_[selptidx_]
-				: seldatatransform_.transform(
-				    RowCol(ev.pos().x,ev.pos().y ) );
-    mousedown_ = true;
     hasmoved_ = false;
+    mousedown_ = true;
+    
+    if ( seldatasetidx_!=-1 || !(ev.ctrlStatus() || ev.shiftStatus()) ||
+	 ev.altStatus() )
+    {
+	removeSelectionPolygon();
+	viewer_.handleChange( Viewer::Annot );
+    }
 
     movementStarted.trigger();
-
     mousehandler_.setHandled( true );
 }
 
@@ -192,6 +286,30 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 	  (ev.buttonState() & OD::RightButton ) )
 	return;
 
+    //Add
+    if ( !hasmoved_ && !ev.ctrlStatus() && !ev.shiftStatus() &&
+	 !ev.altStatus() && seldatasetidx_==-1 )
+    {
+	seldatasetidx_ = ids_.indexOf( addauxdataid_ );
+	if ( seldatasetidx_!=-1 && allowadd_[seldatasetidx_] )
+	{
+	    const Rect wr = getWorldRect(ids_[seldatasetidx_]);
+	    RCol2Coord trans;
+	    trans.set3Pts( wr.topLeft(), wr.topRight(), wr.bottomLeft(), 
+		   RowCol( mousearea_.topLeft().x, mousearea_.topLeft().y ),
+		   RowCol( mousearea_.topRight().x, mousearea_.topRight().y ),
+		   mousearea_.bottomLeft().y );
+
+	    selptcoord_ = trans.transform( RowCol(ev.pos().x,ev.pos().y) );
+	    movementFinished.trigger();
+	    mousehandler_.setHandled( true );
+	}
+
+	mousedown_ = false;
+	return;
+    }
+
+    //Remove
     if ( !hasmoved_ && ev.ctrlStatus() && !ev.shiftStatus() &&
 	 !ev.altStatus() && seldatasetidx_!=-1 &&
 	 allowremove_[seldatasetidx_] && selptidx_!=-1 )
@@ -209,14 +327,6 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 	return;
     }
 
-    mousedown_ = false;
-
-    if ( hasmoved_ || selptidx_==-1 )
-    {
-	movementFinished.trigger();
-	mousehandler_.setHandled( true );
-    }
-
     if ( feedback_ )
     {
 	viewer_.appearance().annot_.auxdata_ -= feedback_;
@@ -228,17 +338,20 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 
 	viewer_.handleChange( Viewer::Annot );
     }
+
+    movementFinished.trigger();
+    mousehandler_.setHandled( true );
+    mousedown_ = false;
 }
 
 
 void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 {
-    if ( !mousedown_ || !allowmove_[seldatasetidx_] )
-	return;
-
-    if ( mousehandler_.isHandled() ) 
+    if ( !mousedown_ || mousehandler_.isHandled() ) 
 	return; 
 
+    if ( seldatasetidx_!=-1 && !allowmove_[seldatasetidx_] )
+	return;
 
     const MouseEvent& ev = mousehandler_.event(); 
     if ( !(ev.buttonState() & OD::LeftButton ) ||
@@ -246,38 +359,81 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	  (ev.buttonState() & OD::RightButton ) )
 	return;
 
-    hasmoved_ = true;
-
-    if ( ev.ctrlStatus() || ev.shiftStatus() || ev.altStatus() )
-	return;
-
-    const Geom::Point2D<int> mousedisplaypos = mousearea_.moveInside(ev.pos());
-    selptcoord_ = seldatatransform_.transform(
-	    RowCol(mousedisplaypos.x,mousedisplaypos.y ) );
-
-    selptcoord_ = movementlimit_.moveInside( selptcoord_ );
-
-    if ( doedit_[seldatasetidx_]  && selptidx_!=-1 )
-	auxdata_[seldatasetidx_]->poly_[selptidx_] = selptcoord_;
-    else if ( !feedback_ )
+    if ( seldatasetidx_!=-1 )
     {
-	feedback_ = new Annotation::AuxData( *auxdata_[seldatasetidx_] );
-	viewer_.appearance().annot_.auxdata_ += feedback_;
-	if ( selptidx_==-1 )
-	{
-	    feedback_->poly_.erase();
-	    feedback_->poly_ += selptcoord_;
-	}
-	else
-	    viewer_.appearance().annot_.auxdata_ -= auxdata_[seldatasetidx_];
-    }
-    else if ( selptidx_==-1 )
-	feedback_->poly_[0] = selptcoord_;
-    else 
-	feedback_->poly_[selptidx_] = selptcoord_;
+	if ( ev.ctrlStatus() || ev.shiftStatus() || ev.altStatus() )
+	    return;
 
-    viewer_.handleChange( Viewer::Annot );
-    mousehandler_.setHandled( true );
+	const Rect wr = getWorldRect(ids_[seldatasetidx_]);
+	RCol2Coord trans;
+	trans.set3Pts( wr.topLeft(), wr.topRight(), wr.bottomLeft(), 
+	       RowCol( mousearea_.topLeft().x, mousearea_.topLeft().y ),
+	       RowCol( mousearea_.topRight().x, mousearea_.topRight().y ),
+	       mousearea_.bottomLeft().y );
+
+	const Geom::Point2D<int> mousedisplaypos =
+	    mousearea_.moveInside(ev.pos());
+
+	selptcoord_ = trans.transform(
+		RowCol(mousedisplaypos.x,mousedisplaypos.y ) );
+
+	selptcoord_ = movementlimit_.moveInside( selptcoord_ );
+
+	if ( doedit_[seldatasetidx_]  && selptidx_!=-1 )
+	    auxdata_[seldatasetidx_]->poly_[selptidx_] = selptcoord_;
+	else if ( !feedback_ )
+	{
+	    feedback_ = new Annotation::AuxData( *auxdata_[seldatasetidx_] );
+	    viewer_.appearance().annot_.auxdata_ += feedback_;
+	    if ( selptidx_==-1 )
+	    {
+		feedback_->poly_.erase();
+		feedback_->poly_ += selptcoord_;
+	    }
+	    else
+		viewer_.appearance().annot_.auxdata_ -=
+		    		     auxdata_[seldatasetidx_];
+	}
+	else if ( selptidx_==-1 )
+	    feedback_->poly_[0] = selptcoord_;
+	else 
+	    feedback_->poly_[selptidx_] = selptcoord_;
+
+	viewer_.handleChange( Viewer::Annot );
+	mousehandler_.setHandled( true );
+    }
+    else
+    {
+	RCol2Coord trans;
+	trans.set3Pts( curview_.topLeft(), curview_.topRight(),
+		curview_.bottomLeft(), 
+		RowCol( mousearea_.topLeft().x, mousearea_.topLeft().y ),
+		RowCol( mousearea_.topRight().x, mousearea_.topRight().y ),
+		mousearea_.bottomLeft().y );
+
+	if ( !hasmoved_ && !ev.shiftStatus() )
+	{
+	    Annotation::AuxData* polysel = new Annotation::AuxData( 0 );
+	    polysel->markerstyle_.color_.setTransparency( 255 );
+	    polysel->linestyle_ = polygonsellst_;
+	    polysel->fillcolor_.setTransparency( 255 );
+	    polysel->poly_ += trans.transform( RowCol(prevpt_.x,prevpt_.y) );
+	    polygonsel_ += polysel;
+	    viewer_.appearance().annot_.auxdata_ += polysel;
+	}
+
+	const int polyidx = polygonsel_.size()-1;
+
+	const Point pt = trans.transform( RowCol(ev.pos().x,ev.pos().y) );
+	polygonsel_[polyidx]->poly_ += pt;
+	if ( polygonsel_[polyidx]->poly_.size()==3 )
+	    polygonsel_[polyidx]->close_ = true;
+	viewer_.handleChange( Viewer::Annot );
+
+	prevpt_ = ev.pos();
+    }
+
+    hasmoved_ = true;
 }
 
 

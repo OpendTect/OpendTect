@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.6 2007-06-28 22:28:02 cvsyuancheng Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.7 2007-08-30 14:34:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,6 @@ ________________________________________________________________________
 #include "flatview.h"
 #include "callback.h"
 #include "geometry.h"
-#include "rcol2coord.h"
 
 class MouseEventHandler;
 
@@ -31,8 +30,7 @@ class AuxDataEditor : public CallBacker
 public:
 			AuxDataEditor(Viewer&,MouseEventHandler&);
     virtual		~AuxDataEditor();
-    int			addAuxData(FlatView::Annotation::AuxData*,
-	    			   bool doedit);
+    int			addAuxData(FlatView::Annotation::AuxData*,bool doedit);
     			/*!<\param doedit says whether this object
 			     should change the auxdata, or if the user
 			     of the objects should do it.
@@ -60,7 +58,7 @@ public:
 
     int				getSelPtDataID() const;
     int				getSelPtIdx() const;
-    const Point&		getSepPtPos() const;
+    const Point&		getSelPtPos() const;
 			
     Notifier<AuxDataEditor>	movementStarted;
     Notifier<AuxDataEditor>	movementFinished;
@@ -68,13 +66,22 @@ public:
 				   otherwise moved. */
     Notifier<AuxDataEditor>	removeSelected;
 
+    void			setSelectionPolygonStyle(const LineStyle&);
+    const LineStyle&		getSelectionPolygonStyle() const;
+    void			getPointSelections(TypeSet<int>& ids,
+	    					   TypeSet<int>& idxs) const;
+    				/*!<Each point within the limits of the polygons
+				    will be put in the typesets.*/
+
     const Viewer&	viewer() const	{ return viewer_; }
     Viewer&		viewer()	{ return viewer_; }
 
     const TypeSet<int>&				getIds() const;
     const ObjectSet<Annotation::AuxData>&	getAuxData() const;
 
+
 protected:
+    void		removeSelectionPolygon();
     void		mousePressCB(CallBacker*);
     void		mouseReleaseCB(CallBacker*);
     void		mouseMoveCB(CallBacker*);
@@ -91,7 +98,10 @@ protected:
     BoolTypeSet				doedit_;
 
     int					addauxdataid_;
+    ObjectSet<Annotation::AuxData>	polygonsel_;
+    LineStyle				polygonsellst_;
     Annotation::AuxData*		feedback_;
+    Geom::Point2D<int>			prevpt_;
 
     Geom::PixRectangle<int>		mousearea_;
     Rect				curview_;
@@ -102,7 +112,6 @@ protected:
     int					seldatasetidx_;
     int					selptidx_;
     Point				selptcoord_;
-    RCol2Coord				seldatatransform_;
     Rect				movementlimit_;
 };
 
