@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2005
- RCS:           $Id: vistransmgr.h,v 1.1 2005-10-07 15:32:00 cvsnanne Exp $
+ RCS:           $Id: vistransmgr.h,v 1.2 2007-08-30 14:31:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,8 +35,7 @@ public:
     float			defZScale() const	{ return 2; }
     const char*			zScaleStr() const	{ return "Z Scale"; }
 
-    void			setCurrentScene( Scene* scn )
-				{ scene_ = scn; }
+    void			setCurrentScene( Scene* scn ) { scene_ = scn; }
     Scene*			currentScene() const	{ return scene_; }
 
 protected:
