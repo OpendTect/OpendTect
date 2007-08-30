@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.10 2007-08-29 14:26:55 cvskris Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.11 2007-08-30 21:26:38 cvskris Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -108,13 +108,13 @@ uiODVolrenTreeItem::~uiODVolrenTreeItem()
     while( children_.size() )
 	removeChild(children_[0]);
 
-    visserv->removeObject( displayid_, sceneID() );
+    visserv_->removeObject( displayid_, sceneID() );
 }
 
 
 bool uiODVolrenTreeItem::showSubMenu()
 {
-    return visserv->showMenu( displayid_ );
+    return visserv_->showMenu( displayid_ );
 }
 
 
@@ -127,18 +127,18 @@ bool uiODVolrenTreeItem::init()
     if ( displayid_==-1 )
     {
 	visSurvey::VolumeDisplay* display = visSurvey::VolumeDisplay::create();
-	visserv->addObject(display,sceneID(),false);
+	visserv_->addObject(display,sceneID(),false);
 	displayid_ = display->id();
     }
     else
     {
 	mDynamicCastGet(visSurvey::VolumeDisplay*,display,
-			visserv->getObject(displayid_) );
+			visserv_->getObject(displayid_) );
 	if ( !display ) return false;
     }
 
     TypeSet<int> ownchildren;
-    visserv->getChildIds( displayid_, ownchildren );
+    visserv_->getChildIds( displayid_, ownchildren );
     for ( int idx=0; idx<ownchildren.size(); idx++ )
 	addChild( new uiODVolrenSubTreeItem(ownchildren[idx]), true);
 
@@ -169,7 +169,7 @@ void uiODVolrenTreeItem::createMenuCB( CallBacker* cb )
 
     if ( selattrmnuitem_.nrItems() )
 	mAddMenuItem( menu, &selattrmnuitem_,
-			!visserv->isLocked(displayID()), false );
+			!visserv_->isLocked(displayID()), false );
 
     mAddMenuItem( menu, &positionmnuid_, true, false );
     mAddMenuItem( menu, &statisticsmnuid_, true, false );
@@ -192,12 +192,12 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	return;
 
     mDynamicCastGet(visSurvey::VolumeDisplay*,voldisp,
-	    	    visserv->getObject(displayid_))
+	    	    visserv_->getObject(displayid_))
     if ( mnuid==positionmnuid_.id )
     {
 	menu->setIsHandled( true );
 	CubeSampling maxcs = SI().sampling( true );
-	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()));
+	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()));
 	if ( scene && scene->getDataTransform() )
 	{
 	    const Interval<float> zintv =
@@ -212,13 +212,13 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	if ( !dlg.go() ) return;
 	CubeSampling cs = dlg.getCubeSampling();
 	voldisp->setCubeSampling( cs );
-	visserv->calculateAttrib( displayid_, 0, false );
+	visserv_->calculateAttrib( displayid_, 0, false );
 	updateColumnText(0);
     }
     else if ( mnuid==statisticsmnuid_.id )
     {
-        const DataPack::ID dpid = visserv->getDataPackID( displayID(), 0 );
-        const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
+        const DataPack::ID dpid = visserv_->getDataPackID( displayID(), 0 );
+        const DataPackMgr::ID dmid = visserv_->getDataPackMgrID( displayID() );
         uiStatisticsDlg dlg( applMgr()->applService().parent() );
         dlg.setDataPackID( dpid, dmid );
         dlg.go();
@@ -280,7 +280,7 @@ bool uiODVolrenTreeItem::anyButtonClick( uiListViewItem* item )
 
     if ( !select() ) return false;
 
-    if ( !visserv->isClassification( displayID(), 0) )
+    if ( !visserv_->isClassification( displayID(), 0) )
 	 ODMainWin()->applMgr().modifyColorTable( displayID(), 0 );
 
     return true;
@@ -309,7 +309,7 @@ uiODVolrenSubTreeItem::uiODVolrenSubTreeItem( int displayid )
 uiODVolrenSubTreeItem::~uiODVolrenSubTreeItem()
 {
     mDynamicCastGet( visSurvey::VolumeDisplay*, vd,
-	    	     visserv->getObject(parent_->selectionKey() ));
+	    	     visserv_->getObject(parent_->selectionKey() ));
 
     if ( !vd ) return; 
 
@@ -323,7 +323,7 @@ uiODVolrenSubTreeItem::~uiODVolrenSubTreeItem()
 bool uiODVolrenSubTreeItem::isVolume() const
 {
     mDynamicCastGet(visBase::VolrenDisplay*,voldisp,
-	    	    visserv->getObject(displayid_));
+	    	    visserv_->getObject(displayid_));
     return voldisp;
 }
 
@@ -331,7 +331,7 @@ bool uiODVolrenSubTreeItem::isVolume() const
 bool uiODVolrenSubTreeItem::isIsoSurface() const
 {
     mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
-	    	    visserv->getObject(displayid_));
+	    	    visserv_->getObject(displayid_));
     return isosurface;
 }
 
@@ -345,11 +345,11 @@ bool uiODVolrenSubTreeItem::init()
     if ( displayid_==-1 ) return false;
 
     mDynamicCastGet(visBase::VolrenDisplay*,volren,
-	    	    visserv->getObject(displayid_));
+	    	    visserv_->getObject(displayid_));
     mDynamicCastGet(visBase::OrthogonalSlice*,slice,
-	    	    visserv->getObject(displayid_));
+	    	    visserv_->getObject(displayid_));
     mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
-	    	    visserv->getObject(displayid_));
+	    	    visserv_->getObject(displayid_));
     if ( !volren && !slice && !isosurface )
 	return false;
 
@@ -365,7 +365,7 @@ bool uiODVolrenSubTreeItem::anyButtonClick( uiListViewItem* item )
     if ( !select() ) return false;
 
     const int displayid = parent_->selectionKey();
-    if ( !visserv->isClassification( displayid, 0) )
+    if ( !visserv_->isClassification( displayid, 0) )
 	 ODMainWin()->applMgr().modifyColorTable( displayid, 0 );
 
     return true;
@@ -381,11 +381,11 @@ void uiODVolrenSubTreeItem::updateColumnText(int col)
     }
 
     mDynamicCastGet(visSurvey::VolumeDisplay*,vd,
-	            visserv->getObject(parent_->selectionKey()))
+	            visserv_->getObject(parent_->selectionKey()))
     if ( !vd ) return;
 
     mDynamicCastGet(visBase::OrthogonalSlice*,slice,
-	    	    visserv->getObject(displayid_));
+	    	    visserv_->getObject(displayid_));
     if ( slice )
     {
 	BufferString coltext = vd->slicePosition( slice );
@@ -393,7 +393,7 @@ void uiODVolrenSubTreeItem::updateColumnText(int col)
     }
 
     mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
-	    	    visserv->getObject(displayid_));
+	    	    visserv_->getObject(displayid_));
     if ( isosurface && isosurface->getSurface() )
     {
 	BufferString coltext = vd->isoValue(isosurface);
@@ -430,9 +430,9 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
-			visserv->getObject(displayid_));
+			visserv_->getObject(displayid_));
 	mDynamicCastGet(visSurvey::VolumeDisplay*,vd,
-			visserv->getObject(parent_->selectionKey()));
+			visserv_->getObject(parent_->selectionKey()));
 	TypeSet<float> histogram;
 	if ( vd->getHistogram(0) ) histogram = *vd->getHistogram(0);
 

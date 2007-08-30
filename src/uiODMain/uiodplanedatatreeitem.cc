@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.14 2007-07-26 22:32:37 cvskris Exp $
+ RCS:		$Id: uiodplanedatatreeitem.cc,v 1.15 2007-08-30 21:26:38 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -57,7 +57,7 @@ uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, int dim )
 uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     if ( pdd )
     {
 	pdd->selection()->remove( mCB(this,uiODPlaneDataTreeItem,selChg) );
@@ -66,10 +66,10 @@ uiODPlaneDataTreeItem::~uiODPlaneDataTreeItem()
     }
 
     getItem()->keyPressed.remove( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
-    visserv->getUiSlicePos()->positionChg.remove(
+    visserv_->getUiSlicePos()->positionChg.remove(
 	    		mCB(this,uiODPlaneDataTreeItem,posChange) );
 
-    visserv->getUiSlicePos()->setDisplay( 0 );
+    visserv_->getUiSlicePos()->setDisplay( 0 );
     delete positiondlg_;
 }
 
@@ -82,7 +82,7 @@ bool uiODPlaneDataTreeItem::init()
 			visSurvey::PlaneDataDisplay::create();
 	displayid_ = pdd->id();
 	pdd->setOrientation( (visSurvey::PlaneDataDisplay::Orientation)dim_ );
-	visserv->addObject( pdd, sceneID(), true );
+	visserv_->addObject( pdd, sceneID(), true );
 
 	BufferString res;
 	Settings::common().get( "dTect.Texture2D Resolution", res );
@@ -94,7 +94,7 @@ bool uiODPlaneDataTreeItem::init()
     }
 
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     if ( !pdd ) return false;
 
     pdd->ref();
@@ -102,7 +102,7 @@ bool uiODPlaneDataTreeItem::init()
     pdd->deSelection()->notify( mCB(this,uiODPlaneDataTreeItem,selChg) );
 
     getItem()->keyPressed.notify( mCB(this,uiODPlaneDataTreeItem,keyPressCB) );
-    visserv->getUiSlicePos()->positionChg.notify(
+    visserv_->getUiSlicePos()->positionChg.notify(
 	    		mCB(this,uiODPlaneDataTreeItem,posChange) );
 
     return uiODDisplayTreeItem::init();
@@ -111,7 +111,7 @@ bool uiODPlaneDataTreeItem::init()
 
 void uiODPlaneDataTreeItem::posChange( CallBacker* )
 {
-    uiSlicePos* slicepos = visserv->getUiSlicePos();
+    uiSlicePos* slicepos = visserv_->getUiSlicePos();
     if ( slicepos->getDisplayID() != displayid_ )
 	return;
 
@@ -122,8 +122,8 @@ void uiODPlaneDataTreeItem::posChange( CallBacker* )
 void uiODPlaneDataTreeItem::selChg( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv->getObject(displayid_))
-    visserv->getUiSlicePos()->setDisplay( pdd->isSelected() ? pdd : 0 );
+		    visserv_->getObject(displayid_))
+    visserv_->getUiSlicePos()->setDisplay( pdd->isSelected() ? pdd : 0 );
 }
 
 
@@ -131,7 +131,7 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
 {
     BufferString res;
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv->getObject(displayid_))
+		    visserv_->getObject(displayid_))
     const CubeSampling cs = pdd->getCubeSampling(true,true);
     const visSurvey::PlaneDataDisplay::Orientation orientation =
 						    pdd->getOrientation();
@@ -142,7 +142,7 @@ BufferString uiODPlaneDataTreeItem::createDisplayName() const
 	res = cs.hrg.start.crl;
     else
     {
-	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
+	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	if ( scene && !scene->getDataTransform() )
 	{
 	    const float zval = cs.zrg.start * SI().zFactor();
@@ -163,7 +163,7 @@ void uiODPlaneDataTreeItem::createMenuCB( CallBacker* cb )
     if ( menu->menuID() != displayID() )
 	return;
 
-    mAddMenuItem( menu, &positionmnuitem_, !visserv->isLocked(displayid_),
+    mAddMenuItem( menu, &positionmnuitem_, !visserv_->isLocked(displayid_),
 	          false );
     mAddMenuItem( menu, &gridlinesmnuitem_, true, false );
 
@@ -191,7 +191,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	return;
     
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv->getObject(displayid_))
+		    visserv_->getObject(displayid_))
 
     if ( mnuid==positionmnuitem_.id )
     {
@@ -199,7 +199,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 	if ( !pdd ) return;
 	delete positiondlg_;
 	CubeSampling maxcs = SI().sampling(true);
-	mDynamicCastGet(visSurvey::Scene*,scene,visserv->getObject(sceneID()))
+	mDynamicCastGet(visSurvey::Scene*,scene,visserv_->getObject(sceneID()))
 	if ( scene && scene->getDataTransform() )
 	{
 	    const Interval<float> zintv =
@@ -244,7 +244,7 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 void uiODPlaneDataTreeItem::updatePositionDlg( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-	    	    visserv->getObject(displayid_))
+	    	    visserv_->getObject(displayid_))
     const CubeSampling newcs = pdd->getCubeSampling( true, true );
     positiondlg_->setCubeSampling( newcs );
 }
@@ -253,7 +253,7 @@ void uiODPlaneDataTreeItem::updatePositionDlg( CallBacker* )
 void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-	    	    visserv->getObject(displayid_))
+	    	    visserv_->getObject(displayid_))
     CubeSampling newcs = positiondlg_->getCubeSampling();
     bool samepos = newcs == pdd->getCubeSampling();
     if ( positiondlg_->uiResult() && !samepos )
@@ -269,7 +269,7 @@ void uiODPlaneDataTreeItem::posDlgClosed( CallBacker* )
 void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-	    	    visserv->getObject(displayid_))
+	    	    visserv_->getObject(displayid_))
     mDynamicCastGet(uiSliceSel*,dlg,cb)
     if ( !dlg ) return;
 
@@ -280,12 +280,12 @@ void uiODPlaneDataTreeItem::updatePlanePos( CallBacker* cb )
 void uiODPlaneDataTreeItem::movePlaneAndCalcAttribs( const CubeSampling& cs )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-	    	    visserv->getObject(displayid_))
+	    	    visserv_->getObject(displayid_))
 
     pdd->setCubeSampling( cs );
     pdd->resetManipulation();
-    for ( int attrib=visserv->getNrAttribs(displayid_); attrib>=0; attrib--)
-	visserv->calculateAttrib( displayid_, attrib, false );
+    for ( int attrib=visserv_->getNrAttribs(displayid_); attrib>=0; attrib--)
+	visserv_->calculateAttrib( displayid_, attrib, false );
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
     updateColumnText( uiODSceneMgr::cColorColumn() );
@@ -310,7 +310,7 @@ void uiODPlaneDataTreeItem::keyPressCB( CallBacker* cb )
 void uiODPlaneDataTreeItem::movePlane( bool forward )
 {
     mDynamicCastGet(visSurvey::PlaneDataDisplay*,pdd,
-		    visserv->getObject(displayid_))
+		    visserv_->getObject(displayid_))
 
     CubeSampling cs = pdd->getCubeSampling();
     const int dir = forward ? 1 : -1;

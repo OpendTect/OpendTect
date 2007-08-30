@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.7 2007-05-22 04:42:27 cvsnanne Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.8 2007-08-30 21:26:38 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -115,12 +115,12 @@ bool uiODRandomLineTreeItem::init()
     {
 	rtd = visSurvey::RandomTrackDisplay::create();
 	displayid_ = rtd->id();
-	visserv->addObject( rtd, sceneID(), true );
+	visserv_->addObject( rtd, sceneID(), true );
     }
     else
     {
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,disp,
-			visserv->getObject(displayid_));
+			visserv_->getObject(displayid_));
 	if ( !disp ) return false;
 	rtd = disp;
     }
@@ -144,17 +144,17 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() )
 	return;
 
-    mAddMenuItem( menu, &editnodesmnuitem_, !visserv->isLocked(displayid_), 
+    mAddMenuItem( menu, &editnodesmnuitem_, !visserv_->isLocked(displayid_), 
 	    	  false );
-    mAddMenuItem( menu, &insertnodemnuitem_, !visserv->isLocked(displayid_), 
+    mAddMenuItem( menu, &insertnodemnuitem_, !visserv_->isLocked(displayid_), 
 	    	  false );
     insertnodemnuitem_.removeItems();
 
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-		    visserv->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     for ( int idx=0; idx<=rtd->nrKnots(); idx++ )
     {
-	if ( visserv->isLocked(displayid_) ) break;
+	if ( visserv_->isLocked(displayid_) ) break;
 	BufferString nodename;
 	if ( idx==rtd->nrKnots() )
 	{
@@ -170,7 +170,7 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
 	mAddManagedMenuItem(&insertnodemnuitem_,new MenuItem(nodename), 
 			    rtd->canAddKnot(idx), false );
     }
-    mAddMenuItem( menu, &usewellsmnuitem_, !visserv->isLocked(displayid_), 
+    mAddMenuItem( menu, &usewellsmnuitem_, !visserv_->isLocked(displayid_), 
 	    	  false );
     mAddMenuItem( menu, &saveasmnuitem_, true, false );
 }
@@ -185,7 +185,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	return;
 	
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-		    visserv->getObject(displayid_));
+		    visserv_->getObject(displayid_));
 
     if ( mnuid==editnodesmnuitem_.id )
     {
@@ -226,7 +226,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 void uiODRandomLineTreeItem::editNodes()
 {
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-		    visserv->getObject(displayid_));
+		    visserv_->getObject(displayid_));
 
     TypeSet<BinID> bids;
     rtd->getAllKnotPos( bids );
@@ -248,9 +248,9 @@ void uiODRandomLineTreeItem::editNodes()
 	zrg.scale( 1/SI().zFactor() );
 	rtd->setDepthInterval( zrg );
 
-	visserv->setSelObjectId( rtd->id() );
-	for ( int attrib=0; attrib<visserv->getNrAttribs(rtd->id()); attrib++ )
-	    visserv->calculateAttrib( rtd->id(), attrib, false );
+	visserv_->setSelObjectId( rtd->id() );
+	for ( int attrib=0; attrib<visserv_->getNrAttribs(rtd->id()); attrib++ )
+	    visserv_->calculateAttrib( rtd->id(), attrib, false );
 
 	ODMainWin()->sceneMgr().updateTrees();
     }

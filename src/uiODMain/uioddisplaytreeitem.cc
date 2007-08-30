@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddisplaytreeitem.cc,v 1.10 2007-08-07 04:46:12 cvsnanne Exp $
+ RCS:		$Id: uioddisplaytreeitem.cc,v 1.11 2007-08-30 21:26:38 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -56,7 +56,7 @@ static const int sRemoveIdx = -1000;
 uiODDisplayTreeItem::uiODDisplayTreeItem()
     : uiODTreeItem(0)
     , displayid_(-1)
-    , visserv(ODMainWin()->applMgr().visServer())
+    , visserv_(ODMainWin()->applMgr().visServer())
     , addattribmnuitem_("Add attribute",sAttribIdx)
     , duplicatemnuitem_("Duplicate",sDuplicateIdx)
     , lockmnuitem_("Lock",sLockIdx)
@@ -67,7 +67,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
 
 uiODDisplayTreeItem::~uiODDisplayTreeItem()
 {
-    MenuHandler* menu = visserv->getMenuHandler();
+    MenuHandler* menu = visserv_->getMenuHandler();
     if ( menu )
     {
 	menu->createnotifier.remove(mCB(this,uiODDisplayTreeItem,createMenuCB));
@@ -89,7 +89,7 @@ int uiODDisplayTreeItem::selectionKey() const
 
 bool uiODDisplayTreeItem::shouldSelect( int selkey ) const
 {
-    return uiTreeItem::shouldSelect( selkey ) && visserv->getSelAttribNr()==-1;
+    return uiTreeItem::shouldSelect( selkey ) && visserv_->getSelAttribNr()==-1;
 }
 
 
@@ -107,27 +107,27 @@ bool uiODDisplayTreeItem::init()
 {
     if ( !uiTreeItem::init() ) return false;
 
-    if ( visserv->hasAttrib( displayid_ ) )
+    if ( visserv_->hasAttrib( displayid_ ) )
     {
-	for ( int attrib=0; attrib<visserv->getNrAttribs(displayid_); attrib++ )
+	for ( int attrib=0; attrib<visserv_->getNrAttribs(displayid_); attrib++)
 	{
-	    const Attrib::SelSpec* as = visserv->getSelSpec(displayid_,attrib);
+	    const Attrib::SelSpec* as = visserv_->getSelSpec(displayid_,attrib);
 	    uiODDataTreeItem* item = createAttribItem( as );
 	    if ( item )
 	    {
 		addChild( item, false );
-		item->setChecked( visserv->isAttribEnabled(displayid_,attrib) );
+		item->setChecked( visserv_->isAttribEnabled(displayid_,attrib));
 	    }
 	}
     }
 
-    visserv->setSelObjectId( displayid_ );
-    setChecked( visserv->isOn(displayid_) );
+    visserv_->setSelObjectId( displayid_ );
+    setChecked( visserv_->isOn(displayid_) );
     checkStatusChange()->notify(mCB(this,uiODDisplayTreeItem,checkCB));
 
     name_ = createDisplayName();
 
-    MenuHandler* menu = visserv->getMenuHandler();
+    MenuHandler* menu = visserv_->getMenuHandler();
     menu->createnotifier.notify( mCB(this,uiODDisplayTreeItem,createMenuCB) );
     menu->handlenotifier.notify( mCB(this,uiODDisplayTreeItem,handleMenuCB) );
 
@@ -137,7 +137,7 @@ bool uiODDisplayTreeItem::init()
 
 void uiODDisplayTreeItem::updateCheckStatus()
 {
-    const bool ison = visserv->isOn( displayid_ );
+    const bool ison = visserv_->isOn( displayid_ );
     const bool ischecked = isChecked();
     if ( ison != ischecked )
 	setChecked( ison );
@@ -154,7 +154,7 @@ void uiODDisplayTreeItem::updateColumnText( int col )
     else if ( col==uiODSceneMgr::cColorColumn() )
     {
 	mDynamicCastGet(visSurvey::SurveyObject*,so,
-			visserv->getObject(displayid_))
+			visserv_->getObject(displayid_))
 	if ( !so )
 	{
 	    uiTreeItem::updateColumnText( col );
@@ -179,14 +179,14 @@ void uiODDisplayTreeItem::updateColumnText( int col )
 
 bool uiODDisplayTreeItem::showSubMenu()
 {
-    return visserv->showMenu( displayid_, uiMenuHandler::fromTree );
+    return visserv_->showMenu( displayid_, uiMenuHandler::fromTree );
 }
 
 
 void uiODDisplayTreeItem::checkCB( CallBacker* )
 {
-    if ( !visserv->isSoloMode() )
-	visserv->turnOn( displayid_, isChecked() );
+    if ( !visserv_->isSoloMode() )
+	visserv_->turnOn( displayid_, isChecked() );
 }
 
 
@@ -206,7 +206,7 @@ BufferString uiODDisplayTreeItem::createDisplayName() const
 
 const char* uiODDisplayTreeItem::getLockMenuText() 
 { 
-    return visserv->isLocked(displayid_) ? "Unlock" : "Lock";
+    return visserv_->isLocked(displayid_) ? "Unlock" : "Lock";
 }
 
 
@@ -216,12 +216,12 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
     if ( menu->menuID() != displayID() )
 	return;
 
-    if ( visserv->hasAttrib(displayid_) &&
-	 visserv->canHaveMultipleAttribs(displayid_) )
+    if ( visserv_->hasAttrib(displayid_) &&
+	 visserv_->canHaveMultipleAttribs(displayid_) )
     {
 	mAddMenuItem( menu, &addattribmnuitem_,
-		      !visserv->isLocked(displayid_) &&
-		      visserv->canAddAttrib(displayid_), false );
+		      !visserv_->isLocked(displayid_) &&
+		      visserv_->canAddAttrib(displayid_), false );
     }
     else
 	mResetMenuItem( &addattribmnuitem_ );
@@ -230,9 +230,9 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &lockmnuitem_, true, false );
     
     mAddMenuItemCond( menu, &duplicatemnuitem_, true, false,
-		      visserv->canDuplicate(displayid_) );
+		      visserv_->canDuplicate(displayid_) );
 
-    mAddMenuItem( menu, &removemnuitem_, !visserv->isLocked(displayid_), false);
+    mAddMenuItem( menu, &removemnuitem_, !visserv_->isLocked(displayid_),false);
 }
 
 
@@ -247,7 +247,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	mDynamicCastGet(visSurvey::SurveyObject*,so,
-			visserv->getObject(displayid_))
+			visserv_->getObject(displayid_))
 	if ( !so )
 	    return;
 
@@ -263,7 +263,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==duplicatemnuitem_.id )
     {
 	menu->setIsHandled(true);
-	int newid =visserv->duplicateObject(displayid_,sceneID());
+	int newid =visserv_->duplicateObject(displayid_,sceneID());
 	if ( newid!=-1 )
 	    uiODDisplayTreeItem::create( this, applMgr(), newid );
     }
@@ -273,14 +273,14 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	if ( askContinueAndSaveIfNeeded() )
 	{
 	    prepareForShutdown();
-	    visserv->removeObject( displayid_, sceneID() );
+	    visserv_->removeObject( displayid_, sceneID() );
 	    parent_->removeChild( this );
 	}
     }
     else if ( mnuid==addattribmnuitem_.id )
     {
 	uiODDataTreeItem* newitem = createAttribItem(0);
-	visserv->addAttrib( displayid_ );
+	visserv_->addAttrib( displayid_ );
 	addChild( newitem, false );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	updateColumnText( uiODSceneMgr::cColorColumn() );

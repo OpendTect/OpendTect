@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.30 2007-08-22 12:25:37 cvsraman Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.31 2007-08-30 21:26:38 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -236,7 +236,7 @@ void uiODPickSetTreeItem::setChg( CallBacker* cb )
     if ( !ps || &set_!=ps ) return;
 
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
-	    	    visserv->getObject(displayid_));
+	    	    visserv_->getObject(displayid_));
     if ( psd ) psd->setName( ps->name() );
     updateColumnText( uiODSceneMgr::cNameColumn() );
 }
@@ -248,13 +248,13 @@ bool uiODPickSetTreeItem::init()
     {
 	visSurvey::PickSetDisplay* psd = visSurvey::PickSetDisplay::create();
 	displayid_ = psd->id();
-	visserv->addObject( psd, sceneID(), true );
+	visserv_->addObject( psd, sceneID(), true );
 	psd->setSet( &set_ );
     }
     else
     {
 	mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
-			visserv->getObject(displayid_));
+			visserv_->getObject(displayid_));
 	if ( !psd ) return false;
 	const MultiID setid = psd->getMultiID();
 	NotifyStopper ntfstop( Pick::Mgr().setAdded );
@@ -278,7 +278,7 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
 //    mAddMenuItem( menu, &dirmnuitem_, true, false );
 
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
-		    visserv->getObject(displayid_));
+		    visserv_->getObject(displayid_));
 
     mDynamicCastGet(visSurvey::Scene*,scene,
 	    	    applMgr()->visServer()->getObject(sceneID()));
@@ -295,7 +295,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet( uiMenuHandler*, menu, caller );
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
-	                            visserv->getObject(displayid_));
+	                            visserv_->getObject(displayid_));
 
     if ( menu->menuID()!=displayID() || mnuid==-1 || menu->isHandled() )
 	return;
@@ -335,7 +335,7 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 void uiODPickSetTreeItem::showAllPicks( bool yn )
 {
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
-		    visserv->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     psd->showAll( yn );
 }
 

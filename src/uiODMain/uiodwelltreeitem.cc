@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodwelltreeitem.cc,v 1.14 2007-08-29 11:33:17 cvsnanne Exp $
+ RCS:		$Id: uiodwelltreeitem.cc,v 1.15 2007-08-30 21:26:38 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -217,22 +217,22 @@ bool uiODWellTreeItem::init()
     {
 	visSurvey::WellDisplay* wd = visSurvey::WellDisplay::create();
 	displayid_ = wd->id();
-	visserv->addObject( wd, sceneID(), true );
+	visserv_->addObject( wd, sceneID(), true );
 	if ( !wd->setMultiID(mid) )
 	{
-	    visserv->removeObject( wd, sceneID() );
+	    visserv_->removeObject( wd, sceneID() );
 	    return false;
 	}
     }
     else
     {
 	mDynamicCastGet(visSurvey::WellDisplay*,wd,
-			visserv->getObject(displayid_));
+			visserv_->getObject(displayid_));
 	if ( !wd )
 	    return false;
 
 	mDynamicCastGet(visSurvey::Scene*,scene,
-			visserv->getObject(sceneID()));
+			visserv_->getObject(sceneID()));
 	if ( scene )
 	    wd->setDisplayTransformation( scene->getUTM2DisplayTransform() );
     }
@@ -248,7 +248,7 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() )
 	return;
 
-    mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv->getObject(displayid_));
+    mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_));
 
     mAddMenuItem( menu, &sellogmnuitem_,
 		  applMgr()->wellServer()->hasLogs(wd->getMultiID()), false );
@@ -280,7 +280,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() || mnuid==-1 || menu->isHandled() )
 	return;
 
-    mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv->getObject(displayid_))
+    mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_))
     const MultiID& wellid = wd->getMultiID();
     if ( mnuid == attrmnuitem_.id )
     {
@@ -368,7 +368,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 
 bool uiODWellTreeItem::askContinueAndSaveIfNeeded()
 {
-    mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv->getObject(displayid_));
+    mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_));
     if ( wd->hasChanged() )
     {
 	BufferString warnstr = "This well has changed since the last save.\n";

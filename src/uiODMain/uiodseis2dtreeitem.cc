@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.21 2007-08-27 10:04:19 cvsnanne Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.22 2007-08-30 21:26:38 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -331,7 +331,7 @@ bool uiOD2DLineSetSubItem::init()
 	if ( !lsitm ) return false;
 
 	visSurvey::Seis2DDisplay* s2d = visSurvey::Seis2DDisplay::create();
-	visserv->addObject( s2d, sceneID(), false );
+	visserv_->addObject( s2d, sceneID(), false );
 	s2d->setLineName( name_ );
 	s2d->setLineSetID( lsitm->lineSetID() );
 	displayid_ = s2d->id();
@@ -341,7 +341,7 @@ bool uiOD2DLineSetSubItem::init()
     }
 
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-	    	    visserv->getObject(displayid_))
+	    	    visserv_->getObject(displayid_))
     if ( !s2d ) return false;
 
     PtrMan<PosInfo::Line2DData> geometry = new PosInfo::Line2DData;
@@ -361,7 +361,7 @@ bool uiOD2DLineSetSubItem::init()
 
 BufferString uiOD2DLineSetSubItem::createDisplayName() const
 {
-    return BufferString( visserv->getObjectName(displayid_) );
+    return BufferString( visserv_->getObjectName(displayid_) );
 }
 
 
@@ -383,7 +383,7 @@ void uiOD2DLineSetSubItem::createMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::createMenuCB(cb);
     mDynamicCastGet(uiMenuHandler*,menu,cb)
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv->getObject(displayid_))
+		    visserv_->getObject(displayid_))
     if ( !menu || menu->menuID() != displayID() || !s2d ) return;
 
     mAddMenuItem( menu, &linenmitm_, true, s2d->lineNameShown() );
@@ -397,7 +397,7 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
     mCBCapsuleUnpackWithCaller(int,mnuid,caller,cb);
     mDynamicCastGet(uiMenuHandler*,menu,caller);
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv->getObject(displayid_));
+		    visserv_->getObject(displayid_));
     if ( !menu || !s2d || menu->isHandled() ||
 	 menu->menuID() != displayID() || mnuid==-1 )
 	return;
@@ -454,7 +454,7 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 		for ( int idx=s2d->nrAttribs()-1; idx>=0; idx-- )
 		{
 		    if ( s2d->getSelSpec(idx) && s2d->getSelSpec(idx)->id()>=0 )
-			visserv->calculateAttrib( displayid_, idx, false );
+			visserv_->calculateAttrib( displayid_, idx, false );
 		}
 	    }
 	}
@@ -492,7 +492,7 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
     const int attribnr = applMgr()->otherFormatAttrib();
 
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv->getObject(displayid_))
+		    visserv_->getObject(displayid_))
     if ( !s2d ) return;
 
     CubeSampling cs;
@@ -536,7 +536,7 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
 void uiOD2DLineSetSubItem::showLineName( bool yn )
 {
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv->getObject(displayid_))
+		    visserv_->getObject(displayid_))
     if ( s2d ) s2d->showLineName( yn );
 }
 
@@ -544,7 +544,7 @@ void uiOD2DLineSetSubItem::showLineName( bool yn )
 void uiOD2DLineSetSubItem::setZRange( const Interval<float> newzrg )
 {
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv->getObject(displayid_))
+		    visserv_->getObject(displayid_))
     if ( !s2d ) return;
 
     if ( s2d->setZRange(newzrg) )
@@ -554,7 +554,7 @@ void uiOD2DLineSetSubItem::setZRange( const Interval<float> newzrg )
 	for ( int idx=s2d->nrAttribs()-1; idx>=0; idx-- )
 	{
 	    if ( s2d->getSelSpec(idx) && s2d->getSelSpec(idx)->id()>=0 )
-		visserv->calculateAttrib( displayid_, idx, false );
+		visserv_->calculateAttrib( displayid_, idx, false );
 	}
     }
 }
@@ -571,17 +571,17 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
 {
     uiODAttribTreeItem::createMenuCB(cb);
     mDynamicCastGet(uiMenuHandler*,menu,cb);
-    const uiVisPartServer* visserv = applMgr()->visServer();
+    const uiVisPartServer* visserv_ = applMgr()->visServer();
 
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv->getObject( displayID() ))
+		    visserv_->getObject( displayID() ))
     if ( !menu || !s2d ) return;
 
     uiSeisPartServer* seisserv = applMgr()->seisServer();
     uiAttribPartServer* attrserv = applMgr()->attrServer();
-    Attrib::SelSpec as = *visserv->getSelSpec( displayID(), attribNr() );
+    Attrib::SelSpec as = *visserv_->getSelSpec( displayID(), attribNr() );
     as.set2DFlag();
-    const char* objnm = visserv->getObjectName( displayID() );
+    const char* objnm = visserv_->getObjectName( displayID() );
 
     BufferStringSet attribnames;
     seisserv->get2DStoredAttribs( s2d->lineSetID(), objnm, attribnames );
@@ -626,9 +626,9 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
     if ( !menu || mnuid==-1 || menu->isHandled() )
 	return;
 
-    const uiVisPartServer* visserv = applMgr()->visServer();
+    const uiVisPartServer* visserv_ = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv->getObject( displayID() ));
+		    visserv_->getObject( displayID() ));
     if ( !s2d )
 	return;
 
@@ -656,9 +656,9 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
 
 bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm )
 {
-    const uiVisPartServer* visserv = applMgr()->visServer();
+    const uiVisPartServer* visserv_ = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv->getObject( displayID() ))
+		    visserv_->getObject( displayID() ))
     if ( !s2d ) return false;
 
     uiAttribPartServer* attrserv = applMgr()->attrServer();
@@ -666,7 +666,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm )
     const Attrib::DescID attribid = attrserv->getStoredID( lk, true );
     if ( attribid < 0 ) return false;
 
-    const Attrib::SelSpec* as = visserv->getSelSpec(  displayID(),0 );
+    const Attrib::SelSpec* as = visserv_->getSelSpec(  displayID(),0 );
     Attrib::SelSpec myas( *as );
     LineKey linekey( s2d->name(), attribnm );
     myas.set( attribnm, attribid, false, 0 );
@@ -696,9 +696,9 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm )
 
 void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas )
 {
-    const uiVisPartServer* visserv = applMgr()->visServer();
+    const uiVisPartServer* visserv_ = applMgr()->visServer();
     mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
-		    visserv->getObject(displayID()))
+		    visserv_->getObject(displayID()))
 
     CubeSampling cs;
     cs.hrg.start.crl = s2d->getTraceNrRange().start;

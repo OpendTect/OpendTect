@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.22 2007-04-10 08:15:58 cvsjaap Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.23 2007-08-30 21:26:38 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ uiODDataTreeItem* uiODEarthModelSurfaceTreeItem::createAttribItem(
 {
     const char* parenttype = typeid(*this).name();
     uiODDataTreeItem* res = as ? uiODDataTreeItem::create( *as, parenttype) : 0;
-    if ( !res ) res = new uiODEarthModelSurfaceDataTreeItem( emid, uivisemobj,
+    if ( !res ) res = new uiODEarthModelSurfaceDataTreeItem( emid_, uivisemobj_,
 	    						     parenttype );
 	    
     return res;
@@ -42,8 +42,8 @@ uiODDataTreeItem* uiODEarthModelSurfaceTreeItem::createAttribItem(
 uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
 						const EM::ObjectID& nemid )
     : uiODDisplayTreeItem()
-    , emid(nemid)
-    , uivisemobj(0)
+    , emid_(nemid)
+    , uivisemobj_(0)
     , savemnuitem_("Save")
     , saveasmnuitem_("Save as ...")
     , enabletrackingmnuitem_("Enable tracking")
@@ -58,30 +58,30 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
 
 uiODEarthModelSurfaceTreeItem::~uiODEarthModelSurfaceTreeItem()
 { 
-    delete uivisemobj;
+    delete uivisemobj_;
 }
 
 
-#define mDelRet { delete uivisemobj; uivisemobj = 0; return false; }
+#define mDelRet { delete uivisemobj_; uivisemobj_ = 0; return false; }
 
 
 bool uiODEarthModelSurfaceTreeItem::init()
 {
-    delete uivisemobj;
+    delete uivisemobj_;
     if ( displayid_!=-1 )
     {
-	uivisemobj = new uiVisEMObject( getUiParent(), displayid_, visserv );
-	if ( !uivisemobj->isOK() )
+	uivisemobj_ = new uiVisEMObject( getUiParent(), displayid_, visserv_ );
+	if ( !uivisemobj_->isOK() )
 	    mDelRet;
 
-	emid = uivisemobj->getObjectID();
+	emid_ = uivisemobj_->getObjectID();
     }
     else
     {
-	uivisemobj = new uiVisEMObject( getUiParent(), emid, sceneID(),
-					visserv );
-	displayid_ = uivisemobj->id();
-	if ( !uivisemobj->isOK() )
+	uivisemobj_ = new uiVisEMObject( getUiParent(), emid_, sceneID(),
+					visserv_ );
+	displayid_ = uivisemobj_->id();
+	if ( !uivisemobj_->isOK() )
 	    mDelRet;
     }
 
@@ -98,18 +98,18 @@ void uiODEarthModelSurfaceTreeItem::checkCB( CallBacker* cb )
 {
     uiODDisplayTreeItem::checkCB(cb);
 
-    const int trackerid = applMgr()->mpeServer()->getTrackerID(emid);
+    const int trackerid = applMgr()->mpeServer()->getTrackerID(emid_);
     if ( trackerid==-1 )
     {
-	prevtrackstatus = false;
+	prevtrackstatus_ = false;
 	return;
     }
 
     if ( isChecked() )
-	applMgr()->mpeServer()->enableTracking(trackerid, prevtrackstatus);
+	applMgr()->mpeServer()->enableTracking(trackerid, prevtrackstatus_);
     else
     {
-	prevtrackstatus = applMgr()->mpeServer()->isTrackingEnabled(trackerid);
+	prevtrackstatus_ = applMgr()->mpeServer()->isTrackingEnabled(trackerid);
 	applMgr()->mpeServer()->enableTracking(trackerid,false);
     }
     applMgr()->visServer()->updateMPEToolbar();
@@ -118,7 +118,7 @@ void uiODEarthModelSurfaceTreeItem::checkCB( CallBacker* cb )
 
 void uiODEarthModelSurfaceTreeItem::prepareForShutdown()
 {
-    applMgr()->EMServer()->askUserToSave(emid);
+    applMgr()->EMServer()->askUserToSave(emid_);
 }
 
 
@@ -130,8 +130,8 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
     , depthattribmnuitem_("Z values")
     , savesurfacedatamnuitem_("Save attribute ...")
     , loadsurfacedatamnuitem_("Surface data ...")
-    , emid(objid)
-    , uivisemobj(uv)
+    , emid_(objid)
+    , uivisemobj_(uv)
 {
 }
 
@@ -146,7 +146,7 @@ void uiODEarthModelSurfaceDataTreeItem::createMenuCB( CallBacker* cb )
 	    					     attribNr() );
 
     const bool islocked = visserv->isLocked( displayID() );
-    const int nrsurfdata = uivisemobj->nrSurfaceData();
+    const int nrsurfdata = uivisemobj_->nrSurfaceData();
     BufferString itmtxt = "Surface data ("; itmtxt += nrsurfdata;
     itmtxt += ") ...";
     loadsurfacedatamnuitem_.text = itmtxt;
@@ -176,25 +176,25 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	if ( vals.size() && vals[0]->nrVals()>=2 )
 	{
 	    const int auxnr =
-		applMgr()->EMServer()->setAuxData( emid, vals, name_, 1 );
-	    applMgr()->EMServer()->storeAuxData( emid, true );
+		applMgr()->EMServer()->setAuxData( emid_, vals, name_, 1 );
+	    applMgr()->EMServer()->storeAuxData( emid_, true );
 	}
     }
     else if ( mnuid==depthattribmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	uivisemobj->setDepthAsAttrib( attribNr() );
+	uivisemobj_->setDepthAsAttrib( attribNr() );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
     }
     else if ( mnuid==loadsurfacedatamnuitem_.id )
     {
 	menu->setIsHandled( true );
-	if ( !applMgr()->EMServer()->showLoadAuxDataDlg(emid) )
+	if ( !applMgr()->EMServer()->showLoadAuxDataDlg(emid_) )
 	    return;
 
 	BufferStringSet attrnms;
 	ObjectSet<BinIDValueSet> vals;
-	applMgr()->EMServer()->getAllAuxData( emid, attrnms, vals );
+	applMgr()->EMServer()->getAllAuxData( emid_, attrnms, vals );
 	BufferString attrnm = attrnms.size() ? attrnms.get(0) : "";
 	visserv->setSelSpec( displayID(), attribNr(),
 		Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
@@ -218,7 +218,7 @@ BufferString uiODEarthModelSurfaceDataTreeItem::createDisplayName() const
 
 
 #define mIsObject(typestr) \
-	!strcmp(uivisemobj->getObjectType(displayid_),typestr)
+	!strcmp(uivisemobj_->getObjectType(displayid_),typestr)
 
 void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 {
@@ -236,27 +236,27 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     if ( isChecked() && trackmnu )
     {
 	EM::SectionID section = -1;
-	if ( uivisemobj->nrSections()==1 )
-	    section = uivisemobj->getSectionID(0);
+	if ( uivisemobj_->nrSections()==1 )
+	    section = uivisemobj_->getSectionID(0);
 	else if ( menu->getPath() )
-	    section = uivisemobj->getSectionID( menu->getPath() );
+	    section = uivisemobj_->getSectionID( menu->getPath() );
 
 	uiMPEPartServer* mps = applMgr()->mpeServer();
-	const bool hastracker = mps->getTrackerID(emid)>=0;
-	if ( !hastracker && !visserv->isLocked(displayid_) && !hastransform )
+	const bool hastracker = mps->getTrackerID(emid_)>=0;
+	if ( !hastracker && !visserv_->isLocked(displayid_) && !hastransform )
 	{
 	    mAddMenuItem( trackmnu, &starttrackmnuitem_, true, false );
 	    mResetMenuItem( &changesetupmnuitem_ );
 	    mResetMenuItem( &enabletrackingmnuitem_ );
 	    mResetMenuItem( &relationsmnuitem_ );
 	}
-	else if ( hastracker && section!=-1 && !visserv->isLocked(displayid_) &&
+	else if ( hastracker && section!=-1 && !visserv_->isLocked(displayid_)&&
 		  !hastransform )
 	{
 	    mAddMenuItem( trackmnu, &starttrackmnuitem_, false, false );
 	    mAddMenuItem( trackmnu, &changesetupmnuitem_, true, false );
 	    mAddMenuItem( trackmnu, &enabletrackingmnuitem_, true,
-			  mps->isTrackingEnabled(mps->getTrackerID(emid)) );
+			  mps->isTrackingEnabled(mps->getTrackerID(emid_)) );
 	    mResetMenuItem( &relationsmnuitem_ );
 	    //mAddMenuItem( trackmnu, &relationsmnuitem_,
 	//	    mIsObject(EM::Horizon::typeStr()), false );
@@ -272,9 +272,9 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
     }
 
     mAddMenuItem( menu, &savemnuitem_,
-		  applMgr()->EMServer()->isChanged(emid) && 
-		  applMgr()->EMServer()->isFullyLoaded(emid) &&
-		  !applMgr()->EMServer()->isShifted(emid), false );
+		  applMgr()->EMServer()->isChanged(emid_) && 
+		  applMgr()->EMServer()->isFullyLoaded(emid_) &&
+		  !applMgr()->EMServer()->isShifted(emid_), false );
 
     mAddMenuItem( menu, &saveasmnuitem_, true, false );
 #ifdef __debug__
@@ -294,10 +294,10 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	return;
 
     EM::SectionID sectionid = -1;
-    if ( uivisemobj->nrSections()==1 )
-	sectionid = uivisemobj->getSectionID(0);
+    if ( uivisemobj_->nrSections()==1 )
+	sectionid = uivisemobj_->getSectionID(0);
     else if ( menu->getPath() )
-	sectionid = uivisemobj->getSectionID( menu->getPath() );
+	sectionid = uivisemobj_->getSectionID( menu->getPath() );
     
     uiMPEPartServer* mps = applMgr()->mpeServer();
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
@@ -306,22 +306,22 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==savemnuitem_.id )
     {
 	menu->setIsHandled(true);
-	applMgr()->EMServer()->storeObject( emid, false );
+	applMgr()->EMServer()->storeObject( emid_, false );
 
-	const MultiID mid = applMgr()->EMServer()->getStorageID(emid);
+	const MultiID mid = applMgr()->EMServer()->getStorageID(emid_);
 	mps->saveSetup( mid );
     }
     else if ( mnuid==saveasmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	const MultiID oldmid = applMgr()->EMServer()->getStorageID(emid);
+	const MultiID oldmid = applMgr()->EMServer()->getStorageID(emid_);
 	mps->prepareSaveSetupAs( oldmid );
 
-	applMgr()->EMServer()->storeObject( emid, true );
+	applMgr()->EMServer()->storeObject( emid_, true );
 	applMgr()->visServer()->setObjectName( displayid_,
-		(const char*) applMgr()->EMServer()->getName(emid) );
+		(const char*) applMgr()->EMServer()->getName(emid_) );
 
-	const MultiID newmid = applMgr()->EMServer()->getStorageID(emid);
+	const MultiID newmid = applMgr()->EMServer()->getStorageID(emid_);
 	mps->saveSetupAs( newmid );
 
 	updateColumnText( uiODSceneMgr::cNameColumn() );
@@ -334,10 +334,10 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	applMgr()->enableMenusAndToolBars( false );
 	applMgr()->enableTree( false );
 
-	if ( mps->addTracker(emid,menu->getPickedPos())!=-1 )
+	if ( mps->addTracker(emid_,menu->getPickedPos())!=-1 )
 	{
-	    mps->useSavedSetupDlg( emid, sectionid );
-	    uivisemobj->checkTrackingStatus();
+	    mps->useSavedSetupDlg( emid_, sectionid );
+	    uivisemobj_->checkTrackingStatus();
 	    applMgr()->visServer()->triggerTreeUpdate();
 	    applMgr()->visServer()->introduceMPEDisplay();
 	    applMgr()->visServer()->showMPEToolbar();
@@ -349,7 +349,7 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==changesetupmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	mps->showSetupDlg( emid, sectionid, true );
+	mps->showSetupDlg( emid_, sectionid, true );
 	applMgr()->visServer()->updateMPEToolbar();
     }
     else if ( mnuid==reloadmnuitem_.id )
@@ -357,28 +357,28 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	uiTreeItem* parent__ = parent_;
 
-	const MultiID mid = applMgr()->EMServer()->getStorageID(emid);
+	const MultiID mid = applMgr()->EMServer()->getStorageID(emid_);
 
 	applMgr()->visServer()->removeObject( displayid_, sceneID() );
-	delete uivisemobj; uivisemobj = 0;
+	delete uivisemobj_; uivisemobj_ = 0;
 
 	if ( !applMgr()->EMServer()->loadSurface(mid) )
 	    return;
 
-	emid = applMgr()->EMServer()->getObjectID(mid);
+	emid_ = applMgr()->EMServer()->getObjectID(mid);
 
-	uivisemobj = new uiVisEMObject( getUiParent(), emid, sceneID(),visserv);
-	displayid_ = uivisemobj->id();
+	uivisemobj_ = new uiVisEMObject(getUiParent(),emid_,sceneID(),visserv_);
+	displayid_ = uivisemobj_->id();
     }
     else if ( mnuid==relationsmnuitem_.id )
     {	
 	menu->setIsHandled(true);
-	mps->showRelationsDlg( emid, sectionid );
+	mps->showRelationsDlg( emid_, sectionid );
     }
     else if ( mnuid==enabletrackingmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	const int trackerid = mps->getTrackerID(emid);
+	const int trackerid = mps->getTrackerID(emid_);
 	mps->enableTracking( trackerid, !mps->isTrackingEnabled(trackerid) );
 	applMgr()->visServer()->updateMPEToolbar();
     }
