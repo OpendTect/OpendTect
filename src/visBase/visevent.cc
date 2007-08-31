@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: visevent.cc,v 1.23 2007-07-26 21:40:47 cvskris Exp $
+ RCS:           $Id: visevent.cc,v 1.24 2007-08-31 12:48:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,11 +64,15 @@ EventCatcher::EventCatcher()
 }
 
 
-void EventCatcher::_init()
+bool EventCatcher::_init()
 {
-    DataObject::_init();
+    if ( !DataObject::_init() )
+	return false;
+
     SO_ENABLE( SoHandleEventAction, SoModelMatrixElement );
     SO_ENABLE( SoHandleEventAction, SoViewVolumeElement );
+
+    return true;
 }
 
 

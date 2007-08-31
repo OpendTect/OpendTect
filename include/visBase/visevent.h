@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.17 2007-07-26 21:40:46 cvskris Exp $
+ RCS:		$Id: visevent.h,v 1.18 2007-08-31 12:48:58 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -98,7 +98,7 @@ public:
     void			setUtm2Display(ObjectSet<Transformation>&);
 
 protected:
-    void			_init();
+    bool			_init();
     void			removeCBs();
     void			setCBs();
 

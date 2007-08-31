@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.45 2007-05-17 13:52:37 cvsyuancheng Exp $
+ RCS:		$Id: visdata.h,v 1.46 2007-08-31 12:48:58 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -49,6 +49,8 @@ class DataObject : public CallBacker
 public:
 
     virtual const char*		getClassName() const	{ return "Not impl"; }
+
+    virtual bool		isOK() const		{ return true; }
 
     int				id() const		{ return id_; }
     void			setID(int nid)		{ id_= nid; }
@@ -122,7 +124,7 @@ protected:
     virtual void		triggerRightClick(const EventInfo* =0)	{}
     
 				DataObject();
-    virtual void		_init();
+    virtual bool		_init();
 
 private:
     int				id_;
@@ -185,7 +187,14 @@ private:							\
     static visBase::DataObject* createInternal()		\
     {								\
 	clss* res = new clss;					\
-	res->_init();						\
+	if ( !res )						\
+	    return 0;						\
+	if ( !res->_init() || !res->isOK() )			\
+	{							\
+	    delete res;						\
+	    return 0;						\
+	}							\
+								\
 	return res;						\
     }								\
 								\

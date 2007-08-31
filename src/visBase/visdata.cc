@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.24 2006-12-28 21:10:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.25 2007-08-31 12:48:58 cvskris Exp $";
 
 #include "visdata.h"
 
@@ -113,8 +113,11 @@ int DataObject::usePar( const IOPar& par )
 }
 
 
-void DataObject::_init()
-{ DM().addObject( this ); }
+bool DataObject::_init()
+{
+    DM().addObject( this );
+    return true;
+}
 
 
 FactoryEntry::FactoryEntry( FactPtr funcptr, const char* nm ) 
