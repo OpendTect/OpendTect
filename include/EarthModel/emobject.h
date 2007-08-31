@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.66 2007-07-06 14:11:05 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.67 2007-08-31 13:14:46 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -98,6 +98,8 @@ public:
     virtual const char*		getTypeStr() const			= 0;
     const MultiID&		multiID() const		{ return storageid_; }
     void			setMultiID(const MultiID&);
+
+    virtual bool		isOK() const		{ return true; }
 
     BufferString		name() const;
 
