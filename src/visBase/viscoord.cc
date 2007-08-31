@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: viscoord.cc,v 1.25 2007-08-29 20:44:36 cvskris Exp $
+ RCS:           $Id: viscoord.cc,v 1.26 2007-08-31 17:00:46 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -236,7 +236,7 @@ void Coordinates::removePos( int idx, bool keepidxafter )
 {
     Threads::MutexLocker lock( mutex );
     const int nrcoords = coords->point.getNum();
-    if ( idx>=nrcoords )
+    if ( idx>=nrcoords || idx<0 )
     {
 	pErrMsg("Invalid index");
 	return;
