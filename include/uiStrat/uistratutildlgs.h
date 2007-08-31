@@ -5,15 +5,16 @@
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        Helene
+ Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.2 2007-08-27 11:52:18 cvshelene Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.3 2007-08-31 14:48:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 
+class uiColorInput;
 class uiGenInput;
 class uiLabeledListBox;
 
@@ -53,6 +54,21 @@ protected:
     uiGenInput*		lithnmfld_;
 
     void		newLithCB(CallBacker*);
+};
+
+
+/*!\brief Displays a dialog to create new level */
+
+class uiStratLevelDlg : public uiDialog
+{
+public:
+
+			uiStratLevelDlg(uiParent*);
+    uiGenInput*		lvlnmfld_;
+    uiGenInput*		lvltimefld_;
+    uiColorInput*	lvlcolfld_;
+
+protected:
 };
 
 #endif

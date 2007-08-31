@@ -2,18 +2,21 @@
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        Helene
+ Author:        Helene Huck
  Date:          August 2007
- RCS:		$Id: uistratutildlgs.cc,v 1.2 2007-08-27 11:52:18 cvshelene Exp $
+ RCS:		$Id: uistratutildlgs.cc,v 1.3 2007-08-31 14:48:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uistratutildlgs.h"
 
+#include "randcolor.h"
+#include "stratlevel.h"
 #include "stratlith.h"
 #include "stratunitrepos.h"
 #include "uibutton.h"
+#include "uicolor.h"
 #include "uidialog.h"
 #include "uigeninput.h"
 #include "uilabel.h"
@@ -113,3 +116,15 @@ void uiLithoDlg::setSelectedLith( const char* lithnm )
 {
     listlithfld_->box()->setCurrentItem( lithnm );
 }
+
+
+uiStratLevelDlg::uiStratLevelDlg( uiParent* p )
+    : uiDialog(p,uiDialog::Setup("Create/Edit level","", 0))
+{
+    lvlnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
+    lvlcolfld_ = new uiColorInput( this, getRandStdDrawColor(), "Color" );
+    lvlcolfld_->attach( alignedBelow, lvlnmfld_ );
+    lvltimefld_ = new uiGenInput( this, "Level time (My)", FloatInpSpec() );
+    lvltimefld_->attach( alignedBelow, lvlcolfld_ );
+}
+

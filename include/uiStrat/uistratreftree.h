@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.6 2007-08-21 12:40:10 cvshelene Exp $
+ RCS:           $Id: uistratreftree.h,v 1.7 2007-08-31 14:48:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "callback.h"
 
+class ioPixmap;
 class uiParent;
 class uiListView;
 class uiListViewItem;
@@ -53,6 +54,8 @@ protected:
     void		insertSubUnit(uiListViewItem*);
     void		removeUnit(uiListViewItem*);
     void		addNode(uiListViewItem*,const Strat::NodeUnitRef&,bool);
+    ioPixmap*		createLevelPixmap(const Strat::UnitRef*) const;
+    			//becomes yours!
 };
 
 

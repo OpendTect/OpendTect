@@ -5,9 +5,9 @@
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        Helene
+ Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.7 2007-08-15 15:01:00 cvshelene Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.8 2007-08-31 14:48:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ protected:
     void			updateTreeLevels();
     BufferString		getCodeFromLVIt(const uiListViewItem*) const;
     void			fillTmpTreeFromListview();
+    void			editLevel(bool);
 
     void			editCB(CallBacker*);
     void			openCB(CallBacker*);
@@ -57,6 +58,7 @@ protected:
     void			saveCB(CallBacker*);
     void			saveAsCB(CallBacker*);
     void			selLvlChgCB(CallBacker*);
+    void			rClickLvlCB(CallBacker*);
     void			setExpCB(CallBacker*);
     void			unitSelCB(CallBacker*);
 

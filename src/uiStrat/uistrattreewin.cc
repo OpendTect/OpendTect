@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:		$Id: uistrattreewin.cc,v 1.9 2007-08-27 11:52:18 cvshelene Exp $
+ RCS:		$Id: uistrattreewin.cc,v 1.10 2007-08-31 14:48:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,13 +14,16 @@ ________________________________________________________________________
 #include "compoundkey.h"
 #include "stratlevel.h"
 #include "stratunitrepos.h"
+#include "uicolor.h"
 #include "uidialog.h"
+#include "uigeninput.h"
 #include "uigroup.h"
 #include "uilistbox.h"
 #include "uilistview.h"
 #include "uimenu.h"
 #include "uisplitter.h"
 #include "uistratreftree.h"
+#include "uistratutildlgs.h"
 
 #define	mExpandTxt	"&Expand all"
 #define	mCollapseTxt	"&Collapse all"
@@ -97,6 +100,8 @@ void uiStratTreeWin::createGroups()
     lvllistfld_->box()->setFieldWidth( 12 );
     lvllistfld_->box()->selectionChanged.notify( mCB( this, uiStratTreeWin,
 						      selLvlChgCB ) );
+    lvllistfld_->box()->rightButtonClicked.notify( mCB( this, uiStratTreeWin,
+						      rClickLvlCB ) );
     fillLvlList();
     
     uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
@@ -138,11 +143,11 @@ void uiStratTreeWin::editCB( CallBacker* )
     {
 	const Strat::RefTree* rt = &Strat::RT();
 	tmptree_ = new Strat::RefTree( rt->treeName(), rt->source() );
-/*	for ( int idx=0; idx<rt->nrLevels(); idx++ )
+	for ( int idx=0; idx<rt->nrLevels(); idx++ )
 	{
 	    Level* lvl = new Level( *rt->level(idx) );
 	    tmptree_->addLevel( lvl );
-	}*/ //TODO solve level pb
+	}
     }
 }
 
@@ -213,6 +218,31 @@ void uiStratTreeWin::selLvlChgCB( CallBacker* )
 }
 
 
+void uiStratTreeWin::rClickLvlCB( CallBacker* )
+{
+    if ( !strcmp( editmnuitem_->text(), mLockTxt ) ) return;
+    int curit = lvllistfld_->box()->currentItem();
+    uiPopupMenu mnu( this, "Action" );
+    mnu.insertItem( new uiMenuItem("Create New ..."), 0 );
+    if ( curit>-1 )
+    {
+	mnu.insertItem( new uiMenuItem("Edit ..."), 1 );
+	mnu.insertItem( new uiMenuItem("Remove"), 2 );
+    }
+    const int mnuid = mnu.exec();
+    if ( mnuid<0 || mnuid>2 ) return;
+    if ( mnuid == 2 )
+    {
+	const Level* curlvl = RT().getLevel( lvllistfld_->box()->getText() );
+	tmptree_->remove( curlvl );
+	lvllistfld_->box()->removeItem( lvllistfld_->box()->currentItem() );
+	return;
+    }
+
+    editLevel( mnuid ? false : true );
+}
+
+
 void uiStratTreeWin::fillLvlList()
 {
     lvllistfld_->box()->empty();
@@ -273,7 +303,42 @@ void uiStratTreeWin::prepTreeForSave()
 }
 
 
-void uiStratTreeWin::updateTreeLevels()
+void uiStratTreeWin::editLevel( bool create )
 {
-    
+    uiStratLevelDlg newlvldlg( this );
+    Level* curlvl = 0;
+    if ( !create && lvllistfld_->box()->currentItem()>-1 )
+    {
+	curlvl = const_cast<Level*> ( RT().getLevel( lvllistfld_->box()
+		    					->getText() ) );
+	if ( curlvl )
+	{
+	    newlvldlg.lvlnmfld_->setText( curlvl->name_ );
+	    newlvldlg. lvltimefld_->setValue( curlvl->time() );
+	    newlvldlg.lvlcolfld_->setColor( curlvl->color() );
+	}
+    }
+    if ( newlvldlg.go() )
+    {
+	if ( !curlvl )
+	{
+	    curlvl = new Level( newlvldlg.lvlnmfld_->text(), 0, false );
+	    tmptree_->addLevel( curlvl );
+
+	}
+	else
+	    curlvl->name_ = newlvldlg.lvlnmfld_->text();
+
+	curlvl->setColor( newlvldlg.lvlcolfld_->color() );
+	curlvl->setTime( newlvldlg.lvltimefld_->getfValue() );
+	if ( create )
+	    lvllistfld_->box()->addItem( curlvl->name_, curlvl->color() );
+	else
+	{
+	    int curit = lvllistfld_->box()->currentItem();
+	    lvllistfld_->box()->setItemText( curit, curlvl->name_ );
+	    lvllistfld_->box()->setPixmap( curit, curlvl->color() );
+	}
+    }
+	
 }

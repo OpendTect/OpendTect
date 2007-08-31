@@ -4,22 +4,28 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.11 2007-08-27 11:52:18 cvshelene Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.12 2007-08-31 14:48:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uistratreftree.h"
 
+#include "pixmap.h"
+#include "stratlevel.h"
 #include "stratunitrepos.h"
 #include "uilistview.h"
 #include "uimenu.h"
+#include "uirgbarray.h"
 #include "uistratutildlgs.h"
 
 #define mAddCol(nm,wdth,nr) \
     lv_->addColumn( nm ); \
     lv_->setColumnWidthMode( nr, uiListView::Manual ); \
     lv_->setColumnWidth( nr, wdth )
+
+#define PMWIDTH		11
+#define PMHEIGHT	9
 
 static const int sUnitsCol	= 0;
 static const int sDescCol	= 1;
@@ -71,20 +77,32 @@ void uiStratRefTree::addNode( uiListViewItem* parlvit,
 	: root ? 0 : new uiListViewItem( lv_,uiListViewItem::Setup()
 				.label(nur.code()).label(nur.description()) );
 
+    if ( parlvit || !root )
+    {
+	ioPixmap* pm = createLevelPixmap( &nur );
+	lvit->setPixmap( 0, *pm );
+	delete pm;
+    }
+    
     for ( int iref=0; iref<nur.nrRefs(); iref++ )
     {
 	const UnitRef& ref = nur.ref( iref );
 	if ( ref.isLeaf() )
 	{
+	    uiListViewItem* item;
 	    mDynamicCastGet(const LeafUnitRef&,lur,ref);
 	    uiListViewItem::Setup setup = uiListViewItem::Setup()
 				.label( lur.code() )
 				.label( lur.description() )
 				.label( UnRepo().getLithName(lur.lithology()) );
 	    if ( lvit )
-		new uiListViewItem( lvit, setup );
+		item = new uiListViewItem( lvit, setup );
 	    else
-		new uiListViewItem( lv_, setup );
+		item = new uiListViewItem( lv_, setup );
+	    
+	    ioPixmap* pm = createLevelPixmap( &lur );
+	    item->setPixmap( 0, *pm );
+	    delete pm;
 	}
 	else
 	{
@@ -179,6 +197,10 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 	newitem->setRenameEnabled( sDescCol, true );
 	newitem->setDragEnabled( true );
 	newitem->setDropEnabled( true );
+	ioPixmap* pm = createLevelPixmap(0);
+	newitem->setPixmap( 0, *pm );
+	delete pm;
+	
 	if ( newitem->parent() )
 	    newitem->parent()->setOpen( true );
     }
@@ -196,4 +218,40 @@ void uiStratRefTree::removeUnit( uiListViewItem* lvit )
 }
 
 
+ioPixmap* uiStratRefTree::createLevelPixmap( const UnitRef* ref ) const
+{
+    uiRGBArray rgbarr;
+    rgbarr.setSize( PMWIDTH, PMHEIGHT );
+    rgbarr.clear( Color::White );
+    for ( int idw=0; idw<PMWIDTH; idw++ )
+	rgbarr.set( idw, mNINT(PMHEIGHT/2), Color::Black );
+
+    if ( ref )
+    {
+	const Level* toplvl = Strat::RT().getLevel( ref, true );
+	if ( toplvl )
+	{
+	    Color col = toplvl->color();
+	    for ( int idw=0; idw<PMWIDTH; idw++ )
+	    {
+		rgbarr.set( idw, 0, col );
+		rgbarr.set( idw, 1, col );
+		rgbarr.set( idw, 2, col );
+	    }
+	}
+	
+	const Level* botlvl = Strat::RT().getLevel( ref, false );
+	if ( botlvl )
+	{
+	    Color col = botlvl->color();
+	    for ( int idw=0; idw<PMWIDTH; idw++ )
+	    {
+		rgbarr.set( idw, PMHEIGHT-3, col );
+		rgbarr.set( idw, PMHEIGHT-2, col );
+		rgbarr.set( idw, PMHEIGHT-1, col );
+	    }
+	}
+    }
+    return new ioPixmap( rgbarr );
+}
 
