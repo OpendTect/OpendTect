@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.27 2007-08-29 12:17:39 cvsnanne Exp $
+ RCS:           $Id: treeitem.cc,v 1.28 2007-08-31 05:49:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -343,7 +343,7 @@ void SubItem::prepareForShutdown()
 bool SubItem::init()
 {
     mDynamicCastGet(visSurvey::LocationDisplay*,ld,
-	    	    visserv->getObject(displayid_));
+	    	    visserv_->getObject(displayid_));
     if ( ld )
     {
 	ld->setSetMgr( &Pick::SetMgr::getMgr( managerName()) );
@@ -360,7 +360,7 @@ void SubItem::createMenuCB( CallBacker* cb )
     if ( menu->menuID() != displayID() )
 	return;
 
-    const bool islocked = visserv->isLocked( displayid_ );
+    const bool islocked = visserv_->isLocked( displayid_ );
     uiODDisplayTreeItem::createMenuCB(cb);
     if ( hasScale() )
 	mAddMenuItem(menu,&scalemnuitem_,!islocked,false);
@@ -380,8 +380,8 @@ void SubItem::handleMenuCB( CallBacker* cb )
     if ( menu->isHandled() || menu->menuID()!=displayID() )
 	return;
 
-    mDynamicCastGet( visSurvey::LocationDisplay*,ld,
-	    	     visserv->getObject(displayid_));
+    mDynamicCastGet(visSurvey::LocationDisplay*,ld,
+	    	    visserv_->getObject(displayid_));
     if ( !ld ) return;
 
     if ( mnuid==scalemnuitem_.id )
@@ -510,7 +510,7 @@ void SubItem::storeAs( bool trywitoutdlg ) const
 void SubItem::setScale( float ns )
 {
     mDynamicCastGet(visSurvey::LocationDisplay*,ld,
-	    	    visserv->getObject(displayid_));
+	    	    visserv_->getObject(displayid_));
     if ( !ld ) return;
 
     const int newscale = mNINT( ns );
@@ -527,7 +527,7 @@ void SubItem::setScale( float ns )
 void SubItem::setColor( Color nc )
 {
     mDynamicCastGet(visSurvey::LocationDisplay*,ld,
-	    	    visserv->getObject(displayid_));
+	    	    visserv_->getObject(displayid_));
     if ( !ld ) return;
 
     Pick::Set* set = ld->getSet();
@@ -575,14 +575,14 @@ bool TextSubItem::init()
     if (  displayid_==-1 )
     {
 	CalloutDisplay* cd = CalloutDisplay::create();
-	visserv->addObject( cd, sceneID(), true );
+	visserv_->addObject( cd, sceneID(), true );
 	displayid_ = cd->id();
 	cd->setName( name_ );
 	defscale_ = set_->disp_.pixsize_;
 	cd->setScale( defscale_ );
     }
 
-    mDynamicCastGet(CalloutDisplay*,cd, visserv->getObject(displayid_))
+    mDynamicCastGet(CalloutDisplay*,cd,visserv_->getObject(displayid_))
     if ( !cd ) return false;
 
     //Read Old format orientation
@@ -633,13 +633,13 @@ void TextSubItem::handleMenuCB( CallBacker* cb )
 	const TypeSet<int>* path = menu->getPath();
 
 	if ( !path ) return;
-	mDynamicCastGet( visSurvey::LocationDisplay*,ld,
-			 visserv->getObject(displayid_) );
+	mDynamicCastGet(visSurvey::LocationDisplay*,ld,
+			visserv_->getObject(displayid_) );
 
 	int pickidx = -1;
 	for ( int idx=path->size()-1; idx>=0; idx-- )
 	{
-	    pickidx = ld->getPickIdx( visserv->getObject((*path)[idx]) );
+	    pickidx = ld->getPickIdx( visserv_->getObject((*path)[idx]) );
 	    if ( pickidx!=-1 )
 		break;
 	}
@@ -780,7 +780,7 @@ bool TextSubItem::editText( BufferString& str, BufferString& url, bool& enab )
 void TextSubItem::setScale( float newscale )
 {
     SubItem::setScale( newscale );
-    mDynamicCastGet( CalloutDisplay*,cd, visserv->getObject(displayid_) );
+    mDynamicCastGet(CalloutDisplay*,cd,visserv_->getObject(displayid_));
     cd->setScale( newscale );
 }
 
@@ -804,15 +804,13 @@ bool ArrowSubItem::init()
 {
     if (  displayid_==-1 )
     {
-	ArrowDisplay* ad =
-	    ArrowDisplay::create();
-	visserv->addObject( ad, sceneID(), true );
+	ArrowDisplay* ad = ArrowDisplay::create();
+	visserv_->addObject( ad, sceneID(), true );
 	displayid_ = ad->id();
 	ad->setName( name_ );
     }
 
-    mDynamicCastGet(ArrowDisplay*,ad,
-	    visserv->getObject(displayid_))
+    mDynamicCastGet(ArrowDisplay*,ad,visserv_->getObject(displayid_))
     if ( !ad ) return false;
 
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
@@ -855,7 +853,7 @@ bool ArrowSubItem::init()
 void ArrowSubItem::fillStoragePar( IOPar& par ) const
 {
     SubItem::fillStoragePar( par );
-    mDynamicCastGet(ArrowDisplay*,ad, visserv->getObject(displayid_))
+    mDynamicCastGet(ArrowDisplay*,ad,visserv_->getObject(displayid_))
     par.set( sKeyArrowType(), (int) ad->getType() );
     par.set( sKeyLineWidth(), ad->getLineWidth() );
 }
@@ -887,7 +885,7 @@ void ArrowSubItem::handleMenuCB( CallBacker* cb )
 	uiArrowDialog dlg( getUiParent() );
 	dlg.setColor( set_->disp_.color_ );
 	dlg.setArrowType( arrowtype_ );
-	mDynamicCastGet(ArrowDisplay*,ad, visserv->getObject(displayid_));
+	mDynamicCastGet(ArrowDisplay*,ad,visserv_->getObject(displayid_));
 	dlg.setLineWidth( ad->getLineWidth() );
 	dlg.propertyChange.notify( mCB(this,ArrowSubItem,propertyChange) );
 	dlg.go();
@@ -914,9 +912,7 @@ void ArrowSubItem::propertyChange( CallBacker* cb )
     setScale( defscale_*dlg->getScale() );
     setColor( dlg->getColor() );
 
-    mDynamicCastGet(ArrowDisplay*,ad,
-	    	    visserv->getObject(displayid_));
-
+    mDynamicCastGet(ArrowDisplay*,ad,visserv_->getObject(displayid_));
     ad->setType( (ArrowDisplay::Type) arrowtype );
     ad->setLineWidth( dlg->getLineWidth() );
 
@@ -944,12 +940,12 @@ bool ImageSubItem::init()
     if (  displayid_==-1 )
     {
 	ImageDisplay* id = ImageDisplay::create();
-	visserv->addObject( id, sceneID(), true );
+	visserv_->addObject( id, sceneID(), true );
 	displayid_ = id->id();
 	id->setName( name_ );
     }
 
-    mDynamicCastGet(ImageDisplay*,id, visserv->getObject(displayid_))
+    mDynamicCastGet(ImageDisplay*,id,visserv_->getObject(displayid_))
     if ( !id ) return false;
 
     id->needFileName.notifyIfNotNotified(
@@ -1004,7 +1000,7 @@ const char* ImageSubItem::parentType() const
 void ImageSubItem::fillStoragePar( IOPar& par ) const
 {
     SubItem::fillStoragePar( par );
-    mDynamicCastGet(ImageDisplay*,id, visserv->getObject(displayid_))
+    mDynamicCastGet(ImageDisplay*,id,visserv_->getObject(displayid_))
     par.set( sKey::FileName, id->getFileName() );
 }
 
@@ -1052,7 +1048,7 @@ void ImageSubItem::updateColumnText(int col)
 void ImageSubItem::selectFileName() const
 {
     mDynamicCastGet(Annotations::ImageDisplay*,id,
-		    visserv->getObject(displayid_))
+		    visserv_->getObject(displayid_))
     if ( !id ) return;
 
     BufferString filename = id->getFileName();
