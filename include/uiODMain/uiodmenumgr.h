@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.28 2007-07-16 06:46:44 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.29 2007-08-31 10:20:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,6 +122,7 @@ protected:
     void		manStrat(CallBacker*);
     void		updateDTectToolBar(CallBacker*);
     void		updateDTectMnus(CallBacker*);
+    void		updateWindowsMenu(CallBacker*);
 
     uiMenuItem*		stereooffitm_;
     uiMenuItem*		stereoredcyanitm_;

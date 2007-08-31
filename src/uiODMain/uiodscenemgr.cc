@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.108 2007-08-07 04:46:12 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.109 2007-08-31 10:20:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -263,6 +263,10 @@ void uiODSceneMgr::setSceneName( int sceneid, const char* nm )
 	}
     }
 }
+
+
+const char* uiODSceneMgr::getSceneName( int sceneid )
+{ return visServ().getObjectName( sceneid ); }
 
 
 void uiODSceneMgr::storePositions()
@@ -597,6 +601,12 @@ void uiODSceneMgr::getSoViewers( ObjectSet<uiSoViewer>& vwrs )
 }
 
 
+void uiODSceneMgr::getSceneNames( BufferStringSet& nms, int& active )
+{
+// TODO
+}
+
+
 void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 {
     BufferString capt( "Tree scene " ); capt += vwridx;
@@ -761,7 +771,7 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	Scene& scene = *scenes_[idx];
-	if ( sceneid >= 0 && sceneid != scene.sovwr_->sceneID() ) continue;
+	if ( sceneid>=0 && sceneid!=scene.sovwr_->sceneID() ) continue;
 
 	uiODDisplayTreeItem* itm;
 	if ( !strcmp( type, "Horizon" ) ) 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.47 2007-06-29 11:52:52 cvshelene Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.48 2007-08-31 10:20:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,21 +16,20 @@ ________________________________________________________________________
 #include "datapack.h"
 #include "emposid.h"
 
-
+class BufferStringSet;
 class MultiID;
 class uiDockWin;
+class uiFlatViewWin;
 class uiGroup;
 class uiListView;
 class uiODTreeTop;
 class uiSliderExtra;
 class uiSoViewer;
+class uiThumbWheel;
 class uiTreeFactorySet;
 class uiTreeItem;
 class uiVisPartServer;
 class uiWorkSpace;
-class uiFlatViewWin;
-namespace Pick { class Set; }
-class uiThumbWheel;
 
 
 /*!\brief Manages the scenes and the corresponding trees.
@@ -47,6 +46,7 @@ public:
     int				addScene(bool maximized);
     void			removeScene(CallBacker*);
     void			setSceneName(int sceneid,const char*);
+    const char*			getSceneName(int sceneid);
     CNotifier<uiODSceneMgr,int>	sceneClosed;
     CNotifier<uiODSceneMgr,int>	treeToBeAdded;
 
@@ -95,6 +95,7 @@ public:
     void			dWheelMoved(CallBacker*);
 
     void			getSoViewers(ObjectSet<uiSoViewer>&);
+    void			getSceneNames(BufferStringSet&,int& active);
 
     void			displayIn2DViewer(int visid,int attribid,
 	    					  bool wva);

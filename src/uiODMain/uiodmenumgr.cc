@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.91 2007-08-22 10:53:57 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.92 2007-08-31 10:20:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,8 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     mantb_ = new uiToolBar( &appl_, "Manage data" );
 
     appl_.applMgr().visServer()->createToolBars();
+    appl_.applMgr().visServer()->nrScenesChange().notify(
+	    			mCB(this,uiODMenuMgr,updateWindowsMenu) );
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectMnus) );
 }
@@ -342,6 +344,15 @@ void uiODMenuMgr::fillWinMenu()
     mInsertItem( tileitm, "&Auto", mTileAutoMnuItm );
     mInsertItem( tileitm, "&Horizontal", mTileHorMnuItm );
     mInsertItem( tileitm, "&Vertical", mTileVerMnuItm );
+}
+
+
+void uiODMenuMgr::updateWindowsMenu( CallBacker* )
+{
+    BufferStringSet scenenms;
+    int activescene = 0;
+    sceneMgr().getSceneNames( scenenms, activescene );
+// TODO fill winmnu
 }
 
 
