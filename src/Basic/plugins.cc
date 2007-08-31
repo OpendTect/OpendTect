@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2003
- RCS:           $Id: plugins.cc,v 1.52 2007-07-04 08:24:23 cvsbert Exp $
+ RCS:           $Id: plugins.cc,v 1.53 2007-08-31 10:34:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,7 @@ SharedLibAccess::SharedLibAccess( const char* lnm )
 
 #endif
 
-    if( DBG::isOn(DBG_SETTINGS) )
+    if( DBG::isOn(DBG_PROGSTART) )
     {
 	BufferString msg( "Attempt to get open handle for sh lib " );
 	msg += lnm; msg += handle_ ? " succeeded" : " failed";
@@ -204,7 +204,7 @@ void PluginManager::getDefDirs()
     fp.add( GetPlfSubDir() );
     userlibdir_ = fp.fullPath();
 
-    if( DBG::isOn(DBG_SETTINGS) )
+    if( DBG::isOn(DBG_PROGSTART) )
     {
         BufferString msg( "plugins.cc - getDefDirs\n" );
 	msg += "appdir_="; msg += appdir_;
