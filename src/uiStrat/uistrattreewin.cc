@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:		$Id: uistrattreewin.cc,v 1.10 2007-08-31 14:48:08 cvshelene Exp $
+ RCS:		$Id: uistrattreewin.cc,v 1.11 2007-09-03 15:15:43 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -146,6 +146,7 @@ void uiStratTreeWin::editCB( CallBacker* )
 	for ( int idx=0; idx<rt->nrLevels(); idx++ )
 	{
 	    Level* lvl = new Level( *rt->level(idx) );
+	    lvl->unit_ = 0;
 	    tmptree_->addLevel( lvl );
 	}
     }
@@ -220,7 +221,7 @@ void uiStratTreeWin::selLvlChgCB( CallBacker* )
 
 void uiStratTreeWin::rClickLvlCB( CallBacker* )
 {
-    if ( !strcmp( editmnuitem_->text(), mLockTxt ) ) return;
+    if ( strcmp( editmnuitem_->text(), mLockTxt ) ) return;
     int curit = lvllistfld_->box()->currentItem();
     uiPopupMenu mnu( this, "Action" );
     mnu.insertItem( new uiMenuItem("Create New ..."), 0 );
@@ -309,8 +310,8 @@ void uiStratTreeWin::editLevel( bool create )
     Level* curlvl = 0;
     if ( !create && lvllistfld_->box()->currentItem()>-1 )
     {
-	curlvl = const_cast<Level*> ( RT().getLevel( lvllistfld_->box()
-		    					->getText() ) );
+	curlvl = const_cast<Level*> ( tmptree_->getLevel( lvllistfld_->box()
+		    						->getText() ) );
 	if ( curlvl )
 	{
 	    newlvldlg.lvlnmfld_->setText( curlvl->name_ );
