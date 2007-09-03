@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.200 2007-08-27 09:58:23 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.201 2007-09-03 16:19:45 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -813,6 +813,8 @@ bool uiODApplMgr::handleEMServEv( int evid )
 	for ( int lidx=0; h2d && lidx<h2d->geometry().nrLines(); lidx++ )
 	{
 	    const int lineid = h2d->geometry().lineID( lidx );
+	    if ( h2d->geometry().syncBlocked(lineid) )
+		continue;
 	    const MultiID& lset = h2d->geometry().lineSet( lineid );
 	    const char* lnm = h2d->geometry().lineName( lineid );
 	    PosInfo::Line2DData ldat;

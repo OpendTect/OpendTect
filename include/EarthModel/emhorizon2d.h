@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.10 2007-08-24 06:55:44 cvsjaap Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.11 2007-09-03 16:19:45 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -36,6 +36,9 @@ public:
     int				lineID(int idx) const;
     const char*			lineName(int id) const;
     const MultiID&		lineSet(int id) const;
+    int 			addLine(const MultiID& linesetid, 
+					const char* line,int step=1);
+
     int				addLine(const TypeSet<Coord>&,
 					int start,int step,
 					const MultiID& lineset,
@@ -43,6 +46,7 @@ public:
 				/*!<\returns id of new line. */
     bool    			syncLine(const MultiID& lset,const char* lnm,
 					 const PosInfo::Line2DData&);
+    bool			syncBlocked(int id) const;
     void			setLineInfo(int id,const char* linenm,
 	    				    const MultiID& linesetid);
     void			removeLine(int id);
@@ -71,6 +75,8 @@ protected:
     static const char*		lineidsstr_;
     static const char*		linenamesstr_;
     static const char*		linesetprefixstr_;
+
+    int				synclineid_;
 };
 
 /*!

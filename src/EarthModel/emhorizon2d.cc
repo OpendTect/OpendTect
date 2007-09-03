@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.14 2007-08-24 06:55:44 cvsjaap Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.15 2007-09-03 16:19:45 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ const char* Horizon2DGeometry::linesetprefixstr_ = "Set ID of line ";
     
 Horizon2DGeometry::Horizon2DGeometry( Surface& surface )
     : HorizonGeometry( surface )
+    , synclineid_(-1)
 {}
 
 
@@ -86,6 +87,31 @@ const MultiID& Horizon2DGeometry::lineSet( int lid ) const
 }
 
 
+int Horizon2DGeometry::addLine( const MultiID& linesetid, const char* line,
+       				int step )
+{
+    linenames_.add( line );
+    linesets_ += linesetid;
+
+    for ( int idx=sections_.size()-1; idx>=0; idx-- )
+    {
+	Geometry::Horizon2DLine* section =
+		reinterpret_cast<Geometry::Horizon2DLine*>( sections_[idx] );
+	const int lineid = section->addUdfRow( 0, 0, step );
+	if ( idx )
+	    continue;
+
+	lineids_ += lineid;
+    }
+
+    synclineid_ = lineids_[lineids_.size()-1];
+    ((Horizon2D&) surface_).syncGeometry();
+    synclineid_ = -1;
+
+    return lineids_[lineids_.size()-1];
+}
+	    
+
 int Horizon2DGeometry::addLine( const TypeSet<Coord>& path, int start, int step,
 				const MultiID& linesetid, const char* line )
 {
@@ -125,6 +151,10 @@ bool Horizon2DGeometry::syncLine( const MultiID& linesetid, const char* linenm,
     }
     return false;
 }
+
+
+bool Horizon2DGeometry::syncBlocked( int lineid ) const
+{ return synclineid_!=-1 && synclineid_!=lineid; } 
 
 
 void Horizon2DGeometry::setLineInfo( int lineid, const char* line,
