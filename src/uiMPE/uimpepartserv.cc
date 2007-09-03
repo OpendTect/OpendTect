@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.62 2007-04-18 12:13:28 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.63 2007-09-03 14:14:02 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -261,7 +261,8 @@ bool uiMPEPartServer::showSetupDlg( const EM::ObjectID& emid,
     ( setupavailable ? \
 	"This object has saved tracker settings.\n" \
 	"Do you want to verify / change them?" : \
-	"No tracker settings were saved for this object.\n" \
+	"This object was created by manual drawing\n" \
+        "only, or its tracker settings were not saved.\n" \
 	"Do you want to specify them right now?" )
 
 void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
