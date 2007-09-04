@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.12 2007-08-31 14:48:07 cvshelene Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.13 2007-09-04 11:43:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -231,7 +231,7 @@ ioPixmap* uiStratRefTree::createLevelPixmap( const UnitRef* ref ) const
 	const Level* toplvl = Strat::RT().getLevel( ref, true );
 	if ( toplvl )
 	{
-	    Color col = toplvl->color();
+	    Color col = toplvl->color_;
 	    for ( int idw=0; idw<PMWIDTH; idw++ )
 	    {
 		rgbarr.set( idw, 0, col );
@@ -243,7 +243,7 @@ ioPixmap* uiStratRefTree::createLevelPixmap( const UnitRef* ref ) const
 	const Level* botlvl = Strat::RT().getLevel( ref, false );
 	if ( botlvl )
 	{
-	    Color col = botlvl->color();
+	    Color col = botlvl->color_;
 	    for ( int idw=0; idw<PMWIDTH; idw++ )
 	    {
 		rgbarr.set( idw, PMHEIGHT-3, col );

@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.20 2007-08-27 11:52:18 cvshelene Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.21 2007-09-04 11:43:33 cvsbert Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -24,6 +24,10 @@ static const char* rcsID = "$Id: stratunitrepos.cc,v 1.20 2007-08-27 11:52:18 cv
 static const char* filenamebase = "StratUnits";
 static const char* filetype = "Stratigraphic Tree";
 const char* Strat::UnitRepository::sKeyLith = "Lithology";
+
+static const char* sKeyGeneral = "General";
+static const char* sKeyUnits = "Units";
+static const char* sKeyLevel = "Level";
 
 namespace Strat
 {
@@ -104,7 +108,7 @@ const Level* RefTree::getLevel( const char* nm ) const
 {
     for ( int idx=0; idx<lvls_.size(); idx++ )
     {
-	if ( lvls_[idx]->name_ == nm )
+	if ( lvls_[idx]->name() == nm )
 	    return lvls_[idx];
     }
     return 0;
@@ -142,6 +146,7 @@ bool RefTree::write( std::ostream& strm ) const
 {
     ascostream astrm( strm );
     astrm.putHeader( filetype );
+    astrm.put( sKeyGeneral );
     astrm.put( sKey::Name, treename_ );
     const UnitRepository& repo = UnRepo();
     BufferString str;
@@ -153,6 +158,7 @@ bool RefTree::write( std::ostream& strm ) const
     }
 
     astrm.newParagraph();
+    astrm.put( sKeyUnits );
     UnitRef::Iter it( *this );
     const UnitRef& firstun = *it.unit(); firstun.fill( str );
     astrm.put( firstun.fullCode(), str );
@@ -162,19 +168,16 @@ bool RefTree::write( std::ostream& strm ) const
 	const UnitRef& un = *it.unit(); un.fill( str );
 	astrm.put( un.fullCode(), str );
     }
-
     astrm.newParagraph();
+
+    IOPar iop( sKeyLevel );
     for ( int idx=0; idx<lvls_.size(); idx ++ )
     {
-	const Level& lvl = *lvls_[idx];
-	if ( lvl.unit_ )
-	{
-	    lvl.fill( str );
-	    astrm.put( lvl.name_, str );
-	}
+	iop.clear();
+	lvls_[idx]->putTo( iop );
+	iop.putTo( astrm );
     }
 
-    astrm.newParagraph();
     return strm.good();
 }
 
@@ -266,6 +269,7 @@ void UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 	sfio.closeFail(); delete tree; return;
     }
 
+    astrm.next(); // Read away 'Units'
     while ( !atEndOfSection( astrm.next() ) )
     {
 	if ( !tree->addUnit(astrm.keyWord(),astrm.value()) )
@@ -278,10 +282,16 @@ void UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
     }
     tree->removeEmptyNodes();
 
-    while ( !atEndOfSection( astrm.next() ) )
+    while ( astrm.next().type() != ascistream::EndOfFile )
     {
-	Level* lvl = new Level( astrm.keyWord(), 0, true );
-	lvl->use( astrm.value(), *tree );
+	if ( atEndOfSection(astrm) )
+	    continue;
+	if ( !astrm.hasKeyword(sKeyLevel) )
+	    break;
+
+	Level* lvl = new Level( "", 0, true );
+	IOPar iop; iop.getFrom( astrm );
+	lvl->getFrom( iop, *tree );
 	tree->addLevel( lvl );
     }
 

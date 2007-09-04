@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          September 2007
- RCS:		$Id: uistratlvlsel.cc,v 1.1 2007-09-03 15:15:24 cvshelene Exp $
+ RCS:		$Id: uistratlvlsel.cc,v 1.2 2007-09-04 11:43:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ void uiStratLevelSel::fillLvlList( BufferStringSet& bfset ) const
 {
     bfset.add( sNoLevelTxt );
     for ( int idx=0; idx<Strat::RT().nrLevels(); idx++ )
-	bfset.add( Strat::RT().level(idx)->name_ );
+	bfset.add( Strat::RT().level(idx)->name() );
 }
 
 
@@ -63,5 +63,5 @@ const Color* uiStratLevelSel::getLvlColor() const
     const Strat::Level* lvl = Strat::RT().getLevel( lvlnmfld_->text() );
     if ( ! lvl ) return 0;
 
-    return &lvl->color();
+    return &lvl->color_;
 }

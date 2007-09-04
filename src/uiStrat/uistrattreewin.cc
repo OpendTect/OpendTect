@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:		$Id: uistrattreewin.cc,v 1.11 2007-09-03 15:15:43 cvshelene Exp $
+ RCS:		$Id: uistrattreewin.cc,v 1.12 2007-09-04 11:43:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -252,7 +252,7 @@ void uiStratTreeWin::fillLvlList()
     {
 	const Level* lvl = RT().level( idx );
 	if ( !lvl ) return;
-	lvllistfld_->box()->addItem( lvl->name_, lvl->color() );
+	lvllistfld_->box()->addItem( lvl->name(), lvl->color_ );
     }
 }
 
@@ -314,9 +314,9 @@ void uiStratTreeWin::editLevel( bool create )
 		    						->getText() ) );
 	if ( curlvl )
 	{
-	    newlvldlg.lvlnmfld_->setText( curlvl->name_ );
-	    newlvldlg. lvltimefld_->setValue( curlvl->time() );
-	    newlvldlg.lvlcolfld_->setColor( curlvl->color() );
+	    newlvldlg.lvlnmfld_->setText( curlvl->name() );
+	    newlvldlg. lvltimefld_->setValue( curlvl->timerg_.start );
+	    newlvldlg.lvlcolfld_->setColor( curlvl->color_ );
 	}
     }
     if ( newlvldlg.go() )
@@ -328,18 +328,17 @@ void uiStratTreeWin::editLevel( bool create )
 
 	}
 	else
-	    curlvl->name_ = newlvldlg.lvlnmfld_->text();
+	    curlvl->setName( newlvldlg.lvlnmfld_->text() );
 
-	curlvl->setColor( newlvldlg.lvlcolfld_->color() );
-	curlvl->setTime( newlvldlg.lvltimefld_->getfValue() );
+	curlvl->color_ = newlvldlg.lvlcolfld_->color();
+	curlvl->timerg_.start = newlvldlg.lvltimefld_->getfValue();
 	if ( create )
-	    lvllistfld_->box()->addItem( curlvl->name_, curlvl->color() );
+	    lvllistfld_->box()->addItem( curlvl->name(), curlvl->color_ );
 	else
 	{
 	    int curit = lvllistfld_->box()->currentItem();
-	    lvllistfld_->box()->setItemText( curit, curlvl->name_ );
-	    lvllistfld_->box()->setPixmap( curit, curlvl->color() );
+	    lvllistfld_->box()->setItemText( curit, curlvl->name() );
+	    lvllistfld_->box()->setPixmap( curit, curlvl->color_ );
 	}
     }
-	
 }
