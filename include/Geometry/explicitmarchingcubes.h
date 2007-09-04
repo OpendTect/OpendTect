@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: explicitmarchingcubes.h,v 1.1 2007-09-04 18:02:28 cvskris Exp $
+ RCS:           $Id: explicitmarchingcubes.h,v 1.2 2007-09-04 20:43:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ public:
 					      const SamplingData<float>& zrg);
     				/*!<If set, the coordinates in each dim will be
 				    scaled with these scales. */
+    const SamplingData<float>&	getAxisScale( int dim ) const;
 
     int				nrIndicesSets() const;
     int				nrIndices(int set) const;

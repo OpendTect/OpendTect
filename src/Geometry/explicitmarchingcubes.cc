@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.1 2007-09-04 18:02:28 cvskris Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.2 2007-09-04 20:43:11 cvskris Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -294,7 +294,24 @@ void ExplicitMarchingCubesSurface::setAxisScales(
     mSetScale( 2 );
 }
 
+
 #undef mSetScale
+
+const SamplingData<float>&
+ExplicitMarchingCubesSurface::getAxisScale( int dim ) const
+{
+    const SamplingData<float>* scale = 0;
+    if ( dim==mX )
+	scale = scale0_;
+    else if ( dim==mY )
+	scale = scale1_;
+    else
+	scale = scale2_;
+
+    static const SamplingData<float> dummy( 0, 1 );
+    return scale ? *scale : dummy;
+}
+
 
 #define mEndTriangleStrip \
     const int bsz = bucket->indices_.size(); \
