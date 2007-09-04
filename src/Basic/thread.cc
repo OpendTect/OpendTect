@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.27 2007-08-29 15:57:09 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.28 2007-09-04 20:42:04 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -21,6 +21,15 @@ Threads::Mutex::Mutex()
     pthread_mutexattr_init( &attr );
     pthread_mutex_init( &mutex, &attr );
 }
+
+
+//!Implemented since standard copy constuctor will hang the system
+Threads::Mutex::Mutex( const Mutex& )
+{
+    pthread_mutexattr_init( &attr );
+    pthread_mutex_init( &mutex, &attr );
+}
+
 
 Threads::Mutex::~Mutex()
 {
@@ -47,6 +56,12 @@ bool Threads::Mutex::tryLock()
 
 
 Threads::ReadWriteLock::ReadWriteLock()
+    : status_( 0 )
+{}
+
+
+//!Implemented since standard copy constuctor will hang the system
+Threads::ReadWriteLock::ReadWriteLock( const ReadWriteLock& )
     : status_( 0 )
 {}
 
@@ -137,6 +152,15 @@ Threads::ConditionVar::ConditionVar()
     pthread_condattr_init( &condattr );
     pthread_cond_init( &cond, &condattr );
 }
+
+
+//!Implemented since standard copy constuctor will hang the system
+Threads::ConditionVar::ConditionVar( const ConditionVar& )
+{
+    pthread_condattr_init( &condattr );
+    pthread_cond_init( &cond, &condattr );
+}
+
 
 Threads::ConditionVar::~ConditionVar()
 {

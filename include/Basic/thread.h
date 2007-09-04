@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.24 2007-08-29 15:57:09 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.25 2007-09-04 20:42:04 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -43,6 +43,7 @@ class Mutex
 {
 public:
 			Mutex();
+			Mutex(const Mutex&);
     virtual		~Mutex();	
 
     int			lock();
@@ -76,7 +77,6 @@ int function()
     //Do whatever you want to do
 }
 */
-
 
 
 class MutexLocker
@@ -132,6 +132,7 @@ class ConditionVar : public Mutex
 {
 public:
 				ConditionVar();
+				ConditionVar(const ConditionVar&);
 				~ConditionVar();
 
     int				wait();
@@ -159,6 +160,7 @@ class ReadWriteLock
 {
 public:
     			ReadWriteLock();
+    			ReadWriteLock(const ReadWriteLock&);
     virtual		~ReadWriteLock();
 
     void		readLock();
