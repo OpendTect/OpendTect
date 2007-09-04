@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.91 2007-08-24 06:55:44 cvsjaap Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.92 2007-09-04 17:03:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -279,7 +279,11 @@ dgbSurfaceReader::~dgbSurfaceReader()
     delete int32interpreter_;
     delete int64interpreter_;
     delete floatinterpreter_;
-    if ( surface_ ) surface_->unRef();
+    if ( surface_ )
+    {
+	surface_->geometry().resetChangedFlag();
+	surface_->unRef();
+    }
 }
 
 
