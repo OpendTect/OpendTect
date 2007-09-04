@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2004
- RCS:		$Id: uivisemobj.h,v 1.24 2007-08-30 20:46:04 cvskris Exp $
+ RCS:		$Id: uivisemobj.h,v 1.25 2007-09-04 17:02:18 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -48,8 +48,6 @@ public:
     int			nrSections() const;
     EM::SectionID	getSectionID(int idx) const;
     EM::SectionID	getSectionID(const TypeSet<int>* pickedpath) const;
-
-    int			nrSurfaceData() const;
 
     void		checkTrackingStatus();
     			/*!< Checks if there is a tracker for this object and
