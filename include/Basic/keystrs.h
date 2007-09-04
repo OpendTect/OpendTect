@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.20 2007-07-03 10:53:04 cvsbert Exp $
+ RCS:		$Id: keystrs.h,v 1.21 2007-09-04 08:07:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ namespace sKey
     extern const char*	Shortcuts	mImpl("Shortcuts");
     extern const char*	Size		mImpl("Size");
     extern const char*	Steering	mImpl("Steering");
+    extern const char*	StratRef	mImpl("Strat Level");
     extern const char*	Survey		mImpl("Survey");
     extern const char*	Table		mImpl("Table");
     extern const char*	Type		mImpl("Type");
