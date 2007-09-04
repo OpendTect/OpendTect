@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.19 2007-05-28 15:07:06 cvskris Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.20 2007-09-04 17:48:52 cvsyuancheng Exp $";
 
 #include "threadwork.h"
 #include "basictask.h"
@@ -340,29 +340,49 @@ bool Threads::ThreadWorkManager::addWork( ObjectSet<BasicTask>& work )
 	return true;
 
     const int nrwork = work.size();
-    ThreadWorkResultManager resultman( nrwork-1 );
-    resultman.rescond_.lock();
-
-    CallBack cb( mCB( &resultman, ThreadWorkResultManager, imFinished ));
-
-    for ( int idx=1; idx<nrwork; idx++ )
-	addWork( work[idx], &cb );
-
+    const int nrthreads = threads_.size();
     bool res = true;
-    while ( true )
+    if ( nrthreads==1 )
     {
-	int retval = work[0]->doStep();
-	if ( retval>0 ) continue;
+	for ( int idx=0; idx<nrwork && res; idx++ )
+	{
+	    while ( res )
+	    {
+		int retval = work[idx]->doStep();
+		if ( retval>0 ) continue;
 
-	if ( retval<0 )
-	    res = false;
-	break;
+		if ( retval<0 )
+		    res = false;
+		break;
+	    }
+	}
+    }
+    else
+    {
+	ThreadWorkResultManager resultman( nrwork-1 );
+	resultman.rescond_.lock();
+
+	CallBack cb( mCB( &resultman, ThreadWorkResultManager, imFinished ));
+
+	for ( int idx=1; idx<nrwork; idx++ )
+	    addWork( work[idx], &cb );
+
+	while ( true )
+	{
+	    int retval = work[0]->doStep();
+	    if ( retval>0 ) continue;
+
+	    if ( retval<0 )
+		res = false;
+	    break;
+	}
+
+	while ( !resultman.isFinished() )
+	    resultman.rescond_.wait();
+
+	resultman.rescond_.unlock();
+	res = !resultman.hasErrors();
     }
 
-    while ( !resultman.isFinished() )
-	resultman.rescond_.wait();
-
-    resultman.rescond_.unlock();
-
-    return res && !resultman.hasErrors();
+    return res;
 }
