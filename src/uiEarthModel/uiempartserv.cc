@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.118 2007-08-27 10:50:37 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.119 2007-09-04 17:05:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,26 +140,44 @@ bool uiEMPartServer::exportHorizon() { return ioHorizon( false ); }
 
 BufferString uiEMPartServer::getName( const EM::ObjectID& id ) const
 {
-    return em_.objectName(em_.getMultiID(id));
+    return em_.objectName( em_.getMultiID(id) );
 }
 
 
 const char* uiEMPartServer::getType( const EM::ObjectID& emid ) const
 {
-    return em_.objectType(em_.getMultiID(emid));
+    return em_.objectType( em_.getMultiID(emid) );
 }
 
 
 bool uiEMPartServer::isChanged( const EM::ObjectID& emid ) const
 {
-    EM::EMObject* emobj = em_.getObject(emid);
+    EM::EMObject* emobj = em_.getObject( emid );
     return emobj && emobj->isChanged();
+}
+
+
+bool uiEMPartServer::isGeometryChanged( const EM::ObjectID& emid ) const
+{
+    mDynamicCastGet(const EM::Surface*,emsurf,em_.getObject(emid));
+    return emsurf && emsurf->geometry().isChanged(0);
+}
+
+
+int uiEMPartServer::nrAttributes( const EM::ObjectID& emid ) const
+{
+    EM::EMObject* emobj = em_.getObject( emid );
+    if ( !emobj ) return 0;
+
+    EM::SurfaceIOData sd;
+    const char* err = EM::EMM().getSurfaceData( emobj->multiID(), sd );
+    return err && *err ? 0 : sd.valnames.size();
 }
 
 
 bool uiEMPartServer::isEmpty( const EM::ObjectID& emid ) const
 {
-    EM::EMObject* emobj = em_.getObject(emid);
+    EM::EMObject* emobj = em_.getObject( emid );
     return emobj && emobj->isEmpty();
 }
 

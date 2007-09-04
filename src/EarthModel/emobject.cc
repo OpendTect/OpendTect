@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.76 2007-07-06 14:11:05 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.77 2007-09-04 17:05:49 cvsnanne Exp $";
 
 #include "emobject.h"
 
@@ -59,7 +59,7 @@ EMObject::~EMObject()
     deepErase( posattribs_ );
     delete &preferredcolor_;
 
-    change.remove( mCB( this, EMObject, posIDChangeCB ) );
+    change.remove( mCB(this,EMObject,posIDChangeCB) );
     id_ = -2;	//To check easier if it has been deleted
 }
 

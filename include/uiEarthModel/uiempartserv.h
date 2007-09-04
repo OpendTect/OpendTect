@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.55 2007-08-24 12:17:07 cvsraman Exp $
+ RCS:           $Id: uiempartserv.h,v 1.56 2007-09-04 17:05:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,8 @@ public:
     BufferString	getName(const EM::ObjectID&) const;
     const char*		getType(const EM::ObjectID&) const;
 
+    int			nrAttributes(const EM::ObjectID&) const;
+    bool		isGeometryChanged(const EM::ObjectID&) const;
     bool		isChanged(const EM::ObjectID&) const;
     bool		isEmpty(const EM::ObjectID&) const;
     bool		isFullResolution(const EM::ObjectID&) const;

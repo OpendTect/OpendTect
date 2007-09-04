@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.39 2007-07-06 14:11:05 cvskris Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.40 2007-09-04 17:05:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,14 +141,19 @@ bool SurfaceSectionUndoEvent::action( bool doadd ) const
 }
 
 
+// ***** SurfaceGeometry *****
+
 SurfaceGeometry::SurfaceGeometry( Surface& surf_ )
     : changed_( false )
     , surface_( surf_ )
-{}
+{
+    surface_.change.notify( mCB(this,SurfaceGeometry,geomChangeCB) );
+}
 
 
 SurfaceGeometry::~SurfaceGeometry()
 {
+    surface_.change.remove( mCB(this,SurfaceGeometry,geomChangeCB) );
     removeAll();
 }
 
@@ -160,16 +165,18 @@ void SurfaceGeometry::removeAll()
 }
 
 
-bool SurfaceGeometry::enableChecks(bool yn)
-{ return false; }
+void SurfaceGeometry::geomChangeCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(const EMObjectCallbackData&,cbdata,cb);
+    if ( cbdata.event == EMObjectCallbackData::PositionChange )
+       changed_ = true;	
+}
 
 
-bool SurfaceGeometry::isChecksEnabled() const
-{ return false; }
+bool SurfaceGeometry::enableChecks( bool yn )		{ return false; }
+bool SurfaceGeometry::isChecksEnabled() const		{ return false; }
+bool SurfaceGeometry::isNodeOK( const PosID& ) const	{ return true; }
 
-
-bool SurfaceGeometry::isNodeOK(const PosID&) const
-{ return true; }
 
 /*
 void SurfaceGeometry::removeEmptySections()
@@ -248,10 +255,8 @@ bool SurfaceGeometry::setSectionName( const SectionID& sid, const char* nm,
 bool SurfaceGeometry::hasSection( const SectionID& sid ) const
 { return sectionIndex(sid)!=-1; }
 
-
 int SurfaceGeometry::sectionIndex( const SectionID& sid ) const
 { return sids_.indexOf(sid); }
-
 
 
 SectionID SurfaceGeometry::addSection( const char* nm, bool addtoundo )
@@ -312,7 +317,7 @@ bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtoundo )
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::SectionChange;
     cbdata.pid0 = PosID( surface_.id(), sid, 0 );
-    surface_.change.trigger(cbdata);
+    surface_.change.trigger( cbdata );
 
     changed_ = true;
     return true;
@@ -334,7 +339,7 @@ SectionID SurfaceGeometry::cloneSection( const SectionID& sid )
 
 
 const Geometry::Element*
-SurfaceGeometry::sectionGeometry( const SectionID& sid ) const
+    SurfaceGeometry::sectionGeometry( const SectionID& sid ) const
 {
     const int idx = sids_.indexOf( sid );
     return idx==-1 ? 0 : sections_[idx];
@@ -342,7 +347,7 @@ SurfaceGeometry::sectionGeometry( const SectionID& sid ) const
 
 
 Geometry::Element*
-SurfaceGeometry::sectionGeometry( const SectionID& sid )
+    SurfaceGeometry::sectionGeometry( const SectionID& sid )
 {
     const int idx = sids_.indexOf( sid );
     return idx==-1 ? 0 : sections_[idx];
@@ -992,15 +997,6 @@ Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
     if ( !ioobj )
 	{ surface_.errmsg_ = "Cannot find surface"; return 0; }
 
-    /*
-    int nrknots = 0;
-    for ( int idx=0; idx<nrSections(); idx++ )
-	nrknots += sections_[idx]->nrKnots();
-
-    if ( nrknots == 0 )
-	{ surface_.errmsg_ = "Empty surface"; return 0; }
-	*/
-
     PtrMan<EMSurfaceTranslator> tr = 
 			(EMSurfaceTranslator*)ioobj->getTranslator();
     if ( !tr || !tr->startWrite(surface_) )
@@ -1014,7 +1010,7 @@ Executor* SurfaceGeometry::saver( const SurfaceIODataSelection* newsel,
 	sel.selsections = newsel->selsections;
     }
 
-    Executor* exec = tr->writer(*ioobj);
+    Executor* exec = tr->writer( *ioobj, changed_ );
     surface_.errmsg_ = tr->errMsg();
     return exec;
 }

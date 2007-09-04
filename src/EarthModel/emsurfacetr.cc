@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.18 2007-08-06 08:51:43 cvsjaap Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.19 2007-09-04 17:05:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,11 +122,11 @@ bool EMSurfaceTranslator::startWrite( const EM::Surface& surf )
 }
 
 
-Executor* EMSurfaceTranslator::writer( const IOObj& ioobj )
+Executor* EMSurfaceTranslator::writer( const IOObj& ioobj, bool fullremove )
 {
     setIOObj( &ioobj );
     Executor* ret = getWriter();
-    if ( ret )
+    if ( fullremove && ret )
 	fullImplRemove( ioobj );
     return ret;
 }

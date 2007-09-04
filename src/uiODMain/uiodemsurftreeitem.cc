@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.23 2007-08-30 21:26:38 cvskris Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.24 2007-09-04 17:05:49 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -21,9 +21,10 @@ ___________________________________________________________________
 
 #include "uiattribpartserv.h"
 #include "uiempartserv.h"
+#include "uimpepartserv.h"
+#include "uimsg.h"
 #include "uiodscenemgr.h"
 #include "uivisemobj.h"
-#include "uimpepartserv.h"
 #include "visemobjdisplay.h"
 
 
@@ -146,7 +147,7 @@ void uiODEarthModelSurfaceDataTreeItem::createMenuCB( CallBacker* cb )
 	    					     attribNr() );
 
     const bool islocked = visserv->isLocked( displayID() );
-    const int nrsurfdata = uivisemobj_->nrSurfaceData();
+    const int nrsurfdata = applMgr()->EMServer()->nrAttributes( emid_ );
     BufferString itmtxt = "Surface data ("; itmtxt += nrsurfdata;
     itmtxt += ") ...";
     loadsurfacedatamnuitem_.text = itmtxt;
@@ -300,28 +301,38 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	sectionid = uivisemobj_->getSectionID( menu->getPath() );
     
     uiMPEPartServer* mps = applMgr()->mpeServer();
+    uiEMPartServer* ems = applMgr()->EMServer();
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(false) );
     mps->setCurrentAttribDescSet( applMgr()->attrServer()->curDescSet(true) );
 
     if ( mnuid==savemnuitem_.id )
     {
-	menu->setIsHandled(true);
-	applMgr()->EMServer()->storeObject( emid_, false );
+	menu->setIsHandled( true );
+	if ( ems->isGeometryChanged(emid_) && ems->nrAttributes(emid_)>0 )
+	{
+	    const bool res = uiMSG().askGoOn(
+		    "Geometry has been changed. Saved 'Surface Data' is\n"
+		    "not valid anymore and will be removed now.\n"
+		    "Continue saving?" );
+	    if ( !res )
+		return;
+	}
 
-	const MultiID mid = applMgr()->EMServer()->getStorageID(emid_);
+	applMgr()->EMServer()->storeObject( emid_, false );
+	const MultiID mid = ems->getStorageID(emid_);
 	mps->saveSetup( mid );
     }
     else if ( mnuid==saveasmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	const MultiID oldmid = applMgr()->EMServer()->getStorageID(emid_);
+	const MultiID oldmid = ems->getStorageID(emid_);
 	mps->prepareSaveSetupAs( oldmid );
 
-	applMgr()->EMServer()->storeObject( emid_, true );
+	ems->storeObject( emid_, true );
 	applMgr()->visServer()->setObjectName( displayid_,
-		(const char*) applMgr()->EMServer()->getName(emid_) );
+		(const char*) ems->getName(emid_) );
 
-	const MultiID newmid = applMgr()->EMServer()->getStorageID(emid_);
+	const MultiID newmid = ems->getStorageID(emid_);
 	mps->saveSetupAs( newmid );
 
 	updateColumnText( uiODSceneMgr::cNameColumn() );
@@ -357,12 +368,12 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	uiTreeItem* parent__ = parent_;
 
-	const MultiID mid = applMgr()->EMServer()->getStorageID(emid_);
+	const MultiID mid = ems->getStorageID(emid_);
 
 	applMgr()->visServer()->removeObject( displayid_, sceneID() );
 	delete uivisemobj_; uivisemobj_ = 0;
 
-	if ( !applMgr()->EMServer()->loadSurface(mid) )
+	if ( !ems->loadSurface(mid) )
 	    return;
 
 	emid_ = applMgr()->EMServer()->getObjectID(mid);

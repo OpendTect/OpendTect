@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacetr.h,v 1.7 2007-08-24 06:55:44 cvsjaap Exp $
+ RCS:		$Id: emsurfacetr.h,v 1.8 2007-09-04 17:05:49 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -98,7 +98,7 @@ public:
 
     virtual Executor*		reader(EM::Surface&)	{ return 0; }
 				/*!< Executor is managed by client. */
-    Executor*			writer(const IOObj&);
+    Executor*			writer(const IOObj&,bool fullimplremove=true);
 				/*!< Executor is managed by client. */ 
 
     const char*			errMsg() const		{ return errmsg_; }
