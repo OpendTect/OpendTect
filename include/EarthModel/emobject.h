@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.67 2007-08-31 13:14:46 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.68 2007-09-04 21:40:05 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -243,12 +243,12 @@ protected:
 
 #define mDefineEMObjFuncs( clss ) \
 public: \
+				clss( EM::EMManager& ); \
     static void			initClass(); \
     static EMObject*		create( EM::EMManager& emm ); \
     static const char*		typeStr(); \
     const char*			getTypeStr() const; \
 protected: \
-				clss( EM::EMManager& ); \
 				~clss()
 
 #define mImplementEMObjFuncs( clss, typenm ) \
