@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		August 2006
- RCS:		$Id: vismarchingcubessurface.h,v 1.1 2007-08-29 14:05:33 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurface.h,v 1.2 2007-09-04 19:45:18 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,7 @@ public:
     void				setScales(const SamplingData<float>&,
 	    					  const SamplingData<float>&,
 						  const SamplingData<float>&);
+    const SamplingData<float>&		getScale(int dim) const;
 
     void				touch();
     void				renderOneSide( int side );

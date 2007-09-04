@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: vismarchingcubessurface.cc,v 1.1 2007-08-29 14:21:14 cvskris Exp $
+ RCS:           $Id: vismarchingcubessurface.cc,v 1.2 2007-09-04 19:45:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,6 +123,12 @@ void MarchingCubesSurface::setScales(const SamplingData<float>& xrg,
 				     const SamplingData<float>& yrg,
 				     const SamplingData<float>& zrg)
 { surface_->setAxisScales( xrg, yrg, zrg ); }
+
+
+const SamplingData<float>& MarchingCubesSurface::getScale( int dim ) const
+{
+    return surface_->getAxisScale( dim );
+}
     
 
 }; // namespace visBase
