@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: explicitmarchingcubes.h,v 1.2 2007-09-04 20:43:11 cvskris Exp $
+ RCS:           $Id: explicitmarchingcubes.h,v 1.3 2007-09-05 19:02:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ public:
     void			setSurface(MarchingCubesSurface*);
     MarchingCubesSurface*	getSurface() { return surface_; }
     const MarchingCubesSurface*	getSurface() const { return surface_; }
-    void			setCoordList(CoordList*);
+    void			setCoordList(CoordList* cl, CoordList* nl=0 );
     void			removeAll();
 
     bool			update();
@@ -49,12 +49,21 @@ public:
     const SamplingData<float>&	getAxisScale( int dim ) const;
 
     int				nrIndicesSets() const;
-    int				nrIndices(int set) const;
-    				 /*!<Check with needsUpdate() if indices
-				     are up to date. */
-    const int32*		getIndices(int set) const;
+    				//!<Number is the same for both coords & normals
+    int				nrCoordIndices(int set) const;
+    				/*!<Check with needsUpdate() if indices
+				    are up to date. */
+    const int32*		getCoordIndices(int set) const;
 				/*!<Check with needsUpdate() if indices are
 				    up to date. */
+    int				nrNormalIndices(int set) const;
+    				 /*!<Check with needsUpdate() if indices
+				     are up to date. Normals are generated
+				     per face (triangle). */
+    const int32*		getNormalIndices(int set) const;
+				/*!<Check with needsUpdate() if indices are
+				    up to date.Normals are generated
+				    per face (triangle).*/
 
     bool			needsUpdate() const { return true; }
 
@@ -74,6 +83,7 @@ protected:
 
 
     CoordList*			coordlist_;
+    CoordList*			normallist_;
     MultiDimStorage<int>	coordindices_;
     Threads::ReadWriteLock	coordindiceslock_;
 

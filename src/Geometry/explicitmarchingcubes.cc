@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.2 2007-09-04 20:43:11 cvskris Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.3 2007-09-05 19:02:55 cvskris Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -23,8 +23,26 @@ static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.2 2007-09-04 20:43
 class ExplicitMarchingCubesSurfaceBucket
 {
 public:
-    Threads::Mutex		lock_;
-    TypeSet<int32>		indices_;
+    			ExplicitMarchingCubesSurfaceBucket(CoordList* nl)
+			    : normallist_( nl ) { if ( nl ) nl->ref(); }
+			~ExplicitMarchingCubesSurfaceBucket()
+			{
+			    for ( int idx=normalindices_.size()-1; idx>=0;idx--)
+			    {
+				if ( normalindices_[idx]==-1 )
+				    continue;
+
+				normallist_->remove( normalindices_[idx] );
+			    }
+
+			    normallist_->unRef();
+			}
+
+    Threads::Mutex	lock_;
+    TypeSet<int32>	coordindices_;
+
+    CoordList*		normallist_;
+    TypeSet<int32>	normalindices_;
 };
 
 class ExplicitMarchingCubesSurfaceUpdater : public ParallelTask
@@ -148,6 +166,7 @@ ExplicitMarchingCubesSurface::ExplicitMarchingCubesSurface(
     , scale1_( 0 )
     , scale2_( 0 )
     , coordlist_( 0 )
+    , normallist_( 0 )
 {
     if ( surface_ ) surface_->ref();
 }
@@ -156,9 +175,10 @@ ExplicitMarchingCubesSurface::ExplicitMarchingCubesSurface(
 ExplicitMarchingCubesSurface::~ExplicitMarchingCubesSurface()
 {
     if ( surface_ ) surface_->unRef();
-    deepErase( ibucketsset_ );
 
-    setCoordList( 0 );
+    setCoordList( 0, 0 );
+
+    deepErase( ibucketsset_ );
 
     delete scale0_;
     delete scale1_;
@@ -214,19 +234,25 @@ void ExplicitMarchingCubesSurface::removeAll()
 }
 
 
-void ExplicitMarchingCubesSurface::setCoordList( CoordList* cl )
+void ExplicitMarchingCubesSurface::setCoordList( CoordList* cl, CoordList* nl )
 {
     removeAll();
 
     if ( coordlist_ ) coordlist_->unRef();
     coordlist_ = cl;
     if ( coordlist_ ) coordlist_->ref();
+
+    if ( normallist_ ) normallist_->unRef();
+    normallist_ = nl;
+    if ( normallist_ ) normallist_->ref();
 }
 
 
 bool ExplicitMarchingCubesSurface::update()
 {
     removeAll();
+    if ( !surface_->models_.size() )
+	return true;
 
     PtrMan<ExplicitMarchingCubesSurfaceUpdater> updater = new
 	ExplicitMarchingCubesSurfaceUpdater( *this, true );
@@ -262,12 +288,20 @@ int ExplicitMarchingCubesSurface::nrIndicesSets() const
 { return ibucketsset_.size(); }
 
 
-int ExplicitMarchingCubesSurface::nrIndices( int idx ) const
-{ return ibucketsset_[idx]->indices_.size(); }
+int ExplicitMarchingCubesSurface::nrCoordIndices( int idx ) const
+{ return ibucketsset_[idx]->coordindices_.size(); }
 
 
-const int* ExplicitMarchingCubesSurface::getIndices( int idx ) const
-{ return ibucketsset_[idx]->indices_.arr(); }
+const int* ExplicitMarchingCubesSurface::getCoordIndices( int idx ) const
+{ return ibucketsset_[idx]->coordindices_.arr(); }
+
+
+int ExplicitMarchingCubesSurface::nrNormalIndices( int idx ) const
+{ return ibucketsset_[idx]->normalindices_.size(); }
+
+
+const int* ExplicitMarchingCubesSurface::getNormalIndices( int idx ) const
+{ return ibucketsset_[idx]->normalindices_.arr(); }
 
 
 #define mSetScale( dim ) \
@@ -314,20 +348,27 @@ ExplicitMarchingCubesSurface::getAxisScale( int dim ) const
 
 
 #define mEndTriangleStrip \
-    const int bsz = bucket->indices_.size(); \
+    const int bsz = bucket->coordindices_.size(); \
     if ( bsz<3 ) \
-	bucket->indices_.erase(); \
-    else if ( bucket->indices_[bsz-1]!=-1 ) \
+	bucket->coordindices_.erase(); \
+    else if ( bucket->coordindices_[bsz-1]!=-1 ) \
     { \
-	if ( bucket->indices_[bsz-2]==-1 ) \
-	    bucket->indices_.remove( bsz-1 ); \
-	else if ( bucket->indices_[bsz-3]==-1 ) \
+	if ( bucket->coordindices_[bsz-2]==-1 ) \
+	    bucket->coordindices_.remove( bsz-1 ); \
+	else if ( bucket->coordindices_[bsz-3]==-1 ) \
 	{ \
-	    bucket->indices_.remove( bsz-1 ); \
-	    bucket->indices_.remove( bsz-2 ); \
+	    bucket->coordindices_.remove( bsz-1 ); \
+	    bucket->coordindices_.remove( bsz-2 ); \
 	} \
 	else \
-	    bucket->indices_ += -1; \
+	    bucket->coordindices_ += -1; \
+    } \
+    if ( normallist_ ) \
+    { \
+	triangles.erase(); \
+	const int nsz = bucket->normalindices_.size(); \
+	if ( nsz && bucket->normalindices_[nsz]!=-1 ) \
+	    bucket->normalindices_[nsz] += -1; \
     }
 
 
@@ -368,7 +409,7 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 	}
 	else
 	{
-	    bucket = new ExplicitMarchingCubesSurfaceBucket;
+	    bucket = new ExplicitMarchingCubesSurfaceBucket( normallist_ );
 	    ibuckets_.add( &bucket, indicesbucket );
 	    ibucketsset_ += bucket;
 	}
@@ -382,6 +423,7 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 
     int arrpos = 0;
     bool gotonextstrip = false;
+    TypeSet<Coord3> triangles;
     for ( int idx=0; idx<nrtableindices; idx++ )
     {
 	const char neighbor = tableindices[arrpos++];
@@ -456,7 +498,26 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 	    continue;
 	}
 
-	bucket->indices_ += index;
+	bucket->coordindices_ += index;
+	if ( normallist_ )
+	{
+	    triangles += coordlist_->get( index );
+
+	    const int nrtri = triangles.size();
+	    const bool isodd = nrtri % 2;
+
+	    if ( nrtri>=3 )
+	    {
+		const Coord3 v0 = triangles[nrtri-(isodd?3:1)]-triangles[nrtri-2];
+		const Coord3 v1 = triangles[nrtri-(isodd?1:3)]-triangles[nrtri-2];
+		Coord3 normal = v0.cross( v1 );
+		if ( !normal.sqAbs() )
+		    normal = Coord3( 1, 0, 0 );
+
+		const int normidx = normallist_->add( normal );
+		bucket->normalindices_ += normidx;
+	    }
+	}
     }
 
     mEndTriangleStrip;
