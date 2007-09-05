@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.4 2007-09-05 20:44:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.5 2007-09-05 22:20:22 cvsyuancheng Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -507,8 +507,8 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 
 	    if ( nrtri>=3 )
 	    {
-		const Coord3 v0 = triangles[nrtri-(isodd?3:1)]-triangles[nrtri-2];
-		const Coord3 v1 = triangles[nrtri-(isodd?1:3)]-triangles[nrtri-2];
+		const Coord3 v0=triangles[nrtri-(isodd?3:1)]-triangles[nrtri-2];
+		const Coord3 v1=triangles[nrtri-(isodd?1:3)]-triangles[nrtri-2];
 		Coord3 normal = v0.cross( v1 );
 		if ( !normal.sqAbs() )
 		    normal = Coord3( 1, 0, 0 );

@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.2 2007-09-05 16:43:33 cvskris Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.3 2007-09-05 22:20:22 cvsyuancheng Exp $";
 
 #include "marchingcubes.h"
 
@@ -243,17 +243,17 @@ void MarchingCubesModel::set( const Array3D<float>& arr, int i0, int i1, int i2,
     const bool use110 = use0 && use1 && !mIsUdf(val110);
     const bool use111 = use0 && use1 && use2 && !mIsUdf(val111);
 
-    const bool sign000 = use000 && val000>=threshold;
-    const bool sign001 = use001 && val001>=threshold;
-    const bool sign010 = use010 && val010>=threshold;
-    const bool sign100 = use100 && val100>=threshold;
+    const bool sign000 = use000 && val000>threshold;
+    const bool sign001 = use001 && val001>threshold;
+    const bool sign010 = use010 && val010>threshold;
+    const bool sign100 = use100 && val100>threshold;
 
     if ( use000 && use001 && use010 && use011 &&
 	 use100 && use101 && use110 && use111 )
     {
 	model_ = determineModel( sign000, sign001, sign010,
-		    val011>=threshold, sign100, val101>=threshold,
-		    val110>=threshold, val111>=threshold );
+		    val011>threshold, sign100, val101>threshold,
+		    val110>threshold, val111>threshold );
     }
     else if ( use000 && sign000 )
 	model_ = 255;
@@ -601,7 +601,7 @@ void SeedBasedImplicit2MarchingCubes::addMarchingCube( int idx, int idy,
 	return;
 
     const bool willcontinue =
-	docontinue && array_->get(idx,idy,idz)>=threshold_;
+	docontinue && array_->get(idx,idy,idz)>threshold_;
 
     unsigned char oldproc = visitedlocations_->get( idx, idy, idz );
     if ( oldproc==2 )
@@ -660,7 +660,7 @@ protected:
 	    const MarchingCubesModel& model =
 		mc2i_.surface_.models_.getRef( surfaceidxs, 0 );
 	    const bool originsign =
-		MarchingCubesModel::getCornerSign( model.model_, 0 );
+		model.getCornerSign( model.model_, 0 );
 	    const bool neighborsign = !originsign;
 
 	    int mindist;
@@ -722,10 +722,7 @@ public:
 	const int prevalue = mc2i_.result_.get( posx_, posy_, posz_ );
 	mc2i_.resultlock_.readUnLock();
 
-	if ( !prevalue )
-	    return cFinished();
-
-	const int neighbordist = prevalue>=0
+	const int neighbordist = prevalue>0
 	    ? MarchingCubesModel::cAxisSpacing
 	    : -MarchingCubesModel::cAxisSpacing;
 
@@ -872,8 +869,8 @@ bool MarchingCubes2Implicit::shouldSetResult( int newval, int prevvalue )
 {
     if ( !mIsUdf( prevvalue ) )
     {
-	const bool prevsign = prevvalue>=0;
-	const bool newsign = newval>=0;
+	const bool prevsign = prevvalue>0;
+	const bool newsign = newval>0;
 	
 	if ( prevsign!=newsign )
 	    return false;
