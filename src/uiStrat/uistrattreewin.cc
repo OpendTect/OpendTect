@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:		$Id: uistrattreewin.cc,v 1.12 2007-09-04 11:43:33 cvsbert Exp $
+ RCS:		$Id: uistrattreewin.cc,v 1.13 2007-09-05 07:06:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,8 @@ ________________________________________________________________________
 #define	mLockTxt	"&Lock"
 
 
+static const char* sNoLevelTxt      = "--- Empty ---";
+
 static const char* infolvltrs[] =
 {
     "Survey level",
@@ -43,7 +45,7 @@ static const char* infolvltrs[] =
 using namespace Strat;
 
 uiStratTreeWin::uiStratTreeWin( uiParent* p )
-    : uiMainWin(p,"Manage Stratigraphy", 0, true, true)
+    : uiMainWin(p,"Manage Stratigraphy", 0, true, false)
     , tmptree_( 0 )
 {
     createMenus();
@@ -225,7 +227,7 @@ void uiStratTreeWin::rClickLvlCB( CallBacker* )
     int curit = lvllistfld_->box()->currentItem();
     uiPopupMenu mnu( this, "Action" );
     mnu.insertItem( new uiMenuItem("Create New ..."), 0 );
-    if ( curit>-1 )
+    if ( curit>-1 && !lvllistfld_->box()->isPresent( sNoLevelTxt ) )
     {
 	mnu.insertItem( new uiMenuItem("Edit ..."), 1 );
 	mnu.insertItem( new uiMenuItem("Remove"), 2 );
@@ -254,6 +256,8 @@ void uiStratTreeWin::fillLvlList()
 	if ( !lvl ) return;
 	lvllistfld_->box()->addItem( lvl->name(), lvl->color_ );
     }
+    if ( !nrlevels )
+	lvllistfld_->box()->addItem( sNoLevelTxt );
 }
 
 
@@ -333,7 +337,11 @@ void uiStratTreeWin::editLevel( bool create )
 	curlvl->color_ = newlvldlg.lvlcolfld_->color();
 	curlvl->timerg_.start = newlvldlg.lvltimefld_->getfValue();
 	if ( create )
+	{
 	    lvllistfld_->box()->addItem( curlvl->name(), curlvl->color_ );
+	    if ( lvllistfld_->box()->isPresent( sNoLevelTxt ) )
+		lvllistfld_->box()->removeItem( 0 );
+	}
 	else
 	{
 	    int curit = lvllistfld_->box()->currentItem();
