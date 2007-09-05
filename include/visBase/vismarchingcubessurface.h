@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		August 2006
- RCS:		$Id: vismarchingcubessurface.h,v 1.2 2007-09-04 19:45:18 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurface.h,v 1.3 2007-09-05 19:04:10 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -25,6 +25,7 @@ namespace visBase
 {
 
 class Coordinates;
+class Normals;
 
 /*!Class to display ::IsoSurfaces. */
 
@@ -54,6 +55,7 @@ protected:
     void				updateHints();
 
     Coordinates*				coords_;
+    Normals*					normals_;
     SoShapeHints*				hints_;
     ObjectSet<SoIndexedTriangleStripSet>	triangles_;
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: vismarchingcubessurface.cc,v 1.2 2007-09-04 19:45:18 cvskris Exp $
+ RCS:           $Id: vismarchingcubessurface.cc,v 1.3 2007-09-05 19:04:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,8 +14,10 @@ ________________________________________________________________________
 #include "explicitmarchingcubes.h"
 #include "marchingcubes.h"
 #include "viscoord.h"
+#include "visnormals.h"
 
 #include <Inventor/nodes/SoIndexedTriangleStripSet.h>
+#include <Inventor/nodes/SoNormalBinding.h>
 #include <Inventor/nodes/SoShapeHints.h>
 
 mCreateFactoryEntry( visBase::MarchingCubesSurface );
@@ -26,15 +28,25 @@ namespace visBase
 MarchingCubesSurface::MarchingCubesSurface()
     : VisualObjectImpl( true )
     , coords_( Coordinates::create() )
+    , normals_( Normals::create() )
     , hints_( new SoShapeHints )
     , side_( 0 )
     , surface_( new ExplicitMarchingCubesSurface( 0 ) )
 {
     coords_->ref();
     addChild( coords_->getInventorNode() );
+
+    normals_->ref();
+    addChild( normals_->getInventorNode() );
+
     addChild( hints_ );
 
-    surface_->setCoordList( new CoordListAdapter(*coords_) );
+    SoNormalBinding* normalbinding = new SoNormalBinding;
+    addChild( normalbinding );
+    normalbinding->value = SoNormalBindingElement::PER_FACE_INDEXED;
+
+    surface_->setCoordList( new CoordListAdapter(*coords_),
+	    		    new NormalListAdapter(*normals_) );
 
     renderOneSide( 0 );
 }
@@ -46,6 +58,7 @@ MarchingCubesSurface::~MarchingCubesSurface()
 	triangles_[idx]->unref();
 
     coords_->unRef();
+    normals_->unRef();
     delete surface_;
 }
 
@@ -100,7 +113,10 @@ void MarchingCubesSurface::touch()
 	}
 
 	triangles_[idx]->coordIndex.setValuesPointer(
-		surface_->nrIndices(idx), surface_->getIndices(idx) );
+		surface_->nrCoordIndices(idx), surface_->getCoordIndices(idx) );
+
+	triangles_[idx]->normalIndex.setValuesPointer(
+		surface_->nrNormalIndices(idx), surface_->getNormalIndices(idx) );
     }
 
     for ( int idx=triangles_.size()-1; idx>=nrsets; idx-- )
