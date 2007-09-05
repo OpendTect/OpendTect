@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.201 2007-09-03 16:19:45 cvsjaap Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.202 2007-09-05 07:07:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,6 +94,7 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
     	, getOtherFormatData(this)
 	, otherformatvisid_(-1)
 	, otherformatattrib_(-1)
+    	, strattreewin_(0)
 {
     pickserv_ = new uiPickPartServer( applservice_ );
     visserv_ = new uiVisPartServer( applservice_ );
@@ -125,6 +126,7 @@ uiODApplMgr::~uiODApplMgr()
     delete wellserv_;
     delete wellattrserv_;
     delete &applservice_;
+    if ( strattreewin_ ) delete strattreewin_;
 }
 
 
@@ -274,8 +276,9 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 
 void uiODApplMgr::manStrat()
 {
-    uiStratTreeWin treewin( &appl_ );
-    treewin.show();
+    if ( strattreewin_ ) delete strattreewin_;
+    strattreewin_ = new uiStratTreeWin( &appl_ );
+    strattreewin_->show();
 }
 
 

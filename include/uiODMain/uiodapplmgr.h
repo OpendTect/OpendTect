@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.49 2007-07-09 10:12:07 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.50 2007-09-05 07:07:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ class uiPopupMenu;
 class uiPickPartServer;
 class uiSeisPartServer;
 class uiSoViewer;
+class uiStratTreeWin;
 class uiVisPartServer;
 class uiWellAttribPartServer;
 class uiWellPartServer;
@@ -166,6 +167,8 @@ protected:
     uiWellPartServer*		wellserv_;
     uiWellAttribPartServer*	wellattrserv_;
     uiMPEPartServer*		mpeserv_;
+
+    uiStratTreeWin*		strattreewin_;
 
     bool			handleEvent(const uiApplPartServer*,int);
     void*			deliverObject(const uiApplPartServer*,int);
