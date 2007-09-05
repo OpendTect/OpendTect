@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2007
- RCS:           $Id: marchingcubeseditor.h,v 1.1 2007-09-04 18:02:28 cvskris Exp $
+ RCS:           $Id: marchingcubeseditor.h,v 1.2 2007-09-05 15:24:13 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ MarchingCubesSurfaces.
 
 The modification of the implicit representation is guided by:
 
-NewImplicitShape = OriginalShape * Kernel * factor
+NewImplicitShape = OriginalShape + Kernel * factor
 
 The Kernel is a scalar field (values between 0 and 255) represents the shape of 
 the movement, and the factor is set by from the outside.
@@ -41,11 +41,15 @@ public:
     			MarchingCubesSurfaceEditor(MarchingCubesSurface&);
     virtual		~MarchingCubesSurfaceEditor();
 
+    bool		setKernel(Array3D<unsigned char>*,
+	    			  int xpos, int ypos, int zpos );
+    			//!<Kernel becomes mine
+
     bool		setFactor(int); //!<a value of 255 is one voxel if
     					//!<the kernel is 255
     int			getFactor() const { return factor_; }
 
-    virtual void	affectedVolume(Interval<int>& xrg,
+    virtual bool	affectedVolume(Interval<int>& xrg,
 	    			       Interval<int>& yrg,
 				       Interval<int>& zrg) const;
 
@@ -57,19 +61,17 @@ protected:
 				    if it has changed kernel size or
 				    kernel position. */
 
-    virtual Interval<int>	kernelXRange() const			= 0;
-    virtual Interval<int>	kernelYRange() const			= 0;
-    virtual Interval<int>	kernelZRange() const			= 0;
-
-    virtual bool		computeKernel(Array3D<unsigned char>&) const =0;
-
     MarchingCubesSurface&	surface_;
     int				factor_;
     int				prevfactor_;
     Array3D<unsigned char>*	kernel_;
-    Array3D<int>*		implicitsurface_;
+    Array3D<int>*		changedsurface_;
     Array3D<int>*		originalsurface_;
     float			threshold_;
+
+    int				xorigin_;
+    int				yorigin_;
+    int				zorigin_;
 
 private:
     int				nrTimes() const;
