@@ -4,7 +4,7 @@
  * DATE     : August 2007
 -*/
 
-static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.2 2007-09-05 15:24:13 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.3 2007-09-05 22:21:09 cvsyuancheng Exp $";
 
 #include "marchingcubeseditor.h"
 #include "marchingcubes.h"
@@ -57,7 +57,7 @@ MarchingCubesSurfaceEditor::~MarchingCubesSurfaceEditor()
 bool MarchingCubesSurfaceEditor::setKernel( Array3D<unsigned char>* arr,
 					    int xpos, int ypos, int zpos )
 {
-    if ( !arr || arr->isOK() )
+    if ( !arr || !arr->isOK() )
 	mErrRet;
 
     delete kernel_;
@@ -135,7 +135,7 @@ int MarchingCubesSurfaceEditor::nrTimes() const
 
 bool MarchingCubesSurfaceEditor::doPrepare( int nrthreads )
 {
-    return kernel_ && changedsurface_ && !originalsurface_ &&
+    return kernel_ && changedsurface_ && originalsurface_ &&
 	 kernel_->isOK() && changedsurface_->isOK() &&
 	 originalsurface_->isOK();
 }
@@ -149,7 +149,8 @@ bool MarchingCubesSurfaceEditor::doFinish( bool success )
     {
 	Array3DImpl<float> convarr( originalsurface_->info() );
 	ValueSeries<float>* valseries =
-	    new ArrayValueSeries<float,int>(originalsurface_->getData(),false);
+	    new ArrayValueSeries<float,int>(originalsurface_->getData(),false,
+		    originalsurface_->info().getTotalSz() );
 
 	if ( convarr.setStorage( valseries ) )
 	    surface_.setVolumeData( xorigin_, yorigin_, zorigin_,  
