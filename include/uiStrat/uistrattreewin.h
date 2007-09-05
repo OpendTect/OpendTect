@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.8 2007-08-31 14:48:07 cvshelene Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.9 2007-09-05 15:31:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,8 +17,9 @@ ________________________________________________________________________
 class uiLabeledListBox;
 class uiListViewItem;
 class uiMenuItem;
+class uiStratLevelDlg;
 class uiStratRefTree;
-namespace Strat { class RefTree; }
+namespace Strat { class RefTree; class Level; }
 
 
 /*!\brief Main window for Stratigraphy display: holds the reference tree
@@ -51,6 +52,8 @@ protected:
     BufferString		getCodeFromLVIt(const uiListViewItem*) const;
     void			fillTmpTreeFromListview();
     void			editLevel(bool);
+    void			fillInLvlPars(Strat::Level*,
+	    				      const uiStratLevelDlg&,bool);
 
     void			editCB(CallBacker*);
     void			openCB(CallBacker*);

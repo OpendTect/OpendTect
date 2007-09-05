@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          September 2007
- RCS:           $Id: uistratlvlsel.h,v 1.1 2007-09-03 15:15:24 cvshelene Exp $
+ RCS:           $Id: uistratlvlsel.h,v 1.2 2007-09-05 15:31:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "callback.h"
+#include "uigroup.h"
 
+class CallBacker;
 class Color;
 class BufferStringSet;
 class uiGenInput;
@@ -22,7 +23,7 @@ class uiPushButton;
 
 /*!\brief used to tie a object ( Horizon, well marker... ) to a Strat::Level */
 
-class uiStratLevelSel : public CallBacker
+class uiStratLevelSel : public uiGroup
 {
 public:
 

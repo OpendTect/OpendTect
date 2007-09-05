@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          September 2007
- RCS:		$Id: uistratlvlsel.cc,v 1.2 2007-09-04 11:43:33 cvsbert Exp $
+ RCS:		$Id: uistratlvlsel.cc,v 1.3 2007-09-05 15:31:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,12 +22,13 @@ ________________________________________________________________________
 static const char* sNoLevelTxt	= "--Undefined--";
 
 uiStratLevelSel::uiStratLevelSel( uiParent* p )
+    : uiGroup(p)
 {
     BufferStringSet bfset;
     fillLvlList( bfset );
-    lvlnmfld_ = new uiGenInput( p, "Tied to level", StringListInpSpec(bfset) );
+    lvlnmfld_ = new uiGenInput( this,"Tied to level",StringListInpSpec(bfset) );
     CallBack cb = mCB(this,uiStratLevelSel,defineLvlCB);
-    deflvlbut_ = new uiPushButton( p, "&Define Level", cb, true );
+    deflvlbut_ = new uiPushButton( this, "&Define Level", cb, true );
     deflvlbut_->attach( rightOf, lvlnmfld_ );
 }
 

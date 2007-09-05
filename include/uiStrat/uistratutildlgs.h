@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          August 2007
- RCS:           $Id: uistratutildlgs.h,v 1.3 2007-08-31 14:48:07 cvshelene Exp $
+ RCS:           $Id: uistratutildlgs.h,v 1.4 2007-09-05 15:31:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ protected:
     uiGenInput*		unitlithfld_;
 
     void		selLithCB(CallBacker*);
+    bool		acceptOK(CallBacker*);
 
 };
 
@@ -65,10 +66,14 @@ public:
 
 			uiStratLevelDlg(uiParent*);
     uiGenInput*		lvlnmfld_;
+    uiGenInput*		lvltvstrgfld_;
+    uiGenInput*		lvltimergfld_;
     uiGenInput*		lvltimefld_;
     uiColorInput*	lvlcolfld_;
 
 protected:
+
+    void		isoDiaSel(CallBacker*);
 };
 
 #endif

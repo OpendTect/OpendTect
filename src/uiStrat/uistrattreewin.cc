@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:		$Id: uistrattreewin.cc,v 1.13 2007-09-05 07:06:15 cvshelene Exp $
+ RCS:		$Id: uistrattreewin.cc,v 1.14 2007-09-05 15:31:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -319,34 +319,52 @@ void uiStratTreeWin::editLevel( bool create )
 	if ( curlvl )
 	{
 	    newlvldlg.lvlnmfld_->setText( curlvl->name() );
-	    newlvldlg. lvltimefld_->setValue( curlvl->timerg_.start );
+	    bool isiso = curlvl->isTimeLevel();
+	    newlvldlg.lvltvstrgfld_->setValue(isiso);
+	    if ( isiso )
+		newlvldlg.lvltimefld_->setValue( curlvl->timerg_.start );
+	    else
+		newlvldlg.lvltimergfld_->setValue( curlvl->timerg_ );
+	    
 	    newlvldlg.lvlcolfld_->setColor( curlvl->color_ );
 	}
     }
     if ( newlvldlg.go() )
+	fillInLvlPars( curlvl, newlvldlg, create );
+}
+
+
+void uiStratTreeWin::fillInLvlPars( Level* curlvl, 
+				    const uiStratLevelDlg& newlvldlg,
+				    bool create )
+{
+    if ( !curlvl )
     {
-	if ( !curlvl )
-	{
-	    curlvl = new Level( newlvldlg.lvlnmfld_->text(), 0, false );
-	    tmptree_->addLevel( curlvl );
+	curlvl = new Level( newlvldlg.lvlnmfld_->text(), 0, false );
+	tmptree_->addLevel( curlvl );
+    }
+    else
+	curlvl->setName( newlvldlg.lvlnmfld_->text() );
 
-	}
-	else
-	    curlvl->setName( newlvldlg.lvlnmfld_->text() );
-
-	curlvl->color_ = newlvldlg.lvlcolfld_->color();
+    curlvl->color_ = newlvldlg.lvlcolfld_->color();
+    if ( newlvldlg.lvltvstrgfld_->getBoolValue() )
+    {
 	curlvl->timerg_.start = newlvldlg.lvltimefld_->getfValue();
-	if ( create )
-	{
-	    lvllistfld_->box()->addItem( curlvl->name(), curlvl->color_ );
-	    if ( lvllistfld_->box()->isPresent( sNoLevelTxt ) )
-		lvllistfld_->box()->removeItem( 0 );
-	}
-	else
-	{
-	    int curit = lvllistfld_->box()->currentItem();
-	    lvllistfld_->box()->setItemText( curit, curlvl->name() );
-	    lvllistfld_->box()->setPixmap( curit, curlvl->color_ );
-	}
+	curlvl->timerg_.stop = newlvldlg.lvltimefld_->getfValue();
+    }
+    else
+	curlvl->timerg_ = newlvldlg.lvltimergfld_->getFInterval();
+    
+    if ( create )
+    {
+	lvllistfld_->box()->addItem( curlvl->name(), curlvl->color_ );
+	if ( lvllistfld_->box()->isPresent( sNoLevelTxt ) )
+	    lvllistfld_->box()->removeItem( 0 );
+    }
+    else
+    {
+	int curit = lvllistfld_->box()->currentItem();
+	lvllistfld_->box()->setItemText( curit, curlvl->name() );
+	lvllistfld_->box()->setPixmap( curit, curlvl->color_ );
     }
 }
