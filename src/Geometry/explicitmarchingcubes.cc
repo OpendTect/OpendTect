@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.3 2007-09-05 19:02:55 cvskris Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.4 2007-09-05 20:44:04 cvsyuancheng Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -99,6 +99,7 @@ public:
     {
 	int idx = start;
 	int idxs[3];
+	
 	if ( !surface_.getSurface()->models_.getIndex(idx,idxs) )
 	{
 	    pErrMsg("Hugh");
@@ -254,6 +255,9 @@ bool ExplicitMarchingCubesSurface::update()
     if ( !surface_->models_.size() )
 	return true;
 
+    if ( !surface_ || surface_->models_.isEmpty() )
+	return true;
+
     PtrMan<ExplicitMarchingCubesSurfaceUpdater> updater = new
 	ExplicitMarchingCubesSurfaceUpdater( *this, true );
     if ( !updater->execute() )
@@ -364,12 +368,7 @@ ExplicitMarchingCubesSurface::getAxisScale( int dim ) const
 	    bucket->coordindices_ += -1; \
     } \
     if ( normallist_ ) \
-    { \
-	triangles.erase(); \
-	const int nsz = bucket->normalindices_.size(); \
-	if ( nsz && bucket->normalindices_[nsz]!=-1 ) \
-	    bucket->normalindices_[nsz] += -1; \
-    }
+	triangles.erase()
 
 
 
