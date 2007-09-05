@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: visnormals.cc,v 1.8 2006-05-31 12:42:53 cvskris Exp $
+ RCS:           $Id: visnormals.cc,v 1.9 2007-09-05 19:03:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,14 @@ void Normals::removeNormal(int idx)
     {
 	unusednormals += idx;
     }
+}
+
+
+Coord3 Normals::getNormal( int idx ) const
+{
+    Threads::MutexLocker lock( mutex );
+    const SbVec3f norm = normals->vector[idx];
+    return Coord3( norm[0], norm[1], norm[2] );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visnormals.h,v 1.5 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: visnormals.h,v 1.6 2007-09-05 19:03:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 
 #include "visdata.h"
+#include "positionlist.h"
 
 class CallBacker;
 class SoNormal;
@@ -38,6 +39,7 @@ public:
     void		setNormal( int, const Coord3& );
     int			addNormal( const Coord3& );
     void		removeNormal( int );
+    Coord3		getNormal(int) const;
 
     SoNode*		getInventorNode();
 
@@ -51,6 +53,24 @@ protected:
     TypeSet<int>	unusednormals;
     Threads::Mutex&	mutex;
     			
+};
+
+class NormalListAdapter : public CoordList
+{
+public:
+    		NormalListAdapter(Normals& n )
+		    : normals_( n )
+		{ normals_.ref(); }
+
+    int		add(const Coord3& n )	{ return normals_.addNormal(n); }
+    void	set(int idx,const Coord3& n)	{ normals_.setNormal(idx,n); }
+    void	remove(int idx)		{ normals_.removeNormal(idx); }
+    Coord3	get(int idx) const	{ return normals_.getNormal(idx); }
+
+protected:
+		~NormalListAdapter()	{ normals_.unRef(); }
+
+    Normals&	normals_;
 };
 
 };
