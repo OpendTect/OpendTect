@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.1 2007-09-04 18:02:28 cvskris Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.2 2007-09-05 16:43:33 cvskris Exp $";
 
 #include "marchingcubes.h"
 
@@ -693,7 +693,7 @@ protected:
 			originsign ? mindist : -mindist );
 	    }
 
-	    if ( !mc2i_.surface_.models_.next( surfaceidxs ) )
+	    if ( idx!=nrtimes-1 && !mc2i_.surface_.models_.next( surfaceidxs ) )
 		return false;
 	}
 	
