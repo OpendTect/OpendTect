@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.6 2007-09-06 19:32:43 cvskris Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.7 2007-09-06 20:41:23 cvskris Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -508,7 +508,7 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 	    triangles += coordlist_->get( index );
 
 	    const int nrtri = triangles.size();
-	    const bool reverse = (nrtri % 2)==righthandednormals_;
+	    const bool reverse = (nrtri % 2)!=righthandednormals_;
 
 	    if ( nrtri>=3 )
 	    {
