@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: explicitmarchingcubes.h,v 1.3 2007-09-05 19:02:55 cvskris Exp $
+ RCS:           $Id: explicitmarchingcubes.h,v 1.4 2007-09-06 19:32:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
     MarchingCubesSurface*	getSurface() { return surface_; }
     const MarchingCubesSurface*	getSurface() const { return surface_; }
     void			setCoordList(CoordList* cl, CoordList* nl=0 );
+    void			setRightHandedNormals(bool yn=true);
     void			removeAll();
 
     bool			update();
@@ -84,6 +85,7 @@ protected:
 
     CoordList*			coordlist_;
     CoordList*			normallist_;
+    bool			righthandednormals_;
     MultiDimStorage<int>	coordindices_;
     Threads::ReadWriteLock	coordindiceslock_;
 

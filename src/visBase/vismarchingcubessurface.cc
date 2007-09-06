@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: vismarchingcubessurface.cc,v 1.3 2007-09-05 19:04:10 cvskris Exp $
+ RCS:           $Id: vismarchingcubessurface.cc,v 1.4 2007-09-06 19:32:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "explicitmarchingcubes.h"
 #include "marchingcubes.h"
+#include "survinfo.h"
 #include "viscoord.h"
 #include "visnormals.h"
 
@@ -44,6 +45,8 @@ MarchingCubesSurface::MarchingCubesSurface()
     SoNormalBinding* normalbinding = new SoNormalBinding;
     addChild( normalbinding );
     normalbinding->value = SoNormalBindingElement::PER_FACE_INDEXED;
+
+    surface_->setRightHandedNormals( SI().isClockWise() );
 
     surface_->setCoordList( new CoordListAdapter(*coords_),
 	    		    new NormalListAdapter(*normals_) );

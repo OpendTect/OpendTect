@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.5 2007-09-05 22:20:22 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.6 2007-09-06 19:32:43 cvskris Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -168,6 +168,7 @@ ExplicitMarchingCubesSurface::ExplicitMarchingCubesSurface(
     , scale2_( 0 )
     , coordlist_( 0 )
     , normallist_( 0 )
+    , righthandednormals_( true )
 {
     if ( surface_ ) surface_->ref();
 }
@@ -247,6 +248,10 @@ void ExplicitMarchingCubesSurface::setCoordList( CoordList* cl, CoordList* nl )
     normallist_ = nl;
     if ( normallist_ ) normallist_->ref();
 }
+
+
+void ExplicitMarchingCubesSurface::setRightHandedNormals( bool yn )
+{ righthandednormals_ = yn; }
 
 
 bool ExplicitMarchingCubesSurface::update()
@@ -503,12 +508,14 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 	    triangles += coordlist_->get( index );
 
 	    const int nrtri = triangles.size();
-	    const bool isodd = nrtri % 2;
+	    const bool reverse = (nrtri % 2)==righthandednormals_;
 
 	    if ( nrtri>=3 )
 	    {
-		const Coord3 v0=triangles[nrtri-(isodd?3:1)]-triangles[nrtri-2];
-		const Coord3 v1=triangles[nrtri-(isodd?1:3)]-triangles[nrtri-2];
+		const Coord3 v0 =
+		    triangles[nrtri-(reverse?3:1)]-triangles[nrtri-2];
+		const Coord3 v1 =
+		    triangles[nrtri-(reverse?1:3)]-triangles[nrtri-2];
 		Coord3 normal = v0.cross( v1 );
 		if ( !normal.sqAbs() )
 		    normal = Coord3( 1, 0, 0 );
