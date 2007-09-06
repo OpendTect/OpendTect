@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.10 2007-08-30 14:10:25 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.11 2007-09-06 15:19:11 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,7 +80,7 @@ class ArrayValueSeries : public ValueSeries<RT>
 {
 public:
 
-    		ArrayValueSeries( AT* ptr, bool memmine );
+    		ArrayValueSeries( AT* ptr, bool memmine, int64 sz=-1 );
     		ArrayValueSeries( int64 sz );
     		~ArrayValueSeries()		{ if ( mine_ ) delete [] ptr_; }
 
@@ -160,8 +160,8 @@ bool OffsetValueSeries<T>::writable() const
 
 
 template <class RT, class AT>
-ArrayValueSeries<RT,AT>::ArrayValueSeries( AT* ptr, bool memmine )
-    : ptr_(ptr), mine_(memmine), cursize_( -1 )
+ArrayValueSeries<RT,AT>::ArrayValueSeries( AT* ptr, bool memmine, int64 cursz )
+    : ptr_(ptr), mine_(memmine), cursize_( cursz )
 {}
 
 
@@ -176,8 +176,8 @@ ArrayValueSeries<RT,AT>::ArrayValueSeries( int64 sz )
 template <class RT,class AT>
 bool ArrayValueSeries<RT,AT>::setSize( int64 sz )
 {
-    if ( !mine_ ) return false;
     if ( cursize_!=-1 && cursize_==sz && ptr_ ) return true;
+    if ( !mine_ ) return false;
 
     delete [] ptr_;
     mTryAlloc( ptr_, AT[sz] )
