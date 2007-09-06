@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2006
- RCS:           $Id: uisrchprocfiles.cc,v 1.5 2007-01-09 13:21:06 cvsbert Exp $
+ RCS:           $Id: uisrchprocfiles.cc,v 1.6 2007-09-06 18:46:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,6 @@ const char* uiSrchProcFiles::fileName() const
 #define mRet(s) \
 { \
     if ( s ) uiMSG().error(s); \
-    uiMSG().setMainWin(oldmw); \
     toStatusBar(""); \
     return; \
 }
@@ -69,8 +68,9 @@ void uiSrchProcFiles::srchDir( CallBacker* )
     const BufferString key( ctio_.ioobj ? ctio_.ioobj->key().buf() : "" );
     if ( key.isEmpty() ) return;
 
-    uiMainWin* oldmw = uiMSG().setMainWin( this );
+    uiMsgMainWinSetter msgwinsetter( this );
     	// Otherwise the error box pulls up OD main win. No idea why.
+
     toStatusBar( "Scanning directory" );
     const BufferString msk( maskfld->text() );
     const BufferString dirnm( dirfld->text() );
