@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.3 2007-09-05 22:20:22 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.4 2007-09-07 20:43:18 cvsyuancheng Exp $";
 
 #include "marchingcubes.h"
 
@@ -211,13 +211,17 @@ bool MarchingCubesModel::operator==( const MarchingCubesModel& mc ) const
     if ( use##valnr && use000 && sign000!=sign##valnr ) \
     { \
 	const float factor = diff000/(val##valnr-val000); \
-	axispos_[axis] = (int) (factor*cAxisSpacing); \
+	int axispos = (int) (factor*cAxisSpacing); \
+	if ( axispos<0 ) axispos=0; \
+	else if ( axispos>cMaxAxisPos ) \
+	    axispos = cMaxAxisPos; \
+	axispos_[axis] = axispos; \
     } \
     else \
 	axispos_[axis] = cUdfAxisPos; \
 
 
-void MarchingCubesModel::set( const Array3D<float>& arr, int i0, int i1, int i2,
+bool MarchingCubesModel::set( const Array3D<float>& arr, int i0, int i1, int i2,
 		              float threshold )
 {
     const bool use0 = i0!=arr.info().getSize( mX )-1;
@@ -243,6 +247,25 @@ void MarchingCubesModel::set( const Array3D<float>& arr, int i0, int i1, int i2,
     const bool use110 = use0 && use1 && !mIsUdf(val110);
     const bool use111 = use0 && use1 && use2 && !mIsUdf(val111);
 
+    /*
+    if ( !use2 && use000 && use010 && use100 && use110 &&
+	 mIsEqual(threshold,val000,eps) &&
+	 mIsEqual(threshold,val010,eps) &&
+	 mIsEqual(threshold,val100,eps) &&
+	 mIsEqual(threshold,val110,eps))
+    {
+	model_ = 0;
+	submodel = 0;
+	axispos[mX] = cUdfAxisPos;
+	axispos[mY] = cUdfAxisPos;
+	axispos[mZ] = 0;
+	return true;
+    }
+    */
+
+    if ( !use2 || !use1 || !use0 )
+	return false;
+
     const bool sign000 = use000 && val000>threshold;
     const bool sign001 = use001 && val001>threshold;
     const bool sign010 = use010 && val010>threshold;
@@ -264,6 +287,7 @@ void MarchingCubesModel::set( const Array3D<float>& arr, int i0, int i1, int i2,
     mCalcCoord( 001, mZ );
     mCalcCoord( 010, mY );
     mCalcCoord( 100, mX );
+    return true;
 }
 
 
@@ -407,8 +431,6 @@ int Implicit2MarchingCubes::nrTimes() const
 
 bool Implicit2MarchingCubes::doWork( int start, int stop, int )
 {
-    MarchingCubesModel* dummy = 0;
-    
     int arraypos[3];
     array_.info().getArrayPos( start, arraypos );
 
@@ -421,35 +443,36 @@ bool Implicit2MarchingCubes::doWork( int start, int stop, int )
 	const int pos[] = { iterator[mX]+xorigin_, iterator[mY]+yorigin_,
 			    iterator[mZ]+zorigin_ };
 	MarchingCubesModel model;
-	model.set( array_, iterator[mX],iterator[mY],iterator[mZ],threshold_ );
-	if ( !model.isEmpty() )
+        if (model.set(array_,iterator[mX],iterator[mY],iterator[mZ],threshold_))
 	{
-	    surface_.modelslock_.writeLock();
-	    surface_.models_.add<MarchingCubesModel*,const int*, int*>
-		( &model, pos, 0 );
-	    surface_.modelslock_.writeUnLock();
-	}
-	else
-	{
-	    surface_.modelslock_.readLock();
-	    int idxs[3];
-	    if ( !surface_.models_.findFirst( pos, idxs ) )
+	    if ( !model.isEmpty() )
 	    {
-		surface_.modelslock_.readUnLock();
-		continue;
+		surface_.modelslock_.writeLock();
+		surface_.models_.add<MarchingCubesModel*,const int*, int*>
+		    ( &model, pos, 0 );
+		surface_.modelslock_.writeUnLock();
 	    }
-
-	    if ( surface_.modelslock_.convToWriteLock() ||
-		 surface_.models_.findFirst( pos, idxs ) )
+	    else
 	    {
-		surface_.models_.remove( idxs );
-	    }
+		surface_.modelslock_.readLock();
+		int idxs[3];
+		if ( !surface_.models_.findFirst( pos, idxs ) )
+		{
+		    surface_.modelslock_.readUnLock();
+		    continue;
+		}
 
-	    surface_.modelslock_.writeUnLock();
+		if ( surface_.modelslock_.convToWriteLock() ||
+		     surface_.models_.findFirst( pos, idxs ) )
+		{
+		    surface_.models_.remove( idxs );
+		}
+
+		surface_.modelslock_.writeUnLock();
+	    }
 	}
     }
 
-    delete dummy;						                
     return true;
 }
 

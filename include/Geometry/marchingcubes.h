@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: marchingcubes.h,v 1.1 2007-09-04 18:02:28 cvskris Exp $
+ RCS:           $Id: marchingcubes.h,v 1.2 2007-09-07 20:43:18 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ public:
     MarchingCubesModel&		operator=(const MarchingCubesModel&);
     bool 			operator==(const MarchingCubesModel&) const;
 
-    void			set(const Array3D<float>& arr,
+    bool			set(const Array3D<float>& arr,
 	    		    	    int i0,int i1, int i2,float threshold);
 
     bool			isEmpty() const;
