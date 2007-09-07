@@ -4,17 +4,21 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.1 2007-09-04 21:26:17 cvskris Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.2 2007-09-07 18:29:30 cvskris Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
+#include "arrayndimpl.h"
 #include "iopar.h"
 #include "executor.h"
+#include "marchingcubeseditor.h"
 #include "survinfo.h"
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
 #include "randcolor.h"
 #include "visboxdragger.h"
+#include "visdragger.h"
+#include "visevent.h"
 #include "vismaterial.h"
 #include "vismarchingcubessurface.h"
 
@@ -28,6 +32,9 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     , emsurface_( 0 )
     , initialdragger_( visBase::BoxDragger::create() )
     , displaysurface_( 0 )
+    , surfaceeditor_( 0 )
+    , eventcatcher_( 0 )
+    , factordragger_( 0 )
 {
     initialdragger_->ref();
     initialdragger_->turnOn(true);
@@ -66,6 +73,8 @@ MarchingCubesDisplay::MarchingCubesDisplay()
 
 MarchingCubesDisplay::~MarchingCubesDisplay()
 {
+    setSceneEventCatcher( 0 );
+    delete surfaceeditor_;
     if ( displaysurface_ )
     {
 	removeChild( displaysurface_->getInventorNode() );
@@ -76,6 +85,28 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
     if ( emsurface_ ) emsurface_->unRef();
 
     setSceneEventCatcher(0);
+
+    if ( factordragger_ ) factordragger_->unRef();
+}
+
+
+void MarchingCubesDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
+{
+    if ( eventcatcher_ )
+    {
+	eventcatcher_->eventhappened.remove(
+		mCB(this,MarchingCubesDisplay,pickCB) );
+	eventcatcher_->unRef();
+    }
+
+    eventcatcher_ = vec;
+    
+    if ( eventcatcher_ )
+    {
+	eventcatcher_->eventhappened.notify(
+		mCB(this,MarchingCubesDisplay,pickCB) );
+	eventcatcher_->ref();
+    }
 }
 
 
@@ -128,6 +159,7 @@ bool MarchingCubesDisplay::setVisSurface(
     displaysurface_->ref();
     displaysurface_->setMaterial( 0 );
     displaysurface_->setSelectable( false );
+    displaysurface_->setRightHandSystem( righthandsystem_ );
     addChild( displaysurface_->getInventorNode() );
 
     if ( initialdragger_ )
@@ -182,6 +214,7 @@ bool MarchingCubesDisplay::setEMID( const EM::ObjectID& emid )
 	displaysurface_->ref();
 	displaysurface_->setMaterial( 0 );
 	displaysurface_->setSelectable( false );
+	displaysurface_->setRightHandSystem( righthandsystem_ );
 	addChild( displaysurface_->getInventorNode() );
     }
 
@@ -251,8 +284,98 @@ void MarchingCubesDisplay::setDisplayTransformation(visBase::Transformation* nt)
 }
 
 
+void MarchingCubesDisplay::setRightHandSystem(bool yn)
+{
+    visBase::VisualObjectImpl::setRightHandSystem( yn );
+    if ( displaysurface_ ) displaysurface_->setRightHandSystem( yn );
+}
+
+
 visBase::Transformation* MarchingCubesDisplay::getDisplayTransformation()
 { return displaysurface_ ? displaysurface_->getDisplayTransformation() : 0; }
+
+
+void MarchingCubesDisplay::pickCB( CallBacker* cb )
+{
+    if ( !isSelected() || !isOn() || isLocked() || !displaysurface_ ) return;
+
+    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+
+    if ( eventinfo.type!=visBase::MouseClick ||
+	 eventinfo.mousebutton != visBase::EventInfo::leftMouseButton() )
+	return;
+
+    if ( eventinfo.pickedobjids.indexOf( displaysurface_->id() )==-1 )
+	return;
+
+    if ( eventinfo.pressed )
+	return;
+
+    const Coord3& wp = eventinfo.worldpickedpos;
+    const BinID bid = SI().transform( wp );
+
+    const int surfacepos[] = { emsurface_->inlSampling().nearestIndex(bid.inl),
+			       emsurface_->crlSampling().nearestIndex(bid.crl),
+			       emsurface_->zSampling().nearestIndex(wp.z) };
+
+    if ( !surfaceeditor_ )
+    {
+	surfaceeditor_ = new MarchingCubesSurfaceEditor( 
+		emsurface_->surface() );
+    }
+
+    Array3D<unsigned char>* kernel = createKernel( 11, 11, 11 );
+    surfaceeditor_->setKernel( kernel,
+	    surfacepos[0]-5, surfacepos[1]-5, surfacepos[2]-5 );
+
+    if ( !factordragger_ )
+    {
+	factordragger_ = visBase::Dragger::create();
+	factordragger_->ref();
+	factordragger_->setDraggerType( visBase::Dragger::Translate1D );
+	addChild( factordragger_->getInventorNode() );
+    }
+
+    factordragger_->setPos( Coord3(bid.inl, bid.crl, wp.z ) );
+
+
+    eventcatcher_->eventIsHandled();
+}
+
+
+Array3D<unsigned char>*
+MarchingCubesDisplay::createKernel( int xsz, int ysz, int zsz ) const
+{
+    Array3D<unsigned char>* res = new Array3DImpl<unsigned char>(xsz,ysz,zsz);
+    if ( !res || !res->isOK() )
+    {
+	delete res;
+	return 0;
+    }
+
+    const int hxsz = xsz/2; const int hysz = ysz/2; const int hzsz = zsz/2;
+
+    for ( int idx=0; idx<xsz; idx++ )
+    {
+	float xval = idx-hxsz; xval /= hxsz; xval *= xval;
+	for ( int idy=0; idy<ysz; idy++ )
+	{
+	    float yval = idy-hysz; yval /= hysz; yval *= yval;
+	    for ( int idz=0; idz<zsz; idz++ )
+	    {
+		float zval = idz-hzsz; zval /= hzsz; zval *= zval;
+
+		int invdist = mNINT((1-sqrt( xval+yval+zval ))*255);
+		if ( invdist<0 ) invdist = 0;
+		res->set( idx, idy, idz, invdist );
+	    }
+	}
+    }
+
+    return res;
+}
+
+
 
 
 }; // namespace visSurvey

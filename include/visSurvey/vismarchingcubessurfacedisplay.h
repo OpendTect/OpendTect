@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.1 2007-09-04 21:26:17 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.2 2007-09-07 18:29:30 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,11 +18,15 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 #include "ranges.h"
 
+class MarchingCubesSurfaceEditor;
+template <class T> class Array3D;
+
 namespace visBase
 {
     class MarchingCubesSurface;
     class Transformation;
     class BoxDragger;
+    class Dragger;
 };
 
 
@@ -55,6 +59,9 @@ public:
 
     void			setDisplayTransformation(mVisTrans*);
     mVisTrans*			getDisplayTransformation();
+    void			setRightHandSystem(bool);
+
+    void			setSceneEventCatcher(visBase::EventCatcher*);
 
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);
@@ -70,10 +77,15 @@ protected:
     static const char*		sKeyEarthModelID()	{ return "EM ID"; }
 
     virtual			~MarchingCubesDisplay();
+    void			pickCB(CallBacker*);
+    Array3D<unsigned char>*	createKernel(int xsz, int ysz, int zsz ) const;
 
     visBase::BoxDragger*		initialdragger_;
     visBase::MarchingCubesSurface*	displaysurface_;
     EM::MarchingCubesSurface*		emsurface_;
+    MarchingCubesSurfaceEditor*		surfaceeditor_;
+    visBase::Dragger*			factordragger_;
+    visBase::EventCatcher*		eventcatcher_;
 };
 
 };
