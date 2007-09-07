@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoColTabMultiTexture2.cc,v 1.1 2007-01-26 17:50:54 cvskris Exp $
+ RCS:           $Id: SoColTabMultiTexture2.cc,v 1.2 2007-09-07 16:21:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -468,6 +468,25 @@ SoColTabMultiTexture2::~SoColTabMultiTexture2()
     delete glimagemutex_;
     delete [] imagedata_;
 }
+
+
+int SoColTabMultiTexture2::getMaxSize()
+{
+    static int maxsize = -1;
+    if ( maxsize!=-1 )
+	return maxsize;
+
+    GLint maxr;
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxr);
+    if ( glGetError()==GL_NO_ERROR )
+    {
+	maxsize = maxr;
+	return maxsize;
+    }
+
+    return 2048; //conservative default
+}
+
 
 static SoGLImage::Wrap
 translateWrap(const SoTexture2::Wrap wrap)

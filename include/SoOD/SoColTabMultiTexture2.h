@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: SoColTabMultiTexture2.h,v 1.1 2007-01-26 17:50:54 cvskris Exp $
+ RCS:		$Id: SoColTabMultiTexture2.h,v 1.2 2007-09-07 16:21:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -41,6 +41,8 @@ public:
 
     static void		initClass();
     			SoColTabMultiTexture2();
+
+    static int		getMaxSize();
 
     enum Operator	{ BLEND, ADD, REPLACE };
    			/*!\enum Operator
