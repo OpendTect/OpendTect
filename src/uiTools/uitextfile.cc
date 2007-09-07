@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:           $Id: uitextfile.cc,v 1.5 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: uitextfile.cc,v 1.6 2007-09-07 21:25:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -349,12 +349,12 @@ int uiTextFileDlg::doMsg( const char* msg, bool iserr )
 {
     int ret = 0;
 
-    uiMainWin* oldmain = uiMSG().setMainWin( this );
+    uiMsgMainWinSetter setter( this );
+
     if ( iserr )
 	uiMSG().error( msg );
     else
 	ret = uiMSG().askGoOnAfter( msg );
-    uiMSG().setMainWin( oldmain );
 
     return ret;
 }
