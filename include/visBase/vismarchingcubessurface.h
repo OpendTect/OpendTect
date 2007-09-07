@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		August 2006
- RCS:		$Id: vismarchingcubessurface.h,v 1.3 2007-09-05 19:04:10 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurface.h,v 1.4 2007-09-07 15:31:05 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -34,6 +34,9 @@ class MarchingCubesSurface : public VisualObjectImpl
 public:
     static MarchingCubesSurface*	create()
 					mCreateDataObj(MarchingCubesSurface);
+
+    void				setRightHandSystem(bool);
+    bool				isRightHandSystem() const;
 
     void				setSurface(::MarchingCubesSurface&);
     ::MarchingCubesSurface*		getSurface();

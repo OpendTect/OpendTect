@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: vismarchingcubessurface.cc,v 1.4 2007-09-06 19:32:43 cvskris Exp $
+ RCS:           $Id: vismarchingcubessurface.cc,v 1.5 2007-09-07 15:31:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ MarchingCubesSurface::MarchingCubesSurface()
     , hints_( new SoShapeHints )
     , side_( 0 )
     , surface_( new ExplicitMarchingCubesSurface( 0 ) )
+    , righthandsystem_( true )
 {
     coords_->ref();
     addChild( coords_->getInventorNode() );
@@ -45,8 +46,6 @@ MarchingCubesSurface::MarchingCubesSurface()
     SoNormalBinding* normalbinding = new SoNormalBinding;
     addChild( normalbinding );
     normalbinding->value = SoNormalBindingElement::PER_FACE_INDEXED;
-
-    surface_->setRightHandedNormals( SI().isClockWise() );
 
     surface_->setCoordList( new CoordListAdapter(*coords_),
 	    		    new NormalListAdapter(*normals_) );
@@ -64,6 +63,14 @@ MarchingCubesSurface::~MarchingCubesSurface()
     normals_->unRef();
     delete surface_;
 }
+
+
+void MarchingCubesSurface::setRightHandSystem( bool yn )
+{ righthandsystem_ = yn; }
+
+
+bool MarchingCubesSurface::isRightHandSystem() const
+{ return righthandsystem_; }
 
 
 void MarchingCubesSurface::renderOneSide( int side )
@@ -102,7 +109,10 @@ void MarchingCubesSurface::setSurface( ::MarchingCubesSurface& ns )
 void MarchingCubesSurface::touch()
 {
     if ( surface_->needsUpdate() )
+    {
+	surface_->setRightHandedNormals( righthandsystem_ );
 	surface_->update();
+    }
 
     const int nrsets = surface_->nrIndicesSets();
     for ( int idx=0; idx<nrsets; idx++ )
