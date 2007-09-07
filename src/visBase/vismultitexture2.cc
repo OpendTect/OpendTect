@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.40 2007-05-31 12:13:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.41 2007-09-07 21:17:38 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -63,7 +63,7 @@ inline int getPow2Sz( int actsz, bool above=true, int minsz=1,
 
 inline int nextPower2( int nr, int minnr, int maxnr )
 {
-    if ( nr > maxnr )
+    if ( nr>maxnr )
 	return maxnr;
 
     int newnr = minnr;
@@ -294,21 +294,18 @@ bool MultiTexture2::setDataOversample( int texture, int version,
 	return setData( texture, version, data, copy );
 
     const static int minpix2d = 128;
-    const int maxpix2d = SoShaderTexture2::getMaxSize();
+    const int maxpix2d = SoColTabMultiTexture2::getMaxSize();
 
-    int newx0 = getPow2Sz( datax0size, true, minpix2d, maxpix2d );
-    int newx1 = getPow2Sz( datax1size, true, minpix2d, maxpix2d );
-
-    if ( resolution )
-    {
-	newx0 = nextPower2( datax0size, minpix2d, maxpix2d ) * resolution;
-	newx1 = nextPower2( datax1size, minpix2d, maxpix2d ) * resolution;
-    }
+    const int newx0 = getPow2Sz( datax0size*resolution, true, minpix2d, maxpix2d );
+    const int newx1 = getPow2Sz( datax1size*resolution, true, minpix2d, maxpix2d );
 
     if ( !setSize( newx0, newx1 ) )
 	return false;
 
     Array2DImpl<float> interpoldata( newx0, newx1 );
+    if ( !interpoldata.isOK() )
+	return false;
+
     if ( interpol )
 	polyInterp( *data, interpoldata );
     else
@@ -316,6 +313,8 @@ bool MultiTexture2::setDataOversample( int texture, int version,
 
     const int totalsz = interpoldata.info().getTotalSz();
     float* arr = new float[totalsz];
+    if ( !arr )
+	return false;
     memcpy( arr, interpoldata.getData(), totalsz*sizeof(float) );
     return setTextureData( texture, version, arr, totalsz, true );
 }
