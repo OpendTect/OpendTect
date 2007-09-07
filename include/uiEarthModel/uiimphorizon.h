@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.h,v 1.16 2006-07-20 16:30:21 cvsbert Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.17 2007-09-07 12:27:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ class uiGenInput;
 class uiIOObjSel;
 class uiPushButton;
 class uiScaler;
+class uiStratLevelSel;
 class uiImpHorArr2DInterpPars;
 
 
@@ -56,6 +57,7 @@ protected:
     uiCheckBox*		displayfld;
     uiPushButton*	attribbut;
     uiColorInput*	colbut;
+    uiStratLevelSel*	stratlvlfld_;
 
     virtual bool	acceptOK(CallBacker*);
     bool		checkInpFlds();
@@ -70,6 +72,7 @@ protected:
     void		fillUdfSel(CallBacker*);
     void		scanFile(CallBacker*);
     void		attribSel(CallBacker*);
+    void		stratLvlChg(CallBacker*);
 
     CtxtIOObj&		ctio_;
     EM::ObjectID	emobjid_;

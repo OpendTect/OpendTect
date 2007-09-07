@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          September 2007
- RCS:           $Id: uistratlvlsel.h,v 1.2 2007-09-05 15:31:52 cvshelene Exp $
+ RCS:           $Id: uistratlvlsel.h,v 1.3 2007-09-07 12:27:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,10 +31,13 @@ public:
     const char*		getLvlName() const;	
     const Color*	getLvlColor() const;
 
+    Notifier<uiStratLevelSel> selchanged_;
+
 protected:
     uiGenInput*		lvlnmfld_;
     uiPushButton*	deflvlbut_;
 
+    void		selLvlCB(CallBacker*);
     void		defineLvlCB(CallBacker*);
     void		fillLvlList(BufferStringSet&) const;
 

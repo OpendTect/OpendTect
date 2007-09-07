@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          September 2007
- RCS:		$Id: uistratlvlsel.cc,v 1.3 2007-09-05 15:31:52 cvshelene Exp $
+ RCS:		$Id: uistratlvlsel.cc,v 1.4 2007-09-07 12:27:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,13 +23,17 @@ static const char* sNoLevelTxt	= "--Undefined--";
 
 uiStratLevelSel::uiStratLevelSel( uiParent* p )
     : uiGroup(p)
+    , selchanged_(this)
 {
     BufferStringSet bfset;
     fillLvlList( bfset );
+    CallBack cb = mCB(this,uiStratLevelSel,selLvlCB);
     lvlnmfld_ = new uiGenInput( this,"Tied to level",StringListInpSpec(bfset) );
-    CallBack cb = mCB(this,uiStratLevelSel,defineLvlCB);
-    deflvlbut_ = new uiPushButton( this, "&Define Level", cb, true );
+    lvlnmfld_->valuechanged.notify( cb );
+    CallBack cb2 = mCB(this,uiStratLevelSel,defineLvlCB);
+    deflvlbut_ = new uiPushButton( this, "&Define Level", cb2, true );
     deflvlbut_->attach( rightOf, lvlnmfld_ );
+    setHAlignObj( lvlnmfld_ );
 }
 
 
@@ -65,4 +69,10 @@ const Color* uiStratLevelSel::getLvlColor() const
     if ( ! lvl ) return 0;
 
     return &lvl->color_;
+}
+
+
+void uiStratLevelSel::selLvlCB( CallBacker* )
+{
+    selchanged_.trigger();
 }

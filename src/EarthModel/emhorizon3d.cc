@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.91 2007-07-06 14:11:05 cvskris Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.92 2007-09-07 12:27:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -234,6 +234,7 @@ void Horizon3D::removeAll()
 void Horizon3D::fillPar( IOPar& par ) const
 {
     Surface::fillPar( par );
+    Horizon::fillPar( par );
     auxdata.fillPar( par );
     edgelinesets.fillPar( par );
 }
@@ -243,7 +244,8 @@ bool Horizon3D::usePar( const IOPar& par )
 {
     return Surface::usePar( par ) &&
 	auxdata.usePar( par ) &&
-	edgelinesets.usePar( par );
+	edgelinesets.usePar( par ) &&
+	Horizon::usePar( par );
 }
 
 

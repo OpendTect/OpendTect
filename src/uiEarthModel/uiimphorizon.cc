@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.82 2007-08-16 04:50:20 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.83 2007-09-07 12:27:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiscaler.h"
 #include "uiseparator.h"
+#include "uistratlvlsel.h"
 #include "uitable.h"
 
 
@@ -156,8 +157,12 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     ctio_.ctxt.forread = false;
     outfld = new uiIOObjSel( botgrp, ctio_, "Output Horizon" );
 
+    stratlvlfld_ = new uiStratLevelSel( botgrp );
+    stratlvlfld_->attach( alignedBelow, outfld );
+    stratlvlfld_->selchanged_.notify( mCB(this,uiImportHorizon,stratLvlChg) );
+
     colbut = new uiColorInput( botgrp, getRandStdDrawColor(), "Base color" );
-    colbut->attach( alignedBelow, outfld );
+    colbut->attach( alignedBelow, stratlvlfld_ );
 
     displayfld = new uiCheckBox( botgrp, "Display after import" );
     displayfld->attach( alignedBelow, colbut );
@@ -259,6 +264,7 @@ bool uiImportHorizon::doWork()
 
     NotifyStopper stopper( horizon->change );
     horizon->setMultiID( ctio_.ioobj->key() );
+    horizon->setTiedToLvl( stratlvlfld_->getLvlName() );
     horizon->setPreferredColor( colbut->color() );
     BufferStringSet filenames;
     if ( !getFileNames(filenames) ) return false;
@@ -597,4 +603,11 @@ void uiImportHorizon::attribSel( CallBacker* )
     AttribNameEditor dlg( this, attribnames_ );
     if ( !dlg.go() ) return;
     dlg.getAttribNames( attribnames_, attribsel_ );
+}
+
+
+void uiImportHorizon::stratLvlChg( CallBacker* )
+{
+    if ( strcmp( stratlvlfld_->getLvlName(), "" ) )
+	colbut->setColor( *stratlvlfld_->getLvlColor() );
 }
