@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.119 2007-09-04 17:05:49 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.120 2007-09-07 18:33:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,8 @@ ________________________________________________________________________
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
+#include "emmarchingcubessurfacetr.h"
+#include "emmarchingcubessurface.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -65,6 +67,7 @@ const int uiEMPartServer::evSyncGeometry	= 2;
     mDynamicCastGet(EM::Horizon2D*,hor2d,object) \
     mDynamicCastGet(EM::Horizon3D*,hor3d,object) \
     mDynamicCastGet(EM::Fault*,fault,object) \
+    mDynamicCastGet(EM::MarchingCubesSurface*,mcsurface,object) \
 
 
 uiEMPartServer::uiEMPartServer( uiApplService& a )
@@ -263,31 +266,14 @@ void uiEMPartServer::deriveHor3DFrom2D( const EM::ObjectID& emid )
 
 void uiEMPartServer::askUserToSave( const EM::ObjectID& emid ) const
 {
-    const EM::EMObject* emobj = em_.getObject(emid);
+    EM::EMObject* emobj = em_.getObject(emid);
     if ( !emobj || emobj->isEmpty() ) return;
 
-    const MultiID& mid = emobj->multiID();
-    PtrMan<IOObj> ioobj = IOM().get(mid);
-    bool mustsave = false;
-    if ( !ioobj )
-    {
-	mMkMsg( "was removed from storage" );
-        mustsave = uiMSG().askGoOn( msg );
-	if ( !mustsave ) return;
-
-	CtxtIOObj ctio(emobj->getIOObjContext()); ctio.setName( emobj->name() );
-	IOM().getEntry( ctio ); IOM().commitChanges( *ctio.ioobj );
-	ioobj = ctio.ioobj;
-    }
-
-    if ( !mustsave )
-    {
-	if ( !isChanged(emid) )
-	    return;
-	mMkMsg( "has changed" );
-	if ( !uiMSG().askGoOn(msg) )
-	    return;
-    }
+    if ( !isChanged(emid) )
+	return;
+    mMkMsg( "has changed" );
+    if ( !uiMSG().askGoOn(msg) )
+	return;
 
     storeObject( emid, !isFullyLoaded(emid) );
 }
@@ -303,6 +289,43 @@ void uiEMPartServer::select2DHorizons( TypeSet<EM::ObjectID>& ids )
 
 void uiEMPartServer::selectFaults( TypeSet<EM::ObjectID>& ids )
 { selectSurfaces( ids, EMFaultTranslatorGroup::keyword ); }
+
+
+void uiEMPartServer::selectMarchingCubes( TypeSet<EM::ObjectID>& ids )
+{
+    CtxtIOObj context( EMMarchingCubesSurfaceTranslatorGroup::ioContext() );
+    context.ctxt.forread = true;
+
+    uiIOObjSelDlg dlg( appserv().parent(), context );
+    if ( !dlg.go() )
+	return;
+
+    if ( !dlg.ioObj() )
+	return;
+
+    EM::EMObject* object =
+	EM::EMM().createTempObject(EM::MarchingCubesSurface::typeStr());
+
+    if ( !object ) return;
+    object->ref();
+
+    object->setMultiID( dlg.ioObj()->key() );
+    Executor* exec = object->loader();
+
+    uiExecutor execdlg( appserv().parent(), *exec );
+    if ( !execdlg.go() )
+    {
+	object->unRef();
+	delete exec;
+	return;
+    }
+
+    delete exec;
+
+    ids += object->id();
+
+    object->unRefNoDelete();
+}
 
 
 void uiEMPartServer::selectSurfaces( TypeSet<EM::ObjectID>& objids,
@@ -436,20 +459,39 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas ) const
 
     PtrMan<Executor> exec = 0;
 
-    if ( storeas && surface )
+    if ( storeas )
     {
-	uiWriteSurfaceDlg dlg( appserv().parent(), *surface );
-	if ( !dlg.go() ) return false;
+	if ( surface )
+	{
+	    uiWriteSurfaceDlg dlg( appserv().parent(), *surface );
+	    if ( !dlg.go() ) return false;
 
-	EM::SurfaceIOData sd;
-	EM::SurfaceIODataSelection sel( sd );
-	dlg.getSelection( sel );
+	    EM::SurfaceIOData sd;
+	    EM::SurfaceIODataSelection sel( sd );
+	    dlg.getSelection( sel );
 
-	const MultiID& key = dlg.ioObj() ? dlg.ioObj()->key() : "";
-	exec = surface->geometry().saver( &sel, &key );
-	if ( exec ) surface->setMultiID( key );
+	    const MultiID& key = dlg.ioObj() ? dlg.ioObj()->key() : "";
+	    exec = surface->geometry().saver( &sel, &key );
+	    if ( exec ) surface->setMultiID( key );
+	}
+	else
+	{
+	    CtxtIOObj context( object->getIOObjContext(),
+		    	       IOM().get(object->multiID()) );
+
+	    context.ctxt.forread = false;
+
+	    uiIOObjSelDlg dlg( appserv().parent(), context );
+	    if ( !dlg.go() )
+		return false;
+
+	    if ( dlg.ioObj() )
+		object->setMultiID( dlg.ioObj()->key() );
+
+	    exec = object->saver();
+	}
     }
-    else
+    else 
 	exec = object->saver();
 
     if ( !exec )
