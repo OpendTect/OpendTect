@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.45 2007-05-21 05:46:29 cvsnanne Exp $
+ RCS:		$Id: vissurvscene.h,v 1.46 2007-09-07 18:28:31 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -107,6 +107,9 @@ public:
     mVisTrans*			getUTM2DisplayTransform() const;
     void			setDataTransform( ZAxisTransform* );
     ZAxisTransform*		getDataTransform();
+
+
+    bool			isRightHandSystem() const;
 
     void			setDepthDomainKey( const char* key )
 				    { depthdomainkey_ = key; }

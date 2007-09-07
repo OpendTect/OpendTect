@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.99 2007-07-26 22:13:40 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.100 2007-09-07 18:28:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,6 +141,12 @@ void Scene::createTransforms( const HorSampling& hs )
     utm2display += utm2disptransform_;
     utm2display += zscaletransform_;
     events_.setUtm2Display( utm2display );
+}
+
+
+bool Scene::isRightHandSystem() const
+{
+    return SI().isClockWise();
 }
 
 
