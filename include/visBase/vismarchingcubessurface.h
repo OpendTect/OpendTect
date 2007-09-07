@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		August 2006
- RCS:		$Id: vismarchingcubessurface.h,v 1.5 2007-09-07 16:13:23 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurface.h,v 1.6 2007-09-07 18:25:17 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -35,9 +35,6 @@ public:
     static MarchingCubesSurface*	create()
 					mCreateDataObj(MarchingCubesSurface);
 
-    void				setRightHandSystem(bool);
-    bool				isRightHandSystem() const;
-
     void				setSurface(::MarchingCubesSurface&);
     ::MarchingCubesSurface*		getSurface();
     const ::MarchingCubesSurface*	getSurface() const;
@@ -61,7 +58,6 @@ protected:
     Normals*					normals_;
     SoShapeHints*				hints_;
     ObjectSet<SoIndexedTriangleStripSet>	triangles_;
-    bool					righthandsystem_;
 
     ExplicitMarchingCubesSurface*		surface_;
     char					side_;

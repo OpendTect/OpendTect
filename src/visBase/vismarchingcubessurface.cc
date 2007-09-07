@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: vismarchingcubessurface.cc,v 1.5 2007-09-07 15:31:05 cvskris Exp $
+ RCS:           $Id: vismarchingcubessurface.cc,v 1.6 2007-09-07 18:25:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,6 @@ MarchingCubesSurface::MarchingCubesSurface()
     , hints_( new SoShapeHints )
     , side_( 0 )
     , surface_( new ExplicitMarchingCubesSurface( 0 ) )
-    , righthandsystem_( true )
 {
     coords_->ref();
     addChild( coords_->getInventorNode() );
@@ -63,14 +62,6 @@ MarchingCubesSurface::~MarchingCubesSurface()
     normals_->unRef();
     delete surface_;
 }
-
-
-void MarchingCubesSurface::setRightHandSystem( bool yn )
-{ righthandsystem_ = yn; }
-
-
-bool MarchingCubesSurface::isRightHandSystem() const
-{ return righthandsystem_; }
 
 
 void MarchingCubesSurface::renderOneSide( int side )
