@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		09-02-2002
- RCS:		$Id: dataclipper.h,v 1.9 2007-07-18 14:37:38 cvskris Exp $
+ RCS:		$Id: dataclipper.h,v 1.10 2007-09-07 11:22:03 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -81,6 +81,7 @@ public:
 				     cliprate1 is the top cliprate, when
 				     cliprate1 is -1, it will get the value of
 				     cliprate0 */
+    inline bool			isEmpty() const	{ return samples_.isEmpty(); }
 
     void			setApproxNrValues(int nrsamples,
 						  int statsize=2000);
@@ -120,10 +121,12 @@ public:
     const TypeSet<float>&	statPts() const { return samples_; }
 
 protected:
+
     int				approxstatsize_;
     float			sampleprob_;
     bool			subselect_;
     TypeSet<float>		samples_;
+
 };
 
 
