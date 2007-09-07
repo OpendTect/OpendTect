@@ -4,7 +4,7 @@
  * DATE     : August 2007
 -*/
 
-static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.4 2007-09-07 18:30:58 cvskris Exp $";
+static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.5 2007-09-07 20:41:03 cvsyuancheng Exp $";
 
 #include "marchingcubeseditor.h"
 #include "marchingcubes.h"
@@ -55,10 +55,10 @@ MarchingCubesSurfaceEditor::~MarchingCubesSurfaceEditor()
 }
 
 
-bool MarchingCubesSurfaceEditor::setKernel( Array3D<unsigned char>* arr,
+bool MarchingCubesSurfaceEditor::setKernel( const Array3D<unsigned char>& arr,
 					    int xpos, int ypos, int zpos )
 {
-    if ( !arr || !arr->isOK() )
+    if ( !arr.isOK() )
 	mErrRet;
 
     delete kernel_;
@@ -70,10 +70,30 @@ bool MarchingCubesSurfaceEditor::setKernel( Array3D<unsigned char>* arr,
     delete originalsurface_;
     originalsurface_ = 0;
 
-    xorigin_ = xpos;
-    yorigin_ = ypos;
-    zorigin_ = zpos;
-    kernel_ = arr;
+    xorigin_ = xpos-1;
+    yorigin_ = ypos-1;
+    zorigin_ = zpos-1;
+
+    kernel_ = new Array3DImpl<unsigned char>( arr.info().getSize(mX)+2,
+	    				      arr.info().getSize(mY)+2, 
+	       				      arr.info().getSize(mZ)+2 );
+
+    if ( !kernel_ || !kernel_->isOK() )
+	mErrRet;
+
+    memset( kernel_->getData(), 0, 
+	    sizeof(unsigned char) * kernel_->info().getTotalSz() );
+
+    for ( int idz=0; idz<arr.info().getSize(mZ); idz++ )
+    {
+	for ( int idy=0; idy<arr.info().getSize(mY); idy++ )
+	{
+	    for ( int idx=0; idx<arr.info().getSize(mX); idx++ )
+	    {
+		kernel_->set( idx+1, idy+1, idz+1, arr.get( idx, idy, idz ) );
+	    }
+	}
+    }
 
     changedsurface_ = new Array3DImpl<int>( kernel_->info() );
     if ( !changedsurface_->isOK() )
@@ -90,7 +110,6 @@ bool MarchingCubesSurfaceEditor::setKernel( Array3D<unsigned char>* arr,
 	mErrRet;
 
     threshold_ = mc2i.threshold();
-
     return true;
 }
 
@@ -156,8 +175,8 @@ bool MarchingCubesSurfaceEditor::doFinish( bool success )
     {
 	Array3DImpl<float> convarr( originalsurface_->info() );
 	ValueSeries<float>* valseries =
-	    new ArrayValueSeries<float,int>(originalsurface_->getData(),false,
-		    originalsurface_->info().getTotalSz() );
+	  new ArrayValueSeries<float,int>(changedsurface_->getData(),false,
+		    changedsurface_->info().getTotalSz() );
 
 	if ( convarr.setStorage( valseries ) )
 	    surface_.setVolumeData( xorigin_, yorigin_, zorigin_,  

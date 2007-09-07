@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2007
- RCS:           $Id: marchingcubeseditor.h,v 1.3 2007-09-07 18:30:58 cvskris Exp $
+ RCS:           $Id: marchingcubeseditor.h,v 1.4 2007-09-07 20:41:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ public:
     			MarchingCubesSurfaceEditor(MarchingCubesSurface&);
     virtual		~MarchingCubesSurfaceEditor();
 
-    bool		setKernel(Array3D<unsigned char>*,
+    bool		setKernel(const Array3D<unsigned char>&,
 	    			  int xpos, int ypos, int zpos );
     			//!<Kernel becomes mine
 
