@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.46 2007-08-31 12:48:58 cvskris Exp $
+ RCS:		$Id: visdata.h,v 1.47 2007-09-07 12:43:47 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -92,12 +92,15 @@ public:
 				     outside the vis without loosing precision
 				     in the vis.
 				 */
+    virtual void		setRightHandSystem(bool yn)	{}
+    				/*!<Sets whether the coordinate system is
+				    right or left handed. */
+    virtual bool		isRightHandSystem() const	{ return true; }
 
     virtual int			usePar(const IOPar&);
     				/*!< Returns -1 on error and 1 on success.
 				     If it returns 0 it is missing something.
-				     Parse everything else and retry later.
-				*/
+				     Parse everything else and retry later.  */
 
     virtual bool		acceptsIncompletePar() const    {return false;}
 				/*!<Returns true if it can cope with non-
