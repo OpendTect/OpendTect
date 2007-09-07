@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visobject.h,v 1.41 2007-03-06 20:31:54 cvskris Exp $
+ RCS:		$Id: visobject.h,v 1.42 2007-09-07 18:24:22 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -81,6 +81,9 @@ public:
     			/*!<Will turn the object permanently on.
 			   \note Must be done before giving away the SoNode with
 			   getInventorNode() to take effect */
+    void		setRightHandSystem(bool yn) { righthandsystem_=yn; }
+    bool		isRightHandSystem() const { return righthandsystem_; }
+
 
     void		setMaterial(Material*);
     const Material*	getMaterial() const { return material_; }
@@ -107,6 +110,7 @@ protected:
 
     SoSwitch*		onoff_;
     Material*		material_;
+    bool		righthandsystem_;
 
 private:
     SoSeparator*	root_;
