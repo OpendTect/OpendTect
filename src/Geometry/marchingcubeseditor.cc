@@ -4,7 +4,7 @@
  * DATE     : August 2007
 -*/
 
-static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.3 2007-09-05 22:21:09 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.4 2007-09-07 18:30:58 cvskris Exp $";
 
 #include "marchingcubeseditor.h"
 #include "marchingcubes.h"
@@ -30,6 +30,7 @@ MarchingCubesSurfaceEditor::MarchingCubesSurfaceEditor(
     , xorigin_( 0 )
     , yorigin_( 0 )
     , zorigin_( 0 )		   				   
+    , centernormal_( 1, 0, 0 )
 { }
 
 
@@ -91,6 +92,12 @@ bool MarchingCubesSurfaceEditor::setKernel( Array3D<unsigned char>* arr,
     threshold_ = mc2i.threshold();
 
     return true;
+}
+
+
+const Coord3& MarchingCubesSurfaceEditor::getCenterNormal() const
+{
+    return centernormal_;
 }
 
 

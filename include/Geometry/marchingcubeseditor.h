@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2007
- RCS:           $Id: marchingcubeseditor.h,v 1.2 2007-09-05 15:24:13 cvsyuancheng Exp $
+ RCS:           $Id: marchingcubeseditor.h,v 1.3 2007-09-07 18:30:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "basictask.h"
 #include "callback.h"
+#include "position.h"
 
 class MarchingCubesSurface;
 template <class T> class Interval;
@@ -49,6 +50,8 @@ public:
     					//!<the kernel is 255
     int			getFactor() const { return factor_; }
 
+    const Coord3&	getCenterNormal() const;
+
     virtual bool	affectedVolume(Interval<int>& xrg,
 	    			       Interval<int>& yrg,
 				       Interval<int>& zrg) const;
@@ -68,6 +71,7 @@ protected:
     Array3D<int>*		changedsurface_;
     Array3D<int>*		originalsurface_;
     float			threshold_;
+    Coord3			centernormal_;
 
     int				xorigin_;
     int				yorigin_;
