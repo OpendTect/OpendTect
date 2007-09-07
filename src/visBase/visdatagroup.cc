@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2002
- RCS:           $Id: visdatagroup.cc,v 1.8 2007-06-15 21:47:37 cvsyuancheng Exp $
+ RCS:           $Id: visdatagroup.cc,v 1.9 2007-09-07 15:33:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ DataObjectGroup::DataObjectGroup()
     : group_ ( 0 )
     , separate_( true )
     , change( this )
+    , righthandsystem_( true )
 { }
 
 
@@ -64,6 +65,7 @@ void DataObjectGroup::addObject( DataObject* no )
     nodes_ += no->getInventorNode();
 
     no->ref();
+    no->setRightHandSystem( isRightHandSystem() );
     change.trigger();
 }
 
@@ -85,6 +87,19 @@ Transformation* DataObjectGroup::getDisplayTransformation()
 }
 
 
+void DataObjectGroup::setRightHandSystem( bool yn )
+{
+    righthandsystem_ = yn;
+
+    for ( int idx=0; idx<objects_.size(); idx++ )
+	objects_[idx]->setRightHandSystem( yn );
+}
+
+
+bool DataObjectGroup::isRightHandSystem() const
+{ return righthandsystem_; }
+
+
 void DataObjectGroup::addObject(int nid)
 {
     DataObject* no =
@@ -104,6 +119,7 @@ void DataObjectGroup::insertObject( int insertpos, DataObject* no )
     ensureGroup();
     group_->insertChild( no->getInventorNode(), insertpos );
     no->ref();
+    no->setRightHandSystem( isRightHandSystem() );
     change.trigger();
 }
 

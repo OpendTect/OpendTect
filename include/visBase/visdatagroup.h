@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visdatagroup.h,v 1.5 2007-06-15 21:47:37 cvsyuancheng Exp $
+ RCS:		$Id: visdatagroup.h,v 1.6 2007-09-07 15:33:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,8 @@ public:
     				/*!\returns the trans of the first child
 					    with a trans, or null if none of
 					    the childrens has a trans */
+    void			setRightHandSystem(bool);
+    bool			isRightHandSystem() const;
 
     Notifier<DataObjectGroup>	change; //triggers on add/insert/remove
     void			fillPar(IOPar&,TypeSet<int>&) const;
@@ -78,6 +80,8 @@ protected:
     virtual SoGroup*		createGroup();
     void			ensureGroup();
     SoGroup*			group_;
+
+    bool			righthandsystem_;
 
 private:
     ObjectSet<DataObject>	objects_;
