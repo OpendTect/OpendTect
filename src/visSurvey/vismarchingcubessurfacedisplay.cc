@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.2 2007-09-07 18:29:30 cvskris Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.3 2007-09-07 21:29:28 cvskris Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -324,8 +324,8 @@ void MarchingCubesDisplay::pickCB( CallBacker* cb )
 		emsurface_->surface() );
     }
 
-    Array3D<unsigned char>* kernel = createKernel( 11, 11, 11 );
-    surfaceeditor_->setKernel( kernel,
+    PtrMan<Array3D<unsigned char> > kernel = createKernel( 11, 11, 11 );
+    surfaceeditor_->setKernel( *kernel,
 	    surfacepos[0]-5, surfacepos[1]-5, surfacepos[2]-5 );
 
     if ( !factordragger_ )
