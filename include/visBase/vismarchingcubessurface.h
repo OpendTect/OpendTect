@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		August 2006
- RCS:		$Id: vismarchingcubessurface.h,v 1.4 2007-09-07 15:31:05 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurface.h,v 1.5 2007-09-07 16:13:23 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -61,6 +61,7 @@ protected:
     Normals*					normals_;
     SoShapeHints*				hints_;
     ObjectSet<SoIndexedTriangleStripSet>	triangles_;
+    bool					righthandsystem_;
 
     ExplicitMarchingCubesSurface*		surface_;
     char					side_;
