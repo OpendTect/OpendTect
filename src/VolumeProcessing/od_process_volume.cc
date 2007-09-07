@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.1 2007-04-20 15:28:45 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.2 2007-09-07 20:58:49 cvsyuancheng Exp $";
 
 #include "batchprog.h"
 
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: od_process_volume.cc,v 1.1 2007-04-20 15:28:45 
 #include "attribdatacubes.h"
 #include "bufstringset.h"
 #include "cubesampling.h"
+#include "horinterfiller.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "prog.h"
@@ -24,7 +25,9 @@ static const char* rcsID = "$Id: od_process_volume.cc,v 1.1 2007-04-20 15:28:45 
 #include "volumeprocessingtrans.h"
 
 bool BatchProgram::go( std::ostream& strm )
-{  
+{ 
+    VolProc::HorInterFiller::initClass();
+    
     MultiID chainid;
     pars().get( "Chain ID", chainid );
     PtrMan<IOObj> ioobj = IOM().get( chainid );
