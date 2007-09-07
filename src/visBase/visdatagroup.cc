@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2002
- RCS:           $Id: visdatagroup.cc,v 1.9 2007-09-07 15:33:11 cvskris Exp $
+ RCS:           $Id: visdatagroup.cc,v 1.10 2007-09-07 18:27:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,8 @@ Transformation* DataObjectGroup::getDisplayTransformation()
 void DataObjectGroup::setRightHandSystem( bool yn )
 {
     righthandsystem_ = yn;
+
+    yn = isRightHandSystem();
 
     for ( int idx=0; idx<objects_.size(); idx++ )
 	objects_[idx]->setRightHandSystem( yn );
