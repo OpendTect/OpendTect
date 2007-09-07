@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: visnormals.cc,v 1.9 2007-09-05 19:03:34 cvskris Exp $
+ RCS:           $Id: visnormals.cc,v 1.10 2007-09-07 20:54:22 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ void Normals::removeNormal(int idx)
 {
     Threads::MutexLocker lock( mutex );
     const int nrnormals = normals->vector.getNum();
-    if ( idx>=nrnormals )
+    if ( idx<0 || idx>=nrnormals )
     {
 	pErrMsg("Invalid index");
 	return;
