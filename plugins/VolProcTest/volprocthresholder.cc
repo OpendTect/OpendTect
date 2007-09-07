@@ -4,7 +4,7 @@
  * DATE:	March 2007
 -*/
 
-static const char* rcsID = "$Id: volprocthresholder.cc,v 1.1 2007-03-30 21:00:56 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: volprocthresholder.cc,v 1.2 2007-09-07 20:52:21 cvsyuancheng Exp $";
 
 #include "volprocthresholder.h"
 
@@ -48,10 +48,10 @@ bool ThresholdStep::compute( int start, int stop )
 {
     if ( !input_ || !output_ || !input_->nrCubes() ) return false;
 
-    const StepInterval<int> outputinlrg( output_->inlsampling.start,
-			output_->inlsampling.atIndex( output_->getInlSz()-1 ),
-			output_->inlsampling.step );
-    //Basic/ranges.h
+    const StepInterval<int> outputinlrg( output_->inlsampling.start, 
+	   		output_->inlsampling.atIndex( output_->getInlSz()-1 ),
+	   	 	output_->inlsampling.step );
+    
     if ( !outputinlrg.includes( curbid_.inl ) ||
 	 (curbid_.inl-outputinlrg.start)%outputinlrg.step )
     return false;
@@ -59,7 +59,7 @@ bool ThresholdStep::compute( int start, int stop )
     const StepInterval<int> outputcrlrg( output_->crlsampling.start,
 			output_->crlsampling.atIndex( output_->getCrlSz()-1 ),
 			output_->crlsampling.step );
-    //Basic/ranges.h
+    
     if ( !outputcrlrg.includes( curbid_.crl ) ||
 	 (curbid_.crl-outputcrlrg.start)%outputcrlrg.step )
     return false;
@@ -75,7 +75,7 @@ bool ThresholdStep::compute( int start, int stop )
     const StepInterval<int> inputcrlrg( input_->crlsampling.start,
 			input_->crlsampling.atIndex( input_->getCrlSz()-1 ),
 			input_->crlsampling.step );
-    //Basic/ranges.h
+    
     if ( !inputcrlrg.includes( curbid_.crl ) ||
 	 (curbid_.crl-inputcrlrg.start)%inputcrlrg.step )
     return false;
