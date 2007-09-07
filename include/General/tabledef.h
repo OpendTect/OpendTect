@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.14 2007-01-24 10:18:57 cvsbert Exp $
+ RCS:		$Id: tabledef.h,v 1.15 2007-09-07 10:58:17 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,6 +113,8 @@ public:
 
     bool		isOptional() const	{ return req_ == Optional; }
     PropertyRef::StdType propertyType() const	{ return proptype_; }
+    void		setPropertyType( PropertyRef::StdType p )
+			    { proptype_ = p; }
     int			nrForms() const		{ return forms_.size(); }
     Form&		form( int idx )		{ return *forms_[idx]; }
     const Form&		form( int idx ) const	{ return *forms_[idx]; }
