@@ -4,11 +4,12 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.11 2007-08-30 21:26:38 cvskris Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.12 2007-09-07 18:37:56 cvskris Exp $";
 
 
 #include "uiodvolrentreeitem.h"
 
+#include "uicursor.h"
 #include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
@@ -16,10 +17,12 @@ static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.11 2007-08-30 21:26:3
 #include "uiodapplmgr.h"
 #include "uiodattribtreeitem.h"
 #include "uiodscenemgr.h"
+#include "uiodmarchingcubessurfacetreeitem.h"
 #include "uislicesel.h"
 #include "uistatisticsdlg.h"
-#include "uivisisosurface.h"
 #include "vismarchingcubessurface.h"
+#include "vismarchingcubessurfacedisplay.h"
+#include "uivisisosurface.h"
 #include "uivispartserv.h"
 #include "visvolorthoslice.h"
 #include "visvolren.h"
@@ -263,6 +266,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	}
 
 	isshown = true;
+	uiCursorChanger cursorchanger( uiCursor::Wait );
 	addChild( new uiODVolrenSubTreeItem(voldisp->addIsoSurface()), true );
     }
     else if ( uiODAttribTreeItem::handleSelMenu( mnuid, displayID(), 0 ) )
@@ -303,6 +307,7 @@ bool uiODVolrenTreeItem::hasVolume() const
 
 uiODVolrenSubTreeItem::uiODVolrenSubTreeItem( int displayid )
     : setisovaluemnuid_("Set isovalue")
+    , convertisotobodymnuid_("Convert to body")
 { displayid_ = displayid; }
 
 
@@ -410,10 +415,14 @@ void uiODVolrenSubTreeItem::createMenuCB( CallBacker* cb )
     if ( !isIsoSurface() )
     {
 	mResetMenuItem( &setisovaluemnuid_ );
+	mResetMenuItem( &convertisotobodymnuid_ );
 	return;
     }
 
     mAddMenuItem( menu, &setisovaluemnuid_, true, false );
+#ifdef __debug__
+    mAddMenuItem( menu, &convertisotobodymnuid_, true, false );
+#endif
 }
 
 
@@ -439,5 +448,35 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 	uiSingleGroupDlg dlg(getUiParent(), uiDialog::Setup(0,0,0) );
 	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg( &dlg, isosurface, vd ) );
 	dlg.go();
+    }
+    else if ( mnuid==convertisotobodymnuid_.id )
+    {
+	menu->setIsHandled( true );
+	mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
+			visserv_->getObject(displayid_));
+	mDynamicCastGet(visSurvey::VolumeDisplay*,vd,
+			visserv_->getObject(parent_->selectionKey()));
+
+	isosurface->ref();
+
+	RefMan<visSurvey::MarchingCubesDisplay> mcdisplay =
+	    visSurvey::MarchingCubesDisplay::create();
+	if ( !mcdisplay->setVisSurface( isosurface ) )
+	{
+	    isosurface->unRef();
+	    return; //TODO error msg.
+	}
+
+	BufferString newname = "Iso ";
+	newname += vd->isoValue( isosurface );
+	mcdisplay->setName( newname.buf() );
+
+	visserv_->addObject( mcdisplay, sceneID(), true );
+	addChild( new uiODMarchingCubesTreeItem( mcdisplay->id(), true), false);
+	prepareForShutdown();
+	vd->removeChild( isosurface->id() );
+	isosurface->unRef();
+
+	parent_->removeChild( this );
     }
 }
