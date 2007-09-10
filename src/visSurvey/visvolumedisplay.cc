@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.69 2007-09-10 06:27:37 cvskris Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.70 2007-09-10 08:53:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,6 +82,13 @@ VolumeDisplay::VolumeDisplay()
 
 VolumeDisplay::~VolumeDisplay()
 {
+    scalarfield_->getColorTab().rangechange.remove(
+	    mCB( this, VolumeDisplay, colTabChange ));
+    scalarfield_->getColorTab().sequencechange.remove(
+	    mCB( this, VolumeDisplay, colTabChange ));
+    scalarfield_->getColorTab().autoscalechange.remove(
+	    mCB( this, VolumeDisplay, colTabChange ));
+
     getMaterial()->change.remove(mCB(this,VolumeDisplay,materialChange) );
 
     delete &as_;
@@ -129,6 +136,19 @@ void VolumeDisplay::materialChange( CallBacker* )
 	mSetMaterialProp( EmmIntensity );
 	mSetMaterialProp( Shininess );
 	mSetMaterialProp( Transparency );
+    }
+}
+
+
+void VolumeDisplay::colTabChange( CallBacker* )
+{
+    for ( int idx=0; idx<isosurfaces_.size(); idx++ )
+    {
+	if ( mIsUdf(isovalues_[idx]) )
+	    continue;
+
+	isosurfaces_[idx]->getMaterial()->setColor(
+	    scalarfield_->getColorTab().color(isovalues_[idx]));
     }
 }
 
@@ -508,7 +528,22 @@ float VolumeDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
 
 void VolumeDisplay::setColorTab( visBase::VisColorTab& ctab )
 {
+    scalarfield_->getColorTab().rangechange.remove(
+	    mCB( this, VolumeDisplay, colTabChange ));
+    scalarfield_->getColorTab().sequencechange.remove(
+	    mCB( this, VolumeDisplay, colTabChange ));
+    scalarfield_->getColorTab().autoscalechange.remove(
+	    mCB( this, VolumeDisplay, colTabChange ));
+
     scalarfield_->setColorTab( ctab );
+
+    scalarfield_->getColorTab().rangechange.notify(
+	    mCB( this, VolumeDisplay, colTabChange ));
+    scalarfield_->getColorTab().sequencechange.notify(
+	    mCB( this, VolumeDisplay, colTabChange ));
+    scalarfield_->getColorTab().autoscalechange.notify(
+	    mCB( this, VolumeDisplay, colTabChange ));
+
 }
 
 
@@ -743,6 +778,13 @@ SoNode* VolumeDisplay::getInventorNode()
 
 	addSlice(cInLine()); addSlice(cCrossLine()); addSlice(cTimeSlice());
 	showVolRen( true ); showVolRen( false );
+
+	scalarfield_->getColorTab().rangechange.notify(
+		mCB( this, VolumeDisplay, colTabChange ));
+	scalarfield_->getColorTab().sequencechange.notify(
+		mCB( this, VolumeDisplay, colTabChange ));
+	scalarfield_->getColorTab().autoscalechange.notify(
+		mCB( this, VolumeDisplay, colTabChange ));
     }
 
     return VisualObjectImpl::getInventorNode();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.47 2007-09-10 06:27:37 cvskris Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.48 2007-09-10 08:53:39 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -128,6 +128,7 @@ protected:
 				~VolumeDisplay();
     CubeSampling		getCubeSampling(bool manippos,int attrib) const;
     void			materialChange(CallBacker*);
+    void			colTabChange(CallBacker*);
     void			updateIsoSurface(int);
 
     visBase::Transformation*			voltrans_;
