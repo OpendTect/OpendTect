@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vismaterial.cc,v 1.13 2006-07-03 14:21:44 cvskris Exp $
+ RCS:           $Id: vismaterial.cc,v 1.14 2007-09-10 06:16:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,21 @@ Material::Material()
 
 Material::~Material()
 { material_->unref(); }
+
+#define mSetProp( prop ) prop = mat.prop
+void Material::setFrom( const Material& mat )
+{
+    mSetProp( color_ );
+    mSetProp( diffuseintencity_ );
+    mSetProp( ambience_ );
+    mSetProp( specularintensity_ );
+    mSetProp( emmissiveintensity_ );
+    mSetProp( shininess_ );
+    mSetProp( transparency_ );
+
+    for ( int idx=color_.size()-1; idx>=0; idx-- )
+	updateMaterial( idx );
+}
 
 
 void Material::setColor( const Color& n, int idx )
