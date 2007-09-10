@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          September 2007
- RCS:		$Id: uistratlvlsel.cc,v 1.4 2007-09-07 12:27:14 cvshelene Exp $
+ RCS:		$Id: uistratlvlsel.cc,v 1.5 2007-09-10 12:55:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ uiStratLevelSel::uiStratLevelSel( uiParent* p )
     lvlnmfld_->valuechanged.notify( cb );
     CallBack cb2 = mCB(this,uiStratLevelSel,defineLvlCB);
     deflvlbut_ = new uiPushButton( this, "&Define Level", cb2, true );
+    deflvlbut_->setHSzPol(uiPushButton::Medium);
     deflvlbut_->attach( rightOf, lvlnmfld_ );
     setHAlignObj( lvlnmfld_ );
 }
