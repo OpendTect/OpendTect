@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.22 2007-08-30 21:26:38 cvskris Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.23 2007-09-10 10:40:07 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -428,7 +428,7 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 	const CubeSampling newcs = positiondlg.getCubeSampling();
 
 	bool doupdate = false;
-	bool usecache = true;
+	bool usecache = false; // TODO: move cache handling to AE
 	const Interval<float> newzrg( newcs.zrg.start, newcs.zrg.stop );
 	if ( !newzrg.isEqual(s2d->getZRange(true),mDefEps) )
 	{
