@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.47 2007-08-08 04:13:30 cvsnanne Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.48 2007-09-10 10:36:31 cvsraman Exp $";
 
 #include "pickset.h"
 
@@ -435,7 +435,7 @@ bool PickSetAscIO::get( std::istream& strm, Pick::Set& ps, bool isxy,
     while ( true )
     {
 	int ret = getNextBodyVals( strm );
-	if ( ret < 0 ) mErrRet(0)
+	if ( ret < 0 ) mErrRet(errmsg_)
 	if ( ret == 0 ) break;
 
 	const float xread = getfValue( 0 );
