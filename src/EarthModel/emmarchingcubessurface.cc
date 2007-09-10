@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Aug 2007
- RCS:           $Id: emmarchingcubessurface.cc,v 1.1 2007-09-04 20:58:36 cvskris Exp $
+ RCS:           $Id: emmarchingcubessurface.cc,v 1.2 2007-09-10 06:20:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,7 +102,10 @@ public:
 	if ( !exec_ ) return ErrorOccurred;
 	const int res = exec_->doStep();
 	if ( res==Finished )
+	{
 	    surface_.setFullyLoaded( true );
+	    surface_.resetChangedFlag();
+	}
 	return res;
     }
 
@@ -129,12 +132,12 @@ public:
     delete exec_;
 }
 
-MarchingCubesSurfaceWriter(
-	const EM::MarchingCubesSurface& surface,
-	Conn* conn, bool binary )
+MarchingCubesSurfaceWriter( EM::MarchingCubesSurface& surface,
+			    Conn* conn, bool binary )
     : Executor( "Surface Writer" )
     , conn_( conn )
     , exec_( 0 )
+    , surface_( surface )
 {
     if ( !conn_ || !conn_->forWrite() )
     {
@@ -173,7 +176,11 @@ MarchingCubesSurfaceWriter(
 int nextStep()
 {
     if ( !exec_ ) return ErrorOccurred;
-    return exec_->doStep();
+    const int res = exec_->doStep();
+    if ( !res )
+	surface_.resetChangedFlag();
+
+    return res;
 }
 
 int totalNr() const { return exec_ ? exec_->totalNr() : -1; }
@@ -185,6 +192,7 @@ protected:
     Executor*			exec_;
     Conn*			conn_;
     BufferString		errmsg_;
+    EM::MarchingCubesSurface&	surface_;
 };
 
 
