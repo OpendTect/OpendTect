@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visnormals.h,v 1.6 2007-09-05 19:03:34 cvskris Exp $
+ RCS:		$Id: visnormals.h,v 1.7 2007-09-10 06:18:33 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -36,6 +36,10 @@ public:
     static Normals*	create()
 			mCreateDataObj(Normals);
 
+    void		inverse();
+    			//!<Sets all normals to -normal
+    int			nrNormals() const;
+    			//!<Envelope only, not all may be used.
     void		setNormal( int, const Coord3& );
     int			addNormal( const Coord3& );
     void		removeNormal( int );
@@ -48,10 +52,10 @@ protected:
     int			getFreeIdx();
     			/*!< Object should be locked when calling */
 
-    SoNormal*		normals;
+    SoNormal*		normals_;
 
-    TypeSet<int>	unusednormals;
-    Threads::Mutex&	mutex;
+    TypeSet<int>	unusednormals_;
+    Threads::Mutex&	mutex_;
     			
 };
 

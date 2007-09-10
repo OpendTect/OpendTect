@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: visnormals.cc,v 1.10 2007-09-07 20:54:22 cvsyuancheng Exp $
+ RCS:           $Id: visnormals.cc,v 1.11 2007-09-10 06:18:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,46 +23,65 @@ namespace visBase
 {
 
 Normals::Normals()
-    : normals( new SoNormal )
-    , mutex( *new Threads::Mutex )
+    : normals_( new SoNormal )
+    , mutex_( *new Threads::Mutex )
 {
-    normals->ref();
-    unusednormals += 0;
+    normals_->ref();
+    unusednormals_ += 0;
     //!<To compensate for that the first coord is set by default by coin
 }
 
 
 Normals::~Normals()
 {
-    normals->unref();
-    delete &mutex;
+    normals_->unref();
+    delete &mutex_;
 }
 
 
 void Normals::setNormal( int idx, const Vector3& normal )
 {
-    Threads::MutexLocker lock( mutex );
+    Threads::MutexLocker lock( mutex_ );
 
-    for ( int idy=normals->vector.getNum(); idy<idx; idy++ )
-	unusednormals += idy;
+    for ( int idy=normals_->vector.getNum(); idy<idx; idy++ )
+	unusednormals_ += idy;
 
-    normals->vector.set1Value( idx, SbVec3f( normal.x, normal.y, normal.z ));
+    normals_->vector.set1Value( idx, SbVec3f( normal.x, normal.y, normal.z ));
 }
+
+
+int Normals::nrNormals() const
+{ return normals_->vector.getNum(); }
+
+
+void Normals::inverse()
+{
+    Threads::MutexLocker lock( mutex_ );
+
+    SbVec3f* normals = normals_->vector.startEditing();
+
+    for ( int idx=normals_->vector.getNum()-1; idx>=0; idx-- )
+	normals[idx] *= -1;
+
+    if ( normals_->vector.getNum() )
+	normals_->vector.finishEditing();
+}
+
 
 
 int Normals::addNormal( const Vector3& normal )
 {
-    Threads::MutexLocker lock( mutex );
+    Threads::MutexLocker lock( mutex_ );
     const int res = getFreeIdx();
-    normals->vector.set1Value( res, SbVec3f( normal.x, normal.y, normal.z ));
+    normals_->vector.set1Value( res, SbVec3f( normal.x, normal.y, normal.z ));
     return res;
 }
 
 
 void Normals::removeNormal(int idx)
 {
-    Threads::MutexLocker lock( mutex );
-    const int nrnormals = normals->vector.getNum();
+    Threads::MutexLocker lock( mutex_ );
+    const int nrnormals = normals_->vector.getNum();
     if ( idx<0 || idx>=nrnormals )
     {
 	pErrMsg("Invalid index");
@@ -70,38 +89,34 @@ void Normals::removeNormal(int idx)
     }
     
     if ( idx==nrnormals-1 )
-    {
-	normals->vector.deleteValues( idx );
-    }
+	normals_->vector.deleteValues( idx );
     else
-    {
-	unusednormals += idx;
-    }
+	unusednormals_ += idx;
 }
 
 
 Coord3 Normals::getNormal( int idx ) const
 {
-    Threads::MutexLocker lock( mutex );
-    const SbVec3f norm = normals->vector[idx];
+    Threads::MutexLocker lock( mutex_ );
+    const SbVec3f norm = normals_->vector[idx];
     return Coord3( norm[0], norm[1], norm[2] );
 }
 
 
 SoNode* Normals::getInventorNode()
-{ return normals; }
+{ return normals_; }
 
 
 int  Normals::getFreeIdx()
 {
-    if ( unusednormals.size() )
+    if ( unusednormals_.size() )
     {
-	const int res = unusednormals[unusednormals.size()-1];
-	unusednormals.remove(unusednormals.size()-1);
+	const int res = unusednormals_[unusednormals_.size()-1];
+	unusednormals_.remove(unusednormals_.size()-1);
 	return res;
     }
 
-    return normals->vector.getNum();
+    return normals_->vector.getNum();
 }
 
 }; // namespace visBase
