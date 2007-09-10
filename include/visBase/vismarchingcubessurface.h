@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		August 2006
- RCS:		$Id: vismarchingcubessurface.h,v 1.6 2007-09-07 18:25:17 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurface.h,v 1.7 2007-09-10 06:23:23 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -38,6 +38,8 @@ public:
     void				setSurface(::MarchingCubesSurface&);
     ::MarchingCubesSurface*		getSurface();
     const ::MarchingCubesSurface*	getSurface() const;
+
+    void				setRightHandSystem(bool);
 
     void				setScales(const SamplingData<float>&,
 	    					  const SamplingData<float>&,
