@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2006
- RCS:		$Id: uivisisosurface.cc,v 1.3 2007-08-29 14:25:51 cvskris Exp $
+ RCS:		$Id: uivisisosurface.cc,v 1.4 2007-09-10 06:32:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,10 +15,15 @@ ________________________________________________________________________
 #include "isosurface.h"
 #include "mouseevent.h"
 #include "uicanvas.h"
+#include "uicursor.h"
 #include "uigeninput.h"
 #include "uihistogramdisplay.h"
 #include "uibutton.h"
 #include "visvolumedisplay.h"
+#include "viscolortab.h"
+
+#define mHistWidth 200
+#define mHistHeight 100
 
 uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
 	visBase::MarchingCubesSurface* isosurface,
@@ -31,17 +36,25 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     TypeSet<float> histogram;
     if ( vd->getHistogram(0) ) histogram = *vd->getHistogram(0);
 
+    const Interval<float> rg = vd->getColorTab().getInterval();
+    uiWorld2Ui w2ui( uiWorldRect(rg.start,255,rg.stop,0),
+	    	     uiSize(mHistWidth,mHistHeight) );
+    const SamplingData<float> sd(0,rg.start, histogram.size()-1, rg.stop );
+
     histogramdisplay_ = new uiCanvas( this );
-    histogramdisplay_->setPrefWidth( 200 );
-    histogramdisplay_->setPrefHeight( 100 );
+    histogramdisplay_->setPrefWidth( mHistWidth );
+    histogramdisplay_->setPrefHeight( mHistHeight );
     histogramdisplay_->getMouseEventHandler().buttonPressed.notify(
 	    mCB( this, uiVisIsoSurfaceThresholdDlg,mousePressed) );
     histogramdisplay_->getMouseEventHandler().doubleClick.notify(
 	    mCB( this, uiVisIsoSurfaceThresholdDlg,doubleClick) );
 
     histogrampainter_ = new uiHistogramDisplay( histogramdisplay_ );
-    histogrampainter_->setHistogram( histogram,SamplingData<float>(0,1), true );
-    histogrampainter_->setColor( Color(128,128,128,0) );
+    histogrampainter_->setTransform( w2ui );
+    histogrampainter_->setHistogram( histogram,sd, true );
+    histogrampainter_->setColor( Color(100,100,100,0) );
+    histogramdisplay_->postDraw.notify(
+	    mCB(this,uiVisIsoSurfaceThresholdDlg,updateHistogramDisplay) );
 
     thresholdfld_ = new uiGenInput( this, "Threshold",
 	    			    FloatInpSpec(initialvalue_) );
@@ -59,6 +72,8 @@ uiVisIsoSurfaceThresholdDlg::~uiVisIsoSurfaceThresholdDlg()
     histogramdisplay_->getMouseEventHandler().doubleClick.remove(
 	    mCB( this, uiVisIsoSurfaceThresholdDlg,doubleClick) );
 
+    histogramdisplay_->postDraw.remove(
+	    mCB(this,uiVisIsoSurfaceThresholdDlg,updateHistogramDisplay) );
     delete histogrampainter_;
 }
 
@@ -123,32 +138,52 @@ void uiVisIsoSurfaceThresholdDlg::handleClick( CallBacker* cb, bool isdouble )
 	return;
     }
 
+    const uiPoint& pt = event.pos();
+    if ( pt.x<0 || pt.x>=mHistWidth )
+	return;
+
     eventhandler.setHandled( true );
-    uiPoint pt = event.pos();
     const float val = histogrampainter_->getTransform().transform( pt ).x;
     thresholdfld_->setValue( val );
     if ( isdouble ) updateIsoDisplay( val );
+    else histogramdisplay_->update();
 }
 
 
 void uiVisIsoSurfaceThresholdDlg::updateIsoDisplay( float nv )
 {
+    uiCursorChanger changer( uiCursor::Wait );
     vd_->setIsoValue( isosurfacedisplay_, nv );
+    histogramdisplay_->update();
 }
 
 
-void uiVisIsoSurfaceThresholdDlg::updateHistogramDisplay( CallBacker* )
+void uiVisIsoSurfaceThresholdDlg::updateHistogramDisplay( CallBacker* cb )
 {
+    histogrampainter_->reDraw( cb );
     ioDrawTool& dt = histogramdisplay_->drawTool();
 
-    dt.setPenColor( Color::Black );
     uiWorldPoint wpt( initialvalue_, 0 );
-    uiPoint pt =  histogrampainter_->getTransform().transform( wpt );
-    dt.drawLine( pt.x, 0, pt.x, dt.getDevHeight() );
+    if ( !mIsUdf(wpt.x) )
+    {
+	dt.setPenColor( Color::Black );
+	uiPoint pt =  histogrampainter_->getTransform().transform( wpt );
+	dt.drawLine( pt.x, 0, pt.x, dt.getDevHeight() );
+    }
 
-    dt.setPenColor( Color(255,0,0,0) );
-    
+    wpt.x = thresholdfld_->getfValue();
+    if ( !mIsUdf(wpt.x) )
+    {
+	dt.setPenColor( Color(0,255,0,0) );
+	uiPoint pt =  histogrampainter_->getTransform().transform( wpt );
+	dt.drawLine( pt.x, 0, pt.x, dt.getDevHeight() );
+    }
+
     wpt.x = vd_->isoValue( isosurfacedisplay_ );
-    pt =  histogrampainter_->getTransform().transform( wpt );
-    dt.drawLine( pt.x, 0, pt.x, dt.getDevHeight() );
+    if ( !mIsUdf(wpt.x) )
+    {
+	dt.setPenColor( Color(255,0,0,0) );
+	uiPoint pt =  histogrampainter_->getTransform().transform( wpt );
+	dt.drawLine( pt.x, 0, pt.x, dt.getDevHeight() );
+    }
 }
