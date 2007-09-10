@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.68 2007-08-29 14:24:15 cvskris Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.69 2007-09-10 06:27:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,7 @@ VolumeDisplay::VolumeDisplay()
     getMaterial()->setColor( Color::White );
     getMaterial()->setAmbience( 0.8 );
     getMaterial()->setDiffIntensity( 0.8 );
+    getMaterial()->change.notify(mCB(this,VolumeDisplay,materialChange) );
     voltrans_->ref();
     addChild( voltrans_->getInventorNode() );
     voltrans_->setRotation( Coord3(0,1,0), M_PI_2 );
@@ -81,6 +82,8 @@ VolumeDisplay::VolumeDisplay()
 
 VolumeDisplay::~VolumeDisplay()
 {
+    getMaterial()->change.remove(mCB(this,VolumeDisplay,materialChange) );
+
     delete &as_;
     DPM( DataPackMgr::CubeID ).release( cacheid_ );
 
@@ -98,6 +101,35 @@ VolumeDisplay::~VolumeDisplay()
     boxdragger_->unRef();
 
     voltrans_->unRef();
+}
+
+
+void VolumeDisplay::setMaterial( visBase::Material* nm )
+{
+    getMaterial()->change.remove(mCB(this,VolumeDisplay,materialChange) );
+    visBase::VisualObjectImpl::setMaterial( nm );
+    if ( nm )
+	getMaterial()->change.notify( mCB(this,VolumeDisplay,materialChange) );
+    materialChange( 0 );
+}
+
+#define mSetMaterialProp( prop ) \
+    isosurfaces_[idx]->getMaterial()->set##prop( \
+	    getMaterial()->get##prop() )
+void VolumeDisplay::materialChange( CallBacker* )
+{
+    if ( !getMaterial() )
+	return;
+
+    for ( int idx=0; idx<isosurfaces_.size(); idx++ )
+    {
+	mSetMaterialProp( Ambience );
+	mSetMaterialProp( DiffIntensity );
+	mSetMaterialProp( SpecIntensity );
+	mSetMaterialProp( EmmIntensity );
+	mSetMaterialProp( Shininess );
+	mSetMaterialProp( Transparency );
+    }
 }
 
 
@@ -283,27 +315,20 @@ int VolumeDisplay::addIsoSurface()
     visBase::MarchingCubesSurface* isosurface =
 				    visBase::MarchingCubesSurface::create();
     isosurface->ref();
-    isosurface->setMaterial( 0 );
+    isosurface->setRightHandSystem( righthandsystem_ );
     RefMan<MarchingCubesSurface> surface = new MarchingCubesSurface();
     isosurface->setSurface( *surface );
-    float threshold = 0;
-    if ( cache_ )
-    {
-	isosurface->setScales( cache_->inlsampling, cache_->crlsampling,
-				SamplingData<float>( cache_->z0*cache_->zstep,
-				    		     cache_->zstep ) );
-	threshold = scalarfield_->getColorTab().getInterval().center();
-	surface->setVolumeData( 0, 0, 0, cache_->getCube(0), threshold );
-	isosurface->touch();
-    }
-
     isosurface->setName( "Iso surface" );
+
+    isosurfaces_ += isosurface;
+    isovalues_ += cache_ ? scalarfield_->getColorTab().getInterval().center()
+			 : mUdf(float);
+
+    updateIsoSurface( isosurfaces_.size()-1 );
 
     //Insert before the volume transform
     insertChild( childIndex(voltrans_->getInventorNode()),
 	    		    isosurface->getInventorNode() );
-    isosurfaces_ += isosurface;
-    isovalues_ += threshold;
     return isosurface->id();
 }
 
@@ -369,9 +394,27 @@ void VolumeDisplay::setIsoValue( const visBase::MarchingCubesSurface* mcd,
 	return;
 
     isovalues_[idx] = nv;
+    updateIsoSurface( idx );
+}
 
-    isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
-	    cache_->getCube(0), isovalues_[idx] );
+
+void VolumeDisplay::updateIsoSurface( int idx )
+{
+    if ( !cache_ || !cache_->getCube(0).isOK() || mIsUdf(isovalues_[idx]) )
+	isosurfaces_[idx]->getSurface()->removeAll();
+    else
+    {
+	isosurfaces_[idx]->getSurface()->removeAll();
+	isosurfaces_[idx]->setScales(
+		cache_->inlsampling, cache_->crlsampling,
+		SamplingData<float>( cache_->z0*cache_->zstep, cache_->zstep ));
+	isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
+		cache_->getCube(0), isovalues_[idx] );
+	isosurfaces_[idx]->getMaterial()->setColor(
+	    scalarfield_->getColorTab().color(isovalues_[idx]));
+    }
+
+    isosurfaces_[idx]->touch();
 }
 
 
@@ -508,10 +551,7 @@ void VolumeDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     scalarfield_->turnOn( false );
 
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
-    {
-	isosurfaces_[idx]->getSurface()->removeAll();
-	isosurfaces_[idx]->touch();
-    }
+	updateIsoSurface( idx );
 }
 
 
@@ -564,15 +604,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
     cache_->ref();
 
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
-    {
-	isosurfaces_[idx]->setScales(
-		cache_->inlsampling, cache_->crlsampling,
-		SamplingData<float>( cache_->z0*cache_->zstep, cache_->zstep ));
-	isosurfaces_[idx]->getSurface()->removeAll();
-	isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
-		cache_->getCube(0), isovalues_[idx] );
-	isosurfaces_[idx]->touch();
-    }
+	updateIsoSurface( idx );
 
     return true;
 }
@@ -744,6 +776,17 @@ void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
 	if ( saveids.indexOf(sliceid) == -1 ) saveids += sliceid;
     }
 
+    const int nrisosurfaces = isosurfaces_.size();
+    par.set( sKeyNrIsoSurfaces(), nrisosurfaces );
+    for ( int idx=0; idx<nrisosurfaces; idx++ )
+    {
+	BufferString str( sKeyIsoValueStart() ); str += idx;
+	par.set( str, isovalues_[idx] );
+
+	str = sKeyIsoOnStart(); str += idx;
+	par.setYN( str, isosurfaces_[idx]->isOn() );
+    }
+
     as_.fillPar(par);
 }
 
@@ -793,6 +836,29 @@ int VolumeDisplay::usePar( const IOPar& par )
 
     while ( slices_.size() )
 	removeChild( slices_[0]->id() );
+
+    while ( isosurfaces_.size() )
+	removeChild( isosurfaces_[0]->id() );
+
+    int nrisosurfaces;
+    if ( par.get( sKeyNrIsoSurfaces(), nrisosurfaces ) )
+    {
+	for ( int idx=0; idx<nrisosurfaces; idx++ )
+	{
+	    BufferString str( sKeyIsoValueStart() ); str += idx;
+	    float isovalue;
+	    if ( par.get( str, isovalue ) )
+	    {
+		addIsoSurface();
+		isovalues_[idx] = isovalue;
+	    }
+
+	    str = sKeyIsoOnStart(); str += idx;
+	    bool status = true;
+	    par.getYN( str, status );
+	    isosurfaces_[idx]->turnOn( status );
+	}
+    }
 
     int nrslices = 0;
     par.get( nrslicesstr, nrslices );

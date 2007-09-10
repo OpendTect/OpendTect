@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.46 2007-08-29 14:24:15 cvskris Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.47 2007-09-10 06:27:37 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -104,6 +104,7 @@ public:
     visBase::VisColorTab&	getColorTab();
     const visBase::VisColorTab&	getColorTab() const;
 
+    void			setMaterial(visBase::Material*);
     bool			allowMaterialEdit() const	{ return true; }
     virtual bool		allowPicks() const;
     bool			canDuplicate() const		{ return true; }
@@ -126,6 +127,8 @@ public:
 protected:
 				~VolumeDisplay();
     CubeSampling		getCubeSampling(bool manippos,int attrib) const;
+    void			materialChange(CallBacker*);
+    void			updateIsoSurface(int);
 
     visBase::Transformation*			voltrans_;
     visBase::BoxDragger*			boxdragger_;
@@ -170,6 +173,10 @@ protected:
     static const char*		inlineshowstr;
     static const char* 		crosslineshowstr;
     static const char* 		timeshowstr;
+
+    static const char*		sKeyNrIsoSurfaces() { return "Nr Isosurfaces"; }
+    static const char*		sKeyIsoValueStart() { return "Iso Value "; }
+    static const char*		sKeyIsoOnStart() { return "Iso Surf On "; }
 
 };
 
