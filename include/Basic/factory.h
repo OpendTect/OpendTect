@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.3 2006-11-15 14:46:51 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.4 2007-09-10 06:08:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,8 @@ class B : public A
 public:
     static A*		createFunc() { return new B; }
     static void		initClass()
-    			{ thefactory.addCreator(createFunc,"My Name"); }
+    			{ thefactory.addCreator(createFunc,"MyKeyword",
+						"My Name"); }
 			    
     int			myFunc();
 };
@@ -60,12 +61,14 @@ class Factory
 {
 public:
     typedef			T* (*Creator)();
-    inline void			addCreator(Creator,const char* nm);
+    inline void			addCreator(Creator,const char* nm,
+	    				   const char* username = 0);
     inline T*			create(const char* nm) const;
-    const BufferStringSet&	getNames() const { return names_; }
+    const BufferStringSet&	getNames(bool username=false) const;
 protected:
 
     BufferStringSet		names_;
+    BufferStringSet		usernames_;
     TypeSet<Creator>		creators_;
 };
 
@@ -88,7 +91,7 @@ class B : public A
 public:
     static A*		createFunc(C* param) { return new B(param); }
     static void		initClass()
-    			{ thefactory.addCreator(createFunc,"My Name"); }
+    			{ thefactory.addCreator(createFunc,"MyKeyword","My Name"); }
 			    
     int			myFunc();
 };
@@ -116,12 +119,14 @@ class Factory1Param
 {
 public:
     typedef			T* (*Creator)(P);
-    inline void			addCreator(Creator,const char* nm);
+    inline void			addCreator(Creator,const char* nm,
+	    				   const char* usernm = 0);
     inline T*			create(const char* nm, P, bool chknm=true)const;
-    const BufferStringSet&	getNames() const { return names_; }
+    const BufferStringSet&	getNames(bool username=false) const;
 protected:
 
     BufferStringSet		names_;
+    BufferStringSet		usernames_;
     TypeSet<Creator>		creators_;
 };
 
@@ -131,21 +136,25 @@ class Factory2Param
 {
 public:
     typedef			T* (*Creator)(P0,P1);
-    inline void			addCreator(Creator,const char* nm);
+    inline void			addCreator(Creator,const char* nm,
+	    				   const char* usernm = 0);
     inline T*			create(const char* nm, P0, P1,
 	    			       bool chknm=true)const;
-    const BufferStringSet&	getNames() const { return names_; }
+    const BufferStringSet&	getNames(bool username=false) const;
 protected:
 
     BufferStringSet		names_;
+    BufferStringSet		usernames_;
     TypeSet<Creator>		creators_;
 };
 
 
 template <class T> inline
-void Factory<T>::addCreator( Creator cr, const char* name )
+void Factory<T>::addCreator( Creator cr, const char* name,
+			     const char* username )
 {
     names_.add( name );
+    usernames_.add( username ? username : name );
     creators_ += cr;
 }
 
@@ -160,10 +169,18 @@ T* Factory<T>::create( const char* name ) const
 }
 
 
+template <class T> inline
+const BufferStringSet& Factory<T>::getNames( bool username ) const
+{ return username ? usernames_ : names_; }
+
+
 template <class T, class P> inline
-void Factory1Param<T,P>::addCreator( Creator cr, const char* name )
+void Factory1Param<T,P>::addCreator( Creator cr, const char* name,
+				     const char* username )
 {
     names_.add( name );
+    usernames_.add( username ? username : name );
+
     creators_ += cr;
 }
 
@@ -189,10 +206,17 @@ T* Factory1Param<T,P>::create( const char* name, P data, bool chk ) const
 }
 
 
+template <class T, class P> inline
+const BufferStringSet& Factory1Param<T,P>::getNames( bool username ) const
+{ return username ? usernames_ : names_; }
+
+
 template <class T, class P0, class P1> inline
-void Factory2Param<T,P0,P1>::addCreator( Creator cr, const char* name )
+void Factory2Param<T,P0,P1>::addCreator( Creator cr, const char* name,
+					 const char* username )
 {
     names_.add( name );
+    usernames_.add( username ? username : name );
     creators_ += cr;
 }
 
@@ -217,6 +241,11 @@ T* Factory2Param<T,P0,P1>::create( const char* name, P0 p0, P1 p1,
 
     return 0;
 }
+
+
+template <class T, class P0, class P1> inline
+const BufferStringSet& Factory2Param<T,P0,P1>::getNames( bool username ) const
+{ return username ? usernames_ : names_; }
 
 
 #define mDefineFactory( T, funcname ) \
