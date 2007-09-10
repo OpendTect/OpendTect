@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: vismarchingcubessurface.cc,v 1.6 2007-09-07 18:25:17 cvskris Exp $
+ RCS:           $Id: vismarchingcubessurface.cc,v 1.7 2007-09-10 06:22:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,16 @@ MarchingCubesSurface::~MarchingCubesSurface()
     coords_->unRef();
     normals_->unRef();
     delete surface_;
+}
+
+
+void MarchingCubesSurface::setRightHandSystem( bool yn )
+{
+    if ( yn!=righthandsystem_ )
+	normals_->inverse();
+
+    VisualObjectImpl::setRightHandSystem( yn );
+    surface_->setRightHandedNormals( yn );
 }
 
 
