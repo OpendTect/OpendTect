@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mid 2005
- RCS:           $Id: uihistogramdisplay.cc,v 1.4 2007-03-28 12:20:46 cvsbert Exp $
+ RCS:           $Id: uihistogramdisplay.cc,v 1.5 2007-09-10 06:37:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,7 +109,10 @@ void uiHistogramDisplay::reDraw( CallBacker* )
 	    if ( ignoreextremes_ && ( !idx || idx==histogramsize-1 ) )
 		continue;
 
-	    const float newx = (float)idx / (histogramsize-1);
+	    const float newx = scale_
+		? scale_->atIndex( idx )
+		: (float)idx / (histogramsize-1);
+
 	    const float newy = (*histogram_)[idx] *
 		transform_.world2UiData().wr.top() / maxval;
 
