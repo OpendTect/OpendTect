@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.12 2007-09-07 18:37:56 cvskris Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.13 2007-09-10 06:30:40 cvskris Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -401,8 +401,12 @@ void uiODVolrenSubTreeItem::updateColumnText(int col)
 	    	    visserv_->getObject(displayid_));
     if ( isosurface && isosurface->getSurface() )
     {
-	BufferString coltext = vd->isoValue(isosurface);
-	uilistviewitem_->setText( coltext, col );
+	const float isoval = vd->isoValue(isosurface);
+	BufferString coltext;
+        if ( mIsUdf(isoval) )
+	    coltext = "";
+	else coltext = isoval;
+	uilistviewitem_->setText( coltext.buf(), col );
     }
 }
 
@@ -445,9 +449,11 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 	TypeSet<float> histogram;
 	if ( vd->getHistogram(0) ) histogram = *vd->getHistogram(0);
 
-	uiSingleGroupDlg dlg(getUiParent(), uiDialog::Setup(0,0,0) );
+	uiSingleGroupDlg dlg(getUiParent(),
+		uiDialog::Setup( "Select isovalue",0,0) );
 	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg( &dlg, isosurface, vd ) );
 	dlg.go();
+	updateColumnText(1);
     }
     else if ( mnuid==convertisotobodymnuid_.id )
     {
