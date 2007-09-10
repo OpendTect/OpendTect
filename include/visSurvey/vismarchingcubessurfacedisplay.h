@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.2 2007-09-07 18:29:30 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.3 2007-09-10 07:07:18 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -56,6 +56,7 @@ public:
     Color			getColor() const;
     void			setColor(Color);
     bool			allowMaterialEdit() const { return true; }
+    NotifierAccess*		materialChange();
 
     void			setDisplayTransformation(mVisTrans*);
     mVisTrans*			getDisplayTransformation();

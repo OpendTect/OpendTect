@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.3 2007-09-07 21:29:28 cvskris Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.4 2007-09-10 07:07:18 cvskris Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -132,7 +132,6 @@ bool MarchingCubesDisplay::setVisSurface(
 	return false;
 
     emsurface_->ref();
-    emsurface_->setPreferredColor( getMaterial()->getColor() );
 
     if ( !emsurface_->isOK() ||
 	 !emsurface_->setSurface( surface->getSurface() ) )
@@ -157,10 +156,15 @@ bool MarchingCubesDisplay::setVisSurface(
     displaysurface_ = surface;
 
     displaysurface_->ref();
-    displaysurface_->setMaterial( 0 );
     displaysurface_->setSelectable( false );
     displaysurface_->setRightHandSystem( righthandsystem_ );
     addChild( displaysurface_->getInventorNode() );
+
+    if ( displaysurface_->getMaterial() )
+	getMaterial()->setFrom( *displaysurface_->getMaterial() );
+
+    displaysurface_->setMaterial( 0 );
+    emsurface_->setPreferredColor( getMaterial()->getColor() );
 
     if ( initialdragger_ )
     {
@@ -242,6 +246,10 @@ void MarchingCubesDisplay::setColor( Color nc )
 }
 
 
+NotifierAccess* MarchingCubesDisplay::materialChange()
+{ return &getMaterial()->change; }
+
+
 Color MarchingCubesDisplay::getColor() const
 { return getMaterial()->getColor(); }
 
@@ -262,12 +270,13 @@ int MarchingCubesDisplay::usePar( const IOPar& par )
     MultiID newmid;
     if ( par.get(sKeyEarthModelID(),newmid) )
     {
-	const EM::ObjectID emid = EM::EMM().getObjectID( newmid );
+	EM::ObjectID emid = EM::EMM().getObjectID( newmid );
 	RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
 	if ( !emobject )
 	{
 	    PtrMan<Executor> loader = EM::EMM().objectLoader( newmid );
 	    if ( loader ) loader->execute();
+	    emid = EM::EMM().getObjectID( newmid );
 	    emobject = EM::EMM().getObject( emid );
 	}
 
