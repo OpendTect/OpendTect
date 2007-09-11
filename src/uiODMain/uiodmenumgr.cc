@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.92 2007-08-31 10:20:43 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.93 2007-09-11 14:33:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     appl_.applMgr().visServer()->createToolBars();
     appl_.applMgr().visServer()->nrScenesChange().notify(
 	    			mCB(this,uiODMenuMgr,updateWindowsMenu) );
+    appl_.nrToolBarsChange.notify( mCB(this,uiODMenuMgr,updateViewMenu) );
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectMnus) );
 }
@@ -356,8 +357,17 @@ void uiODMenuMgr::updateWindowsMenu( CallBacker* )
 }
 
 
+void uiODMenuMgr::updateViewMenu( CallBacker* )
+{
+    fillViewMenu();
+}
+
+
 void uiODMenuMgr::fillViewMenu()
 {
+    if ( !viewmnu_ ) return;
+
+    viewmnu_->clear();
     mInsertItem( viewmnu_, "&Work area ...", mWorkAreaMnuItm );
     mInsertItem( viewmnu_, "&Z-scale ...", mZScaleMnuItm );
     uiPopupMenu* stereoitm = new uiPopupMenu( &appl_, "&Stereo viewing" );
