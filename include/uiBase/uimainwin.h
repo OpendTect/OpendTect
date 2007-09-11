@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.50 2007-07-19 13:23:32 cvskris Exp $
+ RCS:           $Id: uimainwin.h,v 1.51 2007-09-11 14:27:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,6 +105,7 @@ public:
     void		addToolBar(uiToolBar*);
     void		removeToolBar(uiToolBar*);
     void		addToolBarBreak();
+    Notifier<uiMainWin>	nrToolBarsChange;
 
     uiPopupMenu&	createDockWindowMenu();
 

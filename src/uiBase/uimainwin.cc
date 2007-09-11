@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.129 2007-08-23 15:25:19 cvsbert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.130 2007-09-11 14:27:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -420,11 +420,12 @@ mDockType uiMainWinBody::qdock( uiMainWin::Dock d )
 
 uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
 		      int nrstatusflds, bool wantMBar, bool modal )
-    : uiParent( nm, 0 )
-    , body_( 0 )
-    , parent_( parnt )			
+    : uiParent(nm,0)
+    , body_(0)
+    , parent_(parnt)			
     , windowClosed(this)
-    , activatedone( this )
+    , activatedone(this)
+    , nrToolBarsChange(this)
 { 
     body_= new uiMainWinBody( *this, parnt, nm, modal ); 
     setBody( body_ );
@@ -435,11 +436,12 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
 
 
 uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
-    : uiParent( nm, 0 )
-    , body_( 0 )			
-    , parent_( parnt )
+    : uiParent(nm,0)
+    , body_(0)			
+    , parent_(parnt)
     , windowClosed(this)
-    , activatedone( this )
+    , activatedone(this)
+    , nrToolBarsChange(this)
 {}
 
 
@@ -506,6 +508,7 @@ void uiMainWin::addToolBar( uiToolBar* tb )
 {
 #ifndef USEQT3
     body_->addToolBar( tb->qwidget() );
+    nrToolBarsChange.trigger( this );
 #endif
 }
 
@@ -514,6 +517,7 @@ void uiMainWin::removeToolBar( uiToolBar* tb )
 {
 #ifndef USEQT3
     body_->removeToolBar( tb->qwidget() );
+    nrToolBarsChange.trigger( this );
 #endif
 }
 

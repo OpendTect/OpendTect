@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.35 2007-03-07 17:53:24 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.36 2007-09-11 14:27:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -292,10 +292,8 @@ uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarDock d,
     setBody( &mkbody(nm,*qtoolbar) );
     toolBars() += this;
 
-#ifndef USEQT3
-    mDynamicCastGet(QMainWindow*,qmw,qwidget)
-    if ( qmw ) qmw->addToolBar( qtoolbar );
-#endif
+    mDynamicCastGet(uiMainWin*,uimw,parnt)
+    if ( uimw ) uimw->addToolBar( this );
 }
 
 
