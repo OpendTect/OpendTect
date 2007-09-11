@@ -94,7 +94,11 @@ endif
 
 if ( $dodeps == yes ) then
 
-    if ( `hostname` == $MAIN_DGB_HOST ) set docpdeps=no
+    if ( $?MAIN_DGB_HOST ) then
+	if ( `hostname` == $MAIN_DGB_HOST ) set docpdeps=no
+    else
+	set docpdeps=no
+    endif
     if ( $HDIR == win ) set docpdeps=no
 
     if( $docpdeps == no ) then
