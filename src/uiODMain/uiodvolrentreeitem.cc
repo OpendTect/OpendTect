@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.13 2007-09-10 06:30:40 cvskris Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.14 2007-09-12 10:53:22 cvskris Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -27,7 +27,6 @@ static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.13 2007-09-10 06:30:4
 #include "visvolorthoslice.h"
 #include "visvolren.h"
 #include "visvolumedisplay.h"
-#include "visisosurface.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 
