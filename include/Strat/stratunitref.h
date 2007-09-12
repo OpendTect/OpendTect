@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitref.h,v 1.12 2007-08-15 15:01:00 cvshelene Exp $
+ RCS:		$Id: stratunitref.h,v 1.13 2007-09-12 09:16:17 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -144,6 +144,8 @@ public:
     void		add(UnitRef*,bool rev =false);
     void		remove( int uridx ) 
     			{ UnitRef* r = refs_[uridx]; refs_ -= r; delete r; }
+    UnitRef*		replace( int uridx, UnitRef* newur )
+			{ return refs_.replace( uridx, newur); }
 
 protected:
 

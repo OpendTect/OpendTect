@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.7 2007-08-31 14:48:07 cvshelene Exp $
+ RCS:           $Id: uistratreftree.h,v 1.8 2007-09-12 09:16:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,9 @@ public:
     void                makeTreeEditable(bool) const;
 
     const Strat::UnitRef*	findUnit(const char*) const;
+    
+    Notifier<uiStratRefTree>	itemAdded_;
+    Notifier<uiStratRefTree>	itemToBeRemoved_;
 
 protected:
 

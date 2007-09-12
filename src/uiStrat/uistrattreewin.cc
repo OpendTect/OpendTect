@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:		$Id: uistrattreewin.cc,v 1.14 2007-09-05 15:31:52 cvshelene Exp $
+ RCS:		$Id: uistrattreewin.cc,v 1.15 2007-09-12 09:16:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ uiStratTreeWin::uiStratTreeWin( uiParent* p )
     createMenus();
     createGroups();
     setExpCB(0);
+    editCB(0);
 }
 
 
@@ -93,9 +94,15 @@ void uiStratTreeWin::createGroups()
     leftgrp->setStretch( 1, 1 );
     uiGroup* rightgrp = new uiGroup( this, "RightGroup" );
     rightgrp->setStretch( 1, 1 );
+    
     uitree_ = new uiStratRefTree( leftgrp, &Strat::RT() );
-    const_cast<uiStratRefTree*>(uitree_)->listView()->selectionChanged.notify( 
-	    				mCB( this,uiStratTreeWin,unitSelCB ) );
+    uitree_->itemAdded_.notify( mCB( this,uiStratTreeWin,unitAddedCB ) );
+    uitree_->itemToBeRemoved_.notify( mCB( this,uiStratTreeWin,unitToBeDelCB ));
+    CallBack selcb = mCB( this,uiStratTreeWin,unitSelCB );
+    CallBack renmcb = mCB(this,uiStratTreeWin,unitRenamedCB);
+    uitree_->listView()->selectionChanged.notify( selcb );
+    uitree_->listView()->itemRenamed.notify( renmcb );
+    
     lvllistfld_ = new uiLabeledListBox( rightgrp, "Existing Levels", false,
 	    				uiLabeledListBox::AboveMid );
     lvllistfld_->box()->setStretch( 2, 2 );
@@ -142,21 +149,40 @@ void uiStratTreeWin::editCB( CallBacker* )
     uitree_->makeTreeEditable( doedit );
     editmnuitem_->setText( doedit ? mLockTxt : mEditTxt );
     if ( doedit && !tmptree_ )
+	createTmpTree();
+}
+
+
+void uiStratTreeWin::createTmpTree()
+{
+    const Strat::RefTree* rt = &Strat::RT();
+    tmptree_ = new Strat::RefTree( rt->treeName(), rt->source() );
+    for ( int idx=0; idx<rt->nrLevels(); idx++ )
     {
-	const Strat::RefTree* rt = &Strat::RT();
-	tmptree_ = new Strat::RefTree( rt->treeName(), rt->source() );
-	for ( int idx=0; idx<rt->nrLevels(); idx++ )
-	{
-	    Level* lvl = new Level( *rt->level(idx) );
-	    lvl->unit_ = 0;
-	    tmptree_->addLevel( lvl );
-	}
+	Level* lvl = new Level( *rt->level(idx) );
+	lvl->unit_ = 0;
+	tmptree_->addLevel( lvl );
+    }
+
+    BufferString str;
+    UnitRef::Iter it( *rt );
+    const UnitRef& firstun = *it.unit();
+    firstun.fill( str );
+    tmptree_->addUnit( firstun.fullCode(), str );
+    while ( it.next() )
+    {
+	const UnitRef& un = *it.unit();
+	un.fill( str );
+	tmptree_->addUnit( un.fullCode(), str );
     }
 }
 
 
 #define mSaveAtLoc( loc )\
 {\
+    if ( tmptree_ )\
+	eUnRepo().replaceTree( tmptree_ );\
+    \
     const_cast<UnitRepository*>(&UnRepo())->copyCurTreeAtLoc( loc );\
     UnRepo().write( loc );\
 }\
@@ -164,12 +190,7 @@ void uiStratTreeWin::editCB( CallBacker* )
 
 void uiStratTreeWin::saveCB( CallBacker* )
 {
-    if ( tmptree_ )
-	prepTreeForSave();
-    
     mSaveAtLoc( Repos::Survey );
-    tmptree_ = 0;
-    editCB(0);
 }
 
 
@@ -184,8 +205,6 @@ void uiStratTreeWin::saveAsCB( CallBacker* )
     savedlg.go();
     if ( savedlg.uiResult() == 1 )
     {
-	if ( tmptree_ )
-	    prepTreeForSave();
 	const char* savetxt = saveloclist.getText();
 	if ( !strcmp( savetxt, infolvltrs[1] ) )
 	    mSaveAtLoc( Repos::Data )
@@ -195,10 +214,7 @@ void uiStratTreeWin::saveAsCB( CallBacker* )
 	    mSaveAtLoc( Repos::ApplSetup )
 	else
 	    mSaveAtLoc( Repos::Survey )
-	tmptree_ = 0;
     }
-
-    editCB(0);
 }
 
 
@@ -206,6 +222,11 @@ void uiStratTreeWin::resetCB( CallBacker* )
 {
     uitree_->setTree( &Strat::RT(), true );
     uitree_->expand( true );
+    if ( tmptree_ )
+	{ delete tmptree_; tmptree_ = 0; }
+    
+    if ( !strcmp( editmnuitem_->text(), mEditTxt ) )
+	createTmpTree();
 }
 
 
@@ -261,30 +282,6 @@ void uiStratTreeWin::fillLvlList()
 }
 
 
-void uiStratTreeWin::fillTmpTreeFromListview()
-{
-    const uiListView* lv = uitree_->listView();
-    uiListViewItem* lvit = lv->firstChild();
-    while ( lvit )
-    {
-	BufferString lithodesc;
-	const char* lithotxt = lvit->text(2);
-	if ( lithotxt )
-	{
-	    int lithid = UnRepo().getLithID( lithotxt );
-	    if ( lithid >-1 )
-	    {
-		lithodesc = lithid;
-		lithodesc += "`";
-	    }
-	}
-	lithodesc += lvit->text(1);
-	tmptree_->addUnit( getCodeFromLVIt( lvit ), lithodesc, true );
-	lvit = lvit->itemBelow();
-    }
-}
-
-
 BufferString uiStratTreeWin::getCodeFromLVIt( const uiListViewItem* item ) const
 {
     BufferString bs = item->text();
@@ -298,13 +295,6 @@ BufferString uiStratTreeWin::getCodeFromLVIt( const uiListViewItem* item ) const
     }
 
     return bs;
-}
-
-
-void uiStratTreeWin::prepTreeForSave()
-{
-    fillTmpTreeFromListview();
-    eUnRepo().replaceTree( tmptree_ );
 }
 
 
@@ -368,3 +358,93 @@ void uiStratTreeWin::fillInLvlPars( Level* curlvl,
 	lvllistfld_->box()->setPixmap( curit, curlvl->color_ );
     }
 }
+
+
+void uiStratTreeWin::unitRenamedCB( CallBacker* )
+{
+    //TODO requires Qt4 to approve/cancel renaming ( name already in use...)
+}
+
+
+void uiStratTreeWin::unitAddedCB( CallBacker* )
+{
+    //TODO attention pb subunit if unit has litho
+    prepareParentUnit();
+    addUnit();
+}
+
+
+void uiStratTreeWin::prepareParentUnit()
+{
+    uiListViewItem* curit = uitree_->listView()->currentItem();
+    if ( !curit ) return;
+    
+    uiListViewItem* parit = curit->parent();
+    if ( !parit ) return;
+
+    UnitRef* parun = tmptree_->find( getCodeFromLVIt( parit ) );
+    if ( !parun || !parun->isLeaf() ) return;
+
+    NodeUnitRef* upnode = parun->upNode();
+    if ( !upnode ) return;
+    
+    NodeUnitRef* nodeun = new NodeUnitRef( upnode, parun->code(),
+	    				   parun->description() );
+    for ( int idx=0; idx<parun->nrProperties(); idx++ )
+	((UnitRef*)nodeun)->add( parun->property(idx) );
+
+    Level* toplvl = const_cast<Level*>(tmptree_->getLevel( parun, true ));
+    if ( toplvl )
+	toplvl->unit_ = nodeun;
+    
+    Level* baselvl = const_cast<Level*>(tmptree_->getLevel( parun, false ));
+    if ( baselvl )
+	baselvl->unit_ = nodeun;
+    
+    int parunidx = upnode->indexOf( upnode->find( parun->code() ) );
+    delete upnode->replace( parunidx, nodeun );
+}
+
+
+void uiStratTreeWin::addUnit()
+{
+    uiListViewItem* curit = uitree_->listView()->currentItem();
+    if ( !curit ) return;
+
+    BufferString unitdesc;
+    const char* lithotxt = curit->text(2);
+    if ( lithotxt )
+    {
+	int lithid = UnRepo().getLithID( lithotxt );
+	if ( lithid >-1 )
+	{
+	    unitdesc = lithid;
+	    unitdesc += "`";
+	}
+    }
+    unitdesc += curit->text(1);
+    tmptree_->addUnit( getCodeFromLVIt( curit ), unitdesc, true );
+}
+
+
+void uiStratTreeWin::unitToBeDelCB( CallBacker* )
+{
+    uiListViewItem* curit = uitree_->listView()->currentItem();
+    if ( !curit ) return;
+
+    UnitRef* ur = tmptree_->find( getCodeFromLVIt( curit ) );
+
+    Level* toplvl = const_cast<Level*>(tmptree_->getLevel( ur, true ));
+    Level* baselvl = const_cast<Level*>(tmptree_->getLevel( ur, false ));
+    if ( toplvl ) toplvl->unit_ = 0;
+    if ( baselvl ) baselvl->unit_ = 0;
+
+    NodeUnitRef* upnode = ur->upNode();
+    if ( upnode )
+	upnode->remove( upnode->indexOf(ur) );
+    else
+	((NodeUnitRef*)tmptree_)->remove( tmptree_->indexOf( ur ) );
+}
+
+
+

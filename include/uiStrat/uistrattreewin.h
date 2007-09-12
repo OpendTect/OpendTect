@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.9 2007-09-05 15:31:52 cvshelene Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.10 2007-09-12 09:16:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,12 +45,13 @@ protected:
 
     void			createMenus();
     void			createGroups();
+    void			createTmpTree();
 
     void			fillLvlList();
-    void			prepTreeForSave();
     void			updateTreeLevels();
     BufferString		getCodeFromLVIt(const uiListViewItem*) const;
-    void			fillTmpTreeFromListview();
+    void			prepareParentUnit();
+    void			addUnit();
     void			editLevel(bool);
     void			fillInLvlPars(Strat::Level*,
 	    				      const uiStratLevelDlg&,bool);
@@ -64,6 +65,9 @@ protected:
     void			rClickLvlCB(CallBacker*);
     void			setExpCB(CallBacker*);
     void			unitSelCB(CallBacker*);
+    void			unitRenamedCB(CallBacker*);
+    void			unitAddedCB(CallBacker*);
+    void			unitToBeDelCB(CallBacker*);
 
     Strat::RefTree*		tmptree_;
 };

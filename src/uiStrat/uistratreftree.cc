@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.13 2007-09-04 11:43:33 cvsbert Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.14 2007-09-12 09:16:17 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,9 @@ static const int sLithoCol	= 2;
 using namespace Strat;
 
 uiStratRefTree::uiStratRefTree( uiParent* p, const RefTree* rt )
-	: tree_(0)
+    : tree_(0)
+    , itemAdded_(this)
+    , itemToBeRemoved_(this)
 {
     lv_ = new uiListView( p, "RefTree viewer" );
     mAddCol( "Unit", 300, 0 );
@@ -84,7 +86,7 @@ void uiStratRefTree::addNode( uiListViewItem* parlvit,
 	delete pm;
     }
     
-    for ( int iref=0; iref<nur.nrRefs(); iref++ )
+    for ( int iref=nur.nrRefs()-1; iref>=0; iref-- )
     {
 	const UnitRef& ref = nur.ref( iref );
 	if ( ref.isLeaf() )
@@ -203,16 +205,23 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 	
 	if ( newitem->parent() )
 	    newitem->parent()->setOpen( true );
+
+	lv_->setCurrentItem( newitem );
+	itemAdded_.trigger();
     }
 }
 
 
 void uiStratRefTree::removeUnit( uiListViewItem* lvit )
 {
+    itemToBeRemoved_.trigger();
     if ( lvit->parent() )
 	lvit->parent()->removeItem( lvit );
     else
+    {
+	lv_->takeItem( lvit );
 	delete lvit;
+    }
 
     lv_->triggerUpdate();
 }
