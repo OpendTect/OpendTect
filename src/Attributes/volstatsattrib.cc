@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.36 2007-05-03 14:58:17 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.37 2007-09-12 13:04:32 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -58,6 +58,7 @@ void VolStats::initClass()
 
     ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-mLargestZGate,mLargestZGate) );
+    gate->setDefaultValue( Interval<float>(-28, 28) );
     desc->addParam( gate );
 
     IntParam* nrtrcs = new IntParam( nrtrcsStr() );
