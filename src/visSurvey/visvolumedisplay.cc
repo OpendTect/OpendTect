@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.70 2007-09-10 08:53:57 cvskris Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.71 2007-09-12 17:06:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,12 +82,15 @@ VolumeDisplay::VolumeDisplay()
 
 VolumeDisplay::~VolumeDisplay()
 {
-    scalarfield_->getColorTab().rangechange.remove(
-	    mCB( this, VolumeDisplay, colTabChange ));
-    scalarfield_->getColorTab().sequencechange.remove(
-	    mCB( this, VolumeDisplay, colTabChange ));
-    scalarfield_->getColorTab().autoscalechange.remove(
-	    mCB( this, VolumeDisplay, colTabChange ));
+    if ( scalarfield_ )
+    {
+	scalarfield_->getColorTab().rangechange.remove(
+		mCB( this, VolumeDisplay, colTabChange ));
+	scalarfield_->getColorTab().sequencechange.remove(
+		mCB( this, VolumeDisplay, colTabChange ));
+	scalarfield_->getColorTab().autoscalechange.remove(
+		mCB( this, VolumeDisplay, colTabChange ));
+    }
 
     getMaterial()->change.remove(mCB(this,VolumeDisplay,materialChange) );
 
