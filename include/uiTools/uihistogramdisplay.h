@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Jan 2005
- RCS:           $Id: uihistogramdisplay.h,v 1.2 2007-01-31 14:34:40 cvskris Exp $
+ RCS:           $Id: uihistogramdisplay.h,v 1.3 2007-09-12 16:54:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,40 +27,35 @@ Paints a histogram in a ioDrawArea.
 class uiHistogramDisplay : public CallBacker
 {
 public:
-    			uiHistogramDisplay(ioDrawArea*);
-    			~uiHistogramDisplay();
+				uiHistogramDisplay(ioDrawArea*);
+				~uiHistogramDisplay();
 
-    void		setHistogram(const TypeSet<float>&,
-				 const SamplingData<float>& xaxis, bool copy);
-    			/*!<If copy is false, the data is assumed to remain
-			    in mem for the lifetime of this object or until
-			    next setHistogram call. */
-    void		touch();
-    			/*!<Should be called if data has changed. */
+    void			setHistogram(const TypeSet<float>&,
+				 	     const SamplingData<float>& xaxis);
+    float			getXValue(int pixel) const;
+    int				getPixel(float val) const;
 
-    void		setTransform(const uiWorld2Ui& w2u);
-    const uiWorld2Ui&	getTransform() const;
+    void			setColor(const Color&);
+    const Color&		getColor() const;
 
-    void		setColor(const Color&);
-    const Color&	getColor() const;
+    void			setIgnoresExtremes(bool yn);
+    				//!<Tells the object to ignore first and last
+				//!<histogram sample
+    bool			ignoresExtremes() const;
 
-    bool		ignoresExtremes() const;
-    void		setIgnoresExtremes(bool yn);
-
-    void		reDraw(CallBacker* = 0);
+    void			reDraw(CallBacker* = 0);
 
 protected:
 
     ioDrawArea*			drawarea_;
-    TypeSet<float>		ownhistogram_;
-    const TypeSet<float>*	histogram_;
+    TypeSet<float>		histogram_;
 
     TypeSet<uiPoint>		pointlist_;
+    int				height_;
+    int				width_;
 
-    SamplingData<float>		ownscale_;
-    const SamplingData<float>*	scale_;
+    SamplingData<float>		scale_;
 
-    uiWorld2Ui			transform_;
     Color			color_;
     bool			ignoreextremes_;
 };

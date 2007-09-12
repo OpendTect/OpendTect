@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mid 2005
- RCS:           $Id: uihistogramdisplay.cc,v 1.5 2007-09-10 06:37:29 cvskris Exp $
+ RCS:           $Id: uihistogramdisplay.cc,v 1.6 2007-09-12 16:54:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,10 +16,9 @@ ________________________________________________________________________
 uiHistogramDisplay::uiHistogramDisplay( ioDrawArea* da )
     : drawarea_( da )
     , ignoreextremes_( true )
-{
-    histogram_ = &ownhistogram_;
-    scale_ = &ownscale_;
-}
+    , width_( -1 )
+    , height_( -1 )
+{ }
 
 
 uiHistogramDisplay::~uiHistogramDisplay()
@@ -27,42 +26,25 @@ uiHistogramDisplay::~uiHistogramDisplay()
 
 
 void uiHistogramDisplay::setHistogram( const TypeSet<float>& histogram,
-		   const SamplingData<float>& xaxis, bool copy )
+		   const SamplingData<float>& xaxis )
 {
-    if ( copy )
-    {
-	ownhistogram_ = histogram;
-	histogram_ = &ownhistogram_;
-	ownscale_ = xaxis;
-	scale_ = &ownscale_;
-    }
-    else
-    {
-	histogram_ = &histogram;
-	scale_ = &xaxis;
-	ownhistogram_.erase();
-    }
-
+    histogram_ = histogram;
+    scale_ = xaxis;
     pointlist_.erase();
 }
 
 
-void uiHistogramDisplay::setTransform( const uiWorld2Ui& w2u )
+float uiHistogramDisplay::getXValue( int pixel ) const
 {
-    transform_ = w2u;
-    pointlist_.erase();
+    const float factor = ((float) pixel) / width_;
+    return scale_.atIndex( factor*histogram_.size() );
 }
 
 
-void uiHistogramDisplay::touch()
+int uiHistogramDisplay::getPixel( float val ) const
 {
-    pointlist_.erase();
-}
-
-
-const uiWorld2Ui& uiHistogramDisplay::getTransform() const
-{
-    return transform_;
+    const float factor = scale_.getIndex( val )/histogram_.size();
+    return mNINT( factor * width_ );
 }
 
 
@@ -89,19 +71,25 @@ void uiHistogramDisplay::setIgnoresExtremes(bool yn)
 
 void uiHistogramDisplay::reDraw( CallBacker* )
 {
-    const int histogramsize = histogram_->size();
-    if ( !pointlist_.size() && histogramsize )
+    ioDrawTool& dt = drawarea_->drawTool();
+    const int height = dt.getDevHeight();
+    const int width = dt.getDevWidth();
+    const int histogramsize = histogram_.size();
+    if ( !pointlist_.size() && histogramsize
+	 || height_!=height || width_!=width )
     {
+	pointlist_.erase();
+
 	float maxval = 0;
 	for ( int idx=0; idx<histogramsize; idx++ )
 	{
 	    if ( ignoreextremes_ && ( !idx || idx==histogramsize-1 ) )
 		continue;
 
-	    if ( (*histogram_)[idx] > maxval ) maxval = (*histogram_)[idx];
+	    if ( histogram_[idx]>maxval ) maxval = histogram_[idx];
 	}
 
-	uiPoint prevpt(0,transform_.world2UiData().sz.height());
+	uiPoint prevpt(0,height);
 	bool prevcommitted = false;
 
 	for ( int idx=0; idx<histogramsize; idx++ )
@@ -109,14 +97,9 @@ void uiHistogramDisplay::reDraw( CallBacker* )
 	    if ( ignoreextremes_ && ( !idx || idx==histogramsize-1 ) )
 		continue;
 
-	    const float newx = scale_
-		? scale_->atIndex( idx )
-		: (float)idx / (histogramsize-1);
-
-	    const float newy = (*histogram_)[idx] *
-		transform_.world2UiData().wr.top() / maxval;
-
-	    const uiPoint newpt( transform_.transform(uiWorldPoint(newx,newy)));
+	    const float newxf = ((float)idx)/histogramsize*width;
+	    const float newyf = height-histogram_[idx]/maxval*height;
+	    const uiPoint newpt( mNINT(newxf),mNINT(newyf) );
 	    if ( newpt.y!=prevpt.y )
 	    {
 		if ( !prevcommitted )
@@ -135,11 +118,12 @@ void uiHistogramDisplay::reDraw( CallBacker* )
 	}
 
 	//Add closing pos	
-	pointlist_ += uiPoint( pointlist_[pointlist_.size()-1].x+1,
-			       transform_.world2UiData().sz.height() );
+	pointlist_ += uiPoint( pointlist_[pointlist_.size()-1].x+1, height );
+
+	height_ = height;
+	width_ = width;
     }
 
-    ioDrawTool& dt = drawarea_->drawTool();
 
     dt.setPenColor( color_ );
     dt.setFillColor( color_ );
