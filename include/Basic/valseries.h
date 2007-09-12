@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.11 2007-09-06 15:19:11 cvsyuancheng Exp $
+ RCS:           $Id: valseries.h,v 1.12 2007-09-12 10:23:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,8 @@ public:
 
     inline int64	getOffset() const;
     inline void		setOffset(int64 no);
+
+    const ValueSeries<T>&	source() const { return src_; }
 
 protected:
     ValueSeries<T>&	src_;
