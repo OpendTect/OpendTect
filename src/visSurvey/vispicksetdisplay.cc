@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.95 2007-08-08 12:21:59 cvsraman Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.96 2007-09-12 16:02:19 cvsnanne Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -35,6 +35,12 @@ PickSetDisplay::PickSetDisplay()
 PickSetDisplay::~PickSetDisplay()
 {
     if ( polyline_ ) removeChild( polyline_->getInventorNode() );
+}
+
+
+void PickSetDisplay::getPickingMessage( BufferString& str ) const
+{
+    str = "Picking ("; str += set_ ? set_->size() : 0; str += ")";
 }
 
 

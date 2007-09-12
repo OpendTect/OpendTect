@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.354 2007-08-30 09:59:42 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.355 2007-09-12 16:02:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1116,6 +1116,17 @@ bool uiVisPartServer::isPicking() const
     if ( !so ) return false;
 
     return so->isPicking();
+}
+
+
+void uiVisPartServer::getPickingMessage( BufferString& str ) const
+{
+    str = "";
+    const TypeSet<int>& sel = visBase::DM().selMan().selected();
+    if ( sel.size()!=1 ) return;
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(sel[0]));
+    if ( so && so->isPicking() )
+	so->getPickingMessage( str ); 
 }
 
 

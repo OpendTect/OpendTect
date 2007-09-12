@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.31 2007-08-30 21:26:38 cvskris Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.32 2007-09-12 16:02:19 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -113,16 +113,16 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     if ( SI().has2D() )
     {
 	uiPopupMenu* randmnu = new uiPopupMenu( getUiParent(), "Random" );
-	randmnu->insertItem( new uiMenuItem("3D..."), 1 );
-	randmnu->insertItem( new uiMenuItem("2D..."), 11 );
+	randmnu->insertItem( new uiMenuItem("3D ..."), 1 );
+	randmnu->insertItem( new uiMenuItem("2D ..."), 11 );
 	newmnu->insertItem( randmnu );
     }
     else
-	newmnu->insertItem( new uiMenuItem("Random"), 1 );
+	newmnu->insertItem( new uiMenuItem("Random ..."), 1 );
 
-    newmnu->insertItem( new uiMenuItem("Empty"), 2 );
+    newmnu->insertItem( new uiMenuItem("Empty ..."), 2 );
     mnu.insertItem( newmnu );
-    if ( children_.size()>0 )
+    if ( children_.size() > 0 )
     {
 	mnu.insertItem( new uiMenuItem("Save changes"), 3 );
 	mnu.insertSeparator();

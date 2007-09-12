@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.28 2007-08-22 04:17:13 cvsraman Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.29 2007-09-12 16:02:19 cvsnanne Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -622,8 +622,7 @@ void LocationDisplay::addDisplayPick( const Pick::Location& loc, int idx )
 
 BufferString LocationDisplay::getManipulationString() const
 {
-    BufferString str = "Nr. of picks: ";
-    str += set_->size();
+    BufferString str = "PickSet: "; str += name();
     return str;
 }
 

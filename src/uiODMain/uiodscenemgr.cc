@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.110 2007-09-07 20:37:57 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.111 2007-09-12 16:02:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -414,10 +414,10 @@ void uiODSceneMgr::updateStatusBar()
     }
     appl_.statusBar()->message( msg, mNameField );
 
-    const bool ispicking = visServ().isPicking();
-    appl_.statusBar()->message( ispicking ? "Picking" : 0, mStatusField );
+    visServ().getPickingMessage( msg );
+    appl_.statusBar()->message( msg, mStatusField );
 
-    appl_.statusBar()->setBGColor( mStatusField, ispicking ?
+    appl_.statusBar()->setBGColor( mStatusField, visServ().isPicking() ?
 	    Color(255,0,0) : appl_.statusBar()->getBGColor(mPosField) );
 }
 

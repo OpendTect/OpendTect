@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.81 2007-07-17 11:01:55 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.82 2007-09-12 16:02:19 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -64,6 +64,8 @@ public:
 				    where clicking on other objects are
 				    handled by object itself, and not passed
 				    on to selection manager .*/
+    virtual void		getPickingMessage( BufferString& msg ) const
+    				{ msg = "Picking"; }
 
     virtual void		snapToTracePos(Coord3&)	{}
     				//<\Snaps coordinate to a trace position

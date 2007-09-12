@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispicksetdisplay.h,v 1.60 2007-08-08 12:28:34 cvsraman Exp $
+ RCS:		$Id: vispicksetdisplay.h,v 1.61 2007-09-12 16:02:19 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "vislocationdisplay.h"
 
+class BufferString;
 class SoSeparator;
 namespace visBase { class PolyLine; class DrawStyle; }
 
@@ -28,14 +29,17 @@ namespace visSurvey
   visualized by a number of shapes.
 */
 
-class PickSetDisplay :	public LocationDisplay
+class PickSetDisplay : public LocationDisplay
 {
 public:
     static PickSetDisplay*	create()
 				mCreateDataObj(PickSetDisplay);
     				~PickSetDisplay();
 
+    void			getPickingMessage(BufferString&) const;
+
     int				usePar(const IOPar&);
+
 protected:
     visBase::VisualObject*	createLocation() const;
     void			setPosition(int loc,const Pick::Location&);
