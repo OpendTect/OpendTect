@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.1 2007-09-07 11:21:01 cvsbert Exp $
+ RCS:		$Id: coltabmapper.h,v 1.2 2007-09-12 17:40:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,12 @@ class DataClipper;
 namespace ColTab
 {
 
-/*!\brief Maps data values to color table positions: [0,1] */
+/*!\brief Maps data values to color table positions: [0,1]
+
+  If nrsegs_ > 0, the mapper will return the centers of the segments only. For
+  example, if nsegs_ == 3, only positions returned are 1/6, 3/6 and 5/6.
+ 
+ */
 
 class Mapper
 {
@@ -53,6 +58,7 @@ public:
     float		cliprate_;	// Auto
     float		symmidval_;	// Auto and HistEq. Usually mUdf(float)
     int			maxpts_;	// Auto and HistEq
+    int			nrsegs_;	// All
 
 protected:
 

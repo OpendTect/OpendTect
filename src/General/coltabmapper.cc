@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.1 2007-09-07 11:21:01 cvsbert Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.2 2007-09-12 17:40:04 cvsbert Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -57,6 +57,7 @@ ColTab::Mapper::Mapper()
     , cliprate_(defClipRate())
     , symmidval_(defSymMidval())
     , maxpts_(2000)
+    , nrsegs_(0)
     , start_(0), width_(1)
     , vs_(0)
 {
@@ -83,7 +84,13 @@ ColTab::Mapper::~Mapper()
 float ColTab::Mapper::position( float val ) const
 {
     mWarnHistEqNotImpl
-    return (val-start_) / width_;
+    float ret = (val-start_) / width_;
+    if ( nrsegs_ > 0 )
+    {
+	ret *= nrsegs_;
+	ret = (0.5 + ((int)ret)) / nrsegs_;
+    }
+    return ret;
 }
 
 

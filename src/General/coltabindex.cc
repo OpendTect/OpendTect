@@ -4,14 +4,12 @@
  * DATE     : Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabindex.cc,v 1.1 2007-09-07 11:21:01 cvsbert Exp $";
+static const char* rcsID = "$Id: coltabindex.cc,v 1.2 2007-09-12 17:40:04 cvsbert Exp $";
 
 #include "coltabindex.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
 #include "basictask.h"
-
-/*
 
 namespace ColTab
 {
@@ -19,62 +17,54 @@ namespace ColTab
 class Indexer : public ParallelTask
 {
 public:
-    			Indexer( int nt, float x0, float dx,
-			         const ColorTable& ct, Color* res )
-			    : nrtimes( nt )
-			    , x0_( x0 )
-			    , dx_( dx )
-			    , ct_( ct )
-			    , res_( res )
-			{}
+    			Indexer( IndexedLookUpTable& l, int n )
+			    : ilut_(l), nrcols_(n), dx_(1./(n-1))
+			{
+			    l.cols_.erase();
+			    l.cols_.setSize( nrcols_, l.seq_.undefColor() );
+			}
 
     bool		doWork( int start, int stop, int threadid )
     			{
 			    for ( int idx=start; idx<=stop; idx++ )
-				res_[idx] = ct_.color( x0_+dx_*idx );
+				ilut_.cols_[idx] = ilut_.seq_.color( dx_*idx );
 			    return true;
 			}
 
-    int			nrTimes() const { return nrtimes; }
+    int			nrTimes() const { return nrcols_; }
 
 protected:
 
-    int			nrtimes;
-    float		x0_;
+    int			nrcols_;
     float		dx_;
-    const ColorTable&	ct_;
-    Color*		res_;
+    IndexedLookUpTable&	ilut_;
 
 };
 
 } // namespace ColTab
 
-*/
 
-ColTab::IndexedLookUpTable::IndexedLookUpTable( const Sequence& seq,
-				    const Mapper& map, int nrc, bool seg )
+ColTab::IndexedLookUpTable::IndexedLookUpTable( const ColTab::Sequence& seq,
+				    const ColTab::Mapper& map, int nrc )
     : seq_(seq)
     , mapper_(map)
     , nrcols_(nrc)
-    , segmentised_(seg)
 {
     update();
 }
 
 
-ColTab::IndexedLookUpTable::~IndexedLookUpTable()
-{
-}
-
-
 void ColTab::IndexedLookUpTable::update()
 {
-    // TODO implement
+    Indexer idxer( *this, nrcols_ );
+    idxer.execute();
 }
 
 
-Color ColTab::IndexedLookUpTable::color( float v ) const
+int ColTab::IndexedLookUpTable::indexForValue( float v ) const
 {
-    // TODO return the actual indexed stuff
-    return seq_.color( mapper_.position(v) );
+    float ret = mapper_.position( v );
+    ret *= nrcols_;
+    if ( ret > nrcols_- 0.9 ) ret = nrcols_- 0.9;
+    return (int)ret;
 }

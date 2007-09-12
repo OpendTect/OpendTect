@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-3-2000
- RCS:		$Id: coltabsequence.h,v 1.1 2007-09-07 11:21:01 cvsbert Exp $
+ RCS:		$Id: coltabsequence.h,v 1.2 2007-09-12 17:40:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,9 +39,11 @@ class Sequence : public NamedObject
 public:
 
 			Sequence();
-			Sequence(const char*);	//!< Find by name
+			Sequence(const char*);	//!< Find by name in SeqMgr
 			Sequence(const Sequence&);
+			~Sequence();
     Sequence&		operator=(const Sequence&);
+    bool		isSys() const		{ return issys_; }
 
     Color		color(float pos) const; //!< 0 <= pos <= 1
 
@@ -62,15 +64,24 @@ public:
     void		setColor(float pos, //!< Insert or change
 	    			 unsigned char,unsigned char,unsigned char);
     void		setTransparency(Geom::Point2D<float>);
-    void		removeTransparencies()		{ tr_.erase(); }
+    void		removeTransparencies();
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
 
-    enum Src		{ UsrDef, Both, Sys };
-    static void		getNames(NamedBufferStringSet&,Src c=Both);
-    static bool		get(const char*,Sequence&,Src c=Both);
-    static void		add(const Sequence&);
+    Notifier<Sequence>	colorChanged;
+    Notifier<Sequence>	transparencyChanged;
+    Notifier<Sequence>	toBeRemoved;
+
+    Color		undefColor() const
+			{ return undefcolor_; }
+    void		setUndefColor( Color c )
+			{ undefcolor_ = c; triggerAll(); }
+    Color		markColor() const
+			{ return markcolor_; }
+    void		setMarkColor( Color c )
+			{ markcolor_ = c; triggerAll(); }
+    void		setIsSys( bool yn )	{ issys_ = yn; }
 
     static const char*	sKeyValCol;
     static const char*	sKeyMarkColor;
@@ -78,12 +89,9 @@ public:
     static const char*	sKeyTransparency;
     static const char*	sKeyCtbl;
 
-    static void		getStdTabPars(ObjectSet<IOPar>&);
-    			//!< Intended for internal and sysadm use
-    static bool		putStdTabPars(const ObjectSet<IOPar>&);
-    			//!< Intended for internal and sysadm use
-
 protected:
+
+    bool			issys_;
 
     TypeSet<unsigned char>	r_;
     TypeSet<unsigned char>	g_;
@@ -94,10 +102,51 @@ protected:
     Color		undefcolor_;
     Color		markcolor_;
 
-    static void		add(const IOPar&,BufferStringSet*,ObjectSet<IOPar>*);
-    			//!< Adds table names and/or Sequence IOPar instances
-    			//!< from an IOPar with multiple color table entries
+    inline void		triggerAll() {	colorChanged.trigger();
+					transparencyChanged.trigger(); }
 };
+
+
+/*!\brief Manages Sequences; reads/writes system or user-defined
+
+  Has a singleton instance ColTab::SM().
+ 
+ */
+
+class SeqMgr : public CallBacker
+{
+public:
+
+    int			size() const		{ return seqs_.size(); }
+    int			indexOf(const char*) const;
+    const Sequence*	get( int idx ) const	{ return seqs_[idx]; }
+    bool		get(const char*,Sequence&);
+
+    void		set(const Sequence&); //!< if name not yet present, adds
+    void		remove(int);
+
+    bool		write(bool sys=false,bool applsetup=true);
+
+
+    Notifier<SeqMgr>	seqAdded;
+    Notifier<SeqMgr>	seqRemoved;
+
+protected:
+
+    			SeqMgr();
+			~SeqMgr()	{}
+
+    ObjectSet<Sequence>	seqs_;
+
+    friend SeqMgr&	SM();
+
+    void		addFromPar(const IOPar&);
+    void		add( Sequence* seq )
+    			{ seqs_ += seq; seqAdded.trigger(); }
+};
+
+SeqMgr& SM();
+
 
 } // namespace ColTab
 

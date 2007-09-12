@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabindex.h,v 1.1 2007-09-07 11:21:01 cvsbert Exp $
+ RCS:		$Id: coltabindex.h,v 1.2 2007-09-12 17:40:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "coltab.h"
+#include "sets.h"
 
 
 namespace ColTab
@@ -20,30 +21,33 @@ namespace ColTab
 class Mapper;
 class Sequence;
 
-/*!\brief Color table scaling pars: automatic with clipping or explicit */
+/*!\brief Looks up color for certain value. Keeps a pre-calc list of colors. */
 
 class IndexedLookUpTable
 {
 public:
 
 			IndexedLookUpTable(const Sequence&,const Mapper&,
-					   int nrcols=0,bool segmentised=false);
-			~IndexedLookUpTable();
-    void		update();
-    			//!< If sequence, mapper, nr cols, or segmenting changed
+					   int nrcols=0);
 
-    Color		color(float) const;
+    void		update();
+    			//!< Call when sequence, mapper, or nr cols changed
+
+    inline Color	color( float v ) const
+			{ return colorForIndex( indexForValue(v) ); }
+    int			indexForValue(float) const;
+    inline Color	colorForIndex( int idx ) const	{ return cols_[idx]; }
 
     void		setNrCols( int n )		{ nrcols_ = n; }
-    void		setSegmentised( bool yn )	{ segmentised_ = yn; }
 
 protected:
 
     const Sequence&	seq_;
     const Mapper&	mapper_;
-
     int			nrcols_;
-    bool		segmentised_;
+    TypeSet<Color>	cols_;
+
+    friend class	Indexer;
 
 };
 

@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.1 2007-09-07 11:21:01 cvsbert Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.2 2007-09-12 17:40:04 cvsbert Exp $";
 
 #include "coltabsequence.h"
 #include "separstr.h"
@@ -25,20 +25,26 @@ const char* ColTab::Sequence::sKeyTransparency = "Transparency";
 const char* ColTab::Sequence::sKeyCtbl = "Color table";
 static const char* sKeyCtabSettsKey = "coltabs";
 
+#define mInitStdMembs(uc,mc) \
+      undefcolor_(uc) \
+    , markcolor_(mc) \
+    , issys_(false) \
+    , colorChanged(this) \
+    , transparencyChanged(this) \
+    , toBeRemoved(this)
+
 
 ColTab::Sequence::Sequence()
-    : undefcolor_(Color::LightGrey)
-    , markcolor_(Color::DgbColor)
+    : mInitStdMembs(Color::LightGrey,Color::DgbColor)
 {
 }
 
 
 ColTab::Sequence::Sequence( const char* nm )
     : NamedObject(nm)
-    , undefcolor_(Color::LightGrey)
-    , markcolor_(Color::DgbColor)
+    , mInitStdMembs(Color::LightGrey,Color::DgbColor)
 {
-    get(nm,*this);
+    ColTab::SM().get( nm, *this );
 }
 
 
@@ -49,9 +55,14 @@ ColTab::Sequence::Sequence( const ColTab::Sequence& ctab )
     , b_(ctab.r_)
     , x_(ctab.x_)
     , tr_(ctab.tr_)
-    , undefcolor_(ctab.undefcolor_)
-    , markcolor_(ctab.markcolor_)
+    , mInitStdMembs(ctab.undefcolor_,ctab.markcolor_)
 {
+}
+
+
+ColTab::Sequence::~Sequence()
+{
+    toBeRemoved.trigger( this );
 }
 
 
@@ -67,6 +78,8 @@ ColTab::Sequence& ColTab::Sequence::operator=( const ColTab::Sequence& ctab )
 	tr_ = ctab.tr_;
 	undefcolor_ = ctab.undefcolor_;
 	markcolor_ = ctab.markcolor_;
+	issys_ = ctab.issys_;
+	triggerAll();
     }
     return *this;
 }
@@ -152,20 +165,24 @@ void ColTab::Sequence::setColor( float px, unsigned char pr, unsigned char pg,
     if ( px > 1 ) px = 1; if ( px < 0 ) px = 0;
     const int sz = size();
 
+    bool done = false;
     for ( int idx=0; idx<sz; idx++ )
     {
 	const float x = x_[idx];
 	if ( mIsEqual(x,px,mDefEps) )
-	    { changeColor( idx, pr, pg, pb ); return; }
+	    { changeColor( idx, pr, pg, pb ); done = true; break; }
 	else if ( px < x )
 	{
 	    x_.insert(idx,px);
 	    r_.insert(idx,pr); g_.insert(idx,pg); b_.insert(idx,pb);
-	    return;
+	    done = true; break;
 	}
     }
 
-    r_ += pr; g_ += pg; b_ += pb; x_ += px;
+    if ( !done )
+	{ r_ += pr; g_ += pg; b_ += pb; x_ += px; }
+
+    colorChanged.trigger();
 }
 
 
@@ -173,7 +190,10 @@ void ColTab::Sequence::changeColor( int idx, unsigned char pr,
 				    unsigned char pg, unsigned char pb )
 {
     if ( idx >= 0 && idx < size() )
-	{ r_[idx] = pr; g_[idx] = pg; b_[idx] = pb; }
+    {
+	r_[idx] = pr; g_[idx] = pg; b_[idx] = pb;
+	colorChanged.trigger();
+    }
 }
 
 
@@ -190,6 +210,8 @@ void ColTab::Sequence::changePos( int idx, float x )
 	x_[idx] = x_[idx-1] - 1.01*mDefEps;
     else
 	x_[idx] = x;
+
+    colorChanged.trigger();
 }
 
 
@@ -198,16 +220,27 @@ void ColTab::Sequence::setTransparency( Geom::Point2D<float> pt )
     if ( pt.x < 0 ) pt.x = 0; if ( pt.x > 1 ) pt.x = 1;
     if ( pt.y < 0 ) pt.y = 0; if ( pt.y > 255 ) pt.y = 255;
 
+    bool done = false;
     for ( int idx=0; idx<tr_.size(); idx++ )
     {
 	const float x = tr_[idx].x;
 	if ( mIsEqual(x,pt.x,mDefEps) )
-	    { tr_[idx] = pt; return; }
+	    { tr_[idx] = pt; done = true; break; }
 	else if ( pt.x < x )
-	    { tr_.insert( idx, pt ); return; }
+	    { tr_.insert( idx, pt ); done = true; break; }
     }
 
-    tr_ += pt;
+    if ( !done )
+	tr_ += pt;
+
+    transparencyChanged.trigger();
+}
+
+
+void ColTab::Sequence::removeTransparencies()
+{
+    tr_.erase();
+    transparencyChanged.trigger();
 }
 
 
@@ -294,111 +327,23 @@ void ColTab::Sequence::usePar( const IOPar& iopar )
 	if ( !iopar.get( key, pt.x, pt.y ) ) break;
 	tr_ += pt;
     }
+
+    triggerAll();
 }
 
 
-static ObjectSet<IOPar>& stdTabPars()
+ColTab::SeqMgr& ColTab::SM()
 {
-    static ObjectSet<IOPar>* parset = 0;
-    if ( !parset )
-    {
-	parset = new ObjectSet<IOPar>;
-	ColTab::Sequence::getStdTabPars( *parset );
-    }
-    return *parset;
+    static ColTab::SeqMgr* theinst = 0;
+    if ( !theinst )
+	theinst = new ColTab::SeqMgr;
+    return *theinst;
 }
 
 
-void ColTab::Sequence::getNames( NamedBufferStringSet& names,
-				 ColTab::Sequence::Src opt )
-{
-    names.deepErase();
-    names.setName( sKeyCtbl );
-
-    if ( opt != ColTab::Sequence::Sys )
-    {
-	Settings& setts( Settings::fetch(sKeyCtabSettsKey) );
-	if ( setts.size() )
-	    add( setts, &names, 0 );
-	if ( opt == ColTab::Sequence::UsrDef ) return;
-    }
-
-    ObjectSet<IOPar>& tabpars = stdTabPars();
-    for ( int idx=0; idx<tabpars.size(); idx++ )
-    {
-	const char* nm = tabpars[idx]->find( sKey::Name );
-	if ( nm && *nm )
-	    names.addIfNew( nm );
-    }
-}
-
-
-bool ColTab::Sequence::get( const char* nm, ColTab::Sequence& ct,
-			    ColTab::Sequence::Src opt )
-{
-    BufferString ctname = "Seismics";
-    if ( nm && *nm )
-	ctname = nm;
-    else
-    {
-	BufferString key( IOPar::compKey( "dTect", sKeyCtbl ) );
-	mSettUse(get,key.buf(),"Name",ctname);
-    }
-
-    if ( opt != ColTab::Sequence::Sys )
-    {
-	Settings& setts( Settings::fetch(sKeyCtabSettsKey) );
-	if ( setts.size() )
-	{
-	    for ( int idx=0; ; idx++ )
-	    {
-		PtrMan<IOPar> ctiopar = setts.subselect( idx );
-		if ( !ctiopar || !ctiopar->size() )
-		{
-		    if ( !idx ) continue;
-		    break;
-		}
-		
-		if ( ctname == ctiopar->find( sKey::Name ) )
-		{
-		    ct.usePar( *ctiopar );
-		    return true;
-		}
-	    }
-	}
-    }
-
-    if ( opt == ColTab::Sequence::UsrDef )
-	return false;
-
-    ObjectSet<IOPar>& tabpars = stdTabPars();
-    for ( int idx=0; idx<tabpars.size(); idx++ )
-    {
-	const IOPar& iop = *tabpars[idx];
-	if ( ctname == iop.find(sKey::Name) )
-	{
-	    ct.usePar( iop );
-    	    return true;
-	}
-    }
-
-    return false;
-}
-
-
-void ColTab::Sequence::add( const ColTab::Sequence& ctab )
-{
-    NamedBufferStringSet names;
-    getNames( names, UsrDef );
-    const int newidx = names.size();
-    IOPar par; ctab.fillPar( par );
-    Settings& setts( Settings::fetch(sKeyCtabSettsKey) );
-    setts.mergeComp( par, getStringFromInt(newidx) );
-    setts.write();
-}
-
-
-static IOPar* readStdTabs()
+ColTab::SeqMgr::SeqMgr()
+    : seqAdded(this)
+    , seqRemoved(this)
 {
     IOPar* iop = 0;
     BufferString fnm = mGetSetupFileName("ColTabs");
@@ -412,73 +357,133 @@ static IOPar* readStdTabs()
 	    sd.close();
 	}
     }
-    return iop;
+    if ( iop ) addFromPar( *iop );
+    delete iop;
+    if ( InSysAdmMode() ) return;
+
+    Settings& setts( Settings::fetch(sKeyCtabSettsKey) );
+    addFromPar( setts );
 }
 
 
-void ColTab::Sequence::getStdTabPars( ObjectSet<IOPar>& parset )
+void ColTab::SeqMgr::addFromPar( const IOPar& iop )
 {
-    IOPar* iopar = readStdTabs();
-    if ( iopar )
-	add( *iopar, 0, &parset );
-    delete iopar;
+    for ( int idx=0; ; idx++ )
+    {
+	PtrMan<IOPar> ctiopar = iop.subselect( idx );
+	if ( !ctiopar || !ctiopar->size() )
+	{
+	    if ( !idx ) continue;
+	    return;
+	}
+	ColTab::Sequence* newseq = new ColTab::Sequence;
+	newseq->usePar( *ctiopar );
+	if ( newseq->size() < 1 && newseq->transparencySize() < 1 )
+	    { delete newseq; continue; }
+
+	int existidx = indexOf( newseq->name() );
+	if ( existidx < 0 )
+	    add( newseq );
+	else
+	{
+	    Sequence* oldseq = seqs_[existidx];
+	    seqs_.replace( existidx, newseq );
+	    oldseq->toBeRemoved.trigger( oldseq );
+	    delete oldseq;
+	}
+    }
 }
 
 
-bool ColTab::Sequence::putStdTabPars( const ObjectSet<IOPar>& parset )
+int ColTab::SeqMgr::indexOf( const char* nm ) const
 {
-    BufferString fname = GetSetupDataFileName( ODSetupLoc_ApplSetupOnly,
-	    					"ColTabs" );
-    if ( fname.isEmpty() )
-	fname = GetSetupDataFileName(ODSetupLoc_SWDirOnly,"ColTabs");
+    for ( int idx=0; idx<seqs_.size(); idx++ )
+	if ( seqs_[idx]->name() == nm )
+	    return idx;
+    return -1;
+}
 
-    if ( File_exists(fname) && !File_isWritable(fname)
-	&& !File_makeWritable(fname,NO,YES) )
-    {
-	ErrMsg( "Cannot make standard color tables file writable" );
-	return false;
-    }
 
-    StreamData sd = StreamProvider( fname ).makeOStream();
-    if ( !sd.usable() || !sd.ostrm->good() )
-    {
-	ErrMsg( "Cannot open standard color tables file for write" );
-	return false;
-    }
-
-    IOPar iop( "Standard color tables" );
-    for ( int idx=0; idx<parset.size(); idx++ )
-    {
-	BufferString nrstr; nrstr += idx+1;
-	iop.mergeComp( *parset[idx], nrstr.buf() );
-    }
-    ascostream astrm( *sd.ostrm );
-    astrm.putHeader( "Color table definitions" );
-    iop.putTo( astrm );
+bool ColTab::SeqMgr::get( const char* nm, Sequence& seq )
+{
+    int idx = indexOf( nm );
+    if ( idx < 0 ) return false;
+    seq = *get( idx );
     return true;
 }
 
 
-void ColTab::Sequence::add( const IOPar& iopar, BufferStringSet* names,
-			    ObjectSet<IOPar>* pars )
+void ColTab::SeqMgr::set( const ColTab::Sequence& seq )
 {
-    for ( int idx=0; ; idx++ )
-    {
-	IOPar* ctiopar = iopar.subselect( idx );
-	if ( !ctiopar || !ctiopar->size() )
-	{
-	    if ( !idx ) continue;
-	    delete ctiopar;
-	    break;
-	}
+    int idx = indexOf( seq.name() );
+    if ( idx < 0 )
+	add( new ColTab::Sequence(seq) );
+    else
+	*seqs_[idx] = seq;
+}
 
-	const char* res = ctiopar->find( sKey::Name );
-	if ( res && *res )
+
+void ColTab::SeqMgr::remove( int idx )
+{
+    if ( idx < 0 || idx > size() ) return;
+    ColTab::Sequence* seq = seqs_.remove( idx );
+    seqRemoved.trigger();
+    delete seq;
+}
+
+
+bool ColTab::SeqMgr::write( bool sys, bool applsetup )
+{
+    if ( !sys )
+    {
+	Settings& setts( Settings::fetch(sKeyCtabSettsKey) );
+	setts.clear();
+	int newidx = 1;
+	for ( int idx=0; idx<seqs_.size(); idx++ )
 	{
-	    if ( names )
-		{ names->add( res ); delete ctiopar; }
-	    if ( pars )
-		*pars += ctiopar;
+	    const ColTab::Sequence& seq = *seqs_[idx];
+	    if ( !seq.isSys() )
+	    {
+		IOPar iop; seq.fillPar( iop );
+		setts.mergeComp( iop, getStringFromInt(newidx) );
+		newidx++;
+	    }
+	}
+	return setts.write();
+    }
+
+    const BufferString fnm( applsetup
+	    ? GetSetupDataFileName(ODSetupLoc_ApplSetupOnly,"ColTabs")
+	    : GetSetupDataFileName(ODSetupLoc_SWDirOnly,"ColTabs") );
+    if ( File_exists(fnm) && !File_isWritable(fnm)
+	    && !File_makeWritable(fnm,NO,YES) )
+    {
+	BufferString msg( "Cannot make:\n" ); msg == fnm; msg += "\nwritable.";
+	ErrMsg( msg ); return false;
+    }
+
+    StreamData sd = StreamProvider( fnm ).makeOStream();
+    if ( !sd.usable() || !sd.ostrm->good() )
+    {
+	BufferString msg( "Cannot open:\n" ); msg == fnm; msg += "\nfor write.";
+	ErrMsg( msg ); return false;
+    }
+
+    ascostream astrm( *sd.ostrm );
+    astrm.putHeader( "Color table definitions" );
+    IOPar iopar;
+    int newidx = 1;
+    for ( int idx=0; idx<seqs_.size(); idx++ )
+    {
+	const ColTab::Sequence& seq = *seqs_[idx];
+	if ( seq.isSys() )
+	{
+	    IOPar iop; seq.fillPar( iop );
+	    iopar.mergeComp( iop, getStringFromInt(newidx) );
+	    newidx++;
 	}
     }
+
+    iopar.putTo( astrm );
+    return true;
 }
