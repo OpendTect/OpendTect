@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2006
- RCS:		$Id: uivisisosurface.cc,v 1.4 2007-09-10 06:32:39 cvskris Exp $
+ RCS:		$Id: uivisisosurface.cc,v 1.5 2007-09-12 10:44:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uivisisosurface.h"
 
 #include "iodrawtool.h"
-#include "isosurface.h"
 #include "mouseevent.h"
 #include "uicanvas.h"
 #include "uicursor.h"
