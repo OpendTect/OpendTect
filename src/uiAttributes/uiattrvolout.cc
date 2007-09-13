@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.30 2007-07-18 09:24:48 cvsbert Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.31 2007-09-13 07:50:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,14 +44,6 @@ using namespace Attrib;
 const char* uiAttrVolOut::sKeyMaxCrlRg = "Maximum Crossline Range";
 const char* uiAttrVolOut::sKeyMaxInlRg = "Maximum Inline Range";
 
-static void setTypeAttr( CtxtIOObj& ctio, bool yn )
-{
-    if ( yn )
-	ctio.ctxt.parconstraints.set( sKey::Type, sKey::Attribute );
-    else
-	ctio.ctxt.parconstraints.removeWithKey( sKey::Type );
-}
-
 
 uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 			    const NLAModel* n, MultiID id )
@@ -82,9 +74,9 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
 				mCB(this,uiAttrVolOut,singLineSel) );
 
     ctio.ctxt.forread = false;
-    setTypeAttr( ctio, true );
-    ctio.ctxt.includeconstraints = true;
-    ctio.ctxt.allowcnstrsabsent = false;
+    ctio.ctxt.parconstraints.set( sKey::Type, sKey::Steering );
+    ctio.ctxt.includeconstraints = false;
+    ctio.ctxt.allowcnstrsabsent = true;
     objfld = new uiSeisSel( uppgrp, ctio, 
 	    		    SeisSelSetup().selattr(false).is2d(is2d) );
     objfld->attach( alignedBelow, transffld );
@@ -126,7 +118,6 @@ void uiAttrVolOut::attrSel( CallBacker* )
     const bool is2d = todofld->is2D();
     if ( todofld->getRanges(cs) )
 	transffld->selfld->setInput( cs );
-    setTypeAttr( ctio, !is2d );
     if ( is2d )
     {
 	MultiID key;
