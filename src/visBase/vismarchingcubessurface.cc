@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: vismarchingcubessurface.cc,v 1.7 2007-09-10 06:22:39 cvskris Exp $
+ RCS:           $Id: vismarchingcubessurface.cc,v 1.8 2007-09-13 22:00:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,12 +13,8 @@ ________________________________________________________________________
 
 #include "explicitmarchingcubes.h"
 #include "marchingcubes.h"
-#include "survinfo.h"
-#include "viscoord.h"
-#include "visnormals.h"
+#include "visindexedshape.h"
 
-#include <Inventor/nodes/SoIndexedTriangleStripSet.h>
-#include <Inventor/nodes/SoNormalBinding.h>
 #include <Inventor/nodes/SoShapeHints.h>
 
 mCreateFactoryEntry( visBase::MarchingCubesSurface );
@@ -28,50 +24,33 @@ namespace visBase
 
 MarchingCubesSurface::MarchingCubesSurface()
     : VisualObjectImpl( true )
-    , coords_( Coordinates::create() )
-    , normals_( Normals::create() )
     , hints_( new SoShapeHints )
     , side_( 0 )
     , surface_( new ExplicitMarchingCubesSurface( 0 ) )
+    , shape_( IndexedShape::create() )
 {
-    coords_->ref();
-    addChild( coords_->getInventorNode() );
-
-    normals_->ref();
-    addChild( normals_->getInventorNode() );
-
     addChild( hints_ );
 
-    SoNormalBinding* normalbinding = new SoNormalBinding;
-    addChild( normalbinding );
-    normalbinding->value = SoNormalBindingElement::PER_FACE_INDEXED;
+    shape_->ref();
+    shape_->removeSwitch();
+    addChild( shape_->getInventorNode() );
 
-    surface_->setCoordList( new CoordListAdapter(*coords_),
-	    		    new NormalListAdapter(*normals_) );
-
+    shape_->setSurface( surface_ );
+    shape_->setMaterial( 0 );
     renderOneSide( 0 );
 }
 
 
 MarchingCubesSurface::~MarchingCubesSurface()
 {
-    for ( int idx=0; idx<triangles_.size(); idx++ )
-	triangles_[idx]->unref();
+    shape_->unRef();
 
-    coords_->unRef();
-    normals_->unRef();
     delete surface_;
 }
 
 
 void MarchingCubesSurface::setRightHandSystem( bool yn )
-{
-    if ( yn!=righthandsystem_ )
-	normals_->inverse();
-
-    VisualObjectImpl::setRightHandSystem( yn );
-    surface_->setRightHandedNormals( yn );
-}
+{ shape_->setRightHandSystem( yn ); }
 
 
 void MarchingCubesSurface::renderOneSide( int side )
@@ -108,37 +87,7 @@ void MarchingCubesSurface::setSurface( ::MarchingCubesSurface& ns )
 
 
 void MarchingCubesSurface::touch()
-{
-    if ( surface_->needsUpdate() )
-    {
-	surface_->setRightHandedNormals( righthandsystem_ );
-	surface_->update();
-    }
-
-    const int nrsets = surface_->nrIndicesSets();
-    for ( int idx=0; idx<nrsets; idx++ )
-    {
-	if ( idx>=triangles_.size() )
-	{
-	    SoIndexedTriangleStripSet* nt = new SoIndexedTriangleStripSet;
-	    nt->ref();
-	    triangles_ += nt;
-	    addChild( nt );
-	}
-
-	triangles_[idx]->coordIndex.setValuesPointer(
-		surface_->nrCoordIndices(idx), surface_->getCoordIndices(idx) );
-
-	triangles_[idx]->normalIndex.setValuesPointer(
-		surface_->nrNormalIndices(idx), surface_->getNormalIndices(idx) );
-    }
-
-    for ( int idx=triangles_.size()-1; idx>=nrsets; idx-- )
-    {
-	removeChild( triangles_[idx] );
-	triangles_.remove( idx )->unref();
-    }
-}
+{ shape_->touch(); }
 
 
 ::MarchingCubesSurface* MarchingCubesSurface::getSurface()
