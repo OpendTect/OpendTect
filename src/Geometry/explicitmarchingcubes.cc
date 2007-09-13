@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.8 2007-09-13 19:38:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.9 2007-09-13 21:56:46 cvskris Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -19,31 +19,6 @@ static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.8 2007-09-13 19:38
 
 #define mBucketSize 16	
 
-
-class ExplicitMarchingCubesSurfaceBucket
-{
-public:
-    			ExplicitMarchingCubesSurfaceBucket(CoordList* nl)
-			    : normallist_( nl ) { if ( nl ) nl->ref(); }
-			~ExplicitMarchingCubesSurfaceBucket()
-			{
-			    for ( int idx=normalindices_.size()-1; idx>=0;idx--)
-			    {
-				if ( normalindices_[idx]==-1 )
-				    continue;
-
-				normallist_->remove( normalindices_[idx] );
-			    }
-
-			    normallist_->unRef();
-			}
-
-    Threads::Mutex	lock_;
-    TypeSet<int>	coordindices_;
-
-    CoordList*		normallist_;
-    TypeSet<int>	normalindices_;
-};
 
 class ExplicitMarchingCubesSurfaceUpdater : public ParallelTask
 {
@@ -166,10 +141,10 @@ ExplicitMarchingCubesSurface::ExplicitMarchingCubesSurface(
     , scale0_( 0 )
     , scale1_( 0 )
     , scale2_( 0 )
-    , coordlist_( 0 )
-    , normallist_( 0 )
-    , righthandednormals_( true )
 {
+    changedbucketranges_[mX] = 0;
+    changedbucketranges_[mY] = 0;
+    changedbucketranges_[mZ] = 0;
     if ( surface_ ) surface_->ref();
 }
 
@@ -178,13 +153,12 @@ ExplicitMarchingCubesSurface::~ExplicitMarchingCubesSurface()
 {
     if ( surface_ ) surface_->unRef();
 
-    setCoordList( 0, 0 );
-
-    deepErase( ibucketsset_ );
-
     delete scale0_;
     delete scale1_;
     delete scale2_;
+    delete changedbucketranges_[mX];
+    delete changedbucketranges_[mY];
+    delete changedbucketranges_[mZ];
 }
 
 
@@ -197,7 +171,6 @@ void ExplicitMarchingCubesSurface::setSurface( MarchingCubesSurface* ns )
     removeAll();
 
     if ( surface_ ) surface_->ref();
-    deepErase( ibucketsset_ );
 }
 
 
@@ -229,34 +202,31 @@ void ExplicitMarchingCubesSurface::removeAll()
     coordindices_.empty();
     coordindiceslock_.writeUnLock();
 
-    ibucketslock_.writeLock();
+    geometrieslock_.writeLock();
     ibuckets_.empty();
-    deepErase( ibucketsset_ );
-    ibucketslock_.writeUnLock();
+    deepErase( geometries_ );
+    geometrieslock_.writeUnLock();
 }
 
 
-void ExplicitMarchingCubesSurface::setCoordList( CoordList* cl, CoordList* nl )
+bool ExplicitMarchingCubesSurface::update( bool forceall )
 {
+    if ( !forceall && changedbucketranges_[mX] )
+    {
+	return update(
+		Interval<int>(changedbucketranges_[mX]->start*mBucketSize,
+		    	     (changedbucketranges_[mX]->stop+1)*mBucketSize-1),
+		Interval<int>(changedbucketranges_[mX]->start*mBucketSize,
+		    	     (changedbucketranges_[mX]->stop+1)*mBucketSize-1),
+		Interval<int>(changedbucketranges_[mX]->start*mBucketSize,
+		    	     (changedbucketranges_[mX]->stop+1)*mBucketSize-1));
+    }
+
     removeAll();
 
-    if ( coordlist_ ) coordlist_->unRef();
-    coordlist_ = cl;
-    if ( coordlist_ ) coordlist_->ref();
+    if ( !surface_ )
+	return true;
 
-    if ( normallist_ ) normallist_->unRef();
-    normallist_ = nl;
-    if ( normallist_ ) normallist_->ref();
-}
-
-
-void ExplicitMarchingCubesSurface::setRightHandedNormals( bool yn )
-{ righthandednormals_ = yn; }
-
-
-bool ExplicitMarchingCubesSurface::update()
-{
-    removeAll();
     if ( !surface_->models_.size() )
 	return true;
 
@@ -291,26 +261,6 @@ bool ExplicitMarchingCubesSurface::update(
     updater->setLimits( xrg, yrg, zrg );
     return updater->execute();
 }
-
-
-int ExplicitMarchingCubesSurface::nrIndicesSets() const
-{ return ibucketsset_.size(); }
-
-
-int ExplicitMarchingCubesSurface::nrCoordIndices( int idx ) const
-{ return ibucketsset_[idx]->coordindices_.size(); }
-
-
-const int* ExplicitMarchingCubesSurface::getCoordIndices( int idx ) const
-{ return ibucketsset_[idx]->coordindices_.arr(); }
-
-
-int ExplicitMarchingCubesSurface::nrNormalIndices( int idx ) const
-{ return ibucketsset_[idx]->normalindices_.size(); }
-
-
-const int* ExplicitMarchingCubesSurface::getNormalIndices( int idx ) const
-{ return ibucketsset_[idx]->normalindices_.arr(); }
 
 
 #define mSetScale( dim ) \
@@ -396,29 +346,32 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
     const int indicesbucket[] = { pos[mX]/mBucketSize, pos[mY]/mBucketSize,
 	    			  pos[mZ]/mBucketSize };
 
-    ExplicitMarchingCubesSurfaceBucket* bucket = 0;
+    Geometry::IndexedGeometry* bucket = 0;
     int bucketidx[3];
-    ibucketslock_.readLock();
+    geometrieslock_.readLock();
     if ( ibuckets_.findFirst( indicesbucket, bucketidx ) )
     {
 	bucket = ibuckets_.getRef( bucketidx, 0 );
-	ibucketslock_.readUnLock();
+	geometrieslock_.readUnLock();
     }
     else
     {
-	if ( !ibucketslock_.convToWriteLock() &&
+	if ( !geometrieslock_.convToWriteLock() &&
 	      ibuckets_.findFirst( indicesbucket, bucketidx ) )
 	{
 	    bucket = ibuckets_.getRef( bucketidx, 0 );
 	}
 	else
 	{
-	    bucket = new ExplicitMarchingCubesSurfaceBucket( normallist_ );
+	    bucket = new Geometry::IndexedGeometry(
+		    Geometry::IndexedGeometry::TriangleStrip,
+		    Geometry::IndexedGeometry::PerFace, 0, normallist_ );
+
 	    ibuckets_.add( &bucket, indicesbucket );
-	    ibucketsset_ += bucket;
+	    geometries_ += bucket;
 	}
 
-	ibucketslock_.writeUnLock();
+	geometrieslock_.writeUnLock();
     }
 
     const char* tableindices = table.indices_[submodel];
@@ -532,6 +485,42 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 
 
 #undef mEndTriangleStrip
+
+
+void ExplicitMarchingCubesSurface::surfaceChange(CallBacker*)
+{
+    Interval<int> ranges[3];
+    if ( surface_->allchanged_ ) 
+    {
+	surface_->models_.getRange( mX, ranges[mX] );
+	surface_->models_.getRange( mY, ranges[mY] );
+	surface_->models_.getRange( mZ, ranges[mZ] );
+    }
+    else
+    {
+	ranges[mX] = surface_->changepos_[mX];
+	ranges[mY] = surface_->changepos_[mY];
+	ranges[mZ] = surface_->changepos_[mZ];
+    }
+
+    //convert to bucket-ranges
+    ranges[mX].start /= mBucketSize; ranges[mX].stop /= mBucketSize;
+    ranges[mY].start /= mBucketSize; ranges[mY].stop /= mBucketSize;
+    ranges[mZ].start /= mBucketSize; ranges[mZ].stop /= mBucketSize;
+
+    if ( !changedbucketranges_[mX] )
+    {
+	changedbucketranges_[mX] = new Interval<int>( ranges[mX] );
+	changedbucketranges_[mY] = new Interval<int>( ranges[mY] );
+	changedbucketranges_[mZ] = new Interval<int>( ranges[mZ] );
+    }
+    else
+    {
+	changedbucketranges_[mX]->include( ranges[mX] );
+	changedbucketranges_[mY]->include( ranges[mY] );
+	changedbucketranges_[mZ]->include( ranges[mZ] );
+    }
+}
 
 
 bool ExplicitMarchingCubesSurface::getCoordIndices( const int* pos, int* res )
