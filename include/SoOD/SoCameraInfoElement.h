@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoCameraInfoElement.h,v 1.2 2003-11-07 12:21:54 bert Exp $
+ RCS:		$Id: SoCameraInfoElement.h,v 1.3 2007-09-13 19:35:49 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,7 @@ class SoCameraInfoElement : public SoInt32Element
 public:
     static void		initClass();
     void		init(SoState*);
-    static void		set( SoState*, SoNode*, int32_t );
+    static void		set( SoState*, SoNode*, COIN_INT32_T );
     static int		get( SoState* );
     static int		getDefault();
 

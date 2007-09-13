@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoCameraInfoElement.cc,v 1.2 2003-11-07 12:22:02 bert Exp $";
+static const char* rcsID = "$Id: SoCameraInfoElement.cc,v 1.3 2007-09-13 19:35:49 cvsnanne Exp $";
 
 #include "SoCameraInfoElement.h"
 
@@ -31,19 +31,20 @@ void SoCameraInfoElement::init(SoState*)
 }
 
 
-void SoCameraInfoElement::set(SoState* state, SoNode* node, int32_t camerainfo )
+void SoCameraInfoElement::set(SoState* state, SoNode* node,
+			      COIN_INT32_T camerainfo )
 {
     SoInt32Element::set(classStackIndex, state, node, camerainfo );
 }
 
 
-int32_t SoCameraInfoElement::get(SoState* state)
+COIN_INT32_T SoCameraInfoElement::get(SoState* state)
 {
     return SoInt32Element::get(classStackIndex, state );
 }
 
 
-int32_t SoCameraInfoElement::getDefault()
+COIN_INT32_T SoCameraInfoElement::getDefault()
 {
     return 0;
 }
