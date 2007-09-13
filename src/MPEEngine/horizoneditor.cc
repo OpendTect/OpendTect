@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: horizoneditor.cc,v 1.6 2007-07-06 14:11:05 cvskris Exp $
+ RCS:           $Id: horizoneditor.cc,v 1.7 2007-09-13 06:05:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,10 +50,7 @@ ObjectEditor* HorizonEditor::create( EM::EMObject& emobj )
 
 
 void HorizonEditor::initClass()
-{
-    engine().addEditorFactory(
-	    new EditorFactory( EM::Horizon3D::typeStr(), create ) );
-}
+{ MPE::EditorFactory().addCreator( create, EM::Horizon3D::typeStr() ); }
 
 
 Geometry::ElementEditor* HorizonEditor::createEditor( const EM::SectionID& sid )

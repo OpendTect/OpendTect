@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulttracker.cc,v 1.2 2007-07-05 17:27:24 cvskris Exp $";
+static const char* rcsID = "$Id: faulttracker.cc,v 1.3 2007-09-13 06:05:29 cvskris Exp $";
 
 #include "faulttracker.h"
 
@@ -40,11 +40,7 @@ EMTracker* FaultTracker::create( EM::EMObject* emo )
 
 
 void FaultTracker::initClass()
-{
-    MPE::engine().addTrackerFactory(
-	    new TrackerFactory( EM::Fault::typeStr(), create ) );
-}
-
+{ MPE::TrackerFactory().addCreator( create, EM::Fault::typeStr() ); }
 
 
 FaultTracker::FaultTracker( EM::Fault* fault_ )

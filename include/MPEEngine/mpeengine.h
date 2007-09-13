@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.36 2007-03-06 11:45:30 cvsjaap Exp $
+ RCS:           $Id: mpeengine.h,v 1.37 2007-09-13 06:05:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,8 +40,6 @@ namespace MPE
 {
 
 class EMTracker;
-class TrackerFactory;
-class EditorFactory;
 class TrackPlane;
 class ObjectEditor;
 
@@ -113,10 +111,6 @@ public:
     ObjectEditor*		getEditor(const EM::ObjectID&,bool create);
     void			removeEditor(const EM::ObjectID&);
 
-    				/*Factories */
-    void			addTrackerFactory(TrackerFactory*);
-    void			addEditorFactory(EditorFactory*);
-
     const char*			errMsg() const;
 
     BufferString		setupFileName( const MultiID& ) const;
@@ -156,9 +150,6 @@ protected:
     ObjectSet<CacheSpecs>		attribcachespecs_;
     ObjectSet<const Attrib::DataCubes>	attribbackupcache_;
     ObjectSet<CacheSpecs>		attribbackupcachespecs_;
-
-    ObjectSet<TrackerFactory>	trackerfactories_;
-    ObjectSet<EditorFactory>	editorfactories_;
 
     static const char*		sKeyNrTrackers(){ return "Nr Trackers"; }
     static const char*		sKeyObjectID()	{ return "ObjectID"; }

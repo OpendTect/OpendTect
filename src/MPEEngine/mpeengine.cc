@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.81 2007-06-21 19:35:21 cvskris Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.82 2007-09-13 06:05:29 cvskris Exp $";
 
 #include "mpeengine.h"
 
@@ -69,8 +69,6 @@ Engine::~Engine()
     deepErase( attribcachespecs_ );
     deepUnRef( attribbackupcache_ );
     deepErase( attribbackupcachespecs_ );
-    deepErase( trackerfactories_ );
-    deepErase( editorfactories_ );
 }
 
 
@@ -195,11 +193,7 @@ void Engine::setTrackMode( TrackPlane::TrackMode tm )
 
 
 void Engine::getAvailableTrackerTypes( BufferStringSet& res ) const
-{
-    res.deepErase();
-    for ( int idx=0; idx<trackerfactories_.size(); idx++ )
-	res.add(trackerfactories_[idx]->emObjectType());
-}
+{ res = TrackerFactory().getNames(); }
 
 
 int Engine::addTracker( EM::EMObject* obj )
@@ -210,21 +204,11 @@ int Engine::addTracker( EM::EMObject* obj )
     if ( getTrackerByObject(obj->id()) != -1 )
 	mRetErr( "Object is already tracked", -1 );
 
-    bool added = false;
-    for ( int idx=0; idx<trackerfactories_.size(); idx++ )
-    {
-	if ( !strcmp(obj->getTypeStr(),trackerfactories_[idx]->emObjectType()) )
-	{
-	    EMTracker* tracker = trackerfactories_[idx]->create(obj);
-	    trackers_ += tracker;
-	    added = true;
-	    break;
-	}
-    }
-
-    if ( !added )
+    EMTracker* tracker = TrackerFactory().create( obj->getTypeStr(), obj );
+    if ( !tracker )
 	mRetErr( "Cannot find this trackertype", -1 );
 
+    trackers_ += tracker;
     trackeraddremove.trigger();
 
     return trackers_.size()-1;
@@ -444,18 +428,13 @@ ObjectEditor* Engine::getEditor( const EM::ObjectID& id, bool create )
     EM::EMObject* emobj = EM::EMM().getObject(id);
     if ( !emobj ) return 0;
 
-    for ( int idx=0; idx<editorfactories_.size(); idx++ )
-    {
-	if ( strcmp(editorfactories_[idx]->emObjectType(), emobj->getTypeStr()) )
-	    continue;
+    ObjectEditor* editor = EditorFactory().create( emobj->getTypeStr(), *emobj);
+    if ( !editor )
+	return 0;
 
-	ObjectEditor* editor = editorfactories_[idx]->create(*emobj);
-	editors_ += editor;
-	editor->ref();
-	return editor;
-    }
-
-    return 0;
+    editors_ += editor;
+    editor->ref();
+    return editor;
 }
 
 
@@ -472,36 +451,6 @@ void Engine::removeEditor( const EM::ObjectID& objid )
 
 const char* Engine::errMsg() const
 { return errmsg_[0] ? (const char*) errmsg_ : 0 ; }
-
-
-void Engine::addTrackerFactory( TrackerFactory* ntf )
-{
-    for ( int idx=0; idx<trackerfactories_.size(); idx++ )
-    {
-	if ( !strcmp(ntf->emObjectType(),trackerfactories_[idx]->emObjectType()))
-	{
-	    delete ntf;
-	    return;
-	}
-    }
-
-    trackerfactories_ += ntf;
-}
-
-
-void Engine::addEditorFactory( EditorFactory* nef )
-{
-    for ( int idx=0; idx<editorfactories_.size(); idx++ )
-    {
-	if ( !strcmp(nef->emObjectType(),editorfactories_[idx]->emObjectType()))
-	{
-	    delete nef;
-	    return;
-	}
-    }
-
-    editorfactories_ += nef;
-}
 
 
 CubeSampling Engine::getDefaultActiveVolume()

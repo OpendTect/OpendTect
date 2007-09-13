@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emeditor.cc,v 1.21 2007-07-06 14:11:05 cvskris Exp $";
+static const char* rcsID = "$Id: emeditor.cc,v 1.22 2007-09-13 06:05:29 cvskris Exp $";
 
 #include "emeditor.h"
 
@@ -24,6 +24,8 @@ static const char* rcsID = "$Id: emeditor.cc,v 1.21 2007-07-06 14:11:05 cvskris 
 
 namespace MPE 
 {
+
+mImplFactory1Param( ObjectEditor, EM::EMObject&, EditorFactory );
 
 
 ObjectEditor::ObjectEditor( EM::EMObject& emobj_ )
@@ -447,22 +449,6 @@ void ObjectEditor::getAlongMovingNodes( const EM::PosID&,
     nodes.erase();
     if ( factors ) factors->erase();
 }
-
-
-EditorFactory::EditorFactory( const char* emtype, EMEditorCreationFunc cf )
-    : createfunc( cf )
-    , type( emtype )
-{}
-
-
-const char* EditorFactory::emObjectType() const { return type; }
-
-
-ObjectEditor* EditorFactory::create( EM::EMObject& emobj ) const
-{ return createfunc( emobj ); }
-
-
-
 
 
 }; //Namespace

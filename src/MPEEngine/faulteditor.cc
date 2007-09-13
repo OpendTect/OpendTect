@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulteditor.cc,v 1.2 2006-04-27 15:53:13 cvskris Exp $";
+static const char* rcsID = "$Id: faulteditor.cc,v 1.3 2007-09-13 06:05:29 cvskris Exp $";
 
 #include "faulteditor.h"
 
@@ -34,10 +34,7 @@ ObjectEditor* FaultEditor::create( EM::EMObject& emobj )
 
 
 void FaultEditor::initClass()
-{
-    MPE::engine().addEditorFactory(
-	    new EditorFactory( EM::Fault::typeStr(), create ) );
-}
+{ MPE::EditorFactory().addCreator( create, EM::Fault::typeStr() ); }
 
 
 Geometry::ElementEditor* FaultEditor::createEditor( const EM::SectionID& sid )

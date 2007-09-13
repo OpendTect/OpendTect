@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: horizon2dtracker.cc,v 1.3 2007-07-05 17:27:24 cvskris Exp $
+ RCS:           $Id: horizon2dtracker.cc,v 1.4 2007-09-13 06:05:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,8 +50,7 @@ EMTracker* Horizon2DTracker::create( EM::EMObject* emobj )
 
 void Horizon2DTracker::initClass()
 {
-    MPE::engine().addTrackerFactory(
-	    new TrackerFactory( EM::Horizon2D::typeStr(), create ) );
+    TrackerFactory().addCreator( create, EM::Horizon2D::typeStr() );
 }
 
 

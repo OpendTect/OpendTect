@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.25 2006-08-16 10:51:19 cvsbert Exp $
+ RCS:           $Id: emtracker.h,v 1.26 2007-09-13 06:05:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "factory.h"
 #include "sets.h"
 #include "emposid.h"
 #include "cubesampling.h"
@@ -85,22 +86,8 @@ private:
 };
 
 
-typedef EMTracker*(*EMTrackerCreationFunc)(EM::EMObject*);
+mDefineFactory1Param( EMTracker, EM::EMObject*, TrackerFactory );
 
-
-class TrackerFactory
-{
-public:
-			TrackerFactory(const char* emtype,
-				       EMTrackerCreationFunc);
-    const char*		emObjectType() const;
-    EMTracker*		create(EM::EMObject* emobj=0) const;
-
-protected:
-    EMTrackerCreationFunc	createfunc;
-    const char*			type;
-
-};
 
 }; // namespace MPE
 

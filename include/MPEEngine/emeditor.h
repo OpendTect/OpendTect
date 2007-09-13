@@ -8,13 +8,14 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emeditor.h,v 1.16 2007-02-12 07:39:47 cvsnanne Exp $
+ RCS:           $Id: emeditor.h,v 1.17 2007-09-13 06:05:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "callback.h"
 #include "emposid.h"
+#include "factory.h"
 #include "position.h"
 #include "refcount.h"
 
@@ -159,22 +160,7 @@ private:
 };
 
 
-typedef ObjectEditor*(*EMEditorCreationFunc)(EM::EMObject&);
-
-
-class EditorFactory
-{
-public:
-			EditorFactory( const char* emtype,
-				       EMEditorCreationFunc );
-    const char*		emObjectType() const;
-    ObjectEditor*	create( EM::EMObject& ) const;
-
-protected:
-    EMEditorCreationFunc	createfunc;
-    const char*			type;
-};
-
+mDefineFactory1Param( ObjectEditor, EM::EMObject&, EditorFactory );
 
 
 };

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.34 2007-07-06 14:11:05 cvskris Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.35 2007-09-13 06:05:29 cvskris Exp $";
 
 #include "emtracker.h"
 
@@ -35,6 +35,8 @@ static const char* rcsID = "$Id: emtracker.cc,v 1.34 2007-07-06 14:11:05 cvskris
 
 namespace MPE 
 {
+
+mImplFactory1Param( EMTracker, EM::EMObject*, TrackerFactory );
 
 EMTracker::EMTracker( EM::EMObject* emo )
     : isenabled_(true)
@@ -351,22 +353,5 @@ void EMTracker::setEMObject( EM::EMObject* no )
     emobject_ = no;
     if ( emobject_ ) emobject_->ref();
 }
-
-
-// TrackerFactory +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-TrackerFactory::TrackerFactory( const char* emtype, EMTrackerCreationFunc func )
-    : type( emtype )
-    , createfunc( func )
-{}
-
-
-const char* TrackerFactory::emObjectType() const
-{ return type; } 
-
-
-EMTracker* TrackerFactory::create( EM::EMObject* emobj ) const
-{ return createfunc( emobj ); }
-
 
 }; // namespace MPE

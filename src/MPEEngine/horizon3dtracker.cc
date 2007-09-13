@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: horizon3dtracker.cc,v 1.6 2007-07-05 17:27:24 cvskris Exp $
+ RCS:           $Id: horizon3dtracker.cc,v 1.7 2007-09-13 06:05:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,10 +50,7 @@ EMTracker* Horizon3DTracker::create( EM::EMObject* emobj )
 
 
 void Horizon3DTracker::initClass()
-{
-    MPE::engine().addTrackerFactory(
-	    new TrackerFactory( EM::Horizon3D::typeStr(), create ) );
-}
+{ TrackerFactory().addCreator( create, EM::Horizon3D::typeStr() ); }
 
 
 #define mErrRet(msg) { errmsg = msg; return false; }
