@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.24 2007-08-22 12:01:09 cvskris Exp $
+ RCS:		$Id: arraynd.h,v 1.25 2007-09-13 19:38:38 cvsnanne Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -100,7 +100,7 @@ public:
     T	                	get(const int* pos) const {return get(pos[0]);}
 
 				// implement ValueSeries interface
-    T				value( int64 i ) const	{ return get(i); }
+    T				value(od_int64 i) const	{ return get(i); }
     bool			writable() const	{ return true; }
     void			setValue( int i, T t )	{ set(i,t); }
 

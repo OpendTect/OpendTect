@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2003
- RCS:           $Id: vistexture2.cc,v 1.38 2007-03-26 16:55:46 cvsbert Exp $
+ RCS:           $Id: vistexture2.cc,v 1.39 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,8 +123,8 @@ bool Texture2::isDataClassified( const Array2D<float>* newdata ) const
 {
     if ( !newdata ) return false;
 
-    const int64 datax0size = newdata->info().getSize(0);
-    const int64 datax1size = newdata->info().getSize(1);
+    const od_int64 datax0size = newdata->info().getSize(0);
+    const od_int64 datax1size = newdata->info().getSize(1);
     return holdsClassValues( newdata->getData(), datax0size * datax1size );
 }
 

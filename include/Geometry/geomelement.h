@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: geomelement.h,v 1.9 2006-11-06 10:37:15 cvsjaap Exp $
+RCS:           $Id: geomelement.h,v 1.10 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "ranges.h"
 
-typedef int64 GeomPosID;
+typedef od_int64 GeomPosID;
 namespace Geometry
 {
 

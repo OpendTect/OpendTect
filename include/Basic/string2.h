@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.19 2007-04-04 16:51:40 cvsbert Exp $
+ RCS:		$Id: string2.h,v 1.20 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 -*/
 
@@ -55,10 +55,10 @@ void		cleanupString(char*,int,int,int);
 int		isNumberString(const char*,int int_only);
 
 /*!> returns the string for an int in a static buffer. */
-const char*	getStringFromInt(int32);
-const char*	getStringFromUInt(uint32);
-const char*	getStringFromInt64(int64);
-const char*	getStringFromUInt64(uint64);
+const char*	getStringFromInt(od_int32);
+const char*	getStringFromUInt(od_uint32);
+const char*	getStringFromInt64(od_int64);
+const char*	getStringFromUInt64(od_uint64);
 
 /*!> Normally, pass null for fmt. Then it will do removal of
      trailing zeros and use %lf in more cases than std. */
@@ -81,10 +81,10 @@ const char*	getRankPostFix(int);
 #include <stdlib.h>
 #include "undefval.h"
 
-inline const char* toString( int32 i )	{ return getStringFromInt( i ); }
-inline const char* toString( uint32 i )	{ return getStringFromUInt( i ); }
-inline const char* toString( int64 i )	{ return getStringFromInt64( i ); }
-inline const char* toString( uint64 i )	{ return getStringFromUInt64( i ); }
+inline const char* toString(od_int32 i)	{ return getStringFromInt( i ); }
+inline const char* toString(od_uint32 i){ return getStringFromUInt( i ); }
+inline const char* toString(od_int64 i)	{ return getStringFromInt64( i ); }
+inline const char* toString(od_uint64 i){ return getStringFromUInt64( i ); }
 inline const char* toString( float f )	{ return getStringFromFloat( 0, f ); }
 inline const char* toString( double d )	{ return getStringFromDouble( 0, d ); }
 inline const char* toString( bool b )	{ return getYesNoString( b ); }

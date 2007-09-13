@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Nov 2000
  Contents:	Binary data interpretation
- RCS:		$Id: datachar.h,v 1.11 2005-08-17 10:04:48 cvsbert Exp $
+ RCS:		$Id: datachar.h,v 1.12 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -73,7 +73,7 @@ public:
 			mDeclConstr(unsigned int,true,false)
 			mDeclConstr(float,false,true)
 			mDeclConstr(double,false,true)
-			mDeclConstr(int64,true,true)
+			mDeclConstr(od_int64,true,true)
 
     bool		operator ==( const DataCharacteristics& dc ) const
 			{ return isEqual(dc); }

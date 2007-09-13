@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: explicitmarchingcubes.h,v 1.4 2007-09-06 19:32:43 cvskris Exp $
+ RCS:           $Id: explicitmarchingcubes.h,v 1.5 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,14 +54,14 @@ public:
     int				nrCoordIndices(int set) const;
     				/*!<Check with needsUpdate() if indices
 				    are up to date. */
-    const int32*		getCoordIndices(int set) const;
+    const int*			getCoordIndices(int set) const;
 				/*!<Check with needsUpdate() if indices are
 				    up to date. */
     int				nrNormalIndices(int set) const;
     				 /*!<Check with needsUpdate() if indices
 				     are up to date. Normals are generated
 				     per face (triangle). */
-    const int32*		getNormalIndices(int set) const;
+    const int*			getNormalIndices(int set) const;
 				/*!<Check with needsUpdate() if indices are
 				    up to date.Normals are generated
 				    per face (triangle).*/

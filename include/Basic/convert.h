@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: convert.h,v 1.5 2006-06-23 14:33:44 cvsjaap Exp $
+ RCS:           $Id: convert.h,v 1.6 2007-09-13 19:38:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,19 +59,19 @@ inline T& udfto( const F& fr, const T& und = Values::Undef<T>::val() )
 //----- specialisations
 
 template <>
-inline void set( const char*& _to, const int32& i )
+inline void set( const char*& _to, const od_int32& i )
     { _to = toString(i); }
 
 template <>
-inline void set( const char*& _to, const uint32& i )
+inline void set( const char*& _to, const od_uint32& i )
     { _to = toString(i); }
 
 template <>
-inline void set( const char*& _to, const int64& i )
+inline void set( const char*& _to, const od_int64& i )
     { _to = toString(i); }
 
 template <>
-inline void set( const char*& _to, const uint64& i )
+inline void set( const char*& _to, const od_uint64& i )
     { _to = toString(i); }
 
 template <>
@@ -102,9 +102,9 @@ inline void set( type& _to, const char* const& s ) \
 } 
 
 mSetFromStrTo( int, strtol(s, &endptr, 0) );
-mSetFromStrTo( uint32, strtoul(s, &endptr, 0) );
-mSetFromStrTo( int64, strtoll(s, &endptr, 0) );
-mSetFromStrTo( uint64, strtoull(s, &endptr, 0) );
+mSetFromStrTo( od_uint32, strtoul(s, &endptr, 0) );
+mSetFromStrTo( od_int64, strtoll(s, &endptr, 0) );
+mSetFromStrTo( od_uint64, strtoull(s, &endptr, 0) );
 mSetFromStrTo( double, strtod(s, &endptr ) );
 mSetFromStrTo( float, strtod(s, &endptr ) );
 
@@ -114,35 +114,35 @@ inline void set( bool& _to, const char* const& s )
     { _to = yesNoFromString(s); }
 
 template <>
-inline void set( int32& _to, const float& f )
+inline void set( od_int32& _to, const float& f )
     { _to = mNINT(f); }
 
 template <>
-inline void set( int64& _to, const float& f )
+inline void set( od_int64& _to, const float& f )
     { _to = mNINT(f); }
 
 template <>
-inline void set( int32& _to, const double& f )
+inline void set( od_int32& _to, const double& f )
     { _to = mNINT(f); }
 
 template <>
-inline void set( int64& _to, const double& f )
+inline void set( od_int64& _to, const double& f )
     { _to = mNINT(f); }
 
 template <>
-inline void set( uint32& _to, const float& f )
+inline void set( od_uint32& _to, const float& f )
     { _to = mNINT(f); }
 
 template <>
-inline void set( uint64& _to, const float& f )
+inline void set( od_uint64& _to, const float& f )
     { _to = mNINT(f); }
 
 template <>
-inline void set( uint32& _to, const double& f )
+inline void set( od_uint32& _to, const double& f )
     { _to = mNINT(f); }
 
 template <>
-inline void set( uint64& _to, const double& f )
+inline void set( od_uint64& _to, const double& f )
     { _to = mNINT(f); }
 
 template <>

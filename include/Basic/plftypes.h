@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Contents:	Platform dependent types
- RCS:		$Id: plftypes.h,v 1.5 2006-09-11 09:19:00 cvsbert Exp $
+ RCS:		$Id: plftypes.h,v 1.6 2007-09-13 19:38:38 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -17,19 +17,27 @@ ________________________________________________________________________
 #ifdef __sun__
 # include <sys/types.h>
 #else
-# include <stdint.h>
+# ifndef __msvc__
+#  include <stdint.h>
+# endif
+
 #endif
 
 /* 16 bits short is standard. Only use to emphasise the 16-bitness */
-#define int16 short
-#define uint16 unsigned short
+#define od_int16	short
+#define od_uint16	unsigned short
 
 /* 32 bits int is standard. Only use to emphasise the 32-bitness */
-#define int32 int
-#define uint32 unsigned int
+#define od_int32	int
+#define od_uint32	unsigned int
 
 /* 64 bits is int64_t. The definition is in various header files. */
-#define int64 int64_t
-#define uint64 uint64_t
+#ifndef __msvc__
+# define od_int64	int64_t
+# define od_uint64	uint64_t
+#else
+# define od_int64 	__int64
+# define od_uint64	unsigned __int64
+#endif
 
 #endif

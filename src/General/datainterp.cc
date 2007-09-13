@@ -5,7 +5,7 @@
  * FUNCTION : Interpret data buffers
 -*/
 
-static const char* rcsID = "$Id: datainterp.cc,v 1.20 2006-12-20 17:33:19 cvskris Exp $";
+static const char* rcsID = "$Id: datainterp.cc,v 1.21 2007-09-13 19:38:39 cvsnanne Exp $";
 
 #include "datainterp.h"
 #include "datachar.h"
@@ -36,7 +36,7 @@ typedef double TD;
 // This may be a problem on 64 bit machines. Fix when appropriate
 typedef signed int TS4;
 typedef unsigned int TU4;
-typedef int64 TS8;
+typedef od_int64 TS8;
 
 // But this is fundamental mathematics
 const TS1 cMS1 = 127;
@@ -140,12 +140,12 @@ DataCharacteristics::UserType DataCharacteristics::userType() const
         *( p + idx2 ) = *( p + idx2 + b2 ); \
         *( p + idx2 + b2 ) = c
 
-static void doswap2( void* buf, int64 bufsz )
+static void doswap2( void* buf, od_int64 bufsz )
 {
     register unsigned char c;
     register unsigned char* p = (unsigned char*)buf;
-    register int64 idx2 = 0;
-    for ( register int64 idx=0; idx<bufsz; idx++ )
+    register od_int64 idx2 = 0;
+    for ( register od_int64 idx=0; idx<bufsz; idx++ )
     {
 	mSwapChars1( 1 );
 	idx2 += 2;
@@ -158,12 +158,12 @@ static void doswap2( void* buf, int64 bufsz )
 	*( p + idx2 + b1 ) = *( p + idx2 + b2 ); \
 	*( p + idx2 + b2 ) = c
 
-static void doswap4( void* buf, int64 bufsz )
+static void doswap4( void* buf, od_int64 bufsz )
 {
     register unsigned char c;
     register unsigned char* p = (unsigned char*)buf;
-    register int64 idx2 = 0;
-    for ( register int64 idx=0; idx<bufsz; idx++ )
+    register od_int64 idx2 = 0;
+    for ( register od_int64 idx=0; idx<bufsz; idx++ )
     {
 	mSwapChars1( 3 );
 	mSwapChars2( 1, 2 );
@@ -172,12 +172,12 @@ static void doswap4( void* buf, int64 bufsz )
 }
 
 
-static void doswap8( void* buf, int64 bufsz )
+static void doswap8( void* buf, od_int64 bufsz )
 {
     register unsigned char c;
     register unsigned char* p = (unsigned char*)buf;
-    register int64 idx2 = 0;
-    for ( register int64 idx=0; idx<bufsz; idx++ )
+    register od_int64 idx2 = 0;
+    for ( register od_int64 idx=0; idx<bufsz; idx++ )
     {
 	mSwapChars1( 7 );
 	mSwapChars2( 1, 6 );
@@ -189,17 +189,18 @@ static void doswap8( void* buf, int64 bufsz )
 
 #define mDefSwapFn(typ,N) \
 template <> \
-void DataInterpreter<typ>::swap##N( void* b, int64 s ) const { doswap##N(b,s); }
+void DataInterpreter<typ>::swap##N( void* b, od_int64 s ) \
+const { doswap##N(b,s); }
 
 mDefSwapFn(float,2) mDefSwapFn(float,4) mDefSwapFn(float,8)
 mDefSwapFn(int,2) mDefSwapFn(int,4) mDefSwapFn(int,8)
 mDefSwapFn(double,2) mDefSwapFn(double,4) mDefSwapFn(double,8)
-mDefSwapFn(int64,2) mDefSwapFn(int64,4) mDefSwapFn(int64,8)
+mDefSwapFn(od_int64,2) mDefSwapFn(od_int64,4) mDefSwapFn(od_int64,8)
 
 
 #define mDefDIG(rettyp,typ) \
 template <> \
-rettyp DataInterpreter<rettyp>::get##typ( const void* buf, int64 nr ) const \
+rettyp DataInterpreter<rettyp>::get##typ( const void* buf, od_int64 nr ) const \
 { return (rettyp)( *(((T##typ*)buf) + nr) ); }
 
 mDefDIG(float,S1)
@@ -227,28 +228,29 @@ mDefDIG(int,S8)
 mDefDIG(int,U1)
 mDefDIG(int,U2)
 mDefDIG(int,U4)
-mDefDIG(int64,S1)
-mDefDIG(int64,S2)
-mDefDIG(int64,S4)
-mDefDIG(int64,S8)
-mDefDIG(int64,U1)
-mDefDIG(int64,U2)
-mDefDIG(int64,U4)
+mDefDIG(od_int64,S1)
+mDefDIG(od_int64,S2)
+mDefDIG(od_int64,S4)
+mDefDIG(od_int64,S8)
+mDefDIG(od_int64,U1)
+mDefDIG(od_int64,U2)
+mDefDIG(od_int64,U4)
 
 #define mDefDIGF2I(rettyp,typ) \
 template <> \
-rettyp DataInterpreter<rettyp>::get##typ( const void* buf, int64 nr ) const \
+rettyp DataInterpreter<rettyp>::get##typ( const void* buf, od_int64 nr ) const \
 { T##typ t = *(((T##typ*)buf) + nr); return (rettyp)(t > 0 ? t+.5:t-.5); }
 
 mDefDIGF2I(int,F)
 mDefDIGF2I(int,D)
-mDefDIGF2I(int64,F)
-mDefDIGF2I(int64,D)
+mDefDIGF2I(od_int64,F)
+mDefDIGF2I(od_int64,D)
 
 
 #define mDefDIGswp(rettyp,typ) \
 template <> \
-rettyp DataInterpreter<rettyp>::get##typ##swp( const void* buf, int64 nr ) const \
+rettyp DataInterpreter<rettyp>::get##typ##swp( const void* buf, \
+					       od_int64 nr ) const \
 { \
     T##typ t = *(((T##typ*)buf) + nr); \
     SwapBytes( &t, sizeof(T##typ) ); \
@@ -274,16 +276,17 @@ mDefDIGswp(int,S4)
 mDefDIGswp(int,S8)
 mDefDIGswp(int,U2)
 mDefDIGswp(int,U4)
-mDefDIGswp(int64,S2)
-mDefDIGswp(int64,S4)
-mDefDIGswp(int64,S8)
-mDefDIGswp(int64,U2)
-mDefDIGswp(int64,U4)
+mDefDIGswp(od_int64,S2)
+mDefDIGswp(od_int64,S4)
+mDefDIGswp(od_int64,S8)
+mDefDIGswp(od_int64,U2)
+mDefDIGswp(od_int64,U4)
 
 
 #define mDefDIGF2Iswp(rettyp,typ) \
 template <> \
-rettyp DataInterpreter<rettyp>::get##typ##swp( const void* buf, int64 nr ) const \
+rettyp DataInterpreter<rettyp>::get##typ##swp( const void* buf, \
+					       od_int64 nr ) const \
 { \
     T##typ t = *(((T##typ*)buf) + nr); \
     SwapBytes( &t, sizeof(T##typ) ); \
@@ -291,13 +294,13 @@ rettyp DataInterpreter<rettyp>::get##typ##swp( const void* buf, int64 nr ) const
 }
 mDefDIGF2Iswp(int,F)
 mDefDIGF2Iswp(int,D)
-mDefDIGF2Iswp(int64,F)
-mDefDIGF2Iswp(int64,D)
+mDefDIGF2Iswp(od_int64,F)
+mDefDIGF2Iswp(od_int64,D)
 
 
 #define mDefDIPS(inptyp,typ) \
 template <> \
-void DataInterpreter<inptyp>::put##typ( void* buf, int64 nr, inptyp f ) const \
+void DataInterpreter<inptyp>::put##typ( void* buf,od_int64 nr,inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ \
 		  : ( f < -cM##typ ? -cM##typ : (T##typ)(f + (f<0?-.5:.5)) ); \
@@ -314,12 +317,12 @@ mDefDIPS(double,S8)
 
 #define mDefDIPIS(inptyp,typ) \
 template <> \
-void DataInterpreter<inptyp>::put##typ( void* buf, int64 nr, inptyp f ) const \
+void DataInterpreter<inptyp>::put##typ( void* buf, od_int64 nr,inptyp f) const \
 { *(((T##typ*)buf)+nr) = f; }
 
 #define mDefDIPISc(inptyp,typ) \
 template <> \
-void DataInterpreter<inptyp>::put##typ( void* buf, int64 nr, inptyp f ) const \
+void DataInterpreter<inptyp>::put##typ( void* buf, od_int64 nr,inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ \
 			 : ( f < -cM##typ ? -cM##typ : (T##typ)f ); \
@@ -329,15 +332,15 @@ mDefDIPISc(int,S1)
 mDefDIPISc(int,S2)
 mDefDIPIS(int,S4)
 mDefDIPIS(int,S8)
-mDefDIPISc(int64,S1)
-mDefDIPISc(int64,S2)
-mDefDIPISc(int64,S4)
-mDefDIPIS(int64,S8)
+mDefDIPISc(od_int64,S1)
+mDefDIPISc(od_int64,S2)
+mDefDIPISc(od_int64,S4)
+mDefDIPIS(od_int64,S8)
 
 
 #define mDefDIPU(inptyp,typ) \
 template <> \
-void DataInterpreter<inptyp>::put##typ( void* buf, int64 nr, inptyp f ) const \
+void DataInterpreter<inptyp>::put##typ( void* buf, od_int64 nr,inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ \
 				       : (f < 0 ? 0 : (T##typ)(f + .5)); \
@@ -353,25 +356,27 @@ mDefDIPU(double,U4)
 
 #define mDefDIPIU(inptyp,typ) \
 template <> \
-void DataInterpreter<inptyp>::put##typ( void* buf, int64 nr, inptyp f ) const \
+void DataInterpreter<inptyp>::put##typ( void* buf, od_int64 nr,inptyp f) const \
 { *(((T##typ*)buf)+nr) = f < 0 ? 0 : (T##typ)f; }
 
 #define mDefDIPIUc(inptyp,typ) \
 template <> \
-void DataInterpreter<inptyp>::put##typ( void* buf, int64 nr, inptyp f ) const \
+void DataInterpreter<inptyp>::put##typ( void* buf, od_int64 nr, \
+					    inptyp f) const \
 { *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ : (f < 0 ? 0 : (T##typ)f); }
 
 mDefDIPIUc(int,U1)
 mDefDIPIUc(int,U2)
 mDefDIPIU(int,U4)
-mDefDIPIUc(int64,U1)
-mDefDIPIUc(int64,U2)
-mDefDIPIUc(int64,U4)
+mDefDIPIUc(od_int64,U1)
+mDefDIPIUc(od_int64,U2)
+mDefDIPIUc(od_int64,U4)
 
 
 #define mDefDIPF(inptyp,typ) \
 template <> \
-void DataInterpreter<inptyp>::put##typ( void* buf, int64 nr, inptyp f ) const \
+void DataInterpreter<inptyp>::put##typ( void* buf, od_int64 nr, \
+       				    	inptyp f ) const \
 { *(((T##typ*)buf)+nr) = (T##typ)f; }
 
 mDefDIPF(float,F)
@@ -380,13 +385,14 @@ mDefDIPF(double,F)
 mDefDIPF(double,D)
 mDefDIPF(int,F)
 mDefDIPF(int,D)
-mDefDIPF(int64,F)
-mDefDIPF(int64,D)
+mDefDIPF(od_int64,F)
+mDefDIPF(od_int64,D)
 
 
 #define mDefDIPSswp(inptyp,typ) \
 template <> \
-void DataInterpreter<inptyp>::put##typ##swp(void* buf,int64 nr,inptyp f) const \
+void DataInterpreter<inptyp>::put##typ##swp(void* buf,od_int64 nr, \
+					    inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ \
 		  : ( f < -cM##typ ? -cM##typ : (T##typ)(f + (f<0?-.5:.5)) ); \
@@ -402,7 +408,8 @@ mDefDIPSswp(double,S8)
 
 #define mDefDIPISswp(inptyp,typ) \
 template <> \
-void DataInterpreter<inptyp>::put##typ##swp(void* buf,int64 nr,inptyp f) const \
+void DataInterpreter<inptyp>::put##typ##swp(void* buf,od_int64 nr, \
+					    inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = (T##typ)f; \
     SwapBytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
@@ -410,7 +417,8 @@ void DataInterpreter<inptyp>::put##typ##swp(void* buf,int64 nr,inptyp f) const \
 
 #define mDefDIPIScswp(inptyp,typ) \
 template <> \
-void DataInterpreter<inptyp>::put##typ##swp(void* buf,int64 nr,inptyp f) const \
+void DataInterpreter<inptyp>::put##typ##swp(void* buf,od_int64 nr, \
+					    inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ \
 		  : ( f < -cM##typ ? -cM##typ : (T##typ)f ); \
@@ -420,14 +428,15 @@ void DataInterpreter<inptyp>::put##typ##swp(void* buf,int64 nr,inptyp f) const \
 mDefDIPIScswp(int,S2)
 mDefDIPISswp(int,S4)
 mDefDIPISswp(int,S8)
-mDefDIPIScswp(int64,S2)
-mDefDIPIScswp(int64,S4)
-mDefDIPISswp(int64,S8)
+mDefDIPIScswp(od_int64,S2)
+mDefDIPIScswp(od_int64,S4)
+mDefDIPISswp(od_int64,S8)
 
 
 #define mDefDIPUswp(inptyp,typ) \
 template <> \
-void DataInterpreter<inptyp>::put##typ##swp(void* buf,int64 nr,inptyp f) const \
+void DataInterpreter<inptyp>::put##typ##swp(void* buf,od_int64 nr, \
+					    inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ \
 		  : (f < 0 ? 0 : (T##typ)(f + .5)); \
@@ -441,7 +450,8 @@ mDefDIPUswp(double,U4)
 
 #define mDefDIPUIswp(inptyp,typ) \
 template <> \
-void DataInterpreter<inptyp>::put##typ##swp(void* buf,int64 nr,inptyp f) const \
+void DataInterpreter<inptyp>::put##typ##swp(void* buf,od_int64 nr, \
+					    inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = f < 0 ? 0 : (T##typ)f; \
     SwapBytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
@@ -449,7 +459,8 @@ void DataInterpreter<inptyp>::put##typ##swp(void* buf,int64 nr,inptyp f) const \
 
 #define mDefDIPUIcswp(inptyp,typ) \
 template <> \
-void DataInterpreter<inptyp>::put##typ##swp(void* buf,int64 nr,inptyp f) const \
+void DataInterpreter<inptyp>::put##typ##swp(void* buf, \
+					    od_int64 nr,inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = f > cM##typ ? cM##typ : (f < 0 ? 0 : (T##typ)f); \
     SwapBytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
@@ -457,13 +468,14 @@ void DataInterpreter<inptyp>::put##typ##swp(void* buf,int64 nr,inptyp f) const \
 
 mDefDIPUIcswp(int,U2)
 mDefDIPUIswp(int,U4)
-mDefDIPUIcswp(int64,U2)
-mDefDIPUIcswp(int64,U4)
+mDefDIPUIcswp(od_int64,U2)
+mDefDIPUIcswp(od_int64,U4)
 
 
 #define mDefDIPFswp(inptyp,typ) \
 template <> \
-void DataInterpreter<inptyp>::put##typ##swp(void* buf,int64 nr,inptyp f) const \
+void DataInterpreter<inptyp>::put##typ##swp(void* buf, \
+					    od_int64 nr,inptyp f) const \
 { \
     *(((T##typ*)buf)+nr) = (T##typ)f; \
     SwapBytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
@@ -475,13 +487,14 @@ mDefDIPFswp(double,F)
 mDefDIPFswp(double,D)
 mDefDIPFswp(int,F)
 mDefDIPFswp(int,D)
-mDefDIPFswp(int64,F)
-mDefDIPFswp(int64,D)
+mDefDIPFswp(od_int64,F)
+mDefDIPFswp(od_int64,D)
 
 
 #define mDefDIGIbmswp(rettyp,typ,fntyp) \
 template <> \
-rettyp DataInterpreter<rettyp>::get##typ##Ibmswp(const void* buf,int64 nr) const \
+rettyp DataInterpreter<rettyp>::get##typ##Ibmswp(const void* buf, \
+					    od_int64 nr) const \
 { \
      T##typ x = *( ((T##typ*)buf)+nr ); \
      SwapBytes( &x, sizeof(T##typ) ); \
@@ -490,7 +503,8 @@ rettyp DataInterpreter<rettyp>::get##typ##Ibmswp(const void* buf,int64 nr) const
 
 #define mDefDIGIbm(rettyp,typ,fntyp) \
 template <> \
-rettyp DataInterpreter<rettyp>::get##typ##Ibm( const void* buf, int64 nr ) const \
+rettyp DataInterpreter<rettyp>::get##typ##Ibm( const void* buf, \
+       				    	od_int64 nr ) const \
 { return (rettyp)IbmFormat::as##fntyp( ((T##typ*)buf)+nr ); }
 
 mDefDIGIbm(float,S2,Short)
@@ -502,14 +516,15 @@ mDefDIGIbm(double,F,Float)
 mDefDIGIbm(int,S2,Short)
 mDefDIGIbm(int,S4,Int)
 mDefDIGIbm(int,F,Float)
-mDefDIGIbm(int64,S2,Short)
-mDefDIGIbm(int64,S4,Int)
-mDefDIGIbm(int64,F,Float)
+mDefDIGIbm(od_int64,S2,Short)
+mDefDIGIbm(od_int64,S4,Int)
+mDefDIGIbm(od_int64,F,Float)
 
 
 #define mDefDIGIbmswp(rettyp,typ,fntyp) \
 template <> \
-rettyp DataInterpreter<rettyp>::get##typ##Ibmswp(const void* buf,int64 nr) const \
+rettyp DataInterpreter<rettyp>::get##typ##Ibmswp(const void* buf, \
+					    od_int64 nr) const \
 { \
      T##typ x = *( ((T##typ*)buf)+nr ); \
      SwapBytes( &x, sizeof(T##typ) ); \
@@ -525,14 +540,15 @@ mDefDIGIbmswp(double,F,Float)
 mDefDIGIbmswp(int,S2,Short)
 mDefDIGIbmswp(int,S4,Int)
 mDefDIGIbmswp(int,F,Float)
-mDefDIGIbmswp(int64,S2,Short)
-mDefDIGIbmswp(int64,S4,Int)
-mDefDIGIbmswp(int64,F,Float)
+mDefDIGIbmswp(od_int64,S2,Short)
+mDefDIGIbmswp(od_int64,S4,Int)
+mDefDIGIbmswp(od_int64,F,Float)
 
 
 #define mDefDIPSIbm(inptyp,typ,fntyp) \
 template <> \
-void DataInterpreter<inptyp>::put##typ##Ibm(void* buf,int64 nr,inptyp f) const \
+void DataInterpreter<inptyp>::put##typ##Ibm(void* buf,od_int64 nr, \
+					    inptyp f) const \
 { \
     IbmFormat::put##fntyp( f > cM##typ ? cM##typ : ( f < -cM##typ ? -cM##typ \
 		: (T##typ)(f + (f<0?-.5:.5)) ), ((T##typ*)buf)+nr ); \
@@ -544,24 +560,26 @@ mDefDIPSIbm(double,S2,Short)
 mDefDIPSIbm(double,S4,Int)
 mDefDIPSIbm(int,S2,Short)
 mDefDIPSIbm(int,S4,Int)
-mDefDIPSIbm(int64,S2,Short)
-mDefDIPSIbm(int64,S4,Int)
+mDefDIPSIbm(od_int64,S2,Short)
+mDefDIPSIbm(od_int64,S4,Int)
 
 
 #define mDefDIPFIbm(inptyp,typ,fntyp) \
 template <> \
-void DataInterpreter<inptyp>::put##typ##Ibm(void* buf,int64 nr,inptyp f) const \
+void DataInterpreter<inptyp>::put##typ##Ibm(void* buf,od_int64 nr,\
+						 inptyp f) const \
 { IbmFormat::put##fntyp( f, ((T##typ*)buf)+nr ); }
 
 mDefDIPFIbm(float,F,Float)
 mDefDIPFIbm(double,F,Float)
 mDefDIPFIbm(int,F,Float)
-mDefDIPFIbm(int64,F,Float)
+mDefDIPFIbm(od_int64,F,Float)
 
 
 #define mDefDIPSIbmswp(inptyp,typ,fntyp) \
 template <> \
-void DataInterpreter<inptyp>::put##typ##Ibm##swp(void* buf,int64 nr,inptyp f) \
+void DataInterpreter<inptyp>::put##typ##Ibm##swp(void* buf,\
+						 od_int64 nr,inptyp f) \
 const { \
     IbmFormat::put##fntyp( f > cM##typ ? cM##typ : ( f < -cM##typ ? -cM##typ \
 		: (T##typ)(f + (f<0?-.5:.5)) ), ((T##typ*)buf)+nr ); \
@@ -574,13 +592,14 @@ mDefDIPSIbmswp(double,S2,Short)
 mDefDIPSIbmswp(double,S4,Int)
 mDefDIPSIbmswp(int,S2,Short)
 mDefDIPSIbmswp(int,S4,Int)
-mDefDIPSIbmswp(int64,S2,Short)
-mDefDIPSIbmswp(int64,S4,Int)
+mDefDIPSIbmswp(od_int64,S2,Short)
+mDefDIPSIbmswp(od_int64,S4,Int)
 
 
 #define mDefDIPFIbmswp(inptyp,typ,fntyp) \
 template <> \
-void DataInterpreter<inptyp>::put##typ##Ibm##swp(void* buf,int64 nr,inptyp f) \
+void DataInterpreter<inptyp>::put##typ##Ibm##swp(void* buf,od_int64 nr,\
+						 inptyp f) \
 const { \
     IbmFormat::put##fntyp( f, ((T##typ*)buf)+nr ); \
     SwapBytes( ((T##typ*)buf)+nr, sizeof(T##typ) ); \
@@ -589,7 +608,7 @@ const { \
 mDefDIPFIbmswp(float,F,Float)
 mDefDIPFIbmswp(double,F,Float)
 mDefDIPFIbmswp(int,F,Float)
-mDefDIPFIbmswp(int64,F,Float)
+mDefDIPFIbmswp(od_int64,F,Float)
 
 
 #define mTheType float
@@ -601,5 +620,5 @@ mDefDIPFIbmswp(int64,F,Float)
 #define mTheType int
 #include "i_datainterp.h"
 #undef mTheType
-#define mTheType int64
+#define mTheType od_int64
 #include "i_datainterp.h"

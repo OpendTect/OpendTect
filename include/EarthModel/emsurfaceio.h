@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.26 2007-08-24 06:55:44 cvsjaap Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.27 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -127,7 +127,7 @@ protected:
     double			readFloat(std::istream&) const;
     int				readInt16(std::istream&) const;
     int				readInt32(std::istream&) const;
-    int64			readInt64(std::istream&) const;
+    od_int64			readInt64(std::istream&) const;
     int				int64Size() const;
     void			createAuxDataReader();
     bool			readHeaders(const char*);
@@ -188,9 +188,9 @@ protected:
 //Version 3 stuff 
     bool			readVersion3Row(std::istream&,int,int,int);
     DataInterpreter<int>*	int16interpreter_;
-    DataInterpreter<int64>*	int64interpreter_;
-    TypeSet<int64>		rowoffsets_;
-    TypeSet<int64>		sectionoffsets_;
+    DataInterpreter<od_int64>*	int64interpreter_;
+    TypeSet<od_int64>		rowoffsets_;
+    TypeSet<od_int64>		sectionoffsets_;
 
 //Version 1 stuff
     bool			readVersion1Row(std::istream&,int,int);
@@ -275,16 +275,16 @@ protected:
 	    				   const char*) const;
     bool                 	writeInt16(std::ostream&,unsigned short,
 	    				   const char*) const;
-    bool                 	writeInt32(std::ostream&,int32,
+    bool                 	writeInt32(std::ostream&,od_int32,
 	    				   const char*) const;
-    bool                 	writeInt64(std::ostream&,int64,
+    bool                 	writeInt64(std::ostream&,od_int64,
 	    				   const char*) const;
     StreamConn*			conn_;
     const IOObj*		ioobj_;
 
     TypeSet<EM::SectionID>	sectionsel_;
-    TypeSet<int64>		sectionoffsets_;
-    int64			nrsectionsoffsetoffset_;
+    TypeSet<od_int64>		sectionoffsets_;
+    od_int64			nrsectionsoffsetoffset_;
     TypeSet<int>		auxdatasel_;
     BufferString		dbinfo_;
 
@@ -295,8 +295,8 @@ protected:
 
     int				sectionindex_;
     int				oldsectionindex_;
-    int64			rowoffsettableoffset_;
-    TypeSet<int64>		rowoffsettable_;
+    od_int64			rowoffsettableoffset_;
+    TypeSet<od_int64>		rowoffsettable_;
     int				firstrow_;
     int				nrrows_;
     int				rowindex_;

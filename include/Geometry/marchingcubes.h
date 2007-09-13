@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: marchingcubes.h,v 1.2 2007-09-07 20:43:18 cvsyuancheng Exp $
+ RCS:           $Id: marchingcubes.h,v 1.3 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,7 +93,8 @@ public:
 	    			 unsigned char& submodel) const;
 
     Executor*		writeTo(std::ostream&,bool binary=true) const;
-    Executor*		readFrom(std::istream&, const DataInterpreter<int32>*);
+    Executor*		readFrom(std::istream&,
+	    			 const DataInterpreter<od_int32>*);
 
     MultiDimStorage<MarchingCubesModel>		models_;
     mutable Threads::ReadWriteLock		modelslock_;

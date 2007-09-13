@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: undefval.h,v 1.8 2006-07-26 15:33:30 cvsnanne Exp $
+ RCS:           $Id: undefval.h,v 1.9 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,44 +63,44 @@ public:
 
 
 template<>
-class Undef<int32>
+class Undef<od_int32>
 {
 public:
-    static int32	val()			{ return __mUndefIntVal; }
+    static od_int32	val()			{ return __mUndefIntVal; }
     static bool		hasUdf()		{ return true; }
-    static bool		isUdf( int32 i )	{ return i == __mUndefIntVal; }
-    static void		setUdf( int32& i )	{ i = __mUndefIntVal; }
+    static bool		isUdf( od_int32 i )	{ return i == __mUndefIntVal; }
+    static void		setUdf( od_int32& i )	{ i = __mUndefIntVal; }
 };
 
 template<>
-class Undef<uint32>
+class Undef<od_uint32>
 {
 public:
-    static uint32	val()			{ return __mUndefIntVal; }
+    static od_uint32	val()			{ return __mUndefIntVal; }
     static bool		hasUdf()		{ return true; }
-    static bool		isUdf( uint32 i )	{ return i == __mUndefIntVal; }
-    static void		setUdf( uint32& i )	{ i = __mUndefIntVal; }
+    static bool		isUdf( od_uint32 i )	{ return i == __mUndefIntVal; }
+    static void		setUdf( od_uint32& i )	{ i = __mUndefIntVal; }
 };
 
 
 template<>
-class Undef<int64>
+class Undef<od_int64>
 {
 public:
-    static int64	val()			{ return __mUndefIntVal64; }
+    static od_int64	val()			{ return __mUndefIntVal64; }
     static bool		hasUdf()		{ return true; }
-    static bool		isUdf( int64 i )	{ return i == __mUndefIntVal64;}
-    static void		setUdf( int64& i )	{ i = __mUndefIntVal64; }
+    static bool		isUdf( od_int64 i )	{ return i == __mUndefIntVal64;}
+    static void		setUdf( od_int64& i )	{ i = __mUndefIntVal64; }
 };
 
 template<>
-class Undef<uint64>
+class Undef<od_uint64>
 {
 public:
-    static uint64	val()			{ return __mUndefIntVal64; }
+    static od_uint64	val()			{ return __mUndefIntVal64; }
     static bool		hasUdf()		{ return true; }
-    static bool		isUdf( uint64 i )	{ return i == __mUndefIntVal64;}
-    static void		setUdf( uint64& i )	{ i = __mUndefIntVal64; }
+    static bool		isUdf( od_uint64 i )	{ return i == __mUndefIntVal64;}
+    static void		setUdf( od_uint64& i )	{ i = __mUndefIntVal64; }
 };
 
 

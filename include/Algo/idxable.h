@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert & Kris
  Date:		Mar 2006
- RCS:		$Id: idxable.h,v 1.7 2006-12-20 17:40:58 cvskris Exp $
+ RCS:		$Id: idxable.h,v 1.8 2007-09-13 19:38:38 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -220,14 +220,14 @@ inline float interpolatePositioned( const X& x, const Y& y, int sz, float pos,
 position in the array is pos+offset. */
 
 template <class T>
-inline int getInterpolateIdxsWithOff( const T& idxabl, int64 sz, int64 offset,
-	float pos, bool extrap, float snapdist, int64 p[4] )
+inline int getInterpolateIdxsWithOff( const T& idxabl, od_int64 sz,
+	od_int64 offset, float pos, bool extrap, float snapdist, od_int64 p[4] )
 {
     if ( sz < 1
       || (!extrap && (pos<-snapdist || (pos+offset)>sz-1+snapdist)) )
 	return -1;
 
-    int64 intpos = mNINT( pos );
+    od_int64 intpos = mNINT( pos );
     const float dist = pos - intpos;
     intpos += offset;
     if ( dist>-snapdist && dist<snapdist && intpos>-1 && intpos<sz ) 
@@ -245,7 +245,7 @@ inline int getInterpolateIdxsWithOff( const T& idxabl, int64 sz, int64 offset,
 
 template <class T>
 inline int getInterpolateIdxs( const T& idxabl, int sz, float pos, bool extrap,
-			       float snapdist, int64 p[4] )
+			       float snapdist, od_int64 p[4] )
 {
     return getInterpolateIdxsWithOff<T>(idxabl,sz,0,pos,extrap,snapdist,p);
 }
@@ -255,7 +255,7 @@ template <class T,class RT>
 inline bool interpolateReg( const T& idxabl, int sz, float pos, RT& ret,
 			    bool extrapolate=false, float snapdist=mDefEps )
 {
-    int64 p[4];
+    od_int64 p[4];
     int res = getInterpolateIdxs( idxabl, sz, pos, extrapolate, snapdist, p );
     if ( res < 0 )
 	{ ret = mUdf(RT); return false; }
@@ -273,11 +273,11 @@ inline bool interpolateReg( const T& idxabl, int sz, float pos, RT& ret,
 position in the array is pos+offset. */
 
 template <class T,class RT>
-inline bool interpolateRegWithUdfWithOff( const T& idxabl, int64 sz,
-	int64 offset, float pos, RT& ret, bool extrapolate=false,
+inline bool interpolateRegWithUdfWithOff( const T& idxabl, od_int64 sz,
+	od_int64 offset, float pos, RT& ret, bool extrapolate=false,
 	float snapdist=mDefEps )
 {
-    int64 p[4];
+    od_int64 p[4];
     int res = getInterpolateIdxsWithOff<T>( idxabl, sz, offset, pos,
 	    				    extrapolate, snapdist, p );
     if ( res < 0 )

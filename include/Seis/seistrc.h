@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.28 2007-07-17 16:10:17 cvsbert Exp $
+ RCS:		$Id: seistrc.h,v 1.29 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,9 +124,9 @@ public:
 		    , icomp(c)			{}
 
     void	setComponent( int idx )		{ icomp = idx; }
-    float	value( int64 idx ) const	{ return trc.get(idx,icomp); }
+    float	value( od_int64 idx ) const	{ return trc.get(idx,icomp); }
     bool	writable() const		{ return true; }
-    void	setValue( int64 idx, float v )	{ trc.set(idx,v,icomp); }
+    void	setValue( od_int64 idx,float v)	{ trc.set(idx,v,icomp); }
 
 protected:
 

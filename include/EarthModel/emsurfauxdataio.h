@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.15 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:		$Id: emsurfauxdataio.h,v 1.16 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -65,7 +65,7 @@ public:
 protected:
 
     bool			writeInt(int);
-    bool			writeInt64(int64);
+    bool			writeInt64(od_int64);
     bool			writeFloat(float);
     int				dataidx_;
     const EM::Horizon3D&	surf_;
@@ -106,7 +106,7 @@ public:
 
 protected:
     bool			readInt(int&);
-    bool			readInt64(int64&);
+    bool			readInt64(od_int64&);
     bool			readFloat(float&);
     BufferString		dataname_;
     BufferString		datainfo_;
@@ -127,7 +127,7 @@ protected:
 
     std::istream*		stream_;
     DataInterpreter<int>*	intinterpreter_;
-    DataInterpreter<int64>*	int64interpreter_;
+    DataInterpreter<od_int64>*	int64interpreter_;
     DataInterpreter<float>*	floatinterpreter_;
     bool			error_;
 };

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          13/01/2005
- RCS:           $Id: undefarray.h,v 1.1 2006-12-20 17:27:33 cvskris Exp $
+ RCS:           $Id: undefarray.h,v 1.2 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,60 +26,60 @@ public:
     bool	set(const BinDataDesc& desc);
     bool	isOK() const;
 
-    bool	isUdf(const void* ptr, int64 idx) const;
-    void	setUdf(void* ptr, int64 idx) const;
-    void	unSetUdf(void* ptr, int64 idx) const;
+    bool	isUdf(const void* ptr, od_int64 idx) const;
+    void	setUdf(void* ptr, od_int64 idx) const;
+    void	unSetUdf(void* ptr, od_int64 idx) const;
     		/*!<If the value is undef, it is replaced by a similar value
 		    that isn't undef. */
 
 protected:
-    		typedef	bool (*IsUdfFunc)(const void*,int64 idx);
-    		typedef	void (*SetUdfFunc)(void*,int64 idx);
-    		typedef	void (*UnsetUdfFunc)(void*,int64 idx);
+    		typedef	bool (*IsUdfFunc)(const void*,od_int64 idx);
+    		typedef	void (*SetUdfFunc)(void*,od_int64 idx);
+    		typedef	void (*UnsetUdfFunc)(void*,od_int64 idx);
 
     IsUdfFunc		isudf_;
     SetUdfFunc		setudf_;
     UnsetUdfFunc	limitrange_;
 
-    static bool	isUdfUChar(const void*,int64);
-    static void setUdfUChar(void*,int64);
-    static void unsetUdfUChar(void*,int64);
+    static bool	isUdfUChar(const void*,od_int64);
+    static void setUdfUChar(void*,od_int64);
+    static void unsetUdfUChar(void*,od_int64);
 
-    static bool	isUdfChar(const void*,int64);
-    static void setUdfChar(void*,int64);
-    static void unsetUdfChar(void*,int64);
+    static bool	isUdfChar(const void*,od_int64);
+    static void setUdfChar(void*,od_int64);
+    static void unsetUdfChar(void*,od_int64);
 
-    static bool	isUdfUShort(const void*,int64);
-    static void setUdfUShort(void*,int64);
-    static void unsetUdfUShort(void*,int64);
+    static bool	isUdfUShort(const void*,od_int64);
+    static void setUdfUShort(void*,od_int64);
+    static void unsetUdfUShort(void*,od_int64);
 
-    static bool	isUdfShort(const void*,int64);
-    static void setUdfShort(void*,int64);
-    static void unsetUdfShort(void*,int64);
+    static bool	isUdfShort(const void*,od_int64);
+    static void setUdfShort(void*,od_int64);
+    static void unsetUdfShort(void*,od_int64);
 
-    static bool	isUdfUInt32(const void*,int64);
-    static void setUdfUInt32(void*,int64);
-    static void unsetUdfUInt32(void*,int64);
+    static bool	isUdfUInt32(const void*,od_int64);
+    static void setUdfUInt32(void*,od_int64);
+    static void unsetUdfUInt32(void*,od_int64);
 
-    static bool	isUdfInt32(const void*,int64);
-    static void setUdfInt32(void*,int64);
-    static void unsetUdfInt32(void*,int64);
+    static bool	isUdfInt32(const void*,od_int64);
+    static void setUdfInt32(void*,od_int64);
+    static void unsetUdfInt32(void*,od_int64);
 
-    static bool	isUdfUInt64(const void*,int64);
-    static void setUdfUInt64(void*,int64);
-    static void unsetUdfUInt64(void*,int64);
+    static bool	isUdfUInt64(const void*,od_int64);
+    static void setUdfUInt64(void*,od_int64);
+    static void unsetUdfUInt64(void*,od_int64);
 
-    static bool	isUdfInt64(const void*,int64);
-    static void setUdfInt64(void*,int64);
-    static void unsetUdfInt64(void*,int64);
+    static bool	isUdfInt64(const void*,od_int64);
+    static void setUdfInt64(void*,od_int64);
+    static void unsetUdfInt64(void*,od_int64);
 
-    static bool	isUdfFloat(const void*,int64);
-    static void setUdfFloat(void*,int64);
-    static void unsetUdfFloat(void*,int64);
+    static bool	isUdfFloat(const void*,od_int64);
+    static void setUdfFloat(void*,od_int64);
+    static void unsetUdfFloat(void*,od_int64);
 
-    static bool	isUdfDouble(const void*,int64);
-    static void setUdfDouble(void*,int64);
-    static void unsetUdfDouble(void*,int64);
+    static bool	isUdfDouble(const void*,od_int64);
+    static void setUdfDouble(void*,od_int64);
+    static void unsetUdfDouble(void*,od_int64);
 };
 
 #endif

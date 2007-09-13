@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: undefarray.cc,v 1.4 2007-05-10 15:49:53 cvshelene Exp $
+ RCS:           $Id: undefarray.cc,v 1.5 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,34 +59,34 @@ bool UndefArrayHandler::isOK() const
 { return isudf_ && setudf_ && limitrange_; }
 
 
-bool UndefArrayHandler::isUdf(const void* ptr, int64 idx) const
+bool UndefArrayHandler::isUdf(const void* ptr, od_int64 idx) const
 { return isudf_(ptr,idx); }
 
 
-void UndefArrayHandler::setUdf(void* ptr, int64 idx) const
+void UndefArrayHandler::setUdf(void* ptr, od_int64 idx) const
 { setudf_(ptr,idx); }
 
 
-void UndefArrayHandler::unSetUdf(void* ptr, int64 idx) const
+void UndefArrayHandler::unSetUdf(void* ptr, od_int64 idx) const
 { limitrange_(ptr,idx); }
 
 
 #define mImplFuncs( type, udfval, udfreplace, postfix ) \
-bool UndefArrayHandler::isUdf##postfix(const void* ptr,int64 idx) \
+bool UndefArrayHandler::isUdf##postfix(const void* ptr,od_int64 idx) \
 { \
     const type* myptr = (const type*)(ptr); \
     return myptr[idx]==udfval; \
 } \
  \
  \
-void UndefArrayHandler::setUdf##postfix( void* ptr, int64 idx ) \
+void UndefArrayHandler::setUdf##postfix( void* ptr, od_int64 idx ) \
 { \
     type* myptr = (type*)(ptr); \
     myptr[idx] = udfval; \
 } \
  \
  \
-void UndefArrayHandler::unsetUdf##postfix( void* ptr, int64 idx ) \
+void UndefArrayHandler::unsetUdf##postfix( void* ptr, od_int64 idx ) \
 { \
     if ( !isUdf##postfix( ptr, idx ) ) \
 	return; \
@@ -98,21 +98,21 @@ void UndefArrayHandler::unsetUdf##postfix( void* ptr, int64 idx ) \
 
 #define mImplFloatFuncs( type, udfval, udfreplace, postfix ) \
  \
-bool UndefArrayHandler::isUdf##postfix(const void* ptr,int64 idx) \
+bool UndefArrayHandler::isUdf##postfix(const void* ptr,od_int64 idx) \
 { \
     const type* myptr = (const type*)(ptr); \
     return mIsUdf(myptr[idx]); \
 } \
  \
  \
-void UndefArrayHandler::setUdf##postfix( void* ptr, int64 idx ) \
+void UndefArrayHandler::setUdf##postfix( void* ptr, od_int64 idx ) \
 { \
     type* myptr = (type*)(ptr); \
     myptr[idx] = udfval; \
 } \
  \
  \
-void UndefArrayHandler::unsetUdf##postfix( void* ptr, int64 idx ) \
+void UndefArrayHandler::unsetUdf##postfix( void* ptr, od_int64 idx ) \
 { \
     if ( !isUdf##postfix( ptr, idx ) ) \
 	return; \
@@ -126,9 +126,9 @@ mImplFuncs( unsigned char, 255, 254, UChar )
 mImplFuncs( char, 127, 126, Char )
 mImplFuncs( unsigned short, 65535, 65534, UShort )
 mImplFuncs( short, 32767, 32766, Short )
-mImplFuncs( uint32, mUdf(uint32), INT_MAX, UInt32 )
-mImplFuncs( int32, mUdf(int32), INT_MAX, Int32 )
-mImplFuncs( uint64, mUdf(uint64), INT_MAX, UInt64 )
-mImplFuncs( int64, mUdf(int64), mUdf(int64)+1, Int64 )
+mImplFuncs( od_uint32, mUdf(od_uint32), INT_MAX, UInt32 )
+mImplFuncs( od_int32, mUdf(od_int32), INT_MAX, Int32 )
+mImplFuncs( od_uint64, mUdf(od_uint64), INT_MAX, UInt64 )
+mImplFuncs( od_int64, mUdf(od_int64), mUdf(od_int64)+1, Int64 )
 mImplFloatFuncs( float, mUdf(float), 1e29, Float )
 mImplFloatFuncs( double, mUdf(double), 1e29, Double )

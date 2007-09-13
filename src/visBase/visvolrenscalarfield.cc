@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.10 2007-08-29 19:48:19 cvskris Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.11 2007-09-13 19:38:39 cvsnanne Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -109,7 +109,7 @@ void VolumeRenderScalarField::setScalarField( const Array3D<float>* sc )
 			 sc->info().getSize(1)!=sz1_ ||
 			 sc->info().getSize(2)!=sz2_;
 
-    const int64 totalsz = sc->info().getTotalSz();
+    const od_int64 totalsz = sc->info().getTotalSz();
 
     bool doset = false;
     if ( isresize )
@@ -138,7 +138,7 @@ void VolumeRenderScalarField::setScalarField( const Array3D<float>* sc )
 	else
 	{
 	    ArrayNDIter iter( sc->info() );
-	    int64 idx = 0;
+	    od_int64 idx = 0;
 
 	    do
 	    {
@@ -299,7 +299,7 @@ void VolumeRenderScalarField::makeIndices( bool doset )
     if ( !datacache_ )
 	return;
 
-    const int64 totalsz = sz0_*sz1_*sz2_;
+    const od_int64 totalsz = sz0_*sz1_*sz2_;
 
     if ( !indexcache_ )
     {

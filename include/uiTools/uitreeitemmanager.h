@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.31 2007-08-07 04:43:34 cvsnanne Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.32 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -279,7 +279,7 @@ template<class T>
 void inline uiTreeItem::setProperty( const char* propertykey, const T& val )
 {
     if ( typeid(T)==typeid(void*) )
-	properties_.set( propertykey, (int64)val );
+	properties_.set( propertykey, (od_int64)val );
     else
 	properties_.set( propertykey, val );
 }

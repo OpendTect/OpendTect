@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.22 2007-03-30 15:23:54 cvskris Exp $
+ RCS:		$Id: simpnumer.h,v 1.23 2007-09-13 19:38:38 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -322,7 +322,7 @@ inline bool holdsClassValue( const T val, const unsigned int maxclss=50 )
 
 
 template <class T>
-inline bool holdsClassValues( const T* vals, int64 sz,
+inline bool holdsClassValues( const T* vals, od_int64 sz,
 			      const unsigned int maxclss=50,
 			      const unsigned int samplesz=100 )
 {
@@ -337,12 +337,12 @@ inline bool holdsClassValues( const T* vals, int64 sz,
 	return true;
     }
 
-    static int64 seed = mUdf(int64);
+    static od_int64 seed = mUdf(od_int64);
     seed *= seed + 1; // Clumsy but cheap sort-of random generation
 
     for ( int idx=0; idx<samplesz; idx++ )
     {
-	const int64 arridx = ((1+idx) * seed) % samplesz;
+	const od_int64 arridx = ((1+idx) * seed) % samplesz;
 	if ( !holdsClassValue(vals[arridx],maxclss) )
 	    return false;
     }

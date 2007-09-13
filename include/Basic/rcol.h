@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.11 2007-07-27 14:44:14 cvskris Exp $
+ RCS:		$Id: rcol.h,v 1.12 2007-09-13 19:38:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,8 +35,8 @@ public:
     virtual int&	c() 				= 0;
     virtual int		c() const			= 0;
 
-    inline int64	getSerialized() const;
-    inline void		setSerialized( int64 );
+    inline od_int64	getSerialized() const;
+    inline void		setSerialized( od_int64 );
 
     const RCol&		operator+=( const RCol& rc )
 			{ r() += rc.r(); c() += rc.c(); return *this; }
@@ -114,18 +114,18 @@ clss	operator/( int denominator ) const \
 	{ return clss( row/denominator, col/denominator ); }
 
 
-inline int64 RCol::getSerialized() const
+inline od_int64 RCol::getSerialized() const
 {
-    return (((uint64) r() )<<32)+
-	    ((uint64) c() &  0xFFFFFFFF);
+    return (((od_uint64) r() )<<32)+
+	    ((od_uint64) c() &  0xFFFFFFFF);
 }
 
 
 
-inline void RCol::setSerialized( int64 serialized )
+inline void RCol::setSerialized( od_int64 serialized )
 {
     r() = serialized>>32;
-    c() = (int32) (serialized & 0xFFFFFFFF);
+    c() = (od_int32) (serialized & 0xFFFFFFFF);
 }
 
 

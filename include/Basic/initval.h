@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: initval.h,v 1.1 2005-02-23 14:45:12 cvsarend Exp $
+ RCS:           $Id: initval.h,v 1.2 2007-09-13 19:38:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,47 +26,47 @@ public:
 
 
 template<>
-class Init<int16>
+class Init<od_int16>
 {
 public:
-    static int16	val()		{ return 0; }
+    static od_int16	val()		{ return 0; }
 };
 
 template<>
-class Init<uint16>
+class Init<od_uint16>
 {
 public:
-    static uint16	val()		{ return 0; }
-};
-
-
-template<>
-class Init<int32>
-{
-public:
-    static int32	val()		{ return 0; }
-};
-
-template<>
-class Init<uint32>
-{
-public:
-    static uint32	val()		{ return 0; }
+    static od_uint16	val()		{ return 0; }
 };
 
 
 template<>
-class Init<int64>
+class Init<od_int32>
 {
 public:
-    static int64	val()		{ return 0; }
+    static od_int32	val()		{ return 0; }
 };
 
 template<>
-class Init<uint64>
+class Init<od_uint32>
 {
 public:
-    static uint64	val()		{ return 0; }
+    static od_uint32	val()		{ return 0; }
+};
+
+
+template<>
+class Init<od_int64>
+{
+public:
+    static od_int64	val()		{ return 0; }
+};
+
+template<>
+class Init<od_uint64>
+{
+public:
+    static od_uint64	val()		{ return 0; }
 };
 
 

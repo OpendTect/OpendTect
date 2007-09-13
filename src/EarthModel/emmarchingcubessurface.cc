@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Aug 2007
- RCS:           $Id: emmarchingcubessurface.cc,v 1.2 2007-09-10 06:20:55 cvskris Exp $
+ RCS:           $Id: emmarchingcubessurface.cc,v 1.3 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,7 +116,7 @@ protected:
 
     EM::MarchingCubesSurface&	surface_;
     Executor*			exec_;
-    DataInterpreter<int32>*	int32interpreter_;
+    DataInterpreter<od_int32>*	int32interpreter_;
     Conn*			conn_;
     BufferString		errmsg_;
 };
@@ -153,7 +153,7 @@ MarchingCubesSurfaceWriter( EM::MarchingCubesSurface& surface,
     if ( binary )
     {
 	BufferString dcs;
-	int32 dummy;
+	od_int32 dummy;
 	DataCharacteristics(dummy).toString( dcs.buf() );
 	par.set(MarchingCubesSurfaceReader::sKeyInt32DataChar(),
 		dcs.buf() );

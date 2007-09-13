@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	RowCol <-> Coord transform
- RCS:		$Id: rcol2coord.h,v 1.5 2007-02-14 17:31:19 cvskris Exp $
+ RCS:		$Id: rcol2coord.h,v 1.6 2007-09-13 19:38:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ public:
 
 
     bool		set3Pts(const Coord& c0,const Coord& c1,const Coord& c2,
-	    			const RCol& rc0,const RCol& rc1,int32 col2 ); 
+	    			const RCol& rc0,const RCol& rc1,od_int32 col2 );
 			/*!<Sets up the transform using three points.
 			    \note that the third point is assumed to be on
 			    the same row as the first point.

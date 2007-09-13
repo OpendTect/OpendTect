@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.62 2007-08-13 15:15:40 cvshelene Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.63 2007-09-13 19:38:39 cvsnanne Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -304,9 +304,9 @@ bool IOPar::get( const char* s, type& res ) const \
 }
 
 get1Val(int,strtol(ptr, &endptr, 0));
-get1Val(uint32,strtoul(ptr, &endptr, 0));
-get1Val(int64,strtoll(ptr, &endptr, 0));
-get1Val(uint64,strtoull(ptr, &endptr, 0));
+get1Val(od_uint32,strtoul(ptr, &endptr, 0));
+get1Val(od_int64,strtoll(ptr, &endptr, 0));
+get1Val(od_uint64,strtoull(ptr, &endptr, 0));
 
 
 template <class T>
@@ -341,19 +341,19 @@ bool IOPar::get( const char* s, TypeSet<int>& res ) const
 }
 
 
-bool IOPar::get( const char* s, TypeSet<uint32>& res ) const
+bool IOPar::get( const char* s, TypeSet<od_uint32>& res ) const
 {
     return iopget_typeset( *this, s, res );
 }
 
 
-bool IOPar::get( const char* s, TypeSet<int64>& res ) const
+bool IOPar::get( const char* s, TypeSet<od_int64>& res ) const
 {
     return iopget_typeset( *this, s, res );
 }
 
 
-bool IOPar::get( const char* s, TypeSet<uint64>& res ) const
+bool IOPar::get( const char* s, TypeSet<od_uint64>& res ) const
 {
     return iopget_typeset( *this, s, res );
 }
@@ -702,15 +702,15 @@ void IOPar::set( const char* keyw, const TypeSet<int>& vals )
 { return iopset_typeset( *this, keyw, vals ); }
 
 
-void IOPar::set( const char* keyw, const TypeSet<uint32>& vals ) 
+void IOPar::set( const char* keyw, const TypeSet<od_uint32>& vals ) 
 { return iopset_typeset( *this, keyw, vals ); }
 
 
-void IOPar::set( const char* keyw, const TypeSet<int64>& vals )
+void IOPar::set( const char* keyw, const TypeSet<od_int64>& vals )
 { return iopset_typeset( *this, keyw, vals ); }
 
 
-void IOPar::set( const char* keyw, const TypeSet<uint64>& vals )
+void IOPar::set( const char* keyw, const TypeSet<od_uint64>& vals )
 { return iopset_typeset( *this, keyw, vals ); }
 
 
@@ -729,9 +729,9 @@ void IOPar::set( const char* keyw, type val ) \
 }
 
 mSet1Val( int );
-mSet1Val( uint32 );
-mSet1Val( int64 );
-mSet1Val( uint64 );
+mSet1Val( od_uint32 );
+mSet1Val( od_int64 );
+mSet1Val( od_uint64 );
 mSet1Val( float );
 mSet1Val( double );
 
@@ -744,9 +744,9 @@ void IOPar::set( const char* s, type v1, type v2 ) \
 }
 
 mSet2Val( int );
-mSet2Val( uint32 );
-mSet2Val( int64 );
-mSet2Val( uint64 );
+mSet2Val( od_uint32 );
+mSet2Val( od_int64 );
+mSet2Val( od_uint64 );
 mSet2Val( float );
 mSet2Val( double );
 
@@ -760,9 +760,9 @@ void IOPar::set( const char* s, type v1, type v2, type v3 ) \
 }
 
 mSet3Val( int );
-mSet3Val( uint32 );
-mSet3Val( int64 );
-mSet3Val( uint64 );
+mSet3Val( od_uint32 );
+mSet3Val( od_int64 );
+mSet3Val( od_uint64 );
 mSet3Val( float );
 mSet3Val( double );
 
@@ -777,9 +777,9 @@ void IOPar::set( const char* s, type v1, type v2, type v3, type v4 ) \
 }
 
 mSet4Val( int );
-mSet4Val( uint32 );
-mSet4Val( int64 );
-mSet4Val( uint64 );
+mSet4Val( od_uint32 );
+mSet4Val( od_int64 );
+mSet4Val( od_uint64 );
 mSet4Val( float );
 mSet4Val( double );
 

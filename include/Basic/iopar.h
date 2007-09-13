@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.44 2007-08-13 15:15:40 cvshelene Exp $
+ RCS:		$Id: iopar.h,v 1.45 2007-09-13 19:38:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,9 +99,9 @@ public:
 			//!< returns null if not found
 
     bool		get(const char*,int&) const;
-    bool		get(const char*,uint32&) const;
-    bool		get(const char*,int64&) const;
-    bool		get(const char*,uint64&) const;
+    bool		get(const char*,od_uint32&) const;
+    bool		get(const char*,od_int64&) const;
+    bool		get(const char*,od_uint64&) const;
     bool		get(const char*,int&,int&) const;
     inline bool		get( const char* k, float& v ) const
 			{ return getSc(k,v,1,false); }
@@ -127,9 +127,9 @@ public:
     bool		get(const char*,int&,int&,float&) const;
 
     bool		get(const char*,TypeSet<int>&) const;
-    bool		get(const char*,TypeSet<uint32>&) const;
-    bool		get(const char*,TypeSet<int64>&) const;
-    bool		get(const char*,TypeSet<uint64>&) const;
+    bool		get(const char*,TypeSet<od_uint32>&) const;
+    bool		get(const char*,TypeSet<od_int64>&) const;
+    bool		get(const char*,TypeSet<od_uint64>&) const;
     bool		get(const char*,TypeSet<double>&) const;
     bool		get(const char*,TypeSet<float>&) const;
 
@@ -173,9 +173,9 @@ public:
     void		set(const char*,type,type,type,type);
 
 			mSet(int);
-			mSet(uint32);
-			mSet(int64);
-			mSet(uint64);
+			mSet(od_uint32);
+			mSet(od_int64);
+			mSet(od_uint64);
 			mSet(float);
 			mSet(double);
 #undef mSet
@@ -200,9 +200,9 @@ public:
     void		set(const char*,const BufferStringSet&);
 
     void		set(const char*,const TypeSet<int>&);
-    void		set(const char*,const TypeSet<uint32>&);
-    void		set(const char*,const TypeSet<int64>&);
-    void		set(const char*,const TypeSet<uint64>&);
+    void		set(const char*,const TypeSet<od_uint32>&);
+    void		set(const char*,const TypeSet<od_int64>&);
+    void		set(const char*,const TypeSet<od_uint64>&);
     void		set(const char*,const TypeSet<double>&);
     void		set(const char*,const TypeSet<float>&);
 

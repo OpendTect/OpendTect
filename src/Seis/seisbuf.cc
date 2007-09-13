@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.32 2007-03-12 10:59:35 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.33 2007-09-13 19:38:39 cvsnanne Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -295,11 +295,11 @@ int getSize( int dim ) const
 // Mandatory functions ... why?
 bool setSize( int, int ) { return false; }
 // Are these really necessary?
-uint64 getMemPos( const int* ) const { return 0; }
+od_uint64 getMemPos( const int* ) const { return 0; }
 bool validPos( const int* ) const { return false; }
-uint64 getMemPos( int ) const { return 0; }
+od_uint64 getMemPos( int ) const { return 0; }
 bool validPos( int ) const { return false; }
-uint64 getMemPos( int, int ) const { return 0; }
+od_uint64 getMemPos( int, int ) const { return 0; }
 bool validPos( int, int ) const { return false; }
 
     const SeisTrcBuf&	buf_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2002
- RCS:           $Id: cubesampling.h,v 1.31 2007-04-11 14:55:47 cvshelene Exp $
+ RCS:           $Id: cubesampling.h,v 1.32 2007-09-13 19:38:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,7 +152,7 @@ public:
     inline int		nrInl() const		{ return hrg.nrInl(); }
     inline int		nrCrl() const		{ return hrg.nrCrl(); }
     inline int		nrZ() const		{ return zrg.nrSteps() + 1; }
-    int64		totalNr() const;
+    od_int64		totalNr() const;
     inline int		size( Dir d ) const	{ return d == Inl ? nrInl()
     						      : (d == Crl ? nrCrl()
 							          : nrZ()); }

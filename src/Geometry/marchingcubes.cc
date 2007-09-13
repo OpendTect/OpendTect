@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.4 2007-09-07 20:43:18 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.5 2007-09-13 19:38:39 cvsnanne Exp $";
 
 #include "marchingcubes.h"
 
@@ -98,7 +98,7 @@ class MarchingCubesSurfaceReader : public Executor
 {
 public:
 MarchingCubesSurfaceReader( std::istream& strm, MarchingCubesSurface& s,
-			    const DataInterpreter<int32>* dt )
+			    const DataInterpreter<od_int32>* dt )
     : Executor("MarchingCubes surface writer")
     , surface_( s )
     , strm_( strm )
@@ -166,7 +166,7 @@ protected:
     int                 	totalnr_;
     MarchingCubesSurface&	surface_;
     std::istream&		strm_;
-    const DataInterpreter<int32>* dt_;
+    const DataInterpreter<od_int32>* dt_;
 };
 
 
@@ -402,7 +402,7 @@ Executor* MarchingCubesSurface::writeTo( std::ostream& strm, bool binary ) const
 
 
 Executor* MarchingCubesSurface::readFrom( std::istream& strm,
-	const DataInterpreter<int32>* dt )
+	const DataInterpreter<od_int32>* dt )
 {
     return new ::MarchingCubesSurfaceReader( strm, *this, dt );
 }

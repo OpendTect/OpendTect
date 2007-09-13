@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jun 2003
- RCS:           $Id: emsurfauxdataio.cc,v 1.30 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:           $Id: emsurfauxdataio.cc,v 1.31 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ dgbSurfDataWriter::dgbSurfDataWriter( const Horizon3D& surf,int dataidx,
 	DataCharacteristics(idummy).toString( dc.buf() );
 	par.set( sKeyIntDataChar(), dc );
 
-	int64 lldummy;
+	od_int64 lldummy;
 	DataCharacteristics(lldummy).toString( dc.buf() );
 	par.set( sKeyInt64DataChar(), dc );
 
@@ -204,7 +204,7 @@ bool dgbSurfDataWriter::writeInt( int val )
 }
 
 
-bool dgbSurfDataWriter::writeInt64( int64 val )
+bool dgbSurfDataWriter::writeInt64( od_int64 val )
 {
     if ( binary_ )
 	stream_->write( (char*) &val, sizeof(val) );
@@ -290,7 +290,7 @@ dgbSurfDataReader::dgbSurfDataReader( const char* filename )
 	    return;
 	}
 	writtendatachar.set( dc.buf() );
-	int64interpreter_ = new DataInterpreter<int64>( writtendatachar );
+	int64interpreter_ = new DataInterpreter<od_int64>( writtendatachar );
 					     
 	if ( !par.get(dgbSurfDataWriter::sKeyFloatDataChar(),dc) )
 	{
@@ -393,7 +393,7 @@ int dgbSurfDataReader::nextStep()
 
 
 static int sizeofint = sizeof(int);
-static int sizeofint64 = sizeof(int64);
+static int sizeofint64 = sizeof(od_int64);
 static int sizeoffloat = sizeof(float);
 
 #define mReadData(interpreter,size) \
@@ -411,7 +411,7 @@ static int sizeoffloat = sizeof(float);
 bool dgbSurfDataReader::readInt( int& res )
 { mReadData(intinterpreter_,sizeofint) }
 
-bool dgbSurfDataReader::readInt64( int64& res )
+bool dgbSurfDataReader::readInt64( od_int64& res )
 { mReadData(int64interpreter_,sizeofint64) }
 
 bool dgbSurfDataReader::readFloat( float& res )

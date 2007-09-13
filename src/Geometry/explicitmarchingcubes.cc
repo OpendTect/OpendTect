@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.7 2007-09-06 20:41:23 cvskris Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.8 2007-09-13 19:38:39 cvsnanne Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -39,10 +39,10 @@ public:
 			}
 
     Threads::Mutex	lock_;
-    TypeSet<int32>	coordindices_;
+    TypeSet<int>	coordindices_;
 
     CoordList*		normallist_;
-    TypeSet<int32>	normalindices_;
+    TypeSet<int>	normalindices_;
 };
 
 class ExplicitMarchingCubesSurfaceUpdater : public ParallelTask
@@ -124,7 +124,7 @@ public:
 
 		if ( updatecoords_ )
 		{
-		    int32 res[3];
+		    int res[3];
 		    if ( !surface_.updateCoordinates( pos ) )
 		    {
 			pErrMsg("Hugh");
@@ -486,7 +486,7 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 		break;
 	}
 
-	int32 indices[3];
+	int indices[3];
 	if ( !getCoordIndices( neighborpos, indices ) )
 	{
 	    mEndTriangleStrip;
@@ -547,9 +547,9 @@ bool ExplicitMarchingCubesSurface::getCoordIndices( const int* pos, int* res )
 	return false;
     }
 
-    int32* indices = &coordindices_.getRef( cidxs, 0 );
+    int* indices = &coordindices_.getRef( cidxs, 0 );
 
-    memcpy( res, indices, sizeof(int32)*3 );
+    memcpy( res, indices, sizeof(int)*3 );
     coordindiceslock_.readUnLock();
     return true;
 }
@@ -607,7 +607,7 @@ bool ExplicitMarchingCubesSurface::updateCoordinates( const int* pos )
 	if ( coordindiceslock_.convToWriteLock() ||
 	     !coordindices_.findFirst( pos, cidxs ) )
 	{
-	    int32 indices[] = { -1, -1, -1 };
+	    int indices[] = { -1, -1, -1 };
 	    if ( !updateCoordinate( pos, indices ) )
 	    {
 		coordindiceslock_.writeUnLock();
@@ -621,7 +621,7 @@ bool ExplicitMarchingCubesSurface::updateCoordinates( const int* pos )
 	return true;
     }
 
-    int32* indices = &coordindices_.getRef( cidxs, 0 );
+    int* indices = &coordindices_.getRef( cidxs, 0 );
     const int res = updateCoordinate( pos, indices );
     coordindiceslock_.readUnLock();
 

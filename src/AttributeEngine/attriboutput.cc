@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.58 2007-03-29 08:59:31 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.59 2007-09-13 19:38:39 cvsnanne Exp $";
 
 #include "attriboutput.h"
 
@@ -188,7 +188,7 @@ void DataCubesOutput::collectData( const DataHolder& data, float refstep,
 		    	     datacubes_->getCube(desout).getStorage() );
 	    const char elemsz = cmvs->dataDesc().nrBytes();
 
-	    const int64 destoffset = transrg.start-datacubes_->z0 +
+	    const od_int64 destoffset = transrg.start-datacubes_->z0 +
 		datacubes_->getCube(desout).info().getOffset(inlidx,crlidx,0);
 
 	    char* dest = deststor->storArr() + destoffset * elemsz;

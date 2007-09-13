@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emposid.h,v 1.21 2006-12-22 10:07:57 cvsjaap Exp $
+ RCS:		$Id: emposid.h,v 1.22 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -22,9 +22,9 @@ class IOPar;
 namespace EM
 {
 
-typedef int32 ObjectID;
-typedef int16 SectionID;
-typedef int64 SubID;
+typedef od_int32 ObjectID;
+typedef od_int16 SectionID;
+typedef od_int64 SubID;
 
 
 /*!\brief

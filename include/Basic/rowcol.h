@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.21 2005-01-13 11:59:26 nanne Exp $
+ RCS:		$Id: rowcol.h,v 1.22 2007-09-13 19:38:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,14 +23,14 @@ class RowCol : public RCol
 {
 public:
 		RowCol( int row_, int col_ ) : row(row_), col(col_)	{}
-		RowCol( const RCol& rc ) : row( rc.r() ), col ( rc.c() )			{}
-		RowCol( const int64& ser ) { setSerialized(ser); }
-		RowCol() : row( 0 ), col ( 0 )			{}
+		RowCol( const RCol& rc ) : row( rc.r() ), col ( rc.c() ){}
+		RowCol( const od_int64& ser )	{ setSerialized(ser); }
+		RowCol() : row( 0 ), col ( 0 )	{}
 
-    int&	r() { return row; }
-    int		r() const { return row; }
-    int&	c() { return col; }
-    int		c() const { return col; }
+    int&	r()				{ return row; }
+    int		r() const			{ return row; }
+    int&	c()				{ return col; }
+    int		c() const			{ return col; }
 
 		/* Implements +, -, * and other operators. See the documentation
 		   for details */
@@ -58,14 +58,14 @@ inline int rc2int( const RowCol& rc )
 }
 
 
-inline int64 rc2int64( const RowCol& rc )
+inline od_int64 rc2int64( const RowCol& rc )
 {
-    return (((uint64) rc.row)<<32)+
-	    ((uint64) rc.col & 0xFFFFFFFF);
+    return (((od_uint64) rc.row)<<32)+
+	    ((od_uint64) rc.col & 0xFFFFFFFF);
 }
 
 
-inline RowCol int642rc( const int64& ll )
+inline RowCol int642rc( const od_int64& ll )
 {
     return RowCol( ll>>32, ((int) (ll& 0xFFFFFFFF)) );
 }

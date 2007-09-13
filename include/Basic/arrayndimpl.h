@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.49 2007-08-29 19:50:09 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.50 2007-09-13 19:38:38 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -37,7 +37,7 @@ public:
     if ( strm_->fail() ) \
 	{ mNonConstMem(close()); mNonConstMem(streamfail_) = true; return T();}
 
-    T		value( int64 pos ) const
+    T		value( od_int64 pos ) const
 		{
 		    Threads::MutexLocker mlock( mutex_ );
 		    if ( !strm_ ) const_cast<ArrayNDFileStor*>(this)->open();
@@ -57,7 +57,7 @@ public:
 #define mChckStrm \
     if ( strm_->fail() ) { close(); streamfail_ = true; return; }
 
-    void	setValue( int64 pos, T val ) 
+    void	setValue( od_int64 pos, T val ) 
 		{
 		    Threads::MutexLocker mlock( mutex_ );
 		    if ( !strm_ ) open();
@@ -73,7 +73,7 @@ public:
     const T*	arr() const			{ return 0; }
     T*		arr()				{ return 0; }
 
-    bool	setSize( int64 nsz )
+    bool	setSize( od_int64 nsz )
 		{
 		    Threads::MutexLocker mlock( mutex_ );
 		    if ( strm_ ) close();
@@ -83,9 +83,9 @@ public:
 		    return strm_;
 		}
 
-    int64	size() const { return sz_; }
+    od_int64	size() const { return sz_; }
 
-		ArrayNDFileStor( int64 nsz )
+		ArrayNDFileStor( od_int64 nsz )
 		    : sz_( nsz )
 		    , strm_( 0 )
 		    , name_(FilePath::getTempName("dat"))
@@ -160,7 +160,7 @@ protected:
 
     std::fstream*		strm_;
     BufferString		name_;
-    int64			sz_;
+    od_int64			sz_;
     bool			openfailed_;
     bool			streamfail_;
     mutable Threads::Mutex	mutex_;

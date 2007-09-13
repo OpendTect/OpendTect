@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndinfo.h,v 1.9 2007-04-23 10:48:48 cvshelene Exp $
+ RCS:		$Id: arrayndinfo.h,v 1.10 2007-09-13 19:38:38 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -30,17 +30,17 @@ public:
     virtual int		getSize(int dim) const				= 0;
     virtual bool	setSize(int dim,int sz);
  
-    virtual uint64	getTotalSz() const;
-    virtual uint64	getOffset(const int*) const;
+    virtual od_uint64	getTotalSz() const;
+    virtual od_uint64	getOffset(const int*) const;
     			/*!<Returns offset in a 'flat' array.*/
     virtual bool	validPos(const int*) const;
     			/*!<Checks if the position exists. */
-    virtual void	getArrayPos(uint64, int*) const;
+    virtual void	getArrayPos(od_uint64, int*) const;
     			/*!<Given an offset, what is the ND position. */
 
 protected:
 
-    uint64		calcTotalSz() const;
+    od_uint64		calcTotalSz() const;
 };
 
 
@@ -63,7 +63,7 @@ public:
 
     int			getNDim() const				{ return 1; }
 
-    virtual uint64	getOffset(int) const;
+    virtual od_uint64	getOffset(int) const;
     			/*!<Returns offset in a 'flat' array.*/
     virtual bool	validPos(int pos) const;
 
@@ -76,7 +76,7 @@ public:
 
     int				getNDim() const			{ return 2; }
 
-    virtual uint64		getOffset(int,int) const;
+    virtual od_uint64		getOffset(int,int) const;
 				/*!<Returns offset in a 'flat' array.*/
     virtual bool		validPos(int,int) const;
 
@@ -89,7 +89,7 @@ public:
 
     int				getNDim() const			{ return 3; }
 
-    virtual uint64		getOffset(int, int, int) const;
+    virtual od_uint64		getOffset(int, int, int) const;
 				/*!<Returns offset in a 'flat' array.*/
     virtual bool		validPos(int,int,int) const;
 
@@ -107,7 +107,7 @@ public:
 
     inline int		getSize(int dim) const; 
     bool		setSize(int dim,int nsz);
-    uint64		getTotalSz() const { return sz_; }
+    od_uint64		getTotalSz() const { return sz_; }
 
 protected:
 
@@ -127,16 +127,16 @@ public:
     inline int		getSize(int dim) const;
     bool		setSize(int dim,int nsz);
 
-    uint64		getTotalSz() const { return cachedtotalsz_; }
+    od_uint64		getTotalSz() const { return cachedtotalsz_; }
     
-    virtual inline uint64	getOffset(int,int) const;
+    virtual inline od_uint64	getOffset(int,int) const;
 				/*!<Returns offset in a 'flat' array.*/
 
 protected:
 
     int                 sz0_;
     int                 sz1_;
-    uint64		cachedtotalsz_;
+    od_uint64		cachedtotalsz_;
 };
 
 
@@ -151,9 +151,9 @@ public:
 
     inline int		getSize(int dim) const; 
     bool                setSize(int dim,int nsz);
-    uint64		getTotalSz() const { return cachedtotalsz_; }
+    od_uint64		getTotalSz() const { return cachedtotalsz_; }
 
-    virtual inline uint64	getOffset(int, int, int) const;
+    virtual inline od_uint64	getOffset(int, int, int) const;
 				/*!<Returns offset in a 'flat' array.*/
 
 protected:
@@ -161,7 +161,7 @@ protected:
     int                 sz0_;
     int                 sz1_;
     int                 sz2_;
-    uint64		cachedtotalsz_;
+    od_uint64		cachedtotalsz_;
 };  
 
 
@@ -178,7 +178,7 @@ public:
 
 			~ArrayNDInfoImpl();
 
-    uint64		getTotalSz() const { return cachedtotalsz_; }
+    od_uint64		getTotalSz() const { return cachedtotalsz_; }
     int                 getNDim() const;
     int                 getSize(int dim) const;
     bool                setSize(int dim,int nsz);
@@ -188,7 +188,7 @@ protected:
     int*		sizes;
     int 		ndim;
 
-    uint64		cachedtotalsz_;
+    od_uint64		cachedtotalsz_;
 };
 
 
@@ -233,9 +233,9 @@ inline int Array2DInfoImpl::getSize( int dim ) const
 }
 
 
-inline uint64 Array2DInfoImpl::getOffset( int p0, int p1 ) const
+inline od_uint64 Array2DInfoImpl::getOffset( int p0, int p1 ) const
 {
-    return (uint64) p0 * sz1_ + p1;
+    return (od_uint64) p0 * sz1_ + p1;
 }
 
 
@@ -245,9 +245,9 @@ inline int Array3DInfoImpl::getSize( int dim ) const
 }
 
 
-inline uint64 Array3DInfoImpl::getOffset( int p0, int p1, int p2 ) const
+inline od_uint64 Array3DInfoImpl::getOffset( int p0, int p1, int p2 ) const
 {
-    return (uint64) p0 * sz2_ * sz1_ + p1 * sz2_ + p2;
+    return (od_uint64) p0 * sz2_ * sz1_ + p1 * sz2_ + p2;
 }
 
 

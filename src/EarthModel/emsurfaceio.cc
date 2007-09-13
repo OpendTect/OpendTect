@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.92 2007-09-04 17:03:18 cvsnanne Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.93 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,12 +153,12 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 
     mGetDataChar( int, sKeyInt16DataChar(), int16interpreter_ );
     mGetDataChar( int, sKeyInt32DataChar(), int32interpreter_ );
-    mGetDataChar( int64, sKeyInt64DataChar(), int64interpreter_ );
+    mGetDataChar( od_int64, sKeyInt64DataChar(), int64interpreter_ );
     mGetDataChar( float, sKeyFloatDataChar(), floatinterpreter_ );
 
     if ( version_==3 )
     {
-	const int64 nrsectionsoffset = readInt64( strm );
+	const od_int64 nrsectionsoffset = readInt64( strm );
 	if ( !strm || !nrsectionsoffset )
 	{ msg_ = sMsgReadError(); return false; }
 
@@ -168,7 +168,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 
 	for ( int idx=0; idx<nrsections; idx++ )
 	{
-	    const int64 off = readInt64( strm );
+	    const od_int64 off = readInt64( strm );
 	    if ( !off ) { msg_ = sMsgReadError(); return false; }
 	    sectionoffsets_ += off;
 	}
@@ -1010,7 +1010,7 @@ int dgbSurfaceReader::readInt32(std::istream& strm) const
 }
 
 
-int64 dgbSurfaceReader::readInt64(std::istream& strm) const
+od_int64 dgbSurfaceReader::readInt64(std::istream& strm) const
 {
     if ( int64interpreter_ )
     {
@@ -1118,7 +1118,7 @@ dgbSurfaceWriter::~dgbSurfaceWriter()
     if ( conn_ )
     {
 	std::ostream& strm = conn_->oStream();
-	const int64 nrsectionsoffset = strm.tellp();
+	const od_int64 nrsectionsoffset = strm.tellp();
 	writeInt32( strm, sectionsel_.size(), sEOL() );
 
 	for ( int idx=0; idx<sectionoffsets_.size(); idx++ )
@@ -1128,7 +1128,7 @@ dgbSurfaceWriter::~dgbSurfaceWriter()
 	    writeInt32( strm, sectionsel_[idx], sEOL() );
 
 
-	const int64 secondparoffset = strm.tellp();
+	const od_int64 secondparoffset = strm.tellp();
 	strm.seekp( nrsectionsoffsetoffset_, std::ios::beg );
 	writeInt64( strm, nrsectionsoffset, sEOL() );
 	strm.seekp( secondparoffset, std::ios::beg );
@@ -1310,9 +1310,9 @@ int dgbSurfaceWriter::nextStep()
 	if ( binary_ )
 	{
 	    BufferString dc;
-	    mSetDc( int32, dgbSurfaceReader::sKeyInt32DataChar() );
+	    mSetDc( od_int32, dgbSurfaceReader::sKeyInt32DataChar() );
 	    mSetDc( unsigned short, dgbSurfaceReader::sKeyInt16DataChar() );
-	    mSetDc( int64, dgbSurfaceReader::sKeyInt64DataChar() );
+	    mSetDc( od_int64, dgbSurfaceReader::sKeyInt64DataChar() );
 	    mSetDc( float, dgbSurfaceReader::sKeyFloatDataChar() );
 	}
 
@@ -1413,7 +1413,7 @@ bool dgbSurfaceWriter::writeInt16( std::ostream& strm, unsigned short val,
 }
 
 
-bool dgbSurfaceWriter::writeInt32( std::ostream& strm, int32 val,
+bool dgbSurfaceWriter::writeInt32( std::ostream& strm, od_int32 val,
 				   const char* post) const
 {
     if ( binary_ )
@@ -1425,7 +1425,7 @@ bool dgbSurfaceWriter::writeInt32( std::ostream& strm, int32 val,
 }
 
 
-bool dgbSurfaceWriter::writeInt64( std::ostream& strm, int64 val,
+bool dgbSurfaceWriter::writeInt64( std::ostream& strm, od_int64 val,
 				   const char* post) const
 {
     if ( binary_ )

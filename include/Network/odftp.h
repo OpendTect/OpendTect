@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: odftp.h,v 1.1 2006-08-17 19:49:36 cvsnanne Exp $
+ RCS:           $Id: odftp.h,v 1.2 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,8 +36,8 @@ protected:
     QFtp*		qftp_;
 
     bool		error_;
-    int64		nrdone_;
-    int64		totalnr_;
+    od_int64		nrdone_;
+    od_int64		totalnr_;
     int			commandid_;
     int			connectionstate_;
 };

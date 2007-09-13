@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: msvcdefs.h,v 1.2 2006-07-26 15:34:03 cvsnanne Exp $
+ RCS:		$Id: msvcdefs.h,v 1.3 2007-09-13 19:38:38 cvsnanne Exp $
 ________________________________________________________________________
 
  For use with Microsoft Visual C++ 5.0 and 6.0
@@ -21,11 +21,6 @@ ________________________________________________________________________
 
 #define strncasecmp	strnicmp
 #define strcasecmp	stricmp
-
-typedef __int64		int64_t;
-#define __uint64	unsigned __int64
-typedef __uint64	uint64_t;
-
 
 // Index variable's scope is non-ANSI. This corrects that idiocy.
 #define for				if (0) ; else for

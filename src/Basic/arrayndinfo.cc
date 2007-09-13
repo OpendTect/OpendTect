@@ -4,7 +4,7 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* rcsID = "$Id: arrayndinfo.cc,v 1.9 2007-04-23 10:48:48 cvshelene Exp $";
+static const char* rcsID = "$Id: arrayndinfo.cc,v 1.10 2007-09-13 19:38:39 cvsnanne Exp $";
 
 #include <arrayndinfo.h>
 
@@ -13,15 +13,15 @@ bool ArrayNDInfo::setSize(int dim, int sz)
 { return false; }
 
 
-uint64 ArrayNDInfo::getTotalSz() const
+od_uint64 ArrayNDInfo::getTotalSz() const
 { return calcTotalSz(); }
 
 
-uint64 ArrayNDInfo::getOffset( const int* pos ) const
+od_uint64 ArrayNDInfo::getOffset( const int* pos ) const
 {
     const int ndim = getNDim();
-    uint64 unitsize = 1;
-    uint64 res = 0;
+    od_uint64 unitsize = 1;
+    od_uint64 res = 0;
 
     for ( int idx=ndim-1; idx>=0; idx-- )
     {
@@ -46,7 +46,7 @@ bool ArrayNDInfo::validPos( const int* pos ) const
 }
 
 
-void ArrayNDInfo::getArrayPos( uint64 mempos, int* pos ) const
+void ArrayNDInfo::getArrayPos( od_uint64 mempos, int* pos ) const
 {
     const int ndim = getNDim();
     for ( int idx=0; idx<ndim; idx++ )
@@ -61,10 +61,10 @@ void ArrayNDInfo::getArrayPos( uint64 mempos, int* pos ) const
 }
 	
 
-uint64 ArrayNDInfo::calcTotalSz() const
+od_uint64 ArrayNDInfo::calcTotalSz() const
 {
     const int ndim = getNDim();
-    uint64 res = 1;
+    od_uint64 res = 1;
 
     for ( int idx=0; idx<ndim; idx++ )
 	res *= getSize( idx );
@@ -73,7 +73,7 @@ uint64 ArrayNDInfo::calcTotalSz() const
 }
 
 
-uint64 Array1DInfo::getOffset( int pos ) const
+od_uint64 Array1DInfo::getOffset( int pos ) const
 { return pos; }
 
 
@@ -81,7 +81,7 @@ bool Array1DInfo::validPos( int pos ) const
 { return ArrayNDInfo::validPos( &pos ); }
 
 
-uint64 Array2DInfo::getOffset( int p0, int p1 ) const
+od_uint64 Array2DInfo::getOffset( int p0, int p1 ) const
 {
     const int pos[2] = { p0, p1 };
     return ArrayNDInfo::getOffset( pos );
@@ -95,7 +95,7 @@ bool Array2DInfo::validPos( int p0, int p1 ) const
 }
 
 
-uint64 Array3DInfo::getOffset( int p0, int p1, int p2 ) const
+od_uint64 Array3DInfo::getOffset( int p0, int p1, int p2 ) const
 {
     const int pos[3] = { p0, p1, p2 };
     return ArrayNDInfo::getOffset( pos );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: rcol2coord.cc,v 1.5 2006-12-22 10:01:35 cvsjaap Exp $
+ RCS:           $Id: rcol2coord.cc,v 1.6 2007-09-13 19:38:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 bool RCol2Coord::set3Pts( const Coord& c0, const Coord& c1,
 			  const Coord& c2, const RCol& rc0,
-			  const RCol& rc1, int32 col2 )
+			  const RCol& rc1, od_int32 col2 )
 {
     if ( rc1.r() == rc0.r() )
 	return false;
@@ -24,10 +24,10 @@ bool RCol2Coord::set3Pts( const Coord& c0, const Coord& c1,
         return false;
 
     RCTransform nxtr, nytr;
-    int32 cold = rc0.c() - col2;
+    od_int32 cold = rc0.c() - col2;
     nxtr.c = ( c0.x - c2.x ) / cold;
     nytr.c = ( c0.y - c2.y ) / cold;
-    const int32 rowd = rc0.r() - rc1.r();
+    const od_int32 rowd = rc0.r() - rc1.r();
     cold = rc0.c() - rc1.c();
     nxtr.b = ( c0.x - c1.x ) / rowd - ( nxtr.c * cold / rowd );
     nytr.b = ( c0.y - c1.y ) / rowd - ( nytr.c * cold / rowd );
