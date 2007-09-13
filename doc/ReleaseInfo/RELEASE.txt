@@ -3,6 +3,11 @@ OpendTect V3.1.x : Release info
 For an explanation of the release strategy, see bottom.
 In general, all fixes in the stable 3.0 are also applied in the 3.1 releases.
 
+V3.1.4a: Sep 13, 2007
+  * Fixed flatview VD data display
+  * Enabled stratigraphic framework editor
+  * Added About-RELEASE.txt help menu
+
 V3.1.4: Sep 11, 2007
   * Many extensions and bug fixes
 
@@ -44,4 +49,4 @@ Development release has odd release numbers: 3.1
 
 Bert Bril and Nanne Hemstra - dGB
 
-[$Id: RELEASE.txt,v 1.1 2007-09-12 11:56:12 cvsbert Exp $]
+[$Id: RELEASE.txt,v 1.2 2007-09-13 08:00:37 cvsdgb Exp $]
