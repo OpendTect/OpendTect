@@ -7,16 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: explicitmarchingcubes.h,v 1.5 2007-09-13 19:38:39 cvsnanne Exp $
+ RCS:           $Id: explicitmarchingcubes.h,v 1.6 2007-09-13 21:46:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "indexedshape.h"
 #include "multidimstorage.h"
 #include "thread.h"
 
 class MarchingCubesSurface;
-class ExplicitMarchingCubesSurfaceBucket;
 template <class T> class SamplingData;
 template <class T> class Interval;
 class CoordList;
@@ -24,7 +24,7 @@ class CoordList;
 /*!A triangulated representation of an MarchingCubesSurface. */
 
 
-class ExplicitMarchingCubesSurface
+class ExplicitMarchingCubesSurface : public Geometry::IndexedShape
 {
 public:
 			ExplicitMarchingCubesSurface(MarchingCubesSurface*);
@@ -33,11 +33,9 @@ public:
     void			setSurface(MarchingCubesSurface*);
     MarchingCubesSurface*	getSurface() { return surface_; }
     const MarchingCubesSurface*	getSurface() const { return surface_; }
-    void			setCoordList(CoordList* cl, CoordList* nl=0 );
-    void			setRightHandedNormals(bool yn=true);
     void			removeAll();
 
-    bool			update();
+    bool			update(bool forceall);
     bool			update(const Interval<int>& xrg,
 	    			       const Interval<int>& yrg,
 	    			       const Interval<int>& zrg);
@@ -49,27 +47,9 @@ public:
 				    scaled with these scales. */
     const SamplingData<float>&	getAxisScale( int dim ) const;
 
-    int				nrIndicesSets() const;
-    				//!<Number is the same for both coords & normals
-    int				nrCoordIndices(int set) const;
-    				/*!<Check with needsUpdate() if indices
-				    are up to date. */
-    const int*			getCoordIndices(int set) const;
-				/*!<Check with needsUpdate() if indices are
-				    up to date. */
-    int				nrNormalIndices(int set) const;
-    				 /*!<Check with needsUpdate() if indices
-				     are up to date. Normals are generated
-				     per face (triangle). */
-    const int*			getNormalIndices(int set) const;
-				/*!<Check with needsUpdate() if indices are
-				    up to date.Normals are generated
-				    per face (triangle).*/
-
-    bool			needsUpdate() const { return true; }
-
 protected:
     friend		class ExplicitMarchingCubesSurfaceUpdater;
+    void		surfaceChange(CallBacker*);
 
     bool		updateIndices(const int* pos);
     bool		getCoordIndices(const int* pos,int* res);
@@ -82,16 +62,12 @@ protected:
     SamplingData<float>*	scale1_;
     SamplingData<float>*	scale2_;
 
+    Interval<int>*		changedbucketranges_[3];
 
-    CoordList*			coordlist_;
-    CoordList*			normallist_;
-    bool			righthandednormals_;
     MultiDimStorage<int>	coordindices_;
     Threads::ReadWriteLock	coordindiceslock_;
 
-    MultiDimStorage<ExplicitMarchingCubesSurfaceBucket*>	ibuckets_;
-    ObjectSet<ExplicitMarchingCubesSurfaceBucket>		ibucketsset_;
-    Threads::ReadWriteLock					ibucketslock_;
+    MultiDimStorage<Geometry::IndexedGeometry*>	ibuckets_;
 };
 
 /*!Describes one or more triangle setups for a specific point configuration.
