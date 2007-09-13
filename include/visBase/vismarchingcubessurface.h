@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		August 2006
- RCS:		$Id: vismarchingcubessurface.h,v 1.7 2007-09-10 06:23:23 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurface.h,v 1.8 2007-09-13 21:48:22 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,16 +18,14 @@ ________________________________________________________________________
 template <class T> class SamplingData;
 class MarchingCubesSurface;
 class ExplicitMarchingCubesSurface;
-class SoIndexedTriangleStripSet;
 class SoShapeHints;
 
 namespace visBase
 {
 
-class Coordinates;
-class Normals;
+class IndexedShape;
 
-/*!Class to display ::IsoSurfaces. */
+/*!Class to display ::MarchingCubesSurface. */
 
 class MarchingCubesSurface : public VisualObjectImpl
 {
@@ -56,10 +54,8 @@ protected:
     					~MarchingCubesSurface();
     void				updateHints();
 
-    Coordinates*				coords_;
-    Normals*					normals_;
     SoShapeHints*				hints_;
-    ObjectSet<SoIndexedTriangleStripSet>	triangles_;
+    IndexedShape*				shape_;
 
     ExplicitMarchingCubesSurface*		surface_;
     char					side_;
