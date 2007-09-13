@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.21 2007-09-04 11:43:33 cvsbert Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.22 2007-09-13 14:36:12 cvshelene Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -80,6 +80,21 @@ bool RefTree::addUnit( const char* code, const char* dumpstr, bool rev )
 	{ delete newun; return false; }
 
     parnode->add( newun, rev );
+    return true;
+}
+
+
+bool RefTree::addCopyOfUnit( const UnitRef& ur, bool rev )
+{
+    BufferString str;
+    ur.fill( str );
+    if ( !addUnit( ur.fullCode(), str ) )
+	return false;
+
+    Level* toplvl = const_cast<Level*>(getLevel( &ur, true ));
+    Level* baselvl = const_cast<Level*>(getLevel( &ur, false ));
+    if ( toplvl ) toplvl->unit_ = find( ur.fullCode() );
+    if ( baselvl ) baselvl->unit_ = find( ur.fullCode() );
     return true;
 }
 
@@ -179,6 +194,29 @@ bool RefTree::write( std::ostream& strm ) const
     }
 
     return strm.good();
+}
+
+
+void RefTree::untieLvlsFromUnit( const UnitRef* ur, bool freechildren )
+{
+    Level* toplvl = const_cast<Level*>(getLevel( ur, true ));
+    Level* baselvl = const_cast<Level*>(getLevel( ur, false ));
+    if ( toplvl ) toplvl->unit_ = 0;
+    if ( baselvl ) baselvl->unit_ = 0;
+
+    mDynamicCastGet(const NodeUnitRef*,nur,ur);
+    if ( freechildren && nur )
+    {
+	UnitRef::Iter it( *nur );
+	while ( it.next() )
+	{
+	    const UnitRef* tmpun = it.unit();
+	    toplvl = const_cast<Level*>(getLevel( tmpun, true ));
+	    baselvl = const_cast<Level*>(getLevel( tmpun, false ));
+	    if ( toplvl ) toplvl->unit_ = 0;
+	    if ( baselvl ) baselvl->unit_ = 0;
+	}
+    }
 }
 
 

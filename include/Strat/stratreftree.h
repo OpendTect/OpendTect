@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.2 2007-08-15 15:01:00 cvshelene Exp $
+ RCS:		$Id: stratreftree.h,v 1.3 2007-09-13 14:36:12 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ public:
     void		setTreeName( const char* nm )	{ treename_ = nm; }
     Repos::Source	source() const			{ return src_; }
 
+    bool		addCopyOfUnit(const UnitRef&,bool rev=false);
     bool		addUnit(const char* fullcode,const char* unit_dump,
 	    			bool rev=false);
     void		removeEmptyNodes(); //!< recommended after add
@@ -50,6 +51,7 @@ public:
     const Level*	getLevel(const UnitRef*,bool top=true) const;
     void		remove(const Level*&);
     			//!< the pointer will be set to null if found
+    void		untieLvlsFromUnit(const UnitRef*,bool);
 
     bool		write(std::ostream&) const;
     				//!< for printing, export or something.

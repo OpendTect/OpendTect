@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:		$Id: uistrattreewin.cc,v 1.15 2007-09-12 09:16:17 cvshelene Exp $
+ RCS:		$Id: uistrattreewin.cc,v 1.16 2007-09-13 14:36:12 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,29 +160,24 @@ void uiStratTreeWin::createTmpTree()
     for ( int idx=0; idx<rt->nrLevels(); idx++ )
     {
 	Level* lvl = new Level( *rt->level(idx) );
-	lvl->unit_ = 0;
 	tmptree_->addLevel( lvl );
     }
 
-    BufferString str;
     UnitRef::Iter it( *rt );
     const UnitRef& firstun = *it.unit();
-    firstun.fill( str );
-    tmptree_->addUnit( firstun.fullCode(), str );
+    tmptree_->addCopyOfUnit( firstun );
     while ( it.next() )
-    {
-	const UnitRef& un = *it.unit();
-	un.fill( str );
-	tmptree_->addUnit( un.fullCode(), str );
-    }
+	tmptree_->addCopyOfUnit( *it.unit() );
 }
 
 
 #define mSaveAtLoc( loc )\
 {\
     if ( tmptree_ )\
+    {\
 	eUnRepo().replaceTree( tmptree_ );\
-    \
+	createTmpTree();\
+    }\
     const_cast<UnitRepository*>(&UnRepo())->copyCurTreeAtLoc( loc );\
     UnRepo().write( loc );\
 }\
@@ -433,11 +428,7 @@ void uiStratTreeWin::unitToBeDelCB( CallBacker* )
     if ( !curit ) return;
 
     UnitRef* ur = tmptree_->find( getCodeFromLVIt( curit ) );
-
-    Level* toplvl = const_cast<Level*>(tmptree_->getLevel( ur, true ));
-    Level* baselvl = const_cast<Level*>(tmptree_->getLevel( ur, false ));
-    if ( toplvl ) toplvl->unit_ = 0;
-    if ( baselvl ) baselvl->unit_ = 0;
+    tmptree_->untieLvlsFromUnit( ur, true );
 
     NodeUnitRef* upnode = ur->upNode();
     if ( upnode )
