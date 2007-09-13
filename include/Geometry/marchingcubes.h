@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: marchingcubes.h,v 1.3 2007-09-13 19:38:39 cvsnanne Exp $
+ RCS:           $Id: marchingcubes.h,v 1.4 2007-09-13 20:06:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "basictask.h"
+#include "callback.h"
 #include "multidimstorage.h"
+#include "ranges.h"
 #include "refcount.h"
 #include "thread.h"
 
@@ -74,7 +76,7 @@ public:
 };
 
 
-class MarchingCubesSurface
+class MarchingCubesSurface : public CallBacker
 { mRefCountImpl(MarchingCubesSurface);
 public:
 
@@ -98,6 +100,12 @@ public:
 
     MultiDimStorage<MarchingCubesModel>		models_;
     mutable Threads::ReadWriteLock		modelslock_;
+
+    Notifier<MarchingCubesSurface>		change;
+    bool					allchanged_;
+    						//!<set when change is trig.
+    Interval<int>				changepos_[3];
+    						//!<set when change is trig.
 };
 
 

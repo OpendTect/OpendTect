@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.5 2007-09-13 19:38:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.6 2007-09-13 20:06:14 cvskris Exp $";
 
 #include "marchingcubes.h"
 
@@ -349,6 +349,7 @@ bool MarchingCubesModel::readFrom( std::istream& strm, bool binary )
 
 MarchingCubesSurface::MarchingCubesSurface()
     : models_( 3, 1 )
+    , change( this )
 {}
 
 
@@ -363,7 +364,19 @@ bool MarchingCubesSurface::setVolumeData( int xorigin, int yorigin, int zorigin,
 {
     Implicit2MarchingCubes converter( xorigin, yorigin, zorigin, arr, threshold,
 	    			      *this );
-    return converter.execute();
+    const bool res = converter.execute();
+    changepos_[mX].start = xorigin;
+    changepos_[mX].stop = xorigin+arr.info().getSize(mX);
+
+    changepos_[mY].start = yorigin;
+    changepos_[mY].stop = yorigin+arr.info().getSize(mY);
+
+    changepos_[mZ].start = zorigin;
+    changepos_[mZ].stop = zorigin+arr.info().getSize(mZ);
+    allchanged_ = false;
+    change.trigger();
+
+    return res;
 }
 
 
