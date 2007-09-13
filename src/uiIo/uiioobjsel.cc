@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.102 2007-09-12 17:07:52 cvskris Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.103 2007-09-13 07:50:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,8 +117,6 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 
     if ( ismultisel_ )
 	listfld->setMultiSelect( true );
-    listfld->setPrefWidthInChar( 
-		listfld->optimumFieldWidth(25,60) );
     listfld->setPrefHeightInChar( 8 );
     fullUpdate( 0 );
 
@@ -397,6 +395,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 {
     const bool ismultisel = multisel && c.ctxt.forread;
     selgrp = new uiIOObjSelGrp( this, c, seltxt, multisel );
+    selgrp->getListField()->setHSzPol( uiObject::Wide );
     if ( !ismultisel )
     {
 	statusBar()->setTxtAlign( 0, uiStatusBar::Right );
