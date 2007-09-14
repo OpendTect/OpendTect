@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.93 2007-09-14 04:44:17 cvsraman Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.94 2007-09-14 06:58:36 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,17 +157,17 @@ int		nrDone() const		{ return nrdone_; }
 const char*	nrDoneText() const	{ return "Nr positions imported"; }
 
 int nextStep()
-{
+{	
+    if ( sectionidx_ >= sections_.size() )
+    {
+	horizon_.enableGeometryChecks( true );
+	return Finished;
+    }
+
     const BinIDValueSet& bvs = *sections_[sectionidx_];
     bool haspos = bvs.next( pos_ );
     if ( !haspos )
     {
-	if ( sectionidx_ >= sections_.size() )
-	{
-	    horizon_.enableGeometryChecks( true );
-	    return Finished;
-	}
-
 	sectionidx_++;
 	pos_.i = pos_.j = -1;
 	return MoreToDo;
