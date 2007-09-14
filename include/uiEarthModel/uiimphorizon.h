@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.h,v 1.18 2007-09-14 04:54:09 cvsraman Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.19 2007-09-14 06:59:41 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,9 @@ class BinIDValueSet;
 class BufferStringSet;
 class CtxtIOObj;
 class IOObj;
+class MultiID;
 class uiBinIDSubSel;
+class uiCheckBox;
 class uiColorInput;
 class uiLabeledComboBox;
 class uiLabeledListBox;
@@ -40,6 +42,9 @@ public:
 			uiImportHorizon(uiParent*);
 			~uiImportHorizon();
 
+    bool                doDisplay() const;
+    MultiID             getSelID() const;
+
 protected:
 
     uiFileInput*	inpfld_;
@@ -54,6 +59,7 @@ protected:
     uiColorInput*       colbut_;
     uiStratLevelSel*    stratlvlfld_;
     uiIOObjSel*		outputfld_;
+    uiCheckBox*         displayfld_;
 
     virtual bool	acceptOK(CallBacker*);
     void		formatSel(CallBacker*);
