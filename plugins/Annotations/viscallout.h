@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: viscallout.h,v 1.7 2007-03-07 09:19:29 cvskris Exp $
+ RCS:		$Id: viscallout.h,v 1.8 2007-09-14 07:41:33 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -30,6 +30,9 @@ public:
 
     void			setScale(float);
     float			getScale() const;
+
+    void			setBoxColor(const Color&);
+    const Color&		getBoxColor() const;
 
     static const char*		sKeyText() 		{ return "T"; }
     static const char*		sKeyURL() 		{ return "U"; }

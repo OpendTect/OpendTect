@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.h,v 1.14 2007-09-04 09:24:51 cvsnanne Exp $
+ RCS:           $Id: treeitem.h,v 1.15 2007-09-14 07:41:33 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -132,6 +132,7 @@ public:
 
 protected:
 			~TextSubItem()	{ removeStuff(); }
+
     virtual const char*	parentType() const;
     virtual void	pickAddedCB(CallBacker*);
     const char*		managerName() const	{ return sKeyManager(); }
@@ -147,6 +148,7 @@ protected:
     void		setScale(float);
     
     MenuItem		changetextmnuitem_;
+    MenuItem		changecolormnuitem_;
 };
 
 

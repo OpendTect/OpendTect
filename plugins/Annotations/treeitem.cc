@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.29 2007-09-04 09:24:51 cvsnanne Exp $
+ RCS:           $Id: treeitem.cc,v 1.30 2007-09-14 07:41:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "uiarrowdlg.h"
 #include "uibutton.h"
+#include "uicolor.h"
 #include "uifiledlg.h"
 #include "uilistview.h"
 #include "uislider.h"
@@ -563,6 +564,7 @@ void SubItem::removeStuff()
 TextSubItem::TextSubItem( Pick::Set& pck, int displayid )
     : SubItem(pck,displayid)
     , changetextmnuitem_("Change text ...")
+    , changecolormnuitem_("Background color ...")
 {
     defscale_ = 100;
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
@@ -615,7 +617,8 @@ void TextSubItem::createMenuCB( CallBacker* cb )
     if ( menu->menuID() != displayID() )
 	return;
 
-    mAddMenuItem(menu,&changetextmnuitem_,menu->getPath(),false );
+    mAddMenuItem( menu, &changetextmnuitem_, menu->getPath(), false );
+    mAddMenuItem( menu, &changecolormnuitem_, true, false );
 }
 
 
@@ -664,6 +667,15 @@ void TextSubItem::handleMenuCB( CallBacker* cb )
 	    Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
 	    mgr.reportChange( this, cd );
 	}
+    }
+    else if ( mnuid==changecolormnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	mDynamicCastGet(CalloutDisplay*,cd,visserv_->getObject(displayid_))
+	if ( !cd ) return;
+	Color col = cd->getBoxColor();
+	if ( selectColor(col) )
+	    cd->setBoxColor( col );
     }
 }
 

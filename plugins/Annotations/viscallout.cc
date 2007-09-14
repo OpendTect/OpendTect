@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: viscallout.cc,v 1.19 2007-08-08 05:12:54 cvsnanne Exp $
+ RCS:           $Id: viscallout.cc,v 1.20 2007-09-14 07:41:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -689,15 +689,15 @@ void Callout::setupRotFeedback()
 
 
 CalloutDisplay::CalloutDisplay()
-    : boxmaterial_( visBase::Material::create() )
-    , textmaterial_( visBase::Material::create() )
-    , activedraggermaterial_( visBase::Material::create() )
-    , scale_( 1 )
+    : boxmaterial_(visBase::Material::create())
+    , textmaterial_(visBase::Material::create())
+    , activedraggermaterial_(visBase::Material::create())
+    , scale_(1)
 {
     boxmaterial_->ref();
     activedraggermaterial_->ref();
-    activedraggermaterial_->setColor(Color(255,255,0));
-    boxmaterial_->setColor( Color(178, 178, 178) );
+    activedraggermaterial_->setColor( Color(255,255,0) );
+    boxmaterial_->setColor( Color(178,178,178) );
     boxmaterial_->setDiffIntensity( 0.4, 0 );
     textmaterial_->ref();
     textmaterial_->setColor( Color(0, 0, 0) );
@@ -725,6 +725,13 @@ void CalloutDisplay::setScale( float ns )
 	call->setTextSize( scale_ );
     }
 }
+
+
+void CalloutDisplay::setBoxColor( const Color& col )
+{ boxmaterial_->setColor( col ); }
+
+const Color& CalloutDisplay::getBoxColor() const
+{ return boxmaterial_->getColor(); }
 
 
 void CalloutDisplay::setScene( visSurvey::Scene* scene )
