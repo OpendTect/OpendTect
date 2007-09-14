@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: genc.h,v 1.30 2007-06-14 11:22:37 cvsbert Exp $
+ RCS:		$Id: genc.h,v 1.31 2007-09-14 07:13:24 cvsbert Exp $
 ________________________________________________________________________
 
 Some general utilities, that need to be accessible in many places:
@@ -43,6 +43,9 @@ void		PutIsLittleEndian(unsigned char*);
 
 void		SwapBytes(void*,int nbytes);
 		/*!< nbytes=2,4,... e.g. nbytes=4: abcd becomes cdab */
+
+int		InSysAdmMode();
+		/*!< returns 0 unless in sysadm mode */
 
 #ifdef __cpp__
 }

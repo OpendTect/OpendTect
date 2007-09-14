@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.86 2007-06-14 17:25:11 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.87 2007-09-14 07:13:24 cvsbert Exp $";
 
 #include "genc.h"
 #include "math2.h"
@@ -26,6 +26,11 @@ static const char* rcsID = "$Id: genc.c,v 1.86 2007-06-14 17:25:11 cvsbert Exp $
 #else
 # include <float.h>
 #endif
+
+
+static int insysadmmode_ = 0;
+int InSysAdmMode() { return insysadmmode_; }
+void SetInSysAdmMode() { insysadmmode_ = 1; }
 
 
 const char* GetLocalHostName()
@@ -167,6 +172,7 @@ const char* GetEnvVar( const char* env )
     int idx;
 
     if ( !env || !*env ) return 0;
+    if ( insysadmmode_ ) return GetOSEnvVar( env );
 
     if ( !filesread )
     {
