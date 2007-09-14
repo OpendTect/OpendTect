@@ -6,33 +6,33 @@ ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
- Date:          May 2002
- RCS:           $Id: uiimphorizon.h,v 1.17 2007-09-07 12:27:13 cvshelene Exp $
+ Date:          June 2002
+ RCS:           $Id: uiimphorizon.h,v 1.18 2007-09-14 04:54:09 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-#include "multiid.h"
-#include "emposid.h"
-#include "cubesampling.h"
 
 class BinIDValueSet;
 class BufferStringSet;
 class CtxtIOObj;
+class IOObj;
 class uiBinIDSubSel;
-class uiCheckBox;
 class uiColorInput;
+class uiLabeledComboBox;
+class uiLabeledListBox;
 class uiFileInput;
 class uiGenInput;
+class uiImpHorArr2DInterpPars;
 class uiIOObjSel;
 class uiPushButton;
 class uiScaler;
 class uiStratLevelSel;
-class uiImpHorArr2DInterpPars;
+class uiTableImpDataSel;
+namespace Table { class FormatDesc; }
 
-
-/*! \brief Dialog for horizon selection */
+/*! \brief Dialog for Horizon Import */
 
 class uiImportHorizon : public uiDialog
 {
@@ -40,45 +40,34 @@ public:
 			uiImportHorizon(uiParent*);
 			~uiImportHorizon();
 
-    bool		doDisplay() const;
-    MultiID		getSelID() const;
-
 protected:
 
-    uiGroup*		midgrp;
-    uiFileInput*	infld;
-    uiGenInput*		xyfld;
-    uiScaler*		scalefld;
-    uiBinIDSubSel*	subselfld;
-    uiGenInput*		udfvalfld;
-    uiImpHorArr2DInterpPars* arr2dinterpfld;
-    uiGenInput*		filludffld;
-    uiIOObjSel*		outfld;
-    uiCheckBox*		displayfld;
-    uiPushButton*	attribbut;
-    uiColorInput*	colbut;
-    uiStratLevelSel*	stratlvlfld_;
+    uiFileInput*	inpfld_;
+    uiGenInput*		xyfld_;
+    uiLabeledListBox*	attrlistfld_;
+    uiPushButton*	addbut_;
+    uiScaler*		scalefld_;
+    uiBinIDSubSel*	subselfld_;
+    uiGenInput*		filludffld_;
+    uiImpHorArr2DInterpPars*	arr2dinterpfld_;
+    uiTableImpDataSel*  dataselfld_;
+    uiColorInput*       colbut_;
+    uiStratLevelSel*    stratlvlfld_;
+    uiIOObjSel*		outputfld_;
 
     virtual bool	acceptOK(CallBacker*);
-    bool		checkInpFlds();
-    bool		getFileNames(BufferStringSet&) const;
-    bool		readFiles(ObjectSet<BinIDValueSet>&,bool,
-	    			  const HorSampling*);
-    bool		doWork();
-    BinIDValueSet*	getBidValSet(const char*,bool,const HorSampling*);
-    bool		fillUdfs(ObjectSet<BinIDValueSet>&);
+    void		formatSel(CallBacker*);
+    void		addAttrib(CallBacker*);
+    void                fillUdfSel(CallBacker*);
+    void                stratLvlChg(CallBacker*);
 
-    void		inputCB(CallBacker*);
-    void		fillUdfSel(CallBacker*);
-    void		scanFile(CallBacker*);
-    void		attribSel(CallBacker*);
-    void		stratLvlChg(CallBacker*);
+    bool		getFileNames(BufferStringSet&) const;
+    bool		checkInpFlds();
+    bool		doImport();
+    bool                fillUdfs(ObjectSet<BinIDValueSet>&);
 
     CtxtIOObj&		ctio_;
-    EM::ObjectID	emobjid_;
-    BufferStringSet&	attribnames_;
-    BoolTypeSet		attribsel_;
-    HorSampling		filehs_;
+    Table::FormatDesc&  fd_;
 };
 
 
