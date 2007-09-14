@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		August 2006
- RCS:		$Id: vismarchingcubessurface.h,v 1.8 2007-09-13 21:48:22 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurface.h,v 1.9 2007-09-14 13:11:30 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ class SoShapeHints;
 namespace visBase
 {
 
-class IndexedShape;
+class GeomIndexedShape;
 
 /*!Class to display ::MarchingCubesSurface. */
 
@@ -55,7 +55,7 @@ protected:
     void				updateHints();
 
     SoShapeHints*				hints_;
-    IndexedShape*				shape_;
+    GeomIndexedShape*				shape_;
 
     ExplicitMarchingCubesSurface*		surface_;
     char					side_;

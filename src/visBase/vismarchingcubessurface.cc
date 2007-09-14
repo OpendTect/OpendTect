@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: vismarchingcubessurface.cc,v 1.8 2007-09-13 22:00:44 cvskris Exp $
+ RCS:           $Id: vismarchingcubessurface.cc,v 1.9 2007-09-14 13:11:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "explicitmarchingcubes.h"
 #include "marchingcubes.h"
-#include "visindexedshape.h"
+#include "visgeomindexedshape.h"
 
 #include <Inventor/nodes/SoShapeHints.h>
 
@@ -27,7 +27,7 @@ MarchingCubesSurface::MarchingCubesSurface()
     , hints_( new SoShapeHints )
     , side_( 0 )
     , surface_( new ExplicitMarchingCubesSurface( 0 ) )
-    , shape_( IndexedShape::create() )
+    , shape_( GeomIndexedShape::create() )
 {
     addChild( hints_ );
 
