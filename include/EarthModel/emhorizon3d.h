@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.52 2007-06-21 19:35:21 cvskris Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.53 2007-09-14 04:32:52 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -15,12 +15,16 @@ ________________________________________________________________________
 
 #include "emhorizon.h"
 #include "binidsurface.h"
+#include "tableascio.h"
 
 /*!
 */
 
 class BinIDValueSet;
 class BufferStringSet;
+class HorSampling;
+class Scaler;
+namespace Table { class FormatDesc; class AscIO; }
 
 namespace EM
 {
@@ -95,8 +99,7 @@ public:
 					  a section for every BinIDValueSet
 					*/
     Executor*			auxDataImporter(const ObjectSet<BinIDValueSet>&,
-	    				const BufferStringSet& attribnms,
-					const BoolTypeSet& attribsel);
+	    				const BufferStringSet& attribnms,int);
 
     SurfaceAuxData&		auxdata;
     EdgeLineManager&		edgelinesets;
@@ -112,7 +115,31 @@ protected:
 };
 
 
-}; // namespace EarthModel
+class Horizon3DAscIO : public Table::AscIO
+{
+public:
+    				Horizon3DAscIO( const Table::FormatDesc& fd,
+				       		const BufferStringSet& nms )
+				    : Table::AscIO(fd)
+		      		    , attrnms_(nms)		{}
 
+    static Table::FormatDesc*   getDesc(bool);
+    static void			updateDesc(Table::FormatDesc&,
+	    				   const BufferStringSet&,bool);
+    static void                 createDescBody(Table::FormatDesc*,
+	    				   const BufferStringSet&,bool);
+
+    BinIDValueSet*		get(std::istream&,const Scaler*,
+	    			    const HorSampling&,bool) const;
+
+protected:
+
+    BufferStringSet		attrnms_;
+};
+
+
+}; 
+
+// namespace EarthModel
 
 #endif
