@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.22 2007-07-11 13:53:56 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.23 2007-09-14 14:15:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -451,7 +451,7 @@ void FreqFilter::fftFilter( const DataHolder& output,
 	int imidx = csamp - imdata->z0_;
 	int immaxidx = imdata->nrsamples_-1;
 	const float imag = imidx<0 ? -imdata->series(imagidx_)->value(0)
-				   : -imidx>immaxidx
+				   : imidx>immaxidx
 				     ?-imdata->series(imagidx_)->value(immaxidx)
 				     : -imdata->series(imagidx_)->value(imidx);
         signal.set( idx, float_complex(real,imag) );
