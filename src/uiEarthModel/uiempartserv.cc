@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.120 2007-09-07 18:33:10 cvskris Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.121 2007-09-14 04:51:14 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,12 +112,12 @@ bool uiEMPartServer::ioHorizon( bool imp )
     {
 	uiImportHorizon dlg( appserv().parent() );
 	res = dlg.go();
-	if ( res && dlg.doDisplay() )
+/*	if ( res && dlg.doDisplay() )
 	{
 	    const MultiID mid = dlg.getSelID();	
 	    selemid_ = em_.getObjectID(mid);
 	    sendEvent( evDisplayHorizon );
-	}
+	}*/
     }
     else
     {

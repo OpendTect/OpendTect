@@ -3,48 +3,56 @@ ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
- Date:          May 2002
- RCS:           $Id: uiimphorizon.cc,v 1.83 2007-09-07 12:27:13 cvshelene Exp $
+ Date:          June 2002
+ RCS:           $Id: uiimphorizon.cc,v 1.84 2007-09-14 04:51:14 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiimphorizon.h"
-
-#include "arrayndimpl.h"
-#include "binidselimpl.h"
-#include "binidvalset.h"
-#include "ctxtioobj.h"
-#include "cubesampling.h"
-#include "emhorizon3d.h"
-#include "emmanager.h"
-#include "emsurfacetr.h"
-#include "filegen.h"
-#include "horizonscanner.h"
-#include "ioobj.h"
-#include "keystrs.h"
-#include "randcolor.h"
-#include "scaler.h"
-#include "streamconn.h"
-#include "strmdata.h"
-#include "strmprov.h"
-#include "survinfo.h"
-
 #include "uiarray2dchg.h"
 #include "uibinidsubsel.h"
+#include "uicombobox.h"
+#include "uilistbox.h"
 #include "uibutton.h"
 #include "uicolor.h"
-#include "uicombobox.h"
-#include "uicursor.h"
 #include "uiexecutor.h"
 #include "uifileinput.h"
-#include "uigeninput.h"
+#include "uigeninputdlg.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uiscaler.h"
 #include "uiseparator.h"
 #include "uistratlvlsel.h"
-#include "uitable.h"
+#include "uitblimpexpdatasel.h"
+
+#include "arrayndimpl.h"
+#include "binidvalset.h"
+#include "ctxtioobj.h"
+#include "emmanager.h"
+#include "emsurfacetr.h"
+#include "ioobj.h"
+#include "pickset.h"
+#include "strmdata.h"
+#include "strmprov.h"
+#include "surfaceinfo.h"
+#include "survinfo.h"
+#include "tabledef.h"
+#include "filegen.h"
+#include "emhorizon3d.h"
+
+#include <math.h>
+
+static const char* sDefAttrs[] =
+{
+    "Z values",
+    "Dip",
+    "Dip-Azimuth",
+    "Curvature",
+    0
+};
+
+static BufferStringSet sDefAttrSet( sDefAttrs, 4 );
 
 
 class uiImpHorArr2DInterpPars : public uiCompoundParSel
@@ -95,80 +103,72 @@ void selChg( CallBacker* )
 
 uiImportHorizon::uiImportHorizon( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Horizon",
-				 "Specify horizon parameters","104.0.0"))
+					   "Specify parameters",
+					   "104.0.0"))
     , ctio_(*mMkCtxtIOObj(EMHorizon3D))
-    , attribnames_(*new BufferStringSet)
-    , emobjid_(-1)
+    , fd_(*EM::Horizon3DAscIO::getDesc(true))
 {
-    infld = new uiFileInput( this, "Input Ascii file", 
-	    		     uiFileInput::Setup().withexamine(true) );
-    infld->setSelectMode( uiFileDialog::ExistingFiles );
-    infld->setDefaultSelectionDir(
-	    IOObjContext::getDataDirName(IOObjContext::Surf) );
-    infld->valuechanged.notify( mCB(this,uiImportHorizon,inputCB) );
+    inpfld_ = new uiFileInput( this, "Input ASCII File", uiFileInput::Setup()
+					    .withexamine(true)
+					    .forread(true) );
+    inpfld_->setDefaultSelectionDir( 
+			    IOObjContext::getDataDirName(IOObjContext::Surf) );
 
-    uiPushButton* scanbut = new uiPushButton( this, "Scan &file", 
-					mCB(this,uiImportHorizon,scanFile),
-					false );
-    scanbut->attach( alignedBelow, infld );
-
-    uiSeparator* sep = new uiSeparator( this, "Separator1" );
-    sep->attach( stretchedBelow, scanbut );
-
-    midgrp = new uiGroup( this, "Middle Group" );
-    midgrp->setSensitive( false );
-    midgrp->attach( alignedBelow, scanbut );
-    midgrp->attach( ensureBelow, sep );
-
-    xyfld = new uiGenInput( midgrp, "Positions in:",
-                            BoolInpSpec(true,"X/Y","Inl/Crl") );
-    midgrp->setHAlignObj( xyfld );
-
-    subselfld = new uiBinIDSubSel( midgrp, uiBinIDSubSel::Setup()
-			       .withz(false).withstep(true).rangeonly(true) );
-    subselfld->attach( alignedBelow, xyfld );
-
-    BufferString scalelbl( SI().zIsTime() ? "Z " : "Depth " );
-    scalelbl += "scaling";
-    scalefld = new uiScaler( midgrp, scalelbl, true );
-    scalefld->attach( alignedBelow, subselfld );
-
-    udfvalfld = new uiGenInput( midgrp, "Value representing 'Undefined'",
-	    		     StringInpSpec(sKey::FloatUdf) );
-    udfvalfld->attach( alignedBelow, scalefld );
-
-    filludffld = new uiGenInput( midgrp, "Fill undefined parts",
-	    			 BoolInpSpec(true) );
-    filludffld->valuechanged.notify( mCB(this,uiImportHorizon,fillUdfSel) );
-    filludffld->setValue(false);
-    filludffld->attach( alignedBelow, udfvalfld );
-
-    arr2dinterpfld = new uiImpHorArr2DInterpPars( midgrp );
-    arr2dinterpfld->attach( alignedBelow, filludffld );
-
-    attribbut = new uiPushButton( midgrp, "Attribute &info",
-	    			  mCB(this,uiImportHorizon,attribSel), false );
-    attribbut->attach( alignedBelow, arr2dinterpfld );
-
-    uiSeparator* sep2 = new uiSeparator( this, "Separator2" );
-    sep2->attach( stretchedBelow, midgrp );
-
-    uiGroup* botgrp = new uiGroup( this, "Bottom Group" );
     ctio_.ctxt.forread = false;
-    outfld = new uiIOObjSel( botgrp, ctio_, "Output Horizon" );
+    ctio_.ctxt.maychdir = false;
 
-    stratlvlfld_ = new uiStratLevelSel( botgrp );
-    stratlvlfld_->attach( alignedBelow, outfld );
+    xyfld_ = new uiGenInput( this, "Positions in:",
+			    BoolInpSpec(true,"X/Y","Inl/Crl") );
+    xyfld_->valuechanged.notify( mCB(this,uiImportHorizon,formatSel) );
+    xyfld_->attach( alignedBelow, inpfld_ );
+
+    attrlistfld_ = new uiLabeledListBox( this, "Select Attribute(s) to import",
+	   				 true );
+    attrlistfld_->box()->addItems( sDefAttrSet );
+    attrlistfld_->attach( alignedBelow, xyfld_ );
+    attrlistfld_->box()->selectionChanged.notify( mCB(this,uiImportHorizon,
+						      formatSel) );
+
+    addbut_ = new uiPushButton( this, "Add new",
+	    			mCB(this,uiImportHorizon,addAttrib), false );
+    addbut_->attach( rightTo, attrlistfld_ );
+
+    scalefld_ = new uiScaler( this, "Z scaling", true );
+    scalefld_->attach( alignedBelow, attrlistfld_ );
+
+    subselfld_ = new uiBinIDSubSel( this, uiBinIDSubSel::Setup().withz(false)
+	    			    .withstep(true).rangeonly(true) );
+    subselfld_->attach( alignedBelow, scalefld_ );
+
+    filludffld_ = new uiGenInput( this, "Fill undefined parts",
+	    			  BoolInpSpec(true) );
+    filludffld_->valuechanged.notify( mCB(this,uiImportHorizon,fillUdfSel) );
+    filludffld_->setValue(false);
+    filludffld_->attach( alignedBelow, subselfld_ );
+
+    arr2dinterpfld_ = new uiImpHorArr2DInterpPars( this );
+    arr2dinterpfld_->attach( alignedBelow, filludffld_ );
+
+    uiSeparator* sep = new uiSeparator( this, "H sep" );
+    sep->attach( stretchedBelow, arr2dinterpfld_ );
+
+    dataselfld_ = new uiTableImpDataSel( this, fd_, "100.0.0" );
+    dataselfld_->attach( alignedBelow, attrlistfld_ );
+    dataselfld_->attach( ensureBelow, sep );
+
+    sep = new uiSeparator( this, "H sep" );
+    sep->attach( stretchedBelow, dataselfld_ );
+
+    stratlvlfld_ = new uiStratLevelSel( this );
+    stratlvlfld_->attach( alignedBelow, attrlistfld_ );
+    stratlvlfld_->attach( ensureBelow, sep );
     stratlvlfld_->selchanged_.notify( mCB(this,uiImportHorizon,stratLvlChg) );
 
-    colbut = new uiColorInput( botgrp, getRandStdDrawColor(), "Base color" );
-    colbut->attach( alignedBelow, stratlvlfld_ );
+    outputfld_ = new uiIOObjSel( this, ctio_, "OutPut Horizon" );
+    outputfld_->attach( alignedBelow, stratlvlfld_ );
 
-    displayfld = new uiCheckBox( botgrp, "Display after import" );
-    displayfld->attach( alignedBelow, colbut );
-    botgrp->setHAlignObj( outfld );
-    botgrp->attach( alignedBelow, midgrp );
-    botgrp->attach( ensureBelow, sep2 );
+    colbut_ = new uiColorInput( this, getRandStdDrawColor(), "Base color" );
+    colbut_->attach( alignedBelow, outputfld_ );
 
     fillUdfSel(0);
 }
@@ -177,66 +177,139 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
 uiImportHorizon::~uiImportHorizon()
 {
     delete ctio_.ioobj; delete &ctio_;
-    delete &attribnames_;
 }
 
 
-void uiImportHorizon::inputCB( CallBacker* )
+void uiImportHorizon::formatSel( CallBacker* cb )
 {
-    midgrp->setSensitive( false );
-    button( OK )->setSensitive( false );
+    const bool isxy = xyfld_->getBoolValue();
+    BufferStringSet attrnms;
+    attrlistfld_->box()->getSelectedItems( attrnms );
+    EM::Horizon3DAscIO::updateDesc( fd_, attrnms, isxy );
+    dataselfld_->updateSummary();
+}
+
+
+void uiImportHorizon::addAttrib( CallBacker* cb )
+{
+    uiGenInputDlg* dlg = new uiGenInputDlg( this, "Add Attribute",
+	    				    "Name", new StringInpSpec() );
+    if ( !dlg->go() ) return;
+
+    const char* attrnm = dlg->text();
+    attrlistfld_->box()->addItem( attrnm );
+    sDefAttrSet.add( attrnm );
 }
 
 
 void uiImportHorizon::fillUdfSel( CallBacker* )
 {
-    const bool dodisp = filludffld->getBoolValue();
-    arr2dinterpfld->display( filludffld->getBoolValue() );
+    arr2dinterpfld_->display( filludffld_->getBoolValue() );
 }
 
+    
+#define mErrRet(s) { uiMSG().error(s); return false; }
+#define mErrRetUnRef(s) { horizon->unRef(); mErrRet(s) }
 
-bool uiImportHorizon::doDisplay() const
+bool uiImportHorizon::doImport()
 {
-    return displayfld->isChecked();
-}
+    const char* horizonnm = outputfld_->getInput();
+    EM::EMManager& em = EM::EMM();
+    EM::ObjectID objid = em.createObject( EM::Horizon3D::typeStr(), horizonnm );
+    mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid));
+    if ( !horizon )
+	mErrRet( "Cannot create horizon" );
 
+    horizon->setMultiID( ctio_.ioobj->key() );
 
-MultiID uiImportHorizon::getSelID() const
-{
-    MultiID mid = ctio_.ioobj ? ctio_.ioobj->key() : -1;
-    return mid;
+    BufferStringSet filenames;
+    if ( !getFileNames(filenames) ) return false;
+
+    const bool isxy = xyfld_->getBoolValue();
+    const Scaler* scaler = scalefld_->getScaler();
+    HorSampling hs = subselfld_->getInput().cs_.hrg;
+    BufferStringSet attrnms;
+    attrlistfld_->box()->getSelectedItems( attrnms );
+    ObjectSet<BinIDValueSet> sections;
+    EM::Horizon3DAscIO aio( fd_, attrnms );
+    for ( int idx=0; idx<filenames.size(); idx++ )
+    {
+	const char* fname = filenames.get( idx ); 
+	StreamData sdi = StreamProvider( fname ).makeIStream();
+	if ( !sdi.usable() ) 
+	{ 
+	    sdi.close();
+	    mErrRet( "Could not open input file" )
+	}
+
+	BinIDValueSet* bvs = aio.get( *sdi.istrm, scaler, hs, isxy );
+	if ( bvs && !bvs->isEmpty() )
+	    sections += bvs;
+	else
+	{
+	    delete bvs;
+	    BufferString msg( "Cannot read input file:\n" ); msg += fname;
+	    mErrRet( msg );
+	}
+    }
+
+    if ( sections.isEmpty() )
+	mErrRet( "Nothing to import" );
+
+//    const bool dofill = filludffld_->getBoolValue();
+//    if ( dofill )
+//	fillUdfs( sections );
+
+    horizon->ref();
+    const RowCol step( hs.step.inl, hs.step.crl );
+    ExecutorGroup importer( "Horizon importer" );
+    importer.setNrDoneText( "Nr inlines imported" );
+    importer.add( horizon->importer(sections,step) );
+    int startidx = 0;
+    if ( attrnms.get(0) == "Z values" )
+    {
+	attrnms.remove( 0 );
+	startidx = 1;
+    }
+
+    if ( attrnms.size() )
+	importer.add( horizon->auxDataImporter(sections,attrnms,startidx) );
+
+    uiExecutor impdlg( this, importer );
+    const bool success = impdlg.go();
+    deepErase( sections );
+    if ( !success )
+	mErrRetUnRef("Cannot import horizon")
+
+    Executor* exec = horizon->saver();
+    if ( !exec )
+    {
+	delete exec;
+	horizon->unRef();
+	return false;
+    }
+    uiExecutor dlg( this, *exec );
+    const bool rv = dlg.execute();
+    delete exec;
+    horizon->unRef();
+    return rv;
 }
 
 
 bool uiImportHorizon::acceptOK( CallBacker* )
 {
-    bool ret = checkInpFlds() && doWork();
-    return ret;
-}
+    if ( !checkInpFlds() ) return false;
 
-
-#define mErrRet(s)	{ uiMSG().error(s); return false; }
-#define mErrRetUnRef(s)	{ horizon->unRef(); mErrRet(s) }
-
-
-bool uiImportHorizon::checkInpFlds()
-{
-    BufferStringSet filenames;
-    if ( !getFileNames(filenames) ) return false;
-
-    if ( !outfld->commitInput(true) )
-	mErrRet( "Please select the output" )
-
-    return true;
+    return doImport();
 }
 
 
 bool uiImportHorizon::getFileNames( BufferStringSet& filenames ) const
 {
-    if ( !*infld->fileName() )
+    if ( !*inpfld_->fileName() )
 	mErrRet( "Please select input file(s)" )
-
-    infld->getFileNames( filenames );
+    
+    inpfld_->getFileNames( filenames );
     for ( int idx=0; idx<filenames.size(); idx++ )
     {
 	const char* fnm = filenames[idx]->buf();
@@ -253,258 +326,21 @@ bool uiImportHorizon::getFileNames( BufferStringSet& filenames ) const
 }
 
 
-bool uiImportHorizon::doWork()
-{
-    const char* horizonnm = outfld->getInput();
-    EM::EMManager& em = EM::EMM();
-    emobjid_ = em.createObject( EM::Horizon3D::typeStr(), horizonnm );
-    mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(emobjid_));
-    if ( !horizon )
-	mErrRet( "Cannot create horizon" );
-
-    NotifyStopper stopper( horizon->change );
-    horizon->setMultiID( ctio_.ioobj->key() );
-    horizon->setTiedToLvl( stratlvlfld_->getLvlName() );
-    horizon->setPreferredColor( colbut->color() );
-    BufferStringSet filenames;
-    if ( !getFileNames(filenames) ) return false;
-
-    HorizonScanner scanner( filenames );
-    const bool isxy = scanner.posIsXY();
-    const bool doxy = xyfld->getBoolValue();
-    if ( doxy != isxy )
-    {
-	BufferString msg( "Coordinates in inputfile seem to be " );
-	msg += isxy ? "X/Y.\n" : "Inl/Crl.\n";
-	msg += "Continue importing as "; msg += doxy ? "X/Y?" : "Inl/Crl?";
-	if ( !uiMSG().askGoOn(msg) ) return false;
-    }
-
-    HorSampling hs = subselfld->getInput().cs_.hrg;
-    if ( hs.step.inl==0 ) hs.step.inl = SI().inlStep();
-    if ( hs.step.crl==0 ) hs.step.crl = SI().crlStep();
-/*  TODO: ask Kris why this has been implemented
-    if ( hs.step.inl%filehs_.step.inl || hs.step.crl%filehs_.step.crl )
-    {
-	BufferString msg( "Inline/Crossline steps must be dividable by ");
-	msg += filehs_.step.inl; msg += "/"; msg += filehs_.step.crl;
-	msg += ".";
-	uiMSG().error( msg );
-	return false;
-    }
-*/
-
-    if ( !filehs_.includes(hs.start) )
-    {
-	BufferString msg( "Ranges are not compatible with the file.\n"
-			  "Snap to closest position (" );
-	const StepInterval<int> inlrg( filehs_.inlRange() );
-	const StepInterval<int> crlrg( filehs_.crlRange() );
-	BinID newstart = BinID(inlrg.atIndex(inlrg.nearestIndex(hs.start.inl)),
-			       crlrg.atIndex(crlrg.nearestIndex(hs.start.crl)));
-	newstart.inl = mMAX( inlrg.start, newstart.inl );
-	newstart.crl = mMAX( crlrg.start, newstart.crl );
-	msg += newstart.inl; msg += "/";
-	msg += newstart.crl; msg += ")?";
-	if ( !uiMSG().askGoOn( msg ) )
-	    return false;
-
-	hs.start = newstart;
-	uiBinIDSubSel::Data data = subselfld->getInput();
-	data.cs_.hrg = hs;
-	subselfld->setInput(data); //important since other may read it later
-    }
-
-    ObjectSet<BinIDValueSet> sections;
-    if ( !readFiles(sections,scanner.needZScaling(),&hs) ) return false;
-    if ( sections.isEmpty() )
-	mErrRet( "Nothing to import" );
-
-    const bool dofill = filludffld->getBoolValue();
-    if ( dofill )
-	fillUdfs( sections );
-
-    const RowCol step( hs.step.inl, hs.step.crl );
-    horizon->ref();
-    ExecutorGroup importer( "Horizon importer" );
-    importer.setNrDoneText( "Nr inlines imported" );
-    importer.add( horizon->importer(sections,step) );
-
-    ObjectSet<BinIDValueSet> attribvals;
-    if ( !dofill && scanner.nrAttribValues()>0 )
-    {
-	for ( int sidx=0; sidx<sections.size(); sidx++ )
-	{
-	    BinIDValueSet* set = new BinIDValueSet( sections[sidx]->nrVals(),
-						    false );
-	    attribvals += set;
-	    BinID bid;
-	    TypeSet<float> vals;
-	    BinIDValueSet::Pos pos;
-	    while( sections[sidx]->next(pos,true) )
-	    {
-		sections[sidx]->get( pos, bid, vals );
-		set->add( bid, vals );
-	    }
-	}
-	importer.add( 
-		horizon->auxDataImporter(attribvals,attribnames_,attribsel_) );
-    }
-
-    uiExecutor impdlg( this, importer );
-    const bool success = impdlg.go();
-    deepErase( sections );
-    deepErase( attribvals );
-    if ( !success )
-	mErrRetUnRef("Cannot import horizon")
-
-    Executor* exec = horizon->saver();
-    if ( !exec )
-    {
-	delete exec;
-	horizon->unRef();
-	return false;
-    }
-
-    uiExecutor dlg( this, *exec );
-    const bool rv = dlg.execute();
-    delete exec;
-    if ( !doDisplay() )
-	horizon->unRef();
-    else
-	horizon->unRefNoDelete();
-    return rv;
-}
-
-
-bool uiImportHorizon::readFiles( ObjectSet<BinIDValueSet>& sections,
-				 bool doscale, const HorSampling* hs )
+bool uiImportHorizon::checkInpFlds()
 {
     BufferStringSet filenames;
     if ( !getFileNames(filenames) ) return false;
-    for ( int idx=0; idx<filenames.size(); idx++ )
-    {
-	const char* fname = filenames.get( idx );
-	BinIDValueSet* bvs = getBidValSet( fname, doscale, hs );
-	if ( bvs && !bvs->isEmpty() )
-	    sections += bvs;
-	else
-	{
-	    delete bvs;
-	    BufferString msg( "Cannot read input file:\n" ); msg += fname;
-	    mErrRet( msg );
-	}
-    }
+
+    if ( !outputfld_->commitInput(true) )
+	mErrRet( "Please select the output" )
 
     return true;
 }
 
 
-void uiImportHorizon::scanFile( CallBacker* )
-{
-    uiCursorChanger cursorlock( uiCursor::Wait );
-    BufferStringSet filenames;
-    if ( !getFileNames(filenames) ) return;
-
-    HorizonScanner scanner( filenames );
-    scanner.execute();
-    scanner.launchBrowser();
-    if ( scanner.nrPositions() == 0 )
-    {
-	uiMSG().error( "No valid positions found in input file." );
-	return;
-    }
-
-    xyfld->setValue( scanner.posIsXY() );
-    filehs_.set( scanner.inlRg(), scanner.crlRg() );
-    if ( filehs_.step.inl==0 ) filehs_.step.inl = SI().inlStep();
-    if ( filehs_.step.crl==0 ) filehs_.step.crl = SI().crlStep();
-    uiBinIDSubSel::Data subseldata = subselfld->getInput();
-    subseldata.cs_.hrg = filehs_; subselfld->setInput( subseldata );
-
-    filludffld->setValue( scanner.gapsFound(true) || scanner.gapsFound(false) );
-    fillUdfSel(0);
-    midgrp->setSensitive( true );
-    button( OK )->setSensitive( true );
-
-    const int nrattrvals = scanner.nrAttribValues();
-    attribbut->setSensitive( nrattrvals > 0 );
-    attribnames_.erase();
-    attribsel_.erase();
-    for ( int idx=0; idx<nrattrvals; idx++ )
-    {
-	BufferString nm( "Imported attribute " );
-	nm += idx+1;
-	attribnames_.add( nm );
-	attribsel_ += true;
-    }
-}
-
-
-BinIDValueSet* uiImportHorizon::getBidValSet( const char* fnm, bool doscale,
-					      const HorSampling* hs )
-{
-    StreamProvider sp( fnm );
-    StreamData sd = sp.makeIStream();
-    if ( !sd.usable() )
-	return 0;
-
-    BinIDValueSet* set = new BinIDValueSet(1,false);
-    const Scaler* scaler = scalefld->getScaler();
-    const float udfval = udfvalfld->getfValue();
-    const bool doxy = xyfld->getBoolValue();
-    float factor = 1;
-    if ( doscale )
-	factor = SI().zIsTime() ? 0.001 : (SI().zInMeter() ? .3048 : 3.28084);
-
-    Coord crd;
-    BinID bid;
-    char buf[1024]; char valbuf[80];
-    while ( *sd.istrm )
-    {
-	sd.istrm->getline( buf, 1024 );
-	const char* ptr = getNextWord( buf, valbuf );
-	if ( !ptr || !*ptr ) 
-	    continue;
-	crd.x = atof( valbuf );
-	ptr = getNextWord( ptr, valbuf );
-	crd.y = atof( valbuf );
-	bid = doxy ? SI().transform( crd ) : BinID(mNINT(crd.x),mNINT(crd.y));
-	if ( hs && !hs->isEmpty() && !hs->includes(bid) ) continue;
-
-	TypeSet<float> values;
-	while ( *ptr )
-	{
-	    ptr = getNextWord( ptr, valbuf );
-	    values += atof( valbuf );
-	}
-	
-	if ( values.isEmpty() ) continue;
-	if ( set->nrVals() != values.size() )
-	    set->setNrVals( values.size() );
-
-	const bool validz = SI().zRange(false).includes(
-				doscale ? values[0]*factor : values[0] );
-	if ( mIsEqual(values[0],udfval,mDefEps) || !validz )
-	    mSetUdf(values[0]);
-
-	if ( doscale && !mIsUdf(values[0]) )
-	    values[0] *= factor;
-
-	if ( scaler )
-	    values[0] = scaler->scale( values[0] );
-
-	set->add( bid, values );
-    }
-
-    sd.close();
-    return set;
-}
-
-
 bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 {
-    HorSampling hs = subselfld->getInput().cs_.hrg;
+    HorSampling hs = subselfld_->getInput().cs_.hrg;
 
     for ( int idx=0; idx<sections.size(); idx++ )
     {
@@ -529,7 +365,7 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 	}
 
 	Array2DInterpolator<float> interpolator( *arr );
-	interpolator.pars() = arr2dinterpfld->pars_;
+	interpolator.pars() = arr2dinterpfld_->pars_;
 	interpolator.setColDistRatio( SI().crlDistance()*hs.step.crl/
 		(hs.step.inl*SI().inlDistance() ));
 	uiExecutor uiex( this, interpolator );
@@ -555,59 +391,4 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 }
 
 
-static const char* sYesNo[] = { sKey::Yes, sKey::No, 0 };
 
-class AttribNameEditor : public uiDialog
-{
-
-public:
-AttribNameEditor( uiParent* p, const BufferStringSet& names )
-    : uiDialog(p,Setup("Attribute import","Specify attribute names",""))
-{
-    table_ = new uiTable( this, uiTable::Setup().rowdesc("Attribute") );
-    table_->setNrCols( 2 );
-    table_->setColumnLabel( 0, "Attribute Name" );
-    table_->setColumnLabel( 1, "Import" );
-    table_->setNrRows( names.size() );
-    table_->setDefaultRowLabels();
-
-    for ( int idx=0; idx<names.size(); idx++ )
-    {
-	table_->setText( RowCol(idx,0), names.get(idx) );
-	uiComboBox* ynbox = new uiComboBox(0);
-	ynbox->addItems( sYesNo );
-	table_->setCellObject( RowCol(idx,1), ynbox );
-    }
-}
-
-
-void getAttribNames( BufferStringSet& names,
-		     BoolTypeSet& doimp ) const
-{
-    names.erase();
-    doimp.erase();
-    for ( int idx=0; idx<table_->nrRows(); idx++ )
-    {
-	names.add( table_->text(RowCol(idx,0)) );
-	mDynamicCastGet(uiComboBox*,box,table_->getCellObject(RowCol(idx,1)))
-	doimp += !strcmp(box->text(),sKey::Yes);
-    }
-}
-
-    uiTable*	table_;
-};
-
-
-void uiImportHorizon::attribSel( CallBacker* )
-{
-    AttribNameEditor dlg( this, attribnames_ );
-    if ( !dlg.go() ) return;
-    dlg.getAttribNames( attribnames_, attribsel_ );
-}
-
-
-void uiImportHorizon::stratLvlChg( CallBacker* )
-{
-    if ( strcmp( stratlvlfld_->getLvlName(), "" ) )
-	colbut->setColor( *stratlvlfld_->getLvlColor() );
-}
