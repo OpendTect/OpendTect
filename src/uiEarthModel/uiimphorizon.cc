@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.85 2007-09-14 05:18:27 cvsraman Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.86 2007-09-14 07:00:23 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiimphorizon.h"
 #include "uiarray2dchg.h"
 #include "uibinidsubsel.h"
+
 #include "uicombobox.h"
 #include "uilistbox.h"
 #include "uibutton.h"
@@ -160,16 +161,19 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, dataselfld_ );
 
+    outputfld_ = new uiIOObjSel( this, ctio_, "OutPut Horizon" );
+    outputfld_->attach( alignedBelow, attrlistfld_ );
+    outputfld_->attach( ensureBelow, sep );
+
     stratlvlfld_ = new uiStratLevelSel( this );
-    stratlvlfld_->attach( alignedBelow, attrlistfld_ );
-    stratlvlfld_->attach( ensureBelow, sep );
+    stratlvlfld_->attach( alignedBelow, outputfld_ );
     stratlvlfld_->selchanged_.notify( mCB(this,uiImportHorizon,stratLvlChg) );
 
-    outputfld_ = new uiIOObjSel( this, ctio_, "OutPut Horizon" );
-    outputfld_->attach( alignedBelow, stratlvlfld_ );
-
     colbut_ = new uiColorInput( this, getRandStdDrawColor(), "Base color" );
-    colbut_->attach( alignedBelow, outputfld_ );
+    colbut_->attach( alignedBelow, stratlvlfld_ );
+
+    displayfld_ = new uiCheckBox( this, "Display after import" );
+    displayfld_->attach( alignedBelow, colbut_ );
 
     fillUdfSel(0);
 }
@@ -209,6 +213,19 @@ void uiImportHorizon::fillUdfSel( CallBacker* )
 }
 
 
+bool uiImportHorizon::doDisplay() const
+{
+    return displayfld_->isChecked();
+}
+
+
+MultiID uiImportHorizon::getSelID() const
+{
+    MultiID mid = ctio_.ioobj ? ctio_.ioobj->key() : -1;
+    return mid;
+}
+
+
 void uiImportHorizon::stratLvlChg( CallBacker* )
 {
     if ( strcmp( stratlvlfld_->getLvlName(), "" ) )
@@ -228,6 +245,8 @@ bool uiImportHorizon::doImport()
 	mErrRet( "Cannot create horizon" );
 
     horizon->setMultiID( ctio_.ioobj->key() );
+    horizon->setTiedToLvl( stratlvlfld_->getLvlName() );
+    horizon->setPreferredColor( colbut_->color() );
 
     BufferStringSet filenames;
     if ( !getFileNames(filenames) ) return false;
@@ -298,7 +317,10 @@ bool uiImportHorizon::doImport()
     uiExecutor dlg( this, *exec );
     const bool rv = dlg.execute();
     delete exec;
-    horizon->unRef();
+    if ( !doDisplay() )
+	horizon->unRef();
+    else
+	horizon->unRefNoDelete();
     return rv;
 }
 
