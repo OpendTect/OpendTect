@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.92 2007-09-07 12:27:13 cvshelene Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.93 2007-09-14 04:44:17 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,9 @@ ________________________________________________________________________
 #include "executor.h"
 #include "ioobj.h"
 #include "ptrman.h"
+#include "scaler.h"
 #include "survinfo.h"
+#include "tabledef.h"
 #include "trigonometry.h"
 
 #include <math.h>
@@ -35,12 +37,11 @@ class AuxDataImporter : public Executor
 public:
 
 AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
-		 const BufferStringSet& attribnames,
-		 const BoolTypeSet& attrsel )
+		 const BufferStringSet& attribnames, const int start )
     : Executor("Data Import")
     , horizon(hor)
     , sections(sects)
-    , attribsel(attrsel)
+    , startidx(start)
     , totalnr(0)
     , nrdone(0)
 {
@@ -50,16 +51,14 @@ AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 	totalnr += bvs.nrInls();
     }
 
-    const int nrattribs = sections[0]->nrVals()-1;
+    const int nrattribs = attribnames.size();
     for ( int attribidx=0; attribidx<nrattribs; attribidx++ )
     {
-	if ( !attribsel[attribidx] ) continue;
-
 	BufferString nm = attribnames.get( attribidx );
 	if ( nm.isEmpty() )
 	    { nm = "Imported attribute "; nm += attribidx; }
 
-	horizon.auxdata.addAuxData( nm );
+	attrindexes += horizon.auxdata.addAuxData( nm );
     }
 
     sectionidx = -1;
@@ -90,11 +89,11 @@ int nextStep()
 	const float* vals = bvs.getVals( pos );
 	if ( !vals ) continue;
 	posid.setSubID( bid.getSerialized() );
-	int index = 0;
+	int idx = 0;
 	for ( int attridx=0; attridx<nrattribs; attridx++ )
 	{
-	    if ( !attribsel[attridx] ) continue;
-	    horizon.auxdata.setAuxDataVal( index++, posid, vals[attridx+1] );
+	    horizon.auxdata.setAuxDataVal( attrindexes[idx++], posid,
+		    			   vals[attridx+1] );
 	}
     }
 
@@ -111,7 +110,6 @@ const char*	nrDoneText() const	{ return "Nr inlines imported"; }
 
 protected:
 
-    const BoolTypeSet&		attribsel;
     const ObjectSet<BinIDValueSet>&	sections;
     Horizon3D&			horizon;
     StepInterval<int>		inlrange;
@@ -119,6 +117,8 @@ protected:
 
     int				inl;
     int				sectionidx;
+    int				startidx;
+    TypeSet<int>		attrindexes;
 
     int				totalnr;
     int				nrdone;
@@ -162,15 +162,13 @@ int nextStep()
     bool haspos = bvs.next( pos_ );
     if ( !haspos )
     {
-	if ( bvs.isEmpty() )
-	    sectionidx_++;
-
 	if ( sectionidx_ >= sections_.size() )
 	{
 	    horizon_.enableGeometryChecks( true );
 	    return Finished;
 	}
 
+	sectionidx_++;
 	pos_.i = pos_.j = -1;
 	return MoreToDo;
     }
@@ -178,17 +176,13 @@ int nextStep()
     const int nrvals = bvs.nrVals();
     TypeSet<float> vals( nrvals, mUdf(float) );
     BinID bid;
-    bvs.get( pos_, bid, vals.arr() );
+    bvs.get( pos_, bid, vals );
 
     PosID posid( horizon_.id(), horizon_.sectionID(sectionidx_),
 		 bid.getSerialized() );
     bool res = horizon_.setPos( posid, Coord3(0,0,vals[0]), false );
     if ( res )
-    {
-	const_cast<BinIDValueSet&>(bvs).remove( pos_ );
-	pos_.i = pos_.j = -1;
 	nrdone_++;
-    }
 
     return MoreToDo;
 }
@@ -345,9 +339,9 @@ Executor* Horizon3D::importer( const ObjectSet<BinIDValueSet>& sections,
 
 Executor* Horizon3D::auxDataImporter( const ObjectSet<BinIDValueSet>& sections,
 				      const BufferStringSet& attribnms,
-				      const BoolTypeSet& attribsel )
+       				      const int start )
 {
-    return new AuxDataImporter( *this, sections, attribnms, attribsel );
+    return new AuxDataImporter( *this, sections, attribnms, start );
 }
 
 
@@ -572,6 +566,93 @@ EMObjectIterator* Horizon3DGeometry::createIterator(
     const StepInterval<int> rowrg = cs->hrg.inlRange();
     const StepInterval<int> colrg = cs->hrg.crlRange();
     return new RowColIterator( surface_, sid, rowrg, colrg );
+}
+
+
+Table::FormatDesc* Horizon3DAscIO::getDesc( bool isxy )
+{
+    Table::FormatDesc* fd = new Table::FormatDesc( "Horizon3D" );
+    fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
+	    		StringInpSpec(sKey::FloatUdf), Table::Required );
+    BufferStringSet attrnms;
+    attrnms.add( "Z values" );
+    createDescBody( fd, attrnms, isxy );
+    return fd;
+}
+
+
+void Horizon3DAscIO::createDescBody( Table::FormatDesc* fd,
+				     const BufferStringSet& attrnms, bool isxy )
+{
+    fd->bodyinfos_ += new Table::TargetInfo( isxy ? "X Coordinate" : "Inl No.",
+	    			 FloatInpSpec(), Table::Required );
+    fd->bodyinfos_ += new Table::TargetInfo( isxy ? "Y Coordinate" : "Crl No.",
+	    			 FloatInpSpec(), Table::Required );
+
+    for ( int idx=0; idx<attrnms.size(); idx++ )
+    {
+	BufferString fldname = attrnms.get( idx );
+	Table::TargetInfo* ti = new Table::TargetInfo( fldname, FloatInpSpec(),
+		  		Table::Required );
+	if ( fldname == "Z values" )
+	    ti->setPropertyType( PropertyRef::surveyZType() );
+
+	fd->bodyinfos_ += ti;
+    }
+}
+
+
+void Horizon3DAscIO::updateDesc( Table::FormatDesc& fd,
+				 const BufferStringSet& attrnms, bool isxy )
+{
+    fd.bodyinfos_.erase();
+    createDescBody( &fd, attrnms, isxy );
+}
+
+
+#define mErrRet(s) { if ( s ) errmsg_ = s; return 0; }
+
+BinIDValueSet* Horizon3DAscIO::get( std::istream& strm, const Scaler* scaler,
+				    const HorSampling& hs, bool isxy) const
+{
+    if ( !getHdrVals(strm) )
+	return 0;
+
+    BinIDValueSet* set = new BinIDValueSet( attrnms_.size(), false );
+    const float udfval = getfValue( 0 );
+    while ( true )
+    {
+	int ret = getNextBodyVals( strm );
+	if ( ret < 0 ) mErrRet(errmsg_)
+	if ( ret == 0 ) break;
+
+	const float xread = getfValue( 0 );
+	const float yread = getfValue( 1 );
+	if ( mIsUdf(xread) || mIsUdf(yread) ) continue;
+
+	Coord crd( xread, yread );
+	BinID bid = isxy ? SI().transform( crd )
+	    		 : BinID(mNINT(xread),mNINT(yread));
+	if ( !SI().isReasonable(bid) ) continue;
+	if ( !hs.isEmpty() && !hs.includes(bid) ) continue;
+
+	TypeSet<float> values;
+	for ( int idx=0; idx<attrnms_.size(); idx++ )
+	    values += getfValue( idx + 2 );
+
+	if ( values.isEmpty() ) continue;
+
+	const bool validz = SI().zRange(false).includes( values[0] );
+	if ( mIsEqual(values[0],udfval,mDefEps) || !validz )
+	    mSetUdf(values[0]);
+
+	if ( scaler )
+	    values[0] = scaler->scale( values[0] );
+
+	set->add( bid, values );
+    }
+
+    return set;
 }
 
 
