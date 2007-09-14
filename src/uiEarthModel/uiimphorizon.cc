@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.84 2007-09-14 04:51:14 cvsraman Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.85 2007-09-14 05:18:27 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "ioobj.h"
 #include "pickset.h"
+#include "randcolor.h"
 #include "strmdata.h"
 #include "strmprov.h"
 #include "surfaceinfo.h"
@@ -207,6 +208,12 @@ void uiImportHorizon::fillUdfSel( CallBacker* )
     arr2dinterpfld_->display( filludffld_->getBoolValue() );
 }
 
+
+void uiImportHorizon::stratLvlChg( CallBacker* )
+{
+    if ( strcmp( stratlvlfld_->getLvlName(), "" ) )
+	colbut_->setColor( *stratlvlfld_->getLvlColor() );
+}
     
 #define mErrRet(s) { uiMSG().error(s); return false; }
 #define mErrRetUnRef(s) { horizon->unRef(); mErrRet(s) }
