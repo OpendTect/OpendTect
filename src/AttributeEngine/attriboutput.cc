@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.59 2007-09-13 19:38:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.60 2007-09-14 14:11:49 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -664,7 +664,7 @@ void LocationOutput::computeAndSetVals( const DataHolder& data, float refstep,
 		      : data.series(serieidx)->value(lowz-1-data.z0_);
 	float p1 = data.series(serieidx)->value(lowz-data.z0_);
 	float p2 = data.series(serieidx)->value(highz-data.z0_);
-	float p3 = !datarg.includes(highz) ? mUdf(float)
+	float p3 = !datarg.includes(highz+1) ? mUdf(float)
 		      : data.series(serieidx)->value(highz+1-data.z0_);
 	if ( classstatus_ ==-1 || classstatus_ == 1 )
 	{
