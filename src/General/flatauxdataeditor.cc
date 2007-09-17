@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.14 2007-08-30 14:34:13 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.cc,v 1.15 2007-09-17 12:47:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ AuxDataEditor::AuxDataEditor( Viewer& v, MouseEventHandler& meh )
     , seldatasetidx_( -1 )
     , selptidx_( -1 )
     , polygonsellst_( LineStyle::Solid, 1, Color( 255, 0, 0 ) )
+    , polygonselrect_( true )
 {
     meh.buttonPressed.notify( mCB(this,AuxDataEditor,mousePressCB) );
     meh.buttonReleased.notify( mCB(this,AuxDataEditor,mouseReleaseCB) );
@@ -143,7 +144,15 @@ const Point& AuxDataEditor::getSelPtPos() const
 { return selptcoord_; }
 
 
-void AuxDataEditor::setSelectionPolygonStyle( const LineStyle& lst )
+void AuxDataEditor::setSelectionPolygonRectangle( bool yn )
+{ polygonselrect_ = yn; }
+
+
+bool AuxDataEditor::getSelectionPolygonRectangle() const
+{ return polygonselrect_; }
+
+
+void AuxDataEditor::setSelectionPolygonLineStyle( const LineStyle& lst )
 {
     polygonsellst_ = lst;
 
@@ -155,7 +164,7 @@ void AuxDataEditor::setSelectionPolygonStyle( const LineStyle& lst )
 }
 
 
-const LineStyle& AuxDataEditor::getSelectionPolygonStyle() const
+const LineStyle& AuxDataEditor::getSelectionPolygonLineStyle() const
 {
     return polygonsellst_;
 }
@@ -425,10 +434,29 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	const int polyidx = polygonsel_.size()-1;
 
 	const Point pt = trans.transform( RowCol(ev.pos().x,ev.pos().y) );
-	polygonsel_[polyidx]->poly_ += pt;
-	if ( polygonsel_[polyidx]->poly_.size()==3 )
+	if ( polygonselrect_ )
+	{
+	    if ( polygonsel_[polyidx]->poly_.size()>1 )
+	    {
+		polygonsel_[polyidx]->poly_.remove( 1,
+			polygonsel_[polyidx]->poly_.size()-1 );
+	    }
+
+	    const Point& startpt = polygonsel_[polyidx]->poly_[0];
+
+	    polygonsel_[polyidx]->poly_ += Point(pt.x,startpt.y);
+	    polygonsel_[polyidx]->poly_ += pt;
+	    polygonsel_[polyidx]->poly_ += Point(startpt.x,pt.y);
 	    polygonsel_[polyidx]->close_ = true;
-	viewer_.handleChange( Viewer::Annot );
+	    viewer_.handleChange( Viewer::Annot );
+	}
+	else
+	{
+	    polygonsel_[polyidx]->poly_ += pt;
+	    if ( polygonsel_[polyidx]->poly_.size()==3 )
+		polygonsel_[polyidx]->close_ = true;
+	    viewer_.handleChange( Viewer::Annot );
+	}
 
 	prevpt_ = ev.pos();
     }
