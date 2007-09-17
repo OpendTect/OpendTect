@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.4 2007-09-10 06:08:14 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.5 2007-09-17 12:22:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,8 +46,11 @@ mDefineFactory( ClassName, FunctionName );
 \endcode
 
 that will create a static function that returns an instance to
-Factory<ClassName>. The static function must be implemented in a src-file
-with the macro
+Factory<ClassName>.
+If the function is a static member of a class, it has to be defined with
+the mDefineFactoryInClass macro.
+
+The static function must be implemented in a src-file with the macro
 
 \code
 mImplFactory( ClassName, FunctionName );
@@ -63,7 +66,9 @@ public:
     typedef			T* (*Creator)();
     inline void			addCreator(Creator,const char* nm,
 	    				   const char* username = 0);
+    				//!<Name may be not be null
     inline T*			create(const char* nm) const;
+    				//!<Name may be not be null
     const BufferStringSet&	getNames(bool username=false) const;
 protected:
 
@@ -121,7 +126,10 @@ public:
     typedef			T* (*Creator)(P);
     inline void			addCreator(Creator,const char* nm,
 	    				   const char* usernm = 0);
+    				//!<Name may be be null
     inline T*			create(const char* nm, P, bool chknm=true)const;
+    				//!<Name may be be null, if null name is given
+				//!<chknm will be forced to false
     const BufferStringSet&	getNames(bool username=false) const;
 protected:
 
@@ -138,8 +146,11 @@ public:
     typedef			T* (*Creator)(P0,P1);
     inline void			addCreator(Creator,const char* nm,
 	    				   const char* usernm = 0);
+    				//!<Name may be be null
     inline T*			create(const char* nm, P0, P1,
 	    			       bool chknm=true)const;
+    				//!<Name may be be null, if null name is given
+				//!<chknm will be forced to false
     const BufferStringSet&	getNames(bool username=false) const;
 protected:
 
@@ -153,6 +164,9 @@ template <class T> inline
 void Factory<T>::addCreator( Creator cr, const char* name,
 			     const char* username )
 {
+    if ( !name )
+	return;
+
     names_.add( name );
     usernames_.add( username ? username : name );
     creators_ += cr;
@@ -162,6 +176,9 @@ void Factory<T>::addCreator( Creator cr, const char* name,
 template <class T> inline
 T* Factory<T>::create( const char* name ) const
 {
+    if ( !name )
+	return 0;
+
     const int idx = names_.indexOf( name );
     if ( idx<0 ) return 0;
 
@@ -252,6 +269,10 @@ const BufferStringSet& Factory2Param<T,P0,P1>::getNames( bool username ) const
 Factory<T>& funcname()
 
 
+#define mDefineFactoryInClass( T, funcname ) \
+static Factory<T>& funcname()
+
+
 #define mImplFactory( T, funcname ) \
 Factory<T>& funcname() \
 { \
@@ -264,6 +285,10 @@ Factory<T>& funcname() \
 Factory1Param<T,P>& funcname()
 
 
+#define mDefineFactory1ParamInClass( T, P, funcname ) \
+static Factory1Param<T,P>& funcname()
+
+
 #define mImplFactory1Param( T, P, funcname ) \
 Factory1Param<T,P>& funcname() \
 { \
@@ -274,6 +299,10 @@ Factory1Param<T,P>& funcname() \
 
 #define mDefineFactory2Param( T, P0, P1, funcname ) \
 Factory2Param<T,P0,P1>& funcname()
+
+
+#define mDefineFactory2ParamInClass( T, P0, P1, funcname ) \
+static Factory2Param<T,P0,P1>& funcname()
 
 
 #define mImplFactory2Param( T, P0, P1, funcname ) \
