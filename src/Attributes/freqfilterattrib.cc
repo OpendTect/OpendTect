@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.23 2007-09-14 14:15:34 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.24 2007-09-17 10:38:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -416,15 +416,17 @@ void FreqFilter::fftFilter( const DataHolder& output,
 	z0safe = z0 - mNINT(nrsamp/2) + mNINT(nrsamples/2);
     }
     
-    if ( !fft.isinit() || !fftinv.isinit() )
+    if ( !fft.isinit() || !fftinv.isinit() || nrsamp>signal.info().getSize(0))
     {
 	fftsz = FFT::_getNearBigFastSz(nrsamp*3);
 	fft.setInputInfo( Array1DInfoImpl(fftsz) );
 	fft.setDir(true);
+	if ( fft.isinit() ) fft.setMeasure( false );
 	fft.init();
 
 	fftinv.setInputInfo( Array1DInfoImpl(fftsz) );
 	fftinv.setDir(false);
+	if ( fftinv.isinit() ) fftinv.setMeasure( false );
 	fftinv.init();
 	
 	setSz(nrsamp);
@@ -444,10 +446,12 @@ void FreqFilter::fftFilter( const DataHolder& output,
 	int csamp = idx + z0safe;
 	int reidx = csamp - redata->z0_;
 	int remaxidx = redata->nrsamples_-1;
-        const float real = reidx<0 ? redata->series(realidx_)->value(0)
-	    			   : reidx>remaxidx
+        float real = reidx<0 ? redata->series(realidx_)->value(0)
+	    		     : reidx>remaxidx
 				     ? redata->series(realidx_)->value(remaxidx)
 				     : redata->series(realidx_)->value(reidx);
+	if ( mIsUdf(real) )
+	    real = idx>0 ? signal.get(idx-1).real() : 0;
 	int imidx = csamp - imdata->z0_;
 	int immaxidx = imdata->nrsamples_-1;
 	const float imag = imidx<0 ? -imdata->series(imagidx_)->value(0)
