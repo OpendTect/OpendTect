@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.202 2007-09-05 07:07:06 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.203 2007-09-17 05:04:27 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -206,12 +206,7 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
     case Hor:
 	switch ( at )
 	{
-	case Imp:
-	    if ( opt == 0 )
-		emserv_->importHorizon();
-	    else if ( opt == 1 )
-		emserv_->importHorizonAttribute();
-	    break;
+	case Imp:	emserv_->importHorizon();			break;
 	case Exp:	emserv_->exportHorizon();			break;
 	case Man:
 	    if ( opt == 0 )
