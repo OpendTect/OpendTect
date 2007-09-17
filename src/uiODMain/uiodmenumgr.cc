@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.95 2007-09-17 05:04:27 cvsraman Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.96 2007-09-17 12:42:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -518,7 +518,7 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     mAddTB(cointb_,"home.png","To home position",false,toHomePos);
     mAddTB(cointb_,"set_home.png","Save home position",false,saveHomePos);
     mAddTB(cointb_,"view_all.png","View all",false,viewAll);
-    cameraid_ = mAddTB(cointb_,"perspective.png",
+    cameraid_ = mAddTB(cointb_,"orthographic.png",
 	    	       "Switch to orthographic camera",false,switchCameraType);
     mAddTB(cointb_,"cube_inl.png","View Inl",false,viewInl);
     mAddTB(cointb_,"cube_crl.png","View Crl",false,viewCrl);
@@ -537,7 +537,7 @@ void uiODMenuMgr::setCameraPixmap( bool perspective )
 {
     cointb_->setToolTip(cameraid_,perspective ? "Switch to orthographic camera"
 					      : "Switch to perspective camera");
-    const char* fnm = perspective ? "perspective.png" : "orthographic.png";
+    const char* fnm = perspective ? "orthographic.png" : "perspective.png";
     cointb_->setPixmap( cameraid_, ioPixmap(fnm) );
 }
 
