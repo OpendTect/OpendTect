@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddisplaytreeitem.cc,v 1.11 2007-08-30 21:26:38 cvskris Exp $
+ RCS:		$Id: uioddisplaytreeitem.cc,v 1.12 2007-09-17 12:44:31 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -97,7 +97,8 @@ uiODDataTreeItem* uiODDisplayTreeItem::createAttribItem(
 					const Attrib::SelSpec* as ) const
 {
     const char* parenttype = typeid(*this).name();
-    uiODDataTreeItem* res = as ? uiODDataTreeItem::create( *as, parenttype ) :0;
+    uiODDataTreeItem* res = as
+	? uiODDataTreeItem::factory().create( 0, *as, parenttype, false ) : 0;
     if ( !res ) res = new uiODAttribTreeItem( parenttype );
     return res;
 }

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.23 2007-09-10 10:40:07 cvsnanne Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.24 2007-09-17 12:44:31 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -370,7 +370,7 @@ uiODDataTreeItem* uiOD2DLineSetSubItem::createAttribItem(
 {
     const char* parenttype = typeid(*this).name();
     uiODDataTreeItem* res = as
-	? uiOD2DLineSetAttribItem::create( *as, parenttype ) : 0;
+	? uiOD2DLineSetAttribItem::factory().create(0,*as,parenttype,false) : 0;
 
     if ( !res ) res = new uiOD2DLineSetAttribItem( parenttype );
     return res;

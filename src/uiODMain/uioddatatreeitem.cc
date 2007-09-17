@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.13 2007-08-20 09:27:55 cvssatyaki Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.14 2007-09-17 12:44:31 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -29,7 +29,8 @@ ___________________________________________________________________
 #include "vissurvscene.h"
 
 
-TypeSet<uiODDataTreeItem::Creator> uiODDataTreeItem::creators_;
+mImplFactory2Param( uiODDataTreeItem, const Attrib::SelSpec&,
+		     const char*, uiODDataTreeItem::factory );
 
 uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     : uiTreeItem( "" )
@@ -59,7 +60,7 @@ uiODDataTreeItem::~uiODDataTreeItem()
     }
 }
 
-
+/*
 uiODDataTreeItem* uiODDataTreeItem::create( const Attrib::SelSpec& as,
 					    const char* pt )
 {
@@ -72,10 +73,7 @@ uiODDataTreeItem* uiODDataTreeItem::create( const Attrib::SelSpec& as,
 
     return 0;
 }
-
-
-void uiODDataTreeItem::addFactory( uiODDataTreeItem::Creator cr )
-{ creators_ += cr; }
+*/
 
 
 int uiODDataTreeItem::uiListViewItemType() const

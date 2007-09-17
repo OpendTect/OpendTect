@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.24 2007-09-04 17:05:49 cvsnanne Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.25 2007-09-17 12:44:31 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -32,7 +32,8 @@ uiODDataTreeItem* uiODEarthModelSurfaceTreeItem::createAttribItem(
 					const Attrib::SelSpec* as ) const
 {
     const char* parenttype = typeid(*this).name();
-    uiODDataTreeItem* res = as ? uiODDataTreeItem::create( *as, parenttype) : 0;
+    uiODDataTreeItem* res = as
+	? uiODDataTreeItem::factory().create( 0, *as, parenttype, false) : 0;
     if ( !res ) res = new uiODEarthModelSurfaceDataTreeItem( emid_, uivisemobj_,
 	    						     parenttype );
 	    

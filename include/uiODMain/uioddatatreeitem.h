@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uioddatatreeitem.h,v 1.7 2007-08-20 09:27:55 cvssatyaki Exp $
+ RCS:		$Id: uioddatatreeitem.h,v 1.8 2007-09-17 12:44:31 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "uiodtreeitem.h"
+#include "factory.h"
 
 class uiMenuHandler;
 namespace Attrib { class SelSpec; };
@@ -32,14 +33,10 @@ public:
     static const int		cPixmapWidth()		{ return 16; }
     static const int		cPixmapHeight()		{ return 10; }
 
-    static uiODDataTreeItem*	create(const Attrib::SelSpec&,
-	    			       const char* parenttype);
-    				/*!<Creates an item based on the selspec. This
-				    is used to create custom items like
-				    the overlay item. */
+				mDefineFactory2ParamInClass(uiODDataTreeItem,
+					const Attrib::SelSpec&,const char*,
+					factory );
 
-    typedef uiODDataTreeItem*	(*Creator)(const Attrib::SelSpec&,const char*);
-    static void			addFactory(Creator);
     				/*!<Adds custom create function for create
 				    function. */
 
@@ -84,8 +81,6 @@ protected:
     MenuItem			view2dwvaitem_;
     MenuItem			view2dvditem_;
     const char*			parenttype_;
-
-    static TypeSet<Creator>	creators_;
 };
 
 #endif
