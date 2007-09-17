@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.63 2007-09-07 18:36:17 cvskris Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.64 2007-09-17 12:35:10 cvskris Exp $";
 
 #include "emmanager.h"
 
@@ -178,13 +178,20 @@ const EMObject* EMManager::getObject( const ObjectID& id ) const
 
 ObjectID EMManager::getObjectID( const MultiID& mid ) const
 {
+    ObjectID res = -1;
     for ( int idx=0; idx<objects_.size(); idx++ )
     {
 	if ( objects_[idx]->multiID()==mid )
-	    return objects_[idx]->id();
+	{
+	    if ( objects_[idx]->isFullyLoaded() )
+		return objects_[idx]->id();
+
+	    if ( res==-1 )
+		res = objects_[idx]->id(); //Better to return this than nothing
+	}
     }
 
-    return -1;
+    return res;
 }
 
 
@@ -198,8 +205,7 @@ MultiID EMManager::getMultiID( const ObjectID& oid ) const
 void EMManager::addObject( EMObject* obj )
 {
     if ( !obj )
-    {
-	pErrMsg("No object provided!");
+    { pErrMsg("No object provided!");
 	return;
     }
 
