@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.94 2007-09-14 06:58:36 cvsraman Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.95 2007-09-17 04:49:34 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,7 +81,7 @@ int nextStep()
 
     PosID posid( horizon.id(), horizon.geometry().sectionID(sectionidx) );
     const BinIDValueSet& bvs = *sections[sectionidx];
-    const int nrattribs = bvs.nrVals()-1;
+    const int nrattribs = attrindexes.size();
     for ( int crl=crlrange.start; crl<=crlrange.stop; crl+=crlrange.step )
     {
 	const BinID bid(inl,crl);
@@ -93,7 +93,7 @@ int nextStep()
 	for ( int attridx=0; attridx<nrattribs; attridx++ )
 	{
 	    horizon.auxdata.setAuxDataVal( attrindexes[idx++], posid,
-		    			   vals[attridx+1] );
+		    			   vals[attridx+startidx] );
 	}
     }
 
@@ -620,6 +620,8 @@ BinIDValueSet* Horizon3DAscIO::get( std::istream& strm, const Scaler* scaler,
 
     BinIDValueSet* set = new BinIDValueSet( attrnms_.size(), false );
     const float udfval = getfValue( 0 );
+    int nrpts = 0;
+    const bool isgeom = attrnms_.get(0) == "Z values";
     while ( true )
     {
 	int ret = getNextBodyVals( strm );
@@ -638,19 +640,33 @@ BinIDValueSet* Horizon3DAscIO::get( std::istream& strm, const Scaler* scaler,
 
 	TypeSet<float> values;
 	for ( int idx=0; idx<attrnms_.size(); idx++ )
-	    values += getfValue( idx + 2 );
+	{
+	    float val = getfValue( idx + 2 );
+	    if ( mIsEqual(val,udfval,mDefEps) )
+		mSetUdf(val);
+	    
+	    values += val;
+	}
 
 	if ( values.isEmpty() ) continue;
 
-	const bool validz = SI().zRange(false).includes( values[0] );
-	if ( mIsEqual(values[0],udfval,mDefEps) || !validz )
-	    mSetUdf(values[0]);
+	if ( isgeom )
+	{
+	    const bool validz = SI().zRange(false).includes( values[0] );
+	    if ( validz )
+		nrpts++;
+	    else
+		mSetUdf(values[0]);
 
-	if ( scaler )
-	    values[0] = scaler->scale( values[0] );
+	    if ( scaler )
+		values[0] = scaler->scale( values[0] );
+	}
 
 	set->add( bid, values );
     }
+
+    if ( isgeom && !nrpts )
+	return 0;
 
     return set;
 }
