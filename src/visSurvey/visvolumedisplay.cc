@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.71 2007-09-12 17:06:25 cvskris Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.72 2007-09-17 18:14:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ VolumeDisplay::VolumeDisplay()
     addChild( boxdragger_->getInventorNode() );
     boxdragger_->finished.notify( mCB(this,VolumeDisplay,manipMotionFinishCB) );
     getMaterial()->setColor( Color::White );
-    getMaterial()->setAmbience( 0.8 );
+    getMaterial()->setAmbience( 0.3 );
     getMaterial()->setDiffIntensity( 0.8 );
     getMaterial()->change.notify(mCB(this,VolumeDisplay,materialChange) );
     voltrans_->ref();
@@ -352,6 +352,7 @@ int VolumeDisplay::addIsoSurface()
     //Insert before the volume transform
     insertChild( childIndex(voltrans_->getInventorNode()),
 	    		    isosurface->getInventorNode() );
+    materialChange( 0 ); //updates new surface's material
     return isosurface->id();
 }
 
