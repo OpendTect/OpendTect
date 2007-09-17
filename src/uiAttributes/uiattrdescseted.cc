@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.58 2007-08-31 11:07:28 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.59 2007-09-17 14:52:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,13 +63,15 @@ ________________________________________________________________________
 
 const char* uiAttribDescSetEd::sKeyUseAutoAttrSet = "dTect.Auto Attribute set";
 const char* uiAttribDescSetEd::sKeyAutoAttrSetID = "Attrset.Auto ID";
+BufferString uiAttribDescSetEd::nmprefgrp( "" );
 
 static bool prevsavestate = true;
 static bool evaldlgpoppedup = false;
 
 using namespace Attrib;
 
-uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm )
+uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm,
+				      const char* prefgrp )
     : uiDialog(p,uiDialog::Setup( adsm && adsm->is2D() ? "Attribute Set 2D"
 					: "Attribute Set 3D","","101.1.0")
 	.savebutton(true).savetext("Save on OK  ")
@@ -88,6 +90,7 @@ uiAttribDescSetEd::uiAttribDescSetEd( uiParent* p, DescSetMan* adsm )
     createMenuBar();
     createToolBar();
     createGroups();
+    attrtypefld->setGrp( prefgrp ? prefgrp : nmprefgrp.buf() );
 
     init();
 }
@@ -452,6 +455,7 @@ bool uiAttribDescSetEd::acceptOK( CallBacker* )
         inoutadsman->setSaved( adsman->isSaved() );
 
     prevsavestate = saveButtonChecked();
+    nmprefgrp = attrtypefld->group();
     return true;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.10 2007-06-12 11:22:28 cvsraman Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.11 2007-09-17 14:52:25 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,8 @@ class uiAttribDescSetEd : public uiDialog
 {
 public:
 
-			uiAttribDescSetEd(uiParent*,Attrib::DescSetMan* adsm);
+			uiAttribDescSetEd(uiParent*,Attrib::DescSetMan* adsm,
+					  const char* prefgrp =0);
 			~uiAttribDescSetEd();
 
     Attrib::DescSet*	getSet()		{ return attrset; }
@@ -78,6 +79,7 @@ protected:
     CtxtIOObj&		setctio;
     MultiID		cancelsetid;
     bool		updating_fields;
+    static BufferString	nmprefgrp;
 
     uiToolBar*		toolbar;
     uiListBox*		attrlistfld;
