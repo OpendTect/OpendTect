@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.57 2007-09-07 18:33:10 cvskris Exp $
+ RCS:           $Id: uiempartserv.h,v 1.58 2007-09-17 05:06:12 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,6 @@ public:
 
 			// Services
     bool		importHorizon();
-    bool		importHorizonAttribute();
     bool		exportHorizon();
 
     MultiID		getStorageID( const EM::ObjectID& ) const;

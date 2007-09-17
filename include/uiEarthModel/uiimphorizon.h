@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.h,v 1.19 2007-09-14 06:59:41 cvsraman Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.20 2007-09-17 05:06:12 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,6 @@ class MultiID;
 class uiBinIDSubSel;
 class uiCheckBox;
 class uiColorInput;
-class uiLabeledComboBox;
 class uiLabeledListBox;
 class uiFileInput;
 class uiGenInput;
@@ -33,6 +32,7 @@ class uiScaler;
 class uiStratLevelSel;
 class uiTableImpDataSel;
 namespace Table { class FormatDesc; }
+namespace EM { class Horizon3D; }
 
 /*! \brief Dialog for Horizon Import */
 
@@ -71,6 +71,8 @@ protected:
     bool		checkInpFlds();
     bool		doImport();
     bool                fillUdfs(ObjectSet<BinIDValueSet>&);
+    EM::Horizon3D*	createHor() const;
+    EM::Horizon3D*      loadHor();
 
     CtxtIOObj&		ctio_;
     Table::FormatDesc&  fd_;
