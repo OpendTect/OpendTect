@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.86 2007-09-14 07:00:23 cvsraman Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.87 2007-09-17 05:07:07 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -192,6 +192,14 @@ void uiImportHorizon::formatSel( CallBacker* cb )
     attrlistfld_->box()->getSelectedItems( attrnms );
     EM::Horizon3DAscIO::updateDesc( fd_, attrnms, isxy );
     dataselfld_->updateSummary();
+    const bool isgeom = attrnms.get(0) == "Z values";
+    ctio_.ctxt.forread = !isgeom;
+    scalefld_->setSensitive( isgeom );
+    filludffld_->setSensitive( isgeom );
+    arr2dinterpfld_->setSensitive( isgeom );
+    colbut_->setSensitive( isgeom );
+    stratlvlfld_->setSensitive( isgeom );
+    displayfld_->setSensitive( isgeom );
 }
 
 
@@ -232,21 +240,17 @@ void uiImportHorizon::stratLvlChg( CallBacker* )
 	colbut_->setColor( *stratlvlfld_->getLvlColor() );
 }
     
-#define mErrRet(s) { uiMSG().error(s); return false; }
+#define mErrRet(s) { uiMSG().error(s); return 0; }
 #define mErrRetUnRef(s) { horizon->unRef(); mErrRet(s) }
 
 bool uiImportHorizon::doImport()
 {
-    const char* horizonnm = outputfld_->getInput();
-    EM::EMManager& em = EM::EMM();
-    EM::ObjectID objid = em.createObject( EM::Horizon3D::typeStr(), horizonnm );
-    mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid));
-    if ( !horizon )
-	mErrRet( "Cannot create horizon" );
+    BufferStringSet attrnms;
+    attrlistfld_->box()->getSelectedItems( attrnms );
+    const bool isgeom = attrnms.get(0) == "Z values";
 
-    horizon->setMultiID( ctio_.ioobj->key() );
-    horizon->setTiedToLvl( stratlvlfld_->getLvlName() );
-    horizon->setPreferredColor( colbut_->color() );
+    EM::Horizon3D* horizon = isgeom ? createHor() : loadHor();
+    if ( !horizon ) return false;
 
     BufferStringSet filenames;
     if ( !getFileNames(filenames) ) return false;
@@ -254,8 +258,6 @@ bool uiImportHorizon::doImport()
     const bool isxy = xyfld_->getBoolValue();
     const Scaler* scaler = scalefld_->getScaler();
     HorSampling hs = subselfld_->getInput().cs_.hrg;
-    BufferStringSet attrnms;
-    attrlistfld_->box()->getSelectedItems( attrnms );
     ObjectSet<BinIDValueSet> sections;
     EM::Horizon3DAscIO aio( fd_, attrnms );
     for ( int idx=0; idx<filenames.size(); idx++ )
@@ -286,14 +288,13 @@ bool uiImportHorizon::doImport()
 //    if ( dofill )
 //	fillUdfs( sections );
 
-    horizon->ref();
-    const RowCol step( hs.step.inl, hs.step.crl );
     ExecutorGroup importer( "Horizon importer" );
     importer.setNrDoneText( "Nr inlines imported" );
-    importer.add( horizon->importer(sections,step) );
     int startidx = 0;
-    if ( attrnms.get(0) == "Z values" )
+    if ( isgeom )
     {
+	const RowCol step( hs.step.inl, hs.step.crl );
+	importer.add( horizon->importer(sections,step) );
 	attrnms.remove( 0 );
 	startidx = 1;
     }
@@ -327,6 +328,7 @@ bool uiImportHorizon::doImport()
 
 bool uiImportHorizon::acceptOK( CallBacker* )
 {
+    dataselfld_->updateSummary();
     if ( !checkInpFlds() ) return false;
 
     return doImport();
@@ -417,6 +419,44 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
     }
 
     return true;
+}
+
+
+EM::Horizon3D* uiImportHorizon::createHor() const
+{
+    const char* horizonnm = outputfld_->getInput();
+    EM::EMManager& em = EM::EMM();
+    EM::ObjectID objid = em.createObject( EM::Horizon3D::typeStr(), horizonnm );
+    mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid));
+    if ( !horizon )
+	mErrRet( "Cannot create horizon" );
+
+    horizon->setMultiID( ctio_.ioobj->key() );
+    horizon->setTiedToLvl( stratlvlfld_->getLvlName() );
+    horizon->setPreferredColor( colbut_->color() );
+    horizon->ref();
+    return horizon;
+}
+
+
+EM::Horizon3D* uiImportHorizon::loadHor()
+{
+    EM::EMManager& em = EM::EMM();
+    EM::EMObject* emobj = em.createTempObject( EM::Horizon3D::typeStr() );
+    emobj->setMultiID( ctio_.ioobj->key() );
+    Executor* loader = emobj->loader();
+    if ( !loader ) mErrRet( "Cannot load horizon");
+
+    uiExecutor loaddlg( this, *loader );
+    if ( !loaddlg.go() )
+	return 0;
+
+    mDynamicCastGet(EM::Horizon3D*,horizon,emobj)
+    if ( !horizon ) mErrRet( "Error loading horizon");
+
+    horizon->ref();
+    delete loader;
+    return horizon;
 }
 
 
