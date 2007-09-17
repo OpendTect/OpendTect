@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.7 2007-08-30 14:34:13 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.8 2007-09-17 12:39:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,8 +66,12 @@ public:
 				   otherwise moved. */
     Notifier<AuxDataEditor>	removeSelected;
 
-    void			setSelectionPolygonStyle(const LineStyle&);
-    const LineStyle&		getSelectionPolygonStyle() const;
+    void			setSelectionPolygonRectangle(bool);
+    				//!<If not rectangle, it's a polygon
+    bool			getSelectionPolygonRectangle() const;
+    				//!<If not rectangle, it's a polygon
+    const LineStyle&		getSelectionPolygonLineStyle() const;
+    void			setSelectionPolygonLineStyle(const LineStyle&);
     void			getPointSelections(TypeSet<int>& ids,
 	    					   TypeSet<int>& idxs) const;
     				/*!<Each point within the limits of the polygons
@@ -100,6 +104,7 @@ protected:
     int					addauxdataid_;
     ObjectSet<Annotation::AuxData>	polygonsel_;
     LineStyle				polygonsellst_;
+    bool				polygonselrect_;
     Annotation::AuxData*		feedback_;
     Geom::Point2D<int>			prevpt_;
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2007
- RCS:           $Id: uiflatauxdataeditorlist.cc,v 1.5 2007-07-11 21:08:43 cvsyuancheng Exp $
+ RCS:           $Id: uiflatauxdataeditorlist.cc,v 1.6 2007-09-17 12:39:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,9 @@ void uiFlatViewAuxDataEditorList::updateList( CallBacker* )
 
        listbox_->setSelected( idx, true );
     }
+
+    if ( listbox_->size()==1 )
+       listbox_->setSelected( 0, true );
 
     block.restore();
     listbox_->selectionChanged.trigger();
