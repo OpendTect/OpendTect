@@ -4,10 +4,11 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.4 2007-04-04 16:51:41 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.5 2007-09-17 15:25:48 cvskris Exp $";
 
 #include "bufstring.h"
 
+#include "general.h"
 #include <iostream>
 #include <stdlib.h>
 #include "string2.h"
@@ -86,6 +87,7 @@ void BufferString::insertAt( int idx, const char* str )
 char* BufferString::buf()			{ return buf_; }
 const char* BufferString::buf() const		{ return buf_; }
 bool BufferString::isEmpty() const		{ return size() == 0; }
+void BufferString::setEmpty()			{ if ( buf_ ) buf_[0] = 0; }
 unsigned int BufferString::size() const		{ return strlen(buf_); }
 unsigned int BufferString::bufSize() const	{ return len_; }
 char& BufferString::lastChar()			{ return buf_[size()-1]; }
@@ -116,7 +118,7 @@ bool BufferString::operator <( const char* s ) const
 
 
 void BufferString::init()
-{ len_ = minlen_; buf_ = new char [len_]; *buf_ ='\0'; }
+{ len_ = minlen_; mTryAlloc( buf_ , char [len_]); *buf_ ='\0'; }
 
 
 bool BufferString::operator==( const char* s ) const
@@ -137,8 +139,8 @@ void BufferString::setBufSize( unsigned int newlen )
     if ( newlen == len_ ) return;
 
     char* oldbuf = buf_;
-    buf_ = new char [newlen];
-    memcpy( buf_, oldbuf, mMIN(newlen,strlen(oldbuf)+1) );
+    mTryAlloc( buf_, char [newlen] );
+    if ( buf_ ) memcpy( buf_, oldbuf, mMIN(newlen,strlen(oldbuf)+1) );
     delete [] oldbuf;
 
     len_ = newlen;
