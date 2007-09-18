@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiobjfileman.cc,v 1.15 2007-08-29 09:50:43 cvsbert Exp $
+ RCS:           $Id: uiobjfileman.cc,v 1.16 2007-09-18 10:28:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ uiObjFileMan::~uiObjFileMan()
 
 void uiObjFileMan::createDefaultUI()
 {
-    IOM().to( ctxt_.getSelKey() );
+    IOM().to( 0 ); IOM().to( ctxt_.getSelKey() );
     selgrp = new uiIOObjSelGrp( this, CtxtIOObj(ctxt_), 0, false );
     selgrp->selectionChg.notify( mCB(this,uiObjFileMan,selChg) );
 
