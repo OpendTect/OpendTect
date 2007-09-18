@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: arrayndslice.h,v 1.1 2007-09-18 12:55:44 cvskris Exp $
+ RCS:           $Id: arrayndslice.h,v 1.2 2007-09-18 13:22:13 cvskris Exp $
 ________________________________________________________________________
 
 @$*/
@@ -50,6 +50,7 @@ class Array1DSlice : public Array1D<T>, public ArrayNDSliceBase
 {
 public:
 				Array1DSlice(ArrayND<T>&);
+				Array1DSlice(const ArrayND<T>&);
 				~Array1DSlice();
 
     T				get( int ) const;
@@ -60,6 +61,7 @@ public:
 protected:
     const ValueSeries<T>*	getStorage_() const;
 
+    bool				writable_;
     ArrayND<T>&				source_;
     mutable OffsetValueSeries<T>*	storage_;
 };
@@ -102,6 +104,16 @@ Array1DSlice<T>::Array1DSlice( ArrayND<T>& source )
     : ArrayNDSliceBase( new Array1DInfoImpl, source.info() )
     , source_( source )
     , storage_( 0 )
+    , writable_( true )
+{}
+
+
+template <class T> inline
+Array1DSlice<T>::Array1DSlice( const ArrayND<T>& source )
+    : ArrayNDSliceBase( new Array1DInfoImpl, source.info() )
+    , source_( const_cast<ArrayND<T>& >(source) )
+    , storage_( 0 )
+    , writable_( false )
 {}
 
 
@@ -112,12 +124,13 @@ Array1DSlice<T>::~Array1DSlice()
 
 template <class T> inline
 bool Array1DSlice<T>::isSettable() const
-{ return source_.isSettable(); }
+{ return writable_ && source_.isSettable(); }
 
 
 template <class T> inline
 void Array1DSlice<T>::set( int pos, T val )
 {
+    if ( !writable_ ) return;
     int srcpos[position_.size()];
     getSourcePos( &pos, srcpos );
     source_.set( srcpos, val );
@@ -165,6 +178,7 @@ Array2DSlice<T>::Array2DSlice( ArrayND<T>& source )
     : ArrayNDSliceBase( new Array2DInfoImpl, source.info() )
     , source_( source )
     , storage_( 0 )
+    , writable_( true )
 {}
 
 
@@ -190,6 +204,7 @@ bool Array2DSlice<T>::isSettable() const
 template <class T> inline
 void Array2DSlice<T>::set( int pos0, int pos1, T val )
 {
+    if ( !writable_ ) return;
     const int localpos[] = { pos0, pos1 };
     int srcpos[position_.size()];
     getSourcePos( localpos, srcpos );
