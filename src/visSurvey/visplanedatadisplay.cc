@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.177 2007-08-20 09:48:42 cvssulochana Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.178 2007-09-18 15:58:04 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -14,10 +14,9 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.177 2007-08-20 09:48
 #include "arrayndslice.h"
 #include "binidvalset.h"
 #include "attribdatapack.h"
-#include "genericnumer.h"
 #include "keyenum.h"
 #include "survinfo.h"
-#include "samplfunc.h"
+#include "simpnumer.h"
 #include "vismaterial.h"
 #include "vistexturecoords.h"
 #include "viscoord.h"
@@ -32,6 +31,7 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.177 2007-08-20 09:48
 #include "iopar.h"
 #include "settings.h"
 #include "zaxistransform.h"
+#include "zaxistransformer.h"
 
 
 mCreateFactoryEntry( visSurvey::PlaneDataDisplay );
@@ -49,7 +49,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , curicstep_(SI().inlStep(),SI().crlStep())
     , curzstep_(SI().zStep())
     , datatransform_( 0 )
-    , datatransformvoihandle_( -1 )
+    , datatransformer_( 0 )
     , moving_(this)
     , movefinished_(this)
     , orientation_( Inline )
@@ -296,8 +296,6 @@ bool PlaneDataDisplay::setDataTransform( ZAxisTransform* zat )
     const bool haddatatransform = datatransform_;
     if ( datatransform_ )
     {
-	if ( datatransformvoihandle_!=-1 )
-	    datatransform_->removeVolumeOfInterest(datatransformvoihandle_);
 	if ( datatransform_->changeNotifier() )
 	    datatransform_->changeNotifier()->remove(
 		    mCB(this, PlaneDataDisplay, dataTransformCB ));
@@ -306,7 +304,9 @@ bool PlaneDataDisplay::setDataTransform( ZAxisTransform* zat )
     }
 
     datatransform_ = zat;
-    datatransformvoihandle_ = -1;
+
+    delete datatransformer_;
+    datatransformer_ = 0;
 
     if ( datatransform_ )
     {
@@ -577,7 +577,7 @@ CubeSampling PlaneDataDisplay::getCubeSampling( int attrib ) const
 
 void PlaneDataDisplay::getRandomPos( ObjectSet<BinIDValueSet>& pos ) const
 {
-    if ( !datatransform_->loadDataIfMissing( datatransformvoihandle_ ) )
+    if ( !datatransformer_->loadTransformData() )
 	return;
 
     const CubeSampling cs = getCubeSampling( true, true, 0 ); //attrib?
@@ -644,15 +644,12 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
     if ( !datatransform_ )
 	return;
 
-    if ( datatransformvoihandle_==-1 )
-	datatransformvoihandle_ =
-	    datatransform_->addVolumeOfInterest( cs, true );
-    else
-	datatransform_->setVolumeOfInterest( datatransformvoihandle_,
-					     cs, true );
+    if ( !datatransformer_ )
+	datatransformer_ = new ZAxisTransformer( *datatransform_, true );
 
     //Try to load data here, so other objects (i.e. picksets) may read the data.
-    datatransform_->loadDataIfMissing( datatransformvoihandle_ );
+    datatransformer_->setOutputRange( cs );
+    datatransformer_->loadTransformData();
 }
 
 
@@ -785,44 +782,28 @@ void PlaneDataDisplay::setData( int attrib, const Attrib::DataCubes* datacubes )
 	    usedarray = &datacubes->getCube(idx);
 	else
 	{
-	    const CubeSampling cs = getCubeSampling(true,true);
-	    datatransform_->loadDataIfMissing( datatransformvoihandle_ );
+	    if ( !datatransformer_ )
+		datatransformer_ = new ZAxisTransformer( *datatransform_, true);
 
-	    ZAxisTransformSampler outpsampler( *datatransform_, true,BinID(0,0),
-		    	SamplingData<double>(cs.zrg.start, cs.zrg.step));
-	    const Array3D<float>& srcarray = datacubes->getCube( idx );
-	    const Array3DInfo& info = srcarray.info();
-	    const int inlsz = info.getSize( Attrib::DataCubes::cInlDim() );
-	    const int crlsz = info.getSize( Attrib::DataCubes::cCrlDim() );
-	    const int zsz = cs.zrg.nrSteps()+1;
-	    tmparray = new Array3DImpl<float>( inlsz, crlsz, zsz );
-	    usedarray = tmparray;
+	    datatransformer_->setInterpolate( !isClassification(attrib) );
+	    datatransformer_->setInput( datacubes->getCube( idx ),
+		    		   datacubes->cubeSampling() );
+	    datatransformer_->setOutputRange( getCubeSampling(true,true) );
 
-	    for ( int inlidx=0; inlidx<inlsz; inlidx++ )
+	    if ( !datatransformer_->execute() )
 	    {
-		for ( int crlidx=0; crlidx<crlsz; crlidx++ )
-		{
-		    const BinID bid( datacubes->inlsampling.atIndex(inlidx),
-			   	     datacubes->crlsampling.atIndex(crlidx) );
-		    outpsampler.setBinID( bid );
-		    outpsampler.computeCache( Interval<int>(0,zsz-1) );
-
-		    const float* inputptr = srcarray.getData() +
-					    info.getOffset(inlidx,crlidx,0);
-		    float* outputptr = tmparray->getData() +
-				    tmparray->info().getOffset(inlidx,crlidx,0);
-
-		    SampledFunctionImpl<float,const float*>
-			inputfunc( inputptr,
-				   info.getSize(Attrib::DataCubes::cZDim()),
-				   datacubes->z0*datacubes->zstep,
-				   datacubes->zstep );
-		    inputfunc.setHasUdfs( true );
-		    inputfunc.setInterpolate( !isClassification(attrib) );
-
-		    reSample( inputfunc, outpsampler, outputptr, zsz );
-		}
+		pErrMsg("Transform failed");
+		return;
 	    }
+
+	    tmparray = datatransformer_->getOutput( true );
+	    if ( !tmparray )
+	    {
+		pErrMsg("No output from transform" );
+		return;
+	    }
+
+	    usedarray = tmparray;
 	}
 
 	Array2DSlice<float> slice(*usedarray);

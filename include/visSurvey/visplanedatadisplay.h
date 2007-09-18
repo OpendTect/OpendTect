@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.100 2007-08-20 09:48:42 cvssulochana Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.101 2007-09-18 15:58:04 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "ranges.h"
 
 template <class T> class Array2D;
+class ZAxisTransformer;
 
 namespace visBase
 {
@@ -175,7 +176,7 @@ protected:
     BinID				curicstep_;
     float				curzstep_;
     ZAxisTransform*			datatransform_;
-    int					datatransformvoihandle_;
+    ZAxisTransformer*			datatransformer_;
     Notifier<PlaneDataDisplay>		moving_;
     Notifier<PlaneDataDisplay>		movefinished_;
 
