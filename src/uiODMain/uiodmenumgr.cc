@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.96 2007-09-17 12:42:37 cvskris Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.97 2007-09-18 14:29:07 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
 	, viewmnu_(0)
 	, utilmnu_(0)
 	, helpmnu_(0)
+	, toolbarsmnu_(0)
 	, dtecttb_(0)
 	, cointb_(0)
 	, mantb_(0)
@@ -65,7 +66,8 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     appl_.applMgr().visServer()->createToolBars();
     appl_.applMgr().visServer()->nrScenesChange().notify(
 	    			mCB(this,uiODMenuMgr,updateWindowsMenu) );
-    appl_.nrToolBarsChange.notify( mCB(this,uiODMenuMgr,updateViewMenu) );
+    appl_.nrToolBarsChange.notify( mCB(this,uiODMenuMgr,renewToolbarsMenu) );
+    appl_.toolBarsDispChg.notify( mCB(this,uiODMenuMgr,updateToolbarsMenu) );
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectMnus) );
 }
@@ -313,7 +315,7 @@ void uiODMenuMgr::fillProcMenu()
     {
 	uiPopupMenu* mnu2d = hasboth ? new uiPopupMenu( &appl_, "&2D" ) :horitm;
 	mInsertItem( mnu2d, "&Horizon grid...", mCreateSurf2DMnuItm );
-	//TODO the others should be possible ater on
+	//TODO the others should be possible later on
 	if ( hasboth )
 	    horitm->insertItem( mnu2d );
     }
@@ -354,12 +356,6 @@ void uiODMenuMgr::updateWindowsMenu( CallBacker* )
 }
 
 
-void uiODMenuMgr::updateViewMenu( CallBacker* )
-{
-    fillViewMenu();
-}
-
-
 void uiODMenuMgr::fillViewMenu()
 {
     if ( !viewmnu_ ) return;
@@ -390,7 +386,9 @@ void uiODMenuMgr::fillViewMenu()
     mkViewIconsMnu();
 
     viewmnu_->insertSeparator();
-    viewmnu_->insertItem( &appl_.createDockWindowMenu() );
+    toolbarsmnu_ = new uiPopupMenu( &appl_, "&Toolbars" );
+    viewmnu_->insertItem( toolbarsmnu_ );
+    renewToolbarsMenu(0);
 }
 
 
@@ -423,6 +421,48 @@ void uiODMenuMgr::mkViewIconsMnu()
     int nradded = 0;
     addIconMnuItems( dlsite, iconsmnu, nradded );
     addIconMnuItems( dlrel, iconsmnu, nradded );
+}
+
+
+void uiODMenuMgr::updateToolbarsMenu( CallBacker* )
+{
+    if ( !toolbarsmnu_ ) return;
+
+    const ObjectSet<uiMenuItem>& items = toolbarsmnu_->items();
+    const ObjectSet<uiToolBar>& toolbars = uiToolBar::toolBars();
+	
+    for ( int tbidx=0; tbidx<toolbars.size(); tbidx++ )
+    {
+	const uiToolBar& tb = *toolbars[tbidx];
+	for ( int itmidx=0; itmidx<items.size(); itmidx++ )
+	{
+	    uiMenuItem& itm = *const_cast<uiMenuItem*>( items[itmidx] );
+	    if ( itm.name()==tb.name() && tb.parent()==&appl_ )
+		itm.setChecked( !tb.isHidden() );
+	}
+    }
+}
+   
+
+void uiODMenuMgr::renewToolbarsMenu( CallBacker* )
+{
+    if ( !toolbarsmnu_ ) return;
+
+    toolbarsmnu_->clear();
+    const ObjectSet<uiToolBar>& toolbars = uiToolBar::toolBars();
+
+    for ( int tbidx=0; tbidx<toolbars.size(); tbidx++ )
+    {
+	const uiToolBar& tb = *toolbars[tbidx];
+	if ( tb.parent() != &appl_ )
+	    continue;
+	
+	uiMenuItem* itm = 
+		new uiMenuItem( tb.name(), mCB(this,uiODMenuMgr,handleClick) ); 
+	toolbarsmnu_->insertItem( itm, mViewToolbarsMnuItm); 
+	itm->setCheckable( true ); 
+	itm->setChecked( !tb.isHidden() );
+    }
 }
 
 
@@ -653,6 +693,17 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	sceneMgr().setStereoType( type );
 	updateStereoMenu();
     } break;
+
+    case mViewToolbarsMnuItm:
+    {
+	ObjectSet<uiToolBar>& toolbars = uiToolBar::toolBars();
+	for ( int tbidx=0; tbidx<toolbars.size(); tbidx++ )
+	{
+	    uiToolBar& tb = *toolbars[tbidx];
+	    if ( tb.name()==itm->name() && tb.parent()==&appl_ )
+		tb.display( tb.isHidden() );
+	}
+    }
 
     default:
     {

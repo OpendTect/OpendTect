@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.29 2007-09-17 15:07:31 cvsdgb Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.30 2007-09-18 14:30:12 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -105,16 +105,18 @@ ________________________________________________________________________
 
 /* "View' menu */
 
-#define mViewStereoMnu		(mViewMnu + 100)
-
 #define mWorkAreaMnuItm		(mViewMnu + 10)
 #define mZScaleMnuItm		(mViewMnu + 20)
+
+#define mViewStereoMnu		(mViewMnu + 100)
+
 #define mStereoOffMnuItm	(mViewStereoMnu + 10)
 #define mStereoRCMnuItm		(mViewStereoMnu + 20)
 #define mStereoQuadMnuItm	(mViewStereoMnu + 30)
 #define mStereoOffsetMnuItm	(mViewStereoMnu + 40)
 
 #define mViewIconsMnuItm	(mViewMnu + 200)
+#define mViewToolbarsMnuItm	(mViewMnu + 300)
 
 
 /* 'Utilities' menu */

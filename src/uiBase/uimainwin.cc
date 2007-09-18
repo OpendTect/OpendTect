@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.130 2007-09-11 14:27:28 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.131 2007-09-18 14:25:24 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -144,8 +144,6 @@ public:
 
     void 		uimoveDockWindow(uiDockWin&,uiMainWin::Dock,int);
     virtual QMenu*	createPopupMenu()	{ return 0; }
-    QMenu*		createToolbarMenu()
-			{ return QMainWindow::createPopupMenu(); }
 
     void		setModal( bool yn )	{ modal_ = yn; }
     bool		isModal() const		{ return modal_; }
@@ -426,6 +424,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
     , windowClosed(this)
     , activatedone(this)
     , nrToolBarsChange(this)
+    , toolBarsDispChg(this)
 { 
     body_= new uiMainWinBody( *this, parnt, nm, modal ); 
     setBody( body_ );
@@ -442,6 +441,7 @@ uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
     , windowClosed(this)
     , activatedone(this)
     , nrToolBarsChange(this)
+    , toolBarsDispChg(this)
 {}
 
 
@@ -696,18 +696,6 @@ void uiMainWin::setIcon( const char* img[], const char* icntxt )
 	    menuBar()->setIcon( imgpm );
     }
 }
-
-uiPopupMenu& uiMainWin::createDockWindowMenu()
-{
-#ifdef USEQT3
-    QPopupMenu* qmnu = body_->createDockWindowMenu();
-    return *new uiPopupMenu(this,qmnu,"Toolbars");
-#else
-    QMenu* qmnu = body_->createToolbarMenu();
-    return *new uiPopupMenu(this,qmnu,"Toolbars");
-#endif
-}
-
 
 
 /*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and
