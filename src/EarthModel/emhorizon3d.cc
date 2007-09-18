@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.95 2007-09-17 04:49:34 cvsraman Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.96 2007-09-18 10:56:52 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,8 @@ int nextStep()
     {
 	const BinID bid(inl,crl);
 	BinIDValueSet::Pos pos = bvs.findFirst( bid );
+	if ( !pos.valid() ) continue;
+
 	const float* vals = bvs.getVals( pos );
 	if ( !vals ) continue;
 	posid.setSubID( bid.getSerialized() );
