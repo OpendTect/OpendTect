@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.41 2007-03-07 17:53:24 cvsnanne Exp $
+ RCS:           $Id: uicombobox.cc,v 1.42 2007-09-18 14:24:41 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,8 @@ ________________________________________________________________________
 
 #include "i_qcombobox.h"
 
+#include "qapplication.h"
+#include "qevent.h"
 #include "qsize.h"
 
 #ifdef __msvc__
@@ -55,11 +57,38 @@ public:
 
     virtual int 	nrTxtLines() const		{ return 1; }
 
+    void		activate(int idx);
+    bool		event(QEvent*);
+
+protected:
+    int			activateidx_;
+
 private:
 
     i_comboMessenger&    messenger_;
 
 };
+
+
+static const QEvent::Type sQEventActivate = (QEvent::Type) (QEvent::User+0);
+
+void uiComboBoxBody::activate( int idx )
+{
+    activateidx_ = idx;
+    QEvent* actevent = new QEvent( sQEventActivate );
+    QApplication::postEvent( this, actevent );
+}
+
+bool uiComboBoxBody::event( QEvent* ev )
+{
+    if ( ev->type() != sQEventActivate )
+	return QComboBox::event( ev );
+    
+    handle_.setCurrentItem( activateidx_ );
+    handle_.selectionChanged.trigger();
+    handle_.activatedone.trigger();
+    return true;
+}
 
 
 //------------------------------------------------------------------------------
@@ -68,7 +97,7 @@ private:
 uiComboBox::uiComboBox(  uiParent* parnt, const char* nm, bool ed )
 						//false: no read/write
     : uiObject( parnt, nm, mkbody(parnt,nm,ed) )
-    , selectionChanged( this )
+    , selectionChanged( this ), activatedone( this )
 {
     if ( ed ) setStretch( 1, 0 );
 }
@@ -77,7 +106,7 @@ uiComboBox::uiComboBox(  uiParent* parnt, const char* nm, bool ed )
 uiComboBox::uiComboBox(  uiParent* parnt, const BufferStringSet& uids,
 			 const char* nm, bool ed )
     : uiObject( parnt, nm, mkbody(parnt,nm,ed) )
-    , selectionChanged( this )
+    , selectionChanged( this ), activatedone( this )
 { 
     if ( ed ) setStretch( 1, 0 );
     addItems( uids );
@@ -87,7 +116,7 @@ uiComboBox::uiComboBox(  uiParent* parnt, const BufferStringSet& uids,
 uiComboBox::uiComboBox(  uiParent* parnt, const char** uids,
 			 const char* nm, bool ed )
     : uiObject( parnt, nm, mkbody(parnt,nm,ed) )
-    , selectionChanged( this )
+    , selectionChanged( this ), activatedone( this )
 { 
     if ( ed ) setStretch( 1, 0 );
     addItems( uids );
@@ -242,6 +271,10 @@ void uiComboBox::insertItem( const ioPixmap& pm, const char* text , int index )
 {
     body_->insertItem( *pm.qpixmap(), QString(text), index );
 }
+
+
+void uiComboBox::activate( int idx )
+{ body_->activate( idx ); }
 
 
 uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const char* txt,
