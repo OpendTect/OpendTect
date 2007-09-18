@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.26 2007-02-28 16:50:54 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.h,v 1.27 2007-09-18 14:26:46 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,8 @@ public:
 			/*!< you must call this after all buttons are added
 			     s and m are not used.
 			*/
+    bool		isHidden() const;
+    bool		isVisible() const;
 
     void		addSeparator();
 
@@ -93,14 +95,21 @@ public:
     void		reLoadPixMaps();
     void		clear();
 
+    const ObjectSet<uiObject>& 		objectList() const;
+
     static ObjectSet<uiToolBar>&	toolBars();
-    QToolBar*		qwidget()	{ return qtoolbar; }
+    QToolBar*		qwidget()	{ return qtoolbar_; }
+
+    uiParent*		parent()	{ return parent_; }
+    const uiParent*	parent() const
+			    { return const_cast<uiToolBar*>(this)->parent(); }
 
 protected:
 
-    QToolBar*		qtoolbar;
+    QToolBar*		qtoolbar_;
     uiToolBarBody*	body_;
     uiToolBarBody&	mkbody(const char*,QToolBar&);
+    uiParent*		parent_;
 
 };
 

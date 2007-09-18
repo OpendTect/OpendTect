@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.36 2007-09-11 14:27:28 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.37 2007-09-18 14:26:46 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uitoolbar.h"
 
 #include "uibody.h"
+#include "uibutton.h"
 #include "uimainwin.h"
 #include "uiobj.h"
 #include "uiparentbody.h"
@@ -45,7 +46,7 @@ public:
 
 			uiToolBarBody(uiToolBar&,QToolBar&);
 
-			~uiToolBarBody()	{ deepErase(receivers); }
+			~uiToolBarBody();
 
 
     int 		addButton(const ioPixmap&,const CallBack&, 
@@ -70,12 +71,15 @@ public:
     static mDockNmSpc::ToolBarDock
 			qdock(uiToolBar::ToolBarDock);
 
+    const ObjectSet<uiObject>& 
+			objectList() const		{ return objects_; }
+
 protected:
 
-    virtual const QWidget*      managewidg_() const	{ return qbar; }
-    virtual const QWidget*	qwidget_() const	{ return qbar; }
-    QToolBar*			qbar;
-    uiToolBar&			tbar;
+    virtual const QWidget*      managewidg_() const	{ return qbar_; }
+    virtual const QWidget*	qwidget_() const	{ return qbar_; }
+    QToolBar*			qbar_;
+    uiToolBar&			tbar_;
     int				iconsz_;
 
     virtual void        attachChild ( constraintType tp,
@@ -86,26 +90,27 @@ protected:
 			    pErrMsg("Cannot attach uiObjects in a uiToolBar");
 			    return;
 			}
-
-
 private:
-
-    ObjectSet<i_QToolButReceiver> receivers; // for deleting
-#ifdef USEQT3
-    ObjectSet<QToolButton>	buttons;
-#else
-    ObjectSet<QAction>		actions;
-#endif
-    BufferStringSet		pmsrcs;
+    BufferStringSet		pmsrcs_;
+    
+    ObjectSet<uiObject>		objects_; 
+    TypeSet<int>		butindex_;
 
 };
 
 
 uiToolBarBody::uiToolBarBody( uiToolBar& handle, QToolBar& bar )
     : uiParentBody("ToolBar")
-    , qbar(&bar)
-    , tbar(handle)
+    , qbar_(&bar)
+    , tbar_(handle)
 {
+}
+
+
+uiToolBarBody::~uiToolBarBody()	
+{ 
+    for ( int idx=0; idx<butindex_.size(); idx++ )
+	delete objects_[butindex_[idx]];
 }
 
 
@@ -114,66 +119,45 @@ int uiToolBarBody::addButton( const char* fnm, const CallBack& cb,
 { return addButton( ioPixmap(fnm), cb, nm, toggle ); }
 
 
-#ifdef USEQT3
 int uiToolBarBody::addButton( const ioPixmap& pm, const CallBack& cb,
 			      const char* nm, bool toggle )
 {
-    i_QToolButReceiver* br= new i_QToolButReceiver;
-    QToolButton* but= new QToolButton( *pm.qpixmap(), QString(nm),
-	    			       QString::null, br,
-				       SLOT(buttonPressed()),qbar, nm );
-    if ( toggle ) but->setToggleButton( true );
+    uiToolButton* toolbarbut = new uiToolButton( &tbar_, nm, pm, cb );
+    toolbarbut->setToggleButton(toggle);
+    toolbarbut->setToolTip( nm );
+    butindex_ += objects_.size();
+    addObject( toolbarbut );
+    pmsrcs_.add( pm.source() );
 
-    receivers += br;
-    buttons += but;
-    pmsrcs.add( pm.source() );
-
-    br->pressed.notify( cb );
-    return buttons.size()-1;
+    return butindex_.size()-1;
 }
-#else
-int uiToolBarBody::addButton( const ioPixmap& pm, const CallBack& cb,
-			      const char* nm, bool toggle )
-{
-    i_QToolButReceiver* br= new i_QToolButReceiver;
-    QAction* qaction = qbar->addAction( *pm.qpixmap(), nm, br,
-					SLOT(buttonPressed()) );
-    if ( toggle ) qaction->setCheckable( true );
-
-    receivers += br;
-    actions += qaction;
-    pmsrcs.add( pm.source() );
-
-    br->pressed.notify( cb );
-    return actions.size()-1;
-}
-#endif
 
 
 void uiToolBarBody::addObject( uiObject* obj )
 {
 #ifndef USEQT3
     if ( obj && obj->body() )
-	qbar->addWidget( obj->body()->qwidget() );
+    {
+	qbar_->addWidget( obj->body()->qwidget() );
+	objects_ += obj;
+    }
 #endif
 }
 
+
+#define mToolBarBut(idx) dynamic_cast<uiToolButton*>(objects_[butindex_[idx]])
+#define mConstToolBarBut(idx) \
+	dynamic_cast<const uiToolButton*>(objects_[butindex_[idx]])
 
 void uiToolBarBody::turnOn( int idx, bool yn )
-{
-#ifdef USEQT3
-    buttons[idx]->setOn( yn );
-#else
-    actions[idx]->setChecked( yn );
-#endif
-}
+{ mToolBarBut(idx)->setOn( yn ); }
 
 
 void uiToolBarBody::reLoadPixMaps()
 {
-    for ( int idx=0; idx<pmsrcs.size(); idx++ )
+    for ( int idx=0; idx<pmsrcs_.size(); idx++ )
     {
-	const BufferString& pmsrc = pmsrcs.get( idx );
+	const BufferString& pmsrc = pmsrcs_.get( idx );
 	if ( pmsrc[0] == '[' )
 	    continue;
 
@@ -183,65 +167,36 @@ void uiToolBarBody::reLoadPixMaps()
 	const ioPixmap pm( fnm.buf(), len > 1 ? fms[1] : 0 );
 	if ( pm.isEmpty() )
 	    continue;
-#ifdef USEQT3
-	buttons[idx]->setPixmap( *pm.qpixmap() );
-#else
-	actions[idx]->setIcon( *pm.qpixmap() );
-#endif
+
+	mToolBarBut(idx)->setPixmap( pm );
     }
 }
 
 
 bool uiToolBarBody::isOn( int idx ) const
-{
-#ifdef USEQT3
-    return buttons[idx]->isOn();
-#else
-    return actions[idx]->isChecked();
-#endif
-}
+{ return mConstToolBarBut(idx)->isOn(); }
 
 
 void uiToolBarBody::setSensitive( int idx, bool yn )
-{
-#ifdef USEQT3
-    buttons[idx]->setEnabled( yn );
-#else
-    actions[idx]->setEnabled( yn );
-#endif
-}
+{ mToolBarBut(idx)->setSensitive( yn ); }
 
 
 void uiToolBarBody::setPixmap( int idx, const char* fnm )
-{
-    setPixmap( idx, ioPixmap(fnm) );
-}
+{ setPixmap( idx, ioPixmap(fnm) ); }
 
 
 void uiToolBarBody::setPixmap( int idx, const ioPixmap& pm )
-{
-#ifdef USEQT3
-    buttons[idx]->setPixmap( *pm.qpixmap() );
-#else
-    actions[idx]->setIcon( *pm.qpixmap() );
-#endif
-}
+{ mToolBarBut(idx)->setPixmap( pm ); }
 
 
-void uiToolBarBody::setToolTip( int idx, const char* tip )
-{
-#ifdef USEQT3
-    buttons[idx]->setTextLabel( QString(tip) );
-#else
-    actions[idx]->setToolTip( QString(tip) );
-#endif
-}
+void uiToolBarBody::setToolTip( int idx, const char* txt )
+{ mToolBarBut(idx)->setToolTip( txt ); }
 
 
 void uiToolBarBody::setShortcut( int idx, const char* sc )
 {
 #ifndef USEQT3
-    actions[idx]->setShortcut( QString(sc) );
+    mToolBarBut(idx)->setShortcut( sc );
 #endif
 }
 
@@ -284,14 +239,15 @@ ObjectSet<uiToolBar>& uiToolBar::toolBars()
 uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarDock d,
 		      bool newline )
     : uiParent(nm,0)
+    , parent_(parnt)
 {
     //TODO: impl preferred dock and newline
     Qt::ToolBarDock tbdock = uiToolBarBody::qdock(d);
     QWidget* qwidget = parnt && parnt->pbody() ? parnt->pbody()->qwidget() : 0;
-    qtoolbar = new QToolBar( QString(nm), (QMainWindow*)qwidget );
-    setBody( &mkbody(nm,*qtoolbar) );
+    qtoolbar_ = new QToolBar( QString(nm), (QMainWindow*)qwidget );
+    setBody( &mkbody(nm,*qtoolbar_) );
     toolBars() += this;
-
+    
     mDynamicCastGet(uiMainWin*,uimw,parnt)
     if ( uimw ) uimw->addToolBar( this );
 }
@@ -327,7 +283,7 @@ void uiToolBar::addObject( uiObject* obj )
 
 void uiToolBar::setLabel( const char* lbl )
 {
-    qtoolbar->setLabel( QString(lbl) );
+    qtoolbar_->setLabel( QString(lbl) );
     setName( lbl );
 }
 
@@ -360,22 +316,34 @@ void uiToolBar::setPixmap( int idx, const ioPixmap& pm )
 void uiToolBar::display( bool yn, bool, bool )
 {
     if ( yn )
-	qtoolbar->show();
+	qtoolbar_->show();
     else
-	qtoolbar->hide();
+	qtoolbar_->hide();
+
+    mDynamicCastGet( uiMainWin*, uimw, parent() )
+    if ( uimw ) uimw->toolBarsDispChg.trigger();
 }
 
 
+bool uiToolBar::isHidden() const
+{ return qtoolbar_->isHidden(); }
+
+
+bool uiToolBar::isVisible() const
+{ return qtoolbar_->isVisible(); }
+
+
 void uiToolBar::addSeparator()
-{ qtoolbar->addSeparator(); }
+{ qtoolbar_->addSeparator(); }
+
 
 #ifdef USEQT3
 void uiToolBar::dock()
-{ qtoolbar->dock(); }
+{ qtoolbar_->dock(); }
 
 
 void uiToolBar::undock()
-{ qtoolbar->undock(); }
+{ qtoolbar_->undock(); }
 #endif
 
 
@@ -383,7 +351,7 @@ void uiToolBar::setStretchableWidget( uiObject* obj )
 {
     if ( !obj ) return;
 #ifdef USEQT3
-    qtoolbar->setStretchableWidget( obj->body()->qwidget() );
+    qtoolbar_->setStretchableWidget( obj->body()->qwidget() );
 #endif
 }
 
@@ -393,19 +361,23 @@ void uiToolBar::reLoadPixMaps()
 
 
 void uiToolBar::clear()
-{ qtoolbar->clear(); }
+{ qtoolbar_->clear(); }
+
+
+const ObjectSet<uiObject>& uiToolBar::objectList() const
+{ return body_->objectList(); }
 
 
 #define mSetFunc(func,var) \
 void uiToolBar::func( var value ) \
 { \
-    qtoolbar->func( value ); \
+    qtoolbar_->func( value ); \
 }
 
 #define mGetFunc(func,var) \
 var uiToolBar::func() const \
 { \
-    return qtoolbar->func(); \
+    return qtoolbar_->func(); \
 }
 
 #ifdef USEQT3
