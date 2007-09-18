@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.22 2007-08-10 12:20:04 cvsnanne Exp $
+ RCS:           $Id: uibutton.h,v 1.23 2007-09-18 14:24:01 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,14 +142,16 @@ public:
     enum ArrowType		{ NoArrow, UpArrow, DownArrow,
 				  LeftArrow, RightArrow };
 
-    bool			isOn();
+    bool			isOn() const;
     void			setOn(bool yn=true);
 
     void			setToggleButton(bool yn=true);
-    bool			isToggleButton();
+    bool			isToggleButton() const;
 
     void			setPixmap(const ioPixmap&);
     void			setArrowType(ArrowType);
+
+    void			setShortcut( const char* sc );
     
     void			click();
 

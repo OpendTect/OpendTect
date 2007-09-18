@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.43 2007-08-23 15:25:19 cvsbert Exp $
+ RCS:           $Id: uibutton.cc,v 1.44 2007-09-18 14:24:01 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -303,7 +303,7 @@ void uiRadioButton::setChecked( bool check )	{ body_->setChecked( check ); }
 
 void uiRadioButton::click()			
 { 
-    setChecked( true );
+    setChecked( !isChecked() );
     activated.trigger();
 }
 
@@ -399,10 +399,10 @@ uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap* pm,
 #endif
 
 
-bool uiToolButton::isOn()		{ return body_->mIsOn(); }
+bool uiToolButton::isOn() const		{ return body_->mIsOn(); }
 void uiToolButton::setOn( bool yn)	{ body_->mSetOn(yn); }
 
-bool uiToolButton::isToggleButton()     { return body_->mIsToggleButton(); }
+bool uiToolButton::isToggleButton() const    { return body_->mIsToggleButton();}
 void uiToolButton::setToggleButton( bool yn) { body_->mSetToggleButton(yn); }
 
 
@@ -427,4 +427,10 @@ void uiToolButton::setPixmap( const ioPixmap& pm )
 void uiToolButton::setArrowType( ArrowType type )
 {
     body_->setArrowType( (Qt::ArrowType)(int)type );
+}
+
+
+void uiToolButton::setShortcut( const char* sc )
+{
+    body_->setShortcut( QString(sc) );
 }
