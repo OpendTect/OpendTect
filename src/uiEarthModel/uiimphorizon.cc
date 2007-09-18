@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.87 2007-09-17 05:07:07 cvsraman Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.88 2007-09-18 10:59:11 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
+#include "emsurfaceauxdata.h"
 #include "ioobj.h"
 #include "pickset.h"
 #include "randcolor.h"
@@ -192,14 +193,21 @@ void uiImportHorizon::formatSel( CallBacker* cb )
     attrlistfld_->box()->getSelectedItems( attrnms );
     EM::Horizon3DAscIO::updateDesc( fd_, attrnms, isxy );
     dataselfld_->updateSummary();
+    if ( !attrnms.size() ) return;
     const bool isgeom = attrnms.get(0) == "Z values";
     ctio_.ctxt.forread = !isgeom;
-    scalefld_->setSensitive( isgeom );
+    if ( !isgeom )
+    {
+	filludffld_->setValue( false );
+    	displayfld_->setChecked( false );
+    }
+
+    scalefld_->display( isgeom );
     filludffld_->setSensitive( isgeom );
-    arr2dinterpfld_->setSensitive( isgeom );
-    colbut_->setSensitive( isgeom );
-    stratlvlfld_->setSensitive( isgeom );
-    displayfld_->setSensitive( isgeom );
+    colbut_->display( isgeom );
+    stratlvlfld_->display( isgeom );
+    displayfld_->display( isgeom );
+    fillUdfSel(0);
 }
 
 
@@ -242,11 +250,22 @@ void uiImportHorizon::stratLvlChg( CallBacker* )
     
 #define mErrRet(s) { uiMSG().error(s); return 0; }
 #define mErrRetUnRef(s) { horizon->unRef(); mErrRet(s) }
+#define mSave() \
+    if ( !exec ) \
+    { \
+	delete exec; \
+	horizon->unRef(); \
+	return false; \
+    } \
+    uiExecutor dlg( this, *exec ); \
+    rv = dlg.execute(); \
+    delete exec; 
 
 bool uiImportHorizon::doImport()
 {
     BufferStringSet attrnms;
     attrlistfld_->box()->getSelectedItems( attrnms );
+    if ( !attrnms.size() ) mErrRet( "No Attributes selected" );
     const bool isgeom = attrnms.get(0) == "Z values";
 
     EM::Horizon3D* horizon = isgeom ? createHor() : loadHor();
@@ -282,11 +301,14 @@ bool uiImportHorizon::doImport()
     }
 
     if ( sections.isEmpty() )
+    {
+	horizon->unRef();
 	mErrRet( "Nothing to import" );
+    }
 
-//    const bool dofill = filludffld_->getBoolValue();
-//    if ( dofill )
-//	fillUdfs( sections );
+    const bool dofill = filludffld_->getBoolValue();
+    if ( dofill )
+	fillUdfs( sections );
 
     ExecutorGroup importer( "Horizon importer" );
     importer.setNrDoneText( "Nr inlines imported" );
@@ -308,16 +330,17 @@ bool uiImportHorizon::doImport()
     if ( !success )
 	mErrRetUnRef("Cannot import horizon")
 
-    Executor* exec = horizon->saver();
-    if ( !exec )
+    bool rv;
+    if ( isgeom )
     {
-	delete exec;
-	horizon->unRef();
-	return false;
+	Executor* exec = horizon->saver();
+	mSave();
     }
-    uiExecutor dlg( this, *exec );
-    const bool rv = dlg.execute();
-    delete exec;
+    else
+    {
+	mDynamicCastGet(ExecutorGroup*,exec,horizon->auxdata.auxDataSaver(-1))
+	mSave();
+    }
     if ( !doDisplay() )
 	horizon->unRef();
     else
@@ -426,12 +449,16 @@ EM::Horizon3D* uiImportHorizon::createHor() const
 {
     const char* horizonnm = outputfld_->getInput();
     EM::EMManager& em = EM::EMM();
-    EM::ObjectID objid = em.createObject( EM::Horizon3D::typeStr(), horizonnm );
+    const MultiID mid = getSelID();
+    EM::ObjectID objid = em.getObjectID( mid );
+    if ( objid < 0 )
+	objid = em.createObject( EM::Horizon3D::typeStr(), horizonnm );
+
     mDynamicCastGet(EM::Horizon3D*,horizon,em.getObject(objid));
     if ( !horizon )
 	mErrRet( "Cannot create horizon" );
 
-    horizon->setMultiID( ctio_.ioobj->key() );
+    horizon->setMultiID( mid );
     horizon->setTiedToLvl( stratlvlfld_->getLvlName() );
     horizon->setPreferredColor( colbut_->color() );
     horizon->ref();
