@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.37 2007-08-03 15:03:00 cvshelene Exp $
+ RCS:           $Id: uimenu.h,v 1.38 2007-09-18 14:26:07 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -189,8 +189,6 @@ class uiPopupMenu : public uiMenuItemContainer
 
 public:                        
 				uiPopupMenu(uiParent*,
-					    const char* nm="uiPopupMenu");
-				uiPopupMenu(uiParent*,QMenu*,
 					    const char* nm="uiPopupMenu");
 
 				~uiPopupMenu();

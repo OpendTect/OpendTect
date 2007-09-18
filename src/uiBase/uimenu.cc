@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.42 2007-08-03 15:03:00 cvshelene Exp $
+ RCS:           $Id: uimenu.cc,v 1.43 2007-09-18 14:26:07 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,7 +109,7 @@ public:
 			    return id;
 			}
 
-    void		clear()				{ qmenu_->clear(); }
+    void		clear()		{ qmenu_->clear(); deepErase(itms_); }
 
     QMenuBar*		bar()
     			{
@@ -314,6 +314,8 @@ void uiMenuItemContainer::clear()
 {
     if ( body_->bar() )		body_->bar()->clear();
     if ( body_->popup() )	body_->popup()->clear();
+
+    deepErase( body_->itms_ );
 }
 
 // ------------------------------------------------------------------------
@@ -364,19 +366,6 @@ uiPopupMenu::uiPopupMenu( uiParent* parnt, const char* nm )
     body_ = bd;
     setBody( bd );
 
-    item_.setMenu( body_ );
-}
-
-
-uiPopupMenu::uiPopupMenu( uiParent* parnt, QMenu* qmnu, const char* nm )
-    : uiMenuItemContainer( nm, 0, 0 )
-    , item_(*new uiPopupItem(*this,nm))
-{
-    uiMenuItemContainerBodyImpl<QMenu>* bd =
-	    new uiMenuItemContainerBodyImpl<QMenu>(*this,parnt,*qmnu);
-
-    body_ = bd;
-    setBody( bd );
     item_.setMenu( body_ );
 }
 
