@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.24 2007-08-30 10:13:10 cvsbert Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.25 2007-09-18 13:12:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -219,7 +219,6 @@ template <class C,class T>
 void uiDrawableObjBody<C,T>::wheelEvent( QWheelEvent* qev )
 {
     OD::ButtonState bs = OD::ButtonState( qev->state() | qev->buttons() );
-    static float delta2angle = M_PI / (180 * 8);
     MouseEvent mev( bs, qev->x(), qev->y(), // see uicanvas.cc 'delta2angle'
 		    qev->delta() * 0.002181661564992911886 );
     handle_.getMouseEventHandler().triggerWheel( mev );
