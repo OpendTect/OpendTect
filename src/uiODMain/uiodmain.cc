@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.81 2007-07-16 06:46:44 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.82 2007-09-19 16:30:50 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiodmain.h"
 
+#include "oddatadirmanip.h"
 #include "uiattribpartserv.h"
 #include "uicmain.h"
 #include "uicursor.h"
@@ -157,7 +158,7 @@ uiODMain::~uiODMain()
 
 bool uiODMain::ensureGoodDataDir()
 {
-    if ( !uiSetDataDir::isOK() )
+    if ( !OD_isValidRootDataDir(GetBaseDataDir()) )
     {
 	uiSetDataDir dlg( this );
 	return dlg.go();
