@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.cc,v 1.1 2007-09-10 07:54:57 cvsyuancheng Exp $
+ RCS:		$Id: visflatviewer.cc,v 1.2 2007-09-19 22:45:36 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,10 +114,10 @@ void FlatViewer::updateTextureCoords( const Array2D<float>* array )
 	const float x1translation = 0.5/( x1sz );
 	const float x2translation = 0.5/( x2sz );
 
-	const Coord c00( x1translation, x2translation );
-	const Coord c01( x1translation, 1-x2translation );
-	const Coord c10( 1-x1translation, x2translation );
-	const Coord c11( 1-x1translation, 1-x2translation );
+	const Coord c00( x2translation, x1translation );
+	const Coord c01( x2translation, 1-x1translation );
+	const Coord c10( 1-x2translation, x1translation );
+	const Coord c11( 1-x2translation, 1-x1translation );
 	if ( !faceset_->getTextureCoords() )
 	    faceset_->setTextureCoords( TextureCoords::create() );
 
