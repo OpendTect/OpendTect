@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.20 2007-06-14 17:25:11 cvsbert Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.21 2007-09-19 14:53:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "envvars.h"
 #include "oddirs.h"
+#include "oddatadirmanip.h"
 #include <stdlib.h>
 
 #ifdef __win__
@@ -35,7 +36,7 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 	, oddirfld(0)
 	, olddatadir(GetBaseDataDir())
 {
-    const bool oldok = isOK( olddatadir );
+    const bool oldok = OD_isValidRootDataDir( olddatadir );
     BufferString oddirnm, basedirnm;
     const char* titltxt = 0;
 
@@ -95,22 +96,6 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 }
 
 
-bool uiSetDataDir::isOK( const char* d )
-{
-    FilePath fp( d ? d : GetBaseDataDir() );
-    if ( !File_isDirectory( fp.fullPath() ) ) return false;
-
-    fp.add( ".omf" );
-    if ( !File_exists( fp.fullPath() ) ) return false;
-
-    fp.setFileName( ".survey" );
-    if ( File_exists( fp.fullPath() ) )
-	return false;
-
-    return true;
-}
-
-
 #define mErrRet(msg) { uiMSG().error( msg ); return false; }
 
 bool uiSetDataDir::acceptOK( CallBacker* )
@@ -137,6 +122,8 @@ bool uiSetDataDir::acceptOK( CallBacker* )
 bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 {
     BufferString datadir = inpdatadir;
+    const char* msg = OD_SetRootDataDir( datadir );
+    if ( !msg ) return true;
 
     const BufferString omffnm = FilePath( datadir ).add( ".omf" ).fullPath();
     const BufferString stdomf( mGetSetupFileName("omf") );
@@ -164,7 +151,7 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 
 	trycpdemosurv = true;
     }
-    else if ( !isOK(datadir) )
+    else if ( !OD_isValidRootDataDir(datadir) )
     {
 	if ( !File_isDirectory(datadir) )
 	    mErrRet( "A file (not a directory) with this name already exists" )
@@ -221,33 +208,7 @@ bool uiSetDataDir::setRootDataDir( const char* inpdatadir )
 	}
     }
 
-    // OK - we're (almost) certain that the directory exists and is valid
-    const bool haveenv = GetEnvVar("DTECT_DATA") || GetEnvVar("dGB_DATA")
-		      || GetEnvVar("DTECT_WINDATA") || GetEnvVar("dGB_WINDATA")
-	;
-    if ( haveenv )
-    {
-#ifdef __win__
-	FilePath dtectdatafp( datadir.buf() );
-	
-	SetEnvVar( "DTECT_WINDATA", dtectdatafp.fullPath(FilePath::Windows) );
-
-	if ( GetOSEnvVar( "DTECT_DATA" ) )
-	    SetEnvVar( "DTECT_DATA", dtectdatafp.fullPath(FilePath::Unix) );
-#else
-	SetEnvVar( "DTECT_DATA", datadir.buf() );
-#endif
-    }
-
-    Settings::common().set( "Default DATA directory", datadir );
-    if ( !Settings::common().write() )
-    {
-	if ( !haveenv )
-	    mErrRet( "Cannot write your user settings.\n"
-		     "This means your selection cannot be used!" );
-	uiMSG().warning( "Cannot write your user settings.\n"
-			 "Preferences cannot be stored!" );
-    }
-
-    return true;
+    // Huh?
+    ErrMsg( "Cannot set Root data dir for unknown reasons" );
+    return false;
 }
