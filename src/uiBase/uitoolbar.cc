@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.37 2007-09-18 14:26:46 cvsjaap Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.38 2007-09-19 17:18:50 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -321,7 +321,7 @@ void uiToolBar::display( bool yn, bool, bool )
 	qtoolbar_->hide();
 
     mDynamicCastGet( uiMainWin*, uimw, parent() )
-    if ( uimw ) uimw->toolBarsDispChg.trigger();
+    if ( uimw ) uimw->updateToolbarsMenu();
 }
 
 

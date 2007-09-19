@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.31 2007-09-18 14:29:07 cvsjaap Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.32 2007-09-19 17:18:50 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,7 +93,6 @@ protected:
     uiPopupMenu*	manmnu_;
     uiPopupMenu*	helpmnu_;
     uiPopupMenu*	settmnu_;
-    uiPopupMenu*	toolbarsmnu_;
     ObjectSet<uiPopupMenu> impmnus_;
     ObjectSet<uiPopupMenu> expmnus_;
 
@@ -124,8 +123,6 @@ protected:
     void		updateDTectToolBar(CallBacker*);
     void		updateDTectMnus(CallBacker*);
     void		updateWindowsMenu(CallBacker*);
-    void		updateToolbarsMenu(CallBacker*);
-    void		renewToolbarsMenu(CallBacker*);
 
     uiMenuItem*		stereooffitm_;
     uiMenuItem*		stereoredcyanitm_;

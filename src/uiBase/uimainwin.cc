@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.131 2007-09-18 14:25:24 cvsjaap Exp $
+ RCS:           $Id: uimainwin.cc,v 1.132 2007-09-19 17:18:50 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,10 +143,13 @@ public:
     static mDockType	qdock(uiMainWin::Dock);
 
     void 		uimoveDockWindow(uiDockWin&,uiMainWin::Dock,int);
-    virtual QMenu*	createPopupMenu()	{ return 0; }
+    virtual QMenu*	createPopupMenu()		{ return 0; }
 
-    void		setModal( bool yn )	{ modal_ = yn; }
-    bool		isModal() const		{ return modal_; }
+    uiPopupMenu&	getToolbarsMenu()		{ return *toolbarsmnu_;}
+    void		updateToolbarsMenu();
+
+    void		setModal( bool yn )		{ modal_ = yn; }
+    bool		isModal() const			{ return modal_; }
 
 protected:
 
@@ -155,11 +158,15 @@ protected:
     void 		closeQDlgChild(int retval,bool parentcheck=true);
     bool		event(QEvent*);
 
+    void		renewToolbarsMenu();
+    void		toggleToolbar(CallBacker*);
+
     bool		exitapponclose_;
     int			qdlgretval_;
 
     uiStatusBar* 	statusbar;
     uiMenuBar* 		menubar;
+    uiPopupMenu*	toolbarsmnu_;
 
 private:
 
@@ -186,10 +193,11 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* p,
 	, QMainWindow(p && p->pbody() ? p->pbody()->qwidget() : 0,
 		      nm,getFlags(p,modal) )
 	, handle_(handle__)
-	, initing( true )
-	, centralWidget_( 0 )
+	, initing(true)
+	, centralWidget_(0)
 	, statusbar(0)
 	, menubar(0)
+	, toolbarsmnu_(0)
 	, modal_(p && modal)
 	, poptimer("Popup timer")
 	, popped_up(false)
@@ -255,12 +263,16 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 	    pErrMsg("No menubar returned from Qt");
     }
 
+    toolbarsmnu_ = new uiPopupMenu( &handle_, "Toolbars" );
     initing = false;
 }
 
 
 uiMainWinBody::~uiMainWinBody( )
-{}
+{
+    toolbarsmnu_->clear();
+    delete toolbarsmnu_;
+}
 
 
 void uiMainWinBody::popTimTick( CallBacker* )
@@ -416,6 +428,59 @@ mDockType uiMainWinBody::qdock( uiMainWin::Dock d )
 }
 
 
+void uiMainWinBody::toggleToolbar( CallBacker* cb )
+{
+    mDynamicCastGet( uiMenuItem*, itm, cb );
+    if ( !itm ) return;
+
+    ObjectSet<uiToolBar>& toolbars = uiToolBar::toolBars();
+    for ( int tbidx=0; tbidx<toolbars.size(); tbidx++ )
+    {
+	uiToolBar& tb = *toolbars[tbidx];
+	if ( tb.name()==itm->name() && tb.parent()==&handle_ )
+	    tb.display( tb.isHidden() );
+    }
+}
+
+
+void uiMainWinBody::updateToolbarsMenu()
+{
+    const ObjectSet<uiMenuItem>& items = toolbarsmnu_->items();
+    const ObjectSet<uiToolBar>& toolbars = uiToolBar::toolBars();
+
+    for ( int tbidx=0; tbidx<toolbars.size(); tbidx++ )
+    {
+	const uiToolBar& tb = *toolbars[tbidx];
+	for ( int itmidx=0; itmidx<items.size(); itmidx++ )
+	{
+	    uiMenuItem& itm = *const_cast<uiMenuItem*>( items[itmidx] );
+	    if ( itm.name()==tb.name() && tb.parent()==&handle_ )
+		itm.setChecked( !tb.isHidden() );
+	}
+    }
+}
+
+
+void uiMainWinBody::renewToolbarsMenu()
+{
+    toolbarsmnu_->clear();
+    const ObjectSet<uiToolBar>& toolbars = uiToolBar::toolBars();
+
+    for ( int tbidx=0; tbidx<toolbars.size(); tbidx++ )
+    {
+	const uiToolBar& tb = *toolbars[tbidx];
+	if ( tb.parent() != &handle_ )
+	    continue;
+
+	uiMenuItem* itm =
+	    new uiMenuItem( tb.name(), mCB(this,uiMainWinBody,toggleToolbar) );
+	toolbarsmnu_->insertItem( itm );
+	itm->setCheckable( true );
+	itm->setChecked( !tb.isHidden() );
+    }
+}
+
+
 uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
 		      int nrstatusflds, bool wantMBar, bool modal )
     : uiParent(nm,0)
@@ -423,8 +488,6 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
     , parent_(parnt)			
     , windowClosed(this)
     , activatedone(this)
-    , nrToolBarsChange(this)
-    , toolBarsDispChg(this)
 { 
     body_= new uiMainWinBody( *this, parnt, nm, modal ); 
     setBody( body_ );
@@ -440,8 +503,6 @@ uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
     , parent_(parnt)
     , windowClosed(this)
     , activatedone(this)
-    , nrToolBarsChange(this)
-    , toolBarsDispChg(this)
 {}
 
 
@@ -508,7 +569,7 @@ void uiMainWin::addToolBar( uiToolBar* tb )
 {
 #ifndef USEQT3
     body_->addToolBar( tb->qwidget() );
-    nrToolBarsChange.trigger( this );
+    body_->renewToolbarsMenu();
 #endif
 }
 
@@ -517,7 +578,7 @@ void uiMainWin::removeToolBar( uiToolBar* tb )
 {
 #ifndef USEQT3
     body_->removeToolBar( tb->qwidget() );
-    nrToolBarsChange.trigger( this );
+    body_->renewToolbarsMenu();
 #endif
 }
 
@@ -529,6 +590,14 @@ void uiMainWin::addToolBarBreak()
 #endif 
 }
 
+
+uiPopupMenu& uiMainWin::getToolbarsMenu() const
+{ return body_->getToolbarsMenu(); }
+
+
+void uiMainWin::updateToolbarsMenu()
+{ body_->updateToolbarsMenu(); }
+    
 
 uiGroup* uiMainWin::topGroup()	    	   { return body_->uiCentralWidg(); }
 
