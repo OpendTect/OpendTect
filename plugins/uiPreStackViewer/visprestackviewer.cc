@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.1 2007-09-12 16:04:33 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.2 2007-09-19 22:47:10 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -44,7 +44,7 @@ PreStackViewer::PreStackViewer()
     , mid_( 0 )		
     , section_( 0 )
     , factor_( 1 )
-    , width_( 250 )
+    , width_( 1250 )
     , positiveside_( true )
     , autowidth_( true )
 {
@@ -210,6 +210,9 @@ void PreStackViewer::dataChangedCB( CallBacker* )
 	? SI().inlDistance()
 	: SI().crlDistance();
 
+    if ( offsetscale<=0 )
+       return;	
+
     Interval<float> offsetrange( 0, 25 * offsetscale );
     Interval<float> zrg = SI().zRange(true);
 
@@ -224,6 +227,11 @@ void PreStackViewer::dataChangedCB( CallBacker* )
 	    ? startpos + direction*offsetrange.width()*factor_ / offsetscale
 	    : startpos + direction*width_ / offsetscale;
 
+    if ( autowidth_ )
+	width_ = offsetrange.width()*factor_;
+    else
+	factor_ = width_/offsetrange.width();
+
     const Coord3 c00( startpos, zrg.start );
     const Coord3 c01( stoppos, zrg.start ); 
     const Coord3 c11( stoppos, zrg.stop );
@@ -234,7 +242,9 @@ void PreStackViewer::dataChangedCB( CallBacker* )
     planedragger_->setDim(
 	section_->getOrientation()==visSurvey::PlaneDataDisplay::Inline ? 1:0 );
 
-    const Coord3 width(stoppos.x-startpos.x, stoppos.y-startpos.y,zrg.width());
+    const Coord3 width(fabs(stoppos.x-startpos.x),
+	    	       fabs(stoppos.y-startpos.y), zrg.width(true));
+
     planedragger_->setSize( width );
 
     const Coord3 center( ( startpos+stoppos )/2, ( zrg.start+zrg.stop )/2 );
@@ -359,5 +369,62 @@ void  PreStackViewer::finishedCB( CallBacker* )
     setPosition( newpos );
 }
 
+
+void PreStackViewer::getMousePosInfo( const visBase::EventInfo&,
+				      const Coord3& pos, 
+				      BufferString& val,
+				      BufferString& info ) const
+{
+    val = "";
+    info = "";
+   
+    if ( !flatviewer_ || !section_ ) 
+	return;
+
+    const FlatPosData& posdata = flatviewer_->data().vdPos();
+    const BinID bid = SI().transform( pos );
+    const float distance = sqrt(bid_.sqDistTo( bid ));
+    float offset = mUdf(float);
+    
+    if ( SI().inlDistance()==0 || SI().crlDistance()==0 || width_==0 )
+	return;
+
+    float start = posdata.range( true ).start;
+    float cal = posdata.width(true)*distance/width_;
+    if ( section_->getOrientation()==visSurvey::PlaneDataDisplay::Inline )
+	offset = cal*SI().inlDistance()+start;
+    else
+	offset= cal*SI().crlDistance()+start;
+   
+    int offsetsample;
+    float traceoffset;
+    if ( posdata.isIrregular() )
+    {
+	float mindist;
+	for ( int idx=0; idx<posdata.nrPts(true); idx++ )
+	{
+	    const float dist = fabs( posdata.position(true,idx)-offset );
+	    if ( !idx || dist<mindist )
+	    {
+		offsetsample = idx;
+		mindist = dist;
+		traceoffset = posdata.position(true,idx);
+	    }
+	}
+    }
+    else
+    {
+	const StepInterval<double>& rg = posdata.range( true );
+	offsetsample = rg.nearestIndex( offset );
+	traceoffset = rg.atIndex( offsetsample );
+    }
+
+    info = "Offset: ";
+    info += traceoffset;
+
+
+    const int zsample = posdata.range(false).nearestIndex( pos.z );
+    val = flatviewer_->data().vdArr()->get( offsetsample, zsample );
+}
 
 }; //namespace

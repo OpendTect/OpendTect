@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: uipsviewerpi.cc,v 1.1 2007-09-12 16:04:33 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewerpi.cc,v 1.2 2007-09-19 22:47:10 cvsyuancheng Exp $";
 
 #include "plugins.h"
 #include "uiodmain.h"
@@ -23,7 +23,7 @@ extern "C" PluginInfo* GetuiPreStackViewerPluginInfo()
 {
     static PluginInfo retpi = {
     "PreStackViewer Plugin",
-    "dGB - Yuancheng",
+    "dGB - Kristofer/Yuancheng",
     "1.1.1",
     "PreStack Editor - User Interface." };
     return &retpi;

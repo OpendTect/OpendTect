@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.1 2007-09-12 16:04:33 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.2 2007-09-19 22:47:10 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,10 @@ public:
     void			setFactor(float scale);
     float                       getWidth() { return width_; }
     void			setWidth(float width);
-
+    void			getMousePosInfo(const visBase::EventInfo&,
+	    					const Coord3&,
+				  		BufferString& val,
+						BufferString& info) const;
 protected:
     					~PreStackViewer();
     void				dataChangedCB(CallBacker*);
