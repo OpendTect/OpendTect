@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.88 2007-09-18 10:59:11 cvsraman Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.89 2007-09-20 05:56:02 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,16 +46,7 @@ ________________________________________________________________________
 
 #include <math.h>
 
-static const char* sDefAttrs[] =
-{
-    "Z values",
-    "Dip",
-    "Dip-Azimuth",
-    "Curvature",
-    0
-};
-
-static BufferStringSet sDefAttrSet( sDefAttrs, 4 );
+static const char* sZVals = "Z values";
 
 
 class uiImpHorArr2DInterpPars : public uiCompoundParSel
@@ -127,7 +118,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
 
     attrlistfld_ = new uiLabeledListBox( this, "Select Attribute(s) to import",
 	   				 true );
-    attrlistfld_->box()->addItems( sDefAttrSet );
+    attrlistfld_->box()->addItem( sZVals );
+    attrlistfld_->box()->setCurrentItem( 0 );
     attrlistfld_->attach( alignedBelow, xyfld_ );
     attrlistfld_->box()->selectionChanged.notify( mCB(this,uiImportHorizon,
 						      formatSel) );
@@ -162,7 +154,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, dataselfld_ );
 
-    outputfld_ = new uiIOObjSel( this, ctio_, "OutPut Horizon" );
+    outputfld_ = new uiIOObjSel( this, ctio_ );
+    outputfld_->setLabelText( "OutPut Horizon" );
     outputfld_->attach( alignedBelow, attrlistfld_ );
     outputfld_->attach( ensureBelow, sep );
 
@@ -195,7 +188,8 @@ void uiImportHorizon::formatSel( CallBacker* cb )
     dataselfld_->updateSummary();
     if ( !attrnms.size() ) return;
     const bool isgeom = attrnms.get(0) == "Z values";
-    ctio_.ctxt.forread = !isgeom;
+    outputfld_->setForRead( !isgeom );
+    outputfld_->setLabelText( isgeom ? "Output Horizon" : "Add to Horizon" );
     if ( !isgeom )
     {
 	filludffld_->setValue( false );
@@ -219,7 +213,6 @@ void uiImportHorizon::addAttrib( CallBacker* cb )
 
     const char* attrnm = dlg->text();
     attrlistfld_->box()->addItem( attrnm );
-    sDefAttrSet.add( attrnm );
 }
 
 
@@ -244,7 +237,8 @@ MultiID uiImportHorizon::getSelID() const
 
 void uiImportHorizon::stratLvlChg( CallBacker* )
 {
-    if ( strcmp( stratlvlfld_->getLvlName(), "" ) )
+    const char* lvlname = stratlvlfld_->getLvlName();
+    if ( lvlname && *lvlname )
 	colbut_->setColor( *stratlvlfld_->getLvlColor() );
 }
     
@@ -351,7 +345,6 @@ bool uiImportHorizon::doImport()
 
 bool uiImportHorizon::acceptOK( CallBacker* )
 {
-    dataselfld_->updateSummary();
     if ( !checkInpFlds() ) return false;
 
     return doImport();
