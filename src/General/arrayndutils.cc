@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: arrayndutils.cc,v 1.17 2007-09-20 09:56:21 cvssatyaki Exp $";
+static const char* rcsID = "$Id: arrayndutils.cc,v 1.18 2007-09-20 10:26:25 cvsnanne Exp $";
 
 #include "arrayndutils.h"
 
@@ -33,7 +33,7 @@ ArrayNDWindow::~ArrayNDWindow()
 }
 
 
-bool ArrayNDWindow::setType( ArrayNDWindow::WindowType newt )
+bool ArrayNDWindow::setType( ArrayNDWindow::WindowType newt, float )
 {
     ArrayNDWindow::WindowType oldt = type;
 
@@ -46,7 +46,7 @@ bool ArrayNDWindow::setType( ArrayNDWindow::WindowType newt )
 }
 
 
-bool ArrayNDWindow::setType( const char* t ) 
+bool ArrayNDWindow::setType( const char* t, float ) 
 {
     if (  !strcmp( t, ArrayNDWindow::WindowTypeNames[ArrayNDWindow::Box]) )
 	return setType( ArrayNDWindow::Box );
