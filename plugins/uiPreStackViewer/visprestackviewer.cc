@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.2 2007-09-19 22:47:10 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.3 2007-09-20 15:49:46 cvskris Exp $
 _______________________________________________________________________________
 
  -*/
@@ -422,9 +422,11 @@ void PreStackViewer::getMousePosInfo( const visBase::EventInfo&,
     info = "Offset: ";
     info += traceoffset;
 
-
-    const int zsample = posdata.range(false).nearestIndex( pos.z );
-    val = flatviewer_->data().vdArr()->get( offsetsample, zsample );
+    if ( flatviewer_->data().vdArr() )
+    {
+	const int zsample = posdata.range(false).nearestIndex( pos.z );
+	val = flatviewer_->data().vdArr()->get( offsetsample, zsample );
+    }
 }
 
 }; //namespace
