@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.82 2007-09-12 16:02:19 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.83 2007-09-20 06:05:23 cvssulochana Exp $
 ________________________________________________________________________
 
 
@@ -28,6 +28,7 @@ class LineStyle;
 class MultiID;
 class SeisTrcBuf;
 class ZAxisTransform;
+class IOPar;
 
 namespace visBase { class Transformation; class EventInfo; };
 namespace Attrib  { class SelSpec; class DataCubes; }
@@ -144,7 +145,7 @@ public:
     				   \var OtherFormat
 				   	This object wants attribdata of a
 					different kind. */
-    
+
     virtual AttribFormat	getAttributeFormat() const;
     virtual bool		canHaveMultipleAttribs() const;
     virtual int			nrAttribs() const;
@@ -223,6 +224,8 @@ public:
     virtual void		lock( bool yn )		{ locked_ = yn; }
     virtual bool		isLocked() const	{ return locked_; }
     virtual NotifierAccess*	getLockNotifier()	{ return 0; }
+    virtual void 		fillSOPar(IOPar& ) const;
+    virtual bool		useSOPar(const IOPar&);
 
     //TODO: as for now: vertical viewer is the only one available,
     //later on: allow timeslices and horizons with horizontal viewer
@@ -234,6 +237,7 @@ public:
     static const char*		sKeyColTabID()	{ return "Colortable ID"; }
     static const char*		sKeyNrAttribs() { return "Nr Attribs"; }
     static const char*		sKeyAttribs()	{ return "Attrib "; }
+    static const char*          sKeyLocked()    { return "Locked"; }
 
 protected:
     				SurveyObject() 
@@ -262,3 +266,4 @@ protected:
 
 
 #endif
+

@@ -4,10 +4,9 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: vissurvobj.cc,v 1.39 2007-07-17 11:01:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: vissurvobj.cc,v 1.40 2007-09-20 06:05:23 cvssulochana Exp $";
 
 #include "vissurvobj.h"
-
 #include "arrayndimpl.h"
 #include "attribdatacubes.h"
 #include "iopar.h"
@@ -20,7 +19,6 @@ static const char* rcsID = "$Id: vissurvobj.cc,v 1.39 2007-07-17 11:01:55 cvsnan
 namespace visSurvey {
 
 float SurveyObject::sDefMaxDist = 10;
-
 
 SurveyObject::AttribFormat SurveyObject::getAttributeFormat() const
 { return SurveyObject::None; }
@@ -137,4 +135,18 @@ bool SurveyObject::setDataTransform( ZAxisTransform* )
 { return false; }
 
 
+void SurveyObject::fillSOPar( IOPar& par ) const
+{
+    par.setYN( sKeyLocked(), locked_ );
+}
+
+
+bool SurveyObject::useSOPar( const IOPar& par )
+{
+    locked_ = false;
+    par.getYN( sKeyLocked(), locked_ );
+    return true;
+}
+
 }; // namespace visSurvey
+
