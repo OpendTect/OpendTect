@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.355 2007-09-12 16:02:19 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.356 2007-09-20 15:16:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,6 @@ static const int sResetManipIdx = 800;
 static const int sColorIdx = 700;
 static const int sPropertiesIdx = 600;
 static const int sResolutionIdx = 500;
-static const int sHideIdx = -950;
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -79,7 +78,6 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , resetmanipmnuitem_("Reset Manipulation",sResetManipIdx)
     , changematerialmnuitem_("Properties ...",sPropertiesIdx)
     , resmnuitem_("Resolution",sResolutionIdx)
-    , hidemnuitem_("Hide",sHideIdx)
     , eventmutex_(*new Threads::Mutex)
     , viewmode_(false)
     , issolomode_(false)
@@ -1462,8 +1460,6 @@ void uiVisPartServer::createMenuCB( CallBacker* cb )
 
     const bool usehide = menu->getMenuType()==uiMenuHandler::fromScene &&
 						!isSoloMode();
-    mAddMenuItemCond( menu, &hidemnuitem_, true, false, usehide );
-
     mAddMenuItemCond( menu, &resetmanipmnuitem_, 
 	    	      so->isManipulated() && !isLocked(menu->menuID()), false,
 		      so->canResetManipulation() );
@@ -1508,13 +1504,6 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
     else if ( mnuid==changematerialmnuitem_.id )
     {
 	setMaterial( id );
-	menu->setIsHandled( true );
-    }
-    else if ( mnuid==hidemnuitem_.id )
-    {
-	mDynamicCastGet(visBase::VisualObject*,vo,getObject(id));
-	if ( vo ) vo->turnOn( false );
-	sendEvent( evUpdateTree );
 	menu->setIsHandled( true );
     }
     else if ( resmnuitem_.id!=-1 && resmnuitem_.itemIndex(mnuid)!=-1 )

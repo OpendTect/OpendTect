@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.195 2007-09-12 16:02:19 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.196 2007-09-20 15:16:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -354,7 +354,6 @@ protected:
     MenuItem			resetmanipmnuitem_;
     MenuItem			changematerialmnuitem_;
     MenuItem			resmnuitem_;
-    MenuItem			hidemnuitem_;
 
     TypeSet< TypeSet<int> >	displayids_;
 

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddisplaytreeitem.cc,v 1.13 2007-09-20 06:15:17 cvssulochana Exp $
+ RCS:		$Id: uioddisplaytreeitem.cc,v 1.14 2007-09-20 15:16:46 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
 static const int sAttribIdx = 1000;
 static const int sDuplicateIdx = 900;
 static const int sLockIdx = -900;
+static const int sHideIdx = -950;
 static const int sRemoveIdx = -1000;
 
 uiODDisplayTreeItem::uiODDisplayTreeItem()
@@ -60,6 +61,7 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     , addattribmnuitem_("Add attribute",sAttribIdx)
     , duplicatemnuitem_("Duplicate",sDuplicateIdx)
     , lockmnuitem_("Lock",sLockIdx)
+    , hidemnuitem_("Hide",sHideIdx )
     , removemnuitem_("Remove",sRemoveIdx)
 {
 }
@@ -248,6 +250,10 @@ void uiODDisplayTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItemCond( menu, &duplicatemnuitem_, true, false,
 		      visserv_->canDuplicate(displayid_) );
 
+    const bool usehide =
+       menu->getMenuType()==uiMenuHandler::fromScene && !visserv_->isSoloMode();
+    mAddMenuItemCond( menu, &hidemnuitem_, true, false, usehide );
+
     mAddMenuItem( menu, &removemnuitem_, !visserv_->isLocked(displayid_),false);
 }
 
@@ -296,5 +302,11 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
 	menu->setIsHandled(true);
+    }
+    else if ( mnuid==hidemnuitem_.id )
+    {
+	menu->setIsHandled(true);
+	visserv_->turnOn( displayid_, false );
+	updateCheckStatus();
     }
 }
