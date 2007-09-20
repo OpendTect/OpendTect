@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsioprov.h,v 1.6 2006-03-12 13:39:09 cvsbert Exp $
+ RCS:		$Id: seispsioprov.h,v 1.7 2007-09-20 13:56:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,7 +97,6 @@ class SeisPSTranslatorGroup : public TranslatorGroup
 {				isTranslatorGroup(SeisPS)
 public:
     			mDefEmptyTranslatorGroupConstructor(SeisPS)
-    Translator*		make(const char*,bool un=true) const;
 };
 
 
@@ -115,12 +114,6 @@ public:
 
     bool		implRemove(const IOObj*) const;
 };
-
-
-inline Translator* SeisPSTranslatorGroup::make( const char*, bool ) const
-{
-    return new CBVSSeisPSTranslator("CBVS","CBVS");
-}
 
 
 #endif
