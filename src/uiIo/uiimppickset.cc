@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.27 2007-08-21 05:35:54 cvsraman Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.28 2007-09-20 09:48:59 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,8 +80,7 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
 	zfld_->attach( alignedBelow, xyfld_ );
 
 	BufferString constzlbl = "Specify Constatnt Z value";
-	constzlbl += SI().zIsTime() ? "(milliseconds)"
-	    			    : SI().zInMeter() ? "(metres)" : "(ft)";
+	constzlbl += SI().getZUnit();
 	constzfld_ = new uiGenInput( this, constzlbl, FloatInpSpec(0) );
 	constzfld_->attach( alignedBelow, zfld_ );
 	constzfld_->display( zfld_->box()->currentItem() == 1 );
