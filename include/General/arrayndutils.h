@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.26 2007-09-20 09:56:20 cvssatyaki Exp $
+ RCS:           $Id: arrayndutils.h,v 1.27 2007-09-20 14:58:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -134,7 +134,7 @@ at x=+-1 and no taper when x=0. Feel free to implement more functions!!
 class ArrayNDWindow
 {
 public:
-    enum WindowType	{ Box, Hamming, Hanning, Blackman, Barlett, CosTaper,
+    enum WindowType	{ Box, Hamming, Hanning, Blackman, Bartlett, CosTaper,
 			  CosTaper5, CosTaper10, CosTaper20 };
 			DeclareEnumUtils(WindowType);
 

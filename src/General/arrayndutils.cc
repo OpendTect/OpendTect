@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: arrayndutils.cc,v 1.18 2007-09-20 10:26:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: arrayndutils.cc,v 1.19 2007-09-20 14:58:43 cvskris Exp $";
 
 #include "arrayndutils.h"
 
@@ -12,7 +12,7 @@ static const char* rcsID = "$Id: arrayndutils.cc,v 1.18 2007-09-20 10:26:25 cvsn
 
 
 DefineEnumNames( ArrayNDWindow, WindowType, 0, "Windowing type")
-{ "Box", "Hamming", "Hanning", "Blackman", "Barlett", "CosTaper",
+{ "Box", "Hamming", "Hanning", "Blackman", "Bartlett", "CosTaper",
   "CosTaper5", "CosTaper10", "CosTaper20", 0 };
 
 
@@ -81,8 +81,8 @@ bool ArrayNDWindow::buildWindow()
     case ArrayNDWindow::Blackman:
 	windowfunc = new BlackmanWindow;
     break;
-    case ArrayNDWindow::Barlett:
-	windowfunc = new BarlettWindow;
+    case ArrayNDWindow::Bartlett:
+	windowfunc = new BartlettWindow;
     break;
     case ArrayNDWindow::CosTaper:
 	variable = windowfunc->getVariable();
