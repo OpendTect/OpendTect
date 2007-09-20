@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.3 2007-09-20 15:49:46 cvskris Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.4 2007-09-20 21:27:00 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -325,6 +325,25 @@ void  PreStackViewer::sectionMovedCB( CallBacker* )
 
     setPosition( newpos );
 }    
+
+
+void  PreStackViewer::otherObjectsMoved( const ObjectSet<const SurveyObject>&
+					 , int whichobj )
+{
+    if ( !section_ )
+	return;
+
+    if ( whichobj == -1 )
+    {
+	turnOn( section_->isTrulyOn() );
+	return; 
+    }
+
+    if ( section_->id() != whichobj )
+	return;
+    
+    turnOn( section_->isTrulyOn() );
+}
 
 
 void PreStackViewer::draggerMotion( CallBacker* )

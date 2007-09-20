@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.2 2007-09-19 22:47:10 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.3 2007-09-20 21:27:00 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,9 @@ public:
 	    					const Coord3&,
 				  		BufferString& val,
 						BufferString& info) const;
+    void			 otherObjectsMoved( 
+	    				const ObjectSet<const SurveyObject>&, 
+					int whichobj );
 protected:
     					~PreStackViewer();
     void				dataChangedCB(CallBacker*);
