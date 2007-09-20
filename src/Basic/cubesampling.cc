@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.30 2007-09-13 19:38:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.31 2007-09-20 13:20:34 cvsjaap Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -243,9 +243,9 @@ static bool intersect(	int start1, int stop1, int step1,
 
 #define Eps 2e-5
 
-inline bool IsZero( float f )
+inline bool IsZero( float f, float eps=Eps )
 {
-    return f > -Eps && f < Eps;
+    return f > -eps && f < eps;
 }
 
 static inline bool inSeries( float v, float start, float step )
@@ -253,7 +253,7 @@ static inline bool inSeries( float v, float start, float step )
     float fdiff = (start - v) / step;
     int idiff = mNINT( fdiff );
     fdiff -= idiff;
-    return IsZero( fdiff );
+    return IsZero( fdiff, 1e-3 );
 }
 
 
@@ -336,7 +336,7 @@ bool CubeSampling::getIntersection( const CubeSampling& cs,
 		       zrg2.start, zrg2.stop, zrg2.step,
 		       out.zrg.start, out.zrg.stop, out.zrg.step );
 }
-
+    
 
 bool CubeSampling::isFlat() const
 {
