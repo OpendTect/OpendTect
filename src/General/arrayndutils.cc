@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: arrayndutils.cc,v 1.16 2007-05-16 19:52:48 cvskris Exp $";
+static const char* rcsID = "$Id: arrayndutils.cc,v 1.17 2007-09-20 09:56:21 cvssatyaki Exp $";
 
 #include "arrayndutils.h"
 
@@ -12,12 +12,12 @@ static const char* rcsID = "$Id: arrayndutils.cc,v 1.16 2007-05-16 19:52:48 cvsk
 
 
 DefineEnumNames( ArrayNDWindow, WindowType, 0, "Windowing type")
-{ "Box", "Hamming", "Hanning", "Blackman", "Barlett",
+{ "Box", "Hamming", "Hanning", "Blackman", "Barlett", "CosTaper",
   "CosTaper5", "CosTaper10", "CosTaper20", 0 };
 
 
 ArrayNDWindow::ArrayNDWindow( const ArrayNDInfo& sz_, bool rectangular_,
-				ArrayNDWindow::WindowType type_ )
+				ArrayNDWindow::WindowType type_,float paramval )
     : size ( sz_ )
     , type ( type_ )
     , rectangular( rectangular_ )
@@ -63,6 +63,7 @@ bool ArrayNDWindow::buildWindow()
     window = new float[totalsz];  
     const int ndim = size.getNDim();
     ArrayNDIter position( size );
+    float variable =0;
 
     WindowFunction* windowfunc = 0;
 
@@ -83,6 +84,9 @@ bool ArrayNDWindow::buildWindow()
     case ArrayNDWindow::Barlett:
 	windowfunc = new BarlettWindow;
     break;
+    case ArrayNDWindow::CosTaper:
+	variable = windowfunc->getVariable();
+	windowfunc->setVariable( 1-variable );
     case ArrayNDWindow::CosTaper5:
         windowfunc = new CosTaperWindow();
 	windowfunc->setVariable( 0.95 );

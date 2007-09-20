@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.25 2007-05-16 19:52:48 cvskris Exp $
+ RCS:           $Id: arrayndutils.h,v 1.26 2007-09-20 09:56:20 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -134,18 +134,19 @@ at x=+-1 and no taper when x=0. Feel free to implement more functions!!
 class ArrayNDWindow
 {
 public:
-    enum WindowType	{ Box, Hamming, Hanning, Blackman, Barlett, CosTaper5,
-			 CosTaper10, CosTaper20 };
+    enum WindowType	{ Box, Hamming, Hanning, Blackman, Barlett, CosTaper,
+			  CosTaper5, CosTaper10, CosTaper20 };
 			DeclareEnumUtils(WindowType);
 
 			ArrayNDWindow( const ArrayNDInfo&,
 					bool rectangular,
-					WindowType = Hamming );
+					WindowType = Hamming,
+			       		float paramval=mUdf(float) );
 
 			~ArrayNDWindow();
 
-    bool		setType( WindowType );
-    bool		setType( const char* );
+    bool		setType( WindowType,float paramval=mUdf(float) );
+    bool		setType( const char*,float paramval=mUdf(float) );
 
     bool		resize( const ArrayNDInfo& );
 
