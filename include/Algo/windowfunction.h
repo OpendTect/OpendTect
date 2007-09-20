@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Float lists + Features
- RCS:		$Id: windowfunction.h,v 1.3 2007-07-23 16:50:56 cvskris Exp $
+ RCS:		$Id: windowfunction.h,v 1.4 2007-09-20 11:41:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,7 +89,7 @@ public:
 };
 
 
-class BarlettWindow : public WindowFunction
+class BartlettWindow : public WindowFunction
 {
 public:
     static void			initClass();
