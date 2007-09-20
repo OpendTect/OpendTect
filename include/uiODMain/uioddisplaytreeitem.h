@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uioddisplaytreeitem.h,v 1.4 2007-08-30 21:26:35 cvskris Exp $
+ RCS:		$Id: uioddisplaytreeitem.h,v 1.5 2007-09-20 06:15:17 cvssulochana Exp $
 ________________________________________________________________________
 
 
@@ -52,6 +52,7 @@ protected:
     const char*		getLockMenuText();
 
     virtual BufferString createDisplayName() const;
+    void		updateLockPixmap(bool islocked);
 
     virtual bool	askContinueAndSaveIfNeeded()	{ return true; }
 

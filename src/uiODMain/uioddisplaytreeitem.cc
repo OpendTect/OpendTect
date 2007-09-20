@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddisplaytreeitem.cc,v 1.12 2007-09-17 12:44:31 cvskris Exp $
+ RCS:		$Id: uioddisplaytreeitem.cc,v 1.13 2007-09-20 06:15:17 cvssulochana Exp $
 ___________________________________________________________________
 
 -*/
@@ -147,15 +147,30 @@ void uiODDisplayTreeItem::updateCheckStatus()
 }
 
 
+void uiODDisplayTreeItem::updateLockPixmap( bool islocked )
+{
+    PtrMan<ioPixmap> pixmap = 0;
+    if ( islocked )
+	pixmap = new ioPixmap( "lock_small.png" );
+    else
+	pixmap = new ioPixmap();
+
+    uilistviewitem_->setPixmap( 0, *pixmap );
+}
+
+
 void uiODDisplayTreeItem::updateColumnText( int col )
 {
+    mDynamicCastGet(visSurvey::SurveyObject*,so,
+	    	    visserv_->getObject(displayid_))
     if ( col==uiODSceneMgr::cNameColumn() )
+    {
 	name_ = createDisplayName();
+	updateLockPixmap( so ? so->isLocked() : false );
+    }
 
     else if ( col==uiODSceneMgr::cColorColumn() )
     {
-	mDynamicCastGet(visSurvey::SurveyObject*,so,
-			visserv_->getObject(displayid_))
 	if ( !so )
 	{
 	    uiTreeItem::updateColumnText( col );
@@ -253,12 +268,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	    return;
 
 	so->lock( !so->isLocked() );
-	PtrMan<ioPixmap> pixmap = 0;
-	if ( so->isLocked() )
-	    pixmap = new ioPixmap( "lock_small.png" );
-	else
-	    pixmap = new ioPixmap();
-	uilistviewitem_->setPixmap( 0, *pixmap );
+	updateLockPixmap( so->isLocked() );
 	ODMainWin()->sceneMgr().updateStatusBar();
     }
     else if ( mnuid==duplicatemnuitem_.id )
