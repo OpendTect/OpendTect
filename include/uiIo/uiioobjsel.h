@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.48 2007-03-14 12:00:55 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.49 2007-09-20 05:48:34 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -172,6 +172,7 @@ public:
     virtual bool	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
 
+    void		setForRead( bool yn )		{ forread = yn; }
     void		setUnselectables( const ObjectSet<MultiID>& s )
 			{ deepCopy( unselabls, s ); }
 
