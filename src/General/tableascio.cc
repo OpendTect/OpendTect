@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.16 2007-01-24 10:18:57 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.17 2007-09-20 05:53:18 cvsraman Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -230,9 +230,9 @@ void TargetInfo::usePar( const IOPar& iopar )
 	const int typ = typc == 'P' ? 2 : (typc == 'K' ? 1 : 0);
 	curfmsidx++; res = fms[curfmsidx];
 	TargetInfo::Selection::Elem elem;
-	if ( typ == 2 )
+	if ( typ == 0 )
 	    elem.val_ = res;
-	else if ( typ == 0 )
+	else if ( typ == 2 )
 	    elem.pos_.use( res );
 	else
 	{
