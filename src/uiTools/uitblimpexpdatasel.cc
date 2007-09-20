@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.30 2007-08-07 05:09:18 cvsraman Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.31 2007-09-20 05:50:46 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -184,6 +184,10 @@ void addInp( int iform, int ifld )
     ObjectSet<uiGenInput>& colinps = *inps_[iform];
     uiGenInput* inp = new uiGenInput( this, "",
 			  *tinf_.form(iform).specs_[ifld] );
+    const char* val = tinf_.selection_.getVal(ifld);
+    if ( val && *val )
+	inp->setText( val );
+
     colinps += inp;
 
     if ( ifld )
