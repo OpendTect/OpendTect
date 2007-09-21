@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.11 2007-09-17 14:52:25 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.12 2007-09-21 14:53:21 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -129,6 +129,7 @@ protected:
     bool		setUserRef(Attrib::Desc*);
     void		updateAttrName();
     bool		doSetIO(bool);
+    Attrib::Desc*	createAttribDesc(bool checkuref=true);
 
     void		createMenuBar();
     void		createToolBar();

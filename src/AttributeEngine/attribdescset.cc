@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.58 2007-07-17 08:03:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.59 2007-09-21 14:53:21 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -61,6 +61,17 @@ DescID DescSet::addDesc( Desc* nd, DescID id )
     descs += nd;
     const DescID newid = id < 0 ? getFreeID() : id;
     ids += newid;
+    return newid;
+}
+
+
+DescID DescSet::insertDesc( Desc* nd, int idx, DescID id )
+{
+    nd->setDescSet( this );
+    nd->ref();
+    descs.insertAt( nd, idx );
+    const DescID newid = id < 0 ? getFreeID() : id;
+    ids.insert( idx, newid );
     return newid;
 }
 

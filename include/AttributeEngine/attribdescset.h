@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.26 2007-02-08 21:28:17 cvsnanne Exp $
+ RCS:           $Id: attribdescset.h,v 1.27 2007-09-21 14:53:21 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,10 @@ public:
 				     Necessary after cloning */
 
     DescID			addDesc(Desc*,DescID newid=DescID(-1,true));
+				/*!< returns id of the attrib */
+    
+    DescID			insertDesc(Desc*,int,
+	    				   DescID newid=DescID(-1,true));
 				/*!< returns id of the attrib */
 
     int				nrDescs(bool inclstored=true,

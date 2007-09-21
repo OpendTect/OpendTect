@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.59 2007-09-17 14:52:25 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.60 2007-09-21 14:53:21 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -296,6 +296,7 @@ void uiAttribDescSetEd::setSensitive( bool yn )
 
 #define mErrRetFalse(s) { uiMSG().error( s ); return false; }
 #define mErrRet(s) { uiMSG().error( s ); return; }
+#define mErrRetNull(s) { uiMSG().error( s ); return 0; }
 
 
 void uiAttribDescSetEd::attrTypSel( CallBacker* )
@@ -383,15 +384,27 @@ void uiAttribDescSetEd::revPush( CallBacker* )
 
 void uiAttribDescSetEd::addPush( CallBacker* )
 {
+    Desc* newdesc = createAttribDesc();
+    if ( !newdesc ) return;
+    if ( attrset->addDesc(newdesc) < 0 )
+	{ uiMSG().error( attrset->errMsg() ); newdesc->unRef(); return; }
+
+    newList( attrdescs.size() );
+    adsman->setSaved( false );
+}
+
+
+Attrib::Desc* uiAttribDescSetEd::createAttribDesc( bool checkuref )
+{
     BufferString newnmbs( attrnmfld->text() );
     char* newnm = newnmbs.buf();
     skipLeadingBlanks( newnm );
     removeTrailingBlanks( newnm );
-    if ( !validName(newnm) ) return;
+    if ( checkuref && !validName(newnm) ) return 0;
 
     uiAttrDescEd* curde = 0;
     if ( !(curde = curDescEd()) )
-	mErrRet( "Cannot add without a valid attribute type" )
+	mErrRetNull( "Cannot add without a valid attribute type" )
 
     BufferString attribname = curde->attribName();
     if ( attribname.isEmpty() )
@@ -399,19 +412,14 @@ void uiAttribDescSetEd::addPush( CallBacker* )
 
     Desc* newdesc = PF().createDescCopy( attribname );
     if ( !newdesc )
-	mErrRet( "Cannot create attribdesc" )
+	mErrRetNull( "Cannot create attribdesc" )
 
     newdesc->setDescSet( attrset );
     newdesc->ref();
     const char* res = curde->commit( newdesc );
-    if ( res )
-	mErrRet( res )
+    if ( res ) { newdesc->unRef(); mErrRetNull( res ); }
     newdesc->setUserRef( newnm );
-    if ( attrset->addDesc(newdesc) < 0 )
-	{ uiMSG().error( attrset->errMsg() ); newdesc->unRef(); return; }
-
-    newList( attrdescs.size() );
-    adsman->setSaved( false );
+    return newdesc;
 }
 
 
@@ -543,15 +551,47 @@ bool uiAttribDescSetEd::doCommit( bool useprev )
     
     BufferString newattr = uiAF().attrNameOf( attrtypefld->attr() );
     BufferString oldattr = usedesc->attribName();
+    bool checkusrref = true;
     if ( oldattr != newattr )
     {
-	uiMSG().error( "Attribute type cannot be changed.\n"
-		       "Please 'Add as new' first." );
-	updateFields();
-	return false;
+	BufferString msg = "This will change the type of existing attribute '";
+	msg += usedesc->userRef();
+	msg += "'.\nThis will remove previous definition of the attribute.\n";
+	msg +="If you want to avoid this please use 'Cancel' and 'Add as new'.";
+	msg += "\nAre you sure you want to change the attribute type?";
+	int res = uiMSG().askGoOn( msg, false );
+	if ( res == 1 )
+	{
+	    checkusrref = false;
+	    DescID id = usedesc->id();
+	    TypeSet<DescID> attribids;
+	    attrset->getIds( attribids );
+	    int oldattridx = attribids.indexOf( id );
+	    Desc* newdesc = createAttribDesc( checkusrref );
+	    if ( !newdesc ) return false;
+	    
+	    attrset->removeDesc( id );
+	    if ( attrset->errMsg() )
+	    {
+		uiMSG().error( attrset->errMsg() );
+		newdesc->unRef();
+		return false;
+	    }
+	    attrset->insertDesc( newdesc, oldattridx, id );
+	    const int curidx = attrdescs.indexOf( curDesc() );
+	    newList( curidx );
+	    removeNotUsedAttr();
+	    adsman->setSaved( false );
+	    usedesc = newdesc;
+	}
+	else
+	{
+	    updateFields();
+	    return false;
+	}
     }
 
-    if ( !setUserRef(usedesc) )
+    if ( checkusrref && !setUserRef( usedesc ) )
 	return false;
 
     uiAttrDescEd* curdesced = curDescEd();
