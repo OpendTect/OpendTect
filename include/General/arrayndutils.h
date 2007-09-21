@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.27 2007-09-20 14:58:43 cvskris Exp $
+ RCS:           $Id: arrayndutils.h,v 1.28 2007-09-21 05:06:55 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -134,63 +134,58 @@ at x=+-1 and no taper when x=0. Feel free to implement more functions!!
 class ArrayNDWindow
 {
 public:
-    enum WindowType	{ Box, Hamming, Hanning, Blackman, Bartlett, CosTaper,
+    enum WindowType	{ Box, Hamming, Hanning, Blackman, Bartlett,
 			  CosTaper5, CosTaper10, CosTaper20 };
 			DeclareEnumUtils(WindowType);
 
-			ArrayNDWindow( const ArrayNDInfo&,
-					bool rectangular,
-					WindowType = Hamming,
-			       		float paramval=mUdf(float) );
-
+			ArrayNDWindow(const ArrayNDInfo&,bool rectangular,
+				      WindowType=Hamming);
+			ArrayNDWindow(const ArrayNDInfo&,bool rectangular,
+				      const char* winnm,
+				      float paramval=mUdf(float));
 			~ArrayNDWindow();
 
-    bool		setType( WindowType,float paramval=mUdf(float) );
-    bool		setType( const char*,float paramval=mUdf(float) );
+    bool		setType(WindowType);
+    bool		setType(const char*,float paramval=mUdf(float));
 
-    bool		resize( const ArrayNDInfo& );
+    bool		resize(const ArrayNDInfo&);
 
     template <class Type> bool	apply(  ArrayND<Type>* in,
-					ArrayND<Type>* out_=0) const
+					ArrayND<Type>* out_=0 ) const
     {
 	ArrayND<Type>* out = out_ ? out_ : in; 
 
 	if ( out_ && in->info() != out_->info() ) return false;
+	if ( in->info() != size_ ) return false;
 
-	if ( in->info() != size) return false;
-
-	unsigned long totalSz = size.getTotalSz();
+	unsigned long totalsz = size_.getTotalSz();
 
 	Type* indata = in->getData();
 	Type* outdata = out->getData();
-
 	if ( indata && outdata )
 	{
-	    for ( unsigned long idx = 0; idx < totalSz; idx++ )
-		outdata[idx] = indata[idx] * window[idx];
+	    for ( unsigned long idx = 0; idx<totalsz; idx++ )
+		outdata[idx] = indata[idx] * window_[idx];
 	}
 	else
 	{
-	    const ValueSeries<Type>* instorage
-			= in->getStorage();
-	    ValueSeries<Type>* outstorage
-			= out->getStorage();
+	    const ValueSeries<Type>* instorage = in->getStorage();
+	    ValueSeries<Type>* outstorage = out->getStorage();
 
 	    if ( instorage && outstorage )
 	    {
-		for ( unsigned long idx = 0; idx < totalSz; idx++ )
+		for ( unsigned long idx = 0; idx < totalsz; idx++ )
 		    outstorage->setValue(idx,
-			    instorage->value(idx) * window[idx] );
+			    instorage->value(idx) * window_[idx] );
 	    }
 	    else
 	    {
-		ArrayNDIter iter( size );
-
+		ArrayNDIter iter( size_ );
 		int idx = 0;
-		
 		do
 		{
-		    out->set(iter.getPos(), in->get( iter.getPos() ) * window[idx]);
+		    out->set( iter.getPos(),
+			      in->get(iter.getPos()) * window_[idx] );
 		    idx++;
 
 		} while ( iter.next() );
@@ -202,13 +197,14 @@ public:
 
 protected:
 
-    float*			window;
-    ArrayNDInfoImpl		size;
-    WindowType			type;
-    bool			rectangular;
+    float*			window_;
+    ArrayNDInfoImpl		size_;
+    bool			rectangular_;
 
-    bool			buildWindow( );
+    BufferString		windowtypename_;
+    float			paramval_;
 
+    bool			buildWindow(const char* winnm,float pval);
 };
    
 

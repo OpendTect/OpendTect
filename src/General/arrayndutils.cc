@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: arrayndutils.cc,v 1.19 2007-09-20 14:58:43 cvskris Exp $";
+static const char* rcsID = "$Id: arrayndutils.cc,v 1.20 2007-09-21 05:06:55 cvsnanne Exp $";
 
 #include "arrayndutils.h"
 
@@ -12,98 +12,89 @@ static const char* rcsID = "$Id: arrayndutils.cc,v 1.19 2007-09-20 14:58:43 cvsk
 
 
 DefineEnumNames( ArrayNDWindow, WindowType, 0, "Windowing type")
-{ "Box", "Hamming", "Hanning", "Blackman", "Bartlett", "CosTaper",
+{ "Box", "Hamming", "Hanning", "Blackman", "Bartlett",
   "CosTaper5", "CosTaper10", "CosTaper20", 0 };
 
 
-ArrayNDWindow::ArrayNDWindow( const ArrayNDInfo& sz_, bool rectangular_,
-				ArrayNDWindow::WindowType type_,float paramval )
-    : size ( sz_ )
-    , type ( type_ )
-    , rectangular( rectangular_ )
-    , window ( 0 )
+ArrayNDWindow::ArrayNDWindow( const ArrayNDInfo& sz, bool rectangular,
+			      ArrayNDWindow::WindowType type )
+    : size_(sz)
+    , rectangular_(rectangular)
+    , window_(0)
+    , paramval_(0)
 {
-    buildWindow();
+    setType( type );
+}
+
+
+ArrayNDWindow::ArrayNDWindow( const ArrayNDInfo& sz, bool rectangular,
+			      const char* wintypenm, float paramval )
+    : size_(sz)
+    , rectangular_(rectangular)
+    , windowtypename_(wintypenm)
+    , paramval_(paramval)
+    , window_(0)
+{
+    buildWindow( wintypenm, paramval );
 }
 
 
 ArrayNDWindow::~ArrayNDWindow()
 {
-    delete [] window;
+    delete [] window_;
 }
 
 
-bool ArrayNDWindow::setType( ArrayNDWindow::WindowType newt, float )
+bool ArrayNDWindow::setType( ArrayNDWindow::WindowType wintype )
 {
-    ArrayNDWindow::WindowType oldt = type;
+    BufferString winnm = ArrayNDWindow::WindowTypeNames[wintype];
+    float paramval = mUdf(float);
 
-    type = newt;
-    bool res = buildWindow();
-
-    if ( !res ) type = oldt;
-
-    return res;
-}
-
-
-bool ArrayNDWindow::setType( const char* t, float ) 
-{
-    if (  !strcmp( t, ArrayNDWindow::WindowTypeNames[ArrayNDWindow::Box]) )
-	return setType( ArrayNDWindow::Box );
-    if (  !strcmp( t, ArrayNDWindow::WindowTypeNames[ArrayNDWindow::Hamming]))
-	return setType( ArrayNDWindow::Hamming );
-
-    return false;
-}
-
-
-bool ArrayNDWindow::buildWindow()
-{
-    unsigned long totalsz = size.getTotalSz();
-    window = new float[totalsz];  
-    const int ndim = size.getNDim();
-    ArrayNDIter position( size );
-    float variable =0;
-
-    WindowFunction* windowfunc = 0;
-
-    switch ( type )
+    switch( wintype )
     {
-    case ArrayNDWindow::Box:
-	windowfunc = new BoxWindow;
-    break;
-    case ArrayNDWindow::Hamming:
-	windowfunc = new HammingWindow;
-    break;
-    case ArrayNDWindow::Hanning:
-	windowfunc = new HanningWindow;
-    break;
-    case ArrayNDWindow::Blackman:
-	windowfunc = new BlackmanWindow;
-    break;
-    case ArrayNDWindow::Bartlett:
-	windowfunc = new BartlettWindow;
-    break;
-    case ArrayNDWindow::CosTaper:
-	variable = windowfunc->getVariable();
-	windowfunc->setVariable( 1-variable );
     case ArrayNDWindow::CosTaper5:
-        windowfunc = new CosTaperWindow();
-	windowfunc->setVariable( 0.95 );
+        winnm = "CosTaper";
+	paramval = 0.95;
     break;
     case ArrayNDWindow::CosTaper10:
-        windowfunc = new CosTaperWindow();
-	windowfunc->setVariable( 0.90 );
+        winnm = "CosTaper";
+	paramval = 0.90;
     break;
     case ArrayNDWindow::CosTaper20:
-        windowfunc = new CosTaperWindow();
-	windowfunc->setVariable( 0.80 );
+        winnm = "CosTaper";
+	paramval = 0.80;
     break;
-    default:
-	return false;
     }
 
-    if ( !rectangular )
+    return setType( winnm, paramval );
+}
+
+
+bool ArrayNDWindow::setType( const char* winnm, float val ) 
+{
+    if ( !buildWindow(winnm,val) )
+	return false;
+
+    windowtypename_ = winnm;
+    paramval_ = val;
+    return true;
+}
+
+
+bool ArrayNDWindow::buildWindow( const char* winnm, float val )
+{
+    unsigned long totalsz = size_.getTotalSz();
+    window_ = new float[totalsz];  
+    const int ndim = size_.getNDim();
+    ArrayNDIter position( size_ );
+
+    WindowFunction* windowfunc = WinFuncs().create( winnm );
+    if ( !windowfunc ) return false;
+
+    if ( windowfunc->hasVariable() && !windowfunc->setVariable(val) )
+	return false;
+
+    if ( !rectangular_ )
     {
 	for ( unsigned long off=0; off<totalsz; off++ )
 	{
@@ -111,7 +102,7 @@ bool ArrayNDWindow::buildWindow()
 
 	    for ( int idx=0; idx<ndim; idx++ )
 	    {
-		int sz =  size.getSize(idx);
+		int sz =  size_.getSize(idx);
 		int halfsz = sz / 2;
 		float distval = (halfsz==0) ? 0 :
 		    		( (float) (position[idx] - halfsz) / halfsz );
@@ -120,7 +111,7 @@ bool ArrayNDWindow::buildWindow()
 
 	    dist = sqrt( dist );
 
-	    window[off] = windowfunc->getValue( dist );
+	    window_[off] = windowfunc->getValue( dist );
 	    position.next();
 	}	
     }
@@ -132,13 +123,13 @@ bool ArrayNDWindow::buildWindow()
 
 	    for ( int idx=0; idx<ndim; idx++ )
 	    {
-		int sz =  size.getSize(idx);
+		int sz =  size_.getSize(idx);
 		int halfsz = sz / 2;
 		float distval = ((float) (position[idx] - halfsz) / halfsz);
 		windowval *= windowfunc->getValue( distval );
 	    }
 
-	    window[off] = windowval;
+	    window_[off] = windowval;
 	    position.next();
 	}	
     }
