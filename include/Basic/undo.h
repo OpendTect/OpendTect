@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: undo.h,v 1.1 2007-07-06 14:11:05 cvskris Exp $
+ RCS:		$Id: undo.h,v 1.2 2007-09-21 10:11:09 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -92,6 +92,7 @@ protected:
     ObjectSet<UndoEvent>	events_;
     BufferStringSet		descs_;
     BoolTypeSet			userinteractionends_;
+    int				userendscount_;
 };
 
 /*! Holds the information how to undo/redo something. */

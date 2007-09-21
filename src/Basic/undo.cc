@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: undo.cc,v 1.1 2007-07-06 14:11:05 cvskris Exp $
+ RCS:           $Id: undo.cc,v 1.2 2007-09-21 10:11:09 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ Undo::Undo()
     : currenteventid_(-1)
     , firsteventid_(0)
     , maxsize_( 1000 )
+    , userendscount_(0)
     , changenotifier(this)
 {
     descs_.allowNull( true );
@@ -37,6 +38,7 @@ void Undo::removeAll()
     deepErase( events_ );
     deepErase( descs_ );
     userinteractionends_.erase();
+    userendscount_ = 0;
 
     currenteventid_ = -1;
     firsteventid_ = 0;
@@ -64,10 +66,16 @@ bool Undo::isUserInteractionEnd( int eventid ) const
 }
 
 
+#define mUpdateUserEndsCount( idx, newboolval ) \
+    if ( userinteractionends_[idx] != newboolval ) \
+	userendscount_ += newboolval ? 1 : -1;
+
+
 void Undo::setUserInteractionEnd( int eventid, bool yn )
 {
     const int idx = indexOf( eventid );
     if ( idx<0 ) return;
+    mUpdateUserEndsCount(idx,yn); 
     userinteractionends_[idx] = yn;
 }
 
@@ -85,7 +93,6 @@ int Undo::getNextUserInteractionEnd( int startid ) const
 
     return idx+firsteventid_;
 }
-
 
 
 int Undo::currentEventID() const
@@ -114,6 +121,7 @@ void Undo::removeAllAfterCurrentEvent()
 
 	delete events_.remove(idx);
 	delete descs_.remove(idx);
+	mUpdateUserEndsCount(idx,false);
 	userinteractionends_.remove(idx);
     }
 
@@ -259,6 +267,7 @@ void Undo::removeStartToAndIncluding( int eventid )
     {
 	delete events_.remove(0);
 	delete descs_.remove(0);
+	mUpdateUserEndsCount(0,false);
 	userinteractionends_.remove(0);
 	firsteventid_++;
     }
@@ -272,13 +281,13 @@ void Undo::removeStartToAndIncluding( int eventid )
 
 void Undo::removeOldEvents()
 {
-    if ( maxsize_==-1 ) return;
+    if ( userendscount_<=maxsize_ || maxsize_==-1 ) return;
 
     int firstkepteventidx = indexOf( currentEventID() );
     for ( int nrkept=0; nrkept<maxsize_; nrkept++ )
     {
 	firstkepteventidx--;
-	while ( firstkepteventidx>=0 && !userinteractionends_[firstkepteventidx] )
+	while (firstkepteventidx>=0 && !userinteractionends_[firstkepteventidx])
 	    firstkepteventidx--;
 
 	if ( firstkepteventidx<0 )
