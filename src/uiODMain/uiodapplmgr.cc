@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.203 2007-09-17 05:04:27 cvsraman Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.204 2007-09-21 11:17:32 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "ptrman.h"
 #include "segposinfo.h"
+#include "windowfunction.h"
 
 #include "uimsg.h"
 #include "uifontsel.h"
@@ -105,6 +106,8 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
     wellserv_ = new uiWellPartServer( applservice_ );
     wellattrserv_ = new uiWellAttribPartServer( applservice_ );
     mpeserv_ = new uiMPEPartServer( applservice_ );
+
+    WindowFunction::initBuiltinClasses();
 
     IOM().surveyToBeChanged.notify( mCB(this,uiODApplMgr,surveyToBeChanged) );
     IOM().surveyChanged.notify( mCB(this,uiODApplMgr,surveyChanged) );
