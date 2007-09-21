@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.89 2007-09-20 05:56:02 cvsraman Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.90 2007-09-21 04:11:47 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,6 +119,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     attrlistfld_ = new uiLabeledListBox( this, "Select Attribute(s) to import",
 	   				 true );
     attrlistfld_->box()->addItem( sZVals );
+    attrlistfld_->box()->setLines( 4, true );
     attrlistfld_->box()->setCurrentItem( 0 );
     attrlistfld_->attach( alignedBelow, xyfld_ );
     attrlistfld_->box()->selectionChanged.notify( mCB(this,uiImportHorizon,
