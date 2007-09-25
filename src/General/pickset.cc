@@ -5,11 +5,12 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.48 2007-09-10 10:36:31 cvsraman Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.49 2007-09-25 09:38:22 cvsnanne Exp $";
 
 #include "pickset.h"
 
 #include "ioman.h"
+#include "iopar.h"
 #include "multiid.h"
 #include "separstr.h"
 #include "survinfo.h"
@@ -397,6 +398,30 @@ void Pick::SetMgr::objRm( CallBacker* cb )
     if ( indexOf(ky) >= 0 )
 	set( ky, 0 );
 }
+
+
+Pick::Set::Set( const char* nm )
+    : NamedObject(nm)
+    , pars_(*new IOPar)
+{}
+
+
+Pick::Set::Set( const Pick::Set& s )
+    : pars_(*new IOPar)
+{ *this = s; }
+
+Pick::Set::~Set()
+{ delete &pars_; }
+
+
+Pick::Set& Pick::Set::operator=( const Set& s )
+{
+    if ( &s == this ) return *this;
+    copy( s ); setName( s.name() );
+    disp_ = s.disp_; pars_ = s.pars_;
+    return *this;
+}
+
 
 
 Table::FormatDesc* PickSetAscIO::getDesc( bool isxy, bool iszreq )

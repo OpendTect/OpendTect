@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.30 2007-08-07 05:02:35 cvsraman Exp $
+ RCS:		$Id: pickset.h,v 1.31 2007-09-25 09:38:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "trigonometry.h"
 #include "color.h"
 #include "tableascio.h"
+
+class IOPar;
 class MultiID;
 
 namespace Pick
@@ -85,17 +87,11 @@ class Set : public NamedObject
 {
 public:
 
-			Set( const char* nm=0 )
-			    : NamedObject(nm)		{}
-			Set( const Set& s )
-			{ *this = s; }
-    Set&		operator =( const Set& s )
-			{
-			    if ( &s == this ) return *this;
-			    copy( s ); setName( s.name() ); disp_ = s.disp_;
-			    return *this;
-			}
+			Set(const char* nm=0);
+			Set(const Set&);
+			~Set();
 
+    Set&		operator =(const Set&);
 
     struct Disp
     {
@@ -109,7 +105,7 @@ public:
     };
 
     Disp		disp_;
-
+    IOPar&		pars_;
 };
 
 
