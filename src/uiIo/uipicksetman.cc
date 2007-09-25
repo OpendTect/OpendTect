@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uipicksetman.cc,v 1.6 2007-05-30 13:26:20 cvsbert Exp $
+ RCS:           $Id: uipicksetman.cc,v 1.7 2007-09-25 10:28:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,8 +61,13 @@ void uiPickSetMan::mkFileInfo()
 
 	if ( ps.isEmpty() )
 	    txt = "Empty Pick Set\n";
-	else if ( ps[0].hasDir() )
-	    txt = "Pick Set with directions\n";
+	else
+	{
+	    txt = "Number of picks: ";
+	    txt += ps.size(); txt += "\n";
+	}
+	if ( ps[0].hasDir() )
+	    txt += "Pick Set with directions\n";
 
 	Color col( ps.disp_.color_ ); col.setTransparency( 0 );
 	char buf[20]; col.fill( buf ); replaceCharacter( buf, '`', '-' );
