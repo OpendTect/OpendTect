@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabmapper.h,v 1.2 2007-09-12 17:40:04 cvsbert Exp $
+ RCS:		$Id: coltabmapper.h,v 1.3 2007-09-26 11:15:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ public:
 
     enum Type		{ Fixed, Auto, HistEq };
 
-			Mapper();
+			Mapper(); //!< defaults maps from [0,1] to [0,1]
 			~Mapper();
 
     float		position(float val) const;
