@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.3 2007-09-13 14:36:12 cvshelene Exp $
+ RCS:		$Id: stratreftree.h,v 1.4 2007-09-26 15:24:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,8 @@ public:
     const Level*	level( int idx ) const		{ return lvls_[idx]; }
     const Level*	getLevel(const char*) const;
     const Level*	getLevel(const UnitRef*,bool top=true) const;
+    int			getLevelIdx( const Level* lvl ) const
+    						{ return lvls_.indexOf( lvl ); }
     void		remove(const Level*&);
     			//!< the pointer will be set to null if found
     void		untieLvlsFromUnit(const UnitRef*,bool);

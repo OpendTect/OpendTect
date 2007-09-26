@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.14 2007-09-12 09:16:17 cvshelene Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.15 2007-09-26 15:24:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,11 +12,13 @@ ________________________________________________________________________
 #include "uistratreftree.h"
 
 #include "pixmap.h"
-#include "stratlevel.h"
-#include "stratunitrepos.h"
+#include "stratreftree.h"
+#include "stratunitref.h"
+#include "uigeninput.h"
 #include "uilistview.h"
 #include "uimenu.h"
 #include "uirgbarray.h"
+#include "uistratmgr.h"
 #include "uistratutildlgs.h"
 
 #define mAddCol(nm,wdth,nr) \
@@ -33,10 +35,9 @@ static const int sLithoCol	= 2;
 
 using namespace Strat;
 
-uiStratRefTree::uiStratRefTree( uiParent* p, const RefTree* rt )
+uiStratRefTree::uiStratRefTree( uiParent* p, uiStratMgr* uistratmgr )
     : tree_(0)
-    , itemAdded_(this)
-    , itemToBeRemoved_(this)
+    , uistratmgr_(uistratmgr)
 {
     lv_ = new uiListView( p, "RefTree viewer" );
     mAddCol( "Unit", 300, 0 );
@@ -48,7 +49,7 @@ uiStratRefTree::uiStratRefTree( uiParent* p, const RefTree* rt )
     lv_->setTreeStepSize(30);
     lv_->rightButtonClicked.notify( mCB( this,uiStratRefTree,rClickCB ) );
 
-    setTree( rt );
+    setTree( uistratmgr_->getCurTree() );
 }
 
 
@@ -66,7 +67,7 @@ void uiStratRefTree::setTree( const RefTree* rt, bool force )
     if ( !tree_ ) return;
 
     lv_->clear();
-    addNode( 0, *tree_, true );
+    addNode( 0, *((NodeUnitRef*)tree_), true );
 }
 
 
@@ -96,7 +97,7 @@ void uiStratRefTree::addNode( uiListViewItem* parlvit,
 	    uiListViewItem::Setup setup = uiListViewItem::Setup()
 				.label( lur.code() )
 				.label( lur.description() )
-				.label( UnRepo().getLithName(lur.lithology()) );
+				.label( uistratmgr_->getLithName(lur) );
 	    if ( lvit )
 		item = new uiListViewItem( lvit, setup );
 	    else
@@ -155,24 +156,28 @@ void uiStratRefTree::rClickCB( CallBacker* )
     if ( col == sUnitsCol || col == sDescCol )
     {
 	uiPopupMenu mnu( lv_->parent(), "Action" );
-	mnu.insertItem( new uiMenuItem("Add unit ..."), 0 );
-	mnu.insertItem( new uiMenuItem("Create sub-unit..."), 1 );
-	mnu.insertItem( new uiMenuItem("Remove"), 2 );
+	mnu.insertItem( new uiMenuItem("Specify level boundary ..."), 0 );
+	mnu.insertSeparator();
+	mnu.insertItem( new uiMenuItem("Add unit ..."), 1 );
+	mnu.insertItem( new uiMenuItem("Create sub-unit..."), 2 );
+	mnu.insertItem( new uiMenuItem("Remove"), 3 );
     /*    mnu.insertSeparator();
-	mnu.insertItem( new uiMenuItem("Rename"), 3 );*/
+	mnu.insertItem( new uiMenuItem("Rename"), 4 );*/
 
 	const int mnuid = mnu.exec();
 	if ( mnuid<0 ) return;
 	else if ( mnuid==0 )
-	insertSubUnit( 0 );
+	    selBoundary();
 	else if ( mnuid==1 )
-	    insertSubUnit( lvit );
+	    insertSubUnit( 0 );
 	else if ( mnuid==2 )
+	    insertSubUnit( lvit );
+	else if ( mnuid==3 )
 	    removeUnit( lvit );
     }
     else if ( col == sLithoCol )
     {
-	uiLithoDlg lithdlg( lv_->parent() );
+	uiLithoDlg lithdlg( lv_->parent(), uistratmgr_ );
 	lithdlg.setSelectedLith( lvit->text( sLithoCol ) );
 	if ( lithdlg.go() )
 	    lvit->setText( lithdlg.getLithName(), sLithoCol );
@@ -182,7 +187,7 @@ void uiStratRefTree::rClickCB( CallBacker* )
 
 void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 {
-    uiStratUnitDlg newurdlg( lv_->parent() );
+    uiStratUnitDlg newurdlg( lv_->parent(), uistratmgr_ );
     if ( newurdlg.go() )
     {
 	uiListViewItem* newitem;
@@ -207,14 +212,20 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 	    newitem->parent()->setOpen( true );
 
 	lv_->setCurrentItem( newitem );
-	itemAdded_.trigger();
+	uiListViewItem* parit = newitem->parent();
+	if ( parit )
+	    uistratmgr_->prepareParentUnit( getCodeFromLVIt( parit ).buf() );
+	
+	uistratmgr_->addUnit( getCodeFromLVIt( newitem ).buf(),
+			      newitem->text(2), newitem->text(1), true );
     }
 }
 
 
 void uiStratRefTree::removeUnit( uiListViewItem* lvit )
 {
-    itemToBeRemoved_.trigger();
+    if ( !lvit ) return;
+    uistratmgr_->removeUnit( getCodeFromLVIt( lvit ).buf() );
     if ( lvit->parent() )
 	lvit->parent()->removeItem( lvit );
     else
@@ -237,10 +248,9 @@ ioPixmap* uiStratRefTree::createLevelPixmap( const UnitRef* ref ) const
 
     if ( ref )
     {
-	const Level* toplvl = Strat::RT().getLevel( ref, true );
-	if ( toplvl )
+	Color col;
+	if ( uistratmgr_->getLvlCol( ref, true, col ) )
 	{
-	    Color col = toplvl->color_;
 	    for ( int idw=0; idw<PMWIDTH; idw++ )
 	    {
 		rgbarr.set( idw, 0, col );
@@ -249,10 +259,8 @@ ioPixmap* uiStratRefTree::createLevelPixmap( const UnitRef* ref ) const
 	    }
 	}
 	
-	const Level* botlvl = Strat::RT().getLevel( ref, false );
-	if ( botlvl )
+	if ( uistratmgr_->getLvlCol( ref, false, col ) )
 	{
-	    Color col = botlvl->color_;
 	    for ( int idw=0; idw<PMWIDTH; idw++ )
 	    {
 		rgbarr.set( idw, PMHEIGHT-3, col );
@@ -264,3 +272,51 @@ ioPixmap* uiStratRefTree::createLevelPixmap( const UnitRef* ref ) const
     return new ioPixmap( rgbarr );
 }
 
+
+BufferString uiStratRefTree::getCodeFromLVIt( const uiListViewItem* item ) const
+{
+    BufferString bs = item->text();
+    int itemdepth = item->depth();
+    for ( int idx=itemdepth-1; idx>=0; idx-- )
+    {
+	item = item->parent();
+	CompoundKey kc( item->text() );
+	kc += bs.buf();
+	bs = kc.buf();
+    }
+
+    return bs;
+}
+
+/*
+void uiStratRefTree::updateLvlsPixmaps()
+{
+}
+*/
+
+#define mUpdateLvlInfo(loc,top)\
+{\
+    bool has##loc##lvl = lvllinkdlg.lvl##loc##listfld_->isChecked();\
+    if ( !has##loc##lvl )\
+	uistratmgr_->freeLevel( getCodeFromLVIt( curit ).buf(), top);\
+    if ( has##loc##lvl )\
+	uistratmgr_->linkLevel( getCodeFromLVIt( curit ).buf(), \
+				lvllinkdlg.lvl##loc##listfld_->text(), top );\
+}
+
+
+void uiStratRefTree::selBoundary()
+{
+    uiListViewItem* curit = lv_->currentItem();
+    if ( !curit ) return;
+
+    uiStratLinkLvlUnitDlg lvllinkdlg( lv_->parent(), 
+	    			      getCodeFromLVIt( curit ).buf(),
+	   			      uistratmgr_ );
+    lvllinkdlg.go();
+    if ( lvllinkdlg.uiResult() == 1 )
+    {
+	mUpdateLvlInfo( top, true )
+	mUpdateLvlInfo( base, false )
+    }
+}

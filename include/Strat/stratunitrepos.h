@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratunitrepos.h,v 1.17 2007-08-27 11:52:18 cvshelene Exp $
+ RCS:		$Id: stratunitrepos.h,v 1.18 2007-09-26 15:24:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ class UnitRepository;
 
 const UnitRepository& UnRepo();
 const RefTree& RT();
+RefTree& eRT();
 
 
 /*!\brief Repository of all stratigraphic descriptions defining the building
@@ -84,6 +85,7 @@ private:
 
     friend const UnitRepository& UnRepo();
     friend const RefTree& RT();
+    friend RefTree& eRT();
 
     ObjectSet<Lithology> unusedliths_;
     void		addTreeFromFile(const Repos::FileProvider&,
@@ -103,6 +105,12 @@ inline const RefTree& RT()
 inline UnitRepository& eUnRepo() //!< editable UnRepo
 {
     return const_cast<UnitRepository&>( UnRepo() );
+}
+
+
+inline RefTree& eRT() //!< editable RefTree
+{
+    return const_cast<RefTree&>( eUnRepo().curTree() );
 }
 
 

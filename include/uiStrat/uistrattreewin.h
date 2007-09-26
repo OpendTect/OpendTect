@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.10 2007-09-12 09:16:17 cvshelene Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.11 2007-09-26 15:24:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,8 +18,10 @@ class uiLabeledListBox;
 class uiListViewItem;
 class uiMenuItem;
 class uiStratLevelDlg;
+class uiStratLinkLvlUnitDlg;
+class uiStratMgr;
 class uiStratRefTree;
-namespace Strat { class RefTree; class Level; }
+namespace Strat{ class Level; }
 
 
 /*!\brief Main window for Stratigraphy display: holds the reference tree
@@ -36,6 +38,7 @@ protected:
 
     uiStratRefTree*		uitree_;
     uiLabeledListBox*	 	lvllistfld_;
+    uiStratLinkLvlUnitDlg*	linkunlvldlg_;
     uiMenuItem*			expandmnuitem_;
     uiMenuItem*			editmnuitem_;
     uiMenuItem*			savemnuitem_;
@@ -45,13 +48,9 @@ protected:
 
     void			createMenus();
     void			createGroups();
-    void			createTmpTree();
 
     void			fillLvlList();
-    void			updateTreeLevels();
-    BufferString		getCodeFromLVIt(const uiListViewItem*) const;
-    void			prepareParentUnit();
-    void			addUnit();
+    void			updateLvlList(bool);
     void			editLevel(bool);
     void			fillInLvlPars(Strat::Level*,
 	    				      const uiStratLevelDlg&,bool);
@@ -66,10 +65,8 @@ protected:
     void			setExpCB(CallBacker*);
     void			unitSelCB(CallBacker*);
     void			unitRenamedCB(CallBacker*);
-    void			unitAddedCB(CallBacker*);
-    void			unitToBeDelCB(CallBacker*);
 
-    Strat::RefTree*		tmptree_;
+    uiStratMgr*			uistratmgr_;
 };
 
 

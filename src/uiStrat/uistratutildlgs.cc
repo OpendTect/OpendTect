@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          August 2007
- RCS:		$Id: uistratutildlgs.cc,v 1.4 2007-09-05 15:31:52 cvshelene Exp $
+ RCS:		$Id: uistratutildlgs.cc,v 1.5 2007-09-26 15:24:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uistratutildlgs.h"
 
 #include "randcolor.h"
-#include "stratlevel.h"
 #include "stratlith.h"
 #include "stratunitrepos.h"
 #include "uibutton.h"
@@ -23,12 +22,14 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uistratmgr.h"
 
 static const char* sNoLithoTxt      = "---None---";
 
 
-uiStratUnitDlg::uiStratUnitDlg( uiParent* p )
+uiStratUnitDlg::uiStratUnitDlg( uiParent* p, uiStratMgr* uistratmgr )
     : uiDialog(p,uiDialog::Setup("Create Stratigraphic Unit","", 0))
+    , uistratmgr_(uistratmgr)
 {
     unitnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
     unitdescfld_ = new uiGenInput( this, "Description", StringInpSpec() );
@@ -43,7 +44,7 @@ uiStratUnitDlg::uiStratUnitDlg( uiParent* p )
 
 void uiStratUnitDlg::selLithCB( CallBacker* )
 {
-    uiLithoDlg lithdlg(this);
+    uiLithoDlg lithdlg( this, uistratmgr_ );
     if ( lithdlg.go() )
 	unitlithfld_->setText( lithdlg.getLithName() );
 } 
@@ -76,13 +77,13 @@ bool uiStratUnitDlg::acceptOK( CallBacker* )
 }
 
 
-uiLithoDlg::uiLithoDlg( uiParent* p )
+uiLithoDlg::uiLithoDlg( uiParent* p, uiStratMgr* uistratmgr )
     : uiDialog(p,uiDialog::Setup("Select Lithology","", 0))
+    , uistratmgr_(uistratmgr)
 {
     BufferStringSet lithoset;
     lithoset.add( sNoLithoTxt );
-    for ( int idx=0; idx<Strat::UnRepo().nrLiths(); idx++ )
-	lithoset.add( Strat::UnRepo().lith(idx).name() );
+    uistratmgr_->getLithoNames( lithoset );
     
     listlithfld_ = new uiLabeledListBox( this, lithoset, "Existing lithologies",
 	   				 false, uiLabeledListBox::AboveMid );
@@ -104,10 +105,7 @@ void uiLithoDlg::newLithCB( CallBacker* )
 {
     if ( listlithfld_->box()->isPresent( lithnmfld_->text() )
 	 || !strcmp( lithnmfld_->text(), "" ) ) return;
-    Strat::Lithology* newlith = new Strat::Lithology( lithnmfld_->text() );
-    newlith->setId( Strat::UnRepo().getFreeLithID() );
-    newlith->setSource( Strat::RT().source() );
-    Strat::eUnRepo().addLith( newlith );
+    uistratmgr_->createNewLith( lithnmfld_->text() );
 
     listlithfld_->box()->addItem( lithnmfld_->text() );
     listlithfld_->box()->setCurrentItem( lithnmfld_->text() );
@@ -127,8 +125,9 @@ void uiLithoDlg::setSelectedLith( const char* lithnm )
 }
 
 
-uiStratLevelDlg::uiStratLevelDlg( uiParent* p )
+uiStratLevelDlg::uiStratLevelDlg( uiParent* p, uiStratMgr* uistratmgr )
     : uiDialog(p,uiDialog::Setup("Create/Edit level","", 0))
+    , uistratmgr_( uistratmgr )
 {
     lvlnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
     lvlcolfld_ = new uiColorInput( this, getRandStdDrawColor(), "Color" );
@@ -152,3 +151,84 @@ void uiStratLevelDlg::isoDiaSel( CallBacker* )
     lvltimefld_->display( isiso );
     lvltimergfld_->display( !isiso );
 }
+
+
+void uiStratLevelDlg::setLvlInfo( const char* lvlnm )
+{
+    Interval<float> lvltrg;
+    Color lvlcol;
+    if ( !lvlnm && !uistratmgr_->getLvlPars( lvlnm, lvltrg, lvlcol ) )
+	return;
+
+    lvlnmfld_->setText( lvlnm );
+    bool isiso = mIsUdf(lvltrg.stop);
+    lvltvstrgfld_->setValue( isiso );
+    if ( isiso && !mIsUdf(lvltrg.start) )
+	lvltimefld_->setValue( lvltrg.start );
+    else if ( !isiso )
+	lvltimergfld_->setValue( lvltrg );
+
+    lvlcolfld_->setColor( lvlcol );
+    oldlvlnm_ = lvlnm;
+}
+
+
+bool uiStratLevelDlg::acceptOK( CallBacker* )
+{
+    BufferString newlvlnm = lvlnmfld_->text();
+    Color newlvlcol = lvlcolfld_->color();
+    Interval<float> newlvlrg;
+    if ( lvltvstrgfld_->getBoolValue() )
+    {
+	newlvlrg.start = lvltimefld_->getfValue();
+	newlvlrg.stop = lvltimefld_->getfValue();
+    }
+    else
+	newlvlrg = lvltimergfld_->getFInterval();
+    
+    uistratmgr_->setLvlPars( oldlvlnm_, newlvlnm, newlvlcol, newlvlrg );
+    return true;
+}
+
+
+#define mCreateList(loc,str)\
+{\
+    BufferString loc##bs = "Select "; loc##bs += str; loc##bs += " level";\
+    lvl##loc##listfld_ = new uiGenInput( this, loc##bs,\
+	    				 StringListInpSpec( lvlnms ) );\
+    lvl##loc##listfld_->setWithCheck();\
+    lvl##loc##listfld_->setChecked( loc##idx>-1 );\
+    if ( loc##idx>-1 )\
+	lvl##loc##listfld_->setValue( loc##idx );\
+}
+
+uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p, const char* urcode,
+       					      uiStratMgr* uistratmgr )
+    : uiDialog(p,uiDialog::Setup("Link levels and stratigraphic unit","", 0))
+    , uistratmgr_(uistratmgr)
+{
+    BufferStringSet lvlnms;
+    TypeSet<Color> colors; int topidx, baseidx;
+    uistratmgr_->getLvlsTxtAndCol( lvlnms, colors );
+    uistratmgr_->getIdxTBLvls( urcode, topidx, baseidx );
+    mCreateList(top,"top")
+    mCreateList(base,"base")
+    lvlbaselistfld_->attach( alignedBelow, lvltoplistfld_ );
+}
+
+
+bool uiStratLinkLvlUnitDlg::acceptOK( CallBacker* )
+{
+    bool hastoplvl = lvltoplistfld_->isChecked();
+    bool hasbaselvl = lvlbaselistfld_->isChecked();
+    if ( hastoplvl && hasbaselvl )
+    {
+	BufferString msg = uistratmgr_->checkLevelsOk( lvltoplistfld_->text(),
+						       lvlbaselistfld_->text());
+	if ( !msg.isEmpty() ) 
+	    { uiMSG().error( msg ); return false; }
+    }
+
+    return true;
+}
+

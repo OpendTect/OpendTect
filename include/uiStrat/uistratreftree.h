@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.8 2007-09-12 09:16:17 cvshelene Exp $
+ RCS:           $Id: uistratreftree.h,v 1.9 2007-09-26 15:24:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ class ioPixmap;
 class uiParent;
 class uiListView;
 class uiListViewItem;
+class uiStratMgr;
 namespace Strat {
     class RefTree;
     class NodeUnitRef;
@@ -31,7 +32,7 @@ class uiStratRefTree : public CallBacker
 {
 public:
 
-			uiStratRefTree(uiParent*,const Strat::RefTree*);
+			uiStratRefTree(uiParent*,uiStratMgr*);
 			~uiStratRefTree();
 
     void		setTree(const Strat::RefTree*,bool force =false);
@@ -43,14 +44,12 @@ public:
 
     const Strat::UnitRef*	findUnit(const char*) const;
     
-    Notifier<uiStratRefTree>	itemAdded_;
-    Notifier<uiStratRefTree>	itemToBeRemoved_;
-
 protected:
 
     const Strat::RefTree* tree_;
 
     uiListView*		lv_;
+    uiStratMgr*		uistratmgr_;
 
     void		rClickCB(CallBacker*);
 
@@ -59,6 +58,9 @@ protected:
     void		addNode(uiListViewItem*,const Strat::NodeUnitRef&,bool);
     ioPixmap*		createLevelPixmap(const Strat::UnitRef*) const;
     			//becomes yours!
+
+    BufferString	getCodeFromLVIt(const uiListViewItem*) const;
+    void		selBoundary();
 };
 
 
