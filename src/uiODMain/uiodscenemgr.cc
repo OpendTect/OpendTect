@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.111 2007-09-12 16:02:19 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.112 2007-09-26 10:46:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -197,6 +197,7 @@ int uiODSceneMgr::addScene( bool maximized )
     scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
     scn.sovwr_->pageupdown.notify( mCB(this,uiODSceneMgr,pageUpDownPressed) );
     scn.vwrGroup()->display( true, false, maximized );
+    scn.vwrGroup()->setName( title );
     actMode(0);
     setZoomValue( scn.sovwr_->getCameraZoom() );
     treeToBeAdded.trigger( sceneid );
@@ -318,6 +319,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
 	scn.sovwr_->pageupdown.notify(mCB(this,uiODSceneMgr,pageUpDownPressed));
 	scn.vwrGroup()->display( true, false );
+	scn.vwrGroup()->setName( title );
 	setZoomValue( scn.sovwr_->getCameraZoom() );
 	initTree( scn, vwridx_ );
     }
@@ -606,7 +608,14 @@ void uiODSceneMgr::getSoViewers( ObjectSet<uiSoViewer>& vwrs )
 
 void uiODSceneMgr::getSceneNames( BufferStringSet& nms, int& active )
 {
-// TODO
+    wsp_->getWindowNames( nms );
+    const char* activenm = wsp_->getActiveWin();
+    active = nms.indexOf( activenm );
+}
+
+void uiODSceneMgr::setActiveScene(const char* scenenm)
+{
+    wsp_->setActiveWin(scenenm);
 }
 
 

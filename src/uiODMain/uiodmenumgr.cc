@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.98 2007-09-19 17:18:50 cvsjaap Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.99 2007-09-26 10:46:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -333,6 +333,7 @@ void uiODMenuMgr::fillProcMenu()
 
 void uiODMenuMgr::fillWinMenu()
 {
+    winmnu_->clear();
     mInsertItem( winmnu_, "&New", mAddSceneMnuItm );
     mInsertItem( winmnu_, "&Cascade", mCascadeMnuItm );
     uiPopupMenu* tileitm = new uiPopupMenu( &appl_, "&Tile" );
@@ -349,7 +350,23 @@ void uiODMenuMgr::updateWindowsMenu( CallBacker* )
     BufferStringSet scenenms;
     int activescene = 0;
     sceneMgr().getSceneNames( scenenms, activescene );
-// TODO fill winmnu
+
+    fillWinMenu();
+    winmnu_->insertSeparator();
+
+#define mInsertSceneItem(txt,docheck,id) \
+    uiMenuItem* itm = new uiMenuItem( txt, \
+	    			      mCB(this,uiODMenuMgr,handleClick) ); \
+    winmnu_->insertItem( itm, id ); \
+    itm->setCheckable( true ); \
+    itm->setChecked( docheck );
+
+    for ( int idx=0; idx<scenenms.size(); idx++ )
+    {
+	mInsertSceneItem( scenenms.get(idx), idx==activescene,
+			  mSceneSelMnuItm+idx );    
+    }
+
 }
 
 
@@ -605,6 +622,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mTileAutoMnuItm: 	sceneMgr().tile(); break;
     case mTileHorMnuItm: 	sceneMgr().tileHorizontal(); break;
     case mTileVerMnuItm: 	sceneMgr().tileVertical(); break;
+    case mSceneSelMnuItm:	sceneMgr().setActiveScene( itm->name() );
+				break;		
     case mWorkAreaMnuItm: 	applMgr().setWorkingArea(); break;
     case mZScaleMnuItm: 	applMgr().setZScale(); break;
     case mBatchProgMnuItm: 	applMgr().batchProgs(); break;
@@ -651,6 +670,12 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 
     default:
     {
+	if ( id>=mSceneSelMnuItm && id<=mSceneSelMnuItm +100 )
+	{
+	    const char* scenenm = itm->name();
+	    sceneMgr().setActiveScene( scenenm );
+	}
+
 	if ( id >= mViewIconsMnuItm && id < mViewIconsMnuItm+100 )
 	{
 	    BufferString dirnm( "icons." );
