@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.31 2007-09-19 17:18:50 cvsjaap Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.32 2007-09-26 12:55:56 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -101,6 +101,7 @@ ________________________________________________________________________
 #define mTileAutoMnuItm		(mWinMnu + 30)
 #define mTileHorMnuItm		(mWinMnu + 31)
 #define mTileVerMnuItm		(mWinMnu + 32)
+#define mSceneSelMnuItm		(mWinMnu + 40)
 
 
 /* "View' menu */
