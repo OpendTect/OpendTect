@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.19 2006-11-21 14:00:06 cvsbert Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.20 2007-09-26 11:16:04 cvsbert Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
@@ -55,7 +55,7 @@ ascostream::~ascostream()
 
 void ascostream::newParagraph()
 {
-    stream() << mParagraphMarker << std::endl;
+    stream() << mAscStrmParagraphMarker << std::endl;
 }
 
 
@@ -145,7 +145,7 @@ ascistream::~ascistream()
 }
 
 
-void ascistream::init( std::istream* strm, int rdhead )
+void ascistream::init( std::istream* strm, bool rdhead )
 {
     streamptr = strm;
     filetype[0] = header[0] = timestamp[0] = curword[0] = '\0';
@@ -155,9 +155,9 @@ void ascistream::init( std::istream* strm, int rdhead )
 
     if ( rdhead )
     {
-	stream().getline( header, mMaxFileHeadLength );
-	stream().getline( filetype, mMaxFileHeadLength );
-	stream().getline( timestamp, mMaxFileHeadLength );
+	stream().getline( header, mAscStrmMaxFileHeadLength );
+	stream().getline( filetype, mAscStrmMaxFileHeadLength );
+	stream().getline( timestamp, mAscStrmMaxFileHeadLength );
 
 	removeTrailingBlanks(filetype);
 	char* ptr = filetype + strlen(filetype) - 4;
@@ -184,16 +184,16 @@ ascistream& ascistream::next()
     if ( !streamptr || !streamptr->good() )
 	return *this;
 
-    static char linebuf[mMaxLineLength+1];
-    if ( !stream().getline(linebuf,mMaxLineLength) )
+    static char linebuf[mAscStrmMaxLineLength+1];
+    if ( !stream().getline(linebuf,mAscStrmMaxLineLength) )
 	return *this;
 
     if ( linebuf[0] == '\0' || ( linebuf[0]=='-' && linebuf[1]=='-' ) )
 	return next();
 
-    else if ( linebuf[0] == mParagraphMarker[0] )
+    else if ( linebuf[0] == mAscStrmParagraphMarker[0] )
     {
-	keybuf = mParagraphMarker;
+	keybuf = mAscStrmParagraphMarker;
 	return *this;
     }
     tabbed = linebuf[0] == '\t';
@@ -278,7 +278,7 @@ ascistream::EntryType ascistream::type() const
 	return EndOfFile;
     if ( keybuf.isEmpty() )
 	return Empty;
-    if ( *(const char*)keybuf == *mParagraphMarker )
+    if ( *keybuf.buf() == *mAscStrmParagraphMarker )
 	return ParagraphMark;
     if ( valbuf.isEmpty() )
 	return Keyword;
@@ -318,7 +318,7 @@ int ascistream::getVal() const
 double ascistream::getValue() const
 {
     double res;
-    Conv::udfset( res, (const char*)valbuf );
+    Conv::udfset( res, valbuf.buf() );
    
     return res;
 }

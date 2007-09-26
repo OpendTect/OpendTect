@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.33 2007-03-06 07:38:33 cvsnanne Exp $
+ RCS:           $Id: uitextedit.cc,v 1.34 2007-09-26 11:16:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ void uiTextEditBase::readFromFile( const char* src )
     BufferString contents;
     BufferString newcontents;
 
+#define mMaxLineLength 8192
     char buf[mMaxLineLength];
     int lines_left = maxLines();
     if ( lines_left < 0 ) lines_left = mUdf(int);

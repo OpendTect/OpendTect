@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.13 2007-05-10 17:20:15 cvskris Exp $
+ RCS:		$Id: ascstream.h,v 1.14 2007-09-26 11:16:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,14 +16,14 @@ ________________________________________________________________________
 #include <limits.h>
 #include <iosfwd>
 
-#define mParagraphMarker	"!"
-#define mDefKeyValSep		':'
-#define mMaxWordLength		1023
-#define	mMaxFileHeadLength	80
-#define	mMaxLineLength		(USHRT_MAX-1)
+#define mAscStrmParagraphMarker		"!"
+#define mAscStrmDefKeyValSep		':'
+#define mAscStrmMaxWordLength		1023
+#define	mAscStrmMaxFileHeadLength	80
+#define	mAscStrmMaxLineLength		(USHRT_MAX-1)
 
 
-typedef char AscStreamHeader[mMaxFileHeadLength+1];
+typedef char AscStreamHeader[mAscStrmMaxFileHeadLength+1];
 
 
 /*!\brief OpendTect standard ascii format file writing.
@@ -38,10 +38,10 @@ class ascostream
 {
 
 public:
-		ascostream(std::ostream& strm,char kvsep=mDefKeyValSep)
-			: mystrm(NO), keyvalsep(kvsep)	{ init(&strm); }
-		ascostream(std::ostream* strm,char kvsep=mDefKeyValSep)
-			: mystrm(YES), keyvalsep(kvsep)	{ init(strm); }
+		ascostream(std::ostream& strm,char kvsep=mAscStrmDefKeyValSep)
+			: mystrm(false), keyvalsep(kvsep) { init(&strm); }
+		ascostream(std::ostream* strm,char kvsep=mAscStrmDefKeyValSep)
+			: mystrm(true), keyvalsep(kvsep)  { init(strm); }
 		//!<\note stream becomes mine
 		~ascostream();
 
@@ -52,8 +52,8 @@ public:
     bool	putYN(const char*,bool);
     bool	putHeader(const char*,const char* pspec=0);
 
-    void	tabsOn()		{ tabs = YES; }
-    void	tabsOff()		{ tabs = NO; }
+    void	tabsOn()		{ tabs = true; }
+    void	tabsOff()		{ tabs = false; }
 
     void	newParagraph();
     void	putKeyword(const char*);
@@ -70,7 +70,7 @@ protected:
 private:
 
     void	init( std::ostream* strmptr )
-		{ streamptr = strmptr; tabs = NO; }
+		{ streamptr = strmptr; tabs = false; }
 
 };
 
@@ -89,18 +89,14 @@ USHRT_MAX-1, i.e. 65534. If word parsing is used, the limit is 1023 per word.
 class ascistream
 {
 public:
-			ascistream(std::istream& strm,int rdhead=YES,
-				   char kvsep=mDefKeyValSep)
-				: mystrm(NO)
-				, keybuf("",mMaxWordLength)
-				, valbuf("",mMaxWordLength)
+			ascistream(std::istream& strm,bool rdhead=true,
+				   char kvsep=mAscStrmDefKeyValSep)
+				: mystrm(false)
 				, keyvalsep(kvsep)
 				{ init(&strm,rdhead); }
-			ascistream(std::istream* strm,int rdhead=YES,
-				   char kvsep=mDefKeyValSep)
-				: mystrm(YES)
-				, keybuf("",mMaxWordLength)
-				, valbuf("",mMaxWordLength)
+			ascistream(std::istream* strm,bool rdhead=true,
+				   char kvsep=mAscStrmDefKeyValSep)
+				: mystrm(true)
 				, keyvalsep(kvsep)
 				{ init(strm,rdhead); }
 			~ascistream();
@@ -154,13 +150,13 @@ protected:
     void		resetPtrs(bool);
 
     const char*		nextwordptr;
-    char		curword[mMaxWordLength+1];
+    char		curword[mAscStrmMaxWordLength+1];
 
     AscStreamHeader	filetype, header, timestamp;
 
 private:
 
-    void		init(std::istream*,int);
+    void		init(std::istream*,bool);
 
 };
 
