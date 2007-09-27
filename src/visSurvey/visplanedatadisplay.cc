@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.178 2007-09-18 15:58:04 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.179 2007-09-27 09:13:32 cvsbert Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -998,7 +998,7 @@ void PlaneDataDisplay::getMousePosInfo( const visBase::EventInfo&,
 	    BufferString attribstr = "(";
 	    attribstr += as_[idx]->userRef();
 	    attribstr += ")";
-	    val.insertAt( cValNameOffset(), (const char*)attribstr);
+	    val.replaceAt( cValNameOffset(), (const char*)attribstr);
 	}
 
 	return;

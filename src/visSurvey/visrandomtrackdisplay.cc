@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.91 2007-08-03 04:59:47 cvsnanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.92 2007-09-27 09:13:32 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -570,7 +570,7 @@ void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 		attribstr += as_[idx]->userRef();
 		attribstr += ")";
 
-		val.insertAt( cValNameOffset(), (const char*)attribstr);
+		val.replaceAt( cValNameOffset(), (const char*)attribstr);
 	    }
 
 	    return;
