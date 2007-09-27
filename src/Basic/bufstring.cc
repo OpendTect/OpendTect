@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.7 2007-09-27 08:11:17 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.8 2007-09-27 09:07:02 cvsbert Exp $";
 
 #include "bufstring.h"
 
@@ -188,7 +188,7 @@ void BufferString::insertAt( int atidx, const char* str )
 }
 
 
-void BufferString::replaceAt( int atidx, const char* str )
+void BufferString::replaceAt( int atidx, const char* str, bool cut )
 {
     const int strsz = str ? strlen(str) : 0;
     int cursz = size();
@@ -204,20 +204,28 @@ void BufferString::replaceAt( int atidx, const char* str )
 	buf_[atidx] = '\0';
 	cursz = newsz;
     }
-    if ( strsz < 1 ) return;
 
-    if ( atidx + strsz >= cursz )
+    if ( strsz > 0 )
     {
-	cursz = atidx + strsz + 1;
-	setBufSize( cursz );
-	buf_[cursz-1] = '\0';
+	if ( atidx + strsz >= cursz )
+	{
+	    cursz = atidx + strsz + 1;
+	    setBufSize( cursz );
+	    buf_[cursz-1] = '\0';
+	}
+
+	for ( int idx=0; idx<strsz; idx++ )
+	{
+	    const int replidx = atidx + idx;
+	    if ( replidx >= 0 )
+		buf_[replidx] = *(str + idx);
+	}
     }
 
-    for ( int idx=0; idx<strsz; idx++ )
+    if ( cut )
     {
-	const int replidx = atidx + idx;
-	if ( replidx >= 0 )
-	    buf_[replidx] = *(str + idx);
+	setBufSize( atidx + strsz + 1 );
+	buf_[atidx + strsz] = '\0';
     }
 }
 
