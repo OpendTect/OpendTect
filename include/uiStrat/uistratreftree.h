@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:           $Id: uistratreftree.h,v 1.9 2007-09-26 15:24:19 cvshelene Exp $
+ RCS:           $Id: uistratreftree.h,v 1.10 2007-09-27 14:21:09 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,8 +42,6 @@ public:
     void                expand(bool) const;
     void                makeTreeEditable(bool) const;
 
-    const Strat::UnitRef*	findUnit(const char*) const;
-    
 protected:
 
     const Strat::RefTree* tree_;
@@ -58,6 +56,7 @@ protected:
     void		addNode(uiListViewItem*,const Strat::NodeUnitRef&,bool);
     ioPixmap*		createLevelPixmap(const Strat::UnitRef*) const;
     			//becomes yours!
+    void		updateLvlsPixmaps();
 
     BufferString	getCodeFromLVIt(const uiListViewItem*) const;
     void		selBoundary();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.15 2007-09-26 15:24:19 cvshelene Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.16 2007-09-27 14:21:09 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,12 +113,6 @@ void uiStratRefTree::addNode( uiListViewItem* parlvit,
 	    addNode( lvit, chldnur, false );
 	}
     }
-}
-
-
-const UnitRef* uiStratRefTree::findUnit( const char* s ) const
-{
-    return tree_->find( s );
 }
 
 
@@ -288,20 +282,37 @@ BufferString uiStratRefTree::getCodeFromLVIt( const uiListViewItem* item ) const
     return bs;
 }
 
-/*
+
 void uiStratRefTree::updateLvlsPixmaps()
 {
+    UnitRef::Iter it( *uistratmgr_->getCurTree() );
+    const UnitRef* firstun = it.unit();
+    ioPixmap* pm = createLevelPixmap( firstun );
+    uiListViewItem* firstlvit = lv_->findItem( firstun->code(), 0 );
+    if ( firstlvit )
+	firstlvit->setPixmap( 0, *pm );
+    delete pm;
+    while ( it.next() )
+    {
+	const UnitRef* un = it.unit();
+	ioPixmap* pm = createLevelPixmap( un );
+	uiListViewItem* lvit = lv_->findItem( un->code(), 0 );
+	if ( lvit )
+	    lvit->setPixmap( 0, *pm );
+	delete pm;
+    }
 }
-*/
 
-#define mUpdateLvlInfo(loc,top)\
+
+
+#define mUpdateLvlInfo(loc,istop)\
 {\
     bool has##loc##lvl = lvllinkdlg.lvl##loc##listfld_->isChecked();\
     if ( !has##loc##lvl )\
-	uistratmgr_->freeLevel( getCodeFromLVIt( curit ).buf(), top);\
+	uistratmgr_->freeLevel( getCodeFromLVIt( curit ).buf(), istop);\
     if ( has##loc##lvl )\
 	uistratmgr_->linkLevel( getCodeFromLVIt( curit ).buf(), \
-				lvllinkdlg.lvl##loc##listfld_->text(), top );\
+				lvllinkdlg.lvl##loc##listfld_->text(), istop );\
 }
 
 
@@ -318,5 +329,7 @@ void uiStratRefTree::selBoundary()
     {
 	mUpdateLvlInfo( top, true )
 	mUpdateLvlInfo( base, false )
+	updateLvlsPixmaps();
+	lv_->triggerUpdate();
     }
 }
