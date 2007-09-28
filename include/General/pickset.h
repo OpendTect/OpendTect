@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.31 2007-09-25 09:38:22 cvsnanne Exp $
+ RCS:		$Id: pickset.h,v 1.32 2007-09-28 08:22:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,6 +106,10 @@ public:
 
     Disp		disp_;
     IOPar&		pars_;
+
+    static const char*	sKeyMarkerType;
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 };
 
 

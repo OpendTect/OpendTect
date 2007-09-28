@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.49 2007-09-25 09:38:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.50 2007-09-28 08:22:32 cvsnanne Exp $";
 
 #include "pickset.h"
 
@@ -420,6 +420,41 @@ Pick::Set& Pick::Set::operator=( const Set& s )
     copy( s ); setName( s.name() );
     disp_ = s.disp_; pars_ = s.pars_;
     return *this;
+}
+
+
+const char* Pick::Set::sKeyMarkerType = "Marker Type";
+
+void Pick::Set::fillPar( IOPar& par ) const
+{
+    BufferString colstr;
+    if ( disp_.color_ != Color::NoColor )
+    {
+	disp_.color_.fill( colstr.buf() );
+	par.set( sKey::Color, colstr.buf() );
+    }
+
+    par.set( sKey::Size, disp_.pixsize_ );
+    par.set( sKeyMarkerType, disp_.markertype_ );
+    par.merge( pars_ );
+}
+
+
+bool Pick::Set::usePar( const IOPar& par )
+{
+    BufferString colstr;
+    if ( par.get(sKey::Color,colstr) )
+	disp_.color_.use( colstr.buf() );
+
+    disp_.pixsize_ = 3;
+    par.get( sKey::Size, disp_.pixsize_ );
+    par.get( sKeyMarkerType, disp_.markertype_ );
+
+    pars_ = par;
+    pars_.removeWithKey( sKey::Color );
+    pars_.removeWithKey( sKey::Size );
+    pars_.removeWithKey( sKeyMarkerType );
+    return true;
 }
 
 
