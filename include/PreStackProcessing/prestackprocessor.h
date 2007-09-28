@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.5 2007-06-25 15:36:34 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.6 2007-09-28 20:54:23 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -56,6 +56,8 @@ public:
 				    you want there */
 
 protected:
+    virtual Gather*		createOutputArray(const Gather& input) const;
+
     Gather*			output_;
     const Gather*		input_;
 };

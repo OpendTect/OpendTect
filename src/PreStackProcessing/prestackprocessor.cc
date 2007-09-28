@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.9 2007-07-27 15:28:26 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.10 2007-09-28 20:54:23 cvskris Exp $";
 
 #include "prestackprocessor.h"
 
@@ -52,12 +52,16 @@ bool Processor::prepareWork()
 	output_ = 0;
     }
 
-    output_ = new Gather(*input_);
+    output_ = createOutputArray(*input_);
     DPM( DataPackMgr::FlatID ).add( output_ );
     DPM( DataPackMgr::FlatID ).obtain( output_->id() );
 
     return true;
 }
+
+
+Gather* Processor::createOutputArray( const Gather& input ) const
+{ return new Gather(input); }
 
 
 
