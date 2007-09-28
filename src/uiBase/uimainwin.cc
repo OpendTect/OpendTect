@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.132 2007-09-19 17:18:50 cvsjaap Exp $
+ RCS:           $Id: uimainwin.cc,v 1.133 2007-09-28 03:48:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -949,10 +949,7 @@ int uiDialogBody::exec()
     uiSetResult( 0 );
 
     if ( setup.fixedsize_ )
-    {
-	setMaximumSize( QSize(0,0) );
 	setSizePolicy( QSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed) );
-    }
 
     go();
 
