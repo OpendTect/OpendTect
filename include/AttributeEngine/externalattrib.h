@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: externalattrib.h,v 1.4 2007-07-17 08:01:01 cvsnanne Exp $
+ RCS:		$Id: externalattrib.h,v 1.5 2007-09-28 03:58:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,8 @@ public:
 	    				     const LineKey&)		= 0;
 
     virtual bool		isIndexes() const			= 0;
+
+    BufferString		errmsg_;
 };
 
 
