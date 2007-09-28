@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.32 2007-09-12 16:02:19 cvsnanne Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.33 2007-09-28 04:24:19 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -249,6 +249,8 @@ bool uiODPickSetTreeItem::init()
 	visSurvey::PickSetDisplay* psd = visSurvey::PickSetDisplay::create();
 	displayid_ = psd->id();
 	visserv_->addObject( psd, sceneID(), true );
+	if ( set_.disp_.pixsize_>100 )
+	    set_.disp_.pixsize_ = 3;
 	psd->setSet( &set_ );
     }
     else
