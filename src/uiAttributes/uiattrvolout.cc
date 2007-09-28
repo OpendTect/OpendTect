@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.32 2007-09-28 04:19:03 cvsnanne Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.33 2007-09-28 05:44:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,9 +148,6 @@ bool uiAttrVolOut::prepareProcessing()
     else if ( !todofld->checkOutput(*ctio.ioobj) )
 	return false;
 
-    ctio.ioobj->pars().set( sKey::Type, sKey::Attribute );
-    IOM().commitChanges( *ctio.ioobj );
-
     sel.ioobjkey = ctio.ioobj->key();
     sel.attrid = todofld->attribID();
     sel.outputnr = todofld->outputNr();
@@ -158,6 +155,12 @@ bool uiAttrVolOut::prepareProcessing()
     {
 	uiMSG().error( "Please select the output quantity" );
 	return false;
+    }
+
+    if ( todofld->is3D() )
+    {
+	ctio.ioobj->pars().set( sKey::Type, sKey::Attribute );
+	IOM().commitChanges( *ctio.ioobj );
     }
 
     uiSeisIOObjInfo ioobjinfo( *ctio.ioobj, true );
