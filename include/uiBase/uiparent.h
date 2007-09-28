@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uiparent.h,v 1.15 2007-05-09 16:52:40 cvsjaap Exp $
+ RCS:           $Id: uiparent.h,v 1.16 2007-09-28 03:50:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,8 @@ public:
 			    { return const_cast<uiParent*>(this)->mainobject();}
 
     uiParentBody*	pbody();
+    const uiParentBody*	pbody() const
+			{ return const_cast<uiParent*>(this)->pbody(); }
 
 
 #define mIfMO()		if ( mainObject() ) mainObject()
