@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivispickretriever.cc,v 1.4 2007-08-17 09:27:05 cvsnanne Exp $
+ RCS:           $Id: uivispickretriever.cc,v 1.5 2007-09-28 17:10:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,8 +64,7 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
     mCBCapsuleUnpackWithCaller( const visBase::EventInfo&,
 	    			eventinfo, caller, cb );
     if ( eventinfo.type!=visBase::MouseClick ||
-	 eventinfo.mousebutton!=visBase::EventInfo::leftMouseButton() ||
-	 eventinfo.pressed )
+	 eventinfo.mousebutton!=visBase::EventInfo::leftMouseButton() )
 	return;
 
     visSurvey::Scene* scene = 0;
@@ -81,6 +80,11 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
     if ( !scene || scene->eventCatcher().isEventHandled() )
 	return;
 
+    scene->eventCatcher().eventIsHandled();
+
+    if ( eventinfo.pressed ) //Block other objects from taking action
+	return;
+
     if ( (!allowedscenes_.isEmpty() &&
 	  allowedscenes_.indexOf( scene->id() )==-1)
 	  || eventinfo.pickedobjids.isEmpty() )
@@ -92,7 +96,6 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
 	status_ = Success;
     }
 
-    scene->eventCatcher().eventIsHandled();
 
     finished_.trigger();
 
