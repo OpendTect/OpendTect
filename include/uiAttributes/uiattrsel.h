@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.8 2007-01-09 08:26:45 cvsnanne Exp $
+ RCS:           $Id: uiattrsel.h,v 1.9 2007-09-28 05:09:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,6 +130,7 @@ public:
     Attrib::DescID	attribID() const	{ return attrdata_.attribid; }
     int			outputNr() const	{ return attrdata_.outputnr; }
     bool		is2D() const		{ return is2d_; }
+    bool		is3D() const		{ return !is2d_; }
 
     void		setDescSet(const Attrib::DescSet*);
 			//!< This function has to be called before getHistory !
