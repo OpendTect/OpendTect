@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.31 2007-09-13 07:50:59 cvsnanne Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.32 2007-09-28 04:19:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,13 +140,16 @@ void uiAttrVolOut::attrSel( CallBacker* )
 
 bool uiAttrVolOut::prepareProcessing()
 {
-    if ( !objfld->commitInput(true) )
+    if ( !objfld->commitInput(true) || !ctio.ioobj )
     {
 	uiMSG().error( "Please enter an output Seismic data set name" );
 	return false;
     }
     else if ( !todofld->checkOutput(*ctio.ioobj) )
 	return false;
+
+    ctio.ioobj->pars().set( sKey::Type, sKey::Attribute );
+    IOM().commitChanges( *ctio.ioobj );
 
     sel.ioobjkey = ctio.ioobj->key();
     sel.attrid = todofld->attribID();
