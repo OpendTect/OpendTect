@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.53 2007-09-19 17:18:50 cvsjaap Exp $
+ RCS:           $Id: uimainwin.h,v 1.54 2007-09-28 16:15:00 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,6 +108,8 @@ public:
 
     uiPopupMenu& 	getToolbarsMenu() const;
     void		updateToolbarsMenu();
+
+    const ObjectSet<uiToolBar>& toolBars() const;
 
     Notifier<uiMainWin>	windowClosed;
     			//!< triggered when window exits

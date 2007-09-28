@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.133 2007-09-28 03:48:46 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.134 2007-09-28 16:15:00 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -145,8 +145,12 @@ public:
     void 		uimoveDockWindow(uiDockWin&,uiMainWin::Dock,int);
     virtual QMenu*	createPopupMenu()		{ return 0; }
 
+    void		addToolBar(uiToolBar*);
+    void		removeToolBar(uiToolBar*);
     uiPopupMenu&	getToolbarsMenu()		{ return *toolbarsmnu_;}
     void		updateToolbarsMenu();
+
+    const ObjectSet<uiToolBar>& toolBars() const	{ return toolbars_; }
 
     void		setModal( bool yn )		{ modal_ = yn; }
     bool		isModal() const			{ return modal_; }
@@ -167,6 +171,8 @@ protected:
     uiStatusBar* 	statusbar;
     uiMenuBar* 		menubar;
     uiPopupMenu*	toolbarsmnu_;
+    
+    ObjectSet<uiToolBar> toolbars_;
 
 private:
 
@@ -268,7 +274,7 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 }
 
 
-uiMainWinBody::~uiMainWinBody( )
+uiMainWinBody::~uiMainWinBody()
 {
     toolbarsmnu_->clear();
     delete toolbarsmnu_;
@@ -433,11 +439,10 @@ void uiMainWinBody::toggleToolbar( CallBacker* cb )
     mDynamicCastGet( uiMenuItem*, itm, cb );
     if ( !itm ) return;
 
-    ObjectSet<uiToolBar>& toolbars = uiToolBar::toolBars();
-    for ( int tbidx=0; tbidx<toolbars.size(); tbidx++ )
+    for ( int idx=0; idx<toolbars_.size(); idx++ )
     {
-	uiToolBar& tb = *toolbars[tbidx];
-	if ( tb.name()==itm->name() && tb.parent()==&handle_ )
+	uiToolBar& tb = *toolbars_[idx];
+	if ( tb.name()==itm->name() )
 	    tb.display( tb.isHidden() );
     }
 }
@@ -446,32 +451,39 @@ void uiMainWinBody::toggleToolbar( CallBacker* cb )
 void uiMainWinBody::updateToolbarsMenu()
 {
     const ObjectSet<uiMenuItem>& items = toolbarsmnu_->items();
-    const ObjectSet<uiToolBar>& toolbars = uiToolBar::toolBars();
 
-    for ( int tbidx=0; tbidx<toolbars.size(); tbidx++ )
+    for ( int idx=0; idx<toolbars_.size(); idx++ )
     {
-	const uiToolBar& tb = *toolbars[tbidx];
-	for ( int itmidx=0; itmidx<items.size(); itmidx++ )
-	{
-	    uiMenuItem& itm = *const_cast<uiMenuItem*>( items[itmidx] );
-	    if ( itm.name()==tb.name() && tb.parent()==&handle_ )
-		itm.setChecked( !tb.isHidden() );
-	}
+	const uiToolBar& tb = *toolbars_[idx];
+	uiMenuItem& itm = *const_cast<uiMenuItem*>( items[idx] );
+	if ( itm.name()==tb.name() )
+	    itm.setChecked( !tb.isHidden() );
     }
+}
+
+
+void uiMainWinBody::addToolBar( uiToolBar* tb )
+{
+    QMainWindow::addToolBar( tb->qwidget() );
+    toolbars_ += tb;
+    renewToolbarsMenu();
+}
+
+
+void uiMainWinBody::removeToolBar( uiToolBar* tb )
+{
+    QMainWindow::removeToolBar( tb->qwidget() );
+    toolbars_ -= tb;
+    renewToolbarsMenu();
 }
 
 
 void uiMainWinBody::renewToolbarsMenu()
 {
     toolbarsmnu_->clear();
-    const ObjectSet<uiToolBar>& toolbars = uiToolBar::toolBars();
-
-    for ( int tbidx=0; tbidx<toolbars.size(); tbidx++ )
+    for ( int idx=0; idx<toolbars_.size(); idx++ )
     {
-	const uiToolBar& tb = *toolbars[tbidx];
-	if ( tb.parent() != &handle_ )
-	    continue;
-
+	const uiToolBar& tb = *toolbars_[idx];
 	uiMenuItem* itm =
 	    new uiMenuItem( tb.name(), mCB(this,uiMainWinBody,toggleToolbar) );
 	toolbarsmnu_->insertItem( itm );
@@ -566,21 +578,11 @@ void uiMainWin::addDockWindow( uiDockWin& dwin, Dock d )
 
 
 void uiMainWin::addToolBar( uiToolBar* tb )
-{
-#ifndef USEQT3
-    body_->addToolBar( tb->qwidget() );
-    body_->renewToolbarsMenu();
-#endif
-}
+{ body_->addToolBar( tb ); }
 
 
 void uiMainWin::removeToolBar( uiToolBar* tb )
-{
-#ifndef USEQT3
-    body_->removeToolBar( tb->qwidget() );
-    body_->renewToolbarsMenu();
-#endif
-}
+{ body_->removeToolBar( tb ); }
 
 
 void uiMainWin::addToolBarBreak()
@@ -597,6 +599,10 @@ uiPopupMenu& uiMainWin::getToolbarsMenu() const
 
 void uiMainWin::updateToolbarsMenu()
 { body_->updateToolbarsMenu(); }
+
+
+const ObjectSet<uiToolBar>& uiMainWin::toolBars() const
+{ return body_->toolBars(); } 
     
 
 uiGroup* uiMainWin::topGroup()	    	   { return body_->uiCentralWidg(); }
