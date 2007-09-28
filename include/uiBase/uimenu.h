@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.38 2007-09-18 14:26:07 cvsjaap Exp $
+ RCS:           $Id: uimenu.h,v 1.39 2007-09-28 03:50:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ public:
 			        */
     void			insertSeparator(int idx=-1);
 
+    void			removeItem(int id);
     void			clear();
 
 protected:
