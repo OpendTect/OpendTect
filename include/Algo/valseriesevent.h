@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2005
- RCS:		$Id: valseriesevent.h,v 1.10 2007-08-09 16:27:54 cvsbert Exp $
+ RCS:		$Id: valseriesevent.h,v 1.11 2007-09-28 05:43:08 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -164,7 +164,7 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::getZC(
 	    occ--;
 	    if ( occ < 1 )
 	    {
-		lastfound_ = istopos ? VSEvent::VSEvent::ZCNegPos
+		lastfound_ = istopos ? VSEvent::ZCNegPos
 		    		     : VSEvent::ZCPosNeg;
 		PT pos = idx - inc * (v1 / ( v1 - v0 ));
 		return ValueSeriesEvent<VT,PT>( 0, sd_.start + pos * sd_.step );
