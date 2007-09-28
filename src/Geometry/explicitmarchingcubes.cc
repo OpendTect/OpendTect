@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.9 2007-09-13 21:56:46 cvskris Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.10 2007-09-28 20:56:43 cvskris Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -151,8 +151,7 @@ ExplicitMarchingCubesSurface::ExplicitMarchingCubesSurface(
 
 ExplicitMarchingCubesSurface::~ExplicitMarchingCubesSurface()
 {
-    if ( surface_ ) surface_->unRef();
-
+    setSurface( 0 );
     delete scale0_;
     delete scale1_;
     delete scale2_;
@@ -165,12 +164,21 @@ ExplicitMarchingCubesSurface::~ExplicitMarchingCubesSurface()
 void ExplicitMarchingCubesSurface::setSurface( MarchingCubesSurface* ns )
 {
     if ( surface_ )
+    {
+	surface_->change.remove(
+		mCB(this,ExplicitMarchingCubesSurface,surfaceChange));
 	surface_->unRef();
+    }
 
     surface_ = ns;
     removeAll();
 
-    if ( surface_ ) surface_->ref();
+    if ( surface_ )
+    {
+	surface_->ref();
+	surface_->change.notify(
+		mCB(this,ExplicitMarchingCubesSurface,surfaceChange));
+    }
 }
 
 
@@ -213,13 +221,21 @@ bool ExplicitMarchingCubesSurface::update( bool forceall )
 {
     if ( !forceall && changedbucketranges_[mX] )
     {
-	return update(
+	if ( update(
 		Interval<int>(changedbucketranges_[mX]->start*mBucketSize,
 		    	     (changedbucketranges_[mX]->stop+1)*mBucketSize-1),
 		Interval<int>(changedbucketranges_[mX]->start*mBucketSize,
 		    	     (changedbucketranges_[mX]->stop+1)*mBucketSize-1),
 		Interval<int>(changedbucketranges_[mX]->start*mBucketSize,
-		    	     (changedbucketranges_[mX]->stop+1)*mBucketSize-1));
+		    	     (changedbucketranges_[mX]->stop+1)*mBucketSize-1)))
+	{
+	    delete changedbucketranges_[mX];
+	    delete changedbucketranges_[mY];
+	    delete changedbucketranges_[mZ];
+	    changedbucketranges_[mX] = 0;
+	    changedbucketranges_[mY] = 0;
+	    changedbucketranges_[mZ] = 0;
+	}
     }
 
     removeAll();

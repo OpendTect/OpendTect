@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: explicitmarchingcubes.h,v 1.6 2007-09-13 21:46:49 cvskris Exp $
+ RCS:           $Id: explicitmarchingcubes.h,v 1.7 2007-09-28 20:56:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,8 @@ class CoordList;
 /*!A triangulated representation of an MarchingCubesSurface. */
 
 
-class ExplicitMarchingCubesSurface : public Geometry::IndexedShape
+class ExplicitMarchingCubesSurface : public Geometry::IndexedShape,
+    				     public CallBacker
 {
 public:
 			ExplicitMarchingCubesSurface(MarchingCubesSurface*);
