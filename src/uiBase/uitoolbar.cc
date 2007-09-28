@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.38 2007-09-19 17:18:50 cvsjaap Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.39 2007-09-28 16:14:21 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -249,14 +249,36 @@ uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarDock d,
     toolBars() += this;
     
     mDynamicCastGet(uiMainWin*,uimw,parnt)
-    if ( uimw ) uimw->addToolBar( this );
+    if ( uimw ) 
+    {
+	uimw->addToolBar( this );
+	uimw->windowClosed.notify( mCB(this,uiToolBar,unAddToolBarCB) );
+    }
 }
 
 
 uiToolBar::~uiToolBar()
 {
+    unAddToolBarCB(0);
     toolBars() -= this;
+    delete qtoolbar_;
     delete body_;
+}
+
+
+void uiToolBar::unAddToolBarCB( CallBacker* )
+{
+    mDynamicCastGet(uiMainWin*,uimw,parent_);
+    if ( uimw )
+    {
+	uimw->windowClosed.remove( mCB(this,uiToolBar,unAddToolBarCB) );
+	uimw->removeToolBar( this );
+	parent_ = 0;
+	
+	// Accessing old QToolBar after window closure yields crash (??!!)
+	delete qtoolbar_;
+	qtoolbar_ = new QToolBar( QString(name()), 0 ); 
+    }
 }
 
 
@@ -320,7 +342,7 @@ void uiToolBar::display( bool yn, bool, bool )
     else
 	qtoolbar_->hide();
 
-    mDynamicCastGet( uiMainWin*, uimw, parent() )
+    mDynamicCastGet( uiMainWin*, uimw, parent_ )
     if ( uimw ) uimw->updateToolbarsMenu();
 }
 
