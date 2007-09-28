@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.112 2007-09-26 10:46:52 cvssatyaki Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.113 2007-09-28 03:56:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,6 +104,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     tifs_->addFactory( new uiODWellTreeItemFactory, 8000,
 	    	       SurveyInfo::Both2DAnd3D );
 
+    wsp_->changed.notify( mCB(this,uiODSceneMgr,wspChanged) );
     wsp_->setPrefWidth( cWSWidth );
     wsp_->setPrefHeight( cWSHeight );
 
@@ -175,7 +176,7 @@ void uiODSceneMgr::cleanUp( bool startnew )
 uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
 {
     uiODSceneMgr::Scene& scn = *new uiODSceneMgr::Scene( wsp_ );
-    scn.vwrGroup()->mainObject()->closed.notify( mWSMCB(removeScene) );
+    scn.wsgrp_->closed().notify( mWSMCB(removeScene) );
     scenes_ += &scn;
     vwridx_++;
     return scn;
@@ -189,15 +190,14 @@ int uiODSceneMgr::addScene( bool maximized )
     scn.sovwr_->setSceneID( sceneid );
     BufferString title( scenestr );
     title += vwridx_;
-    scn.sovwr_->setTitle( title );
+    scn.wsgrp_->setTitle( title );
     visServ().setObjectName( sceneid, title );
     scn.sovwr_->display();
     scn.sovwr_->viewAll();
     scn.sovwr_->setHomePos();
     scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
     scn.sovwr_->pageupdown.notify( mCB(this,uiODSceneMgr,pageUpDownPressed) );
-    scn.vwrGroup()->display( true, false, maximized );
-    scn.vwrGroup()->setName( title );
+    scn.wsgrp_->display( true, false, maximized );
     actMode(0);
     setZoomValue( scn.sovwr_->getCameraZoom() );
     treeToBeAdded.trigger( sceneid );
@@ -229,7 +229,7 @@ void uiODSceneMgr::removeScene( CallBacker* cb )
     int idxnr = -1;
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
-	if ( grp == scenes_[idx]->vwrGroup()->mainObject() )
+	if ( grp == scenes_[idx]->wsgrp_->mainObject() )
 	{
 	    idxnr = idx;
 	    break;
@@ -242,7 +242,7 @@ void uiODSceneMgr::removeScene( CallBacker* cb )
     visServ().removeScene( scene->itemmanager_->sceneID() );
     appl_.removeDockWindow( scene->treeWin() );
 
-    scene->vwrGroup()->mainObject()->closed.remove( mWSMCB(removeScene) );
+    scene->wsgrp_->closed().remove( mWSMCB(removeScene) );
     scenes_ -= scene;
     sceneClosed.trigger( scene->itemmanager_->sceneID() );
     delete scene;
@@ -305,21 +305,19 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	}
 
 	Scene& scn = mkNewScene();
-  	if ( !scn.sovwr_->usePar( *scenepar ) )
+  	if ( !scn.sovwr_->usePar(*scenepar) )
 	{
-	    removeScene( scn.vwrGroup() );
+	    removeScene( scn.wsgrp_->mainObject() );
 	    continue;
 	}
     
-	int sceneid = scn.sovwr_->sceneID();
 	BufferString title( scenestr );
 	title += vwridx_;
-  	scn.sovwr_->setTitle( title );
+  	scn.wsgrp_->setTitle( title );
 	scn.sovwr_->display();
 	scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
 	scn.sovwr_->pageupdown.notify(mCB(this,uiODSceneMgr,pageUpDownPressed));
-	scn.vwrGroup()->display( true, false );
-	scn.vwrGroup()->setName( title );
+	scn.wsgrp_->display( true, false );
 	setZoomValue( scn.sovwr_->getCameraZoom() );
 	initTree( scn, vwridx_ );
     }
@@ -475,7 +473,7 @@ void uiODSceneMgr::layoutScenes()
 {
     const int nrgrps = scenes_.size();
     if ( nrgrps == 1 && scenes_[0] )
-	scenes_[0]->vwrGroup()->display( true, false, true );
+	scenes_[0]->wsgrp_->display( true, false, true );
     else if ( scenes_[0] )
 	tile();
 }
@@ -613,10 +611,12 @@ void uiODSceneMgr::getSceneNames( BufferStringSet& nms, int& active )
     active = nms.indexOf( activenm );
 }
 
-void uiODSceneMgr::setActiveScene(const char* scenenm)
-{
-    wsp_->setActiveWin(scenenm);
-}
+
+void uiODSceneMgr::wspChanged( CallBacker* )
+{ menuMgr().updateWindowsMenu(); }
+
+void uiODSceneMgr::setActiveScene( const char* scenenm )
+{ wsp_->setActiveWin( scenenm ); }
 
 
 void uiODSceneMgr::initTree( Scene& scn, int vwridx )
@@ -867,25 +867,20 @@ uiODSceneMgr::Viewer2D& uiODSceneMgr::addViewer2D( int visid )
 
 uiODSceneMgr::Scene::Scene( uiWorkSpace* wsp )
         : lv_(0)
+	, wsgrp_(0)
         , sovwr_(0)
-    	, itemmanager_( 0 )
+    	, itemmanager_(0)
 {
     if ( !wsp ) return;
 
-#ifdef USEQT3
-    uiGroup* grp = new uiGroup( wsp );
-#else
-    uiGroup* grp = new uiGroup( 0 );
-#endif
-    grp->setPrefWidth( 400 );
-    grp->setPrefHeight( 400 );
-    sovwr_ = new uiSoViewer( grp );
+    wsgrp_ = new uiWorkSpaceGroup();
+    wsgrp_->setPrefWidth( 400 );
+    wsgrp_->setPrefHeight( 400 );
+    sovwr_ = new uiSoViewer( wsgrp_ );
     sovwr_->setPrefWidth( 200 );
     sovwr_->setPrefHeight( 200 );
     sovwr_->setIcon( scene_xpm_data );
-#ifndef USEQT3
-    wsp->addGroup( grp );
-#endif
+    wsp->addGroup( wsgrp_ );
 }
 
 
@@ -894,12 +889,6 @@ uiODSceneMgr::Scene::~Scene()
     delete sovwr_;
     delete itemmanager_;
     delete treeWin();
-}
-
-
-uiGroup* uiODSceneMgr::Scene::vwrGroup()
-{
-    return sovwr_ ? (uiGroup*)sovwr_->parent() : 0;
 }
 
 

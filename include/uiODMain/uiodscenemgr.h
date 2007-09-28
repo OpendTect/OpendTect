@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.49 2007-09-26 10:46:52 cvssatyaki Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.50 2007-09-28 03:56:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ class uiTreeFactorySet;
 class uiTreeItem;
 class uiVisPartServer;
 class uiWorkSpace;
+class uiWorkSpaceGroup;
 
 
 /*!\brief Manages the scenes and the corresponding trees.
@@ -138,10 +139,10 @@ protected:
 			~Scene();
        
 	uiListView*	lv_;
+	uiWorkSpaceGroup* wsgrp_;
 	uiSoViewer*	sovwr_;
 	uiODTreeTop*	itemmanager_;
 
-	uiGroup*	vwrGroup();
 	uiDockWin*	treeWin();
     };
 
@@ -170,6 +171,7 @@ protected:
     ObjectSet<Scene>	scenes_;
     ObjectSet<Viewer2D>	viewers2d_;
     Viewer2D&		addViewer2D(int visid);
+    void		wspChanged(CallBacker*);
 
     int				vwridx_;
     float			lasthrot_, lastvrot_, lastdval_;

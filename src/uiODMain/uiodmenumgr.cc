@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.99 2007-09-26 10:46:52 cvssatyaki Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.100 2007-09-28 03:56:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uiodmenumgr.h"
 
 #include "uicrdevenv.h"
-#include "uitextfile.h"
+#include "uifiledlg.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
@@ -21,35 +21,27 @@ ________________________________________________________________________
 #include "uiodstdmenu.h"
 #include "uisettings.h"
 #include "uisoviewer.h"
+#include "uitextfile.h"
 #include "uitoolbar.h"
 #include "uivispartserv.h"
-#include "uifiledlg.h"
 
 #include "dirlist.h"
 #include "envvars.h"
 #include "filegen.h"
+#include "filepath.h"
+#include "ioman.h"
 #include "oddirs.h"
 #include "pixmap.h"
-#include "ioman.h"
 #include "strmprov.h"
-#include "filepath.h"
 #include "survinfo.h"
+#include "thread.h"
 
 
 uiODMenuMgr::uiODMenuMgr( uiODMain* a )
-	: appl_(*a)
-    	, helpmgr_(0)
-    	, dTectTBChanged(this)
-    	, dTectMnuChanged(this)
-	, surveymnu_(0)
-	, procmnu_(0)
-	, winmnu_(0)
-	, viewmnu_(0)
-	, utilmnu_(0)
-	, helpmnu_(0)
-	, dtecttb_(0)
-	, cointb_(0)
-	, mantb_(0)
+    : appl_(*a)
+    , dTectTBChanged(this)
+    , dTectMnuChanged(this)
+    , helpmgr_(0)
 {
     surveymnu_ = new uiPopupMenu( &appl_, "&Survey" );
     procmnu_ = new uiPopupMenu( &appl_, "&Processing" );
@@ -63,8 +55,6 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     mantb_ = new uiToolBar( &appl_, "Manage data" );
 
     appl_.applMgr().visServer()->createToolBars();
-    appl_.applMgr().visServer()->nrScenesChange().notify(
-	    			mCB(this,uiODMenuMgr,updateWindowsMenu) );
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectMnus) );
 }
@@ -333,7 +323,6 @@ void uiODMenuMgr::fillProcMenu()
 
 void uiODMenuMgr::fillWinMenu()
 {
-    winmnu_->clear();
     mInsertItem( winmnu_, "&New", mAddSceneMnuItm );
     mInsertItem( winmnu_, "&Cascade", mCascadeMnuItm );
     uiPopupMenu* tileitm = new uiPopupMenu( &appl_, "&Tile" );
@@ -342,17 +331,18 @@ void uiODMenuMgr::fillWinMenu()
     mInsertItem( tileitm, "&Auto", mTileAutoMnuItm );
     mInsertItem( tileitm, "&Horizontal", mTileHorMnuItm );
     mInsertItem( tileitm, "&Vertical", mTileVerMnuItm );
+    winmnu_->insertSeparator();
 }
 
 
-void uiODMenuMgr::updateWindowsMenu( CallBacker* )
+void uiODMenuMgr::updateWindowsMenu()
 {
     BufferStringSet scenenms;
     int activescene = 0;
     sceneMgr().getSceneNames( scenenms, activescene );
 
-    fillWinMenu();
-    winmnu_->insertSeparator();
+    for ( int id=mSceneSelMnuItm; id<mSceneSelMnuItm+scenenms.size()+1; id++ )
+	winmnu_->removeItem( id );
 
 #define mInsertSceneItem(txt,docheck,id) \
     uiMenuItem* itm = new uiMenuItem( txt, \
@@ -366,7 +356,6 @@ void uiODMenuMgr::updateWindowsMenu( CallBacker* )
 	mInsertSceneItem( scenenms.get(idx), idx==activescene,
 			  mSceneSelMnuItm+idx );    
     }
-
 }
 
 
@@ -622,8 +611,6 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mTileAutoMnuItm: 	sceneMgr().tile(); break;
     case mTileHorMnuItm: 	sceneMgr().tileHorizontal(); break;
     case mTileVerMnuItm: 	sceneMgr().tileVertical(); break;
-    case mSceneSelMnuItm:	sceneMgr().setActiveScene( itm->name() );
-				break;		
     case mWorkAreaMnuItm: 	applMgr().setWorkingArea(); break;
     case mZScaleMnuItm: 	applMgr().setZScale(); break;
     case mBatchProgMnuItm: 	applMgr().batchProgs(); break;
