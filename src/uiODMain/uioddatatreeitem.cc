@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.14 2007-09-17 12:44:31 cvskris Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.15 2007-10-01 12:07:26 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -33,18 +33,18 @@ mImplFactory2Param( uiODDataTreeItem, const Attrib::SelSpec&,
 		     const char*, uiODDataTreeItem::factory );
 
 uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
-    : uiTreeItem( "" )
-    , parenttype_( parenttype )
-    , menu_( 0 )
-    , movemnuitem_( "Move" )
-    , movetotopmnuitem_( "to top" )
-    , movetobottommnuitem_( "to bottom" )
-    , moveupmnuitem_( "up" )
-    , movedownmnuitem_( "down" )
-    , removemnuitem_("Remove" )
-    , changetransparencyitem_( "Change transparency ..." )
-    , statisticsitem_("Show Histogram ...")					  
-    , addto2dvieweritem_( "Display in a 2D Viewer as" )
+    : uiTreeItem("")
+    , parenttype_(parenttype)
+    , menu_(0)
+    , movemnuitem_("Move")
+    , movetotopmnuitem_("to top")
+    , movetobottommnuitem_("to bottom")
+    , moveupmnuitem_("up")
+    , movedownmnuitem_("down")
+    , removemnuitem_("Remove")
+    , changetransparencyitem_("Change transparency ...")
+    , statisticsitem_("Show Histogram ...")
+    , addto2dvieweritem_("Display in a 2D Viewer as")
     , view2dwvaitem_("Wiggle")
     , view2dvditem_("VD")
 {}
@@ -216,16 +216,12 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
     else
 	mResetMenuItem( &changetransparencyitem_ );
 
-    bool isflatscene = false;//TODO:remove when Flattened scene ok for 2D Viewer
     mDynamicCastGet(visSurvey::Scene*,scene,
 	                applMgr()->visServer()->getObject(sceneID()));
-    if ( scene )
-    {
-	mDynamicCastGet(EM::HorizonZTransform*,horztrans,
-			scene->getDataTransform());
-	if ( horztrans ) isflatscene = true;
-    }
-    if ( visserv->canBDispOn2DViewer(displayID()) && !isflatscene )
+    const bool hasztransform = scene && scene->getDataTransform();
+//TODO:remove when Z-transformed scenes are ok for 2D Viewer
+ 
+    if ( visserv->canBDispOn2DViewer(displayID()) && !hasztransform )
     {
 	const Attrib::SelSpec* as =
 	    visserv->getSelSpec( displayID(), attribNr() );
@@ -266,7 +262,6 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	    visserv->swapAttribs( displayID(), idx, idx+1 );
 
 	moveItemToTop();
-
 	menu->setIsHandled( true );
     }
     else if ( mnuid==movetobottommnuitem_.id )
@@ -277,7 +272,6 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	while ( siblingIndex()<nrattribs-1 )
 	    moveItem( siblingBelow() );
-
 	menu->setIsHandled( true );
     }
     else if ( mnuid==moveupmnuitem_.id )
@@ -290,7 +284,6 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	}
 
 	moveItem( siblingAbove() );
-
 	menu->setIsHandled(true);
     }
     else if ( mnuid==movedownmnuitem_.id )
