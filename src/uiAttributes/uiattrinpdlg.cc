@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.cc,v 1.8 2007-05-22 07:36:43 cvsnanne Exp $
+ RCS:           $Id: uiattrinpdlg.cc,v 1.9 2007-10-01 14:57:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,7 +98,8 @@ const char* uiAttrInpDlg::getKey() const
 {
     static LineKey lk;
     lk.setLineName( ctio.ioobj->key() );
-    if ( is2D() && issteer_ )
-	lk.setAttrName( sKey::Steering );
+    if ( is2D() )
+	lk.setAttrName( issteer_ ? sKey::Steering : inpfld->attrNm() );
+
     return lk;
 }
