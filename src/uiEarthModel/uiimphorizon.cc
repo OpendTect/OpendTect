@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.90 2007-09-21 04:11:47 cvsraman Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.91 2007-10-01 10:03:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -379,8 +379,12 @@ bool uiImportHorizon::checkInpFlds()
     BufferStringSet filenames;
     if ( !getFileNames(filenames) ) return false;
 
+    const char* outpnm = outputfld_->getInput();
+    if ( !outpnm || !*outpnm )
+	mErrRet( "Please select output horizon" )
+
     if ( !outputfld_->commitInput(true) )
-	mErrRet( "Please select the output" )
+	return false;
 
     return true;
 }
