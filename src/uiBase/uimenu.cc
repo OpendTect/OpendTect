@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.44 2007-09-28 03:50:42 cvsnanne Exp $
+ RCS:           $Id: uimenu.cc,v 1.45 2007-10-01 11:39:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,8 +31,9 @@ public:
 
     int				nrItems() const 	{ return itms_.size(); }
 
-    virtual int			insertItem(uiMenuItem*,int id) =0;
-    virtual int			insertItem(uiPopupMenu*,int id) =0;
+    virtual int			addItem(uiMenuItem*,int id) =0;
+    virtual int			addItem(uiPopupMenu*,int id) =0;
+    virtual int			insertMenu(uiPopupMenu*,uiPopupMenu* before) =0;
 
     virtual QMenuBar*		bar()			{ return 0; }
     virtual QMenu*		popup()			{ return 0; }
@@ -71,42 +72,70 @@ public:
 			~uiMenuItemContainerBodyImpl()		{}
 
 
-    int			insertItem( uiMenuItem* it, int id )
+    int			getIndexFromID( int id )
+			{
+			    if ( id < 0 ) return -1;
+			    for ( int idx=0; idx<itms_.size(); idx++ )
+				if ( itms_[idx]->id() == id )
+				    return idx;
+			    return -1;
+			}
+
+
+    int			addItem( uiMenuItem* it, int id )
 			{
 			    QString nm( it->name() );
-			    i_MenuMessenger* msgr__= it->messenger();
-
+			    i_MenuMessenger* msgr__ = it->messenger();
 			    QAction* action = qmenu_->addAction( nm, msgr__,
 				    SLOT(activated()) );
-
-			    it->setId( id );
-			    it->setMenu( this );
-			    it->setAction( action );
-			    if ( it->isChecked() )
-				action->setChecked( it->isChecked() );
-			    action->setEnabled( it->isEnabled() );
-			    itms_ += it;
-			    actions_ += action;
+			    init( it, action, id, -1 );
 			    return id;
 			}
 
-    int			insertItem( uiPopupMenu* pmnu, int id )
+    int			addItem( uiPopupMenu* pmnu, int id )
 			{
 			    uiPopupItem* it = &pmnu->item();
-
 			    QMenu* pu = pmnu->body_->popup();
 			    pu->setTitle( it->name().buf() );
-
 			    QAction* action = qmenu_->addMenu( pu );
+			    init( it, action, id, -1 );
+			    return id;
+			}
+
+    int			insertMenu( uiPopupMenu* pmnu, uiPopupMenu* before )
+			{
+			    const int beforeidx = before ?
+				getIndexFromID( before->item().id() ) : -1;
+			    QAction* actionbefore = before ?
+				before->item().qaction_ : 0;
+
+			    uiPopupItem* it = &pmnu->item();
+			    QMenu* pu = pmnu->body_->popup();
+			    pu->setTitle( it->name().buf() );
+			    QAction* action =
+				qmenu_->insertMenu( actionbefore, pu );
+			    init( it, action, it->id(), beforeidx );
+			    return it->id();
+			}
+
+    void		init( uiMenuItem* it, QAction* action, int id, int idx )
+			{
 			    it->setId( id );
 			    it->setMenu( this );
 			    it->setAction( action );
 			    if ( it->isChecked() )
 				action->setChecked( it->isChecked() );
 			    action->setEnabled( it->isEnabled() );
-			    itms_ += it;
-			    actions_ += action;
-			    return id;
+			    if ( idx>=0 )
+			    {
+				itms_.insertAt( it, idx );
+				actions_.insertAt( action, idx );
+			    }
+			    else
+			    {
+				itms_ += it;
+				actions_ += action;
+			    }
 			}
 
     void		clear()
@@ -169,16 +198,10 @@ uiMenuItem::uiMenuItem( const char* nm, const CallBack& cb )
 
 
 uiMenuItem::~uiMenuItem()
-{ 
-    delete &messenger_; 
-}
-
+{ delete &messenger_; }
 
 bool uiMenuItem::isEnabled() const
-{
-    return qaction_ ? qaction_->isEnabled() : enabled_;
-}
-
+{ return qaction_ ? qaction_->isEnabled() : enabled_; }
 
 void uiMenuItem::setEnabled( bool yn )
 {
@@ -214,15 +237,10 @@ void uiMenuItem::setChecked( bool yn )
 
 
 void uiMenuItem::setText( const char* txt )
-{
-    if ( qaction_ ) qaction_->setText( txt );
-}
-
+{ if ( qaction_ ) qaction_->setText( txt ); }
 
 const char* uiMenuItem::text() const
-{
-    return qaction_ ? qaction_->text() : "";
-}
+{ return qaction_ ? qaction_->text() : ""; }
 
 
 static const QEvent::Type sQEventActivate = (QEvent::Type) (QEvent::User + 0);
@@ -301,10 +319,13 @@ uiMenuItem* uiMenuItemContainer::find( const char* itmtxt )
 
 
 int uiMenuItemContainer::insertItem( uiMenuItem* it, int id )
-    { return body_->insertItem( it, id ); }
+    { return body_->addItem( it, id ); }
 
 int uiMenuItemContainer::insertItem( uiPopupMenu* it, int id )
-    { return body_->insertItem( it, id ); }
+    { return body_->addItem( it, id ); }
+
+int uiMenuItemContainer::insertMenu( uiPopupMenu* pm, uiPopupMenu* before )
+{ return body_->insertMenu( pm, before ); }
 
 void uiMenuItemContainer::insertSeparator( int idx ) 
 {
