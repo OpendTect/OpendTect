@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2007
- RCS:           $Id: uiaction.cc,v 1.1 2007-08-08 05:22:41 cvsnanne Exp $
+ RCS:           $Id: uiaction.cc,v 1.2 2007-10-01 12:11:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,20 +83,15 @@ void uiAction::setPixmap( const ioPixmap& pm )
 { qaction_->setIcon( *pm.qpixmap() ); }
 
 
-void uiAction::setCheckable( bool yn )
-{ qaction_->setCheckable( yn ); }
+#define mSetGet(setfn,getfn) \
+void uiAction::setfn( bool yn ) \
+{ qaction_->setfn( yn ); } \
+\
+bool uiAction::getfn() const \
+{ return qaction_->getfn(); }
 
-bool uiAction::isCheckable() const
-{ return qaction_->isCheckable(); }
 
-void uiAction::setChecked( bool yn )
-{ qaction_->setCheckable( yn ); }
-
-bool uiAction::isChecked() const
-{ return qaction_->isChecked(); }
-
-void uiAction::setEnabled( bool yn )
-{ qaction_->setCheckable( yn ); }
-
-bool uiAction::isEnabled() const
-{ return qaction_->isEnabled(); }
+mSetGet( setCheckable, isCheckable )
+mSetGet( setChecked, isChecked )
+mSetGet( setEnabled, isEnabled )
+mSetGet( setVisible, isVisible )

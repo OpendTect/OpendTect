@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.30 2007-09-14 07:41:33 cvsnanne Exp $
+ RCS:           $Id: treeitem.cc,v 1.31 2007-10-01 12:12:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -828,7 +828,6 @@ bool ArrowSubItem::init()
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );
     PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
-    arrowtype_;
     if ( ioobj->pars().get(sKeyArrowType(),arrowtype_) )
 	ad->setType( (ArrowDisplay::Type)arrowtype_ );
 

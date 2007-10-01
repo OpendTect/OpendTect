@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2007
- RCS:           $Id: uiaction.h,v 1.1 2007-08-08 05:22:41 cvsnanne Exp $
+ RCS:           $Id: uiaction.h,v 1.2 2007-10-01 12:11:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,8 @@ public:
     bool		isChecked() const;
     void		setEnabled(bool);
     bool		isEnabled() const;
+    void		setVisible(bool);
+    bool		isVisible() const;
 
     QAction*		qaction()		{ return qaction_; }
 
