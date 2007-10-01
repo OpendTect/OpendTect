@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.8 2007-09-17 12:39:20 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.9 2007-10-01 16:06:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,8 @@ public:
 
 
 protected:
-    void		removeSelectionPolygon();
+    bool		removeSelectionPolygon();
+    			//!<Returns true if viewer must be notified.
     void		mousePressCB(CallBacker*);
     void		mouseReleaseCB(CallBacker*);
     void		mouseMoveCB(CallBacker*);

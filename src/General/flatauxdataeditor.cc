@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.15 2007-09-17 12:47:28 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.cc,v 1.16 2007-10-01 16:06:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,12 +56,17 @@ AuxDataEditor::~AuxDataEditor()
 }
 
 
-void AuxDataEditor::removeSelectionPolygon()
+bool AuxDataEditor::removeSelectionPolygon()
 {
+    if ( !polygonsel_.size() )
+	return false;
+
     for ( int idx=0; idx<polygonsel_.size(); idx++ )
 	viewer_.appearance().annot_.auxdata_ -= polygonsel_[idx];
 
     deepErase( polygonsel_ );
+
+    return true;
 }
 
 
@@ -115,7 +120,10 @@ void AuxDataEditor::enableEdit( int id, bool allowadd, bool allowmove,
 
 
 void AuxDataEditor::setAddAuxData( int id )
-{ addauxdataid_ = id; }
+{
+    addauxdataid_ = id;
+    if ( removeSelectionPolygon() ) viewer_.handleChange( Viewer::Annot );
+}
 
 
 int AuxDataEditor::getAddAuxData() const
@@ -272,12 +280,14 @@ void AuxDataEditor::mousePressCB( CallBacker* cb )
     if ( seldatasetidx_!=-1 || !(ev.ctrlStatus() || ev.shiftStatus()) ||
 	 ev.altStatus() )
     {
-	removeSelectionPolygon();
-	viewer_.handleChange( Viewer::Annot );
+	if ( removeSelectionPolygon() ) viewer_.handleChange( Viewer::Annot );
     }
 
-    movementStarted.trigger();
-    mousehandler_.setHandled( true );
+    if ( seldatasetidx_!=-1 || addauxdataid_!=-1 )
+    {
+	movementStarted.trigger();
+	mousehandler_.setHandled( true );
+    }
 }
 
 
@@ -420,7 +430,7 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 		RowCol( mousearea_.topRight().x, mousearea_.topRight().y ),
 		mousearea_.bottomLeft().y );
 
-	if ( !hasmoved_ && !ev.shiftStatus() )
+	if ( !hasmoved_ && !ev.shiftStatus() || !polygonsel_.size() )
 	{
 	    Annotation::AuxData* polysel = new Annotation::AuxData( 0 );
 	    polysel->markerstyle_.color_.setTransparency( 255 );
@@ -459,6 +469,7 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	}
 
 	prevpt_ = ev.pos();
+	mousehandler_.setHandled( true );
     }
 
     hasmoved_ = true;
