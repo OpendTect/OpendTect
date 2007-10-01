@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.80 2007-10-01 09:48:27 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.81 2007-10-01 10:24:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -304,21 +304,12 @@ bool Wizard::prepareNamePage()
 }
 
 
-#define mErrRet(msg) { uiMSG().error(msg); return false; }
-
-#define mAskGoOnStr(nameandtypeexist) \
-    ( nameandtypeexist ? \
-	"An object with this name exists. Overwrite?" : \
-	"An object of different type owns the name chosen.\n" \
-	"Extend the chosen name to make it unique?" )
-
 bool Wizard::leaveNamePage( bool process )
 {
     if ( !process ) return true;
 
-    const char* newobjnm = objselgrp->getNameField()->text(); 
+    const char* newobjnm = objselgrp->getNameField()->text();
     PtrMan<IOObj> ioobj = IOM().getLocal( newobjnm );
-    bool newentry = true;
     if ( ioobj )
     {
 	const bool askoverwrite =
@@ -332,8 +323,6 @@ bool Wizard::leaveNamePage( bool process )
 	else if ( !uiMSG().askGoOn("An object with this name exists. "
 		    		   "Overwrite?") )
 	    return false;
-
-	newentry = false;
     }
 
     if ( !objselgrp->processInput() )
@@ -342,7 +331,7 @@ bool Wizard::leaveNamePage( bool process )
 	return false;
     }
 
-    ioparentrycreated = newentry;
+    ioparentrycreated = !ioobj;
     const int nrsel = objselgrp->nrSel();
     PtrMan<IOObj> newioobj = nrsel>0 ? IOM().get(objselgrp->selected(0)) : 0;
     if ( !newioobj )
