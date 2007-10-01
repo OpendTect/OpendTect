@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.79 2007-07-06 14:11:05 cvskris Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.80 2007-10-01 09:48:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -316,16 +316,24 @@ bool Wizard::leaveNamePage( bool process )
 {
     if ( !process ) return true;
 
-    bool nameandtypeexist = true;
     const char* newobjnm = objselgrp->getNameField()->text(); 
-    
-    if ( *newobjnm )
+    PtrMan<IOObj> ioobj = IOM().getLocal( newobjnm );
+    bool newentry = true;
+    if ( ioobj )
     {
-	PtrMan<IOObj> ioobj = IOM().getLocal( newobjnm );
-	nameandtypeexist = ioobj && trackertype == ioobj->group();
-
-	if ( ioobj && !uiMSG().askGoOn(mAskGoOnStr(nameandtypeexist),true) )
+	const bool askoverwrite =
+	    objselgrp->getCtxtIOObj().ctxt.validIOObj( *ioobj );
+	if ( !askoverwrite )
+	{
+	    uiMSG().error( "An object of different type has the same name.\n"
+		    	   "Please give another name." );
 	    return false;
+	}
+	else if ( !uiMSG().askGoOn("An object with this name exists. "
+		    		   "Overwrite?") )
+	    return false;
+
+	newentry = false;
     }
 
     if ( !objselgrp->processInput() )
@@ -334,21 +342,20 @@ bool Wizard::leaveNamePage( bool process )
 	return false;
     }
 
-    ioparentrycreated = !nameandtypeexist;
-
+    ioparentrycreated = newentry;
     const int nrsel = objselgrp->nrSel();
-    PtrMan<IOObj> ioobj = nrsel > 0 ? IOM().get(objselgrp->selected(0)) : 0;
-    if ( !ioobj )
+    PtrMan<IOObj> newioobj = nrsel>0 ? IOM().get(objselgrp->selected(0)) : 0;
+    if ( !newioobj )
     {
-	pErrMsg( "Could not get ioobj");
+	pErrMsg( "Could not get ioobj" );
 	return false;
     }
 
-    const bool isimpl = ioobj->implExists(false);
-    const bool isreadonly = isimpl && ioobj->implReadOnly();
+    const bool isimpl = newioobj->implExists( false );
+    const bool isreadonly = isimpl && newioobj->implReadOnly();
 
-    EM::ObjectID objid = EM::EMM().getObjectID( ioobj->key() );
-    EM::EMObject* emobj = EM::EMM().getObject( objid );
+    const EM::ObjectID objid = EM::EMM().getObjectID( newioobj->key() );
+    const EM::EMObject* emobj = EM::EMM().getObject( objid );
     if ( emobj )
     {
 	uiMSG().error("An object with this name exists and is currently\n"
