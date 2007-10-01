@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.103 2007-09-13 07:50:23 cvsnanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.104 2007-10-01 10:04:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -551,8 +551,8 @@ bool uiIOObjSel::commitInput( bool mknew )
     if ( existingTyped() )
     {
        if ( ctio.ioobj ) return true;
-       BufferString msg( getInput() );
-       msg += ": Please enter another name.";
+       BufferString msg( "'" ); msg += getInput();
+       msg += "' already exists.\nPlease enter another name.";
        uiMSG().error( msg );
        return false;
     }
