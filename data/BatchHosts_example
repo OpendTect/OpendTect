@@ -1,84 +1,26 @@
-dGB-dTect V2.0
+dTect V3.0
 Batch Processing Hosts
-Fri Nov 19 17:18:57 2004
+Tue Oct  2 10:34:43 2007
 !
---
 -- Remote shell: Should be rsh or ssh
---
---Remote shell: rcmd
 Remote shell: rsh
---
 -- Default 'nice' level should hardly ever not be 19.
---
 Default nice level: 19
---
--- Every MM Batch process will use a socket. The port number will be
--- assigned, and incremented until a free port is found.
---
+-- Rarely changed:
 First port: 37500
---
--- Needed for/on win32 only. The host+share where the data is 
--- stored. With the values in this example, the following commands
--- would be executed on a client just before executing a processing job:
--- 
---  net use "\\dgb103" mypass "/USER:dgb27/<username>"
---  net use w: "\\dgb103\dw2k"
---
--- Note: The first net use is also executed just before issueing a
---       rcmd command.
---
--- This would make the share "dw2k" on host "dgb103" available as drive w:
--- All this is done by the script "od_prepare.bat", which can be found
--- in the "bin" directory under the program installation directory.
---
--- In the case of a simple network, you don't need to change anything
--- to this script, but you can make your own version of this script
--- if you need to do some special things in order to connect the
--- network drive. In that case, you can simply make a copy of this
--- script in one of the directories listed in the manual under 
--- "Location of Program data files".
---
-Data host: dgb103
-Data drive: w
-Data share: dw2k
-Data pass: mypass
---
--- Mapping from unix to windows paths
---
--- These are prefixes used to translate windows path to unix paths, in
--- order to facilitate cross platform multi-machine processing.
---
--- In case Win32 paths are entered for application or data prefixes, use
--- a ';' instead of a ':' to separate drive from path, like:
---   c;\Program Files\OpendTect
---
-Win appl prefix: c;\Program Files\OpendTect
-Win data prefix: w;\OpendTect
-Unx appl prefix: /users/arend/work
-Unx data prefix: /dw2k/OpendTect
+-- For MS Windows, please consult the Application Manager's manual
 !
---
 -- The list of hosts that are available for batch processing.
---
--- Format is:
---
--- real_hostname: name_in_user_displays [: platform] [: appl pref] [:data pref]
---
--- The user display hostnames must be unique. If you omit them,
--- the real hostname will be used for user display.
---
--- The [platform] _must_ be set to "win" for win32 machines, 
--- even if they are used in a windows-only network.
---
---
-dgb18:	Arend's machine
-tazzie:	Arends's Portable : win
-dgb102:	Windows development Machine : win : c;\dgb\work
-vis1:	vis 1 = SGI/IRIX (16 processors)
-vis2:	vis 2 = SGI/IRIX (8 processors)
+-- Format (on UNIX) is:
+-- real_hostname: name_in_user_displays
+dgb33:	Bert's machine
+dgb40:	Dual-processor 64-bits Linux cruncher
 sol28:	The Solaris 2.8 Sun Blade
-proc1:	Proc 1 (2 x 2.2 GHz)
-proc2:	Proc 2 (2 x 2.2 GHz)
-proc3:	Proc 3 (2 x 2.2 GHz)
-proc4:	Proc 4 (2 x 2.2 GHz)
-proc5:	Proc 5 (2 x 2.2 GHz)
+proc1:	Proc 1 (2 x 2.2 GHz) Linux 32-bits
+proc2:	Proc 2 (2 x 2.2 GHz) Linux 32-bits
+proc3:	Proc 3 (2 x 2.2 GHz) Linux 32-bits
+proc4:	Proc 4 (2 x 2.2 GHz) Linux 32-bits
+proc5:	Proc 5 (2 x 2.2 GHz) Linux 32-bits
+-- Format (on Windows) is:
+-- real_hostname: name_in_user_displays [: platform] [: appl pref] [:data pref]
+dgb102:	Windows development Machine : win : c;\dgb\work
