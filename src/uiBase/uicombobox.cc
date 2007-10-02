@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.42 2007-09-18 14:24:41 cvsjaap Exp $
+ RCS:           $Id: uicombobox.cc,v 1.43 2007-10-02 12:47:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,8 +84,12 @@ bool uiComboBoxBody::event( QEvent* ev )
     if ( ev->type() != sQEventActivate )
 	return QComboBox::event( ev );
     
-    handle_.setCurrentItem( activateidx_ );
-    handle_.selectionChanged.trigger();
+    if ( activateidx_>=0 && activateidx_<handle_.size() )
+    {
+	handle_.setCurrentItem( activateidx_ );
+	handle_.selectionChanged.trigger();
+    }
+
     handle_.activatedone.trigger();
     return true;
 }
