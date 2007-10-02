@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.43 2007-07-02 15:53:15 cvsbert Exp $
+ RCS:		$Id: sets.h,v 1.44 2007-10-02 19:30:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,8 @@ public:
     virtual void	setSize( int sz, T val=T() ) { tvec.setSize(sz,val); }
     			/*!<\param val value assigned to added items
 			 	   if size is increased. */
+    virtual void	setCapacity( int sz ) { tvec.setCapacity( sz ); }
+    			/*!<Allocates mem for sz, does not change size.*/
     inline void		setValue( T val )
     			{
 			    for ( int idx=size()-1; idx>=0; idx-- )
