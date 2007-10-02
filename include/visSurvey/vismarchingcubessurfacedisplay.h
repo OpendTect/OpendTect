@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.3 2007-09-10 07:07:18 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.4 2007-10-02 15:39:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -79,8 +79,10 @@ protected:
 
     virtual			~MarchingCubesDisplay();
     void			pickCB(CallBacker*);
+    void			factorDrag(CallBacker*);
     Array3D<unsigned char>*	createKernel(int xsz, int ysz, int zsz ) const;
 
+    float				startpos_;
     visBase::BoxDragger*		initialdragger_;
     visBase::MarchingCubesSurface*	displaysurface_;
     EM::MarchingCubesSurface*		emsurface_;

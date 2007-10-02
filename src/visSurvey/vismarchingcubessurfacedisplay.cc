@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.4 2007-09-10 07:07:18 cvskris Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.5 2007-10-02 15:39:44 cvskris Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -86,7 +86,12 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
 
     setSceneEventCatcher(0);
 
-    if ( factordragger_ ) factordragger_->unRef();
+    if ( factordragger_ )
+    {
+	factordragger_->unRef();
+	factordragger_->motion.remove(mCB(this,MarchingCubesDisplay,
+		    		      factorDrag));
+    }
 }
 
 
@@ -342,13 +347,24 @@ void MarchingCubesDisplay::pickCB( CallBacker* cb )
 	factordragger_ = visBase::Dragger::create();
 	factordragger_->ref();
 	factordragger_->setDraggerType( visBase::Dragger::Translate1D );
-	addChild( factordragger_->getInventorNode() );
+	    addChild( factordragger_->getInventorNode() );
+	factordragger_->motion.notify(mCB(this,MarchingCubesDisplay,
+		    		      factorDrag ));
     }
 
     factordragger_->setPos( Coord3(bid.inl, bid.crl, wp.z ) );
+    startpos_ = wp.z;
 
 
     eventcatcher_->eventIsHandled();
+}
+
+
+void MarchingCubesDisplay::factorDrag( CallBacker* )
+{
+    const float drag = startpos_-factordragger_->getPos().z;
+    surfaceeditor_->setFactor( mNINT(drag*255) );
+    displaysurface_->touch();
 }
 
 
