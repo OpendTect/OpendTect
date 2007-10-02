@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.9 2007-10-01 16:06:10 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.10 2007-10-02 14:14:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ public:
 			    the wv and the mouserect are up to date at
 			    all times. */
     Rect		getWorldRect(int dataid) const;
-    void		limitMovement(const Rect&);
+    void		limitMovement(const Rect*);
     			/*!<When movement starts, the movement is unlimited.
 			    Movement can be limited once the movement started
 			    by calling limitMovement. */
@@ -118,7 +118,7 @@ protected:
     int					seldatasetidx_;
     int					selptidx_;
     Point				selptcoord_;
-    Rect				movementlimit_;
+    Rect*				movementlimit_;
 };
 
 

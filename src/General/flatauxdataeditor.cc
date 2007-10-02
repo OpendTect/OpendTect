@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.16 2007-10-01 16:06:10 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.cc,v 1.17 2007-10-02 14:14:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ AuxDataEditor::AuxDataEditor( Viewer& v, MouseEventHandler& meh )
     , selptidx_( -1 )
     , polygonsellst_( LineStyle::Solid, 1, Color( 255, 0, 0 ) )
     , polygonselrect_( true )
+    , movementlimit_( 0 )
 {
     meh.buttonPressed.notify( mCB(this,AuxDataEditor,mousePressCB) );
     meh.buttonReleased.notify( mCB(this,AuxDataEditor,mouseReleaseCB) );
@@ -53,6 +54,7 @@ AuxDataEditor::~AuxDataEditor()
 
     removeSelectionPolygon();
     viewer_.handleChange( Viewer::Annot );
+    limitMovement( 0 );
 }
 
 
@@ -285,6 +287,7 @@ void AuxDataEditor::mousePressCB( CallBacker* cb )
 
     if ( seldatasetidx_!=-1 || addauxdataid_!=-1 )
     {
+	limitMovement( 0 );
 	movementStarted.trigger();
 	mousehandler_.setHandled( true );
     }
@@ -358,8 +361,12 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 	viewer_.handleChange( Viewer::Annot );
     }
 
-    movementFinished.trigger();
-    mousehandler_.setHandled( true );
+    if ( seldatasetidx_!=-1 && selptidx_!=-1 && hasmoved_ )
+    {
+	mousehandler_.setHandled( true );
+	movementFinished.trigger();
+    }
+
     mousedown_ = false;
 }
 
@@ -396,7 +403,8 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	selptcoord_ = trans.transform(
 		RowCol(mousedisplaypos.x,mousedisplaypos.y ) );
 
-	selptcoord_ = movementlimit_.moveInside( selptcoord_ );
+	if ( movementlimit_ )
+	    selptcoord_ = movementlimit_->moveInside( selptcoord_ );
 
 	if ( doedit_[seldatasetidx_]  && selptidx_!=-1 )
 	    auxdata_[seldatasetidx_]->poly_[selptidx_] = selptcoord_;
@@ -421,7 +429,7 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	viewer_.handleChange( Viewer::Annot );
 	mousehandler_.setHandled( true );
     }
-    else
+    else if ( addauxdataid_!=-1 )
     {
 	RCol2Coord trans;
 	trans.set3Pts( curview_.topLeft(), curview_.topRight(),
@@ -537,8 +545,11 @@ Rect AuxDataEditor::getWorldRect( int id ) const
 }
 
 
-void AuxDataEditor::limitMovement( const Rect& r )
-{ movementlimit_ = r; }
+void AuxDataEditor::limitMovement( const Rect* r )
+{
+    delete movementlimit_;
+    movementlimit_ = r ? new Rect(*r) : 0;
+}
 
 
 };
