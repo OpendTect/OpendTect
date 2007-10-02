@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.36 2007-07-11 06:48:43 cvsnanne Exp $
+ RCS:           $Id: uilistbox.h,v 1.37 2007-10-02 12:49:28 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,6 +55,7 @@ public:
     void 		setLines(int, bool adaptVStretch);
     void		setNotSelectable();
     void		setMultiSelect(bool yn=true);
+    int			maxSelectable() const;
 
     int			size() const;
     inline bool		isEmpty() const		{ return size() == 0; }
@@ -102,6 +103,12 @@ public:
     Notifier<uiListBox> doubleClicked;
     Notifier<uiListBox> rightButtonClicked;
     Notifier<uiListBox> leftButtonClicked;
+
+    			//! Force activation in GUI thread
+    void		activateClick(int idx,bool leftclick=true,
+				      bool doubleclick=false);
+    void		activateSelect(const TypeSet<int>&);
+    Notifier<uiListBox> activatedone;
 
 protected:
 

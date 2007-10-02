@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.80 2007-07-11 06:48:43 cvsnanne Exp $
+ RCS:           $Id: uilistbox.cc,v 1.81 2007-10-02 12:49:28 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 #include "i_q4listbox.h"
 #include <QMouseEvent>
+#include "qapplication.h"
 
 #define mNoSelection QAbstractItemView::NoSelection
 #define mExtended QAbstractItemView::ExtendedSelection
@@ -38,6 +39,12 @@ public:
 				  int preferredFieldWidth=0);
 
     virtual 		~uiListBoxBody()		{ delete &messenger_; }
+
+    int			maxSelectable() const;
+
+    void		activateClick(int idx,bool leftclick,bool doubleclick);
+    void		activateSelect(const TypeSet<int>&);
+    bool		event(QEvent*);
 
     void 		setLines( int prefNrLines, bool adaptVStretch )
 			{ 
@@ -59,6 +66,11 @@ public:
 
 protected:
     void		mouseReleaseEvent(QMouseEvent*);
+
+    int			actidx_;
+    bool		actleftclick_;
+    bool		actdoubleclick_;
+    const TypeSet<int>* actselset_;
 
 private:
 
@@ -111,6 +123,75 @@ void uiListBoxBody::mouseReleaseEvent( QMouseEvent* event )
 }
 
 
+int uiListBoxBody::maxSelectable() const
+{ 
+    if ( selectionMode() == mNoSelection )	return 0;
+    if ( selectionMode() == mSingle )		return 1;
+    return count();
+}
+
+
+static const QEvent::Type sQEventActClick  = (QEvent::Type) (QEvent::User+0);
+static const QEvent::Type sQEventActSelect = (QEvent::Type) (QEvent::User+1);
+
+
+void uiListBoxBody::activateClick( int idx, bool leftclick, bool doubleclick )
+{
+    actidx_ = idx;
+    actleftclick_ = leftclick;
+    actdoubleclick_ = doubleclick;
+    QEvent* actevent = new QEvent( sQEventActClick );
+    QApplication::postEvent( this, actevent );
+}
+
+
+void uiListBoxBody::activateSelect( const TypeSet<int>& selectset )
+{
+    actselset_ = &selectset;
+    QEvent* actevent = new QEvent( sQEventActSelect );
+    QApplication::postEvent( this, actevent );
+}
+
+
+bool uiListBoxBody::event( QEvent* ev )
+{
+    if ( ev->type() == sQEventActClick ) 
+    {
+	if ( maxSelectable()>0 && actidx_>=0 && actidx_<count() )
+	{
+	    clearSelection();
+	    item( actidx_ )->setSelected( true );
+	    handle_.selectionChanged.trigger();
+
+	    if ( actdoubleclick_ )
+		handle_.doubleClicked.trigger();
+	    else if ( actleftclick_ )
+		handle_.leftButtonClicked.trigger();
+	    else
+		handle_.rightButtonClicked.trigger();
+	}
+    }
+    else if ( ev->type() == sQEventActSelect )
+    {
+	if ( maxSelectable()>0 && actselset_->size()<=maxSelectable() )
+	{
+	    clearSelection();
+	    for ( int idx=0; idx<actselset_->size(); idx++ )
+	    {
+		if ( (*actselset_)[idx]>=0 && (*actselset_)[idx]<count() )
+		    item( (*actselset_)[idx] )->setSelected( true );
+	    }
+	    handle_.selectionChanged.trigger();
+	}
+    }
+    else
+	return QListWidget::event( ev );
+
+    handle_.activatedone.trigger();
+    return true;
+}
+
+
 // -------------- uiListBox ---------------
 uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw )
     : uiObject( p, nm, mkbody(p,nm,ms,nl,pfw) )
@@ -119,6 +200,7 @@ uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw )
     , doubleClicked(this)
     , rightButtonClicked(this)
     , leftButtonClicked(this)
+    , activatedone(this)
 {
 }
 
@@ -131,6 +213,7 @@ uiListBox::uiListBox( uiParent* p, const BufferStringSet& items,
     , doubleClicked(this)
     , rightButtonClicked(this)
     , leftButtonClicked(this)
+    , activatedone(this)
 {
     addItems( items );
 }
@@ -159,6 +242,9 @@ void uiListBox::setNotSelectable()
 
 void uiListBox::setMultiSelect( bool yn )
 { body_->setSelectionMode( yn ? mExtended : mSingle ); }
+
+int uiListBox::maxSelectable() const
+{ return body_->maxSelectable(); }
 
 int uiListBox::size() const
 { return body_->count(); }
@@ -470,6 +556,14 @@ int uiListBox::optimumFieldWidth( int minwdth, int maxwdth ) const
     }
     return len + 1;
 }
+
+
+void uiListBox::activateClick( int idx, bool leftclick, bool doubleclick )
+{ body_->activateClick( idx, leftclick, doubleclick ); }
+
+
+void uiListBox::activateSelect( const TypeSet<int>& selection )
+{ body_->activateSelect( selection ); }
 
 
 // -------------- uiLabeledListBox ----------------
