@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2005
- RCS:		$Id: uihorizonsortdlg.cc,v 1.6 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:		$Id: uihorizonsortdlg.cc,v 1.7 2007-10-02 12:56:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,7 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
 
     if ( ioobjselgrp_->nrSel() < 2 )
     {
-	uiMSG().error( "Please seclect at least two horizons" );
+	uiMSG().error( "Please select at least two horizons" );
 	return false;
     }
 
