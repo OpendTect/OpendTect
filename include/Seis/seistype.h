@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		29-5-99
- RCS:		$Id: seistype.h,v 1.9 2006-12-05 16:48:45 cvsbert Exp $
+ RCS:		$Id: seistype.h,v 1.10 2007-10-02 07:12:26 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -28,6 +28,9 @@ namespace Seis
     			{ return gt == VolPS || gt == LinePS; }
     inline int		dimSize( GeomType gt )
 			{ return gt == Line ? 2 : (gt == VolPS ? 4 : 3); }
+    const char*		nameOf(GeomType);
+    GeomType		geomTypeOf(const char*);
+    const char**	geomTypeNames();
 
 
     enum DataType       { Ampl, Dip, Frequency, Phase, AVOGradient, 

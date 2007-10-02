@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.36 2007-02-26 14:28:38 cvsbert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.37 2007-10-02 07:12:26 cvsbert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -58,10 +58,21 @@ BufferString SeisPacketInfo::defaultusrinfo = getUsrInfo();
 class SeisEnum
 {
 public:
+    typedef Seis::GeomType GeomType;
+	    DeclareEnumUtils(GeomType)
     typedef Seis::WaveType WaveType;
 	    DeclareEnumUtils(WaveType)
     typedef Seis::DataType DataType;
 	    DeclareEnumUtils(DataType)
+};
+
+DefineEnumNames(SeisEnum,GeomType,0,"Geometry type")
+{
+	"3D Volume",
+	"Pre-Stack Volume",
+	"2D Line",
+	"Pre-Stack Line",
+	0
 };
 
 DefineEnumNames(SeisEnum,WaveType,0,"Wave type")
@@ -86,26 +97,35 @@ DefineEnumNames(SeisEnum,DataType,0,"Data type")
 	0
 };
 
+const char* Seis::nameOf( Seis::GeomType gt )
+{ return eString(SeisEnum::GeomType,gt); }
+
 const char* Seis::nameOf( Seis::DataType dt )
 { return eString(SeisEnum::DataType,dt); }
-
-bool Seis::isAngle( Seis::DataType dt )
-{ return dt==Seis::Phase || dt==Seis::Azimuth; }
 
 const char* Seis::nameOf( Seis::WaveType wt )
 { return eString(SeisEnum::WaveType,wt); }
 
-Seis::WaveType Seis::waveTypeOf( const char* s )
-{ return eEnum(SeisEnum::WaveType,s); }
+Seis::GeomType Seis::geomTypeOf( const char* s )
+{ return eEnum(SeisEnum::GeomType,s); }
 
 Seis::DataType Seis::dataTypeOf( const char* s )
 { return eEnum(SeisEnum::DataType,s); }
+
+Seis::WaveType Seis::waveTypeOf( const char* s )
+{ return eEnum(SeisEnum::WaveType,s); }
+
+const char** Seis::geomTypeNames()
+{ return SeisEnum::GeomTypeNames; }
 
 const char** Seis::dataTypeNames()
 { return SeisEnum::DataTypeNames; }
 
 const char** Seis::waveTypeNames()
 { return SeisEnum::WaveTypeNames; }
+
+bool Seis::isAngle( Seis::DataType dt )
+{ return dt==Seis::Phase || dt==Seis::Azimuth; }
  
 
 DefineEnumNames(SeisTrcInfo,Fld,1,"Header field") {
