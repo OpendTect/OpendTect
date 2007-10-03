@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.67 2007-08-28 13:17:47 cvskris Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.68 2007-10-03 12:53:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -311,13 +311,13 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
     }
 
     uiFlatViewer& vwr = viewwin_->viewer();
-    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( *tbuf,
+    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( tbuf,
 				 Seis::VolPS, SeisTrcInfo::Offset,
 				 "Pre-Stack Gather" );
     dp->setName( "Seismics" );
     DPM( DataPackMgr::FlatID ).add( dp );
     vwr.setPack( true, dp );
-    dp = new SeisTrcBufDataPack( *tbuffreq, Seis::VolPS, SeisTrcInfo::Offset,
+    dp = new SeisTrcBufDataPack( tbuffreq, Seis::VolPS, SeisTrcInfo::Offset,
 				 "Pre-Stack Gather.Freq" );
     dp->setName( "Local frequency" );
     DPM( DataPackMgr::FlatID ).add( dp );

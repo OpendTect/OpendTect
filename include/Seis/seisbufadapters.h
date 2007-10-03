@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2007
- RCS:		$Id: seisbufadapters.h,v 1.4 2007-08-30 14:36:09 cvskris Exp $
+ RCS:		$Id: seisbufadapters.h,v 1.5 2007-10-03 12:53:55 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -57,9 +57,12 @@ class SeisTrcBufDataPack : public FlatDataPack
 {
 public:
 
-    			SeisTrcBufDataPack(SeisTrcBuf&,Seis::GeomType,
+    			SeisTrcBufDataPack(SeisTrcBuf*,Seis::GeomType,
 					   SeisTrcInfo::Fld,const char* categry,
 					   int compnr=0);
+
+    void		setBuffer(SeisTrcBuf*,Seis::GeomType,SeisTrcInfo::Fld,
+	    			  int icomp=0);
 
     const char*		dimName(bool) const;
     Coord3		getCoord(int,int) const;

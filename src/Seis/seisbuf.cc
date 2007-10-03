@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.33 2007-09-13 19:38:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.34 2007-10-03 12:53:55 cvskris Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -357,26 +357,41 @@ void SeisTrcBufArray2D::getAuxInfo( Seis::GeomType gt, int itrc,
 }
 
 
-SeisTrcBufDataPack::SeisTrcBufDataPack( SeisTrcBuf& tbuf,
+SeisTrcBufDataPack::SeisTrcBufDataPack( SeisTrcBuf* tbuf,
 					Seis::GeomType gt,
 					SeisTrcInfo::Fld fld,
 					const char* cat, int icomp )
-    : FlatDataPack(cat,new SeisTrcBufArray2D(tbuf,true,icomp))
+    : FlatDataPack( cat )
     , gt_(gt)
     , posfld_(fld)
 {
-    const int tbufsz = tbuf.size();
-    if ( tbufsz < 1 ) return;
+    setBuffer( tbuf, gt, fld, icomp );
+}
+
+
+void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
+				    SeisTrcInfo::Fld fld, int icomp )
+{
+    delete arr2d_;
+    arr2d_ = 0;
+    if ( !tbuf )
+	return;
+
+    arr2d_ = new SeisTrcBufArray2D( *tbuf, true, icomp );
+    const int tbufsz = tbuf->size();
+    if ( tbufsz<1 ) return;
+
     SeisTrcInfo::getAxisCandidates( gt, flds_ );
 
     FlatPosData& pd = posData();
-    double ofv; float* hdrvals = tbuf.getHdrVals( posfld_, ofv );
+    double ofv; float* hdrvals = tbuf->getHdrVals( posfld_, ofv );
     pd.setX1Pos( hdrvals, tbufsz, ofv );
-    SeisPacketInfo pinf; tbuf.fill( pinf );
+    SeisPacketInfo pinf; tbuf->fill( pinf );
     StepInterval<double> zrg; assign( zrg, pinf.zrg );
     zrg.scale( SI().zFactor() );
     pd.setRange( false, zrg );
 }
+
 
 
 void SeisTrcBufDataPack::getAltDim0Keys( BufferStringSet& bss ) const
