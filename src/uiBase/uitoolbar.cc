@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.39 2007-09-28 16:14:21 cvsjaap Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.40 2007-10-03 06:38:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,9 +21,6 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "pixmap.h"
 #include "separstr.h"
-
-#include <qtoolbutton.h>
-#include <qapplication.h>
 
 #ifdef USEQT3
 # include <qtoolbar.h>
@@ -45,9 +42,7 @@ class uiToolBarBody : public uiParentBody
 public:
 
 			uiToolBarBody(uiToolBar&,QToolBar&);
-
 			~uiToolBarBody();
-
 
     int 		addButton(const ioPixmap&,const CallBack&, 
 				  const char*,bool);
@@ -82,14 +77,16 @@ protected:
     uiToolBar&			tbar_;
     int				iconsz_;
 
-    virtual void        attachChild ( constraintType tp,
-                                      uiObject* child,
-                                      uiObject* other, int margin,
-                                      bool reciprocal )
-			{
-			    pErrMsg("Cannot attach uiObjects in a uiToolBar");
-			    return;
-			}
+    virtual void		attachChild( constraintType tp,
+					     uiObject* child,
+					     uiObject* other, int margin,
+					     bool reciprocal )
+				{
+				    pErrMsg(
+				      "Cannot attach uiObjects in a uiToolBar");
+				    return;
+				}
+
 private:
     BufferStringSet		pmsrcs_;
     
@@ -241,6 +238,38 @@ uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarDock d,
     : uiParent(nm,0)
     , parent_(parnt)
 {
+    //TODO: impl preferred dock
+    Qt::ToolBarDock tbdock = uiToolBarBody::qdock( d );
+    qtoolbar_ = new QToolBar( QString(nm) );
+    setBody( &mkbody(nm,*qtoolbar_) );
+
+    toolBars() += this;
+    mDynamicCastGet(uiMainWin*,uimw,parnt)
+    if ( uimw )
+    {
+	if ( newline ) uimw->addToolBarBreak();
+	uimw->addToolBar( this );
+    }
+}
+
+
+uiToolBar::~uiToolBar()
+{
+    toolBars() -= this;
+    mDynamicCastGet(uiMainWin*,uimw,parent_)
+    if ( uimw ) uimw->removeToolBar( this );
+
+    delete qtoolbar_;
+    delete body_;
+}
+
+
+/*
+uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarDock d,
+		      bool newline )
+    : uiParent(nm,0)
+    , parent_(parnt)
+{
     //TODO: impl preferred dock and newline
     Qt::ToolBarDock tbdock = uiToolBarBody::qdock(d);
     QWidget* qwidget = parnt && parnt->pbody() ? parnt->pbody()->qwidget() : 0;
@@ -264,8 +293,10 @@ uiToolBar::~uiToolBar()
     delete qtoolbar_;
     delete body_;
 }
+*/
 
 
+// TODO Jaap, remove if you agree with new code above
 void uiToolBar::unAddToolBarCB( CallBacker* )
 {
     mDynamicCastGet(uiMainWin*,uimw,parent_);
@@ -273,7 +304,7 @@ void uiToolBar::unAddToolBarCB( CallBacker* )
     {
 	uimw->windowClosed.remove( mCB(this,uiToolBar,unAddToolBarCB) );
 	uimw->removeToolBar( this );
-	parent_ = 0;
+	parent_ = 0; // risky!
 	
 	// Accessing old QToolBar after window closure yields crash (??!!)
 	delete qtoolbar_;
