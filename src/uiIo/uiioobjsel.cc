@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.105 2007-10-01 10:25:09 cvsnanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.106 2007-10-03 15:00:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,7 +148,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     }
 
     listfld->selectionChanged.notify( mCB(this,uiIOObjSelGrp,selChg) );
-    if ( nmfld && !*nmfld->text() )
+    if ( (nmfld && !*nmfld->text()) || !nmfld )
 	selChg( this );
     setHAlignObj( topgrp );
 }

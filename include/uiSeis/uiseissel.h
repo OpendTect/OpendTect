@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.21 2007-07-20 15:32:56 cvskris Exp $
+ RCS:           $Id: uiseissel.h,v 1.22 2007-10-03 15:00:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,13 +33,10 @@ protected:
 
     uiGenInput*		attrfld_;
     bool		is2d_;
+    bool		allowcnstrsabsent_;	//2D only
 
     void		entrySel(CallBacker*);
-
-private:
-
-    const CtxtIOObj&	getCtio(const CtxtIOObj&,const SeisSelSetup&);
-
+    void		filter2DStoredNames(BufferStringSet&) const;
 };
 
 
@@ -76,7 +73,6 @@ protected:
     virtual void	newSelection(uiIOObjRetDlg*);
     virtual const char*	userNameFromKey(const char*) const;
     virtual uiIOObjRetDlg* mkDlg();
-
 };
 
 

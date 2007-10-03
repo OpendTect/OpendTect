@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.39 2007-03-14 12:03:00 cvsbert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.40 2007-10-03 15:00:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,12 +29,35 @@ ________________________________________________________________________
 #include "keystrs.h"
 
 
+
+static void adaptCtxt( const IOObjContext& c, bool is2d, bool chgtol )
+{
+    IOObjContext& ctxt = const_cast<IOObjContext&>( c );
+    ctxt.trglobexpr = uiSeisSelDlg::standardTranslSel( is2d );
+    ctxt.deftransl = uiSeisSelDlg::standardTranslSel( is2d );
+    if ( is2d && !ctxt.allowcnstrsabsent && chgtol )
+	ctxt.allowcnstrsabsent = true;	//change required to get any 2D LineSet
+}
+
+static bool kp_allowcnstrsabsent = true; /* hack but should always be OK */
+
+
+static const CtxtIOObj& getDlgCtio( const CtxtIOObj& c, const SeisSelSetup& s )
+{
+    kp_allowcnstrsabsent = c.ctxt.allowcnstrsabsent;
+    adaptCtxt( c.ctxt, s.is2d_, true );
+    return c;
+}
+
+
+
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const SeisSelSetup& selsetup )
-	: uiIOObjSelDlg(p,getCtio(c,selsetup),"",false)
-	, is2d_(selsetup.is2d_)
-	, attrfld_(0)
+    : uiIOObjSelDlg(p,getDlgCtio(c,selsetup),"",false)
+    , is2d_(selsetup.is2d_)
+    , attrfld_(0)
 {
+    allowcnstrsabsent_ = kp_allowcnstrsabsent;
     const char* ttxt = is2d_ ? "Select Line Set" : "Select Cube";
     setTitleText( ttxt );
 
@@ -65,26 +88,6 @@ const char* uiSeisSelDlg::standardTranslSel( bool is2d )
     return trglobexprs[is2d ? 0 : 1];
 }
 
-
-//TODO check if constraints.clear() still necessary 
-static void adaptCtxt( const IOObjContext& c, bool is2d )
-{
-    IOObjContext& ctxt = const_cast<IOObjContext&>( c );
-    ctxt.trglobexpr = uiSeisSelDlg::standardTranslSel( is2d );
-    ctxt.deftransl = uiSeisSelDlg::standardTranslSel( is2d );
-    if ( is2d )
-	ctxt.parconstraints.clear(); // Selection is done differently
-}
-
-
-const CtxtIOObj& uiSeisSelDlg::getCtio( const CtxtIOObj& c,
-					const SeisSelSetup& s )
-{
-    adaptCtxt( c.ctxt, s.is2d_ );
-    return c;
-}
-
-
 uiSeisSelDlg::~uiSeisSelDlg()
 {
 }
@@ -104,7 +107,27 @@ void uiSeisSelDlg::entrySel( CallBacker* )
 
     BufferStringSet nms;
     oinf.getAttribNames( nms );
+    filter2DStoredNames( nms );
     attrfld_->newSpec( StringListInpSpec(nms), 0 );
+}
+
+
+void uiSeisSelDlg::filter2DStoredNames( BufferStringSet& nms ) const
+{
+    BufferString tcstraint;
+    if ( selgrp->getCtxtIOObj().ctxt.parconstraints.get( sKey::Type, tcstraint)
+         && !strcmp( tcstraint, sKey::Steering ) )
+    {
+	bool inccstraints = selgrp->getCtxtIOObj().ctxt.includeconstraints;
+	for ( int idx=nms.size()-1; idx>=0; idx-- )
+	{
+	    int cmp = strncmp( sKey::Steering, nms[idx]->buf(), 8 );
+	    if ( inccstraints && cmp && !allowcnstrsabsent_ )
+		nms.remove( idx );
+	    else if ( !cmp && !inccstraints )
+		nms.remove( idx );
+	}
+    }
 }
 
 
@@ -157,7 +180,7 @@ uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const SeisSelSetup& s,
     if ( !c.ctxt.forread )
 	inp_->label()->setPrefWidthInChar( 15 );
 
-    adaptCtxt( c.ctxt, setup.is2d_ );
+    adaptCtxt( c.ctxt, setup.is2d_ , false );
     setLabelText( gtSelTxt( seltxts, is2D(), ctio.ctxt.forread ) );
 }
 
