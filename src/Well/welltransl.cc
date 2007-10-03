@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: welltransl.cc,v 1.12 2007-08-29 12:21:29 cvsbert Exp $";
+static const char* rcsID = "$Id: welltransl.cc,v 1.13 2007-10-03 10:34:24 cvsbert Exp $";
 
 
 #include "welltransl.h"
@@ -33,12 +33,14 @@ mDefSimpleTranslatorioContext(Well,WllInf)
     if ( !prov.fn ) return false;
 
 
-#define mRemove(ext,nr,required) \
+#define mRemove(ext,nr,extra) \
 { \
     StreamProvider sp( Well::IO::mkFileName(bnm,ext,nr) ); \
     sp.addPathIfNecessary( pathnm ); \
-    if ( !sp.exists(true) ) { if ( required ) return false; } \
-    else if ( !sp.remove(false) ) return false; \
+    const bool exists = sp.exists( true ); \
+    if ( exists && !sp.remove(false) ) \
+	return false; \
+    extra; \
 }
 
 bool WellTranslator::implRemove( const IOObj* ioobj ) const
@@ -47,10 +49,10 @@ bool WellTranslator::implRemove( const IOObj* ioobj ) const
 
     FilePath fp( filenm ); fp.setExtension( 0, true );
     const BufferString bnm = fp.fullPath();
-    mRemove(Well::IO::sExtMarkers,0,false)
-    mRemove(Well::IO::sExtD2T,0,false)
+    mRemove(Well::IO::sExtMarkers,0,)
+    mRemove(Well::IO::sExtD2T,0,)
     for ( int idx=1; ; idx++ )
-	mRemove(Well::IO::sExtLog,idx,true)
+	mRemove(Well::IO::sExtLog,idx,if ( !exists ) break)
 
     return true;
 }
