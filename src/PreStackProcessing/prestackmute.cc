@@ -4,10 +4,11 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackmute.cc,v 1.3 2007-08-22 06:28:34 cvskris Exp $";
+static const char* rcsID = "$Id: prestackmute.cc,v 1.4 2007-10-03 14:01:33 cvskris Exp $";
 
 #include "prestackmute.h"
 
+#include "flatposdata.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "iopar.h"
@@ -119,9 +120,9 @@ bool Mute::doWork( int start, int stop, int )
     const int nrsamples = input_->data().info().getSize(Gather::zDim());
     for ( int ioffs=start; ioffs<=stop; ioffs++ )
     {
-	const float offs = input_->offsets()[ ioffs ];
+	const float offs = input_->getOffset(ioffs);
 	const float mutez = def_.value( offs, input_->getBinID() );
-	const float mutepos = Muter::mutePos( mutez, input_->zSampling() );
+	const float mutepos = Muter::mutePos( mutez, input_->posData().range(false) );
 
 	float* out = output_->data().get1D(&ioffs);
 	muter_->mute( out, nrsamples, mutepos );

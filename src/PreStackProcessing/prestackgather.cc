@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.5 2007-07-17 15:18:52 cvskris Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.6 2007-10-03 14:01:33 cvskris Exp $";
 
 #include "prestackgather.h"
 
@@ -34,33 +34,36 @@ const char* Gather::sKeyVelocityCubeID()	{ return "Velocity volume"; }
 const char* Gather::sKeyZisTime()		{ return "Z Is Time"; }
 
 Gather::Gather()
-    : FlatDataPack( "Pre-Stack Gather" )
+    : SeisTrcBufDataPack( 0, Seis::VolPS, SeisTrcInfo::Offset,
+	    		     "Pre-Stack Gather", 0 )
     , offsetisangle_( false )
     , iscorr_( false )
     , binid_( -1, -1 )
 {}
 
 
-Gather::~Gather()
+
+Gather::Gather( const Gather& gather )
+    : SeisTrcBufDataPack( gather )
+    , offsetisangle_( gather.offsetisangle_ )
+    , iscorr_( gather.iscorr_ )
+    , binid_( gather.binid_ )
 {}
 
 
-const char* Gather::dimName( bool dim0 ) const
+bool Gather::setSize( int nroff, int nrz )
 {
-    if ( dim0 )
-	return "Offset";
-    
-    return zit_ ? "Time" : "Depth";
+    return true;
 }
+
+
+Gather::~Gather()
+{}
 
 
 bool Gather::readFrom( const MultiID& mid, const BinID& bid, 
 			   BufferString* errmsg )
 {
-    offsets_.erase();
-    azimuths_.erase();
-    traceorder_.erase();
-
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj )
     {
@@ -78,61 +81,31 @@ bool Gather::readFrom( const MultiID& mid, const BinID& bid,
 	return false;
     }
 
-    SeisTrcBuf tbuf;
-    if ( !rdr->getGather(bid,tbuf) )
+    SeisTrcBuf* tbuf = new SeisTrcBuf;
+    if ( !rdr->getGather(bid,*tbuf) )
     {
 	if ( errmsg ) (*errmsg) = rdr->errMsg();
 	delete arr2d_; arr2d_ = 0;
+	delete tbuf;
 	return false;
     }
 
-    SeisTrcBuf tbuf2;
-    while ( tbuf.size() )
-    {
-	SeisTrc* trc = tbuf.remove( 0 );
-	const float offset = trc->info().offset;
-	if ( mIsUdf(offset) )
-	{
-	    delete trc;
-	    continue;
-	}
+    tbuf->sort( true, SeisTrcInfo::Offset );
 
-	offsets_ += offset;
-	azimuths_ += trc->info().azimuth;
-	traceorder_ += traceorder_.size();
-	tbuf2.add( trc );
+    for ( int idx=tbuf->size()-1; idx<-0; idx-- )
+    {
+	if ( mIsUdf( tbuf->get(idx)->info().offset ) )
+	    delete tbuf->remove( idx );
     }
 
-    if ( tbuf2.isEmpty() )
+    if ( tbuf->isEmpty() )
     {
 	delete arr2d_; arr2d_ = 0;
+	delete tbuf;
 	return false;
     }
 
-    const int nrsamples = tbuf2.get(0)->size();
-    if ( arr2d_ )
-	delete arr2d_;
-
-    arr2d_ = new Array2DImpl<float>( offsets_.size(), nrsamples );
-
-    if ( offsets_.size()>1 )
-	sort_coupled( offsets_.arr(), traceorder_.arr(), traceorder_.size() );
-
-    float* offsetarr = new float[offsets_.size()];
-    memcpy( offsetarr, offsets_.arr(), offsets_.size()*sizeof(float) );
-    posdata_.setX1Pos( offsetarr, offsets_.size(), 0 );
-    const StepInterval<float> zsd =
-	tbuf2.get(0)->info().sampling.interval( nrsamples );
-    posdata_.setRange( false,StepInterval<double>(zsd.start,zsd.stop,zsd.step));
-
-
-    for ( int idy=0; idy<nrsamples; idy++ )
-    {
-	const float z = posdata_.range( false ).atIndex( idy );
-
-	for ( int idx=0; idx<traceorder_.size(); idx++ )
-	    arr2d_->set(idx, idy, tbuf2.get(traceorder_[idx])->getValue(z,0) );
-    }
+    setBuffer( tbuf, Seis::VolPS, SeisTrcInfo::Offset, 0 );
 
     offsetisangle_ = false;
     ioobj->pars().getYN(sKeyIsAngleGather(), offsetisangle_ );
@@ -152,30 +125,13 @@ bool Gather::readFrom( const MultiID& mid, const BinID& bid,
 }
 
 
-int Gather::closestOffset( float offset ) const
+float Gather::getOffset( int idx ) const
+{ return posData().position( true, idx ); }
+
+
+float Gather::getAzimuth( int idx ) const
 {
-    if ( !offsets_.size() )
-	return -1;
-
-    int res;
-    float mindiff;
-    for ( int idx=0; idx<offsets_.size(); idx++ )
-    {
-	const float diff = fabs( offset-offsets_[idx] );
-	if ( !idx || diff<mindiff )
-	{
-	    res = idx;
-	    mindiff = diff;
-	}
-    }
-
-    return res;
-}
-
-
-const StepInterval<double>& Gather::zSampling() const
-{
-    return posdata_.range( false );
+    return trcBuf().get( idx )->info().azimuth;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.6 2007-09-28 20:54:23 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.7 2007-10-03 14:01:33 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -53,7 +53,9 @@ public:
 				    with regards to offsets, override function
 				    and return 1. doWork() will then be called
 				    with start=stop=0 and you can do whatever
-				    you want there */
+				    you want in doWork. You can also return
+				    number of samples in gather and run it
+				    parallel vertically.*/
 
 protected:
     virtual Gather*		createOutputArray(const Gather& input) const;

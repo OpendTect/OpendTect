@@ -4,13 +4,14 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackagc.cc,v 1.2 2007-07-18 14:37:39 cvskris Exp $";
+static const char* rcsID = "$Id: prestackagc.cc,v 1.3 2007-10-03 14:01:33 cvskris Exp $";
 
 #include "prestackagc.h"
 
 #include "dataclipper.h"
 #include "iopar.h"
 #include "prestackgather.h"
+#include "flatposdata.h"
 
 
 using namespace PreStack;
@@ -37,8 +38,10 @@ bool AGC::prepareWork()
     if ( !Processor::prepareWork() )
 	return false;
 
-    samplewindow_.start = mNINT( window_.start/input_->zSampling().step );
-    samplewindow_.stop = mNINT( window_.stop/input_->zSampling().step );
+    const float zstep = input_->posData().range(false).step;
+
+    samplewindow_.start = mNINT( window_.start/zstep );
+    samplewindow_.stop = mNINT( window_.stop/zstep );
 
     return true;
 }
