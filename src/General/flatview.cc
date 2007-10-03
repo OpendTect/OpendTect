@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.23 2007-07-18 14:58:09 cvskris Exp $
+ RCS:           $Id: flatview.cc,v 1.24 2007-10-03 12:51:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,6 +96,17 @@ double FlatPosData::position( bool isx1, int idx ) const
 {
     return !isx1 || !x1pos_ || idx >= nrPts(true) ? range(isx1).atIndex(idx)
 						  : x1pos_[idx] + x1offs_;
+}
+
+
+void FlatPosData::getPositions( bool isx1, TypeSet<float>& res ) const
+{
+    res.erase();
+
+    const int nrtimes = nrPts( isx1 );
+    res.setCapacity( nrtimes );
+    for ( int idx=0; idx<nrtimes; idx++ )
+	res += position( isx1, idx );
 }
 
 

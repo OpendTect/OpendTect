@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2007
- RCS:           $Id: flatposdata.h,v 1.4 2007-03-10 12:13:46 cvsbert Exp $
+ RCS:           $Id: flatposdata.h,v 1.5 2007-10-03 12:51:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,8 @@ public:
     IndexInfo			indexInfo(bool forx1,double pos) const;
 
     double			position(bool forx1,int) const;
+    				//!< With offset applied
+    void			getPositions(bool forx1,TypeSet<float>&) const;
     				//!< With offset applied
     float*			getPositions(bool forx1) const;
     				//!< Returns a new float [], size=nrPts()
