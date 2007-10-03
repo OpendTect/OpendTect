@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2007
- RCS:           $Id: od_DispMsg.cc,v 1.1 2007-10-03 08:37:52 cvsbert Exp $
+ RCS:           $Id: od_DispMsg.cc,v 1.2 2007-10-03 09:27:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,9 @@ int main( int argc, char** argv )
     }
 
     if ( msg.isEmpty() )
-	msg = typ == 1 ? "Be careful!" : "Problem found!";
+	msg = typ == 1 ? "Be careful!"
+	    : (typ ==2 ? "Problem found!"
+		       : "Your answer:");
 
     uiMain app( argc, argv );
     if ( typ == 0 )
