@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.6 2007-10-03 14:01:33 cvskris Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.7 2007-10-03 21:13:54 cvsyuancheng Exp $";
 
 #include "prestackgather.h"
 
@@ -120,6 +120,8 @@ bool Gather::readFrom( const MultiID& mid, const BinID& bid,
     
     binid_ = bid;
     setName( ioobj->name() );
+
+    storagemid_ = mid;
 
     return true;
 }
