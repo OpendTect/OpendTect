@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.100 2007-09-28 03:56:30 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.101 2007-10-03 11:52:53 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,7 +211,10 @@ void uiODMenuMgr::fillImportMenu()
     impseis->insertItem( impseissimple );
     mInsertItem( impseis, "&CBVS ...", mImpSeisCBVSMnuItm );
 
-    mInsertItem( imphor, "&Ascii ...", mImpHorAsciiMnuItm );
+    uiPopupMenu* imphorasc = new uiPopupMenu( &appl_, "&Ascii" );
+    mInsertItem( imphorasc, "Geometry ...", mImpHorAsciiMnuItm );
+    mInsertItem( imphorasc, "Attributes ...", mImpHorAsciiAttribMnuItm );
+    imphor->insertItem( imphorasc );
 
     uiPopupMenu* impwellasc = new uiPopupMenu( &appl_, "&Ascii" );
     mInsertItem( impwellasc, "&Track ...", mImpWellAsciiTrackMnuItm );
@@ -571,7 +574,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpSeisSimple3DMnuItm: mDoOp(Exp,Seis,4); break;
     case mExpSeisSimple2DMnuItm: mDoOp(Exp,Seis,5); break;
     case mExpSeisSimplePSMnuItm: mDoOp(Exp,Seis,6); break;
-    case mImpHorAsciiMnuItm: 	mDoOp(Imp,Hor,0); break;
+    case mImpHorAsciiMnuItm: mDoOp(Imp,Hor,0); break;
+    case mImpHorAsciiAttribMnuItm: mDoOp(Imp,Hor,1); break;
     case mExpHorAsciiMnuItm: 	mDoOp(Exp,Hor,0); break;
     case mImpWellAsciiTrackMnuItm: mDoOp(Imp,Wll,0); break;
     case mImpWellAsciiLogsMnuItm: mDoOp(Imp,Wll,1); break;
