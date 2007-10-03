@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.124 2007-09-20 10:44:32 cvsraman Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.125 2007-10-03 11:53:37 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,12 +104,12 @@ void uiEMPartServer::manageSurfaces( const char* typ )
 }
 
 
-bool uiEMPartServer::ioHorizon( bool imp )
+bool uiEMPartServer::ioHorizon( bool imp, bool isgeom )
 {
     bool res = false;
     if ( imp )
     {
-	uiImportHorizon dlg( appserv().parent() );
+	uiImportHorizon dlg( appserv().parent(), isgeom );
 	res = dlg.go();
 	if ( res && dlg.doDisplay() )
 	{
@@ -128,7 +128,11 @@ bool uiEMPartServer::ioHorizon( bool imp )
 }
 
 
-bool uiEMPartServer::importHorizon() { return ioHorizon( true ); }
+bool uiEMPartServer::importHorizon( bool isgeom )
+{ 
+    return ioHorizon( true, isgeom );
+}
+
 
 bool uiEMPartServer::exportHorizon() { return ioHorizon( false ); }
 

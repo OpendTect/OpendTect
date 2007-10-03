@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.91 2007-10-01 10:03:38 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.92 2007-10-03 11:53:37 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,11 +95,18 @@ void selChg( CallBacker* )
 };
 
 
-uiImportHorizon::uiImportHorizon( uiParent* p )
+uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     : uiDialog(p,uiDialog::Setup("Import Horizon",
 					   "Specify parameters",
 					   "104.0.0"))
     , ctio_(*mMkCtxtIOObj(EMHorizon3D))
+    , isgeom_(isgeom)
+    , scalefld_(0)
+    , filludffld_(0)
+    , arr2dinterpfld_(0)
+    , colbut_(0)
+    , stratlvlfld_(0)
+    , displayfld_(0)
     , fd_(*EM::Horizon3DAscIO::getDesc(true))
 {
     inpfld_ = new uiFileInput( this, "Input ASCII File", uiFileInput::Setup()
@@ -108,7 +115,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     inpfld_->setDefaultSelectionDir( 
 			    IOObjContext::getDataDirName(IOObjContext::Surf) );
 
-    ctio_.ctxt.forread = false;
+    ctio_.ctxt.forread = !isgeom_;
     ctio_.ctxt.maychdir = false;
 
     xyfld_ = new uiGenInput( this, "Positions in:",
@@ -118,9 +125,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
 
     attrlistfld_ = new uiLabeledListBox( this, "Select Attribute(s) to import",
 	   				 true );
-    attrlistfld_->box()->addItem( sZVals );
     attrlistfld_->box()->setLines( 4, true );
-    attrlistfld_->box()->setCurrentItem( 0 );
     attrlistfld_->attach( alignedBelow, xyfld_ );
     attrlistfld_->box()->selectionChanged.notify( mCB(this,uiImportHorizon,
 						      formatSel) );
@@ -129,24 +134,29 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
 	    			mCB(this,uiImportHorizon,addAttrib), false );
     addbut_->attach( rightTo, attrlistfld_ );
 
-    scalefld_ = new uiScaler( this, "Z scaling", true );
-    scalefld_->attach( alignedBelow, attrlistfld_ );
-
     subselfld_ = new uiBinIDSubSel( this, uiBinIDSubSel::Setup().withz(false)
 	    			    .withstep(true).rangeonly(true) );
-    subselfld_->attach( alignedBelow, scalefld_ );
-
-    filludffld_ = new uiGenInput( this, "Fill undefined parts",
-	    			  BoolInpSpec(true) );
-    filludffld_->valuechanged.notify( mCB(this,uiImportHorizon,fillUdfSel) );
-    filludffld_->setValue(false);
-    filludffld_->attach( alignedBelow, subselfld_ );
-
-    arr2dinterpfld_ = new uiImpHorArr2DInterpPars( this );
-    arr2dinterpfld_->attach( alignedBelow, filludffld_ );
+    subselfld_->attach( alignedBelow, attrlistfld_ );
 
     uiSeparator* sep = new uiSeparator( this, "H sep" );
-    sep->attach( stretchedBelow, arr2dinterpfld_ );
+    if ( isgeom_ )
+    {
+	scalefld_ = new uiScaler( this, "Z scaling", true );
+	scalefld_->attach( alignedBelow, subselfld_ );
+
+	filludffld_ = new uiGenInput( this, "Fill undefined parts",
+				      BoolInpSpec(true) );
+	filludffld_->valuechanged.notify(mCB(this,uiImportHorizon,fillUdfSel));
+	filludffld_->setValue(false);
+	filludffld_->attach( alignedBelow, scalefld_ );
+
+	arr2dinterpfld_ = new uiImpHorArr2DInterpPars( this );
+	arr2dinterpfld_->attach( alignedBelow, filludffld_ );
+
+	sep->attach( stretchedBelow, arr2dinterpfld_ );
+    }
+    else
+	sep->attach( stretchedBelow, subselfld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_, "100.0.0" );
     dataselfld_->attach( alignedBelow, attrlistfld_ );
@@ -156,21 +166,24 @@ uiImportHorizon::uiImportHorizon( uiParent* p )
     sep->attach( stretchedBelow, dataselfld_ );
 
     outputfld_ = new uiIOObjSel( this, ctio_ );
-    outputfld_->setLabelText( "OutPut Horizon" );
+    outputfld_->setLabelText( isgeom_ ? "OutPut Horizon" : "Add to Horizon" );
     outputfld_->attach( alignedBelow, attrlistfld_ );
     outputfld_->attach( ensureBelow, sep );
 
-    stratlvlfld_ = new uiStratLevelSel( this );
-    stratlvlfld_->attach( alignedBelow, outputfld_ );
-    stratlvlfld_->selchanged_.notify( mCB(this,uiImportHorizon,stratLvlChg) );
+    if ( isgeom_ )
+    {
+	stratlvlfld_ = new uiStratLevelSel( this );
+	stratlvlfld_->attach( alignedBelow, outputfld_ );
+	stratlvlfld_->selchanged_.notify(mCB(this,uiImportHorizon,stratLvlChg));
 
-    colbut_ = new uiColorInput( this, getRandStdDrawColor(), "Base color" );
-    colbut_->attach( alignedBelow, stratlvlfld_ );
+	colbut_ = new uiColorInput( this, getRandStdDrawColor(), "Base color" );
+	colbut_->attach( alignedBelow, stratlvlfld_ );
 
-    displayfld_ = new uiCheckBox( this, "Display after import" );
-    displayfld_->attach( alignedBelow, colbut_ );
-
-    fillUdfSel(0);
+	displayfld_ = new uiCheckBox( this, "Display after import" );
+	displayfld_->attach( alignedBelow, colbut_ );
+	
+	fillUdfSel(0);
+    }
 }
 
 
@@ -185,24 +198,9 @@ void uiImportHorizon::formatSel( CallBacker* cb )
     const bool isxy = xyfld_->getBoolValue();
     BufferStringSet attrnms;
     attrlistfld_->box()->getSelectedItems( attrnms );
+    if ( isgeom_ ) attrnms.insertAt( new BufferString(sZVals), 0 );
     EM::Horizon3DAscIO::updateDesc( fd_, attrnms, isxy );
     dataselfld_->updateSummary();
-    if ( !attrnms.size() ) return;
-    const bool isgeom = attrnms.get(0) == "Z values";
-    outputfld_->setForRead( !isgeom );
-    outputfld_->setLabelText( isgeom ? "Output Horizon" : "Add to Horizon" );
-    if ( !isgeom )
-    {
-	filludffld_->setValue( false );
-    	displayfld_->setChecked( false );
-    }
-
-    scalefld_->display( isgeom );
-    filludffld_->setSensitive( isgeom );
-    colbut_->display( isgeom );
-    stratlvlfld_->display( isgeom );
-    displayfld_->display( isgeom );
-    fillUdfSel(0);
 }
 
 
@@ -219,13 +217,14 @@ void uiImportHorizon::addAttrib( CallBacker* cb )
 
 void uiImportHorizon::fillUdfSel( CallBacker* )
 {
-    arr2dinterpfld_->display( filludffld_->getBoolValue() );
+    if ( arr2dinterpfld_ )
+	arr2dinterpfld_->display( filludffld_->getBoolValue() );
 }
 
 
 bool uiImportHorizon::doDisplay() const
 {
-    return displayfld_->isChecked();
+    return displayfld_ && displayfld_->isChecked();
 }
 
 
@@ -238,6 +237,7 @@ MultiID uiImportHorizon::getSelID() const
 
 void uiImportHorizon::stratLvlChg( CallBacker* )
 {
+    if ( !stratlvlfld_ ) return;
     const char* lvlname = stratlvlfld_->getLvlName();
     if ( lvlname && *lvlname )
 	colbut_->setColor( *stratlvlfld_->getLvlColor() );
@@ -260,17 +260,17 @@ bool uiImportHorizon::doImport()
 {
     BufferStringSet attrnms;
     attrlistfld_->box()->getSelectedItems( attrnms );
-    if ( !attrnms.size() ) mErrRet( "No Attributes selected" );
-    const bool isgeom = attrnms.get(0) == "Z values";
+    if ( isgeom_ ) attrnms.insertAt( new BufferString(sZVals), 0 );
+    if ( !attrnms.size() ) mErrRet( "No Attributes Selected" );
 
-    EM::Horizon3D* horizon = isgeom ? createHor() : loadHor();
+    EM::Horizon3D* horizon = isgeom_ ? createHor() : loadHor();
     if ( !horizon ) return false;
 
     BufferStringSet filenames;
     if ( !getFileNames(filenames) ) return false;
 
     const bool isxy = xyfld_->getBoolValue();
-    const Scaler* scaler = scalefld_->getScaler();
+    const Scaler* scaler = scalefld_ ? scalefld_->getScaler() : 0;
     HorSampling hs = subselfld_->getInput().cs_.hrg;
     ObjectSet<BinIDValueSet> sections;
     EM::Horizon3DAscIO aio( fd_, attrnms );
@@ -301,14 +301,14 @@ bool uiImportHorizon::doImport()
 	mErrRet( "Nothing to import" );
     }
 
-    const bool dofill = filludffld_->getBoolValue();
+    const bool dofill = filludffld_ && filludffld_->getBoolValue();
     if ( dofill )
 	fillUdfs( sections );
 
     ExecutorGroup importer( "Horizon importer" );
     importer.setNrDoneText( "Nr inlines imported" );
     int startidx = 0;
-    if ( isgeom )
+    if ( isgeom_ )
     {
 	const RowCol step( hs.step.inl, hs.step.crl );
 	importer.add( horizon->importer(sections,step) );
@@ -326,7 +326,7 @@ bool uiImportHorizon::doImport()
 	mErrRetUnRef("Cannot import horizon")
 
     bool rv;
-    if ( isgeom )
+    if ( isgeom_ )
     {
 	Executor* exec = horizon->saver();
 	mSave();
