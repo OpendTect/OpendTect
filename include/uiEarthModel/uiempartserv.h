@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.58 2007-09-17 05:06:12 cvsraman Exp $
+ RCS:           $Id: uiempartserv.h,v 1.59 2007-10-03 11:51:48 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ public:
     const char*		name() const			{ return "EarthModel"; }
 
 			// Services
-    bool		importHorizon();
+    bool		importHorizon(bool);
     bool		exportHorizon();
 
     MultiID		getStorageID( const EM::ObjectID& ) const;
@@ -125,7 +125,7 @@ protected:
     EM::ObjectID	selemid_;
     EM::EMManager&	em_;
 
-    bool		ioHorizon(bool);
+    bool		ioHorizon(bool,bool isgeom=true);
 };
 
 

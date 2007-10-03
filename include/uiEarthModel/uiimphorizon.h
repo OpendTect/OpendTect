@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.h,v 1.20 2007-09-17 05:06:12 cvsraman Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.21 2007-10-03 11:51:48 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ namespace EM { class Horizon3D; }
 class uiImportHorizon : public uiDialog
 {
 public:
-			uiImportHorizon(uiParent*);
+			uiImportHorizon(uiParent*,bool);
 			~uiImportHorizon();
 
     bool                doDisplay() const;
@@ -76,6 +76,7 @@ protected:
 
     CtxtIOObj&		ctio_;
     Table::FormatDesc&  fd_;
+    bool		isgeom_;
 };
 
 
