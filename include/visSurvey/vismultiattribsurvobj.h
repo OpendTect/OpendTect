@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.10 2007-08-31 12:48:58 cvskris Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.11 2007-10-03 13:32:51 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -32,6 +32,9 @@ class MultiTextureSurveyObject : public visBase::VisualObjectImpl,
 public:
     void			turnOn(bool yn);
     bool			isOn() const;
+    bool			isShown() const;
+    				//!<Returns true if displayed, i.e. it is
+				//!<on, and has at least one enabled attribute.
 
     virtual int			nrResolutions() const			= 0;
     virtual void		setResolution(int)			= 0;
