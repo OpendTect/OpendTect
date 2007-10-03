@@ -4,12 +4,10 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: uipsviewerpi.cc,v 1.2 2007-09-19 22:47:10 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewerpi.cc,v 1.3 2007-10-03 21:09:18 cvsyuancheng Exp $";
 
 #include "plugins.h"
-#include "uiodmain.h"
 #include "uipsviewermanager.h"
-#include "uipsviewersetting.h"
 #include "visprestackviewer.h"
 
 

@@ -7,35 +7,23 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.3 2007-09-20 21:27:00 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.4 2007-10-03 21:09:18 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "callback.h"
-#include "bufstring.h"
-#include "position.h"
 #include "vissurvobj.h"
 #include "visobject.h"
 
-class Coord3;
-template <class T> class Interval;
-
 namespace visBase 
 {
-    class Coordinates;                
     class DepthTabPlaneDragger;
     class FaceSet;
     class FlatViewer;
     class PickStyle;
-    class Scene;
 };
 
-namespace visSurvey 
-{
-    class PlaneDataDisplay;
-    class MultiTextureSurveyObject;
-};
+namespace visSurvey { class PlaneDataDisplay; };
 
 namespace PreStackView
 {
@@ -49,10 +37,9 @@ public:
     void			allowShading(bool yn);
     void			setColor(Color);			
     void			setMultiID(const MultiID& mid);
-
     bool			isInlCrl() const { return true; }
-
-    void			setPosition(const BinID&);
+    
+    bool			setPosition(const BinID&);
     const BinID&		getPosition() const;
     void			setSectionDisplay(visSurvey::PlaneDataDisplay*);
     const visSurvey::PlaneDataDisplay* getSectionDisplay() const;		
@@ -66,6 +53,8 @@ public:
     void			setFactor(float scale);
     float                       getWidth() { return width_; }
     void			setWidth(float width);
+    BinID			getBinID() { return bid_; }
+    MultiID			getMultiID() { return mid_; }
     void			getMousePosInfo(const visBase::EventInfo&,
 	    					const Coord3&,
 				  		BufferString& val,
@@ -73,6 +62,18 @@ public:
     void			 otherObjectsMoved( 
 	    				const ObjectSet<const SurveyObject>&, 
 					int whichobj );
+
+    void			fillPar(IOPar&, TypeSet<int>&) const;
+    int				usePar(const IOPar&);
+
+    static const char*		sKeyBinID()	{ return "PreStack BinID"; }
+    static const char*		sKeyMultiID()	{ return "PreStack MultiID"; }
+    static const char*		sKeySectionID() { return "Section ID"; }
+    static const char*		sKeyFactor()	{ return "PSViewer Factor"; }
+    static const char*		sKeyWidth() 	{ return "PSViewer Width"; }
+    static const char*		sKeyiAutoWidth(){ return "PSViewer AutoWidth"; }
+    static const char*		sKeySide() 	{ return "PSViewer ShowSide"; }
+
 protected:
     					~PreStackViewer();
     void				dataChangedCB(CallBacker*);

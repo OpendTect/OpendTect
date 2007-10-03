@@ -4,30 +4,24 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.4 2007-09-20 21:27:00 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.5 2007-10-03 21:09:18 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
 
 #include "visprestackviewer.h"
 
-#include "flatposdata.h"
-#include "position.h"
+#include "iopar.h"
 #include "prestackgather.h"
-#include "ranges.h"
 #include "survinfo.h"
 #include "viscoord.h"
 #include "visdataman.h"
 #include "visdepthtabplanedragger.h"
 #include "visfaceset.h"
-#include "visevent.h"
 #include "visflatviewer.h"
 #include "vismaterial.h"
 #include "vispickstyle.h"
 #include "visplanedatadisplay.h"
-#include "visscene.h"
-#include "vissurvobj.h"
-#include "vistransform.h"
 
 mCreateFactoryEntry( PreStackView::PreStackViewer );
 
@@ -126,7 +120,7 @@ void  PreStackViewer::setMultiID( const MultiID& mid )
 { mid_ = mid; }
  
 
-void PreStackViewer::setPosition( const BinID& nb )
+bool PreStackViewer::setPosition( const BinID& nb )
 {
     if ( nb.inl==-1 || nb.crl==-1 )
     	turnOn(false);
@@ -141,7 +135,10 @@ void PreStackViewer::setPosition( const BinID& nb )
 	    if ( haddata )
 		 flatviewer_->setPack( false, DataPack::cNoID );
 	    else
+	    {
 		dataChangedCB( 0 );
+		return false;
+	    }
 	}
 	else
 	{
@@ -151,6 +148,8 @@ void PreStackViewer::setPosition( const BinID& nb )
 	
 	turnOn( true );
     }
+
+    return true;
 }
 
 
@@ -203,8 +202,8 @@ void PreStackViewer::dataChangedCB( CallBacker* )
 	section_->getOrientation()==visSurvey::PlaneDataDisplay::Crossline;
 
     const Coord direction = offsetalonginl
-	    ? Coord( 0, positiveside_ ? 1 : -1 )
-	    : Coord( positiveside_ ? 1 : -1, 0 );
+	? Coord( 0, positiveside_ ? 1 : -1 )
+	: Coord( positiveside_ ? 1 : -1, 0 );
 
     const float offsetscale = offsetalonginl
 	? SI().inlDistance()
@@ -224,8 +223,8 @@ void PreStackViewer::dataChangedCB( CallBacker* )
 
     const Coord startpos( bid_.inl, bid_.crl );
     const Coord stoppos = autowidth_
-	    ? startpos + direction*offsetrange.width()*factor_ / offsetscale
-	    : startpos + direction*width_ / offsetscale;
+	? startpos + direction*offsetrange.width()*factor_ / offsetscale
+	: startpos + direction*width_ / offsetscale;
 
     if ( autowidth_ )
 	width_ = offsetrange.width()*factor_;
@@ -242,8 +241,8 @@ void PreStackViewer::dataChangedCB( CallBacker* )
     planedragger_->setDim(
 	section_->getOrientation()==visSurvey::PlaneDataDisplay::Inline ? 1:0 );
 
-    const Coord3 width(fabs(stoppos.x-startpos.x),
-	    	       fabs(stoppos.y-startpos.y), zrg.width(true));
+    const Coord3 width( fabs(stoppos.x-startpos.x),
+	    	        fabs(stoppos.y-startpos.y), zrg.width(true) );
 
     planedragger_->setSize( width );
 
@@ -286,18 +285,13 @@ void PreStackViewer::setSectionDisplay( visSurvey::PlaneDataDisplay* pdd )
     }
 
     section_ = pdd;
-
     if ( !section_ )
 	return;
 
     section_->ref();
-
     dataChangedCB( 0 );
 
-    if ( !section_ )
-        return;
-    else if ( section_->getOrientation() ==
-	    visSurvey::PlaneDataDisplay::Timeslice )
+    if ( section_->getOrientation() == visSurvey::PlaneDataDisplay::Timeslice )
 	return;
     
     if ( section_->getMovementNotifier() )
@@ -323,7 +317,8 @@ void  PreStackViewer::sectionMovedCB( CallBacker* )
 	    return;
     }
 
-    setPosition( newpos );
+    if ( !setPosition(newpos) )
+	return;
 }    
 
 
@@ -335,14 +330,14 @@ void  PreStackViewer::otherObjectsMoved( const ObjectSet<const SurveyObject>&
 
     if ( whichobj == -1 )
     {
-	turnOn( section_->isTrulyOn() );
+	turnOn( section_->isShown() );
 	return; 
     }
 
     if ( section_->id() != whichobj )
 	return;
     
-    turnOn( section_->isTrulyOn() );
+    turnOn( section_->isShown() );
 }
 
 
@@ -385,7 +380,8 @@ void  PreStackViewer::finishedCB( CallBacker* )
     else
 	return;
 
-    setPosition( newpos );
+    if ( !setPosition(newpos) )
+	return;
 }
 
 
@@ -447,5 +443,78 @@ void PreStackViewer::getMousePosInfo( const visBase::EventInfo&,
 	val = flatviewer_->data().vdArr()->get( offsetsample, zsample );
     }
 }
+
+
+void PreStackViewer::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+   if ( !section_ )
+	return;
+
+    SurveyObject::fillSOPar( par );
+    VisualObjectImpl::fillPar( par, saveids );
+    saveids.addIfNew( section_->id() );
+    
+    par.set( sKeyBinID(), bid_ );
+    par.set( sKeyMultiID(), mid_ );
+    par.setYN( sKeyiAutoWidth(), autowidth_ );
+    par.setYN( sKeySide(), positiveside_ );
+    par.set( sKeySectionID(), section_->id() );
+    
+    if ( autowidth_ )
+	par.set( sKeyFactor(), factor_ );
+    else
+	par.set( sKeyWidth(), width_ );
+}
+
+
+int PreStackViewer::usePar( const IOPar& par )
+{
+    int res =  VisualObjectImpl::usePar( par );
+    if ( res!=1 ) return res;
+
+    res = SurveyObject::useSOPar( par );
+    if ( res!=1 ) return res;
+
+    int sectionid;
+    if ( !par.get(sKeySectionID(),sectionid) )
+	return -1;
+
+    visBase::DataObject* dataobj = visBase::DM().getObject( sectionid );
+    if ( !dataobj )
+	return 0;
+
+    mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, dataobj );
+    if ( !pdd )
+	return -1;
+
+    setSectionDisplay( pdd );
+	    	     
+    BinID bid;
+    MultiID mid;
+    if ( !par.get(sKeyBinID(),bid) || !par.get(sKeyMultiID(),mid) )
+	return -1;
+
+    setMultiID( mid );
+    if ( !setPosition( bid ) )
+	return -1;
+   
+    
+    float factor, width;
+    if ( par.get(sKeyFactor(), factor) )
+	setFactor( factor );
+
+    if ( par.get(sKeyWidth(), width) )
+	setWidth( width );
+
+    bool autowidth, side;
+    if ( par.getYN(sKeyiAutoWidth(), autowidth) )
+	 displaysAutoWidth( autowidth );
+
+    if ( par.getYN(sKeySide(), side) )
+	displaysOnPositiveSide( side );
+	
+    return 1;
+}
+
 
 }; //namespace
