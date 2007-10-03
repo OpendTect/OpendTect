@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.40 2007-10-03 06:38:12 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.41 2007-10-03 08:28:28 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -261,55 +261,6 @@ uiToolBar::~uiToolBar()
 
     delete qtoolbar_;
     delete body_;
-}
-
-
-/*
-uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarDock d,
-		      bool newline )
-    : uiParent(nm,0)
-    , parent_(parnt)
-{
-    //TODO: impl preferred dock and newline
-    Qt::ToolBarDock tbdock = uiToolBarBody::qdock(d);
-    QWidget* qwidget = parnt && parnt->pbody() ? parnt->pbody()->qwidget() : 0;
-    qtoolbar_ = new QToolBar( QString(nm), (QMainWindow*)qwidget );
-    setBody( &mkbody(nm,*qtoolbar_) );
-    toolBars() += this;
-    
-    mDynamicCastGet(uiMainWin*,uimw,parnt)
-    if ( uimw ) 
-    {
-	uimw->addToolBar( this );
-	uimw->windowClosed.notify( mCB(this,uiToolBar,unAddToolBarCB) );
-    }
-}
-
-
-uiToolBar::~uiToolBar()
-{
-    unAddToolBarCB(0);
-    toolBars() -= this;
-    delete qtoolbar_;
-    delete body_;
-}
-*/
-
-
-// TODO Jaap, remove if you agree with new code above
-void uiToolBar::unAddToolBarCB( CallBacker* )
-{
-    mDynamicCastGet(uiMainWin*,uimw,parent_);
-    if ( uimw )
-    {
-	uimw->windowClosed.remove( mCB(this,uiToolBar,unAddToolBarCB) );
-	uimw->removeToolBar( this );
-	parent_ = 0; // risky!
-	
-	// Accessing old QToolBar after window closure yields crash (??!!)
-	delete qtoolbar_;
-	qtoolbar_ = new QToolBar( QString(name()), 0 ); 
-    }
 }
 
 

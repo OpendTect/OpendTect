@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.28 2007-09-28 16:14:21 cvsjaap Exp $
+ RCS:           $Id: uitoolbar.h,v 1.29 2007-10-03 08:28:28 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,7 +107,6 @@ protected:
     uiToolBarBody&	mkbody(const char*,QToolBar&);
 
     uiParent*		parent_;
-    void 		unAddToolBarCB( CallBacker* );
 
 };
 
