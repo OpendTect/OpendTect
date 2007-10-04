@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodwelltreeitem.cc,v 1.15 2007-08-30 21:26:38 cvskris Exp $
+ RCS:		$Id: uiodwelltreeitem.cc,v 1.16 2007-10-04 12:05:57 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -346,11 +346,14 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid == storemnuitem_.id )
     {
-	BufferString errmsg;
 	menu->setIsHandled( true );
-	if ( wd->hasChanged() )
-	    applMgr()->wellServer()->storeWell( wd->getWellCoords(), 
-		    				wd->name(), errmsg );
+	const bool res = applMgr()->wellServer()->storeWell(
+					wd->getWellCoords(), wd->name(), mid );
+	if ( res )
+	{
+	    wd->setChanged( false );
+	    wd->setMultiID( mid );
+	}
     }
     else if ( mnuid == editmnuitem_.id )
     {
@@ -373,12 +376,12 @@ bool uiODWellTreeItem::askContinueAndSaveIfNeeded()
     {
 	BufferString warnstr = "This well has changed since the last save.\n";
 	warnstr += "Do you want to save it?";
-	int retval = uiMSG().notSaved(warnstr.buf());
+	int retval = uiMSG().notSaved( warnstr.buf() );
 	if ( !retval ) return true;
 	else if ( retval == -1 ) return false;
 	else
 	    applMgr()->wellServer()->storeWell( wd->getWellCoords(),
-		                                wd->name(), 0 );
+		                                wd->name(), mid );
     }
     return true;
 }
