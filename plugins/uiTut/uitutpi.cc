@@ -5,18 +5,23 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID = "$Id: uitutpi.cc,v 1.7 2007-06-19 10:01:43 cvsraman Exp $";
+static const char* rcsID = "$Id: uitutpi.cc,v 1.8 2007-10-04 11:58:08 cvsnanne Exp $";
 
-#include "uitutseistools.h"
-#include "uituthortools.h"
-#include "uitutwelltools.h"
 #include "uitutorialattrib.h"
-#include "uiodmenumgr.h"
+#include "uituthortools.h"
+#include "uitutseistools.h"
+#include "uitutwelltools.h"
+
 #include "uimenu.h"
 #include "uimsg.h"
+#include "uiodmenumgr.h"
 #include "uivismenuitemhandler.h"
 #include "uivispartserv.h"
 #include "viswelldisplay.h"
+
+#include "ioman.h"
+#include "ioobj.h"
+#include "ptrman.h"
 
 #include "plugins.h"
 
@@ -89,11 +94,17 @@ void uiTutMgr::doWells( CallBacker* )
     mDynamicCastGet(visSurvey::WellDisplay*,wd,
 	    		appl_->applMgr().visServer()->getObject(displayid))
     if ( !wd )
+	return;
+
+    const MultiID wellid = wd->getMultiID();
+    PtrMan<IOObj> ioobj = IOM().get( wellid );
+    if ( !ioobj )
     {
+	uiMSG().error( "Cannot find well in database.\n"
+		       "Perhaps it's not stored yet?" );
 	return;
     }
 
-    MultiID wellid = wd->getMultiID();
     uiTutWellTools dlg( appl_, wellid );
     dlg.go();
 }
