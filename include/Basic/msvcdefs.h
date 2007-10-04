@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: msvcdefs.h,v 1.3 2007-09-13 19:38:38 cvsnanne Exp $
+ RCS:		$Id: msvcdefs.h,v 1.4 2007-10-04 12:03:49 cvsnanne Exp $
 ________________________________________________________________________
 
  For use with Microsoft Visual C++ 5.0 and 6.0
@@ -21,6 +21,9 @@ ________________________________________________________________________
 
 #define strncasecmp	strnicmp
 #define strcasecmp	stricmp
+
+#define strtoll		_strtoi64
+#define strtoull	_strtoui64
 
 // Index variable's scope is non-ANSI. This corrects that idiocy.
 #define for				if (0) ; else for
