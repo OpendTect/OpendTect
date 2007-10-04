@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.60 2007-09-14 14:11:49 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.61 2007-10-04 13:31:12 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -619,15 +619,19 @@ void LocationOutput::collectData( const DataHolder& data, float refstep,
     if ( bidvalset_.nrVals() < desnrvals )
 	bidvalset_.setNrVals( desnrvals );
 
+    const Interval<int> datarg( data.z0_, data.z0_+data.nrsamples_-1 );
     if ( !arebiddupl_ )
     {
 	float* vals = bidvalset_.getVals( pos );
+	if ( !datarg.includes( mNINT( (vals[0]/refstep)-0.5 ) ) 
+	     && !datarg.includes( mNINT( (vals[0]/refstep)-0.5 ) ) )
+	    return;
+	
 	for ( int comp=0; comp<desoutputs_.size(); comp++ )
 	    vals[comp+1] = data.series(desoutputs_[comp])->value(0);
 	return;
     }
 
-    const Interval<int> datarg( data.z0_, data.z0_+data.nrsamples_-1 );
     bool isfirstz = true;
     float firstz;
     while ( true )
