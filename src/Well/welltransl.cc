@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: welltransl.cc,v 1.13 2007-10-03 10:34:24 cvsbert Exp $";
+static const char* rcsID = "$Id: welltransl.cc,v 1.14 2007-10-04 06:09:01 cvsnanne Exp $";
 
 
 #include "welltransl.h"
@@ -106,9 +106,10 @@ Executor* WellTranslator::createBinIDValueSets( const BufferStringSet& ids,
 static const char* getFileName( const IOObj& ioobj )
 {
     static BufferString ret;
-    mDynamicCastGet(const IOStream&,iostrm,ioobj)
-    StreamProvider sp( iostrm.fileName() );
-    sp.addPathIfNecessary( iostrm.dirName() );
+    mDynamicCastGet(const IOStream*,iostrm,&ioobj)
+    if ( !iostrm ) return 0;
+    StreamProvider sp( iostrm->fileName() );
+    sp.addPathIfNecessary( iostrm->dirName() );
     ret = sp.fileName();
     return ret.buf();
 }
