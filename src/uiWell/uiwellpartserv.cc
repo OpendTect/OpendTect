@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.27 2007-05-22 10:44:23 cvsraman Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.28 2007-10-04 12:04:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ uiWellPartServer::~uiWellPartServer()
 
 bool uiWellPartServer::importTrack()
 {
-    uiWellImportAsc dlg( appserv().parent() );
+    uiWellImportAsc dlg( parent() );
     return dlg.go();
 }
 
@@ -73,7 +73,7 @@ bool uiWellPartServer::selectWells( ObjectSet<MultiID>& wellids )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(Well);
     ctio->ctxt.forread = true;
-    uiIOObjSelDlg dlg( appserv().parent(), *ctio, 0, true );
+    uiIOObjSelDlg dlg( parent(), *ctio, 0, true );
     if ( !dlg.go() ) return false;
 
     deepErase( wellids );
@@ -91,7 +91,7 @@ bool uiWellPartServer::selectLogs( const MultiID& wellid,
     Well::Data* wd = Well::MGR().get( wellid );
     if(!wd)
 	return false;
-    uiLogSelDlg dlg( appserv().parent(), wd->logs(), logparset );
+    uiLogSelDlg dlg( parent(), wd->logs(), logparset );
     if( !dlg.go() )
 	return false;
     return true;
@@ -107,14 +107,14 @@ bool uiWellPartServer::hasLogs( const MultiID& wellid ) const
 
 void uiWellPartServer::manageWells()
 {
-    uiWellMan dlg( appserv().parent() );
+    uiWellMan dlg( parent() );
     dlg.go();
 }
 
 
 void uiWellPartServer::selectWellCoordsForRdmLine()
 {
-    rdmlinedlg_ = new uiWell2RandomLineDlg( appserv().parent(), this );
+    rdmlinedlg_ = new uiWell2RandomLineDlg( parent(), this );
     rdmlinedlg_->windowClosed.notify(mCB(this,uiWellPartServer,rdmlnDlgClosed));
     rdmlinedlg_->go();
 }
@@ -143,7 +143,7 @@ void uiWellPartServer::getRdmLineCoordinates( TypeSet<Coord>& coords )
 
 bool uiWellPartServer::setupNewWell( BufferString& wellname, Color& wellcolor )
 {
-    uiNewWellDlg dlg( appserv().parent() );
+    uiNewWellDlg dlg( parent() );
     dlg.go();
     wellname = dlg.getName();
     wellcolor = dlg.getWellColor();
@@ -152,12 +152,11 @@ bool uiWellPartServer::setupNewWell( BufferString& wellname, Color& wellcolor )
 
 
 bool uiWellPartServer::storeWell( const TypeSet<Coord3>& newcoords, 
-				  const BufferString& wellname, 
-				  const char* errmsg )
+				  const char* wellname, MultiID& mid )
 {
-    uiStoreWellDlg dlg( appserv().parent(), wellname );
+    uiStoreWellDlg dlg( parent(), wellname );
     dlg.setWellCoords( newcoords );
-    dlg.go();
-
-    return true;
+    const bool res = dlg.go();
+    if ( res ) mid = dlg.getMultiID();
+    return res;
 }

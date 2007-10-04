@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.h,v 1.26 2007-05-03 11:26:38 cvsraman Exp $
+ RCS:           $Id: uiwelldlgs.h,v 1.27 2007-10-04 12:04:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiselsimple.h"
+#include "multiid.h"
 #include "ranges.h"
 
 class uiButtonGroup;
@@ -138,23 +139,25 @@ class uiStoreWellDlg : public uiDialog
 public:
     				uiStoreWellDlg(uiParent*,const BufferString&);
 				~uiStoreWellDlg();
+
     void			setWellCoords(const TypeSet<Coord3>&);
+    MultiID			getMultiID() const;
 
 protected:
 
-    uiD2TModelGroup*	d2tgrp;
-    uiGenInput*		usemodelfld;
-    uiGenInput*		constvelfld;
-    uiIOObjSel*         outfld;
+    uiD2TModelGroup*		d2tgrp;
+    uiGenInput*			usemodelfld;
+    uiGenInput*			constvelfld;
+    uiIOObjSel*			outfld;
 
-    virtual bool       	acceptOK(CallBacker*);
-    bool                checkInpFlds();
-    void		modelSel(CallBacker*);
-    bool		storeWell();
-    bool		setWellTrack(Well::Data*);
+    virtual bool       		acceptOK(CallBacker*);
+    bool			checkInpFlds();
+    void			modelSel(CallBacker*);
+    bool			storeWell();
+    bool			setWellTrack(Well::Data*);
 
-    CtxtIOObj&		ctio_;
-    TypeSet<Coord3>	wellcoords_;
+    CtxtIOObj&			ctio_;
+    TypeSet<Coord3>		wellcoords_;
 
 };
 

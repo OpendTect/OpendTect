@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.59 2007-07-03 10:54:48 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.60 2007-10-04 12:04:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -665,13 +665,15 @@ uiStoreWellDlg::uiStoreWellDlg( uiParent* p, const BufferString& wellname )
     , ctio_(*mMkCtxtIOObj(Well))
     , usemodelfld(0)
     , constvelfld(0)
+    , d2tgrp(0)
 {
     uiGroup* topgrp = 0;
-    
     if ( SI().zIsTime() )
+#ifdef __debug__
     {
 	topgrp = new uiGroup( this, "time survey group" );
-	usemodelfld = new uiGenInput( topgrp, "Provide depth to time model", 
+
+	usemodelfld = new uiGenInput( topgrp, "Provide Depth to Time model", 
 				      BoolInpSpec(true) );
 	usemodelfld->valuechanged.notify( mCB(this,uiStoreWellDlg,modelSel) );
 
@@ -679,11 +681,19 @@ uiStoreWellDlg::uiStoreWellDlg( uiParent* p, const BufferString& wellname )
 	d2tgrp->attach( alignedBelow, usemodelfld );
 
 	constvelfld = 
-	    new uiGenInput( topgrp, "constant velocity(m/s)", FloatInpSpec() );
+	    new uiGenInput( topgrp, "Constant velocity (m/s)", FloatInpSpec() );
 	constvelfld->attach( alignedBelow, usemodelfld );
 	topgrp->setHAlignObj( usemodelfld );
     }
-    
+#else
+    {
+	topgrp = new uiGroup( this, "time survey group" );
+	constvelfld =
+	    new uiGenInput( topgrp, "Constant velocity (m/s)", FloatInpSpec() );
+	topgrp->setHAlignObj( constvelfld );
+    }
+#endif
+
     ctio_.ctxt.forread = false;
     outfld = new uiIOObjSel( this, ctio_, "Output Well", false, 0,
 	    		     "Select", true );
@@ -706,24 +716,32 @@ void uiStoreWellDlg::setWellCoords( const TypeSet<Coord3>& newcoords )
 { wellcoords_ = newcoords; }
 
 
+MultiID uiStoreWellDlg::getMultiID() const
+{ return ctio_.ioobj ? ctio_.ioobj->key() : -1; }
+
+
 bool uiStoreWellDlg::acceptOK( CallBacker* )
 {
-    const bool ret = checkInpFlds() && storeWell();
-    SI().savePars();
-    return ret;
+    return checkInpFlds() && storeWell();
 }
 
 
 bool uiStoreWellDlg::checkInpFlds()
 {
-    if ( usemodelfld && usemodelfld->getBoolValue() && !*d2tgrp->fileName() )
-	mErrRet( "Please select 'Depth to Time model' file" )
-
-    if ( usemodelfld && constvelfld && !usemodelfld->getBoolValue() )
+    if ( SI().zIsTime() )
     {
-	float val = constvelfld->getfValue();
-	if ( mIsUdf(val) || val <= 0 )
-	    mErrRet( "Please fill in the velocity value (positive value)" )
+	bool usemodel = false;
+#ifdef __debug__
+	usemodel = usemodelfld->getBoolValue();
+#endif
+	if ( usemodel && !*d2tgrp->fileName() )
+	    mErrRet( "Please select 'Depth to Time model' file" )
+	else
+	{
+	    const float vel = constvelfld->getfValue();
+	    if ( mIsUdf(vel) || vel<=0 )
+		mErrRet( "Please specify correct (positive) velocity value" )
+	}
     }
 	    
     if ( !outfld->commitInput(true) )
@@ -735,29 +753,26 @@ bool uiStoreWellDlg::checkInpFlds()
 
 void uiStoreWellDlg::modelSel( CallBacker* )
 {
-    if ( SI().zIsTime() )
-    {
-	const bool usemodel = usemodelfld && usemodelfld->getBoolValue();
-	d2tgrp->display( usemodel );
-	if ( constvelfld )
-	    constvelfld->display( !usemodel );
-    }
+    if ( !usemodelfld ) return;
+    d2tgrp->display( usemodelfld->getBoolValue() );
+    constvelfld->display( !usemodelfld->getBoolValue() );
 }
 
 
 bool uiStoreWellDlg::storeWell()
 {
-    PtrMan<Translator> t = ctio_.ioobj->getTranslator();
-    mDynamicCastGet(WellTranslator*,wtr,t.ptr())
+    PtrMan<Translator> tr = ctio_.ioobj->getTranslator();
+    mDynamicCastGet(WellTranslator*,wtr,tr.ptr())
     if ( !wtr ) mErrRet( "Please choose a different name for the well.\n"
 			 "Another type object with this name already exists." );
 
     const char* wellname = outfld->getInput();
     PtrMan<Well::Data> well = new Well::Data( wellname );
-    setWellTrack(well);
+    const bool res = setWellTrack( well );
+    if ( !res ) return false;
+
     well->info().surfacecoord = Coord( well->track().pos(0).x, 
 	    			       well->track().pos(0).y );
-    
     if ( !wtr->write(*well,*ctio_.ioobj) ) mErrRet( "Cannot write well" );
 
     return true;
@@ -767,36 +782,43 @@ bool uiStoreWellDlg::storeWell()
 bool uiStoreWellDlg::setWellTrack( Well::Data* well )
 {
     TypeSet<float> times;
-    if ( usemodelfld && usemodelfld->getBoolValue() )
+    bool usemodel = false;
+    if ( SI().zIsTime() )
     {
-	Well::AscImporter ascimp( *well );
-	const char* errmsg = ascimp.getD2T( d2tgrp->fileName(),
-					    d2tgrp->isTVD(),
-					    d2tgrp->isTWT(),
-					    d2tgrp->zInFeet() );
-	if ( errmsg ) mErrRet( errmsg );
-
-	well->setD2TModel( ascimp.getWellData().d2TModel() );
-	for ( int idx=0; idx<wellcoords_.size(); idx++ )
-	    wellcoords_[idx].z = well->d2TModel()->getDepth(wellcoords_[idx].z);
-    }
-    else if ( SI().zIsTime() && constvelfld )
-    {
-	float vel = constvelfld->getfValue();
-	for ( int idx=0; idx<wellcoords_.size(); idx++ )
+#ifdef __debug__
+	usemodel = usemodelfld->getBoolValue();
+#endif
+	if ( usemodel )
 	{
-	    times += wellcoords_[idx].z;
-	    wellcoords_[idx].z *= vel; 
+	    Well::AscImporter ascimp( *well );
+	    const char* errmsg = ascimp.getD2T( d2tgrp->fileName(),
+						d2tgrp->isTVD(),
+						d2tgrp->isTWT(),
+						d2tgrp->zInFeet() );
+	    if ( errmsg ) mErrRet( errmsg );
+
+	    for ( int idx=0; idx<wellcoords_.size(); idx++ )
+		wellcoords_[idx].z =
+		    well->d2TModel()->getDepth( wellcoords_[idx].z );
+	}
+	else
+	{
+	    const float vel = constvelfld->getfValue();
+	    for ( int idx=0; idx<wellcoords_.size(); idx++ )
+	    {
+		times += wellcoords_[idx].z;
+		wellcoords_[idx].z *= vel; 
+	    }
 	}
     }
-    
+
     for ( int idx=0; idx<wellcoords_.size(); idx++ )
 	well->track().insertPoint( Coord(wellcoords_[idx].x,wellcoords_[idx].y),
-					 wellcoords_[idx].z);
+				   wellcoords_[idx].z );
 
-    if ( usemodelfld && constvelfld && !usemodelfld->getBoolValue() )
+    if ( SI().zIsTime() && !usemodel )
     {
-	float vel = constvelfld->getfValue();
+	const float vel = constvelfld->getfValue();
 	Well::D2TModel* d2t = new Well::D2TModel();
 	for ( int idx=0; idx<wellcoords_.size(); idx++ )
 	    d2t->add( well->track().dah(idx), times[idx] );
