@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viswelldisplay.h,v 1.40 2007-05-14 12:08:46 cvsraman Exp $
+ RCS:		$Id: viswelldisplay.h,v 1.41 2007-10-04 12:02:05 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -105,6 +105,7 @@ public:
     NotifierAccess*             getManipulationNotifier() { return &changed_; }
     bool			isHomeMadeWell() const { return picksallowed_; }
     bool			hasChanged() const 	{ return needsave_; }
+    void			setChanged( bool yn )	{ needsave_ = yn; }
     TypeSet<Coord3>             getWellCoords()	const;
     				//only used for user-made wells
 
