@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.22 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.23 2007-10-04 08:31:43 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,12 +30,12 @@ ________________________________________________________________________
 
 #include "uiattrsel.h"
 #include "uibinidsubsel.h"
+#include "uibutton.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uiseissel.h"
-#include "uiseparator.h"
 
 
 using namespace Attrib;
@@ -58,6 +58,7 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     , mainhorfld_(0)
     , widthfld_(0)
     , addwidthfld_(0)
+    , xparsdlg_(0)
 {
     if ( usesinglehor_)
 	setHelpID( usesinglehor_ ? "104.4.2" : "104.4.1" );
@@ -74,8 +75,12 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     singmachfld->setValue( true );
 
     objSel(0);
-    interpSel(0);
-    extraWidthSel(0);
+    if ( usesinglehor_ )
+    {
+	interpSel(0);
+	extraWidthSel(0);
+	cubeBoundsSel(0);
+    }
 }
 
 
@@ -102,41 +107,38 @@ void uiAttrTrcSelOut::createSingleHorUI()
 
 void uiAttrTrcSelOut::createTwoHorUI()
 {
-    uiGroup* maingrp = new uiGroup( uppgrp, "Main group" );
-    uiGroup* extragrp = new uiGroup( uppgrp, "Extra Options group" );
+    xparsdlg_ = new uiDialog( this, uiDialog::Setup("Extra options dialog",
+					    	    "Select extra options",
+						    "104.4.1" ) );
+    xparsdlg_->finaliseDone.notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
     
-    createAttrFld( maingrp );
+    createAttrFld( uppgrp );
     
     ctio_.ctxt.forread = true;
-    objfld_ = new uiIOObjSel( maingrp, ctio_,"Calculate between top surface:");
+    objfld_ = new uiIOObjSel( uppgrp, ctio_,"Calculate between top surface:");
     objfld_->attach( alignedBelow, attrfld_ );
     
     ctio2_.ctxt.forread = true;
-    obj2fld_ = new uiIOObjSel( maingrp, ctio2_, "and bottom surface:" );
+    obj2fld_ = new uiIOObjSel( uppgrp, ctio2_, "and bottom surface:" );
     obj2fld_->attach( alignedBelow, objfld_ );
     obj2fld_->selectiondone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
 
-    createExtraZTopFld( maingrp );
-    createExtraZBotFld( maingrp );
-    createSubSelFld( maingrp );
-    createOutsideValFld( maingrp );
-    createOutputFld( maingrp );
-    createInterpFld( extragrp );
-    createNrSampFld( extragrp );
-    createAddWidthFld( extragrp );
-    createWidthFld( extragrp );
-    createMainHorFld( extragrp );
-    createCubeBoundsFlds( extragrp );
+    createExtraZTopFld( uppgrp );
+    createExtraZBotFld( uppgrp );
+    createSubSelFld( uppgrp );
+    createOutsideValFld( uppgrp );
+    createOutputFld( uppgrp );
+    createInterpFld( xparsdlg_ );
+    createNrSampFld( xparsdlg_ );
+    createAddWidthFld( xparsdlg_ );
+    createWidthFld( xparsdlg_ );
+    createMainHorFld( xparsdlg_ );
+    createCubeBoundsFlds( xparsdlg_ );
 
-    uiSeparator* sep = new uiSeparator( uppgrp, "Main-Extra sep" );
-    sep->attach( centeredBelow, maingrp );
-    sep->attach( widthSameAs, maingrp );
-
-    uiLabel* extralbl = new uiLabel( uppgrp, "Extra options:" );
-    extralbl->attach( alignedBelow, sep );
+    CallBack cb = mCB(this,uiAttrTrcSelOut,extraParsCB);
+    uiPushButton* extrabut = new uiPushButton( uppgrp, "Extra options",cb,true);
+    extrabut->attach( alignedBelow, outpfld_ );
     
-    extragrp->attach( alignedBelow, extralbl );
-
     uppgrp->setHAlignObj( attrfld_ );
 }
 
@@ -157,49 +159,49 @@ uiAttrTrcSelOut::~uiAttrTrcSelOut()
 }
 
 
-void uiAttrTrcSelOut::createAttrFld( uiGroup* grp )
+void uiAttrTrcSelOut::createAttrFld( uiParent* prnt )
 {
-    attrfld_ = new uiAttrSel( grp, &ads_, ads_.is2D(), "Quantity to output" );
+    attrfld_ = new uiAttrSel( prnt, &ads_, ads_.is2D(), "Quantity to output" );
     attrfld_->selectiondone.notify( mCB(this,uiAttrTrcSelOut,attrSel) );
     attrfld_->setNLAModel( nlamodel_ );
 }
 
 
-void uiAttrTrcSelOut::createZIntervalFld( uiGroup* grp )
+void uiAttrTrcSelOut::createZIntervalFld( uiParent* prnt )
 {
     const char* gatelabel = "Z Interval required around surfaces";
-    gatefld_ = new uiGenInput( grp, gatelabel, FloatInpIntervalSpec() );
+    gatefld_ = new uiGenInput( prnt, gatelabel, FloatInpIntervalSpec() );
     gatefld_->attach( alignedBelow, subselfld_ );
-    uiLabel* lbl = new uiLabel( grp, SI().getZUnit() );
+    uiLabel* lbl = new uiLabel( prnt, SI().getZUnit() );
     lbl->attach( rightOf, (uiObject*)gatefld_ );
 }
 
 
-void uiAttrTrcSelOut::createExtraZTopFld( uiGroup* grp )
+void uiAttrTrcSelOut::createExtraZTopFld( uiParent* prnt )
 {
-    extraztopfld_ = new uiGenInput( grp, "plus", IntInpSpec() );
+    extraztopfld_ = new uiGenInput( prnt, "plus", IntInpSpec() );
     extraztopfld_->setElemSzPol(uiObject::Small);
     extraztopfld_->attach( rightOf, objfld_ );
     extraztopfld_->setValue(0);
-    uiLabel* toplbl = new uiLabel( grp, SI().getZUnit() );
+    uiLabel* toplbl = new uiLabel( prnt, SI().getZUnit() );
     toplbl->attach( rightOf, extraztopfld_ );
 }
 
 
-void uiAttrTrcSelOut::createExtraZBotFld( uiGroup* grp )
+void uiAttrTrcSelOut::createExtraZBotFld( uiParent* prnt )
 {
-    extrazbotfld_ = new uiGenInput( grp, "plus", IntInpSpec() );
+    extrazbotfld_ = new uiGenInput( prnt, "plus", IntInpSpec() );
     extrazbotfld_->setElemSzPol(uiObject::Small);
     extrazbotfld_->attach( rightOf, obj2fld_ );
     extrazbotfld_->setValue(0);
-    uiLabel* botlbl = new uiLabel( grp, SI().getZUnit() );
+    uiLabel* botlbl = new uiLabel( prnt, SI().getZUnit() );
     botlbl->attach( rightOf, extrazbotfld_ );
 }
 
 
-void uiAttrTrcSelOut::createSubSelFld( uiGroup* grp )
+void uiAttrTrcSelOut::createSubSelFld( uiParent* prnt )
 {
-    subselfld_ = new uiBinIDSubSel( grp, uiBinIDSubSel::Setup().
+    subselfld_ = new uiBinIDSubSel( prnt, uiBinIDSubSel::Setup().
 	    				   withtable(false).withz(false).
 					   withstep(true) );
     subselfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)objfld_
@@ -207,22 +209,22 @@ void uiAttrTrcSelOut::createSubSelFld( uiGroup* grp )
 }
 
 
-void uiAttrTrcSelOut::createOutsideValFld( uiGroup* grp )
+void uiAttrTrcSelOut::createOutsideValFld( uiParent* prnt )
 {
     const char* outsidevallabel = "Value outside computed area";
-    outsidevalfld_ = new uiGenInput( grp, outsidevallabel, FloatInpSpec() );
+    outsidevalfld_ = new uiGenInput( prnt, outsidevallabel, FloatInpSpec() );
     outsidevalfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)gatefld_ 
 	    					       : (uiGroup*)subselfld_ );
     outsidevalfld_->setValue(0);
 }
 
 
-void uiAttrTrcSelOut::createInterpFld( uiGroup* grp )
+void uiAttrTrcSelOut::createInterpFld( uiParent* prnt )
 {
     const char* interplbl = "Interpolate surfaces";
     const char* flbl = "Full interpolation";
     const char* plbl = "Partial interpolation";
-    interpfld_ = new uiGenInput( grp, interplbl, BoolInpSpec(true,flbl,plbl) );
+    interpfld_ = new uiGenInput( prnt, interplbl, BoolInpSpec(true,flbl,plbl) );
     interpfld_->setValue( true );
     interpfld_->setWithCheck( true );
     interpfld_->setChecked( true );
@@ -233,19 +235,18 @@ void uiAttrTrcSelOut::createInterpFld( uiGroup* grp )
 }
 
 
-void uiAttrTrcSelOut::createNrSampFld( uiGroup* grp )
+void uiAttrTrcSelOut::createNrSampFld( uiParent* prnt )
 {
     const char* nrsamplabel = "Interpolate if hole is smaller than N traces";
-    nrsampfld_ = new uiGenInput( grp, nrsamplabel, IntInpSpec() );
+    nrsampfld_ = new uiGenInput( prnt, nrsamplabel, IntInpSpec() );
     nrsampfld_->attach( alignedBelow, interpfld_ );
-    nrsampfld_->display( false );
 }
 
 
-void uiAttrTrcSelOut::createAddWidthFld( uiGroup* grp )
+void uiAttrTrcSelOut::createAddWidthFld( uiParent* prnt )
 {
     BufferString zlabel = createAddWidthLabel();
-    addwidthfld_ = new uiGenInput( grp, zlabel, BoolInpSpec(true) );
+    addwidthfld_ = new uiGenInput( prnt, zlabel, BoolInpSpec(true) );
     addwidthfld_->setValue( false );
     addwidthfld_->attach( alignedBelow, nrsampfld_ );
     addwidthfld_->valuechanged.notify( mCB(this,uiAttrTrcSelOut,
@@ -253,46 +254,43 @@ void uiAttrTrcSelOut::createAddWidthFld( uiGroup* grp )
 }
 
 
-void uiAttrTrcSelOut::createWidthFld( uiGroup* grp )
+void uiAttrTrcSelOut::createWidthFld( uiParent* prnt )
 {
-    widthfld_ = new uiGenInput( grp,"Extra interval length", FloatInpSpec() );
+    widthfld_ = new uiGenInput( prnt,"Extra interval length", FloatInpSpec() );
     widthfld_->attach( alignedBelow, addwidthfld_ );
     widthfld_->checked.notify( mCB(this,uiAttrTrcSelOut,extraWidthSel) );
-    widthfld_->display( false );
 }
 
 
-void uiAttrTrcSelOut::createMainHorFld( uiGroup* grp )
+void uiAttrTrcSelOut::createMainHorFld( uiParent* prnt )
 {
     const char* mainhorlabel = "Main surface";
-    mainhorfld_ = new uiGenInput( grp, mainhorlabel, 
+    mainhorfld_ = new uiGenInput( prnt, mainhorlabel, 
 	    			 BoolInpSpec(true,"Top","Bottom") );
     mainhorfld_->attach( alignedBelow, widthfld_ );
-    mainhorfld_->display( false );
 }
 
    
-void uiAttrTrcSelOut::createCubeBoundsFlds( uiGroup* grp )
+void uiAttrTrcSelOut::createCubeBoundsFlds( uiParent* prnt )
 {
     const char* choicelbl = "Define Z limits for the output cube";
-    setcubeboundsfld_ = new uiGenInput ( grp, choicelbl, BoolInpSpec(true) );
+    setcubeboundsfld_ = new uiGenInput ( prnt, choicelbl, BoolInpSpec(true) );
     setcubeboundsfld_->attach( alignedBelow, mainhorfld_ ? mainhorfld_ 
 	    						: nrsampfld_ );
     setcubeboundsfld_->setValue( false );
     setcubeboundsfld_->valuechanged.notify( mCB(this,uiAttrTrcSelOut,
 		                                cubeBoundsSel) );
 
-    cubeboundsfld_ = new uiGenInput ( grp, "Z start/stop", 
+    cubeboundsfld_ = new uiGenInput ( prnt, "Z start/stop", 
 	    			      FloatInpIntervalSpec() );
     cubeboundsfld_->attach( alignedBelow, setcubeboundsfld_ );
-    cubeboundsfld_->display( false );
 }
 
 
-void uiAttrTrcSelOut::createOutputFld( uiGroup* grp )
+void uiAttrTrcSelOut::createOutputFld( uiParent* prnt )
 {
     ctioout_.ctxt.forread = false;
-    outpfld_ = new uiSeisSel( grp, ctioout_, SeisSelSetup() );
+    outpfld_ = new uiSeisSel( prnt, ctioout_, SeisSelSetup() );
     outpfld_->attach( alignedBelow, usesinglehor_ ? cubeboundsfld_ 
 	    					  : outsidevalfld_);
 }
@@ -515,7 +513,6 @@ void uiAttrTrcSelOut::interpSel( CallBacker* cb )
 {
     nrsampfld_->display( interpfld_->isChecked() ? !interpfld_->getBoolValue() 
 	    				       : false );
-
     if ( !addwidthfld_ )
 	return;
 
@@ -528,8 +525,8 @@ void uiAttrTrcSelOut::extraWidthSel( CallBacker* cb )
 {
     if ( !addwidthfld_ )
 	return;
-    widthfld_->display( addwidthfld_->getBoolValue() );
-    mainhorfld_->display( addwidthfld_->getBoolValue() );
+    widthfld_->display( addwidthfld_->getBoolValue(), false );
+    mainhorfld_->display( addwidthfld_->getBoolValue(), false );
 }
 
 
@@ -554,3 +551,18 @@ bool uiAttrTrcSelOut::addNLA( DescID& id )
 
     return true;
 }
+
+
+void uiAttrTrcSelOut::extraParsCB( CallBacker* cb )
+{
+    xparsdlg_->go();
+}
+
+
+void uiAttrTrcSelOut::extraDlgDone( CallBacker* cb )
+{
+    interpSel(0);
+    extraWidthSel(0);
+    cubeBoundsSel(0);
+}
+
