@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Sep 2007
- RCS:           $Id: arrayndslice.cc,v 1.1 2007-09-18 13:22:13 cvskris Exp $
+ RCS:           $Id: arrayndslice.cc,v 1.2 2007-10-05 09:20:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,10 +93,10 @@ bool ArrayNDSliceBase::init()
     }
     else
     {
-	int localpos[nrowndims];
+	mVariableLengthArr( int, localpos, nrowndims );
 	memset( localpos, 0, nrowndims * sizeof(int) );
 
-	int tpos[ndim];
+	mVariableLengthArr( int, tpos, ndim );
 	getSourcePos( localpos, tpos );
 	offset_ = sourceinfo_.getOffset(tpos);
     }
