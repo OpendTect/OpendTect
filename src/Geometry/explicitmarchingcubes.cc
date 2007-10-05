@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.10 2007-09-28 20:56:43 cvskris Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.11 2007-10-05 16:52:44 cvsyuancheng Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -38,6 +38,7 @@ public:
     ~ExplicitMarchingCubesSurfaceUpdater()
     {
 	surface_.getSurface()->modelslock_.readUnLock();
+	//deepEraseArr( threadstarts_ );
 
 	delete xrg_;
 	delete yrg_;
@@ -68,14 +69,16 @@ public:
 	} while ( surface_.getSurface()->models_.next( idxs ) );
     }
 
+protected:
 
     int	nrTimes() const { return totalnr_; }
-    bool doWork( int start, int stop, int )
+    bool doWork( int start, int stop, int thread )
     {
 	int idx = start;
-	int idxs[3];
-	
-	if ( !surface_.getSurface()->models_.getIndex(idx,idxs) )
+	int idxs[] = { threadstarts_[thread][mX], threadstarts_[thread][mY],
+		       threadstarts_[thread][mZ] };
+
+	if ( !surface_.getSurface()->models_.isValidPos(idxs) )
 	{
 	    pErrMsg("Hugh");
 	    return false;
@@ -83,9 +86,6 @@ public:
 
 	while ( idx<=stop )
 	{
-	    if ( idx!=start && !surface_.getSurface()->models_.next( idxs ) )
-		return false;
-
 	    int pos[3];
 	    if ( !surface_.getSurface()->models_.getPos( idxs, pos ) )
 	    {
@@ -93,13 +93,14 @@ public:
 		return false;
 	    }
 
-	    if ( !xrg_ || xrg_->includes(pos[mX]) && yrg_->includes(pos[mY]) &&
-		 zrg_->includes(pos[mZ]) )
+	    if ( !surface_.getSurface()->models_.next( idxs ) )
+		return false;
+	    
+	    if ( !xrg_ || xrg_->includes(pos[mX]) && 
+		 yrg_->includes(pos[mY]) && zrg_->includes(pos[mZ]) )
 	    {
-
 		if ( updatecoords_ )
 		{
-		    int res[3];
 		    if ( !surface_.updateCoordinates( pos ) )
 		    {
 			pErrMsg("Hugh");
@@ -119,12 +120,41 @@ public:
 	return true;
     }
 
+    bool doPrepare( int nrthreads )
+    {
+	deepEraseArr( threadstarts_ );
+	int idxs[] = { 0, 0, 0 };
+	int start = 0;
+	
+	for ( int idx=0; idx<nrthreads; idx++ )
+	{
+	    const int threadsize = calculateThreadSize(totalnr_,nrthreads,idx);
+	    int startpos[] = { idxs[mX], idxs[mY], idxs[mZ] }; 
+	    threadstarts_ += startpos;
+	    
+	    int idy = 0;
+	    do 
+	    {
+		int pos[3];
+		surface_.getSurface()->models_.getPos( idxs, pos );
+		if ( xrg_ && xrg_->includes(pos[mX]) &&
+		     yrg_ && yrg_->includes(pos[mY]) &&
+		     zrg_ && zrg_->includes(pos[mZ]) )
+		    idy ++;
+	    } while ( idy<threadsize && 
+		      surface_.getSurface()->models_.next( idxs ) );
+	}
+
+	return true;
+    }
+
     int		minThreadSize() const { return 1; }
 
-protected:
     Interval<int>*			xrg_;
     Interval<int>*			yrg_;
     Interval<int>*			zrg_;
+
+    ObjectSet<int>			threadstarts_;
 
     int					totalnr_;
     ExplicitMarchingCubesSurface&	surface_;
@@ -222,12 +252,12 @@ bool ExplicitMarchingCubesSurface::update( bool forceall )
     if ( !forceall && changedbucketranges_[mX] )
     {
 	if ( update(
-		Interval<int>(changedbucketranges_[mX]->start*mBucketSize,
-		    	     (changedbucketranges_[mX]->stop+1)*mBucketSize-1),
-		Interval<int>(changedbucketranges_[mX]->start*mBucketSize,
-		    	     (changedbucketranges_[mX]->stop+1)*mBucketSize-1),
-		Interval<int>(changedbucketranges_[mX]->start*mBucketSize,
-		    	     (changedbucketranges_[mX]->stop+1)*mBucketSize-1)))
+    		    Interval<int>( changedbucketranges_[mX]->start,
+				   changedbucketranges_[mX]->stop ),
+    		    Interval<int>( changedbucketranges_[mY]->start,
+	  			   changedbucketranges_[mY]->stop ),
+		    Interval<int>( changedbucketranges_[mZ]->start,
+			           changedbucketranges_[mZ]->stop ) ) )
 	{
 	    delete changedbucketranges_[mX];
 	    delete changedbucketranges_[mY];
@@ -235,18 +265,16 @@ bool ExplicitMarchingCubesSurface::update( bool forceall )
 	    changedbucketranges_[mX] = 0;
 	    changedbucketranges_[mY] = 0;
 	    changedbucketranges_[mZ] = 0;
+	    return true;
 	}
     }
 
     removeAll();
 
-    if ( !surface_ )
-	return true;
-
-    if ( !surface_->models_.size() )
-	return true;
-
     if ( !surface_ || surface_->models_.isEmpty() )
+	return true;
+    
+    if ( !surface_->models_.size() )
 	return true;
 
     PtrMan<ExplicitMarchingCubesSurfaceUpdater> updater = new
@@ -256,19 +284,27 @@ bool ExplicitMarchingCubesSurface::update( bool forceall )
 
     updater = 0; //deletes old & unlocks
     updater = new ExplicitMarchingCubesSurfaceUpdater( *this, false );
-    return updater->execute();
+    return updater->execute(); 
 }
 
 
 bool ExplicitMarchingCubesSurface::update(
-	    const Interval<int>& xrg,
-	    const Interval<int>& yrg,
-	    const Interval<int>& zrg )
+	    const Interval<int>& xbucketrg,
+	    const Interval<int>& ybucketrg,
+	    const Interval<int>& zbucketrg )
 {
-    //TODO remove all influenced buckets && all coordinates in ranges
+    removeBuckets( xbucketrg, ybucketrg, zbucketrg );
+
+    Interval<int> xrg = Interval<int>( xbucketrg.start*mBucketSize,
+	    			       (xbucketrg.stop+1)*mBucketSize-1 );
+    Interval<int> yrg = Interval<int>( ybucketrg.start*mBucketSize,
+	    			       (ybucketrg.stop+1)*mBucketSize-1 );
+    Interval<int> zrg = Interval<int>( zbucketrg.start*mBucketSize,
+	    			       (zbucketrg.stop+1)*mBucketSize-1 );
+
     PtrMan<ExplicitMarchingCubesSurfaceUpdater> updater = new
 	ExplicitMarchingCubesSurfaceUpdater( *this, true );
-    updater->setLimits( xrg, yrg, zrg );
+    updater->setLimits( xrg, yrg, zrg ); 
     if ( !updater->execute() )
 	return false;
 
@@ -276,6 +312,32 @@ bool ExplicitMarchingCubesSurface::update(
     updater = new ExplicitMarchingCubesSurfaceUpdater( *this, false );
     updater->setLimits( xrg, yrg, zrg );
     return updater->execute();
+}
+
+
+void ExplicitMarchingCubesSurface::removeBuckets(
+					const Interval<int>& xbucketrg,
+			    		const Interval<int>& ybucketrg,
+			    		const Interval<int>& zbucketrg )
+{
+    for ( int idx=xbucketrg.start; idx<xbucketrg.stop+1; idx++ ) 
+    {
+	for ( int idy=ybucketrg.start; idy<ybucketrg.stop+1; idy++ )
+	{
+	    for ( int idz=zbucketrg.start; idz<zbucketrg.stop+1; idz++ )
+	    {
+		int pos[3] = { idx, idy, idz };
+		int bucketidx[3];
+		if ( !ibuckets_.findFirst( pos, bucketidx ) )
+		    continue;
+
+		Geometry::IndexedGeometry* bucket=ibuckets_.getRef(bucketidx,0);
+		geometries_ -= bucket;
+		ibuckets_.remove( bucketidx );
+		delete bucket;
+	    }
+	}
+    }
 }
 
 
@@ -340,7 +402,6 @@ ExplicitMarchingCubesSurface::getAxisScale( int dim ) const
     } \
     if ( normallist_ ) \
 	triangles.erase()
-
 
 
 bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )

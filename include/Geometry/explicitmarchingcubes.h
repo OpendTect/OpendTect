@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: explicitmarchingcubes.h,v 1.7 2007-09-28 20:56:43 cvskris Exp $
+ RCS:           $Id: explicitmarchingcubes.h,v 1.8 2007-10-05 16:52:44 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,9 +37,6 @@ public:
     void			removeAll();
 
     bool			update(bool forceall);
-    bool			update(const Interval<int>& xrg,
-	    			       const Interval<int>& yrg,
-	    			       const Interval<int>& zrg);
 
     void			setAxisScales(const SamplingData<float>& xrg,
 					      const SamplingData<float>& yrg,
@@ -49,9 +46,16 @@ public:
     const SamplingData<float>&	getAxisScale( int dim ) const;
 
 protected:
+
     friend		class ExplicitMarchingCubesSurfaceUpdater;
     void		surfaceChange(CallBacker*);
 
+    bool		update(const Interval<int>& xrg,
+	    		       const Interval<int>& yrg,
+	    		       const Interval<int>& zrg);
+    void		removeBuckets(const Interval<int>& xrg,
+	    			      const Interval<int>& yrg,
+				      const Interval<int>& zrg);
     bool		updateIndices(const int* pos);
     bool		getCoordIndices(const int* pos,int* res);
     bool		updateCoordinates(const int* pos);
