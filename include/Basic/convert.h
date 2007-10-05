@@ -6,13 +6,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: convert.h,v 1.6 2007-09-13 19:38:38 cvsnanne Exp $
+ RCS:           $Id: convert.h,v 1.7 2007-10-05 11:28:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "undefval.h"
 #include "string2.h"
+
+#ifdef __msvc__
+# include "msvcdefs.h"
+#endif
 
 namespace Conv{
 
