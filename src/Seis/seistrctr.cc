@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.75 2007-05-21 15:40:51 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.76 2007-10-05 17:52:55 cvskris Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -116,7 +116,7 @@ bool SeisTrcTranslator::initRead( Conn* c, Seis::ReadMode rm )
     if ( !initConn(c,true)
       || !initRead_() )
     {
-	conn = 0;
+	delete conn; conn = 0;
 	return false;
     }
 
@@ -140,7 +140,7 @@ bool SeisTrcTranslator::initWrite( Conn* c, const SeisTrc& trc )
     if ( !initConn(c,false)
       || !initWrite_( trc ) )
     {
-	conn = 0;
+	delete conn; conn = 0;
 	return false;
     }
 
@@ -426,7 +426,10 @@ bool SeisTrcTranslator::initConn( Conn* c, bool forread )
 
     if ( ((forread && c->forRead()) || (!forread && c->forWrite()) )
       && !strcmp(c->connType(),connType()) )
+    {
+	delete conn;
 	conn = c;
+    }
     else
     {
 	errmsg = "Translator error: Bad connection established";
