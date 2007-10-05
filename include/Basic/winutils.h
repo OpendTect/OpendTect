@@ -1,5 +1,5 @@
-#ifndef getspec_H
-#define getspec_H
+#ifndef winutils_h
+#define winutils_h
 
 /*+
 ________________________________________________________________________
@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Lammertink
  Date:		09-10-2003
  Contents:	Utilities for win32 support
- RCS:		$Id: winutils.h,v 1.1 2004-11-16 15:01:34 dgb Exp $
+ RCS:		$Id: winutils.h,v 1.2 2007-10-05 09:27:08 cvsnanne Exp $
 ________________________________________________________________________
 
 
