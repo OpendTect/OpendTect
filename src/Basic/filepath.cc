@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.20 2007-07-24 09:56:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.21 2007-10-05 09:20:32 cvsnanne Exp $";
 
 #include "filepath.h"
 #include "envvars.h"
@@ -72,7 +72,7 @@ FilePath& FilePath::set( const char* _fnm )
     skipLeadingBlanks( fnm );
     if ( !*fnm ) return *this;
 
-    char* ptr = strchr( fnm, *sPrefSep );
+    const char* ptr = strchr( fnm, *sPrefSep );
     if ( ptr )
     {
 	const char* dsptr = strchr( fnm, *dirSep(Local) );

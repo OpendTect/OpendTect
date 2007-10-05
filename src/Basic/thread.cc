@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.28 2007-09-04 20:42:04 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.29 2007-10-05 09:20:32 cvsnanne Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -14,6 +14,10 @@ static const char* rcsID = "$Id: thread.cc,v 1.28 2007-09-04 20:42:04 cvskris Ex
 #include "envvars.h"
 #include "errh.h"
 #include "errno.h" // for EBUSY
+
+#ifdef __msvc__
+# include "windows.h"
+#endif
 
 
 Threads::Mutex::Mutex()

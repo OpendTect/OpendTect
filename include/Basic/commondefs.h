@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.7 2007-09-13 17:05:20 cvsnanne Exp $
+ RCS:		$Id: commondefs.h,v 1.8 2007-10-05 09:20:45 cvsnanne Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -50,7 +50,7 @@ ________________________________________________________________________
 #ifdef __msvc__
 # include "ptrman.h" 
 # define mVariableLengthArr( type, varnm, __size ) \
-  ArrPtrMan<type> varnm = 0; mTryAlloc( varm, type [__size] )
+  ArrPtrMan<type> varnm = new type [__size]
 #else
 # define mVariableLengthArr( type, varnm, __size ) \
   type varnm[__size]
