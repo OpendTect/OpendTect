@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: visgeomindexedshape.cc,v 1.1 2007-09-14 13:11:30 cvskris Exp $
+ RCS:           $Id: visgeomindexedshape.cc,v 1.2 2007-10-05 16:55:32 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,19 +125,19 @@ void GeomIndexedShape::touch()
 	for ( int idx=0; idx<geoms.size(); idx++ )
 	{
 	    const Geometry::IndexedGeometry* geom = geoms[idx];
-	    if ( !geom->ischanged_ )
-		continue;
-
 	    SoIndexedShape* shape = 0;
 	    mHandleType( TriangleStrip, SoIndexedTriangleStripSet, strip )
             else mHandleType( TriangleFan, SoIndexedTriangleFanSet, fan )
  	    else mHandleType( Lines, SoIndexedLineSet, line )
 
-	    shape->coordIndex.setValuesPointer(
-		geom->coordindices_.size(), geom->coordindices_.arr() );
+	    if ( geom->ischanged_ )
+	    {
+		shape->coordIndex.setValuesPointer(
+		    geom->coordindices_.size(), geom->coordindices_.arr() );
 
-	    shape->normalIndex.setValuesPointer(
-		geom->normalindices_.size(), geom->normalindices_.arr() );
+		shape->normalIndex.setValuesPointer(
+		    geom->normalindices_.size(), geom->normalindices_.arr() );
+	    }
 
 	    const int idy = childIndex( shape );
 	    mDynamicCastGet(SoNormalBinding*, nb, idy>0 ? getChild(idy-1) : 0);
