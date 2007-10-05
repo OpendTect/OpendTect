@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.h,v 1.10 2007-08-07 05:08:18 cvsraman Exp $
+ RCS:           $Id: uitblimpexpdatasel.h,v 1.11 2007-10-05 11:09:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,8 @@ public:
     bool			commit();
     int				nrHdrLines() const; //!< '-1' = variable
 
+    Notifier<uiTableImpDataSel>	descChanged;
+
 protected:
 
     Table::FormatDesc&		fd_;
@@ -62,6 +64,7 @@ protected:
 
     bool			commitHdr();
     void			typChg(CallBacker*);
+    void			valChg(CallBacker*);
     void			openFmt(CallBacker*);
 };
 

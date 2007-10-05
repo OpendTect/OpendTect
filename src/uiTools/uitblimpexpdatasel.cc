@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.31 2007-09-20 05:50:46 cvsraman Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.32 2007-10-05 11:09:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -634,9 +634,11 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
 				      const char* hid )
 	: uiGroup(p,fd.name())
 	, fd_(fd)
+    	, descChanged(this)
 {
     static const char* hdrtyps[] = { "No header", "Fixed size", "Variable", 0 };
     const CallBack typchgcb = mCB(this,uiTableImpDataSel,typChg);
+    const CallBack valchgcb = mCB(this,uiTableImpDataSel,valChg);
     hdrtypefld_ = new uiGenInput( this, "File header",
 	    			  StringListInpSpec(hdrtyps) );
     hdrtypefld_->valuechanged.notify( typchgcb );
@@ -652,9 +654,11 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
     hdrlinesfld_ = new uiGenInput( this, "Header size (number of lines)",
 	    			   IntInpSpec(nrlns) );
     hdrlinesfld_->attach( alignedBelow, hdrtypefld_ );
+    hdrlinesfld_->valuechanged.notify( valchgcb );
     hdrtokfld_ = new uiGenInput( this, "End-of-header 'word'",
 	    			 StringInpSpec(fd_.token_) );
     hdrtokfld_->attach( alignedBelow, hdrtypefld_ );
+    hdrtokfld_->valuechanged.notify( valchgcb );
 
     fmtdeffld_ = new uiTableFmtDescFldsParSel( this, hid );
     fmtdeffld_->attach( alignedBelow, hdrlinesfld_ );
@@ -669,6 +673,12 @@ void uiTableImpDataSel::typChg( CallBacker* )
     const int htyp = hdrtypefld_->getIntValue();
     hdrlinesfld_->display( htyp == 1 );
     hdrtokfld_->display( htyp == 2 );
+    valChg( 0 );
+}
+
+void uiTableImpDataSel::valChg( CallBacker* )
+{
+    descChanged.trigger();
 }
 
 
@@ -755,4 +765,5 @@ bool uiTableImpDataSel::commit()
 void uiTableImpDataSel::updateSummary()
 {
     fmtdeffld_->updateSummary();
+    valChg( 0 );
 }
