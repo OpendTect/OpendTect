@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.5 2007-10-02 15:39:44 cvskris Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.6 2007-10-05 16:41:28 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -21,6 +21,9 @@ static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.5 2007-10
 #include "visevent.h"
 #include "vismaterial.h"
 #include "vismarchingcubessurface.h"
+
+#define mKernelSize 11
+#define mHalfKernel 5
 
 mCreateFactoryEntry( visSurvey::MarchingCubesDisplay );
 
@@ -338,9 +341,10 @@ void MarchingCubesDisplay::pickCB( CallBacker* cb )
 		emsurface_->surface() );
     }
 
-    PtrMan<Array3D<unsigned char> > kernel = createKernel( 11, 11, 11 );
-    surfaceeditor_->setKernel( *kernel,
-	    surfacepos[0]-5, surfacepos[1]-5, surfacepos[2]-5 );
+    PtrMan<Array3D<unsigned char> > kernel = 
+			createKernel( mKernelSize,mKernelSize, mKernelSize );
+    surfaceeditor_->setKernel( *kernel, surfacepos[0]-mHalfKernel, 
+	    surfacepos[1]-mHalfKernel, surfacepos[2]-mHalfKernel );
 
     if ( !factordragger_ )
     {
