@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.26 2007-10-05 11:11:09 cvsbert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.27 2007-10-05 11:38:53 cvsbert Exp $";
 
 #include "seisseqio.h"
 #include "seisread.h"
@@ -257,6 +257,12 @@ Seis::ODSeqInp::~ODSeqInp()
 }
 
 
+Seis::GeomType Seis::ODSeqInp::geomType() const
+{
+    return rdr_ ? rdr_->geomType() : Seis::Vol;
+}
+
+
 const SeisSelData& Seis::ODSeqInp::selData() const
 {
     static SeisSelData emptyseldata;
@@ -300,6 +306,12 @@ bool Seis::ODSeqInp::get( SeisTrc& trc ) const
 Seis::ODSeqOut::~ODSeqOut()
 {
     delete wrr_;
+}
+
+
+Seis::GeomType Seis::ODSeqOut::geomType() const
+{
+    return wrr_ ? wrr_->geomType() : Seis::Vol;
 }
 
 

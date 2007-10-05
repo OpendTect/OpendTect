@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: seisseqio.h,v 1.1 2007-10-05 11:11:09 cvsbert Exp $
+ * ID       : $Id: seisseqio.h,v 1.2 2007-10-05 11:38:53 cvsbert Exp $
 -*/
 
 #include "seistype.h"
@@ -26,6 +26,7 @@ class SeqIO
 public:
 
     virtual const char*	type() const			= 0;
+    virtual Seis::GeomType geomType() const		= 0;
     virtual void	fillPar(IOPar&) const		= 0;
     virtual bool	usePar(const IOPar&)		= 0;
 
@@ -69,6 +70,7 @@ public:
     			~ODSeqInp();
     virtual const char*	type() const		{ return sKeyODType; }
 
+    virtual Seis::GeomType geomType() const;
     virtual const SeisSelData& selData() const;
 
     virtual bool	usePar(const IOPar&);
@@ -106,6 +108,7 @@ public:
     			ODSeqOut() : wrr_(0)	{}
     			~ODSeqOut();
     virtual const char*	type() const		{ return sKeyODType; }
+    virtual Seis::GeomType geomType() const;
 
     virtual bool	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;

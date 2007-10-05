@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisstor.h,v 1.16 2005-12-12 18:11:13 cvsbert Exp $
+ RCS:		$Id: seisstor.h,v 1.17 2007-10-05 11:38:53 cvsbert Exp $
 ________________________________________________________________________
 
 Trace storage objects handle seismic data storage.
@@ -36,6 +36,10 @@ public:
     virtual bool	close();
 
     bool		is2D() const		{ return is2d; }
+    bool		isPS() const		{ return psioprov; }
+    Seis::GeomType	geomType() const
+    			{ return Seis::geomTypeOf(is2D(),isPS()); }
+
     const char*		errMsg() const
 			{ return errmsg; }
     int			tracesHandled() const

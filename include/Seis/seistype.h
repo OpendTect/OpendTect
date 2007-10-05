@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		29-5-99
- RCS:		$Id: seistype.h,v 1.10 2007-10-02 07:12:26 cvsbert Exp $
+ RCS:		$Id: seistype.h,v 1.11 2007-10-05 11:38:53 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -30,6 +30,8 @@ namespace Seis
 			{ return gt == Line ? 2 : (gt == VolPS ? 4 : 3); }
     const char*		nameOf(GeomType);
     GeomType		geomTypeOf(const char*);
+    inline GeomType	geomTypeOf( bool is2d, bool isps )
+			{ return is2d ? (isps?LinePS:Line) : (isps?VolPS:Vol); }
     const char**	geomTypeNames();
 
 
