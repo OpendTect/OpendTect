@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Sep 2007
- RCS:           $Id: arrayndslice.cc,v 1.2 2007-10-05 09:20:12 cvsnanne Exp $
+ RCS:           $Id: arrayndslice.cc,v 1.3 2007-10-05 10:38:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "arrayndslice.h"
+#include "varlenarray.h"
 
 
 ArrayNDSliceBase::ArrayNDSliceBase( ArrayNDInfo* localinfo,

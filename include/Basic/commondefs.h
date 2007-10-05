@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.8 2007-10-05 09:20:45 cvsnanne Exp $
+ RCS:		$Id: commondefs.h,v 1.9 2007-10-05 10:38:34 cvsnanne Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -45,17 +45,6 @@ ________________________________________________________________________
 #ifndef M_PI_4
 # define M_PI_4 0.78539816339744830962
 #endif
-
-
-#ifdef __msvc__
-# include "ptrman.h" 
-# define mVariableLengthArr( type, varnm, __size ) \
-  ArrPtrMan<type> varnm = new type [__size]
-#else
-# define mVariableLengthArr( type, varnm, __size ) \
-  type varnm[__size]
-#endif
-
 
 #ifdef __win__
 # include <stdio.h>

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.21 2007-07-06 16:43:16 cvsyuancheng Exp $
+ RCS:		$Id: mathfunc.h,v 1.22 2007-10-05 10:38:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "ptrman.h"
 #include "samplingdata.h"
+#include "varlenarray.h"
 
 #include <math.h>
 

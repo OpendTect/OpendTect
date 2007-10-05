@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: wavelettrans.cc,v 1.14 2006-03-12 13:39:10 cvsbert Exp $";
+static const char* rcsID = "$Id: wavelettrans.cc,v 1.15 2007-10-05 10:38:34 cvsnanne Exp $";
 
 
 #include "wavelettrans.h"
@@ -499,10 +499,11 @@ bool CWT::transform( const ArrayND<float_complex>& inp,
     const int outdim = outp_.info().getNDim();
     if ( outdim != 2 ) return false;
 
-    mDynamicCastGet(Array2DImpl<float>&,outp,outp_)
+    mDynamicCastGet(Array2DImpl<float>*,outp,&outp_)
+    if ( !outp ) return false;
 
-    return !freqrg.nrSteps() ? transformAll( inp, outp )
-			     : transformRange( inp, outp );
+    return !freqrg.nrSteps() ? transformAll( inp, *outp )
+			     : transformRange( inp, *outp );
 }
 
 

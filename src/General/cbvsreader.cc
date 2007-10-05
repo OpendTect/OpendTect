@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.69 2007-04-11 10:10:19 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.70 2007-10-05 10:38:34 cvsnanne Exp $";
 
 /*!
 
@@ -32,6 +32,7 @@ The next 8 bytes are reserved for 2 integers:
 #include "envvars.h"
 #include "errh.h"
 #include "ptrman.h"
+#include "varlenarray.h"
 
 
 CBVSReader::CBVSReader( std::istream* s, bool glob_info_only )

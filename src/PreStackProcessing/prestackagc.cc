@@ -4,14 +4,15 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackagc.cc,v 1.3 2007-10-03 14:01:33 cvskris Exp $";
+static const char* rcsID = "$Id: prestackagc.cc,v 1.4 2007-10-05 10:38:35 cvsnanne Exp $";
 
 #include "prestackagc.h"
 
 #include "dataclipper.h"
+#include "flatposdata.h"
 #include "iopar.h"
 #include "prestackgather.h"
-#include "flatposdata.h"
+#include "varlenarray.h"
 
 
 using namespace PreStack;
