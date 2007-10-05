@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: seisseqio.h,v 1.2 2007-10-05 11:38:53 cvsbert Exp $
+ * ID       : $Id: seisseqio.h,v 1.3 2007-10-05 11:56:58 cvsbert Exp $
 -*/
 
 #include "seistype.h"
@@ -27,7 +27,7 @@ public:
 
     virtual const char*	type() const			= 0;
     virtual Seis::GeomType geomType() const		= 0;
-    virtual void	fillPar(IOPar&) const		= 0;
+    virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&)		= 0;
 
     const char*		errMsg() const			{ return errmsg_; }
@@ -50,6 +50,8 @@ public:
 
     virtual bool	get(SeisTrc&) const		= 0;
     virtual const SeisSelData& selData() const;
+
+    virtual void	fillPar(IOPar&) const;
 
     static BufferStringSet& classNames();
     static SeqInp*	make(const char* clssnm);

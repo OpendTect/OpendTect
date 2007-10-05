@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.27 2007-10-05 11:38:53 cvsbert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.28 2007-10-05 11:56:58 cvsbert Exp $";
 
 #include "seisseqio.h"
 #include "seisread.h"
@@ -185,6 +185,13 @@ void SeisStoreAccess::usePar( const IOPar& iopar )
     iopar.get( "Selected component", selcomp );
 }
 
+//--- SeqIO
+
+void Seis::SeqIO::fillPar( IOPar& iop ) const
+{
+    Seis::putInPar( geomType(), iop );
+}
+
 
 static BufferStringSet& seisInpClassNames()
 {
@@ -251,6 +258,13 @@ const SeisSelData& Seis::SeqInp::selData() const
 }
 
 
+void Seis::SeqInp::fillPar( IOPar& iop ) const
+{
+    Seis::SeqIO::fillPar( iop );
+    selData().fillPar( iop );
+}
+
+
 Seis::ODSeqInp::~ODSeqInp()
 {
     delete rdr_;
@@ -286,7 +300,8 @@ bool Seis::ODSeqInp::usePar( const IOPar& iop )
 
 void Seis::ODSeqInp::fillPar( IOPar& iop ) const
 {
-    pErrMsg("Not impl");
+    Seis::SeqInp::fillPar( iop );
+    if ( rdr_ ) rdr_->fillPar( iop );
 }
 
 
@@ -331,7 +346,8 @@ bool Seis::ODSeqOut::usePar( const IOPar& iop )
 
 void Seis::ODSeqOut::fillPar( IOPar& iop ) const
 {
-    pErrMsg("Not impl");
+    Seis::SeqOut::fillPar( iop );
+    if ( wrr_ ) wrr_->fillPar( iop );
 }
 
 

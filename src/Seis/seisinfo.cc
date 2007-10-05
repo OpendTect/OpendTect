@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.37 2007-10-02 07:12:26 cvsbert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.38 2007-10-05 11:56:58 cvsbert Exp $";
 
 #include "seisinfo.h"
 #include "seistrc.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: seisinfo.cc,v 1.37 2007-10-02 07:12:26 cvsbert 
 #include "enums.h"
 #include "envvars.h"
 #include "seistype.h"
+#include "keystrs.h"
 #include <math.h>
 #include <timeser.h>
 #include <float.h>
@@ -126,6 +127,19 @@ const char** Seis::waveTypeNames()
 
 bool Seis::isAngle( Seis::DataType dt )
 { return dt==Seis::Phase || dt==Seis::Azimuth; }
+
+void Seis::putInPar( Seis::GeomType gt, IOPar& iop )
+{
+    iop.set( sKey::Geometry, Seis::nameOf(gt) );
+}
+
+bool Seis::getFromPar( const IOPar& iop, Seis::GeomType& gt )
+{
+    const char* res = iop.find( sKey::Geometry );
+    if ( !res || !*res ) return false;
+    gt = geomTypeOf( res );
+    return true;
+}
  
 
 DefineEnumNames(SeisTrcInfo,Fld,1,"Header field") {

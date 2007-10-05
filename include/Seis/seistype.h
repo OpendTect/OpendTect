@@ -7,10 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		29-5-99
- RCS:		$Id: seistype.h,v 1.11 2007-10-05 11:38:53 cvsbert Exp $
+ RCS:		$Id: seistype.h,v 1.12 2007-10-05 11:56:58 cvsbert Exp $
 ________________________________________________________________________
 
 */
+
+class IOPar;
 
 namespace Seis
 {
@@ -33,6 +35,8 @@ namespace Seis
     inline GeomType	geomTypeOf( bool is2d, bool isps )
 			{ return is2d ? (isps?LinePS:Line) : (isps?VolPS:Vol); }
     const char**	geomTypeNames();
+    void		putInPar(GeomType,IOPar&);
+    bool		getFromPar(const IOPar&,GeomType&);
 
 
     enum DataType       { Ampl, Dip, Frequency, Phase, AVOGradient, 
