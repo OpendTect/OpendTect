@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.cc,v 1.11 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: instantattrib.cc,v 1.12 2007-10-05 14:03:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,7 +153,9 @@ float Instantaneous::calcFrequency( int cursample ) const
     const float nextimag = mGetIVal( cursample+1 );
     const float dimag_dt = (nextimag-previmag) / (2*refstep);
 
-    return (real*dimag_dt - imag*dreal_dt) / (real*real + imag*imag);
+    float denom = (real*real + imag*imag);
+    if ( mIsZero( denom, 1e-6 ) ) denom = 1e-6;
+    return (real*dimag_dt - imag*dreal_dt) / denom;
 }
 
 
@@ -169,7 +171,7 @@ float Instantaneous::calcBandWidth( int cursample ) const
 {
     const float denv_dt = calcAmplitude1Der( cursample );
     const float env = calcAmplitude( cursample );
-    return denv_dt / (2*M_PI*env);
+    return denv_dt / (2*M_PI* ( mIsZero(env,1e-6) ? 1e-6 : env ) );
 }
 
 
@@ -177,7 +179,7 @@ float Instantaneous::calcQFactor( int cursample ) const
 {
     const float ifq = calcFrequency( cursample );
     const float bandwth = calcBandWidth( cursample );
-    return (-0.5 * ifq / bandwth);
+    return (-0.5 * ifq / ( mIsZero(bandwth,1e-6) ? 1e-6 : bandwth ) );
 }
 
 
@@ -193,7 +195,8 @@ float Instantaneous::calcRMSAmplitude( int cursample ) const
 	nrsamples++;
     }
     
-    const float dt = (nrsamples-1) * refstep;
+    float dt = (nrsamples-1) * refstep;
+    if ( mIsZero( dt, 1e-6 ) ) dt = 1e-6;
     return sqrt( sumia2/dt );
 }
 
@@ -214,7 +217,7 @@ float Instantaneous::calcEnvWPhase( int cursample ) const
 	sumiaiph += ia*iph/rmsia;
     }
 
-    return sumiaiph / sumia;
+    return sumiaiph / ( mIsZero(sumia,1e-6) ? 1e-6 : sumia );
 }
 
 
@@ -234,8 +237,7 @@ float Instantaneous::calcEnvWFreq( int cursample ) const
 	sumiaifq += ia*ifq/rmsia;
     }
 
-    return sumiaifq / sumia;
-
+    return sumiaifq / ( mIsZero(sumia,1e-6) ? 1e-6 : sumia );
 }
 
 
