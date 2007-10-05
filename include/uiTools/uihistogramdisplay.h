@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Jan 2005
- RCS:           $Id: uihistogramdisplay.h,v 1.3 2007-09-12 16:54:25 cvskris Exp $
+ RCS:           $Id: uihistogramdisplay.h,v 1.4 2007-10-05 11:36:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uiworld2ui.h"
 
 class ioDrawArea;
+class uiRect;
 
 
 /*!\brief
@@ -32,6 +33,8 @@ public:
 
     void			setHistogram(const TypeSet<float>&,
 				 	     const SamplingData<float>& xaxis);
+    void			setBoundaryRect(const uiRect&);
+
     float			getXValue(int pixel) const;
     int				getPixel(float val) const;
 
@@ -43,12 +46,15 @@ public:
 				//!<histogram sample
     bool			ignoresExtremes() const;
 
+    void			drawXAxis( const StepInterval<float>& );
+    void			setXAxis( const StepInterval<float>& );
     void			reDraw(CallBacker* = 0);
 
 protected:
 
     ioDrawArea*			drawarea_;
     TypeSet<float>		histogram_;
+    uiRect			boundary_;
 
     TypeSet<uiPoint>		pointlist_;
     int				height_;
@@ -58,6 +64,8 @@ protected:
 
     Color			color_;
     bool			ignoreextremes_;
+
+    StepInterval<float>         xrg_;
 };
 
 #endif
