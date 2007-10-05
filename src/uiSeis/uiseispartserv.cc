@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.68 2007-10-03 12:53:47 cvskris Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.69 2007-10-05 17:53:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -266,7 +266,7 @@ MenuItem* uiSeisPartServer::storedGathersSubMenu( bool createnew )
 bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
 {
     const int mnuindex = storedgathermenuitem.itemIndex(mnuid);
-    if ( mnuindex==-1 ) return true;
+    if ( mnuindex==-1 ) return false;
 
     PtrMan<IOObj> ioobj =
 	IOM().getLocal( storedgathermenuitem.getItem(mnuindex)->text );
