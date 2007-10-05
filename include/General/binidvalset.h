@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.14 2006-08-16 10:51:19 cvsbert Exp $
+ RCS:		$Id: binidvalset.h,v 1.15 2007-10-05 17:57:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,6 +83,10 @@ public:
 						{ return i == p.i && j == p.j; }
 	inline bool	operator !=( const Pos& p ) const
 						{ return i != p.i || j != p.j; }
+	inline bool	operator>( const Pos& p ) const
+			{ if ( i>p.i ) return true; return i==p.i && j>p.j; }
+	inline bool	operator<( const Pos& p ) const
+			{ if ( i<p.i ) return true; return i==p.i && j<p.j; }
 	inline bool	valid() const		{ return i > -1 && j > -1; }
 
 	int		i, j;
