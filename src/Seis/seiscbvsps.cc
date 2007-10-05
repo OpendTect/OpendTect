@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.16 2007-04-11 10:10:19 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.17 2007-10-05 17:38:39 cvskris Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -92,6 +92,7 @@ SeisCBVSPSReader::SeisCBVSPSReader( const char* dirnm, int inl )
 SeisCBVSPSReader::~SeisCBVSPSReader()
 {
     delete &posdata_;
+    delete curtr_;
 }
 
 
