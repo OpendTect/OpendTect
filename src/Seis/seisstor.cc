@@ -5,9 +5,11 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.25 2007-04-04 16:51:41 cvsbert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.26 2007-10-05 11:11:09 cvsbert Exp $";
 
-#include "seisstor.h"
+#include "seisseqio.h"
+#include "seisread.h"
+#include "seiswrite.h"
 #include "seistrctr.h"
 #include "seistrcsel.h"
 #include "seis2dline.h"
@@ -21,6 +23,7 @@ static const char* rcsID = "$Id: seisstor.cc,v 1.25 2007-04-04 16:51:41 cvsbert 
 #include "keystrs.h"
 
 const char* SeisStoreAccess::sNrTrcs = "Nr of traces";
+const char* Seis::SeqIO::sKeyODType = "OpendTect";
 
 
 SeisStoreAccess::SeisStoreAccess( const IOObj* ioob )
@@ -181,3 +184,154 @@ void SeisStoreAccess::usePar( const IOPar& iopar )
 
     iopar.get( "Selected component", selcomp );
 }
+
+
+static BufferStringSet& seisInpClassNames()
+{
+    static BufferStringSet* nms = 0;
+    if ( !nms ) nms = new BufferStringSet;
+    return *nms;
+}
+static ObjectSet<Seis::SeqInp>& seisInpClasses()
+{
+    static ObjectSet<Seis::SeqInp>* clsss = 0;
+    if ( !clsss ) clsss = new ObjectSet<Seis::SeqInp>;
+    return *clsss;
+}
+BufferStringSet& Seis::SeqInp::classNames()
+{ return seisInpClassNames(); }
+Seis::SeqInp* Seis::SeqInp::make( const char* nm )
+{
+    const ObjectSet<Seis::SeqInp>& clsss = seisInpClasses();
+    if ( !nm ) nm = "";
+    for ( int idx=0; idx<clsss.size(); idx++ )
+    {
+	if ( !strcmp(nm,clsss[idx]->type()) )
+	    return (Seis::SeqInp*)clsss[idx]->makeNew();
+    }
+    return 0;
+}
+void Seis::SeqInp::addClass( Seis::SeqInp* si )
+{ seisInpClasses() += si; }
+
+
+static BufferStringSet& seisOutClassNames()
+{
+    static BufferStringSet* nms = 0;
+    if ( !nms ) nms = new BufferStringSet;
+    return *nms;
+}
+static ObjectSet<Seis::SeqOut>& seisOutClasses()
+{
+    static ObjectSet<Seis::SeqOut>* clsss = 0;
+    if ( !clsss ) clsss = new ObjectSet<Seis::SeqOut>;
+    return *clsss;
+}
+BufferStringSet& Seis::SeqOut::classNames()
+{ return seisOutClassNames(); }
+Seis::SeqOut* Seis::SeqOut::make( const char* nm )
+{
+    const ObjectSet<Seis::SeqOut>& clsss = seisOutClasses();
+    if ( !nm ) nm = "";
+    for ( int idx=0; idx<clsss.size(); idx++ )
+    {
+	if ( !strcmp(nm,clsss[idx]->type()) )
+	    return (Seis::SeqOut*)clsss[idx]->makeNew();
+    }
+    return 0;
+}
+void Seis::SeqOut::addClass( Seis::SeqOut* so )
+{ seisOutClasses() += so; }
+
+
+const SeisSelData& Seis::SeqInp::selData() const
+{
+    static SeisSelData emptyseldata;
+    return emptyseldata;
+}
+
+
+Seis::ODSeqInp::~ODSeqInp()
+{
+    delete rdr_;
+}
+
+
+const SeisSelData& Seis::ODSeqInp::selData() const
+{
+    static SeisSelData emptyseldata;
+    return rdr_ && rdr_->selData() ? *rdr_->selData() : Seis::SeqInp::selData();
+}
+
+
+bool Seis::ODSeqInp::usePar( const IOPar& iop )
+{
+    if ( rdr_ ) delete rdr_;
+    rdr_ = new SeisTrcReader;
+    rdr_->usePar( iop );
+    if ( rdr_->errMsg() && *rdr_->errMsg() )
+    {
+	errmsg_ = rdr_->errMsg();
+	delete rdr_; rdr_ = 0;
+    }
+    return rdr_;
+}
+
+
+void Seis::ODSeqInp::fillPar( IOPar& iop ) const
+{
+    pErrMsg("Not impl");
+}
+
+
+bool Seis::ODSeqInp::get( SeisTrc& trc ) const
+{
+    if ( !rdr_ ) return false;
+
+    if ( !rdr_->get(trc) )
+    {
+	errmsg_ = rdr_->errMsg();
+	return false;
+    }
+    return true;
+}
+
+
+Seis::ODSeqOut::~ODSeqOut()
+{
+    delete wrr_;
+}
+
+
+bool Seis::ODSeqOut::usePar( const IOPar& iop )
+{
+    if ( wrr_ ) delete wrr_;
+    IOObj* i = 0; wrr_ = new SeisTrcWriter( i );
+    wrr_->usePar( iop );
+    if ( wrr_->errMsg() && *wrr_->errMsg() )
+    {
+	errmsg_ = wrr_->errMsg();
+	delete wrr_; wrr_ = 0;
+    }
+    return wrr_;
+}
+
+
+void Seis::ODSeqOut::fillPar( IOPar& iop ) const
+{
+    pErrMsg("Not impl");
+}
+
+
+bool Seis::ODSeqOut::put( const SeisTrc& trc )
+{
+    if ( !wrr_ ) return false;
+
+    if ( !wrr_->put(trc) )
+    {
+	errmsg_ = wrr_->errMsg();
+	return false;
+    }
+    return true;
+}
+
