@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.7 2007-10-03 21:13:54 cvsyuancheng Exp $
+ RCS:		$Id: prestackgather.h,v 1.8 2007-10-05 18:01:02 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "position.h"
 #include "samplingdata.h"
 #include "seisbufadapters.h"
+
+class IOObj;
 
 namespace PreStack
 {
@@ -32,6 +34,8 @@ public:
     bool			setSize( int nroff, int nrz );
 
     bool			readFrom(const MultiID&, const BinID&,
+	    				 BufferString* errmsg=0);
+    bool			readFrom(const IOObj&, const BinID&,
 	    				 BufferString* errmsg=0);
     bool			isLoaded() const	{ return arr2d_; }
 

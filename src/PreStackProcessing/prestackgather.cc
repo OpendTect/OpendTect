@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.7 2007-10-03 21:13:54 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.8 2007-10-05 18:01:02 cvskris Exp $";
 
 #include "prestackgather.h"
 
@@ -72,7 +72,14 @@ bool Gather::readFrom( const MultiID& mid, const BinID& bid,
 	return false;
     }
 
-    PtrMan<SeisPSReader> rdr = SPSIOPF().getReader( *ioobj, bid.inl );
+    return readFrom( *ioobj, bid, errmsg );
+}
+
+
+bool Gather::readFrom( const IOObj& ioobj, const BinID& bid, 
+			   BufferString* errmsg )
+{
+    PtrMan<SeisPSReader> rdr = SPSIOPF().getReader( ioobj, bid.inl );
     if ( !rdr )
     {
 	if ( errmsg )
@@ -108,20 +115,20 @@ bool Gather::readFrom( const MultiID& mid, const BinID& bid,
     setBuffer( tbuf, Seis::VolPS, SeisTrcInfo::Offset, 0 );
 
     offsetisangle_ = false;
-    ioobj->pars().getYN(sKeyIsAngleGather(), offsetisangle_ );
+    ioobj.pars().getYN(sKeyIsAngleGather(), offsetisangle_ );
 
     iscorr_ = false;
-    ioobj->pars().getYN(sKeyIsNMO(), iscorr_ );
+    ioobj.pars().getYN(sKeyIsNMO(), iscorr_ );
 
     zit_ = SI().zIsTime();
-    ioobj->pars().getYN(sKeyZisTime(),zit_);
+    ioobj.pars().getYN(sKeyZisTime(),zit_);
 
-    ioobj->pars().get(sKeyVelocityCubeID(), velocitymid_ );
+    ioobj.pars().get(sKeyVelocityCubeID(), velocitymid_ );
     
     binid_ = bid;
-    setName( ioobj->name() );
+    setName( ioobj.name() );
 
-    storagemid_ = mid;
+    storagemid_ = ioobj.key();
 
     return true;
 }
