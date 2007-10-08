@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2006
- RCS:		$Id: seisimporter.h,v 1.4 2006-12-12 17:46:50 cvsbert Exp $
+ RCS:		$Id: seisimporter.h,v 1.5 2007-10-08 10:13:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,8 @@ public:
     int			totalNr() const;
     int			nextStep();
 
+    int			nrSkipped() const	{ return nrskipped_; }
+
 protected:
 
     enum State		{ ReadBuf, WriteBuf, ReadWrite };
@@ -75,6 +77,7 @@ protected:
     State		state_;
     int			nrread_;
     int			nrwritten_;
+    int			nrskipped_;
     bool		crlsorted_;
     Executor*		postproc_;
 

@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.10 2007-05-11 11:51:03 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.11 2007-10-08 10:13:43 cvsbert Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
@@ -33,6 +33,7 @@ SeisImporter::SeisImporter( SeisImporter::Reader* r, SeisTrcWriter& w,
     	, state_( Seis::isPS(gt) ? ReadWrite : ReadBuf )
     	, nrread_(0)
     	, nrwritten_(0)
+    	, nrskipped_(0)
     	, postproc_(0)
 	, sortanal_(new BinIDSortingAnalyser(Seis::is2D(gt)))
 	, sorting_(0)
@@ -178,7 +179,12 @@ int SeisImporter::readIntoBuf()
 	return Executor::MoreToDo;
     }
 
-    if ( Seis::is2D(geomtype_) || SI().isReasonable(trc->info().binid) )
+    if ( !Seis::is2D(geomtype_) && !SI().isReasonable(trc->info().binid) )
+    {
+	delete trc;
+	nrskipped_;
+    }
+    else
     {
 	buf_.add( trc );
 	if ( !sortingOk(*trc) )
