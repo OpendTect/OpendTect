@@ -4,7 +4,7 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.12 2006-09-21 12:02:47 cvsbert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.13 2007-10-08 13:40:00 cvsbert Exp $";
 
 #include "nlacrdesc.h"
 
@@ -81,16 +81,21 @@ const char* NLACreationDesc::prepareData( const ObjectSet<PosVecDataSet>& vdss,
 
     BinIDValueSet& trainbvs = trainvds.data();
     BinIDValueSet& testbvs = testvds.data();
-    const int needednrtest = (int)(trainbvs.totalSize() * ratiotst + .5);
+    const bool extractrand = ratiotst > -0.001;
+    const float tstratio = ratiotst < 0 ? -ratiotst : ratiotst;
+    const int needednrtest = (int)(trainbvs.totalSize() * tstratio + .5);
     if ( needednrtest < 1  || needednrtest >= trainbvs.totalSize() )
 	return 0;
 
     BinID bid;
     ArrPtrMan<float> vals = new float [trainbvs.nrVals()];
+    const int totsz = trainbvs.totalSize();
+    int botidx = totsz - 1;
     while ( testbvs.totalSize() < needednrtest )
     {
-	const int randidx = Stats::RandGen::getIndex( trainbvs.totalSize() );
-	BinIDValueSet::Pos pos = trainbvs.getPos( randidx );
+	const int useidx = extractrand ? Stats::RandGen::getIndex( totsz )
+				       : botidx--;
+	BinIDValueSet::Pos pos = trainbvs.getPos( useidx );
 	trainbvs.get( pos, bid, vals );
 	trainbvs.remove( pos );
 	testbvs.add( bid, vals );
