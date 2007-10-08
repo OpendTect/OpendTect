@@ -5,9 +5,10 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.38 2007-10-05 11:56:58 cvsbert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.39 2007-10-08 16:03:11 cvsbert Exp $";
 
 #include "seisinfo.h"
+#include "seisbounds.h"
 #include "seistrc.h"
 #include "susegy.h"
 #include "posauxinfo.h"
@@ -365,4 +366,86 @@ void SeisTrcInfo::getFrom( const PosAuxInfo& auxinf )
     azimuth = auxinf.azimuth;
     pick = auxinf.pick;
     refpos = auxinf.refpos;
+}
+
+
+int Seis::Bounds::expectedNrTraces() const
+{
+    int rg0 = start(true); int rg1 = stop(true); int delta = step(true);
+    int nr1 = (rg1 - rg0) / delta;
+    if ( nr1 < 0 )	nr1 -= 1;
+    else		nr1 += 1;
+
+    rg0 = start(false);
+    if ( mIsUdf(rg0) ) return nr1;
+
+    rg1 = stop(false); delta = step(false);
+    int nr2 = (rg1 - rg0) / delta;
+    if ( nr2 < 0 )	nr2 -= 1;
+    else		nr2 += 1;
+
+    return nr1 * nr2; // Surveys with more than 2G traces ...? Nah.
+}
+
+
+Seis::Bounds3D::Bounds3D()
+    : cs_(*new CubeSampling)
+{
+}
+
+
+Seis::Bounds3D::Bounds3D( const Bounds3D& b )
+    : cs_(*new CubeSampling(b.cs_))
+{
+}
+
+
+Seis::Bounds3D::~Bounds3D()
+{
+    delete &cs_;
+}
+
+
+int Seis::Bounds3D::start( bool first ) const
+{
+    return first ? cs_.hrg.start.inl : cs_.hrg.start.crl;
+}
+
+
+int Seis::Bounds3D::stop( bool first ) const
+{
+    return first ? cs_.hrg.stop.inl : cs_.hrg.stop.crl;
+}
+
+
+int Seis::Bounds3D::step( bool first ) const
+{
+    return first ? cs_.hrg.step.inl : cs_.hrg.step.crl;
+}
+
+
+StepInterval<float> Seis::Bounds3D::getZRange() const
+{
+    return cs_.zrg;
+}
+
+
+void Seis::Bounds3D::getCoordRange( Coord& mn, Coord& mx ) const
+{
+    mn = SI().transform( BinID(cs_.hrg.start.inl,cs_.hrg.start.crl) );
+    Coord c = SI().transform( BinID(cs_.hrg.stop.inl,cs_.hrg.start.crl) );
+    if ( c.x < mn.x ) mn.x = c.x; if ( c.x > mx.x ) mx.x = c.x;
+    c = SI().transform( BinID(cs_.hrg.stop.inl,cs_.hrg.stop.crl) );
+    if ( c.x < mn.x ) mn.x = c.x; if ( c.x > mx.x ) mx.x = c.x;
+    c = SI().transform( BinID(cs_.hrg.start.inl,cs_.hrg.stop.crl) );
+    if ( c.x < mn.x ) mn.x = c.x; if ( c.x > mx.x ) mx.x = c.x;
+}
+
+
+Seis::Bounds2D::Bounds2D()
+{
+    zrg_ = SI().zRange(false);
+    nrrg_.step = 1;
+    mincoord_ = SI().minCoord( false );
+    maxcoord_ = SI().maxCoord( false );
 }
