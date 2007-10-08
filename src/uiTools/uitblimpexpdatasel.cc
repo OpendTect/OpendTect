@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.32 2007-10-05 11:09:43 cvsbert Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.33 2007-10-08 12:11:11 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -588,6 +588,7 @@ uiTableFmtDescFldsParSel( uiTableImpDataSel* p, const char* hid )
     : uiCompoundParSel( p, "Information content", "Define" )
     , impsel_(*p)
     , helpid_(hid)
+    , descCommitted(this)
 {
     butPush.notify( mCB(this,uiTableFmtDescFldsParSel,doDlg) );
 }
@@ -621,11 +622,12 @@ void doDlg( CallBacker* )
 	return;
 
     uiTableFormatDescFldsEd dlg( &impsel_, helpid_ );
-    dlg.go();
+    if ( dlg.go() ) descCommitted.trigger();
 }
 
     uiTableImpDataSel&	impsel_;
     const char*		helpid_;
+    Notifier<uiTableFmtDescFldsParSel> descCommitted;
 
 };
 
@@ -662,6 +664,7 @@ uiTableImpDataSel::uiTableImpDataSel( uiParent* p, Table::FormatDesc& fd,
 
     fmtdeffld_ = new uiTableFmtDescFldsParSel( this, hid );
     fmtdeffld_->attach( alignedBelow, hdrlinesfld_ );
+    fmtdeffld_->descCommitted.notify( valchgcb );
 
     setHAlignObj( hdrtypefld_ );
     mainObject()->finaliseDone.notify( typchgcb );
