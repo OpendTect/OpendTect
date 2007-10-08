@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.53 2007-09-14 04:32:52 cvsraman Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.54 2007-10-08 12:07:14 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -94,12 +94,13 @@ public:
     				//!< Returns true on succes
 
     Executor*			importer(const ObjectSet<BinIDValueSet>&,
-	    				 const RowCol& step);
+	    				 const HorSampling& hs);
     					/*!< Removes all data and creates 
 					  a section for every BinIDValueSet
 					*/
     Executor*			auxDataImporter(const ObjectSet<BinIDValueSet>&,
-	    				const BufferStringSet& attribnms,int);
+	    				const BufferStringSet& attribnms,int,
+					const HorSampling& hs);
 
     SurfaceAuxData&		auxdata;
     EdgeLineManager&		edgelinesets;
@@ -119,9 +120,9 @@ class Horizon3DAscIO : public Table::AscIO
 {
 public:
     				Horizon3DAscIO( const Table::FormatDesc& fd,
-				       		const BufferStringSet& nms )
+						std::istream& strm )
 				    : Table::AscIO(fd)
-		      		    , attrnms_(nms)		{}
+				    , strm_(strm)      		    {}
 
     static Table::FormatDesc*   getDesc(bool);
     static void			updateDesc(Table::FormatDesc&,
@@ -129,12 +130,11 @@ public:
     static void                 createDescBody(Table::FormatDesc*,
 	    				   const BufferStringSet&,bool);
 
-    BinIDValueSet*		get(std::istream&,const Scaler*,
-	    			    const HorSampling&,bool) const;
-
+    float			getUdfVal();
+    int				getNextLine(TypeSet<float>&);
 protected:
 
-    BufferStringSet		attrnms_;
+    std::istream&		strm_;
 };
 
 

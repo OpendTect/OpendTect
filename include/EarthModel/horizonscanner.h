@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		Feb 2004
- RCS:		$Id: horizonscanner.h,v 1.7 2006-12-27 15:28:46 cvsnanne Exp $
+ RCS:		$Id: horizonscanner.h,v 1.8 2007-10-08 12:07:14 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,13 +18,16 @@ ________________________________________________________________________
 
 class IOPar;
 class PosGeomDetector;
+class BinIDValueSet;
+namespace EM { class Horizon3DAscIO; }
+namespace Table { class FormatDesc; }
 
 class HorizonScanner : public Executor
 {
 public:
 
-			HorizonScanner(const char* fnm);
-			HorizonScanner(const BufferStringSet& fnms);
+			HorizonScanner(const BufferStringSet& fnms,
+					Table::FormatDesc& fd, bool isgeom);
 			~HorizonScanner();
 
     virtual const char*	message() const;
@@ -32,39 +35,45 @@ public:
     virtual int		nrDone() const;
     virtual const char*	nrDoneText() const;
 
-    void		setUndefValue(float udf)	{ udfval = udf; }
-    void		setPosIsXY(bool yn)		{ isxy = yn; }
-    bool		posIsXY() const			{ return isxy; }
-    bool		needZScaling() const		{ return doscale; }
+    bool		reInitAscIO(const char*);
+    void		setUndefValue(float udf)	{ udfval_ = udf; }
+    void		setPosIsXY(bool yn)		{ isxy_ = yn; }
+    bool		posIsXY() const			{ return isxy_; }
     bool		analyzeData();
 
     int			nrPositions() const;
     StepInterval<int>	inlRg() const;
     StepInterval<int>	crlRg() const;
     bool		gapsFound(bool inl) const;
-    int			nrAttribValues() const;
 
     static const char*	defaultUserInfoFile();
     void		launchBrowser(const char* fnm=0) const;
     void		report(IOPar&) const;
+
+    ObjectSet<BinIDValueSet> getSections()		{ return sections_; }
 
 protected:
     virtual int		nextStep();
 
     void		init();
 
-    int			chnksz;
-    mutable int		totalnr;
-    PosGeomDetector&	geomdetector;
-    BufferStringSet	filenames;
-    BufferStringSet	rejectedlines;
+    mutable int		totalnr_;
+    PosGeomDetector&	geomdetector_;
+    EM::Horizon3DAscIO*	ascio_;
+    BufferStringSet	filenames_;
+    int			fileidx_;
+    BufferStringSet	rejectedlines_;
 
-    bool		firsttime;
-    bool		isxy;
-    bool		doscale;
-    float		udfval;
-    int			nrattribvals;
-    TypeSet<Interval<float> > valranges;
+    bool		firsttime_;
+    bool		isgeom_;
+    bool		isxy_;
+    bool		doscale_;
+    float		udfval_;
+    TypeSet<Interval<float> > valranges_;
+    Table::FormatDesc&	fd_;
+
+    BinIDValueSet*	bvalset_;
+    ObjectSet<BinIDValueSet> sections_;
 };
 
 
