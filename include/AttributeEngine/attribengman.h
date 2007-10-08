@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.24 2006-07-05 15:27:49 cvshelene Exp $
+ RCS:           $Id: attribengman.h,v 1.25 2007-10-08 11:17:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "bufstring.h"
 #include "attribdescid.h"
+#include "attribsel.h"
 
 class BinIDValueSet;
 class BufferStringSet;
@@ -31,7 +32,6 @@ namespace Attrib
 class SeisTrcStorOutput;
 class Desc;
 class DescSet;
-class SelSpec;
 class DataCubes;
 class Processor;
 class Data2DHolder;
