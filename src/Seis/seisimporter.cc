@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.11 2007-10-08 10:13:43 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.12 2007-10-08 10:40:32 cvsbert Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
@@ -182,7 +182,7 @@ int SeisImporter::readIntoBuf()
     if ( !Seis::is2D(geomtype_) && !SI().isReasonable(trc->info().binid) )
     {
 	delete trc;
-	nrskipped_;
+	nrskipped_++;
     }
     else
     {

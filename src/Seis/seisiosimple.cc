@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisiosimple.cc,v 1.2 2007-10-08 10:24:40 cvsbert Exp $";
+static const char* rcsID = "$Id: seisiosimple.cc,v 1.3 2007-10-08 10:36:51 cvsbert Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -267,6 +267,7 @@ int SeisIOSimple::nextStep()
 	if ( rv == 1 && importer_->nrSkipped() > 0 )
 	    UsrMsg( BufferString("Warning: ",importer_->nrSkipped(),
 				 " traces were rejected during import") );
+	return rv;
     }
 
     int rv = readExpTrc();
