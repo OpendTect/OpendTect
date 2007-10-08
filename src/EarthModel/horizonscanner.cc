@@ -4,12 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.19 2007-07-06 12:05:47 cvsnanne Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.20 2007-10-08 12:07:49 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "horizonscanner.h"
+#include "binidvalset.h"
+#include "emhorizon3d.h"
 #include "posgeomdetector.h"
 #include "iopar.h"
 #include "strmprov.h"
@@ -17,40 +19,36 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "cubesampling.h"
 #include "keystrs.h"
+#include "tabledef.h"
 
 
-HorizonScanner::HorizonScanner( const BufferStringSet& fnms )
+HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
+				Table::FormatDesc& fd, bool isgeom )
     : Executor("Scan horizon file(s)")
-    , geomdetector(*new PosGeomDetector(true))
-    , nrattribvals(0)
+    , geomdetector_(*new PosGeomDetector(true))
+    , fd_(fd)
+    , isgeom_(isgeom)
+    , ascio_(0)
+    , bvalset_(0)
+    , fileidx_(0)
 {
-    filenames = fnms;
-    init();
-}
-
-
-HorizonScanner::HorizonScanner( const char* fnm )
-    : Executor("Scan horizon file(s)")
-    , geomdetector(*new PosGeomDetector(true))
-{
-    filenames.add( fnm );
+    filenames_ = fnms;
     init();
 }
 
 
 HorizonScanner::~HorizonScanner()
 {
-    delete &geomdetector;
+    delete &geomdetector_;
 }
 
 
 void HorizonScanner::init()
 {
-    totalnr = -1;
-    firsttime = true;
-    valranges.erase();
-    nrattribvals = 0;
-    geomdetector.reInit();
+    totalnr_ = -1;
+    firsttime_ = true;
+    valranges_.erase();
+    geomdetector_.reInit();
     analyzeData();
 }
 
@@ -69,18 +67,18 @@ const char* HorizonScanner::nrDoneText() const
 
 int HorizonScanner::nrDone() const
 {
-    return geomdetector.nrpositions;
+    return geomdetector_.nrpositions;
 }
 
 
 int HorizonScanner::totalNr() const
 {
-    if ( totalnr > 0 ) return totalnr;
+    if ( totalnr_ > 0 ) return totalnr_;
 
-    totalnr = 0;
-    for ( int idx=0; idx<filenames.size(); idx++ )
+    totalnr_ = 0;
+    for ( int idx=0; idx<filenames_.size(); idx++ )
     {
-	StreamProvider sp( filenames.get(0) );
+	StreamProvider sp( filenames_.get(0) );
 	StreamData sd = sp.makeIStream();
 	if ( !sd.usable() ) continue;
 
@@ -88,12 +86,13 @@ int HorizonScanner::totalNr() const
 	while ( *sd.istrm )
 	{
 	    sd.istrm->getline( buf, 80 );
-	    totalnr++;
+	    totalnr_++;
 	}
 	sd.close();
+	totalnr_ -= fd_.nrhdrlines_;
     }
 
-    return totalnr;
+    return totalnr_;
 }
 
 
@@ -101,45 +100,46 @@ void HorizonScanner::report( IOPar& iopar ) const
 {
     iopar.clear();
 
+    const int firstattribidx = isgeom_ ? 1 : 0;
     BufferString str = "Report for horizon file(s):\n";
-    for ( int idx=0; idx<filenames.size(); idx++ )
+    for ( int idx=0; idx<filenames_.size(); idx++ )
     {
-	str += filenames.get(idx); str += "\n";
+	str += filenames_.get(idx); str += "\n";
     }
     str += "\n\n";
     iopar.setName( str );
 
     iopar.add( "->", "Geometry" );
     HorSampling hs;
-    hs.set( geomdetector.inlrg, geomdetector.crlrg );
+    hs.set( geomdetector_.inlrg, geomdetector_.crlrg );
     hs.fillPar( iopar );
-    if ( valranges.size() > 0 )
-	iopar.set( sKey::ZRange, valranges[0].start, valranges[0].stop );
+    if ( isgeom_ && valranges_.size() > 0 )
+	iopar.set( sKey::ZRange, valranges_[0].start, valranges_[0].stop );
     iopar.set( "Nr. of  positions", nrPositions() );
     iopar.setYN( "Inline gaps found", gapsFound(true) );
     iopar.setYN( "Crossline gaps found", gapsFound(false) );
 
-    if ( valranges.size() > 1 )
+    if ( valranges_.size() > firstattribidx )
     {
 	iopar.add( "->", "Data values" );
-	iopar.set( "Nr of attributes", valranges.size()-1 );
-	for ( int idx=1; idx<valranges.size(); idx++ )
+	for ( int idx=firstattribidx; idx<valranges_.size(); idx++ )
 	{
-	    iopar.set( IOPar::compKey("Minimum value",idx),
-		       valranges[idx].start );
-	    iopar.set( IOPar::compKey("Maximum value",idx),
-		       valranges[idx].stop );
+	    const char* attrnm = fd_.bodyinfos_[idx+2]->name();
+	    iopar.set( IOPar::compKey(attrnm,"Minimum value"),
+		       valranges_[idx].start );
+	    iopar.set( IOPar::compKey(attrnm,"Maximum value"),
+		       valranges_[idx].stop );
 	}
     }
     else
 	iopar.add( "->", "No attribute data values" );
 
-    if ( !rejectedlines.isEmpty() )
+    if ( !rejectedlines_.isEmpty() )
     {
 	iopar.add( "->", "Warning" );
-	iopar.add( "These postions were rejected", "" );
-	for ( int idx=0; idx<rejectedlines.size(); idx++ )
-	    iopar.add( BufferString(idx), rejectedlines.get(idx) );
+	iopar.add( "These positions were rejected", "" );
+	for ( int idx=0; idx<rejectedlines_.size(); idx++ )
+	    iopar.add( BufferString(idx), rejectedlines_.get(idx) );
     }
 }
 
@@ -167,13 +167,25 @@ void HorizonScanner::launchBrowser( const char* fnm ) const
 }
 
 
-bool HorizonScanner::analyzeData()
+bool HorizonScanner::reInitAscIO( const char* fnm )
 {
-    StreamProvider sp( filenames.get(0) );
+    StreamProvider sp( fnm );
     StreamData sd = sp.makeIStream();
     if ( !sd.usable() )
 	return false;
 
+    ascio_ = new EM::Horizon3DAscIO( fd_, *sd.istrm );
+    if ( !ascio_ ) return false;
+
+    return true;
+}
+
+
+bool HorizonScanner::analyzeData()
+{
+    if ( !reInitAscIO( filenames_.get(0) ) ) return false;
+
+    udfval_ = ascio_->getUdfVal();
     const float fac = SI().zIsTime() ? 0.001
 				     : (SI().zInMeter() ? .3048 : 3.28084);
     Interval<float> validrg( SI().zRange(false) );
@@ -187,31 +199,32 @@ bool HorizonScanner::analyzeData()
     count = nrxy = nrbid = nrscale = nrnoscale = 0;
     Coord crd;
     float val;
-    char buf[1024]; char valbuf[80];
-    while ( *sd.istrm )
+    TypeSet<float> data;
+    while ( ascio_->getNextLine(data) > 0 )
     {
+	if ( data.size() < 3 ) break;
+
 	if ( count > maxcount ) 
 	{
 	    if ( nrscale == nrnoscale ) maxcount *= 2;
 	    else break;
 	}
 
-	sd.istrm->getline( buf, 1024 );
-	const char* ptr = getNextWord( buf, valbuf );
-	if ( !ptr || !*ptr ) 
-	    continue;
-	crd.x = atof( valbuf );
-	ptr = getNextWord( ptr, valbuf );
-	crd.y = atof( valbuf );
+	crd.x = data[0];
+	crd.y = data[1];
 	BinID bid( mNINT(crd.x), mNINT(crd.y) );
 
 	bool validplacement = false;
 	if ( SI().isReasonable(crd) ) { nrxy++; validplacement=true; }
 	if ( SI().isReasonable(bid) ) { nrbid++; validplacement=true; }
 
-	ptr = getNextWord( ptr, valbuf );
-	val = atof( valbuf );
+	if ( !isgeom_ )
+	{
+	    if ( validplacement ) count++;
+	    continue;
+	}
 
+	val = data[2];
 	bool validvert = false;
 	if ( !mIsUdf(val) ) 
 	{
@@ -221,20 +234,12 @@ bool HorizonScanner::analyzeData()
 
 	if ( validplacement && validvert )
 	    count++;
-
-	int validx = 0;
-	while ( *ptr )
-	{
-	    ptr = getNextWord( ptr, valbuf );
-	    if ( *valbuf )
-		validx++;
-	}
-
-	nrattribvals = validx;
     }
 
-    isxy = nrxy > nrbid;
-    doscale = nrscale > nrnoscale;
+    isxy_ = nrxy > nrbid;
+    doscale_ = nrscale > nrnoscale;
+    delete ascio_;
+    ascio_ = 0;
     return true;
 }
 
@@ -248,95 +253,101 @@ static bool isInsideSurvey( const BinID& bid, float zval )
 
 int HorizonScanner::nextStep()
 {
-    Coord crd;
-    BinID bid;
-    char buf[1024]; char valbuf[80];
-    rejectedlines.erase();
+    if ( fileidx_ >= filenames_.size() )
+	return Executor::Finished;
 
-    float fac = 1;
-    if ( doscale )
-	fac = SI().zIsTime() ? 0.001 : (SI().zInMeter() ? .3048 : 3.28084);
+    if ( !ascio_ && !reInitAscIO( filenames_.get(fileidx_) ) )
+	return Executor::ErrorOccurred;
 
-    for ( int idx=0; idx<filenames.size(); idx++ )
+    TypeSet<float> data;
+    const int ret = ascio_->getNextLine( data );
+    if ( ret < 0 ) return Executor::ErrorOccurred;
+    if ( ret == 0 ) 
     {
-	StreamProvider sp( filenames.get(idx) );
-	StreamData sd = sp.makeIStream();
-	if ( !sd.usable() ) continue;
-
-	while ( *sd.istrm )
-	{
-	    sd.istrm->getline( buf, 1024 );
-	    const char* ptr = getNextWord( buf, valbuf );
-	    if ( !ptr || !*ptr )
-		continue;
-
-	    if ( isxy )
-	    {
-		crd.x = atof( valbuf );
-		ptr = getNextWord( ptr, valbuf );
-		crd.y = atof( valbuf );
-		bid = SI().transform( crd );
-	    }
-	    else
-	    {
-		bid.inl = atoi( valbuf );
-		ptr = getNextWord( ptr, valbuf );
-		bid.crl = atoi( valbuf );
-		crd = SI().transform( bid );
-	    }
-
-	    bool validpos = true;
-	    int validx = 0;
-	    while ( *ptr )
-	    {
-		ptr = getNextWord( ptr, valbuf );
-		if ( !*valbuf ) break;
-
-		if ( firsttime )
-		    valranges += Interval<float>(mUdf(float),-mUdf(float));
-		const float val = atof( valbuf );
-		if ( validx==0 && !isInsideSurvey(bid,fac*val) )
-		{
-		    validpos = false;
-		    break;
-		}
-
-		if ( !mIsUdf(val) && validx<valranges.size() )
-		    valranges[validx].include( val, false );
-		validx++;
-	    }
-
-	    if ( validpos && validx == 0 )
-		validpos = false;
-
-	    if ( validpos )
-		geomdetector.add( bid, crd );
-	    else if ( rejectedlines.size()<1024 )
-		rejectedlines.add( buf );
-
-	    firsttime = false;
-
-	}
-	sd.close();
+	fileidx_++;
+	delete ascio_;
+	ascio_ = 0;
+	sections_ += bvalset_;
+	bvalset_ = 0;
+	return Executor::MoreToDo;
     }
 
-    nrattribvals = valranges.size() - 1;
+    if ( data.size() < 3 ) return Executor::ErrorOccurred;
 
-    return Executor::Finished;
+    if ( !bvalset_ ) bvalset_ = new BinIDValueSet( data.size()-2, false );
+
+    Coord crd;
+    BinID bid;
+
+    float fac = 1;
+    if ( doscale_ )
+    fac = SI().zIsTime() ? 0.001 : (SI().zInMeter() ? .3048 : 3.28084);
+
+    if ( isxy_ )
+    {
+	crd.x = data[0];
+	crd.y = data[1];
+	bid = SI().transform( crd );
+    }
+    else
+    {
+	bid.inl = mNINT( data[0] );
+	bid.crl = mNINT( data[1] );
+	crd = SI().transform( bid );
+    }
+
+    bool validpos = true;
+    int validx = 0;
+    while ( validx < data.size()-2 )
+    {
+	if ( firsttime_ )
+	    valranges_ += Interval<float>(mUdf(float),-mUdf(float));
+
+	const float val = data[validx+2];
+	if ( isgeom_ && validx==0 && !isInsideSurvey(bid,fac*val) )
+	{
+	    validpos = false;
+	    break;
+	}
+
+	if ( !mIsUdf(val) )
+	    valranges_[validx].include( val, false );
+	validx++;
+    }
+
+    if ( validpos && validx == 0 )
+	validpos = false;
+
+    if ( validpos )
+    {
+	geomdetector_.add( bid, crd );
+	bvalset_->add( bid, data.arr()+2 );
+    }
+
+    else if ( rejectedlines_.size()<1024 )
+    {
+	BufferString rej( data[0] );
+	rej += "\t";
+	rej += data[1];
+	if ( isgeom_ )
+	{ rej += "\t"; rej += data[2]; }
+	rejectedlines_.add( rej );
+    }
+
+    firsttime_ = false;
+    return Executor::MoreToDo;
 }
 
 
 int HorizonScanner::nrPositions() const
-{ return geomdetector.nrpositions; }
+{ return geomdetector_.nrpositions; }
 
 StepInterval<int> HorizonScanner::inlRg() const
-{ return geomdetector.inlrg; }
+{ return geomdetector_.inlrg; }
 
 StepInterval<int> HorizonScanner::crlRg() const
-{ return geomdetector.crlrg; }
+{ return geomdetector_.crlrg; }
 
 bool HorizonScanner::gapsFound( bool inl ) const
-{ return inl ? geomdetector.inlgapsfound : geomdetector.crlgapsfound; }
+{ return inl ? geomdetector_.inlgapsfound : geomdetector_.crlgapsfound; }
 
-int HorizonScanner::nrAttribValues() const
-{ return nrattribvals; }
