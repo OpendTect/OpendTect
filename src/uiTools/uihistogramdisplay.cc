@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mid 2005
- RCS:           $Id: uihistogramdisplay.cc,v 1.6 2007-09-12 16:54:25 cvskris Exp $
+ RCS:           $Id: uihistogramdisplay.cc,v 1.7 2007-10-08 04:18:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,17 +12,18 @@ ________________________________________________________________________
 #include "uihistogramdisplay.h"
 
 #include "iodrawtool.h"
+#include "drawaxis2d.h"
 
 uiHistogramDisplay::uiHistogramDisplay( ioDrawArea* da )
     : drawarea_( da )
     , ignoreextremes_( true )
     , width_( -1 )
     , height_( -1 )
-{ }
+{}
 
 
 uiHistogramDisplay::~uiHistogramDisplay()
-{ }
+{}
 
 
 void uiHistogramDisplay::setHistogram( const TypeSet<float>& histogram,
@@ -69,11 +70,42 @@ void uiHistogramDisplay::setIgnoresExtremes(bool yn)
 }
 
 
+void uiHistogramDisplay::setBoundaryRect( const uiRect& bdrect )
+{ boundary_ = bdrect; }
+
+
+void uiHistogramDisplay::setXAxis( const StepInterval<float>& xrg )
+{ xrg_ = xrg; }
+
+
+void uiHistogramDisplay::drawXAxis( const StepInterval<float>& xrg )
+{
+    ioDrawTool& dt = drawarea_->drawTool();
+    dt.setPenColor( Color( 0,0,0 ) );
+    dt.setPenWidth( 1 );
+
+    const int height = dt.getDevHeight();
+    const int width = dt.getDevWidth();
+
+    DrawAxis2D drwaxis( drawarea_ );
+    const StepInterval<float> yrg(0,0,1);
+    drwaxis.setup( xrg, yrg );
+    uiRect rect( boundary_.left(), height, width-boundary_.right(),
+	         height-boundary_.bottom() );
+    drwaxis.setDrawRectangle( &rect );
+    drwaxis.drawXAxis( false );
+}
+
+
 void uiHistogramDisplay::reDraw( CallBacker* )
 {
     ioDrawTool& dt = drawarea_->drawTool();
     const int height = dt.getDevHeight();
     const int width = dt.getDevWidth();
+
+    const int usableheight = height - boundary_.top() - boundary_.bottom();
+    const int usablewidth = width - boundary_.left() - boundary_.right();
+
     const int histogramsize = histogram_.size();
     if ( !pointlist_.size() && histogramsize
 	 || height_!=height || width_!=width )
@@ -89,7 +121,7 @@ void uiHistogramDisplay::reDraw( CallBacker* )
 	    if ( histogram_[idx]>maxval ) maxval = histogram_[idx];
 	}
 
-	uiPoint prevpt(0,height);
+	uiPoint prevpt( boundary_.left(), height-boundary_.bottom() );
 	bool prevcommitted = false;
 
 	for ( int idx=0; idx<histogramsize; idx++ )
@@ -97,8 +129,10 @@ void uiHistogramDisplay::reDraw( CallBacker* )
 	    if ( ignoreextremes_ && ( !idx || idx==histogramsize-1 ) )
 		continue;
 
-	    const float newxf = ((float)idx)/histogramsize*width;
-	    const float newyf = height-histogram_[idx]/maxval*height;
+	    const float newxf = boundary_.left() + 
+		                (float)idx/histogramsize*usablewidth;
+	    const float newyf = boundary_.top() + usableheight-
+		                histogram_[idx]/maxval*usableheight;
 	    const uiPoint newpt( mNINT(newxf),mNINT(newyf) );
 	    if ( newpt.y!=prevpt.y )
 	    {
@@ -118,7 +152,8 @@ void uiHistogramDisplay::reDraw( CallBacker* )
 	}
 
 	//Add closing pos	
-	pointlist_ += uiPoint( pointlist_[pointlist_.size()-1].x+1, height );
+	pointlist_ += uiPoint( pointlist_[pointlist_.size()-1].x+1,
+			       height-boundary_.bottom() );
 
 	height_ = height;
 	width_ = width;
@@ -128,4 +163,7 @@ void uiHistogramDisplay::reDraw( CallBacker* )
     dt.setPenColor( color_ );
     dt.setFillColor( color_ );
     dt.drawPolygon( pointlist_ );
+
+    if ( xrg_.width() > 0 )
+	drawXAxis( xrg_ );
 }
