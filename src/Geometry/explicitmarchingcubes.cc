@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.11 2007-10-05 16:52:44 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.12 2007-10-08 15:00:11 cvsyuancheng Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -38,7 +38,7 @@ public:
     ~ExplicitMarchingCubesSurfaceUpdater()
     {
 	surface_.getSurface()->modelslock_.readUnLock();
-	//deepEraseArr( threadstarts_ );
+	deepEraseArr( threadstarts_ );
 
 	delete xrg_;
 	delete yrg_;
@@ -124,23 +124,43 @@ protected:
     {
 	deepEraseArr( threadstarts_ );
 	int idxs[] = { 0, 0, 0 };
-	int start = 0;
+	int globalpos = 0;
 	
 	for ( int idx=0; idx<nrthreads; idx++ )
 	{
 	    const int threadsize = calculateThreadSize(totalnr_,nrthreads,idx);
-	    int startpos[] = { idxs[mX], idxs[mY], idxs[mZ] }; 
-	    threadstarts_ += startpos;
-	    
+	    int* startidx = new int[3];
+	    startidx[0] = idxs[mX];
+	    startidx[1] = idxs[mY];
+	    startidx[2] = idxs[mZ]; 
+	    threadstarts_ += startidx;
+
 	    int idy = 0;
 	    do 
 	    {
 		int pos[3];
-		surface_.getSurface()->models_.getPos( idxs, pos );
-		if ( xrg_ && xrg_->includes(pos[mX]) &&
-		     yrg_ && yrg_->includes(pos[mY]) &&
-		     zrg_ && zrg_->includes(pos[mZ]) )
-		    idy ++;
+		if ( !xrg_ || !yrg_ || !zrg_ )
+		{
+		  int ids[3];	
+		  if ( surface_.getSurface()->models_.getIndex(globalpos,ids) )
+		  {
+		      idy++;
+		      globalpos++;
+      		      surface_.getSurface()->models_.getPos( ids, pos );
+		  }
+		  else
+		      return false;
+		}
+		else
+		{
+    		    if ( !surface_.getSurface()->models_.getPos( idxs, pos ) )
+			return false;
+
+		    if ( xrg_->includes(pos[mX]) &&
+			 yrg_->includes(pos[mY]) &&
+			 zrg_->includes(pos[mZ]) )
+			idy ++;
+		}
 	    } while ( idy<threadsize && 
 		      surface_.getSurface()->models_.next( idxs ) );
 	}
