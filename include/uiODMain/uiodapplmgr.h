@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.50 2007-09-05 07:07:06 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.51 2007-10-08 07:49:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -167,8 +167,6 @@ protected:
     uiWellPartServer*		wellserv_;
     uiWellAttribPartServer*	wellattrserv_;
     uiMPEPartServer*		mpeserv_;
-
-    uiStratTreeWin*		strattreewin_;
 
     bool			handleEvent(const uiApplPartServer*,int);
     void*			deliverObject(const uiApplPartServer*,int);

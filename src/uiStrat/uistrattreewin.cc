@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:		$Id: uistrattreewin.cc,v 1.17 2007-09-26 15:24:19 cvshelene Exp $
+ RCS:		$Id: uistrattreewin.cc,v 1.18 2007-10-08 07:49:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,17 @@ ________________________________________________________________________
 static const char* sNoLevelTxt      = "--- Empty ---";
 
 using namespace Strat;
+
+
+const uiStratTreeWin& StratTWin()
+{
+    static uiStratTreeWin* stratwin = 0;
+    if ( !stratwin )
+	stratwin = new uiStratTreeWin(0);
+
+    return *stratwin;
+}
+
 
 uiStratTreeWin::uiStratTreeWin( uiParent* p )
     : uiMainWin(p,"Manage Stratigraphy", 0, true, false)

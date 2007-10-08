@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          September 2007
- RCS:		$Id: uistratlvlsel.cc,v 1.5 2007-09-10 12:55:15 cvshelene Exp $
+ RCS:		$Id: uistratlvlsel.cc,v 1.6 2007-10-08 07:49:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,7 @@ void uiStratLevelSel::fillLvlList( BufferStringSet& bfset ) const
 
 void uiStratLevelSel::defineLvlCB( CallBacker* )
 {
-    pErrMsg("Not implemented yet: uiStratLevelSel::defineLvlCB");
+    const_cast<uiStratTreeWin&>(StratTWin()).show();
 }
 
 

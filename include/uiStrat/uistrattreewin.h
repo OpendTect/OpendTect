@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          July 2007
- RCS:           $Id: uistrattreewin.h,v 1.11 2007-09-26 15:24:19 cvshelene Exp $
+ RCS:           $Id: uistrattreewin.h,v 1.12 2007-10-08 07:49:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,8 +21,10 @@ class uiStratLevelDlg;
 class uiStratLinkLvlUnitDlg;
 class uiStratMgr;
 class uiStratRefTree;
+class uiStratTreeWin;
 namespace Strat{ class Level; }
 
+const uiStratTreeWin& StratTWin();
 
 /*!\brief Main window for Stratigraphy display: holds the reference tree
   and the units description view */
@@ -67,6 +69,10 @@ protected:
     void			unitRenamedCB(CallBacker*);
 
     uiStratMgr*			uistratmgr_;
+
+private:
+
+    friend const uiStratTreeWin& StratTWin();
 };
 
 
