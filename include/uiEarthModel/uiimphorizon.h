@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.h,v 1.21 2007-10-03 11:51:48 cvsraman Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.22 2007-10-08 12:08:42 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class BinIDValueSet;
 class BufferStringSet;
 class CtxtIOObj;
+class HorizonScanner;
 class IOObj;
 class MultiID;
 class uiBinIDSubSel;
@@ -48,10 +49,10 @@ public:
 protected:
 
     uiFileInput*	inpfld_;
+    uiPushButton*       scanbut_;
     uiGenInput*		xyfld_;
     uiLabeledListBox*	attrlistfld_;
     uiPushButton*	addbut_;
-    uiScaler*		scalefld_;
     uiBinIDSubSel*	subselfld_;
     uiGenInput*		filludffld_;
     uiImpHorArr2DInterpPars*	arr2dinterpfld_;
@@ -62,13 +63,16 @@ protected:
     uiCheckBox*         displayfld_;
 
     virtual bool	acceptOK(CallBacker*);
+    void                descChg(CallBacker*);
     void		formatSel(CallBacker*);
     void		addAttrib(CallBacker*);
+    void		scanPush(CallBacker*);
     void                fillUdfSel(CallBacker*);
     void                stratLvlChg(CallBacker*);
 
     bool		getFileNames(BufferStringSet&) const;
     bool		checkInpFlds();
+    void		doScan();
     bool		doImport();
     bool                fillUdfs(ObjectSet<BinIDValueSet>&);
     EM::Horizon3D*	createHor() const;
@@ -76,6 +80,7 @@ protected:
 
     CtxtIOObj&		ctio_;
     Table::FormatDesc&  fd_;
+    HorizonScanner*	scanner_;
     bool		isgeom_;
 };
 
