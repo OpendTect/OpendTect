@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: uimenuhandler.h,v 1.3 2006-09-19 15:38:30 cvshelene Exp $
+ RCS:           $Id: uimenuhandler.h,v 1.4 2007-10-08 15:59:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,8 +28,9 @@ class uiMenuHandler : public MenuHandler
 public:
     				uiMenuHandler( uiParent*, int id );
 
-    uiParent*			getParent() const { return parent; }
+    uiParent*			getParent() const { return uiparent_; }
 
+    bool			executeMenu();
     bool			executeMenu(int menutype,
 	    				    const TypeSet<int>* path=0 );
     				/*!<\param menutype is an integer that specifies
@@ -49,7 +50,7 @@ public:
 					   object).
 
 				*/
-    int				getMenuType() const { return menutype; }
+    int				getMenuType() const { return menutype_; }
     				/*!<\returns the \a menutype specified in
 					  uiMenuHandler::executeMenu.
 				    \note does only give a valid
@@ -57,28 +58,29 @@ public:
 					  notified by
 					  uiMenuHandler::createnotifier
 					  or uiMenuHandler::handlenotifier.  */
-    const TypeSet<int>*		getPath() const { return path; }
+    const TypeSet<int>*		getPath() const { return path_; }
     				/*!<\returns The path of selection (i.e. a list
 				  	   of the ids of the paht, from scene
 					   to picked object). */
-    const Coord3&		getPickedPos() const { return positionxyz; }
+    const Coord3&		getPickedPos() const { return positionxyz_; }
     void			setPickedPos(const Coord3& pickedpos)
-					{ positionxyz=pickedpos; }
-    const Geom::Point2D<double>& get2DPickedPos() const { return positionxy; }
+					{ positionxyz_=pickedpos; }
+    const Geom::Point2D<double>& get2DPickedPos() const { return positionxy_; }
     void			set2DPickedPos(const Geom::Point2D<double>& pos)
-					{ positionxy=pos; }
+					{ positionxy_=pos; }
     
     static const int		fromTree;
     static const int		fromScene;
 
 protected:
+    bool			executeMenuInternal();
     uiPopupMenu*		createMenu( const ObjectSet<MenuItem>&,
 	    				    const MenuItem* =0);
-    uiParent*			parent;
-    int				menutype;
-    const TypeSet<int>*		path;
-    Coord3			positionxyz;
-    Geom::Point2D<double>	positionxy;
+    uiParent*			uiparent_;
+    int				menutype_;
+    const TypeSet<int>*		path_;
+    Coord3			positionxyz_;
+    Geom::Point2D<double>	positionxy_;
     				~uiMenuHandler() {}
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: uimenuhandler.cc,v 1.7 2007-04-17 14:21:02 cvsjaap Exp $
+ RCS:           $Id: uimenuhandler.cc,v 1.8 2007-10-08 15:59:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,22 +18,26 @@ const int uiMenuHandler::fromTree = 1;
 const int uiMenuHandler::fromScene = 0;
 
 
-uiMenuHandler::uiMenuHandler( uiParent* parent_, int ni )
+uiMenuHandler::uiMenuHandler( uiParent* uiparent, int ni )
     : MenuHandler( ni )
-    , parent( parent_ )
-    , positionxyz( Coord3::udf() )
+    , uiparent_( uiparent )
+    , positionxyz_( Coord3::udf() )
 { }
 
 
-bool uiMenuHandler::executeMenu( int menutype_, const TypeSet<int>* path_ )
+bool uiMenuHandler::executeMenu()
+{
+    menutype_ = -1; path_ = 0;
+    return executeMenuInternal();
+}
+
+
+bool uiMenuHandler::executeMenuInternal()
 {
     //makes sure that object is not removed during a cb
     RefMan<uiMenuHandler> reffer(this);
     
     freeid_ = 0;
-    menutype = menutype_;
-    path = path_;
-
     removeItems();
     uiCursor::setOverride( uiCursor::Wait );
     createnotifier.trigger();
@@ -53,6 +57,13 @@ bool uiMenuHandler::executeMenu( int menutype_, const TypeSet<int>* path_ )
     return true;
 }
 
+    
+bool uiMenuHandler::executeMenu( int menutype, const TypeSet<int>* path )
+{
+    menutype_ = menutype; path_ = path;
+    return executeMenuInternal();
+}
+
 
 uiPopupMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
 					const MenuItem* item )
@@ -60,8 +71,8 @@ uiPopupMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
     if ( subitms.isEmpty() )
 	return 0;
 
-    uiPopupMenu* menu = item ? new uiPopupMenu( parent, item->text )
-			     : new uiPopupMenu( parent );
+    uiPopupMenu* menu = item ? new uiPopupMenu( uiparent_, item->text )
+			     : new uiPopupMenu( uiparent_ );
     if ( item )
     {
 	menu->setEnabled( item->enabled );
