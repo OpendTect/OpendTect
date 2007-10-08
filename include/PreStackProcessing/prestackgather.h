@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.8 2007-10-05 18:01:02 cvskris Exp $
+ RCS:		$Id: prestackgather.h,v 1.9 2007-10-08 12:57:57 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "seisbufadapters.h"
 
 class IOObj;
+class SeisPSReader;
 
 namespace PreStack
 {
@@ -37,6 +38,9 @@ public:
 	    				 BufferString* errmsg=0);
     bool			readFrom(const IOObj&, const BinID&,
 	    				 BufferString* errmsg=0);
+    bool			readFrom(const IOObj&,SeisPSReader& rdr,
+	    				 const BinID&,BufferString* errmsg=0);
+
     bool			isLoaded() const	{ return arr2d_; }
 
     static int			offsetDim()		{ return 0; }
