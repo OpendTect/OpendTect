@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.12 2007-10-08 15:00:11 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.13 2007-10-08 21:57:41 cvskris Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -38,12 +38,12 @@ public:
     ~ExplicitMarchingCubesSurfaceUpdater()
     {
 	surface_.getSurface()->modelslock_.readUnLock();
-	deepEraseArr( threadstarts_ );
-
 	delete xrg_;
 	delete yrg_;
 	delete zrg_;
     }
+    
+    void setUpdateCoords( bool yn ) { updatecoords_ = yn; }
     
     void	setLimits(const Interval<int>& xrg,
 	    		  const Interval<int>& yrg,
@@ -53,7 +53,7 @@ public:
 	if ( yrg_ ) delete yrg_; yrg_ = new Interval<int>( yrg );
 	if ( zrg_ ) delete zrg_; zrg_ = new Interval<int>( zrg );
 
-	totalnr_ = 0;
+	idxstocompute_.erase();
 
 	int idxs[] = { 0, 0, 0 };
 	if ( !surface_.getSurface()->models_.isValidPos(idxs) )
@@ -65,8 +65,14 @@ public:
 	    if ( xrg_->includes(pos[mX]) &&
 		 yrg_->includes(pos[mY]) &&
 		 zrg_->includes(pos[mZ]) )
-		totalnr_ ++;
+	    {
+		idxstocompute_ += idxs[mX];
+		idxstocompute_ += idxs[mY];
+		idxstocompute_ += idxs[mZ];
+	    }
 	} while ( surface_.getSurface()->models_.next( idxs ) );
+
+	totalnr_ = idxstocompute_.size()/3;
     }
 
 protected:
@@ -74,107 +80,61 @@ protected:
     int	nrTimes() const { return totalnr_; }
     bool doWork( int start, int stop, int thread )
     {
-	int idx = start;
-	int idxs[] = { threadstarts_[thread][mX], threadstarts_[thread][mY],
-		       threadstarts_[thread][mZ] };
+	const int* tableidxs = idxstocompute_.arr();
+	const bool usetable = xrg_;
+	int idxs[3];
 
-	if ( !surface_.getSurface()->models_.isValidPos(idxs) )
+	for ( int idx=start; idx<=stop; idx++ )
 	{
-	    pErrMsg("Hugh");
-	    return false;
-	}
-
-	while ( idx<=stop )
-	{
-	    int pos[3];
-	    if ( !surface_.getSurface()->models_.getPos( idxs, pos ) )
+	    if ( usetable )
+		memcpy( idxs, tableidxs+idx*3, sizeof(int)*3 );
+	    else if ( idx==start )
 	    {
-		pErrMsg("Hugh");
-		return false;
+		if ( !surface_.getSurface()->models_.getIndex(start,idxs) )
+		    return false;
+	    }
+	    else
+	    {
+		if ( !surface_.getSurface()->models_.next( idxs ) )
+		    return false;
 	    }
 
-	    if ( !surface_.getSurface()->models_.next( idxs ) )
-		return false;
-	    
-	    if ( !xrg_ || xrg_->includes(pos[mX]) && 
-		 yrg_->includes(pos[mY]) && zrg_->includes(pos[mZ]) )
+	    if ( updatecoords_ )
 	    {
-		if ( updatecoords_ )
+		if ( !surface_.updateCoordinates( idxs ) )
 		{
-		    if ( !surface_.updateCoordinates( pos ) )
-		    {
-			pErrMsg("Hugh");
-			return false;
-		    }
+		    pErrMsg("Hugh");
+		    return false;
 		}
-		else if ( !surface_.updateIndices( pos ) )
+	    }
+	    else
+	    {
+		int pos[3];
+		if ( !surface_.getSurface()->models_.getPos( idxs, pos ) )
 		{
 		    pErrMsg("Hugh");
 		    return false;
 		}
 
-		idx++;
+		if ( !surface_.updateIndices( pos ) )
+		{
+		    pErrMsg("Hugh");
+		    return false;
+		}
 	    }
 	}
 
 	return true;
     }
 
-    bool doPrepare( int nrthreads )
-    {
-	deepEraseArr( threadstarts_ );
-	int idxs[] = { 0, 0, 0 };
-	int globalpos = 0;
-	
-	for ( int idx=0; idx<nrthreads; idx++ )
-	{
-	    const int threadsize = calculateThreadSize(totalnr_,nrthreads,idx);
-	    int* startidx = new int[3];
-	    startidx[0] = idxs[mX];
-	    startidx[1] = idxs[mY];
-	    startidx[2] = idxs[mZ]; 
-	    threadstarts_ += startidx;
-
-	    int idy = 0;
-	    do 
-	    {
-		int pos[3];
-		if ( !xrg_ || !yrg_ || !zrg_ )
-		{
-		  int ids[3];	
-		  if ( surface_.getSurface()->models_.getIndex(globalpos,ids) )
-		  {
-		      idy++;
-		      globalpos++;
-      		      surface_.getSurface()->models_.getPos( ids, pos );
-		  }
-		  else
-		      return false;
-		}
-		else
-		{
-    		    if ( !surface_.getSurface()->models_.getPos( idxs, pos ) )
-			return false;
-
-		    if ( xrg_->includes(pos[mX]) &&
-			 yrg_->includes(pos[mY]) &&
-			 zrg_->includes(pos[mZ]) )
-			idy ++;
-		}
-	    } while ( idy<threadsize && 
-		      surface_.getSurface()->models_.next( idxs ) );
-	}
-
-	return true;
-    }
-
-    int		minThreadSize() const { return 1; }
+    int	minThreadSize() const { return 10000; }
 
     Interval<int>*			xrg_;
     Interval<int>*			yrg_;
     Interval<int>*			zrg_;
 
-    ObjectSet<int>			threadstarts_;
+    TypeSet<int>			idxstocompute_;
+    					//Only used if ranges
 
     int					totalnr_;
     ExplicitMarchingCubesSurface&	surface_;
@@ -271,13 +231,9 @@ bool ExplicitMarchingCubesSurface::update( bool forceall )
 {
     if ( !forceall && changedbucketranges_[mX] )
     {
-	if ( update(
-    		    Interval<int>( changedbucketranges_[mX]->start,
-				   changedbucketranges_[mX]->stop ),
-    		    Interval<int>( changedbucketranges_[mY]->start,
-	  			   changedbucketranges_[mY]->stop ),
-		    Interval<int>( changedbucketranges_[mZ]->start,
-			           changedbucketranges_[mZ]->stop ) ) )
+	if ( update( *changedbucketranges_[mX],
+		     *changedbucketranges_[mY],
+		     *changedbucketranges_[mZ] ) )
 	{
 	    delete changedbucketranges_[mX];
 	    delete changedbucketranges_[mY];
@@ -302,8 +258,7 @@ bool ExplicitMarchingCubesSurface::update( bool forceall )
     if ( !updater->execute() )
 	return false;
 
-    updater = 0; //deletes old & unlocks
-    updater = new ExplicitMarchingCubesSurfaceUpdater( *this, false );
+    updater->setUpdateCoords( false );
     return updater->execute(); 
 }
 
@@ -328,9 +283,7 @@ bool ExplicitMarchingCubesSurface::update(
     if ( !updater->execute() )
 	return false;
 
-    updater = 0; //deletes old & unlocks
-    updater = new ExplicitMarchingCubesSurfaceUpdater( *this, false );
-    updater->setLimits( xrg, yrg, zrg );
+    updater->setUpdateCoords( false );
     return updater->execute();
 }
 
@@ -405,20 +358,20 @@ ExplicitMarchingCubesSurface::getAxisScale( int dim ) const
 
 
 #define mEndTriangleStrip \
-    const int bsz = bucket->coordindices_.size(); \
+    const int bsz = coordindices.size(); \
     if ( bsz<3 ) \
-	bucket->coordindices_.erase(); \
-    else if ( bucket->coordindices_[bsz-1]!=-1 ) \
+	coordindices.erase(); \
+    else if ( coordindices[bsz-1]!=-1 ) \
     { \
-	if ( bucket->coordindices_[bsz-2]==-1 ) \
-	    bucket->coordindices_.remove( bsz-1 ); \
-	else if ( bucket->coordindices_[bsz-3]==-1 ) \
+	if ( coordindices[bsz-2]==-1 ) \
+	    coordindices.remove( bsz-1 ); \
+	else if ( coordindices[bsz-3]==-1 ) \
 	{ \
-	    bucket->coordindices_.remove( bsz-1 ); \
-	    bucket->coordindices_.remove( bsz-2 ); \
+	    coordindices.remove( bsz-1 ); \
+	    coordindices.remove( bsz-2 ); \
 	} \
 	else \
-	    bucket->coordindices_ += -1; \
+	    coordindices += -1; \
     } \
     if ( normallist_ ) \
 	triangles.erase()
@@ -473,7 +426,12 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 
     const char* tableindices = table.indices_[submodel];
 
-    Threads::MutexLocker lock( bucket->lock_ );
+
+    TypeSet<int> coordindices;
+    TypeSet<int> normalindices;
+
+    coordindices.setCapacity( nrtableindices*16 );
+    normalindices.setCapacity( nrtableindices*4 );
 
     int arrpos = 0;
     bool gotonextstrip = false;
@@ -552,7 +510,7 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 	    continue;
 	}
 
-	bucket->coordindices_ += index;
+	coordindices += index;
 	if ( normallist_ )
 	{
 	    triangles += coordlist_->get( index );
@@ -571,12 +529,17 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
 		    normal = Coord3( 1, 0, 0 );
 
 		const int normidx = normallist_->add( normal );
-		bucket->normalindices_ += normidx;
+		normalindices += normidx;
 	    }
 	}
     }
 
     mEndTriangleStrip;
+
+    Threads::MutexLocker lock( bucket->lock_ );
+    bucket->coordindices_.append( coordindices );
+    bucket->normalindices_.append( normalindices );
+
     return true;
 }
 
@@ -641,12 +604,10 @@ bool ExplicitMarchingCubesSurface::getCoordIndices( const int* pos, int* res )
 }
 
 
-bool ExplicitMarchingCubesSurface::updateCoordinate( const int* pos, int* res )
+bool ExplicitMarchingCubesSurface::updateCoordinate( const int* pos,
+						     const int* modelidxs,
+						     int* res )
 {
-    int modelidxs[3];
-    if ( !surface_->models_.findFirst( pos, modelidxs ) )
-	return false;
-
     const MarchingCubesModel& model = surface_->models_.getRef( modelidxs, 0 );
 
     for ( int dim=0; dim<3; dim++ )
@@ -680,35 +641,37 @@ bool ExplicitMarchingCubesSurface::updateCoordinate( const int* pos, int* res )
 }
 
 
-bool ExplicitMarchingCubesSurface::updateCoordinates( const int* pos )
-						
+bool ExplicitMarchingCubesSurface::updateCoordinates( const int* modelidxs )
 {
     if ( !surface_ )
 	return false;
+
+    int pos[3];
+    if ( !surface_->models_.getPos( modelidxs, pos ) )
+	return false;
+
 
     int cidxs[3];
     coordindiceslock_.readLock();
     if ( !coordindices_.findFirst( pos, cidxs ) )
     {
+	int indices[] = { -1, -1, -1 };
+	if ( !updateCoordinate( pos, modelidxs, indices ) )
+	{
+	    coordindiceslock_.readUnLock();
+	    return false;
+	}
+
 	if ( coordindiceslock_.convToWriteLock() ||
 	     !coordindices_.findFirst( pos, cidxs ) )
-	{
-	    int indices[] = { -1, -1, -1 };
-	    if ( !updateCoordinate( pos, indices ) )
-	    {
-		coordindiceslock_.writeUnLock();
-		return false;
-	    }
-
 	    coordindices_.add( indices, pos );
-	}
 
 	coordindiceslock_.writeUnLock();
 	return true;
     }
 
     int* indices = &coordindices_.getRef( cidxs, 0 );
-    const int res = updateCoordinate( pos, indices );
+    const int res = updateCoordinate( pos, modelidxs, indices );
     coordindiceslock_.readUnLock();
 
     return res;
