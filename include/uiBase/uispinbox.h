@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.14 2007-05-10 06:32:07 cvsnanne Exp $
+ RCS:           $Id: uispinbox.h,v 1.15 2007-10-08 08:56:48 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,11 @@ public:
 
     Notifier<uiSpinBox>	valueChanged;
     Notifier<uiSpinBox>	valueChanging;
+
+    			//! Force activation in GUI thread
+    void		activateField(const char* txt=0,bool enter=true);
+    void		activateStep(int nrsteps);
+    Notifier<uiSpinBox> activatedone;
 
 private:
 
