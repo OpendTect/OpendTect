@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.13 2007-10-08 21:57:41 cvskris Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.14 2007-10-09 15:11:21 cvskris Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -55,23 +55,12 @@ public:
 
 	idxstocompute_.erase();
 
-	int idxs[] = { 0, 0, 0 };
-	if ( !surface_.getSurface()->models_.isValidPos(idxs) )
-	    return;
-	do 
-	{
-	    int pos[3];
-	    surface_.getSurface()->models_.getPos( idxs, pos );
-	    if ( xrg_->includes(pos[mX]) &&
-		 yrg_->includes(pos[mY]) &&
-		 zrg_->includes(pos[mZ]) )
-	    {
-		idxstocompute_ += idxs[mX];
-		idxstocompute_ += idxs[mY];
-		idxstocompute_ += idxs[mZ];
-	    }
-	} while ( surface_.getSurface()->models_.next( idxs ) );
+	int start[3], stop[3];
+	start[mX] = xrg.start; start[mY] = yrg.start; start[mZ] = zrg.start;
+	stop[mX] = xrg.stop; stop[mY] = yrg.stop; stop[mZ] = zrg.stop;
 
+	surface_.getSurface()->models_.getIndicesInRange( start, stop,
+							  idxstocompute_);
 	totalnr_ = idxstocompute_.size()/3;
     }
 
@@ -84,18 +73,21 @@ protected:
 	const bool usetable = xrg_;
 	int idxs[3];
 
+	const MultiDimStorage<MarchingCubesModel>& models = 
+	    surface_.getSurface()->models_;
+
 	for ( int idx=start; idx<=stop; idx++ )
 	{
 	    if ( usetable )
 		memcpy( idxs, tableidxs+idx*3, sizeof(int)*3 );
 	    else if ( idx==start )
 	    {
-		if ( !surface_.getSurface()->models_.getIndex(start,idxs) )
+		if ( !models.getIndex(start,idxs) )
 		    return false;
 	    }
 	    else
 	    {
-		if ( !surface_.getSurface()->models_.next( idxs ) )
+		if ( !models.next( idxs ) )
 		    return false;
 	    }
 
@@ -110,7 +102,7 @@ protected:
 	    else
 	    {
 		int pos[3];
-		if ( !surface_.getSurface()->models_.getPos( idxs, pos ) )
+		if ( !models.getPos( idxs, pos ) )
 		{
 		    pErrMsg("Hugh");
 		    return false;
