@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.6 2007-10-05 16:41:28 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.7 2007-10-09 19:53:23 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.6 2007-10
 #include "survinfo.h"
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
+#include "marchingcubes.h"
 #include "randcolor.h"
 #include "visboxdragger.h"
 #include "visdragger.h"
@@ -24,6 +25,7 @@ static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.6 2007-10
 
 #define mKernelSize 11
 #define mHalfKernel 5
+#define mMinSampleSz 10 
 
 mCreateFactoryEntry( visSurvey::MarchingCubesDisplay );
 
@@ -70,6 +72,9 @@ MarchingCubesDisplay::MarchingCubesDisplay()
 	    Interval<float>( sics.hrg.start.crl, sics.hrg.stop.crl ),
 	    Interval<float>( sics.zrg.start, sics.zrg.stop ) );
 
+    initialdragger_->finished.notify( 
+	    mCB(this, MarchingCubesDisplay, draggerMovedCB) );
+
     setColor( getRandomColor( false ) );
 }
 
@@ -84,7 +89,13 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
 	displaysurface_->unRef();
     }
 
-    if ( initialdragger_ ) initialdragger_->unRef();
+    if ( initialdragger_ ) 
+    {
+	initialdragger_->finished.remove(
+		mCB(this, MarchingCubesDisplay, draggerMovedCB) );
+
+	initialdragger_->unRef();
+    }
     if ( emsurface_ ) emsurface_->unRef();
 
     setSceneEventCatcher(0);
@@ -173,14 +184,9 @@ bool MarchingCubesDisplay::setVisSurface(
 
     displaysurface_->setMaterial( 0 );
     emsurface_->setPreferredColor( getMaterial()->getColor() );
-
-    if ( initialdragger_ )
-    {
-	removeChild( initialdragger_->getInventorNode() );
-	initialdragger_->unRef();
-	initialdragger_ = 0;
-    }
-
+    
+    removeInitialDragger( false );
+    
     return true;
 }
 
@@ -193,13 +199,6 @@ EM::ObjectID MarchingCubesDisplay::getEMID() const
 
 bool MarchingCubesDisplay::setEMID( const EM::ObjectID& emid )
 {
-    if ( initialdragger_ )
-    {
-	removeChild( initialdragger_->getInventorNode() );
-	initialdragger_->unRef();
-	initialdragger_ = 0;
-    }
-
     if ( emsurface_ )
 	emsurface_->unRef();
 
@@ -231,13 +230,154 @@ bool MarchingCubesDisplay::setEMID( const EM::ObjectID& emid )
     }
 
     displaysurface_->setScales( SamplingData<float>(emsurface_->inlSampling()),
-				SamplingData<float>(emsurface_->inlSampling()),
+				SamplingData<float>(emsurface_->crlSampling()),
 				emsurface_->zSampling() );
 
     displaysurface_->setSurface( emsurface_->surface() );
     displaysurface_->turnOn( true );
 
     return true;
+}
+
+
+bool MarchingCubesDisplay::hasInitialShape()
+{ 
+    return ( initialdragger_ && !displaysurface_ ) ||
+       	   ( initialdragger_ && displaysurface_->getSurface()->isEmpty() ); 
+}
+
+
+void MarchingCubesDisplay::removeInitialDragger( bool setemsurface )
+{
+    if ( !initialdragger_ )
+	return;
+
+    const Coord3 center = initialdragger_->center();
+    const Coord3 width = initialdragger_->width();
+
+    removeChild( initialdragger_->getInventorNode() );
+    initialdragger_->unRef();
+    initialdragger_ = 0;
+   
+    if ( !setemsurface )
+       return;
+
+    StepInterval<int> draggerinlrg = StepInterval<int>( 
+	    mNINT(center.x-width.x/2),mNINT(center.x+width.x/2)+1,
+	    SI().inlStep());
+    StepInterval<int> draggercrlrg = StepInterval<int>( 
+	    mNINT(center.y-width.y/2),mNINT(center.y+width.y/2)+1,
+	    SI().crlStep());
+    StepInterval<float> draggerzrg = StepInterval<float>( center.z-width.z/2, 
+	    center.z+width.z/2, SI().zStep() );
+
+    CubeSampling cs( true );
+    cs.zrg = draggerzrg;
+    cs.hrg.start.inl = draggerinlrg.start;
+    cs.hrg.stop.inl = draggerinlrg.stop;
+    cs.hrg.start.crl = draggercrlrg.start;
+    cs.hrg.stop.crl = draggercrlrg.stop;
+    cs.snapToSurvey();
+
+    const int xsz = cs.nrInl()>mMinSampleSz ? cs.nrInl(): mMinSampleSz;
+    const int ysz = cs.nrCrl()>mMinSampleSz ? cs.nrCrl(): mMinSampleSz;
+    const int zsz = cs.nrZ()>mMinSampleSz ? cs.nrZ(): mMinSampleSz;;
+    const int hzsz = zsz/2;
+    Array3DImpl<float> array( xsz, ysz, zsz );
+   
+    for ( int idx=0; idx<xsz; idx++ )
+    {
+	for ( int idy=0; idy<ysz; idy++ )
+	{
+	    for ( int idz=0; idz<zsz; idz++ )
+	    {
+     		array.set( idx, idy, idz, idz );
+	    }
+	}
+    }
+
+    ::MarchingCubesSurface* mcs = new MarchingCubesSurface();
+    mcs->setVolumeData( mNINT(center.x-width.x/2), mNINT(center.y-width.y/2),
+	    mNINT(center.z-width.z/2),  array, hzsz );
+    
+    if ( emsurface_ ) emsurface_->unRef();
+    
+    emsurface_ = 0;
+    emsurface_ = new EM::MarchingCubesSurface( EM::EMM() );
+    if ( !emsurface_ ) return;
+
+    emsurface_->ref();
+    if ( !emsurface_->isOK() || !emsurface_->setSurface( mcs ) )
+    {
+	emsurface_->unRef();
+	emsurface_ = 0;
+	return;
+    }
+
+    if ( displaysurface_ )
+    {
+	removeChild( displaysurface_->getInventorNode() );
+	displaysurface_->unRef();
+	displaysurface_ = 0;
+    }
+   
+    displaysurface_ = visBase::MarchingCubesSurface::create();
+    if ( !displaysurface_ ) return;
+
+    displaysurface_->ref();
+    displaysurface_->setSelectable( false );
+    displaysurface_->setRightHandSystem( righthandsystem_ );
+    addChild( displaysurface_->getInventorNode() );
+
+    if ( displaysurface_->getMaterial() )
+	getMaterial()->setFrom( *displaysurface_->getMaterial() );
+
+    displaysurface_->setMaterial( 0 );
+    displaysurface_->setSurface( *mcs );
+    
+    SamplingData<float> sd = displaysurface_->getScale( 0 );
+    emsurface_->setInlSampling(
+	    SamplingData<int>( mNINT(sd.start), mNINT(sd.step) ) );
+
+    sd = displaysurface_->getScale( 1 );
+    emsurface_->setCrlSampling(
+	    SamplingData<int>( mNINT(sd.start), mNINT(sd.step) ) );
+
+    emsurface_->setZSampling( displaysurface_->getScale( 2 ) );
+
+    const Coord3& position = Coord3( center.x-width.x/2, center.y-width.y/2,
+	    center.z-width.z/2 );
+    if ( !emsurface_->setPos(0, position, false) )
+	return;
+
+    EM::EMM().addObject( emsurface_ );
+    emsurface_->setPreferredColor( getMaterial()->getColor() );
+}
+
+
+
+void MarchingCubesDisplay::draggerMovedCB( CallBacker* )
+{
+    if ( !initialdragger_ )
+	return;
+
+    const Coord3 center = initialdragger_->center();
+    const Coord3 width = initialdragger_->width();
+
+    StepInterval<int> draggerinlrg = StepInterval<int>( 
+	    mNINT(center.x-width.x/2),mNINT(center.x+width.x/2),SI().inlStep());
+    StepInterval<int> draggercrlrg = StepInterval<int>( 
+	    mNINT(center.y-width.y/2),mNINT(center.y+width.y/2),SI().crlStep());
+    StepInterval<float> draggerzrg = StepInterval<float>( center.z-width.z/2, 
+	    center.z+width.z/2, SI().zStep() );
+
+    CubeSampling cs( true );
+    cs.zrg = draggerzrg;
+    cs.hrg.start.inl = draggerinlrg.start;
+    cs.hrg.stop.inl = draggerinlrg.stop;
+    cs.hrg.start.crl = draggercrlrg.start;
+    cs.hrg.stop.crl = draggercrlrg.stop;
+    cs.snapToSurvey();
 }
 
 

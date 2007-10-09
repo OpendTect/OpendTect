@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.4 2007-10-02 15:39:44 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.5 2007-10-09 19:53:23 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -73,11 +73,15 @@ public:
 
     EM::ObjectID		getEMID() const;
 
+    bool			hasInitialShape();
+    void			removeInitialDragger(bool setemsurface);
+
 protected:
 
     static const char*		sKeyEarthModelID()	{ return "EM ID"; }
 
     virtual			~MarchingCubesDisplay();
+    void			draggerMovedCB(CallBacker*);
     void			pickCB(CallBacker*);
     void			factorDrag(CallBacker*);
     Array3D<unsigned char>*	createKernel(int xsz, int ysz, int zsz ) const;
