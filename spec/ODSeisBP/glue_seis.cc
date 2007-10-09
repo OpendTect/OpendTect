@@ -4,15 +4,15 @@
  * DATE     : 25-9-1999
 -*/
 
-static const char* rcsID = "$Id: glue_seis.cc,v 1.7 2006-03-12 20:44:01 cvsbert Exp $";
+static const char* rcsID = "$Id: glue_seis.cc,v 1.8 2007-10-09 08:52:24 cvsbert Exp $";
 #include "prog.h"
 #include "batchprog.h"
-#include "seisfact.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "seisreq.h"
+#include "seismscprov.h"
 #include "seisbuf.h"
 #include "seiswrite.h"
+#include "seisread.h"
 #include "seistrc.h"
 #include "executor.h"
 #include "ptrman.h"
@@ -41,7 +41,7 @@ static std::ostream* dbgstrmptr = 0;
 #define dbgstrm if ( dbgstrmptr ) *dbgstrmptr << "\tD: "
 
 
-static bool fillBuf( SeisRequester& req, SeisTrcBuf& buf, bool& atend )
+static bool fillBuf( SeisMSCProvider& prov, SeisTrcBuf& buf, bool& atend )
 {
     if ( atend )
     {
@@ -50,44 +50,42 @@ static bool fillBuf( SeisRequester& req, SeisTrcBuf& buf, bool& atend )
     }
 
     buf.deepErase();
-    const SeisTrc* trc = req.get(0,0);
+    const SeisTrc* trc = prov.get(0,0);
     if ( !trc )
     {
-	dbgstrm << "!trc on req.get(0,0) (first time)" << std::endl;
+	dbgstrm << "!trc on prov.get(0,0) (first time)" << std::endl;
 	return false;
     }
     const int inl = mInl(trc);
 
-    int nrnexts = 0;
     while ( !trc || mInl(trc) == inl )
     {
 	buf.add( new SeisTrc(*trc) );
 	while ( 1 )
 	{
-	    int res = req.next();
-	    if ( res > 1 ) continue;
-	    if ( res == 0 )
+	    SeisMSCProvider::AdvanceState res = prov.advance();
+	    if ( res == SeisMSCProvider::Buffering ) continue;
+	    if ( res == SeisMSCProvider::EndReached )
 	    {
 		atend = true;
-		dbgstrm << "atend = true (req)" << std::endl;
+		dbgstrm << "atend = true (prov)" << std::endl;
 		return true;
 	    }
-	    if ( res < 0 )
+	    if ( res == SeisMSCProvider::Error )
 	    {
-		dbgstrm << "req error" << std::endl;
-		strm << req.errMsg() << std::endl;
+		dbgstrm << "prov error" << std::endl;
+		strm << prov.errMsg() << std::endl;
 		return false;
 	    }
 	    break;
 	}
-	trc = req.get(0,0);
+	trc = prov.get(0,0);
 	if ( !trc )
-    {
-	atend = true;
-	dbgstrm << "req(0,0) is null" << std::endl;
-	return true;
-    }
-	nrnexts++;
+	{
+	    atend = true;
+	    dbgstrm << "prov(0,0) is null" << std::endl;
+	    return true;
+	}
     }
 
     return true;
@@ -357,33 +355,41 @@ bool BatchProgram::go( std::ostream& strm_ )
 	nrinlbufs = maxnrtrcsfill;
 
     ObjectSet<SeisTrcBuf> bufs;
-    ObjectSet<SeisRequester> reqs;
+    ObjectSet<SeisMSCProvider> provs;
     for ( int idx=0; ; idx++ )
     {
 	BufferString iopkey( "Input." );
 	iopkey += idx;
 	PtrMan<IOPar> iop = pars().subselect( iopkey );
-	if ( !iop || !iop->size() )
+	const char* res = iop ? iop->find( "ID" ) : 0;
+	if ( !res || !*res )
 	    { if ( idx ) break; continue; }
-	SeisRequester* req = new SeisRequester("");
-	req->usePar( *iop );
-	while ( true )
+	SeisMSCProvider* prov = new SeisMSCProvider( MultiID(res) );
+	prov->reader().usePar( *iop );
+	SeisMSCProvider::AdvanceState advst = prov->advance();
+	while ( advst == SeisMSCProvider::Buffering )
+	    advst = prov->advance();
+	if ( advst == SeisMSCProvider::EndReached )
 	{
-	    int res = req->next();
-	    if ( res > 1 ) continue;
-	    if ( res <= 0 ) return false;
-	    break;
+	    strm << "No valid data in " << IOM().nameOf(res) << std::endl;
+	    return false;
 	}
-	reqs += req;
+	if ( advst == SeisMSCProvider::Error )
+	{
+	    strm << prov->errMsg() << std::endl;
+	    return false;
+	}
+
+	provs += prov;
 	bufs += new SeisTrcBuf;
     }
-    int nrreqs = reqs.size();
-    if ( nrreqs == 0 )
+    int nrprovs = provs.size();
+    if ( nrprovs == 0 )
     {
 	strm << "No valid input seismic data found" << std::endl;
 	return false;
     }
-	dbgstrm << "Nr requesters: " << nrreqs << std::endl;
+	dbgstrm << "Nr providers: " << nrprovs << std::endl;
 
     const char* res = pars()["Output.ID"];
     IOObj* ioobj = IOM().get( res );
@@ -402,30 +408,30 @@ bool BatchProgram::go( std::ostream& strm_ )
     }
 	dbgstrm << "TrcWriter initialised" << std::endl;
 
-    bool atend[nrreqs];
-    for ( int idx=0; idx<nrreqs; idx++ )
+    bool atend[nrprovs];
+    for ( int idx=0; idx<nrprovs; idx++ )
 	atend[idx] = false;
 
-    while ( nrreqs )
+    while ( nrprovs )
     {
-	const SeisTrc* trc = reqs[0]->get(0,0);
+	const SeisTrc* trc = provs[0]->get(0,0);
 	if ( trc )
 	    strm << "Reading inl " << mInl(trc) << " ...";
 	strm.flush();
 
-	for ( int reqnr=0; reqnr<nrreqs; reqnr++ )
+	for ( int provnr=0; provnr<nrprovs; provnr++ )
 	{
-	    SeisTrcBuf* buf = bufs[reqnr];
-	    SeisRequester* req = reqs[reqnr];
-	    if ( !fillBuf(*req,*buf,atend[reqnr]) )
+	    SeisTrcBuf* buf = bufs[provnr];
+	    SeisMSCProvider* prov = provs[provnr];
+	    if ( !fillBuf(*prov,*buf,atend[provnr]) )
 	    {
 		dbgstrm << "fillBuf returned false" << std::endl;
-		delete req; buf->deepErase(); delete buf;
-		reqs -= req; bufs -= buf;
-		nrreqs--;
+		delete prov; buf->deepErase(); delete buf;
+		provs -= prov; bufs -= buf;
+		nrprovs--;
 	    }
 	}
-	if ( !nrreqs ) break;
+	if ( !nrprovs ) break;
 
 	addBufs(bufs);
 	if ( !writeFirstBuf(trcwr) )
