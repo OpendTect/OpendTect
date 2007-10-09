@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2007
- RCS:           $Id: zaxistransformer.h,v 1.1 2007-09-18 15:56:54 cvskris Exp $
+ RCS:           $Id: zaxistransformer.h,v 1.2 2007-10-09 12:13:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
     bool		getInterpolate() const;
     bool		setInput(const Array3D<float>&,const CubeSampling&);
     void		setOutputRange(const CubeSampling&);
+    const CubeSampling&	getOutputRange() const	{ return outputcs_; }
     Array3D<float>*	getOutput(bool transfer);
     			/*!<\param transfer specifies whether the caller will
 			                    take over the array.  */
