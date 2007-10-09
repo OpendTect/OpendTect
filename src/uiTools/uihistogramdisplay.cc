@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mid 2005
- RCS:           $Id: uihistogramdisplay.cc,v 1.7 2007-10-08 04:18:56 cvssatyaki Exp $
+ RCS:           $Id: uihistogramdisplay.cc,v 1.8 2007-10-09 10:01:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,14 +151,14 @@ void uiHistogramDisplay::reDraw( CallBacker* )
 	    }
 	}
 
-	//Add closing pos	
-	pointlist_ += uiPoint( pointlist_[pointlist_.size()-1].x+1,
-			       height-boundary_.bottom() );
+	//Add closing pos
+	if ( pointlist_.size() > 0 )
+	    pointlist_ += uiPoint( pointlist_[pointlist_.size()-1].x+1,
+				   height-boundary_.bottom() );
 
 	height_ = height;
 	width_ = width;
     }
-
 
     dt.setPenColor( color_ );
     dt.setFillColor( color_ );
