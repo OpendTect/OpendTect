@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.11 2007-03-02 15:47:46 cvsnanne Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.12 2007-10-09 07:35:02 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -58,6 +58,7 @@ protected:
     Interval<float>		coltabinterval_;
     bool			coltabautoscale_;
     float			coltabcliprate_;
+    bool			coltabsymmetry_;
 };
 
 
