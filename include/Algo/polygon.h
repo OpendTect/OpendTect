@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.1 2007-08-23 08:05:07 cvsjaap Exp $
+ RCS:		$Id: polygon.h,v 1.2 2007-10-09 21:53:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,30 +17,181 @@ ________________________________________________________________________
 
 /*!\brief Closed sequence of connected 2-D coordinates */
 
+template <class T>
 class Polygon
 {
 public:
-			Polygon()					{}
-			Polygon(const TypeSet<Coord>& plg) : poly_(plg)	{}
+		Polygon()					{}
+		Polygon(const TypeSet<Geom::Point2D<T> >& plg) : poly_(plg) {}
 
-    int 		size() const		{ return poly_.size(); }
-    bool 		validIdx(int idx) const	{ return poly_.validIdx(idx); }
+    int 	size() const		{ return poly_.size(); }
+    bool 	validIdx(int idx) const	{ return poly_.validIdx(idx); }
     
-    void		add(const Coord& vtx)	{ poly_+=vtx; }
-    void		remove(int idx) 	{ poly_.remove(idx); }
-    void		insert(int idx,const Coord& vtx);
+    void	add(const Geom::Point2D<T>& vtx){ poly_+=vtx; }
+    void	remove(int idx) 	{ poly_.remove(idx); }
+    void	insert(int idx,const Geom::Point2D<T>& vtx);
 
-    const Coord&	getVertex(int idx) const;
-    const Coord&	nextVertex(int idx) const; 
+    bool	isInside(const Geom::Point2D<T>&, bool inclborder,
+	    		 T eps) const;
 
-    bool		isInside(const Coord&,bool inclborder=true,
-	    			 double=mDefEps) const;
+    const Geom::Point2D<T>&	getVertex(int idx) const;
+    const Geom::Point2D<T>&	nextVertex(int idx) const; 
 
 protected:
+    static bool	isOnSegment( const Geom::Point2D<T>& pt,
+	    		     const Geom::Point2D<T>& pt0,
+	    		     const Geom::Point2D<T>& pt1,
+	   		     T eps );
+    static bool isOnHalfLine( const Geom::Point2D<T>& point,
+			      const Geom::Point2D<T>& dirvec,
+			      const Geom::Point2D<T>& endvec,
+			      T eps );
+    static bool isEdgeCrossing( const Geom::Point2D<T>& raydir,
+	    			const Geom::Point2D<T>& raysrc,
+				const Geom::Point2D<T>& vtx1,
+				const Geom::Point2D<T>& vtx2 );
 
-    TypeSet<Coord>	poly_;
+    static bool isOnLine( const Geom::Point2D<T>& point,
+			  const Geom::Point2D<T>& dirvec,
+			  const Geom::Point2D<T>& posvec,
+			  T eps );
 
+    static bool isRightOfLine( const Geom::Point2D<T>& point,
+			       const Geom::Point2D<T>& dirvec,
+			       const Geom::Point2D<T>& posvec );
+
+    static bool doCoincide( const Geom::Point2D<T>& point1,
+			    const Geom::Point2D<T>& point2,
+			    T eps );
+
+    static double sgnDistToLine( const Geom::Point2D<T>& point,
+				 const Geom::Point2D<T>& dirvec,
+				 const Geom::Point2D<T>& posvec );
+
+    TypeSet<Geom::Point2D<T> >	poly_;
 };
 
+
+template <class T> inline
+void Polygon<T>::insert( int idx, const Geom::Point2D<T>& vtx )
+{ if ( idx>=0 && idx<=size() ) poly_.insert( idx, vtx ); }
+
+
+template <class T> inline
+const Geom::Point2D<T>& Polygon<T>::getVertex( int idx ) const
+{ return poly_[idx]; }
+
+
+template <class T> inline
+const Geom::Point2D<T>& Polygon<T>::nextVertex( int idx ) const
+{ return poly_[ idx+1<size() ? idx+1 : 0 ]; }
+
+
+template <class T> inline
+bool Polygon<T>::isInside( const Geom::Point2D<T>& point,
+			   bool inclborder, T eps ) const
+{
+    const Geom::Point2D<T> arbitrarydir( 1, 0 );
+
+    bool nrcrossingsodd = false;
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const Geom::Point2D<T>& vtxcurr = getVertex( idx );
+	const Geom::Point2D<T>& vtxnext = nextVertex( idx );
+
+	if ( isOnSegment(point, vtxcurr, vtxnext, eps) )
+	    return inclborder;
+	if ( isEdgeCrossing(arbitrarydir, point, vtxcurr, vtxnext) )
+	    nrcrossingsodd = !nrcrossingsodd;
+    }
+
+    return nrcrossingsodd;
+}
+
+
+template <class T> inline
+bool Polygon<T>::isOnSegment( const Geom::Point2D<T>& pt,
+			 const Geom::Point2D<T>& pt0,
+			 const Geom::Point2D<T>& pt1,
+			 T eps )
+{
+    return isOnHalfLine( pt, pt1-pt0, pt0, eps ) &&
+	   isOnHalfLine( pt, pt0-pt1, pt1, eps );
+}
+
+template <class T> inline
+bool Polygon<T>::isOnHalfLine( const Geom::Point2D<T>& point,
+			  const Geom::Point2D<T>& dirvec,
+			  const Geom::Point2D<T>& endvec,
+			  T eps )
+{
+     if ( doCoincide(point, endvec, eps) )
+	 return true;
+     if ( !isOnLine(point, dirvec, endvec, eps) )
+	 return false;
+     const Geom::Point2D<T> rot90dirvec( -dirvec.y, dirvec.x );
+     return isRightOfLine( point, rot90dirvec, endvec );
+}
+
+
+template <class T> inline
+bool Polygon<T>::isEdgeCrossing( const Geom::Point2D<T>& raydir,
+			    const Geom::Point2D<T>& raysrc,
+			    const Geom::Point2D<T>& vtx1,
+			    const Geom::Point2D<T>& vtx2 )
+{
+    const bool vtx1right = isRightOfLine( vtx1, raydir, raysrc );
+    const bool vtx2right = isRightOfLine( vtx2, raydir, raysrc );
+
+    if ( vtx1right && !vtx2right )
+	return isRightOfLine( raysrc, vtx2-vtx1, vtx1 );
+    if ( !vtx1right && vtx2right )
+	return isRightOfLine( raysrc, vtx1-vtx2, vtx2 );
+    return false;
+}
+
+
+template <class T> inline
+bool Polygon<T>::isOnLine( const Geom::Point2D<T>& point,
+			   const Geom::Point2D<T>& dirvec,
+			   const Geom::Point2D<T>& posvec,
+			   T eps )
+{
+    const double signeddist = sgnDistToLine( point, dirvec, posvec );
+    return signeddist * signeddist <= eps * eps;
+}
+
+template <class T> inline
+bool Polygon<T>::isRightOfLine( const Geom::Point2D<T>& point,
+			   const Geom::Point2D<T>& dirvec,
+			   const Geom::Point2D<T>& posvec )
+{
+    return sgnDistToLine( point, dirvec, posvec ) > 0;
+}
+
+
+template <class T> inline
+bool Polygon<T>::doCoincide( const Geom::Point2D<T>& point1,
+			const Geom::Point2D<T>& point2,
+			T eps=mDefEps )
+{
+    return point1.sqDistTo( point2 ) <= eps * eps;
+}
+
+
+template <class T> inline
+double Polygon<T>::sgnDistToLine( const Geom::Point2D<T>& point,
+			     const Geom::Point2D<T>& dirvec,
+			     const Geom::Point2D<T>& posvec )
+{
+    const double nolinedist = 0;
+
+    const double dirveclen = dirvec.distTo( Geom::Point2D<T>(0,0) );
+    if ( mIsZero(dirveclen, mDefEps) )
+	return nolinedist;
+    const double substpointinlineeqn =
+	dirvec.y * ( point.x - posvec.x )-dirvec.x * ( point.y - posvec.y );
+    return substpointinlineeqn / dirveclen;
+}
 
 #endif

@@ -4,7 +4,7 @@
  * DATE     : 2-12-2005
 -*/
 
-static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.7 2007-08-23 08:06:39 cvsjaap Exp $";
+static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.8 2007-10-09 21:53:02 cvskris Exp $";
 
 #include "prog.h"
 #include "batchprog.h"
@@ -25,7 +25,7 @@ static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.7 2007-08-23 08:06:39 cvsj
 #include <math.h>
 
 
-static void addCoord( const char* str, Polygon& poly )
+static void addCoord( const char* str, Polygon<double>& poly )
 {
     if ( !str || !*str ) return;
 
@@ -50,7 +50,7 @@ bool BatchProgram::go( std::ostream& strm )
 
     const char* vrtcspsid = pars().find( "Vertices PickSet.ID" );
 
-    Polygon poly;
+    Polygon<double> poly;
     if ( vrtcspsid )
     {
 	PtrMan<IOObj> ioobj = IOM().get( MultiID(vrtcspsid) );
