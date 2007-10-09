@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.6 2007-09-13 20:06:14 cvskris Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.7 2007-10-09 20:00:44 cvsyuancheng Exp $";
 
 #include "marchingcubes.h"
 
@@ -366,13 +366,13 @@ bool MarchingCubesSurface::setVolumeData( int xorigin, int yorigin, int zorigin,
 	    			      *this );
     const bool res = converter.execute();
     changepos_[mX].start = xorigin;
-    changepos_[mX].stop = xorigin+arr.info().getSize(mX);
+    changepos_[mX].stop = xorigin+arr.info().getSize(mX)-1;
 
     changepos_[mY].start = yorigin;
-    changepos_[mY].stop = yorigin+arr.info().getSize(mY);
+    changepos_[mY].stop = yorigin+arr.info().getSize(mY)-1;
 
     changepos_[mZ].start = zorigin;
-    changepos_[mZ].stop = zorigin+arr.info().getSize(mZ);
+    changepos_[mZ].stop = zorigin+arr.info().getSize(mZ)-1;
     allchanged_ = false;
     change.trigger();
 
