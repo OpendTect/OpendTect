@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.7 2007-04-13 20:00:03 cvskris Exp $
+ RCS:           $Id: menuhandler.h,v 1.8 2007-10-09 23:11:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -159,6 +159,8 @@ class MenuHandler : public MenuItemHolder
     				mRefCountImpl(MenuHandler);
 public:
     				MenuHandler( int id );
+
+    virtual bool		executeMenu()				= 0;
 
     int				menuID() const { return id_; }
     				/*<Each menu has an unique id where the
