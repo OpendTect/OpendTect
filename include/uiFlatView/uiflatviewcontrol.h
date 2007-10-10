@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.17 2007-08-29 16:22:59 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.18 2007-10-10 11:39:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,8 @@ protected:
 
     virtual void	finalPrepare()			{}
     virtual void	onFinalise(CallBacker*);
+    virtual bool	canReUseZoomSettings( Geom::Point2D<double>,
+	    				      Geom::Size2D<double> ) const;
     
     virtual void	dataChangeCB(CallBacker*);
     virtual void	rubBandCB(CallBacker*);

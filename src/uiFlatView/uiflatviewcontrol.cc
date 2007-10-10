@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.25 2007-08-29 16:22:59 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.26 2007-10-10 11:39:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,10 +86,16 @@ uiWorldRect uiFlatViewControl::getBoundingBox() const
 
 void uiFlatViewControl::onFinalise( CallBacker* )
 {
-    const uiWorldRect bb( getBoundingBox() );
-    zoommgr_.init( bb );
+    uiWorldRect viewrect = vwrs_[0]->curView();
+    if ( !canReUseZoomSettings( vwrs_[0]->curView().centre(),
+				zoommgr_.current() ) )
+    {
+	viewrect = getBoundingBox();
+	zoommgr_.init( viewrect );
+    }
+
     for ( int idx=0; idx<vwrs_.size(); idx++ )
-	vwrs_[idx]->setView( bb );
+	vwrs_[idx]->setView( viewrect );
 
     finalPrepare();
 }
@@ -310,4 +316,24 @@ void uiFlatViewControl::usrClickCB( CallBacker* cb )
 
 	mouseEventHandler(idx).setHandled( handleUserClick() );
     }
+}
+
+
+bool uiFlatViewControl::canReUseZoomSettings( Geom::Point2D<double> centre,
+					      Geom::Size2D<double> sz ) const
+{
+    //TODO: allow user to decide to reuse or not with a specific parameter
+    const uiWorldRect bb( getBoundingBox() );
+    if ( sz.width() > bb.width() || sz.height() > bb.height() )
+	return false;
+    
+    const double hwdth = sz.width() * .5;
+    const double hhght = sz.height() * .5;
+
+    Geom::Point2D<double> topleft( centre.x - hwdth, centre.y - hhght );
+    Geom::Point2D<double> botright( centre.x + hwdth, centre.y + hhght );
+    if ( ! ( bb.contains( topleft, 1e-6 ) && bb.contains( botright, 1e-6 ) ) )
+	return false;
+
+    return true;
 }
