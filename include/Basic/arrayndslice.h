@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: arrayndslice.h,v 1.2 2007-09-18 13:22:13 cvskris Exp $
+ RCS:           $Id: arrayndslice.h,v 1.3 2007-10-10 04:08:33 cvsnanne Exp $
 ________________________________________________________________________
 
 @$*/
 
-#include <arraynd.h>
-
+#include "arraynd.h"
+#include "varlenarray.h"
 
 class ArrayNDSliceBase
 {
@@ -131,7 +131,7 @@ template <class T> inline
 void Array1DSlice<T>::set( int pos, T val )
 {
     if ( !writable_ ) return;
-    int srcpos[position_.size()];
+    mVariableLengthArr( int, srcpos, position_.size() );
     getSourcePos( &pos, srcpos );
     source_.set( srcpos, val );
 }
@@ -140,7 +140,7 @@ void Array1DSlice<T>::set( int pos, T val )
 template <class T> inline
 T Array1DSlice<T>::get( int pos ) const
 {
-    int srcpos[position_.size()];
+    mVariableLengthArr( int, srcpos, position_.size() );
     getSourcePos( &pos, srcpos );
     return source_.get( srcpos );
 }
@@ -205,8 +205,9 @@ template <class T> inline
 void Array2DSlice<T>::set( int pos0, int pos1, T val )
 {
     if ( !writable_ ) return;
+
     const int localpos[] = { pos0, pos1 };
-    int srcpos[position_.size()];
+    mVariableLengthArr( int, srcpos, position_.size() );
     getSourcePos( localpos, srcpos );
     source_.set( srcpos, val );
 }
@@ -216,7 +217,7 @@ template <class T> inline
 T Array2DSlice<T>::get( int pos0, int pos1 ) const
 {
     const int localpos[] = { pos0, pos1 };
-    int srcpos[position_.size()];
+    mVariableLengthArr( int, srcpos, position_.size() );
     getSourcePos( localpos, srcpos );
     return source_.get( srcpos );
 }
