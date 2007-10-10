@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.25 2007-04-11 10:10:19 cvsbert Exp $
+ RCS:		$Id: seisread.h,v 1.26 2007-10-10 15:31:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 class Executor;
 class BinIDRange;
 class SeisTrcBuf;
+namespace Seis { class Bounds; }
 
 
 /*!\brief reads from a seismic data store.
@@ -68,10 +69,8 @@ public:
     void		fillPar(IOPar&) const;
 
     bool		isPrepared() const		{ return prepared; }
-    void		getSteps(int& inl,int& crl) const;
+    Seis::Bounds*	getBounds() const;
     			//!< use after prepareWork(). If not avail: survinfo
-    void		getIsRev(bool& inl,bool& crl) const;
-    			//!< Obsolete in 3.0
 
     			// 2D only
     int			curLineIdx() const		{ return curlineidx; }
@@ -112,6 +111,10 @@ protected:
     bool		get2D(SeisTrc&);
     bool		mkNextFetcher();
     bool		readNext2D();
+
+    Seis::Bounds*	get3DBounds(const StepInterval<int>&,
+	    			    const StepInterval<int>&,
+				    const StepInterval<float>&) const;
 
 };
 

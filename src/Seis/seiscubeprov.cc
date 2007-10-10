@@ -4,13 +4,14 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: seiscubeprov.cc,v 1.10 2007-04-24 16:38:21 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscubeprov.cc,v 1.11 2007-10-10 15:31:44 cvsbert Exp $";
 
 #include "seismscprov.h"
 #include "seistrc.h"
 #include "seistrcsel.h"
 #include "seisread.h"
 #include "seisbuf.h"
+#include "seisbounds.h"
 #include "survinfo.h"
 #include "cubesampling.h"
 #include "ioobj.h"
@@ -208,8 +209,14 @@ bool SeisMSCProvider::startWork()
     if ( !prepareWork() ) return false;
 
     workstarted_ = true;
-    rdr_.getSteps( stepoutstep_.r(), stepoutstep_.c() );
     rdr_.forceFloatData( intofloats_ );
+    Seis::Bounds* bds = rdr_.getBounds();
+    if ( bds )
+    {
+	stepoutstep_.r() = bds->step( true );
+	stepoutstep_.c() = bds->step( false );
+	delete bds;
+    }
     if ( reqstepout_.r() > desstepout_.r() ) desstepout_.r() = reqstepout_.r();
     if ( reqstepout_.c() > desstepout_.c() ) desstepout_.c() = reqstepout_.c();
 

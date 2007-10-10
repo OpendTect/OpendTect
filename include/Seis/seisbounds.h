@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisbounds.h,v 1.1 2007-10-08 16:02:59 cvsbert Exp $
+ RCS:		$Id: seisbounds.h,v 1.2 2007-10-10 15:31:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ public:
 };
 
 
-class Bounds3D
+class Bounds3D : public Bounds
 {
 public:
 
@@ -67,7 +67,7 @@ public:
 };
 
 
-class Bounds2D
+class Bounds2D : public Bounds
 {
 public:
 

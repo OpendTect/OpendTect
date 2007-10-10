@@ -5,12 +5,15 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.69 2007-04-24 08:45:20 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.70 2007-10-10 15:31:44 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
 #include "seis2dline.h"
+#include "seispsioprov.h"
+#include "seispsread.h"
 #include "seisbuf.h"
+#include "seisbounds.h"
 #include "seistrc.h"
 #include "seistrcsel.h"
 #include "executor.h"
@@ -20,6 +23,7 @@ static const char* rcsID = "$Id: seisread.cc,v 1.69 2007-04-24 08:45:20 cvsbert 
 #include "binidselimpl.h"
 #include "keystrs.h"
 #include "segposinfo.h"
+#include "cubesampling.h"
 #include "errh.h"
 #include "iopar.h"
 
@@ -610,49 +614,63 @@ void SeisTrcReader::fillPar( IOPar& iopar ) const
 }
 
 
-void SeisTrcReader::getSteps( int& inl, int& crl ) const
+Seis::Bounds* SeisTrcReader::get3DBounds( const StepInterval<int>& inlrg,
+					  const StepInterval<int>& crlrg,
+					  const StepInterval<float>& zrg ) const
 {
-    inl = crl = 1;
-    if ( psioprov )
-	return;
+    Seis::Bounds3D* b3d = new Seis::Bounds3D;
+    b3d->cs_.hrg.start.inl = inlrg.start;
+    b3d->cs_.hrg.start.crl = crlrg.start;
+    b3d->cs_.hrg.stop.inl = inlrg.stop;
+    b3d->cs_.hrg.stop.crl = crlrg.stop;
+    b3d->cs_.hrg.step.inl = inlrg.step;
+    b3d->cs_.hrg.step.crl = crlrg.step;
 
-    if ( !is2d )
+    if ( b3d->cs_.hrg.step.inl < 0 )
     {
-	inl = SI().inlStep(); crl = SI().crlStep();
-	if ( trl )
-	{
-	    int trlinl = strl()->packetInfo().inlrg.step;
-	    if ( trlinl < 0 )
-	    {
-		pErrMsg("Poss prob: negative inl step from transl");
-		inl = -trlinl;
-	    }
-	    else if ( trlinl == 0 )
-		pErrMsg("Prob: zero inl step from transl");
-	    else
-		inl = trlinl;
+	pErrMsg("Poss prob: negative inl step from transl");
+	b3d->cs_.hrg.step.inl = -b3d->cs_.hrg.step.inl;
+    }
+    if ( b3d->cs_.hrg.step.crl < 0 )
+    {
+	pErrMsg("Poss prob: negative crl step from transl");
+	b3d->cs_.hrg.step.crl = -b3d->cs_.hrg.step.crl;
+    }
+    b3d->cs_.zrg = zrg;
 
-	    int trlcrl = strl()->packetInfo().crlrg.step;
-	    if ( trlcrl < 0 )
-	    {
-		pErrMsg("Poss prob: negative crl step from transl");
-		crl = -trlcrl;
-	    }
-	    else if ( trlcrl == 0 )
-		pErrMsg("Prob: zero crl step from transl");
-	    else
-		crl = trlcrl;
-	}
-	return;
+    return b3d;
+}
+
+
+Seis::Bounds* SeisTrcReader::getBounds() const
+{
+    if ( isPS() )
+    {
+	if ( !ioobj ) return 0;
+	if ( is2D() ) return 0; //TODO 2D pre-stack
+	SeisPSReader* rdr = SPSIOPF().getReader( *ioobj );
+	const PosInfo::CubeData& cd = rdr->posData();
+	StepInterval<int> inlrg, crlrg;
+	cd.getInlRange( inlrg ); cd.getInlRange( crlrg );
+	return get3DBounds( inlrg, crlrg, SI().sampling(false).zrg );
+    }
+    if ( !is2D() )
+    {
+	if ( !trl ) return 0;
+	return get3DBounds( strl()->packetInfo().inlrg,
+			strl()->packetInfo().crlrg, strl()->packetInfo().zrg );
     }
 
     if ( !lset || lset->nrLines() < 1 )
-	return;
+	return 0;
     PosInfo::Line2DData l2dd;
     if ( !lset->getGeometry(0,l2dd) || l2dd.posns.size() < 2 )
-	return;
+	return 0;
 
-    crl = mUdf(int);
+    Seis::Bounds2D* b2d = new Seis::Bounds2D;
+    //TODO implement
+
+    int crl = mUdf(int);
     int prevnr = l2dd.posns[0].nr_;
     for ( int idx=1; idx<l2dd.posns.size(); idx++ )
     {
@@ -664,13 +682,6 @@ void SeisTrcReader::getSteps( int& inl, int& crl ) const
 	    if ( crl == 1 ) break;
 	}
     }
-}
 
-
-void SeisTrcReader::getIsRev( bool& inl, bool& crl ) const
-{
-    inl = crl = false;
-    if ( !trl || is2d || psioprov ) return;
-    inl = strl()->packetInfo().inlrev;
-    crl = strl()->packetInfo().crlrev;
+    return b2d;
 }

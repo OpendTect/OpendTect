@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: seisseqio.h,v 1.3 2007-10-05 11:56:58 cvsbert Exp $
+ * ID       : $Id: seisseqio.h,v 1.4 2007-10-10 15:31:44 cvsbert Exp $
 -*/
 
 #include "seistype.h"
@@ -18,6 +18,8 @@ class BufferStringSet;
 
 namespace Seis
 {
+
+class Bounds;
 
 /*!\brief Base class for Seismic Sequential IO classes */
 
@@ -57,6 +59,7 @@ public:
     static SeqInp*	make(const char* clssnm);
     static void		addClass(SeqInp*);
 
+    virtual Seis::Bounds* getBounds() const		{ return 0; }
 
 };
 
@@ -78,6 +81,8 @@ public:
     virtual bool	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
     virtual bool	get(SeisTrc&) const;
+
+    virtual Seis::Bounds* getBounds() const;
 
 protected:
 

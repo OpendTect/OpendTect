@@ -5,11 +5,12 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.28 2007-10-05 11:56:58 cvsbert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.29 2007-10-10 15:31:44 cvsbert Exp $";
 
 #include "seisseqio.h"
 #include "seisread.h"
 #include "seiswrite.h"
+#include "seisbounds.h"
 #include "seistrctr.h"
 #include "seistrcsel.h"
 #include "seis2dline.h"
@@ -315,6 +316,12 @@ bool Seis::ODSeqInp::get( SeisTrc& trc ) const
 	return false;
     }
     return true;
+}
+
+
+Seis::Bounds* Seis::ODSeqInp::getBounds() const
+{
+    return rdr_ ? rdr_->getBounds() : 0;
 }
 
 
