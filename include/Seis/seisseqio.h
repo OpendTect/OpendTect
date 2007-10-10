@@ -4,11 +4,13 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: seisseqio.h,v 1.4 2007-10-10 15:31:44 cvsbert Exp $
+ * ID       : $Id: seisseqio.h,v 1.5 2007-10-10 18:51:00 cvskris Exp $
 -*/
 
 #include "seistype.h"
 #include "bufstring.h"
+#include "factory.h"
+
 class IOPar;
 class SeisTrc;
 class SeisSelData;
@@ -39,8 +41,6 @@ public:
 protected:
 
     mutable BufferString errmsg_;
-
-    virtual SeqIO*	makeNew() const			= 0;
 };
 
 
@@ -49,18 +49,15 @@ protected:
 class SeqInp : public SeqIO
 {
 public:
+    mDefineFactoryInClass(SeqInp,factory);
 
     virtual bool	get(SeisTrc&) const		= 0;
     virtual const SeisSelData& selData() const;
 
     virtual void	fillPar(IOPar&) const;
 
-    static BufferStringSet& classNames();
-    static SeqInp*	make(const char* clssnm);
-    static void		addClass(SeqInp*);
 
     virtual Seis::Bounds* getBounds() const		{ return 0; }
-
 };
 
 
@@ -70,9 +67,12 @@ public:
 class ODSeqInp : public SeqInp
 {
 public:
+    static void		initClass();
+    static SeqInp*	create()		{ return new ODSeqInp; }
 
     			ODSeqInp() : rdr_(0)	{}
     			~ODSeqInp();
+
     virtual const char*	type() const		{ return sKeyODType; }
 
     virtual Seis::GeomType geomType() const;
@@ -86,10 +86,8 @@ public:
 
 protected:
 
-    virtual SeqIO*	makeNew() const		{ return new ODSeqInp; }
 
     SeisTrcReader*	rdr_;
-
 };
 
 
@@ -104,6 +102,8 @@ public:
     static BufferStringSet& classNames();
     static SeqOut*	make(const char*);
     static void		addClass(SeqOut*);
+
+    virtual SeqIO*	makeNew() const 		= 0;
 
 };
 

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.29 2007-10-10 15:31:44 cvsbert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.30 2007-10-10 18:51:00 cvskris Exp $";
 
 #include "seisseqio.h"
 #include "seisread.h"
@@ -193,34 +193,7 @@ void Seis::SeqIO::fillPar( IOPar& iop ) const
     Seis::putInPar( geomType(), iop );
 }
 
-
-static BufferStringSet& seisInpClassNames()
-{
-    static BufferStringSet* nms = 0;
-    if ( !nms ) nms = new BufferStringSet;
-    return *nms;
-}
-static ObjectSet<Seis::SeqInp>& seisInpClasses()
-{
-    static ObjectSet<Seis::SeqInp>* clsss = 0;
-    if ( !clsss ) clsss = new ObjectSet<Seis::SeqInp>;
-    return *clsss;
-}
-BufferStringSet& Seis::SeqInp::classNames()
-{ return seisInpClassNames(); }
-Seis::SeqInp* Seis::SeqInp::make( const char* nm )
-{
-    const ObjectSet<Seis::SeqInp>& clsss = seisInpClasses();
-    if ( !nm ) nm = "";
-    for ( int idx=0; idx<clsss.size(); idx++ )
-    {
-	if ( !strcmp(nm,clsss[idx]->type()) )
-	    return (Seis::SeqInp*)clsss[idx]->makeNew();
-    }
-    return 0;
-}
-void Seis::SeqInp::addClass( Seis::SeqInp* si )
-{ seisInpClasses() += si; }
+mImplFactory( Seis::SeqInp, Seis::SeqInp::factory );
 
 
 static BufferStringSet& seisOutClassNames()
@@ -275,6 +248,12 @@ Seis::ODSeqInp::~ODSeqInp()
 Seis::GeomType Seis::ODSeqInp::geomType() const
 {
     return rdr_ ? rdr_->geomType() : Seis::Vol;
+}
+
+
+void Seis::ODSeqInp::initClass()
+{
+    Seis::SeqInp::factory().addCreator( create, sKeyODType );
 }
 
 
