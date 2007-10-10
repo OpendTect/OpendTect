@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2007
- RCS:           $Id: uiflatauxdataeditorlist.cc,v 1.6 2007-09-17 12:39:20 cvskris Exp $
+ RCS:           $Id: uiflatauxdataeditorlist.cc,v 1.7 2007-10-10 01:06:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 uiFlatViewAuxDataEditorList::uiFlatViewAuxDataEditorList( uiParent* p )
     : uiGroup( p )
     , change_( this )  
+    , ptselchange_( this )
 {
     listbox_ = new uiListBox( this );
     listbox_->setMultiSelect( true );
@@ -44,6 +45,8 @@ uiFlatViewAuxDataEditorList::~uiFlatViewAuxDataEditorList()
 
 void uiFlatViewAuxDataEditorList::addEditor( FlatView::AuxDataEditor* newed )
 {
+    newed->movementFinished.notify( mCB(this,uiFlatViewAuxDataEditorList,
+					pointSelectionChangedCB) );
     editors_ += newed;
     updateList();
 }
@@ -51,6 +54,8 @@ void uiFlatViewAuxDataEditorList::addEditor( FlatView::AuxDataEditor* newed )
 
 void uiFlatViewAuxDataEditorList::removeEditor( FlatView::AuxDataEditor* ed )
 {
+    ed->movementFinished.remove( mCB(this,uiFlatViewAuxDataEditorList,
+				     pointSelectionChangedCB) );
     editors_ -= ed;
     updateList();
 }
@@ -109,6 +114,19 @@ void uiFlatViewAuxDataEditorList::updateList( CallBacker* )
     listbox_->selectionChanged.trigger();
     change_.trigger();
 }
+
+
+void uiFlatViewAuxDataEditorList::pointSelectionChangedCB( CallBacker* cb )
+{
+    const int idx = editors_.indexOf( (FlatView::AuxDataEditor*) cb );
+
+    if ( idx==-1 || editors_[idx]->getSelPtDataID()!=-1 ||
+	            editors_[idx]->getSelPtIdx().size() )
+	return;
+
+    ptselchange_.trigger();
+}
+
 
 
 void uiFlatViewAuxDataEditorList:: rightClickedCB(CallBacker*)

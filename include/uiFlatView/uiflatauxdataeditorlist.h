@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2007
- RCS:           $Id: uiflatauxdataeditorlist.h,v 1.4 2007-07-11 21:08:43 cvsyuancheng Exp $
+ RCS:           $Id: uiflatauxdataeditorlist.h,v 1.5 2007-10-10 01:06:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,8 +44,13 @@ public:
 
     MenuHandler&	menuhandler() { return *uimenuhandler_; }
 
+    NotifierAccess&	pointSelectionChanged() { return ptselchange_; }
+    			/*!<Triggers when the polygonselectiontool has been
+			    used in one of the editors */
+
 protected:
 
+    void		pointSelectionChangedCB(CallBacker*);
     void		rightClickedCB(CallBacker*);
     virtual void	listSelChangeCB(CallBacker*);
     int			findEditorIDPair( const FlatView::AuxDataEditor*,
@@ -62,6 +67,7 @@ protected:
     uiMenuHandler*				uimenuhandler_;
 
     Notifier<uiFlatViewAuxDataEditorList>	change_;
+    Notifier<uiFlatViewAuxDataEditorList>	ptselchange_;
 };
 
 #endif
