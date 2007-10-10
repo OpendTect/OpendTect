@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.7 2007-10-09 19:53:23 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.8 2007-10-10 17:20:07 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -96,6 +96,7 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
 
 	initialdragger_->unRef();
     }
+
     if ( emsurface_ ) emsurface_->unRef();
 
     setSceneEventCatcher(0);
@@ -215,28 +216,47 @@ bool MarchingCubesDisplay::setEMID( const EM::ObjectID& emid )
     emsurface_ = emmcsurf;
     emsurface_->ref();
 
-    getMaterial()->setColor( emsurface_->preferredColor() );
-    if ( !emsurface_->name().isEmpty() )
-	setName( emsurface_->name() );
+    updateVisFromEM( false );
+    return true;
+}
 
-    if ( !displaysurface_ )
+
+void MarchingCubesDisplay::updateVisFromEM( bool onlyshape )
+{
+    if ( !onlyshape || !displaysurface_ )
     {
-	displaysurface_ = visBase::MarchingCubesSurface::create();
-	displaysurface_->ref();
-	displaysurface_->setMaterial( 0 );
-	displaysurface_->setSelectable( false );
-	displaysurface_->setRightHandSystem( righthandsystem_ );
-	addChild( displaysurface_->getInventorNode() );
+	getMaterial()->setColor( emsurface_->preferredColor() );
+	if ( !emsurface_->name().isEmpty() )
+	    setName( emsurface_->name() );
+	else setName( "<New body>" );
+
+	if ( !displaysurface_ )
+	{
+	    displaysurface_ = visBase::MarchingCubesSurface::create();
+	    displaysurface_->ref();
+	    displaysurface_->setMaterial( 0 );
+	    displaysurface_->setSelectable( false );
+	    displaysurface_->setRightHandSystem( righthandsystem_ );
+	    addChild( displaysurface_->getInventorNode() );
+	}
+
+	displaysurface_->setScales(
+		SamplingData<float>(emsurface_->inlSampling()),
+		SamplingData<float>(emsurface_->crlSampling()),
+				    emsurface_->zSampling() );
+
+	displaysurface_->setSurface( emsurface_->surface() );
+	displaysurface_->turnOn( true );
     }
 
-    displaysurface_->setScales( SamplingData<float>(emsurface_->inlSampling()),
-				SamplingData<float>(emsurface_->crlSampling()),
-				emsurface_->zSampling() );
+    if ( emsurface_ && !emsurface_->surface().isEmpty() && initialdragger_ )
+    {
+	removeChild( initialdragger_->getInventorNode() );
+	initialdragger_->unRef();
+	initialdragger_ = 0;
+    }
 
-    displaysurface_->setSurface( emsurface_->surface() );
-    displaysurface_->turnOn( true );
-
-    return true;
+    displaysurface_->touch();
 }
 
 
@@ -255,18 +275,19 @@ void MarchingCubesDisplay::removeInitialDragger( bool setemsurface )
     const Coord3 center = initialdragger_->center();
     const Coord3 width = initialdragger_->width();
 
-    removeChild( initialdragger_->getInventorNode() );
-    initialdragger_->unRef();
-    initialdragger_ = 0;
-   
     if ( !setemsurface )
-       return;
+    {
+	removeChild( initialdragger_->getInventorNode() );
+	initialdragger_->unRef();
+	initialdragger_ = 0;
+        return;
+    }
 
     StepInterval<int> draggerinlrg = StepInterval<int>( 
-	    mNINT(center.x-width.x/2),mNINT(center.x+width.x/2)+1,
+	    mNINT(center.x-width.x/2), mNINT(center.x+width.x/2)+1, 
 	    SI().inlStep());
     StepInterval<int> draggercrlrg = StepInterval<int>( 
-	    mNINT(center.y-width.y/2),mNINT(center.y+width.y/2)+1,
+	    mNINT(center.y-width.y/2), mNINT(center.y+width.y/2)+1,
 	    SI().crlStep());
     StepInterval<float> draggerzrg = StepInterval<float>( center.z-width.z/2, 
 	    center.z+width.z/2, SI().zStep() );
@@ -282,78 +303,45 @@ void MarchingCubesDisplay::removeInitialDragger( bool setemsurface )
     const int xsz = cs.nrInl()>mMinSampleSz ? cs.nrInl(): mMinSampleSz;
     const int ysz = cs.nrCrl()>mMinSampleSz ? cs.nrCrl(): mMinSampleSz;
     const int zsz = cs.nrZ()>mMinSampleSz ? cs.nrZ(): mMinSampleSz;;
+    const int hxsz = xsz/2;
+    const int hysz = ysz/2;
     const int hzsz = zsz/2;
-    Array3DImpl<float> array( xsz, ysz, zsz );
-   
+    
+    Array3D<float>* array = new Array3DImpl<float>( xsz, ysz, zsz );
+    if ( !array || !array->isOK() )
+    {
+	delete array;
+	return;
+    }
+    
     for ( int idx=0; idx<xsz; idx++ )
     {
 	for ( int idy=0; idy<ysz; idy++ )
 	{
 	    for ( int idz=0; idz<zsz; idz++ )
 	    {
-     		array.set( idx, idy, idz, idz );
+		const float diffx = ((float)idx-hxsz)/hxsz;
+		const float diffy = ((float)idy-hysz)/hysz;
+		const float diffz = ((float)idz-hzsz)/hzsz;
+		const float diff = sqrt( diffx*diffx+diffy*diffy+diffz*diffz );
+		array->set( idx, idy, idz, diff );
 	    }
 	}
     }
 
-    ::MarchingCubesSurface* mcs = new MarchingCubesSurface();
-    mcs->setVolumeData( mNINT(center.x-width.x/2), mNINT(center.y-width.y/2),
-	    mNINT(center.z-width.z/2),  array, hzsz );
-    
-    if ( emsurface_ ) emsurface_->unRef();
-    
-    emsurface_ = 0;
-    emsurface_ = new EM::MarchingCubesSurface( EM::EMM() );
-    if ( !emsurface_ ) return;
-
-    emsurface_->ref();
-    if ( !emsurface_->isOK() || !emsurface_->setSurface( mcs ) )
-    {
-	emsurface_->unRef();
-	emsurface_ = 0;
-	return;
-    }
-
-    if ( displaysurface_ )
-    {
-	removeChild( displaysurface_->getInventorNode() );
-	displaysurface_->unRef();
-	displaysurface_ = 0;
-    }
-   
-    displaysurface_ = visBase::MarchingCubesSurface::create();
-    if ( !displaysurface_ ) return;
-
-    displaysurface_->ref();
-    displaysurface_->setSelectable( false );
-    displaysurface_->setRightHandSystem( righthandsystem_ );
-    addChild( displaysurface_->getInventorNode() );
-
-    if ( displaysurface_->getMaterial() )
-	getMaterial()->setFrom( *displaysurface_->getMaterial() );
-
-    displaysurface_->setMaterial( 0 );
-    displaysurface_->setSurface( *mcs );
-    
-    SamplingData<float> sd = displaysurface_->getScale( 0 );
     emsurface_->setInlSampling(
-	    SamplingData<int>( mNINT(sd.start), mNINT(sd.step) ) );
-
-    sd = displaysurface_->getScale( 1 );
+	    SamplingData<int>(cs.hrg.start.inl,cs.hrg.step.inl) );
     emsurface_->setCrlSampling(
-	    SamplingData<int>( mNINT(sd.start), mNINT(sd.step) ) );
+	    SamplingData<int>(cs.hrg.start.crl,cs.hrg.step.crl) );
 
-    emsurface_->setZSampling( displaysurface_->getScale( 2 ) );
+    emsurface_->setZSampling( SamplingData<float>( cs.zrg.start, cs.zrg.step ));
+    
+    ::MarchingCubesSurface& mcs = emsurface_->surface();
+    mcs.removeAll();
+    mcs.setVolumeData( 0, 0, 0, *array, 1 );
 
-    const Coord3& position = Coord3( center.x-width.x/2, center.y-width.y/2,
-	    center.z-width.z/2 );
-    if ( !emsurface_->setPos(0, position, false) )
-	return;
-
-    EM::EMM().addObject( emsurface_ );
-    emsurface_->setPreferredColor( getMaterial()->getColor() );
+    updateVisFromEM( false );
 }
-
 
 
 void MarchingCubesDisplay::draggerMovedCB( CallBacker* )
@@ -499,7 +487,6 @@ void MarchingCubesDisplay::pickCB( CallBacker* cb )
     factordragger_->setPos( Coord3(bid.inl, bid.crl, wp.z ) );
     startpos_ = wp.z;
 
-
     eventcatcher_->eventIsHandled();
 }
 
@@ -508,7 +495,7 @@ void MarchingCubesDisplay::factorDrag( CallBacker* )
 {
     const float drag = startpos_-factordragger_->getPos().z;
     surfaceeditor_->setFactor( mNINT(drag*255) );
-    displaysurface_->touch();
+    updateVisFromEM( true );
 }
 
 
@@ -543,8 +530,6 @@ MarchingCubesDisplay::createKernel( int xsz, int ysz, int zsz ) const
 
     return res;
 }
-
-
 
 
 }; // namespace visSurvey

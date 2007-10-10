@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.5 2007-10-09 19:53:23 cvsyuancheng Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.6 2007-10-10 17:20:07 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -81,6 +81,7 @@ protected:
     static const char*		sKeyEarthModelID()	{ return "EM ID"; }
 
     virtual			~MarchingCubesDisplay();
+    void			updateVisFromEM(bool onlyshape);
     void			draggerMovedCB(CallBacker*);
     void			pickCB(CallBacker*);
     void			factorDrag(CallBacker*);
