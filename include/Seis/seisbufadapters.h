@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2007
- RCS:		$Id: seisbufadapters.h,v 1.5 2007-10-03 12:53:55 cvskris Exp $
+ RCS:		$Id: seisbufadapters.h,v 1.6 2007-10-10 03:24:14 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -31,7 +31,7 @@ public:
 
     bool		isOK()			{ return true; }
 
-    const mPolyArray2DInfoTp&	info() const	{ return info_; }
+    const Array2DInfo&	info() const	{ return info_; }
     float*		getData() const		{ return 0; }
     void		set(int,int,float);
     float		get(int,int) const;
@@ -44,7 +44,7 @@ public:
 protected:
 
     SeisTrcBuf&		buf_;
-    mPolyArray2DInfoTp&	info_;
+    Array2DInfo&	info_;
     bool		bufmine_;
     int			comp_;
 

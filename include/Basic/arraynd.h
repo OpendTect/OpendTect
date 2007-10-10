@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.25 2007-09-13 19:38:38 cvsnanne Exp $
+ RCS:		$Id: arraynd.h,v 1.26 2007-10-10 03:24:14 cvsnanne Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -104,7 +104,7 @@ public:
     bool			writable() const	{ return true; }
     void			setValue( int i, T t )	{ set(i,t); }
 
-    virtual const mPolyArray1DInfoTp& info() const = 0;
+    virtual const Array1DInfo&	info() const = 0;
 
 };
 
@@ -120,7 +120,7 @@ public:
     T		                get( const int* pos ) const
 				    { return get( pos[0], pos[1] ); }
 
-    virtual const mPolyArray2DInfoTp& info() const = 0;
+    virtual const Array2DInfo&	info() const = 0;
 };
 
 
@@ -135,7 +135,7 @@ public:
     T		                get( const int* pos ) const
 				    { return get( pos[0], pos[1], pos[2] ); }
 
-    virtual const mPolyArray3DInfoTp& info() const = 0;
+    virtual const Array3DInfo&	info() const = 0;
 };
 
 

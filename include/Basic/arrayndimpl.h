@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.50 2007-09-13 19:38:38 cvsnanne Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.51 2007-10-10 03:24:14 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -226,7 +226,7 @@ public:
 				    set(idx, templ.get(idx));
 			}
 			
-    const mPolyArray1DInfoTp&  info() const		{ return in; }
+    const Array1DInfo&	info() const		{ return in; }
     bool		canSetInfo() { return true; }
     bool		setInfo( const ArrayNDInfo& ni )
 			{
@@ -318,7 +318,7 @@ public:
 			    }
 			}
 
-    const mPolyArray2DInfoTp&  info() const { return in; }
+    const Array2DInfo&	info() const { return in; }
 
     bool		canSetInfo() { return true; }
 
@@ -408,7 +408,7 @@ public:
 			    }
 			}
 
-    const mPolyArray3DInfoTp&	info() const { return in; }
+    const Array3DInfo&	info() const { return in; }
     bool		canSetInfo() { return true; }
     bool		setInfo( const ArrayNDInfo& ni )
 			{
