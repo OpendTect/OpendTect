@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Marc Gerritsen
  Date:          15-04-2003
- RCS:           $Id: SoGridSurfaceDragger.cc,v 1.3 2004-02-02 15:26:00 kristofer Exp $
+ RCS:           $Id: SoGridSurfaceDragger.cc,v 1.4 2007-10-10 05:03:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,32 +37,32 @@ SoGridSurfaceDragger::SoGridSurfaceDragger()
     SO_KIT_CONSTRUCTOR( SoGridSurfaceDragger );
 
     SO_KIT_ADD_CATALOG_ENTRY( translator, SoTranslation, FALSE,
-                              geomSeparator, , TRUE );
+                              geomSeparator, "", TRUE );
     SO_KIT_ADD_CATALOG_ENTRY( rotator, SoRotation, FALSE,
-                              geomSeparator, , FALSE );
+                              geomSeparator, "", FALSE );
     SO_KIT_ADD_CATALOG_ENTRY( material, SoMaterial, FALSE,
-                              geomSeparator, , TRUE );
+                              geomSeparator, "", TRUE );
     SO_KIT_ADD_CATALOG_ENTRY( mainseparator, SoSeparator, FALSE,
-	    		      geomSeparator, , TRUE );
+	    		      geomSeparator, "", TRUE );
 
     SO_KIT_ADD_CATALOG_ENTRY( cylinder, SoCylinder, FALSE,
-                              mainseparator, , TRUE );
+                              mainseparator, "", TRUE );
     SO_KIT_ADD_CATALOG_ENTRY( cube, SoCube, FALSE,
-                              mainseparator, , TRUE );
+                              mainseparator, "", TRUE );
 
     SO_KIT_ADD_CATALOG_ENTRY( topcylinderseparator, SoSeparator, FALSE,
-	    		      mainseparator, , TRUE );
+	    		      mainseparator, "", TRUE );
     SO_KIT_ADD_CATALOG_ENTRY( topcylindertranslator, SoTranslation, FALSE,
-	    		      topcylinderseparator, , TRUE);
+	    		      topcylinderseparator, "", TRUE);
     SO_KIT_ADD_CATALOG_ENTRY( topcylinder, SoCylinder, FALSE,
-	    		      topcylinderseparator, , TRUE );
+	    		      topcylinderseparator, "", TRUE );
 
     SO_KIT_ADD_CATALOG_ENTRY( bottomcylinderseparator, SoSeparator, FALSE,
-	    		      mainseparator, , TRUE );
+	    		      mainseparator, "", TRUE );
     SO_KIT_ADD_CATALOG_ENTRY( bottomcylindertranslator, SoTranslation, FALSE,
-	    		      bottomcylinderseparator, , TRUE);
+	    		      bottomcylinderseparator, "", TRUE);
     SO_KIT_ADD_CATALOG_ENTRY( bottomcylinder, SoCylinder, FALSE,
-	    		      bottomcylinderseparator, , TRUE );
+	    		      bottomcylinderseparator, "", TRUE );
 
     SO_KIT_ADD_FIELD( translation, (0.0f, 0.0f, 0.0f) );
     SO_KIT_ADD_FIELD( rotation, (1, 1, 1, 1) );

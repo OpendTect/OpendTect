@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.10 2004-05-24 21:04:12 bert Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.11 2007-10-10 05:03:45 cvsnanne Exp $";
 
 
 #include "SoPlaneWellLog.h"
@@ -46,14 +46,14 @@ SoPlaneWellLog::SoPlaneWellLog()
 {
     SO_KIT_CONSTRUCTOR(SoPlaneWellLog);
 
-    SO_KIT_ADD_CATALOG_ENTRY(topSeparator,SoSeparator,false,this, ,false);
+    SO_KIT_ADD_CATALOG_ENTRY(topSeparator,SoSeparator,false,this, "",false);
     SO_KIT_ADD_CATALOG_ENTRY(line1Switch,SoSwitch,false,
 	    		     topSeparator,line2Switch,false);
     SO_KIT_ADD_CATALOG_ENTRY(line2Switch,SoSwitch,false,
-	    		     topSeparator, ,false);
+	    		     topSeparator, "",false);
 
     SO_KIT_ADD_CATALOG_ENTRY(group1,SoSeparator,false,
-	    		     line1Switch, ,false);
+	    		     line1Switch, "",false);
     SO_KIT_ADD_CATALOG_ENTRY(col1,SoBaseColor,false,
 	    		     group1,drawstyle1,false);
     SO_KIT_ADD_CATALOG_ENTRY(drawstyle1,SoDrawStyle,false,
@@ -61,10 +61,10 @@ SoPlaneWellLog::SoPlaneWellLog()
     SO_KIT_ADD_CATALOG_ENTRY(coords1,SoCoordinate3,false,
 	    		     group1,lineset1,false);
     SO_KIT_ADD_CATALOG_ENTRY(lineset1,SoLineSet,false,
-	    		     group1, ,false);
+	    		     group1, "",false);
 
     SO_KIT_ADD_CATALOG_ENTRY(group2,SoSeparator,false,
-	    		     line2Switch, ,false);
+	    		     line2Switch, "",false);
     SO_KIT_ADD_CATALOG_ENTRY(col2,SoBaseColor,false,
 	    		     group2,drawstyle2,false);
     SO_KIT_ADD_CATALOG_ENTRY(drawstyle2,SoDrawStyle,false,
@@ -72,7 +72,7 @@ SoPlaneWellLog::SoPlaneWellLog()
     SO_KIT_ADD_CATALOG_ENTRY(coords2,SoCoordinate3,false,
 	    		     group2,lineset2,false);
     SO_KIT_ADD_CATALOG_ENTRY(lineset2,SoLineSet,false,
-	    		     group2, ,false);
+	    		     group2, "",false);
     SO_KIT_INIT_INSTANCE();
 
     sw1ptr = (SoSwitch*)getAnyPart("line1Switch",true);

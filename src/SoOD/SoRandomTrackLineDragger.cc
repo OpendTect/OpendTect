@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.8 2004-03-05 10:21:15 nanne Exp $";
+static const char* rcsID = "$Id: SoRandomTrackLineDragger.cc,v 1.9 2007-10-10 05:03:45 cvsnanne Exp $";
 
 #include "SoRandomTrackLineDragger.h"
 
@@ -42,19 +42,19 @@ SoRandomTrackLineDragger::SoRandomTrackLineDragger()
     SO_KIT_ADD_CATALOG_ENTRY(subDraggerRot,SoRotation, false,
 				subDraggerSep, subDraggers, false );
     SO_KIT_ADD_CATALOG_LIST_ENTRY(subDraggers,SoGroup, false,
-				subDraggerSep, , SoDragPointDragger, false );
+				subDraggerSep, "", SoDragPointDragger, false );
     SO_KIT_ADD_CATALOG_ENTRY(feedbackSwitch,SoSwitch, false,
-				this, , false );
+				this, "", false );
     SO_KIT_ADD_CATALOG_ENTRY(feedback, SoSeparator, false,
-	    			feedbackSwitch, , false );
+	    			feedbackSwitch, "", false );
     SO_KIT_ADD_CATALOG_ENTRY(feedbackCoords, SoCoordinate3, false,
 	    			feedback, feedbackMaterial, false );
     SO_KIT_ADD_CATALOG_ENTRY(feedbackMaterial, SoMaterial, false,
 	    			feedback, feedbackShapeHints, false );
     SO_KIT_ADD_CATALOG_ENTRY(feedbackShapeHints, SoShapeHints, false,
-	    			feedback, feedbackStrip , false );
+	    			feedback, feedbackStrip, false );
     SO_KIT_ADD_CATALOG_ENTRY(feedbackStrip, SoTriangleStripSet, false,
-	    			feedback, , false );
+	    			feedback, "", false );
 
     SO_KIT_ADD_FIELD(knots,(-1,0));
     SO_KIT_ADD_FIELD(z0, (-1));

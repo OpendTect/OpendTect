@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoTranslateRectangleDragger.cc,v 1.5 2007-01-16 09:02:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: SoTranslateRectangleDragger.cc,v 1.6 2007-10-10 05:03:45 cvsnanne Exp $";
 
 
 
@@ -31,7 +31,7 @@ SoTranslateRectangleDragger::SoTranslateRectangleDragger()
     SO_KIT_CONSTRUCTOR(SoTranslateRectangleDragger);
 
     SO_KIT_ADD_CATALOG_ENTRY(translator, SoSeparator, true,
-	    			geomSeparator, , false );
+	    			geomSeparator, "", false );
     SO_KIT_ADD_CATALOG_ENTRY(prefixgroup, SoGroup, true,
 	    			geomSeparator, translator, true );
 
