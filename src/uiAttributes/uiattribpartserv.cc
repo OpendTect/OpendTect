@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.73 2007-09-04 13:42:28 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.74 2007-10-10 07:23:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -744,10 +744,11 @@ static int cMaxMenuSize = 150;
 MenuItem* uiAttribPartServer::storedAttribMenuItem( const SelSpec& as, 
 						    bool is2d )
 {
-    SelInfo attrinf( adsman3d_->descSet(), 0, false, DescID::undef() );
-    if ( is2d ) 
-	attrinf = SelInfo( adsman2d_->descSet(), 0, true, DescID::undef() );
-    
+    const DescSet* ds = is2d ? adsman2d_->descSet() : adsman3d_->descSet();
+    SelInfo attrinf( ds, 0, is2d, DescID::undef() );
+
+    const bool isstored = ds && ds->getDesc( as.id() ) 
+	? ds->getDesc( as.id() )->isStored() : false;
     const bool isnla = as.isNLA();
     const bool hasid = as.id() >= 0;
     const BufferStringSet bfset = is2d ? get2DStoredLSets( attrinf )
@@ -761,21 +762,21 @@ MenuItem* uiAttribPartServer::storedAttribMenuItem( const SelSpec& as,
 	    {
 		const MultiID mid( attrinf.ioobjids.get(0) );
 		BufferStringSet nmsset = get2DStoredItems(mid);
-		insert2DStoredItems( nmsset, 0, nmsset.size(),
-				  !isnla&&hasid, &stored2dmnuitem_, as, false );
+		insert2DStoredItems( nmsset, 0, nmsset.size(), isstored,
+				     &stored2dmnuitem_, as, false );
 	    }
 	    else
-		insert2DStoredItems( bfset, 0, nritems, !isnla&&hasid,
+		insert2DStoredItems( bfset, 0, nritems, isstored,
 				     &stored2dmnuitem_, as, true );
 	}
 	else
 	{
 	    const int start = 0; const int stop = nritems;
-	    mInsertItems(ioobjnms,&stored3dmnuitem_,!isnla&&hasid);
+	    mInsertItems(ioobjnms,&stored3dmnuitem_,isstored);
 	}
     }
     else
-	insertNumerousItems( bfset, as, !isnla&&hasid, is2d );
+	insertNumerousItems( bfset, as, isstored, is2d );
 
     MenuItem* storedmnuitem = is2d ? &stored2dmnuitem_ : &stored3dmnuitem_;
     storedmnuitem->enabled = storedmnuitem->nrItems();
