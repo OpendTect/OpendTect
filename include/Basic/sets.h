@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.44 2007-10-02 19:30:39 cvskris Exp $
+ RCS:		$Id: sets.h,v 1.45 2007-10-10 01:00:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,6 +119,8 @@ public:
 			    const unsigned int sz = ts.size();
 			    if ( !sz ) return;
 
+			    setCapacity( sz+size() );
+
 			    for ( unsigned int idx=0; idx<sz; idx++ )
 				*this += ts[idx];
 			}
@@ -190,6 +192,7 @@ template <class T,class S>
 inline void append( TypeSet<T>& to, const TypeSet<S>& from )
 {
     const int sz = from.size();
+    to.setCapacity( sz + to.size() );
     for ( int idx=0; idx<sz; idx++ )
 	to += from[idx];
 }
