@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.9 2007-10-05 10:38:34 cvsnanne Exp $
+ RCS:		$Id: commondefs.h,v 1.10 2007-10-10 04:20:34 cvsnanne Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -35,15 +35,19 @@ ________________________________________________________________________
 #define mMaxUserIDLength 127
 
 #ifndef M_PI
-# define M_PI 3.14159265358979323846
+# define M_PI		3.14159265358979323846
 #endif
 
 #ifndef M_PI_2
-# define M_PI_2 1.57079632679489661923
+# define M_PI_2		1.57079632679489661923
 #endif
 
 #ifndef M_PI_4
-# define M_PI_4 0.78539816339744830962
+# define M_PI_4		0.78539816339744830962
+#endif
+
+#ifndef M_SQRT1_2
+# define M_SQRT1_2	0.70710678118654752440
 #endif
 
 #ifdef __win__
