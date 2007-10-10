@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.35 2007-09-13 06:05:29 cvskris Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.36 2007-10-10 09:31:21 cvsjaap Exp $";
 
 #include "emtracker.h"
 
@@ -236,7 +236,7 @@ SectionTracker* EMTracker::getSectionTracker( EM::SectionID sid, bool create )
 	    return sectiontrackers_[idx];
     }
 
-    if ( !create ) return 0;
+    if ( !create || emobject_->sectionIndex(sid)<0 ) return 0;
 
     SectionTracker* sectiontracker = createSectionTracker( sid );
     if ( !sectiontracker || !sectiontracker->init() )
