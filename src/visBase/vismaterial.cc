@@ -4,13 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vismaterial.cc,v 1.14 2007-09-10 06:16:36 cvskris Exp $
+ RCS:           $Id: vismaterial.cc,v 1.15 2007-10-10 03:59:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "vismaterial.h"
-#include "color.h"
 #include "iopar.h"
 
 #include <Inventor/nodes/SoMaterial.h>

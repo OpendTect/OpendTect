@@ -7,16 +7,16 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismaterial.h,v 1.13 2007-09-10 06:16:36 cvskris Exp $
+ RCS:		$Id: vismaterial.h,v 1.14 2007-10-10 03:59:24 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visdata.h"
+#include "color.h"
 
 class SoMaterial;
-class Color;
 
 namespace visBase
 {
@@ -92,7 +92,7 @@ protected:
     static const char*	sKeyTransparency();
 };
 
-}; // Namespace
+} // namespace visBase
 
 
 #endif

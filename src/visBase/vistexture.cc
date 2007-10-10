@@ -8,14 +8,13 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.37 2006-11-21 14:00:08 cvsbert Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.38 2007-10-10 03:59:24 cvsnanne Exp $";
 
 #include "vistexture.h"
 
 #include "arrayndimpl.h"
 #include "basictask.h"
 #include "iopar.h"
-#include "scaler.h"
 #include "simpnumer.h"
 #include "thread.h"
 #include "envvars.h"

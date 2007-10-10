@@ -7,19 +7,19 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.20 2006-08-16 10:51:19 cvsbert Exp $
+ RCS:		$Id: vistexture.h,v 1.21 2007-10-10 03:59:24 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visdata.h"
+#include "scaler.h"
 
 class DataClipper;
 class BasicTask;
 class Color;
 class IOPar;
-class LinScaler;
 class SoComplexity;
 class SoGroup;
 class SoSwitch;

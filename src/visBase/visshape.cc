@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.24 2007-03-12 11:57:13 cvskris Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.25 2007-10-10 03:59:24 cvsnanne Exp $";
 
 #include "visshape.h"
 
@@ -449,12 +449,12 @@ setGetIndex( Normal, normalIndex );
 setGetIndex( Material, materialIndex );
 
 
-int IndexedShape::getClosestCoordIndex(const EventInfo& ei) const
+int IndexedShape::getClosestCoordIndex( const EventInfo& ei ) const
 {
-    mDynamicCastGet(  FaceDetail * const, facedetail, ei.detail );
+    mDynamicCastGet(const FaceDetail*,facedetail,ei.detail)
     if ( !facedetail ) return -1;
 
     return facedetail->getClosestIdx( getCoordinates(), ei.localpickedpos );
 }
 
-}; // namespace visBase
+} // namespace visBase

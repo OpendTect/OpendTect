@@ -7,18 +7,17 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-06-2003
- RCS:		$Id: visdetail.h,v 1.3 2004-08-05 08:52:08 kristofer Exp $
+ RCS:		$Id: visdetail.h,v 1.4 2007-10-10 03:59:24 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "bufstring.h"
 #include "position.h"
-#include <bufstring.h>
 
 class SoDetail;
 class SoFaceDetail;
-class SoPointDetail;
 
 
 namespace visBase
@@ -36,9 +35,8 @@ enum DetailType { Face };
 class Detail
 {
 public:
-    Detail( DetailType dt)
-    	: detailtype( dt )
-    {};
+			Detail( DetailType dt )
+			    : detailtype( dt )	{}
     
     virtual DetailType	getDetailType();
     
@@ -51,18 +49,17 @@ protected:
 class FaceDetail : public Detail
 {
 public:
-    FaceDetail( SoFaceDetail* d )
-	: Detail( Face )
-	, facedetail( d )
-    {};
+			FaceDetail( SoFaceDetail* d )
+			    : Detail( Face )
+			    , facedetail( d )	{}
 
-    int			getClosestIdx( const Coordinates*, const Coord3& );
+    int			getClosestIdx(const Coordinates*,const Coord3&) const;
 
 protected:
     SoFaceDetail*	facedetail;
 };
 
-}; // Namespace
+} // namespace visBase
 
 
 #endif
