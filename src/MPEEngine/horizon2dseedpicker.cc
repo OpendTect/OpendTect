@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Sep 2005
- RCS:		$Id: horizon2dseedpicker.cc,v 1.7 2007-07-17 08:12:48 cvsnanne Exp $
+ RCS:		$Id: horizon2dseedpicker.cc,v 1.8 2007-10-10 04:32:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -509,8 +509,9 @@ bool Horizon2DSeedPicker::interpolateSeeds()
     if ( nrseeds<2 )
 	return true;
 
-    int sortval[nrseeds], sortidx[nrseeds];
-    
+    mVariableLengthArr( int, sortval, nrseeds );
+    mVariableLengthArr( int, sortidx, nrseeds );
+
     RowCol rc;
     for ( int idx=0; idx<nrseeds; idx++ )
     {
@@ -521,7 +522,12 @@ bool Horizon2DSeedPicker::interpolateSeeds()
 	sortval[idx] = rc.col;
 	sortidx[idx] = idx;
     }
+
+#ifdef __msvc__
+    sort_coupled( sortval.ptr(), sortidx.ptr(), nrseeds );
+#else
     sort_coupled( sortval, sortidx, nrseeds );
+#endif
 
     for ( int vtx=0; vtx<nrseeds-1; vtx++ )
     {
