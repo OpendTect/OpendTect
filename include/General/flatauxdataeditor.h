@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.10 2007-10-02 14:14:25 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.11 2007-10-10 01:13:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "geometry.h"
 
 class MouseEventHandler;
+class MenuHandler;
 
 namespace FlatView
 {
@@ -57,13 +58,18 @@ public:
     bool		isDragging() const { return mousedown_; }
 
     int				getSelPtDataID() const;
-    int				getSelPtIdx() const;
+    const TypeSet<int>&		getSelPtIdx() const;
     const Point&		getSelPtPos() const;
 			
     Notifier<AuxDataEditor>	movementStarted;
     Notifier<AuxDataEditor>	movementFinished;
-    				/*!If selPtIdx()==-1, position should be added,
-				   otherwise moved. */
+    				/*!
+				  if getSelPtDataID==-1 selection polygon
+				  			changed
+				  else
+				      If selPtIdx()==-1, position should be
+				      			 added,
+				      else		 point moved. */
     Notifier<AuxDataEditor>	removeSelected;
 
     void			setSelectionPolygonRectangle(bool);
@@ -83,6 +89,10 @@ public:
     const TypeSet<int>&				getIds() const;
     const ObjectSet<Annotation::AuxData>&	getAuxData() const;
 
+    void		removePolygonSelected(int dataid);
+    			//!<If dataid ==-1, all pts inside polygon is removed
+    void		setMenuHandler(MenuHandler*);
+    MenuHandler*	getMenuHandler();
 
 protected:
     bool		removeSelectionPolygon();
@@ -116,11 +126,12 @@ protected:
     bool				hasmoved_;
 
     int					seldatasetidx_;
-    int					selptidx_;
+    TypeSet<int>			selptidx_;
     Point				selptcoord_;
     Rect*				movementlimit_;
-};
 
+    MenuHandler*			menuhandler_;
+};
 
 
 }; // namespace FlatView

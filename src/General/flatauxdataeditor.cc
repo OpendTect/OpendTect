@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.17 2007-10-02 14:14:25 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.cc,v 1.18 2007-10-10 01:13:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,8 @@ ________________________________________________________________________
 #include "flatauxdataeditor.h"
 
 #include "mouseevent.h"
+#include "menuhandler.h"
+#include "polygon.h"
 #include "rcol2coord.h"
 
 
@@ -29,10 +31,10 @@ AuxDataEditor::AuxDataEditor( Viewer& v, MouseEventHandler& meh )
     , movementStarted( this )
     , movementFinished( this )
     , seldatasetidx_( -1 )
-    , selptidx_( -1 )
     , polygonsellst_( LineStyle::Solid, 1, Color( 255, 0, 0 ) )
     , polygonselrect_( true )
     , movementlimit_( 0 )
+    , menuhandler_( 0 )
 {
     meh.buttonPressed.notify( mCB(this,AuxDataEditor,mousePressCB) );
     meh.buttonReleased.notify( mCB(this,AuxDataEditor,mouseReleaseCB) );
@@ -55,6 +57,8 @@ AuxDataEditor::~AuxDataEditor()
     removeSelectionPolygon();
     viewer_.handleChange( Viewer::Annot );
     limitMovement( 0 );
+
+    setMenuHandler( 0 );
 }
 
 
@@ -146,7 +150,7 @@ int AuxDataEditor::getSelPtDataID() const
 { return seldatasetidx_!=-1 ? ids_[seldatasetidx_] : -1; }
 
 
-int AuxDataEditor::getSelPtIdx() const
+const TypeSet<int>& AuxDataEditor::getSelPtIdx() const
 { return selptidx_; }
 
 
@@ -203,9 +207,9 @@ void AuxDataEditor::getPointSelections( TypeSet<int>& ids,
 	    displayselpoly += Geom::Point2D<int>( rc.row, rc.col );
 	}
 
-	//Polygon polygon( displayselpoly );
+	Polygon<int> polygon( displayselpoly );
 
-	for ( int idy=0; idy<auxdata_.size(); idx++ )
+	for ( int idy=0; idy<auxdata_.size(); idy++ )
 	{
 	    const int auxdataid = ids_[idy];
 	    const Rect wr = getWorldRect( auxdataid );
@@ -221,8 +225,8 @@ void AuxDataEditor::getPointSelections( TypeSet<int>& ids,
 		    trans.transformBack(auxdata_[idy]->poly_[idz]);
 		const Geom::Point2D<int> testpos( rc.row, rc.col );
 
-	//	if ( !polygon.isInside( Geom::Point2D<int>( rc.row, rc.col ) ) )
-	//	    continue;
+		if ( !polygon.isInside( Geom::Point2D<int>(rc.row,rc.col), true, 1 ) )
+		    continue;
 
 		ids += auxdataid;
 		idxs += idz;
@@ -241,12 +245,75 @@ AuxDataEditor::getAuxData() const
 { return auxdata_; }
 
 
+void AuxDataEditor::removePolygonSelected( int dataid )
+{
+    TypeSet<int> ids;
+    TypeSet<int> idxs;
+
+    getPointSelections( ids, idxs );
+
+    while ( ids.size() )
+    {
+	const int curdataid = ids[0];
+	if ( dataid==-1 || curdataid==dataid )
+	{
+	    selptidx_.erase();
+	    for ( int idy=ids.size()-1; idy>=0; idy-- )
+	    {
+		if ( ids[idy]==curdataid )
+		{
+		    selptidx_ += idxs[idy];
+		    ids.remove( idy );
+		    idxs.remove( idy );
+		}
+	    }
+
+	    seldatasetidx_ = ids_.indexOf( curdataid );
+	    removeSelected.trigger();
+	}
+	else
+	{
+	    ids.remove( 0 );
+	    idxs.remove( 0 );
+	}
+    }
+}
+
+
+void AuxDataEditor::setMenuHandler( MenuHandler* mh )
+{
+    if ( menuhandler_ )
+	menuhandler_->unRef();
+
+    menuhandler_ = mh;
+
+    if ( menuhandler_ )
+	menuhandler_->ref();
+}
+
+
+MenuHandler* AuxDataEditor::getMenuHandler()
+{ return menuhandler_; }
+
+
 void AuxDataEditor::mousePressCB( CallBacker* cb )
 {
     if ( mousehandler_.isHandled() ) 
 	return; 
 
     const MouseEvent& ev = mousehandler_.event(); 
+    if ( !(ev.buttonState() & OD::LeftButton ) &&
+	  !(ev.buttonState() & OD::MidButton ) &&
+	  (ev.buttonState() & OD::RightButton ) )
+    {
+	if ( !menuhandler_ )
+	    return;
+
+	mousehandler_.setHandled( true );
+	menuhandler_->executeMenu();
+	return;
+    }
+
     if ( !(ev.buttonState() & OD::LeftButton ) ||
 	  (ev.buttonState() & OD::MidButton ) ||
 	  (ev.buttonState() & OD::RightButton ) )
@@ -271,7 +338,7 @@ void AuxDataEditor::mousePressCB( CallBacker* cb )
 		   RowCol( mousearea_.topRight().x, mousearea_.topRight().y ),
 		   mousearea_.bottomLeft().y );
 
-	selptcoord_ = selptidx_!=-1 ? auxdata_[seldatasetidx_]->poly_[selptidx_]
+	selptcoord_ = selptidx_.size() ? auxdata_[seldatasetidx_]->poly_[selptidx_[0]]
 				    : trans.transform(
 					RowCol(ev.pos().x,ev.pos().y ) );
     }
@@ -331,16 +398,17 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 	return;
     }
 
+
     //Remove
     if ( !hasmoved_ && ev.ctrlStatus() && !ev.shiftStatus() &&
 	 !ev.altStatus() && seldatasetidx_!=-1 &&
-	 allowremove_[seldatasetidx_] && selptidx_!=-1 )
+	 allowremove_[seldatasetidx_] && selptidx_.size() )
     {
 	removeSelected.trigger();
 
 	if ( doedit_[seldatasetidx_] )
 	{
-	    auxdata_[seldatasetidx_]->poly_.remove( selptidx_ );
+	    auxdata_[seldatasetidx_]->poly_.remove( selptidx_[0] );
 	    viewer_.handleChange( Viewer::Annot );
 	}
 
@@ -355,13 +423,22 @@ void AuxDataEditor::mouseReleaseCB( CallBacker* cb )
 	delete feedback_;
 	feedback_ = 0;
 
-	if ( selptidx_!=-1 )
+	if ( selptidx_.size() )
 	    viewer_.appearance().annot_.auxdata_ += auxdata_[seldatasetidx_];
 
 	viewer_.handleChange( Viewer::Annot );
     }
+    
+    //Movement of existing position
+    if ( seldatasetidx_!=-1 && selptidx_.size() && hasmoved_ )
+    {
+	mousehandler_.setHandled( true );
+	movementFinished.trigger();
+    }
 
-    if ( seldatasetidx_!=-1 && selptidx_!=-1 && hasmoved_ )
+
+    //Selection polygon movement
+    if ( seldatasetidx_==-1 && !selptidx_.size() && hasmoved_ )
     {
 	mousehandler_.setHandled( true );
 	movementFinished.trigger();
@@ -406,13 +483,13 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	if ( movementlimit_ )
 	    selptcoord_ = movementlimit_->moveInside( selptcoord_ );
 
-	if ( doedit_[seldatasetidx_]  && selptidx_!=-1 )
-	    auxdata_[seldatasetidx_]->poly_[selptidx_] = selptcoord_;
+	if ( doedit_[seldatasetidx_]  && selptidx_.size() )
+	    auxdata_[seldatasetidx_]->poly_[selptidx_[0]] = selptcoord_;
 	else if ( !feedback_ )
 	{
 	    feedback_ = new Annotation::AuxData( *auxdata_[seldatasetidx_] );
 	    viewer_.appearance().annot_.auxdata_ += feedback_;
-	    if ( selptidx_==-1 )
+	    if ( !selptidx_.size() )
 	    {
 		feedback_->poly_.erase();
 		feedback_->poly_ += selptcoord_;
@@ -421,10 +498,10 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 		viewer_.appearance().annot_.auxdata_ -=
 		    		     auxdata_[seldatasetidx_];
 	}
-	else if ( selptidx_==-1 )
+	else if ( !selptidx_.size() )
 	    feedback_->poly_[0] = selptcoord_;
 	else 
-	    feedback_->poly_[selptidx_] = selptcoord_;
+	    feedback_->poly_[selptidx_[0]] = selptcoord_;
 
 	viewer_.handleChange( Viewer::Annot );
 	mousehandler_.setHandled( true );
@@ -487,7 +564,7 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 bool AuxDataEditor::updateSelection( const Geom::Point2D<int>& pt )
 {
     seldatasetidx_ = -1;
-    selptidx_ = -1;
+    selptidx_.erase();
 
     int minsqdist;
     for ( int idx=0; idx<auxdata_.size(); idx++ )
@@ -519,7 +596,7 @@ bool AuxDataEditor::updateSelection( const Geom::Point2D<int>& pt )
 	    if ( seldatasetidx_==-1 || sqdist<minsqdist )
 	    {
 		seldatasetidx_ = idx;
-		selptidx_ = idy;
+		selptidx_ += idy;
 		minsqdist = sqdist;
 	    }
 	}
