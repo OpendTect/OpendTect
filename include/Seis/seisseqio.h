@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: seisseqio.h,v 1.5 2007-10-10 18:51:00 cvskris Exp $
+ * ID       : $Id: seisseqio.h,v 1.6 2007-10-11 15:38:06 cvsbert Exp $
 -*/
 
 #include "seistype.h"
@@ -49,15 +49,15 @@ protected:
 class SeqInp : public SeqIO
 {
 public:
-    mDefineFactoryInClass(SeqInp,factory);
 
     virtual bool	get(SeisTrc&) const		= 0;
     virtual const SeisSelData& selData() const;
 
     virtual void	fillPar(IOPar&) const;
 
-
     virtual Seis::Bounds* getBounds() const		{ return 0; }
+
+    mDefineFactoryInClass(SeqInp,factory);
 };
 
 
@@ -67,8 +67,6 @@ public:
 class ODSeqInp : public SeqInp
 {
 public:
-    static void		initClass();
-    static SeqInp*	create()		{ return new ODSeqInp; }
 
     			ODSeqInp() : rdr_(0)	{}
     			~ODSeqInp();
@@ -83,6 +81,9 @@ public:
     virtual bool	get(SeisTrc&) const;
 
     virtual Seis::Bounds* getBounds() const;
+
+    static void		initClass();
+    static SeqInp*	create()		{ return new ODSeqInp; }
 
 protected:
 
@@ -103,7 +104,7 @@ public:
     static SeqOut*	make(const char*);
     static void		addClass(SeqOut*);
 
-    virtual SeqIO*	makeNew() const 		= 0;
+    mDefineFactoryInClass(SeqOut,factory);
 
 };
 
@@ -114,6 +115,7 @@ public:
 
     			ODSeqOut() : wrr_(0)	{}
     			~ODSeqOut();
+
     virtual const char*	type() const		{ return sKeyODType; }
     virtual Seis::GeomType geomType() const;
 
@@ -121,9 +123,10 @@ public:
     virtual void	fillPar(IOPar&) const;
     virtual bool	put(const SeisTrc&);
 
-protected:
+    static void		initClass();
+    static SeqOut*	create()		{ return new ODSeqOut; }
 
-    virtual SeqIO*	makeNew() const		{ return new ODSeqOut; }
+protected:
 
     SeisTrcWriter*	wrr_;
 
