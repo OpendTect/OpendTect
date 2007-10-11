@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.28 2007-05-22 07:06:58 cvsraman Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.29 2007-10-11 12:09:05 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ class BinIDValueSet;
 class BufferStringSet;
 class CubeSampling;
 class Executor;
+class IOObj;
 class IOPar;
 class LineKey;
 class NLACreationDesc;
@@ -117,6 +118,7 @@ public:
     bool		isDataClassified(const Array3D<float>&) const;
 
     Attrib::DescID	getStoredID(const LineKey&,bool is2d);
+    IOObj*		getIOObj(const Attrib::SelSpec&) const;
 
     bool		extractData(const NLACreationDesc&,
 				    const ObjectSet<BinIDValueSet>&,
