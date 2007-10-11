@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.70 2007-10-10 15:31:44 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.71 2007-10-11 15:38:47 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -668,18 +668,38 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 	return 0;
 
     Seis::Bounds2D* b2d = new Seis::Bounds2D;
-    //TODO implement
+    b2d->zrg_ = l2dd.zrg;
 
-    int crl = mUdf(int);
+    b2d->nrrg_.step = mUdf(int);
+    b2d->mincoord_ = b2d->maxcoord_ = l2dd.posns[0].coord_;
     int prevnr = l2dd.posns[0].nr_;
+    b2d->nrrg_.start = b2d->nrrg_.stop = prevnr;
     for ( int idx=1; idx<l2dd.posns.size(); idx++ )
     {
 	const int curnr = l2dd.posns[idx].nr_;
 	const int step = abs( curnr - prevnr );
-	if ( step > 0 && step < crl )
+	if ( step > 0 && step < b2d->nrrg_.step )
 	{
-	    crl = step;
-	    if ( crl == 1 ) break;
+	    b2d->nrrg_.step = step;
+	    if ( b2d->nrrg_.step == 1 ) break;
+	}
+    }
+
+    for ( int iln=0; iln<lset->nrLines(); iln++ )
+    {
+	PosInfo::Line2DData l2dd;
+	if ( !lset->getGeometry(iln,l2dd) || l2dd.posns.size() < 2 )
+	    return 0;
+	for ( int idx=0; idx<l2dd.posns.size(); idx++ )
+	{
+	    const Coord c( l2dd.posns[idx].coord_ );
+	    if ( b2d->mincoord_.x > c.x ) b2d->mincoord_.x = c.x;
+	    else if ( b2d->maxcoord_.x < c.x ) b2d->maxcoord_.x = c.x;
+	    if ( b2d->mincoord_.y > c.y ) b2d->mincoord_.y = c.y;
+	    else if ( b2d->maxcoord_.y < c.y ) b2d->maxcoord_.y = c.y;
+	    const int nr = l2dd.posns[idx].nr_;
+	    if ( b2d->nrrg_.start > nr ) b2d->nrrg_.start = nr;
+	    else if ( b2d->nrrg_.stop < nr ) b2d->nrrg_.stop = nr;
 	}
     }
 
