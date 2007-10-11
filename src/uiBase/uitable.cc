@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.54 2007-06-06 07:52:53 cvsnanne Exp $
+ RCS:           $Id: uitable.cc,v 1.55 2007-10-11 07:29:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -695,11 +695,11 @@ void uiTable::rightClk()
     if ( setup_.colgrow_ )
     {
 	itmtxt = "Insert "; itmtxt += setup_.coldesc_; itmtxt += " before";
-	inscolbef = mnu->insertItem( new uiMenuItem( itmtxt ) );
+	inscolbef = mnu->insertItem( new uiMenuItem(itmtxt), 0 );
 	itmtxt = "Remove "; itmtxt += setup_.coldesc_;
-	delcol = mnu->insertItem( new uiMenuItem( itmtxt ) );
+	delcol = mnu->insertItem( new uiMenuItem(itmtxt), 1 );
 	itmtxt = "Insert "; itmtxt += setup_.coldesc_; itmtxt += " after";
-	inscolaft = mnu->insertItem( new uiMenuItem( itmtxt ) );
+	inscolaft = mnu->insertItem( new uiMenuItem(itmtxt), 2 );
     }
 
     int insrowbef = 0;
@@ -708,11 +708,11 @@ void uiTable::rightClk()
     if ( setup_.rowgrow_ )
     {
 	itmtxt = "Insert "; itmtxt += setup_.rowdesc_; itmtxt += " before";
-	insrowbef = mnu->insertItem( new uiMenuItem( itmtxt ) );
+	insrowbef = mnu->insertItem( new uiMenuItem(itmtxt), 3 );
 	itmtxt = "Remove "; itmtxt += setup_.rowdesc_;
-	delrow = mnu->insertItem( new uiMenuItem( itmtxt ) );
+	delrow = mnu->insertItem( new uiMenuItem(itmtxt), 4 );
 	itmtxt = "Insert "; itmtxt += setup_.rowdesc_; itmtxt += " after";
-	insrowaft = mnu->insertItem( new uiMenuItem( itmtxt ) );
+	insrowaft = mnu->insertItem( new uiMenuItem(itmtxt), 5 );
     }
 
     int ret = mnu->exec();
