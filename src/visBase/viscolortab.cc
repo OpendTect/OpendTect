@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: viscolortab.cc,v 1.35 2007-07-18 14:37:39 cvskris Exp $
+ RCS:           $Id: viscolortab.cc,v 1.36 2007-10-11 12:19:55 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,18 @@ void VisColorTab::setAutoScale( bool yn )
 
     autoscale_ = yn;
     if ( autoscale_ ) autoscalechange.trigger();
+}
+
+
+bool VisColorTab::isSymmetric() const
+{
+    return symmetry_;
+}
+
+
+void VisColorTab::setSymmetric( bool yn ) 
+{
+    symmetry_ = yn;
 }
 
 
