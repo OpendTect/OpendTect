@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodattribtreeitem.cc,v 1.9 2007-01-12 11:37:06 cvshelene Exp $
+ RCS:		$Id: uiodattribtreeitem.cc,v 1.10 2007-10-11 12:17:36 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -14,8 +14,10 @@ ___________________________________________________________________
 #include "uimenu.h"
 #include "uiodapplmgr.h"
 #include "uivispartserv.h"
+#include "uiviscoltabed.h"
 
 #include "attribsel.h"
+#include "filepath.h"
 #include "ptrman.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -35,6 +37,7 @@ ___________________________________________________________________
 uiODAttribTreeItem::uiODAttribTreeItem( const char* parenttype )
     : uiODDataTreeItem( parenttype )
     , selattrmnuitem_( sKeySelAttribMenuTxt() )
+    , colsettingsmnuitem_( sKeyColSettingsMenuTxt() )
 {}
 
 
@@ -111,6 +114,9 @@ const char* uiODAttribTreeItem::sKeySelAttribMenuTxt()
 { return "Select Attribute"; }
 
 
+const char* uiODAttribTreeItem::sKeyColSettingsMenuTxt()
+{ return "Save Color Settings"; }
+
 void uiODAttribTreeItem::createMenuCB( CallBacker* cb )
 {
     const uiVisPartServer* visserv = applMgr()->visServer();
@@ -124,6 +130,11 @@ void uiODAttribTreeItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( menu, &selattrmnuitem_,
 		!visserv->isLocked(displayID()), false );
 
+    const uiAttribPartServer* attrserv = applMgr()->attrServer();
+    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
+    if ( attrserv->getIOObj(*as) )
+	mAddMenuItem( menu, &colsettingsmnuitem_, true, false );
+    
     uiODDataTreeItem::createMenuCB( cb );
 }
 
@@ -137,7 +148,22 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
-    if ( handleSelMenu( mnuid, displayID(), attribNr()) )
+    if ( mnuid == colsettingsmnuitem_.id )
+    {
+	const uiVisPartServer* visserv = applMgr()->visServer();
+	const uiAttribPartServer* attrserv = applMgr()->attrServer();
+	const Attrib::SelSpec* as = visserv->getSelSpec(displayID(),attribNr());
+	IOObj* ioobj = attrserv->getIOObj( *as );
+	if ( !ioobj ) return;
+
+	FilePath fp( ioobj->fullUserExpr(true) );
+	fp.setExtension( "par" );
+	BufferString fnm = fp.fullPath();
+	IOPar iop;
+	ODMainWin()->colTabEd().fillPar( iop );
+	iop.write( fnm, 0 );
+    }
+    else if ( handleSelMenu( mnuid, displayID(), attribNr()) )
     {
 	menu->setIsHandled(true);
 	updateColumnText( uiODSceneMgr::cNameColumn() );

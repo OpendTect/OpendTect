@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.206 2007-10-08 07:49:07 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.207 2007-10-11 12:17:36 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribdatacubes.h"
 #include "attribsel.h"
+#include "filepath.h"
 #include "seisbuf.h"
 #include "posvecdataset.h"
 #include "pickset.h"
@@ -445,6 +446,19 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	return false;
     } 
 
+    IOObj* ioobj = attrserv_->getIOObj( myas );
+    if ( ioobj )
+    {
+	const int coltabid = visserv_->getColTabId( visid, attrib );
+	appl_.colTabEd().setColTab( coltabid );
+
+	FilePath fp( ioobj->fullUserExpr(true) );
+	fp.setExtension( "par" );
+	BufferString fnm = fp.fullPath();
+	IOPar iop;
+	if ( !iop.read(fnm,0) || !appl_.colTabEd().usePar(iop) )
+	    appl_.colTabEd().setDefaultColTab();
+    }
     bool res = false;
     switch ( visserv_->getAttributeFormat(visid) )
     {
