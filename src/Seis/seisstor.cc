@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.30 2007-10-10 18:51:00 cvskris Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.31 2007-10-11 15:38:24 cvsbert Exp $";
 
 #include "seisseqio.h"
 #include "seisread.h"
@@ -194,35 +194,7 @@ void Seis::SeqIO::fillPar( IOPar& iop ) const
 }
 
 mImplFactory( Seis::SeqInp, Seis::SeqInp::factory );
-
-
-static BufferStringSet& seisOutClassNames()
-{
-    static BufferStringSet* nms = 0;
-    if ( !nms ) nms = new BufferStringSet;
-    return *nms;
-}
-static ObjectSet<Seis::SeqOut>& seisOutClasses()
-{
-    static ObjectSet<Seis::SeqOut>* clsss = 0;
-    if ( !clsss ) clsss = new ObjectSet<Seis::SeqOut>;
-    return *clsss;
-}
-BufferStringSet& Seis::SeqOut::classNames()
-{ return seisOutClassNames(); }
-Seis::SeqOut* Seis::SeqOut::make( const char* nm )
-{
-    const ObjectSet<Seis::SeqOut>& clsss = seisOutClasses();
-    if ( !nm ) nm = "";
-    for ( int idx=0; idx<clsss.size(); idx++ )
-    {
-	if ( !strcmp(nm,clsss[idx]->type()) )
-	    return (Seis::SeqOut*)clsss[idx]->makeNew();
-    }
-    return 0;
-}
-void Seis::SeqOut::addClass( Seis::SeqOut* so )
-{ seisOutClasses() += so; }
+mImplFactory( Seis::SeqOut, Seis::SeqOut::factory );
 
 
 const SeisSelData& Seis::SeqInp::selData() const
