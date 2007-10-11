@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.71 2007-04-24 08:45:20 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.72 2007-10-11 12:06:11 cvsraman Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: seiscbvs.cc,v 1.71 2007-04-24 08:45:20 cvsbert 
 #include "seistrcsel.h"
 #include "cbvsreadmgr.h"
 #include "cbvswritemgr.h"
+#include "filepath.h"
 #include "iostrm.h"
 #include "cubesampling.h"
 #include "iopar.h"
@@ -559,6 +560,12 @@ bool CBVSSeisTrcTranslator::implRemove( const IOObj* ioobj ) const
 {
     mImplStart(implRemove());
 
+    FilePath fpar( ioobj->fullUserExpr(true) );
+    fpar.setExtension( "par" );
+    StreamProvider parsp( fpar.fullPath() );
+    if ( parsp.exists(true) )
+	parsp.remove(false);
+
     for ( int nr=0; ; nr++ )
     {
 	mImplLoopStart;
@@ -573,6 +580,16 @@ bool CBVSSeisTrcTranslator::implRename( const IOObj* ioobj, const char* newnm,
        					const CallBack* cb ) const
 {
     mImplStart( implRename(newnm) );
+
+    FilePath fpar( ioobj->fullUserExpr(true) );
+    fpar.setExtension( "par" );
+    StreamProvider parsp( fpar.fullPath() );
+    if ( parsp.exists(true) )
+    {
+	FilePath fparnew( newnm );
+	fparnew.setExtension( "par" );
+	parsp.rename( fparnew.fullPath() );
+    }
 
     bool rv = true;
     for ( int nr=0; ; nr++ )
