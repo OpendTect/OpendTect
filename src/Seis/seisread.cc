@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.71 2007-10-11 15:38:47 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.72 2007-10-11 16:20:39 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -638,7 +638,58 @@ Seis::Bounds* SeisTrcReader::get3DBounds( const StepInterval<int>& inlrg,
     }
     b3d->cs_.zrg = zrg;
 
+    if ( !seldata || seldata->all_ )
+	return b3d;
+
+#define mChkRg(dir) \
+    const Interval<int> dir##rng( seldata->dir##Range() ); \
+    if ( b3d->cs_.hrg.start.dir < dir##rng.start ) \
+	b3d->cs_.hrg.start.dir = dir##rng.start; \
+    if ( b3d->cs_.hrg.stop.dir > dir##rng.stop ) \
+	b3d->cs_.hrg.stop.dir = dir##rng.stop;
+
+    mChkRg(inl)
+    mChkRg(crl)
+
+    const Interval<float> zrng( seldata->zRange() );
+    if ( b3d->cs_.zrg.start < zrng.start ) b3d->cs_.zrg.start = zrng.start;
+    if ( b3d->cs_.zrg.stop > zrng.stop ) b3d->cs_.zrg.stop = zrng.stop;
+
     return b3d;
+}
+
+
+bool SeisTrcReader::initBounds2D( const PosInfo::Line2DData& l2dd,
+				  Seis::Bounds2D& b2d ) const
+{
+    b2d.zrg_ = l2dd.zrg;
+
+    int prevnr = l2dd.posns[0].nr_;
+    bool havefoundaselected = false;
+    b2d.nrrg_.step = mUdf(int);
+
+    for ( int idx=0; idx<l2dd.posns.size(); idx++ )
+    {
+	const int curnr = l2dd.posns[idx].nr_;
+	if ( idx != 0 )
+	{
+	    const int step = abs( curnr - prevnr );
+	    if ( step > 0 && step < b2d.nrrg_.step )
+		b2d.nrrg_.step = step;
+	}
+
+	if ( !havefoundaselected && (!seldata || seldata->isOK(curnr)) )
+	{
+	    b2d.nrrg_.start = b2d.nrrg_.stop = curnr;
+	    b2d.mincoord_ = b2d.maxcoord_ = l2dd.posns[idx].coord_;
+	    havefoundaselected = true;
+	}
+
+	if ( b2d.nrrg_.step == 1 && havefoundaselected )
+	    return true;
+    }
+
+    return havefoundaselected;
 }
 
 
@@ -663,45 +714,45 @@ Seis::Bounds* SeisTrcReader::getBounds() const
 
     if ( !lset || lset->nrLines() < 1 )
 	return 0;
-    PosInfo::Line2DData l2dd;
-    if ( !lset->getGeometry(0,l2dd) || l2dd.posns.size() < 2 )
-	return 0;
 
     Seis::Bounds2D* b2d = new Seis::Bounds2D;
-    b2d->zrg_ = l2dd.zrg;
 
-    b2d->nrrg_.step = mUdf(int);
-    b2d->mincoord_ = b2d->maxcoord_ = l2dd.posns[0].coord_;
-    int prevnr = l2dd.posns[0].nr_;
-    b2d->nrrg_.start = b2d->nrrg_.stop = prevnr;
-    for ( int idx=1; idx<l2dd.posns.size(); idx++ )
+    for ( int iiter=0; iiter<2; iiter++ ) // iiter == 0 is initialisation
     {
-	const int curnr = l2dd.posns[idx].nr_;
-	const int step = abs( curnr - prevnr );
-	if ( step > 0 && step < b2d->nrrg_.step )
-	{
-	    b2d->nrrg_.step = step;
-	    if ( b2d->nrrg_.step == 1 ) break;
-	}
-    }
-
     for ( int iln=0; iln<lset->nrLines(); iln++ )
     {
+	if ( seldata && !seldata->linekey_.isEmpty()
+	  && seldata->linekey_ != lset->lineKey(iln) )
+	    continue;
+
 	PosInfo::Line2DData l2dd;
 	if ( !lset->getGeometry(iln,l2dd) || l2dd.posns.size() < 2 )
-	    return 0;
+	    continue;
+
+	if ( iiter == 0 )
+	{
+	    if ( initBounds2D(l2dd,*b2d) )
+		break;
+	    else
+		continue;
+	}
+
 	for ( int idx=0; idx<l2dd.posns.size(); idx++ )
 	{
+	    const int nr = l2dd.posns[idx].nr_;
+	    if ( seldata && !seldata->isOK(nr) )
+		continue;
+
+	    if ( b2d->nrrg_.start > nr ) b2d->nrrg_.start = nr;
+	    else if ( b2d->nrrg_.stop < nr ) b2d->nrrg_.stop = nr;
 	    const Coord c( l2dd.posns[idx].coord_ );
 	    if ( b2d->mincoord_.x > c.x ) b2d->mincoord_.x = c.x;
 	    else if ( b2d->maxcoord_.x < c.x ) b2d->maxcoord_.x = c.x;
 	    if ( b2d->mincoord_.y > c.y ) b2d->mincoord_.y = c.y;
 	    else if ( b2d->maxcoord_.y < c.y ) b2d->maxcoord_.y = c.y;
-	    const int nr = l2dd.posns[idx].nr_;
-	    if ( b2d->nrrg_.start > nr ) b2d->nrrg_.start = nr;
-	    else if ( b2d->nrrg_.stop < nr ) b2d->nrrg_.stop = nr;
-	}
-    }
+	} // each position
+    } // each line
+    } // iiter = 0 or 1
 
     return b2d;
 }
