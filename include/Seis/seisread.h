@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.26 2007-10-10 15:31:44 cvsbert Exp $
+ RCS:		$Id: seisread.h,v 1.27 2007-10-11 16:21:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,8 @@ ________________________________________________________________________
 class Executor;
 class BinIDRange;
 class SeisTrcBuf;
-namespace Seis { class Bounds; }
+namespace PosInfo { class Line2DData; }
+namespace Seis { class Bounds; class Bounds2D; }
 
 
 /*!\brief reads from a seismic data store.
@@ -115,6 +116,8 @@ protected:
     Seis::Bounds*	get3DBounds(const StepInterval<int>&,
 	    			    const StepInterval<int>&,
 				    const StepInterval<float>&) const;
+    bool		initBounds2D(const PosInfo::Line2DData&,
+	    			     Seis::Bounds2D&) const;
 
 };
 
