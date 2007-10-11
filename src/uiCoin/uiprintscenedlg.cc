@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.33 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.34 2007-10-11 11:25:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -194,10 +194,11 @@ void uiPrintSceneDlg::updateFilter()
 	int idx = 0;
 	while ( imageformats[idx] )
 	{
-	    if ( idx ) filter += ";;";
 	    if ( sor.isWriteSupported(imageformats[idx]) )
+	    {
+		if ( !filter.isEmpty() ) filter += ";;";
 		filter += filters[idx];
-
+	    }
 	    idx++;
 	}
     }
