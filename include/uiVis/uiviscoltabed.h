@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.12 2007-10-09 07:35:02 cvsnanne Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.13 2007-10-11 12:15:22 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -20,9 +20,6 @@ namespace visBase { class VisColorTab; }
 class ColorTableEditor;
 class uiGroup;
 
-/*!\brief
-
-*/
 
 class uiVisColTabEd : public CallBacker
 {
@@ -37,8 +34,18 @@ public:
     void			updateColTabList();
     uiGroup*			colTabGrp()	{ return (uiGroup*)coltabed_; }
 
+    bool			usePar(const IOPar&);
+    void                        fillPar(IOPar&);
+    void			setDefaultColTab();
+
     Notifier<uiVisColTabEd>	sequenceChange;
     Notifier<uiVisColTabEd>	coltabChange;
+
+    static const char*          sKeyColorSeq();
+    static const char*          sKeyScaleFactor();
+    static const char*          sKeyClipRate();
+    static const char*          sKeyAutoScale();
+    static const char*          sKeySymmetry();
 
 protected:
 
