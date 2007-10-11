@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.20 2007-03-02 15:47:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.21 2007-10-11 12:15:46 cvsraman Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -20,6 +20,22 @@ static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.20 2007-03-02 15:47:46 cvs
 #include "uicursor.h"
 
 
+static const char* sSetKey = "dTect.Color ta`ble.Name";
+
+const char* uiVisColTabEd::sKeyColorSeq()	{ return "ColorSeq Name"; }
+const char* uiVisColTabEd::sKeyScaleFactor()	{ return "Scale Factor"; }
+const char* uiVisColTabEd::sKeyClipRate()	{ return "Cliprate"; }
+const char* uiVisColTabEd::sKeyAutoScale()	{ return "Auto scale"; }
+const char* uiVisColTabEd::sKeySymmetry()	{ return "Symmetry"; }
+
+BufferString getDefColTabName()
+{
+    BufferString ctname = "Seismics";
+    mSettUse(get,sSetKey,"",ctname);
+    return ctname;
+}
+
+
 uiVisColTabEd::uiVisColTabEd( uiParent* p, bool vert )
     : coltabed_(0)
     , coltab_(0)
@@ -27,16 +43,13 @@ uiVisColTabEd::uiVisColTabEd( uiParent* p, bool vert )
     , sequenceChange(this)
     , coltabChange(this)
 {
-    const char* setkey = "dTect.Color table.Name";
-    BufferString ctname = "Seismics";
-    mSettUse(get,setkey,"",ctname);
-    ColorTable ct( ctname );
+    ColorTable ct( getDefColTabName() );
     ct.scaleTo( Interval<float>(0,1) );
 
     coltabed_ = new ColorTableEditor( p, ColorTableEditor::Setup()
 	    			     .editable(true)
 	    			     .withclip(true)
-	    			     .key(setkey)
+	    			     .key(sSetKey)
 	    			     .vertical(vert),
 	    			     &ct );
     coltabed_->tablechanged.notify( mCB(this,uiVisColTabEd,colTabEdChangedCB) );
@@ -202,6 +215,58 @@ void uiVisColTabEd::updateColTabList()
 { coltabed_->updateColTabList(); }
 
 
+bool uiVisColTabEd::usePar( const IOPar& par )
+{
+    BufferString coltabname;
+    if ( !par.get(sKeyColorSeq(),coltabname) ) return false;
+
+    coltabed_->setColorTable( coltabname );
+
+    bool autoscale = true;
+    par.getYN( sKeyAutoScale(), autoscale );
+    coltabed_->setAutoScale( autoscale );
+
+    if ( autoscale )
+    {
+	float cliprate = ColorTable::defPercClip()/100;
+	par.get( sKeyClipRate(), cliprate );
+	coltabed_->setClipRate( cliprate );
+
+	par.getYN( sKeySymmetry(), coltabsymmetry_ );
+    }
+    else
+    {
+	Interval<float> coltabrange;
+	par.get( sKeyScaleFactor(), coltabrange );
+	coltabed_->setInterval( coltabrange );
+    }
+
+    colTabEdChangedCB( 0 );
+    return true;
+}
+
+
+void uiVisColTabEd::fillPar( IOPar& par )
+{
+    par.set( sKeyColorSeq(), colseq_.name() );
+    par.setYN( sKeyAutoScale(), coltabautoscale_ );
+    if ( coltabautoscale_ )
+    {
+	par.set( sKeyClipRate(), coltabcliprate_ );
+	par.setYN( sKeySymmetry(), coltabsymmetry_ );
+    }
+    else
+	par.set( sKeyScaleFactor(), coltabinterval_ );
+}
+
+void uiVisColTabEd::setDefaultColTab()
+{
+    BufferString defcoltabnm = getDefColTabName();
+    coltabed_->setColorTable( defcoltabnm );
+    coltabed_->setAutoScale( true );
+    coltabed_->setClipRate( ColorTable::defPercClip()/100 );
+    colTabEdChangedCB( 0 );
+}
 
 uiColorBarDialog::uiColorBarDialog( uiParent* p, int coltabid,
 				    const char* title )
