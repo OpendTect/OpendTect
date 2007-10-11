@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.74 2007-10-10 07:23:34 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.75 2007-10-11 12:13:47 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -971,6 +971,21 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
     if ( is2d )	as.set2DFlag();
 
     return true;
+}
+
+
+IOObj* uiAttribPartServer::getIOObj( const Attrib::SelSpec& as ) const
+{
+    const Attrib::DescSet* attrset = curDescSet(false);
+    if ( !attrset ) return 0;
+
+    const Attrib::Desc* desc = attrset->getDesc( as.id() );
+    if ( !desc ) return 0;
+
+    MultiID id;
+    if ( !desc->isStored() || !desc->getMultiID(id) ) return 0;
+
+    return IOM().get( id );
 }
 
 
