@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uiodattribtreeitem.h,v 1.2 2006-05-09 11:00:53 cvsbert Exp $
+ RCS:		$Id: uiodattribtreeitem.h,v 1.3 2007-10-11 12:16:31 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -30,6 +30,7 @@ public:
 	    			      int sceneid);
     static bool		handleSelMenu(int mnuid,int visid,int attrib);
     static const char*	sKeySelAttribMenuTxt();
+    static const char*	sKeyColSettingsMenuTxt();
 protected:
 
     bool		anyButtonClick(uiListViewItem*);
@@ -40,6 +41,7 @@ protected:
     BufferString	createDisplayName() const;
 
     MenuItem		selattrmnuitem_;
+    MenuItem		colsettingsmnuitem_;
 };
 
 
