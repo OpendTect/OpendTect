@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.11 2007-09-13 19:38:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.12 2007-10-12 19:14:34 cvskris Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -24,10 +24,6 @@ static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.11 2007-09-13 19:38
 
 #include <VolumeViz/nodes/SoTransferFunction.h>
 #include <VolumeViz/nodes/SoVolumeData.h>
-
-visBase::FactoryEntry visBase::VolumeRenderScalarField::oldnameentry(
-		(visBase::FactPtr) visBase::VolumeRenderScalarField::create,
-		"VolumeRender::VolumeTexture");
 
 mCreateFactoryEntry( visBase::VolumeRenderScalarField );
 

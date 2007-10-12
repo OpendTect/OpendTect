@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdataman.h,v 1.16 2006-01-30 14:45:34 cvskris Exp $
+ RCS:		$Id: visdataman.h,v 1.17 2007-10-12 19:14:34 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "sets.h"
+#include "factory.h"
 #include "callback.h"
 
 class IOPar;
@@ -55,10 +56,10 @@ public:
     const DataObject*	getObject( int id ) const;
 
     SelectionManager&	selMan() { return selman_; }
-    Factory&		factory() { return fact_; }
 
     Notifier<DataManager>	removeallnotify;
 
+    mDefineFactoryInClass( DataObject, factory );
 protected:
 
     friend class	DataObject;
@@ -69,7 +70,6 @@ protected:
 
     int				freeid_;
     SelectionManager&		selman_;
-    Factory&			fact_;
 
     static const char*		sKeyFreeID();
     static const char*		sKeySelManPrefix();

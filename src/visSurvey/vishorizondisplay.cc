@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.33 2007-09-27 09:13:32 cvsbert Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.34 2007-10-12 19:14:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,14 +39,6 @@ ________________________________________________________________________
 
 
 mCreateFactoryEntry( visSurvey::HorizonDisplay );
-
-visBase::FactoryEntry visSurvey::HorizonDisplay::surfdispentry(
-	(visBase::FactPtr) visSurvey::HorizonDisplay::create,
-	"visSurvey::SurfaceDisplay");
-
-visBase::FactoryEntry visSurvey::HorizonDisplay::emobjentry(
-	(visBase::FactPtr) visSurvey::HorizonDisplay::create,
-	"visSurvey::EMObjectDisplay");
 
 namespace visSurvey
 {

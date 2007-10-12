@@ -7,13 +7,25 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: viscallout.h,v 1.8 2007-09-14 07:41:33 cvsnanne Exp $
+ RCS:		$Id: viscallout.h,v 1.9 2007-10-12 19:14:34 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "vislocationdisplay.h"
+
+
+namespace visBase
+{
+    class Rotation;
+    class Anchor;
+    class TextBox;
+    class Dragger;
+    class FaceSet;
+    class RotationDragger;
+    class TriangleStripSet;
+};
 
 namespace Annotations
 {
@@ -59,6 +71,76 @@ protected:
     visBase::Material*		textmaterial_;
     visBase::Material*		activedraggermaterial_;
 };
+
+
+class Callout : public visBase::VisualObjectImpl
+{
+public:
+    static Callout*		create()
+				mCreateDataObj(Callout);
+
+    Sphere			getDirection() const;
+    Notifier<Callout>		moved;
+    NotifierAccess&		urlClick();
+    const CallBacker*		getAnchor() const;
+
+    void			setPick(const Pick::Location&);
+    void			setTextSize(float ns);
+    void			setFeedbackMaterial(visBase::Material*);
+    void			setActiveFeedbackMaterial(visBase::Material*);
+    void			setMarkerMaterial(visBase::Material*);
+    void			setBoxMaterial(visBase::Material*);
+    void			setTextMaterial(visBase::Material*);
+    void			setScale(visBase::Transformation*);
+    visBase::Transformation*	getScale() { return scale_; }
+    void			reportChangedScale() { updateArrow(); }
+
+    void			displayMarker(bool);
+    				//!<Aslo controls the draggers. */
+    bool			isMarkerDisplayed() const;
+    void			setDisplayTransformation(mVisTrans*);
+    int				getMarkerID() const;
+
+protected:
+    				~Callout();
+    void			updateCoords();
+    void			updateArrow();
+    void			setText(const char*);
+    void			dragStart(CallBacker*);
+    void			dragChanged(CallBacker*);
+    void			dragStop(CallBacker*);
+    void			setupRotFeedback();
+
+    visBase::Transformation*	displaytrans_;
+
+    visBase::Marker*		marker_; //In normal space
+
+    visBase::Transformation*	object2display_; //Trans to object space
+    visBase::Rotation*		rotation_; 
+    visBase::Transformation*	scale_;	 
+
+    visBase::PolygonOffset*	calloutoffset_;	//In object space
+    visBase::Anchor*		anchor_;
+    visBase::TextBox*		fronttext_;
+    visBase::FaceSet*		faceset_;	
+    visBase::Dragger*		translationdragger_;	
+
+    visBase::RotationDragger*	rotdragger_;	
+    visBase::TriangleStripSet*	rotfeedback_;	
+    visBase::TriangleStripSet*	rotfeedbackactive_;
+
+    float			rotfeedbackradius_;
+    Coord3			rotfeedbackpos_;
+    Coord3			dragstarttextpos_;
+    Coord3			dragstartdraggerpos_;
+
+    visBase::Rotation*		backtextrotation_; //In backtext space
+    visBase::TextBox*		backtext_;
+
+    bool			isdragging_;
+};
+
+
 
 } // namespace
 

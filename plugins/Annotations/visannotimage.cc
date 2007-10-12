@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: visannotimage.cc,v 1.7 2007-06-13 03:06:30 cvsnanne Exp $
+ RCS:           $Id: visannotimage.cc,v 1.8 2007-10-12 19:14:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,29 +19,9 @@ ________________________________________________________________________
 #include "visimage.h"
 #include "vistransform.h"
 
+
 namespace Annotations
 {
-
-class Image : public visBase::VisualObjectImpl
-{
-public:
-    static Image*		create()
-				mCreateDataObj(Image);
-    void			setShape(visBase::FaceSet*);
-
-    void			setPick(const Pick::Location&);
-    void			setDisplayTransformation(mVisTrans*);
-
-protected:
-    				~Image();
-
-    visBase::Transformation*	transform_;
-
-    visBase::Transformation*	position_;
-    visBase::ForegroundLifter*	lifter_;
-    visBase::FaceSet*		shape_;
-};
-
 
 mCreateFactoryEntry( ImageDisplay );
 mCreateFactoryEntry( Image );

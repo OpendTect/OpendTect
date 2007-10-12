@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.72 2007-09-17 18:14:26 cvskris Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.73 2007-10-12 19:14:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,10 +36,6 @@ ________________________________________________________________________
 #include "zaxistransform.h"
 
 mCreateFactoryEntry( visSurvey::VolumeDisplay );
-
-visBase::FactoryEntry visSurvey::VolumeDisplay::oldnameentry(
-			(visBase::FactPtr) visSurvey::VolumeDisplay::create,
-			"VolumeRender::VolumeDisplay");
 
 namespace visSurvey {
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.47 2007-09-07 12:43:47 cvskris Exp $
+ RCS:		$Id: visdata.h,v 1.48 2007-10-12 19:14:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "callback.h"
 #include "refcount.h"
 #include "sets.h"
+#include "visdataman.h"
 
 class SoNode;
 class IOPar;
@@ -29,8 +30,6 @@ namespace visBase { class DataObject; class EventInfo; }
 
 namespace visBase
 {
-
-typedef DataObject* (*FactPtr)(void);
 
 class Transformation;
 class SelectionManager;
@@ -135,81 +134,23 @@ private:
 
 };
 
-
-class Factory;
-
-/*! The FactoryEntry knows how to create one visualization object, and it has a 
-    function that can produce the object.  */
-
-class FactoryEntry : public CallBacker
-{
-public:
-    			FactoryEntry( FactPtr, const char*);
-    			~FactoryEntry();
-
-    DataObject*		create();
-    const char*		name() const { return name_; }
-
-protected:
-    void		visIsClosingCB(CallBacker*);
-
-    visBase::Factory*	factory_;
-    FactPtr		funcptr_;
-    const char*		name_;
-};
-
-
-class Factory : public CallBacker
-{
-public:
-    				Factory(); 
-    				~Factory();
-
-    void			addEntry(FactoryEntry*);
-    void			removeEntry(FactoryEntry*);
-
-    DataObject*			create(const char*);
-    FactoryEntry*		getEntry(const char*);
-
-    Notifier<Factory>		closing;
-
-protected:
-    ObjectSet<FactoryEntry>	entries_;
-
-};
-
 };
 
 #define _mCreateDataObj(clss) 					\
 {								\
-    clss* res = (clss*) factoryentry_.create();			\
+    clss* res = (clss*) createInternal();			\
     return res;							\
 }								\
 								\
 private:							\
-    static visBase::DataObject* createInternal()		\
-    {								\
-	clss* res = new clss;					\
-	if ( !res )						\
-	    return 0;						\
-	if ( !res->_init() || !res->isOK() )			\
-	{							\
-	    delete res;						\
-	    return 0;						\
-	}							\
-								\
-	return res;						\
-    }								\
-								\
+    static visBase::DataObject* createInternal();		\
     clss(const clss&);						\
     clss& operator =(const clss&);				\
-    static visBase::FactoryEntry	factoryentry_;		\
 public:								\
-    static const char* getStaticClassName()			\
-	{ return factoryentry_.name(); }			\
+    static void		initClass();				\
+    static const char*	getStaticClassName();			\
 								\
-    virtual const char*	getClassName() const 			\
-	{ return getStaticClassName(); }			\
+    virtual const char*	getClassName() const; 			\
 protected:
     
 #define _mDeclConstr(clss)	\
@@ -220,9 +161,33 @@ public:
     _mCreateDataObj(clss) \
     _mDeclConstr(clss)
 
+
+#define mImplVisInitClass( clss ) \
+void clss::initClass()						\
+{ visBase::DataManager::factory().addCreator( clss::createInternal, #clss ); }
+
+#define mCreateFactoryEntryNoInitClass( clss )			\
+const char* clss::getStaticClassName() { return #clss; }	\
+const char* clss::getClassName() const				\
+{ return clss::getStaticClassName(); }				\
+visBase::DataObject* clss::createInternal()		\
+{								\
+    clss* res = new clss;					\
+    if ( !res )						\
+	return 0;						\
+    if ( !res->_init() || !res->isOK() )			\
+    {							\
+	delete res;						\
+	return 0;						\
+    }							\
+							    \
+    return res;						\
+}							
+
+
 #define mCreateFactoryEntry( clss )				\
-    visBase::FactoryEntry clss::factoryentry_(			\
-    (visBase::FactPtr) clss::createInternal, #clss)
+mImplVisInitClass( clss );					\
+mCreateFactoryEntryNoInitClass( clss );		
 
 
 

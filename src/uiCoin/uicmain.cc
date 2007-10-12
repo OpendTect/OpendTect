@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          06/02/2002
- RCS:           $Id: uicmain.cc,v 1.17 2007-02-14 16:37:50 cvsdgb Exp $
+ RCS:           $Id: uicmain.cc,v 1.18 2007-10-12 19:14:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uicmain.h"
-#include "visinventorinit.h"
+#include "visinit.h"
+#include "vissurvinit.h"
 #include "debug.h"
 #include "debugmasks.h"
 #include "envvars.h"
@@ -33,8 +34,10 @@ void uicMain::init( QWidget* widget )
 	    DBG::message( "SoQt::init() ..." );
     SoQt::init( widget );
 	if ( DBG::isOn(DBG_UI) )
-	    DBG::message( "done. visBase::initODInventorClasses() ..." );
-    visBase::initODInventorClasses();
+	    DBG::message( "done. visBase::init() ..." );
+    visBase::init();
+	    DBG::message( "done. visSurvey::init() ..." );
+    visSurvey::init();
 	if ( DBG::isOn(DBG_UI) )
 	    DBG::message( "done. SoDB::init() ..." );
     SoDB::init();

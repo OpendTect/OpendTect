@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.48 2007-09-10 08:53:39 cvskris Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.49 2007-10-12 19:14:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -156,8 +156,6 @@ protected:
     bool			allowshading_;
     BufferString		sliceposition_;
     BufferString		slicename_;
-
-    static visBase::FactoryEntry oldnameentry;
 
     static const char*		volumestr;
     static const char*		inlinestr;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          April 2004
- RCS:           $Id: visvolren.h,v 1.2 2007-03-16 11:30:51 cvsnanne Exp $
+ RCS:           $Id: visvolren.h,v 1.3 2007-10-12 19:14:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,6 @@ public:
 protected:
     SoROI*			roi;
     SoVolumeRender*		volren;
-
-    static visBase::FactoryEntry oldnameentry;
 };
 
 }; //Namespace

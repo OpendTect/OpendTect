@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: annotationspi.cc,v 1.3 2007-02-28 07:11:06 cvsnanne Exp $
+ RCS:           $Id: annotationspi.cc,v 1.4 2007-10-12 19:14:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,10 @@ ________________________________________________________________________
 #include "plugins.h"
 #include "treeitem.h"
 #include "uiodscenemgr.h"
+
+#include "visannotimage.h"
+#include "visarrow.h"
+#include "viscallout.h"
 
 
 extern "C" int GetAnnotationsPluginType()
@@ -35,5 +39,12 @@ extern "C" const char* InitAnnotationsPlugin( int, char** )
 {
     ODMainWin()->sceneMgr().treeItemFactorySet()->addFactory(
 	    			new Annotations::TreeItemFactory, 10000 );
+
+    Annotations::ImageDisplay::initClass();
+    Annotations::Image::initClass();
+    Annotations::ArrowDisplay::initClass();
+    Annotations::CalloutDisplay::initClass();
+    Annotations::Callout::initClass();
+
     return 0;
 }

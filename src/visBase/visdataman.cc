@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdataman.cc,v 1.37 2007-03-20 20:55:52 cvskris Exp $";
+static const char* rcsID = "$Id: visdataman.cc,v 1.38 2007-10-12 19:14:34 cvskris Exp $";
 
 #include "visdataman.h"
 #include "visdata.h"
@@ -18,6 +18,8 @@ static const char* rcsID = "$Id: visdataman.cc,v 1.37 2007-03-20 20:55:52 cvskri
 
 namespace visBase
 {
+
+mImplFactory( DataObject, DataManager::factory );
 
 const char* DataManager::sKeyFreeID()		{ return "Free ID"; }
 const char* DataManager::sKeySelManPrefix()	{ return "SelMan"; }
@@ -35,7 +37,6 @@ DataManager& DM()
 DataManager::DataManager()
     : freeid_( 0 )
     , selman_( *new SelectionManager )
-    , fact_( *new Factory )
     , removeallnotify( this )
 { }
 
@@ -44,7 +45,6 @@ DataManager::~DataManager()
 {
     removeAll();
     delete &selman_;
-    delete &fact_;
 }
 
 

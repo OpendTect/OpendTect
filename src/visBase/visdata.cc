@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.25 2007-08-31 12:48:58 cvskris Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.26 2007-10-12 19:14:34 cvskris Exp $";
 
 #include "visdata.h"
 
@@ -119,70 +119,5 @@ bool DataObject::_init()
     return true;
 }
 
-
-FactoryEntry::FactoryEntry( FactPtr funcptr, const char* nm ) 
-    : name_(nm)
-    , funcptr_(funcptr)
-    , factory_(&DM().factory())
-{
-    factory_->addEntry( this );
-    factory_->closing.notify( mCB(this,FactoryEntry,visIsClosingCB) );
-}
-
-
-FactoryEntry::~FactoryEntry()
-{
-    if ( !factory_ )
-	return;
-
-    factory_->removeEntry(this);
-    factory_->closing.remove( mCB(this,FactoryEntry,visIsClosingCB) );
-}
-
-
-DataObject* FactoryEntry::create()
-{ return funcptr_(); }
-
-
-void FactoryEntry::visIsClosingCB(CallBacker*)
-{ factory_ = 0; }
-
-
-Factory::Factory()
-     : closing(this)
-{}
-
-
-Factory::~Factory()
-{ closing.trigger(); }
-
-
-void Factory::addEntry( FactoryEntry* fe )
-{ entries_ += fe; }
-
-
-void Factory::removeEntry( FactoryEntry* fe )
-{ entries_ -= fe; }
-
-
-FactoryEntry* Factory::getEntry( const char* nm )
-{
-    if ( !nm ) return 0;
-
-    for ( int idx=0; idx<entries_.size(); idx++ )
-    {
-	if ( !strcmp(nm,entries_[idx]->name()) )
-	    return entries_[idx];
-    }
-
-    return 0;
-}
-
-
-DataObject* Factory::create( const char* nm )
-{
-    FactoryEntry* entry = getEntry( nm );
-    return entry ? entry->create() : 0;
-}
 
 }; // namespace visBase

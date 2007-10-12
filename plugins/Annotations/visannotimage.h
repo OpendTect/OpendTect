@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: visannotimage.h,v 1.4 2007-03-29 22:16:12 cvskris Exp $
+ RCS:		$Id: visannotimage.h,v 1.5 2007-10-12 19:14:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,12 @@ ________________________________________________________________________
 #include "vislocationdisplay.h"
 
 namespace visBase
-{ class FaceSet; class Image; };
+{
+    class FaceSet;
+    class Image;
+    class ForegroundLifter;
+}
+
 
 namespace Annotations
 {
@@ -51,6 +56,29 @@ protected:
     visBase::FaceSet*		shape_;
     visBase::Image*		image_;
 };
+
+
+class Image : public visBase::VisualObjectImpl
+{
+public:
+    static Image*		create()
+				mCreateDataObj(Image);
+    void			setShape(visBase::FaceSet*);
+
+    void			setPick(const Pick::Location&);
+    void			setDisplayTransformation(mVisTrans*);
+
+protected:
+    				~Image();
+
+    visBase::Transformation*	transform_;
+
+    visBase::Transformation*	position_;
+    visBase::ForegroundLifter*	lifter_;
+    visBase::FaceSet*		shape_;
+};
+
+
 
 } // namespace
 

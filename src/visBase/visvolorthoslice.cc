@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.6 2007-05-14 12:21:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.7 2007-10-12 19:14:34 cvskris Exp $";
 
 
 #include "visvolorthoslice.h"
@@ -18,10 +18,6 @@ static const char* rcsID = "$Id: visvolorthoslice.cc,v 1.6 2007-05-14 12:21:59 c
 #include "vistexture3.h"
 
 #include "VolumeViz/nodes/SoOrthoSlice.h"
-
-visBase::FactoryEntry visBase::OrthogonalSlice::oldnameentry(
-			(visBase::FactPtr) visBase::OrthogonalSlice::create,
-			"VolumeRender::OrthogonalSlice");
 
 mCreateFactoryEntry( visBase::OrthogonalSlice );
 
