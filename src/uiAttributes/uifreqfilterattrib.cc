@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.cc,v 1.13 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uifreqfilterattrib.cc,v 1.14 2007-10-12 09:12:19 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,8 @@ mInitAttribUI(uiFreqFilterAttrib,FreqFilter,"Frequency Filter",sKeyFilterGrp)
 
 
 uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d)
+	: uiAttrDescEd(p,is2d,"101.0.7")
+
 {
     inpfld = getImagInpFld();
 

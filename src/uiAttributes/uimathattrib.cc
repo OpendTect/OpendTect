@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.cc,v 1.15 2007-04-10 12:29:17 cvshelene Exp $
+ RCS:           $Id: uimathattrib.cc,v 1.16 2007-10-12 09:12:19 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,10 +29,11 @@ static const int cNrConstVars = 6;
 mInitAttribUI(uiMathAttrib,Math,"Mathematics",sKeyBasicGrp)
 
 uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d)
+	: uiAttrDescEd(p,is2d,"101.0.9")
 	, nrvariables_(0)
 	, nrxvars_(0)
 	, nrcstvars_(0)
+
 {
     inpfld_ = new uiGenInput( this, "Formula (e.g. x0 + c0 * x1)",
 	    		     StringInpSpec() );

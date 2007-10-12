@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uivolstatsattrib.cc,v 1.17 2007-03-08 12:45:19 cvshelene Exp $
+ RCS:           $Id: uivolstatsattrib.cc,v 1.18 2007-10-12 09:12:19 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,8 @@ mInitAttribUI(uiVolumeStatisticsAttrib,VolStats,"Volume Statistics",
 
 
 uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
-    : uiAttrDescEd(p,is2d)
+    : uiAttrDescEd(p,is2d,"101.0.16")
+ 
 {
     inpfld = getInpFld();
 

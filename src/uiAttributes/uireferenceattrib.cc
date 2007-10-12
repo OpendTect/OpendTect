@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          July 2005
- RCS:		$Id: uireferenceattrib.cc,v 1.9 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:		$Id: uireferenceattrib.cc,v 1.10 2007-10-12 09:12:19 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,8 @@ mInitAttribUI(uiReferenceAttrib,Reference,"Reference",sKeyPositionGrp)
 
 
 uiReferenceAttrib::uiReferenceAttrib( uiParent* p, bool is2d )
-    : uiAttrDescEd(p,is2d)
+    : uiAttrDescEd(p,is2d,"101.0.11")
+    
 {
     inpfld = getInpFld();
     

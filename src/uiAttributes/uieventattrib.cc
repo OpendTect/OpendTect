@@ -4,7 +4,7 @@
  CopyRight:	(C) dGB Beheer B.V.
  Author:	H. Payraudeau
  Date:		February 2005
- RCS:		$Id: uieventattrib.cc,v 1.9 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:		$Id: uieventattrib.cc,v 1.10 2007-10-12 09:12:19 cvssulochana Exp $
  ________________________________________________________________________
 
 -*/
@@ -46,7 +46,8 @@ mInitAttribUI(uiEventAttrib,Event,"Event",sKeyPatternGrp)
 
 
 uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
-        : uiAttrDescEd(p,is2d)
+        : uiAttrDescEd(p,is2d,"101.0.4")
+	  
 {
     inpfld = getInpFld();
 

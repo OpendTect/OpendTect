@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: uispecdecompattrib.cc,v 1.16 2007-04-16 13:53:11 cvshelene Exp $
+ RCS:           $Id: uispecdecompattrib.cc,v 1.17 2007-10-12 09:12:19 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,10 +32,11 @@ mInitAttribUI(uiSpecDecompAttrib,SpecDecomp,"Spectral Decomp",sKeyFreqGrp)
 
 
 uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
-    : uiAttrDescEd(p,is2d)
+    : uiAttrDescEd(p,is2d,"101.0.15")
     , nyqfreq(0)
     , nrsamples(0)
     , ds(0)
+    
 {
     inpfld = getImagInpFld();
     inpfld->selectiondone.notify( mCB(this,uiSpecDecompAttrib,inputSel) );

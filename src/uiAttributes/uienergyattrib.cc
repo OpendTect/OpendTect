@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uienergyattrib.cc,v 1.9 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:		$Id: uienergyattrib.cc,v 1.10 2007-10-12 09:12:19 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,8 @@ mInitAttribUI(uiEnergyAttrib,Energy,"Energy",sKeyBasicGrp)
 
 
 uiEnergyAttrib::uiEnergyAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d)
+	: uiAttrDescEd(p,is2d,"101.0.3")
+
 {
     inpfld_ = getInpFld();
 

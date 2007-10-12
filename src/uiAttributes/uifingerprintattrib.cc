@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.36 2007-06-06 08:19:59 cvshelene Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.37 2007-10-12 09:12:19 cvssulochana Exp $
 
 ________________________________________________________________________
 
@@ -101,13 +101,14 @@ class uiFPAdvancedDlg: public uiDialog
 
 
 uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
-    : uiAttrDescEd(p,is2d)
+    : uiAttrDescEd(p,is2d,"101.0.5")
     , ctio_(*mMkCtxtIOObj(PickSet))
     , refposfld_(0)
     , refpos2dfld_(0)
     , linesetfld_(0)
     , linefld_(0)
     , sel2dbut_(0)
+   
 {
     calcobj_ = new calcFingParsObject( this );
 

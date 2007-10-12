@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uiinstantattrib.cc,v 1.6 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uiinstantattrib.cc,v 1.7 2007-10-12 09:12:19 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,8 @@ mInitAttribUI(uiInstantaneousAttrib,Instantaneous,"Instantaneous",sKeyBasicGrp)
 
 
 uiInstantaneousAttrib::uiInstantaneousAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d)
+	: uiAttrDescEd(p,is2d,"101.0.8")
+
 {
     inpfld = getImagInpFld();
 

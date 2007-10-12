@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uidipfilterattrib.cc,v 1.16 2007-02-12 09:53:53 cvsnanne Exp $
+ RCS:           $Id: uidipfilterattrib.cc,v 1.17 2007-10-12 09:12:19 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,8 @@ mInitAttribUI(uiDipFilterAttrib,DipFilter,"Velocity Fan Filter",sKeyFilterGrp)
 
 
 uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d)
+	: uiAttrDescEd(p,is2d,"101.0.2")
+	  
 {
     inpfld = getInpFld();
 

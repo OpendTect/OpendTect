@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:		$Id: uicoherencyattrib.cc,v 1.13 2007-03-29 17:20:10 cvsbert Exp $
+ RCS:		$Id: uicoherencyattrib.cc,v 1.14 2007-10-12 09:12:19 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ mInitAttribUI(uiCoherencyAttrib,Coherency,"Coherency",sKeyBasicGrp)
 
 
 uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d)
+	: uiAttrDescEd(p,is2d,"101.0.0")
     	, is1fld(0)
     	, stepoutfld(0)
 {

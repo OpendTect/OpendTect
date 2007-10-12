@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.cc,v 1.11 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uifrequencyattrib.cc,v 1.12 2007-10-12 09:12:19 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,8 @@ mInitAttribUI(uiFrequencyAttrib,Frequency,"Frequency",sKeyFreqGrp)
 
 
 uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d)
+	: uiAttrDescEd(p,is2d,"101.0.6")
+
 {
     inpfld = getImagInpFld();
 

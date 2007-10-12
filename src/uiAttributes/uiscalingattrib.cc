@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.cc,v 1.13 2007-07-17 16:10:53 cvsbert Exp $
+ RCS:           $Id: uiscalingattrib.cc,v 1.14 2007-10-12 09:12:19 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,8 @@ mInitAttribUI(uiScalingAttrib,Scaling,"Scaling",sKeyBasicGrp)
 
 
 uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d)
+	: uiAttrDescEd(p,is2d,"101.0.12")
+
 {
     inpfld = getInpFld();
 

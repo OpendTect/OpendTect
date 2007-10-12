@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May  2005
- RCS:           $Id: uisimilarityattrib.cc,v 1.19 2007-04-27 12:05:47 cvshelene Exp $
+ RCS:           $Id: uisimilarityattrib.cc,v 1.20 2007-10-12 09:12:19 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,8 @@ mInitAttribUI(uiSimilarityAttrib,Similarity,"Similarity",sKeyBasicGrp)
 
 
 uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d)
+	: uiAttrDescEd(p,is2d,"101.0.14")
+
 {
     inpfld = getInpFld();
 

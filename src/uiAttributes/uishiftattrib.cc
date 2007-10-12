@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uishiftattrib.cc,v 1.16 2007-03-08 12:45:19 cvshelene Exp $
+ RCS:           $Id: uishiftattrib.cc,v 1.17 2007-10-12 09:12:19 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,8 @@ using namespace Attrib;
 mInitAttribUI(uiShiftAttrib,Shift,"Reference shift",sKeyPositionGrp)
 
 uiShiftAttrib::uiShiftAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd(p,is2d)
+	: uiAttrDescEd(p,is2d,"101.0.13")
+
 {
     inpfld_ = getInpFld();
 
