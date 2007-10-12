@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.61 2007-09-28 09:49:43 cvsjaap Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.62 2007-10-12 09:07:20 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
@@ -185,6 +185,11 @@ void uiAttribDescSetEd::createGroups()
     }
     attrtypefld->update();
     degrp->setHAlignObj( attrtypefld );
+
+    const ioPixmap pixmap( "contexthelp.png" );
+    helpbut = new uiToolButton( degrp, "&Help button", pixmap );
+    helpbut->activated.notify( mCB(this,uiAttribDescSetEd,helpButPush) );
+    helpbut->attach( rightTo, attrtypefld );
 
     attrnmfld = new uiLineEdit( rightgrp );
     attrnmfld->setHSzPol( uiObject::Medium );
@@ -419,6 +424,14 @@ Attrib::Desc* uiAttribDescSetEd::createAttribDesc( bool checkuref )
     if ( res ) { newdesc->unRef(); mErrRetNull( res ); }
     newdesc->setUserRef( newnm );
     return newdesc;
+}
+
+
+void uiAttribDescSetEd::helpButPush( CallBacker* )
+{
+    uiAttrDescEd* curdesced = curDescEd();
+    const char* helpid = curdesced->helpID();
+    uiMainWin::provideHelp( helpid );
 }
 
 

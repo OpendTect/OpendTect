@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.12 2007-09-21 14:53:21 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.13 2007-10-12 09:07:20 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ class uiToolBar;
 class BufferStringSet;
 class CtxtIOObj;
 class IOObj;
-
+class uiToolButton;
 
 /*! \brief Editor for Attribute sets */
 
@@ -89,12 +89,14 @@ protected:
     uiPushButton*	revbut;
     uiLineEdit*		attrnmfld;
     uiGenInput*		attrsetfld;
+    uiToolButton*       helpbut;
 
     void		attrTypSel(CallBacker*);
     void		selChg(CallBacker*);
     void		revPush(CallBacker*);
     void		addPush(CallBacker*);
     void		rmPush(CallBacker*);
+    void                helpButPush(CallBacker*);
 
     void		newSet(CallBacker*);
     void		openSet(CallBacker*);
