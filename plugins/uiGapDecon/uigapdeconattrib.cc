@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.30 2007-06-08 14:16:12 cvshelene Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.31 2007-10-12 10:11:59 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ class uiGDPositionDlg: public uiDialog
 
 
 uiGapDeconAttrib::uiGapDeconAttrib( uiParent* p, bool is2d )
-	: uiAttrDescEd ( p, is2d )
+	: uiAttrDescEd(p,is2d,"101.0.101")
     	, acorrview_ ( new GapDeconACorrView(0) )
     	, positiondlg_(0)
 {
