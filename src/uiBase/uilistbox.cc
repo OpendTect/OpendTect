@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.81 2007-10-02 12:49:28 cvsjaap Exp $
+ RCS:           $Id: uilistbox.cc,v 1.82 2007-10-12 10:11:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -632,6 +632,12 @@ void uiLabeledListBox::mkRest( const char* txt, uiLabeledListBox::LblPos pos )
     break;
     case RightTop:
 	labl->attach( rightOf, lb );		lblct = alignedBelow;
+    break;
+    case LeftMid:
+	labl->attach( centeredLeftOf, lb );	lblct = alignedBelow;
+    break;
+    case RightMid:
+	labl->attach( centeredRightOf, lb );	lblct = alignedBelow;
     break;
     case AboveLeft:
 	lb->attach( alignedBelow, labl );	lblct = alignedAbove;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.37 2007-10-02 12:49:28 cvsjaap Exp $
+ RCS:           $Id: uilistbox.h,v 1.38 2007-10-12 10:11:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -129,7 +129,7 @@ class uiLabeledListBox : public uiGroup
 {
 public:
 
-    enum LblPos		{ LeftTop, RightTop,
+    enum LblPos		{ LeftTop, RightTop, LeftMid, RightMid,
 			  AboveLeft, AboveMid, AboveRight,
 			  BelowLeft, BelowMid, BelowRight };
 
