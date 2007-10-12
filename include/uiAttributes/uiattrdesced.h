@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrdesced.h,v 1.21 2007-02-05 18:19:47 cvsbert Exp $
+ RCS:           $Id: uiattrdesced.h,v 1.22 2007-10-12 08:57:38 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,7 +79,7 @@ class uiAttrDescEd : public uiGroup
 public:
 
     virtual		~uiAttrDescEd();
-
+    const char*		helpID()			{ return helpid_; }
     void		setDesc(Desc*,DescSetMan*);
     void		setDescSet( DescSet* ds )	{ ads_ = ds; }
     Desc*		curDesc()			{ return desc_; }
@@ -112,7 +112,7 @@ public:
 
 protected:
 
-			uiAttrDescEd(uiParent*,bool is2d);
+			uiAttrDescEd(uiParent*,bool is2d,const char* helpid=0);
 
     virtual bool	setParameters(const Desc&)	{ return true; }
     virtual bool	getParameters(Desc&)		{ return true; }
@@ -142,7 +142,8 @@ protected:
     ChangeTracker	chtr_;
     uiAttrSel*		getInpFld(const char* txt=0,const uiAttrSelData* =0);
     uiImagAttrSel*	getImagInpFld();
-
+   
+    BufferString        helpid_;
     BufferString	attrnm_;
     DomainType		domtyp_;
     BufferString	errmsg_;

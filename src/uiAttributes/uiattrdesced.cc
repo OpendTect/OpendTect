@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattrdesced.cc,v 1.21 2007-06-12 06:57:18 cvsnanne Exp $
+ RCS:		$Id: uiattrdesced.cc,v 1.22 2007-10-12 08:57:38 cvssulochana Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,10 +50,11 @@ const char* uiAttrDescEd::getInputAttribName( uiAttrSel* inpfld,
 }
 
 
-uiAttrDescEd::uiAttrDescEd( uiParent* p, bool is2d )
+uiAttrDescEd::uiAttrDescEd( uiParent* p, bool is2d, const char* helpid )
     : uiGroup(p,"")
     , desc_(0)
     , is2d_(is2d)
+    , helpid_(helpid)
 {
 }
 
