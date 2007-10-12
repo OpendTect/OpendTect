@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.5 2007-09-17 12:22:49 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.6 2007-10-12 19:15:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -266,49 +266,49 @@ const BufferStringSet& Factory2Param<T,P0,P1>::getNames( bool username ) const
 
 
 #define mDefineFactory( T, funcname ) \
-Factory<T>& funcname()
+::Factory<T>& funcname()
 
 
 #define mDefineFactoryInClass( T, funcname ) \
-static Factory<T>& funcname()
+static ::Factory<T>& funcname()
 
 
 #define mImplFactory( T, funcname ) \
-Factory<T>& funcname() \
+::Factory<T>& funcname() \
 { \
-    static Factory<T> inst; \
+    static ::Factory<T> inst; \
     return inst; \
 } 
 
 
 #define mDefineFactory1Param( T, P, funcname ) \
-Factory1Param<T,P>& funcname()
+::Factory1Param<T,P>& funcname()
 
 
 #define mDefineFactory1ParamInClass( T, P, funcname ) \
-static Factory1Param<T,P>& funcname()
+static ::Factory1Param<T,P>& funcname()
 
 
 #define mImplFactory1Param( T, P, funcname ) \
-Factory1Param<T,P>& funcname() \
+::Factory1Param<T,P>& funcname() \
 { \
-    static Factory1Param<T,P> inst; \
+    static ::Factory1Param<T,P> inst; \
     return inst; \
 } 
 
 
 #define mDefineFactory2Param( T, P0, P1, funcname ) \
-Factory2Param<T,P0,P1>& funcname()
+::Factory2Param<T,P0,P1>& funcname()
 
 
 #define mDefineFactory2ParamInClass( T, P0, P1, funcname ) \
-static Factory2Param<T,P0,P1>& funcname()
+static ::Factory2Param<T,P0,P1>& funcname()
 
 
 #define mImplFactory2Param( T, P0, P1, funcname ) \
-Factory2Param<T,P0,P1>& funcname() \
+::Factory2Param<T,P0,P1>& funcname() \
 { \
-    static Factory2Param<T,P0,P1> inst; \
+    static ::Factory2Param<T,P0,P1> inst; \
     return inst; \
 } 
 #endif
