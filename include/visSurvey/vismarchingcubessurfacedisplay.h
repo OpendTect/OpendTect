@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.6 2007-10-10 17:20:07 cvsyuancheng Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.7 2007-10-12 21:30:28 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -23,6 +23,7 @@ template <class T> class Array3D;
 
 namespace visBase
 {
+    class Ellipsoid;
     class MarchingCubesSurface;
     class Transformation;
     class BoxDragger;
@@ -70,11 +71,14 @@ public:
     bool			setVisSurface(visBase::MarchingCubesSurface*);
     				//!<Creates an EMObject for it.
     bool			setEMID(const EM::ObjectID&);
-
     EM::ObjectID		getEMID() const;
 
+    void			showManipulator(bool);
+    bool			isManipulatorShown() const;
+
     bool			hasInitialShape();
-    void			removeInitialDragger(bool setemsurface);
+    bool			createInitialBody(bool allowswap);
+    void			removeInitialDragger();
 
 protected:
 
@@ -83,6 +87,7 @@ protected:
     virtual			~MarchingCubesDisplay();
     void			updateVisFromEM(bool onlyshape);
     void			draggerMovedCB(CallBacker*);
+    void			draggerMovingCB(CallBacker*);
     void			pickCB(CallBacker*);
     void			factorDrag(CallBacker*);
     Array3D<unsigned char>*	createKernel(int xsz, int ysz, int zsz ) const;
@@ -94,6 +99,12 @@ protected:
     MarchingCubesSurfaceEditor*		surfaceeditor_;
     visBase::Dragger*			factordragger_;
     visBase::EventCatcher*		eventcatcher_;
+    visBase::Ellipsoid*			initialellipsoid_;
+
+    double				minsampleinlsz_;
+    double				minsamplecrlsz_;
+    double				minsamplezsz_;
+    CubeSampling			previoussample_;
 };
 
 };

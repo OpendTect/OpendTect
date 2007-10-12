@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.8 2007-10-10 17:20:07 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.9 2007-10-12 21:30:28 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -19,13 +19,13 @@ static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.8 2007-10
 #include "randcolor.h"
 #include "visboxdragger.h"
 #include "visdragger.h"
+#include "visellipsoid.h"
 #include "visevent.h"
 #include "vismaterial.h"
 #include "vismarchingcubessurface.h"
 
 #define mKernelSize 11
 #define mHalfKernel 5
-#define mMinSampleSz 10 
 
 mCreateFactoryEntry( visSurvey::MarchingCubesDisplay );
 
@@ -40,10 +40,22 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     , surfaceeditor_( 0 )
     , eventcatcher_( 0 )
     , factordragger_( 0 )
+    , initialellipsoid_( visBase::Ellipsoid::create() )
+    , minsampleinlsz_( 0 )						
+    , minsamplecrlsz_( 0 )						
+    , minsamplezsz_( 0 )
+    , previoussample_( false )			
 {
     initialdragger_->ref();
-    initialdragger_->turnOn(true);
+    initialdragger_->turnOn( true );
     addChild( initialdragger_->getInventorNode() );
+
+    initialellipsoid_->ref();
+    initialellipsoid_->removeSwitch();
+    initialellipsoid_->setMaterial( 0 );
+    addChild( initialellipsoid_->getInventorNode() );
+
+    getMaterial()->setAmbience( 0.3 );
 
     CubeSampling cs(false);
     CubeSampling sics = SI().sampling(true);
@@ -58,22 +70,33 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     float z0 = SI().zRange(true).snap( cs.zrg.start ); cs.zrg.start = z0;
     float z1 = SI().zRange(true).snap( cs.zrg.stop ); cs.zrg.stop = z1;
 
-    initialdragger_->setCenter(
-	    Coord3(((float) cs.hrg.start.inl+cs.hrg.stop.inl)/2,
-		   ((float) cs.hrg.start.crl+cs.hrg.stop.crl)/2,
-		   cs.zrg.center() ) );
+    Coord3 center( ((float) cs.hrg.start.inl+cs.hrg.stop.inl)/2,
+	    	   ((float) cs.hrg.start.crl+cs.hrg.stop.crl)/2,
+		   cs.zrg.center() );
 
-    initialdragger_->setWidth( Coord3( cs.hrg.stop.inl-cs.hrg.start.inl,
-				       cs.hrg.stop.crl-cs.hrg.start.crl,
-				       cs.zrg.width() ) );
+    Coord3 width( cs.hrg.stop.inl-cs.hrg.start.inl,
+	    	  cs.hrg.stop.crl-cs.hrg.start.crl,	                                          cs.zrg.width() );
+
+    initialdragger_->setCenter( center );
+    initialdragger_->setWidth( width );
+    initialellipsoid_->setCenterPos( center );
+    initialellipsoid_->setWidth( width );
 
     initialdragger_->setSpaceLimits(
 	    Interval<float>( sics.hrg.start.inl, sics.hrg.stop.inl ),
 	    Interval<float>( sics.hrg.start.crl, sics.hrg.stop.crl ),
 	    Interval<float>( sics.zrg.start, sics.zrg.stop ) );
 
+    minsampleinlsz_ = width.x/4;
+    minsamplecrlsz_ = width.y/4;
+    minsamplezsz_ = width.z/4;
+    previoussample_ = cs;
+
     initialdragger_->finished.notify( 
 	    mCB(this, MarchingCubesDisplay, draggerMovedCB) );
+
+    initialdragger_->motion.notify(
+	    mCB(this, MarchingCubesDisplay, draggerMovingCB) );
 
     setColor( getRandomColor( false ) );
 }
@@ -81,25 +104,13 @@ MarchingCubesDisplay::MarchingCubesDisplay()
 
 MarchingCubesDisplay::~MarchingCubesDisplay()
 {
-    setSceneEventCatcher( 0 );
-    delete surfaceeditor_;
+    if ( emsurface_ ) emsurface_->unRef();
+    
     if ( displaysurface_ )
     {
 	removeChild( displaysurface_->getInventorNode() );
 	displaysurface_->unRef();
     }
-
-    if ( initialdragger_ ) 
-    {
-	initialdragger_->finished.remove(
-		mCB(this, MarchingCubesDisplay, draggerMovedCB) );
-
-	initialdragger_->unRef();
-    }
-
-    if ( emsurface_ ) emsurface_->unRef();
-
-    setSceneEventCatcher(0);
 
     if ( factordragger_ )
     {
@@ -107,6 +118,10 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
 	factordragger_->motion.remove(mCB(this,MarchingCubesDisplay,
 		    		      factorDrag));
     }
+
+    delete surfaceeditor_;
+    setSceneEventCatcher(0);
+    removeInitialDragger();
 }
 
 
@@ -174,7 +189,6 @@ bool MarchingCubesDisplay::setVisSurface(
     EM::EMM().addObject( emsurface_ );
 
     displaysurface_ = surface;
-
     displaysurface_->ref();
     displaysurface_->setSelectable( false );
     displaysurface_->setRightHandSystem( righthandsystem_ );
@@ -186,8 +200,7 @@ bool MarchingCubesDisplay::setVisSurface(
     displaysurface_->setMaterial( 0 );
     emsurface_->setPreferredColor( getMaterial()->getColor() );
     
-    removeInitialDragger( false );
-    
+    removeInitialDragger();
     return true;
 }
 
@@ -249,14 +262,31 @@ void MarchingCubesDisplay::updateVisFromEM( bool onlyshape )
 	displaysurface_->turnOn( true );
     }
 
-    if ( emsurface_ && !emsurface_->surface().isEmpty() && initialdragger_ )
-    {
-	removeChild( initialdragger_->getInventorNode() );
-	initialdragger_->unRef();
-	initialdragger_ = 0;
-    }
+    if ( emsurface_ && !emsurface_->surface().isEmpty() )
+	removeInitialDragger();
 
     displaysurface_->touch();
+}
+
+
+void MarchingCubesDisplay::showManipulator( bool yn )
+{
+    if ( initialdragger_ )
+    	initialdragger_->turnOn( yn );
+    
+    if ( factordragger_ )
+	factordragger_->turnOn( yn );
+} 
+
+
+bool MarchingCubesDisplay::isManipulatorShown() const
+{
+    if ( initialdragger_ )
+	return initialdragger_->isOn();
+    else if (  factordragger_ )
+	return  factordragger_->isOn();
+    else
+	return false;
 }
 
 
@@ -267,52 +297,35 @@ bool MarchingCubesDisplay::hasInitialShape()
 }
 
 
-void MarchingCubesDisplay::removeInitialDragger( bool setemsurface )
+bool MarchingCubesDisplay::createInitialBody( bool allowswap )
 {
     if ( !initialdragger_ )
-	return;
+	return false;
 
+    if ( !allowswap )
+	return true;
+    
     const Coord3 center = initialdragger_->center();
     const Coord3 width = initialdragger_->width();
 
-    if ( !setemsurface )
-    {
-	removeChild( initialdragger_->getInventorNode() );
-	initialdragger_->unRef();
-	initialdragger_ = 0;
-        return;
-    }
-
-    StepInterval<int> draggerinlrg = StepInterval<int>( 
-	    mNINT(center.x-width.x/2), mNINT(center.x+width.x/2)+1, 
-	    SI().inlStep());
-    StepInterval<int> draggercrlrg = StepInterval<int>( 
-	    mNINT(center.y-width.y/2), mNINT(center.y+width.y/2)+1,
-	    SI().crlStep());
-    StepInterval<float> draggerzrg = StepInterval<float>( center.z-width.z/2, 
-	    center.z+width.z/2, SI().zStep() );
-
     CubeSampling cs( true );
-    cs.zrg = draggerzrg;
-    cs.hrg.start.inl = draggerinlrg.start;
-    cs.hrg.stop.inl = draggerinlrg.stop;
-    cs.hrg.start.crl = draggercrlrg.start;
-    cs.hrg.stop.crl = draggercrlrg.stop;
-    cs.snapToSurvey();
+    cs.zrg = StepInterval<float>(
+	    center.z-width.z/2, center.z+width.z/2, SI().zStep() );
+    cs.hrg.start.inl = mNINT(center.x-width.x/2);
+    cs.hrg.stop.inl = mNINT(center.x+width.x/2)+1;
+    cs.hrg.start.crl = mNINT(center.y-width.y/2);
+    cs.hrg.stop.crl = mNINT(center.y+width.y/2)+1;
 
-    const int xsz = cs.nrInl()>mMinSampleSz ? cs.nrInl(): mMinSampleSz;
-    const int ysz = cs.nrCrl()>mMinSampleSz ? cs.nrCrl(): mMinSampleSz;
-    const int zsz = cs.nrZ()>mMinSampleSz ? cs.nrZ(): mMinSampleSz;;
-    const int hxsz = xsz/2;
-    const int hysz = ysz/2;
-    const int hzsz = zsz/2;
+    const int xsz = cs.nrInl();
+    const int ysz = cs.nrCrl();
+    const int zsz = cs.nrZ();
+    const float hxsz = (float)xsz/2-0.5;
+    const float hysz = (float)ysz/2-0.5;
+    const float hzsz = (float)zsz/2-0.5;
     
-    Array3D<float>* array = new Array3DImpl<float>( xsz, ysz, zsz );
+    PtrMan<Array3DImpl<float> > array = new Array3DImpl<float> (xsz, ysz, zsz);
     if ( !array || !array->isOK() )
-    {
-	delete array;
-	return;
-    }
+	return false;
     
     for ( int idx=0; idx<xsz; idx++ )
     {
@@ -340,7 +353,35 @@ void MarchingCubesDisplay::removeInitialDragger( bool setemsurface )
     mcs.removeAll();
     mcs.setVolumeData( 0, 0, 0, *array, 1 );
 
+    array = 0;
+
     updateVisFromEM( false );
+
+    return true;
+}
+
+
+void MarchingCubesDisplay::removeInitialDragger()
+{
+    if ( initialellipsoid_ )
+    {
+	removeChild( initialellipsoid_->getInventorNode() );
+	initialellipsoid_->unRef();
+	initialellipsoid_ = 0;
+    }
+    
+    if ( !initialdragger_ )
+	return;
+    
+    initialdragger_->finished.remove(
+	    mCB(this, MarchingCubesDisplay, draggerMovedCB) );
+
+    initialdragger_->motion.remove(
+	    mCB(this, MarchingCubesDisplay, draggerMovingCB) );
+
+    removeChild( initialdragger_->getInventorNode() );
+    initialdragger_->unRef();
+    initialdragger_ = 0;
 }
 
 
@@ -352,23 +393,75 @@ void MarchingCubesDisplay::draggerMovedCB( CallBacker* )
     const Coord3 center = initialdragger_->center();
     const Coord3 width = initialdragger_->width();
 
-    StepInterval<int> draggerinlrg = StepInterval<int>( 
-	    mNINT(center.x-width.x/2),mNINT(center.x+width.x/2),SI().inlStep());
-    StepInterval<int> draggercrlrg = StepInterval<int>( 
-	    mNINT(center.y-width.y/2),mNINT(center.y+width.y/2),SI().crlStep());
-    StepInterval<float> draggerzrg = StepInterval<float>( center.z-width.z/2, 
-	    center.z+width.z/2, SI().zStep() );
-
     CubeSampling cs( true );
-    cs.zrg = draggerzrg;
-    cs.hrg.start.inl = draggerinlrg.start;
-    cs.hrg.stop.inl = draggerinlrg.stop;
-    cs.hrg.start.crl = draggercrlrg.start;
-    cs.hrg.stop.crl = draggercrlrg.stop;
+    cs.zrg = StepInterval<float>(
+	    center.z-width.z/2, center.z+width.z/2, SI().zStep() );
+    cs.hrg.start.inl = mNINT(center.x-width.x/2);
+    cs.hrg.stop.inl = mNINT(center.x+width.x/2)+1;
+    cs.hrg.start.crl = mNINT(center.y-width.y/2);
+    cs.hrg.stop.crl = mNINT(center.y+width.y/2)+1;
     cs.snapToSurvey();
+
+    previoussample_ = cs;
+
+    Coord3 newcenterpos( cs.hrg.inlRange().center(), 
+	    		 cs.hrg.crlRange().center(), cs.zrg.center() );
+    Coord3 newwidth( cs.hrg.inlRange().width(false), 
+	    	     cs.hrg.crlRange().width(false), cs.zrg.width(false) );
+    initialdragger_->setCenter( newcenterpos );
+    initialdragger_->setWidth( newwidth );
+    initialellipsoid_->setCenterPos( newcenterpos );
+    initialellipsoid_->setWidth( newwidth );
 }
 
 
+void MarchingCubesDisplay::draggerMovingCB( CallBacker* )
+{
+    if ( !initialdragger_ )
+	return;
+    
+    if ( !initialellipsoid_ )
+    {
+	initialellipsoid_ = visBase::Ellipsoid::create();
+	initialellipsoid_->ref();
+	addChild( initialellipsoid_->getInventorNode() );
+    }
+
+    Coord3 center = initialdragger_->center();
+    Coord3 width = initialdragger_->width();
+    
+    if ( width.x<minsampleinlsz_ || width.y<minsamplecrlsz_ ||
+	 width.z<minsamplezsz_ )
+    {
+	Coord3 centerpos( previoussample_.hrg.inlRange().center(), 
+			  previoussample_.hrg.crlRange().center(),
+	    		  previoussample_.zrg.center() );
+    	Coord3 prevwidth( previoussample_.hrg.inlRange().width(false), 
+			  previoussample_.hrg.crlRange().width(false),
+    			  previoussample_.zrg.width(false) );
+	
+	initialdragger_->setCenter( centerpos );    
+    	initialdragger_->setWidth( prevwidth );
+	
+	initialellipsoid_->setCenterPos( centerpos );
+    	initialellipsoid_->setWidth( prevwidth );
+    }
+    else
+    {
+	previoussample_.zrg = StepInterval<float>(
+		center.z-width.z/2, center.z+width.z/2, SI().zStep() );
+	previoussample_.hrg.start.inl = mNINT(center.x-width.x/2);
+	previoussample_.hrg.stop.inl = mNINT(center.x+width.x/2)+1;
+	previoussample_.hrg.start.crl = mNINT(center.y-width.y/2);
+	previoussample_.hrg.stop.crl = mNINT(center.y+width.y/2)+1;
+	previoussample_.snapToSurvey();
+	
+	initialellipsoid_->setCenterPos( center );
+    	initialellipsoid_->setWidth( width );
+    }
+}
+
+    
 MultiID MarchingCubesDisplay::getMultiID() const
 {
     return emsurface_ ? emsurface_->multiID() : MultiID();
@@ -393,7 +486,6 @@ Color MarchingCubesDisplay::getColor() const
 void MarchingCubesDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
-
     par.set( sKeyEarthModelID(), getMultiID() );
 }
 
@@ -426,6 +518,7 @@ int MarchingCubesDisplay::usePar( const IOPar& par )
 void MarchingCubesDisplay::setDisplayTransformation(visBase::Transformation* nt)
 {
     if ( displaysurface_ ) displaysurface_->setDisplayTransformation( nt );
+    if ( initialellipsoid_ ) initialellipsoid_->setDisplayTransformation( nt );
 }
 
 
@@ -493,6 +586,9 @@ void MarchingCubesDisplay::pickCB( CallBacker* cb )
 
 void MarchingCubesDisplay::factorDrag( CallBacker* )
 {
+    if ( !factordragger_ )
+	return;
+
     const float drag = startpos_-factordragger_->getPos().z;
     surfaceeditor_->setFactor( mNINT(drag*255) );
     updateVisFromEM( true );

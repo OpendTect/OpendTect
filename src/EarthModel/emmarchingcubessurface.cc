@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Aug 2007
- RCS:           $Id: emmarchingcubessurface.cc,v 1.3 2007-09-13 19:38:39 cvsnanne Exp $
+ RCS:           $Id: emmarchingcubessurface.cc,v 1.4 2007-10-12 21:30:28 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "keystrs.h"
 #include "marchingcubes.h"
+#include "randcolor.h"
 #include "streamconn.h"
 
 #include "emmanager.h"
@@ -205,6 +206,7 @@ EM::MarchingCubesSurface::MarchingCubesSurface( EM::EMManager& emm )
     , mcsurface_( new ::MarchingCubesSurface )
 {
     mcsurface_->ref();
+    setPreferredColor( getRandomColor( false ) );
 }
 
 
