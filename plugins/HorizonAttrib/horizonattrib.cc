@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: horizonattrib.cc,v 1.8 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:		$Id: horizonattrib.cc,v 1.9 2007-10-12 14:26:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,6 +155,8 @@ void Horizon::prepareForComputeData()
 	horizon_ = hor;
 	horizon_->ref();
     }
+
+    Provider::prepareForComputeData();
 }
 
 
