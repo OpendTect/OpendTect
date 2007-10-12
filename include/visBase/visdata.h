@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.48 2007-10-12 19:14:34 cvskris Exp $
+ RCS:		$Id: visdata.h,v 1.49 2007-10-12 19:41:29 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -153,35 +153,38 @@ public:								\
     virtual const char*	getClassName() const; 			\
 protected:
     
-#define _mDeclConstr(clss)	\
-    clss();			\
+#define _mDeclConstr(clss)					\
+    clss();							\
 public:
 
-#define mCreateDataObj(clss) \
-    _mCreateDataObj(clss) \
+#define mCreateDataObj(clss) 					\
+    _mCreateDataObj(clss) 					\
     _mDeclConstr(clss)
 
 
 #define mImplVisInitClass( clss ) \
 void clss::initClass()						\
-{ visBase::DataManager::factory().addCreator( clss::createInternal, #clss ); }
+{								\
+    visBase::DataManager::factory().addCreator(			\
+	clss::createInternal, #clss );				\
+}
 
 #define mCreateFactoryEntryNoInitClass( clss )			\
 const char* clss::getStaticClassName() { return #clss; }	\
 const char* clss::getClassName() const				\
 { return clss::getStaticClassName(); }				\
-visBase::DataObject* clss::createInternal()		\
+visBase::DataObject* clss::createInternal()			\
 {								\
     clss* res = new clss;					\
-    if ( !res )						\
+    if ( !res )							\
 	return 0;						\
     if ( !res->_init() || !res->isOK() )			\
-    {							\
+    {								\
 	delete res;						\
 	return 0;						\
-    }							\
-							    \
-    return res;						\
+    }								\
+								\
+    return res;							\
 }							
 
 
