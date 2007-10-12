@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: vismarchingcubessurface.cc,v 1.9 2007-09-14 13:11:30 cvskris Exp $
+ RCS:           $Id: vismarchingcubessurface.cc,v 1.10 2007-10-12 20:32:09 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ MarchingCubesSurface::MarchingCubesSurface()
     shape_->ref();
     shape_->removeSwitch();
     addChild( shape_->getInventorNode() );
+    shape_->setSelectable( false );
 
     shape_->setSurface( surface_ );
     shape_->setMaterial( 0 );
