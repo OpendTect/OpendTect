@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2007
- RCS:		$Id: zaxistransformdatapack.cc,v 1.1 2007-10-09 12:12:28 cvsnanne Exp $
+ RCS:		$Id: zaxistransformdatapack.cc,v 1.2 2007-10-15 08:30:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "arrayndimpl.h"
 #include "arrayndslice.h"
+#include "arrayndwrapper.h"
 #include "flatposdata.h"
 #include "cubesampling.h"
 #include "iopar.h"
@@ -22,21 +23,27 @@ ________________________________________________________________________
 
 
 ZAxisTransformDataPack::ZAxisTransformDataPack( const FlatDataPack& fdp,
-       						ZAxisTransformer& zt )
+						const CubeSampling& cs,
+       						ZAxisTransform& zat )
     : FlatDataPack( fdp.category() )
     , inputdp_(fdp)
-    , transformer_(zt)
+    , inputcs_(cs)
+    , transform_(zat)
+    , interpolate_(false)
     , array3d_(0)
     , array2dsl_(0)
 {
     setName( fdp.name() );
     posdata_.setRange( true, fdp.posData().range(true) );
     posdata_.setRange( false, fdp.posData().range(false) );
+
+    transform_.ref();
 }
 
 
 ZAxisTransformDataPack::~ZAxisTransformDataPack()
 {
+    transform_.unRef();
 }
 
 
@@ -52,18 +59,9 @@ void ZAxisTransformDataPack::dumpInfo( IOPar& iop ) const
 #define mCrl 1
 #define mZ   2
 
-bool ZAxisTransformDataPack::transform()
+static void getDimensions( int& dim0, int& dim1, int& unuseddim,
+			   const CubeSampling& cs )
 {
-    const CubeSampling& cs = transformer_.getOutputRange();
-
-    if ( !transformer_.execute() )
-	return false;
-
-    array3d_ = transformer_.getOutput( true );
-    if ( !array3d_ )
-	return false;
-
-    int unuseddim, dim0, dim1;
     if ( cs.nrInl() < 2 )
     {
 	unuseddim = mInl;
@@ -82,6 +80,34 @@ bool ZAxisTransformDataPack::transform()
 	dim0 = mInl;
 	dim1 = mCrl;
     }
+}
+
+
+bool ZAxisTransformDataPack::transform()
+{
+    int unuseddim, dim0, dim1;
+    getDimensions( dim0, dim1, unuseddim, inputcs_ );
+
+    ZAxisTransformer transformer( transform_, true );
+    transformer.setInterpolate( interpolate_ );
+
+    Array2D<float>& arr2d = const_cast<Array2D<float>&>( inputdp_.data() );
+    Array3DWrapper<float> inputarr3d( arr2d );
+    inputarr3d.setDimMap( 0, dim0 );
+    inputarr3d.setDimMap( 1, dim1 );
+    inputarr3d.init();
+    transformer.setInput( inputarr3d, inputcs_ );
+
+    CubeSampling outputcs = inputcs_;
+    outputcs.zrg.setFrom( transform_.getZInterval(false) );
+    transformer.setOutputRange( outputcs );
+
+    if ( !transformer.execute() )
+	return false;
+
+    array3d_ = transformer.getOutput( true );
+    if ( !array3d_ )
+	return false;
 
     array2dsl_ = new Array2DSlice<float>( *array3d_ );
     array2dsl_->setPos( unuseddim, 0 );
