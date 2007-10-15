@@ -4,25 +4,27 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.9 2007-10-12 21:30:28 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.10 2007-10-15 22:27:53 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
 #include "arrayndimpl.h"
-#include "iopar.h"
-#include "executor.h"
-#include "marchingcubeseditor.h"
-#include "survinfo.h"
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
+#include "executor.h"
+#include "iopar.h"
 #include "marchingcubes.h"
+#include "marchingcubeseditor.h"
 #include "randcolor.h"
+#include "position.h"
+#include "survinfo.h"
 #include "visboxdragger.h"
 #include "visdragger.h"
 #include "visellipsoid.h"
 #include "visevent.h"
-#include "vismaterial.h"
 #include "vismarchingcubessurface.h"
+#include "vismaterial.h"
+#include "vispickstyle.h"
 
 #define mKernelSize 11
 #define mHalfKernel 5
@@ -44,7 +46,9 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     , minsampleinlsz_( 0 )						
     , minsamplecrlsz_( 0 )						
     , minsamplezsz_( 0 )
-    , previoussample_( false )			
+    , previoussample_( false )
+    , kernelpickstyle_( 0 )			     
+    , kernelellipsoid_( 0 )						     
 {
     initialdragger_->ref();
     initialdragger_->turnOn( true );
@@ -118,6 +122,12 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
 	factordragger_->motion.remove(mCB(this,MarchingCubesDisplay,
 		    		      factorDrag));
     }
+
+    if ( kernelpickstyle_ )
+	kernelpickstyle_->unRef();
+
+    if ( kernelellipsoid_ )
+	kernelellipsoid_->unRef();
 
     delete surfaceeditor_;
     setSceneEventCatcher(0);
@@ -519,6 +529,7 @@ void MarchingCubesDisplay::setDisplayTransformation(visBase::Transformation* nt)
 {
     if ( displaysurface_ ) displaysurface_->setDisplayTransformation( nt );
     if ( initialellipsoid_ ) initialellipsoid_->setDisplayTransformation( nt );
+    if ( kernelellipsoid_ ) kernelellipsoid_->setDisplayTransformation( nt );
 }
 
 
@@ -557,10 +568,7 @@ void MarchingCubesDisplay::pickCB( CallBacker* cb )
 			       emsurface_->zSampling().nearestIndex(wp.z) };
 
     if ( !surfaceeditor_ )
-    {
-	surfaceeditor_ = new MarchingCubesSurfaceEditor( 
-		emsurface_->surface() );
-    }
+	surfaceeditor_ = new MarchingCubesSurfaceEditor(emsurface_->surface());
 
     PtrMan<Array3D<unsigned char> > kernel = 
 			createKernel( mKernelSize,mKernelSize, mKernelSize );
@@ -579,6 +587,33 @@ void MarchingCubesDisplay::pickCB( CallBacker* cb )
 
     factordragger_->setPos( Coord3(bid.inl, bid.crl, wp.z ) );
     startpos_ = wp.z;
+
+    if ( !kernelpickstyle_ )
+    {
+     	kernelpickstyle_  = visBase::PickStyle::create();
+     	kernelpickstyle_->ref();
+     	addChild( kernelpickstyle_->getInventorNode() );
+	kernelpickstyle_->setStyle( visBase::PickStyle::Unpickable );
+    }
+    
+    if ( !kernelellipsoid_ )
+    {
+	kernelellipsoid_ = visBase::Ellipsoid::create();
+	kernelellipsoid_->ref();
+	addChild( kernelellipsoid_->getInventorNode() );
+    }
+
+    kernelellipsoid_->setCenterPos( Coord3(bid.inl, bid.crl, wp.z ) );
+    kernelellipsoid_->setWidth( 
+	    Coord3( emsurface_->inlSampling().step*mKernelSize,
+		    emsurface_->crlSampling().step*mKernelSize,
+    		    emsurface_->zSampling().step*mKernelSize ) );
+    
+    if ( !kernelellipsoid_->getMaterial() )
+	kernelellipsoid_->setMaterial( visBase::Material::create() );
+    kernelellipsoid_->getMaterial()->setTransparency( 0.8 );
+    kernelellipsoid_->getMaterial()->setColor( 
+	    getMaterial()->getColor().complementaryColor() );
 
     eventcatcher_->eventIsHandled();
 }

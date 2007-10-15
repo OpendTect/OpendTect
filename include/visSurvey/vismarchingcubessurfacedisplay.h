@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.7 2007-10-12 21:30:28 cvsyuancheng Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.8 2007-10-15 22:27:53 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -23,11 +23,12 @@ template <class T> class Array3D;
 
 namespace visBase
 {
-    class Ellipsoid;
-    class MarchingCubesSurface;
-    class Transformation;
     class BoxDragger;
     class Dragger;
+    class Ellipsoid;
+    class MarchingCubesSurface;
+    class PickStyle;
+    class Transformation;
 };
 
 
@@ -100,6 +101,8 @@ protected:
     visBase::Dragger*			factordragger_;
     visBase::EventCatcher*		eventcatcher_;
     visBase::Ellipsoid*			initialellipsoid_;
+    visBase::PickStyle*			kernelpickstyle_;
+    visBase::Ellipsoid*			kernelellipsoid_;
 
     double				minsampleinlsz_;
     double				minsamplecrlsz_;
