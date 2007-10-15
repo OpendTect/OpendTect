@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.12 2007-10-12 19:14:34 cvskris Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.13 2007-10-15 06:46:35 cvsnanne Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -98,6 +98,8 @@ void VolumeRenderScalarField::setScalarField( const Array3D<float>* sc )
     if ( !sc )
     {
 	turnOn( false );
+	if ( ownsdatacache_ ) delete datacache_;
+	datacache_ = 0;
 	return;
     }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.73 2007-10-12 19:14:34 cvskris Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.74 2007-10-15 06:46:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -583,7 +583,7 @@ void VolumeDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     DPM( DataPackMgr::CubeID ).release( cacheid_ );
     cacheid_ = DataPack::cNoID;
 
-    scalarfield_->turnOn( false );
+    scalarfield_->setScalarField( 0 );
 
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
 	updateIsoSurface( idx );
