@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K.Tingdahl
  Date:		Jan 2006
- RCS:		$Id: multidimstorage.h,v 1.1 2007-10-09 17:05:18 cvskris Exp $
+ RCS:		$Id: multidimstorage.h,v 1.2 2007-10-15 18:20:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,6 +83,9 @@ public:
     inline bool				divide(ObjectSet<int>&) const;
     					/*!divides all items into chunks
 					   of (about equal size). */
+    template <class IDX> bool 		sort(TypeSet<IDX>& indices) const;
+    					/*!<Sorts the array in order of
+					    globalpos. */
 
     template <class POS> void		getIndicesInRange(const POS& start,
 	    					   const POS& stop,
@@ -723,6 +726,47 @@ bool MultiDimStorage<T>::divide( ObjectSet<int>& res ) const
 
 	prevchunk = chunk;
     }
+
+    return true;
+}
+
+
+template <class T> template <class IDXS> inline
+bool MultiDimStorage<T>::sort( TypeSet<IDXS>& indices ) const
+{
+    if ( !size() )
+	return false;
+
+    TypeSet<long long> dimsizes;
+
+    long long multiplicator = 1;
+    for ( int dim=0; dim<nrdims_; dim++ )
+    {
+	dimsizes += multiplicator;
+
+	Interval<int> rg;
+	if ( getRange( dim, rg ) )
+	    multiplicator *= ( rg.width()+1 );
+    }
+
+    TypeSet<long long> sortkeys;
+    TypeSet<long long> idxs;
+
+    for ( int idx=0; idx<indices.size(); idx++ )
+    {
+	long long sortkey = 0;
+	for ( int dim=0; dim<nrdims_; dim++ )
+	    sortkey += indices[idx][dim] * dimsizes[dim];
+
+	sortkeys += sortkey;
+	idxs += idx;
+    }
+
+    sort_coupled( sortkeys.arr(), idxs.arr(), idxs.size() );
+
+    TypeSet<IDXS> copy = indices;
+    for ( int idx=idxs.size()-1; idx>=0; idx-- )
+	indices[idx] = copy[idxs[idx]];
 
     return true;
 }
