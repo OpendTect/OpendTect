@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:		$Id: uistrattreewin.cc,v 1.18 2007-10-08 07:49:07 cvshelene Exp $
+ RCS:		$Id: uistrattreewin.cc,v 1.19 2007-10-15 12:38:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,6 +203,10 @@ void uiStratTreeWin::rClickLvlCB( CallBacker* )
     {
 	uistratmgr_->removeLevel( lvllistfld_->box()->getText() );
 	lvllistfld_->box()->removeItem( lvllistfld_->box()->currentItem() );
+	uitree_->updateLvlsPixmaps();
+	uitree_->listView()->triggerUpdate();
+	if ( lvllistfld_->box()->isEmpty() )
+	    lvllistfld_->box()->addItem( sNoLevelTxt );
 	return;
     }
 
@@ -236,17 +240,16 @@ void uiStratTreeWin::editLevel( bool create )
 
 void uiStratTreeWin::updateLvlList( bool create )
 {
+    if ( create && lvllistfld_->box()->isPresent( sNoLevelTxt ) )
+	lvllistfld_->box()->removeItem( 0 );
+    
     BufferString lvlnm;
     Color lvlcol;
     int lvlidx = create ? lvllistfld_->box()->size()
 			: lvllistfld_->box()->currentItem();
     uistratmgr_->getLvlTxtAndCol( lvlidx, lvlnm, lvlcol );
     if ( create )
-    {
 	lvllistfld_->box()->addItem( lvlnm, lvlcol );
-	if ( lvllistfld_->box()->isPresent( sNoLevelTxt ) )
-	    lvllistfld_->box()->removeItem( 0 );
-    }
     else
     {
 	lvllistfld_->box()->setItemText( lvlidx, lvlnm );
