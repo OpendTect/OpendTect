@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.64 2007-08-29 11:45:46 cvsbert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.65 2007-10-15 15:26:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,10 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
 	    			     "Merge blocks of inlines into cube" );
     manipgrp->setAlternative( mrgdmpbut, ioPixmap("dumpgeom.png"),
 			      "Dump geometry" );
+
+    browsebut = manipgrp->addButton( ioPixmap("browseseis.png"),
+				     mCB(this,uiSeisFileMan,browsePush),
+				     "Browse/edit this cube" );
 
     selgrp->setPrefWidthInChar( cPrefWidth );
     infofld->setPrefWidthInChar( cPrefWidth );
@@ -206,6 +210,14 @@ void uiSeisFileMan::mergeDump2DPush( CallBacker* )
 	dlg.go();
 	selgrp->fullUpdate( key );
     }
+}
+
+
+void uiSeisFileMan::browsePush( CallBacker* )
+{
+    if ( !curioobj_ ) return;
+
+    uiMSG().error( "TODO: Not implemented yet" );
 }
 
 
