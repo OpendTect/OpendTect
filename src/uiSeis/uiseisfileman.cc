@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.65 2007-10-15 15:26:26 cvsbert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.66 2007-10-16 16:27:58 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "uimergeseis.h"
 #include "uiseiscbvsimp.h"
 #include "uiseis2dgeom.h"
+#include "uiseisbrowser.h"
 #include "uiioobjmanip.h"
 #include "uitextedit.h"
 #include "pixmap.h"
@@ -102,8 +103,9 @@ void uiSeisFileMan::ownSelChg()
     const bool is2d = curioobj_ && SeisTrcTranslator::is2D( *curioobj_ );
     manipgrp->useAlternative( cpym2dbut, is2d );
     manipgrp->useAlternative( mrgdmpbut, is2d );
-    cpym2dbut->setSensitive( is2d
-	    		|| (curioobj_ && curioobj_->implExists(true)) );
+    const bool doesexist = curioobj_ && curioobj_->implExists(true);
+    cpym2dbut->setSensitive( is2d || doesexist );
+    browsebut->setSensitive( !is2d && doesexist );
 }
 
 
@@ -213,11 +215,21 @@ void uiSeisFileMan::mergeDump2DPush( CallBacker* )
 }
 
 
+static void doBrowse( uiParent* p, const IOObj* ioobj, const LineKey* lk )
+{
+    if ( !ioobj ) return;
+
+    uiSeisBrowser::Setup setup( ioobj->key(), lk ? Seis::Line : Seis::Vol );
+    if ( lk )
+	setup.linekey( *lk );
+    uiSeisBrowser dlg( p, setup );
+    dlg.go();
+}
+
+
 void uiSeisFileMan::browsePush( CallBacker* )
 {
-    if ( !curioobj_ ) return;
-
-    uiMSG().error( "TODO: Not implemented yet" );
+    doBrowse( this, curioobj_, 0 );
 }
 
 
@@ -258,6 +270,9 @@ uiSeis2DMan( uiParent* p, const IOObj& ioobj )
     butgrp->addButton( uiManipButGrp::Remove,
 	    	       mCB(this,uiSeis2DMan,removeAttrib),
 		       "Remove selected attribute(s)" );
+    browsebut = butgrp->addButton( ioPixmap("browseseis.png"),
+	    	       mCB(this,uiSeis2DMan,browsePush),
+		       "Browse/edit this line" );
     butgrp->attach( rightTo, attriblist->box() );
 
     infofld = new uiTextEdit( this, "File Info", true );
@@ -334,11 +349,11 @@ void attribSel( CallBacker* )
     linelist->box()->getSelectedItems( linenms );
     attriblist->box()->getSelectedItems( attribnms );
     if ( linenms.isEmpty() || attribnms.isEmpty() )
-    { infofld->setText(""); return; }
+	{ infofld->setText(""); browsebut->setSensitive( false ); return; }
 
     const LineKey linekey( linenms.get(0), attribnms.get(0) );
     const int lineidx = lineset->indexOf( linekey );
-    if ( lineidx < 0 ) return;
+    if ( lineidx < 0 ) { pErrMsg("Huh"); return; }
 
 
     BufferString txt;
@@ -362,6 +377,15 @@ void attribSel( CallBacker* )
     txt += "\nFile size: "; 
     txt += uiObjFileMan::getFileSizeString( File_getKbSize(fname) );
     infofld->setText( txt );
+
+    browsebut->setSensitive( true );
+}
+
+
+void browsePush( CallBacker* )
+{
+    const LineKey lk( linelist->box()->getText(), attriblist->box()->getText());
+    doBrowse( this, objinfo->ioObj(), &lk );
 }
 
 
@@ -467,6 +491,7 @@ protected:
     uiLabeledListBox*	linelist;
     uiLabeledListBox*	attriblist;
     uiTextEdit*		infofld;
+    uiToolButton*	browsebut;
 
     Seis2DLineSet*	lineset;
     uiSeisIOObjInfo*	objinfo;
