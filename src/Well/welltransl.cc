@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: welltransl.cc,v 1.14 2007-10-04 06:09:01 cvsnanne Exp $";
+static const char* rcsID = "$Id: welltransl.cc,v 1.15 2007-10-16 10:12:56 cvsnanne Exp $";
 
 
 #include "welltransl.h"
@@ -58,14 +58,16 @@ bool WellTranslator::implRemove( const IOObj* ioobj ) const
 }
 
 
-#define mRename(ext,nr,required) \
+#define mRename(ext,nr,extra) \
 { \
     StreamProvider sp( Well::IO::mkFileName(bnm,ext,nr) ); \
     sp.addPathIfNecessary( pathnm ); \
     StreamProvider spnew( Well::IO::mkFileName(newbnm,ext,nr) ); \
     spnew.addPathIfNecessary( pathnm ); \
-    if ( !sp.exists(true) ) { if ( required ) return false; } \
-    else if ( !sp.rename(spnew.fileName(),cb) ) return false; \
+    const bool exists = sp.exists( true ); \
+    if ( exists && !sp.rename(spnew.fileName(),cb) ) \
+	return false; \
+    extra; \
 }
 
 bool WellTranslator::implRename( const IOObj* ioobj, const char* newnm,
@@ -77,11 +79,11 @@ bool WellTranslator::implRename( const IOObj* ioobj, const char* newnm,
     const BufferString bnm = fp.fullPath();
     fp.set( newnm ); fp.setExtension( 0, true );
     const BufferString newbnm = fp.fullPath();
-    mRename(Well::IO::sExtMarkers,0,false)
-    mRename(Well::IO::sExtD2T,0,false)
+    mRename(Well::IO::sExtMarkers,0,)
+    mRename(Well::IO::sExtD2T,0,)
 
     for ( int idx=1; ; idx++ )
-	mRename(Well::IO::sExtLog,idx,true)
+	mRename(Well::IO::sExtLog,idx,if ( !exists ) break)
     
     return true;
 }
