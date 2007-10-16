@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2007
- RCS:           $Id: uiflatauxdataeditorlist.cc,v 1.7 2007-10-10 01:06:08 cvskris Exp $
+ RCS:           $Id: uiflatauxdataeditorlist.cc,v 1.8 2007-10-16 08:29:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ uiFlatViewAuxDataEditorList::uiFlatViewAuxDataEditorList( uiParent* p )
     : uiGroup( p )
     , change_( this )  
     , ptselchange_( this )
+    , isrectangleselection_( true )
 {
     listbox_ = new uiListBox( this );
     listbox_->setMultiSelect( true );
@@ -48,6 +49,7 @@ void uiFlatViewAuxDataEditorList::addEditor( FlatView::AuxDataEditor* newed )
     newed->movementFinished.notify( mCB(this,uiFlatViewAuxDataEditorList,
 					pointSelectionChangedCB) );
     editors_ += newed;
+    newed->setSelectionPolygonRectangle( isrectangleselection_ );
     updateList();
 }
 
@@ -161,6 +163,18 @@ void uiFlatViewAuxDataEditorList::setSelection(
 
     listbox_->setSelected( idx, true );
     change_.trigger();
+}
+
+
+bool uiFlatViewAuxDataEditorList::isRectangleSelection() const
+{ return isrectangleselection_; }
+
+
+void uiFlatViewAuxDataEditorList::useRectangleSelection(bool yn)
+{
+    isrectangleselection_ = yn;
+    for ( int idx = editors_.size()-1; idx>=0; idx-- )
+	editors_[idx]->setSelectionPolygonRectangle( isrectangleselection_ );
 }
 
 

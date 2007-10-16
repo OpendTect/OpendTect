@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2007
- RCS:           $Id: uiflatauxdataeditorlist.h,v 1.5 2007-10-10 01:06:08 cvskris Exp $
+ RCS:           $Id: uiflatauxdataeditorlist.h,v 1.6 2007-10-16 08:29:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,9 @@ public:
     void		updateList(CallBacker* = 0);
     void		setSelection(const FlatView::AuxDataEditor*,int id);
     			//!<Set which data in the editor that should be active. 
+
+    bool		isRectangleSelection() const;
+    void		useRectangleSelection(bool yn);
 
     NotifierAccess&	selectionChange() { return change_; }
     void		getSelections(ObjectSet<FlatView::AuxDataEditor>&,
@@ -68,6 +71,8 @@ protected:
 
     Notifier<uiFlatViewAuxDataEditorList>	change_;
     Notifier<uiFlatViewAuxDataEditorList>	ptselchange_;
+
+    bool					isrectangleselection_;
 };
 
 #endif
