@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.62 2007-10-12 09:07:20 cvssulochana Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.63 2007-10-16 06:26:01 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -213,6 +213,11 @@ void uiAttribDescSetEd::createGroups()
 }
 
 
+#define mSetAuto( yn ) \
+    autoset = yn; \
+    Settings::common().setYN(uiAttribDescSetEd::sKeyUseAutoAttrSet, yn); \
+    Settings::common().write();
+
 void uiAttribDescSetEd::init()
 {
     delete attrset;
@@ -228,7 +233,7 @@ void uiAttribDescSetEd::init()
     setctio.setObj( IOM().get(setid) );
     if ( autoset && !setctio.ioobj )
     {
-        BufferString msg = "The Attribute-set selected for Auto-load";
+        BufferString msg = "The Attribute-set selected for Auto-load ";
         msg += "is no longer valid\n";
         msg += "Load another now?";
         if ( uiMSG().askGoOn( msg ) )
@@ -268,7 +273,9 @@ void uiAttribDescSetEd::init()
 		    Settings::common().write();
 		}
 	    }
+	    else mSetAuto( false );
 	}
+	else mSetAuto( false );
     }
     else
     	attrsetfld->setText( setctio.ioobj ? setctio.ioobj->name() : "" );
