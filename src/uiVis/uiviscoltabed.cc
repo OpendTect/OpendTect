@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.21 2007-10-11 12:15:46 cvsraman Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.22 2007-10-16 05:10:43 cvsraman Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -139,10 +139,12 @@ void uiVisColTabEd::colTabEdChangedCB( CallBacker* )
 				coltabcliprate_ != coltabed_->getClipRate() )
     {
 	autoscalechange = true;
-	coltabcliprate_ = coltabed_->getClipRate();
-	coltab_->setClipRate( coltabcliprate_ );
 	coltabautoscale_ = coltabed_->autoScale();
 	coltab_->setAutoScale( coltabautoscale_ );
+	coltabsymmetry_ = coltabed_->getSymmetry();
+	coltab_->setSymmetry( coltabsymmetry_ );
+	coltabcliprate_ = coltabed_->getClipRate();
+	coltab_->setClipRate( coltabcliprate_ );
     }
 
     coltab_->rangechange.enable( oldrangechstatus );
@@ -186,11 +188,13 @@ void uiVisColTabEd::updateEditor()
     colseq_ = coltab_->colorSeq().colors();
     coltabautoscale_ = coltab_->autoScale();
     coltabcliprate_ = coltab_->clipRate();
+    coltabsymmetry_ = coltab_->getSymmetry();
 
     ColorTable newct = colseq_;
     newct.scaleTo( coltabinterval_ );
     coltabed_->setColorTable( &newct );
     coltabed_->setAutoScale( coltabautoscale_ );
+    coltabed_->setSymmetry( coltabsymmetry_ );
     coltabed_->setClipRate( coltabcliprate_ );
 }
 
@@ -233,6 +237,7 @@ bool uiVisColTabEd::usePar( const IOPar& par )
 	coltabed_->setClipRate( cliprate );
 
 	par.getYN( sKeySymmetry(), coltabsymmetry_ );
+	coltabed_->setSymmetry( coltabsymmetry_ );
     }
     else
     {
