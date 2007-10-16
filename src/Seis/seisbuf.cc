@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.34 2007-10-03 12:53:55 cvskris Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.35 2007-10-16 21:08:24 cvskris Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: seisbuf.cc,v 1.34 2007-10-03 12:53:55 cvskris E
 #include "flatposdata.h"
 #include "survinfo.h"
 #include "iopar.h"
+#include "cubesampling.h"
 
 
 void SeisTrcBuf::deepErase()
@@ -431,6 +432,26 @@ Coord3 SeisTrcBufDataPack::getCoord( int itrc, int isamp ) const
     if ( itrc < 0 ) itrc = 0;
     const SeisTrc* trc = buf.get( itrc );
     return Coord3( trc->info().coord, trc->info().samplePos(isamp) );
+}
+
+
+bool SeisTrcBufDataPack::getCubeSampling( CubeSampling& cs ) const
+{
+    const SeisTrcBuf& buf = trcBuf();
+    if ( buf.isEmpty() )
+	return false;
+
+    cs.hrg.start.inl = cs.hrg.stop.inl = buf.get( 0 )->info().binid.inl;
+    cs.hrg.start.crl = cs.hrg.stop.crl = buf.get( 0 )->info().binid.crl;
+    cs.hrg.step.inl = SI().inlStep();
+    cs.hrg.step.crl = SI().crlStep();
+
+    for ( int idx=1; idx<buf.size(); idx++ )
+	cs.hrg.include( buf.get( idx )->info().binid );
+
+    cs.zrg.setFrom( posData().range(false) );
+
+    return true;
 }
 
 

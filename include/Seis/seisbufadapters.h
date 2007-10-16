@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2007
- RCS:		$Id: seisbufadapters.h,v 1.6 2007-10-10 03:24:14 cvsnanne Exp $
+ RCS:		$Id: seisbufadapters.h,v 1.7 2007-10-16 21:08:24 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -63,6 +63,8 @@ public:
 
     void		setBuffer(SeisTrcBuf*,Seis::GeomType,SeisTrcInfo::Fld,
 	    			  int icomp=0);
+
+    bool		getCubeSampling(CubeSampling&) const;
 
     const char*		dimName(bool) const;
     Coord3		getCoord(int,int) const;
