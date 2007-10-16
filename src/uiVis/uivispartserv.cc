@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.356 2007-09-20 15:16:46 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.357 2007-10-16 12:41:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,7 @@ static const int sResetManipIdx = 800;
 static const int sColorIdx = 700;
 static const int sPropertiesIdx = 600;
 static const int sResolutionIdx = 500;
+
 
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
@@ -332,16 +333,6 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
 	displayids_[typesetidx] += dobj->id();
 	turnOn( dobj->id(), true, true );
     }
-}
-
-
-bool uiVisPartServer::isLocked( int objectid ) const
-{
-    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(objectid));
-    if ( !so )
-	return false;
-
-    return so->isLocked();
 }
 
 
@@ -891,7 +882,7 @@ void uiVisPartServer::toggleDraggers()
 	    bool isdraggeron = selected.indexOf(obj->id())!=-1 && !viewmode_;
 
 	    mDynamicCastGet(visSurvey::SurveyObject*,so,obj)
-	    if ( so ) so->showManipulator(isdraggeron);
+	    if ( so ) so->showManipulator(isdraggeron && !so->isLocked() );
 	}
     }
 }
@@ -1367,7 +1358,7 @@ void uiVisPartServer::selectObjCB( CallBacker* cb )
     visBase::DataObject* dobj = visBase::DM().getObject( sel );
     mDynamicCastGet(visSurvey::SurveyObject*,so,dobj);
     if ( !viewmode_ && so )
-	so->showManipulator(true);
+	so->showManipulator( !so->isLocked() );
 
     selattrib_ = -1;
 
@@ -1575,6 +1566,28 @@ bool uiVisPartServer::isVerticalDisp( int id ) const
 {
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     return so ? so->isVerticalPlane() : true;
+}
+
+
+void uiVisPartServer::lock( int id, bool yn )
+{
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
+    if ( !so ) return;
+
+    const TypeSet<int>& selected = visBase::DM().selMan().selected();
+    so->lock( yn );
+
+    const bool isdraggeron = selected.indexOf(id)!=-1 && !viewmode_;
+    so->showManipulator( isdraggeron && !so->isLocked() );
+}
+
+
+bool uiVisPartServer::isLocked( int id ) const
+{
+    mDynamicCastGet(const visSurvey::SurveyObject*,so,getObject(id));
+    if ( !so ) return false;
+
+    return so->isLocked();
 }
 
 

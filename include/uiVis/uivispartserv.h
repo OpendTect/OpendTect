@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.196 2007-09-20 15:16:46 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.197 2007-10-16 12:41:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -256,8 +256,6 @@ public:
     int				duplicateObject(int id,int sceneid);
     				/*!< \returns id of new object */
 
-    bool			isLocked(int) const;
-
     				// Tracking stuff
     void			turnSeedPickingOn(bool yn);
     static const int		evPickingStatusChange;
@@ -295,6 +293,9 @@ public:
 
     bool			canBDispOn2DViewer(int id) const;
     bool			isVerticalDisp(int id) const;
+
+    void			lock(int id,bool yn);
+    bool			isLocked(int id) const;
     
 protected:
 

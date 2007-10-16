@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddisplaytreeitem.cc,v 1.14 2007-09-20 15:16:46 cvskris Exp $
+ RCS:		$Id: uioddisplaytreeitem.cc,v 1.15 2007-10-16 12:41:11 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -168,7 +168,7 @@ void uiODDisplayTreeItem::updateColumnText( int col )
     if ( col==uiODSceneMgr::cNameColumn() )
     {
 	name_ = createDisplayName();
-	updateLockPixmap( so ? so->isLocked() : false );
+	updateLockPixmap( visserv_->isLocked(displayid_) );
     }
 
     else if ( col==uiODSceneMgr::cColorColumn() )
@@ -268,13 +268,8 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==lockmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	mDynamicCastGet(visSurvey::SurveyObject*,so,
-			visserv_->getObject(displayid_))
-	if ( !so )
-	    return;
-
-	so->lock( !so->isLocked() );
-	updateLockPixmap( so->isLocked() );
+	visserv_->lock( displayid_, !visserv_->isLocked(displayid_) );
+	updateLockPixmap( visserv_->isLocked(displayid_) );
 	ODMainWin()->sceneMgr().updateStatusBar();
     }
     else if ( mnuid==duplicatemnuitem_.id )
