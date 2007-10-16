@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: viscolortab.cc,v 1.36 2007-10-11 12:19:55 cvsraman Exp $
+ RCS:           $Id: viscolortab.cc,v 1.37 2007-10-16 05:07:21 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ VisColorTab::VisColorTab()
     , colseq_( 0 )
     , scale_( *new LinScaler )
     , autoscale_( true )
+    , symmetry_(false)
     , cliprate_( ColorTable::defPercClip()/100 )
 {
     setColorSeq( ColorSequence::create() );
@@ -66,13 +67,13 @@ void VisColorTab::setAutoScale( bool yn )
 }
 
 
-bool VisColorTab::isSymmetric() const
+bool VisColorTab::getSymmetry() const
 {
     return symmetry_;
 }
 
 
-void VisColorTab::setSymmetric( bool yn ) 
+void VisColorTab::setSymmetry( bool yn ) 
 {
     symmetry_ = yn;
 }
@@ -100,6 +101,7 @@ void VisColorTab::scaleTo( const float* values, int nrvalues )
     clipper.putData( values, nrvalues );
     Interval<float> range( 0, 1 );
     clipper.calculateRange( cliprate_, range );
+    if ( symmetry_ ) setSymmetrical( range );
     scaleTo( range );
 }
 
@@ -111,7 +113,18 @@ void VisColorTab::scaleTo( const ValueSeries<float>& values, int nrvalues )
     clipper.putData( values, nrvalues );
     Interval<float> range( 0, 1 );
     clipper.calculateRange( cliprate_, range );
+    if ( symmetry_ ) setSymmetrical( range );
     scaleTo( range );
+}
+
+
+void VisColorTab::setSymmetrical( Interval<float>& intv )
+{
+    float maxval = fabs(intv.start) > fabs(intv.stop)
+		 ? fabs(intv.start) : fabs(intv.stop);
+    bool flipped = intv.stop < intv.start;
+    intv.start = flipped ? maxval : -maxval;
+    intv.stop = flipped ? -maxval : maxval;
 }
 
 
