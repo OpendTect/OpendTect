@@ -4,11 +4,12 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.14 2007-09-12 10:53:22 cvskris Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.15 2007-10-16 05:12:01 cvsraman Exp $";
 
 
 #include "uiodvolrentreeitem.h"
 
+#include "uiattribpartserv.h"
 #include "uicursor.h"
 #include "uilistview.h"
 #include "uimenu.h"
@@ -22,11 +23,14 @@ static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.14 2007-09-12 10:53:2
 #include "uistatisticsdlg.h"
 #include "vismarchingcubessurface.h"
 #include "vismarchingcubessurfacedisplay.h"
+#include "uiviscoltabed.h"
 #include "uivisisosurface.h"
 #include "uivispartserv.h"
 #include "visvolorthoslice.h"
 #include "visvolren.h"
 #include "visvolumedisplay.h"
+#include "filepath.h"
+#include "ioobj.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 
@@ -100,6 +104,7 @@ uiODVolrenTreeItem::uiODVolrenTreeItem( int displayid )
     , addvolumemnuid_("Volume")
     , addisosurfacemnuid_("Iso surface")
     , selattrmnuitem_( uiODAttribTreeItem::sKeySelAttribMenuTxt(), 10000 )
+    , colsettingsmnuitem_( uiODAttribTreeItem::sKeyColSettingsMenuTxt() )
 { displayid_ = displayid; }
 
 
@@ -173,6 +178,11 @@ void uiODVolrenTreeItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( menu, &selattrmnuitem_,
 			!visserv_->isLocked(displayID()), false );
 
+    const uiAttribPartServer* attrserv = applMgr()->attrServer();
+    const Attrib::SelSpec* as = visserv_->getSelSpec( displayID(), 0 );
+    if ( attrserv->getIOObj(*as) )
+	mAddMenuItem( menu, &colsettingsmnuitem_, true, false );
+
     mAddMenuItem( menu, &positionmnuid_, true, false );
     mAddMenuItem( menu, &statisticsmnuid_, true, false );
     mAddMenuItem( menu, &addmnuid_, true, false );
@@ -195,7 +205,23 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::VolumeDisplay*,voldisp,
 	    	    visserv_->getObject(displayid_))
-    if ( mnuid==positionmnuid_.id )
+    if ( mnuid == colsettingsmnuitem_.id )
+    {
+	menu->setIsHandled(true);
+	const uiAttribPartServer* attrserv = applMgr()->attrServer();
+	const Attrib::SelSpec* as = visserv_->getSelSpec( displayID(), 0 );
+	IOObj* ioobj = attrserv->getIOObj( *as );
+	if ( !ioobj ) return;
+
+	FilePath fp( ioobj->fullUserExpr(true) );
+	fp.setExtension( "par" );
+	BufferString fnm = fp.fullPath();
+	IOPar iop;
+	ODMainWin()->colTabEd().fillPar( iop );
+	iop.write( fnm, 0 );
+	delete ioobj;
+    }
+    else if ( mnuid==positionmnuid_.id )
     {
 	menu->setIsHandled( true );
 	CubeSampling maxcs = SI().sampling( true );

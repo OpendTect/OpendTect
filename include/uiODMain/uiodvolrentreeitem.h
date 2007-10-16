@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: uiodvolrentreeitem.h,v 1.4 2007-09-07 18:37:06 cvskris Exp $
+ RCS:           $Id: uiodvolrentreeitem.h,v 1.5 2007-10-16 05:11:49 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -61,6 +61,7 @@ protected:
     bool		hasVolume() const;
 
     MenuItem		selattrmnuitem_;
+    MenuItem            colsettingsmnuitem_;
     MenuItem		positionmnuid_;
     MenuItem            statisticsmnuid_;
     MenuItem		addmnuid_;

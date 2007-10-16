@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodattribtreeitem.cc,v 1.10 2007-10-11 12:17:36 cvsraman Exp $
+ RCS:		$Id: uiodattribtreeitem.cc,v 1.11 2007-10-16 05:12:01 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -150,6 +150,7 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
 
     if ( mnuid == colsettingsmnuitem_.id )
     {
+	menu->setIsHandled(true);
 	const uiVisPartServer* visserv = applMgr()->visServer();
 	const uiAttribPartServer* attrserv = applMgr()->attrServer();
 	const Attrib::SelSpec* as = visserv->getSelSpec(displayID(),attribNr());
@@ -162,6 +163,7 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
 	IOPar iop;
 	ODMainWin()->colTabEd().fillPar( iop );
 	iop.write( fnm, 0 );
+	delete ioobj;
     }
     else if ( handleSelMenu( mnuid, displayID(), attribNr()) )
     {

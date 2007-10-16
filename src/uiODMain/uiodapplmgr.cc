@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.207 2007-10-11 12:17:36 cvsraman Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.208 2007-10-16 05:12:01 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -458,6 +458,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	IOPar iop;
 	if ( !iop.read(fnm,0) || !appl_.colTabEd().usePar(iop) )
 	    appl_.colTabEd().setDefaultColTab();
+	delete ioobj;
     }
     bool res = false;
     switch ( visserv_->getAttributeFormat(visid) )
