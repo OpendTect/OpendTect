@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.92 2007-09-27 09:13:32 cvsbert Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.93 2007-10-17 04:43:42 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -404,7 +404,7 @@ void RandomTrackDisplay::setTraceData( int attrib, SeisTrcBuf& trcbuf )
     setData( attrib, trcbuf );
 
     if ( !cache_[attrib] )
-	cache_.replace( attrib, new SeisTrcBuf );
+	cache_.replace( attrib, new SeisTrcBuf(false) );
 
     cache_[attrib]->deepErase();
     cache_[attrib]->stealTracesFrom( trcbuf );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.16 2007-02-21 14:51:00 cvsbert Exp $
+ RCS:		$Id: seisbuf.h,v 1.17 2007-10-17 04:46:59 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -26,7 +26,7 @@ class SeisTrcBuf
 {
 public:
 
-			SeisTrcBuf( bool ownr=false )
+			SeisTrcBuf( bool ownr )
 				: owner_(ownr)	{}
 			SeisTrcBuf( const SeisTrcBuf& b )
 			    	: owner_(b.owner_) { b.copyInto( *this ); }

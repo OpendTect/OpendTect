@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: seiscubeprov.cc,v 1.11 2007-10-10 15:31:44 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscubeprov.cc,v 1.12 2007-10-17 04:46:59 cvsnanne Exp $";
 
 #include "seismscprov.h"
 #include "seistrc.h"
@@ -156,7 +156,7 @@ SeisMSCProvider::AdvanceState SeisMSCProvider::advance()
 
     if ( !addbuf )
     {
-	addbuf = new SeisTrcBuf;
+	addbuf = new SeisTrcBuf( false );
 	tbufs_ += addbuf;
     }
 
@@ -255,7 +255,7 @@ bool SeisMSCProvider::startWork()
     else if ( rv == 0 )
 	{ errmsg_ = "No valid/selected trace found"; return false; }
 
-    SeisTrcBuf* newbuf = new SeisTrcBuf;
+    SeisTrcBuf* newbuf = new SeisTrcBuf( false );
     tbufs_ += newbuf;
     newbuf->add( trc );
     
