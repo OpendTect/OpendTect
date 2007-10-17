@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.2 2007-10-03 21:09:18 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.3 2007-10-17 04:00:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -259,7 +259,7 @@ uiFlatViewWin* uiPSViewerMgr::create2DViewer( const MultiID& mid,
     if ( !rdr )
 	mErrRes( "This Pre-Stack data store cannot be handled" )
 
-    SeisTrcBuf* tbuf = new SeisTrcBuf;
+    SeisTrcBuf* tbuf = new SeisTrcBuf( true );
     if ( !rdr->getGather(bid,*tbuf) )
         mErrRes( rdr->errMsg() )
     
