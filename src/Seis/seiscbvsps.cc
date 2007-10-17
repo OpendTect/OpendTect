@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.17 2007-10-05 17:38:39 cvskris Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.18 2007-10-17 02:20:12 cvskris Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -170,6 +170,7 @@ bool SeisCBVSPSReader::mkTr( int inl ) const
 bool SeisCBVSPSReader::getGather( int crl, SeisTrcBuf& gath ) const
 {
     gath.deepErase();
+    gath.setIsOwner( true );
     if ( !curtr_->goTo( BinID(crl,1) ) )
 	{ errmsg_ = "Crossline not present"; return false; }
 
