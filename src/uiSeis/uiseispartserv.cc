@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.69 2007-10-05 17:53:43 cvskris Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.70 2007-10-17 02:22:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -275,14 +275,14 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
     PtrMan<SeisPSReader> rdr = SPSIOPF().getReader( *ioobj, bid.inl );
     if ( !rdr )
 	mErrRet( "This Pre-Stack data store cannot be handled" )
-    SeisTrcBuf* tbuf = new SeisTrcBuf;
+    SeisTrcBuf* tbuf = new SeisTrcBuf( true );
     if ( !rdr->getGather(bid,*tbuf) )
 	mErrRet( rdr->errMsg() )
     const int tbufsz = tbuf->size();
     if ( tbufsz == 0 )
 	mErrRet( "Gather is empty" )
 
-    SeisTrcBuf* tbuffreq = new SeisTrcBuf;
+    SeisTrcBuf* tbuffreq = new SeisTrcBuf( true );
     for ( int idx=0; idx<tbufsz; idx++ )
     {
 	const SeisTrc& inptrc = *tbuf->get(idx);
