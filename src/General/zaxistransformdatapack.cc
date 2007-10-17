@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2007
- RCS:		$Id: zaxistransformdatapack.cc,v 1.2 2007-10-15 08:30:17 cvsnanne Exp $
+ RCS:		$Id: zaxistransformdatapack.cc,v 1.3 2007-10-17 02:27:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ ZAxisTransformDataPack::ZAxisTransformDataPack( const FlatDataPack& fdp,
     , interpolate_(false)
     , array3d_(0)
     , array2dsl_(0)
+    , outputcs_( 0 )
 {
     setName( fdp.name() );
     posdata_.setRange( true, fdp.posData().range(true) );
@@ -44,6 +45,14 @@ ZAxisTransformDataPack::ZAxisTransformDataPack( const FlatDataPack& fdp,
 ZAxisTransformDataPack::~ZAxisTransformDataPack()
 {
     transform_.unRef();
+    delete outputcs_;
+}
+
+
+void ZAxisTransformDataPack::setOutputCS( const CubeSampling& cs )
+{
+    if ( !outputcs_ ) outputcs_ = new CubeSampling( cs );
+    else *outputcs_ = cs;
 }
 
 
@@ -98,8 +107,9 @@ bool ZAxisTransformDataPack::transform()
     inputarr3d.init();
     transformer.setInput( inputarr3d, inputcs_ );
 
-    CubeSampling outputcs = inputcs_;
-    outputcs.zrg.setFrom( transform_.getZInterval(false) );
+    CubeSampling outputcs = outputcs_ ? *outputcs_ : inputcs_;
+    if ( !outputcs_ )
+	outputcs.zrg.setFrom( transform_.getZInterval(false) );
     transformer.setOutputRange( outputcs );
 
     if ( !transformer.execute() )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2007
- RCS:		$Id: zaxistransformdatapack.h,v 1.2 2007-10-15 08:30:17 cvsnanne Exp $
+ RCS:		$Id: zaxistransformdatapack.h,v 1.3 2007-10-17 02:27:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,8 @@ public:
 						       ZAxisTransform&);
 				~ZAxisTransformDataPack();
 
+    void			setOutputCS(const CubeSampling&);
+
     bool			transform();
 
     void			setInterpolate( bool yn ) { interpolate_ = yn; }
@@ -47,6 +49,7 @@ protected:
 
     const FlatDataPack&		inputdp_;
     CubeSampling		inputcs_;
+    CubeSampling*		outputcs_;
 
     ZAxisTransform&		transform_;
     bool			interpolate_;
