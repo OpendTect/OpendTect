@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.9 2007-10-08 12:57:57 cvskris Exp $
+ RCS:		$Id: prestackgather.h,v 1.10 2007-10-17 02:25:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -61,9 +61,10 @@ public:
 
     static const char*		sKeyIsAngleGather();
     static const char*		sKeyIsNMO();
-    static const char*		sKeyVelocityCubeID();
     static const char*		sKeyZisTime();
 
+    static const char*		sKeyPostStackDataID();
+    static const char*		sKeyVelocityCubeID();
 protected:
 
     MultiID			velocitymid_;

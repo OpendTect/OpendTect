@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.9 2007-10-08 12:57:57 cvskris Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.10 2007-10-17 02:25:15 cvskris Exp $";
 
 #include "prestackgather.h"
 
@@ -32,6 +32,7 @@ const char* Gather::sKeyIsAngleGather()	{ return "Angle Gather"; }
 const char* Gather::sKeyIsNMO()		{ return "Is NMO Corrected"; }
 const char* Gather::sKeyVelocityCubeID()	{ return "Velocity volume"; }
 const char* Gather::sKeyZisTime()		{ return "Z Is Time"; }
+const char* Gather::sKeyPostStackDataID()	{ return "Post Stack Data"; }
 
 Gather::Gather()
     : SeisTrcBufDataPack( 0, Seis::VolPS, SeisTrcInfo::Offset,
@@ -39,6 +40,7 @@ Gather::Gather()
     , offsetisangle_( false )
     , iscorr_( false )
     , binid_( -1, -1 )
+    , zit_( SI().zIsTime() )
 {}
 
 
@@ -48,6 +50,7 @@ Gather::Gather( const Gather& gather )
     , offsetisangle_( gather.offsetisangle_ )
     , iscorr_( gather.iscorr_ )
     , binid_( gather.binid_ )
+    , zit_( gather.zit_ )
 {}
 
 
