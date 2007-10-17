@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2007
- RCS:		$Id: zaxistransformdatapack.cc,v 1.3 2007-10-17 02:27:24 cvskris Exp $
+ RCS:		$Id: zaxistransformdatapack.cc,v 1.4 2007-10-17 12:24:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,7 +125,9 @@ bool ZAxisTransformDataPack::transform()
     array2dsl_->setDimMap( 1, dim1 );
     array2dsl_->init();
 
-    // setPosData ?
+    const StepInterval<float> zrg = outputcs.zrg;
+    posdata_.setRange( false,
+	    	       StepInterval<double>(zrg.start,zrg.stop,zrg.step) );
     return true;
 }
 
