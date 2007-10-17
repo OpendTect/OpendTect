@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.16 2007-09-27 14:21:09 cvshelene Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.17 2007-10-17 05:42:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,24 +93,26 @@ void uiStratRefTree::addNode( uiListViewItem* parlvit,
 	if ( ref.isLeaf() )
 	{
 	    uiListViewItem* item;
-	    mDynamicCastGet(const LeafUnitRef&,lur,ref);
+	    mDynamicCastGet(const LeafUnitRef*,lur,&ref);
+	    if ( !lur ) continue;
 	    uiListViewItem::Setup setup = uiListViewItem::Setup()
-				.label( lur.code() )
-				.label( lur.description() )
-				.label( uistratmgr_->getLithName(lur) );
+				.label( lur->code() )
+				.label( lur->description() )
+				.label( uistratmgr_->getLithName(*lur) );
 	    if ( lvit )
 		item = new uiListViewItem( lvit, setup );
 	    else
 		item = new uiListViewItem( lv_, setup );
 	    
-	    ioPixmap* pm = createLevelPixmap( &lur );
+	    ioPixmap* pm = createLevelPixmap( lur );
 	    item->setPixmap( 0, *pm );
 	    delete pm;
 	}
 	else
 	{
-	    mDynamicCastGet(const NodeUnitRef&,chldnur,ref);
-	    addNode( lvit, chldnur, false );
+	    mDynamicCastGet(const NodeUnitRef*,chldnur,&ref);
+	    if ( chldnur )
+		addNode( lvit, *chldnur, false );
 	}
     }
 }

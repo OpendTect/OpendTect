@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.22 2007-07-06 14:11:05 cvskris Exp $
+ RCS:           $Id: uiemhorizoneditor.cc,v 1.23 2007-10-17 05:40:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,7 +156,7 @@ void uiEMHorizonEditor::createInteractionLineMenus(CallBacker* cb)
 
     /*
     EM::EMObject& emobj = const_cast<EM::EMObject&>(editor->emObject());
-    mDynamicCastGet( EM::Surface&, surface, emobj );
+    mDynamicCastGet(EM::Surface*,surface,&emobj);
 
     const int mainlineidx = lineset->getMainLine();
     EM::EdgeLine* mainline = lineset->getLine(mainlineidx);
@@ -174,7 +174,7 @@ void uiEMHorizonEditor::createInteractionLineMenus(CallBacker* cb)
 	{
 	    const EM::PosID posid( interactionline.getSurface().id(), sid,
 				   interactionline[idx].getSerialized() );
-	    if ( surface.geometry.isAtEdge(posid) )
+	    if ( surface->geometry.isAtEdge(posid) )
 		noneonedge = false;
 	}
     
@@ -196,11 +196,13 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
     if ( mnuid==-1 || menu->isHandled() )
 	return;
 
-    const EM::EdgeLine& interactionline = *editor->getInteractionLine()->getLine(0);
-    const EM::EdgeLineSegment& interactionlineseg = *interactionline.getSegment(0);
+    const EM::EdgeLine& interactionline =
+	*editor->getInteractionLine()->getLine(0);
+    const EM::EdgeLineSegment& interactionlineseg =
+	*interactionline.getSegment(0);
     const EM::SectionID sid = interactionline.getSection();
     EM::EMObject& emobj = const_cast<EM::EMObject&>(editor->emObject());
-    mDynamicCastGet(EM::Horizon3D&,surface,emobj)
+    mDynamicCastGet(EM::Horizon3D*,hor3d,&emobj)
     bool handled = false;
 /*
     EM::EdgeLineSet* lineset = surface.edgelinesets.getEdgeLineSet( sid, true );
@@ -263,9 +265,9 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 	if ( !interactionline.isClosed() )
 	    return;
 		
-	const RowCol step = surface.geometry().step();
+	const RowCol step = hor3d->geometry().step();
 	const bool rightturn = interactionline.isHole();
-	EM::PosID pid( surface.id() );
+	EM::PosID pid( hor3d->id() );
 	RowCol start, stop;
 	interactionline.getBoundingBox( start, stop );
 
@@ -275,7 +277,7 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 	    const RowCol& rc = interactionlineseg[idx];
 	    pid.setSubID( rc.getSerialized() );
 
-	    wasatedge[idx] = surface.geometry().isAtEdge(pid);
+	    wasatedge[idx] = hor3d->geometry().isAtEdge(pid);
 	}
 
 	TypeSet<EM::PosID> nodestoremove;
@@ -307,7 +309,7 @@ void uiEMHorizonEditor::handleInteractionLineMenus( CallBacker* cb )
 	}
 
 	for ( int idx=0; idx<nodestoremove.size(); idx++ )
-	    surface.unSetPos( nodestoremove[idx], true );
+	    hor3d->unSetPos( nodestoremove[idx], true );
 
 	 Undo& undo = EM::EMM().undo();
 	 const int cureventnr = undo.currentEventID();
