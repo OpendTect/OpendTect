@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		April 2006
- RCS:		$Id: emhorizonztransform.h,v 1.7 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:		$Id: emhorizonztransform.h,v 1.8 2007-10-17 12:21:58 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -41,7 +41,9 @@ public:
 
     Interval<float>	getZInterval(bool from) const;
     float		getZIntervalCenter(bool from) const;
-    bool		needsVolumeOfInterest() const { return false; }
+    bool		needsVolumeOfInterest() const	{ return false; }
+
+    Interval<float>	getDepthRange() const		{ return depthrange_; }
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
