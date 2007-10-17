@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.15 2007-08-28 20:39:13 cvskris Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.16 2007-10-17 05:34:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -583,8 +583,8 @@ void uiFlatViewPropDlg::getAllFromScreen()
     wvatab_->setData( initialdata_ ); vdtab_->setData( initialdata_ );
     for ( int idx=0; idx<nrGroups(); idx++ )
     {
-	mDynamicCastGet(uiFlatViewPropTab&,ptab,getGroup(idx))
-	ptab.getFromScreen();
+	mDynamicCastGet(uiFlatViewPropTab*,ptab,&getGroup(idx))
+	if ( ptab ) ptab->getFromScreen();
     }
     vwr_.appearance().annot_.title_ = titlefld_->text();
     selannot_ = annottab_->getSelAnnot();
@@ -596,8 +596,8 @@ void uiFlatViewPropDlg::putAllToScreen()
     wvatab_->setDataNames( initialdata_ ); vdtab_->setDataNames( initialdata_ );
     for ( int idx=0; idx<nrGroups(); idx++ )
     {
-	mDynamicCastGet(uiFlatViewPropTab&,ptab,getGroup(idx))
-	ptab.putToScreen();
+	mDynamicCastGet(uiFlatViewPropTab*,ptab,&getGroup(idx))
+	if ( ptab ) ptab->putToScreen();
     }
     titlefld_->setText( vwr_.appearance().annot_.title_ );
     annottab_->setSelAnnot( selannot_ );
