@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.35 2007-10-16 21:08:24 cvskris Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.36 2007-10-17 02:26:27 cvskris Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -370,6 +370,14 @@ SeisTrcBufDataPack::SeisTrcBufDataPack( SeisTrcBuf* tbuf,
 }
 
 
+SeisTrcBufDataPack::SeisTrcBufDataPack( const SeisTrcBufDataPack& b )
+    : FlatDataPack( b.category(), 0 )
+{
+    SeisTrcBuf* buf = b.trcBuf().clone();
+    setBuffer( buf, b.gt_, b.posfld_, b.trcBufArr2D().getComp() );
+}
+    
+
 void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
 				    SeisTrcInfo::Fld fld, int icomp )
 {
@@ -380,6 +388,9 @@ void SeisTrcBufDataPack::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType gt,
 
     arr2d_ = new SeisTrcBufArray2D( *tbuf, true, icomp );
     const int tbufsz = tbuf->size();
+    posfld_ = fld;
+    gt_ = gt;
+
     if ( tbufsz<1 ) return;
 
     SeisTrcInfo::getAxisCandidates( gt, flds_ );

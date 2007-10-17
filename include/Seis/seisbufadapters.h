@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2007
- RCS:		$Id: seisbufadapters.h,v 1.7 2007-10-16 21:08:24 cvskris Exp $
+ RCS:		$Id: seisbufadapters.h,v 1.8 2007-10-17 02:26:27 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -41,6 +41,8 @@ public:
     SeisTrcBuf&		trcBuf()		{ return buf_; }
     const SeisTrcBuf&	trcBuf() const		{ return buf_; }
 
+    int			getComp() const		{ return comp_; }
+
 protected:
 
     SeisTrcBuf&		buf_;
@@ -60,6 +62,7 @@ public:
     			SeisTrcBufDataPack(SeisTrcBuf*,Seis::GeomType,
 					   SeisTrcInfo::Fld,const char* categry,
 					   int compnr=0);
+			SeisTrcBufDataPack(const SeisTrcBufDataPack&);
 
     void		setBuffer(SeisTrcBuf*,Seis::GeomType,SeisTrcInfo::Fld,
 	    			  int icomp=0);
