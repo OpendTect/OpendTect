@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.15 2007-10-01 12:07:26 cvsnanne Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.16 2007-10-18 10:27:26 cvssatyaki Exp $
 ___________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ___________________________________________________________________
 #include "uiodscenemgr.h"
 #include "uivispartserv.h"
 #include "uistatisticsdlg.h"
+#include "uiamplspectrum.h"
 #include "attribsel.h"
 #include "colortab.h"
 #include "pixmap.h"
@@ -44,6 +45,7 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , removemnuitem_("Remove")
     , changetransparencyitem_("Change transparency ...")
     , statisticsitem_("Show Histogram ...")
+    , amplspectrumitem_("Show Amplitude Spectrum...")
     , addto2dvieweritem_("Display in a 2D Viewer as")
     , view2dwvaitem_("Wiggle")
     , view2dvditem_("VD")
@@ -66,7 +68,7 @@ uiODDataTreeItem* uiODDataTreeItem::create( const Attrib::SelSpec& as,
 {
     for ( int idx=0; idx<creators_.size(); idx++)
     {
-	uiODDataTreeItem* res = creators_[idx]( as, pt );
+        uiODDataTreeItem* res = creators_[idx]( as, pt );
 	if ( res )
 	    return res;
     }
@@ -205,9 +207,15 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 
     const DataPack::ID dpid = visserv->getDataPackID( displayID(), attribNr() );
     if ( dpid >= 0 )
+    {
 	mAddMenuItem( menu, &statisticsitem_, true, false )
+	mAddMenuItem( menu, &amplspectrumitem_, true, false )
+    }
     else
+    {
 	mResetMenuItem( &statisticsitem_ )
+	mResetMenuItem( &amplspectrumitem_ )
+    }
 
     mAddMenuItem( menu, &removemnuitem_,
 		  !islocked && visserv->getNrAttribs( displayID())>1, false );
@@ -309,6 +317,16 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 							  attribNr() );
 	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
 	uiStatisticsDlg dlg( applMgr()->applService().parent() );
+	dlg.setDataPackID( dpid, dmid );
+	dlg.go();
+	menu->setIsHandled( true );
+    }
+    else if ( mnuid==amplspectrumitem_.id )
+    {
+	const DataPack::ID dpid = visserv->getDataPackID( displayID(),
+							  attribNr() );
+	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
+	uiAmplSpectrum dlg( applMgr()->applService().parent() );
 	dlg.setDataPackID( dpid, dmid );
 	dlg.go();
 	menu->setIsHandled( true );

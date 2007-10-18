@@ -1,5 +1,5 @@
-#ifndef treeitem_h
-#define treeitem_h
+#ifndef uiodvolrentreeitem_h
+#define uiodvolrentreeitem_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          4-11-2002
- RCS:           $Id: uiodvolrentreeitem.h,v 1.5 2007-10-16 05:11:49 cvsraman Exp $
+ RCS:           $Id: uiodvolrentreeitem.h,v 1.6 2007-10-18 10:27:26 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -62,14 +62,15 @@ protected:
 
     MenuItem		selattrmnuitem_;
     MenuItem            colsettingsmnuitem_;
-    MenuItem		positionmnuid_;
-    MenuItem            statisticsmnuid_;
-    MenuItem		addmnuid_;
-    MenuItem		addlinlslicemnuid_;
-    MenuItem		addlcrlslicemnuid_;
-    MenuItem		addltimeslicemnuid_;
-    MenuItem		addvolumemnuid_;
-    MenuItem		addisosurfacemnuid_;
+    MenuItem		positionmnuitem_;
+    MenuItem            statisticsmnuitem_;
+    MenuItem            amplspectrummnuitem_;
+    MenuItem		addmnuitem_;
+    MenuItem		addlinlslicemnuitem_;
+    MenuItem		addlcrlslicemnuitem_;
+    MenuItem		addltimeslicemnuitem_;
+    MenuItem		addvolumemnuitem_;
+    MenuItem		addisosurfacemnuitem_;
 };
 
 
@@ -92,8 +93,8 @@ protected:
     bool		init();
     const char*		parentType() const;
 
-    MenuItem		setisovaluemnuid_;
-    MenuItem		convertisotobodymnuid_;
+    MenuItem		setisovaluemnuitem_;
+    MenuItem		convertisotobodymnuitem_;
 };
 
 #endif

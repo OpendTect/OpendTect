@@ -4,11 +4,12 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.15 2007-10-16 05:12:01 cvsraman Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.16 2007-10-18 10:27:26 cvssatyaki Exp $";
 
 
 #include "uiodvolrentreeitem.h"
 
+#include "uiamplspectrum.h"
 #include "uiattribpartserv.h"
 #include "uicursor.h"
 #include "uilistview.h"
@@ -95,14 +96,15 @@ const char* uiODVolrenTreeItemFactory::getName()
 
 
 uiODVolrenTreeItem::uiODVolrenTreeItem( int displayid )
-    : positionmnuid_("Position ...")
-    , statisticsmnuid_("Show Histogram ...") 
-    , addmnuid_("Add")
-    , addlinlslicemnuid_("In-line slice")
-    , addlcrlslicemnuid_("Cross-line slice")
-    , addltimeslicemnuid_("Time slice")
-    , addvolumemnuid_("Volume")
-    , addisosurfacemnuid_("Iso surface")
+    : positionmnuitem_("Position ...")
+    , statisticsmnuitem_("Show Histogram ...") 
+    , amplspectrummnuitem_( "Show Amplitude Spectrum ...")		     
+    , addmnuitem_("Add")
+    , addlinlslicemnuitem_("In-line slice")
+    , addlcrlslicemnuitem_("Cross-line slice")
+    , addltimeslicemnuitem_("Time slice")
+    , addvolumemnuitem_("Volume")
+    , addisosurfacemnuitem_("Iso surface")
     , selattrmnuitem_( uiODAttribTreeItem::sKeySelAttribMenuTxt(), 10000 )
     , colsettingsmnuitem_( uiODAttribTreeItem::sKeyColSettingsMenuTxt() )
 { displayid_ = displayid; }
@@ -183,14 +185,15 @@ void uiODVolrenTreeItem::createMenuCB( CallBacker* cb )
     if ( attrserv->getIOObj(*as) )
 	mAddMenuItem( menu, &colsettingsmnuitem_, true, false );
 
-    mAddMenuItem( menu, &positionmnuid_, true, false );
-    mAddMenuItem( menu, &statisticsmnuid_, true, false );
-    mAddMenuItem( menu, &addmnuid_, true, false );
-    mAddMenuItem( &addmnuid_, &addlinlslicemnuid_, true, false );
-    mAddMenuItem( &addmnuid_, &addlcrlslicemnuid_, true, false );
-    mAddMenuItem( &addmnuid_, &addltimeslicemnuid_, true, false );
-    mAddMenuItem( &addmnuid_, &addvolumemnuid_, !hasVolume(), false );
-    mAddMenuItem( &addmnuid_, &addisosurfacemnuid_, true, false );
+    mAddMenuItem( menu, &positionmnuitem_, true, false );
+    mAddMenuItem( menu, &statisticsmnuitem_, true, false );
+    mAddMenuItem( menu, &amplspectrummnuitem_, true, false );
+    mAddMenuItem( menu, &addmnuitem_, true, false );
+    mAddMenuItem( &addmnuitem_, &addlinlslicemnuitem_, true, false );
+    mAddMenuItem( &addmnuitem_, &addlcrlslicemnuitem_, true, false );
+    mAddMenuItem( &addmnuitem_, &addltimeslicemnuitem_, true, false );
+    mAddMenuItem( &addmnuitem_, &addvolumemnuitem_, !hasVolume(), false );
+    mAddMenuItem( &addmnuitem_, &addisosurfacemnuitem_, true, false );
 }
 
 
@@ -210,7 +213,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	const uiAttribPartServer* attrserv = applMgr()->attrServer();
 	const Attrib::SelSpec* as = visserv_->getSelSpec( displayID(), 0 );
-	IOObj* ioobj = attrserv->getIOObj( *as );
+	PtrMan<IOObj> ioobj = attrserv->getIOObj( *as );
 	if ( !ioobj ) return;
 
 	FilePath fp( ioobj->fullUserExpr(true) );
@@ -219,9 +222,8 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	IOPar iop;
 	ODMainWin()->colTabEd().fillPar( iop );
 	iop.write( fnm, 0 );
-	delete ioobj;
     }
-    else if ( mnuid==positionmnuid_.id )
+    else if ( mnuid==positionmnuitem_.id )
     {
 	menu->setIsHandled( true );
 	CubeSampling maxcs = SI().sampling( true );
@@ -243,7 +245,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	visserv_->calculateAttrib( displayid_, 0, false );
 	updateColumnText(0);
     }
-    else if ( mnuid==statisticsmnuid_.id )
+    else if ( mnuid==statisticsmnuitem_.id )
     {
         const DataPack::ID dpid = visserv_->getDataPackID( displayID(), 0 );
         const DataPackMgr::ID dmid = visserv_->getDataPackMgrID( displayID() );
@@ -252,32 +254,42 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
         dlg.go();
         menu->setIsHandled( true );
     }	
-    else if ( mnuid==addlinlslicemnuid_.id )
+    else if ( mnuid==amplspectrummnuitem_.id )
+    {
+	const DataPack::ID dpid = visserv_->getDataPackID( displayID(), 0 );
+	const DataPackMgr::ID dmid = visserv_->getDataPackMgrID( displayID() );
+	uiAmplSpectrum dlg( applMgr()->applService().parent() );
+	dlg.setDataPackID( dpid, dmid );
+	dlg.go();
+	menu->setIsHandled( true );
+    }
+
+    else if ( mnuid==addlinlslicemnuitem_.id )
     {
 	addChild( new uiODVolrenSubTreeItem(voldisp->addSlice(
 			visSurvey::VolumeDisplay::cInLine())), true );
 	menu->setIsHandled( true );
     }
-    else if ( mnuid==addlcrlslicemnuid_.id )
+    else if ( mnuid==addlcrlslicemnuitem_.id )
     {
 	addChild( new uiODVolrenSubTreeItem(voldisp->addSlice(
 			visSurvey::VolumeDisplay::cCrossLine())), true );
 	menu->setIsHandled( true );
     }
-    else if ( mnuid==addltimeslicemnuid_.id )
+    else if ( mnuid==addltimeslicemnuitem_.id )
     {
 	addChild( new uiODVolrenSubTreeItem(voldisp->addSlice(
 			visSurvey::VolumeDisplay::cTimeSlice())), true );
 	menu->setIsHandled( true );
     }
-    else if ( mnuid==addvolumemnuid_.id && !hasVolume() )
+    else if ( mnuid==addvolumemnuitem_.id && !hasVolume() )
     {
 	voldisp->showVolRen(true);
 	int volrenid = voldisp->volRenID();
 	addChild( new uiODVolrenSubTreeItem(volrenid), true );
 	menu->setIsHandled( true );
     }
-    else if ( mnuid==addisosurfacemnuid_.id )
+    else if ( mnuid==addisosurfacemnuitem_.id )
     {
 	menu->setIsHandled( true );
 	static bool isshown = false;
@@ -331,8 +343,8 @@ bool uiODVolrenTreeItem::hasVolume() const
 
 
 uiODVolrenSubTreeItem::uiODVolrenSubTreeItem( int displayid )
-    : setisovaluemnuid_("Set isovalue")
-    , convertisotobodymnuid_("Convert to body")
+    : setisovaluemnuitem_("Set isovalue")
+    , convertisotobodymnuitem_("Convert to body")
 { displayid_ = displayid; }
 
 
@@ -443,14 +455,14 @@ void uiODVolrenSubTreeItem::createMenuCB( CallBacker* cb )
     if ( !menu || menu->menuID() != displayID() ) return;
     if ( !isIsoSurface() )
     {
-	mResetMenuItem( &setisovaluemnuid_ );
-	mResetMenuItem( &convertisotobodymnuid_ );
+	mResetMenuItem( &setisovaluemnuitem_ );
+	mResetMenuItem( &convertisotobodymnuitem_ );
 	return;
     }
 
-    mAddMenuItem( menu, &setisovaluemnuid_, true, false );
+    mAddMenuItem( menu, &setisovaluemnuitem_, true, false );
 #ifdef __debug__
-    mAddMenuItem( menu, &convertisotobodymnuid_, true, false );
+    mAddMenuItem( menu, &convertisotobodymnuitem_, true, false );
 #endif
 }
 
@@ -464,7 +476,7 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 	 menu->menuID() != displayID() )
 	return;
 
-    if ( mnuid==setisovaluemnuid_.id )
+    if ( mnuid==setisovaluemnuitem_.id )
     {
 	menu->setIsHandled( true );
 	mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
@@ -480,7 +492,7 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 	dlg.go();
 	updateColumnText(1);
     }
-    else if ( mnuid==convertisotobodymnuid_.id )
+    else if ( mnuid==convertisotobodymnuitem_.id )
     {
 	menu->setIsHandled( true );
 	mDynamicCastGet(visBase::MarchingCubesSurface*,isosurface,
