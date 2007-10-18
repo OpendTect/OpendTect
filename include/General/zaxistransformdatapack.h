@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2007
- RCS:		$Id: zaxistransformdatapack.h,v 1.3 2007-10-17 02:27:24 cvskris Exp $
+ RCS:		$Id: zaxistransformdatapack.h,v 1.4 2007-10-18 07:01:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,8 @@ public:
 
     virtual Array2D<float>&	data();
     virtual void       		dumpInfo(IOPar&) const;
+
+    virtual const char*		dimName(bool) const;
 
 protected:
 

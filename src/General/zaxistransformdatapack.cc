@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2007
- RCS:		$Id: zaxistransformdatapack.cc,v 1.4 2007-10-17 12:24:11 cvsnanne Exp $
+ RCS:		$Id: zaxistransformdatapack.cc,v 1.5 2007-10-18 07:01:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,3 +136,7 @@ Array2D<float>& ZAxisTransformDataPack::data()
 {
     return *array2dsl_;
 }
+
+
+const char* ZAxisTransformDataPack::dimName( bool x1 ) const
+{ return inputdp_.dimName( x1 ); }
