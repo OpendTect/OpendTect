@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.39 2007-05-24 07:45:48 cvsnanne Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.40 2007-10-18 10:58:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -393,7 +393,7 @@ bool BatchProgram::go( std::ostream& strm )
 	BinIDValueSet bivs(2,false);
 	HorizonUtils::getWantedPositions( strm, midset, bivs, horsamp, extraz,
 					  nrinterpsamp, mainhoridx, extrawidth);
-	SeisTrcBuf seisoutp;
+	SeisTrcBuf seisoutp( false );
 	Processor* proc = 
 	    aem.createTrcSelOutput( errmsg, bivs, seisoutp, outval,
 		    		    zboundsset ? &zbounds : 0 );
