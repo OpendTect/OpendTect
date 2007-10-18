@@ -8,10 +8,10 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoInvisbleLineDragger.cc,v 1.1 2007-10-18 13:52:04 cvskris Exp $";
+static const char* rcsID = "$Id: SoInvisibleLineDragger.cc,v 1.1 2007-10-18 14:15:52 cvskris Exp $";
 
 
-#include "SoInvisbleLineDragger.h"
+#include "SoInvisibleLineDragger.h"
 
 #include "Inventor/SbRotation.h"
 
@@ -56,45 +56,45 @@ static const char* rcsID = "$Id: SoInvisbleLineDragger.cc,v 1.1 2007-10-18 13:52
 #define TABSIZE 10.0f 
 
 
-SO_KIT_SOURCE(SoInvisbleLineDragger);
+SO_KIT_SOURCE(SoInvisibleLineDragger);
 
-void SoInvisbleLineDragger::initClass()
+void SoInvisibleLineDragger::initClass()
 {
-    SO_KIT_INIT_CLASS(SoInvisbleLineDragger, SoDragger, "Dragger");
+    SO_KIT_INIT_CLASS(SoInvisibleLineDragger, SoDragger, "Dragger");
 }
 
 
-SoInvisbleLineDragger::SoInvisbleLineDragger()
+SoInvisibleLineDragger::SoInvisibleLineDragger()
     : lineProj_( 0 )
 {
-    SO_KIT_CONSTRUCTOR( SoInvisbleLineDragger );
+    SO_KIT_CONSTRUCTOR( SoInvisibleLineDragger );
 
     SO_KIT_ADD_CATALOG_ENTRY(shape, SoNode, true,
 			    geomSeparator, "", true);
 
     SO_KIT_INIT_INSTANCE();
 
-    addStartCallback(SoInvisbleLineDragger::startCB);
-    addMotionCallback(SoInvisbleLineDragger::motionCB);
+    addStartCallback(SoInvisibleLineDragger::startCB);
+    addMotionCallback(SoInvisibleLineDragger::motionCB);
 
     setUpConnections(true, true);
 }
 
 
-SoInvisbleLineDragger::~SoInvisbleLineDragger()
+SoInvisibleLineDragger::~SoInvisibleLineDragger()
 {
     delete lineProj_;
 }
 
 
-void SoInvisbleLineDragger::setDirection( const SbVec3f& dir )
+void SoInvisibleLineDragger::setDirection( const SbVec3f& dir )
 {
     if ( !lineProj_ ) lineProj_ = new SbLineProjector;
     lineProj_->setLine( SbLine(startPos, startPos + dir ) );
 }
 
 
-void SoInvisbleLineDragger::dragStart(void)
+void SoInvisibleLineDragger::dragStart(void)
 {
     const SoPath* pickpath = getPickPath();
     const SoEvent* event = getEvent();
@@ -105,7 +105,7 @@ void SoInvisbleLineDragger::dragStart(void)
 }
 
 
-void SoInvisbleLineDragger::drag(void)
+void SoInvisibleLineDragger::drag(void)
 {
     if ( !lineProj_ )
 	return;
@@ -122,15 +122,15 @@ void SoInvisbleLineDragger::drag(void)
 }
 
 
-void SoInvisbleLineDragger::startCB(void* , SoDragger* d)
+void SoInvisibleLineDragger::startCB(void* , SoDragger* d)
 {
-    SoInvisbleLineDragger* thisp = (SoInvisbleLineDragger*)d;
+    SoInvisibleLineDragger* thisp = (SoInvisibleLineDragger*)d;
     thisp->dragStart();
 }
 
 
-void SoInvisbleLineDragger::motionCB(void*, SoDragger* d)
+void SoInvisibleLineDragger::motionCB(void*, SoDragger* d)
 {
-    SoInvisbleLineDragger* thisp = (SoInvisbleLineDragger*)d;
+    SoInvisibleLineDragger* thisp = (SoInvisibleLineDragger*)d;
     thisp->drag();
 }

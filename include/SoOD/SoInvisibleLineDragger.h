@@ -1,5 +1,5 @@
-#ifndef SoInvisbleLineDragger_h
-#define SoInvisbleLineDragger_h
+#ifndef SoInvisibleLineDragger_h
+#define SoInvisibleLineDragger_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		October 2007
- RCS:		$Id: SoInvisbleLineDragger.h,v 1.1 2007-10-18 13:52:04 cvskris Exp $
+ RCS:		$Id: SoInvisibleLineDragger.h,v 1.1 2007-10-18 14:15:52 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -21,9 +21,9 @@ class SbLineProjector;
 /*!\brief
 A line dragger with a shape given from outside. The shape is set by:
 \code
-    SoInvisbleLineDragger* dragger = new SoInvisbleLineDragger;
+    SoInvisibleLineDragger* dragger = new SoInvisibleLineDragger;
     dragger->ref();
-    dragger->setPart( SoInvisbleLineDragger::sKeyShape(), new SoCube );
+    dragger->setPart( SoInvisibleLineDragger::sKeyShape(), new SoCube );
 \endcode
 
 When the shape is clicked on, the startPos will be set and the needsDirection
@@ -33,7 +33,7 @@ function to set the direction of the drag:
 \code
 void MyClass::needsDirectionCB( void* data, void* d )
 {
-    SoInvisbleLineDragger* dragger = (SoInvisbleLineDragger*) d;
+    SoInvisibleLineDragger* dragger = (SoInvisibleLineDragger*) d;
     SbVec3f dir = calculateDirection();
     dragger_->setDirection( dir );
 }
@@ -42,21 +42,20 @@ void MyClass::needsDirectionCB( void* data, void* d )
 The class will not change the motionMatrix, so the shape itself will not be
 moved. The class will not trigger the valueChanged callback on the baseclass -
 use the Start, Motion and Finish callbacks. The dragged translation is
-read in SoInvisbleLineDragger::translation following a Motion or Start callback.
+read in SoInvisibleLineDragger::translation following a Motion or Start
+callback.
 */
 
-class SoInvisbleLineDragger : public SoDragger
+class SoInvisibleLineDragger : public SoDragger
 {
     typedef SoDragger inherited;
-    SO_KIT_HEADER(SoInvisbleLineDragger);
+    SO_KIT_HEADER(SoInvisibleLineDragger);
 
     SO_KIT_CATALOG_ENTRY_HEADER(shape);
 
-    static const char*	sKeyShape() { return "shape"; }
-
 public:
     static void		initClass();
-    			SoInvisbleLineDragger();
+    			SoInvisibleLineDragger();
 
     SbVec3f		translation;
 
@@ -65,8 +64,10 @@ public:
 
     void		setDirection(const SbVec3f&);
 
+    static const char*	sKeyShape() { return "shape"; }
+
 protected:
-    			~SoInvisbleLineDragger();
+    			~SoInvisibleLineDragger();
 
     void		dragStart(void);
     void		drag(void);
