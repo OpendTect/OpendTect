@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.16 2007-01-29 13:42:57 cvskris Exp $
+#	RCS :		$Id: Makefile,v 1.17 2007-10-18 13:52:04 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ SRC.cc	:=	SoCameraInfo.cc \
 		SoColTabMultiTexture2.cc \
 		SoPerspectiveSel.cc \
 		SoPlaneWellLog.cc \
+		SoInvisbleLineDragger.cc \
 		SoShapeScale.cc \
 		SoShaderTexture2.cc \
 		SoText2Set.cc \
