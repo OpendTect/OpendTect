@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.13 2007-03-08 12:40:08 cvshelene Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.14 2007-10-18 14:08:05 cvshelene Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -224,6 +224,14 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 	    maxnr = idy;
 	}
 
+	ArrayValueSeries<float,float> arr( freqdomainpower.arr(), false );
+	FreqFunc func( arr, fftsz );
+	float exactpos = findExtreme( func, false, maxnr-1, maxnr+1 );
+	if ( !mIsUdf(exactpos) )
+	    maxval = func.getValue( exactpos );
+	else
+	    exactpos = maxnr;
+
 	const int outidx = z0 - output.z0_ + idx;
 	if ( mIsZero(sum,mDefEps) )
 	{
@@ -280,7 +288,8 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 	    wf2 += hf*freq;
 	}
 
-	if ( outputinterest[0] ) output.series(0)->setValue( outidx, maxnr*df );
+	if ( outputinterest[0] ) 
+	    output.series(0)->setValue( outidx, exactpos*df );
 	if ( outputinterest[1] ) output.series(1)->setValue( outidx, wf/sum );
 	if ( outputinterest[3] ) output.series(3)->setValue( outidx, wf2/sum );
 	if ( outputinterest[4] ) output.series(4)->setValue( outidx, maxval );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: frequencyattrib.h,v 1.10 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: frequencyattrib.h,v 1.11 2007-10-18 14:08:05 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,9 @@ ________________________________________________________________________
 #include "attribprovider.h"
 #include "bufstringset.h"
 #include "fft.h"
+#include "mathfunc.h"
+#include "valseries.h"
+#include "valseriesinterpol.h"
 
 #include <complex>
 
@@ -108,6 +111,25 @@ protected:
     Array1DImpl<float_complex>*	signal;
     Array1DImpl<float_complex>*	timedomain;
     Array1DImpl<float_complex>*	freqdomain;
+
+    class FreqFunc : public FloatMathFunction
+    {
+    public:
+				FreqFunc(const ValueSeries<float>& func, int sz)
+				    : func_( func )
+				    , sz_(sz)
+				    {}
+
+    float                   getValue( float x ) const
+			    {
+				ValueSeriesInterpolator<float> interp(sz_);
+				return interp.value(func_,x);
+			    }
+
+    protected:
+	const ValueSeries<float>& func_;
+	int sz_;
+    };
 };
 
 }; // namespace Attrib
