@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2007
- RCS:           $Id: uiwindowfunctionsel.h,v 1.1 2007-07-23 16:51:20 cvskris Exp $
+ RCS:           $Id: uiwindowfunctionsel.h,v 1.2 2007-10-18 10:25:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class WindowFunction;
 class uiGenInput;
+class uiWindowFuncSelDlg;
 
 /*!Selects a windowfunction and its eventual parameter. */
 
@@ -29,6 +30,9 @@ public:
 
     NotifierAccess&	typeChange();
 
+    void		setWindowName(const char*);
+    void		setWindowParamValue(float);
+
     const char*		windowName() const;
     float		windowParamValue() const;
     const char*		windowParamName() const;
@@ -37,11 +41,13 @@ public:
 
 protected:
     void			windowChangedCB(CallBacker*);
+    void			winfuncseldlgCB(CallBacker*);
 
     BufferString		errmsg_;
     Interval<float>		annotrange_;
 
     uiGenInput*			windowtypefld_;
+    uiWindowFuncSelDlg*		winfuncseldlg_;
     ObjectSet<uiGenInput>	windowvariable_;
     ObjectSet<WindowFunction>	windowfuncs_;
 };

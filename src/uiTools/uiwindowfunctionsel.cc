@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2007
- RCS:           $Id: uiwindowfunctionsel.cc,v 1.1 2007-07-23 16:51:20 cvskris Exp $
+ RCS:           $Id: uiwindowfunctionsel.cc,v 1.2 2007-10-18 10:25:56 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,12 +14,15 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "uigeninput.h"
 #include "windowfunction.h"
+#include "uiwindowfuncseldlg.h"
+#include "uibutton.h"
 
 
 uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const char* label,
 					  const char* prevwinname,
 					  float prevwinparam )
     : uiGroup( p, "Window function selector" )
+    , winfuncseldlg_(0)
 {
     windowvariable_.allowNull();
     windowfuncs_.allowNull();
@@ -32,6 +35,10 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const char* label,
 
     windowtypefld_->valuechanged.notify(
 			mCB( this, uiWindowFunctionSel, windowChangedCB ) );
+
+    uiPushButton* viewbut = new uiPushButton( this, "View", true );
+    viewbut->activated.notify( mCB(this,uiWindowFunctionSel,winfuncseldlgCB) );
+    viewbut->attach( rightTo, windowtypefld_ );
 
     uiGenInput* firstvarfld = 0;
     for ( int idx=1; idx<funcnames.size(); idx++ )
@@ -65,21 +72,19 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const char* label,
 
 
 uiWindowFunctionSel::~uiWindowFunctionSel()
-{
-    deepErase( windowfuncs_ );
-}
-
+{ deepErase( windowfuncs_ ); }
 
 NotifierAccess& uiWindowFunctionSel::typeChange()
-{
-    return windowtypefld_->valuechanged;
-}
-
+{ return windowtypefld_->valuechanged; }
 
 const char* uiWindowFunctionSel::windowName() const
-{
-    return windowtypefld_->text( 0 );
-}
+{ return windowtypefld_->text( 0 ); }
+
+void uiWindowFunctionSel::setWindowName( const char* nm )
+{ windowtypefld_->setText( nm ); }
+
+void uiWindowFunctionSel::setWindowParamValue( float param )
+{ windowtypefld_->setValue(param); }
 
 
 float uiWindowFunctionSel::windowParamValue() const
@@ -101,18 +106,27 @@ const char* uiWindowFunctionSel::windowParamName() const
     return windowfuncs_[winidx]->variableName();
 }
 
+void uiWindowFunctionSel::winfuncseldlgCB( CallBacker* )
+{
+    if ( !winfuncseldlg_ )
+	winfuncseldlg_ = new uiWindowFuncSelDlg( this );
+    winfuncseldlg_->show();
+    winfuncseldlg_->setCurrentWindowFunc( windowName() );
+}
 
-void uiWindowFunctionSel::windowChangedCB(CallBacker*)
+
+void uiWindowFunctionSel::windowChangedCB( CallBacker* )
 {
     if ( !windowtypefld_ )
 	return;
 
     const int winidx = windowtypefld_->getIntValue( 0 )-1;
-
     for ( int idx=0; idx<windowvariable_.size(); idx++ )
     {
 	if ( windowvariable_[idx] )
 	     windowvariable_[idx]->display( idx==winidx );
     }
 
+    if ( winfuncseldlg_ )
+	winfuncseldlg_->setCurrentWindowFunc( windowName() );
 }
