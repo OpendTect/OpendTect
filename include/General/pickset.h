@@ -8,19 +8,19 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.32 2007-09-28 08:22:32 cvsnanne Exp $
+ RCS:		$Id: pickset.h,v 1.33 2007-10-18 07:00:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "color.h"
+#include "multiid.h"
 #include "namedobj.h"
 #include "sets.h"
-#include "trigonometry.h"
-#include "color.h"
 #include "tableascio.h"
+#include "trigonometry.h"
 
 class IOPar;
-class MultiID;
 
 namespace Pick
 {
