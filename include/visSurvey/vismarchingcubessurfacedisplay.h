@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.8 2007-10-15 22:27:53 cvsyuancheng Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.9 2007-10-18 19:57:15 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -29,6 +29,7 @@ namespace visBase
     class MarchingCubesSurface;
     class PickStyle;
     class Transformation;
+    class InvisibleLineDragger;
 };
 
 
@@ -64,8 +65,6 @@ public:
     mVisTrans*			getDisplayTransformation();
     void			setRightHandSystem(bool);
 
-    void			setSceneEventCatcher(visBase::EventCatcher*);
-
     virtual void                fillPar(IOPar&,TypeSet<int>&) const;
     virtual int                 usePar(const IOPar&);
 
@@ -89,16 +88,16 @@ protected:
     void			updateVisFromEM(bool onlyshape);
     void			draggerMovedCB(CallBacker*);
     void			draggerMovingCB(CallBacker*);
-    void			pickCB(CallBacker*);
     void			factorDrag(CallBacker*);
+    void			setDragDirection(CallBacker*);
     Array3D<unsigned char>*	createKernel(int xsz, int ysz, int zsz ) const;
 
-    float				startpos_;
     visBase::BoxDragger*		initialdragger_;
     visBase::MarchingCubesSurface*	displaysurface_;
     EM::MarchingCubesSurface*		emsurface_;
     MarchingCubesSurfaceEditor*		surfaceeditor_;
-    visBase::Dragger*			factordragger_;
+    visBase::InvisibleLineDragger*	factordragger_;
+    bool				allowdrag_;
     visBase::EventCatcher*		eventcatcher_;
     visBase::Ellipsoid*			initialellipsoid_;
     visBase::PickStyle*			kernelpickstyle_;

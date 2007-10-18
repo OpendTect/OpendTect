@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.10 2007-10-15 22:27:53 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.11 2007-10-18 19:57:15 cvskris Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.10 2007-1
 #include "visellipsoid.h"
 #include "visevent.h"
 #include "vismarchingcubessurface.h"
+#include "visinvisiblelinedragger.h"
 #include "vismaterial.h"
 #include "vispickstyle.h"
 
@@ -42,6 +43,7 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     , surfaceeditor_( 0 )
     , eventcatcher_( 0 )
     , factordragger_( 0 )
+    , allowdrag_( false )
     , initialellipsoid_( visBase::Ellipsoid::create() )
     , minsampleinlsz_( 0 )						
     , minsamplecrlsz_( 0 )						
@@ -118,9 +120,11 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
 
     if ( factordragger_ )
     {
-	factordragger_->unRef();
 	factordragger_->motion.remove(mCB(this,MarchingCubesDisplay,
 		    		      factorDrag));
+	factordragger_->needsDirection.remove(mCB(this,MarchingCubesDisplay,
+		    		      setDragDirection));
+	factordragger_->unRef();
     }
 
     if ( kernelpickstyle_ )
@@ -132,26 +136,6 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
     delete surfaceeditor_;
     setSceneEventCatcher(0);
     removeInitialDragger();
-}
-
-
-void MarchingCubesDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
-{
-    if ( eventcatcher_ )
-    {
-	eventcatcher_->eventhappened.remove(
-		mCB(this,MarchingCubesDisplay,pickCB) );
-	eventcatcher_->unRef();
-    }
-
-    eventcatcher_ = vec;
-    
-    if ( eventcatcher_ )
-    {
-	eventcatcher_->eventhappened.notify(
-		mCB(this,MarchingCubesDisplay,pickCB) );
-	eventcatcher_->ref();
-    }
 }
 
 
@@ -257,6 +241,7 @@ void MarchingCubesDisplay::updateVisFromEM( bool onlyshape )
 	{
 	    displaysurface_ = visBase::MarchingCubesSurface::create();
 	    displaysurface_->ref();
+	    displaysurface_->removeSwitch();
 	    displaysurface_->setMaterial( 0 );
 	    displaysurface_->setSelectable( false );
 	    displaysurface_->setRightHandSystem( righthandsystem_ );
@@ -283,20 +268,26 @@ void MarchingCubesDisplay::showManipulator( bool yn )
 {
     if ( initialdragger_ )
     	initialdragger_->turnOn( yn );
-    
-    if ( factordragger_ )
-	factordragger_->turnOn( yn );
+    else if ( displaysurface_ && yn && !factordragger_ )
+    {
+	factordragger_ = visBase::InvisibleLineDragger::create();
+	factordragger_->ref();
+	addChild( factordragger_->getInventorNode() );
+	factordragger_->setShape( displaysurface_ );
+	removeChild( displaysurface_->getInventorNode() );
+	factordragger_->motion.notify(mCB(this,MarchingCubesDisplay,
+		    		      factorDrag ));
+	factordragger_->needsDirection.notify(mCB(this,MarchingCubesDisplay,
+		    		      setDragDirection));
+    }
+
+    allowdrag_ = yn;
 } 
 
 
 bool MarchingCubesDisplay::isManipulatorShown() const
 {
-    if ( initialdragger_ )
-	return initialdragger_->isOn();
-    else if (  factordragger_ )
-	return  factordragger_->isOn();
-    else
-	return false;
+    return allowdrag_;
 }
 
 
@@ -544,28 +535,18 @@ visBase::Transformation* MarchingCubesDisplay::getDisplayTransformation()
 { return displaysurface_ ? displaysurface_->getDisplayTransformation() : 0; }
 
 
-void MarchingCubesDisplay::pickCB( CallBacker* cb )
+void MarchingCubesDisplay::setDragDirection( CallBacker* cb )
 {
-    if ( !isSelected() || !isOn() || isLocked() || !displaysurface_ ) return;
-
-    mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
-
-    if ( eventinfo.type!=visBase::MouseClick ||
-	 eventinfo.mousebutton != visBase::EventInfo::leftMouseButton() )
+    if ( !allowdrag_ )
 	return;
 
-    if ( eventinfo.pickedobjids.indexOf( displaysurface_->id() )==-1 )
-	return;
+    const Coord3& wp = factordragger_->getStartPos();
 
-    if ( eventinfo.pressed )
-	return;
-
-    const Coord3& wp = eventinfo.worldpickedpos;
-    const BinID bid = SI().transform( wp );
-
-    const int surfacepos[] = { emsurface_->inlSampling().nearestIndex(bid.inl),
-			       emsurface_->crlSampling().nearestIndex(bid.crl),
+    const int surfacepos[] = { emsurface_->inlSampling().nearestIndex(wp.x),
+			       emsurface_->crlSampling().nearestIndex(wp.y),
 			       emsurface_->zSampling().nearestIndex(wp.z) };
+    const BinID bid( emsurface_->inlSampling().atIndex( surfacepos[0]) ,
+	             emsurface_->crlSampling().atIndex( surfacepos[1]) );
 
     if ( !surfaceeditor_ )
 	surfaceeditor_ = new MarchingCubesSurfaceEditor(emsurface_->surface());
@@ -575,18 +556,7 @@ void MarchingCubesDisplay::pickCB( CallBacker* cb )
     surfaceeditor_->setKernel( *kernel, surfacepos[0]-mHalfKernel, 
 	    surfacepos[1]-mHalfKernel, surfacepos[2]-mHalfKernel );
 
-    if ( !factordragger_ )
-    {
-	factordragger_ = visBase::Dragger::create();
-	factordragger_->ref();
-	factordragger_->setDraggerType( visBase::Dragger::Translate1D );
-	    addChild( factordragger_->getInventorNode() );
-	factordragger_->motion.notify(mCB(this,MarchingCubesDisplay,
-		    		      factorDrag ));
-    }
-
-    factordragger_->setPos( Coord3(bid.inl, bid.crl, wp.z ) );
-    startpos_ = wp.z;
+    factordragger_->setDirection( surfaceeditor_->getCenterNormal() );
 
     if ( !kernelpickstyle_ )
     {
@@ -614,8 +584,6 @@ void MarchingCubesDisplay::pickCB( CallBacker* cb )
     kernelellipsoid_->getMaterial()->setTransparency( 0.8 );
     kernelellipsoid_->getMaterial()->setColor( 
 	    getMaterial()->getColor().complementaryColor() );
-
-    eventcatcher_->eventIsHandled();
 }
 
 
@@ -624,7 +592,7 @@ void MarchingCubesDisplay::factorDrag( CallBacker* )
     if ( !factordragger_ )
 	return;
 
-    const float drag = startpos_-factordragger_->getPos().z;
+    const float drag = factordragger_->getTranslation().x;
     surfaceeditor_->setFactor( mNINT(drag*255) );
     updateVisFromEM( true );
 }
