@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.14 2007-10-09 15:11:21 cvskris Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.15 2007-10-18 21:47:02 cvsyuancheng Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -265,9 +265,9 @@ bool ExplicitMarchingCubesSurface::update(
     Interval<int> xrg = Interval<int>( xbucketrg.start*mBucketSize,
 	    			       (xbucketrg.stop+1)*mBucketSize-1 );
     Interval<int> yrg = Interval<int>( ybucketrg.start*mBucketSize,
-	    			       (ybucketrg.stop+1)*mBucketSize-1 );
+	                               (ybucketrg.stop+1)*mBucketSize-1 );
     Interval<int> zrg = Interval<int>( zbucketrg.start*mBucketSize,
-	    			       (zbucketrg.stop+1)*mBucketSize-1 );
+	                               (zbucketrg.stop+1)*mBucketSize-1 );
 
     PtrMan<ExplicitMarchingCubesSurfaceUpdater> updater = new
 	ExplicitMarchingCubesSurfaceUpdater( *this, true );
@@ -385,8 +385,9 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
     if ( !nrtableindices )
 	return true;
 
-    const int indicesbucket[] = { pos[mX]/mBucketSize, pos[mY]/mBucketSize,
-	    			  pos[mZ]/mBucketSize };
+    const int indicesbucket[] = { getBucketPos(pos[mX]), 
+				  getBucketPos(pos[mY]),
+				  getBucketPos(pos[mZ]) };
 
     Geometry::IndexedGeometry* bucket = 0;
     int bucketidx[3];
@@ -556,9 +557,12 @@ void ExplicitMarchingCubesSurface::surfaceChange(CallBacker*)
     }
 
     //convert to bucket-ranges
-    ranges[mX].start /= mBucketSize; ranges[mX].stop /= mBucketSize;
-    ranges[mY].start /= mBucketSize; ranges[mY].stop /= mBucketSize;
-    ranges[mZ].start /= mBucketSize; ranges[mZ].stop /= mBucketSize;
+    ranges[mX] = Interval<int>( getBucketPos( ranges[mX].start),
+	    			getBucketPos( ranges[mX].stop ) );
+    ranges[mY] = Interval<int>( getBucketPos( ranges[mY].start),
+	    			getBucketPos( ranges[mY].stop ) );
+    ranges[mZ] = Interval<int>( getBucketPos( ranges[mZ].start),
+	    			getBucketPos( ranges[mZ].stop ) );
 
     if ( !changedbucketranges_[mX] )
     {
@@ -572,6 +576,12 @@ void ExplicitMarchingCubesSurface::surfaceChange(CallBacker*)
 	changedbucketranges_[mY]->include( ranges[mY] );
 	changedbucketranges_[mZ]->include( ranges[mZ] );
     }
+}
+
+
+int ExplicitMarchingCubesSurface::getBucketPos( int pos )
+{
+    return ( pos<0 ? (pos+1)/mBucketSize-1 : pos/mBucketSize );
 }
 
 

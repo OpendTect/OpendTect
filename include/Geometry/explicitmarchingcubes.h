@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: explicitmarchingcubes.h,v 1.9 2007-10-08 21:57:41 cvskris Exp $
+ RCS:           $Id: explicitmarchingcubes.h,v 1.10 2007-10-18 21:47:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ protected:
     bool		updateCoordinates(const int* pos);
     bool		updateCoordinate(const int* pos,const int* idxs,
 	    				 int*res);
+    int			getBucketPos(int pos);
 
     MarchingCubesSurface*	surface_;
 

@@ -4,7 +4,7 @@
  * DATE     : August 2007
 -*/
 
-static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.5 2007-09-07 20:41:03 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.6 2007-10-18 21:47:02 cvsyuancheng Exp $";
 
 #include "marchingcubeseditor.h"
 #include "marchingcubes.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.5 2007-09-07 20:41:0
 #define mX	0
 #define mY	1
 #define mZ	2
+#define mMaxFactor 2147483
 
 
 MarchingCubesSurfaceEditor::MarchingCubesSurfaceEditor(
@@ -110,6 +111,7 @@ bool MarchingCubesSurfaceEditor::setKernel( const Array3D<unsigned char>& arr,
 	mErrRet;
 
     threshold_ = mc2i.threshold();
+    factor_ = 0;
     return true;
 }
 
@@ -124,6 +126,9 @@ bool MarchingCubesSurfaceEditor::setFactor( int nf )
 {
     if ( factor_==prevfactor_==nf )
 	return true;
+
+    if ( nf>mMaxFactor || nf<-mMaxFactor )
+	return false;
 
     factor_ = nf;
     if ( !execute() )
