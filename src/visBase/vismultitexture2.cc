@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.41 2007-09-07 21:17:38 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.42 2007-10-19 09:03:04 cvsnanne Exp $";
 
 
 #include "vismultitexture2.h"
@@ -786,7 +786,8 @@ void MultiTexture2::reviewShading()
 	    BufferString msg( "Texture size is too large for using shading.\n"
 			      "Current size is (" );
 	    msg += size_.row; msg += ","; msg += size_.col; msg += "). ";
-	    msg += "Maximum size is: "; msg += maxshadingsize;
+	    msg += "Maximum size is: ("; msg += maxshadingsize; msg += ",";
+	    msg += maxshadingsize; msg += ").";
 	    ErrMsg( msg );
 	}
     }
