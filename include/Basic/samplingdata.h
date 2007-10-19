@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: samplingdata.h,v 1.10 2007-01-30 18:36:18 cvskris Exp $
+ RCS:		$Id: samplingdata.h,v 1.11 2007-10-19 05:16:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ public:
 
     inline StepInterval<T>		interval(int nrsamp) const;
     template <class IT> inline float	getIndex(IT val) const;
-    inline int				nearestIndex(T x) const;
+    template <class IT> inline int	nearestIndex(IT x) const;
     template <class IT> inline T	atIndex(IT idx) const;
 
     T					start;
@@ -94,8 +94,9 @@ float SamplingData<T>::getIndex( IT val ) const
 { return (val-start) / (float) step; }
 
 
-template <class T> inline
-int SamplingData<T>::nearestIndex( T x ) const
+template <class T>
+template <class IT> inline
+int SamplingData<T>::nearestIndex( IT x ) const
 { float fidx = getIndex(x); return mNINT(fidx); }
 
 
