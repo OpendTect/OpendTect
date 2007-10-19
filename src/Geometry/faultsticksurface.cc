@@ -1,13 +1,10 @@
 /*+
-________________________________________________________________________
-
- CopyRight:     (C) dGB Beheer B.V.
- Author:        J.C. Glas
- Date:          September 2007
- RCS:           $Id: faultsticksurface.cc,v 1.1 2007-09-14 15:37:59 cvsjaap Exp $
-________________________________________________________________________
-
+ * COPYRIGHT: (C) dGB Beheer B.V.
+ * AUTHOR   : J.C. Glas
+ * DATE     : September 2007
 -*/
+
+static const char* rcsID = "$Id: faultsticksurface.cc,v 1.2 2007-10-19 15:54:45 cvsjaap Exp $";
 
 #include "faultsticksurface.h"
 
@@ -40,47 +37,6 @@ FaultStickSurface::~FaultStickSurface()
 }
 
 
-#define mGetOldColRanges( oldcolrg ) \
-\
-    TypeSet<Interval<int> > oldcolrg; \
-    for ( int row=firstrow_; row<=firstrow_+sticks_.size(); row++ ) \
-	oldcolrg += colRange( row ); 
-
-
-#define mSticksChgTrigger( stickidx, knotidx, oldcolrg, incr ) \
-{ \
-    const int maxnrsticks = incr>0 ? sticks_.size() : sticks_.size()+1; \
-    const int dir = (stickidx < maxnrsticks/2) ? -1 : 1; \
-    TypeSet<GeomPosID> movedpids; \
-    TypeSet<GeomPosID> changedpids; \
-\
-    for ( int idx=stickidx; idx>=0 && idx<maxnrsticks; idx+=dir ) \
-    { \
-	const int row = firstrow_ + idx; \
-	const Interval<int> newcolrg = colRange( row ); \
-\
-	for ( int col=oldcolrg[idx].start; col<=oldcolrg[idx].stop; col++ ) \
-	{ \
-	    if ( newcolrg.includes(col) ) \
-		changedpids += RowCol(row,col).getSerialized(); \
-	    else \
-		movedpids += RowCol(row,col).getSerialized(); \
-	} \
-\
-	for ( int col=newcolrg.start; col<=newcolrg.stop; col++ ) \
-	{ \
-	    if ( !oldcolrg[idx].includes(col) ) \
-		changedpids += RowCol(row,col).getSerialized(); \
-	} \
-    } \
-\
-    if ( dir == -1 ) \
-	firstrow_ -= incr; \
-\
-    triggerNrPosCh( changedpids ); \
-    triggerMovement( movedpids ); \
-} 
-
 bool FaultStickSurface::insertStick( const Coord3& firstpos, 
 				     const Coord3& editnormal, int sticknr )
 {
@@ -102,14 +58,13 @@ bool FaultStickSurface::insertStick( const Coord3& firstpos,
 	return false;
 
     mGetValidStickIdx( stickidx, sticknr, 1, false );
-    mGetOldColRanges( oldcolrg );
     
     sticks_.insertAt( new TypeSet<Coord3>, stickidx );
     editplanenormals_.insert( stickidx, normvec );
     firstcols_.insert( stickidx, 0 );
     insertKnot( RowCol(stickidx,0), firstpos );
 
-    mSticksChgTrigger( stickidx, knotidx, oldcolrg, 1 );
+    triggerNrPosCh( RowCol(sticknr,StickInsert).getSerialized() );
     return true;
 }
 
@@ -117,37 +72,15 @@ bool FaultStickSurface::insertStick( const Coord3& firstpos,
 bool FaultStickSurface::removeStick( int sticknr )
 {
     mGetValidStickIdx( stickidx, sticknr, 0, false );
-    mGetOldColRanges( oldcolrg );
 
     sticks_.remove( stickidx );
     editplanenormals_.remove( stickidx );
     firstcols_.remove( stickidx );
 
-    mSticksChgTrigger( stickidx, knotidx, oldcolrg, -1 );
+    triggerNrPosCh( RowCol(sticknr,StickRemove).getSerialized() );
     return true;
 }
 
-
-#define mKnotsChgTrigger( stickidx, knotidx, incr ) \
-{ \
-    const int nrknots = sticks_[stickidx]->size(); \
-    const int maxnrknots = incr>0 ? nrknots : nrknots+1; \
-    const int dir = (knotidx < maxnrknots/2) ? -1 : 1; \
-    TypeSet<GeomPosID> pids; \
-\
-    for ( int idx=knotidx; idx>=0 && idx<maxnrknots; idx+=dir ) \
-    { \
-	const RowCol currc( firstrow_+stickidx, firstcols_[stickidx]+idx ); \
-	pids += currc.getSerialized(); \
-    } \
-\
-    if ( dir == -1 ) \
-	firstcols_[stickidx] -= incr; \
-\
-    triggerNrPosCh( pids[pids.size()-1] ); \
-    pids.remove( pids.size()-1 ); \
-    triggerMovement( pids ); \
-}
 
 bool FaultStickSurface::insertKnot( const RCol& rc, const Coord3& pos )
 {
@@ -158,7 +91,7 @@ bool FaultStickSurface::insertKnot( const RCol& rc, const Coord3& pos )
     mGetValidKnotIdx( knotidx, rc.c(), stickidx, 1, false );
     
     sticks_[stickidx]->insert( knotidx, pos );
-    mKnotsChgTrigger( stickidx, knotidx, 1 );
+    triggerNrPosCh( RowCol(rc.r(),StickChange).getSerialized() );
 
     return true;
 }
@@ -173,7 +106,7 @@ bool FaultStickSurface::removeKnot( const RCol& rc )
 	return removeStick( rc.r() );
 
     sticks_[stickidx]->remove( knotidx );
-    mKnotsChgTrigger( stickidx, knotidx, -1 );
+    triggerNrPosCh( RowCol(rc.r(),StickChange).getSerialized() );
     
     return true;
 }
@@ -208,7 +141,7 @@ bool FaultStickSurface::setKnot( const RCol& rc, const Coord3& pos )
     mGetValidKnotIdx( knotidx, rc.c(), stickidx, 0, false );
 
     (*sticks_[stickidx])[knotidx] = pos;
-    triggerMovement( rc.getSerialized() );
+    triggerNrPosCh( RowCol(rc.r(),StickChange).getSerialized() );
 
     return true;
 }

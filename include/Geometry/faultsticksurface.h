@@ -4,23 +4,23 @@
 /*+
 ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
-Author:        K. Tingdahl
-Date:          23-10-1996
-RCS:           $Id: faultsticksurface.h,v 1.3 2007-09-14 15:37:59 cvsjaap Exp $
+Author:        K. Tingdahl / J.C. Glas
+Date:          September 2007
+RCS:           $Id: faultsticksurface.h,v 1.4 2007-10-19 15:54:45 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "refcount.h"
 #include "rowcolsurface.h"
 
 namespace Geometry
 {
 
 class FaultStickSurface : public RowColSurface
-{
+{ mRefCountImpl(FaultStickSurface);
 public:
     			FaultStickSurface();
-    			~FaultStickSurface();
 
     bool		insertStick(const Coord3& firstpos,
 				    const Coord3& editnormal,int sticknr=0);
@@ -38,6 +38,7 @@ public:
 
     bool		areSticksVertical() const;
     const Coord3&	getEditPlaneNormal(int sticknr) const;				
+    enum ChangeTag	{StickChange=__mUndefIntVal+1,StickInsert,StickRemove};
 
 protected:
 
