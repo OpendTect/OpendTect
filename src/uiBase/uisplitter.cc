@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2007
- RCS:		$Id: uisplitter.cc,v 1.1 2007-05-04 05:49:35 cvsnanne Exp $
+ RCS:		$Id: uisplitter.cc,v 1.2 2007-10-19 11:22:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ uiSplitter::uiSplitter( uiParent* p, const char* txt, bool hor )
     : uiObject(p, txt, mkbody(p,txt) )
 {
     body_->setOrientation( hor ? Qt::Horizontal : Qt::Vertical );
+    setStretch( 2, 2 );
 }
 
 
