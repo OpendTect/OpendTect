@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.24 2007-10-03 12:51:48 cvskris Exp $
+ RCS:           $Id: flatview.cc,v 1.25 2007-10-19 12:19:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,7 @@ void FlatPosData::setRange( bool isx1, const StepInterval<double>& newrg )
 {
     rg( isx1 ) = newrg;
     if ( isx1 )
-	{ delete [] x1pos_; x1pos_ = 0; }
+	{ delete [] x1pos_; x1pos_ = 0; x1offs_ = 0; }
 }
 
 
