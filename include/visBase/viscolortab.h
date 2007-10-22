@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolortab.h,v 1.16 2007-10-16 05:07:16 cvsraman Exp $
+ RCS:		$Id: viscolortab.h,v 1.17 2007-10-22 08:41:05 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -86,6 +86,7 @@ protected:
     static const char*		sKeyScaleFactor();
     static const char*		sKeyClipRate();
     static const char*		sKeyAutoScale();
+    static const char*          sKeySymmetry();
 };
 
 }; // Namespace
