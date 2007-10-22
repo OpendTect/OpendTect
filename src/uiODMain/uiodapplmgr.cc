@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.208 2007-10-16 05:12:01 cvsraman Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.209 2007-10-22 07:06:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -487,6 +487,12 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 
 		RefMan<const Attrib::DataCubes> newdata =
 				calc->createAttrib( cs, cache );
+		if ( !newdata && !calc->errmsg_.isEmpty() )
+		{
+		    uiMSG().error( calc->errmsg_ );
+		    return false;
+		}
+
 		res = newdata;
 		visserv_->setCubeData( visid, attrib, newdata );
 		break;
@@ -1042,7 +1048,8 @@ bool uiODApplMgr::handleNLAServEv( int evid )
     {
 	const BinIDValueSet& bvsmc = nlaserv_->vdsMCA().data();
 	BinIDValueSet mcpicks( 2, true );
-	BinID bid; float vals[bvsmc.nrVals()];
+	mVariableLengthArr( float, vals, bvsmc.nrVals() );
+	BinID bid;
 	BinIDValueSet::Pos pos;
 	while ( bvsmc.next(pos) )
 	{

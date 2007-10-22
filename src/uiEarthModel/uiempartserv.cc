@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.125 2007-10-03 11:53:37 cvsraman Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.126 2007-10-22 07:06:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"
+#include "varlenarray.h"
 
 #include "uichangesurfacedlg.h"
 #include "uihor3dfrom2ddlg.h"
@@ -555,7 +556,7 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id,
     {
 	const EM::SectionID sectionid = hor3d->sectionID( sidx );
 	const BinIDValueSet& bivs = *data[sidx];
-	float vals[bivs.nrVals()];
+	mVariableLengthArr( float, vals, bivs.nrVals() );
 
 	EM::PosID posid( id, sectionid );
 	while ( bivs.next(pos) )
@@ -645,7 +646,7 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 	BinIDValueSet* res = new BinIDValueSet( nrauxdata, false );
 	data += res;
 
-	float auxvals[nrauxdata];
+	mVariableLengthArr( float, auxvals, nrauxdata );
 	auxvals[0] = 0;
 	BinID bid;
 	PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );

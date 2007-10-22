@@ -4,38 +4,40 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.41 2007-02-05 18:19:47 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.42 2007-10-22 07:06:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uinlapartserv.h"
-#include "nlacrdesc.h"
-#include "nladataprep.h"
-#include "picksettr.h"
-#include "welltransl.h"
-#include "wellextractdata.h"
-#include "posvecdataset.h"
-#include "posvecdatasettr.h"
-#include "datacoldef.h"
+
 #include "binidvalset.h"
-#include "uimsg.h"
+#include "ctxtioobj.h"
+#include "datacoldef.h"
 #include "debug.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "ptrman.h"
-#include "survinfo.h"
-#include "ctxtioobj.h"
-#include "sorting.h"
 #include "keystrs.h"
+#include "nlacrdesc.h"
+#include "nladataprep.h"
+#include "picksettr.h"
+#include "posvecdataset.h"
+#include "posvecdatasettr.h"
+#include "ptrman.h"
+#include "sorting.h"
+#include "survinfo.h"
+#include "varlenarray.h"
+#include "wellextractdata.h"
+#include "welltransl.h"
 
-#include "uiexecutor.h"
-#include "uiposdataedit.h"
-#include "uiioobjsel.h"
-#include "uidistribution.h"
-#include "uigeninput.h"
 #include "uicombobox.h"
-#include "uicanvas.h"
+#include "uidistribution.h"
+#include "uiexecutor.h"
+#include "uigeninput.h"
+#include "uiioobjsel.h"
+#include "uimsg.h"
+#include "uiposdataedit.h"
+
 
 const int uiNLAPartServer::evPrepareWrite	= 0;
 const int uiNLAPartServer::evPrepareRead	= 1;
@@ -256,7 +258,8 @@ bool uiNLAPartServer::extractDirectData( const ObjectSet<PosVecDataSet>& vdss )
 
 	    BinIDValueSet::Pos pos;
 	    const int lastidx = vds.data().nrVals() - 1;
-	    BinID bid; float vals[lastidx+1];
+	    BinID bid;
+	    mVariableLengthArr( float, vals, lastidx+1 );
 	    int ivec = 0;
 	    while ( vds.data().next(pos) )
 	    {
