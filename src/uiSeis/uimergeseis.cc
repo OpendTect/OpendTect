@@ -4,37 +4,39 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.33 2006-12-20 11:23:01 cvshelene Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.34 2007-10-22 06:30:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimergeseis.h"
-#include "ctxtioobj.h"
-#include "ioman.h"
-#include "iodir.h"
-#include "ioobj.h"
-#include "iopar.h"
-#include "seissingtrcproc.h"
-#include "seistrc.h"
-#include "seistrctr.h"
-#include "survinfo.h"
-#include "seistrcsel.h"
-#include "uiexecutor.h"
-#include "uimsg.h"
-#include "uibutton.h"
-#include "uiioobjsel.h"
-#include "uilistbox.h"
+
 #include "binidselimpl.h"
-#include "sorting.h"
-#include "uiexecutor.h"
-#include "uiseistransf.h"
-#include "uiseissel.h"
-#include "uiseisioobjinfo.h"
-#include "keystrs.h"
 #include "bufstringset.h"
 #include "cubesampling.h"
+#include "ctxtioobj.h"
+#include "iodir.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "iopar.h"
+#include "keystrs.h"
 #include "ptrman.h"
+#include "seissingtrcproc.h"
+#include "seistrc.h"
+#include "seistrcsel.h"
+#include "seistrctr.h"
+#include "sorting.h"
+#include "survinfo.h"
+#include "varlenarray.h"
+
+#include "uibutton.h"
+#include "uiexecutor.h"
+#include "uiioobjsel.h"
+#include "uilistbox.h"
+#include "uimsg.h"
+#include "uiseisioobjinfo.h"
+#include "uiseissel.h"
+#include "uiseistransf.h"
 
 #include <math.h>
 
@@ -157,8 +159,8 @@ bool uiMergeSeis::handleInput( int& nrsamps, int& bps )
 
     static const char* optdirkey = "Optimized direction";
     static const char* typekey = sKey::Type;
-    int order[inpsz];
-    int inlstart[inpsz];
+    mVariableLengthArr( int, order, inpsz );
+    mVariableLengthArr( int, inlstart, inpsz );
     CubeSampling cs;
     StepInterval<float> prevzrg;
     BufferString type = "";
@@ -224,7 +226,11 @@ bool uiMergeSeis::handleInput( int& nrsamps, int& bps )
     ctio.ioobj->pars().set( optdirkey, optdir );
     IOM().commitChanges( *ctio.ioobj );
 
+#ifdef __msvc__
+    sort_coupled( inlstart.ptr(), order.ptr(), inpsz );
+#else
     sort_coupled( inlstart, order, inpsz );
+#endif
 
     ObjectSet<IOObj> objs;
     for ( int idx=0; idx<inpsz; idx++ )
