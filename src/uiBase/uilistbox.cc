@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.82 2007-10-12 10:11:03 cvsbert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.83 2007-10-22 08:39:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uilistbox.h"
+
 #include "uifont.h"
 #include "uilabel.h"
 #include "uiobjbody.h"
@@ -18,8 +19,8 @@ ________________________________________________________________________
 #include "pixmap.h"
 
 #include "i_q4listbox.h"
+#include <QApplication>
 #include <QMouseEvent>
-#include "qapplication.h"
 
 #define mNoSelection QAbstractItemView::NoSelection
 #define mExtended QAbstractItemView::ExtendedSelection
@@ -477,7 +478,7 @@ const char* uiListBox::textOfItem( int idx, bool disembed ) const
 bool uiListBox::isEmbedded( int idx ) const
 {
     rettxt = (const char*)body_->item(idx)->text().toAscii();
-    return rettxt[0] == '[' && rettxt[rettxt.size()-1] == ']';
+    return rettxt.buf()[0] == '[' && rettxt.buf()[rettxt.size()-1] == ']';
 }
 
 
