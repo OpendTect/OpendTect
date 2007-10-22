@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.82 2007-09-19 16:30:50 cvsdgb Exp $
+ RCS:           $Id: uiodmain.cc,v 1.83 2007-10-22 08:46:40 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,6 +123,7 @@ uiODMain::uiODMain( uicMain& a )
     , timer_(*new Timer("Session restore timer"))
     , lastsession_(*new ODSession)
     , cursession_(0)
+    , restoringsess_(false)
     , sessionSave(this)
     , sessionRestore(this)
     , applicationClosing(this)
@@ -463,6 +464,7 @@ void uiODMain::doRestoreSession()
     uiCursor::setOverride( uiCursor(uiCursor::Wait) );
     sceneMgr().cleanUp( false );
     applMgr().resetServers();
+    restoringsess_ = true;
 
     if ( applMgr().nlaServer() )
 	applMgr().nlaServer()->usePar( cursession_->nlapars() );
@@ -487,6 +489,7 @@ void uiODMain::doRestoreSession()
 	sceneMgr().cleanUp( true );
     }
 
+    restoringsess_ = false;
     uiCursor::restoreOverride();
 }
 
