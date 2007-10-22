@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2003
- RCS:           $Id: attribsetcreator.cc,v 1.5 2006-11-21 14:00:07 cvsbert Exp $
+ RCS:           $Id: attribsetcreator.cc,v 1.6 2007-10-22 10:27:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -234,7 +234,8 @@ bool AttributeSetCreator::create()
 
 static void addGate( BufferString& defstr, const char* gdidesc )
 {
-    char* ptr = strchr( gdidesc, '[' );
+    BufferString gdistr( gdidesc );
+    char* ptr = strchr( gdistr.buf(), '[' );
     if ( !ptr ) ptr = "[-32,32]";
     BufferString gatestr( ptr );
     ptr = strchr( gatestr.buf(), ']' );

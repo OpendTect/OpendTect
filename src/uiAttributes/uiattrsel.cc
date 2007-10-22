@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.23 2007-05-15 07:26:09 cvsnanne Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.24 2007-10-22 10:27:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -520,7 +520,7 @@ void uiAttrSel::processInput()
     if ( !attrdata_.attrset ) return;
 
     BufferString inp = getInput();
-    char* attr2d = strchr( inp, '|' );
+    char* attr2d = strchr( inp.buf(), '|' );
     DescSet& as = const_cast<DescSet&>( *attrdata_.attrset );
     attrdata_.attribid = as.getID( inp, true );
     attrdata_.outputnr = -1;
