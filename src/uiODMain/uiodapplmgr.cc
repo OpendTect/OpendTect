@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.210 2007-10-22 08:49:23 cvsraman Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.211 2007-10-22 09:59:18 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -457,7 +457,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    fp.setExtension( "par" );
 	    BufferString fnm = fp.fullPath();
 	    IOPar iop;
-	    if ( !iop.read(fnm,0) || !appl_.colTabEd().usePar(iop) )
+	    if ( !iop.read(fnm,sKey::Pars) || !appl_.colTabEd().usePar(iop) )
 		appl_.colTabEd().setDefaultColTab();
 	    delete ioobj;
 	}

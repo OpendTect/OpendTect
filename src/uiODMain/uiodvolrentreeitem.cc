@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.16 2007-10-18 10:27:26 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.17 2007-10-22 09:59:18 cvsraman Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -32,6 +32,7 @@ static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.16 2007-10-18 10:27:2
 #include "visvolumedisplay.h"
 #include "filepath.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
 
@@ -221,7 +222,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	BufferString fnm = fp.fullPath();
 	IOPar iop;
 	ODMainWin()->colTabEd().fillPar( iop );
-	iop.write( fnm, 0 );
+	iop.write( fnm, sKey::Pars );
     }
     else if ( mnuid==positionmnuitem_.id )
     {

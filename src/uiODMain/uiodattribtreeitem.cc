@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodattribtreeitem.cc,v 1.11 2007-10-16 05:12:01 cvsraman Exp $
+ RCS:		$Id: uiodattribtreeitem.cc,v 1.12 2007-10-22 09:59:18 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -32,6 +32,14 @@ ___________________________________________________________________
 #include "viscolortab.h"
 #include "vissurvobj.h"
 #include "visdataman.h"
+
+
+const char* uiODAttribTreeItem::sKeySelAttribMenuTxt()
+{ return "Select Attribute"; }
+
+
+const char* uiODAttribTreeItem::sKeyColSettingsMenuTxt()
+{ return "Save Color Settings"; }
 
 
 uiODAttribTreeItem::uiODAttribTreeItem( const char* parenttype )
@@ -109,14 +117,6 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
 }
 
 
-
-const char* uiODAttribTreeItem::sKeySelAttribMenuTxt()
-{ return "Select Attribute"; }
-
-
-const char* uiODAttribTreeItem::sKeyColSettingsMenuTxt()
-{ return "Save Color Settings"; }
-
 void uiODAttribTreeItem::createMenuCB( CallBacker* cb )
 {
     const uiVisPartServer* visserv = applMgr()->visServer();
@@ -162,7 +162,7 @@ void uiODAttribTreeItem::handleMenuCB( CallBacker* cb )
 	BufferString fnm = fp.fullPath();
 	IOPar iop;
 	ODMainWin()->colTabEd().fillPar( iop );
-	iop.write( fnm, 0 );
+	iop.write( fnm, sKey::Pars );
 	delete ioobj;
     }
     else if ( handleSelMenu( mnuid, displayID(), attribNr()) )
