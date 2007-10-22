@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: uimenuhandler.cc,v 1.8 2007-10-08 15:59:29 cvskris Exp $
+ RCS:           $Id: uimenuhandler.cc,v 1.9 2007-10-22 05:30:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,12 +73,6 @@ uiPopupMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
 
     uiPopupMenu* menu = item ? new uiPopupMenu( uiparent_, item->text )
 			     : new uiPopupMenu( uiparent_ );
-    if ( item )
-    {
-	menu->setEnabled( item->enabled );
-	menu->setCheckable( item->checkable );
-	menu->setChecked( item->checked );
-    }
 
     BoolTypeSet handled( subitms.size(), false );
 
@@ -105,7 +99,13 @@ uiPopupMenu* uiMenuHandler::createMenu( const ObjectSet<MenuItem>& subitms,
 	if ( subitm.nrItems() )
 	{
 	    uiPopupMenu* submenu = createMenu( subitm.getItems(), &subitm );
-	    if ( submenu ) menu->insertItem( submenu, subitm.id );
+	    if ( submenu )
+	    {
+		menu->insertItem( submenu, subitm.id );
+		submenu->setEnabled( subitm.enabled );
+		submenu->setCheckable( subitm.checkable );
+		submenu->setChecked( subitm.checked );
+	    }
 	}
 	else
 	{
