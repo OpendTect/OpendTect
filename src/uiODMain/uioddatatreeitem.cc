@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.16 2007-10-18 10:27:26 cvssatyaki Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.17 2007-10-22 08:19:41 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -350,9 +350,6 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 
 void uiODDataTreeItem::updateColumnText( int col )
 {
-    if ( applMgr()->visServer()->isLocked(displayID()) )
-	return;
-
     if ( col==uiODSceneMgr::cNameColumn() )
 	name_ = createDisplayName();
 
