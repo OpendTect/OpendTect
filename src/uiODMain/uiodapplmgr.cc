@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.209 2007-10-22 07:06:19 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.210 2007-10-22 08:49:23 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -446,20 +446,25 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	return false;
     } 
 
-    IOObj* ioobj = attrserv_->getIOObj( myas );
-    if ( ioobj )
+    if ( !appl_.isRestoringSession() )
     {
 	const int coltabid = visserv_->getColTabId( visid, attrib );
 	appl_.colTabEd().setColTab( coltabid );
-
-	FilePath fp( ioobj->fullUserExpr(true) );
-	fp.setExtension( "par" );
-	BufferString fnm = fp.fullPath();
-	IOPar iop;
-	if ( !iop.read(fnm,0) || !appl_.colTabEd().usePar(iop) )
+	IOObj* ioobj = attrserv_->getIOObj( myas );
+	if ( ioobj )
+	{
+	    FilePath fp( ioobj->fullUserExpr(true) );
+	    fp.setExtension( "par" );
+	    BufferString fnm = fp.fullPath();
+	    IOPar iop;
+	    if ( !iop.read(fnm,0) || !appl_.colTabEd().usePar(iop) )
+		appl_.colTabEd().setDefaultColTab();
+	    delete ioobj;
+	}
+	else
 	    appl_.colTabEd().setDefaultColTab();
-	delete ioobj;
     }
+
     bool res = false;
     switch ( visserv_->getAttributeFormat(visid) )
     {
@@ -1108,6 +1113,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	const uiVisPartServer::AttribFormat format = 
 	    	visserv_->getAttributeFormat( visserv_->getEventObjId() );
 	const bool alloweval = format==uiVisPartServer::Cube || 
+	    		       format==uiVisPartServer::Traces ||
 	    		       format==uiVisPartServer::RandomPos;
 	const bool allowstorage = format==uiVisPartServer::RandomPos;
 	attrserv_->setEvaluateInfo( alloweval, allowstorage );
