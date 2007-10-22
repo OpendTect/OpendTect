@@ -7,17 +7,19 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.29 2007-10-11 12:09:05 cvsraman Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.30 2007-10-22 11:36:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiapplserv.h"
+
 #include "attribdescid.h"
+#include "attribsel.h"
 #include "datapack.h"
-#include "position.h"
-#include "multiid.h"
 #include "menuhandler.h"
+#include "multiid.h"
+#include "position.h"
 #include "timer.h"
 
 namespace Attrib
