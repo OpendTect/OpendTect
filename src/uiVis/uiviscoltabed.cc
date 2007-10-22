@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.22 2007-10-16 05:10:43 cvsraman Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.23 2007-10-22 08:44:56 cvsraman Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -136,13 +136,14 @@ void uiVisColTabEd::colTabEdChangedCB( CallBacker* )
     }
 
     if ( coltabed_->autoScale() != coltabautoscale_ ||
-				coltabcliprate_ != coltabed_->getClipRate() )
+				coltabcliprate_ != coltabed_->getClipRate() ||
+				coltabed_->getSymmetry() != coltabsymmetry_ )
     {
 	autoscalechange = true;
-	coltabautoscale_ = coltabed_->autoScale();
-	coltab_->setAutoScale( coltabautoscale_ );
 	coltabsymmetry_ = coltabed_->getSymmetry();
 	coltab_->setSymmetry( coltabsymmetry_ );
+	coltabautoscale_ = coltabed_->autoScale();
+	coltab_->setAutoScale( coltabautoscale_ );
 	coltabcliprate_ = coltabed_->getClipRate();
 	coltab_->setClipRate( coltabcliprate_ );
     }
@@ -236,8 +237,9 @@ bool uiVisColTabEd::usePar( const IOPar& par )
 	par.get( sKeyClipRate(), cliprate );
 	coltabed_->setClipRate( cliprate );
 
-	par.getYN( sKeySymmetry(), coltabsymmetry_ );
-	coltabed_->setSymmetry( coltabsymmetry_ );
+	bool symmetry;
+	par.getYN( sKeySymmetry(), symmetry );
+	coltabed_->setSymmetry( symmetry );
     }
     else
     {
