@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.16 2007-07-16 06:46:44 cvsnanne Exp $
+ RCS:           $Id: uiodmain.h,v 1.17 2007-10-22 08:43:15 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ public:
     void		saveSession();	//!< pops up the save session dialog
     void		restoreSession(); //!< pops up the restore session dlg
     void		autoSession(); //!< pops up the auto session dlg
+    bool		isRestoringSession()	{ return restoringsess_; }
 
 protected:
 
@@ -76,6 +77,7 @@ protected:
     uicMain&		uiapp_;
     ODSession*		cursession_;
     ODSession&		lastsession_;
+    bool		restoringsess_;
     uiDockWin*		ctabwin_;
 
     MultiID		cursessid_;
