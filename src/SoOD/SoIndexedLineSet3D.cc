@@ -67,8 +67,10 @@ void SoIndexedLineSet3D::generatePrimitives(SoAction* action)
 
 void SoIndexedLineSet3D::generateCoordinates( SoAction* action,
 	int startindex,
-	SbVec3f* corner1, SbVec3f* corner2, SbVec3f* corner3, SbVec3f* corner4,
-	SbBool* reverse, SbVec3f* endnormals, int& nrjoints, SbBool world)
+	SbList<SbVec3f>& corner1, SbList<SbVec3f>& corner2,
+	SbList<SbVec3f>& corner3, SbList<SbVec3f>& corner4,
+	SbList<SbBool>& reverse, SbList<SbVec3f>& endnormals,
+	int& nrjoints, SbBool world)
 {
     const int nrindex = coordIndex.getNum();
     const int32_t* cindices = coordIndex.getValues(startindex);
@@ -181,10 +183,10 @@ void SoIndexedLineSet3D::computeBBox( SoAction* action, SbBox3f& box,
     const int nrcoordindex = coordIndex.getNum();
     int curindex = 0;
 
-    SbVec3f corner1[nrcoordindex],  corner2[nrcoordindex],
-            corner3[nrcoordindex], corner4[nrcoordindex],
-	    endnormals[nrcoordindex];
-    SbBool reverse[nrcoordindex];
+    SbList<SbVec3f> corner1(nrcoordindex),  corner2(nrcoordindex),
+		    corner3(nrcoordindex), corner4(nrcoordindex),
+		    endnormals(nrcoordindex);
+    SbList<SbBool> reverse(nrcoordindex);
 
     bool boxinited = false;
 
@@ -287,11 +289,10 @@ void SoIndexedLineSet3D::generateTriangles( SoAction* action, bool render )
     SoTextureCoordinateBundle tb(action, render, render);
     SoMaterialBundle mb(action);
 
-
-    SbVec3f corner1[nrcoordindex],  corner2[nrcoordindex],
-            corner3[nrcoordindex], corner4[nrcoordindex],
-	    endnormals[nrcoordindex];
-    SbBool reverse[nrcoordindex];
+    SbList<SbVec3f> corner1(nrcoordindex),  corner2(nrcoordindex),
+		    corner3(nrcoordindex), corner4(nrcoordindex),
+		    endnormals(nrcoordindex);
+    SbList<SbBool> reverse(nrcoordindex);
 
     int matnr = 0;
     SoMaterialBindingElement::Binding mbind =

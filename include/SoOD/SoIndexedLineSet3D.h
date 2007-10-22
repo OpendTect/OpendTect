@@ -29,9 +29,11 @@ private:
 				    SbVec3f* res);
     void	generateTriangles( SoAction*, bool render );
     void	generateCoordinates( SoAction*, int startindex,
-	    			     SbVec3f*, SbVec3f*,
-	    			     SbVec3f*, SbVec3f*, SbBool*,
-				     SbVec3f* endnormals, int&, SbBool world);
+	    			     SbList<SbVec3f>&, SbList<SbVec3f>&,
+	    			     SbList<SbVec3f>&, SbList<SbVec3f>&,
+				     SbList<SbBool>&,
+				     SbList<SbVec3f>& endnormals, int&,
+				     SbBool world);
 
 
     static bool	didwarn;
