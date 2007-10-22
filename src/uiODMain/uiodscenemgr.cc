@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.113 2007-09-28 03:56:30 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.114 2007-10-22 08:18:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -258,7 +258,7 @@ void uiODSceneMgr::setSceneName( int sceneid, const char* nm )
 	Scene& scene = *scenes_[idx];
 	if ( scene.itemmanager_->sceneID() == sceneid )
 	{
-	    scene.sovwr_->setTitle( nm );
+	    scene.wsgrp_->setTitle( nm );
 	    scene.treeWin()->setDockName( nm );
 	    uiTreeItem* itm = scene.itemmanager_->findChild( sceneid );
 	    if ( itm )
@@ -661,7 +661,7 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     }
 
     uiODSceneTreeItem* sceneitm =
-	new uiODSceneTreeItem( scn.sovwr_->getTitle(), scn.sovwr_->sceneID() );
+	new uiODSceneTreeItem( scn.wsgrp_->getTitle(), scn.sovwr_->sceneID() );
     scn.itemmanager_->addChild( sceneitm, false );
     scn.lv_->display();
     appl_.addDockWindow( *dw, uiMainWin::Left );
@@ -874,12 +874,10 @@ uiODSceneMgr::Scene::Scene( uiWorkSpace* wsp )
     if ( !wsp ) return;
 
     wsgrp_ = new uiWorkSpaceGroup();
-    wsgrp_->setPrefWidth( 400 );
-    wsgrp_->setPrefHeight( 400 );
+    wsgrp_->setIcon( scene_xpm_data );
     sovwr_ = new uiSoViewer( wsgrp_ );
-    sovwr_->setPrefWidth( 200 );
-    sovwr_->setPrefHeight( 200 );
-    sovwr_->setIcon( scene_xpm_data );
+    sovwr_->setPrefWidth( 400 );
+    sovwr_->setPrefHeight( 400 );
     wsp->addGroup( wsgrp_ );
 }
 
