@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.1 2007-10-19 15:51:48 cvsjaap Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.2 2007-10-22 11:33:51 cvsjaap Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -19,11 +19,11 @@ class ExplFaultStickSurfaceUpdater : public ParallelTask
 {
 public:
     ExplFaultStickSurfaceUpdater( ExplFaultStickSurface& efss,
-	    			  bool updatesticks )
+	    			  bool updatesticksnotpanels )
     : explsurf_( efss )
-    , updatesticks_( updatesticks )
+    , updatesticksnotpanels_( updatesticksnotpanels )
 {
-    if ( updatesticks_ )
+    if ( updatesticksnotpanels_ )
     {
 	if ( explsurf_.displaysticks_ || explsurf_.displaypanels_ )
 	{
@@ -54,7 +54,7 @@ bool doWork( int start, int stop, int )
 {
     for ( int idx=start; idx<=stop && idx<updatelist_.size(); idx++ )
     {
-	if ( updatesticks_ )
+	if ( updatesticksnotpanels_ )
 	    explsurf_.fillStick( updatelist_[idx] );
 	else
 	    explsurf_.fillPanel( updatelist_[idx] );
@@ -65,17 +65,16 @@ bool doWork( int start, int stop, int )
 protected:
 
     ExplFaultStickSurface&	explsurf_;
-    bool			updatesticks_;
+    bool			updatesticksnotpanels_;
     TypeSet<int>		updatelist_;
 };
 
 
 ExplFaultStickSurface::ExplFaultStickSurface( FaultStickSurface* surf )
-    : surface_( surf )
+    : surface_( 0 )
     , displaysticks_( true )
     , displaypanels_( true )
 {
-    if ( surface_ ) surface_->ref();
     setSurface( surface_ );
 }
 
@@ -113,8 +112,8 @@ void ExplFaultStickSurface::removeAll()
 {
     for ( int idx=sticks_.size()-1; idx>=0; idx-- )
     {
-	removeStick( idx );
 	if ( idx ) removePanel( idx-1 );
+	removeStick( idx );
     }
 }
 
@@ -149,31 +148,31 @@ void ExplFaultStickSurface::update()
 }
 
 
-void ExplFaultStickSurface::display( bool sticks, bool panels )
+void ExplFaultStickSurface::display( bool ynsticks, bool ynpanels )
 {
     for ( int idx=0; idx<sticks_.size(); idx++ )
     {
-	if ( displaysticks_==sticks || sticks_[idx]->coordindices_.isEmpty() )
+	if ( displaysticks_==ynsticks || sticks_[idx]->coordindices_.isEmpty() )
 	    continue;
 
-	if ( sticks )
+	if ( ynsticks )
 	    addToGeometries( sticks_[idx] );
 	else
 	    removeFromGeometries( sticks_[idx] );
     }
-    displaysticks_ = sticks;
+    displaysticks_ = ynsticks;
 
     for ( int idx=0; idx<panels_.size(); idx++ )
     {
-	if ( displaypanels_==panels || panels_[idx]->isEmpty() )
+	if ( displaypanels_==ynpanels || panels_[idx]->isEmpty() )
 	    continue;
 
-	if ( panels )
+	if ( ynpanels )
 	    addToGeometries( *panels_[idx] );
 	else
 	    removeFromGeometries( (*panels_[idx])[0], panels_[idx]->size() );
     }
-    displaypanels_ = panels;
+    displaypanels_ = ynpanels;
 
     update();
 }
@@ -214,26 +213,26 @@ void ExplFaultStickSurface::removeFromGeometries( const IndexedGeometry* first,
 
 void ExplFaultStickSurface::emptyStick( int stickidx )
 {
-    if ( stickidx<0 || stickidx>=sticks_.size() )
-	return;
-
-    TypeSet<int>& knots = sticks_[stickidx]->coordindices_;
-
-    if ( displaysticks_ && !knots.isEmpty() )
-	removeFromGeometries( sticks_[stickidx] );
-
-    if ( coordlist_ )
+    if ( sticks_.validIdx(stickidx) )
     {
-	for ( int idx=0; idx<knots.size(); idx++ )
-	    coordlist_->remove( knots[idx] );
+	TypeSet<int>& knots = sticks_[stickidx]->coordindices_;
+
+	if ( displaysticks_ && !knots.isEmpty() )
+	    removeFromGeometries( sticks_[stickidx] );
+
+	if ( coordlist_ )
+	{
+	    for ( int idx=0; idx<knots.size(); idx++ )
+		coordlist_->remove( knots[idx] );
+	}
+	knots.erase(); 
     }
-    knots.erase(); 
 }
 
 
 void ExplFaultStickSurface::fillStick( int stickidx )
 {
-    if ( !surface_ || !coordlist_ || stickidx<0 || stickidx>=sticks_.size() )
+    if ( !surface_ || !coordlist_ || !sticks_.validIdx(stickidx) )
 	return;
 
     TypeSet<int>& knots = sticks_[stickidx]->coordindices_;
@@ -256,53 +255,51 @@ void ExplFaultStickSurface::fillStick( int stickidx )
 
 void ExplFaultStickSurface::removeStick( int stickidx )
 {
-    if ( stickidx<0 || stickidx>=sticks_.size() )
-	return;
-
-    emptyStick( stickidx );
-    delete sticks_.remove( stickidx );
+    if ( sticks_.validIdx(stickidx) )
+    {
+	emptyStick( stickidx );
+	delete sticks_.remove( stickidx );
+    }
 }
 
 
 void ExplFaultStickSurface::insertStick( int stickidx )
 {
-    if ( stickidx<0 || stickidx>sticks_.size() )
-	return;
-
-    sticks_.insertAt( new IndexedGeometry(IndexedGeometry::Lines), stickidx );
+    if ( stickidx>=0 || stickidx<=sticks_.size() )
+	sticks_.insertAt(new IndexedGeometry(IndexedGeometry::Lines), stickidx);
 }
 
 
 void ExplFaultStickSurface::emptyPanel( int panelidx )
 {
-    if ( panelidx<0 || panelidx>=panels_.size() )
-	return;
+    if ( panels_.validIdx(panelidx) )
+    {
+	ObjectSet<IndexedGeometry>& panel = *panels_[panelidx];
 
-    ObjectSet<IndexedGeometry>& panel = *panels_[panelidx];
+	if ( displaypanels_ && !panel.isEmpty() )
+	    removeFromGeometries( panel[0], panel.size() );
 
-    if ( displaypanels_ && !panel.isEmpty() )
-	removeFromGeometries( panel[0], panel.size() );
-
-    deepErase( panel );
+	deepErase( panel );
+    }
 }
 
 
-#define mSqDist( coord1idx, coord2idx ) \
-    coordlist_->get(coord1idx).sqDistTo( coordlist_->get(coord2idx) ) 
+#define mSqDist( coordidx1, coordidx2 ) \
+    coordlist_->get(coordidx1).sqDistTo( coordlist_->get(coordidx2) ) 
 
-#define mNextKnotLeft( lidx, ridx ) \
-    ( ridx>=rsize-1 ? true : \
-    ( lidx>=lsize-1 ? false : \
-		      mSqDist( (*lknot)[lidx+1], (*rknot)[ridx] ) \
-			      <= mSqDist( (*lknot)[lidx], (*rknot)[ridx+1] ) ))
+#define mNextKnotLeft( lindex, rindex ) \
+    ( rindex>=rsize-1 ? true : \
+    ( lindex>=lsize-1 ? false : \
+			mSqDist( (*lknot)[lindex+1], (*rknot)[rindex] ) \
+			 <= mSqDist( (*lknot)[lindex], (*rknot)[rindex+1] ) ))
 
-#define mAddKnotIndex( piece, rl, offset ) \
+#define mAddKnotIndex( rl, offset ) \
     if ( rl##idx+offset < rl##size ) \
 	piece.coordindices_ += (*rl##knot)[rl##idx+offset];
 
 void ExplFaultStickSurface::fillPanel( int panelidx )
 {
-    if ( !coordlist_ || !normallist_ || panelidx<0 || panelidx>=panels_.size() )
+    if ( !coordlist_ || !normallist_ || !panels_.validIdx(panelidx) )
 	return;
 
     ObjectSet<IndexedGeometry>& panel = *panels_[panelidx];
@@ -342,11 +339,6 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 	
     while ( lidx<lsize-1 || ridx<rsize-1 ) 
     {
-	panel += new IndexedGeometry( IndexedGeometry::TriangleStrip,
-				      IndexedGeometry::PerFace,0,normallist_ );
-	IndexedGeometry& piece = *panel[panel.size()-1];
-	bool finalknotleft = true;
-	
 	if ( !mNextKnotLeft(lidx,ridx) )
 	{
 	    int tmpint;
@@ -357,25 +349,30 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 	    mirrored = !mirrored;
 	}
 
+	panel += new IndexedGeometry( IndexedGeometry::TriangleStrip,
+				      IndexedGeometry::PerFace,0,normallist_ );
+	IndexedGeometry& piece = *panel[panel.size()-1];
+	bool finalknotleft = true;
+	
 	if ( mNextKnotLeft(lidx+1,ridx) )
 	{
 	    if ( mNextKnotLeft(lidx+2,ridx) )
 	    {
 		piece.type_ = IndexedGeometry::TriangleFan;
-		mAddKnotIndex( piece, r, 0 );
-		mAddKnotIndex( piece, l, 0 );
-		mAddKnotIndex( piece, l, 1 );
-		mAddKnotIndex( piece, l, 2 );
-		mAddKnotIndex( piece, l, 3 );
+		mAddKnotIndex( r, 0 );
+		mAddKnotIndex( l, 0 );
+		mAddKnotIndex( l, 1 );
+		mAddKnotIndex( l, 2 );
+		mAddKnotIndex( l, 3 );
 		lidx+=3; 
 	    }
 	    else
 	    {
-		mAddKnotIndex( piece, l, 0 );
-		mAddKnotIndex( piece, l, 1 );
-		mAddKnotIndex( piece, r, 0 );
-		mAddKnotIndex( piece, l, 2 );
-		mAddKnotIndex( piece, r, 1 );
+		mAddKnotIndex( l, 0 );
+		mAddKnotIndex( l, 1 );
+		mAddKnotIndex( r, 0 );
+		mAddKnotIndex( l, 2 );
+		mAddKnotIndex( r, 1 );
 		lidx+=2; ridx++;
 	    }
 	    finalknotleft = false;
@@ -383,21 +380,21 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 	}
 	else if ( mNextKnotLeft(lidx+1,ridx+1) )
 	{
-	    mAddKnotIndex( piece, l, 0 );
-	    mAddKnotIndex( piece, r, 0 );
-	    mAddKnotIndex( piece, l, 1 );
-	    mAddKnotIndex( piece, r, 1 );
-	    mAddKnotIndex( piece, l, 2 );
+	    mAddKnotIndex( l, 0 );
+	    mAddKnotIndex( r, 0 );
+	    mAddKnotIndex( l, 1 );
+	    mAddKnotIndex( r, 1 );
+	    mAddKnotIndex( l, 2 );
 	    lidx+=2; ridx++;
 	}
 	else
 	{
 	    piece.type_ = IndexedGeometry::TriangleFan;
-	    mAddKnotIndex( piece, l, 1 );
-	    mAddKnotIndex( piece, l, 0 );
-	    mAddKnotIndex( piece, r, 0 );
-	    mAddKnotIndex( piece, r, 1 );
-	    mAddKnotIndex( piece, r, 2 );
+	    mAddKnotIndex( l, 1 );
+	    mAddKnotIndex( l, 0 );
+	    mAddKnotIndex( r, 0 );
+	    mAddKnotIndex( r, 1 );
+	    mAddKnotIndex( r, 2 );
 	    lidx++; ridx+=2;
 	}
 
@@ -405,13 +402,13 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 	{
 	    if ( mNextKnotLeft(lidx,ridx) )
 	    {
-		mAddKnotIndex( piece, l, 1 );
+		mAddKnotIndex( l, 1 );
 		lidx++;
 		if ( finalknotleft ) break;
 	    }
 	    else
 	    {
-		mAddKnotIndex( piece, r, 1 );
+		mAddKnotIndex( r, 1 );
 		ridx++;
 		if ( !finalknotleft ) break;
 	    }
@@ -430,20 +427,18 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 
 void ExplFaultStickSurface::removePanel( int panelidx )
 {
-    if ( panelidx<0 || panelidx>=panels_.size() )
-	return;
-
-    emptyPanel( panelidx );
-    delete panels_.remove( panelidx );
+    if ( panels_.validIdx(panelidx) )
+    {
+	emptyPanel( panelidx );
+	delete panels_.remove( panelidx );
+    }
 }
 
 
 void ExplFaultStickSurface::insertPanel( int panelidx )
 {
-    if ( panelidx<0 || panelidx>panels_.size() )
-	return;
-	
-    panels_.insertAt( new ObjectSet<IndexedGeometry>, panelidx );
+    if ( panelidx>=0 || panelidx<=panels_.size() )
+	panels_.insertAt( new ObjectSet<IndexedGeometry>, panelidx );
 }
 
 
@@ -455,7 +450,7 @@ void ExplFaultStickSurface::calcNormals( IndexedGeometry& piece, bool mirrored )
     for ( int idx=2; idx<piece.coordindices_.size(); idx++ )
     {
 	Coord3 vec1 = coordlist_->get( piece.coordindices_[idx-1] );
-	const Coord3 vec2 = vec1 - coordlist_->get( piece.coordindices_[idx] );
+	Coord3 vec2 = vec1 - coordlist_->get( piece.coordindices_[idx] );
 
 	if ( piece.type_ == IndexedGeometry::TriangleStrip )
 	{
