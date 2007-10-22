@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: viscolortab.cc,v 1.37 2007-10-16 05:07:21 cvsraman Exp $
+ RCS:           $Id: viscolortab.cc,v 1.38 2007-10-22 08:42:02 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ const char* VisColorTab::sKeyColorSeqID()	{ return "ColorSeq ID"; }
 const char* VisColorTab::sKeyScaleFactor()	{ return "Scale Factor"; }
 const char* VisColorTab::sKeyClipRate()		{ return "Cliprate"; }
 const char* VisColorTab::sKeyAutoScale()	{ return "Auto scale"; }
+const char* VisColorTab::sKeySymmetry()		{ return "Symmetry"; }
 
 
 VisColorTab::VisColorTab()
@@ -75,7 +76,10 @@ bool VisColorTab::getSymmetry() const
 
 void VisColorTab::setSymmetry( bool yn ) 
 {
+    if ( yn == symmetry_ ) return;
+
     symmetry_ = yn;
+    if ( autoscale_ ) autoscalechange.trigger();
 }
 
 
@@ -253,6 +257,10 @@ int VisColorTab::usePar( const IOPar& par )
     par.getYN( sKeyAutoScale(), autoscale );
     setAutoScale( autoscale );
 
+    bool symmetry = false;
+    par.getYN( sKeySymmetry(), symmetry );
+    setSymmetry( symmetry );
+
     const char* scalestr = par.find( sKeyScaleFactor() );
     if ( !scalestr ) return -1;
 
@@ -269,6 +277,7 @@ void VisColorTab::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyScaleFactor(), scale_.toString() );
     par.set( sKeyClipRate(), cliprate_ );
     par.setYN( sKeyAutoScale(), autoscale_ );
+    par.setYN( sKeySymmetry(), symmetry_ );
 }
 
 }; // namespace visBase
