@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: horizoneditor.cc,v 1.7 2007-09-13 06:05:29 cvskris Exp $
+ RCS:           $Id: horizoneditor.cc,v 1.8 2007-10-22 10:34:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,7 +136,7 @@ void HorizonEditor::getAlongMovingNodes( const EM::PosID&,
 	    }
 	    else
 	    {
-		const float length = sqrt(ridx*ridx+cidx*cidx);
+		const float length = sqrt( (float)(ridx*ridx+cidx*cidx) );
 
 		if ( ridx )
 		{
