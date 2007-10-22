@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodwelltreeitem.cc,v 1.16 2007-10-04 12:05:57 cvsnanne Exp $
+ RCS:		$Id: uiodwelltreeitem.cc,v 1.17 2007-10-22 08:20:11 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -249,12 +249,11 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
 	return;
 
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_));
-
-    mAddMenuItem( menu, &sellogmnuitem_,
-		  applMgr()->wellServer()->hasLogs(wd->getMultiID()), false );
+    const bool islocked = visserv_->isLocked( displayid_ );
+    mAddMenuItem( menu, &sellogmnuitem_, !islocked, false );
     mAddMenuItem( menu, &attrmnuitem_, true, false );
     mAddMenuItem( menu, &propertiesmnuitem_, true, false );
-    mAddMenuItem( menu, &editmnuitem_, true, wd->isHomeMadeWell() );
+    mAddMenuItem( menu, &editmnuitem_, !islocked, wd->isHomeMadeWell() );
     mAddMenuItem( menu, &storemnuitem_, wd->hasChanged(), false );
     mAddMenuItem( menu, &showmnuitem_, true, false );
     mAddMenuItem( &showmnuitem_, &nametopmnuitem_, true,  
