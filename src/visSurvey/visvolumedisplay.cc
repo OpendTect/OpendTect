@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.74 2007-10-15 06:46:35 cvsnanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.75 2007-10-22 04:37:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -829,7 +829,8 @@ void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
 	par.setYN( str, isosurfaces_[idx]->isOn() );
     }
 
-    as_.fillPar(par);
+    as_.fillPar( par );
+    fillSOPar( par );
 }
 
 
@@ -930,8 +931,9 @@ int VolumeDisplay::usePar( const IOPar& par )
     if ( cs.usePar(par) )
 	setCubeSampling( cs );
 
+    useSOPar( par );
     return 1;
 }
 
 
-}; // namespace visSurvey
+} // namespace visSurvey

@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.93 2007-10-17 04:43:42 cvsnanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.94 2007-10-22 04:37:13 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -975,6 +975,8 @@ void RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	key += attrib;
 	par.mergeComp( attribpar, key );
     }
+
+    fillSOPar( par );
 }
 
 
@@ -1062,7 +1064,8 @@ int RandomTrackDisplay::usePar( const IOPar& par )
 	    addKnot( pos );
     }
 
+    useSOPar( par );
     return 1;
 }
 
-}; // namespace visSurvey
+} // namespace visSurvey

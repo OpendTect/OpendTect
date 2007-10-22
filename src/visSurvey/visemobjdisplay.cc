@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.102 2007-07-26 22:20:22 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.103 2007-10-22 04:37:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -536,6 +536,7 @@ void EMObjectDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     }
 
     par.set( sKeyPosAttrShown, posattribs_ );
+    fillSOPar( par );
 }
 
 
@@ -569,6 +570,7 @@ int EMObjectDisplay::usePar( const IOPar& par )
 
     par.get( sKeyPosAttrShown, parposattrshown_ );
 
+    useSOPar( par );
     return 1;
 }
 

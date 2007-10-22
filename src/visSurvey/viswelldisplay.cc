@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.71 2007-08-29 11:44:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.72 2007-10-22 04:37:13 cvsnanne Exp $";
 
 #include "viswelldisplay.h"
 
@@ -402,7 +402,9 @@ void WellDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.setYN( sKeyLog2Scale, logparset_->getRight()->getLogScale() ); 
     par.set( sKeyLog1Color, logparset_->getLeft()->getColor() ); 
     par.set( sKeyLog2Color, logparset_->getRight()->getColor() );
+    fillSOPar( par );
 }
+
 
 int WellDisplay::usePar( const IOPar& par )
 {
@@ -474,7 +476,7 @@ int WellDisplay::usePar( const IOPar& par )
     if ( par.getYN(visBase::Well::showwellbotnmstr,wellnmshown) )
 	showWellBotName( wellnmshown );
 
-
+    useSOPar( par );
     return 1;
 }
 

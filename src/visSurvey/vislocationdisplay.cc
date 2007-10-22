@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.29 2007-09-12 16:02:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.30 2007-10-22 04:37:13 cvsnanne Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -744,6 +744,8 @@ void LocationDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.setYN( sKeyShowAll(), showall_ );
     par.set( sKeyMarkerType(), set_->disp_.markertype_ );
     par.set( sKeyMarkerSize(), set_->disp_.pixsize_ );
+
+    fillSOPar( par );
 }
 
 
@@ -790,6 +792,7 @@ int LocationDisplay::usePar( const IOPar& par )
     else
 	setSet( &picksetmgr_->get( storedmid_ ) );
 
+    useSOPar( par );
     return 1;
 }
 
