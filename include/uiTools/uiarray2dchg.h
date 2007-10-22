@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: uiarray2dchg.h,v 1.1 2007-01-31 11:48:48 cvsbert Exp $
+ RCS:		$Id: uiarray2dchg.h,v 1.2 2007-10-22 11:33:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ class uiArr2DInterpolParsDlg : public uiDialog
 {
 public:
 
-				uiArr2DInterpolParsDlg(uiParent* p,
+				uiArr2DInterpolParsDlg(uiParent*,
 					const Array2DInterpolatorPars* p=0);
 
     Array2DInterpolatorPars	getInput() const
@@ -74,7 +74,7 @@ class uiArr2DFilterParsDlg : public uiDialog
 {
 public:
 
-			uiArr2DFilterParsDlg(uiParent* p,
+			uiArr2DFilterParsDlg(uiParent*,
 					     const Array2DFilterPars* p=0);
 
     Array2DFilterPars	getInput() const
