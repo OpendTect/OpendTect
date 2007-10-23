@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.21 2007-03-08 12:40:08 cvshelene Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.22 2007-10-23 12:53:29 cvshelene Exp $";
 
 #include "energyattrib.h"
 
@@ -27,9 +27,7 @@ void Energy::initClass()
 
     ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-1000,1000) );
-    Interval<float> defgate( -7*SI().zStep(),7*SI().zStep() );
-    defgate.scale( SI().zFactor() );
-    gate->setDefaultValue( defgate );
+    gate->setDefaultValue( Interval<float>(-28, 28) );
     desc->addParam( gate );
 
     desc->addInput( InputSpec("Input Data",true) );
