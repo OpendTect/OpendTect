@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.45 2005-10-28 12:33:38 cvsbert Exp $
+ RCS:		$Id: seistrctr.h,v 1.46 2007-10-23 11:32:14 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -147,7 +147,8 @@ public:
     bool		initRead(Conn*,Seis::ReadMode rt=Seis::Prod);
 			/*!< After call, component and packet info will be
 			     available. Some STT's *require* a valid IOObj
-			     in Conn */
+			     in Conn. After ths call, you cannot use the conn
+			     ptr directly anymore: it may be deleted. */
     bool		initWrite(Conn*,const SeisTrc&);
 			/*!< After call, default component and packet info
 			     will be generated according to the example trace.
