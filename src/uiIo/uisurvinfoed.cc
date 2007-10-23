@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.89 2007-06-14 17:25:11 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.90 2007-10-23 11:25:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -695,13 +695,8 @@ void uiSurveyInfoEditor::sipbutPush( CallBacker* cb )
 	return;
 
     if ( sip->tdInfo() != uiSurvInfoProvider::Uknown )
-    {
-	const bool isdpth = sip->tdInfo() == uiSurvInfoProvider::Depth;
-	if ( isdpth && zunitfld->box()->currentItem() == 2 )
-	    si_.setZUnit( false, true );
-	else
-	    si_.setZUnit( !isdpth, false );
-    }
+	si_.setZUnit( sip->tdInfo() == uiSurvInfoProvider::Time,
+		      sip->tdInfo() == uiSurvInfoProvider::DepthFeet );
 
     if ( mIsUdf(cs.zrg.start) )
 	cs.zrg = si_.zRange(false);
