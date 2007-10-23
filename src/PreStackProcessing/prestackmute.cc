@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackmute.cc,v 1.4 2007-10-03 14:01:33 cvskris Exp $";
+static const char* rcsID = "$Id: prestackmute.cc,v 1.5 2007-10-23 21:13:19 cvskris Exp $";
 
 #include "prestackmute.h"
 
@@ -124,8 +124,12 @@ bool Mute::doWork( int start, int stop, int )
 	const float mutez = def_.value( offs, input_->getBinID() );
 	const float mutepos = Muter::mutePos( mutez, input_->posData().range(false) );
 
-	float* out = output_->data().get1D(&ioffs);
-	muter_->mute( out, nrsamples, mutepos );
+	Array1DSlice<float> slice( output_->data() );
+	slice.setPos( 0, ioffs );
+	if ( !slice.init() )
+	    continue;
+
+	muter_->mute( slice, nrsamples, mutepos );
     }
 
     return true;
