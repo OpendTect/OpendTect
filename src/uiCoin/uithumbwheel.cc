@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2002
- RCS:           $Id: uithumbwheel.cc,v 1.7 2005-08-08 09:58:26 cvsnanne Exp $
+ RCS:           $Id: uithumbwheel.cc,v 1.8 2007-10-23 11:24:25 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "i_qthumbwhl.h"
 #include "uiobjbody.h"
 
+#include <qapplication.h>
+#include <qevent.h>
 #include <qsize.h> 
 
 
@@ -27,6 +29,8 @@ public:
 				  uiParent* parnt, const char* nm, bool hor);
 
     //virtual int 	nrTxtLines() const			{ return 1; }
+
+    void		activate();
 
 private:
 
@@ -60,6 +64,15 @@ uiThumbWheelBody::uiThumbWheelBody( uiThumbWheel& handle,uiParent* parnt,
 }
 
 
+static const QEvent::Type sQEventActivate = (QEvent::Type) (QEvent::User + 0);
+
+
+void uiThumbWheelBody::activate()
+{
+    QEvent* actevent = new QEvent( sQEventActivate );
+    QApplication::postEvent( &messenger_, actevent );
+}
+
 //------------------------------------------------------------------------------
 
 uiThumbWheel::uiThumbWheel(  uiParent* parnt, const char* nm, bool hor )
@@ -67,6 +80,7 @@ uiThumbWheel::uiThumbWheel(  uiParent* parnt, const char* nm, bool hor )
     , wheelPressed(this)
     , wheelMoved(this)
     , wheelReleased(this)
+    , activatedone(this)
     , lastmv( 0 )
 {
 }
@@ -77,6 +91,29 @@ uiThumbWheelBody& uiThumbWheel::mkbody( uiParent* parnt, const char* nm,
     body_= new uiThumbWheelBody(*this,parnt,nm,hor);
     return *body_; 
 }
+
+
+void uiThumbWheel::activate( float angle )
+{ 
+    activateangle_ = angle;
+    body_->activate(); 
+}
+
+
+bool uiThumbWheel::handleEvent( const QEvent* ev )
+{
+    if ( ev->type() != sQEventActivate ) return false;
+
+    wheelPressed.trigger();
+    wheelMoved.trigger();
+    lastmv += activateangle_;
+    setValue( lastmv );
+    wheelReleased.trigger();
+
+    activatedone.trigger();
+    return true;
+}
+
 
 const char* uiThumbWheel::text() const
 {

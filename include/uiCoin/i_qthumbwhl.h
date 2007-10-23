@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2002
- RCS:           $Id: i_qthumbwhl.h,v 1.3 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: i_qthumbwhl.h,v 1.4 2007-10-23 11:24:25 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <uithumbwheel.h>
 
+#include <qevent.h>
 #include <qobject.h>
 #include <Inventor/Qt/widgets/SoQtThumbWheel.h>
 
@@ -43,7 +44,11 @@ protected:
 			}
 
     virtual		~i_ThumbWheelMessenger() {}
-   
+
+    bool		event( QEvent* ev )
+			{ return _receiver->handleEvent(ev)
+			    			? true : QObject::event(ev); }
+
 private:
 
     uiThumbWheel* 	_receiver;

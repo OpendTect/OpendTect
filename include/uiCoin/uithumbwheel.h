@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2002
- RCS:           $Id: uithumbwheel.h,v 1.4 2005-07-07 20:03:21 cvskris Exp $
+ RCS:           $Id: uithumbwheel.h,v 1.5 2007-10-23 11:24:25 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include <uiobj.h>
 
 class uiThumbWheelBody;
+class QEvent;
 
 class uiThumbWheel : public uiObject
 {
@@ -38,8 +39,15 @@ public:
     Notifier<uiThumbWheel> wheelMoved;
     Notifier<uiThumbWheel> wheelReleased;
 
+    			//! Force activation in GUI thread
+    void		activate(float angle);
+
+    Notifier<uiThumbWheel> activatedone;
+
 protected:
 
+    bool		handleEvent(const QEvent*);
+    float		activateangle_;
     float               lastmv;
 
 private:
