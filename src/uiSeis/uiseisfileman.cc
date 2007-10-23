@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.66 2007-10-16 16:27:58 cvssatyaki Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.67 2007-10-23 08:15:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -349,21 +349,29 @@ void attribSel( CallBacker* )
     linelist->box()->getSelectedItems( linenms );
     attriblist->box()->getSelectedItems( attribnms );
     if ( linenms.isEmpty() || attribnms.isEmpty() )
-	{ infofld->setText(""); browsebut->setSensitive( false ); return; }
+	{ browsebut->setSensitive( false ); return; }
 
     const LineKey linekey( linenms.get(0), attribnms.get(0) );
     const int lineidx = lineset->indexOf( linekey );
     if ( lineidx < 0 ) { pErrMsg("Huh"); return; }
 
+    PosInfo::Line2DData l2dd;
+    if ( !lineset->getGeometry(lineidx,l2dd) || l2dd.posns.isEmpty() )
+	return;
 
-    BufferString txt;
-    StepInterval<int> trcrg;
-    StepInterval<float> zrg;
-    lineset->getRanges( lineidx, trcrg, zrg );
-    txt += "Trace range: "; txt += trcrg.start; txt += " - "; txt += trcrg.stop;
-    txt += " ["; txt += trcrg.step; txt += "]";
-    txt += "\nZ-range: "; mZRangeTxt(zrg.start); txt += " - ";
-    mZRangeTxt(zrg.stop); txt += " ["; mZRangeTxt(zrg.step); txt += "]";
+    const int sz = l2dd.posns.size();
+    BufferString txt( "Number of traces: " ); txt += sz;
+    const PosInfo::Line2DPos& firstpos = l2dd.posns[0];
+    txt += "\nFirst trace: "; txt += firstpos.nr_;
+    txt += " ("; txt += firstpos.coord_.x;
+    txt += ","; txt += firstpos.coord_.y; txt += ")";
+    const PosInfo::Line2DPos& lastpos = l2dd.posns[sz-1];
+    txt += "\nLast trace: "; txt += lastpos.nr_;
+    txt += " ("; txt += lastpos.coord_.x;
+    txt += ","; txt += lastpos.coord_.y; txt += ")";
+    txt += "\nZ-range: "; mZRangeTxt(l2dd.zrg.start); txt += " - ";
+    mZRangeTxt(l2dd.zrg.stop);
+    txt += " ["; mZRangeTxt(l2dd.zrg.step); txt += "]";
 
     const IOPar& iopar = lineset->getInfo( lineidx );
     BufferString fname = iopar.find( sKey::FileName );
