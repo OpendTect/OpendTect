@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.25 2007-09-04 20:42:04 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.26 2007-10-23 21:49:06 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -90,6 +90,10 @@ public:
     void	unLock() { islocked_ = false; mutex_.unlock(); }
 		/*!<Use at own risk! To be safe, it should only be called
 		    by the process that created the lock. */
+    void	lock() { islocked_ = true; mutex_.lock(); }
+		/*!<Use at own risk! To be safe, it should only be called
+		    by the process that created the lock, and have
+		    called the unLock(). */
 
 protected:
 
