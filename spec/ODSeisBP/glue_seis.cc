@@ -4,7 +4,7 @@
  * DATE     : 25-9-1999
 -*/
 
-static const char* rcsID = "$Id: glue_seis.cc,v 1.8 2007-10-09 08:52:24 cvsbert Exp $";
+static const char* rcsID = "$Id: glue_seis.cc,v 1.9 2007-10-23 04:29:38 cvsnanne Exp $";
 #include "prog.h"
 #include "batchprog.h"
 #include "ioman.h"
@@ -319,7 +319,7 @@ static void addBufs( ObjectSet<SeisTrcBuf>& bufs )
 	fulltbufs.remove( 0 );
     }
 
-    SeisTrcBuf& tbuftofill = *new SeisTrcBuf;
+    SeisTrcBuf& tbuftofill = *new SeisTrcBuf( false );
     fulltbufs += &tbuftofill;
     for ( int idx=0; idx<usebufs.size(); idx++ )
     {
@@ -381,7 +381,7 @@ bool BatchProgram::go( std::ostream& strm_ )
 	}
 
 	provs += prov;
-	bufs += new SeisTrcBuf;
+	bufs += new SeisTrcBuf( false );
     }
     int nrprovs = provs.size();
     if ( nrprovs == 0 )
