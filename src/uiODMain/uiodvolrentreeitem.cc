@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.17 2007-10-22 09:59:18 cvsraman Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.18 2007-10-23 04:27:58 cvsnanne Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -124,7 +124,7 @@ uiODVolrenTreeItem::~uiODVolrenTreeItem()
 
 bool uiODVolrenTreeItem::showSubMenu()
 {
-    return visserv_->showMenu( displayid_ );
+    return visserv_->showMenu( displayid_, uiMenuHandler::fromTree );
 }
 
 
@@ -173,20 +173,19 @@ void uiODVolrenTreeItem::createMenuCB( CallBacker* cb )
     mDynamicCastGet(uiMenuHandler*,menu,cb);
     if ( !menu || menu->menuID() != displayID() ) return;
 
+    const bool islocked = visserv_->isLocked( displayID() );
     selattrmnuitem_.removeItems();
     uiODAttribTreeItem::createSelMenu( selattrmnuitem_, displayID(),
 	    				0, sceneID() );
-
     if ( selattrmnuitem_.nrItems() )
-	mAddMenuItem( menu, &selattrmnuitem_,
-			!visserv_->isLocked(displayID()), false );
+	mAddMenuItem( menu, &selattrmnuitem_, !islocked, false );
 
     const uiAttribPartServer* attrserv = applMgr()->attrServer();
     const Attrib::SelSpec* as = visserv_->getSelSpec( displayID(), 0 );
     if ( attrserv->getIOObj(*as) )
 	mAddMenuItem( menu, &colsettingsmnuitem_, true, false );
 
-    mAddMenuItem( menu, &positionmnuitem_, true, false );
+    mAddMenuItem( menu, &positionmnuitem_, !islocked, false );
     mAddMenuItem( menu, &statisticsmnuitem_, true, false );
     mAddMenuItem( menu, &amplspectrummnuitem_, true, false );
     mAddMenuItem( menu, &addmnuitem_, true, false );
