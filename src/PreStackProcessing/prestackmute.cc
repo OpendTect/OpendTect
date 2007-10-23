@@ -4,10 +4,11 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackmute.cc,v 1.5 2007-10-23 21:13:19 cvskris Exp $";
+static const char* rcsID = "$Id: prestackmute.cc,v 1.6 2007-10-23 21:33:42 cvskris Exp $";
 
 #include "prestackmute.h"
 
+#include "arrayndslice.h"
 #include "flatposdata.h"
 #include "ioobj.h"
 #include "ioman.h"
