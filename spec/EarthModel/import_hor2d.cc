@@ -3,8 +3,8 @@ ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
- Date:          June 2007
- RCS:           $Id: import_hor2d.cc,v 1.1 2007-06-15 05:16:40 cvsraman Exp $
+ Date:          Aug 2007
+ RCS:           $Id: import_hor2d.cc,v 1.2 2007-10-23 09:47:54 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,11 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacegeometry.h"
+#include "ioman.h"
 #include "position.h"
+#include "ptrman.h"
+#include "segposinfo.h"
+#include "seis2dline.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "rcol.h"
@@ -26,10 +30,10 @@ ________________________________________________________________________
 #define NaN 9
 
 /*  The Input file should be in the following format:
-    LineName	Trace	X	Y	Hor1_Z	Hor2_Z	.................
+    LineName	Trace	Hor1_Z	Hor2_Z	.................
 
     Then the command line should read something like this:
-    ./import_hor2d [Input File] [Hor1] [Hor2] ..............
+    ./import_hor2d [Input File] [LineSet] [Hor1] [Hor2] ..............
     
     Struct HorLine2D contains data for all Horizons for a line. It basically 
     represents a 2D Line from the input file.
@@ -46,7 +50,7 @@ struct HorLine2D
 
 static int prUsage( const char* msg = 0 )
 {
-    std::cerr << "Usage: [Input file] [Horizon Name(s)]";
+    std::cerr << "Usage: [Input file] [LineSet] [Horizon Name(s)]";
     if ( msg ) std::cerr << '\n' << msg;
     std::cerr << std::endl;
     return 1;
@@ -68,8 +72,39 @@ HorLine2D* newLine( const char* linename )
 }
 
 
+bool getPos( const PosInfo::Line2DData& line, int trcnr, Coord& xypos )
+{
+    int previdx = -1;
+    int curtr = -1;
+    for ( int idx=0; idx<line.posns.size(); idx++ )
+    {
+	curtr = line.posns[idx].nr_;
+	if ( curtr == trcnr )
+	{
+	    xypos = line.posns[idx].coord_;
+	    return true;
+	}
+	else if ( curtr > trcnr ) break;
+
+	previdx = idx;
+    }
+
+    if ( previdx<0 || previdx >= line.posns.size()-1 )
+	return false;
+
+    const int prevtr = line.posns[previdx].nr_;
+    const Coord prevpos = line.posns[previdx].coord_;
+    const Coord nextpos = line.posns[previdx+1].coord_;
+    const float factor = ( trcnr - prevtr ) / ( curtr - prevtr );
+    if ( factor<0 || factor>1 ) return false;
+
+    xypos = prevpos + (nextpos-prevpos) * factor;
+    return true;
+}
+
+
 bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
-       					       const int nrhors	)
+  		   const char* linesetnm, const int nrhors )
 {
     StreamProvider sp( filename );
     std::cerr << sp.fullName()<<"\n"<<sp.fileName()<<"\n"<<sp.hostName()<<"\n";
@@ -80,6 +115,12 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
     char buf[1024]; char valbuf[80];
     HorLine2D* linedata = 0;
 
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
+    PtrMan<IOObj> lsetobj = IOM().getLocal( linesetnm );
+    BufferString fnm = lsetobj->fullUserExpr(true);
+    Seis2DLineSet lineset( fnm );
+
+    PosInfo::Line2DData line2d;
     while ( sd.istrm->good() )
     {
 	sd.istrm->getline( buf, 1024 );
@@ -88,25 +129,34 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
 	    continue;
 
 	if ( !linedata )
+	{
 	    linedata = newLine( valbuf );
+	    
+	    removeTrailingBlanks( valbuf );
+	    int lineidx = lineset.indexOf( valbuf );
+	    if ( !linedata || !lineset.getGeometry(lineidx,line2d) ) break;
+	}
 
 	if ( linedata && strcmp(valbuf,linedata->linename_) )
 	{ 
 	    data += linedata;
 	    linedata = newLine( valbuf );
-	    if ( !linedata ) break;
+	    int lineidx = lineset.indexOf( valbuf );
+	    if ( !linedata || !lineset.getGeometry(lineidx,line2d) ) break;
 	}
 	
 	ptr = getNextWord( ptr, valbuf );
-	linedata->traces_ += atoi( valbuf );
-	ptr = getNextWord( ptr, valbuf );
-
+	const int trcnr = atoi( valbuf );
 	Coord xypos;
-	xypos.x = atof( valbuf );
-	ptr = getNextWord( ptr, valbuf );
+	if( !getPos(line2d,trcnr,xypos) )
+	{
+	    std::cerr << "Skipping Trace No. " << trcnr << "\n";
+	    continue;
+	}
 
-	xypos.y = atof( valbuf );
+	linedata->traces_ += trcnr;
 	linedata->pos_ += xypos;
+
 	ptr = getNextWord( ptr, valbuf );
 	TypeSet<float> vals;
 	for ( int hdx=0; hdx<nrhors; hdx++ )
@@ -130,7 +180,7 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
     return data.size();
 }
 
-int addLine( EM::Horizon2D* hor, HorLine2D* horline, const char* lineset,
+int addLine( EM::Horizon2D* hor, HorLine2D* horline, const MultiID& lsetkey,
 						     TypeSet<Coord>& pos )
 {
     pos += horline->pos_[0];
@@ -155,12 +205,12 @@ int addLine( EM::Horizon2D* hor, HorLine2D* horline, const char* lineset,
     }
 
     int lineid = hor->geometry().addLine( pos, horline->traces_[0], 1,
-					lineset, horline->linename_ );
+					lsetkey, horline->linename_ );
     return lineid;
 }
 
 
-void makeHorizons( ObjectSet<HorLine2D>& data, 
+void makeHorizons( ObjectSet<HorLine2D>& data, const MultiID& lsetkey,
 		   ObjectSet<EM::Horizon2D>& horizons )
 {
     for ( int ldx=0; ldx<data.size(); ldx++ )
@@ -171,7 +221,7 @@ void makeHorizons( ObjectSet<HorLine2D>& data,
 	for ( int hdx=0; hdx<horizons.size(); hdx++ )
 	{
 	    TypeSet<Coord> pos;
-	    int lineid = addLine( horizons[hdx], data[ldx], "Lineset1", pos );
+	    int lineid = addLine( horizons[hdx], data[ldx], lsetkey, pos );
 	    int tdx = 0;
 	    for ( ; tdx<data[ldx]->traces_.size(); tdx++ )
 		if ( data[ldx]->zvals_[tdx][hdx] < NaN )
@@ -220,17 +270,17 @@ void makeHorizons( ObjectSet<HorLine2D>& data,
 
 static int doWork( int argc, char** argv )
 {
-    if ( argc < 3 ) return prUsage();
+    if ( argc < 4 ) return prUsage();
     BufferString errmsg;
 
     ObjectSet<HorLine2D> data;
-    if ( !readFromFile( data, argv[1], argc-2 ) )
+    if ( !readFromFile( data, argv[1], argv[2], argc-3 ) )
 	return 1;
 
     ObjectSet<EM::Horizon2D> horizons;
-    for ( int hdx=0; hdx<argc-2; hdx++ )
+    for ( int hdx=0; hdx<argc-3; hdx++ )
     {
-	const char* horizonnm = argv[hdx+2];
+	const char* horizonnm = argv[hdx+3];
 	EM::EMManager& em = EM::EMM();
 	EM::ObjectID horid = em.createObject( EM::Horizon2D::typeStr(),
 					horizonnm );
@@ -247,7 +297,10 @@ static int doWork( int argc, char** argv )
 
     if ( !horizons.size() ) return 1;
 
-    makeHorizons( data, horizons );
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
+    PtrMan<IOObj> lsetobj = IOM().getLocal( argv[2] );
+    const MultiID lsetkey = lsetobj->key();
+    makeHorizons( data, lsetkey, horizons );
 
     std::cerr << "Saving data ..." << std::endl;
     for ( int hdx=0; hdx<horizons.size(); hdx++ )
