@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: muter.h,v 1.1 2007-03-15 20:02:40 cvskris Exp $
+ RCS:		$Id: muter.h,v 1.2 2007-10-23 21:12:54 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "samplingdata.h"
+
+template <class T> class ValueSeries;
 
 /*!\brief Sets start or end part of a float series to 0
 
@@ -33,15 +35,15 @@ public:
     inline static float	mutePos( float z, const SamplingData<float>& sd )
 			{ return (z - sd.start) / sd.step; }
 
-    void		mute(float*,int sz,float mutepos) const;
+    void		mute(ValueSeries<float>&,int sz,float mutepos) const;
 
 protected:
 
     float		taperlen_;
     bool		tail_;
 
-    void		topMute(float*,int,float) const;
-    void		tailMute(float*,int,float) const;
+    void		topMute(ValueSeries<float>&,int,float) const;
+    void		tailMute(ValueSeries<float>&,int,float) const;
 
 };
 
