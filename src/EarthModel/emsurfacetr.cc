@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.19 2007-09-04 17:05:49 cvsnanne Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.20 2007-10-24 08:23:11 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,8 @@ const IOObjContext& EMHorizon2DTranslatorGroup::ioContext()
 
 
 const char* EMAnyHorizonTranslatorGroup::keyword = "Any Horizon";
-mDefSimpleTranslatorioContext(EMAnyHorizon,Surf);
+mDefSimpleTranslatorioContextWithExtra(EMAnyHorizon,Surf,
+				       ctxt->trglobexpr=mDGBKey)
 
 int EMAnyHorizonTranslatorGroup::selector( const char* s )
 { 
