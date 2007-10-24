@@ -4,7 +4,7 @@
      * DATE     : Oct 1999
     -*/
 
-    static const char* rcsID = "$Id: vismpe.cc,v 1.54 2007-07-06 14:11:05 cvskris Exp $";
+    static const char* rcsID = "$Id: vismpe.cc,v 1.55 2007-10-24 20:05:28 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -543,7 +543,7 @@ void MPEDisplay::rectangleStopCB( CallBacker* )
 
 void MPEDisplay::mouseClickCB( CallBacker* cb )
 {
-    if ( sceneeventcatcher_->isEventHandled() || !isOn() ) return;
+    if ( sceneeventcatcher_->isHandled() || !isOn() ) return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
     if ( eventinfo.type != visBase::MouseClick )
@@ -566,7 +566,7 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 	    updateTextureCoords();
 	    movement.trigger();
 	}
-	sceneeventcatcher_->eventIsHandled();
+	sceneeventcatcher_->setHandled();
     }
     else if ( eventinfo.mousebutton==visBase::EventInfo::rightMouseButton() && 
 	      eventinfo.shift && !eventinfo.ctrl && !eventinfo.alt &&
@@ -585,7 +585,7 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 	    else 
 		engine_.setTrackMode( MPE::TrackPlane::Move );
 	}
-	sceneeventcatcher_->eventIsHandled();
+	sceneeventcatcher_->setHandled();
     }
     else if ( eventinfo.mousebutton==visBase::EventInfo::leftMouseButton() &&
 	     !eventinfo.shift && !eventinfo.ctrl && !eventinfo.alt &&
@@ -593,7 +593,7 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 	     eventinfo.pickedobjids.indexOf(boxdragger_->id())==-1 )
     {
 	showBoxDragger( false );
-	sceneeventcatcher_->eventIsHandled();
+	sceneeventcatcher_->setHandled();
     }
 }
 

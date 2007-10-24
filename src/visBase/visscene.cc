@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2002
- RCS:           $Id: visscene.cc,v 1.33 2006-08-23 19:02:20 cvskris Exp $
+ RCS:           $Id: visscene.cc,v 1.34 2007-10-24 20:05:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,7 +111,7 @@ void Scene::mousePickCB( CallBacker* cb )
 	return;
 
     mCBCapsuleUnpack(const EventInfo&,eventinfo,cb);
-    if ( events_.isEventHandled() )
+    if ( events_.isHandled() )
     {
 	if ( eventinfo.type==MouseClick )
 	    mousedownid_ = -1;

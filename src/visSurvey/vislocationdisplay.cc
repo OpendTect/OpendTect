@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.30 2007-10-22 04:37:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.31 2007-10-24 20:05:28 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -256,7 +256,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    }
 	}
 
-	eventcatcher_->eventIsHandled();
+	eventcatcher_->setHandled();
     }
     else if ( waitsforpositionid_!=-1 )
     {
@@ -270,7 +270,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    picksetmgr_->reportChange( 0, cd );
 	}
 
-	eventcatcher_->eventIsHandled();
+	eventcatcher_->setHandled();
     }
 
     if ( eventinfo.type != visBase::MouseClick ||
@@ -309,14 +309,14 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    {
 		setUnpickable( true );
 		waitsforpositionid_ = selfpickidx;
-		eventcatcher_->eventIsHandled();
+		eventcatcher_->setHandled();
 	    }
 	    const int selfdirpickidx = isDirMarkerClick(eventinfo.pickedobjids);
 	    if ( selfdirpickidx!=-1 )
 	    {
 		setUnpickable( true );
 		waitsfordirectionid_ = selfpickidx;
-		eventcatcher_->eventIsHandled();
+		eventcatcher_->setHandled();
 	    }
 	}
     }
@@ -331,7 +331,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 		if ( removeidx!=-1 ) removePick( removeidx );
 	    }
 
-	    eventcatcher_->eventIsHandled();
+	    eventcatcher_->setHandled();
 	}
 	else if ( !eventinfo.ctrl && !eventinfo.alt && !eventinfo.shift )
 	{
@@ -354,7 +354,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 			    waitsfordirectionid_ = set_->size()-1;
 			}
 
-			eventcatcher_->eventIsHandled();
+			eventcatcher_->setHandled();
 		    }
 		}
 	    }

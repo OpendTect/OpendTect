@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: visevent.cc,v 1.24 2007-08-31 12:48:58 cvskris Exp $
+ RCS:           $Id: visevent.cc,v 1.25 2007-10-24 20:05:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,7 +150,7 @@ EventCatcher::~EventCatcher()
 }
 
 
-bool EventCatcher::isEventHandled() const
+bool EventCatcher::isHandled() const
 {
 /*
     For some reason, the action associated with some events
@@ -162,7 +162,7 @@ bool EventCatcher::isEventHandled() const
 }
 
 
-void EventCatcher::eventIsHandled()
+void EventCatcher::setHandled()
 {
 /*
     For some reason, the action associated with some events
@@ -179,7 +179,7 @@ SoNode* EventCatcher::getInventorNode()
 void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
 {
     EventCatcher* eventcatcher = (EventCatcher*) userdata;
-    if ( eventcatcher->isEventHandled() ) return;
+    if ( eventcatcher->isHandled() ) return;
     const SoEvent* event = evcb->getEvent();
 
     EventInfo eventinfo;

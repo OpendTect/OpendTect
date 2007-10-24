@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.103 2007-10-22 04:37:13 cvsnanne Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.104 2007-10-24 20:05:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,7 +127,7 @@ void EMObjectDisplay::setSceneEventCatcher( visBase::EventCatcher* ec )
 
 void EMObjectDisplay::clickCB( CallBacker* cb )
 {
-    if ( !isOn() || eventcatcher_->isEventHandled() || !isSelected() )
+    if ( !isOn() || eventcatcher_->isHandled() || !isSelected() )
 	return;
 
     if ( editor_ && !editor_->clickCB( cb ) )
@@ -159,7 +159,7 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     {
 	editor_->mouseClick( closestnode, eventinfo.shift, eventinfo.alt,
 			    eventinfo.ctrl );
-	eventcatcher_->eventIsHandled();
+	eventcatcher_->setHandled();
     }
     else if ( keycb )
     {

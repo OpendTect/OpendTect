@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.18 2007-08-31 12:48:58 cvskris Exp $
+ RCS:		$Id: visevent.h,v 1.19 2007-10-24 20:05:28 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -89,8 +89,8 @@ public:
 
     SoNode*			getInventorNode();
 
-    bool			isEventHandled() const;
-    void			eventIsHandled();
+    bool			isHandled() const;
+    void			setHandled();
 
     void			fillPar( IOPar&, TypeSet<int>& ) const;
     int				usePar( const IOPar& );

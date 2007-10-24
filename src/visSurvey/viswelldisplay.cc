@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.72 2007-10-22 04:37:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.73 2007-10-24 20:05:28 cvskris Exp $";
 
 #include "viswelldisplay.h"
 
@@ -519,7 +519,7 @@ void WellDisplay::pickCB( CallBacker* cb )
 	mousepressid_ = eventid;
 	mousepressposition_ = eventid==-1
 	    ? Coord3::udf() : eventinfo.displaypickedpos;
-	eventcatcher_->eventIsHandled();
+	eventcatcher_->setHandled();
     }
     else
     {
@@ -545,7 +545,7 @@ void WellDisplay::pickCB( CallBacker* cb )
 		}
 	    }
 
-	    eventcatcher_->eventIsHandled();
+	    eventcatcher_->setHandled();
 	}
 	else if ( !eventinfo.ctrl && !eventinfo.alt && !eventinfo.shift )
 	{
@@ -576,7 +576,7 @@ void WellDisplay::pickCB( CallBacker* cb )
 		}
 	    }
 
-	    eventcatcher_->eventIsHandled();
+	    eventcatcher_->setHandled();
 	}
     }
 }

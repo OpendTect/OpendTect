@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.23 2007-07-26 22:20:22 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.24 2007-10-24 20:05:28 cvskris Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -144,7 +144,7 @@ MPEClickInfo& MPEClickCatcher::info()
 
 void MPEClickCatcher::clickCB( CallBacker* cb )
 {
-    if ( eventcatcher_->isEventHandled() || !isOn() )
+    if ( eventcatcher_->isHandled() || !isOn() )
 	return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
@@ -175,7 +175,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	if ( hor2ddisp )
 	{
 	    sendUnderlying2DSeis( hor2ddisp, eventinfo );
-	    eventcatcher_->eventIsHandled();
+	    eventcatcher_->setHandled();
 	    break;
 	}
 
@@ -183,7 +183,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	if ( emod )
 	{
 	    sendUnderlyingPlanes( emod, eventinfo );
-	    eventcatcher_->eventIsHandled();
+	    eventcatcher_->setHandled();
 	    break;
 	}
 
@@ -195,7 +195,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	{
 	    info().setLegalClick( false );
 	    click.trigger();
-	    eventcatcher_->eventIsHandled();
+	    eventcatcher_->setHandled();
 	    break;
 	}
 
@@ -207,7 +207,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    info().setObjData( plane->getCacheVolume(false) );
 	    info().setObjDataSelSpec( plane->getSelSpec(0) );
 	    click.trigger();
-	    eventcatcher_->eventIsHandled();
+	    eventcatcher_->setHandled();
 	    break;
 	}
 
@@ -217,7 +217,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    info().setLegalClick( legalclick2 );
 	    info().setObjCS( cs );
 	    click.trigger();
-	    eventcatcher_->eventIsHandled();
+	    eventcatcher_->setHandled();
 	    break;
 	}
 
@@ -241,7 +241,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    info().setObjLineName( seis2ddisp->name() );
 	    info().setObjLineData( cache );
 	    click.trigger();
-	    eventcatcher_->eventIsHandled();
+	    eventcatcher_->setHandled();
 	    break;
 	}
     }

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.22 2007-06-21 19:35:21 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.23 2007-10-24 20:05:28 cvskris Exp $";
 
 #include "vismpeeditor.h"
 
@@ -375,7 +375,7 @@ void MPEEditor::interactionLineRightClickCB( CallBacker* )
 
 bool MPEEditor::clickCB( CallBacker* cb )
 {
-    if ( eventcatcher->isEventHandled() || !isOn() )
+    if ( eventcatcher->isHandled() || !isOn() )
 	return true;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb );
@@ -400,7 +400,7 @@ bool MPEEditor::clickCB( CallBacker* cb )
     {
 	rightclicknode = nodeidx;
 	noderightclick.trigger();
-	eventcatcher->eventIsHandled();
+	eventcatcher->setHandled();
 	return false;
     }
 
@@ -411,7 +411,7 @@ bool MPEEditor::clickCB( CallBacker* cb )
 	 !eventinfo.alt )
     {
 	extendInteractionLine( posids[nodeidx] );
-	eventcatcher->eventIsHandled();
+	eventcatcher->setHandled();
 	return false;
     }
 

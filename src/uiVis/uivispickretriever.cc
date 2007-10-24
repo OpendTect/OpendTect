@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivispickretriever.cc,v 1.5 2007-09-28 17:10:41 cvskris Exp $
+ RCS:           $Id: uivispickretriever.cc,v 1.6 2007-10-24 20:05:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,10 +77,10 @@ void uiVisPickRetriever::pickCB( CallBacker* cb )
 	}
     }
 
-    if ( !scene || scene->eventCatcher().isEventHandled() )
+    if ( !scene || scene->eventCatcher().isHandled() )
 	return;
 
-    scene->eventCatcher().eventIsHandled();
+    scene->eventCatcher().setHandled();
 
     if ( eventinfo.pressed ) //Block other objects from taking action
 	return;
