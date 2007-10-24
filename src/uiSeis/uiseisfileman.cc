@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.67 2007-10-23 08:15:56 cvsbert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.68 2007-10-24 07:52:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,38 +12,40 @@ ________________________________________________________________________
 
 #include "uiseisfileman.h"
 #include "uiseispsman.h"
-#include "iostrm.h"
-#include "ioman.h"
-#include "iopar.h"
+
 #include "cbvsreadmgr.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
-#include "seistrctr.h"
-#include "seis2dline.h"
-#include "seiscbvs.h"
-#include "seispsioprov.h"
-#include "uiseisioobjinfo.h"
-#include "uiioobjsel.h"
-#include "uibutton.h"
-#include "uilistbox.h"
-#include "uimsg.h"
-#include "uigeninputdlg.h"
-#include "uimergeseis.h"
-#include "uiseiscbvsimp.h"
-#include "uiseis2dgeom.h"
-#include "uiseisbrowser.h"
-#include "uiioobjmanip.h"
-#include "uitextedit.h"
-#include "pixmap.h"
-#include "survinfo.h"
-#include "oddirs.h"
 #include "filegen.h"
 #include "filepath.h"
+#include "ioman.h"
+#include "iopar.h"
+#include "iostrm.h"
 #include "keystrs.h"
+#include "oddirs.h"
+#include "pixmap.h"
+#include "seiscbvs.h"
+#include "seispsioprov.h"
+#include "seistrctr.h"
+#include "seis2dline.h"
+#include "survinfo.h"
+
+#include "uibutton.h"
+#include "uigeninputdlg.h"
+#include "uiioobjmanip.h"
+#include "uiioobjsel.h"
+#include "uilistbox.h"
+#include "uimergeseis.h"
+#include "uimsg.h"
+#include "uiseisbrowser.h"
+#include "uiseiscbvsimp.h"
+#include "uiseisioobjinfo.h"
+#include "uiseis2dgeom.h"
+#include "uisplitter.h"
+#include "uitextedit.h"
 
 
 static const int cPrefWidth = 50;
-
 
 uiSeisFileMan::uiSeisFileMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Seismic file management",
@@ -248,7 +250,7 @@ uiSeis2DMan( uiParent* p, const IOObj& ioobj )
     objinfo = new uiSeisIOObjInfo( ioobj );
     lineset = new Seis2DLineSet( ioobj.fullUserExpr(true) );
 
-    uiGroup* topgrp = new uiGroup( this, "" );
+    uiGroup* topgrp = new uiGroup( this, "Top" );
     linelist = new uiLabeledListBox( topgrp, "2D lines", true,
 	    			     uiLabeledListBox::AboveMid );
     linelist->box()->selectionChanged.notify( mCB(this,uiSeis2DMan,lineSel) );
@@ -275,12 +277,15 @@ uiSeis2DMan( uiParent* p, const IOObj& ioobj )
 		       "Browse/edit this line" );
     butgrp->attach( rightTo, attriblist->box() );
 
-    infofld = new uiTextEdit( this, "File Info", true );
-    infofld->attach( alignedBelow, topgrp );
-    infofld->attach( widthSameAs, topgrp );
-    infofld->setPrefHeightInChar( 5 );
+    uiGroup* botgrp = new uiGroup( this, "Bottom" );
+    infofld = new uiTextEdit( botgrp, "File Info", true );
+    infofld->setPrefHeightInChar( 8 );
     infofld->setPrefWidthInChar( 50 );
-    
+
+    uiSplitter* splitter = new uiSplitter( this, "Splitter", false );
+    splitter->addGroup( topgrp );
+    splitter->addGroup( botgrp );
+
     fillLineBox();
     lineSel(0);
 }
