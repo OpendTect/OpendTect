@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.56 2007-06-29 11:31:20 cvshelene Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.57 2007-10-24 04:41:46 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -81,6 +81,10 @@ public:
     bool			removeAttrib(int);
     const Attrib::SelSpec*	getSelSpec(int) const;
     void			setSelSpec( int, const Attrib::SelSpec& );
+
+    int				nrTextures(int)const;
+    void			selectTexture(int,int);
+    int				selectedTexture(int)const;
 
     void			getDataTraceBids(TypeSet<BinID>&) const;
     Interval<float>		getDataTraceRange() const;
