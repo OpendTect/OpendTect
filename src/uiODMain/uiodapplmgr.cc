@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.211 2007-10-22 09:59:18 cvsraman Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.212 2007-10-24 04:49:12 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -523,24 +523,17 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    const Interval<float> zrg = visserv_->getDataTraceRange( visid );
 	    TypeSet<BinID> bids;
 	    visserv_->getDataTraceBids( visid, bids );
-	    BinIDValueSet bidset(2,false);
-	    for ( int idx=0; idx<bids.size(); idx++ )
-		bidset.add( bids[idx], zrg.start, zrg.stop );
-	    SeisTrcBuf data( true );
 	    attrserv_->setTargetSelSpec( myas );
 	    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
 		    	    visserv_->getObject(visid) );
 	    TypeSet<BinID>* trcspath = rdmtdisp ? rdmtdisp->getPath() : 0;
 	    const DataPack::ID newid = 
-		    attrserv_->createRdmTrcsOutput( bidset, data, trcspath );
+		    attrserv_->createRdmTrcsOutput( zrg, trcspath );
+	    res = true;
 	    if ( newid == -1 )
-	    {
-		visserv_->setTraceData( visid, attrib, data );
-		return false;
-	    }
-
+		res = false;
 	    visserv_->setDataPackID( visid, attrib, newid );
-	    return true;
+	    return res;;
 	}
 	case uiVisPartServer::RandomPos :
 	{
@@ -607,6 +600,18 @@ bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
 	const CubeSampling cs = visserv_->getCubeSampling( visid );
 	RefMan<const Attrib::DataCubes> newdata = attrserv_->createOutput( cs );
 	visserv_->setCubeData( visid, attrib, newdata );
+    }
+    else if ( format==uiVisPartServer::Traces )
+    {
+	const Interval<float> zrg = visserv_->getDataTraceRange( visid );
+	TypeSet<BinID> bids;
+	visserv_->getDataTraceBids( visid, bids );
+	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
+			visserv_->getObject(visid) );
+	TypeSet<BinID>* trcspath = rdmtdisp ? rdmtdisp->getPath() : 0;
+	const DataPack::ID dpid =
+	    	attrserv_->createRdmTrcsOutput( zrg, trcspath );
+	visserv_->setDataPackID( visid, attrib, dpid );
     }
     else if ( format==uiVisPartServer::RandomPos )
     {
