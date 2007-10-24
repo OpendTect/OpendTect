@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseispsman.cc,v 1.1 2007-08-29 09:52:40 cvsbert Exp $
+ RCS:           $Id: uiseispsman.cc,v 1.2 2007-10-24 07:52:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p )
     : uiObjFileMan(p,uiDialog::Setup("Pre-stack seismics management",
                                      "Manage Pre-stack seismics",
-                                     "103.4.0"),
+                                     "103.4.0").nrstatusflds(1),
 	    	   SeisPSTranslatorGroup::ioContext() )
 {
     createDefaultUI();
