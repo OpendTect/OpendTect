@@ -17,9 +17,9 @@ uiBase
 uiTools
 uiFlatView
 uiIo
+uiStrat
 uiEarthModel
 uiNLA
-uiStrat
 uiSeis
 uiAttributes
 uiPreStackProcessing
