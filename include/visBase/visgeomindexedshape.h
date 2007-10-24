@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: visgeomindexedshape.h,v 1.1 2007-09-14 13:11:30 cvskris Exp $
+ RCS:		$Id: visgeomindexedshape.h,v 1.2 2007-10-24 20:00:42 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -32,6 +32,9 @@ class GeomIndexedShape : public VisualObjectImpl
 public:
     static GeomIndexedShape*	create()
 				mCreateDataObj(GeomIndexedShape);
+
+    void			setDisplayTransformation(mVisTrans*);
+    mVisTrans*			getDisplayTransformation();
 
     void			setSurface(Geometry::IndexedShape*);
     				//!<Does not become mine, should remain

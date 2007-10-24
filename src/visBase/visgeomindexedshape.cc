@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: visgeomindexedshape.cc,v 1.3 2007-10-24 16:49:38 cvskris Exp $
+ RCS:           $Id: visgeomindexedshape.cc,v 1.4 2007-10-24 20:00:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,14 @@ GeomIndexedShape::~GeomIndexedShape()
     coords_->unRef();
     normals_->unRef();
 }
+
+
+void GeomIndexedShape::setDisplayTransformation( mVisTrans* nt )
+{ coords_->setDisplayTransformation( nt ); }
+
+
+mVisTrans* GeomIndexedShape::getDisplayTransformation()
+{ return coords_->getDisplayTransformation(); }
 
 
 void GeomIndexedShape::setRightHandSystem( bool yn )
