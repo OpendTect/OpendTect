@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.94 2007-10-22 04:37:13 cvsnanne Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.95 2007-10-24 04:42:17 cvsraman Exp $
  ________________________________________________________________________
 
 -*/
@@ -380,6 +380,8 @@ bool RandomTrackDisplay::setDataPackID( int attrib, DataPack::ID dpid )
     if ( !dprdm )
     {
 	dpman.release( dpid );
+	SeisTrcBuf trcbuf( false );
+	setTraceData( attrib, trcbuf );
 	return false;
     }
 
@@ -431,40 +433,47 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
     TypeSet<BinID> path;
     getDataTraceBids( path );
 
-    Array2DImpl<float> array( path.size(), nrsamp );
-    float* dataptr = array.getData();
-
-    for ( int idx=array.info().getTotalSz()-1; idx>=0; idx-- )
-	dataptr[idx] = mUdf(float);
-
-    for ( int posidx=path.size()-1; posidx>=0; posidx-- )
+    const int nrslices = trcbuf.get(0)->nrComponents();
+    texture_->setNrVersions( attrib, nrslices );
+    for ( int sidx=0; sidx<nrslices; sidx++ )
     {
-	const BinID bid = path[posidx];
-	const int trcidx = trcbuf.find( bid, false );
-	if ( trcidx<0 )
-	    continue;
+	Array2DImpl<float> array( path.size(), nrsamp );
+	float* dataptr = array.getData();
 
-	const SeisTrc* trc = trcbuf.get( trcidx );
-	if ( !trc )
-	    continue;
+	for ( int idx=array.info().getTotalSz()-1; idx>=0; idx-- )
+	    dataptr[idx] = mUdf(float);
 
-	float* arrptr = dataptr + array.info().getOffset( posidx, 0 );
-
-	if ( !datatransform_ )
+	for ( int posidx=path.size()-1; posidx>=0; posidx-- )
 	{
-	    for ( int ids=0; ids<nrsamp; ids++ )
-	    {
-		const float ctime = zrg.start + ids*step;
-		if ( !trc->dataPresent(ctime) )
-		    continue;
+	    const BinID bid = path[posidx];
+	    const int trcidx = trcbuf.find( bid, false );
+	    if ( trcidx<0 )
+		continue;
 
-		arrptr[ids] = trc->getValue(ctime,0);
+	    const SeisTrc* trc = trcbuf.get( trcidx );
+	    if ( !trc || sidx>trc->nrComponents() )
+		continue;
+
+	    float* arrptr = dataptr + array.info().getOffset( posidx, 0 );
+
+	    if ( !datatransform_ )
+	    {
+		for ( int ids=0; ids<nrsamp; ids++ )
+		{
+		    const float ctime = zrg.start + ids*step;
+		    if ( !trc->dataPresent(ctime) )
+			continue;
+
+		    arrptr[ids] = trc->getValue(ctime,sidx);
+		}
+	    }
+	    else
+	    {
+		//todo
 	    }
 	}
-	else
-	{
-	    //todo
-	}
+
+	texture_->setData( attrib, sidx, &array, true );
     }
 
     const LinScaler horscale( -0.5, 0, path.size()-0.5, 1 );
@@ -490,7 +499,6 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 					      Coord3(bottomtcoord,horcoord,0));
     }
 
-    texture_->setData( attrib, 0, &array, true );
     texture_->turnOn( true );
 }
 
@@ -844,6 +852,29 @@ bool RandomTrackDisplay::isAttribEnabled( int attrib ) const
 void RandomTrackDisplay::enableAttrib( int attrib, bool yn )
 {
     texture_->enableTexture( attrib, yn );
+}
+
+
+int RandomTrackDisplay::nrTextures( int attrib ) const
+{
+    return texture_->nrVersions( attrib );
+}
+
+
+void RandomTrackDisplay::selectTexture( int attrib, int idx )
+{
+    if ( attrib<0 || attrib>=nrAttribs() ||
+	 idx<0 || idx>=texture_->nrVersions(attrib) ) return;
+
+    texture_->setCurrentVersion( attrib, idx );
+}
+
+
+int RandomTrackDisplay::selectedTexture( int attrib ) const
+{ 
+    if ( attrib<0 || attrib>=nrAttribs() ) return 0;
+
+    return texture_->currentVersion( attrib );
 }
 
 
