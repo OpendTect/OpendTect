@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.75 2007-10-11 12:13:47 cvsraman Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.76 2007-10-24 04:44:22 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ ________________________________________________________________________
 #include "nlamodel.h"
 #include "posvecdataset.h"
 #include "ptrman.h"
+#include "seisbuf.h"
 #include "seisinfo.h"
 #include "survinfo.h"
 #include "settings.h"
@@ -501,15 +502,19 @@ bool uiAttribPartServer::createOutput( ObjectSet<BinIDValueSet>& values )
 }
 
 
-DataPack::ID uiAttribPartServer::createRdmTrcsOutput( 
-					    const BinIDValueSet& bidvalset,
-					    SeisTrcBuf& output,
-       					    TypeSet<BinID>* path )
+DataPack::ID uiAttribPartServer::createRdmTrcsOutput(
+				const Interval<float>& zrg,
+				TypeSet<BinID>* path )
 {
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
-    if ( !createOutput( bidvalset, output ) )
+    BinIDValueSet bidset( 2, false );
+    for ( int idx=0; idx<path->size(); idx++ )
+	bidset.add( (*path)[idx], zrg.start, zrg.stop );
+
+    SeisTrcBuf output( true );
+    if ( !createOutput(bidset,output) )
 	return -1;
 
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
     DataPack* newpack =
 		new Attrib::FlatRdmTrcsDataPack( targetID(false), output, path);
     newpack->setName( targetspecs_[0].userRef() );

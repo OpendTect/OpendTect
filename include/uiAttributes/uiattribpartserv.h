@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.30 2007-10-22 11:36:36 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.31 2007-10-24 04:43:49 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,8 +110,8 @@ public:
 				          const Attrib::DataCubes* prevslcs=0);
     bool		createOutput(ObjectSet<BinIDValueSet>&);
     bool		createOutput(const BinIDValueSet&,SeisTrcBuf&);
-    DataPack::ID	createRdmTrcsOutput(const BinIDValueSet&,SeisTrcBuf&,
-	    				    TypeSet<BinID>*);
+    DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
+	    				    TypeSet<BinID>* path);
     DataPack::ID	create2DOutput(const CubeSampling&,const LineKey&);
 
     bool		isDataAngles(bool) const;
