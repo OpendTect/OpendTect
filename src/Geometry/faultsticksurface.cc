@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: faultsticksurface.cc,v 1.2 2007-10-19 15:54:45 cvsjaap Exp $";
+static const char* rcsID = "$Id: faultsticksurface.cc,v 1.3 2007-10-24 16:18:13 cvskris Exp $";
 
 #include "faultsticksurface.h"
 
@@ -35,6 +35,20 @@ FaultStickSurface::~FaultStickSurface()
 {
     deepErase( sticks_ );
 }
+
+
+Element* FaultStickSurface::clone() const
+{
+    FaultStickSurface* res = new FaultStickSurface;
+    deepCopy( res->sticks_, sticks_ );
+    res->firstcols_ = firstcols_;
+    res->firstrow_ = firstrow_;
+    res->sticksvertical_ = sticksvertical_;
+    res->editplanenormals_ = editplanenormals_;
+
+    return res;
+}
+
 
 
 bool FaultStickSurface::insertStick( const Coord3& firstpos, 

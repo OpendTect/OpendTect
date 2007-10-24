@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl / J.C. Glas
 Date:          September 2007
-RCS:           $Id: faultsticksurface.h,v 1.4 2007-10-19 15:54:45 cvsjaap Exp $
+RCS:           $Id: faultsticksurface.h,v 1.5 2007-10-24 16:18:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class FaultStickSurface : public RowColSurface
 { mRefCountImpl(FaultStickSurface);
 public:
     			FaultStickSurface();
+    Element*		clone() const;
 
     bool		insertStick(const Coord3& firstpos,
 				    const Coord3& editnormal,int sticknr=0);
