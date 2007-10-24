@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: visgeomindexedshape.cc,v 1.2 2007-10-05 16:55:32 cvsyuancheng Exp $
+ RCS:           $Id: visgeomindexedshape.cc,v 1.3 2007-10-24 16:49:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ void GeomIndexedShape::setRightHandSystem( bool yn )
 	normals_->inverse();
 
     VisualObjectImpl::setRightHandSystem( yn );
-    shape_->setRightHandedNormals( yn );
+    if ( shape_ ) shape_->setRightHandedNormals( yn );
 }
 
 
