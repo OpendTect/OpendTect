@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.22 2007-08-24 11:56:55 cvsnanne Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.23 2007-10-24 07:48:32 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "emsurface.h"
 #include "emhorizon3d.h"
+#include "emhorizon2d.h"
 #include "emmanager.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -156,8 +157,10 @@ uiCopySurface::~uiCopySurface()
 
 CtxtIOObj& uiCopySurface::mkCtxtIOObj( const IOObj& ioobj )
 {
-    return !strcmp(ioobj.group(),EM::Horizon3D::typeStr())
-	? *mMkCtxtIOObj(EMHorizon3D) : *mMkCtxtIOObj(EMFault);
+    return !strcmp(ioobj.group(),EM::Horizon3D::typeStr()) ? 
+			*mMkCtxtIOObj(EMHorizon3D) : 
+	 ( !strcmp(ioobj.group(),EM::Horizon2D::typeStr()) ? 
+	   		*mMkCtxtIOObj(EMHorizon2D) : *mMkCtxtIOObj(EMFault) );
 }
 
 
