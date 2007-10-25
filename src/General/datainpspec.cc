@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.23 2007-08-13 13:11:16 cvsjaap Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.24 2007-10-25 15:05:31 cvssatyaki Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -421,63 +421,122 @@ void StringListInpSpec::setDefaultValue( int i, int idx )
 { if ( i < strings_.size() ) defaultval_ = i; }
 
 
-PositionInpSpec::PositionInpSpec( bool docrd, float x_inline, float y_crossline,
-				  bool isrelative, const RCol2Coord* b2c )
-    : DataInpSpec( DataTypeImpl<int>(DataType::binID) )
-    , x_inl_( x_inline )
-    , y_crl_( y_crossline )
-    , docoord_( docrd )
-    , isrelative_( isrelative )
-    , b2c_( b2c )
-    , defaultx_inl_( mUdf(float) )
-    , defaulty_crl_( mUdf(float) )
-{}
+#define mGetMembAsFloat(s,idx) ( \
+    idx > 1 ? s.offs_ :	( \
+    s.wantcoords_  ? (idx == 0 ? (float)s.coord_.x : (float)s.coord_.y) \
+	   : (s.is2d_ ? (idx == 0 ? (float)s.binid_.crl : s.offs_) \
+		      : (float)(idx == 0 ? s.binid_.inl : s.binid_.crl) ) \
+			) \
+   )
+
+#define mSetMemb(s,idx,f) { \
+    if ( idx > 1 || (s.is2d_ && !s.wantcoords_ && idx == 1) ) \
+	s.offs_ = f; \
+    else if ( s.wantcoords_  ) \
+       	(idx == 0 ? s.coord_.x : s.coord_.y) = f; \
+    else if ( !s.is2d_ && idx == 0 ) \
+      s.binid_.inl = mNINT(f); \
+    else \
+      s.binid_.crl = mNINT(f); \
+}
 
 
-DataInpSpec* PositionInpSpec::clone() const   
-{ return new PositionInpSpec( *this ); }
+PositionInpSpec::PositionInpSpec( const PositionInpSpec::Setup& s )
+    : DataInpSpec( DataTypeImpl<float>(DataType::position) )
+    , setup_(s)
+{
+    defsetup_.clear();
+}
+
+
+PositionInpSpec::PositionInpSpec( const BinID& bid, bool isps )
+    : DataInpSpec( DataTypeImpl<float>(DataType::position) )
+{
+    setup_ = Setup( false, false, isps );
+    setup_.binid_ = bid;
+}
+
+
+PositionInpSpec::PositionInpSpec( const Coord& c, bool isps, bool is2d )
+    : DataInpSpec( DataTypeImpl<float>(DataType::position) )
+{
+    setup_ = Setup( true, is2d, isps );
+    setup_.coord_ = c;
+}
+
+
+PositionInpSpec::PositionInpSpec( int trcnr, bool isps )
+    : DataInpSpec( DataTypeImpl<float>(DataType::position) )
+{
+    setup_ = Setup( false, true, isps );
+    setup_.binid_.crl = trcnr;
+}
 
 
 int PositionInpSpec::nElems() const
-{ return 2; }
-
-
-float PositionInpSpec::value( int idx ) const
-{ return idx==0 ? x_inl_ : y_crl_; }
+{
+    const bool usetrcnr = setup_.is2d_ && !setup_.wantcoords_;
+    int nr = setup_.isps_ ? 1 : 0;
+    nr += usetrcnr ? 1 : 2;
+    return nr;
+}
 
 
 bool PositionInpSpec::isUndef( int idx ) const
 {
-    if ( idx<0 || idx>1 ) return true;
-    return idx==0 ? mIsUdf( x_inl_ ) : mIsUdf( y_crl_ );
-} 
+    if ( idx < 0 || idx > 2 || (!setup_.isps_ && idx > 1) )
+	return true;
+
+    const float v = getVal( setup_, idx );
+    return mIsUdf(v);
+}
+
+
+Coord PositionInpSpec::getCoord( double udfval ) const
+{
+    return mIsUdf(setup_.coord_.x) ? Coord(udfval,udfval) : setup_.coord_;
+}
+
+
+BinID PositionInpSpec::getBinID( int udfval ) const
+{
+    return mIsUdf(setup_.binid_.inl) ? BinID(udfval,udfval) : setup_.binid_;
+}
+
+
+int PositionInpSpec::getTrcNr( int udfval ) const
+{
+    return mIsUdf(setup_.binid_.crl) ? udfval : setup_.binid_.crl;
+}
+
+
+float PositionInpSpec::getOffset( float udfval ) const
+{
+    return mIsUdf(setup_.offs_) ? udfval : setup_.offs_;
+}
 
 
 const char* PositionInpSpec::text( int idx ) const
 {
-    return isUndef(idx) ? "" : toString( value(idx) );
+    const float v = getVal( setup_, idx );
+    return getStringFromFloat( 0, v );
 }
 
 
 bool PositionInpSpec::setText( const char* s, int idx ) 
-{ return getFromString( idx==0 ? x_inl_ : y_crl_, s); }
-
-
-const char* PositionInpSpec::otherTxt() const
 {
-    if ( docoord_ ) { return "Inline/Xline ..."; }
-    return isrelative_ ? "Distance ..." : "Coords ...";
+    setVal( setup_, idx, atof(s) );
+    return true;
 }
 
 
-const RCol2Coord* PositionInpSpec::binID2Coord() const
-{ return b2c_; }
+void PositionInpSpec::setVal( Setup& s, int idx, float f )
+{
+    mSetMemb( s, idx, f );
+}
 
 
-float PositionInpSpec::defaultValue( int idx ) const
-{ return idx==0 ? defaultx_inl_ : defaulty_crl_; }
-
-
-void PositionInpSpec::setDefaultValue( float f, int idx )
-{ idx==0 ? defaultx_inl_= f : defaulty_crl_= f; }
-
+float PositionInpSpec::getVal( const Setup& s, int idx ) const
+{
+    return mGetMembAsFloat(s,idx);
+}

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.66 2007-08-13 13:11:16 cvsjaap Exp $
+ RCS:           $Id: datainpspec.h,v 1.67 2007-10-25 15:05:31 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ class DataType
 public:
 
     enum		Rep  { intTp, floatTp, doubleTp, boolTp, stringTp };
-    enum		Form { normal, interval, filename, list, binID };
+    enum		Form { normal, interval, filename, position, list };
 
 			DataType( Rep tp, Form frm=normal ) 
 			    : rep_( tp ), form_(frm) {}
@@ -140,7 +140,9 @@ protected:
     TypeSet<const char*>   name_;
 
 private:
+
     static const char*	valuestr;
+
 };
 
 
@@ -594,112 +596,115 @@ protected:
 class StringListInpSpec : public DataInpSpec
 {
 public:
-    			StringListInpSpec( const BufferStringSet& bss );
-			StringListInpSpec( const char** sl=0 );
-			StringListInpSpec( const StringListInpSpec& oth );
+    			StringListInpSpec(const BufferStringSet&);
+			StringListInpSpec(const char** sl=0);
+			StringListInpSpec(const StringListInpSpec&);
 			~StringListInpSpec();
 
-    virtual bool	isUndef( int idx=0 ) const;
+    virtual bool	isUndef(int idx=0) const;
 
     virtual DataInpSpec* clone() const;
 
     const BufferStringSet& strings() const;
 
-    void		addString( const char* txt );
-    virtual const char*	text( int idx=0 ) const;
-    void		setItemText( int idx, const char* s );
-    virtual bool	setText( const char* s, int nr );
+    void		addString(const char* txt);
+    virtual const char*	text(int idx=0) const;
+    void		setItemText(int idx, const char* s);
+    virtual bool	setText(const char* s,int nr);
 
-    virtual int		getIntValue( int idx=0 ) const;
-    virtual double	getdValue( int idx=0 ) const;
-    virtual float	getfValue( int idx=0 ) const;
+    virtual int		getIntValue(int idx=0) const;
+    virtual double	getdValue(int idx=0) const;
+    virtual float	getfValue(int idx=0) const;
 
-    virtual void	setValue( int i, int idx=0 );
-    virtual void	setValue( double d, int idx=0 );
-    virtual void	setValue( float f, int idx=0 );
+    virtual void	setValue(int i,int idx=0);
+    virtual void	setValue(double d,int idx=0);
+    virtual void	setValue(float f,int idx=0);
 
-    virtual void	setDefaultValue( int i, int idx=0 );
-    virtual int		getDefaultIntValue( int idx=0 ) const;
+    virtual void	setDefaultValue(int i,int idx=0);
+    virtual int		getDefaultIntValue(int idx=0) const;
 
     bool		isSet() const			{ return isset_; }
     void		setSet( bool yn=true )		{ isset_ = yn; }
+
 protected:
 
     BufferStringSet	strings_;
     int			cur_;
     int			defaultval_;
     bool		isset_;
+
 };
 
 
-/*! \brief Specifications for BinID/Coordinate inputs.
-*/
+/*! \brief Specifications for BinID/Coordinate/TrcNrs and offsets */
+
 class PositionInpSpec : public DataInpSpec
 {
 public:
-			PositionInpSpec(bool docrd,
-					float x_inl=mUdf(float),
-					float y_crl=mUdf(float),
-					bool isrel=false,
-					const RCol2Coord* b2c=0);
 
-    virtual DataInpSpec* clone() const;
-    virtual int 	nElems()  const;
+    struct Setup
+    {
+			Setup( bool wc=false, bool d2=false, bool ps=false )
+			    : wantcoords_(wc)
+			    , is2d_(d2)
+			    , isps_(ps)
+			    , isrel_(false)	{ clear(); }
 
-    float		value(int idx=0) const;
+	mDefSetupMemb(bool,wantcoords)
+	mDefSetupMemb(bool,is2d)
+	mDefSetupMemb(bool,isps)
+	mDefSetupMemb(bool,isrel)
+	mDefSetupMemb(Coord,coord)
+	mDefSetupMemb(BinID,binid) // For 2D, put trace number in crl
+	mDefSetupMemb(float,offs)
+
+	void		clear()
+			{
+			    coord_.x = coord_.y = mUdf(double);
+			    binid_.inl = binid_.crl = mUdf(int);
+			    offs_ = 0;
+			}
+    };
+
+    			PositionInpSpec(const Setup&);
+    			PositionInpSpec(const BinID&,bool isps=false);
+    			PositionInpSpec(const Coord&,bool isps=false,
+						     bool is2d=false);
+    			PositionInpSpec(int trcnr,bool isps=false);
+
+    virtual DataInpSpec* clone() const	{ return new PositionInpSpec(*this); }
+    virtual int 	nElems() const;
+
+    float		value( int idx=0 ) const
+			{ return getVal(setup_,idx); }
+    void		setValue( float f, int idx=0 )
+			{ setVal( setup_, idx, f ); }
     virtual bool	isUndef(int idx=0) const;
     virtual const char*	text(int idx=0) const;
     virtual bool	setText(const char* s,int idx=0);
 
-    const char*		otherTxt() const;
-    const RCol2Coord*	binID2Coord() const;
+    float		defaultValue( int idx=0 ) const
+			{ return getVal(defsetup_,idx); }
+    void		setDefaultValue( float f, int idx=0 )
+			{ setVal( defsetup_, idx, f ); }
 
-    float		defaultValue(int idx=0) const;
-    void		setDefaultValue(float f, int idx=0);
+    Setup&		setup( bool def=false )
+    			{ return def ? defsetup_ : setup_; }
+    const Setup&	setup( bool def=false ) const
+    			{ return def ? defsetup_ : setup_; }
+
+    Coord		getCoord(double udfval=mUdf(double)) const;
+    BinID		getBinID(int udfval=mUdf(int)) const;
+    int			getTrcNr(int udfval=mUdf(int)) const;
+    float		getOffset(float udfval=mUdf(float)) const;
+
 protected:
 
-    double		x_inl_;
-    double		y_crl_;
-    double		defaultx_inl_;
-    double		defaulty_crl_;
+    Setup		setup_;
+    Setup		defsetup_;
 
-    bool		docoord_;
-    bool		isrelative_;
-    const RCol2Coord*	b2c_;
-};
-
-
-class BinIDInpSpec : public PositionInpSpec
-{
-public:
-			BinIDInpSpec( const BinID& bid )
-			    : PositionInpSpec(false,bid.inl,bid.crl)	{}
-			BinIDInpSpec() : PositionInpSpec(false)		{}
-
-    BinID		getValue() const
-    			{ return BinID(mNINT(value(0)),mNINT(value(1))); }
-    BinID		getDefaultValue() const
-    			{
-			    return BinID(mNINT(defaultValue(0)),
-					 mNINT(defaultValue(1)));
-			}
-};
-
-
-class CoordInpSpec : public PositionInpSpec
-{
-public:
-			CoordInpSpec( const Coord& crd )
-			    : PositionInpSpec(true,crd.x,crd.y)		{}
-			CoordInpSpec() : PositionInpSpec(true)		{}
-
-    Coord		getValue() const
-    			{ return Coord(value(0),value(1)); }
-    Coord		getDefaultValue() const
-    			{
-			    return Coord(mNINT(defaultValue(0)),
-					 mNINT(defaultValue(1)));
-			}
+    float		getVal(const Setup&,int) const;
+    void		setVal(Setup&,int,float);
 };
 
 #endif
