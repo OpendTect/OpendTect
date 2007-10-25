@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.27 2007-02-05 14:32:25 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.28 2007-10-25 15:12:54 cvssatyaki Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -161,8 +161,9 @@ void ValParam::fillDefStr( BufferString& res ) const
 
 
 BinIDParam::BinIDParam( const char* nm )
-    : ValParam( nm, new BinIDInpSpec() )
-{}
+    : ValParam( nm, new PositionInpSpec(BinID(mUdf(int),mUdf(int))) )
+{
+}
 
 
 mParamClone( BinIDParam );
@@ -209,8 +210,7 @@ bool BinIDParam::setCompositeValue( const char* posstr )
 
 void BinIDParam::setDefaultValue( const BinID& bid )
 {
-    reinterpret_cast<BinIDInpSpec*>(spec_)->setDefaultValue(bid.inl,0);
-    reinterpret_cast<BinIDInpSpec*>(spec_)->setDefaultValue(bid.crl,1);
+    reinterpret_cast<PositionInpSpec*>(spec_)->setup(true).binid_ = bid;
 }
 
 
@@ -232,21 +232,15 @@ void BinIDParam::toString( BufferString& res, const BinID& bid ) const
 
 BinID BinIDParam::getValue() const
 {
-    BinIDInpSpec* spec = reinterpret_cast<BinIDInpSpec*>(spec_);
-    const float val0 = spec->value(0);
-    const float val1 = spec->value(1);
-    return BinID( mIsUdf(val0) ? mUdf(int) : mNINT(val0),
-	          mIsUdf(val1) ? mUdf(int) : mNINT(val1) );
+    const PositionInpSpec& spec = *reinterpret_cast<PositionInpSpec*>(spec_);
+    return spec.setup(false).binid_;
 }
 
 
 BinID BinIDParam::getDefaultBinIDValue() const
 {
-    BinIDInpSpec* spec = reinterpret_cast<BinIDInpSpec*>(spec_);
-    const float defval0 = spec->defaultValue(0);
-    const float defval1 = spec->defaultValue(1);
-    return BinID( mIsUdf(defval0) ? mUdf(int) : mNINT(defval0),
-		  mIsUdf(defval1) ? mUdf(int) : mNINT(defval1) );
+    const PositionInpSpec& spec = *reinterpret_cast<PositionInpSpec*>(spec_);
+    return spec.setup(true).binid_;
 }
 
 
