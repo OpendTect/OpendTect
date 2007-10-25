@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.212 2007-10-24 04:49:12 cvsraman Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.213 2007-10-25 04:23:59 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "vispicksetdisplay.h"
 #include "vispolylinedisplay.h"
 #include "visrandomtrackdisplay.h"
+#include "visseis2ddisplay.h"
 
 #include "emhorizon2d.h"
 #include "emseedpicker.h"
@@ -632,6 +633,28 @@ bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
 }
 
 
+bool uiODApplMgr::evaluate2DAttribute( int visid, int attrib )
+{
+    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
+	    	    visserv_->getObject(visid))
+    if ( !s2d ) return false;
+
+    CubeSampling cs;
+    cs.hrg.start.inl = cs.hrg.stop.inl = 0;
+    cs.hrg.start.crl = s2d->getTraceNrRange().start;
+    cs.hrg.stop.crl = s2d->getTraceNrRange().stop;
+    cs.zrg.setFrom( s2d->getZRange(false) );
+
+    LineKey lk( s2d->name() );
+    DataPack::ID dpid = attrserv_->create2DOutput( cs, lk );
+    if ( dpid < 0 )
+	return false;
+
+    s2d->setDataPackID( attrib, dpid );
+    return true;
+}
+
+
 bool uiODApplMgr::handleEvent( const uiApplPartServer* aps, int evid )
 {
     if ( !aps ) return true;
@@ -1117,9 +1140,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
     {
 	const uiVisPartServer::AttribFormat format = 
 	    	visserv_->getAttributeFormat( visserv_->getEventObjId() );
-	const bool alloweval = format==uiVisPartServer::Cube || 
-	    		       format==uiVisPartServer::Traces ||
-	    		       format==uiVisPartServer::RandomPos;
+	const bool alloweval = !( format==uiVisPartServer::None );
 	const bool allowstorage = format==uiVisPartServer::RandomPos;
 	attrserv_->setEvaluateInfo( alloweval, allowstorage );
     }
@@ -1134,7 +1155,9 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	    return false;
 	}
 	visserv_->setSelSpec( visid, attrib, as );
-	if ( !evaluateAttribute(visid,attrib) )
+	const bool success = as.is2D() ? evaluateAttribute(visid,attrib)
+	    			       : evaluate2DAttribute(visid,attrib);
+	if ( !success )
 	{
 	    uiMSG().error( "Could not evaluate this attribute" );
 	    return false;
