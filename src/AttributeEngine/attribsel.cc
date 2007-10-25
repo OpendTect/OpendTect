@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.19 2007-02-13 13:18:17 cvsjaap Exp $
+ RCS:           $Id: attribsel.cc,v 1.20 2007-10-25 04:22:06 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,7 @@ void SelSpec::setDepthDomainKey( const Desc& desc )
 void SelSpec::set( const Desc& desc )
 {
     isnla_ = false;
+    is2d_ = desc.is2D();
     id_ = desc.id();
     ref_ = desc.userRef();
     desc.getDefStr( defstring_ );

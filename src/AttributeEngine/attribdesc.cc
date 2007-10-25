@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.58 2007-07-11 09:03:33 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.59 2007-10-25 04:22:06 cvsraman Exp $";
 
 #include "attribdesc.h"
 
@@ -71,9 +71,9 @@ Desc::Desc( const Desc& a )
     , seloutput_( a.seloutput_ )
     , userref_( a.userref_ )
     , needprovinit_( a.needprovinit_ )
-    , is2d_(false)
-    , is2dset_(false)
-    , is2ddetected_(false)
+    , is2d_(a.is2d_)
+    , is2dset_(a.is2dset_)
+    , is2ddetected_(a.is2ddetected_)
 {
     inputs_.allowNull(true);
 
@@ -101,7 +101,14 @@ Desc::~Desc()
 
 const char* Desc::attribName() const		{ return attribname_; }
 
-void Desc::setDescSet( DescSet* nds )		{ descset_ = nds; }
+void Desc::setDescSet( DescSet* nds )
+{
+    descset_ = nds;
+    if ( !nds ) return;
+    is2dset_ = nds->is2D();
+    if ( isStored() ) return;
+    is2d_ = nds->is2D();
+}
 
 DescSet* Desc::descSet() const			{ return descset_; }
 
