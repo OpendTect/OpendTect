@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.9 2007-10-18 19:57:15 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.10 2007-10-25 15:12:35 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -102,6 +102,7 @@ protected:
     visBase::Ellipsoid*			initialellipsoid_;
     visBase::PickStyle*			kernelpickstyle_;
     visBase::Ellipsoid*			kernelellipsoid_;
+    visBase::Dragger*			kerneldragger_;
 
     double				minsampleinlsz_;
     double				minsamplecrlsz_;

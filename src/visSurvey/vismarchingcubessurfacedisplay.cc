@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.11 2007-10-18 19:57:15 cvskris Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.12 2007-10-25 15:12:35 cvskris Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -560,14 +560,18 @@ void MarchingCubesDisplay::setDragDirection( CallBacker* cb )
 
     if ( !kernelpickstyle_ )
     {
+
+	kerneldragger_ = visBase::Dragger::create();
+	kerneldragger_->ref();
+	kerneldragger_->setDraggerType( visBase::Dragger::Scale3D );
+	addChild( kerneldragger_->getInventorNode() );
+	kerneldragger_->setRotation( Coord3(1,0,0), 0 );
+
      	kernelpickstyle_  = visBase::PickStyle::create();
      	kernelpickstyle_->ref();
      	addChild( kernelpickstyle_->getInventorNode() );
 	kernelpickstyle_->setStyle( visBase::PickStyle::Unpickable );
-    }
     
-    if ( !kernelellipsoid_ )
-    {
 	kernelellipsoid_ = visBase::Ellipsoid::create();
 	kernelellipsoid_->ref();
 	addChild( kernelellipsoid_->getInventorNode() );
@@ -575,6 +579,12 @@ void MarchingCubesDisplay::setDragDirection( CallBacker* cb )
 
     kernelellipsoid_->setCenterPos( Coord3(bid.inl, bid.crl, wp.z ) );
     kernelellipsoid_->setWidth( 
+	    Coord3( emsurface_->inlSampling().step*mKernelSize,
+		    emsurface_->crlSampling().step*mKernelSize,
+    		    emsurface_->zSampling().step*mKernelSize ) );
+
+    kerneldragger_->setPos( Coord3(bid.inl, bid.crl, wp.z ) );
+    kerneldragger_->setSize( 
 	    Coord3( emsurface_->inlSampling().step*mKernelSize,
 		    emsurface_->crlSampling().step*mKernelSize,
     		    emsurface_->zSampling().step*mKernelSize ) );
