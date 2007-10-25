@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.h,v 1.13 2006-01-23 14:19:05 cvskris Exp $
+ RCS:           $Id: visdragger.h,v 1.14 2007-10-25 15:11:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,8 @@ public:
     static Dragger*		create()
     				mCreateDataObj(Dragger);
 
-    enum Type			{ Translate1D, Translate2D, Translate3D };
+    enum Type			{ Translate1D, Translate2D, Translate3D,
+    				  Scale3D };
     void			setDraggerType(Type);
 
     void			setPos(const Coord3&);
@@ -47,7 +48,6 @@ public:
 
     void			setRotation(const Coord3&,float);
     void			setDefaultRotation();
-    void			setColor(const Color&);
 
     void			turnOn(bool);
     bool			isOn() const;
@@ -67,7 +67,7 @@ public:
     Notifier<Dragger>		started;
     Notifier<Dragger>		motion;
     Notifier<Dragger>		finished;
-    NotifierAccess*		rightClicked() { return &rightclicknotifier; }
+    NotifierAccess*		rightClicked() { return &rightclicknotifier_; }
     const TypeSet<int>*		rightClickedPath() const;
     const EventInfo*		rightClickedEventInfo() const;
 
@@ -81,14 +81,14 @@ protected:
     static void			motionCB(void*,SoDragger*);
     static void			finishCB(void*,SoDragger*);
     
-    Notifier<Dragger>		rightclicknotifier;
-    const EventInfo*		rightclickeventinfo;
+    Notifier<Dragger>		rightclicknotifier_;
+    const EventInfo*		rightclickeventinfo_;
 
-    SoSwitch*			onoff;
-    SoSeparator*		separator;
-    Transformation*		positiontransform;
-    SoDragger*			dragger;
-    Transformation*		displaytrans;
+    SoSwitch*			onoff_;
+    SoSeparator*		root_;
+    Transformation*		positiontransform_;
+    SoDragger*			dragger_;
+    Transformation*		displaytrans_;
 };
 
 } // namespace visBase

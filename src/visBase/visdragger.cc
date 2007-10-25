@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2003
- RCS:           $Id: visdragger.cc,v 1.16 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: visdragger.cc,v 1.17 2007-10-25 15:11:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include <Inventor/draggers/SoTranslate2Dragger.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoSeparator.h>
+#include <SoScale3Dragger.h>
 
 mCreateFactoryEntry( visBase::Dragger );
 
@@ -27,23 +28,23 @@ namespace visBase
 {
 
 Dragger::Dragger()
-    : dragger(0)
+    : dragger_(0)
     , started(this)
     , motion(this)
     , finished(this)
-    , onoff( new SoSwitch )
-    , separator( new SoSeparator )
-    , positiontransform( Transformation::create() )
-    , displaytrans( 0 )
-    , rightclicknotifier(this)
-    , rightclickeventinfo( 0 )
+    , onoff_( new SoSwitch )
+    , root_( new SoSeparator )
+    , positiontransform_( Transformation::create() )
+    , displaytrans_( 0 )
+    , rightclicknotifier_(this)
+    , rightclickeventinfo_( 0 )
 {
-    onoff->ref();
-    onoff->addChild( separator );
-    onoff->whichChild = 0;
+    onoff_->ref();
+    onoff_->addChild( root_ );
+    onoff_->whichChild = 0;
 
-    positiontransform->ref();
-    separator->addChild( positiontransform->getInventorNode() );
+    positiontransform_->ref();
+    root_->addChild( positiontransform_->getInventorNode() );
     setDraggerType( Translate1D );
     setDefaultRotation();
 }
@@ -56,18 +57,18 @@ void Dragger::setDefaultRotation()
 
 Dragger::~Dragger()
 {
-    if ( dragger )
+    if ( dragger_ )
     {
-	dragger->removeStartCallback( Dragger::startCB, this );
-	dragger->removeMotionCallback( Dragger::motionCB, this );
-	dragger->removeFinishCallback( Dragger::finishCB, this );
-	separator->removeChild( dragger );
+	dragger_->removeStartCallback( Dragger::startCB, this );
+	dragger_->removeMotionCallback( Dragger::motionCB, this );
+	dragger_->removeFinishCallback( Dragger::finishCB, this );
+	root_->removeChild( dragger_ );
     }
 
-    separator->removeChild( positiontransform->getInventorNode() );
-    positiontransform->unRef();
-    onoff->unref();
-    if ( displaytrans ) displaytrans->unRef();
+    root_->removeChild( positiontransform_->getInventorNode() );
+    positiontransform_->unRef();
+    onoff_->unref();
+    if ( displaytrans_ ) displaytrans_->unRef();
 }
 
 
@@ -76,41 +77,44 @@ bool Dragger::selectable() const { return true; }
 
 void Dragger::setDraggerType( Type tp )
 {
-    if ( dragger )
+    if ( dragger_ )
     {
-	dragger->removeStartCallback( Dragger::startCB, this );
-	dragger->removeMotionCallback( Dragger::motionCB, this );
-	dragger->removeFinishCallback( Dragger::finishCB, this );
-	separator->removeChild( dragger );
+	dragger_->removeStartCallback( Dragger::startCB, this );
+	dragger_->removeMotionCallback( Dragger::motionCB, this );
+	dragger_->removeFinishCallback( Dragger::finishCB, this );
+	root_->removeChild( dragger_ );
     }
     
     if ( tp == Translate3D )
-	dragger = new SoDragPointDragger;
+	dragger_ = new SoDragPointDragger;
     else if ( tp==Translate2D )
-	dragger = new SoTranslate2Dragger;
+	dragger_ = new SoTranslate2Dragger;
+    else if ( tp==Translate1D )
+	dragger_ = new SoTranslate1Dragger;
     else
-	dragger = new SoTranslate1Dragger;
+	dragger_ = new SoScale3Dragger;
+    
 
-    separator->addChild( dragger );
-    dragger->addStartCallback( Dragger::startCB, this );
-    dragger->addMotionCallback( Dragger::motionCB, this );
-    dragger->addFinishCallback( Dragger::finishCB, this );
+    root_->addChild( dragger_ );
+    dragger_->addStartCallback( Dragger::startCB, this );
+    dragger_->addMotionCallback( Dragger::motionCB, this );
+    dragger_->addFinishCallback( Dragger::finishCB, this );
 }
 
 
 void Dragger::setDisplayTransformation( Transformation* nt )
 {
     Coord3 pos = getPos();
-    if ( displaytrans )
+    if ( displaytrans_ )
     {
-	displaytrans->unRef();
-	displaytrans = 0;
+	displaytrans_->unRef();
+	displaytrans_ = 0;
     }
 
-    displaytrans = nt;
-    if ( displaytrans )
+    displaytrans_ = nt;
+    if ( displaytrans_ )
     {
-	displaytrans->ref();
+	displaytrans_->ref();
     }
 
     setPos( pos );
@@ -119,36 +123,36 @@ void Dragger::setDisplayTransformation( Transformation* nt )
 
 Transformation* Dragger::getDisplayTransformation()
 {
-    return displaytrans;
+    return displaytrans_;
 }
 
 
 void Dragger::setOwnShape( DataObject* newshape, const char* partname )
 {
     if ( newshape && newshape->getInventorNode() )
-	dragger->setPart( partname, newshape->getInventorNode() );
+	dragger_->setPart( partname, newshape->getInventorNode() );
 }
 
 
 SoNode* Dragger::getShape( const char* nm )
 {
-    return dragger->getPart( nm, false );
+    return dragger_->getPart( nm, false );
 }
 
 
 void Dragger::triggerRightClick( const EventInfo* eventinfo )
 {
-    rightclickeventinfo = eventinfo;
-    rightclicknotifier.trigger();
+    rightclickeventinfo_ = eventinfo;
+    rightclicknotifier_.trigger();
 }
 
 
 const TypeSet<int>* Dragger::rightClickedPath() const
-{ return rightclickeventinfo ? &rightclickeventinfo->pickedobjids : 0; }
+{ return rightclickeventinfo_ ? &rightclickeventinfo_->pickedobjids : 0; }
 
 
 const EventInfo* Dragger::rightClickedEventInfo() const
-{ return rightclickeventinfo; }
+{ return rightclickeventinfo_; }
 
 
 void Dragger::startCB( void* obj, SoDragger* )
@@ -171,48 +175,58 @@ void Dragger::finishCB( void* obj, SoDragger* )
 
 void Dragger::turnOn( bool yn )
 {
-    onoff->whichChild = yn ? 0 : SO_SWITCH_NONE;
+    onoff_->whichChild = yn ? 0 : SO_SWITCH_NONE;
 }
 
 
 bool Dragger::isOn() const
 {
-    return !onoff->whichChild.getValue();
+    return !onoff_->whichChild.getValue();
 }
 
 
 void Dragger::setSize( const Coord3& size )
 {
-    positiontransform->setScale( size );
+    positiontransform_->setScale( size/2 );
+    mDynamicCastGet( SoScale3Dragger*, s3d, dragger_ );
+    if ( s3d ) s3d->scale.setValue( SbVec3f(1,1,1) );
 }
 
 
 Coord3 Dragger::getSize() const
 {
-    return positiontransform->getScale();
+    SbVec3f scale( 1, 1, 1 );
+    mDynamicCastGet( SoScale3Dragger*, s3d, dragger_ );
+    if ( s3d ) scale = s3d->scale.getValue();
+
+    const Coord3 transscale = positiontransform_->transform(
+	    Coord3(scale[0],scale[1],scale[2]) );
+    const Coord3 transorigin = positiontransform_->transform( Coord3(0,0,0) );
+
+    return (transscale - transorigin)*2;
 }
 
 
 void Dragger::setRotation( const Coord3& vec, float angle )
 {
-    positiontransform->setRotation( vec, angle );
+    positiontransform_->setRotation( vec, angle );
 }
 
 
 SoNode* Dragger::getInventorNode()
 {
-    return onoff;
+    return onoff_ ? (SoNode*) onoff_ : (SoNode*) root_;
 }
 
 
 void Dragger::setPos( const Coord3& pos )
 {
-    Coord3 newpos = displaytrans ? displaytrans->transform( pos ) : pos;
-    positiontransform->setTranslation( newpos );
+    Coord3 newpos = displaytrans_ ? displaytrans_->transform( pos ) : pos;
+    positiontransform_->setTranslation( newpos );
 
-    mDynamicCastGet( SoTranslate1Dragger*, t1d, dragger )
-    mDynamicCastGet( SoTranslate2Dragger*, t2d, dragger )
-    mDynamicCastGet( SoDragPointDragger*, dpd, dragger )
+    mDynamicCastGet( SoTranslate1Dragger*, t1d, dragger_ )
+    mDynamicCastGet( SoTranslate2Dragger*, t2d, dragger_ )
+    mDynamicCastGet( SoDragPointDragger*, dpd, dragger_ )
     if ( t1d ) t1d->translation.setValue( 0, 0, 0 );
     else if ( t2d ) t2d->translation.setValue( 0, 0, 0 );
     else if ( dpd ) dpd->translation.setValue( 0, 0, 0 );
@@ -221,24 +235,19 @@ void Dragger::setPos( const Coord3& pos )
 
 Coord3 Dragger::getPos() const
 {
-    SbVec3f pos_;
-    mDynamicCastGet( SoTranslate1Dragger*, t1d, dragger )
-    mDynamicCastGet( SoTranslate2Dragger*, t2d, dragger )
-    mDynamicCastGet( SoDragPointDragger*, dpd, dragger )
-    if ( t1d ) pos_ = t1d->translation.getValue();
-    else if ( t2d ) pos_ = t2d->translation.getValue();
-    else pos_ = dpd->translation.getValue();
+    SbVec3f pos( 0, 0, 0 );
+    mDynamicCastGet( SoTranslate1Dragger*, t1d, dragger_ )
+    mDynamicCastGet( SoTranslate2Dragger*, t2d, dragger_ )
+    mDynamicCastGet( SoDragPointDragger*, dpd, dragger_ )
+    if ( t1d ) pos = t1d->translation.getValue();
+    else if ( t2d ) pos = t2d->translation.getValue();
+    else if ( dpd ) pos = dpd->translation.getValue();
 
 
-    const Coord3 pos = positiontransform->transform(
-	    Coord3(pos_[0],pos_[1],pos_[2]) );
+    const Coord3 coord = positiontransform_->transform(
+	    Coord3(pos[0],pos[1],pos[2]) );
 
-    return displaytrans ? displaytrans->transformBack( pos ) : pos;
-}
-
-
-void Dragger::setColor( const Color& col )
-{
+    return displaytrans_ ? displaytrans_->transformBack( coord ) : coord;
 }
 
 
