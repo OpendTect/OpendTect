@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.6 2007-10-12 19:15:32 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.7 2007-10-25 21:15:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,7 +124,7 @@ class Factory1Param
 {
 public:
     typedef			T* (*Creator)(P);
-    inline void			addCreator(Creator,const char* nm,
+    inline void			addCreator(Creator,const char* nm=0,
 	    				   const char* usernm = 0);
     				//!<Name may be be null
     inline T*			create(const char* nm, P, bool chknm=true)const;
@@ -144,7 +144,7 @@ class Factory2Param
 {
 public:
     typedef			T* (*Creator)(P0,P1);
-    inline void			addCreator(Creator,const char* nm,
+    inline void			addCreator(Creator,const char* nm=0,
 	    				   const char* usernm = 0);
     				//!<Name may be be null
     inline T*			create(const char* nm, P0, P1,
