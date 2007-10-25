@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uiemhorizoneditor.cc,v 1.23 2007-10-17 05:40:18 cvsnanne Exp $
+ RCS:           $Id: uiemhorizoneditor.cc,v 1.24 2007-10-25 15:17:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ uiEMHorizonEditorSetting::uiEMHorizonEditorSetting( uiParent* p,
 			BoolInpSpec(editor->boxEditArea(),"Box","Ellipse") );
 
     horsizefld = new uiGenInput( this, "Horizontal size",
-				 BinIDInpSpec(editor->getEditArea()) );
+				 PositionInpSpec(editor->getEditArea()) );
     horsizefld->attach( alignedBelow, horshapefld );
 
     if ( editor->getAlongMovingStyleNames() )

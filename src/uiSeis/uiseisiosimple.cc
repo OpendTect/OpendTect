@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.2 2007-06-12 15:40:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.3 2007-10-25 15:17:19 cvssatyaki Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -153,10 +153,10 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	    nrdeffld->attach( alignedBelow, attachobj );
 	    startposfld = new uiGenInput( this,
 					  "Start position (X, Y, Trace number)",
-					  CoordInpSpec(data().startpos_) );
+					  PositionInpSpec(data().startpos_) );
 	    startposfld->attach( alignedBelow, haveposfld );
 	    stepposfld = new uiGenInput( this, "Step in X/Y/Number",
-					 CoordInpSpec(data().steppos_) );
+					 PositionInpSpec(data().steppos_) );
 	    stepposfld->attach( alignedBelow, startposfld );
 	    startnrfld = new uiGenInput( this, "",
 		    			 IntInpSpec(data().nrdef_.start) );

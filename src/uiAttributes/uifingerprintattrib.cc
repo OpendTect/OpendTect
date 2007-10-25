@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.37 2007-10-12 09:12:19 cvssulochana Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.38 2007-10-25 15:17:19 cvssatyaki Exp $
 
 ________________________________________________________________________
 
@@ -129,7 +129,8 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     }
     else
     {
-	refposfld_ = new uiGenInput(this, "Position (Inl/Crl)", BinIDInpSpec());
+	refposfld_ = new uiGenInput(this, "Position (Inl/Crl)",
+				PositionInpSpec(PositionInpSpec::Setup()) );
 	refposfld_->attach( alignedBelow, refgrp_ );
     }
 

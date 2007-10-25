@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.cc,v 1.16 2007-02-05 18:19:47 cvsbert Exp $
+ RCS:           $Id: uievaluatedlg.cc,v 1.17 2007-10-25 15:17:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,8 +113,8 @@ void AttribParamGroup::createInputSpecs( const Attrib::ValParam* param,
     }
     else if ( bidpar )
     {
-	initspec = new BinIDInpSpec( bidpar->getValue() );
-	incrspec = new BinIDInpSpec( bidpar->getValue() );
+	initspec = new PositionInpSpec( bidpar->getValue() );
+	incrspec = new PositionInpSpec( bidpar->getValue() );
     }
     else if ( fpar )
     {
