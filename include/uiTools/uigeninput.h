@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.33 2006-12-20 13:40:41 cvsbert Exp $
+ RCS:           $Id: uigeninput.h,v 1.34 2007-10-25 15:06:40 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,49 +101,50 @@ Returns true, if changes are accepted.
 
     bool		isUndef( int nr=0 ) const;
 
-#define mGetArgs(type)	int nr=0, type undefVal=mUdf(type)
+#undef mDeclArgs    
+#define mDeclArgs(type)	int nr=0, type undefVal=mUdf(type)
 
-    const char*		text( mGetArgs(const char*) ) const;
+    const char*		text( mDeclArgs(const char*) ) const;
     const char*		text( const char* undefVal)  const
 			    { return text(0,undefVal); }
 
-    int			getIntValue( mGetArgs(int) ) const;
-    bool		getBoolValue( mGetArgs(bool) ) const;
+    int			getIntValue( mDeclArgs(int) ) const;
+    bool		getBoolValue( mDeclArgs(bool) ) const;
 
-    double		getdValue( mGetArgs(double) ) const;
+    double		getdValue( mDeclArgs(double) ) const;
     double		getdValue( double undefVal ) const
 			    { return getdValue(0,undefVal) ; }
 
-    double		getValue( mGetArgs(double) ) const
+    double		getValue( mDeclArgs(double) ) const
 			{ pErrMsg("will go in 3.0. Use getdValue.");
 			    return getdValue(nr,undefVal); }
 
-    float		getfValue( mGetArgs(float) ) const;
+    float		getfValue( mDeclArgs(float) ) const;
     float		getfValue( float undefVal ) const
 			    { return getfValue(0,undefVal); }
 
-    inline Interval<int> getIInterval( mGetArgs(int) ) const
+    inline Interval<int> getIInterval( mDeclArgs(int) ) const
 			{ return Interval<int>( getIntValue(nr*2,undefVal),
 						getIntValue(nr*2+1,undefVal) );}
 
-    inline Interval<float> getFInterval( mGetArgs(float) ) const
+    inline Interval<float> getFInterval( mDeclArgs(float) ) const
 			{ return Interval<float>( getfValue(nr*2,undefVal),
 						  getfValue(nr*2+1,undefVal) );}
     inline Interval<float> getFInterval( float undefVal ) const
 			{ return getFInterval(0,undefVal); }
 
-    inline Interval<double> getDInterval( mGetArgs(double) ) const
+    inline Interval<double> getDInterval( mDeclArgs(double) ) const
 			{ return Interval<double>(getdValue(nr*2,undefVal),
 						  getdValue(nr*2+1,undefVal) );}
     inline Interval<double> getDInterval( double undefVal ) const
 			{ return getDInterval(0,undefVal); }
 
-    inline StepInterval<int> getIStepInterval( mGetArgs(int) ) const
+    inline StepInterval<int> getIStepInterval( mDeclArgs(int) ) const
 			{ return StepInterval<int>(getIntValue(nr*3,undefVal),
 						   getIntValue(nr*3+1,undefVal),
 						   getIntValue(nr*3+2,undefVal)
 						   ); }
-    inline StepInterval<float> getFStepInterval( mGetArgs(float) ) const
+    inline StepInterval<float> getFStepInterval( mDeclArgs(float) ) const
 			{ return StepInterval<float>(getfValue(nr*3,undefVal),
 						     getfValue(nr*3+1,undefVal),
 						     getfValue(nr*3+2,undefVal)
@@ -151,23 +152,20 @@ Returns true, if changes are accepted.
     inline StepInterval<float> getFStepInterval( float undefVal ) const
 			{ return getFStepInterval(0,undefVal); }
 
-    inline StepInterval<double> getDStepInterval( mGetArgs(double) ) const
+    inline StepInterval<double> getDStepInterval( mDeclArgs(double) ) const
 			{ return StepInterval<double>(getdValue(nr*3,undefVal),
 						 getdValue(nr*3+1,undefVal),
 						 getdValue(nr*3+2,undefVal) ); }
     inline StepInterval<double> getDStepInterval( double undefVal ) const
 			{ return getDStepInterval(0,undefVal); }
 
-    inline Coord	getCoord( mGetArgs(double) ) const
-			{ return Coord( getdValue(nr*2,undefVal),
-					getdValue(nr*2+1,undefVal)); }
-    inline Coord	getCoord( double undefVal ) const
-			{ return getCoord(0,undefVal); }
+    Coord		getCoord( mDeclArgs(double) ) const;
+    BinID		getBinID( mDeclArgs(int) ) const;
+    int			getTrcNr( mDeclArgs(int) ) const;
+    float		getOffset( mDeclArgs(float) ) const;
 
-    inline BinID	getBinID( mGetArgs(int) ) const
-			{ return BinID( getIntValue(nr*2,undefVal),
-					getIntValue(nr*2+1,undefVal)); }
-#undef mGetArgs    
+
+#undef mDeclArgs    
 
     void		setText(const char*,int nr=0);
     void		setValue(int,int nr=0);

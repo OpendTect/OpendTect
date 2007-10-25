@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.79 2007-08-13 13:11:16 cvsjaap Exp $
+ RCS:           $Id: uigeninput.cc,v 1.80 2007-10-25 15:06:40 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -308,104 +308,160 @@ public:
 };
 
 
-class uiBinIDInpFld : public uiInputFld
+class uiPositionInpFld : public uiInputFld
 {
 public:
-
-			uiBinIDInpFld( uiGenInput* p, 
+			uiPositionInpFld( uiGenInput* p, 
 					 const DataInpSpec& dis,
-					 const char* nm="BinID Input Field" );
+					 const char* nm="Position Inp Field" );
 
-    virtual uiObject*	mainObj()	{ return binidGrp.mainObject(); }
+    virtual uiObject*	mainObj()		{ return flds_[0]; }
 
-    virtual int		nElems() const		{ return 2; }
-    virtual UserInputObj* element( int idx )	{ return idx ? &crl_y : &inl_x;}
+    virtual int		nElems() const		{ return posInpSpec().nElems();}
+    virtual UserInputObj* element( int idx )
+    			{ return idx >= flds_.size() ? 0 : flds_[idx]; }
 
     bool		notifyValueChanged(const CallBack& cb )
                             { valueChanged.notify(cb); return true; }
 
-    Notifier<uiBinIDInpFld> valueChanged;
+    Notifier<uiPositionInpFld> valueChanged;
+
+    void		commitToSetup() const;
+    const PositionInpSpec&	posInpSpec() const;
 
 protected:
 
-    // don't change order of these 3 attributes!
-    uiGroup&		binidGrp;
-    uiLineEdit&		inl_x; // inline or x-coordinate
-    uiLineEdit&		crl_y; // crossline or y-coordinate
-    const RCol2Coord*	b2c;
+    ObjectSet<uiLineEdit> flds_;
 
-    uiPushButton*	ofrmBut; // other format: BinId / Coordinates 
-    void		otherFormSel(CallBacker*);
+    virtual const char*	getvalue_(int) const;
+    virtual void        setvalue_(const char*,int);
 
+    virtual bool	update_(const DataInpSpec&);
 
-    virtual const char*	getvalue_(int idx) const		
-			    { return idx ? crl_y.text() : inl_x.text(); }
-    virtual void        setvalue_( const char* t,int idx)
-			    { if (idx) crl_y.setText(t); else inl_x.setText(t);}
-
-    virtual bool	update_( const DataInpSpec& dis );
+    void		addFld(uiParent*,const char*);
 
 };
 
-uiBinIDInpFld::uiBinIDInpFld( uiGenInput* p, const DataInpSpec& dis,
-			      const char* nm ) 
-    : uiInputFld( p, dis )
-    , binidGrp( *new uiGroup(p,nm) )
-    , inl_x( *new uiLineEdit(&binidGrp,0,mName(dis,0,nm)) )
-    , crl_y( *new uiLineEdit(&binidGrp,0,mName(dis,1,nm)) )
-    , ofrmBut( 0 )
-    , b2c(0)
+
+uiPositionInpFld::uiPositionInpFld( uiGenInput* p, const DataInpSpec& dis,
+			 		const char* nm ) 
+    : uiInputFld(p,dis)
     , valueChanged(this)
 {
     mDynamicCastGet(const PositionInpSpec*,spc,&dis)
-    if ( !spc ){ pErrMsg("huh"); return; }
+    if ( !spc ) { pErrMsg("HUH - expect crash"); return; }
 
-    binidGrp.setHAlignObj( &inl_x );
-    crl_y.attach( rightTo, &inl_x );
-
-    inl_x.notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
-    crl_y.notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
-
-    inl_x.notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
-    crl_y.notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
-
-    const bool transform = false;
-    if ( transform )
-    {
-	ofrmBut = new uiPushButton( &binidGrp, spc->otherTxt(), false );
-	ofrmBut->activated.notify( mCB(this,uiBinIDInpFld,otherFormSel) );
-
-	ofrmBut->attach( rightTo, &crl_y );
-    }
-
-    b2c = spc->binID2Coord();
+    addFld( p, nm );
+    const bool istrcnr = spc->setup().is2d_ && !spc->setup().wantcoords_;
+    if ( spc->setup().isps_ || !istrcnr )
+	addFld( p, nm );
+    if ( spc->setup().isps_ && !istrcnr )
+	addFld( p, nm );
 
     init();
-
-    inl_x.setReadOnly(false);
-    crl_y.setReadOnly(false);
 }
 
 
-bool uiBinIDInpFld::update_( const DataInpSpec& dis )
+void uiPositionInpFld::addFld( uiParent* p, const char* nm )
 {
-    mDynamicCastGet(const PositionInpSpec*,spc,&dis)
-    if ( !spc ){ pErrMsg("huh"); return false; }
+    const int elemidx = flds_.size();
+    BufferString lenm( nm ); nm += elemidx;
+    uiLineEdit* fld = new uiLineEdit( p, 0, lenm );
+    flds_ += fld;
+    fld->notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
+    fld->notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
+    if ( elemidx > 0 )
+	flds_[elemidx]->attach( rightTo, flds_[elemidx-1] );
+}
 
-    inl_x.setText( dis.text(0) );
-    crl_y.setText( dis.text(1) );
+
+const PositionInpSpec& uiPositionInpFld::posInpSpec() const
+{
+    mDynamicCastGet(PositionInpSpec&,spc,spec_)
+    return spc;
+}
+
+
+void uiPositionInpFld::commitToSetup() const
+{
+    PositionInpSpec::Setup& setup
+	= const_cast<PositionInpSpec&>( posInpSpec() ).setup();
+    if ( setup.wantcoords_ )
+    {
+	setup.coord_.x = flds_[0]->getdValue();
+	setup.coord_.y = flds_[1]->getdValue();
+	if ( setup.isps_ )
+	    setup.offs_ = flds_[2]->getfValue();
+    }
+    else if ( setup.is2d_ )
+    {
+	setup.binid_.crl = flds_[0]->getIntValue();
+	if ( setup.isps_ )
+	    setup.offs_ = flds_[1]->getfValue();
+    }
+    else
+    {
+	setup.binid_.inl = flds_[0]->getIntValue();
+	setup.binid_.crl = flds_[1]->getIntValue();
+	if ( setup.isps_ )
+	    setup.offs_ = flds_[2]->getfValue();
+    }
+}
+
+
+bool uiPositionInpFld::update_( const DataInpSpec& dis )
+{
+    mDynamicCastGet(const PositionInpSpec&,spc,dis)
+    PositionInpSpec& myspec = const_cast<PositionInpSpec&>(posInpSpec());
+    const PositionInpSpec::Setup& su = spc.setup();
+    const PositionInpSpec::Setup& mysu = myspec.setup();
+    if ( su.is2d_ != mysu.is2d_ || su.isps_ != mysu.isps_ )
+	{ pErrMsg("Bugger"); return false; }
+
+    myspec = spc;
+
+#define mSetFld(nr,val) \
+    { if ( mIsUdf(val) ) flds_[nr]->UserInputObjImpl<const char*>::clear(); \
+      else flds_[nr]->setValue( val ); }
+
+    if ( su.wantcoords_ )
+	mSetFld( 0, su.coord_.x )
+    else
+	mSetFld( 0, su.is2d_ ? su.binid_.crl : su.binid_.inl )
+    if ( flds_.size() < 2 ) return true;
+
+    if ( su.wantcoords_ )
+	mSetFld( 1, su.coord_.y )
+    else if ( su.isps_ )
+	mSetFld( 1, su.is2d_ ? su.offs_ : su.binid_.crl )
+    else
+	mSetFld( 1, su.binid_.crl )
+    if ( flds_.size() < 3 ) return true;
+
+    if ( su.isps_ )
+	mSetFld( 2, su.offs_ )
 
     return true;
 }
 
 
-void uiBinIDInpFld::otherFormSel(CallBacker* cb)
+const char* uiPositionInpFld::getvalue_( int idx ) const		
 {
-// TODO  implement:
-// pop dialog box
-// transform using b2c
-// set value
+    if ( idx >= flds_.size() )
+	return 0;
+
+    return flds_[idx]->text();
 }
+
+
+void uiPositionInpFld::setvalue_( const char* t, int idx )
+{
+    if ( idx >= flds_.size() )
+	return;
+
+    flds_[idx]->setText( t );
+}
+
 
 template<class T>
 class uiIntervalInpFld : public uiInputFld
@@ -607,8 +663,8 @@ uiInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 	    break;
 	    }
 	}
-	else if ( desc.type().form() == DataType::binID )
-	    fld = new uiBinIDInpFld( this, desc ); 
+	else if ( desc.type().form() == DataType::position )
+	    fld = new uiPositionInpFld( this, desc, name() ); 
 	else
 	    fld = new uiTextInputFld( this, desc ); 
     }
@@ -647,6 +703,7 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt, const char* inputStr)
     inputs += new StringInpSpec( inputStr ); 
     mainObject()->finaliseStart.notify( mCB(this,uiGenInput,doFinalise) );
 }
+
 
 uiGenInput::uiGenInput( uiParent* p, const char* disptxt
 	    , const DataInpSpec& inp1 )
@@ -741,7 +798,7 @@ void uiGenInput::updateSpecs()
 void uiGenInput::doFinalise()
 {
     if ( finalised )		return;
-    if ( inputs.isEmpty() )	{ pErrMsg("No inputs specified :("); return; }
+    if ( inputs.isEmpty() )	{ pErrMsg("Knurft: No inputs"); return; }
 
     uiObject* lastElem = createInpFld( *inputs[0] ).mainObj();
     setHAlignObj( lastElem );
@@ -932,6 +989,54 @@ bool uiGenInput::isUndef( int nr ) const
     uiInputFld* fld = getInputFldAndIndex( nr, elemidx );
 
     return fld ? fld->isUndef(elemidx) : true;
+}
+
+
+Coord uiGenInput::getCoord( int nr, double udfval ) const
+{
+    const DataInpSpec* dis = dataInpSpec( nr );
+    if ( !dis || dis->type().form() != DataType::position )
+	return Coord( getdValue(nr*2,udfval), getdValue(nr*2+1,udfval));
+
+    mDynamicCastGet(const uiPositionInpFld*,posinpfld,flds[nr])
+    posinpfld->commitToSetup();
+    return reinterpret_cast<const PositionInpSpec*>(dis)->getCoord( udfval );
+}
+
+
+BinID uiGenInput::getBinID( int nr, int udfval ) const
+{
+    const DataInpSpec* dis = dataInpSpec( nr );
+    if ( !dis || dis->type().form() != DataType::position )
+	return BinID( getIntValue(nr*2,udfval), getIntValue(nr*2+1,udfval));
+
+    mDynamicCastGet(const uiPositionInpFld*,posinpfld,flds[nr])
+    posinpfld->commitToSetup();
+    return reinterpret_cast<const PositionInpSpec*>(dis)->getBinID( udfval );
+}
+
+
+float uiGenInput::getOffset( int nr, float udfval ) const
+{
+    const DataInpSpec* dis = dataInpSpec( nr );
+    if ( !dis || dis->type().form() != DataType::position )
+	return getfValue(nr,udfval);
+
+    mDynamicCastGet(const uiPositionInpFld*,posinpfld,flds[nr])
+    posinpfld->commitToSetup();
+    return reinterpret_cast<const PositionInpSpec*>(dis)->getOffset( udfval );
+}
+
+
+int uiGenInput::getTrcNr( int nr, int udfval ) const
+{
+    const DataInpSpec* dis = dataInpSpec( nr );
+    if ( !dis || dis->type().form() != DataType::position )
+	return getIntValue(nr,udfval);
+
+    mDynamicCastGet(const uiPositionInpFld*,posinpfld,flds[nr])
+    posinpfld->commitToSetup();
+    return reinterpret_cast<const PositionInpSpec*>(dis)->getTrcNr( udfval );
 }
 
 
