@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.24 2007-08-27 10:04:19 cvsnanne Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.25 2007-10-25 04:19:31 cvsraman Exp $
  ________________________________________________________________________
 
 -*/
@@ -258,108 +258,111 @@ void Seis2DDisplay::setData( int attrib,
     if ( !arr->isOK() )
 	return;
 
-    float* arrptr = arr->getData();
-
     const int totalsz = arr->info().getTotalSz();
-    for ( int idx=0; idx<totalsz; idx++ )
-	(*arrptr++) = mUdf(float);
 
-    for ( int dataidx=0; dataidx<dataset.size(); dataidx++ )
+    const int nrseries = dataset.dataset_[0]->nrSeries();
+    texture_->setNrVersions( attrib, nrseries );
+    for ( int sidx=0; sidx<nrseries; sidx++ )
     {
-	const int trcnr = dataset.trcinfoset_[dataidx]->nr;
-	if ( !trcnrrg_.includes( trcnr ) )
-	    continue;
+	float* arrptr = arr->getData();
+	for ( int idx=0; idx<totalsz; idx++ )
+	    (*arrptr++) = mUdf(float);
 
-	const int trcidx = trcnr-trcnrrg_.start;
-
-	const DataHolder* dh = dataset.dataset_[dataidx];
-	if ( !dh )
-	    continue;
-
-	const float firstz = dataset.dataset_[0]->z0_ * sd.step;
-	const float firstdhsamplef = sd.getIndex( firstz );
-	const int firstdhsample = sd.nearestIndex( firstz );
-	const bool samplebased = mIsEqual(firstdhsamplef,firstdhsample,1e-3) &&
-	    			 mIsEqual(sd.step,geometry_.zrg.step,1e-3 );
-
-	const ValueSeries<float>* dataseries =
-	    dh->series(dh->validSeriesIdx()[0]);
-
-	if ( samplebased )
+	for ( int dataidx=0; dataidx<dataset.size(); dataidx++ )
 	{
-	    for ( int idx=0; idx<nrsamp; idx++ )
-	    {
-		const int sample = firstdhsample+idx;
-		float val;
-		if ( dh->dataPresent( sample ) )
-		    val = dataseries->value( sample-dh->z0_ );
-		else
-		    val=mUdf(float);
+	    const int trcnr = dataset.trcinfoset_[dataidx]->nr;
+	    if ( !trcnrrg_.includes( trcnr ) )
+		continue;
 
-		arr->set( trcidx, idx, val );
+	    const int trcidx = trcnr-trcnrrg_.start;
+
+	    const DataHolder* dh = dataset.dataset_[dataidx];
+	    if ( !dh )
+		continue;
+
+	    const float firstz = dataset.dataset_[0]->z0_ * sd.step;
+	    const float firstdhsamplef = sd.getIndex( firstz );
+	    const int firstdhsample = sd.nearestIndex( firstz );
+	    const bool samplebased = mIsEqual(firstdhsamplef,firstdhsample,1e-3)
+				 &&  mIsEqual(sd.step,geometry_.zrg.step,1e-3 );
+	    const ValueSeries<float>* dataseries =
+		dh->series(dh->validSeriesIdx()[sidx]);
+
+	    if ( samplebased )
+	    {
+		for ( int idx=0; idx<nrsamp; idx++ )
+		{
+		    const int sample = firstdhsample+idx;
+		    float val;
+		    if ( dh->dataPresent( sample ) )
+			val = dataseries->value( sample-dh->z0_ );
+		    else
+			val=mUdf(float);
+
+		    arr->set( trcidx, idx, val );
+		}
+	    }
+	    else
+	    {
+		pErrMsg("Not impl"); 
 	    }
 	}
+
+	PtrMan<Array2D<float> > tmparr = 0;
+	Array2D<float>* usedarr = 0;
+	const char* depthdomain = getSelSpec(attrib)->depthDomainKey();
+	const bool alreadytransformed = depthdomain && *depthdomain;
+	if ( alreadytransformed || !datatransform_ )
+	    usedarr = arr;
 	else
 	{
-	    pErrMsg("Not impl"); 
+	    CubeSampling cs;
+	    cs.hrg.start.inl = cs.hrg.stop.inl = 0;
+	    cs.hrg.start.crl = trcnrrg_.start;
+	    cs.hrg.stop.crl = trcnrrg_.stop;
+	    assign( cs.zrg, curzrg_ );
+	    if ( voiidx_ < 0 )
+		voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
+	    else
+		datatransform_->setVolumeOfInterest( voiidx_, cs, true );
+	    datatransform_->loadDataIfMissing( voiidx_ );
+
+	    ZAxisTransformSampler outpsampler( *datatransform_,true,BinID(0,0),
+				SamplingData<double>(cs.zrg.start,cs.zrg.step));
+	    tmparr = new Array2DImpl<float>( cs.nrCrl(), cs.nrZ() );
+	    usedarr = tmparr;
+	    for ( int crlidx=0; crlidx<cs.nrCrl(); crlidx++ )
+	    {
+		const BinID bid = cs.hrg.atIndex( 0, crlidx );
+		outpsampler.setBinID( bid );
+		outpsampler.computeCache( Interval<int>(0,cs.nrZ()-1) );
+
+		const float* inputptr = arr->getData() +
+					arr->info().getOffset( crlidx, 0 );
+		const float z0 = dataset.dataset_[0]->z0_ * sd.step;
+		SampledFunctionImpl<float,const float*>
+		    inputfunc( inputptr, nrsamp, z0, sd.step );
+		inputfunc.setHasUdfs( true );
+		inputfunc.setInterpolate( !isClassification(attrib) );
+
+		float* outputptr = tmparr->getData() +
+				   tmparr->info().getOffset( crlidx, 0 );	
+		reSample( inputfunc, outpsampler, outputptr, cs.nrZ() );
+	    }
 	}
-    }
 
-    PtrMan<Array2D<float> > tmparr = 0;
-    Array2D<float>* usedarr = 0;
-    const char* depthdomain = getSelSpec(attrib)->depthDomainKey();
-    const bool alreadytransformed = depthdomain && *depthdomain;
-    if ( alreadytransformed || !datatransform_ )
-	usedarr = arr;
-    else
-    {
-	CubeSampling cs;
-	cs.hrg.start.inl = cs.hrg.stop.inl = 0;
-	cs.hrg.start.crl = trcnrrg_.start;
-	cs.hrg.stop.crl = trcnrrg_.stop;
-	assign( cs.zrg, curzrg_ );
-	if ( voiidx_ < 0 )
-	    voiidx_ = datatransform_->addVolumeOfInterest( cs, true );
-	else
-	    datatransform_->setVolumeOfInterest( voiidx_, cs, true );
-	datatransform_->loadDataIfMissing( voiidx_ );
-
-	ZAxisTransformSampler outpsampler( *datatransform_, true, BinID(0,0),
-			    SamplingData<double>(cs.zrg.start,cs.zrg.step) );
-
-	tmparr = new Array2DImpl<float>( cs.nrCrl(), cs.nrZ() );
-	usedarr = tmparr;
-	for ( int crlidx=0; crlidx<cs.nrCrl(); crlidx++ )
+	Array2DSlice<float> slice( *usedarr );
+	slice.setDimMap( 0, 1 );
+	slice.setDimMap( 1, 0 );
+	if ( slice.init() )
 	{
-	    const BinID bid = cs.hrg.atIndex( 0, crlidx );
-	    outpsampler.setBinID( bid );
-	    outpsampler.computeCache( Interval<int>(0,cs.nrZ()-1) );
-
-	    const float* inputptr = arr->getData() +
-				    arr->info().getOffset( crlidx, 0 );
-	    const float z0 = dataset.dataset_[0]->z0_ * sd.step;
-	    SampledFunctionImpl<float,const float*>
-		inputfunc( inputptr, nrsamp, z0, sd.step );
-	    inputfunc.setHasUdfs( true );
-	    inputfunc.setInterpolate( !isClassification(attrib) );
-
-	    float* outputptr = tmparr->getData() +
-			       tmparr->info().getOffset( crlidx, 0 );	
-	    reSample( inputfunc, outpsampler, outputptr, cs.nrZ() );
-	}
-    }
-
-    Array2DSlice<float> slice( *usedarr );
-    slice.setDimMap( 0, 1 );
-    slice.setDimMap( 1, 0 );
-    if ( slice.init() )
-    {
-	if ( !resolution_ )
-	    texture_->setData( attrib, 0, &slice, true );
-	else
-	{
-	    texture_->setDataOversample( attrib, 0, resolution_,
-				 !isClassification(attrib), &slice, true );
+	    if ( !resolution_ )
+		texture_->setData( attrib, sidx, &slice, true );
+	    else
+	    {
+		texture_->setDataOversample( attrib, sidx, resolution_,
+				     !isClassification(attrib), &slice, true );
+	    }
 	}
     }
 }
