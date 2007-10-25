@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.24 2007-09-17 12:44:31 cvskris Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.25 2007-10-25 21:16:53 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -509,7 +509,7 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
     if ( as.id() == Attrib::SelSpec::cOtherAttrib() )
     {
 	PtrMan<Attrib::ExtAttribCalc> calc =
-	    Attrib::ExtAttrFact().createCalculator( as );
+	    Attrib::ExtAttrFact().create( 0, as, false );
 	if ( !calc )
 	{
 	    uiMSG().error( "Attribute cannot be created" );

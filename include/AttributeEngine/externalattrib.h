@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: externalattrib.h,v 1.5 2007-09-28 03:58:17 cvsnanne Exp $
+ RCS:		$Id: externalattrib.h,v 1.6 2007-10-25 21:16:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "factory.h"
 #include "datapack.h"
 #include "sets.h"
 
@@ -49,27 +50,8 @@ public:
     BufferString		errmsg_;
 };
 
+mDefineFactory1Param( ExtAttribCalc, const Attrib::SelSpec&, ExtAttrFact );
 
-struct ExtAttribCalcCreator
-{
-    virtual ExtAttribCalc*	make(const SelSpec&) const		= 0;
-};
-
-
-class ExtAttribCalcFact
-{
-public:
-    void			add( ExtAttribCalcCreator* nc )
-				{ creators_ += nc; }
-    ExtAttribCalc*		createCalculator(const SelSpec&);
-
-protected:
-
-    ObjectSet<ExtAttribCalcCreator>	creators_;
-};
-
-
-ExtAttribCalcFact& ExtAttrFact();
 
 } // namespace Attrib
 

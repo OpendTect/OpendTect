@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.213 2007-10-25 04:23:59 cvsraman Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.214 2007-10-25 21:16:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -481,7 +481,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    if ( myas.id()==Attrib::SelSpec::cOtherAttrib() )
 	    {
 		PtrMan<Attrib::ExtAttribCalc> calc = 
-				Attrib::ExtAttrFact().createCalculator( myas );
+				Attrib::ExtAttrFact().create( 0, myas, false );
 
 		if ( !calc )
 		{
