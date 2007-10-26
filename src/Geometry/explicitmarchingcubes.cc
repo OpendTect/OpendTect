@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.16 2007-10-26 04:21:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.17 2007-10-26 21:02:38 cvsyuancheng Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -679,10 +679,6 @@ bool ExplicitMarchingCubesSurface::updateCoordinates( const int* modelidxs )
     return res;
 }
 
-
-#define mSetIndices( idx, size ) \
-    triangles_[idx].nrindices_ += size; \
-    triangles_[idx].indices_ += (char[])
 
 MarchingCubeLookupTable::MarchingCubeLookupTable()
 {
