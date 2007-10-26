@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.18 2007-10-10 01:13:12 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.cc,v 1.19 2007-10-26 05:31:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -207,7 +207,7 @@ void AuxDataEditor::getPointSelections( TypeSet<int>& ids,
 	    displayselpoly += Geom::Point2D<int>( rc.row, rc.col );
 	}
 
-	Polygon<int> polygon( displayselpoly );
+	ODPolygon<int> polygon( displayselpoly );
 
 	for ( int idy=0; idy<auxdata_.size(); idy++ )
 	{

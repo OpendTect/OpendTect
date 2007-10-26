@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.2 2007-10-09 21:53:02 cvskris Exp $
+ RCS:		$Id: polygon.h,v 1.3 2007-10-26 05:31:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,20 +18,20 @@ ________________________________________________________________________
 /*!\brief Closed sequence of connected 2-D coordinates */
 
 template <class T>
-class Polygon
+class ODPolygon
 {
 public:
-		Polygon()					{}
-		Polygon(const TypeSet<Geom::Point2D<T> >& plg) : poly_(plg) {}
+		ODPolygon()					{}
+		ODPolygon(const TypeSet<Geom::Point2D<T> >& plg) : poly_(plg) {}
 
-    int 	size() const		{ return poly_.size(); }
-    bool 	validIdx(int idx) const	{ return poly_.validIdx(idx); }
+    int 	size() const			{ return poly_.size(); }
+    bool 	validIdx(int idx) const		{ return poly_.validIdx(idx); }
     
-    void	add(const Geom::Point2D<T>& vtx){ poly_+=vtx; }
-    void	remove(int idx) 	{ poly_.remove(idx); }
+    void	add( const Geom::Point2D<T>& vtx )	{ poly_+=vtx; }
+    void	remove( int idx )			{ poly_.remove(idx); }
     void	insert(int idx,const Geom::Point2D<T>& vtx);
 
-    bool	isInside(const Geom::Point2D<T>&, bool inclborder,
+    bool	isInside(const Geom::Point2D<T>&,bool inclborder,
 	    		 T eps) const;
 
     const Geom::Point2D<T>&	getVertex(int idx) const;
@@ -73,23 +73,23 @@ protected:
 
 
 template <class T> inline
-void Polygon<T>::insert( int idx, const Geom::Point2D<T>& vtx )
+void ODPolygon<T>::insert( int idx, const Geom::Point2D<T>& vtx )
 { if ( idx>=0 && idx<=size() ) poly_.insert( idx, vtx ); }
 
 
 template <class T> inline
-const Geom::Point2D<T>& Polygon<T>::getVertex( int idx ) const
+const Geom::Point2D<T>& ODPolygon<T>::getVertex( int idx ) const
 { return poly_[idx]; }
 
 
 template <class T> inline
-const Geom::Point2D<T>& Polygon<T>::nextVertex( int idx ) const
+const Geom::Point2D<T>& ODPolygon<T>::nextVertex( int idx ) const
 { return poly_[ idx+1<size() ? idx+1 : 0 ]; }
 
 
 template <class T> inline
-bool Polygon<T>::isInside( const Geom::Point2D<T>& point,
-			   bool inclborder, T eps ) const
+bool ODPolygon<T>::isInside( const Geom::Point2D<T>& point,
+			     bool inclborder, T eps ) const
 {
     const Geom::Point2D<T> arbitrarydir( 1, 0 );
 
@@ -110,20 +110,20 @@ bool Polygon<T>::isInside( const Geom::Point2D<T>& point,
 
 
 template <class T> inline
-bool Polygon<T>::isOnSegment( const Geom::Point2D<T>& pt,
-			 const Geom::Point2D<T>& pt0,
-			 const Geom::Point2D<T>& pt1,
-			 T eps )
+bool ODPolygon<T>::isOnSegment( const Geom::Point2D<T>& pt,
+				const Geom::Point2D<T>& pt0,
+				const Geom::Point2D<T>& pt1,
+				T eps )
 {
     return isOnHalfLine( pt, pt1-pt0, pt0, eps ) &&
 	   isOnHalfLine( pt, pt0-pt1, pt1, eps );
 }
 
 template <class T> inline
-bool Polygon<T>::isOnHalfLine( const Geom::Point2D<T>& point,
-			  const Geom::Point2D<T>& dirvec,
-			  const Geom::Point2D<T>& endvec,
-			  T eps )
+bool ODPolygon<T>::isOnHalfLine( const Geom::Point2D<T>& point,
+				 const Geom::Point2D<T>& dirvec,
+				 const Geom::Point2D<T>& endvec,
+				 T eps )
 {
      if ( doCoincide(point, endvec, eps) )
 	 return true;
@@ -135,10 +135,10 @@ bool Polygon<T>::isOnHalfLine( const Geom::Point2D<T>& point,
 
 
 template <class T> inline
-bool Polygon<T>::isEdgeCrossing( const Geom::Point2D<T>& raydir,
-			    const Geom::Point2D<T>& raysrc,
-			    const Geom::Point2D<T>& vtx1,
-			    const Geom::Point2D<T>& vtx2 )
+bool ODPolygon<T>::isEdgeCrossing( const Geom::Point2D<T>& raydir,
+				   const Geom::Point2D<T>& raysrc,
+				   const Geom::Point2D<T>& vtx1,
+				   const Geom::Point2D<T>& vtx2 )
 {
     const bool vtx1right = isRightOfLine( vtx1, raydir, raysrc );
     const bool vtx2right = isRightOfLine( vtx2, raydir, raysrc );
@@ -152,37 +152,37 @@ bool Polygon<T>::isEdgeCrossing( const Geom::Point2D<T>& raydir,
 
 
 template <class T> inline
-bool Polygon<T>::isOnLine( const Geom::Point2D<T>& point,
-			   const Geom::Point2D<T>& dirvec,
-			   const Geom::Point2D<T>& posvec,
-			   T eps )
+bool ODPolygon<T>::isOnLine( const Geom::Point2D<T>& point,
+			     const Geom::Point2D<T>& dirvec,
+			     const Geom::Point2D<T>& posvec,
+			     T eps )
 {
     const double signeddist = sgnDistToLine( point, dirvec, posvec );
     return signeddist * signeddist <= eps * eps;
 }
 
 template <class T> inline
-bool Polygon<T>::isRightOfLine( const Geom::Point2D<T>& point,
-			   const Geom::Point2D<T>& dirvec,
-			   const Geom::Point2D<T>& posvec )
+bool ODPolygon<T>::isRightOfLine( const Geom::Point2D<T>& point,
+				  const Geom::Point2D<T>& dirvec,
+				  const Geom::Point2D<T>& posvec )
 {
     return sgnDistToLine( point, dirvec, posvec ) > 0;
 }
 
 
 template <class T> inline
-bool Polygon<T>::doCoincide( const Geom::Point2D<T>& point1,
-			const Geom::Point2D<T>& point2,
-			T eps=mDefEps )
+bool ODPolygon<T>::doCoincide( const Geom::Point2D<T>& point1,
+			       const Geom::Point2D<T>& point2,
+			       T eps=mDefEps )
 {
     return point1.sqDistTo( point2 ) <= eps * eps;
 }
 
 
 template <class T> inline
-double Polygon<T>::sgnDistToLine( const Geom::Point2D<T>& point,
-			     const Geom::Point2D<T>& dirvec,
-			     const Geom::Point2D<T>& posvec )
+double ODPolygon<T>::sgnDistToLine( const Geom::Point2D<T>& point,
+				    const Geom::Point2D<T>& dirvec,
+				    const Geom::Point2D<T>& posvec )
 {
     const double nolinedist = 0;
 
