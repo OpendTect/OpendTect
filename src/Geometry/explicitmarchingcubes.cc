@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.15 2007-10-18 21:47:02 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.16 2007-10-26 04:21:33 cvsnanne Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -689,7 +689,7 @@ MarchingCubeLookupTable::MarchingCubeLookupTable()
     triangles_[0].nrindices_ += 0;
     triangles_[255].nrindices_ += 0;
 
-    #include "marchingcubeslist.h"
+    #include "marchingcubeslist.cc"
 }
 
 
