@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.39 2007-08-23 15:25:19 cvsbert Exp $
+ RCS:           $Id: uimain.cc,v 1.40 2007-10-26 11:59:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,10 @@ uiMain::uiMain( QApplication* qapp )
     QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, false );
     QApplication::setColorSpec( QApplication::ManyColor );
     QApplication::setLibraryPaths( QStringList("/dev") );
+
+    QCoreApplication::setOrganizationName( "dGB");
+    QCoreApplication::setOrganizationDomain( "opendtect.org" );
+    QCoreApplication::setApplicationName( "OpendTect" );
 
     app_ = qapp;
 }
