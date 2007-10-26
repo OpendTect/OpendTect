@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.24 2007-03-06 07:40:55 cvsnanne Exp $
+ RCS:           $Id: uidockwin.cc,v 1.25 2007-10-26 04:44:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,11 +13,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uiparentbody.h"
 
-#ifdef USEQT3
-# include <qdockwindow.h>
-#else
-# include <QDockWidget>
-#endif
+#include <QDockWidget>
 
 #if defined( __mac__ ) || defined( __win__ )
 # define _redraw_hack_
@@ -90,12 +86,7 @@ Timer uiDockWinBody::redrtimer;
 uiDockWinBody::uiDockWinBody( uiDockWin& handle__, uiParent* parnt, 
 			      const char* nm )
 	: uiParentBody( nm )
-#ifdef USEQT3
-	, QDockWindow( InDock, parnt && parnt->pbody() ?  
-					parnt->pbody()->qwidget() : 0, nm ) 
-#else
         , QDockWidget( nm )
-#endif
 	, handle_( handle__ )
 	, initing( true )
 	, centralWidget_( 0 )
@@ -108,10 +99,9 @@ uiDockWinBody::uiDockWinBody( uiDockWin& handle__, uiParent* parnt,
     redrtimer.start( 500, true );
 #endif
 
-#ifndef USEQT3
     QDockWidget::setFeatures( QDockWidget::DockWidgetMovable | 
 	    		      QDockWidget::DockWidgetFloatable );
-#endif
+    setObjectName( nm );
 }
 
 
