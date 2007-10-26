@@ -4,10 +4,11 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.12 2007-10-25 15:12:35 cvskris Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.13 2007-10-26 21:06:25 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
+#include "vismarker.h"
 #include "arrayndimpl.h"
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
@@ -19,6 +20,7 @@ static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.12 2007-1
 #include "position.h"
 #include "survinfo.h"
 #include "visboxdragger.h"
+#include "viscoord.h"
 #include "visdragger.h"
 #include "visellipsoid.h"
 #include "visevent.h"
@@ -26,6 +28,8 @@ static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.12 2007-1
 #include "visinvisiblelinedragger.h"
 #include "vismaterial.h"
 #include "vispickstyle.h"
+#include "vispolyline.h"
+#include "visshape.h"
 
 #define mKernelSize 11
 #define mHalfKernel 5
@@ -41,8 +45,8 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     , initialdragger_( visBase::BoxDragger::create() )
     , displaysurface_( 0 )
     , surfaceeditor_( 0 )
-    , eventcatcher_( 0 )
     , factordragger_( 0 )
+    , eventcatcher_( 0 )
     , allowdrag_( false )
     , initialellipsoid_( visBase::Ellipsoid::create() )
     , minsampleinlsz_( 0 )						
@@ -50,7 +54,8 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     , minsamplezsz_( 0 )
     , previoussample_( false )
     , kernelpickstyle_( 0 )			     
-    , kernelellipsoid_( 0 )						     
+    , kernelellipsoid_( 0 )
+    , normalline_( visBase::IndexedPolyLine::create() )			   
 {
     initialdragger_->ref();
     initialdragger_->turnOn( true );
@@ -60,6 +65,9 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     initialellipsoid_->removeSwitch();
     initialellipsoid_->setMaterial( 0 );
     addChild( initialellipsoid_->getInventorNode() );
+
+    normalline_->ref();
+    addChild( normalline_->getInventorNode() );
 
     getMaterial()->setAmbience( 0.3 );
 
@@ -127,11 +135,20 @@ MarchingCubesDisplay::~MarchingCubesDisplay()
 	factordragger_->unRef();
     }
 
+    if ( kerneldragger_ )
+    {
+	removeChild( kerneldragger_->getInventorNode() );
+	kerneldragger_->unRef();
+    }
+
     if ( kernelpickstyle_ )
 	kernelpickstyle_->unRef();
 
     if ( kernelellipsoid_ )
 	kernelellipsoid_->unRef();
+
+    if ( normalline_ )
+	normalline_->unRef();
 
     delete surfaceeditor_;
     setSceneEventCatcher(0);
@@ -259,7 +276,7 @@ void MarchingCubesDisplay::updateVisFromEM( bool onlyshape )
 
     if ( emsurface_ && !emsurface_->surface().isEmpty() )
 	removeInitialDragger();
-
+    
     displaysurface_->touch();
 }
 
@@ -280,6 +297,12 @@ void MarchingCubesDisplay::showManipulator( bool yn )
 	factordragger_->needsDirection.notify(mCB(this,MarchingCubesDisplay,
 		    		      setDragDirection));
     }
+
+    if ( kernelellipsoid_ )
+	kernelellipsoid_->turnOn( yn );
+
+    if ( normalline_  )
+	normalline_->turnOn( yn );
 
     allowdrag_ = yn;
 } 
@@ -324,24 +347,25 @@ bool MarchingCubesDisplay::createInitialBody( bool allowswap )
     const float hysz = (float)ysz/2-0.5;
     const float hzsz = (float)zsz/2-0.5;
     
-    PtrMan<Array3DImpl<float> > array = new Array3DImpl<float> (xsz, ysz, zsz);
+    PtrMan<Array3DImpl<float> > array = new Array3DImpl<float> (
+	    				xsz+2, ysz+2, zsz+2 );
     if ( !array || !array->isOK() )
 	return false;
     
-    for ( int idx=0; idx<xsz; idx++ )
+    for ( int idx=0; idx<xsz+2; idx++ )
     {
-	for ( int idy=0; idy<ysz; idy++ )
+	for ( int idy=0; idy<ysz+2; idy++ )
 	{
-	    for ( int idz=0; idz<zsz; idz++ )
+	    for ( int idz=0; idz<zsz+2; idz++ )
 	    {
-		const float diffx = ((float)idx-hxsz)/hxsz;
-		const float diffy = ((float)idy-hysz)/hysz;
-		const float diffz = ((float)idz-hzsz)/hzsz;
+		const float diffx = ((float)idx-1-hxsz)/hxsz;
+		const float diffy = ((float)idy-1-hysz)/hysz;
+		const float diffz = ((float)idz-1-hzsz)/hzsz;
 		const float diff = sqrt( diffx*diffx+diffy*diffy+diffz*diffz );
 		array->set( idx, idy, idz, diff );
 	    }
 	}
-    }
+    } 
 
     emsurface_->setInlSampling(
 	    SamplingData<int>(cs.hrg.start.inl,cs.hrg.step.inl) );
@@ -352,7 +376,7 @@ bool MarchingCubesDisplay::createInitialBody( bool allowswap )
     
     ::MarchingCubesSurface& mcs = emsurface_->surface();
     mcs.removeAll();
-    mcs.setVolumeData( 0, 0, 0, *array, 1 );
+    mcs.setVolumeData( -1, -1, -1, *array, 1 );
 
     array = 0;
 
@@ -521,10 +545,11 @@ void MarchingCubesDisplay::setDisplayTransformation(visBase::Transformation* nt)
     if ( displaysurface_ ) displaysurface_->setDisplayTransformation( nt );
     if ( initialellipsoid_ ) initialellipsoid_->setDisplayTransformation( nt );
     if ( kernelellipsoid_ ) kernelellipsoid_->setDisplayTransformation( nt );
+    if ( normalline_ ) normalline_->setDisplayTransformation( nt );
 }
 
 
-void MarchingCubesDisplay::setRightHandSystem(bool yn)
+void MarchingCubesDisplay::setRightHandSystem( bool yn )
 {
     visBase::VisualObjectImpl::setRightHandSystem( yn );
     if ( displaysurface_ ) displaysurface_->setRightHandSystem( yn );
@@ -541,22 +566,20 @@ void MarchingCubesDisplay::setDragDirection( CallBacker* cb )
 	return;
 
     const Coord3& wp = factordragger_->getStartPos();
-
-    const int surfacepos[] = { emsurface_->inlSampling().nearestIndex(wp.x),
-			       emsurface_->crlSampling().nearestIndex(wp.y),
-			       emsurface_->zSampling().nearestIndex(wp.z) };
+    int surfacepos[] = { 
+	emsurface_->inlSampling().nearestIndex( mNINT(wp.x) ),
+	emsurface_->crlSampling().nearestIndex( mNINT(wp.y) ),
+	emsurface_->zSampling().nearestIndex( wp.z ) };
     const BinID bid( emsurface_->inlSampling().atIndex( surfacepos[0]) ,
 	             emsurface_->crlSampling().atIndex( surfacepos[1]) );
 
     if ( !surfaceeditor_ )
 	surfaceeditor_ = new MarchingCubesSurfaceEditor(emsurface_->surface());
-
+    
     PtrMan<Array3D<unsigned char> > kernel = 
 			createKernel( mKernelSize,mKernelSize, mKernelSize );
     surfaceeditor_->setKernel( *kernel, surfacepos[0]-mHalfKernel, 
 	    surfacepos[1]-mHalfKernel, surfacepos[2]-mHalfKernel );
-
-    factordragger_->setDirection( surfaceeditor_->getCenterNormal() );
 
     if ( !kernelpickstyle_ )
     {
@@ -577,23 +600,43 @@ void MarchingCubesDisplay::setDragDirection( CallBacker* cb )
 	addChild( kernelellipsoid_->getInventorNode() );
     }
 
-    kernelellipsoid_->setCenterPos( Coord3(bid.inl, bid.crl, wp.z ) );
-    kernelellipsoid_->setWidth( 
-	    Coord3( emsurface_->inlSampling().step*mKernelSize,
-		    emsurface_->crlSampling().step*mKernelSize,
-    		    emsurface_->zSampling().step*mKernelSize ) );
-
-    kerneldragger_->setPos( Coord3(bid.inl, bid.crl, wp.z ) );
-    kerneldragger_->setSize( 
-	    Coord3( emsurface_->inlSampling().step*mKernelSize,
-		    emsurface_->crlSampling().step*mKernelSize,
-    		    emsurface_->zSampling().step*mKernelSize ) );
-    
+    Coord3 center( bid.inl, bid.crl, wp.z );
+    Coord3 width( emsurface_->inlSampling().step*mKernelSize,
+	          emsurface_->crlSampling().step*mKernelSize,
+     		  emsurface_->zSampling().step*mKernelSize );
+    kernelellipsoid_->setCenterPos( center );
+    kernelellipsoid_->setWidth( width );
+    kerneldragger_->setPos( center );
+    kerneldragger_->setSize( width );
+   
     if ( !kernelellipsoid_->getMaterial() )
 	kernelellipsoid_->setMaterial( visBase::Material::create() );
+
     kernelellipsoid_->getMaterial()->setTransparency( 0.8 );
     kernelellipsoid_->getMaterial()->setColor( 
 	    getMaterial()->getColor().complementaryColor() );
+
+    float r = width.x<width.y? width.x:width.y;
+    r = r<width.z? r:width.z;
+    Coord3 nm = surfaceeditor_->getCenterNormal();
+    nm = Coord3(nm.x*emsurface_->inlSampling().step, 
+	        nm.y*emsurface_->crlSampling().step,
+	       	nm.z*emsurface_->zSampling().step);
+    
+    normalline_->getCoordinates()->setPos( 0, center-r*nm );
+    normalline_->getCoordinates()->setPos( 1, center+r*nm );
+    normalline_->setCoordIndex(0, 0);
+    normalline_->setCoordIndex(1, 1);
+    normalline_->setCoordIndex(2, -1);
+    
+    if ( !normalline_->getMaterial() )
+	normalline_->setMaterial( visBase::Material::create() );
+
+    normalline_->getMaterial()->setTransparency( 0 );
+    normalline_->getMaterial()->setColor( 
+	    getMaterial()->getColor().complementaryColor() );
+
+    factordragger_->setDirection( nm );
 }
 
 
@@ -602,8 +645,9 @@ void MarchingCubesDisplay::factorDrag( CallBacker* )
     if ( !factordragger_ )
 	return;
 
-    const float drag = factordragger_->getTranslation().x;
-    surfaceeditor_->setFactor( mNINT(drag*255) );
+    const float drag = factordragger_->getTranslation().dot(
+	    surfaceeditor_->getCenterNormal() );
+    surfaceeditor_->setFactor( -mNINT(drag*255) );
     updateVisFromEM( true );
 }
 

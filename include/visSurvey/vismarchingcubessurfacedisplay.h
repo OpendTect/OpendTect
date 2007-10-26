@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.10 2007-10-25 15:12:35 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.11 2007-10-26 21:06:25 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -26,6 +26,7 @@ namespace visBase
     class BoxDragger;
     class Dragger;
     class Ellipsoid;
+    class IndexedPolyLine;
     class MarchingCubesSurface;
     class PickStyle;
     class Transformation;
@@ -103,6 +104,7 @@ protected:
     visBase::PickStyle*			kernelpickstyle_;
     visBase::Ellipsoid*			kernelellipsoid_;
     visBase::Dragger*			kerneldragger_;
+    visBase::IndexedPolyLine*		normalline_;
 
     double				minsampleinlsz_;
     double				minsamplecrlsz_;
