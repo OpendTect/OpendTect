@@ -4,7 +4,7 @@
  * DATE     : August 2007
 -*/
 
-static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.6 2007-10-18 21:47:02 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.7 2007-10-26 21:03:41 cvsyuancheng Exp $";
 
 #include "marchingcubeseditor.h"
 #include "marchingcubes.h"
@@ -91,7 +91,7 @@ bool MarchingCubesSurfaceEditor::setKernel( const Array3D<unsigned char>& arr,
 	{
 	    for ( int idx=0; idx<arr.info().getSize(mX); idx++ )
 	    {
-		kernel_->set( idx+1, idy+1, idz+1, arr.get( idx, idy, idz ) );
+		kernel_->set( idx+1, idy+1, idz+1, arr.get(idx,idy,idz));
 	    }
 	}
     }
@@ -106,9 +106,21 @@ bool MarchingCubesSurfaceEditor::setKernel( const Array3D<unsigned char>& arr,
 
     MarchingCubes2Implicit mc2i( surface_, *originalsurface_,
 	xorigin_, yorigin_, zorigin_ );
-
     if ( !mc2i.compute() )
 	mErrRet;
+
+    Interval<int> xrg(0, kernel_->info().getSize(mX)+1 );
+    Interval<int> yrg(0, kernel_->info().getSize(mY)+1 );
+    Interval<int> zrg(0, kernel_->info().getSize(mZ)+1 );
+    int centval = originalsurface_->get(xrg.center(),yrg.center(),zrg.center());
+    int dx = originalsurface_->get(xrg.center()+1,yrg.center(),zrg.center())-
+		centval;
+    int dy = originalsurface_->get(xrg.center(),yrg.center()+1,zrg.center())-
+		centval;
+    int dz = originalsurface_->get(xrg.center(),yrg.center(),zrg.center()+1)-
+		centval;
+    Coord3 direction( dx, dy, dz );
+    centernormal_ = direction.normalize();
 
     threshold_ = mc2i.threshold();
     factor_ = 0;
@@ -149,6 +161,7 @@ bool MarchingCubesSurfaceEditor::affectedVolume(Interval<int>& xrg,
     xrg =  Interval<int>(xorigin_, xorigin_+kernel_->info().getSize(mX)-1 );
     yrg =  Interval<int>(yorigin_, yorigin_+kernel_->info().getSize(mY)-1 );
     zrg =  Interval<int>(zorigin_, zorigin_+kernel_->info().getSize(mZ)-1 );
+
     return true;
 }
 
@@ -210,6 +223,7 @@ bool MarchingCubesSurfaceEditor::doWork( int start, int stop, int )
 	changedsurfptr++;
 	origptr++;
     }
+    
 
     return true;
 }

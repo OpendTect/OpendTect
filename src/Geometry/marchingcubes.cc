@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.7 2007-10-09 20:00:44 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.8 2007-10-26 21:03:41 cvsyuancheng Exp $";
 
 #include "marchingcubes.h"
 
@@ -706,21 +706,34 @@ protected:
 		if ( model.axispos_[dim]==MarchingCubesModel::cUdfAxisPos )
 		    continue;
 		
-		const int dist = model.axispos_[dim];
+		int dist = model.axispos_[dim];
 		
 		if ( !isset || dist<mindist )
 		{
 		    mindist = dist;
 		    isset = true;
 		}
+
+		int neighborpos[] ={modelpos[mX],modelpos[mY],modelpos[mZ]};
+		neighborpos[dim] += 1;
+
+		int neighbordist = MarchingCubesModel::cAxisSpacing-dist;
+		mc2i_.setValue(neighborpos[mX],neighborpos[mY],
+			       neighborpos[mZ],
+			       neighborsign ? neighbordist : -neighbordist );
+
+		//if ( dist ) continue;
+
+		neighborpos[dim] -= 2;
+		int neighboridxs[3];
+		if ( mc2i_.surface_.models_.findFirst( neighborpos,
+						 neighboridxs ) )
+		    continue;
 		
-		int neighborpos[] = { modelpos[mX], modelpos[mY], modelpos[mZ]};
-		neighborpos[dim]++;
-		
-		const int neighbordist =
-		    MarchingCubesModel::cAxisSpacing - dist;
-		mc2i_.setValue(neighborpos[mX],neighborpos[mY],neighborpos[mZ],
-			  neighborsign ? neighbordist : -neighbordist );
+		neighbordist = MarchingCubesModel::cAxisSpacing+dist;
+		mc2i_.setValue(neighborpos[mX],neighborpos[mY],
+			       neighborpos[mZ],
+			       originsign ? neighbordist : -neighbordist );
 	    }
 	    
 	    if ( isset )
@@ -745,51 +758,57 @@ class MarchingCuebs2ImplicitFloodFiller : public BasicTask
 {
 public:
     MarchingCuebs2ImplicitFloodFiller( MarchingCubes2Implicit& mc2i,
-	   				int posx, int posy, int posz )
+	   				int arrposx, int arrposy, int arrposz )
 	: mc2i_( mc2i )
-	, posx_( posx )
-	, posy_( posy )
-	, posz_( posz )
+	, arrposx_( arrposx )
+	, arrposy_( arrposy )
+	, arrposz_( arrposz )
     {}
 
     int nextStep()
     {
 	mc2i_.resultlock_.readLock();
-	const int prevalue = mc2i_.result_.get( posx_, posy_, posz_ );
+	const int prevvalue = mc2i_.result_.get( arrposx_, arrposy_, arrposz_ );
 	mc2i_.resultlock_.readUnLock();
 
-	const int neighbordist = prevalue>0
-	    ? MarchingCubesModel::cAxisSpacing
-	    : -MarchingCubesModel::cAxisSpacing;
+	if ( !prevvalue )
+	    return cFinished();
+
+	const int neighborval = prevvalue>0
+	    ? prevvalue+MarchingCubesModel::cAxisSpacing
+	    : prevvalue-MarchingCubesModel::cAxisSpacing;
 
 	for ( int idx=-1; idx<=1; idx++ )
 	{
-	    const int nxpos = posx_+idx;
-	    if ( nxpos<0 || nxpos>=mc2i_.result_.info().getSize(mX) )
+	    if ( !idx ) continue;
+	    const int nxarrpos = arrposx_+idx;
+	    if ( nxarrpos<0 || nxarrpos>=mc2i_.result_.info().getSize(mX) )
 		continue;
 
-	    mc2i_.setValue( nxpos+mc2i_.originx_, posy_+mc2i_.originy_, 
-			    posz_+mc2i_.originz_, prevalue+neighbordist );
+	    mc2i_.setValue( nxarrpos+mc2i_.originx_, arrposy_+mc2i_.originy_, 
+			    arrposz_+mc2i_.originz_, neighborval );
 	}
 
 	for ( int idy=-1; idy<=1; idy++ )
 	{
-	    const int nypos = posy_+idy;
-	    if ( nypos<0 || nypos>=mc2i_.result_.info().getSize(mY) )
+	    if ( !idy ) continue;
+	    const int nyarrpos = arrposy_+idy;
+	    if ( nyarrpos<0 || nyarrpos>=mc2i_.result_.info().getSize(mY) )
 		continue;
 
-	    mc2i_.setValue( posx_+mc2i_.originx_, nypos+mc2i_.originy_, 
-			    posz_+mc2i_.originz_, prevalue+neighbordist );
+	    mc2i_.setValue( arrposx_+mc2i_.originx_, nyarrpos+mc2i_.originy_, 
+			    arrposz_+mc2i_.originz_, neighborval );
 	}
 
 	for ( int idz=-1; idz<=1; idz++ )
 	{
-	    const int nzpos = posz_+idz;
-	    if ( nzpos<0 || nzpos>=mc2i_.result_.info().getSize(mZ) )
+	    if ( !idz ) continue;
+	    const int nzarrpos = arrposz_+idz;
+	    if ( nzarrpos<0 || nzarrpos>=mc2i_.result_.info().getSize(mZ) )
 		continue;
 
-	    mc2i_.setValue( posx_+mc2i_.originx_, posy_+mc2i_.originy_, 
-			    nzpos+mc2i_.originz_, prevalue+neighbordist );
+	    mc2i_.setValue( arrposx_+mc2i_.originx_, arrposy_+mc2i_.originy_, 
+			    nzarrpos+mc2i_.originz_, neighborval );
 	}
 
 	return cFinished();
@@ -797,16 +816,16 @@ public:
 
     void setIndices( int idx, int idy, int idz )
     {
-	posx_ = idx;
-	posy_ = idy;
-	posz_ = idz;
+	arrposx_ = idx;
+	arrposy_ = idy;
+	arrposz_ = idz;
     }
 
 protected:
     MarchingCubes2Implicit&	mc2i_;
-    int				posx_;
-    int				posy_;
-    int				posz_;
+    int				arrposx_;
+    int				arrposy_;
+    int				arrposz_;
 };
 
 
@@ -881,20 +900,31 @@ void  MarchingCubes2Implicit::setValue( int xpos,int ypos,int zpos,int newval )
 
     resultlock_.readLock();
     const bool shouldset = shouldSetResult( newval, result_.get(idx,idy,idz) );
-    resultlock_.readUnLock();
 
     if ( !shouldset )
+    {
+	resultlock_.readUnLock();
 	return;
+    }
 
-    resultlock_.writeLock();
-    if ( shouldSetResult( newval, result_.get(idx,idy,idz) ) )
-	result_.set( idx, idy, idz, newval );
+    if ( !resultlock_.convToWriteLock() &&
+	 !shouldSetResult( newval, result_.get(idx,idy,idz) ) )
+    {
+	resultlock_.writeUnLock();
+	return;
+    }
 
-    MarchingCuebs2ImplicitFloodFiller* floodfiller = oldfloodfillers_.size()
-	? oldfloodfillers_.remove( oldfloodfillers_.size()-1 )
-	: new MarchingCuebs2ImplicitFloodFiller( *this, xpos, ypos, zpos );
+    result_.set( idx, idy, idz, newval );
 
-    floodfiller->setIndices( idx, idy, idz );
+    MarchingCuebs2ImplicitFloodFiller* floodfiller = 0;
+    if ( oldfloodfillers_.size() )
+    {
+	floodfiller = oldfloodfillers_.remove( oldfloodfillers_.size()-1 );
+	floodfiller->setIndices( idx, idy, idz );
+    }
+    else
+	floodfiller = new MarchingCuebs2ImplicitFloodFiller(*this,idx,idy,idz);
+
     newfloodfillers_ += floodfiller;
 
     resultlock_.writeUnLock();
@@ -915,9 +945,7 @@ bool MarchingCubes2Implicit::shouldSetResult( int newval, int prevvalue )
 	const int newdist = abs(newval);
 	
 	if ( prevdist<=newdist )
-	{
 	    return false;
-	}
     }
 
     return true;
