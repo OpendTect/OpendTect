@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.41 2007-10-03 08:28:28 cvsjaap Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.42 2007-10-26 12:01:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -241,6 +241,7 @@ uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarDock d,
     //TODO: impl preferred dock
     Qt::ToolBarDock tbdock = uiToolBarBody::qdock( d );
     qtoolbar_ = new QToolBar( QString(nm) );
+    qtoolbar_->setObjectName( nm );
     setBody( &mkbody(nm,*qtoolbar_) );
 
     toolBars() += this;
