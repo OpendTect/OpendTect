@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Aug 2007
- RCS:           $Id: import_hor2d.cc,v 1.2 2007-10-23 09:47:54 cvsraman Exp $
+ RCS:           $Id: import_hor2d.cc,v 1.3 2007-10-29 05:43:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ ________________________________________________________________________
     Struct HorLine2D contains data for all Horizons for a line. It basically 
     represents a 2D Line from the input file.
 */
+
 struct HorLine2D
 {
     TypeSet<Coord>		pos_;
@@ -50,7 +51,7 @@ struct HorLine2D
 
 static int prUsage( const char* msg = 0 )
 {
-    std::cerr << "Usage: [Input file] [LineSet] [Horizon Name(s)]";
+    std::cerr << "Usage: InputAsciiFile LineSetName HorizonName(s)";
     if ( msg ) std::cerr << '\n' << msg;
     std::cerr << std::endl;
     return 1;
