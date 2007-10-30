@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.42 2007-10-26 12:01:04 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.43 2007-10-30 11:24:41 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ public:
 				  const char*,bool);
     int 		addButton(const char*,const CallBack&,const char*,bool);
     void		addObject(uiObject*);
+    void		clear();
     void		turnOn(int idx, bool yn );
     bool		isOn(int idx ) const;
     void		setSensitive(int idx, bool yn );
@@ -105,10 +106,7 @@ uiToolBarBody::uiToolBarBody( uiToolBar& handle, QToolBar& bar )
 
 
 uiToolBarBody::~uiToolBarBody()	
-{ 
-    for ( int idx=0; idx<butindex_.size(); idx++ )
-	delete objects_[butindex_[idx]];
-}
+{ clear(); }
 
 
 int uiToolBarBody::addButton( const char* fnm, const CallBack& cb,
@@ -141,6 +139,17 @@ void uiToolBarBody::addObject( uiObject* obj )
 #endif
 }
 
+
+void uiToolBarBody::clear()
+{
+    qbar_->clear();
+
+    for ( int idx=0; idx<butindex_.size(); idx++ )
+	delete objects_[butindex_[idx]];
+
+    objects_.erase();
+    butindex_.erase();
+}
 
 #define mToolBarBut(idx) dynamic_cast<uiToolButton*>(objects_[butindex_[idx]])
 #define mConstToolBarBut(idx) \
@@ -260,8 +269,8 @@ uiToolBar::~uiToolBar()
     mDynamicCastGet(uiMainWin*,uimw,parent_)
     if ( uimw ) uimw->removeToolBar( this );
 
-    delete qtoolbar_;
     delete body_;
+    delete qtoolbar_;
 }
 
 
@@ -366,7 +375,7 @@ void uiToolBar::reLoadPixMaps()
 
 
 void uiToolBar::clear()
-{ qtoolbar_->clear(); }
+{ body_->clear(); }
 
 
 const ObjectSet<uiObject>& uiToolBar::objectList() const
