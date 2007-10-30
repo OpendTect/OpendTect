@@ -4,7 +4,7 @@
  * DATE     : August 2007
 -*/
 
-static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.7 2007-10-26 21:03:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.8 2007-10-30 01:54:11 cvskris Exp $";
 
 #include "marchingcubeseditor.h"
 #include "marchingcubes.h"
@@ -221,7 +221,8 @@ bool MarchingCubesSurfaceEditor::doWork( int start, int stop, int )
 	*changedsurfptr = *origptr + (factor_*(*kernelptr)>>8);
 	kernelptr++;
 	changedsurfptr++;
-	origptr++;
+	origptr++; 
+	reportNrDone();
     }
     
 

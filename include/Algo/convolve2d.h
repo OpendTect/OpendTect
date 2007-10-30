@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolve2d.h,v 1.2 2007-07-11 20:51:37 cvskris Exp $
+ RCS:           $Id: convolve2d.h,v 1.3 2007-10-30 01:54:10 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -88,7 +88,7 @@ bool Convolver2D<T>::doWork( int start, int stop, int )
     const int dim1ysz = y_->info().getSize( 1 );
     const int dim1zsz = z_->info().getSize( 1 );
 
-    for ( int idz0=start; idz0<=stop; idz0++ )
+    for ( int idz0=start; idz0<=stop; idz0++, reportNrDone() )
     {
 	const int zdim0 = idz0;
 	for ( int idz1=0; idz1<dim1zsz; idz1++ )

@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.17 2007-10-26 21:02:38 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.18 2007-10-30 01:54:11 cvskris Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -76,7 +76,7 @@ protected:
 	const MultiDimStorage<MarchingCubesModel>& models = 
 	    surface_.getSurface()->models_;
 
-	for ( int idx=start; idx<=stop; idx++ )
+	for ( int idx=start; idx<=stop; idx++, reportNrDone() )
 	{
 	    if ( usetable )
 		memcpy( idxs, tableidxs+idx*3, sizeof(int)*3 );

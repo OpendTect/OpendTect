@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.2 2007-10-22 11:33:51 cvsjaap Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.3 2007-10-30 01:54:11 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -52,7 +52,8 @@ int minThreadSize() const { return 1; }
 
 bool doWork( int start, int stop, int )
 {
-    for ( int idx=start; idx<=stop && idx<updatelist_.size(); idx++ )
+    for ( int idx=start; idx<=stop && idx<updatelist_.size();
+	  idx++, reportNrDone() )
     {
 	if ( updatesticksnotpanels_ )
 	    explsurf_.fillStick( updatelist_[idx] );

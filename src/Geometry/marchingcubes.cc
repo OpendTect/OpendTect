@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.8 2007-10-26 21:03:41 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.9 2007-10-30 01:54:11 cvskris Exp $";
 
 #include "marchingcubes.h"
 
@@ -451,7 +451,7 @@ bool Implicit2MarchingCubes::doWork( int start, int stop, int )
     iterator.setPos( arraypos );
 
     const int nriters = stop-start+1;
-    for ( int idx=0; idx<nriters; idx++, iterator.next() )
+    for ( int idx=0; idx<nriters; idx++, iterator.next(), reportNrDone() )
     {
 	const int pos[] = { iterator[mX]+xorigin_, iterator[mY]+yorigin_,
 			    iterator[mZ]+zorigin_ };
@@ -687,7 +687,7 @@ protected:
 	if ( !mc2i_.surface_.models_.isValidPos( surfaceidxs ) )
 	    return false;
 
-	for ( int idx=0; idx<nrtimes; idx++ )
+	for ( int idx=0; idx<nrtimes; idx++, reportNrDone() )
 	{
 	    int modelpos[3];
 	    if ( !mc2i_.surface_.models_.getPos( surfaceidxs, modelpos ) )

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackstacker.cc,v 1.1 2007-10-03 14:03:13 cvskris Exp $";
+static const char* rcsID = "$Id: prestackstacker.cc,v 1.2 2007-10-30 01:54:11 cvskris Exp $";
 
 #include "prestackstacker.h"
 
@@ -85,7 +85,7 @@ bool Stack::usePar( const IOPar& par )
 bool Stack::doWork( int start, int stop, int )
 {
     const int nroffsets = input_->data().info().getSize(Gather::offsetDim());
-    for ( int idz=start; idz<=stop; idz++ )
+    for ( int idz=start; idz<=stop; idz++, reportNrDone() )
     {
 	int nrvals = 0;
 	float stack;

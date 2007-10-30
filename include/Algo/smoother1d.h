@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		May 2007
- RCS:		$Id: smoother1d.h,v 1.3 2007-07-23 17:01:25 cvskris Exp $
+ RCS:		$Id: smoother1d.h,v 1.4 2007-10-30 01:54:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,7 +178,7 @@ bool Smoother1D<T>::doWork(int start,int stop,int)
     const int windowsize = window_.size();
     const int hwinsize = windowsize/2;
 
-    for ( int outidx=start; outidx<=stop; outidx++ )
+    for ( int outidx=start; outidx<=stop; outidx++, reportNrDone() )
     {
 	if ( firstdefined_==-1 || outidx<firstdefined_ || outidx>lastdefined_ )
 	{

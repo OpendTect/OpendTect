@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: array2dresample.h,v 1.1 2006-09-26 21:57:32 cvskris Exp $
+ RCS:           $Id: array2dresample.h,v 1.2 2007-10-30 01:54:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,7 +111,7 @@ bool Array2DReSampler<T,TT>::doWork( int start, int stop, int )
 {
     const int ysize = to_->info().getSize( mYDim );
 
-    for ( int idx=start; idx<=stop; idx++ )
+    for ( int idx=start; idx<=stop; idx++, reportNrDone() )
     {
 	const float sourcex = xsampling_.atIndex( idx );
 

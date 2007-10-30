@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackagc.cc,v 1.4 2007-10-05 10:38:35 cvsnanne Exp $";
+static const char* rcsID = "$Id: prestackagc.cc,v 1.5 2007-10-30 01:54:11 cvskris Exp $";
 
 #include "prestackagc.h"
 
@@ -86,7 +86,7 @@ bool AGC::doWork( int start, int stop, int )
     const bool doclip = !mIsZero( mutefraction_, 1e-5 );
     DataClipper clipper;
 
-    for ( int offsetidx=start; offsetidx<=stop; offsetidx++ )
+    for ( int offsetidx=start; offsetidx<=stop; offsetidx++, reportNrDone() )
     {
 	mVariableLengthArr( float, energies, nrsamples );
 	for ( int sampleidx=0; sampleidx<nrsamples; sampleidx++ )
