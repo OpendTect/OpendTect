@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.60 2007-10-04 12:04:44 cvsnanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.61 2007-10-30 06:45:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -736,7 +736,7 @@ bool uiStoreWellDlg::checkInpFlds()
 #endif
 	if ( usemodel && !*d2tgrp->fileName() )
 	    mErrRet( "Please select 'Depth to Time model' file" )
-	else
+	else if ( !usemodel && constvelfld )
 	{
 	    const float vel = constvelfld->getfValue();
 	    if ( mIsUdf(vel) || vel<=0 )
