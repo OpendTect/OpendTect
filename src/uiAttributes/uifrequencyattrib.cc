@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.cc,v 1.12 2007-10-12 09:12:19 cvssulochana Exp $
+ RCS:           $Id: uifrequencyattrib.cc,v 1.13 2007-10-30 04:24:36 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uiattribfactory.h"
 #include "uiattrsel.h"
 #include "uigeninput.h"
+#include "uiwindowfunctionsel.h"
 
 using namespace Attrib;
 
@@ -62,8 +63,7 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
     normfld = new uiGenInput( this, "Normalize", BoolInpSpec(false) );
     normfld->attach( alignedBelow, gatefld );
 
-    winfld = new uiGenInput( this, "Window/Taper", StringListInpSpec(winstrs) );
-    winfld->setElemSzPol( uiObject::MedVar );
+    winfld = new uiWindowFunctionSel( this, "Window/Taper" );
     winfld->attach( alignedBelow, normfld ); 
 
     outpfld = new uiGenInput( this, "Output", StringListInpSpec(outpstrs) );
@@ -82,7 +82,10 @@ bool uiFrequencyAttrib::setParameters( const Attrib::Desc& desc )
     mIfGetFloatInterval( Frequency::gateStr(), gate, gatefld->setValue(gate) );
     mIfGetBool( Frequency::normalizeStr(), normalize,
 	        normfld->setValue(normalize) );
-    mIfGetEnum( Frequency::windowStr(), window, winfld->setValue(window) );
+    mIfGetString( Frequency::windowStr(), window,
+	        winfld->setWindowName(window) );
+    mIfGetFloat( Frequency::paramvalStr(), variable,
+	         winfld->setWindowParamValue(variable) );
 
     return true;
 }
@@ -109,7 +112,8 @@ bool uiFrequencyAttrib::getParameters( Attrib::Desc& desc )
 
     mSetFloatInterval( Frequency::gateStr(), gatefld->getFInterval() );
     mSetBool( Frequency::normalizeStr(), normfld->getBoolValue() );
-    mSetEnum( Frequency::windowStr(), winfld->getIntValue() );
+    mSetString( Frequency::windowStr(), winfld->windowName() );
+    mSetFloat( Frequency::paramvalStr(), winfld->windowParamValue() );
 
     return true;
 }
