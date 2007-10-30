@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.57 2007-10-24 04:41:46 cvsraman Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.58 2007-10-30 01:39:29 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -118,6 +118,8 @@ public:
     void			getAllKnotPos(TypeSet<BinID>&) const;
     void			removeKnot(int);
     void			setKnotPositions(const TypeSet<BinID>&);
+    void			lockGeometry(bool);
+    bool			isGeometryLocked() const;
 
     void			setDepthInterval(const Interval<float>&);
     Interval<float>		getDepthInterval() const;
@@ -174,6 +176,7 @@ protected:
 
     ZAxisTransform*		datatransform_;
 
+    bool			lockgeometry_;
     bool			ismanip_;
     int				namenr_;
 
@@ -181,6 +184,7 @@ protected:
     static const char*		sKeyNrKnots();
     static const char*		sKeyKnotPrefix();
     static const char*		sKeyDepthInterval();
+    static const char*		sKeyLockGeometry();
 
 };
 

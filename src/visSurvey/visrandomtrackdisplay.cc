@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.95 2007-10-24 04:42:17 cvsraman Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.96 2007-10-30 01:39:29 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -46,6 +46,7 @@ const char* RandomTrackDisplay::sKeyTrack() 	    { return "Random track"; }
 const char* RandomTrackDisplay::sKeyNrKnots() 	    { return "Nr. Knots"; }
 const char* RandomTrackDisplay::sKeyKnotPrefix()    { return "Knot "; }
 const char* RandomTrackDisplay::sKeyDepthInterval() { return "Depth Interval"; }
+const char* RandomTrackDisplay::sKeyLockGeometry()  { return "Lock geometry"; }
 
 RandomTrackDisplay::RandomTrackDisplay()
     : VisualObjectImpl(true)
@@ -57,6 +58,7 @@ RandomTrackDisplay::RandomTrackDisplay()
     , selknotidx_(-1)
     , ismanip_(false)
     , datatransform_( 0 )
+    , lockgeometry_( false )
 {
     TypeSet<int> randomlines;
     visBase::DM().getIds( typeid(*this), randomlines );
@@ -591,6 +593,7 @@ void RandomTrackDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 
 bool RandomTrackDisplay::canAddKnot( int knotnr ) const
 {
+    if ( lockgeometry_ ) return false;
     if ( knotnr<0 ) knotnr=0;
     if ( knotnr>nrKnots() ) knotnr=nrKnots();
 
@@ -676,6 +679,8 @@ void RandomTrackDisplay::resetManipulation()
 
 void RandomTrackDisplay::showManipulator( bool yn )
 {
+    if ( lockgeometry_ ) yn = false;
+
     if ( !yn ) dragger_->showFeedback( false );
     dragger_->turnOn( yn );
 }
@@ -956,6 +961,17 @@ float RandomTrackDisplay::calcDist( const Coord3& pos ) const
 }
 
 
+void RandomTrackDisplay::lockGeometry( bool yn )
+{
+    lockgeometry_ = yn;
+    if ( yn ) showManipulator( false );
+}
+
+
+bool RandomTrackDisplay::isGeometryLocked() const
+{ return lockgeometry_; }
+
+
 SurveyObject* RandomTrackDisplay::duplicate() const
 {
     RandomTrackDisplay* rtd = create();
@@ -965,6 +981,8 @@ SurveyObject* RandomTrackDisplay::duplicate() const
     for ( int idx=0; idx<nrKnots(); idx++ )
 	positions += getKnotPos( idx );
     rtd->setKnotPositions( positions );
+
+    rtd->lockGeometry( isGeometryLocked() );
 
     return rtd;
 }
@@ -991,6 +1009,7 @@ void RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     }
 
     par.set( sKeyNrAttribs(), as_.size() );
+    par.setYN( sKeyLockGeometry(), lockgeometry_ );
 
     for ( int attrib=as_.size()-1; attrib>=0; attrib-- )
     {
@@ -1019,6 +1038,7 @@ int RandomTrackDisplay::usePar( const IOPar& par )
     int nrattribs;
     if ( par.get(sKeyNrAttribs(),nrattribs) ) //current format
     {
+	par.getYN( sKeyLockGeometry(), lockgeometry_ );
 	bool firstattrib = true;
 	for ( int attrib=0; attrib<nrattribs; attrib++ )
 	{
