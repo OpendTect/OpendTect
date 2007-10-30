@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.11 2007-10-26 21:06:25 cvsyuancheng Exp $
+ RCS:		$Id: vismarchingcubessurfacedisplay.h,v 1.12 2007-10-30 20:19:40 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -66,8 +66,6 @@ public:
     mVisTrans*			getDisplayTransformation();
     void			setRightHandSystem(bool);
 
-    virtual void                fillPar(IOPar&,TypeSet<int>&) const;
-    virtual int                 usePar(const IOPar&);
 
     bool			setVisSurface(visBase::MarchingCubesSurface*);
     				//!<Creates an EMObject for it.
@@ -87,10 +85,15 @@ protected:
 
     virtual			~MarchingCubesDisplay();
     void			updateVisFromEM(bool onlyshape);
-    void			draggerMovedCB(CallBacker*);
-    void			draggerMovingCB(CallBacker*);
+    void			initialDraggerMovedCB(CallBacker*);
+    void			initialDraggerMovingCB(CallBacker*);
+    void			kernelDraggerMovedCB(CallBacker*);
+    void			kernelDraggerMovingCB(CallBacker*);
+    virtual void		fillPar(IOPar&,TypeSet<int>& saveids) const;
+    virtual int			usePar(const IOPar&);
     void			factorDrag(CallBacker*);
     void			setDragDirection(CallBacker*);
+    void			setNormalLine(Coord3& center,Coord3& width);
     Array3D<unsigned char>*	createKernel(int xsz, int ysz, int zsz ) const;
 
     visBase::BoxDragger*		initialdragger_;
@@ -109,6 +112,7 @@ protected:
     double				minsampleinlsz_;
     double				minsamplecrlsz_;
     double				minsamplezsz_;
+    Coord3				kernelsize_;
     CubeSampling			previoussample_;
 };
 
