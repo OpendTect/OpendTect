@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: pca.h,v 1.7 2004-05-11 07:04:07 kristofer Exp $
+ RCS:		$Id: pca.h,v 1.8 2007-10-30 16:53:35 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 template <class T> class Array2D;
 namespace Threads { class ThreadWorkManager; };
-class BasicTask;
+class SequentialTask;
 class PCACovarianceCalculator;
 
 /*!\brief
@@ -142,7 +142,7 @@ protected:
     ObjectSet<TypeSet<float> >	samples;
     TypeSet<float>		samplesums;
     Threads::ThreadWorkManager*	threadworker;
-    ObjectSet<BasicTask>	tasks;
+    ObjectSet<SequentialTask>	tasks;
     float*			eigenvalues;
     				/*!<The negation of the eigenval,
     				    to get the sorting right.

@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: sectionadjuster.h,v 1.17 2006-06-06 14:07:36 cvsjaap Exp $
+ RCS:           $Id: sectionadjuster.h,v 1.18 2007-10-30 16:53:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basictask.h"
+#include "task.h"
 #include "cubesampling.h"
 #include "emposid.h"
 
@@ -26,7 +26,7 @@ namespace MPE
 
 class SectionExtender;
 
-class SectionAdjuster : public BasicTask
+class SectionAdjuster : public SequentialTask
 {
 public:
 				SectionAdjuster( const EM::SectionID& sid=-1);

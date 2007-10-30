@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscolortabindexer.cc,v 1.4 2007-10-30 01:54:11 cvskris Exp $";
+static const char* rcsID = "$Id: viscolortabindexer.cc,v 1.5 2007-10-30 16:53:36 cvskris Exp $";
 
 #include "viscolortabindexer.h"
 
@@ -80,7 +80,7 @@ int ColorTabIndexer::nrHistogramSteps() const
 { return nrhistogramsteps_; }
 
 
-int ColorTabIndexer::nrTimes() const
+int ColorTabIndexer::totalNr() const
 { return sz_; }
 
 

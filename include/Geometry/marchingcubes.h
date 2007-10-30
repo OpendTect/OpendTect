@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: marchingcubes.h,v 1.4 2007-09-13 20:06:14 cvskris Exp $
+ RCS:           $Id: marchingcubes.h,v 1.5 2007-10-30 16:53:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basictask.h"
+#include "task.h"
 #include "callback.h"
 #include "multidimstorage.h"
 #include "ranges.h"
@@ -117,7 +117,7 @@ public:
 				MarchingCubesSurface&);
 		~Implicit2MarchingCubes();
 
-    int		nrTimes() const;
+    int		totalNr() const;
     bool	doWork(int,int,int);
 
 protected:

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Fredman
  Date:		18-12-2002
- RCS:		$Id: houghtransform.h,v 1.8 2003-11-29 07:27:49 kristofer Exp $
+ RCS:		$Id: houghtransform.h,v 1.9 2007-10-30 16:53:35 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class Array3DInfo;
 template <class T> class Array3D;
-class BasicTask;
+class SequentialTask;
 template <class T> class ObjectSet;
 template <class T, class B> class TopList;
 class PlaneFrom3DSpaceHoughTransformTask;
@@ -67,7 +67,7 @@ public:
     float			clipRate() const;
 
     void			setData( const Array3D<float>* );
-    ObjectSet<BasicTask>*	createCalculators();
+    ObjectSet<SequentialTask>*	createCalculators();
 
     TopList<unsigned int, unsigned int>*
 				sortParamSpace(int) const;

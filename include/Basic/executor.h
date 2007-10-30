@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.20 2006-12-04 14:41:28 cvskris Exp $
+ RCS:		$Id: executor.h,v 1.21 2007-10-30 16:53:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "task.h"
 #include "namedobj.h"
-#include "basictask.h"
 #include <iosfwd>
 
 template <class T> class ObjectSet;
@@ -36,8 +36,7 @@ a stream. Useful in batch situations.
 
 */
 
-class Executor : public NamedObject
-	       , public BasicTask
+class Executor : public SequentialTask, public NamedObject
 {
 public:
 			Executor( const char* nm )
@@ -52,61 +51,12 @@ public:
     static const int	MoreToDo;		//!< 1
     static const int	WarningAvailable;	//!< 2
 
-    virtual const char*	message() const			{ return "Working"; }
-    virtual int		totalNr() const			{ return -1; }
-    			//!< If unknown, return -1
-    virtual int		nrDone() const			{ return 0; }
-    virtual const char*	nrDoneText() const		{ return "Nr done"; }
-
     virtual bool	execute(std::ostream* log=0,bool isfirst=true,
 	    			bool islast=true,int delaybetwnstepsinms=0);
 
     Notifier<Executor>	prestep;
     Notifier<Executor>	poststep; //!< Only when MoreToDo will be returned.
 
-};
-
-
-class ExecutorRunner : public BasicTaskRunner
-{
-public:
-
-    			ExecutorRunner( Executor* ex )
-			: BasicTaskRunner(ex)	{}
-
-    virtual const char* lastMsg() const		= 0;
-
-};
-
-
-class ExecutorBatchTaskRunner : public ExecutorRunner
-{
-public:
-			ExecutorBatchTaskRunner( Executor* ex,
-					std::ostream* strm=0,
-					bool isfirst=true, bool islast=true )
-			: ExecutorRunner(ex)
-			, logstrm_(strm)
-			, isfirst_(isfirst)
-			, islast_(islast)		{}
-
-    virtual bool	execute()
-    			{
-			    mDynamicCastGet(Executor*,ex,task_);
-			    if ( !ex )
-			    	{ lastmsg_ = "No Executor!"; return false; }
-			    bool res = ex->execute(logstrm_,isfirst_,islast_);
-			    lastmsg_ = ex->message();
-			    return res;
-			}
-    virtual const char*	lastMsg() const		{ return lastmsg_; }
-
-protected:
-
-    std::ostream*	logstrm_;
-    bool		isfirst_;
-    bool		islast_;
-    BufferString	lastmsg_;
 };
 
 

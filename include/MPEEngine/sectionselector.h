@@ -8,12 +8,12 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionselector.h,v 1.6 2006-04-28 20:59:59 cvskris Exp $
+ RCS:           $Id: sectionselector.h,v 1.7 2007-10-30 16:53:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basictask.h"
+#include "task.h"
 #include "bufstring.h"
 #include "emposid.h"
 #include "sets.h"
@@ -29,7 +29,7 @@ namespace MPE
 
 class TrackPlane;
 
-class SectionSourceSelector : public BasicTask
+class SectionSourceSelector : public SequentialTask
 {
 public:
     				SectionSourceSelector(

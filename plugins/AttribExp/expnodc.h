@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expnodc.h,v 1.4 2003-11-07 12:21:50 bert Exp $
+ RCS:           $Id: expnodc.h,v 1.5 2007-10-30 16:53:35 cvskris Exp $
 ________________________________________________________________________
 
 NoDC
@@ -23,7 +23,7 @@ Output:
 @$*/
 
 #include <attribcalc.h>
-#include <basictask.h>
+#include <task.h>
 #include <position.h>
 #include <limits.h>
 #include <seistrc.h>

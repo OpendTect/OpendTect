@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.101 2007-09-12 13:20:12 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.102 2007-10-30 16:53:35 cvskris Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -16,7 +16,7 @@ static const char* rcsID = "$Id: attribprovider.cc,v 1.101 2007-09-12 13:20:12 c
 #include "attribfactory.h"
 #include "attriblinebuffer.h"
 #include "attribparam.h"
-#include "basictask.h"
+#include "task.h"
 #include "cubesampling.h"
 #include "errh.h"
 #include "seismscprov.h"
@@ -52,7 +52,7 @@ void setVars( const DataHolder* res, const BinID& relpos, int z0,
 }
 
 
-int nrTimes() const { return nrsamples_; }
+int totalNr() const { return nrsamples_; }
 
 
 bool doWork( int start, int stop, int threadid )

@@ -8,12 +8,12 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectiontracker.h,v 1.11 2006-10-23 09:12:43 cvsjaap Exp $
+ RCS:           $Id: sectiontracker.h,v 1.12 2007-10-30 16:53:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basictask.h"
+#include "task.h"
 #include "cubesampling.h"
 #include "emposid.h"
 #include "geomelement.h"

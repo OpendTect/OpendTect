@@ -8,12 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.38 2007-10-10 03:59:24 cvsnanne Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.39 2007-10-30 16:53:36 cvskris Exp $";
 
 #include "vistexture.h"
 
 #include "arrayndimpl.h"
-#include "basictask.h"
+#include "task.h"
 #include "iopar.h"
 #include "simpnumer.h"
 #include "thread.h"
@@ -31,7 +31,7 @@ static const char* rcsID = "$Id: vistexture.cc,v 1.38 2007-10-10 03:59:24 cvsnan
 #define NRCOLORS 256
 
 
-class visBaseTextureColorIndexMaker : public BasicTask
+class visBaseTextureColorIndexMaker : public SequentialTask
 {
 public:
     unsigned char*		indexcache;
@@ -366,7 +366,7 @@ void Texture::makeColorIndexes()
     if ( threadworker )
     {
 	threadworker->addWork(
-		reinterpret_cast<ObjectSet<BasicTask>&>(colorindexers ));
+		reinterpret_cast<ObjectSet<SequentialTask>&>(colorindexers ));
     }
     else
     {
@@ -401,7 +401,7 @@ void Texture::makeColorIndexes()
 }
 
 
-class visBaseTextureMaker : public BasicTask
+class visBaseTextureMaker : public SequentialTask
 {
 public:
     unsigned char*		indexcache;

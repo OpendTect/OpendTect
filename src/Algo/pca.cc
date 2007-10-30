@@ -8,12 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: pca.cc,v 1.9 2006-08-16 10:51:20 cvsbert Exp $";
+static const char* rcsID = "$Id: pca.cc,v 1.10 2007-10-30 16:53:35 cvskris Exp $";
 
 
 #include "pca.h"
 
-#include "basictask.h"
+#include "task.h"
 #include "errh.h"
 #include "sorting.h"
 #include "thread.h"
@@ -22,7 +22,7 @@ static const char* rcsID = "$Id: pca.cc,v 1.9 2006-08-16 10:51:20 cvsbert Exp $"
 #include <math.h>
 
 
-class PCACovarianceCalculator : public BasicTask
+class PCACovarianceCalculator : public SequentialTask
 {
 public:
     		PCACovarianceCalculator( Array2D<float>& covariancematrix_,

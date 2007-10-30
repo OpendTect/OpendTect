@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackstacker.cc,v 1.2 2007-10-30 01:54:11 cvskris Exp $";
+static const char* rcsID = "$Id: prestackstacker.cc,v 1.3 2007-10-30 16:53:35 cvskris Exp $";
 
 #include "prestackstacker.h"
 
@@ -125,5 +125,5 @@ Gather* Stack::createOutputArray( const Gather& input ) const
 }
 
 
-int Stack::nrTimes() const
+int Stack::totalNr() const
 { return input_->data().info().getSize( Gather::zDim() ); }

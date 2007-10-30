@@ -4,11 +4,11 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.18 2007-10-30 01:54:11 cvskris Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.19 2007-10-30 16:53:35 cvskris Exp $";
 
 #include "explicitmarchingcubes.h"
 
-#include "basictask.h"
+#include "task.h"
 #include "marchingcubes.h"
 #include "positionlist.h"
 #include "samplingdata.h"
@@ -66,7 +66,7 @@ public:
 
 protected:
 
-    int	nrTimes() const { return totalnr_; }
+    int	totalNr() const { return totalnr_; }
     bool doWork( int start, int stop, int thread )
     {
 	const int* tableidxs = idxstocompute_.arr();

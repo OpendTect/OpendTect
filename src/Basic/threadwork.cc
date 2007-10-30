@@ -4,10 +4,10 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.20 2007-09-04 17:48:52 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.21 2007-10-30 16:53:35 cvskris Exp $";
 
 #include "threadwork.h"
-#include "basictask.h"
+#include "task.h"
 #include "thread.h"
 #include "errh.h"
 #include "sighndl.h"
@@ -29,7 +29,7 @@ public:
     			~WorkThread();
 
     			//Interface from manager
-    void		assignTask(BasicTask&, CallBack* finishedcb = 0);
+    void		assignTask(SequentialTask&, CallBack* finishedcb = 0);
 
     int			getRetVal();
     			/*!< Do only call when task is finished,
@@ -37,11 +37,11 @@ public:
 			     Threads::ThreadWorkManager::imFinished()
 			*/
 
-    void		cancelWork( const BasicTask* );
+    void		cancelWork( const SequentialTask* );
     			//!< If working on this task, cancel it and continue.
     			//!< If a nullpointer is given, it will cancel
     			//!< regardless of which task we are working on
-    const BasicTask*	getTask() const { return task_; }
+    const SequentialTask* getTask() const { return task_; }
 
 protected:
 
@@ -55,7 +55,7 @@ protected:
 
     bool		exitflag_;	//Set only from destructor
     bool		cancelflag_;	//Cancel current work and continue
-    BasicTask*		task_;		
+    SequentialTask*	task_;		
     CallBack*		finishedcb_;
 
     Thread*		thread_;
@@ -164,7 +164,7 @@ void Threads::WorkThread::doWork( CallBacker* )
 }
 
 
-void Threads::WorkThread::cancelWork( const BasicTask* canceltask )
+void Threads::WorkThread::cancelWork( const SequentialTask* canceltask )
 {
     Threads::MutexLocker lock( controlcond_ );
     if ( !canceltask || canceltask==task_ )
@@ -184,7 +184,7 @@ void Threads::WorkThread::exitWork(CallBacker*)
 }
 
 
-void Threads::WorkThread::assignTask(BasicTask& newtask, CallBack* cb_ )
+void Threads::WorkThread::assignTask(SequentialTask& newtask, CallBack* cb_ )
 {
     controlcond_.lock();
     if ( task_ )
@@ -234,7 +234,7 @@ Threads::ThreadWorkManager::~ThreadWorkManager()
 }
 
 
-void Threads::ThreadWorkManager::addWork( BasicTask* newtask, CallBack* cb )
+void Threads::ThreadWorkManager::addWork( SequentialTask* newtask, CallBack* cb)
 {
     const int nrthreads = threads_.size();
     if ( !nrthreads )
@@ -264,7 +264,7 @@ void Threads::ThreadWorkManager::addWork( BasicTask* newtask, CallBack* cb )
 }
 
 
-void Threads::ThreadWorkManager::removeWork( const BasicTask* task )
+void Threads::ThreadWorkManager::removeWork( const SequentialTask* task )
 {
     workloadcond_.lock();
 
@@ -283,7 +283,7 @@ void Threads::ThreadWorkManager::removeWork( const BasicTask* task )
 }
 
 
-const BasicTask* Threads::ThreadWorkManager::getWork( CallBacker* cb ) const
+const SequentialTask* Threads::ThreadWorkManager::getWork(CallBacker* cb) const
 {
     if ( !cb ) return 0;
 
@@ -334,7 +334,7 @@ protected:
 };
 
 
-bool Threads::ThreadWorkManager::addWork( ObjectSet<BasicTask>& work )
+bool Threads::ThreadWorkManager::addWork( ObjectSet<SequentialTask>& work )
 {
     if ( work.isEmpty() )
 	return true;

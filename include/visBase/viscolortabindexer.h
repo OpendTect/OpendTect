@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		January 2007
- RCS:		$Id: viscolortabindexer.h,v 1.2 2007-01-04 22:20:07 cvskris Exp $
+ RCS:		$Id: viscolortabindexer.h,v 1.3 2007-10-30 16:53:35 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "basictask.h"
+#include "task.h"
 
 namespace Threads { class Mutex; }
 
@@ -49,7 +49,7 @@ public:
 
 protected:
     bool			doWork(int start,int stop,int threadid);
-    int				nrTimes() const;
+    int				totalNr() const;
 
     unsigned char*		indexcache_;
     const ValueSeries<float>*	datacache_;

@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		May 2007
- RCS:		$Id: smoother1d.h,v 1.4 2007-10-30 01:54:10 cvskris Exp $
+ RCS:		$Id: smoother1d.h,v 1.5 2007-10-30 16:53:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basictask.h"
+#include "task.h"
 #include "valseries.h"
 #include "genericnumer.h"
 #include "sets.h"
@@ -48,7 +48,7 @@ protected:
     static const char*		sKeyWinParam() { return "Window parameter"; }
     static const char*		sKeyWinLen() { return "Window length"; }
 
-    inline int			nrTimes() const	{ return size_; }
+    inline int			totalNr() const	{ return size_; }
     inline bool			doPrepare(int);
     inline bool			doWork(int start,int stop,int);
 

@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: extremefinder.h,v 1.7 2005-01-28 13:31:16 bert Exp $
+ RCS:		$Id: extremefinder.h,v 1.8 2007-10-30 16:53:35 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "basictask.h"
+#include "task.h"
 #include "ranges.h"
 #include "mathfunc.h"
 
@@ -23,7 +23,7 @@ Implementation of Brent's Method in one dimension.
 
 */
 
-class ExtremeFinder1D : public BasicTask
+class ExtremeFinder1D : public SequentialTask
 {
 public:
     			ExtremeFinder1D( const FloatMathFunction&,
@@ -92,7 +92,7 @@ protected:
 };
 
 
-class BisectionExtremeFinder1D : public BasicTask
+class BisectionExtremeFinder1D : public SequentialTask
 {
 public:
     			BisectionExtremeFinder1D(
@@ -169,7 +169,7 @@ Implementation of Powell's Quadratically Convergent Method
 \note The implementation is not tested (yet) 030512.
 */
 
-class ExtremeFinderND : public BasicTask
+class ExtremeFinderND : public SequentialTask
 {
 
 public:

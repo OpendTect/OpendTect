@@ -6,12 +6,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2007
- RCS:           $Id: zaxistransformer.h,v 1.2 2007-10-09 12:13:11 cvsnanne Exp $
+ RCS:           $Id: zaxistransformer.h,v 1.3 2007-10-30 16:53:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "basictask.h"
+#include "task.h"
 #include "cubesampling.h"
 
 class ZAxisTransform;
@@ -41,7 +41,7 @@ public:
 
 protected:
     bool		doPrepare(int);
-    int			nrTimes() const;
+    int			totalNr() const;
     bool		doWork( int, int, int );
 
     ZAxisTransform&		transform_;

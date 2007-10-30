@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.7 2007-10-03 14:01:33 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.8 2007-10-30 16:53:35 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "basictask.h"
+#include "task.h"
 #include "bufstringset.h"
 #include "datapack.h"
 #include "sets.h"
@@ -43,12 +43,12 @@ public:
     virtual void		fillPar(IOPar&) const			= 0;
     virtual bool		usePar(const IOPar&)			= 0;
     virtual bool		doWork(int start, int stop, int)	= 0;
-    				/*!<If nrTimes is not overridden, start and
+    				/*!<If totalNr is not overridden, start and
 				    stop will refer to offsets that should
 				    be processed. */
 
     int				nrOffsets() const;
-    virtual int			nrTimes() const { return nrOffsets(); }
+    virtual int			totalNr() const { return nrOffsets(); }
     				/*!<If algorithms cannot be done in parallel
 				    with regards to offsets, override function
 				    and return 1. doWork() will then be called

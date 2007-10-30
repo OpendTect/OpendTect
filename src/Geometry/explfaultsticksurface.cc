@@ -4,11 +4,11 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.3 2007-10-30 01:54:11 cvskris Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.4 2007-10-30 16:53:35 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
-#include "basictask.h"
+#include "task.h"
 #include "faultsticksurface.h"
 #include "positionlist.h"
 
@@ -45,7 +45,7 @@ public:
 }
 
 
-int nrTimes() const { return updatelist_.size(); }
+int totalNr() const { return updatelist_.size(); }
 
 int minThreadSize() const { return 1; }
 

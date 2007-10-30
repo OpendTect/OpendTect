@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: threadwork.h,v 1.16 2007-05-28 15:09:27 cvskris Exp $
+ RCS:		$Id: threadwork.h,v 1.17 2007-10-30 16:53:35 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "callback.h"
 
-class BasicTask;
+class SequentialTask;
 
 namespace Threads
 {
@@ -38,16 +38,16 @@ public:
     				ThreadWorkManager(int nrthreads=-1);
 				~ThreadWorkManager();
 
-    void			addWork(BasicTask*,CallBack* finished);
+    void			addWork(SequentialTask*,CallBack* finished);
     				/*!< Managed by caller */
 
-    bool			addWork(ObjectSet<BasicTask>&);
-    void			removeWork(const BasicTask*);	
+    bool			addWork(ObjectSet<SequentialTask>&);
+    void			removeWork(const SequentialTask*);	
     				/*!< Removes the task from queue
 				     and stop it if allready running
 				*/
 
-    const BasicTask*		getWork(CallBacker*) const;
+    const SequentialTask*	getWork(CallBacker*) const;
     				/*!When a work is sumbmitted with a
 				   callback, the callback is called with a
 				   callbacker. If called from the callback and
@@ -64,7 +64,7 @@ protected:
 
     friend class		WorkThread;
 
-    ObjectSet<BasicTask>	workload_;
+    ObjectSet<SequentialTask>	workload_;
     ObjectSet<CallBack>		callbacks_;
     ObjectSet<WorkThread>	threads_;
 

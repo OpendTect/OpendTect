@@ -8,12 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.26 2007-07-09 10:52:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.27 2007-10-30 16:53:36 cvskris Exp $";
 
 #include "vismultitexture2.h"
 
 
-#include "basictask.h"
+#include "task.h"
 #include "errh.h"
 #include "ranges.h"
 #include "thread.h"

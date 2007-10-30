@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: expextremedip.h,v 1.2 2003-11-07 12:21:50 bert Exp $
+ RCS:           $Id: expextremedip.h,v 1.3 2007-10-30 16:53:35 cvskris Exp $
 ________________________________________________________________________
 
 ModGradientDip
@@ -20,7 +20,7 @@ Outputs:
 @$*/
 
 #include <attribcalc.h>
-#include <basictask.h>
+#include <task.h>
 #include <position.h>
 #include <limits.h>
 #include <seistrc.h>

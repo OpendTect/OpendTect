@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.9 2007-10-30 01:54:11 cvskris Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.10 2007-10-30 16:53:35 cvskris Exp $";
 
 #include "marchingcubes.h"
 
@@ -436,7 +436,7 @@ Implicit2MarchingCubes:: Implicit2MarchingCubes( int posx, int posy, int posz,
 Implicit2MarchingCubes::~Implicit2MarchingCubes() {}
 
 
-int Implicit2MarchingCubes::nrTimes() const
+int Implicit2MarchingCubes::totalNr() const
 {
     return array_.info().getTotalSz();
 }   
@@ -490,7 +490,7 @@ bool Implicit2MarchingCubes::doWork( int start, int stop, int )
 }
 
 
-class SeedBasedFloodFiller : public BasicTask
+class SeedBasedFloodFiller : public SequentialTask
 {
 public:
     SeedBasedFloodFiller( SeedBasedImplicit2MarchingCubes& sbi2mc, 
@@ -599,7 +599,7 @@ void SeedBasedImplicit2MarchingCubes::seedBasedFloodFill()
 	newfloodfillers_.erase();
 	newfloodfillerslock_.unlock();
 
-	workman.addWork( (ObjectSet<BasicTask>&) activefloodfillers_ );
+	workman.addWork( (ObjectSet<SequentialTask>&) activefloodfillers_ );
 
 	newfloodfillerslock_.lock();
     }
@@ -674,7 +674,7 @@ public:
 	} while ( iter.next() );
     }
 
-    int	nrTimes() const { return totalnr_; }
+    int	totalNr() const { return totalnr_; }
 
 protected:
     bool doWork( int start, int stop, int )
@@ -754,7 +754,7 @@ protected:
 };
 
 
-class MarchingCuebs2ImplicitFloodFiller : public BasicTask
+class MarchingCuebs2ImplicitFloodFiller : public SequentialTask
 {
 public:
     MarchingCuebs2ImplicitFloodFiller( MarchingCubes2Implicit& mc2i,
@@ -871,7 +871,7 @@ bool MarchingCubes2Implicit::floodFill()
 	newfloodfillers_.erase();
 	resultlock_.writeUnLock();
 
-	workman.addWork( (ObjectSet<BasicTask>&) activefloodfillers_ );
+	workman.addWork( (ObjectSet<SequentialTask>&) activefloodfillers_ );
 
 	resultlock_.writeLock();
     }

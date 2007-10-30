@@ -9,14 +9,14 @@
 -----------------------------------------------------------------------------
 */
 
-static const char* rcsID = "$Id: houghtransform.cc,v 1.8 2007-02-16 16:36:30 cvskris Exp $";
+static const char* rcsID = "$Id: houghtransform.cc,v 1.9 2007-10-30 16:53:35 cvskris Exp $";
 
 
 #include "houghtransform.h"
 
 #include "arrayndimpl.h"
 #include "arrayndinfo.h"
-#include "basictask.h"
+#include "task.h"
 #include "position.h"
 #include "sorting.h"
 #include "toplist.h"
@@ -25,7 +25,7 @@ static const char* rcsID = "$Id: houghtransform.cc,v 1.8 2007-02-16 16:36:30 cvs
 
 #include <math.h>
 
-class PlaneFrom3DSpaceHoughTransformTask : public BasicTask
+class PlaneFrom3DSpaceHoughTransformTask : public SequentialTask
 {
 public:	
 	PlaneFrom3DSpaceHoughTransformTask(PlaneFrom3DSpaceHoughTransform& ht_)
@@ -159,9 +159,9 @@ void PlaneFrom3DSpaceHoughTransform::setData( const Array3D<float>* data )
 }
 
 
-ObjectSet<BasicTask>* PlaneFrom3DSpaceHoughTransform::createCalculators()
+ObjectSet<SequentialTask>* PlaneFrom3DSpaceHoughTransform::createCalculators()
 {
-    ObjectSet<BasicTask>* res = new ObjectSet<BasicTask>;
+    ObjectSet<SequentialTask>* res = new ObjectSet<SequentialTask>;
     (*res) += new PlaneFrom3DSpaceHoughTransformTask( *this );
     return res;
 }

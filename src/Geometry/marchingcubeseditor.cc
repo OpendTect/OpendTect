@@ -4,7 +4,7 @@
  * DATE     : August 2007
 -*/
 
-static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.8 2007-10-30 01:54:11 cvskris Exp $";
+static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.9 2007-10-30 16:53:35 cvskris Exp $";
 
 #include "marchingcubeseditor.h"
 #include "marchingcubes.h"
@@ -166,7 +166,7 @@ bool MarchingCubesSurfaceEditor::affectedVolume(Interval<int>& xrg,
 }
 
 
-int MarchingCubesSurfaceEditor::nrTimes() const
+int MarchingCubesSurfaceEditor::totalNr() const
 {
     if ( !kernel_ )
 	return 0;

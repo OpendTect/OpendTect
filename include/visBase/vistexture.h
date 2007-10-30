@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexture.h,v 1.21 2007-10-10 03:59:24 cvsnanne Exp $
+ RCS:		$Id: vistexture.h,v 1.22 2007-10-30 16:53:35 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "scaler.h"
 
 class DataClipper;
-class BasicTask;
+class SequentialTask;
 class Color;
 class IOPar;
 class SoComplexity;
@@ -140,7 +140,7 @@ protected:
     VisColTabMod*	coltabmod;
     VisColorTab*	colortab;
     ObjectSet<visBaseTextureColorIndexMaker> colorindexers;
-    ObjectSet<BasicTask> texturemakers;
+    ObjectSet<SequentialTask> texturemakers;
     ThreadWorker*	threadworker;
 
     static const char*	colortabstr;

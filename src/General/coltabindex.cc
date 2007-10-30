@@ -4,12 +4,12 @@
  * DATE     : Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabindex.cc,v 1.4 2007-10-30 01:54:11 cvskris Exp $";
+static const char* rcsID = "$Id: coltabindex.cc,v 1.5 2007-10-30 16:53:35 cvskris Exp $";
 
 #include "coltabindex.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
-#include "basictask.h"
+#include "task.h"
 
 namespace ColTab
 {
@@ -26,12 +26,12 @@ public:
 
     bool		doWork( int start, int stop, int threadid )
     			{
-			    for ( int idx=start; idx<=stop; idx++, reportNrDone() )
+			    for ( int idx=start; idx<=stop;idx++,reportNrDone())
 				ilut_.cols_[idx] = ilut_.seq_.color( dx_*idx );
 			    return true;
 			}
 
-    int			nrTimes() const { return nrcols_; }
+    int			totalNr() const { return nrcols_; }
 
 protected:
 

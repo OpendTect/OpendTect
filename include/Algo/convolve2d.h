@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolve2d.h,v 1.3 2007-10-30 01:54:10 cvskris Exp $
+ RCS:           $Id: convolve2d.h,v 1.4 2007-10-30 16:53:35 cvskris Exp $
 ________________________________________________________________________
 
 
 */
 
 #include "arraynd.h"
-#include "basictask.h"
+#include "task.h"
 #include "rowcol.h"
 
 /*!Convolves (or correlates) two 2D signals. */
@@ -38,7 +38,7 @@ public:
 
 protected:
     inline bool		doWork( int, int, int );
-    int			nrTimes() const { return z_->info().getSize( 0 ); }
+    int			totalNr() const { return z_->info().getSize( 0 ); }
     const Array2D<T>*	x_;
     RowCol		xshift_;
     const Array2D<T>*	y_;

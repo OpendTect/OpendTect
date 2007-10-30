@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: array2dresample.h,v 1.2 2007-10-30 01:54:10 cvskris Exp $
+ RCS:           $Id: array2dresample.h,v 1.3 2007-10-30 16:53:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "arraynd.h"
 #include "array2dfunc.h"
-#include "basictask.h"
+#include "task.h"
 #include "geometry.h"
 #include "interpol2d.h"
 
@@ -45,7 +45,7 @@ public:
 			     that should serve as source. If ommitted,
 			     the entire from array is used. */
 
-    inline int		nrTimes() const;
+    inline int		totalNr() const;
 
 private:
     inline bool		doWork( int start, int stop, int );
@@ -99,7 +99,7 @@ void Array2DReSampler<T,TT>::set( const Array2D<T>& from, Array2D<TT>& to,
 
 
 template <class T, class TT> inline
-int Array2DReSampler<T,TT>::nrTimes() const
+int Array2DReSampler<T,TT>::totalNr() const
 {
     return to_->info().getSize( mXDim );
 }
