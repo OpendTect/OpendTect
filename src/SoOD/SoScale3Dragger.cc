@@ -4,7 +4,7 @@
  * DATE     : Oct 2007
 -*/
 
-static const char* rcsID = "$Id: SoScale3Dragger.cc,v 1.1 2007-10-25 15:08:34 cvskris Exp $";
+static const char* rcsID = "$Id: SoScale3Dragger.cc,v 1.2 2007-10-30 19:49:31 cvsyuancheng Exp $";
 
 
 #include "SoScale3Dragger.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: SoScale3Dragger.cc,v 1.1 2007-10-25 15:08:34 cv
 #include <Inventor/nodes/SoMaterial.h>
 #include <Inventor/nodes/SoCoordinate3.h>
 #include <Inventor/nodes/SoIndexedLineSet.h>
+#include <Inventor/nodes/SoPickStyle.h>
 #include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoTranslation.h>
@@ -73,7 +74,9 @@ SoScale3Dragger::SoScale3Dragger()
     SO_KIT_ADD_CATALOG_ENTRY( wireframeMaterial,SoMaterial,true,geomSeparator,
 	    		      wireframeCoords, true );
     SO_KIT_ADD_CATALOG_ENTRY( wireframeCoords,SoCoordinate3,false,geomSeparator,
-	    		      wireframe, true );
+	    		      wireframePickStyle, true );
+    SO_KIT_ADD_CATALOG_ENTRY(wireframePickStyle,SoPickStyle,false,geomSeparator,
+	    		     wireframe, true );
     SO_KIT_ADD_CATALOG_ENTRY( wireframe, SoIndexedLineSet, false, geomSeparator,
 	    		      , true );
 
@@ -209,6 +212,10 @@ void SoScale3Dragger::createDefaultParts()
     coords->point.set1Value( 11, SbVec3f( 0, 1.1, 0 ) );
     coords->point.set1Value( 12, SbVec3f( 0, 0, -1.1 ) );
     coords->point.set1Value( 13, SbVec3f( 0, 0, 1.1 ) );
+
+    SoPickStyle* pickstyle = SO_GET_ANY_PART( this, "wireframePickStyle",
+	    				      SoPickStyle);
+    pickstyle->style = SoPickStyle::UNPICKABLE;
 
     SoIndexedLineSet* lineset = SO_GET_ANY_PART( this, "wireframe",
 						 SoIndexedLineSet);

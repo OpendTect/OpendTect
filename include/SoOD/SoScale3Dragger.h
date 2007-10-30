@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoScale3Dragger.h,v 1.1 2007-10-25 15:08:34 cvskris Exp $
+ RCS:		$Id: SoScale3Dragger.h,v 1.2 2007-10-30 19:49:31 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -78,6 +78,7 @@ class SoScale3Dragger : public SoDragger
     SO_KIT_CATALOG_ENTRY_HEADER(trans110Active);
     SO_KIT_CATALOG_ENTRY_HEADER(trans111Active);
     SO_KIT_CATALOG_ENTRY_HEADER(wireframeMaterial);
+    SO_KIT_CATALOG_ENTRY_HEADER(wireframePickStyle);
     SO_KIT_CATALOG_ENTRY_HEADER(wireframeCoords);
     SO_KIT_CATALOG_ENTRY_HEADER(wireframe);
 
