@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.h,v 1.5 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uifrequencyattrib.h,v 1.6 2007-10-30 04:25:30 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 namespace Attrib { class Desc; };
 class uiGenInput;
 class uiImagAttrSel;
+class uiWindowFunctionSel;
 
 /*! \brief Frequency Attribute description editor */
 
@@ -33,7 +34,7 @@ protected:
     uiImagAttrSel*	inpfld;
     uiGenInput*         gatefld;
     uiGenInput*		normfld;
-    uiGenInput*		winfld;
+    uiWindowFunctionSel* winfld;
     uiGenInput*		outpfld;
 
     bool		setParameters(const Attrib::Desc&);
