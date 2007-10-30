@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		August 2006
- RCS:		$Id: vismarchingcubessurface.h,v 1.9 2007-09-14 13:11:30 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurface.h,v 1.10 2007-10-30 20:24:23 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -44,7 +44,7 @@ public:
 						  const SamplingData<float>&);
     const SamplingData<float>&		getScale(int dim) const;
 
-    void				touch();
+    void				touch(bool forall);
     void				renderOneSide( int side );
     					/*!< 0 = visisble from both sides.
 					     1 = visisble from positive side

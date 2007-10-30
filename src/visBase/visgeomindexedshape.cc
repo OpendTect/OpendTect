@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: visgeomindexedshape.cc,v 1.4 2007-10-24 20:00:42 cvskris Exp $
+ RCS:           $Id: visgeomindexedshape.cc,v 1.5 2007-10-30 20:24:23 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ void GeomIndexedShape::setSurface( Geometry::IndexedShape* ns )
     shape_->setCoordList( new CoordListAdapter(*coords_),
 	    		  new NormalListAdapter(*normals_) );
     shape_->setRightHandedNormals( righthandsystem_ );
-    touch();
+    touch( false );
 }
 
 
@@ -112,10 +112,10 @@ if ( geom->type_==Geometry::IndexedGeometry::type ) \
     list##s_ = new##list##s; \
     list##geoms_ = new##list##geoms
 
-void GeomIndexedShape::touch()
+void GeomIndexedShape::touch( bool forall )
 {
     if ( shape_ && shape_->needsUpdate() )
-	shape_->update( false );
+	shape_->update( forall );
 
     ObjectSet<SoIndexedShape> newstrips;
     ObjectSet<const Geometry::IndexedGeometry> newstripgeoms;

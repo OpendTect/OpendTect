@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: visgeomindexedshape.h,v 1.2 2007-10-24 20:00:42 cvskris Exp $
+ RCS:		$Id: visgeomindexedshape.h,v 1.3 2007-10-30 20:24:23 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -41,7 +41,7 @@ public:
 				//!<in memory
     void			setRightHandSystem(bool);
 
-    void			touch();
+    void			touch(bool forall);
 
 protected:
 						~GeomIndexedShape();

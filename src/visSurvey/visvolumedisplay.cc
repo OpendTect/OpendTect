@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.75 2007-10-22 04:37:13 cvsnanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.76 2007-10-30 20:24:23 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -378,7 +378,7 @@ void VolumeDisplay::setCubeSampling( const CubeSampling& cs )
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
     {
 	isosurfaces_[idx]->getSurface()->removeAll();
-	isosurfaces_[idx]->touch();
+	isosurfaces_[idx]->touch( false );
     }
 
     scalarfield_->turnOn( false );
@@ -434,7 +434,7 @@ void VolumeDisplay::updateIsoSurface( int idx )
 	    scalarfield_->getColorTab().color(isovalues_[idx]));
     }
 
-    isosurfaces_[idx]->touch();
+    isosurfaces_[idx]->touch( false );
 }
 
 
