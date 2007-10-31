@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.15 2007-10-31 05:36:52 cvssatyaki Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.16 2007-10-31 09:16:28 cvsnanne Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -32,7 +32,7 @@ mAttrDefCreateInstance(Frequency)
     
 void Frequency::initClass()
 {
-    mAttrStartInitClass
+    mAttrStartInitClassWithUpdate
 
     ZGateParam* gate = new ZGateParam( gateStr() );
     gate->setLimits( Interval<float>(-mLargestZGate,mLargestZGate) );
@@ -50,6 +50,7 @@ void Frequency::initClass()
     FloatParam* variable = new FloatParam( paramvalStr() );
     const float defval = 0.95;
     variable->setDefaultValue( defval );
+    variable->setRequired( false );
     desc->addParam(variable);
 
     BoolParam* dumptofile = new BoolParam( dumptofileStr() );
@@ -63,6 +64,23 @@ void Frequency::initClass()
     desc->setNrOutputs( Seis::UnknowData, 8 );
 
     mAttrEndInitClass
+}
+
+
+void Frequency::updateDesc( Desc& desc )
+{
+//Backward compatibility
+    Attrib::ValParam* valpar = desc.getValParam( Frequency::paramvalStr() );
+    Attrib::ValParam* winpar = desc.getValParam( Frequency::windowStr() );
+    if ( !valpar || !winpar ) return;
+
+    BufferString winstr = winpar->getStringValue();
+    if ( winstr == "CosTaper5" )
+    { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.05 ); }
+    else if ( winstr == "CosTaper10" )
+    { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.1 ); }
+    else if ( winstr == "CosTaper20" )
+    { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.2 ); }
 }
 
 
