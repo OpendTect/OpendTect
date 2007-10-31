@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.14 2007-10-18 14:08:05 cvshelene Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.15 2007-10-31 05:36:52 cvssatyaki Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -43,10 +43,14 @@ void Frequency::initClass()
     normalize->setDefaultValue( false );
     desc->addParam( normalize );
 
-    EnumParam* window = new EnumParam( windowStr() );
-    window->addEnums( ArrayNDWindow::WindowTypeNames );
-    window->setDefaultValue( ArrayNDWindow::CosTaper5 );
+    StringParam* window = new StringParam( windowStr() );
+    window->setDefaultValue( "CosTaper" );
     desc->addParam( window );
+
+    FloatParam* variable = new FloatParam( paramvalStr() );
+    const float defval = 0.95;
+    variable->setDefaultValue( defval );
+    desc->addParam(variable);
 
     BoolParam* dumptofile = new BoolParam( dumptofileStr() );
     dumptofile->setDefaultValue( false );
@@ -68,6 +72,7 @@ Frequency::Frequency( Desc& ds )
     , fftsz(-1)
     , fft(false)
     , window(0)
+    , variable(0)	       
     , signal(0)
     , timedomain(0)
     , freqdomain(0)
@@ -78,11 +83,8 @@ Frequency::Frequency( Desc& ds )
     gate.scale( 1/zFactor() );
 
     mGetBool( normalize, normalizeStr() );
-    
-    int wtype;
-    mGetEnum( wtype, windowStr() );
-    windowtype = (ArrayNDWindow::WindowType)wtype;
-
+    mGetString( windowtype, windowStr() );
+    mGetFloat( variable, paramvalStr() );
     mGetBool( dumptofile, dumptofileStr() );
 }
 
@@ -160,7 +162,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
 
 	myself->window = 
 	    new ArrayNDWindow( Array1DInfoImpl(samplegate.width()+1),
-			       false, (ArrayNDWindow::WindowType)windowtype );
+			       false, windowtype, variable );
 
 	myself->df = FFT::getDf( refstep, fftsz );
 	myself->signal = new Array1DImpl<float_complex>( samplegate.width()+1 );
