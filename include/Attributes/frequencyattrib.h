@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: frequencyattrib.h,v 1.11 2007-10-18 14:08:05 cvshelene Exp $
+ RCS:           $Id: frequencyattrib.h,v 1.12 2007-10-31 05:40:38 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,7 @@ public:
     static const char*		gateStr()		{ return "gate"; }
     static const char*		normalizeStr()		{ return "normalize"; }
     static const char*		windowStr()		{ return "window"; }
+    static const char*          paramvalStr()           { return "paramval"; }
     static const char*		dumptofileStr()		{ return "dumptofile"; }
 
 protected:
@@ -95,10 +96,11 @@ protected:
     int				fftsz;
     FFT				fft;
     ArrayNDWindow*		window;
-    int				windowtype;
+    BufferString		windowtype;
     float			df;
 
     bool			normalize;
+    float			variable;
 
     const DataHolder*		redata;
     const DataHolder*           imdata;
