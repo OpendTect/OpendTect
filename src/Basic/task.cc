@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.1 2007-10-30 16:53:35 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.2 2007-10-31 18:56:57 cvskris Exp $";
 
 #include "task.h"
 
@@ -13,18 +13,93 @@ static const char* rcsID = "$Id: task.cc,v 1.1 2007-10-30 16:53:35 cvskris Exp $
 #include "varlenarray.h"
 
 
+Task::Task()
+    : workcontrolcondvar_( 0 )
+    , control_( Task::Run )
+{}
+
+
+void Task::enableWorkContol( bool yn )
+{
+    const bool isenabled = workcontrolcondvar_;
+    if ( isenabled==yn )
+	return;
+
+    if ( yn )
+	workcontrolcondvar_ = new Threads::ConditionVar;
+    else
+    {
+	delete workcontrolcondvar_;
+	workcontrolcondvar_ = 0;
+    }
+}
+
+
+void Task::controlWork( Task::Control c )
+{
+    if ( !workcontrolcondvar_ )
+	return;
+
+    workcontrolcondvar_->lock();
+    control_ = c;
+    workcontrolcondvar_->signal(true);
+    workcontrolcondvar_->unlock();
+}
+
+
+Task::Control Task::getState() const
+{
+    if ( !workcontrolcondvar_ )
+	return Task::Run;
+
+    workcontrolcondvar_->lock();
+    Task::Control res = control_;
+    workcontrolcondvar_->unlock();
+
+    return res;
+}
+
+
+bool Task::shouldContinue()
+{
+    if ( !workcontrolcondvar_ )
+	return true;
+
+    workcontrolcondvar_->lock();
+    if ( control_==Task::Run )
+    {
+	workcontrolcondvar_->unlock();
+	return true;
+    }
+    else if ( control_==Task::Stop )
+    {
+	workcontrolcondvar_->unlock();
+	return false;
+    }
+
+    while ( control_==Task::Pause )
+	workcontrolcondvar_->wait();
+
+    const bool shouldcont = control_==Task::Run;
+
+    workcontrolcondvar_->unlock();
+    return shouldcont;
+}
+
+
 bool SequentialTask::execute()
 {
-    while ( true )
+    control_ = Task::Run;
+
+    do
     {
 	int res = doStep();
 	if ( !res )     return true;
 	if ( res < 0 )  break;
-    }
+    } while ( shouldContinue() );
 
     return false;
 }
-
 
 
 class ParallelTaskRunner : public SequentialTask
@@ -59,7 +134,6 @@ protected:
 ParallelTask::ParallelTask()
     : nrdone_( -1 )
     , nrdonemutex_( 0 )
-    , stopwork_( false )
 {}
 
 
@@ -123,7 +197,7 @@ bool ParallelTask::execute()
 {
     if ( nrdonemutex_ ) nrdonemutex_->lock();
     nrdone_ = -1;
-    stopwork_ = false;
+    control_ = Task::Run;
     if ( nrdonemutex_ ) nrdonemutex_->unlock();
 
     if ( Threads::getNrProcessors()==1 )

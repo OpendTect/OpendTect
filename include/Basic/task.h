@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.1 2007-10-30 16:53:35 cvskris Exp $
+ RCS:		$Id: task.h,v 1.2 2007-10-31 18:56:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-namespace Threads { class ThreadWorkManager; class Mutex; }
+namespace Threads { class ThreadWorkManager; class Mutex; class ConditionVar; }
 
 /*!The generalization of something (e.g. a computation) that needs to be
    done in multiple steps. */
@@ -24,14 +24,28 @@ public:
     
     virtual		~Task() 			{}
 
-    virtual void	enableNrDoneCounting(bool)	{}
+    virtual void	enableNrDoneCounting(bool=true)	{}
+    			//!<Must be called before execute()
     virtual int		nrDone() const			{ return -1; }
     virtual int		totalNr() const			{ return -1; }
     virtual const char*	message() const			{ return "Working"; }
     virtual const char*	nrDoneText() const		{ return "Nr Done"; }
 
     virtual bool	execute()			= 0;
-    virtual void	stopWork()			{}
+
+    enum Control	{ Run, Pause, Stop };
+    virtual void	controlWork(Control);
+    virtual Control	getState() const;
+    virtual void	enableWorkContol(bool=true);
+    			//!<Must be called before execute()
+
+
+protected:
+    virtual bool			shouldContinue();
+    					//!<\returns wether we should continue
+    					Task();
+    Threads::ConditionVar*		workcontrolcondvar_;
+    Task::Control			control_;
 };
 
 
@@ -65,7 +79,6 @@ protected:
 		    \retval cErrorOccurred()	Something went wrong.
 		    \note if function returns a value greater than cMoreToDo(),
 			  it should be interpreted as cMoreToDo(). */
-
 };
 
 class ParallelTaskRunner;
@@ -94,10 +107,8 @@ public:
     int		totalNr() const { return N; }
     int		doWork( int start, int stop, int threadid )
     		{
-		    for ( int idx=start; idx<=stop; idx++ )
+		    for ( int idx=start; idx<=stop && shouldContinue(); idx++ )
 		    {
-		        if ( stopwork_ ) return false;
-
 		    	result[idx] = input1[idx] *
 				      function( idx, other, variables );
 			reportNrDone( 1 );
@@ -145,8 +156,6 @@ public:
     int			nrDone() const;
     			//!<May be -1, i.e. class does not report nrdone.
     
-    void		stopWork() { stopwork_ = true; }
-
 protected:
     			ParallelTask();
     int			calculateThreadSize(int totalnr,int nrthreads,
@@ -177,7 +186,6 @@ private:
     friend class			ParallelTaskRunner;
     int					nrdone_;
     Threads::Mutex*			nrdonemutex_;
-    bool				stopwork_;
 };
 
 
@@ -188,7 +196,7 @@ public:
 		    : task_( t )		{}
     		~TaskRunner()			{}
 
-    virtual void	setTask(Task* t)	{ task_ = t; }
+    virtual void	setTask(Task& t)	{ task_ = &t; }
     virtual bool	execute()		{ return task_->execute(); }
 
 protected:
