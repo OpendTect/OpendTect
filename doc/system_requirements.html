@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	June 2007
   - Contents:	OpendTect hardware requirements
-  - RCS:	$Id: system_requirements.html,v 1.1 2007-06-13 10:01:55 cvsbert Exp $
+  - RCS:	$Id: system_requirements.html,v 1.2 2007-10-31 03:56:38 cvsnanne Exp $
  -->
 
 <body bgcolor="#eeeeee"><title>OpendTect Hardware and OS requirements</title>
@@ -15,9 +15,9 @@
 OpendTect runs on 3 hardware platforms:
 
 <ol>
-<li><a href="http://intel.com">Intel</a>/<a href="http://amd.com">AMD</a> under Linux (32 or 64 bits) or MS Windows (2000 and XP)
-<li><a href="http://sun.com">Sun</a>/Sparc under Solaris 8 or up
-<li><a href="http://mac.com">Mac</a>/PowerPC under OS X 4.4 and up
+<li><a href="http://www.intel.com">Intel</a>/<a href="http://www.amd.com">AMD</a> under Linux (32 or 64 bits) or MS Windows (2000 and XP)
+<li><a href="http://www.sun.com">Sun</a>/Sparc under Solaris 8 or up
+<li><a href="http://www.apple.com/dotmac">Mac</a>/PowerPC under OS X (10.4.4) and up
 </ol>
 
 
@@ -27,10 +27,13 @@ OpendTect runs on 3 hardware platforms:
 
 OpendTect requires a recent well-patched <a href="http://opengl.org">OpenGL</a> installation. OpenGL drivers should be updated at least every half year to ensure optimal performance and compliance.
 <br><br>
-<b>Intel/AMD:</b> Recent <a href="http://nvidia.com">nVidia</a> and <a href="http://ati.amd.com">ATI</a> graphics cards/chipsets. Well behaved are nVidia 6000 series and up and ATI Radeon 9700 and up.<br>
+<b>Intel/AMD:</b> Recent <a href="http://www.nvidia.com">nVidia</a> and <a href="http://www.amd.com">AMD (ATI)</a> graphics cards/chipsets. Well behaved are nVidia GeForce 6, 7 and 8 series and AMD (ATI) Radeon X1xx and X2xx series.<br>
+<b>Mac/PowerPC:</b>Similar to te Intel/AMD platform.<br>
 <b>Sun/Sparc:</b> Graphics cards like the XVR 2500 or better.<br>
-<b>Mac/PowerPC:</b>Similar to te Intel/AMD platform.
-
+<br>
+Main stream and high-end GPUs within the series are recommended, since low-level GPUs keep showing poor performances through the generations.<br>
+Since OpendTect 3.0, shading functionaly requires special GPU features, present in the cards listed above.
+Nevertheless, under Linux environment, only nVidia provides drivers capabilities to use the shading feature (latest so far are 100.14 drivers).
 
 <h3>Memory</h3>
 
@@ -57,12 +60,12 @@ performance.
 
 A modern Linux distribution is required. <b>Minimum</b>:
 <ul>
-<li><a href="http://suse.com">SuSE</a> 10.0
-<li><a href="http://redhat.com">Red Hat</a> Enterprise 3
-<li><a href="http://fedoraproject.com">Fedora</a> core 3
+<li><a href="http://www.novell.com/linux">SuSE</a> 10.0
+<li><a href="http://www.redhat.com">Red Hat</a> Enterprise 3
+<li><a href="http://fedoraproject.org">Fedora</a> core 3
 </ul>
 For both SuSE and Red Hat-based distributions 32 or 64 bits releases are
-available. OpendTect is known to work under <a href="http://debian.org">Debian</a>, <a href="http://ubuntu.com">Ubuntu</a> and other distributions, as well as earlier versions of the main distributions, too.
+available. OpendTect is known to work under <a href="http://www.debian.org">Debian</a>, <a href="http://www.ubuntu.com">Ubuntu</a> and other distributions, as well as earlier versions of the main distributions, too.
 
 <h3>Solaris</h3>
 
@@ -70,7 +73,7 @@ Solaris 8 and up are supported.
 
 <h3>Mac OS X</h3>
 
-Minimum is Mac OS X 4.4 . Mac/Intel is not supported at this point in time.
+Minimum is Mac OS X (10.4.4). Mac/Intel is not supported at this point in time.
 
 <h3>MS Windows</h3>
 Windows 2000 and XP are supported. During 2007 Windows Vista compliance
