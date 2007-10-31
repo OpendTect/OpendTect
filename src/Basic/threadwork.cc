@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.21 2007-10-30 16:53:35 cvskris Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.22 2007-10-31 18:56:52 cvskris Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -344,44 +344,32 @@ bool Threads::ThreadWorkManager::addWork( ObjectSet<SequentialTask>& work )
     bool res = true;
     if ( nrthreads==1 )
     {
-	for ( int idx=0; idx<nrwork && res; idx++ )
+	for ( int idx=0; idx<nrwork; idx++ )
 	{
-	    while ( res )
-	    {
-		int retval = work[idx]->doStep();
-		if ( retval>0 ) continue;
+	    if ( work[idx]->execute() )
+		continue;
 
-		if ( retval<0 )
-		    res = false;
-		break;
-	    }
+	    res = false;
+	    break;
 	}
     }
     else
     {
 	ThreadWorkResultManager resultman( nrwork-1 );
-	resultman.rescond_.lock();
 
 	CallBack cb( mCB( &resultman, ThreadWorkResultManager, imFinished ));
 
 	for ( int idx=1; idx<nrwork; idx++ )
 	    addWork( work[idx], &cb );
 
-	while ( true )
-	{
-	    int retval = work[0]->doStep();
-	    if ( retval>0 ) continue;
+	res = work[0]->execute();
 
-	    if ( retval<0 )
-		res = false;
-	    break;
-	}
-
+	resultman.rescond_.lock();
 	while ( !resultman.isFinished() )
 	    resultman.rescond_.wait();
-
 	resultman.rescond_.unlock();
-	res = !resultman.hasErrors();
+
+	if ( res ) res = !resultman.hasErrors();
     }
 
     return res;
