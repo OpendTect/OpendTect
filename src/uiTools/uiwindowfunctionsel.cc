@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2007
- RCS:           $Id: uiwindowfunctionsel.cc,v 1.2 2007-10-18 10:25:56 cvssatyaki Exp $
+ RCS:           $Id: uiwindowfunctionsel.cc,v 1.3 2007-10-31 08:49:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,10 +81,19 @@ const char* uiWindowFunctionSel::windowName() const
 { return windowtypefld_->text( 0 ); }
 
 void uiWindowFunctionSel::setWindowName( const char* nm )
-{ windowtypefld_->setText( nm ); }
+{
+    windowtypefld_->setText( nm );
+    windowChangedCB( 0 );
+}
 
-void uiWindowFunctionSel::setWindowParamValue( float param )
-{ windowtypefld_->setValue(param); }
+
+void uiWindowFunctionSel::setWindowParamValue( float val )
+{
+    const int winidx = windowtypefld_->getIntValue( 0 )-1;
+    if ( winidx<0 || !windowvariable_[winidx] ) return;
+
+    windowvariable_[winidx]->setValue( val );
+}
 
 
 float uiWindowFunctionSel::windowParamValue() const
