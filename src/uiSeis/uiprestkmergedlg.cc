@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          October 2007
- RCS:           $Id: uiprestkmergedlg.cc,v 1.1 2007-11-01 07:10:52 cvsraman Exp $
+ RCS:           $Id: uiprestkmergedlg.cc,v 1.2 2007-11-01 09:59:18 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -170,9 +170,16 @@ void uiPreStackMergeDlg::fillListBox()
 bool uiPreStackMergeDlg::setSelectedVols()
 {
     selobjs_.erase();
+    const int nrobjs = selvolsbox_->size();
+    if ( nrobjs < 2 )
+    {
+	uiMSG().error( "Select at least two volumes to merge" );
+	return false;
+    }
+
     BufferString storage = "";
     static const char* storagekey = "Data storage";
-    for ( int idx=0; idx<selvolsbox_->size(); idx++ )
+    for ( int idx=0; idx<nrobjs; idx++ )
     {
 	const char* txt = selvolsbox_->textOfItem(idx);
 	int volidx = allvolsnames_.indexOf( txt );
@@ -191,6 +198,12 @@ bool uiPreStackMergeDlg::setSelectedVols()
 	}
 
 	selobjs_ += ioobj;
+    }
+
+    if ( !outpfld_->commitInput(true) )
+    {
+	uiMSG().error( "Please enter an output data set name" );
+	return false;
     }
 
     outctio_.ioobj->pars().set( storagekey, storage );
@@ -229,8 +242,8 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
 {
     if ( !setSelectedVols() ) return false;
 
-    PtrMan<SeisPSMerger> proc =
+    PtrMan<SeisPSMerger> Exec =
 	   new SeisPSMerger( selobjs_, outctio_.ioobj );
-    uiExecutor dlg( this, *proc );
+    uiExecutor dlg( this, *Exec );
     return dlg.go();
 }
