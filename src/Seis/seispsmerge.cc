@@ -4,7 +4,7 @@
  * DATE     : Oct 2007
 -*/
 
-static const char* rcsID = "$Id: seispsmerge.cc,v 1.1 2007-11-01 07:08:25 cvsraman Exp $";
+static const char* rcsID = "$Id: seispsmerge.cc,v 1.2 2007-11-01 09:58:33 cvsraman Exp $";
 
 #include "seispsmerge.h"
 #include "seisbuf.h"
@@ -214,6 +214,9 @@ int SeisPSMerger::nextStep()
 
 int SeisPSMerger::doNextPos()
 {
+    if ( curinlidx_ >= pinfoset_.size() )
+	return 0;
+
     SeisPacketInfo& spi = *pinfoset_[curinlidx_];
     if ( curbid_.crl > spi.inlrg.stop )
     {
