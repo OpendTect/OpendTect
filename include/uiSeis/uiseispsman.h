@@ -6,13 +6,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2006
- RCS:           $Id: uiseispsman.h,v 1.1 2007-08-29 09:52:40 cvsbert Exp $
+ RCS:           $Id: uiseispsman.h,v 1.2 2007-11-01 07:10:34 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobjfileman.h"
 
+class uiToolButton;
 
 class uiSeisPreStackMan : public uiObjFileMan
 {
@@ -24,6 +25,8 @@ protected:
 
     void		mkFileInfo();
 
+    uiToolButton*       mrgbut;
+    void                mergePush(CallBacker*);
 };
 
 
