@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: pca.cc,v 1.10 2007-10-30 16:53:35 cvskris Exp $";
+static const char* rcsID = "$Id: pca.cc,v 1.11 2007-11-02 19:14:01 cvskris Exp $";
 
 
 #include "pca.h"
@@ -283,10 +283,7 @@ bool PCA::calculate()
     {
 	const int nrtasks=tasks.size();
 	for ( int idx=0; idx<nrtasks; idx++ )
-	{
-	    while ( tasks[idx]->doStep()>0 )
-		;
-	}
+	    tasks[idx]->execute();
     }
 
     // Now, get the eigenvalues
