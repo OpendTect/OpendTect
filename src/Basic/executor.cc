@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.24 2006-11-21 14:00:06 cvsbert Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.25 2007-11-02 19:15:42 cvskris Exp $";
 
 #include "executor.h"
 
@@ -25,6 +25,8 @@ bool Executor::execute( std::ostream* strm, bool isfirst, bool islast,
 {
     if ( !strm )
     {
+	if ( !delaybetwnsteps ) return SequentialTask::execute();
+
 	int rv = MoreToDo;
 	while ( rv )
 	{
