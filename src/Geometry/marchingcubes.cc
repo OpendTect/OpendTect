@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.10 2007-10-30 16:53:35 cvskris Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.11 2007-11-02 20:42:05 cvsyuancheng Exp $";
 
 #include "marchingcubes.h"
 
@@ -21,7 +21,8 @@ static const char* rcsID = "$Id: marchingcubes.cc,v 1.10 2007-10-30 16:53:35 cvs
 #define mZ 2
 #define mWriteChunkSize 100
 
-
+#define  m2DiagSpacing  360
+#define  m3DiagSpacing  442
 const unsigned char MarchingCubesModel::cUdfAxisPos = 255;
 const unsigned char MarchingCubesModel::cMaxAxisPos = 254;
 const unsigned char MarchingCubesModel::cAxisSpacing = 255;
@@ -809,6 +810,51 @@ public:
 
 	    mc2i_.setValue( arrposx_+mc2i_.originx_, arrposy_+mc2i_.originy_, 
 			    nzarrpos+mc2i_.originz_, neighborval );
+	}
+	
+
+	for ( int idx=-1; idx<=1; idx++ )   
+	{
+	    for ( int idy=-1; idy<=1; idy++ )
+	    {
+		for ( int idz=-1; idz<=1; idz++ )
+		{
+		    if ( (!idx && !idy) || (!idx && !idz) || 
+			 (!idy && !idz) )
+			continue;
+		    
+		    const int nxarrpos = arrposx_+idx;
+		    const int nyarrpos = arrposy_+idy;
+		    const int nzarrpos = arrposz_+idz;
+		    if ( nxarrpos<0 || nyarrpos<0 || nzarrpos<0 ||
+			 nxarrpos>=mc2i_.result_.info().getSize(mX) ||
+			 nyarrpos>=mc2i_.result_.info().getSize(mY) ||
+			 nzarrpos>=mc2i_.result_.info().getSize(mZ) )
+			continue;
+
+		    const int nv=mc2i_.result_.get(nxarrpos,nyarrpos,nzarrpos);
+ 		    if ( Values::isUdf(nv) || !nv ) 
+ 			continue;
+ 
+		    bool nbsign = nv>0;
+ 		    if ( !idx || !idy || !idz )    
+ 		    {
+ 			mc2i_.setValue( nxarrpos+mc2i_.originx_, 
+				nyarrpos+mc2i_.originy_, 
+				nzarrpos+mc2i_.originz_, 
+				nbsign ? prevvalue + m2DiagSpacing :
+				prevvalue - m2DiagSpacing );
+ 		    }
+ 		    else
+ 		    {
+ 			mc2i_.setValue( nxarrpos+mc2i_.originx_, 
+				nyarrpos+mc2i_.originy_, 
+				nzarrpos+mc2i_.originz_, 
+				nbsign ? prevvalue + m3DiagSpacing:
+				prevvalue - m3DiagSpacing );
+		    }
+		}
+	    }
 	}
 
 	return cFinished();

@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.19 2007-10-30 16:53:35 cvskris Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.20 2007-11-02 20:42:05 cvsyuancheng Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -251,7 +251,18 @@ bool ExplicitMarchingCubesSurface::update( bool forceall )
 	return false;
 
     updater->setUpdateCoords( false );
-    return updater->execute(); 
+    if ( updater->execute() )
+    {
+	delete changedbucketranges_[mX];
+	delete changedbucketranges_[mY];
+	delete changedbucketranges_[mZ];
+	changedbucketranges_[mX] = 0;
+	changedbucketranges_[mY] = 0;
+	changedbucketranges_[mZ] = 0;
+	return true;
+    }
+
+    return false;
 }
 
 
@@ -575,7 +586,7 @@ void ExplicitMarchingCubesSurface::surfaceChange(CallBacker*)
 	changedbucketranges_[mX]->include( ranges[mX] );
 	changedbucketranges_[mY]->include( ranges[mY] );
 	changedbucketranges_[mZ]->include( ranges[mZ] );
-    }
+   }
 }
 
 

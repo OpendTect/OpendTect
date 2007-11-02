@@ -4,7 +4,7 @@
  * DATE     : August 2007
 -*/
 
-static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.9 2007-10-30 16:53:35 cvskris Exp $";
+static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.10 2007-11-02 20:42:05 cvsyuancheng Exp $";
 
 #include "marchingcubeseditor.h"
 #include "marchingcubes.h"
@@ -104,8 +104,8 @@ bool MarchingCubesSurfaceEditor::setKernel( const Array3D<unsigned char>& arr,
     if ( !originalsurface_->isOK() )
 	mErrRet;
 
-    MarchingCubes2Implicit mc2i( surface_, *originalsurface_,
-	xorigin_, yorigin_, zorigin_ );
+    MarchingCubes2Implicit mc2i( surface_, *originalsurface_, 
+	    			 xorigin_, yorigin_, zorigin_ );
     if ( !mc2i.compute() )
 	mErrRet;
 
