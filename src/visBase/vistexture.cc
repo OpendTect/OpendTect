@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vistexture.cc,v 1.39 2007-10-30 16:53:36 cvskris Exp $";
+static const char* rcsID = "$Id: vistexture.cc,v 1.40 2007-11-02 19:14:50 cvskris Exp $";
 
 #include "vistexture.h"
 
@@ -371,10 +371,7 @@ void Texture::makeColorIndexes()
     else
     {
 	for ( int idx=0; idx<colorindexers.size(); idx++ )
-	{
-	    while ( colorindexers[idx]->doStep() )
-		;
-	}
+	    colorindexers[idx]->execute();
     }
 
     int max = 0;
@@ -539,10 +536,7 @@ void Texture::makeTexture()
     else
     {
 	for ( int idx=0; idx<texturemakers.size(); idx++ )
-	{
-	    while ( texturemakers[idx]->doStep() )
-		;
-	}
+	    texturemakers[idx]->execute();
     }
 
     finishEditing();
