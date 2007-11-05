@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.101 2007-10-03 11:52:53 cvsraman Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.102 2007-11-05 15:19:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -299,7 +299,7 @@ void uiODMenuMgr::fillProcMenu()
     }
 
     uiPopupMenu* horitm = 
-		new uiPopupMenu( &appl_, "Create output using &Horizon ...");
+		new uiPopupMenu( &appl_, "Create output using &Horizon");
     bool hasboth = SI().has2D() && SI().has3D();
     if ( SI().has2D() )
     {
