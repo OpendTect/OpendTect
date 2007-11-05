@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinetr.cc,v 1.2 2006-12-15 14:35:57 cvsnanne Exp $
+ RCS:		$Id: randomlinetr.cc,v 1.3 2007-11-05 15:20:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,20 +21,22 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "ptrman.h"
 #include "separstr.h"
+#include "survinfo.h"
+
+static const char* sKeyNrLines = "Nr Lines";
+
+mDefSimpleTranslatorSelector(RandomLineSet,sKeyRandomLineSetTranslatorGroup)
+mDefSimpleTranslatorioContext(RandomLineSet,Loc)
 
 
-mDefSimpleTranslatorSelector(RandomLine,sKeyRandomLineTranslatorGroup)
-mDefSimpleTranslatorioContext(RandomLine,Loc)
-
-
-bool RandomLineTranslator::retrieve( Geometry::RandomLine& rdl,
+bool RandomLineSetTranslator::retrieve( Geometry::RandomLineSet& rdls,
 				     const IOObj* ioobj, BufferString& bs )
 {
     if ( !ioobj )
 	{ bs = "Cannot find object in data base"; return false; }
 
-    PtrMan<RandomLineTranslator> tr
-	= dynamic_cast<RandomLineTranslator*>(ioobj->getTranslator());
+    PtrMan<RandomLineSetTranslator> tr
+	= dynamic_cast<RandomLineSetTranslator*>(ioobj->getTranslator());
     if ( !tr )
 	{ bs = "Selected object is not a Random Line"; return false; }
 
@@ -42,19 +44,19 @@ bool RandomLineTranslator::retrieve( Geometry::RandomLine& rdl,
     if ( !conn )
 	{ bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
 
-    bs = tr->read( rdl, *conn );
+    bs = tr->read( rdls, *conn );
     return bs.isEmpty();
 }
 
 
-bool RandomLineTranslator::store( const Geometry::RandomLine& rdl,
+bool RandomLineSetTranslator::store( const Geometry::RandomLineSet& rdl,
 				  const IOObj* ioobj, BufferString& bs )
 {
     if ( !ioobj )
 	{ bs = "No object to store set in data base"; return false; }
     
-    PtrMan<RandomLineTranslator> tr
-	= dynamic_cast<RandomLineTranslator*>(ioobj->getTranslator());
+    PtrMan<RandomLineSetTranslator> tr
+	= dynamic_cast<RandomLineSetTranslator*>(ioobj->getTranslator());
     if ( !tr )
 	{ bs = "Selected object is not an Attribute Set"; return false; }
 
@@ -67,7 +69,7 @@ bool RandomLineTranslator::store( const Geometry::RandomLine& rdl,
 }
 
 
-const char* dgbRandomLineTranslator::read( Geometry::RandomLine& rdl,
+const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
 					   Conn& conn )
 {
     if ( !conn.forRead() || !conn.isStream() )
@@ -77,59 +79,101 @@ const char* dgbRandomLineTranslator::read( Geometry::RandomLine& rdl,
     std::istream& strm = astrm.stream();
     if ( !strm.good() )
 	return "Cannot read from input file";
-    if ( !astrm.isOfFileType(mTranslGroupName(RandomLine)) )
-	return "Input file is not a RandomLine file";
+    if ( !astrm.isOfFileType(mTranslGroupName(RandomLineSet)) )
+	return "Input file is not a RandomLineSet file";
     if ( atEndOfSection(astrm) )
 	astrm.next();
 
+    const bool isold = !astrm.hasKeyword( sKeyNrLines );
+    const int nrlines = isold ? astrm.getVal() : 1;
+    if ( !isold )
+    {
+	astrm.next();
+	while ( !atEndOfSection(astrm.next())
+	     && !astrm.hasKeyword(sKey::ZRange) )
+	    rdls.pars().set( astrm.keyWord(), astrm.value() );
+    }
+
     Interval<float> zrg;
-    if ( astrm.hasKeyword(sKey::ZRange) )
+    if ( !astrm.hasKeyword(sKey::ZRange) )
+	assign( zrg, SI().zRange(true) );
+    else
     {
 	FileMultiString fms = astrm.value();
 	zrg.start = atof( fms[0] );
 	zrg.stop = atof( fms[1] );
     }
 
-    rdl.setZRange( zrg );
     while ( !atEndOfSection(astrm) )
 	astrm.next();
 
-    while ( strm )
-    {
-	BinID bid;
-	strm >> bid.inl >> bid.crl;
-	if ( !strm ) break;
+    rdls.setZRange( zrg );
 
-	rdl.addNode( bid );
+    for ( int iln=0; iln<nrlines; iln++ )
+    {
+	Geometry::RandomLine* rl = new Geometry::RandomLine;
+	while ( !atEndOfSection(astrm) )
+	{
+	    BufferString loc( astrm.keyWord() );
+	    char* ptr = loc.buf();
+	    skipLeadingBlanks(ptr);
+	    while ( *ptr && !isspace(*ptr) )
+		ptr++;
+	    if ( *ptr )
+	    {
+		*ptr++ = '\0'; skipLeadingBlanks(ptr);
+		rl->addNode( BinID(atoi(loc.buf()),atoi(ptr)) );
+	    }
+	    astrm.next();
+	}
+
+	if ( rl->nrNodes() < 2 )
+	    delete rl;
+	else
+	    rdls.addLine( rl );
     }
 
-    return 0;
+    return rdls.size() >= 1 ? 0 : "No valid random line found";
 }
 
 
-const char* dgbRandomLineTranslator::write( const Geometry::RandomLine& rdl,
-					    Conn& conn )
+const char* dgbRandomLineSetTranslator::write(
+			const Geometry::RandomLineSet& rdls, Conn& conn )
 {
+    const int nrlines = rdls.size();
+    if ( nrlines < 1 )
+	return "No random line to write";
     if ( !conn.forWrite() || !conn.isStream() )
 	return "Internal error: bad connection";
 
     ascostream astrm( ((StreamConn&)conn).oStream() );
-    astrm.putHeader( mTranslGroupName(RandomLine) );
+    astrm.putHeader( mTranslGroupName(RandomLineSet) );
     std::ostream& strm = astrm.stream();
     if ( !strm.good() )
-	return "Cannot write to output RandomLine file";
+	return "Cannot write to output RandomLineSet file";
 
-    FileMultiString fms = Conv::to<const char*>( rdl.zRange().start );
-    fms.add( Conv::to<const char*>(rdl.zRange().stop) );
+    if ( nrlines != 1 || !rdls.pars().isEmpty() )
+    {
+	astrm.put( sKeyNrLines, nrlines );
+	for ( int idx=0; idx<rdls.pars().size(); idx++ )
+	    astrm.put( rdls.pars().getKey(idx), rdls.pars().getValue(idx) );
+    }
+
+    FileMultiString fms = Conv::to<const char*>( rdls.zRange().start );
+    fms.add( Conv::to<const char*>(rdls.zRange().stop) );
     astrm.put( sKey::ZRange, fms );
     astrm.newParagraph();
 
-    for ( int idx=0; idx<rdl.nrNodes(); idx++ )
+    for ( int iln=0; iln<rdls.size(); iln++ )
     {
-	const BinID& bid = rdl.nodePosition( idx );
-	strm << bid.inl << '\t' << bid.crl << '\n';
+	const Geometry::RandomLine& rdl = *rdls.lines()[iln];
+	for ( int idx=0; idx<rdl.nrNodes(); idx++ )
+	{
+	    const BinID bid = rdl.nodePosition( idx );
+	    strm << bid.inl << '\t' << bid.crl << '\n';
+	}
+	astrm.newParagraph();
     }
 
-    astrm.newParagraph();
-    return strm.good() ? 0 : "Error during write to output RandomLine file";
+    return strm.good() ? 0 : "Error during write of RandomLine Set file";
 }

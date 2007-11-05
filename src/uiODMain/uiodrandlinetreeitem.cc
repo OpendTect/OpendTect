@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.8 2007-08-30 21:26:38 cvskris Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.9 2007-11-05 15:19:49 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -72,15 +72,15 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
 
 bool uiODRandomLineParentTreeItem::load()
 {
-    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLine );
+    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
     ctio->ctxt.forread = true;
     uiIOObjSelDlg dlg( getUiParent(), *ctio, "Select", false );
     if ( !dlg.go() )
 	return false;
 
-    Geometry::RandomLine geom;
+    Geometry::RandomLineSet lset;
     BufferString errmsg;
-    if ( !RandomLineTranslator::retrieve(geom,dlg.ioObj(),errmsg) )
+    if ( !RandomLineSetTranslator::retrieve(lset,dlg.ioObj(),errmsg) )
 	{ uiMSG().error( errmsg ); return false; }
 
     uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem(-1);
@@ -91,9 +91,9 @@ bool uiODRandomLineParentTreeItem::load()
 	return false;
 
     TypeSet<BinID> bids;
-    geom.allNodePositions( bids );
+    lset.lines()[0]->allNodePositions( bids );
     rtd->setKnotPositions( bids );
-    rtd->setDepthInterval( geom.zRange() );
+    rtd->setDepthInterval( lset.zRange() );
     rtd->setName( dlg.ioObj()->name() );
     updateColumnText( uiODSceneMgr::cNameColumn() );
     return true;
@@ -204,7 +204,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid == saveasmnuitem_.id )
     {
-	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLine );
+	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
 	ctio->ctxt.forread = false;
 	ctio->setName( rtd->name() );
 	uiIOObjSelDlg dlg( getUiParent(), *ctio, "Select", false );
@@ -213,12 +213,15 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	    
 	TypeSet<BinID> bids;
 	rtd->getAllKnotPos( bids );
-	Geometry::RandomLine geom;
-	geom.setZRange( rtd->getDepthInterval() );
+	Geometry::RandomLineSet lset;
+	Geometry::RandomLine* geom = new Geometry::RandomLine;
 	for ( int idx=0; idx<bids.size(); idx++ )
-	    geom.addNode( bids[idx] );
+	    geom->addNode( bids[idx] );
+	lset.addLine( geom );
+	lset.setZRange( rtd->getDepthInterval() );
 	BufferString bs;
-	RandomLineTranslator::store( geom, dlg.ioObj(), bs );
+	if ( !RandomLineSetTranslator::store(lset,dlg.ioObj(),bs) )
+	    uiMSG().error( bs );
     }
 }
 
@@ -261,5 +264,3 @@ void uiODRandomLineTreeItem::remove2DViewerCB( CallBacker* )
 {
     ODMainWin()->sceneMgr().remove2DViewer( displayid_ );
 }
-
-

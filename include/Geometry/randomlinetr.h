@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: randomlinetr.h,v 1.1 2006-12-14 21:44:35 cvsnanne Exp $
+ RCS:		$Id: randomlinetr.h,v 1.2 2007-11-05 15:20:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,43 +15,43 @@ ________________________________________________________________________
 #include "transl.h"
 #include "bufstringset.h"
 
-namespace Geometry { class RandomLine; }
+namespace Geometry { class RandomLineSet; }
 class Conn;
 
-class RandomLineTranslatorGroup : public TranslatorGroup
-{				  isTranslatorGroup(RandomLine)
+class RandomLineSetTranslatorGroup : public TranslatorGroup
+{				  isTranslatorGroup(RandomLineSet)
 public:
-    			mDefEmptyTranslatorGroupConstructor(RandomLine)
+    			mDefEmptyTranslatorGroupConstructor(RandomLineSet)
 
     const char*		defExtension() const		{ return "rdl"; }
 };
 
 
-class RandomLineTranslator : public Translator
+class RandomLineSetTranslator : public Translator
 {
 public:
-    			mDefEmptyTranslatorBaseConstructor(RandomLine)
+    			mDefEmptyTranslatorBaseConstructor(RandomLineSet)
 
-    virtual const char*	read(Geometry::RandomLine&,Conn&)		= 0;
+    virtual const char*	read(Geometry::RandomLineSet&,Conn&)		= 0;
 			//!< returns err msg or null on success
-    virtual const char*	write(const Geometry::RandomLine&,Conn&)	= 0;
+    virtual const char*	write(const Geometry::RandomLineSet&,Conn&)	= 0;
 			//!< returns err msg or null on success
 
-    static bool		retrieve(Geometry::RandomLine&,const IOObj*,
+    static bool		retrieve(Geometry::RandomLineSet&,const IOObj*,
 	    			 BufferString&);
-    static bool		store(const Geometry::RandomLine&,const IOObj*,
+    static bool		store(const Geometry::RandomLineSet&,const IOObj*,
 	    		      BufferString&);
 };
 
 
-class dgbRandomLineTranslator : public RandomLineTranslator
-{				isTranslator(dgb,RandomLine)
+class dgbRandomLineSetTranslator : public RandomLineSetTranslator
+{				isTranslator(dgb,RandomLineSet)
 public:
 
-    			mDefEmptyTranslatorConstructor(dgb,RandomLine)
+    			mDefEmptyTranslatorConstructor(dgb,RandomLineSet)
 
-    const char*		read(Geometry::RandomLine&,Conn&);
-    const char*		write(const Geometry::RandomLine&,Conn&);
+    const char*		read(Geometry::RandomLineSet&,Conn&);
+    const char*		write(const Geometry::RandomLineSet&,Conn&);
 };
 
 
