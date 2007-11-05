@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.9 2007-03-15 17:53:51 cvsbert Exp $
+ RCS:           $Id: statruncalc.h,v 1.10 2007-11-05 10:35:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,6 +120,7 @@ public:
     inline T		sqSum() const;
     inline double	rms() const;
     inline double	stdDev() const;
+    TypeSet<T>		vals_;
 
 protected:
 
@@ -138,7 +139,6 @@ protected:
     T			sum_wxx;
     TypeSet<int>	clss_;
     TypeSet<int>	occs_;
-    TypeSet<T>		vals_;
 
     inline bool		isZero( const T& t ) const	{ return !t; }
 
@@ -662,7 +662,8 @@ T WindowedCalc<T>::max( int* index_of_max ) const
 template <class T>
 inline WindowedCalc<T>&	WindowedCalc<T>::addValue( T val, T wt )
 {
-    if ( !full_ )
+    if ( !full_ || calc_.vals_.isEmpty() 
+	    	|| (!mIsUdf(val) && mIsUdf(vals_[posidx_])) )
 	calc_.addValue( val, wt );
     else
     {
