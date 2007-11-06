@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.22 2007-03-15 16:13:24 cvsbert Exp $
+ RCS:           $Id: uisurvey.h,v 1.23 2007-11-06 16:33:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ class uiSurvey : public uiDialog
 {
 
 public:
-			uiSurvey(uiParent*,bool isgdi=false);
+			uiSurvey(uiParent*);
 			~uiSurvey();
 
     static void		updateViewsGlobal();
@@ -40,6 +40,17 @@ public:
     static bool		survTypeOKForUser(bool is2d);
     			//!< checks whether given type has support
     			//!< returns whether user wants to continue
+
+    /*!\brief 'Menu' item on window. First is always 'X,Y <-> I/C' */
+    struct Util
+    {
+			Util( const char* txt, const CallBack& cb )
+			    : txt_(txt), cb_(cb)	{}
+
+	BufferString	txt_;
+	CallBack	cb_;
+    };
+    static void		add(const Util&);
 
 protected:
 
@@ -54,8 +65,8 @@ protected:
     uiPushButton*	editbut;
     uiPushButton*	rmbut;
     uiPushButton*	datarootbut;
-    uiPushButton*	convbut;
     uiPushButton*	copybut;
+    ObjectSet<uiPushButton> utilbuts;
     uiLabel*		inllbl;
     uiLabel*		crllbl; 
     uiLabel*		zlbl;
@@ -69,8 +80,6 @@ protected:
     void		copyButPushed(CallBacker*);
     void		rmButPushed(CallBacker*);
     void		dataRootPushed(CallBacker*);
-    void		convButPushed(CallBacker*);
-    void		tutButPushed(CallBacker*);
     void 		getSurvInfo();
     bool		survInfoDialog();
     void		updateSvyList();
@@ -83,6 +92,11 @@ protected:
     void		doCanvas(CallBacker*);
     void		newSurvey();
     void		mkDirList();
+
+public:
+
+    void		convButPushed(CallBacker*);
+
 };
 
 #endif

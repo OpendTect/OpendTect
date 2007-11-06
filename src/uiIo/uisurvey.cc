@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.81 2007-08-30 10:12:24 cvsbert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.82 2007-11-06 16:33:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,20 @@ ________________________________________________________________________
 extern "C" const char* GetSurveyName();
 extern "C" const char* GetSurveyFileName();
 extern "C" void SetSurveyName(const char*);
+
+static ObjectSet<uiSurvey::Util>& getUtils( uiSurvey* uisurv )
+{
+    static ObjectSet<uiSurvey::Util>* utils = 0;
+    const CallBack cb( mCB(uisurv,uiSurvey,convButPushed) );
+    if ( utils )
+	(*utils)[0]->cb_ = cb;
+    else
+    {
+	utils = new ObjectSet<uiSurvey::Util>;
+	*utils += new uiSurvey::Util( "(&X,Y) <-> I/C", cb );
+    }
+    return *utils;
+}
 
 
 static BufferString getTrueDir( const char* dn )
@@ -105,49 +119,7 @@ static bool copySurv( const char* from, const char* todirnm, int mb )
 }
 
 
-class TutHandling
-{
-public:
-
-static bool copy()
-{
-    static const char* dirnm = "Tutorial";
-    BufferString from = mGetSetupFileName( dirnm );
-    if ( !File_exists(from) )
-    {
-        uiMSG().error( "Tutorial not installed" );
-        return false;
-    }
-
-    return copySurv( from, dirnm, 4 );
-}
-
-
-static void fill()
-{
-    FilePath fp( GetBaseDataDir() );
-    fp.add( "Tutorial" ).add( "Seismics" );
-    IOM().setRootDir( fp.fullPath() );
-    IOM().to( IOObjContext::StdSelTypeNames[0] );
-    IOObj* ioobj = IOM().get( "100010.2" );
-    mDynamicCastGet(IOStream*,iostrm,ioobj)
-    if ( !ioobj || !iostrm )
-    {
-	BufferString errmsg = "Original Tutorial survey is corrupt!";
-	uiMSG().error( errmsg );
-	return;
-    }
-
-    BufferString fname( iostrm->fileName() );
-    fname = mGetSetupFileName( fname );
-    iostrm->setFileName( fname );
-    IOM().commitChanges( *iostrm );
-}
-
-};
-
-
-uiSurvey::uiSurvey( uiParent* p, bool isgdi )
+uiSurvey::uiSurvey( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Survey selection",
 	       "Select and setup survey","0.3.1"))
     , initialdatadir(GetBaseDataDir())
@@ -200,27 +172,20 @@ uiSurvey::uiSurvey( uiParent* p, bool isgdi )
     copybut->attach( alignedBelow, editbut );
     copybut->setPrefWidthInChar( 12 );
 
-    convbut = new uiPushButton( rightgrp, "&X/Y <-> I/C",
-	    			mCB(this,uiSurvey,convButPushed), false );
-    convbut->attach( centeredBelow, mapcanvas );
-    uiButton* tutbut = 0;
-    if ( isgdi )
+    ObjectSet<uiSurvey::Util>& utils = getUtils( this );
+    uiGroup* utilbutgrp = new uiGroup( rightgrp, "Surv Util buttons" );
+    for ( int idx=0; idx<utils.size(); idx++ )
     {
-	static const char* tutdirnm = "Tutorial";
-	const bool direxists = dirlist.indexOf(tutdirnm) >= 0;
-	BufferString dirnm( mGetSetupFileName(tutdirnm) );
-	const bool tutinst = File_exists( dirnm );
-	if ( tutinst && !direxists )
-	{
-	    tutbut = new uiPushButton( leftgrp, "&Get Tutorial", true );
-	    tutbut->attach( alignedBelow, listbox );
-	    tutbut->activated.notify( mCB(this,uiSurvey,tutButPushed) );
-	}
+	const uiSurvey::Util& util = *utils[idx];
+	utilbuts += new uiPushButton( utilbutgrp, util.txt_, util.cb_, false );
+	if ( idx > 0 )
+	    utilbuts[idx]->attach( rightOf, utilbuts[idx-1] );
     }
+    utilbutgrp->attach( centeredBelow, mapcanvas );
 
     datarootbut = new uiPushButton( leftgrp, "&Set Data Root",
 	    			mCB(this,uiSurvey,dataRootPushed), false );
-    datarootbut->attach( tutbut ? rightAlignedBelow : centeredBelow, listbox );
+    datarootbut->attach( centeredBelow, listbox );
 
     uiSeparator* horsep1 = new uiSeparator( this );
     horsep1->setPrefWidth( totwdth );
@@ -296,7 +261,8 @@ void uiSurvey::newButPushed( CallBacker* )
 
     rmbut->setSensitive(true);
     editbut->setSensitive(true);
-    convbut->setSensitive(true);
+    for ( int idx=0; idx<utilbuts.size(); idx++ )
+	utilbuts[idx]->setSensitive(true);
 }
 
 
@@ -461,19 +427,6 @@ void uiSurvey::convButPushed( CallBacker* )
 }
 
 
-void uiSurvey::tutButPushed( CallBacker* )
-{
-    if ( !TutHandling::copy() )
-	return;
-    updateSvyList();
-    TutHandling::fill();
-
-    rmbut->setSensitive(true);
-    editbut->setSensitive(true);
-    convbut->setSensitive(true);
-}
-
-
 void uiSurvey::updateSvyList()
 {
     mkDirList();
@@ -579,7 +532,8 @@ rest = nr%100; bininfo += rest < 10 ? ".0" : "."; bininfo += rest; \
     bool anysvy = dirlist.size();
     rmbut->setSensitive( anysvy );
     editbut->setSensitive( anysvy );
-    convbut->setSensitive( anysvy );
+    for ( int idx=0; idx<utilbuts.size(); idx++ )
+	utilbuts[idx]->setSensitive( anysvy );
 }
 
 
