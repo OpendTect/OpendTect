@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.cc,v 1.22 2007-11-02 08:35:14 cvsbert Exp $
+ RCS:           $Id: uiconvpos.cc,v 1.23 2007-11-06 16:33:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,37 +39,32 @@ uiConvertPos::uiConvertPos( uiParent* p, SurveyInfo* si )
     ismanfld->valuechanged.notify( mCB(this,uiConvertPos,selChg) );
 
     mangrp = new uiGroup( this, "Manual group" );
-    uiGroup* fldgrp = new uiGroup( mangrp, "Fields group" );
-    inlfld = new uiGenInput( fldgrp, "In-line", 
+    inlfld = new uiGenInput( mangrp, "In-line", 
 			     IntInpSpec().setName("Inl-field") );
     inlfld->setElemSzPol( uiObject::Small );
-    crlfld = new uiGenInput( fldgrp, "Cross-line", 
+    crlfld = new uiGenInput( mangrp, "Cross-line", 
 	    		     IntInpSpec().setName("Crl-field") );
     crlfld->setElemSzPol( uiObject::Small );
-    xfld = new uiGenInput( fldgrp, "X-coordinate",
+    xfld = new uiGenInput( mangrp, "X-coordinate",
 			   DoubleInpSpec().setName("X-field") );
     xfld->setElemSzPol( uiObject::Small );
-    yfld = new uiGenInput( fldgrp, "Y-coordinate", 
+    yfld = new uiGenInput( mangrp, "Y-coordinate", 
 	    		   DoubleInpSpec().setName("Y-field") );
     yfld->setElemSzPol( uiObject::Small );
     crlfld->attach( alignedBelow, inlfld );
     xfld->attach( rightTo, inlfld );
     yfld->attach( alignedBelow, xfld );
     yfld->attach( rightTo, crlfld );
-    fldgrp->setHAlignObj( inlfld );
 
-    uiGroup* butgrp = new uiGroup( mangrp, "Button group" );
-    const ioPixmap right( "forward.xpm" );
-    const ioPixmap left( "back.xpm" );
-    uiToolButton* dobinidbut = new uiToolButton( butgrp, "Left", left );
+    const ioPixmap right( "forward.xpm" ); const ioPixmap left( "back.xpm" );
+    uiToolButton* dobinidbut = new uiToolButton( mangrp, "Left", left );
     dobinidbut->activated.notify( mCB(this,uiConvertPos,getBinID) );
-    uiToolButton* docoordbut = new uiToolButton( butgrp, "Right", right );
+    dobinidbut->attach( rightTo, crlfld );
+    uiToolButton* docoordbut = new uiToolButton( mangrp, "Right", right );
     docoordbut->activated.notify( mCB(this,uiConvertPos,getCoord) );
-    docoordbut->attach( rightOf, dobinidbut, 0 );
+    docoordbut->attach( rightOf, dobinidbut );
 
-    butgrp->attach( centeredBelow, fldgrp );
-
-    mangrp->setHAlignObj( fldgrp );
+    mangrp->setHAlignObj( inlfld );
     mangrp->attach( alignedBelow, ismanfld );
 
     filegrp = new uiGroup( this, "File group" );
