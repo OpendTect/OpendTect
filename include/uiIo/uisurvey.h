@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.23 2007-11-06 16:33:53 cvsbert Exp $
+ RCS:           $Id: uisurvey.h,v 1.24 2007-11-06 16:37:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,9 @@ public:
 	CallBack	cb_;
     };
     static void		add(const Util&);
+
+    SurveyInfo*		curSurvInfo()		{ return survinfo; }
+    const SurveyInfo*	curSurvInfo() const	{ return survinfo; }
 
 protected:
 
