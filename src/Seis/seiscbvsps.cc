@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.19 2007-11-06 11:44:45 cvsraman Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.20 2007-11-06 12:04:31 cvsraman Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -121,16 +121,15 @@ void SeisCBVSPSReader::addInl( int inl )
 	    for ( int idx=2; idx<cd.size(); idx++ )
 	    {
 		const PosInfo::LineData& id = *cd[idx];
-		if ( id.linenr_ != cd[idx-1]->linenr_ + seg.step )
+		if ( seg.stop == seg.start )
+		    { seg.stop = id.linenr_; seg.step = seg.stop - seg.start; }
+		else if ( id.linenr_ != cd[idx-1]->linenr_ + seg.step )
 		{
 		    newid->segments_ += seg;
 		    seg.start = seg.stop = id.linenr_;
-		    continue;
-		}		
-		else if ( seg.stop == seg.start )
+		}
+		else
 		    seg.stop = id.linenr_;
-		    
-		seg.stop = id.linenr_;
 	    }
 	    newid->segments_ += seg;
 	}
