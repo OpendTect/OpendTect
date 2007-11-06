@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		Oct 2007
- RCS:		$Id: seispsmerge.h,v 1.1 2007-11-01 07:08:04 cvsraman Exp $
+ RCS:		$Id: seispsmerge.h,v 1.2 2007-11-06 11:44:50 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,12 +15,8 @@ ________________________________________________________________________
 #include "executor.h"
 #include "cubesampling.h"
 class IOObj;
-class IOPar;
-class SeisTrc;
-class MultiID;
-class SeisCBVSPSReader;
-class SeisCBVSPSWriter;
-class SeisPacketInfo;
+class SeisPSReader;
+class SeisPSWriter;
 
 
 /*!\brief Single trace processing executor
@@ -48,23 +44,18 @@ protected:
 
     ObjectSet<IOObj>	inobjs_;
     const IOObj*	outobj_;
-    int			curinlidx_;
     BinID		curbid_;
     int			nrobjs_;
 
-    TypeSet<int>		inlset_;
-    TypeSet<TypeSet<int> >	lineobjlist_;
-    ObjectSet<SeisPacketInfo>	pinfoset_;
-
-    ObjectSet<SeisCBVSPSReader>		readers_;
-    SeisCBVSPSWriter*      		writer_;
+    HorSamplingIterator*	iter_;
+    ObjectSet<SeisPSReader>	readers_;
+    SeisPSWriter*		writer_;
 
     BufferString	msg_;
     int			totnr_;
     int			nrdone_;
 
-    bool		init();
-    int			prepareReaders();
+    void		init();
     int			doNextPos();
 };
 

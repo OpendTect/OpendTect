@@ -4,43 +4,22 @@
  * DATE     : Oct 2007
 -*/
 
-static const char* rcsID = "$Id: seispsmerge.cc,v 1.2 2007-11-01 09:58:33 cvsraman Exp $";
+static const char* rcsID = "$Id: seispsmerge.cc,v 1.3 2007-11-06 11:44:45 cvsraman Exp $";
 
-#include "seispsmerge.h"
+#include "segposinfo.h"
 #include "seisbuf.h"
-#include "seiscbvs.h"
-#include "seiscbvsps.h"
-#include "seistrctr.h"
+#include "seispsioprov.h"
+#include "seispsmerge.h"
+#include "seispsread.h"
+#include "seispswrite.h"
 #include "seistrc.h"
-#include "seistrcsel.h"
-#include "cubesampling.h"
-#include "dirlist.h"
-#include "filegen.h"
-#include "multiid.h"
-#include "survinfo.h"
 #include "ioobj.h"
-#include "iopar.h"
-#include "ioman.h"
-#include "ptrman.h"
-
-
-int getInlFromFileNm( BufferString fnm )
-{
-    char* ptr = fnm.buf();
-    while ( *ptr && !isdigit(*ptr) ) ptr++;
-    while ( *ptr && isdigit(*ptr) ) ptr++;
-    *ptr = '\0';
-    if ( fnm.isEmpty() ) return -1;
-
-    return atoi( fnm.buf() );
-}
 
 
 SeisPSMerger::SeisPSMerger( ObjectSet<IOObj> objset, const IOObj* out ) 
   	: Executor("Pre-Stack data Merger")
 	, inobjs_(objset)
 	, outobj_(out)
-	, curinlidx_(-1)
 	, writer_(0)
 	, msg_("Nothing")
 	, totnr_(-1)
@@ -57,122 +36,43 @@ SeisPSMerger::SeisPSMerger( ObjectSet<IOObj> objset, const IOObj* out )
 }
 
 
-#define mDeleteNull(ptr) \
-    if ( ptr ) \
-    { delete ptr; ptr = 0; }
-
 SeisPSMerger::~SeisPSMerger()
 {
-    mDeleteNull(writer_);
-    deepErase( pinfoset_ );
+    delete iter_;
+    delete writer_;
+    delete outobj_;
+    deepErase( inobjs_ );
     deepErase( readers_ );
 }
 
 
-bool SeisPSMerger::init()
+void SeisPSMerger::init()
 {
     totnr_ = 0;
-    inlset_.erase();
-    lineobjlist_.erase();
-    pinfoset_.erase();
+    HorSampling hs;
     for ( int idx=0; idx<nrobjs_; idx++ )
     {
-	DirList inlist( inobjs_[idx]->fullUserExpr(true), DirList::FilesOnly );
-	for ( int fdx=0; fdx<inlist.size(); fdx++ )
+	SeisPSReader* rdr = SPSIOPF().getReader( *inobjs_[idx] );
+	if ( !rdr ) continue;
+
+	StepInterval<int> inlrg;
+	StepInterval<int> crlrg;
+	rdr->posData().getInlRange( inlrg );
+	rdr->posData().getCrlRange( crlrg );
+	if ( !idx ) hs.set( (Interval<int>)inlrg, (Interval<int>)crlrg );
+	else
 	{
-	    const int line = getInlFromFileNm( inlist.get(fdx) );
-	    int lidx = inlset_.indexOf( line );
-	    if ( lidx < 0 )
-	    { inlset_ += line; lidx = inlset_.size() - 1; }
-
-	    CBVSSeisTrcTranslator* tr =
-			CBVSSeisTrcTranslator::make( inlist.fullPath(fdx),
-		    				     true, false, &msg_ );
-	    StreamConn* scon = new StreamConn( inlist.fullPath(fdx),
-		    			       Conn::Read );
-	    tr->initRead( scon, Seis::PreScan );
-	    SeisPacketInfo spi = tr->packetInfo();
-	    if ( lidx < pinfoset_.size() )
-	    {
-		SeisPacketInfo& prevspi = *pinfoset_[lidx];
-		if ( prevspi.inlrg.step != spi.inlrg.step ||
-		     prevspi.crlrg.step != spi.crlrg.step ||
-		     prevspi.zrg != spi.zrg )
-		{
-		    pErrMsg( "Data Mismatch" );
-		    continue;
-		}
-
-		prevspi.inlrg.include( spi.inlrg );
-		lineobjlist_[lidx] += idx;
-	    }
-	    else
-	    {
-		pinfoset_ += new SeisPacketInfo( spi );
-		TypeSet<int> objlist;
-		objlist += idx;
-		lineobjlist_ += objlist;
-	    }
-	    delete tr;
-	}
-    }
-
-    for ( int lidx=0; lidx<pinfoset_.size(); lidx++ )
-	totnr_ += pinfoset_[lidx]->inlrg.nrSteps();
-
-    curinlidx_ = 0;
-    prepareReaders();
-
-    writer_ = new SeisCBVSPSWriter( outobj_->fullUserExpr(false) );
-    writer_->usePar( outobj_->pars() );
-    return true;
-}
-
-
-int SeisPSMerger::prepareReaders()
-{
-    if ( curinlidx_ >= inlset_.size() )
-	return 0;
-
-    if ( curinlidx_>=lineobjlist_.size() || curinlidx_>=pinfoset_.size() )
-	return -1;
-
-    int inl = inlset_[curinlidx_];
-    const TypeSet<int>& objids = lineobjlist_[curinlidx_];
-    if ( objids.size() == 1 )
-    {
-	const int objidx = objids[0];
-	BufferString from( inobjs_[objidx]->fullUserExpr(true) );
-	BufferString fnm( inl );
-	fnm += ".cbvs";
-	BufferString to( outobj_->fullUserExpr(false) );
-	if ( !File_isDirectory(to) )
-	    File_createDir( to, 0 );
-
-	from += "/"; from += fnm;
-	to += "/"; to += fnm;
-	File_copy( from, to, 0 );
-	curinlidx_++;
-	return prepareReaders();
-    }
-
-    deepErase( readers_ );
-    for ( int idx=0; idx<objids.size(); idx++ )
-    {
-	const int objidx = objids[idx];
-	BufferString dirnm( inobjs_[objidx]->fullUserExpr(true) );
-	SeisCBVSPSReader* reader = new SeisCBVSPSReader( dirnm, inl );
-	if ( !reader )
-	{
-	    pErrMsg( "Couldn't create translator" );
-	    return -1;
+	    BinID start( inlrg.start, crlrg.start );
+    	    BinID stop( inlrg.stop, crlrg.stop );
+    	    hs.include( start ); hs.include( stop );
 	}
 
-	readers_ += reader;
+	readers_ += rdr;
     }
 
-    curbid_.inl = inl; curbid_.crl = -1;
-    return 1;
+    totnr_ = hs.totalNr();
+    iter_ = new HorSamplingIterator( hs );
+    writer_ = SPSIOPF().getWriter( *outobj_ );
 }
 
 
@@ -207,33 +107,20 @@ int SeisPSMerger::nextStep()
     if ( ret == 0 ) return Executor::Finished;
     if ( ret == -1 ) return Executor::ErrorOccurred;
 
-    nrdone_ ++; curbid_.crl++;
+    nrdone_ ++;
     return Executor::MoreToDo;
 }
 
 
 int SeisPSMerger::doNextPos()
 {
-    if ( curinlidx_ >= pinfoset_.size() )
+    if ( !iter_->next(curbid_) )
 	return 0;
 
-    SeisPacketInfo& spi = *pinfoset_[curinlidx_];
-    if ( curbid_.crl > spi.inlrg.stop )
-    {
-	curinlidx_++;
-	const int ret = prepareReaders();
-	if ( ret != 1 ) return ret;
-    }
-    
-    if ( curbid_.crl < 0 )
-	curbid_.crl = spi.inlrg.start;
-
-    const TypeSet<int>& objlist = lineobjlist_[curinlidx_];
     for ( int idx=0; idx<readers_.size(); idx++ )
     {
 	SeisTrcBuf* trcbuf = new SeisTrcBuf(true);
-	SeisCBVSPSReader* rdr = readers_[idx];
-	if ( !rdr->getGather(curbid_, *trcbuf) )
+	if ( !readers_[idx]->getGather(curbid_, *trcbuf) )
 	{
 	    delete trcbuf;
 	    continue;
