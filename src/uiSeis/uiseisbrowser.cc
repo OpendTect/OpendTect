@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.2 2007-10-25 15:08:26 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.3 2007-11-06 07:37:21 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,10 +15,14 @@ ________________________________________________________________________
 #include "uitable.h"
 #include "uimsg.h"
 #include "uigeninput.h"
+#include "uiflatviewer.h"
+#include "uiflatviewstdcontrol.h"
+#include "uiflatviewmainwin.h"
 #include "uibutton.h"
 #include "uidialog.h"
 #include "seiscbvs.h"
 #include "seistrctr.h"
+#include "seisbufadapters.h"
 #include "seistrc.h"
 #include "seisbuf.h"
 #include "seisinfo.h"
@@ -47,6 +51,8 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& setup )
     , compnr_(0)
     , nrcomps_(1)
     , sd_(0)
+    , viewwin_(0)
+    , setup_(setup)
 {
     if ( !openData(setup) )
     {
@@ -106,7 +112,7 @@ bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& setup )
 
     BufferString emsg;
     tr_ = CBVSSeisTrcTranslator::make( ioobj->fullUserExpr(true), false,
-	    				Seis::is2D(setup.geom_), &emsg );
+	    			Seis::is2D(setup.geom_), &emsg );
     if ( !tr_ )
     {
 	uiMSG().error( emsg );
@@ -136,6 +142,7 @@ void uiSeisBrowser::createMenuAndToolBar()
     crlwisebutidx_ = mAddButton("crlwise.png",switchViewTypePush,"",true );
     mAddButton("leftarrow.png",leftArrowPush,"",false );
     mAddButton("rightarrow.png",rightArrowPush,"",false );
+    mAddButton("seistrc.png",showWigglePush,"",false );
 }
 
 
@@ -164,7 +171,10 @@ void uiSeisBrowser::addTrc( SeisTrcBuf& tbuf, const BinID& bid )
     SeisTrc* newtrc = new SeisTrc;
     newtrc->info().binid = bid;
     newtrc->info().coord.x = newtrc->info().coord.y = mUdf(double);
-    if ( !tr_->goTo(bid) || !tr_->read(*newtrc) )
+    const int chgbufidx = tbufchgdtrcs_.find( bid, false );
+    if ( chgbufidx >= 0 )
+	*newtrc = *tbufchgdtrcs_.get( chgbufidx );
+    else if ( !tr_->goTo(bid) || !tr_->read(*newtrc) )
 	{ fillUdf( *newtrc ); }
     tbuf.add( newtrc );
 }
@@ -335,18 +345,25 @@ class uiSeisBrowserInfoDlg : public uiDialog
 {
 public:
 
-uiSeisBrowserInfoDlg( uiParent* p )
+uiSeisBrowserInfoDlg( uiParent* p, SeisTrc& ctrc_)
     : uiDialog( p, uiDialog::Setup("Info","","0.0.0") )
 {
     uiTextEdit* infofld_ = new uiTextEdit( this, "Trace Info", true );
+    
+    BufferString txt;
+    txt += "Coordinate of central trace: ";
+    txt += ctrc_.info().coord.x; txt += ", ";
+    txt += ctrc_.info().coord.y;
+
+    infofld_->setText( txt );
 }
 };
 
 
 void uiSeisBrowser::infoPush( CallBacker* )
 {
-    uiSeisBrowserInfoDlg dlg( this); 
-     dlg.go(); 
+    uiSeisBrowserInfoDlg dlg( this, ctrc_); 
+    dlg.go(); 
 }
 
 
@@ -416,12 +433,64 @@ void uiSeisBrowser::commitChanges()
 }
 
 
-bool uiSeisBrowser::acceptOk( CallBacker* )
+/*bool uiSeisBrowser::WriteData()
+{
+    if 
+}*/
+
+
+bool uiSeisBrowser::acceptOK( CallBacker* )
 {
     commitChanges();
     if ( tbufchgdtrcs_.isEmpty() )
 	return true;
 
+    if (uiMSG(). askGoOn(" Do you want to save the changes permanently? ",
+	          	   true));
+    //WriteData();
     //TODO store traces if user wants to
     return false;
+}
+
+
+void uiSeisBrowser::showWigglePush( CallBacker* )
+{
+    PtrMan<IOObj> ioobject = IOM().get( setup_.id_ );
+    BufferString title( "Gather from [" ); title += ioobject->name();
+    title += "] at "; title += curBinID().inl; title += "/"; 
+    title += curBinID().crl;
+    bool isnew = !viewwin_;
+    if ( !isnew )
+	viewwin_->setWinTitle( title );
+    else
+    {
+	viewwin_ = new uiFlatViewMainWin( this,
+					  uiFlatViewMainWin::Setup(title) );
+	viewwin_->setDarkBG( false );
+	FlatView::Appearance& app = viewwin_->viewer().appearance();
+	app.annot_.setAxesAnnot( true );
+	app.setGeoDefaults( true );
+	app.ddpars_.show( true, false );
+	app.ddpars_.wva_.overlap_ = 1;
+    }
+
+    uiFlatViewer& vwr = viewwin_->viewer();
+    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( &tbuf_,
+	                         setup_.geom_, SeisTrcInfo::TrcNr,"");
+    dp->trcBufArr2D().setBufMine( false );
+    DPM( DataPackMgr::FlatID ).add( dp );
+    vwr.setPack( true, dp );
+
+    if ( !isnew )
+        vwr.handleChange( FlatView::Viewer::All );
+    else
+    {
+        vwr.appearance().ddpars_.show( true, false );
+        int pw = 200 + 10 * tbuf_.size();
+        if ( pw < 400 ) pw = 400; if ( pw > 800 ) pw = 800;
+        vwr.setInitialSize( uiSize(pw,500) );
+        viewwin_->addControl( new uiFlatViewStdControl( vwr,
+			    uiFlatViewStdControl::Setup().withstates(false) ) );
+    }
+    viewwin_->start();
 }

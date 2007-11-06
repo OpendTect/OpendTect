@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.2 2007-10-25 15:08:26 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.3 2007-11-06 07:39:38 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "position.h"
 #include "linekey.h"
+#include "uiflatviewmainwin.h"
+
 class SeisTrc;
 class SeisTrcBuf;
 class CBVSSeisTrcTranslator;
@@ -28,8 +30,9 @@ class uiSeisBrowser : public uiDialog
 {
 public :
 
-    struct Setup : public uiDialog::Setup
+    class Setup : public uiDialog::Setup
     {
+    public:
     			Setup( const MultiID& mid, Seis::GeomType gt )
 			    : uiDialog::Setup("Browse seismic data",
 				    	      "", "103.1.5")
@@ -69,6 +72,8 @@ protected:
     SeisTrcBuf&		tbuf_;
     SeisTrcBuf&		tbufchgdtrcs_;
     SeisTrc&		ctrc_;
+    uiFlatViewMainWin*  viewwin_;
+    const uiSeisBrowser::Setup& setup_;
 
     bool		crlwise_;
     int			crlwisebutidx_;
@@ -96,7 +101,8 @@ protected:
     void		rightArrowPush(CallBacker*);
     void		leftArrowPush(CallBacker*);
     void		switchViewTypePush(CallBacker*);
-    bool		acceptOk( CallBacker* );
+    bool		acceptOK(CallBacker*);
+    void		showWigglePush(CallBacker*);
 
 private:
 
