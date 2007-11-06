@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: seisimporter.cc,v 1.13 2007-10-17 04:46:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisimporter.cc,v 1.14 2007-11-06 16:49:45 cvsbert Exp $";
 
 #include "seisimporter.h"
 #include "seisbuf.h"
@@ -179,7 +179,8 @@ int SeisImporter::readIntoBuf()
 	return Executor::MoreToDo;
     }
 
-    if ( !Seis::is2D(geomtype_) && !SI().isReasonable(trc->info().binid) )
+    const bool is2d = Seis::is2D(geomtype_);
+    if ( !is2d && !SI().isReasonable(trc->info().binid) )
     {
 	delete trc;
 	nrskipped_++;
@@ -191,6 +192,29 @@ int SeisImporter::readIntoBuf()
 	    return Executor::ErrorOccurred;
 	if ( !sortanal_ )
 	    state_ = WriteBuf;
+
+	    // Check on max nr traces with same position
+	if ( !Seis::isPS(geomtype_) && buf_.size() > 1000 )
+	{
+	    SeisTrc* trc = buf_.get( buf_.size() - 1 );
+	    const BinID trcbid( trc->info().binid );
+	    const int trcnr = trc->info().nr;
+	    int nreq = 0;
+	    for ( int idx=buf_.size()-2; idx!=-1; idx-- )
+	    {
+		trc = buf_.get( idx );
+		if ( (!is2d && trc->info().binid == trcbid)
+		  || (is2d && trc->info().nr == trcnr) )
+		    nreq++;
+		else
+		    break;
+	    }
+	    if ( nreq > 999 )
+	    {
+		errmsg_ = "Input contains too many (1000+) identical positions";
+		return Executor::ErrorOccurred;
+	    }
+	}
     }
 
     return Executor::MoreToDo;
