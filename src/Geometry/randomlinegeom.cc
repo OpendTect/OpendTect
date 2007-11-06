@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinegeom.cc,v 1.3 2007-11-05 15:20:06 cvsbert Exp $
+ RCS:		$Id: randomlinegeom.cc,v 1.4 2007-11-06 16:31:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "randomlinegeom.h"
+#include "survinfo.h"
 #include "iopar.h"
 
 namespace Geometry
@@ -22,6 +23,7 @@ RandomLine::RandomLine()
     , zrangeChanged(this)
     , lset_(0)
 {
+    assign( zrange_, SI().zRange(true) );
 }
 
 

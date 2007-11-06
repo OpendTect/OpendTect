@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.9 2007-11-05 15:19:49 cvsbert Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.10 2007-11-06 16:31:49 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -90,10 +90,12 @@ bool uiODRandomLineParentTreeItem::load()
     if ( !rtd )
 	return false;
 
+    //TODO handle subselection in set
     TypeSet<BinID> bids;
-    lset.lines()[0]->allNodePositions( bids );
+    const Geometry::RandomLine& rln = *lset.lines()[0];
+    rln.allNodePositions( bids );
     rtd->setKnotPositions( bids );
-    rtd->setDepthInterval( lset.zRange() );
+    rtd->setDepthInterval( rln.zRange() );
     rtd->setName( dlg.ioObj()->name() );
     updateColumnText( uiODSceneMgr::cNameColumn() );
     return true;
@@ -214,11 +216,11 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	TypeSet<BinID> bids;
 	rtd->getAllKnotPos( bids );
 	Geometry::RandomLineSet lset;
-	Geometry::RandomLine* geom = new Geometry::RandomLine;
+	Geometry::RandomLine* rln = new Geometry::RandomLine;
 	for ( int idx=0; idx<bids.size(); idx++ )
-	    geom->addNode( bids[idx] );
-	lset.addLine( geom );
-	lset.setZRange( rtd->getDepthInterval() );
+	    rln->addNode( bids[idx] );
+	rln->setZRange( rtd->getDepthInterval() );
+	lset.addLine( rln );
 	BufferString bs;
 	if ( !RandomLineSetTranslator::store(lset,dlg.ioObj(),bs) )
 	    uiMSG().error( bs );

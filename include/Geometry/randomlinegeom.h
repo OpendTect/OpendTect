@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinegeom.h,v 1.3 2007-11-05 15:20:05 cvsbert Exp $
+ RCS:		$Id: randomlinegeom.h,v 1.4 2007-11-06 16:31:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,10 @@ public:
     const BinID&	nodePosition(int) const;
     void		allNodePositions(TypeSet<BinID>&) const;
 
+    void		setZRange( const Interval<float>& rg )
+    			{ zrange_ = rg; zrangeChanged.trigger(); }
+    Interval<float>	zRange() const		{ return zrange_; }
+
     Notifier<RandomLine> nodeAdded;
     Notifier<RandomLine> nodeInserted;
     Notifier<RandomLine> nodeRemoved;
@@ -50,6 +54,7 @@ public:
 protected:
 
     TypeSet<BinID>	nodes_;
+    Interval<float>	zrange_;
     RandomLineSet*	lset_;
 
     friend class	RandomLineSet;
@@ -69,16 +74,12 @@ public:
     void		addLine( RandomLine* rl )
     			{ rl->lset_ = this; lines_ += rl; }
 
-    void		setZRange( const Interval<float>& rg ) { zrange_ = rg; }
-    Interval<float>	zRange() const		{ return zrange_; }
-
     const IOPar&	pars() const		{ return pars_; }
     IOPar&		pars()			{ return pars_; }
 
 protected:
 
     ObjectSet<RandomLine>	lines_;
-    Interval<float>		zrange_;
     IOPar&			pars_;
 
 };

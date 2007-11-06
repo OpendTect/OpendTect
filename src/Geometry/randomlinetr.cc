@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinetr.cc,v 1.3 2007-11-05 15:20:06 cvsbert Exp $
+ RCS:		$Id: randomlinetr.cc,v 1.4 2007-11-06 16:31:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,26 @@ bool RandomLineSetTranslator::store( const Geometry::RandomLineSet& rdl,
 }
 
 
+static void getZRange( ascistream& astrm, Interval<float>& zrg )
+{
+    if ( !astrm.hasKeyword(sKey::ZRange) )
+	return;
+
+    FileMultiString fms = astrm.value();
+    zrg.start = atof( fms[0] );
+    zrg.stop = atof( fms[1] );
+    astrm.next();
+}
+
+
+static void putZRange( ascostream& astrm, const Interval<float>& zrg )
+{
+    FileMultiString fms = Conv::to<const char*>( zrg.start );
+    fms.add( Conv::to<const char*>(zrg.stop) );
+    astrm.put( sKey::ZRange, fms );
+}
+
+
 const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
 					   Conn& conn )
 {
@@ -84,34 +104,22 @@ const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
     if ( atEndOfSection(astrm) )
 	astrm.next();
 
-    const bool isold = !astrm.hasKeyword( sKeyNrLines );
-    const int nrlines = isold ? astrm.getVal() : 1;
-    if ( !isold )
-    {
-	astrm.next();
-	while ( !atEndOfSection(astrm.next())
-	     && !astrm.hasKeyword(sKey::ZRange) )
-	    rdls.pars().set( astrm.keyWord(), astrm.value() );
-    }
-
-    Interval<float> zrg;
-    if ( !astrm.hasKeyword(sKey::ZRange) )
-	assign( zrg, SI().zRange(true) );
+    const bool issimple = !astrm.hasKeyword( sKeyNrLines );
+    const int nrlines = issimple ? astrm.getVal() : 1;
+    Interval<float> zrg; assign( zrg, SI().zRange(true) );
+    if ( issimple )
+	getZRange( astrm, zrg );
     else
     {
-	FileMultiString fms = astrm.value();
-	zrg.start = atof( fms[0] );
-	zrg.stop = atof( fms[1] );
+	while ( !atEndOfSection(astrm.next()) )
+	    rdls.pars().set( astrm.keyWord(), astrm.value() );
     }
-
-    while ( !atEndOfSection(astrm) )
-	astrm.next();
-
-    rdls.setZRange( zrg );
+    astrm.next();
 
     for ( int iln=0; iln<nrlines; iln++ )
     {
 	Geometry::RandomLine* rl = new Geometry::RandomLine;
+	getZRange( astrm, zrg ); rl->setZRange( zrg );
 	while ( !atEndOfSection(astrm) )
 	{
 	    BufferString loc( astrm.keyWord() );
@@ -152,21 +160,25 @@ const char* dgbRandomLineSetTranslator::write(
     if ( !strm.good() )
 	return "Cannot write to output RandomLineSet file";
 
-    if ( nrlines != 1 || !rdls.pars().isEmpty() )
+    const bool issimple = nrlines < 2 && rdls.pars().isEmpty();
+    if ( issimple )
+    {
+	putZRange( astrm, rdls.lines()[0]->zRange() );
+	astrm.newParagraph();
+    }
+    else
     {
 	astrm.put( sKeyNrLines, nrlines );
 	for ( int idx=0; idx<rdls.pars().size(); idx++ )
 	    astrm.put( rdls.pars().getKey(idx), rdls.pars().getValue(idx) );
     }
 
-    FileMultiString fms = Conv::to<const char*>( rdls.zRange().start );
-    fms.add( Conv::to<const char*>(rdls.zRange().stop) );
-    astrm.put( sKey::ZRange, fms );
-    astrm.newParagraph();
-
-    for ( int iln=0; iln<rdls.size(); iln++ )
+    for ( int iln=0; iln<nrlines; iln++ )
     {
 	const Geometry::RandomLine& rdl = *rdls.lines()[iln];
+	if ( !issimple )
+	    putZRange( astrm, rdl.zRange() );
+
 	for ( int idx=0; idx<rdl.nrNodes(); idx++ )
 	{
 	    const BinID bid = rdl.nodePosition( idx );
