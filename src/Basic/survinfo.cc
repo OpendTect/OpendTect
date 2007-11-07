@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.87 2007-03-22 16:14:15 cvsdgb Exp $
+ RCS:           $Id: survinfo.cc,v 1.88 2007-11-07 16:06:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "cubesampling.h"
 #include "keystrs.h"
+#include "latlong.h"
 #include "undefval.h"
 #include "safefileio.h"
 #include "separstr.h"
@@ -65,6 +66,7 @@ SurveyInfo::SurveyInfo()
     , zistime_(true)
     , zinfeet_(false)
     , pars_(*new IOPar(sKeySurvDefs))
+    , ll2c_(*new LatLong2Coord)
     , workRangeChg(this)
     , survdatatype_(Both2DAnd3D)
     , survdatatypeknown_(false)
@@ -78,6 +80,7 @@ SurveyInfo::SurveyInfo( const SurveyInfo& si )
     : cs_(*new CubeSampling(false))
     , wcs_(*new CubeSampling(false))
     , pars_(*new IOPar(sKeySurvDefs))
+    , ll2c_(*new LatLong2Coord)
     , workRangeChg(this)
 {
     *this = si;
@@ -87,6 +90,7 @@ SurveyInfo::SurveyInfo( const SurveyInfo& si )
 SurveyInfo::~SurveyInfo()
 {
     delete &pars_;
+    delete &ll2c_;
     delete &cs_;
     delete &wcs_;
 }
@@ -113,7 +117,7 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
 	set3binids[idx] = si.set3binids[idx];
 	set3coords[idx] = si.set3coords[idx];
     }
-    cs_ = si.cs_; wcs_ = si.wcs_; pars_ = si.pars_;
+    cs_ = si.cs_; wcs_ = si.wcs_; pars_ = si.pars_; ll2c_ = si.ll2c_;
 
     return *this;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.60 2007-01-29 19:36:30 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.61 2007-11-07 16:06:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 class ascostream;
 class IOPar;
 class CubeSampling;
+class LatLong2Coord;
 
 
 /*!\brief Holds survey general information.
@@ -101,8 +102,9 @@ public:
     BinID		transform(const Coord&) const;
     			/*!<\note The returned BinID will be snapped according
 			  	  to the work step. */
-    const RCol2Coord&	binID2Coord() const	{ return b2c_; }
+    const RCol2Coord&	binID2Coord() const		{ return b2c_; }
     void		get3Pts(Coord c[3],BinID b[2],int& xline) const;
+    const LatLong2Coord& latlong2Coord() const	{ return ll2c_; }
 
     Coord		minCoord(bool work) const;
     Coord		maxCoord(bool work) const;
@@ -166,6 +168,7 @@ protected:
     IOPar&		pars_;
 
     RCol2Coord		b2c_;
+    LatLong2Coord&	ll2c_;
     BinID		set3binids[3];
     Coord		set3coords[3];
 
