@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.26 2007-10-10 11:39:10 cvshelene Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.27 2007-11-07 16:54:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,13 +126,13 @@ bool uiFlatViewControl::haveZoom( Geom::Size2D<double> oldsz,
 }
 
 
-void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
-				    Geom::Size2D<double>& sz )
+uiWorldRect uiFlatViewControl::getNewWorldRect( Geom::Point2D<double>& centre,
+						Geom::Size2D<double>& sz) const
 {
     const uiWorldRect cv( vwrs_[0]->curView() );
     const bool havepan = havePan( cv.centre(), centre, cv.size() );
     const bool havezoom = haveZoom( cv.size(), sz );
-    if ( !havepan && !havezoom ) return;
+    if ( !havepan && !havezoom ) return cv;
 
     const uiWorldRect bb( getBoundingBox() );
     uiWorldRect wr( havepan && havezoom ? getZoomAndPanRect(centre,sz,bb)
@@ -143,6 +143,14 @@ void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
 
     if ( cv.left() > cv.right() ) wr.swapHor();
     if ( cv.bottom() > cv.top() ) wr.swapVer();
+    return wr;
+}
+
+
+void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
+				    Geom::Size2D<double>& sz )
+{
+    const uiWorldRect wr = getNewWorldRect( centre, sz );
     for ( int idx=0; idx<vwrs_.size(); idx++ )
 	vwrs_[idx]->setView( wr );
 }
@@ -150,7 +158,7 @@ void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
 
 uiWorldRect uiFlatViewControl::getZoomAndPanRect( Geom::Point2D<double> centre,
 						Geom::Size2D<double> sz,
-       						const uiWorldRect& bbox	) const
+       						const uiWorldRect& bbox	)
 {
     //TODO we should have a different policy for requests outside
     return getZoomOrPanRect( centre, sz, bbox );
@@ -159,7 +167,7 @@ uiWorldRect uiFlatViewControl::getZoomAndPanRect( Geom::Point2D<double> centre,
 
 uiWorldRect uiFlatViewControl::getZoomOrPanRect( Geom::Point2D<double> centre,
 						 Geom::Size2D<double> sz,
-						 const uiWorldRect& bb ) const
+						 const uiWorldRect& bb )
 {
     if ( sz.width() > bb.width() )
 	sz.setWidth( bb.width() );

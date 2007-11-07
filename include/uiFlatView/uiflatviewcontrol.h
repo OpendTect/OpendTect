@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.18 2007-10-10 11:39:10 cvshelene Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.19 2007-11-07 16:54:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,15 @@ public:
     Notifier<uiFlatViewControl>  infoChanged;	// CallBacker: CBCapsule<IOPar>
     Notifier<uiFlatViewControl>  viewerAdded;
 
+    static uiWorldRect		getZoomAndPanRect(Geom::Point2D<double>,
+						  Geom::Size2D<double>,
+						  const uiWorldRect& bbox);
+    static uiWorldRect		getZoomOrPanRect(Geom::Point2D<double>,
+						 Geom::Size2D<double>,
+						 const uiWorldRect& bbox);
+    uiWorldRect			getNewWorldRect(Geom::Point2D<double>& centre,
+						Geom::Size2D<double>& sz) const;
+
 protected:
 
     			uiFlatViewControl(uiFlatViewer&,uiParent*,bool);
@@ -66,12 +75,6 @@ protected:
     uiFlatViewPropDlg*  propdlg_;
 
     MouseEventHandler&	mouseEventHandler(int);
-    uiWorldRect		getZoomAndPanRect(Geom::Point2D<double>,
-	    				  Geom::Size2D<double>,
-					  const uiWorldRect& bbox) const;
-    uiWorldRect		getZoomOrPanRect(Geom::Point2D<double>,
-	    				 Geom::Size2D<double>,
-					 const uiWorldRect& bbox) const;
 
     virtual void	finalPrepare()			{}
     virtual void	onFinalise(CallBacker*);
