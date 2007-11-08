@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: externalattrib.h,v 1.6 2007-10-25 21:16:53 cvskris Exp $
+ RCS:		$Id: externalattrib.h,v 1.7 2007-11-08 19:46:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ class DataCubes;
 class ExtAttribCalc
 {
 public:
+    virtual			~ExtAttribCalc()			{}
     virtual bool		setTargetSelSpec(const SelSpec&)	= 0;
     				/*!<\returns if this object can 
 				     compute it or not. */
