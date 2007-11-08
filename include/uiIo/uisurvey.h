@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.24 2007-11-06 16:37:11 cvsbert Exp $
+ RCS:           $Id: uisurvey.h,v 1.25 2007-11-08 16:46:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ class uiTextEdit;
 class SurveyInfo;
 class uiSurveyMap;
 class uiPushButton;
+class uiToolButton;
 
 
 /*!\brief The main survey selection dialog */
@@ -44,11 +45,15 @@ public:
     /*!\brief 'Menu' item on window. First is always 'X,Y <-> I/C' */
     struct Util
     {
-			Util( const char* txt, const CallBack& cb )
-			    : txt_(txt), cb_(cb)	{}
+			Util( const char* pixmap, const char* tooltip,
+				const CallBack& cb )
+			    : cb_(cb)
+			    , pixmap_(pixmap)
+			    , tooltip_(tooltip)		{}
 
-	BufferString	txt_;
 	CallBack	cb_;
+	BufferString	pixmap_;
+	BufferString	tooltip_;
     };
     static void		add(const Util&);
 
@@ -69,7 +74,7 @@ protected:
     uiPushButton*	rmbut;
     uiPushButton*	datarootbut;
     uiPushButton*	copybut;
-    ObjectSet<uiPushButton> utilbuts;
+    ObjectSet<uiToolButton> utilbuts;
     uiLabel*		inllbl;
     uiLabel*		crllbl; 
     uiLabel*		zlbl;
@@ -83,6 +88,7 @@ protected:
     void		copyButPushed(CallBacker*);
     void		rmButPushed(CallBacker*);
     void		dataRootPushed(CallBacker*);
+    void		utilButPush(CallBacker*);
     void 		getSurvInfo();
     bool		survInfoDialog();
     void		updateSvyList();
@@ -95,10 +101,6 @@ protected:
     void		doCanvas(CallBacker*);
     void		newSurvey();
     void		mkDirList();
-
-public:
-
-    void		convButPushed(CallBacker*);
 
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.82 2007-11-06 16:33:53 cvsbert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.83 2007-11-08 16:46:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ ________________________________________________________________________
 #include "envvars.h"
 #include "cubesampling.h"
 #include "odver.h"
+#include "pixmap.h"
 #include <iostream>
 #include <math.h>
 
@@ -46,18 +47,22 @@ extern "C" const char* GetSurveyName();
 extern "C" const char* GetSurveyFileName();
 extern "C" void SetSurveyName(const char*);
 
-static ObjectSet<uiSurvey::Util>& getUtils( uiSurvey* uisurv )
+static ObjectSet<uiSurvey::Util>& getUtils()
 {
     static ObjectSet<uiSurvey::Util>* utils = 0;
-    const CallBack cb( mCB(uisurv,uiSurvey,convButPushed) );
-    if ( utils )
-	(*utils)[0]->cb_ = cb;
-    else
+    if ( !utils )
     {
 	utils = new ObjectSet<uiSurvey::Util>;
-	*utils += new uiSurvey::Util( "(&X,Y) <-> I/C", cb );
+	*utils += new uiSurvey::Util( "xy2ic.png", "Convert (X,Y) to/from I/C",
+				      CallBack() );
     }
     return *utils;
+}
+
+
+void uiSurvey::add( const uiSurvey::Util& util )
+{
+    getUtils() += new uiSurvey::Util( util );
 }
 
 
@@ -172,12 +177,16 @@ uiSurvey::uiSurvey( uiParent* p )
     copybut->attach( alignedBelow, editbut );
     copybut->setPrefWidthInChar( 12 );
 
-    ObjectSet<uiSurvey::Util>& utils = getUtils( this );
+    ObjectSet<uiSurvey::Util>& utils = getUtils();
     uiGroup* utilbutgrp = new uiGroup( rightgrp, "Surv Util buttons" );
+    const CallBack cb( mCB(this,uiSurvey,utilButPush) );
     for ( int idx=0; idx<utils.size(); idx++ )
     {
 	const uiSurvey::Util& util = *utils[idx];
-	utilbuts += new uiPushButton( utilbutgrp, util.txt_, util.cb_, false );
+	uiToolButton* but = new uiToolButton( utilbutgrp, util.tooltip_,
+						ioPixmap(util.pixmap_), cb );
+	but->setToolTip( util.tooltip_ );
+	utilbuts += but;
 	if ( idx > 0 )
 	    utilbuts[idx]->attach( rightOf, utilbuts[idx-1] );
     }
@@ -420,10 +429,24 @@ void uiSurvey::rmButPushed( CallBacker* )
 }
 
 
-void uiSurvey::convButPushed( CallBacker* )
+void uiSurvey::utilButPush( CallBacker* cb )
 {
-    uiConvertPos dlg( this, survinfo );
-    dlg.go();
+    mDynamicCastGet(uiToolButton*,tb,cb)
+    if ( !tb ) { pErrMsg("Huh"); return; }
+
+    const int butidx = utilbuts.indexOf( tb );
+    if ( butidx < 0 ) { pErrMsg("Huh"); return; }
+
+    if ( butidx == 0 )
+    {
+	uiConvertPos dlg( this, survinfo );
+	dlg.go();
+    }
+    else
+    {
+	Util* util = getUtils()[butidx];
+	util->cb_.doCall( this );
+    }
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.cc,v 1.23 2007-11-06 16:33:11 cvsbert Exp $
+ RCS:           $Id: uiconvpos.cc,v 1.24 2007-11-08 16:46:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,10 +59,12 @@ uiConvertPos::uiConvertPos( uiParent* p, SurveyInfo* si )
     const ioPixmap right( "forward.xpm" ); const ioPixmap left( "back.xpm" );
     uiToolButton* dobinidbut = new uiToolButton( mangrp, "Left", left );
     dobinidbut->activated.notify( mCB(this,uiConvertPos,getBinID) );
-    dobinidbut->attach( rightTo, crlfld );
+    dobinidbut->attach( alignedBelow, yfld );
+    dobinidbut->setToolTip( "Convert (X,Y) to Inl/Crl" );
     uiToolButton* docoordbut = new uiToolButton( mangrp, "Right", right );
     docoordbut->activated.notify( mCB(this,uiConvertPos,getCoord) );
-    docoordbut->attach( rightOf, dobinidbut );
+    docoordbut->attach( alignedBelow, crlfld );
+    docoordbut->setToolTip( "Convert Inl/Crl to (X,Y)" );
 
     mangrp->setHAlignObj( inlfld );
     mangrp->attach( alignedBelow, ismanfld );
