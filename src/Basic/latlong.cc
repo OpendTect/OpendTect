@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Nov 2007
- RCS:           $Id: latlong.cc,v 1.3 2007-11-08 10:43:36 cvsbert Exp $
+ RCS:           $Id: latlong.cc,v 1.4 2007-11-08 11:43:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,8 +91,15 @@ LatLong LatLong2Coord::transform( const Coord& c ) const
 
     Coord coorddist( (c.x - refcoord_.x) * scalefac_,
 	    	     (c.y - refcoord_.y) * scalefac_ );
-    return LatLong( reflatlng_.lat_ + coorddist.x / latdist_,
-	   	    reflatlng_.lng_ + coorddist.y / lngdist_ );
+    LatLong ll( reflatlng_.lat_ + coorddist.x / latdist_,
+		reflatlng_.lng_ + coorddist.y / lngdist_ );
+
+    if ( ll.lng_ < 0 )		ll.lng_ = -ll.lng_;
+    else if ( ll.lng_ > 180 )	ll.lng_ = ll.lng_ - 180;
+    if ( ll.lat_ < -180 )	ll.lat_ = ll.lat_ + 360;
+    else if ( ll.lat_ > 180 )	ll.lat_ = ll.lat_ - 360;
+
+    return ll;
 }
 
 
