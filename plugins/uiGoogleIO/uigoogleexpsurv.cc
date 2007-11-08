@@ -14,6 +14,7 @@ static const char* rcsID = "$Id";
 #include "oddirs.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "latlong.h"
 #include <iostream>
 
 
@@ -33,6 +34,11 @@ uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurvey* uisurv )
 					.forread(false)
 	    				.filter("*.kml;;*.kmz") );
     fnmfld_->attach( alignedBelow, hghtfld_ );
+}
+
+
+uiGoogleExportSurvey::~uiGoogleExportSurvey()
+{
 }
 
 
@@ -62,7 +68,7 @@ bool uiGoogleExportSurvey::acceptOK( CallBacker* )
 	    "\t\t</PolyStyle>\n"
 	    "\t</Style>\n";
     strm << "\t<Placemark>\n"
-	    "\t\t<name>" << SI().name() << "</name>\n"
+	    "\t\t<name>" << si_->name() << "</name>\n"
 	    "\t\t<styleUrl>#ODSurvey</styleUrl>\n"
 	    "\t\t<Polygon>\n"
 	    "\t\t\t<extrude>1</extrude>\n"
@@ -71,14 +77,20 @@ bool uiGoogleExportSurvey::acceptOK( CallBacker* )
 	    "\t\t\t\t<LinearRing>\n";
 
     const float hght = hghtfld_->getfValue();
-    const Coord minc( SI().minCoord(false) );
-    const Coord maxc( SI().maxCoord(false) );
+    const Coord corner1( si_->minCoord(false) );
+    const Coord corner3( si_->maxCoord(false) );
+    const Coord corner2( corner3.x, corner1.y );
+    const Coord corner4( corner1.x, corner3.y );
+    const LatLong ll1( si_->latlong2Coord().transform(corner1) );
+    const LatLong ll2( si_->latlong2Coord().transform(corner2) );
+    const LatLong ll3( si_->latlong2Coord().transform(corner3) );
+    const LatLong ll4( si_->latlong2Coord().transform(corner4) );
     strm << "\t\t\t\t\t<coordinates>\n"
-	 << minc.x << ',' << minc.y << ',' << hght << ' '
-	 << maxc.x << ',' << minc.y << ',' << hght << ' '
-	 << maxc.x << ',' << maxc.y << ',' << hght << ' '
-	 << minc.x << ',' << maxc.y << ',' << hght << ' '
-	 << minc.x << ',' << minc.y << ',' << hght << '\n'
+	 << ll1.lat_ << ',' << ll1.lng_ << ',' << hght << ' '
+	 << ll2.lat_ << ',' << ll2.lng_ << ',' << hght << ' '
+	 << ll3.lat_ << ',' << ll3.lng_ << ',' << hght << ' '
+	 << ll4.lat_ << ',' << ll4.lng_ << ',' << hght << ' '
+	 << ll1.lat_ << ',' << ll1.lng_ << ',' << hght << '\n'
 	 << "\t\t\t\t\t</coordinates>\n";
 
     strm << "\t\t\t\t</LinearRing>\n"

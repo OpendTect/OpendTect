@@ -20,7 +20,7 @@ extern "C" int GetuiGoogleIOPluginType()
 extern "C" PluginInfo* GetuiGoogleIOPluginInfo()
 {
     static PluginInfo retpi = {
-	"Google I/O Frequency",
+	"Google I/O",
 	"dGB",
 	"=od",
 	"IO with Google programs (Maps,Earth)." };
@@ -43,7 +43,8 @@ public:
 uiGoogleIOMgr::uiGoogleIOMgr( uiODMain& a )
     : appl_(a)
 {
-    uiSurvey::add( uiSurvey::Util( "Export &Google",
+    uiSurvey::add( uiSurvey::Util( "google.png",
+				   "Export to Google Earth/Maps",
 				   mCB(this,uiGoogleIOMgr,exportSurv) ) );
 }
 
