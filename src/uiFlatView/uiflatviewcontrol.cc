@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.28 2007-11-08 14:50:38 cvskris Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.29 2007-11-08 20:32:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -167,8 +167,12 @@ uiWorldRect uiFlatViewControl::getZoomAndPanRect( Geom::Point2D<double> centre,
 
 uiWorldRect uiFlatViewControl::getZoomOrPanRect( Geom::Point2D<double> centre,
 						 Geom::Size2D<double> sz,
-						 const uiWorldRect& bb )
+						 const uiWorldRect& inputbb )
 {
+    uiWorldRect bb( inputbb );
+    if ( bb.left() > bb.right() ) bb.swapHor();
+    if ( bb.bottom() > bb.top() ) bb.swapVer();
+
     if ( sz.width() > bb.width() )
 	sz.setWidth( bb.width() );
     if ( sz.height() > bb.height() )
