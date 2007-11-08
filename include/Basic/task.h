@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.2 2007-10-31 18:56:57 cvskris Exp $
+ RCS:		$Id: task.h,v 1.3 2007-11-08 17:07:13 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -192,9 +192,9 @@ private:
 class TaskRunner
 {
 public:
-    		TaskRunner(Task* t)
-		    : task_( t )		{}
-    		~TaskRunner()			{}
+    			TaskRunner(Task* t)
+			    : task_( t )	{}
+    virtual 		~TaskRunner()		{}
 
     virtual void	setTask(Task& t)	{ task_ = &t; }
     virtual bool	execute()		{ return task_->execute(); }
