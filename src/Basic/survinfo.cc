@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.88 2007-11-07 16:06:10 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.89 2007-11-08 10:43:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ static const char* sKeyXTransf = "Coord-X-BinID";
 static const char* sKeyYTransf = "Coord-Y-BinID";
 static const char* sKeyDefsFile = ".defs";
 static const char* sKeySurvDefs = "Survey defaults";
+static const char* sKeyLatLongAnchor = "Lat/Long anchor";
 const char* SurveyInfo::sKeyInlRange = "In-line range";
 const char* SurveyInfo::sKeyCrlRange = "Cross-line range";
 const char* SurveyInfo::sKeyZRange = "Z range";
@@ -238,6 +239,8 @@ void SurveyInfo::handleLineRead( const BufferString& keyw, const char* val )
 	setTr( rdxtr, val );
     else if ( keyw == sKeyYTransf )
 	setTr( rdytr, val );
+    else if ( keyw == sKeyLatLongAnchor )
+	ll2c_.use( val );
     else if ( matchString("Set Point",(const char*)keyw) )
     {
 	const char* ptr = strchr( (const char*)keyw, '.' );
@@ -706,6 +709,13 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 	set3binids[idx].fill( buf ); fms = buf;
 	set3coords[idx].fill( buf ); fms += buf;
 	astream.put( (const char*)ky, (const char*)fms );
+    }
+
+    if ( ll2c_.isOK() )
+    {
+	char buf[1024];
+	ll2c_.fill( buf );
+	astream.put( sKeyLatLongAnchor, buf );
     }
 }
 

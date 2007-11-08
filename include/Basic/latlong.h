@@ -8,14 +8,15 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Geographics lat/long <-> Coord transform (an estimate)
- RCS:		$Id: latlong.h,v 1.2 2007-11-08 10:10:11 cvsbert Exp $
+ RCS:		$Id: latlong.h,v 1.3 2007-11-08 10:43:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
 #include "position.h"
 
-/*!\brief Stores geographical coordinates (as defined by Google Earth). */
+
+/*!\brief geographical coordinates as defined by Google Earth/Maps. */
 
 class LatLong
 {
@@ -28,8 +29,8 @@ public:
     static Coord	transform(const LatLong&); //!< Uses SI()
     static LatLong	transform(const Coord&);   //!< Uses SI()
 
-    bool		use(const char*);
     void		fill(char*) const;
+    bool		use(const char*);
 
     double		lat_;
     double		lng_;
@@ -37,8 +38,9 @@ public:
 };
 
 
-/*!\brief Estimates to/from geographical coordinates.
-  Needs both survey coordinate and lat/long for a point in the survey.
+/*!\brief Estimates to/from LatLong coordinates.
+
+  Needs both survey coordinate and lat/long for an anchor point in the survey.
 
  */
 
@@ -48,6 +50,7 @@ public:
 
 			LatLong2Coord();
 			LatLong2Coord(const Coord&,const LatLong&);
+    bool		isOK() const	{ return !mIsUdf(latdist_); }
 
     void		set(const LatLong&,const Coord&);
     void		setCoordsInFeet( bool yn )
@@ -56,14 +59,17 @@ public:
     LatLong		transform(const Coord&) const;
     Coord		transform(const LatLong&) const;
 
+    void		fill(char*) const;
+    bool		use(const char*);
+
 protected:
 
     Coord		refcoord_;
     LatLong		reflatlng_;
-    double		latdist_;
-    double		lngdist_;
     double		scalefac_;
 
+    double		latdist_;
+    double		lngdist_;
 };
 
 

@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Nov 2007
- RCS:           $Id: latlong.cc,v 1.2 2007-11-08 10:10:11 cvsbert Exp $
+ RCS:           $Id: latlong.cc,v 1.3 2007-11-08 10:43:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "latlong.h"
 #include "survinfo.h"
+#include "separstr.h"
 #include <math.h>
 
 const double cRadiusEarthPoles = 6356750;
@@ -103,4 +104,46 @@ Coord LatLong2Coord::transform( const LatLong& ll ) const
 			       ll.lng_ - reflatlng_.lng_ );
     return Coord( refcoord_.x + scalefac_ * latlongdist.lat_ * latdist_,
 		  refcoord_.y + scalefac_ * latlongdist.lng_ * lngdist_ );
+}
+
+
+void LatLong2Coord::fill( char* s ) const
+{
+    if ( !s ) return;
+
+    BufferString str;
+    refcoord_.fill( str.buf() );
+    str += "=";
+    reflatlng_.fill( str.buf() + str.size() );
+    if ( !mIsZero(scalefac_-1,0.01) )
+	str += "`ft";
+
+    strcpy( s, str );
+}
+
+
+bool LatLong2Coord::use( const char* s )
+{
+    if ( !s || !*s ) return false;
+
+    BufferString str( s );
+    char* ptr = strchr( str.buf(), '=' );
+    if ( !ptr ) return false;
+    *ptr++ = '\0';
+    Coord c; LatLong l;
+    if ( !c.use(str) || !l.use(ptr) )
+	return false;
+
+    set( l, c );
+
+    FileMultiString fms( ptr );
+    bool isft = false;
+    if ( fms.size() > 1 )
+    {
+	const char* unstr = fms[1];
+	isft = *unstr == 'f' || *unstr == 'F';
+    }
+    setCoordsInFeet( isft );
+
+    return true;
 }
