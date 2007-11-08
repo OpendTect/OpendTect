@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.57 2007-03-30 15:23:55 cvskris Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.58 2007-11-08 10:10:31 cvsbert Exp $";
 
 #include "position.h"
 #include "bufstring.h"
@@ -73,21 +73,22 @@ void Coord::fill( char* str ) const
 }
 
 
-bool Coord::use( const char* str )
+bool Coord::use( const char* s )
 {
-    if ( !str || !*str ) return false;
-    static char buf[80];
+    if ( !s || !*s ) return false;
 
-    strcpy( buf, *str == '(' ? str+1 : str );
-    char* ptr = strchr( buf, ',' );
-    if ( !ptr ) return false;
+    BufferString str( s );
+    char* ptrx = str.buf(); skipLeadingBlanks( ptrx );
+    if ( *ptrx == '(' ) ptrx++;
+    char* ptry = strchr( ptrx, ',' );
+    if ( !ptry ) return false;
+    *ptry++ = '\0';
+    if ( !*ptry ) return false;
+    char* ptrend = strchr( ptry, ')' );
+    if ( ptrend ) *ptrend = '\0';
 
-    *ptr++ = '\0';
-    const int len = strlen(ptr);
-    if ( len && ptr[len-1] == ')' ) ptr[len-1] = '\0';
-
-    x = atof( buf );
-    y = atof( ptr );
+    x = atof( ptrx );
+    y = atof( ptry );
     return true;
 }
 
