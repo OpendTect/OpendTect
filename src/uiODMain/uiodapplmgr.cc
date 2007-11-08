@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.214 2007-10-25 21:16:53 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.215 2007-11-08 17:55:39 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiodscenemgr.h"
 #include "uiodmenumgr.h"
 
+#include "uicursor.h"
 #include "uipickpartserv.h"
 #include "uivispartserv.h"
 #include "uimpepartserv.h"
@@ -491,6 +492,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		    return false;
 		}
 
+		uiCursorChanger cursorchgr( uiCursor::Wait );
 		RefMan<const Attrib::DataCubes> newdata =
 				calc->createAttrib( cs, cache );
 		if ( !newdata && !calc->errmsg_.isEmpty() )
