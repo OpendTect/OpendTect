@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		May 2007
- RCS:		$Id: smoother1d.h,v 1.5 2007-10-30 16:53:35 cvskris Exp $
+ RCS:		$Id: smoother1d.h,v 1.6 2007-11-08 18:18:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ class Smoother1D : public ParallelTask
 public:
 
     				Smoother1D();
+    				Smoother1D(const Smoother1D&);
 
     void			setInput(const T*,int sz);
     void			setOutput(T*);
@@ -70,7 +71,23 @@ Smoother1D<T>::Smoother1D()
     : input_( 0 )
     , output_( 0 )
     , windowparam_( mUdf(float) )
+    , firstdefined_( -1 )
+    , lastdefined_( -1 )
+    , size_( -1 )
 {}
+
+
+template <class T> inline
+Smoother1D<T>::Smoother1D( const Smoother1D<T>& b )
+    : input_( 0 )
+    , output_( 0 )
+    , windowparam_( b.windowparam_ )
+    , window_( b.window_ )
+    , windowname_( b.windowname_ )
+    , firstdefined_( -1 )
+    , lastdefined_( -1 )
+    , size_( -1 )
+{ }
 
 
 template <class T> inline
