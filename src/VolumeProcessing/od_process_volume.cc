@@ -4,22 +4,12 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.2 2007-09-07 20:58:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.3 2007-11-08 17:56:53 cvsyuancheng Exp $";
 
 #include "batchprog.h"
 
-#include "arraynd.h"
-#include "attribdatacubes.h"
-#include "bufstringset.h"
-#include "cubesampling.h"
 #include "horinterfiller.h"
 #include "ioman.h"
-#include "ioobj.h"
-#include "prog.h"
-#include "seisioobjinfo.h"
-#include "seistrc.h"
-#include "seiswrite.h"
-#include "survinfo.h"
 #include "volumeprocessing.h"
 #include "volumewriter.h"
 #include "volumeprocessingtrans.h"
