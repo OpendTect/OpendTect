@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Geographics lat/long <-> Coord transform (an estimate)
- RCS:		$Id: latlong.h,v 1.1 2007-11-07 16:06:10 cvsbert Exp $
+ RCS:		$Id: latlong.h,v 1.2 2007-11-08 10:10:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,9 @@ public:
 
     static Coord	transform(const LatLong&); //!< Uses SI()
     static LatLong	transform(const Coord&);   //!< Uses SI()
+
+    bool		use(const char*);
+    void		fill(char*) const;
 
     double		lat_;
     double		lng_;
@@ -52,7 +55,6 @@ public:
 
     LatLong		transform(const Coord&) const;
     Coord		transform(const LatLong&) const;
-
 
 protected:
 

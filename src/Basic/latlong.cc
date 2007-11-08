@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Nov 2007
- RCS:           $Id: latlong.cc,v 1.1 2007-11-07 16:06:10 cvsbert Exp $
+ RCS:           $Id: latlong.cc,v 1.2 2007-11-08 10:10:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,35 @@ Coord LatLong::transform( const LatLong& ll )
 LatLong LatLong::transform( const Coord& c )
 {
     return SI().latlong2Coord().transform( c );
+}
+
+
+void LatLong::fill( char* str ) const
+{
+    if ( !str ) return;
+    strcpy( str, "[" ); strcat( str, getStringFromDouble(0,lat_) );
+    strcat( str, "," ); strcat( str, getStringFromDouble(0,lng_) );
+    strcat( str, "]" );
+}
+
+
+bool LatLong::use( const char* s )
+{
+    if ( !s || !*s ) return false;
+
+    BufferString str( s );
+    char* ptrlat = str.buf(); skipLeadingBlanks( ptrlat );
+    if ( *ptrlat == '[' ) ptrlat++;
+    char* ptrlng = strchr( ptrlat, ',' );
+    if ( !ptrlng ) return false;
+    *ptrlng++ = '\0';
+    if ( !*ptrlng ) return false;
+    char* ptrend = strchr( ptrlng, ']' );
+    if ( ptrend ) *ptrend = '\0';
+
+    lat_ = atof( ptrlat );
+    lng_ = atof( ptrlng );
+    return true;
 }
 
 
