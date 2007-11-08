@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Aug 2007
- RCS:           $Id: uiflatviewthumbnail.cc,v 1.5 2007-11-07 16:54:46 cvskris Exp $
+ RCS:           $Id: uiflatviewthumbnail.cc,v 1.6 2007-11-08 14:50:39 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -141,7 +141,7 @@ void uiFlatViewThumbnail::mouseMoveCB( CallBacker* )
     const MouseEvent& ev = mousehandler_.event();
     Geom::Point2D<double> wpt = w2u.transform( ev.pos() );
     Geom::Size2D<double> wsz = wr.size();
-    *feedbackwr_ = viewer_.control()->getNewWorldRect(wpt,wsz);
+    *feedbackwr_ = viewer_.control()->getNewWorldRect(wpt,wsz,br);
 
     mousehandler_.setHandled( true );
     update();

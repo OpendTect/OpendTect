@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.27 2007-11-07 16:54:46 cvskris Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.28 2007-11-08 14:50:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,14 +127,14 @@ bool uiFlatViewControl::haveZoom( Geom::Size2D<double> oldsz,
 
 
 uiWorldRect uiFlatViewControl::getNewWorldRect( Geom::Point2D<double>& centre,
-						Geom::Size2D<double>& sz) const
+						Geom::Size2D<double>& sz,
+						const uiWorldRect& bb) const
 {
     const uiWorldRect cv( vwrs_[0]->curView() );
     const bool havepan = havePan( cv.centre(), centre, cv.size() );
     const bool havezoom = haveZoom( cv.size(), sz );
     if ( !havepan && !havezoom ) return cv;
 
-    const uiWorldRect bb( getBoundingBox() );
     uiWorldRect wr( havepan && havezoom ? getZoomAndPanRect(centre,sz,bb)
 	    				: getZoomOrPanRect(centre,sz,bb) );
     centre = wr.centre(); sz = wr.size();
@@ -150,7 +150,7 @@ uiWorldRect uiFlatViewControl::getNewWorldRect( Geom::Point2D<double>& centre,
 void uiFlatViewControl::setNewView( Geom::Point2D<double>& centre,
 				    Geom::Size2D<double>& sz )
 {
-    const uiWorldRect wr = getNewWorldRect( centre, sz );
+    const uiWorldRect wr = getNewWorldRect( centre, sz, getBoundingBox() );
     for ( int idx=0; idx<vwrs_.size(); idx++ )
 	vwrs_[idx]->setView( wr );
 }

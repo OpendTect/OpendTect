@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.20 2007-11-07 18:03:38 cvskris Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.21 2007-11-08 14:50:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ public:
     void		addViewer(uiFlatViewer&);
     			//!< No attaching done. Viewer may be in other window.
 
-    uiWorldRect		getBoundingBox() const;
+    virtual uiWorldRect	getBoundingBox() const;
     virtual void	setNewView(Geom::Point2D<double>& centre,
 	    			   Geom::Size2D<double>& sizes);
     			//!< retains uiWorldRect's LR/TB swapping
@@ -60,7 +60,8 @@ public:
 						 Geom::Size2D<double>,
 						 const uiWorldRect& bbox);
     uiWorldRect			getNewWorldRect(Geom::Point2D<double>& centre,
-						Geom::Size2D<double>& sz) const;
+						Geom::Size2D<double>& sz,
+						const uiWorldRect& bbox) const;
 
 protected:
 
