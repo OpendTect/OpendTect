@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.10 2007-11-05 10:35:02 cvshelene Exp $
+ RCS:           $Id: statruncalc.h,v 1.11 2007-11-09 14:47:23 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -662,7 +662,7 @@ T WindowedCalc<T>::max( int* index_of_max ) const
 template <class T>
 inline WindowedCalc<T>&	WindowedCalc<T>::addValue( T val, T wt )
 {
-    if ( !full_ || calc_.vals_.isEmpty() 
+    if ( !full_ || (calc_.vals_.isEmpty() && calc_.setup().needmed_ )
 	    	|| (!mIsUdf(val) && mIsUdf(vals_[posidx_])) )
 	calc_.addValue( val, wt );
     else
