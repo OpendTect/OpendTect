@@ -46,5 +46,15 @@ Attribute Descriptions
 9.UserRef: Similarity
 9.Hidden: No
 9.Input.0: 0
-MaxNrKeys: 9
+10.Definition: Instantaneous output=3
+10.UserRef: Hilbert trace
+10.Hidden: No
+10.Input.0: 0
+10.Input.1: 1
+11.Definition: Math expression=x0*cos(c0*PI/180)+x1*sin(c0*PI/180) constant0=90  output=0
+11.UserRef: Phase rotation of angle c0 (degrees)
+11.Hidden: No
+11.Input.0: 0
+11.Input.1: 10
+MaxNrKeys: 11
 !

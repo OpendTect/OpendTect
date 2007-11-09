@@ -111,5 +111,17 @@ Attribute Descriptions
 21.Datatype: Other
 21.Input.0: 16
 21.Selected Attrib: 0
-MaxNrKeys: 21
+22.Definition: Instantaneous
+22.UserRef: Hilbert trace
+22.Hidden: No
+22.Input.0: 0
+22.Input.1: 14
+22.Selected Attrib: 3
+23.Definition: Math expression=x0*cos(c0*PI/180)+x1*sin(c0*PI/180) constant0=90
+23.UserRef: Phase rotation of angle c0 (degrees)
+23.Hidden: No
+23.Input.0: 0
+23.Input.1: 22
+23.Selected Attrib: 0
+MaxNrKeys: 23
 !
