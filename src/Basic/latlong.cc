@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Nov 2007
- RCS:           $Id: latlong.cc,v 1.4 2007-11-08 11:43:27 cvsbert Exp $
+ RCS:           $Id: latlong.cc,v 1.5 2007-11-09 14:09:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,8 +34,8 @@ LatLong LatLong::transform( const Coord& c )
 void LatLong::fill( char* str ) const
 {
     if ( !str ) return;
-    strcpy( str, "[" ); strcat( str, getStringFromDouble(0,lat_) );
-    strcat( str, "," ); strcat( str, getStringFromDouble(0,lng_) );
+    strcpy( str, "[" ); strcat( str, getStringFromDouble(0,lng_) );
+    strcat( str, "," ); strcat( str, getStringFromDouble(0,lat_) );
     strcat( str, "]" );
 }
 
@@ -45,17 +45,17 @@ bool LatLong::use( const char* s )
     if ( !s || !*s ) return false;
 
     BufferString str( s );
-    char* ptrlat = str.buf(); skipLeadingBlanks( ptrlat );
-    if ( *ptrlat == '[' ) ptrlat++;
-    char* ptrlng = strchr( ptrlat, ',' );
-    if ( !ptrlng ) return false;
-    *ptrlng++ = '\0';
-    if ( !*ptrlng ) return false;
-    char* ptrend = strchr( ptrlng, ']' );
+    char* ptrlng = str.buf(); skipLeadingBlanks( ptrlng );
+    if ( *ptrlng == '[' ) ptrlng++;
+    char* ptrlat = strchr( ptrlng, ',' );
+    if ( !ptrlat ) return false;
+    *ptrlat++ = '\0';
+    if ( !*ptrlat ) return false;
+    char* ptrend = strchr( ptrlat, ']' );
     if ( ptrend ) *ptrend = '\0';
 
-    lat_ = atof( ptrlat );
     lng_ = atof( ptrlng );
+    lat_ = atof( ptrlat );
     return true;
 }
 
