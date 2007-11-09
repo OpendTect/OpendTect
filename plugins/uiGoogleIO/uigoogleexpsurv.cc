@@ -7,6 +7,7 @@
 static const char* rcsID = "$Id";
 
 #include "uigoogleexpsurv.h"
+#include "odgooglexmlwriter.h"
 #include "uisurvey.h"
 #include "uicolor.h"
 #include "uifileinput.h"
@@ -49,25 +50,21 @@ bool uiGoogleExportSurvey::acceptOK( CallBacker* )
     const BufferString fnm( fnmfld_->fileName() );
     if ( fnm.isEmpty() )
 	mErrRet("Please enter a file name" )
-    StreamData sd( StreamProvider(fnm).makeOStream() );
-    if ( !sd.usable() )
-	mErrRet("Cannot create file" )
 
-    std::ostream& strm = *sd.ostrm;
-    strm << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-	    "<kml xmlns=\"http://earth.google.com/kml/2.2\">\n"
-	    "<Document>\n" << std::endl;
-    strm << "\t<name>" << fnm << "</name>\n";
-    strm << "\t<Style id=\"ODSurvey\">\n"
+    ODGoogle::XMLWriter wrr( "Survey area", fnm, si_->name() );
+    if ( !wrr.isOK() )
+	mErrRet(wrr.errMsg())
+
+    wrr.strm() << "\t<Style id=\"ODSurvey\">\n"
 	    "\t\t<LineStyle>\n"
 	    "\t\t\t<width>1.5</width>\n"
 	    "\t\t</LineStyle>\n"
-	    "\t\t<PolyStyle>\n"
-	    //TODO use user specified color: colfld_->color()
-	    "\t\t\t<color>7d0000ff</color>\n"
+	    "\t\t<PolyStyle>\n";
+    wrr.strm() << "\t\t\t<color>" << colfld_->color().getStdStr(false,-1)
+				  << "</color>\n"
 	    "\t\t</PolyStyle>\n"
 	    "\t</Style>\n";
-    strm << "\t<Placemark>\n"
+    wrr.strm() << "\t<Placemark>\n"
 	    "\t\t<name>" << si_->name() << "</name>\n"
 	    "\t\t<styleUrl>#ODSurvey</styleUrl>\n"
 	    "\t\t<Polygon>\n"
@@ -85,21 +82,24 @@ bool uiGoogleExportSurvey::acceptOK( CallBacker* )
     const LatLong ll2( si_->latlong2Coord().transform(corner2) );
     const LatLong ll3( si_->latlong2Coord().transform(corner3) );
     const LatLong ll4( si_->latlong2Coord().transform(corner4) );
-    strm << "\t\t\t\t\t<coordinates>\n"
-	 << ll1.lat_ << ',' << ll1.lng_ << ',' << hght << ' '
-	 << ll2.lat_ << ',' << ll2.lng_ << ',' << hght << ' '
-	 << ll3.lat_ << ',' << ll3.lng_ << ',' << hght << ' '
-	 << ll4.lat_ << ',' << ll4.lng_ << ',' << hght << ' '
-	 << ll1.lat_ << ',' << ll1.lng_ << ',' << hght << '\n'
-	 << "\t\t\t\t\t</coordinates>\n";
 
-    strm << "\t\t\t\t</LinearRing>\n"
+#define mWrLL(ll) \
+    wrr.strm() << "\t\t\t\t\t\t" << getStringFromDouble(0,ll.lat_); \
+    wrr.strm() << ',' << getStringFromDouble(0,ll.lng_) \
+	       << ',' << hght << '\n'
+    wrr.strm() << "\t\t\t\t\t<coordinates>\n";
+    mWrLL(ll1);
+    mWrLL(ll2);
+    mWrLL(ll3);
+    mWrLL(ll4);
+    mWrLL(ll1);
+    wrr.strm() << "\t\t\t\t\t</coordinates>\n";
+
+    wrr.strm() << "\t\t\t\t</LinearRing>\n"
 	    "\t\t\t</outerBoundaryIs>\n"
 	    "\t\t</Polygon>\n"
-	    "\t</Placemark>\n"
-	    "</Document>\n"
-	    "</kml>\n";
+	    "\t</Placemark>\n";
 
-    sd.close();
+    wrr.close();
     return true;
 }
