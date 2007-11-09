@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.37 2007-09-12 13:04:32 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.38 2007-11-09 16:53:52 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
@@ -229,25 +229,33 @@ const BinID* VolStats::desStepout( int inp, int out ) const
 { return inp == 0 ? &stepout_ : 0; }
 
 
-const Interval<float>* VolStats::reqZMargin( int inp, int ) const
-{     
-    if ( inp ) return 0;
+#define mAdjustGate( cond, gatebound, plus )\
+{\
+    if ( cond )\
+    {\
+	int minbound = (int)(gatebound / refstep);\
+	int incvar = plus ? 1 : -1;\
+	gatebound = (minbound+incvar) * refstep;\
+    }\
+}
     
-    bool chgstart = mNINT(reqgate_.start*zFactor()) % mNINT(refstep*zFactor());
-    bool chgstop = mNINT(reqgate_.stop*zFactor()) % mNINT(refstep*zFactor());
+void VolStats::prepPriorToBoundsCalc()
+{
+    bool chgstartr = mNINT(reqgate_.start*zFactor()) % mNINT(refstep*zFactor());
+    bool chgstopr = mNINT(reqgate_.stop*zFactor()) % mNINT(refstep*zFactor());
+    bool chgstartd = mNINT(desgate_.start*zFactor()) % mNINT(refstep*zFactor());
+    bool chgstopd = mNINT(desgate_.stop*zFactor()) % mNINT(refstep*zFactor());
 
-    if ( chgstart )
-    {
-	int minstart = (int)(reqgate_.start / refstep);
-	const_cast<VolStats*>(this)->reqgate_.start = (minstart-1) * refstep;
-    }
-    if ( chgstop )
-    {
-	int minstop = (int)(reqgate_.stop / refstep);
-	const_cast<VolStats*>(this)->reqgate_.stop = (minstop+1) * refstep;
-    }
-	
-    return &reqgate_;
+    mAdjustGate( chgstartr, reqgate_.start, false )
+    mAdjustGate( chgstopr, reqgate_.stop, true )
+    mAdjustGate( chgstartd, desgate_.start, false )
+    mAdjustGate( chgstopd, desgate_.stop, true )
+}
+
+
+const Interval<float>* VolStats::reqZMargin( int inp, int ) const
+{
+    return inp ? 0 : &reqgate_;
 }
 
 
@@ -255,20 +263,6 @@ const Interval<float>* VolStats::desZMargin( int inp, int ) const
 {     
     if ( inp || !dosteer_ ) return 0;
     
-    bool chgstart = mNINT(desgate_.start*zFactor()) % mNINT(refstep*zFactor());
-    bool chgstop = mNINT(desgate_.stop*zFactor()) % mNINT(refstep*zFactor());
-
-    if ( chgstart )
-    {
-	int minstart = (int)(desgate_.start / refstep);
-	const_cast<VolStats*>(this)->desgate_.start = (minstart-1) * refstep;
-    }
-    if ( chgstop )
-    {
-	int minstop = (int)(desgate_.stop / refstep);
-	const_cast<VolStats*>(this)->desgate_.stop = (minstop+1) * refstep;
-    }
-	
     return &desgate_;
 }
 
@@ -305,11 +299,8 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 
 	    float shift = 0;
 	    if ( dosteer_ )
-	    {
-		const int steeridx = steerindexes_[posidx];
-		shift = steeringdata_->series(steeridx)->
-				    value( cursample-steeringdata_->z0_ );
-	    }
+		shift = getInputValue( *steeringdata_, steerindexes_[posidx],
+					isamp, z0 );
 
 	    ValueSeriesInterpolator<float> interp( dh->nrsamples_-1 );
 
@@ -340,8 +331,7 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 
 	    const float outval = wcalc.getValue(
 		    			(Stats::Type)outputtypes[outidx] );
-	    const int sampleidx = z0-output.z0_+isamp;
-	    output.series(outidx)->setValue( sampleidx, outval );
+	    setOutputValue( output, outidx, isamp, z0, outval );
 	}
     }
 

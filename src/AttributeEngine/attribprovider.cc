@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.102 2007-10-30 16:53:35 cvskris Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.103 2007-11-09 16:53:52 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -110,8 +110,8 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	return 0;
     }
 
-    Provider* res = PF().create( desc );
-    if ( !res )
+    Provider* newprov = PF().create( desc );
+    if ( !newprov )
     {
 	if ( desc.errMsg().size() )
 	{
@@ -128,12 +128,12 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	return 0;
     }
 
-    res->ref();
+    newprov->ref();
     
     if ( desc.selectedOutput()!=-1 && existing.isEmpty() )
-	res->enableOutput( desc.selectedOutput(), true );
+	newprov->enableOutput( desc.selectedOutput(), true );
 
-    existing += res;
+    existing += newprov;
 
     for ( int idx=0; idx<desc.nrInputs(); idx++ )
     {
@@ -144,37 +144,37 @@ Provider* Provider::internalCreate( Desc& desc, ObjectSet<Provider>& existing,
 	    		internalCreate( *inputdesc, existing, issame, errstr );
 	if ( !inputprovider )
 	{
-	    existing.remove(existing.indexOf(res), existing.size()-1 );
-	    res->unRef();
+	    existing.remove(existing.indexOf(newprov), existing.size()-1 );
+	    newprov->unRef();
 	    return 0;
 	}
 
-	res->setInput( idx, inputprovider );
-	inputprovider->addParent(res);
+	newprov->setInput( idx, inputprovider );
+	inputprovider->addParent(newprov);
 	issame = false;
     }
 
-    if ( !res->init() )
+    if ( !newprov->checkInpAndParsAtStart() )
     {
-	existing.remove( existing.indexOf(res), existing.size()-1 );
-	res->unRef();
-	BufferString attribnm = res->desc.attribName();
+	existing.remove( existing.indexOf(newprov), existing.size()-1 );
+	newprov->unRef();
+	BufferString attribnm = newprov->desc.attribName();
 	if ( attribnm == StorageProvider::attribName() )
 	{
 	    errstr = "Cannot load Stored Cube '";
-	    errstr += res->desc.userRef(); errstr += "'";
+	    errstr += newprov->desc.userRef(); errstr += "'";
 	}
 	else
 	{
-	    errstr = "Attribute \""; errstr += res->desc.userRef(); 
+	    errstr = "Attribute \""; errstr += newprov->desc.userRef(); 
 	    errstr += "\" of type \""; errstr += attribnm;
 	    errstr += "\" cannot be initialized";
 	}
 	return 0;
     }
 
-    res->unRefNoDelete();
-    return res;
+    newprov->unRefNoDelete();
+    return newprov;
 }
 
 
@@ -970,9 +970,9 @@ SeisMSCProvider* Provider::getMSCProvider() const
 }
 
 
-bool Provider::init()
+bool Provider::checkInpAndParsAtStart()
 {
-    return isOK();
+    return true;
 }
 
 
@@ -1432,7 +1432,7 @@ float Provider::getInputValue( const DataHolder& input, int inputidx,
 void Provider::setOutputValue( const DataHolder& output, int outputidx,
 			       int sampleidx, int z0, float val ) const
 {
-    if ( !outputinterest.validIdx(outputidx) || !outputinterest[outputidx] )
+    if ( !isOutputEnabled(outputidx) )
 	return;
 
     const int sidx = z0 - output.z0_ + sampleidx;
@@ -1447,7 +1447,20 @@ void Provider::prepareForComputeData()
 {
     for ( int idx=0; idx<inputs.size(); idx++ )
 	if ( inputs[idx] ) inputs[idx]->prepareForComputeData();
-	
+}
+
+
+void Provider::prepPriorToBoundsCalc()
+{
+    for ( int idx=0; idx<inputs.size(); idx++ )
+	if ( inputs[idx] ) inputs[idx]->prepPriorToBoundsCalc();
+}
+
+
+void Provider::prepPriorToOutputSetup()
+{
+    for ( int idx=0; idx<inputs.size(); idx++ )
+	if ( inputs[idx] ) inputs[idx]->prepPriorToOutputSetup();
 }
 
 

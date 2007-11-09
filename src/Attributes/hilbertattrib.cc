@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.20 2007-07-20 14:41:37 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.21 2007-11-09 16:53:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,7 +152,7 @@ bool Hilbert::computeData( const DataHolder& output, const BinID& relpos,
     {
 	int startshift = (hilbfilterlen_-nrsamples)/2;
 	for ( int idx=0; idx<nrsamples; idx++ )
-	    output.series(0)->setValue( idx, outp[startshift+idx] );
+	    setOutputValue( output, 0, idx, z0, outp[startshift+idx] );
     }
        
     delete [] newarr;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.64 2007-05-08 14:46:34 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.65 2007-11-09 16:53:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,6 +133,11 @@ public:
     virtual void		initSteering()			{}
     virtual void		initSteering(const BinID&)	{}
 
+    virtual void		prepPriorToOutputSetup();
+    virtual void		prepPriorToBoundsCalc();
+    				/*!< Z refstep is known now, 
+				  this is meant to be used before possible- 
+				  and desired- volumes are computed*/
     virtual void		prepareForComputeData();
     				/*!< Everything is known now. */
     static const char*		prepare(Desc&);
@@ -143,8 +148,10 @@ public:
 protected:
 
 				Provider(Desc&);
-    virtual bool		init();
-    				/*!< Should be run _after_ inputs are set */
+    virtual bool		checkInpAndParsAtStart();
+    				/*!< Should be used for check _after_ inputs 
+				  are set, for extra checks at other time 
+				  use isOK()*/
 
     virtual SeisMSCProvider*	getMSCProvider() const;
     static Provider*		internalCreate(Desc&,ObjectSet<Provider>&, 

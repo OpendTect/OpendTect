@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribstorprovider.h,v 1.27 2007-05-09 14:34:49 cvsbert Exp $
+ RCS:           $Id: attribstorprovider.h,v 1.28 2007-11-09 16:53:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,10 +44,10 @@ protected:
     			StorageProvider(Desc&);
     			~StorageProvider();
 
-    static Provider*	createFunc(Desc&);
+    static Provider*	createInstance(Desc&);
     static void		updateDesc(Desc&);
 
-    bool		init();
+    bool		checkInpAndParsAtStart();
     bool		allowParallelComputation() const { return false; }
 
     SeisMSCProvider*	getMSCProvider() const	{ return mscprov_; }

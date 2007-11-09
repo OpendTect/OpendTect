@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: coherencyattrib.h,v 1.11 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: coherencyattrib.h,v 1.12 2007-11-09 16:53:51 cvshelene Exp $
 ________________________________________________________________________
 
 Coherency type= gate= [maxdip=250] [ddip=10]
@@ -45,6 +45,9 @@ public:
     static const char*	sKeyMaxDip()	{ return "maxdip"; }
     static const char*	sKeyDDip()	{ return "ddip"; }
     static const char*	sKeyStepout()	{ return "stepout"; }
+
+    virtual void	prepPriorToBoundsCalc();
+    virtual void	prepareForComputeData();
 
 protected:
 			~Coherency();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.24 2007-09-17 10:38:53 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.25 2007-11-09 16:53:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -395,7 +395,7 @@ void FreqFilter::butterWorthFilter( const DataHolder& output,
     {
 	int offset = mNINT(nrsamp/2) - mNINT(nrsamples/2);
 	for ( int idx=0; idx<nrsamples; idx++ )
-	    output.series(0)->setValue( idx, outp[offset - 1 + idx] );
+	    setOutputValue( output, 0, idx, z0, outp[offset - 1 + idx] );
     }
     else
     {
@@ -482,8 +482,8 @@ void FreqFilter::fftFilter( const DataHolder& output,
 			   || ( filtertype==mFilterBandPass && minfreq==0 );
     float correctbias = needrestorebias ? avg : 0;
     for ( int idx=0; idx<nrsamples; idx++ )
-	output.series(0)->setValue( idx, 
-			    timecplxoutp.get(firstidx+idx).real()+correctbias);
+	setOutputValue( output, 0, idx, z0,
+			timecplxoutp.get(firstidx+idx).real()+correctbias );
 }
 
 

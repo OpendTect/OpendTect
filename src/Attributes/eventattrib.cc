@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.cc,v 1.23 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:		$Id: eventattrib.cc,v 1.24 2007-11-09 16:53:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -395,12 +395,9 @@ bool Event::computeData( const DataHolder& output, const BinID& relpos,
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	if ( isOutputEnabled(0) ) 
-	    setOutputValue( output, 0, idx, z0, outp[idx] );
-	else if ( isOutputEnabled(1) ) 
-	    setOutputValue( output, 1, idx, z0, outp[idx] );
-	else if ( isOutputEnabled(2) )
-	    setOutputValue( output, 2, idx, z0, outp[idx] );
+	setOutputValue( output, 0, idx, z0, outp[idx] );
+	setOutputValue( output, 1, idx, z0, outp[idx] );
+	setOutputValue( output, 2, idx, z0, outp[idx] );
     }
 
     return true;

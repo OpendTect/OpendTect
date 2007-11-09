@@ -4,7 +4,7 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID = "$Id: referenceattrib.cc,v 1.18 2007-04-11 07:20:29 cvshelene Exp $";
+static const char* rcsID = "$Id: referenceattrib.cc,v 1.19 2007-11-09 16:53:52 cvshelene Exp $";
 
 
 #include "referenceattrib.h"
@@ -68,16 +68,14 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 {
     const float step = refstep ? refstep : SI().zStep();
     Coord coord;
-    if ( outputinterest[0] || outputinterest[1] ) 
+    if ( isOutputEnabled(0) || isOutputEnabled(1) ) 
 	coord = SI().transform( currentbid );
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const int outidx = z0 - output.z0_ + idx;
-	if ( outputinterest[0] )
-	    output.series(0)->setValue( outidx, coord.x );
-	if ( outputinterest[1] )
-	    output.series(1)->setValue( outidx, coord.y );
+	setOutputValue( output, 0, idx, z0, coord.x );
+	setOutputValue( output, 1, idx, z0, coord.y );
 	if ( outputinterest[2] )
 	{
 	    if ( nrsamples==1 )
@@ -85,49 +83,43 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 		int idi = localcomputezintervals.indexOf(Interval<int>(z0, z0));
 		float exacttime = idi>-1 && idi<exactz_.size() ? exactz_[idi]
 		    					       : (z0+idx)*step;
-		output.series(2)->setValue( outidx, exacttime );
+		setOutputValue( output, 2, idx, z0, exacttime );
 	    }
 	    else
-		output.series(2)->setValue( outidx, (z0+idx)*step );
+		setOutputValue( output, 2, idx, z0, (z0+idx)*step );
 	};
 
 	if ( !is2d_ )
 	{
-	    if ( outputinterest[3] )
-		output.series(3)->setValue( outidx, currentbid.inl );
-	    if ( outputinterest[4] )
-		output.series(4)->setValue( outidx, currentbid.crl );
-	    if ( outputinterest[5] )
-		output.series(5)->setValue( outidx, z0+idx+1 );
-	    if ( outputinterest[6] )
+	    setOutputValue( output, 3, idx, z0, currentbid.inl );
+	    setOutputValue( output, 4, idx, z0, currentbid.crl );
+	    setOutputValue( output, 5, idx, z0, z0+idx+1 );
+	    if ( isOutputEnabled(6) )
 	    {
 		const int val = currentbid.inl - SI().inlRange(0).start + 1;
-		output.series(6)->setValue( outidx, val );
+		setOutputValue( output, 6, idx, z0, val );
 	    }
-	    if ( outputinterest[7] )
+	    if ( isOutputEnabled(7) )
 	    {
 		const int val = currentbid.crl - SI().crlRange(0).start + 1;
-		output.series(7)->setValue( outidx, val );
+		setOutputValue( output, 7, idx, z0, val );
 	    }
-	    if ( outputinterest[8] )
+	    if ( isOutputEnabled(8) )
 	    {
 		const int val = z0 - mNINT(SI().zRange(0).start/step) + idx + 1;
-		output.series(8)->setValue( outidx, val );
+		setOutputValue( output, 8, idx, z0, val );
 	    }
 	}
 	else
 	{
-	    if ( outputinterest[3] )
-		output.series(3)->setValue( outidx, currentbid.crl );
-	    if ( outputinterest[4] )
-		output.series(4)->setValue( outidx, z0+idx+1 );
-	    if ( outputinterest[5] )
-		output.series(5)->setValue( outidx,
+	    setOutputValue( output, 3, idx, z0, currentbid.crl );
+	    setOutputValue( output, 4, idx, z0, z0+idx+1 );
+	    setOutputValue( output, 5, idx, z0,
 			currentbid.crl - desiredvolume->hrg.start.crl + 1 );
-	    if ( outputinterest[6] )
+	    if ( isOutputEnabled(6) )
 	    {
 		const int val = z0 - mNINT(SI().zRange(0).start/step) + idx + 1;
-		output.series(6)->setValue( outidx, val );
+		setOutputValue( output, 6, idx, z0, val );
 	    }
 	}
     }

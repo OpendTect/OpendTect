@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.32 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.33 2007-11-09 16:53:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -298,25 +298,23 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	    stats += similarity( vals0, vals1, s0, s1, 1, gatesz, donormalize_);
 	}
 
-	const int outidx = z0 - output.z0_ + idx;
 	if ( stats.size() < 1 )
 	{
 	    for ( int sidx=0; sidx<outputinterest.size(); sidx++ )
-		if ( outputinterest[sidx] ) 
-		    output.series(sidx)->setValue( outidx, 0 );
+		setOutputValue( output, sidx, idx, z0, 0 );
 	}
 	else
 	{
-	    if ( outputinterest[0] ) 
-		output.series(0)->setValue( outidx, stats.mean() );
-	    if ( outputinterest[1] ) 
-		output.series(1)->setValue( outidx, stats.median() );
+	    if ( outputinterest[0] )
+		setOutputValue( output, 0, idx, z0, stats.mean() );
+	    if ( outputinterest[1] )
+		setOutputValue( output, 1, idx, z0, stats.median() );
 	    if ( outputinterest[2] ) 
-		output.series(2)->setValue( outidx, stats.variance() );
-	    if ( outputinterest[3] ) 
-		output.series(3)->setValue( outidx, stats.min() );
-	    if ( outputinterest[4] ) 
-		output.series(4)->setValue( outidx, stats.max() );
+		setOutputValue( output, 2, idx, z0, stats.variance() );
+	    if ( outputinterest[3] )
+		setOutputValue( output, 3, idx, z0, stats.min() );
+	    if ( outputinterest[4] )
+	       	setOutputValue( output, 4, idx, z0, stats.max() );
 	}
     }
 
@@ -328,46 +326,39 @@ const BinID* Similarity::reqStepout( int inp, int out ) const
 { return inp ? 0 : &stepout_; }
 
 
-const Interval<float>* Similarity::reqZMargin( int inp, int ) const
-{ 
-    if ( inp ) return 0;
-
-    bool chgstart = mNINT(reqgate_.start*zFactor()) % mNINT(refstep*zFactor());
-    bool chgstop = mNINT(reqgate_.stop*zFactor()) % mNINT(refstep*zFactor());
-
-    if ( chgstart )
-    {
-	int minstart = (int)(reqgate_.start / refstep);
-	const_cast<Similarity*>(this)->reqgate_.start = (minstart-1) * refstep;
-    }
-    if ( chgstop )
-    {
-	int minstop = (int)(reqgate_.stop / refstep);
-	const_cast<Similarity*>(this)->reqgate_.stop = (minstop+1) * refstep;
-    }
-    
-    return &reqgate_;
+#define mAdjustGate( cond, gatebound, plus )\
+{\
+    if ( cond )\
+    {\
+	int minbound = (int)(gatebound / refstep);\
+	int incvar = plus ? 1 : -1;\
+	gatebound = (minbound+incvar) * refstep;\
+    }\
 }
+
+void Similarity::prepPriorToBoundsCalc()
+{
+    bool chgstartr = mNINT(reqgate_.start*zFactor()) % mNINT(refstep*zFactor());
+    bool chgstopr = mNINT(reqgate_.stop*zFactor()) % mNINT(refstep*zFactor());
+    bool chgstartd = mNINT(desgate_.start*zFactor()) % mNINT(refstep*zFactor());
+    bool chgstopd = mNINT(desgate_.stop*zFactor()) % mNINT(refstep*zFactor());
+
+    mAdjustGate( chgstartr, reqgate_.start, false )
+    mAdjustGate( chgstopr, reqgate_.stop, true )
+    mAdjustGate( chgstartd, desgate_.start, false )
+    mAdjustGate( chgstopd, desgate_.stop, true )
+}
+
+
+const Interval<float>* Similarity::reqZMargin( int inp, int ) const
+{
+    return inp ? 0 : &reqgate_;
+}
+
 
 const Interval<float>* Similarity::desZMargin( int inp, int ) const
 {
-    if ( inp ) return 0;
-
-    bool chgstart = mNINT(desgate_.start*zFactor()) % mNINT(refstep*zFactor());
-    bool chgstop = mNINT(desgate_.stop*zFactor()) % mNINT(refstep*zFactor());
-
-    if ( chgstart )
-    {
-	int minstart = (int)(desgate_.start / refstep);
-	const_cast<Similarity*>(this)->desgate_.start = (minstart-1) * refstep;
-    }
-    if ( chgstop )
-    {
-	int minstop = (int)(desgate_.stop / refstep);
-	const_cast<Similarity*>(this)->desgate_.stop = (minstop+1) * refstep;
-    }
-
-    return &desgate_;
+    return inp ? 0 : &desgate_;
 }
 
 

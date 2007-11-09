@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.h,v 1.12 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: positionattrib.h,v 1.13 2007-11-09 16:53:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,8 @@ public:
     static const char*		steeringStr()	{ return "steering"; }
     static const char*		operTypeStr(int);
     void			initSteering();
+
+    void			prepPriorToBoundsCalc();
 
 protected:
     				~Position();

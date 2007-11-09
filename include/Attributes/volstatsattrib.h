@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: volstatsattrib.h,v 1.16 2007-05-02 11:42:15 cvshelene Exp $
+ RCS:           $Id: volstatsattrib.h,v 1.17 2007-11-09 16:53:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,8 @@ public:
     static const char*		steeringStr()	  { return "steering"; }
     static const char*		shapeTypeStr(int);
     void			initSteering();
+
+    void			prepPriorToBoundsCalc();
 
 protected:
 				~VolStats();

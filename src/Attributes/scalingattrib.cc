@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: scalingattrib.cc,v 1.21 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: scalingattrib.cc,v 1.22 2007-11-09 16:53:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,8 +211,7 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	const int csamp = z0 + idx;
-	const float trcval = inputdata_->series(dataidx_)->
-	    				value( csamp-inputdata_->z0_ );
+	const float trcval = getInputValue( *inputdata_, dataidx_, idx, z0 );
 	float scalefactor = 1;
 	bool found = false;
 	for ( int sgidx=0; sgidx<samplegates.size(); sgidx++ )
@@ -235,8 +234,7 @@ bool Scaling::computeData( const DataHolder& output, const BinID& relpos,
 	    }
 	}
 
-	const int outidx = z0 - output.z0_ + idx;
-	output.series(0)->setValue( outidx, trcval*scalefactor );
+	setOutputValue( output, 0, idx, z0, trcval*scalefactor );
     }
 
     return true;
@@ -247,11 +245,10 @@ void Scaling::scaleTimeN( const DataHolder& output, int z0, int nrsamples) const
 {
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	const int cursample = idx+z0;
-	const float curt = cursample*refstep;
+	const float curt = (idx+z0)*refstep;
 	const float result = pow(curt,powerval_) * 
-	    inputdata_->series(dataidx_)->value( cursample-inputdata_->z0_ );
-	output.series(0)->setValue( cursample-output.z0_, result );
+	    		     getInputValue( *inputdata_, dataidx_, idx, z0 );
+       	setOutputValue( output, 0, idx, z0, result );
     }
 }
 

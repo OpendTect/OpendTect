@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.22 2007-10-23 12:53:29 cvshelene Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.23 2007-11-09 16:53:52 cvshelene Exp $";
 
 #include "energyattrib.h"
 
@@ -81,13 +81,10 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
 	if ( outidx >= 0 )
 	{
 	    float val = wcalc.sqSum() / sz;
-	    if ( isOutputEnabled(0) )
-		setOutputValue( output, 0, outidx, z0, val );
-	    if ( isOutputEnabled(1) )
-		setOutputValue( output, 1, outidx, z0, sqrt(val) );
-	    if ( isOutputEnabled(2) )
-		setOutputValue( output, 2, outidx, z0,
-			        mIsZero(val,mDefEps) ? mUdf(float) : log(val) );
+	    setOutputValue( output, 0, outidx, z0, val );
+	    setOutputValue( output, 1, outidx, z0, sqrt(val) );
+	    setOutputValue( output, 2, outidx, z0,
+			    mIsZero(val,mDefEps) ? mUdf(float) : log(val) );
 	}
     }
 

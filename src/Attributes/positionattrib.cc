@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.23 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: positionattrib.cc,v 1.24 2007-11-09 16:53:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -211,8 +211,7 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 	    float sample = cursample;
 	    const int steeridx = dosteer_ ? steerindexes_[idp] : -1;
 	    if ( dosteer_ && steerdata_->series(steeridx) )
-		sample += steerdata_->series(steeridx)->value( 
-						cursample-steerdata_->z0_ );
+		sample += getInputValue( *steerdata_, steeridx, idx, z0 );
 		
 	    for ( int ids=0; ids<samplegate.width()+1; ids++ )
 	    {
@@ -237,47 +236,45 @@ bool Position::computeData( const DataHolder& output, const BinID& relpos,
 	    val = intp.value( *(odata->series(outidx_)), sample-odata->z0_ );
 	}
 
-	output.series(0)->setValue( z0-output.z0_+idx, val );
+	setOutputValue( output, 0, idx, z0, val );
     }
 
     return true;
 }
 
 
+#define mAdjustGate( cond, gatebound, plus )\
+{\
+    if ( cond )\
+    {\
+	int minbound = (int)(gatebound / refstep);\
+	int incvar = plus ? 1 : -1;\
+	gatebound = (minbound+incvar) * refstep;\
+    }\
+}
+
+void Position::prepPriorToBoundsCalc()
+{
+    bool chgstartr = mNINT(reqgate_.start*zFactor()) % mNINT(refstep*zFactor());
+    bool chgstopr = mNINT(reqgate_.stop*zFactor()) % mNINT(refstep*zFactor());
+    bool chgstartd = mNINT(desgate_.start*zFactor()) % mNINT(refstep*zFactor());
+    bool chgstopd = mNINT(desgate_.stop*zFactor()) % mNINT(refstep*zFactor());
+
+    mAdjustGate( chgstartr, reqgate_.start, false )
+    mAdjustGate( chgstopr, reqgate_.stop, true )
+    mAdjustGate( chgstartd, desgate_.start, false )
+    mAdjustGate( chgstopd, desgate_.stop, true )
+}
+
+
 const Interval<float>* Position::reqZMargin(int input,int output) const
 {
-    bool chgstart = mNINT(reqgate_.start*zFactor()) % mNINT(refstep*zFactor());
-    bool chgstop = mNINT(reqgate_.stop*zFactor()) % mNINT(refstep*zFactor());
-
-    if ( chgstart )
-    {
-	int minstart = (int)(reqgate_.start / refstep);
-	const_cast<Position*>(this)->reqgate_.start = (minstart-1) * refstep;
-    }
-    if ( chgstop )
-    {
-	int minstop = (int)(reqgate_.stop / refstep);
-	const_cast<Position*>(this)->reqgate_.stop = (minstop+1) * refstep;
-    }
     return &reqgate_;
 }
 
 
 const Interval<float>* Position::desZMargin(int input,int output) const
 {
-    bool chgstart = mNINT(desgate_.start*zFactor()) % mNINT(refstep*zFactor());
-    bool chgstop = mNINT(desgate_.stop*zFactor()) % mNINT(refstep*zFactor());
-
-    if ( chgstart )
-    {
-	int minstart = (int)(desgate_.start / refstep);
-	const_cast<Position*>(this)->desgate_.start = (minstart-1) * refstep;
-    }
-    if ( chgstop )
-    {
-	int minstop = (int)(desgate_.stop / refstep);
-	const_cast<Position*>(this)->desgate_.stop = (minstop+1) * refstep;
-    }
     return &desgate_;
 }
 

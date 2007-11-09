@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.70 2007-10-30 16:53:35 cvskris Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.71 2007-11-09 16:53:52 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -38,29 +38,16 @@ static const char* rcsID = "$Id: attribstorprovider.cc,v 1.70 2007-10-30 16:53:3
 namespace Attrib
 {
 
+mAttrDefCreateInstance(StorageProvider)
 
 void StorageProvider::initClass()
 {
-    Desc* desc = new Desc( attribName(), updateDesc );
-    desc->ref();
+    mAttrStartInitClassWithUpdate
 
     desc->addParam( new SeisStorageRefParam(keyStr()) );
     desc->addOutputDataType( Seis::UnknowData );
 
-    PF().addDesc( desc, createFunc );
-    desc->unRef();
-}
-
-
-Provider* StorageProvider::createFunc( Desc& desc )
-{
-    StorageProvider* res = new StorageProvider( desc );
-    res->ref();
-
-    if ( !res->isOK() ) { res->unRef(); return 0; }
-
-    res->unRefNoDelete();
-    return res; 
+    mAttrEndInitClass
 }
 
 
@@ -147,12 +134,13 @@ StorageProvider::~StorageProvider()
 #undef mErrRet
 #define mErrRet(s) { errmsg = s; delete mscprov_; mscprov_= 0; return false; }
 
-bool StorageProvider::init()
+bool StorageProvider::checkInpAndParsAtStart()
 {
     if ( status!=Nada ) return false;
 
     const LineKey lk( desc.getValParam(keyStr())->getStringValue(0) );
     const MultiID mid( lk.lineName() );
+    if ( !isOK() ) return false;
     mscprov_ = new SeisMSCProvider( mid );
 
     if ( !initMSCProvider() )
@@ -275,6 +263,18 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 }
 
 
+#define mAdjustToAvailStep( dir )\
+{\
+    if ( res.hrg.step.dir>1 )\
+    {\
+	float remain = ( possiblevolume->hrg.start.dir - res.hrg.start.dir ) %\
+	    		res.hrg.step.dir;\
+	if ( !mIsZero( remain, 1e-3 ) )\
+	    res.hrg.start.dir = possiblevolume->hrg.start.dir + \
+				mNINT(remain +0.5) *res.hrg.step.dir;\
+    }\
+}
+
 bool StorageProvider::getPossibleVolume( int, CubeSampling& res )
 {
     if ( !possiblevolume ) 
@@ -282,6 +282,10 @@ bool StorageProvider::getPossibleVolume( int, CubeSampling& res )
     
     *possiblevolume = storedvolume_;
     res.limitToWithUdf( *possiblevolume );
+    //extra checks for variable inl/crl stepouts
+    //mAdjustToAvailStep(inl);
+    //mAdjustToAvailStep(crl);
+
     const bool is2d = mscprov_->is2D();
     bool isseltable = seldata_ && seldata_->type_ == Seis::Table;
     if ( !( is2d && isseltable ) && res.hrg.inlRange().width(false)<0

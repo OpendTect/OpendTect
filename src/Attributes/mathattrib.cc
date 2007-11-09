@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.21 2007-05-30 10:54:20 cvshelene Exp $
+ RCS:           $Id: mathattrib.cc,v 1.22 2007-11-09 16:53:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -158,18 +158,15 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 	const int cursample = z0 + idx;
 	for ( int varidx=0; varidx<nrxvars; varidx++ )
 	{
-	    ValueSeries<float>* serie = 
-		inputdata_[varidx]->series( inputidxs_[varidx] );
-	    const float val = 
-		serie->value( cursample - inputdata_[varidx]->z0_ );
+	    const float val = getInputValue( *inputdata_[varidx], 
+		    			     inputidxs_[varidx], idx, z0 );
 	    const int variable = varsinputtable_[varidx];
 	    mathobj->setVariable( variable, val );
 	}
 	for ( int cstidx=0; cstidx<nrcstvars; cstidx++ )
 	    mathobj->setVariable( cstsinputtable_[cstidx], csts_[cstidx] );
 
-	const int outidx = z0 - output.z0_ + idx;
-	output.series(0)->setValue( outidx, mathobj->getValue() );
+	setOutputValue( output, 0, idx, z0, mathobj->getValue() );
     }
 
     return true;

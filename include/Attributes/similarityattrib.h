@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: similarityattrib.h,v 1.20 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: similarityattrib.h,v 1.21 2007-11-09 16:53:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,8 @@ public:
     static const char*		extensionStr()	{ return "extension"; }
     static const char*		extensionTypeStr(int);
     void			initSteering();
+
+    void			prepPriorToBoundsCalc();
 
 protected:
     				~Similarity() {}

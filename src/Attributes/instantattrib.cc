@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.cc,v 1.12 2007-10-05 14:03:39 cvshelene Exp $
+ RCS:           $Id: instantattrib.cc,v 1.13 2007-11-09 16:53:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,32 +75,32 @@ bool Instantaneous::computeData( const DataHolder& output, const BinID& relpos,
     {
 	const int cursample = z0 + idx;
 	const int outidx = z0 - output.z0_ + idx;
-	if ( outputinterest[0] )
-	    output.series(0)->setValue( outidx, calcAmplitude(cursample) );
-	if ( outputinterest[1] )
-	    output.series(1)->setValue( outidx, calcPhase(cursample) );
-	if ( outputinterest[2] )
-	    output.series(2)->setValue( outidx, calcFrequency(cursample) );
-	if ( outputinterest[3] )
-	    output.series(3)->setValue( outidx, mGetIVal(cursample) );
-	if ( outputinterest[4] )
-	    output.series(4)->setValue( outidx, calcAmplitude1Der(cursample) );
-	if ( outputinterest[5] )
-	    output.series(5)->setValue( outidx, calcAmplitude2Der(cursample) );
-	if ( outputinterest[6] )
-	    output.series(6)->setValue( outidx, cos(calcPhase(cursample)) );
-	if ( outputinterest[7] )
-	    output.series(7)->setValue( outidx, calcEnvWPhase(cursample) );
-	if ( outputinterest[8] )
-	    output.series(8)->setValue( outidx, calcEnvWFreq(cursample) );
-	if ( outputinterest[9] )
-	    output.series(9)->setValue( outidx, calcPhaseAccel(cursample) );
-	if ( outputinterest[10] )
-	    output.series(10)->setValue( outidx, calcThinBed(cursample) );
-	if ( outputinterest[11] )
-	    output.series(11)->setValue( outidx, calcBandWidth(cursample) );
-	if ( outputinterest[12] )
-	    output.series(12)->setValue( outidx, calcQFactor(cursample) );
+	if ( isOutputEnabled(0) )
+	    setOutputValue( output, 0, idx, z0, calcAmplitude(cursample) );
+	if ( isOutputEnabled(1) )
+	    setOutputValue( output, 1, idx, z0, calcPhase(cursample) );
+	if ( isOutputEnabled(2) )
+	    setOutputValue( output, 2, idx, z0, calcFrequency(cursample) );
+	if ( isOutputEnabled(3) )
+	    setOutputValue( output, 3, idx, z0, mGetIVal(cursample) );
+	if ( isOutputEnabled(4) )
+	    setOutputValue( output, 4, idx, z0, calcAmplitude1Der(cursample) );
+	if ( isOutputEnabled(5) )
+	    setOutputValue( output, 5, idx, z0, calcAmplitude2Der(cursample) );
+	if ( isOutputEnabled(6) )
+	    setOutputValue( output, 6, idx, z0, cos(calcPhase(cursample)) );
+	if ( isOutputEnabled(7) )
+	    setOutputValue( output, 7, idx, z0, calcEnvWPhase(cursample) );
+	if ( isOutputEnabled(8) )
+	    setOutputValue( output, 8, idx, z0, calcEnvWFreq(cursample) );
+	if ( isOutputEnabled(9) )
+	    setOutputValue( output, 9, idx, z0, calcPhaseAccel(cursample) );
+	if ( isOutputEnabled(10) )
+	    setOutputValue( output, 10, idx, z0, calcThinBed(cursample) );
+	if ( isOutputEnabled(11) )
+	    setOutputValue( output, 11, idx, z0, calcBandWidth(cursample) );
+	if ( isOutputEnabled(12) )
+	    setOutputValue( output, 12, idx, z0, calcQFactor(cursample) );
     }
 
     return true;

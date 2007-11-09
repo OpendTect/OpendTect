@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          February 2006
- RCS:           $Id: fingerprintattrib.cc,v 1.14 2007-05-30 10:54:20 cvshelene Exp $
+ RCS:           $Id: fingerprintattrib.cc,v 1.15 2007-11-09 16:53:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -214,15 +214,15 @@ bool FingerPrint::computeData( const DataHolder& output, const BinID& relpos,
 	const int cursample = idx + z0;
 	TypeSet<float> localvals;
 	for ( int inpidx=0; inpidx<inputdata_.size(); inpidx++ )
-	    localvals += inputdata_[inpidx]->series(dataidx_[inpidx])
-			 ->value( cursample-inputdata_[inpidx]->z0_ );
+	    localvals += getInputValue( *inputdata_[inpidx], 
+		    			dataidx_[inpidx], idx, z0 );
 
 	scaledlocal.erase();
 	scaleVector( localvals, ranges_, scaledlocal );
 
-	const float val =
-		similarity( scaledref_, scaledlocal, scaledref_.size() );
-	output.series(0)->setValue( cursample-output.z0_, val );
+	const float val = similarity( scaledref_, scaledlocal,
+				      scaledref_.size() );
+	setOutputValue( output, 0, idx, z0, val );
     }
 
     return true;

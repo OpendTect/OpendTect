@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.18 2007-05-24 14:35:17 cvshelene Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.19 2007-11-09 16:53:52 cvshelene Exp $";
 
 
 #include "coherencyattrib.h"
@@ -172,13 +172,36 @@ float Coherency::calc2( float s, const Interval<int>& rsg,
 }
 
 
-bool Coherency::computeData( const DataHolder& output, const BinID& relpos,
-			     int z0, int nrsamples, int threadid ) const
+void Coherency::prepPriorToBoundsCalc()
+{
+    bool chgstart = mNINT(desgate_.start*zFactor()) % mNINT(refstep*zFactor());
+    bool chgstop = mNINT(desgate_.stop*zFactor()) % mNINT(refstep*zFactor());
+
+    if ( chgstart )
+    {
+	int minstart = (int)(desgate_.start / refstep);
+	desgate_.start = (minstart-1) * refstep;
+    }
+    if ( chgstop )
+    {
+	int minstop = (int)(desgate_.stop / refstep);
+	desgate_.stop = (minstop+1) * refstep;
+    }
+}
+
+
+void Coherency::prepareForComputeData()
 {
     BinID step = inputs[0]->getStepoutStep();
 	
-    const_cast<Coherency*>(this)->distinl_ = fabs(inldist()*step.inl);
-    const_cast<Coherency*>(this)->distcrl_ = fabs(crldist()*step.crl);
+    distinl_ = fabs(inldist()*step.inl);
+    distcrl_ = fabs(crldist()*step.crl);
+}
+
+
+bool Coherency::computeData( const DataHolder& output, const BinID& relpos,
+			     int z0, int nrsamples, int threadid ) const
+{
     return type_ == 1 ? computeData1(output, z0, nrsamples) 
 		     : computeData2(output, z0, nrsamples);
 }
@@ -347,20 +370,6 @@ const BinID* Coherency::reqStepout( int inp, int out ) const
 
 const Interval<float>* Coherency::reqZMargin( int inp, int ) const
 {
-    bool chgstart = mNINT(desgate_.start*zFactor()) % mNINT(refstep*zFactor());
-    bool chgstop = mNINT(desgate_.stop*zFactor()) % mNINT(refstep*zFactor());
-
-    if ( chgstart )
-    {
-	int minstart = (int)(desgate_.start / refstep);
-	const_cast<Coherency*>(this)->desgate_.start = (minstart-1) * refstep;
-    }
-    if ( chgstop )
-    {
-	int minstop = (int)(desgate_.stop / refstep);
-	const_cast<Coherency*>(this)->desgate_.stop = (minstop+1) * refstep;
-    }
-
     return &desgate_;
 }
 

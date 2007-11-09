@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: shiftattrib.h,v 1.12 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: shiftattrib.h,v 1.13 2007-11-09 16:53:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,8 @@ public:
     static const char*		timeStr()	{ return "time"; }
     static const char*		steeringStr()	{ return "steering"; }
     void			initSteering();
+
+    void			prepPriorToBoundsCalc();
 
 protected:
     				~Shift() {}

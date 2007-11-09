@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.23 2007-03-08 12:40:08 cvshelene Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.24 2007-11-09 16:53:52 cvshelene Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -129,10 +129,7 @@ bool Shift::computeData( const DataHolder& output, const BinID& relpos,
     {
 	float tmpsampshift = sampleshift;
 	if ( dosteer_ && steeringdata_->series(steeridx_) )
-	{
-	    const int validx = idx + z0 - steeringdata_->z0_;
-	    tmpsampshift += steeringdata_->series(steeridx_)->value( validx );
-	}
+	    tmpsampshift += getInputValue( *steeringdata_, steeridx_, idx, z0 );
 
 	const ValueSeries<float>* curdata = inputdata_->series( dataidx_ );
 	const int cursample = z0 - inputdata_->z0_ + idx;
@@ -140,7 +137,7 @@ bool Shift::computeData( const DataHolder& output, const BinID& relpos,
 			    ? interp.value( *curdata, cursample+tmpsampshift ) 
 			    : curdata->value( cursample+sampleidx );
 
-	output.series(0)->setValue( z0-output.z0_+idx, val );
+	setOutputValue( output, 0, idx, z0, val );
     }
 
     return true;
@@ -151,26 +148,33 @@ const BinID* Shift::reqStepout( int inp, int out ) const
 { return inp==1 ? 0 : &stepout_; }
 
 
+#define mAdjustGate( cond, gatebound, plus )\
+{\
+    if ( cond )\
+    {\
+	int minbound = (int)(gatebound / refstep);\
+	int incvar = plus ? 1 : -1;\
+	gatebound = (minbound+incvar) * refstep;\
+    }\
+}
+
+void Shift::prepPriorToBoundsCalc()
+{
+    bool chstartr = mNINT(interval_.start*zFactor())%mNINT(refstep*zFactor());
+    bool chstopr = mNINT(interval_.stop*zFactor())%mNINT(refstep*zFactor());
+    bool chstartd =mNINT(desinterval_.start*zFactor())%mNINT(refstep*zFactor());
+    bool chstopd = mNINT(desinterval_.stop*zFactor())%mNINT(refstep*zFactor());
+
+    mAdjustGate( chstartr, interval_.start, false )
+    mAdjustGate( chstopr, interval_.stop, true )
+    mAdjustGate( chstartd, desinterval_.start, false )
+    mAdjustGate( chstopd, desinterval_.stop, true )
+}
+
+
 const Interval<float>* Shift::reqZMargin( int inp, int ) const
 { 
-   if ( inp==1 )
-	return 0;
-   
-   bool chgstart = mNINT(interval_.start*zFactor()) % mNINT(refstep*zFactor());
-   bool chgstop = mNINT(interval_.stop*zFactor()) % mNINT(refstep*zFactor());
-
-    if ( chgstart )
-    {
-	int minstart = (int)(interval_.start / refstep);
-	const_cast<Shift*>(this)->interval_.start = (minstart-1) * refstep;
-    }
-    if ( chgstop )
-    {
-	int minstop = (int)(interval_.stop / refstep);
-	const_cast<Shift*>(this)->interval_.stop = (minstop+1) * refstep;
-    }
-    
-    return &interval_;
+    return inp==1 ? 0 : &interval_;
 }
 
 
@@ -179,20 +183,6 @@ const Interval<float>* Shift::desZMargin( int inp, int ) const
    if ( inp==1 || !dosteer_ )
 	return 0;
    
-   bool chgstart = mNINT(desinterval_.start*zFactor())%mNINT(refstep*zFactor());
-   bool chgstop = mNINT(desinterval_.stop*zFactor()) % mNINT(refstep*zFactor());
-
-    if ( chgstart )
-    {
-	int minstart = (int)(desinterval_.start / refstep);
-	const_cast<Shift*>(this)->desinterval_.start = (minstart-1) * refstep;
-    }
-    if ( chgstop )
-    {
-	int minstop = (int)(desinterval_.stop / refstep);
-	const_cast<Shift*>(this)->desinterval_.stop = (minstop+1) * refstep;
-    }
-    
     return &desinterval_;
 }
 
