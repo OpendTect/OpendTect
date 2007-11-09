@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.3 2007-11-08 17:07:13 cvsyuancheng Exp $
+ RCS:		$Id: task.h,v 1.4 2007-11-09 15:08:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -189,19 +189,14 @@ private:
 };
 
 
+/*!Class that can execute a task. Can be used as such, be inherited by
+   fancy subclasses with user interface and progressbars etc. */
+
 class TaskRunner
 {
 public:
-    			TaskRunner(Task* t)
-			    : task_( t )	{}
     virtual 		~TaskRunner()		{}
-
-    virtual void	setTask(Task& t)	{ task_ = &t; }
-    virtual bool	execute()		{ return task_->execute(); }
-
-protected:
-
-    Task*		task_;
+    virtual bool	execute(Task& t)	{ return t.execute(); }
 };
 
 #endif
