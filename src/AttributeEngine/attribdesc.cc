@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.60 2007-11-08 17:54:21 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.61 2007-11-09 16:28:34 cvsyuancheng Exp $";
 
 #include "attribdesc.h"
 
@@ -546,7 +546,7 @@ bool Desc::getAttribName( const char* defstr_, BufferString& res )
 
     int stop = start+1;
     while ( stop<strlen(defstr) && !isspace(defstr[stop]) ) stop++;
-    defstr[stop+1] = 0;
+    defstr[stop] = 0;
 
     res = &defstr[start];
     return true;
