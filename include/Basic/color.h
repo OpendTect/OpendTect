@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		22-3-2000
- RCS:		$Id: color.h,v 1.12 2007-07-03 10:53:04 cvsbert Exp $
+ RCS:		$Id: color.h,v 1.13 2007-11-09 14:11:29 cvsbert Exp $
 ________________________________________________________________________
 
 Color is an RGB color object, with a transparancy. The storage is in a 4-byte
@@ -74,6 +74,10 @@ public:
 			{ set( r(), g(), b(), t_ ); }
     void		setHSV(unsigned char h,unsigned char s,unsigned char v);
     void		getHSV(unsigned char&,unsigned char&,unsigned char&);
+    void		setStdStr(const char*); //!< e.g. "#00ff32"
+    const char*		getStdStr(bool withhash=true,
+	    			  int transpopt=0) const;
+    			//!< transpopt -1=opacity 0=not 1=transparency
 
     void		fill(char*) const;
     bool		use(const char*);
