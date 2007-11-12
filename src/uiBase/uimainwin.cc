@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.134 2007-09-28 16:15:00 cvsjaap Exp $
+ RCS:           $Id: uimainwin.cc,v 1.135 2007-11-12 16:06:09 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,9 +140,11 @@ public:
 			    return true;
 			}
 
-    static mDockType	qdock(uiMainWin::Dock);
-
     void 		uimoveDockWindow(uiDockWin&,uiMainWin::Dock,int);
+    static mDockType	qdock(uiMainWin::Dock);
+    void		removeDockWin(uiDockWin*);
+    void		addDockWin(uiDockWin&,uiMainWin::Dock);
+
     virtual QMenu*	createPopupMenu()		{ return 0; }
 
     void		addToolBar(uiToolBar*);
@@ -151,6 +153,7 @@ public:
     void		updateToolbarsMenu();
 
     const ObjectSet<uiToolBar>& toolBars() const	{ return toolbars_; }
+    const ObjectSet<uiDockWin>& dockWins() const	{ return dockwins_; }
 
     void		setModal( bool yn )		{ modal_ = yn; }
     bool		isModal() const			{ return modal_; }
@@ -173,6 +176,7 @@ protected:
     uiPopupMenu*	toolbarsmnu_;
     
     ObjectSet<uiToolBar> toolbars_;
+    ObjectSet<uiDockWin> dockwins_;
 
 private:
 
@@ -434,6 +438,31 @@ mDockType uiMainWinBody::qdock( uiMainWin::Dock d )
 }
 
 
+void uiMainWinBody::removeDockWin( uiDockWin* dwin )
+{
+    if ( !dwin ) return;
+
+#ifdef USEQT3
+    removeDockWindow( dwin->qwidget() );
+#else
+    removeDockWidget( dwin->qwidget() );
+#endif
+    dockwins_ -= dwin;
+}
+
+
+void uiMainWinBody::addDockWin( uiDockWin& dwin, uiMainWin::Dock d )
+{
+#ifdef USEQT3
+    addDockWindow( dwin.qwidget(), body_->qdock(d) );
+#else
+    addDockWidget( Qt::LeftDockWidgetArea, dwin.qwidget() );
+#endif
+//    dwin.qwidget()->show();
+    dockwins_ += &dwin;
+}
+
+
 void uiMainWinBody::toggleToolbar( CallBacker* cb )
 {
     mDynamicCastGet( uiMenuItem*, itm, cb );
@@ -555,26 +584,11 @@ void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d, int index )
 
 
 void uiMainWin::removeDockWindow( uiDockWin* dwin )
-{
-    if ( !dwin ) return;
-
-#ifdef USEQT3
-    body_->removeDockWindow( dwin->qwidget() );
-#else
-    body_->removeDockWidget( dwin->qwidget() );
-#endif
-}
+{ body_->removeDockWin( dwin ); }
 
 
 void uiMainWin::addDockWindow( uiDockWin& dwin, Dock d )
-{
-#ifdef USEQT3
-    body_->addDockWindow( dwin.qwidget(), body_->qdock(d) );
-#else
-    body_->addDockWidget( Qt::LeftDockWidgetArea, dwin.qwidget() );
-#endif
-//    dwin.qwidget()->show();
-}
+{ body_->addDockWin( dwin, d ); }
 
 
 void uiMainWin::addToolBar( uiToolBar* tb )
@@ -604,6 +618,10 @@ void uiMainWin::updateToolbarsMenu()
 const ObjectSet<uiToolBar>& uiMainWin::toolBars() const
 { return body_->toolBars(); } 
     
+
+const ObjectSet<uiDockWin>& uiMainWin::dockWins() const
+{ return body_->dockWins(); } 
+
 
 uiGroup* uiMainWin::topGroup()	    	   { return body_->uiCentralWidg(); }
 
