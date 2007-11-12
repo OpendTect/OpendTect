@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.34 2007-10-12 19:14:34 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.35 2007-11-12 14:28:02 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceedgeline.h"
+#include "isocontourtracer.h"
 #include "zaxistransform.h"
 
 #include <math.h>
@@ -1113,6 +1114,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
 	line->setCoordIndex(cii++, line->getCoordinates()->addPos(pos)); \
     }
 
+
 void HorizonDisplay::updateIntersectionLines(
 	    const ObjectSet<const SurveyObject>& objs, int whichobj )
 {
@@ -1128,19 +1130,13 @@ void HorizonDisplay::updateIntersectionLines(
 	{
 	    int objectid = -1;
 	    mDynamicCastGet( const PlaneDataDisplay*, plane, objs[idx] );
-	    if ( plane && plane->getOrientation()!=PlaneDataDisplay::Timeslice )
+	    if ( plane )
 		objectid = plane->id();
 	    else
 	    {
 		mDynamicCastGet( const MPEDisplay*, mped, objs[idx] );
 		if ( mped && mped->isDraggerShown() )
-		{
-		    CubeSampling cs;
-		    if ( mped->getPlanePosition(cs) &&
-			  ( cs.hrg.start.inl==cs.hrg.stop.inl ||
-			    cs.hrg.start.crl==cs.hrg.stop.crl ))
-			objectid = mped->id();
-		}
+		    objectid = mped->id();
 	    }
 
 	    if ( objectid==-1 )
@@ -1234,10 +1230,6 @@ void HorizonDisplay::updateIntersectionLines(
 	    }
 	}
 	    
-
-	
-
-
 	visBase::IndexedPolyLine* line = intersectionlines_[lineidx];
 	line->getCoordinates()->removeAfter(-1);
 	line->removeCoordIndexAfter(-1);
@@ -1253,14 +1245,47 @@ void HorizonDisplay::updateIntersectionLines(
 	    {
 		mTraverseLine( inl, BinID(targetinl,crlrg.start),
 			       crlrg.stop, crlrg.step, 0, 1 );
+		mEndLine;
 	    }
-	    else
+	    else if ( cs.hrg.start.crl==cs.hrg.stop.crl )
 	    {
 		mTraverseLine( crl, BinID(inlrg.start,targetcrl),
 			       inlrg.stop, inlrg.step, 1, 0 );
+		mEndLine;
 	    }
-
-	    mEndLine;
+	    else						/* Timeslice */
+	    {
+		const Array2D<float>* field = 
+		    	horizon->geometry().sectionGeometry(sid)->getArray(); 
+		if ( zaxistransform_ )
+		    field = horizon->createArray2D( sid, zaxistransform_ );
+		IsoContourTracer ictracer( *field );
+		ictracer.setSampling( inlrg, crlrg );
+		ictracer.selectRectROI( cs.hrg.inlRange(), cs.hrg.crlRange() );
+		ObjectSet<ODPolygon<float> > isocontours;
+		ictracer.getContours( isocontours, cs.zrg.start, false );
+		for ( int cidx=0; cidx<isocontours.size(); cidx++ )
+		{
+		    const ODPolygon<float>& ic = *isocontours[cidx];
+		    for ( int vidx=0; vidx<ic.size(); vidx++ )
+		    {
+			const Geom::Point2D<float> vertex = ic.getVertex(vidx);
+			Coord vrtxcoord( vertex.x, vertex.y );
+			vrtxcoord = SI().binID2Coord().transform( vrtxcoord );
+			const Coord3 pos( vrtxcoord, cs.zrg.start);
+			const int posidx = line->getCoordinates()->addPos(pos);
+			line->setCoordIndex( cii++, posidx ); 
+		    }
+		    if ( ic.isClosed() )
+		    {
+			const int posidx = line->getCoordIndex( cii-ic.size() );
+			line->setCoordIndex( cii++, posidx );
+		    }
+		    line->setCoordIndex( cii++, -1 );
+		}
+		if ( zaxistransform_ ) delete field;
+		deepErase( isocontours );
+	    }
 	}
     }
 }
@@ -1308,7 +1333,7 @@ void HorizonDisplay::updateSectionSeeds(
 	    marker->turnOn( !displayonlyatsections_ );
 	    Coord3 pos = marker->centerPos(true);
 	    for ( int idz=0; idz<planelist.size(); idz++ )
-		{
+	    {
 		const float dist = objs[planelist[idz]]->calcDist(pos);
 		if ( dist < objs[planelist[idz]]->maxDist() )
 		{
