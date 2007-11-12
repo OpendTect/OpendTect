@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.97 2007-10-08 12:07:49 cvsraman Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.98 2007-11-12 14:26:06 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "tabledef.h"
 #include "trigonometry.h"
+#include "zaxistransform.h"
 
 #include <math.h>
 
@@ -266,7 +267,8 @@ const Horizon3DGeometry& Horizon3D::geometry() const
 mImplementEMObjFuncs( Horizon3D, EMHorizon3DTranslatorGroup::keyword );
 
 
-Array2D<float>* Horizon3D::createArray2D( SectionID sid )
+Array2D<float>* Horizon3D::createArray2D( 
+		    SectionID sid, const ZAxisTransform* zaxistransform ) const
 {
     const StepInterval<int> rowrg = geometry_.rowRange( sid );
     const StepInterval<int> colrg = geometry_.colRange( sid );
@@ -279,7 +281,10 @@ Array2D<float>* Horizon3D::createArray2D( SectionID sid )
     {
 	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
 	{
-	    const Coord3 pos = getPos( sid, RowCol(row,col).getSerialized() );
+	    Coord3 pos = getPos( sid, RowCol(row,col).getSerialized() );
+	    if ( zaxistransform )
+		pos.z = zaxistransform->transform( pos );
+
 	    arr->set( rowrg.getIndex(row), colrg.getIndex(col), pos.z );
 	}
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.54 2007-10-08 12:07:14 cvsraman Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.55 2007-11-12 14:26:06 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -24,6 +24,7 @@ class BinIDValueSet;
 class BufferStringSet;
 class HorSampling;
 class Scaler;
+class ZAxisTransform;
 namespace Table { class FormatDesc; class AscIO; }
 
 namespace EM
@@ -88,7 +89,8 @@ public:
     Horizon3DGeometry&		geometry();
     const Horizon3DGeometry&	geometry() const;
 
-    Array2D<float>*		createArray2D(SectionID);
+    Array2D<float>*		createArray2D(SectionID,
+					      const ZAxisTransform* zt=0) const;
     bool			setArray2D(const Array2D<float>&,SectionID,
 	    				   bool onlyfillundefs);
     				//!< Returns true on succes
