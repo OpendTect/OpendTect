@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.3 2007-10-26 05:31:19 cvsnanne Exp $
+ RCS:		$Id: polygon.h,v 1.4 2007-11-12 14:20:08 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,27 +15,34 @@ ________________________________________________________________________
 #include "position.h"
 #include "sets.h"
 
-/*!\brief Closed sequence of connected 2-D coordinates */
+/*!\brief (Closed) sequence of connected 2-D coordinates */
 
 template <class T>
 class ODPolygon
 {
 public:
-		ODPolygon()					{}
-		ODPolygon(const TypeSet<Geom::Point2D<T> >& plg) : poly_(plg) {}
-
+		ODPolygon()
+		    : closed_(true), udf_(Geom::Point2D<T>::udf())	{} 
+		
+		ODPolygon(const TypeSet<Geom::Point2D<T> >& plg)
+		    : poly_(plg), closed_(true)
+		    , udf_(Geom::Point2D<T>::udf())			{}
+		
     int 	size() const			{ return poly_.size(); }
     bool 	validIdx(int idx) const		{ return poly_.validIdx(idx); }
     
-    void	add( const Geom::Point2D<T>& vtx )	{ poly_+=vtx; }
-    void	remove( int idx )			{ poly_.remove(idx); }
+    void	add(const Geom::Point2D<T>& vtx)	{ poly_+=vtx; }
+    void	remove(int idx);
     void	insert(int idx,const Geom::Point2D<T>& vtx);
 
-    bool	isInside(const Geom::Point2D<T>&,bool inclborder,
-	    		 T eps) const;
+    bool	isInside(const Geom::Point2D<T>&,
+	    		 bool inclborder,T eps) const;
 
     const Geom::Point2D<T>&	getVertex(int idx) const;
     const Geom::Point2D<T>&	nextVertex(int idx) const; 
+
+    void	setClosed(bool yn)			{ closed_=yn; }
+    bool	isClosed() const			{ return closed_; }
 
 protected:
     static bool	isOnSegment( const Geom::Point2D<T>& pt,
@@ -69,6 +76,8 @@ protected:
 				 const Geom::Point2D<T>& posvec );
 
     TypeSet<Geom::Point2D<T> >	poly_;
+    bool			closed_;
+    Geom::Point2D<T>		udf_;
 };
 
 
@@ -76,15 +85,18 @@ template <class T> inline
 void ODPolygon<T>::insert( int idx, const Geom::Point2D<T>& vtx )
 { if ( idx>=0 && idx<=size() ) poly_.insert( idx, vtx ); }
 
+template <class T> inline
+void ODPolygon<T>::remove( int idx )
+{ if ( poly_.validIdx(idx) ) poly_.remove( idx ); }
 
 template <class T> inline
 const Geom::Point2D<T>& ODPolygon<T>::getVertex( int idx ) const
-{ return poly_[idx]; }
+{ return poly_.validIdx(idx) ? poly_[idx] : udf_; }
 
 
 template <class T> inline
 const Geom::Point2D<T>& ODPolygon<T>::nextVertex( int idx ) const
-{ return poly_[ idx+1<size() ? idx+1 : 0 ]; }
+{ return getVertex( idx+1<size() ? idx+1 : 0 ); }
 
 
 template <class T> inline
