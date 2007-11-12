@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.h,v 1.14 2007-02-28 07:29:55 cvsnanne Exp $
+ RCS:           $Id: uidockwin.h,v 1.15 2007-11-12 16:04:17 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,8 @@ public:
     const char*		getDockName() const;
 
     uiGroup* 		topGroup();
+    const uiGroup* 	topGroup() const 
+			    { return const_cast<uiDockWin*>(this)->topGroup(); }
 
     void		setResizeEnabled(bool);
     bool		isResizeEnabled() const;
