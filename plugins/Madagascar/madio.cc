@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: madio.cc,v 1.1 2007-10-01 15:20:08 cvsbert Exp $";
+static const char* rcsID = "$Id: madio.cc,v 1.2 2007-11-13 16:21:27 cvsbert Exp $";
 
 #include "madio.h"
 #include "keystrs.h"
@@ -13,10 +13,15 @@ static const char* rcsID = "$Id: madio.cc,v 1.1 2007-10-01 15:20:08 cvsbert Exp 
 #include "strmprov.h"
 #include "envvars.h"
 #include "iopar.h"
-#include "seisread.h"
-#include "seistrcsel.h"
 
 const char* ODMad::FileSpec::sKeyDataPath = "Data Path";
+const char* ODMad::sKeyMadagascar = "Madagascar";
+
+
+ODMad::FileSpec::FileSpec( bool fr )
+    : forread_(fr)
+{
+}
 
 
 static BufferString getDataFnm( const char* fnm, const char* dir, bool forread )
@@ -46,12 +51,44 @@ static BufferString getDataPath( const char* dp, const char* fnm, bool forread )
 }
 
 
-ODMad::FileSpec::FileSpec( bool fr, const char* fnm, const char* dp )
-    : forread_(fr)
+void ODMad::FileSpec::set( const char* fnm, const char* dp )
 {
-    FilePath fp( fname_ );
-    if ( !fp.isAbsolute() )
-	fp.setPath( getDataPath(dp,fname_,fr) );
+    fname_ = fnm;
+    datapath_ = getDataPath( dp, fnm, forread_ );
+}
+
+
+void ODMad::FileSpec::fillPar( IOPar& iop ) const
+{
+    iop.set( sKey::Type, forread_ ? "Read" : "Write" );
+    iop.set( sKey::FileName, fname_ );
+    iop.set( sKeyDataPath, datapath_ );
+}
+
+
+bool ODMad::FileSpec::usePar( const IOPar& iop )
+{
+    const char* res = iop.find( sKey::Type );
+    forread_ = !res || (*res != 'w' && *res != 'W');
+
+    BufferString fnm( fname_ );
+    iop.get( sKey::FileName, fnm );
+    if ( fnm.isEmpty() )
+    {
+	errmsg_ = "No filename specified";
+	return false;
+    }
+
+    BufferString dp( datapath_ );
+    iop.get( sKeyDataPath, dp );
+    set( fnm, dp );
+    if ( datapath_.isEmpty() )
+    {
+	errmsg_ = "Cannot find a valid DATAPATH";
+	return false;
+    }
+
+    return true;
 }
 
 
@@ -71,89 +108,38 @@ const char* ODMad::FileSpec::defDataPath()
 }
 
 
+#define mErrRet(s1,s2,s3) \
+	{ errmsg_ = s1; errmsg_+= s2; errmsg_ += s3; return StreamData(); }
+
 StreamData ODMad::FileSpec::open() const
 {
-    return forread_ ? StreamProvider(fname_).makeIStream()
-		   : StreamProvider(fname_).makeOStream();
-}
+    FilePath fp( fname_ );
+    if ( !fname_.isEmpty() && !fp.isAbsolute() )
+	fp.setPath( datapath_ );
 
-
-ODMad::MadSeisInp::MadSeisInp()
-    : fspec_(true)
-    , geom_(Seis::Vol)
-    , seldata_(*new SeisSelData)
-{
-}
-
-
-ODMad::MadSeisInp::~MadSeisInp()
-{
-    delete &seldata_;
-}
-
-
-bool ODMad::MadSeisInp::usePar( const IOPar& iop )
-{
-    geom_ = Seis::geomTypeOf( iop.find(sKey::Geometry) );
-    seldata_.usePar( iop );
-
-    BufferString fnm( fspec_.fileName() );
-    iop.get( sKey::FileName, fnm );
-    if ( fnm.isEmpty() )
+    const BufferString fname( fp.fullPath() );
+    if ( fname_.isEmpty() )
+	const_cast<ODMad::FileSpec*>(this)->fname_ = StreamProvider::sStdIO;
+    else if ( forread_ )
     {
-	errmsg_ = "No filename specified";
-	return false;
+	if ( !File_exists(fname_) )
+	    mErrRet("File '",fname_,"' does not exist")
+	else if ( File_isEmpty(fname_) )
+	    mErrRet("File '",fname_,"' is empty")
+    }
+    else
+    {
+	const BufferString dirnm( fp.pathOnly() );
+	if ( !File_isDirectory(dirnm) )
+	    mErrRet("Directory '",dirnm,"' does not exist")
+	else if ( !File_isWritable(dirnm) )
+	    mErrRet("Directory '",dirnm,"' is not writable")
     }
 
-    BufferString dp( FileSpec::defDataPath() );
-    iop.get( FileSpec::sKeyDataPath, dp );
-    fspec_ = FileSpec( fnm, dp );
-    return true;
-}
+    StreamData ret = forread_ ? StreamProvider(fname_).makeIStream()
+			      : StreamProvider(fname_).makeOStream();
+    if ( !ret.usable() )
+	mErrRet("File '",fname_,"' cannot be opened")
 
-
-bool ODMad::MadSeisInp::get( SeisTrc& trc ) const
-{
-    if ( !sd_.usable() )
-    {
-	const_cast<StreamData&>(sd_) = fspec_.open();
-	if ( !sd_.usable() )
-	{
-	    errmsg_ = "Cannot open specified file name";
-	    return false;
-	}
-	// TODO start reading Madagascar file with subselection
-    }
-
-    errmsg_ = "TODO: Not implemented: read next trace";
-    return false;
-}
-
-
-bool ODMad::ODSeisInp::usePar( const IOPar& iop )
-{
-    if ( rdr_ ) delete rdr_;
-    rdr_ = new SeisTrcReader;
-    rdr_->usePar( iop );
-    if ( rdr_->errMsg() && *rdr_->errMsg() )
-    {
-	errmsg_ = rdr_->errMsg();
-	return false;
-    }
-
-    return true;
-}
-
-
-bool ODMad::ODSeisInp::get( SeisTrc& trc ) const
-{
-    if ( !rdr_ ) return false;
-
-    if ( !rdr_->get(trc) )
-    {
-	errmsg_ = rdr_->errMsg();
-	return false;
-    }
-
-    return true;
+    return ret;
 }

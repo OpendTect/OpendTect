@@ -4,88 +4,47 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : May 2007
- * ID       : $Id: uimadagascarmain.h,v 1.8 2007-07-05 15:33:06 cvsbert Exp $
+ * ID       : $Id: uimadagascarmain.h,v 1.9 2007-11-13 16:21:27 cvsbert Exp $
 -*/
 
 #include "uidialog.h"
-class uiLabel;
-class CtxtIOObj;
-class uiSeisSel;
+#include "iopar.h"
+class uiMadIOSel;
 class uiListBox;
-class uiGenInput;
-class uiIOObjSel;
-class uiFileInput;
-class uiPushButton;
-class uiSeis2DSubSel;
-class uiSeis3DSubSel;
-class BufferStringSet;
+class uiToolButton;
 
 
 class uiMadagascarMain : public uiDialog
 {
 public:
 
-				uiMadagascarMain(uiParent*);
-				~uiMadagascarMain();
+			uiMadagascarMain(uiParent*);
+			~uiMadagascarMain();
 
 protected:
 
-    CtxtIOObj&			in3dctio_;
-    CtxtIOObj&			in2dctio_;
-    CtxtIOObj&			inpsctio_;
-    CtxtIOObj&			out3dctio_;
-    CtxtIOObj&			out2dctio_;
-    CtxtIOObj&			outpsctio_;
-    int				idx3d_, idx2d_, idxps_, idxmad_, idxnone_;
+    IOPar		iniop_;
+    IOPar		outiop_;
 
-    uiGenInput*			intypfld_;
-    uiSeisSel*			inpseis3dfld_;
-    uiSeisSel*			inpseis2dfld_;
-    uiIOObjSel*			inpseispsfld_;
-    uiFileInput*		inpmadfld_;
-    uiSeis3DSubSel*		subsel3dfld_;
-    uiSeis2DSubSel*		subsel2dfld_;
-    uiSeis3DSubSel*		subselpsfld_;
-    uiGenInput*			subselmadfld_;
-    uiLabel*			subselmadlbl_;
+    uiMadIOSel*		infld_;
+    uiMadIOSel*		outfld_;
+    uiListBox*		procsfld_;
+    uiToolButton*	upbut_;
+    uiToolButton*	downbut_;
+    uiToolButton*	rmbut_;
 
-    uiGenInput*			outtypfld_;
-    uiSeisSel*			outseis3dfld_;
-    uiSeisSel*			outseis2dfld_;
-    uiIOObjSel*			outseispsfld_;
-    uiFileInput*		outmadfld_;
+    bool		acceptOK(CallBacker*);
+    void		butPush(CallBacker*);
+    void		setButStates(CallBacker* cb=0);
+    void		selChg(CallBacker*);
+    void		newFlow(CallBacker*);
+    void		openFlow(CallBacker*);
+    void		saveFlow(CallBacker*);
+    void		importFlow(CallBacker*);
+    void		exportFlow(CallBacker*);
 
-    uiListBox*			procsfld_;
-    uiPushButton*		addbut_;
-    uiPushButton*		editbut_;
-    uiPushButton*		rmbut_;
-    uiPushButton*		upbut_;
-    uiPushButton*		downbut_;
-
-    void			initWin(CallBacker*);
-    bool			acceptOK(CallBacker*);
-    void			butPush(CallBacker*);
-    void			typSel(CallBacker*);
-    void			inpSel(CallBacker*);
-    void			selChg(CallBacker*);
-    void			dClick(CallBacker*);
-    void			immediateAdd(CallBacker*);
-    void			newFlow(CallBacker*);
-    void			openFlow(CallBacker*);
-    void			saveFlow(CallBacker*);
-    void			importFlow(CallBacker*);
-    void			exportFlow(CallBacker*);
-
-    void			createMenus();
-    uiGroup*			crInpGroup(const BufferStringSet&);
-    uiGroup*			crProcGroup();
-    uiGroup*			crOutGroup(const BufferStringSet&);
-
-    void			dispFlds(int,uiSeisSel*,uiSeisSel*,
-	    				 uiIOObjSel*,uiFileInput*);
-    void			setButStates();
-
-    bool			ioOK(int,bool);
+    void		createMenus();
+    uiGroup*		crProcGroup();
 
 };
 

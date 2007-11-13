@@ -4,104 +4,49 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: madio.h,v 1.1 2007-10-01 15:20:08 cvsbert Exp $
+ * ID       : $Id: madio.h,v 1.2 2007-11-13 16:21:27 cvsbert Exp $
 -*/
 
 #include "bufstring.h"
 #include "strmdata.h"
-#include "seistype.h"
-class IOObj;
 class IOPar;
-class SeisTrc;
-class StreamData;
-class SeisSelData;
-class SeisTrcReader;
+
 
 namespace ODMad
 {
+
+extern const char* sKeyMadagascar;
 
 class FileSpec
 {
 public:
 
-    			FileSpec(bool forread,const char* fnm=0,
-				 const char* datapath=0);
-			//!< Not absolute: uses datapath, if null $DATAPATH
+    			FileSpec(bool forread);
+    void		set(const char* fnm,const char* datapath=0);
+				//!< If not absolute: uses datapath
+				//!<	then, if datapath==null -> $DATAPATH
 
-    BufferString&	fileName()		{ return fname_; }
-    const BufferString&	fileName() const	{ return fname_; }
-    StreamData		open() const;
+    const char*		fileName() const	{ return fname_; }
+    const char*		dataPath()		{ return datapath_; }
+
+    StreamData		open() const;		//!< if !usable() -> errMsg()
+    const char*		errMsg() const		{ return errmsg_; }
 
     static const char*	defDataPath();
     static const char*	sKeyDataPath;
 
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);	//!< sets errMsg() if failed
+
 protected:
 
-    BufferString	fname_;
     bool		forread_;
-
-};
-
-
-class SeisInp
-{
-public:
-
-    virtual bool	usePar(const IOPar&) const	= 0;
-    virtual bool	get(SeisTrc&) const		= 0;
-    const char*		errMsg() const			{ return errmsg_; }
-
-protected:
-
-			SeisInp();
-    virtual		~SeisInp();
-
+    BufferString	fname_;
+    BufferString	datapath_;
     mutable BufferString errmsg_;
 
-
 };
 
-
-class MadSeisInp : public SeisInp
-{
-public:
-
-    			MadSeisInp();
-    virtual		~MadSeisInp();
-
-    virtual bool	usePar(const IOPar&);
-    virtual bool	get(SeisTrc&) const;
-
-    Seis::GeomType	geomType() const	{ return geom_; }
-    const SeisSelData&	selData() const		{ return seldata_; }
-
-protected:
-
-    FileSpec		fspec_;
-    StreamData		sd_;
-    Seis::GeomType	geom_;
-    SeisSelData&	seldata_;
-
-};
-
-
-class ODSeisInp : public SeisInp
-{
-public:
-
-    			ODSeisInp() : rdr_(0)		{}
-
-    virtual bool	usePar(const IOPar&);
-    virtual bool	get(SeisTrc&) const;
-
-protected:
-
-    SeisTrcReader*	rdr_;
-
-
-};
-
-
-} // namespace ODMad
+} // namespace
 
 #endif
