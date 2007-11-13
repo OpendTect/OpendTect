@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.35 2007-09-13 07:35:32 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.36 2007-11-13 13:38:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,12 @@ uiFlatViewer::~uiFlatViewer()
     delete wvabmpmgr_;
     delete vdbmpmgr_;
     delete bmp2rgb_;
+}
+
+
+void uiFlatViewer::display( bool yn )
+{
+    canvas_.display( yn );
 }
 
 
