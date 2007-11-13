@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.61 2007-10-30 06:45:47 cvsnanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.62 2007-11-13 16:21:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,10 +46,13 @@ ________________________________________________________________________
 
 static const char* mrkrcollbls[] = { "Name", "Depth (MD)", "Color", 0 };
 static const char* t2dcollbls[] = { "Depth (MD)", "Time (ms)", 0 };
-
 static const int maxrowsondisplay = 10;
 static const int nremptyrows = 5;
+
 #define mFromFeetFac 0.3048
+#define mSetSIDepthInFeetDef(zinft) \
+    SI().getPars().setYN( SurveyInfo::sKeyDpthInFt, zinft ); \
+    SI().savePars()
 
 
 uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
@@ -205,8 +208,7 @@ void uiMarkerDlg::getMarkerSet( ObjectSet<Well::Marker>& markers ) const
 
 bool uiMarkerDlg::acceptOK( CallBacker* )
 {
-    SI().pars().setYN( SurveyInfo::sKeyDpthInFt, !unitfld->getBoolValue() );
-    SI().savePars();
+    mSetSIDepthInFeetDef(!unitfld->getBoolValue());
     return true;
 }
 
@@ -350,9 +352,7 @@ bool uiD2TModelDlg::rejectOK( CallBacker* )
 
 bool uiD2TModelDlg::acceptOK( CallBacker* )
 {
-    SI().pars().setYN( SurveyInfo::sKeyDpthInFt, !unitfld->getBoolValue() );
-    SI().savePars();
-
+    mSetSIDepthInFeetDef(!unitfld->getBoolValue());
     updNow( 0 );
     return d2t.size() > 1;
 }
@@ -448,8 +448,7 @@ bool uiLoadLogsDlg::acceptOK( CallBacker* )
 	if ( !mIsUdf(lfi.zrg.start) ) lfi.zrg.start *= feetfac;
 	if ( !mIsUdf(lfi.zrg.stop) ) lfi.zrg.stop *= feetfac;
     }
-    SI().pars().setYN( SurveyInfo::sKeyDpthInFt, zinft );
-    SI().savePars();
+    mSetSIDepthInFeetDef( zinft );
 
     const char* lasfnm = lasfld->text();
     if ( !lasfnm || !*lasfnm ) 

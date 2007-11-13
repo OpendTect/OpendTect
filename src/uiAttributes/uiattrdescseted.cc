@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.63 2007-10-16 06:26:01 cvsraman Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.64 2007-11-13 16:21:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -250,8 +250,8 @@ void uiAttribDescSetEd::init()
 		    if ( dlg.isAuto() )
 		    {
 			MultiID id = ioobj ? ioobj->key() : "";
-			SI().pars().set(uiAttribDescSetEd::
-				sKeyAutoAttrSetID, (const char*)id);
+			SI().getPars().set(uiAttribDescSetEd::sKeyAutoAttrSetID,
+			       		(const char*)id);
 			SI().savePars();
 		    }
 		    else
@@ -376,7 +376,8 @@ void uiAttribDescSetEd::autoSet()
 	const MultiID id( ioobj ? ioobj->key() : MultiID("") );
     	Settings::common().setYN(uiAttribDescSetEd::sKeyUseAutoAttrSet, douse);
 	Settings::common().write();
-	SI().pars().set(uiAttribDescSetEd::sKeyAutoAttrSetID, (const char*)id);
+	SI().getPars().set(uiAttribDescSetEd::sKeyAutoAttrSetID,
+			   (const char*)id);
 	SI().savePars();
 	if ( dlg.loadAuto() )
 	{

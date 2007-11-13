@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.35 2007-10-25 15:17:19 cvssatyaki Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.36 2007-11-13 16:21:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,7 +101,7 @@ bool uiWellImportAsc::acceptOK( CallBacker* )
 {
     bool ret = checkInpFlds() && doWork();
 
-    SI().pars().setYN( SurveyInfo::sKeyDpthInFt, !unitfld->getBoolValue() );
+    SI().getPars().setYN( SurveyInfo::sKeyDpthInFt, !unitfld->getBoolValue() );
     SI().savePars();
     return ret;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.61 2007-11-07 16:06:10 cvsbert Exp $
+ RCS:		$Id: survinfo.h,v 1.62 2007-11-13 16:21:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,13 +27,16 @@ class LatLong2Coord;
 /*!\brief Holds survey general information.
 
 The surveyinfo is the primary source for ranges and steps. It also provides
-the transformation between inline/xline and coordinates.
+the transformation between inline/xline <-> coordinates and lat/long estimates.
 
 Note: the Z range step is only a default. It should not be used further
 because different cubes have different sample rates.
 
 The ranges are defined for two cubes: the entire survey, and a 'working area'.
 Normally, you'll want to have the working area.
+
+If you are an expert, and you feel you need more 'power', you may want to look
+at the bottom part of the class too for some more public functions.
 
 */
 
@@ -45,8 +48,7 @@ class SurveyInfo : public NamedObject
 public:
 
 			~SurveyInfo();
-    			SurveyInfo(const SurveyInfo&);
-    SurveyInfo&		operator =(const SurveyInfo&);
+    bool		isValid() const		{ return valid_; }
 
     enum Pol2D      	{ No2D=0, Both2DAnd3D=1, Only2D=2 };
     			DeclareEnumUtils(Pol2D)
@@ -86,10 +88,12 @@ public:
     const char*		getZUnit(bool withparens=true) const;
     float		zFactor() const		{ return zistime_ ? 1000 : 1; }
     			//!< Factor between real and displayed unit
+    bool		depthsInFeetByDefault() const;
     void		setSurvDataType( Pol2D typ )	{ survdatatype_ = typ; }
     Pol2D		getSurvDataType() const	{ return survdatatype_; }
     bool		has2D() const;
     bool		has3D() const;
+    const char*		comment() const		{ return comment_; }
 
     void		snap(BinID&,BinID direction=BinID(0,0)) const;
 			//!< dir = 0 : auto; -1 round downward, 1 round upward
@@ -102,9 +106,12 @@ public:
     BinID		transform(const Coord&) const;
     			/*!<\note The returned BinID will be snapped according
 			  	  to the work step. */
-    const RCol2Coord&	binID2Coord() const		{ return b2c_; }
+    const RCol2Coord&	binID2Coord() const	{ return b2c_; }
     void		get3Pts(Coord c[3],BinID b[2],int& xline) const;
     const LatLong2Coord& latlong2Coord() const	{ return ll2c_; }
+    bool		isClockWise() const;
+    			/*!< Orientation is determined by rotating the
+			     inline axis to the crossline axis. */
 
     Coord		minCoord(bool work) const;
     Coord		maxCoord(bool work) const;
@@ -113,15 +120,6 @@ public:
     bool		isReasonable(const Coord&) const;
 			//!< Checks if in or near survey
 
-    			// Project name will be stored
-    const char*		getWSProjName() const	{ return wsprojnm_; }
-    void		setWSProjName( const char* nm ) const
-			{ const_cast<SurveyInfo*>(this)->wsprojnm_ = nm; }
-    			// Password only in memory this session
-    const char*		getWSPwd() const	{ return wspwd_; }
-    void		setWSPwd( const char* nm ) const
-			{ const_cast<SurveyInfo*>(this)->wspwd_ = nm; }
-
     static const char*	sKeyInlRange;
     static const char*	sKeyCrlRange;
     static const char*	sKeyZRange;
@@ -129,26 +127,13 @@ public:
     static const char*	sKeyDpthInFt; //!< 'Depth in feet' Y/N (UI default)
     static const char*	sKeySurvDataType;
 
-    bool		isValid() const		{ return valid_; }
-    const char*		comment() const		{ return comment_; }
+    const IOPar&	pars() const			{ return pars_; }
+    			// Project name will be stored
+    const char*		getWSProjName() const	{ return wsprojnm_; }
+    			// Password only in memory this session
+    const char*		getWSPwd() const	{ return wspwd_; }
 
-    			// These fns are commonly not used ...
-    static SurveyInfo*	read(const char*);
-    void		setRange(const CubeSampling&,bool);
-    void		setComment( const char* s )	{ comment_ = s; }
-    static void		produceWarnings( bool yn )	{ dowarnings_ = yn; }
-
-    IOPar&		pars() const
-			{ return const_cast<SurveyInfo*>(this)->pars_; }
-    bool		depthsInFeetByDefault() const;
-    bool		isClockWise() const;
-    			/*!< Orientation is determined by rotating the
-			     inline axis to the crossline axis. */
-
-    bool		write(const char* basedir=0) const;
-    			//!< Write to .survey file
-    void		savePars(const char* basedir=0) const;
-    			//!< Write to .defs file
+	// Some fns moved to bottom that have 'no user servicable parts inside'
 
 protected:
 
@@ -186,16 +171,44 @@ protected:
     void		putTr(const RCol2Coord::RCTransform&,
 	    			ascostream&,const char*) const;
 
-    friend class	uiSurvey;
-    friend class	uiSurveyInfoEditor;
-    friend class	IOMan;
-
-    const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
-
 private:
+
+    // ugly, but hard to avoid:
+    friend class		IOMan;
+    friend class		uiSurvey;
+    friend class		uiSurveyInfoEditor;
 
     RCol2Coord::RCTransform	rdxtr;
     RCol2Coord::RCTransform	rdytr;
+
+public:
+
+	// These fns are used by specialist classes. Know what you are doing!
+
+    			SurveyInfo(const SurveyInfo&);
+    SurveyInfo&		operator =(const SurveyInfo&);
+
+    RCol2Coord&		getBinID2Coord() const
+    			{ return const_cast<SurveyInfo*>(this)->b2c_; }
+    LatLong2Coord&	getLatlong2Coord() const
+    			{ return const_cast<SurveyInfo*>(this)->ll2c_; }
+    IOPar&		getPars() const	
+    			{ return const_cast<SurveyInfo*>(this)->pars_; }
+
+    bool		write(const char* basedir=0) const;
+    			//!< Write to .survey file
+    void		savePars(const char* basedir=0) const;
+    			//!< Write to .defs file
+    static SurveyInfo*	read(const char*);
+    void		setRange(const CubeSampling&,bool);
+    const char*		set3Pts(const Coord c[3],const BinID b[2],int xline);
+    void		setComment( const char* s )	{ comment_ = s; }
+    static void		produceWarnings( bool yn )	{ dowarnings_ = yn; }
+
+    void		setWSProjName( const char* nm ) const
+			{ const_cast<SurveyInfo*>(this)->wsprojnm_ = nm; }
+    void		setWSPwd( const char* nm ) const
+			{ const_cast<SurveyInfo*>(this)->wspwd_ = nm; }
 
 };
 

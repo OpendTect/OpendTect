@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.89 2007-11-08 10:43:36 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.90 2007-11-13 16:21:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -218,8 +218,8 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	si->valid_ = true;
 
     fp = fpsurvdir; fp.add( sKeyDefsFile );
-    si->pars().read( fp.fullPath(), sKeySurvDefs, true );
-    si->pars().setName( sKeySurvDefs );
+    si->getPars().read( fp.fullPath(), sKeySurvDefs, true );
+    si->getPars().setName( sKeySurvDefs );
     return si;
 }
 

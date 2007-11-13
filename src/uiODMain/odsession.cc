@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: odsession.cc,v 1.16 2007-01-23 16:22:11 cvsbert Exp $";
+static const char* rcsID = "$Id: odsession.cc,v 1.17 2007-11-13 16:21:11 cvsbert Exp $";
 
 #include "odsession.h"
 #include "ptrman.h"
@@ -150,7 +150,7 @@ void ODSession::setStartupData( bool douse, const MultiID& id )
 
     if ( curid != id )
     {
-	SI().pars().set( sKeyStartupID, (const char*)id );
+	SI().getPars().set( sKeyStartupID, (const char*)id );
 	SI().savePars();
     }
 }

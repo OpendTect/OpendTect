@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.39 2007-10-08 16:03:11 cvsbert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.40 2007-11-13 16:21:11 cvsbert Exp $";
 
 #include "seisinfo.h"
 #include "seisbounds.h"
@@ -73,7 +73,7 @@ DefineEnumNames(SeisEnum,GeomType,0,"Geometry type")
 	"3D Volume",
 	"Pre-Stack Volume",
 	"2D Line",
-	"Pre-Stack Line",
+	"Line 2D Pre-Stack",
 	0
 };
 
