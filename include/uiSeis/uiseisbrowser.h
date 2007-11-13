@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.3 2007-11-06 07:39:38 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.4 2007-11-13 07:52:12 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,6 @@ protected:
     SeisTrcBuf&		tbuf_;
     SeisTrcBuf&		tbufchgdtrcs_;
     SeisTrc&		ctrc_;
-    uiFlatViewMainWin*  viewwin_;
     const uiSeisBrowser::Setup& setup_;
 
     bool		crlwise_;
