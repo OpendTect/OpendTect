@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.3 2007-11-06 07:37:21 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.4 2007-11-13 07:50:34 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,6 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& setup )
     , compnr_(0)
     , nrcomps_(1)
     , sd_(0)
-    , viewwin_(0)
     , setup_(setup)
 {
     if ( !openData(setup) )
@@ -452,45 +451,56 @@ bool uiSeisBrowser::acceptOK( CallBacker* )
     return false;
 }
 
-
-void uiSeisBrowser::showWigglePush( CallBacker* )
+class uiSeisTrcBufViewer : public uiFlatViewMainWin
 {
-    PtrMan<IOObj> ioobject = IOM().get( setup_.id_ );
-    BufferString title( "Gather from [" ); title += ioobject->name();
-    title += "] at "; title += curBinID().inl; title += "/"; 
-    title += curBinID().crl;
-    bool isnew = !viewwin_;
-    if ( !isnew )
-	viewwin_->setWinTitle( title );
-    else
-    {
-	viewwin_ = new uiFlatViewMainWin( this,
-					  uiFlatViewMainWin::Setup(title) );
-	viewwin_->setDarkBG( false );
-	FlatView::Appearance& app = viewwin_->viewer().appearance();
-	app.annot_.setAxesAnnot( true );
-	app.setGeoDefaults( true );
-	app.ddpars_.show( true, false );
-	app.ddpars_.wva_.overlap_ = 1;
-    }
+public:
 
-    uiFlatViewer& vwr = viewwin_->viewer();
-    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( &tbuf_,
+uiSeisTrcBufViewer( uiParent* p, SeisTrcBuf* trcbuf_, BufferString title, 
+                    const uiSeisBrowser::Setup& setup_ )
+                  : uiFlatViewMainWin( p, uiFlatViewMainWin::Setup(title))
+		  //, dp_(0)  
+{
+    setWinTitle( title );
+    setDarkBG( false );
+    FlatView::Appearance& app = viewer().appearance();
+    app.annot_.setAxesAnnot( true );
+    app.setGeoDefaults( true );
+    app.ddpars_.show( true, true );
+    app.ddpars_.wva_.overlap_ = 1;
+
+    uiFlatViewer& vwr = viewer();
+    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( trcbuf_,
 	                         setup_.geom_, SeisTrcInfo::TrcNr,"");
-    dp->trcBufArr2D().setBufMine( false );
+    //dp->trcBufArr2D().setBufMine( false );
     DPM( DataPackMgr::FlatID ).add( dp );
     vwr.setPack( true, dp );
 
-    if ( !isnew )
-        vwr.handleChange( FlatView::Viewer::All );
-    else
-    {
-        vwr.appearance().ddpars_.show( true, false );
-        int pw = 200 + 10 * tbuf_.size();
-        if ( pw < 400 ) pw = 400; if ( pw > 800 ) pw = 800;
-        vwr.setInitialSize( uiSize(pw,500) );
-        viewwin_->addControl( new uiFlatViewStdControl( vwr,
-			    uiFlatViewStdControl::Setup().withstates(false) ) );
-    }
-    viewwin_->start();
+    vwr.appearance().ddpars_.show( true, false );
+    int pw = 200 + 10 * trcbuf_->size();
+    if ( pw < 400 ) pw = 400; if ( pw > 800 ) pw = 800;
+    vwr.setInitialSize( uiSize(pw,500) );
+    addControl( new uiFlatViewStdControl( vwr,
+			uiFlatViewStdControl::Setup().withstates(false) ) );
+    
+    start();
 }
+
+/*uiSeisTrcBufViewer::~uiSeisTrcBufViewer()
+{
+    delete 
+}*/
+
+//SeisTrcBufDataPack* dp;
+};
+
+
+void  uiSeisBrowser::showWigglePush( CallBacker* )
+{
+    BufferString title("Central Trace : ");
+    title += curBinID().inl; title += "/";
+    title += curBinID().crl;
+
+    uiSeisTrcBufViewer* strcbufview = new uiSeisTrcBufViewer 
+	                              ( this, tbuf_, title, setup_);
+}
+
