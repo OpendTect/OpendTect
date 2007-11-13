@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.23 2007-10-04 08:31:43 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.24 2007-11-13 11:49:43 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,6 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 	createTwoHorUI();
     
     addStdFields();
-    singmachfld->display( false );
     singmachfld->setValue( true );
 
     objSel(0);
