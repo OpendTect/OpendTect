@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.65 2007-11-09 16:53:51 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.66 2007-11-13 14:52:03 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,7 +133,9 @@ public:
     virtual void		initSteering()			{}
     virtual void		initSteering(const BinID&)	{}
 
-    virtual void		prepPriorToOutputSetup();
+    virtual bool		prepPriorToOutputSetup();
+    				/*!< returns whether the outputs plan acquired 
+				  from the parameter file has to be overruled */
     virtual void		prepPriorToBoundsCalc();
     				/*!< Z refstep is known now, 
 				  this is meant to be used before possible- 

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.52 2007-11-09 16:53:52 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.53 2007-11-13 14:52:03 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -215,7 +215,6 @@ void Processor::init()
 {
     TypeSet<int> globaloutputinterest;
     CubeSampling globalcs;
-    provider_->prepPriorToOutputSetup();
     defineGlobalOutputSpecs( globaloutputinterest, globalcs );
     if ( is2d_ ) provider_->adjust2DLineStoredVolume();
     computeAndSetRefZStep();
@@ -243,6 +242,14 @@ void Processor::init()
 void Processor::defineGlobalOutputSpecs( TypeSet<int>& globaloutputinterest,
 				      	 CubeSampling& globalcs )
 {
+    bool ovruleoutp = provider_->prepPriorToOutputSetup();
+    if ( ovruleoutp )
+    {
+	for ( int idx=0; idx<provider_->nrOutputs(); idx++ )
+	    if ( provider_->isOutputEnabled(idx) )
+		outpinterest_.addIfNew( idx );
+    }
+    
     for ( int idx=0; idx<outputs_.size(); idx++ )
     {
 	CubeSampling cs;

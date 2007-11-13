@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.103 2007-11-09 16:53:52 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.104 2007-11-13 14:52:03 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1457,10 +1457,12 @@ void Provider::prepPriorToBoundsCalc()
 }
 
 
-void Provider::prepPriorToOutputSetup()
+bool Provider::prepPriorToOutputSetup()
 {
     for ( int idx=0; idx<inputs.size(); idx++ )
 	if ( inputs[idx] ) inputs[idx]->prepPriorToOutputSetup();
+
+    return false;
 }
 
 
