@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.4 2007-11-13 07:50:34 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.5 2007-11-13 08:08:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -501,6 +501,6 @@ void  uiSeisBrowser::showWigglePush( CallBacker* )
     title += curBinID().crl;
 
     uiSeisTrcBufViewer* strcbufview = new uiSeisTrcBufViewer 
-	                              ( this, tbuf_, title, setup_);
+	                              ( this, &tbuf_, title, setup_);
 }
 
