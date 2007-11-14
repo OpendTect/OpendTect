@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodwelltreeitem.cc,v 1.17 2007-10-22 08:20:11 cvsnanne Exp $
+ RCS:		$Id: uiodwelltreeitem.cc,v 1.18 2007-11-14 09:16:40 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -46,27 +46,27 @@ bool uiODWellParentTreeItem::showSubMenu()
     }
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("Load ..."), 0 );
-    mnu.insertItem( new uiMenuItem("New WellTrack ..."), 1 );
+    mnu.insertItem( new uiMenuItem("&Load ..."), 0 );
+    mnu.insertItem( new uiMenuItem("&New WellTrack ..."), 1 );
     if ( children_.size() > 1 )
     {
-	mnu.insertItem( new uiMenuItem("Properties ..."), 2 );
+	mnu.insertItem( new uiMenuItem("&Properties ..."), 2 );
 
 	mnu.insertSeparator( 20 );
-	uiPopupMenu* showmnu = new uiPopupMenu( getUiParent(), "Show all" );
-	showmnu->insertItem( new uiMenuItem("Well Names (Top)"), 21 );
-	showmnu->insertItem( new uiMenuItem("Well Names (Bottom)"), 22 );
-	showmnu->insertItem( new uiMenuItem("Markers"), 23 );
-	showmnu->insertItem( new uiMenuItem("Marker Names"), 24 );
-	showmnu->insertItem( new uiMenuItem("Logs"), 25 );
+	uiPopupMenu* showmnu = new uiPopupMenu( getUiParent(), "&Show all" );
+	showmnu->insertItem( new uiMenuItem("Well names (&Top)"), 21 );
+	showmnu->insertItem( new uiMenuItem("Well names (&Bottom)"), 22 );
+	showmnu->insertItem( new uiMenuItem("&Markers"), 23 );
+	showmnu->insertItem( new uiMenuItem("Marker &Names"), 24 );
+	showmnu->insertItem( new uiMenuItem("&Logs"), 25 );
 	mnu.insertItem( showmnu );
 
-	uiPopupMenu* hidemnu = new uiPopupMenu( getUiParent(), "Hide all" );
-	hidemnu->insertItem( new uiMenuItem("Well Names (Top)"), 31 );
-	hidemnu->insertItem( new uiMenuItem("Well Names (Bottom)"), 32 );
-	hidemnu->insertItem( new uiMenuItem("Markers"), 33 );
-	hidemnu->insertItem( new uiMenuItem("Marker Names"), 34 );
-	hidemnu->insertItem( new uiMenuItem("Logs"), 35 );
+	uiPopupMenu* hidemnu = new uiPopupMenu( getUiParent(), "&Hide all" );
+	hidemnu->insertItem( new uiMenuItem("Well names (&Top)"), 31 );
+	hidemnu->insertItem( new uiMenuItem("Well names (&Bottom)"), 32 );
+	hidemnu->insertItem( new uiMenuItem("&Markers"), 33 );
+	hidemnu->insertItem( new uiMenuItem("Marker &Names"), 34 );
+	hidemnu->insertItem( new uiMenuItem("&Logs"), 35 );
 	mnu.insertItem( hidemnu );
     }
     addStandardItems( mnu );
@@ -190,17 +190,17 @@ uiODWellTreeItem::~uiODWellTreeItem()
 
 void uiODWellTreeItem::initMenuItems()
 {
-    attrmnuitem_.text = "Create attribute log...";
+    attrmnuitem_.text = "&Create attribute log...";
     sellogmnuitem_.text = "Select logs ...";
-    propertiesmnuitem_.text = "Properties ...";
-    nametopmnuitem_.text = "Well name (Top)";
-    namebotmnuitem_.text = "Well name (Bottom)";
-    markermnuitem_.text = "Markers";
-    markernamemnuitem_.text = "Marker names";
-    showlogmnuitem_.text = "Logs" ;
-    showmnuitem_.text = "Show" ;
-    editmnuitem_.text = "Edit Welltrack" ;
-    storemnuitem_.text = "Store ...";
+    propertiesmnuitem_.text = "&Properties ...";
+    nametopmnuitem_.text = "Well name (&Top)";
+    namebotmnuitem_.text = "Well name (&Bottom)";
+    markermnuitem_.text = "&Markers";
+    markernamemnuitem_.text = "Marker &names";
+    showlogmnuitem_.text = "&Logs" ;
+    showmnuitem_.text = "&Show" ;
+    editmnuitem_.text = "&Edit Welltrack" ;
+    storemnuitem_.text = "St&ore ...";
 
     nametopmnuitem_.checkable = true;
     namebotmnuitem_.checkable = true;
@@ -284,7 +284,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid == attrmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	//TODO false set to make it compile: change!!!!!!
+	//TODO false set to make it compile: change!
 	applMgr()->wellAttribServer()->setAttribSet( 
 				*applMgr()->attrServer()->curDescSet(false) );
 	applMgr()->wellAttribServer()->createAttribLog( wellid );

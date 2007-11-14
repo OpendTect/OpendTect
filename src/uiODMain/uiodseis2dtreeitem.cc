@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.25 2007-10-25 21:16:53 cvskris Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.26 2007-11-14 09:16:39 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ uiODSeis2DParentTreeItem::uiODSeis2DParentTreeItem()
 bool uiODSeis2DParentTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("Add"), 0 );
+    mnu.insertItem( new uiMenuItem("&Add"), 0 );
 
     const int mnuid = mnu.exec();
     if ( mnuid < 0 ) return false;
@@ -96,17 +96,17 @@ uiOD2DLineSetTreeItem::uiOD2DLineSetTreeItem( const MultiID& mid )
     : uiODTreeItem("")
     , setid_( mid )
     , menuhandler_(0)
-    , addlinesitm_("Add line(s) ...")
-    , showitm_("Show all")
-    , hideitm_("Hide all")
-    , showlineitm_("Lines")
-    , hidelineitm_("Lines")
-    , showlblitm_("Linenames")
-    , hidelblitm_("Linenames")
-    , removeitm_("Remove")
-    , storeditm_("Stored 2D data")
-    , selattritm_("Select Attribute")
-    , zrgitm_("Set Z-Range ...")
+    , addlinesitm_("&Add line(s) ...")
+    , showitm_("&Show all")
+    , hideitm_("&Hide all")
+    , showlineitm_("&Lines")
+    , hidelineitm_("&Lines")
+    , showlblitm_("Line&names")
+    , hidelblitm_("Line&names")
+    , removeitm_("&Remove")
+    , storeditm_("Stored &2D data")
+    , selattritm_("Select &Attribute")
+    , zrgitm_("Set &Z-Range ...")
     , curzrg_( Interval<float>().setFrom(SI().zRange(true)) )
 {
     storeditm_.checkable = true;
@@ -302,8 +302,8 @@ bool uiOD2DLineSetTreeItem::init()
 
 
 uiOD2DLineSetSubItem::uiOD2DLineSetSubItem( const char* nm, int displayid )
-    : linenmitm_("Show linename")
-    , positionitm_("Position ...")
+    : linenmitm_("Show line&name")
+    , positionitm_("&Position ...")
 {
     name_ = nm;
     displayid_ = displayid;
@@ -562,8 +562,8 @@ void uiOD2DLineSetSubItem::setZRange( const Interval<float> newzrg )
 
 uiOD2DLineSetAttribItem::uiOD2DLineSetAttribItem( const char* pt )
     : uiODAttribTreeItem( pt )
-    , attrnoneitm_("None")
-    , storeditm_("Stored 2D data")
+    , attrnoneitm_("&None")
+    , storeditm_("Stored &2D data")
 {}
 
 

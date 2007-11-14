@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.357 2007-10-16 12:41:11 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.358 2007-11-14 09:16:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,9 +76,9 @@ static const int sResolutionIdx = 500;
 uiVisPartServer::uiVisPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , menu_( *new uiMenuHandler(appserv().parent(),-1) )
-    , resetmanipmnuitem_("Reset Manipulation",sResetManipIdx)
-    , changematerialmnuitem_("Properties ...",sPropertiesIdx)
-    , resmnuitem_("Resolution",sResolutionIdx)
+    , resetmanipmnuitem_("R&eset Manipulation",sResetManipIdx)
+    , changematerialmnuitem_("&Properties ...",sPropertiesIdx)
+    , resmnuitem_("&Resolution",sResolutionIdx)
     , eventmutex_(*new Threads::Mutex)
     , viewmode_(false)
     , issolomode_(false)

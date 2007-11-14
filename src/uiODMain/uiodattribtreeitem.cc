@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodattribtreeitem.cc,v 1.12 2007-10-22 09:59:18 cvsraman Exp $
+ RCS:		$Id: uiodattribtreeitem.cc,v 1.13 2007-11-14 09:16:39 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -35,11 +35,11 @@ ___________________________________________________________________
 
 
 const char* uiODAttribTreeItem::sKeySelAttribMenuTxt()
-{ return "Select Attribute"; }
+{ return "Select &Attribute"; }
 
 
 const char* uiODAttribTreeItem::sKeyColSettingsMenuTxt()
-{ return "Save Color Settings"; }
+{ return "Save &Color Settings"; }
 
 
 uiODAttribTreeItem::uiODAttribTreeItem( const char* parenttype )

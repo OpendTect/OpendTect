@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.17 2007-10-22 08:19:41 cvsnanne Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.18 2007-11-14 09:16:39 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -37,18 +37,18 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     : uiTreeItem("")
     , parenttype_(parenttype)
     , menu_(0)
-    , movemnuitem_("Move")
-    , movetotopmnuitem_("to top")
-    , movetobottommnuitem_("to bottom")
-    , moveupmnuitem_("up")
-    , movedownmnuitem_("down")
-    , removemnuitem_("Remove")
-    , changetransparencyitem_("Change transparency ...")
-    , statisticsitem_("Show Histogram ...")
-    , amplspectrumitem_("Show Amplitude Spectrum...")
-    , addto2dvieweritem_("Display in a 2D Viewer as")
-    , view2dwvaitem_("Wiggle")
-    , view2dvditem_("VD")
+    , movemnuitem_("&Move")
+    , movetotopmnuitem_("to &top")
+    , movetobottommnuitem_("to &bottom")
+    , moveupmnuitem_("&up")
+    , movedownmnuitem_("&down")
+    , removemnuitem_("&Remove")
+    , changetransparencyitem_("Change &transparency ...")
+    , statisticsitem_("Show &Histogram ...")
+    , amplspectrumitem_("Show &Amplitude Spectrum...")
+    , addto2dvieweritem_("Display in a &2D Viewer as")
+    , view2dwvaitem_("&Wiggle")
+    , view2dvditem_("&VD")
 {}
 
 

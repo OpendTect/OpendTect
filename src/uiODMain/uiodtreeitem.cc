@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.198 2007-07-26 07:02:57 cvsnanne Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.199 2007-11-14 09:16:39 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -252,13 +252,13 @@ bool uiODSceneTreeItem::showSubMenu()
 {
     uiPopupMenu mnu( getUiParent(), "Action" );
 
-    uiMenuItem* anntxt = new uiMenuItem( "Properties ..." );
+    uiMenuItem* anntxt = new uiMenuItem( "&Properties ..." );
     mnu.insertItem( anntxt, mProperties );
 
     bool yn = false;
     Settings::common().getYN( IOPar::compKey("dTect","Dump OI Menu"), yn );
     if ( yn )
-	mnu.insertItem( new uiMenuItem("Dump OI ..."), mDumpIV );
+	mnu.insertItem( new uiMenuItem("Dump &OI ..."), mDumpIV );
 
     uiVisPartServer* visserv = applMgr()->visServer();
     const int mnuid=mnu.exec();

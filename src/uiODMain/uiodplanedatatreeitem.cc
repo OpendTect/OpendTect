@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.16 2007-10-05 17:55:11 cvskris Exp $
+ RCS:		$Id: uiodplanedatatreeitem.cc,v 1.17 2007-11-14 09:16:39 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ static const int sGridLinesIdx = 980;
 
 #define mParentShowSubMenu( creation ) \
     uiPopupMenu mnu( getUiParent(), "Action" ); \
-    mnu.insertItem( new uiMenuItem("Add"), 0 ); \
+    mnu.insertItem( new uiMenuItem("&Add"), 0 ); \
     addStandardItems( mnu ); \
     const int mnuid = mnu.exec(); \
     if ( mnuid == 0 ) creation; \
@@ -47,8 +47,8 @@ static const int sGridLinesIdx = 980;
 uiODPlaneDataTreeItem::uiODPlaneDataTreeItem( int did, int dim )
     : dim_(dim)
     , positiondlg_(0)
-    , positionmnuitem_("Position ...",sPositionIdx)
-    , gridlinesmnuitem_("Gridlines ...",sGridLinesIdx)
+    , positionmnuitem_("P&osition ...",sPositionIdx)
+    , gridlinesmnuitem_("&Gridlines ...",sGridLinesIdx)
 {
     displayid_ = did;
 }

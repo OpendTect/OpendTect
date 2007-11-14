@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddisplaytreeitem.cc,v 1.15 2007-10-16 12:41:11 cvskris Exp $
+ RCS:		$Id: uioddisplaytreeitem.cc,v 1.16 2007-11-14 09:16:39 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -58,11 +58,11 @@ uiODDisplayTreeItem::uiODDisplayTreeItem()
     : uiODTreeItem(0)
     , displayid_(-1)
     , visserv_(ODMainWin()->applMgr().visServer())
-    , addattribmnuitem_("Add attribute",sAttribIdx)
-    , duplicatemnuitem_("Duplicate",sDuplicateIdx)
-    , lockmnuitem_("Lock",sLockIdx)
-    , hidemnuitem_("Hide",sHideIdx )
-    , removemnuitem_("Remove",sRemoveIdx)
+    , addattribmnuitem_("&Add attribute",sAttribIdx)
+    , duplicatemnuitem_("&Duplicate",sDuplicateIdx)
+    , lockmnuitem_("&Lock",sLockIdx)
+    , hidemnuitem_("&Hide",sHideIdx )
+    , removemnuitem_("&Remove",sRemoveIdx)
 {
 }
 
@@ -224,7 +224,7 @@ BufferString uiODDisplayTreeItem::createDisplayName() const
 
 const char* uiODDisplayTreeItem::getLockMenuText() 
 { 
-    return visserv_->isLocked(displayid_) ? "Unlock" : "Lock";
+    return visserv_->isLocked(displayid_) ? "Un&lock" : "&Lock";
 }
 
 

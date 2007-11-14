@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.63 2007-09-04 17:02:18 cvsnanne Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.64 2007-11-14 09:16:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -219,24 +219,24 @@ bool uiVisEMObject::isOK() const
 
 void uiVisEMObject::setUpConnections()
 {
-    singlecolmnuitem_.text = "Use single color";
+    singlecolmnuitem_.text = "Use single &color";
     singlecolmnuitem_.checkable = true;
     trackmenuitem_.text = uiVisEMObject::trackingmenutxt;
-    seedsmenuitem_.text = "Seeds";
+    seedsmenuitem_.text = "S&eeds";
     seedsmenuitem_.checkable = true;
-    showseedsmnuitem_.text = "Show";
-    seedpropmnuitem_.text = "Properties ...";
-    lockseedsmnuitem_.text = "Lock";
-    wireframemnuitem_.text = "Wireframe";
+    showseedsmnuitem_.text = "&Show";
+    seedpropmnuitem_.text = "&Properties ...";
+    lockseedsmnuitem_.text = "&Lock";
+    wireframemnuitem_.text = "&Wireframe";
     wireframemnuitem_.checkable = true;
-    editmnuitem_.text = "Edit";
+    editmnuitem_.text = "&Edit";
     editmnuitem_.checkable = true;
-    shiftmnuitem_.text = "Shift ...";
-    removesectionmnuitem_.text ="Remove section";
-    makepermnodemnuitem_.text = "Make control permanent";
-    removecontrolnodemnuitem_.text = "Remove control";
-    changesectionnamemnuitem_.text = "Change section's name";
-    showonlyatsectionsmnuitem_.text = "Display only at sections";
+    shiftmnuitem_.text = "&Shift ...";
+    removesectionmnuitem_.text ="Remove &section";
+    makepermnodemnuitem_.text = "Make control &permanent";
+    removecontrolnodemnuitem_.text = "Remove &control";
+    changesectionnamemnuitem_.text = "Change section's &name";
+    showonlyatsectionsmnuitem_.text = "Display &only at sections";
     showonlyatsectionsmnuitem_.checkable = true;
 
     MenuHandler* menu = visserv_->getMenuHandler();
@@ -376,12 +376,12 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     const TypeSet<EM::PosID>* seeds =
 			      emobj->getPosAttribList(EM::EMObject::sSeedNode);
     showseedsmnuitem_.text = emod->showsPosAttrib(EM::EMObject::sSeedNode) ?
-			    "Hide" : "Show" ;	
+			    "&Hide" : "S&how" ;	
     mAddMenuItem( &seedsmenuitem_, &showseedsmnuitem_, seeds && seeds->size(),
 	    	  false );
     mAddMenuItem( &seedsmenuitem_, &seedpropmnuitem_, true, false );
     lockseedsmnuitem_.text = emobj->isPosAttribLocked(EM::EMObject::sSeedNode) ?
-			    "Unlock" : "Lock" ;	
+			    "Un&lock" : "&Lock" ;	
     mAddMenuItem( &seedsmenuitem_, &lockseedsmnuitem_, true, false );
     mAddMenuItem( &trackmenuitem_,&seedsmenuitem_,seedsmenuitem_.nrItems(),false );
 
@@ -626,10 +626,10 @@ void uiVisEMObject::createNodeMenuCB( CallBacker* cb )
 	true);
 /*
     removenodenodemnuitem_ = emobj->isDefined(*empid)
-        ? menu->addItem( new uiMenuItem("Remove node") )
+        ? menu->addItem( new uiMenuItem("Remove &node") )
 	: -1;
 
-    uiMenuItem* snapitem_ = new uiMenuItem("Snap after edit");
+    uiMenuItem* snapitem_ = new uiMenuItem("S&nap after edit");
     tooglesnappingnodemnuitem_ = menu->addItem(snapitem_);
     snapitem_->setChecked(emod->getEditor()->snapAfterEdit());
 */

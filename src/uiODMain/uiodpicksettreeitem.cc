@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.33 2007-09-28 04:24:19 cvsnanne Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.34 2007-11-14 09:16:39 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -108,33 +108,33 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getDataTransform();
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("Load ..."), 0 );
-    uiPopupMenu* newmnu = new uiPopupMenu( getUiParent(), "New" );
+    mnu.insertItem( new uiMenuItem("&Load ..."), 0 );
+    uiPopupMenu* newmnu = new uiPopupMenu( getUiParent(), "&New" );
     if ( SI().has2D() )
     {
-	uiPopupMenu* randmnu = new uiPopupMenu( getUiParent(), "Random" );
+	uiPopupMenu* randmnu = new uiPopupMenu( getUiParent(), "&Random" );
 	randmnu->insertItem( new uiMenuItem("3D ..."), 1 );
 	randmnu->insertItem( new uiMenuItem("2D ..."), 11 );
 	newmnu->insertItem( randmnu );
     }
     else
-	newmnu->insertItem( new uiMenuItem("Random ..."), 1 );
+	newmnu->insertItem( new uiMenuItem("&Random ..."), 1 );
 
-    newmnu->insertItem( new uiMenuItem("Empty ..."), 2 );
+    newmnu->insertItem( new uiMenuItem("&Empty ..."), 2 );
     mnu.insertItem( newmnu );
     if ( children_.size() > 0 )
     {
-	mnu.insertItem( new uiMenuItem("Save changes"), 3 );
+	mnu.insertItem( new uiMenuItem("&Save changes"), 3 );
 	mnu.insertSeparator();
 	uiMenuItem* filteritem =
-	    new uiMenuItem( "Display picks only at sections" );
+	    new uiMenuItem( "&Display picks only at sections" );
 	mnu.insertItem( filteritem, 4 );
 	filteritem->setEnabled( !hastransform );
-	uiMenuItem* shwallitem = new uiMenuItem( "Show all picks" );
+	uiMenuItem* shwallitem = new uiMenuItem( "Show &all picks" );
 	mnu.insertItem( shwallitem, 5 );
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
-	mnu.insertItem( new uiMenuItem("Merge Sets"), 6 );
+	mnu.insertItem( new uiMenuItem("&Merge Sets"), 6 );
     }
 
     addStandardItems( mnu );
@@ -207,11 +207,11 @@ uiTreeItem* uiODPickSetTreeItemFactory::create( int visid, uiTreeItem* ) const
 
 uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     : set_(ps)
-    , storemnuitem_("Store")
-    , storeasmnuitem_("Store As ...")
-    , dirmnuitem_("Set directions ...")
-    , onlyatsectmnuitem_("Display only at sections")
-    , propertymnuitem_("Properties ...")
+    , storemnuitem_("&Store")
+    , storeasmnuitem_("Store &As ...")
+    , dirmnuitem_("Set &directions ...")
+    , onlyatsectmnuitem_("Display only at s&ections")
+    , propertymnuitem_("&Properties ...")
 {
     displayid_ = did;
     Pick::Mgr().setChanged.notify( mCB(this,uiODPickSetTreeItem,setChg) );

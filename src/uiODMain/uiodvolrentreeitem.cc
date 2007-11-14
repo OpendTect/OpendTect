@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.18 2007-10-23 04:27:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.19 2007-11-14 09:16:40 cvsbert Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -54,7 +54,7 @@ bool uiODVolrenParentTreeItem::showSubMenu()
 	ODMainWin()->applMgr().visServer()->getObject(sceneID()));
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("Add"), 0 );
+    mnu.insertItem( new uiMenuItem("&Add"), 0 );
     const int mnuid = mnu.exec();
     if ( mnuid==0 )
 	addChild( new uiODVolrenTreeItem(-1), true );
@@ -97,15 +97,15 @@ const char* uiODVolrenTreeItemFactory::getName()
 
 
 uiODVolrenTreeItem::uiODVolrenTreeItem( int displayid )
-    : positionmnuitem_("Position ...")
-    , statisticsmnuitem_("Show Histogram ...") 
-    , amplspectrummnuitem_( "Show Amplitude Spectrum ...")		     
-    , addmnuitem_("Add")
-    , addlinlslicemnuitem_("In-line slice")
-    , addlcrlslicemnuitem_("Cross-line slice")
-    , addltimeslicemnuitem_("Time slice")
-    , addvolumemnuitem_("Volume")
-    , addisosurfacemnuitem_("Iso surface")
+    : positionmnuitem_("P&osition ...")
+    , statisticsmnuitem_("Show &Histogram ...") 
+    , amplspectrummnuitem_( "Show Amplitude Sp&ectrum ...")		     
+    , addmnuitem_("&Add")
+    , addlinlslicemnuitem_("&In-line slice")
+    , addlcrlslicemnuitem_("&Cross-line slice")
+    , addltimeslicemnuitem_("&Time slice")
+    , addvolumemnuitem_("&Volume")
+    , addisosurfacemnuitem_("Iso s&urface")
     , selattrmnuitem_( uiODAttribTreeItem::sKeySelAttribMenuTxt(), 10000 )
     , colsettingsmnuitem_( uiODAttribTreeItem::sKeyColSettingsMenuTxt() )
 { displayid_ = displayid; }
@@ -343,8 +343,8 @@ bool uiODVolrenTreeItem::hasVolume() const
 
 
 uiODVolrenSubTreeItem::uiODVolrenSubTreeItem( int displayid )
-    : setisovaluemnuitem_("Set isovalue")
-    , convertisotobodymnuitem_("Convert to body")
+    : setisovaluemnuitem_("&Set isovalue")
+    , convertisotobodymnuitem_("&Convert to body")
 { displayid_ = displayid; }
 
 

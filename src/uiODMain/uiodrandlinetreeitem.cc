@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.10 2007-11-06 16:31:49 cvsbert Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.11 2007-11-14 09:16:39 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -56,8 +56,8 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     }
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("Add"), 0 );
-    mnu.insertItem( new uiMenuItem("Load ..."), 1 );
+    mnu.insertItem( new uiMenuItem("&Add"), 0 );
+    mnu.insertItem( new uiMenuItem("&Load ..."), 1 );
     addStandardItems( mnu );
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
@@ -103,10 +103,10 @@ bool uiODRandomLineParentTreeItem::load()
 
 
 uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id )
-    : editnodesmnuitem_("Edit nodes ...")
-    , insertnodemnuitem_("Insert node")
-    , usewellsmnuitem_("Create from wells ...")
-    , saveasmnuitem_("Save as ...")
+    : editnodesmnuitem_("&Edit nodes ...")
+    , insertnodemnuitem_("&Insert node")
+    , usewellsmnuitem_("&Create from wells ...")
+    , saveasmnuitem_("&Save ...")
 { displayid_ = id; } 
 
 
