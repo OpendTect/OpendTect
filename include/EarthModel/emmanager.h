@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.36 2007-11-14 17:43:40 cvskris Exp $
+ RCS:		$Id: emmanager.h,v 1.37 2007-11-14 20:31:41 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -57,9 +57,11 @@ public:
 	    			     const SurfaceIODataSelection* =0);
     Executor*		objectLoader(const TypeSet<MultiID>&,
 	    			     const SurfaceIODataSelection* =0);
-    EM::ObjectID	loadIfNotFullyLoaded(const MultiID&,TaskRunner* =0);
-			/*!<If fully loaded, the id to the loaded instance
-			    will be returned. Otherwise, it will be loaded. */
+    EMObject*		loadIfNotFullyLoaded(const MultiID&,TaskRunner* =0);
+			/*!<If fully loaded, the loaded instance
+			    will be returned. Otherwise, it will be loaded.
+			    Returned object must be reffed by caller (and eventually
+			    unreffed). */
     EM::ObjectID	createObject(const char* type,const char* name);
     			/*!< Creates a new object, saves it and loads it into
 			     mem.
