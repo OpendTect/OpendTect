@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		11-7-1996
- RCS:		$Id: executor.h,v 1.21 2007-10-30 16:53:35 cvskris Exp $
+ RCS:		$Id: executor.h,v 1.22 2007-11-14 17:54:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,11 +36,11 @@ a stream. Useful in batch situations.
 
 */
 
-class Executor : public SequentialTask, public NamedObject
+class Executor : public SequentialTask
 {
 public:
 			Executor( const char* nm )
-			: NamedObject(nm)
+			: SequentialTask(nm)
 			, prestep(this), poststep(this)	{}
     virtual		~Executor()			{}
 

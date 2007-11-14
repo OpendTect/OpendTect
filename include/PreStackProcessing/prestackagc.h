@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackagc.h,v 1.2 2007-03-15 20:05:34 cvskris Exp $
+ RCS:		$Id: prestackagc.h,v 1.3 2007-11-14 17:54:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -35,7 +35,6 @@ public:
     void			setLowEnergyMute(float fraction);
     float			getLowEnergyMute() const;
 
-    const char*			name() const		{ return sName(); }
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
 

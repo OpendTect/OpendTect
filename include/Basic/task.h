@@ -7,10 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.4 2007-11-09 15:08:27 cvskris Exp $
+ RCS:		$Id: task.h,v 1.5 2007-11-14 17:54:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
+
+#include "namedobj.h"
 
 namespace Threads { class ThreadWorkManager; class Mutex; class ConditionVar; }
 
@@ -18,10 +20,9 @@ namespace Threads { class ThreadWorkManager; class Mutex; class ConditionVar; }
    done in multiple steps. */
 
 
-class Task
+class Task : public NamedObject
 {
 public:
-    
     virtual		~Task() 			{}
 
     virtual void	enableNrDoneCounting(bool=true)	{}
@@ -41,9 +42,9 @@ public:
 
 
 protected:
+					Task(const char* nm=0);
     virtual bool			shouldContinue();
     					//!<\returns wether we should continue
-    					Task();
     Threads::ConditionVar*		workcontrolcondvar_;
     Task::Control			control_;
 };
@@ -56,6 +57,7 @@ protected:
 class SequentialTask : public Task
 {
 public:
+		SequentialTask(const char* nm=0) : Task(nm) {}
     
     virtual	~SequentialTask() 	{}
     virtual int	doStep()		{ return nextStep(); }
@@ -157,7 +159,7 @@ public:
     			//!<May be -1, i.e. class does not report nrdone.
     
 protected:
-    			ParallelTask();
+			ParallelTask(const char* nm=0);
     int			calculateThreadSize(int totalnr,int nrthreads,
 	    				    int idx) const;
 

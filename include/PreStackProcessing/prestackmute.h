@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmute.h,v 1.4 2007-06-26 21:38:38 cvsyuancheng Exp $
+ RCS:		$Id: prestackmute.h,v 1.5 2007-11-14 17:54:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -34,7 +34,6 @@ public:
 
     bool		prepareWork();
 
-    const char*		name() const		{ return sName(); }
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
     const char*		errMsg() const		{ return errmsg_; }

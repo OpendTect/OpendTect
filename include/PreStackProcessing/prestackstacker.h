@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Nov 2006
- RCS:		$Id: prestackstacker.h,v 1.2 2007-10-30 16:53:35 cvskris Exp $
+ RCS:		$Id: prestackstacker.h,v 1.3 2007-11-14 17:54:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -34,7 +34,6 @@ public:
  				Stack();
     				~Stack();
 
-    const char*			name() const		{ return sName(); }
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
     const char*			errMsg() const;

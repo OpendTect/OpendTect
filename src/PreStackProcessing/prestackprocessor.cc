@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.10 2007-09-28 20:54:23 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.11 2007-11-14 17:54:32 cvskris Exp $";
 
 #include "prestackprocessor.h"
 
@@ -19,8 +19,9 @@ namespace PreStack
 mImplFactory( Processor, PF );
 
 
-Processor::Processor()
-    : output_( 0 )
+Processor::Processor( const char* nm )
+    : ParallelTask( nm )
+    , output_( 0 )
     , input_( 0 )
 {}
 

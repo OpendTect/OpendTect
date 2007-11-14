@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.8 2007-10-30 16:53:35 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.9 2007-11-14 17:54:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -31,7 +31,6 @@ class Gather;
 class Processor : public ParallelTask
 {
 public:
-    				Processor();
     virtual			~Processor();
 
     void			setInput(DataPack::ID);
@@ -39,7 +38,6 @@ public:
     virtual bool		prepareWork();
     virtual const char*		errMsg() const { return 0; }
 
-    virtual const char*		name() const				= 0;
     virtual void		fillPar(IOPar&) const			= 0;
     virtual bool		usePar(const IOPar&)			= 0;
     virtual bool		doWork(int start, int stop, int)	= 0;
@@ -58,6 +56,7 @@ public:
 				    parallel vertically.*/
 
 protected:
+    				Processor( const char* nm );
     virtual Gather*		createOutputArray(const Gather& input) const;
 
     Gather*			output_;

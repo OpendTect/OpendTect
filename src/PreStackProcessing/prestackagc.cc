@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackagc.cc,v 1.5 2007-10-30 01:54:11 cvskris Exp $";
+static const char* rcsID = "$Id: prestackagc.cc,v 1.6 2007-11-14 17:54:32 cvskris Exp $";
 
 #include "prestackagc.h"
 
@@ -29,7 +29,8 @@ Processor* AGC::createFunc()
 
 
 AGC::AGC()
-    : window_( -100, 100 )
+    : Processor( sName() )
+    , window_( -100, 100 )
     , mutefraction_( 0 )
 {}
 
