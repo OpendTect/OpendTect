@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.64 2007-09-17 12:35:10 cvskris Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.65 2007-11-14 17:43:40 cvskris Exp $";
 
 #include "emmanager.h"
 
@@ -278,6 +278,30 @@ Executor* EMManager::objectLoader( const MultiID& mid,
 	return obj->loader();
 
     return 0;
+}
+
+
+
+EM::ObjectID EMManager::loadIfNotFullyLoaded( const MultiID& mid,
+					      TaskRunner* taskrunner )
+{
+    EM::ObjectID emid = EM::EMM().getObjectID( mid );
+    RefMan<EM::EMObject> emobj = EM::EMM().getObject( emid );
+
+    if ( !emobj || !emobj->isFullyLoaded() )
+    {
+	PtrMan<Executor> exec = EM::EMM().objectLoader( mid );
+	if ( !exec )
+	    return -1;
+
+	if ( !(taskrunner ? taskrunner->execute(*exec) : exec->execute()) )
+	    return -1;
+
+	emid = EM::EMM().getObjectID( mid );
+	emobj = EM::EMM().getObject( emid );
+    }
+
+    return emobj && emobj->isFullyLoaded() ? emobj->id() : -1;
 }
 
 
