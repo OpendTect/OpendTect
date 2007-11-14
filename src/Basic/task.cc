@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.2 2007-10-31 18:56:57 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.3 2007-11-14 18:16:27 cvskris Exp $";
 
 #include "task.h"
 
@@ -13,8 +13,9 @@ static const char* rcsID = "$Id: task.cc,v 1.2 2007-10-31 18:56:57 cvskris Exp $
 #include "varlenarray.h"
 
 
-Task::Task()
-    : workcontrolcondvar_( 0 )
+Task::Task( const char* nm )
+    : NamedObject( nm )
+    , workcontrolcondvar_( 0 )
     , control_( Task::Run )
 {}
 
@@ -131,8 +132,9 @@ protected:
 };
 
 
-ParallelTask::ParallelTask()
-    : nrdone_( -1 )
+ParallelTask::ParallelTask( const char* nm )
+    : Task( nm )
+    , nrdone_( -1 )
     , nrdonemutex_( 0 )
 {}
 
