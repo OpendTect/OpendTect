@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.26 2007-10-23 21:49:06 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.27 2007-11-15 12:03:07 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -174,6 +174,8 @@ public:
 			    always be in write-lock status on return.
 			    \returns false if it had to release the readlock
 			             when switching to writelock.*/
+    void		convToReadLock();
+    			//!<Lock MUST be writeLocked when calling.
     void		writeLock();
     void		writeUnLock();
 
