@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.17 2007-10-17 05:42:42 cvsnanne Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.18 2007-11-15 13:53:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,11 +152,11 @@ void uiStratRefTree::rClickCB( CallBacker* )
     if ( col == sUnitsCol || col == sDescCol )
     {
 	uiPopupMenu mnu( lv_->parent(), "Action" );
-	mnu.insertItem( new uiMenuItem("Specify level boundary ..."), 0 );
+	mnu.insertItem( new uiMenuItem("&Specify level boundary ..."), 0 );
 	mnu.insertSeparator();
-	mnu.insertItem( new uiMenuItem("Add unit ..."), 1 );
-	mnu.insertItem( new uiMenuItem("Create sub-unit..."), 2 );
-	mnu.insertItem( new uiMenuItem("Remove"), 3 );
+	mnu.insertItem( new uiMenuItem("&Create sub-unit..."), 1 );
+	mnu.insertItem( new uiMenuItem("&Add unit ..."), 2 );
+	mnu.insertItem( new uiMenuItem("&Remove"), 3 );
     /*    mnu.insertSeparator();
 	mnu.insertItem( new uiMenuItem("Rename"), 4 );*/
 
@@ -165,9 +165,9 @@ void uiStratRefTree::rClickCB( CallBacker* )
 	else if ( mnuid==0 )
 	    selBoundary();
 	else if ( mnuid==1 )
-	    insertSubUnit( 0 );
-	else if ( mnuid==2 )
 	    insertSubUnit( lvit );
+	else if ( mnuid==2 )
+	    insertSubUnit( 0 );
 	else if ( mnuid==3 )
 	    removeUnit( lvit );
     }

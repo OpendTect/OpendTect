@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:		$Id: uistrattreewin.cc,v 1.19 2007-10-15 12:38:37 cvshelene Exp $
+ RCS:		$Id: uistrattreewin.cc,v 1.20 2007-11-15 13:53:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -191,11 +191,11 @@ void uiStratTreeWin::rClickLvlCB( CallBacker* )
     if ( strcmp( editmnuitem_->text(), mLockTxt ) ) return;
     int curit = lvllistfld_->box()->currentItem();
     uiPopupMenu mnu( this, "Action" );
-    mnu.insertItem( new uiMenuItem("Create New ..."), 0 );
+    mnu.insertItem( new uiMenuItem("Create &New ..."), 0 );
     if ( curit>-1 && !lvllistfld_->box()->isPresent( sNoLevelTxt ) )
     {
-	mnu.insertItem( new uiMenuItem("Edit ..."), 1 );
-	mnu.insertItem( new uiMenuItem("Remove"), 2 );
+	mnu.insertItem( new uiMenuItem("&Edit ..."), 1 );
+	mnu.insertItem( new uiMenuItem("&Remove"), 2 );
     }
     const int mnuid = mnu.exec();
     if ( mnuid<0 || mnuid>2 ) return;
