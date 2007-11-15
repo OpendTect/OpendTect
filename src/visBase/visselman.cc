@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visselman.cc,v 1.16 2005-09-20 20:46:18 cvskris Exp $";
+static const char* rcsID = "$Id: visselman.cc,v 1.17 2007-11-15 13:17:32 cvskris Exp $";
 
 #include "visselman.h"
 #include "visscene.h"
@@ -54,7 +54,7 @@ void SelectionManager::select( int newid, bool keepoldsel, bool lock )
 	}
     }
 
-    if ( lock ) mutex.unlock();
+    if ( lock ) mutex.unLock();
 }
 
 
@@ -76,7 +76,7 @@ void SelectionManager::deSelect( int id, bool lock )
 
     }
 
-    if ( lock ) mutex.unlock();
+    if ( lock ) mutex.unLock();
 }
 
 
@@ -84,7 +84,7 @@ void SelectionManager::deSelectAll(bool lock)
 {
     if ( lock ) mutex.lock();
     while ( selectedids.size() ) deSelect( selectedids[0], false );
-    if ( lock ) mutex.unlock();
+    if ( lock ) mutex.unLock();
 }
 
 }; // namespace visBase

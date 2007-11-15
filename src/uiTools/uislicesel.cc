@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.45 2007-07-11 04:57:57 cvsnanne Exp $
+ RCS:           $Id: uislicesel.cc,v 1.46 2007-11-15 13:17:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -357,7 +357,7 @@ void uiSliceSel::applyPush( CallBacker* )
 	return;
     readInput();
     applycb_.doCall(this);
-    updatemutex_.unlock();
+    updatemutex_.unLock();
 }
 
 

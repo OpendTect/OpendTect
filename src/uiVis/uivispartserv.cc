@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.358 2007-11-14 09:16:40 cvsbert Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.359 2007-11-15 13:17:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,7 +110,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
 
 
 void uiVisPartServer::unlockEvent()
-{ eventmutex_.unlock(); }
+{ eventmutex_.unLock(); }
 
 
 uiVisPartServer::~uiVisPartServer()

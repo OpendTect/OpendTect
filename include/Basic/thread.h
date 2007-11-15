@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.27 2007-11-15 12:03:07 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.28 2007-11-15 13:17:32 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -47,11 +47,11 @@ public:
     virtual		~Mutex();	
 
     int			lock();
-    int			unlock();
+    int			unLock();
 
     bool		tryLock();
     			/*!< Returns true if mutex is locked.
-			     If it is locked, it you must unlock it when
+			     If it is locked, it you must unLock it when
 			     you are finished. If it returns false, 
 			     carry on with your life.
 			 */
@@ -85,9 +85,9 @@ public:
 		MutexLocker( Mutex& mutex )
 		    : mutex_( mutex )
 		    , islocked_( true ) { mutex_.lock(); }
-		~MutexLocker()          { if ( islocked_ ) mutex_.unlock(); }
+		~MutexLocker()          { if ( islocked_ ) mutex_.unLock(); }
 
-    void	unLock() { islocked_ = false; mutex_.unlock(); }
+    void	unLock() { islocked_ = false; mutex_.unLock(); }
 		/*!<Use at own risk! To be safe, it should only be called
 		    by the process that created the lock. */
     void	lock() { islocked_ = true; mutex_.lock(); }
@@ -116,7 +116,7 @@ From the working thread
    calls signal(); If you are awakened, check the condition again and go back
    to sleep if it is false.
 
-3. If condition is true, unlock() and start working. When finished working
+3. If condition is true, unLock() and start working. When finished working
    go back to 1.
 
 It is wise to put an exit flag in the loop, so it's possible to say that we
@@ -127,7 +127,7 @@ When you want to change the condition:
 1. lock
 2. set condition (e.g. add more work)
 3. signal
-4. unlock
+4. unLock
 
 */
 
@@ -253,17 +253,17 @@ int getNrProcessors();
 #define mThreadMutexedSet(var,newval) \
     var##mutex.lock(); \
     var = newval; \
-    var##mutex.unlock()
+    var##mutex.unLock()
 
 #define mThreadMutexedGet(retvar,var) \
     var##mutex.lock(); \
     retvar = var; \
-    var##mutex.unlock()
+    var##mutex.unLock()
 
 #define mThreadMutexedGetVar(T,retvar,var) \
     var##mutex.lock(); \
     T retvar = var; \
-    var##mutex.unlock()
+    var##mutex.unLock()
 
 };
 

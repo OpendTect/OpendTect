@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.3 2007-11-14 18:16:27 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.4 2007-11-15 13:17:32 cvskris Exp $";
 
 #include "task.h"
 
@@ -44,7 +44,7 @@ void Task::controlWork( Task::Control c )
     workcontrolcondvar_->lock();
     control_ = c;
     workcontrolcondvar_->signal(true);
-    workcontrolcondvar_->unlock();
+    workcontrolcondvar_->unLock();
 }
 
 
@@ -55,7 +55,7 @@ Task::Control Task::getState() const
 
     workcontrolcondvar_->lock();
     Task::Control res = control_;
-    workcontrolcondvar_->unlock();
+    workcontrolcondvar_->unLock();
 
     return res;
 }
@@ -69,12 +69,12 @@ bool Task::shouldContinue()
     workcontrolcondvar_->lock();
     if ( control_==Task::Run )
     {
-	workcontrolcondvar_->unlock();
+	workcontrolcondvar_->unLock();
 	return true;
     }
     else if ( control_==Task::Stop )
     {
-	workcontrolcondvar_->unlock();
+	workcontrolcondvar_->unLock();
 	return false;
     }
 
@@ -83,7 +83,7 @@ bool Task::shouldContinue()
 
     const bool shouldcont = control_==Task::Run;
 
-    workcontrolcondvar_->unlock();
+    workcontrolcondvar_->unLock();
     return shouldcont;
 }
 
@@ -156,7 +156,7 @@ void ParallelTask::enableNrDoneCounting( bool yn )
 	nrdonemutex_->lock();
 	Threads::Mutex* tmp = nrdonemutex_;
 	nrdonemutex_ = 0;
-	tmp->unlock();
+	tmp->unLock();
     }
     else
     {
@@ -183,7 +183,7 @@ int ParallelTask::nrDone() const
 {
     if ( nrdonemutex_ ) nrdonemutex_->lock();
     int res = nrdone_;
-    if ( nrdonemutex_ ) nrdonemutex_->unlock();
+    if ( nrdonemutex_ ) nrdonemutex_->unLock();
     return res;
 }
 
@@ -200,7 +200,7 @@ bool ParallelTask::execute()
     if ( nrdonemutex_ ) nrdonemutex_->lock();
     nrdone_ = -1;
     control_ = Task::Run;
-    if ( nrdonemutex_ ) nrdonemutex_->unlock();
+    if ( nrdonemutex_ ) nrdonemutex_->unLock();
 
     if ( Threads::getNrProcessors()==1 )
     {

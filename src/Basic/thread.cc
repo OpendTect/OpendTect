@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.30 2007-11-15 12:03:07 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.31 2007-11-15 13:17:32 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -47,7 +47,7 @@ int Threads::Mutex::lock()
 }
 
 
-int Threads::Mutex::unlock()
+int Threads::Mutex::unLock()
 {
     return pthread_mutex_unlock( &mutex );
 }
@@ -81,7 +81,7 @@ void Threads::ReadWriteLock::readLock()
 	statuscond_.wait();
     
     status_ ++;
-    statuscond_.unlock();
+    statuscond_.unLock();
 }
 
 
@@ -100,7 +100,7 @@ void Threads::ReadWriteLock::readUnLock()
     if ( !status_ )
 	statuscond_.signal( false );
 
-    statuscond_.unlock();
+    statuscond_.unLock();
 }
 
 
@@ -111,7 +111,7 @@ void Threads::ReadWriteLock::writeLock()
 	statuscond_.wait();
     
     status_ --;
-    statuscond_.unlock();
+    statuscond_.unLock();
 }
     
    
@@ -128,7 +128,7 @@ void Threads::ReadWriteLock::writeUnLock()
     }
 
     statuscond_.signal( true );
-    statuscond_.unlock();
+    statuscond_.unLock();
 }
 
 
@@ -138,13 +138,13 @@ bool Threads::ReadWriteLock::convToWriteLock()
     if ( status_==1 )
     {
 	status_ = -1;
-	statuscond_.unlock();
+	statuscond_.unLock();
 	return true;
     }
     else if ( status_<1 )
 	pErrMsg( "Object is not readlocked.");
 
-    statuscond_.unlock();
+    statuscond_.unLock();
     readUnLock();
     writeLock();
     return false;
@@ -158,7 +158,7 @@ void Threads::ReadWriteLock::convToReadLock()
 	pErrMsg( "Object is not writelocked.");
     status_ = 1;
     statuscond_.signal( true );
-    statuscond_.unlock();
+    statuscond_.unLock();
 }
 
 

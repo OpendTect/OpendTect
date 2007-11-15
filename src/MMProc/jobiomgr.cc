@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Oct 2004
- RCS:           $Id: jobiomgr.cc,v 1.25 2006-04-25 16:53:11 cvsbert Exp $
+ RCS:           $Id: jobiomgr.cc,v 1.26 2007-11-15 13:17:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,14 +125,14 @@ public:
 				thread = new Threads::Thread(
 					mCB(this,JobIOHandler,doDispatch) );
 
-				threadmutex.unlock();
+				threadmutex.unLock();
 			    }
 
     virtual		~JobIOHandler()
 			    {
 				threadmutex.lock();
 				if( exitreq_ ) *exitreq_ = true;
-				threadmutex.unlock();
+				threadmutex.unLock();
 				thread->stop();
 			    }
 
@@ -146,7 +146,7 @@ public:
 				jobhostresps_ +=
 				    new JobHostRespInfo( hd, descnr );
 
-				jhrespmutex_.unlock();
+				jhrespmutex_.unLock();
 			    }
 
     void		removeJobDesc( const char* hostnm, int descnr )
@@ -159,7 +159,7 @@ public:
 				if ( jhri )
 				    { jobhostresps_ -= jhri; delete jhri; }
 				    
-				jhrespmutex_.unlock();
+				jhrespmutex_.unLock();
 			    }
 
     void		reqModeForJob( const JobInfo&, JobIOMgr::Mode );
@@ -211,7 +211,7 @@ JobHostRespInfo* JobIOHandler::getJHRFor( int descnr, const char* hostnm )
 	}
     }
 
-    if ( unlock ) jhrespmutex_.unlock();
+    if ( unlock ) jhrespmutex_.unLock();
 
     return jhri;
 }
@@ -225,7 +225,7 @@ char JobIOHandler::getRespFor( int descnr , const char* hostnm )
     JobHostRespInfo* jhri = getJHRFor( descnr, hostnm );
     if ( jhri ) resp = jhri->response_;
 
-    jhrespmutex_.unlock();
+    jhrespmutex_.unLock();
 
     return resp;
 }
@@ -251,7 +251,7 @@ void JobIOHandler::reqModeForJob( const JobInfo& ji, JobIOMgr::Mode mode )
     JobHostRespInfo* jhri = getJHRFor( descnr, hostnm );
     if ( jhri ) jhri->response_ = resp;
 
-    jhrespmutex_.unlock();
+    jhrespmutex_.unLock();
 }
 
 

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscolortabindexer.cc,v 1.5 2007-10-30 16:53:36 cvskris Exp $";
+static const char* rcsID = "$Id: viscolortabindexer.cc,v 1.6 2007-11-15 13:17:32 cvskris Exp $";
 
 #include "viscolortabindexer.h"
 
@@ -40,7 +40,7 @@ ColorTabIndexer::ColorTabIndexer( const ValueSeries<float>& inp,
     globalhistogram_ = new unsigned int[nrhistogramsteps_];
 
     memset( globalhistogram_, 0, sizeof(int)*nrhistogramsteps_ );
-    histogrammutex_.unlock();
+    histogrammutex_.unLock();
 }
 
 
@@ -61,7 +61,7 @@ ColorTabIndexer::ColorTabIndexer( const float* inp,
     globalhistogram_ = new unsigned int[nrhistogramsteps_];
 
     memset( globalhistogram_, 0, sizeof(int)*nrhistogramsteps_ );
-    histogrammutex_.unlock();
+    histogrammutex_.unLock();
 }
 
 
@@ -112,7 +112,7 @@ bool ColorTabIndexer::doWork( int start, int stop, int threadid )
     histogrammutex_.lock();
     for ( int idx=nrhistogramsteps_-1; idx>=0; idx-- )
 	globalhistogram_[idx] += histogram[idx];
-    histogrammutex_.unlock();
+    histogrammutex_.unLock();
 
     return true;
 }

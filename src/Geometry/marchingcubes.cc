@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.11 2007-11-02 20:42:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.12 2007-11-15 13:17:32 cvskris Exp $";
 
 #include "marchingcubes.h"
 
@@ -598,14 +598,14 @@ void SeedBasedImplicit2MarchingCubes::seedBasedFloodFill()
 	oldfloodfillers_ = activefloodfillers_;
 	activefloodfillers_ = newfloodfillers_;
 	newfloodfillers_.erase();
-	newfloodfillerslock_.unlock();
+	newfloodfillerslock_.unLock();
 
 	workman.addWork( (ObjectSet<SequentialTask>&) activefloodfillers_ );
 
 	newfloodfillerslock_.lock();
     }
 
-    newfloodfillerslock_.unlock();
+    newfloodfillerslock_.unLock();
 }
 
 
@@ -655,7 +655,7 @@ void SeedBasedImplicit2MarchingCubes::addMarchingCube( int idx, int idy,
 	: new SeedBasedFloodFiller( *this, idx, idy, idz, willcontinue );
 
     newfloodfillers_ += floodfiller;
-    newfloodfillerslock_.unlock();
+    newfloodfillerslock_.unLock();
 
     floodfiller->setIndices( idx, idy, idz, willcontinue );
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Lammertink
  Date:		March 2004
- RCS:		$Id: queue.h,v 1.2 2004-03-17 16:26:56 arend Exp $
+ RCS:		$Id: queue.h,v 1.3 2007-11-15 13:17:32 cvskris Exp $
 ________________*_______________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ public:
 				tail->next = new QueueEntry<T*>( item );
 				tail = tail->next;
 			    }
-			    mutex.unlock();
+			    mutex.unLock();
 			}
 
 			//! becomes YOURS!
@@ -59,7 +59,7 @@ public:
 
 			    if ( !head ) tail = 0;
 
-			    mutex.unlock();
+			    mutex.unLock();
 
 			    return value;
 			}
@@ -88,7 +88,7 @@ public:
 				tail->next = new QueueEntry<T>( item );
 				tail = tail->next;
 			    }
-			    mutex.unlock();
+			    mutex.unLock();
 			}
 
     bool		empty()		{ return !head; }
@@ -107,7 +107,7 @@ public:
 
 			    if ( !head ) tail = 0;
 
-			    mutex.unlock();
+			    mutex.unLock();
 
 			    return value;
 			}

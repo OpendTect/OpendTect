@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: threadwork.cc,v 1.22 2007-10-31 18:56:52 cvskris Exp $";
+static const char* rcsID = "$Id: threadwork.cc,v 1.23 2007-11-15 13:17:32 cvskris Exp $";
 
 #include "threadwork.h"
 #include "task.h"
@@ -77,7 +77,7 @@ Threads::WorkThread::WorkThread( ThreadWorkManager& man )
 {
     controlcond_.lock();
     thread_ = new Thread( mCB( this, WorkThread, doWork));
-    controlcond_.unlock();
+    controlcond_.unLock();
 
     SignalHandling::startNotify( SignalHandling::Kill,
 	    			 mCB( this, WorkThread, exitWork ));
@@ -94,7 +94,7 @@ Threads::WorkThread::~WorkThread()
 	controlcond_.lock();
 	exitflag_ = true;
 	controlcond_.signal(false);
-	controlcond_.unlock();
+	controlcond_.unLock();
 
 	thread_->stop();
 	thread_ = 0;
@@ -125,13 +125,13 @@ void Threads::WorkThread::doWork( CallBacker* )
 
 	if ( exitflag_ )
 	{
-	    controlcond_.unlock();
+	    controlcond_.unLock();
 	    thread_->threadExit();
 	}
 
 	while ( task_ && !exitflag_ )
 	{
-	    controlcond_.unlock(); //Allow someone to set the exitflag
+	    controlcond_.unLock(); //Allow someone to set the exitflag
 	    retval_ = cancelflag_ ? 0 : task_->doStep();
 	    controlcond_.lock();
 
@@ -154,13 +154,13 @@ void Threads::WorkThread::doWork( CallBacker* )
 		    manager_.freethreads_ += this;
 		}
 
-		manager_.workloadcond_.unlock();
+		manager_.workloadcond_.unLock();
 		manager_.isidle.trigger(&manager_);
 	    }
 	}
     }
 
-    controlcond_.unlock();
+    controlcond_.unLock();
 }
 
 
@@ -177,7 +177,7 @@ void Threads::WorkThread::exitWork(CallBacker*)
     controlcond_.lock();
     exitflag_ = true;
     controlcond_.signal( false );
-    controlcond_.unlock();
+    controlcond_.unLock();
 
     thread_->stop();
     thread_ = 0;
@@ -190,14 +190,14 @@ void Threads::WorkThread::assignTask(SequentialTask& newtask, CallBack* cb_ )
     if ( task_ )
     {
 	pErrMsg( "Trying to set existing task");
-	controlcond_.unlock();
+	controlcond_.unLock();
 	return;
     }
 
     task_ = &newtask;
     finishedcb_ = cb_;
     controlcond_.signal(false);
-    controlcond_.unlock();
+    controlcond_.unLock();
     return;
 }
 
@@ -271,7 +271,7 @@ void Threads::ThreadWorkManager::removeWork( const SequentialTask* task )
     const int idx = workload_.indexOf( task );
     if ( idx==-1 )
     {
-	workloadcond_.unlock();
+	workloadcond_.unLock();
 	for ( int idy=0; idy<threads_.size(); idy++ )
 	    threads_[idy]->cancelWork( task );
 	return;
@@ -279,7 +279,7 @@ void Threads::ThreadWorkManager::removeWork( const SequentialTask* task )
 
     workload_.remove( idx );
     callbacks_.remove( idx );
-    workloadcond_.unlock();
+    workloadcond_.unLock();
 }
 
 
@@ -322,7 +322,7 @@ public:
 
 			nrfinished_++;
 			if ( nrfinished_==nrtasks_ ) rescond_.signal( false );
-			rescond_.unlock();
+			rescond_.unLock();
 		    }
 
     Threads::ConditionVar	rescond_;
@@ -367,7 +367,7 @@ bool Threads::ThreadWorkManager::addWork( ObjectSet<SequentialTask>& work )
 	resultman.rescond_.lock();
 	while ( !resultman.isFinished() )
 	    resultman.rescond_.wait();
-	resultman.rescond_.unlock();
+	resultman.rescond_.unLock();
 
 	if ( res ) res = !resultman.hasErrors();
     }
