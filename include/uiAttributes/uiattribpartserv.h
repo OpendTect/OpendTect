@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.31 2007-10-24 04:43:49 cvsraman Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.32 2007-11-15 13:26:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,10 +133,10 @@ public:
 
     void		resetMenuItems();
     MenuItem*         	storedAttribMenuItem(const Attrib::SelSpec&,bool);
-    MenuItem*         	calcAttribMenuItem(const Attrib::SelSpec&,bool);
-    MenuItem*         	nlaAttribMenuItem(const Attrib::SelSpec&,bool);
+    MenuItem*         	calcAttribMenuItem(const Attrib::SelSpec&,bool,bool);
+    MenuItem*         	nlaAttribMenuItem(const Attrib::SelSpec&,bool,bool);
     MenuItem*         	depthdomainAttribMenuItem(const Attrib::SelSpec&,
-	    					  const char* key,bool);
+	    					  const char* key,bool,bool);
 
     bool		handleAttribSubMenu(int mnuid,Attrib::SelSpec&) const;
 

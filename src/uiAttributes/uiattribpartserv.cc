@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.76 2007-10-24 04:44:22 cvsraman Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.77 2007-11-15 13:26:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,10 +84,8 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
 	, dirshwattrdesc_(0)
         , attrsetdlg_(0)
     	, attrsetclosetim_("Attrset dialog close")
-	, stored2dmnuitem_("Stored 2D Data")
-	, stored3dmnuitem_("Stored Cubes")
-	, calc2dmnuitem_("Attributes 2D")
-	, calc3dmnuitem_("Attributes 3D")
+	, stored2dmnuitem_("&Stored 2D Data")
+	, stored3dmnuitem_("Stored &Cubes")
 {
     initAttribClasses();
     StorageProvider::initClass();
@@ -821,13 +819,17 @@ void uiAttribPartServer::insertNumerousItems( const BufferStringSet& bfset,
 }
 
 
-MenuItem* uiAttribPartServer::calcAttribMenuItem( const SelSpec& as, bool is2d )
+MenuItem* uiAttribPartServer::calcAttribMenuItem( const SelSpec& as,
+						  bool is2d, bool useext )
 {
     SelInfo attrinf( is2d ? adsman2d_->descSet() : adsman3d_->descSet() );
     const bool isattrib = attrinf.attrids.indexOf( as.id() ) >= 0; 
 
     const int start = 0; const int stop = attrinf.attrnms.size();
     MenuItem* calcmnuitem = is2d ? &calc2dmnuitem_ : &calc3dmnuitem_;
+    BufferString txt = useext ? ( is2d? "Attributes &2D" : "Attributes &3D" )
+			      : "&Attributes";
+    calcmnuitem->text = txt;
     mInsertItems(attrnms,calcmnuitem,isattrib);
 
     calcmnuitem->enabled = calcmnuitem->nrItems();
@@ -835,13 +837,21 @@ MenuItem* uiAttribPartServer::calcAttribMenuItem( const SelSpec& as, bool is2d )
 }
 
 
-MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as, bool is2d )
+MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as, bool is2d,
+       						 bool useext )
 {
     const NLAModel* nlamodel = getNLAModel(is2d);
     MenuItem* nlamnuitem = is2d ? &nla2dmnuitem_ : &nla3dmnuitem_;
     if ( nlamodel )
     {
-	nlamnuitem->text = nlamodel->nlaType(false);
+	BufferString ittxt;
+	if ( !useext || is2d )
+	    { ittxt = "&"; ittxt += nlamodel->nlaType(false); }
+	else
+	    ittxt = "N&eural Network 3D";
+	if ( useext && is2d ) ittxt += " 2D";
+	
+	nlamnuitem->text = ittxt;
 	DescSet* dset = is2d ? adsman2d_->descSet() : adsman3d_->descSet();
 	SelInfo attrinf( dset, nlamodel );
 	const bool isnla = as.isNLA();
@@ -858,11 +868,12 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as, bool is2d )
 // TODO: create more general function, for now it does what we need
 MenuItem* uiAttribPartServer::depthdomainAttribMenuItem( const SelSpec& as,
 							 const char* key,
-							 bool is2d )
+							 bool is2d, bool useext)
 {
     MenuItem* depthdomainmnuitem = is2d ? &depthdomain2dmnuitem_ 
 					: &depthdomain3dmnuitem_;
-    BufferString itmtxt = key; itmtxt += " Cubes";
+    BufferString itmtxt = key;
+    itmtxt += useext ? ( is2d ? " Cubes" : " 2D Lines") : " Data";
     depthdomainmnuitem->text = itmtxt;
     depthdomainmnuitem->removeItems();
     depthdomainmnuitem->checkable = true;
@@ -886,6 +897,7 @@ MenuItem* uiAttribPartServer::depthdomainAttribMenuItem( const SelSpec& as,
 
 bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
 {
+    bool needext = SI().getSurvDataType()==SurveyInfo::Both2DAnd3D;
     bool is2d = stored2dmnuitem_.findItem(mnuid) ||
 		calc2dmnuitem_.findItem(mnuid) ||
 		nla2dmnuitem_.findItem(mnuid) ||
@@ -897,7 +909,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
     SelInfo attrinf( attrdata.attrset, attrdata.nlamodel, is2d );
     const MenuItem* calcmnuitem = is2d ? &calc2dmnuitem_ : &calc3dmnuitem_;
     const MenuItem* nlamnuitem = is2d ? &nla2dmnuitem_ : &nla3dmnuitem_;
-    const MenuItem* depthdomainmnuitem = is2d ? &depthdomain2dmnuitem_ 
+    const MenuItem* depthdomainmnuitem = is2d ? &depthdomain2dmnuitem_
 					      : &depthdomain3dmnuitem_;
 
     DescID attribid = SelSpec::cAttribNotSel();
@@ -973,7 +985,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
     else
 	as.setRefFromID( *adsman->descSet() );
     
-    if ( is2d )	as.set2DFlag();
+    as.set2DFlag( is2d );
 
     return true;
 }

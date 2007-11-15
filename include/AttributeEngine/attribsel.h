@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.14 2007-02-13 13:14:08 cvsjaap Exp $
+ RCS:           $Id: attribsel.h,v 1.15 2007-11-15 13:26:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,7 @@ public:
     void		setIDFromRef(const DescSet&);
     void		setRefFromID(const NLAModel&);
     void		setRefFromID(const DescSet&);
-    void		set2DFlag()			{ is2d_ = true; }
+    void		set2DFlag( bool yn = true )	{ is2d_ = yn; }
 
     const StepInterval<int>&	discrSpec() const	{ return discrspec_; }
     void		setDiscrSpec( const StepInterval<int>& ds )

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.26 2007-11-14 09:16:39 cvsbert Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.27 2007-11-15 13:26:47 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -174,10 +174,11 @@ void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( &selattritm_, &storeditm_, storeditm_.nrItems(), false );
 
 	MenuItem* attrmenu = applMgr()->attrServer()->
-	    					calcAttribMenuItem( as, true );
+					calcAttribMenuItem( as, true, false );
 	mAddMenuItem( &selattritm_, attrmenu, attrmenu->nrItems(), false );
 
-	MenuItem* nla = applMgr()->attrServer()->nlaAttribMenuItem( as, true );
+	MenuItem* nla = applMgr()->attrServer()->
+	    				nlaAttribMenuItem( as, true, false );
 	if ( nla && nla->nrItems() )
 	    mAddMenuItem( &selattritm_, nla, true, false );
 
@@ -607,10 +608,10 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
 
     mAddMenuItem( &selattrmnuitem_, &storeditm_, true, docheckparent );
 
-    MenuItem* attrmenu = attrserv->calcAttribMenuItem( as, true );
+    MenuItem* attrmenu = attrserv->calcAttribMenuItem( as, true, false );
     mAddMenuItem( &selattrmnuitem_, attrmenu, attrmenu->nrItems(), false );
 
-    MenuItem* nla = attrserv->nlaAttribMenuItem( as, true );
+    MenuItem* nla = attrserv->nlaAttribMenuItem( as, true, false );
     if ( nla && nla->nrItems() )
 	mAddMenuItem( &selattrmnuitem_, nla, true, false );
 

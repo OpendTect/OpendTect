@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodattribtreeitem.cc,v 1.13 2007-11-14 09:16:39 cvsbert Exp $
+ RCS:		$Id: uiodattribtreeitem.cc,v 1.14 2007-11-15 13:26:47 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -71,27 +71,27 @@ bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
 
 
 // TODO: get depthdomain key from scene
-#define mCreateDepthDomMnuItemIfNeeded( is2d ) \
+#define mCreateDepthDomMnuItemIfNeeded( is2d, needext ) \
 {\
     if ( scene && scene->getDataTransform() )\
     {\
 	subitem = attrserv->depthdomainAttribMenuItem( *as,\
-					    scene->getDepthDomainKey(), is2d );\
+				scene->getDepthDomainKey(), is2d, needext );\
 	mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );\
     }\
 }
 
 
-#define mCreateItemsList( is2d ) \
+#define mCreateItemsList( is2d, needext ) \
 { \
     subitem = attrserv->storedAttribMenuItem( *as, is2d ); \
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked ); \
-    subitem = attrserv->calcAttribMenuItem( *as, is2d ); \
+    subitem = attrserv->calcAttribMenuItem( *as, is2d, needext ); \
     mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked ); \
-    subitem = attrserv->nlaAttribMenuItem( *as, is2d ); \
+    subitem = attrserv->nlaAttribMenuItem( *as, is2d, needext ); \
     if ( subitem && subitem->nrItems() ) \
 	mAddMenuItem( &mnu, subitem, true, subitem->checked ); \
-    mCreateDepthDomMnuItemIfNeeded( is2d ); \
+    mCreateDepthDomMnuItemIfNeeded( is2d, needext ); \
 }
 
 void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
@@ -109,10 +109,12 @@ void uiODAttribTreeItem::createSelMenu( MenuItem& mnu, int visid, int attrib,
 
 	MenuItem* subitem;
 	attrserv->resetMenuItems();
-	if ( SI().has2D() && p2d3d != Only3D )
-	    mCreateItemsList( true );
-	if ( SI().has3D() && p2d3d != Only2D )
-	    mCreateItemsList( false );
+	bool need2dlist = SI().has2D() && p2d3d != Only3D;
+	bool need3dlist = SI().has3D() && p2d3d != Only2D;
+	if ( need2dlist )
+	    mCreateItemsList( true, need3dlist );
+	if ( need3dlist )
+	    mCreateItemsList( false, need2dlist );
     }
 }
 
