@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinegeom.h,v 1.4 2007-11-06 16:31:49 cvsbert Exp $
+ RCS:		$Id: randomlinegeom.h,v 1.5 2007-11-15 16:52:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ class RandomLine : public CallBacker
 public:
     			RandomLine();
 			~RandomLine()		{}
+    bool		isEmpty() const		{ return nodes_.isEmpty(); }
 
     int			addNode(const BinID&);
     void		insertNode(int,const BinID&);
@@ -67,6 +68,7 @@ public:
 
     			RandomLineSet();
     virtual		~RandomLineSet();
+    bool		isEmpty() const		{ return lines_.isEmpty(); }
 
     int			size() const		{ return lines_.size(); }
     const ObjectSet<RandomLine>& lines() const	{ return lines_; }
