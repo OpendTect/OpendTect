@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	K. Tingdahl
  Date:		13-11-2003
  Contents:	Basic functionality for reference counting
- RCS:		$Id: refcount.h,v 1.12 2007-03-26 22:40:57 cvskris Exp $
+ RCS:		$Id: refcount.h,v 1.13 2007-11-15 13:29:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,15 +16,22 @@ ________________________________________________________________________
 #include "ptrman.h"
 
 template <class T> class ObjectSet;
+namespace Threads { class Mutex; }
 
 /*!The refcount itself. Used internally by refcounted objects. */
 class RefCount
 {
 public:
-    		RefCount() : refcount_( 0 ) {}
-    		RefCount(const RefCount&) : refcount_( 0 ) {}
+    			RefCount();
+    			RefCount(const RefCount&);
+			~RefCount();
 
-    int		refcount_;
+    void		lock();
+    int			refcount_;
+    void		unLock();
+
+protected:
+    Threads::Mutex*	lock_;
 };
 
 /*!
@@ -76,22 +83,31 @@ PtrMan.
 public: \
     void	ref() const \
 		{ \
+		    __refcount.lock(); \
 		    __refcount.refcount_++; \
+		    __refcount.unLock(); \
 		    refNotify(); \
 		} \
     void	unRef() const \
 		{ \
 		    unRefNotify(); \
-		    if ( !this ) \
-			return; \
+		    __refcount.lock(); \
 		    if ( !--__refcount.refcount_ ) \
+		    { \
+			__refcount.unLock(); \
 			delfunc \
+			return; \
+		    } \
+		    else \
+			__refcount.unLock(); \
 		} \
  \
     void	unRefNoDelete() const \
 		{ \
-		    __refcount.refcount_--; \
     		    unRefNoDeleteNotify(); \
+		    __refcount.lock(); \
+		    __refcount.refcount_--; \
+		    __refcount.unLock(); \
 		} \
     int		nrRefs() const { return this ? __refcount.refcount_ : 0 ; } \
 private: \
