@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: veldesc.h,v 1.2 2007-09-17 12:37:37 cvskris Exp $
+ RCS:		$Id: veldesc.h,v 1.3 2007-11-15 21:14:46 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -37,6 +37,7 @@ public:
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
     static const char*	sKeyVelocityDesc();
+    static const char*	sKeyIsVelocity();
 };
 
 

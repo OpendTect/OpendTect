@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Sep 2007
- RCS:           $Id: veldesc.cc,v 1.2 2007-11-15 18:43:59 cvskris Exp $
+ RCS:           $Id: veldesc.cc,v 1.3 2007-11-15 21:14:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "separstr.h"
 
 const char* VelocityDesc::sKeyVelocityDesc()	{ return "Velocity Desc"; }
+const char* VelocityDesc::sKeyIsVelocity()	{ return "Is Velocity"; }
 
 DefineEnumNames(VelocityDesc,Type,0,"Velocity Types")
 { "Unknown", "Vrms", "Vint", "Vavg", 0 };
@@ -69,11 +70,16 @@ void VelocityDesc::fillPar( IOPar& par ) const
 {
     BufferString str = toString();
     par.set( sKeyVelocityDesc(), str.buf() );
+    par.setYN( sKeyIsVelocity(), true );
 }
 
 
 bool VelocityDesc::usePar( const IOPar& par )
 {
+    bool isvel;
+    if ( !par.getYN( sKeyIsVelocity(), isvel ) || !isvel )
+	return false;
+
     BufferString str;
     return par.get( sKeyVelocityDesc(), str ) && fromString( str.buf() );
 }
