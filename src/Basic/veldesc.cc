@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Sep 2007
- RCS:           $Id: veldesc.cc,v 1.1 2007-09-14 07:38:38 cvskris Exp $
+ RCS:           $Id: veldesc.cc,v 1.2 2007-11-15 18:43:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,13 @@ VelocityDesc::VelocityDesc()
     : type_( Unknown )
     , samplerange_( Centered )
 {}
+
+
+VelocityDesc::VelocityDesc( Type t, SampleRange sr )
+    : type_( t )
+    , samplerange_( sr )
+{}
+
 
 
 BufferString VelocityDesc::toString() const
