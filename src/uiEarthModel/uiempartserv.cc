@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.126 2007-10-22 07:06:19 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.127 2007-11-15 16:54:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ ________________________________________________________________________
 #include "uimultisurfaceread.h"
 #include "uiselsimple.h"
 #include "uisurfaceman.h"
+#include "uirandlinegen.h"
 
 #include <math.h>
 
@@ -710,6 +711,23 @@ bool uiEMPartServer::importLMKFault()
 {
     uiImportLMKFault dlg( appserv().parent() );
     return dlg.go();
+}
+
+
+const char* uiEMPartServer::genRandLine( bool fromcontours )
+{
+    const char* res = 0;
+    if ( !fromcontours )
+    {
+	uiMSG().error( "Sorry: not implemented yet" );
+    }
+    else
+    {
+	uiGenRanLinesByContour dlg( appserv().parent() );
+	if ( dlg.go() )
+	    res = dlg.getNewSetID();
+    }
+    return MultiID( res );
 }
 
 

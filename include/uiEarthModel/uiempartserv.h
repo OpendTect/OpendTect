@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.59 2007-10-03 11:51:48 cvsraman Exp $
+ RCS:           $Id: uiempartserv.h,v 1.60 2007-11-15 16:54:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,6 +104,8 @@ public:
 	    			   ObjectSet<BinIDValueSet>&) const;
     bool		getAllAuxData(const EM::ObjectID&,BufferStringSet&,
 	    			      ObjectSet<BinIDValueSet>&) const;
+
+    const char*		genRandLine(bool fromcontours);
 
     void		removeUndo();
 

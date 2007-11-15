@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.11 2007-11-14 09:16:39 cvsbert Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.12 2007-11-15 16:54:24 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -13,7 +13,6 @@ ___________________________________________________________________
 
 #include "uimenu.h"
 #include "uiodapplmgr.h"
-#include "uivispartserv.h"
 
 #include "ctxtioobj.h"
 #include "ptrman.h"
@@ -28,6 +27,8 @@ ___________________________________________________________________
 #include "uimsg.h"
 #include "uiodscenemgr.h"
 #include "uiwellpartserv.h"
+#include "uivispartserv.h"
+#include "uiempartserv.h"
 #include "visrandomtrackdisplay.h"
 
 
@@ -56,14 +57,20 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     }
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Add"), 0 );
+    mnu.insertItem( new uiMenuItem("&New"), 0 );
     mnu.insertItem( new uiMenuItem("&Load ..."), 1 );
+    uiPopupMenu* genmnu = new uiPopupMenu( getUiParent(), "&Generate" );
+    genmnu->insertItem( new uiMenuItem("From &Existing"), 2 );
+    genmnu->insertItem( new uiMenuItem("Along &Contours"), 3 );
+    mnu.insertItem( genmnu );
     addStandardItems( mnu );
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
 	addChild( new uiODRandomLineTreeItem(-1), false );
     else if ( mnuid == 1 )
 	load();
+    else if ( mnuid == 2 || mnuid == 3 )
+	genRandLine( mnuid == 3 );
 
     handleStandardItems( mnuid );
     return true;
@@ -93,12 +100,17 @@ bool uiODRandomLineParentTreeItem::load()
     //TODO handle subselection in set
     TypeSet<BinID> bids;
     const Geometry::RandomLine& rln = *lset.lines()[0];
-    rln.allNodePositions( bids );
-    rtd->setKnotPositions( bids );
+    rln.allNodePositions( bids ); rtd->setKnotPositions( bids );
     rtd->setDepthInterval( rln.zRange() );
     rtd->setName( dlg.ioObj()->name() );
     updateColumnText( uiODSceneMgr::cNameColumn() );
     return true;
+}
+
+
+void uiODRandomLineParentTreeItem::genRandLine( bool cont )
+{
+    const char* res = applMgr()->EMServer()->genRandLine( cont );
 }
 
 
@@ -213,14 +225,12 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	if ( !dlg.go() )
 	    return;
 	    
-	TypeSet<BinID> bids;
-	rtd->getAllKnotPos( bids );
-	Geometry::RandomLineSet lset;
+	TypeSet<BinID> bids; rtd->getAllKnotPos( bids );
 	Geometry::RandomLine* rln = new Geometry::RandomLine;
 	for ( int idx=0; idx<bids.size(); idx++ )
 	    rln->addNode( bids[idx] );
 	rln->setZRange( rtd->getDepthInterval() );
-	lset.addLine( rln );
+	Geometry::RandomLineSet lset; lset.addLine( rln );
 	BufferString bs;
 	if ( !RandomLineSetTranslator::store(lset,dlg.ioObj(),bs) )
 	    uiMSG().error( bs );
