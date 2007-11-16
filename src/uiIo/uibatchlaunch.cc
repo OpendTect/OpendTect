@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.57 2007-08-10 09:52:07 cvsbert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.58 2007-11-16 21:25:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,37 +60,37 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOPar& ip,
 			      const char* hn, const char* pn, bool wp )
         : uiDialog(p,uiDialog::Setup("Batch launch","Specify output mode",
 		   "0.1.4"))
-	, iop(*new IOPar(ip))
-	, hostname(hn)
-	, progname(pn)
+	, iop_(*new IOPar(ip))
+	, hostname_(hn)
+	, progname_(pn)
 {
     finaliseDone.notify( mCB(this,uiBatchLaunch,remSel) );
     HostDataList hdl;
-    rshcomm = hdl.rshComm();
-    if ( rshcomm.isEmpty() ) rshcomm = "rsh";
-    nicelvl = hdl.defNiceLevel();
+    rshcomm_ = hdl.rshComm();
+    if ( rshcomm_.isEmpty() ) rshcomm_ = "rsh";
+    nicelvl_ = hdl.defNiceLevel();
 
     BufferString dispstr( "Remote (using " );
-    dispstr += rshcomm; dispstr += ")";
-    remfld = new uiGenInput( this, "Execute",
+    dispstr += rshcomm_; dispstr += ")";
+    remfld_ = new uiGenInput( this, "Execute",
 			     BoolInpSpec(true,"Local",dispstr) );
-    remfld->valuechanged.notify( mCB(this,uiBatchLaunch,remSel) );
+    remfld_->valuechanged.notify( mCB(this,uiBatchLaunch,remSel) );
 
-    opts.add( "Output window" );
-    opts.add( "Log file" );
-    opts.add( "Standard output" );
+    opts_.add( "Output window" );
+    opts_.add( "Log file" );
+    opts_.add( "Standard output" );
     if ( wp )
-	opts.add( "Parameter report (no run)" );
-    optfld = new uiLabeledComboBox( this, opts, "Output to" );
-    optfld->attach( alignedBelow, remfld );
-    optfld->box()->setCurrentItem( 0 );
-    optfld->box()->selectionChanged.notify( mCB(this,uiBatchLaunch,optSel) );
+	opts_.add( "Parameter report (no run)" );
+    optfld_ = new uiLabeledComboBox( this, opts_, "Output to" );
+    optfld_->attach( alignedBelow, remfld_ );
+    optfld_->box()->setCurrentItem( 0 );
+    optfld_->box()->selectionChanged.notify( mCB(this,uiBatchLaunch,optSel) );
 
     StringListInpSpec spec;
     for ( int idx=0; idx<hdl.size(); idx++ )
 	spec.addString( hdl[idx]->name() );
-    remhostfld = new uiGenInput( this, "Hostname", spec );
-    remhostfld->attach( alignedBelow, remfld );
+    remhostfld_ = new uiGenInput( this, "Hostname", spec );
+    remhostfld_->attach( alignedBelow, remfld_ );
 
     static BufferString fname = "";
     if ( fname.isEmpty() )
@@ -100,59 +100,59 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOPar& ip,
 	    { fname += "_"; fname += GetSoftwareUser(); }
 	fname += ".txt";
     }
-    filefld = new uiFileInput( this, "Log file",
+    filefld_ = new uiFileInput( this, "Log file",
 	   		       uiFileInput::Setup(fname)
 				.forread(false)
 	   			.filter("*.log;;*.txt") );
-    filefld->attach( alignedBelow, optfld );
+    filefld_->attach( alignedBelow, optfld_ );
 
-    nicefld = new uiLabeledSpinBox( this, "Nice level" );
-    nicefld->attach( alignedBelow, filefld );
-    nicefld->box()->setInterval( 0, 19 );
-    nicefld->box()->setValue( nicelvl );
+    nicefld_ = new uiLabeledSpinBox( this, "Nice level" );
+    nicefld_->attach( alignedBelow, filefld_ );
+    nicefld_->box()->setInterval( 0, 19 );
+    nicefld_->box()->setValue( nicelvl_ );
 }
 
 
 uiBatchLaunch::~uiBatchLaunch()
 {
-    delete &iop;
+    delete &iop_;
 }
 
 
 bool uiBatchLaunch::execRemote() const
 {
-    return !remfld->getBoolValue();
+    return !remfld_->getBoolValue();
 }
 
 
 void uiBatchLaunch::optSel( CallBacker* )
 {
     const int sel = selected();
-    filefld->display( sel == 1 || sel == 3 );
+    filefld_->display( sel == 1 || sel == 3 );
 }
 
 
 void uiBatchLaunch::remSel( CallBacker* )
 {
     bool isrem = execRemote();
-    remhostfld->display( isrem );
-    optfld->display( !isrem );
+    remhostfld_->display( isrem );
+    optfld_->display( !isrem );
     optSel(0);
 }
 
 
 void uiBatchLaunch::setParFileName( const char* fnm )
 {
-    parfname = fnm;
+    parfname_ = fnm;
     FilePath fp( fnm );
     fp.setExtension( "log", true );
-    filefld->setFileName( fp.fullPath() );
+    filefld_->setFileName( fp.fullPath() );
 }
 
 
 int uiBatchLaunch::selected()
 {
-    return execRemote() ? 1 : optfld->box()->currentItem();
+    return execRemote() ? 1 : optfld_->box()->currentItem();
 }
 
 
@@ -161,8 +161,8 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
     const bool dormt = execRemote();
     if ( dormt )
     {
-	hostname = remhostfld->text();
-	if ( hostname.isEmpty() )
+	hostname_ = remhostfld_->text();
+	if ( hostname_.isEmpty() )
 	{
 	    uiMSG().error( "Please specify the name of the remote host" );
 	    return false;
@@ -171,15 +171,15 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 
     const int sel = selected();
     BufferString fname = sel == 0 ? "window"
-		       : (sel == 2 ? "stdout" : filefld->fileName());
+		       : (sel == 2 ? "stdout" : filefld_->fileName());
     if ( fname.isEmpty() ) fname = "/dev/null";
-    iop.set( sKey::LogFile, fname );
-    iop.set( sKey::Survey, IOM().surveyName() );
+    iop_.set( sKey::LogFile, fname );
+    iop_.set( sKey::Survey, IOM().surveyName() );
 
     if ( selected() == 3 )
     {
-	iop.set( sKey::LogFile, "stdout" );
-	if ( !iop.write(fname,sKey::Pars) )
+	iop_.set( sKey::LogFile, "stdout" );
+	if ( !iop_.write(fname,sKey::Pars) )
 	{
 	    uiMSG().error( "Cannot write parameter file" );
             return false;
@@ -187,25 +187,25 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 	return true;
     }
 
-    if ( parfname.isEmpty() )
-	getProcFilename( sSingBaseNm, sSingBaseNm, parfname );
-    if ( !writeProcFile(iop,parfname) )
+    if ( parfname_.isEmpty() )
+	getProcFilename( sSingBaseNm, sSingBaseNm, parfname_ );
+    if ( !writeProcFile(iop_,parfname_) )
 	return false;
 
     BufferString comm( "@" );
     comm += GetExecScript( dormt );
     if ( dormt )
     {
-	comm += hostname;
+	comm += hostname_;
 	comm += " --rexec ";
-	comm += rshcomm;
+	comm += rshcomm_;
     }
 
     const bool inbg=dormt;
 #ifdef __win__ 
 
-    comm += " --inbg "; comm += progname;
-    FilePath parfp( parfname );
+    comm += " --inbg "; comm += progname_;
+    FilePath parfp( parfname_ );
 
     BufferString _parfnm( parfp.fullPath(FilePath::Unix) );
     replaceCharacter(_parfnm.buf(),' ','%');
@@ -213,11 +213,11 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 
 #else
 
-    nicelvl = nicefld->box()->getValue();
-    if ( nicelvl != 0 )
-	{ comm += " --nice "; comm += nicelvl; }
-    comm += " "; comm += progname;
-    comm += " -bg "; comm += parfname;
+    nicelvl_ = nicefld_->box()->getValue();
+    if ( nicelvl_ != 0 )
+	{ comm += " --nice "; comm += nicelvl_; }
+    comm += " "; comm += progname_;
+    comm += " -bg "; comm += parfname_;
 
 #endif
 
@@ -233,74 +233,81 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 
 
 uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const Setup& s )
-	: uiDialog(p,uiDialog::Setup(s.wintxt_,"X",0).oktext("Proceed")
-						     .modal(s.modal_))
-    	, uppgrp(new uiGroup(this,"Upper group"))
-	, procprognm(s.procprognm_.isEmpty() ? "process_attrib" : s.procprognm_)
-	, multiprognm(s.multiprocprognm_.isEmpty() ? "SeisMMBatch"
-						   : s.multiprocprognm_)
-    	, redo_(false)
-	, parfnamefld(0)
+    : uiDialog(p,uiDialog::Setup(s.wintxt_,"X",0).oktext("Proceed")
+						 .modal(s.modal_))
+    , uppgrp_(new uiGroup(this,"Upper group"))
+    , procprognm_(s.procprognm_.isEmpty() ? "process_attrib" : s.procprognm_)
+    , multiprognm_(s.multiprocprognm_.isEmpty() ? "SeisMMBatch"
+					       : s.multiprocprognm_)
+    , redo_(false)
+    , parfnamefld_(0)
+    , singmachfld_( 0 )
 {
     setParFileNmDef( 0 );
 }
 
 
-void uiFullBatchDialog::addStdFields( bool forread )
+void uiFullBatchDialog::addStdFields( bool forread, bool onlysinglemachine )
 {
     uiGroup* dogrp = new uiGroup( this, "Proc details" );
     if ( !redo_ )
     {
 	uiSeparator* sep = new uiSeparator( this, "Hor sep" );
-	sep->attach( stretchedBelow, uppgrp );
-	dogrp->attach( alignedBelow, uppgrp );
+	sep->attach( stretchedBelow, uppgrp_ );
+	dogrp->attach( alignedBelow, uppgrp_ );
 	dogrp->attach( ensureBelow, sep );
     }
 
-    singmachfld = new uiGenInput( dogrp, "Submit to",
-		BoolInpSpec(true,"Single machine","Multiple machines") );
-    singmachfld->valuechanged.notify( mCB(this,uiFullBatchDialog,singTogg) );
+    if ( !onlysinglemachine )
+    {
+	singmachfld_ = new uiGenInput( dogrp, "Submit to",
+		    BoolInpSpec(true,"Single machine","Multiple machines") );
+	singmachfld_->valuechanged.notify(
+		mCB(this,uiFullBatchDialog,singTogg) );
+    }
     const char* txt = redo_ ? "Processing specification file"
 			    : "Store processing specification as";
-    parfnamefld = new uiFileInput( dogrp, txt, uiFileInput::Setup(singparfname)
+    parfnamefld_ = new uiFileInput( dogrp,txt, uiFileInput::Setup(singparfname_)
 					       .forread(forread)
 					       .filter("*.par;;*") );
-    parfnamefld->attach( alignedBelow, singmachfld );
+    if ( !onlysinglemachine )
+	parfnamefld_->attach( alignedBelow, singmachfld_ );
 
-    dogrp->setHAlignObj( singmachfld );
+    dogrp->setHAlignObj( parfnamefld_ );
 }
 
 
 void uiFullBatchDialog::setParFileNmDef( const char* nm )
 {
-    getProcFilename( nm, sSingBaseNm, singparfname );
-    getProcFilename( nm, sMultiBaseNm, multiparfname );
-    if ( parfnamefld )
-	parfnamefld->setFileName( singmachfld->getBoolValue() ? singparfname
-							      : multiparfname );
+    getProcFilename( nm, sSingBaseNm, singparfname_ );
+    getProcFilename( nm, sMultiBaseNm, multiparfname_ );
+    if ( parfnamefld_ )
+	parfnamefld_->setFileName( !singmachfld_ || singmachfld_->getBoolValue()
+		? singparfname_
+		: multiparfname_ );
 }
 
 void uiFullBatchDialog::singTogg( CallBacker* cb )
 {
-    const BufferString inpfnm = parfnamefld->fileName();
-    const bool issing = singmachfld->getBoolValue();
-    if ( issing && inpfnm == multiparfname )
-	parfnamefld->setFileName( singparfname );
-    else if ( !issing && inpfnm == singparfname )
-	parfnamefld->setFileName( multiparfname );
+    const BufferString inpfnm = parfnamefld_->fileName();
+    const bool issing = !singmachfld_ || singmachfld_->getBoolValue();
+    if ( issing && inpfnm == multiparfname_ )
+	parfnamefld_->setFileName( singparfname_ );
+    else if ( !issing && inpfnm == singparfname_ )
+	parfnamefld_->setFileName( multiparfname_ );
 }
 
 
 bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 {
     if ( !prepareProcessing() ) return false;
-    BufferString inpfnm = parfnamefld->fileName();
+    BufferString inpfnm = parfnamefld_->fileName();
     if ( inpfnm.isEmpty() )
 	getProcFilename( 0, "tmp_proc", inpfnm );
     else if ( !FilePath(inpfnm).isAbsolute() )
 	getProcFilename( inpfnm, sSingBaseNm, inpfnm );
 
-    const bool issing = singmachfld->getBoolValue();
+    const bool issing = !singmachfld_ || singmachfld_->getBoolValue();
 
     PtrMan<IOPar> iop = 0;
     if ( redo_ )
@@ -330,7 +337,7 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
 {
 #ifdef HAVE_OUTPUT_OPTIONS
-    uiBatchLaunch dlg( this, iop, 0, procprognm, false );
+    uiBatchLaunch dlg( this, iop, 0, procprognm_, false );
     dlg.setParFileName( fnm );
     return dlg.go();
 #else
@@ -351,7 +358,7 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
     comm += GetExecScript( dormt );
 
 #ifdef __win__ 
-    comm += " --inxterm+askclose "; comm += procprognm;
+    comm += " --inxterm+askclose "; comm += procprognm_;
 
     BufferString _parfnm( parfp.fullPath(FilePath::Unix) );
     replaceCharacter(_parfnm.buf(),' ','%');
@@ -359,7 +366,7 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
     comm += " \""; comm += _parfnm; comm += "\"";
 
 #else
-    comm += " "; comm += procprognm;
+    comm += " "; comm += procprognm_;
     comm += " -bg "; comm += parfp.fullPath();
 #endif
 
@@ -378,8 +385,8 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
 
 bool uiFullBatchDialog::multiLaunch( const char* fnm )
 {
-    BufferString comm( multiprognm );	comm += " ";
-    comm += procprognm;			comm += " \"";
+    BufferString comm( multiprognm_ );	comm += " ";
+    comm += procprognm_;		comm += " \"";
     comm += fnm; 
     comm += "\"";
 

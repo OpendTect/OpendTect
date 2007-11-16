@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          Jan 2002
- RCS:           $Id: uibatchlaunch.h,v 1.19 2007-08-10 09:52:07 cvsbert Exp $
+ RCS:           $Id: uibatchlaunch.h,v 1.20 2007-11-16 21:25:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,19 +38,19 @@ public:
 
 protected:
 
-    BufferStringSet	opts;
-    IOPar&		iop;
-    BufferString	hostname;
-    BufferString	progname;
-    BufferString	parfname;
-    BufferString	rshcomm;
-    int			nicelvl;
+    BufferStringSet	opts_;
+    IOPar&		iop_;
+    BufferString	hostname_;
+    BufferString	progname_;
+    BufferString	parfname_;
+    BufferString	rshcomm_;
+    int			nicelvl_;
 
-    uiFileInput*	filefld;
-    uiLabeledComboBox*	optfld;
-    uiGenInput*		remfld;
-    uiGenInput*		remhostfld;;
-    uiLabeledSpinBox*	nicefld;
+    uiFileInput*	filefld_;
+    uiLabeledComboBox*	optfld_;
+    uiGenInput*		remfld_;
+    uiGenInput*		remhostfld_;;
+    uiLabeledSpinBox*	nicefld_;
 
     bool		acceptOK(CallBacker*);
     bool		execRemote() const;
@@ -83,15 +83,15 @@ protected:
 
     			uiFullBatchDialog(uiParent*,const Setup&);
 
-    const BufferString	procprognm;
-    const BufferString	multiprognm;
-    BufferString	singparfname;
-    BufferString	multiparfname;
-    uiGroup*		uppgrp;
+    const BufferString	procprognm_;
+    const BufferString	multiprognm_;
+    BufferString	singparfname_;
+    BufferString	multiparfname_;
+    uiGroup*		uppgrp_;
 
     virtual bool	prepareProcessing()	= 0;
     virtual bool	fillPar(IOPar&)		= 0;
-    void		addStdFields(bool forread=false);
+    void		addStdFields(bool forread=false,bool onlysinglemachine=false);
     			//!< Needs to be called at end of constructor
     void		setParFileNmDef(const char*);
 
@@ -104,8 +104,8 @@ protected:
     bool		distrLaunch(CallBacker*,const char*);
     bool		acceptOK(CallBacker*);
 
-    uiGenInput*		singmachfld;
-    uiFileInput*	parfnamefld;
+    uiGenInput*		singmachfld_;
+    uiFileInput*	parfnamefld_;
 
     bool		redo_; //!< set to true only for re-start
 

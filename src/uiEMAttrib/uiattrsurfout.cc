@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.cc,v 1.19 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:           $Id: uiattrsurfout.cc,v 1.20 2007-11-16 21:25:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,22 +47,20 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
     setHelpID( "104.4.0" );
     setTitleText( "" );
 
-    attrfld = new uiAttrSel( uppgrp, &ads, ads.is2D(), "Quantity to output" );
+    attrfld = new uiAttrSel( uppgrp_, &ads, ads.is2D(), "Quantity to output" );
     attrfld->setNLAModel( nlamodel );
     attrfld->selectiondone.notify( mCB(this,uiAttrSurfaceOut,attribSel) );
 
-    attrnmfld = new uiGenInput( uppgrp, "Attribute name", StringInpSpec() );
+    attrnmfld = new uiGenInput( uppgrp_, "Attribute name", StringInpSpec() );
     attrnmfld->attach( alignedBelow, attrfld );
 
     ctio.ctxt.forread = true;
-    objfld = new uiIOObjSel( uppgrp, ctio, "Calculate on surface" );
+    objfld = new uiIOObjSel( uppgrp_, ctio, "Calculate on surface" );
     objfld->attach( alignedBelow, attrnmfld );
     objfld->selectiondone.notify( mCB(this,uiAttrSurfaceOut,objSel) );
 
-    uppgrp->setHAlignObj( attrfld );
-    addStdFields();
-    singmachfld->display( false );
-    singmachfld->setValue( true );
+    uppgrp_->setHAlignObj( attrfld );
+    addStdFields( false, true );
 }
 
 

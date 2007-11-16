@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.24 2007-11-13 11:49:43 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.25 2007-11-16 21:25:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,8 +70,7 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     else
 	createTwoHorUI();
     
-    addStdFields();
-    singmachfld->setValue( true );
+    addStdFields( false, true );
 
     objSel(0);
     if ( usesinglehor_ )
@@ -85,22 +84,22 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 
 void uiAttrTrcSelOut::createSingleHorUI()
 {
-    createAttrFld( uppgrp );
+    createAttrFld( uppgrp_ );
 
     ctio_.ctxt.forread = true;
-    objfld_ = new uiIOObjSel( uppgrp, ctio_, "Calculate along surface" );
+    objfld_ = new uiIOObjSel( uppgrp_, ctio_, "Calculate along surface" );
     objfld_->attach( alignedBelow, attrfld_ );
     objfld_->selectiondone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
 
-    createSubSelFld( uppgrp );
-    createZIntervalFld( uppgrp );
-    createOutsideValFld( uppgrp );
-    createInterpFld( uppgrp );
-    createNrSampFld( uppgrp );
-    createCubeBoundsFlds( uppgrp );
-    createOutputFld( uppgrp );
+    createSubSelFld( uppgrp_ );
+    createZIntervalFld( uppgrp_ );
+    createOutsideValFld( uppgrp_ );
+    createInterpFld( uppgrp_ );
+    createNrSampFld( uppgrp_ );
+    createCubeBoundsFlds( uppgrp_ );
+    createOutputFld( uppgrp_ );
 
-    uppgrp->setHAlignObj( attrfld_ );
+    uppgrp_->setHAlignObj( attrfld_ );
 }
 
 
@@ -111,22 +110,22 @@ void uiAttrTrcSelOut::createTwoHorUI()
 						    "104.4.1" ) );
     xparsdlg_->finaliseDone.notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
     
-    createAttrFld( uppgrp );
+    createAttrFld( uppgrp_ );
     
     ctio_.ctxt.forread = true;
-    objfld_ = new uiIOObjSel( uppgrp, ctio_,"Calculate between top surface:");
+    objfld_ = new uiIOObjSel( uppgrp_, ctio_,"Calculate between top surface:");
     objfld_->attach( alignedBelow, attrfld_ );
     
     ctio2_.ctxt.forread = true;
-    obj2fld_ = new uiIOObjSel( uppgrp, ctio2_, "and bottom surface:" );
+    obj2fld_ = new uiIOObjSel( uppgrp_, ctio2_, "and bottom surface:" );
     obj2fld_->attach( alignedBelow, objfld_ );
     obj2fld_->selectiondone.notify( mCB(this,uiAttrTrcSelOut,objSel) );
 
-    createExtraZTopFld( uppgrp );
-    createExtraZBotFld( uppgrp );
-    createSubSelFld( uppgrp );
-    createOutsideValFld( uppgrp );
-    createOutputFld( uppgrp );
+    createExtraZTopFld( uppgrp_ );
+    createExtraZBotFld( uppgrp_ );
+    createSubSelFld( uppgrp_ );
+    createOutsideValFld( uppgrp_ );
+    createOutputFld( uppgrp_ );
     createInterpFld( xparsdlg_ );
     createNrSampFld( xparsdlg_ );
     createAddWidthFld( xparsdlg_ );
@@ -135,10 +134,10 @@ void uiAttrTrcSelOut::createTwoHorUI()
     createCubeBoundsFlds( xparsdlg_ );
 
     CallBack cb = mCB(this,uiAttrTrcSelOut,extraParsCB);
-    uiPushButton* extrabut = new uiPushButton( uppgrp, "Extra options",cb,true);
+    uiPushButton* extrabut = new uiPushButton( uppgrp_, "Extra options",cb,true);
     extrabut->attach( alignedBelow, outpfld_ );
     
-    uppgrp->setHAlignObj( attrfld_ );
+    uppgrp_->setHAlignObj( attrfld_ );
 }
 
 
