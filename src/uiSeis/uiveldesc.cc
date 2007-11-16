@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uiveldesc.cc,v 1.2 2007-11-16 15:22:15 cvskris Exp $
+ RCS:           $Id: uiveldesc.cc,v 1.3 2007-11-16 21:28:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const VelocityDesc& desc )
 {
     typefld_ = new uiGenInput( this, "Velocity type",
 	    		       StringListInpSpec( VelocityDesc::TypeNames ) );
+    typefld_->valuechanged.notify( mCB(this, uiVelocityDesc, velTypeChange) );
 
     samplefld_ = new uiGenInput( this, "Sample range",
 	    StringListInpSpec( VelocityDesc::SampleRangeNames ) );
@@ -36,10 +37,17 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const VelocityDesc& desc )
 }
 
 
+void uiVelocityDesc::velTypeChange( CallBacker* )
+{
+    samplefld_->display( typefld_->getIntValue() );
+}
+
+
 void uiVelocityDesc::set( const VelocityDesc& desc )
 {
     typefld_->setValue( desc.type_ );
     samplefld_->setValue( desc.samplerange_ );
+    velTypeChange( 0 );
 }
 
 
@@ -91,7 +99,18 @@ bool uiVelocityDescDlg::acceptOK(CallBacker*)
 	return false;
     }
 
-    veldesc_->get().fillPar( ctxt_.ioobj->pars() );
+    const VelocityDesc desc = veldesc_->get();
+
+    if ( desc.type_==VelocityDesc::Unknown )
+    {
+	ctxt_.ioobj->pars().remove( VelocityDesc::sKeyVelocityDesc() );
+	ctxt_.ioobj->pars().remove( VelocityDesc::sKeyIsVelocity() );
+    }
+    else
+    {
+	veldesc_->get().fillPar( ctxt_.ioobj->pars() );
+    }
+    
     if ( !IOM().commitChanges(*ctxt_.ioobj) )
     {
 	uiMSG().error("Cannot write velocity information");

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.1 2007-11-15 21:14:46 cvskris Exp $
+ RCS:           $Id: uiveldesc.h,v 1.2 2007-11-16 21:28:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,8 @@ public:
     void			set(const VelocityDesc&);
 
 protected:
+
+    void			velTypeChange(CallBacker*);
 
     uiGenInput*			typefld_;
     uiGenInput*			samplefld_;
