@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uirandlinegen.cc,v 1.2 2007-11-16 13:39:20 cvsbert Exp $
+ RCS:           $Id: uirandlinegen.cc,v 1.3 2007-11-16 21:38:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,6 +126,6 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
     }
 
     uiMSG().message( BufferString("Created ", rls.size(),
-				  rls.sz>1?" lines":" line") );
+				  rls.size()>1?" lines":" line") );
     return true;
 }
