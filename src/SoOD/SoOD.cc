@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoOD.cc,v 1.15 2007-10-25 15:08:34 cvskris Exp $";
+static const char* rcsID = "$Id: SoOD.cc,v 1.16 2007-11-16 21:39:05 cvskris Exp $";
 
 
 #include "SoOD.h"
@@ -33,6 +33,7 @@ static const char* rcsID = "$Id: SoOD.cc,v 1.15 2007-10-25 15:08:34 cvskris Exp 
 #include "SoText2Set.h"
 #include "SoTranslateRectangleDragger.h"
 #include "SoShaderTexture2.h"
+#include "SoSplitTexture2.h"
 #include "SoRandomTrackLineDragger.h"
 #include "SoGridSurfaceDragger.h"
 #include "UTMCamera.h"
@@ -74,6 +75,8 @@ void SoOD::init()
     SoRandomTrackLineDragger::initClass();
     SoScale3Dragger::initClass();
     SoShaderTexture2::initClass();
+    SoSplitTexture2::initClass();
+    SoSplitTexture2Part::initClass();
     SoGridSurfaceDragger::initClass();
     UTMCamera::initClass();
     UTMPosition::initClass();
