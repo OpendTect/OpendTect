@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.45 2007-09-13 19:38:38 cvsnanne Exp $
+ RCS:		$Id: iopar.h,v 1.46 2007-11-16 21:23:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,12 +58,14 @@ public:
     void		putParsTo(BufferString&) const;
 
     int			size() const;
+    int			indexOf(const char* key) const;
     const char*		getKey(int) const;
     const char*		getValue(int) const;
     bool		setKey(int,const char*);
 			//!< Will fail if key is empty or already present
     void		setValue(int,const char*);
     void		remove(int);
+    void		remove(const char* key);
 
     bool		isEqual(const IOPar&,bool include_order=false) const;
     void		clear();

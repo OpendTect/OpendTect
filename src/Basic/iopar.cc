@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.63 2007-09-13 19:38:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.64 2007-11-16 21:23:41 cvskris Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -101,6 +101,12 @@ int IOPar::size() const
 }
 
 
+int IOPar::indexOf( const char* key ) const
+{
+    return keys_.indexOf( key );
+}
+
+
 const char* IOPar::getKey( int nr ) const
 {
     if ( nr >= size() ) return "";
@@ -117,7 +123,7 @@ const char* IOPar::getValue( int nr ) const
 
 bool IOPar::setKey( int nr, const char* s )
 {
-    if ( nr >= size() || !s || !*s || indexOf(keys_,s) >= 0 )
+    if ( nr >= size() || !s || !*s || keys_.indexOf(s) >= 0 )
 	return false;
 
     keys_.get(nr) = s;
@@ -142,6 +148,16 @@ void IOPar::remove( int idx )
 {
     if ( idx >= size() ) return;
     keys_.remove( idx ); vals_.remove( idx );
+}
+
+
+void IOPar::remove( const char* key )
+{
+    const int idx = keys_.indexOf( key );
+    if ( idx<0 )
+	return;
+
+    remove( idx );
 }
 
 
@@ -279,7 +295,7 @@ const char* IOPar::operator[]( const char* keyw ) const
 
 const char* IOPar::find( const char* keyw ) const
 {
-    int idx = indexOf( keys_, keyw );
+    int idx = keys_.indexOf( keyw );
     return idx < 0 ? 0 : vals_.get(idx).buf();
 }
 
@@ -648,7 +664,7 @@ bool IOPar::getPtr( const char* s, void*& res ) const
 
 void IOPar::set( const char* keyw, const char* vals )
 {
-    int idx = indexOf( keys_, keyw );
+    int idx = keys_.indexOf( keyw );
     if ( idx < 0 )
 	add( keyw, vals );
     else
@@ -659,7 +675,7 @@ void IOPar::set( const char* keyw, const char* vals )
 void IOPar::set( const char* keyw, const char* vals1, const char* vals2 )
 {
     FileMultiString fms( vals1 ); fms += vals2;
-    int idx = indexOf( keys_, keyw );
+    int idx = keys_.indexOf( keyw );
     if ( idx < 0 )
 	add( keyw, fms );
     else
