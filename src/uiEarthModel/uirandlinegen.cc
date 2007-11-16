@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uirandlinegen.cc,v 1.1 2007-11-15 16:54:24 cvsbert Exp $
+ RCS:           $Id: uirandlinegen.cc,v 1.2 2007-11-16 13:39:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "randomlinetr.h"
 #include "emmanager.h"
 #include "ctxtioobj.h"
+#include "ioman.h"
 #include "survinfo.h"
 #include "uiexecutor.h"
 #include "uigeninput.h"
@@ -31,6 +32,8 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     , horctio_(*mMkCtxtIOObj(EMHorizon3D))
     , rlsctio_(*mMkCtxtIOObj(RandomLineSet))
 {
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
+    horctio_.setObj( IOM().getIfOnlyOne(mTranslGroupName(EMHorizon3D)) );
     rlsctio_.ctxt.forread = false;
 
     infld_ = new uiIOObjSel( this, horctio_, "Input Horizon" );
@@ -112,7 +115,8 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
     gen.createLines( rls );
     hor->unRef();
 
-    if ( rls.isEmpty() )
+    const int rlssz = rls.size();
+    if ( rlssz < 1 )
        mErrRet("Could not find a contour in range")
     else
     {
@@ -121,5 +125,7 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
 	   mErrRet(emsg)
     }
 
+    uiMSG().message( BufferString("Created ", rls.size(),
+				  rls.sz>1?" lines":" line") );
     return true;
 }

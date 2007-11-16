@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2007
- RCS:           $Id: emrandlinegen.cc,v 1.1 2007-11-15 16:53:48 cvsbert Exp $
+ RCS:           $Id: emrandlinegen.cc,v 1.2 2007-11-16 13:39:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,12 +76,11 @@ void EM::RandomLineSetGenerator::createLines(
 	    {
 		const ODPolygon<float>& poly = *polys[ipoly];
 		Geometry::RandomLine* rl = new Geometry::RandomLine;
-		int nrvtxs = poly.size() + 1;
-		if ( !poly.isClosed() ) nrvtxs--;
-		for ( int ipt=0; ipt<nrvtxs; ipt++ )
+		BinID addbid( prevbid );
+
+		for ( int ipt=0; ipt<poly.size(); ipt++ )
 		{
-		    const int ptnr = ipt == poly.size() ? 0 : ipt;
-		    const Geom::Point2D<float> vtx = poly.getVertex( ptnr );
+		    const Geom::Point2D<float> vtx = poly.getVertex( ipt );
 		    bid.inl = inlrg.snap( vtx.x );
 		    bid.crl = crlrg.snap( vtx.y );
 		    if ( bid != prevbid )
@@ -89,7 +88,13 @@ void EM::RandomLineSetGenerator::createLines(
 			rl->addNode( bid );
 			prevbid = bid;
 		    }
+		    if ( ipt == 0 && poly.isClosed() )
+			addbid = bid;
 		}
+		if ( !mIsUdf(addbid.inl) && addbid != prevbid
+		  && rl->nrNodes() > 2 )
+		    rl->addNode( addbid );
+
 		if ( rl->nrNodes() < 2 )
 		    delete rl;
 		else

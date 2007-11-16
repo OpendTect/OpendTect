@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinetr.cc,v 1.4 2007-11-06 16:31:49 cvsbert Exp $
+ RCS:		$Id: randomlinetr.cc,v 1.5 2007-11-16 13:39:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,7 +105,7 @@ const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
 	astrm.next();
 
     const bool issimple = !astrm.hasKeyword( sKeyNrLines );
-    const int nrlines = issimple ? astrm.getVal() : 1;
+    const int nrlines = issimple ? 1 : astrm.getVal();
     Interval<float> zrg; assign( zrg, SI().zRange(true) );
     if ( issimple )
 	getZRange( astrm, zrg );
@@ -119,7 +119,9 @@ const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
     for ( int iln=0; iln<nrlines; iln++ )
     {
 	Geometry::RandomLine* rl = new Geometry::RandomLine;
-	getZRange( astrm, zrg ); rl->setZRange( zrg );
+	if ( !issimple )
+	    getZRange( astrm, zrg );
+	rl->setZRange( zrg );
 	while ( !atEndOfSection(astrm) )
 	{
 	    BufferString loc( astrm.keyWord() );
@@ -141,7 +143,7 @@ const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
 	    rdls.addLine( rl );
     }
 
-    return rdls.size() >= 1 ? 0 : "No valid random line found";
+    return rdls.size() >= 1 ? 0 : "No valid random line in set";
 }
 
 
@@ -162,16 +164,14 @@ const char* dgbRandomLineSetTranslator::write(
 
     const bool issimple = nrlines < 2 && rdls.pars().isEmpty();
     if ( issimple )
-    {
 	putZRange( astrm, rdls.lines()[0]->zRange() );
-	astrm.newParagraph();
-    }
     else
     {
 	astrm.put( sKeyNrLines, nrlines );
 	for ( int idx=0; idx<rdls.pars().size(); idx++ )
 	    astrm.put( rdls.pars().getKey(idx), rdls.pars().getValue(idx) );
     }
+    astrm.newParagraph();
 
     for ( int iln=0; iln<nrlines; iln++ )
     {
