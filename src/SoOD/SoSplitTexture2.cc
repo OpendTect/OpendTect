@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2006
- RCS:           $Id: SoSplitTexture2.cc,v 1.1 2007-11-16 21:39:05 cvskris Exp $
+ RCS:           $Id: SoSplitTexture2.cc,v 1.2 2007-11-19 14:23:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,24 +12,12 @@ ________________________________________________________________________
 
 #include "SoSplitTexture2.h"
 
-//#include <Inventor/elements/SoGLLazyElement.h>
 #include <Inventor/misc/SoGLImage.h>
-//#include <Inventor/elements/SoCacheElement.h>
-//#include <Inventor/elements/SoTextureUnitElement.h>
-//#include <Inventor/elements/SoTextureOverrideElement.h>
-//#include <Inventor/elements/SoGLMultiTextureImageElement.h>
-//#include <Inventor/elements/SoGLMultiTextureEnabledElement.h>
-#include <Inventor/elements/SoTextureImageElement.h>
-//#include <Inventor/elements/SoGLTextureEnabledElement.h>
-//#include <Inventor/elements/SoGLTexture3EnabledElement.h>
+#include <SoSplitTexture2Element.h>
 #include <Inventor/elements/SoTextureQualityElement.h>
-//#include "Inventor/elements/SoGLDisplayList.h"
+#include <Inventor/elements/SoGLTextureImageElement.h>
 #include "Inventor/actions/SoGLRenderAction.h"
 #include "Inventor/sensors/SoFieldSensor.h"
-//#include "Inventor/nodes/SoTextureUnit.h"
-//#include "Inventor/SbImage.h"
-
-//#define GL_GLEXT_PROTOTYPES
 
 #include <Inventor/system/gl.h>
 
@@ -59,7 +47,7 @@ void SoSplitTexture2::GLRender( SoGLRenderAction* action )
     int nrcomp;
     const unsigned char* values = image.getValue( sz, nrcomp );
 
-    SoTextureImageElement::set( action->getState(), this, sz, nrcomp, values,
+    SoSplitTexture2Element::set( action->getState(), this, sz, nrcomp, values,
 	    SoTextureImageElement::CLAMP_TO_BORDER,
 	    SoTextureImageElement::CLAMP_TO_BORDER,
 	    SoTextureImageElement::MODULATE, SbColor( 1, 1, 1 ) );
@@ -123,23 +111,23 @@ void SoSplitTexture2Part::GLRender( SoGLRenderAction* action )
 	? SbVec2s(origstart[0]-1,origstart[1]-1)
 	: SbVec2s(origstart[0],origstart[1]);
 
+    SbVec2s imagesize;
+    int numcomponents;
+    const unsigned char* imagedata = SoSplitTexture2Element::getImage( state,
+	    imagesize, numcomponents );
+
     const int bufsize = sz[0]*sz[1];
     if ( !imagedata_ || bufsize!=imagesize_ )
     {
 	imagesize_ = bufsize;
 	delete [] imagedata_;
-	imagedata_ = new unsigned char[imagesize_];
+	imagedata_ = new unsigned char[imagesize_*numcomponents];
 
 	if ( !imagedata_ )
 	    return;
 
 	needregeenration_ = true;
     }
-
-    SbVec2s imagesize;
-    int numcomponents;
-    const unsigned char* imagedata = SoTextureImageElement::getImage( state,
-	    imagesize, numcomponents );
 
     if ( needregeenration_ )
     {
@@ -176,4 +164,7 @@ void SoSplitTexture2Part::GLRender( SoGLRenderAction* action )
     const float quality = SoTextureQualityElement::get(state);
     glimage_->setData( imagedata_, sz, numcomponents, SoGLImage::REPEAT,
 	    	       SoGLImage::REPEAT, quality, borders.getValue(), state );
+    //.SoTextureImageElement::Model glmodel = SoTextureImageElement::MODULATE;
+    //SoGLTextureImageElement::set(state, this, glimage_, glmodel, SbColor(1,1,1));
+
 }
