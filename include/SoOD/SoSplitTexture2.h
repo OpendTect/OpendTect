@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoSplitTexture2.h,v 1.1 2007-11-16 21:39:05 cvskris Exp $
+ RCS:           $Id: SoSplitTexture2.h,v 1.2 2007-11-19 22:47:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -52,13 +52,17 @@ public:
     SoSFBool		borders;
 
 protected:
-    void		GLRender(SoGLRenderAction *action);
+    void		GLRender(SoGLRenderAction*);
+    void		callback(SoCallbackAction*);
+    void		rayPick(SoRayPickAction*);
+    void		doAction(SoAction*);
     			~SoSplitTexture2Part();	
-    static void		fieldChangeCB( void*, SoSensor* );
+    static void		fieldChangeCB(void*,SoSensor*);
 
 
     unsigned char*	imagedata_;
     int			imagesize_;
+    int			numcomp_;
     SoGLImage*		glimage_;
     SoFieldSensor*	originsensor_;
     bool		needregeenration_;

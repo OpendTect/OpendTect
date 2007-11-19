@@ -7,36 +7,41 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoSplitTexture2Element.h,v 1.1 2007-11-19 13:50:16 cvskris Exp $
+ RCS:		$Id: SoSplitTexture2Element.h,v 1.2 2007-11-19 22:47:20 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include <Inventor/elements/SoTextureImageElement.h>
+#include <Inventor/elements/SoReplacedElement.h>
+#include <Inventor/lists/SbList.h>
+#include <Inventor/SbLinear.h>
 
 /*!\brief
 
 */
 
-class SoSplitTexture2Element : public SoTextureImageElement
+class SoSplitTexture2Element : public SoReplacedElement
 {
     SO_ELEMENT_HEADER(SoSplitTexture2Element);
 public:
-    static void			set(SoState*,SoNode*, const SbVec2s&,
+    static void			set(SoState*,SoNode*,int unit,const SbVec2s&,
 				    const int numComponents,
-				    const unsigned char* bytes,
-				    const Wrap wrapS, const Wrap wrapT,
-				    const Model model,
-				    const SbColor& blendColor);
+				    const unsigned char* bytes);
 
-    static const unsigned char*	getImage( const SoState*, SbVec2s& size,
-					  int& numComponents);
+    static const unsigned char*	get(const SoState*, int unit, SbVec2s& size,
+				    int& numComponents);
 	
     static void			initClass();
 private:
+				~SoSplitTexture2Element();
+    void			setElt(int unit,const SbVec2s&,
+	    			       const int numcomponents,
+				       const unsigned char* bytes);
 
-    				~SoSplitTexture2Element();
+    SbList<int>				numcomps_;
+    SbList<const unsigned char*>	bytes_;
+    SbList<SbVec2s>			sizes_;
 };
 
 #endif
