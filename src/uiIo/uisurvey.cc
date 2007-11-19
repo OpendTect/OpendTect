@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.83 2007-11-08 16:46:36 cvsbert Exp $
+ RCS:           $Id: uisurvey.cc,v 1.84 2007-11-19 21:10:22 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -439,7 +439,7 @@ void uiSurvey::utilButPush( CallBacker* cb )
 
     if ( butidx == 0 )
     {
-	uiConvertPos dlg( this, survinfo );
+	uiConvertPos dlg( this, *survinfo );
 	dlg.go();
     }
     else

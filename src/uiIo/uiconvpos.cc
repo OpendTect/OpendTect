@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.cc,v 1.25 2007-11-19 20:25:57 cvsyuancheng Exp $
+ RCS:           $Id: uiconvpos.cc,v 1.26 2007-11-19 21:10:22 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ static BufferString lastinpfile;
 static BufferString lastoutfile;
 
 
-uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo* si, bool mod )
+uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
 	: uiDialog(p, uiDialog::Setup("Position conversion",
 		   "Coordinates vs Inline/X-line","0.3.7").modal(mod))
 	, survinfo(si)
@@ -108,7 +108,7 @@ void uiConvertPos::getCoord( CallBacker* )
 	return;
     }
 
-    Coord coord( survinfo->transform( binid ) );
+    Coord coord( survinfo.transform( binid ) );
     xfld->setValue( coord.x );
     yfld->setValue( coord.y );
     inlfld->setValue( binid.inl );
@@ -119,7 +119,7 @@ void uiConvertPos::getCoord( CallBacker* )
 void uiConvertPos::getBinID( CallBacker* )
 {
     Coord coord( xfld->getdValue(), yfld->getdValue() );
-    BinID binid( survinfo->transform( coord ) );
+    BinID binid( survinfo.transform( coord ) );
     inlfld->setValue( binid.inl );
     crlfld->setValue( binid.crl );
     if ( mIsZero(coord.x,mDefEps) ) xfld->setValue( 0 );

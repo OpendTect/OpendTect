@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.216 2007-11-19 20:27:35 cvsyuancheng Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.217 2007-11-19 21:10:22 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -376,7 +376,7 @@ void uiODApplMgr::pluginMan() { uiPluginMan dlg( &appl_ ); dlg.go(); }
 void uiODApplMgr::posConversion()
 {
    if ( !convertposdlg_ ) 
-       convertposdlg_ = new uiConvertPos( &appl_, &SI(), false );
+       convertposdlg_ = new uiConvertPos( &appl_, SI(), false );
 
    convertposdlg_->go(); 
 }
