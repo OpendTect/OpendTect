@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.61 2007-10-04 13:31:12 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.62 2007-11-19 15:41:59 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -860,6 +860,165 @@ TypeSet< Interval<int> > TrcSelectionOutput::getLocalZRanges(
 	sampleinterval += interval;
     }
  
+    return sampleinterval;
+}
+
+
+const CubeSampling Trc2DVarZStorOutput::getCS()
+{
+    CubeSampling cs;
+    cs.hrg.start.inl = 0; cs.hrg.stop.inl = mUdf(int);
+    cs.hrg.start.crl = 1; cs.hrg.stop.crl = mUdf(int);
+    return cs;
+}
+
+
+Trc2DVarZStorOutput::Trc2DVarZStorOutput( const LineKey& lk,
+       					  const BinIDValueSet& zvalues,
+					  float outval )
+    : SeisTrcStorOutput( getCS(), lk )
+    , zvalues_(zvalues)
+    , outval_(outval)
+{
+    is2d_ = true;
+    const int nrinterv = zvalues.nrVals()/2;
+    float zmin = mUdf(float);
+    float zmax = -mUdf(float);
+    for ( int idx=0; idx<nrinterv; idx+=2 )
+    {
+	float val = zvalues.valRange(idx).start;
+	if ( val < zmin ) zmin = val;
+	val = zvalues.valRange(idx+1).stop;
+	if ( val > zmax ) zmax = val;
+    }
+
+    seldata_.zrg_ = Interval<float>( zmin, zmax );
+    stdtrcsz_ = zmax - zmin;
+    stdstarttime_ = zmin;
+}
+
+
+void Trc2DVarZStorOutput::setTrcsBounds( Interval<float> intv )
+{
+    stdstarttime_ = intv.start;
+    stdtrcsz_ = intv.stop - intv.start;
+}
+
+
+bool Trc2DVarZStorOutput::doInit()
+{
+    if ( *storid_.buf() )
+    {
+	PtrMan<IOObj> ioseisout = IOM().get( storid_ );
+	if ( !ioseisout )
+	{
+	    errmsg_ = "Cannot find seismic data with ID: "; errmsg_ += storid_;
+	    return false;
+	}
+
+	writer_ = new SeisTrcWriter( ioseisout );
+	if ( !writer_->is2D() )
+	{
+	    errmsg_ = "Seismic data with ID: "; errmsg_ += storid_; 
+	    errmsg_ +="is not 2D\nCannot create 2D output.";
+	    return false;
+	}
+	
+	if ( auxpars_ )
+	{
+	    writer_->lineAuxPars().merge( *auxpars_ );
+	    delete auxpars_; auxpars_ = 0;
+	}
+    }
+
+    desiredvolume_.normalise();
+    seldata_.linekey_.setAttrName( "" );
+    if ( seldata_.type_ != Seis::Range )
+	seldata_.type_ = Seis::Range;
+
+    return true;
+}
+
+
+void Trc2DVarZStorOutput::collectData( const DataHolder& data, float refstep, 
+				     const SeisTrcInfo& info )
+{
+    int nrcomp = data.nrSeries();
+    if ( !nrcomp || nrcomp < desoutputs_.size())
+	return;
+
+    const int trcsz = mNINT(stdtrcsz_/refstep) + 1;
+    const float globalsttime = stdstarttime_;
+    const float trcstarttime = ( (int)(globalsttime/refstep) +1 ) * refstep;
+    const int startidx = data.z0_ - mNINT(trcstarttime/refstep);
+    DataCharacteristics dc;
+
+    if ( !trc_ )
+    {
+	trc_ = new SeisTrc( trcsz, dc );
+	trc_->info() = info;
+	trc_->info().sampling.step = refstep;
+	trc_->info().sampling.start = data.z0_*refstep;
+	for ( int idx=1; idx<desoutputs_.size(); idx++)
+	    trc_->data().addComponent( trcsz, dc, false );
+    }
+    else if ( trc_->info().binid != info.binid )
+    {
+	errmsg_ = "merge components of two different traces!";
+	return;	    
+    }
+    else
+    {
+	for ( int idx=0; idx<desoutputs_.size(); idx++)
+	    trc_->data().addComponent( trcsz, dc, false );
+    }
+
+    for ( int comp=0; comp<desoutputs_.size(); comp++ )
+    {
+	for ( int idx=0; idx<trcsz; idx++ )
+	{
+	    if ( idx < startidx || idx>=startidx+data.nrsamples_ )
+		trc_->set( idx, outval_, comp );
+	    else
+	    {
+		float val = data.series(desoutputs_[comp])->value(idx-startidx);
+		trc_->set(idx, val, comp);
+	    }
+	}
+    }
+    
+    if ( scaler_ )
+    {
+	for ( int icomp=0; icomp<trc_->data().nrComponents(); icomp++ )
+	{
+	    for ( int idx=0; idx<trcsz; idx++ )
+	    {
+		float val = trc_->get( idx, icomp );
+		val = scaler_->scale( val );
+		trc_->set( idx, val, icomp );
+	    }
+	}
+    }
+}
+
+
+TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges( 
+						    const BinID& bid,
+						    float zstep,
+						    TypeSet<float>& ) const
+{
+    BinIDValueSet::Pos pos = zvalues_.findFirst( bid );
+    BinID binid;
+    TypeSet<float> values;
+    zvalues_.get( pos, binid, values );
+    TypeSet< Interval<int> > sampleinterval;
+    for ( int idx=0; idx<values.size()/2; idx+=2 ) //multi to keep it general
+    {
+	Interval<int> interval( mNINT(values[idx]/zstep),
+	mNINT(values[idx+1]/zstep) );
+	sampleinterval += interval;
+    }
+
     return sampleinterval;
 }
 

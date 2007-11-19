@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.29 2007-03-27 16:30:40 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.30 2007-11-19 15:41:59 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,8 +108,8 @@ public:
 						  const LineKey&);
 				~SeisTrcStorOutput();
     
-    bool			doInit();
-    void			set2D( bool yn = true )		{ is2d_ = yn; }
+    virtual bool		doInit();
+    virtual void		set2D( bool yn = true )		{ is2d_ = yn; }
     bool			getDesiredVolume(CubeSampling&) const;
     bool			wantsOutput(const BinID&) const;
     bool			setStorageID(const MultiID&);
@@ -119,10 +119,10 @@ public:
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&);
     void			writeTrc();
-    TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
-	    					TypeSet<float>&) const;
     void			setOutpTypes(const TypeSet<Seis::DataType>& typ)
 				{ outptypes_ = typ; }
+    virtual TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
+	    						TypeSet<float>&) const;
 
     static const char*		seisidkey;
     static const char*		attribkey;
@@ -146,6 +146,32 @@ protected:
     BufferString		attribname_;
     Scaler*                     scaler_;
     TypeSet<Seis::DataType>	outptypes_;
+};
+
+
+class Trc2DVarZStorOutput : public SeisTrcStorOutput
+{
+public:
+				Trc2DVarZStorOutput(const LineKey&,
+						    const BinIDValueSet&,float);
+    
+    bool			doInit();
+    void			set2D(bool)			{}
+
+    void			setTrcsBounds(Interval<float>);
+    TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
+	    					TypeSet<float>&) const;
+
+    virtual void		collectData(const DataHolder&,float step,
+	    				    const SeisTrcInfo&);
+protected:
+
+    const CubeSampling		getCS();
+
+    const BinIDValueSet&	zvalues_;
+    float			stdtrcsz_;
+    float			stdstarttime_;
+    float			outval_;
 };
 
 
