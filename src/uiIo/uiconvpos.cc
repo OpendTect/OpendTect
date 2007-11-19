@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.cc,v 1.24 2007-11-08 16:46:36 cvsbert Exp $
+ RCS:           $Id: uiconvpos.cc,v 1.25 2007-11-19 20:25:57 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,9 +24,9 @@ static BufferString lastinpfile;
 static BufferString lastoutfile;
 
 
-uiConvertPos::uiConvertPos( uiParent* p, SurveyInfo* si )
+uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo* si, bool mod )
 	: uiDialog(p, uiDialog::Setup("Position conversion",
-		   "Coordinates vs Inline/X-line","0.3.7"))
+		   "Coordinates vs Inline/X-line","0.3.7").modal(mod))
 	, survinfo(si)
 {
     if ( lastinpfile.isEmpty() )
@@ -172,3 +172,5 @@ void uiConvertPos::convFile( CallBacker* )
     uiMSG().message( "Total number of converted lines: ",
 	    	     getStringFromInt(nrln) );
 }
+
+

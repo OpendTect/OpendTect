@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.h,v 1.5 2007-11-02 08:35:14 cvsbert Exp $
+ RCS:           $Id: uiconvpos.h,v 1.6 2007-11-19 20:25:57 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,11 +22,12 @@ class uiConvertPos : public uiDialog
 {
 
 public:
-                        uiConvertPos(uiParent*,SurveyInfo*);
+                        uiConvertPos(uiParent*, const SurveyInfo*,
+				     bool modal=true);
 
 private:
 
-    SurveyInfo*		survinfo;
+    const SurveyInfo*	survinfo;
 
     uiGenInput*		ismanfld;
     uiGroup*		mangrp;
