@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.20 2007-11-16 21:39:05 cvskris Exp $
+#	RCS :		$Id: Makefile,v 1.21 2007-11-19 13:50:16 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -23,6 +23,7 @@ SRC.cc	:=	SoScale3Dragger.cc \
 		SoShapeScale.cc \
 		SoShaderTexture2.cc \
 		SoSplitTexture2.cc \
+		SoSplitTexture2Element.cc \
 		SoText2Set.cc \
 		SoTranslateRectangleDragger.cc \
 		SoRandomTrackLineDragger.cc \
