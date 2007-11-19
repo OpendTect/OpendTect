@@ -6,13 +6,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.52 2007-10-25 04:23:29 cvsraman Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.53 2007-11-19 20:27:35 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiodmain.h"
 
+class uiConvertPos;
 class uidTectMan;
 class uiApplPartServer;
 class uiApplService;
@@ -94,6 +95,7 @@ public:
     // Utility menu operations
     void			batchProgs();
     void			pluginMan();
+    void			posConversion();
     void			crDevEnv();
     void			setFonts();
     void			manageShortcuts();
@@ -157,6 +159,7 @@ protected:
 
     uiODMain&			appl_;
     uiODApplService&		applservice_;
+    uiConvertPos*		convertposdlg_;		
 
     uiPickPartServer*		pickserv_;
     uiVisPartServer*		visserv_;

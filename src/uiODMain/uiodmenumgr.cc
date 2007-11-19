@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.102 2007-11-05 15:19:30 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.103 2007-11-19 20:27:35 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -444,6 +444,7 @@ void uiODMenuMgr::fillUtilMenu()
 
     mInsertItem( utilmnu_, "&Batch programs ...", mBatchProgMnuItm );
     mInsertItem( utilmnu_, "&Plugins ...", mPluginsMnuItm );
+    mInsertItem( utilmnu_, "&Position conversion ...", mPosconvMnuItm );
     mInsertItem( utilmnu_, "&Create Devel. Env. ...", mCrDevEnvMnuItm );
     const char* lmfnm = logMsgFileName();
     if ( lmfnm && *lmfnm )
@@ -619,6 +620,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mZScaleMnuItm: 	applMgr().setZScale(); break;
     case mBatchProgMnuItm: 	applMgr().batchProgs(); break;
     case mPluginsMnuItm: 	applMgr().pluginMan(); break;
+    case mPosconvMnuItm:	applMgr().posConversion(); break;	
     case mCrDevEnvMnuItm: 	uiCrDevEnv::crDevEnv(&appl_); break;
     case mShwLogFileMnuItm: 	showLogFile(); break;
     case mSettFontsMnuItm: 	applMgr().setFonts(); break;

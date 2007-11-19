@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.215 2007-11-08 17:55:39 cvsyuancheng Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.216 2007-11-19 20:27:35 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "uiodscenemgr.h"
 #include "uiodmenumgr.h"
 
+#include "uiconvpos.h"
 #include "uicursor.h"
 #include "uipickpartserv.h"
 #include "uivispartserv.h"
@@ -98,6 +99,7 @@ uiODApplMgr::uiODApplMgr( uiODMain& a )
     	, getOtherFormatData(this)
 	, otherformatvisid_(-1)
 	, otherformatattrib_(-1)
+	, convertposdlg_( 0 )				
 {
     pickserv_ = new uiPickPartServer( applservice_ );
     visserv_ = new uiVisPartServer( applservice_ );
@@ -126,6 +128,7 @@ uiODApplMgr::~uiODApplMgr()
     delete seisserv_;
     delete visserv_;
 
+    delete convertposdlg_;
     delete emserv_;
     delete emattrserv_;
     delete wellserv_;
@@ -160,6 +163,12 @@ int uiODApplMgr::manageSurvey()
 
 void uiODApplMgr::surveyToBeChanged( CallBacker* )
 {
+    if ( convertposdlg_ )
+    {
+	delete convertposdlg_;
+	convertposdlg_ = 0;
+    }
+
     bool anythingasked = false;
     appl_.askStore( anythingasked );
 
@@ -360,10 +369,18 @@ void uiODApplMgr::createVol( bool is2d )
 }
 
 
-void uiODApplMgr::reStartProc()
-{ uiRestartBatchDialog dlg( &appl_ ); dlg.go(); }
+void uiODApplMgr::reStartProc() {uiRestartBatchDialog dlg( &appl_ ); dlg.go();}
 void uiODApplMgr::batchProgs() { uiBatchProgLaunch dlg( &appl_ ); dlg.go(); }
 void uiODApplMgr::pluginMan() { uiPluginMan dlg( &appl_ ); dlg.go(); }
+
+void uiODApplMgr::posConversion()
+{
+   if ( !convertposdlg_ ) 
+       convertposdlg_ = new uiConvertPos( &appl_, &SI(), false );
+
+   convertposdlg_->go(); 
+}
+
 void uiODApplMgr::manageShortcuts()
 { uiShortcutsDlg dlg(&appl_,"ODScene"); dlg.go(); }
 

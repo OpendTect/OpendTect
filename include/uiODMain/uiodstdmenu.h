@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.32 2007-09-26 12:55:56 cvshelene Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.33 2007-11-19 20:27:35 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -125,6 +125,7 @@ ________________________________________________________________________
 
 #define mBatchProgMnuItm	(mUtilMnu + 10)
 #define mPluginsMnuItm		(mUtilMnu + 20)
+#define mPosconvMnuItm		(mUtilMnu + 25)
 #define mCrDevEnvMnuItm		(mUtilMnu + 30)
 #define mShwLogFileMnuItm	(mUtilMnu + 40)
 #define mDumpDataPacksMnuItm	(mUtilMnu + 99)
