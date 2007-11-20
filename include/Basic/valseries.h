@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.14 2007-11-20 18:20:20 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.15 2007-11-20 18:23:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,7 +123,7 @@ public:
     		MultiArrayValueSeries(od_int64);
     		~MultiArrayValueSeries();
 
-    bool	isOK() const			{ return ptrs_.size(); }
+    bool	isOK() const			{ return cursize_>=0; }
 
     RT		value( od_int64 idx ) const;
     bool	writable() const		{ return true; }
