@@ -24,10 +24,10 @@ uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurvey* uisurv )
 				      "Specify output parameters","0.0.0") )
     , si_(uisurv->curSurvInfo())
 {
-    colfld_ = new uiColorInput( this, Color(255,0,0,255), "Color" );
+    colfld_ = new uiColorInput( this, Color(255,170,0,255), "Color" );
     colfld_->enableAlphaSetting( true );
 
-    hghtfld_ = new uiGenInput( this, "Border height", FloatInpSpec(5) );
+    hghtfld_ = new uiGenInput( this, "Border height", FloatInpSpec(50) );
     hghtfld_->attach( alignedBelow, colfld_ );
 
     fnmfld_ = new uiFileInput( this, "Output file",
@@ -84,8 +84,8 @@ bool uiGoogleExportSurvey::acceptOK( CallBacker* )
     const LatLong ll4( si_->latlong2Coord().transform(corner4) );
 
 #define mWrLL(ll) \
-    wrr.strm() << "\t\t\t\t\t\t" << getStringFromDouble(0,ll.lat_); \
-    wrr.strm() << ',' << getStringFromDouble(0,ll.lng_) \
+    wrr.strm() << "\t\t\t\t\t\t" << getStringFromDouble(0,ll.lng_); \
+    wrr.strm() << ',' << getStringFromDouble(0,ll.lat_) \
 	       << ',' << hght << '\n'
     wrr.strm() << "\t\t\t\t\t<coordinates>\n";
     mWrLL(ll1);
