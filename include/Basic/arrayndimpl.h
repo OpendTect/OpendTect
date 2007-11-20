@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.52 2007-11-20 13:40:47 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.53 2007-11-20 18:24:37 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -335,21 +335,21 @@ template <class T> inline
 Array1DImpl<T>::Array1DImpl(int nsz, bool file )
     : in(nsz)
     , stor_( file? (ValueSeries<T>*) new ArrayNDFileStor<T>(in.getTotalSz())
-		 : (ValueSeries<T>*) new ArrayValueSeries<T,T>(in.getTotalSz()))
+		 : (ValueSeries<T>*) new MultiArrayValueSeries<T,T>(in.getTotalSz()))
 {}
 
 
 template <class T> inline
 Array1DImpl<T>::Array1DImpl(const Array1D<T>& templ)
     : in(templ.info()) 
-    , stor_(new ArrayValueSeries<T,T>(in.getTotalSz()))
+    , stor_(new MultiArrayValueSeries<T,T>(in.getTotalSz()))
 { copyFrom(templ); }
 
 
 template <class T> inline
 Array1DImpl<T>::Array1DImpl(const Array1DImpl<T>& templ)
     : in(templ.info()) 
-    , stor_(new ArrayValueSeries<T,T>(in.getTotalSz()))
+    , stor_(new MultiArrayValueSeries<T,T>(in.getTotalSz()))
 { copyFrom(templ); }
 
 
@@ -409,7 +409,7 @@ template <class T> inline
 Array2DImpl<T>::Array2DImpl( int sz0, int sz1, bool file )
     : in(sz0,sz1)
     , stor_(file ? (ValueSeries<T>*) new ArrayNDFileStor<T>(in.getTotalSz())
-    : (ValueSeries<T>*) new ArrayValueSeries<T,T>(in.getTotalSz()))
+    : (ValueSeries<T>*) new MultiArrayValueSeries<T,T>(in.getTotalSz()))
 {}
 
 
@@ -417,21 +417,21 @@ template <class T> inline
 Array2DImpl<T>::Array2DImpl( const Array2DInfo& nsz, bool file )
     : in( nsz )
     , stor_(file ? (ValueSeries<T>*) new ArrayNDFileStor<T>(in.getTotalSz())
-    : (ValueSeries<T>*) new ArrayValueSeries<T,T>(in.getTotalSz()))
+    : (ValueSeries<T>*) new MultiArrayValueSeries<T,T>(in.getTotalSz()))
 {} 
 
 
 template <class T> inline
 Array2DImpl<T>::Array2DImpl( const Array2D<T>& templ )
     : in( (const Array2DInfo&) templ.info() )
-    , stor_( new ArrayValueSeries<T,T>(in.getTotalSz()))
+    , stor_( new MultiArrayValueSeries<T,T>(in.getTotalSz()))
 { copyFrom(templ); }
 
 
 template <class T> inline
 Array2DImpl<T>::Array2DImpl( const Array2DImpl<T>& templ )
     : in( (const Array2DInfo&) templ.info() )
-    , stor_( new ArrayValueSeries<T,T>(in.getTotalSz()))
+    , stor_( new MultiArrayValueSeries<T,T>(in.getTotalSz()))
 { copyFrom(templ); }
 
 
@@ -516,7 +516,7 @@ template <class T> inline
 Array3DImpl<T>::Array3DImpl( int sz0, int sz1, int sz2, bool file)
     : in(sz0,sz1,sz2)
     , stor_(file ? (ValueSeries<T>*) new ArrayNDFileStor<T>(in.getTotalSz())
-		 : (ValueSeries<T>*) new ArrayValueSeries<T,T>(in.getTotalSz()))
+		 : (ValueSeries<T>*) new MultiArrayValueSeries<T,T>(in.getTotalSz()))
 {}
 
 
@@ -524,21 +524,21 @@ template <class T> inline
 Array3DImpl<T>::Array3DImpl( const Array3DInfo& nsz, bool file )
     : in(nsz)
     , stor_(file ? (ValueSeries<T>*) new ArrayNDFileStor<T>(in.getTotalSz())
-		 : (ValueSeries<T>*) new ArrayValueSeries<T,T>(in.getTotalSz()))
+		 : (ValueSeries<T>*) new MultiArrayValueSeries<T,T>(in.getTotalSz()))
 {}
 
 
 template <class T> inline
 Array3DImpl<T>::Array3DImpl( const Array3D<T>& templ )
     : in( templ.info() )
-    , stor_( new ArrayValueSeries<T,T>(in.getTotalSz()))
+    , stor_( new MultiArrayValueSeries<T,T>(in.getTotalSz()))
 { copyFrom(templ); }
 
 
 template <class T> inline
 Array3DImpl<T>::Array3DImpl( const Array3DImpl<T>& templ )
     : in( templ.info() )
-    , stor_( new ArrayValueSeries<T,T>(in.getTotalSz()))
+    , stor_( new MultiArrayValueSeries<T,T>(in.getTotalSz()))
 { copyFrom(templ); }
 
 template <class T> inline
@@ -626,7 +626,7 @@ template <class T> inline
 ArrayNDImpl<T>::ArrayNDImpl( const ArrayNDInfo& nsz, bool file )
     : in( nsz.clone() )
     , stor_(file ?(ValueSeries<T>*) new ArrayNDFileStor<T>(in->getTotalSz())
-		 :(ValueSeries<T>*) new ArrayValueSeries<T,T>(in->getTotalSz()))
+		 :(ValueSeries<T>*) new MultiArrayValueSeries<T,T>(in->getTotalSz()))
 {}
 
 
@@ -634,7 +634,7 @@ template <class T> inline
 ArrayNDImpl<T>::ArrayNDImpl( const ArrayND<T>& templ, bool file )
     : in(templ.info().clone())
     , stor_(file ?(ValueSeries<T>*) new ArrayNDFileStor<T>(in->getTotalSz())
-		 :(ValueSeries<T>*) new ArrayValueSeries<T,T>(in->getTotalSz()))
+		 :(ValueSeries<T>*) new MultiArrayValueSeries<T,T>(in->getTotalSz()))
 {
     if ( templ.getData() )
     {
@@ -657,7 +657,7 @@ template <class T> inline
 ArrayNDImpl<T>::ArrayNDImpl( const ArrayNDImpl<T>& templ,bool file )
     : in(templ.info().clone())
     , stor_(file ?(ValueSeries<T>*) new ArrayNDFileStor<T>(in->getTotalSz())
-		 :(ValueSeries<T>*) new ArrayValueSeries<T,T>(in->getTotalSz()))
+		 :(ValueSeries<T>*) new MultiArrayValueSeries<T,T>(in->getTotalSz()))
 {
     if ( templ.getData() )
     {
