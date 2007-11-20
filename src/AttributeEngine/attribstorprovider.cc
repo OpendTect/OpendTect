@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.71 2007-11-09 16:53:52 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.72 2007-11-20 18:27:20 cvskris Exp $";
 
 #include "attribstorprovider.h"
 
@@ -666,8 +666,8 @@ void StorageProvider::fillDataCubesWithTrc( DataCubes* dc ) const
 		continue;
 
 	    cubeidx++;
-	    if ( cubeidx >= dc->nrCubes() )
-		dc->addCube(mUdf(float));
+	    if ( cubeidx >= dc->nrCubes() && !dc->addCube(mUdf(float)) )
+		continue;
 
 	    if ( !trcrange.includes(curt) )
 		continue;
