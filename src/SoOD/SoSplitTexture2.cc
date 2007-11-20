@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2006
- RCS:           $Id: SoSplitTexture2.cc,v 1.3 2007-11-19 22:47:20 cvskris Exp $
+ RCS:           $Id: SoSplitTexture2.cc,v 1.4 2007-11-20 09:48:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -165,7 +165,7 @@ void SoSplitTexture2Part::GLRender( SoGLRenderAction* action )
 	needregeenration_ = true;
     }
 
-    const float quality = SoTextureQualityElement::get(state); //Not used.
+    const float quality = SoTextureQualityElement::get(state);
 
     if ( needregeenration_ )
     {
@@ -208,10 +208,6 @@ void SoSplitTexture2Part::GLRender( SoGLRenderAction* action )
 			srcptr+srcfastidx*numcomponents, numcomponents );
 	    }
 	}
-
-	glimage_->setFlags( SoGLImage::NO_MIPMAP |
-			    SoGLImage::LINEAR_MAG_FILTER |
-			    SoGLImage::LINEAR_MIN_FILTER );
 
 	glimage_->setData( imagedata_, sz, numcomponents,
 			SoGLImage::CLAMP,
