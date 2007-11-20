@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2006
- RCS:           $Id: SoSplitTexture2.cc,v 1.4 2007-11-20 09:48:01 cvskris Exp $
+ RCS:           $Id: SoSplitTexture2.cc,v 1.5 2007-11-20 10:34:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,7 +101,6 @@ SoSplitTexture2Part::SoSplitTexture2Part()
     SO_NODE_CONSTRUCTOR( SoSplitTexture2Part );
     SO_NODE_ADD_FIELD( origin, (SbVec2i32(0,0) ) );
     SO_NODE_ADD_FIELD( size, (SbVec2i32(0,0) ) );
-    SO_NODE_ADD_FIELD( borders, (true) );
 
     originsensor_ = new SoFieldSensor( fieldChangeCB, this );
     originsensor_->attach( &origin );
@@ -135,12 +134,9 @@ void SoSplitTexture2Part::GLRender( SoGLRenderAction* action )
     const SbVec2i32 origsz = size.getValue();
     const SbVec2i32 origstart = origin.getValue();
 
-    const SbVec2s sz = borders.getValue()
-	? SbVec2s(origsz[0]+2,origsz[1]+2) : SbVec2s(origsz[0],origsz[1]);
+    const SbVec2s sz( origsz[0], origsz[1] );
 
-    const SbVec2s start = borders.getValue()
-	? SbVec2s(origstart[0]-1,origstart[1]-1)
-	: SbVec2s(origstart[0],origstart[1]);
+    const SbVec2s start( origstart[0], origstart[1] );
 
     const int unit = SoTextureUnitElement::get( state );
     SbVec2s sourcesize;
@@ -211,7 +207,7 @@ void SoSplitTexture2Part::GLRender( SoGLRenderAction* action )
 
 	glimage_->setData( imagedata_, sz, numcomponents,
 			SoGLImage::CLAMP,
-			   SoGLImage::CLAMP, quality, borders.getValue(),
+			   SoGLImage::CLAMP, quality, false,
 			   state );
 	needregeenration_ = false;
 	SoCacheElement::setInvalid( true );

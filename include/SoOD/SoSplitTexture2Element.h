@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoSplitTexture2Element.h,v 1.2 2007-11-19 22:47:20 cvskris Exp $
+ RCS:		$Id: SoSplitTexture2Element.h,v 1.3 2007-11-20 10:33:47 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,20 +17,18 @@ ________________________________________________________________________
 #include <Inventor/lists/SbList.h>
 #include <Inventor/SbLinear.h>
 
-/*!\brief
-
-*/
+/*!  Element that holds one image per texture unit.  */
 
 class SoSplitTexture2Element : public SoReplacedElement
 {
     SO_ELEMENT_HEADER(SoSplitTexture2Element);
 public:
     static void			set(SoState*,SoNode*,int unit,const SbVec2s&,
-				    const int numComponents,
+				    const int numcomponents,
 				    const unsigned char* bytes);
 
     static const unsigned char*	get(const SoState*, int unit, SbVec2s& size,
-				    int& numComponents);
+				    int& numcomponents);
 	
     static void			initClass();
 private:
