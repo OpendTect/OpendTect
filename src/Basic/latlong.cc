@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Nov 2007
- RCS:           $Id: latlong.cc,v 1.5 2007-11-09 14:09:11 cvsbert Exp $
+ RCS:           $Id: latlong.cc,v 1.6 2007-11-20 15:39:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,8 +14,7 @@ ________________________________________________________________________
 #include "separstr.h"
 #include <math.h>
 
-const double cRadiusEarthPoles = 6356750;
-const double cRadiusEarthEquator = 6378135;
+const double cAvgEarthRadius = 6367450;
 const double cDeg2Rad = M_PI / 180;
 
 
@@ -34,8 +33,8 @@ LatLong LatLong::transform( const Coord& c )
 void LatLong::fill( char* str ) const
 {
     if ( !str ) return;
-    strcpy( str, "[" ); strcat( str, getStringFromDouble(0,lng_) );
-    strcat( str, "," ); strcat( str, getStringFromDouble(0,lat_) );
+    strcpy( str, "[" ); strcat( str, getStringFromDouble(0,lat_) );
+    strcat( str, "," ); strcat( str, getStringFromDouble(0,lng_) );
     strcat( str, "]" );
 }
 
@@ -45,31 +44,31 @@ bool LatLong::use( const char* s )
     if ( !s || !*s ) return false;
 
     BufferString str( s );
-    char* ptrlng = str.buf(); skipLeadingBlanks( ptrlng );
-    if ( *ptrlng == '[' ) ptrlng++;
-    char* ptrlat = strchr( ptrlng, ',' );
-    if ( !ptrlat ) return false;
-    *ptrlat++ = '\0';
-    if ( !*ptrlat ) return false;
-    char* ptrend = strchr( ptrlat, ']' );
+    char* ptrlat = str.buf(); skipLeadingBlanks( ptrlat );
+    if ( *ptrlat == '[' ) ptrlat++;
+    char* ptrlng = strchr( ptrlat, ',' );
+    if ( !ptrlng ) return false;
+    *ptrlng++ = '\0';
+    if ( !*ptrlng ) return false;
+    char* ptrend = strchr( ptrlng, ']' );
     if ( ptrend ) *ptrend = '\0';
 
-    lng_ = atof( ptrlng );
     lat_ = atof( ptrlat );
+    lng_ = atof( ptrlng );
     return true;
 }
 
 
 LatLong2Coord::LatLong2Coord()
-    : latdist_(mUdf(float))
-    , lngdist_(cDeg2Rad * cRadiusEarthPoles)
+    : lngdist_(mUdf(float))
+    , latdist_(cAvgEarthRadius*cDeg2Rad)
     , scalefac_(1)
 {
 }
 
 
 LatLong2Coord::LatLong2Coord( const Coord& c, const LatLong& l )
-    : lngdist_(cDeg2Rad * cRadiusEarthPoles)
+    : latdist_(cAvgEarthRadius*cDeg2Rad)
     , scalefac_(1)
 {
     set( c, l );
@@ -79,25 +78,23 @@ LatLong2Coord::LatLong2Coord( const Coord& c, const LatLong& l )
 void LatLong2Coord::set( const LatLong& ll, const Coord& c )
 {
     refcoord_ = c; reflatlng_ = ll;
-    const double latrad = ll.lat_ * cDeg2Rad;
-    const double sinlat = sin( latrad );
-    latdist_ = (111320 + 373 * sinlat * sinlat) * cos( latrad );
+    lngdist_ = cDeg2Rad * cos( ll.lat_ * cDeg2Rad ) * cAvgEarthRadius;
 }
 
 
 LatLong LatLong2Coord::transform( const Coord& c ) const
 {
-    if ( mIsUdf(latdist_) ) return reflatlng_;
+    if ( mIsUdf(lngdist_) ) return reflatlng_;
 
     Coord coorddist( (c.x - refcoord_.x) * scalefac_,
 	    	     (c.y - refcoord_.y) * scalefac_ );
-    LatLong ll( reflatlng_.lat_ + coorddist.x / latdist_,
-		reflatlng_.lng_ + coorddist.y / lngdist_ );
+    LatLong ll( reflatlng_.lat_ + coorddist.y / latdist_,
+		reflatlng_.lng_ + coorddist.x / lngdist_ );
 
-    if ( ll.lng_ < 0 )		ll.lng_ = -ll.lng_;
-    else if ( ll.lng_ > 180 )	ll.lng_ = ll.lng_ - 180;
-    if ( ll.lat_ < -180 )	ll.lat_ = ll.lat_ + 360;
-    else if ( ll.lat_ > 180 )	ll.lat_ = ll.lat_ - 360;
+    if ( ll.lat_ > 90 )		ll.lat_ = 180 - ll.lat_;
+    else if ( ll.lat_ < -90 )	ll.lat_ = -180 - ll.lat_;
+    if ( ll.lng_ < -180 )	ll.lng_ = ll.lng_ + 360;
+    else if ( ll.lng_ > 180 )	ll.lng_ = ll.lng_ - 360;
 
     return ll;
 }
@@ -109,8 +106,8 @@ Coord LatLong2Coord::transform( const LatLong& ll ) const
 
     const LatLong latlongdist( ll.lat_ - reflatlng_.lat_,
 			       ll.lng_ - reflatlng_.lng_ );
-    return Coord( refcoord_.x + scalefac_ * latlongdist.lat_ * latdist_,
-		  refcoord_.y + scalefac_ * latlongdist.lng_ * lngdist_ );
+    return Coord( refcoord_.x + scalefac_ * latlongdist.lng_ * lngdist_,
+		  refcoord_.y + scalefac_ * latlongdist.lat_ * latdist_ );
 }
 
 
