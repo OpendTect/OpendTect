@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.24 2007-08-10 12:18:53 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.25 2007-11-20 18:26:14 cvskris Exp $";
 
 #include "attribdatacubes.h"
 #include "arrayndimpl.h"
@@ -39,7 +39,7 @@ bool DataCubes::addCube( bool maydofile, const  BinDataDesc* desc )
     if ( !desc || (*desc)==floatdesc )
     {
         arr = new Array3DImpl<float>( inlsz_, crlsz_, zsz_, false);
-	if ( !arr->getData() )
+	if ( !arr->isOK() )
 	{
 	    if ( maydofile )
 	    {
