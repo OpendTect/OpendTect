@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          Nov 2007
- RCS:           $Id: uiseistrcbufviewer.cc,v 1.1 2007-11-21 09:07:53 cvssatyaki Exp $
+ RCS:           $Id: uiseistrcbufviewer.cc,v 1.2 2007-11-21 09:51:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,25 +15,27 @@ ________________________________________________________________________
 #include "seisinfo.h"
 #include "uiflatviewer.h"
 
-uiSeisTrcBufViewer::uiSeisTrcBufViewer(uiParent* p, 
+uiSeisTrcBufViewer::uiSeisTrcBufViewer( uiParent* p, 
 	uiSeisTrcBufViewer::Setup& setup,Seis::GeomType geom, SeisTrcBuf* tbuf )
-    : uiFlatViewMainWin(p, setup)
+    : uiFlatViewMainWin( p, setup )      
     , geom_(geom)
     , app_(0)		 
     , vwr_(0)		 
     , viewwin_(0)		 
     , setup_(setup)		 
 {
-    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( tbuf,Seis::VolPS, 
+    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( tbuf, Seis::VolPS, 
 	                         SeisTrcInfo::TrcNr, "" );
     DPM( DataPackMgr::FlatID ).add( dp );
     initialise();
     setData( dp );
 }
 
+
 uiSeisTrcBufViewer::uiSeisTrcBufViewer(uiParent* p, 
-	uiSeisTrcBufViewer::Setup& setup,Seis::GeomType geom, FlatDataPack* dp )
-    : uiFlatViewMainWin(p, setup)      
+		    uiSeisTrcBufViewer::Setup& setup,
+		    Seis::GeomType geom, FlatDataPack* dp )
+    : uiFlatViewMainWin( p, setup )      
     , geom_(geom)
     , app_(0)		 
     , vwr_(0)		 
@@ -51,6 +53,8 @@ uiSeisTrcBufViewer::~uiSeisTrcBufViewer()
     delete app_;
     delete vwr_;
 }
+
+
 void uiSeisTrcBufViewer::initialise()
 {
     viewwin_ = new uiFlatViewMainWin( this, 
@@ -63,9 +67,10 @@ void uiSeisTrcBufViewer::initialise()
     vwr_ = new uiFlatViewer(viewwin_->viewer());
 }
 
-void uiSeisTrcBufViewer::setData(FlatDataPack* dp)
+
+void uiSeisTrcBufViewer::setData( FlatDataPack* dp )
 {
     vwr_->setPack( true, dp );
     vwr_->appearance().ddpars_.show( true, false );
     viewwin_->start();
-} 
+}

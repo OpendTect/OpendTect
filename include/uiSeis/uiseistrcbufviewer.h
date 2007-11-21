@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          November 2007
- RCS:           $Id: uiseistrcbufviewer.h,v 1.1 2007-11-21 09:06:46 cvssatyaki Exp $
+ RCS:           $Id: uiseistrcbufviewer.h,v 1.2 2007-11-21 09:53:43 cvsbert Exp $
 _______________________________________________________________________
 
       -*/
@@ -24,7 +24,6 @@ class uiSeisTrcBufViewer : public uiFlatViewMainWin
 {
 public:
 
-
     class Setup : public uiFlatViewMainWin::Setup
     {
     public:
@@ -37,10 +36,9 @@ public:
 			uiSeisTrcBufViewer( uiParent*, Setup&, Seis::GeomType
 					    , SeisTrcBuf* );
 		    	uiSeisTrcBufViewer( uiParent*, Setup&, Seis::GeomType  					         , FlatDataPack* );	
-    			
     			~uiSeisTrcBufViewer();
-    void		initialise();
-    void		setData( FlatDataPack* );
+
+    void		setData(FlatDataPack*);
 
 protected:
 
@@ -51,5 +49,9 @@ protected:
     FlatView::Appearance* app_;
     uiFlatViewer*	vwr_;
     const uiFlatViewMainWin::Setup& setup_;
+
+    void		initialise();
 };
+
+
 #endif
