@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.5 2007-11-13 08:08:15 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.6 2007-11-21 09:09:11 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uiflatviewmainwin.h"
 #include "uibutton.h"
 #include "uidialog.h"
+#include "uiseistrcbufviewer.h"
 #include "seiscbvs.h"
 #include "seistrctr.h"
 #include "seisbufadapters.h"
@@ -431,13 +432,6 @@ void uiSeisBrowser::commitChanges()
     }
 }
 
-
-/*bool uiSeisBrowser::WriteData()
-{
-    if 
-}*/
-
-
 bool uiSeisBrowser::acceptOK( CallBacker* )
 {
     commitChanges();
@@ -446,53 +440,9 @@ bool uiSeisBrowser::acceptOK( CallBacker* )
 
     if (uiMSG(). askGoOn(" Do you want to save the changes permanently? ",
 	          	   true));
-    //WriteData();
     //TODO store traces if user wants to
     return false;
 }
-
-class uiSeisTrcBufViewer : public uiFlatViewMainWin
-{
-public:
-
-uiSeisTrcBufViewer( uiParent* p, SeisTrcBuf* trcbuf_, BufferString title, 
-                    const uiSeisBrowser::Setup& setup_ )
-                  : uiFlatViewMainWin( p, uiFlatViewMainWin::Setup(title))
-		  //, dp_(0)  
-{
-    setWinTitle( title );
-    setDarkBG( false );
-    FlatView::Appearance& app = viewer().appearance();
-    app.annot_.setAxesAnnot( true );
-    app.setGeoDefaults( true );
-    app.ddpars_.show( true, true );
-    app.ddpars_.wva_.overlap_ = 1;
-
-    uiFlatViewer& vwr = viewer();
-    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( trcbuf_,
-	                         setup_.geom_, SeisTrcInfo::TrcNr,"");
-    //dp->trcBufArr2D().setBufMine( false );
-    DPM( DataPackMgr::FlatID ).add( dp );
-    vwr.setPack( true, dp );
-
-    vwr.appearance().ddpars_.show( true, false );
-    int pw = 200 + 10 * trcbuf_->size();
-    if ( pw < 400 ) pw = 400; if ( pw > 800 ) pw = 800;
-    vwr.setInitialSize( uiSize(pw,500) );
-    addControl( new uiFlatViewStdControl( vwr,
-			uiFlatViewStdControl::Setup().withstates(false) ) );
-    
-    start();
-}
-
-/*uiSeisTrcBufViewer::~uiSeisTrcBufViewer()
-{
-    delete 
-}*/
-
-//SeisTrcBufDataPack* dp;
-};
-
 
 void  uiSeisBrowser::showWigglePush( CallBacker* )
 {
@@ -500,7 +450,8 @@ void  uiSeisBrowser::showWigglePush( CallBacker* )
     title += curBinID().inl; title += "/";
     title += curBinID().crl;
 
+    uiSeisTrcBufViewer::Setup stbvsetup( title );
     uiSeisTrcBufViewer* strcbufview = new uiSeisTrcBufViewer 
-	                              ( this, &tbuf_, title, setup_);
+	                              ( this, stbvsetup, setup_.geom_, &tbuf_ );
 }
 
