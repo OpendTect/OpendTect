@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.27 2007-11-15 13:26:47 cvshelene Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.28 2007-11-21 09:58:58 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -106,6 +106,7 @@ uiOD2DLineSetTreeItem::uiOD2DLineSetTreeItem( const MultiID& mid )
     , removeitm_("&Remove")
     , storeditm_("Stored &2D data")
     , selattritm_("Select &Attribute")
+    , addattritm_("Add &Attribute")
     , zrgitm_("Set &Z-Range ...")
     , curzrg_( Interval<float>().setFrom(SI().zRange(true)) )
 {
@@ -183,6 +184,7 @@ void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
 	    mAddMenuItem( &selattritm_, nla, true, false );
 
 	mAddMenuItem( menu, &selattritm_, true, false );
+	mAddMenuItem( menu, &addattritm_, true, false );
 	mAddMenuItem( menu, &showitm_, true, false );
 	mAddMenuItem( &showitm_, &showlineitm_, true, false );
 	mAddMenuItem( &showitm_, &showlblitm_, true, false );
@@ -222,6 +224,12 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	selectAddLines();
 	return;
+    }
+    else if ( mnuid==addattritm_.id )
+    {
+	menu->setIsHandled(true);
+	for ( int idx=0; idx<children_.size(); idx++ )
+	    ((uiOD2DLineSetSubItem*)children_[idx])->addAttribItem();
     }
 
     Attrib::SelSpec as;

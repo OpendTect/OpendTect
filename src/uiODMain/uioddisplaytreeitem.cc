@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddisplaytreeitem.cc,v 1.16 2007-11-14 09:16:39 cvsbert Exp $
+ RCS:		$Id: uioddisplaytreeitem.cc,v 1.17 2007-11-21 09:58:58 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -105,6 +105,15 @@ uiODDataTreeItem* uiODDisplayTreeItem::createAttribItem(
     return res;
 }
 
+
+void uiODDisplayTreeItem::addAttribItem()
+{
+    uiODDataTreeItem* newitem = createAttribItem(0);
+    visserv_->addAttrib( displayid_ );
+    addChild( newitem, false );
+    updateColumnText( uiODSceneMgr::cNameColumn() );
+    updateColumnText( uiODSceneMgr::cColorColumn() );
+}
 
 bool uiODDisplayTreeItem::init()
 {

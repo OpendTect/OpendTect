@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.217 2007-11-19 21:10:22 cvsyuancheng Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.218 2007-11-21 09:58:58 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -465,7 +465,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	return false;
     } 
 
-    if ( !appl_.isRestoringSession() )
+    if ( !myas.is2D() && !appl_.isRestoringSession() )
     {
 	const int coltabid = visserv_->getColTabId( visid, attrib );
 	appl_.colTabEd().setColTab( coltabid );
