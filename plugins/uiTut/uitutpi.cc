@@ -5,7 +5,7 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID = "$Id: uitutpi.cc,v 1.8 2007-10-04 11:58:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitutpi.cc,v 1.9 2007-11-22 04:21:43 cvsraman Exp $";
 
 #include "uitutorialattrib.h"
 #include "uituthortools.h"
@@ -61,7 +61,7 @@ public:
 uiTutMgr::uiTutMgr( uiODMain* a )
 	: appl_(a)
 	, wellmnuitmhandler_(visSurvey::WellDisplay::getStaticClassName(),
-		  	      *a->applMgr().visServer(),"Tut Well Tools ...",
+		  	      *a->applMgr().visServer(),"&Tut Well Tools ...",
 			      mCB(this,uiTutMgr,doWells),sTutIdx)
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
