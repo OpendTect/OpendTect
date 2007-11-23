@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.62 2007-11-19 15:41:59 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.63 2007-11-23 09:09:44 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -38,6 +38,7 @@ const char* Output::cubekey = "Cube";
 const char* Output::surfkey = "Surface";
 const char* Output::tskey = "Trace Selection";
 const char* Output::scalekey = "Scale";
+const char* Output::varzlinekey = "Variable Z Line";
 
 const char* SeisTrcStorOutput::seisidkey = "Seismic ID";
 const char* SeisTrcStorOutput::attribkey = "Attributes";
@@ -892,6 +893,7 @@ Trc2DVarZStorOutput::Trc2DVarZStorOutput( const LineKey& lk,
 	if ( val > zmax ) zmax = val;
     }
 
+    setGeometry(getCS() );
     seldata_.zrg_ = Interval<float>( zmin, zmax );
     stdtrcsz_ = zmax - zmin;
     stdstarttime_ = zmin;

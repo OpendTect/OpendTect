@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.67 2007-10-08 11:17:10 cvsnanne Exp $
+ RCS:           $Id: attribengman.cc,v 1.68 2007-11-23 09:09:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -523,7 +523,6 @@ Processor* EngineMan::createScreenOutput2D( BufferString& errmsg,
     Interval<int> trcrg( cs_.hrg.start.crl, cs_.hrg.stop.crl );
     Interval<float> zrg( cs_.zrg.start, cs_.zrg.stop );
     TwoDOutput* attrout = new TwoDOutput( trcrg, zrg, lkey );
-    attrout->setGeometry( trcrg, zrg );
     attrout->setOutput( output );
     proc->addOutput( attrout ); 
 
@@ -861,7 +860,28 @@ Processor* EngineMan::createTrcSelOutput( BufferString& errmsg,
     proc->addOutput( attrout );
 
     return proc;
-};
+}
+
+
+Processor* EngineMan::create2DVarZOutput( BufferString& errmsg,
+					  const IOPar& pars,
+				          const LineKey& lkey,
+					  const BinIDValueSet& bidvalset,
+					  float outval,
+       					  Interval<float>* cubezbounds )
+{
+    Processor* proc = getProcessor( errmsg );
+    if ( !proc ) return 0;
+
+    Trc2DVarZStorOutput* attrout = new Trc2DVarZStorOutput( lkey, bidvalset,
+	    						    outval );
+    attrout->doUsePar( pars );
+    if ( cubezbounds )
+	attrout->setTrcsBounds( *cubezbounds );
+
+    proc->addOutput( attrout );
+    return proc;
+}
 
 
 int EngineMan::getNrOutputsToBeProcessed( const Processor& proc ) const

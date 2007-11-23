@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.25 2007-10-08 11:17:10 cvsnanne Exp $
+ RCS:           $Id: attribengman.h,v 1.26 2007-11-23 09:09:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,6 +91,12 @@ public:
     Processor*		createTrcSelOutput(BufferString& errmsg,
 	    				   const BinIDValueSet& bidvalset,
 	    				   SeisTrcBuf&, float outval=0,
+					   Interval<float>* cubezbounds = 0);
+    Processor*		create2DVarZOutput(BufferString& errmsg,
+	    				   const IOPar& pars,
+					   const LineKey& lkey,
+	    				   const BinIDValueSet& bidvalset,
+	    				   float outval=0,
 					   Interval<float>* cubezbounds = 0);
     int			getNrOutputsToBeProcessed(const Processor&) const;
 

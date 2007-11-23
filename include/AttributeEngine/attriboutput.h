@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.30 2007-11-19 15:41:59 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.31 2007-11-23 09:09:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ public:
     static const char*          tskey;
     static const char*          surfkey;
     static const char*          scalekey;
+    static const char*          varzlinekey;
 
 protected:
     SeisSelData&		seldata_;
