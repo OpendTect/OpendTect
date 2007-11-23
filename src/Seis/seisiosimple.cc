@@ -4,14 +4,14 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisiosimple.cc,v 1.4 2007-10-08 10:55:29 cvsbert Exp $";
+static const char* rcsID = "$Id: seisiosimple.cc,v 1.5 2007-11-23 11:59:06 cvsbert Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
 #include "seiswrite.h"
 #include "seisimporter.h"
 #include "seistrc.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "seisresampler.h"
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -152,8 +152,7 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
     if ( !errmsg_.isEmpty() )
 	return;
 
-    SeisSelData* seldata = new SeisSelData;
-    seldata->usePar( data_.subselpars_ );
+    Seis::SelData* seldata = Seis::SelData::get( data_.subselpars_ );
     sa->setSelData( seldata );
 
     StreamProvider sp( data_.fname_ );

@@ -2,18 +2,17 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_export_xyzv.cc,v 1.19 2005-08-26 18:19:27 cvsbert Exp $
+ * RCS      : $Id: od_cbvs_export_xyzv.cc,v 1.20 2007-11-23 11:59:06 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_export_xyzv.cc,v 1.19 2005-08-26 18:19:27 cvsbert Exp $";
+static const char* rcsID = "$Id: od_cbvs_export_xyzv.cc,v 1.20 2007-11-23 11:59:06 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
-#include "seistrcsel.h"
+#include "seisselectionimpl.h"
 #include "binidselimpl.h"
 #include "conn.h"
 #include "iostrm.h"
-#include "separstr.h"
 #include "filegen.h"
 #include "filepath.h"
 #include "ptrman.h"
@@ -30,8 +29,7 @@ int main( int argc, char** argv )
     if ( argc < 3 )
     {
 	std::cerr << "Usage: " << argv[0]
-	     << " inpfile outpfile "
-	     << "[inl1,inl2,crl1,crl2,startz,nrz]\n";
+	     << " inpfile outpfile\n";
 	std::cerr << "Format input: CBVS ; Format ouput: x y z v [v ...]"
 		  << std::endl;
 	ExitProgram( 1 );
@@ -64,19 +62,6 @@ int main( int argc, char** argv )
     StreamData outsd = StreamProvider( fname ).makeOStream();
     if ( !outsd.usable() )
         { std::cerr << "Cannot open output file" << std::endl; ExitProgram(1); }
-
-    if ( argc > 3 )
-    {
-	SeparString fms( argv[3], ',' );
-	SeisSelData sd;
-	sd.inlrg_.start = atoi(fms[0]);
-	sd.inlrg_.stop = atoi(fms[1]);
-	sd.crlrg_.start = atoi(fms[2]);
-	sd.crlrg_.stop = atoi(fms[3]);
-	sd.zrg_.start = atof(fms[4]);
-	sd.zrg_.stop = atof(fms[5]);
-	tri->setSelData( &sd );
-    }
 
     SeisTrc trc;
     int nrwr = 0;

@@ -5,12 +5,12 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.73 2007-10-25 15:04:13 cvssatyaki Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.74 2007-11-23 11:59:06 cvsbert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
 #include "seistrc.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "cbvsreadmgr.h"
 #include "cbvswritemgr.h"
 #include "filepath.h"
@@ -216,7 +216,7 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
 
 bool CBVSSeisTrcTranslator::commitSelections_()
 {
-    if ( forread && !is2d && seldata && seldata->isPositioned() )
+    if ( forread && !is2d && seldata && !seldata->isAll() )
     {
 	CubeSampling cs;
 	Interval<int> inlrg = seldata->inlRange();
@@ -260,11 +260,11 @@ bool CBVSSeisTrcTranslator::commitSelections_()
     if ( !forread )
 	return startWrite();
 
-    if ( is2d && seldata && seldata->type_ == Seis::Range )
+    if ( is2d && seldata && seldata->type() == Seis::Range )
     {
 	// For 2D, inline is just an index number
-	SeisSelData& sd = *const_cast<SeisSelData*>( seldata );
-	sd.inlrg_.start = sd.inlrg_.stop = rdmgr->binID().inl;
+	Seis::SelData& sd = *const_cast<Seis::SelData*>( seldata );
+	sd.setInlRange( Interval<int>(rdmgr->binID().inl,rdmgr->binID().inl) );
     }
 
     if ( selRes(rdmgr->binID()) )
@@ -276,7 +276,7 @@ bool CBVSSeisTrcTranslator::commitSelections_()
 
 bool CBVSSeisTrcTranslator::inactiveSelData() const
 {
-    return isEmpty( seldata ) || seldata->type_ == Seis::TrcNrs;
+    return isEmpty( seldata );
 }
 
 
@@ -286,7 +286,7 @@ int CBVSSeisTrcTranslator::selRes( const BinID& bid ) const
 	return 0;
 
     // Table for 2D: can't select because inl/crl in file is not 'true'
-    if ( is2d && seldata->type_ == Seis::Table )
+    if ( is2d && seldata->type() == Seis::Table )
 	return 0;
 
     return seldata->selRes(bid);

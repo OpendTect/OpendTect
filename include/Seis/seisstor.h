@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisstor.h,v 1.17 2007-10-05 11:38:53 cvsbert Exp $
+ RCS:		$Id: seisstor.h,v 1.18 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 Trace storage objects handle seismic data storage.
@@ -20,10 +20,10 @@ class Conn;
 class IOObj;
 class Translator;
 class SeisTrcBuf;
-class SeisSelData;
 class Seis2DLineSet;
 class SeisPSIOProvider;
 class SeisTrcTranslator;
+namespace Seis		{ class SelData; }
 
 
 /*!\brief base class for seis reader and writer. */
@@ -48,10 +48,10 @@ public:
     const IOObj*	ioObj() const
 			{ return ioobj; }
     void		setIOObj(const IOObj*);
-    const SeisSelData*	selData() const
+    const Seis::SelData* selData() const
 			{ return seldata; }
-    void		setSelData(SeisSelData*);
-			//!< The SeisSelData becomes mine
+    void		setSelData(Seis::SelData*);
+			//!< The Seis::SelData becomes mine
     int			selectedComponent() const
 			{ return selcomp; }
 			//!< default = -1 is all components
@@ -102,7 +102,7 @@ protected:
     int			selcomp;
     Translator*		trl;
     Seis2DLineSet*	lset;
-    SeisSelData*	seldata;
+    Seis::SelData*	seldata;
     const SeisPSIOProvider* psioprov;
     BufferString	errmsg;
 

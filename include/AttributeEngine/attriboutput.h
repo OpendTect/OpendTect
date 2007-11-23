@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.31 2007-11-23 09:09:44 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.32 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,12 +21,12 @@ class BinID;
 class BinIDValueSet;
 class LineKey;
 class MultiID;
-class SeisSelData;
 class SeisTrc;
 class SeisTrcInfo;
 class SeisTrcBuf;
 class SeisTrcWriter;
 class Scaler;
+namespace Seis { class SelData; }
 
 namespace Attrib
 {
@@ -55,7 +55,7 @@ public:
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&)		 = 0;
     virtual void		writeTrc()		{};
-    const SeisSelData&		getSelData()		{ return seldata_; }
+    const Seis::SelData&	getSelData()		{ return *seldata_; }
     const LineKey&		curLineKey() const;
     virtual void		adjustInlCrlStep(const CubeSampling&)	{};
 
@@ -67,8 +67,11 @@ public:
     static const char*          varzlinekey;
 
 protected:
-    SeisSelData&		seldata_;
+
+    Seis::SelData*		seldata_;
     TypeSet<int>		desoutputs_;
+    void			doSetGeometry(const CubeSampling&);
+    void			ensureSelType(Seis::SelType);
 };
 
 
@@ -82,7 +85,8 @@ public:
     virtual DataCubes*		getDataCubes(float);
 
     bool			getDesiredVolume(CubeSampling&) const;
-    void			setGeometry(const CubeSampling&);
+    void			setGeometry( const CubeSampling& cs )
+				{ doSetGeometry(cs); }
     void                	setUndefValue( float v )	{ udfval_ = v; }
 
     bool			wantsOutput(const BinID&) const;
@@ -114,7 +118,8 @@ public:
     bool			getDesiredVolume(CubeSampling&) const;
     bool			wantsOutput(const BinID&) const;
     bool			setStorageID(const MultiID&);
-    void			setGeometry(const CubeSampling&);
+    void			setGeometry( const CubeSampling& cs )
+				{ doSetGeometry(cs); }
 
     bool			doUsePar(const IOPar&);
     virtual void		collectData(const DataHolder&,float step,

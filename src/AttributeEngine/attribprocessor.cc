@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.53 2007-11-13 14:52:03 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.54 2007-11-23 11:59:06 cvsbert Exp $";
 
 #include "attribprocessor.h"
 
@@ -16,7 +16,8 @@ static const char* rcsID = "$Id: attribprocessor.cc,v 1.53 2007-11-13 14:52:03 c
 #include "cubesampling.h"
 #include "linekey.h"
 #include "seisinfo.h"
-#include "seistrcsel.h"
+#include "seisselectionimpl.h"
+#include "binidvalset.h"
 
 
 namespace Attrib
@@ -99,8 +100,11 @@ void Processor::useFullProcess( int& res )
     {
 	BinID firstpos;
 
-	if ( sd_ && sd_->type_ == Seis::Table )
-	    firstpos = sd_->table_.firstPos();
+	if ( sd_ && sd_->type() == Seis::Table )
+	{
+	    mDynamicCastGet(Seis::TableSelData*,tsd,sd_)
+	    firstpos = tsd->binidValueSet().firstPos();
+	}
 	else
 	{
 	    const BinID step = provider_->getStepoutStep();
@@ -301,16 +305,18 @@ void Processor::computeAndSetRefZStep()
 
 void Processor::prepareForTableOutput()
 {
-    if ( outputs_.size() && outputs_[0]->getSelData().type_==Seis::Table )
+    if ( outputs_.size() && outputs_[0]->getSelData().type() == Seis::Table )
     {
 	for ( int idx=0; idx<outputs_.size(); idx++ )
 	{
-	    if ( !idx ) sd_ = new SeisSelData(outputs_[0]->getSelData());
-	    else sd_->include( outputs_[idx]->getSelData() );
+	    if ( !idx )
+		sd_ = outputs_[0]->getSelData().clone();
+	    else
+		sd_->include( outputs_[idx]->getSelData() );
 	}
     }
 
-    if ( sd_ && sd_->type_ == Seis::Table )
+    if ( sd_ && sd_->type() == Seis::Table )
     {
 	provider_->setSelData( sd_ );
 	mDynamicCastGet( LocationOutput*, locoutp, outputs_[0] );

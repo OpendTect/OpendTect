@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.70 2007-10-17 02:22:35 cvskris Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.71 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "keystrs.h"
 #include "ptrman.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "seistrctr.h"
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -117,8 +117,7 @@ void uiSeisPartServer::manageWavelets()
 bool uiSeisPartServer::select2DSeis( MultiID& mid, bool with_attr )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
-    SeisSelSetup setup;
-    setup.is2d( true ).selattr( with_attr );
+    Seis::SelSetup setup(true); setup.selattr( with_attr );
     uiSeisSelDlg dlg( appserv().parent(), *ctio, setup );
     if ( !dlg.go() || !dlg.ioObj() ) return false;
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.34 2007-10-22 06:30:22 cvsnanne Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.35 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "seissingtrcproc.h"
 #include "seistrc.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "seistrctr.h"
 #include "sorting.h"
 #include "survinfo.h"
@@ -71,7 +71,7 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
     seisinpfld->box()->setCurrentItem( 0 );
 
     ctio.ctxt.forread = false;
-    seisoutfld = new uiSeisSel( this, ctio, SeisSelSetup().is2d(false) );
+    seisoutfld = new uiSeisSel( this, ctio, Seis::SelSetup(false) );
     seisoutfld->attach( alignedBelow, seisinpfld );
 
     remfld = new uiCheckBox( this, "Remove original files on succes" );

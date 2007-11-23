@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2007
- RCS:		$Id: seiscubeprov.h,v 1.9 2007-04-24 16:38:21 cvsbert Exp $
+ RCS:		$Id: seiscubeprov.h,v 1.10 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -21,8 +21,8 @@ class BinID;
 class MultiID;
 class SeisTrc;
 class SeisTrcBuf;
-class SeisSelData;
 class SeisTrcReader;
+namespace Seis		{ class SelData; }
 
 
 /*!\brief Reads seismic data into buffers providing a Moving Virtual Subcube
@@ -77,7 +77,7 @@ public:
     			{ return req ? reqstepout_.r() : desstepout_.r(); }
     int			crlStepout( bool req ) const
     			{ return req ? reqstepout_.c() : desstepout_.c(); }
-    void		setSelData(SeisSelData*);
+    void		setSelData(Seis::SelData*);
     			//!< seldata becomes mine
 
     enum AdvanceState	{ NewPosition, Buffering, EndReached, Error };

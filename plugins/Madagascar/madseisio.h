@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: madseisio.h,v 1.1 2007-11-15 12:53:04 cvsbert Exp $
+ * ID       : $Id: madseisio.h,v 1.2 2007-11-23 11:59:06 cvsbert Exp $
 -*/
 
 #include "madio.h"
@@ -52,18 +52,18 @@ public:
 
     			SeisSeqInp(Seis::GeomType gt=Seis::Vol);
     			SeisSeqInp(Seis::GeomType,const FileSpec&,
-				   const SeisSelData&);
+				   const Seis::SelData&);
     virtual		~SeisSeqInp();
 
     virtual const char*	type() const		{ return getType(); }
     virtual Seis::GeomType geomType() const	{ return getGeomType(); }
 
-    virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
     virtual bool	get(SeisTrc&) const;
 
-    SeisSelData&	selData()		{ return seldata_; }
-    const SeisSelData&	selData() const		{ return seldata_; }
+    const Seis::SelData& selData() const	{ return *seldata_; }
+    void		setSelData(const Seis::SelData&);
 
     virtual bool	open();
 
@@ -72,7 +72,7 @@ public:
 
 protected:
 
-    SeisSelData&	seldata_;
+    Seis::SelData*	seldata_;
 
     virtual void	setErrMsg( const char* s ) { errmsg_ = s; }
 };

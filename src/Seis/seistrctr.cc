@@ -5,13 +5,13 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.78 2007-10-23 11:33:14 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.79 2007-11-23 11:59:06 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
 #include "seisinfo.h"
 #include "seistrc.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "seisbuf.h"
 #include "iopar.h"
 #include "ioobj.h"
@@ -505,11 +505,11 @@ bool SeisTrcTranslator::getRanges( const IOObj& ioobj, CubeSampling& cs,
     PtrMan<Translator> transl = ioobj.getTranslator();
     mDynamicCastGet(SeisTrcTranslator*,tr,transl.ptr());
     if ( !tr ) return false;
-    PtrMan<SeisSelData> sd = 0;
+    PtrMan<Seis::SelData> sd = 0;
     if ( lk && *lk )
     {
-	sd = new SeisSelData;
-	sd->linekey_ = lk;
+	sd = Seis::SelData::get( Seis::Range );
+	sd->lineKey() = lk;
 	tr->setSelData( sd );
     }
     Conn* cnn = ioobj.getConn( Conn::Read );

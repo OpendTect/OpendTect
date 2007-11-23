@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.25 2007-11-16 21:25:45 cvskris Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.26 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "multiid.h"
 #include "ptrman.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "seistrctr.h"
 #include "survinfo.h"
 
@@ -288,7 +288,7 @@ void uiAttrTrcSelOut::createCubeBoundsFlds( uiParent* prnt )
 void uiAttrTrcSelOut::createOutputFld( uiParent* prnt )
 {
     ctioout_.ctxt.forread = false;
-    outpfld_ = new uiSeisSel( prnt, ctioout_, SeisSelSetup() );
+    outpfld_ = new uiSeisSel( prnt, ctioout_, Seis::SelSetup(false) );
     outpfld_->attach( alignedBelow, usesinglehor_ ? cubeboundsfld_ 
 	    					  : outsidevalfld_);
 }

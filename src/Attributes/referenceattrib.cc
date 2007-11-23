@@ -4,7 +4,7 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID = "$Id: referenceattrib.cc,v 1.19 2007-11-09 16:53:52 cvshelene Exp $";
+static const char* rcsID = "$Id: referenceattrib.cc,v 1.20 2007-11-23 11:59:06 cvsbert Exp $";
 
 
 #include "referenceattrib.h"
@@ -15,7 +15,6 @@ static const char* rcsID = "$Id: referenceattrib.cc,v 1.19 2007-11-09 16:53:52 c
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "cubesampling.h"
-#include "seistrcsel.h"
 #include "survinfo.h"
 
 

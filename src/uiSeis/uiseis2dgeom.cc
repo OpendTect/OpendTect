@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uiseis2dgeom.cc,v 1.10 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:		$Id: uiseis2dgeom.cc,v 1.11 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uiseis2dgeom.h"
 #include "bufstringset.h"
 #include "seistrctr.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "seis2dline.h"
 #include "uiseissel.h"
 #include "uigeninput.h"
@@ -41,7 +41,7 @@ uiSeisDump2DGeom::uiSeisDump2DGeom( uiParent* p, const IOObj* ioobj )
 	ctio.setObj( ioobj->clone() );
 	mainObject()->finaliseStart.notify( cb );
     }
-    seisfld = new uiSeisSel( this, ctio, SeisSelSetup().is2d(true) );
+    seisfld = new uiSeisSel( this, ctio, Seis::SelSetup(true) );
     seisfld->selectiondone.notify( cb );
 
     lnmsfld = new uiGenInput( this, "One line only",

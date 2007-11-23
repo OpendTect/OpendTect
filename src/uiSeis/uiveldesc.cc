@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uiveldesc.cc,v 1.3 2007-11-16 21:28:54 cvskris Exp $
+ RCS:           $Id: uiveldesc.cc,v 1.4 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "seistrctr.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uiseissel.h"
@@ -63,8 +63,7 @@ uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p )
     , ctxt_( *new CtxtIOObj( SeisTrcTranslatorGroup::ioContext() ) )
 {
     ctxt_.ctxt.forread = true;
-    SeisSelSetup setup( false );
-    volsel_ = new uiSeisSel( this, ctxt_, setup );
+    volsel_ = new uiSeisSel( this, ctxt_, Seis::SelSetup(false) );
     volsel_->selectiondone.notify( mCB(this,uiVelocityDescDlg,volSelChange) );
     veldesc_ = new uiVelocityDesc( this, VelocityDesc() );
     veldesc_->attach( alignedBelow, volsel_ );

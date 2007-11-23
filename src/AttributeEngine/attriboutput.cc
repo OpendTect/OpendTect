@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.63 2007-11-23 09:09:44 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.64 2007-11-23 11:59:06 cvsbert Exp $";
 
 #include "attriboutput.h"
 
@@ -23,7 +23,8 @@ static const char* rcsID = "$Id: attriboutput.cc,v 1.63 2007-11-23 09:09:44 cvsh
 #include "scaler.h"
 #include "seisbuf.h"
 #include "seistrc.h"
-#include "seistrcsel.h"
+#include "seisselectionimpl.h"
+#include "binidvalset.h"
 #include "seistrctr.h"
 #include "seiswrite.h"
 #include "simpnumer.h"
@@ -53,19 +54,41 @@ const char* LocationOutput::surfidkey = "Surface ID";
 
 
 Output::Output()
-    : seldata_(*new SeisSelData)
-{}
+    : seldata_(new Seis::RangeSelData(true))
+{
+    seldata_->setIsAll( true );
+}
 
 
 Output::~Output()
 {
-    delete &seldata_;
+    delete seldata_;
 }
 
 
 const LineKey& Output::curLineKey() const
 {
-    return seldata_.linekey_;
+    return seldata_->lineKey();
+}
+
+
+void Output::ensureSelType( Seis::SelType st )
+{
+    if ( seldata_->type() != st )
+    {
+	Seis::SelData* newseldata = Seis::SelData::get( st );
+	newseldata->copyFrom( *seldata_ );
+	delete seldata_; seldata_ = newseldata;
+    }
+}
+
+
+void Output::doSetGeometry( const CubeSampling& cs )
+{
+    if ( cs.isEmpty() ) return;
+
+    ensureSelType( Seis::Range );
+    ((Seis::RangeSelData*)seldata_)->cubeSampling() = cs;
 }
 
 
@@ -216,13 +239,6 @@ DataCubes* DataCubesOutput::getDataCubes( float refstep )
 }
 
 
-void DataCubesOutput::setGeometry( const CubeSampling& cs )
-{
-    if ( cs.isEmpty() ) return;
-    seldata_.copyFrom(cs);
-}
-
-
 void DataCubesOutput::init( float refstep )
 {
     datacubes_ = new Attrib::DataCubes;
@@ -253,7 +269,7 @@ SeisTrcStorOutput::SeisTrcStorOutput( const CubeSampling& cs,
     , errmsg_(0)
     , scaler_(0)
 {
-    seldata_.linekey_ = lk;
+    seldata_->lineKey() = lk;
     attribname_ = lk.attrName();
 }
 
@@ -285,13 +301,6 @@ bool SeisTrcStorOutput::setStorageID( const MultiID& storid )
 
     storid_ = storid;
     return true;
-}
-
-
-void SeisTrcStorOutput::setGeometry( const CubeSampling& cs )
-{
-    if ( cs.isEmpty() ) return;
-    seldata_.copyFrom(cs);
 }
 
 
@@ -351,24 +360,13 @@ bool SeisTrcStorOutput::doInit()
     }
 
     desiredvolume_.normalise();
-    seldata_.linekey_.setAttrName( "" );
-    if ( seldata_.type_ != Seis::Range )
-	seldata_.type_ = Seis::Range;
+    seldata_->lineKey().setAttrName( "" );
+    ensureSelType( Seis::Range );
 
     if ( !is2d_ )
     {
-	if ( seldata_.inlrg_.start > desiredvolume_.hrg.start.inl )
-	    desiredvolume_.hrg.start.inl = seldata_.inlrg_.start;
-	if ( seldata_.inlrg_.stop < desiredvolume_.hrg.stop.inl )
-	    desiredvolume_.hrg.stop.inl = seldata_.inlrg_.stop;
-	if ( seldata_.crlrg_.start > desiredvolume_.hrg.start.crl )
-	    desiredvolume_.hrg.start.crl = seldata_.crlrg_.start;
-	if ( seldata_.crlrg_.stop < desiredvolume_.hrg.stop.crl )
-	    desiredvolume_.hrg.stop.crl = seldata_.crlrg_.stop;
-	if ( seldata_.zrg_.start > desiredvolume_.zrg.start )
-	    desiredvolume_.zrg.start = seldata_.zrg_.start;
-	if ( seldata_.zrg_.stop < desiredvolume_.zrg.stop )
-	    desiredvolume_.zrg.stop = seldata_.zrg_.stop;
+	CubeSampling& cs = ((Seis::RangeSelData*)seldata_)->cubeSampling();
+	desiredvolume_.limitTo( cs );
     }
 
     return true;
@@ -510,7 +508,7 @@ TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
     : errmsg_(0)
     , output_( 0 )
 {
-    seldata_.linekey_ = lk;
+    seldata_->lineKey() = lk;
     setGeometry( trg, zrg );
 }
 
@@ -523,25 +521,25 @@ TwoDOutput::~TwoDOutput()
 
 bool TwoDOutput::wantsOutput( const BinID& bid ) const
 {
-    return seldata_.crlrg_.includes(bid.crl);
+    return seldata_->crlRange().includes(bid.crl);
 } 
  
 
 void TwoDOutput::setGeometry( const Interval<int>& trg,
 			      const Interval<float>& zrg )
 {
-    seldata_.zrg_ = zrg;
-    seldata_.crlrg_.setFrom(trg);
-    seldata_.type_ = Seis::Range;
+    ensureSelType( Seis::Range );
+    seldata_->setZRange( zrg );
+    seldata_->setCrlRange( trg );
 }
 
 
 bool TwoDOutput::getDesiredVolume( CubeSampling& cs ) const
 {
-    cs.hrg.start.crl = seldata_.crlrg_.start;
-    cs.hrg.stop.crl = seldata_.crlrg_.stop;
-    cs.zrg = StepInterval<float>( seldata_.zrg_.start, seldata_.zrg_.stop,
-	    			  SI().zStep() );
+    const Interval<int> rg( seldata_->crlRange() );
+    cs.hrg.start.crl = rg.start; cs.hrg.stop.crl = rg.stop;
+    const Interval<float> zrg( seldata_->zRange() );
+    cs.zrg = StepInterval<float>( zrg.start, zrg.stop, SI().zStep() );
     cs.hrg.start.inl = cs.hrg.stop.inl = 0;
     return true;
 }
@@ -549,9 +547,10 @@ bool TwoDOutput::getDesiredVolume( CubeSampling& cs ) const
 
 bool TwoDOutput::doInit()
 {
-    seldata_.linekey_.setAttrName( "" );
-    if ( seldata_.crlrg_.start <= 0 && Values::isUdf(seldata_.crlrg_.stop) )
-	seldata_.type_ = Seis::All;
+    seldata_->lineKey().setAttrName( "" );
+    const Interval<int> rg( seldata_->crlRange() );
+    if ( rg.start <= 0 && Values::isUdf(rg.stop) )
+	seldata_->setIsAll( true );
 
     return true;
 }
@@ -589,8 +588,8 @@ TypeSet< Interval<int> > TwoDOutput::getLocalZRanges( const BinID& bid,
 {
     if ( sampleinterval_.size() == 0 )
     {
-	Interval<int> interval( mNINT(seldata_.zrg_.start/zstep), 
-				mNINT(seldata_.zrg_.stop/zstep) );
+	Interval<float> zrg( seldata_->zRange() );
+	Interval<int> interval( mNINT(zrg.start/zstep), mNINT(zrg.stop/zstep) );
 	const_cast<TwoDOutput*>(this)->sampleinterval_ += interval;
     }
     return sampleinterval_;
@@ -601,10 +600,10 @@ LocationOutput::LocationOutput( BinIDValueSet& bidvalset )
     : bidvalset_(bidvalset)
     , classstatus_(-1)
 {
-    seldata_.all_ = false;
-    seldata_.type_ = Seis::Table;
-    seldata_.table_.allowDuplicateBids( true );
-    seldata_.table_ = bidvalset;
+    ensureSelType( Seis::Table );
+    seldata_->setIsAll( false );
+    ((Seis::TableSelData*)seldata_)->binidValueSet().allowDuplicateBids( true );
+    ((Seis::TableSelData*)seldata_)->binidValueSet() = bidvalset;
 
     arebiddupl_ = areBIDDuplicated();
 }
@@ -744,12 +743,12 @@ TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
     , outpbuf_(0)
     , outval_(outval)
 {
-    seldata_.all_ = false;
-    seldata_.type_ = Seis::Table;
-    seldata_.table_.allowDuplicateBids( bidvalset.totalSize()<2 );
-    seldata_.table_.setNrVals( 1 );
+    delete seldata_;
+    Seis::TableSelData& sd = *new Seis::TableSelData( bidvalset );
+    seldata_ = &sd;
+    sd.binidValueSet().allowDuplicateBids( bidvalset.totalSize()<2 );
 
-    const int nrinterv = bidvalset.nrVals()/2;
+    const int nrinterv = bidvalset.nrVals() / 2;
     float zmin = mUdf(float);
     float zmax = -mUdf(float);
     for ( int idx=0; idx<nrinterv; idx+=2 )
@@ -762,9 +761,8 @@ TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
 
     BinIDValueSet::Pos pos;
     bidvalset.next( pos );
-    seldata_.table_.add( bidvalset.getBinID(pos), zmin );
-    while ( bidvalset.next(pos) )
-	seldata_.table_.add( bidvalset.getBinID(pos), zmax );
+    sd.binidValueSet().add( bidvalset.getBinID(pos), zmin );
+    sd.binidValueSet().add( bidvalset.getBinID(pos), zmax );
 
     stdtrcsz_ = zmax - zmin;
     stdstarttime_ = zmin;
@@ -772,7 +770,8 @@ TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
 
 
 TrcSelectionOutput::~TrcSelectionOutput()
-{}
+{
+}
 
 
 void TrcSelectionOutput::collectData( const DataHolder& data, float refstep,
@@ -893,8 +892,8 @@ Trc2DVarZStorOutput::Trc2DVarZStorOutput( const LineKey& lk,
 	if ( val > zmax ) zmax = val;
     }
 
-    setGeometry(getCS() );
-    seldata_.zrg_ = Interval<float>( zmin, zmax );
+    setGeometry( getCS() );
+    seldata_->setZRange( Interval<float>(zmin,zmax) );
     stdtrcsz_ = zmax - zmin;
     stdstarttime_ = zmin;
 }
@@ -934,9 +933,8 @@ bool Trc2DVarZStorOutput::doInit()
     }
 
     desiredvolume_.normalise();
-    seldata_.linekey_.setAttrName( "" );
-    if ( seldata_.type_ != Seis::Range )
-	seldata_.type_ = Seis::Range;
+    seldata_->lineKey().setAttrName( "" );
+    ensureSelType( Seis::Range );
 
     return true;
 }

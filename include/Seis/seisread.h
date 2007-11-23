@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.27 2007-10-11 16:21:57 cvsbert Exp $
+ RCS:		$Id: seisread.h,v 1.28 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "seistype.h"
 #include "linekey.h"
 class Executor;
-class BinIDRange;
+class HorSampling;
 class SeisTrcBuf;
 namespace PosInfo { class Line2DData; }
 namespace Seis { class Bounds; class Bounds2D; }
@@ -25,7 +25,7 @@ namespace Seis { class Bounds; class Bounds2D; }
 /*!\brief reads from a seismic data store.
 
 If you don't want all of the stored data, you must set use the
-SeisTrcTranslator facilities (SeisSelData and ComponentData) after calling
+SeisTrcTranslator facilities (SelData and ComponentData) after calling
 prepareWork(). If you don't call prepareWork(), the reader will do that but
 you cannot use SeisTrcTranslator facilities then.
 
@@ -63,7 +63,7 @@ public:
     bool		get(SeisTrc&);
 			/*!< It is possible to directly call this without
 			     checking the get(SeisTrcInfo&) result. Beware that
-			     the trace selections in the SeisSelData may be
+			     the trace selections in the SelData may be
 			     ignored then - depending on the Translator's
 			     capabilities. */
 
@@ -89,7 +89,7 @@ protected:
     int			prev_inl;
     int			curlineidx;
     int			nrfetchers;
-    BinIDRange*		outer;
+    HorSampling*	outer;
     SeisTrcBuf*		tbuf;
     Executor*		fetcher;
     Seis::ReadMode	readmode;

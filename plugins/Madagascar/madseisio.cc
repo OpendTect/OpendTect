@@ -4,10 +4,10 @@
  * DATE     : Nov 2007
 -*/
 
-static const char* rcsID = "$Id: madseisio.cc,v 1.1 2007-11-15 12:53:04 cvsbert Exp $";
+static const char* rcsID = "$Id: madseisio.cc,v 1.2 2007-11-23 11:59:06 cvsbert Exp $";
 
 #include "madseisio.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 
 
 ODMad::SeisSeqIO::SeisSeqIO( Seis::GeomType gt, bool fr )
@@ -45,15 +45,15 @@ void ODMad::SeisSeqIO::toPar( IOPar& iop ) const
 
 ODMad::SeisSeqInp::SeisSeqInp( Seis::GeomType gt )
     : ODMad::SeisSeqIO(gt,true)
-    , seldata_(*new SeisSelData)
+    , seldata_(emptySelData().clone())
 {
 }
 
 
 ODMad::SeisSeqInp::SeisSeqInp( Seis::GeomType gt, const FileSpec& fs,
-       				const SeisSelData& sd )
+       				const Seis::SelData& sd )
     : ODMad::SeisSeqIO(gt,true)
-    , seldata_(*new SeisSelData(sd))
+    , seldata_(sd.clone())
 {
     fspec_ = fs;
     open();
@@ -62,7 +62,14 @@ ODMad::SeisSeqInp::SeisSeqInp( Seis::GeomType gt, const FileSpec& fs,
 
 ODMad::SeisSeqInp::~SeisSeqInp()
 {
-    delete &seldata_;
+    delete seldata_;
+}
+
+
+bool ODMad::SeisSeqInp::usePar( const IOPar& iop )
+{
+    seldata_->usePar( iop );
+    return fromPar( iop );
 }
 
 
@@ -70,13 +77,6 @@ void ODMad::SeisSeqInp::fillPar( IOPar& iop ) const
 {
     Seis::SeqInp::fillPar( iop );
     toPar( iop );
-}
-
-
-bool ODMad::SeisSeqInp::usePar( const IOPar& iop )
-{
-    seldata_.usePar( iop );
-    return fromPar( iop );
 }
 
 
@@ -90,14 +90,24 @@ bool ODMad::SeisSeqInp::get( SeisTrc& trc ) const
 }
 
 
+void ODMad::SeisSeqInp::setSelData( const Seis::SelData& sd )
+{
+    if ( &sd == seldata_ ) return;
+
+    delete seldata_;
+    seldata_ = sd.clone();
+}
+
+
 bool ODMad::SeisSeqInp::open()
 {
-    if ( seldata_.all_ )
+    if ( !seldata_->isAll() )
+    {
+	pErrMsg("TODO: open subselected Madagascar input");
+    }
+    else
     {
 	pErrMsg("TODO: open Madagascar input");
-    }
-    {
-	pErrMsg("TODO: subselect Madagascar input");
     }
     return false;
 }

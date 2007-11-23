@@ -4,19 +4,19 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: seiseventsnapper.cc,v 1.3 2007-04-24 16:38:21 cvsbert Exp $
+ RCS:		$Id: seiseventsnapper.cc,v 1.4 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "seiseventsnapper.h"
-
-#include "cubesampling.h"
-#include "ioobj.h"
+#include "seistrc.h"
 #include "seisioobjinfo.h"
 #include "seismscprov.h"
-#include "seistrc.h"
-#include "seistrcsel.h"
+#include "seisselectionimpl.h"
+#include "ioobj.h"
+#include "cubesampling.h"
+#include "binidvalset.h"
 
 
 SeisEventSnapper::SeisEventSnapper( const IOObj& ioobj, BinIDValueSet& bvs )
@@ -33,15 +33,9 @@ SeisEventSnapper::SeisEventSnapper( const IOObj& ioobj, BinIDValueSet& bvs )
     mscprov_ = new SeisMSCProvider( ioobj );
     mscprov_->prepareWork();
 
-    SeisSelData* seldata = new SeisSelData;
-    seldata->all_ = false;
-    seldata->type_ = Seis::Table;
-    seldata->table_ = bvs;
-    Interval<float> zrg = bvs.valRange( 0 );
-    seldata->extraz_ = Interval<float>( cs.zrg.start-zrg.start,
-	    				cs.zrg.stop-zrg.stop );
-    mscprov_->setSelData( seldata );
-
+    const Interval<float> zrg = bvs.valRange( 0 );
+    const Interval<float> extraz( cs.zrg.start-zrg.start, cs.zrg.stop-zrg.stop);
+    mscprov_->setSelData( new Seis::TableSelData(bvs,&zrg) );
     totalnr_ = bvs.totalSize();
 }
 

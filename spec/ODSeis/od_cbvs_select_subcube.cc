@@ -2,14 +2,14 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_select_subcube.cc,v 1.26 2006-03-12 20:44:44 cvsbert Exp $
+ * RCS      : $Id: od_cbvs_select_subcube.cc,v 1.27 2007-11-23 11:59:06 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_select_subcube.cc,v 1.26 2006-03-12 20:44:44 cvsbert Exp $";
+static const char* rcsID = "$Id: od_cbvs_select_subcube.cc,v 1.27 2007-11-23 11:59:06 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
-#include "seistrcsel.h"
+#include "seisselectionimpl.h"
 #include "seisresampler.h"
 #include "cubesampling.h"
 #include "conn.h"
@@ -75,11 +75,8 @@ static int doWork( int argc, char** argv )
     if ( cs.zrg.step < 0 ) cs.zrg.step = -cs.zrg.step;
     cs.normalise();
 
-    SeisSelData tsel; tsel.type_ = Seis::Range;
-    tsel.inlrg_.start = cs.hrg.start.inl; tsel.inlrg_.stop = cs.hrg.stop.inl;
-    tsel.crlrg_.start = cs.hrg.start.crl; tsel.crlrg_.stop = cs.hrg.stop.crl;
-    assign( tsel.zrg_, cs.zrg );
-    tri->setSelData( &tsel );
+    Seis::RangeSelData seldata( cs );
+    tri->setSelData( &seldata );
 
     bool haverange = false;
     Interval<float> rg( -mUdf(float), mUdf(float) );

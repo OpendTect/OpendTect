@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.16 2007-07-05 10:04:44 cvsbert Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.17 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ class Scaler;
 class SeisTrc;
 class MultiID;
 class SeisPSWriter;
-class SeisSelection;
 class SeisTrcReader;
 class SeisTrcWriter;
 class SeisResampler;
@@ -39,10 +38,6 @@ class SeisSingleTraceProc : public Executor
 {
 public:
 
-			SeisSingleTraceProc(const SeisSelection&,
-					    const IOObj* out,
-					    const char* nm="Trace processor",
-					    const char* msg="Processing");
 			SeisSingleTraceProc(const IOObj* in,const IOObj* out,
 					    const char* nm="Trace processor",
 					    const IOPar* iniopar=0,

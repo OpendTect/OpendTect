@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.34 2007-11-16 21:25:45 cvskris Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.35 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "seistrctr.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -77,8 +77,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     ctio.ctxt.parconstraints.set( sKey::Type, sKey::Steering );
     ctio.ctxt.includeconstraints = false;
     ctio.ctxt.allowcnstrsabsent = true;
-    objfld = new uiSeisSel( uppgrp_, ctio, 
-	    		    SeisSelSetup().selattr(false).is2d(is2d) );
+    objfld = new uiSeisSel( uppgrp_, ctio, Seis::SelSetup(is2d).selattr(false));
     objfld->attach( alignedBelow, transffld );
 
     uppgrp_->setHAlignObj( transffld );

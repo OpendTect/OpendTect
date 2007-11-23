@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.40 2007-11-13 16:21:11 cvsbert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.41 2007-11-23 11:59:06 cvsbert Exp $";
 
 #include "seisinfo.h"
 #include "seisbounds.h"
@@ -60,12 +60,22 @@ BufferString SeisPacketInfo::defaultusrinfo = getUsrInfo();
 class SeisEnum
 {
 public:
+    typedef Seis::SelType SelType;
+	    DeclareEnumUtils(SelType)
     typedef Seis::GeomType GeomType;
 	    DeclareEnumUtils(GeomType)
     typedef Seis::WaveType WaveType;
 	    DeclareEnumUtils(WaveType)
     typedef Seis::DataType DataType;
 	    DeclareEnumUtils(DataType)
+};
+
+DefineEnumNames(SeisEnum,SelType,0,"Selection type")
+{
+	"Range",
+	"Table",
+	"Polygon",
+	0
 };
 
 DefineEnumNames(SeisEnum,GeomType,0,"Geometry type")
@@ -99,6 +109,9 @@ DefineEnumNames(SeisEnum,DataType,0,"Data type")
 	0
 };
 
+const char* Seis::nameOf( Seis::SelType st )
+{ return eString(SeisEnum::SelType,st); }
+
 const char* Seis::nameOf( Seis::GeomType gt )
 { return eString(SeisEnum::GeomType,gt); }
 
@@ -108,6 +121,9 @@ const char* Seis::nameOf( Seis::DataType dt )
 const char* Seis::nameOf( Seis::WaveType wt )
 { return eString(SeisEnum::WaveType,wt); }
 
+Seis::SelType Seis::selTypeOf( const char* s )
+{ return eEnum(SeisEnum::SelType,s); }
+
 Seis::GeomType Seis::geomTypeOf( const char* s )
 { return eEnum(SeisEnum::GeomType,s); }
 
@@ -116,6 +132,9 @@ Seis::DataType Seis::dataTypeOf( const char* s )
 
 Seis::WaveType Seis::waveTypeOf( const char* s )
 { return eEnum(SeisEnum::WaveType,s); }
+
+const char** Seis::selTypeNames()
+{ return SeisEnum::SelTypeNames; }
 
 const char** Seis::geomTypeNames()
 { return SeisEnum::GeomTypeNames; }

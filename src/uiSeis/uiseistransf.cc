@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.41 2007-08-08 11:27:35 cvsbert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.42 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "seissingtrcproc.h"
 #include "seiscbvs.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "seisresampler.h"
 #include "seis2dline.h"
 #include "cubesampling.h"
@@ -124,11 +124,11 @@ void uiSeisTransfer::setSteering( bool yn )
 }
 
 
-void uiSeisTransfer::getSelData( SeisSelData& sd ) const
+Seis::SelData* uiSeisTransfer::getSelData() const
 {
     IOPar iop;
     selfld->fillPar( iop );
-    sd.usePar( iop );
+    return Seis::SelData::get( iop );
 }
 
 
@@ -151,13 +151,20 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
 				      const char* linenm2d ) const
 {
     scfmtfld->updateIOObj( const_cast<IOObj*>(&outobj) );
-    SeisSelection sel; sel.key_ = inobj.key();
-    getSelData( sel.seldata_ );
-    if ( linenm2d && *linenm2d )
-	sel.seldata_.linekey_.setLineName( linenm2d );
-    sel.seldata_.linekey_.setAttrName( attrnm2d );
-    SeisSingleTraceProc* stp = new SeisSingleTraceProc( sel, &outobj, extxt,
-	    						worktxt );
+
+    PtrMan<Seis::SelData> seldata = getSelData();
+    IOPar iop;
+    iop.set( "ID", inobj.key() );
+    if ( seldata )
+    {
+	if ( linenm2d && *linenm2d )
+	    seldata->lineKey().setLineName( linenm2d );
+	seldata->lineKey().setAttrName( attrnm2d );
+	seldata->fillPar( iop );
+    }
+
+    SeisSingleTraceProc* stp = new SeisSingleTraceProc( &inobj, &outobj,
+	    				extxt, &iop, worktxt );
     stp->setScaler( scfmtfld->getScaler() );
     stp->skipNullTraces( removeNull() );
     stp->fillNullTraces( fillNull() );

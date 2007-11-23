@@ -6,14 +6,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.22 2007-10-03 15:00:44 cvshelene Exp $
+ RCS:           $Id: uiseissel.h,v 1.23 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiioobjsel.h"
 class uiSeisSubSel;
-class SeisSelSetup;
+namespace Seis { class SelSetup; }
 
 
 class uiSeisSelDlg : public uiIOObjSelDlg
@@ -21,7 +21,7 @@ class uiSeisSelDlg : public uiIOObjSelDlg
 public:
 
 			uiSeisSelDlg(uiParent*,const CtxtIOObj&,
-				     const SeisSelSetup&);
+				     const Seis::SelSetup&);
 			~uiSeisSelDlg();
 
     virtual void	fillPar(IOPar&) const;
@@ -44,7 +44,7 @@ class uiSeisSel : public uiIOObjSel
 {
 public:
 
-			uiSeisSel(uiParent*,CtxtIOObj&,const SeisSelSetup&,
+			uiSeisSel(uiParent*,CtxtIOObj&,const Seis::SelSetup&,
 				  bool wthclear=false,
 				  const char** sel_labels=0);
 				//!< See .cc code for sel_labels
@@ -62,7 +62,7 @@ public:
 
 protected:
 
-    SeisSelSetup&	setup;
+    Seis::SelSetup&	setup;
     BufferString	orgkeyvals;
     BufferString	attrnm;
     const char**	seltxts;

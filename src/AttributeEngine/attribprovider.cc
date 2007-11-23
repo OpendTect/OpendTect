@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.104 2007-11-13 14:52:03 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.105 2007-11-23 11:59:06 cvsbert Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -21,10 +21,11 @@ static const char* rcsID = "$Id: attribprovider.cc,v 1.104 2007-11-13 14:52:03 c
 #include "errh.h"
 #include "seismscprov.h"
 #include "seisinfo.h"
-#include "seistrcsel.h"
+#include "seisselectionimpl.h"
 #include "survinfo.h"
 #include "valseriesinterpol.h"
 #include "convmemvalseries.h"
+#include "binidvalset.h"
 
 
 namespace Attrib
@@ -1120,7 +1121,7 @@ bool Provider::computeDesInputCube( int inp, int out, CubeSampling& res,
 					bool usestepout ) const
 {
     //Be careful if usestepout=true with des and req stepouts
-    if ( seldata_ && seldata_->type_ == Seis::Table )
+    if ( seldata_ && seldata_->type() == Seis::Table )
     {
 	Interval<float> zrg(0,0);
 	mUseMargins(float,,)
@@ -1225,9 +1226,10 @@ const Interval<int>* Provider::reqZSampMargin(int,int) const	{ return 0; }
 
 int Provider::getTotalNrPos( bool is2d )
 {
-    if ( seldata_ && seldata_->type_ == Seis::Table )
+    if ( seldata_ && seldata_->type() == Seis::Table )
     {
-	return seldata_->table_.totalSize();
+	mDynamicCastGet(const Seis::TableSelData*,tsd,seldata_)
+	return tsd->binidValueSet().totalSize();
     }
     if ( !possiblevolume || !desiredvolume )
 	return false;
@@ -1303,7 +1305,7 @@ void Provider::adjust2DLineStoredVolume()
 }
 
 
-void Provider::setSelData( const SeisSelData* seldata )
+void Provider::setSelData( const Seis::SelData* seldata )
 {
     seldata_ = seldata;
     for ( int idx=0; idx<inputs.size(); idx++ )

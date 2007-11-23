@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.66 2007-11-13 14:52:03 cvshelene Exp $
+ RCS:           $Id: attribprovider.h,v 1.67 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,12 +18,12 @@ ________________________________________________________________________
 #include "sets.h"
 #include "linekey.h"
 
+class BinDataDesc;
 class CubeSampling;
 class SeisMSCProvider;
-class SeisSelData;
 class SeisTrcInfo;
+namespace Seis { class SelData; }
 template <class T> class Array2DImpl;
-class BinDataDesc;
 
 #define mMAXDIP 300 * 1e-6
 #define mMAXDIPSECURE 2000 * 1e-6
@@ -113,7 +113,7 @@ public:
     void               		updateInputReqs(int input=-1);
     virtual void                updateStorageReqs(bool all=false);
     void			setUseSC()		{ useshortcuts_ = true;}
-    void			setSelData(const SeisSelData*);
+    void			setSelData(const Seis::SelData*);
     void                        setExtraZ(const Interval<float>&);
     void			setNeedInterpol(bool);
     void			setExactZ(TypeSet<float>);
@@ -328,7 +328,7 @@ protected:
     BinID			currentbid;
     int				prevtrcnr;
     LineKey			curlinekey_;
-    const SeisSelData*		seldata_;
+    const Seis::SelData*	seldata_;
     Interval<float>     	extraz_;
     const SeisTrcInfo*		curtrcinfo_;
     BinID                       trcinfobid;

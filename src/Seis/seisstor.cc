@@ -5,16 +5,16 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.31 2007-10-11 15:38:24 cvsbert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.32 2007-11-23 11:59:06 cvsbert Exp $";
 
 #include "seisseqio.h"
 #include "seisread.h"
 #include "seiswrite.h"
 #include "seisbounds.h"
 #include "seistrctr.h"
-#include "seistrcsel.h"
 #include "seis2dline.h"
 #include "seispsioprov.h"
+#include "seisselectionimpl.h"
 #include "seisbuf.h"
 #include "iostrm.h"
 #include "iopar.h"
@@ -104,7 +104,7 @@ Conn* SeisStoreAccess::curConn3D()
 { return !is2d && strl() ? strl()->curConn() : 0; }
 
 
-void SeisStoreAccess::setSelData( SeisSelData* tsel )
+void SeisStoreAccess::setSelData( Seis::SelData* tsel )
 {
     delete seldata; seldata = tsel;
     if ( strl() ) strl()->setSelData( seldata );
@@ -173,8 +173,9 @@ void SeisStoreAccess::usePar( const IOPar& iopar )
 	delete ioob;
     }
 
-    if ( !seldata ) seldata = new SeisSelData;
-    if ( !seldata->usePar(iopar) )
+    if ( !seldata )
+	seldata = Seis::SelData::get( iopar );
+    if ( seldata->isAll() )
 	{ delete seldata; seldata = 0; }
 
     if ( strl() )
@@ -196,11 +197,11 @@ void Seis::SeqIO::fillPar( IOPar& iop ) const
 mImplFactory( Seis::SeqInp, Seis::SeqInp::factory );
 mImplFactory( Seis::SeqOut, Seis::SeqOut::factory );
 
-
-const SeisSelData& Seis::SeqInp::selData() const
+Seis::SelData& Seis::SeqInp::emptySelData() const
 {
-    static SeisSelData emptyseldata;
-    return emptyseldata;
+    static Seis::RangeSelData sd(false);
+    sd.setIsAll( true );
+    return sd;
 }
 
 
@@ -229,10 +230,16 @@ void Seis::ODSeqInp::initClass()
 }
 
 
-const SeisSelData& Seis::ODSeqInp::selData() const
+const Seis::SelData& Seis::ODSeqInp::selData() const
 {
-    static SeisSelData emptyseldata;
-    return rdr_ && rdr_->selData() ? *rdr_->selData() : Seis::SeqInp::selData();
+    return rdr_ && rdr_->selData() ? *rdr_->selData() : emptySelData();
+}
+
+
+void Seis::ODSeqInp::setSelData( const Seis::SelData& sd )
+{
+    if ( rdr_ )
+	rdr_->setSelData( sd.clone() );
 }
 
 

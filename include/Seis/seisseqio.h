@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: seisseqio.h,v 1.6 2007-10-11 15:38:06 cvsbert Exp $
+ * ID       : $Id: seisseqio.h,v 1.7 2007-11-23 11:59:06 cvsbert Exp $
 -*/
 
 #include "seistype.h"
@@ -13,10 +13,10 @@
 
 class IOPar;
 class SeisTrc;
-class SeisSelData;
 class SeisTrcReader;
 class SeisTrcWriter;
 class BufferStringSet;
+namespace Seis		{ class SelData; }
 
 namespace Seis
 {
@@ -51,13 +51,17 @@ class SeqInp : public SeqIO
 public:
 
     virtual bool	get(SeisTrc&) const		= 0;
-    virtual const SeisSelData& selData() const;
+    virtual const Seis::SelData& selData() const	= 0;
 
     virtual void	fillPar(IOPar&) const;
 
     virtual Seis::Bounds* getBounds() const		{ return 0; }
 
     mDefineFactoryInClass(SeqInp,factory);
+
+protected:
+
+    Seis::SelData&	emptySelData() const;
 };
 
 
@@ -74,7 +78,8 @@ public:
     virtual const char*	type() const		{ return sKeyODType; }
 
     virtual Seis::GeomType geomType() const;
-    virtual const SeisSelData& selData() const;
+    virtual const Seis::SelData& selData() const;
+    virtual void	setSelData(const Seis::SelData&);
 
     virtual bool	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;

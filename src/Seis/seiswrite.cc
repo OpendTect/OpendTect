@@ -8,7 +8,7 @@
 #include "seiswrite.h"
 #include "seistrctr.h"
 #include "seistrc.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "seis2dline.h"
 #include "seispsioprov.h"
 #include "seispswrite.h"
@@ -79,7 +79,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	errmsg += ioobj->name(); errmsg += "'";
 	return false;
     }
-    if ( is2d && !lkp && ( !seldata || seldata->linekey_.isEmpty() ) )
+    if ( is2d && !lkp && ( !seldata || seldata->lineKey().isEmpty() ) )
     {
 	errmsg = "Internal: 2D seismic can only be stored if line key known";
 	return false;
@@ -177,12 +177,12 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
 }
 
 
-#define mCurLineKey (lkp ? lkp->lineKey() : seldata->linekey_)
+#define mCurLineKey (lkp ? lkp->lineKey() : seldata->lineKey())
 
 
 bool SeisTrcWriter::next2DLine()
 {
-    LineKey lk = lkp ? lkp->lineKey() : seldata->linekey_;
+    LineKey lk = mCurLineKey;
     if ( !attrib.isEmpty() )
 	lk.setAttrName( attrib );
     BufferString lnm = lk.lineName();
@@ -232,22 +232,8 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
     if ( !prepared ) prepareWork(trc);
 
     nrtrcs++;
-    if ( seldata )
-    {
-	if ( seldata->type_ == Seis::TrcNrs )
-	{
-	    int selres = seldata->selRes(nrtrcs);
-	    if ( selres == 1 )
-		return true;
-	    else if ( selres > 1 )
-	    {
-		errmsg = "Selected number of traces reached";
-		return false;
-	    }
-	}
-	else if ( seldata->selRes( trc.info().binid ) )
-	    return true;
-    }
+    if ( seldata && seldata->selRes( trc.info().binid ) )
+	return true;
 
     if ( is2d )
     {

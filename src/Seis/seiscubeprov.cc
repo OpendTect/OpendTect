@@ -4,11 +4,11 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: seiscubeprov.cc,v 1.12 2007-10-17 04:46:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: seiscubeprov.cc,v 1.13 2007-11-23 11:59:06 cvsbert Exp $";
 
 #include "seismscprov.h"
 #include "seistrc.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "seisread.h"
 #include "seisbuf.h"
 #include "seisbounds.h"
@@ -48,7 +48,6 @@ SeisMSCProvider::SeisMSCProvider( const char* fnm )
 void SeisMSCProvider::init()
 {
     readstate_ = NeedStart;
-//  seldata_ = 0;
     intofloats_ = workstarted_ = false;
     errmsg_ = "";
     estnrtrcs_ = -2;
@@ -62,7 +61,6 @@ SeisMSCProvider::~SeisMSCProvider()
 {
     rdr_.close();
     deepErase( tbufs_ );
-//  delete seldata_;
     delete &rdr_;
     delete reqmask_;
 }
@@ -111,7 +109,7 @@ void SeisMSCProvider::setStepout( Array2D<bool>* mask )
 }
 
 
-void SeisMSCProvider::setSelData( SeisSelData* sd )
+void SeisMSCProvider::setSelData( Seis::SelData* sd )
 {
     rdr_.setSelData( sd );
 }
@@ -220,26 +218,23 @@ bool SeisMSCProvider::startWork()
     if ( reqstepout_.r() > desstepout_.r() ) desstepout_.r() = reqstepout_.r();
     if ( reqstepout_.c() > desstepout_.c() ) desstepout_.c() = reqstepout_.c();
 
-//  delete seldata_; seldata_ = 0;
-
-    if ( rdr_.selData() && !rdr_.selData()->all_ )
+    if ( rdr_.selData() && !rdr_.selData()->isAll() )
     {
-//	seldata_ = new SeisSelData( *rdr_.selData() );
-	SeisSelData* newseldata = new SeisSelData( *rdr_.selData() );
+	Seis::SelData* newseldata = rdr_.selData()->clone();
 	BinID so( desstepout_.r(), desstepout_.c() );
 	bool doextend = so.inl > 0 || so.crl > 0;
 	if ( is2D() )
 	{
 	    so.inl = 0;
-	    doextend = doextend && newseldata->type_ == Seis::Range;
-	    if ( so.crl && newseldata->type_ == Seis::Table )
-	    newseldata->all_ = true;
+	    doextend = doextend && newseldata->type() == Seis::Range;
+	    if ( so.crl && newseldata->type() == Seis::Table )
+		newseldata->setIsAll( true );
 	}
 
 	if ( doextend )
 	{
 	    BinID bid( stepoutstep_.r(), stepoutstep_.c() );
-	    newseldata->extend( so, &bid );
+	    newseldata->extendH( so, &bid );
 	}
 
 	rdr_.setSelData( newseldata );

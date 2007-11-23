@@ -4,11 +4,10 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.36 2007-10-17 02:26:27 cvskris Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.37 2007-11-23 11:59:06 cvsbert Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
-#include "seistrcsel.h"
 #include "seistrc.h"
 #include "ptrman.h"
 #include "sorting.h"
@@ -16,6 +15,7 @@ static const char* rcsID = "$Id: seisbuf.cc,v 1.36 2007-10-17 02:26:27 cvskris E
 #include "survinfo.h"
 #include "iopar.h"
 #include "cubesampling.h"
+#include "bufstringset.h"
 
 
 void SeisTrcBuf::deepErase()

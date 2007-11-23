@@ -4,11 +4,11 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.57 2007-08-13 07:25:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.58 2007-11-23 11:59:06 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "seisbuf.h"
 #include "segposinfo.h"
 #include "survinfo.h"
@@ -70,7 +70,7 @@ bool TwoDSeisTrcTranslator::initRead_()
     addComp( DataCharacteristics(), pinfo.stdinfo, Seis::UnknowData );
 
     if ( seldata )
-	curlinekey = seldata->linekey_;
+	curlinekey = seldata->lineKey();
     if ( !curlinekey.lineName().isEmpty() && lset.indexOf(curlinekey) < 0 )
 	{ errmsg = "Cannot find line key in line set"; return false; }
     CubeSampling cs( true );
@@ -343,7 +343,7 @@ bool Seis2DLineSet::getGeometry( PosInfo::LineSet2DData& lsgeom ) const
 
 
 Executor* Seis2DLineSet::lineFetcher( int ipar, SeisTrcBuf& tbuf, int ntps,
-					const SeisSelData* sd ) const
+					const Seis::SelData* sd ) const
 {
     if ( !liop_ )
     {

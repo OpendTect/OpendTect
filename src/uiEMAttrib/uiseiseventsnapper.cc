@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiseiseventsnapper.cc,v 1.7 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:           $Id: uiseiseventsnapper.cc,v 1.8 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,9 +27,10 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "ptrman.h"
 #include "seiseventsnapper.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "seistrctr.h"
 #include "survinfo.h"
+#include "binidvalset.h"
 #include "valseriesevent.h"
 
 
@@ -44,7 +45,7 @@ uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp )
 	horinctio_.setObj( inp->clone() );
     horinfld_ = new uiIOObjSel( this, horinctio_, "Horizon to snap" );
 
-    seisfld_ = new uiSeisSel( this, seisctio_, SeisSelSetup() );
+    seisfld_ = new uiSeisSel( this, seisctio_, Seis::SelSetup(false) );
     seisfld_->attach( alignedBelow, horinfld_ );
 
     BufferStringSet eventnms( VSEvent::TypeNames );

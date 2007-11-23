@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		29-5-99
- RCS:		$Id: seistype.h,v 1.12 2007-10-05 11:56:58 cvsbert Exp $
+ RCS:		$Id: seistype.h,v 1.13 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -17,7 +17,10 @@ class IOPar;
 namespace Seis
 {
 
-    enum SelType	{ All, Range, Table, TrcNrs };
+    enum SelType	{ Range, Table, Polygon };
+    const char*		nameOf(SelType);
+    SelType		selTypeOf(const char*);
+    const char**	selTypeNames();
 
     enum ReadMode	{ PreScan, Scan, Prod };
 

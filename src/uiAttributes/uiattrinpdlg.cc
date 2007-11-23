@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.cc,v 1.9 2007-10-01 14:57:38 cvshelene Exp $
+ RCS:           $Id: uiattrinpdlg.cc,v 1.10 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uiseissel.h"
 #include "uitextedit.h"
 #include "seistrctr.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "ctxtioobj.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -58,8 +58,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     ctio.ctxt.includeconstraints = issteer;
     ctio.ctxt.allowcnstrsabsent = !issteer;
 
-    SeisSelSetup setup; setup.is2d( is2d );
-    inpfld = new uiSeisSel( this, ctio, setup, false, 
+    inpfld = new uiSeisSel( this, ctio, Seis::SelSetup(is2d), false, 
 	    		    issteer ? steerlbl : seislbl );
     inpfld->attach( alignedBelow, txtfld );
 }

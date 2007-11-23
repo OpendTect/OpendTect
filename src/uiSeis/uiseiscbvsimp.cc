@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.40 2007-07-05 10:04:44 cvsbert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.41 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uiseisioobjinfo.h"
 #include "uiseissel.h"
 #include "seistrctr.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "ioman.h"
 #include "iostrm.h"
 #include "iopar.h"
@@ -71,7 +71,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
     {
 	inctio_.ctxt.forread = true;
 	inctio_.ctxt.trglobexpr = "CBVS";
-	oinpfld = new uiSeisSel( this, inctio_, SeisSelSetup().is2d(false) );
+	oinpfld = new uiSeisSel( this, inctio_, Seis::SelSetup(Seis::Vol) );
 	oinpfld->selectiondone.notify( mCB(this,uiSeisImpCBVS,oinpSel) );
     }
     else
@@ -105,7 +105,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
     outctio_.ctxt.forread = false;
     outctio_.ctxt.trglobexpr = "CBVS";
     IOM().to( outctio_.ctxt.getSelKey() );
-    outfld = new uiSeisSel( this, outctio_, SeisSelSetup().is2d(false) );
+    outfld = new uiSeisSel( this, outctio_, Seis::SelSetup(Seis::Vol) );
     outfld->attach( alignedBelow, transffld );
 }
 

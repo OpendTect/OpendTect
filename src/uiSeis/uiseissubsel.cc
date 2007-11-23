@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.43 2007-07-18 09:25:15 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.44 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,6 @@ ________________________________________________________________________
 #include "uibinidsubsel.h"
 #include "uiseisioobjinfo.h"
 #include "uigeninput.h"
-#include "seistrcsel.h"
 #include "seistrctr.h"
 #include "seis2dline.h"
 #include "survinfo.h"

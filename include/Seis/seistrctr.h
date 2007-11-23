@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.46 2007-10-23 11:32:14 cvsbert Exp $
+ RCS:		$Id: seistrctr.h,v 1.47 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -27,10 +27,10 @@ class Coord;
 class SeisTrc;
 class LinScaler;
 class SeisTrcBuf;
-class SeisSelData;
 class SeisTrcInfo;
 class CubeSampling;
 class SeisPacketInfo;
+namespace Seis		{ class SelData; }
 
 
 
@@ -43,9 +43,9 @@ The protocol is as follows:
 
 READ:
 
-2) initRead() call initialises SeisPacketInfo, Component info and SeisSelData
+2) initRead() call initialises SeisPacketInfo, Component info and SelData
    on input (if any)
-3) Client subselects in components and space (SeisSelData)
+3) Client subselects in components and space (SelData)
 4) commitSelections()
 5) By checking readInfo(), client may determine whether space selection
    was satisfied. Space selection is just a hint. This is done to protect
@@ -71,7 +71,7 @@ inline/crossline. If you use setMinimalHdrs(), only inline/crossline and trace
 data are read & written. Of course, for rigid formats like SEG-Y, this has no
 advantage, so then the flag will be ignored.
 
-Another note: the SeisSelData type 'TrcNrs' is not supported by this class.
+Another note: the SelData type 'TrcNrs' is not supported by this class.
 That is because of nasty implementation details on this level. The classes
 SeisTrcReader and SeisTrcWriter do support it.
 
@@ -156,15 +156,15 @@ public:
     Conn*		curConn()			{ return conn; }
 
     SeisPacketInfo&		packetInfo()		{ return pinfo; }
-    const SeisSelData*		selData() const		{ return seldata; }
+    const Seis::SelData*	selData() const		{ return seldata; }
     ObjectSet<TargetComponentData>& componentInfo()	{ return tarcds; }
     const SamplingData<float>&	inpSD() const		{ return insd; }
     int				inpNrSamples() const	{ return innrsamples; }
     const SamplingData<float>&	outSD() const		{ return outsd; }
     int				outNrSamples() const	{ return outnrsamples; }
 
-    void		setSelData( const SeisSelData* t ) { seldata = t; }
-			/*!< This SeisSelData is seen as a hint ... */
+    void		setSelData( const Seis::SelData* t ) { seldata = t; }
+			/*!< This Seis::SelData is seen as a hint ... */
     bool		commitSelections();
 			/*!< If not called, will be called by Translator.
 			     For write, this will put tape header (if any) */
@@ -241,7 +241,7 @@ protected:
     int					innrsamples;
     ObjectSet<ComponentData>		cds;
     ObjectSet<TargetComponentData>	tarcds;
-    const SeisSelData*			seldata;
+    const Seis::SelData*		seldata;
     SamplingData<float>			outsd;
     int					outnrsamples;
     Interval<int>			samps;

@@ -4,13 +4,13 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.36 2007-04-11 10:10:19 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs2d.cc,v 1.37 2007-11-23 11:59:06 cvsbert Exp $";
 
 #include "seiscbvs2d.h"
 #include "seiscbvs.h"
 #include "cbvsreadmgr.h"
 #include "seistrc.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "seisbuf.h"
 #include "segposinfo.h"
 #include "cbvsio.h"
@@ -120,7 +120,7 @@ class SeisCBVS2DLineGetter : public Executor
 public:
 
 SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, int ntps,
-		      const SeisSelData& sd )
+		      const Seis::SelData& sd )
     	: Executor("Load 2D line")
 	, tbuf(b)
 	, curnr(0)
@@ -135,9 +135,9 @@ SeisCBVS2DLineGetter( const char* fnm, SeisTrcBuf& b, int ntps,
     tr = gtTransl( fname, false, &msg );
     if ( !tr ) return;
 
-    if ( !sd.all_ && sd.type_ != Seis::Table )
+    if ( !sd.isAll() && sd.type() == Seis::Range )
     {
-	seldata = new SeisSelData( sd );
+	seldata = sd.clone();
 	tr->setSelData( seldata );
     }
 }
@@ -155,12 +155,9 @@ void addTrc( SeisTrc* trc )
     const int tnr = trc->info().binid.crl;
     if ( !isEmpty(seldata) )
     {
-	if ( seldata->type_ == Seis::TrcNrs 
-		&& !seldata->isOK( curnr ) )
-	    { delete trc; return; }
-	if ( seldata->type_ == Seis::Range )
+	if ( seldata->type() == Seis::Range )
 	{
-	    BinID bid( seldata->inlrg_.start, tnr );
+	    const BinID bid( seldata->inlRange().start, tnr );
 	    if ( !seldata->isOK(bid) )
 		{ delete trc; return; }
 	}
@@ -178,12 +175,11 @@ int nextStep()
 
     if ( curnr == 0 )
     {
-	const SeisPacketInfo& pinf = tr->packetInfo();
 	totnr = tr->packetInfo().crlrg.nrSteps() + 1;
 	if ( !isEmpty(seldata) )
 	{
 	    const BinID tstepbid( 1, trcstep );
-	    int nrsel = seldata->expectedNrTraces( true, &tstepbid );
+	    const int nrsel = seldata->expectedNrTraces( true, &tstepbid );
 	    if ( nrsel < totnr ) totnr = nrsel;
 	}
     }
@@ -223,7 +219,7 @@ int			totalNr() const		{ return totnr; }
     BufferString	fname;
     BufferString	msg;
     CBVSSeisTrcTranslator* tr;
-    SeisSelData*	seldata;
+    Seis::SelData*	seldata;
     int			trcstep;
     const int		linenr;
     const int		trcsperstep;
@@ -277,7 +273,7 @@ bool SeisCBVS2DLineIOProvider::getGeometry( const IOPar& iop,
 
 Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOPar& iop,
 						SeisTrcBuf& tbuf, int ntps,
-						const SeisSelData* sd )
+						const Seis::SelData* sd )
 {
     BufferString fnm = getFileName(iop);
     if ( !isUsable(iop) )
@@ -288,7 +284,8 @@ Executor* SeisCBVS2DLineIOProvider::getFetcher( const IOPar& iop,
 	return 0;
     }
 
-    return new SeisCBVS2DLineGetter( fnm, tbuf, ntps, sd ? *sd : SeisSelData());
+    return new SeisCBVS2DLineGetter( fnm, tbuf, ntps,
+	    		sd ? *sd : *Seis::SelData::get(Seis::Range));
 }
 
 

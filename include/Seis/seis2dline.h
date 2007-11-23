@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.36 2007-08-13 07:25:46 cvsnanne Exp $
+ RCS:		$Id: seis2dline.h,v 1.37 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,18 +23,12 @@ ________________________________________________________________________
 class IOPar;
 class Executor;
 class SeisTrcBuf;
-class SeisSelData;
 class CubeSampling;
 class BinIDValueSet;
 class BufferStringSet;
 class Seis2DLineIOProvider;
-
-namespace PosInfo
-{ 
-class LineSet2DData;
-class Line2DData;
-}
-
+namespace PosInfo	{ class LineSet2DData; class Line2DData; }
+namespace Seis		{ class SelData; }
 
 /*!\brief interface for object that writes 2D seismic data */
 
@@ -86,7 +80,7 @@ public:
 	    				const char* linekey=0) const;
 
     Executor*		lineFetcher(int,SeisTrcBuf&,int nrtrcsperstep=10,
-	    			    const SeisSelData* sd=0) const;
+	    			    const Seis::SelData* sd=0) const;
     				//!< May return null
     Seis2DLinePutter*	linePutter(IOPar*);
     				//!< May return null.
@@ -158,7 +152,7 @@ public:
     virtual bool	getGeometry(const IOPar&,
 				    PosInfo::Line2DData&) const	= 0;
     virtual Executor*	getFetcher(const IOPar&,SeisTrcBuf&,int,
-	    			   const SeisSelData* sd=0)	= 0;
+	    			   const Seis::SelData* sd=0)	= 0;
     virtual Seis2DLinePutter* getReplacer(const IOPar&)	= 0;
     virtual Seis2DLinePutter* getAdder(IOPar&,const IOPar* prev,
 	    				const char* lgrpnm)	= 0;

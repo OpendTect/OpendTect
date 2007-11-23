@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.1 2007-11-15 12:55:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.2 2007-11-23 11:59:06 cvsbert Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: uimadiosel.cc,v 1.1 2007-11-15 12:55:26 cvsbert
 #include "uilabel.h"
 #include "uimsg.h"
 #include "seistrctr.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "seispsioprov.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -51,7 +51,7 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
     typfld_->valuechanged.notify( mCB(this,uiMadIOSelDlg,typSel) );
     if ( SI().has3D() )
     {
-	seis3dfld_ = new uiSeisSel( this, ctio3d_, SeisSelSetup(false) );
+	seis3dfld_ = new uiSeisSel( this, ctio3d_, Seis::SelSetup(false) );
 	seis3dfld_->attach( alignedBelow, typfld_ );
 	seis3dfld_->selectiondone.notify( mCB(this,uiMadIOSelDlg,selChg) );
 	if ( isinp )
@@ -62,7 +62,7 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
     }
     if ( SI().has2D() )
     {
-	seis2dfld_ = new uiSeisSel( this, ctio2d_, SeisSelSetup(true) );
+	seis2dfld_ = new uiSeisSel( this, ctio2d_, Seis::SelSetup(true) );
 	seis2dfld_->attach( alignedBelow, typfld_ );
 	seis2dfld_->selectiondone.notify( mCB(this,uiMadIOSelDlg,selChg) );
 	if ( isinp )

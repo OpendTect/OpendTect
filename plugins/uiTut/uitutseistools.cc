@@ -5,7 +5,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: uitutseistools.cc,v 1.9 2007-06-08 06:19:16 cvsraman Exp $";
+static const char* rcsID = "$Id: uitutseistools.cc,v 1.10 2007-11-23 11:59:06 cvsbert Exp $";
 
 #include "uitutseistools.h"
 #include "tutseistools.h"
@@ -14,7 +14,7 @@ static const char* rcsID = "$Id: uitutseistools.cc,v 1.9 2007-06-08 06:19:16 cvs
 #include "uiexecutor.h"
 #include "uimsg.h"
 #include "seistrctr.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
 
@@ -32,7 +32,7 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p )
     const CallBack choicecb( mCB(this,uiTutSeisTools,choiceSel) );
 
     // The input seismic object
-    inpfld_ = new uiSeisSel( this, inctio_, SeisSelSetup() );
+    inpfld_ = new uiSeisSel( this, inctio_, Seis::SelSetup(false) );
 
     // What seismic tool is required?
     actionfld_ = new uiGenInput( this, "Action",
@@ -57,7 +57,7 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p )
 
     // The output seismic object
     outctio_.ctxt.forread = false;
-    outfld_ = new uiSeisSel( this, outctio_, SeisSelSetup() );
+    outfld_ = new uiSeisSel( this, outctio_, Seis::SelSetup(false) );
     outfld_->attach( alignedBelow, scalegrp_ );
 
     // Make sure only relevant stuff is displayed on startup

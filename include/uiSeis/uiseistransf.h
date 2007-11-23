@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.22 2007-07-05 10:04:44 cvsbert Exp $
+ RCS:           $Id: uiseistransf.h,v 1.23 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,12 +16,12 @@ ________________________________________________________________________
 class IOObj;
 class Executor;
 class uiGenInput;
-class SeisSelData;
 class uiSeisSubSel;
 class SeisResampler;
 class uiSeis2DSubSel;
 class uiSeis3DSubSel;
 class uiSeisFmtScale;
+namespace Seis { class SelData; }
 
 
 class uiSeisTransfer : public uiGroup
@@ -64,7 +64,7 @@ public:
 
     void		setSteering(bool);
     void		setInput(const IOObj&);
-    void		getSelData(SeisSelData&) const;
+    Seis::SelData*	getSelData() const;
     SeisResampler*	getResampler() const; //!< may return null
 
     int			maxBytesPerSample() const;

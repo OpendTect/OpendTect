@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.40 2007-10-03 15:00:44 cvshelene Exp $
+ RCS:		$Id: uiseissel.cc,v 1.41 2007-11-23 11:59:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,11 +20,9 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iodirentry.h"
 #include "survinfo.h"
-#include "seistrcsel.h"
 #include "cubesampling.h"
 #include "separstr.h"
-#include "seistrctr.h"
-#include "seistrcsel.h"
+#include "seisselection.h"
 #include "linekey.h"
 #include "keystrs.h"
 
@@ -42,7 +40,8 @@ static void adaptCtxt( const IOObjContext& c, bool is2d, bool chgtol )
 static bool kp_allowcnstrsabsent = true; /* hack but should always be OK */
 
 
-static const CtxtIOObj& getDlgCtio( const CtxtIOObj& c, const SeisSelSetup& s )
+static const CtxtIOObj& getDlgCtio( const CtxtIOObj& c,
+				    const Seis::SelSetup& s )
 {
     kp_allowcnstrsabsent = c.ctxt.allowcnstrsabsent;
     adaptCtxt( c.ctxt, s.is2d_, true );
@@ -52,7 +51,7 @@ static const CtxtIOObj& getDlgCtio( const CtxtIOObj& c, const SeisSelSetup& s )
 
 
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
-			    const SeisSelSetup& selsetup )
+			    const Seis::SelSetup& selsetup )
     : uiIOObjSelDlg(p,getDlgCtio(c,selsetup),"",false)
     , is2d_(selsetup.is2d_)
     , attrfld_(0)
@@ -169,10 +168,10 @@ static const char* gtSelTxt( const char** sts, bool is2d, bool forread )
 }
 
 
-uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const SeisSelSetup& s,
+uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const Seis::SelSetup& s,
 		      bool wclr, const char** sts )
 	: uiIOObjSel(p,c,gtSelTxt(sts,s.is2d_,c.ctxt.forread),wclr)
-	, setup(*new SeisSelSetup(s))
+	, setup(*new Seis::SelSetup(s))
     	, seltxts(sts)
 	, dlgiopar(*new IOPar)
 	, orgparconstraints(*new IOPar(c.ctxt.parconstraints))
