@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.4 2007-11-12 14:20:08 cvsjaap Exp $
+ RCS:		$Id: polygon.h,v 1.5 2007-11-23 11:54:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "position.h"
 #include "sets.h"
+#include "iopar.h"
 
 /*!\brief (Closed) sequence of connected 2-D coordinates */
 
@@ -30,6 +31,8 @@ public:
 		
     int 	size() const			{ return poly_.size(); }
     bool 	validIdx(int idx) const		{ return poly_.validIdx(idx); }
+    bool	isEmpty() const			{ return poly_.size() < 1; }
+    void	setEmpty()			{ poly_.erase(); }
     
     void	add(const Geom::Point2D<T>& vtx)	{ poly_+=vtx; }
     void	remove(int idx);
@@ -41,10 +44,17 @@ public:
     const Geom::Point2D<T>&	getVertex(int idx) const;
     const Geom::Point2D<T>&	nextVertex(int idx) const; 
 
-    void	setClosed(bool yn)			{ closed_=yn; }
+    void	setClosed( bool yn )			{ closed_ = yn; }
     bool	isClosed() const			{ return closed_; }
+    void	setUdf( Geom::Point2D<T> pt )		{ udf_ = pt; }
+    Geom::Point2D<T> getUdf() const			{ return udf_; }
+    const TypeSet<Geom::Point2D<T> >& data() const	{ return poly_; }
+
+    Interval<T>	getRange(bool of_x) const;
+    void	getData(bool of_x,TypeSet<T>&) const;
 
 protected:
+
     static bool	isOnSegment( const Geom::Point2D<T>& pt,
 	    		     const Geom::Point2D<T>& pt0,
 	    		     const Geom::Point2D<T>& pt1,
@@ -78,7 +88,52 @@ protected:
     TypeSet<Geom::Point2D<T> >	poly_;
     bool			closed_;
     Geom::Point2D<T>		udf_;
+
 };
+
+
+template <class T> inline
+void ODPolygon<T>::getData( bool forx, TypeSet<T>& ts ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	const Geom::Point2D<T>& vtx = getVertex( idx );
+	ts += forx ? vtx.x : vtx.y;
+    }
+}
+
+
+template <class T> inline
+void fillPar( IOPar& iop, const ODPolygon<T>& poly, const char* key )
+{
+    iop.setYN( IOPar::compKey(key,"Closed"), poly.isClosed() );
+    iop.set( IOPar::compKey(key,"Undef"), poly.getUdf().x, poly.getUdf().y );
+    TypeSet<T> ts; poly.getData( true, ts );
+    iop.set( IOPar::compKey(key,"Data.X"), ts );
+    ts.erase(); poly.getData( false, ts );
+    iop.set( IOPar::compKey(key,"Data.Y"), ts );
+}
+
+
+template <class T> inline
+void usePar( const IOPar& iop, ODPolygon<T>& poly, const char* key )
+{
+    bool yn = false; iop.getYN( IOPar::compKey(key,"Closed"), yn );
+    poly.setClosed( yn );
+    Geom::Point2D<T> pt; iop.get( IOPar::compKey(key,"Undef"), pt.x, pt.y );
+    poly.setUdf( pt );
+
+    if (   !iop.find( IOPar::compKey(key,"Data.X") )
+	|| !iop.find( IOPar::compKey(key,"Data.Y") ) )
+	return;
+
+    poly.setEmpty(); TypeSet<T> tsx, tsy;
+    iop.get( IOPar::compKey(key,"Data.X"), tsx );
+    iop.get( IOPar::compKey(key,"Data.Y"), tsy );
+    const int sz = tsx.size() > tsy.size() ? tsy.size() : tsx.size();
+    for ( int idx=0; idx<sz; idx++ )
+        poly.add( Geom::Point2D<T>(tsx[idx],tsy[idx]) );
+}
 
 
 template <class T> inline
@@ -97,6 +152,23 @@ const Geom::Point2D<T>& ODPolygon<T>::getVertex( int idx ) const
 template <class T> inline
 const Geom::Point2D<T>& ODPolygon<T>::nextVertex( int idx ) const
 { return getVertex( idx+1<size() ? idx+1 : 0 ); }
+
+
+template <class T> inline
+Interval<T> ODPolygon<T>::getRange( bool forx ) const
+{
+    if ( poly_.isEmpty() ) return Interval<T>( udf_.x, udf_.y );
+    Geom::Point2D<T> vtx0 = getVertex( 0 );
+    Interval<float> ret( vtx0.x, vtx0.x );
+    for ( int idx=1; idx<size(); idx++ )
+    {
+	const Geom::Point2D<T>& vtx = getVertex( idx );
+	const T val = forx ? vtx.x : vtx.y;
+	if ( val < ret.start )		ret.start = val;
+	else if ( val > ret.stop )	ret.stop = val;
+    }
+    return ret;
+}
 
 
 template <class T> inline
