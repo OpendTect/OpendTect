@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of genc.h with C++ stuff.
- RCS:		$Id: general.h,v 1.12 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:		$Id: general.h,v 1.13 2007-11-23 11:55:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,9 +76,11 @@ The point of this is clear when SomeClass is constructed:
 
  */
 
-#define mDefSetupMemb(typ,memb) \
+#define mDefSetupClssMemb(clss,typ,memb) \
 	typ	 memb##_; \
-	Setup&	memb( typ val )		{ memb##_ = val; return *this; }
+	clss&	memb( typ val )		{ memb##_ = val; return *this; }
+
+#define mDefSetupMemb(typ,memb) mDefSetupClssMemb(Setup,typ,memb)
 
 
 #endif
