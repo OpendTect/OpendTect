@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.1 2007-11-23 11:59:06 cvsbert Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.2 2007-11-26 09:07:15 cvsbert Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -236,7 +236,7 @@ void Seis::RangeSelData::usePar( const IOPar& iop )
 
 void Seis::RangeSelData::extendZ( const Interval<float>& zrg )
 {
-    cs_.zrg.start -= zrg.start;
+    cs_.zrg.start += zrg.start;
     cs_.zrg.stop += zrg.stop;
 }
 
@@ -402,7 +402,7 @@ void Seis::TableSelData::usePar( const IOPar& iop )
 
 void Seis::TableSelData::extendZ( const Interval<float>& zrg )
 {
-    extraz_.start -= zrg.start;
+    extraz_.start += zrg.start;
     extraz_.stop += zrg.stop;
 }
 
@@ -576,7 +576,7 @@ void Seis::PolySelData::usePar( const IOPar& iop )
 
 void Seis::PolySelData::extendZ( const Interval<float>& zrg )
 {
-    zrg_.start -= zrg.start;
+    zrg_.start += zrg.start;
     zrg_.stop += zrg.stop;
 }
 
