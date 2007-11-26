@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.73 2007-11-23 11:59:06 cvsbert Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.74 2007-11-26 15:55:29 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -521,7 +521,7 @@ bool StorageProvider::checkDesiredTrcRgOK( StepInterval<int> trcrg,
 	return true;
 
     mInitErrMsg();
-    mAdd2ErrMsg(trcrgwrong,"Trace range",trcrg.start,trcrg.stop)
+    mAdd2ErrMsg(trcrgwrong,"Trace",trcrg.start,trcrg.stop)
     mAdd2ErrMsg(zwrong,"Z",zrg.start,zrg.stop)
     return false;
 }
