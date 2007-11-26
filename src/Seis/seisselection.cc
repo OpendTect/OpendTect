@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.3 2007-11-26 10:00:31 cvsraman Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.4 2007-11-26 13:50:08 cvshelene Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -369,7 +369,7 @@ Interval<int> Seis::TableSelData::crlRange() const
 Interval<float> Seis::TableSelData::zRange() const
 {
     if ( isall_ ) return Seis::SelData::zRange();
-    return bvs_.valRange( 0 );
+    return bvs_.valRange( 0 ) + extraz_;
 }
 
 
