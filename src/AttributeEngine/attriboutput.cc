@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.64 2007-11-23 11:59:06 cvsbert Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.65 2007-11-26 13:49:01 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -746,7 +746,7 @@ TrcSelectionOutput::TrcSelectionOutput( const BinIDValueSet& bidvalset,
     delete seldata_;
     Seis::TableSelData& sd = *new Seis::TableSelData( bidvalset );
     seldata_ = &sd;
-    sd.binidValueSet().allowDuplicateBids( bidvalset.totalSize()<2 );
+    sd.binidValueSet().allowDuplicateBids( true );
 
     const int nrinterv = bidvalset.nrVals() / 2;
     float zmin = mUdf(float);
