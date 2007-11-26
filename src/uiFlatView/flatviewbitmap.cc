@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewbitmap.cc,v 1.8 2007-08-28 15:25:12 cvsbert Exp $
+ RCS:           $Id: flatviewbitmap.cc,v 1.9 2007-11-26 09:03:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,7 +128,9 @@ bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
 {
     if ( !gen_ ) return true;
 
-    pos_->setDimRange( 0, Interval<float>( wr.left(), wr.right() ) );
+    const FlatPosData& pd = vwr_.data().pos( wva_ );
+    pos_->setDimRange( 0, Interval<float>(wr.left()-pd.offset(true),
+					  wr.right()-pd.offset(true)) );
     pos_->setDimRange( 1, Interval<float>( wr.bottom(), wr.top() ) );
 
     bmp_ = new A2DBitMapImpl( sz.width(), sz.height() );
