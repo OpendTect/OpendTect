@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.2 2007-11-26 09:07:15 cvsbert Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.3 2007-11-26 10:00:31 cvsraman Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -84,7 +84,7 @@ Interval<int> Seis::SelData::inlRange() const
 
 Interval<int> Seis::SelData::crlRange() const
 {
-    return HorSampling(false).inlRange();
+    return HorSampling(true).crlRange();
 }
 
 
