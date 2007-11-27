@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.40 2006-12-19 18:18:31 cvsbert Exp $
+ RCS:           $Id: uifileinput.cc,v 1.41 2007-11-27 05:51:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
     : uiGenInput( p, txt, FileNameInpSpec(setup.fnm) )
     , forread_(setup.forread_)
     , filter_(setup.filter_)
+    , defseldir_(setup.defseldir_)
     , selmodset_(false)
     , selmode_(uiFileDialog::AnyFile)
     , examinebut_(0)

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiconvpos.cc,v 1.26 2007-11-19 21:10:22 cvsyuancheng Exp $
+ RCS:           $Id: uiconvpos.cc,v 1.27 2007-11-27 05:51:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,14 +26,9 @@ static BufferString lastoutfile;
 
 uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
 	: uiDialog(p, uiDialog::Setup("Position conversion",
-		   "Coordinates vs Inline/X-line","0.3.7").modal(mod))
+		   "Coordinates vs Inline/Crossline","0.3.7").modal(mod))
 	, survinfo(si)
 {
-    if ( lastinpfile.isEmpty() )
-	lastinpfile = GetBaseDataDir();
-    if ( lastoutfile.isEmpty() )
-	lastoutfile = GetBaseDataDir();
-
     ismanfld = new uiGenInput( this, "Conversion",
 	           BoolInpSpec(true,"Manual","File") );
     ismanfld->valuechanged.notify( mCB(this,uiConvertPos,selChg) );
@@ -71,14 +66,16 @@ uiConvertPos::uiConvertPos( uiParent* p, const SurveyInfo& si, bool mod )
 
     filegrp = new uiGroup( this, "File group" );
     uiFileInput::Setup fipsetup( lastinpfile );
-    fipsetup.forread(true).withexamine(true).examinetablestyle(true);
+    fipsetup.forread(true).withexamine(true).examinetablestyle(true)
+	    .defseldir(GetDataDir());
     inpfilefld = new uiFileInput( filegrp, "Input file", fipsetup );
+
     fipsetup.fnm = lastoutfile;
     fipsetup.forread(false).withexamine(false);
     outfilefld = new uiFileInput( filegrp, "Output file", fipsetup );
     outfilefld->attach( alignedBelow, inpfilefld );
     isxy2bidfld = new uiGenInput( filegrp, "Type",
-	           BoolInpSpec(true,"X Y to I C","I C to X Y") );
+	           BoolInpSpec(true,"X/Y to I/C","I/C to X/Y") );
     isxy2bidfld->attach( alignedBelow, outfilefld );
     uiPushButton* pb = new uiPushButton( filegrp, "Go",
 	    			mCB(this,uiConvertPos,convFile), true );

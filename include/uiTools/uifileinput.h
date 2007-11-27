@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          21/9/2000
- RCS:           $Id: uifileinput.h,v 1.23 2006-12-18 17:51:11 cvsbert Exp $
+ RCS:           $Id: uifileinput.h,v 1.24 2007-11-27 05:51:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ public:
 			Setup(const char* filenm=0)
 			    : fnm(filenm)
 			    , filter_("")
+			    , defseldir_("")
 			    , forread_(true)
 			    , withexamine_(false)
 			    , examinetablestyle_(false)
@@ -47,6 +48,7 @@ public:
 			    {}
 	BufferString	fnm;
 	mDefSetupMemb(BufferString,filter)
+	mDefSetupMemb(BufferString,defseldir)
 	mDefSetupMemb(bool,forread)
 	mDefSetupMemb(bool,withexamine)
 	mDefSetupMemb(bool,examinetablestyle)
