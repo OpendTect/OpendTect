@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.103 2007-11-19 20:27:35 cvsyuancheng Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.104 2007-11-27 13:23:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -276,6 +276,17 @@ void uiODMenuMgr::fillManMenu()
 }
 
 
+#define mCreateHorMnu( mnu, nm, dim )\
+if ( SI().has##dim() )\
+{\
+    uiPopupMenu* mnu = hasboth ? new uiPopupMenu( &appl_, nm ) :horitm;\
+    mInsertItem( mnu, "&Horizon grid...", mCreateSurf##dim##MnuItm );\
+    mInsertItem( mnu, "&Between horizons ...", mCompBetweenHor##dim##MnuItm );\
+    mInsertItem( mnu, "&Horizon slice...", mCompAlongHor##dim##MnuItm );\
+    if ( hasboth )\
+	horitm->insertItem( mnu );\
+}
+
 void uiODMenuMgr::fillProcMenu()
 {
     procmnu_->clear();
@@ -301,23 +312,8 @@ void uiODMenuMgr::fillProcMenu()
     uiPopupMenu* horitm = 
 		new uiPopupMenu( &appl_, "Create output using &Horizon");
     bool hasboth = SI().has2D() && SI().has3D();
-    if ( SI().has2D() )
-    {
-	uiPopupMenu* mnu2d = hasboth ? new uiPopupMenu( &appl_, "&2D" ) :horitm;
-	mInsertItem( mnu2d, "&Horizon grid...", mCreateSurf2DMnuItm );
-	//TODO the others should be possible later on
-	if ( hasboth )
-	    horitm->insertItem( mnu2d );
-    }
-    if ( SI().has3D() )
-    {
-	uiPopupMenu* mnu3d = hasboth ? new uiPopupMenu( &appl_, "&3D" ) :horitm;
-	mInsertItem( mnu3d, "&Horizon grid...", mCreateSurf3DMnuItm );
-	mInsertItem( mnu3d, "&Between horizons ...", mCompBetweenHor3DMnuItm );
-	mInsertItem( mnu3d, "&Horizon slice...", mCompAlongHor3DMnuItm );
-	if ( hasboth )
-	    horitm->insertItem( mnu3d );
-    }
+    mCreateHorMnu( mnu2d, "&2D", 2D );
+    mCreateHorMnu( mnu3d, "&3D", 3D );
     procmnu_->insertItem( horitm );
     
     mInsertItem( procmnu_, "&Re-Start ...", mReStartMnuItm );
@@ -607,7 +603,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mSeisOut3DMnuItm: 	applMgr().createVol(false); break;
     case mCreateSurf2DMnuItm: 	applMgr().createHorOutput(0,true); break;
     case mCreateSurf3DMnuItm: 	applMgr().createHorOutput(0,false); break;
+    case mCompAlongHor2DMnuItm:	applMgr().createHorOutput(1,true); break;
     case mCompAlongHor3DMnuItm:	applMgr().createHorOutput(1,false); break;
+    case mCompBetweenHor2DMnuItm: applMgr().createHorOutput(2,true); break;
     case mCompBetweenHor3DMnuItm: applMgr().createHorOutput(2,false); break;
     case mReStartMnuItm: 	applMgr().reStartProc(); break;
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!

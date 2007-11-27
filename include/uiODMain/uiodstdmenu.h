@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.33 2007-11-19 20:27:35 cvsyuancheng Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.34 2007-11-27 13:23:28 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -88,9 +88,11 @@ ________________________________________________________________________
 #define mSeisOut2DMnuItm	(mProcMnu + 21)
 #define mSeisOut3DMnuItm	(mProcMnu + 22)
 #define mCreateSurf2DMnuItm	(mUseHorMnu + 1)
-#define mCreateSurf3DMnuItm	(mUseHorMnu + 2)
-#define mCompBetweenHor3DMnuItm	(mUseHorMnu + 3)
-#define mCompAlongHor3DMnuItm	(mUseHorMnu + 4)
+#define mCompBetweenHor2DMnuItm	(mUseHorMnu + 2)
+#define mCompAlongHor2DMnuItm	(mUseHorMnu + 3)
+#define mCreateSurf3DMnuItm	(mUseHorMnu + 4)
+#define mCompBetweenHor3DMnuItm	(mUseHorMnu + 5)
+#define mCompAlongHor3DMnuItm	(mUseHorMnu + 6)
 #define mReStartMnuItm		(mProcMnu + 40)
 
 
