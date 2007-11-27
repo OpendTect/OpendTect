@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.27 2007-08-24 08:13:54 cvsbert Exp $
+ RCS:           $Id: uisettings.cc,v 1.28 2007-11-27 05:50:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uigeninput.h"
+#include "uilistbox.h"
 #include "uimsg.h"
 #include "uiselsimple.h"
 
@@ -49,6 +50,7 @@ void uiSettings::selPush( CallBacker* )
     uiSelectFromList::Setup listsetup( "Setting selection", keys );
     listsetup.dlgtitle( keyfld->text() );
     uiSelectFromList dlg( this, listsetup );
+    dlg.selFld()->setHSzPol( uiObject::Wide );
     if ( !dlg.go() ) return;
     const int selidx = dlg.selection();
     if ( selidx < 0 ) return;
