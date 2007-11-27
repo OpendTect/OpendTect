@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: viscoord.cc,v 1.26 2007-08-31 17:00:46 cvsyuancheng Exp $
+ RCS:           $Id: viscoord.cc,v 1.27 2007-11-27 18:56:55 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "viscoord.h"
 
 #include "errh.h"
-#include "thread.h"
 #include "vistransform.h"
 #include "UTMPosition.h"
 
@@ -26,7 +25,6 @@ namespace visBase
 
 Coordinates::Coordinates()
     : coords( new SoCoordinate3 )
-    , mutex( *new Threads::Mutex )
     , transformation( 0 )
     , utmposition( 0 )
     , root( new SoGroup )
@@ -41,7 +39,6 @@ Coordinates::Coordinates()
 Coordinates::~Coordinates()
 {
     root->unref();
-    delete &mutex;
     if ( transformation ) transformation->unRef();
 }
 

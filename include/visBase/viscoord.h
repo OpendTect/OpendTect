@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.15 2006-08-28 08:56:47 cvskris Exp $
+ RCS:		$Id: viscoord.h,v 1.16 2007-11-27 18:56:54 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
-
 #include "callback.h"
 #include "positionlist.h"
+#include "thread.h"
 #include "visdata.h"
 
 class SoCoordinate3;
@@ -23,7 +23,6 @@ class UTMPosition;
 class Executor;
 
 namespace Geometry { class PosIdHolder; }
-namespace Threads { class Mutex; };
 
 
 namespace visBase
@@ -86,7 +85,7 @@ protected:
     SoGroup*		root;
     UTMPosition*	utmposition;
     TypeSet<int>	unusedcoords;
-    Threads::Mutex&	mutex;
+    Threads::Mutex	mutex;
     Transformation*	transformation;
 };
 
