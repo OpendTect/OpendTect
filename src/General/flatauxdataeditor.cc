@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.19 2007-10-26 05:31:19 cvsnanne Exp $
+ RCS:           $Id: flatauxdataeditor.cc,v 1.20 2007-11-27 10:30:37 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -338,9 +338,9 @@ void AuxDataEditor::mousePressCB( CallBacker* cb )
 		   RowCol( mousearea_.topRight().x, mousearea_.topRight().y ),
 		   mousearea_.bottomLeft().y );
 
-	selptcoord_ = selptidx_.size() ? auxdata_[seldatasetidx_]->poly_[selptidx_[0]]
-				    : trans.transform(
-					RowCol(ev.pos().x,ev.pos().y ) );
+	selptcoord_ = selptidx_.size()
+	    ? (FlatView::Point) auxdata_[seldatasetidx_]->poly_[selptidx_[0]]
+	    : (FlatView::Point) trans.transform(RowCol(ev.pos().x,ev.pos().y) );
     }
 
     hasmoved_ = false;
