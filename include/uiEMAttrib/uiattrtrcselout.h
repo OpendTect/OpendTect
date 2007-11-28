@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.h,v 1.7 2007-10-04 08:31:43 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.h,v 1.8 2007-11-28 10:59:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,6 +99,10 @@ protected:
     uiSeisSel*          outpfld_;
     uiDialog*		xparsdlg_;
     bool		usesinglehor_;
+
+private:
+
+    CtxtIOObj&          mkCtxtIOObjHor(bool);
 };
 
 #endif

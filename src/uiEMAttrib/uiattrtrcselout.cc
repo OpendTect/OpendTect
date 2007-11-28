@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.26 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.27 2007-11-28 10:59:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,8 +45,8 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 				  bool usesinglehor )
     : uiFullBatchDialog(p,Setup("Create Horizon related cube output")
 	    		  .procprognm("process_attrib_em"))
-    , ctio_(*mMkCtxtIOObj(EMHorizon3D))
-    , ctio2_(*mMkCtxtIOObj(EMHorizon3D))
+    , ctio_( mkCtxtIOObjHor( ad.is2D() ) )
+    , ctio2_( mkCtxtIOObjHor( ad.is2D() ) )
     , ctioout_(*mMkCtxtIOObj(SeisTrc))
     , ads_(const_cast<DescSet&>(ad))
     , nlamodel_(n)
@@ -58,6 +58,8 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     , mainhorfld_(0)
     , widthfld_(0)
     , addwidthfld_(0)
+    , interpfld_(0)
+    , nrsampfld_(0)
     , xparsdlg_(0)
 {
     if ( usesinglehor_)
@@ -73,12 +75,11 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     addStdFields( false, true );
 
     objSel(0);
-    if ( usesinglehor_ )
-    {
+    if ( usesinglehor_ && !ads_.is2D() )
 	interpSel(0);
-	extraWidthSel(0);
+
+    if ( usesinglehor_ || ads_.is2D() )
 	cubeBoundsSel(0);
-    }
 }
 
 
@@ -94,8 +95,11 @@ void uiAttrTrcSelOut::createSingleHorUI()
     createSubSelFld( uppgrp_ );
     createZIntervalFld( uppgrp_ );
     createOutsideValFld( uppgrp_ );
-    createInterpFld( uppgrp_ );
-    createNrSampFld( uppgrp_ );
+    if ( !ads_.is2D() )
+    {
+	createInterpFld( uppgrp_ );
+	createNrSampFld( uppgrp_ );
+    }
     createCubeBoundsFlds( uppgrp_ );
     createOutputFld( uppgrp_ );
 
@@ -125,17 +129,26 @@ void uiAttrTrcSelOut::createTwoHorUI()
     createExtraZBotFld( uppgrp_ );
     createSubSelFld( uppgrp_ );
     createOutsideValFld( uppgrp_ );
-    createOutputFld( uppgrp_ );
-    createInterpFld( xparsdlg_ );
-    createNrSampFld( xparsdlg_ );
-    createAddWidthFld( xparsdlg_ );
-    createWidthFld( xparsdlg_ );
-    createMainHorFld( xparsdlg_ );
-    createCubeBoundsFlds( xparsdlg_ );
+    if ( !ads_.is2D() )
+    {
+	createInterpFld( xparsdlg_ );
+	createNrSampFld( xparsdlg_ );
+	createAddWidthFld( xparsdlg_ );
+	createWidthFld( xparsdlg_ );
+	createMainHorFld( xparsdlg_ );
+    }
 
-    CallBack cb = mCB(this,uiAttrTrcSelOut,extraParsCB);
-    uiPushButton* extrabut = new uiPushButton( uppgrp_, "Extra options",cb,true);
-    extrabut->attach( alignedBelow, outpfld_ );
+    createCubeBoundsFlds( ads_.is2D() ? (uiParent*) uppgrp_
+	    			      : (uiParent*) xparsdlg_ );
+    createOutputFld( uppgrp_ );
+
+    if ( !ads_.is2D() )
+    {
+	CallBack cb = mCB(this,uiAttrTrcSelOut,extraParsCB);
+	uiPushButton* extrabut =
+			new uiPushButton( uppgrp_, "Extra options", cb, true );
+	extrabut->attach( alignedBelow, outpfld_ );
+    }
     
     uppgrp_->setHAlignObj( attrfld_ );
 }
@@ -273,8 +286,10 @@ void uiAttrTrcSelOut::createCubeBoundsFlds( uiParent* prnt )
 {
     const char* choicelbl = "Define Z limits for the output cube";
     setcubeboundsfld_ = new uiGenInput ( prnt, choicelbl, BoolInpSpec(true) );
-    setcubeboundsfld_->attach( alignedBelow, mainhorfld_ ? mainhorfld_ 
-	    						: nrsampfld_ );
+    setcubeboundsfld_->attach( alignedBelow,
+	    		       mainhorfld_ ? mainhorfld_ 
+					   : nrsampfld_ ? nrsampfld_
+					   		: outsidevalfld_ );
     setcubeboundsfld_->setValue( false );
     setcubeboundsfld_->valuechanged.notify( mCB(this,uiAttrTrcSelOut,
 		                                cubeBoundsSel) );
@@ -288,9 +303,13 @@ void uiAttrTrcSelOut::createCubeBoundsFlds( uiParent* prnt )
 void uiAttrTrcSelOut::createOutputFld( uiParent* prnt )
 {
     ctioout_.ctxt.forread = false;
-    outpfld_ = new uiSeisSel( prnt, ctioout_, Seis::SelSetup(false) );
-    outpfld_->attach( alignedBelow, usesinglehor_ ? cubeboundsfld_ 
-	    					  : outsidevalfld_);
+    ctioout_.ctxt.parconstraints.set( sKey::Type, sKey::Steering );
+    ctioout_.ctxt.includeconstraints = false;
+    ctioout_.ctxt.allowcnstrsabsent = true;
+    outpfld_ = new uiSeisSel( prnt, ctioout_,
+	    		      Seis::SelSetup(ads_.is2D()).selattr(false) );
+    bool noadvdlg = usesinglehor_ || ads_.is2D();
+    outpfld_->attach( alignedBelow, noadvdlg ? cubeboundsfld_ : outsidevalfld_);
 }
 
 
@@ -415,7 +434,7 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     iopar.set( key, outsidevalfld_->getfValue() );
 
     int nrsamp = 0;
-    if ( interpfld_->isChecked() )
+    if ( interpfld_ && interpfld_->isChecked() )
 	nrsamp = interpfld_->getBoolValue() ? mUdf(int) 
 	    				   : nrsampfld_->getIntValue();
     
@@ -559,8 +578,21 @@ void uiAttrTrcSelOut::extraParsCB( CallBacker* cb )
 
 void uiAttrTrcSelOut::extraDlgDone( CallBacker* cb )
 {
-    interpSel(0);
-    extraWidthSel(0);
+    if ( !ads_.is2D() )
+    {
+	interpSel(0);
+	extraWidthSel(0);
+    }
+
     cubeBoundsSel(0);
+}
+
+
+CtxtIOObj& uiAttrTrcSelOut::mkCtxtIOObjHor( bool is2d )
+{
+    if ( is2d )
+	return *mMkCtxtIOObj( EMAnyHorizon );
+    else
+	return *mMkCtxtIOObj( EMHorizon3D );
 }
 
