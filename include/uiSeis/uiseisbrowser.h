@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.4 2007-11-13 07:52:12 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.5 2007-11-28 09:24:45 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,11 +18,11 @@ ________________________________________________________________________
 #include "samplingdata.h"
 #include "position.h"
 #include "linekey.h"
-#include "uiflatviewmainwin.h"
 
+class CBVSSeisTrcTranslator;
 class SeisTrc;
 class SeisTrcBuf;
-class CBVSSeisTrcTranslator;
+class uiSeisTrcBufViewer;
 class uiTable;
 class uiToolButton;
 
@@ -72,6 +72,7 @@ protected:
     SeisTrcBuf&		tbuf_;
     SeisTrcBuf&		tbufchgdtrcs_;
     SeisTrc&		ctrc_;
+    uiSeisTrcBufViewer*	strcbufview_;
     const uiSeisBrowser::Setup& setup_;
 
     bool		crlwise_;
