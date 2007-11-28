@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.7 2007-11-28 03:15:45 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.8 2007-11-28 06:36:02 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,6 @@ ________________________________________________________________________
 #include "uiseistrcbufviewer.h"
 #include "seiscbvs.h"
 #include "seistrctr.h"
-#include "seisbufadapters.h"
 #include "seistrc.h"
 #include "seisbuf.h"
 #include "seisinfo.h"
@@ -52,6 +51,7 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& setup )
     , compnr_(0)
     , nrcomps_(1)
     , sd_(0)
+    , strcbufview_(0)
     , setup_(setup)
 {
     if ( !openData(setup) )
@@ -382,12 +382,16 @@ void uiSeisBrowser::goToPush( CallBacker* )
 void uiSeisBrowser::rightArrowPush( CallBacker* )
 {
     goTo( getNextBid(curBinID(),stepout_,false) );
+    if ( strcbufview_ )
+    strcbufview_->update();
 }
 
 
 void uiSeisBrowser::leftArrowPush( CallBacker* )
 {
     goTo( getNextBid(curBinID(),stepout_,true) );
+    if (strcbufview_)
+    strcbufview_->update();
 }
 
 
@@ -455,7 +459,6 @@ void  uiSeisBrowser::showWigglePush( CallBacker* )
 
     const char* nm = IOM().nameOf( setup_.id_ );
     uiSeisTrcBufViewer::Setup stbvsetup( title, nm );
-    uiSeisTrcBufViewer* strcbufview = new uiSeisTrcBufViewer 
-	                              ( this, stbvsetup, setup_.geom_, &tbuf_ );
+    strcbufview_ = new uiSeisTrcBufViewer(this,stbvsetup,setup_.geom_,&tbuf_);
 }
 

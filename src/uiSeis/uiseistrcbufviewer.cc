@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          Nov 2007
- RCS:           $Id: uiseistrcbufviewer.cc,v 1.3 2007-11-28 03:15:45 cvssatyaki Exp $
+ RCS:           $Id: uiseistrcbufviewer.cc,v 1.4 2007-11-28 06:36:02 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "seisinfo.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
+#include "uirgbarraycanvas.h"
 
 uiSeisTrcBufViewer::uiSeisTrcBufViewer( uiParent* p, 
 	const uiSeisTrcBufViewer::Setup& setup, Seis::GeomType geom, 
@@ -76,4 +77,9 @@ void uiSeisTrcBufViewer::setData( FlatDataPack* dp_ )
     addControl( new uiFlatViewStdControl( *vwr_, 
 		uiFlatViewStdControl::Setup(this).withstates(true) ) );
     start();
+}
+
+void uiSeisTrcBufViewer::update()
+{
+    vwr_->handleChange( FlatView::Viewer::All );
 }
