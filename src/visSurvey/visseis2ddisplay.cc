@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.25 2007-10-25 04:19:31 cvsraman Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.26 2007-11-28 09:53:19 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -245,22 +245,33 @@ const Attrib::Data2DHolder* Seis2DDisplay::getCache( int attrib ) const
 
 
 void Seis2DDisplay::setData( int attrib,
-			     const Attrib::Data2DHolder& dataset )
+			     const Attrib::Data2DHolder& data2dh )
 {
-    if ( dataset.isEmpty() ) return;
+    if ( data2dh.isEmpty() ) return;
 
-    const SamplingData<float>& sd = dataset.trcinfoset_[0]->sampling;
-    const int nrsamp = dataset.dataset_[0]->nrsamples_;
+    const SamplingData<float>& sd = data2dh.trcinfoset_[0]->sampling;
+
+    const bool hastransform = datatransform_;
+    StepInterval<float> arrayzrg;
+    arrayzrg.setFrom( getZRange(!hastransform) );
+    arrayzrg.step = sd.step;
+    const int arrzsz = arrayzrg.nrSteps();
+    StepInterval<int> arraysrg( mNINT(arrayzrg.start/sd.step),
+	    			mNINT(arrayzrg.stop/sd.step), 1 );
 
     PtrMan<Array2DImpl<float> > arr =
-	new Array2DImpl<float>( trcnrrg_.width()+1, nrsamp );
-
+	new Array2DImpl<float>( trcnrrg_.width()+1, arrzsz );
     if ( !arr->isOK() )
 	return;
 
     const int totalsz = arr->info().getTotalSz();
 
-    const int nrseries = dataset.dataset_[0]->nrSeries();
+    const DataHolder* firstdh = data2dh.dataset_[0];
+    TypeSet<int> valididxs = firstdh->validSeriesIdx();
+    const int nrseries = valididxs.size();
+    if ( nrseries == 0 )
+	return;
+
     texture_->setNrVersions( attrib, nrseries );
     for ( int sidx=0; sidx<nrseries; sidx++ )
     {
@@ -268,38 +279,40 @@ void Seis2DDisplay::setData( int attrib,
 	for ( int idx=0; idx<totalsz; idx++ )
 	    (*arrptr++) = mUdf(float);
 
-	for ( int dataidx=0; dataidx<dataset.size(); dataidx++ )
+	for ( int dataidx=0; dataidx<data2dh.size(); dataidx++ )
 	{
-	    const int trcnr = dataset.trcinfoset_[dataidx]->nr;
-	    if ( !trcnrrg_.includes( trcnr ) )
+	    const int trcnr = data2dh.trcinfoset_[dataidx]->nr;
+	    if ( !trcnrrg_.includes(trcnr) )
 		continue;
 
 	    const int trcidx = trcnr-trcnrrg_.start;
 
-	    const DataHolder* dh = dataset.dataset_[dataidx];
+	    const DataHolder* dh = data2dh.dataset_[dataidx];
 	    if ( !dh )
 		continue;
 
-	    const float firstz = dataset.dataset_[0]->z0_ * sd.step;
+	    const float firstz = data2dh.dataset_[0]->z0_ * sd.step;
 	    const float firstdhsamplef = sd.getIndex( firstz );
 	    const int firstdhsample = sd.nearestIndex( firstz );
 	    const bool samplebased = mIsEqual(firstdhsamplef,firstdhsample,1e-3)
 				 &&  mIsEqual(sd.step,geometry_.zrg.step,1e-3 );
 	    const ValueSeries<float>* dataseries =
-		dh->series(dh->validSeriesIdx()[sidx]);
+		dh->series( valididxs[sidx] );
 
 	    if ( samplebased )
 	    {
+		const int nrsamp = data2dh.dataset_[0]->nrsamples_;
 		for ( int idx=0; idx<nrsamp; idx++ )
 		{
 		    const int sample = firstdhsample+idx;
 		    float val;
-		    if ( dh->dataPresent( sample ) )
+		    if ( dh->dataPresent(sample) )
 			val = dataseries->value( sample-dh->z0_ );
 		    else
 			val=mUdf(float);
 
-		    arr->set( trcidx, idx, val );
+		    const int arrzidx = arraysrg.getIndex( sample );
+		    arr->set( trcidx, arrzidx, val );
 		}
 	    }
 	    else
@@ -339,9 +352,9 @@ void Seis2DDisplay::setData( int attrib,
 
 		const float* inputptr = arr->getData() +
 					arr->info().getOffset( crlidx, 0 );
-		const float z0 = dataset.dataset_[0]->z0_ * sd.step;
+		const float z0 = data2dh.dataset_[0]->z0_ * sd.step;
 		SampledFunctionImpl<float,const float*>
-		    inputfunc( inputptr, nrsamp, z0, sd.step );
+		    inputfunc( inputptr, arrzsz, z0, sd.step );
 		inputfunc.setHasUdfs( true );
 		inputfunc.setInterpolate( !isClassification(attrib) );
 
@@ -669,7 +682,7 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
 	const int sampidx = -dh->z0_ +
 		mNINT(pos.z/cache_[attrib]->trcinfoset_[idx]->sampling.step);
 	
-	if ( sampidx >= 0 && sampidx < dh->nrsamples_ )
+	if ( sampidx>=0 && sampidx<dh->nrsamples_ )
 	{
 	    res = dh->series(dh->validSeriesIdx()[version])->value(sampidx);
 	    return true;
