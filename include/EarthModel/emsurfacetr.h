@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacetr.h,v 1.8 2007-09-04 17:05:49 cvsnanne Exp $
+ RCS:		$Id: emsurfacetr.h,v 1.9 2007-11-28 10:58:15 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -25,11 +25,13 @@ namespace EM
     class Fault;
     class Horizon3D;
     class Horizon2D;
+    class Horizon;
     class Surface;
 }
 
 typedef EM::Horizon3D 	EMHorizon3D;
 typedef EM::Horizon2D	EMHorizon2D;
+typedef EM::Horizon	EMAnyHorizon;
 typedef EM::Fault	EMFault;
 
 
