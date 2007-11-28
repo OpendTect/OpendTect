@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.15 2007-11-20 18:23:52 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.16 2007-11-28 11:25:03 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -266,17 +266,14 @@ void MultiArrayValueSeries<RT,AT>::setValue( od_int64 idx, RT v )
 template <class RT, class AT> inline
 RT* MultiArrayValueSeries<RT,AT>::arr()
 {
-    return typeid(RT)==typeid(AT) && cursize_<=chunksize_
+    return cursize_>0 && cursize_<=chunksize_ && typeid(RT)==typeid(AT)
 	? (RT*) ptrs_[0] : (RT*) 0;
 }
 
 
 template <class RT, class AT> inline
 const RT* MultiArrayValueSeries<RT,AT>::arr() const
-{
-    return typeid(RT)==typeid(AT) && cursize_<chunksize_
-	? (RT*) ptrs_[0] : (RT*) 0;
-}
+{ return const_cast<MultiArrayValueSeries<RT,AT>*>( this )->arr(); }
 
 
 template <class RT, class AT> inline
