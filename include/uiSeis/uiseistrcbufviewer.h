@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          November 2007
- RCS:           $Id: uiseistrcbufviewer.h,v 1.4 2007-11-28 06:37:06 cvssatyaki Exp $
+ RCS:           $Id: uiseistrcbufviewer.h,v 1.5 2007-11-28 11:21:37 cvssatyaki Exp $
 _______________________________________________________________________
 
 -*/

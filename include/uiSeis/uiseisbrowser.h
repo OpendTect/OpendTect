@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.5 2007-11-28 09:24:45 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.6 2007-11-28 11:21:37 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,7 @@ protected:
 
     bool		crlwise_;
     int			crlwisebutidx_;
+    int			showwgglbutidx_;
 
     int			stepout_;
 
@@ -95,6 +96,7 @@ protected:
     void		fillTableColumn(int);
     BinID		getNextBid(const BinID&,int,bool) const;
     void		addTrc(SeisTrcBuf&,const BinID&);
+    void		updateWiggleButtonStatus();
 	
     void		goToPush(CallBacker*);
     void		infoPush(CallBacker*);
@@ -103,6 +105,7 @@ protected:
     void		switchViewTypePush(CallBacker*);
     bool		acceptOK(CallBacker*);
     void		showWigglePush(CallBacker*);
+    void		trcbufViewerClosed(CallBacker*);
 
 private:
 
