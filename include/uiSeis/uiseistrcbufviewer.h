@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          November 2007
- RCS:           $Id: uiseistrcbufviewer.h,v 1.3 2007-11-28 03:21:38 cvssatyaki Exp $
+ RCS:           $Id: uiseistrcbufviewer.h,v 1.4 2007-11-28 06:37:06 cvssatyaki Exp $
 _______________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ public:
     			~uiSeisTrcBufViewer();
 
     void		setData(FlatDataPack*);
+    void		update();
 
 protected:
 
