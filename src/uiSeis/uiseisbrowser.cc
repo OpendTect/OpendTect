@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.6 2007-11-21 09:09:11 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.7 2007-11-28 03:15:45 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -218,7 +218,7 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force )
     if ( !havetrc || !canread )
 	fillUdf( ctrc_ );
 
-    for ( int idx=0; idx<stepout_; idx++ )
+    for ( int idx=1; idx<stepout_+1; idx++ )
     {
 	addTrc( tbufbefore_, getNextBid(binid,idx,true) );
 	addTrc( tbufafter_, getNextBid(binid,idx,false) );
@@ -229,6 +229,9 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force )
     tbuf_.add( &ctrc_ );
     for ( int idx=0; idx<stepout_; idx++ )
 	tbuf_.add( tbufafter_.get(idx) );
+
+    for ( int idx=0; idx<tbuf_.size(); idx++ )
+	tbuf_.get(idx)->info().nr = idx;
 
     fillTable();
     //setZ( z );
@@ -450,7 +453,8 @@ void  uiSeisBrowser::showWigglePush( CallBacker* )
     title += curBinID().inl; title += "/";
     title += curBinID().crl;
 
-    uiSeisTrcBufViewer::Setup stbvsetup( title );
+    const char* nm = IOM().nameOf( setup_.id_ );
+    uiSeisTrcBufViewer::Setup stbvsetup( title, nm );
     uiSeisTrcBufViewer* strcbufview = new uiSeisTrcBufViewer 
 	                              ( this, stbvsetup, setup_.geom_, &tbuf_ );
 }
