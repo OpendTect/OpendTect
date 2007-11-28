@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          Nov 2007
- RCS:           $Id: uiseistrcbufviewer.cc,v 1.4 2007-11-28 06:36:02 cvssatyaki Exp $
+ RCS:           $Id: uiseistrcbufviewer.cc,v 1.5 2007-11-28 11:25:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/

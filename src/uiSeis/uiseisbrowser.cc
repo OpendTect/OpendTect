@@ -4,30 +4,32 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.8 2007-11-28 06:36:02 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.9 2007-11-28 11:25:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseisbrowser.h"
+
 #include "uitoolbar.h"
 #include "uilabel.h"
 #include "uitable.h"
 #include "uimsg.h"
+#include "uimainwin.h"
 #include "uigeninput.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
 #include "uiflatviewmainwin.h"
 #include "uibutton.h"
-#include "uidialog.h"
 #include "uiseistrcbufviewer.h"
+#include "uitextedit.h"
+
 #include "seiscbvs.h"
 #include "seistrctr.h"
 #include "seistrc.h"
 #include "seisbuf.h"
 #include "seisinfo.h"
 #include "survinfo.h"
-#include "uitextedit.h"
 #include "cbvsreadmgr.h"
 #include "datainpspec.h"
 #include "ioobj.h"
@@ -142,7 +144,7 @@ void uiSeisBrowser::createMenuAndToolBar()
     crlwisebutidx_ = mAddButton("crlwise.png",switchViewTypePush,"",true );
     mAddButton("leftarrow.png",leftArrowPush,"",false );
     mAddButton("rightarrow.png",rightArrowPush,"",false );
-    mAddButton("seistrc.png",showWigglePush,"",false );
+    showwgglbutidx_ = mAddButton("seistrc.png",showWigglePush,"",false );
 }
 
 
@@ -348,7 +350,7 @@ class uiSeisBrowserInfoDlg : public uiDialog
 {
 public:
 
-uiSeisBrowserInfoDlg( uiParent* p, SeisTrc& ctrc_)
+uiSeisBrowserInfoDlg( uiParent* p, SeisTrc& ctrc_ )
     : uiDialog( p, uiDialog::Setup("Info","","0.0.0") )
 {
     uiTextEdit* infofld_ = new uiTextEdit( this, "Trace Info", true );
@@ -376,6 +378,7 @@ void uiSeisBrowser::goToPush( CallBacker* )
     if ( dlg.go() )
 	/* user pressed OK AND input is OK */
 	setPos( dlg.pos_ );
+    strcbufview_->update();
 }
 
 
@@ -399,6 +402,7 @@ void uiSeisBrowser::switchViewTypePush( CallBacker* )
 {
     crlwise_=uitb_->isOn( crlwisebutidx_ );
     doSetPos( curBinID(), true );
+    strcbufview_->update();
 }
 
 
@@ -439,6 +443,7 @@ void uiSeisBrowser::commitChanges()
     }
 }
 
+
 bool uiSeisBrowser::acceptOK( CallBacker* )
 {
     commitChanges();
@@ -451,14 +456,37 @@ bool uiSeisBrowser::acceptOK( CallBacker* )
     return false;
 }
 
-void  uiSeisBrowser::showWigglePush( CallBacker* )
+
+void uiSeisBrowser::showWigglePush( CallBacker* )
 {
-    BufferString title("Central Trace : ");
+    BufferString title( "Central Trace : " );
     title += curBinID().inl; title += "/";
     title += curBinID().crl;
 
-    const char* nm = IOM().nameOf( setup_.id_ );
-    uiSeisTrcBufViewer::Setup stbvsetup( title, nm );
-    strcbufview_ = new uiSeisTrcBufViewer(this,stbvsetup,setup_.geom_,&tbuf_);
+    if ( strcbufview_ )
+	strcbufview_->show();
+    else
+    {
+	const char* nm = IOM().nameOf( setup_.id_ );
+	uiSeisTrcBufViewer::Setup stbvsetup( title, nm );
+	strcbufview_ =
+	    new uiSeisTrcBufViewer( this, stbvsetup, setup_.geom_, &tbuf_ );
+	strcbufview_->windowClosed.notify(
+			 mCB(this,uiSeisBrowser,trcbufViewerClosed) );
+    }
+
+    updateWiggleButtonStatus();
 }
 
+
+void uiSeisBrowser::updateWiggleButtonStatus()
+{
+    const bool turnon = !strcbufview_ || strcbufview_->isHidden();
+    uitb_->turnOn( showwgglbutidx_, turnon );
+}
+
+
+void uiSeisBrowser::trcbufViewerClosed( CallBacker* )
+{
+    updateWiggleButtonStatus();
+}
