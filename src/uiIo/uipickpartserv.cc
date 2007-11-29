@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.47 2007-08-24 12:01:26 cvsraman Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.48 2007-11-29 14:36:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ uiPickPartServer::uiPickPartServer( uiApplService& a )
 	: uiApplPartServer(a)
 	, uiPickSetMgr(Pick::Mgr())
     	, gendef_(2,true)
+    	, selhs_(true)
 {
 }
 
@@ -168,7 +169,7 @@ bool uiPickPartServer::mkRandLocs3D( Pick::Set& ps, const RandLocGenPars& rp )
     uiCursorChanger cursorlock( uiCursor::Wait );
 
     Stats::RandGen::init();
-    selbr_ = &rp.bidrg_;
+    selhs_ = rp.hs_;
     const bool do2hors = rp.needhor_ && rp.horidx2_ >= 0 && 
 			 rp.horidx2_ != rp.horidx_;
     gendef_.empty();
@@ -184,11 +185,11 @@ bool uiPickPartServer::mkRandLocs3D( Pick::Set& ps, const RandLocGenPars& rp )
     {
 	const BinID stp = BinID( SI().inlStep(), SI().crlStep() );
 	BinID bid;
-	for ( bid.inl=selbr_->start.inl; bid.inl<=selbr_->stop.inl;
-		bid.inl +=stp.inl )
+	for ( bid.inl=selhs_.start.inl; bid.inl<=selhs_.stop.inl;
+		bid.inl +=selhs_.step.inl )
 	{
-	    for ( bid.crl=selbr_->start.crl; bid.crl<=selbr_->stop.crl;
-		    	bid.crl += stp.crl )
+	    for ( bid.crl=selhs_.start.crl; bid.crl<=selhs_.stop.crl;
+		    	bid.crl += selhs_.step.crl )
 		gendef_.add( bid, rp.zrg_.start, rp.zrg_.stop );
 	}
     }

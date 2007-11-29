@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfauxdataio.h,v 1.16 2007-09-13 19:38:39 cvsnanne Exp $
+ RCS:		$Id: emsurfauxdataio.h,v 1.17 2007-11-29 14:36:03 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -15,10 +15,9 @@ ________________________________________________________________________
 
 #include "emposid.h"
 #include "executor.h"
-
-
-class BinIDSampler;
+class HorSampling;
 template <class T> class DataInterpreter;
+
 
 namespace EM
 {
@@ -32,7 +31,7 @@ class dgbSurfDataWriter : public Executor
 public:
     				dgbSurfDataWriter(const EM::Horizon3D& surf,
 						  int dataidx,
-						  const BinIDSampler* sel,
+						  const HorSampling*,
 						  bool binary,
 						  const char* filename);
 			/*!<\param surf		The surface with the values
@@ -69,7 +68,7 @@ protected:
     bool			writeFloat(float);
     int				dataidx_;
     const EM::Horizon3D&	surf_;
-    const BinIDSampler*		sel_;
+    const HorSampling*		sel_;
   
     TypeSet<EM::SubID>		subids_;
     TypeSet<float>		values_;
@@ -105,6 +104,7 @@ public:
     virtual const char*		message() const;
 
 protected:
+
     bool			readInt(int&);
     bool			readInt64(od_int64&);
     bool			readFloat(float&);
@@ -113,7 +113,7 @@ protected:
     int				dataidx_;
     float			shift_;
     EM::Horizon3D*		surf_;
-    const BinIDSampler*		sel_;
+    const HorSampling*		sel_;
   
     int				sectionindex_;
     int				nrsections_;

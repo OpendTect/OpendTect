@@ -2,15 +2,15 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_check_nan_vals.cc,v 1.1 2005-09-15 09:08:14 cvshelene Exp $
+ * RCS      : $Id: od_cbvs_check_nan_vals.cc,v 1.2 2007-11-29 14:36:03 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_check_nan_vals.cc,v 1.1 2005-09-15 09:08:14 cvshelene Exp $";
+static const char* rcsID = "$Id: od_cbvs_check_nan_vals.cc,v 1.2 2007-11-29 14:36:03 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
-#include "seistrcsel.h"
-#include "binidselimpl.h"
+#include "seisselection.h"
+#include "cubesampling.h"
 #include "conn.h"
 #include "iostrm.h"
 #include "separstr.h"
@@ -63,19 +63,6 @@ int main( int argc, char** argv )
     StreamData outsd = StreamProvider( fname ).makeOStream();
     if ( !outsd.usable() )
         { std::cerr << "Cannot open output file" << std::endl; ExitProgram(1); }
-
-    if ( argc > 3 )
-    {
-	SeparString fms( argv[3], ',' );
-	SeisSelData sd;
-	sd.inlrg_.start = atoi(fms[0]);
-	sd.inlrg_.stop = atoi(fms[1]);
-	sd.crlrg_.start = atoi(fms[2]);
-	sd.crlrg_.stop = atoi(fms[3]);
-	sd.zrg_.start = atof(fms[4]);
-	sd.zrg_.stop = atof(fms[5]);
-	tri->setSelData( &sd );
-    }
 
     SeisTrc trc;
     int nrwr = 0;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.34 2007-08-24 12:00:43 cvsraman Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.35 2007-11-29 14:36:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,10 +19,10 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "bufstringset.h"
 #include "segposinfo.h"
+#include "cubesampling.h"
 
 class Color;
 class IOObj;
-class BinIDRange;
 class SurfaceInfo;
 class RandLocGenPars;
 namespace Pick { class Set; class SetMgr; };
@@ -64,7 +64,7 @@ public:
 
     ObjectSet<SurfaceInfo>& 	horInfos()		{ return hinfos_; }
     const ObjectSet<MultiID>&	selHorIDs() const	{ return selhorids_; }
-    const BinIDRange*		selBinIDRange() const	{ return selbr_; }
+    HorSampling			selHorSampling() const	{ return selhs_; }
     MultiID			horID()			{ return horid_; }
 
     BufferStringSet&		lineSets()		{ return linesets_; }
@@ -85,7 +85,7 @@ protected:
 
     ObjectSet<SurfaceInfo> 	hinfos_;
     ObjectSet<MultiID>		selhorids_;
-    const BinIDRange*		selbr_;
+    HorSampling			selhs_;
     Pick::Set*			ps_;
     MultiID			horid_;
 

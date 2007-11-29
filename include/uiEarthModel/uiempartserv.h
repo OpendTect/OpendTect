@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.60 2007-11-15 16:54:24 cvsbert Exp $
+ RCS:           $Id: uiempartserv.h,v 1.61 2007-11-29 14:36:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 
 
 class BinID;
-class BinIDRange;
+class HorSampling;
 class BinIDValueSet;
 class BufferStringSet;
 class MultiID;
@@ -86,7 +86,7 @@ public:
     void                getAllSurfaceInfo(ObjectSet<SurfaceInfo>&,bool);
     void		getSurfaceDef3D(const TypeSet<EM::ObjectID>&,
 	    			        BinIDValueSet&,
-				        const BinIDRange* br=0) const;
+				        const HorSampling&) const;
     void		getSurfaceDef2D(const ObjectSet<MultiID>&,
 	    				ObjectSet<PosInfo::Line2DData>,
 	    				BufferStringSet&,TypeSet<Coord>&,
@@ -120,6 +120,7 @@ public:
     void		removeTreeObject(const EM::ObjectID&);  
 
 protected:
+
     void		selectSurfaces(TypeSet<EM::ObjectID>&,const char* type);
     bool		loadAuxData(const EM::ObjectID&,const TypeSet<int>&);
     void		syncGeometry(CallBacker*);

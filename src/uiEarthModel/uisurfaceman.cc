@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.40 2007-08-29 12:32:29 cvsbert Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.41 2007-11-29 14:36:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,6 @@ ________________________________________________________________________
 
 #include "uisurfaceman.h"
 
-#include "binidselimpl.h"
 #include "ctxtioobj.h"
 #include "filegen.h"
 #include "ioobj.h"
@@ -235,7 +234,6 @@ void uiSurfaceMan::mkFileInfo()
     txt += " - "; txt += sd.rg.step.line; txt += "\n" \
 
     BufferString txt;
-    BinIDSampler bs;
     SurfaceIOData sd;
     const char* res = EMM().getSurfaceData( curioobj_->key(), sd );
     if ( !res )

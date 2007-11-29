@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.5 2007-08-24 12:01:26 cvsraman Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.6 2007-11-29 14:36:04 cvsbert Exp $";
 
 #include "uicreatepicks.h"
 
@@ -189,8 +189,7 @@ void uiGenRandPicks3D::mkRandPars()
 
     const HorSampling& hs = 
        (randpars_.needhor_ ? horsubselfld_ : volsubselfld_)->getInput().cs_.hrg;
-    randpars_.bidrg_.start = hs.start; randpars_.bidrg_.stop = hs.stop; 
-    randpars_.bidrg_.setStepOut( hs.step );
+    randpars_.hs_ = hs;
 
     if ( randpars_.needhor_ )
     {

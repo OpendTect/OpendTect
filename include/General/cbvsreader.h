@@ -8,17 +8,17 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format header
- RCS:		$Id: cbvsreader.h,v 1.26 2005-12-16 11:15:21 cvsbert Exp $
+ RCS:		$Id: cbvsreader.h,v 1.27 2007-11-29 14:36:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <cbvsio.h>
-#include <cbvsinfo.h>
-#include <datainterp.h>
+#include "cbvsio.h"
+#include "cbvsinfo.h"
+#include "datainterp.h"
+#include "cubesampling.h"
 #include <iostream>
 
-class BinIDRange;
 
 
 /*!\brief Reader for CBVS format
@@ -104,7 +104,7 @@ private:
     DataInterpreter<int> iinterp;
     DataInterpreter<float> finterp;
     DataInterpreter<double> dinterp;
-    BinIDRange&		bidrg;
+    HorSampling		hs;
     Interval<int>	samprg;
     TypeSet<int>	posnrs;
 

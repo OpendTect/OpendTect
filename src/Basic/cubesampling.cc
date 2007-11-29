@@ -4,11 +4,10 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.31 2007-09-20 13:20:34 cvsjaap Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.32 2007-11-29 14:36:03 cvsbert Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
-#include "binidselimpl.h"
 #include "keystrs.h"
 #include "iopar.h"
 #include <math.h>

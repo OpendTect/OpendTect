@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.77 2007-11-15 13:26:47 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.78 2007-11-29 14:36:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,6 @@ ________________________________________________________________________
 #include "attribstorprovider.h"
 
 #include "arraynd.h"
-#include "binidselimpl.h"
 #include "binidvalset.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"

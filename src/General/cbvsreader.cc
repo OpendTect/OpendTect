@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.70 2007-10-05 10:38:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.71 2007-11-29 14:36:04 cvsbert Exp $";
 
 /*!
 
@@ -27,7 +27,6 @@ The next 8 bytes are reserved for 2 integers:
 
 #include "cbvsreader.h"
 #include "datainterp.h"
-#include "binidselimpl.h"
 #include "survinfo.h"
 #include "envvars.h"
 #include "errh.h"
@@ -45,9 +44,10 @@ CBVSReader::CBVSReader( std::istream* s, bool glob_info_only )
 	, posidx(0)
 	, datastartfo(0)
 	, lastposfo(0)
-	, bidrg(*new BinIDRange)
+	, hs(false)
     	, needaux(true)
 {
+    hs.step.inl = hs.step.crl = 1;
     if ( readInfo(!glob_info_only) )
 	toStart();
 }
@@ -56,7 +56,6 @@ CBVSReader::CBVSReader( std::istream* s, bool glob_info_only )
 CBVSReader::~CBVSReader()
 {
     close();
-    delete &bidrg;
 }
 
 
@@ -288,9 +287,8 @@ bool CBVSReader::readGeom()
     else
 	info_.geom.b2c = SI().binID2Coord();
 
-    bidrg.start = bidrg.stop
-		= BinID( info_.geom.start.inl, info_.geom.start.crl );
-    bidrg.include( BinID( info_.geom.stop.inl, info_.geom.stop.crl ) );
+    hs.start = hs.stop = BinID( info_.geom.start.inl, info_.geom.start.crl );
+    hs.include( BinID( info_.geom.stop.inl, info_.geom.stop.crl ) );
 
     return strm_.good();
 }
@@ -332,7 +330,7 @@ bool CBVSReader::readTrailer()
 	    PosInfo::LineData* iinf
 		= new PosInfo::LineData( iinterp.get( buf, 0 ) );
 	    if ( !iinl )
-		bidrg.start.inl = bidrg.stop.inl = iinf->linenr_;
+		hs.start.inl = hs.stop.inl = iinf->linenr_;
 
 	    const int nrseg = iinterp.get( buf, 1 );
 	    PosInfo::LineData::Segment crls;
@@ -346,16 +344,16 @@ bool CBVSReader::readTrailer()
 		iinf->segments_ += crls;
 
 		if ( !iinl && !iseg )
-		    bidrg.start.crl = bidrg.stop.crl = crls.start;
+		    hs.start.crl = hs.stop.crl = crls.start;
 		else
-		    bidrg.include( BinID(iinf->linenr_,crls.start) );
-		bidrg.include( BinID(iinf->linenr_,crls.stop) );
+		    hs.include( BinID(iinf->linenr_,crls.start) );
+		hs.include( BinID(iinf->linenr_,crls.stop) );
 	    }
 	    info_.geom.cubedata.add( iinf );
 	}
 
-	info_.geom.start = bidrg.start;
-	info_.geom.stop = bidrg.stop;
+	info_.geom.start = hs.start;
+	info_.geom.stop = hs.stop;
 
 	curinlinfnr_ = cursegnr_ = 0;
 	curbinid_.inl = info_.geom.cubedata[curinlinfnr_]->linenr_;
@@ -426,7 +424,7 @@ int CBVSReader::getPosNr( const BinID& bid, bool nearestok,
 
     if ( info_.geom.fullyrectandreg )
     {
-	if ( !bidrg.includes(bid) )
+	if ( !hs.includes(bid) )
 	    return -1;
 	const int inlstep = abs(info_.geom.step.inl);
 	if ( inlstep == 1 )
@@ -578,13 +576,13 @@ int CBVSReader::getNextBinID( BinID& bid, int& inlinfnr, int& segnr ) const
     if ( info_.geom.fullyrectandreg )
     {
 	bid.crl += info_.geom.step.crl;
-	if ( bidrg.includes(bid) )
+	if ( hs.includes(bid) )
 	    return 1;
 
 	bid.crl = firstbinid.crl;
 	bid.inl += abs(info_.geom.step.inl);
-	if ( !bidrg.includes(bid) )
-	    { bid.inl = bidrg.start.inl; return 0; }
+	if ( !hs.includes(bid) )
+	    { bid.inl = hs.start.inl; return 0; }
 	return info_.geom.step.inl < 0 ? 2 : 1;
     }
 

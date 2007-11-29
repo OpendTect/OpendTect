@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.14 2007-05-02 09:34:43 cvsbert Exp $
+ RCS:		$Id: segyhdr.h,v 1.15 2007-11-29 14:36:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,13 +15,11 @@ ________________________________________________________________________
 #include "seisinfo.h"
 #include "segythdef.h"
 #include "iosfwd"
-class BufferString;
 
 #define SegyTxtHeaderLength		3200
 #define SegyBinHeaderLength		400
 #define SegyBinHeaderUnassUShorts	170
 #define SegyTracHeaderLength		240
-
 
 /*!\brief 3200 byte SEG-Y text header.
 
@@ -75,7 +73,7 @@ public:
     static int	formatBytes( int frmt )
 		{ return frmt == 3 ? 2 : (frmt == 8 ? 1 : 4); }
 
-    bool	needswap;
+    bool	needswap; /* overrule using OD_SEGY_DATA_SWAPPED */
 
     int		jobid;	/* job identification number */
     int		lino;	/* line number (only one line per reel) */
@@ -105,9 +103,8 @@ public:
     unsigned short	hunass[SegyBinHeaderUnassUShorts];
 
     unsigned short	isrev1; //!< This must be considered final
-    		// Rev 1 only
-    unsigned short	fixdsz;	
-    unsigned short	nrstzs;
+    unsigned short	fixdsz;	//!< Rev 1 only
+    unsigned short	nrstzs; //!< Rev 1 only
 };
 
 
@@ -115,14 +112,8 @@ class SegyTraceheader
 {
 public:
 
-			SegyTraceheader( unsigned char* b, bool rev1,
-					 SegyTraceheaderDef& hd )
-			: buf(b)
-			, hdef(hd)
-			, isrev1(rev1)
-			, needswap(false), seqnr(1)		{}
-
-    void		print(std::ostream&) const;
+			SegyTraceheader(unsigned char*,bool rev1,
+					const SegyTraceheaderDef&);
 
     unsigned short	nrSamples() const;
     void		putSampling(SamplingData<float>,unsigned short);
@@ -134,10 +125,12 @@ public:
     Coord		getCoord(bool rcv,float extcoordsc);
 
     unsigned char*	buf;
-    bool		needswap;
-    SegyTraceheaderDef&	hdef;
+    bool		needswap; /* overrule using OD_SEGY_DATA_SWAPPED */
+    const SegyTraceheaderDef&	hdef;
     int			seqnr;
     bool		isrev1;
+
+    void		print(std::ostream&) const;
 
 protected:
 
@@ -145,5 +138,8 @@ protected:
 
 };
 
+
+bool SEGY_NeedDataSwapping();
+	/* Default false, set by envvar OD_SEGY_DATA_SWAPPED */
 
 #endif

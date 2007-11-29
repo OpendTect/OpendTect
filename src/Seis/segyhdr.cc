@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.48 2007-07-27 08:30:37 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.49 2007-11-29 14:36:04 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -250,8 +250,31 @@ void SegyTxtHeader::print( std::ostream& stream ) const
 }
 
 
+bool SEGY_NeedDataSwapping()
+{
+    static int val = -1;
+    if ( val == -1 )
+	val = GetEnvVarYN( "OD_SEGY_DATA_SWAPPED" ) ? 1 : 0;
+    return val == 1;
+}
+
+
+static const unsigned char* getBytes( const unsigned char* inpbuf,
+				      bool needswap, int bytenr, int nrbytes )
+{
+    static unsigned char swpbuf[4];
+    if ( !needswap ) return inpbuf + bytenr;
+
+    memcpy( swpbuf, inpbuf+bytenr, nrbytes );
+    SwapBytes( swpbuf, nrbytes );
+    return swpbuf;
+}
+
+#define mGetBytes(bnr,nrb) getBytes( buf, needswap, bnr, nrb )
+
+
 SegyBinHeader::SegyBinHeader( bool rev1 )
-	: needswap(false)
+	: needswap(SEGY_NeedDataSwapping())
     	, isrev1(rev1 ? 256 : 0)
     	, nrstzs(0)
     	, fixdsz(1)
@@ -466,49 +489,61 @@ void SegyBinHeader::print( std::ostream& strm ) const
 }
 
 
+SegyTraceheader::SegyTraceheader( unsigned char* b, bool rev1,
+				  const SegyTraceheaderDef& hd )
+    : buf(b)
+    , hdef(hd)
+    , needswap(SEGY_NeedDataSwapping())
+    , isrev1(rev1)
+    , seqnr(1)
+{
+}
+
+
 #undef mPrHead
-#define mPrHead(mem,byt,fun) \
-strm << '\t' << #mem << '\t' << byt+1 \
-     << '\t' << IbmFormat::as##fun( buf+byt ) << '\n'
+#define mPrHead(mem,byt,fun,nrbyts) \
+    strm << '\t' << #mem << '\t' << byt+1 << '\t' \
+         << IbmFormat::as##fun( getBytes(buf,needswap,byt,nrbyts) ) << '\n';
 
 void SegyTraceheader::print( std::ostream& strm ) const
 {
-    mPrHead(tracl,0,Int); mPrHead(tracr,4,Int);
-    mPrHead(fldr,8,Int); mPrHead(tracf,12,Int);
-    mPrHead(ep,16,Int); mPrHead(cdp,20,Int);
-    mPrHead(cdpt,24,Int); mPrHead(trid,28,Short); mPrHead(nvs,30,Short);
-    mPrHead(nhs,32,Short); mPrHead(duse,34,Short); mPrHead(offs,36,Int);
-    mPrHead(gelev,40,Int); mPrHead(selev,44,Int); mPrHead(sdepth,48,Int);
-    mPrHead(gdel,52,Int); mPrHead(sdel,56,Int); mPrHead(swdep,60,Int);
-    mPrHead(gwdep,64,Int); mPrHead(scalel,68,Short); mPrHead(scalco,70,Short);
-    mPrHead(sx,72,Int); mPrHead(sy,76,Int); mPrHead(gx,80,Int);
-    mPrHead(gy,84,Int); mPrHead(counit,88,Short); mPrHead(wevel,90,Short);
-    mPrHead(swevel,92,Short); mPrHead(sut,94,Short); mPrHead(gut,96,Short);
-    mPrHead(sstat,98,Short); mPrHead(gstat,100,Short); mPrHead(tstat,102,Short);
-    mPrHead(laga,104,Short); mPrHead(lagb ,106,Short); mPrHead(delrt,108,Short);
-    mPrHead(muts,110,Short); mPrHead(mute,112,Short);
-    mPrHead(ns,114,UnsignedShort); mPrHead(dt,116,UnsignedShort);
-    mPrHead(gain,118,Short);
+    char swpbuf[4];
+
+    mPrHead(tracl,0,Int,4); mPrHead(tracr,4,Int,4); mPrHead(fldr,8,Int,4);
+    mPrHead(tracf,12,Int,4); mPrHead(ep,16,Int,4); mPrHead(cdp,20,Int,4);
+    mPrHead(cdpt,24,Int,4); mPrHead(trid,28,Short,2); mPrHead(nvs,30,Short,2);
+    mPrHead(nhs,32,Short,2); mPrHead(duse,34,Short,2); mPrHead(offs,36,Int,4);
+    mPrHead(gelev,40,Int,4); mPrHead(selev,44,Int,4); mPrHead(sdepth,48,Int,4);
+    mPrHead(gdel,52,Int,4); mPrHead(sdel,56,Int,4); mPrHead(swdep,60,Int,4);
+    mPrHead(gwdep,64,Int,4); mPrHead(scalel,68,Short,2);
+    mPrHead(scalco,70,Short,2); mPrHead(sx,72,Int,4); mPrHead(sy,76,Int,4);
+    mPrHead(gx,80,Int,4); mPrHead(gy,84,Int,4); mPrHead(counit,88,Short,2);
+    mPrHead(wevel,90,Short,2); mPrHead(swevel,92,Short,2);
+    mPrHead(sut,94,Short,2); mPrHead(gut,96,Short,2); mPrHead(sstat,98,Short,2);
+    mPrHead(gstat,100,Short,2); mPrHead(tstat,102,Short,2);
+    mPrHead(laga,104,Short,2); mPrHead(lagb,106,Short,2);
+    mPrHead(delrt,108,Short,2); mPrHead(muts,110,Short,2);
+    mPrHead(mute,112,Short,2); mPrHead(ns,114,UnsignedShort,2);
+    mPrHead(dt,116,UnsignedShort,2); mPrHead(gain,118,Short,2);
 
     for ( int idx=0; idx<30; idx++ )
     {
-	int byt = 120 + idx*2;
-	if ( *(short*)(buf+byt) ) mPrHead(-,byt,Short);
+	const int byt = 120 + idx*2;
+	if ( *(buf+byt) || *(buf+byt+1) )
+	    mPrHead(-,byt,Short,2);
     }
     for ( int idx=0; idx<15; idx++ )
     {
 	int byt = 180 + idx*4;
-	if ( *(int*)(buf+byt) ) mPrHead(-,byt,Int);
+	if ( *(buf+byt) || *(buf+byt+1) || *(buf+byt+2) || *(buf+byt+3) )
+	    mPrHead(-,byt,Int,4);
     }
 }
 
 
 unsigned short SegyTraceheader::nrSamples() const
 {
-    if ( needswap ) SwapBytes( ((unsigned char*)buf)+114, 2 );
-    unsigned short rv = IbmFormat::asUnsignedShort( buf+114 );
-    if ( needswap ) SwapBytes( ((unsigned char*)buf)+114, 2 );
-    return rv;
+    return IbmFormat::asUnsignedShort( getBytes(buf,needswap,114,2) );
 }
 
 
@@ -611,8 +646,9 @@ float SegyTraceheader::postScale( int numbfmt ) const
     }
 
     unsigned char* ptr = buf + postscale_byte - 1 ;
-    short trwf = postscale_isint ? IbmFormat::asInt(ptr)
-				 : IbmFormat::asShort( ptr );
+    short trwf = postscale_isint ?
+	IbmFormat::asInt( mGetBytes(postscale_byte-1,4) )
+      : IbmFormat::asShort( mGetBytes(postscale_byte-1,2) );
     if ( trwf == 0 || trwf > 60 || trwf < -60 ) return 1;
 
     // According to the standard, trwf cannot be negative ...
@@ -627,12 +663,13 @@ float SegyTraceheader::postScale( int numbfmt ) const
 }
 
 
-static void getRev1Flds( SeisTrcInfo& ti, const unsigned char* buf )
+static void getRev1Flds( SeisTrcInfo& ti, const unsigned char* buf,
+			 bool needswap )
 {
-    ti.coord.x = IbmFormat::asInt( buf + 180 );
-    ti.coord.y = IbmFormat::asInt( buf + 184 );
-    ti.binid.inl = IbmFormat::asInt( buf + 188 );
-    ti.binid.crl = IbmFormat::asInt( buf + 192 );
+    ti.coord.x = IbmFormat::asInt( mGetBytes(180,4) );
+    ti.coord.y = IbmFormat::asInt( mGetBytes(184,4) );
+    ti.binid.inl = IbmFormat::asInt( mGetBytes(188,4) );
+    ti.binid.crl = IbmFormat::asInt( mGetBytes(192,4) );
 }
 
 
@@ -651,35 +688,38 @@ void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     }
 
     if ( !isrev1 )
-	getRev1Flds( ti, buf );
+	getRev1Flds( ti, buf, needswap );
 
     const float zfac = 1. / SI().zFactor();
-    short delrt = IbmFormat::asShort( buf+108 );
+    short delrt = IbmFormat::asShort( mGetBytes(108,2) );
     if ( delrt == 0 )
     {
-	delrt = -IbmFormat::asShort( buf+104 ); // HRS and Petrel
+	delrt = -IbmFormat::asShort( mGetBytes(104,2) ); // HRS and Petrel
 	float startz = delrt * zfac;
 	if ( startz < -5000 || startz > 10000 )
 	    delrt = 0;
     }
     ti.sampling.start = delrt * zfac;
-    ti.sampling.step = IbmFormat::asUnsignedShort( buf+116 ) * zfac * 0.001;
+    ti.sampling.step = IbmFormat::asUnsignedShort( mGetBytes(116,2) )
+			* zfac * 0.001;
 
     ti.pick = ti.refpos = mUdf(float);
-    ti.nr = IbmFormat::asInt( buf+0 );
-    if ( hdef.pick != 255 ) ti.pick = IbmFormat::asInt( buf+hdef.pick ) * zfac;
+    ti.nr = IbmFormat::asInt( mGetBytes(0,4) );
+    if ( hdef.pick != 255 )
+	ti.pick = IbmFormat::asInt( mGetBytes(hdef.pick-1,4) ) * zfac;
     ti.coord.x = ti.coord.y = 0;
-    if ( hdef.xcoord != 255 ) ti.coord.x = IbmFormat::asInt( buf+hdef.xcoord-1);
-    if ( hdef.ycoord != 255 ) ti.coord.y = IbmFormat::asInt( buf+hdef.ycoord-1);
-    ti.binid.inl = ti.binid.crl = 0;
+    if ( hdef.xcoord != 255 )
+	ti.coord.x = IbmFormat::asInt( mGetBytes(hdef.xcoord-1,4));
+    if ( hdef.ycoord != 255 )
+	ti.coord.y = IbmFormat::asInt( mGetBytes(hdef.ycoord-1,4));
 
 #define mGetIntVal(timemb,hdmemb) \
     if ( hdef.hdmemb != 255 ) \
 	ti.timemb = hdef.hdmemb##bytesz == 2 \
-    		  ? IbmFormat::asShort( buf + hdef.hdmemb - 1 ) \
-		  : IbmFormat::asInt( buf + hdef.hdmemb - 1 )
+	? IbmFormat::asShort( mGetBytes(hdef.hdmemb-1,2) ) \
+	: IbmFormat::asInt( mGetBytes(hdef.hdmemb-1,4) )
 	
-
+    ti.binid.inl = ti.binid.crl = 0;
     mGetIntVal(binid.inl,inl);
     mGetIntVal(binid.crl,crl);
     mGetIntVal(nr,trnr);
@@ -688,7 +728,7 @@ void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
     ti.azimuth *= M_PI / 360;
 
     if ( isrev1 )
-	getRev1Flds( ti, buf );
+	getRev1Flds( ti, buf, needswap );
 
     double scale = getCoordScale( extcoordsc );
     ti.coord.x *= scale;
@@ -704,7 +744,7 @@ void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 	false_northing = GetEnvVarDVal( "OD_SEGY_FALSE_NORTHING", 0 );
 	if ( !mIsZero(false_easting,1e-5) || !mIsZero(false_northing,1e-5) )
 	{
-	    BufferString usrmsg( "This OD run SEG-Y easting/northing " );
+	    BufferString usrmsg( "For this OD run SEG-Y easting/northing " );
 	    usrmsg += false_easting; usrmsg += "/"; usrmsg += false_northing;
 	    usrmsg += " will be applied";
 	    UsrMsg( usrmsg );
@@ -718,7 +758,7 @@ void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 double SegyTraceheader::getCoordScale( float extcoordsc ) const
 {
     if ( !mIsUdf(extcoordsc) ) return extcoordsc;
-    short scalco = IbmFormat::asShort( buf+70 );
+    const short scalco = IbmFormat::asShort( mGetBytes(70,2) );
     return scalco ? (scalco > 0 ? scalco : -1./scalco) : 1;
 }
 
@@ -726,10 +766,9 @@ double SegyTraceheader::getCoordScale( float extcoordsc ) const
 Coord SegyTraceheader::getCoord( bool rcv, float extcoordsc )
 {
     double scale = getCoordScale( extcoordsc );
-    Coord ret(	IbmFormat::asInt( buf+(rcv?80:72) ),
-		IbmFormat::asInt( buf+(rcv?84:76) ) );
-    ret.x *= scale;
-    ret.y *= scale;
+    Coord ret(	IbmFormat::asInt( mGetBytes(rcv?80:72,4) ),
+		IbmFormat::asInt( mGetBytes(rcv?84:76,4) ) );
+    ret.x *= scale; ret.y *= scale;
     return ret;
 }
 

@@ -4,14 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.127 2007-11-15 16:54:24 cvsbert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.128 2007-11-29 14:36:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiempartserv.h"
 
-#include "binidselimpl.h"
 #include "binidvalset.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
@@ -759,17 +758,9 @@ void uiEMPartServer::getAllSurfaceInfo( ObjectSet<SurfaceInfo>& hinfos,
 
 void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 				    BinIDValueSet& bivs,
-				    const BinIDRange* br ) const
+				    const HorSampling& hs ) const
 {
     bivs.empty(); bivs.setNrVals( 2, false );
-    PtrMan<BinIDRange> sibr = 0;
-    if ( selhorids.isEmpty() ) return;
-    else if ( !br )
-    {
-	sibr = new BinIDRange; br = sibr;
-	sibr->start = SI().sampling(false).hrg.start;
-	sibr->stop = SI().sampling(false).hrg.stop;
-    }
 
     const EM::ObjectID& id = selhorids[0]; 
     mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(id))
@@ -783,11 +774,10 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
 	hor3d2->ref();
     }
 
-    const BinID step( SI().inlStep(), SI().crlStep() );
     BinID bid;
-    for ( bid.inl=br->start.inl; bid.inl<=br->stop.inl; bid.inl+=step.inl )
+    for ( bid.inl=hs.start.inl; bid.inl<=hs.stop.inl; bid.inl+=hs.step.inl )
     {
-	for ( bid.crl=br->start.crl; bid.crl<=br->stop.crl; bid.crl+=step.crl )
+	for ( bid.crl=hs.start.crl; bid.crl<=hs.stop.crl; bid.crl+=hs.step.crl )
 	{
 	    const EM::SubID subid = bid.getSerialized();
 	    TypeSet<Coord3> z1pos, z2pos;

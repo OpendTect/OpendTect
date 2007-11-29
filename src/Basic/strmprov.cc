@@ -33,15 +33,15 @@
 #include "filegen.h"
 #include "filepath.h"
 #include "string2.h"
-#include "binidsel.h"
 #include "strmoper.h"
 #include "callback.h"
 #include "namedobj.h"
 #include "debugmasks.h"
 #include "oddirs.h"
+#include "errh.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.69 2006-11-21 14:00:06 cvsbert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.70 2007-11-29 14:36:04 cvsbert Exp $";
 
 static FixedString<1024> oscommand;
 

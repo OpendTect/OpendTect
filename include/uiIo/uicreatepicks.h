@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Aug 2007
- RCS:           $Id: uicreatepicks.h,v 1.3 2007-08-22 12:27:41 cvsraman Exp $
+ RCS:           $Id: uicreatepicks.h,v 1.4 2007-11-29 14:36:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-#include "binidselimpl.h"
+#include "cubesampling.h"
 #include "bufstringset.h"
 
 class Color;
@@ -39,7 +39,7 @@ public:
 
     int			nr_;
     bool		needhor_;
-    BinIDRange		bidrg_;
+    HorSampling		hs_;
     Interval<float>	zrg_;
     int			horidx_;
     int			horidx2_;

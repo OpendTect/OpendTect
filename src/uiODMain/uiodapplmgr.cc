@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.219 2007-11-29 13:45:18 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.220 2007-11-29 14:36:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -929,7 +929,7 @@ bool uiODApplMgr::handlePickServEv( int evid )
 	}
 	
 	emserv_->getSurfaceDef3D( horids, pickserv_->genDef(),
-			       pickserv_->selBinIDRange() );
+			       pickserv_->selHorSampling() );
     }
     else if ( evid == uiPickPartServer::evGetHorDef2D )
 	emserv_->getSurfaceDef2D( pickserv_->selHorIDs(),

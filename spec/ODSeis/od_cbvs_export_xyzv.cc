@@ -2,15 +2,14 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_export_xyzv.cc,v 1.20 2007-11-23 11:59:06 cvsbert Exp $
+ * RCS      : $Id: od_cbvs_export_xyzv.cc,v 1.21 2007-11-29 14:36:03 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_export_xyzv.cc,v 1.20 2007-11-23 11:59:06 cvsbert Exp $";
+static const char* rcsID = "$Id: od_cbvs_export_xyzv.cc,v 1.21 2007-11-29 14:36:03 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
 #include "seisselectionimpl.h"
-#include "binidselimpl.h"
 #include "conn.h"
 #include "iostrm.h"
 #include "filegen.h"

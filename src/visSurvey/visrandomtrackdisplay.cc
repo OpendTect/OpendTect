@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.96 2007-10-30 01:39:29 cvskris Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.97 2007-11-29 14:36:04 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@
 #include "arrayndimpl.h"
 #include "attribdatapack.h"
 #include "attribsel.h"
-#include "binidselimpl.h"
 #include "iopar.h"
 #include "seisbuf.h"
 #include "seistrc.h"

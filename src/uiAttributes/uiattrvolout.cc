@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.35 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.36 2007-11-29 14:36:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,6 @@ ________________________________________________________________________
 #include "nladesign.h"
 #include "survinfo.h"
 #include "ptrman.h"
-#include "binidselimpl.h"
 #include "scaler.h"
 #include "cubesampling.h"
 #include "keystrs.h"

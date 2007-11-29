@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jun 2003
- RCS:           $Id: emsurfauxdataio.cc,v 1.31 2007-09-13 19:38:39 cvsnanne Exp $
+ RCS:           $Id: emsurfauxdataio.cc,v 1.32 2007-11-29 14:36:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,8 +21,8 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "survinfo.h"
 #include "strmprov.h"
-#include "binidselimpl.h"
 #include "filegen.h"
+#include "cubesampling.h"
 #include <iostream>
 
 namespace EM
@@ -37,7 +37,7 @@ const char* dgbSurfDataWriter::sKeyShift() 	    { return "Shift"; }
 
 
 dgbSurfDataWriter::dgbSurfDataWriter( const Horizon3D& surf,int dataidx,
-				    const BinIDSampler* sel, bool binary,
+				    const HorSampling* sel, bool binary,
        				    const char* filename )
     : Executor("Aux data writer")
     , stream_(0)
@@ -139,7 +139,7 @@ int dgbSurfDataWriter::nextStep()
 		const Coord3 coord = meshsurf->getKnot( rc, false );
 
 		const BinID bid = SI().transform(coord);
-		if ( sel_ && sel_->excludes(bid) )
+		if ( sel_ && !sel_->includes(bid) )
 		    continue;
 
 		const RowCol emrc( bid.inl, bid.crl );

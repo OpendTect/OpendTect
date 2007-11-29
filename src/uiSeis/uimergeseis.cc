@@ -4,14 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.35 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.36 2007-11-29 14:36:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimergeseis.h"
 
-#include "binidselimpl.h"
 #include "bufstringset.h"
 #include "cubesampling.h"
 #include "ctxtioobj.h"
