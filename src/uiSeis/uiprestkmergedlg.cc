@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          October 2007
- RCS:           $Id: uiprestkmergedlg.cc,v 1.2 2007-11-01 09:59:18 cvsraman Exp $
+ RCS:           $Id: uiprestkmergedlg.cc,v 1.3 2007-11-30 07:00:41 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiprestkmergedlg.h"
 
+#include "uibinidsubsel.h"
 #include "uilistbox.h"
 #include "uigeninput.h"
 #include "uibutton.h"
@@ -64,6 +65,8 @@ void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
     selvolsbox_ = new uiListBox( topgrp, "Selected Volumes", true );
     outctio_.ctxt.forread = false;
     outpfld_ = new uiIOObjSel( this, outctio_, "Output Volume" );
+    subselfld_ = new uiBinIDSubSel( this, uiBinIDSubSel::Setup().withz(false)
+	    			    .withstep(true).rangeonly(true) );
 }
 
 
@@ -108,7 +111,8 @@ void uiPreStackMergeDlg::attachFields( uiGroup* selbuttons, uiGroup* topgrp,
     selbuttons->attach( ensureRightOf, volsbox_ );
     selvolsbox_->attach( rightTo, volsbox_ );
     movebuttons->attach( centeredRightOf, selvolsbox_ );
-    outpfld_->attach( rightAlignedBelow, topgrp );
+    subselfld_->attach( rightAlignedBelow, topgrp );
+    outpfld_->attach( rightAlignedBelow, subselfld_ );
 }
 
 
@@ -205,6 +209,9 @@ bool uiPreStackMergeDlg::setSelectedVols()
 	uiMSG().error( "Please enter an output data set name" );
 	return false;
     }
+    else if ( outctio_.ioobj->implExists(false)
+	      && !uiMSG().askGoOn("Output data set exists. Overwrite?") )
+	return false;
 
     outctio_.ioobj->pars().set( storagekey, storage );
     IOM().commitChanges( *outctio_.ioobj );
@@ -242,8 +249,9 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
 {
     if ( !setSelectedVols() ) return false;
 
+    HorSampling hs = subselfld_->getInput().cs_.hrg;
     PtrMan<SeisPSMerger> Exec =
-	   new SeisPSMerger( selobjs_, outctio_.ioobj );
+	   new SeisPSMerger( selobjs_, outctio_.ioobj, hs );
     uiExecutor dlg( this, *Exec );
     return dlg.go();
 }
