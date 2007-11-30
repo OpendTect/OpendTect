@@ -5,13 +5,18 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.4 2007-11-26 13:50:08 cvshelene Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.5 2007-11-30 11:35:48 cvsbert Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
+#include "pickset.h"
+#include "picksettr.h"
 #include "binidvalset.h"
 #include "polygon.h"
 #include "iopar.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "ptrman.h"
 #include "survinfo.h"
 #include "keystrs.h"
 #include "linekey.h"
@@ -569,7 +574,19 @@ void Seis::PolySelData::usePar( const IOPar& iop )
 	::usePar( iop, poly_, "Poly" );
     else
     {
-	//TODO implement reading from PickSet
+	PtrMan<IOObj> ioobj = IOM().get( res );
+	if ( !ioobj ) return;
+	Pick::Set ps; BufferString msg;
+	if ( !PickSetTranslator::retrieve(ps,ioobj,msg) )
+	    { ErrMsg( msg ); return; }
+
+	poly_.setEmpty();
+	for ( int idx=0; idx<ps.size(); idx++ )
+	{
+	    const Pick::Location& pl = ps[idx];
+	    Coord fbid = SI().binID2Coord().transformBackNoSnap( pl.pos );
+	    poly_.add( Geom::Point2D<float>(fbid.x,fbid.y) );
+	}
     }
 }
 
