@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.24 2006-08-30 16:39:25 cvsbert Exp $
+ RCS:		$Id: transl.h,v 1.25 2007-11-30 14:29:43 cvsbert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -291,8 +291,6 @@ mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,extra)
 
 
 // Convenience macros when using Translator(Group)-related classes
-#define mMkCtxtIOObj(clss) \
-	new CtxtIOObj(clss##TranslatorGroup::ioContext())
 
 #define mSelHist(clss) \
 	clss##TranslatorGroup::theInst().selHist()
@@ -305,6 +303,14 @@ mDefSimpleTranslatorioContextWithExtra(clss,stdtyp,extra)
 
 #define mTranslKey(clss) \
     	clss##Translator::translKey()
+
+//! Create empty, i.e. ioobj == 0
+#define mMkCtxtIOObj(clss) \
+	new CtxtIOObj(clss##TranslatorGroup::ioContext())
+
+//! Create a filled one if there is only one of them
+#define mGetCtxtIOObj(clss,st) \
+	new CtxtIOObj(clss##TranslatorGroup::ioContext(),IOObjContext::st)
 
 
 #endif

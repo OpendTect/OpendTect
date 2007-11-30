@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.29 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.30 2007-11-30 14:29:43 cvsbert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -277,6 +277,22 @@ bool IOObjContext::validIOObj( const IOObj& ioobj ) const
     else
 	return allowcnstrsabsent ? nrequal == 0
 	    			 : nrdiff == parconstraints.size();
+}
+
+
+CtxtIOObj::CtxtIOObj( const IOObjContext& ct, IOObjContext::StdSelType st )
+    : NamedObject(""), ctxt(ct), ioobj(0), iopar(0)
+{
+    setLinked(&ctxt);
+    fillIfOnlyOne( st );
+}
+
+
+void CtxtIOObj::fillIfOnlyOne( IOObjContext::StdSelType st )
+{
+    if ( !ctxt.trgroup ) return;
+    IOM().to( MultiID(IOObjContext::getStdDirData(st)->id) );
+    setObj( IOM().getIfOnlyOne(ctxt.trgroup->userName()) );
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          June 2007
- RCS:           $Id: uiautoattrdescset.cc,v 1.1 2007-06-12 11:46:30 cvsraman Exp $
+ RCS:           $Id: uiautoattrdescset.cc,v 1.2 2007-11-30 14:29:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p )
         : uiDialog(p,uiDialog::Setup("Auto-load Attribute Set",
 		                     "Set auto-load Attribute-Set",
 				     "100.0.0"))
-        , ctio_( *(new CtxtIOObj(AttribDescSetTranslatorGroup::ioContext())) )
+        , ctio_(*mMkCtxtIOObj(AttribDescSet))
 {
     bool douse = false; MultiID id;
     Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, douse );
@@ -115,7 +115,7 @@ uiAutoAttrSetOpen::uiAutoAttrSetOpen( uiParent* p, BufferStringSet& afl,
 				BufferStringSet& anm)
 	: uiDialog(p,uiDialog::Setup("Open Attribute Set",
 	                             "Select an Attribute-Set to open",		                                      "100.0.0"))
-	, ctio_( *(new CtxtIOObj(AttribDescSetTranslatorGroup::ioContext())) )
+        , ctio_(*mGetCtxtIOObj(AttribDescSet,Attr))
 	, attribfiles_(afl)
 	, attribnames_(anm)
 {

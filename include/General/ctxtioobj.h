@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.25 2006-08-30 16:03:26 cvsbert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.26 2007-11-30 14:29:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,6 +119,8 @@ public:
 			CtxtIOObj( const IOObjContext& ct, IOObj* o=0 )
 			: NamedObject(""), ctxt(ct), ioobj(o), iopar(0)
 			{ setLinked(&ctxt); }
+			CtxtIOObj(const IOObjContext&,IOObjContext::StdSelType);
+				//!< Calls fillIfOnlyOne
 			CtxtIOObj( const CtxtIOObj& ct )
 			: NamedObject(""), ctxt(ct.ctxt)
 			, ioobj(ct.ioobj?ct.ioobj->clone():0)
@@ -131,6 +133,8 @@ public:
     void		setPar(IOPar*); //!< destroys previous
     int			fillObj(const MultiID& idofdir=MultiID(""));
 			//!< 0 = fail, 1=existing found, 2=new made
+    void		fillIfOnlyOne(IOObjContext::StdSelType);
+				//!< replaces ioobj if there's only one
 
     IOObjContext	ctxt;
     IOObj*		ioobj;

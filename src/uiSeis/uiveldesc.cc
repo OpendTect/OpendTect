@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uiveldesc.cc,v 1.4 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:           $Id: uiveldesc.cc,v 1.5 2007-11-30 14:29:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ VelocityDesc uiVelocityDesc::get() const
 
 uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p )
     : uiDialog( this, uiDialog::Setup("Set velocity information", 0, 0 ) )
-    , ctxt_( *new CtxtIOObj( SeisTrcTranslatorGroup::ioContext() ) )
+    , ctxt_(*mGetCtxtIOObj(SeisTrc,Seis))
 {
     ctxt_.ctxt.forread = true;
     volsel_ = new uiSeisSel( this, ctxt_, Seis::SelSetup(false) );
