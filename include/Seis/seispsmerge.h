@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		Oct 2007
- RCS:		$Id: seispsmerge.h,v 1.2 2007-11-06 11:44:50 cvsraman Exp $
+ RCS:		$Id: seispsmerge.h,v 1.3 2007-11-30 07:03:06 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,8 @@ taken.
 class SeisPSMerger : public Executor
 {
 public:
-			SeisPSMerger(ObjectSet<IOObj>,const IOObj*);
+			SeisPSMerger(ObjectSet<IOObj>,const IOObj*,
+				     const HorSampling&);
     virtual		~SeisPSMerger();
 
     virtual const char*	message() const;
@@ -55,7 +56,7 @@ protected:
     int			totnr_;
     int			nrdone_;
 
-    void		init();
+    void		init(const HorSampling&);
     int			doNextPos();
 };
 

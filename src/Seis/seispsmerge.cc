@@ -4,7 +4,7 @@
  * DATE     : Oct 2007
 -*/
 
-static const char* rcsID = "$Id: seispsmerge.cc,v 1.3 2007-11-06 11:44:45 cvsraman Exp $";
+static const char* rcsID = "$Id: seispsmerge.cc,v 1.4 2007-11-30 07:00:26 cvsraman Exp $";
 
 #include "segposinfo.h"
 #include "seisbuf.h"
@@ -16,7 +16,8 @@ static const char* rcsID = "$Id: seispsmerge.cc,v 1.3 2007-11-06 11:44:45 cvsram
 #include "ioobj.h"
 
 
-SeisPSMerger::SeisPSMerger( ObjectSet<IOObj> objset, const IOObj* out ) 
+SeisPSMerger::SeisPSMerger( ObjectSet<IOObj> objset, const IOObj* out,
+       			    const HorSampling& subsel ) 
   	: Executor("Pre-Stack data Merger")
 	, inobjs_(objset)
 	, outobj_(out)
@@ -32,7 +33,7 @@ SeisPSMerger::SeisPSMerger( ObjectSet<IOObj> objset, const IOObj* out )
     }
 
     nrobjs_ = inobjs_.size();
-    init();
+    init( subsel );
 }
 
 
@@ -46,10 +47,11 @@ SeisPSMerger::~SeisPSMerger()
 }
 
 
-void SeisPSMerger::init()
+void SeisPSMerger::init( const HorSampling& subsel )
 {
     totnr_ = 0;
     HorSampling hs;
+    const bool nosubsel = hs == subsel;
     for ( int idx=0; idx<nrobjs_; idx++ )
     {
 	SeisPSReader* rdr = SPSIOPF().getReader( *inobjs_[idx] );
@@ -70,8 +72,9 @@ void SeisPSMerger::init()
 	readers_ += rdr;
     }
 
-    totnr_ = hs.totalNr();
-    iter_ = new HorSamplingIterator( hs );
+    totnr_ = nosubsel ? hs.totalNr() : subsel.totalNr();
+    iter_ = nosubsel ? new HorSamplingIterator( hs )
+		     : new HorSamplingIterator( subsel );
     writer_ = SPSIOPF().getWriter( *outobj_ );
 }
 
