@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uirandlinegen.cc,v 1.3 2007-11-16 21:38:47 cvskris Exp $
+ RCS:           $Id: uirandlinegen.cc,v 1.4 2007-12-01 15:34:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,12 +40,14 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
 
     StepInterval<float> sizrg( SI().zRange(true) );
     sizrg.scale( SI().zFactor() );
+    StepInterval<float> suggestedzrg( sizrg );
+    suggestedzrg.step *= 10;
     contzrgfld_ = new uiGenInput( this, "Contour Z range",
-			FloatInpIntervalSpec(sizrg) );
+			FloatInpIntervalSpec(suggestedzrg) );
     contzrgfld_->attach( alignedBelow, infld_ );
 
     static const char* fldnm = "Random line Z range";
-    const float wdth = 30 * sizrg.step;
+    const float wdth = 50 * sizrg.step;
     relzrgfld_ = new uiGenInput( this, fldnm,
 			FloatInpIntervalSpec(Interval<float>(-wdth,wdth)) );
     relzrgfld_->attach( alignedBelow, contzrgfld_ );

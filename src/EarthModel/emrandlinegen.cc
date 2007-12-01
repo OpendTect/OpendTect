@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2007
- RCS:           $Id: emrandlinegen.cc,v 1.2 2007-11-16 13:39:20 cvsbert Exp $
+ RCS:           $Id: emrandlinegen.cc,v 1.3 2007-12-01 15:34:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ EM::RandomLineSetGenerator::Setup::Setup( bool rel )
 	assign( linezrg_, contzrg_ );
     else
     {
-	linezrg_.stop = 30 * contzrg_.step;
+	linezrg_.stop = 50 * contzrg_.step;
 	linezrg_.start = -linezrg_.stop;
     }
 }
@@ -45,6 +45,8 @@ void EM::RandomLineSetGenerator::createLines(
 				Geometry::RandomLineSet& rls ) const
 {
     BinID bid, prevbid;
+    const float zfac = SI().zFactor(); // for line name
+
     for ( int isect=0; isect<geom_.nrSections(); isect++ )
     {
 	if ( setup_.sectionnr_ >= 0 && setup_.sectionnr_ != isect )
@@ -72,12 +74,13 @@ void EM::RandomLineSetGenerator::createLines(
 		continue;
 	    
 	    prevbid = BinID( mUdf(int), mUdf(int) );
+	    int usrpolynr = 1;
 	    for ( int ipoly=0; ipoly<polys.size(); ipoly++ )
 	    {
 		const ODPolygon<float>& poly = *polys[ipoly];
 		Geometry::RandomLine* rl = new Geometry::RandomLine;
-		BinID addbid( prevbid );
 
+		BinID addbid( prevbid );
 		for ( int ipt=0; ipt<poly.size(); ipt++ )
 		{
 		    const Geom::Point2D<float> vtx = poly.getVertex( ipt );
@@ -99,6 +102,13 @@ void EM::RandomLineSetGenerator::createLines(
 		    delete rl;
 		else
 		{
+		    BufferString nm( "C" ); const float usrz = z * zfac;
+		    nm += mNINT( usrz );
+		    if ( usrpolynr > 1 )
+			{ nm += "-"; nm += usrpolynr; }
+		    usrpolynr++;
+		    rl->setName( nm );
+
 		    rls.addLine( rl );
 		    Interval<float> zrg( setup_.linezrg_ );
 		    if ( setup_.isrel_ ) zrg.shift( z );

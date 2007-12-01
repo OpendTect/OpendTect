@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinegeom.h,v 1.5 2007-11-15 16:52:32 cvsbert Exp $
+ RCS:		$Id: randomlinegeom.h,v 1.6 2007-12-01 15:34:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "position.h"
 #include "ranges.h"
+#include "namedobj.h"
 
 class IOPar;
 
@@ -22,10 +23,10 @@ namespace Geometry
 
 class RandomLineSet;
 
-class RandomLine : public CallBacker
+class RandomLine : public NamedObject
 {
 public:
-    			RandomLine();
+    			RandomLine(const char* nm=0);
 			~RandomLine()		{}
     bool		isEmpty() const		{ return nodes_.isEmpty(); }
 

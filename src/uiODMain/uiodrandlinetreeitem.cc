@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.12 2007-11-15 16:54:24 cvsbert Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.13 2007-12-01 15:34:57 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -102,7 +102,7 @@ bool uiODRandomLineParentTreeItem::load()
     const Geometry::RandomLine& rln = *lset.lines()[0];
     rln.allNodePositions( bids ); rtd->setKnotPositions( bids );
     rtd->setDepthInterval( rln.zRange() );
-    rtd->setName( dlg.ioObj()->name() );
+    rtd->setName( rln.name().isEmpty() ? dlg.ioObj()->name() : rln.name() );
     updateColumnText( uiODSceneMgr::cNameColumn() );
     return true;
 }

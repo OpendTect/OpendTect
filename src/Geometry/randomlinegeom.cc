@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinegeom.cc,v 1.4 2007-11-06 16:31:49 cvsbert Exp $
+ RCS:		$Id: randomlinegeom.cc,v 1.5 2007-12-01 15:34:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,8 +16,9 @@ ________________________________________________________________________
 namespace Geometry
 {
 
-RandomLine::RandomLine()
-    : nodeAdded(this)
+RandomLine::RandomLine( const char* nm )
+    : NamedObject(nm)
+    , nodeAdded(this)
     , nodeInserted(this)
     , nodeRemoved(this)
     , zrangeChanged(this)

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinetr.cc,v 1.5 2007-11-16 13:39:20 cvsbert Exp $
+ RCS:		$Id: randomlinetr.cc,v 1.6 2007-12-01 15:34:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,23 @@ bool RandomLineSetTranslator::retrieve( Geometry::RandomLineSet& rdls,
 	{ bs = "Cannot open "; bs += ioobj->fullUserExpr(true); return false; }
 
     bs = tr->read( rdls, *conn );
-    return bs.isEmpty();
+    if ( bs.isEmpty() )
+    {
+	for ( int iln=0; iln<rdls.lines().size(); iln++ )
+	{
+	    const Geometry::RandomLine& rdl = *rdls.lines()[iln];
+	    if ( rdl.name().isEmpty() )
+	    {
+		BufferString nm( ioobj->name() );
+		if ( rdls.lines().size() > 1 )
+		    { nm += " - "; nm += iln + 1; }
+		const_cast<Geometry::RandomLine&>(rdl).setName( nm );
+	    }
+	}
+	return true;
+    }
+
+    return false;
 }
 
 
@@ -69,23 +85,33 @@ bool RandomLineSetTranslator::store( const Geometry::RandomLineSet& rdl,
 }
 
 
-static void getZRange( ascistream& astrm, Interval<float>& zrg )
+static void getZRgAndName( ascistream& astrm, Interval<float>& zrg,
+			   BufferString& nm )
 {
     if ( !astrm.hasKeyword(sKey::ZRange) )
 	return;
 
     FileMultiString fms = astrm.value();
-    zrg.start = atof( fms[0] );
-    zrg.stop = atof( fms[1] );
+    zrg.start = atof( fms[0] ); zrg.stop = atof( fms[1] );
     astrm.next();
+
+    if ( astrm.hasKeyword(sKey::Name) )
+    {
+	nm = astrm.value();
+	astrm.next();
+    }
 }
 
 
-static void putZRange( ascostream& astrm, const Interval<float>& zrg )
+static void putZRangeAndName( ascostream& astrm,
+			      const Geometry::RandomLine& rdl )
 {
+    const Interval<float> zrg( rdl.zRange() );
     FileMultiString fms = Conv::to<const char*>( zrg.start );
     fms.add( Conv::to<const char*>(zrg.stop) );
     astrm.put( sKey::ZRange, fms );
+    if ( !rdl.name().isEmpty() )
+	astrm.put( sKey::Name, rdl.name() );
 }
 
 
@@ -107,8 +133,9 @@ const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
     const bool issimple = !astrm.hasKeyword( sKeyNrLines );
     const int nrlines = issimple ? 1 : astrm.getVal();
     Interval<float> zrg; assign( zrg, SI().zRange(true) );
+    BufferString rlnm;
     if ( issimple )
-	getZRange( astrm, zrg );
+	getZRgAndName( astrm, zrg, rlnm );
     else
     {
 	while ( !atEndOfSection(astrm.next()) )
@@ -120,8 +147,9 @@ const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
     {
 	Geometry::RandomLine* rl = new Geometry::RandomLine;
 	if ( !issimple )
-	    getZRange( astrm, zrg );
-	rl->setZRange( zrg );
+	    getZRgAndName( astrm, zrg, rlnm );
+	rl->setZRange( zrg ); rl->setName( rlnm );
+
 	while ( !atEndOfSection(astrm) )
 	{
 	    BufferString loc( astrm.keyWord() );
@@ -164,7 +192,7 @@ const char* dgbRandomLineSetTranslator::write(
 
     const bool issimple = nrlines < 2 && rdls.pars().isEmpty();
     if ( issimple )
-	putZRange( astrm, rdls.lines()[0]->zRange() );
+	putZRangeAndName( astrm, *rdls.lines()[0] );
     else
     {
 	astrm.put( sKeyNrLines, nrlines );
@@ -177,7 +205,7 @@ const char* dgbRandomLineSetTranslator::write(
     {
 	const Geometry::RandomLine& rdl = *rdls.lines()[iln];
 	if ( !issimple )
-	    putZRange( astrm, rdl.zRange() );
+	    putZRangeAndName( astrm, rdl );
 
 	for ( int idx=0; idx<rdl.nrNodes(); idx++ )
 	{
