@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.83 2007-10-22 08:46:40 cvsraman Exp $
+ RCS:           $Id: uiodmain.cc,v 1.84 2007-12-02 09:24:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,8 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "timer.h"
 
+#include "initalgo.h"
+
 #ifndef USEQT3
 # include "uisplashscreen.h"
 #endif
@@ -75,6 +77,8 @@ int ODMain( int argc, char** argv )
     PIM().setArgs( argc, argv );
     PIM().loadAuto( false );
     uiODMain* odmain = new uiODMain( *new uicMain(argc,argv) );
+
+    Algo::initStdClasses();
 
 #ifndef USEQT3
     ioPixmap pm( mGetSetupFileName("splash.png") );
