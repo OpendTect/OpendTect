@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.128 2007-11-29 14:36:04 cvsbert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.129 2007-12-02 14:52:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -906,11 +906,17 @@ void uiEMPartServer::fillPickSet( Pick::Set& ps, MultiID horid )
 	const Coord pos( ps[idx].pos.x, ps[idx].pos.y );
 	const BinID bid = SI().transform( pos );
 	const EM::SubID subid = bid.getSerialized();
-	const float z = hor->getPos( hor->sectionID(0), subid ).z;
+	float z = hor->getPos( hor->sectionID(0), subid ).z;
 	if ( mIsUdf(z) )
 	{
-	    ps.remove( idx );
-	    continue;
+	    const Geometry::BinIDSurface* geom = 
+		hor->geometry().sectionGeometry( hor->sectionID(0) );
+	    if ( geom ) z = geom->computePosition( Coord(bid.inl,bid.crl) ).z;
+	    if ( mIsUdf(z) )
+	    {
+		ps.remove( idx );
+		continue;
+	    }
 	}
 
 	ps[idx].pos.z = z;
