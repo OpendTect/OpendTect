@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.93 2007-10-08 12:08:56 cvsraman Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.94 2007-12-02 16:14:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,7 +126,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     scanbut_->attach( alignedBelow, inpfld_ );
 
     xyfld_ = new uiGenInput( this, "Positions in:",
-			    BoolInpSpec(true,"X/Y","Inl/Crl") );
+			     BoolInpSpec(true,"X/Y","Inl/Crl") );
     xyfld_->valuechanged.notify( mCB(this,uiImportHorizon,formatSel) );
     xyfld_->attach( alignedBelow, scanbut_ );
 
@@ -134,8 +134,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	   				 true );
     attrlistfld_->box()->setLines( 4, true );
     attrlistfld_->attach( alignedBelow, xyfld_ );
-    attrlistfld_->box()->selectionChanged.notify( mCB(this,uiImportHorizon,
-						      formatSel) );
+    attrlistfld_->box()->selectionChanged.notify(
+	    			mCB(this,uiImportHorizon,formatSel) );
 
     addbut_ = new uiPushButton( this, "Add new",
 	    			mCB(this,uiImportHorizon,addAttrib), false );
@@ -173,7 +173,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     sep->attach( stretchedBelow, dataselfld_ );
 
     outputfld_ = new uiIOObjSel( this, ctio_ );
-    outputfld_->setLabelText( isgeom_ ? "OutPut Horizon" : "Add to Horizon" );
+    outputfld_->setLabelText( isgeom_ ? "Output Horizon" : "Add to Horizon" );
     outputfld_->attach( alignedBelow, attrlistfld_ );
     outputfld_->attach( ensureBelow, sep );
 
@@ -269,6 +269,8 @@ void uiImportHorizon::doScan()
     uiBinIDSubSel::Data data;
     data.cs_.hrg = hs;
     data.allowedrange_.hrg = hs;
+    data.allowedrange_.hrg.step.inl = SI().inlStep();
+    data.allowedrange_.hrg.step.crl = SI().crlStep();
     subselfld_->setInput( data );
 }
 
@@ -339,8 +341,8 @@ bool uiImportHorizon::doImport()
 	fillUdfs( sections );
 
     HorSampling hs = subselfld_->getInput().cs_.hrg;
-    ExecutorGroup importer( "Horizon importer" );
-    importer.setNrDoneText( "Nr inlines imported" );
+    ExecutorGroup importer( "Importing horizon" );
+    importer.setNrDoneText( "Nr positions done" );
     int startidx = 0;
     if ( isgeom_ )
     {
@@ -495,6 +497,7 @@ EM::Horizon3D* uiImportHorizon::createHor() const
     if ( !horizon )
 	mErrRet( "Cannot create horizon" );
 
+    horizon->change.disable();
     horizon->setMultiID( mid );
     horizon->setTiedToLvl( stratlvlfld_->getLvlName() );
     horizon->setPreferredColor( colbut_->color() );
