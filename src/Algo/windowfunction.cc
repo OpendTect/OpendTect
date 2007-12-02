@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: windowfunction.cc,v 1.2 2007-09-20 11:41:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: windowfunction.cc,v 1.3 2007-12-02 09:23:54 cvsnanne Exp $";
 
 #include "windowfunction.h"
 
@@ -13,17 +13,6 @@ static const char* rcsID = "$Id: windowfunction.cc,v 1.2 2007-09-20 11:41:26 cvs
 
 
 mImplFactory( WindowFunction, WinFuncs );
-
-
-void WindowFunction::initBuiltinClasses()
-{
-    BoxWindow::initClass();
-    HammingWindow::initClass();
-    HanningWindow::initClass();
-    BlackmanWindow::initClass();
-    BartlettWindow::initClass();
-    CosTaperWindow::initClass();
-}
 
 
 void WindowFunction::fillPar( IOPar& par ) const

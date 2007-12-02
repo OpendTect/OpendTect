@@ -1,14 +1,13 @@
-#ifndef floatlist_h
-#define floatlist_h
+#ifndef windowfunction_h
+#define windowfunction_h
 
 /*+
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
- Author:	A.H.Bril
- Date:		9-4-1996
- Contents:	Float lists + Features
- RCS:		$Id: windowfunction.h,v 1.4 2007-09-20 11:41:26 cvsnanne Exp $
+ Author:	Kristofer
+ Date:		2007
+ RCS:		$Id: windowfunction.h,v 1.5 2007-12-02 09:23:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,8 +25,6 @@ class IOPar;
 class WindowFunction : public FloatMathFunction
 {
 public:
-    static void		initBuiltinClasses();
-
     virtual const char*	name() const			= 0;
     virtual bool	hasVariable() const		{ return false; }
     virtual float	getVariable() const		{ return mUdf(float); }
