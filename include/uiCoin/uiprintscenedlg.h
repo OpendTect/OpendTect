@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2002
- RCS:           $Id: uiprintscenedlg.h,v 1.12 2006-09-05 10:45:39 cvsnanne Exp $
+ RCS:           $Id: uiprintscenedlg.h,v 1.13 2007-12-03 10:29:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,7 @@ protected:
     void		sizeChg(CallBacker*);
     void		dpiChg(CallBacker*);
     bool		acceptOK(CallBacker*);
+    void		surveyChanged(CallBacker*);
 
     const ObjectSet<uiSoViewer>& viewers_;
 

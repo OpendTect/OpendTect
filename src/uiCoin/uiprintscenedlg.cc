@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.34 2007-10-11 11:25:45 cvsnanne Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.35 2007-12-03 10:29:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 
 #include "filegen.h"
 #include "filepath.h"
+#include "ioman.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "ptrman.h"
@@ -159,25 +160,33 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 
     }
 
+    if ( dirname_.isEmpty() )
+	dirname_ = FilePath(GetDataDir()).add("Misc").fullPath();
     fileinputfld_ = new uiFileInput( this, "Select filename",
 				    uiFileInput::Setup()
 				    .forread(false)
+				    .defseldir(dirname_)
 	   			    .allowallextensions(false) );
-    if ( dirname_.isEmpty() )
-	dirname_ = FilePath(GetDataDir()).add("Misc").fullPath();
-    fileinputfld_->setDefaultSelectionDir( dirname_ );
     fileinputfld_->setReadOnly();
     fileinputfld_->valuechanged.notify( mCB(this,uiPrintSceneDlg,fileSel) );
     mAttachToAbove( fileinputfld_ );
 
     updateFilter();
     sceneSel(0);
+
+    IOM().afterSurveyChange.notify( mCB(this,uiPrintSceneDlg,surveyChanged) );
 }
 
 
 uiPrintSceneDlg::~uiPrintSceneDlg()
 {
     delete &sizepix_, &sizeinch_, &sizecm_;
+}
+
+
+void uiPrintSceneDlg::surveyChanged( CallBacker* )
+{
+    dirname_ = "";
 }
 
 
