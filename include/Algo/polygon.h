@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.5 2007-11-23 11:54:09 cvsbert Exp $
+ RCS:		$Id: polygon.h,v 1.6 2007-12-03 21:24:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,10 +28,12 @@ public:
 		ODPolygon(const TypeSet<Geom::Point2D<T> >& plg)
 		    : poly_(plg), closed_(true)
 		    , udf_(Geom::Point2D<T>::udf())			{}
+
+    void	erase()				{ poly_.erase(); }
+    bool	isEmpty() const			{ return poly_.isEmpty(); }
 		
     int 	size() const			{ return poly_.size(); }
     bool 	validIdx(int idx) const		{ return poly_.validIdx(idx); }
-    bool	isEmpty() const			{ return poly_.size() < 1; }
     void	setEmpty()			{ poly_.erase(); }
     
     void	add(const Geom::Point2D<T>& vtx)	{ poly_+=vtx; }
