@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: arrayndutils.cc,v 1.20 2007-09-21 05:06:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: arrayndutils.cc,v 1.21 2007-12-03 15:00:47 cvsnanne Exp $";
 
 #include "arrayndutils.h"
 
@@ -89,10 +89,10 @@ bool ArrayNDWindow::buildWindow( const char* winnm, float val )
     ArrayNDIter position( size_ );
 
     WindowFunction* windowfunc = WinFuncs().create( winnm );
-    if ( !windowfunc ) return false;
+    if ( !windowfunc ) { delete [] window_; window_ = 0; return false; }
 
     if ( windowfunc->hasVariable() && !windowfunc->setVariable(val) )
-	return false;
+    { delete [] window_; window_ = 0; delete windowfunc; return false; }
 
     if ( !rectangular_ )
     {

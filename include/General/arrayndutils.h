@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: arrayndutils.h,v 1.28 2007-09-21 05:06:55 cvsnanne Exp $
+ RCS:           $Id: arrayndutils.h,v 1.29 2007-12-03 15:00:47 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -145,6 +145,8 @@ public:
 				      float paramval=mUdf(float));
 			~ArrayNDWindow();
 
+    bool		isOK() const	{ return window_; }
+
     bool		setType(WindowType);
     bool		setType(const char*,float paramval=mUdf(float));
 
@@ -206,7 +208,7 @@ protected:
 
     bool			buildWindow(const char* winnm,float pval);
 };
-   
+
 
 template<class T>
 inline T Array3DInterpolate( const Array3D<T>& array,
