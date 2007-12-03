@@ -4,33 +4,35 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.20 2007-01-05 07:58:24 cvsnanne Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.21 2007-12-03 14:28:19 cvsnanne Exp $";
 
-#include "attribstorprovider.h"
+#include "batchprog.h"
+
 #include "attribdescset.h"
 #include "attribdescsettr.h"
-#include "attribprocessor.h"
 #include "attribengman.h"
+#include "attribinit.h"
 #include "attriboutput.h"
-#include "seis2dline.h"
-#include "seisjobexecprov.h"
-#include "iopar.h"
+#include "attribprocessor.h"
+#include "attribstorprovider.h"
+#include "envvars.h"
+#include "filegen.h"
+#include "filepath.h"
+#include "hostdata.h"
+#include "initalgo.h"
 #include "ioman.h"
 #include "ioobj.h"
-#include "ptrman.h"
-#include "envvars.h"
+#include "iopar.h"
+#include "keystrs.h"
+#include "mmsockcommunic.h"
 #include "progressmeter.h"
-#include "batchprog.h"
-#include "hostdata.h"
+#include "ptrman.h"
+#include "seisjobexecprov.h"
+#include "seis2dline.h"
 #include "separstr.h"
 #include "socket.h"
 #include "timefun.h"
-#include "filegen.h"
-#include "filepath.h"
-#include "mmsockcommunic.h"
-#include "keystrs.h"
 
-#include "attribinit.h"
 
 #define mDestroyWorkers \
 	{ delete proc; proc = 0; }
@@ -78,6 +80,7 @@ bool BatchProgram::go( std::ostream& strm )
     const int process_id = GetPID();
     Attrib::Processor* proc = 0;
     Attrib::initAttribClasses();
+    Algo::initStdClasses();
     
     const char* tempdir = pars().find(sKey::TmpStor);
     if ( tempdir && *tempdir )
