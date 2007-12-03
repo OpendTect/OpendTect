@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.7 2007-10-25 21:15:56 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.8 2007-12-03 22:10:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "bufstringset.h"
+#include "errh.h"
 
 /*!
 Generalized static factory that can deliver instances of T, when no
@@ -166,6 +167,20 @@ void Factory<T>::addCreator( Creator cr, const char* name,
 {
     if ( !name )
 	return;
+
+    const int idx = names_.indexOf( name );
+    if ( idx!=-1 )
+    {
+	if ( (username && *usernames_[idx]!=username) ||
+	     creators_[idx]!=cr )
+	{
+	    BufferString msg = "Refusing to add factory ";
+	    msg += name;
+	    pErrMsg(msg.buf());
+	}
+
+	return;
+    }
 
     names_.add( name );
     usernames_.add( username ? username : name );
