@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.16 2007-11-28 11:25:03 cvsdgb Exp $
+ RCS:           $Id: valseries.h,v 1.17 2007-12-03 21:16:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,7 +203,7 @@ ArrayValueSeries<RT,AT>::ArrayValueSeries(AT* ptr, bool memmine,od_int64 cursz )
 
 template <class RT, class AT>
 ArrayValueSeries<RT,AT>::ArrayValueSeries( od_int64 sz )
-    : mine_(true), cursize_( -1 )
+    : ptr_( 0 ), mine_(true), cursize_( -1 )
 {
     setSize( sz );
 }
