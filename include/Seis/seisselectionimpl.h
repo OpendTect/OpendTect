@@ -7,12 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Nov 2007
- RCS:		$Id: seisselectionimpl.h,v 1.1 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:		$Id: seisselectionimpl.h,v 1.2 2007-12-04 16:01:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "seisselection.h"
+#include "position.h"
+
 class HorSampling;
 class CubeSampling;
 class BinIDValueSet;
@@ -163,9 +165,12 @@ protected:
 
     void		initZrg(const Interval<float>*);
 
-    ODPolygon<float>&	poly_;
+    ObjectSet<ODPolygon<float> > polys_;
+
     float		midz_;
     Interval<float>	zrg_;
+
+    BinID		stepoutreach_;
 
     void		doExtendH(BinID,BinID);
 };

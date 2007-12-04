@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.6 2007-12-04 12:25:06 cvsbert Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.7 2007-12-04 16:01:42 cvsjaap Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -283,7 +283,7 @@ void Seis::RangeSelData::include( const Seis::SelData& sd )
 
 int Seis::RangeSelData::selRes( const BinID& bid ) const
 {
-    if ( isall_ ) return true;
+    if ( isall_ ) return 0;
 
     int inlres = cs_.hrg.start.inl > bid.inl || cs_.hrg.stop.inl < bid.inl
 		? 2 : 0;
@@ -443,7 +443,7 @@ void Seis::TableSelData::include( const Seis::SelData& sd )
 
 int Seis::TableSelData::selRes( const BinID& bid ) const
 {
-    if ( isall_ ) return true;
+    if ( isall_ ) return 0;
 
     const BinIDValueSet::Pos pos( bvs_.findFirst(bid) );
     if ( pos.j >= 0 ) return 0;
@@ -464,7 +464,7 @@ int Seis::TableSelData::expectedNrTraces( bool for2d, const BinID* step ) const
 
 
 Seis::PolySelData::PolySelData()
-    : poly_(*new ODPolygon<float>)
+    : stepoutreach_(0,0)
 {
     initZrg( 0 );
 }
@@ -472,29 +472,34 @@ Seis::PolySelData::PolySelData()
 
 Seis::PolySelData::PolySelData( const ODPolygon<float>& poly,
 			        const Interval<float>* zrg )
-    : poly_(*new ODPolygon<float>(poly))
+    : stepoutreach_(0,0)
 {
+    polys_ += new ODPolygon<float>( poly );
     initZrg( zrg );
 }
 
 
 Seis::PolySelData::PolySelData( const ODPolygon<int>& poly,
 			        const Interval<float>* zrg )
-    : poly_(*new ODPolygon<float>)
+    : stepoutreach_(0,0)
 {
+    polys_ += new ODPolygon<float>;
+
     for ( int idx=0; idx<poly.size(); idx++ )
     {
 	const Geom::Point2D<int>& pt = poly.getVertex( idx );
-	poly_.add( Geom::Point2D<float>( pt.x, pt.y ) );
+	polys_[0]->add( Geom::Point2D<float>( pt.x, pt.y ) );
     }
     initZrg( zrg );
 }
 
 
 Seis::PolySelData::PolySelData( const Seis::PolySelData& sd )
-    : poly_(*new ODPolygon<float>(sd.poly_))
+    : stepoutreach_(0,0)
     , zrg_(sd.zrg_)
 {
+    for ( int idx=0; idx<sd.polys_.size(); idx++ )
+	polys_ += new ODPolygon<float>( *sd.polys_[idx] );
 }
 
 
@@ -509,7 +514,7 @@ void Seis::PolySelData::initZrg( const Interval<float>* zrg )
 
 Seis::PolySelData::~PolySelData()
 {
-    delete &poly_;
+    deepErase( polys_ );
 }
 
 
@@ -521,8 +526,12 @@ void Seis::PolySelData::copyFrom( const Seis::SelData& sd )
     if ( sd.type() == type() )
     {
 	mDynamicCastGet(const Seis::PolySelData&,psd,sd)
-	poly_ = psd.poly_;
+	stepoutreach_ = psd.stepoutreach_;
 	zrg_ = psd.zrg_;
+
+	deepErase( polys_ );
+	for ( int idx=0; idx<psd.polys_.size(); idx++ )
+	    polys_ += new ODPolygon<float>( *psd.polys_[idx] );
     }
     else
     {
@@ -534,16 +543,38 @@ void Seis::PolySelData::copyFrom( const Seis::SelData& sd )
 Interval<int> Seis::PolySelData::inlRange() const
 {
     if ( isall_ ) return Seis::SelData::inlRange();
-    Interval<float> rg( poly_.getRange(true) );
-    return Interval<int>( mNINT(rg.start), mNINT(rg.stop) );
+    
+    if ( polys_.isEmpty() ) 
+	return Interval<int>( mUdf(int), mUdf(int) );
+
+    Interval<float> floatrg( polys_[0]->getRange(true) );
+    for ( int idx=1; idx<polys_.size(); idx++ )
+	floatrg.include( polys_[idx]->getRange(true) );
+
+    Interval<int> intrg( mNINT(floatrg.start), mNINT(floatrg.stop) );
+    intrg.widen( stepoutreach_.inl );
+    intrg.limitTo( Seis::SelData::inlRange() );
+
+    return intrg;
 }
 
 
 Interval<int> Seis::PolySelData::crlRange() const
 {
     if ( isall_  ) return Seis::SelData::crlRange();
-    Interval<float> rg( poly_.getRange(false) );
-    return Interval<int>( mNINT(rg.start), mNINT(rg.stop) );
+    
+    if ( polys_.isEmpty() ) 
+	return Interval<int>( mUdf(int), mUdf(int) );
+    
+    Interval<float> floatrg( polys_[0]->getRange(false) );
+    for ( int idx=1; idx<polys_.size(); idx++ )
+	floatrg.include( polys_[idx]->getRange(false) );
+    
+    Interval<int> intrg( mNINT(floatrg.start), mNINT(floatrg.stop) );
+    intrg.widen( stepoutreach_.crl );
+    intrg.limitTo( Seis::SelData::crlRange() );
+    
+    return intrg;
 }
 
 
@@ -558,20 +589,35 @@ void Seis::PolySelData::fillPar( IOPar& iop ) const
 {
     Seis::SelData::fillPar( iop );
     if ( isall_ ) return;
+
     iop.set( "Polygon.ZRange", zrg_.start, zrg_.stop );
-    ::fillPar( iop, poly_, "Poly" );
+    iop.set( "Polygon.Stepoutreach", stepoutreach_ );
+
+    iop.set( "Polygon.NrPolygons", polys_.size() );
+    for ( int idx=0; idx<polys_.size(); idx++ )
+	::fillPar( iop, *polys_[idx], IOPar::compKey("Poly",idx) );
 }
 
 
 void Seis::PolySelData::usePar( const IOPar& iop )
 {
+    deepErase( polys_ );
     Seis::SelData::usePar( iop );
-    if ( isall_ ) { poly_.setEmpty(); return; }
+    if ( isall_ ) return; 
 
     iop.get( "Polygon.ZRange", zrg_.start, zrg_.stop );
+    iop.get( "Polygon.Stepoutreach", stepoutreach_ );
     const char* res = iop.find( sKey::Polygon );
     if ( !res || !*res )
-	::usePar( iop, poly_, "Poly" );
+    {
+	int nrpolys = 0;
+	iop.get( "Polygon.NrPolygons", nrpolys );
+	for ( int idx=0; idx<nrpolys; idx++ )
+	{
+	    polys_ += new ODPolygon<float>();
+	    ::usePar( iop, *polys_[idx], IOPar::compKey("Poly",idx) );
+	}
+    }
     else
     {
 	PtrMan<IOObj> ioobj = IOM().get( res );
@@ -580,12 +626,15 @@ void Seis::PolySelData::usePar( const IOPar& iop )
 	if ( !PickSetTranslator::retrieve(ps,ioobj,msg) )
 	    { ErrMsg( msg ); return; }
 
-	poly_.setEmpty();
-	for ( int idx=0; idx<ps.size(); idx++ )
+	if ( ps.size() )
 	{
-	    const Pick::Location& pl = ps[idx];
-	    Coord fbid = SI().binID2Coord().transformBackNoSnap( pl.pos );
-	    poly_.add( Geom::Point2D<float>(fbid.x,fbid.y) );
+	    polys_ += new ODPolygon<float>();
+	    for ( int idx=0; idx<ps.size(); idx++ )
+	    {
+		const Pick::Location& pl = ps[idx];
+		Coord fbid = SI().binID2Coord().transformBackNoSnap( pl.pos );
+		polys_[0]->add( Geom::Point2D<float>(fbid.x,fbid.y) );
+	    }
 	}
     }
 }
@@ -599,10 +648,7 @@ void Seis::PolySelData::extendZ( const Interval<float>& zrg )
 
 
 void Seis::PolySelData::doExtendH( BinID so, BinID sos )
-{
-    //TODO (this is a tough one)
-    // poly_.extend( so, sos );
-}
+{ stepoutreach_ += so * sos; }
 
 
 void Seis::PolySelData::include( const Seis::SelData& sd )
@@ -619,27 +665,64 @@ void Seis::PolySelData::include( const Seis::SelData& sd )
 	    zrg_.start = psd.zrg_.start;
 	if ( zrg_.stop > psd.zrg_.stop )
 	    zrg_.stop = psd.zrg_.stop;
-	//TODO (should be rather standard)
-	// poly_.joinWith( psd.poly_ );
+	
+	for ( int idx=0; idx<psd.polys_.size(); idx++ )
+	    polys_ += new ODPolygon<float>( *psd.polys_[idx] );
     }
     else
     {
-	//TODO with Range it should be doable; with Table it can't be done
-	pErrMsg( "Not impl" );
+	mDynamicCastGet(const Seis::RangeSelData*,rsd,&sd)
+	if ( rsd )
+	{
+	    const Interval<int> inlrg = rsd->inlRange();
+	    const Interval<int> crlrg = rsd->crlRange();
+	    const Interval<float> zrg = rsd->zRange();
+	    
+	    // Must withdraw stepout already included in RangeSelData, since 
+	    // PolySelData will add it again on-the-fly. Equality is assumed.
+	    
+	    ODPolygon<float>* rect = new ODPolygon<float>();
+	    Geom::Point2D<float> point( inlrg.start + stepoutreach_.inl,
+		    			crlrg.start + stepoutreach_.crl );
+	    rect->add( point );
+	    point.y = crlrg.stop - stepoutreach_.crl;
+	    rect->add( point );
+	    point.x = inlrg.stop - stepoutreach_.inl;
+	    rect->add( point );
+	    point.y = crlrg.start + stepoutreach_.crl;
+	    rect->add( point );
+
+	    polys_ += rect;
+		 
+	    if ( zrg_.start < zrg.start )
+		zrg_.start = zrg.start;
+	    if ( zrg_.stop > zrg.stop )
+		zrg_.stop = zrg.stop;
+	}
+	else
+	{
+	    pErrMsg( "Not impl" );
+	}
     }
 }
 
 
 int Seis::PolySelData::selRes( const BinID& bid ) const
 {
-    if ( isall_ ) return true;
+    if ( isall_ ) return 0;
+    
+    Interval<float> inlrg( bid.inl, bid.inl);
+    inlrg.widen( stepoutreach_.inl );
+    Interval<float> crlrg( bid.crl, bid.crl);
+    crlrg.widen( stepoutreach_.crl );
 
-    const Geom::Point2D<float> pt( bid.inl, bid.crl );
-    if ( poly_.isInside(pt,true,1e-6) )
-	return true;
+    for ( int idx=0; idx<polys_.size(); idx++ )
+    {
+	if ( polys_[idx]->windowOverlaps(inlrg, crlrg, 1e-6) )
+	    return 0;
+    }
 
-    Interval<float> rg( poly_.getRange(true) );
-    const int inlres = rg.includes(pt.x,1e-6) ? 0 : 2;
+    const int inlres = inlRange().includes(bid.inl) ? 0 : 2;
     const int crlres = 1; // Maybe not true, but safe
     return inlres + 256 * crlres;
 }
@@ -649,8 +732,26 @@ int Seis::PolySelData::expectedNrTraces( bool for2d, const BinID* step ) const
 {
     if ( isall_ || for2d ) return tracesInSI();
 
-    //TODO better impl
-    HorSampling hs; hs.set( inlRange(), crlRange() );
-    if ( step ) hs.step = *step;
-    return hs.nrInl() * hs.nrCrl();
+    int estnrtraces = 0;
+    // Estimation does not compensate for eventual overlap between polys
+    for ( int idx=0; idx<polys_.size(); idx++ )
+    {
+	const Interval<float> polyinlrg = polys_[idx]->getRange( true );
+	const Interval<float> polycrlrg = polys_[idx]->getRange( false );
+	const float rectarea = polyinlrg.width() * polycrlrg.width();
+    	const float coverfrac = rectarea ? polys_[idx]->area()/rectarea : 1.0;
+	
+	Interval<int> inlrg( mNINT(polyinlrg.start), mNINT(polyinlrg.stop) );
+	inlrg.widen( stepoutreach_.inl );
+	Interval<int> crlrg( mNINT(polycrlrg.start), mNINT(polycrlrg.stop) );
+	crlrg.widen( stepoutreach_.crl );
+	
+	HorSampling hs; 
+	hs.set( inlrg, crlrg );
+	if ( step ) hs.step = *step;
+	hs.snapToSurvey();
+	estnrtraces += mNINT( coverfrac * hs.totalNr() );
+    }
+
+    return mMIN( estnrtraces, tracesInSI() );
 }
