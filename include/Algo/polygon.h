@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.6 2007-12-03 21:24:07 cvskris Exp $
+ RCS:		$Id: polygon.h,v 1.7 2007-12-04 15:45:06 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,11 @@ public:
 
     bool	isInside(const Geom::Point2D<T>&,
 	    		 bool inclborder,T eps) const;
+    
+    bool	segmentOverlaps(const Geom::Point2D<T>& pt1,
+				const Geom::Point2D<T>& pt2,T eps) const;
+    bool	windowOverlaps(const Interval<T>& xrange,
+			       const Interval<T>& yrange,T eps) const;
 
     const Geom::Point2D<T>&	getVertex(int idx) const;
     const Geom::Point2D<T>&	nextVertex(int idx) const; 
@@ -54,6 +59,11 @@ public:
 
     Interval<T>	getRange(bool of_x) const;
     void	getData(bool of_x,TypeSet<T>&) const;
+
+    		// not for self-intersecting polygons
+    float	area() const			{ return fabs(sgnArea()); } 	
+    bool	clockwise() const		{ return sgnArea()<0; } 
+    bool	anticlockwise() const		{ return sgnArea()>0; } 
 
 protected:
 
@@ -86,6 +96,8 @@ protected:
     static double sgnDistToLine( const Geom::Point2D<T>& point,
 				 const Geom::Point2D<T>& dirvec,
 				 const Geom::Point2D<T>& posvec );
+
+    float sgnArea() const;
 
     TypeSet<Geom::Point2D<T> >	poly_;
     bool			closed_;
@@ -196,6 +208,52 @@ bool ODPolygon<T>::isInside( const Geom::Point2D<T>& point,
 
 
 template <class T> inline
+bool ODPolygon<T>::segmentOverlaps( const Geom::Point2D<T>& pt1,
+				    const Geom::Point2D<T>& pt2,
+				    T eps ) const
+{
+    if ( pt1 != pt2 )
+    {
+	for ( int idx=0; idx<size(); idx++ )
+	{
+	    const Geom::Point2D<T>& vtxcurr = getVertex( idx );
+	    const Geom::Point2D<T>& vtxnext = nextVertex( idx );
+
+	    if ( isOnSegment(vtxcurr, pt1, pt2, eps) || 
+		 isOnSegment(vtxnext, pt1, pt2, eps) )
+		return true;
+
+	    if ( isEdgeCrossing(pt2-pt1, pt1, vtxcurr, vtxnext) &&
+		 isEdgeCrossing(pt1-pt2, pt2, vtxcurr, vtxnext) )
+		return true;
+	}
+    }
+	
+    return isInside( pt1, true, eps );
+}
+
+
+template <class T> inline
+bool ODPolygon<T>::windowOverlaps( const Interval<T>& xrange,
+				   const Interval<T>& yrange,
+				   T eps ) const
+{
+    const Geom::Point2D<T> pt1( xrange.start, yrange.start );
+    const Geom::Point2D<T> pt2( xrange.stop,  yrange.start );
+    const Geom::Point2D<T> pt3( xrange.stop,  yrange.stop );
+    const Geom::Point2D<T> pt4( xrange.start, yrange.stop );
+
+    if ( segmentOverlaps(pt1, pt2, eps) || segmentOverlaps(pt2, pt3, eps) ||
+	 segmentOverlaps(pt3, pt4, eps) || segmentOverlaps(pt4, pt1, eps) )
+	return true;
+    
+    const Geom::Point2D<T>& arbivtx = getVertex( 0 );
+
+    return xrange.includes(arbivtx.x) && yrange.includes(arbivtx.y);
+}
+
+
+template <class T> inline
 bool ODPolygon<T>::isOnSegment( const Geom::Point2D<T>& pt,
 				const Geom::Point2D<T>& pt0,
 				const Geom::Point2D<T>& pt1,
@@ -204,6 +262,7 @@ bool ODPolygon<T>::isOnSegment( const Geom::Point2D<T>& pt,
     return isOnHalfLine( pt, pt1-pt0, pt0, eps ) &&
 	   isOnHalfLine( pt, pt0-pt1, pt1, eps );
 }
+
 
 template <class T> inline
 bool ODPolygon<T>::isOnHalfLine( const Geom::Point2D<T>& point,
@@ -279,5 +338,22 @@ double ODPolygon<T>::sgnDistToLine( const Geom::Point2D<T>& point,
 	dirvec.y * ( point.x - posvec.x )-dirvec.x * ( point.y - posvec.y );
     return substpointinlineeqn / dirveclen;
 }
+
+template <class T> inline
+float ODPolygon<T>::sgnArea() const
+{
+    float area2 = 0.0;
+
+    for ( int idx=1; idx<size()-1; idx++ )
+    {
+	const Geom::Point2D<T>& pt0 = getVertex( 0 );
+	const Geom::Point2D<T>& pt1 = getVertex( idx );
+	const Geom::Point2D<T>& pt2 = nextVertex( idx );
+	area2 += (pt1.x-pt0.x) * (pt2.y-pt0.y) - (pt2.x-pt0.x) * (pt1.y-pt0.y);
+    }
+
+    return 0.5*area2;
+}
+
 
 #endif
