@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.359 2007-11-15 13:17:32 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.360 2007-12-04 12:25:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -911,9 +911,9 @@ bool uiVisPartServer::setWorkingArea()
 					       .withz(true)
 					       .withstep(false)
 					       .showsurvinfo(true)
-					       .rangeonly(true) );
+					       .allowall(false) );
     if ( !dlg.go() ) return false;
-    CubeSampling cs = dlg.getInput().cs_;
+    CubeSampling cs = dlg.data().cs_;
     cs.limitTo( SI().sampling(false) );
     const_cast<SurveyInfo&>(SI()).setWorkRange( cs );
 

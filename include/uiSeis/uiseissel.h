@@ -6,13 +6,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.23 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:           $Id: uiseissel.h,v 1.24 2007-12-04 12:25:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiioobjsel.h"
-class uiSeisSubSel;
 namespace Seis { class SelSetup; }
 
 

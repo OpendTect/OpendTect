@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.5 2007-11-30 11:35:48 cvsbert Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.6 2007-12-04 12:25:06 cvsbert Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -558,7 +558,7 @@ void Seis::PolySelData::fillPar( IOPar& iop ) const
 {
     Seis::SelData::fillPar( iop );
     if ( isall_ ) return;
-    iop.set( "Poly.ZRange", zrg_.start, zrg_.stop );
+    iop.set( "Polygon.ZRange", zrg_.start, zrg_.stop );
     ::fillPar( iop, poly_, "Poly" );
 }
 
@@ -568,8 +568,8 @@ void Seis::PolySelData::usePar( const IOPar& iop )
     Seis::SelData::usePar( iop );
     if ( isall_ ) { poly_.setEmpty(); return; }
 
-    iop.get( "Poly.ZRange", zrg_.start, zrg_.stop );
-    const char* res = iop.find( "Poly.ID" );
+    iop.get( "Polygon.ZRange", zrg_.start, zrg_.stop );
+    const char* res = iop.find( sKey::Polygon );
     if ( !res || !*res )
 	::usePar( iop, poly_, "Poly" );
     else

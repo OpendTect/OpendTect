@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.27 2007-11-28 10:59:47 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.28 2007-12-04 12:25:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -212,9 +212,8 @@ void uiAttrTrcSelOut::createExtraZBotFld( uiParent* prnt )
 
 void uiAttrTrcSelOut::createSubSelFld( uiParent* prnt )
 {
-    subselfld_ = new uiBinIDSubSel( prnt, uiBinIDSubSel::Setup().
-	    				   withtable(false).withz(false).
-					   withstep(true) );
+    subselfld_ = new uiBinIDSubSel( prnt, uiBinIDSubSel::Setup()
+	    				   .withz(false).withstep(true) );
     subselfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)objfld_
 	    					    : (uiGroup*)obj2fld_ );
 }
@@ -521,8 +520,8 @@ void uiAttrTrcSelOut::objSel( CallBacker* cb )
     
     HorSampling horsampling;
     getComputableSurf( horsampling );
-    uiBinIDSubSel::Data subseldata = subselfld_->getInput();
-    subseldata.cs_.hrg = horsampling; subselfld_->setInput( subseldata );
+    uiBinIDSubSel::Data subseldata = subselfld_->data();
+    subseldata.cs_.hrg = horsampling; subselfld_->setData( subseldata );
 }
 
 

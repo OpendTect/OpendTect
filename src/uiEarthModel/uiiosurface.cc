@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.43 2007-08-24 11:56:55 cvsnanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.44 2007-12-04 12:25:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,9 +141,9 @@ void uiIOSurface::fillSectionFld( const BufferStringSet& sections )
 void uiIOSurface::fillRangeFld( const HorSampling& hrg )
 {
     if ( !rgfld ) return;
-    uiBinIDSubSel::Data subseldata = rgfld->getInput();
+    uiBinIDSubSel::Data subseldata = rgfld->data();
     subseldata.cs_.hrg = subseldata.allowedrange_.hrg = hrg;
-    rgfld->setInput( subseldata );
+    rgfld->setData( subseldata );
 }
 
 
@@ -160,10 +160,10 @@ bool uiIOSurface::haveAttrSel() const
 
 void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels ) const
 {
-    if ( rgfld && rgfld->getInput().isRg() )
-	sels.rg = rgfld->getInput().cs_.hrg;
-    else
+    if ( !rgfld || !rgfld->data().isRg() )
 	sels.rg.init( false );
+    else
+	sels.rg = rgfld->data().cs_.hrg;
 
     if ( SI().sampling(true) != SI().sampling(false) )
     {

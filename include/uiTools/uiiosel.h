@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.30 2006-03-01 13:45:46 cvsbert Exp $
+ RCS:           $Id: uiiosel.h,v 1.31 2007-12-04 12:25:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,13 +130,12 @@ protected:
 
   The uiTools module is a collection of tools that are based on the uiBase
   module (and thus on Qt services) but that combine uiBase services without
-  accessing Qt at all.
+  accessing Qt at all. Throughout OpnedTect, Qt is not directly accessed
+  anywhere else than in uiBase, not from uiTools either.
 
   Some commonly used classes:
 <ul>
- <li>uiGenInput is the most common user interface element we use. It represents an generalise input field for strings, numbers, bools, positions and more. The idea is to tell the class the characteristics of the data you need to input. uiGenInput will then select the best user interfac element for that type of data.
- <li>Subselection of Inlines/Crosslines and Z can be done with uiBinIDSubSel .
- <li>ColorTableEditor displays a color table with scaling and editing
+ <li>uiGenInput is the most common user interface element we use. It represents a generalized input field for strings, numbers, bools, positions and more. The idea is to tell the class the characteristics of the data you need to input. uiGenInput will then select the best user interfac element for that type of data.
  <li>uiExecutor executes the work encapsulated in an Executor object. An Executor object holds an amount of work that is probably too big to be finished instantly, hence the user must be able to see the progress and must be able to stop it.
  <li>uiFileBrowser shows the contents of text files. If editable, the user can edit the text and save it.
 </ul>

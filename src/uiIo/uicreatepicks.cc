@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.6 2007-11-29 14:36:04 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.7 2007-12-04 12:25:06 cvsbert Exp $";
 
 #include "uicreatepicks.h"
 
@@ -147,7 +147,6 @@ uiGenRandPicks3D::uiGenRandPicks3D( uiParent* p, const BufferStringSet& hornms )
     volsubselfld_ = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
 	    			.withz(true)
 				.withstep(false)
-				.rangeonly(true)
 				.showsurvinfo(true)
 				.alltxt("From entire survey") );
     volsubselfld_->attach( alignedBelow,
@@ -159,7 +158,6 @@ uiGenRandPicks3D::uiGenRandPicks3D( uiParent* p, const BufferStringSet& hornms )
 	horsubselfld_ = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
 				.withz(false)
 				.withstep(false)
-				.rangeonly(true)
 				.showsurvinfo(true)
 				.alltxt("From entire horizon") );
 	horsubselfld_->attach( alignedBelow, horselfld_ );
@@ -188,7 +186,7 @@ void uiGenRandPicks3D::mkRandPars()
     randpars_.needhor_ = geomfld_ && geomfld_->getIntValue();
 
     const HorSampling& hs = 
-       (randpars_.needhor_ ? horsubselfld_ : volsubselfld_)->getInput().cs_.hrg;
+       (randpars_.needhor_ ? horsubselfld_ : volsubselfld_)->data().cs_.hrg;
     randpars_.hs_ = hs;
 
     if ( randpars_.needhor_ )
@@ -199,7 +197,7 @@ void uiGenRandPicks3D::mkRandPars()
 	    randpars_.horidx2_ = hornms_.indexOf( horsel2fld_->text() );
     }
     else
-	randpars_.zrg_ = volsubselfld_->getInput().cs_.zrg;
+	randpars_.zrg_ = volsubselfld_->data().cs_.zrg;
 }
 
 

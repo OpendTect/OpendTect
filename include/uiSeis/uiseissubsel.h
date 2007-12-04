@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.17 2006-12-12 11:16:57 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.18 2007-12-04 12:25:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,8 @@ class uiSeis3DSubSel : public uiGroup
 {
 public:
 
-    			uiSeis3DSubSel(uiParent*,bool withstep=false);
+    			uiSeis3DSubSel(uiParent*,bool withstep=false,
+					bool rangeonly=false);
 
     void		clear();
     void		setInput(const HorSampling&);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.94 2007-12-02 16:14:44 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.95 2007-12-04 12:25:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,8 +141,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	    			mCB(this,uiImportHorizon,addAttrib), false );
     addbut_->attach( rightTo, attrlistfld_ );
 
-    subselfld_ = new uiBinIDSubSel( this, uiBinIDSubSel::Setup().withz(false)
-	    			    .withstep(true).rangeonly(true) );
+    subselfld_ = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
+	    				  .withz(false).withstep(true) );
     subselfld_->attach( alignedBelow, attrlistfld_ );
     subselfld_->setSensitive( false );
 
@@ -271,7 +271,7 @@ void uiImportHorizon::doScan()
     data.allowedrange_.hrg = hs;
     data.allowedrange_.hrg.step.inl = SI().inlStep();
     data.allowedrange_.hrg.step.crl = SI().crlStep();
-    subselfld_->setInput( data );
+    subselfld_->setData( data );
 }
 
 
@@ -340,7 +340,7 @@ bool uiImportHorizon::doImport()
     if ( dofill )
 	fillUdfs( sections );
 
-    HorSampling hs = subselfld_->getInput().cs_.hrg;
+    HorSampling hs = subselfld_->data().cs_.hrg;
     ExecutorGroup importer( "Importing horizon" );
     importer.setNrDoneText( "Nr positions done" );
     int startidx = 0;
@@ -430,7 +430,7 @@ bool uiImportHorizon::checkInpFlds()
 
 bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 {
-    HorSampling hs = subselfld_->getInput().cs_.hrg;
+    HorSampling hs = subselfld_->data().cs_.hrg;
 
     for ( int idx=0; idx<sections.size(); idx++ )
     {

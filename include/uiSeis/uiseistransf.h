@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.23 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:           $Id: uiseistransf.h,v 1.24 2007-12-04 12:25:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,8 @@ public:
 			Setup()
 			    : geom_(Seis::Vol)
 			    , withstep_(true) //!< Can user specify steps?
-			    , withnullfill_(false) //!< Enable add null traces
+			    , withnullfill_(false) //!< 'add null traces' (3D)
+			    , allownonrange_(true) //!< Allow table & poly (3D)
 			    , multi2dlines_(false) //!< Allow 'all' lines (2D)
 			    , fornewentry_(true) //!< New line or existing (2D)
 			    			{}
@@ -42,6 +43,7 @@ public:
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(bool,withstep)
 	mDefSetupMemb(bool,withnullfill)
+	mDefSetupMemb(bool,allownonrange)
 	mDefSetupMemb(bool,multi2dlines)
 	mDefSetupMemb(bool,fornewentry)
     };

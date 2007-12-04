@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          October 2007
- RCS:           $Id: uiprestkmergedlg.cc,v 1.3 2007-11-30 07:00:41 cvsraman Exp $
+ RCS:           $Id: uiprestkmergedlg.cc,v 1.4 2007-12-04 12:25:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,7 @@ void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
     outctio_.ctxt.forread = false;
     outpfld_ = new uiIOObjSel( this, outctio_, "Output Volume" );
     subselfld_ = new uiBinIDSubSel( this, uiBinIDSubSel::Setup().withz(false)
-	    			    .withstep(true).rangeonly(true) );
+	    			    .withstep(true) );
 }
 
 
@@ -249,7 +249,7 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
 {
     if ( !setSelectedVols() ) return false;
 
-    HorSampling hs = subselfld_->getInput().cs_.hrg;
+    HorSampling hs = subselfld_->data().cs_.hrg;
     PtrMan<SeisPSMerger> Exec =
 	   new SeisPSMerger( selobjs_, outctio_.ioobj, hs );
     uiExecutor dlg( this, *Exec );
