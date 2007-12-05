@@ -4,13 +4,14 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.4 2007-11-15 13:17:32 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.5 2007-12-05 22:46:06 cvskris Exp $";
 
 #include "task.h"
 
 #include "threadwork.h"
 #include "thread.h"
 #include "varlenarray.h"
+#include "progressmeter.h"
 
 
 Task::Task( const char* nm )
@@ -88,6 +89,31 @@ bool Task::shouldContinue()
 }
 
 
+void SequentialTask::setProgressMeter( ProgressMeter* pm )
+{
+    progressmeter_ = pm;
+}
+
+
+int SequentialTask::doStep()
+{
+    const int res = nextStep();
+    if ( progressmeter_ )
+    {
+	progressmeter_->setNrDone( nrDone() );
+	progressmeter_->setTotalNr( totalNr() );
+	progressmeter_->setNrDoneText( nrDoneText() );
+	progressmeter_->setMessage( message() );
+	
+	if ( res<=1 )
+	    progressmeter_->setFinished();
+    }
+
+    return res;
+}
+
+
+
 bool SequentialTask::execute()
 {
     control_ = Task::Run;
@@ -134,15 +160,14 @@ protected:
 
 ParallelTask::ParallelTask( const char* nm )
     : Task( nm )
-    , nrdone_( -1 )
+    , progressmeter_( 0 )
     , nrdonemutex_( 0 )
-{}
+    , nrdone_( -1 )
+{ }
 
 
 ParallelTask::~ParallelTask()
-{
-    delete nrdonemutex_;
-}
+{ delete nrdonemutex_; }
 
 
 void ParallelTask::enableNrDoneCounting( bool yn )
@@ -165,26 +190,53 @@ void ParallelTask::enableNrDoneCounting( bool yn )
 }
 
 
+void ParallelTask::setProgressMeter( ProgressMeter* pm )
+{
+    progressmeter_ = pm;
+    if ( progressmeter_ )
+    {
+	progressmeter_->setName( name() );
+	progressmeter_->setMessage( message() );
+	progressmeter_->setTotalNr( totalNr() );
+    }
+}
+
 
 void ParallelTask::reportNrDone( int nr )
 {
-    if ( !nrdonemutex_ )
-	return;
+    if ( progressmeter_ )
+    {
+	progressmeter_->setTotalNr( totalNr() );
+	progressmeter_->setNrDoneText( nrDoneText() );
+	progressmeter_->setMessage( message() );
+	progressmeter_->setNrDone( nrDone() );
+    }
 
-    Threads::MutexLocker lock( *nrdonemutex_ );
-    if ( nrdone_==-1 )
-	nrdone_ = nr;
-    else
-	nrdone_ += nr;
+    if ( nrdonemutex_ )
+    {
+	Threads::MutexLocker lock( *nrdonemutex_ );
+	if ( nrdone_==-1 )
+	    nrdone_ = nr;
+	else
+	    nrdone_ += nr;
+    }
 }
 
 
 int ParallelTask::nrDone() const
 {
-    if ( nrdonemutex_ ) nrdonemutex_->lock();
-    int res = nrdone_;
-    if ( nrdonemutex_ ) nrdonemutex_->unLock();
-    return res;
+    if ( nrdonemutex_ )
+    {
+	 nrdonemutex_->lock();
+	 const int res = nrdone_;
+	 nrdonemutex_->unLock();
+	 return res;
+    }
+
+    if ( !progressmeter_ )
+	return -1;
+
+    return progressmeter_->nrDone();
 }
 
 
@@ -197,10 +249,19 @@ Threads::ThreadWorkManager& ParallelTask::twm()
 
 bool ParallelTask::execute()
 {
+    if ( progressmeter_ )
+    {
+	progressmeter_->setName( name() );
+	progressmeter_->setMessage( message() );
+	progressmeter_->setTotalNr( totalNr() );
+    }
+
     if ( nrdonemutex_ ) nrdonemutex_->lock();
     nrdone_ = -1;
     control_ = Task::Run;
     if ( nrdonemutex_ ) nrdonemutex_->unLock();
+
+    control_ = Task::Run;
 
     if ( Threads::getNrProcessors()==1 )
     {

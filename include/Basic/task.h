@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.5 2007-11-14 17:54:32 cvskris Exp $
+ RCS:		$Id: task.h,v 1.6 2007-12-05 22:46:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "namedobj.h"
 
 namespace Threads { class ThreadWorkManager; class Mutex; class ConditionVar; }
+
+class ProgressMeter;
 
 /*!The generalization of something (e.g. a computation) that needs to be
    done in multiple steps. */
@@ -25,8 +27,13 @@ class Task : public NamedObject
 public:
     virtual		~Task() 			{}
 
-    virtual void	enableNrDoneCounting(bool=true)	{}
+    virtual void	setProgressMeter(ProgressMeter*)	{}
     			//!<Must be called before execute()
+    void		enableNrDoneCounting(bool yn);
+    			/*<!It is not guaranteed that it's implemented by
+			    the class. If not, nrDone() will return -1.
+			    must be called before execute(). */
+
     virtual int		nrDone() const			{ return -1; }
     virtual int		totalNr() const			{ return -1; }
     virtual const char*	message() const			{ return "Working"; }
@@ -34,12 +41,11 @@ public:
 
     virtual bool	execute()			= 0;
 
+    virtual void	enableWorkContol(bool=true);
+    			//!<Must be called before execute()
     enum Control	{ Run, Pause, Stop };
     virtual void	controlWork(Control);
     virtual Control	getState() const;
-    virtual void	enableWorkContol(bool=true);
-    			//!<Must be called before execute()
-
 
 protected:
 					Task(const char* nm=0);
@@ -57,30 +63,34 @@ protected:
 class SequentialTask : public Task
 {
 public:
-		SequentialTask(const char* nm=0) : Task(nm) {}
+		SequentialTask(const char* nm=0)
+		    : Task(nm), progressmeter_( 0 )	{}
     
-    virtual	~SequentialTask() 	{}
-    virtual int	doStep()		{ return nextStep(); }
+    virtual	~SequentialTask() 			{}
+    void	setProgressMeter(ProgressMeter*);
+    virtual int	doStep();
     		/*!<\retval cMoreToDo()		Not finished. Call me again.
 		    \retval cFinished()		Nothing more to do.
 		    \retval cErrorOccurred()	Something went wrong.
 		    \note if function returns a value greater than cMoreToDo(),
 			  it should be interpreted as cMoreToDo(). */
 
-    static int	cMoreToDo()		{ return 1; }
-    static int	cFinished()		{ return 0; }
-    static int	cErrorOccurred()	{ return -1; }
+    static int	cMoreToDo()				{ return 1; }
+    static int	cFinished()				{ return 0; }
+    static int	cErrorOccurred()			{ return -1; }
 
     bool	execute();
 
 protected:
 
-    virtual int	nextStep()		= 0;
+    virtual int	nextStep()				= 0;
     		/*!<\retval cMoreToDo()		Not finished. Call me again.
 		    \retval cFinished()		Nothing more to do.
 		    \retval cErrorOccurred()	Something went wrong.
 		    \note if function returns a value greater than cMoreToDo(),
 			  it should be interpreted as cMoreToDo(). */
+
+    ProgressMeter*					progressmeter_;
 };
 
 class ParallelTaskRunner;
@@ -151,6 +161,7 @@ public:
 			    and these static threads will be shared by all
 			    instances of ParallelTask::execute. */
 
+    void		setProgressMeter(ProgressMeter*);
     void		enableNrDoneCounting(bool yn);
     			/*<!It is not guaranteed that it's implemented by
 			    the class. If not, nrDone() will return -1. */
@@ -186,8 +197,9 @@ private:
 			           true. */
 
     friend class			ParallelTaskRunner;
-    int					nrdone_;
+    ProgressMeter*			progressmeter_;
     Threads::Mutex*			nrdonemutex_;
+    int					nrdone_;
 };
 
 
