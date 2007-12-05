@@ -11,121 +11,161 @@ static const char* rcsID = "$Id";
 #include <iostream>
 #include <limits.h>
 #include <stdlib.h>
+#include "task.h"
 
-static const char dispchars[] = ".:=|*#>}ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+static const char dispchars_[] = ".:=|*#>}ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
 
-ProgressMeter::ProgressMeter( std::ostream& out, unsigned long dist_,
-			      unsigned short rowlen_,
-			      bool df )
-	: strm(out)
-	, rowlen(rowlen_)
-	, auxnr(ULONG_MAX)
-	, destrfin(df)
+TextStreamProgressMeter::TextStreamProgressMeter( std::ostream& out,
+						  unsigned short rowlen )
+    : strm_(out)
+    , rowlen_(rowlen)
+{ reset(); }
+
+
+TextStreamProgressMeter::~TextStreamProgressMeter()
 {
+    if ( !finished_ ) setFinished();
+}
+
+/*
+void TextStreamProgressMeter::setTask( const Task& task )
+{
+    strm_ <<  "Process: '" << task.name() << "'\n";
+    strm_ << "Started: " << Time_getFullDateString() << "\n\n";
+    strm_ << '\t' << task.message() << '\n';
     reset();
-    dist = dist_;
+}
+
+*/
+
+
+void TextStreamProgressMeter::setFinished()
+{
+    Threads::MutexLocker lock( lock_ );
+    if ( finished_ )
+	return;
+
+    annotate(false);
+    finished_ = true;
+
+    strm_ << "\nFinished: "  << Time_getFullDateString() << std::endl;
 }
 
 
-ProgressMeter::~ProgressMeter()
+void TextStreamProgressMeter::reset()
 {
-    if ( destrfin ) finish();
+    Threads::MutexLocker lock( lock_ );
+    nrdone_ = 0;
+    oldtime_ = Time_getMilliSeconds();
+    inited_ = false;
+    finished_ = false;
+    nrdoneperchar_ = 1; distcharidx_ = 0;
+    lastannotatednrdone_ = 0;
+    nrdotsonline_ = 0;
 }
 
 
-void ProgressMeter::finish()
+void TextStreamProgressMeter::addProgress( int nr )
 {
-    if ( !finished )
-	{ annotate(false); finished = true; }
-}
-
-
-void ProgressMeter::reset()
-{
-    progress = 0;
-    oldtime = Time_getMilliSeconds();
-    inited = false;
-    finished = false;
-    dist = 1; idist = 0;
-    lastannotatedprogress = 0;
-    nrdotsonline = 0;
-}
-
-
-void ProgressMeter::resetDist()
-{
-    dist = 1;
-    idist = 0;
-}
-
-
-unsigned long ProgressMeter::operator++()
-{
-    return update( ULONG_MAX );
-}
-
-
-unsigned long ProgressMeter::update( unsigned long a )
-{
-    auxnr = a;
-    progress++;
-    if ( !inited )
+    if ( !inited_ )
     {
-        oldtime = Time_getMilliSeconds();
-	inited = true;
+	if ( !name_.isEmpty() ) strm_ <<  "Process: '" << name_.buf() << "'\n";
+	strm_ << "Started: " << Time_getFullDateString() << "\n\n";
+	if ( !message_.isEmpty() ) strm_ << '\t' << message_.buf() << '\n';
+        oldtime_ = Time_getMilliSeconds();
+	inited_ = true;
     }
 
-    unsigned long relprogress = progress - lastannotatedprogress;
-    if ( !(relprogress % dist) )
+    for ( int idx=0; idx<nr; idx++ )
     {
-	strm << (relprogress%(10*dist) ? dispchars[idist]:dispchars[idist+1]);
-	strm.flush();
-	nrdotsonline++;
+	nrdone_ ++;
+	unsigned long relprogress = nrdone_ - lastannotatednrdone_;
+	if ( !(relprogress % nrdoneperchar_) )
+	{
+	    strm_ << (relprogress%(10*nrdoneperchar_)
+		    ? dispchars_[distcharidx_]
+		    : dispchars_[distcharidx_+1]);
+	    strm_.flush();
+	    nrdotsonline_++;
+	}
+
+	if ( nrdotsonline_==rowlen_ )
+	    annotate(true);
     }
+}
 
-    if ( nrdotsonline == rowlen )
-	annotate(true);
 
-    return progress;
+void TextStreamProgressMeter::operator++()
+{
+    Threads::MutexLocker lock( lock_ );
+    addProgress( 1 );
 }
 	
 
-void ProgressMeter::annotate( bool withrate )
+void TextStreamProgressMeter::setNrDone( int nrdone )
+{
+    Threads::MutexLocker lock( lock_ );
+    if ( nrdone<=nrdone_ )
+    	return;
+
+    addProgress( nrdone-nrdone_ );
+}
+
+
+void TextStreamProgressMeter::setMessage( const char* message )
+{
+    if ( message_==message )
+	return;
+
+    message_ = message;
+    reset();
+}
+
+
+void TextStreamProgressMeter::setName( const char* newname )
+{
+    if ( name_==newname )
+	return;
+
+    name_ = newname;
+    reset();
+}
+
+
+void TextStreamProgressMeter::annotate( bool withrate )
 {
     // Show numbers
-    strm << ' ';
-    if ( auxnr != ULONG_MAX )
-	strm << auxnr << '/';
-    strm << progress;
+    strm_ << ' ' << nrdone_;
 
     // Show rate
     int newtime = Time_getMilliSeconds();
-    int tdiff = newtime - oldtime;
+    int tdiff = newtime - oldtime_;
     if ( withrate && tdiff > 0 )
     {
-	int nrdone = progress - lastannotatedprogress;
+	int nrdone = nrdone_ - lastannotatednrdone_;
 	int permsec = (int)(1.e6 * nrdone / tdiff + .5);
-	strm << " (" << permsec * .001 << "/s)";
+	strm_ << " (" << permsec * .001 << "/s)";
     }
-    strm << std::endl;
+    strm_ << std::endl;
 
-    lastannotatedprogress = progress;
-    oldtime = newtime; 
-    nrdotsonline = 0;
+    lastannotatednrdone_ = nrdone_;
+    oldtime_ = newtime; 
+    nrdotsonline_ = 0;
     
     // Adjust display speed if necessary
     if ( tdiff > -1 && tdiff < 5000 )
     {
-	idist++;
-	dist *= 10;
+	distcharidx_++;
+	nrdoneperchar_ *= 10;
     }
     else if ( tdiff > 60000 )
     {
-	if ( idist )
+	if ( distcharidx_ )
 	{
-	    idist--;
-	    dist /= 10;
+	    distcharidx_--;
+	    nrdoneperchar_ /= 10;
 	}
     }
 }

@@ -7,51 +7,68 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl / Bert Bril
  Date:          07-10-1999
- RCS:           $Id: progressmeter.h,v 1.10 2004-04-27 15:51:15 bert Exp $
+ RCS:           $Id: progressmeter.h,v 1.11 2007-12-05 21:44:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gendefs.h"
-#include <limits.h>
-#include <iosfwd>
+#include "thread.h"
+
+class Task;
+
+/*!Is an interface where processes can report their progress. */
+class ProgressMeter
+{
+public:
+    virtual		~ProgressMeter()		{}
+    virtual void	setFinished()			{}
+
+    virtual int		nrDone() const			{ return -1; }
+    virtual void	setName(const char*)		{}
+    virtual void	setTotalNr(int)			{}
+    virtual void	setNrDone(int)			{}
+    virtual void	setNrDoneText(const char*)	{}
+    virtual void	setMessage(const char*)		{}
+
+    virtual void	operator++()			= 0;
+};
 
 
 /*!\brief Textual progress indicator for batch programs. */
 
-class ProgressMeter
+class TextStreamProgressMeter : public ProgressMeter
 {
 public:
-			ProgressMeter(std::ostream&,unsigned long dist=1,
-				      unsigned short rowlen=50,
-				      bool finishondestruct=true);
-    virtual		~ProgressMeter();
+		TextStreamProgressMeter(std::ostream&,unsigned short rowlen=50);
+    		~TextStreamProgressMeter();
+    void	setName(const char*);
+    void	setFinished();
+    void	setNrDone(int);
+    void	setMessage(const char*);
 
-    unsigned long	update(unsigned long auxdisp=ULONG_MAX);
-    unsigned long	operator++();
-    void		reset();
-    void		resetDist();
-    void		finish();
-
-    unsigned long	nrDone() const		{ return progress; }
+    void	operator++();
+    int		nrDone() const			{ return nrdone_; }
 
 protected:
+    void	reset();
+    void	addProgress(int);
 
-    std::ostream&	strm;
-    unsigned short	rowlen;
-    unsigned char	idist;
-    unsigned long	dist;
-    unsigned long       progress;
-    unsigned long	lastannotatedprogress;
-    unsigned long	auxnr;
-    int 		oldtime; 
-    int 		nrdotsonline; 
-    bool		destrfin;
-    bool		inited;
-    bool		finished;
+    std::ostream&	strm_;
+    BufferString	message_;
+    BufferString	name_;
+    unsigned short	rowlen_;
+    unsigned char	distcharidx_;
+    unsigned long	nrdoneperchar_;
+    unsigned long       nrdone_;
+    unsigned long	lastannotatednrdone_;
+    int 		oldtime_; 
+    int 		nrdotsonline_; 
+    bool		inited_;
+    bool		finished_;
+    Threads::Mutex	lock_;
 
     void		annotate(bool);
-
 }; 
 
 

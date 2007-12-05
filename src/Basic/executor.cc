@@ -4,7 +4,7 @@
  * DATE     : 14-6-1996
 -*/
 
-static const char* rcsID = "$Id: executor.cc,v 1.25 2007-11-02 19:15:42 cvskris Exp $";
+static const char* rcsID = "$Id: executor.cc,v 1.26 2007-12-05 21:44:20 cvskris Exp $";
 
 #include "executor.h"
 
@@ -47,75 +47,29 @@ bool Executor::execute( std::ostream* strm, bool isfirst, bool islast,
     if ( isfirst )
 	stream << GetProjectVersionName() << "\n\n";
 
-    stream << "Process: '" << name() << "'\n";
-    stream << "Started: " << Time_getFullDateString() << "\n\n";
+    TextStreamProgressMeter progressmeter( *strm );
+    setProgressMeter( &progressmeter );
 
-    BufferString curmsg, prevmsg;
-    prevmsg = message();
+    bool res = execute();
+    if ( !res )
+	stream << "Error: " << message() << std::endl;
+    else
+	stream << "\nFinished: " << Time_getFullDateString() << std::endl;
 
-    if ( strm )
-	stream << '\t' << prevmsg << '\n';
+    setProgressMeter( 0 );
 
-    ProgressMeter progressmeter( stream );
-    bool go_on = true;
-    bool newmsg = true;
-    bool needendl = false;
-    int nrdone = 0;
-    int rv;
-    while ( go_on )
-    {
-	rv = doStep();
-	curmsg = message();
-	int newnrdone = nrDone();
-	go_on = false;
-	switch( rv )
-	{
-	case ErrorOccurred:
-	    stream << "Error: " << curmsg << std::endl;
-	break;
-	case Finished:
-	    stream << "\nFinished: " << Time_getFullDateString() << std::endl;
-	break;
-	default:
-	    go_on = true;
-	    if ( curmsg != prevmsg )
-	    {
-		if ( needendl ) stream << std::endl;
-		needendl = false;
-		stream << '\t' << curmsg << std::endl;
-		newmsg = true;
-	    }
-	    else if ( newmsg && newnrdone )
-	    {
-		newmsg = false;
-		if ( !nrdone )
-		    stream << nrDoneText() << ":\n";
-		progressmeter.reset();
-		needendl = true;
-	    }
-	    else if ( newnrdone && newnrdone != nrdone )
-	    {
-		++progressmeter;
-	    }
-	break;
-	}
-	nrdone = newnrdone;
-	prevmsg = curmsg;
-    }
-
-    progressmeter.finish();
     if ( islast )
 	stream << "\n\nEnd of process: '" << name() << "'" << std::endl;
-    return rv < 0 ? false : true;
+
+    return res;
 }
 
 
 int Executor::doStep()
 {
     prestep.trigger();
-    int res = nextStep();
-    if ( res > 0 )
-	poststep.trigger();
+    const int res = SequentialTask::doStep();
+    if ( res > 0 ) poststep.trigger();
     return res;
 }
 

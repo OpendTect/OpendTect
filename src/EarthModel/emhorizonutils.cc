@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.cc,v 1.11 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:           $Id: emhorizonutils.cc,v 1.12 2007-12-05 21:44:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,7 +123,7 @@ void HorizonUtils::getPositions( std::ostream& strm, const MultiID& id,
     if ( !surface ) return;
 
     strm << "\nFetching surface positions ...\n" ;
-    ProgressMeter pm( strm );
+    TextStreamProgressMeter pm( strm );
     deepErase( data );
 
     PtrMan<EMObjectIterator> iterator = surface->createIterator(-1);
@@ -148,7 +148,7 @@ void HorizonUtils::getPositions( std::ostream& strm, const MultiID& id,
 	++pm;
     }
 
-    pm.finish();
+    pm.setFinished();
     strm << "Done!" << std::endl;
 }
 
@@ -172,7 +172,7 @@ void HorizonUtils::getWantedPositions( std::ostream& strm,
     }
     
     strm << "\nFetching surface positions ...\n" ;
-    ProgressMeter pm( strm );
+    TextStreamProgressMeter pm( strm );
    
     if ( mIsUdf(nrinterpsamp) )
 	nrinterpsamp = mMaxSampInterpol;

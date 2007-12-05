@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.21 2007-12-03 14:28:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.22 2007-12-05 21:44:20 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -188,7 +188,7 @@ bool BatchProgram::go( std::ostream& strm )
     Time_sleep( startup_wait );
 
     const double pause_sleep_time = GetEnvVarDVal( "OD_BATCH_SLEEP_TIME", 1 );
-    ProgressMeter progressmeter(strm);
+    TextStreamProgressMeter progressmeter(strm);
     bool cont = true; bool loading = true;
     int nriter = 0, nrdone = 0;
 
@@ -255,7 +255,7 @@ bool BatchProgram::go( std::ostream& strm )
 
     // It is VERY important workers are destroyed BEFORE the last sendState!!!
     mDestroyWorkers
-    progressmeter.finish();
+    progressmeter.setFinished();
     mStrmWithProcID( "Threads closed; Writing finish status" );
 
     if ( !comm ) return true;
