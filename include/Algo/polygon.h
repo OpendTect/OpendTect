@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.7 2007-12-04 15:45:06 cvsjaap Exp $
+ RCS:		$Id: polygon.h,v 1.8 2007-12-05 08:45:27 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -212,24 +212,26 @@ bool ODPolygon<T>::segmentOverlaps( const Geom::Point2D<T>& pt1,
 				    const Geom::Point2D<T>& pt2,
 				    T eps ) const
 {
-    if ( pt1 != pt2 )
+    if ( pt1 == pt2 )
+	return isInside( pt1, true, eps );
+
+    if ( isInside(pt1, true, eps) || isInside(pt2, true, eps) )
+	return true;
+
+    for ( int idx=0; idx<size(); idx++ )
     {
-	for ( int idx=0; idx<size(); idx++ )
-	{
-	    const Geom::Point2D<T>& vtxcurr = getVertex( idx );
-	    const Geom::Point2D<T>& vtxnext = nextVertex( idx );
+	const Geom::Point2D<T>& vtxcurr = getVertex( idx );
+	const Geom::Point2D<T>& vtxnext = nextVertex( idx );
 
-	    if ( isOnSegment(vtxcurr, pt1, pt2, eps) || 
-		 isOnSegment(vtxnext, pt1, pt2, eps) )
-		return true;
+	if ( isOnSegment(vtxcurr, pt1, pt2, eps) || 
+	     isOnSegment(vtxnext, pt1, pt2, eps) )
+	    return true;
 
-	    if ( isEdgeCrossing(pt2-pt1, pt1, vtxcurr, vtxnext) &&
-		 isEdgeCrossing(pt1-pt2, pt2, vtxcurr, vtxnext) )
-		return true;
-	}
+	if ( isEdgeCrossing(pt2-pt1, pt1, vtxcurr, vtxnext) &&
+	     isEdgeCrossing(pt1-pt2, pt2, vtxcurr, vtxnext) )
+	    return true;
     }
-	
-    return isInside( pt1, true, eps );
+    return false;
 }
 
 
@@ -247,9 +249,9 @@ bool ODPolygon<T>::windowOverlaps( const Interval<T>& xrange,
 	 segmentOverlaps(pt3, pt4, eps) || segmentOverlaps(pt4, pt1, eps) )
 	return true;
     
-    const Geom::Point2D<T>& arbivtx = getVertex( 0 );
+    const Geom::Point2D<T>& arbitvtx = getVertex( 0 );
 
-    return xrange.includes(arbivtx.x) && yrange.includes(arbivtx.y);
+    return xrange.includes(arbitvtx.x) && yrange.includes(arbitvtx.y);
 }
 
 
@@ -338,6 +340,7 @@ double ODPolygon<T>::sgnDistToLine( const Geom::Point2D<T>& point,
 	dirvec.y * ( point.x - posvec.x )-dirvec.x * ( point.y - posvec.y );
     return substpointinlineeqn / dirveclen;
 }
+
 
 template <class T> inline
 float ODPolygon<T>::sgnArea() const
