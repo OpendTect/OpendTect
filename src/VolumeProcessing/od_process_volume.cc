@@ -4,21 +4,22 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.5 2007-11-28 13:57:52 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.6 2007-12-05 22:50:22 cvskris Exp $";
 
 #include "batchprog.h"
 
 #include "horinterfiller.h"
-#include "windowfunction.h"
 #include "ioman.h"
 #include "volumeprocessing.h"
 #include "volumewriter.h"
 #include "volumeprocessingtrans.h"
 
+#include "initalgo.h"
+
 bool BatchProgram::go( std::ostream& strm )
 { 
+    Algo::initStdClasses();
     VolProc::initBuiltinClasses();
-    WindowFunction::initBuiltinClasses();
 
     
     MultiID chainid;
