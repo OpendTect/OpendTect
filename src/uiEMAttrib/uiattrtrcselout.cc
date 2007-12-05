@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.28 2007-12-04 12:25:06 cvsbert Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.29 2007-12-05 11:55:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -306,8 +306,9 @@ void uiAttrTrcSelOut::createOutputFld( uiParent* prnt )
     ctioout_.ctxt.includeconstraints = false;
     ctioout_.ctxt.allowcnstrsabsent = true;
     outpfld_ = new uiSeisSel( prnt, ctioout_,
-	    		      Seis::SelSetup(ads_.is2D()).selattr(false) );
-    bool noadvdlg = usesinglehor_ || ads_.is2D();
+	    		      uiSeisSel::Setup(ads_.is2D(),false)
+			      .selattr(false) );
+    const bool noadvdlg = usesinglehor_ || ads_.is2D();
     outpfld_->attach( alignedBelow, noadvdlg ? cubeboundsfld_ : outsidevalfld_);
 }
 

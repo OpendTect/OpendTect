@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.39 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.40 2007-12-05 11:55:49 cvsbert Exp $
 
 ________________________________________________________________________
 
@@ -588,7 +588,8 @@ void uiFingerPrintAttrib::fillIn2DPos(CallBacker*)
     if ( !is2d_ ) return;
 
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
-    uiSeisSelDlg dlg( this, *ctio, Seis::SelSetup(true).selattr(false) );
+    uiSeisSelDlg dlg( this, *ctio,
+	    	      uiSeisSel::Setup(Seis::Line).selattr(false) );
     if ( !dlg.go() || !dlg.ioObj() ) return;
 
     lsid_ = dlg.ioObj()->key();

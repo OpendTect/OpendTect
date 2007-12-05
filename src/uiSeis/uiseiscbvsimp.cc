@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.41 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.42 2007-12-05 11:55:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
     {
 	inctio_.ctxt.forread = true;
 	inctio_.ctxt.trglobexpr = "CBVS";
-	oinpfld = new uiSeisSel( this, inctio_, Seis::SelSetup(Seis::Vol) );
+	oinpfld = new uiSeisSel( this, inctio_, uiSeisSel::Setup(Seis::Vol) );
 	oinpfld->selectiondone.notify( mCB(this,uiSeisImpCBVS,oinpSel) );
     }
     else
@@ -97,15 +97,16 @@ void uiSeisImpCBVS::init( bool fromioobj )
 	modefld->valuechanged.notify( mCB(this,uiSeisImpCBVS,modeSel) );
     }
 
-    transffld = new uiSeisTransfer( this, uiSeisTransfer::Setup()
-	    			    .withstep(true).withnullfill(fromioobj) );
+    uiSeisTransfer::Setup sts( Seis::Vol );
+    sts.withnullfill(fromioobj).withstep(true).allowtable(true).allowpoly(true);
+    transffld = new uiSeisTransfer( this, sts );
     transffld->attach( alignedBelow,
 	    		modefld ? (uiGroup*)modefld : (uiGroup*)oinpfld );
 
     outctio_.ctxt.forread = false;
     outctio_.ctxt.trglobexpr = "CBVS";
     IOM().to( outctio_.ctxt.getSelKey() );
-    outfld = new uiSeisSel( this, outctio_, Seis::SelSetup(Seis::Vol) );
+    outfld = new uiSeisSel( this, outctio_, uiSeisSel::Setup(Seis::Vol) );
     outfld->attach( alignedBelow, transffld );
 }
 

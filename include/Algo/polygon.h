@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.8 2007-12-05 08:45:27 cvsjaap Exp $
+ RCS:		$Id: polygon.h,v 1.9 2007-12-05 11:55:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "sets.h"
 #include "iopar.h"
+#include "bufstring.h"
 
 /*!\brief (Closed) sequence of connected 2-D coordinates */
 
@@ -120,30 +121,32 @@ void ODPolygon<T>::getData( bool forx, TypeSet<T>& ts ) const
 template <class T> inline
 void fillPar( IOPar& iop, const ODPolygon<T>& poly, const char* key )
 {
-    iop.setYN( IOPar::compKey(key,"Closed"), poly.isClosed() );
-    iop.set( IOPar::compKey(key,"Undef"), poly.getUdf().x, poly.getUdf().y );
+    const BufferString ky( key );
+    iop.setYN( IOPar::compKey(ky,"Closed"), poly.isClosed() );
+    iop.set( IOPar::compKey(ky,"Undef"), poly.getUdf().x, poly.getUdf().y );
     TypeSet<T> ts; poly.getData( true, ts );
-    iop.set( IOPar::compKey(key,"Data.X"), ts );
+    iop.set( IOPar::compKey(ky,"Data.X"), ts );
     ts.erase(); poly.getData( false, ts );
-    iop.set( IOPar::compKey(key,"Data.Y"), ts );
+    iop.set( IOPar::compKey(ky,"Data.Y"), ts );
 }
 
 
 template <class T> inline
 void usePar( const IOPar& iop, ODPolygon<T>& poly, const char* key )
 {
-    bool yn = false; iop.getYN( IOPar::compKey(key,"Closed"), yn );
+    const BufferString ky( key );
+    bool yn = false; iop.getYN( IOPar::compKey(ky,"Closed"), yn );
     poly.setClosed( yn );
-    Geom::Point2D<T> pt; iop.get( IOPar::compKey(key,"Undef"), pt.x, pt.y );
+    Geom::Point2D<T> pt; iop.get( IOPar::compKey(ky,"Undef"), pt.x, pt.y );
     poly.setUdf( pt );
 
-    if (   !iop.find( IOPar::compKey(key,"Data.X") )
-	|| !iop.find( IOPar::compKey(key,"Data.Y") ) )
+    if (   !iop.find( IOPar::compKey(ky,"Data.X") )
+	|| !iop.find( IOPar::compKey(ky,"Data.Y") ) )
 	return;
 
     poly.setEmpty(); TypeSet<T> tsx, tsy;
-    iop.get( IOPar::compKey(key,"Data.X"), tsx );
-    iop.get( IOPar::compKey(key,"Data.Y"), tsy );
+    iop.get( IOPar::compKey(ky,"Data.X"), tsx );
+    iop.get( IOPar::compKey(ky,"Data.Y"), tsy );
     const int sz = tsx.size() > tsy.size() ? tsy.size() : tsx.size();
     for ( int idx=0; idx<sz; idx++ )
         poly.add( Geom::Point2D<T>(tsx[idx],tsy[idx]) );

@@ -6,13 +6,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseistransf.h,v 1.24 2007-12-04 12:25:05 cvsbert Exp $
+ RCS:           $Id: uiseistransf.h,v 1.25 2007-12-05 11:55:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
 #include "seisioobjinfo.h"
+#include "seisselection.h"
 class IOObj;
 class Executor;
 class uiGenInput;
@@ -28,24 +29,21 @@ class uiSeisTransfer : public uiGroup
 {
 public:
 
-    class Setup
+    class Setup : public Seis::SelSetup
     {
     public:
-			Setup()
-			    : geom_(Seis::Vol)
-			    , withstep_(true) //!< Can user specify steps?
-			    , withnullfill_(false) //!< 'add null traces' (3D)
-			    , allownonrange_(true) //!< Allow table & poly (3D)
-			    , multi2dlines_(false) //!< Allow 'all' lines (2D)
-			    , fornewentry_(true) //!< New line or existing (2D)
-			    			{}
+			Setup( Seis::GeomType gt )
+			    : Seis::SelSetup(gt)
+			    , withnullfill_(false)	{}
+				    //!< 'add null traces' (3D)
+			Setup( const Seis::SelSetup& sss )
+			    : Seis::SelSetup(sss)
+			    , withnullfill_(false)	{}
+			Setup( bool is2d, bool isps )
+			    : Seis::SelSetup(is2d,isps)
+			    , withnullfill_(false)	{}
 
-	mDefSetupMemb(Seis::GeomType,geom)
-	mDefSetupMemb(bool,withstep)
 	mDefSetupMemb(bool,withnullfill)
-	mDefSetupMemb(bool,allownonrange)
-	mDefSetupMemb(bool,multi2dlines)
-	mDefSetupMemb(bool,fornewentry)
     };
 
 			uiSeisTransfer(uiParent*,const Setup&);

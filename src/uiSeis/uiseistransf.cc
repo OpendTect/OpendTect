@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.42 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.43 2007-12-05 11:55:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,16 +34,10 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
 	: uiGroup(p,"Seis transfer pars")
 	, setup_(s)
 {
-    const bool is2d = Seis::is2D(setup_.geom_);
-    const bool isps = Seis::isPS(setup_.geom_);
-    if ( is2d )
-	selfld = new uiSeis2DSubSel( this, setup_.fornewentry_,
-				     setup_.multi2dlines_ );
-    else
-	selfld = new uiSeis3DSubSel( this, setup_.withstep_ );
+    selfld = uiSeisSubSel::get( this, setup_ );
 
     static const char* choices[] = { "Discard", "Pass", "Add", 0 };
-    if ( !is2d && !isps && setup_.withnullfill_ )
+    if ( !setup_.is2d_ && !setup_.isps_ && setup_.withnullfill_ )
 	remnullfld = new uiGenInput( this, "Null traces",
 				     StringListInpSpec(choices) );
     else
@@ -51,7 +45,8 @@ uiSeisTransfer::uiSeisTransfer( uiParent* p, const uiSeisTransfer::Setup& s )
 				     BoolInpSpec(true,choices[0],choices[1]) );
     remnullfld->attach( alignedBelow, selfld->attachObj() );
 
-    scfmtfld = new uiSeisFmtScale( this, setup_.geom_, !setup_.fornewentry_ );
+    scfmtfld = new uiSeisFmtScale( this, setup_.geomType(),
+	    			   !setup_.fornewentry_ );
     scfmtfld->attach( alignedBelow, remnullfld );
 
     setHAlignObj( remnullfld );
@@ -98,7 +93,7 @@ SeisIOObjInfo::SpaceInfo uiSeisTransfer::spaceInfo() const
     int ntr = selfld->expectedNrTraces();
     SeisIOObjInfo::SpaceInfo si( selfld->expectedNrSamples(), ntr,
 				   maxBytesPerSample() );
-    if ( Seis::is2D(setup_.geom_) )
+    if ( setup_.is2d_ )
 	si.expectednrtrcs = ntr;
 
     return si;
@@ -139,7 +134,7 @@ SeisResampler* uiSeisTransfer::getResampler() const
     CubeSampling cs;
     selfld->getSampling( cs.hrg );
     selfld->getZRange( cs.zrg );
-    return new SeisResampler( cs, Seis::is2D(setup_.geom_) );
+    return new SeisResampler( cs, Seis::is2D(setup_.geomType()) );
 }
 
 

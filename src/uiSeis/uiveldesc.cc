@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uiveldesc.cc,v 1.5 2007-11-30 14:29:43 cvsbert Exp $
+ RCS:           $Id: uiveldesc.cc,v 1.6 2007-12-05 11:55:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p )
     , ctxt_(*mGetCtxtIOObj(SeisTrc,Seis))
 {
     ctxt_.ctxt.forread = true;
-    volsel_ = new uiSeisSel( this, ctxt_, Seis::SelSetup(false) );
+    volsel_ = new uiSeisSel( this, ctxt_, uiSeisSel::Setup(Seis::Vol) );
     volsel_->selectiondone.notify( mCB(this,uiVelocityDescDlg,volSelChange) );
     veldesc_ = new uiVelocityDesc( this, VelocityDesc() );
     veldesc_->attach( alignedBelow, volsel_ );

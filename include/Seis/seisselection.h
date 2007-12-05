@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Nov 2007
- RCS:		$Id: seisselection.h,v 1.1 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:		$Id: seisselection.h,v 1.2 2007-12-05 11:55:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ class LineKey;
 namespace Seis
 {
 
-/*!\brief setup for selection of seismic data */
+/*!\brief setup for subselection of seismic data */
 
 class SelSetup
 {
@@ -31,21 +31,32 @@ public:
 		SelSetup( Seis::GeomType gt )
 		    : is2d_(Seis::is2D(gt))
 		    , isps_(Seis::isPS(gt))
-		    , selattr_(true)
-		    , allowtable_(false)
-		    , allowpoly_(false)		{}
+		    , allowtable_(false)		//!< 3D only
+		    , allowpoly_(false)			//!< 3D only
+		    , fornewentry_(false)		//!< 2D only
+		    , multiline_(false)			//!< 2D only
+		    , withoutz_(false)
+		    , withstep_(true)			{}
 		SelSetup( bool is_2d, bool is_ps=false )
 		    : is2d_(is_2d)
 		    , isps_(is_ps)
-		    , selattr_(true)
-		    , allowtable_(false)
-		    , allowpoly_(false)		{}
+		    , allowtable_(false)		//!< 3D only
+		    , allowpoly_(false)			//!< 3D only
+		    , fornewentry_(false)		//!< 2D only
+		    , multiline_(false)			//!< 2D only
+		    , withoutz_(false)
+		    , withstep_(true)			{}
 
     mDefSetupClssMemb(SelSetup,bool,is2d)
     mDefSetupClssMemb(SelSetup,bool,isps)
-    mDefSetupClssMemb(SelSetup,bool,selattr)
     mDefSetupClssMemb(SelSetup,bool,allowtable)
     mDefSetupClssMemb(SelSetup,bool,allowpoly)
+    mDefSetupClssMemb(SelSetup,bool,fornewentry)
+    mDefSetupClssMemb(SelSetup,bool,multiline)
+    mDefSetupClssMemb(SelSetup,bool,withoutz)
+    mDefSetupClssMemb(SelSetup,bool,withstep)
+
+    Seis::GeomType geomType() const	{ return geomTypeOf(is2d_,isps_); }
 
 };
 

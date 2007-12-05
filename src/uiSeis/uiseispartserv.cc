@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.71 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.72 2007-12-05 11:55:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,7 @@ void uiSeisPartServer::manageWavelets()
 bool uiSeisPartServer::select2DSeis( MultiID& mid, bool with_attr )
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj(SeisTrc);
-    Seis::SelSetup setup(true); setup.selattr( with_attr );
+    uiSeisSel::Setup setup(Seis::Line); setup.selattr( with_attr );
     uiSeisSelDlg dlg( appserv().parent(), *ctio, setup );
     if ( !dlg.go() || !dlg.ioObj() ) return false;
 

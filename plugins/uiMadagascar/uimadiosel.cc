@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.2 2007-11-23 11:59:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.3 2007-12-05 11:55:49 cvsbert Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -51,23 +51,24 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
     typfld_->valuechanged.notify( mCB(this,uiMadIOSelDlg,typSel) );
     if ( SI().has3D() )
     {
-	seis3dfld_ = new uiSeisSel( this, ctio3d_, Seis::SelSetup(false) );
+	seis3dfld_ = new uiSeisSel( this, ctio3d_, uiSeisSel::Setup(Seis::Vol));
 	seis3dfld_->attach( alignedBelow, typfld_ );
 	seis3dfld_->selectiondone.notify( mCB(this,uiMadIOSelDlg,selChg) );
 	if ( isinp )
 	{
-	    subsel3dfld_ = new uiSeis3DSubSel( this, true );
+	    subsel3dfld_ = new uiSeis3DSubSel( this, Seis::SelSetup(Seis::Vol)
+					.allowtable(true).allowpoly(true) );
 	    subsel3dfld_->attach( alignedBelow, seis3dfld_ );
 	}
     }
     if ( SI().has2D() )
     {
-	seis2dfld_ = new uiSeisSel( this, ctio2d_, Seis::SelSetup(true) );
+	seis2dfld_ = new uiSeisSel( this, ctio2d_,uiSeisSel::Setup(Seis::Line));
 	seis2dfld_->attach( alignedBelow, typfld_ );
 	seis2dfld_->selectiondone.notify( mCB(this,uiMadIOSelDlg,selChg) );
 	if ( isinp )
 	{
-	    subsel2dfld_ = new uiSeis2DSubSel( this, false, false );
+	    subsel2dfld_ = new uiSeis2DSubSel( this,Seis::SelSetup(Seis::Line));
 	    subsel2dfld_->attach( alignedBelow, seis2dfld_ );
 	}
     }

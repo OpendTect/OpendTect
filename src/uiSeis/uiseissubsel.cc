@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.45 2007-12-04 12:25:06 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.46 2007-12-05 11:55:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,23 +24,31 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 
-void uiSeisSubSel::setInput( const CubeSampling& cs )
+uiSeisSubSel* uiSeisSubSel::get( uiParent* p, const Seis::SelSetup& s )
 {
-    setInput( cs.hrg );
-    setInput( cs.zrg );
+    if ( s.is2d_ )
+       return new uiSeis2DSubSel( p, s );
+    else
+       return new uiSeis3DSubSel( p, s );
 }
 
 
-uiSeis3DSubSel::uiSeis3DSubSel( uiParent* p, bool wstep, bool rangeonly )
+void uiSeisSubSel::setInput( const CubeSampling& cs )
+{
+    setInput( cs.hrg ); setInput( cs.zrg );
+}
+
+
+uiSeis3DSubSel::uiSeis3DSubSel( uiParent* p, const Seis::SelSetup& ss )
     	: uiGroup(p,"3D seis subsel")
 {
     uiBinIDSubSel::Setup bss;
-    bss.withz(true).withstep(wstep);
-    if ( !rangeonly )
-    {
+    bss.withz(!ss.withoutz_).withstep(ss.withstep_);
+    if ( ss.allowtable_ )
 	bss.types_ += uiBinIDSubSel::Tbl;
+    if ( ss.allowpoly_ )
 	bss.types_ += uiBinIDSubSel::Poly;
-    }
+
     selfld = new uiBinIDSubSel( this, bss );
     setHAlignObj( selfld );
 }
@@ -226,11 +234,11 @@ int uiSeis2DSubSel::PosData::expectedNrSamples() const
 static const BufferStringSet emptylnms;
 
 
-uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, bool for_new_entry, bool mln )
+uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const Seis::SelSetup& ss )
 	: uiCompoundParSel(p,"Data subselection")
 	, lnmsfld(0)
 	, lnmfld(0)
-    	, multiln_(mln)
+    	, multiln_(ss.multiline_)
 	, lineSel(this)
 	, singLineSel(this)
     	, curlnms_(*new BufferStringSet)
@@ -238,7 +246,7 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, bool for_new_entry, bool mln )
     butPush.notify( mCB(this,uiSeis2DSubSel,doDlg) );
 
     uiGenInput* fld;
-    if ( for_new_entry && !multiln_ )
+    if ( ss.fornewentry_ && !multiln_ )
 	fld = lnmfld = new uiGenInput( this, "Store in Set as" );
     else
     {

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.41 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.42 2007-12-05 11:55:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,10 +27,28 @@ ________________________________________________________________________
 #include "keystrs.h"
 
 
+static const char* gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
+{
+    if ( setup.seltxt_ )
+	return setup.seltxt_;
 
-static void adaptCtxt( const IOObjContext& c, bool is2d, bool chgtol )
+    switch ( setup.geom_ )
+    {
+    case Seis::Vol:
+	return forread ? "Input Cube" : "Output Cube";
+    case Seis::Line:
+	return forread ? "Input Line Set" : "Store in Line Set";
+    default:
+	return forread ? "Input Data Store" : "Output Data Store";
+    }
+}
+
+
+static void adaptCtxt( const IOObjContext& c, const uiSeisSel::Setup& s,
+			bool chgtol )
 {
     IOObjContext& ctxt = const_cast<IOObjContext&>( c );
+    const bool is2d = Seis::is2D(s.geom_);
     ctxt.trglobexpr = uiSeisSelDlg::standardTranslSel( is2d );
     ctxt.deftransl = uiSeisSelDlg::standardTranslSel( is2d );
     if ( is2d && !ctxt.allowcnstrsabsent && chgtol )
@@ -41,28 +59,27 @@ static bool kp_allowcnstrsabsent = true; /* hack but should always be OK */
 
 
 static const CtxtIOObj& getDlgCtio( const CtxtIOObj& c,
-				    const Seis::SelSetup& s )
+				    const uiSeisSel::Setup& s )
 {
     kp_allowcnstrsabsent = c.ctxt.allowcnstrsabsent;
-    adaptCtxt( c.ctxt, s.is2d_, true );
+    adaptCtxt( c.ctxt, s, true );
     return c;
 }
 
 
 
 uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
-			    const Seis::SelSetup& selsetup )
-    : uiIOObjSelDlg(p,getDlgCtio(c,selsetup),"",false)
-    , is2d_(selsetup.is2d_)
+			    const uiSeisSel::Setup& setup )
+    : uiIOObjSelDlg(p,getDlgCtio(c,setup),"",false)
     , attrfld_(0)
 {
+    const bool is2d = Seis::is2D( setup.geom_ );
     allowcnstrsabsent_ = kp_allowcnstrsabsent;
-    const char* ttxt = is2d_ ? "Select Line Set" : "Select Cube";
-    setTitleText( ttxt );
+    setTitleText( is2d ? "Select Line Set" : "Select Cube" );
 
     uiGroup* topgrp = selgrp->getTopGroup();
 
-    if ( selsetup.selattr_ && is2d_ )
+    if ( setup.selattr_ && is2d )
     {
 	if ( selgrp->getCtxtIOObj().ctxt.forread )
 	    attrfld_ = new uiGenInput( selgrp,"Attribute",StringListInpSpec() );
@@ -85,10 +102,6 @@ static const char* trglobexprs[] = { "2D", "CBVS" };
 const char* uiSeisSelDlg::standardTranslSel( bool is2d )
 {
     return trglobexprs[is2d ? 0 : 1];
-}
-
-uiSeisSelDlg::~uiSeisSelDlg()
-{
 }
 
 
@@ -149,46 +162,18 @@ void uiSeisSelDlg::usePar( const IOPar& iopar )
 }
 
 
-static const char* gtSelTxt( const char** sts, bool is2d, bool forread )
-{
-    // Support:
-    // 1) One single text: { "Text", 0 }
-    // 2) Same for read and write: { "Text3D", Text2D", 0 }
-    // 3) { "Text3DRead", Text2DRead", "Text3DWrite", Text2DWrite", 0 }
-
-    static const char* stdseltxts[] = {
-	"Input Cube", "Input Line Set", "Output Cube", "Store in Line Set", 0 };
-
-    if ( !sts ) sts = stdseltxts;
-
-    if ( !sts[1] ) return sts[0];
-
-    const int offs = is2d ? 1 : 0;
-    return sts[2] ? sts[ 2 * (forread ? 0 : 1) + offs ] : sts[offs];
-}
-
-
-uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const Seis::SelSetup& s,
-		      bool wclr, const char** sts )
-	: uiIOObjSel(p,c,gtSelTxt(sts,s.is2d_,c.ctxt.forread),wclr)
-	, setup(*new Seis::SelSetup(s))
-    	, seltxts(sts)
+uiSeisSel::uiSeisSel( uiParent* p, CtxtIOObj& c, const uiSeisSel::Setup& setup )
+	: uiIOObjSel(p,c,gtSelTxt(setup,c.ctxt.forread),setup.withclear_)
 	, dlgiopar(*new IOPar)
-	, orgparconstraints(*new IOPar(c.ctxt.parconstraints))
+    	, setup_(setup)
 {
-    if ( !c.ctxt.forread )
-	inp_->label()->setPrefWidthInChar( 15 );
-
-    adaptCtxt( c.ctxt, setup.is2d_ , false );
-    setLabelText( gtSelTxt( seltxts, is2D(), ctio.ctxt.forread ) );
+    adaptCtxt( c.ctxt, setup_, false );
 }
 
 
 uiSeisSel::~uiSeisSel()
 {
-    delete &setup;
     delete &dlgiopar;
-    delete &orgparconstraints;
 }
 
 
@@ -224,12 +209,6 @@ bool uiSeisSel::existingTyped() const
 }
 
 
-bool uiSeisSel::is2D() const
-{
-    return setup.is2d_;
-}
-
-
 bool uiSeisSel::fillPar( IOPar& iop ) const
 {
     iop.merge( dlgiopar );
@@ -262,7 +241,7 @@ void uiSeisSel::processInput()
 
 uiIOObjRetDlg* uiSeisSel::mkDlg()
 {
-    uiSeisSelDlg* dlg = new uiSeisSelDlg( this, ctio, setup );
+    uiSeisSelDlg* dlg = new uiSeisSelDlg( this, ctio, setup_ );
     dlg->usePar( dlgiopar );
     return dlg;
 }

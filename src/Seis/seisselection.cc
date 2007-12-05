@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.7 2007-12-04 16:01:42 cvsjaap Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.8 2007-12-05 11:55:49 cvsbert Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -21,6 +21,8 @@ static const char* rcsID = "$Id: seisselection.cc,v 1.7 2007-12-04 16:01:42 cvsj
 #include "keystrs.h"
 #include "linekey.h"
 #include "strmprov.h"
+
+#define mGetSpecKey(s,k) IOPar::compKey(sKey::s,k)
 
 
 Seis::SelData::SelData()
@@ -378,30 +380,38 @@ Interval<float> Seis::TableSelData::zRange() const
 }
 
 
+#define mGetTableKey(k) mGetSpecKey(Table,k)
+
 void Seis::TableSelData::fillPar( IOPar& iop ) const
 {
     Seis::SelData::fillPar( iop );
     if ( isall_ ) return;
-    iop.set( "Table.ExtraZ", extraz_.start, extraz_.stop );
-    bvs_.fillPar( iop, "Table.Data" );
+    iop.set( mGetTableKey("ExtraZ"), extraz_.start, extraz_.stop );
+    bvs_.fillPar( iop, mGetTableKey("Data") );
 }
 
 
 void Seis::TableSelData::usePar( const IOPar& iop )
 {
+    bvs_.empty();
     Seis::SelData::usePar( iop );
-    if ( isall_ ) { bvs_.empty(); return; }
+    if ( isall_ ) return;
 
-    const char* res = iop.find( sKey::FileName );
+    const char* res = iop.find( mGetTableKey(sKey::FileName) );
     if ( !res || !*res )
-	bvs_.usePar( iop, "Table.Data" );
-    else
+	res = iop.find( sKey::FileName );
+
+    if ( res && *res )
     {
 	StreamData sd( StreamProvider(res).makeIStream() );
 	if ( sd.usable() )
 	    bvs_.getFrom( *sd.istrm );
     }
-    iop.get( "Table.ExtraZ", extraz_.start, extraz_.stop );
+
+    if ( bvs_.isEmpty() )
+	bvs_.usePar( iop, mGetTableKey("Data") );
+
+    iop.get( mGetTableKey("ExtraZ"), extraz_.start, extraz_.stop );
 }
 
 
@@ -585,17 +595,19 @@ Interval<float> Seis::PolySelData::zRange() const
 }
 
 
+#define mGetPolyKey(k) mGetSpecKey(Polygon,k)
+
 void Seis::PolySelData::fillPar( IOPar& iop ) const
 {
     Seis::SelData::fillPar( iop );
     if ( isall_ ) return;
 
-    iop.set( "Polygon.ZRange", zrg_.start, zrg_.stop );
-    iop.set( "Polygon.Stepoutreach", stepoutreach_ );
+    iop.set( mGetPolyKey(sKey::ZRange), zrg_.start, zrg_.stop);
+    iop.set( mGetPolyKey("Stepoutreach"), stepoutreach_ );
 
-    iop.set( "Polygon.NrPolygons", polys_.size() );
+    iop.set( mGetPolyKey("NrPolygons"), polys_.size() );
     for ( int idx=0; idx<polys_.size(); idx++ )
-	::fillPar( iop, *polys_[idx], IOPar::compKey("Poly",idx) );
+	::fillPar( iop, *polys_[idx], mGetPolyKey(idx) );
 }
 
 
@@ -605,36 +617,44 @@ void Seis::PolySelData::usePar( const IOPar& iop )
     Seis::SelData::usePar( iop );
     if ( isall_ ) return; 
 
-    iop.get( "Polygon.ZRange", zrg_.start, zrg_.stop );
-    iop.get( "Polygon.Stepoutreach", stepoutreach_ );
-    const char* res = iop.find( sKey::Polygon );
+    iop.get( mGetPolyKey(sKey::ZRange), zrg_.start, zrg_.stop);
+    iop.get( mGetPolyKey("Stepoutreach"), stepoutreach_ );
+
+    const char* res = iop.find( mGetPolyKey("ID") );
     if ( !res || !*res )
-    {
-	int nrpolys = 0;
-	iop.get( "Polygon.NrPolygons", nrpolys );
-	for ( int idx=0; idx<nrpolys; idx++ )
-	{
-	    polys_ += new ODPolygon<float>();
-	    ::usePar( iop, *polys_[idx], IOPar::compKey("Poly",idx) );
-	}
-    }
-    else
+	res = iop.find( "ID" );
+
+    if ( res && *res )
     {
 	PtrMan<IOObj> ioobj = IOM().get( res );
 	if ( !ioobj ) return;
 	Pick::Set ps; BufferString msg;
 	if ( !PickSetTranslator::retrieve(ps,ioobj,msg) )
-	    { ErrMsg( msg ); return; }
+	{
+	    if ( strcmp(res,"ID") )
+		ErrMsg( msg );
+	}
 
 	if ( ps.size() )
 	{
-	    polys_ += new ODPolygon<float>();
+	    polys_ += new ODPolygon<float>;
 	    for ( int idx=0; idx<ps.size(); idx++ )
 	    {
 		const Pick::Location& pl = ps[idx];
 		Coord fbid = SI().binID2Coord().transformBackNoSnap( pl.pos );
 		polys_[0]->add( Geom::Point2D<float>(fbid.x,fbid.y) );
 	    }
+	}
+    }
+
+    if ( polys_.isEmpty() )
+    {
+	int nrpolys = 0;
+	iop.get( mGetPolyKey("NrPolygons"), nrpolys );
+	for ( int idx=0; idx<nrpolys; idx++ )
+	{
+	    polys_ += new ODPolygon<float>;
+	    ::usePar( iop, *polys_[idx], mGetPolyKey(idx) );
 	}
     }
 }

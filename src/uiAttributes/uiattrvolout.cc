@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.36 2007-11-29 14:36:04 cvsbert Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.37 2007-12-05 11:55:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,9 +64,8 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     todofld = new uiAttrSel( uppgrp_, "Quantity to output", attrdata, is2d);
     todofld->selectiondone.notify( mCB(this,uiAttrVolOut,attrSel) );
 
-    transffld = new uiSeisTransfer( uppgrp_, uiSeisTransfer::Setup()
-	    	.geom(is2d ? Seis::Line : Seis::Vol)
-	    	.fornewentry(true).withstep(false).multi2dlines(true) );
+    transffld = new uiSeisTransfer( uppgrp_, uiSeisTransfer::Setup(is2d,false)
+	    	.fornewentry(true).withstep(false).multiline(true) );
     transffld->attach( alignedBelow, todofld );
     if ( transffld->selFld2D() )
 	transffld->selFld2D()->singLineSel.notify(
@@ -76,7 +75,8 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     ctio.ctxt.parconstraints.set( sKey::Type, sKey::Steering );
     ctio.ctxt.includeconstraints = false;
     ctio.ctxt.allowcnstrsabsent = true;
-    objfld = new uiSeisSel( uppgrp_, ctio, Seis::SelSetup(is2d).selattr(false));
+    objfld = new uiSeisSel( uppgrp_, ctio,
+	    		    uiSeisSel::Setup(is2d,false).selattr(false));
     objfld->attach( alignedBelow, transffld );
 
     uppgrp_->setHAlignObj( transffld );

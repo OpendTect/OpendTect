@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.18 2007-12-04 12:25:05 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.19 2007-12-05 11:55:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uicompoundparsel.h"
+#include "seisselection.h"
 #include "uidialog.h"
 #include "ranges.h"
 class IOPar;
@@ -28,6 +29,10 @@ class BufferStringSet;
 class uiSeisSubSel
 {
 public:
+
+    static uiSeisSubSel* get(uiParent*,const Seis::SelSetup&);
+    virtual		~uiSeisSubSel()					{}
+
     virtual bool	isAll() const					= 0;
     virtual void	getSampling(HorSampling&) const			= 0;
     virtual void	getZRange(StepInterval<float>&) const		= 0;
@@ -54,8 +59,7 @@ class uiSeis3DSubSel : public uiGroup
 {
 public:
 
-    			uiSeis3DSubSel(uiParent*,bool withstep=false,
-					bool rangeonly=false);
+    			uiSeis3DSubSel(uiParent*,const Seis::SelSetup&);
 
     void		clear();
     void		setInput(const HorSampling&);
@@ -87,8 +91,7 @@ class uiSeis2DSubSel : public uiCompoundParSel
 { 	
 public:
 
-			uiSeis2DSubSel(uiParent*,bool for_new_entry,
-						 bool multiline);
+			uiSeis2DSubSel(uiParent*,const Seis::SelSetup&);
 			~uiSeis2DSubSel();
 
     class PosData

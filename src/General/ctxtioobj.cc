@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.30 2007-11-30 14:29:43 cvsbert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.31 2007-12-05 11:55:49 cvsbert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -292,7 +292,13 @@ void CtxtIOObj::fillIfOnlyOne( IOObjContext::StdSelType st )
 {
     if ( !ctxt.trgroup ) return;
     IOM().to( MultiID(IOObjContext::getStdDirData(st)->id) );
-    setObj( IOM().getIfOnlyOne(ctxt.trgroup->userName()) );
+    IOObj* res = IOM().getIfOnlyOne(ctxt.trgroup->userName());
+    if ( !res ) return;
+
+    if ( ctxt.validIOObj(*res) )
+	setObj( res );
+    else
+	delete res;
 }
 
 

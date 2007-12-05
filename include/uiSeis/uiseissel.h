@@ -6,13 +6,66 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.24 2007-12-04 12:25:05 cvsbert Exp $
+ RCS:           $Id: uiseissel.h,v 1.25 2007-12-05 11:55:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiioobjsel.h"
-namespace Seis { class SelSetup; }
+#include "seistype.h"
+
+
+class uiSeisSel : public uiIOObjSel
+{
+public:
+
+    struct Setup
+    {
+			Setup( Seis::GeomType gt )
+			    : geom_(gt)
+			    , selattr_(true)
+			    , withclear_(false)
+			    , seltxt_(0)	{}
+			Setup( bool is2d, bool isps )
+			    : geom_(Seis::geomTypeOf(is2d,isps))
+			    , selattr_(true)
+			    , withclear_(false)
+			    , seltxt_(0)	{}
+
+	mDefSetupMemb(Seis::GeomType,geom)
+	mDefSetupMemb(bool,selattr)
+	mDefSetupMemb(bool,withclear)
+	mDefSetupMemb(const char*,seltxt)
+    };
+
+			uiSeisSel(uiParent*,CtxtIOObj&,const Setup&);
+			~uiSeisSel();
+
+    virtual bool	fillPar(IOPar&) const;
+    virtual void	usePar(const IOPar&);
+
+    inline Seis::GeomType geomType() const { return setup_.geom_; }
+    inline bool		is2D() const	{ return Seis::is2D(setup_.geom_); }
+    inline bool		isPS() const	{ return Seis::isPS(setup_.geom_); }
+
+    void		setAttrNm(const char*);
+    const char*		attrNm() const	{ return attrnm.buf(); }
+    virtual void	processInput();
+    virtual bool	existingTyped() const;
+    virtual void	updateInput();
+
+protected:
+
+    Setup		setup_;
+    BufferString	orgkeyvals;
+    BufferString	attrnm;
+    mutable BufferString curusrnm;
+    IOPar&		dlgiopar;
+
+    virtual void	newSelection(uiIOObjRetDlg*);
+    virtual const char*	userNameFromKey(const char*) const;
+    virtual uiIOObjRetDlg* mkDlg();
+};
 
 
 class uiSeisSelDlg : public uiIOObjSelDlg
@@ -20,8 +73,7 @@ class uiSeisSelDlg : public uiIOObjSelDlg
 public:
 
 			uiSeisSelDlg(uiParent*,const CtxtIOObj&,
-				     const Seis::SelSetup&);
-			~uiSeisSelDlg();
+				     const uiSeisSel::Setup&);
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
@@ -31,47 +83,10 @@ public:
 protected:
 
     uiGenInput*		attrfld_;
-    bool		is2d_;
     bool		allowcnstrsabsent_;	//2D only
 
     void		entrySel(CallBacker*);
     void		filter2DStoredNames(BufferStringSet&) const;
-};
-
-
-class uiSeisSel : public uiIOObjSel
-{
-public:
-
-			uiSeisSel(uiParent*,CtxtIOObj&,const Seis::SelSetup&,
-				  bool wthclear=false,
-				  const char** sel_labels=0);
-				//!< See .cc code for sel_labels
-			~uiSeisSel();
-
-    virtual bool	fillPar(IOPar&) const;
-    virtual void	usePar(const IOPar&);
-
-    bool		is2D() const;
-    void		setAttrNm(const char*);
-    const char*		attrNm() const		{ return attrnm.buf(); }
-    virtual void	processInput();
-    virtual bool	existingTyped() const;
-    virtual void	updateInput();
-
-protected:
-
-    Seis::SelSetup&	setup;
-    BufferString	orgkeyvals;
-    BufferString	attrnm;
-    const char**	seltxts;
-    mutable BufferString curusrnm;
-    IOPar&		dlgiopar;
-    IOPar&		orgparconstraints;
-
-    virtual void	newSelection(uiIOObjRetDlg*);
-    virtual const char*	userNameFromKey(const char*) const;
-    virtual uiIOObjRetDlg* mkDlg();
 };
 
 
