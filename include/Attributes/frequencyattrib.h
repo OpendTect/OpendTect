@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: frequencyattrib.h,v 1.13 2007-10-31 09:16:28 cvsnanne Exp $
+ RCS:           $Id: frequencyattrib.h,v 1.14 2007-12-05 14:01:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,11 +75,14 @@ public:
     static const char*          paramvalStr()           { return "paramval"; }
     static const char*		dumptofileStr()		{ return "dumptofile"; }
 
+    void                        prepPriorToBoundsCalc();
+
 protected:
     				~Frequency();
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
 
+    bool                	checkInpAndParsAtStart();
     bool			allowParallelComputation() const
     				{ return false; }
     bool			getInputOutput(int input,
@@ -91,29 +94,29 @@ protected:
 
     const Interval<float>*	reqZMargin(int input,int output) const;
 
-    Interval<float>		gate;
-    Interval<int>		samplegate;
-    bool			dumptofile;
-    int				fftsz;
-    FFT				fft;
-    ArrayNDWindow*		window;
-    BufferString		windowtype;
-    float			df;
+    Interval<float>		gate_;
+    Interval<int>		samplegate_;
+    bool			dumptofile_;
+    int				fftsz_;
+    FFT				fft_;
+    ArrayNDWindow*		window_;
+    BufferString		windowtype_;
+    float			df_;
 
-    bool			normalize;
-    float			variable;
+    bool			normalize_;
+    float			variable_;
 
-    const DataHolder*		redata;
-    const DataHolder*           imdata;
+    const DataHolder*		redata_;
+    const DataHolder*           imdata_;
     int				realidx_;
     int				imagidx_;
 
-    BufferStringSet		dumpset;
-    bool			fftisinit;
+    BufferStringSet		dumpset_;
+    bool			fftisinit_;
 
-    Array1DImpl<float_complex>*	signal;
-    Array1DImpl<float_complex>*	timedomain;
-    Array1DImpl<float_complex>*	freqdomain;
+    Array1DImpl<float_complex>*	signal_;
+    Array1DImpl<float_complex>*	timedomain_;
+    Array1DImpl<float_complex>*	freqdomain_;
 
     class FreqFunc : public FloatMathFunction
     {
