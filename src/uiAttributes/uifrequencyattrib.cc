@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.cc,v 1.13 2007-10-30 04:24:36 cvssatyaki Exp $
+ RCS:           $Id: uifrequencyattrib.cc,v 1.14 2007-12-06 11:08:21 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,19 +20,6 @@ ________________________________________________________________________
 #include "uiwindowfunctionsel.h"
 
 using namespace Attrib;
-
-static const char* winstrs[] =
-{
-	"None", 
-	"Hamming", 
-	"Hanning", 
-	"Blackman", 
-	"Bartlett",
-	"CosTaper5", 
-	"CosTaper10", 
-	"CosTaper20", 
-	0 
-};
 
 static const char* outpstrs[] =
 {
