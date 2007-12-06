@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.7 2007-12-06 08:55:16 cvsnanne Exp $
+ RCS:		$Id: task.h,v 1.8 2007-12-06 19:52:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -200,6 +200,7 @@ private:
     ProgressMeter*			progressmeter_;
     Threads::Mutex*			nrdonemutex_;
     int					nrdone_;
+    int					totalnrcache_;
 };
 
 

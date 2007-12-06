@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.5 2007-12-05 22:46:06 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.6 2007-12-06 19:52:01 cvskris Exp $";
 
 #include "task.h"
 
@@ -163,6 +163,7 @@ ParallelTask::ParallelTask( const char* nm )
     , progressmeter_( 0 )
     , nrdonemutex_( 0 )
     , nrdone_( -1 )
+    , totalnrcache_( -1 )
 { }
 
 
@@ -197,21 +198,14 @@ void ParallelTask::setProgressMeter( ProgressMeter* pm )
     {
 	progressmeter_->setName( name() );
 	progressmeter_->setMessage( message() );
-	progressmeter_->setTotalNr( totalNr() );
+	enableNrDoneCounting( true );
     }
+
 }
 
 
 void ParallelTask::reportNrDone( int nr )
 {
-    if ( progressmeter_ )
-    {
-	progressmeter_->setTotalNr( totalNr() );
-	progressmeter_->setNrDoneText( nrDoneText() );
-	progressmeter_->setMessage( message() );
-	progressmeter_->setNrDone( nrDone() );
-    }
-
     if ( nrdonemutex_ )
     {
 	Threads::MutexLocker lock( *nrdonemutex_ );
@@ -220,6 +214,15 @@ void ParallelTask::reportNrDone( int nr )
 	else
 	    nrdone_ += nr;
     }
+
+    if ( progressmeter_ )
+    {
+	progressmeter_->setTotalNr( totalnrcache_ );
+	progressmeter_->setNrDoneText( nrDoneText() );
+	progressmeter_->setMessage( message() );
+	progressmeter_->setNrDone( nrDone() );
+    }
+
 }
 
 
@@ -249,11 +252,12 @@ Threads::ThreadWorkManager& ParallelTask::twm()
 
 bool ParallelTask::execute()
 {
+    totalnrcache_ = totalNr();
     if ( progressmeter_ )
     {
 	progressmeter_->setName( name() );
 	progressmeter_->setMessage( message() );
-	progressmeter_->setTotalNr( totalNr() );
+	progressmeter_->setTotalNr( totalnrcache_ );
     }
 
     if ( nrdonemutex_ ) nrdonemutex_->lock();
@@ -266,11 +270,11 @@ bool ParallelTask::execute()
     if ( Threads::getNrProcessors()==1 )
     {
 	if ( !doPrepare( 1 ) ) return false;
-	return doFinish( doWork( 0, totalNr()-1, 0 ) );
+	return doFinish( doWork( 0, totalnrcache_-1, 0 ) );
     }
 
     const int nrthreads = twm().nrThreads();
-    const int size = totalNr();
+    const int size = totalnrcache_;
     if ( !size ) return true;
 
     mVariableLengthArr( ParallelTaskRunner, runners, nrthreads );
@@ -294,7 +298,7 @@ bool ParallelTask::execute()
 	return false;
 
     const bool res = tasks.size()<2
-	? doWork( 0, totalNr()-1, 0 ) : twm().addWork( tasks );
+	? doWork( 0, totalnrcache_-1, 0 ) : twm().addWork( tasks );
 
     if ( !doFinish( res ) )
 	return false;
