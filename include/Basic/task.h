@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.6 2007-12-05 22:46:06 cvskris Exp $
+ RCS:		$Id: task.h,v 1.7 2007-12-06 08:55:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ public:
 
     virtual void	setProgressMeter(ProgressMeter*)	{}
     			//!<Must be called before execute()
-    void		enableNrDoneCounting(bool yn);
+    void		enableNrDoneCounting( bool yn )		{}
     			/*<!It is not guaranteed that it's implemented by
 			    the class. If not, nrDone() will return -1.
 			    must be called before execute(). */
