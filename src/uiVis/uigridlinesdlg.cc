@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February 2006
- RCS:           $Id: uigridlinesdlg.cc,v 1.7 2007-02-22 18:14:40 cvskris Exp $
+ RCS:           $Id: uigridlinesdlg.cc,v 1.8 2007-12-06 08:52:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ uiGridLinesDlg::uiGridLinesDlg( uiParent* p, visSurvey::PlaneDataDisplay* pdd )
     , zspacingfld_( 0 )
 {
     BufferString label;
-    CubeSampling cs(pdd->getCubeSampling());
+    CubeSampling cs( pdd->getCubeSampling(true,true) );
     if ( cs.nrInl()>1 ) 
 	{ mCreateGridFld( inl, "inline" ) }
     if ( cs.nrCrl()>1 )
@@ -123,7 +123,7 @@ static void getDefaultZSampling( StepInterval<float>& zrg )
 void uiGridLinesDlg::setParameters()
 {
     const bool hasgl = !pdd_->gridlines()->getGridCubeSampling().isEmpty();
-    CubeSampling cs = pdd_->getCubeSampling();
+    CubeSampling cs = pdd_->getCubeSampling( true, true );
     if ( hasgl )
     {
 	cs = pdd_->gridlines()->getGridCubeSampling();
@@ -182,7 +182,7 @@ bool uiGridLinesDlg::acceptOK( CallBacker* )
     }
 
     gl.setGridCubeSampling( cs );
-    gl.setPlaneCubeSampling( pdd_->getCubeSampling() );
+    gl.setPlaneCubeSampling( pdd_->getCubeSampling(true,true) );
     if ( inlfld_ )
 	gl.showInlines( inlfld_->isChecked() );
     if ( crlfld_ )
