@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.17 2007-12-05 14:01:04 cvshelene Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.18 2007-12-06 11:07:30 cvshelene Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -49,7 +49,7 @@ void Frequency::initClass()
     desc->addParam( window );
 
     FloatParam* variable = new FloatParam( paramvalStr() );
-    const float defval = 0.95;
+    const float defval = 0.05;
     variable->setDefaultValue( defval );
     variable->setRequired( false );
     desc->addParam(variable);
