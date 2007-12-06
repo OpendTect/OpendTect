@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.11 2007-11-14 17:54:32 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.12 2007-12-06 20:05:45 cvskris Exp $";
 
 #include "prestackprocessor.h"
 
@@ -206,13 +206,3 @@ bool ProcessManager::usePar( const IOPar& par )
 
 
 }; //namespace
-
-
-#include "prestackagc.h"
-#include "prestackmute.h"
-
-void PreStack::initBuiltinClasses()
-{
-    PreStack::Mute::initClass();
-    PreStack::AGC::initClass();
-}

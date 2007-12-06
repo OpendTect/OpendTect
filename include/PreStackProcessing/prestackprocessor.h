@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.9 2007-11-14 17:54:32 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.10 2007-12-06 20:05:45 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -23,8 +23,6 @@ class IOPar;
 
 namespace PreStack
 {
-
-void initBuiltinClasses();
 
 class Gather;
 

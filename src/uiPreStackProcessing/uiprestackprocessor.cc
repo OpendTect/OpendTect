@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.6 2007-06-26 21:39:44 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.7 2007-12-06 20:05:45 cvskris Exp $";
 
 #include "uiprestackprocessor.h"
 
@@ -234,13 +234,3 @@ void uiProcessorManager::propertiesCB( CallBacker* )
 }
 
 }; //namespace
-
-
-#include "uiprestackagc.h"
-#include "uiprestackmute.h"
-
-void PreStack::initBuiltinUiClasses()
-{
-    PreStack::uiAGC::initClass();
-    PreStack::uiMute::initClass();
-}

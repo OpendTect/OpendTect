@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uiprestackprocessor.h,v 1.4 2007-08-22 06:30:21 cvskris Exp $
+ RCS:		$Id: uiprestackprocessor.h,v 1.5 2007-12-06 20:05:45 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -23,8 +23,6 @@ class uiButton;
 
 namespace PreStack
 {
-
-void initBuiltinUiClasses();
 
 class ProcessManager;
 class Processor;
