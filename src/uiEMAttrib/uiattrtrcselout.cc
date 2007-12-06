@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.29 2007-12-05 11:55:49 cvsbert Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.30 2007-12-06 09:11:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -258,6 +258,7 @@ void uiAttrTrcSelOut::createAddWidthFld( uiParent* prnt )
     BufferString zlabel = createAddWidthLabel();
     addwidthfld_ = new uiGenInput( prnt, zlabel, BoolInpSpec(true) );
     addwidthfld_->setValue( false );
+    addwidthfld_->setPrefHeightInChar(2);
     addwidthfld_->attach( alignedBelow, nrsampfld_ );
     addwidthfld_->valuechanged.notify( mCB(this,uiAttrTrcSelOut,
 					  extraWidthSel) );
