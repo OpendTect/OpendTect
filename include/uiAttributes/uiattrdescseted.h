@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.13 2007-10-12 09:07:20 cvssulochana Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.14 2007-12-06 11:07:58 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,8 @@ public:
     Notifier<uiAttribDescSetEd>		evalattrcb;
 
     static const char* 	sKeyUseAutoAttrSet;
-    static const char* 	sKeyAutoAttrSetID;
+    static const char* 	sKeyAuto2DAttrSetID;
+    static const char*  sKeyAuto3DAttrSetID;
 
 protected:
 

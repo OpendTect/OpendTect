@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          June 2007
- RCS:           $Id: uiautoattrdescset.cc,v 1.2 2007-11-30 14:29:43 cvsbert Exp $
+ RCS:           $Id: uiautoattrdescset.cc,v 1.3 2007-12-06 11:07:53 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,15 +38,17 @@ ________________________________________________________________________
 using namespace Attrib;
 
 
-uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p )
+uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
         : uiDialog(p,uiDialog::Setup("Auto-load Attribute Set",
 		                     "Set auto-load Attribute-Set",
 				     "100.0.0"))
         , ctio_(*mMkCtxtIOObj(AttribDescSet))
+	, is2d_(is2d)
 {
     bool douse = false; MultiID id;
     Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, douse );
-    id = SI().pars().find( uiAttribDescSetEd::sKeyAutoAttrSetID );
+    id = is2d_ ? SI().pars().find( uiAttribDescSetEd::sKeyAuto2DAttrSetID )
+	       : SI().pars().find( uiAttribDescSetEd::sKeyAuto3DAttrSetID );
 
     usefld_ = new uiGenInput( this, "Enable auto-load Attribute Set",
                                   BoolInpSpec(true) );

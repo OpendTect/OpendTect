@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          June 2007
- RCS:           $Id: uiautoattrdescset.h,v 1.1 2007-06-12 11:23:25 cvsraman Exp $
+ RCS:           $Id: uiautoattrdescset.h,v 1.2 2007-12-06 11:07:58 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ class IOObj;
 class uiAutoAttrSelDlg : public uiDialog
 {
 public:
-    				uiAutoAttrSelDlg(uiParent* p);
+    				uiAutoAttrSelDlg(uiParent* p,bool);
 				~uiAutoAttrSelDlg();
 
 	IOObj*			getObj();
@@ -44,6 +44,7 @@ public:
 protected:
 	
 	CtxtIOObj&          	ctio_;
+	bool			is2d_;
 
 	uiGenInput*         	usefld_;
 	uiIOObjSelGrp*      	selgrp_;

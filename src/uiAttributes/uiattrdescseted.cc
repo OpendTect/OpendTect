@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.64 2007-11-13 16:21:11 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.65 2007-12-06 11:07:52 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,9 @@ ________________________________________________________________________
 
 
 const char* uiAttribDescSetEd::sKeyUseAutoAttrSet = "dTect.Auto Attribute set";
-const char* uiAttribDescSetEd::sKeyAutoAttrSetID = "Attrset.Auto ID";
+const char* uiAttribDescSetEd::sKeyAuto2DAttrSetID = "2DAttrset.Auto ID";
+const char* uiAttribDescSetEd::sKeyAuto3DAttrSetID = "3DAttrset.Auto ID";
+
 BufferString uiAttribDescSetEd::nmprefgrp( "" );
 
 static bool prevsavestate = true;
@@ -250,8 +252,12 @@ void uiAttribDescSetEd::init()
 		    if ( dlg.isAuto() )
 		    {
 			MultiID id = ioobj ? ioobj->key() : "";
-			SI().getPars().set(uiAttribDescSetEd::sKeyAutoAttrSetID,
-			       		(const char*)id);
+			const bool is2d = is2D();
+			IOPar& par = SI().getPars();
+			is2d ? par.set( uiAttribDescSetEd::sKeyAuto2DAttrSetID,
+					(const char*)id)
+			     : par.set( uiAttribDescSetEd::sKeyAuto3DAttrSetID,
+				        (const char*)id);
 			SI().savePars();
 		    }
 		    else
@@ -368,7 +374,8 @@ bool uiAttribDescSetEd::doSave( bool endsave )
 
 void uiAttribDescSetEd::autoSet()
 {
-    uiAutoAttrSelDlg dlg( this );
+    const bool is2d = is2D();
+    uiAutoAttrSelDlg dlg( this, is2d );
     if ( dlg.go() )
     {
 	const bool douse = dlg.useAuto();
@@ -376,8 +383,9 @@ void uiAttribDescSetEd::autoSet()
 	const MultiID id( ioobj ? ioobj->key() : MultiID("") );
     	Settings::common().setYN(uiAttribDescSetEd::sKeyUseAutoAttrSet, douse);
 	Settings::common().write();
-	SI().getPars().set(uiAttribDescSetEd::sKeyAutoAttrSetID,
-			   (const char*)id);
+	IOPar& par = SI().getPars();
+	is2d ? par.set(uiAttribDescSetEd::sKeyAuto2DAttrSetID, (const char*)id)
+	     : par.set(uiAttribDescSetEd::sKeyAuto3DAttrSetID, (const char*)id);
 	SI().savePars();
 	if ( dlg.loadAuto() )
 	{
