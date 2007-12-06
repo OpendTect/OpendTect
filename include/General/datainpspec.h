@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.67 2007-10-25 15:05:31 cvssatyaki Exp $
+ RCS:           $Id: datainpspec.h,v 1.68 2007-12-06 11:11:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -519,7 +519,7 @@ public:
     virtual bool	setText( const char* s, int idx=0 ) ;
     virtual const char*	text( int idx ) const;
 
-    void		setDefaultStringValue( const char* s, int idx );
+    void		setDefaultValue( const char* s, int idx );
     const char*		getDefaultStringValue( int idx ) const;
 protected:
 

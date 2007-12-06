@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.24 2007-10-25 15:05:31 cvssatyaki Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.25 2007-12-06 11:09:42 cvshelene Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -204,7 +204,7 @@ const char* StringInpSpec::text( int idx ) const
 }
 
 
-void StringInpSpec::setDefaultStringValue( const char* s, int idx )
+void StringInpSpec::setDefaultValue( const char* s, int idx )
 {
     defaultstr = s;
 }
