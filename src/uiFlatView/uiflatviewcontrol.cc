@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.29 2007-11-08 20:32:47 cvskris Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.30 2007-12-06 15:08:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,8 +87,10 @@ uiWorldRect uiFlatViewControl::getBoundingBox() const
 void uiFlatViewControl::onFinalise( CallBacker* )
 {
     uiWorldRect viewrect = vwrs_[0]->curView();
-    if ( !canReUseZoomSettings( vwrs_[0]->curView().centre(),
-				zoommgr_.current() ) )
+    const bool canreuse = zoommgr_.current().width() > 10
+			 && canReUseZoomSettings( vwrs_[0]->curView().centre(),
+						  zoommgr_.current() );
+    if ( !canreuse )
     {
 	viewrect = getBoundingBox();
 	zoommgr_.init( viewrect );
