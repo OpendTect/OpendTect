@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.221 2007-12-02 09:24:52 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.222 2007-12-06 09:42:27 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -1170,6 +1170,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	    uiMSG().error( "Please select an attribute treeitem" );
 	    return false;
 	}
+	as.set2DFlag( attrserv_->is2DEvent() );
 	visserv_->setSelSpec( visid, attrib, as );
 	const bool success = as.is2D() ? evaluate2DAttribute(visid,attrib)
 	    			       : evaluateAttribute(visid,attrib);
