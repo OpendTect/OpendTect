@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodseis2dtreeitem.h,v 1.4 2007-11-27 11:59:17 cvsraman Exp $
+ RCS:		$Id: uiodseis2dtreeitem.h,v 1.5 2007-12-06 11:13:00 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -48,6 +48,7 @@ protected:
     void                createMenuCB(CallBacker*);
     void                handleMenuCB(CallBacker*);
 
+    void		createAttrMenu(uiMenuHandler*);
     bool                isExpandable() const            { return true; }
     const char*         parentType() const;
 
@@ -56,8 +57,10 @@ protected:
     RefMan<uiMenuHandler> menuhandler_;
 
     MenuItem            addlinesitm_;
+    MenuItem            zrgitm_;
     MenuItem            addattritm_;
     MenuItem            removeattritm_;
+    MenuItem            editattritm_;
     MenuItem            showitm_;
     MenuItem            hideitm_;
     MenuItem            showlineitm_;
@@ -67,7 +70,6 @@ protected:
     MenuItem            removeitm_;
     MenuItem            storeditm_;
     MenuItem            coltabselitm_;
-    MenuItem            zrgitm_;
 };
 
 
@@ -76,11 +78,13 @@ class uiOD2DLineSetSubItem : public uiODDisplayTreeItem
 public:
 			uiOD2DLineSetSubItem(const char* nm,int displayid=-1);
 
-    bool		displayStoredData(const char*);
-    void		setAttrib(const Attrib::SelSpec& );
+    bool		addStoredData(const char*);
+    void		addAttrib(const Attrib::SelSpec& );
     void		showLineName(bool);
     void		setZRange(const Interval<float>);
     void		removeAttrib(const char*);
+    void		replaceAttrib(const char*,const char*);
+    void                replaceAttrib(const char*,const Attrib::SelSpec&);
 
 protected:
 			~uiOD2DLineSetSubItem();
@@ -106,6 +110,7 @@ public:
 				uiOD2DLineSetAttribItem(const char* parenttype);
     bool			displayStoredData(const char*);
     void			setAttrib(const Attrib::SelSpec& );
+    void			clearAttrib();
 
 protected:
     void			createMenuCB(CallBacker*);

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.29 2007-11-27 12:00:08 cvsraman Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.30 2007-12-06 11:12:56 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ___________________________________________________________________
 #include "uiodseis2dtreeitem.h"
 
 #include "uiattribpartserv.h"
+#include "uiattr2dsel.h"
 #include "uicursor.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
@@ -97,8 +98,10 @@ uiOD2DLineSetTreeItem::uiOD2DLineSetTreeItem( const MultiID& mid )
     , setid_( mid )
     , menuhandler_(0)
     , addlinesitm_("&Add line(s) ...")
+    , zrgitm_("Set &Z-Range ...")
     , addattritm_("Add A&ttribute")
     , removeattritm_("Re&move Attribute")
+    , editattritm_("&Edit Attribute")
     , showitm_("&Show all")
     , hideitm_("&Hide all")
     , showlineitm_("&Lines")
@@ -107,7 +110,6 @@ uiOD2DLineSetTreeItem::uiOD2DLineSetTreeItem( const MultiID& mid )
     , hidelblitm_("Line&names")
     , removeitm_("&Remove")
     , storeditm_("Stored &2D data")
-    , zrgitm_("Set &Z-Range ...")
     , curzrg_( Interval<float>().setFrom(SI().zRange(true)) )
 {
     storeditm_.checkable = true;
@@ -155,6 +157,59 @@ void uiOD2DLineSetTreeItem::selectAddLines()
 }
 
 
+void uiOD2DLineSetTreeItem::createAttrMenu( uiMenuHandler* menu )
+{	
+    Attrib::SelSpec as;
+    applMgr()->attrServer()->resetMenuItems();
+    MenuItem* dummy =
+	applMgr()->attrServer()->storedAttribMenuItem( as, true );
+    dummy->removeItems();
+
+    BufferStringSet allstored;
+    Attrib::SelInfo::getAttrNames( setid_, allstored );
+    allstored.sort();
+    storeditm_.createItems( allstored );
+    mAddMenuItem( &addattritm_, &storeditm_, storeditm_.nrItems(), false );
+
+    MenuItem* attrmenu = applMgr()->attrServer()->
+			    calcAttribMenuItem( as, true, false );
+    mAddMenuItem( &addattritm_, attrmenu, attrmenu->nrItems(), false );
+
+    MenuItem* nla = applMgr()->attrServer()->
+			    nlaAttribMenuItem( as, true, false );
+    if ( nla && nla->nrItems() )
+	mAddMenuItem( &addattritm_, nla, true, false );
+
+    mAddMenuItem( menu, &addattritm_, true, false );
+
+    BufferStringSet displayedattribs;
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	const int id = ((uiOD2DLineSetSubItem*)children_[idx])->displayID();
+	const int nrattribs = applMgr()->visServer()->getNrAttribs( id );
+	for ( int adx=0; adx<nrattribs; adx++ )
+	{
+	    const Attrib::SelSpec* ds =
+			    applMgr()->visServer()->getSelSpec( id, adx );
+	    BufferString attribname = "<Unselected>";
+	    if ( ds && ds->userRef() && *ds->userRef() )
+		attribname = ds->userRef();
+
+	    displayedattribs.addIfNew( attribname );
+	}
+    }
+
+    if ( displayedattribs.size() )
+    {
+	removeattritm_.createItems( displayedattribs );
+	mAddMenuItem( menu, &removeattritm_, true, false );
+
+	editattritm_.createItems( displayedattribs );
+	mAddMenuItem( menu, &editattritm_, true, false );
+    }
+}
+    
+
 void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
 {
     mDynamicCastGet(uiMenuHandler*,menu,cb);
@@ -162,52 +217,9 @@ void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
 
     if ( children_.size() > 1 )
     {
-	Attrib::SelSpec as;
-	applMgr()->attrServer()->resetMenuItems();
-	MenuItem* dummy =
-	    applMgr()->attrServer()->storedAttribMenuItem( as, true );
-	dummy->removeItems();
+	mAddMenuItem( menu, &zrgitm_, true, false );
 
-	BufferStringSet allstored;
-	Attrib::SelInfo::getAttrNames( setid_, allstored );
-	allstored.sort();
-	storeditm_.createItems( allstored );
-	mAddMenuItem( &addattritm_, &storeditm_, storeditm_.nrItems(), false );
-
-	MenuItem* attrmenu = applMgr()->attrServer()->
-				calcAttribMenuItem( as, true, false );
-	mAddMenuItem( &addattritm_, attrmenu, attrmenu->nrItems(), false );
-
-	MenuItem* nla = applMgr()->attrServer()->
-				nlaAttribMenuItem( as, true, false );
-	if ( nla && nla->nrItems() )
-	    mAddMenuItem( &addattritm_, nla, true, false );
-
-	mAddMenuItem( menu, &addattritm_, true, false );
-
-	BufferStringSet displayedattribs;
-	for ( int idx=0; idx<children_.size(); idx++ )
-	{
-	    const int id = ((uiOD2DLineSetSubItem*)children_[idx])->displayID();
-	    const int nrattribs = applMgr()->visServer()->getNrAttribs( id );
-	    for ( int adx=0; adx<nrattribs; adx++ )
-	    {
-		const Attrib::SelSpec* ds =
-		    		applMgr()->visServer()->getSelSpec( id, adx );
-		BufferString attribname = "<Unselected>";
-		if ( ds && ds->userRef() && *ds->userRef() )
-		    attribname = ds->userRef();
-
-		displayedattribs.addIfNew( attribname );
-	    }
-	}
-
-	if ( displayedattribs.size() )
-	{
-	    removeattritm_.createItems( displayedattribs );
-	    mAddMenuItem( menu, &removeattritm_, true, false );
-	}
-
+	createAttrMenu( menu );
 	mAddMenuItem( menu, &showitm_, true, false );
 	mAddMenuItem( &showitm_, &showlineitm_, true, false );
 	mAddMenuItem( &showitm_, &showlblitm_, true, false );
@@ -215,11 +227,12 @@ void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
 	mAddMenuItem( menu, &hideitm_, true, false );
 	mAddMenuItem( &hideitm_, &hidelineitm_, true, false );
 	mAddMenuItem( &hideitm_, &hidelblitm_, true, false );
-
-	mAddMenuItem( menu, &zrgitm_, true, false );
     }
     else
     {
+	mResetMenuItem( &zrgitm_ );
+	mResetMenuItem( &addattritm_ );
+	mResetMenuItem( &removeattritm_ );
 	mResetMenuItem( &showitm_ );
 	mResetMenuItem( &showlineitm_ );
 	mResetMenuItem( &showlblitm_ );
@@ -227,8 +240,6 @@ void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &hideitm_ );
 	mResetMenuItem( &hidelineitm_ );
 	mResetMenuItem( &hidelblitm_ );
-
-	mResetMenuItem( &zrgitm_ );
     }
 
     mAddMenuItem( menu, &removeitm_, true, false );
@@ -258,8 +269,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiOD2DLineSetSubItem*, lineitem, children_[idx] );
-	    lineitem->addAttribItem();
-	    lineitem->displayStoredData(attribnm);
+	    lineitem->addStoredData(attribnm);
 	}
     }
     else if ( applMgr()->attrServer()->handleAttribSubMenu(mnuid,as) )
@@ -268,8 +278,38 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiOD2DLineSetSubItem*, lineitem, children_[idx] );
-	    lineitem->addAttribItem();
-	    lineitem->setAttrib( as );
+	    lineitem->addAttrib( as );
+	}
+    }
+    else if ( editattritm_.itemIndex(mnuid)!=-1 )
+    {
+	menu->setIsHandled( true );
+	const int itmidx = editattritm_.itemIndex( mnuid );
+	BufferString curnm = editattritm_.getItem(itmidx)->text;
+	const char* attribnm = curnm=="<Unselected>" ? 0 : curnm.buf();
+	const Attrib::DescSet* ds = applMgr()->attrServer()->curDescSet( true );
+	uiAttr2DSelDlg dlg( ODMainWin(), ds, setid_, attribnm );
+	if ( !dlg.go() ) return;
+
+	const int attrtype = dlg.getSelType();
+	if ( attrtype == 0 )
+	{
+	    const char* newattrnm = dlg.getStoredAttrName();
+	    for ( int idx=0; idx<children_.size(); idx++ )
+	    {
+		mDynamicCastGet(uiOD2DLineSetSubItem*, litem, children_[idx] );
+		litem->replaceAttrib( attribnm, newattrnm );
+	    }
+	}
+	else if ( attrtype == 1 )
+	{
+	    const Attrib::Desc* desc =  ds->getDesc( dlg.getSelDescID() );
+	    as.set( *desc );
+	    for ( int idx=0; idx<children_.size(); idx++ )
+	    {
+		mDynamicCastGet(uiOD2DLineSetSubItem*, litem, children_[idx] );
+		litem->replaceAttrib( attribnm, as );
+	    }
 	}
     }
     else if ( removeattritm_.itemIndex(mnuid)!=-1 )
@@ -504,8 +544,9 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 }
 
 
-bool uiOD2DLineSetSubItem::displayStoredData( const char* nm )
+bool uiOD2DLineSetSubItem::addStoredData( const char* nm )
 {
+    addAttribItem();
     const int lastattridx = children_.size() - 1;
     if ( lastattridx < 0 ) return false;
 
@@ -516,8 +557,9 @@ bool uiOD2DLineSetSubItem::displayStoredData( const char* nm )
 }
 
 
-void uiOD2DLineSetSubItem::setAttrib( const Attrib::SelSpec& myas )
+void uiOD2DLineSetSubItem::addAttrib( const Attrib::SelSpec& myas )
 {
+    addAttribItem();
     const int lastattridx = children_.size() - 1;
     if ( lastattridx < 0 ) return;
 
@@ -612,16 +654,56 @@ void uiOD2DLineSetSubItem::removeAttrib( const char* attribnm )
 
     for ( int idx=0; idx<children_.size(); idx++ )
     {
-	if ( applMgr()->visServer()->getNrAttribs(displayID()) <= 1 )
-	    return;
-
 	mDynamicCastGet( uiOD2DLineSetAttribItem*, item, children_[idx] );
 	if ( !item || itemnm!=item->name() ) continue;
+
+	if ( applMgr()->visServer()->getNrAttribs(displayID()) <= 1 )
+	{
+	    item->clearAttrib();
+	    return;
+	}
 
 	applMgr()->visServer()->removeAttrib( displayID(), item->attribNr() );
 	item->prepareForShutdown();
 	removeChild( item );
 	idx--;
+    }
+}
+
+
+void uiOD2DLineSetSubItem::replaceAttrib( const char* oldnm, const char* newnm)
+{
+    BufferString itemnm;
+    if ( oldnm && *oldnm )
+	itemnm = oldnm;
+    else
+	itemnm = "<right-click>";
+
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	mDynamicCastGet( uiOD2DLineSetAttribItem*, item, children_[idx] );
+	if ( !item || itemnm!=item->name() ) continue;
+
+	item->displayStoredData( newnm );
+    }
+}
+
+
+void uiOD2DLineSetSubItem::replaceAttrib( const char* oldnm,
+					  const Attrib::SelSpec& newas )
+{
+    BufferString itemnm;
+    if ( oldnm && *oldnm )
+	itemnm = oldnm;
+    else
+	itemnm = "<right-click>";
+
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	mDynamicCastGet( uiOD2DLineSetAttribItem*, item, children_[idx] );
+	if ( !item || itemnm!=item->name() ) continue;
+
+	item->setAttrib( newas );
     }
 }
 
@@ -714,8 +796,7 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
     {
 	uiCursorChanger cursorchgr( uiCursor::Wait );
 	menu->setIsHandled(true);
-	s2d->clearTexture( attribNr() );
-	updateColumnText(0);
+	clearAttrib();
     }
 }
 
@@ -785,3 +866,16 @@ void uiOD2DLineSetAttribItem::setAttrib( const Attrib::SelSpec& myas )
     updateColumnText(0);
     setChecked( s2d->isOn() );
 }
+
+
+void uiOD2DLineSetAttribItem::clearAttrib()
+{
+    mDynamicCastGet(visSurvey::Seis2DDisplay*,s2d,
+		    applMgr()->visServer()->getObject( displayID() ));
+    if ( !s2d )
+	return;
+
+    s2d->clearTexture( attribNr() );
+    updateColumnText(0);
+}
+
