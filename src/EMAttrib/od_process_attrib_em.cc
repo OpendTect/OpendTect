@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.40 2007-10-18 10:58:09 cvsnanne Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.41 2007-12-06 09:19:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "filepath.h"
 #include "hostdata.h"
+#include "initalgo.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -240,6 +241,7 @@ static bool process( std::ostream& strm, Processor* proc,
 bool BatchProgram::go( std::ostream& strm )
 {
     initAttribClasses();
+    Algo::initStdClasses();
     if ( cmdLineOpts().size() )
     {
 	BufferString opt = *cmdLineOpts()[0];
