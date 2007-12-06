@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.104 2007-11-27 13:23:28 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.105 2007-12-06 11:22:27 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -312,7 +312,16 @@ void uiODMenuMgr::fillProcMenu()
     uiPopupMenu* horitm = 
 		new uiPopupMenu( &appl_, "Create output using &Horizon");
     bool hasboth = SI().has2D() && SI().has3D();
+#ifdef __debug__
     mCreateHorMnu( mnu2d, "&2D", 2D );
+#else
+    if ( SI().has2D() )
+    {
+	uiPopupMenu* mnu2d = hasboth ? new uiPopupMenu( &appl_, "&2D" ) :horitm;
+	mInsertItem( mnu2d, "&Horizon grid...", mCreateSurf2DMnuItm );
+	if ( hasboth ) horitm->insertItem( mnu2d );
+    }
+#endif
     mCreateHorMnu( mnu3d, "&3D", 3D );
     procmnu_->insertItem( horitm );
     
