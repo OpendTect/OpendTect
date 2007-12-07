@@ -4,11 +4,12 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: uimadiosel.h,v 1.1 2007-11-15 12:55:26 cvsbert Exp $
+ * ID       : $Id: uimadiosel.h,v 1.2 2007-12-07 15:15:51 cvsbert Exp $
 -*/
 
 #include "uicompoundparsel.h"
 #include "uidialog.h"
+#include "seistype.h"
 #include "iopar.h"
 class uiLabel;
 class uiGenInput;
@@ -53,27 +54,35 @@ protected:
 
     CtxtIOObj&		ctio3d_;
     CtxtIOObj&		ctio2d_;
-    CtxtIOObj&		ctiops_;
-    int			idx3d_, idx2d_, idxps_, idxmad_, idxnone_;
+    CtxtIOObj&		ctiops3d_;
+    CtxtIOObj&		ctiops2d_;
+    int			idx3d_, idx2d_, idxps3d_, idxps2d_, idxmad_, idxnone_;
     IOPar&		iop_;
 
     uiGenInput*		typfld_;
     uiSeisSel*		seis3dfld_;
     uiSeisSel*		seis2dfld_;
-    uiIOObjSel*		seispsfld_;
+    uiSeisSel*		seisps3dfld_;
+    uiSeisSel*		seisps2dfld_;
     uiFileInput*	madfld_;
     // Inp only:
     uiSeis3DSubSel*	subsel3dfld_;
     uiSeis2DSubSel*	subsel2dfld_;
-    uiSeisSubSel*	subselpsfld_;
     uiGenInput*		subselmadfld_;
     uiLabel*		subselmadlbl_;
 
+    void		initWin(CallBacker*);
     void		typSel(CallBacker*);
     void		selChg(CallBacker*);
 
     bool		getInp();
     bool		acceptOK(CallBacker*);
+
+    bool		isMad() const;
+    Seis::GeomType	geomType() const;
+    CtxtIOObj&		ctxtIOObj(Seis::GeomType);
+    uiSeisSel*		seisSel(Seis::GeomType);
+    uiSeisSubSel*	seisSubSel(Seis::GeomType);
 
 };
 

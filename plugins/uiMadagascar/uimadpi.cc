@@ -5,7 +5,7 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.4 2007-07-06 10:07:50 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.5 2007-12-07 15:15:51 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiodmenumgr.h"
@@ -35,20 +35,29 @@ extern "C" PluginInfo* GetuiMadagascarPluginInfo()
 class uiMadagascarLink :  public CallBacker
 {
 public:
-			uiMadagascarLink(uiODMain*);
+			uiMadagascarLink(uiODMain&);
 
-    uiODMain*		appl;
+    uiODMain&		appl;
+    uiODMenuMgr&	mnumgr;
 
     void		doMain(CallBacker*);
+    void		insertItems(CallBacker* cb=0);
+
 };
 
 
-uiMadagascarLink::uiMadagascarLink( uiODMain* a )
+uiMadagascarLink::uiMadagascarLink( uiODMain& a )
 	: appl(a)
+    	, mnumgr(a.menuMgr())
 {
-    uiODMenuMgr& mnumgr = appl->menuMgr();
+    mnumgr.dTectTBChanged.notify( mCB(this,uiMadagascarLink,insertItems) );
+    insertItems();
+}
+
+
+void uiMadagascarLink::insertItems( CallBacker* )
+{
     const CallBack cb( mCB(this,uiMadagascarLink,doMain) );
-    mnumgr.procMnu()->insertSeparator();
     mnumgr.procMnu()->insertItem( new uiMenuItem("&Madagascar ...",cb) );
     mnumgr.dtectTB()->addButton( "madagascar.png", cb, "Madagascar link" );
 }
@@ -56,16 +65,18 @@ uiMadagascarLink::uiMadagascarLink( uiODMain* a )
 
 void uiMadagascarLink::doMain( CallBacker* )
 {
-    uiMadagascarMain dlg( appl );
+    uiMadagascarMain dlg( &appl );
     dlg.go();
 }
 
 
 extern "C" const char* InituiMadagascarPlugin( int, char** )
 {
-    static uiMadagascarLink* lnk = 0; if ( lnk ) return 0;
+    static uiMadagascarLink* lnk = 0;
+    if ( lnk ) return 0;
+
     if ( ODMad::PI().errMsg().isEmpty() )
-	lnk = new uiMadagascarLink( ODMainWin() );
+	lnk = new uiMadagascarLink( *ODMainWin() );
 #ifdef MAD_UIMSG_IF_FAIL
     else
 	uiMSG().error( ODMad::PI().errMsg() );
