@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.13 2007-12-07 18:54:51 cvskris Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.14 2007-12-07 22:36:33 cvskris Exp $";
 
 #include "marchingcubes.h"
 
@@ -452,7 +452,8 @@ bool Implicit2MarchingCubes::doWork( int start, int stop, int )
     iterator.setPos( arraypos );
 
     const int nriters = stop-start+1;
-    for ( int idx=0; idx<nriters; idx++, iterator.next(), reportNrDone() )
+    for ( int idx=0; idx<nriters && shouldContinue();
+	  idx++, iterator.next(), reportNrDone() )
     {
 	const int pos[] = { iterator[mX]+xorigin_, iterator[mY]+yorigin_,
 			    iterator[mZ]+zorigin_ };
