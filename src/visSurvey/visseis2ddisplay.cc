@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.26 2007-11-28 09:53:19 cvsnanne Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.27 2007-12-07 11:40:59 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -255,7 +255,7 @@ void Seis2DDisplay::setData( int attrib,
     StepInterval<float> arrayzrg;
     arrayzrg.setFrom( getZRange(!hastransform) );
     arrayzrg.step = sd.step;
-    const int arrzsz = arrayzrg.nrSteps();
+    const int arrzsz = arrayzrg.nrSteps()+1;
     StepInterval<int> arraysrg( mNINT(arrayzrg.start/sd.step),
 	    			mNINT(arrayzrg.stop/sd.step), 1 );
 
