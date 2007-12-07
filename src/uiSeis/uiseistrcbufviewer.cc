@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          Nov 2007
- RCS:           $Id: uiseistrcbufviewer.cc,v 1.5 2007-11-28 11:25:16 cvssatyaki Exp $
+ RCS:           $Id: uiseistrcbufviewer.cc,v 1.6 2007-12-07 08:17:27 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,14 @@ void uiSeisTrcBufViewer::setData( FlatDataPack* dp_ )
 		uiFlatViewStdControl::Setup(this).withstates(true) ) );
     start();
 }
+
+
+void uiSeisTrcBufViewer::update( SeisTrcBuf* tbuf, int compnr )
+{
+    dp_->setBuffer( tbuf,  geom_, SeisTrcInfo::TrcNr, compnr );
+    update();
+}
+
 
 void uiSeisTrcBufViewer::update()
 {

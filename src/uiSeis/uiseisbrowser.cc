@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.9 2007-11-28 11:25:16 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.10 2007-12-07 08:17:27 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uiseistrcbufviewer.h"
 #include "uitextedit.h"
 
+#include "arraynd.h"
 #include "seiscbvs.h"
 #include "seistrctr.h"
 #include "seistrc.h"
@@ -31,12 +32,14 @@ ________________________________________________________________________
 #include "seisinfo.h"
 #include "survinfo.h"
 #include "cbvsreadmgr.h"
+#include "cbvswritemgr.h"
 #include "datainpspec.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "ptrman.h"
 #include "samplingdata.h"
 
+class CBVSIO;
 
 uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& setup )
     : uiDialog(p,setup)
@@ -55,6 +58,8 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& setup )
     , sd_(0)
     , strcbufview_(0)
     , setup_(setup)
+    , painfo_(0)
+    , arr_(0)
 {
     if ( !openData(setup) )
     {
@@ -155,6 +160,8 @@ void uiSeisBrowser::createTable()
 			     .size(sz) 
 			     .selmode(uiTable::Multi)
     			     .manualresize( true ) );
+    
+    tbl_->valueChanged.notify( mCB(this,uiSeisBrowser,valChgReDraw) );
     tbl_->setStretch(1,1);
 }
 
@@ -218,7 +225,10 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force )
     if ( !canread )
 	uiMSG().warning( "Cannot read data at specified location" );
     if ( !havetrc || !canread )
+    {	
+	ctrc_.info().binid = bid;
 	fillUdf( ctrc_ );
+    }
 
     for ( int idx=1; idx<stepout_+1; idx++ )
     {
@@ -378,7 +388,8 @@ void uiSeisBrowser::goToPush( CallBacker* )
     if ( dlg.go() )
 	/* user pressed OK AND input is OK */
 	setPos( dlg.pos_ );
-    strcbufview_->update();
+    if ( strcbufview_ )
+	strcbufview_->update( &tbuf_, compnr_ );
 }
 
 
@@ -386,7 +397,7 @@ void uiSeisBrowser::rightArrowPush( CallBacker* )
 {
     goTo( getNextBid(curBinID(),stepout_,false) );
     if ( strcbufview_ )
-    strcbufview_->update();
+	strcbufview_->update();
 }
 
 
@@ -394,15 +405,15 @@ void uiSeisBrowser::leftArrowPush( CallBacker* )
 {
     goTo( getNextBid(curBinID(),stepout_,true) );
     if (strcbufview_)
-    strcbufview_->update();
+	strcbufview_->update();
 }
 
 
 void uiSeisBrowser::switchViewTypePush( CallBacker* )
 {
-    crlwise_=uitb_->isOn( crlwisebutidx_ );
+    crlwise_ = uitb_->isOn( crlwisebutidx_ );
     doSetPos( curBinID(), true );
-    strcbufview_->update();
+    strcbufview_->update( &tbuf_, compnr_ );
 }
 
 
@@ -448,7 +459,7 @@ bool uiSeisBrowser::acceptOK( CallBacker* )
 {
     commitChanges();
     if ( tbufchgdtrcs_.isEmpty() )
-	return true;
+    return true;
 
     if (uiMSG(). askGoOn(" Do you want to save the changes permanently? ",
 	          	   true));
@@ -489,4 +500,14 @@ void uiSeisBrowser::updateWiggleButtonStatus()
 void uiSeisBrowser::trcbufViewerClosed( CallBacker* )
 {
     updateWiggleButtonStatus();
+}
+
+
+void uiSeisBrowser::valChgReDraw( CallBacker* )
+{
+    const RowCol rc = tbl_->currentCell();
+    SeisTrc* trace = tbuf_.get( rc.col );
+    const float chgdval = tbl_->getfValue( rc );
+    trace->set( rc.row, chgdval, compnr_ );
+    strcbufview_->update();
 }
