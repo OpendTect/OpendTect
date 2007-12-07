@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.41 2007-12-06 09:19:44 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.42 2007-12-07 08:11:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -171,7 +171,7 @@ static bool process( std::ostream& strm, Processor* proc,
     int nrdone = 0;
     SeisTrcWriter* writer( 0 );
 
-    ProgressMeter progressmeter(strm);
+    TextStreamProgressMeter progressmeter(strm);
     while ( 1 )
     {
 	int res = proc->doStep();
@@ -229,7 +229,7 @@ static bool process( std::ostream& strm, Processor* proc,
     }
 
     delete writer;
-    progressmeter.finish();
+    progressmeter.setFinished();
     mPIDMsg( "Processing done." );
 
     // It is VERY important workers are destroyed BEFORE the last writeStatus!!!
