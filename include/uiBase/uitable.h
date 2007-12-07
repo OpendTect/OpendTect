@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.32 2006-09-19 18:55:35 cvskris Exp $
+ RCS:           $Id: uitable.h,v 1.33 2007-12-07 08:11:22 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,6 +157,8 @@ public:
     bool		isColumnSelected(int) const;
     int			currentRow() const;
     int			currentCol() const;
+    RowCol		currentCell() const
+    			{ return RowCol( currentRow(), currentCol() ); }
     void		selectRow(int row);
     void 		selectColumn(int col);
     void		removeAllSelections();
