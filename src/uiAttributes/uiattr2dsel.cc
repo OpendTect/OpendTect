@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Nov 2007
- RCS:           $Id: uiattr2dsel.cc,v 1.1 2007-12-06 11:10:23 cvsraman Exp $
+ RCS:           $Id: uiattr2dsel.cc,v 1.2 2007-12-07 12:11:28 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,14 +16,15 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribsel.h"
 #include "attribstorprovider.h"
+#include "colortab.h"
 #include "hilbertattrib.h"
-
 #include "ioman.h"
 #include "iodir.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "ctxtioobj.h"
 #include "datainpspec.h"
+#include "pixmap.h"
 #include "ptrman.h"
 #include "seistrctr.h"
 #include "linekey.h"
@@ -46,10 +47,13 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
 	: uiDialog(p,Setup("Select Attribute","Select Attribute",0))
 	, setid_(lsid)
 	, descid_(-1,true)
+	, curnm_(curnm)
 	, seltype_(0)
+	, usecoltab_(false)
 	, selgrp_(0)
 	, storoutfld_(0)
 	, attroutfld_(0)
+	, coltabsel_(0)
 {
     attrinf_ = new SelInfo( ds, 0, true );
 
@@ -71,6 +75,7 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
     }
 
     selgrp_->selectButton( seltype_ );
+    createColorFields();
     finaliseStart.notify( mCB( this,uiAttr2DSelDlg,doFinalise) );
 }
 
@@ -82,9 +87,37 @@ uiAttr2DSelDlg::~uiAttr2DSelDlg()
 }
 
 
+static int sPixmapWidth = 16;
+static int sPixmapHeight = 10;
+
+void uiAttr2DSelDlg::createColorFields()
+{
+    coltabfld_ = new uiCheckBox( this, "Set Color Table for this attribute");
+    coltabfld_->activated.notify( mCB(this,uiAttr2DSelDlg,colTabSel) );
+    coltabfld_->attach( alignedBelow, storoutfld_ );
+    if ( attroutfld_ ) coltabfld_->attach( ensureBelow, attroutfld_ );
+
+    NamedBufferStringSet ctabs( "Color table" );
+    ColorTable::getNames( ctabs );
+    ctabs.sort();
+    coltabsel_ = new uiComboBox( this, ctabs, "Select Color Table" );
+    const int nrcoltabs = ctabs.size();
+    for ( int idx=0; idx<nrcoltabs; idx++ )
+    {
+	const char* ctname = ctabs.get( idx );
+	ioPixmap pm( ctname, sPixmapWidth, sPixmapHeight );
+	coltabsel_->setPixmap( pm, idx );
+    }
+
+    coltabsel_->attach( rightTo, coltabfld_ );
+}
+
+
+
 void uiAttr2DSelDlg::doFinalise( CallBacker* )
 {
     selDone(0);
+    colTabSel(0);
 }
 
 
@@ -137,16 +170,6 @@ int uiAttr2DSelDlg::selType() const
 
 void uiAttr2DSelDlg::selDone( CallBacker* c )
 {
-    if ( !selgrp_ ) return;
-
-    mDynamicCastGet(uiRadioButton*,but,c);
-   
-    bool dosrc, docalc; 
-    if ( but == storfld_ )
-    { dosrc = true; docalc = false; }
-    else if ( but == attrfld_ )
-    { docalc = true; dosrc = false; }
-
     const int seltyp = selType();
     if ( attroutfld_ ) attroutfld_->display( seltyp == 1 );
     if ( storoutfld_ )
@@ -154,14 +177,32 @@ void uiAttr2DSelDlg::selDone( CallBacker* c )
 }
 
 
+void uiAttr2DSelDlg::colTabSel( CallBacker* c )
+{
+    usecoltab_ = coltabfld_->isChecked();
+    coltabsel_->setSensitive( usecoltab_ );
+}
+
+
 bool uiAttr2DSelDlg::acceptOK( CallBacker* )
 {
     int selidx = -1;
-    seltype_ = selType();
-    if ( seltype_==1 )		selidx = attroutfld_->currentItem();
-    else			selidx = storoutfld_->currentItem();
+    if ( seltype_ == selType() )
+    {
+	BufferString selnm = seltype_ ? attroutfld_->getText()
+	    			      : storoutfld_->getText();
+	if ( selnm==curnm_ )
+	{
+	    BufferString msg = "Do you want to reload the attribute ";
+	    msg += selnm;
+	    if ( !uiMSG().askGoOn(msg) ) seltype_ = -1;
+	}
+    }
 
-    if ( selidx < 0 )
+    if ( seltype_==1 )		selidx = attroutfld_->currentItem();
+    else if ( seltype_==0 )	selidx = storoutfld_->currentItem();
+
+    if ( seltype_>=0 && selidx < 0 )
 	return false;
 
     if ( seltype_ == 1 )
@@ -169,6 +210,7 @@ bool uiAttr2DSelDlg::acceptOK( CallBacker* )
     else if ( seltype_ == 0 )
 	storednm_ = storoutfld_->getText();
 
+    if ( usecoltab_ ) coltabnm_ = coltabsel_->text();
     return true;
 }
 
