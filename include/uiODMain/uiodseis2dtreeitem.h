@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodseis2dtreeitem.h,v 1.5 2007-12-06 11:13:00 cvsraman Exp $
+ RCS:		$Id: uiodseis2dtreeitem.h,v 1.6 2007-12-07 12:13:11 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -85,6 +85,7 @@ public:
     void		removeAttrib(const char*);
     void		replaceAttrib(const char*,const char*);
     void                replaceAttrib(const char*,const Attrib::SelSpec&);
+    void		setColorTable(const char* attrnm,const char* ctabnm);
 
 protected:
 			~uiOD2DLineSetSubItem();

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.30 2007-12-06 11:12:56 cvsraman Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.31 2007-12-07 12:13:18 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ___________________________________________________________________
 #include "uimenuhandler.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
+#include "uiodscenemgr.h"
 #include "uiseispartserv.h"
 #include "uislicesel.h"
 #include "uivispartserv.h"
@@ -29,11 +30,12 @@ ___________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribsel.h"
+#include "colortab.h"
 #include "externalattrib.h"
 #include "linekey.h"
 #include "segposinfo.h"
 #include "survinfo.h"
-
+#include "viscolortab.h"
 
 
 uiODSeis2DParentTreeItem::uiODSeis2DParentTreeItem()
@@ -201,8 +203,12 @@ void uiOD2DLineSetTreeItem::createAttrMenu( uiMenuHandler* menu )
 
     if ( displayedattribs.size() )
     {
-	removeattritm_.createItems( displayedattribs );
-	mAddMenuItem( menu, &removeattritm_, true, false );
+	if ( displayedattribs.size()>1
+	     || displayedattribs.get(0)!="<Unselected>" )
+	{
+	    removeattritm_.createItems( displayedattribs );
+    	    mAddMenuItem( menu, &removeattritm_, true, false );
+	}
 
 	editattritm_.createItems( displayedattribs );
 	mAddMenuItem( menu, &editattritm_, true, false );
@@ -291,23 +297,39 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	uiAttr2DSelDlg dlg( ODMainWin(), ds, setid_, attribnm );
 	if ( !dlg.go() ) return;
 
+	if ( dlg.needToSetColTab() )
+	{
+	    const char* coltabnm = dlg.getColTabName();
+	    for ( int idx=0; idx<children_.size(); idx++ )
+	    {
+		mDynamicCastGet(uiOD2DLineSetSubItem*,litem,children_[idx])
+		litem->setColorTable( curnm, coltabnm );
+	    }
+	}
+
 	const int attrtype = dlg.getSelType();
 	if ( attrtype == 0 )
 	{
 	    const char* newattrnm = dlg.getStoredAttrName();
 	    for ( int idx=0; idx<children_.size(); idx++ )
 	    {
-		mDynamicCastGet(uiOD2DLineSetSubItem*, litem, children_[idx] );
+		mDynamicCastGet(uiOD2DLineSetSubItem*,litem,children_[idx])
 		litem->replaceAttrib( attribnm, newattrnm );
 	    }
 	}
 	else if ( attrtype == 1 )
 	{
 	    const Attrib::Desc* desc =  ds->getDesc( dlg.getSelDescID() );
+	    if ( !desc )
+	    {
+		uiMSG().error("Selected attribute is not available");
+		return;
+	    }
+
 	    as.set( *desc );
 	    for ( int idx=0; idx<children_.size(); idx++ )
 	    {
-		mDynamicCastGet(uiOD2DLineSetSubItem*, litem, children_[idx] );
+		mDynamicCastGet(uiOD2DLineSetSubItem*,litem,children_[idx])
 		litem->replaceAttrib( attribnm, as );
 	    }
 	}
@@ -458,6 +480,32 @@ uiODDataTreeItem* uiOD2DLineSetSubItem::createAttribItem(
     return res;
 }
 
+
+void uiOD2DLineSetSubItem::setColorTable( const char* attrnm,
+					  const char* ctabnm )
+{
+    if ( !attrnm || !(*attrnm) || !ctabnm || !(*ctabnm) )
+	return;
+
+    BufferString itemnm = attrnm;
+    if ( itemnm=="<Unselected>") itemnm = "<right-click>";
+
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	mDynamicCastGet( uiOD2DLineSetAttribItem*, item, children_[idx] );
+	if ( !item || itemnm!=item->name() ) continue;
+
+	const int id = applMgr()->visServer()->getColTabId( displayID(),
+							    item->attribNr() );
+	if ( id < 0 ) continue;
+
+	mDynamicCastGet(visBase::VisColorTab*,obj,visBase::DM().getObject(id) );
+	ColorTable::get( ctabnm, obj->colorSeq().colors() );
+	obj->sequencechange.trigger();
+    }
+
+    updateColumnText( uiODSceneMgr::cColorColumn() );
+}
 
 
 void uiOD2DLineSetSubItem::createMenuCB( CallBacker* cb )
