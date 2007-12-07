@@ -8,7 +8,7 @@ const int chunksz = 1024;
 int main( int argc, char** argv )
 {
     const int totnr = argc > 1 ? atoi(argv[1]) : 0;
-    ProgressMeter progressmeter( std::cerr );
+    TextStreamProgressMeter progressmeter( std::cerr );
 
     char buf[chunksz];
     while ( 1 )
@@ -18,7 +18,7 @@ int main( int argc, char** argv )
 	std::cout.write( buf, bytesread );
 	if ( bytesread < chunksz ) break;
 
-	if ( totnr )	progressmeter.update( totnr );
+	if ( totnr )	progressmeter.setNrDone( totnr );
 	else		++progressmeter;
     }
 

@@ -2,10 +2,10 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_swap_inlcrl.cc,v 1.12 2005-08-26 18:19:27 cvsbert Exp $
+ * RCS      : $Id: od_cbvs_swap_inlcrl.cc,v 1.13 2007-12-07 08:34:13 cvsnanne Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_swap_inlcrl.cc,v 1.12 2005-08-26 18:19:27 cvsbert Exp $";
+static const char* rcsID = "$Id: od_cbvs_swap_inlcrl.cc,v 1.13 2007-12-07 08:34:13 cvsnanne Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -63,7 +63,7 @@ static int doWork( int argc, char** argv )
     SeisTrc trc;
     PtrMan<CBVSSeisTrcTranslator> tro = CBVSSeisTrcTranslator::getInstance();
     int nrwr = 0;
-    ProgressMeter pm( std::cerr );
+    TextStreamProgressMeter pm( std::cerr );
 
     for ( int linenr = geom.start.crl; linenr <= geom.stop.crl;
 	    linenr += geom.step.crl ) 
@@ -71,7 +71,7 @@ static int doWork( int argc, char** argv )
 	for ( int trcnr = geom.start.inl; trcnr <= geom.stop.inl;
 		trcnr += geom.step.inl ) 
 	{
-	    pm.update( nrwr );
+	    pm.setNrDone( nrwr );
 	    if ( !tri->goTo(BinID(trcnr,linenr)) )
 		continue;
 

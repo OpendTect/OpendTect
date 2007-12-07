@@ -4,7 +4,7 @@
  * DATE     : 2-12-2005
 -*/
 
-static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.9 2007-10-26 05:31:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: seis_cut_poly.cc,v 1.10 2007-12-07 08:34:13 cvsnanne Exp $";
 
 #include "prog.h"
 #include "batchprog.h"
@@ -94,7 +94,7 @@ bool BatchProgram::go( std::ostream& strm )
 
     SeisTrc trc;
 
-    ProgressMeter* pm = new ProgressMeter( strm );
+    TextStreamProgressMeter pm( strm );
     int nrexcl = 0;
     bool needinside = true; pars().getYN( "Select inside", needinside );
     bool incborder = true; pars().getYN( "Border is inside", incborder );
@@ -105,7 +105,7 @@ bool BatchProgram::go( std::ostream& strm )
 	    { nrexcl++; continue; }
 
 	if ( wrr.put(trc) )
-	    ++(*pm);
+	    ++pm;
 	else
 	{
 	    BufferString msg( "\nCannot write: " ); msg += wrr.errMsg();
@@ -113,7 +113,7 @@ bool BatchProgram::go( std::ostream& strm )
 	}
     }
 
-    delete pm;
+    pm.setFinished();
     strm << "\nExcluded " << nrexcl << " traces" << std::endl;
     return true;
 }
