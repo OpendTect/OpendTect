@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: marchingcubes.h,v 1.5 2007-10-30 16:53:35 cvskris Exp $
+ RCS:           $Id: marchingcubes.h,v 1.6 2007-12-07 18:54:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,7 +83,8 @@ public:
     			MarchingCubesSurface();
 
     bool		setVolumeData(int xorigin,int yorigin,int zorigin,
-	    			      const Array3D<float>&,float threshold);
+	    			      const Array3D<float>&,float threshold,
+				      TaskRunner* = 0);
     			/*!<Replaces the surface within the array3d's volume
 			    with an isosurface from the array and its
 			    threshold. */
