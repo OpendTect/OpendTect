@@ -5,10 +5,11 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.11 2007-11-13 16:21:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.12 2007-12-10 17:24:07 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
+#include "uimadbldcmd.h"
 #include "uilistbox.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
@@ -23,6 +24,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
 	: uiDialog( p, Setup( "Madagascar processing",
 			      "Processing flow",
 			      "0.0.0").menubar(true) )
+	, bldfld_(0)
 {
     setCtrlStyle( uiDialog::DoAndStay );
     createMenus();
@@ -35,12 +37,22 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     outfld_ = new uiMadIOSel( this, false );
     outfld_->attach( alignedBelow, procgrp );
 
-    finaliseDone.notify( mCB(this,uiMadagascarMain,setButStates) );
+    finaliseDone.notify( mCB(this,uiMadagascarMain,atStart) );
 }
 
 
 uiMadagascarMain::~uiMadagascarMain()
 {
+    delete bldfld_;
+}
+
+
+void uiMadagascarMain::atStart( CallBacker* )
+{
+    setButStates(0);
+    bldfld_ = new uiMadagascarBldCmd( this );
+    bldfld_->cmdAvailable.notify( mCB(this,uiMadagascarMain,cmdAvail) );
+    bldfld_->show();
 }
 
 
@@ -61,6 +73,9 @@ void uiMadagascarMain::createMenus()
     mnu->insertSeparator();
     mInsertItem( "&Import flow ...", importFlow );
     mInsertItem( "&Export flow ...", exportFlow );
+    mnu->insertSeparator();
+    mInsertItem( "Show &Command Builder", showBldFld );
+    mInsertItem( "&Quit", reject );
     menubar->insertItem( mnu );
 
     uiToolBar* toolbar = new uiToolBar( this, "Flow tools" );
@@ -102,6 +117,42 @@ uiGroup* uiMadagascarMain::crProcGroup()
 }
 
 
+void uiMadagascarMain::cmdAvail( CallBacker* cb )
+{
+    const BufferString cmd = bldfld_->command();
+    if ( cmd.isEmpty() ) return;
+
+    if ( bldfld_->isNew() )
+    {
+	procsfld_->addItem( cmd );
+	procsfld_->setCurrentItem( procsfld_->size() - 1 );
+    }
+    else
+    {
+	const int curidx = procsfld_->currentItem();
+	if ( curidx < 0 ) return;
+	procsfld_->setItemText( curidx, cmd );
+    }
+
+    setButStates( this );
+}
+
+
+void uiMadagascarMain::hideReq( CallBacker* cb )
+{
+    bldfld_->display( false );
+}
+
+
+void uiMadagascarMain::showBldFld( CallBacker* cb )
+{
+    const bool washidden = bldfld_->isHidden();
+    bldfld_->display( washidden );
+    if ( washidden )
+	selChg( 0 );
+}
+
+
 void uiMadagascarMain::butPush( CallBacker* cb )
 {
     mDynamicCastGet(uiToolButton*,tb,cb)
@@ -132,24 +183,27 @@ void uiMadagascarMain::butPush( CallBacker* cb )
     if ( curidx >= 0 )
 	procsfld_->setCurrentItem( curidx );
 
-    setButStates();
+    setButStates(0);
 }
 
 
-void uiMadagascarMain::setButStates( CallBacker* )
+void uiMadagascarMain::setButStates( CallBacker* cb )
 {
     const bool havesel = !procsfld_->isEmpty();
     rmbut_->setSensitive( havesel );
-    selChg( 0 );
+    selChg( cb );
 }
 
 
-void uiMadagascarMain::selChg( CallBacker* )
+void uiMadagascarMain::selChg( CallBacker* cb )
 {
     const int curidx = procsfld_->isEmpty() ? -1 : procsfld_->currentItem();
     const int sz = procsfld_->size();
     upbut_->setSensitive( sz > 1 && curidx > 0 );
     downbut_->setSensitive( sz > 1 && curidx >= 0 && curidx < sz-1 );
+
+    if ( cb == this || curidx < 0 || !bldfld_ ) return;
+    bldfld_->setCmd( procsfld_->textOfItem(curidx) );
 }
 
 

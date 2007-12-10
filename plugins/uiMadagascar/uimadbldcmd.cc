@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.6 2007-07-04 11:24:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.7 2007-12-10 17:24:07 cvsbert Exp $";
 
 #include "uimadbldcmd.h"
 #include "uimsg.h"
@@ -41,14 +41,15 @@ static BufferString& separateProgName( const char* cmd, bool wantprog )
 }
 
 
-uiMadagascarBldCmd::uiMadagascarBldCmd( uiParent* p, const char* cmd,
-					bool ismodal )
+uiMadagascarBldCmd::uiMadagascarBldCmd( uiParent* p )
 	: uiDialog( p, Setup( "Madagascar command building",
 			      "Build Madagascar command",
-			      "0.0.0").modal(ismodal) )
-	, applyReq(this)
+			      "0.0.0").modal(false) )
+	, cmdAvailable(this)
+	, hideReq(this)
+    	, cmdisnew_(true)
 {
-    const bool ised = cmd && *cmd;
+    setCtrlStyle( uiDialog::LeaveOnly );
     bool allok = ODMad::PI().errMsg().isEmpty();
     if ( allok && !ODMad::PI().scanned() )
     {
@@ -76,14 +77,16 @@ uiMadagascarBldCmd::uiMadagascarBldCmd( uiParent* p, const char* cmd,
     cmdfld_->setStretch( 0, 2 );
     cmdfld_->setHSzPol( uiObject::WideMax );
     new uiLabel( this, "Command line", cmdfld_ );
-    cmdfld_->setText( cmd );
 
-    uiPushButton* but = new uiPushButton( this,
-	    		ised ? "&Add as new" : "&Add now", true );
-    but->setToolTip( "Add immediately to process flow" );
-    but->activated.notify( mCB(this,uiMadagascarBldCmd,doAdd) );
-    but->attach( rightTo, cmdfld_ );
-    but->attach( rightBorder );
+    uiPushButton* edbut = new uiPushButton( this, "&Replace", true );
+    edbut->setToolTip( "Replace current command" );
+    edbut->activated.notify( mCB(this,uiMadagascarBldCmd,doEdit) );
+    edbut->attach( rightOf, cmdfld_ );
+    uiPushButton* addbut = new uiPushButton( this, "&Add", true );
+    addbut->setToolTip( "Add to process flow" );
+    addbut->activated.notify( mCB(this,uiMadagascarBldCmd,doAdd) );
+    addbut->attach( rightTo, edbut );
+    addbut->attach( rightBorder );
 }
 
 
@@ -158,15 +161,14 @@ uiSeparator* uiMadagascarBldCmd::createMainPart()
     synopsfld_->setStretch( 0, 2 );
     synopsfld_->setHSzPol( uiObject::WideMax );
     new uiLabel( this, "Synopsis", synopsfld_ );
-
-    finaliseDone.notify( mCB(this,uiMadagascarBldCmd,onPopup) );
     return sep;
 }
 
 
-void uiMadagascarBldCmd::onPopup( CallBacker* c )
+void uiMadagascarBldCmd::setCmd( const char* cmd )
 {
-    setProgName( separateProgName( command(), true ) );
+    setProgName( separateProgName( cmd, true ) );
+    cmdfld_->setText( cmd );
 }
 
 
@@ -283,11 +285,13 @@ void uiMadagascarBldCmd::setInput( const ODMad::ProgDef* def )
 }
 
 
-void uiMadagascarBldCmd::doAdd( CallBacker* )
-{
-    if ( !cmdOK() ) return;
-    applyReq.trigger();
-}
+#define mImplButFn(isnw) \
+    if ( !cmdOK() ) return; \
+    cmdisnew_ = isnw; \
+    cmdAvailable.trigger()
+
+void uiMadagascarBldCmd::doAdd( CallBacker* )	{ mImplButFn( true ); }
+void uiMadagascarBldCmd::doEdit( CallBacker* )	{ mImplButFn( false ); }
 
 
 bool uiMadagascarBldCmd::cmdOK()
@@ -302,7 +306,8 @@ bool uiMadagascarBldCmd::cmdOK()
 }
 
 
-bool uiMadagascarBldCmd::acceptOK( CallBacker* )
+bool uiMadagascarBldCmd::rejectOK( CallBacker* )
 {
-    return cmdOK();
+    hideReq.trigger();
+    return false;
 }

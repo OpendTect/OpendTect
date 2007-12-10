@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : June 2007
- * ID       : $Id: uimadbldcmd.h,v 1.5 2007-07-04 09:44:54 cvsbert Exp $
+ * ID       : $Id: uimadbldcmd.h,v 1.6 2007-12-10 17:24:07 cvsbert Exp $
 -*/
 
 #include "uidialog.h"
@@ -20,15 +20,20 @@ class uiMadagascarBldCmd : public uiDialog
 {
 public:
 
-			uiMadagascarBldCmd(uiParent*,const char* cmd,
-					   bool modaldlg=true);
+			uiMadagascarBldCmd(uiParent*);
 			~uiMadagascarBldCmd();
 
+    void		setCmd(const char*);
+
+    Notifier<uiMadagascarBldCmd> cmdAvailable;
+    bool		isNew() const	{ return cmdisnew_; }
     const char*		command() const;
 
-    Notifier<uiMadagascarBldCmd> applyReq;
+    Notifier<uiMadagascarBldCmd> hideReq;
 
 protected:
+
+    bool		cmdisnew_;
 
     uiComboBox*		groupfld_;
     uiComboBox*		srchresfld_;
@@ -44,6 +49,7 @@ protected:
     void		onPopup(CallBacker*);
     void		groupChg(CallBacker*);
     void		progChg(CallBacker*);
+    void		doEdit(CallBacker*);
     void		doAdd(CallBacker*);
     void		dClick(CallBacker*);
     void		doSearch(CallBacker*);
@@ -55,7 +61,7 @@ protected:
     void		setGroupProgs(const BufferString*);
     bool		cmdOK();
 
-    bool		acceptOK(CallBacker*);
+    bool		rejectOK(CallBacker*);
 
 };
 
