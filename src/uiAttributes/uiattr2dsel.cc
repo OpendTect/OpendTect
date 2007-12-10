@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Nov 2007
- RCS:           $Id: uiattr2dsel.cc,v 1.2 2007-12-07 12:11:28 cvsraman Exp $
+ RCS:           $Id: uiattr2dsel.cc,v 1.3 2007-12-10 05:25:22 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -199,6 +199,7 @@ bool uiAttr2DSelDlg::acceptOK( CallBacker* )
 	}
     }
 
+    seltype_ = selType();
     if ( seltype_==1 )		selidx = attroutfld_->currentItem();
     else if ( seltype_==0 )	selidx = storoutfld_->currentItem();
 
