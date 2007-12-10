@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.24 2007-10-22 11:50:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.25 2007-12-10 11:08:35 cvsnanne Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -20,7 +20,7 @@ static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.24 2007-10-22 11:50:23 cvs
 #include "uicursor.h"
 
 
-static const char* sSetKey = "dTect.Color ta`ble.Name";
+static const char* sSetKey = "dTect.Color table.Name";
 
 const char* uiVisColTabEd::sKeyColorSeq()	{ return "ColorSeq Name"; }
 const char* uiVisColTabEd::sKeyScaleFactor()	{ return "Scale Factor"; }
