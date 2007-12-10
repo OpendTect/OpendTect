@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.31 2007-10-24 20:05:28 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.32 2007-12-10 03:56:57 cvsnanne Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -165,6 +165,8 @@ void LocationDisplay::fullRedraw( CallBacker* )
 
     while ( idx<group_->size() )
 	group_->removeObject( idx );
+
+    showLine( set_->disp_.connect_ );
 
 }
 
@@ -532,6 +534,7 @@ void LocationDisplay::setChg( CallBacker* cb )
 void LocationDisplay::dispChg( CallBacker* )
 {
     getMaterial()->setColor( set_->disp_.color_ );
+    showLine( set_->disp_.connect_ );
 }
 
 
@@ -551,6 +554,7 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 			       bool notif )
 {
     int locidx = -1;
+    bool insertpick = false;
     if ( lineShown() )
     {
 	float mindist = mUdf(float);
@@ -569,10 +573,11 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 	    }
 	}
 
-	if ( locidx < 0 ) return false;
-
-	set_->insert( locidx, Pick::Location(pos,dir) );
+	insertpick = locidx >= 0;
     }
+
+    if ( insertpick )
+	set_->insert( locidx, Pick::Location(pos,dir) );
     else
     {
 	*set_ += Pick::Location( pos, dir );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uipickpropdlg.cc,v 1.4 2007-07-05 06:35:27 cvsraman Exp $
+ RCS:           $Id: uipickpropdlg.cc,v 1.5 2007-12-10 03:56:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,11 +21,12 @@ ________________________________________________________________________
 #include "uislider.h"
 
 
-uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set, bool drawline )
+uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set )
     : uiMarkerStyleDlg(p,"Pick properties"), set_(set)
 {
-    linefld_ = new uiCheckBox( this, "Draw line" ); 
-    linefld_->setChecked( drawline );
+    linefld_ = new uiCheckBox( this, "Draw line" );
+    linefld_->setChecked( set_.disp_.connect_ );
+    linefld_->activated.notify( mCB(this,uiPickPropDlg,connectSel) );
     linefld_->attach( rightTo, typefld );
 }
 
@@ -61,8 +62,14 @@ void uiPickPropDlg::colSel( CallBacker* )
 }
 
 
+void uiPickPropDlg::connectSel( CallBacker* )
+{
+    set_.disp_.connect_ = linefld_->isChecked();
+    Pick::Mgr().reportDispChange( this, set_ );
+}
+
+
 bool uiPickPropDlg::acceptOK( CallBacker* )
 {
-    drawline_ = linefld_->isChecked();
     return true;
 }

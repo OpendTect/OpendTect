@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.50 2007-09-28 08:22:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.51 2007-12-10 03:56:57 cvsnanne Exp $";
 
 #include "pickset.h"
 
@@ -424,6 +424,7 @@ Pick::Set& Pick::Set::operator=( const Set& s )
 
 
 const char* Pick::Set::sKeyMarkerType = "Marker Type";
+static const char* sKeyConnect = "Connect";
 
 void Pick::Set::fillPar( IOPar& par ) const
 {
@@ -436,6 +437,7 @@ void Pick::Set::fillPar( IOPar& par ) const
 
     par.set( sKey::Size, disp_.pixsize_ );
     par.set( sKeyMarkerType, disp_.markertype_ );
+    par.setYN( sKeyConnect, disp_.connect_ );
     par.merge( pars_ );
 }
 
@@ -449,11 +451,13 @@ bool Pick::Set::usePar( const IOPar& par )
     disp_.pixsize_ = 3;
     par.get( sKey::Size, disp_.pixsize_ );
     par.get( sKeyMarkerType, disp_.markertype_ );
+    par.getYN( sKeyConnect, disp_.connect_ );
 
     pars_ = par;
     pars_.removeWithKey( sKey::Color );
     pars_.removeWithKey( sKey::Size );
     pars_.removeWithKey( sKeyMarkerType );
+    pars_.removeWithKey( sKeyConnect );
     return true;
 }
 

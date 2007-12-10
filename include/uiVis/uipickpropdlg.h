@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uipickpropdlg.h,v 1.3 2007-06-27 10:10:43 cvsraman Exp $
+ RCS:           $Id: uipickpropdlg.h,v 1.4 2007-12-10 03:56:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,13 +21,11 @@ namespace Pick { class Set; };
 class uiPickPropDlg : public uiMarkerStyleDlg
 {
 public:
-			uiPickPropDlg(uiParent* p,Pick::Set& set, bool line);
+			uiPickPropDlg(uiParent* p,Pick::Set& set);
 
-    bool		toDraw()	{ return drawline_; }
 protected:
 
     uiCheckBox*		linefld_;
-    bool		drawline_;
 
     Pick::Set&		set_;
 
@@ -36,6 +34,7 @@ protected:
     void		sliderMove(CallBacker*);
     void		typeSel(CallBacker*);
     void		colSel(CallBacker*);
+    void		connectSel(CallBacker*);
     bool		acceptOK(CallBacker*);
 };
 

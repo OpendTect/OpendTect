@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipicksetmgr.cc,v 1.3 2007-05-25 10:16:34 cvsbert Exp $
+ RCS:           $Id: uipicksetmgr.cc,v 1.4 2007-12-10 03:56:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,13 +12,15 @@ ________________________________________________________________________
 #include "uipicksetmgr.h"
 #include "uiimppickset.h"
 #include "uiioobj.h"
-#include "uimsg.h"
 #include "uiioobjsel.h"
+#include "uimsg.h"
+
+#include "ctxtioobj.h"
+#include "keystrs.h"
+#include "ioman.h"
+#include "ioobj.h"
 #include "pickset.h"
 #include "picksettr.h"
-#include "ctxtioobj.h"
-#include "ioobj.h"
-#include "ioman.h"
 #include "ptrman.h"
 
 
@@ -35,6 +37,11 @@ bool uiPickSetMgr::storeNewSet( Pick::Set*& ps ) const
     if ( uiIOObj::fillCtio(*ctio,true) )
     {
 	PtrMan<IOObj> ioobj = ctio->ioobj;
+	if ( ps->disp_.connect_ )
+	{
+	    ioobj->pars().set( sKey::Type, sKey::Polygon );
+	    IOM().commitChanges( *ioobj );
+	}
 	if ( !doStore( *ps, *ioobj ) )
 	    { delete ps; ps = 0; return false; }
 

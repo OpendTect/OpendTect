@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.35 2007-11-29 14:36:03 cvsbert Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.36 2007-12-10 03:56:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,8 @@ public:
     void			impexpSet(bool import);
     void			fetchHors(bool);
     bool			loadSets();	//!< Load set(s) by user sel
-    bool                        createSet(bool rand=false,bool is2d=false);
+    bool			createEmptySet(bool aspolygon);
+    bool			createRandomSet(bool is2d);
     void			setMisclassSet(const BinIDValueSet&);
     void			fillZValsFrmHor(Pick::Set*,int);
 

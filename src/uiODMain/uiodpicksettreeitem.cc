@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.34 2007-11-14 09:16:39 cvsbert Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.35 2007-12-10 03:56:57 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -101,6 +101,17 @@ void uiODPickSetParentTreeItem::setRm( CallBacker* cb )
 }
 
 
+#define mLoadIdx	0
+#define mRandom3DIdx	1
+#define mRandom2DIdx	2
+#define mEmptyIdx	3
+#define mPolygonIdx	4
+#define mSaveIdx	10
+#define mDisplayIdx	11
+#define mShowAllIdx	12
+#define mMergeIdx	13
+
+
 bool uiODPickSetParentTreeItem::showSubMenu()
 {
     mDynamicCastGet(visSurvey::Scene*,scene,
@@ -108,33 +119,34 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     const bool hastransform = scene && scene->getDataTransform();
 
     uiPopupMenu mnu( getUiParent(), "Action" );
-    mnu.insertItem( new uiMenuItem("&Load ..."), 0 );
+    mnu.insertItem( new uiMenuItem("&Load ..."), mLoadIdx );
     uiPopupMenu* newmnu = new uiPopupMenu( getUiParent(), "&New" );
     if ( SI().has2D() )
     {
 	uiPopupMenu* randmnu = new uiPopupMenu( getUiParent(), "&Random" );
-	randmnu->insertItem( new uiMenuItem("3D ..."), 1 );
-	randmnu->insertItem( new uiMenuItem("2D ..."), 11 );
+	randmnu->insertItem( new uiMenuItem("3D ..."), mRandom3DIdx );
+	randmnu->insertItem( new uiMenuItem("2D ..."), mRandom2DIdx );
 	newmnu->insertItem( randmnu );
     }
     else
-	newmnu->insertItem( new uiMenuItem("&Random ..."), 1 );
+	newmnu->insertItem( new uiMenuItem("&Random ..."), mRandom3DIdx );
 
-    newmnu->insertItem( new uiMenuItem("&Empty ..."), 2 );
+    newmnu->insertItem( new uiMenuItem("&Empty ..."), mEmptyIdx );
+    newmnu->insertItem( new uiMenuItem("&Polygon ..."), mPolygonIdx );
     mnu.insertItem( newmnu );
     if ( children_.size() > 0 )
     {
-	mnu.insertItem( new uiMenuItem("&Save changes"), 3 );
+	mnu.insertItem( new uiMenuItem("&Save changes"), mSaveIdx );
 	mnu.insertSeparator();
 	uiMenuItem* filteritem =
 	    new uiMenuItem( "&Display picks only at sections" );
-	mnu.insertItem( filteritem, 4 );
+	mnu.insertItem( filteritem, mDisplayIdx );
 	filteritem->setEnabled( !hastransform );
 	uiMenuItem* shwallitem = new uiMenuItem( "Show &all picks" );
-	mnu.insertItem( shwallitem, 5 );
+	mnu.insertItem( shwallitem, mShowAllIdx );
 	shwallitem->setEnabled( !hastransform );
 	mnu.insertSeparator();
-	mnu.insertItem( new uiMenuItem("&Merge Sets"), 6 );
+	mnu.insertItem( new uiMenuItem("&Merge Sets"), mMergeIdx );
     }
 
     addStandardItems( mnu );
@@ -142,7 +154,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
     const int mnuid = mnu.exec();
     if ( mnuid<0 )
 	return false;
-    else if ( mnuid==0 )
+    else if ( mnuid==mLoadIdx )
     {
 	display_on_add = true;
 	bool res = applMgr()->pickServer()->loadSets();
@@ -150,35 +162,28 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	if ( !res )
 	    return -1;
     }    
-    else if ( mnuid==1 )
+    else if ( mnuid==mRandom3DIdx || mnuid==mRandom2DIdx )
     {
 	display_on_add = true;
-	if ( !applMgr()->pickServer()->createSet( true, false ) )
+	if ( !applMgr()->pickServer()->createRandomSet(mnuid==mRandom2DIdx) )
 	    return -1;
 	display_on_add = false;
     }
-    else if ( mnuid==11)
+    else if ( mnuid==mEmptyIdx || mnuid==mPolygonIdx )
     {
 	display_on_add = true;
-	if ( !applMgr()->pickServer()->createSet( true, true ) )
+	if ( !applMgr()->pickServer()->createEmptySet(mnuid==mPolygonIdx) )
 	    return -1;
 	display_on_add = false;
     }
-    else if ( mnuid==2 )
-    {
-	display_on_add = true;
-	if ( !applMgr()->pickServer()->createSet() )
-	    return -1;
-	display_on_add = false;
-    }
-    else if ( mnuid==3 )
+    else if ( mnuid==mSaveIdx )
     {
 	if ( !applMgr()->pickServer()->storeSets() )
 	    uiMSG().error( "Problem saving changes. Check write protection." );
     }
-    else if ( mnuid==4 || mnuid==5 )
+    else if ( mnuid==mDisplayIdx || mnuid==mShowAllIdx )
     {
-	const bool showall = mnuid == 5;
+	const bool showall = mnuid==mShowAllIdx;
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
 	    mDynamicCastGet(uiODPickSetTreeItem*,itm,children_[idx])
@@ -188,7 +193,7 @@ bool uiODPickSetParentTreeItem::showSubMenu()
 	    itm->updateColumnText( uiODSceneMgr::cColorColumn() );
 	}
     }
-    else if ( mnuid==6 )
+    else if ( mnuid==mMergeIdx )
 	{ MultiID mid; applMgr()->pickServer()->mergeSets( mid ); }
     else
 	handleStandardItems( mnuid );
@@ -324,9 +329,8 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==propertymnuitem_.id )
     {
-	uiPickPropDlg dlg( getUiParent(), set_, psd->lineShown() );
-	if ( dlg.go() )
-	    psd->showLine( dlg.toDraw() );
+	uiPickPropDlg dlg( getUiParent(), set_ );
+	dlg.go();
     }
 
     updateColumnText( uiODSceneMgr::cNameColumn() );

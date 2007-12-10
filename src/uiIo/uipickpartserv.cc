@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.48 2007-11-29 14:36:04 cvsbert Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.49 2007-12-10 03:56:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,18 +121,19 @@ bool uiPickPartServer::loadSets()
     if ( !dlg.go() ) \
         return false; \
     Pick::Set* newps = new Pick::Set( dlg.getName() ); \
-    newps->disp_.color_ = dlg.getPickColor(); 
+    newps->disp_.color_ = dlg.getPickColor();
 
-bool uiPickPartServer::createSet( bool rand, bool is2d )
+bool uiPickPartServer::createEmptySet( bool aspolygon )
 {
-    if ( !rand )
-    {
-	uiCreatePicks dlg( parent() );
-	mHandleDlg();
-	if ( newps )
-	    return storeNewSet( newps );
-    }
+    uiCreatePicks dlg( parent() );
+    mHandleDlg();
+    newps->disp_.connect_ = aspolygon;
+    return newps ? storeNewSet( newps ) : false;
+}
 
+
+bool uiPickPartServer::createRandomSet( bool is2d )
+{
     fetchHors( is2d );
     BufferStringSet hornms;
     for ( int idx=0; idx<hinfos_.size(); idx++ )
