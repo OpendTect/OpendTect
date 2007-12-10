@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.135 2007-11-12 16:06:09 cvsjaap Exp $
+ RCS:           $Id: uimainwin.cc,v 1.136 2007-12-10 04:02:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,34 +35,19 @@ ________________________________________________________________________
 
 #include <iostream>
 
-#ifdef USEQT3
-# define mQDockArea	QDockArea
-# define mQDockWindow	QDockWindow
-# define mFlagType	int
-# define mDockType	Qt::Dock
-# include <qmainwindow.h>
-# include <qdockwindow.h>
-#else
-# define mQDockWindow	QDockWidget
-# define mQDockArea	QDockArea
-# define mFlagType	Qt::WFlags
-# define mDockType	Qt::ToolBarDock
-# include <QMainWindow>
-# include <QDockWidget>
-# include <QTextStream>
-# include <QCloseEvent>
-#endif
-
-#include <qapplication.h>
-#include <qcolordialog.h>
-#include <qdialog.h>
-#include <qfiledialog.h>
-#include <qfontdialog.h>
-#include <qlayout.h>
-#include <qmessagebox.h>
-#include <qpixmap.h>
-#include <qstatusbar.h>
-#include <qwidget.h>
+#include <QApplication>
+#include <QCloseEvent>
+#include <QColorDialog>
+#include <QDialog>
+#include <QDockWidget>
+#include <QFileDialog>
+#include <QFontDialog>
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QPixmap>
+#include <QSettings>
+#include <QStatusBar>
+#include <QWidget>
 
 #include "dtect.xpm"
 
@@ -140,8 +125,8 @@ public:
 			    return true;
 			}
 
+    static Qt::ToolBarDock	qdock(uiMainWin::Dock);
     void 		uimoveDockWindow(uiDockWin&,uiMainWin::Dock,int);
-    static mDockType	qdock(uiMainWin::Dock);
     void		removeDockWin(uiDockWin*);
     void		addDockWin(uiDockWin&,uiMainWin::Dock);
 
@@ -168,6 +153,9 @@ protected:
     void		renewToolbarsMenu();
     void		toggleToolbar(CallBacker*);
 
+    void		saveSettings();
+    void		readSettings();
+
     bool		exitapponclose_;
     int			qdlgretval_;
 
@@ -183,7 +171,7 @@ private:
     int			iconsz_;
     bool		modal_;
     int			looplevel__;
-    mFlagType		getFlags(bool hasparent,bool modal) const;
+    Qt::WFlags		getFlags(bool hasparent,bool modal) const;
 
     void 		popTimTick(CallBacker*);
     Timer		poptimer;
@@ -216,25 +204,16 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* p,
     if ( nm && *nm ) setCaption( nm );
     poptimer.tick.notify( mCB(this,uiMainWinBody,popTimTick) );
 
-#ifdef USEQT3
-    setDockMenuEnabled( false );
-#else
     iconsz_ = uiObject::iconSize();
     setIconSize( QSize(iconsz_,iconsz_) );
 
     setWindowModality( modal ? Qt::WindowModal : Qt::NonModal );
-#endif
 }
 
 
-mFlagType uiMainWinBody::getFlags( bool hasparent, bool modal ) const
+Qt::WFlags uiMainWinBody::getFlags( bool hasparent, bool modal ) const
 {
-#ifdef USEQT3
-    return hasparent && modal ? WType_TopLevel | WShowModal| WGroupLeader
-				  : WType_TopLevel;
-#else
     return  Qt::WindowFlags( hasparent ? Qt::Dialog : Qt::Window );
-#endif
 }
 
 
@@ -422,7 +401,7 @@ void uiMainWinBody::moveDockWindows()
 }
 
 
-mDockType uiMainWinBody::qdock( uiMainWin::Dock d )
+Qt::ToolBarDock uiMainWinBody::qdock( uiMainWin::Dock d )
 {
     switch( d )
     {
@@ -434,7 +413,7 @@ mDockType uiMainWinBody::qdock( uiMainWin::Dock d )
         case uiMainWin::TornOff:  	return Qt::DockTornOff;
         case uiMainWin::Unmanaged:      return Qt::DockUnmanaged;
     }
-    return (mDockType) 0;
+    return (Qt::ToolBarDock) 0;
 }
 
 
@@ -522,6 +501,29 @@ void uiMainWinBody::renewToolbarsMenu()
 }
 
 
+void uiMainWinBody::saveSettings()
+{
+    QSettings settings;
+    settings.beginGroup( NamedObject::name().buf() );
+    settings.setValue( "size", size() );
+    settings.setValue( "state", saveState() );
+    settings.endGroup();
+}
+
+
+void uiMainWinBody::readSettings()
+{
+    QSettings settings;
+    settings.beginGroup( NamedObject::name().buf() );
+    QSize qsz( settings.value("size",QSize(200,200)).toSize() );
+    handle_.setPrefWidth( qsz.width() );
+    handle_.setPrefHeight( qsz.height() );
+    restoreState( settings.value("state").toByteArray() );
+    settings.endGroup();
+}
+
+
+// ----- uiMainWin -----
 uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
 		      int nrstatusflds, bool wantMBar, bool modal )
     : uiParent(nm,0)
@@ -789,6 +791,14 @@ void uiMainWin::setIcon( const char* img[], const char* icntxt )
 	    menuBar()->setIcon( imgpm );
     }
 }
+
+
+void uiMainWin::saveSettings()
+{ body_->saveSettings(); }
+
+void uiMainWin::readSettings()
+{ body_->readSettings(); }
+
 
 
 /*!\brief Stand-alone dialog window with optional 'Ok', 'Cancel' and

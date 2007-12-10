@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.55 2007-11-12 16:06:09 cvsjaap Exp $
+ RCS:           $Id: uimainwin.h,v 1.56 2007-12-10 04:02:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,6 +134,9 @@ protected:
 
 			uiMainWin(const char*,uiParent*);
     uiObject*		mainobject();
+
+    void		saveSettings();
+    void		readSettings();
 
     uiMainWinBody*	body_;
     uiParent*		parent_;
