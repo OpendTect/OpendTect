@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.66 2007-11-26 15:55:29 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.67 2007-12-10 03:58:22 cvsnanne Exp $";
 
 #include "attriboutput.h"
 
@@ -510,8 +510,8 @@ TwoDOutput::TwoDOutput( const Interval<int>& trg, const Interval<float>& zrg,
 {
     seldata_->lineKey() = lk;
     setGeometry( trg, zrg );
-    const bool undeftrg = trg.start <= 0 && Values::isUdf(trg.stop);
-	seldata_->setIsAll( undeftrg );
+    const bool undeftrg = trg.start<=0 && Values::isUdf(trg.stop);
+    seldata_->setIsAll( undeftrg );
 }
 
 
