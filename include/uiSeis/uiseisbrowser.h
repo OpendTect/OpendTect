@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.6 2007-11-28 11:21:37 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.7 2007-12-10 04:24:38 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+#include "arraynd.h"
 #include "multiid.h"
 #include "seistype.h"
 #include "samplingdata.h"
@@ -20,11 +21,15 @@ ________________________________________________________________________
 #include "linekey.h"
 
 class CBVSSeisTrcTranslator;
+class CBVSWriteMgr;
+class PosAuxInfo;
 class SeisTrc;
 class SeisTrcBuf;
 class uiSeisTrcBufViewer;
 class uiTable;
 class uiToolButton;
+
+struct VBrickSpec;
 
 class uiSeisBrowser : public uiDialog
 {
@@ -69,9 +74,12 @@ public :
 protected:
 
     CBVSSeisTrcTranslator* tr_;
+    CBVSWriteMgr* 	wrtr_;
+    VBrickSpec* 	vbspec_;
     SeisTrcBuf&		tbuf_;
     SeisTrcBuf&		tbufchgdtrcs_;
     SeisTrc&		ctrc_;
+    PosAuxInfo*		painfo_;
     uiSeisTrcBufViewer*	strcbufview_;
     const uiSeisBrowser::Setup& setup_;
 
@@ -87,6 +95,9 @@ protected:
     int			nrcomps_;
     int			nrsamples_;
     SamplingData<float>	sd_;
+    Array2D<float>* 	arr_;
+    unsigned char**     targetptrs;
+    int			coordpol;
 
     bool		openData(const Setup&);
     void		createMenuAndToolBar();
@@ -106,6 +117,7 @@ protected:
     bool		acceptOK(CallBacker*);
     void		showWigglePush(CallBacker*);
     void		trcbufViewerClosed(CallBacker*);
+    void		valChgReDraw(CallBacker*);
 
 private:
 
