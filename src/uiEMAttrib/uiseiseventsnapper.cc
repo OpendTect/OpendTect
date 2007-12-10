@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiseiseventsnapper.cc,v 1.9 2007-12-05 11:55:49 cvsbert Exp $
+ RCS:           $Id: uiseiseventsnapper.cc,v 1.10 2007-12-10 12:59:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ ________________________________________________________________________
 
 uiSeisEventSnapper::uiSeisEventSnapper( uiParent* p, const IOObj* inp )
     : uiDialog(p,Setup("Snap horizon to seismic event","",""))
-    , horinctio_(*mMkCtxtIOObj(EMHorizon3D))
+    , horinctio_(*mGetCtxtIOObj(EMHorizon3D,Surf))
     , horoutctio_(*mMkCtxtIOObj(EMHorizon3D))
     , seisctio_(*mMkCtxtIOObj(SeisTrc))
     , horizon_(0)

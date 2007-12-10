@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:		$Id: uihorizonattrib.cc,v 1.8 2007-10-12 10:10:34 cvssulochana Exp $
+ RCS:		$Id: uihorizonattrib.cc,v 1.9 2007-12-10 12:59:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ mInitAttribUI(uiHorizonAttrib,Horizon,"Horizon",sKeyPositionGrp)
 
 uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d,"101.0.100")
-    , horctio_(*mMkCtxtIOObj(EMHorizon3D))
+    , horctio_(*mGetCtxtIOObj(EMHorizon3D,Surf))
 {
     inpfld_ = getInpFld();
 

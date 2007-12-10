@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackmute.cc,v 1.1 2007-03-26 21:12:02 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackmute.cc,v 1.2 2007-12-10 12:59:52 cvsbert Exp $";
 
 #include "uiprestackmute.h"
 
@@ -36,7 +36,7 @@ uiDialog* uiMute::create( uiParent* p, Processor* sgp )
 uiMute::uiMute( uiParent* p, Mute* sgmute )
     : uiDialog( p, uiDialog::Setup("Mute setup",0,"dgb:104.2.1") )
     , processor_( sgmute )
-    , ctio_( *mMkCtxtIOObj(MuteDef) )
+    , ctio_( *mGetCtxtIOObj(MuteDef,Misc) )
 {
     mutedeffld_ = new uiIOObjSel( this, ctio_ );
     topfld_ = new uiGenInput( this, "Mute type",

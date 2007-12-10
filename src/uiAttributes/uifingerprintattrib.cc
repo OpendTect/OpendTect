@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.40 2007-12-05 11:55:49 cvsbert Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.41 2007-12-10 12:59:52 cvsbert Exp $
 
 ________________________________________________________________________
 
@@ -102,7 +102,7 @@ class uiFPAdvancedDlg: public uiDialog
 
 uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d,"101.0.5")
-    , ctio_(*mMkCtxtIOObj(PickSet))
+    , ctio_(*mGetCtxtIOObj(PickSet,Loc))
     , refposfld_(0)
     , refpos2dfld_(0)
     , linesetfld_(0)
@@ -685,7 +685,7 @@ uiFPAdvancedDlg::uiFPAdvancedDlg( uiParent* p, calcFingParsObject* calcobj,
        				  const BufferStringSet& attrrefset )
     : uiDialog( p, uiDialog::Setup("FingerPrint attribute advanced options",
 				   "Specify advanced options", "101.3.2") )
-    , ctio_(*mMkCtxtIOObj(PickSet))
+    , ctio_(*mGetCtxtIOObj(PickSet,Loc))
     , calcobj_(*calcobj)
 {
     rangesgrp_ = new uiButtonGroup( this, "Get ranges from", false );

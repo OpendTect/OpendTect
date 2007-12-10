@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uirandlinegen.cc,v 1.4 2007-12-01 15:34:57 cvsbert Exp $
+ RCS:           $Id: uirandlinegen.cc,v 1.5 2007-12-10 12:59:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ ________________________________________________________________________
 uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     : uiDialog( p, Setup("Create Random Lines","Specify generation parameters",
 			 "0.0.0") )
-    , horctio_(*mMkCtxtIOObj(EMHorizon3D))
+    , horctio_(*mGetCtxtIOObj(EMHorizon3D,Surf))
     , rlsctio_(*mMkCtxtIOObj(RandomLineSet))
 {
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );

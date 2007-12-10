@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.31 2007-10-01 12:12:20 cvsnanne Exp $
+ RCS:           $Id: treeitem.cc,v 1.32 2007-12-10 12:59:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -276,7 +276,7 @@ bool AnnotTreeItem::showSubMenu()
 
 bool AnnotTreeItem::readPicks( Pick::Set& ps )
 {
-    CtxtIOObj* ctio = mMkCtxtIOObj(PickSet);
+    CtxtIOObj* ctio = mGetCtxtIOObj(PickSet,Loc);
     ctio->ctxt.forread = true;
     ctio->ctxt.parconstraints.set( sKey::Type, managerName(), oldSelKey() );
     ctio->ctxt.includeconstraints = true;

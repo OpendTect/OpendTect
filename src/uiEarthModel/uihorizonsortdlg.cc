@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2005
- RCS:		$Id: uihorizonsortdlg.cc,v 1.7 2007-10-02 12:56:19 cvsjaap Exp $
+ RCS:		$Id: uihorizonsortdlg.cc,v 1.8 2007-12-10 12:59:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,8 +31,8 @@ ________________________________________________________________________
 uiHorizonSortDlg::uiHorizonSortDlg( uiParent* p, bool is2d )
     : uiDialog(p,Setup("Horizon sorter","Select horizons",""))
 {
-    PtrMan<CtxtIOObj> ctio = is2d ? mMkCtxtIOObj( EMHorizon2D )
-				  : mMkCtxtIOObj( EMHorizon3D );
+    PtrMan<CtxtIOObj> ctio = is2d ? mGetCtxtIOObj( EMHorizon2D, Surf )
+				  : mGetCtxtIOObj( EMHorizon3D, Surf );
     ioobjselgrp_ = new uiIOObjSelGrp( this, *ctio, "Select horizons", true );
 }
 

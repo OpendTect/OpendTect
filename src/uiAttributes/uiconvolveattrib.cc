@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          November 2006
- RCS:           $Id: uiconvolveattrib.cc,v 1.8 2007-10-12 09:12:19 cvssulochana Exp $
+ RCS:           $Id: uiconvolveattrib.cc,v 1.9 2007-12-10 12:59:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,7 @@ mInitAttribUI(uiConvolveAttrib,Convolve,"Convolve",sKeyFilterGrp)
 
 uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.1")
-    	, ctio_(*mMkCtxtIOObj(Wavelet))
+    	, ctio_(*mGetCtxtIOObj(Wavelet,Seis))
 {
     inpfld_ = getInpFld();
 

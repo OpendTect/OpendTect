@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.cc,v 1.20 2007-11-16 21:25:45 cvskris Exp $
+ RCS:           $Id: uiattrsurfout.cc,v 1.21 2007-12-10 12:59:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
 				    const NLAModel* n, const MultiID& mid )
     : uiFullBatchDialog(p,Setup("Create surface output")
 	    		  .procprognm("process_attrib_em"))
-    , ctio(*mMkCtxtIOObj(EMHorizon3D))
+    , ctio(*mGetCtxtIOObj(EMHorizon3D,Surf))
     , ads(const_cast<DescSet&>(ad))
     , nlamodel(n)
     , nlaid(mid)

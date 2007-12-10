@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra / Bert Bril
  Date:		Sep 2005 / Nov 2006
- RCS:		$Id: uichangesurfacedlg.cc,v 1.14 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.15 2007-12-10 12:59:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ uiChangeSurfaceDlg::uiChangeSurfaceDlg( uiParent* p, EM::Horizon3D* hor,
 {
     if ( !horizon_ )
     {
-	ctioin_ = mMkCtxtIOObj( EMHorizon3D );
+	ctioin_ = mGetCtxtIOObj( EMHorizon3D, Surf );
 	ctioin_->ctxt.forread = true;
 	inputfld_ = new uiIOObjSel( this, *ctioin_, "Select Horizon" );
     }
