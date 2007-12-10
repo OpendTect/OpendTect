@@ -1,6 +1,6 @@
 #!/bin/csh
 # This script initialises a work dir after CVS checkout
-# $Id: setup_cvstree,v 1.7 2007-08-16 04:18:15 cvsnanne Exp $
+# $Id: setup_cvstree,v 1.8 2007-12-10 04:04:19 cvsnanne Exp $
 
 if ( $#argv < 1 ) then
     set od_wdir=`pwd`
@@ -109,7 +109,7 @@ else if ( $binsubdir == mac ) then
     ln -s $basedir/qt/rel/lib/libQtOpenGL.4.dylib .
     ln -s $basedir/qt/rel/lib/libQtSql.4.dylib .
     ln -s $basedir/qt/rel/lib/libQtXml.4.dylib .
-    ln -s $basedir/coin/lib/libCoin.60.dylib .
+    ln -s $basedir/coin/lib/libCoin.40.dylib .
     ln -s $basedir/coin/lib/libSoQt.20.dylib .
     ln -s $basedir/coin/lib/libsimage.20.dylib .
     ln -s libsimage.20.dylib libsimage.dylib
@@ -125,7 +125,7 @@ else
     ln -s $basedir/qt/rel/lib/libQtOpenGL.so.4 .
     ln -s $basedir/qt/rel/lib/libQtSql.so.4 .
     ln -s $basedir/qt/rel/lib/libQtXml.so.4 .
-    ln -s $basedir/coin/lib/libCoin.so.60 .
+    ln -s $basedir/coin/lib/libCoin.so.40 .
     ln -s $basedir/coin/lib/libSoQt.so.20 .
     ln -s $basedir/coin/lib/libsimage.so.20 .
     ln -s libsimage.so.20 libsimage.so
