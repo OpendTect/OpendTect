@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.222 2007-12-06 09:42:27 cvsraman Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.223 2007-12-11 10:00:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -477,8 +477,6 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		appl_.colTabEd().setDefaultColTab();
 	    delete ioobj;
 	}
-	else
-	    appl_.colTabEd().setDefaultColTab();
     }
 
     bool res = false;
