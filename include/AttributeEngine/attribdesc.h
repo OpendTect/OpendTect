@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.40 2007-06-06 08:17:51 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.41 2007-12-11 11:27:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,6 +118,7 @@ public:
 
     bool			is2D() const;
     void			set2D(bool);
+    bool			is2DSet() const		{ return is2dset_; }
 
     enum SatisfyLevel		{ AllOk, Warning, Error };
     SatisfyLevel		isSatisfied() const;

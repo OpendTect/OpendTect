@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.27 2007-09-21 14:53:21 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.28 2007-12-11 11:27:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,6 +94,7 @@ public:
 						    BufferString&);
     void                        handleReferenceInput(Desc*);
 
+    bool                        is2DSet() const         { return is2dset_; }
     bool			is2D() const;
     const char*			errMsg() const;
     static const char*		highestIDStr()		{ return "MaxNrKeys"; }
