@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.58 2007-11-16 21:25:45 cvskris Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.59 2007-12-11 11:52:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -349,7 +349,7 @@ bool uiFullBatchDialog::singLaunch( const IOPar& iop, const char* fnm )
 
     FilePath parfp( fnm );
     if ( !parfp.nrLevels() )
-        parfp = singparfname;
+        parfp = singparfname_;
     if ( !writeProcFile(workiop,parfp.fullPath()) )
 	return false;
 
