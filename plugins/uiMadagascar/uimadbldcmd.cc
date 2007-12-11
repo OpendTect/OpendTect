@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.7 2007-12-10 17:24:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.8 2007-12-11 15:18:26 cvsbert Exp $";
 
 #include "uimadbldcmd.h"
 #include "uimsg.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.7 2007-12-10 17:24:07 cvsber
 #include "uilistbox.h"
 #include "uicombobox.h"
 #include "uibutton.h"
+#include "uisplitter.h"
 #include "uiseparator.h"
 #include "uiexecutor.h"
 #include "uitextedit.h"
@@ -42,14 +43,10 @@ static BufferString& separateProgName( const char* cmd, bool wantprog )
 
 
 uiMadagascarBldCmd::uiMadagascarBldCmd( uiParent* p )
-	: uiDialog( p, Setup( "Madagascar command building",
-			      "Build Madagascar command",
-			      "0.0.0").modal(false) )
+	: uiGroup(p,"Madagascar command builder")
 	, cmdAvailable(this)
-	, hideReq(this)
-    	, cmdisnew_(true)
+    	, cmdisadd_(true)
 {
-    setCtrlStyle( uiDialog::LeaveOnly );
     bool allok = ODMad::PI().errMsg().isEmpty();
     if ( allok && !ODMad::PI().scanned() )
     {
@@ -59,34 +56,97 @@ uiMadagascarBldCmd::uiMadagascarBldCmd( uiParent* p )
 	delete ex;
     }
 
-    uiSeparator* sep;
+    uiGroup* selgrp = new uiGroup( this, "Sel grp" );
     if ( allok )
-	sep = createMainPart();
+	createMainPart( selgrp );
     else
-    {
-	uiLabel* lbl = new uiLabel( this, ODMad::PI().errMsg() );
-	sep = new uiSeparator( this, "low sep" );
-	sep->attach( stretchedBelow, lbl );
-    }
+	new uiLabel( selgrp, ODMad::PI().errMsg() );
+    setHAlignObj( selgrp );
 
-    cmdfld_ = new uiLineEdit( this, "", "Command line edit line" );
-    if ( allok )
-	cmdfld_->attach( alignedBelow, synopsfld_ );
-    else
-	cmdfld_->attach( ensureBelow, sep );
+    uiSeparator* hsep = new uiSeparator( this, "Hor sep" );
+    hsep->setStretch( 2, 0 );
+    hsep->attach( ensureBelow, selgrp );
+
+    uiGroup* lowgrp = createLowGroup();
+    lowgrp->attach( alignedBelow, selgrp );
+    lowgrp->attach( ensureBelow, hsep );
+}
+
+
+void uiMadagascarBldCmd::createMainPart( uiGroup* selgrp )
+{
+    uiGroup* lsgrp = new uiGroup( selgrp, "Left Selection group" );
+    selgrp->setHAlignObj( lsgrp );
+
+    BufferStringSet grps; grps.add( "All" ); grps.add( "Search results" );
+    BufferStringSet madgrps( ODMad::PI().groups() );
+    madgrps.sort(); grps.add( madgrps, false );
+    uiLabeledComboBox* groupfld = new uiLabeledComboBox( lsgrp, grps, "Group" );
+    groupfld_ = groupfld->box();
+    groupfld_->setToolTip( "Madagascar program group" );
+    groupfld_->selectionChanged.notify( mCB(this,uiMadagascarBldCmd,groupChg) );
+    uiLabeledListBox* progfld = new uiLabeledListBox( lsgrp, "Program" );
+    progfld->attach( alignedBelow, groupfld );
+    progfld_ = progfld->box();
+    progfld_->selectionChanged.notify( mCB(this,uiMadagascarBldCmd,progChg) );
+    progfld_->doubleClicked.notify( mCB(this,uiMadagascarBldCmd,dClick) );
+    progfld_->setPrefHeightInChar( 12 );
+    lsgrp->setHAlignObj( groupfld );
+
+    uiGroup* infogrp = new uiGroup( selgrp, "Right Selection group" );
+
+    srchfld_ = new uiLineEdit( infogrp, "", "Search field" );
+    srchfld_->setToolTip( "Search expression" );
+    srchfld_->setPrefWidthInChar( 15 );
+    srchfld_->returnPressed.notify( mCB(this,uiMadagascarBldCmd,doSearch) );
+    uiPushButton* srchbut = new uiPushButton( infogrp, "<< &Find expression",
+	    				      true );
+    srchbut->activated.notify( mCB(this,uiMadagascarBldCmd,doSearch) );
+    srchbut->attach( rightOf, srchfld_ );
+
+    descfld_ = new uiLineEdit( infogrp, "", "Desc fld" );
+    descfld_->attach( alignedBelow, srchfld_ );
+    descfld_->setReadOnly( true );
+    descfld_->setStretch( 0, 2 );
+    commentfld_ = new uiTextEdit( infogrp, "Comments", true );
+    commentfld_->attach( alignedBelow, descfld_ );
+    commentfld_->setStretch( 1, 1 );
+    commentfld_->setPrefHeightInChar( 14 );
+    commentfld_->setPrefWidthInChar( 40 );
+
+    infogrp->setHAlignObj( srchbut );
+
+    uiSplitter* vspl = new uiSplitter( selgrp, "vert spl", true );
+    vspl->addGroup( lsgrp ); vspl->addGroup( infogrp );
+}
+
+
+uiGroup* uiMadagascarBldCmd::createLowGroup()
+{
+    uiGroup* lowgrp = new uiGroup( this, "Low grp" );
+
+    synopsfld_ = new uiLineEdit( lowgrp, "", "Synopsis edit line" );
+    synopsfld_->setReadOnly( true );
+    synopsfld_->setStretch( 0, 2 );
+    new uiLabel( lowgrp, "Synopsis", synopsfld_ );
+
+    cmdfld_ = new uiLineEdit( lowgrp, "", "Command line edit line" );
+    cmdfld_->attach( alignedBelow, synopsfld_ );
     cmdfld_->setStretch( 0, 2 );
-    cmdfld_->setHSzPol( uiObject::WideMax );
-    new uiLabel( this, "Command line", cmdfld_ );
+    new uiLabel( lowgrp, "Command line", cmdfld_ );
 
-    uiPushButton* edbut = new uiPushButton( this, "&Replace", true );
+    uiPushButton* edbut = new uiPushButton( lowgrp, "&Replace", true );
     edbut->setToolTip( "Replace current command" );
     edbut->activated.notify( mCB(this,uiMadagascarBldCmd,doEdit) );
     edbut->attach( rightOf, cmdfld_ );
-    uiPushButton* addbut = new uiPushButton( this, "&Add", true );
+    uiPushButton* addbut = new uiPushButton( lowgrp, "&Add", true );
     addbut->setToolTip( "Add to process flow" );
     addbut->activated.notify( mCB(this,uiMadagascarBldCmd,doAdd) );
     addbut->attach( rightTo, edbut );
     addbut->attach( rightBorder );
+
+    lowgrp->setHAlignObj( synopsfld_ );
+    return lowgrp;
 }
 
 
@@ -98,70 +158,6 @@ uiMadagascarBldCmd::~uiMadagascarBldCmd()
 const char*  uiMadagascarBldCmd::command() const
 {
     return cmdfld_->text();
-}
-
-
-uiSeparator* uiMadagascarBldCmd::createMainPart()
-{
-    uiGroup* selgrp = new uiGroup( this, "Selection group" );
-    uiGroup* lsgrp = new uiGroup( selgrp, "Left Selection group" );
-    selgrp->setHAlignObj( lsgrp );
-
-    BufferStringSet grps( ODMad::PI().groups() );
-    grps.sort();
-    grps.insertAt( new BufferString("All"), 0 );
-    uiLabeledComboBox* groupfld = new uiLabeledComboBox( lsgrp, grps,"Group" );
-    groupfld_ = groupfld->box();
-    groupfld_->selectionChanged.notify( mCB(this,uiMadagascarBldCmd,groupChg) );
-    groupfld_->setStretch( 0, 0 );
-    lsgrp->setHAlignObj( groupfld );
-    uiLabeledListBox* progfld = new uiLabeledListBox( lsgrp, "Program" );
-    progfld->attach( alignedBelow, groupfld );
-    progfld_ = progfld->box();
-    progfld_->selectionChanged.notify( mCB(this,uiMadagascarBldCmd,progChg) );
-    progfld_->doubleClicked.notify( mCB(this,uiMadagascarBldCmd,dClick) );
-    progfld_->setStretch( 0, 1 );
-    progfld_->setPrefHeightInChar( 16 );
-
-    uiSeparator* vsep = new uiSeparator( selgrp, "vert sep", false );
-    vsep->attach( rightOf, lsgrp );
-    vsep->setStretch( 0, 2 );
-    descfld_ = new uiLineEdit( selgrp, "", "Desc fld" );
-    descfld_->attach( rightOf, vsep );
-    descfld_->setReadOnly( true );
-    descfld_->setPrefWidthInChar( 50 );
-    descfld_->setStretch( 0, 2 );
-    descfld_->setHSzPol( uiObject::WideMax );
-    commentfld_ = new uiTextEdit( selgrp, "Comments", true );
-    commentfld_->attach( alignedBelow, descfld_ );
-    commentfld_->setStretch( 2, 1 );
-    // commentfld_->setPrefWidthInChar( 50 );
-    commentfld_->setPrefHeightInChar( 15 );
-
-    srchfld_ = new uiLineEdit( selgrp, "", "Search field" );
-    srchfld_->attach( alignedBelow, commentfld_ );
-    srchfld_->returnPressed.notify( mCB(this,uiMadagascarBldCmd,doSearch) );
-    uiPushButton* srchbut = new uiPushButton( selgrp, "&Search >>", true );
-    srchbut->activated.notify( mCB(this,uiMadagascarBldCmd,doSearch) );
-    srchbut->attach( rightOf, srchfld_ );
-    srchresfld_ = new uiComboBox( selgrp, "Search results" );
-    srchresfld_->setToolTip( "Programs matching search" );
-    srchresfld_->selectionChanged.notify(
-	    		mCB(this,uiMadagascarBldCmd,searchBoxSel) );
-    srchresfld_->attach( rightTo, srchbut );
-    srchresfld_->attach( rightBorder );
-
-    uiSeparator* sep = new uiSeparator( this, "low sep" );
-    sep->attach( stretchedBelow, selgrp );
-
-    synopsfld_ = new uiLineEdit( this, "", "Synopsis edit line" );
-    synopsfld_->attach( alignedBelow, selgrp );
-    synopsfld_->attach( ensureBelow, sep );
-    synopsfld_->setReadOnly( true );
-    synopsfld_->setStretch( 0, 2 );
-    synopsfld_->setHSzPol( uiObject::WideMax );
-    new uiLabel( this, "Synopsis", synopsfld_ );
-    return sep;
 }
 
 
@@ -210,21 +206,14 @@ void uiMadagascarBldCmd::doSearch( CallBacker* )
 
     ObjectSet<const ODMad::ProgDef> defs;
     ODMad::PI().search( srchkey, defs );
-    srchresfld_->empty();
+    progfld_->empty();
     if ( defs.size() < 1 ) return;
 
     for ( int idx=0; idx<defs.size(); idx++ )
-	srchresfld_->addItem( defs[idx]->name_ );
+	progfld_->addItem( defs[idx]->name_ );
 
-    srchresfld_->setCurrentItem( 0 );
-    searchBoxSel( srchresfld_ );
-}
-
-
-void uiMadagascarBldCmd::searchBoxSel( CallBacker* )
-{
-    if ( srchresfld_->size() < 1 ) return;
-    setProgName( srchresfld_->text() );
+    progfld_->setCurrentItem( 0 );
+    progChg( 0 );
 }
 
 
@@ -285,29 +274,10 @@ void uiMadagascarBldCmd::setInput( const ODMad::ProgDef* def )
 }
 
 
-#define mImplButFn(isnw) \
-    if ( !cmdOK() ) return; \
-    cmdisnew_ = isnw; \
+#define mImplButFn(isadd) \
+    if ( !*cmdfld_->text() ) return; \
+    cmdisadd_ = isadd; \
     cmdAvailable.trigger()
 
 void uiMadagascarBldCmd::doAdd( CallBacker* )	{ mImplButFn( true ); }
 void uiMadagascarBldCmd::doEdit( CallBacker* )	{ mImplButFn( false ); }
-
-
-bool uiMadagascarBldCmd::cmdOK()
-{
-    BufferString newcmd = cmdfld_->text();
-    if ( newcmd.isEmpty() )
-    {
-	uiMSG().error( "Please specify a command" );
-	return false;
-    }
-    return true;
-}
-
-
-bool uiMadagascarBldCmd::rejectOK( CallBacker* )
-{
-    hideReq.trigger();
-    return false;
-}

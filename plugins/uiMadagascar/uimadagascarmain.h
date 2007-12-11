@@ -4,11 +4,12 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : May 2007
- * ID       : $Id: uimadagascarmain.h,v 1.10 2007-12-10 17:24:07 cvsbert Exp $
+ * ID       : $Id: uimadagascarmain.h,v 1.11 2007-12-11 15:18:26 cvsbert Exp $
 -*/
 
 #include "uidialog.h"
 #include "iopar.h"
+class uiGroup;
 class uiMadIOSel;
 class uiListBox;
 class uiToolButton;
@@ -20,7 +21,6 @@ class uiMadagascarMain : public uiDialog
 public:
 
 			uiMadagascarMain(uiParent*);
-			~uiMadagascarMain();
 
 protected:
 
@@ -35,10 +35,8 @@ protected:
     uiToolButton*	rmbut_;
     uiMadagascarBldCmd*	bldfld_;
 
-    void		atStart(CallBacker*);
     void		cmdAvail(CallBacker*);
     void		hideReq(CallBacker*);
-    void		showBldFld(CallBacker*);
     void		butPush(CallBacker*);
     void		setButStates(CallBacker* cb=0);
     void		selChg(CallBacker*);
@@ -50,7 +48,7 @@ protected:
     bool		acceptOK(CallBacker*);
 
     void		createMenus();
-    uiGroup*		crProcGroup();
+    uiGroup*		crProcGroup(uiGroup*);
 
 };
 

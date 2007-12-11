@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.12 2007-12-10 17:24:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.13 2007-12-11 15:18:26 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.12 2007-12-10 17:24:07 
 #include "uibuttongroup.h"
 #include "uimenu.h"
 #include "uitoolbar.h"
-#include "uiseparator.h"
+#include "uisplitter.h"
 #include "uimsg.h"
 #include "pixmap.h"
 
@@ -29,30 +29,24 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     setCtrlStyle( uiDialog::DoAndStay );
     createMenus();
 
-    infld_ = new uiMadIOSel( this, true );
+    uiGroup* maingrp = new uiGroup( this, "Main group" );
 
-    uiGroup* procgrp = crProcGroup();
+    infld_ = new uiMadIOSel( maingrp, true );
+
+    uiGroup* procgrp = crProcGroup( maingrp );
     procgrp->attach( alignedBelow, infld_ );
 
-    outfld_ = new uiMadIOSel( this, false );
+    outfld_ = new uiMadIOSel( maingrp, false );
     outfld_->attach( alignedBelow, procgrp );
 
-    finaliseDone.notify( mCB(this,uiMadagascarMain,atStart) );
-}
-
-
-uiMadagascarMain::~uiMadagascarMain()
-{
-    delete bldfld_;
-}
-
-
-void uiMadagascarMain::atStart( CallBacker* )
-{
-    setButStates(0);
     bldfld_ = new uiMadagascarBldCmd( this );
     bldfld_->cmdAvailable.notify( mCB(this,uiMadagascarMain,cmdAvail) );
-    bldfld_->show();
+
+    uiSplitter* spl = new uiSplitter( this, "Vert splitter", true );
+    spl->addGroup( maingrp );
+    spl->addGroup( bldfld_ );
+
+    finaliseDone.notify( mCB(this,uiMadagascarMain,setButStates) );
 }
 
 
@@ -74,7 +68,6 @@ void uiMadagascarMain::createMenus()
     mInsertItem( "&Import flow ...", importFlow );
     mInsertItem( "&Export flow ...", exportFlow );
     mnu->insertSeparator();
-    mInsertItem( "Show &Command Builder", showBldFld );
     mInsertItem( "&Quit", reject );
     menubar->insertItem( mnu );
 
@@ -85,32 +78,29 @@ void uiMadagascarMain::createMenus()
 }
 
 
-uiGroup* uiMadagascarMain::crProcGroup()
+uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
 {
-    uiGroup* procgrp = new uiGroup( this, "Proc group" );
+    uiGroup* procgrp = new uiGroup( grp, "Proc group" );
     const CallBack butpushcb( mCB(this,uiMadagascarMain,butPush) );
 
     uiLabeledListBox* pfld = new uiLabeledListBox( procgrp, "WORK", false,
 						   uiLabeledListBox::LeftMid );
     procsfld_ = pfld->box();
-    procsfld_->setPrefHeightInChar( 8 );
-    procsfld_->setPrefWidthInChar( 40 );
+    procsfld_->setPrefWidthInChar( 20 );
     procsfld_->selectionChanged.notify( mCB(this,uiMadagascarMain,selChg) );
 
-    uiButtonGroup* bgrp = new uiButtonGroup( procgrp, "" );
+    uiButtonGroup* bgrp = new uiButtonGroup( procgrp, "", false );
     bgrp->displayFrame( true );
-
     upbut_ = new uiToolButton( bgrp, "Up button", butpushcb );
     upbut_->setArrowType( uiToolButton::UpArrow );
     upbut_->setToolTip( "Move current command up" );
     downbut_ = new uiToolButton( bgrp, "Down button", butpushcb );
     downbut_->setArrowType( uiToolButton::DownArrow );
     downbut_->setToolTip( "Move current command down" );
-
     rmbut_ = new uiToolButton( bgrp, "Remove button", ioPixmap("trashcan.png"),
 	    			butpushcb );
     rmbut_->setToolTip( "Remove current command from flow" );
-    bgrp->attach( centeredRightOf, pfld );
+    bgrp->attach( centeredBelow, pfld );
 
     procgrp->setHAlignObj( pfld );
     return procgrp;
@@ -122,7 +112,7 @@ void uiMadagascarMain::cmdAvail( CallBacker* cb )
     const BufferString cmd = bldfld_->command();
     if ( cmd.isEmpty() ) return;
 
-    if ( bldfld_->isNew() )
+    if ( bldfld_->isAdd() )
     {
 	procsfld_->addItem( cmd );
 	procsfld_->setCurrentItem( procsfld_->size() - 1 );
@@ -141,15 +131,6 @@ void uiMadagascarMain::cmdAvail( CallBacker* cb )
 void uiMadagascarMain::hideReq( CallBacker* cb )
 {
     bldfld_->display( false );
-}
-
-
-void uiMadagascarMain::showBldFld( CallBacker* cb )
-{
-    const bool washidden = bldfld_->isHidden();
-    bldfld_->display( washidden );
-    if ( washidden )
-	selChg( 0 );
 }
 
 
