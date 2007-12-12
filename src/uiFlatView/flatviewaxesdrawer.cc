@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: flatviewaxesdrawer.cc,v 1.5 2007-05-08 18:37:08 cvskris Exp $
+ RCS:           $Id: flatviewaxesdrawer.cc,v 1.6 2007-12-12 15:44:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,24 +42,19 @@ void FlatView::AxesDrawer::draw( uiRect uir, uiWorldRect wr )
 double FlatView::AxesDrawer::getAnnotTextAndPos( bool isx, double pos,
 						 BufferString* txt ) const
 {
-    if ( !isx || mIsUdf(altdim0_) )
+    bool usewva = !vwr_.isVisible( false );
+    const FlatDataPack* fdp = vwr_.pack( usewva );
+    if ( !fdp )
+	{ usewva = !usewva; fdp = vwr_.pack( usewva ); }
+
+    if ( !isx || mIsUdf(altdim0_) || !fdp )
 	return ::DrawAxis2D::getAnnotTextAndPos( isx, pos, txt );
 
-    const bool usewva = !vwr_.isVisible( false );
-    const FlatPosData& pd( usewva ? vwr_.data().pos(true)
-	    			  : vwr_.data().pos(false) );
+    const FlatPosData& pd = fdp->posData();
     IndexInfo idxinfo( pd.indexInfo( true, pos ) );
     pos = pd.position( true, idxinfo.nearest_ );
 
     if ( txt )
-    {
-	const FlatDataPack* fdp = vwr_.getPack( usewva );
-	if ( !fdp ) fdp = vwr_.getPack( !usewva );
-	if ( fdp )
-	    *txt = fdp->getAltDim0Value( altdim0_, idxinfo.nearest_ );
-	else
-	    *txt = pos;
-    }
-
+	*txt = fdp->getAltDim0Value( altdim0_, idxinfo.nearest_ );
     return pos;
 }

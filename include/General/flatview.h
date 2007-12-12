@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.22 2007-07-18 14:58:09 cvskris Exp $
+ RCS:           $Id: flatview.h,v 1.23 2007-12-12 15:44:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,12 +15,11 @@ ________________________________________________________________________
 #include "bufstring.h"
 #include "geometry.h"
 #include "position.h"
-#include "datapack.h"
+#include "datapackbase.h"
 #include "draw.h"
 
 class IOPar;
-class FlatDataPack;
-template <class T> class Array2D;
+class FlatView_CB_Rcvr;
 
 
 namespace FlatView
@@ -241,71 +240,26 @@ protected:
 };
 
 
-/*!\brief Data for a display: positions, arrays and name. */
-
-class PackData
-{
-public:
-    				PackData( const Array2D<float>* a=0,
-					  const char* nm=0 )
-				    : arr_(a), name_(nm)	{}
-
-    FlatPosData			pos_;
-    const Array2D<float>*	arr_;
-    BufferString		name_;
-
-    inline bool			isEmpty() const
-				{ return !arr_; }
-    inline void			setEmpty()
-				{ arr_ = 0; }
-    inline void			clear()
-				{ arr_ = 0; name_ = ""; pos_.setRegular(); }
-};
-
-
-/*!\brief PackData for both WVA and VD. */
-
-class Data
-{
-public:
-
-    PackData		wva_;
-    PackData		vd_;
-
-    virtual void	addAuxInfo(bool wva,int,int,IOPar&) const	{}
-    			//!< Give extra info like stuff from trace headers
-    			//!< should be 'printable'
-
-    // convenience
-    inline bool		isEmpty() const
-			{ return !wvaArr() && !vdArr(); }
-    inline int		nrArrs() const
-			{ return wvaArr() ? (vdArr()?2:1) : (vdArr()?1:0); }
-    inline void		setEmpty( bool wva )
-			{ wva ? wva_.setEmpty() : vd_.setEmpty(); }
-
-    inline const FlatPosData&	pos( bool wva ) const
-    			{ return wva ? wva_.pos_ : vd_.pos_; }
-    inline const Array2D<float>* arr( bool wva ) const
-    			{ return wva ? wva_.arr_ : vd_.arr_; }
-    inline const BufferString&	name( bool wva ) const
-    			{ return wva ? wva_.name_ : vd_.name_; }
-
-    inline const FlatPosData&	wvaPos() const		{ return pos(true); }
-    inline const FlatPosData&	vdPos() const		{ return pos(false); }
-    inline const Array2D<float>* wvaArr() const		{ return arr(true); }
-    inline const Array2D<float>* vdArr() const		{ return arr(false); }
-    inline const BufferString&	wvaName() const		{ return name(true); }
-    inline const BufferString&	vdName() const		{ return name(false); }
-
-};
-
-
 
 /*!\brief Flat Viewer using FlatView::Data and FlatView::Appearance
 
   Interface for displaying data and related annotations where at least one of
   the directions is sampled regularly.
+
+  The viewer works with FlatDataPacks - period. in previous versions, you could
+  pass 'loose' data but DataPacks are so neat&clean we got rid of this
+  possibility.
+  
+  You can attach many datapacks to the viewer; the different modes (WVA, VD)
+  can be attached to zero or one of those packs. If you pass the data pack in
+  observe mode, the viewer will not release the pack when it's deleted or
+  when removePack is called for the pack.
+
+  addPack() -> add a DataPack to the list of available data packs
+  usePack() -> sets one of the available packs for wva of vd display
+  setPack() -> Combination of addPack and usePack.
+  removePack() -> removes this pack from the available packs, if necessary
+  		  it also clears the wva or vd display to no display.
 
   */
 
@@ -313,15 +267,29 @@ class Viewer
 {
 public:
 
-    			Viewer() : defdata_(0), defapp_(0)	{}
-    virtual		~Viewer()				{}
+    			Viewer();
+    virtual		~Viewer();
 
     virtual Appearance&	appearance();
     const Appearance&	appearance() const
     			{ return const_cast<Viewer*>(this)->appearance(); }
-    virtual Data&	data();
-    const Data&		data() const
-    			{ return const_cast<Viewer*>(this)->data(); }
+
+    void		addPack(::DataPack::ID,bool observe=false);
+    			//!< Adds to list, but doesn't use for WVA or VD
+    void		usePack(bool wva,::DataPack::ID,bool usedefs=true);
+    			//!< Does not add new packs, just selects from added
+    void		removePack(::DataPack::ID);
+    void		setPack( bool wva, ::DataPack::ID id, bool obs,
+				 bool usedefs=true )
+			{ addPack( id, obs ); usePack( wva, id, usedefs ); }
+
+    const FlatDataPack*	pack( bool wva ) const
+			{ return wva ? wvapack_ : vdpack_; }
+    DataPack::ID	packID( bool wva ) const
+			{ return pack(wva) ? pack(wva)->id()
+			    		   : ::DataPack::cNoID; }
+    const TypeSet< ::DataPack::ID>&	availablePacks() const
+							{ return ids_; }
 
     virtual bool	isVertical() const		{ return true; }
     bool		isVisible(bool wva) const;
@@ -338,27 +306,23 @@ public:
     void		storeDefaults(const char* key) const;
     void		useStoredDefaults(const char* key);
 
-    void		setPack(bool vwa,::DataPack::ID,bool usedefs=true);
-    			//!< Optional. No data needs to be in a Pack
-    			//!< The pack will be obtained non-observing.
-    void		setPack(bool vwa,const FlatDataPack*,bool usedefs=true);
-    			//!< You can pass null.
-    			//!< The pack must have been obtained non-observing.
-    virtual const FlatDataPack*	getPack(bool wva) const;
-    			//!< May return null
-
-    void		syncDataPacks(); //!< after mix/null of data()
     void		getAuxInfo(const Point&,IOPar&) const;
 
 protected:
 
-    Data*		defdata_;
-    Appearance*		defapp_;
+    TypeSet< ::DataPack::ID>	ids_;
+    BoolTypeSet			obs_;
+    const FlatDataPack*		wvapack_;
+    const FlatDataPack*		vdpack_;
+    Appearance*			defapp_;
+    DataPackMgr&		dpm_;
+    FlatView_CB_Rcvr*		cbrcvr_;
 
-    void		addAuxInfo(bool,const Point&,IOPar&) const;
-    void		chgPack(bool,const FlatDataPack*);
-    virtual void	doSetPack(bool,const FlatDataPack*,bool);
+    void			addAuxInfo(bool,const Point&,IOPar&) const;
 
+public:
+
+    void			packRm(::DataPack::ID); //!< don't use
 };
 
 

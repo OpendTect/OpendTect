@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          Nov 2007
- RCS:           $Id: uiseistrcbufviewer.cc,v 1.6 2007-12-07 08:17:27 cvssatyaki Exp $
+ RCS:           $Id: uiseistrcbufviewer.cc,v 1.7 2007-12-12 15:44:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ void uiSeisTrcBufViewer::initialise()
 
 void uiSeisTrcBufViewer::setData( FlatDataPack* dp_ )
 {
-    vwr_->setPack( true, dp_ );
+    vwr_->setPack( true, dp_->id(), false );
     app_->ddpars_.show( true, false );
     addControl( new uiFlatViewStdControl( *vwr_, 
 		uiFlatViewStdControl::Setup(this).withstates(true) ) );

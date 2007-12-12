@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewbitmap.cc,v 1.10 2007-11-28 11:29:32 cvssatyaki Exp $
+ RCS:           $Id: flatviewbitmap.cc,v 1.11 2007-12-12 15:44:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,19 +43,16 @@ void FlatView::BitMapMgr::clearAll()
 void FlatView::BitMapMgr::setupChg()
 {
     clearAll();
+    if ( !vwr_.isVisible(wva_) ) return;
 
-    const Array2D<float>* arr = vwr_.data().arr( wva_ );
-    if ( !arr ) return;
-
+    const FlatDataPack& dp = *vwr_.pack( wva_ );
+    const FlatPosData& pd = dp.posData();
     const FlatView::Appearance& app = vwr_.appearance();
-    if ( (wva_ && !app.ddpars_.wva_.show_)
-      || (!wva_ && !app.ddpars_.vd_.show_) )
-	return;
+    const Array2D<float>& arr = dp.data();
 
-    const FlatPosData& pd = vwr_.data().pos( wva_ );
-    pos_ = new A2DBitMapPosSetup( arr->info(), pd.getPositions(true) );
+    pos_ = new A2DBitMapPosSetup( arr.info(), pd.getPositions(true) );
     pos_->setDim1Positions( pd.range(false).start, pd.range(false).stop );
-    data_ = new A2DBitMapInpData( *arr );
+    data_ = new A2DBitMapInpData( arr );
 
     if ( !wva_ )
 	gen_ = new VDA2DBitMapGenerator( *data_, *pos_ );
@@ -126,9 +123,9 @@ Geom::Point2D<int> FlatView::BitMapMgr::dataOffs(
 bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
 				    const Geom::Size2D<int>& sz )
 {
-    if ( !gen_ ) return true;
+    if ( !gen_ || !vwr_.pack(wva_) ) return true;
 
-    const FlatPosData& pd = vwr_.data().pos( wva_ );
+    const FlatPosData& pd = vwr_.pack(wva_)->posData();
     pos_->setDimRange( 0, Interval<float>(wr.left()-pd.offset(true),
 					  wr.right()-pd.offset(true)) );
     pos_->setDimRange( 1, Interval<float>( wr.bottom(), wr.top() ) );

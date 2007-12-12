@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.36 2007-11-13 13:38:07 cvskris Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.37 2007-12-12 15:44:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,7 +120,11 @@ void uiFlatViewer::canvasPostDraw( CallBacker* )
 
 uiWorldRect uiFlatViewer::getBoundingBox( bool wva ) const
 {
-    const FlatPosData& pd = data().pos( wva );
+    const FlatDataPack* dp = pack( wva );
+    if ( !dp ) dp = pack( !wva );
+    if ( !dp ) return uiWorldRect(0,0,1,1);
+
+    const FlatPosData& pd = dp->posData();
     StepInterval<double> rg0( pd.range(true) ); rg0.sort( true );
     StepInterval<double> rg1( pd.range(false) ); rg1.sort( true );
     rg0.start -= dim0extfac_ * rg0.step; rg0.stop += dim0extfac_ * rg0.step;
@@ -305,8 +309,8 @@ void uiFlatViewer::drawAnnot()
 
 int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
 {
-    const FlatDataPack* fdp = getPack( false );
-    if ( !fdp ) fdp = getPack( true );
+    const FlatDataPack* fdp = pack( false );
+    if ( !fdp ) fdp = pack( true );
     if ( fdp )
 	fdp->getAltDim0Keys( bss );
     if ( !bss.isEmpty() )

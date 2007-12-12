@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.16 2007-10-17 05:34:14 cvsnanne Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.17 2007-12-12 15:44:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ uiFlatViewPropTab::uiFlatViewPropTab( uiParent* p, FlatView::Viewer& vwr,
     : uiDlgGroup(p,lbl)
     , vwr_(vwr)
     , app_(vwr.appearance())
+    , dpm_(DPM(DataPackMgr::FlatID))
 {
 }
 
@@ -38,14 +39,15 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     : uiFlatViewPropTab(p,vwr,tablbl)
     , ddpars_(app_.ddpars_)
 {
-    dispfld_ = new uiLabeledComboBox( this, "Display" );
-    dispfld_->box()->selectionChanged.notify(
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Display" );
+    dispfld_ = lcb->box();
+    dispfld_->selectionChanged.notify(
 	    		mCB(this,uiFlatViewDataDispPropTab,dispSel) );
 
     useclipfld_ = new uiGenInput( this, "Use clipping", BoolInpSpec(true) );
     useclipfld_->valuechanged.notify(
 	    		mCB(this,uiFlatViewDataDispPropTab,clipSel) );
-    useclipfld_->attach( alignedBelow, dispfld_ );
+    useclipfld_->attach( alignedBelow, lcb );
 
     clipratiofld_ = new uiGenInput( this, "Percentage clip", FloatInpSpec() );
     clipratiofld_->setElemSzPol(uiObject::Small);
@@ -66,7 +68,7 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
 
 bool uiFlatViewDataDispPropTab::doDisp() const
 {
-    return dispfld_->box()->currentItem() != 0;
+    return dispfld_->currentItem() != 0;
 }
 
 
@@ -89,22 +91,19 @@ void uiFlatViewDataDispPropTab::dispSel( CallBacker* )
 }
 
 
-void uiFlatViewDataDispPropTab::setDataNames( const FlatView::Data& fvd )
+void uiFlatViewDataDispPropTab::setDataNames()
 {
-    dispfld_->box()->empty();
-    dispfld_->box()->addItem( "No" );
-    if ( fvd.arr(true) )
+    dispfld_->empty();
+    dispfld_->addItem( "No" );
+    for ( int idx=0; idx<vwr_.availablePacks().size(); idx++ )
     {
-	const char* wvanm = fvd.name( true );
-	if ( !wvanm || !*wvanm ) wvanm = "Original WVA data";
-	dispfld_->box()->addItem( wvanm );
-    }
-    if ( fvd.arr(false) )
-    {
-	const char* vdnm = fvd.name( false );
-	if ( !vdnm || !*vdnm ) vdnm = "Original VD data";
-	if ( !dispfld_->box()->isPresent(vdnm) )
-	    dispfld_->box()->addItem( vdnm );
+	const DataPack* dp = dpm_.obtain( vwr_.availablePacks()[idx], true );
+	if ( dp )
+	{
+	    dispfld_->addItem( dp->name() );
+	    if ( dp->name() == dataName() )
+		dispfld_->setCurrentItem( dispfld_->size() - 1 );
+	}
     }
 }
 
@@ -116,33 +115,35 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
     if ( havedata )
     {
 	const char* nm = dataName();
-	if ( dispfld_->box()->isPresent( nm ) )
-	    dispfld_->box()->setText( dataName() );
+	if ( dispfld_->isPresent( nm ) )
+	    dispfld_->setText( dataName() );
 	else
 	    havedata = false;
     }
     if ( !havedata )
-	dispfld_->box()->setCurrentItem( 0 );
+	dispfld_->setCurrentItem( 0 );
 
     useclipfld_->setValue( mIsUdf( pars.rg_.start ) );
     clipratiofld_->setValue( pars.clipperc_ );
     rgfld_->setValue( pars.rg_ );
     blockyfld_->setValue( pars.blocky_ );
+    setDataNames();
     dispSel( 0 );
 }
 
 
-void uiFlatViewDataDispPropTab::doSetData( const FlatView::Data& fvd, bool wva )
+void uiFlatViewDataDispPropTab::doSetData( bool wva )
 {
-    if ( dispfld_->box()->currentItem() == 0 )
-	{ vwr_.data().setEmpty( wva ); return; }
+    if ( dispfld_->currentItem() == 0 )
+	{ vwr_.usePack( wva, DataPack::cNoID, false ); return; }
 
-    const BufferString datanm( dispfld_->box()->text() );
-    FlatView::PackData& pdta = wva ? vwr_.data().wva_ : vwr_.data().vd_;
-    if ( datanm == fvd.name(true) )
-	pdta = fvd.wva_;
-    else if ( datanm == fvd.name(false) )
-	pdta = fvd.vd_;
+    const BufferString datanm( dispfld_->text() );
+    for ( int idx=0; idx<vwr_.availablePacks().size(); idx++ )
+    {
+	const DataPack* dp = dpm_.obtain( vwr_.availablePacks()[idx], true );
+	if ( dp && dp->name() == datanm )
+	    vwr_.usePack( wva, dp->id(), false );
+    }
 }
 
 
@@ -157,6 +158,8 @@ void uiFlatViewDataDispPropTab::getCommonFromScreen()
 			    ? Interval<float>(mUdf(float),mUdf(float))
 			    : rgfld_->getFInterval();
     pars.blocky_ = blockyfld_->getBoolValue();
+
+    setData();
 }
 
 
@@ -195,7 +198,7 @@ uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
 
 const char* uiFVWVAPropTab::dataName() const
 {
-    return vwr_.data().name( true );
+    return vwr_.pack(true) ? vwr_.pack(true)->name().buf() : "";
 }
 
 
@@ -275,7 +278,7 @@ uiFVVDPropTab::uiFVVDPropTab( uiParent* p, FlatView::Viewer& vwr )
 
 const char* uiFVVDPropTab::dataName() const
 {
-    return vwr_.data().name( false );
+    return vwr_.pack(false) ? vwr_.pack(false)->name().buf() : "";
 }
 
 
@@ -556,9 +559,10 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 				      "51.0.0"))
     , vwr_(vwr)
     , applycb_(applcb)
-    , initialdata_(vwr.data())
     , selannot_(selannot)
 {
+    vwr_.fillPar( initialpar_ );
+
     wvatab_ = new uiFVWVAPropTab( tabParent(), vwr_ );
     addGroup( wvatab_ );
     vdtab_ = new uiFVVDPropTab( tabParent(), vwr_ );
@@ -580,7 +584,6 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 
 void uiFlatViewPropDlg::getAllFromScreen()
 {
-    wvatab_->setData( initialdata_ ); vdtab_->setData( initialdata_ );
     for ( int idx=0; idx<nrGroups(); idx++ )
     {
 	mDynamicCastGet(uiFlatViewPropTab*,ptab,&getGroup(idx))
@@ -593,7 +596,6 @@ void uiFlatViewPropDlg::getAllFromScreen()
 
 void uiFlatViewPropDlg::putAllToScreen()
 {
-    wvatab_->setDataNames( initialdata_ ); vdtab_->setDataNames( initialdata_ );
     for ( int idx=0; idx<nrGroups(); idx++ )
     {
 	mDynamicCastGet(uiFlatViewPropTab*,ptab,&getGroup(idx))
@@ -613,8 +615,7 @@ void uiFlatViewPropDlg::doApply( CallBacker* )
 
 bool uiFlatViewPropDlg::rejectOK( CallBacker* cb )
 {
-    vwr_.data() = initialdata_;
-    vwr_.syncDataPacks(); // Just to be sure
+    vwr_.usePar( initialpar_ );
     return true;
 }
 
@@ -625,6 +626,5 @@ bool uiFlatViewPropDlg::acceptOK( CallBacker* cb )
 	return false;
 
     getAllFromScreen();
-    vwr_.syncDataPacks();
     return true;
 }

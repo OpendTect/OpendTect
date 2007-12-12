@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.114 2007-10-22 08:18:56 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.115 2007-12-12 15:44:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -958,8 +958,7 @@ void uiODSceneMgr::Viewer2D::createViewWin( bool isvert )
 
 void uiODSceneMgr::Viewer2D::setData( DataPack::ID packid, bool wva )
 {
-    viewwin_->viewer().setPack( wva, packid );
+    viewwin_->viewer().setPack( wva, packid, false );
     viewwin_->viewer().appearance().ddpars_.show( true, true );
     viewwin_->start();
 }
-

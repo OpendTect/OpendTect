@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.cc,v 1.2 2007-09-19 22:45:36 cvsyuancheng Exp $
+ RCS:		$Id: visflatviewer.cc,v 1.3 2007-12-12 15:44:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,19 +73,22 @@ void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt )
 		if ( dt!=All )
 		    break;
 	case VDData:
-		if ( data().vdArr() )
-		{
-		    texture_->setData( 0, 0, data().vdArr(), true ); 
-		    texture_->turnOn( appearance().ddpars_.vd_.show_ );
-		    updateTextureCoords( data().vdArr() );
-		    texture_->turnOn( true );
-		}
-		else
-		    texture_->turnOn( false );
+	{
+	    const FlatDataPack* dp = pack( false );
+	    if ( dp )
+	    {
+		texture_->setData( 0, 0, &dp->data(), true ); 
+		texture_->turnOn( appearance().ddpars_.vd_.show_ );
+		updateTextureCoords( &dp->data() );
+		texture_->turnOn( true );
+	    }
+	    else
+		texture_->turnOn( false );
 
-		dataChange.trigger();
-		if ( dt!=All )
-		    break;	
+	    dataChange.trigger();
+	    if ( dt!=All )
+		break;
+	 }
 	case VDPars : 	
 		const char* ctabname = appearance().ddpars_.vd_.ctab_.buf();
 		visBase::VisColorTab& vct = texture_->getColorTab( 0 );

@@ -6,12 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2006
- RCS:           $Id: uiseiswvltman.h,v 1.7 2007-05-30 13:26:55 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.h,v 1.8 2007-12-12 15:44:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobjfileman.h"
+#include "datapack.h"
 
 class uiFlatViewer;
 template <class T> class Array2D;
@@ -26,7 +27,7 @@ public:
 protected:
 
     uiFlatViewer*	wvltfld;
-    Array2D<float>*	fva2d_;
+    DataPack::ID	curid_;
 
     void		mkFileInfo();
 

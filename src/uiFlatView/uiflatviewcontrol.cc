@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.30 2007-12-06 15:08:37 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.31 2007-12-12 15:44:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -250,7 +250,7 @@ void uiFlatViewControl::propDlgClosed( CallBacker* )
 
     applyProperties(0);
     if ( propdlg_->saveButtonChecked() )
-	saveProperties( propdlg_->getViewer() );
+	saveProperties( propdlg_->viewer() );
 
 }
 
@@ -259,7 +259,7 @@ void uiFlatViewControl::applyProperties( CallBacker* cb )
 {
     if ( !propdlg_ ) return;
 
-    mDynamicCastGet( uiFlatViewer*, vwr, &propdlg_->getViewer() );
+    mDynamicCastGet( uiFlatViewer*, vwr, &propdlg_->viewer() );
     if ( !vwr ) return;
 
     const uiWorldRect cv( vwr->curView() );
@@ -281,12 +281,10 @@ void uiFlatViewControl::saveProperties( FlatView::Viewer& vwr )
     BufferString cat( category_ );
     if ( category_.isEmpty() )
     {
-	const FlatDataPack* fdp = vwr.getPack( true );
-	if ( !fdp ) fdp = vwr.getPack( false );
-	if ( fdp )
-	    cat = fdp->category();
-	else
-	    { pErrMsg("No category to save defaults"); return; }
+	const FlatDataPack* fdp = vwr.pack( true );
+	if ( !fdp ) fdp = vwr.pack( false );
+	cat = fdp ? fdp->category() : "General";
+	category_ = cat;
     }
 
     vwr.storeDefaults( cat );

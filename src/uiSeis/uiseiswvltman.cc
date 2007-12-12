@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.22 2007-05-30 13:26:55 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.23 2007-12-12 15:44:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
                                      "Manage wavelets",
                                      "103.3.0").nrstatusflds(1),
 	    	   WaveletTranslatorGroup::ioContext() )
-    , fva2d_(0)
+    , curid_(DataPack::cNoID)
 {
     createDefaultUI();
 
@@ -67,7 +67,6 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     app.ddpars_.show( true, false );
     app.ddpars_.wva_.mid_= Color( 150, 150, 100 );
     app.ddpars_.wva_.overlap_ = -0.01; app.ddpars_.wva_.clipperc_ = 0;
-    wvltfld->useStoredDefaults( "Wavelet" );
 
     wvltfld->setPrefWidth( 60 );
     wvltfld->attach( ensureRightOf, selgrp );
@@ -83,7 +82,6 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
 
 uiSeisWvltMan::~uiSeisWvltMan()
 {
-    delete fva2d_;
 }
 
 
@@ -188,22 +186,22 @@ void uiSeisWvltMan::mkFileInfo()
     BufferString txt;
     Wavelet* wvlt = Wavelet::get( curioobj_ );
 
-    FlatView::Data& fvdata = wvltfld->data();
-    if ( !wvlt )
-	fvdata.setEmpty( true );
-    else
+    wvltfld->removePack( curid_ );
+    curid_ = DataPack::cNoID;
+    if ( wvlt )
     {
 	const int wvltsz = wvlt->size();
 	const float zfac = SI().zFactor();
 
-	delete fva2d_;
-	fvdata.wva_.name_ = wvlt->name();
-	fva2d_ = new Array2DImpl<float>( 1, wvltsz );
-	memcpy( fva2d_->getData(), wvlt->samples(), wvltsz * sizeof(float) );
-	fvdata.wva_.arr_ = fva2d_;
+	Array2DImpl<float>* fva2d = new Array2DImpl<float>( 1, wvltsz );
+	FlatDataPack* dp = new FlatDataPack( "Wavelet", fva2d );
+	memcpy( fva2d->getData(), wvlt->samples(), wvltsz * sizeof(float) );
+	dp->setName( wvlt->name() );
+	DPM( DataPackMgr::FlatID ).add( dp );
+	curid_ = dp->id();
 	StepInterval<double> posns; posns.setFrom( wvlt->samplePositions() );
 	if ( SI().zIsTime() ) posns.scale( zfac );
-	fvdata.wva_.pos_.setRange( false, posns );
+	dp->posData().setRange( false, posns );
 
 	Stats::RunCalc<float> rc( Stats::RunCalcSetup().require(Stats::Max) );
 	rc.addValues( wvltsz, wvlt->samples() );
@@ -219,6 +217,7 @@ void uiSeisWvltMan::mkFileInfo()
 	delete wvlt;
     }
 
+    wvltfld->setPack( true, curid_, false );
     wvltfld->handleChange( FlatView::Viewer::All );
 
     txt += getFileInfo();

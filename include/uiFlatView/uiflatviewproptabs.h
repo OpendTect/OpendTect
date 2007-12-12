@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewproptabs.h,v 1.5 2007-08-28 20:39:13 cvskris Exp $
+ RCS:           $Id: uiflatviewproptabs.h,v 1.6 2007-12-12 15:44:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,11 +17,11 @@ ________________________________________________________________________
 
 class uiLabel;
 class uiGenInput;
+class uiComboBox;
 class uiCheckBox;
 class uiColorInput;
 class uiSelLineStyle;
 class ColorTableEditor;
-class uiLabeledComboBox;
 
     
 /*!\brief flat viewer properties tabs */
@@ -41,17 +41,19 @@ protected:
 
     FlatView::Viewer&	vwr_;
     FlatView::Appearance& app_;
+    DataPackMgr&	dpm_;
 
 };
+
     
-/*!\brief flat viewer properties tabs */
+/*!\brief flat viewer data display properties tabs */
 
 class uiFlatViewDataDispPropTab : public uiFlatViewPropTab
 {
 public:
 
-    void		setDataNames(const FlatView::Data&);
-    virtual void	setData(const FlatView::Data&)		= 0;
+    void		setDataNames();
+    virtual void	setData()			= 0;
 
 protected:
     			uiFlatViewDataDispPropTab(uiParent*,
@@ -62,7 +64,7 @@ protected:
     bool		doDisp() const;
     virtual const char*	dataName() const			= 0;
 
-    uiLabeledComboBox*	dispfld_;
+    uiComboBox*		dispfld_;
     uiGenInput*		useclipfld_;
     uiGenInput*		clipratiofld_;
     uiGenInput*		rgfld_;
@@ -76,10 +78,12 @@ protected:
 
     void		putCommonToScreen();
     void		getCommonFromScreen();
-    void		doSetData(const FlatView::Data&,bool);
+    void		doSetData(bool);
 
 };
 
+    
+/*!\brief flat viewer WVA display properties tabs */
 		     
 class uiFVWVAPropTab : public uiFlatViewDataDispPropTab
 {
@@ -88,8 +92,7 @@ public:
 
     virtual void	putToScreen();
     virtual void	getFromScreen();
-    virtual void	setData( const FlatView::Data& fvd )
-			{ doSetData(fvd,true); }
+    virtual void	setData()		{ doSetData(true); }
 
 protected:
 
@@ -111,6 +114,8 @@ protected:
 };
 
 
+/*!\brief flat viewer VD display properties tabs */
+
 class uiFVVDPropTab : public uiFlatViewDataDispPropTab
 {
 public:
@@ -118,8 +123,7 @@ public:
 
     virtual void	putToScreen();
     virtual void	getFromScreen();
-    virtual void	setData( const FlatView::Data& fvd )
-			{ doSetData(fvd,false); }
+    virtual void	setData()		{ doSetData(false); }
 
 protected:
 
@@ -135,6 +139,8 @@ protected:
     void		dispSel(CallBacker*);
 };
 
+
+/*!\brief flat viewer annotation properties tabs */
 
 class uiFVAnnotPropTab : public uiFlatViewPropTab
 {

@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.5 2007-10-03 21:09:18 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.6 2007-12-12 15:44:40 cvsbert Exp $
 _______________________________________________________________________________
 
  -*/
@@ -126,14 +126,14 @@ bool PreStackViewer::setPosition( const BinID& nb )
     	turnOn(false);
     else
     {
-	const bool haddata = flatviewer_->getPack( false );
+	const bool haddata = flatviewer_->pack( false );
 	bid_ = nb;
 	PreStack::Gather* gather = new PreStack::Gather;
 	if ( !gather->readFrom( mid_, bid_ ) )
 	{
 	    delete gather;
 	    if ( haddata )
-		 flatviewer_->setPack( false, DataPack::cNoID );
+		 flatviewer_->setPack( false, DataPack::cNoID, false );
 	    else
 	    {
 		dataChangedCB( 0 );
@@ -143,7 +143,7 @@ bool PreStackViewer::setPosition( const BinID& nb )
 	else
 	{
 	    DPM(DataPackMgr::FlatID).add( gather );
-	    flatviewer_->setPack( false, gather->id(), !haddata );
+	    flatviewer_->setPack( false, gather->id(), false, !haddata );
 	}
 	
 	turnOn( true );
@@ -215,10 +215,11 @@ void PreStackViewer::dataChangedCB( CallBacker* )
     Interval<float> offsetrange( 0, 25 * offsetscale );
     Interval<float> zrg = SI().zRange(true);
 
-    if ( flatviewer_->getPack(false) )
+    const FlatDataPack* fdp = flatviewer_->pack( false );
+    if ( fdp )
     {
-	offsetrange.setFrom( flatviewer_->data().vd_.pos_.range( true ) );
-	zrg.setFrom( flatviewer_->data().vd_.pos_.range( false ) );
+	offsetrange.setFrom( fdp->posData().range( true ) );
+	zrg.setFrom( fdp->posData().range( false ) );
     }
 
     const Coord startpos( bid_.inl, bid_.crl );
@@ -392,11 +393,12 @@ void PreStackViewer::getMousePosInfo( const visBase::EventInfo&,
 {
     val = "";
     info = "";
-   
     if ( !flatviewer_ || !section_ ) 
 	return;
+    const FlatDataPack* fdp = flatviewer_->pack(false);
+    if ( !fdp ) return;
 
-    const FlatPosData& posdata = flatviewer_->data().vdPos();
+    const FlatPosData& posdata = fdp->posData();
     const BinID bid = SI().transform( pos );
     const float distance = sqrt(bid_.sqDistTo( bid ));
     float offset = mUdf(float);
@@ -437,11 +439,8 @@ void PreStackViewer::getMousePosInfo( const visBase::EventInfo&,
     info = "Offset: ";
     info += traceoffset;
 
-    if ( flatviewer_->data().vdArr() )
-    {
-	const int zsample = posdata.range(false).nearestIndex( pos.z );
-	val = flatviewer_->data().vdArr()->get( offsetsample, zsample );
-    }
+    const int zsample = posdata.range(false).nearestIndex( pos.z );
+    val = fdp->data().get( offsetsample, zsample );
 }
 
 

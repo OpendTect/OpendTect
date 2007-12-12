@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.3 2007-10-17 04:00:42 cvsnanne Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.4 2007-12-12 15:44:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -236,13 +236,13 @@ uiFlatViewWin* uiPSViewerMgr::create2DViewer( const MultiID& mid,
     vwr.appearance().ddpars_.show( true, false );
     vwr.appearance().ddpars_.wva_.overlap_ = 1;
 
-    const bool haddata = vwr.getPack( false );
+    const bool haddata = vwr.pack( false );
     PreStack::Gather* gather = new PreStack::Gather;
     if ( !gather->readFrom( mid, bid ) )
     {
 	delete gather;
 	if ( haddata )
-	    vwr.setPack( false, DataPack::cNoID );
+	    vwr.setPack( false, DataPack::cNoID, false );
 	else
 	{
 	    uiMSG().error("There is no data available");
@@ -252,7 +252,7 @@ uiFlatViewWin* uiPSViewerMgr::create2DViewer( const MultiID& mid,
     else
     {
 	DPM(DataPackMgr::FlatID).add( gather );
-	vwr.setPack( false, gather->id(), !haddata );
+	vwr.setPack( false, gather->id(), false, !haddata );
     }
     
     PtrMan<SeisPSReader> rdr = SPSIOPF().getReader( *ioobj, bid.inl );
@@ -346,7 +346,7 @@ void uiPSViewerMgr::sessionSaveCB( CallBacker* )
     int nrsaved = 0;
     for ( int idx=0; idx<viewwindows_.size(); idx++ )
     {
-	const FlatDataPack* dp = viewwindows_[idx]->viewer().getPack( false );
+	const FlatDataPack* dp = viewwindows_[idx]->viewer().pack( false );
 	mDynamicCastGet( const PreStack::Gather*, gather, dp );
 	if ( !gather )
 	    continue;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.21 2007-05-18 12:40:12 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.22 2007-12-12 15:44:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -201,11 +201,12 @@ void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
 
     uiFlatViewer& vwr = isqc ? qcwin_->viewer() : examwin_->viewer();
     vwr.setDarkBG( false );
-    vwr.setPack( false, isqc ? fddatapackqc_ : fddatapackexam_ );
+    FlatDataPack* dp = isqc ? fddatapackqc_ : fddatapackexam_;
+    vwr.setPack( false, dp->id(), true );
     FlatView::Appearance& app = vwr.appearance();
     app.ddpars_.vd_.rg_ = Interval<float>( -0.2, 0.2 );
     StepInterval<double> newrg( 0, cs_.zrg.stop-cs_.zrg.start, cs_.zrg.step );
-    vwr.data().vd_.pos_.setRange( false, newrg );
+    dp->posData().setRange( false, newrg );
     
     isqc ? qcwin_->show() : examwin_->show();
 }

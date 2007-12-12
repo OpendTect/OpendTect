@@ -6,13 +6,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.h,v 1.9 2007-05-16 16:30:20 cvskris Exp $
+ RCS:           $Id: uiflatviewpropdlg.h,v 1.10 2007-12-12 15:44:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidlggroup.h"
 #include "flatview.h"
+#include "iopar.h"
 class uiFVWVAPropTab;
 class uiFVVDPropTab;
 class uiFVAnnotPropTab;
@@ -27,7 +28,7 @@ public:
 					  const CallBack& applcb,
 					  const BufferStringSet* anns=0,
 					  int selann=0);
-    FlatView::Viewer&	getViewer() 			{ return vwr_; }
+    FlatView::Viewer&	viewer() 			{ return vwr_; }
 
     void		putAllToScreen();
     void		getAllFromScreen();
@@ -42,7 +43,7 @@ protected:
     uiFVAnnotPropTab*	annottab_;
 
     FlatView::Viewer&	vwr_;
-    FlatView::Data	initialdata_;
+    IOPar		initialpar_;
     int			selannot_;
 
     bool		rejectOK(CallBacker*);

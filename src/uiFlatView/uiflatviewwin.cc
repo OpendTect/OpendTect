@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewwin.cc,v 1.7 2007-03-09 10:31:51 cvshelene Exp $
+ RCS:           $Id: uiflatviewwin.cc,v 1.8 2007-12-12 15:44:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,11 +29,7 @@ void uiFlatViewWin::createViewers( int nr )
 
 void uiFlatViewWin::cleanUp()
 {
-    for ( int idx=0; idx<vwrs_.size(); idx++ )
-    {
-	vwrs_[idx]->setPack( true, 0 );
-	vwrs_[idx]->setPack( false, 0 );
-    }
+    deepErase( vwrs_ );
 }
 
 
