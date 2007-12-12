@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinetr.cc,v 1.6 2007-12-01 15:34:57 cvsbert Exp $
+ RCS:		$Id: randomlinetr.cc,v 1.7 2007-12-12 09:38:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -169,6 +169,7 @@ const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
 	    delete rl;
 	else
 	    rdls.addLine( rl );
+	astrm.next();
     }
 
     return rdls.size() >= 1 ? 0 : "No valid random line in set";
