@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.79 2007-12-06 11:07:53 cvsraman Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.80 2007-12-12 06:45:56 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,14 +110,15 @@ uiAttribPartServer::~uiAttribPartServer()
 
 
 #define mUseAutoAttrSet( typ ) \
-    id = SI().pars().find( uiAttribDescSetEd::sKeyAuto##typ##DAttrSetID ); \
-    if (id) \
+    MultiID id = \
+	SI().pars().find( uiAttribDescSetEd::sKeyAuto##typ##DAttrSetID ); \
+    if ( id ) \
     { \
 	const bool is2d = typ==2; \
 	PtrMan<IOObj> ioobj = IOM().get( id ); \
 	BufferString bs; \
-	DescSet* attrset = new DescSet( is2d, is2d ); \
-	AttribDescSetTranslator::retrieve( *attrset,ioobj,bs ); \
+	DescSet* attrset = new DescSet( is2d, true ); \
+	AttribDescSetTranslator::retrieve( *attrset, ioobj, bs ); \
 	adsman##typ##d_->setDescSet( attrset ); \
 	adsman##typ##d_->attrsetid_ = id; \
     }
@@ -127,13 +128,12 @@ void uiAttribPartServer::handleAutoSet()
 {
     bool douse = false;
     Settings::common().getYN( uiAttribDescSetEd::sKeyUseAutoAttrSet, douse );
-    if(douse)
+    if ( douse )
     {
-	MultiID id;
 	if ( SI().has2D() )
-	    mUseAutoAttrSet( 2 );
+	{ mUseAutoAttrSet( 2 ); }
 	if ( SI().has3D() )
-	    mUseAutoAttrSet( 3 );
+	{ mUseAutoAttrSet( 3 ); }
     }
 }
 
