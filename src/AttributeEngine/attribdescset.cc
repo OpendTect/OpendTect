@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.60 2007-12-11 11:27:53 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.61 2007-12-12 06:44:01 cvsraman Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -209,7 +209,8 @@ void DescSet::fillPar( IOPar& par ) const
     }
 
     par.set( highestIDStr(), maxid );
-    par.set( sKey::Type, is2D() ? "2D" : "3D" );
+    if ( descs.size() > 0 )
+	par.set( sKey::Type, is2D() ? "2D" : "3D" );
 }
 
 
@@ -784,7 +785,8 @@ Desc* DescSet::getFirstStored( bool usesteering ) const
 	const bool issteer = res && *res == 'S';
 	if ( !usesteering && issteer ) continue;
 
-	if ( (dsc.is2D() == is2D() ) ) //TODO backward compatibility with 2.4
+ //TODO backward compatibility with 2.4
+	if ( !is2dset_ || (dsc.is2D() == is2D()) )
 	    return const_cast<Desc*>( &dsc );
     }
 

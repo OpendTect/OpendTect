@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.62 2007-12-11 11:27:53 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.63 2007-12-12 06:44:01 cvsraman Exp $";
 
 #include "attribdesc.h"
 
@@ -106,7 +106,7 @@ void Desc::setDescSet( DescSet* nds )
     descset_ = nds;
     if ( !nds ) return;
     if ( isStored() ) return;
-    is2dset_ = nds->is2D() || nds->is2DSet();
+    is2dset_ = nds->is2DSet();
     is2d_ = nds->is2D();
 }
 
