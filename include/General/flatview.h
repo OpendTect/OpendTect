@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.23 2007-12-12 15:44:40 cvsbert Exp $
+ RCS:           $Id: flatview.h,v 1.24 2007-12-12 16:52:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -320,9 +320,6 @@ protected:
 
     void			addAuxInfo(bool,const Point&,IOPar&) const;
 
-public:
-
-    void			packRm(::DataPack::ID); //!< don't use
 };
 
 
