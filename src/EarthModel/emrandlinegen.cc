@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2007
- RCS:           $Id: emrandlinegen.cc,v 1.3 2007-12-01 15:34:57 cvsbert Exp $
+ RCS:           $Id: emrandlinegen.cc,v 1.4 2007-12-12 14:59:50 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,13 +73,13 @@ void EM::RandomLineSetGenerator::createLines(
 	    if ( polys.isEmpty() )
 		continue;
 	    
-	    prevbid = BinID( mUdf(int), mUdf(int) );
 	    int usrpolynr = 1;
 	    for ( int ipoly=0; ipoly<polys.size(); ipoly++ )
 	    {
 		const ODPolygon<float>& poly = *polys[ipoly];
 		Geometry::RandomLine* rl = new Geometry::RandomLine;
 
+		prevbid = BinID( mUdf(int), mUdf(int) );
 		BinID addbid( prevbid );
 		for ( int ipt=0; ipt<poly.size(); ipt++ )
 		{
@@ -94,8 +94,7 @@ void EM::RandomLineSetGenerator::createLines(
 		    if ( ipt == 0 && poly.isClosed() )
 			addbid = bid;
 		}
-		if ( !mIsUdf(addbid.inl) && addbid != prevbid
-		  && rl->nrNodes() > 2 )
+		if ( !mIsUdf(addbid.inl) && addbid!=prevbid && rl->nrNodes()>2 )
 		    rl->addNode( addbid );
 
 		if ( rl->nrNodes() < 2 )
