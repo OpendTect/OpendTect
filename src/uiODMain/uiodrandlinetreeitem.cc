@@ -4,15 +4,12 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.13 2007-12-01 15:34:57 cvsbert Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.14 2007-12-12 11:55:44 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
 
 #include "uiodrandlinetreeitem.h"
-
-#include "uimenu.h"
-#include "uiodapplmgr.h"
 
 #include "ctxtioobj.h"
 #include "ptrman.h"
@@ -21,14 +18,20 @@ ___________________________________________________________________
 #include "survinfo.h"
 
 #include "uibinidtable.h"
+#include "uibutton.h"
+#include "uicursor.h"
 #include "uidialog.h"
+#include "uiempartserv.h"
 #include "uiioobjsel.h"
+#include "uilistbox.h"
+#include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
+#include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
-#include "uiwellpartserv.h"
+#include "uiselsimple.h"
 #include "uivispartserv.h"
-#include "uiempartserv.h"
+#include "uiwellpartserv.h"
 #include "visrandomtrackdisplay.h"
 
 
@@ -90,19 +93,51 @@ bool uiODRandomLineParentTreeItem::load()
     if ( !RandomLineSetTranslator::retrieve(lset,dlg.ioObj(),errmsg) )
 	{ uiMSG().error( errmsg ); return false; }
 
-    uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem(-1);
-    addChild( itm, false );
-    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-	ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
-    if ( !rtd )
-	return false;
+    const ObjectSet<Geometry::RandomLine>& lines = lset.lines();
+    BufferStringSet linenames;
+    for ( int idx=0; idx<lines.size(); idx++ )
+	linenames.add( lines[idx]->name() );
 
-    //TODO handle subselection in set
-    TypeSet<BinID> bids;
-    const Geometry::RandomLine& rln = *lset.lines()[0];
-    rln.allNodePositions( bids ); rtd->setKnotPositions( bids );
-    rtd->setDepthInterval( rln.zRange() );
-    rtd->setName( rln.name().isEmpty() ? dlg.ioObj()->name() : rln.name() );
+    bool lockgeom = false;
+    TypeSet<int> selitms;
+    if ( linenames.isEmpty() )
+	return false;
+    else if ( linenames.size() == 1 )
+	selitms += 0;
+    else
+    {
+	uiSelectFromList seldlg( getUiParent(),
+		uiSelectFromList::Setup("Random lines",linenames) );
+	seldlg.selFld()->setMultiSelect( true );
+	uiCheckBox* cb = new uiCheckBox( &seldlg, "Editable" );
+	cb->attach( alignedBelow, seldlg.selFld() );
+	if ( !seldlg.go() )
+	    return false;
+
+	seldlg.selFld()->getSelectedItems( selitms );
+	lockgeom = !cb->isChecked();
+    }
+
+    uiCursorChanger cursorchgr( uiCursor::Wait );
+    for ( int idx=0; idx<selitms.size(); idx++ )
+    {
+	uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem(-1);
+	addChild( itm, false );
+	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
+	    ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
+	if ( !rtd )
+	    return false;
+
+	TypeSet<BinID> bids;
+	const Geometry::RandomLine& rln = *lset.lines()[ selitms[idx] ];
+	rln.allNodePositions( bids ); rtd->setKnotPositions( bids );
+	rtd->setDepthInterval( rln.zRange() );
+	BufferString rlnm = dlg.ioObj()->name();
+	if ( !rln.name().isEmpty() )
+	{ rlnm += ": "; rlnm += rln.name(); }
+	rtd->setName( rlnm );
+	rtd->lockGeometry( lockgeom );
+    }
     updateColumnText( uiODSceneMgr::cNameColumn() );
     return true;
 }
@@ -158,17 +193,15 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() )
 	return;
 
-    mAddMenuItem( menu, &editnodesmnuitem_, !visserv_->isLocked(displayid_), 
-	    	  false );
-    mAddMenuItem( menu, &insertnodemnuitem_, !visserv_->isLocked(displayid_), 
-	    	  false );
-    insertnodemnuitem_.removeItems();
-
     mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 		    visserv_->getObject(displayid_));
-    for ( int idx=0; idx<=rtd->nrKnots(); idx++ )
+    const bool islocked = rtd->isGeometryLocked() || rtd->isLocked();
+    mAddMenuItem( menu, &editnodesmnuitem_, !islocked, false );
+    mAddMenuItem( menu, &insertnodemnuitem_, !islocked, false );
+    insertnodemnuitem_.removeItems();
+
+    for ( int idx=0; !islocked && idx<=rtd->nrKnots(); idx++ )
     {
-	if ( visserv_->isLocked(displayid_) ) break;
 	BufferString nodename;
 	if ( idx==rtd->nrKnots() )
 	{
@@ -184,8 +217,7 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
 	mAddManagedMenuItem(&insertnodemnuitem_,new MenuItem(nodename), 
 			    rtd->canAddKnot(idx), false );
     }
-    mAddMenuItem( menu, &usewellsmnuitem_, !visserv_->isLocked(displayid_), 
-	    	  false );
+    mAddMenuItem( menu, &usewellsmnuitem_, !islocked, false );
     mAddMenuItem( menu, &saveasmnuitem_, true, false );
 }
 
