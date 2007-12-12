@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.26 2007-12-12 15:44:40 cvsbert Exp $
+ RCS:           $Id: flatview.cc,v 1.27 2007-12-12 16:51:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -334,7 +334,7 @@ void FlatView::Appearance::setDarkBG( bool yn )
 struct FlatView_CB_Rcvr : public CallBacker
 {
 FlatView_CB_Rcvr( FlatView::Viewer& vwr ) : vwr_(vwr)	{}
-void theCB( CallBacker* dp ) { vwr_.packRm( ((DataPack*)dp)->id() ); }
+void theCB( CallBacker* dp ) { vwr_.removePack( ((DataPack*)dp)->id() ); }
 FlatView::Viewer& vwr_;
 };
 
@@ -410,7 +410,7 @@ void FlatView::Viewer::addPack( DataPack::ID id, bool obs )
 }
 
 
-void FlatView::Viewer::packRm( DataPack::ID id )
+void FlatView::Viewer::removePack( DataPack::ID id )
 {
     const int idx = ids_.indexOf( id );
     if ( idx < 0 ) return;
