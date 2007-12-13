@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.20 2007-10-08 12:07:49 cvsraman Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.21 2007-12-13 06:04:11 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,8 @@ HorizonScanner::HorizonScanner( const BufferStringSet& fnms,
     , fd_(fd)
     , isgeom_(isgeom)
     , ascio_(0)
+    , isxy_(false)
+    , selxy_(false)
     , bvalset_(0)
     , fileidx_(0)
 {
@@ -109,6 +111,18 @@ void HorizonScanner::report( IOPar& iopar ) const
     str += "\n\n";
     iopar.setName( str );
 
+    if ( isxy_ != selxy_ )
+    {
+	iopar.add( "->", "Warning" );
+	const char* selected = selxy_ ? "X/Y" : "Inl/Crl";
+	const char* actual = isxy_ ? "X/Y" : "Inl/Crl";
+	iopar.add( "You have selected positions in", selected );
+	iopar.add( "But the positions in input file appear to be in", actual );
+	BufferString msg = "OpendTect will use ";
+	msg += actual; msg += " for final import";
+	iopar.add( msg, "" );
+    }
+
     iopar.add( "->", "Geometry" );
     HorSampling hs;
     hs.set( geomdetector_.inlrg, geomdetector_.crlrg );
@@ -124,7 +138,7 @@ void HorizonScanner::report( IOPar& iopar ) const
 	iopar.add( "->", "Data values" );
 	for ( int idx=firstattribidx; idx<valranges_.size(); idx++ )
 	{
-	    const char* attrnm = fd_.bodyinfos_[idx+2]->name();
+	    const char* attrnm = fd_.bodyinfos_[idx+1]->name();
 	    iopar.set( IOPar::compKey(attrnm,"Minimum value"),
 		       valranges_[idx].start );
 	    iopar.set( IOPar::compKey(attrnm,"Maximum value"),
@@ -237,6 +251,7 @@ bool HorizonScanner::analyzeData()
     }
 
     isxy_ = nrxy > nrbid;
+    selxy_ = ascio_->isXY();
     doscale_ = nrscale > nrnoscale;
     delete ascio_;
     ascio_ = 0;
@@ -311,7 +326,7 @@ int HorizonScanner::nextStep()
 	}
 
 	if ( !mIsUdf(val) )
-	    valranges_[validx].include( val, false );
+	    valranges_[validx].include( fac*val, false );
 	validx++;
     }
 
