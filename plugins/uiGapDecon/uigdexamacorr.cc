@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.23 2007-12-13 11:19:02 cvsbert Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.24 2007-12-13 15:20:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -185,7 +185,7 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
 }
 
 
-uiFlatViewer& GapDeconACorrView::getViewWin( bool isqc )
+void GapDeconACorrView::setUpViewWin( bool isqc )
 {
     FlatDataPack* dp = isqc ? fddatapackqc_ : fddatapackexam_;
     StepInterval<double> newrg( 0, cs_.zrg.stop-cs_.zrg.start, cs_.zrg.step );
@@ -206,21 +206,16 @@ uiFlatViewer& GapDeconACorrView::getViewWin( bool isqc )
 	app.setGeoDefaults( true );
 	app.ddpars_.show( false, true );
 	vwr.appearance().ddpars_.vd_.rg_ = Interval<float>( -0.2, 0.2 );
-	vwr.setInitialSize( uiSize(500,400) );
+	vwr.setInitialSize( uiSize(600,400) );
 	win->addControl( new uiFlatViewStdControl( vwr,
 			      uiFlatViewStdControl::Setup(0) ) );
     }
-
-    return win->viewer();
 }
 
     
 void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
 {
-    uiFlatViewer& vwr = getViewWin( isqc );
-
-    FlatView::Appearance& app = vwr.appearance();
-    
+    setUpViewWin( isqc );
     isqc ? qcwin_->show() : examwin_->show();
 }
 
