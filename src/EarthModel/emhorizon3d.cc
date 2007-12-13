@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.99 2007-12-02 16:13:32 cvsnanne Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.100 2007-12-13 06:05:58 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "tabledef.h"
 #include "trigonometry.h"
+#include "unitofmeasure.h"
 #include "zaxistransform.h"
 
 #include <math.h>
@@ -586,25 +587,30 @@ EMObjectIterator* Horizon3DGeometry::createIterator(
 }
 
 
-Table::FormatDesc* Horizon3DAscIO::getDesc( bool isxy )
+Table::FormatDesc* Horizon3DAscIO::getDesc() 
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Horizon3D" );
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
 	    		StringInpSpec(sKey::FloatUdf), Table::Required );
     BufferStringSet attrnms;
     attrnms.add( "Z values" );
-    createDescBody( fd, attrnms, isxy );
+    createDescBody( fd, attrnms );
     return fd;
 }
 
 
 void Horizon3DAscIO::createDescBody( Table::FormatDesc* fd,
-				     const BufferStringSet& attrnms, bool isxy )
+				     const BufferStringSet& attrnms )
 {
-    fd->bodyinfos_ += new Table::TargetInfo( isxy ? "X Coordinate" : "Inl No.",
-	    			 FloatInpSpec(), Table::Required );
-    fd->bodyinfos_ += new Table::TargetInfo( isxy ? "Y Coordinate" : "Crl No.",
-	    			 FloatInpSpec(), Table::Required );
+    Table::TargetInfo* posinfo = new Table::TargetInfo( "", FloatInpSpec(),
+	   						Table::Required );
+    Table::TargetInfo::Form* form = new Table::TargetInfo::Form( "X/Y ",
+	    						FloatInpSpec() );
+    form->add( FloatInpSpec() );
+    posinfo->add( form );
+    posinfo->form(0).setName( "Inl/Crl");
+    posinfo->form(0).add( FloatInpSpec() );
+    fd->bodyinfos_ += posinfo;
 
     for ( int idx=0; idx<attrnms.size(); idx++ )
     {
@@ -612,7 +618,12 @@ void Horizon3DAscIO::createDescBody( Table::FormatDesc* fd,
 	Table::TargetInfo* ti = new Table::TargetInfo( fldname, FloatInpSpec(),
 		  		Table::Required );
 	if ( fldname == "Z values" )
+	{
 	    ti->setPropertyType( PropertyRef::surveyZType() );
+	    const char* un = SI().zIsTime() ? "Milliseconds"
+					    : SI().zInFeet() ? "Feet" : "Meter";
+	    ti->selection_.unit_ = UoMR().get( un );
+	}
 
 	fd->bodyinfos_ += ti;
     }
@@ -620,10 +631,10 @@ void Horizon3DAscIO::createDescBody( Table::FormatDesc* fd,
 
 
 void Horizon3DAscIO::updateDesc( Table::FormatDesc& fd,
-				 const BufferStringSet& attrnms, bool isxy )
+				 const BufferStringSet& attrnms )
 {
     fd.bodyinfos_.erase();
-    createDescBody( &fd, attrnms, isxy );
+    createDescBody( &fd, attrnms );
 }
 
 
@@ -638,13 +649,23 @@ float Horizon3DAscIO::getUdfVal()
 }
 
 
+bool Horizon3DAscIO::isXY() const
+{
+    const Table::TargetInfo* xinfo = fd_.bodyinfos_[0];
+    if ( !xinfo ) return false;
+
+    const int sel = xinfo->selection_.form_;
+    return sel==1 ? true : false;
+}
+
+
 int Horizon3DAscIO::getNextLine( TypeSet<float>& data )
 {
     data.erase();
     int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return ret;
 
-    for ( int idx=0; idx<fd_.bodyinfos_.size(); idx++ )
+    for ( int idx=0; idx<=fd_.bodyinfos_.size(); idx++ )
 	data += getfValue( idx );
 
     return ret;
