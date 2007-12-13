@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.16 2007-10-05 11:04:56 cvsnanne Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.17 2007-12-13 16:46:53 cvsbert Exp $";
 
 
 #include "dataclipper.h"
@@ -214,35 +214,13 @@ bool DataClipper::getRange( float lowclip, float highclip,
 bool DataClipper::getSymmetricRange( float cliprate, float midval,
 				     Interval<float>& range ) const
 {
-    int nrvals = samples_.size();
-    if ( !nrvals ) return false;
+    if ( !getRange(cliprate,range) )
+	return false;
 
-    const int nrincludedsamples = nrvals-mNINT(cliprate*nrvals);
-    const int halfnrsamples = nrincludedsamples/2;
-
-    int centeridx = -1;
-    IdxAble::findFPPos( samples_.arr(), samples_.size(), midval,-1,
-			centeridx );
-    if ( centeridx==-1 )
-    {
-	range.stop = samples_[nrincludedsamples-1];
-	range.start = 2 * midval-range.stop;
-    }
-    else if ( centeridx>=nrvals-1 )
-    {
-	range.start = samples_[nrvals-nrincludedsamples-1];
-	range.stop = 2*midval-range.start;
-    }
-    else if ( centeridx<halfnrsamples )
-    {
-	range.stop = samples_[centeridx+halfnrsamples];
-	range.start = 2 * midval-range.stop;
-    }
-    else 
-    {
-	range.start = samples_[centeridx-halfnrsamples];
-	range.stop = 2*midval-range.start;
-    }
+    if ( midval-range.start > range.stop-midval )
+	range.stop = midval + (midval-range.start);
+    else
+	range.start = midval - (range.stop-midval);
 
     return true;
 }
