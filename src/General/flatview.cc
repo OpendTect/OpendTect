@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.27 2007-12-12 16:51:32 cvsbert Exp $
+ RCS:           $Id: flatview.cc,v 1.28 2007-12-13 09:31:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -420,8 +420,11 @@ void FlatView::Viewer::removePack( DataPack::ID id )
     if ( vdpack_ && vdpack_->id() == id )
 	usePack( false, DataPack::cNoID, false );
 
-    ids_.remove( idx );
-    obs_.remove( idx );
+    // Construction necessary because the release could trigger a new removePack
+    const bool obs = obs_[idx];
+    ids_.remove( idx ); obs_.remove( idx );
+    if ( !obs )
+	dpm_.release( id );
 }
 
 
