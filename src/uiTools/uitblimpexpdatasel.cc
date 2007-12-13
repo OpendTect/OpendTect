@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.33 2007-10-08 12:11:11 cvsraman Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.34 2007-12-13 05:54:43 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ public:
 uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
 		     int nrlns )
     : uiGroup(p,tinf.name())
+    , unitfld_(0)
     , tinf_(tinf)
     , formfld_(0)
     , specfld_(0)
@@ -53,6 +54,7 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     if ( tinf_.nrForms() > 1 )
     {
 	formfld_ = new uiComboBox( this, "Form choice" );
+	formfld_->setPrefWidthInChar( 10 );
 	formfld_->selectionChanged.notify( boxcb );
     }
 
@@ -75,18 +77,35 @@ uiTableTargetInfoEd( uiParent* p, Table::TargetInfo& tinf, bool ishdr,
     if ( formfld_ )
 	lbl->attach( rightOf, formfld_ );
     rightmostleftfld_ = formfld_ ? (uiObject*)formfld_ : (uiObject*)lbl;
-    rightmostfld_ = rightmostleftfld_;
-
     for ( int iform=0; iform<tinf_.nrForms(); iform++ )
     {
+	rightmostfld_ = rightmostleftfld_;
 	const Table::TargetInfo::Form& form = tinf_.form( iform );
 	if ( formfld_ )
 	    formfld_->addItem( form.name() );
 	mkColFlds( iform );
     }
 
+    const int formnr = tinf_.selection_.form_;
+    if ( formnr>=0 && formnr<tinf_.nrForms() && formfld_ )
+	formfld_->setCurrentItem( formnr );
+
+    UoMR().getRelevant( tinf_.propertyType(), units_ );
+    if ( units_.size() > 1 )
+    {
+	unitfld_ = new uiLabeledComboBox( this, "Unit" );
+	unitfld_->box()->setPrefWidthInChar( 15 );
+	for ( int idx=0; idx<units_.size(); idx++ )
+	    unitfld_->box()->addItem( units_[idx]->name() );
+	
+	unitfld_->attach( rightTo, rightmostfld_ );
+	if ( tinf_.selection_.unit_ )
+	    unitfld_->box()->setCurrentItem( tinf_.selection_.unit_->name() );
+    }
+
     mainObject()->finaliseDone.notify( boxcb );
 }
+
 
 void doAttach( uiTableTargetInfoEd* prev )
 {
@@ -107,7 +126,7 @@ void mkColFlds( int iform )
 	inps_ += new ObjectSet<uiGenInput>;
     }
 
-    const int nrflds = tinf_.nrForms();
+    const int nrflds = tinf_.form(iform).specs_.size();
     for ( int ifld=0; ifld<nrflds; ifld++ )
     {
 	addBoxes( iform, ifld );
@@ -162,8 +181,9 @@ void addBoxes( int iform, int ifld )
 
     if ( !iskw && !isrc )
     {
-	colspinbox->setValue( defcol_ );
-	if ( !ishdr_ ) defcol_++;
+	colspinbox->setValue( defcol_ + ifld );
+	if ( !ishdr_ && iform==tinf_.nrForms()-1
+	     && ifld==tinf_.form(iform).specs_.size()-1 ) defcol_ += ifld + 1;
     }
     else
     {
@@ -201,8 +221,8 @@ void boxChg( CallBacker* )
 {
     if ( !formfld_ && !specfld_ ) return;
 
-    const int selformidx = formfld_ ? formfld_->currentItem() : 0;
-    const bool isspec = !specfld_ || specfld_->currentItem() == 0;
+    const int selformidx = formfld_ ? formfld_->currentItem()>0 : 0;
+    const bool isspec = specfld_ && specfld_->currentItem()>0;
     const bool iskw = specfld_ && specfld_->currentItem() == 1;
 
     for ( int iform=0; iform<tinf_.nrForms(); iform++ )
@@ -311,6 +331,10 @@ bool commit()
 	}
     }
 
+    const int unitidx = unitfld_ ? unitfld_->box()->currentItem() : -1;
+    if ( unitidx<0 || unitidx>units_.size() ) return true;
+
+    tinf_.selection_.unit_ = units_[unitidx];
     return true;
 }
 
@@ -318,9 +342,11 @@ bool commit()
     bool				ishdr_;
     int					nrhdrlns_;
     BufferString			errmsg_;
+    ObjectSet<const UnitOfMeasure>	units_;
 
     uiComboBox*				formfld_;
     uiComboBox*				specfld_;
+    uiLabeledComboBox*			unitfld_;
     ObjectSet< ObjectSet<uiSpinBox> >	colboxes_;
     ObjectSet< ObjectSet<uiSpinBox> >	rowboxes_;
     ObjectSet< ObjectSet<uiGenInput> >	inps_;
@@ -365,7 +391,6 @@ protected:
     void			mkElemFlds(bool);
     void			openFmt(CallBacker*);
     void			saveFmt(CallBacker*);
-    void			handleUnits(CallBacker*);
 
     bool			commit();
     bool			acceptOK(CallBacker*);
@@ -395,18 +420,12 @@ uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds,
     uiSeparator* sep = new uiSeparator( this, "V sep", false );
     sep->attach( stretchedRightTo, elemgrp_ );
 
-    uiButtonGroup* utilsgrp = new uiButtonGroup( this, "" );
-    uiToolButton* toolbutton = new uiToolButton( utilsgrp, "Save button",
+    uiToolButton* toolbutton = new uiToolButton( this, "Save button",
 	    			ioPixmap("savefmt.png"),
 				mCB(this,uiTableFormatDescFldsEd,saveFmt) );
     toolbutton->setToolTip( "Save format" );
 
-    toolbutton = new uiToolButton( utilsgrp, "Units button",
-	    			ioPixmap("unitsofmeasure.png"),
-				mCB(this,uiTableFormatDescFldsEd,handleUnits) );
-    toolbutton->setToolTip( "Specify units of measure" );
-
-    utilsgrp->attach( ensureRightOf, sep );
+    toolbutton->attach( ensureRightOf, sep );
 }
 
 
@@ -504,79 +523,6 @@ void uiTableFormatDescFldsEd::saveFmt( CallBacker* )
 	    ds_.fmtname_ = fmtnm;
 	}
     }
-}
-
-
-class uiTableImpDataSelUnits : public uiDialog
-{
-public:
-
-struct Entry
-{
-    Entry( Table::TargetInfo* ti, ObjectSet<const UnitOfMeasure> uns )
-	: ti_(ti), uns_(uns)		{}
-    Table::TargetInfo*			ti_;
-    ObjectSet<const UnitOfMeasure>	uns_;
-};
-
-uiTableImpDataSelUnits( uiParent* p, Table::FormatDesc& fd )
-    : uiDialog(p,uiDialog::Setup(fd.name(),"Specify units of measure","0.4.5"))
-    , fd_(fd)
-{
-    for ( int idx=0; idx<fd_.headerinfos_.size(); idx++ )
-	addEntry( fd_.headerinfos_[idx] );
-    for ( int idx=0; idx<fd_.bodyinfos_.size(); idx++ )
-	addEntry( fd_.bodyinfos_[idx] );
-
-    if ( entries_.size() < 1 )
-    {
-	new uiLabel( this, "No units-of-measure available, or unnecessary" );
-	return;
-    }
-}
-
-void addEntry( Table::TargetInfo* tinf )
-{
-    ObjectSet<const UnitOfMeasure> uns;
-    UoMR().getRelevant( tinf->propertyType(), uns );
-    if ( uns.size() < 2 ) return;
-
-    entries_ += new Entry( tinf, uns );
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, tinf->name() );
-    for ( int idx=0; idx<uns.size(); idx++ )
-	lcb->box()->addItem( uns[idx]->name() );
-    if ( boxes_.size() > 0 )
-	lcb->attach( alignedBelow, boxes_[ boxes_.size()-1 ] );
-    boxes_ += lcb;
-    if ( tinf->selection_.unit_ )
-	lcb->box()->setCurrentItem( tinf->selection_.unit_->name() );
-}
-
-
-bool acceptOK( CallBacker* )
-{
-    for ( int idx=0; idx<boxes_.size(); idx++ )
-    {
-	uiComboBox* cb = boxes_[idx]->box();
-	int isel = cb->currentItem();
-	if ( isel < 0 ) continue;
-	Entry* entry = entries_[idx];
-	entry->ti_->selection_.unit_ = entry->uns_[isel];
-    }
-    return true;
-}
-
-    Table::FormatDesc&			fd_;
-    ObjectSet<Entry>			entries_;
-    ObjectSet<uiLabeledComboBox>	boxes_;
-
-};
-
-
-void uiTableFormatDescFldsEd::handleUnits( CallBacker* )
-{
-    uiTableImpDataSelUnits dlg( this, fd_ );
-    dlg.go();
 }
 
 
