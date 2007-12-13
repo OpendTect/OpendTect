@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.h,v 1.12 2007-03-12 10:18:41 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.h,v 1.13 2007-12-13 11:19:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ template <class T> class Array2D;
 namespace Attrib { class EngineMan; class DescSet; class DataCubes;
     		   class Data2DHolder; class Processor; }
 class uiFlatViewMainWin;
+class uiFlatViewer;
 class FlatDataPack;
 
 /*! \brief GapDecon Attribute autocorrelation preview in a 2d viewer */
@@ -45,6 +46,7 @@ protected:
     void		createFD3DDataPack(bool,Attrib::EngineMan*,
 	    				   Attrib::Processor*);
     void		displayWiggles(bool,bool);
+    uiFlatViewer&	getViewWin(bool);
 
     uiFlatViewMainWin*		examwin_;
     uiFlatViewMainWin*		qcwin_;
@@ -52,6 +54,9 @@ protected:
     LineKey			lk_;
     Attrib::DescID		attribid_;
     Attrib::DescSet*    	dset_;
+    uiParent*			parent_;
+    BufferString		examtitle_;
+    BufferString		qctitle_;
 
     FlatDataPack*		fddatapackqc_;
     FlatDataPack*		fddatapackexam_;

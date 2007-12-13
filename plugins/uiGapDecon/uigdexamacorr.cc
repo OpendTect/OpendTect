@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.22 2007-12-12 15:44:40 cvsbert Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.23 2007-12-13 11:19:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,26 +35,17 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-#define mCreateFViewWin(nm) \
-    nm##win_ = new uiFlatViewMainWin( p, uiFlatViewMainWin::Setup(nm##str)); \
-    FlatView::Appearance& app##nm = nm##win_->viewer().appearance(); \
-    app##nm.annot_.setAxesAnnot(true); \
-    app##nm.setGeoDefaults(true); \
-    app##nm.ddpars_.show(false,true); \
-    nm##win_->viewer().setDarkBG( true ); \
-    nm##win_->addControl( new uiFlatViewStdControl( nm##win_->viewer(), \
-			  uiFlatViewStdControl::Setup(p) ) );
 
 GapDeconACorrView::GapDeconACorrView( uiParent* p )
     : attribid_( DescID::undef() )
     , dset_( 0 )
+    , examwin_(0)
+    , qcwin_(0)
+    , parent_(p)
 {
-    BufferString basestr = " Auto-correlation viewer ";
-    BufferString examstr = basestr; examstr +="(examine)";
-    BufferString qcstr = basestr; qcstr +="(check parameters)";
-
-    mCreateFViewWin(exam)
-    mCreateFViewWin(qc)
+    const BufferString basestr = " Auto-correlation viewer ";
+    examtitle_ = basestr; examtitle_ +="(examine)";
+    qctitle_ = basestr; qctitle_ +="(check parameters)";
 }
 
 
@@ -82,7 +73,7 @@ bool GapDeconACorrView::computeAutocorr( bool isqc )
     }
 
     proc->setName( "Compute autocorrelation values" );
-    uiExecutor dlg( examwin_, *proc );
+    uiExecutor dlg( parent_, *proc );
     if ( !dlg.go() )
 	return false;
 
@@ -122,6 +113,7 @@ EngineMan* GapDeconACorrView::createEngineMan()
 { \
     fddatapack = new Attrib::Flat2DDHDataPack( attribid_, *correctd2dh ); \
     fddatapack->setName( "autocorrelation" ); \
+    DPM(DataPackMgr::FlatID).add( fddatapack ); \
 }
 
 
@@ -158,6 +150,7 @@ void GapDeconACorrView::createFD2DDataPack( bool isqc, const Data2DHolder& d2dh)
 { \
     fddatapack = new Attrib::Flat3DDataPack( attribid_, *correctoutput, 0 ); \
     fddatapack->setName( "autocorrelation" ); \
+    DPM(DataPackMgr::FlatID).add( fddatapack ); \
 }
 
 void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
@@ -191,22 +184,42 @@ void GapDeconACorrView::createFD3DDataPack( bool isqc, EngineMan* aem,
     correctoutput->unRef();
 }
 
+
+uiFlatViewer& GapDeconACorrView::getViewWin( bool isqc )
+{
+    FlatDataPack* dp = isqc ? fddatapackqc_ : fddatapackexam_;
+    StepInterval<double> newrg( 0, cs_.zrg.stop-cs_.zrg.start, cs_.zrg.step );
+    dp->posData().setRange( false, newrg );
+
+    uiFlatViewMainWin*& win = isqc ? qcwin_ : examwin_;
+    if ( win )
+	win->viewer().setPack( false, dp->id(), false, false );
+    else
+    {
+	win = new uiFlatViewMainWin( 0,
+		uiFlatViewMainWin::Setup( isqc ? qctitle_ : examtitle_ ) );
+	uiFlatViewer& vwr = win->viewer();
+	vwr.setPack( false, dp->id(), false, true );
+	vwr.setDarkBG( false );
+	FlatView::Appearance& app = vwr.appearance();
+	app.annot_.setAxesAnnot( true );
+	app.setGeoDefaults( true );
+	app.ddpars_.show( false, true );
+	vwr.appearance().ddpars_.vd_.rg_ = Interval<float>( -0.2, 0.2 );
+	vwr.setInitialSize( uiSize(500,400) );
+	win->addControl( new uiFlatViewStdControl( vwr,
+			      uiFlatViewStdControl::Setup(0) ) );
+    }
+
+    return win->viewer();
+}
+
     
 void GapDeconACorrView::createAndDisplay2DViewer( bool isqc )
 {
-    if ( isqc )
-	qcwin_->close();
-    else
-	examwin_->close();
+    uiFlatViewer& vwr = getViewWin( isqc );
 
-    uiFlatViewer& vwr = isqc ? qcwin_->viewer() : examwin_->viewer();
-    vwr.setDarkBG( false );
-    FlatDataPack* dp = isqc ? fddatapackqc_ : fddatapackexam_;
-    vwr.setPack( false, dp->id(), true );
     FlatView::Appearance& app = vwr.appearance();
-    app.ddpars_.vd_.rg_ = Interval<float>( -0.2, 0.2 );
-    StepInterval<double> newrg( 0, cs_.zrg.stop-cs_.zrg.start, cs_.zrg.step );
-    dp->posData().setRange( false, newrg );
     
     isqc ? qcwin_->show() : examwin_->show();
 }
