@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.34 2007-12-13 05:54:43 cvsraman Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.35 2007-12-13 10:03:00 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -389,6 +389,7 @@ protected:
     ObjectSet<uiTableTargetInfoEd> bodyelems_;
 
     void			mkElemFlds(bool);
+    void			initSaveButton(CallBacker*);
     void			openFmt(CallBacker*);
     void			saveFmt(CallBacker*);
 
@@ -401,8 +402,10 @@ protected:
 
 uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds,
 						  const char* hid )
-	: uiDialog(ds,uiDialog::Setup(	"Information definition",
-					"Specify necessary information",hid))
+	: uiDialog(ds,uiDialog::Setup("Information definition",
+				      "Specify necessary information",hid)
+		      .savebutton(true).savebutispush(true)
+		      .savetext("Save format"))
 	, ds_(*ds)
 	, fd_(ds->desc())
 	, hdrinpgrp_(0)
@@ -417,15 +420,16 @@ uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds,
     if ( hdrinpgrp_ )
 	bodyinpgrp_->attach( alignedBelow, hdrinpgrp_ );
 
-    uiSeparator* sep = new uiSeparator( this, "V sep", false );
-    sep->attach( stretchedRightTo, elemgrp_ );
+    finaliseDone.notify( mCB(this,uiTableFormatDescFldsEd,initSaveButton) );
+}
 
-    uiToolButton* toolbutton = new uiToolButton( this, "Save button",
-	    			ioPixmap("savefmt.png"),
-				mCB(this,uiTableFormatDescFldsEd,saveFmt) );
-    toolbutton->setToolTip( "Save format" );
 
-    toolbutton->attach( ensureRightOf, sep );
+void uiTableFormatDescFldsEd::initSaveButton( CallBacker* cb )
+{
+    uiButton* but = button( uiDialog::SAVE );
+    but->setToolTip ( "Save Format" );
+    if ( but )
+	but->activated.notify( mCB(this,uiTableFormatDescFldsEd,saveFmt) );
 }
 
 
