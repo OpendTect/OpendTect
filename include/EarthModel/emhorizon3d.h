@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.55 2007-11-12 14:26:06 cvsjaap Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.56 2007-12-13 06:08:06 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -126,13 +126,14 @@ public:
 				    : Table::AscIO(fd)
 				    , strm_(strm)      		    {}
 
-    static Table::FormatDesc*   getDesc(bool);
+    static Table::FormatDesc*   getDesc();
     static void			updateDesc(Table::FormatDesc&,
-	    				   const BufferStringSet&,bool);
+	    				   const BufferStringSet&);
     static void                 createDescBody(Table::FormatDesc*,
-	    				   const BufferStringSet&,bool);
+	    				   const BufferStringSet&);
 
     float			getUdfVal();
+    bool			isXY() const;
     int				getNextLine(TypeSet<float>&);
 protected:
 
