@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.95 2007-12-04 12:25:06 cvsbert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.96 2007-12-13 06:02:40 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,7 +107,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     , colbut_(0)
     , stratlvlfld_(0)
     , displayfld_(0)
-    , fd_(*EM::Horizon3DAscIO::getDesc(true))
+    , fd_(*EM::Horizon3DAscIO::getDesc())
     , scanner_(0)
 {
     inpfld_ = new uiFileInput( this, "Input ASCII File", uiFileInput::Setup()
@@ -121,19 +121,10 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     ctio_.ctxt.forread = !isgeom_;
     ctio_.ctxt.maychdir = false;
 
-    scanbut_ = new uiPushButton( this, "Scan Input Files",
-	    			 mCB(this,uiImportHorizon,scanPush), false );
-    scanbut_->attach( alignedBelow, inpfld_ );
-
-    xyfld_ = new uiGenInput( this, "Positions in:",
-			     BoolInpSpec(true,"X/Y","Inl/Crl") );
-    xyfld_->valuechanged.notify( mCB(this,uiImportHorizon,formatSel) );
-    xyfld_->attach( alignedBelow, scanbut_ );
-
     attrlistfld_ = new uiLabeledListBox( this, "Select Attribute(s) to import",
 	   				 true );
     attrlistfld_->box()->setLines( 4, true );
-    attrlistfld_->attach( alignedBelow, xyfld_ );
+    attrlistfld_->attach( alignedBelow, inpfld_ );
     attrlistfld_->box()->selectionChanged.notify(
 	    			mCB(this,uiImportHorizon,formatSel) );
 
@@ -141,12 +132,30 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	    			mCB(this,uiImportHorizon,addAttrib), false );
     addbut_->attach( rightTo, attrlistfld_ );
 
+    uiSeparator* sep = new uiSeparator( this, "H sep" );
+    sep->attach( stretchedBelow, attrlistfld_ );
+
+    dataselfld_ = new uiTableImpDataSel( this, fd_, "100.0.0" );
+    dataselfld_->attach( alignedBelow, attrlistfld_ );
+    dataselfld_->attach( ensureBelow, sep );
+    dataselfld_->descChanged.notify( mCB(this,uiImportHorizon,descChg) );
+
+    scanbut_ = new uiPushButton( this, "Scan Input Files",
+	    			 mCB(this,uiImportHorizon,scanPush), false );
+    scanbut_->attach( alignedBelow, dataselfld_);
+
+    sep = new uiSeparator( this, "H sep" );
+    sep->attach( stretchedBelow, scanbut_ );
+
     subselfld_ = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
 	    				  .withz(false).withstep(true) );
     subselfld_->attach( alignedBelow, attrlistfld_ );
+    subselfld_->attach( ensureBelow, sep );
     subselfld_->setSensitive( false );
 
-    uiSeparator* sep = new uiSeparator( this, "H sep" );
+    outputfld_ = new uiIOObjSel( this, ctio_ );
+    outputfld_->setLabelText( isgeom_ ? "Output Horizon" : "Add to Horizon" );
+
     if ( isgeom_ )
     {
 	filludffld_ = new uiGenInput( this, "Fill undefined parts",
@@ -158,27 +167,9 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 
 	arr2dinterpfld_ = new uiImpHorArr2DInterpPars( this );
 	arr2dinterpfld_->attach( alignedBelow, filludffld_ );
+	
+	outputfld_->attach( alignedBelow, arr2dinterpfld_ );
 
-	sep->attach( stretchedBelow, arr2dinterpfld_ );
-    }
-    else
-	sep->attach( stretchedBelow, subselfld_ );
-
-    dataselfld_ = new uiTableImpDataSel( this, fd_, "100.0.0" );
-    dataselfld_->attach( alignedBelow, attrlistfld_ );
-    dataselfld_->attach( ensureBelow, sep );
-    dataselfld_->descChanged.notify( mCB(this,uiImportHorizon,descChg) );
-
-    sep = new uiSeparator( this, "H sep" );
-    sep->attach( stretchedBelow, dataselfld_ );
-
-    outputfld_ = new uiIOObjSel( this, ctio_ );
-    outputfld_->setLabelText( isgeom_ ? "Output Horizon" : "Add to Horizon" );
-    outputfld_->attach( alignedBelow, attrlistfld_ );
-    outputfld_->attach( ensureBelow, sep );
-
-    if ( isgeom_ )
-    {
 	stratlvlfld_ = new uiStratLevelSel( this );
 	stratlvlfld_->attach( alignedBelow, outputfld_ );
 	stratlvlfld_->selchanged_.notify(mCB(this,uiImportHorizon,stratLvlChg));
@@ -191,6 +182,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	
 	fillUdfSel(0);
     }
+    else
+	outputfld_->attach( alignedBelow, subselfld_ );
 }
 
 
@@ -209,11 +202,10 @@ void uiImportHorizon::descChg( CallBacker* cb )
 
 void uiImportHorizon::formatSel( CallBacker* cb )
 {
-    const bool isxy = xyfld_->getBoolValue();
     BufferStringSet attrnms;
     attrlistfld_->box()->getSelectedItems( attrnms );
     if ( isgeom_ ) attrnms.insertAt( new BufferString(sZVals), 0 );
-    EM::Horizon3DAscIO::updateDesc( fd_, attrnms, isxy );
+    EM::Horizon3DAscIO::updateDesc( fd_, attrnms );
     dataselfld_->updateSummary();
     if ( !scanner_ ) 
     {
@@ -241,8 +233,8 @@ void uiImportHorizon::scanPush( CallBacker* )
 {
     if ( !dataselfld_->commit() ) return;
 
-    if ( !scanner_ ) doScan();
-    xyfld_->setValue( scanner_->posIsXY() );
+    if ( !scanner_ && !doScan() ) return;
+
     if ( isgeom_ ) 
     {
 	filludffld_->setSensitive( scanner_->gapsFound(true) ||
@@ -256,10 +248,11 @@ void uiImportHorizon::scanPush( CallBacker* )
 }
 
 
-void uiImportHorizon::doScan()
+bool uiImportHorizon::doScan()
 {
     BufferStringSet filenms;
-    getFileNames( filenms );
+    if ( !getFileNames(filenms) ) return false;
+
     scanner_ = new HorizonScanner( filenms, fd_, isgeom_ );
     uiExecutor dlg( this, *scanner_ );
     dlg.go();
@@ -272,6 +265,7 @@ void uiImportHorizon::doScan()
     data.allowedrange_.hrg.step.inl = SI().inlStep();
     data.allowedrange_.hrg.step.crl = SI().crlStep();
     subselfld_->setData( data );
+    return true;
 }
 
 
@@ -326,7 +320,7 @@ bool uiImportHorizon::doImport()
     EM::Horizon3D* horizon = isgeom_ ? createHor() : loadHor();
     if ( !horizon ) return false;
 
-    if ( !scanner_ ) doScan();
+    if ( !scanner_ && !doScan() ) return false;
 
     ObjectSet<BinIDValueSet> sections = scanner_->getSections();
 
@@ -423,6 +417,10 @@ bool uiImportHorizon::checkInpFlds()
 
     if ( !outputfld_->commitInput(true) )
 	return false;
+
+    if ( isgeom_ && ctio_.ioobj->implExists(false)
+	   	 && !uiMSG().askGoOn("Output horizon exists. Overwrite?") )
+       return false;
 
     return true;
 }
