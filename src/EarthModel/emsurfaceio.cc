@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.93 2007-09-13 19:38:39 cvsnanne Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.94 2007-12-13 12:49:18 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -1145,10 +1145,10 @@ dgbSurfaceWriter::~dgbSurfaceWriter()
 	par_.set( dgbSurfaceReader::sKeyColRange(),
 		  writtencolrange_.start, writtencolrange_.stop, colrgstep );
 	
-	for ( int idx=firstrow_; idx<firstrow_+nrrows_; idx+=rowrange_.step )
+	for (int idx=firstrow_; idx<firstrow_+rowrgstep*nrrows_; idx+=rowrgstep)
 	{
 	    const int idxcolstep = geometry_.colRange(idx).step;
-	    if ( idxcolstep != colrgstep )
+	    if ( idxcolstep != colrange_.step )
 		par_.set( dgbSurfaceReader::sColStepKey(idx), idxcolstep );
 	}
 
@@ -1644,8 +1644,10 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 
 	writtenrowrange_.include( row, false );
 	writtencolrange_.include( firstcol, false );
-	writtencolrange_.include( firstcol+colrange.step*(colcoords.size()-1),
-				 false );
+
+	const int lastcol = firstcol + (colcoords.size()-1) *
+		    (writecolrange_ ? writecolrange_->step : colrange.step);
+	writtencolrange_.include( lastcol, false );
     }
 
     return true;
