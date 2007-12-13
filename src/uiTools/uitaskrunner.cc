@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink/A.H. Bril
  Date:          Aug 2000/Oct 2001
- RCS:           $Id: uitaskrunner.cc,v 1.1 2007-12-13 19:26:39 cvskris Exp $
+ RCS:           $Id: uitaskrunner.cc,v 1.2 2007-12-13 21:23:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ uiTaskRunner::uiTaskRunner( uiParent* p )
     , statemutex_( *new Threads::Mutex )
 {
     progbar_ = new uiProgressBar( this, "", 0, 0 );
+    progbar_->setPrefWidthInChar( 50 );
 
     tim_.tick.notify( mCB( this, uiTaskRunner, timerTick ) );
     finaliseStart.notify( mCB( this, uiTaskRunner, onFinalise ) );
@@ -165,6 +166,8 @@ void uiTaskRunner::timerTick( CallBacker* )
 
 	if ( state<0 )
 	    uiMSG().error( task_->message() );
+
+	task_ = 0;
 
 	done( state<0 ? 0 : 1 );
 	return;
