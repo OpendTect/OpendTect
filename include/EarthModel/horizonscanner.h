@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		Feb 2004
- RCS:		$Id: horizonscanner.h,v 1.8 2007-10-08 12:07:14 cvsraman Exp $
+ RCS:		$Id: horizonscanner.h,v 1.9 2007-12-13 06:07:06 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,7 @@ protected:
     bool		firsttime_;
     bool		isgeom_;
     bool		isxy_;
+    bool		selxy_;
     bool		doscale_;
     float		udfval_;
     TypeSet<Interval<float> > valranges_;
