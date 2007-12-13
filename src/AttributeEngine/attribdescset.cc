@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.61 2007-12-12 06:44:01 cvsraman Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.62 2007-12-13 07:35:29 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -596,13 +596,15 @@ bool DescSet::is2D() const
 {
     if ( is2dset_ ) return is2d_;
 
-    bool is2dsetinallstoreddescs = getFirstStored();    
+    bool hasstoreddesc = false;
+    bool is2dsetinallstoreddescs = true;    
     for ( int idx=0; idx<descs.size(); idx++ )
     {
 	const Desc& dsc = *descs[idx];
 	if ( !dsc.isStored() )
 	    continue;
 	
+	hasstoreddesc = true;
 	if ( is2dsetinallstoreddescs ) 
 	    is2dsetinallstoreddescs = dsc.is2DSet();
 	
@@ -614,7 +616,7 @@ bool DescSet::is2D() const
 	}
     }
 
-    if ( is2dsetinallstoreddescs )
+    if ( is2dsetinallstoreddescs && hasstoreddesc )
 	const_cast<DescSet*>(this)->is2dset_ = true;
     
     return is2dset_ ? is2d_ : false;
@@ -785,8 +787,7 @@ Desc* DescSet::getFirstStored( bool usesteering ) const
 	const bool issteer = res && *res == 'S';
 	if ( !usesteering && issteer ) continue;
 
- //TODO backward compatibility with 2.4
-	if ( !is2dset_ || (dsc.is2D() == is2D()) )
+	if ( (dsc.is2D() == is2D()) ) //TODO backward compatibility with 2.4
 	    return const_cast<Desc*>( &dsc );
     }
 
