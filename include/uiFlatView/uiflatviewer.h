@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.16 2007-11-13 13:38:07 cvskris Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.17 2007-12-13 16:29:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ public:
     const uiWorldRect&	curView() const			{ return wr_; }
     uiWorldRect		boundingBox() const;
     void		getWorld2Ui(uiWorld2Ui&) const;
+    void		setExtraBorders( uiRect r )	{ extraborders_ = r; }
     void		setDim0ExtFac( float f )	{ dim0extfac_ = f; }
     			//!< when reporting boundingBox(), extends this
     			//!< amount of positions outward. Default 0.5.
@@ -97,7 +98,7 @@ protected:
     void		drawGridAnnot();
     void		drawAux(const FlatView::Annotation::AuxData&);
 
-    void		initView();
+    void		reset();
     bool		mkBitmaps(uiPoint&);
 
     friend class	uiFlatViewControl;

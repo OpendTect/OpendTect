@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.50 2007-09-28 03:56:30 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.51 2007-12-13 16:29:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,7 +163,6 @@ protected:
     protected:
 
 	void		createViewWin(bool isvert);
-	void		setData(DataPack::ID packid,bool wva);
     };
 
     uiODMain&		appl_;

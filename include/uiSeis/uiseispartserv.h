@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.22 2007-08-21 05:38:46 cvsraman Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.23 2007-12-13 16:29:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiapplserv.h"
 #include "multiid.h"
 #include "menuhandler.h"
+#include "datapack.h"
 
 class BufferString;
 class BufferStringSet;
@@ -67,6 +68,8 @@ protected:
     bool		ioSeis(int,bool);
 
     uiFlatViewWin*	viewwin_;
+    DataPack::ID	psseisdpid_;
+    DataPack::ID	psfreqdpid_;
 
 };
 

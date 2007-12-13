@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.23 2007-12-12 15:44:41 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.24 2007-12-13 16:29:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,12 +65,15 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     app.annot_.setAxesAnnot( false );
     app.setGeoDefaults( true );
     app.ddpars_.show( true, false );
-    app.ddpars_.wva_.mid_= Color( 150, 150, 100 );
-    app.ddpars_.wva_.overlap_ = -0.01; app.ddpars_.wva_.clipperc_ = 0;
+    app.ddpars_.wva_.overlap_ = 0; app.ddpars_.wva_.clipperc_ = 0;
+    app.ddpars_.wva_.left_ = Color( 250, 250, 0 );
+    app.ddpars_.wva_.mid_ = Color( 150, 150, 150 );
+    app.ddpars_.wva_.midvalue_ = mUdf(float);
 
     wvltfld->setPrefWidth( 60 );
     wvltfld->attach( ensureRightOf, selgrp );
     wvltfld->setStretch( 1, 2 );
+    wvltfld->setExtraBorders( uiRect(2,5,2,5) );
 
     infofld->attach( ensureBelow, butgrp );
     infofld->attach( ensureBelow, wvltfld );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.37 2007-12-12 15:44:40 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.38 2007-12-13 16:29:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,12 +50,12 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
 
 uiFlatViewer::~uiFlatViewer()
 {
+    delete bmp2rgb_;
+    delete wvabmpmgr_;
+    delete vdbmpmgr_;
     delete &canvas_.rgbArray();
     delete &canvas_;
     delete &axesdrawer_;
-    delete wvabmpmgr_;
-    delete vdbmpmgr_;
-    delete bmp2rgb_;
 }
 
 
@@ -74,12 +74,6 @@ uiRGBArray& uiFlatViewer::rgbArray()
 Color uiFlatViewer::color( bool foreground ) const
 {
     return appearance().darkBG() == foreground ? Color::White : Color::Black;
-}
-
-
-void uiFlatViewer::initView()
-{
-    setView( boundingBox() );
 }
 
 
@@ -170,7 +164,10 @@ void uiFlatViewer::setView( uiWorldRect wr )
 
 void uiFlatViewer::handleChange( DataChangeType dct )
 {
-    if ( dct == None ) return;
+    if ( dct == None )
+	return;
+    else if ( dct == All )
+	reset();
 
     reportedchanges_ += dct;
 
@@ -189,9 +186,18 @@ void uiFlatViewer::handleChange( DataChangeType dct )
 }
 
 
+void uiFlatViewer::reset()
+{
+    delete wvabmpmgr_; wvabmpmgr_ = 0;
+    delete vdbmpmgr_; vdbmpmgr_ = 0;
+    anysetviewdone_ = false;
+}
+
+
 void uiFlatViewer::drawBitMaps()
 {
-    if ( !anysetviewdone_ ) initView();
+    if ( !anysetviewdone_ )
+	setView( boundingBox() );
 
     bool datachgd = false;
     for ( int idx=0; idx<reportedchanges_.size(); idx++ )
@@ -207,6 +213,7 @@ void uiFlatViewer::drawBitMaps()
     uiPoint offs( mUdf(int), mUdf(int) );
     if ( !wvabmpmgr_ )
     {
+	delete wvabmpmgr_; delete vdbmpmgr_;
 	wvabmpmgr_ = new FlatView::BitMapMgr(*this,true);
 	vdbmpmgr_ = new FlatView::BitMapMgr(*this,false);
     }

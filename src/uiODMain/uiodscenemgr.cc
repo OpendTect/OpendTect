@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.116 2007-12-13 08:09:32 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.117 2007-12-13 16:29:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -923,10 +923,14 @@ uiODSceneMgr::Viewer2D::~Viewer2D()
 void uiODSceneMgr::Viewer2D::setUpView( DataPack::ID packid,
 					bool wva, bool isvert )
 {
-    if ( !viewwin_ )
+    const bool isnew = !viewwin_;
+    if ( isnew )
 	createViewWin( isvert );
 
-    setData( packid, wva );
+    viewwin_->viewer().setPack( wva, packid, true, !isnew );
+    FlatView::DataDispPars& ddp = viewwin_->viewer().appearance().ddpars_;
+    (wva ? ddp.wva_.show_ : ddp.vd_.show_) = true;
+    viewwin_->start();
 }
 
 
@@ -954,12 +958,4 @@ void uiODSceneMgr::Viewer2D::createViewWin( bool isvert )
     vwr.appearance().annot_.setAxesAnnot(true);
     viewwin_->addControl( new uiFlatViewStdControl( vwr,
 		    	      uiFlatViewStdControl::Setup(controlparent) ) );
-}
-
-
-void uiODSceneMgr::Viewer2D::setData( DataPack::ID packid, bool wva )
-{
-    viewwin_->viewer().setPack( wva, packid, false );
-    viewwin_->viewer().appearance().ddpars_.show( true, true );
-    viewwin_->start();
 }

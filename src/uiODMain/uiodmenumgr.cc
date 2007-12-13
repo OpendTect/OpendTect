@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.108 2007-12-13 09:16:08 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.109 2007-12-13 16:29:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -640,8 +640,9 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     } break;
 
     case mDumpDataPacksMnuItm: {
-	uiFileDialog dlg( &appl_, uiFileDialog::AnyFile, "/tmp/dpacks.txt",
-			  0, "Data pack dump" );
+	uiFileDialog dlg( &appl_, false, "/tmp/dpacks.txt",
+			  "*.txt", "Data pack dump" );
+	dlg.setAllowAllExts();
 	if ( dlg.go() )
 	{
 	    StreamData sd( StreamProvider(dlg.fileName()).makeOStream() );

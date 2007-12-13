@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewmainwin.h,v 1.4 2007-03-09 10:31:51 cvshelene Exp $
+ RCS:           $Id: uiflatviewmainwin.h,v 1.5 2007-12-13 16:29:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,11 +46,6 @@ public:
 
     virtual uiMainWin*	dockParent()			{ return this; }
     virtual uiParent*	viewerParent()			{ return this; }
-
-protected:
-
-    virtual bool	closeOK()
-    			{ cleanUp(); return true; }
 
 };
 
