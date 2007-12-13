@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.136 2007-12-10 04:02:48 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.137 2007-12-13 09:48:36 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -818,7 +818,7 @@ public:
 
     void		reject( CallBacker* s )	
 			{
-			    mHandle.cancelpushed_ = s == cnclBut;
+			    mHandle.cancelpushed_ = s == cnclbut;
 			    if ( mHandle.rejectOK(s) ) done_(0);
 			}
                         //!< to be called by a 'cancel' button
@@ -842,25 +842,25 @@ public:
 			    }
     void		setSaveButtonChecked( bool yn )
 			    { setup.savechecked_ = yn;
-			      if ( saveBut_cb ) saveBut_cb->setChecked(yn); }
+			      if ( savebut_cb ) savebut_cb->setChecked(yn); }
     void		setButtonSensitive( uiDialog::Button but, bool yn )
 			    { 
 				switch ( but )
 				{
 				case uiDialog::OK     :
-				    if ( okBut ) okBut->setSensitive(yn); 
+				    if ( okbut ) okbut->setSensitive(yn); 
 				break;
 				case uiDialog::CANCEL :
-				    if ( cnclBut ) cnclBut->setSensitive(yn); 
+				    if ( cnclbut ) cnclbut->setSensitive(yn); 
 				break;
 				case uiDialog::SAVE   : 
-				    if ( saveBut_cb )
-					saveBut_cb->setSensitive(yn); 
-				    if ( saveBut_pb )
-					saveBut_pb->setSensitive(yn); 
+				    if ( savebut_cb )
+					savebut_cb->setSensitive(yn); 
+				    if ( savebut_tb )
+					savebut_tb->setSensitive(yn); 
 				break;
 				case uiDialog::HELP   : 
-				    if ( helpBut ) helpBut->setSensitive(yn); 
+				    if ( helpbut ) helpbut->setSensitive(yn); 
 				break;
 				}
 			    }
@@ -872,16 +872,16 @@ public:
 			    { 
 				switch ( but )
 				{
-				case uiDialog::OK     : return okBut;
+				case uiDialog::OK     : return okbut;
 				break;
-				case uiDialog::CANCEL : return cnclBut;
+				case uiDialog::CANCEL : return cnclbut;
 				break;
 				case uiDialog::SAVE   : 
-				    return saveBut_cb
-					? (uiButton*) saveBut_cb
-					: (uiButton*) saveBut_pb;
+				    return savebut_cb
+					? (uiButton*) savebut_cb
+					: (uiButton*) savebut_tb;
 				break;
-				case uiDialog::HELP   : return helpBut;
+				case uiDialog::HELP   : return helpbut;
 				break;
 				}
 				return 0;
@@ -941,12 +941,12 @@ protected:
     uiGroup*            dlgGroup;
     uiDialog::Setup	setup;
 
-    uiPushButton*	okBut;
-    uiPushButton*	cnclBut;
-    uiToolButton*	helpBut;
+    uiPushButton*	okbut;
+    uiPushButton*	cnclbut;
+    uiToolButton*	helpbut;
 
-    uiCheckBox*		saveBut_cb;
-    uiPushButton*	saveBut_pb;
+    uiCheckBox*		savebut_cb;
+    uiToolButton*	savebut_tb;
 
     uiSeparator*	horSepar;
     uiLabel*		title;
@@ -970,8 +970,8 @@ uiDialogBody::uiDialogBody( uiDialog& handle, uiParent* parnt,
     : uiMainWinBody(handle,parnt,s.wintitle_,s.modal_)
     , dlgGroup( 0 )
     , setup( s )
-    , okBut( 0 ), cnclBut( 0 ), saveBut_cb( 0 ),  saveBut_pb( 0 )
-    , helpBut( 0 ), title( 0 ) , reslt( 0 )
+    , okbut( 0 ), cnclbut( 0 ), savebut_cb( 0 ),  savebut_tb( 0 )
+    , helpbut( 0 ), title( 0 ) , reslt( 0 )
     , childrenInited(false)
 {
     setContentsMargins( 10, 2, 10, 2 );
@@ -995,7 +995,7 @@ int uiDialogBody::exec()
 void uiDialogBody::setOkText( const char* txt )    
 { 
     setup.oktext_ = txt; 
-    if ( okBut ) okBut->setText(txt);
+    if ( okbut ) okbut->setText(txt);
 }
 
 
@@ -1015,13 +1015,13 @@ void uiDialogBody::setTitleText( const char* txt )
 void uiDialogBody::setCancelText( const char* txt ) 
 { 
     setup.canceltext_ = txt; 
-    if ( cnclBut ) cnclBut->setText(txt);
+    if ( cnclbut ) cnclbut->setText(txt);
 }
 
 
 bool uiDialogBody::saveButtonChecked() const
 { 
-    return saveBut_cb ? saveBut_cb->isChecked() : false;
+    return savebut_cb ? savebut_cb->isChecked() : false;
 }
 
 
@@ -1066,19 +1066,19 @@ void uiDialogBody::initChildren()
     uiObject* lowestobject = createChildren();
     layoutChildren( lowestobject );
 
-    if ( okBut )
+    if ( okbut )
     {
-	okBut->activated.notify( mCB(this,uiDialogBody,accept) );
-	okBut->setDefault();
+	okbut->activated.notify( mCB(this,uiDialogBody,accept) );
+	okbut->setDefault();
     }
-    if ( cnclBut )
+    if ( cnclbut )
     {
-	cnclBut->activated.notify( mCB(this,uiDialogBody,reject) );
-	if ( !okBut )
-	    cnclBut->setDefault();
+	cnclbut->activated.notify( mCB(this,uiDialogBody,reject) );
+	if ( !okbut )
+	    cnclbut->setDefault();
     }
-    if ( helpBut )
-	helpBut->activated.notify( mCB(this,uiDialogBody,provideHelp) );
+    if ( helpbut )
+	helpbut->activated.notify( mCB(this,uiDialogBody,provideHelp) );
 
     childrenInited = true;
 }
@@ -1087,31 +1087,31 @@ void uiDialogBody::initChildren()
 uiObject* uiDialogBody::createChildren()
 {
     if ( !setup.oktext_.isEmpty() )
-	okBut = new uiPushButton( centralWidget_, setup.oktext_, true );
+	okbut = new uiPushButton( centralWidget_, setup.oktext_, true );
     if ( !setup.canceltext_.isEmpty() )
-	cnclBut = new uiPushButton( centralWidget_, setup.canceltext_, true );
+	cnclbut = new uiPushButton( centralWidget_, setup.canceltext_, true );
 
     if ( setup.savebutton_ && !setup.savetext_.isEmpty() )
     {
 	if ( setup.savebutispush_ )
-	    saveBut_pb= new uiPushButton( centralWidget_, setup.savetext_,
-		    			  true);
+	    savebut_tb = new uiToolButton( centralWidget_, setup.savetext_,
+		    			   ioPixmap("savefmt.png") );
 	else
 	{
-	    saveBut_cb = new uiCheckBox( centralWidget_, setup.savetext_ );
-	    saveBut_cb->setChecked( setup.savechecked_ );
+	    savebut_cb = new uiCheckBox( centralWidget_, setup.savetext_ );
+	    savebut_cb->setChecked( setup.savechecked_ );
 	}
     }
     if ( !setup.helpid_.isEmpty() )
     {
 	const ioPixmap pixmap( "contexthelp.png" );
-	helpBut = new uiToolButton( centralWidget_, "&Help button", pixmap );
-	helpBut->setPrefWidthInChar( 5 );
+	helpbut = new uiToolButton( centralWidget_, "&Help button", pixmap );
+	helpbut->setPrefWidthInChar( 5 );
 	static bool shwhid = GetEnvVarYN( "DTECT_SHOW_HELP" );
 #ifdef __debug__
 	shwhid = true;
 #endif
-	helpBut->setToolTip( shwhid ? setup.helpid_.buf()
+	helpbut->setToolTip( shwhid ? setup.helpid_.buf()
 				    : "Help on this window" );
     }
     if ( !setup.menubar_ && !setup.dlgtitle_.isEmpty() )
@@ -1134,8 +1134,8 @@ uiObject* uiDialogBody::createChildren()
     }
 
     uiObject* lowestobj = dlgGroup->mainObject();
-    if ( setup.separator_ && ( okBut || cnclBut || saveBut_cb || 
-			       saveBut_pb || helpBut) )
+    if ( setup.separator_ && ( okbut || cnclbut || savebut_cb || 
+			       savebut_tb || helpbut) )
     {
 	horSepar = new uiSeparator( centralWidget_ );
 	horSepar->attach( stretchedBelow, dlgGroup, -2 );
@@ -1148,20 +1148,20 @@ uiObject* uiDialogBody::createChildren()
 
 void uiDialogBody::layoutChildren( uiObject* lowestobj )
 {
-    uiObject* leftbut = okBut;
-    uiObject* rightbut = cnclBut;
-    uiObject* exitbut = okBut ? okBut : cnclBut;
-    uiObject* centerbut = helpBut;
-    uiObject* extrabut = saveBut_pb;
+    uiObject* leftbut = okbut;
+    uiObject* rightbut = cnclbut;
+    uiObject* exitbut = okbut ? okbut : cnclbut;
+    uiObject* centerbut = helpbut;
+    uiObject* extrabut = savebut_tb;
 
-    if ( !okBut || !cnclBut )
+    if ( !okbut || !cnclbut )
     {
 	leftbut = rightbut = 0;
 	if ( exitbut )
 	{
 	    centerbut = exitbut;
-	    extrabut = helpBut;
-	    leftbut = saveBut_pb;
+	    extrabut = helpbut;
+	    leftbut = savebut_tb;
 	}
     }
 
@@ -1202,20 +1202,21 @@ void uiDialogBody::layoutChildren( uiObject* lowestobj )
 	    centerbut->attach( ensureLeftOf, rightbut );
     }
 
-    if ( saveBut_cb )
+    if ( savebut_cb )
     {
-	saveBut_cb->attach( extrabut ? leftOf : rightOf, exitbut );
+	savebut_cb->attach( extrabut ? leftOf : rightOf, exitbut );
 	if ( centerbut && centerbut != exitbut )
-	    centerbut->attach( ensureRightOf, saveBut_cb );
+	    centerbut->attach( ensureRightOf, savebut_cb );
 	if ( rightbut && rightbut != exitbut )
-	    rightbut->attach( ensureRightOf, saveBut_cb );
+	    rightbut->attach( ensureRightOf, savebut_cb );
     }
 
     if ( extrabut )
     {
 	extrabut->attach( rightOf, centerbut );
-	if ( rightbut )
-	    extrabut->attach( ensureLeftOf, rightbut );
+// TODO: Is this attach really necessary? For now disabled.
+//	if ( rightbut )
+//	    extrabut->attach( ensureLeftOf, rightbut );
     }
 }
 
