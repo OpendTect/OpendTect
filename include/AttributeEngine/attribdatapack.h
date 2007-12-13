@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.19 2007-05-30 12:11:29 cvsnanne Exp $
+ RCS:		$Id: attribdatapack.h,v 1.20 2007-12-13 09:07:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,8 @@ protected:
 class Flat2DDHDataPack : public Flat2DDataPack
 {
 public:
-    			Flat2DDHDataPack(DescID,const Data2DHolder&);
+    			Flat2DDHDataPack(DescID,const Data2DHolder&,
+					 bool usesingtrc = false);
 			~Flat2DDHDataPack();
     virtual const char*	sourceType() const	{ return "2D"; }
 
@@ -100,6 +101,7 @@ protected:
     const Data2DHolder& dh_;
     DataHolderArray*	array3d_;
     Array2DSlice<float>* arr2dsl_;
+    bool		usesingtrc_;
 
     void		setPosData();
 };
@@ -134,8 +136,11 @@ protected:
     const DataCubes&	cube_;
     Array2DSlice<float>* arr2dsl_;
     CubeSampling::Dir	dir_;
+    bool		usemultcubes_;
 
     void		setPosData();
+    void		createA2DSFromMultCubes();
+    void		createA2DSFromSingCube(int);
 };
 
 

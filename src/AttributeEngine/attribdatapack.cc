@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.23 2007-05-30 12:11:29 cvsnanne Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.24 2007-12-13 09:07:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,8 +50,29 @@ Flat3DDataPack::Flat3DDataPack( DescID did, const DataCubes& dc, int cubeidx )
     , DataPackCommon(did)
     , cube_(dc)
     , arr2dsl_(0)
+    , usemultcubes_( cubeidx == -1 )
 {
     cube_.ref();
+    if ( usemultcubes_ )
+	createA2DSFromMultCubes();
+    else
+	createA2DSFromSingCube( cubeidx );
+    
+    arr2dsl_->init();
+
+    setPosData();
+}
+
+
+Flat3DDataPack::~Flat3DDataPack()
+{
+    delete arr2dsl_;
+    cube_.unRef();
+}
+
+
+void Flat3DDataPack::createA2DSFromSingCube( int cubeidx )
+{
     int unuseddim, dim0, dim1;
     if ( cube_.getInlSz() < 2 )
     {
@@ -80,16 +101,13 @@ Flat3DDataPack::Flat3DDataPack( DescID did, const DataCubes& dc, int cubeidx )
     arr2dsl_->setPos( unuseddim, 0 );
     arr2dsl_->setDimMap( 0, dim0 );
     arr2dsl_->setDimMap( 1, dim1 );
-    arr2dsl_->init();
-
-    setPosData();
 }
-					
+	
 
-Flat3DDataPack::~Flat3DDataPack()
+//TODO addapt for usesingtrc_
+void Flat3DDataPack::createA2DSFromMultCubes()
 {
-    delete arr2dsl_;
-    cube_.unRef();
+    pErrMsg( "Not impl" );
 }
 
 
@@ -99,6 +117,7 @@ Array2D<float>& Flat3DDataPack::data()
 }
 
 
+//TODO addapt for usesingtrc_
 void Flat3DDataPack::setPosData()
 {
     const CubeSampling cs = cube_.cubeSampling();
@@ -116,6 +135,7 @@ void Flat3DDataPack::dumpInfo( IOPar& iop ) const
 }
 
 
+//TODO addapt for usesingtrc_
 Coord3 Flat3DDataPack::getCoord( int i0, int i1 ) const
 {
     int inlidx = i0; int crlidx = 0; int zidx = i1;
@@ -135,6 +155,7 @@ Coord3 Flat3DDataPack::getCoord( int i0, int i1 ) const
 #define mKeyX eString(SeisTrcInfo::Fld,SeisTrcInfo::CoordX)
 #define mKeyY eString(SeisTrcInfo::Fld,SeisTrcInfo::CoordY)
 
+//TODO addapt for usesingtrc_
 const char* Flat3DDataPack::dimName( bool dim0 ) const
 {
     return dim0 ? (dir_==CubeSampling::Inl ? mKeyCrl : mKeyInl)
@@ -142,6 +163,7 @@ const char* Flat3DDataPack::dimName( bool dim0 ) const
 }
 
 
+//TODO addapt for usesingtrc_
 void Flat3DDataPack::getAltDim0Keys( BufferStringSet& bss ) const
 {
     if ( dir_== CubeSampling::Crl )
@@ -153,6 +175,7 @@ void Flat3DDataPack::getAltDim0Keys( BufferStringSet& bss ) const
 }
 
 
+//TODO addapt for usesingtrc_
 double Flat3DDataPack::getAltDim0Value( int ikey, int i0 ) const
 {
     if ( ikey < 1 || ikey > 3 )
@@ -163,6 +186,7 @@ double Flat3DDataPack::getAltDim0Value( int ikey, int i0 ) const
 }
 
 
+//TODO addapt for usesingtrc_
 void Flat3DDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 {
     const Coord3 c( getCoord(i0,i1) );
@@ -200,16 +224,19 @@ const char* Flat2DDataPack::dimName( bool dim0 ) const
 }
 
 
-Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh )
-    : Flat2DDataPack(did)
-    , dh_(dh)
+Flat2DDHDataPack::Flat2DDHDataPack( DescID did, const Data2DHolder& dh,
+       				    bool usesingtrc )
+    : Flat2DDataPack( did )
+    , dh_( dh )
+    , usesingtrc_( usesingtrc )
 {
     dh_.ref();
 
     array3d_ = new DataHolderArray( dh_.dataset_, false );
     arr2dsl_ = new Array2DSlice<float>( *array3d_ );
-    arr2dsl_->setPos( 0, 0 );
-    arr2dsl_->setDimMap( 0, 1 );
+
+    arr2dsl_->setPos( 0, usesingtrc ? 1 : 0 );
+    arr2dsl_->setDimMap( 0, usesingtrc ? 0 : 1 );
     arr2dsl_->setDimMap( 1, 2 );
     arr2dsl_->init();
 
@@ -232,24 +259,32 @@ Array2D<float>& Flat2DDHDataPack::data()
 
 void Flat2DDHDataPack::setPosData()
 {
-    const int nrpos = dh_.trcinfoset_.size();
+    const int nrpos = usesingtrc_ ? array3d_->info().getSize(0)
+				  : dh_.trcinfoset_.size();
     if ( nrpos < 1 ) return;
 
-    float* pos = new float[nrpos]; pos[0] = 0;
-    Coord prevcrd = dh_.trcinfoset_[0]->coord;
-    for ( int idx=1; idx<nrpos; idx++ )
+    if ( usesingtrc_ )
+	posdata_.setRange( true, StepInterval<double>( 0, nrpos-1, 1 ) );
+    else
     {
-	Coord crd = dh_.trcinfoset_[idx]->coord;
-	pos[idx] = pos[idx-1] + dh_.trcinfoset_[idx-1]->coord.distTo( crd );
-	prevcrd = crd;
+	float* pos = new float[nrpos];
+	pos[0] = 0;
+	Coord prevcrd = dh_.trcinfoset_[0]->coord;
+	for ( int idx=1; idx<nrpos; idx++ )
+	{
+	    Coord crd = dh_.trcinfoset_[idx]->coord;
+	    pos[idx] = pos[idx-1] + dh_.trcinfoset_[idx-1]->coord.distTo( crd );
+	    prevcrd = crd;
+	}
+	posdata_.setX1Pos( pos, nrpos, 0 );
     }
 
     const StepInterval<float> zrg = dh_.getCubeSampling().zrg;
-    posdata_.setX1Pos( pos, nrpos, 0 );
     posdata_.setRange( false, mStepIntvD(zrg) );
 }
 
 
+//TODO addapt for usesingtrc_
 double Flat2DDHDataPack::getAltDim0Value( int ikey, int i0 ) const
 {
     return i0 < 0 || i0 >= dh_.trcinfoset_.size()
@@ -259,6 +294,7 @@ double Flat2DDHDataPack::getAltDim0Value( int ikey, int i0 ) const
 }
 
 
+//TODO addapt for usesingtrc_
 void Flat2DDHDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 {
     if ( i0 < 0 || i0 >= dh_.trcinfoset_.size() )
@@ -269,6 +305,7 @@ void Flat2DDHDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 }
 
 
+//TODO addapt for usesingtrc_
 Coord3 Flat2DDHDataPack::getCoord( int i0, int i1 ) const
 {
     if ( dh_.trcinfoset_.isEmpty() ) return Coord3();
