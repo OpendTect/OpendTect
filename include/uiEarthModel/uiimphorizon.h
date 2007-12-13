@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.h,v 1.22 2007-10-08 12:08:42 cvsraman Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.23 2007-12-13 06:01:27 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,6 @@ protected:
 
     uiFileInput*	inpfld_;
     uiPushButton*       scanbut_;
-    uiGenInput*		xyfld_;
     uiLabeledListBox*	attrlistfld_;
     uiPushButton*	addbut_;
     uiBinIDSubSel*	subselfld_;
@@ -72,7 +71,7 @@ protected:
 
     bool		getFileNames(BufferStringSet&) const;
     bool		checkInpFlds();
-    void		doScan();
+    bool		doScan();
     bool		doImport();
     bool                fillUdfs(ObjectSet<BinIDValueSet>&);
     EM::Horizon3D*	createHor() const;
