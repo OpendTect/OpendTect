@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.115 2007-12-12 15:44:40 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.116 2007-12-13 08:09:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,9 +17,10 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "uiattribpartserv.h"
 
+#include "uibutton.h"
+#include "uidockwin.h"
 #include "uilabel.h"
 #include "uislider.h"
-#include "uidockwin.h"
 #include "uisoviewer.h"
 #include "uilistview.h"
 #include "uiworkspace.h"
@@ -203,18 +204,19 @@ int uiODSceneMgr::addScene( bool maximized )
     treeToBeAdded.trigger( sceneid );
     initTree( scn, vwridx_ );
 
-    if ( scenes_.size() > 1 && scenes_[0] )
+    if ( scenes_.size()>1 && scenes_[0] )
     {
 	scn.sovwr_->setStereoType( scenes_[0]->sovwr_->getStereoType() );
 	scn.sovwr_->setStereoOffset(
 		scenes_[0]->sovwr_->getStereoOffset() );
+	scn.sovwr_->showRotAxis( scenes_[0]->sovwr_->rotAxisShown() );
     }
 
     return sceneid;
 }
 
 
-void uiODSceneMgr::afterFinalise( CallBacker* cb )
+void uiODSceneMgr::afterFinalise( CallBacker* )
 {
     dollywheel->display( true );
     hwheel->display( true );
@@ -500,11 +502,10 @@ void uiODSceneMgr::viewCrl( CallBacker* )
 { mDoAllScenes(sovwr_,viewPlane,uiSoViewer::Crl); }
 
 
-void uiODSceneMgr::showRotAxis( CallBacker* )
+void uiODSceneMgr::showRotAxis( CallBacker* cb )
 {
-    mDoAllScenes(sovwr_,showRotAxis,);
-    if ( scenes_.size() )
-	menuMgr().updateAxisMode( scenes_[0]->sovwr_->rotAxisShown() );
+    mDynamicCastGet(uiToolButton*,tb,cb)
+    mDoAllScenes(sovwr_,showRotAxis,tb?tb->isOn():false);
 }
 
 

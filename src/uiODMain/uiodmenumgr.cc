@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.106 2007-12-10 09:38:11 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.107 2007-12-13 08:09:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,7 +124,6 @@ void uiODMenuMgr::updateViewMode( bool isview )
 {
     cointb_->turnOn( viewid_, isview );
     cointb_->turnOn( actid_, !isview );
-    cointb_->setSensitive( axisid_, isview );
 }
 
 
