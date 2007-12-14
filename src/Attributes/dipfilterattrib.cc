@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.22 2007-11-09 16:53:52 cvshelene Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.23 2007-12-14 23:00:44 cvskris Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.22 2007-11-09 16:53:52 c
 #include "attribdesc.h"
 #include "attribfactory.h"
 #include "attribparam.h"
+#include "math2.h"
 
 #include <math.h>
 
@@ -180,7 +181,7 @@ bool DipFilter::initKernel()
 	    float kc = kci * crldist();
 	    float kc2 = kc*kc;
 
-	    float spatialdist = sqrt(ki2+kc2);
+	    float spatialdist = Sqrt(ki2+kc2);
 
 	    for ( int kti=-hsz; kti<=hsz; kti++ )
 	    {
