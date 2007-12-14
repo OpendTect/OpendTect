@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.24 2007-12-13 15:20:29 cvshelene Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.25 2007-12-14 05:30:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -191,14 +191,14 @@ void GapDeconACorrView::setUpViewWin( bool isqc )
     StepInterval<double> newrg( 0, cs_.zrg.stop-cs_.zrg.start, cs_.zrg.step );
     dp->posData().setRange( false, newrg );
 
-    uiFlatViewMainWin*& win = isqc ? qcwin_ : examwin_;
-    if ( win )
-	win->viewer().setPack( false, dp->id(), false, false );
+    uiFlatViewMainWin*& fvwin = isqc ? qcwin_ : examwin_;
+    if ( fvwin )
+	fvwin->viewer().setPack( false, dp->id(), false, false );
     else
     {
-	win = new uiFlatViewMainWin( 0,
+	fvwin = new uiFlatViewMainWin( 0,
 		uiFlatViewMainWin::Setup( isqc ? qctitle_ : examtitle_ ) );
-	uiFlatViewer& vwr = win->viewer();
+	uiFlatViewer& vwr = fvwin->viewer();
 	vwr.setPack( false, dp->id(), false, true );
 	vwr.setDarkBG( false );
 	FlatView::Appearance& app = vwr.appearance();
@@ -207,8 +207,8 @@ void GapDeconACorrView::setUpViewWin( bool isqc )
 	app.ddpars_.show( false, true );
 	vwr.appearance().ddpars_.vd_.rg_ = Interval<float>( -0.2, 0.2 );
 	vwr.setInitialSize( uiSize(600,400) );
-	win->addControl( new uiFlatViewStdControl( vwr,
-			      uiFlatViewStdControl::Setup(0) ) );
+	fvwin->addControl(
+		new uiFlatViewStdControl(vwr,uiFlatViewStdControl::Setup(0)) );
     }
 }
 
