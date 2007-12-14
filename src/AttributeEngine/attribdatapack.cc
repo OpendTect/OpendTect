@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.24 2007-12-13 09:07:04 cvshelene Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.25 2007-12-14 17:05:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,13 @@ Flat3DDataPack::Flat3DDataPack( DescID did, const DataCubes& dc, int cubeidx )
     , usemultcubes_( cubeidx == -1 )
 {
     cube_.ref();
+    if ( cube_.getInlSz() < 2 )
+	dir_ = CubeSampling::Inl;
+    else if ( cube_.getCrlSz() < 2 )
+	dir_ = CubeSampling::Crl;
+    else
+	dir_ = CubeSampling::Z;
+	
     if ( usemultcubes_ )
 	createA2DSFromMultCubes();
     else
@@ -76,21 +83,18 @@ void Flat3DDataPack::createA2DSFromSingCube( int cubeidx )
     int unuseddim, dim0, dim1;
     if ( cube_.getInlSz() < 2 )
     {
-	dir_ = CubeSampling::Inl;
 	unuseddim = DataCubes::cInlDim();
 	dim0 = DataCubes::cCrlDim();
 	dim1 = DataCubes::cZDim();
     }
     else if ( cube_.getCrlSz() < 2 )
     {
-	dir_ = CubeSampling::Crl;
 	unuseddim = DataCubes::cCrlDim();
 	dim0 = DataCubes::cInlDim();
 	dim1 = DataCubes::cZDim();
     }
     else
     {
-	dir_ = CubeSampling::Z;
 	unuseddim = DataCubes::cZDim();
 	dim0 = DataCubes::cInlDim();
 	dim1 = DataCubes::cCrlDim();
@@ -104,10 +108,29 @@ void Flat3DDataPack::createA2DSFromSingCube( int cubeidx )
 }
 	
 
-//TODO addapt for usesingtrc_
 void Flat3DDataPack::createA2DSFromMultCubes()
 {
-    pErrMsg( "Not impl" );
+    const CubeSampling cs = cube_.cubeSampling();
+    bool isvert = cs.nrZ() > 1;
+    int dim0sz = isvert ? cube_.nrCubes()
+			: dir_==CubeSampling::Inl ? cube_.getCrlSz()
+						  : cube_.getInlSz();
+    int dim1sz = isvert ? cube_.getZSz() : cube_.nrCubes();
+
+    Array2DImpl<float> arr2d( dim0sz, dim1sz );
+    for ( int id0=0; id0<dim0sz; id0++ )
+	for ( int id1=0; id1<dim1sz; id1++ )
+	{
+	    float val = isvert ? cube_.getCube(id0).get( 0, 0, id1 )
+			       : dir_==CubeSampling::Inl 
+			       		? cube_.getCube(id1).get( 0, id0, 0 )
+			       		: cube_.getCube(id1).get( id0, 0, 0 );
+	    arr2d.set( id0, id1, val );
+	}
+    
+    arr2dsl_ = new Array2DSlice<float>( arr2d );
+    arr2dsl_->setDimMap( 0, 0 );
+    arr2dsl_->setDimMap( 1, 1 );
 }
 
 
@@ -117,14 +140,27 @@ Array2D<float>& Flat3DDataPack::data()
 }
 
 
-//TODO addapt for usesingtrc_
 void Flat3DDataPack::setPosData()
 {
     const CubeSampling cs = cube_.cubeSampling();
-    posdata_.setRange( true, dir_==CubeSampling::Inl
+    if ( usemultcubes_ )
+    {
+	StepInterval<int> cubeintv( 0, cube_.nrCubes(), 1 );
+	bool isvert = cs.nrZ() > 1;
+	posdata_.setRange( true, 
+	    isvert ? mStepIntvD(cubeintv)
+		   : dir_==CubeSampling::Inl ? mStepIntvD(cs.hrg.crlRange())
+					     : mStepIntvD(cs.hrg.inlRange()) );
+	posdata_.setRange(false, isvert ? mStepIntvD(cs.zrg)
+					: mStepIntvD(cubeintv) );
+    }
+    else
+    {
+	posdata_.setRange( true, dir_==CubeSampling::Inl
 	    ? mStepIntvD(cs.hrg.crlRange()) : mStepIntvD(cs.hrg.inlRange()) );
-    posdata_.setRange( false, dir_==CubeSampling::Z
+	posdata_.setRange( false, dir_==CubeSampling::Z
 	    ? mStepIntvD(cs.hrg.crlRange()) : mStepIntvD(cs.zrg) );
+    }
 }
 
 
@@ -135,16 +171,27 @@ void Flat3DDataPack::dumpInfo( IOPar& iop ) const
 }
 
 
-//TODO addapt for usesingtrc_
 Coord3 Flat3DDataPack::getCoord( int i0, int i1 ) const
 {
-    int inlidx = i0; int crlidx = 0; int zidx = i1;
-    if ( dir_ == CubeSampling::Inl )
-	{ inlidx = 0; crlidx = i0; }
-    else if ( dir_ == CubeSampling::Z )
-	{ crlidx = i1; zidx = 0; }
-
     const CubeSampling& cs = cube_.cubeSampling();
+    int inlidx = i0; int crlidx = 0; int zidx = i1;
+    if ( usemultcubes_ )
+    {
+	if ( cs.nrZ() > 1 )
+	    inlidx = 0;
+	else if ( dir_==CubeSampling::Inl )
+	    { inlidx = 0; crlidx = i0; zidx = 0; }
+	else
+	    { zidx = 0; }
+    }
+    else
+    {
+	if ( dir_ == CubeSampling::Inl )
+	    { inlidx = 0; crlidx = i0; }
+	else if ( dir_ == CubeSampling::Z )
+	    { crlidx = i1; zidx = 0; }
+    }
+
     const Coord c = SI().transform( cs.hrg.atIndex(inlidx,crlidx) );
     return Coord3(c.x,c.y,cs.zrg.atIndex(zidx));
 }
@@ -154,18 +201,30 @@ Coord3 Flat3DDataPack::getCoord( int i0, int i1 ) const
 #define mKeyCrl eString(SeisTrcInfo::Fld,SeisTrcInfo::BinIDCrl)
 #define mKeyX eString(SeisTrcInfo::Fld,SeisTrcInfo::CoordX)
 #define mKeyY eString(SeisTrcInfo::Fld,SeisTrcInfo::CoordY)
+#define mKeyCube "Series"
+//TODO : find a way to get a better name than "Series"
 
-//TODO addapt for usesingtrc_
 const char* Flat3DDataPack::dimName( bool dim0 ) const
 {
+    if ( usemultcubes_ )
+    {
+	if ( cube_.cubeSampling().nrZ() > 1 )
+	    return dim0 ? mKeyCube : "Z";
+	else if ( dir_ == CubeSampling::Inl )
+	    return dim0 ? mKeyCrl : mKeyCube;
+	else
+	    return dim0 ? mKeyInl : mKeyCube;
+    }
+    
     return dim0 ? (dir_==CubeSampling::Inl ? mKeyCrl : mKeyInl)
 		: (dir_==CubeSampling::Z ? mKeyCrl : "Z");
 }
 
 
-//TODO addapt for usesingtrc_
 void Flat3DDataPack::getAltDim0Keys( BufferStringSet& bss ) const
 {
+    if ( usemultcubes_ && cube_.cubeSampling().nrZ() > 1 )
+	bss.add( mKeyCube );
     if ( dir_== CubeSampling::Crl )
 	bss.add( mKeyInl );
     else
@@ -175,24 +234,27 @@ void Flat3DDataPack::getAltDim0Keys( BufferStringSet& bss ) const
 }
 
 
-//TODO addapt for usesingtrc_
 double Flat3DDataPack::getAltDim0Value( int ikey, int i0 ) const
 {
     if ( ikey < 1 || ikey > 3 )
 	 return FlatDataPack::getAltDim0Value( ikey, i0 );
 
+    if ( usemultcubes_ && cube_.cubeSampling().nrZ() > 1 )
+	return i0;	//TODO: now returning cube idx, what else can we do?
+    
     const Coord3 c( getCoord(i0,0) );
     return ikey == 1 ? c.x : c.y;
 }
 
 
-//TODO addapt for usesingtrc_
 void Flat3DDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 {
     const Coord3 c( getCoord(i0,i1) );
     iop.set( mKeyX, c.x );
     iop.set( mKeyY, c.y );
     iop.set( "Z", c.z );
+    if ( usemultcubes_ )
+	iop.set( mKeyCube, cube_.cubeSampling().nrZ() > 1 ? i0 : i1 );
 }
 
 
@@ -284,33 +346,33 @@ void Flat2DDHDataPack::setPosData()
 }
 
 
-//TODO addapt for usesingtrc_
 double Flat2DDHDataPack::getAltDim0Value( int ikey, int i0 ) const
 {
-    return i0 < 0 || i0 >= dh_.trcinfoset_.size()
-	|| ikey < 0 || ikey >= tiflds_.size()
+    bool isi0wrong = i0 < 0 || ( usesingtrc_ ? i0 >= dh_.dataset_[0]->nrSeries()
+	    				     : i0 >= dh_.trcinfoset_.size() );
+    return isi0wrong || ikey < 0 || ikey >= tiflds_.size()
 	 ? FlatDataPack::getAltDim0Value( ikey, i0 )
-	 : dh_.trcinfoset_[i0]->getValue( tiflds_[ikey] );
+	 : usesingtrc_ ? i0 	//what else can we do?
+	 	       : dh_.trcinfoset_[i0]->getValue( tiflds_[ikey] );
 }
 
 
-//TODO addapt for usesingtrc_
 void Flat2DDHDataPack::getAuxInfo( int i0, int i1, IOPar& iop ) const
 {
-    if ( i0 < 0 || i0 >= dh_.trcinfoset_.size() )
-	return;
-    const SeisTrcInfo& ti = *dh_.trcinfoset_[i0];
+    int trcinfoidx = usesingtrc_ ? 0 : i0;
+    if ( trcinfoidx<0 || trcinfoidx>= dh_.trcinfoset_.size() ) return;
+    
+    const SeisTrcInfo& ti = *dh_.trcinfoset_[ trcinfoidx ];
     ti.getInterestingFlds( Seis::Line, iop );
     iop.set( "Z-Coord", ti.samplePos(i1) );
 }
 
 
-//TODO addapt for usesingtrc_
 Coord3 Flat2DDHDataPack::getCoord( int i0, int i1 ) const
 {
     if ( dh_.trcinfoset_.isEmpty() ) return Coord3();
 
-    if ( i0 < 0 ) i0 = 0;
+    if ( i0 < 0 || usesingtrc_ ) i0 = 0;
     if ( i0 >= dh_.trcinfoset_.size() ) i0 = dh_.trcinfoset_.size() - 1;
     const SeisTrcInfo& ti = *dh_.trcinfoset_[i0];
     return Coord3( ti.coord, ti.sampling.atIndex(i1) );
