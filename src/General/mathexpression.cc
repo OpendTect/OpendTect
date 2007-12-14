@@ -4,14 +4,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2000
- RCS:           $Id: mathexpression.cc,v 1.36 2007-01-15 14:20:13 cvshelene Exp $
+ RCS:           $Id: mathexpression.cc,v 1.37 2007-12-14 23:11:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "mathexpressionimpl.h"
+#include "mathexpression.h"
 #include "ctype.h"
 #include "ptrman.h"
+#include "math2.h"
+#include "statrand.h"
+#include "statruncalc.h"
+#include "undefval.h"
+
+#include <math.h>
 
 #define absolute( str, idx, inabs) \
     if ( str[idx]=='|' && !(str[idx+1]=='|' || (idx && str[idx-1]=='|') ) ) \
@@ -20,6 +26,380 @@ ________________________________________________________________________
 #ifndef M_PI
 # define M_PI           3.14159265358979323846  /* pi */
 #endif
+
+
+
+class MathExpressionVariable : public MathExpression
+{
+public:
+				MathExpressionVariable( const char* str_ )
+				    : MathExpression( 0 )		
+				    , str( new char[strlen(str_)+1] )
+				{ strcpy( str, str_ ); }
+
+				~MathExpressionVariable() { delete [] str; }
+
+    const char*			getVariableStr( int ) const
+				{ return str; }
+
+    int				getNrVariables() const { return 1; }
+
+    float			getValue() const
+				{
+				    return val;
+				}
+
+    void			setVariable( int, float nv )
+				{ val = nv; }
+
+    MathExpression*		clone() const
+				{
+				    MathExpression* res =
+						new MathExpressionVariable(str);
+				    copyInput( res );
+				    return res;
+				}
+
+
+protected:
+    float 			val;
+    char*			str;
+};
+
+
+class MathExpressionConstant : public MathExpression
+{
+public:
+				MathExpressionConstant( float val_ )
+				    : val ( val_ )
+				    , MathExpression( 0 )		{}
+
+    float			getValue() const { return val; }
+
+    MathExpression*		clone() const
+				{
+				    MathExpression* res =
+						new MathExpressionConstant(val);
+				    copyInput( res );
+				    return res;
+				}
+
+protected:
+    float 			val;
+};
+
+
+#define mMathExpressionClass( clss, nr ) \
+class MathExpression##clss : public MathExpression \
+{ \
+public: \
+			MathExpression##clss() \
+			    : MathExpression( nr )		{} \
+ \
+    float		getValue() const; \
+ \
+    MathExpression*	clone() const \
+			{ \
+			    MathExpression* res = \
+					new MathExpression##clss(); \
+			    copyInput( res ); \
+			    return res; \
+			} \
+};
+
+
+mMathExpressionClass( Plus, 2 )
+float MathExpressionPlus::getValue() const
+{
+    float val0 = inputs[0]->getValue();
+    float val1 = inputs[1]->getValue();
+    if ( Values::isUdf(val0) || Values::isUdf(val1) )
+	return mUdf(float);
+    return val0+val1;
+}
+
+
+mMathExpressionClass( Minus, 2 )
+float MathExpressionMinus::getValue() const
+{
+    float val0 = inputs[0]->getValue();
+    float val1 = inputs[1]->getValue();
+    if ( Values::isUdf(val0) || Values::isUdf(val1) )
+	return mUdf(float);
+
+    return val0-val1;
+}
+
+
+mMathExpressionClass( Multiply, 2 )
+float MathExpressionMultiply::getValue() const
+{
+    float val0 = inputs[0]->getValue();
+    float val1 = inputs[1]->getValue();
+    if ( Values::isUdf(val0) || Values::isUdf(val1) )
+	return mUdf(float);
+
+    return val0*val1;
+}
+
+
+mMathExpressionClass( Divide, 2 )
+float MathExpressionDivide::getValue() const
+{
+    float val0 = inputs[0]->getValue();
+    float val1 = inputs[1]->getValue();
+    if ( Values::isUdf(val0) || Values::isUdf(val1) || mIsZero(val1,mDefEps) )
+	return mUdf(float);
+
+    return val0/val1;
+}
+
+
+mMathExpressionClass( Abs, 1 )
+float MathExpressionAbs::getValue() const
+{
+    return fabs(inputs[0]->getValue());
+}
+
+
+mMathExpressionClass( Power, 2 )
+float MathExpressionPower::getValue() const
+{
+    float val0 = inputs[0]->getValue();
+    float val1 = inputs[1]->getValue();
+    if ( Values::isUdf(val0) || Values::isUdf(val1) )
+	return mUdf(float);
+
+    if ( val0 < 0 )
+    {
+	int val1int = (int)val1;
+	if ( !mIsEqual(val1,val1int,mDefEps) )
+	    return mUdf(float);
+    }
+
+    return pow(val0,val1);
+}
+
+
+mMathExpressionClass( Condition, 3 )
+float MathExpressionCondition::getValue() const
+{
+    float val0 = inputs[0]->getValue();
+    float val1 = inputs[1]->getValue();
+    float val2 = inputs[2]->getValue();
+    if ( Values::isUdf(val0) )
+	return mUdf(float);
+
+    return !mIsZero(val0,mDefEps) ? val1 : val2;
+}
+
+
+mMathExpressionClass( LessOrEqual, 2 )
+float MathExpressionLessOrEqual::getValue() const
+{
+    float val0 = inputs[0]->getValue();
+    float val1 = inputs[1]->getValue();
+    if ( Values::isUdf(val0) || Values::isUdf(val1) )
+	return mUdf(float);
+
+    return val0 <= val1;
+}
+
+
+mMathExpressionClass( Less, 2 )
+float MathExpressionLess::getValue() const
+{
+    float val0 = inputs[0]->getValue();
+    float val1 = inputs[1]->getValue();
+    if ( Values::isUdf(val0) || Values::isUdf(val1) )
+	return mUdf(float);
+
+    return val0 < val1;
+}
+
+
+mMathExpressionClass( MoreOrEqual, 2 )
+float MathExpressionMoreOrEqual::getValue() const
+{
+    float val0 = inputs[0]->getValue();
+    float val1 = inputs[1]->getValue();
+    if ( Values::isUdf(val0) || Values::isUdf(val1) )
+	return mUdf(float);
+
+    return val0 >= val1;
+}
+
+
+mMathExpressionClass( More, 2 )
+float MathExpressionMore::getValue() const
+{
+    float val0 = inputs[0]->getValue();
+    float val1 = inputs[1]->getValue();
+    if ( Values::isUdf(val0) || Values::isUdf(val1) )
+	return mUdf(float);
+
+    return val0 > val1;
+}
+
+
+mMathExpressionClass( Equal, 2 )
+float MathExpressionEqual::getValue() const
+{
+    float val0 = inputs[0]->getValue();
+    float val1 = inputs[1]->getValue();
+
+    const bool val0udf = Values::isUdf(val0);
+    const bool val1udf = Values::isUdf(val1);
+
+    const int sum = val0udf + val1udf;
+    if ( !sum )
+	return mIsEqual(val0,val1,mDefEps);
+    else if ( sum==2 )
+	return true;
+
+    return false;
+}
+
+
+mMathExpressionClass( NotEqual, 2 )
+float MathExpressionNotEqual::getValue() const
+{
+    float val0 = inputs[0]->getValue();
+    float val1 = inputs[1]->getValue();
+
+    const bool val0udf = Values::isUdf(val0);
+    const bool val1udf = Values::isUdf(val1);
+
+    const int sum = val0udf + val1udf;
+    if ( !sum )
+	return !mIsEqual(val0,val1,mDefEps);
+    else if ( sum==2 )
+	return false;
+
+    return true;
+}
+
+
+mMathExpressionClass( OR, 2 )
+float MathExpressionOR::getValue() const
+{
+    float val0 = inputs[0]->getValue();
+    float val1 = inputs[1]->getValue();
+    if ( Values::isUdf(val0) || Values::isUdf(val1) )
+	return mUdf(float);
+
+    return !mIsZero(val0,mDefEps) || !mIsZero(val1,mDefEps);
+}
+
+
+mMathExpressionClass( AND, 2 )
+float MathExpressionAND::getValue() const
+{
+    float val0 = inputs[0]->getValue();
+    float val1 = inputs[1]->getValue();
+    if ( Values::isUdf(val0) || Values::isUdf(val1) )
+	return mUdf(float);
+
+    return !mIsZero(val0,mDefEps) && !mIsZero(val1,mDefEps);
+}
+
+
+mMathExpressionClass( Random, 1 )
+float MathExpressionRandom::getValue() const
+{
+    double maxval = inputs[0]->getValue();
+    if ( Values::isUdf(maxval) )
+	return mUdf(float);
+
+    Stats::RandGen::init();
+    return maxval * Stats::RandGen::get();
+}
+
+
+mMathExpressionClass( GaussRandom, 1 )
+float MathExpressionGaussRandom::getValue() const
+{
+    const double stdev = inputs[0]->getValue();
+    if ( Values::isUdf(stdev) )
+	return mUdf(float);
+
+    Stats::RandGen::init( 0 );
+    return Stats::RandGen::getNormal(0,stdev);
+}
+
+
+#define mMathExpressionOper( clss, func ) \
+class MathExpression##clss : public MathExpression \
+{ \
+public: \
+			MathExpression##clss() \
+			    : MathExpression( 1 )		{} \
+ \
+    float		getValue() const \
+			{ \
+			    float val = inputs[0]->getValue(); \
+			    if ( Values::isUdf(val) ) \
+				return mUdf(float); \
+ \
+			    float out = func(val); \
+			    return out == out ? out : mUdf(float); \
+			} \
+ \
+    MathExpression*	clone() const \
+			{ \
+			    MathExpression* res = \
+					new MathExpression##clss(); \
+			    copyInput( res ); \
+			    return res; \
+			} \
+};
+
+
+mMathExpressionOper( Sine, sin )
+mMathExpressionOper( ArcSine, ASin )
+mMathExpressionOper( Cosine, cos )
+mMathExpressionOper( ArcCosine, ACos )
+mMathExpressionOper( Tangent, tan )
+mMathExpressionOper( ArcTangent, atan )
+mMathExpressionOper( Log, Log10 )
+mMathExpressionOper( NatLog, Log )
+mMathExpressionOper( Exp, exp )
+mMathExpressionOper( Sqrt, Sqrt );
+
+
+#define mMathExpressionStats( statnm ) \
+class MathExpression##statnm : public MathExpression \
+{ \
+public: \
+			MathExpression##statnm( int nrvals ) \
+			    : MathExpression( nrvals )		{} \
+ \
+    float		getValue() const \
+			{ \
+			    Stats::RunCalc<float> stats( \
+				Stats::RunCalcSetup().require(Stats::statnm)); \
+			    for ( int idx=0; idx<inputs.size(); idx++) \
+				stats += inputs[idx]->getValue(); \
+ \
+			    return stats.getValue(Stats::statnm); \
+			} \
+ \
+    MathExpression*	clone() const \
+			{ \
+			    MathExpression* res = \
+				new MathExpression##statnm( inputs.size() ); \
+			    copyInput( res ); \
+			    return res; \
+			} \
+};
+
+
+mMathExpressionStats( Min );
+mMathExpressionStats( Max );
+mMathExpressionStats( Sum );
+mMathExpressionStats( Median );
+mMathExpressionStats( Average );
+mMathExpressionStats( Variance );
 
 
 const char* MathExpression::getVariableStr( int var ) const
