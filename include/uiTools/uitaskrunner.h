@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2007
- RCS:           $Id: uitaskrunner.h,v 1.1 2007-12-13 19:26:39 cvskris Exp $
+ RCS:           $Id: uitaskrunner.h,v 1.2 2007-12-14 19:51:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,10 +53,8 @@ protected:
     void		updateFields();
     void		onFinalise(CallBacker*);
     void		timerTick(CallBacker*);
-    //virtual void	execFinished();	// Called when work is done (or aborted)
     virtual bool        acceptOK(CallBacker*);
 
-    virtual void	doFinalise()		{}
     virtual bool        rejectOK(CallBacker*);
 
     void		init();
