@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: math2.h,v 1.3 2007-03-30 15:16:09 cvskris Exp $
+ RCS:		$Id: math2.h,v 1.4 2007-12-14 22:43:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,15 @@ double		ASin(double);
 double		ACos(double);
 		/*!<Checks the input range before calling acos, and does thus
 		    avoid nan's due to roundoff errors. */
+double		Log(double);
+                /*!<Checks the input range before calling log, returns
+		    undefined if negative or zero value is given. */
+double		Log10(double);
+                /*!<Checks the input range before calling log10, returns
+		    undefined if negative or zero value is given. */
+double		Sqrt(double);
+                /*!<Checks the input range before calling sqrt, if negative
+		    value is given, zero is returned. */
 
 #ifdef __cpp__
 }

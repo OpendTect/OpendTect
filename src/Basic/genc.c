@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.87 2007-09-14 07:13:24 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.88 2007-12-14 22:43:48 cvskris Exp $";
 
 #include "genc.h"
 #include "math2.h"
@@ -309,3 +309,26 @@ double ASin( double s )
     if ( s<=-1 ) return -M_PI_2;
     return asin( s );
 }
+
+
+double Log( double s )
+{
+        if ( s<=0 ) return mcUndefValue;
+	    return log( s );
+}
+
+
+double Log10( double s )
+{
+        if ( s<=0 ) return mcUndefValue;
+	    return log10( s );
+}
+
+
+double Sqrt( double s )
+{
+        if ( s<=0 )
+	            return 0;
+	    return sqrt( s );
+}
+
