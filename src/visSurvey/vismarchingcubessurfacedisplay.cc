@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.14 2007-10-30 20:19:40 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.15 2007-12-14 16:34:57 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -51,6 +51,7 @@ MarchingCubesDisplay::MarchingCubesDisplay()
     , minsamplecrlsz_( 0 )						
     , minsamplezsz_( 0 )
     , previoussample_( false )
+    , kerneldragger_( 0 )			 
     , kernelpickstyle_( 0 )			     
     , kernelellipsoid_( 0 )
     , kernelsize_( Coord3(0, 0, 0) )
