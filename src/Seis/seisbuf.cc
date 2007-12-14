@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.37 2007-11-23 11:59:06 cvsbert Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.38 2007-12-14 19:52:19 cvskris Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -375,6 +375,7 @@ SeisTrcBufDataPack::SeisTrcBufDataPack( const SeisTrcBufDataPack& b )
 {
     SeisTrcBuf* buf = b.trcBuf().clone();
     setBuffer( buf, b.gt_, b.posfld_, b.trcBufArr2D().getComp() );
+    setName( b.name() );
 }
     
 
