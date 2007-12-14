@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uiattribfactory.cc,v 1.7 2007-02-12 09:53:53 cvsnanne Exp $
+ RCS:		$Id: uiattribfactory.cc,v 1.8 2007-12-14 05:15:23 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ uiAttributeFactory& uiAF()
     if ( !inst )
     {
 	inst = new uiAttributeFactory;
-	inst->fillStd();
     }
     return *inst;
 }
@@ -95,42 +94,3 @@ const char* uiAttributeFactory::attrNameOf( const char* attrnm ) const
     return entry ? ((const char*)entry->attrnm_) : 0;
 }
 
-#include "uicoherencyattrib.h"
-#include "uiconvolveattrib.h"
-#include "uidipfilterattrib.h"
-#include "uienergyattrib.h"
-#include "uieventattrib.h"
-#include "uifingerprintattrib.h"
-#include "uifrequencyattrib.h"
-#include "uifreqfilterattrib.h"
-#include "uiinstantattrib.h"
-#include "uimathattrib.h"
-#include "uipositionattrib.h"
-#include "uireferenceattrib.h"
-#include "uiscalingattrib.h"
-#include "uishiftattrib.h"
-#include "uisimilarityattrib.h"
-#include "uispecdecompattrib.h"
-#include "uivolstatsattrib.h"
-
-
-void uiAttributeFactory::fillStd()
-{
-    uiCoherencyAttrib::initClass();
-    uiConvolveAttrib::initClass();
-    uiDipFilterAttrib::initClass();
-    uiEnergyAttrib::initClass();
-    uiEventAttrib::initClass();
-    uiFingerPrintAttrib::initClass();
-    uiFrequencyAttrib::initClass();
-    uiFreqFilterAttrib::initClass();
-    uiInstantaneousAttrib::initClass();
-    uiMathAttrib::initClass();
-    uiPositionAttrib::initClass();
-    uiReferenceAttrib::initClass();
-    uiScalingAttrib::initClass();
-    uiShiftAttrib::initClass();
-    uiSimilarityAttrib::initClass();
-    uiSpecDecompAttrib::initClass();
-    uiVolumeStatisticsAttrib::initClass();
-}

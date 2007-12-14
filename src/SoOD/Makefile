@@ -2,11 +2,13 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.21 2007-11-19 13:50:16 cvskris Exp $
+#	RCS :		$Id: Makefile,v 1.22 2007-12-14 05:15:23 cvssatyaki Exp $
 #_______________________________________________________________________________
 
 
-SRC.cc	:=	SoScale3Dragger.cc \
+SRC.cc	:=	initsood.cc \
+		SoOD.cc \
+		SoScale3Dragger.cc \
 		SoCameraInfo.cc \
 		SoCameraInfoElement.cc \
 		SoCameraFacingZAxisRotation.cc \
@@ -30,7 +32,6 @@ SRC.cc	:=	SoScale3Dragger.cc \
 		SoGridSurfaceDragger.cc \
 		SoArrow.cc \
 		SoIndexedLineSet3D.cc \
-		SoOD.cc \
 		UTMCamera.cc \
 		UTMElement.cc \
 		UTMPosition.cc 

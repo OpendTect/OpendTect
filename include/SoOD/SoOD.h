@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoOD.h,v 1.3 2007-03-07 16:08:48 cvskris Exp $
+ RCS:		$Id: SoOD.h,v 1.4 2007-12-14 05:15:23 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -18,7 +18,6 @@ ________________________________________________________________________
 class SoOD
 {
 public:
-static void		init();
 static int		supportsFragShading();
     			/*!<\retval -1 not supported
 			    \retval  0 don't know

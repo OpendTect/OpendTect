@@ -11,7 +11,7 @@
 #include <Inventor/SoInput.h>
 #include <Inventor/lists/SbStringList.h>
 #include <Inventor/nodes/SoSeparator.h>
-#include "SoOD.h"
+#include "initsood.h"
 
 /*! \brief
 oifileviewer is a program that lets the user display oi files. These can 
@@ -30,7 +30,7 @@ int main( int narg, char** argv )
 #else
     QWidget* myWindow = SoQt::init( narg, argv, argv[0] );
 #endif
-    SoOD::init();
+    SoOD::initStdClasses();
     SoVolumeRendering::init();
 
     if ( myWindow==NULL ) return 1;

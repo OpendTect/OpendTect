@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.85 2007-12-06 20:05:44 cvskris Exp $
+ RCS:           $Id: uiodmain.cc,v 1.86 2007-12-14 05:15:23 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,10 +50,19 @@ ________________________________________________________________________
 #include "timer.h"
 
 #include "initalgo.h"
-#include "initvolumeprocessing.h"
+#include "initattributes.h"
+#include "initatrributeengine.h"
+#include "initearthmodel.h"
+#include "initmpeengine.h"
 #include "initprestackprocessing.h"
+#include "initseis.h"
+#include "initsood.h"
+#include "inituiattributes.h"
+#include "inituimpe.h"
 #include "inituivolumeprocessing.h"
 #include "inituiprestackprocessing.h"
+#include "initvissurvey.h"
+#include "initvolumeprocessing.h"
 
 #ifndef USEQT3
 # include "uisplashscreen.h"
@@ -76,18 +85,31 @@ uiODMain* ODMainWin()
 }
 
 
+void initAll()
+{
+    Algo::initStdClasses();
+    EarthModel::initStdClasses();
+    Seis::initStdClasses();
+    AttributeEngine::initStdClasses();
+    PreStackProcessing::initStdClasses();
+    VolumeProcessing::initStdClasses();
+    Attributes::initStdClasses();
+    MPEEngine::initStdClasses();
+
+    uiAttributes::initStdClasses();
+    uiVolumeProcessing::initStdClasses();
+    uiPreStackProcessing::initStdClasses();
+    uiMPE::initStdClasses();
+}
+
+
 int ODMain( int argc, char** argv )
 {
     PIM().setArgs( argc, argv );
     PIM().loadAuto( false );
     uiODMain* odmain = new uiODMain( *new uicMain(argc,argv) );
 
-    Algo::initStdClasses();
-    PreStackProcessing::initStdClasses();
-    VolumeProcessing::initStdClasses();
-
-    uiVolumeProcessing::initStdClasses();
-    uiPreStackProcessing::initStdClasses();
+    initAll();
 
 #ifndef USEQT3
     ioPixmap pm( mGetSetupFileName("splash.png") );

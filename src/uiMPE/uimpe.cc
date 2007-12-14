@@ -4,16 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: uimpe.cc,v 1.4 2007-03-29 11:39:23 cvsjaap Exp $
+ RCS:           $Id: uimpe.cc,v 1.5 2007-12-14 05:15:23 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimpe.h"
-
-#include "uiemhorizoneditor.h"
-#include "uifaulttracksetup.h"
-#include "uihorizontracksetup.h"
 
 namespace MPE
 {
@@ -82,10 +78,6 @@ uiMPEEngine& uiMPE()
     {
 	uiengine = new uiMPEEngine;
 	
-	//init standard classes
-	uiEMHorizonEditor::initClass();
-	uiHorizonSetupGroup::initClass();
-	uiFaultSetupGroup::initClass();
     }
 
     return *uiengine;

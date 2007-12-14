@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.63 2007-09-03 14:14:02 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.64 2007-12-14 05:15:23 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,6 @@ uiMPEPartServer::uiMPEPartServer( uiApplService& a )
     , temptrackerid_(-1)
     , cursceneid_(-1)
 {
-    MPE::initStandardClasses();
     MPE::engine().setActiveVolume( MPE::engine().getDefaultActiveVolume() );
     MPE::engine().activevolumechange.notify(
 	    mCB(this, uiMPEPartServer, activeVolumeChange) );

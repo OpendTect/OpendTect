@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.80 2007-12-12 06:45:56 cvsraman Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.81 2007-12-14 05:15:23 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "attribdescsettr.h"
 #include "attribengman.h"
 #include "attribfactory.h"
-#include "attribinit.h"
 #include "attribposvecoutput.h"
 #include "attribprocessor.h"
 #include "attribsel.h"
@@ -86,8 +85,6 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
 	, stored2dmnuitem_("&Stored 2D Data")
 	, stored3dmnuitem_("Stored &Cubes")
 {
-    initAttribClasses();
-    StorageProvider::initClass();
     attrsetclosetim_.tick.notify( 
 			mCB(this,uiAttribPartServer,attrsetDlgCloseTimTick) );
 

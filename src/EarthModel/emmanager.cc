@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.66 2007-11-14 20:31:41 cvskris Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.67 2007-12-14 05:15:23 cvssatyaki Exp $";
 
 #include "emmanager.h"
 
@@ -32,7 +32,6 @@ EM::EMManager& EM::EMM()
 
     if ( !emm )
     {
-	EM::EMManager::initClasses();
 	emm = new EM::EMManager;
     }
 
@@ -115,16 +114,6 @@ const char* EMManager::objectType( const MultiID& mid ) const
 
     return EMOF().getNames()[idx]->buf();
 }
-
-
-void EMManager::initClasses()
-{
-    Horizon3D::initClass();
-    Fault::initClass();
-    EM::MarchingCubesSurface::initClass();
-    Horizon2D::initClass();
-    HorizonZTransform::initClass();
-} 
 
 
 ObjectID EMManager::createObject( const char* type, const char* name )
