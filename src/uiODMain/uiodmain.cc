@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.86 2007-12-14 05:15:23 cvssatyaki Exp $
+ RCS:           $Id: uiodmain.cc,v 1.87 2007-12-14 05:55:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ ________________________________________________________________________
 
 #include "initalgo.h"
 #include "initattributes.h"
-#include "initatrributeengine.h"
+#include "initattributeengine.h"
 #include "initearthmodel.h"
 #include "initmpeengine.h"
 #include "initprestackprocessing.h"
