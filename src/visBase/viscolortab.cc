@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: viscolortab.cc,v 1.38 2007-10-22 08:42:02 cvsraman Exp $
+ RCS:           $Id: viscolortab.cc,v 1.39 2007-12-14 23:09:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "scaler.h"
 #include "visdataman.h"
+#include "math2.h"
 
 mCreateFactoryEntry( visBase::VisColorTab );
 
@@ -152,7 +153,7 @@ int VisColorTab::nrSteps() const
 
 int VisColorTab::colIndex( float val ) const
 {
-    if ( mIsUdf(val) )
+    if ( !IsNormalNumber(val) || mIsUdf(val) )
 	return nrSteps();
     return colseq_->colors().colorIdx( scale_.scale( val ), nrSteps() );
 }
