@@ -4,52 +4,42 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          Nov 2007
- RCS:           $Id: uiseistrcbufviewer.cc,v 1.7 2007-12-12 15:44:41 cvsbert Exp $
+<<<<<<< uiseistrcbufviewer.cc
+ RCS:           $Id: uiseistrcbufviewer.cc,v 1.8 2007-12-17 05:53:18 cvssatyaki Exp $
+=======
+ RCS:           $Id: uiseistrcbufviewer.cc,v 1.8 2007-12-17 05:53:18 cvssatyaki Exp $
+>>>>>>> 1.7
 ________________________________________________________________________
 
 -*/
 
-#include "uiseistrcbufviewer.h"
 #include "seisbufadapters.h"
 #include "seisinfo.h"
-#include "seisinfo.h"
+#include "seistrc.h"
+#include "ioobj.h"
+#include "ioman.h"
+#include "ptrman.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
 #include "uirgbarraycanvas.h"
+#include "uiseistrcbufviewer.h"
+
 
 uiSeisTrcBufViewer::uiSeisTrcBufViewer( uiParent* p, 
-	const uiSeisTrcBufViewer::Setup& setup, Seis::GeomType geom, 
-	SeisTrcBuf* tbuf )
+					const uiSeisTrcBufViewer::Setup& setup )
     : uiFlatViewMainWin( p, setup )      
-    , geom_(geom)
-    , app_(0)		 
     , vwr_(0)		 
-    , setup_(setup)		 
-    , stbufsetup_(setup)		 
-    , dp_(0)		 
 {
-    dp_ = new SeisTrcBufDataPack( tbuf, geom_, SeisTrcInfo::TrcNr, "" );
-    dp_->trcBufArr2D().setBufMine( false );
-    dp_->setName(stbufsetup_.nm_);
-    DPM( DataPackMgr::FlatID ).add( dp_ );
-    initialise();
-    setData( dp_ );
+    vwr_ = new uiFlatViewer(this);
+    vwr_->setInitialSize( uiSize(400,500) );
+    vwr_->setDarkBG( false );
+    FlatView::Appearance& app = vwr_->appearance();
+    app.annot_.setAxesAnnot( true );
+    app.setGeoDefaults( true );
+    app.ddpars_.wva_.overlap_ = 1;
+    addControl( new uiFlatViewStdControl( *vwr_, 
+		uiFlatViewStdControl::Setup(this).withstates(true) ) );
 }
-
-
-uiSeisTrcBufViewer::uiSeisTrcBufViewer(uiParent* p, 
-    const uiSeisTrcBufViewer::Setup& setup, FlatDataPack* datapack_ )
-    : uiFlatViewMainWin( p, setup )      
-    , app_(0)		 
-    , vwr_(0)		 
-    , setup_(setup)		 
-    , stbufsetup_(setup)		 
-    , dp_(0)		 
-{
-    initialise();
-    DataPack::ID dpid = datapack_->id();
-    setData( datapack_ );
-}		 
 
 
 uiSeisTrcBufViewer::~uiSeisTrcBufViewer()
@@ -58,32 +48,17 @@ uiSeisTrcBufViewer::~uiSeisTrcBufViewer()
 }
 
 
-void uiSeisTrcBufViewer::initialise()
+// TODO: look at nr of arguments
+SeisTrcBufDataPack* uiSeisTrcBufViewer::setTrcBuf( SeisTrcBuf* tbuf,
+				Seis::GeomType geom, SeisTrcInfo::Fld fld,
+				const char* category, const char* nm )
 {
-    vwr_ = new uiFlatViewer(this);
-    vwr_->setInitialSize( uiSize(400,500) );
-    app_ = &vwr_->appearance();
-    vwr_->setDarkBG( false );
-    app_->annot_.setAxesAnnot( true );
-    app_->setGeoDefaults( true );
-    app_->ddpars_.wva_.overlap_ = 1;
-}
-
-
-void uiSeisTrcBufViewer::setData( FlatDataPack* dp_ )
-{
-    vwr_->setPack( true, dp_->id(), false );
-    app_->ddpars_.show( true, false );
-    addControl( new uiFlatViewStdControl( *vwr_, 
-		uiFlatViewStdControl::Setup(this).withstates(true) ) );
-    start();
-}
-
-
-void uiSeisTrcBufViewer::update( SeisTrcBuf* tbuf, int compnr )
-{
-    dp_->setBuffer( tbuf,  geom_, SeisTrcInfo::TrcNr, compnr );
-    update();
+    SeisTrcBufDataPack* dp =
+	new SeisTrcBufDataPack( tbuf, geom, fld, category );
+    dp->setName( nm );
+    DPM( DataPackMgr::FlatID ).add( dp );
+    vwr_->addPack( dp->id() );
+    return dp;
 }
 
 

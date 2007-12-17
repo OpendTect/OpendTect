@@ -4,42 +4,40 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.10 2007-12-07 08:17:27 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.11 2007-12-17 05:53:18 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseisbrowser.h"
 
-#include "uitoolbar.h"
+#include "uibutton.h"
 #include "uilabel.h"
-#include "uitable.h"
 #include "uimsg.h"
-#include "uimainwin.h"
 #include "uigeninput.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
 #include "uiflatviewmainwin.h"
-#include "uibutton.h"
 #include "uiseistrcbufviewer.h"
+#include "uitable.h"
+#include "uitoolbar.h"
 #include "uitextedit.h"
 
-#include "arraynd.h"
-#include "seiscbvs.h"
-#include "seistrctr.h"
-#include "seistrc.h"
-#include "seisbuf.h"
-#include "seisinfo.h"
-#include "survinfo.h"
 #include "cbvsreadmgr.h"
-#include "cbvswritemgr.h"
 #include "datainpspec.h"
-#include "ioobj.h"
+#include "datapack.h"
 #include "ioman.h"
+#include "ioobj.h"
 #include "ptrman.h"
 #include "samplingdata.h"
+#include "seisbuf.h"
+#include "seiscbvs.h"
+#include "seisinfo.h"
+#include "seistrc.h"
+#include "seistrctr.h"
+#include "survinfo.h"
 
-class CBVSIO;
+
 
 uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& setup )
     : uiDialog(p,setup)
@@ -58,8 +56,6 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& setup )
     , sd_(0)
     , strcbufview_(0)
     , setup_(setup)
-    , painfo_(0)
-    , arr_(0)
 {
     if ( !openData(setup) )
     {
@@ -96,6 +92,7 @@ const BinID& uiSeisBrowser::curBinID() const
 {
     return ctrc_.info().binid;
 }
+
 
 const float uiSeisBrowser::curZ() const
 {
@@ -326,9 +323,11 @@ class uiSeisBrowserGoToDlg : public uiDialog
 public:
 
 uiSeisBrowserGoToDlg( uiParent* p, BinID cur, bool is2d, bool isps=false )
-    : uiDialog( p, uiDialog::Setup("Reposition","Specify a new position","0.0.0") )
+    : uiDialog( p, uiDialog::Setup("Reposition","Specify a new position",
+				   "0.0.0") )
 {
-    PositionInpSpec inpspec( PositionInpSpec::Setup(false,is2d,isps).binid(cur) );
+    PositionInpSpec inpspec(
+	    PositionInpSpec::Setup(false,is2d,isps).binid(cur) );
     posfld_ = new uiGenInput( this, "New Position", inpspec );
 }
 
@@ -388,15 +387,17 @@ void uiSeisBrowser::goToPush( CallBacker* )
     if ( dlg.go() )
 	/* user pressed OK AND input is OK */
 	setPos( dlg.pos_ );
-    if ( strcbufview_ )
-	strcbufview_->update( &tbuf_, compnr_ );
+    setTrcBufViewTitle();
+    if (strcbufview_)
+        strcbufview_->update();
 }
 
 
 void uiSeisBrowser::rightArrowPush( CallBacker* )
 {
     goTo( getNextBid(curBinID(),stepout_,false) );
-    if ( strcbufview_ )
+    setTrcBufViewTitle();
+    if (strcbufview_)
 	strcbufview_->update();
 }
 
@@ -404,6 +405,7 @@ void uiSeisBrowser::rightArrowPush( CallBacker* )
 void uiSeisBrowser::leftArrowPush( CallBacker* )
 {
     goTo( getNextBid(curBinID(),stepout_,true) );
+    setTrcBufViewTitle();
     if (strcbufview_)
 	strcbufview_->update();
 }
@@ -413,7 +415,9 @@ void uiSeisBrowser::switchViewTypePush( CallBacker* )
 {
     crlwise_ = uitb_->isOn( crlwisebutidx_ );
     doSetPos( curBinID(), true );
-    strcbufview_->update( &tbuf_, compnr_ );
+    setTrcBufViewTitle();
+    if (strcbufview_)
+	strcbufview_->update();
 }
 
 
@@ -470,23 +474,25 @@ bool uiSeisBrowser::acceptOK( CallBacker* )
 
 void uiSeisBrowser::showWigglePush( CallBacker* )
 {
-    BufferString title( "Central Trace : " );
-    title += curBinID().inl; title += "/";
-    title += curBinID().crl;
-
     if ( strcbufview_ )
-	strcbufview_->show();
+	strcbufview_->start();
     else
     {
-	const char* nm = IOM().nameOf( setup_.id_ );
-	uiSeisTrcBufViewer::Setup stbvsetup( title, nm );
-	strcbufview_ =
-	    new uiSeisTrcBufViewer( this, stbvsetup, setup_.geom_, &tbuf_ );
+	const char* name = IOM().nameOf( setup_.id_ );
+	uiSeisTrcBufViewer::Setup stbvsetup( title );
+	strcbufview_ = new uiSeisTrcBufViewer( this, stbvsetup );
+	SeisTrcBufDataPack* dp = strcbufview_->setTrcBuf
+	                            ( &tbuf_, setup_.geom_,SeisTrcInfo::TrcNr,
+		                      "Seismics", name);
+	dp->trcBufArr2D().setBufMine( false );
+	strcbufview_->getViewer()->usePack( true, dp->id() );
+	strcbufview_->start();
 	strcbufview_->windowClosed.notify(
 			 mCB(this,uiSeisBrowser,trcbufViewerClosed) );
     }
 
     updateWiggleButtonStatus();
+    setTrcBufViewTitle();
 }
 
 
@@ -509,5 +515,17 @@ void uiSeisBrowser::valChgReDraw( CallBacker* )
     SeisTrc* trace = tbuf_.get( rc.col );
     const float chgdval = tbl_->getfValue( rc );
     trace->set( rc.row, chgdval, compnr_ );
-    strcbufview_->update();
+    if (strcbufview_)
+	strcbufview_->update();
+}
+
+
+void uiSeisBrowser::setTrcBufViewTitle()
+{
+    BufferString title( "Central Trace :" );
+    title += curBinID().inl; title += "/";
+    title += curBinID().crl;
+    if (strcbufview_)
+        strcbufview_->setWinTitle( title );
+
 }

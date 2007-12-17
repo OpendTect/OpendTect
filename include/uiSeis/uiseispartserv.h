@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.23 2007-12-13 16:29:37 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.24 2007-12-17 05:53:18 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ class MultiID;
 class SeisTrcBuf;
 class uiPopupMenu;
 class uiFlatViewWin;
+class uiSeisTrcBufViewer;
 
 namespace PosInfo { class Line2DData; }
 
@@ -67,7 +68,7 @@ protected:
 
     bool		ioSeis(int,bool);
 
-    uiFlatViewWin*	viewwin_;
+    uiSeisTrcBufViewer*	strcbufview_;
     DataPack::ID	psseisdpid_;
     DataPack::ID	psfreqdpid_;
 

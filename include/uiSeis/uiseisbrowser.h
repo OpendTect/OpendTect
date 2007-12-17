@@ -7,13 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.7 2007-12-10 04:24:38 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.8 2007-12-17 05:53:18 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-#include "arraynd.h"
 #include "multiid.h"
 #include "seistype.h"
 #include "samplingdata.h"
@@ -21,15 +20,12 @@ ________________________________________________________________________
 #include "linekey.h"
 
 class CBVSSeisTrcTranslator;
-class CBVSWriteMgr;
-class PosAuxInfo;
 class SeisTrc;
 class SeisTrcBuf;
 class uiSeisTrcBufViewer;
+class SeisTrcBufDataPack;
 class uiTable;
-class uiToolButton;
 
-struct VBrickSpec;
 
 class uiSeisBrowser : public uiDialog
 {
@@ -61,7 +57,7 @@ public :
     void		setZ(float) ;
     void		setCrlWise( bool yn=true )	{ crlwise_ = yn; }
     void 		commitChanges();
-    void		goTo( const BinID& );
+    void		goTo(const BinID&);
 	
 
     int			stepOut()			{ return stepout_; }
@@ -74,14 +70,12 @@ public :
 protected:
 
     CBVSSeisTrcTranslator* tr_;
-    CBVSWriteMgr* 	wrtr_;
-    VBrickSpec* 	vbspec_;
     SeisTrcBuf&		tbuf_;
     SeisTrcBuf&		tbufchgdtrcs_;
     SeisTrc&		ctrc_;
-    PosAuxInfo*		painfo_;
     uiSeisTrcBufViewer*	strcbufview_;
     const uiSeisBrowser::Setup& setup_;
+    BufferString	title;
 
     bool		crlwise_;
     int			crlwisebutidx_;
@@ -95,9 +89,6 @@ protected:
     int			nrcomps_;
     int			nrsamples_;
     SamplingData<float>	sd_;
-    Array2D<float>* 	arr_;
-    unsigned char**     targetptrs;
-    int			coordpol;
 
     bool		openData(const Setup&);
     void		createMenuAndToolBar();
@@ -108,6 +99,7 @@ protected:
     BinID		getNextBid(const BinID&,int,bool) const;
     void		addTrc(SeisTrcBuf&,const BinID&);
     void		updateWiggleButtonStatus();
+    void		setTrcBufViewTitle();
 	
     void		goToPush(CallBacker*);
     void		infoPush(CallBacker*);

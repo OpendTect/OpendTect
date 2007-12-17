@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.74 2007-12-13 16:29:37 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.75 2007-12-17 05:53:18 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ ________________________________________________________________________
 #include "uiseissel.h"
 #include "uiseiswvltimp.h"
 #include "uiseiswvltman.h"
+#include "uiseistrcbufviewer.h"
 #include "uiselsimple.h"
 #include "uisurvey.h"
 
@@ -54,7 +55,6 @@ ________________________________________________________________________
 uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     	: uiApplPartServer(a)
     	, storedgathermenuitem("Display Gather")
-	, viewwin_(0)
 	, psseisdpid_(DataPack::cNoID)
 	, psfreqdpid_(DataPack::cNoID)
 {
@@ -294,52 +294,16 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
 	tbuffreq->add( trc );
     }
 
-    bool isnew = !viewwin_;
-    if ( !isnew )
-	viewwin_->setWinTitle( "PS Gather" );
-    else
-    {
-	viewwin_ = new uiFlatViewMainWin( appserv().parent(),
-				      uiFlatViewMainWin::Setup("PS Gather") );
-	viewwin_->setDarkBG( false );
-	FlatView::Appearance& app = viewwin_->viewer().appearance();
-	app.annot_.setAxesAnnot( true );
-	app.setGeoDefaults( true );
-	app.ddpars_.show( true, false );
-	app.ddpars_.wva_.overlap_ = 1;
-    }
+    BufferString title( "Gather from [" ); title += ioobj->name();
+    title += "] at "; title += bid.inl; title += "/"; title += bid.crl;
 
-    DataPackMgr& dpm = DPM( DataPackMgr::FlatID );
-    uiFlatViewer& vwr = viewwin_->viewer();
-    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( tbuf,
-				 Seis::VolPS, SeisTrcInfo::Offset,
-				 "Pre-Stack Gather" );
-    dp->setName( "Seismics" ); dpm.add( dp );
-    vwr.removePack( psseisdpid_ ); psseisdpid_ = dp->id();
-    vwr.setPack( false, psseisdpid_, false, !isnew );
-    dp = new SeisTrcBufDataPack( tbuffreq, Seis::VolPS, SeisTrcInfo::Offset,
-				 "Pre-Stack Gather.Freq" );
-    dp->setName( "Local frequency" ); dpm.add( dp );
-    vwr.removePack( psfreqdpid_ ); psfreqdpid_ = dp->id();
-    vwr.setPack( false, psfreqdpid_, false, !isnew );
+    uiSeisTrcBufViewer::Setup stbvsetup( title );
+    strcbufview_ = new uiSeisTrcBufViewer( appserv().parent(), stbvsetup );
+    SeisTrcBufDataPack* dp1 = strcbufview_->setTrcBuf( tbuf, Seis::VolPS, SeisTrcInfo::Offset, "Pre-Stack Gather", "Seismics" );
+    SeisTrcBufDataPack* dp2 = strcbufview_->setTrcBuf( tbuffreq, Seis::VolPS, SeisTrcInfo::Offset, "Pre-Stack Gather.Freq", "Local frequency" );
+    strcbufview_->getViewer()->usePack( true, dp1->id() );
+    strcbufview_->getViewer()->usePack( false, dp2->id() );
+    strcbufview_->start();
 
-    BufferString& titl = vwr.appearance().annot_.title_;
-    titl = "Gather from ["; titl += ioobj->name();
-    titl += "] at "; titl += bid.inl; titl += "/"; titl += bid.crl;
-
-    if ( !isnew )
-	vwr.handleChange( FlatView::Viewer::All );
-    else
-    {
-	vwr.appearance().ddpars_.show( true, false );
-	int pw = 200 + 10 * tbufsz;
-	if ( pw < 400 ) pw = 400; if ( pw > 800 ) pw = 800;
-	vwr.setInitialSize( uiSize(pw,500) );
-	viewwin_->addControl( new uiFlatViewStdControl( vwr,
-			      uiFlatViewStdControl::Setup()
-			      .withstates(false) ) );
-    }
-
-    viewwin_->start();
     return true;
 }
