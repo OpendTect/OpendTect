@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.36 2007-12-11 13:40:32 cvsjaap Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.37 2007-12-17 16:32:48 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "visplanedatadisplay.h"
 #include "vispolyline.h"
 #include "visrandomtrackdisplay.h"
+#include "visseis2ddisplay.h"
 #include "vismaterial.h"
 #include "vistransform.h"
 #include "viscolortab.h"
@@ -1121,7 +1122,7 @@ void HorizonDisplay::getMousePosInfo( const visBase::EventInfo& eventinfo,
     mEndLine;
 
 
-static void drawHorizonOnRandomTrack( const TypeSet<BinID>& trcbids, 
+static void drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist, 
 			const StepInterval<float>& zrg, 
 			const EM::Horizon3D* hor, const EM::SectionID&  sid, 
 			const ZAxisTransform* zaxistransform, 
@@ -1137,31 +1138,29 @@ static void drawHorizonOnRandomTrack( const TypeSet<BinID>& trcbids,
     while ( true )
     {
 	startidx = stopidx;
-	while ( startidx<trcbids.size()-1 && 
-		trcbids[startidx]==trcbids[startidx+1] ) startidx++;
+	while ( startidx<trclist.size()-1 && 
+		trclist[startidx]==trclist[startidx+1] ) startidx++;
 
 	stopidx = startidx + 1;
-	while ( stopidx<trcbids.size()-1 && 
-		trcbids[stopidx]!=trcbids[stopidx+1] ) stopidx++;
+	while ( stopidx<trclist.size()-1 && 
+		trclist[stopidx]!=trclist[stopidx+1] ) stopidx++;
 
-	if ( stopidx >= trcbids.size() )
+	if ( stopidx >= trclist.size() )
 	    break;
 
-	Coord startcoord( trcbids[startidx].inl, trcbids[startidx].crl );
-	startcoord = SI().binID2Coord().transform( startcoord );
-	Coord stopcoord( trcbids[stopidx].inl, trcbids[stopidx].crl );
-	stopcoord = SI().binID2Coord().transform( stopcoord );
+	const Coord startcrd = SI().binID2Coord().transform(trclist[startidx]);
+	const Coord stopcrd = SI().binID2Coord().transform(trclist[stopidx]);
 
-	for ( int bidx=startidx+jumpstart; bidx<=stopidx; bidx++ )
+	for ( int cidx=startidx+jumpstart; cidx<=stopidx; cidx++ )
 	{
-	    const int inlidx = inlrg.getIndex( trcbids[bidx].inl );
+	    const int inlidx = inlrg.getIndex( trclist[cidx].x );
 	    const int inl0 = inlrg.atIndex( inlidx );
-	    const int inl1 = inl0<trcbids[bidx].inl ? 
+	    const int inl1 = inl0<trclist[cidx].x ? 
 			     inlrg.atIndex( inlidx+1 ) : inl0;
 
-	    const int crlidx = crlrg.getIndex( trcbids[bidx].crl );
+	    const int crlidx = crlrg.getIndex( trclist[cidx].y );
 	    const int crl0 = crlrg.atIndex( crlidx );
-	    const int crl1 = crl0<trcbids[bidx].crl ? 
+	    const int crl1 = crl0<trclist[cidx].y ? 
 			     crlrg.atIndex( crlidx+1 ) : crl0;
 
 	    Coord3 p00 = hor->getPos( sid, BinID(inl0,crl0).getSerialized() );
@@ -1180,12 +1179,12 @@ static void drawHorizonOnRandomTrack( const TypeSet<BinID>& trcbids,
 	    if ( p00.isDefined() && p01.isDefined() && 
 		 p10.isDefined() && p11.isDefined() )
 	    {
-		const float frac = float(bidx-startidx) / (stopidx-startidx);
-		Coord3 pos = (1-frac) * Coord3(startcoord,0) +
-		    		frac  * Coord3(stopcoord, 0);
+		const float frac = float(cidx-startidx) / (stopidx-startidx);
+		Coord3 pos = (1-frac) * Coord3(startcrd,0) +
+		    		frac  * Coord3(stopcrd, 0);
 	    
-		const float ifrac = float(trcbids[bidx].inl-inl0) / inlrg.step;
-		const float cfrac = float(trcbids[bidx].crl-crl0) / crlrg.step;
+		const float ifrac = (trclist[cidx].x - inl0) / inlrg.step;
+		const float cfrac = (trclist[cidx].y - crl0) / crlrg.step;
 		pos.z = (1-ifrac)*( (1-cfrac)*p00.z + cfrac*p01.z ) +
 			   ifrac *( (1-cfrac)*p10.z + cfrac*p11.z );
 
@@ -1274,6 +1273,10 @@ void HorizonDisplay::updateIntersectionLines(
 	    if ( rtdisplay )
 		objectid = rtdisplay->id();
 	    
+	    mDynamicCastGet( const Seis2DDisplay*, seis2ddisplay, objs[idx] );
+	    if ( seis2ddisplay )
+		objectid = seis2ddisplay->id();
+
 	    if ( objectid==-1 )
 		continue;
 
@@ -1330,22 +1333,41 @@ void HorizonDisplay::updateIntersectionLines(
 	if ( mped )
 	    mped->getPlanePosition(cs);
 
+	TypeSet<Coord> trclist;
 	mDynamicCastGet( const RandomTrackDisplay*, rtdisplay,
 			 visBase::DM().getObject(linestoupdate[idx]) );
-	TypeSet<BinID> tracebids;
 	if ( rtdisplay )
 	{
-	    cs.zrg.setFrom( rtdisplay->getDepthInterval() );
+	    cs.zrg.setFrom( rtdisplay->getDataTraceRange() );
 	    cs.zrg.step = SI().zStep();
+	    TypeSet<BinID> tracebids;
 	    rtdisplay->getDataTraceBids( tracebids );
 	    for ( int bidx=0; bidx<tracebids.size(); bidx++ )
+	    {
 		cs.hrg.include( tracebids[bidx] );
-	}
-	else
-	{
-	    
+		trclist += Coord( tracebids[bidx].inl, tracebids[bidx].crl );
+	    }
 	}
 
+	mDynamicCastGet( const Seis2DDisplay*, seis2ddisplay,
+			 visBase::DM().getObject(linestoupdate[idx]) );
+	if ( seis2ddisplay )
+	{
+	    cs.zrg.setFrom( seis2ddisplay->getZRange(false) );
+	    cs.zrg.step = SI().zStep();
+	    const Interval<int>& trcnrrg = seis2ddisplay->getTraceNrRange();
+	    for ( int trcnr=trcnrrg.start; trcnr<=trcnrrg.stop; trcnr++ )
+	    {
+		Coord crd = seis2ddisplay->getCoord( trcnr );
+		crd = SI().binID2Coord().transformBackNoSnap( crd );
+		if ( mIsUdf(crd.x) || mIsUdf(crd.y) )
+		    continue;
+
+		cs.hrg.include( BinID((int) floor(crd.x),(int) floor(crd.y)) );
+		cs.hrg.include( BinID((int)  ceil(crd.x),(int)  ceil(crd.y)) );
+		trclist += crd; trclist += crd;
+	    }
+	}
 	
 	int lineidx = intersectionlineids_.indexOf(linestoupdate[idx]);
 	if ( lineidx==-1 )
@@ -1390,9 +1412,9 @@ void HorizonDisplay::updateIntersectionLines(
 	{
 	    const EM::SectionID sid = horizon->sectionID(sectionidx);
 
-	    if ( rtdisplay )
+	    if ( rtdisplay || seis2ddisplay )
 	    {
-		drawHorizonOnRandomTrack( tracebids, cs.zrg, horizon, sid, 
+		drawHorizonOnRandomTrack( trclist, cs.zrg, horizon, sid, 
 					  zaxistransform_, line, cii );
 	    }
 	    else if ( cs.hrg.start.inl==cs.hrg.stop.inl )
