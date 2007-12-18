@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.44 2007-12-04 12:25:06 cvsbert Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.45 2007-12-18 14:58:16 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiiosurface.h"
 
+#include "uibutton.h"
 #include "uigeninput.h"
 #include "uibinidsubsel.h"
 #include "uilistbox.h"
@@ -34,7 +35,7 @@ const int cListHeight = 5;
     !strcmp(typ,EMHorizon2DTranslatorGroup::keyword) ? \
 			*mMkCtxtIOObj(EMHorizon2D) : \
     !strcmp(typ,EMHorizon3DTranslatorGroup::keyword) ? \
-			*mMkCtxtIOObj(EMHorizon3D) : *mMkCtxtIOObj(EMFault)  
+			*mMkCtxtIOObj(EMHorizon3D) : *mMkCtxtIOObj(EMFault)
 
 uiIOSurface::uiIOSurface( uiParent* p, bool forread_, const char* typ )
     : uiGroup(p,"Surface selection")
@@ -70,12 +71,15 @@ void uiIOSurface::mkSectionFld( bool labelabove )
 				     		: uiLabeledListBox::LeftTop );
 //  sectionfld->setPrefHeightInChar( cListHeight );
     sectionfld->setStretch( 1, 1 );
+    sectionfld->box()->selectionChanged.notify( 
+	    				mCB(this,uiIOSurface,ioDataSelChg) );
 }
 
 
 void uiIOSurface::mkRangeFld()
 {
     rgfld = new uiBinIDSubSel( this, uiBinIDSubSel::Setup().withstep(true) );
+    rgfld->butPush.notify( mCB(this,uiIOSurface,ioDataSelChg) );
 }
 
 
@@ -211,7 +215,6 @@ void uiIOSurface::attrSel( CallBacker* )
 }
 
 
-
 uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_, 
 				const char* typ )
     : uiIOSurface(p,false,typ)
@@ -233,7 +236,13 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_,
 	setHAlignObj( rgfld );
     }
 
+    replacefld = new uiCheckBox( this, "Replace in tree" );
+    replacefld->attach( alignedBelow, objfld );
+
     fillFields( surf_.multiID() );
+
+    replacefld->setChecked( true );
+    ioDataSelChg( 0 );
 }
 
 
@@ -254,6 +263,35 @@ bool uiSurfaceWrite::processInput()
     return true;
 }
 
+
+bool uiSurfaceWrite::replaceInTree() const       
+{ return replacefld->isChecked(); }
+
+
+void uiSurfaceWrite::ioDataSelChg( CallBacker* )
+{
+    bool issubsel = sectionfld &&
+		    sectionfld->box()->size()!=sectionfld->box()->nrSelected();
+
+    if ( rgfld && rgfld->data().isRg() )
+    {
+	const HorSampling& hrg = rgfld->data().cs_.hrg;
+	const HorSampling& maxhrg = rgfld->data().allowedrange_.hrg;
+	issubsel = issubsel || hrg.inlRange()!=maxhrg.inlRange();
+	issubsel = issubsel || hrg.crlRange()!=maxhrg.crlRange();
+    }
+
+    if ( replacefld && issubsel )
+    {
+	replacefld->setChecked( false );
+	replacefld->setSensitive( false );
+    }
+    else if ( replacefld && !replacefld->sensitive() )
+    {
+	replacefld->setSensitive( true );
+	replacefld->setChecked( true );
+    }
+}
 
 
 uiSurfaceRead::uiSurfaceRead( uiParent* p, const char* typ, 

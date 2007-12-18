@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.129 2007-12-02 14:52:42 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.130 2007-12-18 14:58:16 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -469,7 +469,8 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas ) const
 
 	    const MultiID& key = dlg.ioObj() ? dlg.ioObj()->key() : "";
 	    exec = surface->geometry().saver( &sel, &key );
-	    if ( exec ) surface->setMultiID( key );
+	    if ( exec && dlg.replaceInTree() ) 
+		surface->setMultiID( key );
 	}
 	else
 	{

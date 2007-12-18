@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.94 2007-12-13 12:49:18 cvsjaap Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.95 2007-12-18 14:58:16 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -1341,7 +1341,8 @@ int dgbSurfaceWriter::nextStep()
     if ( sectionindex_>=sectionsel_.size() )
     {
 	const int res = ExecutorGroup::nextStep();
-	if ( !res ) const_cast<Surface*>(&surface_)->resetChangedFlag();
+	if ( !res && ioobj_->key()==surface_.multiID() ) 
+	    const_cast<Surface*>(&surface_)->resetChangedFlag();
 	return res;
     }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.23 2007-10-24 07:48:32 cvsjaap Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.24 2007-12-18 14:58:16 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,12 @@ void uiWriteSurfaceDlg::getSelection( EM::SurfaceIODataSelection& sels )
 IOObj* uiWriteSurfaceDlg::ioObj() const
 {
     return iogrp_->selIOObj();
+}
+
+
+bool uiWriteSurfaceDlg::replaceInTree() const
+{
+    return iogrp_->replaceInTree();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.15 2007-08-24 11:56:55 cvsnanne Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.16 2007-12-18 14:58:16 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
 			uiWriteSurfaceDlg(uiParent*,const EM::Surface&);
 
     void		getSelection(EM::SurfaceIODataSelection&);
+    bool		replaceInTree() const;
     IOObj*		ioObj() const;
 
 protected:

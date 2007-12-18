@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.20 2007-08-24 11:56:55 cvsnanne Exp $
+ RCS:           $Id: uiiosurface.h,v 1.21 2007-12-18 14:58:16 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ class uiBinIDSubSel;
 class uiGenInput;
 class uiIOObjSel;
 class uiLabeledListBox;
+class uiCheckBox;
 
 
 namespace EM { class Surface; class SurfaceIODataSelection; };
@@ -61,6 +62,7 @@ protected:
 
     void		objSel(CallBacker*);
     void		attrSel(CallBacker*);
+    virtual void	ioDataSelChg(CallBacker*)			{};
 
     uiLabeledListBox*	sectionfld;
     uiLabeledListBox*	attribfld;
@@ -79,8 +81,11 @@ public:
 				       const char* type);
 
     virtual bool	processInput();
+    bool		replaceInTree()	const;
 
 protected:
+    void 		ioDataSelChg(CallBacker*);
+    uiCheckBox*		replacefld;
 };
 
 
