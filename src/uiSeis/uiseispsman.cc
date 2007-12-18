@@ -2,9 +2,9 @@
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        N. Hemstra
- Date:          May 2002
- RCS:           $Id: uiseispsman.cc,v 1.3 2007-11-01 07:10:52 cvsraman Exp $
+ Author:        Bert
+ Date:          Aug 2007
+ RCS:           $Id: uiseispsman.cc,v 1.4 2007-12-18 16:46:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
