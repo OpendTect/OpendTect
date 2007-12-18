@@ -7,28 +7,28 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.83 2007-09-20 06:05:23 cvssulochana Exp $
+ RCS:		$Id: vissurvobj.h,v 1.84 2007-12-18 12:19:35 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "callback.h"
+#include "color.h"
+#include "cubesampling.h"
 #include "datapack.h"
 #include "gendefs.h"
 #include "multiid.h"
 #include "position.h"
 #include "ranges.h"
-#include "color.h"
-#include "cubesampling.h"
 #include "vissurvscene.h"
 
+
 class BinIDValueSet;
+class IOPar;
 class LineStyle;
-class MultiID;
+class NotifierAccess;
 class SeisTrcBuf;
 class ZAxisTransform;
-class IOPar;
 
 namespace visBase { class Transformation; class EventInfo; };
 namespace Attrib  { class SelSpec; class DataCubes; }
@@ -42,7 +42,8 @@ namespace visSurvey
 class SurveyObject
 {
 public:
-    virtual Coord3		getNormal(const Coord3& pos) const;
+    virtual Coord3		getNormal(const Coord3& pos) const
+				{ return Coord3::udf(); }
     				/*!<Position and Normal are both in
 				    displayspace. */
     virtual float		calcDist(const Coord3& pos) const
@@ -147,28 +148,28 @@ public:
 					different kind. */
 
     virtual AttribFormat	getAttributeFormat() const;
-    virtual bool		canHaveMultipleAttribs() const;
+    virtual bool		canHaveMultipleAttribs() const { return false; }
     virtual int			nrAttribs() const;
     virtual bool		canAddAttrib() const;
-    virtual bool		addAttrib();
+    virtual bool		addAttrib()		   { return false; }
     virtual bool		canRemoveAttrib() const;
-    virtual bool		removeAttrib(int attrib);
-    virtual bool		swapAttribs(int attrib0,int attrib1);
-    virtual void		setAttribTransparency(int,unsigned char);
-    virtual unsigned char	getAttribTransparency(int) const;
-    virtual int			getColTabID(int attrib) const;
-    virtual bool 		isClassification(int attrib) const;
-    virtual void		setClassification(int attrib,bool yn);
-    virtual bool 		isAngle(int attrib) const;
-    virtual void		setAngleFlag(int attrib,bool yn);
-    virtual void		enableAttrib(int attrib,bool yn);
-    virtual bool		isAttribEnabled(int attrib) const;
+    virtual bool		removeAttrib(int attrib)   { return false; }
+    virtual bool		swapAttribs(int a0,int a1) { return false; }
+    virtual void		setAttribTransparency(int,unsigned char) {}	
+    virtual unsigned char	getAttribTransparency(int) const { return 0; }
+    virtual int			getColTabID(int attrib) const	 { return -1; }
+    virtual bool 		isClassification(int attr) const {return false;}
+    virtual void		setClassification(int attrib,bool yn)	{}
+    virtual bool 		isAngle(int attrib) const	 {return false;}
+    virtual void		setAngleFlag(int attrib,bool yn)	{}
+    virtual void		enableAttrib(int attrib,bool yn)	{}
+    virtual bool		isAttribEnabled(int attrib) const {return true;}
     virtual Pol2D3D		getAllowedDataType() const	{return Only3D;}
     
-    virtual const TypeSet<float>* 	getHistogram(int attrib) const;
+    virtual const TypeSet<float>* getHistogram(int attrib) const { return 0; }
     
-    virtual void			setSelSpec(int,const Attrib::SelSpec&){}
-    virtual const Attrib::SelSpec* 	getSelSpec(int attrib) const;
+    virtual void		   setSelSpec(int,const Attrib::SelSpec&){}
+    virtual const Attrib::SelSpec* getSelSpec(int attrib) const  { return 0; }
 
     virtual bool		canHaveMultipleTextures() const { return false;}
     virtual int			nrTextures(int attrib) const	{ return 0; }
@@ -194,8 +195,9 @@ public:
     				/*!<\returns the volume in world survey
 				     coordinates. */
     virtual bool		setDataVolume(int attrib,
-	    				      const Attrib::DataCubes* slc);
-    virtual const Attrib::DataCubes* getCacheVolume(int attrib) const;
+	    				      const Attrib::DataCubes*)
+				{ return false; }
+    virtual const Attrib::DataCubes* getCacheVolume(int attr) const {return 0;}
 
     				//Trace-data
     virtual void		getDataTraceBids(TypeSet<BinID>&) const	{}
@@ -214,12 +216,13 @@ public:
     				/*!< Every patch should have a BinIDValueSet */
     virtual void		readAuxData()	{}
 
-    virtual void		setScene(Scene*);
+    virtual void		setScene( Scene* scn )	{ scene_ = scn; }
     virtual const Scene*	getScene() const	{ return scene_; }
     virtual Scene*		getScene()		{ return scene_; }
 
-    virtual bool		setDataTransform( ZAxisTransform* );
-    virtual const ZAxisTransform* getDataTransform() const;
+    virtual bool		setDataTransform(ZAxisTransform*){return false;}
+    virtual const ZAxisTransform* getDataTransform() const	 {return 0;}
+    virtual bool		alreadyTransformed(int attrib) const;
 
     virtual void		lock( bool yn )		{ locked_ = yn; }
     virtual bool		isLocked() const	{ return locked_; }

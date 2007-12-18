@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.49 2007-10-12 19:14:34 cvskris Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.50 2007-12-18 12:19:35 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -18,10 +18,10 @@ ________________________________________________________________________
 #include "vissurvobj.h"
 #include "ranges.h"
 
-class ColorAttribSel;
 class CubeSampling;
 class MarchingCubesSurface;
 class ZAxisTransform;
+class ZAxisTransformer;
 
 namespace Attrib { class SelSpec; class DataCubes; }
 
@@ -126,7 +126,8 @@ public:
 
 protected:
 				~VolumeDisplay();
-    CubeSampling		getCubeSampling(bool manippos,int attrib) const;
+    CubeSampling		getCubeSampling(bool manippos,bool display,
+	    					int attrib) const;
     void			materialChange(CallBacker*);
     void			colTabChange(CallBacker*);
     void			updateIsoSurface(int);
@@ -148,6 +149,7 @@ protected:
     void			updateRanges(bool updateic,bool updatez);
 
     ZAxisTransform*		datatransform_;
+    ZAxisTransformer*		datatransformer_;
     int				datatransformvoihandle_;
 
     DataPack::ID		cacheid_;

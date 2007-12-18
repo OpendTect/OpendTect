@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.76 2007-10-30 20:24:23 cvsyuancheng Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.77 2007-12-18 12:19:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ ________________________________________________________________________
 #include "sorting.h"
 #include "survinfo.h"
 #include "zaxistransform.h"
+#include "zaxistransformer.h"
 
 mCreateFactoryEntry( visSurvey::VolumeDisplay );
 
@@ -62,6 +63,7 @@ VolumeDisplay::VolumeDisplay()
     , voltrans_(visBase::Transformation::create())
     , allowshading_(false)
     , datatransform_(0)
+    , datatransformer_(0)
 {
     boxdragger_->ref();
     addChild( boxdragger_->getInventorNode() );
@@ -169,6 +171,9 @@ bool VolumeDisplay::setDataTransform( ZAxisTransform* zat )
     datatransform_ = zat;
     datatransformvoihandle_ = -1;
 
+    delete datatransformer_;
+    datatransformer_ = 0;
+
     if ( datatransform_ )
     {
 	datatransform_->ref();
@@ -223,7 +228,7 @@ bool VolumeDisplay::isManipulatorShown() const
 
 bool VolumeDisplay::isManipulated() const
 {
-    return getCubeSampling(true,0) != getCubeSampling(false,0);
+    return getCubeSampling(true,true,0) != getCubeSampling(false,true,0);
 }
 
 
@@ -242,7 +247,7 @@ void VolumeDisplay::resetManipulation()
 
 void VolumeDisplay::acceptManipulation()
 {
-    setCubeSampling( getCubeSampling(true,0) );
+    setCubeSampling( getCubeSampling(true,true,0) );
 }
 
 
@@ -443,7 +448,7 @@ void VolumeDisplay::manipMotionFinishCB( CallBacker* )
     if ( scene_ && scene_->getDataTransform() )
 	return;
 
-    CubeSampling cs = getCubeSampling( true, 0 );
+    CubeSampling cs = getCubeSampling( true, true, 0 );
     SI().snap( cs.hrg.start, BinID(0,0) );
     SI().snap( cs.hrg.stop, BinID(0,0) );
     float z0 = SI().zRange(true).snap( cs.zrg.start ); cs.zrg.start = z0;
@@ -591,7 +596,7 @@ void VolumeDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
 
 
 CubeSampling VolumeDisplay::getCubeSampling( int attrib ) const
-{ return getCubeSampling(true,attrib); }
+{ return getCubeSampling(true,false,attrib); }
 
 
 bool VolumeDisplay::setDataPackID( int attrib, DataPack::ID dpid )
@@ -622,15 +627,44 @@ bool VolumeDisplay::setDataVolume( int attrib,
     if ( attrib || !attribdata )
 	return false;
 
-    const Array3D<float>& arr = attribdata->getCube(0);
-    scalarfield_->setScalarField( &arr );
+    PtrMan<Array3D<float> > tmparray = 0;
+    const Array3D<float>* usedarray = 0;
+    if ( alreadyTransformed(attrib) || !datatransform_ )
+	usedarray = &attribdata->getCube(0);
+    else
+    {
+	if ( !datatransformer_ )
+	    datatransformer_ = new ZAxisTransformer( *datatransform_, true );
 
-    setCubeSampling( attribdata->cubeSampling() );
+//	datatransformer_->setInterpolate( !isClassification(attrib) );
+	datatransformer_->setInterpolate( true );
+	datatransformer_->setInput( attribdata->getCube(0),
+				    attribdata->cubeSampling() );
+	datatransformer_->setOutputRange( getCubeSampling(true,true,0) );
+
+	if ( !datatransformer_->execute() )
+	{
+	    pErrMsg( "Transform failed" );
+	    return false;
+	}
+
+	tmparray = datatransformer_->getOutput( true );
+	if ( !tmparray )
+	{
+	    pErrMsg( "No output from transform" );
+	    return false;
+	}
+	usedarray = tmparray;
+    }
+
+    scalarfield_->setScalarField( usedarray );
+
+    setCubeSampling( getCubeSampling(true,true,0) );
 
     for ( int idx=0; idx<slices_.size(); idx++ )
-	slices_[idx]->setVolumeDataSize( arr.info().getSize(2),
-					arr.info().getSize(1),
-					arr.info().getSize(0) );
+	slices_[idx]->setVolumeDataSize( usedarray->info().getSize(2),
+					 usedarray->info().getSize(1),
+					 usedarray->info().getSize(0) );
 
     scalarfield_->turnOn( true );
 
@@ -664,7 +698,8 @@ void VolumeDisplay::getMousePosInfo( const visBase::EventInfo&,
 }
 
 
-CubeSampling VolumeDisplay::getCubeSampling( bool manippos, int attrib ) const
+CubeSampling VolumeDisplay::getCubeSampling( bool manippos, bool displayspace,
+					     int attrib ) const
 {
     CubeSampling res;
     if ( manippos )
@@ -698,7 +733,14 @@ CubeSampling VolumeDisplay::getCubeSampling( bool manippos, int attrib ) const
 	res.zrg.start = transl.z+scale.z/2;
 	res.zrg.stop = transl.z-scale.z/2;
     }
-    
+
+    if ( alreadyTransformed(attrib) ) return res;
+
+    if ( datatransform_ && !displayspace )
+    {
+	res.zrg.setFrom( datatransform_->getZInterval(true) );
+	res.zrg.step = SI().zRange( true ).step;
+    }
 
     return res;
 }
@@ -715,9 +757,6 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate() const
     VolumeDisplay* vd = create();
 
     SoNode* node = vd->getInventorNode();
-
-//  const char* ctnm = getColorTab().colorSeq().colors().name();
-//  vd->getColorTab().colorSeq().loadFromStorage( ctnm );
 
     TypeSet<int> children;
     vd->getChildren( children );
@@ -742,7 +781,7 @@ visSurvey::SurveyObject* VolumeDisplay::duplicate() const
 
     vd->showVolRen( isVolRenShown() );
 
-    vd->setCubeSampling( getCubeSampling(false,0) );
+    vd->setCubeSampling( getCubeSampling(false,true,0) );
 
     vd->setSelSpec( 0, as_ );
     vd->setDataVolume( 0, cache_ );
@@ -794,7 +833,7 @@ SoNode* VolumeDisplay::getInventorNode()
 void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
 {
     visBase::VisualObject::fillPar( par, saveids );
-    const CubeSampling cs = getCubeSampling(false,0);
+    const CubeSampling cs = getCubeSampling(false,true,0);
     cs.fillPar( par );
 
     if ( volren_ )
