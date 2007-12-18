@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: linear.cc,v 1.10 2007-02-26 22:16:47 cvskris Exp $";
+static const char* rcsID = "$Id: linear.cc,v 1.11 2007-12-18 07:30:26 cvsnanne Exp $";
 
 
 #include "linear.h"
@@ -117,8 +117,9 @@ AxisLayout::AxisLayout( const Interval<float>& dr )
 { setDataRange( dr ); }
 
 
-void AxisLayout::setDataRange( Interval<float> intv )
+void AxisLayout::setDataRange( const Interval<float>& dr )
 {
+    Interval<float> intv = dr;
     sd.start = intv.start;
     bool rev = intv.start > intv.stop;
     if ( rev ) Swap( intv.start, intv.stop );

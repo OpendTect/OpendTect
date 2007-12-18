@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jan 2005
- RCS:		$Id: linear.h,v 1.4 2007-02-26 22:16:47 cvskris Exp $
+ RCS:		$Id: linear.h,v 1.5 2007-12-18 07:30:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,11 +84,11 @@ class AxisLayout
 {
 public:
 				AxisLayout();
-				AxisLayout(float start, float stp, float step);
-				AxisLayout( const StepInterval<float>& rg );
-				AxisLayout( const Interval<float>& dr );
+				AxisLayout(float start,float stop,float step);
+				AxisLayout(const StepInterval<float>& rg);
+				AxisLayout(const Interval<float>& dr);
 
-    void			setDataRange(Interval<float>);
+    void			setDataRange(const Interval<float>&);
 
     float			findEnd(float datastop) const;
 

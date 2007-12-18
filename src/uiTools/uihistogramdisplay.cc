@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mid 2005
- RCS:           $Id: uihistogramdisplay.cc,v 1.8 2007-10-09 10:01:56 cvsnanne Exp $
+ RCS:           $Id: uihistogramdisplay.cc,v 1.9 2007-12-18 07:30:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,8 +88,7 @@ void uiHistogramDisplay::drawXAxis( const StepInterval<float>& xrg )
     const int width = dt.getDevWidth();
 
     DrawAxis2D drwaxis( drawarea_ );
-    const StepInterval<float> yrg(0,0,1);
-    drwaxis.setup( xrg, yrg );
+    drwaxis.setup( uiWorldRect(xrg.start,1,xrg.stop,0) );
     uiRect rect( boundary_.left(), height, width-boundary_.right(),
 	         height-boundary_.bottom() );
     drwaxis.setDrawRectangle( &rect );

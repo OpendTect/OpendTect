@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     ( C ) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mar. 2005
- RCS:           $Id: drawaxis2d.cc,v 1.11 2007-07-09 16:47:00 cvsbert Exp $
+ RCS:           $Id: drawaxis2d.cc,v 1.12 2007-12-18 07:30:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #define mTickLen	5
 
 
-DrawAxis2D::DrawAxis2D(ioDrawArea* da )
+DrawAxis2D::DrawAxis2D( ioDrawArea* da )
     : drawarea_( da )
     , inside_(false)
     , drawaxisline_(true)
@@ -51,11 +51,11 @@ void DrawAxis2D::setup( const uiWorldRect& wr )
 {
     xrg_.start = wr.left();
     xrg_.stop = wr.right();
-    xaxis_ = AxisLayout(Interval<float>( wr.left(), wr.right())).sd;
+    xaxis_ = AxisLayout( Interval<float>(wr.left(),wr.right()) ).sd;
 
     yrg_.start = wr.top();
     yrg_.stop = wr.bottom();
-    yaxis_ = AxisLayout(Interval<float>( wr.top(), wr.bottom())).sd;
+    yaxis_ = AxisLayout( Interval<float>(wr.top(),wr.bottom()) ).sd;
 }
 
 
@@ -82,14 +82,16 @@ void DrawAxis2D::drawAxes( bool xdir, bool ydir,
     { \
 	const double dim##pos = dim##axis_.atIndex(idx); \
 	if ( !dim##rg_.includes(dim##pos,true) ) \
-	    continue 
+	    continue;
+
+#define mLoopEnd }
 
 
 void DrawAxis2D::drawXAxis( bool topside ) const
 {
     const uiRect drawarea = getDrawArea();
-    const uiWorld2Ui transform( uiWorldRect( xrg_.start, yrg_.start,
-					     xrg_.stop, yrg_.stop ),
+    const uiWorld2Ui transform( uiWorldRect(xrg_.start,yrg_.start,
+					    xrg_.stop,yrg_.stop),
 				drawarea.getPixelSize() );
 
     int baseline, bias;
@@ -109,7 +111,7 @@ void DrawAxis2D::drawXAxis( bool topside ) const
 	dt.drawLine( drawarea.left(), baseline,
 				       drawarea.right(), baseline );
 
-    mLoopStart( x );
+    mLoopStart( x )
 	BufferString text;
 	const double displaypos = getAnnotTextAndPos(true,xpos,&text);
 	const int wx = transform.toUiX( displaypos ) + drawarea.left();
@@ -118,7 +120,7 @@ void DrawAxis2D::drawXAxis( bool topside ) const
 	Alignment al( Alignment::Middle, Alignment::Start );
 	if ( bias<0 ) al.ver_ = Alignment::Stop;
 	dt.drawText( wx, baseline+bias, text.buf(), al );
-    }
+    mLoopEnd
 }
 
 
@@ -126,8 +128,8 @@ void DrawAxis2D::drawYAxis( bool leftside ) const
 {
     const uiRect drawarea = getDrawArea();
     const uiWorld2Ui transform(
-	    uiWorldRect( xrg_.start, yrg_.start,
-			 xrg_.stop, yrg_.stop ),
+	    uiWorldRect(xrg_.start,yrg_.start,
+			xrg_.stop,yrg_.stop),
 	    drawarea.getPixelSize() );
 
     int baseline, bias;
@@ -147,7 +149,7 @@ void DrawAxis2D::drawYAxis( bool leftside ) const
 	dt.drawLine( baseline, drawarea.top(),
 				       baseline, drawarea.bottom() );
     
-    mLoopStart( y );
+    mLoopStart( y )
 	BufferString text;
 	const double displaypos =
 	    getAnnotTextAndPos( false, ypos, &text );
@@ -157,37 +159,37 @@ void DrawAxis2D::drawYAxis( bool leftside ) const
 	Alignment al( Alignment::Start, Alignment::Middle );
 	if ( bias < 0 ) al.hor_ = Alignment::Stop;
 	dt.drawText( baseline+bias, wy , text.buf(), al );
-    }
+    mLoopEnd
 }
 
 
 void DrawAxis2D::drawGridLines( bool xdir, bool ydir ) const
 {
     const uiRect drawarea = getDrawArea();
-    const uiWorld2Ui transform( uiWorldRect( xrg_.start, yrg_.start,
-					     xrg_.stop, yrg_.stop ),
+    const uiWorld2Ui transform( uiWorldRect(xrg_.start,yrg_.start,
+					    xrg_.stop,yrg_.stop),
 				drawarea.getPixelSize() );
     ioDrawTool& dt = drawarea_->drawTool();
     if ( xdir )
     {
 	const int top = drawarea.top();
 	const int bot = drawarea.bottom();
-	mLoopStart( x );
+	mLoopStart( x )
 	    const double displaypos = getAnnotTextAndPos( true, xpos );
 	    const int wx = transform.toUiX( displaypos ) + drawarea.left();
 	    dt.drawLine( wx, top, wx, bot );
-	}
+	mLoopEnd
     }
 
     if ( ydir )
     {
 	const int left = drawarea.left();
 	const int right = drawarea.right();
-	mLoopStart( y );
+	mLoopStart( y )
 	    const double displaypos = getAnnotTextAndPos(false, ypos);
 	    const int wy = transform.toUiY( displaypos ) + drawarea.top();
 	    dt.drawLine( left, wy, right, wy );
-	}
+	mLoopEnd
     }
 }
 
