@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.75 2007-02-28 07:32:12 cvsnanne Exp $
+ RCS:           $Id: i_layout.cc,v 1.76 2007-12-18 16:47:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -836,49 +836,45 @@ int i_LayoutMngr::count () const
 
 #endif
 
-//! return true if successful
-bool i_LayoutMngr::attach ( constraintType type, QWidget& current, 
+
+bool i_LayoutMngr::attach( constraintType type, QWidget& current, 
 			    QWidget* other, int margin, bool reciprocal) 
 {
-    if (&current == other)
-	{ pErrMsg("Cannot attach an object to itself"); return false; }
+    if ( &current == other )
+	{ pErrMsg("Attempt to attach an object to itself"); return false; }
     
-    i_LayoutItem *cur=0, *oth=0;
+    i_LayoutItem* curli = 0; i_LayoutItem* othli = 0;
 
-#ifdef USEQT3
-    for ( QPtrListIterator<i_LayoutItem> childIter( childrenList );
-			i_LayoutItem* loop = childIter.current(); ++childIter )
-#else
-    for ( int idx=0; idx < childrenList.size(); idx++ )
-#endif
+    const bool needother = other;
+    for ( int idx=0; idx<childrenList.size(); idx++ )
     {
-#ifndef USEQT3
-	i_LayoutItem* loop =  childrenList[idx];
-#endif
+	i_LayoutItem* child = childrenList[idx];
+	if ( child->qwidget() == &current )
+	    curli = child;
+	else if ( needother && child->qwidget() == other )
+	    othli = child;
 
-	if ( loop->qwidget() == &current)	cur = loop;
-        if ( loop->qwidget() == other)		oth = loop;
-	if ( cur && oth ) break;
+	if ( curli && (!needother || othli) )
+	{
+	    curli->attach( type, othli, margin, reciprocal );
+	    return true;
+	}
     }
 
-    if (cur && ((!oth && !other) || (other && oth && (oth->qwidget()==other)) ))
+    BufferString msg( NamedObject::name() ); msg += ": Cannot attach '";
+    msg += current.objectName().toAscii().constData(); msg += "'";
+    if ( needother )
     {
-	cur->attach( type, oth, margin, reciprocal );
-	return true;
+	msg += " and '";
+	msg += other->objectName().toAscii().constData(); msg += "'";
     }
-
-#ifdef USEQT3
-    const char* curnm =  current.name();
-    const char* othnm =  other ? other->name() : "";
-#else
-    const char* curnm =  current.objectName().toAscii().constData(); 
-    const char* othnm =  other ? other->objectName().toAscii().constData() : "";
-#endif
-    
-    BufferString msg( "Cannot attach " );
-    msg += curnm;
-    msg += " and ";
-    msg += othnm;
+    msg += " - constraint: "; msg += (int)type;
+    msg += "\nChildren are:";
+    for ( int idx=0; idx<childrenList.size(); idx++ )
+    {
+	i_LayoutItem* child = childrenList[idx];
+	msg += "\n"; msg += child->name();
+    }
     pErrMsg( msg );
 
     return false;
