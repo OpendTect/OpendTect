@@ -5,9 +5,9 @@ ________________________________________________________________________
  Author:        Satyaki
  Date:          Nov 2007
 <<<<<<< uiseistrcbufviewer.cc
- RCS:           $Id: uiseistrcbufviewer.cc,v 1.8 2007-12-17 05:53:18 cvssatyaki Exp $
+ RCS:           $Id: uiseistrcbufviewer.cc,v 1.9 2007-12-18 10:05:03 cvssatyaki Exp $
 =======
- RCS:           $Id: uiseistrcbufviewer.cc,v 1.8 2007-12-17 05:53:18 cvssatyaki Exp $
+ RCS:           $Id: uiseistrcbufviewer.cc,v 1.9 2007-12-18 10:05:03 cvssatyaki Exp $
 >>>>>>> 1.7
 ________________________________________________________________________
 
@@ -65,4 +65,23 @@ SeisTrcBufDataPack* uiSeisTrcBufViewer::setTrcBuf( SeisTrcBuf* tbuf,
 void uiSeisTrcBufViewer::update()
 {
     vwr_->handleChange( FlatView::Viewer::All );
+}
+
+
+void uiSeisTrcBufViewer::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType geom,
+				    SeisTrcInfo::Fld fld, bool wva )
+{
+    FlatDataPack* fdp = const_cast<FlatDataPack*>(vwr_->pack( wva ));
+    mDynamicCastGet(SeisTrcBufDataPack*,dp,fdp)
+    if ( !dp ) return;
+
+    dp->setBuffer( tbuf, geom, fld );
+}
+
+
+void uiSeisTrcBufViewer::removePacks()
+{
+    const TypeSet<DataPack::ID> ids = vwr_->availablePacks();
+    for ( int idx=0; idx<ids.size(); idx++ )
+	vwr_->removePack( ids[idx] );
 }

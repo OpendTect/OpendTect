@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.24 2007-12-17 05:53:18 cvssatyaki Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.25 2007-12-18 10:05:03 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,10 @@ ________________________________________________________________________
 #include "uiapplserv.h"
 #include "multiid.h"
 #include "menuhandler.h"
-#include "datapack.h"
+#include "iodir.h"
+#include "ioobj.h"
+#include "ioman.h"
+
 
 class BufferString;
 class BufferStringSet;
@@ -67,10 +70,10 @@ protected:
     MenuItem		storedgathermenuitem;
 
     bool		ioSeis(int,bool);
+    void		setTrcBufViewTitle(const char*,const BinID&);
 
-    uiSeisTrcBufViewer*	strcbufview_;
-    DataPack::ID	psseisdpid_;
-    DataPack::ID	psfreqdpid_;
+    uiSeisTrcBufViewer*	trcbufview_;
+    void		viewerClosed(CallBacker*);
 
 };
 

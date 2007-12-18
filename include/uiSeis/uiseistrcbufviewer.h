@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          November 2007
- RCS:           $Id: uiseistrcbufviewer.h,v 1.7 2007-12-17 05:53:18 cvssatyaki Exp $
+ RCS:           $Id: uiseistrcbufviewer.h,v 1.8 2007-12-18 10:05:03 cvssatyaki Exp $
 _______________________________________________________________________
 
 -*/
@@ -41,8 +41,11 @@ public:
     			~uiSeisTrcBufViewer();
 
     SeisTrcBufDataPack*	setTrcBuf(SeisTrcBuf*,Seis::GeomType,SeisTrcInfo::Fld, 
-	                          const char* ,const char* nm);
+	                          const char*,const char* nm);
+    void		setBuffer(SeisTrcBuf*,Seis::GeomType,
+	    			  SeisTrcInfo::Fld,bool wva);
     void		update();
+    void		removePacks();
 
     uiFlatViewer*	getViewer()		{ return vwr_; }
 
