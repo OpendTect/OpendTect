@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.8 2007-12-11 15:18:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.9 2007-12-18 16:21:00 cvsbert Exp $";
 
 #include "uimadbldcmd.h"
 #include "uimsg.h"
@@ -20,6 +20,8 @@ static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.8 2007-12-11 15:18:26 cvsber
 #include "maddefs.h"
 #include "executor.h"
 
+static const char* sKeyAll = "All";
+static const char* sKeySrchRes = "Search results";
 
 static BufferString& separateProgName( const char* cmd, bool wantprog )
 {
@@ -56,44 +58,38 @@ uiMadagascarBldCmd::uiMadagascarBldCmd( uiParent* p )
 	delete ex;
     }
 
-    uiGroup* selgrp = new uiGroup( this, "Sel grp" );
+    uiGroup* selgrp = new uiGroup( this, "Prog Selection group" );
     if ( allok )
 	createMainPart( selgrp );
     else
 	new uiLabel( selgrp, ODMad::PI().errMsg() );
-    setHAlignObj( selgrp );
-
-    uiSeparator* hsep = new uiSeparator( this, "Hor sep" );
-    hsep->setStretch( 2, 0 );
-    hsep->attach( ensureBelow, selgrp );
 
     uiGroup* lowgrp = createLowGroup();
-    lowgrp->attach( alignedBelow, selgrp );
-    lowgrp->attach( ensureBelow, hsep );
+    lowgrp->attach( ensureBelow, selgrp );
+
+    mainwin()->finaliseDone.notify( mCB(this,uiMadagascarBldCmd,onPopup) );
 }
 
 
 void uiMadagascarBldCmd::createMainPart( uiGroup* selgrp )
 {
-    uiGroup* lsgrp = new uiGroup( selgrp, "Left Selection group" );
-    selgrp->setHAlignObj( lsgrp );
-
-    BufferStringSet grps; grps.add( "All" ); grps.add( "Search results" );
+    BufferStringSet grps; grps.add( sKeyAll ); grps.add( sKeySrchRes );
     BufferStringSet madgrps( ODMad::PI().groups() );
     madgrps.sort(); grps.add( madgrps, false );
-    uiLabeledComboBox* groupfld = new uiLabeledComboBox( lsgrp, grps, "Group" );
+    uiLabeledComboBox* groupfld = new uiLabeledComboBox( selgrp, grps,
+	    						 "Group" );
     groupfld_ = groupfld->box();
     groupfld_->setToolTip( "Madagascar program group" );
     groupfld_->selectionChanged.notify( mCB(this,uiMadagascarBldCmd,groupChg) );
-    uiLabeledListBox* progfld = new uiLabeledListBox( lsgrp, "Program" );
+    uiLabeledListBox* progfld = new uiLabeledListBox( selgrp, "Program" );
     progfld->attach( alignedBelow, groupfld );
     progfld_ = progfld->box();
     progfld_->selectionChanged.notify( mCB(this,uiMadagascarBldCmd,progChg) );
     progfld_->doubleClicked.notify( mCB(this,uiMadagascarBldCmd,dClick) );
     progfld_->setPrefHeightInChar( 12 );
-    lsgrp->setHAlignObj( groupfld );
+    selgrp->setHAlignObj( progfld );
 
-    uiGroup* infogrp = new uiGroup( selgrp, "Right Selection group" );
+    uiGroup* infogrp = new uiGroup( this, "Prog info group" );
 
     srchfld_ = new uiLineEdit( infogrp, "", "Search field" );
     srchfld_->setToolTip( "Search expression" );
@@ -107,17 +103,16 @@ void uiMadagascarBldCmd::createMainPart( uiGroup* selgrp )
     descfld_ = new uiLineEdit( infogrp, "", "Desc fld" );
     descfld_->attach( alignedBelow, srchfld_ );
     descfld_->setReadOnly( true );
-    descfld_->setStretch( 0, 2 );
+    descfld_->setStretch( 2, 0 );
     commentfld_ = new uiTextEdit( infogrp, "Comments", true );
     commentfld_->attach( alignedBelow, descfld_ );
     commentfld_->setStretch( 1, 1 );
     commentfld_->setPrefHeightInChar( 14 );
     commentfld_->setPrefWidthInChar( 40 );
 
-    infogrp->setHAlignObj( srchbut );
-
-    uiSplitter* vspl = new uiSplitter( selgrp, "vert spl", true );
-    vspl->addGroup( lsgrp ); vspl->addGroup( infogrp );
+    infogrp->setHAlignObj( commentfld_ );
+    uiSplitter* vspl = new uiSplitter( this, "vert spl", true );
+    vspl->addGroup( selgrp ); vspl->addGroup( infogrp );
 }
 
 
@@ -127,23 +122,24 @@ uiGroup* uiMadagascarBldCmd::createLowGroup()
 
     synopsfld_ = new uiLineEdit( lowgrp, "", "Synopsis edit line" );
     synopsfld_->setReadOnly( true );
-    synopsfld_->setStretch( 0, 2 );
+    synopsfld_->setStretch( 2, 0 );
+    synopsfld_->setHSzPol( uiObject::WideVar );
     new uiLabel( lowgrp, "Synopsis", synopsfld_ );
 
-    cmdfld_ = new uiLineEdit( lowgrp, "", "Command line edit line" );
-    cmdfld_->attach( alignedBelow, synopsfld_ );
-    cmdfld_->setStretch( 0, 2 );
+    cmdfld_ = new uiLineEdit( lowgrp, "", "Command edit line" );
+    cmdfld_->setStretch( 2, 0 );
+    cmdfld_->setHSzPol( uiObject::MedVar );
     new uiLabel( lowgrp, "Command line", cmdfld_ );
+    cmdfld_->attach( alignedBelow, synopsfld_ );
 
-    uiPushButton* edbut = new uiPushButton( lowgrp, "&Replace", true );
-    edbut->setToolTip( "Replace current command" );
-    edbut->activated.notify( mCB(this,uiMadagascarBldCmd,doEdit) );
-    edbut->attach( rightOf, cmdfld_ );
     uiPushButton* addbut = new uiPushButton( lowgrp, "&Add", true );
     addbut->setToolTip( "Add to process flow" );
     addbut->activated.notify( mCB(this,uiMadagascarBldCmd,doAdd) );
-    addbut->attach( rightTo, edbut );
-    addbut->attach( rightBorder );
+    uiPushButton* edbut = new uiPushButton( lowgrp, "&Replace", true );
+    edbut->setToolTip( "Replace current command" );
+    edbut->activated.notify( mCB(this,uiMadagascarBldCmd,doEdit) );
+    edbut->attach( rightTo, cmdfld_ );
+    addbut->attach( rightOf, edbut );
 
     lowgrp->setHAlignObj( synopsfld_ );
     return lowgrp;
@@ -196,6 +192,14 @@ void uiMadagascarBldCmd::setGroupProgs( const BufferString* curgrp )
 	if ( !curgrp || def.group_ == curgrp )
 	    progfld_->addItem( def.name_ );
     }
+}
+
+
+void uiMadagascarBldCmd::onPopup( CallBacker* )
+{
+    if ( !groupfld_ ) return;
+    groupfld_->setText( sKeySrchRes );
+    groupChg( 0 );
 }
 
 

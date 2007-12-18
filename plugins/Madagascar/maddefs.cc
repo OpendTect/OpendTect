@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: maddefs.cc,v 1.8 2007-07-09 11:04:00 cvsbert Exp $";
+static const char* rcsID = "$Id: maddefs.cc,v 1.9 2007-12-18 16:21:00 cvsbert Exp $";
 
 #include "maddefs.h"
 #include "envvars.h"
@@ -38,7 +38,7 @@ void ODMad::ProgInfo::doPreScanCheck()
 
     if ( rsfroot_.isEmpty() )
     {
-	errmsg_ = "RSFROOT not set - cannot use Madagascar tools";
+	errmsg_ = "RSFROOT not set - no program definitions available";
 	return;
     }
     if ( !File_isDirectory(rsfroot_) )
