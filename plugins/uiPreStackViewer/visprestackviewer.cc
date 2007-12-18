@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.6 2007-12-12 15:44:40 cvsbert Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.7 2007-12-18 20:35:59 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -39,6 +39,8 @@ PreStackViewer::PreStackViewer()
     , section_( 0 )
     , factor_( 1 )
     , width_( 1250 )
+    , offsetrange_( 0, width_ )		    
+    , zrg_( SI().zRange(true) )
     , positiveside_( true )
     , autowidth_( true )
 {
@@ -212,30 +214,27 @@ void PreStackViewer::dataChangedCB( CallBacker* )
     if ( offsetscale<=0 )
        return;	
 
-    Interval<float> offsetrange( 0, 25 * offsetscale );
-    Interval<float> zrg = SI().zRange(true);
-
     const FlatDataPack* fdp = flatviewer_->pack( false );
     if ( fdp )
     {
-	offsetrange.setFrom( fdp->posData().range( true ) );
-	zrg.setFrom( fdp->posData().range( false ) );
+	offsetrange_.setFrom( fdp->posData().range( true ) );
+	zrg_.setFrom( fdp->posData().range( false ) );
     }
 
     const Coord startpos( bid_.inl, bid_.crl );
     const Coord stoppos = autowidth_
-	? startpos + direction*offsetrange.width()*factor_ / offsetscale
+	? startpos + direction*offsetrange_.width()*factor_ / offsetscale
 	: startpos + direction*width_ / offsetscale;
 
     if ( autowidth_ )
-	width_ = offsetrange.width()*factor_;
+	width_ = offsetrange_.width()*factor_;
     else
-	factor_ = width_/offsetrange.width();
+	factor_ = width_/offsetrange_.width();
 
-    const Coord3 c00( startpos, zrg.start );
-    const Coord3 c01( stoppos, zrg.start ); 
-    const Coord3 c11( stoppos, zrg.stop );
-    const Coord3 c10( startpos, zrg.stop );
+    const Coord3 c00( startpos, zrg_.start );
+    const Coord3 c01( stoppos, zrg_.start ); 
+    const Coord3 c11( stoppos, zrg_.stop );
+    const Coord3 c10( startpos, zrg_.stop );
 
 
     flatviewer_->setPosition( c00, c01, c10, c11 );
@@ -243,11 +242,11 @@ void PreStackViewer::dataChangedCB( CallBacker* )
 	section_->getOrientation()==visSurvey::PlaneDataDisplay::Inline ? 1:0 );
 
     const Coord3 width( fabs(stoppos.x-startpos.x),
-	    	        fabs(stoppos.y-startpos.y), zrg.width(true) );
+	    	        fabs(stoppos.y-startpos.y), zrg_.width(true) );
 
     planedragger_->setSize( width );
 
-    const Coord3 center( ( startpos+stoppos )/2, ( zrg.start+zrg.stop )/2 );
+    const Coord3 center( ( startpos+stoppos )/2, ( zrg_.start+zrg_.stop )/2 );
     planedragger_->setCenter( center );
 
     const Interval<float> xlim = Interval<float>( SI().inlRange( true ).start, 

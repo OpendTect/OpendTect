@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.4 2007-10-03 21:09:18 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.5 2007-12-18 20:35:59 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,8 @@ protected:
     bool				autowidth_;
     float				factor_;
     float				width_;
+    Interval<float>			offsetrange_;
+    Interval<float>			zrg_;
 };
 
 }; //namespace
