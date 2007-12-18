@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.25 2007-12-14 17:05:08 cvshelene Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.26 2007-12-18 14:52:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ Flat3DDataPack::Flat3DDataPack( DescID did, const DataCubes& dc, int cubeidx )
     , DataPackCommon(did)
     , cube_(dc)
     , arr2dsl_(0)
+    , arr2dsource_(0)
     , usemultcubes_( cubeidx == -1 )
 {
     cube_.ref();
@@ -73,6 +74,7 @@ Flat3DDataPack::Flat3DDataPack( DescID did, const DataCubes& dc, int cubeidx )
 
 Flat3DDataPack::~Flat3DDataPack()
 {
+    if ( arr2dsource_ ) delete arr2dsource_;
     delete arr2dsl_;
     cube_.unRef();
 }
@@ -117,7 +119,7 @@ void Flat3DDataPack::createA2DSFromMultCubes()
 						  : cube_.getInlSz();
     int dim1sz = isvert ? cube_.getZSz() : cube_.nrCubes();
 
-    Array2DImpl<float> arr2d( dim0sz, dim1sz );
+    arr2dsource_ = new Array2DImpl<float>( dim0sz, dim1sz );
     for ( int id0=0; id0<dim0sz; id0++ )
 	for ( int id1=0; id1<dim1sz; id1++ )
 	{
@@ -125,10 +127,10 @@ void Flat3DDataPack::createA2DSFromMultCubes()
 			       : dir_==CubeSampling::Inl 
 			       		? cube_.getCube(id1).get( 0, id0, 0 )
 			       		: cube_.getCube(id1).get( id0, 0, 0 );
-	    arr2d.set( id0, id1, val );
+	    arr2dsource_->set( id0, id1, val );
 	}
     
-    arr2dsl_ = new Array2DSlice<float>( arr2d );
+    arr2dsl_ = new Array2DSlice<float>( *arr2dsource_ );
     arr2dsl_->setDimMap( 0, 0 );
     arr2dsl_->setDimMap( 1, 1 );
 }
