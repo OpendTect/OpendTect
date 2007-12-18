@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.9 2007-12-18 16:21:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.10 2007-12-18 16:47:39 cvsbert Exp $";
 
 #include "uimadbldcmd.h"
 #include "uimsg.h"
@@ -107,12 +107,18 @@ void uiMadagascarBldCmd::createMainPart( uiGroup* selgrp )
     commentfld_ = new uiTextEdit( infogrp, "Comments", true );
     commentfld_->attach( alignedBelow, descfld_ );
     commentfld_->setStretch( 1, 1 );
-    commentfld_->setPrefHeightInChar( 14 );
+    commentfld_->setPrefHeightInChar( 10 );
     commentfld_->setPrefWidthInChar( 40 );
 
     infogrp->setHAlignObj( commentfld_ );
+    /*
+Nanne: try this
     uiSplitter* vspl = new uiSplitter( this, "vert spl", true );
     vspl->addGroup( selgrp ); vspl->addGroup( infogrp );
+
+instead of:
+    */
+    infogrp->attach( rightOf, selgrp );
 }
 
 
