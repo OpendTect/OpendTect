@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.20 2007-12-13 09:07:04 cvshelene Exp $
+ RCS:		$Id: attribdatapack.h,v 1.21 2007-12-18 14:50:24 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,6 +135,7 @@ protected:
 
     const DataCubes&	cube_;
     Array2DSlice<float>* arr2dsl_;
+    Array2D<float>*	arr2dsource_;
     CubeSampling::Dir	dir_;
     bool		usemultcubes_;
 
