@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.24 2007-10-24 20:05:28 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.25 2007-12-19 12:32:22 cvsjaap Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -204,8 +204,19 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	{
 	    info().setLegalClick( legalclick1 );
 	    info().setObjCS( plane->getCubeSampling() );
-	    info().setObjData( plane->getCacheVolume(false) );
-	    info().setObjDataSelSpec( plane->getSelSpec(0) );
+
+	    RefMan<const Attrib::DataCubes> cache = 0;
+	    int attrib = plane->nrAttribs();
+	    while ( attrib )
+	    {
+		attrib--;
+		cache = plane->getCacheVolume( attrib );
+		if ( cache && plane->isAttribEnabled(attrib) )
+		    break;
+	    }
+	    
+	    info().setObjData( cache );
+	    info().setObjDataSelSpec( plane->getSelSpec(attrib) );
 	    click.trigger();
 	    eventcatcher_->setHandled();
 	    break;
@@ -224,9 +235,17 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	mCheckSeis2DDisplay( trackertype_, dataobj, seis2ddisp, legalclick3 );
 	if ( seis2ddisp )
 	{
-	    RefMan<const Attrib::Data2DHolder> cache = seis2ddisp->getCache(0);
-	    RefMan<Attrib::DataCubes> cube = 0;
+	    RefMan<const Attrib::Data2DHolder> cache = 0; 
+	    int attrib = seis2ddisp->nrAttribs();
+	    while ( attrib )
+	    {
+		attrib--;
+		cache = seis2ddisp->getCache( attrib );
+		if ( cache && seis2ddisp->isAttribEnabled(attrib) ) 
+		    break;
+	    }
 
+	    RefMan<Attrib::DataCubes> cube = 0;
 	    if ( cache )
 	    {
 		cube = new Attrib::DataCubes;
@@ -236,7 +255,7 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 
 	    info().setLegalClick( legalclick3 );
 	    info().setObjData( cube );
-	    info().setObjDataSelSpec( seis2ddisp->getSelSpec(0) );
+	    info().setObjDataSelSpec( seis2ddisp->getSelSpec(attrib) );
 	    info().setObjLineSet( seis2ddisp->lineSetID() );
 	    info().setObjLineName( seis2ddisp->name() );
 	    info().setObjLineData( cache );
@@ -310,9 +329,17 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 
     if ( seis2dclosest && mindisttoseis2d<=seis2dclosest->maxDist() )
     {
-	RefMan<const Attrib::Data2DHolder> cache = seis2dclosest->getCache(0);
-	RefMan<Attrib::DataCubes> cube = 0;
+	RefMan<const Attrib::Data2DHolder> cache = 0; 
+	int attrib = seis2dclosest->nrAttribs();
+	while ( attrib )
+	{
+	    attrib--;
+	    cache = seis2dclosest->getCache( attrib );
+	    if ( cache && seis2dclosest->isAttribEnabled(attrib) ) 
+		break;
+	}
 
+	RefMan<Attrib::DataCubes> cube = 0;
 	if ( cache )
 	{
 	    cube = new Attrib::DataCubes;
@@ -322,7 +349,7 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 
 	info().setLegalClick( legalclickclosest );
 	info().setObjData( cube );
-	info().setObjDataSelSpec( seis2dclosest->getSelSpec(0) );
+	info().setObjDataSelSpec( seis2dclosest->getSelSpec(attrib) );
 	info().setObjLineSet( seis2dclosest->lineSetID() );
 	info().setObjLineName( seis2dclosest->name() );
 	info().setObjLineData( cache );
@@ -399,8 +426,19 @@ void MPEClickCatcher::sendUnderlyingPlanes(
 	    info().setLegalClick( legalclick );
 	    info().setObjID( plane->id() );
 	    info().setObjCS( cs );
-	    info().setObjData( plane->getCacheVolume(false) );
-	    info().setObjDataSelSpec( plane->getSelSpec(0) );
+	    
+	    RefMan<const Attrib::DataCubes> cache = 0;
+	    int attrib = plane->nrAttribs();
+	    while ( attrib )
+	    {
+		attrib--;
+		cache = plane->getCacheVolume( attrib );
+		if ( cache && plane->isAttribEnabled(attrib) )
+		    break;
+	    }
+	    
+	    info().setObjData( cache );
+	    info().setObjDataSelSpec( plane->getSelSpec(attrib) );
 	    click.trigger();
 	}
     }
