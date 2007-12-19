@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: maddefs.cc,v 1.9 2007-12-18 16:21:00 cvsbert Exp $";
+static const char* rcsID = "$Id: maddefs.cc,v 1.10 2007-12-19 10:38:26 cvsbert Exp $";
 
 #include "maddefs.h"
 #include "envvars.h"
@@ -49,7 +49,7 @@ void ODMad::ProgInfo::doPreScanCheck()
 	return;
     }
 
-    FilePath fp( rsfroot_ ); fp.add( "defs" );
+    FilePath fp( rsfroot_ ); fp.add( "doc" ).add( "txt" );
     defdir_ = fp.fullPath();
 
     if ( !File_isDirectory(defdir_) )
@@ -57,7 +57,7 @@ void ODMad::ProgInfo::doPreScanCheck()
 	errmsg_ = "Madagascar installation not prepared. Directory:\n";
 	errmsg_ += defdir_;
 	errmsg_ += "\ndoes not exist. You need to issue the command:\n"
-		   "$RSFROOT/bin/sfdoc -t $RSFROOT/defs\n";
+		   "$RSFROOT/bin/sfdoc -t $RSFROOT/doc/txt";
     }
 }
 
