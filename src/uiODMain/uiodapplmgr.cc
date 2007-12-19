@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.223 2007-12-11 10:00:12 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.224 2007-12-19 07:03:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -430,17 +430,41 @@ bool uiODApplMgr::selectAttrib( int id, int attrib )
 void uiODApplMgr::selectWells( ObjectSet<MultiID>& wellids )
 { wellserv_->selectWells( wellids ); }
 
-
 bool uiODApplMgr::storePickSets()
 { return pickserv_->storeSets(); }
+
 bool uiODApplMgr::storePickSet( const Pick::Set& ps )
 { return pickserv_->storeSet( ps ); }
+
 bool uiODApplMgr::storePickSetAs( const Pick::Set& ps )
 { return pickserv_->storeSetAs( ps ); }
+
 bool uiODApplMgr::setPickSetDirs( Pick::Set& ps )
-{ return attrserv_->setPickSetDirs( ps, nlaserv_ ? &nlaserv_->getModel() : 0 ); }
+{ return attrserv_->setPickSetDirs( ps, nlaserv_ ? &nlaserv_->getModel() : 0 );}
+
 bool uiODApplMgr::pickSetsStored() const
 { return pickserv_->pickSetsStored(); }
+
+
+void uiODApplMgr::useDefColTab( int visid, int attrib )
+{
+    if ( appl_.isRestoringSession() ) return;
+
+    const int coltabid = visserv_->getColTabId( visid, attrib );
+    appl_.colTabEd().setColTab( coltabid );
+    const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attrib );
+    if ( !as ) return;
+
+    PtrMan<IOObj> ioobj = attrserv_->getIOObj( *as );
+    if ( !ioobj ) return;
+
+    FilePath fp( ioobj->fullUserExpr(true) );
+    fp.setExtension( "par" );
+    BufferString fnm = fp.fullPath();
+    IOPar iop;
+    if ( iop.read(fnm,sKey::Pars) )
+	appl_.colTabEd().usePar( iop );
+}
 
 
 bool uiODApplMgr::getNewData( int visid, int attrib )
@@ -462,23 +486,6 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	return false;
     } 
 
-    if ( !myas.is2D() && !appl_.isRestoringSession() )
-    {
-	const int coltabid = visserv_->getColTabId( visid, attrib );
-	appl_.colTabEd().setColTab( coltabid );
-	IOObj* ioobj = attrserv_->getIOObj( myas );
-	if ( ioobj )
-	{
-	    FilePath fp( ioobj->fullUserExpr(true) );
-	    fp.setExtension( "par" );
-	    BufferString fnm = fp.fullPath();
-	    IOPar iop;
-	    if ( !iop.read(fnm,sKey::Pars) || !appl_.colTabEd().usePar(iop) )
-		appl_.colTabEd().setDefaultColTab();
-	    delete ioobj;
-	}
-    }
-
     bool res = false;
     switch ( visserv_->getAttributeFormat(visid) )
     {
@@ -486,6 +493,8 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	{
 	    const Attrib::DataCubes* cache =
 				visserv_->getCachedData( visid, attrib );
+	    if ( !cache )
+		useDefColTab( visid, attrib );
 
 	    CubeSampling cs = visserv_->getCubeSampling( visid, attrib );
 	    if ( !cs.isDefined() )
@@ -541,6 +550,9 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    attrserv_->setTargetSelSpec( myas );
 	    mDynamicCastGet(visSurvey::RandomTrackDisplay*,rdmtdisp,
 		    	    visserv_->getObject(visid) );
+	    DataPack::ID cacheid = rdmtdisp->getDataPackID( attrib );
+	    if ( cacheid==-1 )
+		useDefColTab( visid, attrib );
 	    TypeSet<BinID>* trcspath = rdmtdisp ? rdmtdisp->getPath() : 0;
 	    const DataPack::ID newid = 
 		    attrserv_->createRdmTrcsOutput( zrg, trcspath );
