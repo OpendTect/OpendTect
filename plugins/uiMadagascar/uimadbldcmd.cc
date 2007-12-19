@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.10 2007-12-18 16:47:39 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.11 2007-12-19 04:54:38 cvsnanne Exp $";
 
 #include "uimadbldcmd.h"
 #include "uimsg.h"
@@ -58,21 +58,23 @@ uiMadagascarBldCmd::uiMadagascarBldCmd( uiParent* p )
 	delete ex;
     }
 
-    uiGroup* selgrp = new uiGroup( this, "Prog Selection group" );
+    uiGroup* proggrp = new uiGroup( this, "Prog group" );
     if ( allok )
-	createMainPart( selgrp );
+	createMainPart( proggrp );
     else
-	new uiLabel( selgrp, ODMad::PI().errMsg() );
+	new uiLabel( proggrp, ODMad::PI().errMsg() );
 
     uiGroup* lowgrp = createLowGroup();
-    lowgrp->attach( ensureBelow, selgrp );
+    lowgrp->attach( ensureBelow, proggrp );
 
     mainwin()->finaliseDone.notify( mCB(this,uiMadagascarBldCmd,onPopup) );
 }
 
 
-void uiMadagascarBldCmd::createMainPart( uiGroup* selgrp )
+void uiMadagascarBldCmd::createMainPart( uiGroup* proggrp )
 {
+    uiGroup* selgrp = new uiGroup( 0, "Prog Selection group" );
+
     BufferStringSet grps; grps.add( sKeyAll ); grps.add( sKeySrchRes );
     BufferStringSet madgrps( ODMad::PI().groups() );
     madgrps.sort(); grps.add( madgrps, false );
@@ -89,7 +91,7 @@ void uiMadagascarBldCmd::createMainPart( uiGroup* selgrp )
     progfld_->setPrefHeightInChar( 12 );
     selgrp->setHAlignObj( progfld );
 
-    uiGroup* infogrp = new uiGroup( this, "Prog info group" );
+    uiGroup* infogrp = new uiGroup( 0, "Prog info group" );
 
     srchfld_ = new uiLineEdit( infogrp, "", "Search field" );
     srchfld_->setToolTip( "Search expression" );
@@ -111,14 +113,9 @@ void uiMadagascarBldCmd::createMainPart( uiGroup* selgrp )
     commentfld_->setPrefWidthInChar( 40 );
 
     infogrp->setHAlignObj( commentfld_ );
-    /*
-Nanne: try this
-    uiSplitter* vspl = new uiSplitter( this, "vert spl", true );
-    vspl->addGroup( selgrp ); vspl->addGroup( infogrp );
 
-instead of:
-    */
-    infogrp->attach( rightOf, selgrp );
+    uiSplitter* vspl = new uiSplitter( proggrp, "vert spl", true );
+    vspl->addGroup( selgrp ); vspl->addGroup( infogrp );
 }
 
 
