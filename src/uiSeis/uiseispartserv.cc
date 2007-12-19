@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.76 2007-12-18 10:05:03 cvssatyaki Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.77 2007-12-19 12:23:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,8 +53,9 @@ ________________________________________________________________________
 
 
 uiSeisPartServer::uiSeisPartServer( uiApplService& a )
-    	: uiApplPartServer(a)
-    	, storedgathermenuitem("Display Gather")
+    : uiApplPartServer(a)
+    , storedgathermenuitem("Display Gather")
+    , trcbufview_(0)
 {
     uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider( segyid );
     uiSurveyInfoEditor::addInfoProvider( sip );
