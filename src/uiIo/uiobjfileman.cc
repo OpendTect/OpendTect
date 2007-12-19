@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiobjfileman.cc,v 1.16 2007-09-18 10:28:55 cvsbert Exp $
+ RCS:           $Id: uiobjfileman.cc,v 1.17 2007-12-19 06:50:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,7 +151,8 @@ BufferString uiObjFileMan::getFileInfo()
     txt += "\nSize on disk: "; txt += getFileSizeString( totsz );
     if ( nrfiles > 1 )
 	{ txt += "\nNumber of files: "; txt += nrfiles; }
-    txt += "\nLast modified: "; txt += File_getTime( fname );
+    const char* timestr = File_getTime( fname );
+    if ( timestr ) { txt += "\nLast modified: "; txt += timestr; }
     if ( txt.lastChar() != '\n' ) txt += '\n';
     txt += "Object ID: "; txt += curioobj_->key();
     txt += "\n";
