@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uicoherencyattrib.h,v 1.4 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uicoherencyattrib.h,v 1.5 2007-12-20 08:21:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,8 @@ protected:
 
     bool                getParameters(Attrib::Desc&);
     bool                getInput(Attrib::Desc&);
+
+    void		getEvalParams(TypeSet<EvalParam>&) const;
 
 			mDeclReqAttribUIFns
 };

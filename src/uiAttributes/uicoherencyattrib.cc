@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:		$Id: uicoherencyattrib.cc,v 1.14 2007-10-12 09:12:19 cvssulochana Exp $
+ RCS:		$Id: uicoherencyattrib.cc,v 1.15 2007-12-20 08:21:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,4 +123,10 @@ bool uiCoherencyAttrib::getInput( Desc& desc )
     inpfld->processInput();
     fillInp( inpfld, desc, 0 );
     return true;
+}
+
+
+void uiCoherencyAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
+{
+    params += EvalParam( timegatestr, Coherency::sKeyGate() );
 }
