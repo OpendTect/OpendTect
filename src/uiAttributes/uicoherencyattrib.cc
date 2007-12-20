@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:		$Id: uicoherencyattrib.cc,v 1.15 2007-12-20 08:21:25 cvsbert Exp $
+ RCS:		$Id: uicoherencyattrib.cc,v 1.16 2007-12-20 08:32:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,8 +19,11 @@ ________________________________________________________________________
 #include "uisteeringsel.h"
 #include "uistepoutsel.h"
 #include "settings.h"
-
 using namespace Attrib;
+
+static const char* sKeyDeltaDip = "Delta dip";
+static const char* sKeyMaxDip = "Maximum dip";
+
 
 mInitAttribUI(uiCoherencyAttrib,Coherency,"Coherency",sKeyBasicGrp)
 
@@ -45,10 +48,10 @@ uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p, bool is2d )
     else
 	tgfld->attach( alignedBelow, inpfld );
 
-    maxdipfld = new uiGenInput( this, "Maximum dip", FloatInpSpec() );
+    maxdipfld = new uiGenInput( this, sKeyMaxDip, FloatInpSpec() );
     maxdipfld->attach( alignedBelow, tgfld );
 
-    deltadipfld = new uiGenInput( this, "Delta dip", FloatInpSpec() );
+    deltadipfld = new uiGenInput( this, sKeyDeltaDip, FloatInpSpec() );
     deltadipfld->attach( alignedBelow, maxdipfld );
 
     if ( is1fld )
@@ -129,4 +132,6 @@ bool uiCoherencyAttrib::getInput( Desc& desc )
 void uiCoherencyAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( timegatestr, Coherency::sKeyGate() );
+    params += EvalParam( sKeyMaxDip, Coherency::sKeyMaxDip() );
+    params += EvalParam( sKeyDeltaDip, Coherency::sKeyDDip() );
 }
