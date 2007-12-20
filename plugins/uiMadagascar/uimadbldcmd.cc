@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.11 2007-12-19 04:54:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.12 2007-12-20 16:18:54 cvsbert Exp $";
 
 #include "uimadbldcmd.h"
 #include "uimsg.h"
@@ -48,6 +48,9 @@ uiMadagascarBldCmd::uiMadagascarBldCmd( uiParent* p )
 	: uiGroup(p,"Madagascar command builder")
 	, cmdAvailable(this)
     	, cmdisadd_(true)
+    	, groupfld_(0)
+    	, progfld_(0)
+    	, synopsfld_(0)
 {
     bool allok = ODMad::PI().errMsg().isEmpty();
     if ( allok && !ODMad::PI().scanned() )
@@ -123,17 +126,21 @@ uiGroup* uiMadagascarBldCmd::createLowGroup()
 {
     uiGroup* lowgrp = new uiGroup( this, "Low grp" );
 
-    synopsfld_ = new uiLineEdit( lowgrp, "", "Synopsis edit line" );
-    synopsfld_->setReadOnly( true );
-    synopsfld_->setStretch( 2, 0 );
-    synopsfld_->setHSzPol( uiObject::WideVar );
-    new uiLabel( lowgrp, "Synopsis", synopsfld_ );
+    if ( progfld_ )
+    {
+	synopsfld_ = new uiLineEdit( lowgrp, "", "Synopsis edit line" );
+	synopsfld_->setReadOnly( true );
+	synopsfld_->setStretch( 2, 0 );
+	synopsfld_->setHSzPol( uiObject::WideVar );
+	new uiLabel( lowgrp, "Synopsis", synopsfld_ );
+    }
 
     cmdfld_ = new uiLineEdit( lowgrp, "", "Command edit line" );
     cmdfld_->setStretch( 2, 0 );
     cmdfld_->setHSzPol( uiObject::MedVar );
     new uiLabel( lowgrp, "Command line", cmdfld_ );
-    cmdfld_->attach( alignedBelow, synopsfld_ );
+    if ( synopsfld_ )
+	cmdfld_->attach( alignedBelow, synopsfld_ );
 
     uiPushButton* addbut = new uiPushButton( lowgrp, "&Add", true );
     addbut->setToolTip( "Add to process flow" );
@@ -169,6 +176,8 @@ void uiMadagascarBldCmd::setCmd( const char* cmd )
 
 void uiMadagascarBldCmd::setProgName( const char* pnm )
 {
+    if ( !groupfld_ ) return;
+
     const BufferString prognm( pnm );
     if ( !prognm.isEmpty() )
     {

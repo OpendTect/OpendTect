@@ -4,11 +4,12 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: uimadiosel.h,v 1.2 2007-12-07 15:15:51 cvsbert Exp $
+ * ID       : $Id: uimadiosel.h,v 1.3 2007-12-20 16:18:54 cvsbert Exp $
 -*/
 
 #include "uicompoundparsel.h"
 #include "uidialog.h"
+#include "madprocflow.h"
 #include "seistype.h"
 #include "iopar.h"
 class uiLabel;
@@ -27,6 +28,7 @@ class uiMadIOSel : public uiCompoundParSel
 public:
 			uiMadIOSel(uiParent*,bool isinp);
 
+    void		usePar(const IOPar&);
     void		fillPar( IOPar& iop ) const	{ iop.merge(iop_); }
 
 protected:
@@ -49,6 +51,24 @@ public:
 
     inline bool		isInp() const
     			{ return subsel3dfld_ || subsel2dfld_; }
+    bool		isNone() const;
+    bool		isMad() const;
+    inline bool		isOD() const	{ return !isMad() && !isNone(); }
+    ODMad::ProcFlow::IOType ioType() const
+			{
+			    return isNone() ? ODMad::ProcFlow::None
+				 : (isMad() ? ODMad::ProcFlow::Madagascar
+				 : (ODMad::ProcFlow::IOType)geomType());
+			}
+
+    			// Functions only valid if isOD()
+    Seis::GeomType	geomType() const;
+    CtxtIOObj&		ctxtIOObj(Seis::GeomType);
+    uiSeisSel*		seisSel(Seis::GeomType);
+    uiSeisSubSel*	seisSubSel(Seis::GeomType);
+
+    void		usePar(const IOPar&);
+    void		fillPar(IOPar&);
 
 protected:
 
@@ -77,12 +97,6 @@ protected:
 
     bool		getInp();
     bool		acceptOK(CallBacker*);
-
-    bool		isMad() const;
-    Seis::GeomType	geomType() const;
-    CtxtIOObj&		ctxtIOObj(Seis::GeomType);
-    uiSeisSel*		seisSel(Seis::GeomType);
-    uiSeisSubSel*	seisSubSel(Seis::GeomType);
 
 };
 

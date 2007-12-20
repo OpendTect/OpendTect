@@ -5,25 +5,32 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.13 2007-12-11 15:18:26 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.14 2007-12-20 16:18:54 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
 #include "uimadbldcmd.h"
+#include "madprocflow.h"
+#include "madprocflowtr.h"
+#include "madio.h"
 #include "uilistbox.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uimenu.h"
 #include "uitoolbar.h"
 #include "uisplitter.h"
+#include "uiioobjsel.h"
+#include "uifiledlg.h"
 #include "uimsg.h"
 #include "pixmap.h"
+#include "ioman.h"
 
 
 uiMadagascarMain::uiMadagascarMain( uiParent* p )
 	: uiDialog( p, Setup( "Madagascar processing",
 			      "Processing flow",
 			      "0.0.0").menubar(true) )
+	, ctio_(*mMkCtxtIOObj(ODMadProcFlow))
 	, bldfld_(0)
 {
     setCtrlStyle( uiDialog::DoAndStay );
@@ -50,6 +57,12 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
 }
 
 
+uiMadagascarMain::~uiMadagascarMain()
+{
+    delete ctio_.ioobj; delete &ctio_;
+}
+
+
 #define mInsertItem( txt, func ) \
     mnu->insertItem( new uiMenuItem(txt,mCB(this,uiMadagascarMain,func)) )
 #define mAddButton(pm,func,tip) \
@@ -65,7 +78,6 @@ void uiMadagascarMain::createMenus()
     mInsertItem( "&Open flow ...", openFlow );
     mInsertItem( "&Save flow ...", saveFlow );
     mnu->insertSeparator();
-    mInsertItem( "&Import flow ...", importFlow );
     mInsertItem( "&Export flow ...", exportFlow );
     mnu->insertSeparator();
     mInsertItem( "&Quit", reject );
@@ -104,6 +116,27 @@ uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
 
     procgrp->setHAlignObj( pfld );
     return procgrp;
+}
+
+
+void uiMadagascarMain::getFlow( ODMad::ProcFlow& pf )
+{
+    infld_->fillPar( pf.input() );
+    outfld_->fillPar( pf.output() );
+    pf.procs().deepErase();
+    const int nrprocs = procsfld_->size();
+    for ( int idx=0; idx<nrprocs; idx++ )
+	pf.addProc( procsfld_->textOfItem(idx) );
+}
+
+
+void uiMadagascarMain::setFlow( const ODMad::ProcFlow& pf )
+{
+    infld_->usePar( pf.input() );
+    outfld_->usePar( pf.output() );
+    procsfld_->empty();
+    for ( int idx=0; idx<pf.procs().size(); idx++ )
+	procsfld_->addItem( pf.procs().get(idx) );
 }
 
 
@@ -190,26 +223,48 @@ void uiMadagascarMain::selChg( CallBacker* cb )
 
 void uiMadagascarMain::newFlow( CallBacker* )
 {
+    ODMad::ProcFlow pf;
+    setFlow( pf );
 }
 
 
 void uiMadagascarMain::openFlow( CallBacker* )
 {
+    ctio_.ctxt.forread = true;
+    uiIOObjSelDlg dlg( this, ctio_ );
+    if ( dlg.go() )
+    {
+	ctio_.setObj( dlg.ioObj()->clone() );
+	BufferString emsg; ODMad::ProcFlow pf;
+	if ( !ODMadProcFlowTranslator::retrieve(pf,ctio_.ioobj,emsg) )
+	    uiMSG().error( emsg );
+	else
+	    setFlow( pf );
+    }
 }
 
 
 void uiMadagascarMain::saveFlow( CallBacker* )
 {
-}
-
-
-void uiMadagascarMain::importFlow( CallBacker* )
-{
+    ctio_.ctxt.forread = false;
+    uiIOObjSelDlg dlg( this, ctio_ );
+    if ( dlg.go() )
+    {
+	ctio_.setObj( dlg.ioObj()->clone() );
+	BufferString emsg; ODMad::ProcFlow pf; getFlow( pf );
+	if ( !ODMadProcFlowTranslator::store(pf,ctio_.ioobj,emsg) )
+	    uiMSG().error( emsg );
+    }
 }
 
 
 void uiMadagascarMain::exportFlow( CallBacker* )
 {
+    IOM().to( ODMad::sKeyMadSelKey );
+    uiFileDialog dlg( this, false );
+    dlg.setDirectory( IOM().curDir() );
+    if ( !dlg.go() ) return;
+    uiMSG().error( "Export needs implementation" );
 }
 
 

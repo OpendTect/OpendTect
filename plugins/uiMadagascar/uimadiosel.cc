@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.4 2007-12-07 15:15:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.5 2007-12-20 16:18:54 cvsbert Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -28,8 +28,8 @@ static const char* rcsID = "$Id: uimadiosel.cc,v 1.4 2007-12-07 15:15:51 cvsbert
 
 uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	: uiDialog(p, Setup(BufferString("Processing ",isinp?"input":"output"),
-		    	    BufferString("Specify the ",isinp?"input":"output",
-					 " to the processing flow"),"0.0.0") )
+		    BufferString("Specify the ",isinp?"input to":"output of",
+					 " the processing flow"),"0.0.0") )
 	, ctio3d_(*mMkCtxtIOObj(SeisTrc))
     	, ctio2d_(*mMkCtxtIOObj(SeisTrc))
 	, ctiops3d_(*mMkCtxtIOObj(SeisPS))
@@ -59,7 +59,8 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
     mAdd( ODMad::sKeyMadagascar, idxmad_ );
     mAdd( sKey::None, idxnone_ );
 
-    typfld_ = new uiGenInput( this, "Input", StringListInpSpec(seistypes) );
+    typfld_ = new uiGenInput( this, isinp ? "Input" : "Output",
+	    		      StringListInpSpec(seistypes) );
     typfld_->valuechanged.notify( mCB(this,uiMadIOSelDlg,typSel) );
     if ( have3d )
     {
@@ -117,29 +118,57 @@ uiMadIOSelDlg::~uiMadIOSelDlg()
 }
 
 
+bool uiMadIOSelDlg::isNone() const
+{
+    return typfld_->getIntValue() == idxnone_;
+}
+
+
+bool uiMadIOSelDlg::isMad() const
+{
+    return typfld_->getIntValue() == idxmad_;
+}
+
+
+Seis::GeomType uiMadIOSelDlg::geomType() const
+{
+    const int choice = typfld_->getIntValue();
+    return choice == idx3d_ ?	Seis::Vol
+	: (choice == idx2d_ ?	Seis::Line
+	: (choice == idxps2d_ ?	Seis::LinePS
+	:			Seis::VolPS) );
+}
+
+
+CtxtIOObj& uiMadIOSelDlg::ctxtIOObj( Seis::GeomType gt )
+{
+    return gt == Seis::Vol ?	ctio3d_
+	: (gt == Seis::Line ?	ctio2d_
+	: (gt == Seis::LinePS ?	ctiops2d_
+	:			ctiops3d_ ) );
+}
+
+
+uiSeisSel* uiMadIOSelDlg::seisSel( Seis::GeomType gt )
+{
+    return gt == Seis::Vol ?	seis3dfld_
+	: (gt == Seis::Line ?	seis2dfld_
+	: (gt == Seis::LinePS ?	seisps2dfld_
+	:			seisps3dfld_ ) );
+}
+
+
+uiSeisSubSel* uiMadIOSelDlg::seisSubSel( Seis::GeomType gt )
+{
+    if ( Seis::is2D(gt) )
+	return subsel2dfld_;
+    return subsel3dfld_;
+}
+
+
 void uiMadIOSelDlg::initWin( CallBacker* cb )
 {
-    const char* res = iop_.find( sKey::Type );
-    const bool isinp = isInp();
-    if ( !res || !strcmp(res,ODMad::sKeyMadagascar) )
-    {
-	BufferString txt;
-	if ( iop_.get(sKey::FileName,txt) )
-	    madfld_->setFileName( txt );
-	if ( isinp && iop_.get(sKey::IOSelection,txt) )
-	    subselmadfld_->setText( txt );
-    }
-    else
-    {
-	const Seis::GeomType gt = Seis::geomTypeOf( res );
-	typfld_->setText( res );
-	seisSel( gt )->usePar( iop_ );
-
-	if ( isinp )
-	    seisSubSel( gt )->usePar( iop_ );
-    }
-
-    typSel(cb);
+    usePar( iop_ );
 }
 
 
@@ -166,7 +195,7 @@ void uiMadIOSelDlg::typSel( CallBacker* )
 
 void uiMadIOSelDlg::selChg( CallBacker* )
 {
-    if ( isMad() || !isInp() ) return;
+    if ( isMad() || isNone() || !isInp() ) return;
 
     const Seis::GeomType gt = geomType();
     CtxtIOObj& ctio = ctxtIOObj( gt );
@@ -175,6 +204,57 @@ void uiMadIOSelDlg::selChg( CallBacker* )
 	subsel->clear();
     else
 	subsel->setInput( *ctio.ioobj );
+}
+
+
+void uiMadIOSelDlg::usePar( const IOPar& iop )
+{
+    ODMad::ProcFlow::IOType iot = ODMad::ProcFlow::ioType( iop );
+    const bool isinp = isInp();
+    if ( iot == ODMad::ProcFlow::Madagascar )
+    {
+	BufferString txt;
+	if ( iop.get(sKey::FileName,txt) )
+	    madfld_->setFileName( txt );
+	if ( isinp && iop.get(sKey::IOSelection,txt) )
+	    subselmadfld_->setText( txt );
+    }
+    else if ( iot != ODMad::ProcFlow::None )
+    {
+	const Seis::GeomType gt = (Seis::GeomType)iot;
+	typfld_->setText( Seis::nameOf(gt) );
+	seisSel( gt )->usePar( iop );
+	if ( isinp )
+	    seisSubSel( gt )->usePar( iop );
+    }
+
+    typSel( this );
+}
+
+
+void uiMadIOSelDlg::fillPar( IOPar& iop )
+{
+    iop.clear();
+    ODMad::ProcFlow::setIOType( iop, ioType() );
+    const bool isinp = isInp();
+    if ( isMad() )
+    {
+	iop.set( sKey::FileName, madfld_->fileName() );
+	if ( isinp )
+	    iop.set( sKey::IOSelection, subselmadfld_->text() );
+    }
+    else if ( !isNone() )
+    {
+	const Seis::GeomType gt = geomType();
+	seisSel(gt)->fillPar( iop );
+	if ( isinp )
+	{
+	    if ( Seis::is2D(gt) )
+		subsel2dfld_->fillPar( iop );
+	    else
+		subsel3dfld_->fillPar( iop );
+	}
+    }
 }
 
 
@@ -193,7 +273,7 @@ bool uiMadIOSelDlg::getInp()
 	if ( fnm.isEmpty() || (isinp && !File_exists(fnm)) )
 	    mErrRet("file")
     }
-    else
+    else if ( !isNone() )
     {
 	const Seis::GeomType gt = geomType();
 	if ( !seisSel(gt)->commitInput(!isinp) )
@@ -204,49 +284,8 @@ bool uiMadIOSelDlg::getInp()
 		return false;
 	}
     }
+
     return true;
-}
-
-
-Seis::GeomType uiMadIOSelDlg::geomType() const
-{
-    const int choice = typfld_->getIntValue();
-    return choice == idx3d_ ?	Seis::Vol
-	: (choice == idx2d_ ?	Seis::Line
-	: (choice == idxps2d_ ?	Seis::LinePS
-	:			Seis::VolPS) );
-}
-
-
-CtxtIOObj& uiMadIOSelDlg::ctxtIOObj( Seis::GeomType gt )
-{
-    return gt == Seis::Vol ?	ctio3d_
-	: (gt == Seis::Line ?	ctio2d_
-	: (gt == Seis::LinePS ?	ctiops2d_
-	:			ctiops3d_ ) );
-}
-
-
-bool uiMadIOSelDlg::isMad() const
-{
-    return typfld_->getIntValue() == idxmad_;
-}
-
-
-uiSeisSel* uiMadIOSelDlg::seisSel( Seis::GeomType gt )
-{
-    return gt == Seis::Vol ?	seis3dfld_
-	: (gt == Seis::Line ?	seis2dfld_
-	: (gt == Seis::LinePS ?	seisps2dfld_
-	:			seisps3dfld_ ) );
-}
-
-
-uiSeisSubSel* uiMadIOSelDlg::seisSubSel( Seis::GeomType gt )
-{
-    if ( Seis::is2D(gt) )
-	return subsel2dfld_;
-    return subsel3dfld_;
 }
 
 
@@ -255,31 +294,7 @@ bool uiMadIOSelDlg::acceptOK( CallBacker* )
     if ( !getInp() )
 	return false;
 
-    iop_.set( sKey::Type, typfld_->text() );
-    const bool isinp = isInp();
-    if ( isMad() )
-    {
-	iop_.set( sKey::Selection, ODMad::sKeyMadagascar );
-	iop_.set( sKey::FileName, madfld_->fileName() );
-	if ( isinp )
-	    iop_.set( sKey::IOSelection, subselmadfld_->text() );
-    }
-    else
-    {
-	const Seis::GeomType gt = geomType();
-	iop_.clear();
-	iop_.set( sKey::Selection, Seis::nameOf(gt) );
-	const CtxtIOObj& ctio = ctxtIOObj( gt );
-	iop_.set( "ID", ctio.ioobj->key() );
-	if ( isinp )
-	{
-	    if ( Seis::is2D(gt) )
-		subsel2dfld_->fillPar( iop_ );
-	    else
-		subsel3dfld_->fillPar( iop_ );
-	}
-    }
-
+    fillPar( iop_ );
     return true;
 }
 
@@ -293,6 +308,13 @@ uiMadIOSel::uiMadIOSel( uiParent* p, bool isinp )
 }
 
 
+void uiMadIOSel::usePar( const IOPar& iop )
+{
+    iop_ = iop;
+    updateSummary();
+}
+
+
 void uiMadIOSel::doDlg( CallBacker* )
 {
     uiMadIOSelDlg dlg( this, iop_, isinp_ );
@@ -302,14 +324,13 @@ void uiMadIOSel::doDlg( CallBacker* )
 
 BufferString uiMadIOSel::getSummary() const
 {
-    BufferString ret;
-    //TODO better
-    const char* res = iop_.find( sKey::Selection );
-    if ( !res || !*res ) return ret;
+    BufferString ret( "-" );
 
-    ret = res; res = iop_.find( "ID" );
-    if ( *ret.buf() != 'M' && *ret.buf() != 'N' )
-	{ ret += " "; ret += IOM().nameOf( res ); }
+    ODMad::ProcFlow::IOType iot = ODMad::ProcFlow::ioType( iop_ );
+    if ( iot == ODMad::ProcFlow::Madagascar )
+	ret = iop_.find( sKey::FileName );
+    else if ( iot != ODMad::ProcFlow::None )
+	ret = IOM().nameOf( iop_.find("ID") );
 
     return ret;
 }

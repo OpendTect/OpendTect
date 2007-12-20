@@ -1,10 +1,10 @@
-#ifndef maddefs_h
-#define maddefs_h
+#ifndef madio_h
+#define madio_h
 /*+
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: madio.h,v 1.2 2007-11-13 16:21:27 cvsbert Exp $
+ * ID       : $Id: madio.h,v 1.3 2007-12-20 16:18:54 cvsbert Exp $
 -*/
 
 #include "bufstring.h"
@@ -16,6 +16,7 @@ namespace ODMad
 {
 
 extern const char* sKeyMadagascar;
+extern const char* sKeyMadSelKey;
 
 class FileSpec
 {

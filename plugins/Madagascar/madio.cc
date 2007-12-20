@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: madio.cc,v 1.2 2007-11-13 16:21:27 cvsbert Exp $";
+static const char* rcsID = "$Id: madio.cc,v 1.3 2007-12-20 16:18:54 cvsbert Exp $";
 
 #include "madio.h"
 #include "keystrs.h"
@@ -16,6 +16,7 @@ static const char* rcsID = "$Id: madio.cc,v 1.2 2007-11-13 16:21:27 cvsbert Exp 
 
 const char* ODMad::FileSpec::sKeyDataPath = "Data Path";
 const char* ODMad::sKeyMadagascar = "Madagascar";
+const char* ODMad::sKeyMadSelKey = "909090";
 
 
 ODMad::FileSpec::FileSpec( bool fr )

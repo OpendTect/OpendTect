@@ -2,18 +2,20 @@
 /*+
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
- * DATE     : NOv 2003
+ * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.6 2007-12-18 16:21:00 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.7 2007-12-20 16:18:54 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiodmenumgr.h"
 #include "uimenu.h"
 #include "uitoolbar.h"
 #include "maddefs.h"
+#include "madio.h"
 #include "uimsg.h"
 #include "plugins.h"
+#include "ioman.h"
 
 extern "C" int GetuiMadagascarPluginType()
 {
@@ -74,6 +76,12 @@ extern "C" const char* InituiMadagascarPlugin( int, char** )
 {
     static uiMadagascarLink* lnk = 0;
     if ( lnk ) return 0;
+
+    IOMan::CustomDirData cdd( ODMad::sKeyMadSelKey, ODMad::sKeyMadagascar,
+	    		      "Madagascar data" );
+    MultiID id = IOMan::addCustomDataDir( cdd );
+    if ( id != ODMad::sKeyMadSelKey )
+	return "Cannot create 'Madagascar' directory in survey";
 
 #ifdef MAD_UIMSG_IF_FAIL
     if ( !ODMad::PI().errMsg().isEmpty() )
