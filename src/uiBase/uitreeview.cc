@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.30 2007-07-26 07:02:57 cvsnanne Exp $
+ RCS:           $Id: uitreeview.cc,v 1.31 2007-12-20 13:06:15 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -703,12 +703,14 @@ void uiListViewItem::removeItem( uiListViewItem* itm)
 int uiListViewItem::siblingIndex() const
 {
     const mQListViewItem* thisp = &mQthing();
-    mQListViewItem* parent = mQthing().parent();
-    if ( !parent )
+    const mQListViewItem* parentitem = mQthing().parent();
+    const mQListView* parentlistview = mQthing().listView();
+    if ( !parentitem && !parentlistview )
 	return -1;
-
+    
+    mQListViewItem* curitem = parentitem ? parentitem->firstChild()  
+					 : parentlistview->firstChild();
     int idx=0;
-    mQListViewItem* curitem = parent->firstChild();
     while ( curitem && curitem!=thisp )
     {
 	idx++;
