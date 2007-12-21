@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.87 2007-12-14 05:55:16 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.88 2007-12-21 09:38:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ ________________________________________________________________________
 #include "inituimpe.h"
 #include "inituivolumeprocessing.h"
 #include "inituiprestackprocessing.h"
+#include "initvisbase.h"
 #include "initvissurvey.h"
 #include "initvolumeprocessing.h"
 
@@ -100,6 +101,10 @@ void initAll()
     uiVolumeProcessing::initStdClasses();
     uiPreStackProcessing::initStdClasses();
     uiMPE::initStdClasses();
+
+    SoOD::initStdClasses();
+    visBase::initStdClasses();
+    visSurvey::initStdClasses();
 }
 
 
