@@ -31,7 +31,6 @@ int main( int narg, char** argv )
     QWidget* myWindow = SoQt::init( narg, argv, argv[0] );
 #endif
     SoOD::initStdClasses();
-    SoVolumeRendering::init();
 
     if ( myWindow==NULL ) return 1;
 
