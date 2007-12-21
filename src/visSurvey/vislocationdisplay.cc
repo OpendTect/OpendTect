@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.32 2007-12-10 03:56:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.33 2007-12-21 04:45:57 cvsraman Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -44,7 +44,7 @@ float findDistance( Coord3 p1, Coord3 p2, Coord3 p )
 
     const float factor = prod / sq;
     if ( factor<0 || factor>1 )		// projected point outside the segment.
-	return mUdf(float);
+	return mMIN( p1.distTo(p), p2.distTo(p) );
 
     const Coord3 proj = p1 + vec * factor;
     return proj.distTo( p );
