@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.25 2007-12-18 10:05:03 cvssatyaki Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.26 2007-12-21 12:37:35 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ class uiSeisPartServer : public uiApplPartServer
 {
 public:
 			uiSeisPartServer(uiApplService&);
+			//~uiSeisPartServer();
     const char*		name() const			{ return "Seismics"; }
 
     enum ExternalType	{ SegY, CBVS };

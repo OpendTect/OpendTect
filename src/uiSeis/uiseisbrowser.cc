@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.11 2007-12-17 05:53:18 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.12 2007-12-21 12:37:35 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -146,7 +146,7 @@ void uiSeisBrowser::createMenuAndToolBar()
     crlwisebutidx_ = mAddButton("crlwise.png",switchViewTypePush,"",true );
     mAddButton("leftarrow.png",leftArrowPush,"",false );
     mAddButton("rightarrow.png",rightArrowPush,"",false );
-    showwgglbutidx_ = mAddButton("seistrc.png",showWigglePush,"",false );
+    showwgglbutidx_ = mAddButton("viewflat.png",showWigglePush,"",false );
 }
 
 
@@ -204,7 +204,6 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force )
 
     commitChanges();
     BinID binid( bid );
-
     const bool inlok = is2D() || !mIsUdf(bid.inl);
     const bool crlok = !mIsUdf(bid.crl);
     if ( !inlok || !crlok )
@@ -389,7 +388,7 @@ void uiSeisBrowser::goToPush( CallBacker* )
 	setPos( dlg.pos_ );
     setTrcBufViewTitle();
     if (strcbufview_)
-        strcbufview_->update();
+        strcbufview_->handleBufChange();
 }
 
 
@@ -398,7 +397,7 @@ void uiSeisBrowser::rightArrowPush( CallBacker* )
     goTo( getNextBid(curBinID(),stepout_,false) );
     setTrcBufViewTitle();
     if (strcbufview_)
-	strcbufview_->update();
+	strcbufview_->handleBufChange();
 }
 
 
@@ -407,7 +406,7 @@ void uiSeisBrowser::leftArrowPush( CallBacker* )
     goTo( getNextBid(curBinID(),stepout_,true) );
     setTrcBufViewTitle();
     if (strcbufview_)
-	strcbufview_->update();
+	strcbufview_->handleBufChange();
 }
 
 
@@ -416,8 +415,8 @@ void uiSeisBrowser::switchViewTypePush( CallBacker* )
     crlwise_ = uitb_->isOn( crlwisebutidx_ );
     doSetPos( curBinID(), true );
     setTrcBufViewTitle();
-    if (strcbufview_)
-	strcbufview_->update();
+    if ( strcbufview_ )
+	strcbufview_->handleBufChange();
 }
 
 
@@ -479,11 +478,10 @@ void uiSeisBrowser::showWigglePush( CallBacker* )
     else
     {
 	const char* name = IOM().nameOf( setup_.id_ );
-	uiSeisTrcBufViewer::Setup stbvsetup( title );
+	uiSeisTrcBufViewer::Setup stbvsetup( title, 1 );
 	strcbufview_ = new uiSeisTrcBufViewer( this, stbvsetup );
 	SeisTrcBufDataPack* dp = strcbufview_->setTrcBuf
-	                            ( &tbuf_, setup_.geom_,SeisTrcInfo::TrcNr,
-		                      "Seismics", name);
+	                            ( &tbuf_, setup_.geom_, "Seismics", name);
 	dp->trcBufArr2D().setBufMine( false );
 	strcbufview_->getViewer()->usePack( true, dp->id() );
 	strcbufview_->start();
@@ -515,8 +513,8 @@ void uiSeisBrowser::valChgReDraw( CallBacker* )
     SeisTrc* trace = tbuf_.get( rc.col );
     const float chgdval = tbl_->getfValue( rc );
     trace->set( rc.row, chgdval, compnr_ );
-    if (strcbufview_)
-	strcbufview_->update();
+    if ( strcbufview_ )
+	strcbufview_->handleBufChange();
 }
 
 
@@ -525,7 +523,7 @@ void uiSeisBrowser::setTrcBufViewTitle()
     BufferString title( "Central Trace :" );
     title += curBinID().inl; title += "/";
     title += curBinID().crl;
-    if (strcbufview_)
+    if ( strcbufview_ )
         strcbufview_->setWinTitle( title );
 
 }

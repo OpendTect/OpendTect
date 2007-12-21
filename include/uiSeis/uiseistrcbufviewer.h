@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          November 2007
- RCS:           $Id: uiseistrcbufviewer.h,v 1.8 2007-12-18 10:05:03 cvssatyaki Exp $
+ RCS:           $Id: uiseistrcbufviewer.h,v 1.9 2007-12-21 12:37:36 cvssatyaki Exp $
 _______________________________________________________________________
 
 -*/
@@ -30,29 +30,27 @@ public:
     class Setup : public uiFlatViewMainWin::Setup
     {
     public:
-			Setup( const char* wintitl)
-			    : uiFlatViewMainWin::Setup(wintitl) 	{}
-
+			Setup( const char* wintitl, const int nrvwrs)
+			    : uiFlatViewMainWin::Setup(wintitl) 	
+			    , nrvwrs_(nrvwrs)				{}
         mDefSetupMemb(BufferString, wintitl)
+        mDefSetupMemb(int, nrvwrs)
     };		    
     				
 			uiSeisTrcBufViewer(uiParent*,
 				           const uiSeisTrcBufViewer::Setup&) ;
     			~uiSeisTrcBufViewer();
 
-    SeisTrcBufDataPack*	setTrcBuf(SeisTrcBuf*,Seis::GeomType,SeisTrcInfo::Fld, 
+    SeisTrcBufDataPack*	setTrcBuf(SeisTrcBuf*,Seis::GeomType,
 	                          const char*,const char* nm);
-    void		setBuffer(SeisTrcBuf*,Seis::GeomType,
-	    			  SeisTrcInfo::Fld,bool wva);
-    void		update();
+    SeisTrcBufDataPack*	setTrcBuf(const SeisTrcBuf&,Seis::GeomType,
+	    			  const char*,const char* nm);
+    void		handleBufChange();
     void		removePacks();
 
-    uiFlatViewer*	getViewer()		{ return vwr_; }
+    uiFlatViewer*	getViewer()		{ return &viewer(); }
 
 protected:
-
-    SeisTrcBuf*		tbuf_;
-    uiFlatViewer*	vwr_;
 
 };
 

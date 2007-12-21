@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.77 2007-12-19 12:23:10 cvsnanne Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.78 2007-12-21 12:37:35 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,12 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     uiSurveyInfoEditor::addInfoProvider( sip );
     SeisIOObjInfo::initDefault( sKey::Steering );
 }
+
+
+//uiSeisPartServer::~uiSeisPartServer()
+//{
+  //  delete trcbufview_;
+//}
 
 
 bool uiSeisPartServer::ioSeis( int opt, bool forread )
@@ -300,7 +306,7 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
 	trcbufview_->removePacks();
     else
     {
-	uiSeisTrcBufViewer::Setup stbvsetup( title );
+	uiSeisTrcBufViewer::Setup stbvsetup( title, 1 );
 	trcbufview_ = new uiSeisTrcBufViewer( appserv().parent(), stbvsetup );
 	trcbufview_->windowClosed.notify(
 		mCB(this,uiSeisPartServer,viewerClosed) );
@@ -308,10 +314,9 @@ bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
 
 
     SeisTrcBufDataPack* dp1 = trcbufview_->setTrcBuf( tbuf, Seis::VolPS,
-	    SeisTrcInfo::Offset, "Pre-Stack Gather", "Seismics" );
-    SeisTrcBufDataPack* dp2 = trcbufview_->setTrcBuf( tbuffreq,
-	    Seis::VolPS, SeisTrcInfo::Offset,"Pre-Stack Gather.Freq",
-	    "Local frequency");
+	    "Pre-Stack Gather", "Seismics" );
+    SeisTrcBufDataPack* dp2 = trcbufview_->setTrcBuf( tbuffreq, Seis::VolPS,
+	    "Pre-Stack Gather.Freq", "Local frequency");
     trcbufview_->getViewer()->usePack( true, dp1->id() );
     trcbufview_->getViewer()->usePack( false, dp2->id() );
     

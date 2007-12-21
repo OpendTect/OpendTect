@@ -4,11 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          Nov 2007
-<<<<<<< uiseistrcbufviewer.cc
- RCS:           $Id: uiseistrcbufviewer.cc,v 1.9 2007-12-18 10:05:03 cvssatyaki Exp $
-=======
- RCS:           $Id: uiseistrcbufviewer.cc,v 1.9 2007-12-18 10:05:03 cvssatyaki Exp $
->>>>>>> 1.7
+ RCS:           $Id: uiseistrcbufviewer.cc,v 1.10 2007-12-21 12:37:35 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,60 +24,65 @@ ________________________________________________________________________
 uiSeisTrcBufViewer::uiSeisTrcBufViewer( uiParent* p, 
 					const uiSeisTrcBufViewer::Setup& setup )
     : uiFlatViewMainWin( p, setup )      
-    , vwr_(0)		 
 {
-    vwr_ = new uiFlatViewer(this);
-    vwr_->setInitialSize( uiSize(400,500) );
-    vwr_->setDarkBG( false );
-    FlatView::Appearance& app = vwr_->appearance();
+    viewer().setInitialSize( uiSize(400,500) );
+    viewer().setDarkBG( false );
+    FlatView::Appearance& app = viewer().appearance();
     app.annot_.setAxesAnnot( true );
     app.setGeoDefaults( true );
     app.ddpars_.wva_.overlap_ = 1;
-    addControl( new uiFlatViewStdControl( *vwr_, 
+    addControl( new uiFlatViewStdControl( viewer(),
 		uiFlatViewStdControl::Setup(this).withstates(true) ) );
 }
 
 
 uiSeisTrcBufViewer::~uiSeisTrcBufViewer()
 {
-    delete vwr_;
+    cleanUp();
 }
 
 
-// TODO: look at nr of arguments
 SeisTrcBufDataPack* uiSeisTrcBufViewer::setTrcBuf( SeisTrcBuf* tbuf,
-				Seis::GeomType geom, SeisTrcInfo::Fld fld,
-				const char* category, const char* nm )
+				Seis::GeomType geom, const char* category,
+				const char* dpname )
 {
+    const int type =  tbuf->get(0)->info().getDefaultAxisFld( geom,
+	    		&tbuf->get(1)->info() );
     SeisTrcBufDataPack* dp =
-	new SeisTrcBufDataPack( tbuf, geom, fld, category );
-    dp->setName( nm );
+	new SeisTrcBufDataPack( tbuf, geom, (SeisTrcInfo::Fld)type, category );
+    dp->setName( dpname );
     DPM( DataPackMgr::FlatID ).add( dp );
-    vwr_->addPack( dp->id() );
+    viewer().addPack( dp->id() );
     return dp;
 }
 
 
-void uiSeisTrcBufViewer::update()
+SeisTrcBufDataPack* uiSeisTrcBufViewer::setTrcBuf( const SeisTrcBuf& tbuf,
+				Seis::GeomType geom, const char* category,
+				const char* dpname )
 {
-    vwr_->handleChange( FlatView::Viewer::All );
+    SeisTrcBuf* mybuf = new SeisTrcBuf( tbuf );
+    const int type =  mybuf->get(0)->info().getDefaultAxisFld( geom,
+	    	    	&mybuf->get(1)->info() );
+
+    SeisTrcBufDataPack* dp =
+	new SeisTrcBufDataPack( mybuf, geom, (SeisTrcInfo::Fld)type, category );
+    dp->setName( dpname );
+    DPM( DataPackMgr::FlatID ).add( dp );
+    viewer().addPack( dp->id() );
+    return dp;
 }
 
 
-void uiSeisTrcBufViewer::setBuffer( SeisTrcBuf* tbuf, Seis::GeomType geom,
-				    SeisTrcInfo::Fld fld, bool wva )
+void uiSeisTrcBufViewer::handleBufChange()
 {
-    FlatDataPack* fdp = const_cast<FlatDataPack*>(vwr_->pack( wva ));
-    mDynamicCastGet(SeisTrcBufDataPack*,dp,fdp)
-    if ( !dp ) return;
-
-    dp->setBuffer( tbuf, geom, fld );
+    viewer().handleChange( FlatView::Viewer::All );
 }
 
 
 void uiSeisTrcBufViewer::removePacks()
 {
-    const TypeSet<DataPack::ID> ids = vwr_->availablePacks();
+    const TypeSet<DataPack::ID> ids = viewer().availablePacks();
     for ( int idx=0; idx<ids.size(); idx++ )
-	vwr_->removePack( ids[idx] );
+	viewer().removePack( ids[idx] );
 }
