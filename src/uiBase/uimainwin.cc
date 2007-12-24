@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.137 2007-12-13 09:48:36 cvsraman Exp $
+ RCS:           $Id: uimainwin.cc,v 1.138 2007-12-24 05:29:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,7 +125,6 @@ public:
 			    return true;
 			}
 
-    static Qt::ToolBarDock	qdock(uiMainWin::Dock);
     void 		uimoveDockWindow(uiDockWin&,uiMainWin::Dock,int);
     void		removeDockWin(uiDockWin*);
     void		addDockWin(uiDockWin&,uiMainWin::Dock);
@@ -401,43 +400,20 @@ void uiMainWinBody::moveDockWindows()
 }
 
 
-Qt::ToolBarDock uiMainWinBody::qdock( uiMainWin::Dock d )
-{
-    switch( d )
-    {
-        case uiMainWin::Top:            return Qt::DockTop;
-        case uiMainWin::Bottom:         return Qt::DockBottom;
-        case uiMainWin::Right:          return Qt::DockRight;
-        case uiMainWin::Left:           return Qt::DockLeft;
-        case uiMainWin::Minimized:      return Qt::DockMinimized;
-        case uiMainWin::TornOff:  	return Qt::DockTornOff;
-        case uiMainWin::Unmanaged:      return Qt::DockUnmanaged;
-    }
-    return (Qt::ToolBarDock) 0;
-}
-
-
 void uiMainWinBody::removeDockWin( uiDockWin* dwin )
 {
     if ( !dwin ) return;
 
-#ifdef USEQT3
-    removeDockWindow( dwin->qwidget() );
-#else
     removeDockWidget( dwin->qwidget() );
-#endif
     dockwins_ -= dwin;
 }
 
 
-void uiMainWinBody::addDockWin( uiDockWin& dwin, uiMainWin::Dock d )
+void uiMainWinBody::addDockWin( uiDockWin& dwin, uiMainWin::Dock dock )
 {
-#ifdef USEQT3
-    addDockWindow( dwin.qwidget(), body_->qdock(d) );
-#else
     addDockWidget( Qt::LeftDockWidgetArea, dwin.qwidget() );
-#endif
-//    dwin.qwidget()->show();
+    if ( dock == uiMainWin::TornOff )
+	dwin.setFloating( true );
     dockwins_ += &dwin;
 }
 
@@ -472,7 +448,7 @@ void uiMainWinBody::updateToolbarsMenu()
 
 void uiMainWinBody::addToolBar( uiToolBar* tb )
 {
-    QMainWindow::addToolBar( tb->qwidget() );
+    QMainWindow::addToolBar( (Qt::ToolBarArea)tb->prefArea(), tb->qwidget() );
     toolbars_ += tb;
     renewToolbarsMenu();
 }

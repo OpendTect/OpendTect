@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.29 2007-10-03 08:28:28 cvsjaap Exp $
+ RCS:           $Id: uitoolbar.h,v 1.30 2007-12-24 05:29:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,19 +26,17 @@ public:
     /*
 	Toolbars can be created on docks,
     */
-    enum ToolBarDock 
+    enum ToolBarArea 
     { 
-	    Top,	/*!< above the central uiGroup, below the menubar. */
-	    Bottom,	/*!< below the central uiGroup, above the status bar.*/
-	    Right,	/*!< to the right of the central uiGroup. */
-	    Left,	/*!< to the left of the central uiGroup.  */
-	    Minimized	/*!< the toolbar is not shown - all handles of
-			     minimized toolbars are drawn in one row below
-			     the menu bar. */
+	    Left=0x1,	//!< To the left of the central uiGroup.
+	    Right=0x2,	//!< To the right of the central uiGroup.
+	    Top=0x4,	//!< Above the central uiGroup, below the menubar.
+	    Bottom=0x8,	//!< Below the central uiGroup, above the status bar.
+	    All=0xf	//!< All areas.
     };
 
     			uiToolBar(uiParent*,const char* nm,
-				  ToolBarDock d=Top,bool newline=false);
+				  ToolBarArea d=Top,bool newline=false);
 			~uiToolBar();
 
     int 		addButton(const char*,const CallBack&,
@@ -71,34 +69,14 @@ public:
 
     void		addSeparator();
 
-    void		setStretchableWidget(uiObject*);
-#ifdef USEQT3
-    void		setMovingEnabled(bool);
-    bool		isMovingEnabled() const;
-
-    void		setCloseMode(int);
-    			/*!< 0: Never; 1: Docked; 2: Undocked; 3: Always */
-    int			closeMode() const;
-    void		setHorizontallyStretchable(bool yn=true);
-    bool		isHorizontallyStretchable() const;
-    void		setVerticallyStretchable(bool yn=true);
-    bool		isVerticallyStretchable() const;
-    void		setResizeEnabled(bool yn=true);
-    bool		isResizeEnabled() const;
-
-    void		dock();
-    void		undock();
-    void		setNewLine(bool yn=true);
-#endif
-    bool		isShown() const;
-
     void		reLoadPixMaps();
     void		clear();
 
-    const ObjectSet<uiObject>& 		objectList() const;
+    ToolBarArea		prefArea() const	{ return tbarea_; }
+    QToolBar*		qwidget()		{ return qtoolbar_; }
 
+    const ObjectSet<uiObject>& 		objectList() const;
     static ObjectSet<uiToolBar>&	toolBars();
-    QToolBar*		qwidget()	{ return qtoolbar_; }
 
 protected:
 
@@ -107,6 +85,7 @@ protected:
     uiToolBarBody&	mkbody(const char*,QToolBar&);
 
     uiParent*		parent_;
+    ToolBarArea		tbarea_;
 
 };
 

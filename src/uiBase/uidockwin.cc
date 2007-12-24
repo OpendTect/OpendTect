@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.25 2007-10-26 04:44:32 cvsnanne Exp $
+ RCS:           $Id: uidockwin.cc,v 1.26 2007-12-24 05:29:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,8 +21,7 @@ ________________________________________________________________________
 #endif
 
 
-class uiDockWinBody : public uiParentBody
-		    , public mQDockWindow
+class uiDockWinBody : public uiParentBody, public QDockWidget
 {
 public:
 			uiDockWinBody( uiDockWin& handle, uiParent* parnt,
@@ -136,6 +135,7 @@ void uiDockWinBody::finalise()
 }
 
 
+// ----- uiDockWin -----
 uiDockWin::uiDockWin( uiParent* parnt, const char* nm )
     : uiParent( nm, 0 )
     , body_( 0 )
@@ -147,10 +147,7 @@ uiDockWin::uiDockWin( uiParent* parnt, const char* nm )
 
 
 uiDockWin::~uiDockWin()
-{ 
-    delete body_; 
-}
-
+{ delete body_; }
 
 void uiDockWin::setDockName( const char* nm )
 { body_->qwidget()->setName( nm ); }
@@ -158,53 +155,17 @@ void uiDockWin::setDockName( const char* nm )
 const char* uiDockWin::getDockName() const
 { return body_->qwidget()->name(); }
 
-
 uiGroup* uiDockWin::topGroup()	    	   
-{ 
-    return body_->uiCentralWidg(); 
-}
-
+{ return body_->uiCentralWidg(); }
 
 uiObject* uiDockWin::mainobject()
-{ 
-    return body_->uiCentralWidg()->mainObject(); 
-}
-
-
-void uiDockWin::setResizeEnabled( bool yn )
-{
-#ifdef USEQT3
-    body_->setResizeEnabled( yn );
-#endif
-}
-
-bool uiDockWin::isResizeEnabled() const
-{
-#ifdef USEQT3
-    return body_->isResizeEnabled();
-#else
-    return true;
-#endif
-}
-
+{ return body_->uiCentralWidg()->mainObject(); }
 
 void uiDockWin::setFloating( bool yn )
-{
-#ifndef USEQT3
-    body_->setFloating( yn );
-#endif
-}
-
+{ body_->setFloating( yn ); }
 
 bool uiDockWin::isFloating() const
-{
-#ifdef USEQT3
-    return false;
-#else
-    return body_->isFloating();
-#endif
-}
+{ return body_->isFloating(); }
 
-
-mQDockWindow* uiDockWin::qwidget()
+QDockWidget* uiDockWin::qwidget()
 { return body_; }

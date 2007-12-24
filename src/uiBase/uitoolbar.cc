@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.43 2007-10-30 11:24:41 cvsjaap Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.44 2007-12-24 05:29:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,18 +22,7 @@ ________________________________________________________________________
 #include "pixmap.h"
 #include "separstr.h"
 
-#ifdef USEQT3
-# include <qtoolbar.h>
-# include <qmainwindow.h>
-# define mDockNmSpc	QMainWindow
-#else
-# include <QAction>
-# include <QMainWindow>
-# include <QToolBar>
-# define mDockNmSpc	Qt
-#endif
-
-#include "qobject.h"
+#include <QToolBar>
 #include "i_qtoolbut.h"
 
 
@@ -64,11 +53,7 @@ public:
 
     void		reLoadPixMaps();
 
-    static mDockNmSpc::ToolBarDock
-			qdock(uiToolBar::ToolBarDock);
-
-    const ObjectSet<uiObject>& 
-			objectList() const		{ return objects_; }
+    const ObjectSet<uiObject>&	objectList() const	{ return objects_; }
 
 protected:
 
@@ -130,13 +115,11 @@ int uiToolBarBody::addButton( const ioPixmap& pm, const CallBack& cb,
 
 void uiToolBarBody::addObject( uiObject* obj )
 {
-#ifndef USEQT3
     if ( obj && obj->body() )
     {
 	qbar_->addWidget( obj->body()->qwidget() );
 	objects_ += obj;
     }
-#endif
 }
 
 
@@ -182,55 +165,26 @@ void uiToolBarBody::reLoadPixMaps()
 bool uiToolBarBody::isOn( int idx ) const
 { return mConstToolBarBut(idx)->isOn(); }
 
-
 void uiToolBarBody::setSensitive( int idx, bool yn )
 { mToolBarBut(idx)->setSensitive( yn ); }
-
 
 void uiToolBarBody::setPixmap( int idx, const char* fnm )
 { setPixmap( idx, ioPixmap(fnm) ); }
 
-
 void uiToolBarBody::setPixmap( int idx, const ioPixmap& pm )
 { mToolBarBut(idx)->setPixmap( pm ); }
-
 
 void uiToolBarBody::setToolTip( int idx, const char* txt )
 { mToolBarBut(idx)->setToolTip( txt ); }
 
-
 void uiToolBarBody::setShortcut( int idx, const char* sc )
-{
-#ifndef USEQT3
-    mToolBarBut(idx)->setShortcut( sc );
-#endif
-}
-
+{ mToolBarBut(idx)->setShortcut( sc ); }
 
 void uiToolBarBody::setSensitive( bool yn )
-{
-    if ( qwidget() ) qwidget()->setEnabled( yn );
-}
-
+{ if ( qwidget() ) qwidget()->setEnabled( yn ); }
 
 bool uiToolBarBody::isSensitive() const
-{
-    return qwidget() ? qwidget()->isEnabled() : false;
-}
-
-
-mDockNmSpc::ToolBarDock uiToolBarBody::qdock( uiToolBar::ToolBarDock d )
-{
-    switch( d )
-    {
-	case uiToolBar::Top:		return mDockNmSpc::Top;
-	case uiToolBar::Bottom:		return mDockNmSpc::Bottom;
-	case uiToolBar::Right:		return mDockNmSpc::Right;
-	case uiToolBar::Left:		return mDockNmSpc::Left;
-	case uiToolBar::Minimized:	return mDockNmSpc::Minimized;
-    }
-    return (mDockNmSpc::ToolBarDock) 0;
-}
+{ return qwidget() ? qwidget()->isEnabled() : false; }
 
 
 ObjectSet<uiToolBar>& uiToolBar::toolBars()
@@ -242,13 +196,12 @@ ObjectSet<uiToolBar>& uiToolBar::toolBars()
 }
 
 
-uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarDock d,
+uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarArea tba,
 		      bool newline )
     : uiParent(nm,0)
     , parent_(parnt)
+    , tbarea_(tba)
 {
-    //TODO: impl preferred dock
-    Qt::ToolBarDock tbdock = uiToolBarBody::qdock( d );
     qtoolbar_ = new QToolBar( QString(nm) );
     qtoolbar_->setObjectName( nm );
     setBody( &mkbody(nm,*qtoolbar_) );
@@ -334,7 +287,7 @@ void uiToolBar::display( bool yn, bool, bool )
     else
 	qtoolbar_->hide();
 
-    mDynamicCastGet( uiMainWin*, uimw, parent_ )
+    mDynamicCastGet(uiMainWin*,uimw,parent_)
     if ( uimw ) uimw->updateToolbarsMenu();
 }
 
@@ -342,75 +295,17 @@ void uiToolBar::display( bool yn, bool, bool )
 bool uiToolBar::isHidden() const
 { return qtoolbar_->isHidden(); }
 
-
 bool uiToolBar::isVisible() const
 { return qtoolbar_->isVisible(); }
-
 
 void uiToolBar::addSeparator()
 { qtoolbar_->addSeparator(); }
 
-
-#ifdef USEQT3
-void uiToolBar::dock()
-{ qtoolbar_->dock(); }
-
-
-void uiToolBar::undock()
-{ qtoolbar_->undock(); }
-#endif
-
-
-void uiToolBar::setStretchableWidget( uiObject* obj )
-{
-    if ( !obj ) return;
-#ifdef USEQT3
-    qtoolbar_->setStretchableWidget( obj->body()->qwidget() );
-#endif
-}
-
-
 void uiToolBar::reLoadPixMaps()
 { body_->reLoadPixMaps(); }
-
 
 void uiToolBar::clear()
 { body_->clear(); }
 
-
 const ObjectSet<uiObject>& uiToolBar::objectList() const
 { return body_->objectList(); }
-
-
-#define mSetFunc(func,var) \
-void uiToolBar::func( var value ) \
-{ \
-    qtoolbar_->func( value ); \
-}
-
-#define mGetFunc(func,var) \
-var uiToolBar::func() const \
-{ \
-    return qtoolbar_->func(); \
-}
-
-#ifdef USEQT3
-mSetFunc(setMovingEnabled,bool)
-mGetFunc(isMovingEnabled,bool)
-
-mSetFunc(setNewLine,bool)
-
-mSetFunc(setCloseMode,int)
-mGetFunc(closeMode,int)
-
-mSetFunc(setHorizontallyStretchable,bool)
-mGetFunc(isHorizontallyStretchable,bool)
-
-mSetFunc(setVerticallyStretchable,bool)
-mGetFunc(isVerticallyStretchable,bool)
-
-mSetFunc(setResizeEnabled,bool)
-mGetFunc(isResizeEnabled,bool)
-#endif
-
-mGetFunc(isShown,bool)

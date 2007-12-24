@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.56 2007-12-10 04:02:48 cvsnanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.57 2007-12-24 05:29:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ public:
     static char*	activeModalQDlgButTxt(int butnr);
     static int		activeModalQDlgRetVal(int butnr);
 
-    static void		getTopLevelWindows( ObjectSet<uiMainWin>& );
+    static void		getTopLevelWindows(ObjectSet<uiMainWin>&);
 
     void		setCaption( const char* txt );
     void		setIcon(const char* img[],const char* icntxt); //!< XPM
@@ -86,14 +86,14 @@ public:
     bool		isHidden() const;
     bool		isModal() const;
 
-    void		setSensitive(bool yn=true);
+    void		setSensitive(bool yn);
 
-    void		toStatusBar(const char*, int fldidx=0, int msecs=-1 );
+    void		toStatusBar(const char*,int fldidx=0,int msecs=-1);
 
     virtual void	reDraw(bool deep);
     uiGroup* 		topGroup();
 
-    void		setShrinkAllowed( bool yn=true );
+    void		setShrinkAllowed(bool yn);
     bool		shrinkAllowed();
 
 			//! automatically set by uiMain::setTopLevel
