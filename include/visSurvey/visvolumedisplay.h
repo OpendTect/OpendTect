@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.50 2007-12-18 12:19:35 cvsnanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.51 2007-12-24 05:32:50 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -150,7 +150,6 @@ protected:
 
     ZAxisTransform*		datatransform_;
     ZAxisTransformer*		datatransformer_;
-    int				datatransformvoihandle_;
 
     DataPack::ID		cacheid_;
     const Attrib::DataCubes*	cache_;

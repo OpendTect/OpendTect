@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.77 2007-12-18 12:19:35 cvsnanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.78 2007-12-24 05:32:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,18 +83,17 @@ VolumeDisplay::~VolumeDisplay()
     if ( scalarfield_ )
     {
 	scalarfield_->getColorTab().rangechange.remove(
-		mCB( this, VolumeDisplay, colTabChange ));
+		mCB(this,VolumeDisplay,colTabChange) );
 	scalarfield_->getColorTab().sequencechange.remove(
-		mCB( this, VolumeDisplay, colTabChange ));
+		mCB(this,VolumeDisplay,colTabChange) );
 	scalarfield_->getColorTab().autoscalechange.remove(
-		mCB( this, VolumeDisplay, colTabChange ));
+		mCB(this,VolumeDisplay,colTabChange) );
     }
 
-    getMaterial()->change.remove(mCB(this,VolumeDisplay,materialChange) );
+    getMaterial()->change.remove( mCB(this,VolumeDisplay,materialChange) );
 
     delete &as_;
     DPM( DataPackMgr::CubeID ).release( cacheid_ );
-
     if ( cache_ ) cache_->unRef();
 
     TypeSet<int> children;
@@ -102,13 +101,12 @@ VolumeDisplay::~VolumeDisplay()
     for ( int idx=0; idx<children.size(); idx++ )
 	removeChild( children[idx] );
 
-    if ( scalarfield_ )
-	scalarfield_->unRef();
-
     boxdragger_->finished.remove( mCB(this,VolumeDisplay,manipMotionFinishCB) );
     boxdragger_->unRef();
-
     voltrans_->unRef();
+    if ( scalarfield_ ) scalarfield_->unRef();
+
+    setDataTransform( 0 );
 }
 
 
@@ -159,8 +157,6 @@ bool VolumeDisplay::setDataTransform( ZAxisTransform* zat )
     const bool haddatatransform = datatransform_;
     if ( datatransform_ )
     {
-	if ( datatransformvoihandle_!=-1 )
-	    datatransform_->removeVolumeOfInterest(datatransformvoihandle_);
 	if ( datatransform_->changeNotifier() )
 	    datatransform_->changeNotifier()->remove(
 		    mCB(this,VolumeDisplay,dataTransformCB) );
@@ -169,8 +165,6 @@ bool VolumeDisplay::setDataTransform( ZAxisTransform* zat )
     }
 
     datatransform_ = zat;
-    datatransformvoihandle_ = -1;
-
     delete datatransformer_;
     datatransformer_ = 0;
 
@@ -193,6 +187,8 @@ const ZAxisTransform* VolumeDisplay::getDataTransform() const
 
 void VolumeDisplay::dataTransformCB( CallBacker* )
 {
+    updateRanges( false, true );
+    if ( cache_ ) setDataVolume( 0, cache_ );
 }
 
 
@@ -534,20 +530,20 @@ float VolumeDisplay::slicePosition( visBase::OrthogonalSlice* slice ) const
 void VolumeDisplay::setColorTab( visBase::VisColorTab& ctab )
 {
     scalarfield_->getColorTab().rangechange.remove(
-	    mCB( this, VolumeDisplay, colTabChange ));
+	    mCB(this,VolumeDisplay,colTabChange) );
     scalarfield_->getColorTab().sequencechange.remove(
-	    mCB( this, VolumeDisplay, colTabChange ));
+	    mCB(this,VolumeDisplay,colTabChange) );
     scalarfield_->getColorTab().autoscalechange.remove(
-	    mCB( this, VolumeDisplay, colTabChange ));
+	    mCB(this,VolumeDisplay,colTabChange) );
 
     scalarfield_->setColorTab( ctab );
 
     scalarfield_->getColorTab().rangechange.notify(
-	    mCB( this, VolumeDisplay, colTabChange ));
+	    mCB(this,VolumeDisplay,colTabChange) );
     scalarfield_->getColorTab().sequencechange.notify(
-	    mCB( this, VolumeDisplay, colTabChange ));
+	    mCB(this,VolumeDisplay,colTabChange) );
     scalarfield_->getColorTab().autoscalechange.notify(
-	    mCB( this, VolumeDisplay, colTabChange ));
+	    mCB(this,VolumeDisplay,colTabChange) );
 
 }
 
@@ -668,9 +664,12 @@ bool VolumeDisplay::setDataVolume( int attrib,
 
     scalarfield_->turnOn( true );
 
-    if ( cache_ ) cache_->unRef();
-    cache_ = attribdata;
-    cache_->ref();
+    if ( cache_ != attribdata )
+    {
+	if ( cache_ ) cache_->unRef();
+	cache_ = attribdata;
+	cache_->ref();
+    }
 
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
 	updateIsoSurface( idx );
