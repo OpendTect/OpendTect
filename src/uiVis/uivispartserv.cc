@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.360 2007-12-04 12:25:06 cvsbert Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.361 2007-12-24 05:30:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -213,6 +213,7 @@ bool uiVisPartServer::disabMenus( bool yn )
 void uiVisPartServer::createToolBars()
 {
     mpetools_ = new uiMPEMan( appserv().parent(), this );
+    getTrackTB()->display( false );
     slicepostools_ = new uiSlicePos( appserv().parent() );
 }
 
@@ -222,8 +223,8 @@ bool uiVisPartServer::disabToolBars( bool yn )
     bool res = false;
     if ( mpetools_ )
     {
-	res = !mpetools_->getToolBar()->sensitive();
-	mpetools_->getToolBar()->setSensitive( !yn );
+	res = !getTrackTB()->sensitive();
+	getTrackTB()->setSensitive( !yn );
     }
 
     if ( slicepostools_ )
@@ -1517,11 +1518,11 @@ void uiVisPartServer::showMPEToolbar( bool yn )
     if ( yn )
     {
 	updateMPEToolbar();
-	if ( !mpetools_->getToolBar()->isShown() )
-	    mpetools_->getToolBar()->display( true );
+	if ( !getTrackTB()->isVisible() )
+	    getTrackTB()->display( true );
     }
-    else if ( mpetools_->getToolBar()->isShown() )
-	mpetools_->getToolBar()->display( false );
+    else if ( getTrackTB()->isVisible() )
+	getTrackTB()->display( false );
 }
 
 
