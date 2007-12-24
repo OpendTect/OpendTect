@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.117 2007-12-13 16:29:37 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.118 2007-12-24 05:30:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -666,7 +666,6 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     scn.itemmanager_->addChild( sceneitm, false );
     scn.lv_->display();
     appl_.addDockWindow( *dw, uiMainWin::Left );
-    dw->setResizeEnabled( true );
     scn.treeWin()->display();
 }
 
