@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jul 2005
- RCS:		$Id: picksettr.cc,v 1.12 2007-09-28 08:22:32 cvsnanne Exp $
+ RCS:		$Id: picksettr.cc,v 1.13 2007-12-24 16:50:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "streamconn.h"
 #include "ioman.h"
+#include "polygon.h"
 #include "errh.h"
 #include "keystrs.h"
 
@@ -204,4 +205,33 @@ void PickSetTranslator::createBinIDValueSets(
 
 	delete createdps;
     }
+}
+
+
+ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
+						 BufferString& emsg )
+{
+    Pick::Set ps; BufferString msg;
+    if ( !PickSetTranslator::retrieve(ps,&ioobj,msg) )
+    {
+	emsg = "Cannot read polygon '"; emsg += ioobj.name();
+	emsg += "':\n"; emsg += msg;
+	return 0;
+    }
+    if ( ps.size() < 3 )
+    {
+	emsg = "Polygon '"; emsg += ioobj.name();
+	emsg += "' contains less than 3 points";
+	return 0;
+    }
+
+    ODPolygon<float>* ret = new ODPolygon<float>;
+    for ( int idx=0; idx<ps.size(); idx++ )
+    {
+	const Pick::Location& pl = ps[idx];
+	Coord fbid = SI().binID2Coord().transformBackNoSnap( pl.pos );
+	ret->add( Geom::Point2D<float>(fbid.x,fbid.y) );
+    }
+
+    return ret;
 }
