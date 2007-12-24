@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Nov 2007
- RCS:           $Id: uirandlinegen.h,v 1.1 2007-11-15 16:54:24 cvsbert Exp $
+ RCS:           $Id: uirandlinegen.h,v 1.2 2007-12-24 16:51:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,9 +33,11 @@ public:
 protected:
 
     CtxtIOObj&		horctio_;
+    CtxtIOObj&		polyctio_;
     CtxtIOObj&		rlsctio_;
 
     uiIOObjSel*		infld_;
+    uiIOObjSel*		polyfld_;
     uiIOObjSel*		outfld_;
     uiGenInput*		contzrgfld_;
     uiGenInput*		relzrgfld_;
@@ -43,6 +45,55 @@ protected:
     uiCheckBox*		isrelfld_;
 
     void		isrelChg(CallBacker*);
+
+    bool		acceptOK(CallBacker*);
+
+};
+
+
+/*! \brief Generate random lines by shifting an existing */
+
+class uiGenRanLinesByShift : public uiDialog
+{
+public:
+			uiGenRanLinesByShift(uiParent*);
+			~uiGenRanLinesByShift();
+
+    const char*		getNewSetID() const;
+
+protected:
+
+    CtxtIOObj&		inctio_;
+    CtxtIOObj&		outctio_;
+
+    uiIOObjSel*		infld_;
+    uiIOObjSel*		outfld_;
+    uiGenInput*		distfld_;
+    uiGenInput*		sidefld_;
+
+    bool		acceptOK(CallBacker*);
+
+};
+
+
+/*! \brief Generate random line from polygon */
+
+class uiGenRanLineFromPolygon : public uiDialog
+{
+public:
+			uiGenRanLineFromPolygon(uiParent*);
+			~uiGenRanLineFromPolygon();
+
+    const char*		getNewSetID() const;
+
+protected:
+
+    CtxtIOObj&		inctio_;
+    CtxtIOObj&		outctio_;
+
+    uiIOObjSel*		infld_;
+    uiIOObjSel*		outfld_;
+    uiGenInput*		zrgfld_;
 
     bool		acceptOK(CallBacker*);
 

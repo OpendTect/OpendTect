@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.14 2007-12-12 11:55:44 cvsnanne Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.15 2007-12-24 16:51:22 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     uiPopupMenu* genmnu = new uiPopupMenu( getUiParent(), "&Generate" );
     genmnu->insertItem( new uiMenuItem("From &Existing"), 2 );
     genmnu->insertItem( new uiMenuItem("Along &Contours"), 3 );
+    genmnu->insertItem( new uiMenuItem("From &Polygon"), 4 );
     mnu.insertItem( genmnu );
     addStandardItems( mnu );
     const int mnuid = mnu.exec();
@@ -72,8 +73,8 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
 	addChild( new uiODRandomLineTreeItem(-1), false );
     else if ( mnuid == 1 )
 	load();
-    else if ( mnuid == 2 || mnuid == 3 )
-	genRandLine( mnuid == 3 );
+    else if ( mnuid < 5 )
+	genRandLine( mnuid - 2 );
 
     handleStandardItems( mnuid );
     return true;
@@ -143,9 +144,9 @@ bool uiODRandomLineParentTreeItem::load()
 }
 
 
-void uiODRandomLineParentTreeItem::genRandLine( bool cont )
+void uiODRandomLineParentTreeItem::genRandLine( int opt )
 {
-    const char* res = applMgr()->EMServer()->genRandLine( cont );
+    const char* res = applMgr()->EMServer()->genRandLine( opt );
 }
 
 

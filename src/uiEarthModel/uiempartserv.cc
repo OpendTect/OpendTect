@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.130 2007-12-18 14:58:16 cvsjaap Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.131 2007-12-24 16:51:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -714,16 +714,24 @@ bool uiEMPartServer::importLMKFault()
 }
 
 
-const char* uiEMPartServer::genRandLine( bool fromcontours )
+const char* uiEMPartServer::genRandLine( int opt )
 {
     const char* res = 0;
-    if ( !fromcontours )
+    if ( opt == 0 )
     {
-	uiMSG().error( "Sorry: not implemented yet" );
+	uiGenRanLinesByShift dlg( appserv().parent() );
+	if ( dlg.go() )
+	    res = dlg.getNewSetID();
+    }
+    else if ( opt == 1 )
+    {
+	uiGenRanLinesByContour dlg( appserv().parent() );
+	if ( dlg.go() )
+	    res = dlg.getNewSetID();
     }
     else
     {
-	uiGenRanLinesByContour dlg( appserv().parent() );
+	uiGenRanLineFromPolygon dlg( appserv().parent() );
 	if ( dlg.go() )
 	    res = dlg.getNewSetID();
     }

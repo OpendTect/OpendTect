@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Nov 2007
- RCS:		$Id: emrandlinegen.h,v 1.1 2007-11-15 16:53:48 cvsbert Exp $
+ RCS:		$Id: emrandlinegen.h,v 1.2 2007-12-24 16:51:22 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,7 @@ class Horizon3DGeometry;
 
 /*!\brief Creates random lines along the contours of a surface */
 
-class RandomLineSetGenerator
+class RandomLineSetByContourGenerator
 { 
 public:
 
@@ -43,7 +43,8 @@ public:
 						//!< default null: entire survey
     };
 
-			RandomLineSetGenerator(const Horizon3D&,const Setup&);
+			RandomLineSetByContourGenerator(const Horizon3D&,
+							const Setup&);
     Setup&		setup()			{ return setup_; }
 
     void		createLines(Geometry::RandomLineSet&) const;
@@ -55,6 +56,28 @@ protected:
     Setup		setup_;
 
 };
+
+
+/*!\brief Creates random line from another by shifting it */
+
+class RandomLineByShiftGenerator
+{ 
+public:
+
+			RandomLineByShiftGenerator(
+				const Geometry::RandomLineSet& rls,
+				float d=1, int s=0 )
+			    : rls_(rls), dist_(d), side_(s)	{}
+
+    const Geometry::RandomLineSet& rls_;
+    float		dist_;
+    int			side_; //!, -1=left, 0=both, 1=right
+
+    void		generate(Geometry::RandomLineSet&,
+	    			 int linenr_in_inp_set=0) const;
+
+};
+
 
 } // namespace
 

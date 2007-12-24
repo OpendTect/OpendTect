@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodrandlinetreeitem.h,v 1.5 2007-11-15 16:54:24 cvsbert Exp $
+ RCS:		$Id: uiodrandlinetreeitem.h,v 1.6 2007-12-24 16:51:22 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 mDefineItem( RandomLineParent, TreeItem, TreeTop, mShowMenu \
     bool load(); \
-    void genRandLine(bool); \
+    void genRandLine(int); \
 );
 namespace visSurvey { class RandomTrackDisplay; };
 

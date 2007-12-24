@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2007
- RCS:           $Id: emrandlinegen.cc,v 1.4 2007-12-12 14:59:50 cvsjaap Exp $
+ RCS:           $Id: emrandlinegen.cc,v 1.5 2007-12-24 16:51:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 
-EM::RandomLineSetGenerator::Setup::Setup( bool rel )
+EM::RandomLineSetByContourGenerator::Setup::Setup( bool rel )
     : contzrg_(SI().zRange(true))
     , isrel_(rel)
     , sectionnr_(-1)
@@ -32,8 +32,9 @@ EM::RandomLineSetGenerator::Setup::Setup( bool rel )
 }
 
 
-EM::RandomLineSetGenerator::RandomLineSetGenerator( const EM::Horizon3D& hor,
-			const EM::RandomLineSetGenerator::Setup& su )
+EM::RandomLineSetByContourGenerator::RandomLineSetByContourGenerator(
+			const EM::Horizon3D& hor,
+			const EM::RandomLineSetByContourGenerator::Setup& su )
 	: hor_(hor)
     	, geom_(hor.geometry())
 	, setup_(su)
@@ -41,7 +42,7 @@ EM::RandomLineSetGenerator::RandomLineSetGenerator( const EM::Horizon3D& hor,
 }
 
 
-void EM::RandomLineSetGenerator::createLines(
+void EM::RandomLineSetByContourGenerator::createLines(
 				Geometry::RandomLineSet& rls ) const
 {
     BinID bid, prevbid;
@@ -118,4 +119,16 @@ void EM::RandomLineSetGenerator::createLines(
 	    deepErase( polys );
 	}
     }
+}
+
+
+void EM::RandomLineByShiftGenerator::generate( Geometry::RandomLineSet& outrls,
+						int lnr ) const
+{
+    if ( lnr >= rls_.size() ) return;
+    const Geometry::RandomLine& rl = *rls_.lines()[lnr];
+    while ( !outrls.isEmpty() ) outrls.removeLine( 0 );
+
+    //TODO implement
+    pErrMsg("TODO: implement");
 }
