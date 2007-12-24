@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: picksettr.h,v 1.7 2006-05-16 16:28:22 cvsbert Exp $
+ RCS:		$Id: picksettr.h,v 1.8 2007-12-24 16:49:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class Conn;
 namespace Pick { class Set; }
 class BinIDValueSet;
+template <class T> class ODPolygon;
 
 
 class PickSetTranslatorGroup : public TranslatorGroup
@@ -44,6 +45,8 @@ public:
     static void		createBinIDValueSets(const BufferStringSet& ioobjids,
 					     ObjectSet<BinIDValueSet>&);
     			//!< Utility function.
+    static ODPolygon<float>* getPolygon(const IOObj&,BufferString& errmsg);
+    			//!< Returns null on failure
 };
 
 
