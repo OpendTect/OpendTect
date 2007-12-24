@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.122 2007-07-06 14:11:05 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.123 2007-12-24 05:31:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,7 +147,6 @@ void uiMPEMan::addButtons()
     attribfld->setToolTip( "QC Attribute" );
     attribfld->selectionChanged.notify( mCB(this,uiMPEMan,attribSel) );
     toolbar->addObject( attribfld );
-    toolbar->setStretchableWidget( attribfld );
 
     clrtabidx = mAddButton( "colorbar.png", setColorbarCB,
 			    "Set track plane colorbar", true );
