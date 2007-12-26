@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.78 2007-12-21 12:37:35 cvssatyaki Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.79 2007-12-26 19:00:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,26 +47,17 @@ ________________________________________________________________________
 #include "uiseissel.h"
 #include "uiseiswvltimp.h"
 #include "uiseiswvltman.h"
-#include "uiseistrcbufviewer.h"
 #include "uiselsimple.h"
 #include "uisurvey.h"
 
 
 uiSeisPartServer::uiSeisPartServer( uiApplService& a )
     : uiApplPartServer(a)
-    , storedgathermenuitem("Display Gather")
-    , trcbufview_(0)
 {
-    uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider( segyid );
+    uiSEGYSurvInfoProvider* sip = new uiSEGYSurvInfoProvider( segyid_ );
     uiSurveyInfoEditor::addInfoProvider( sip );
     SeisIOObjInfo::initDefault( sKey::Steering );
 }
-
-
-//uiSeisPartServer::~uiSeisPartServer()
-//{
-  //  delete trcbufview_;
-//}
 
 
 bool uiSeisPartServer::ioSeis( int opt, bool forread )
@@ -80,7 +71,7 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
 	    		 : (opt == 1 ? Seis::Line
 				     : Seis::VolPS);
 	if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) ) return true;
-	dlg = new uiSeisSegYImpExp( appserv().parent(), forread, segyid, gt );
+	dlg = new uiSeisSegYImpExp( appserv().parent(), forread, segyid_, gt );
     }
     else
     {
@@ -252,94 +243,4 @@ BufferStringSet uiSeisPartServer::getStoredGathersList() const
     }
     
     return ioobjnms;
-}
-
-
-MenuItem* uiSeisPartServer::storedGathersSubMenu( bool createnew )
-{
-    if ( createnew )
-    {
-	storedgathermenuitem.removeItems();
-	storedgathermenuitem.createItems( getStoredGathersList() );
-    }
-
-    return &storedgathermenuitem;
-}
-
-
-#define mErrRet(msg) { uiMSG().error(msg); return false; }
-
-bool uiSeisPartServer::handleGatherSubMenu( int mnuid, const BinID& bid )
-{
-    const int mnuindex = storedgathermenuitem.itemIndex(mnuid);
-    if ( mnuindex==-1 ) return false;
-
-    PtrMan<IOObj> ioobj =
-	IOM().getLocal( storedgathermenuitem.getItem(mnuindex)->text );
-    if ( !ioobj )
-	mErrRet( "No valid gather selected" )
-    PtrMan<SeisPSReader> rdr = SPSIOPF().getReader( *ioobj, bid.inl );
-    if ( !rdr )
-	mErrRet( "This Pre-Stack data store cannot be handled" )
-    SeisTrcBuf* tbuf = new SeisTrcBuf( true );
-    if ( !rdr->getGather(bid,*tbuf) )
-	mErrRet( rdr->errMsg() )
-    const int tbufsz = tbuf->size();
-    if ( tbufsz == 0 )
-	mErrRet( "Gather is empty" )
-
-    SeisTrcBuf* tbuffreq = new SeisTrcBuf( true );
-    for ( int idx=0; idx<tbufsz; idx++ )
-    {
-	const SeisTrc& inptrc = *tbuf->get(idx);
-	SeisTrc* trc = new SeisTrc( inptrc );
-	SeisTrcPropCalc pc( inptrc, 0 );
-	for ( int isamp=0; isamp<trc->size(); isamp++ )
-	    trc->set( isamp, pc.getFreq(isamp), 0 );
-	tbuffreq->add( trc );
-    }
-
-    BufferString title( "Gather from [" ); title += ioobj->name();
-    title += "] at "; title += bid.inl; title += "/"; title += bid.crl;
-
-    if ( trcbufview_ )
-	trcbufview_->removePacks();
-    else
-    {
-	uiSeisTrcBufViewer::Setup stbvsetup( title, 1 );
-	trcbufview_ = new uiSeisTrcBufViewer( appserv().parent(), stbvsetup );
-	trcbufview_->windowClosed.notify(
-		mCB(this,uiSeisPartServer,viewerClosed) );
-    }
-
-
-    SeisTrcBufDataPack* dp1 = trcbufview_->setTrcBuf( tbuf, Seis::VolPS,
-	    "Pre-Stack Gather", "Seismics" );
-    SeisTrcBufDataPack* dp2 = trcbufview_->setTrcBuf( tbuffreq, Seis::VolPS,
-	    "Pre-Stack Gather.Freq", "Local frequency");
-    trcbufview_->getViewer()->usePack( true, dp1->id() );
-    trcbufview_->getViewer()->usePack( false, dp2->id() );
-    
-    setTrcBufViewTitle( ioobj->name(), bid );
-    trcbufview_->start();
-
-    return true;
-}
-
-
-void uiSeisPartServer::setTrcBufViewTitle( const char* name,
-					   const BinID& bid )
-{
-    BufferString titl( "Gather from [" ); titl += name;
-    titl += " ] at "; titl += bid.inl; titl += "/";
-    titl += bid.crl;
-    if (trcbufview_)
-    trcbufview_->setWinTitle( titl );
-
-}
-
-
-void uiSeisPartServer::viewerClosed( CallBacker* )
-{
-    trcbufview_->removePacks();
 }
