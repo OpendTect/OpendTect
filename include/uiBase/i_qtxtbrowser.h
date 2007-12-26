@@ -7,21 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/03/2002
- RCS:           $Id: i_qtxtbrowser.h,v 1.5 2007-03-02 10:56:52 cvsnanne Exp $
+ RCS:           $Id: i_qtxtbrowser.h,v 1.6 2007-12-26 07:09:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uitextedit.h"
 
-#include <qobject.h>
-#include <qwidget.h>
-
-#ifdef USEQT3
-# include <qtextbrowser.h> 
-#else
-# include <QTextBrowser> 
-#endif
+#include <QObject>
+#include <QTextBrowser> 
+#include <QWidget>
 
 
 class QString;
@@ -30,73 +25,60 @@ class QString;
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */
+
 class i_BrowserMessenger : public QObject 
 {
     Q_OBJECT
     friend class	uiTextBrowserBody;
 
 protected:
-			i_BrowserMessenger( QTextBrowser*  sender,
+			i_BrowserMessenger( QTextBrowser* sender,
 					    uiTextBrowser* receiver )
-			: _sender( sender )
-			, _receiver( receiver )
+			: sender_( sender )
+			, receiver_( receiver )
 			{ 
-			    connect( sender, SIGNAL( backwardAvailable(bool)),
-				     this,   SLOT( backwardAvailable(bool)) );
+			    connect( sender, SIGNAL(backwardAvailable(bool)),
+				     this,   SLOT(backwardAvailable(bool)) );
 			    connect(sender,SIGNAL(forwardAvailable(bool)),
 				     this, SLOT(forwardAvailable(bool)));
 			    connect(sender,SIGNAL(highlighted(const QString&)),
 				     this, SLOT(highlighted(const QString&)));
-#ifdef USEQT3
-			    connect(sender,SIGNAL(linkClicked(const QString&)),
-				     this, SLOT(linkClicked(const QString&)));
-#else
 			    connect(sender,SIGNAL(anchorClicked(const QUrl&)),
 				    this,SLOT(anchorClicked(const QUrl&)));
-#endif
 			}
 
     virtual		~i_BrowserMessenger() {}
    
 private:
 
-    uiTextBrowser* 	_receiver;
-    QTextBrowser* 	_sender;
+    uiTextBrowser* 	receiver_;
+    QTextBrowser* 	sender_;
 
 private slots:
 
-    void 		backwardAvailable(bool yn)
+    void 		backwardAvailable( bool yn )
 			{ 
-			    _receiver->cangobackw_=yn;
-			    _receiver->goneforwardorback.trigger(*_receiver); 
+			    receiver_->cangobackw_ = yn;
+			    receiver_->goneForwardOrBack.trigger(*receiver_); 
 			}
 
-    void 		forwardAvailable(bool yn)
+    void 		forwardAvailable( bool yn )
 			{ 
-			    _receiver->cangoforw_=yn;
-			    _receiver->goneforwardorback.trigger(*_receiver); 
+			    receiver_->cangoforw_ = yn;
+			    receiver_->goneForwardOrBack.trigger(*receiver_); 
 			}
 
-    void 		highlighted(const QString& lnk)
+    void 		highlighted( const QString& lnk )
 			{ 
-			    _receiver->lastlink_ = (const char*)lnk;
-			    _receiver->linkhighlighted.trigger(*_receiver); 
+			    receiver_->lastlink_ = lnk.toAscii().data();
+			    receiver_->linkHighlighted.trigger(*receiver_); 
 			}
 
-#ifdef USEQT3
-    void 		linkClicked(const QString& lnk)
-			{ 
-			    _receiver->lastlink_ = (const char*)lnk;
-			    _receiver->linkclicked.trigger(*_receiver); 
-			}
-#else
     void		anchorClicked( const QUrl& lnk )
 			{
-			    _receiver->lastlink_ = lnk.path().toAscii().data();
-			    _receiver->linkclicked.trigger(*_receiver);
+			    receiver_->lastlink_ = lnk.path().toAscii().data();
+			    receiver_->linkClicked.trigger(*receiver_);
 			}
-#endif
-
 };
 
 #endif

@@ -4,30 +4,27 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.cc,v 1.34 2007-09-26 11:16:04 cvsbert Exp $
+ RCS:           $Id: uitextedit.cc,v 1.35 2007-12-26 07:09:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uitextedit.h"
+
 #include "uiobjbody.h"
 #include "i_qtxtbrowser.h"
 
-#include "strmprov.h"
-#include "strmdata.h"
 #include "ascstream.h"
+#include "strmdata.h"
+#include "strmprov.h"
+
 #include <iostream>
-
-#ifdef USEQT3
-# include <qtextedit.h> 
-#else
-# include <QTextEdit> 
-#endif
+#include <QTextEdit> 
 
 
-int uiTextEditBase::defaultWidth_ = 600;
-int uiTextEditBase::defaultHeight_ = 450;
+int uiTextEditBase::defaultwidth_ = 600;
+int uiTextEditBase::defaultheight_ = 450;
 // mMaxLineLength defined in ascstream.h
 
 
@@ -38,22 +35,18 @@ uiTextEditBase::uiTextEditBase( uiParent* p, const char* nm, uiObjectBody& bdy )
 
 
 void uiTextEditBase::setText( const char* txt )
-{
-    qte().setText(txt);
-}
+{ qte().setText( txt ); }
 
 
 const char* uiTextEditBase::text() const
 { 
-    result = (const char*)qte().text();
-    return (const char*)result;
+    result_ = qte().text().toAscii().data();
+    return result_.buf();
 }
 
 
 bool uiTextEditBase::isModified() const
-{ 
-    return qte().isModified();
-}
+{ return qte().isModified(); }
 
 
 void uiTextEditBase::readFromFile( const char* src )
@@ -118,9 +111,6 @@ bool uiTextEditBase::saveToFile( const char* src )
 
 int uiTextEditBase::nrLines() const
 {
-#ifdef USEQT3
-    return qte().lines();
-#else
     QTextBlock block;
     int nrlines = 0;
     for ( QTextBlock block=qte().document()->begin();
@@ -128,8 +118,8 @@ int uiTextEditBase::nrLines() const
 	nrlines++;
 
     return nrlines;
-#endif
 }
+
 
 
 class uiTextEditBody : public uiObjBodyImpl<uiTextEdit,QTextEdit>
@@ -159,11 +149,7 @@ void uiTextEditBody::append( const char* txt)
 { 
     QTextEdit::append( txt );
     repaint();
-#ifdef USEQT3
-    setCursorPosition( lines(), 0 );
-#else
     moveCursor( QTextCursor::End );
-#endif
 }
 
 //-------------------------------------------------------
@@ -203,22 +189,12 @@ protected:
 
 
 uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& handle, uiParent* p, 
-				const char* nm, bool plaintxt )
+				      const char* nm, bool plaintxt )
     : uiObjBodyImpl<uiTextBrowser,QTextBrowser>( handle, p, nm )
     , messenger_( *new i_BrowserMessenger(this, &handle))
 {
-    if( plaintxt ) setTextFormat(Qt::PlainText); 
-
-#ifdef USEQT3
-    mimeSourceFactory()->setExtensionType( "par", "text/plain" );
-    mimeSourceFactory()->setExtensionType( "log", "text/plain" );
-    mimeSourceFactory()->setExtensionType( "sim", "text/plain" );
-    mimeSourceFactory()->setExtensionType( "fw", "text/plain" );
-    mimeSourceFactory()->setExtensionType( "nn", "text/plain" );
-    mimeSourceFactory()->setExtensionType( "dict", "text/plain" );
-
-    mimeSourceFactory()->addFilePath ( "." );
-#endif
+    if ( plaintxt )
+	setTextFormat( Qt::PlainText ); 
 
     setStretch( 2, 2 );
     setPrefWidth( handle.defaultWidth() );
@@ -231,25 +207,26 @@ uiTextBrowserBody::uiTextBrowserBody( uiTextBrowser& handle, uiParent* p,
 //-------------------------------------------------------
 
 uiTextBrowser::uiTextBrowser( uiParent* parnt, const char* nm, int mxlns,
-			      bool forcePTxt )
-    : uiTextEditBase( parnt, nm, mkbody(parnt,nm,forcePTxt) )	
-    , goneforwardorback(this)
-    , linkhighlighted(this)
-    , linkclicked(this)
-    , cangoforw_( false )
-    , cangobackw_( false )
-    , forceplaintxt_( forcePTxt )
+			      bool forceplaintxt )
+    : uiTextEditBase( parnt, nm, mkbody(parnt,nm,forceplaintxt) )	
+    , goneForwardOrBack(this)
+    , linkHighlighted(this)
+    , linkClicked(this)
+    , cangoforw_(false)
+    , cangobackw_(false)
+    , forceplaintxt_(forceplaintxt)
     , maxlines_(mxlns)
 {
 }
 
 
 uiTextBrowserBody& uiTextBrowser::mkbody( uiParent* parnt, const char* nm,
-					  bool forcePlainText )
+					  bool forceplaintxt )
 { 
-    body_= new uiTextBrowserBody( *this, parnt, nm, forcePlainText );
+    body_ = new uiTextBrowserBody( *this, parnt, nm, forceplaintxt );
     return *body_; 
 }
+
 
 QTextEdit& uiTextBrowser::qte()	{ return *body_; }
 
@@ -257,14 +234,10 @@ QTextEdit& uiTextBrowser::qte()	{ return *body_; }
 const char* uiTextBrowser::source() const
 { 
     if ( forceplaintxt_ )
-	return textsrc;
+	return textsrc_;
 
-#ifdef USEQT3
-    result = (const char*)body_->source();
-#else
-    result = body_->source().path().toAscii().data();
-#endif
-    return (const char*)result;
+    result_ = body_->source().path().toAscii().data();
+    return result_.buf();
 }
 
 
@@ -272,50 +245,34 @@ void uiTextBrowser::setSource( const char* src )
 {
     if ( forceplaintxt_ )
     {
-	textsrc = src;
+	textsrc_ = src;
 	readFromFile( src );
     }
     else
-#ifdef USEQT3
-	body_->setSource(src);
-#else
         body_->setSource( QUrl(src) );
-#endif
 }
 
 
 void uiTextBrowser::setMaxLines( int ml )
-{
-    maxlines_ = ml;
-}
-
+{ maxlines_ = ml; }
 
 void uiTextBrowser::backward()
 { body_->backward();}
 
-
 void uiTextBrowser::forward()
 { body_->forward(); }
 
-
 void uiTextBrowser::home()
 { body_->home(); }
+
+void uiTextBrowser::scrollToBottom()
+{ body_->moveCursor( QTextCursor::End ); }
 
 
 void uiTextBrowser::reload()
 {
     if ( forceplaintxt_ )
-	setSource( textsrc );
+	setSource( textsrc_ );
 
     body_->reload();
-}
-
-
-void uiTextBrowser::scrollToBottom()
-{
-#ifdef USEQT3
-    body_->scrollToBottom();
-#else
-    body_->moveCursor( QTextCursor::End );
-#endif
 }

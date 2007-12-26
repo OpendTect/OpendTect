@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextedit.h,v 1.18 2007-03-06 07:38:33 cvsnanne Exp $
+ RCS:           $Id: uitextedit.h,v 1.19 2007-12-26 07:09:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,21 +22,20 @@ class QTextEdit;
 class uiTextEditBase : public uiObject
 {
 public:
+			uiTextEditBase(uiParent*,const char*,uiObjectBody&);
 
-                        uiTextEditBase( uiParent*, const char*, uiObjectBody& );
-
-    void		setText( const char* );
-    void		readFromFile( const char* );
-    bool		saveToFile( const char* );
+    void		setText(const char*);
+    void		readFromFile(const char*);
+    bool		saveToFile(const char*);
 
     const char*		text() const;
     int			nrLines() const;
 
-    static int          defaultWidth()		    { return defaultWidth_; }
-    static void         setDefaultWidth( int w )    { defaultWidth_ = w; }
+    static int		defaultWidth()		  { return defaultwidth_; }
+    static void		setDefaultWidth( int w )  { defaultwidth_ = w; }
 
-    static int          defaultHeight()		    { return defaultHeight_; }
-    static void         setDefaultHeight( int h )   { defaultHeight_ = h; }
+    static int		defaultHeight()		  { return defaultheight_; }
+    static void		setDefaultHeight( int h ) { defaultheight_ = h; }
 
     bool		isModified() const;
 
@@ -46,33 +45,33 @@ protected:
     const QTextEdit&	qte() const 
 			{ return const_cast<uiTextEditBase*>(this)->qte(); }
 
-    static int          defaultWidth_;
-    static int          defaultHeight_;
+    static int          defaultwidth_;
+    static int          defaultheight_;
     virtual int		maxLines() const		{ return -1; }
 
-    mutable BufferString result;
+    mutable BufferString result_;
 };
+
 
 
 class uiTextEdit : public uiTextEditBase
 {
 public:
+                        uiTextEdit(uiParent* parnt,const char* nm="Text editor",
+				   bool readonly=false);
 
-                        uiTextEdit( uiParent* parnt, 
-				    const char* nm="Text editor",
-				    bool readonly=false);
-
-    void		append( const char* ); 
+    void		append(const char*); 
 
 protected:
 
-    virtual QTextEdit& qte();
+    virtual QTextEdit&	qte();
 
 private:
 
     uiTextEditBody*	body_;
-    uiTextEditBody&	mkbody(uiParent*, const char*, bool);
+    uiTextEditBody&	mkbody(uiParent*,const char*,bool);
 };
+
 
 
 class uiTextBrowser : public uiTextEditBase
@@ -80,8 +79,7 @@ class uiTextBrowser : public uiTextEditBase
 friend class		i_BrowserMessenger;
 public:
 
-                        uiTextBrowser(uiParent*, 
-				      const char* nm="File browser",
+                        uiTextBrowser(uiParent*,const char* nm="File browser",
 				      int maxlns=mUdf(int),
 				      bool forceplaintext=true );
 
@@ -93,20 +91,19 @@ public:
     void		forward();
     void		home();
     void		reload();
-
     void		scrollToBottom();
 
     bool		canGoForward()		{ return cangoforw_; }
     bool		canGoBackward()		{ return cangobackw_; }
-    Notifier<uiTextBrowser> goneforwardorback;
-
     const char* 	lastLink()		{ return lastlink_; }
-    Notifier<uiTextBrowser> linkhighlighted;
-    Notifier<uiTextBrowser> linkclicked;
+
+    Notifier<uiTextBrowser>	goneForwardOrBack;
+    Notifier<uiTextBrowser>	linkHighlighted;
+    Notifier<uiTextBrowser>	linkClicked;
 
 protected:
 
-    BufferString	textsrc;
+    BufferString	textsrc_;
     BufferString	lastlink_;
     bool		cangoforw_;
     bool		cangobackw_;
@@ -115,12 +112,12 @@ protected:
 
     virtual int		maxLines() const		{ return maxlines_; }
 
-    virtual QTextEdit& qte();
+    virtual QTextEdit&	qte();
 
 private:
 
     uiTextBrowserBody*	body_;
-    uiTextBrowserBody&	mkbody(uiParent*, const char*, bool );
+    uiTextBrowserBody&	mkbody(uiParent*,const char*,bool);
 };
 
 #endif
