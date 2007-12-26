@@ -4,13 +4,13 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.17 2007-12-13 16:46:53 cvsbert Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.18 2007-12-26 19:08:27 cvskris Exp $";
 
 
 #include "dataclipper.h"
 
 #include "arraynd.h"
-#include "idxable.h"
+#include "math.h"
 #include "sorting.h"
 #include "statrand.h"
 #include "undefval.h"
@@ -214,13 +214,35 @@ bool DataClipper::getRange( float lowclip, float highclip,
 bool DataClipper::getSymmetricRange( float cliprate, float midval,
 				     Interval<float>& range ) const
 {
-    if ( !getRange(cliprate,range) )
-	return false;
+    const int nrvals = samples_.size();
+    if ( !nrvals ) return false;
 
-    if ( midval-range.start > range.stop-midval )
-	range.stop = midval + (midval-range.start);
-    else
-	range.start = midval - (range.stop-midval);
+    const int nrsamplestoremove = mNINT(cliprate*nrvals);
+
+    int firstsample = 0;
+    int lastsample = nrvals-1;
+
+    for ( int idx=0; idx<nrsamplestoremove; idx++ )
+    {
+	if ( firstsample==lastsample )
+	    break;
+
+	const float firstdist = fabs(midval-samples_[firstsample]);
+	const float lastdist = fabs(midval-samples_[lastsample]);
+
+	if ( firstdist>lastdist )
+	    firstsample++;
+	else
+	    lastsample--;
+    }
+
+
+    const float firstdist = fabs(midval-samples_[firstsample]);
+    const float lastdist = fabs(midval-samples_[lastsample]);
+    const float halfwidth = mMAX( firstdist, lastdist );
+
+    range.start = midval-halfwidth;
+    range.stop = midval+halfwidth;
 
     return true;
 }
