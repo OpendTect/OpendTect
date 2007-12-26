@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.7 2007-12-18 20:35:59 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.8 2007-12-26 17:34:36 cvskris Exp $
 _______________________________________________________________________________
 
  -*/
@@ -25,6 +25,8 @@ _______________________________________________________________________________
 
 mCreateFactoryEntry( PreStackView::PreStackViewer );
 
+#define mDefaultWidth ((SI().inlDistance() + SI().crlDistance() ) * 100)
+
 namespace PreStackView
 {
 
@@ -38,8 +40,8 @@ PreStackViewer::PreStackViewer()
     , mid_( 0 )		
     , section_( 0 )
     , factor_( 1 )
-    , width_( 1250 )
-    , offsetrange_( 0, width_ )		    
+    , width_( mDefaultWidth )
+    , offsetrange_( 0, mDefaultWidth )
     , zrg_( SI().zRange(true) )
     , positiveside_( true )
     , autowidth_( true )
