@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.17 2007-11-14 09:16:39 cvsbert Exp $
+ RCS:		$Id: uiodplanedatatreeitem.cc,v 1.18 2007-12-26 18:38:23 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -166,19 +166,6 @@ void uiODPlaneDataTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &positionmnuitem_, !visserv_->isLocked(displayid_),
 	          false );
     mAddMenuItem( menu, &gridlinesmnuitem_, true, false );
-
-    int type = menu->getMenuType();
-    if ( type==uiMenuHandler::fromScene )
-    {
-	uiSeisPartServer* seisserv = applMgr()->seisServer();
-	MenuItem* displaygathermnu = seisserv->storedGathersSubMenu( true );
-	if ( displaygathermnu )
-	{
-	    mAddMenuItem( menu, displaygathermnu, displaygathermnu->nrItems(),
-		         false );
-	    displaygathermnu->placement = -500;
-	}
-    }
 }
 
 
@@ -227,16 +214,6 @@ void uiODPlaneDataTreeItem::handleMenuCB( CallBacker* cb )
 
 	uiGridLinesDlg gldlg( getUiParent(), pdd );
 	gldlg.go();
-    }
-    else
-    {
-	const Coord xyzpos = menu->getPickedPos();
-	if ( !xyzpos.isDefined() )
-	    return;
-
-	const BinID bid( SI().transform(xyzpos) );
-	if ( applMgr()->seisServer()->handleGatherSubMenu( mnuid, bid ) )
-	    menu->setIsHandled(true);
     }
 }
 
