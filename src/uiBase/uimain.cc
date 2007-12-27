@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.40 2007-10-26 11:59:35 cvsnanne Exp $
+ RCS:           $Id: uimain.cc,v 1.41 2007-12-27 11:25:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,14 +24,10 @@ ________________________________________________________________________
 
 #include "qiconset.h"
 
-#ifndef USEQT3
-# include <QCleanlooksStyle>
-# include <QWindowsStyle>
+#include <QCleanlooksStyle>
 
 #ifdef __win__
 # include <QWindowsXPStyle>
-#endif
-
 #endif
 
 
@@ -125,7 +121,7 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
     if ( DBG::isOn(DBG_UI) && !qap )
 	DBG::message( "Constructing QApplication ..." );
 
-    if( qap ) 
+    if ( qap ) 
 	app_ = qap;
     else
 	app_ = new QApplication( argc, argv );
@@ -135,38 +131,14 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 
     qInstallMsgHandler( myMessageOutput );
 
-#ifndef USEQT3
 # ifdef __win__
     QApplication::setStyle( new QWindowsXPStyle );
 # else
     QApplication::setStyle( new QCleanlooksStyle );
 # endif
 
-#else
-    app_->setStyle( new QCDEStyle() );
-#endif
-
-
     font_ = 0;
     setFont( *font() , true );
-
-#ifdef USEQT3
-    bool enab = true;
-    if ( !Settings::common().getYN("Ui.ToolTips.enable",enab) )
-    {
-	Settings::common().setYN( "Ui.ToolTips.enable", true );
-	Settings::common().write();
-	enab = true;
-    }
-    if ( !enab )
-	uiObject::enableToolTips( false );
-
-    const int iconsz = uiObject::iconSize();
-    QIconSet::setIconSize( QIconSet::Small, QSize(iconsz,iconsz) );
-    QIconSet::setIconSize( QIconSet::Automatic, QSize(iconsz,iconsz) );
-    QIconSet::setIconSize( QIconSet::Large, QSize(iconsz,iconsz) );
-#endif
-
 }
 
 
@@ -179,15 +151,15 @@ uiMain::~uiMain()
 
 int uiMain::exec()          			
 {
-    if( !app_ )  { pErrMsg("Huh?") ; return -1; }
+    if ( !app_ )  { pErrMsg("Huh?") ; return -1; }
     return app_->exec();
 }
 
 
 void uiMain::setTopLevel( uiMainWin* obj )
 {
-    if( !obj ) return;
-    if( !app_ )  { pErrMsg("Huh?") ; return; }
+    if ( !obj ) return;
+    if ( !app_ )  { pErrMsg("Huh?") ; return; }
 
     if ( mainobj_ ) mainobj_->setExitAppOnClose( false );
     obj->setExitAppOnClose( true );
@@ -201,14 +173,14 @@ void uiMain::setTopLevel( uiMainWin* obj )
 void uiMain::setFont( const uiFont& font, bool PassToChildren )
 {   
     font_ = &font;
-    if( !app_ )  { pErrMsg("Huh?") ; return; }
+    if ( !app_ )  { pErrMsg("Huh?") ; return; }
     app_->setFont( font_->qFont(), PassToChildren );
 }
 
 
-void uiMain::exit ( int retcode ) 
+void uiMain::exit( int retcode ) 
 { 
-    if( !app_ )  { pErrMsg("Huh?") ; return; }
+    if ( !app_ )  { pErrMsg("Huh?") ; return; }
     app_->exit( retcode );
 }
 /*!<
@@ -229,15 +201,16 @@ void uiMain::exit ( int retcode )
 
 const uiFont* uiMain::font()
 {
-    if( !font_ )
+    if ( !font_ )
     { font_ = &uiFontList::get( className(*this) );  }
 
     return font_;
 }
 
+
 uiMain& uiMain::theMain()
 { 
-    if( themain_ ) return *themain_;
+    if ( themain_ ) return *themain_;
     if ( !qApp ) 
     { 
 	pFreeFnErrMsg("FATAL: no uiMain and no qApp.","uiMain::theMain()");
@@ -250,30 +223,21 @@ uiMain& uiMain::theMain()
 
 
 void uiMain::flushX()        
-{ 
-    if( !app_ )	return;
-    app_->flushX();
-}
+{ if ( app_ ) app_->flushX(); }
+
 
 void uiMain::setTopLevelCaption( const char* txt )
 {
     //QMainWindow* mw = dynamic_cast<QMainWindow*>(qApp->mainWidget());
     QWidget* mw = qApp->mainWidget();
-    if( !mw ) return;
-    mw->setCaption( QString(txt) );
+    if ( mw ) return;
+	mw->setCaption( QString(txt) );
 }
 
 
 //! waits [msec] milliseconds for new events to occur and processes them.
 void uiMain::processEvents( int msec )
-{ 
-    if( !app_ )	return;
-#ifdef USEQT3
-    app_->processEvents( msec );
-#else
-    app_->processEvents( QEventLoop::AllEvents, msec );
-#endif
-}
+{ if ( app_ ) app_->processEvents( QEventLoop::AllEvents, msec ); }
 
 
 void myMessageOutput( QtMsgType type, const char *msg )
