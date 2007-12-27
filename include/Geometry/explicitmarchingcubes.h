@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: explicitmarchingcubes.h,v 1.10 2007-10-18 21:47:02 cvsyuancheng Exp $
+ RCS:           $Id: explicitmarchingcubes.h,v 1.11 2007-12-27 16:13:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class MarchingCubesSurface;
 template <class T> class SamplingData;
 template <class T> class Interval;
 class CoordList;
+class TaskRunner;
 
 /*!A triangulated representation of an MarchingCubesSurface. */
 
@@ -36,7 +37,7 @@ public:
     const MarchingCubesSurface*	getSurface() const { return surface_; }
     void			removeAll();
 
-    bool			update(bool forceall);
+    bool			update(bool forceall,TaskRunner* = 0);
 
     void			setAxisScales(const SamplingData<float>& xrg,
 					      const SamplingData<float>& yrg,
@@ -52,7 +53,7 @@ protected:
 
     bool		update(const Interval<int>& xrg,
 	    		       const Interval<int>& yrg,
-	    		       const Interval<int>& zrg);
+	    		       const Interval<int>& zrg,TaskRunner* = 0);
     void		removeBuckets(const Interval<int>& xrg,
 	    			      const Interval<int>& yrg,
 				      const Interval<int>& zrg);

@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.20 2007-11-02 20:42:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.21 2007-12-27 16:13:04 cvskris Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -76,7 +76,8 @@ protected:
 	const MultiDimStorage<MarchingCubesModel>& models = 
 	    surface_.getSurface()->models_;
 
-	for ( int idx=start; idx<=stop; idx++, reportNrDone() )
+	for ( int idx=start; idx<=stop && shouldContinue();
+	      idx++, reportNrDone() )
 	{
 	    if ( usetable )
 		memcpy( idxs, tableidxs+idx*3, sizeof(int)*3 );
@@ -219,13 +220,13 @@ void ExplicitMarchingCubesSurface::removeAll()
 }
 
 
-bool ExplicitMarchingCubesSurface::update( bool forceall )
+bool ExplicitMarchingCubesSurface::update( bool forceall, TaskRunner* tr )
 {
     if ( !forceall && changedbucketranges_[mX] )
     {
 	if ( update( *changedbucketranges_[mX],
 		     *changedbucketranges_[mY],
-		     *changedbucketranges_[mZ] ) )
+		     *changedbucketranges_[mZ], tr ) )
 	{
 	    delete changedbucketranges_[mX];
 	    delete changedbucketranges_[mY];
@@ -245,13 +246,14 @@ bool ExplicitMarchingCubesSurface::update( bool forceall )
     if ( !surface_->models_.size() )
 	return true;
 
-    PtrMan<ExplicitMarchingCubesSurfaceUpdater> updater = new
-	ExplicitMarchingCubesSurfaceUpdater( *this, true );
-    if ( !updater->execute() )
+    ExplicitMarchingCubesSurfaceUpdater updater( *this, true );
+
+    if ( tr ? !tr->execute( updater ) : !updater.execute() )
 	return false;
 
-    updater->setUpdateCoords( false );
-    if ( updater->execute() )
+    updater.setUpdateCoords( false );
+
+    if ( tr ? tr->execute( updater ) : updater.execute() )
     {
 	delete changedbucketranges_[mX];
 	delete changedbucketranges_[mY];
@@ -269,7 +271,8 @@ bool ExplicitMarchingCubesSurface::update( bool forceall )
 bool ExplicitMarchingCubesSurface::update(
 	    const Interval<int>& xbucketrg,
 	    const Interval<int>& ybucketrg,
-	    const Interval<int>& zbucketrg )
+	    const Interval<int>& zbucketrg,
+            TaskRunner* tr )
 {
     removeBuckets( xbucketrg, ybucketrg, zbucketrg );
 
@@ -280,14 +283,15 @@ bool ExplicitMarchingCubesSurface::update(
     Interval<int> zrg = Interval<int>( zbucketrg.start*mBucketSize,
 	                               (zbucketrg.stop+1)*mBucketSize-1 );
 
-    PtrMan<ExplicitMarchingCubesSurfaceUpdater> updater = new
-	ExplicitMarchingCubesSurfaceUpdater( *this, true );
-    updater->setLimits( xrg, yrg, zrg ); 
-    if ( !updater->execute() )
+    ExplicitMarchingCubesSurfaceUpdater updater( *this, true );
+    updater.setLimits( xrg, yrg, zrg ); 
+
+    if ( tr ? !tr->execute( updater ) : !updater.execute() )
 	return false;
 
-    updater->setUpdateCoords( false );
-    return updater->execute();
+    updater.setUpdateCoords( false );
+
+    return tr ? tr->execute( updater ) : updater.execute();
 }
 
 

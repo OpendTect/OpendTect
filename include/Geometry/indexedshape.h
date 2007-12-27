@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.1 2007-09-12 20:05:13 cvskris Exp $
+RCS:           $Id: indexedshape.h,v 1.2 2007-12-27 16:13:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "thread.h"
 
 class CoordList;
+class TaskRunner;
 
 namespace Geometry
 {
@@ -65,8 +66,8 @@ public:
     virtual 		~IndexedShape();
 
     virtual void	setCoordList(CoordList* cl,CoordList* nl=0);
-    virtual bool	needsUpdate() const		{ return true; }
-    virtual bool	update(bool forceall)		{ return true; }
+    virtual bool	needsUpdate() const			{ return true; }
+    virtual bool	update(bool forceall,TaskRunner* =0)	{ return true; }
 
     virtual void	setRightHandedNormals(bool);
     virtual void	removeAll();
