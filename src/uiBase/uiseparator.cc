@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/1/2001
- RCS:		$Id: uiseparator.cc,v 1.7 2007-04-11 16:32:52 cvsbert Exp $
+ RCS:		$Id: uiseparator.cc,v 1.8 2007-12-27 10:58:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,11 +13,7 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uiobjbody.h"
 
-#ifdef USEQT3
-# include <qframe.h>
-#else
-# include <QFrame>
-#endif
+#include <QFrame>
 
 
 class uiSeparatorBody : public uiObjBodyImpl<uiSeparator,QFrame>
@@ -25,7 +21,7 @@ class uiSeparatorBody : public uiObjBodyImpl<uiSeparator,QFrame>
 public:
 
 uiSeparatorBody( uiSeparator& handle, uiParent* p, const char* nm,
-		 bool hor, bool raised)
+		 bool hor, bool raised )
     : uiObjBodyImpl<uiSeparator,QFrame>(handle,p,nm)
 {
     setFrameStyle( (hor ? QFrame::HLine : QFrame::VLine)
@@ -37,9 +33,9 @@ uiSeparatorBody( uiSeparator& handle, uiParent* p, const char* nm,
 
 
 uiSeparator::uiSeparator( uiParent* p, const char* txt, bool hor, bool raised )
-    : uiObject(p,txt, mkbody(p,txt,hor,raised) )
-{
-}
+    : uiObject(p,txt,mkbody(p,txt,hor,raised))
+{}
+
 
 uiSeparatorBody& uiSeparator::mkbody( uiParent* p, const char* txt, 
 				      bool hor, bool raised )
