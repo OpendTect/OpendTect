@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.43 2007-10-02 12:47:42 cvsjaap Exp $
+ RCS:           $Id: uicombobox.cc,v 1.44 2007-12-27 11:08:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,19 +17,9 @@ ________________________________________________________________________
 
 #include "i_qcombobox.h"
 
-#include "qapplication.h"
-#include "qevent.h"
-#include "qsize.h"
-
-#ifdef __msvc__
-#include "qlabel.h"
-#endif
-
-#ifdef USEQT3
-# define mQIcon QIconSet
-#else
-# define mQIcon QIcon
-#endif
+#include <QApplication>
+#include <QEvent>
+#include <QSize>
 
 
 class uiComboBoxBody : public uiObjBodyImpl<uiComboBox,QComboBox>
@@ -42,11 +32,6 @@ public:
 			    : uiObjBodyImpl<uiComboBox,QComboBox>(handle,p,nm)
 			    , messenger_( *new i_comboMessenger( this, &handle))
 			    {
-				// Qt hack ( qt-3.3.3 )
-				// Have no clue why we need to allow editing
-				// first, but otherwise the combobox does not 
-				// work properly. 
-				if ( !ed ) setEditable( true );
 				setEditable( ed );
 				setAutoCompletion( ed );
 				setHSzPol( uiObject::Medium) ;
