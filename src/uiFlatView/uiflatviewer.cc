@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.38 2007-12-13 16:29:37 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.39 2007-12-27 09:42:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,11 +40,14 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , viewChanged(this)
     , dataChanged(this)
     , control_(0)
+    , displaycanvas_(true)
 {
     bmp2rgb_ = new FlatView::BitMap2RGB( appearance(), canvas_.rgbArray() );
     canvas_.newFillNeeded.notify( mCB(this,uiFlatViewer,canvasNewFill) );
     canvas_.postDraw.notify( mCB(this,uiFlatViewer,canvasPostDraw) );
     reportedchanges_ += All;
+
+    mainObject()->finaliseDone.notify( mCB(this,uiFlatViewer,onFinalise) );
 }
 
 
@@ -59,9 +62,18 @@ uiFlatViewer::~uiFlatViewer()
 }
 
 
+void uiFlatViewer::onFinalise( CallBacker* )
+{
+    canvas_.display( displaycanvas_ );
+}
+
+
 void uiFlatViewer::display( bool yn )
 {
-    canvas_.display( yn );
+    if ( mainObject() && !mainObject()->finalised() )
+	displaycanvas_ = yn;
+    else
+	canvas_.display( yn );
 }
 
 

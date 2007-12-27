@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.17 2007-12-13 16:29:37 cvsbert Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.18 2007-12-27 09:42:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,26 +83,28 @@ protected:
     bool			anysetviewdone_;
     bool			x0rev_;
     bool			x1rev_;
+    bool			displaycanvas_;
 
     FlatView::BitMapMgr*	wvabmpmgr_;
     FlatView::BitMapMgr*	vdbmpmgr_;
     FlatView::BitMap2RGB*	bmp2rgb_;
 
-    void		canvasNewFill(CallBacker*);
-    void		canvasPostDraw(CallBacker*);
-    uiWorldRect		getBoundingBox(bool) const;
-    Color		color(bool foreground) const;
+    void			onFinalise(CallBacker*);
+    void			canvasNewFill(CallBacker*);
+    void			canvasPostDraw(CallBacker*);
+    uiWorldRect			getBoundingBox(bool) const;
+    Color			color(bool foreground) const;
 
-    void		drawBitMaps();
-    void		drawAnnot();
-    void		drawGridAnnot();
-    void		drawAux(const FlatView::Annotation::AuxData&);
+    void			drawBitMaps();
+    void			drawAnnot();
+    void			drawGridAnnot();
+    void			drawAux(const FlatView::Annotation::AuxData&);
 
-    void		reset();
-    bool		mkBitmaps(uiPoint&);
+    void			reset();
+    bool			mkBitmaps(uiPoint&);
 
-    friend class	uiFlatViewControl;
-    uiFlatViewControl*	control_;
+    friend class		uiFlatViewControl;
+    uiFlatViewControl*		control_;
 };
 
 #endif
