@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          April 2006
 Contents:      Ranges
-RCS:           $Id: rowcolsurface.h,v 1.1 2006-04-18 17:47:40 cvskris Exp $
+RCS:           $Id: rowcolsurface.h,v 1.2 2007-12-27 16:07:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,8 @@ class RowColSurface : public Element
 {
 public:
     virtual void		getPosIDs(TypeSet<GeomPosID>&,bool=true) const;
+
+    virtual bool		isEmpty() const				= 0;
 
     virtual StepInterval<int>	colRange() const;
     virtual StepInterval<int>	colRange(int row) const			= 0;

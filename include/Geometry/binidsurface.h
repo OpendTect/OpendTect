@@ -7,7 +7,7 @@ CopyRight:     (C) dGB Beheer B.V.
 Author:        A.H. Bril
 Date:          23-10-1996
 Contents:      Ranges
-RCS:           $Id: binidsurface.h,v 1.8 2007-11-12 16:07:43 cvsjaap Exp $
+RCS:           $Id: binidsurface.h,v 1.9 2007-12-27 16:07:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ public:
     			BinIDSurface(const BinIDSurface&);
 			~BinIDSurface();
     BinIDSurface*	clone() const;
+    bool		isEmpty() const { return !depths_; }
 
     Coord3		computePosition(const Coord& param) const;
 

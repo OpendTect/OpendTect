@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          December 2004
-RCS:           $Id: cubicbeziersurface.h,v 1.7 2005-03-18 11:23:05 cvskris Exp $
+RCS:           $Id: cubicbeziersurface.h,v 1.8 2007-12-27 16:04:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ public:
 			~CubicBezierSurface();
 
     CubicBezierSurface*	clone() const;
+    bool		isEmpty() const { return !positions; }
 
     IntervalND<float>	boundingBox(bool approx) const;
 

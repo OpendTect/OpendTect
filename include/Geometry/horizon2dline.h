@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          March 2006
-RCS:           $Id: horizon2dline.h,v 1.5 2007-08-24 06:55:44 cvsjaap Exp $
+RCS:           $Id: horizon2dline.h,v 1.6 2007-12-27 16:07:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
     			~Horizon2DLine();
 
     Horizon2DLine*	clone() const;
+    bool		isEmpty() const { return rows_.isEmpty(); }
 
     int			addRow(const TypeSet<Coord>&,int start,int step);
     			/*!<\returns id of new path. */
