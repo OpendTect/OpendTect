@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.43 2007-07-19 07:34:11 cvsjaap Exp $
+ RCS:           $Id: uiobjbody.h,v 1.44 2007-12-27 09:41:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,7 @@ public:
     i_LayoutItem*	mkLayoutItem(i_LayoutMngr&);
 
     virtual void	finalise();
+    virtual bool	finalised() const	{ return finalised_; }
 
     virtual void	fontchanged();
 
@@ -148,7 +149,7 @@ private:
     bool		allowshrnk;
 
     bool		is_hidden;
-    bool		finalised;
+    bool		finalised_;
     bool		display_;
     bool		display_maximised;
 

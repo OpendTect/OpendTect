@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.68 2007-08-23 15:25:19 cvsbert Exp $
+ RCS:           $Id: uiobj.cc,v 1.69 2007-12-27 09:41:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,19 +29,23 @@ ________________________________________________________________________
 //#define pbody()		static_cast<uiParentBody*>( body() )
 
 void uiObjHandle::finalise()
-    { if (body()) body()->finalise(); }
+{ if ( body() ) body()->finalise(); }
 
 void uiObjHandle::clear()
-    { if (body()) body()->clear(); }
+{ if ( body() ) body()->clear(); }
+
+bool uiObjHandle::finalised() const
+{ return body() ? body()->finalised() : false; }
 
 
 uiParent::uiParent( const char* nm, uiParentBody* b )
-    : uiObjHandle(nm, b)  				{}
+    : uiObjHandle( nm, b )
+{}
 
 
 void uiParent::addChild( uiObjHandle& child )
 {
-    mDynamicCastGet( uiObjHandle*, thisuiobj, this );
+    mDynamicCastGet(uiObjHandle*,thisuiobj,this);
     if ( thisuiobj && child == thisuiobj ) return;
     if ( !body() )		{ pErrMsg("uiParent has no body!"); return; } 
 

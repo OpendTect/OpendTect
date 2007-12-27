@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uibody.h,v 1.10 2006-08-21 17:14:45 cvsbert Exp $
+ RCS:           $Id: uibody.h,v 1.11 2007-12-27 09:41:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ public:
     virtual			~uiBody()				{}
 
     virtual void		finalise()				{}
+    virtual bool		finalised() const	{ return false; }
     virtual void		clear()					{}
     virtual void		fontchanged()				{}
 

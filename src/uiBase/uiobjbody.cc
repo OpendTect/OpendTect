@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.cc,v 1.14 2007-07-19 07:34:11 cvsjaap Exp $
+ RCS:           $Id: uiobjbody.cc,v 1.15 2007-12-27 09:41:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
     , vStretch(  mUdf(int) )
     , allowshrnk( false )
     , is_hidden( false )
-    , finalised( false )
+    , finalised_( false )
     , display_( true )
     , display_maximised( false )
     , pref_width_( 0 )
@@ -98,7 +98,7 @@ void uiObjectBody::display( bool yn, bool shrink, bool maximised )
 
 void uiObjectBody::doDisplay(CallBacker*)
 {
-    if ( !finalised ) finalise();
+    if ( !finalised_ ) finalise();
 
 
     if ( display_ )
@@ -161,11 +161,11 @@ i_LayoutItem* uiObjectBody::mkLayoutItem( i_LayoutMngr& mngr )
 
 void uiObjectBody::finalise()
 {
-    if ( finalised ) return;
+    if ( finalised_ ) return;
 
     uiObjHandle().finaliseStart.trigger( uiObjHandle() );
     finalise_();
-    finalised = true;
+    finalised_ = true;
     uiObjHandle().finaliseDone.trigger( uiObjHandle() );
     if ( !display_ ) 
 	display( display_ );
