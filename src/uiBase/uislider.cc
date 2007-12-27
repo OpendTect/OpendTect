@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.28 2007-10-23 11:21:05 cvsjaap Exp $
+ RCS:           $Id: uislider.cc,v 1.29 2007-12-27 11:30:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,9 +18,10 @@ ________________________________________________________________________
 #include "datainpspec.h"
 #include "ranges.h"
 
-#include <qapplication.h>
-#include <qevent.h>
-#include <qstring.h> 
+#include <QApplication>
+#include <QEvent>
+#include <QString> 
+
 #include <math.h>
 
 
@@ -52,15 +53,7 @@ private:
 
 };
 
-#ifdef USEQT3
-# define mFocus		QWidget
-# define mOrientation	QSlider
-# define mTickPosition	TickSetting
-#else
-# define mFocus		Qt
-# define mOrientation	Qt
-# define mTickPosition	TickPosition
-#endif
+
 
 uiSliderBody::uiSliderBody( uiSlider& handle, uiParent* p, const char* nm )
     : uiObjBodyImpl<uiSlider,QSlider>(handle,p,nm)
@@ -68,7 +61,7 @@ uiSliderBody::uiSliderBody( uiSlider& handle, uiParent* p, const char* nm )
 {
     setStretch( 1, 0 );
     setHSzPol( uiObject::Medium );
-    setFocusPolicy( mFocus::WheelFocus );
+    setFocusPolicy( Qt::WheelFocus );
 }
 
 
@@ -100,14 +93,14 @@ bool uiSliderBody::event( QEvent* ev )
 
 //------------------------------------------------------------------------------
 
-uiSlider::uiSlider( uiParent* p, const char* nm, int dec, bool log_ )
+uiSlider::uiSlider( uiParent* p, const char* nm, int dec, bool logsc )
     : uiObject(p,nm,mkbody(p,nm))
+    , logscale(logsc)
     , valueChanged(this)
     , sliderMoved(this)
     , activatedone(this)
-    , logscale(log_)
 {
-    body_->setOrientation( mOrientation::Horizontal );
+    body_->setOrientation( Qt::Horizontal );
 
     if ( dec < 0 ) dec = 0;
     factor = (int)pow(10,(float)dec);
@@ -182,7 +175,7 @@ float uiSlider::getValue() const
 
 void uiSlider::setTickMarks( TickPosition ticks )
 {
-    body_->setTickmarks( QSlider::mTickPosition( (int)ticks ) );
+    body_->setTickmarks( QSlider::TickPosition( (int)ticks ) );
 }
 
 
@@ -195,7 +188,7 @@ uiSlider::TickPosition uiSlider::tickMarks() const
 void uiSlider::setOrientation( Orientation or_ )
 {
     body_->setOrientation( or_ == Vertical ?  
-	  mOrientation::Vertical : mOrientation::Horizontal );
+	  Qt::Vertical : Qt::Horizontal );
 }
 
 
@@ -264,8 +257,6 @@ void uiSlider::setTickStep( int s )	{ body_->setTickInterval(s); }
 
 
 
-
-
 uiSliderExtra::uiSliderExtra( uiParent* p, const Setup& s, const char* nm )
     : uiGroup(p,nm)
     , editfld(0)
@@ -287,7 +278,6 @@ uiSliderExtra::uiSliderExtra( uiParent* p, const char* lbl, const char* nm )
 void uiSliderExtra::init( const uiSliderExtra::Setup& setup, const char* nm )
 {
     slider = new uiSlider( this, nm, setup.nrdec_, setup.logscale_ );
-    slider->setOrientation( uiSlider::Horizontal );
 
     if ( !setup.lbl_.isEmpty() )
 	lbl = new uiLabel( this, setup.lbl_, slider );
@@ -298,7 +288,10 @@ void uiSliderExtra::init( const uiSliderExtra::Setup& setup, const char* nm )
 	editfld = new uiLineEdit( this, FloatInpSpec() );
 	editfld->setHSzPol( uiObject::Small );
 	editfld->returnPressed.notify( mCB(this,uiSliderExtra,editRetPress) );
-	editfld->attach( rightOf, slider );
+	if ( setup.orientation_ == uiSlider::Horizontal )
+	    editfld->attach( rightOf, slider );
+	else
+	    editfld->attach( centeredBelow, slider );
 	sliderMove(0);
     }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.14 2007-10-23 11:21:05 cvsjaap Exp $
+ RCS:           $Id: uislider.h,v 1.15 2007-12-27 11:30:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,12 +93,14 @@ public:
 			    , withedit_(false)
 			    , nrdec_(0)
 			    , logscale_(false)
+			    , orientation_(uiSlider::Horizontal)
 			    {}
 
 	mDefSetupMemb(bool,withedit)
 	mDefSetupMemb(bool,logscale)
 	mDefSetupMemb(int,nrdec)
 	mDefSetupMemb(BufferString,lbl)
+	mDefSetupMemb(uiSlider::Orientation,orientation)
     };
 
                 	uiSliderExtra(uiParent*,const Setup&,
