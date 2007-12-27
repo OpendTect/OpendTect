@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.29 2007-12-27 11:30:43 cvsnanne Exp $
+ RCS:           $Id: uislider.cc,v 1.30 2007-12-27 11:47:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -280,7 +280,7 @@ void uiSliderExtra::init( const uiSliderExtra::Setup& setup, const char* nm )
     slider = new uiSlider( this, nm, setup.nrdec_, setup.logscale_ );
 
     if ( !setup.lbl_.isEmpty() )
-	lbl = new uiLabel( this, setup.lbl_, slider );
+	lbl = new uiLabel( this, setup.lbl_ );
 
     if ( setup.withedit_ )
     {
@@ -288,11 +288,18 @@ void uiSliderExtra::init( const uiSliderExtra::Setup& setup, const char* nm )
 	editfld = new uiLineEdit( this, FloatInpSpec() );
 	editfld->setHSzPol( uiObject::Small );
 	editfld->returnPressed.notify( mCB(this,uiSliderExtra,editRetPress) );
-	if ( setup.orientation_ == uiSlider::Horizontal )
-	    editfld->attach( rightOf, slider );
-	else
-	    editfld->attach( centeredBelow, slider );
 	sliderMove(0);
+    }
+
+    if ( setup.orientation_ == uiSlider::Horizontal )
+    {
+	if ( lbl ) slider->attach( rightOf, lbl );
+	if ( editfld ) editfld->attach( rightOf, slider );
+    }
+    else
+    {
+	if ( lbl ) slider->attach( centeredBelow, lbl );
+	if ( editfld ) editfld->attach( centeredBelow, slider );
     }
 
     setHAlignObj( slider );
