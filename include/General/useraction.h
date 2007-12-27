@@ -7,12 +7,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2007
- RCS:           $Id: useraction.h,v 1.1 2007-12-27 15:59:46 cvskris Exp $
+ RCS:           $Id: useraction.h,v 1.2 2007-12-27 16:02:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "refcount.h"
 #include "callback.h"
 #include "bufstring.h"
 
