@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Sep 2007
- RCS:           $Id: veldesc.cc,v 1.3 2007-11-15 21:14:46 cvskris Exp $
+ RCS:           $Id: veldesc.cc,v 1.4 2007-12-28 21:13:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,18 +21,18 @@ const char* VelocityDesc::sKeyIsVelocity()	{ return "Is Velocity"; }
 DefineEnumNames(VelocityDesc,Type,0,"Velocity Types")
 { "Unknown", "Vrms", "Vint", "Vavg", 0 };
 
-DefineEnumNames(VelocityDesc,SampleRange,0,"Sample Ranges")
+DefineEnumNames(VelocityDesc,SampleSpan,0,"Sample Spans")
 { "Centered", "Above", "Below", 0 };
 
 VelocityDesc::VelocityDesc()
     : type_( Unknown )
-    , samplerange_( Centered )
+    , samplespan_( Centered )
 {}
 
 
-VelocityDesc::VelocityDesc( Type t, SampleRange sr )
+VelocityDesc::VelocityDesc( Type t, SampleSpan sr )
     : type_( t )
-    , samplerange_( sr )
+    , samplespan_( sr )
 {}
 
 
@@ -41,7 +41,7 @@ BufferString VelocityDesc::toString() const
 {
     SeparString res ( 0, '`' );
     res.add( TypeNames[(int)type_] );
-    res.add( SampleRangeNames[(int)samplerange_] );
+    res.add( SampleSpanNames[(int)samplespan_] );
 
     return BufferString( res );
 }
@@ -56,11 +56,11 @@ bool VelocityDesc::fromString( const char* str )
     const int type = TypeDefinition.convert( sepstr[0] );
     if ( type==-1 ) return false;
 
-    const int samplerange = SampleRangeDefinition.convert( sepstr[1] );
-    if ( samplerange==-1 ) return false;
+    const int samplespan = SampleSpanDefinition.convert( sepstr[1] );
+    if ( samplespan==-1 ) return false;
 
     type_ = (Type) type;
-    samplerange_ = (SampleRange) samplerange;
+    samplespan_ = (SampleSpan) samplespan;
 
     return true;
 }

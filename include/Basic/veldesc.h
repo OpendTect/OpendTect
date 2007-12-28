@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: veldesc.h,v 1.3 2007-11-15 21:14:46 cvskris Exp $
+ RCS:		$Id: veldesc.h,v 1.4 2007-12-28 21:13:08 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -23,14 +23,14 @@ class VelocityDesc
 public:
     enum Type		{ Unknown, Interval, RMO, Avg };
     			DeclareEnumUtils(Type);
-    enum SampleRange	{ Centered, Above, Below };
-    			DeclareEnumUtils(SampleRange);
+    enum SampleSpan	{ Centered, Above, Below };
+    			DeclareEnumUtils(SampleSpan);
     
 			VelocityDesc();
-			VelocityDesc(Type,SampleRange);
+			VelocityDesc(Type,SampleSpan);
 
     Type		type_;
-    SampleRange		samplerange_;
+    SampleSpan		samplespan_;
 
     BufferString	toString() const;
     bool		fromString(const char*);
