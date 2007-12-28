@@ -7,16 +7,17 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Nov 2007
- RCS:		$Id: emrandlinegen.h,v 1.2 2007-12-24 16:51:22 cvsbert Exp $
+ RCS:		$Id: emrandlinegen.h,v 1.3 2007-12-28 10:29:09 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "ranges.h"
+#include "position.h"
 class RandomLineSet;
 template <class T> class ODPolygon;
-namespace Geometry { class RandomLineSet; }
+namespace Geometry { class RandomLine; class RandomLineSet; }
 
 
 namespace EM
@@ -75,6 +76,13 @@ public:
 
     void		generate(Geometry::RandomLineSet&,
 	    			 int linenr_in_inp_set=0) const;
+
+protected:
+
+    void		crLine(const Geometry::RandomLine&,bool,
+	    			Geometry::RandomLineSet&) const;
+    bool		getShifted(Coord,Coord,Coord&,Coord&,bool) const;
+    Coord		getIntersection(Coord,Coord,Coord,Coord) const;
 
 };
 
