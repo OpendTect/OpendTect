@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uiveldesc.cc,v 1.6 2007-12-05 11:55:49 cvsbert Exp $
+ RCS:           $Id: uiveldesc.cc,v 1.7 2007-12-28 21:18:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const VelocityDesc& desc )
     typefld_->valuechanged.notify( mCB(this, uiVelocityDesc, velTypeChange) );
 
     samplefld_ = new uiGenInput( this, "Sample range",
-	    StringListInpSpec( VelocityDesc::SampleRangeNames ) );
+	    StringListInpSpec( VelocityDesc::SampleSpanNames ) );
     samplefld_->attach( alignedBelow, typefld_ );
 
     setHAlignObj( typefld_ );
@@ -46,7 +46,7 @@ void uiVelocityDesc::velTypeChange( CallBacker* )
 void uiVelocityDesc::set( const VelocityDesc& desc )
 {
     typefld_->setValue( desc.type_ );
-    samplefld_->setValue( desc.samplerange_ );
+    samplefld_->setValue( desc.samplespan_ );
     velTypeChange( 0 );
 }
 
@@ -54,7 +54,7 @@ void uiVelocityDesc::set( const VelocityDesc& desc )
 VelocityDesc uiVelocityDesc::get() const
 {
     return VelocityDesc( (VelocityDesc::Type) typefld_->getIntValue(),
-	    		 (VelocityDesc::SampleRange) samplefld_->getIntValue());
+	    		 (VelocityDesc::SampleSpan) samplefld_->getIntValue());
 }
 
 
