@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2006
- RCS:           $Id: SoSplitTexture2.cc,v 1.6 2007-12-28 22:21:04 cvsyuancheng Exp $
+ RCS:           $Id: SoSplitTexture2.cc,v 1.7 2007-12-28 22:34:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,6 +132,30 @@ void SoSplitTexture2Part::GLRender( SoGLRenderAction* action )
     if ( SoTextureOverrideElement::getImageOverride(state) )
 	return;
 
+    for ( int idx=textureunits.getNum()-1; idx>=0; idx-- )
+	GLRenderUnit( textureunits[idx], state );
+}
+
+
+void SoSplitTexture2Part::doAction( SoAction* action )
+{
+    SoState * state = action->getState();
+
+    for ( int idx=textureunits.getNum()-1; idx>=0; idx-- )
+	doActionUnit( textureunits[idx], state );
+}
+
+
+void SoSplitTexture2Part::callback( SoCallbackAction* action )
+{ doAction(action); }
+
+
+void SoSplitTexture2Part::rayPick( SoRayPickAction* action )
+{ doAction(action); }
+
+
+void SoSplitTexture2Part::GLRenderUnit( int unit, SoState* state )
+{
     const SbVec2i32 origsz = size.getValue();
     const SbVec2i32 origstart = origin.getValue();
 
@@ -139,7 +163,6 @@ void SoSplitTexture2Part::GLRender( SoGLRenderAction* action )
 
     const SbVec2s start( origstart[0], origstart[1] );
 
-    const int unit = SoTextureUnitElement::get( state );
     SbVec2s sourcesize;
     int numcomponents;
     const unsigned char* sourcedata = SoSplitTexture2Element::get( state, unit,
@@ -243,11 +266,8 @@ void SoSplitTexture2Part::GLRender( SoGLRenderAction* action )
 }
 
 
-void SoSplitTexture2Part::doAction( SoAction* action )
+void SoSplitTexture2Part::doActionUnit( int unit, SoState* state )
 {
-    SoState * state = action->getState();
-
-    const int unit = SoTextureUnitElement::get(state);
     if ( !unit && SoTextureOverrideElement::getImageOverride(state) )
 	return;
 
@@ -301,11 +321,3 @@ void SoSplitTexture2Part::doAction( SoAction* action )
 	}
     }
 }
-
-
-void SoSplitTexture2Part::callback( SoCallbackAction* action )
-{ doAction(action); }
-
-
-void SoSplitTexture2Part::rayPick( SoRayPickAction* action )
-{ doAction(action); }
