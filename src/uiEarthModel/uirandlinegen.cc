@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uirandlinegen.cc,v 1.7 2007-12-24 16:51:22 cvsbert Exp $
+ RCS:           $Id: uirandlinegen.cc,v 1.8 2007-12-28 10:28:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
+#include "uiselsimple.h"
 
 
 uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
@@ -207,12 +208,24 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
     if ( !RandomLineSetTranslator::retrieve(inprls,inctio_.ioobj,msg) )
 	mErrRet(msg)
 
+    int lnr = 0;
+    if ( inprls.size() > 1 )
+    {
+	BufferStringSet lnms;
+	for ( int idx=0; idx<inprls.size(); idx++ )
+	    lnms.add( inprls.lines()[idx]->name() );
+	uiSelectFromList dlg( this,
+			      uiSelectFromList::Setup("Select one line",lnms) );
+	if ( !dlg.go() ) return false;
+	lnr = dlg.selection();
+    }
+
     const int choice = sidefld_->getIntValue();
     EM::RandomLineByShiftGenerator gen( inprls, distfld_->getfValue(),
 				    choice == 0 ? -1 : (choice == 1 ? 1 : 0) );
-    Geometry::RandomLineSet outrls; gen.generate( outrls );
+    Geometry::RandomLineSet outrls; gen.generate( outrls, lnr );
     if ( outrls.isEmpty() )
-	mErrRet("Not (fully) implemented yet")
+	mErrRet("Not enough input points to create output")
 
     if ( !RandomLineSetTranslator::store(outrls,outctio_.ioobj,msg) )
 	mErrRet(msg)
