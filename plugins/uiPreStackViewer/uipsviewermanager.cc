@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.4 2007-12-12 15:44:40 cvsbert Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.5 2007-12-28 16:36:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ namespace PreStackView
 {
 
 uiPSViewerMgr::uiPSViewerMgr()
-    : selectpsdatamenuitem_( "Display 3D PS Gather" )
+    : selectpsdatamenuitem_( "Display PS Gather" )
     , proptymenuitem_( "Properties" )				 
     , removemenuitem_( "Remove" ) 
     , viewermenuitem_( "View in 2D Panel" )
