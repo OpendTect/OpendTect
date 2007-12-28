@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2006
- RCS:           $Id: SoSplitTexture2.cc,v 1.5 2007-11-20 10:34:05 cvskris Exp $
+ RCS:           $Id: SoSplitTexture2.cc,v 1.6 2007-12-28 22:21:04 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,7 @@ SoSplitTexture2Part::SoSplitTexture2Part()
     SO_NODE_CONSTRUCTOR( SoSplitTexture2Part );
     SO_NODE_ADD_FIELD( origin, (SbVec2i32(0,0) ) );
     SO_NODE_ADD_FIELD( size, (SbVec2i32(0,0) ) );
+    SO_NODE_ADD_FIELD( textureunits, (0) );
 
     originsensor_ = new SoFieldSensor( fieldChangeCB, this );
     originsensor_->attach( &origin );

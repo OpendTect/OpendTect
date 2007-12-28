@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoSplitTexture2.h,v 1.3 2007-11-20 10:33:47 cvskris Exp $
+ RCS:           $Id: SoSplitTexture2.h,v 1.4 2007-12-28 22:21:04 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include <Inventor/fields/SoSFImage.h>
 #include <Inventor/fields/SoSFVec2i32.h>
 #include <Inventor/fields/SoSFBool.h>
+#include <Inventor/fields/SoMFUShort.h>
 #include <Inventor/nodes/SoNode.h>
 #include <Inventor/nodes/SoSubNode.h>
 
@@ -60,6 +61,7 @@ public:
 
     SoSFVec2i32		origin;
     SoSFVec2i32		size;
+    SoMFUShort		textureunits;
 
 protected:
     void		GLRender(SoGLRenderAction*);
