@@ -11,3 +11,43 @@ Header.Selection.Center sample: K`~TZ`1
 Body.Selection.Data samples: P`-1/0
 Group: Wavelet
 !
+Inl Crl Time(ms)
+Header.Size: 0
+Header.Token: -1`
+Header.Selection.Undefined Value: R`1e30
+Body.Form: Inl/Crl
+Body.Selection: P`-1/0`P`-1/1
+Body.Z values.Unit: Milliseconds
+Body.Selection.Z values: P`-1/2
+Group: Horizon3D
+!
+Inl Crl Time(s)
+Header.Size: 0
+Header.Token: -1`
+Header.Selection.Undefined Value: R`1e30
+Body.Form: Inl/Crl
+Body.Selection: P`-1/0`P`-1/1
+Body.Z values.Unit: Seconds
+Body.Selection.Z values: P`-1/2
+Group: Horizon3D
+!
+X Y Time(ms)
+Header.Size: 0
+Header.Token: -1`
+Header.Selection.Undefined Value: R`1e30
+Body.Form: X/Y
+Body.Selection: P`-1/0`P`-1/1
+Body.Z values.Unit: Milliseconds
+Body.Selection.Z values: P`-1/2
+Group: Horizon3D
+!
+X Y Time(s)
+Header.Size: 0
+Header.Token: -1`
+Header.Selection.Undefined Value: R`1e30
+Body.Form: X/Y
+Body.Selection: P`-1/0`P`-1/1
+Body.Z values.Unit: Seconds
+Body.Selection.Z values: P`-1/2
+Group: Horizon3D
+!
