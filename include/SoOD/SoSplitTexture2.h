@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoSplitTexture2.h,v 1.5 2007-12-28 22:34:23 cvskris Exp $
+ RCS:           $Id: SoSplitTexture2.h,v 1.6 2007-12-31 17:49:12 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include <Inventor/lists/SbPList.h>
 #include <Inventor/fields/SoSFImage.h>
 #include <Inventor/fields/SoSFVec2i32.h>
 #include <Inventor/fields/SoSFBool.h>
@@ -73,12 +74,19 @@ protected:
     static void		fieldChangeCB(void*,SoSensor*);
     void		GLRenderUnit(int,SoState*);
     void		doActionUnit(int,SoState*);
+    void		removeImageData();
 
+    struct ImageData {
+				ImageData();
+				~ImageData();
+	unsigned char*		imagedata_;
+	int			imagesize_;
+	int			numcomp_;
+	SoGLImage*		glimage_;
+    };
 
-    unsigned char*	imagedata_;
-    int			imagesize_;
-    int			numcomp_;
-    SoGLImage*		glimage_;
+    SbPList			imagedata_;
+
     SoFieldSensor*	originsensor_;
     bool		needregeenration_;
 };

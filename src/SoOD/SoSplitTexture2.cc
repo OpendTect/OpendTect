@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2006
- RCS:           $Id: SoSplitTexture2.cc,v 1.8 2007-12-31 17:02:39 cvsyuancheng Exp $
+ RCS:           $Id: SoSplitTexture2.cc,v 1.9 2007-12-31 17:49:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,7 @@ void SoSplitTexture2::GLRender( SoGLRenderAction* action )
     SoState* state = action->getState();
     const int unit = SoTextureUnitElement::get( state );
     SoSplitTexture2Element::set( state, this, unit, sz, nrcomp, values );
+
 }
 
 
@@ -94,9 +95,7 @@ void SoSplitTexture2Part::initClass()
 
 
 SoSplitTexture2Part::SoSplitTexture2Part()
-    : imagedata_( 0 )
-    , glimage_( new SoGLImage )
-    , needregeenration_( true )
+    : needregeenration_( true )
 {
     SO_NODE_CONSTRUCTOR( SoSplitTexture2Part );
     SO_NODE_ADD_FIELD( origin, (SbVec2i32(0,0) ) );
@@ -110,8 +109,7 @@ SoSplitTexture2Part::SoSplitTexture2Part()
 
 SoSplitTexture2Part::~SoSplitTexture2Part()
 {
-    delete [] imagedata_;
-    if ( glimage_ ) glimage_->unref();
+    removeImageData();
     delete originsensor_;
 }
 
@@ -127,6 +125,9 @@ void SoSplitTexture2Part::fieldChangeCB( void* data, SoSensor* )
 
 void SoSplitTexture2Part::GLRender( SoGLRenderAction* action )
 {
+    if ( needregeenration_ )
+	removeImageData();
+
     SoState* state = action->getState();
 
     if ( SoTextureOverrideElement::getImageOverride(state) )
@@ -134,6 +135,16 @@ void SoSplitTexture2Part::GLRender( SoGLRenderAction* action )
 
     for ( int idx=textureunits.getNum()-1; idx>=0; idx-- )
 	GLRenderUnit( textureunits[idx], state );
+
+    if ( needregeenration_ )
+    {
+	SoCacheElement::setInvalid( true );
+	if ( state->isCacheOpen() )
+	    SoCacheElement::invalidate(state);
+    }
+
+    needregeenration_ = false;
+
 }
 
 
@@ -171,15 +182,20 @@ void SoSplitTexture2Part::GLRenderUnit( int unit, SoState* state )
     if ( !sourcedata )
 	return;
 
-    const int bufsize = sz[0]*sz[1];
-    if ( !imagedata_ || bufsize!=imagesize_ )
-    {
-	imagesize_ = bufsize;
-	delete [] imagedata_;
-	imagedata_ = new unsigned char[imagesize_*numcomponents];
-	numcomp_ = numcomponents;
+    while ( imagedata_.getLength()<=unit )
+	imagedata_.append( new ImageData );
 
-	if ( !imagedata_ )
+    ImageData* imagedata = (ImageData*) imagedata_[unit];
+
+    const int bufsize = sz[0]*sz[1];
+    if ( !imagedata->imagedata_ || bufsize!=imagedata->imagesize_ )
+    {
+	imagedata->imagesize_ = bufsize;
+	delete [] imagedata->imagedata_;
+	imagedata->imagedata_ = new unsigned char[bufsize*numcomponents];
+	imagedata->numcomp_ = numcomponents;
+
+	if ( !imagedata->imagedata_ )
 	    return;
 
 	needregeenration_ = true;
@@ -201,7 +217,7 @@ void SoSplitTexture2Part::GLRenderUnit( int unit, SoState* state )
 	    const unsigned char* srcptr = sourcedata +
 		(srcslowidx*sourcesize[mFastDim]) * numcomponents;
 	    unsigned char* dstptr =
-		imagedata_ + (sz[mFastDim] * idx) * numcomponents;
+		imagedata->imagedata_ + (sz[mFastDim] * idx) * numcomponents;
 
 	    for ( int idy=0; idy<sz[mFastDim]; idy++ )
 	    {
@@ -230,14 +246,8 @@ void SoSplitTexture2Part::GLRenderUnit( int unit, SoState* state )
 	    }
 	}
 
-	glimage_->setData( imagedata_, sz, numcomponents,
-			SoGLImage::CLAMP,
-			   SoGLImage::CLAMP, quality, false,
-			   state );
-	needregeenration_ = false;
-	SoCacheElement::setInvalid( true );
-	if ( state->isCacheOpen() )
-	    SoCacheElement::invalidate(state);
+	imagedata->glimage_->setData( imagedata->imagedata_, sz, numcomponents,
+	    SoGLImage::CLAMP, SoGLImage::CLAMP, quality, false, state );
     }
 
     const SoTextureImageElement::Model glmodel =
@@ -248,22 +258,15 @@ void SoSplitTexture2Part::GLRenderUnit( int unit, SoState* state )
     const int maxunits = cc_glglue_max_texture_units(glue);
 
 
-    if ( !unit )
+    if ( unit<maxunits )
     {
-	SoGLTextureImageElement::set( state, this, glimage_, glmodel,
-				      SbColor(1,1,1));
-	SoGLTexture3EnabledElement::set( state, this, FALSE);
-	SoGLTextureEnabledElement::set( state, this,
-					!needregeenration_ && quality > 0.0f);
-	if ( isOverride() )
-	    SoTextureOverrideElement::setImageOverride( state, true );
-    }
-    else if ( unit<maxunits )
-    {
-	SoGLMultiTextureImageElement::set( state, this, unit, glimage_, glmodel,
+	SoGLMultiTextureImageElement::set( state, this, unit,
+					   imagedata->glimage_, glmodel,
 					   SbColor(1,1,1) );
 	SoGLMultiTextureEnabledElement::set( state, this, unit,
 				!needregeenration_ && quality > 0.0f);
+	if ( !unit && isOverride() )
+	    SoTextureOverrideElement::setImageOverride( state, true );
     }
 }
 
@@ -273,10 +276,15 @@ void SoSplitTexture2Part::doActionUnit( int unit, SoState* state )
     if ( !unit && SoTextureOverrideElement::getImageOverride(state) )
 	return;
 
+    if ( imagedata_.getLength()<=unit )
+	return;
+
     SoTextureUnitElement::set( state, this, unit );
     SbVec2s sz( size.getValue()[0], size.getValue()[1] );
-    const unsigned char* bytes = imagedata_;
-    int nc = numcomp_;
+
+    ImageData* imagedata = (ImageData*) imagedata_[unit];
+    const unsigned char* bytes = imagedata->imagedata_;
+    int nc = imagedata->numcomp_;
 
     if ( !bytes )
     {
@@ -323,4 +331,26 @@ void SoSplitTexture2Part::doActionUnit( int unit, SoState* state )
 	    SoMultiTextureEnabledElement::set(state, this, unit, false );
 	}
     }
+}
+
+
+void SoSplitTexture2Part::removeImageData()
+{
+    for ( int idx=imagedata_.getLength()-1; idx>=0; idx-- )
+	delete (ImageData*) imagedata_[idx];
+
+    imagedata_.truncate( 0 );
+}
+
+
+SoSplitTexture2Part::ImageData::ImageData()
+    : imagedata_( 0 )
+    , glimage_( new SoGLImage )
+{ }
+
+
+SoSplitTexture2Part::ImageData::~ImageData()
+{
+    delete [] imagedata_;
+    if ( glimage_ ) glimage_->unref();
 }
