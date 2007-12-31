@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: uimadiosel.h,v 1.3 2007-12-20 16:18:54 cvsbert Exp $
+ * ID       : $Id: uimadiosel.h,v 1.4 2007-12-31 15:57:38 cvsbert Exp $
 -*/
 
 #include "uicompoundparsel.h"
@@ -12,7 +12,6 @@
 #include "madprocflow.h"
 #include "seistype.h"
 #include "iopar.h"
-class uiLabel;
 class uiGenInput;
 class CtxtIOObj;
 class uiSeisSel;
@@ -88,8 +87,7 @@ protected:
     // Inp only:
     uiSeis3DSubSel*	subsel3dfld_;
     uiSeis2DSubSel*	subsel2dfld_;
-    uiGenInput*		subselmadfld_;
-    uiLabel*		subselmadlbl_;
+    uiFileInput*	subselmadfld_;
 
     void		initWin(CallBacker*);
     void		typSel(CallBacker*);

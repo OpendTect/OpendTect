@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.5 2007-12-20 16:18:54 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.6 2007-12-31 15:57:38 cvsbert Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -35,8 +35,7 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	, ctiops3d_(*mMkCtxtIOObj(SeisPS))
 	, ctiops2d_(*mMkCtxtIOObj(SeisPS))
 	, seis3dfld_(0), seis2dfld_(0), seisps3dfld_(0), seisps2dfld_(0)
-	, subsel3dfld_(0), subsel2dfld_(0)
-        , subselmadfld_(0), subselmadlbl_(0)
+	, subsel3dfld_(0), subsel2dfld_(0), subselmadfld_(0)
     	, idx3d_(-1), idx2d_(-1)
 	, iop_(iop)
 {
@@ -94,16 +93,12 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	}
     }
 
-    madfld_ = new uiFileInput( this, isinp ? "Input file" : "Output file",
-	    			uiFileInput::Setup() );
+    uiFileInput::Setup setup;
+    setup.defseldir( ODMad::FileSpec::defPath() );
+    madfld_ = new uiFileInput( this, "Data file", setup );
     madfld_->attach( alignedBelow, typfld_ );
-    if ( isinp )
-    {
-	subselmadfld_ = new uiGenInput( this, "sfheaderwindow parameters" );
-	subselmadfld_->attach( alignedBelow, madfld_ );
-	subselmadlbl_ = new uiLabel( this, "[Empty=All]" );
-	subselmadlbl_->attach( rightOf, subselmadfld_ );
-    }
+    subselmadfld_ = new uiFileInput( this, "Mask file (if any)", setup );
+    subselmadfld_->attach( alignedBelow, madfld_ );
 
     finaliseDone.notify( mCB(this,uiMadIOSelDlg,initWin) );
 }
@@ -181,15 +176,13 @@ void uiMadIOSelDlg::typSel( CallBacker* )
     if ( seis2dfld_ ) seis2dfld_->display( choice == idx2d_ );
     if ( seisps2dfld_ ) seisps2dfld_->display( choice == idxps2d_ );
     madfld_->display( choice == idxmad_ );
+    subselmadfld_->display( choice == idxmad_ );
     if ( !isInp() ) return;
 
     if ( subsel3dfld_ )
 	subsel3dfld_->display( choice == idx3d_ || choice == idxps3d_ );
     if ( subsel2dfld_ )
 	subsel2dfld_->display( choice == idx2d_ || choice == idxps2d_ );
-
-    subselmadfld_->display( choice == idxmad_ );
-    subselmadlbl_->display( choice == idxmad_ );
 }
 
 
@@ -216,7 +209,7 @@ void uiMadIOSelDlg::usePar( const IOPar& iop )
 	BufferString txt;
 	if ( iop.get(sKey::FileName,txt) )
 	    madfld_->setFileName( txt );
-	if ( isinp && iop.get(sKey::IOSelection,txt) )
+	if ( iop.get(sKey::IOSelection,txt) )
 	    subselmadfld_->setText( txt );
     }
     else if ( iot != ODMad::ProcFlow::None )
@@ -240,8 +233,7 @@ void uiMadIOSelDlg::fillPar( IOPar& iop )
     if ( isMad() )
     {
 	iop.set( sKey::FileName, madfld_->fileName() );
-	if ( isinp )
-	    iop.set( sKey::IOSelection, subselmadfld_->text() );
+	iop.set( sKey::IOSelection, subselmadfld_->text() );
     }
     else if ( !isNone() )
     {
