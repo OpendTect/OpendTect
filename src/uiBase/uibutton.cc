@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.44 2007-09-18 14:24:01 cvsjaap Exp $
+ RCS:           $Id: uibutton.cc,v 1.45 2007-12-31 12:14:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,22 +16,13 @@ ________________________________________________________________________
 #include "settings.h"
 
 
-#include <qapplication.h>
-#include <qpushbutton.h>
-#include <qradiobutton.h>
-#include <qcheckbox.h>
-#include <qtoolbutton.h>
-
-#ifdef USEQT3
-# define mTxt  ,txt
-# define mQIcon QIconSet
-#else
-# define mTxt 
-# define mQIcon QIcon
-#endif 
+#include <QApplication>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QCheckBox>
+#include <QToolButton>
 
 static const QEvent::Type sQEventActivate = (QEvent::Type) (QEvent::User + 0);
-
 
 //! Wrapper around QButtons. 
 /*!
@@ -46,7 +37,7 @@ template< class T > class uiButtonTemplBody : public uiButtonBody,
 					   const char* txt )
 			    : uiObjectBody( parnt, txt )
                             , T( parnt && parnt->pbody() ?
-				      parnt->pbody()->managewidg() : 0 mTxt )
+				      parnt->pbody()->managewidg() : 0 )
                             , handle_( handle )
 			    , messenger_ ( *new i_ButMessenger( this, this) )
 			    , idInGroup( 0 )		
@@ -59,9 +50,9 @@ template< class T > class uiButtonTemplBody : public uiButtonBody,
 				     const ioPixmap& pm,
 				     uiParent* parnt, const char* txt)
 			    : uiObjectBody( parnt, txt )
-			    , T( mQIcon(*pm.qpixmap()),txt, 
+			    , T( QIcon(*pm.qpixmap()),txt, 
 					parnt && parnt->pbody() ?
-					parnt->pbody()->managewidg() : 0 mTxt )
+					parnt->pbody()->managewidg() : 0 )
                             , handle_( handle )
 			    , messenger_ ( *new i_ButMessenger( this, this) )
 			    , idInGroup( 0 )		
@@ -77,8 +68,8 @@ public:
 
     virtual		~uiButtonTemplBody()		{ delete &messenger_; }
 
-    virtual mButton&    qButton() = 0;
-    inline const mButton& qButton() const
+    virtual QAbstractButton&    qButton() = 0;
+    inline const QAbstractButton& qButton() const
                         { return ((uiButtonTemplBody*)this)->qButton(); }
 
     virtual int 	nrTxtLines() const		{ return 1; }
@@ -121,7 +112,7 @@ public:
 			    : uiButtonTemplBody<QPushButton>
 					(handle,pm,parnt,txt)		{}
 
-    virtual mButton&    qButton()		{ return *this; }
+    virtual QAbstractButton&    qButton()		{ return *this; }
 
 protected:
 
@@ -138,7 +129,7 @@ public:
 			    : uiButtonTemplBody<QRadioButton>(handle,parnt,txt)
 			    {}
 
-    virtual mButton&    qButton()		{ return *this; }
+    virtual QAbstractButton&    qButton()		{ return *this; }
 
 protected:
 
@@ -156,7 +147,7 @@ public:
 			    : uiButtonTemplBody<QCheckBox>(handle,parnt,txt)
 			    {}
 
-    virtual mButton&    qButton()		{ return *this; }
+    virtual QAbstractButton&    qButton()		{ return *this; }
 
 protected:
 
@@ -173,7 +164,7 @@ public:
 			    : uiButtonTemplBody<QToolButton>(handle,parnt,txt)
 			    {}
 
-    virtual mButton&    qButton()		{ return *this; }
+    virtual QAbstractButton&    qButton()		{ return *this; }
 
 
 protected:
@@ -183,7 +174,7 @@ protected:
 };
 
 
-#define mqbut()         dynamic_cast<mButton*>( body() )
+#define mqbut()         dynamic_cast<QAbstractButton*>( body() )
 
 uiButton::uiButton( uiParent* parnt, const char* nm, const CallBack* cb,
 		    uiObjectBody& b  )
@@ -202,11 +193,7 @@ void uiButton::setText( const char* txt )
 
 
 const char* uiButton::text()
-#ifdef USEQT3
-    { return mqbut()->text(); }
-#else
     { return mqbut()->text().toAscii().constData(); }
-#endif
 
 
 void uiButton::activate()
@@ -386,24 +373,12 @@ uiToolButtonBody& uiToolButton::mkbody( uiParent* parnt, const ioPixmap* pm,
     return *body_;
 }
 
-#ifdef USEQT3
-# define mIsOn			isOn
-# define mSetOn			setOn
-# define mIsToggleButton	isToggleButton
-# define mSetToggleButton	setToggleButton
-#else
-# define mIsOn			isChecked
-# define mSetOn			setChecked
-# define mIsToggleButton	isCheckable
-# define mSetToggleButton	setCheckable
-#endif
 
+bool uiToolButton::isOn() const		{ return body_->isChecked(); }
+void uiToolButton::setOn( bool yn )	{ body_->setChecked( yn ); }
 
-bool uiToolButton::isOn() const		{ return body_->mIsOn(); }
-void uiToolButton::setOn( bool yn)	{ body_->mSetOn(yn); }
-
-bool uiToolButton::isToggleButton() const    { return body_->mIsToggleButton();}
-void uiToolButton::setToggleButton( bool yn) { body_->mSetToggleButton(yn); }
+bool uiToolButton::isToggleButton() const     { return body_->isCheckable();}
+void uiToolButton::setToggleButton( bool yn ) { body_->setCheckable( yn ); }
 
 
 void uiToolButton::click()
@@ -416,11 +391,7 @@ void uiToolButton::click()
 
 void uiToolButton::setPixmap( const ioPixmap& pm )
 {
-#ifdef USEQT3
-    body_->setIconSet( QIconSet(*pm.qpixmap()) );
-#else
     body_->setIcon( QIcon(*pm.qpixmap()) );
-#endif
 }
 
 

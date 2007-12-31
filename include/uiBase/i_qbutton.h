@@ -7,66 +7,53 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: i_qbutton.h,v 1.14 2007-07-19 07:30:04 cvsjaap Exp $
+ RCS:           $Id: i_qbutton.h,v 1.15 2007-12-31 12:14:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <qobject.h>
-#include <uibutton.h>
+#include "uibutton.h"
 
-#ifdef USEQT3
-# define mButton QButton
-# include <qbutton.h>
-#else
-# define mButton QAbstractButton
-# include <QAbstractButton>
-#endif
+#include <QAbstractButton>
+#include <QObject>
 
-//! Help class, because templates can not use signals/slots
-/*!
+/*! Help class, because templates can not use signals/slots
     Relays QT button signals to the notifyHandler of a uiButton object.
 */
+
 class i_ButMessenger : public QObject 
 { 
     Q_OBJECT
-    friend class                uiButton;
+    friend class	uiButton;
 public:
-				i_ButMessenger( mButton*  sender,
-                                       	  	uiButtonBody* receiver )
-                                : _receiver( receiver )
-                                , _sender( sender )
-				{
-				    connect( _sender, SIGNAL( clicked() ), 
-					     this,   SLOT( clicked() ) );
-				    connect( _sender, SIGNAL( pressed() ), 
-					     this,   SLOT( pressed() ) );
-				    connect( _sender, SIGNAL( released() ), 
-					     this,   SLOT( released() ) );
-				    connect( _sender, SIGNAL(toggled(bool)), 
-					     this,   SLOT(toggled(bool)) );
-				}
+
+i_ButMessenger( QAbstractButton* sndr, uiButtonBody* receiver )
+    : receiver_(receiver)
+    , sender_(sndr)
+{
+    connect( sender_, SIGNAL(clicked()), this, SLOT(clicked()) );
+    connect( sender_, SIGNAL(pressed()), this, SLOT(pressed()) );
+    connect( sender_, SIGNAL(released()), this, SLOT(released()) );
+    connect( sender_, SIGNAL(toggled(bool)), this, SLOT(toggled(bool)) );
+}
 
 protected:
-    bool			event( QEvent* ev )
-				{ return _receiver->handleEvent(ev)
-						? true : QObject::event(ev); }
+bool event( QEvent* ev )
+{ return receiver_->handleEvent(ev) ? true : QObject::event(ev); }
 
 private:
 
-    uiButtonBody*		_receiver;
-    mButton*			_sender;
+    uiButtonBody*	receiver_;
+    QAbstractButton*	sender_;
 
 public slots:
+void toggled(bool)	{ receiver_->notifyHandler( uiButtonBody::toggled ); }
+void clicked()		{ receiver_->notifyHandler( uiButtonBody::clicked ); }
+void pressed()		{ receiver_->notifyHandler( uiButtonBody::pressed ); }
+void released()		{ receiver_->notifyHandler( uiButtonBody::released); }
 
-    void toggled( bool ) 	
-		{ _receiver->notifyHandler( uiButtonBody::toggled ); }
-    void clicked() 		
-		{ _receiver->notifyHandler( uiButtonBody::clicked ); }
-    void pressed() 		
-		{ _receiver->notifyHandler( uiButtonBody::pressed ); }
-    void released()		
-		{ _receiver->notifyHandler( uiButtonBody::released); }
 };
+
+
 
 #endif
