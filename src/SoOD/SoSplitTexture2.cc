@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2006
- RCS:           $Id: SoSplitTexture2.cc,v 1.7 2007-12-28 22:34:23 cvskris Exp $
+ RCS:           $Id: SoSplitTexture2.cc,v 1.8 2007-12-31 17:02:39 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,8 +122,8 @@ void SoSplitTexture2Part::fieldChangeCB( void* data, SoSensor* )
 }
 
 
-#define mFastDim	1
-#define mSlowDim	0
+#define mFastDim	0
+#define mSlowDim	1
 
 void SoSplitTexture2Part::GLRender( SoGLRenderAction* action )
 {
@@ -186,10 +186,11 @@ void SoSplitTexture2Part::GLRenderUnit( int unit, SoState* state )
     }
 
     const float quality = SoTextureQualityElement::get(state);
+    SoTextureUnitElement::set( state, this, unit );
 
     if ( needregeenration_ )
     {
-	for ( int idx=sz[mSlowDim]-1; idx>=0; idx-- )
+	for ( int idx=0; idx<sz[mSlowDim]; idx++ )
 	{
 	    int srcslowidx = start[mSlowDim]+idx;
 	    if ( srcslowidx<0 )
@@ -246,6 +247,7 @@ void SoSplitTexture2Part::GLRenderUnit( int unit, SoState* state )
 
     const int maxunits = cc_glglue_max_texture_units(glue);
 
+
     if ( !unit )
     {
 	SoGLTextureImageElement::set( state, this, glimage_, glmodel,
@@ -271,6 +273,7 @@ void SoSplitTexture2Part::doActionUnit( int unit, SoState* state )
     if ( !unit && SoTextureOverrideElement::getImageOverride(state) )
 	return;
 
+    SoTextureUnitElement::set( state, this, unit );
     SbVec2s sz( size.getValue()[0], size.getValue()[1] );
     const unsigned char* bytes = imagedata_;
     int nc = numcomp_;
