@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2007
- RCS:           $Id: emrandlinegen.cc,v 1.6 2007-12-28 10:29:09 cvsbert Exp $
+ RCS:           $Id: emrandlinegen.cc,v 1.7 2008-01-02 16:57:30 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -138,9 +138,11 @@ void EM::RandomLineByShiftGenerator::crLine( const Geometry::RandomLine& rl,
 					 bool isleft,
 					 Geometry::RandomLineSet& outrls ) const
 {
+    // TODO: Improve for cases where dist_ is bigger than concavities
     BufferString newnm( rl.name() );
     newnm += "/"; newnm += dist_; newnm += isleft ? "L" : "R";
     Geometry::RandomLine* outrl = new Geometry::RandomLine( newnm );
+    outrl->setZRange( rl.zRange() );
     BinID prevnode( mUdf(int), 0 );
     for ( int idx=0; idx<rl.nrNodes(); idx++ )
     {
@@ -159,8 +161,8 @@ void EM::RandomLineByShiftGenerator::crLine( const Geometry::RandomLine& rl,
 	    nodec = cs12;
 	else if ( atend )
 	    nodec = cs10;
-	else
-	    nodec = getIntersection( cs0, cs10, cs12, cs2 );
+	else if ( !getIntersection(cs0, cs10, cs12, cs2, nodec) )
+	    nodec = (cs10 + cs12) / 2;
 	BinID newnode = SI().transform( nodec );
 	if ( newnode != prevnode )
 	    outrl->addNode( newnode );
@@ -191,9 +193,19 @@ bool EM::RandomLineByShiftGenerator::getShifted( Coord c1, Coord c2,
 }
 
 
-Coord EM::RandomLineByShiftGenerator::getIntersection( Coord c00, Coord c01,
-				    Coord c10, Coord c11 ) const
+bool EM::RandomLineByShiftGenerator::getIntersection( Coord c00, Coord c01, 
+						      Coord c10, Coord c11,
+						      Coord& cinter ) const
 {
-    //TODO calculate proper intersection. Beware of points on one line ...
-    return (c01 + c10) / 2;
+    const Coord dif0 = c00 - c01; 
+    const Coord dif1 = c10 - c11;
+    const double det = dif0.x*dif1.y - dif0.y*dif1.x;
+    if ( mIsZero(det,1e-6) )
+	return false;
+    
+    const double det0 = c00.x*c01.y - c00.y*c01.x;
+    const double det1 = c10.x*c11.y - c10.y*c11.x;
+    cinter = (dif1*det0 - dif0*det1) / det;
+
+    return true;
 }

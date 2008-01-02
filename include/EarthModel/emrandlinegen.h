@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Nov 2007
- RCS:		$Id: emrandlinegen.h,v 1.3 2007-12-28 10:29:09 cvsbert Exp $
+ RCS:		$Id: emrandlinegen.h,v 1.4 2008-01-02 16:57:30 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -82,7 +82,7 @@ protected:
     void		crLine(const Geometry::RandomLine&,bool,
 	    			Geometry::RandomLineSet&) const;
     bool		getShifted(Coord,Coord,Coord&,Coord&,bool) const;
-    Coord		getIntersection(Coord,Coord,Coord,Coord) const;
+    bool		getIntersection(Coord,Coord,Coord,Coord,Coord&) const;
 
 };
 
