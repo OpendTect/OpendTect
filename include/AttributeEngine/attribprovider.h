@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.67 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:           $Id: attribprovider.h,v 1.68 2008-01-03 20:27:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -173,14 +173,14 @@ protected:
 					    int t0,int nrsamples) const
 				{ return false; }
     				/*!<\note Same function as below, but lacks the
-				    threadid variable. Implement the
+				    threadidx variable. Implement the
 				    latter one for all new classes. This
 				    function may be removed in coming
 				    releases. */
     virtual bool		computeData(const DataHolder& output,
 					    const BinID& relpos,
 					    int t0,int nrsamples,
-					    int threadid) const;
+					    int threadidx) const;
     				/*!<The system will use the algorithm specified
 				in this function to compute the attribute's 
 				outputs. The results will be stored as 
