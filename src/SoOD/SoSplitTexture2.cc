@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2006
- RCS:           $Id: SoSplitTexture2.cc,v 1.9 2007-12-31 17:49:12 cvskris Exp $
+ RCS:           $Id: SoSplitTexture2.cc,v 1.10 2008-01-03 19:24:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,6 +133,8 @@ void SoSplitTexture2Part::GLRender( SoGLRenderAction* action )
     if ( SoTextureOverrideElement::getImageOverride(state) )
 	return;
 
+    const int prevunit = SoTextureUnitElement::get( state );
+
     for ( int idx=textureunits.getNum()-1; idx>=0; idx-- )
 	GLRenderUnit( textureunits[idx], state );
 
@@ -142,6 +144,8 @@ void SoSplitTexture2Part::GLRender( SoGLRenderAction* action )
 	if ( state->isCacheOpen() )
 	    SoCacheElement::invalidate(state);
     }
+
+    SoTextureUnitElement::set( state, this, prevunit );
 
     needregeenration_ = false;
 
