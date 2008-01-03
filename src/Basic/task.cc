@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.6 2007-12-06 19:52:01 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.7 2008-01-03 12:25:47 cvsnanne Exp $";
 
 #include "task.h"
 
@@ -287,6 +287,8 @@ bool ParallelTask::execute()
 	    break;
 
 	const int threadsize = calculateThreadSize( size, nrthreads, idx );
+	if ( threadsize==0 )
+	    continue;
 
 	const int stop = start + threadsize-1;
 	runners[idx].set( this, start, stop, idx );
@@ -310,15 +312,15 @@ bool ParallelTask::execute()
 int ParallelTask::calculateThreadSize( int totalnr, int nrthreads,
 				       int idx ) const
 {
-    if ( !nrthreads==1 ) return totalnr;
+    if ( nrthreads==1 ) return totalnr;
 
     const int idealnrperthread = mNINT((float) totalnr/nrthreads);
     const int nrperthread = idealnrperthread<minThreadSize()
 	?  minThreadSize()
 	: idealnrperthread;
 
-    const int start = idx*idealnrperthread;
-    int nextstart = start + idealnrperthread;
+    const int start = idx*nrperthread;
+    int nextstart = start + nrperthread;
 
     if ( nextstart>totalnr )
 	nextstart = totalnr;
