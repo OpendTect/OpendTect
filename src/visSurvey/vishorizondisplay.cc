@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.37 2007-12-17 16:32:48 cvsjaap Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.38 2008-01-03 19:53:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -272,7 +272,7 @@ bool HorizonDisplay::updateFromEM()
     if ( !EMObjectDisplay::updateFromEM() )
 	return false;
 
-    useTexture( usestexture_ );
+    updateSingleColor();
     return true;
 }
 
@@ -281,11 +281,11 @@ void HorizonDisplay::updateFromMPE()
 {
     const bool hastracker = MPE::engine().getTrackerByObject(getObjectID())>=0;
 	
-    if ( hastracker && !restoresessupdate_ )
-    {
-	useWireframe( true );
-	useTexture( false );
-    }
+    //if ( hastracker && !restoresessupdate_ )
+    //{
+	//useWireframe( true );
+	//useTexture( false );
+    //}
 
     if ( displayedRowRange().nrSteps()<=1 || displayedColRange().nrSteps()<=1 )
     {
@@ -352,14 +352,7 @@ void HorizonDisplay::useTexture( bool yn, bool trigger )
 
     usestexture_ = yn;
 
-    getMaterial()->setColor( yn ? Color::White : nontexturecol_ );
-
-    for ( int idx=0; idx<sections_.size(); idx++ )
-    {
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
-	if ( psurf )
-	    psurf->useTexture( yn );
-    }
+    updateSingleColor();
     
     if ( trigger )
 	changedisplay.trigger();
@@ -598,7 +591,6 @@ void HorizonDisplay::setDepthAsAttrib( int attrib )
 
     if ( positions.isEmpty() )
     {
-	useTexture( false );
 	return;
     }
 
@@ -616,7 +608,6 @@ void HorizonDisplay::setDepthAsAttrib( int attrib )
     }
 
     setRandomPosData( attrib, &positions );
-    useTexture( usestexture_ );
     deepErase( positions );
 }
 
@@ -655,6 +646,20 @@ void HorizonDisplay::getRandomPosCache( int attrib,
 }
 
 
+void HorizonDisplay::updateSingleColor()
+{
+    const bool usesinglecolor = !validtexture_ || !usestexture_;
+    getMaterial()->setColor( usesinglecolor ? nontexturecol_ : Color::White );
+
+    for ( int idx=0; idx<sections_.size(); idx++ )
+    {
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
+	if ( psurf )
+	    psurf->useTexture( !usesinglecolor );
+    }
+}
+
+
 void HorizonDisplay::setRandomPosData( int attrib,
 				 const ObjectSet<BinIDValueSet>* data )
 {
@@ -666,8 +671,8 @@ void HorizonDisplay::setRandomPosData( int attrib,
 	{
 	    mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
 	    if ( psurf ) psurf->setTextureData( 0, attrib );
-	    else useTexture(false);
 	}
+
 	return;
     }
 
@@ -679,8 +684,6 @@ void HorizonDisplay::setRandomPosData( int attrib,
 	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( psurf )
 	    psurf->setTextureData( (*data)[idx], attrib );
-	else
-	    useTexture(false);
     }
 
     for ( ; idx<sections_.size(); idx++ )
@@ -688,6 +691,8 @@ void HorizonDisplay::setRandomPosData( int attrib,
 	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( psurf ) psurf->setTextureData( 0, attrib );
     }
+
+    updateSingleColor();
 }
 
 
@@ -823,7 +828,7 @@ void HorizonDisplay::emChangeCB( CallBacker* cb )
     if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
     {
 	validtexture_ = false;
-	if ( usesTexture() ) useTexture(false);
+	updateSingleColor();
 
 	const EM::SectionID sid = cbdata.pid0.sectionID();
 	const int idx = sids_.indexOf( sid );

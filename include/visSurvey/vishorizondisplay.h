@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.18 2007-10-12 19:14:34 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.19 2008-01-03 19:53:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -138,6 +138,7 @@ protected:
     void			otherObjectsMoved(
 				    const ObjectSet<const SurveyObject>&,
 				    int whichobj );
+    void			updateSingleColor();
 
     mVisTrans*				translation_;
 
