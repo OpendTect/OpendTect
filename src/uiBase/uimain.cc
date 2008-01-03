@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.41 2007-12-27 11:25:43 cvsnanne Exp $
+ RCS:           $Id: uimain.cc,v 1.42 2008-01-03 07:54:35 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -228,10 +228,8 @@ void uiMain::flushX()
 
 void uiMain::setTopLevelCaption( const char* txt )
 {
-    //QMainWindow* mw = dynamic_cast<QMainWindow*>(qApp->mainWidget());
     QWidget* mw = qApp->mainWidget();
-    if ( mw ) return;
-	mw->setCaption( QString(txt) );
+    if ( mw ) mw->setCaption( QString(txt) );
 }
 
 
