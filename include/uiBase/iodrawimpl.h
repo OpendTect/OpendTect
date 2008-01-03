@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawimpl.h,v 1.6 2007-03-28 12:20:46 cvsbert Exp $
+ RCS:           $Id: iodrawimpl.h,v 1.7 2008-01-03 12:24:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,19 +20,21 @@ class QPaintDevice;
 class ioDrawAreaImpl : public ioDrawArea
 {
 public:
-			ioDrawAreaImpl() : dt_(0)	{}
-    virtual		~ioDrawAreaImpl()		{ releaseDrawTool(); }
+				ioDrawAreaImpl()
+				    : dt_(0)	{}
+    virtual			~ioDrawAreaImpl()
+    				{ releaseDrawTool(); }
 
-    virtual ioDrawTool&	drawTool();
+    virtual ioDrawTool&		drawTool();
 
 protected:
 
-    virtual QPaintDevice* qPaintDevice()		= 0;
-    void		releaseDrawTool(); 
+    virtual QPaintDevice*	qPaintDevice()		= 0;
+    void			releaseDrawTool(); 
 
 private:
 
-    ioDrawTool* 	dt_;
+    ioDrawTool*			dt_;
 
 };
 

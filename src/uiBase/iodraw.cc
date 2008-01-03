@@ -4,31 +4,24 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.34 2007-08-27 11:00:51 cvsbert Exp $
+ RCS:           $Id: iodraw.cc,v 1.35 2008-01-03 12:23:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "iodrawtool.h"
 #include "iodrawimpl.h"
+
+#include "color.h"
+#include "draw.h"
 #include "errh.h"
 #include "pixmap.h"
-#include "color.h"
 #include "uifont.h"
-#include "draw.h"
 
-#ifdef USEQT3
-# include <qpen.h>
-# include <qbrush.h>
-# include <qpaintdevicemetrics.h>
-# include <qpointarray.h>
-# include <qpainter.h>
-#else
-# include <QPolygon>
-# include <QPainter>
-# include <QPen>
-# include <QBrush>
-#endif
+#include <QBrush>
+#include <QPainter>
+#include <QPen>
+#include <QPolygon>
 
 
 ioDrawTool::ioDrawTool( QPaintDevice* pd )
@@ -38,9 +31,6 @@ ioDrawTool::ioDrawTool( QPaintDevice* pd )
     , qpen_(*new QPen())
     , qpaintdev_(*pd)
     , font_(&uiFontList::get())
-#ifdef USEQT3
-    , qpaintdevmetr_( 0 )
-#endif
 {
     if ( !pd )
 	pErrMsg( "Null paint device passed. Crash will follow" );
@@ -54,11 +44,6 @@ ioDrawTool::~ioDrawTool()
     if ( qpaintermine_ )
 	delete qpainter_;
 
-#ifdef USEQT3
-    if ( qpaintdevmetr_ )
-	delete qpaintdevmetr_;
-#endif
-    
     delete &qpen_;
 }
 
@@ -125,12 +110,7 @@ void ioDrawTool::drawLine( const TypeSet<uiPoint>& pts, bool close )
     const int nrpoints = pts.size();
     if ( nrpoints < 2 ) return;
 
-#ifdef USEQT3
-    QPointArray qarray( nrpoints );
-#else
     QPolygon qarray( nrpoints );
-#endif
-
     for ( int idx=0; idx<nrpoints; idx++ )
 	qarray.setPoint( (unsigned int)idx, pts[idx].x, pts[idx].y );
 
@@ -166,13 +146,13 @@ void ioDrawTool::drawRect( const uiRect& r )
 void ioDrawTool::drawEllipse ( int x, int y, int rx, int ry )
 {
     preparePainter();
-    qpainter_->drawEllipse( QRect( x - rx, y - ry, rx*2, ry*2 ) );
+    qpainter_->drawEllipse( QRect( x-rx, y-ry, rx*2, ry*2 ) );
 }
 
 
 void ioDrawTool::drawEllipse( const uiPoint& center, const uiSize& sz )
 {
-    drawEllipse( center.x, center.y, sz.hNrPics(), sz.vNrPics());
+    drawEllipse( center.x, center.y, sz.hNrPics(), sz.vNrPics() );
 }
 
 
@@ -184,7 +164,7 @@ void ioDrawTool::drawHalfSquare( const uiPoint& from, const uiPoint& to,
 
     // The bounding rectangle's coords are:
     // 
-    const uiPoint halfrel( (to.x - from.x)/2, (to.y - from.y)/2 );
+    const uiPoint halfrel( (to.x-from.x)/2, (to.y-from.y)/2 );
     if ( left )
     {
 	drawLine( from.x, from.y, from.x + halfrel.y, from.y - halfrel.x );
@@ -220,40 +200,23 @@ void ioDrawTool::drawHalfSquare( const uiPoint& from, double ang, double d,
 Color ioDrawTool::backgroundColor() const
 {
     preparePainter();
-#ifdef USEQT3
-    return Color( qpainter_->backgroundColor().rgb() );
-#else
     return Color( qpainter_->background().color().rgb() );
-#endif
 }
 
 
 void ioDrawTool::setBackgroundColor( const Color& c )
 {
     preparePainter();
-#ifdef USEQT3
-    qpainter_->setBackgroundColor( QColor( QRgb(c.rgb()) ) );
-#else
     QBrush br( qpainter_->background() );
     br.setColor( QColor( QRgb(c.rgb()) ) );
     qpainter_->setBackground( br );
-#endif
 }
 
 
 void ioDrawTool::clear( const uiRect* rect, const Color* col )
 {
     preparePainter();
-#ifndef USEQT3
     qpainter_->eraseRect( 0, 0, getDevWidth(), getDevHeight() );
-    return;
-#endif
-
-    uiRect r( 0, 0, getDevWidth(), getDevHeight() );
-    if ( rect ) r = *rect;
-    Color c( col ? *col : backgroundColor() );
-    setPenColor( c ); setFillColor( c );
-    drawRect( r );
 }
 
 
@@ -290,29 +253,10 @@ void ioDrawTool::drawPixmap( int left, int top, ioPixmap* pm,
 
 
 int ioDrawTool::getDevHeight() const
-{
-#ifdef USEQT3
-    if ( !qpaintdevmetr_ )
-	const_cast<ioDrawTool*>(this)->qpaintdevmetr_
-			    = new QPaintDeviceMetrics( &qpaintdev_ );
-    return qpaintdevmetr_->height();
-#else
-    return qpaintdev_.height();
-#endif
-}
-
+{ return qpaintdev_.height(); }
 
 int ioDrawTool::getDevWidth() const
-{
-#ifdef USEQT3
-    if ( !qpaintdevmetr_ )
-	const_cast<ioDrawTool*>(this)->qpaintdevmetr_
-			    = new QPaintDeviceMetrics( &qpaintdev_ );
-    return qpaintdevmetr_->width();
-#else
-    return qpaintdev_.width(); 
-#endif
-}
+{ return qpaintdev_.width(); }
 
 
 void ioDrawTool::drawPoint( const uiPoint& pt, bool hl )
@@ -530,11 +474,6 @@ void ioDrawTool::preparePainter() const
 
 void ioDrawTool::dismissPainter()
 {
-#ifdef USEQT3
-    if ( qpainter_ )
-	qpainter_->flush();
-#endif
-
     if ( qpaintermine_ )
 	delete qpainter_;
     qpainter_ = 0;
@@ -556,23 +495,15 @@ void ioDrawTool::setActivePainter( QPainter* p )
 void ioDrawTool::setRasterXor()
 {
     preparePainter();
-#ifdef USEQT3
-    qpainter_->setRasterOp( Qt::XorROP );
-#else 
     qpainter_->setCompositionMode( QPainter::CompositionMode_Xor );
-#endif
 }
 
 
 void ioDrawTool::setRasterNorm()
 {
     preparePainter();
-#ifdef USEQT3
-    qpainter_->setRasterOp( Qt::CopyROP );
-#else
     qpainter_->setCompositionMode(
 			    QPainter::CompositionMode_SourceOver );
-#endif
 }
 
 

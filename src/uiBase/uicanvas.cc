@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.38 2007-08-29 16:22:59 cvsbert Exp $
+ RCS:           $Id: uicanvas.cc,v 1.39 2008-01-03 12:23:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,18 +17,9 @@ ________________________________________________________________________
 #include "iodrawtool.h"
 #include "mouseevent.h"
 
-#ifdef USEQT3
-# include <qscrollview.h>
-# include <qpainter.h>
-# define mQScrollView	QScrollView
-# define mRubberBanding	rbnding
-#else
-# include <QPainter>
-# include <Q3ScrollView>
-# include <QRubberBand>
-# define mQScrollView	Q3ScrollView
-# define mRubberBanding	qrubber
-#endif
+#include <Q3ScrollView>
+#include <QPainter>
+#include <QRubberBand>
 
 
 #define mButState( e ) ( e->state() | e->button() )
@@ -55,7 +46,7 @@ public:
 
     virtual             ~uiCanvasBody() {};
 
-    void		updateCanvas()			{ QWidget::update(); }
+    void		updateCanvas()		{ QWidget::update(); }
 };
 
 
@@ -64,21 +55,17 @@ public:
 /*
     defined locally in .cc file.
 */
-class uiScrollViewBody : public uiDrawableObjBody<uiScrollView,mQScrollView>
+class uiScrollViewBody : public uiDrawableObjBody<uiScrollView,Q3ScrollView>
 {
 public:
 
 			uiScrollViewBody( uiScrollView& handle,
 					  uiParent* p=0,
 					  const char *nm="uiScrollViewBody" )
-			    : uiDrawableObjBody<uiScrollView,mQScrollView> 
+			    : uiDrawableObjBody<uiScrollView,Q3ScrollView> 
 				( handle, p, nm )
 			    , rubberstate( OD::NoButton )
-#ifdef USEQT3
-			    , rbnding( false )
-#else
 			    , qrubber( 0 )
-#endif
 			    , aspectrat( 0.0 ), rbidx( 0 ) 
 			    {
 				setStretch( 2, 2 );
@@ -94,13 +81,10 @@ public:
     uiRect		visibleArea() const;
 
     void		setPrefContentsWidth( int w )      
-			{ 
-			    setPrefWidth( w + 2*frameWidth() ); 
-			}
+			{ setPrefWidth( w + 2*frameWidth() ); }
+
     void		setPrefContentsHeight( int h )     
-			{ 
-			    setPrefHeight( h + 2*frameWidth() ); 
-			}
+			{ setPrefHeight( h + 2*frameWidth() ); }
 
     virtual uiSize	actualsize( bool include_border = true) const
 			{
@@ -123,17 +107,15 @@ public:
     float		aspectRatio()			{ return aspectrat; }
 
     virtual void	reDraw( bool deep )		{ updateContents(); }
-    void		updateCanvas()		{ mQScrollView::update(); }
+    void		updateCanvas()		{ Q3ScrollView::update(); }
 protected:
 
-#ifndef USEQT3
     virtual void	drawContents( QPainter* ptr )
 			{
 			    const QRect qr = contentsRect();
 			    drawContents( ptr, qr.left(), qr.top(),
 				          qr.right(), qr.bottom() );
 			}
-#endif
     virtual void	drawContents ( QPainter * p, int clipx,
 			    int clipy, int clipw, int cliph );
     virtual void	resizeEvent( QResizeEvent * );
@@ -141,7 +123,7 @@ protected:
 
     //! over-ride DrawableObjBody impl, because we want to use drawContents()
     virtual void	paintEvent( QPaintEvent* ev )
-			{ mQScrollView::paintEvent(ev); }
+			{ Q3ScrollView::paintEvent(ev); }
 
     virtual void	contentsMousePressEvent(QMouseEvent*);
     virtual void	contentsMouseMoveEvent(QMouseEvent*);
@@ -151,12 +133,7 @@ protected:
 
     uiRect		rubber;
     int			rbidx;
-#ifdef USEQT3
-    bool		rbnding;
-#else
     QRubberBand*	qrubber;
-#endif
-
 
 };
 
@@ -201,17 +178,7 @@ void uiScrollViewBody::contentsMousePressEvent ( QMouseEvent * e )
     if ( mButState( e ) == rubberstate )
     {
 	rbidx = 0;
-#ifndef USEQT3
 	qrubber = new QRubberBand( QRubberBand::Rectangle, viewport() );
-#else
-	rbnding = true;
-
-	QPainter paint; 
-	paint.begin( viewport() );
-	paint.setRasterOp( NotROP );
-	paint.setPen( QPen( Qt::black, 1, Qt::DotLine ) );
-	paint.setBrush( Qt::NoBrush );
-#endif
 	rubber.setRight( e->x() );
 	rubber.setLeft( e->x() );
 	rubber.setBottom(  e->y() );
@@ -219,15 +186,8 @@ void uiScrollViewBody::contentsMousePressEvent ( QMouseEvent * e )
 
 	int xvp, yvp;
 	contentsToViewport ( rubber.left(), rubber.top(), xvp, yvp );
-
-#ifdef USEQT3
-	paint.drawRect( xvp, yvp, rubber.right() - rubber.left(), 
-			rubber.bottom() - rubber.top() ); 
-	paint.end();
-#else
-	qrubber->setGeometry( xvp, yvp, rubber.right() - rubber.left(), 
-			rubber.bottom() - rubber.top() ); 
-#endif
+	qrubber->setGeometry( xvp, yvp, rubber.right()-rubber.left(), 
+			      rubber.bottom()-rubber.top() ); 
     }
     else
     {
@@ -243,22 +203,10 @@ void uiScrollViewBody::contentsMouseMoveEvent( QMouseEvent* e )
 {
 // TODO: start a timer, so no move-events required to continue scrolling
 
-    if ( mRubberBanding && mButState( e ) == rubberstate )
+    if ( qrubber && mButState( e ) == rubberstate )
     {
 	int xvp, yvp;
-
-#ifdef USEQT3
-	QPainter paint; 
-	paint.begin( viewport() );
-	paint.setRasterOp( NotROP );
-	paint.setPen( QPen( Qt::black, 1, Qt::DotLine ) );
-	paint.setBrush( Qt::NoBrush );
-
-	contentsToViewport ( rubber.left(), rubber.top(), xvp, yvp ); 
-	paint.drawRect( xvp, yvp, rubber.right() - rubber.left(), 
-			rubber.bottom() - rubber.top() ); // erases old rubber
-#endif
-	if( aspectrat )
+	if ( aspectrat )
 	{
 	    int xfac = e->x() > rubber.left() ? 1 : -1;
 	    int yfac = e->y() > rubber.top() ? 1 : -1;
@@ -274,7 +222,7 @@ void uiScrollViewBody::contentsMouseMoveEvent( QMouseEvent* e )
 		rbidx--;
 
 	    rubber.setHNrPics( rbidx*xfac );
-	    rubber.setVNrPics( mNINT(rbidx * aspectrat*yfac) );
+	    rubber.setVNrPics( mNINT(rbidx*aspectrat*yfac) );
 	}
 	else
 	{
@@ -285,14 +233,8 @@ void uiScrollViewBody::contentsMouseMoveEvent( QMouseEvent* e )
 	ensureVisible( rubber.right(), rubber.bottom() );
 
 	contentsToViewport ( rubber.left(), rubber.top(), xvp, yvp );
-#ifdef USEQT3
-	paint.drawRect( xvp, yvp, rubber.right() - rubber.left(), 
-			rubber.bottom() - rubber.top() );
-	paint.end();
-#else
-	qrubber->setGeometry( xvp, yvp, rubber.right() - rubber.left(), 
-			      rubber.bottom() - rubber.top() ); 
-#endif
+	qrubber->setGeometry( xvp, yvp, rubber.right()-rubber.left(), 
+			      rubber.bottom()-rubber.top() ); 
     }
     else
     {
@@ -306,25 +248,9 @@ void uiScrollViewBody::contentsMouseMoveEvent( QMouseEvent* e )
 
 void uiScrollViewBody::contentsMouseReleaseEvent ( QMouseEvent* e )
 {
-    if ( mRubberBanding && mButState( e ) == rubberstate )
+    if ( qrubber && mButState( e ) == rubberstate )
     {
-#ifndef USEQT3
 	delete qrubber; qrubber = 0;
-#else
-	int xvp, yvp;
-	rbnding = false;
-
-	QPainter paint; 
-	paint.begin( viewport() );
-	paint.setRasterOp( NotROP );
-	paint.setPen( QPen( Qt::black, 1, Qt::DotLine ) );
-	paint.setBrush( Qt::NoBrush );
-
-	contentsToViewport ( rubber.left(), rubber.top(), xvp, yvp ); 
-	paint.drawRect( xvp, yvp, rubber.right() - rubber.left(), 
-			rubber.bottom() - rubber.top() ); 
-	paint.end();
-#endif
 	rubber.checkCorners();
 	if( rubber.hNrPics() > 10 && rubber.vNrPics() > 10 )
 	    handle_.rubberBandHandler( rubber );
@@ -399,11 +325,11 @@ void uiScrollView::update()
 
 void uiScrollView::setScrollBarMode( ScrollBarMode mode, bool hor )
 {
-    mQScrollView::ScrollBarMode qmode = mQScrollView::Auto;
+    Q3ScrollView::ScrollBarMode qmode = Q3ScrollView::Auto;
     if ( mode == AlwaysOff )
-	qmode = mQScrollView::AlwaysOff;
+	qmode = Q3ScrollView::AlwaysOff;
     else if ( mode == AlwaysOn )
-	qmode = mQScrollView::AlwaysOn;
+	qmode = Q3ScrollView::AlwaysOn;
     if ( hor )
 	body_->setHScrollBarMode( qmode );
     else
@@ -413,11 +339,11 @@ void uiScrollView::setScrollBarMode( ScrollBarMode mode, bool hor )
 
 uiScrollView::ScrollBarMode uiScrollView::getScrollBarMode( bool hor ) const
 {
-    mQScrollView::ScrollBarMode qmode;
+    Q3ScrollView::ScrollBarMode qmode;
     qmode = hor ? body_->hScrollBarMode() : body_->vScrollBarMode();
-    if ( qmode == mQScrollView::AlwaysOff )
+    if ( qmode == Q3ScrollView::AlwaysOff )
 	return AlwaysOff;
-    if ( qmode == mQScrollView::AlwaysOn )
+    if ( qmode == Q3ScrollView::AlwaysOn )
 	return AlwaysOn;
     return Auto;
 }

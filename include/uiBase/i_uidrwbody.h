@@ -7,22 +7,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/07/2001
- RCS:           $Id: i_uidrwbody.h,v 1.25 2007-09-18 13:12:17 cvsbert Exp $
+ RCS:           $Id: i_uidrwbody.h,v 1.26 2008-01-03 12:24:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobjbody.h"
 #include "iodrawimpl.h"
-#include <qwidget.h>
+#include "mouseevent.h"
+#include "uirubberband.h"
 
-#ifndef USEQT3
-# include <QPaintEvent>
-# include "uirubberband.h"
-# include "mouseevent.h"
-#endif
+#include <QPaintEvent>
+#include <QWidget>
 
-static const int c_minnrpix = 10;
+static const int sMinNrPix = 10;
 
 
 /*! \brief template implementation for drawable objects
@@ -41,42 +39,30 @@ public:
 			    , T( parent && parent->pbody()? 
 				    parent->pbody()->managewidg() : 0 , nm )
                             , handle_(handle)
-#ifndef USEQT3
 			    , rubberband_(0)
 			    , havemousetracking_(false)
-#endif
                             {}
 
 #include		"i_uiobjqtbody.h"
 
     virtual             ~uiDrawableObjBody()
-    			{
-#ifndef USEQT3
-			    delete rubberband_;
-#endif
-			}
+    			{ delete rubberband_; }
 
     virtual QPaintDevice* qPaintDevice()		{ return this; }
 
-#ifndef USEQT3
 public:
     void		setMouseTracking( bool yn )
 			{ havemousetracking_ = yn; T::setMouseTracking( yn ); }
     bool		hasMouseTracking() const
 			{ return havemousetracking_; }
-#endif
 
 protected:
-#ifndef USEQT3
     virtual void	drawContents(QPainter*);
-#endif
-
     virtual void	paintEvent(QPaintEvent*);
     void		handlePaintEvent(uiRect,QPaintEvent* ev=0);
     virtual void	resizeEvent(QResizeEvent*);
     void		handleResizeEvent(QResizeEvent*,uiSize old,uiSize nw);
 
-#ifndef USEQT3
     virtual void	mousePressEvent(QMouseEvent*);
     virtual void	mouseMoveEvent(QMouseEvent*);
     virtual void	mouseReleaseEvent(QMouseEvent*);
@@ -88,11 +74,9 @@ protected:
 
     void		reSetMouseTracking()
 			{ T::setMouseTracking( havemousetracking_ ); }
-#endif
 };
 
 
-#ifndef USEQT3
 template <class C,class T>
 void uiDrawableObjBody<C,T>::drawContents( QPainter* ptr )
 {
@@ -100,7 +84,6 @@ void uiDrawableObjBody<C,T>::drawContents( QPainter* ptr )
     uiRect rect( qr.left(), qr.top(), qr.right(), qr.bottom() );
     handlePaintEvent( rect );
 }
-#endif
 
 
 template <class C,class T>
@@ -145,8 +128,6 @@ void uiDrawableObjBody<C,T>::handleResizeEvent( QResizeEvent* ev,
 }
 
 
-#ifndef USEQT3
-
 template <class C,class T>
 void uiDrawableObjBody<C,T>::mousePressEvent( QMouseEvent* qev )
 {
@@ -186,8 +167,8 @@ void uiDrawableObjBody<C,T>::mouseReleaseEvent( QMouseEvent* qev )
     {
 	rubberband_->stop( qev );
 	uiRect newarea = rubberband_->area();
-	bool sizeok = newarea.hNrPics() > c_minnrpix 
-		      && newarea.vNrPics() > c_minnrpix;
+	bool sizeok = newarea.hNrPics() > sMinNrPix 
+		      && newarea.vNrPics() > sMinNrPix;
 	if ( sizeok )
 	{
 	    ishandled = true;
@@ -223,6 +204,5 @@ void uiDrawableObjBody<C,T>::wheelEvent( QWheelEvent* qev )
 		    qev->delta() * 0.002181661564992911886 );
     handle_.getMouseEventHandler().triggerWheel( mev );
 }
-#endif
 
 #endif
