@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.cc,v 1.16 2007-02-28 07:32:12 cvsnanne Exp $
+ RCS:           $Id: uitabstack.cc,v 1.17 2008-01-03 12:16:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,11 +15,7 @@ ________________________________________________________________________
 #include "uiobjbody.h"
 #include "sets.h"
 
-#ifdef USEQT3
-# include <qframe.h>
-#else
-# include <QFrame>
-#endif
+#include <QFrame>
 
 
 uiTabStack::uiTabStack( uiParent* parnt, const char* nm, bool mnge )
@@ -47,11 +43,7 @@ void uiTabStack::tabSel( CallBacker* cb )
 
     for ( int idx=0; idx<tabs.size(); idx++ )
     {
-#ifdef USEQT3
-	const bool disp = tabs[idx]->id() == id;
-#else
 	const bool disp = tabs[idx]->group() == selgrp;
-#endif
 	tabs[idx]->group().display( disp );
     }
 }
@@ -70,31 +62,9 @@ void uiTabStack::addTab( uiGroup* grp, const char* txt )
 	setHAlignObj( grp );
 }
 
-#ifdef USEQT3
-void uiTabStack::insertTab( uiGroup* grp, const char* txt, int index )
-{
-    if ( !grp ) return;
-    if ( !txt || !*txt ) txt = grp->name();
-    uiTab* tab = new uiTab( *grp );
-    tabbar_->insertTab( tab, index );
-
-    if ( !hAlignObj() )
-	setHAlignObj( grp );
-}
-
-
-void uiTabStack::removeTab( int index )
-{
-    tabbar_->removeTab( index );
-}
-
-#else
 
 void uiTabStack::removeTab( uiGroup* grp )
-{
-    tabbar_->removeTab( grp );
-}
-#endif
+{ tabbar_->removeTab( grp ); }
 
 
 void uiTabStack::setTabEnabled( uiGroup* grp, bool yn )
@@ -112,20 +82,16 @@ bool uiTabStack::isTabEnabled( uiGroup* grp ) const
 
 
 int uiTabStack::idOf( uiGroup* grp ) const
-{
-    return tabbar_->idOf( grp );
-}
-
+{ return tabbar_->idOf( grp ); }
 
 int uiTabStack::size() const
-{
-    return tabbar_->size();
-}
+{ return tabbar_->size(); }
+
 
 void uiTabStack::setCurrentPage( int id )
 { 
     tabbar_->setCurrentTab( id );
-    tabSel();
+    tabSel(0);
 }
 
 
@@ -137,18 +103,10 @@ void uiTabStack::setCurrentPage( uiGroup* grp )
 
 
 uiGroup* uiTabStack::currentPage() const
-{
-    return page( currentPageId() );
-}
-
+{ return page( currentPageId() ); }
 
 uiGroup* uiTabStack::page( int id ) const
-{ 
-    return tabbar_->page( id );
-}
-
+{ return tabbar_->page( id ); }
 
 int uiTabStack::currentPageId() const
-{ 
-    return tabbar_->currentTabId();
-}
+{ return tabbar_->currentTabId(); }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.35 2007-05-03 09:01:09 cvsnanne Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.36 2008-01-03 12:18:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,42 +15,23 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "uiparentbody.h"
 
-// Needed to change "Ok" and "Cancel" texts.
-#define private public
-#define protected public
-#include <qfiledialog.h>
-#undef private
-#undef public
-#include <qpushbutton.h>
+#include <QFileDialog>
+
 
 const char* uiFileDialog::filesep = ";";
 
 class ODFileDialog : public QFileDialog
 {
 public:
-			    ODFileDialog( const QString& dirname,
-				const QString& filter=QString::null,
-				QWidget* parent=0,
-				const char* caption=0, bool modal=false )
-#ifndef USEQT3
-				: QFileDialog(parent,caption,dirname,filter)
-			    { setModal( modal ); }
-#else
-				: QFileDialog( dirname, filter, parent, caption,
-				       	       modal )
-			    {}
-#endif
 
-			    ODFileDialog( QWidget* parent=0,
-					    const char* caption=0,
-					    bool modal=false )
-#ifndef USEQT3
-				: QFileDialog( parent, caption )
-			    { setModal( modal ); }
-#else
-				: QFileDialog( parent, caption, modal )
-			    {}
-#endif
+ODFileDialog( const QString& dirname, const QString& filter=QString::null,
+	      QWidget* parent=0, const char* caption=0, bool modal=false )
+    : QFileDialog(parent,caption,dirname,filter)
+{ setModal( modal ); }
+
+ODFileDialog( QWidget* parent=0, const char* caption=0, bool modal=false )
+    : QFileDialog(parent,caption)
+{ setModal( modal ); }
 
 };
 
@@ -98,14 +79,6 @@ uiFileDialog::uiFileDialog( uiParent* parnt, Mode mode,
 	, parnt_( parnt )
     	, addallexts_( false )
 {}
-
-#ifdef USEQT3
-# define mSelectFilter	setSelectedFilter
-# define mSetDir	setDir
-#else
-# define mSelectFilter	selectFilter
-# define mSetDir	setDirectory
-#endif
 
 
 int uiFileDialog::go()
@@ -163,15 +136,10 @@ int uiFileDialog::go()
     fd->setMode( qmodeForUiMode(mode_) );
     fd->setCaption( QString(caption_) );
     if ( !currentdir_.isEmpty() )
-	fd->mSetDir( QString(currentdir_.buf()) );
+	fd->setDirectory( QString(currentdir_.buf()) );
     if ( selectedfilter_.size() )
-	fd->mSelectFilter( QString(selectedfilter_) );
+	fd->selectFilter( QString(selectedfilter_) );
     
-#ifdef USEQT3
-    if ( !oktxt_.isEmpty() ) fd->okB->setText( (const char*)oktxt_ );
-    if ( !cnclxt_.isEmpty()) fd->cancelB->setText( (const char*)cnclxt_ );
-#endif
-
 #ifdef __win__
     fd->setViewMode( QFileDialog::Detail );
 #endif
@@ -180,29 +148,20 @@ int uiFileDialog::go()
 	return 0;
 
     QStringList list = fd->selectedFiles();
-#ifndef USEQT3
     if (  list.size() )
 	fn = list[0].toAscii().constData();
     else 
 	fn = fd->selectedFile().toAscii().constData();
 
     selectedfilter_ = fd->selectedFilter().toAscii().constData();
-#else
-    fn = list.size() ? list[0] : fd->selectedFile();
-    selectedfilter_ = fd->selectedFilter();
-#endif
-    
+
 #ifdef __win__
     replaceCharacter( fn.buf(), '/', '\\' );
 #endif
 
     for ( int idx=0; idx<list.size(); idx++ )
     {
-#ifdef USEQT3
-	BufferString* bs = new BufferString( list[idx] );
-#else
 	BufferString* bs = new BufferString( list[idx].toAscii().constData() );
-#endif
 
 #ifdef __win__
 	replaceCharacter( bs->buf(), '/', '\\' );
@@ -227,11 +186,7 @@ void uiFileDialog::list2String( const BufferStringSet& list,
     for ( int idx=0; idx<list.size(); idx++ )
 	qlist.append( (QString)list[idx]->buf() );
 
-#ifdef USEQT3
-    string = qlist.join( (QString)filesep );
-#else
     string = qlist.join( (QString)filesep ).toAscii().constData();
-#endif
 }
 
 
@@ -240,9 +195,5 @@ void uiFileDialog::string2List( const BufferString& string,
 {
     QStringList qlist = QStringList::split( (QString)filesep, (QString)string );
     for ( int idx=0; idx<qlist.size(); idx++ )
-#ifdef USEQT3
-	list += new BufferString( qlist[idx] );
-#else
 	list += new BufferString( qlist[idx].toAscii().constData() );
-#endif
 }
