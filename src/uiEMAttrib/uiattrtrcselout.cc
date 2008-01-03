@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.30 2007-12-06 09:11:41 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.31 2008-01-03 12:20:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -146,7 +146,7 @@ void uiAttrTrcSelOut::createTwoHorUI()
     {
 	CallBack cb = mCB(this,uiAttrTrcSelOut,extraParsCB);
 	uiPushButton* extrabut =
-			new uiPushButton( uppgrp_, "Extra options", cb, true );
+			new uiPushButton( uppgrp_, "Extra options", cb, false );
 	extrabut->attach( alignedBelow, outpfld_ );
     }
     
