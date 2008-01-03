@@ -7,7 +7,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        Satyaki Maitra
 Date:          September 2007
-RCS:           $Id: uiamplspectrum.h,v 1.1 2007-10-05 09:03:15 cvssatyaki Exp $
+RCS:           $Id: uiamplspectrum.h,v 1.2 2008-01-03 12:17:24 cvsnanne Exp $
 ______________________________________________________________________
                        
 */   
@@ -43,10 +43,8 @@ protected:
     void                        reDraw(CallBacker*);
 
     void			initFFT(int nrsamples);
-    bool 			compute2D(const Array2D<float>&);
-    bool			compute3D(const Array3D<float>&);
-    bool			setFrequency();
-    void			setHistogram();
+    bool			compute(const Array3D<float>&);
+    void			draw();
     
     Array1DImpl<float_complex>* timedomain_;
     Array1DImpl<float_complex>* freqdomain_;
@@ -54,9 +52,7 @@ protected:
 
     FFT*			fft_;
     uiRect			bdrect_;
-
     int				nrtrcs_;
-
     StepInterval<float>         xrg_;
 };
 
