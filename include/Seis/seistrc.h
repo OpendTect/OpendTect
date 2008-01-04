@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.29 2007-09-13 19:38:39 cvsnanne Exp $
+ RCS:		$Id: seistrc.h,v 1.30 2008-01-04 22:39:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "tracedata.h"
 #include "datachar.h"
 #include "valseries.h"
+#include "mathfunc.h"
 
 class Socket;
 template <class T> class ValueSeriesInterpolator;
@@ -135,6 +136,24 @@ protected:
 
 };
 
+/*!> Seismic traces conforming the MathFunction interface.
+
+One of the components of a SeisTrc can be selected to form a ValueSeries.
+
+*/
+
+
+class SeisTrcFunction : public FloatMathFunction
+{
+public:
+    		SeisTrcFunction(const SeisTrc& trc, int icomp)
+		    : trc_(trc), icomp_(icomp)			{}
+    float	getValue(float z) const { return trc_.getValue(z,icomp_); }
+protected:
+
+    const SeisTrc&	trc_;
+    const int		icomp_;
+};
 
 /*!\mainpage Seismics
 
