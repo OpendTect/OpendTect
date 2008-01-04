@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril & Kris Tingdahl
  Date:          Mar 2005
- RCS:           $Id: valseries.h,v 1.17 2007-12-03 21:16:28 cvskris Exp $
+ RCS:           $Id: valseries.h,v 1.18 2008-01-04 20:59:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ public:
 	    				   od_int64 off);
 
     inline T		value( od_int64 idx ) const;
-    inline void		setValue( od_int64 idx, T v ) const;
+    inline void		setValue( od_int64 idx, T v );
     inline T*		arr();
     inline const T*	arr() const;
     inline bool		writable() const;
@@ -161,7 +161,7 @@ T OffsetValueSeries<T>::value( od_int64 idx ) const
 { return src_.value(idx+off_); }
 
 template <class T> inline
-void OffsetValueSeries<T>::setValue( od_int64 idx, T v ) const
+void OffsetValueSeries<T>::setValue( od_int64 idx, T v )
 {
     if ( writable_ )
 	src_.setValue(idx+off_,v);
