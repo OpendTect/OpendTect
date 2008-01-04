@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Sep 2007
- RCS:           $Id: veldesc.cc,v 1.4 2007-12-28 21:13:08 cvskris Exp $
+ RCS:           $Id: veldesc.cc,v 1.5 2008-01-04 22:36:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ const char* VelocityDesc::sKeyVelocityDesc()	{ return "Velocity Desc"; }
 const char* VelocityDesc::sKeyIsVelocity()	{ return "Is Velocity"; }
 
 DefineEnumNames(VelocityDesc,Type,0,"Velocity Types")
-{ "Unknown", "Vrms", "Vint", "Vavg", 0 };
+{ "Unknown", "Vint", "Vrms", "Vavg", 0 };
 
 DefineEnumNames(VelocityDesc,SampleSpan,0,"Sample Spans")
 { "Centered", "Above", "Below", 0 };
