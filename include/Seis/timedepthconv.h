@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: timedepthconv.h,v 1.2 2008-01-04 22:45:28 cvskris Exp $
+ RCS:		$Id: timedepthconv.h,v 1.3 2008-01-07 22:38:19 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -51,6 +51,11 @@ public:
     void		transformBack(const BinID&,const SamplingData<float>&,
 	    			  int,float*) const;
     Interval<float>	getZInterval(bool from) const;
+
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
+
+    static const char*	sKeyVelData() { return "Velocity volume"; }
 
 protected:
 			~Time2DepthStretcher();
