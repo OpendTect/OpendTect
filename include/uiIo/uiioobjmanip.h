@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2003
- RCS:           $Id: uiioobjmanip.h,v 1.11 2006-07-11 08:22:41 cvsbert Exp $
+ RCS:           $Id: uiioobjmanip.h,v 1.12 2008-01-07 10:55:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,6 +88,8 @@ public:
 			~uiIOObjManipGroup();
 
     void		selChg();
+
+    void		triggerButton(uiManipButGrp::Type);
 
 protected:
 

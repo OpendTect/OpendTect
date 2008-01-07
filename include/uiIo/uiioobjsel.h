@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.49 2007-09-20 05:48:34 cvsraman Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.50 2008-01-07 10:55:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,6 +105,7 @@ protected:
 
     void		selChg(CallBacker*);
     void		filtChg(CallBacker*);
+    void		delPress(CallBacker*);
     IOObj*		getIOObj(int);
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.106 2007-10-03 15:00:44 cvshelene Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.107 2008-01-07 10:55:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,6 +148,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     }
 
     listfld->selectionChanged.notify( mCB(this,uiIOObjSelGrp,selChg) );
+    listfld->deleteButtonPressed.notify( mCB(this,uiIOObjSelGrp,delPress) );
     if ( (nmfld && !*nmfld->text()) || !nmfld )
 	selChg( this );
     setHAlignObj( topgrp );
@@ -193,6 +194,13 @@ const MultiID& uiIOObjSelGrp::selected( int objnr ) const
     msg += objnr; msg += " nrsel="; msg += nrSel();
     pErrMsg( msg );
     return udfmid;
+}
+
+
+void uiIOObjSelGrp::delPress( CallBacker* )
+{
+    if ( manipgrpsubj && manipgrpsubj->manipgrp_ )
+	manipgrpsubj->manipgrp_->triggerButton( uiManipButGrp::Remove );
 }
 
 

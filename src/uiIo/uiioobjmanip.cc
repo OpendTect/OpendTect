@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.29 2007-02-15 18:49:34 cvsnanne Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.30 2008-01-07 10:55:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,6 +157,15 @@ IOObj* uiIOObjManipGroup::gtIOObj() const
 void uiIOObjManipGroup::commitChgs( IOObj* ioobj )
 {
     if ( ioobj ) IOM().commitChanges( *ioobj );
+}
+
+
+void uiIOObjManipGroup::triggerButton( uiManipButGrp::Type tp )
+{
+    if ( tp == FileLocation )	locbut->click();
+    else if ( tp == Rename )	renbut->click();
+    else if ( tp == ReadOnly )	robut->click();
+    else if ( tp == Remove )	rembut->click();
 }
 
 
