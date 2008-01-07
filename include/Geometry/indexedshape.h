@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.2 2007-12-27 16:13:04 cvskris Exp $
+RCS:           $Id: indexedshape.h,v 1.3 2008-01-07 19:25:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ namespace Geometry
 class IndexedGeometry
 {
 public:
-    enum	Type { Lines, TriangleStrip, TriangleFan };
+    enum	Type { Lines, Triangles, TriangleStrip, TriangleFan };
     enum	NormalBinding { PerVertex, PerFace };
 
     		IndexedGeometry(Type,NormalBinding=PerFace,
