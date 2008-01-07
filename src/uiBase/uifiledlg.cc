@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.36 2008-01-03 12:18:18 cvsnanne Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.37 2008-01-07 13:07:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,10 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "oddirs.h"
 #include "uiparentbody.h"
+#include "uidialog.h"
+#include "uilineedit.h"
+#include "uilabel.h"
+#include "envvars.h"
 
 #include <QFileDialog>
 
@@ -109,6 +113,17 @@ int uiFileDialog::go()
     {
 	dirname = fname_;
 	fname_ = "";
+    }
+
+    if ( GetEnvVarYN("OD_FILE_SELECTOR_BROKEN") )
+    {
+	uiDialog dlg( parnt_, uiDialog::Setup("Specify file name",
+				    "System file selection unavailable!",0) );
+	uiLineEdit* le = new uiLineEdit( &dlg, dirname, "File name" );
+	new uiLabel( &dlg, "File name", le );
+	if ( !dlg.go() ) return 0;
+	fn = le->text(); filenames.add( fn );
+	return 1;
     }
 
     QWidget* qparent = 0;
