@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture2.h,v 1.14 2007-05-21 05:45:22 cvsnanne Exp $
+ RCS:		$Id: vismultitexture2.h,v 1.15 2008-01-07 20:48:50 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -46,9 +46,13 @@ public:
 				    accepted.*/
 
     bool			canUseShading() const;
-    bool			usesShading() const { return useshading_; }
-    void			allowShading( bool yn )
-				{ allowshading_ = yn; }
+    bool			usesShading() const   { return useshading_; }
+    void			allowShading(bool yn) { allowshading_ = yn; }
+   
+    bool			splitsTexture();
+    void			splitTexture(bool yn); 
+    const TypeSet<int>&		getUsedTextureUnits() 
+    					{ return usedtextureunits_;}
 
     void			setTextureTransparency(int, unsigned char);
     unsigned char		getTextureTransparency(int) const;
@@ -103,6 +107,8 @@ protected:
     RowCol			size_;
     bool			allowshading_;	//user setting
     bool			useshading_;	//current status
+    bool			dosplittexture_;  //for shading only
+    TypeSet<int>		usedtextureunits_;
 
     //Non-shading
     SoGroup*			nonshadinggroup_;
@@ -123,7 +129,6 @@ protected:
     SoShaderParameter1i*	ctabunit_;
     TypeSet<float>		opacity_;
     SoComplexity*		shadingcomplexity_;
-
 };
 
 }; // Namespace

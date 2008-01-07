@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.42 2007-10-19 09:03:04 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.43 2008-01-07 20:48:50 cvsyuancheng Exp $";
 
 
 #include "vismultitexture2.h"
@@ -31,7 +31,7 @@ static const char* rcsID = "$Id: vismultitexture2.cc,v 1.42 2007-10-19 09:03:04 
 
 #include "SoColTabMultiTexture2.h"
 #include "SoShaderTexture2.h"
-
+#include "SoSplitTexture2.h"
 
 mCreateFactoryEntry( visBase::MultiTexture2 );
 
@@ -84,6 +84,7 @@ MultiTexture2::MultiTexture2()
     , shadinggroup_( new SoGroup )
     , size_( -1, -1 )
     , useshading_( false )
+    , dosplittexture_( false )			  
     , allowshading_( true )
     , ctabtexture_( 0 )
     , datatexturegrp_( 0 )
@@ -165,6 +166,19 @@ void MultiTexture2::clearAll()
 bool MultiTexture2::canUseShading() const
 {
     return allowshading_ && SoOD::supportsFragShading()==1;
+}
+
+
+bool MultiTexture2::splitsTexture()
+{
+    return dosplittexture_;
+}
+
+
+void MultiTexture2::splitTexture( bool yn )
+{
+    dosplittexture_ = yn;
+    updateSoTextureInternal( 0 );
 }
 
 
@@ -439,9 +453,9 @@ bool MultiTexture2::setIndexData( int texture, int version,
 void MultiTexture2::updateSoTextureInternal( int texturenr )
 {
     reviewShading();
+    const unsigned char* texture0 = getCurrentTextureIndexData(texturenr);
 
-    const unsigned char* texture = getCurrentTextureIndexData(texturenr);
-    if ( size_.row<0 || size_.col<0 || !texture )
+    if ( size_.row<0 || size_.col<0 || !texture0 )
     {
 	if ( useshading_ && layeropacity_ )
 	    layeropacity_->value.set1Value( texturenr, 0 );
@@ -487,15 +501,30 @@ void MultiTexture2::updateSoTextureInternal( int texturenr )
 
 	createShadingVars();
 
-	mDynamicCastGet( SoShaderTexture2*, texture,
-			 datatexturegrp_->getChild( unit*2+1 ) );
-	texture->image.setValue( SbVec2s(size_.col,size_.row), num, ptr,
-				 SoSFImage::COPY );
-	//TODO: change native format and use it directly
+	if ( dosplittexture_ )
+	{
+	    mDynamicCastGet( SoSplitTexture2*, texture,
+			     datatexturegrp_->getChild( unit*2+1 ) );
+	    if ( !texture )
+		return;
+
+	    texture->image.setValue( SbVec2s(size_.col,size_.row), num, ptr,
+				     SoSFImage::COPY );
+	}
+	else
+	{
+	    mDynamicCastGet( SoShaderTexture2*, texture,
+			     datatexturegrp_->getChild( unit*2+1 ) );
+	    if ( !texture )
+		return;
+	    
+	    texture->image.setValue( SbVec2s(size_.col,size_.row), num, ptr,
+				     SoSFImage::COPY );
+	}
     }
     else
     {
-	const SbImage image( texture, SbVec2s(size_.col,size_.row), 1 );
+	const SbImage image( texture0, SbVec2s(size_.col,size_.row), 1 );
 	texture_->image.set1Value( texturenr, image );
     }
 
@@ -508,16 +537,16 @@ void MultiTexture2::updateColorTables()
     reviewShading();
     if ( useshading_ )
     {
-	if ( !ctabtexture_ ) return;
-
+	if ( !ctabtexture_ ) 
+	    return;
+	
 	const int nrtextures = nrTextures();
 	unsigned char* arrstart = 0;
 
 	SbVec2s cursize;
 	int curnc;
 	bool finishedit = false;
-	unsigned char* curarr =
-	    ctabtexture_->image.startEditing(cursize,curnc);
+	unsigned char* curarr = ctabtexture_->image.startEditing(cursize,curnc);
 
 	if ( curnc==4 && cursize[1]==nrtextures && cursize[0]==256 )
 	{
@@ -551,8 +580,10 @@ void MultiTexture2::updateColorTables()
 	if ( finishedit )
 	    ctabtexture_->image.finishEditing();
 	else
-	    ctabtexture_->image.setValue( SbVec2s(256,nrtextures), 4, arrstart,
-				      SoSFImage::NO_COPY_AND_DELETE );
+	{
+	    ctabtexture_->image.setValue( SbVec2s(256,nrtextures), 4, 
+		    arrstart, SoSFImage::NO_COPY_AND_DELETE );
+	}
 
 	updateShadingVars();
     }
@@ -741,6 +772,8 @@ void MultiTexture2::createShadingVars()
 
 	const int maxnrunits = (MultiTexture2::maxNrTextures()-1)/
 	    			mLayersPerUnit+1;
+	
+	usedtextureunits_.erase();
 	for ( int idx=0; idx<maxnrunits; idx++ )
 	{
 	    SoShaderParameter1i* dataunit = new SoShaderParameter1i;
@@ -748,6 +781,7 @@ void MultiTexture2::createShadingVars()
 	    nm += idx;
 	    dataunit->name.setValue( nm.buf() );
 	    dataunit->value.setValue( idx+1 );
+	    usedtextureunits_ += idx+1;
 	    fragmentshader_->parameter.addNode( dataunit );
 	}
 
@@ -767,7 +801,9 @@ void MultiTexture2::createShadingVars()
 	SoTextureUnit* u1 = new SoTextureUnit;
 	u1->unit = idx+1;
 	datatexturegrp_->addChild( u1 );
-	datatexturegrp_->addChild( new SoShaderTexture2 );
+	datatexturegrp_->addChild( dosplittexture_ 
+		? (SoNode*) new SoSplitTexture2 
+		: (SoNode*) new SoShaderTexture2 );
     }
 }
 
@@ -808,9 +844,7 @@ void  MultiTexture2::createShadingProgram( int nrlayers,
 "#extension GL_ARB_texture_rectangle : enable				\n\
 uniform sampler2DRect   ctabunit;					\n\
 uniform int             startlayer;					\n\
-uniform int             numlayers;					\n\
-uniform int             texturesize0;					\n\
-uniform int             texturesize1;\n";
+uniform int             numlayers;\n";
 
     const char* functions = 
 
@@ -830,11 +864,11 @@ uniform int             texturesize1;\n";
 	gl_FragColor.rgb = mix(gl_FragColor.rgb,col.rgb,layeropacity);	\n\
 	if ( layeropacity>gl_FragColor.a )				\n\
 	    gl_FragColor.a = layeropacity;				\n\
-    }									\n\
+    } 									\n\
 }\n\n";
 
 
-    const char* mainprogstart =
+    BufferString mainprogstart =
 "void main()								\n\
 {									\n\
     if ( gl_FrontMaterial.diffuse.a<=0.0 )				\n\
@@ -844,22 +878,33 @@ uniform int             texturesize1;\n";
     else								\n\
     {									\n\
 	vec2 tcoord = gl_TexCoord[0].st;				\n\
-	tcoord.s *= texturesize0;					\n\
-	tcoord.t *= texturesize1;					\n\
 	vec4 data;\n";
 
+
     res = variables;
+    if ( !dosplittexture_ )
+    {
+	res += "uniform int             texturesize0;\n";
+	res += "uniform int             texturesize1;\n";
+    }
+
     res += "uniform float           trans["; res += nrlayers; res += "];\n";
 
     const int nrunits = nrlayers ? (nrlayers-1)/mLayersPerUnit+1 : 0;
     for ( int idx=0; idx<nrunits; idx++ )
     {
-	res += "uniform sampler2DRect   dataunit";
+	res += dosplittexture_ ? "uniform sampler2D	dataunit" :
+	    			 "uniform sampler2DRect dataunit";
 	res += idx; res += ";\n";
     }
 
     res += functions;
     res += mainprogstart;
+    if ( !dosplittexture_ )
+    {
+	res += "	tcoord.s *= texturesize0;\n";
+	res += "	tcoord.t *= texturesize1;\n";
+    }
 
     int layer = 0;
     for ( int unit=0; unit<nrunits; unit++ )
@@ -872,7 +917,8 @@ uniform int             texturesize1;\n";
 	    res += " && numlayers>"; res += unit*4; res += ")\n\t{\n";
 	}
 
-	res += "\t    data = texture2DRect( dataunit";
+	res += dosplittexture_ ? "\t    data = texture2D( dataunit" :
+				 "\t    data = texture2DRect( dataunit";
 	res += unit;
 	res += ", tcoord );\n";
 
