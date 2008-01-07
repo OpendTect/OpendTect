@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: visgeomindexedshape.cc,v 1.5 2007-10-30 20:24:23 cvsyuancheng Exp $
+ RCS:           $Id: visgeomindexedshape.cc,v 1.6 2008-01-07 22:23:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,6 +137,9 @@ void GeomIndexedShape::touch( bool forall )
 	    mHandleType( TriangleStrip, SoIndexedTriangleStripSet, strip )
             else mHandleType( TriangleFan, SoIndexedTriangleFanSet, fan )
  	    else mHandleType( Lines, SoIndexedLineSet, line )
+
+	    if ( !shape )
+		continue;
 
 	    if ( geom->ischanged_ )
 	    {
