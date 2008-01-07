@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.83 2007-10-22 08:39:59 cvsnanne Exp $
+ RCS:           $Id: uilistbox.cc,v 1.84 2008-01-07 10:54:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 #include "i_q4listbox.h"
 #include <QApplication>
+#include <QKeyEvent>
 #include <QMouseEvent>
 
 #define mNoSelection QAbstractItemView::NoSelection
@@ -67,6 +68,7 @@ public:
 
 protected:
     void		mouseReleaseEvent(QMouseEvent*);
+    void		keyPressEvent(QKeyEvent*);
 
     int			actidx_;
     bool		actleftclick_;
@@ -121,6 +123,15 @@ void uiListBoxBody::mouseReleaseEvent( QMouseEvent* event )
 
     QListWidget::mouseReleaseEvent( event );
     handle_.buttonstate_ = OD::NoButton;
+}
+
+
+void uiListBoxBody::keyPressEvent( QKeyEvent* qkeyev )
+{
+    if ( qkeyev && qkeyev->key() == Qt::Key_Delete )
+	handle_.deleteButtonPressed.trigger();
+
+    QListWidget::keyPressEvent( qkeyev );
 }
 
 
@@ -201,6 +212,7 @@ uiListBox::uiListBox( uiParent* p, const char* nm, bool ms, int nl, int pfw )
     , doubleClicked(this)
     , rightButtonClicked(this)
     , leftButtonClicked(this)
+    , deleteButtonPressed(this)
     , activatedone(this)
 {
 }
@@ -214,6 +226,7 @@ uiListBox::uiListBox( uiParent* p, const BufferStringSet& items,
     , doubleClicked(this)
     , rightButtonClicked(this)
     , leftButtonClicked(this)
+    , deleteButtonPressed(this)
     , activatedone(this)
 {
     addItems( items );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.38 2007-10-12 10:11:03 cvsbert Exp $
+ RCS:           $Id: uilistbox.h,v 1.39 2008-01-07 10:54:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,7 @@ public:
     Notifier<uiListBox> doubleClicked;
     Notifier<uiListBox> rightButtonClicked;
     Notifier<uiListBox> leftButtonClicked;
+    Notifier<uiListBox> deleteButtonPressed;
 
     			//! Force activation in GUI thread
     void		activateClick(int idx,bool leftclick=true,
