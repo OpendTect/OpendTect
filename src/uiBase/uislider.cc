@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.30 2007-12-27 11:47:23 cvsnanne Exp $
+ RCS:           $Id: uislider.cc,v 1.31 2008-01-07 04:06:26 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uilineedit.h"
 #include "datainpspec.h"
 #include "ranges.h"
+#include "scaler.h"
 
 #include <QApplication>
 #include <QEvent>
@@ -101,9 +102,17 @@ uiSlider::uiSlider( uiParent* p, const char* nm, int dec, bool logsc )
     , activatedone(this)
 {
     body_->setOrientation( Qt::Horizontal );
-
+    
     if ( dec < 0 ) dec = 0;
-    factor = (int)pow(10,(float)dec);
+
+    double factor = pow( 10, dec );
+    scaler_ = new LinScaler( 0, factor );
+}
+
+
+uiSlider::~uiSlider()
+{
+    delete scaler_;
 }
 
 
@@ -130,16 +139,17 @@ int uiSlider::sliderValue( float fval ) const
 {
     if ( fval <= 0 ) return 0;
 
-    float res = logscale ? log10(fval) : fval;
-    res *= factor;
-    return mNINT(res);
+    if ( logscale ) fval = log10( fval );
+
+    return mNINT( scaler_->unScale(fval) );
 }
 
 
 float uiSlider::userValue( int ival ) const
 {
-    float res = float(ival) / factor;
-    return logscale ? pow(10,res) : res;
+    double res = scaler_->scale( (double)ival );
+
+    return logscale ? pow( 10, res ) : res;
 }
 
 
@@ -166,7 +176,7 @@ const char* uiSlider::text() const
 
 
 int uiSlider::getIntValue() const
-{ return mNINT( userValue(body_->value()) ); }
+{ return body_->value(); }
 
 
 float uiSlider::getValue() const
@@ -195,6 +205,12 @@ void uiSlider::setOrientation( Orientation or_ )
 uiSlider::Orientation uiSlider::getOrientation() const
 {
     return (uiSlider::Orientation)( (int)body_->orientation() );
+}
+
+
+void uiSlider::setInverted( bool yn )
+{
+    body_->setInvertedAppearance( yn );
 }
 
 
@@ -251,6 +267,16 @@ void uiSlider::getInterval( StepInterval<float>& intv ) const
 }
 
 
+void uiSlider::setLinearScale( double constant, double factor )
+{
+    if ( scaler_ )
+    {
+	scaler_->constant = constant;
+	scaler_->factor =  factor;
+    }
+}
+
+
 int uiSlider::tickStep() const     	{ return body_->tickInterval() ; }
 void uiSlider::setTickStep( int s )	{ body_->setTickInterval(s); }
 
@@ -277,7 +303,8 @@ uiSliderExtra::uiSliderExtra( uiParent* p, const char* lbl, const char* nm )
 
 void uiSliderExtra::init( const uiSliderExtra::Setup& setup, const char* nm )
 {
-    slider = new uiSlider( this, nm, setup.nrdec_, setup.logscale_ );
+    slider = new uiSlider( this, nm, setup.logscale_ );
+    slider->setOrientation( setup.orientation_ );
 
     if ( !setup.lbl_.isEmpty() )
 	lbl = new uiLabel( this, setup.lbl_ );
@@ -293,11 +320,14 @@ void uiSliderExtra::init( const uiSliderExtra::Setup& setup, const char* nm )
 
     if ( setup.orientation_ == uiSlider::Horizontal )
     {
+	slider->setPrefWidth( setup.sldrsize_ );
 	if ( lbl ) slider->attach( rightOf, lbl );
 	if ( editfld ) editfld->attach( rightOf, slider );
     }
     else
     {
+	slider->setPrefHeight( setup.sldrsize_ );
+	slider->setPrefWidth( 10 );
 	if ( lbl ) slider->attach( centeredBelow, lbl );
 	if ( editfld ) editfld->attach( centeredBelow, slider );
     }

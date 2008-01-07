@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.15 2007-12-27 11:30:43 cvsnanne Exp $
+ RCS:           $Id: uislider.h,v 1.16 2008-01-07 04:06:50 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "uiobj.h"
 
+class LinScaler;
 class uiSliderBody;
 class uiLabel;
 class uiLineEdit;
@@ -26,6 +27,7 @@ public:
 
                         uiSlider(uiParent*,const char* nm="Slider",
 				 int nrdec=0,bool log=false);
+			~uiSlider();
 
     enum 		TickPosition { NoMarks=0, Above=1, Left=Above, Below=2, 
 				      Right=Below, Both=3 };
@@ -46,6 +48,7 @@ public:
     float		step() const;
     void		setInterval(const StepInterval<float>&);
     void		getInterval(StepInterval<float>&) const;
+    void		setLinearScale(double,double);
 
     void		setTickMarks(TickPosition);
     TickPosition	tickMarks() const;
@@ -53,6 +56,7 @@ public:
     int			tickStep() const;
     void		setOrientation(Orientation);
     uiSlider::Orientation getOrientation() const;
+    void		setInverted( bool yn );
 
     bool		isLogScale()			{ return logscale; }
 
@@ -67,7 +71,7 @@ public:
 private:
 
     mutable BufferString result;
-    int			factor;
+    LinScaler*		scaler_;
     bool		logscale;
 
     uiSliderBody*	body_;
@@ -94,11 +98,13 @@ public:
 			    , nrdec_(0)
 			    , logscale_(false)
 			    , orientation_(uiSlider::Horizontal)
+			    , sldrsize_(200)
 			    {}
 
 	mDefSetupMemb(bool,withedit)
 	mDefSetupMemb(bool,logscale)
 	mDefSetupMemb(int,nrdec)
+	mDefSetupMemb(int,sldrsize)
 	mDefSetupMemb(BufferString,lbl)
 	mDefSetupMemb(uiSlider::Orientation,orientation)
     };
