@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.23 2007-09-13 19:38:38 cvsnanne Exp $
+ RCS:		$Id: simpnumer.h,v 1.24 2008-01-07 20:52:16 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
@@ -73,6 +73,15 @@ int isPower( int val, int base )
     if ( res ) return 1 + res;
 
     return 0;
+}
+
+
+inline
+int nextPower( int val, int base )
+{
+    int res = 1;
+    while ( res<val ) res *= base;
+    return res;
 }
 
 
