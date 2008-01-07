@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.14 2007-08-08 12:28:34 cvsraman Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.15 2008-01-07 08:16:54 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -50,6 +50,7 @@ public:
     void			setSetMgr(Pick::SetMgr*);
     				/*!<Only used for notifications. */
     Pick::Set*			getSet()		{ return set_; }
+    const Pick::Set*		getSet() const		{ return set_; }
 
     MultiID			getMultiID() const 	{ return storedmid_; }
 
@@ -59,7 +60,7 @@ public:
 
     void                        createLine();
     void                        showLine(bool);
-    bool                        lineShown();
+    bool                        lineShown() const;
     virtual BufferString	getManipulationString() const;
     virtual void		getMousePosInfo(const visBase::EventInfo&,
 						const Coord3&,BufferString&,
@@ -77,6 +78,8 @@ public:
     virtual int                 usePar(const IOPar&);
 
     int				getPickIdx(visBase::DataObject*) const;
+
+    const SurveyObject*		getPickedSurveyObject() const;
 
     bool			setDataTransform(ZAxisTransform*);
     const ZAxisTransform*	getDataTransform() const;
@@ -121,6 +124,7 @@ protected:
     bool			needline_;
     bool			showall_;
     int				mousepressid_;
+    int				pickedsobjid_; //!< Picked SurveyObject ID
 
     visBase::PickStyle*		pickstyle_;
     visBase::DataObjectGroup*	group_;

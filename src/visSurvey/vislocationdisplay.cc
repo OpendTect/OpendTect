@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.33 2007-12-21 04:45:57 cvsraman Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.34 2008-01-07 08:17:42 cvsnanne Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -66,6 +66,7 @@ LocationDisplay::LocationDisplay()
     , pickstyle_( 0 )
     , polyline_(0)
     , needline_(false)
+    , pickedsobjid_(-1)
 {
     group_->ref();
     addChild( group_->getInventorNode() );
@@ -228,7 +229,7 @@ void LocationDisplay::showLine( bool yn )
 }
 
 
-bool LocationDisplay::lineShown()
+bool LocationDisplay::lineShown() const
 {
     return polyline_ ? polyline_->isOn() : false;
 }
@@ -243,7 +244,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
     if ( waitsfordirectionid_!=-1 )
     {
 	Coord3 newpos, normal;
-	if ( getPickSurface( eventinfo, newpos, normal ) )
+	if ( getPickSurface(eventinfo,newpos,normal) )
 	{
 	    Coord3 dir = newpos - (*set_)[waitsfordirectionid_].pos;
 	    dir.z *= -SI().zFactor(); //convert to right dir-domain
@@ -263,7 +264,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
     else if ( waitsforpositionid_!=-1 )
     {
 	Coord3 newpos, normal;
-	if ( getPickSurface( eventinfo, newpos, normal ) )
+	if ( getPickSurface(eventinfo,newpos,normal) )
 	{
 	    (*set_)[waitsforpositionid_].pos = newpos;
 	    Pick::SetMgr::ChangeData cd(
@@ -283,12 +284,16 @@ void LocationDisplay::pickCB( CallBacker* cb )
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
     {
 	visBase::DataObject* dataobj =
-	    		visBase::DM().getObject(eventinfo.pickedobjids[idx]);
+	    		visBase::DM().getObject( eventinfo.pickedobjids[idx] );
 	if ( dataobj->selectable() )
 	{
 	    eventid = eventinfo.pickedobjids[idx];
 	    break;
 	}
+
+	mDynamicCastGet(const SurveyObject*,so,dataobj);
+	if ( so && so->allowPicks() )
+	    pickedsobjid_ = eventid;
     }
 
     if ( eventid==-1 )
@@ -341,7 +346,7 @@ void LocationDisplay::pickCB( CallBacker* cb )
 		 eventid==mousepressid_ )
 	    {
 		Coord3 newpos, normal;
-		if ( getPickSurface( eventinfo, newpos, normal ) )
+		if ( getPickSurface(eventinfo,newpos,normal) )
 		{
 		    const Sphere dir = normal.isDefined()
 			? cartesian2Spherical(
@@ -384,7 +389,7 @@ bool LocationDisplay::getPickSurface( const visBase::EventInfo& evi,
 		break;
 	}
 
-	mDynamicCastGet( const SurveyObject*, so, pickedobj );
+	mDynamicCastGet(const SurveyObject*,so,pickedobj);
 	if ( so && so->allowPicks() )
 	{
 	    validpicksurface = true;
@@ -740,6 +745,73 @@ void LocationDisplay::setSceneEventCatcher( visBase::EventCatcher* nevc )
 }
 
 
+int LocationDisplay::getPickIdx( visBase::DataObject* dataobj ) const
+{
+    return group_->getFirstIdx( dataobj );
+}
+
+
+bool LocationDisplay::setDataTransform( ZAxisTransform* zat )
+{
+    if ( datatransform_==zat )
+	return true;
+
+    if ( datatransform_ )
+    {
+	if ( datatransform_->changeNotifier() )
+	    datatransform_->changeNotifier()->remove(
+		mCB( this, LocationDisplay, fullRedraw) );
+	datatransform_->unRef();
+    }
+
+    datatransform_ = zat;
+
+    if ( datatransform_ )
+    {
+	if ( datatransform_->changeNotifier() )
+	    datatransform_->changeNotifier()->notify(
+		mCB( this, LocationDisplay, fullRedraw) );
+
+	datatransform_->ref();
+    }
+
+    fullRedraw();
+    showAll( !datatransform_ || !datatransform_->needsVolumeOfInterest() ); 
+    return true;
+}
+
+
+const ZAxisTransform* LocationDisplay::getDataTransform() const
+{
+    return datatransform_;
+}
+
+
+int LocationDisplay::isMarkerClick(const TypeSet<int>&) const
+{ return -1; }
+
+
+int LocationDisplay::isDirMarkerClick(const TypeSet<int>&) const
+{ return -1; }
+
+
+void LocationDisplay::triggerDeSel()
+{
+    setUnpickable( false );
+    waitsfordirectionid_ = -1;
+    waitsforpositionid_ = -1;
+    VisualObject::triggerDeSel();
+}
+
+
+const SurveyObject* LocationDisplay::getPickedSurveyObject() const
+{
+    const DataObject* pickedobj = visBase::DM().getObject( pickedsobjid_ );
+    mDynamicCastGet(const SurveyObject*,so,pickedobj);
+    return so;
+}
+
+
 void LocationDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
@@ -799,65 +871,6 @@ int LocationDisplay::usePar( const IOPar& par )
 
     useSOPar( par );
     return 1;
-}
-
-
-int LocationDisplay::getPickIdx( visBase::DataObject* dataobj ) const
-{
-    return group_->getFirstIdx( dataobj );
-}
-
-
-bool LocationDisplay::setDataTransform( ZAxisTransform* zat )
-{
-    if ( datatransform_==zat )
-	return true;
-
-    if ( datatransform_ )
-    {
-	if ( datatransform_->changeNotifier() )
-	    datatransform_->changeNotifier()->remove(
-		mCB( this, LocationDisplay, fullRedraw) );
-	datatransform_->unRef();
-    }
-
-    datatransform_ = zat;
-
-    if ( datatransform_ )
-    {
-	if ( datatransform_->changeNotifier() )
-	    datatransform_->changeNotifier()->notify(
-		mCB( this, LocationDisplay, fullRedraw) );
-
-	datatransform_->ref();
-    }
-
-    fullRedraw();
-    showAll( !datatransform_ || !datatransform_->needsVolumeOfInterest() ); 
-    return true;
-}
-
-
-const ZAxisTransform* LocationDisplay::getDataTransform() const
-{
-    return datatransform_;
-}
-
-
-int LocationDisplay::isMarkerClick(const TypeSet<int>&) const
-{ return -1; }
-
-
-int LocationDisplay::isDirMarkerClick(const TypeSet<int>&) const
-{ return -1; }
-
-
-void LocationDisplay::triggerDeSel()
-{
-    setUnpickable( false );
-    waitsfordirectionid_ = -1;
-    waitsforpositionid_ = -1;
-    VisualObject::triggerDeSel();
 }
 
 }; // namespace visSurvey
