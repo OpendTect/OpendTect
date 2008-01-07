@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.35 2007-12-03 10:29:47 cvsnanne Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.36 2008-01-07 13:07:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -167,7 +167,6 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 				    .forread(false)
 				    .defseldir(dirname_)
 	   			    .allowallextensions(false) );
-    fileinputfld_->setReadOnly();
     fileinputfld_->valuechanged.notify( mCB(this,uiPrintSceneDlg,fileSel) );
     mAttachToAbove( fileinputfld_ );
 
@@ -459,16 +458,26 @@ const char* uiPrintSceneDlg::getExtension() const
     if ( dovrmlfld_ && dovrmlfld_->getBoolValue() )
 	return "wrl";
 
-    const char* selectedfilter = fileinputfld_->selectedFilter();
-    int idx = 0;
-    while ( filters[idx] )
+    int ifmt = -1;
+    FilePath fp( fileinputfld_->fileName() );
+    const BufferString ext( fp.extension() );
+    for ( int idx=0; imageformats[idx]; idx++ )
     {
-	if ( !strcmp(selectedfilter,filters[idx]) )
-	    break;
-	idx++;
+	if ( ext == imageformats[idx] )
+	    { ifmt = idx; break; }
     }
 
-    return imageformats[idx] ? imageformats[idx] : imageformats[0];
+    if ( ifmt < 0 )
+    {
+	const char* selectedfilter = fileinputfld_->selectedFilter();
+	for ( ; filters[ifmt]; ifmt++ )
+	{
+	    if ( !strcmp(selectedfilter,filters[ifmt]) )
+		break;
+	}
+    }
+
+    return imageformats[ifmt] ? imageformats[ifmt] : imageformats[0];
 }
 
 
