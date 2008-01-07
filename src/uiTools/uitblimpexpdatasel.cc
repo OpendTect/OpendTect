@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.35 2007-12-13 10:03:00 cvsraman Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.36 2008-01-07 04:04:58 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -221,8 +221,8 @@ void boxChg( CallBacker* )
 {
     if ( !formfld_ && !specfld_ ) return;
 
-    const int selformidx = formfld_ ? formfld_->currentItem()>0 : 0;
-    const bool isspec = specfld_ && specfld_->currentItem()>0;
+    const int selformidx = formfld_ ? formfld_->currentItem() : 0;
+    const bool isspec = specfld_ && specfld_->currentItem()==0;
     const bool iskw = specfld_ && specfld_->currentItem() == 1;
 
     for ( int iform=0; iform<tinf_.nrForms(); iform++ )
