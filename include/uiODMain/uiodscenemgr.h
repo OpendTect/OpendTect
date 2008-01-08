@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.51 2007-12-13 16:29:37 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.52 2008-01-08 09:35:53 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,6 +114,7 @@ public:
     int				addEMItem(const EM::ObjectID&,int);
     void			removeTreeItem(int displayid);
     uiTreeItem*			findItem(int displayid);
+    void			findItems(const char*,ObjectSet<uiTreeItem>&);
 
     uiTreeFactorySet*		treeItemFactorySet()	{ return tifs_; }
     uiDockWin*			viewer2DWin()		{ return 0; }
