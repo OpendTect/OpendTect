@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.15 2007-08-03 15:39:02 cvsjaap Exp $
+ RCS:           $Id: uilineedit.h,v 1.16 2008-01-08 03:45:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ public:
 			//! Moves the text cursor to the end of the line. 
     void		end();
 
+    Notifier<uiLineEdit> editingFinished;	
     Notifier<uiLineEdit> returnPressed;	
     Notifier<uiLineEdit> textChanged;	
 
@@ -60,7 +61,7 @@ protected:
     virtual bool	notifyValueChanging_( const CallBack& cb )
 			    { textChanged.notify(cb); return true;}
     virtual bool	notifyValueChanged_( const CallBack& cb ) 
-			    { returnPressed.notify(cb); return true;}
+			    { editingFinished.notify(cb); return true;}
 
 private:
 

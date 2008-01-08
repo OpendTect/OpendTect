@@ -4,20 +4,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.25 2007-08-03 15:39:02 cvsjaap Exp $
+ RCS:           $Id: uilineedit.cc,v 1.26 2008-01-08 03:45:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uilineedit.h"
-#include "uibody.h"
 #include "i_qlineedit.h"
-#include "uiobjbody.h"
-#include <datainpspec.h>
 
-#include <qapplication.h>
-#include <qevent.h>
-#include <qsize.h> 
+#include "uibody.h"
+#include "uiobjbody.h"
+#include "datainpspec.h"
+
+#include <QApplication>
+#include <QEvent>
+#include <QSize> 
 
 
 class uiLineEditBody : public uiObjBodyImpl<uiLineEdit,QLineEdit>
@@ -47,8 +48,8 @@ private:
 
 uiLineEditBody::uiLineEditBody( uiLineEdit& handle,uiParent* parnt, 
 				const char* nm )
-    : uiObjBodyImpl<uiLineEdit,QLineEdit>(handle, parnt, nm)
-    , messenger_ ( *new i_lineEditMessenger( this, &handle ))
+    : uiObjBodyImpl<uiLineEdit,QLineEdit>(handle,parnt,nm)
+    , messenger_ ( *new i_lineEditMessenger(this,&handle) )
 { 
     setStretch( 1, 0 ); 
     setHSzPol( uiObject::Medium );
@@ -85,7 +86,8 @@ bool uiLineEditBody::event( QEvent* ev )
 
 uiLineEdit::uiLineEdit( uiParent* parnt, const char* deftxt, const char* nm ) 
     : uiObject( parnt, nm, mkbody(parnt,nm) )
-    , returnPressed(this), textChanged(this), activatedone(this)
+    , editingFinished(this), returnPressed(this)
+    , textChanged(this), activatedone(this)
     , UserInputObjImpl<const char*>()
 {
     setText( deftxt ? deftxt : "" );
@@ -94,13 +96,15 @@ uiLineEdit::uiLineEdit( uiParent* parnt, const char* deftxt, const char* nm )
 uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
 			const char* nm )
     : uiObject( parnt, nm, mkbody(parnt,nm) )
-    , returnPressed(this), textChanged(this), activatedone(this)
+    , editingFinished(this), returnPressed(this)
+    , textChanged(this), activatedone(this)
     , UserInputObjImpl<const char*>()
 {
     setText( spec.text() ? spec.text() : "" );
 }
 
-uiLineEditBody& uiLineEdit::mkbody( uiParent* parnt, const char* nm)
+
+uiLineEditBody& uiLineEdit::mkbody( uiParent* parnt, const char* nm )
 { 
     body_ = new uiLineEditBody(*this,parnt,nm);
     return *body_; 

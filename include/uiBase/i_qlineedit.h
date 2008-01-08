@@ -7,16 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: i_qlineedit.h,v 1.3 2003-11-07 12:21:53 bert Exp $
+ RCS:           $Id: i_qlineedit.h,v 1.4 2008-01-08 03:45:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uilineedit.h>
+#include "uilineedit.h"
 
-#include <qobject.h>
-#include <qwidget.h>
-#include <qlineedit.h> 
+#include <QLineEdit> 
 
 class QString;
 
@@ -30,31 +28,31 @@ class i_lineEditMessenger : public QObject
     friend class	uiLineEditBody;
 
 protected:
-			i_lineEditMessenger( QLineEdit*  sender,
-					     uiLineEdit* receiver )
-			: _sender( sender )
-			, _receiver( receiver )
-			{ 
-			    connect( sender, SIGNAL( returnPressed()),
-				     this,   SLOT( returnPressed()) );
-			    connect(sender,SIGNAL(textChanged(const QString&)),
-				     this, SLOT(textChanged(const QString& )));
-			}
+i_lineEditMessenger( QLineEdit* sender, uiLineEdit* receiver )
+    : sender_( sender )
+    , receiver_( receiver )
+{ 
+    connect( sender, SIGNAL(returnPressed()),
+	     this, SLOT(returnPressed()) );
+    connect( sender, SIGNAL(editingFinished()),
+	     this, SLOT(editingFinished()) );
+    connect( sender, SIGNAL(textChanged(const QString&)),
+	     this, SLOT(textChanged(const QString&)) );
+}
 
-    virtual		~i_lineEditMessenger() {}
-   
 private:
 
-    uiLineEdit* 	_receiver;
-    QLineEdit*  	_sender;
+    uiLineEdit* 	receiver_;
+    QLineEdit*  	sender_;
 
 private slots:
 
     void 		returnPressed() 
-			{ _receiver->returnPressed.trigger(*_receiver); }
+			{ receiver_->returnPressed.trigger(*receiver_); }
+    void 		editingFinished() 
+			{ receiver_->editingFinished.trigger(*receiver_); }
     void 		textChanged(const QString&)
-			{ _receiver->textChanged.trigger(*_receiver); }
-
+			{ receiver_->textChanged.trigger(*receiver_); }
 };
 
 #endif
