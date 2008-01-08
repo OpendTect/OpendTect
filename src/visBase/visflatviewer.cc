@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.cc,v 1.4 2008-01-07 20:49:37 cvsyuancheng Exp $
+ RCS:		$Id: visflatviewer.cc,v 1.5 2008-01-08 15:26:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -308,6 +308,15 @@ void FlatViewer::setPosition( const Coord3& c00, const Coord3& c01,
 }    
 
 
+const Coord3& FlatViewer::getPosition( bool top, bool left ) const
+{
+    if ( top )
+	return left ? c00_ : c01_;
+
+    return left ? c10_ : c11_;
+}
+
+
 visBase::Transformation* FlatViewer::getDisplayTransformation()
 { 
     return facesets_.size()>0 ? facesets_[0]->getDisplayTransformation() : 0;
@@ -324,6 +333,19 @@ void FlatViewer::setDisplayTransformation( mVisTrans* nt )
 void FlatViewer::allowShading( bool yn )
 {
     texture_->allowShading( yn );  
+}
+
+
+void FlatViewer::replaceTexture( MultiTexture2* nt )
+{
+    if ( texture_ )
+    {
+	removeChild( texture_->getInventorNode() );
+	texture_->unRef();
+    }
+
+    texture_ = nt;
+    texture_->ref();
 }
 
 

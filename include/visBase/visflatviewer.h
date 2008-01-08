@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.h,v 1.2 2008-01-07 20:49:37 cvsyuancheng Exp $
+ RCS:		$Id: visflatviewer.h,v 1.3 2008-01-08 15:26:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,12 +42,16 @@ public:
     void		handleChange(FlatView::Viewer::DataChangeType);
     void		setPosition(const Coord3& c00,const Coord3& c01,
 				    const Coord3& c10,const Coord3& c11);
+    const Coord3&	getPosition(bool istop, bool isleft) const;
  
 
     mVisTrans* 		getDisplayTransformation();
     void		setDisplayTransformation(mVisTrans*);
 
     void		allowShading(bool yn);  
+    void		replaceTexture(visBase::MultiTexture2*);
+    			/*!<Replaces internal texture. The new texture will not
+			    be added to the scene. */
    				
 protected:
 
