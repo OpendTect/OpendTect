@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.20 2007-09-26 11:16:04 cvsbert Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.21 2008-01-08 11:53:52 cvsbert Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: ascstream.cc,v 1.20 2007-09-26 11:16:04 cvsbert
 #include "timefun.h"
 #include "convert.h"
 #include "odver.h"
+#include "strmoper.h"
 #include <string.h>
 #include <stdlib.h>
 #include <iostream>
@@ -78,7 +79,6 @@ void ascostream::putKeyword( const char* keyword )
 	ptr = strchr( towrite.buf() + offs + 2, keyvalsep );
     }
 
-    if ( tabs ) stream() << '\t';
     stream() << towrite << keyvalsep;
     if ( keyvalsep != '=' )
 	stream() << ' ';
@@ -148,46 +148,38 @@ ascistream::~ascistream()
 void ascistream::init( std::istream* strm, bool rdhead )
 {
     streamptr = strm;
-    filetype[0] = header[0] = timestamp[0] = curword[0] = '\0';
-    tabbed = false;
-    nextwordptr = valbuf;
+    filetype = header = timestamp = "";
     if ( !streamptr ) return;
 
     if ( rdhead )
     {
-	stream().getline( header, mAscStrmMaxFileHeadLength );
-	stream().getline( filetype, mAscStrmMaxFileHeadLength );
-	stream().getline( timestamp, mAscStrmMaxFileHeadLength );
+	if ( !StrmOper::readLine(stream(),&header)
+	  || !StrmOper::readLine(stream(),&filetype)
+	  || !StrmOper::readLine(stream(),&timestamp) )
+	    return;
 
-	removeTrailingBlanks(filetype);
-	char* ptr = filetype + strlen(filetype) - 4;
+	removeTrailingBlanks(filetype.buf());
+	char* ptr = filetype.buf() + strlen(filetype) - 4;
 	if ( caseInsensitiveEqual(ptr,"file",0) ) *ptr = '\0';
-	removeTrailingBlanks(filetype);
+	removeTrailingBlanks(filetype.buf());
 
 	next();
     }
 }
 
 
-void ascistream::resetPtrs( bool mkempty )
-{
-    if ( mkempty )
-	{ keybuf = ""; valbuf = ""; curword[0] = '\0'; }
-
-    nextwordptr = valbuf;
-}
-
-
 ascistream& ascistream::next()
 {
-    resetPtrs( true );
+    keybuf.setEmpty(); valbuf.setEmpty();
+
     if ( !streamptr || !streamptr->good() )
 	return *this;
 
-    static char linebuf[mAscStrmMaxLineLength+1];
-    if ( !stream().getline(linebuf,mAscStrmMaxLineLength) )
+    BufferString lineread;
+    if ( !StrmOper::readLine(stream(),&lineread) )
 	return *this;
 
+    char* linebuf = lineread.buf();
     if ( linebuf[0] == '\0' || ( linebuf[0]=='-' && linebuf[1]=='-' ) )
 	return next();
 
@@ -196,7 +188,6 @@ ascistream& ascistream::next()
 	keybuf = mAscStrmParagraphMarker;
 	return *this;
     }
-    tabbed = linebuf[0] == '\t';
 
     char* separptr = strchr( linebuf, keyvalsep );
     while ( separptr && separptr != linebuf && *(separptr-1) == '\\' )
@@ -220,21 +211,20 @@ ascistream& ascistream::next()
     removeTrailingBlanks(startptr);
     keybuf = startptr;
 
-    resetPtrs( false );
     return *this;
 }
 
 
 bool ascistream::isOfFileType( const char* ftyp ) const
 {
-    return matchStringCI( ftyp, filetype );
+    return matchStringCI( ftyp, filetype.buf() );
 }
 
 
 const char* ascistream::projName() const
 {
     static char buf[20];
-    strncpy( buf, header, 20 );
+    strncpy( buf, header.buf(), 20 );
     char* ptr = strchr( buf, ' ' );
     if ( ptr ) *ptr = '\0';
     return buf;
@@ -243,8 +233,9 @@ const char* ascistream::projName() const
 
 const char* ascistream::version() const
 {
-    const char* Vptr = strrchr( header, 'V' );
-    return Vptr ? Vptr+1 : &header[strlen(header)];
+    const char* vptr = strrchr( header.buf(), 'V' );
+    if ( vptr ) return vptr + 1;
+    return "0.0";
 }
 
 
@@ -262,13 +253,6 @@ int ascistream::minorVersion() const
     BufferString v( version() );
     char* ptr = strrchr( v.buf(), '.' );
     return atoi( ptr ? ptr+1 : v.buf() );
-}
-
-
-const char* ascistream::nextWord()
-{
-    nextwordptr = getNextWord( nextwordptr, curword );
-    return curword;
 }
 
 

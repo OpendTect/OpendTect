@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Connections with data providers (Streams, databases)
- RCS:		$Id: conn.h,v 1.10 2003-11-07 12:21:50 bert Exp $
+ RCS:		$Id: conn.h,v 1.11 2008-01-08 11:53:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,9 +43,6 @@ public:
     virtual void	close()			{}
     virtual bool	isStream() const	{ return false; }
 
-    virtual int		nrRetries() const	{ return 0; }
-    virtual int		retryDelay() const	{ return 0; }
-
     inline Conn*	conn()			{ return gtConn(); }
     inline const Conn*	conn() const		{ return gtConn(); }
 			//!< Returns the actual connection doing the work
@@ -76,10 +73,6 @@ public:
 
     virtual State	state() const
 			{ return conn_ ? conn_->state() : Conn::Bad; }
-    virtual int		nrRetries() const
-			{ return conn_ ? conn_->nrRetries() : 0; }
-    virtual int		retryDelay() const
-			{ return conn_ ? conn_->retryDelay() : 0; }
 
     void		setConn( Conn* c, bool becomesmine=true )
 			{ if ( mine_ ) delete conn_;

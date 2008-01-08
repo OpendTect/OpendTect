@@ -5,78 +5,18 @@
  * FUNCTION : Stream operations
 -*/
 
-static const char* rcsID = "$Id: strmoper.cc,v 1.13 2004-04-27 15:51:15 bert Exp $";
+static const char* rcsID = "$Id: strmoper.cc,v 1.14 2008-01-08 11:53:52 cvsbert Exp $";
 
 #include "strmoper.h"
-#include "strmprov.h"
 #include "timefun.h"
-#include "errh.h"
+#include "bufstring.h"
 #include <iostream>
 
-
-std::istream* openInputStream( const char* fname )
-{
-    if ( !fname ) return &std::cin;
-
-    StreamProvider sp( fname );
-    return sp.makeIStream().istrm;
-}
+static const unsigned int nrretries = 4;
+static const float retrydelay = 1;
 
 
-std::ostream* openOutputStream( const char* fname )
-{
-    if ( !fname ) return &std::cout;
-    StreamProvider sp( fname );
-    return sp.makeOStream().ostrm;
-}
-
-
-void closeIOStream( std::ostream*& streamptr )
-{
-    if ( streamptr != &std::cout && streamptr != &std::cerr ) delete streamptr;
-    streamptr = 0;
-}
-
-
-void closeIOStream( std::istream*& streamptr )
-{
-    if ( streamptr != &std::cin ) delete streamptr;
-    streamptr = 0;
-}
-
-
-bool writeWithRetry( std::ostream& strm, const void* ptr, unsigned int nrbytes,
-		     unsigned int nrretries, unsigned int delay )
-{
-    if ( strm.bad() || !ptr ) return false;
-    strm.clear();
-
-    strm.write( (const char*)ptr, nrbytes );
-    if ( strm.fail() )
-    {
-	strm.flush();
-	for ( int idx=0; idx<nrretries; idx++ )
-	{
-	    BufferString msg( "Soft error during write. Retrying after " );
-	    msg += (int) delay;
-	    msg += " msecs ...";
-	    ErrMsg( msg );
-
-	    Time_sleep( 0.001 * delay );
-	    strm.clear();
-	    strm.write( (const char*)ptr, nrbytes );
-	    if ( !strm.fail() )
-		break;
-	}
-	strm.flush();
-    }
-
-    return strm.good();
-}
-
-
-bool readWithRetry( std::istream& strm, void* ptr, unsigned int nrbytes,
-		    unsigned int nrretries, unsigned int delay )
+bool StrmOper::readBlock( std::istream& strm, void* ptr, unsigned int nrbytes )
 {
     if ( strm.bad() || strm.eof() || !ptr ) return false;
     strm.clear();
@@ -92,18 +32,13 @@ bool readWithRetry( std::istream& strm, void* ptr, unsigned int nrbytes,
 	char* cp = (char*)ptr + strm.gcount();
 	for ( int idx=0; idx<nrretries; idx++ )
 	{
-	    BufferString msg( "Soft error during read. Retrying after " );
-	    msg += (int) delay;
-	    msg += " msecs ...";
-	    ErrMsg( msg );
-
-	    Time_sleep( 0.001 * delay );
+	    Time_sleep( retrydelay );
 	    strm.clear();
 	    strm.read( cp, nrbytes );
 	    if ( strm.bad() || strm.eof() ) break;
 
 	    nrbytes -= strm.gcount();
-	    if ( !nrbytes )
+	    if ( nrbytes == 0 )
 		{ strm.clear(); break; }
 
 	    cp += strm.gcount();
@@ -114,40 +49,92 @@ bool readWithRetry( std::istream& strm, void* ptr, unsigned int nrbytes,
 }
 
 
-bool wordFromLine( std::istream& strm, char* ptr, int maxnrchars )
+bool StrmOper::writeBlock( std::ostream& strm, const void* ptr,
+			   unsigned int nrbytes )
+{
+    if ( strm.bad() || !ptr ) return false;
+
+    strm.clear();
+    strm.write( (const char*)ptr, nrbytes );
+    if ( strm.good() ) return true;
+    if ( strm.bad() ) return false;
+
+    strm.flush();
+    for ( int idx=0; idx<nrretries; idx++ )
+    {
+	Time_sleep( retrydelay );
+	strm.clear();
+	strm.write( (const char*)ptr, nrbytes );
+	if ( !strm.fail() )
+	    break;
+    }
+    strm.flush();
+
+    return strm.good();
+}
+
+
+bool StrmOper::getNextChar( std::istream& strm, char& ch )
+{
+    if ( strm.bad() || strm.eof() )
+	return false;
+    else if ( strm.fail() )
+    {
+	Time_sleep( retrydelay );
+	strm.clear();
+	ch = strm.peek();
+	strm.ignore( 1 );
+	return strm.good();
+    }
+
+    ch = (char)strm.peek();
+    strm.ignore( 1 );
+    return true;
+}
+
+
+bool StrmOper::readLine( std::istream& strm, BufferString* bs )
+{
+    static char bsbuf[1024+1];
+
+    int bsidx = 0; char ch;
+    while ( getNextChar(strm,ch) && ch != '\n' )
+    {
+	if ( !bs ) continue;
+
+	bsbuf[bsidx] = ch;
+	bsidx++;
+	if ( bsidx == 1024 )
+	{
+	    bsbuf[bsidx] = '\0';
+	    *bs += bsbuf;
+	    bsidx = 0;
+	}
+    }
+
+    if ( bs && bsidx )
+	{ bsbuf[bsidx] = '\0'; *bs += bsbuf; }
+    return strm.good();
+}
+
+
+bool StrmOper::wordFromLine( std::istream& strm, char* ptr, int maxnrchars )
 {
     if ( !ptr ) return NO;
     *ptr = '\0';
 
-    char c;
+    char ch;
     char* start = ptr;
-    while ( strm )
+    while ( getNextChar(strm,ch) && ch != '\n' )
     {
-	c = strm.peek();
-	if ( !isspace(c) )
-	    *ptr++ = c;
-	else if ( c == '\n' || *start )
+	if ( !isspace(ch) )
+	    *ptr++ = ch;
+	else if ( ch == '\n' || *start )
 	    break;
 
 	maxnrchars--; if ( maxnrchars == 0 ) break;
-	strm.ignore( 1 );
     }
 
     *ptr = '\0';
     return ptr != start;
-}
-
-
-bool ignoreToEOL( std::istream& strm )
-{
-    int c;
-    while ( 1 )
-    {
-	c = strm.peek();
-	if ( !strm.good() || c == '\n' )
-	     break;
-	strm.ignore( 1 );
-    }
-    strm.ignore( 1 );
-    return strm.good();
 }

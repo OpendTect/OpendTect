@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.71 2007-11-29 14:36:04 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.72 2008-01-08 11:53:52 cvsbert Exp $";
 
 /*!
 
@@ -32,6 +32,7 @@ The next 8 bytes are reserved for 2 integers:
 #include "errh.h"
 #include "ptrman.h"
 #include "varlenarray.h"
+#include "strmoper.h"
 
 
 CBVSReader::CBVSReader( std::istream* s, bool glob_info_only )
@@ -733,8 +734,10 @@ bool CBVSReader::fetch( void** bufs, const bool* comps,
 	int bps = compinfo->datachar.nrBytes();
 	if ( samps->start )
 	    strm_.seekg( samps->start*bps, std::ios::cur );
-	strm_.read( (char*)bufs[iselc] + offs * bps,
-		(samps->stop-samps->start+1) * bps );
+	if ( !StrmOper::readBlock( strm_, ((char*)bufs[iselc]) + offs*bps,
+		    		   (samps->stop-samps->start+1) * bps ) )
+	    break;
+
 	if ( samps->stop < info_.nrsamples-1 )
 	    strm_.seekg( (info_.nrsamples-samps->stop-1)*bps,
 		    std::ios::cur );

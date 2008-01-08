@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		21-10-1995
- RCS:		$Id: streamconn.h,v 1.7 2004-04-27 15:51:15 bert Exp $
+ RCS:		$Id: streamconn.h,v 1.8 2008-01-08 11:53:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,10 +54,6 @@ public:
     virtual State	state() const		{ return state_; }
     virtual bool	bad() const;
 
-    virtual int		nrRetries() const	{ return nrretries; }
-    virtual int		retryDelay() const	{ return retrydelay; }
-    void		setNrRetries( int n )	{ nrretries = n; }
-    void		setRetryDelay( int n )	{ retrydelay = n; }
     bool		doIO(void*,unsigned int nrbytes);
     void		clearErr();
 
@@ -76,8 +72,6 @@ private:
     State		state_;
     bool		mine;
     bool		closeondel;
-    int			nrretries;
-    int			retrydelay;
 
 };
 

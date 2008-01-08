@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		2-5-1995
- RCS:		$Id: ascstream.h,v 1.14 2007-09-26 11:16:04 cvsbert Exp $
+ RCS:		$Id: ascstream.h,v 1.15 2008-01-08 11:53:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,12 +18,6 @@ ________________________________________________________________________
 
 #define mAscStrmParagraphMarker		"!"
 #define mAscStrmDefKeyValSep		':'
-#define mAscStrmMaxWordLength		1023
-#define	mAscStrmMaxFileHeadLength	80
-#define	mAscStrmMaxLineLength		(USHRT_MAX-1)
-
-
-typedef char AscStreamHeader[mAscStrmMaxFileHeadLength+1];
 
 
 /*!\brief OpendTect standard ascii format file writing.
@@ -39,10 +33,10 @@ class ascostream
 
 public:
 		ascostream(std::ostream& strm,char kvsep=mAscStrmDefKeyValSep)
-			: mystrm(false), keyvalsep(kvsep) { init(&strm); }
+			: mystrm(false), keyvalsep(kvsep), streamptr(&strm) {}
 		ascostream(std::ostream* strm,char kvsep=mAscStrmDefKeyValSep)
-			: mystrm(true), keyvalsep(kvsep)  { init(strm); }
-		//!<\note stream becomes mine
+			: mystrm(true), keyvalsep(kvsep), streamptr(strm)   {}
+					//!<\note strm becomes mine
 		~ascostream();
 
     bool	put(const char*,const char* val=0);
@@ -51,9 +45,6 @@ public:
     bool	put(const char*,double);
     bool	putYN(const char*,bool);
     bool	putHeader(const char*,const char* pspec=0);
-
-    void	tabsOn()		{ tabs = true; }
-    void	tabsOff()		{ tabs = false; }
 
     void	newParagraph();
     void	putKeyword(const char*);
@@ -64,13 +55,7 @@ protected:
 
     std::ostream* streamptr;
     bool	mystrm;
-    bool	tabs;
-    char	keyvalsep;
-
-private:
-
-    void	init( std::ostream* strmptr )
-		{ streamptr = strmptr; tabs = false; }
+    const char	keyvalsep;
 
 };
 
@@ -80,9 +65,6 @@ private:
 An ascistream gets data from a OpendTect standard ascii format file. This format
 consists of the OpendTect header (version, file type, date), and then a number
 of 'paragraphs', each separated by a single '!' on a line.
-
-The max size of the value is limited by the line length maximum of
-USHRT_MAX-1, i.e. 65534. If word parsing is used, the limit is 1023 per word.
 
 */
 
@@ -103,25 +85,18 @@ public:
 
     ascistream&		next();
 
-    const char*		projName() const; //!< Usually 'dTect'
+    const char*		projName() const;	//!< Usually 'dTect'
     bool		isOfFileType(const char*) const;
-    const char*		fileType() const
-			{ return filetype; }
+    const char*		fileType() const	{ return filetype.buf(); }
     const char*		version() const;
+    const char*		timeStamp() const	{ return timestamp.buf(); }
     int			majorVersion() const;
     int			minorVersion() const;
-    const char*		nextWord();
-			//!< 'parsing' of the Value string.
-    void		toFirstWord()
-			{ curword[0] = '\0'; nextwordptr = valbuf; }
 
     enum EntryType	{ Empty, Keyword, KeyVal, ParagraphMark, EndOfFile };
     EntryType		type() const;
-    bool		atEOS() const
-			{ return type() > KeyVal; }
+    bool		atEOS() const		{ return type() > KeyVal; }
 			//!< returns true if at end of segment (='paragraph')
-    bool		isTabbed() const	{ return tabbed; }
-			//!< returns whether the line started with a tab
     bool		hasKeyword(const char*) const;
     bool		hasValue(const char*) const;
     int			getVal() const;
@@ -130,29 +105,24 @@ public:
 
     inline std::istream& stream() const		{ return *streamptr; }
 
-    const char*		keyWord() const		{ return keybuf; }
-    const char*		value() const		{ return valbuf; }
+    const char*		keyWord() const		{ return keybuf.buf(); }
+    const char*		value() const		{ return valbuf.buf(); }
 
 			// This is for overriding what's in the file
     void		setKeyWord( const char* s ) { keybuf = s; }
     void		setValue( const char* s ) { valbuf = s; }
-    void		setTabbed( bool yn ) 	{ tabbed = yn; }
 
 protected:
 
     std::istream*	streamptr;
     bool		mystrm;
-    bool		tabbed;
     BufferString	keybuf;
     BufferString	valbuf;
-    char		keyvalsep;
+    const char		keyvalsep;
 
-    void		resetPtrs(bool);
-
-    const char*		nextwordptr;
-    char		curword[mAscStrmMaxWordLength+1];
-
-    AscStreamHeader	filetype, header, timestamp;
+    BufferString	filetype;
+    BufferString	header;
+    BufferString	timestamp;
 
 private:
 

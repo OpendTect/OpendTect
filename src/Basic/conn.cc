@@ -5,7 +5,7 @@
  * FUNCTION : Connections
 -*/
 
-static const char* rcsID = "$Id: conn.cc,v 1.26 2007-11-27 10:26:33 cvsdgb Exp $";
+static const char* rcsID = "$Id: conn.cc,v 1.27 2008-01-08 11:53:52 cvsbert Exp $";
 
 #include "errh.h"
 #include "strmprov.h"
@@ -146,8 +146,6 @@ const char* StreamConn::sType = "Stream";
 
 StreamConn::StreamConn()
 	: mine(true)
-	, nrretries(0)
-	, retrydelay(0)
 	, state_(Bad)
 	, closeondel(false)
 {
@@ -156,8 +154,6 @@ StreamConn::StreamConn()
 
 StreamConn::StreamConn( std::istream* s )
 	: mine(true)
-	, nrretries(0)
-	, retrydelay(0)
 	, state_(Read)
 	, closeondel(false)
 {
@@ -168,8 +164,6 @@ StreamConn::StreamConn( std::istream* s )
 
 StreamConn::StreamConn( std::ostream* s )
 	: mine(true)
-	, nrretries(0)
-	, retrydelay(0)
 	, state_(Write)
 	, closeondel(false)
 {
@@ -180,8 +174,6 @@ StreamConn::StreamConn( std::ostream* s )
 
 StreamConn::StreamConn( StreamData& strmdta )
 	: mine(true)
-	, nrretries(0)
-	, retrydelay(0)
 	, closeondel(false)
 {
     strmdta.transferTo(sd);
@@ -194,8 +186,6 @@ StreamConn::StreamConn( StreamData& strmdta )
 
 StreamConn::StreamConn( std::istream& s, bool cod )
 	: mine(false)
-	, nrretries(0)
-	, retrydelay(0)
 	, state_(Read)
 	, closeondel(cod)
 {
@@ -206,8 +196,6 @@ StreamConn::StreamConn( std::istream& s, bool cod )
 
 StreamConn::StreamConn( std::ostream& s, bool cod )
 	: mine(false)
-	, nrretries(0)
-	, retrydelay(0)
 	, state_(Write)
 	, closeondel(cod)
 {
@@ -218,8 +206,6 @@ StreamConn::StreamConn( std::ostream& s, bool cod )
 
 StreamConn::StreamConn( const char* nm, State s )
 	: mine(true)
-	, nrretries(0)
-	, retrydelay(0)
 	, state_(s)
 	, closeondel(false)
 {
@@ -295,12 +281,8 @@ void StreamConn::close()
 
 bool StreamConn::doIO( void* ptr, unsigned int nrbytes )
 {
-    if ( forWrite()
-      && !writeWithRetry( oStream(), ptr, nrbytes, nrRetries(), retryDelay() ) )
-	return false;
+    if ( forWrite() )
+	return StrmOper::writeBlock( oStream(), ptr, nrbytes );
 
-    if ( forRead() )
-	return readWithRetry( iStream(), ptr,nrbytes,nrRetries(),retryDelay() );
-
-    return true;
+    return StrmOper::readBlock( iStream(), ptr, nrbytes );
 }

@@ -8,24 +8,28 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Stream opening etc.
- RCS:		$Id: strmoper.h,v 1.8 2004-04-27 15:51:15 bert Exp $
+ RCS:		$Id: strmoper.h,v 1.9 2008-01-08 11:53:52 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
-#include <gendefs.h>
+#include "gendefs.h"
 #include <iosfwd>
+class BufferString;
 
-std::ostream*	openOutputStream(const char*);
-std::istream*	openInputStream(const char*);
-void		closeIOStream(std::ostream*&);
-void		closeIOStream(std::istream*&);
-bool		readWithRetry(std::istream&,void*,unsigned int nrbytes,
-			      unsigned int nrretries,unsigned int delay);
-bool		writeWithRetry(std::ostream&,const void*,unsigned int nrbytes,
-			       unsigned int nrretries,unsigned int delay);
-bool		wordFromLine(std::istream&,char*,int maxnrchars);
-bool		ignoreToEOL(std::istream&);
+/*!\brief Stream operations. operations will be retried on soft errors */
+
+namespace StrmOper
+{
+
+    bool	readBlock(std::istream&,void*,unsigned int nrbytes);
+    bool	writeBlock(std::ostream&,const void*,unsigned int nrbytes);
+
+    bool	getNextChar(std::istream&,char&);
+    bool	wordFromLine(std::istream&,char*,int maxnrchars);
+    bool	readLine(std::istream&,BufferString* b=0);
+
+}
 
 
 #endif

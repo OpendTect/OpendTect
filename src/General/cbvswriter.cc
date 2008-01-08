@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvswriter.cc,v 1.51 2007-04-11 10:10:19 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvswriter.cc,v 1.52 2008-01-08 11:53:52 cvsbert Exp $";
 
 #include "cbvswriter.h"
 #include "cubesampling.h"
@@ -313,7 +313,7 @@ int CBVSWriter::put( void** cdat, int offs )
     {
 	const char* ptr = ((const char*)cdat[icomp])
 	    		+ offs * nrbytespersample_[icomp];
-	if ( !writeWithRetry(strm_,ptr,cnrbytes_[icomp],2,100) )
+	if ( !StrmOper::writeBlock(strm_,ptr,cnrbytes_[icomp]) )
 	    { errmsg_ = "Cannot write CBVS data"; return -1; }
     }
 
