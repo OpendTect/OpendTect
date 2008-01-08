@@ -7,15 +7,18 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2008
- RCS:		$Id: seisimpbpsif.h,v 1.1 2008-01-08 12:59:14 cvsbert Exp $
+ RCS:		$Id: seisimpbpsif.h,v 1.2 2008-01-08 15:35:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "strmdata.h"
 #include "bufstringset.h"
+#include "executor.h"
 class MultiID;
+class SeisTrc;
 class SeisPSWriter;
+class SeisPSImpDataMgr;
 
 
 /*!\brief reads a BPSIF pre-stack data exchange file into a PS data store
@@ -56,21 +59,28 @@ Notes:
 
 */
 
-class SeisImpBPSIF
+class SeisImpBPSIF : public Executor
 {
 public:
 
     			SeisImpBPSIF(const char* filenm,const MultiID&);
     virtual		~SeisImpBPSIF();
 
+    const char*		message() const;
+    int			nrDone() const		{ return nrshots_; }
+    const char*		nrDoneText() const	{ return "Shots handled"; }
+    int			nextStep();
+
 protected:
 
     int			curfileidx_;
+    int			nrshots_;
     StreamData		cursd_;
     BufferStringSet	fnames_;
     BufferStringSet	hdrlines_;
-    BufferStringSet	srcattrs_;
+    BufferStringSet	shotattrs_;
     BufferStringSet	rcvattrs_;
+    SeisPSImpDataMgr&	datamgr_;
     SeisPSWriter*	pswrr_;
     mutable BufferString errmsg_;
 
@@ -78,6 +88,8 @@ protected:
     bool		openNext();
     bool		readFileHeader();
     void		addAttr(BufferStringSet&,const char*);
+    int			addTrcs(const SeisTrc&,const char*);
+    int			writeData();
 
 };
 
