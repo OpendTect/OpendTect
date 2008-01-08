@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsread.h,v 1.3 2005-01-05 15:06:57 bert Exp $
+ RCS:		$Id: seispsread.h,v 1.4 2008-01-08 11:54:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 class BinID;
 class IOPar;
 class SeisTrcBuf;
-namespace PosInfo { class CubeData; }
+namespace PosInfo { class CubeData; class Line2DData; }
 
 
 /*!\brief reads from a pre-stack seismic data store.
@@ -37,6 +37,27 @@ public:
     virtual const char*	errMsg() const					= 0;
 
     virtual const PosInfo::CubeData&	posData() const		= 0;
+
+};
+
+/*!\brief reads from a 2D pre-stack seismic data store.
+
+ A gather may be available for a trace number (or Coord). No writing.
+
+*/
+
+class SeisPS2DReader
+{
+public:
+
+    virtual		~SeisPS2DReader()			{}
+
+    virtual void	usePar(const IOPar&)			{}
+
+    virtual bool	getGather(int,SeisTrcBuf&) const	= 0;
+    virtual const char*	errMsg() const				= 0;
+
+    virtual const PosInfo::Line2DData&	posData() const		= 0;
 
 };
 
