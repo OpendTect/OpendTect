@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.58 2007-10-30 01:39:29 cvskris Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.59 2008-01-09 09:23:18 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -157,6 +157,8 @@ protected:
 	    					 TypeSet<int>* segments) const;
     BinID			proposeNewPos(int knot) const;
     void			setData( int attrib, const SeisTrcBuf& );
+
+    void			setKnotPos(int,const BinID&,bool check);
 
     BinID			snapPosition(const BinID&) const;
     bool			checkPosition(const BinID&) const;

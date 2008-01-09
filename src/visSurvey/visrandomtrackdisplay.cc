@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.97 2007-11-29 14:36:04 cvsbert Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.98 2008-01-09 09:23:18 cvsjaap Exp $
  ________________________________________________________________________
 
 -*/
@@ -276,9 +276,13 @@ void RandomTrackDisplay::getAllKnotPos( TypeSet<BinID>& knots ) const
 
 
 void RandomTrackDisplay::setKnotPos( int knotidx, const BinID& bid )
+{ setKnotPos( knotidx, bid, true ); }
+
+
+void RandomTrackDisplay::setKnotPos( int knotidx, const BinID& bid, bool check )
 {
     const BinID sbid = snapPosition(bid);
-    if ( checkPosition(sbid) )
+    if ( !check || checkPosition(sbid) )
     {
 	const Interval<float> zrg( getDataTraceRange() );
 	visBase::Coordinates* coords = triangles_->getCoordinates();
@@ -292,19 +296,51 @@ void RandomTrackDisplay::setKnotPos( int knotidx, const BinID& bid )
 }
 
 
+static void decoincideKnots( const TypeSet<BinID>& knots, 
+			     TypeSet<BinID>& uniqueknots )
+{
+    uniqueknots.erase();
+    if ( knots.isEmpty() )
+	return;
+    uniqueknots += knots[0];
+
+    for ( int idx=1; idx<knots.size(); idx++ )
+    {
+	const BinID prev = uniqueknots[uniqueknots.size()-1];
+    	const BinID biddif = prev - knots[idx];
+	const int nrsteps = mMAX( abs(biddif.inl)/SI().inlStep(), 
+				  abs(biddif.crl)/SI().crlStep() );
+	const Coord dest = SI().transform( knots[idx] );
+	const Coord crddif = SI().transform(prev) - dest;
+	for ( int step=0; step<nrsteps; step++ )
+	{
+	    const BinID newknot = SI().transform( dest+(crddif*step)/nrsteps );
+	    if ( uniqueknots.indexOf(newknot) < 0 )
+	    {
+		uniqueknots += newknot;
+		break;
+	    }
+	}
+    }
+}
+
+
 void RandomTrackDisplay::setKnotPositions( const TypeSet<BinID>& newbids )
 {
-    if ( newbids.size() < 2 ) return;
-    while ( nrKnots()>newbids.size() )
+    TypeSet<BinID> uniquebids;
+    decoincideKnots( newbids, uniquebids );
+   
+    if ( uniquebids.size() < 2 ) 
+	return;
+    while ( nrKnots() > uniquebids.size() )
 	removeKnot( nrKnots()-1 );
 
-    for ( int idx=0; idx<newbids.size(); idx++ )
+    for ( int idx=0; idx<uniquebids.size(); idx++ )
     {
-	const BinID bid = newbids[idx];
-	if ( idx<nrKnots() )
-	{
-	    setKnotPos( idx, bid );
-	}
+	const BinID bid = uniquebids[idx];
+
+	if ( idx < nrKnots() )
+	    setKnotPos( idx, bid, false );
 	else
 	    addKnot( bid );
     }
