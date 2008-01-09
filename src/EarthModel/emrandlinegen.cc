@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2007
- RCS:           $Id: emrandlinegen.cc,v 1.8 2008-01-09 09:04:34 cvsjaap Exp $
+ RCS:           $Id: emrandlinegen.cc,v 1.9 2008-01-09 13:19:26 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,8 +135,7 @@ void EM::RandomLineByShiftGenerator::generate( Geometry::RandomLineSet& outrls,
 
 
 void EM::RandomLineByShiftGenerator::crLine( const Geometry::RandomLine& rl,
-					 bool isleft,
-					 Geometry::RandomLineSet& outrls ) const
+			    bool isleft, Geometry::RandomLineSet& outrls ) const
 {
     BufferString newnm( rl.name() );
     newnm += "/"; newnm += dist_; newnm += isleft ? "L" : "R";
@@ -157,7 +156,7 @@ void EM::RandomLineByShiftGenerator::crLine( const Geometry::RandomLine& rl,
 	TypeSet<int> dirflips;
 	TypeSet<Coord> fusioncrds;
 
-	int previdx = 0;
+	int previdx = 0; int preprevidx = 0;
 	BinID prevnode( mUdf(int), 0 );
 	Coord prevnodec( Coord::udf() ); 
 
@@ -184,8 +183,8 @@ void EM::RandomLineByShiftGenerator::crLine( const Geometry::RandomLine& rl,
 	    else if ( !getIntersection(cs0, cs10, cs12, cs2, nodec) )
 		nodec = (cs10 + cs12) / 2;
 
-	    const Coord basedir = c1 - c0;
-	    if ( !atstart && basedir.dot(nodec-prevnodec)<0 )
+	    const Coord dirvec = c1 - c0;
+	    if ( !atstart && dirvec.dot(nodec-prevnodec)<0 )
 	    {
 		dirflips += idx;
 		
@@ -195,9 +194,12 @@ void EM::RandomLineByShiftGenerator::crLine( const Geometry::RandomLine& rl,
 		    fusioncrds += c1;
 		else
 		{
-		    double d0 = c0.distTo( prevnodec ) - dist_;
-		    double d1 = c1.distTo( nodec ) - dist_;
-		    fusioncrds += d0+d1>0 ? (c0*d0+c1*d1)/(d0+d1) : (c0+c1)/2;
+		    // weighted fusion based on adjacent triangle areas
+		    const Coord prevec = c0 - basecoords[preprevidx];
+		    const Coord nxtvec = c1 - c2;
+		    const float w0 = fabs(prevec.x*dirvec.y-prevec.y*dirvec.x);
+		    const float w1 = fabs(nxtvec.x*dirvec.y-nxtvec.y*dirvec.x);
+		    fusioncrds += w0+w1>0 ? (c0*w0+c1*w1)/(w0+w1) : (c0+c1)/2;
 		}
 	    }
 
@@ -208,9 +210,8 @@ void EM::RandomLineByShiftGenerator::crLine( const Geometry::RandomLine& rl,
 	    else if ( newnode != prevnode )
 		outrl->addNode( newnode );
 	    
-	    previdx = idx;
-	    prevnode = newnode;
-	    prevnodec = nodec;
+	    preprevidx = previdx; previdx = idx;
+	    prevnode = newnode; prevnodec = nodec;
 	}
 
 	if ( dirflips.isEmpty() ) 
