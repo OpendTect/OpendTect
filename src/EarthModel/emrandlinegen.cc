@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2007
- RCS:           $Id: emrandlinegen.cc,v 1.7 2008-01-02 16:57:30 cvsjaap Exp $
+ RCS:           $Id: emrandlinegen.cc,v 1.8 2008-01-09 09:04:34 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -138,40 +138,107 @@ void EM::RandomLineByShiftGenerator::crLine( const Geometry::RandomLine& rl,
 					 bool isleft,
 					 Geometry::RandomLineSet& outrls ) const
 {
-    // TODO: Improve for cases where dist_ is bigger than concavities
     BufferString newnm( rl.name() );
     newnm += "/"; newnm += dist_; newnm += isleft ? "L" : "R";
-    Geometry::RandomLine* outrl = new Geometry::RandomLine( newnm );
-    outrl->setZRange( rl.zRange() );
-    BinID prevnode( mUdf(int), 0 );
-    for ( int idx=0; idx<rl.nrNodes(); idx++ )
-    {
-	const bool atstart = idx == 0;
-	const bool atend = idx == rl.nrNodes() - 1;
-	const Coord c1( SI().transform(rl.nodePosition(idx)) );
-	const Coord c0( atstart ? c1 : SI().transform(rl.nodePosition(idx-1)) );
-	const Coord c2( atend ? c1 : SI().transform(rl.nodePosition(idx+1)) );
-	Coord cs0, cs10, cs12, cs2;
-	if ( !atstart && !getShifted(c0,c1,cs0,cs10,isleft)
-	  || !atend && !getShifted(c1,c2,cs12,cs2,isleft) )
-	    continue;
 
-	Coord nodec;
-	if ( atstart )
-	    nodec = cs12;
-	else if ( atend )
-	    nodec = cs10;
-	else if ( !getIntersection(cs0, cs10, cs12, cs2, nodec) )
-	    nodec = (cs10 + cs12) / 2;
-	BinID newnode = SI().transform( nodec );
-	if ( newnode != prevnode )
-	    outrl->addNode( newnode );
-	prevnode = newnode;
-    }
-    if ( outrl->nrNodes() < 2 )
+    TypeSet<Coord> basecoords;
+    for ( int idx=0; idx<rl.nrNodes(); idx++ )
+	basecoords += SI().transform( rl.nodePosition(idx) );
+
+    const bool isclosed = rl.nrNodes()>2 && 
+			  rl.nodePosition(0)==rl.nodePosition(rl.nrNodes()-1);
+    if ( isclosed ) 
+	basecoords += basecoords[1];
+
+    while ( true )
+    {
+	Geometry::RandomLine* outrl = new Geometry::RandomLine( newnm );
+	outrl->setZRange( rl.zRange() );
+	TypeSet<int> dirflips;
+	TypeSet<Coord> fusioncrds;
+
+	int previdx = 0;
+	BinID prevnode( mUdf(int), 0 );
+	Coord prevnodec( Coord::udf() ); 
+
+	const int nrbasecoords = basecoords.size();
+    
+	for ( int idx=0; idx<nrbasecoords; idx++ )
+	{
+	    const bool atstart = idx == 0;
+	    const bool atend = idx == nrbasecoords-1;
+	    const Coord c0 = basecoords[previdx];
+	    const Coord c1 = basecoords[idx];
+	    const Coord c2 = atend ? c1 : basecoords[idx+1];
+
+	    Coord cs0, cs10, cs12, cs2;
+	    if ( !atstart && !getShifted(c0,c1,cs0,cs10,isleft)
+	      || !atend && !getShifted(c1,c2,cs12,cs2,isleft) )
+		continue;
+
+	    Coord nodec;
+	    if ( atstart )
+		nodec = cs12;
+	    else if ( atend )
+		nodec = cs10;
+	    else if ( !getIntersection(cs0, cs10, cs12, cs2, nodec) )
+		nodec = (cs10 + cs12) / 2;
+
+	    const Coord basedir = c1 - c0;
+	    if ( !atstart && basedir.dot(nodec-prevnodec)<0 )
+	    {
+		dirflips += idx;
+		
+		if ( previdx < 1 )
+		    fusioncrds += c0;
+		else if ( atend )
+		    fusioncrds += c1;
+		else
+		{
+		    double d0 = c0.distTo( prevnodec ) - dist_;
+		    double d1 = c1.distTo( nodec ) - dist_;
+		    fusioncrds += d0+d1>0 ? (c0*d0+c1*d1)/(d0+d1) : (c0+c1)/2;
+		}
+	    }
+
+	    BinID newnode = SI().transform( nodec );
+
+	    if ( atend && isclosed )
+		outrl->setNodePosition( 0, prevnode );
+	    else if ( newnode != prevnode )
+		outrl->addNode( newnode );
+	    
+	    previdx = idx;
+	    prevnode = newnode;
+	    prevnodec = nodec;
+	}
+
+	if ( dirflips.isEmpty() ) 
+	{
+	    if ( outrl->nrNodes() <= (isclosed ? 2 : 1) )
+		delete outrl;
+	    else
+		outrls.addLine( outrl );
+	    
+	    break;
+	}
+
+	for ( int idx=0; idx<nrbasecoords; idx++ )
+	{
+	    if ( dirflips[0] != idx )
+	    {
+		if ( dirflips[0] != idx+1 )
+		    basecoords += basecoords[idx];
+		continue;
+	    }
+	    basecoords += fusioncrds[0];
+	    dirflips.remove( 0 );
+	    fusioncrds.remove( 0 );
+	}
+
+	basecoords.remove( 0, nrbasecoords-1 );
 	delete outrl;
-    else
-	outrls.addLine( outrl );
+    }
 }
 
 
