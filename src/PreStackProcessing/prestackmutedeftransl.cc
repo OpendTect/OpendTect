@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmutedeftransl.cc,v 1.2 2007-07-11 21:06:34 cvsyuancheng Exp $
+ RCS:		$Id: prestackmutedeftransl.cc,v 1.3 2008-01-09 13:54:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -116,14 +116,13 @@ const char* dgbMuteDefTranslator::read( PreStack::MuteDef& md, Conn& conn )
 	{
 	    BufferString val( astrm.keyWord() );
 	    char* ptrx = val.buf();
-	    skipLeadingBlanks(ptrx);
+	    mSkipBlanks(ptrx);
 	    char* ptrz = ptrx;
-	    while ( *ptrz && !isspace(*ptrz) )
-		ptrz++;
+	    mSkipNonBlanks( ptrz );
 	    if ( !*ptrz )
 		{ astrm.next(); continue; }
 	    *ptrz = '\0'; ptrz++;
-	    skipLeadingBlanks(ptrz);
+	    mSkipBlanks(ptrz);
 	    if ( !*ptrz )
 		{ astrm.next(); continue; }
 

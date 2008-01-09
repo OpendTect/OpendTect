@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2003
- RCS:           $Id: attribsetcreator.cc,v 1.6 2007-10-22 10:27:24 cvsnanne Exp $
+ RCS:           $Id: attribsetcreator.cc,v 1.7 2008-01-09 13:54:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -264,7 +264,7 @@ Desc* AttributeSetCreator::getDesc( const char* gdidesc )
     {
 	BufferString offs = gdidesc + 7;
 	char* ptr = offs.buf();
-	skipLeadingBlanks(ptr);
+	mSkipBlanks(ptr);
 	offs = ptr;
 	ptr = strchr( offs.buf(), ' ' );
 	if ( ptr ) *ptr = '\0';

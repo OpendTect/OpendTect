@@ -41,7 +41,7 @@
 #include "errh.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.70 2007-11-29 14:36:04 cvsbert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.71 2008-01-09 13:54:34 cvsbert Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -235,7 +235,7 @@ void StreamProvider::set( const char* devname )
 
     char* ptr = (char*)devname;
     if ( *ptr == '@' ) { type_ = StreamConn::Command; ptr++; }
-    skipLeadingBlanks( ptr );
+    mSkipBlanks( ptr );
     fname = ptr;
 
     // separate hostname from filename
@@ -258,7 +258,7 @@ void StreamProvider::set( const char* devname )
 	    *ptr2='\0';
 
 	    ptr2 = buf.buf();
-	    skipLeadingBlanks( ptr2 );
+	    mSkipBlanks( ptr2 );
 
 	    // If spaces are found, it cannot come from a hostname.
 	    // So, further up in the string must be a drive letter

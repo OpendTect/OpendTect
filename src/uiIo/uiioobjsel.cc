@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.107 2008-01-07 10:55:30 cvsnanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.108 2008-01-09 13:54:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -238,7 +238,7 @@ void uiIOObjSelGrp::fullUpdate( int curidx )
     {
 	BufferString nm = del[idx]->name();
 	char* ptr = nm.buf();
-	skipLeadingBlanks( ptr );
+	mSkipBlanks( ptr );
 	ioobjnms_.add( ptr );
 	ioobjids_ += new MultiID(
 			del[idx]->ioobj ? del[idx]->ioobj->key() : udfmid );

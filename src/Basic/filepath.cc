@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: filepath.cc,v 1.21 2007-10-05 09:20:32 cvsnanne Exp $";
+static const char* rcsID = "$Id: filepath.cc,v 1.22 2008-01-09 13:54:34 cvsbert Exp $";
 
 #include "filepath.h"
 #include "envvars.h"
@@ -69,7 +69,7 @@ FilePath& FilePath::set( const char* _fnm )
 
     const char* fnm = __fnm.buf();
 
-    skipLeadingBlanks( fnm );
+    mSkipBlanks( fnm );
     if ( !*fnm ) return *this;
 
     const char* ptr = strchr( fnm, *sPrefSep );
@@ -144,7 +144,7 @@ void FilePath::setPath( const char* pth )
 void FilePath::setExtension( const char* ext, bool replace )
 {
     if ( !ext ) ext = "";
-    skipLeadingBlanks( ext );
+    mSkipBlanks( ext );
 
     if ( *ext == '.' )
 	ext++;
@@ -323,7 +323,7 @@ void FilePath::addPart( const char* fnm )
 {
     if ( !fnm ) return;
 
-    skipLeadingBlanks( fnm );
+    mSkipBlanks( fnm );
     char prev = ' ';
     char buf[PATH_LENGTH];
     char* bufptr = buf;

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		11-4-1994
  Contents:	Extra string functions
- RCS:		$Id: string2.h,v 1.20 2007-09-13 19:38:39 cvsnanne Exp $
+ RCS:		$Id: string2.h,v 1.21 2008-01-09 13:54:34 cvsbert Exp $
 ________________________________________________________________________
 -*/
 
@@ -25,8 +25,15 @@ extern "C" {
 /*!> bluntly puts a '\0' on trailing white space. */
 void		removeTrailingBlanks(char*);
 /*!> advances given pointer to first non-whitespace. */
-#define skipLeadingBlanks(ptr) \
-    { while ( (ptr) && *(ptr) && isspace(*(ptr)) ) (ptr)++; }
+#define mSkipBlanks(ptr) \
+    { if ( ptr ) { while ( *(ptr) && isspace(*(ptr)) ) (ptr)++; } }
+/*!> advances given pointer to first whitespace. */
+#define mSkipNonBlanks(ptr) \
+    { if ( ptr ) { while ( *(ptr) && !isspace(*(ptr)) ) (ptr)++; } }
+/*!> advances to first whitespace and removes trailing whitespace */
+#define mTrimBlanks(ptr) \
+    { mSkipBlanks(ptr); removeTrailingBlanks(ptr); }
+
 
 /*!> stricmp with option to compare part */
 int		caseInsensitiveEqual(const char*,const char*,

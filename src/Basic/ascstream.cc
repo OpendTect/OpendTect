@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.21 2008-01-08 11:53:52 cvsbert Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.22 2008-01-09 13:54:34 cvsbert Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
@@ -200,15 +200,13 @@ ascistream& ascistream::next()
     char* startptr = separptr + 1;
     if ( separptr )
     {
-	skipLeadingBlanks(startptr);
-	removeTrailingBlanks(startptr);
+	mTrimBlanks(startptr);
 	valbuf = startptr;
 	*separptr = '\0';
     }
 
     startptr = linebuf;
-    skipLeadingBlanks(startptr);
-    removeTrailingBlanks(startptr);
+    mTrimBlanks(startptr);
     keybuf = startptr;
 
     return *this;
@@ -274,7 +272,7 @@ ascistream::EntryType ascistream::type() const
 bool ascistream::hasKeyword( const char* keyw ) const
 {
     if ( !keyw ) return keybuf.isEmpty();
-    skipLeadingBlanks(keyw);
+    mSkipBlanks(keyw);
     return keybuf == keyw;
 }
 
@@ -282,7 +280,7 @@ bool ascistream::hasKeyword( const char* keyw ) const
 bool ascistream::hasValue( const char* val ) const
 {
     if ( !val ) return valbuf.isEmpty();
-    skipLeadingBlanks(val);
+    mSkipBlanks(val);
     return valbuf == val;
 }
 

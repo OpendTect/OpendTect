@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.31 2007-06-14 17:25:11 cvsbert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.32 2008-01-09 13:54:34 cvsbert Exp $";
 
 #include "helpview.h"
 #include "ascstream.h"
@@ -331,15 +331,15 @@ BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid )
 	if ( wid != winid.buf() ) continue;
 
 	ptr = astream.value();
-	skipLeadingBlanks(ptr);
+	mSkipBlanks(ptr);
 
 	// Skip object name
-	while ( *ptr && !isspace(*ptr) ) ptr++;
+	mSkipNonBlanks( ptr );
 	if ( ! *ptr ) { strm.ignore(10000,'\n'); ptr = 0; continue; }
-	skipLeadingBlanks(ptr);
+	mSkipBlanks(ptr);
 
 	const char* endptr = ptr;
-	while ( *endptr && !isspace(*endptr) ) endptr++;
+	mSkipNonBlanks( endptr );
 	*(char*)endptr = '\0';
 	break;
     }

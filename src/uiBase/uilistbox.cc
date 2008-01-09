@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.84 2008-01-07 10:54:28 cvsnanne Exp $
+ RCS:           $Id: uilistbox.cc,v 1.85 2008-01-09 13:54:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -463,7 +463,7 @@ bool uiListBox::isPresent( const char* txt ) const
 	BufferString itmtxt( body_->item(idx)->text().toAscii().constData() );
 #endif
 	char* ptr = itmtxt.buf();
-	skipLeadingBlanks( ptr );
+	mSkipBlanks( ptr );
 	if ( !strcmp(txt,ptr) ) return true;
     }
     return false;
@@ -511,7 +511,7 @@ void uiListBox::setCurrentItem( const char* txt )
     for ( int idx=0; idx<sz; idx++ )
     {
 	const char* ptr = textOfItem( idx );
-	skipLeadingBlanks(ptr);
+	mSkipBlanks(ptr);
 	if ( !strcmp(ptr,txt) )
 	    { setCurrentItem( idx ); return; }
     }

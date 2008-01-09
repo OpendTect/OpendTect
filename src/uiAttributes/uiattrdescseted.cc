@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.65 2007-12-06 11:07:52 cvsraman Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.66 2008-01-09 13:54:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -418,7 +418,7 @@ Attrib::Desc* uiAttribDescSetEd::createAttribDesc( bool checkuref )
 {
     BufferString newnmbs( attrnmfld->text() );
     char* newnm = newnmbs.buf();
-    skipLeadingBlanks( newnm );
+    mSkipBlanks( newnm );
     removeTrailingBlanks( newnm );
     if ( checkuref && !validName(newnm) ) return 0;
 
@@ -721,7 +721,7 @@ bool uiAttribDescSetEd::setUserRef( Desc* attrdesc )
 {
     BufferString usertypednm( attrnmfld->text() );
     char* ptr = usertypednm.buf();
-    skipLeadingBlanks( ptr ); removeTrailingBlanks( ptr );
+    mTrimBlanks( ptr );
     const BufferString newnm( ptr );
 
     if ( newnm == attrdesc->userRef() ) return true;

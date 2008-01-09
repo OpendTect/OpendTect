@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.88 2007-12-14 22:43:48 cvskris Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.89 2008-01-09 13:54:34 cvsbert Exp $";
 
 #include "genc.h"
 #include "math2.h"
@@ -144,15 +144,14 @@ static void loadEntries( const char* fnm, int* pnrentries,
     while ( fgets(linebuf,1024,fp) )
     {
 	ptr = linebuf;
-	skipLeadingBlanks(ptr);
+	mSkipBlanks(ptr);
 	varptr = ptr;
 	if ( *varptr == '#' || !*varptr ) continue;
 
-	while ( *ptr && !isspace(*ptr) ) ptr++;
+	mSkipNonBlanks( ptr );
 	if ( !*ptr ) continue;
 	*ptr++ = '\0';
-	skipLeadingBlanks(ptr);
-	removeTrailingBlanks(ptr);
+	mTrimBlanks(ptr);
 	if ( !*ptr ) continue;
 
 	entries[*pnrentries] = mMALLOC(1,GetEnvVarEntry);

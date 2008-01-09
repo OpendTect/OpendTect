@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.41 2007-02-22 18:14:40 cvskris Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.42 2008-01-09 13:54:34 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -152,7 +152,7 @@ const char* Well::AscImporter::getMarkers( const char* fnm, bool istvd,
 	strm >> z;
 	if ( !strm ) break;
 	strm.getline( buf, mBufSz );
-	char* ptr = buf; skipLeadingBlanks(ptr); removeTrailingBlanks(ptr);
+	char* ptr = buf; mTrimBlanks(ptr);
 	if ( mIsUdf(z) || !*ptr ) continue;
 	z *= zfac;
 
@@ -201,7 +201,7 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
     while ( strm )
     {
 	strm.getline( linebuf, 4096 );
-	ptr = linebuf; skipLeadingBlanks(ptr);
+	ptr = linebuf; mSkipBlanks(ptr);
 	if ( *ptr == '#' || *ptr == '\0' ) continue;
 
 	if ( *ptr == '~' )
@@ -213,11 +213,11 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
 	else if ( section == '-' )
 	{
 	    // This is not LAS really, just one line of header and then go
-	    skipLeadingBlanks(ptr);
+	    mSkipBlanks(ptr);
 	    while ( *ptr )
 	    {
 		ptr = getNextWord( ptr, wordbuf );
-		skipLeadingBlanks(ptr);
+		mSkipBlanks(ptr);
 		char* unstr = strchr( wordbuf, '(' );
 		if ( unstr )
 		{
@@ -264,7 +264,7 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
 		    BufferString newnm( lognm );
 		    char* newptr = (char*)getNextWord( newnm.buf(), wordbuf );
 		    if ( newptr && *newptr )
-			{ skipLeadingBlanks(newptr); }
+			{ mSkipBlanks(newptr); }
 		    if ( newptr && *newptr )
 			lognm = newptr;
 		}
@@ -345,17 +345,17 @@ void Well::AscImporter::parseHeader( char* startptr, char*& val1, char*& val2,
     if ( info )
     {
 	*info++ = '\0';
-	skipLeadingBlanks(info); removeTrailingBlanks(info);
+	mTrimBlanks(info);
     }
 
-    skipLeadingBlanks( ptr );
+    mSkipBlanks( ptr );
     val1 = ptr;
-    while ( *ptr && !isspace(*ptr) ) ptr++;
+    mSkipNonBlanks( ptr );
     val2 = ptr;
     if ( *ptr )
     {
 	*val2++ = '\0';
-	skipLeadingBlanks(val2); removeTrailingBlanks(val2);
+	mTrimBlanks(val2);
     }
 }
 

@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.20 2007-03-27 08:04:16 cvsbert Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.21 2008-01-09 13:54:34 cvsbert Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -114,20 +114,20 @@ bool BinIDValueSet::getFrom( std::istream& strm )
     while ( strm.getline( linebuf, 4096 ) )
     {
 	char* firstchar = linebuf;
-	skipLeadingBlanks( firstchar );
+	mSkipBlanks( firstchar );
 	if ( *firstchar == '"' )
 	{
 	    char* ptr = strchr( firstchar+1, '"' );
 	    if ( !ptr ) continue;
 	    firstchar = ptr+1;
 	}
-	skipLeadingBlanks( firstchar );
+	mSkipBlanks( firstchar );
 	if ( !*firstchar || (*firstchar != '-' && !isdigit(*firstchar) ) )
 	    continue;
 
 	const char* nextword = getNextWord( firstchar, valbuf );
 	crd.x = atof( valbuf );
-	skipLeadingBlanks( nextword ); if ( !*nextword ) continue;
+	mSkipBlanks( nextword ); if ( !*nextword ) continue;
 	nextword = getNextWord( nextword, valbuf );
 	crd.y = atof( valbuf );
 
@@ -146,7 +146,7 @@ bool BinIDValueSet::getFrom( std::istream& strm )
 	    int nrvalsfound = 0;
 	    while ( true )
 	    {
-		skipLeadingBlanks( nextword ); if ( !*nextword ) break;
+		mSkipBlanks( nextword ); if ( !*nextword ) break;
 		nrvalsfound++;
 		nextword = getNextWord( nextword, valbuf );
 	    }
@@ -158,7 +158,7 @@ bool BinIDValueSet::getFrom( std::istream& strm )
 	if ( !vals ) continue;
 	for ( int idx=0; idx<nrVals(); idx++ )
 	{
-	    skipLeadingBlanks( nextword ); if ( !*nextword ) break;
+	    mSkipBlanks( nextword ); if ( !*nextword ) break;
 	    nextword = getNextWord( nextword, valbuf );
 	    if ( !valbuf[0] ) break;
 	    vals[idx] = (float)atof(valbuf);

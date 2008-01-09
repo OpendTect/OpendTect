@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.51 2007-12-10 03:56:57 cvsnanne Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.52 2008-01-09 13:54:34 cvsbert Exp $";
 
 #include "pickset.h"
 
@@ -82,11 +82,10 @@ void Pick::Location::unSetText( const char* key )
 static double getNextVal( char*& str )
 {
     if ( !*str ) return mUdf(double);
-    char* endptr = str;
-    while ( *endptr && !isspace(*endptr) ) endptr++;
+    char* endptr = str; mSkipNonBlanks( endptr );
     if ( *endptr ) *endptr++ = '\0';
     double v = atof( str );
-    str = endptr; skipLeadingBlanks(str);
+    str = endptr; mSkipBlanks(str);
     return v;
 }
 
@@ -119,7 +118,7 @@ bool Pick::Location::fromString( const char* s, bool doxy )
 
     BufferString bufstr( s );
     char* str = bufstr.buf();
-    skipLeadingBlanks(str);
+    mSkipBlanks(str);
 
     double xread = getNextVal( str );
     double yread = getNextVal( str );

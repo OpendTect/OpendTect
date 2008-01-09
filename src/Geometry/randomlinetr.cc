@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		December 2006
- RCS:		$Id: randomlinetr.cc,v 1.7 2007-12-12 09:38:57 cvsnanne Exp $
+ RCS:		$Id: randomlinetr.cc,v 1.8 2008-01-09 13:54:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,12 +154,10 @@ const char* dgbRandomLineSetTranslator::read( Geometry::RandomLineSet& rdls,
 	{
 	    BufferString loc( astrm.keyWord() );
 	    char* ptr = loc.buf();
-	    skipLeadingBlanks(ptr);
-	    while ( *ptr && !isspace(*ptr) )
-		ptr++;
+	    mSkipBlanks(ptr); mSkipNonBlanks(ptr);
 	    if ( *ptr )
 	    {
-		*ptr++ = '\0'; skipLeadingBlanks(ptr);
+		*ptr++ = '\0'; mSkipBlanks(ptr);
 		rl->addNode( BinID(atoi(loc.buf()),atoi(ptr)) );
 	    }
 	    astrm.next();

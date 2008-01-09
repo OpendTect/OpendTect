@@ -5,7 +5,7 @@
  * FUNCTION : Utilities for win32, amongst others path conversion
 -*/
 
-static const char* rcsID = "$Id: winutils.cc,v 1.15 2007-10-03 21:25:24 cvskris Exp $";
+static const char* rcsID = "$Id: winutils.cc,v 1.16 2008-01-09 13:54:34 cvsbert Exp $";
 
 
 #include "winutils.h"
@@ -47,7 +47,7 @@ const char* getCleanUnxPath( const char* path )
 
     BufferString buf; buf = path;
     char* ptr = buf.buf();
-    skipLeadingBlanks( ptr ); removeTrailingBlanks( ptr );
+    mTrimBlanks( ptr );
     replaceCharacter( ptr, '\\' , '/' );
     replaceCharacter( ptr, ';' , ':' );
 
@@ -86,7 +86,7 @@ const char* getCleanWinPath( const char* path )
     BufferString buf( ret );
     char* ptr = buf.buf();
 
-    skipLeadingBlanks( ptr ); removeTrailingBlanks( ptr );
+    mTrimBlanks( ptr );
 
     static bool __do_debug_cleanpath = GetEnvVarYN("DTECT_DEBUG_WINPATH");
 

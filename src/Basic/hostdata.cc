@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: hostdata.cc,v 1.36 2007-06-14 11:22:37 cvsbert Exp $
+ RCS:           $Id: hostdata.cc,v 1.37 2008-01-09 13:54:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,7 @@ void HostData::init( const char* nm )
 
     while ( ptr++ && *ptr )
     {
-	skipLeadingBlanks(ptr)
+	mSkipBlanks(ptr)
 	if ( !isdigit(*ptr) && * ptr != '.' )
 	    is_ip_adrr = false;
     }	
@@ -236,7 +236,7 @@ bool HostDataList::readHostFile( const char* fname )
 
 #define mGetVStr(valnr) \
 	    vstr = val[valnr]; bufptr = vstr.buf(); \
-	    skipLeadingBlanks(bufptr); removeTrailingBlanks(bufptr)
+	    mTrimBlanks(bufptr);
 
 	    mGetVStr(0);
 	    if ( *bufptr )

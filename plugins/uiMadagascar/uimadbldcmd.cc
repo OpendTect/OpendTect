@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.12 2007-12-20 16:18:54 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.13 2008-01-09 13:54:34 cvsbert Exp $";
 
 #include "uimadbldcmd.h"
 #include "uimsg.h"
@@ -28,15 +28,15 @@ static BufferString& separateProgName( const char* cmd, bool wantprog )
     static BufferString ret;
     ret = cmd; // resize to fit
 
-    while ( *cmd && isspace(*cmd) ) cmd++;
+    mSkipBlanks( cmd );
     char* retptr = ret.buf();
     *retptr = '\0';
     if ( wantprog )
 	while ( *cmd && !isspace(*cmd) ) *retptr++ = *cmd++; 
     else
     {
-	while ( *cmd && !isspace(*cmd) ) cmd++; 
-	while ( *cmd && isspace(*cmd) ) cmd++; 
+	mSkipNonBlanks( cmd );
+	mSkipBlanks( cmd );
 	while ( *cmd ) *retptr++ = *cmd++; 
     }
     *retptr = '\0';

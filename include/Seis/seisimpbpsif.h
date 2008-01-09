@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2008
- RCS:		$Id: seisimpbpsif.h,v 1.2 2008-01-08 15:35:43 cvsbert Exp $
+ RCS:		$Id: seisimpbpsif.h,v 1.3 2008-01-09 13:54:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,7 +88,7 @@ protected:
     bool		openNext();
     bool		readFileHeader();
     void		addAttr(BufferStringSet&,const char*);
-    int			addTrcs(const SeisTrc&,const char*);
+    int			addTrcs(const SeisTrc&,char*);
     int			writeData();
 
 };

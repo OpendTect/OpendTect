@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.7 2007-12-04 12:25:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.8 2008-01-09 13:54:34 cvsbert Exp $";
 
 #include "uicreatepicks.h"
 
@@ -66,9 +66,8 @@ const Color& uiCreatePicks::getPickColor()
 #define mCheckName() \
 { \
     BufferString res = getName(); \
-    char* ptr = res.buf(); \
-    skipLeadingBlanks(ptr); removeTrailingBlanks(ptr); \
-    if ( ! *ptr ) mErrRet( "Please enter a name" ) \
+    char* ptr = res.buf(); mTrimBlanks(ptr); \
+    if ( !*ptr ) mErrRet( "Please enter a name" ) \
 }
 
 bool uiCreatePicks::acceptOK( CallBacker* )

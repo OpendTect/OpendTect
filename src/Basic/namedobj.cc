@@ -4,7 +4,7 @@
  * DATE     : 21-9-1995
 -*/
  
-static const char* rcsID = "$Id: namedobj.cc,v 1.1 2006-08-21 17:14:45 cvsbert Exp $";
+static const char* rcsID = "$Id: namedobj.cc,v 1.2 2008-01-09 13:54:34 cvsbert Exp $";
  
 #include "namedobj.h"
 #include "string2.h"
@@ -67,8 +67,9 @@ void NamedObject::setName( const char* nm )
 {
     if ( !name_ )
 	{ linkedto_->setName(nm); return; }
-    else if ( !nm ) nm = "";
-    while ( *nm && isspace(*nm) ) nm++;
+    else if ( !nm )
+	nm = "";
+    mSkipBlanks(nm);
     *name_ = nm;
     removeTrailingBlanks( name_->buf() );
 }
@@ -80,7 +81,7 @@ void NamedObject::setCleanName( const char* nm )
 	{ linkedto_->setCleanName(nm); return; }
     else if ( !nm || !*nm )
 	{ setName( "" ); return; }
-    while ( *nm && isspace(*nm) ) nm++;
+    mSkipBlanks(nm);
     if ( !*nm )
 	{ setName( "" ); return; }
 

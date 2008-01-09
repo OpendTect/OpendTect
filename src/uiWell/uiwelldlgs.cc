@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.62 2007-11-13 16:21:11 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.63 2008-01-09 13:54:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -865,7 +865,7 @@ bool uiNewWellDlg::acceptOK( CallBacker* )
 {
     BufferString tmp( text() );
     char* ptr = tmp.buf();
-    skipLeadingBlanks(ptr); removeTrailingBlanks(ptr);
+    mTrimBlanks(ptr);
     if ( !*ptr )
 	mErrRet( "Please enter a name" )
 

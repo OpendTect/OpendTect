@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Nov 2007
- RCS:           $Id: latlong.cc,v 1.6 2007-11-20 15:39:31 cvsbert Exp $
+ RCS:           $Id: latlong.cc,v 1.7 2008-01-09 13:54:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ bool LatLong::use( const char* s )
     if ( !s || !*s ) return false;
 
     BufferString str( s );
-    char* ptrlat = str.buf(); skipLeadingBlanks( ptrlat );
+    char* ptrlat = str.buf(); mSkipBlanks( ptrlat );
     if ( *ptrlat == '[' ) ptrlat++;
     char* ptrlng = strchr( ptrlat, ',' );
     if ( !ptrlng ) return false;

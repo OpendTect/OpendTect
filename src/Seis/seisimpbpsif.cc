@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.2 2008-01-08 15:35:43 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.3 2008-01-09 13:54:34 cvsbert Exp $";
 
 #include "seisimpbpsif.h"
 #include "seispswrite.h"
@@ -199,9 +199,11 @@ bool SeisImpBPSIF::readFileHeader()
 
 void SeisImpBPSIF::addAttr( BufferStringSet& attrs, const char* attrstr )
 {
-    skipLeadingBlanks(attrstr);
+    mSkipBlanks(attrstr);
     const char* ptr = strchr( attrstr, '=' );
     if ( !ptr ) ptr = attrstr;
+    else
+	{ ptr++; mSkipBlanks(ptr); }
 
     if ( *ptr )
 	attrs.add( ptr );
@@ -210,7 +212,7 @@ void SeisImpBPSIF::addAttr( BufferStringSet& attrs, const char* attrstr )
 
 const char* SeisImpBPSIF::message() const
 {
-    return "Working";
+    return errmsg_.isEmpty() ? "Importing traces" : errmsg_.buf();
 }
 
 
@@ -239,9 +241,28 @@ int SeisImpBPSIF::nextStep()
 }
 
 
-int SeisImpBPSIF::addTrcs( const SeisTrc& tmpltrc, const char* data )
+static float getVal( char* data, char*& ptr, char*& startptr )
+{
+    mSkipBlanks(startptr);
+    if ( !*startptr ) return mUdf(float);
+    ptr = startptr; mSkipNonBlanks(ptr);
+    if ( *ptr ) *ptr++ = '\0';
+    float val = atof( startptr );
+    startptr = ptr;
+    return val;
+}
+
+
+int SeisImpBPSIF::addTrcs( const SeisTrc& tmpltrc, char* data )
 {
     const int nrrcvattrs = rcvattrs_.size();
+
+    char* ptr = data; char* startptr = data;
+    while ( true )
+    {
+	float x = getVal( data, ptr, startptr );
+	float y = getVal( data, ptr, startptr );
+    }
     return Executor::MoreToDo;
 }
 
