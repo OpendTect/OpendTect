@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2008
- RCS:		$Id: seisimpbpsif.h,v 1.3 2008-01-09 13:54:34 cvsbert Exp $
+ RCS:		$Id: seisimpbpsif.h,v 1.4 2008-01-09 14:06:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,8 @@ protected:
 
     int			curfileidx_;
     int			nrshots_;
+    int			nrrcvpershot_;
+    bool		irregular_;
     StreamData		cursd_;
     BufferStringSet	fnames_;
     BufferStringSet	hdrlines_;

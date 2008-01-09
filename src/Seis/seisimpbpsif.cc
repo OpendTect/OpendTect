@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.3 2008-01-09 13:54:34 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.4 2008-01-09 14:06:32 cvsbert Exp $";
 
 #include "seisimpbpsif.h"
 #include "seispswrite.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.3 2008-01-09 13:54:34 cvsbe
 #include "ioman.h"
 #include "ioobj.h"
 #include "oddirs.h"
+#include "survinfo.h"
 #include <iostream>
 
 class SeisPSImpLineBuf
@@ -99,6 +100,8 @@ SeisImpBPSIF::SeisImpBPSIF( const char* filenm, const MultiID& )
     	, datamgr_(*new SeisPSImpDataMgr)
     	, curfileidx_(-1)
     	, nrshots_(0)
+    	, nrrcvpershot_(0)
+    	, irregular_(false)
 {
     if ( !filenm || !*filenm )
 	return;
@@ -220,13 +223,15 @@ int SeisImpBPSIF::nextStep()
 {
     if ( curfileidx_ < 0 )
 	return openNext() ? Executor::MoreToDo : Executor::ErrorOccurred;
+    else if ( pswrr_ )
+	return writeData();
 
     const int nrshotattrs = shotattrs_.size();
     float shotnr, x, y;
     std::istream& strm = *cursd_.istrm;
-    strm >> shotnr >> x >> y;
-    const Coord shotcoord( x, y );
     SeisTrc tmpltrc( nrshotattrs + rcvattrs_.size() );
+    strm >> shotnr >> x >> y;
+    tmpltrc.info().coord.x = x; tmpltrc.info().coord.y = y;
     for ( int idx=0; idx<nrshotattrs; idx++ )
     {
 	float val; strm >> val;
@@ -235,39 +240,70 @@ int SeisImpBPSIF::nextStep()
 
     BufferString rcvdata;
     if ( !StrmOper::readLine(strm,&rcvdata) )
-	return addTrcs( tmpltrc, rcvdata.buf() );
-    else
 	return writeData();
+    else
+    {
+	int nrpos = addTrcs( tmpltrc, rcvdata.buf() );
+	if ( nrrcvpershot_ < 0 )
+	    nrrcvpershot_ = nrpos;
+	else if ( nrpos == 0 )
+	    return writeData();
+	else if ( nrpos != nrrcvpershot_ )
+	    irregular_ = true;
+	nrshots_++;
+    }
+
+    return Executor::MoreToDo;
 }
 
 
-static float getVal( char* data, char*& ptr, char*& startptr )
+static float getVal( char* data, char*& ptr )
 {
-    mSkipBlanks(startptr);
-    if ( !*startptr ) return mUdf(float);
-    ptr = startptr; mSkipNonBlanks(ptr);
+    mSkipBlanks( ptr );
+    if ( !*ptr ) return mUdf(float);
+
+    const char* startptr = ptr;
+    mSkipNonBlanks(ptr);
     if ( *ptr ) *ptr++ = '\0';
-    float val = atof( startptr );
-    startptr = ptr;
-    return val;
+
+    return atof( startptr );
 }
 
 
 int SeisImpBPSIF::addTrcs( const SeisTrc& tmpltrc, char* data )
 {
     const int nrrcvattrs = rcvattrs_.size();
+    const int nrshotattrs = shotattrs_.size();
 
-    char* ptr = data; char* startptr = data;
+    SeisTrc* newtrc = new SeisTrc( tmpltrc );
+    char* ptr = data;
+    int nradded = 0;
     while ( true )
     {
-	float x = getVal( data, ptr, startptr );
-	float y = getVal( data, ptr, startptr );
+	Coord rcvcoord;
+	rcvcoord.x = getVal( data, ptr );
+	rcvcoord.y = getVal( data, ptr );
+	for ( int idx=0; idx<nrrcvattrs; idx++ )
+	{
+	    float val = getVal( data, ptr );
+	    if ( mIsUdf(val) )
+		{ delete newtrc; return nradded; }
+	    newtrc->set( nrshotattrs+idx, val, 0 );
+	}
+
+	newtrc->info().coord += rcvcoord; newtrc->info().coord *= 0.5;
+	newtrc->info().binid = SI().transform( newtrc->info().coord );
+	datamgr_.add( newtrc );
+	nradded++;
     }
-    return Executor::MoreToDo;
+
+    return nradded;
 }
 
 
 int SeisImpBPSIF::writeData()
 {
-    return Executor::MoreToDo;
+    // Create pswrr_ if null
+    // Write one inline
+    return Executor::Finished;
 }
