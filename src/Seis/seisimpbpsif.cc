@@ -4,9 +4,10 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.5 2008-01-10 09:59:56 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.6 2008-01-10 13:12:35 cvsbert Exp $";
 
 #include "seisimpbpsif.h"
+#include "seispsioprov.h"
 #include "seispswrite.h"
 #include "seisbuf.h"
 #include "seistrc.h"
@@ -63,13 +64,29 @@ void SeisPSImpLineBuf::add( SeisTrc* trc )
 class SeisPSImpDataMgr
 {
 public:
-    				SeisPSImpDataMgr()	{}
+    				SeisPSImpDataMgr()
+				: writeupto_(-1)	{}
 				~SeisPSImpDataMgr()	{ deepErase(lines_); }
 
     void			add(SeisTrc*);
+    void			endReached();
+    void			updateStatus()		{}
+    				//TODO figure out whether part can be written
+    bool			writeGather(SeisPSWriter&);
+
+    bool			needWrite() const
+    				{ return writeupto_ >= 0; }
 
     ObjectSet<SeisPSImpLineBuf>	lines_;
+    int				writeupto_;
+    mutable BufferString	errmsg_;
 };
+
+
+void SeisPSImpDataMgr::endReached()
+{
+    writeupto_ = lines_.size() - 1;
+}
 
 
 void SeisPSImpDataMgr::add( SeisTrc* trc )
@@ -94,9 +111,33 @@ void SeisPSImpDataMgr::add( SeisTrc* trc )
 }
 
 
+bool SeisPSImpDataMgr::writeGather( SeisPSWriter& pswr )
+{
+    if ( !needWrite() ) return true;
 
-SeisImpBPSIF::SeisImpBPSIF( const char* filenm, const MultiID& )
+    SeisPSImpLineBuf& lbuf = *lines_[0];
+    SeisTrcBuf* gath2write = lbuf.gathers_.remove( 0 );
+    if ( lbuf.gathers_.isEmpty() )
+    {
+	delete lines_.remove( 0 );
+	writeupto_--;
+    }
+
+    bool res = true;
+    for ( int idx=0; idx<gath2write->size(); idx++ )
+    {
+	res = pswr.put( *gath2write->get(idx) );
+	if ( !res ) break;
+    }
+
+    delete gath2write;
+    return res;
+}
+
+
+SeisImpBPSIF::SeisImpBPSIF( const char* filenm, const MultiID& id )
     	: Executor("Importing BPSIF data")
+    	, psid_(id)
     	, pswrr_(0)
     	, datamgr_(*new SeisPSImpDataMgr)
     	, curfileidx_(-1)
@@ -115,14 +156,24 @@ SeisImpBPSIF::SeisImpBPSIF( const char* filenm, const MultiID& )
 
     const char* ptr = strchr( filenm, '*' );
     if ( !ptr )
-    {
 	fnames_.add( fp.fullPath() );
-	return;
+    else
+    {
+	DirList dl( fp.pathOnly(), DirList::FilesOnly, fp.fileName() );
+	for ( int idx=0; idx<dl.size(); idx++ )
+	    fnames_.add( dl.fullPath(idx) );
     }
 
-    DirList dl( fp.pathOnly(), DirList::FilesOnly, fp.fileName() );
-    for ( int idx=0; idx<dl.size(); idx++ )
-	fnames_.add( dl.fullPath(idx) );
+    if ( fnames_.isEmpty() )
+	{ errmsg_ = "No valid input file specified"; return; }
+
+    IOObj* ioobj = IOM().get( psid_ );
+    if ( !ioobj )
+	{ errmsg_ = "Output data store not found in object manager"; return; }
+    pswrr_ = SPSIOPF().getWriter( *ioobj );
+    delete ioobj;
+    if ( !pswrr_ )
+	{ errmsg_ = "Cannot write to this data store type"; return; }
 }
 
 
@@ -223,20 +274,21 @@ void SeisImpBPSIF::addAttr( BufferStringSet& attrs, char* attrstr )
 
 const char* SeisImpBPSIF::message() const
 {
-    return errmsg_.isEmpty() ? "Importing traces" : errmsg_.buf();
+    if ( !errmsg_.isEmpty() ) return errmsg_.buf();
+    return datamgr_.needWrite() ? "Writing to data store" : "Reading traces";
 }
 
 
 int SeisImpBPSIF::nextStep()
 {
-    if ( curfileidx_ < 0 )
+    if ( !pswrr_ )
+	return Executor::ErrorOccurred;
+    else if ( curfileidx_ < 0 )
 	return openNext() ? Executor::MoreToDo : Executor::ErrorOccurred;
-    else if ( pswrr_ )
+    else if ( datamgr_.needWrite() )
 	return writeData();
-    else if ( binary_ )
-	return readBinary();
 
-    return readAscii();
+    return binary_ ? readBinary() : readAscii();
 }
 
 
@@ -271,6 +323,7 @@ int SeisImpBPSIF::readAscii()
 	nrshots_++;
     }
 
+    datamgr_.updateStatus();
     return Executor::MoreToDo;
 }
 
@@ -362,19 +415,32 @@ bool SeisImpBPSIF::addTrcsBinary( const SeisTrc& tmpltrc )
 	datamgr_.add( newtrc );
     }
 
+    datamgr_.updateStatus();
     return true;
 }
 
 
 int SeisImpBPSIF::fileEnded()
 {
-    return openNext() ? Executor::MoreToDo : writeData();
+    if ( openNext() )
+	return Executor::MoreToDo;
+
+    datamgr_.endReached();
+    return writeData();
 }
 
 
 int SeisImpBPSIF::writeData()
 {
-    // Create pswrr_ if null
-    // Write one inline
-    return Executor::Finished;
+    if ( !datamgr_.needWrite() )
+	return datamgr_.lines_.isEmpty() ? Executor::Finished
+	    				 : Executor::MoreToDo;
+
+    if ( !datamgr_.writeGather(*pswrr_) )
+    {
+	errmsg_ = datamgr_.errmsg_;
+	return Executor::ErrorOccurred;
+    }
+
+    return Executor::MoreToDo;
 }

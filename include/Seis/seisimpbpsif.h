@@ -7,15 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2008
- RCS:		$Id: seisimpbpsif.h,v 1.5 2008-01-10 09:59:56 cvsbert Exp $
+ RCS:		$Id: seisimpbpsif.h,v 1.6 2008-01-10 13:12:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "strmdata.h"
 #include "bufstringset.h"
+#include "multiid.h"
 #include "executor.h"
-class MultiID;
 class SeisTrc;
 class SeisPSWriter;
 class SeisPSImpDataMgr;
@@ -96,6 +96,7 @@ protected:
     BufferStringSet	shotattrs_;
     BufferStringSet	rcvattrs_;
     SeisPSImpDataMgr&	datamgr_;
+    MultiID		psid_;
     SeisPSWriter*	pswrr_;
     mutable BufferString errmsg_;
 
