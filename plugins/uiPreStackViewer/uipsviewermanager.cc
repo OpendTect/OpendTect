@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.5 2007-12-28 16:36:29 cvskris Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.6 2008-01-10 17:00:44 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,8 +79,8 @@ void uiPSViewerMgr::createMenuCB( CallBacker* cb )
     RefMan<visBase::DataObject> dataobj = visserv_->getObject( menu->menuID() );
 
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, dataobj.ptr() );
-    if ( pdd && pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Timeslice 
-	     && menu->getMenuType()==uiMenuHandler::fromScene )
+    if ( pdd && pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Timeslice ) 
+//	     && menu->getMenuType()==uiMenuHandler::fromScene )
     {
 	uiSeisPartServer* seisserv = ODMainWin()->applMgr().seisServer();
 	if ( seisserv->getStoredGathersList().size() )
@@ -117,14 +117,22 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
     if ( menu->isHandled() )
 	return;
 
-    const TypeSet<int>* path = menu->getPath();
-    if ( !path ) return;
-
+    int sceneid = -1;
     TypeSet<int> sceneids;
     visserv_->getChildIds( -1, sceneids );
 
-    sceneids.createIntersection( *path );
-    if ( sceneids.size()!=1 )
+    for ( int idx=0; idx<sceneids.size(); idx++ )
+    {
+	TypeSet<int> scenechildren;
+	visserv_->getChildIds( sceneids[idx], scenechildren );
+	if ( scenechildren.indexOf( menu->menuID() ) )
+	{
+	    sceneid = sceneids[idx];
+	    break;
+	}
+    }
+
+    if ( sceneid==-1 )
 	return;
 
     const int mnuidx = selectpsdatamenuitem_.itemIndex( mnuid );
@@ -137,12 +145,6 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
 
 	menu->setIsHandled( true );
 
-	const Coord3 pickedpos = menu->getPickedPos();
-	if ( !pickedpos.isDefined() )
-	    return;
-
-	const BinID bid = SI().transform( pickedpos );
-
 	RefMan<visBase::DataObject> dataobj = visserv_->
 	    getObject( menu->menuID() );
 	mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, dataobj.ptr() );
@@ -152,8 +154,27 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
 	viewer->setMultiID( ioobj->key() );
 	viewer->setSectionDisplay( pdd ); 
 	
-	visserv_->addObject( viewer, sceneids[0], false );
+	visserv_->addObject( viewer, sceneid, false );
 	viewers_ += viewer;
+	
+	BinID bid;
+	if (  menu->getMenuType()==uiMenuHandler::fromScene )
+	{
+	    const Coord3 pickedpos = menu->getPickedPos();
+    	    if ( !pickedpos.isDefined() )
+    		return;
+
+	    bid = SI().transform( pickedpos );
+	}
+	else 
+	{
+	    if ( !pdd ) return;
+	    
+	    CubeSampling cs = pdd->getCubeSampling();
+  	    cs.snapToSurvey();
+  	    bid = BinID( (cs.hrg.stop.inl + cs.hrg.start.inl + 1)/2,
+		         (cs.hrg.stop.crl + cs.hrg.start.crl + 1)/2 );
+	}
 
 	if ( !viewer->setPosition( bid ) )
 	    return;
@@ -171,7 +192,7 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
 
 	menu->setIsHandled( true );
 	
-	visserv_->removeObject( psv, sceneids[0] );
+	visserv_->removeObject( psv, sceneid );
 	viewers_ -= psv;
 	psv->unRef();
     }
