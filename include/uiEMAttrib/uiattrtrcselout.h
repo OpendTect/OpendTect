@@ -7,19 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.h,v 1.8 2007-11-28 10:59:47 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.h,v 1.9 2008-01-10 08:41:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibatchlaunch.h"
-#include "attribdescid.h"
+#include "uiattremout.h"
 
 class CtxtIOObj;
 class IOPar;
 class MultiID;
 class NLAModel;
-class uiAttrSel;
 class uiGenInput;
 class uiIOObjSel;
 class uiSeisSel;
@@ -35,7 +33,7 @@ interval around a surface
 */
 
 
-class uiAttrTrcSelOut : public uiFullBatchDialog
+class uiAttrTrcSelOut : public uiAttrEMOut
 {
 public:
     			uiAttrTrcSelOut(uiParent*,const Attrib::DescSet&,
@@ -47,9 +45,8 @@ protected:
 
     bool		prepareProcessing();
     bool		fillPar(IOPar&);
-    bool		addNLA(Attrib::DescID&);
     void                objSel(CallBacker*);
-    void                attrSel(CallBacker*);
+    void                attribSel(CallBacker*);
     void		interpSel(CallBacker*);
     void		extraWidthSel(CallBacker*);
     void                cubeBoundsSel(CallBacker*);
@@ -77,17 +74,13 @@ protected:
     CtxtIOObj&		ctio_;
     CtxtIOObj&		ctio2_;
     CtxtIOObj&		ctioout_;
-    Attrib::DescSet&	ads_;
-    const MultiID&	nlaid_;
-    const NLAModel*	nlamodel_;
 
-    uiAttrSel*		attrfld_;
     uiIOObjSel*		objfld_;
     uiIOObjSel*		obj2fld_;
     uiGenInput*		gatefld_;
     uiGenInput*         extraztopfld_;
     uiGenInput*         extrazbotfld_;
-    uiBinIDSubSel*	subselfld_;
+    uiBinIDSubSel*	bidsubselfld_;
     uiGenInput*		outsidevalfld_;
     uiGenInput*		interpfld_;
     uiGenInput*		nrsampfld_;
@@ -99,6 +92,14 @@ protected:
     uiSeisSel*          outpfld_;
     uiDialog*		xparsdlg_;
     bool		usesinglehor_;
+
+    /* TODO: XY sub selection for 2D horizons; shall we only use survey coords
+    class uiXYSubSel : public uiCompoundParSel
+    {
+    };
+
+    uiXYSubSel*		xysubselfld*;
+    */
 
 private:
 

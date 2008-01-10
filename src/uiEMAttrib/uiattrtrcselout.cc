@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.31 2008-01-03 12:20:07 cvsnanne Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.32 2008-01-10 08:41:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,14 +43,10 @@ using namespace Attrib;
 uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 				  const NLAModel* n, const MultiID& mid, 
 				  bool usesinglehor )
-    : uiFullBatchDialog(p,Setup("Create Horizon related cube output")
-	    		  .procprognm("process_attrib_em"))
+    : uiAttrEMOut( p, ad, n, mid, "Create Horizon related cube output" )
     , ctio_( mkCtxtIOObjHor( ad.is2D() ) )
     , ctio2_( mkCtxtIOObjHor( ad.is2D() ) )
     , ctioout_(*mMkCtxtIOObj(SeisTrc))
-    , ads_(const_cast<DescSet&>(ad))
-    , nlamodel_(n)
-    , nlaid_(mid)
     , usesinglehor_(usesinglehor)
     , extraztopfld_(0)
     , extrazbotfld_(0)
@@ -64,8 +60,6 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 {
     if ( usesinglehor_)
 	setHelpID( usesinglehor_ ? "104.4.2" : "104.4.1" );
-
-    setTitleText( "" );
 
     if ( usesinglehor_ )
 	createSingleHorUI();
@@ -85,8 +79,6 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
 
 void uiAttrTrcSelOut::createSingleHorUI()
 {
-    createAttrFld( uppgrp_ );
-
     ctio_.ctxt.forread = true;
     objfld_ = new uiIOObjSel( uppgrp_, ctio_, "Calculate along surface" );
     objfld_->attach( alignedBelow, attrfld_ );
@@ -113,8 +105,6 @@ void uiAttrTrcSelOut::createTwoHorUI()
 					    	    "Select extra options",
 						    "104.4.1" ) );
     xparsdlg_->finaliseDone.notify( mCB(this,uiAttrTrcSelOut,extraDlgDone) );
-    
-    createAttrFld( uppgrp_ );
     
     ctio_.ctxt.forread = true;
     objfld_ = new uiIOObjSel( uppgrp_, ctio_,"Calculate between top surface:");
@@ -167,14 +157,6 @@ uiAttrTrcSelOut::~uiAttrTrcSelOut()
     
     delete ctioout_.ioobj;
     delete &ctioout_;
-}
-
-
-void uiAttrTrcSelOut::createAttrFld( uiParent* prnt )
-{
-    attrfld_ = new uiAttrSel( prnt, &ads_, ads_.is2D(), "Quantity to output" );
-    attrfld_->selectiondone.notify( mCB(this,uiAttrTrcSelOut,attrSel) );
-    attrfld_->setNLAModel( nlamodel_ );
 }
 
 
@@ -316,6 +298,8 @@ void uiAttrTrcSelOut::createOutputFld( uiParent* prnt )
 
 bool uiAttrTrcSelOut::prepareProcessing()
 {
+    if ( !uiAttrEMOut::prepareProcessing() ) return false;
+
     if ( !objfld_->commitInput(false) )
     {
 	uiMSG().error( "Please select first surface" );
@@ -325,13 +309,6 @@ bool uiAttrTrcSelOut::prepareProcessing()
     if ( !usesinglehor_ && !obj2fld_->commitInput(false) )
     {
 	uiMSG().error( "Please select second surface" );
-	return false;
-    }
-
-    attrfld_->processInput();
-    if ( attrfld_->attribID() < 0 && attrfld_->outputNr() < 0 )
-    {
-	uiMSG().error( "Please select the output quantity" );
 	return false;
     }
 
@@ -348,53 +325,15 @@ bool uiAttrTrcSelOut::prepareProcessing()
 
 bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 {
-    DescID nladescid( -1, true );
-    if ( nlamodel_ && attrfld_->outputNr() >= 0 )
-    {
-	if ( !nlaid_ || !(*nlaid_) )
-	{ 
-	    uiMSG().message( "NN needs to be stored before creating volume" ); 
-	    return false; 
-	}
-	if ( !addNLA( nladescid ) )	return false;
-    }
-
-    const DescID targetid = nladescid < 0 ? attrfld_->attribID() : nladescid;
-    DescSet* clonedset = ads_.optimizeClone( targetid );
-    if ( !clonedset )
-	return false;
-
-    IOPar attrpar( "Attribute Descriptions" );
-    clonedset->fillPar( attrpar );
+    uiAttrEMOut::fillPar( iopar );
+    fillOutPar( iopar, Output::tskey, SeisTrcStorOutput::seisidkey,
+	    	ctioout_.ioobj->key() );
     
-    for ( int idx=0; idx<attrpar.size(); idx++ )
-    {
-        const char* nm = attrpar.getKey( idx );
-        iopar.add( IOPar::compKey(SeisTrcStorOutput::attribkey,nm),
-		   attrpar.getValue(idx) );
-    }
-
-    BufferString key;
-    BufferString keybase = Output::outputstr; keybase += ".1.";
-    key = keybase; key += sKey::Type;
-    iopar.set( key, Output::tskey );
-
-    key = keybase; key += SeisTrcStorOutput::attribkey;
-    key += "."; key += DescSet::highestIDStr();
-    iopar.set( key, 1 );
-
-    key = keybase; key += SeisTrcStorOutput::attribkey; key += ".0";
-    iopar.set( key, nladescid < 0 ? attrfld_->attribID().asInt() 
-	    			  : nladescid.asInt() );
-
-    key = keybase; key += SeisTrcStorOutput::seisidkey;
-    iopar.set( key, ctioout_.ioobj->key() );
-
     BufferString outnm = outpfld_->getInput();
     iopar.set( "Target value", outnm );
 
-    keybase = sKey::Geometry; keybase += ".";
-    key = keybase; key += LocationOutput::surfidkey; key += ".0";
+    BufferString keybase = sKey::Geometry; keybase += ".";
+    BufferString key = keybase; key += LocationOutput::surfidkey; key += ".0";
     iopar.set( key, ctio_.ioobj->key() );
 
     if ( !usesinglehor_ )
@@ -464,9 +403,6 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	iopar.set( key, zboundsstr );
     }
     
-    ads_.removeDesc( nladescid );
-    delete clonedset;
-
     return true;
 }
 
@@ -508,7 +444,7 @@ BufferString uiAttrTrcSelOut::createAddWidthLabel()
 }
 
 
-void uiAttrTrcSelOut::attrSel( CallBacker* cb )
+void uiAttrTrcSelOut::attribSel( CallBacker* cb )
 {
     setParFileNmDef( attrfld_->getInput() );
 }
@@ -551,23 +487,6 @@ void uiAttrTrcSelOut::extraWidthSel( CallBacker* cb )
 void uiAttrTrcSelOut::cubeBoundsSel( CallBacker* cb )
 {
     cubeboundsfld_->display( setcubeboundsfld_->getBoolValue() );
-}
-
-
-#define mErrRet(str) { uiMSG().message( str ); return false; }
-
-bool uiAttrTrcSelOut::addNLA( DescID& id )
-{
-    BufferString defstr("NN specification=");
-    defstr += nlaid_;
-
-    const int outpnr = attrfld_->outputNr();
-    BufferString errmsg;
-    EngineMan::addNLADesc( defstr, id, ads_, outpnr, nlamodel_, errmsg);
-    if ( errmsg.size() )
-	mErrRet( errmsg );
-
-    return true;
 }
 
 

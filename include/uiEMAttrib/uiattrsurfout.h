@@ -7,19 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.h,v 1.5 2005-12-28 18:14:04 cvsbert Exp $
+ RCS:           $Id: uiattrsurfout.h,v 1.6 2008-01-10 08:41:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uibatchlaunch.h"
-#include "attribdescid.h"
+#include "uiattremout.h"
 
 class CtxtIOObj;
 class IOPar;
 class MultiID;
 class NLAModel;
-class uiAttrSel;
 class uiGenInput;
 class uiIOObjSel;
 
@@ -31,7 +29,7 @@ Used for calculating attributes on surfaces
 */
 
 
-class uiAttrSurfaceOut : public uiFullBatchDialog
+class uiAttrSurfaceOut : public uiAttrEMOut
 {
 public:
     			uiAttrSurfaceOut(uiParent*,const Attrib::DescSet&,
@@ -42,18 +40,13 @@ protected:
 
     bool		prepareProcessing();
     bool		fillPar(IOPar&);
-    bool		addNLA(Attrib::DescID&);
     void		attribSel(CallBacker*);
     void		objSel(CallBacker*);
 
-    CtxtIOObj&		ctio;
-    Attrib::DescSet&	ads;
-    const MultiID&	nlaid;
-    const NLAModel*	nlamodel;
-
-    uiAttrSel*		attrfld;
-    uiGenInput*		attrnmfld;
-    uiIOObjSel*		objfld;
+    CtxtIOObj&		ctio_;
+    
+    uiGenInput*		attrnmfld_;
+    uiIOObjSel*		objfld_;
 };
 
 #endif

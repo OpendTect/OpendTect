@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.cc,v 1.21 2007-12-10 12:59:52 cvsbert Exp $
+ RCS:           $Id: uiattrsurfout.cc,v 1.22 2008-01-10 08:41:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,142 +37,68 @@ using namespace Attrib;
 
 uiAttrSurfaceOut::uiAttrSurfaceOut( uiParent* p, const DescSet& ad,
 				    const NLAModel* n, const MultiID& mid )
-    : uiFullBatchDialog(p,Setup("Create surface output")
-	    		  .procprognm("process_attrib_em"))
-    , ctio(*mGetCtxtIOObj(EMHorizon3D,Surf))
-    , ads(const_cast<DescSet&>(ad))
-    , nlamodel(n)
-    , nlaid(mid)
+    : uiAttrEMOut( p, ad, n, mid, "Create surface output" )
+    , ctio_(*mGetCtxtIOObj(EMHorizon3D,Surf))
 {
     setHelpID( "104.4.0" );
-    setTitleText( "" );
 
-    attrfld = new uiAttrSel( uppgrp_, &ads, ads.is2D(), "Quantity to output" );
-    attrfld->setNLAModel( nlamodel );
-    attrfld->selectiondone.notify( mCB(this,uiAttrSurfaceOut,attribSel) );
+    attrnmfld_ = new uiGenInput( uppgrp_, "Attribute name", StringInpSpec() );
+    attrnmfld_->attach( alignedBelow, attrfld_ );
 
-    attrnmfld = new uiGenInput( uppgrp_, "Attribute name", StringInpSpec() );
-    attrnmfld->attach( alignedBelow, attrfld );
+    ctio_.ctxt.forread = true;
+    objfld_ = new uiIOObjSel( uppgrp_, ctio_, "Calculate on surface" );
+    objfld_->attach( alignedBelow, attrnmfld_ );
+    objfld_->selectiondone.notify( mCB(this,uiAttrSurfaceOut,objSel) );
 
-    ctio.ctxt.forread = true;
-    objfld = new uiIOObjSel( uppgrp_, ctio, "Calculate on surface" );
-    objfld->attach( alignedBelow, attrnmfld );
-    objfld->selectiondone.notify( mCB(this,uiAttrSurfaceOut,objSel) );
-
-    uppgrp_->setHAlignObj( attrfld );
+    uppgrp_->setHAlignObj( attrfld_ );
     addStdFields( false, true );
 }
 
 
 uiAttrSurfaceOut::~uiAttrSurfaceOut()
 {
-    delete ctio.ioobj;
-    delete &ctio;
+    delete ctio_.ioobj;
+    delete &ctio_;
 }
 
 
 void uiAttrSurfaceOut::attribSel( CallBacker* )
 {
-    attrnmfld->setText( attrfld->getInput() );
+    attrnmfld_->setText( attrfld_->getInput() );
     objSel(0);
 }
 
 
 void uiAttrSurfaceOut::objSel( CallBacker* )
 {
-    if ( !objfld->ctxtIOObj().ioobj ) return;
-    BufferString parnm( objfld->ctxtIOObj().ioobj->name() );
-    parnm += " "; parnm += attrnmfld->text();
+    if ( !objfld_->ctxtIOObj().ioobj ) return;
+    BufferString parnm( objfld_->ctxtIOObj().ioobj->name() );
+    parnm += " "; parnm += attrnmfld_->text();
     setParFileNmDef( parnm );
 }
 
 
 bool uiAttrSurfaceOut::prepareProcessing()
 {
-    if ( !objfld->commitInput(false) )
+    if ( !objfld_->commitInput(false) )
     {
 	uiMSG().error( "Please select surface" );
 	return false;
     }
 
-    attrfld->processInput();
-    if ( attrfld->attribID() < 0 && attrfld->outputNr() < 0 )
-    {
-	uiMSG().error( "Please select the output quantity" );
-	return false;
-    }
-
-    return true;
+    return uiAttrEMOut::prepareProcessing();
 }
 
 
 bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 {
-    DescID nladescid( -1, true );
-    if ( nlamodel && attrfld->outputNr() >= 0 )
-    {
-	if ( !nlaid || !(*nlaid) )
-	{ 
-	    uiMSG().message( "NN needs to be stored before creating volume" ); 
-	    return false; 
-	}
-	if ( !addNLA( nladescid ) )	return false;
-    }
+    uiAttrEMOut::fillPar( iopar );
+    fillOutPar( iopar, Output::surfkey, LocationOutput::surfidkey,
+	    	ctio_.ioobj->key() );
 
-    const DescID targetid = nladescid < 0 ? attrfld->attribID() : nladescid;
-    DescSet* clonedset = ads.optimizeClone( targetid );
-    if ( !clonedset )
-	return false;
-
-    IOPar attrpar( "Attribute Descriptions" );
-    clonedset->fillPar( attrpar );
-	    
-    for ( int idx=0; idx<attrpar.size(); idx++ )
-    {
-        const char* nm = attrpar.getKey( idx );
-        iopar.add( IOPar::compKey(SeisTrcStorOutput::attribkey,nm),
-		   attrpar.getValue(idx) );
-    }
-
-    BufferString key;
-    BufferString keybase = Output::outputstr; keybase += ".1.";
-    key = keybase; key += sKey::Type;
-    iopar.set( key, Output::surfkey );
-
-    key = keybase; key += SeisTrcStorOutput::attribkey;
-    key += "."; key += DescSet::highestIDStr();
-    iopar.set( key, 1 );
-
-    key = keybase; key += SeisTrcStorOutput::attribkey; key += ".0";
-    iopar.set( key, nladescid < 0 ? attrfld->attribID().asInt() 
-	    			  : nladescid.asInt() );
-
-    key = keybase; key += LocationOutput::surfidkey;
-    iopar.set( key, ctio.ioobj->key() );
-
-    BufferString attrnm = attrnmfld->text();
-    if ( attrnm.isEmpty() ) attrnm = attrfld->getInput();
+    BufferString attrnm = attrnmfld_->text();
+    if ( attrnm.isEmpty() ) attrnm = attrfld_->getInput();
     iopar.set( "Target value", attrnm );
-    ads.removeDesc( nladescid );
-
-//    ads.setRanges( iopar );////////TODO
-    delete clonedset;
     return true;
 }
 
-
-#define mErrRet(str) { uiMSG().message( str ); return false; }
-
-bool uiAttrSurfaceOut::addNLA( DescID& id )
-{
-    BufferString defstr("NN specification=");
-    defstr += nlaid;
-
-    const int outputnr = attrfld->outputNr();
-    BufferString errmsg;
-    EngineMan::addNLADesc( defstr, id, ads, outputnr, nlamodel, errmsg );
-    if ( errmsg.size() )
-	mErrRet( errmsg );
-
-    return true;
-}
