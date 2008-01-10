@@ -4,22 +4,22 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.cc,v 1.12 2007-12-05 21:44:20 cvskris Exp $
+ RCS:           $Id: emhorizonutils.cc,v 1.13 2008-01-10 08:49:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emhorizonutils.h"
 
-#include "cubesampling.h"
-#include "progressmeter.h"
 #include "binidvalset.h"
+#include "cubesampling.h"
 
 #include "emmanager.h"
 #include "emhorizon3d.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
 #include "parametricsurface.h"
+#include "progressmeter.h"
 #include "survinfo.h"
 
 #define mMaxSampInterpol	150;
@@ -117,7 +117,8 @@ Surface* HorizonUtils::getSurface( const MultiID& id )
 
 
 void HorizonUtils::getPositions( std::ostream& strm, const MultiID& id,
-				 ObjectSet<BinIDValueSet>& data )
+				 ObjectSet<BinIDValueSet>& data,
+       				 const Geom::PosRectangle<double>* xyrg	)
 {
     Surface* surface = getSurface(id);
     if ( !surface ) return;
@@ -143,8 +144,11 @@ void HorizonUtils::getPositions( std::ostream& strm, const MultiID& id,
 	}
 
 	const Coord3 crd = surface->getPos( pid );
-	const BinID bid = SI().transform(crd);
-	res->add( bid, crd.z );
+	if ( !xyrg || (xyrg && xyrg->contains( crd, 1e-6 )) )
+	{
+	    const BinID bid = SI().transform(crd);
+	    res->add( bid, crd.z );
+	}
 	++pm;
     }
 
@@ -302,5 +306,62 @@ void HorizonUtils::addSurfaceData( const MultiID& id,
 	}
     }
 }
+
+
+#define mIsEmptyErr( cond, surfid )\
+    if ( cond )\
+    {\
+	strm << "\n Cannot get Positions for surface ID"<<surfid<<" \n";\
+	return;\
+    }
+
+void HorizonUtils::getWantedPos2D( std::ostream& strm,
+				   ObjectSet<MultiID>& midset, 
+				   BinIDValueSet& bivs,
+				   const Geom::PosRectangle<double>* xylimits,
+				   const Interval<float>& extraz )
+{
+    ObjectSet<BinIDValueSet> possurf0;
+    ObjectSet<BinIDValueSet> possurf1;
+    getPositions( strm, *(midset[0]), possurf0, xylimits );
+    bool use2hor = midset.size() == 2;
+
+    if ( use2hor )
+	getPositions( strm, *(midset[1]), possurf1, xylimits );
+
+    mIsEmptyErr( possurf0.isEmpty(), *(midset[0]) )
+    mIsEmptyErr( use2hor && possurf1.isEmpty(), *(midset[1]) )
+
+    if ( use2hor )
+    {
+	//Remark: multiple sections for the same horizon not fully used here;
+	//	  loop over the different sections but use only the first Z 
+	//	  found for each BinID
+	for ( int idxsurf0=0; idxsurf0<possurf0.size(); idxsurf0++ )
+	{
+	    BinID bid = possurf0[idxsurf0]->firstPos();
+	    BinIDValueSet::Pos pos0 = possurf0[idxsurf0]->findFirst(bid);
+	    while ( true )
+	    {
+		for ( int idxsurf1=0; idxsurf1<possurf1.size(); idxsurf1++ )
+		{
+		    if ( possurf1[idxsurf1]->valid( bid ) )
+		    {
+			float z0, z1;
+			possurf0[idxsurf0]->get( pos0, bid , z0 );
+			possurf1[idxsurf1]->get(
+				possurf1[idxsurf1]->findFirst(bid), bid , z1 );
+			const float ztop = (z0>z1 ? z1 : z0) + extraz.start;
+			const float zbot = (z0>z1 ? z0 : z1) + extraz.stop;
+			bivs.add( bid, ztop, zbot );
+			break;
+		    }
+		}
+		if ( !possurf0[idxsurf0]->next(pos0) ) break;
+	    }
+	}
+    }
+}
+    
 
 };//namespace

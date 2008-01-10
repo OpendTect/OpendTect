@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.h,v 1.5 2006-02-07 13:38:40 cvshelene Exp $
+ RCS:           $Id: emhorizonutils.h,v 1.6 2008-01-10 08:49:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sets.h"
 #include "ranges.h"
+#include "geometry.h"
 
 class RowCol;
 class MultiID;
@@ -40,15 +41,25 @@ public:
     static float 	getMissingZ(const RowCol&,const Surface*,int);
     static Surface* 	getSurface(const MultiID&);
     static void 	getPositions(std::ostream&,const MultiID&,
-				     ObjectSet<BinIDValueSet>&);
+				     ObjectSet<BinIDValueSet>&,
+				     const Geom::PosRectangle<double>* xyrg=0);
     static void 	getWantedPositions(std::ostream&,ObjectSet<MultiID>&,
 					   BinIDValueSet&,const HorSampling&,
-					   const Interval<float>&,int,int,
-					   float);
-    static bool		getZInterval(int,int,Surface*,Surface*,
-	    			     float&,float&,int,int,float&,float);
+					   const Interval<float>& extraz,
+					   int nrinterpsamp,int mainhoridx,
+					   float extrawidth);
+    static void 	getWantedPos2D(std::ostream&,ObjectSet<MultiID>&,
+				       BinIDValueSet&,
+				       const Geom::PosRectangle<double>*,
+				       const Interval<float>& extraz);
+    static bool		getZInterval(int idi,int idc,Surface*,Surface*,
+	    			     float& topz,float& botz,int nrinterpsamp,
+				     int mainhoridx,float& lastzinterval,
+				     float extrawidth);
 	
-    static bool		SolveIntersect(float&,float&,int,int,float,bool,bool);
+    static bool		SolveIntersect(float& topz,float& botz,int nrinterpsamp,
+	    			       int is1main,float extrawidth,
+				       bool is1interp,bool is2interp);
     static void 	addSurfaceData(const MultiID&,const BufferStringSet&,
 				       const ObjectSet<BinIDValueSet>&);
 
