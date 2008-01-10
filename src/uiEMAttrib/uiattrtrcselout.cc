@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.32 2008-01-10 08:41:18 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.33 2008-01-10 10:07:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -164,7 +164,7 @@ void uiAttrTrcSelOut::createZIntervalFld( uiParent* prnt )
 {
     const char* gatelabel = "Z Interval required around surfaces";
     gatefld_ = new uiGenInput( prnt, gatelabel, FloatInpIntervalSpec() );
-    gatefld_->attach( alignedBelow, subselfld_ );
+    gatefld_->attach( alignedBelow, bidsubselfld_ );
     uiLabel* lbl = new uiLabel( prnt, SI().getZUnit() );
     lbl->attach( rightOf, (uiObject*)gatefld_ );
 }
@@ -194,10 +194,10 @@ void uiAttrTrcSelOut::createExtraZBotFld( uiParent* prnt )
 
 void uiAttrTrcSelOut::createSubSelFld( uiParent* prnt )
 {
-    subselfld_ = new uiBinIDSubSel( prnt, uiBinIDSubSel::Setup()
+    bidsubselfld_ = new uiBinIDSubSel( prnt, uiBinIDSubSel::Setup()
 	    				   .withz(false).withstep(true) );
-    subselfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)objfld_
-	    					    : (uiGroup*)obj2fld_ );
+    bidsubselfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)objfld_
+	    					       : (uiGroup*)obj2fld_ );
 }
 
 
@@ -206,7 +206,7 @@ void uiAttrTrcSelOut::createOutsideValFld( uiParent* prnt )
     const char* outsidevallabel = "Value outside computed area";
     outsidevalfld_ = new uiGenInput( prnt, outsidevallabel, FloatInpSpec() );
     outsidevalfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)gatefld_ 
-	    					       : (uiGroup*)subselfld_ );
+						   : (uiGroup*)bidsubselfld_ );
     outsidevalfld_->setValue(0);
 }
 
@@ -343,7 +343,7 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     }
 
     PtrMan<IOPar> subselpar = new IOPar;
-    subselfld_->fillPar( *subselpar );
+    bidsubselfld_->fillPar( *subselpar );
 
     HorSampling horsamp; horsamp.usePar( *subselpar );
     if ( horsamp.isEmpty() )
@@ -458,8 +458,8 @@ void uiAttrTrcSelOut::objSel( CallBacker* cb )
     
     HorSampling horsampling;
     getComputableSurf( horsampling );
-    uiBinIDSubSel::Data subseldata = subselfld_->data();
-    subseldata.cs_.hrg = horsampling; subselfld_->setData( subseldata );
+    uiBinIDSubSel::Data subseldata = bidsubselfld_->data();
+    subseldata.cs_.hrg = horsampling; bidsubselfld_->setData( subseldata );
 }
 
 
