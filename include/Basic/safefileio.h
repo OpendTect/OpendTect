@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: safefileio.h,v 1.2 2005-04-08 11:37:36 cvsbert Exp $
+ RCS:		$Id: safefileio.h,v 1.3 2008-01-10 11:16:13 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,8 @@ public:
     const char*		errMsg() const		{ return errmsg_.buf(); }
     std::istream&	istrm()			{ return *sd_.istrm; }
     std::ostream&	ostrm()			{ return *sd_.ostrm; }
+    StreamData&		strmdata()		{ return sd_; }
+
     void		closeFail( bool keeplock=false )
 			{ doClose( keeplock, false ); }
     bool		closeSuccess( bool keeplock=false )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.63 2008-01-10 08:52:11 cvshelene Exp $
+ RCS:		$Id: survinfo.h,v 1.64 2008-01-10 11:16:13 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,6 +134,7 @@ public:
     const char*		getWSProjName() const	{ return wsprojnm_; }
     			// Password only in memory this session
     const char*		getWSPwd() const	{ return wspwd_; }
+    BufferString	getDirName() const	{ return dirname; }
 
 	// Some fns moved to bottom that have 'no user servicable parts inside'
 

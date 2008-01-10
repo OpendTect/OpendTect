@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.8 2007-12-17 05:53:18 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.9 2008-01-10 11:16:13 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+#include "executor.h"
 #include "multiid.h"
+#include "safefileio.h"
 #include "seistype.h"
 #include "samplingdata.h"
 #include "position.h"
@@ -57,6 +59,7 @@ public :
     void		setZ(float) ;
     void		setCrlWise( bool yn=true )	{ crlwise_ = yn; }
     void 		commitChanges();
+    bool 		storeChgdData();
     void		goTo(const BinID&);
 	
 
@@ -70,6 +73,8 @@ public :
 protected:
 
     CBVSSeisTrcTranslator* tr_;
+    CBVSSeisTrcTranslator* tro_;
+    CBVSSeisTrcTranslator* tri_;
     SeisTrcBuf&		tbuf_;
     SeisTrcBuf&		tbufchgdtrcs_;
     SeisTrc&		ctrc_;

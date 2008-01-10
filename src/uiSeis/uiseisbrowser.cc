@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.12 2007-12-21 12:37:35 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.13 2008-01-10 11:16:13 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiseisbrowser.h"
 
 #include "uibutton.h"
+#include "uiexecutor.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uigeninput.h"
@@ -24,24 +25,32 @@ ________________________________________________________________________
 #include "uitextedit.h"
 
 #include "cbvsreadmgr.h"
+#include "cubesampling.h"
 #include "datainpspec.h"
 #include "datapack.h"
+#include "executor.h"
+#include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "oddirs.h"
 #include "ptrman.h"
+#include "safefileio.h"
 #include "samplingdata.h"
 #include "seisbuf.h"
 #include "seiscbvs.h"
 #include "seisinfo.h"
+#include "seisioobjinfo.h"
 #include "seistrc.h"
 #include "seistrctr.h"
 #include "survinfo.h"
+#include <iostream>
 
 
 
 uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& setup )
     : uiDialog(p,setup)
     , tr_(0)
+    , tro_(0)
     , tbl_(0)
     , uitb_(0)
     , tbufbefore_(*new SeisTrcBuf(true))
@@ -462,12 +471,128 @@ bool uiSeisBrowser::acceptOK( CallBacker* )
 {
     commitChanges();
     if ( tbufchgdtrcs_.isEmpty() )
-    return true;
+	return true;
 
-    if (uiMSG(). askGoOn(" Do you want to save the changes permanently? ",
+    if ( uiMSG(). askGoOn(" Do you want to save the changes permanently? ",
 	          	   true));
+	storeChgdData();
     //TODO store traces if user wants to
-    return false;
+    return true;
+}
+
+
+
+class uiSeisBrowseWriter : public Executor
+{
+public:
+
+uiSeisBrowseWriter( const uiSeisBrowser::Setup& setup, const SeisTrcBuf& tbuf,
+		    bool is2d )
+    : Executor( "Writing Back Changed Traces" )
+    , tro_(0)
+    , tri_(0)
+    , nrdone_(0)
+    , is2d_(is2d)
+    , tbufchgdtrcs_(tbuf)
+    , trc_(*new SeisTrc())
+{
+    PtrMan<IOObj> ioobj = IOM().get( setup.id_ );
+    const FilePath fp( ioobj->fullUserExpr(true) );
+    safeio_ = new SafeFileIO( fp.fullPath() );
+
+    tro_ = CBVSSeisTrcTranslator::getInstance();
+    tro_->set2D( Seis::is2D(setup.geom_) );
+
+    BufferString errmsg;
+    tri_ = CBVSSeisTrcTranslator::make( ioobj->fullUserExpr(true), false,
+	               		        Seis::is2D(setup.geom_), &errmsg );
+
+    SeisIOObjInfo seisinfo( ioobj.ptr() );
+    CubeSampling cs;
+    seisinfo.getRanges( cs );
+    totalnr_ = cs.nrInl() * cs.nrCrl();
+}
+
+
+~uiSeisBrowseWriter()
+{
+    delete safeio_;
+    delete tri_;
+    delete tro_;
+}
+
+
+bool init()
+{
+    if ( !tri_ ||  !tro_ )
+	 uiMSG().error( "" );
+	return false;
+    if ( !safeio_->open(false) )
+	uiMSG().error( "Unable to open the file" );
+	return false;
+    StreamConn* conno = new StreamConn( safeio_->strmdata() );
+    if ( !tro_->initWrite( conno, *tbufchgdtrcs_.get(0)) )
+	uiMSG().error( "Unable to write" );
+	return false;
+    if ( !tri_->readInfo(trc_.info()) )
+    {
+	uiMSG().error( "Input cube is empty" );
+	return false;
+    }
+    return true;
+}
+
+
+    int			totalNr() const		{ return totalnr_; }
+    int                 nrDone() const          { return nrdone_; }
+    const char*         message() const         { return "Computing..."; }
+    const char*         nrDoneText() const      { return "Traces done"; }
+
+protected:
+int nextStep()
+{
+    if ( nrdone_ == 0 && !init() )
+	return ErrorOccurred;
+
+    if ( tri_->read(trc_) ) 
+    {
+	const int chgidx = tbufchgdtrcs_.find( trc_.info().binid, is2d_ );
+	const bool res = chgidx<0 ? tro_->write( trc_ ) 
+				  : tro_->write( *tbufchgdtrcs_.get(chgidx) );
+	if ( !res )
+	{
+	    safeio_->closeFail();
+	    return ErrorOccurred;
+	}
+
+	nrdone_++;
+	return MoreToDo;
+    }
+
+    safeio_->closeSuccess();
+    return Finished;
+}
+
+    CBVSSeisTrcTranslator* tri_;
+    CBVSSeisTrcTranslator* tro_;
+    SafeFileIO*		safeio_;
+
+    int			totalnr_;
+    int                 nrdone_;
+    const SeisTrcBuf&	tbufchgdtrcs_;
+    SeisTrc&		trc_;
+    bool                is2d_;
+
+};
+
+
+bool uiSeisBrowser::storeChgdData()
+{
+    
+    uiSeisBrowseWriter* wrtr = new uiSeisBrowseWriter( setup_, tbufchgdtrcs_,
+	    					       is2D() );
+    uiExecutor dlg( this, *wrtr );
+    return dlg.go();
 }
 
 
@@ -509,6 +634,8 @@ void uiSeisBrowser::trcbufViewerClosed( CallBacker* )
 
 void uiSeisBrowser::valChgReDraw( CallBacker* )
 {
+    
+    commitChanges();
     const RowCol rc = tbl_->currentCell();
     SeisTrc* trace = tbuf_.get( rc.col );
     const float chgdval = tbl_->getfValue( rc );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          Nov 2007
- RCS:           $Id: uiseistrcbufviewer.cc,v 1.10 2007-12-21 12:37:35 cvssatyaki Exp $
+ RCS:           $Id: uiseistrcbufviewer.cc,v 1.11 2008-01-10 11:16:13 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,7 +80,7 @@ void uiSeisTrcBufViewer::handleBufChange()
 }
 
 
-void uiSeisTrcBufViewer::removePacks()
+void uiSeisTrcBufViewer::clearData()
 {
     const TypeSet<DataPack::ID> ids = viewer().availablePacks();
     for ( int idx=0; idx<ids.size(); idx++ )
