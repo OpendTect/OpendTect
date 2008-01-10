@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.43 2007-12-14 05:55:36 cvsnanne Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.44 2008-01-10 08:44:05 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "initalgo.h"
 #include "initattributeengine.h"
 #include "initattributes.h"
+#include "initearthmodel.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -110,6 +111,19 @@ static bool getObjectID( const IOPar& iopar, const char* str, bool claimmissing,
 	objidstr = "";
     
     return true;
+}
+
+
+static HorSampling getHorSampling( const Geom::PosRectangle<double>* xylimits )
+{
+    HorSampling horsamp;
+    BinID topleftbid = SI().transform( xylimits->topLeft() );
+    BinID botrightbid = SI().transform( xylimits->bottomRight() );
+    horsamp.start = BinID( mMIN( topleftbid.inl, botrightbid.inl ),
+	    		   mMIN( topleftbid.crl, botrightbid.crl ) );
+    horsamp.stop = BinID( mMAX( topleftbid.inl, botrightbid.inl ),
+	    		  mMAX( topleftbid.crl, botrightbid.crl ) );
+    return horsamp;
 }
 
     
@@ -244,6 +258,7 @@ bool BatchProgram::go( std::ostream& strm )
     Algo::initStdClasses();
     AttributeEngine::initStdClasses();
     Attributes::initStdClasses();
+    EarthModel::initStdClasses();
 
     if ( cmdLineOpts().size() )
     {
@@ -270,11 +285,24 @@ bool BatchProgram::go( std::ostream& strm )
 	mErrRetNoProc(errmsg);
 
     PtrMan<IOPar> geompar = pars().subselect(sKey::Geometry);
-    HorSampling horsamp;
+    HorSampling hsamp;
+    Geom::PosRectangle<double>* xylimits = new Geom::PosRectangle<double>();
     if ( iscubeoutp && geompar )
     {
-	geompar->get( "In-line range", horsamp.start.inl, horsamp.stop.inl );
-	geompar->get( "Cross-line range", horsamp.start.crl, horsamp.stop.crl);
+	bool is3d = geompar->get( SurveyInfo::sKeyInlRange,
+				hsamp.start.inl, hsamp.stop.inl )
+	    	    && geompar->get( SurveyInfo::sKeyCrlRange,
+			    	hsamp.start.crl, hsamp.stop.crl );
+	if ( !is3d )
+	{
+	    Interval<double> xrange, yrange;
+	    geompar->get( SurveyInfo::sKeyXRange, xrange.start, xrange.stop );
+	    geompar->get( SurveyInfo::sKeyYRange, yrange.start, yrange.stop );
+	    xylimits->setLeftRight( xrange );
+	    xylimits->setTopBottom( yrange );
+	    hsamp = getHorSampling( xylimits );
+	}
+	
     }
 
     ObjectSet<EMObject> objects;
@@ -289,7 +317,7 @@ bool BatchProgram::go( std::ostream& strm )
 	sels.selvalues.erase();
 	for ( int idx=0; idx<sd.sections.size(); idx++ )
 	    sels.selsections += idx;
-	sels.rg = horsamp;
+	sels.rg = hsamp;
 	PtrMan<Executor> loader = 
 			EMM().objectLoader( *mid, iscubeoutp ? &sels : 0 );
 	if ( !loader || !loader->execute(&strm) ) 
@@ -396,8 +424,12 @@ bool BatchProgram::go( std::ostream& strm )
 	}
 
 	BinIDValueSet bivs(2,false);
-	HorizonUtils::getWantedPositions( strm, midset, bivs, horsamp, extraz,
-					  nrinterpsamp, mainhoridx, extrawidth);
+	if ( attribset.is2D() )
+	    HorizonUtils::getWantedPos2D( strm, midset, bivs, xylimits, extraz);
+	else
+	    HorizonUtils::getWantedPositions( strm, midset, bivs, hsamp,
+		    			      extraz, nrinterpsamp, mainhoridx,
+					      extrawidth );
 	SeisTrcBuf seisoutp( false );
 	Processor* proc = 
 	    aem.createTrcSelOutput( errmsg, bivs, seisoutp, outval,
@@ -410,6 +442,7 @@ bool BatchProgram::go( std::ostream& strm )
 
     deepErase(midset);
     deepUnRef( objects );
+    delete xylimits;
 
     return true;
 }
