@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.21 2007-02-19 16:41:45 cvsbert Exp $
+ RCS:		$Id: seisinfo.h,v 1.22 2008-01-10 09:59:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,6 +87,8 @@ public:
     int			getDefaultAxisFld(Seis::GeomType,
 					  const SeisTrcInfo* next) const;
     void		getInterestingFlds(Seis::GeomType,IOPar&) const;
+    void		setPSFlds(const Coord& rcvpos,const Coord& srcpos,
+	    			  bool setpos=false);
 
     static const char*	sSamplingInfo;
     static const char*	sNrSamples;

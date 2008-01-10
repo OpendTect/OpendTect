@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.43 2007-12-13 16:28:50 cvsbert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.44 2008-01-10 09:59:25 cvsbert Exp $";
 
 #include "seisinfo.h"
 #include "seisbounds.h"
@@ -284,6 +284,19 @@ void SeisTrcInfo::getInterestingFlds( Seis::GeomType gt, IOPar& iopar ) const
 	    mIOIOPar( set, Pick, pick );
 	if ( !mIsUdf(refpos) )
 	    mIOIOPar( set, RefPos, refpos );
+    }
+}
+
+
+void SeisTrcInfo::setPSFlds( const Coord& rcv, const Coord& src, bool setpos )
+{
+    offset = rcv.distTo( src );
+    azimuth = atan2( rcv.y - src.y, rcv.x - src.x );
+    if ( setpos )
+    {
+	coord.x = .5 * (rcv.x + src.x);
+	coord.y = .5 * (rcv.y + src.y);
+	binid = SI().transform( coord );
     }
 }
 

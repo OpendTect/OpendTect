@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.79 2007-11-23 11:59:06 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.80 2008-01-10 09:59:25 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -239,27 +239,6 @@ void SeisTrcTranslator::enforceBounds()
 
     outsd.start = insd.start + startsamp * insd.step;
     outnrsamples = endsamp - startsamp + 1;
-}
-
-
-void SeisTrcTranslator::fillOffsAzim( SeisTrcInfo& ti, const Coord& gp,
-				      const Coord& sp )
-{
-    static bool warnfail = GetEnvVarYN( "DTECT_WARN_BINID_SRCOORDS" );
-    ti.offset = gp.distTo( sp );
-    ti.azimuth = atan2( gp.y - sp.y, gp.x - sp.x );
-    if ( warnfail )
-    {
-	Coord pos( .5 * (gp.x + sp.x), .5 * (gp.y + sp.y) );
-	BinID bid( SI().transform(pos) );
-	if ( bid != ti.binid )
-	{
-	    BufferString msg( "S/R posns don't match Inl/Crl. Hdr=" );
-	    msg += ti.binid.inl; msg += "/"; msg += ti.binid.crl;
-	    msg += " S/R="; msg += bid.inl; msg += "/"; msg += bid.crl;
-	    ErrMsg( msg );
-	}
-    }
 }
 
 
