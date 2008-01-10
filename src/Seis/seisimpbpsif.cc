@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.4 2008-01-09 14:06:32 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.5 2008-01-10 09:59:56 cvsbert Exp $";
 
 #include "seisimpbpsif.h"
 #include "seispswrite.h"
@@ -18,6 +18,7 @@ static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.4 2008-01-09 14:06:32 cvsbe
 #include "ioobj.h"
 #include "oddirs.h"
 #include "survinfo.h"
+#include "cubesampling.h"
 #include <iostream>
 
 class SeisPSImpLineBuf
@@ -100,7 +101,9 @@ SeisImpBPSIF::SeisImpBPSIF( const char* filenm, const MultiID& )
     	, datamgr_(*new SeisPSImpDataMgr)
     	, curfileidx_(-1)
     	, nrshots_(0)
-    	, nrrcvpershot_(0)
+    	, nrrejected_(0)
+    	, nrrcvpershot_(-1)
+    	, binary_(false)
     	, irregular_(false)
 {
     if ( !filenm || !*filenm )
@@ -142,10 +145,10 @@ bool SeisImpBPSIF::open( const char* fnm )
 bool SeisImpBPSIF::openNext()
 {
     curfileidx_++;
-    if ( curfileidx_ > fnames_.size() )
+    if ( curfileidx_ >= fnames_.size() )
 	return false;
 
-    if ( !readFileHeader() || !open( fnames_.get(curfileidx_) ) )
+    if ( !open( fnames_.get(curfileidx_) ) || !readFileHeader() )
 	return openNext();
 
     return true;
@@ -159,7 +162,7 @@ bool SeisImpBPSIF::openNext()
 bool SeisImpBPSIF::readFileHeader()
 {
     char buf[10];
-    cursd_.istrm->getline( buf, 10 );
+    cursd_.istrm->getline( buf, 10 ); removeTrailingBlanks(buf);
     if ( strcmp(buf,"#BPSIF#") )
 	mErrRet(" is not a BPSIF file")
     if ( cursd_.istrm->peek() == '\n' ) cursd_.istrm->ignore( 1 );
@@ -169,10 +172,9 @@ bool SeisImpBPSIF::readFileHeader()
 	BufferString* lineread = new BufferString;
 	if ( !StrmOper::readLine(*cursd_.istrm,lineread) )
 	    return false;
-	if ( lineread->isEmpty() )
-	    { delete lineread; continue; }
-
-	if ( matchString("#----",lineread->buf()) )
+	else if ( matchString("#BINARY",lineread->buf()) )
+	    { binary_ = true; nrrcvpershot_ = atoi(lineread->buf()+9); }
+	else if ( matchString("#----",lineread->buf()) )
 	    { delete lineread; break; }
 
 	hdrlines_ += lineread;
@@ -184,13 +186,19 @@ bool SeisImpBPSIF::readFileHeader()
     static const char* valstr = "#Value.";
     for ( int idx=0; idx<hdrlines_.size(); idx++ )
     {
-	const BufferString& ln = hdrlines_.get( idx );
+	BufferString ln = hdrlines_.get( idx );
 	if ( matchString(valstr,ln.buf()) )
 	{
 	    const char* nrstr = ln.buf() + 7;
-	    const char* attrstr = strchr( ln.buf(), ':' );
+	    char* attrstr = strchr( ln.buf(), ':' );
 	    if ( !attrstr ) continue;
-	    addAttr( *nrstr == '1' ? shotattrs_ : rcvattrs_, attrstr+1 );
+	    *attrstr++ = '\0';
+	    char* subnrstr = ln.buf() + 9;
+	    removeTrailingBlanks( subnrstr );
+	    if ( !strcmp(subnrstr,"0") || !strcmp(subnrstr,"1") )
+		continue; // coordinates
+
+	    addAttr( *nrstr == '1' ? shotattrs_ : rcvattrs_, attrstr );
 	}
     }
 
@@ -200,13 +208,13 @@ bool SeisImpBPSIF::readFileHeader()
 }
 
 
-void SeisImpBPSIF::addAttr( BufferStringSet& attrs, const char* attrstr )
+void SeisImpBPSIF::addAttr( BufferStringSet& attrs, char* attrstr )
 {
     mSkipBlanks(attrstr);
-    const char* ptr = strchr( attrstr, '=' );
+    char* ptr = strchr( attrstr, '=' );
     if ( !ptr ) ptr = attrstr;
-    else
-	{ ptr++; mSkipBlanks(ptr); }
+    else	ptr++;
+    mTrimBlanks(ptr);
 
     if ( *ptr )
 	attrs.add( ptr );
@@ -225,29 +233,39 @@ int SeisImpBPSIF::nextStep()
 	return openNext() ? Executor::MoreToDo : Executor::ErrorOccurred;
     else if ( pswrr_ )
 	return writeData();
+    else if ( binary_ )
+	return readBinary();
 
-    const int nrshotattrs = shotattrs_.size();
-    float shotnr, x, y;
+    return readAscii();
+}
+
+
+int SeisImpBPSIF::readAscii()
+{
     std::istream& strm = *cursd_.istrm;
+    const int nrshotattrs = shotattrs_.size();
     SeisTrc tmpltrc( nrshotattrs + rcvattrs_.size() );
-    strm >> shotnr >> x >> y;
-    tmpltrc.info().coord.x = x; tmpltrc.info().coord.y = y;
+    tmpltrc.info().sampling.start = SI().zRange(true).start;
+    tmpltrc.info().sampling.step = SI().zStep();
+    strm >> tmpltrc.info().coord.x >> tmpltrc.info().coord.y;
     for ( int idx=0; idx<nrshotattrs; idx++ )
     {
 	float val; strm >> val;
 	tmpltrc.set( idx, val, 0 );
+	if ( idx == 0 )
+	    tmpltrc.info().nr = mNINT(val);
     }
 
     BufferString rcvdata;
     if ( !StrmOper::readLine(strm,&rcvdata) )
-	return writeData();
+	return fileEnded();
     else
     {
-	int nrpos = addTrcs( tmpltrc, rcvdata.buf() );
+	int nrpos = addTrcsAscii( tmpltrc, rcvdata.buf() );
 	if ( nrrcvpershot_ < 0 )
 	    nrrcvpershot_ = nrpos;
 	else if ( nrpos == 0 )
-	    return writeData();
+	    return fileEnded();
 	else if ( nrpos != nrrcvpershot_ )
 	    irregular_ = true;
 	nrshots_++;
@@ -257,7 +275,26 @@ int SeisImpBPSIF::nextStep()
 }
 
 
-static float getVal( char* data, char*& ptr )
+int SeisImpBPSIF::readBinary()
+{
+    std::istream& strm = *cursd_.istrm;
+    const int nrshotattrs = shotattrs_.size();
+    const int nrrcvattrs = rcvattrs_.size();
+    float vbuf[2+nrshotattrs];
+    SeisTrc tmpltrc( nrshotattrs + nrrcvattrs );
+    tmpltrc.info().sampling.start = SI().zRange(true).start;
+    tmpltrc.info().sampling.step = SI().zStep();
+    StrmOper::readBlock( strm, vbuf, (2+nrshotattrs)*sizeof(float) );
+    tmpltrc.info().coord.x = vbuf[0]; tmpltrc.info().coord.y = vbuf[1];
+    for ( int idx=0; idx<nrshotattrs; idx++ )
+	tmpltrc.set( idx, vbuf[2+idx], 0 );
+    tmpltrc.info().nr = mNINT(vbuf[0]);
+
+    return addTrcsBinary( tmpltrc ) ? fileEnded() : Executor::MoreToDo;
+}
+
+
+static double getVal( char* data, char*& ptr )
 {
     mSkipBlanks( ptr );
     if ( !*ptr ) return mUdf(float);
@@ -270,34 +307,68 @@ static float getVal( char* data, char*& ptr )
 }
 
 
-int SeisImpBPSIF::addTrcs( const SeisTrc& tmpltrc, char* data )
+int SeisImpBPSIF::addTrcsAscii( const SeisTrc& tmpltrc, char* data )
 {
     const int nrrcvattrs = rcvattrs_.size();
     const int nrshotattrs = shotattrs_.size();
 
-    SeisTrc* newtrc = new SeisTrc( tmpltrc );
     char* ptr = data;
-    int nradded = 0;
+    int nrfound = 0;
     while ( true )
     {
+	SeisTrc* newtrc = new SeisTrc( tmpltrc );
 	Coord rcvcoord;
 	rcvcoord.x = getVal( data, ptr );
 	rcvcoord.y = getVal( data, ptr );
 	for ( int idx=0; idx<nrrcvattrs; idx++ )
 	{
-	    float val = getVal( data, ptr );
+	    float val = (float)getVal( data, ptr );
 	    if ( mIsUdf(val) )
-		{ delete newtrc; return nradded; }
+		{ delete newtrc; return nrfound; }
 	    newtrc->set( nrshotattrs+idx, val, 0 );
 	}
 
-	newtrc->info().coord += rcvcoord; newtrc->info().coord *= 0.5;
-	newtrc->info().binid = SI().transform( newtrc->info().coord );
-	datamgr_.add( newtrc );
-	nradded++;
+	newtrc->info().setPSFlds( rcvcoord, tmpltrc.info().coord, true );
+	if ( SI().sampling(false).hrg.includes(newtrc->info().binid) )
+	    datamgr_.add( newtrc );
+	else
+	    nrrejected_++;
+
+	nrfound++;
     }
 
-    return nradded;
+    return nrfound;
+}
+
+
+bool SeisImpBPSIF::addTrcsBinary( const SeisTrc& tmpltrc )
+{
+    const int nrrcvattrs = rcvattrs_.size();
+    const int nrshotattrs = shotattrs_.size();
+
+    float vbuf[2+nrrcvattrs];
+    for ( int idx=0; idx<nrrcvpershot_; idx++ )
+    {
+	if ( !StrmOper::readBlock( *cursd_.istrm, vbuf,
+		    		   (2+nrshotattrs)*sizeof(float) ) )
+	    return false;
+
+	SeisTrc* newtrc = new SeisTrc( tmpltrc );
+	Coord rcvcoord; rcvcoord.x = vbuf[0]; rcvcoord.y = vbuf[1];
+	for ( int idx=0; idx<nrrcvattrs; idx++ )
+	    newtrc->set( nrshotattrs+idx, vbuf[2+idx], 0 );
+
+	newtrc->info().setPSFlds( rcvcoord, tmpltrc.info().coord, true );
+	datamgr_.add( newtrc );
+    }
+
+    return true;
+}
+
+
+int SeisImpBPSIF::fileEnded()
+{
+    return openNext() ? Executor::MoreToDo : writeData();
 }
 
 

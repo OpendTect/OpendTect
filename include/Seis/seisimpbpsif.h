@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2008
- RCS:		$Id: seisimpbpsif.h,v 1.4 2008-01-09 14:06:32 cvsbert Exp $
+ RCS:		$Id: seisimpbpsif.h,v 1.5 2008-01-10 09:59:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,11 +71,24 @@ public:
     const char*		nrDoneText() const	{ return "Shots handled"; }
     int			nextStep();
 
+    int			nrFiles() const		{ return fnames_.size(); }
+    			// Available after first nextStep():
+    const BufferStringSet& header() const	{ return hdrlines_; }
+    const BufferStringSet& shotAttrs() const	{ return shotattrs_; }
+    const BufferStringSet& rcvAttrs() const	{ return rcvattrs_; }
+    			// Available after execution:
+    bool		isIrregular() const	{ return irregular_; }
+    int			nrShots() const		{ return nrshots_; }
+    int			nrRcvrs() const		{ return nrrcvpershot_; }
+    int			nrRejected() const	{ return nrrejected_; }
+
 protected:
 
     int			curfileidx_;
     int			nrshots_;
+    int			nrrejected_;
     int			nrrcvpershot_;
+    bool		binary_;
     bool		irregular_;
     StreamData		cursd_;
     BufferStringSet	fnames_;
@@ -89,8 +102,12 @@ protected:
     bool		open(const char*);
     bool		openNext();
     bool		readFileHeader();
-    void		addAttr(BufferStringSet&,const char*);
-    int			addTrcs(const SeisTrc&,char*);
+    void		addAttr(BufferStringSet&,char*);
+    int			readAscii();
+    int			readBinary();
+    int			addTrcsAscii(const SeisTrc&,char*);
+    bool		addTrcsBinary(const SeisTrc&);
+    int			fileEnded();
     int			writeData();
 
 };
