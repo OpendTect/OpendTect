@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.90 2007-11-13 16:21:11 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.91 2008-01-10 08:52:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,8 @@ static const char* sKeySurvDefs = "Survey defaults";
 static const char* sKeyLatLongAnchor = "Lat/Long anchor";
 const char* SurveyInfo::sKeyInlRange = "In-line range";
 const char* SurveyInfo::sKeyCrlRange = "Cross-line range";
+const char* SurveyInfo::sKeyXRange = "X range";
+const char* SurveyInfo::sKeyYRange = "Y range";
 const char* SurveyInfo::sKeyZRange = "Z range";
 const char* SurveyInfo::sKeyWSProjName = "Workstation Project Name";
 const char* SurveyInfo::sKeyDpthInFt = "Show depth in feet";

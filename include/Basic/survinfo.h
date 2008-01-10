@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.62 2007-11-13 16:21:11 cvsbert Exp $
+ RCS:		$Id: survinfo.h,v 1.63 2008-01-10 08:52:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,6 +122,8 @@ public:
 
     static const char*	sKeyInlRange;
     static const char*	sKeyCrlRange;
+    static const char*	sKeyXRange;
+    static const char*	sKeyYRange;
     static const char*	sKeyZRange;
     static const char*	sKeyWSProjName;
     static const char*	sKeyDpthInFt; //!< 'Depth in feet' Y/N (UI default)
