@@ -2,9 +2,9 @@
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        A.H. Lammertink
- Date:          08/08/2000
- RCS:           $Id: uiveldesc.cc,v 1.7 2007-12-28 21:18:38 cvskris Exp $
+ Author:        K. Tingdahl
+ Date:          September 2007
+ RCS:           $Id: uiveldesc.cc,v 1.8 2008-01-11 18:26:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,9 +15,9 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "seistrctr.h"
 #include "seisselection.h"
+#include "uibutton.h"
 #include "uigeninput.h"
 #include "uimsg.h"
-#include "uiseissel.h"
 
 
 
@@ -28,7 +28,7 @@ uiVelocityDesc::uiVelocityDesc( uiParent* p, const VelocityDesc& desc )
 	    		       StringListInpSpec( VelocityDesc::TypeNames ) );
     typefld_->valuechanged.notify( mCB(this, uiVelocityDesc, velTypeChange) );
 
-    samplefld_ = new uiGenInput( this, "Sample range",
+    samplefld_ = new uiGenInput( this, "Sample span",
 	    StringListInpSpec( VelocityDesc::SampleSpanNames ) );
     samplefld_->attach( alignedBelow, typefld_ );
 
@@ -58,15 +58,19 @@ VelocityDesc uiVelocityDesc::get() const
 }
 
 
-uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p )
-    : uiDialog( this, uiDialog::Setup("Set velocity information", 0, 0 ) )
+uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel )
+    : uiDialog( this, uiDialog::Setup("Edit velocity information", 0, 0 ) )
     , ctxt_(*mGetCtxtIOObj(SeisTrc,Seis))
 {
     ctxt_.ctxt.forread = true;
+    if ( sel ) ctxt_.ioobj = sel->clone();
+
     volsel_ = new uiSeisSel( this, ctxt_, uiSeisSel::Setup(Seis::Vol) );
     volsel_->selectiondone.notify( mCB(this,uiVelocityDescDlg,volSelChange) );
     veldesc_ = new uiVelocityDesc( this, VelocityDesc() );
     veldesc_->attach( alignedBelow, volsel_ );
+
+    volSelChange( 0 );
 }
 
 
@@ -80,6 +84,7 @@ uiVelocityDescDlg::~uiVelocityDescDlg()
 void uiVelocityDescDlg::volSelChange(CallBacker*)
 {
     volsel_->commitInput( false );
+    veldesc_->display( ctxt_.ioobj );
     if ( !ctxt_.ioobj )
 	return;
 
@@ -118,3 +123,45 @@ bool uiVelocityDescDlg::acceptOK(CallBacker*)
 
     return true;
 }
+
+
+uiVelSel::uiVelSel(uiParent* p, CtxtIOObj& ctxt, const uiSeisSel::Setup& setup )
+    : uiSeisSel( p, ctxt, setup )
+{
+    editcubebutt_ = new
+	uiPushButton( this, "Add/Edit", mCB(this,uiVelSel,editCB), false );
+    editcubebutt_->attach( rightOf, selbut_ );
+}
+
+
+const IOObjContext& uiVelSel::ioContext()
+{
+    static PtrMan<IOObjContext> velctxt = 0;
+    if ( !velctxt )
+    {
+	velctxt = new IOObjContext( SeisTrcTranslatorGroup::ioContext() );
+	velctxt->trglobexpr = "CBVS";
+	velctxt->deftransl = velctxt->trglobexpr;
+	velctxt->parconstraints.setYN( VelocityDesc::sKeyIsVelocity(), true );
+	velctxt->includeconstraints = true;
+	velctxt->allowcnstrsabsent = false;
+    }
+
+    return *velctxt;
+}
+
+
+void uiVelSel::editCB(CallBacker*)
+{
+    uiVelocityDescDlg dlg( this, ctio.ioobj );
+    dlg.go();
+}
+
+
+void uiVelSel::updateInput()
+{
+    uiSeisSel::updateInput();
+    editcubebutt_->setText( ctio.ioobj ? "Edit" : "Add" );
+}
+
+

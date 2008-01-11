@@ -6,18 +6,19 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2007
- RCS:           $Id: uiveldesc.h,v 1.2 2007-11-16 21:28:54 cvskris Exp $
+ RCS:           $Id: uiveldesc.h,v 1.3 2008-01-11 18:26:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uidialog.h"
-#include "uigroup.h"
+#include "uiseissel.h"
 #include "veldesc.h"
 
 class uiGenInput;
 class uiSeisSel;
 class CtxtIOObj;
+
+/*!Group that allows the user to edit VelocityDesc information. */
 
 class uiVelocityDesc : public uiGroup
 {
@@ -36,10 +37,11 @@ protected:
 };
 
 
+/*!Dialog that allows the user to edit VelocityDesc information. */
 class uiVelocityDescDlg : public uiDialog
 {
 public:
-    			uiVelocityDescDlg(uiParent*);
+    			uiVelocityDescDlg(uiParent*,const IOObj* cursel);
 			~uiVelocityDescDlg();
 
 protected:
@@ -50,5 +52,25 @@ protected:
    uiVelocityDesc*	veldesc_;
    CtxtIOObj&		ctxt_;
 };
+
+
+//!Field that selects a velocity volume, and edit it's properties/velocity tag
+
+
+class uiVelSel : public uiSeisSel
+{
+public:
+    				uiVelSel(uiParent*,CtxtIOObj&,
+					 const uiSeisSel::Setup&);
+
+    void			updateInput();
+    static const IOObjContext&	ioContext();
+
+protected:
+
+    void			editCB(CallBacker*);
+    uiPushButton*		editcubebutt_;
+};
+
 
 #endif
