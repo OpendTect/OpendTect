@@ -5,7 +5,7 @@
  * FUNCTION : Generate file to include in make.Vars
 -*/
 
-static const char* rcsID = "$Id: GenModDeps.cc,v 1.13 2005-09-27 09:59:51 cvsnanne Exp $";
+static const char* rcsID = "$Id: GenModDeps.cc,v 1.14 2008-01-12 10:25:24 cvsbert Exp $";
 
 #include "prog.h"
 #include "strmprov.h"
@@ -71,8 +71,7 @@ int main( int argc, char** argv )
     {
 	instrm.getline( linebuf, 1024 );
 	char* bufptr = linebuf; 
-	skipLeadingBlanks(bufptr);
-	removeTrailingBlanks(bufptr);
+	mTrimBlanks(bufptr);
 	if ( ! *bufptr || *bufptr == '#' )
 	    continue;
 
@@ -83,13 +82,13 @@ int main( int argc, char** argv )
 	if ( ! wordbuf[0] ) continue;
 
 	*nextptr++ = '\0';
-	skipLeadingBlanks(nextptr);
+	mSkipBlanks(nextptr);
 
 	Dep* newdep = new Dep( wordbuf ) ;
 	BufferStringSet filedeps;
 	while ( nextptr && *nextptr )
 	{
-	    skipLeadingBlanks(nextptr);
+	    mSkipBlanks(nextptr);
 	    nextptr = (char*)getNextWord(nextptr,wordbuf);
 	    if ( !wordbuf[0] ) break;
 
