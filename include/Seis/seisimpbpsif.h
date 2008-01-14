@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2008
- RCS:		$Id: seisimpbpsif.h,v 1.6 2008-01-10 13:12:35 cvsbert Exp $
+ RCS:		$Id: seisimpbpsif.h,v 1.7 2008-01-14 12:06:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "executor.h"
 class SeisTrc;
-class SeisPSWriter;
 class SeisPSImpDataMgr;
 
 
@@ -57,6 +56,9 @@ Notes:
 * The 'real' name of the attribute is the part after the '=' sign, but it's not
   mandatory. If there is no '=' sign, the whole string after the ':' is used.
 
+  The actual stoarge is handled by the SeisPSImpDataMgr object - see more
+  comments there.
+
 */
 
 class SeisImpBPSIF : public Executor
@@ -65,6 +67,7 @@ public:
 
     			SeisImpBPSIF(const char* filenm,const MultiID&);
     virtual		~SeisImpBPSIF();
+    void		setMaxInlOffset(int);
 
     const char*		message() const;
     int			nrDone() const		{ return nrshots_; }
@@ -90,14 +93,13 @@ protected:
     int			nrrcvpershot_;
     bool		binary_;
     bool		irregular_;
+    bool		endofinput_;
     StreamData		cursd_;
     BufferStringSet	fnames_;
     BufferStringSet	hdrlines_;
     BufferStringSet	shotattrs_;
     BufferStringSet	rcvattrs_;
     SeisPSImpDataMgr&	datamgr_;
-    MultiID		psid_;
-    SeisPSWriter*	pswrr_;
     mutable BufferString errmsg_;
 
     bool		open(const char*);

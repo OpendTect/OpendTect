@@ -7,16 +7,17 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsioprov.h,v 1.7 2007-09-20 13:56:26 cvskris Exp $
+ RCS:		$Id: seispsioprov.h,v 1.8 2008-01-14 12:06:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "transl.h"
 #include "bufstring.h"
+class IOObj;
 class SeisPSReader;
 class SeisPSWriter;
-class IOObj;
+class SeisPS2DReader;
 
 
 
@@ -49,20 +50,26 @@ class SeisPSIOProvider
 {
 public:
 
-    virtual		~SeisPSIOProvider()		{}
+    virtual			~SeisPSIOProvider()	{}
 
-    virtual SeisPSReader* makeReader(const char*,int inl=mUdf(int)) const = 0;
-    virtual SeisPSWriter* makeWriter(const char*) const	= 0;
+    virtual SeisPSReader*	makeReader(const char*,int inl=mUdf(int)) const
+				{ return 0; }
+    virtual SeisPS2DReader*	make2DReader(const char*) const
+				{ return 0; }
+    virtual SeisPSWriter*	makeWriter(const char*) const
+				{ return 0; }
+    virtual SeisPSWriter*	make2DWriter(const char*) const
+				{ return 0; }
 
-    const char*		type() const			{ return type_.buf(); }
+    const char*			type() const		{ return type_.buf(); }
 
 
 protected:
 
-    			SeisPSIOProvider( const char* t )
-			    : type_(t)			{}
+				SeisPSIOProvider( const char* t )
+				    : type_(t)			{}
 
-    BufferString	type_;
+    BufferString		type_;
 
 };
 
@@ -79,6 +86,7 @@ public:
     // Convenience functions
     const SeisPSIOProvider*	provider(const char* typ) const;
     SeisPSReader*		getReader(const IOObj&,int inl=mUdf(int)) const;
+    SeisPS2DReader*		get2DReader(const IOObj&) const;
     SeisPSWriter*		getWriter(const IOObj&) const;
 
 protected:

@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.20 2007-11-06 12:04:31 cvsraman Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.21 2008-01-14 12:06:47 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -14,9 +14,11 @@ static const char* rcsID = "$Id: seiscbvsps.cc,v 1.20 2007-11-06 12:04:31 cvsram
 #include "cbvsreadmgr.h"
 #include "filepath.h"
 #include "filegen.h"
+#include "strmprov.h"
 #include "survinfo.h"
 #include "segposinfo.h"
 #include "dirlist.h"
+#include "strmoper.h"
 #include "iopar.h"
 #include "errh.h"
 
@@ -206,6 +208,24 @@ bool SeisCBVSPSReader::getGather( const BinID& bid, SeisTrcBuf& gath ) const
 }
 
 
+bool SeisCBVSPSReader::getSampleNames( BufferStringSet& nms ) const
+{
+    FilePath fp( dirnm_ ); fp.add( "samplenames.txt" );
+    const BufferString fnm( fp.fullPath() );
+
+    StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
+    if ( !sd.usable() ) return false;
+
+    nms.deepErase();
+    BufferString nm;
+    while ( StrmOper::readLine(*sd.istrm,&nm) )
+	nms.add( nm.buf() );
+    sd.close();
+
+    return true;
+}
+
+
 SeisCBVSPSWriter::SeisCBVSPSWriter( const char* dirnm )
     	: SeisCBVSPSIO(dirnm)
     	, reqdtype_(DataCharacteristics::Auto)
@@ -303,4 +323,27 @@ bool SeisCBVSPSWriter::put( const SeisTrc& trc )
 	nringather_++;
 
     return res;
+}
+
+
+bool SeisCBVSPSWriter::setSampleNames( const BufferStringSet& nms ) const
+{
+    FilePath fp( dirnm_ ); fp.add( "samplenames.txt" );
+    const BufferString fnm( fp.fullPath() );
+    if ( nms.isEmpty() )
+    {
+	if ( File_exists(fnm) )
+	    File_remove( fnm, NO );
+	return true;
+    }
+
+    StreamData sd( StreamProvider(fp.fullPath()).makeOStream() );
+    if ( !sd.usable() ) return false;
+
+    *sd.ostrm << nms.get(0);
+    for ( int idx=1; idx<nms.size(); idx++ )
+	*sd.ostrm << '\n' << nms.get(idx);
+    sd.close();
+
+    return true;
 }

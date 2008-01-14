@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seiscbvsps.h,v 1.7 2005-05-18 09:20:45 cvsbert Exp $
+ RCS:		$Id: seiscbvsps.h,v 1.8 2008-01-14 12:06:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,7 @@ public:
     const char*		errMsg() const		{ return errmsg_.buf(); } 
 
     const PosInfo::CubeData& posData() const	{ return posdata_; }
+    bool		getSampleNames(BufferStringSet&) const;
 
 protected:
 
@@ -100,6 +101,8 @@ public:
 
     bool		put(const SeisTrc&);
     const char*		errMsg() const		{ return errmsg_.buf(); } 
+
+    bool		setSampleNames(const BufferStringSet&) const;
 
 protected:
 

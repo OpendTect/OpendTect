@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsread.h,v 1.4 2008-01-08 11:54:18 cvsbert Exp $
+ RCS:		$Id: seispsread.h,v 1.5 2008-01-14 12:06:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,12 +16,16 @@ ________________________________________________________________________
 class BinID;
 class IOPar;
 class SeisTrcBuf;
+class BufferStringSet;
 namespace PosInfo { class CubeData; class Line2DData; }
 
 
 /*!\brief reads from a pre-stack seismic data store.
 
  Based on a BinID a gather may be available. No writing.
+
+ Some data stores like attribute stores have a symbolic name for each sample. In
+ that case, getSampleNames may return true;
 
 */
 
@@ -36,7 +40,10 @@ public:
     virtual bool	getGather(const BinID&,SeisTrcBuf&) const	= 0;
     virtual const char*	errMsg() const					= 0;
 
-    virtual const PosInfo::CubeData&	posData() const		= 0;
+    virtual const PosInfo::CubeData&	posData() const			= 0;
+
+    virtual bool	getSampleNames(BufferStringSet&) const
+    			{ return false; }
 
 };
 
@@ -58,6 +65,9 @@ public:
     virtual const char*	errMsg() const				= 0;
 
     virtual const PosInfo::Line2DData&	posData() const		= 0;
+
+    virtual bool	getSampleNames(BufferStringSet&) const
+    			{ return false; }
 
 };
 
