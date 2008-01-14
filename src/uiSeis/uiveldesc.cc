@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2007
- RCS:           $Id: uiveldesc.cc,v 1.8 2008-01-11 18:26:14 cvskris Exp $
+ RCS:           $Id: uiveldesc.cc,v 1.9 2008-01-14 14:52:59 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -129,7 +129,7 @@ uiVelSel::uiVelSel(uiParent* p, CtxtIOObj& ctxt, const uiSeisSel::Setup& setup )
     : uiSeisSel( p, ctxt, setup )
 {
     editcubebutt_ = new
-	uiPushButton( this, "Add/Edit", mCB(this,uiVelSel,editCB), false );
+	uiPushButton( this, ctio.ioobj ? "Edit" : "Add", mCB(this,uiVelSel,editCB), false );
     editcubebutt_->attach( rightOf, selbut_ );
 }
 
