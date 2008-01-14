@@ -4,7 +4,7 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID = "$Id: isocontourtracer.cc,v 1.1 2007-11-12 14:24:25 cvsjaap Exp $";
+static const char* rcsID = "$Id: isocontourtracer.cc,v 1.2 2008-01-14 12:54:15 cvsjaap Exp $";
 
 #include "isocontourtracer.h"
 
@@ -213,10 +213,16 @@ void IsoContourTracer::traceContours( Array3DImpl<float>& crossings,
 		    }
 		}
 
-		if ( contour->size()<2 || closedonly && !contour->isClosed() )
+		const int sz = contour->size();
+		if ( sz<2 || closedonly && !contour->isClosed() )
 		    delete contour;
 		else
-		    contours += contour;
+		{
+		    int idx = 0;
+		    while ( idx<contours.size() && contours[idx]->size()>=sz )
+			idx++;
+		    contours.insertAt( contour, idx );
+		}
 	    }
 	}
     }
