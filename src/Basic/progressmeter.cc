@@ -120,7 +120,6 @@ void TextStreamProgressMeter::setMessage( const char* message )
 	return;
 
     message_ = message;
-    reset();
 }
 
 
