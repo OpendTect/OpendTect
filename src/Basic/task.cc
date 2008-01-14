@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.7 2008-01-03 12:25:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.8 2008-01-14 17:20:32 cvskris Exp $";
 
 #include "task.h"
 
@@ -105,7 +105,7 @@ int SequentialTask::doStep()
 	progressmeter_->setNrDoneText( nrDoneText() );
 	progressmeter_->setMessage( message() );
 	
-	if ( res<=1 )
+	if ( res<1 )
 	    progressmeter_->setFinished();
     }
 
