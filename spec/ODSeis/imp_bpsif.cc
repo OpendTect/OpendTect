@@ -2,7 +2,7 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : Bert
  * DATE     : July 2007
- * RCS      : $Id: imp_bpsif.cc,v 1.1 2008-01-10 13:12:35 cvsbert Exp $
+ * RCS      : $Id: imp_bpsif.cc,v 1.2 2008-01-14 12:03:55 cvsbert Exp $
 -*/
 
 #include "seisimpbpsif.h"
@@ -20,6 +20,8 @@ static int doWork( int argc, char** argv )
     }
 
     SeisImpBPSIF imp( argv[1], MultiID(argv[2]) );
+    imp.setMaxInlOffset( argc < 4 ? -1 : atoi(argv[3]) );
+
     return imp.execute( &std::cout ) ? 0 : 1;
 }
 
