@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) de Groot-Bril Earth Sciences B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: specdecompattrib.cc,v 1.20 2007-12-14 23:00:44 cvskris Exp $
+ RCS:           $Id: specdecompattrib.cc,v 1.21 2008-01-15 16:19:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -274,7 +274,7 @@ bool SpecDecomp::calcDFT(const DataHolder& output, int z0, int nrsamples ) const
 	    float_complex val = freqdomain_->get( idf );
 	    float real = val.real();
 	    float imag = val.imag();
-	    output.series(idf)->setValue( idx, Sqrt(real*real+imag*imag) );
+	    output.series(idf)->setValue( idx, Math::Sqrt(real*real+imag*imag));
 	}
     }
 

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.74 2007-11-29 14:36:04 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.75 2008-01-15 16:19:43 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seistrctr.h"
@@ -688,7 +688,9 @@ Seis::Bounds* SeisTrcReader::getBounds() const
     {
 	if ( !ioobj ) return 0;
 	if ( is2D() ) return 0; //TODO 2D pre-stack
-	SeisPSReader* rdr = SPSIOPF().getReader( *ioobj );
+	SeisPSReader* r = SPSIOPF().getReader( *ioobj );
+	mDynamicCastGet(SeisPS3DReader*,rdr,r)
+	if ( !rdr ) return 0;
 	const PosInfo::CubeData& cd = rdr->posData();
 	StepInterval<int> inlrg, crlrg;
 	cd.getInlRange( inlrg ); cd.getInlRange( crlrg );

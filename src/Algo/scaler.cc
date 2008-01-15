@@ -5,7 +5,7 @@
  * FUNCTION : Scaler functions
 -*/
  
-static const char* rcsID = "$Id: scaler.cc,v 1.6 2006-07-18 11:32:19 cvsdgb Exp $";
+static const char* rcsID = "$Id: scaler.cc,v 1.7 2008-01-15 16:19:43 cvsbert Exp $";
 
 #include "scaler.h"
 #include "separstr.h"
@@ -102,7 +102,7 @@ void LinScaler::fromString( const char* str )
 double LogScaler::scale( double v ) const
 {
     if ( v <= 0 || mIsUdf(v) ) return Values::udfVal(v);
-    return ten ? log10(v) : log(v);
+    return ten ? Math::Log10(v) : Math::Log(v);
 }
 
 
@@ -127,10 +127,7 @@ void LogScaler::fromString( const char* str )
 double ExpScaler::scale( double v ) const
 {
     if ( mIsUdf(v) ) return Values::udfVal(v);
-    double maxv = LN_MAXDOUBLE;
-    if ( ten ) maxv /= 2.3025851;
-    if ( v > maxv ) return Values::udfVal(v);
-    return ten ? PowerOf(10,v) : exp(v);
+    return ten ? Math::PowerOf(10,v) : Math::Exp(v);
 }
 
 

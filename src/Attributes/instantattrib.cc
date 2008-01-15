@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: instantattrib.cc,v 1.14 2007-12-14 23:00:44 cvskris Exp $
+ RCS:           $Id: instantattrib.cc,v 1.15 2008-01-15 16:19:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,7 +112,7 @@ float Instantaneous::calcAmplitude( int cursample ) const
 {
     const float real = mGetRVal( cursample );
     const float imag = mGetIVal( cursample );
-    return Sqrt( real*real + imag*imag );
+    return Math::Sqrt( real*real + imag*imag );
 }
 
 
@@ -198,7 +198,7 @@ float Instantaneous::calcRMSAmplitude( int cursample ) const
     
     float dt = (nrsamples-1) * refstep;
     if ( mIsZero( dt, 1e-6 ) ) dt = 1e-6;
-    return Sqrt( sumia2/dt );
+    return Math::Sqrt( sumia2/dt );
 }
 
 

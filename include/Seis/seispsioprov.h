@@ -7,18 +7,16 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsioprov.h,v 1.8 2008-01-14 12:06:47 cvsbert Exp $
+ RCS:		$Id: seispsioprov.h,v 1.9 2008-01-15 16:19:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "transl.h"
 #include "bufstring.h"
+#include "seispsread.h"
+#include "seispswrite.h"
 class IOObj;
-class SeisPSReader;
-class SeisPSWriter;
-class SeisPS2DReader;
-
 
 
 /*!\brief Pre-Stack Seismics objects provider
@@ -52,7 +50,7 @@ public:
 
     virtual			~SeisPSIOProvider()	{}
 
-    virtual SeisPSReader*	makeReader(const char*,int inl=mUdf(int)) const
+    virtual SeisPS3DReader*	makeReader(const char*,int inl=mUdf(int)) const
 				{ return 0; }
     virtual SeisPS2DReader*	make2DReader(const char*) const
 				{ return 0; }
@@ -85,7 +83,7 @@ public:
 
     // Convenience functions
     const SeisPSIOProvider*	provider(const char* typ) const;
-    SeisPSReader*		getReader(const IOObj&,int inl=mUdf(int)) const;
+    SeisPS3DReader*		getReader(const IOObj&,int inl=mUdf(int)) const;
     SeisPS2DReader*		get2DReader(const IOObj&) const;
     SeisPSWriter*		getWriter(const IOObj&) const;
 

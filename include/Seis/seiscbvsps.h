@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seiscbvsps.h,v 1.8 2008-01-14 12:06:47 cvsbert Exp $
+ RCS:		$Id: seiscbvsps.h,v 1.9 2008-01-15 16:19:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,14 +49,14 @@ protected:
 
 /*!\brief reads from a CBVS pre-stack seismic data store. */
 
-class SeisCBVSPSReader : public SeisPSReader
-		       , private SeisCBVSPSIO
+class SeisCBVSPS3DReader : public SeisPS3DReader
+		         , private SeisCBVSPSIO
 {
 public:
 
-    			SeisCBVSPSReader(const char* dirnm,int inl=mUdf(int));
+    			SeisCBVSPS3DReader(const char* dirnm,int inl=mUdf(int));
 			// Check errMsg() to see failure
-			~SeisCBVSPSReader();
+			~SeisCBVSPS3DReader();
 
     bool		getGather(const BinID&,SeisTrcBuf&) const;
     const char*		errMsg() const		{ return errmsg_.buf(); } 
@@ -85,14 +85,14 @@ protected:
 
  */
 
-class SeisCBVSPSWriter : public SeisPSWriter
-		       , private SeisCBVSPSIO
+class SeisCBVSPS3DWriter : public SeisPSWriter
+		         , private SeisCBVSPSIO
 {
 public:
 
-    			SeisCBVSPSWriter(const char* dirnm);
+    			SeisCBVSPS3DWriter(const char* dirnm);
 			// Check errMsg() to see failure
-			~SeisCBVSPSWriter();
+			~SeisCBVSPS3DWriter();
 
     void		setPrefStorType( DataCharacteristics::UserType ut )
 						{ reqdtype_ = ut; }

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.24 2008-01-07 20:52:16 cvsyuancheng Exp $
+ RCS:		$Id: simpnumer.h,v 1.25 2008-01-15 16:19:43 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -240,7 +240,7 @@ inline int solve3DPoly( double a, double b, double c,
     if ( r2<q3 )
     {
 	const double minus_twosqrt_q = -2*sqrt(q);
-	const double theta = ACos(r/sqrt(q3));
+	const double theta = Math::ACos(r/sqrt(q3));
 	static const double twopi = 2*M_PI;
 
 

@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: linear.cc,v 1.11 2007-12-18 07:30:26 cvsnanne Exp $";
+static const char* rcsID = "$Id: linear.cc,v 1.12 2008-01-15 16:19:43 cvsbert Exp $";
 
 
 #include "linear.h"
@@ -140,7 +140,7 @@ void AxisLayout::setDataRange( const Interval<float>& dr )
 
     double scwdth = wdth < 1e-30 ? -30 : log10( wdth );
     int tenpow = 1 - (int)scwdth; if ( scwdth < 0 ) tenpow++;
-    double stepfac = IntPowerOf( 10, tenpow );
+    double stepfac = Math::IntPowerOf( ((double)10), tenpow );
     scwdth = wdth * stepfac;
 
     double scstep;

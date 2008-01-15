@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.32 2007-03-30 15:23:55 cvskris Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.33 2008-01-15 16:19:43 cvsbert Exp $";
 
 #include "trigonometry.h"
 
@@ -142,7 +142,7 @@ void Quaternion::setRotation( const Vector3& axis, float angle )
 void Quaternion::getRotation( Vector3& axis, float& angle ) const
 {
     if ( s_>=1 || s_<=-1 ) angle = 0;
-    else angle = ACos( s_ ) * 2;
+    else angle = Math::ACos( s_ ) * 2;
 
     //This should really be axis=vec_/sin(angle/2)
     //but can be simplified to this since length of axis is irrelevant
@@ -474,12 +474,12 @@ Sphere cartesian2Spherical( const Coord3& crd, bool math )
     float rad = crd.abs();
     if ( math )
     {
-	theta = rad ? ACos( crd.z / rad ) : 0;
+	theta = rad ? Math::ACos( crd.z / rad ) : 0;
 	phi = atan2( crd.y, crd.x );
     }
     else
     {
-	theta = rad ? ASin( crd.z / rad ) : 0;
+	theta = rad ? Math::ASin( crd.z / rad ) : 0;
 	phi = atan2( crd.x, crd.y );
     }
 

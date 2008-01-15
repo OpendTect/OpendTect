@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          Jan 2008
- RCS:		$Id: uiprestackattrib.cc,v 1.2 2008-01-15 08:08:36 cvshelene Exp $
+ RCS:		$Id: uiprestackattrib.cc,v 1.3 2008-01-15 16:19:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,13 +38,19 @@ mInitAttribUI(uiPreStackAttrib,PreStack,"PreStack",sKeyBasicGrp)
 
 uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.x")
-	, ctxt_(mMkCtxtIOObj(SeisPS))
+	, ctio_(*mMkCtxtIOObj(SeisPS))
 {
-    inpfld_ = new uiSeisSel( this, *ctxt_, uiSeisSel::Setup( is2d, true ) );
+    inpfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup( is2d, true ) );
 
     typefld_ = new uiGenInput( this, "Type", StringListInpSpec(typestrs) );
     typefld_->attach( alignedBelow, inpfld_ );
     setHAlignObj( inpfld_ );
+}
+
+
+uiPreStackAttrib::~uiPreStackAttrib()
+{
+    delete ctio_.ioobj; delete &ctio_;
 }
 
 
@@ -103,3 +109,14 @@ bool uiPreStackAttrib::getInput( Desc& desc )
     return true;
 }
 
+
+bool uiPreStackAttrib::setOutput( const Attrib::Desc& desc )
+{
+    return true;
+}
+
+
+bool uiPreStackAttrib::getOutput( Attrib::Desc& desc )
+{
+    return true;
+}

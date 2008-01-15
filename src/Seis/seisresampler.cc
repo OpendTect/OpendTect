@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisresampler.cc,v 1.8 2005-11-24 12:27:50 cvsbert Exp $";
+static const char* rcsID = "$Id: seisresampler.cc,v 1.9 2008-01-15 16:19:43 cvsbert Exp $";
 
 #include "seisresampler.h"
 #include "cubesampling.h"
@@ -121,7 +121,7 @@ SeisTrc* SeisResampler::doWork( const SeisTrc& intrc )
 	    float val = intrc.getValue( t, icomp );
 	    if ( valrg )
 	    {
-		if ( !IsNormalNumber(val) )	val = replval;
+		if ( !Math::IsNormalNumber(val) )	val = replval;
 		else if ( val < valrg->start )	val = valrg->start;
 		else if ( val > valrg->stop )	val = valrg->stop;
 	    }

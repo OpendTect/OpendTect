@@ -5,10 +5,9 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.89 2008-01-09 13:54:34 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.90 2008-01-15 16:19:43 cvsbert Exp $";
 
 #include "genc.h"
-#include "math2.h"
 #include "string2.h"
 #include "envvars.h"
 #include "winutils.h"
@@ -228,106 +227,3 @@ int SetEnvVar( const char* env, const char* val )
     putenv( buf );
     return YES;
 }
-
-
-/*-> math2.h */
-
-#ifdef sun5
-# include <ieeefp.h>
-#endif
-
-int IsNormalNumber( double x )
-{
-#ifdef __msvc__
-    return _finite( x );
-#else
-    return finite( x );
-#endif
-}
-
-
-double IntPowerOf( double x, int y )
-{
-    if ( mcIsUndefined(x) ) return mcUndefValue;
-
-    double ret = 1;
-    if ( x == 0 )
-	return y ? 0 : 1;
-
-    if ( x > 1.5 || x < -1.5 )
-    {
-	if ( y > 150 ) return mcUndefValue;
-	if ( y < -150 ) return 0;
-	if ( x > 1.99 || x < -1.99 )
-	{
-	    if ( y > 100 ) return mcUndefValue;
-	    if ( y < -100 ) return 0;
-	}
-    }
-    else if ( x < 0.5 && x > -0.5 )
-    {
-	if ( y > 100 ) return 0;
-	if ( y < -100 ) return 1;
-    }
-
-    while ( y )
-    {
-	if ( y > 0 )
-	    { ret *= x; y--; }
-	else
-	    { ret /= x; y++; }
-    }
-    return ret;
-}
-
-
-double PowerOf( double x, double y )
-{
-    int isneg = x < 0 ? 1 : 0;
-    double ret;
- 
-    if ( x == 0 ) return y ? 0 : 1;
-    if ( isneg ) x = -x;
- 
-    ret = exp( y * log(x) );
-    return isneg ? -ret : ret;
-}
-
-
-double ACos( double c )
-{
-    if ( c>=1 ) return 0;
-    if ( c<=-1 ) return M_PI;
-    return acos( c );
-}
-
-
-double ASin( double s )
-{
-    if ( s>=1 ) return M_PI_2;
-    if ( s<=-1 ) return -M_PI_2;
-    return asin( s );
-}
-
-
-double Log( double s )
-{
-        if ( s<=0 ) return mcUndefValue;
-	    return log( s );
-}
-
-
-double Log10( double s )
-{
-        if ( s<=0 ) return mcUndefValue;
-	    return log10( s );
-}
-
-
-double Sqrt( double s )
-{
-        if ( s<=0 )
-	            return 0;
-	    return sqrt( s );
-}
-

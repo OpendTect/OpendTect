@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.20 2007-12-14 23:00:44 cvskris Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.21 2008-01-15 16:19:43 cvsbert Exp $";
 
 
 #include "coherencyattrib.h"
@@ -121,7 +121,7 @@ float Coherency::calc1( float s1, float s2, const Interval<int>& sg,
 	sum2 += val2 * val2;
     }
 
-    return xsum / Sqrt( sum1 * sum2 );
+    return xsum / Math::Sqrt( sum1 * sum2 );
 }
 
 

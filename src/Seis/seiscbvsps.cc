@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.21 2008-01-14 12:06:47 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.22 2008-01-15 16:19:43 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -26,10 +26,10 @@ class CBVSSeisPSIOProvider : public SeisPSIOProvider
 {
 public:
 			CBVSSeisPSIOProvider() : SeisPSIOProvider("CBVS") {}
-    SeisPSReader*	makeReader( const char* dirnm, int inl ) const
-			{ return new SeisCBVSPSReader(dirnm,inl); }
+    SeisPS3DReader*	makeReader( const char* dirnm, int inl ) const
+			{ return new SeisCBVSPS3DReader(dirnm,inl); }
     SeisPSWriter*	makeWriter( const char* dirnm ) const
-			{ return new SeisCBVSPSWriter(dirnm); }
+			{ return new SeisCBVSPS3DWriter(dirnm); }
     static int		factid;
 };
 
@@ -50,7 +50,7 @@ SeisCBVSPSIO::~SeisCBVSPSIO()
 }
 
 
-SeisCBVSPSReader::SeisCBVSPSReader( const char* dirnm, int inl )
+SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
     	: SeisCBVSPSIO(dirnm)
     	, posdata_(*new PosInfo::CubeData)
     	, curtr_(0)
@@ -91,14 +91,14 @@ SeisCBVSPSReader::SeisCBVSPSReader( const char* dirnm, int inl )
 }
 
 
-SeisCBVSPSReader::~SeisCBVSPSReader()
+SeisCBVSPS3DReader::~SeisCBVSPS3DReader()
 {
     delete &posdata_;
     delete curtr_;
 }
 
 
-void SeisCBVSPSReader::addInl( int inl )
+void SeisCBVSPS3DReader::addInl( int inl )
 {
     if ( !mkTr(inl) ) return;
 
@@ -141,7 +141,7 @@ void SeisCBVSPSReader::addInl( int inl )
 }
 
 
-bool SeisCBVSPSReader::mkTr( int inl ) const
+bool SeisCBVSPS3DReader::mkTr( int inl ) const
 {
     if ( curtr_ && curinl_ == inl )
 	return true;
@@ -171,7 +171,7 @@ bool SeisCBVSPSReader::mkTr( int inl ) const
 }
 
 
-bool SeisCBVSPSReader::getGather( int crl, SeisTrcBuf& gath ) const
+bool SeisCBVSPS3DReader::getGather( int crl, SeisTrcBuf& gath ) const
 {
     gath.deepErase();
     gath.setIsOwner( true );
@@ -202,13 +202,13 @@ bool SeisCBVSPSReader::getGather( int crl, SeisTrcBuf& gath ) const
 }
 
 
-bool SeisCBVSPSReader::getGather( const BinID& bid, SeisTrcBuf& gath ) const
+bool SeisCBVSPS3DReader::getGather( const BinID& bid, SeisTrcBuf& gath ) const
 {
     return mkTr( bid.inl ) && getGather( bid.crl, gath );
 }
 
 
-bool SeisCBVSPSReader::getSampleNames( BufferStringSet& nms ) const
+bool SeisCBVSPS3DReader::getSampleNames( BufferStringSet& nms ) const
 {
     FilePath fp( dirnm_ ); fp.add( "samplenames.txt" );
     const BufferString fnm( fp.fullPath() );
@@ -226,7 +226,7 @@ bool SeisCBVSPSReader::getSampleNames( BufferStringSet& nms ) const
 }
 
 
-SeisCBVSPSWriter::SeisCBVSPSWriter( const char* dirnm )
+SeisCBVSPS3DWriter::SeisCBVSPS3DWriter( const char* dirnm )
     	: SeisCBVSPSIO(dirnm)
     	, reqdtype_(DataCharacteristics::Auto)
     	, tr_(0)
@@ -246,14 +246,14 @@ SeisCBVSPSWriter::SeisCBVSPSWriter( const char* dirnm )
 }
 
 
-SeisCBVSPSWriter::~SeisCBVSPSWriter()
+SeisCBVSPS3DWriter::~SeisCBVSPS3DWriter()
 {
     close();
     delete &prevbid_;
 }
 
 
-void SeisCBVSPSWriter::close()
+void SeisCBVSPS3DWriter::close()
 {
     delete tr_; tr_ = 0;
     prevbid_ = BinID( mUdf(int), mUdf(int) );
@@ -261,7 +261,7 @@ void SeisCBVSPSWriter::close()
 }
 
 
-void SeisCBVSPSWriter::usePar( const IOPar& iopar )
+void SeisCBVSPS3DWriter::usePar( const IOPar& iopar )
 {
     const char* res = iopar.find( CBVSSeisTrcTranslator::sKeyDataStorage );
     if ( res && *res )
@@ -269,7 +269,7 @@ void SeisCBVSPSWriter::usePar( const IOPar& iopar )
 }
 
 
-bool SeisCBVSPSWriter::newInl( const SeisTrc& trc )
+bool SeisCBVSPS3DWriter::newInl( const SeisTrc& trc )
 {
     if ( mIsUdf(prevbid_.inl) )
     {
@@ -301,7 +301,7 @@ bool SeisCBVSPSWriter::newInl( const SeisTrc& trc )
 }
 
 
-bool SeisCBVSPSWriter::put( const SeisTrc& trc )
+bool SeisCBVSPS3DWriter::put( const SeisTrc& trc )
 {
     SeisTrcInfo& ti = const_cast<SeisTrcInfo&>( trc.info() );
     const BinID trcbid = ti.binid;
@@ -326,7 +326,7 @@ bool SeisCBVSPSWriter::put( const SeisTrc& trc )
 }
 
 
-bool SeisCBVSPSWriter::setSampleNames( const BufferStringSet& nms ) const
+bool SeisCBVSPS3DWriter::setSampleNames( const BufferStringSet& nms ) const
 {
     FilePath fp( dirnm_ ); fp.add( "samplenames.txt" );
     const BufferString fnm( fp.fullPath() );

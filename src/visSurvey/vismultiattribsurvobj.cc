@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.13 2007-12-14 23:18:04 cvskris Exp $";
+static const char* rcsID = "$Id: vismultiattribsurvobj.cc,v 1.14 2008-01-15 16:19:43 cvsbert Exp $";
 
 #include "vismultiattribsurvobj.h"
 
@@ -404,7 +404,7 @@ void MultiTextureSurveyObject::getValueString( const Coord3& pos,
 	if ( !getCacheValue(idx, version, pos, fval ) )
 	    continue;
 
-	if ( !IsNormalNumber(fval) )
+	if ( !Math::IsNormalNumber(fval) )
 	    fval = mUdf(float);
 
 	bool islowest = true;

@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.59 2008-01-09 13:54:34 cvsbert Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.60 2008-01-15 16:19:43 cvsbert Exp $";
 
 #include "position.h"
 #include "bufstring.h"
@@ -59,7 +59,7 @@ double Coord::angle( const Coord& from, const Coord& to ) const
     const Coord vec2 =  to  - *this;
     const double det = vec1.x * vec2.y - vec1.y * vec2.x;
 
-    const double ang = ACos( cosang );
+    const double ang = Math::ACos( cosang );
     return det<0 ? 2*M_PI - ang : ang;
 } 
 

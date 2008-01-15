@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2000
- RCS:           $Id: mathexpression.cc,v 1.37 2007-12-14 23:11:24 cvskris Exp $
+ RCS:           $Id: mathexpression.cc,v 1.38 2008-01-15 16:19:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -356,15 +356,15 @@ public: \
 
 
 mMathExpressionOper( Sine, sin )
-mMathExpressionOper( ArcSine, ASin )
+mMathExpressionOper( ArcSine, Math::ASin )
 mMathExpressionOper( Cosine, cos )
-mMathExpressionOper( ArcCosine, ACos )
+mMathExpressionOper( ArcCosine, Math::ACos )
 mMathExpressionOper( Tangent, tan )
 mMathExpressionOper( ArcTangent, atan )
-mMathExpressionOper( Log, Log10 )
-mMathExpressionOper( NatLog, Log )
-mMathExpressionOper( Exp, exp )
-mMathExpressionOper( Sqrt, Sqrt );
+mMathExpressionOper( Log, Math::Log10 )
+mMathExpressionOper( NatLog, Math::Log )
+mMathExpressionOper( Exp, Math::Exp )
+mMathExpressionOper( Sqrt, Math::Sqrt );
 
 
 #define mMathExpressionStats( statnm ) \

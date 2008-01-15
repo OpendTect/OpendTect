@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seispsioprov.cc,v 1.10 2008-01-14 12:05:24 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsioprov.cc,v 1.11 2008-01-15 16:19:43 cvsbert Exp $";
 
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -37,12 +37,12 @@ const SeisPSIOProvider* SeisPSIOProviderFactory::provider( const char* t ) const
 }
 
 
-SeisPSReader* SeisPSIOProviderFactory::getReader( const IOObj& ioobj,
-						  int inl ) const
+SeisPS3DReader* SeisPSIOProviderFactory::getReader( const IOObj& ioobj,
+						    int inl ) const
 {
     if ( provs_.isEmpty() ) return 0;
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
-    SeisPSReader* reader =
+    SeisPS3DReader* reader =
 	prov ? prov->makeReader( ioobj.fullUserExpr(true), inl ) : 0;
 
     if ( reader )
