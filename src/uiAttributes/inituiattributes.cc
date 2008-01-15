@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          December 2007
- RCS:           $Id: inituiattributes.cc,v 1.1 2007-12-14 05:10:16 cvssatyaki Exp $
+ RCS:           $Id: inituiattributes.cc,v 1.2 2008-01-15 08:07:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 #include "uifreqfilterattrib.h"
 #include "uiinstantattrib.h"
 #include "uimathattrib.h"
+#include "uiprestackattrib.h"
 #include "uipositionattrib.h"
 #include "uireferenceattrib.h"
 #include "uiscalingattrib.h"
@@ -42,6 +43,7 @@ void uiAttributes::initStdClasses()
     uiFreqFilterAttrib::initClass();
     uiInstantaneousAttrib::initClass();
     uiMathAttrib::initClass();
+    uiPreStackAttrib::initClass();
     uiPositionAttrib::initClass();
     uiReferenceAttrib::initClass();
     uiScalingAttrib::initClass();

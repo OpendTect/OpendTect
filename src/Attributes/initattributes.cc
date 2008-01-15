@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          December 2007
- RCS:           $Id: initattributes.cc,v 1.1 2007-12-14 05:10:16 cvssatyaki Exp $
+ RCS:           $Id: initattributes.cc,v 1.2 2008-01-15 08:07:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "hilbertattrib.h"
 #include "instantattrib.h"
 #include "mathattrib.h"
+#include "prestackattrib.h"
 #include "positionattrib.h"
 #include "referenceattrib.h"
 #include "scalingattrib.h"
@@ -44,6 +45,7 @@ void Attributes::initStdClasses()
     Attrib::Hilbert::initClass();
     Attrib::Instantaneous::initClass();
     Attrib::Math::initClass();
+    Attrib::PreStack::initClass();
     Attrib::Position::initClass();
     Attrib::Reference::initClass();
     Attrib::Scaling::initClass();
