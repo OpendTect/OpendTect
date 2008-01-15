@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          Jan 2008
- RCS:           $Id: uiprestackattrib.h,v 1.1 2008-01-14 15:59:44 cvshelene Exp $
+ RCS:           $Id: uiprestackattrib.h,v 1.2 2008-01-15 07:48:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,11 +37,9 @@ protected:
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);
-    bool                setOutput(const Attrib::Desc&);
 
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
-    bool                getOutput(Attrib::Desc&);
 
     			mDeclReqAttribUIFns
 };
