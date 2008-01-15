@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.16 2008-01-07 04:06:50 cvsraman Exp $
+ RCS:           $Id: uislider.h,v 1.17 2008-01-15 11:03:40 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ class uiSlider : public uiObject
 public:
 
                         uiSlider(uiParent*,const char* nm="Slider",
-				 int nrdec=0,bool log=false);
+				 int nrdec=0,bool log=false, bool vert=false);
 			~uiSlider();
 
     enum 		TickPosition { NoMarks=0, Above=1, Left=Above, Below=2, 
@@ -97,16 +97,16 @@ public:
 			    , withedit_(false)
 			    , nrdec_(0)
 			    , logscale_(false)
-			    , orientation_(uiSlider::Horizontal)
+			    , isvertical_(false)
 			    , sldrsize_(200)
 			    {}
 
 	mDefSetupMemb(bool,withedit)
 	mDefSetupMemb(bool,logscale)
+	mDefSetupMemb(bool,isvertical)
 	mDefSetupMemb(int,nrdec)
 	mDefSetupMemb(int,sldrsize)
 	mDefSetupMemb(BufferString,lbl)
-	mDefSetupMemb(uiSlider::Orientation,orientation)
     };
 
                 	uiSliderExtra(uiParent*,const Setup&,

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.31 2008-01-07 04:06:26 cvsraman Exp $
+ RCS:           $Id: uislider.cc,v 1.32 2008-01-15 11:03:54 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,6 @@ uiSliderBody::uiSliderBody( uiSlider& handle, uiParent* p, const char* nm )
     : uiObjBodyImpl<uiSlider,QSlider>(handle,p,nm)
     , messenger_( *new i_SliderMessenger(this,&handle) )
 {
-    setStretch( 1, 0 );
     setHSzPol( uiObject::Medium );
     setFocusPolicy( Qt::WheelFocus );
 }
@@ -94,14 +93,16 @@ bool uiSliderBody::event( QEvent* ev )
 
 //------------------------------------------------------------------------------
 
-uiSlider::uiSlider( uiParent* p, const char* nm, int dec, bool logsc )
+uiSlider::uiSlider( uiParent* p, const char* nm, int dec, bool logsc,
+		    bool vert )
     : uiObject(p,nm,mkbody(p,nm))
     , logscale(logsc)
     , valueChanged(this)
     , sliderMoved(this)
     , activatedone(this)
 {
-    body_->setOrientation( Qt::Horizontal );
+    body_->setOrientation( vert ? Qt::Vertical : Qt::Horizontal );
+    body_->setStretch( vert ? 0 : 1, vert ? 1 : 0 );
     
     if ( dec < 0 ) dec = 0;
 
@@ -303,8 +304,8 @@ uiSliderExtra::uiSliderExtra( uiParent* p, const char* lbl, const char* nm )
 
 void uiSliderExtra::init( const uiSliderExtra::Setup& setup, const char* nm )
 {
-    slider = new uiSlider( this, nm, setup.logscale_ );
-    slider->setOrientation( setup.orientation_ );
+    slider = new uiSlider( this, nm, setup.nrdec_, setup.logscale_,
+	    		   setup.isvertical_ );
 
     if ( !setup.lbl_.isEmpty() )
 	lbl = new uiLabel( this, setup.lbl_ );
@@ -318,20 +319,20 @@ void uiSliderExtra::init( const uiSliderExtra::Setup& setup, const char* nm )
 	sliderMove(0);
     }
 
-    if ( setup.orientation_ == uiSlider::Horizontal )
-    {
-	slider->setPrefWidth( setup.sldrsize_ );
-	if ( lbl ) slider->attach( rightOf, lbl );
-	if ( editfld ) editfld->attach( rightOf, slider );
-    }
-    else
+    if ( setup.isvertical_ ) 
     {
 	slider->setPrefHeight( setup.sldrsize_ );
 	slider->setPrefWidth( 10 );
 	if ( lbl ) slider->attach( centeredBelow, lbl );
 	if ( editfld ) editfld->attach( centeredBelow, slider );
     }
-
+    else
+    {
+	slider->setPrefWidth( setup.sldrsize_ );
+	if ( lbl ) slider->attach( rightOf, lbl );
+	if ( editfld ) editfld->attach( rightOf, slider );
+    }
+    
     setHAlignObj( slider );
 }
 
