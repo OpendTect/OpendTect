@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.42 2007-12-05 11:55:49 cvsbert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.43 2008-01-16 16:16:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,8 +49,8 @@ static void adaptCtxt( const IOObjContext& c, const uiSeisSel::Setup& s,
 {
     IOObjContext& ctxt = const_cast<IOObjContext&>( c );
     const bool is2d = Seis::is2D(s.geom_);
-    ctxt.trglobexpr = uiSeisSelDlg::standardTranslSel( is2d );
-    ctxt.deftransl = uiSeisSelDlg::standardTranslSel( is2d );
+    ctxt.trglobexpr = uiSeisSelDlg::standardTranslSel( is2d, ctxt.forread );
+    ctxt.deftransl = uiSeisSelDlg::standardTranslSel( is2d, ctxt.forread );
     if ( is2d && !ctxt.allowcnstrsabsent && chgtol )
 	ctxt.allowcnstrsabsent = true;	//change required to get any 2D LineSet
 }
@@ -97,11 +97,11 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 }
 
 
-static const char* trglobexprs[] = { "2D", "CBVS" };
+static const char* trglobexprs[] = { "2D", "CBVS", "CBVS`PS Cube" };
 
-const char* uiSeisSelDlg::standardTranslSel( bool is2d )
+const char* uiSeisSelDlg::standardTranslSel( bool is2d, bool forread )
 {
-    return trglobexprs[is2d ? 0 : 1];
+    return trglobexprs[is2d ? 0 : (forread?2:1)];
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.38 2007-10-25 15:05:58 cvssatyaki Exp $
+ RCS:		$Id: seiscbvs.h,v 1.39 2008-01-16 16:16:29 cvsbert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -41,7 +41,6 @@ public:
     bool		toStart();
     virtual int		bytesOverheadPerTrace() const	{ return 52; }
 
-    const IOPar*	parSpec(Conn::State) const;
     virtual void	usePar(const IOPar&);
 
     const CBVSReadMgr*	readMgr() const			{ return rdmgr; }

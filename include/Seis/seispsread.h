@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsread.h,v 1.6 2008-01-15 16:19:43 cvsbert Exp $
+ RCS:		$Id: seispsread.h,v 1.7 2008-01-16 16:16:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "gendefs.h"
 class BinID;
 class IOPar;
+class SeisTrc;
 class SeisTrcBuf;
 class BufferStringSet;
 namespace PosInfo { class CubeData; class Line2DData; }
@@ -40,6 +41,7 @@ public:
     virtual void	usePar(const IOPar&)				{}
 
     virtual bool	getGather(const BinID&,SeisTrcBuf&) const	= 0;
+    virtual SeisTrc*	getTrace(const BinID&,int nr=0) const;
     virtual const char*	errMsg() const					= 0;
 
     virtual bool	getSampleNames(BufferStringSet&) const

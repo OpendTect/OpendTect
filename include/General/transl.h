@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.25 2007-11-30 14:29:43 cvsbert Exp $
+ RCS:		$Id: transl.h,v 1.26 2008-01-16 16:16:29 cvsbert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -132,8 +132,6 @@ public:
 
     virtual const char*		connType() const;
     virtual void		usePar(const IOPar&)		{}
-    virtual const IOPar*	parSpec(Conn::State) const	{ return 0; }
-    virtual const IOObjContext*	xCtxt() const			{ return 0; }
     virtual const char*		defExtension() const
     				{ return group_ ? group_->defExtension() : 0; }
 

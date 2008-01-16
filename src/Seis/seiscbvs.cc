@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.75 2007-11-29 14:36:04 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.76 2008-01-16 16:16:30 cvsbert Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -25,7 +25,6 @@ static const char* rcsID = "$Id: seiscbvs.cc,v 1.75 2007-11-29 14:36:04 cvsbert 
 
 const char* CBVSSeisTrcTranslator::sKeyDataStorage = "Data storage";
 const char* CBVSSeisTrcTranslator::sKeyDefExtension = "cbvs";
-const IOPar& CBVSSeisTrcTranslator::datatypeparspec = *new IOPar("CBVS option");
 
 
 CBVSSeisTrcTranslator::CBVSSeisTrcTranslator( const char* nm, const char* unm )
@@ -501,22 +500,6 @@ void CBVSSeisTrcTranslator::blockDumped( int nrtrcs )
 {
     if ( nrtrcs > 1 && wrmgr )
 	wrmgr->ensureConsistent();
-}
-
-
-const IOPar* CBVSSeisTrcTranslator::parSpec( Conn::State ) const
-{
-    if ( datatypeparspec.isEmpty() )
-    {
-	FileMultiString fms;
-	const char* ptr = DataCharacteristics::UserTypeNames[0];
-	for ( int idx=0; DataCharacteristics::UserTypeNames[idx]
-		     && *DataCharacteristics::UserTypeNames[idx]; idx++ )
-	    fms += DataCharacteristics::UserTypeNames[idx];
-	IOPar& ps = const_cast<IOPar&>( datatypeparspec );
-	ps.set( sKeyDataStorage, fms );
-    }
-    return &datatypeparspec;
 }
 
 

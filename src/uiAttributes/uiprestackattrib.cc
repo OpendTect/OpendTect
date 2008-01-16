@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          Jan 2008
- RCS:		$Id: uiprestackattrib.cc,v 1.3 2008-01-15 16:19:43 cvsbert Exp $
+ RCS:		$Id: uiprestackattrib.cc,v 1.4 2008-01-16 16:16:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,12 +59,14 @@ bool uiPreStackAttrib::setParameters( const Desc& desc )
     if ( strcmp(desc.attribName(),PreStack::attribName()) )
 	return false;
 
+    /*
     if ( desc.getValParam( PreStack::subtypeStr() ) )
     {
 	BufferString subdefstr = desc.getValParam( PreStack::subtypeStr() )
 	    						->getStringValue(0);
 	//TODO: get Attr Name
     }
+    */
     return true;
 }
 
@@ -88,7 +90,7 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
     if ( strcmp(desc.attribName(),PreStack::attribName()) )
 	return false;
 
-    //TODO -> get All sub-attrib params and create a def string out of that
+    //TODO -> get All attrib params and create a def string out of that
     return true;
 }
 

@@ -4,12 +4,18 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seispsioprov.cc,v 1.11 2008-01-15 16:19:43 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsioprov.cc,v 1.12 2008-01-16 16:16:30 cvsbert Exp $";
 
 #include "seispsioprov.h"
 #include "seispsread.h"
 #include "seispswrite.h"
+#include "seispscubetr.h"
 #include "seispsfact.h"
+#include "seiscbvsps.h"
+#include "seisselection.h"
+#include "seisbuf.h"
+#include "seistrc.h"
+#include "segposinfo.h"
 #include "filegen.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -78,6 +84,16 @@ SeisPSWriter* SeisPSIOProviderFactory::getWriter( const IOObj& ioobj ) const
     return writer;
 }
 
+
+SeisTrc* SeisPSReader::getTrace( const BinID& bid, int trcnr ) const
+{
+    SeisTrcBuf buf( true );
+    if ( !getGather(bid,buf) || buf.size() <= trcnr )
+	return false;
+    return buf.remove( trcnr );
+}
+
+
 mDefSimpleTranslatorSelector(SeisPS,sKeySeisPSTranslatorGroup)
 mDefSimpleTranslatorioContext(SeisPS,Seis)
 
@@ -89,4 +105,124 @@ bool CBVSSeisPSTranslator::implRemove( const IOObj* ioobj ) const
     if ( File_exists(fnm) )
 	File_remove( fnm, File_isDirectory(fnm) );
     return !File_exists(fnm);
+}
+
+
+SeisPSCubeSeisTrcTranslator::SeisPSCubeSeisTrcTranslator( const char* nm,
+							  const char* unm )
+	: SeisTrcTranslator(nm,unm)
+    	, trc_(*new SeisTrc)
+    	, psrdr_(0)
+    	, inforead_(false)
+    	, posdata_(*new PosInfo::CubeData)
+{
+}
+
+
+SeisPSCubeSeisTrcTranslator::~SeisPSCubeSeisTrcTranslator()
+{
+    delete psrdr_;
+    delete &trc_;
+    delete &posdata_;
+}
+
+
+const char* SeisPSCubeSeisTrcTranslator::connType() const
+{
+    return XConn::sType;
+}
+
+
+bool SeisPSCubeSeisTrcTranslator::initRead_()
+{
+    mDynamicCastGet(StreamConn*,sconn,conn->conn())
+    if ( !sconn )
+	{ errmsg = "Wrong connection from Object Manager"; return false; }
+    const char* typ = sconn->ioobj ? sconn->ioobj->translator() : "CBVS";
+    if ( sconn->ioobj )
+	psrdr_ = SPSIOPF().getReader( *sconn->ioobj );
+    else
+	psrdr_ = new SeisCBVSPS3DReader( sconn->fileName() );
+    errmsg = psrdr_->errMsg();
+    if ( errmsg && *errmsg )
+	return false;
+
+    posdata_ = psrdr_->posData();
+    posdata_.getInlRange( pinfo.inlrg );
+    posdata_.getCrlRange( pinfo.crlrg );
+    pinfo.inlrg.sort(); pinfo.crlrg.sort();
+    curbinid_.inl = pinfo.inlrg.start;
+    curbinid_.crl = pinfo.crlrg.start - pinfo.crlrg.step;
+    toNext();
+    return true;
+}
+
+
+bool SeisPSCubeSeisTrcTranslator::goTo( const BinID& bid )
+{
+    if ( !posdata_.includes(bid.inl,bid.crl) ) return false;
+    curbinid_ = bid; curbinid_.crl -= pinfo.crlrg.step;
+    return true;
+}
+
+
+bool SeisPSCubeSeisTrcTranslator::toNext()
+{
+    for ( int crl=curbinid_.crl+pinfo.crlrg.step; crl<=pinfo.crlrg.stop;
+	    crl+=pinfo.crlrg.step )
+    {
+	if ( posdata_.includes(curbinid_.inl,crl) )
+	{
+	    BinID bid( curbinid_.inl, crl );
+	    if ( !seldata || seldata->isOK(BinID(curbinid_.inl,crl)) )
+		{ curbinid_.crl = crl; return true; }
+	}
+    }
+
+    curbinid_.inl += pinfo.inlrg.step;
+    if ( curbinid_.inl > pinfo.inlrg.stop )
+	return false;
+
+    curbinid_.crl = pinfo.crlrg.start - pinfo.crlrg.step;
+    return toNext();
+}
+
+
+bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc )
+{
+    if ( !toNext() ) return false;
+    SeisTrc* newtrc = psrdr_->getTrace( curbinid_ );
+    if ( !newtrc ) return false;
+    trc = *newtrc;
+    delete newtrc;
+    return true;
+}
+
+
+bool SeisPSCubeSeisTrcTranslator::readInfo( SeisTrcInfo& inf )
+{
+    if ( inforead_ ) return true;
+    if ( !doRead(trc_) ) return false;
+    inforead_ = true;
+    inf = trc_.info();
+    return true;
+}
+
+
+bool SeisPSCubeSeisTrcTranslator::read( SeisTrc& trc )
+{
+    if ( inforead_ )
+	{ trc = trc_; return true; }
+    inforead_ = false;
+    return doRead( trc );
+}
+
+
+bool SeisPSCubeSeisTrcTranslator::skip( int nr )
+{
+    for ( int idx=0; idx<nr; idx++ )
+    {
+	if ( !toNext() ) return false;
+    }
+    return true;
 }

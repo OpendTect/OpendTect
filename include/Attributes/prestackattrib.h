@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          14-01-2008
- RCS:           $Id: prestackattrib.h,v 1.1 2008-01-14 15:59:44 cvshelene Exp $
+ RCS:           $Id: prestackattrib.h,v 1.2 2008-01-16 16:16:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "attribprovider.h"
+#include "seispsprop.h"
+class SeisPSReader;
 
 
 namespace Attrib
@@ -21,11 +23,9 @@ namespace Attrib
 
 /*!\brief "Pre-Stack Attribute"
 
-PreStack subtype=
+PreStack calctype= axistype= lsqtype= offsaxis= valaxis= useazim= comp= aperture=
 
-Outputs a standart attribute from pre-stack data.
-Can be used as intermediate between pre-stack data and some other attribute
-whom definition string is hold in the string parameter 'subtype'. 
+Outputs a standard attribute from pre-stack data.
 
 Input:
 0		Pre-Stack Data
@@ -38,14 +38,24 @@ Output:
 class PreStack: public Provider
 {
 public:
+
     static void		initClass();
+
 			PreStack(Desc&);
 
     static const char*  attribName()		{ return "PreStack"; }
-    static const char*  subtypeStr()		{ return "subtype"; }
+    static const char*  calctypeStr()		{ return "calctype"; }
+    static const char*  stattypeStr()		{ return "stattype"; }
+    static const char*  lsqtypeStr()		{ return "lsqtype"; }
+    static const char*  offsaxisStr()		{ return "offsaxis"; }
+    static const char*  valaxisStr()		{ return "valaxis"; }
+    static const char*  useazimStr()		{ return "useazim"; }
+    static const char*  componentStr()		{ return "comp"; }
+    static const char*  apertureStr()		{ return "aperture"; }
 
 protected:
-    			~PreStack() {}
+
+			~PreStack();
     static Provider*    createInstance(Desc&);
 
     bool		allowParallelComputation() const	{ return false;}
@@ -53,8 +63,11 @@ protected:
     bool		getInputData(const BinID&, int idx);
     bool		computeData(const DataHolder&,const BinID& relpos,
 				    int t0,int nrsamples,int threadid) const;
+    void		prepPriorToBoundsCalc();
 
-    BufferString	subtypestr_;
+    SeisPSPropCalc::Setup setup_;
+    SeisPSReader*	psrdr_;
+    SeisPSPropCalc*	propcalc_;
     int			dataidx_;
     const DataHolder*	inputdata_;
 };
