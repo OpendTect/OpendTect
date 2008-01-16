@@ -7,18 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.28 2007-02-05 14:27:15 cvsnanne Exp $
+ RCS:           $Id: attribparam.h,v 1.29 2008-01-16 16:08:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "refcount.h"
-#include "seistype.h"
+#include "attribparambase.h"
 #include "datainpspec.h"
 
-class DataInpSpec;
 class BinID;
-class BufferStringSet;
 
 template <class T> class Interval;
 
@@ -33,116 +30,22 @@ computed. The defenition string has the format:
 AttribNameWithoutSpaces param1=value1 param2=value2,value3
 
 The paramater thus has a key (e.g. param1) and one or more associated values.
+
+Subclasses are used to provide accurate parameter definition for parameters
+of each and every type
 */
-
-class Param
-{
-public:
-    				Param(const char* key);
-    				Param(const Param&);
-    virtual			~Param() {}
-
-    virtual Param*		clone() const		= 0;
-
-    bool			operator==( const Param& p ) const
-				{ return _isEqual( p ); }
-    bool			operator!=( const Param& p ) const
-				{ return !_isEqual( p ); }
-
-    virtual bool		isOK() const		= 0;
-
-    bool			isEnabled() const	  { return enabled_; }
-    void			setEnabled(bool yn=true)  { enabled_=yn; }
-    bool			isRequired() const	  { return required_; }
-    void			setRequired(bool yn=true) { required_=yn; }
-    bool			isGroup() const		  { return isgroup_; }
-
-    const char*			getKey() const		  { return key_.buf(); }
-
-    				/*!Set all values from one composite string.*/
-    virtual bool		setCompositeValue(const char*) 
-				{ return false; }
-    				/*!Set all values from multiple strings.*/
-    virtual bool		setValues(BufferStringSet&)
-				{ return false; }
-    virtual bool		getCompositeValue(BufferString&) const	=0;
-    				/*!<Put all values into one string. */
-    
-    virtual BufferString	getDefaultValue() const	  { return ""; } 
-    void			setKey(const char* newkey)    { key_ = newkey; }
-
-    virtual void		fillDefStr(BufferString&) const		=0;			
-
-protected:
-
-    BufferString		key_;
-    bool			isgroup_;
-
-    bool			enabled_;
-    bool			required_;
-
-    bool			_isEqual( const Param& p ) const
-				{
-				    return p.key_!=key_ ? false : isEqual( p );
-				}
-    virtual bool		isEqual(const Param&) const	= 0;
-};
-
-
-class ValParam : public Param
-{
-public:
-    				ValParam(const char* key,DataInpSpec*);
-    				ValParam(const ValParam&);
-    				~ValParam(); 
-
-    virtual ValParam*		clone() const;
-
-    virtual bool		isOK() const;
-
-    int				nrValues() const;
-    virtual int			getIntValue(int idx=0) const;
-    virtual float		getfValue(int idx=0) const;
-    bool			getBoolValue(int idx=0) const;
-    const char*			getStringValue(int idx=0) const;
-
-    void			setValue(int,int idx=0);
-    void			setValue(float,int idx=0);
-    void			setValue(bool,int idx=0);
-    void			setValue(const char*,int idx=0);
-
-    virtual int			getDefaultIntValue(int idx=0) const;
-    virtual float		getDefaultfValue(int idx=0) const;
-    bool			getDefaultBoolValue(int idx=0) const;
-    const char*			getDefaultStringValue(int idx=0) const;
-
-    void			setDefaultValue(int,int idx=0);
-    void			setDefaultValue(float,int idx=0);
-    void			setDefaultValue(bool,int idx=0);
-    void			setDefaultValue(const char*,int idx=0);
-
-    DataInpSpec*		getSpec()	{ return spec_; }
-    const DataInpSpec*		getSpec() const	{ return spec_; }
-
-    virtual bool		setCompositeValue(const char*);
-    virtual bool		getCompositeValue(BufferString&) const;
-    virtual BufferString	getDefaultValue() const	{ return ""; } 
-    virtual void   	        fillDefStr(BufferString&) const;
-    
-protected:
-    DataInpSpec*		spec_;
-
-    virtual bool		isEqual(const Param&) const;
-};
-
 
 class BinIDParam : public ValParam
 {
 public:
     				BinIDParam(const char*);
+    				BinIDParam(const char*,const BinID&,
+					   bool isreq=true);
     BinIDParam*			clone() const;
     void			setLimits(const Interval<int>& inlrg,
 	    				  const Interval<int>& crlrg);
+    void			setLimits(int mininl,int maxinl,
+	    				  int mincrl,int maxcrl);
 
     virtual bool		setCompositeValue(const char*);
     virtual bool		getCompositeValue(BufferString&) const;
@@ -160,6 +63,7 @@ class BoolParam : public ValParam
 {
 public:
     				BoolParam(const char*);
+    				BoolParam(const char*,bool, bool isreq=true);
     BoolParam*			clone() const;
 
     virtual bool		setCompositeValue(const char*);
@@ -174,6 +78,8 @@ class EnumParam : public ValParam
 {
 public:
     				EnumParam(const char*);
+    				EnumParam(const char*,int defval,
+					  bool isreq=true);
     EnumParam*			clone() const;
     BufferString		getDefaultValue() const;
 
@@ -190,6 +96,8 @@ class StringParam : public ValParam
 {
 public:
     				StringParam(const char* key);
+    				StringParam(const char* key,const char* defstr,
+					    bool isreq=true);
     StringParam*		clone() const;
 
     virtual bool		setCompositeValue(const char*);
@@ -205,6 +113,8 @@ class NumParam : public ValParam
 public:
     				NumParam(const char* key)
 				    : ValParam(key,new NumInpSpec<T>()) {}
+    				NumParam(const char* key,T defval,
+					 bool isreq=true);
 				NumParam(const NumParam<T>&);
 
     virtual NumParam<T>*	clone() const
@@ -212,6 +122,7 @@ public:
 
     void			setLimits(const Interval<T>&);
     void			setLimits(const StepInterval<T>&);
+    void			setLimits(T start,T stop,T step=1);
     const StepInterval<T>*	limits() const;
     virtual bool		getCompositeValue(BufferString& res) const;
     virtual bool                setCompositeValue(const char*);
@@ -228,6 +139,15 @@ NumParam<T>::NumParam( const NumParam<T>& np )
 {
     enabled_ = np.enabled_;
     required_ = np.required_;
+}
+
+
+template <class T>
+NumParam<T>::NumParam( const char* key, T defval, bool isreq )
+    : ValParam( key, new NumInpSpec<T>() )
+{
+    setDefaultValue( defval );
+    required_ = isreq;
 }
 
 
@@ -273,6 +193,10 @@ void NumParam<T>::setLimits( const StepInterval<T>& limit )
 { reinterpret_cast<NumInpSpec<T>*>(spec_)->setLimits( limit ); }
 
 template <class T>
+void NumParam<T>::setLimits( T start, T stop, T step )
+{ setLimits( StepInterval<T>( start, stop, step ) ); }
+
+template <class T>
 const StepInterval<T>* NumParam<T>::limits() const
 { return reinterpret_cast<NumInpSpec<T>*>(spec_)->limits(); }
 
@@ -298,12 +222,17 @@ public:
 				    : ValParam(key,new NumInpIntervalSpec<T>())
 				    {}
 				
+    				NumGateParam(const char* key,
+					     const Interval<T>& defaultgate,
+					     bool isreq=true);
+				    
 				NumGateParam(const NumGateParam<T>&);
 
     virtual NumGateParam<T>*	clone() const
 				{ return new NumGateParam<T>(*this); }
 
     void			setLimits(const Interval<T>&);
+    void			setLimits(T start,T stop);
     virtual bool		getCompositeValue(BufferString& res) const;
     virtual bool		setCompositeValue(const char*);
 
@@ -324,6 +253,16 @@ NumGateParam<T>::NumGateParam( const NumGateParam<T>& np )
 {
     enabled_ = np.enabled_;
     required_ = np.required_;
+}
+
+
+template <class T>
+NumGateParam<T>::NumGateParam( const char* key, const Interval<T>& defaultgate,
+			       bool isreq )
+    : ValParam(key,new NumInpIntervalSpec<T>())
+{
+    setDefaultValue( defaultgate );
+    setRequired( isreq );
 }
 
 
@@ -383,6 +322,12 @@ bool NumGateParam<T>::setCompositeValue( const char* gatestrvar )
 template <class T>
 void NumGateParam<T>::setLimits( const Interval<T>& limit )
 { reinterpret_cast<NumInpIntervalSpec<T>*>(spec_)->setLimits( limit ); }
+
+
+template <class T>
+void NumGateParam<T>::setLimits( T start, T stop )
+{ reinterpret_cast<NumInpIntervalSpec<T>*>(spec_)->setLimits(
+						Interval<T>(start,stop) ); }
 
 
 template <class T>

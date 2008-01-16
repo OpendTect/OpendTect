@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.28 2007-10-25 15:12:54 cvssatyaki Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.29 2008-01-16 16:08:51 cvshelene Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -18,159 +18,35 @@ static const char* rcsID = "$Id: attribparam.cc,v 1.28 2007-10-25 15:12:54 cvssa
 namespace Attrib
 {
 
-Param::Param( const char* key )
-    : key_( key )
-    , enabled_( true )
-    , required_( true )
-    , isgroup_( false )
-{}
-
-
-Param::Param( const Param& b )
-    : key_( b.key_ )
-    , enabled_( b.enabled_ )
-    , required_( b.required_ )
-    , isgroup_( b.isgroup_ )
-{}
-
-
-ValParam::ValParam( const char* key, DataInpSpec* spec )
-    : Param( key )
-    , spec_( spec )
-{}
-
-
-ValParam::ValParam( const ValParam& b )
-    : Param( b.key_ )
-    , spec_( b.spec_->clone() )
-{
-    enabled_ = b.enabled_;
-    required_ = b.required_;
-}
-
-
-ValParam::~ValParam()
-{
-    delete spec_;
-}
-
-
 #define mParamClone( type ) \
 type* type::clone() const { return new type(*this); }
 
-mParamClone( ValParam );
-
-
-bool ValParam::isEqual( const Param& b ) const
-{
-    mDynamicCastGet(ValParam*,vp,&const_cast<Param&>(b))
-
-    if ( spec_->nElems() != vp->spec_->nElems() )
-	return false;
-
-    for ( int idx=0; idx<spec_->nElems(); idx++ )
-    {
-	BufferString buf1 = spec_->text(idx);
-	BufferString buf2 = vp->spec_->text(idx);
-	if ( buf1 != buf2 )
-	    return false;
-    }
-
-    return true;
-}
-
-
-bool ValParam::isOK() const
-{
-    if ( !enabled_ ) return true;
-    if ( spec_->isUndef() ) return !required_;
-
-    for ( int idx=0; idx<spec_->nElems(); idx++ )
-    {
-	if ( !spec_->isInsideLimits(idx) )
-	    return false;
-    }
-
-    return true;
-}
-
-
-
-int ValParam::nrValues() const
-{ return spec_->nElems(); }
-
-
-#define mSetGet(type,getfunc) \
-type ValParam::getfunc( int idx ) const \
-{ return spec_->getfunc(idx); } \
-\
-void ValParam::setValue( type val, int idx ) \
-{ spec_->setValue( val, idx ); }
-
-mSetGet(int,getIntValue)
-mSetGet(float,getfValue)
-mSetGet(bool,getBoolValue)
-    
-#define mSetGetDefault(type,getfunc) \
-type ValParam::getfunc( int idx ) const \
-{ return spec_->getfunc(idx); } \
-\
-void ValParam::setDefaultValue( type val, int idx ) \
-{ spec_->setDefaultValue( val, idx ); }
-
-mSetGetDefault(int,getDefaultIntValue)
-mSetGetDefault(float,getDefaultfValue)
-mSetGetDefault(bool,getDefaultBoolValue)
-mSetGetDefault(const char*,getDefaultStringValue)
-
-    
-const char* ValParam::getStringValue( int idx ) const
-{ return spec_->text(idx); }
-
-void ValParam::setValue( const char* str, int idx )
-{ spec_->setText( str, idx ); }
-
-
-bool ValParam::setCompositeValue( const char* nv )
-{
-    if ( !spec_->setText(nv,0) )
-	return false;
-
-    return isOK();
-};
-
-
-bool ValParam::getCompositeValue( BufferString& res ) const
-{
-    if ( !spec_ ) return false;
-    res = spec_->text();
-
-    return true;
-}
-
-
-void ValParam::fillDefStr( BufferString& res ) const
-{
-    res += getKey();
-    res += "=";
-    BufferString val;
-    if ( !getCompositeValue(val) && !isRequired() )
-	val = getDefaultValue();
-    res += val;
-}
-
-
 BinIDParam::BinIDParam( const char* nm )
     : ValParam( nm, new PositionInpSpec(BinID(mUdf(int),mUdf(int))) )
-{
-}
+{}
 
+
+BinIDParam::BinIDParam( const char* nm, const BinID& defbid, bool isreq )
+    : ValParam( nm, new PositionInpSpec(BinID(mUdf(int),mUdf(int))) )
+{
+    setDefaultValue( defbid );
+    setRequired( isreq );
+}
 
 mParamClone( BinIDParam );
 
 
 void BinIDParam::setLimits( const Interval<int>& inlrg,
 			    const Interval<int>& crlrg )
+{
+    /*
+    TODO: implement setLimits in BinIDInpSpec
+    reinterpret_cast<BinIDInpSpec*>(spec_)->setLimits( inlrg, crlrg );
+    */
+}
+
+
+void BinIDParam::setLimits( int mininl, int maxinl, int mincrl,int maxcrl )
 {
     /*
     TODO: implement setLimits in BinIDInpSpec
@@ -257,6 +133,13 @@ BoolParam::BoolParam( const char* nm )
     : ValParam(nm,new BoolInpSpec(true,"yes","no",false))
 {}
 
+BoolParam::BoolParam( const char* nm, bool defval, bool isreq )
+    : ValParam(nm,new BoolInpSpec(true,"yes","no",false))
+{
+    setDefaultValue( defval );
+    setRequired( isreq );
+}
+
 mParamClone( BoolParam );
 
 
@@ -292,6 +175,13 @@ void BoolParam::setSet( bool yn )
 EnumParam::EnumParam( const char* nm )
     : ValParam( nm, new StringListInpSpec )
 {}
+
+EnumParam::EnumParam( const char* nm, int defval, bool isreq )
+    : ValParam( nm, new StringListInpSpec )
+{
+    setDefaultValue( defval );
+    setRequired( isreq );
+}
 
 mParamClone( EnumParam );
 
@@ -356,6 +246,13 @@ void EnumParam::setSet( bool yn )
 StringParam::StringParam( const char* key )
     : ValParam( key, new StringInpSpec )
 {}
+
+StringParam::StringParam( const char* key, const char* defstr, bool isreq )
+    : ValParam( key, new StringInpSpec )
+{
+    setDefaultValue( defstr );
+    setRequired( isreq );
+}
 
 mParamClone( StringParam );
 
