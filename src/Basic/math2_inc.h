@@ -20,7 +20,6 @@ mTYPE Math::IntPowerOf( mTYPE x, int y )
     if ( mIsUdf(x) )
 	return mUdf(mTYPE);
 
-    mTYPE ret = 1;
     if ( x == 0 )
 	return y ? 0 : 1;
 
@@ -40,6 +39,7 @@ mTYPE Math::IntPowerOf( mTYPE x, int y )
 	if ( y < -100 ) return 1;
     }
 
+    mTYPE ret = 1;
     while ( y )
     {
 	if ( y > 0 )
@@ -53,9 +53,9 @@ mTYPE Math::IntPowerOf( mTYPE x, int y )
 
 mTYPE Math::PowerOf( mTYPE x, mTYPE y )
 {
-    int isneg = x < 0 ? 1 : 0;
- 
     if ( x == 0 ) return y ? 0 : 1;
+ 
+    const bool isneg = x < 0 ? 1 : 0;
     if ( isneg ) x = -x;
  
     mTYPE ret = exp( y * log(x) );
@@ -65,17 +65,13 @@ mTYPE Math::PowerOf( mTYPE x, mTYPE y )
 
 mTYPE Math::ACos( mTYPE c )
 {
-    if ( c >= 1 ) return 0;
-    if ( c <= -1 ) return M_PI;
-    return acos( c );
+    return c >= 1 ? 0 : (c <= -1 ? M_PI : acos( c ));
 }
 
 
 mTYPE Math::ASin( mTYPE s )
 {
-    if ( s >= 1 ) return M_PI_2;
-    if ( s <= -1 ) return -M_PI_2;
-    return asin( s );
+    return s >= 1 ? M_PI_2 : (s <= -1 ? -M_PI_2 : asin( s ));
 }
 
 
