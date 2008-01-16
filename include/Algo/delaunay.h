@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.1 2008-01-16 19:32:23 cvsyuancheng Exp $
+ RCS:           $Id: delaunay.h,v 1.2 2008-01-16 22:06:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sets.h"
+#include "task.h"
 #include "position.h"
 
 namespace Geometry
@@ -86,6 +87,57 @@ protected:
 };
 
 
+class ParallelDelaunayTriangulation : public SequentialTask
+{
+    			ParallelDelaunayTriangulation(const TypeSet<Coord>&);
+			~ParallelDelaunayTriangulation();
+
+    const TypeSet<int>&	getCoordIndices() const;
+    			/*!<Coord indices are sorted in threes, i.e
+			    ci[0], ci[1], ci[2] is the first triangle
+			    ci[3], ci[4], ci[5] is the second triangle. */
+
+    int			nextStep()
+    			{
+			    const int sz = permutation_.size();
+			    if ( !sz ) return 0;
+			    if ( !insertPoint( permutation_[sz-1] ) )
+				return -1;
+
+			    permutation_.remove( sz-1 );
+			    return 1;
+			}
+
+protected:
+
+    bool		insertPoint(int idx);
+    char		isInside(int ci,int ti) const;
+    			/*!<\retval -1 outside
+			    \retval 0 on edge
+			    \revval 1 inside*/
+    bool		searchTriangle(int ci,TypeSet<int>& path) const;
+    			/*!<Returns the triangle that has ci inside.*/
+    bool		divideTriangle(int ci,int ti);
+    			/*!ci is assumed to be inside triangle*/
+    bool		splitTriangle(int ci,int ti); //Wrong interface
+    			/*!ci is assumed to be inside triangle*/
+
+    struct DAGTriangle
+    {
+			DAGTriangle();
+
+	bool		operator==(const DAGTriangle&);
+
+	int		coordindices_[3];
+	int		childindices_[3];
+    };
+
+    int				curpt_;
+    Coord3			initialcoords_[3];
+    TypeSet<DAGTriangle>	triangles_;
+    const TypeSet<Coord>&	coordlist_;
+    TypeSet<int>		permutation_;
+};
 
 };
 #endif
