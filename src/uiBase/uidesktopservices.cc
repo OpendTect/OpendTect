@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: uidesktopservices.cc,v 1.6 2007-05-25 03:32:34 cvsnanne Exp $
+ RCS:           $Id: uidesktopservices.cc,v 1.7 2008-01-17 11:00:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uidesktopservices.h"
 
 #include "bufstring.h"
+#include "debugmasks.h"
 #include "filegen.h"
 #include "uimsg.h"
 
@@ -33,8 +34,16 @@ bool uiDesktopServices::openUrl( const char* url )
 	myurl += url;
     }
 
-    QUrl qurl( myurl.buf(), QUrl::TolerantMode );
+
+    QUrl qurl( myurl.buf() );
     if ( qurl.isRelative() )
 	qurl.setScheme( "file" );
+
+    if ( DBG::isOn(DBG_IO) )
+    {
+	BufferString msg( "Open url: " );
+	msg += qurl.toString().toAscii().data();
+	DBG::message( msg );
+    }
     return QDesktopServices::openUrl( qurl );
 }
