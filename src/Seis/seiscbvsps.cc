@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.22 2008-01-15 16:19:43 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.23 2008-01-17 12:25:27 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -171,6 +171,21 @@ bool SeisCBVSPS3DReader::mkTr( int inl ) const
 }
 
 
+SeisTrc* SeisCBVSPS3DReader::getNextTrace( const BinID& bid,
+					   const Coord& coord ) const
+{
+    SeisTrc* trc = new SeisTrc;
+    if ( !curtr_->read(*trc) )
+	{ delete trc; return 0; }
+    if ( trc->info().binid.inl != bid.crl )
+	{ delete trc; return 0; }
+
+    trc->info().nr = trc->info().binid.crl;
+    trc->info().binid = bid; trc->info().coord = coord;
+    return trc;
+}
+
+
 bool SeisCBVSPS3DReader::getGather( int crl, SeisTrcBuf& gath ) const
 {
     gath.deepErase();
@@ -182,23 +197,33 @@ bool SeisCBVSPS3DReader::getGather( int crl, SeisTrcBuf& gath ) const
     const Coord coord = SI().transform( bid );
     while ( true )
     {
-	SeisTrc* trc = new SeisTrc;
-	if ( !curtr_->read(*trc) )
-	{
-	    delete trc;
-	    errmsg_ = curtr_->errMsg();
-	    return errmsg_.isEmpty();
-	}
-	else if ( trc->info().binid.inl != bid.crl )
-	    { delete trc; return true; }
-
-	trc->info().nr = trc->info().binid.crl;
-	trc->info().binid = bid; trc->info().coord = coord;
+	SeisTrc* trc = getNextTrace( bid, coord );
+	if ( !trc )
+	    { errmsg_ = curtr_->errMsg(); return errmsg_.isEmpty(); }
 	gath.add( trc );
     }
 
     // Not reached
     return true;
+}
+
+
+SeisTrc* SeisCBVSPS3DReader::getTrace( const BinID& bid, int nr ) const
+{
+    if ( !mkTr(bid.inl) ) return false;
+
+    if ( !curtr_->goTo( BinID(bid.crl,nr+1) ) )
+    {
+	if ( !curtr_->goTo( BinID(bid.crl,1) ) )
+	    { errmsg_ = "Crossline not present"; return false; }
+	for ( int idx=1; idx<nr; idx++ )
+	{
+	    if ( !curtr_->goTo( BinID(bid.crl,idx+1) ) )
+		{ curtr_->goTo( BinID(bid.crl,idx) ); break; }
+	}
+    }
+
+    return getNextTrace( bid, SI().transform(bid) );
 }
 
 

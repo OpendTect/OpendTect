@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seiscbvsps.h,v 1.9 2008-01-15 16:19:43 cvsbert Exp $
+ RCS:		$Id: seiscbvsps.h,v 1.10 2008-01-17 12:25:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "seispswrite.h"
 class IOPar;
 class BinID;
+class Coord;
 class SeisTrcTranslator;
 class CBVSSeisTrcTranslator;
 
@@ -59,6 +60,7 @@ public:
 			~SeisCBVSPS3DReader();
 
     bool		getGather(const BinID&,SeisTrcBuf&) const;
+    SeisTrc*		getTrace(const BinID&,int) const;
     const char*		errMsg() const		{ return errmsg_.buf(); } 
 
     const PosInfo::CubeData& posData() const	{ return posdata_; }
@@ -71,6 +73,7 @@ protected:
     void		addInl(int);
     bool		mkTr(int) const;
     bool		getGather(int,SeisTrcBuf&) const;
+    SeisTrc*		getNextTrace(const BinID&,const Coord&) const;
 
     mutable CBVSSeisTrcTranslator* curtr_;
     mutable int		curinl_;
