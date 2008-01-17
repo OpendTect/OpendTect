@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: iodir.cc,v 1.30 2007-06-05 08:34:24 cvsbert Exp $";
+static const char* rcsID = "$Id: iodir.cc,v 1.31 2008-01-17 14:35:41 cvsbert Exp $";
 
 #include "iodir.h"
 #include "iolink.h"
@@ -278,7 +278,7 @@ bool IODir::addObj( IOObj* ioobj, bool persist )
 	reRead();
 	if ( bad() ) return false;
     }
-    if ( (*this)[ioobj->key()] )
+    if ( ioobj->key().isEmpty() || (*this)[ioobj->key()] )
 	ioobj->setKey( newKey() );
 
     mkUniqueName( ioobj );
