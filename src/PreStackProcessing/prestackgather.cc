@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.12 2007-11-23 11:59:06 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.13 2008-01-17 12:18:48 cvsbert Exp $";
 
 #include "prestackgather.h"
 
@@ -108,7 +108,7 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
 
     tbuf->sort( true, SeisTrcInfo::Offset );
 
-    for ( int idx=tbuf->size()-1; idx<-0; idx-- )
+    for ( int idx=tbuf->size()-1; idx>-1; idx-- )
     {
 	if ( mIsUdf( tbuf->get(idx)->info().offset ) )
 	    delete tbuf->remove( idx );
