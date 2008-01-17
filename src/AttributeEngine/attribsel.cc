@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.20 2007-10-25 04:22:06 cvsraman Exp $
+ RCS:           $Id: attribsel.cc,v 1.21 2008-01-17 11:45:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -241,12 +241,15 @@ void SelInfo::fillStored( const char* filter )
     {
 	const IOObj& ioobj = *ioobjs[idx];
 	const bool is2d = !strcmp(ioobj.translator(),"2D");
-	const bool iscbvs = !strcmp(ioobj.translator(),"CBVS");
-	if ( (is2d && !is2d_) || (iscbvs && is2d_) || (!is2d && !iscbvs) )
+	const bool isvalid3d = !strcmp(ioobj.translator(),"CBVS")
+			    || !strcmp(ioobj.translator(),"PS Cube");
+	const bool isps = !strcmp(ioobj.group(),sKey::PSSeis);
+	const bool isdepth = ioobj.pars().find(sKey::DepthDomain);
+	if ( (is2d && !is2d_)
+	  || (isvalid3d && is2d_)
+	  || (!is2d && !isvalid3d)
+	  || isps || isdepth )
 	    continue;
-
-	if ( !strcmp(ioobj.group(),sKey::PSSeis) ) continue;
-	if ( ioobj.pars().find(sKey::DepthDomain) ) continue;
 
 	const char* res = ioobj.pars().find( sKey::Type );
 	if ( res && !strcmp(res,sKey::Steering) ) continue;
