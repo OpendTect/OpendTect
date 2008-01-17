@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.31 2007-12-05 11:55:49 cvsbert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.32 2008-01-17 14:35:17 cvsbert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -333,10 +333,10 @@ void CtxtIOObj::destroyAll()
 }
 
 
-int CtxtIOObj::fillObj( const MultiID& uid )
+int CtxtIOObj::fillObj()
 {
     if ( ioobj && (ctxt.name() == ioobj->name() || ctxt.name().isEmpty()) )
 	return 1;
-    IOM().getEntry( *this, uid );
+    IOM().getEntry( *this );
     return ioobj ? 2 : 0;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.26 2007-11-30 14:29:43 cvsbert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.27 2008-01-17 14:34:43 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,7 +131,7 @@ public:
     void		setObj(IOObj*); //!< destroys previous
     void		setObj(const MultiID&); //!< destroys previous
     void		setPar(IOPar*); //!< destroys previous
-    int			fillObj(const MultiID& idofdir=MultiID(""));
+    int			fillObj();
 			//!< 0 = fail, 1=existing found, 2=new made
     void		fillIfOnlyOne(IOObjContext::StdSelType);
 				//!< replaces ioobj if there's only one

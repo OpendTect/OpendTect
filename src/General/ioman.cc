@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.80 2007-09-19 14:53:48 cvsbert Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.81 2008-01-17 14:35:17 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -606,12 +606,12 @@ bool IOMan::setDir( const char* dirname )
 }
 
 
-void IOMan::getEntry( CtxtIOObj& ctio, MultiID overruleselkey )
+void IOMan::getEntry( CtxtIOObj& ctio )
 {
     ctio.setObj( 0 );
-    if ( ctio.ctxt.name().isEmpty() ) return;
-
-    to( overruleselkey.isEmpty() ? ctio.ctxt.getSelKey() : overruleselkey );
+    if ( ctio.ctxt.name().isEmpty() )
+	return;
+    to( ctio.ctxt.getSelKey() );
 
     const IOObj* ioobj = (*dirPtr())[ ctio.ctxt.name() ];
     ctio.ctxt.fillTrGroup();
