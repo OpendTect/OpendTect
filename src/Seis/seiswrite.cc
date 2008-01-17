@@ -106,7 +106,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	if ( !ioobj->pars().find(SeisPSIOProvider::sKeyCubeID) )
 	{
 	    IOM().to( ioobj->key() );
-	    BufferString nm( "=" ); nm += ioobj->name();
+	    BufferString nm( "=> " ); nm += ioobj->name();
 	    IOX* iox = new IOX( nm );
 	    iox->setTranslator( mTranslKey(SeisPSCubeSeisTrc) );
 	    iox->setGroup( mTranslGroupName(SeisTrc) );
