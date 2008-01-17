@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seispsioprov.cc,v 1.13 2008-01-17 11:45:55 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsioprov.cc,v 1.14 2008-01-17 14:36:26 cvsbert Exp $";
 
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -18,8 +18,12 @@ static const char* rcsID = "$Id: seispsioprov.cc,v 1.13 2008-01-17 11:45:55 cvsb
 #include "segposinfo.h"
 #include "filegen.h"
 #include "ioobj.h"
+#include "ioman.h"
 #include "iopar.h"
 #include "keystrs.h"
+
+
+const char* SeisPSIOProvider::sKeyCubeID = "=Cube.ID";
 
 
 SeisPSIOProviderFactory& SPSIOPF()
@@ -104,6 +108,9 @@ bool CBVSSeisPSTranslator::implRemove( const IOObj* ioobj ) const
     BufferString fnm( ioobj->fullUserExpr(true) );
     if ( File_exists(fnm) )
 	File_remove( fnm, File_isDirectory(fnm) );
+    const char* res = ioobj->pars().find( SeisPSIOProvider::sKeyCubeID );
+    if ( res )
+	IOM().permRemove( MultiID(res) );
     return !File_exists(fnm);
 }
 

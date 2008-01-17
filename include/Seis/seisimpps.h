@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2008
- RCS:		$Id: seisimpps.h,v 1.1 2008-01-14 12:06:47 cvsbert Exp $
+ RCS:		$Id: seisimpps.h,v 1.2 2008-01-17 14:36:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "executor.h"
 class SeisTrc;
-class SeisPSWriter;
+class SeisTrcWriter;
 class SeisPSImpLineBuf;
 
 
@@ -52,14 +52,14 @@ public:
 						{ samplenms_ = bss; }
 
     const char*		errMsg() const		{ return errmsg_.buf(); }
-    const SeisPSWriter*	psWriter() const	{ return pswrr_; }
+    const SeisTrcWriter* trcWriter() const	{ return wrr_; }
     bool		constGatherSize() const	{ return gathersize_ > 0; }
 
 protected:
 
     ObjectSet<SeisPSImpLineBuf>	lines_;
     MultiID			wrid_;
-    SeisPSWriter*		pswrr_;
+    SeisTrcWriter*		wrr_;
     int				maxinloffs_;
     int				writeupto_;
     BufferStringSet		samplenms_;

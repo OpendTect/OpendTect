@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.20 2006-02-21 15:23:10 cvsbert Exp $
+ RCS:		$Id: seiswrite.h,v 1.21 2008-01-17 14:36:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,12 @@ public:
 
     bool		isMultiComp() const;
     bool		isMultiConn() const;
+
+    Seis2DLinePutter*	linePutter()			{ return putter; }
+    const Seis2DLinePutter* linePutter() const		{ return putter; }
+
+    SeisPSWriter*	psWriter()			{ return pswriter; }
+    const SeisPSWriter*	psWriter() const		{ return pswriter; }
 
     			// 2D
     const LineKeyProvider* lineKeyProvider() const	{ return lkp; }

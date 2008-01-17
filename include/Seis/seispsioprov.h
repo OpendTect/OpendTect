@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsioprov.h,v 1.9 2008-01-15 16:19:43 cvsbert Exp $
+ RCS:		$Id: seispsioprov.h,v 1.10 2008-01-17 14:36:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,8 @@ public:
 				{ return 0; }
 
     const char*			type() const		{ return type_.buf(); }
+
+    static const char*		sKeyCubeID;
 
 
 protected:

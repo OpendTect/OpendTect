@@ -4,10 +4,11 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisimpps.cc,v 1.1 2008-01-14 12:06:47 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimpps.cc,v 1.2 2008-01-17 14:36:26 cvsbert Exp $";
 
 #include "seisimpps.h"
 #include "seispsioprov.h"
+#include "seiswrite.h"
 #include "seispswrite.h"
 #include "seisbuf.h"
 #include "seistrc.h"
@@ -56,7 +57,7 @@ void SeisPSImpLineBuf::add( SeisTrc* trc )
 
 SeisPSImpDataMgr::SeisPSImpDataMgr( const MultiID& pswrid )
     : wrid_(pswrid)
-    , pswrr_(0)
+    , wrr_(0)
     , maxinloffs_(-1)
     , writeupto_(-1)
     , gathersize_(0)
@@ -66,7 +67,7 @@ SeisPSImpDataMgr::SeisPSImpDataMgr( const MultiID& pswrid )
 
 SeisPSImpDataMgr::~SeisPSImpDataMgr()
 {
-    delete pswrr_;
+    delete wrr_;
     deepErase( lines_ );
 }
 
@@ -117,16 +118,17 @@ void SeisPSImpDataMgr::updateStatus( int bufidx )
 
 bool SeisPSImpDataMgr::writeGather()
 {
-    if ( !pswrr_ )
+    bool wrsampnms = false;
+    if ( !wrr_ )
     {
 	IOObj* ioobj = IOM().get( wrid_ );
 	if ( !ioobj )
 	    { errmsg_ = "Output data store not in object mgr"; return false; }
-	pswrr_ = SPSIOPF().getWriter( *ioobj );
+	wrr_ = new SeisTrcWriter( ioobj );
 	delete ioobj;
-	if ( !pswrr_ )
+	if ( !wrr_ )
 	    { errmsg_ = "Cannot write to this data store type"; return false; }
-	pswrr_->setSampleNames( samplenms_ );
+	wrsampnms = true;
     }
 
     SeisPSImpLineBuf& lbuf = *lines_[0];
@@ -140,9 +142,9 @@ bool SeisPSImpDataMgr::writeGather()
     bool res = true;
     for ( int idx=0; idx<gath2write->size(); idx++ )
     {
-	res = pswrr_->put( *gath2write->get(idx) );
+	res = wrr_->put( *gath2write->get(idx) );
 	if ( !res )
-	    { errmsg_ = pswrr_->errMsg(); break; }
+	    { errmsg_ = wrr_->errMsg(); break; }
     }
 
     if ( gathersize_ == 0 )
@@ -151,5 +153,7 @@ bool SeisPSImpDataMgr::writeGather()
 	gathersize_ = -1;
 
     delete gath2write;
+    if ( wrsampnms )
+	wrr_->psWriter()->setSampleNames( samplenms_ );
     return res;
 }
