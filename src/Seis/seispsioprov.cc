@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seispsioprov.cc,v 1.12 2008-01-16 16:16:30 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsioprov.cc,v 1.13 2008-01-17 11:45:55 cvsbert Exp $";
 
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -143,6 +143,7 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
 	psrdr_ = SPSIOPF().getReader( *sconn->ioobj );
     else
 	psrdr_ = new SeisCBVSPS3DReader( sconn->fileName() );
+    conn->close();
     errmsg = psrdr_->errMsg();
     if ( errmsg && *errmsg )
 	return false;
@@ -153,7 +154,16 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
     pinfo.inlrg.sort(); pinfo.crlrg.sort();
     curbinid_.inl = pinfo.inlrg.start;
     curbinid_.crl = pinfo.crlrg.start - pinfo.crlrg.step;
-    toNext();
+
+    if ( !doRead(trc_) )
+	return false;
+    insd = trc_.info().sampling;
+    innrsamples = trc_.size();
+    for ( int idx=0; idx<trc_.nrComponents(); idx++ )
+	addComp( trc_.data().getInterpreter(idx)->dataChar() );
+
+    curbinid_.inl = pinfo.inlrg.start;
+    curbinid_.crl = pinfo.crlrg.start - pinfo.crlrg.step;
     return true;
 }
 
@@ -193,7 +203,19 @@ bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc )
     if ( !toNext() ) return false;
     SeisTrc* newtrc = psrdr_->getTrace( curbinid_ );
     if ( !newtrc ) return false;
-    trc = *newtrc;
+    if ( !seldata || seldata->isAll() )
+	trc = *newtrc;
+    else
+    {
+	trc.info() = newtrc->info();
+	const Interval<float> zrg( seldata->zRange() );
+	trc.info().sampling.start = zrg.start;
+	const float sr = trc.info().sampling.step;
+	const int nrsamps = (int)(zrg.width() / sr + 1.5);
+	trc.reSize( nrsamps, false );
+	for ( int idx=0; idx<nrsamps; idx++ )
+	    trc.set( idx, newtrc->getValue( zrg.start + idx * sr, 0 ), 0 );
+    }
     delete newtrc;
     return true;
 }
@@ -212,7 +234,7 @@ bool SeisPSCubeSeisTrcTranslator::readInfo( SeisTrcInfo& inf )
 bool SeisPSCubeSeisTrcTranslator::read( SeisTrc& trc )
 {
     if ( inforead_ )
-	{ trc = trc_; return true; }
+	{ inforead_ = false; trc = trc_; return true; }
     inforead_ = false;
     return doRead( trc );
 }
