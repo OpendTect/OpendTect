@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackattrib.cc,v 1.3 2008-01-18 08:06:56 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackattrib.cc,v 1.4 2008-01-18 11:37:02 cvsbert Exp $";
 
 #include "prestackattrib.h"
 
@@ -17,6 +17,10 @@ static const char* rcsID = "$Id: prestackattrib.cc,v 1.3 2008-01-18 08:06:56 cvs
 #include "seispsioprov.h"
 #include "seispsread.h"
 
+#include "ioman.h"
+#include "ioobj.h"
+
+
 namespace Attrib
 {
 
@@ -25,6 +29,8 @@ mAttrDefCreateInstance(PreStack)
 void PreStack::initClass()
 {
     mAttrStartInitClass
+
+    desc->addParam( new SeisStorageRefParam("id") );
 
 #define mDefEnumPar(var,typ) \
     epar = new EnumParam( var##Str() ); \
@@ -38,18 +44,13 @@ void PreStack::initClass()
     mDefEnumPar(valaxis,SeisPSPropCalc::AxisType);
     mDefEnumPar(offsaxis,SeisPSPropCalc::AxisType);
 
-    BoolParam* useazimpar = new BoolParam( useazimStr() );
-    useazimpar->setDefaultValue( false );
-    desc->addParam( useazimpar );
-
-    IntParam* ipar = new IntParam( componentStr() );
-    ipar->setDefaultValue( 0 );
+    desc->addParam( new BoolParam( useazimStr(), false, false ) );
+    IntParam* ipar = new IntParam( componentStr(), 0 , false );
     ipar->setLimits( Interval<int>(0,mUdf(int)) );
     desc->addParam( ipar );
     ipar = ipar->clone(); ipar->setKey( apertureStr() );
     desc->addParam( ipar );
 
-    desc->addInput( InputSpec("Input Data",true) );
     desc->addOutputDataType( Seis::UnknowData );
 
     mAttrEndInitClass
@@ -62,6 +63,8 @@ PreStack::PreStack( Desc& ds )
     , propcalc_(0)
 {
     if ( !isOK() ) return;
+
+    const char* res; mGetString(res,"id") psid_ = res;
 
 #define mGetSetupEnumPar(var,typ) \
     int tmp_##var = (int)setup_.var##_; \
@@ -83,8 +86,8 @@ PreStack::PreStack( Desc& ds )
 
 PreStack::~PreStack()
 {
-    delete psrdr_;
     delete propcalc_;
+    delete psrdr_;
 }
 
 
@@ -100,24 +103,35 @@ bool PreStack::getInputData( const BinID& relpos, int zintv )
 }
 
 
+#define mErrRet(s1,s2,s3) { errmsg = BufferString(s1,s2,s3); return; }
+
 void PreStack::prepPriorToBoundsCalc()
 {
+    IOObj* ioobj = IOM().get( psid_ );
+    if ( !ioobj )
+	mErrRet("Cannot find pre-stack data store ",psid_," in object manager")
+
+    psrdr_ = SPSIOPF().getReader( *ioobj );
+    delete ioobj;
+    if ( !psrdr_ )
+	mErrRet("Cannot create reader for ",psid_," pre-stack data store")
+    const char* emsg = psrdr_->errMsg();
+    if ( emsg && *emsg ) mErrRet("PS Reader: ",emsg,"")
+
+    propcalc_ = new SeisPSPropCalc( *psrdr_, setup_ );
 }
 
 
 bool PreStack::computeData( const DataHolder& output, const BinID& relpos,
 			  int z0, int nrsamples, int threadid ) const
 {
-    if ( !psrdr_ )
+    if ( !propcalc_ )
 	return false;
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
-	float val;
-	//TODO: how to get val from prestack data?
-	//val = getInputValue( *inputdata_, dataidx_, idx, z0 );
-	if ( isOutputEnabled(0) )
-	    setOutputValue( output, 0, idx, z0, val );
+	const float z = (z0 + idx) * refstep;
+	setOutputValue( output, 0, idx, z0, propcalc_->getVal(z) );
     }
 
     return true;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          14-01-2008
- RCS:           $Id: prestackattrib.h,v 1.2 2008-01-16 16:16:29 cvsbert Exp $
+ RCS:           $Id: prestackattrib.h,v 1.3 2008-01-18 11:37:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "attribprovider.h"
 #include "seispsprop.h"
+#include "multiid.h"
 class SeisPSReader;
 
 
@@ -53,6 +54,9 @@ public:
     static const char*  componentStr()		{ return "comp"; }
     static const char*  apertureStr()		{ return "aperture"; }
 
+    const SeisPSPropCalc::Setup& setup() const	{ return setup_; }
+    const MultiID		psID() const	{ return psid_; }
+
 protected:
 
 			~PreStack();
@@ -65,6 +69,7 @@ protected:
 				    int t0,int nrsamples,int threadid) const;
     void		prepPriorToBoundsCalc();
 
+    MultiID		psid_;
     SeisPSPropCalc::Setup setup_;
     SeisPSReader*	psrdr_;
     SeisPSPropCalc*	propcalc_;

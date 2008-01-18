@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          Jan 2008
- RCS:           $Id: uiprestackattrib.h,v 1.3 2008-01-15 16:19:43 cvsbert Exp $
+ RCS:           $Id: uiprestackattrib.h,v 1.4 2008-01-18 11:37:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,17 +32,12 @@ public:
 protected:
 
     uiSeisSel*		inpfld_;
-    uiGenInput*         typefld_;
+    uiGenInput*         stattypefld_;
 
     CtxtIOObj&		ctio_;
 
     bool		setParameters(const Attrib::Desc&);
-    bool		setInput(const Attrib::Desc&);
-    bool		setOutput(const Attrib::Desc&);
-
     bool		getParameters(Attrib::Desc&);
-    bool		getInput(Attrib::Desc&);
-    bool		getOutput(Attrib::Desc&);
 
     			mDeclReqAttribUIFns
 };
