@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.24 2007-12-18 14:58:16 cvsjaap Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.25 2008-01-18 06:47:34 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,9 @@ uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf )
     , surface_(surf)
 {
     mDynamicCastGet(const EM::Horizon3D*,hor,&surface_)
-    iogrp_ = new uiSurfaceWrite( this, surface_, surface_.getTypeStr() );
+    iogrp_ = new uiSurfaceWrite( this, surface_,
+	   			 uiSurfaceWrite::Setup(surface_.getTypeStr())
+	   			 .withsubsel(true).withdisplayfld(true) );
 }
 
 
