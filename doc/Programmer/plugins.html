@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.41 2007-06-08 11:58:25 raman Exp $
+  - RCS:	$Id: plugins.html,v 1.42 2008-01-18 09:13:00 bert Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V3.0]</title>
@@ -577,9 +577,8 @@ by the user</p>
 
 
 <h5>getInputOutput()</h5>
-<p>Here you can specify the outputs you need for calculation among all those 
-provided by your input data; this function is very usefull when you have 
-steering as input data:</p>
+<p> we need to define this <a href=attributes.html#phases>initialization</a> function because we have Steering. Steering always carries two outputs and we need them both.
+</p>
 
 <a name=initsteer><h5>initSteering()</h5>
 <p> If we are using steering data, this function prepares the steering input for use in computation. A subvolume is generated around the central trace, with the size of the subvolume specified by the <i>stepout</i>. This data contains the shifts in terms of number of samples for each trace in the subvolume relative to the central trace.<p>
