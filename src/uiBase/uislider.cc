@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.32 2008-01-15 11:03:54 cvsraman Exp $
+ RCS:           $Id: uislider.cc,v 1.33 2008-01-18 12:22:46 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,7 @@ uiSlider::uiSlider( uiParent* p, const char* nm, int dec, bool logsc,
     
     if ( dec < 0 ) dec = 0;
 
-    double factor = pow( 10, dec );
+    double factor = pow( 10, -dec );
     scaler_ = new LinScaler( 0, factor );
 }
 
