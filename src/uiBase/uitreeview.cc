@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.31 2007-12-20 13:06:15 cvsjaap Exp $
+ RCS:           $Id: uitreeview.cc,v 1.32 2008-01-18 16:24:00 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "pixmap.h"
 #include "uishortcutsmgr.h"
 
+#include <qapplication.h>
 #include <qevent.h>
 #include <qpixmap.h>
 #include <qsize.h>
@@ -58,12 +59,20 @@ public:
 
     uiListView&		lvhandle()	{ return lvhandle_; }
 
+    void		activateClick(uiListViewItem&);
+    void		activateButton(uiListViewItem&,bool expand);
+    void		activateMenu(uiListViewItem&);
+    bool		event(QEvent*);
+
 protected:
 
     int 		prefnrlines;
 
     void		keyPressEvent(QKeyEvent*);
     bool		moveItem(QKeyEvent*);
+
+    uiListViewItem*	actitem_;
+    bool		actexpand_;
 
 private:
 
@@ -150,6 +159,80 @@ bool uiListViewBody::moveItem( QKeyEvent* event )
 }
 
 
+static const QEvent::Type sQEventActClick  = (QEvent::Type) (QEvent::User+0);
+static const QEvent::Type sQEventActButton = (QEvent::Type) (QEvent::User+1);
+static const QEvent::Type sQEventActMenu   = (QEvent::Type) (QEvent::User+2);
+
+
+void uiListViewBody::activateClick( uiListViewItem& uilvwitm )
+{
+    actitem_ = &uilvwitm;
+    QEvent* actevent = new QEvent( sQEventActClick );
+    QApplication::postEvent( this, actevent );
+}
+
+
+void uiListViewBody::activateButton( uiListViewItem& uilvwitm, bool expand )
+{
+    actitem_ = &uilvwitm;
+    actexpand_ = expand;
+    QEvent* actevent = new QEvent( sQEventActButton );
+    QApplication::postEvent( this, actevent );
+}
+
+
+void uiListViewBody::activateMenu( uiListViewItem& uilvwitm )
+{
+    actitem_ = &uilvwitm;
+    QEvent* actevent = new QEvent( sQEventActMenu );
+    QApplication::postEvent( this, actevent );
+}
+
+
+bool uiListViewBody::event( QEvent* ev )
+{
+    if ( ev->type() == sQEventActClick )
+    {
+	if ( actitem_ && actitem_->listView()==&lvhandle_ )
+	{
+	    lvhandle_.lastitemnotified = actitem_;
+	    lvhandle_.mouseButtonClicked.trigger();
+	}
+    }
+    else if ( ev->type() == sQEventActButton )
+    {
+	if ( actitem_ && actitem_->listView()==&lvhandle_ )
+	{
+	    if ( actexpand_ )
+	    {
+		actitem_->setOpen( !actitem_->isOpen() );
+	    }
+	    else
+	    {
+		lvhandle_.lastitemnotified = actitem_;
+		lvhandle_.mouseButtonClicked.trigger();
+		actitem_->setChecked( !actitem_->isChecked(), true );
+	    }
+	}
+    }
+    else if ( actitem_ && ev->type() == sQEventActMenu )
+    {
+	if ( actitem_->listView()==&lvhandle_ )
+	{
+	    lvhandle_.lastitemnotified = actitem_;
+	    lvhandle_.rightButtonClicked.trigger();
+	}
+    }
+    else
+	return mQListView::event( ev );
+
+    lvhandle_.activatedone.trigger();
+    return true;
+}
+
+
+
+
 uiListView::uiListView( uiParent* p, const char* nm, int nl, bool dec )
     : uiObject( p, nm, mkbody(p,nm,nl) )
     , selectionChanged(this)
@@ -170,6 +253,7 @@ uiListView::uiListView( uiParent* p, const char* nm, int nl, bool dec )
     , collapsed(this)
     , unusedKey(this)
     , lastitemnotified(0) 
+    , activatedone(this)
 {
     setRootDecorated( dec );
 }
@@ -494,6 +578,18 @@ void uiListView::triggerUpdate()
 
 void uiListView::setNotifiedItem( mQListViewItem* itm)
     { lastitemnotified = mItemFor( itm ); }
+
+
+void uiListView::activateClick( uiListViewItem& uilvwitm )
+{ body_->activateClick( uilvwitm ); }
+
+
+void uiListView::activateButton( uiListViewItem& uilvwitm, bool expand )
+{ body_->activateButton( uilvwitm, expand ); }
+
+
+void uiListView::activateMenu( uiListViewItem& uilvwitm )
+{ body_->activateMenu( uilvwitm ); }
 
 
 class uiQListViewItem : public mQListViewItem

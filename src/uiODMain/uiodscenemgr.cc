@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.119 2008-01-08 09:35:57 cvsraman Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.120 2008-01-18 16:27:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -605,6 +605,17 @@ void uiODSceneMgr::getSoViewers( ObjectSet<uiSoViewer>& vwrs )
 }
 
 
+uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiListView* lv ) const
+{
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+    {
+	if ( scenes_[idx]->lv_ == lv )
+	    return scenes_[idx]->itemmanager_;
+    }
+    return 0;
+}
+
+
 void uiODSceneMgr::getSceneNames( BufferStringSet& nms, int& active )
 {
     wsp_->getWindowNames( nms );
@@ -625,7 +636,7 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     BufferString capt( "Tree scene " ); capt += vwridx;
     uiDockWin* dw = new uiDockWin( 0, capt );
 
-    scn.lv_ = new uiListView( dw, "d-Tect Tree" );
+    scn.lv_ = new uiListView( dw, capt );
     scn.lv_->addColumn( "Elements" );
     scn.lv_->addColumn( "Color" );
     scn.lv_->setColumnWidthMode( cNameColumn(), uiListView::Manual );

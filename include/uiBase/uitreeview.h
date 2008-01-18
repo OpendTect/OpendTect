@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.24 2007-08-24 04:11:14 cvsnanne Exp $
+ RCS:           $Id: uitreeview.h,v 1.25 2008-01-18 16:24:00 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,6 +148,12 @@ public:
     Notifier<uiListView> expanded;
     Notifier<uiListView> collapsed;
     Notifier<uiListView> unusedKey;
+
+    			//! Force activation in GUI thread
+    void		activateClick(uiListViewItem&);
+    void		activateButton(uiListViewItem&,bool expand);
+    void		activateMenu(uiListViewItem&);
+    Notifier<uiListView> activatedone;
 
 protected:
 
