@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visnormals.h,v 1.7 2007-09-10 06:18:33 cvskris Exp $
+ RCS:		$Id: visnormals.h,v 1.8 2008-01-18 15:39:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -42,6 +42,7 @@ public:
     			//!<Envelope only, not all may be used.
     void		setNormal( int, const Coord3& );
     int			addNormal( const Coord3& );
+    int			nextID(int previd) const;
     void		removeNormal( int );
     Coord3		getNormal(int) const;
 
@@ -52,19 +53,21 @@ protected:
     int			getFreeIdx();
     			/*!< Object should be locked when calling */
 
-    SoNormal*		normals_;
+    SoNormal*			normals_;
 
-    TypeSet<int>	unusednormals_;
-    Threads::Mutex&	mutex_;
+    TypeSet<int>		unusednormals_;
+    mutable Threads::Mutex&	mutex_;
     			
 };
 
-class NormalListAdapter : public CoordList
+class NormalListAdapter : public Coord3List
 {
 public:
     		NormalListAdapter(Normals& n )
 		    : normals_( n )
 		{ normals_.ref(); }
+
+    int		nextID(int previd) const{ return normals_.nextID(previd); }
 
     int		add(const Coord3& n )	{ return normals_.addNormal(n); }
     void	set(int idx,const Coord3& n)	{ normals_.setNormal(idx,n); }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: explicitmarchingcubes.h,v 1.11 2007-12-27 16:13:04 cvskris Exp $
+ RCS:           $Id: explicitmarchingcubes.h,v 1.12 2008-01-18 15:39:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,6 @@ ________________________________________________________________________
 class MarchingCubesSurface;
 template <class T> class SamplingData;
 template <class T> class Interval;
-class CoordList;
 class TaskRunner;
 
 /*!A triangulated representation of an MarchingCubesSurface. */

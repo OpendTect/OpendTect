@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: indexedshape.cc,v 1.1 2007-09-12 20:05:34 cvskris Exp $";
+static const char* rcsID = "$Id: indexedshape.cc,v 1.2 2008-01-18 15:39:20 cvskris Exp $";
 
 #include "indexedshape.h"
 
@@ -15,7 +15,7 @@ namespace Geometry
 
 
 IndexedGeometry::IndexedGeometry( Type type, NormalBinding nb,
-				  CoordList* coords, CoordList* normals )
+				  Coord3List* coords, Coord3List* normals )
     : coordlist_( coords )
     , type_( type )
     , normalbinding_( nb )
@@ -79,7 +79,7 @@ IndexedShape::~IndexedShape()
 }
 
 
-void IndexedShape::setCoordList( CoordList* cl,CoordList* nl )
+void IndexedShape::setCoordList( Coord3List* cl,Coord3List* nl )
 {
     removeAll();
 

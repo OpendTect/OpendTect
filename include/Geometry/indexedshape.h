@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.3 2008-01-07 19:25:54 cvskris Exp $
+RCS:           $Id: indexedshape.h,v 1.4 2008-01-18 15:39:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "thread.h"
 
-class CoordList;
+class Coord3List;
 class TaskRunner;
 
 namespace Geometry
@@ -30,7 +30,7 @@ public:
     enum	NormalBinding { PerVertex, PerFace };
 
     		IndexedGeometry(Type,NormalBinding=PerFace,
-				CoordList* coords=0, CoordList* normals=0);
+				Coord3List* coords=0, Coord3List* normals=0);
 		/*!<If coords or normals are given, used indices will be
 		    removed when object deleted or removeAll is called. If
 		    multiple geometries are sharing the coords/normals, 
@@ -51,8 +51,8 @@ public:
     mutable bool	ischanged_;
 
 protected:
-    CoordList*		coordlist_;
-    CoordList*		normallist_;
+    Coord3List*		coordlist_;
+    Coord3List*		normallist_;
 };
 
 
@@ -65,7 +65,7 @@ class IndexedShape
 public:
     virtual 		~IndexedShape();
 
-    virtual void	setCoordList(CoordList* cl,CoordList* nl=0);
+    virtual void	setCoordList(Coord3List* cl,Coord3List* nl=0);
     virtual bool	needsUpdate() const			{ return true; }
     virtual bool	update(bool forceall,TaskRunner* =0)	{ return true; }
 
@@ -80,8 +80,8 @@ protected:
     Threads::ReadWriteLock	geometrieslock_;
     ObjectSet<IndexedGeometry>	geometries_;
 
-    CoordList*			coordlist_;
-    CoordList*			normallist_;
+    Coord3List*			coordlist_;
+    Coord3List*			normallist_;
     bool			righthandednormals_;
 };
 

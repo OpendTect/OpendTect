@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.16 2007-11-27 18:56:54 cvsyuancheng Exp $
+ RCS:		$Id: viscoord.h,v 1.17 2008-01-18 15:39:20 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -56,6 +56,9 @@ public:
     void		setLocalTranslation(const Coord&);
     Coord		getLocalTranslation() const;
 
+    int			nextID(int previd) const;
+			//!<If previd == -1, first id is returned.
+			//!<If -1 is returned, no more id's are available.
     int			size(bool includedelete=false) const;
     int			addPos(const Coord3&);
     Coord3		getPos(int,bool scenespace=false) const;
@@ -81,23 +84,25 @@ protected:
     			/*!< Object should be locked when calling */
 
     			~Coordinates();
-    SoCoordinate3*	coords;
-    SoGroup*		root;
-    UTMPosition*	utmposition;
-    TypeSet<int>	unusedcoords;
-    Threads::Mutex	mutex;
-    Transformation*	transformation;
+
+    SoCoordinate3*		coords_;
+    SoGroup*			root_;
+    UTMPosition*		utmposition_;
+    TypeSet<int>		unusedcoords_;
+    mutable Threads::Mutex	mutex_;
+    Transformation*		transformation_;
 };
 
 
 /*!Adapter between a CoordList and Coordinates. */
 
 
-class CoordListAdapter : public CoordList
+class CoordListAdapter : public Coord3List
 {
 public:
     		CoordListAdapter(Coordinates&);
 
+    int		nextID(int) const;
     int		add(const Coord3&);
     Coord3	get(int) const;
     void	set(int,const Coord3&);

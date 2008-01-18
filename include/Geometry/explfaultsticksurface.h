@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.1 2007-10-19 15:51:48 cvsjaap Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.2 2008-01-18 15:39:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ namespace Geometry
 {
 
 class FaultStickSurface;
-class CoordList;
 
 /*!A triangulated representation of a faultsticksurface */
 

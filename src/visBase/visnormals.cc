@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: visnormals.cc,v 1.11 2007-09-10 06:18:33 cvskris Exp $
+ RCS:           $Id: visnormals.cc,v 1.12 2008-01-18 15:39:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,23 @@ void Normals::inverse()
 
     if ( normals_->vector.getNum() )
 	normals_->vector.finishEditing();
+}
+
+
+int Normals::nextID( int previd ) const
+{
+    Threads::MutexLocker lock( mutex_ );
+
+    const int sz = normals_->vector.getNum();
+
+    int res = previd+1;
+    while ( res<sz )
+    {
+	if ( unusednormals_.indexOf(res)==-1 )
+	    return res;
+    }
+
+    return -1;
 }
 
 

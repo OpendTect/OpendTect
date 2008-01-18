@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: viscoord.cc,v 1.27 2007-11-27 18:56:55 cvsyuancheng Exp $
+ RCS:           $Id: viscoord.cc,v 1.28 2008-01-18 15:39:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,40 +24,40 @@ namespace visBase
 {
 
 Coordinates::Coordinates()
-    : coords( new SoCoordinate3 )
-    , transformation( 0 )
-    , utmposition( 0 )
-    , root( new SoGroup )
+    : coords_( new SoCoordinate3 )
+    , transformation_( 0 )
+    , utmposition_( 0 )
+    , root_( new SoGroup )
 {
-    root->ref();
-    root->addChild( coords );
-    unusedcoords += 0;
+    root_->ref();
+    root_->addChild( coords_ );
+    unusedcoords_ += 0;
     //!<To compensate for that the first coord is set by default by OI
 }
 
 
 Coordinates::~Coordinates()
 {
-    root->unref();
-    if ( transformation ) transformation->unRef();
+    root_->unref();
+    if ( transformation_ ) transformation_->unRef();
 }
 
 
 void Coordinates::setDisplayTransformation( Transformation* nt )
 {
-    if ( nt==transformation ) return;
+    if ( nt==transformation_ ) return;
 
-    Threads::MutexLocker lock( mutex );
+    Threads::MutexLocker lock( mutex_ );
     TypeSet<Coord3> worldpos;
     getPositions(worldpos);
 
-    if ( transformation )
-	transformation->unRef();
+    if ( transformation_ )
+	transformation_->unRef();
 
-    transformation = nt;
+    transformation_ = nt;
 
-    if ( transformation )
-	transformation->ref();
+    if ( transformation_ )
+	transformation_->ref();
 
     setPositions(worldpos);
 }
@@ -65,13 +65,13 @@ void Coordinates::setDisplayTransformation( Transformation* nt )
 
 Transformation*  Coordinates::getDisplayTransformation()
 {
-    return transformation;
+    return transformation_;
 }
 
 
 void Coordinates::setLocalTranslation( const Coord& nc )
 {
-    Threads::MutexLocker lock( mutex );
+    Threads::MutexLocker lock( mutex_ );
     setLocalTranslationWithoutLock( nc );
 }
 
@@ -81,17 +81,17 @@ void Coordinates::setLocalTranslationWithoutLock( const Coord& nc )
     TypeSet<Coord3> worldpos;
     getPositions(worldpos);
 
-    if ( !utmposition )
+    if ( !utmposition_ )
     {
-	utmposition = new UTMPosition;
-	root->insertChild( utmposition, 0 );
+	utmposition_ = new UTMPosition;
+	root_->insertChild( utmposition_, 0 );
     }
 
     Coord3 postoset( nc, 0 );
-    if ( transformation )
-	postoset = transformation->transform( postoset );
+    if ( transformation_ )
+	postoset = transformation_->transform( postoset );
 
-    utmposition->utmposition.setValue( SbVec3d(postoset.x,postoset.y,0) );
+    utmposition_->utmposition.setValue( SbVec3d(postoset.x,postoset.y,0) );
 
     setPositions(worldpos);
 }
@@ -99,48 +99,65 @@ void Coordinates::setLocalTranslationWithoutLock( const Coord& nc )
 
 Coord Coordinates::getLocalTranslation() const
 {
-    if ( !utmposition ) return Coord(0,0);
-    SbVec3d transl = utmposition->utmposition.getValue();
+    if ( !utmposition_ ) return Coord(0,0);
+    SbVec3d transl = utmposition_->utmposition.getValue();
     Coord3 res( transl[0], transl[1], 0 );
-    if ( transformation ) res = transformation->transformBack( res );
+    if ( transformation_ ) res = transformation_->transformBack( res );
     return res;
 }
 
 
 int Coordinates::size(bool includedeleted) const
-{ return coords->point.getNum()-(includedeleted ? 0 : unusedcoords.size()); }
+{ return coords_->point.getNum()-(includedeleted ? 0 : unusedcoords_.size()); }
+
+
+int Coordinates::nextID( int previd ) const
+{
+    Threads::MutexLocker lock( mutex_ );
+
+    const int sz = coords_->point.getNum();
+
+    int res = previd+1;
+    while ( res<sz )
+    {
+	if ( unusedcoords_.indexOf(res)==-1 )
+	    return res;
+    }
+
+    return -1;
+}
 
 
 int Coordinates::addPos( const Coord3& pos )
 {
-    Threads::MutexLocker lock( mutex );
+    Threads::MutexLocker lock( mutex_ );
     int res;
-    const int nrunused = unusedcoords.size();
-    if ( unusedcoords.size() )
+    const int nrunused = unusedcoords_.size();
+    if ( unusedcoords_.size() )
     {
-	res = unusedcoords[nrunused-1];
-	unusedcoords.remove( nrunused-1 );
+	res = unusedcoords_[nrunused-1];
+	unusedcoords_.remove( nrunused-1 );
     }
     else
     {
-	res = coords->point.getNum();
+	res = coords_->point.getNum();
     }
 
     Coord3 postoset = pos;
     if ( postoset.isDefined() )
     {
-	if ( transformation )
-	    postoset = transformation->transform( postoset );
+	if ( transformation_ )
+	    postoset = transformation_->transform( postoset );
 
-	if ( utmposition )
+	if ( utmposition_ )
 	{
-	    SbVec3d utmoffset = utmposition->utmposition.getValue();
+	    SbVec3d utmoffset = utmposition_->utmposition.getValue();
 	    postoset.x -= utmoffset[0];
 	    postoset.y -= utmoffset[1];
 	}
     }
     
-    coords->point.set1Value( res, SbVec3f(postoset.x,postoset.y,postoset.z) );
+    coords_->point.set1Value( res, SbVec3f(postoset.x,postoset.y,postoset.z) );
 
     return res;
 }
@@ -148,12 +165,12 @@ int Coordinates::addPos( const Coord3& pos )
 
 void Coordinates::insertPos( int idx, const Coord3& pos )
 {
-    Threads::MutexLocker lock( mutex );
-    coords->point.insertSpace( idx, 1 );
-    for ( int idy=unusedcoords.size()-1; idy>=0; idy-- )
+    Threads::MutexLocker lock( mutex_ );
+    coords_->point.insertSpace( idx, 1 );
+    for ( int idy=unusedcoords_.size()-1; idy>=0; idy-- )
     {
-	if ( unusedcoords[idy]>=idx )
-	    unusedcoords[idy]++;
+	if ( unusedcoords_[idy]>=idx )
+	    unusedcoords_[idy]++;
     }
 
     setPosWithoutLock(idx,pos);
@@ -162,19 +179,19 @@ void Coordinates::insertPos( int idx, const Coord3& pos )
 
 Coord3 Coordinates::getPos( int idx, bool scenespace ) const
 {
-    SbVec3f scenepos = coords->point[idx];
+    SbVec3f scenepos = coords_->point[idx];
     Coord3 res( scenepos[0], scenepos[1], scenepos[2] );
     if ( res.isDefined() )
     {
-	if ( utmposition )
+	if ( utmposition_ )
 	{
-	    SbVec3d utmoffset = utmposition->utmposition.getValue();
+	    SbVec3d utmoffset = utmposition_->utmposition.getValue();
 	    res.x += utmoffset[0];
 	    res.y += utmoffset[1];
 	}
 
-	if ( transformation && !scenespace )
-	    res = transformation->transformBack( res );
+	if ( transformation_ && !scenespace )
+	    res = transformation_->transformBack( res );
     }
 
     return res;
@@ -183,56 +200,56 @@ Coord3 Coordinates::getPos( int idx, bool scenespace ) const
 
 void Coordinates::setPos( int idx, const Coord3& pos )
 {
-    Threads::MutexLocker lock( mutex );
+    Threads::MutexLocker lock( mutex_ );
     setPosWithoutLock(idx,pos);
 }
 
 
 void Coordinates::setPosWithoutLock( int idx, const Coord3& pos )
 {
-    for ( int idy=coords->point.getNum(); idy<idx; idy++ )
-	unusedcoords += idy;
+    for ( int idy=coords_->point.getNum(); idy<idx; idy++ )
+	unusedcoords_ += idy;
 
     Coord3 postoset = pos;
     if ( postoset.isDefined() )
     {
-	if ( transformation )
+	if ( transformation_ )
 	{
-	    postoset = transformation->transform( postoset );
+	    postoset = transformation_->transform( postoset );
 
 	    //HACK: Moved here since it blocks the transform setting
 	    //      on inl/crl/t objects
-	    if ( !utmposition && !idx && !size(false) &&
+	    if ( !utmposition_ && !idx && !size(false) &&
 		    (fabs(postoset.x)>1e5 || fabs(postoset.y)>1e5) )
 		setLocalTranslationWithoutLock(postoset);
 	}
 
 	/* 
-	if ( !utmposition && !idx && !size(false) &&
+	if ( !utmposition_ && !idx && !size(false) &&
 		(fabs(postoset.x)>1e5 || fabs(postoset.y)>1e5) )
 	    setLocalTranslationWithoutLock(postoset);
 	*/
 
-	if ( utmposition )
+	if ( utmposition_ )
 	{
-	    SbVec3d utmoffset = utmposition->utmposition.getValue();
+	    SbVec3d utmoffset = utmposition_->utmposition.getValue();
 	    postoset.x -= utmoffset[0];
 	    postoset.y -= utmoffset[1];
 	}
     }
     
-    coords->point.set1Value( idx, SbVec3f(postoset.x,postoset.y,postoset.z) );
+    coords_->point.set1Value( idx, SbVec3f(postoset.x,postoset.y,postoset.z) );
 
-    const int unusedidx = unusedcoords.indexOf(idx);
+    const int unusedidx = unusedcoords_.indexOf(idx);
     if ( unusedidx!=-1 )
-	unusedcoords.remove( unusedidx );
+	unusedcoords_.remove( unusedidx );
 }
 
 
 void Coordinates::removePos( int idx, bool keepidxafter )
 {
-    Threads::MutexLocker lock( mutex );
-    const int nrcoords = coords->point.getNum();
+    Threads::MutexLocker lock( mutex_ );
+    const int nrcoords = coords_->point.getNum();
     if ( idx>=nrcoords || idx<0 )
     {
 	pErrMsg("Invalid index");
@@ -241,18 +258,18 @@ void Coordinates::removePos( int idx, bool keepidxafter )
 
     if ( idx==nrcoords-1 )
     {
-	coords->point.deleteValues( idx );
-	unusedcoords -= idx;
+	coords_->point.deleteValues( idx );
+	unusedcoords_ -= idx;
     }
     else if ( keepidxafter )
-	unusedcoords += idx;
+	unusedcoords_ += idx;
     else
     {
-	coords->point.deleteValues( idx, 1 );
-	for ( int idy=unusedcoords.size()-1; idy>=0; idy-- )
+	coords_->point.deleteValues( idx, 1 );
+	for ( int idy=unusedcoords_.size()-1; idy>=0; idy-- )
 	{
-	    if ( unusedcoords[idy]>idx )
-		unusedcoords[idy]--;
+	    if ( unusedcoords_[idy]>idx )
+		unusedcoords_[idy]--;
 	}
     }
 }
@@ -260,61 +277,61 @@ void Coordinates::removePos( int idx, bool keepidxafter )
 
 void Coordinates::removeAfter( int idx )
 {
-    Threads::MutexLocker lock( mutex );
-    if ( idx<0 || idx>=coords->point.getNum()-1 )
+    Threads::MutexLocker lock( mutex_ );
+    if ( idx<0 || idx>=coords_->point.getNum()-1 )
 	return;
 
-    coords->point.deleteValues( idx+1 );
-    for ( int idy=0; idy<unusedcoords.size(); idy++ )
+    coords_->point.deleteValues( idx+1 );
+    for ( int idy=0; idy<unusedcoords_.size(); idy++ )
     {
-	if ( unusedcoords[idy]>idx )
-	    unusedcoords.remove(idy--);
+	if ( unusedcoords_[idy]>idx )
+	    unusedcoords_.remove(idy--);
     }
 }
 
 
 void Coordinates::setAutoUpdate( bool doupdate )
 {
-    bool oldvalue = coords->point.enableNotify( doupdate );
-    if ( doupdate && !oldvalue ) coords->point.touch();
+    bool oldvalue = coords_->point.enableNotify( doupdate );
+    if ( doupdate && !oldvalue ) coords_->point.touch();
 }    
 
 
 bool Coordinates::autoUpdate()
 {
-    return coords->point.isNotifyEnabled();
+    return coords_->point.isNotifyEnabled();
 }
 
 
 void Coordinates::update()
 {
-    coords->point.touch();
+    coords_->point.touch();
 }
 
 
-SoNode* Coordinates::getInventorNode() { return root; }
+SoNode* Coordinates::getInventorNode() { return root_; }
 
 
 void Coordinates::getPositions(TypeSet<Coord3>& res) const
 {
-    for ( int idx=0; idx<coords->point.getNum(); idx++ )
+    for ( int idx=0; idx<coords_->point.getNum(); idx++ )
 	res += getPos(idx);
 }
 
 
 void Coordinates::setPositions( const TypeSet<Coord3>& pos)
 {
-    const bool oldstatus = coords->point.enableNotify( false );
-    for ( int idx=0; idx<coords->point.getNum(); idx++ )
+    const bool oldstatus = coords_->point.enableNotify( false );
+    for ( int idx=0; idx<coords_->point.getNum(); idx++ )
     {
-	if ( unusedcoords.indexOf(idx)!=-1 )
+	if ( unusedcoords_.indexOf(idx)!=-1 )
 	    continue;
 
 	setPosWithoutLock(idx, pos[idx] );
     }
 
-    coords->point.enableNotify( oldstatus );
-    coords->point.touch();
+    coords_->point.enableNotify( oldstatus );
+    coords_->point.touch();
 }
 
 
@@ -329,6 +346,9 @@ CoordListAdapter::~CoordListAdapter()
 {
     coords_.unRef();
 }
+
+int CoordListAdapter::nextID( int previd ) const
+{ return coords_.nextID( previd ); }
 
 
 int CoordListAdapter::add( const Coord3& p )
