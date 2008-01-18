@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.45 2007-10-01 11:39:09 cvsnanne Exp $
+ RCS:           $Id: uimenu.cc,v 1.46 2008-01-18 16:24:52 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -399,6 +399,8 @@ bool uiMenuBar::isSensitive() const
 
 // -----------------------------------------------------------------------
 
+CallBack* uiPopupMenu::interceptor_ = 0;
+
 uiPopupMenu::uiPopupMenu( uiParent* parnt, const char* nm )
     : uiMenuItemContainer( nm, 0, 0 )
     , item_( *new uiPopupItem( *this, nm ) )
@@ -457,6 +459,34 @@ int uiPopupMenu::exec()
     QMenu* mnu = body_->popup();
     if ( !mnu ) return -1;
 
+    if ( interceptor_ )
+    {
+	interceptionid_ = -1;
+	interceptor_->doCall( this );
+	resetInterceptor();
+	return interceptionid_;
+    }
+
     QAction* qaction = body_->popup()->exec( QCursor::pos() );
     return findIdForAction( qaction );
 }
+
+    
+void uiPopupMenu::setInterceptionId( int id )
+{ interceptionid_ = id; }
+
+
+void uiPopupMenu::resetInterceptor()
+{ 
+    if ( interceptor_ )
+	delete interceptor_;
+    interceptor_ = 0;
+}
+
+
+void uiPopupMenu::setInterceptor( const CallBack& cb )
+{ 
+    resetInterceptor();
+    interceptor_ = new CallBack( cb );
+}
+
