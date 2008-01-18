@@ -4,28 +4,32 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.45 2007-12-18 14:58:16 cvsjaap Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.46 2008-01-18 06:46:55 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiiosurface.h"
 
-#include "uibutton.h"
-#include "uigeninput.h"
 #include "uibinidsubsel.h"
-#include "uilistbox.h"
-#include "ioobj.h"
-#include "ctxtioobj.h"
+#include "uibutton.h"
+#include "uicolor.h"
+#include "uigeninput.h"
 #include "uiioobjsel.h"
-#include "ioman.h"
-#include "iodirentry.h"
+#include "uilistbox.h"
+#include "uimsg.h"
+#include "uistratlvlsel.h"
+
+#include "ctxtioobj.h"
 #include "emmanager.h"
 #include "emsurface.h"
 #include "emsurfacetr.h"
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
-#include "uimsg.h"
+#include "iodirentry.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "randcolor.h"
 #include "survinfo.h"
 
 
@@ -215,17 +219,18 @@ void uiIOSurface::attrSel( CallBacker* )
 }
 
 
-uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_, 
-				const char* typ )
-    : uiIOSurface(p,false,typ)
+uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
+				const uiSurfaceWrite::Setup& setup )
+    : uiIOSurface(p,false,setup.typ_)
+    , displayfld_(0)
+    , colbut_(0)
+    , stratlvlfld_(0)
 {
-    if ( typ != EMHorizon2DTranslatorGroup::keyword )
+    if ( setup.typ_ != EMHorizon2DTranslatorGroup::keyword )
     {
-	if ( surf_.nrSections() > 1 )
-	    mkSectionFld( false );
-
-	mkRangeFld();
-	if ( sectionfld )
+	if ( setup.withsubsel_ )
+    	    mkRangeFld();
+	if ( sectionfld && rgfld )
 	    rgfld->attach( alignedBelow, sectionfld );
     }
     
@@ -236,12 +241,67 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_,
 	setHAlignObj( rgfld );
     }
 
-    replacefld = new uiCheckBox( this, "Replace in tree" );
-    replacefld->attach( alignedBelow, objfld );
+    if ( setup.withstratfld_ )
+    {
+	stratlvlfld_ = new uiStratLevelSel( this );
+	stratlvlfld_->attach( alignedBelow, objfld );
+	stratlvlfld_->selchanged_.notify(mCB(this,uiSurfaceWrite,stratLvlChg));
+    }
+
+    if ( setup.withcolorfld_ )
+    {
+	colbut_ = new uiColorInput( this, getRandStdDrawColor(), "Base color" );
+	colbut_->attach( alignedBelow, objfld );
+	if ( stratlvlfld_ ) colbut_->attach( ensureBelow, stratlvlfld_ );
+    }
+
+    if ( setup.withdisplayfld_ )
+    {
+       displayfld_ = new uiCheckBox( this, setup.dispaytext_ );
+       displayfld_->attach( alignedBelow, objfld );
+       if ( stratlvlfld_ ) displayfld_->attach( ensureBelow, stratlvlfld_ );
+       if ( colbut_ ) displayfld_->attach( ensureBelow, colbut_ );
+       displayfld_->setChecked( true );
+    }
+
+    ioDataSelChg( 0 );
+}
+
+
+uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_, 
+				const uiSurfaceWrite::Setup& setup )
+    : uiIOSurface(p,false,setup.typ_)
+    , displayfld_(0)
+    , colbut_(0)
+    , stratlvlfld_(0)
+{
+    if ( setup.typ_ != EMHorizon2DTranslatorGroup::keyword )
+    {
+	if ( surf_.nrSections() > 1 )
+	    mkSectionFld( false );
+
+	if ( setup.withsubsel_ )
+    	    mkRangeFld();
+	if ( sectionfld && rgfld )
+	    rgfld->attach( alignedBelow, sectionfld );
+    }
+    
+    mkObjFld( "Output Surface" );
+    if ( rgfld )
+    {
+	objfld->attach( alignedBelow, rgfld );
+	setHAlignObj( rgfld );
+    }
+
+    if ( setup.withdisplayfld_ )
+    {
+       displayfld_ = new uiCheckBox( this, "Replace in tree" );
+       displayfld_->attach( alignedBelow, objfld );
+       displayfld_->setChecked( true );
+    }
 
     fillFields( surf_.multiID() );
 
-    replacefld->setChecked( true );
     ioDataSelChg( 0 );
 }
 
@@ -256,7 +316,7 @@ bool uiSurfaceWrite::processInput()
 
     if ( !objfld->commitInput(true) )
     {
-	uiMSG().error( "Please select output" );
+	uiMSG().error( "Please select an output surface" );
 	return false;
     }
 
@@ -265,7 +325,28 @@ bool uiSurfaceWrite::processInput()
 
 
 bool uiSurfaceWrite::replaceInTree() const       
-{ return replacefld->isChecked(); }
+{ return displayfld_->isChecked(); }
+
+
+void uiSurfaceWrite::stratLvlChg( CallBacker* )
+{
+    if ( !stratlvlfld_ ) return;
+    const char* lvlname = stratlvlfld_->getLvlName();
+    if ( lvlname && *lvlname )
+	colbut_->setColor( *stratlvlfld_->getLvlColor() );
+}
+
+
+const char* uiSurfaceWrite::getStratLevelName() const
+{
+    return stratlvlfld_ ? stratlvlfld_->getLvlName() : 0;
+}
+
+
+Color uiSurfaceWrite::getColor() const
+{
+    return colbut_ ? colbut_->color() : getRandStdDrawColor();
+}
 
 
 void uiSurfaceWrite::ioDataSelChg( CallBacker* )
@@ -281,15 +362,15 @@ void uiSurfaceWrite::ioDataSelChg( CallBacker* )
 	issubsel = issubsel || hrg.crlRange()!=maxhrg.crlRange();
     }
 
-    if ( replacefld && issubsel )
+    if ( displayfld_ && issubsel )
     {
-	replacefld->setChecked( false );
-	replacefld->setSensitive( false );
+	displayfld_->setChecked( false );
+	displayfld_->setSensitive( false );
     }
-    else if ( replacefld && !replacefld->sensitive() )
+    else if ( displayfld_ && !displayfld_->sensitive() )
     {
-	replacefld->setSensitive( true );
-	replacefld->setChecked( true );
+	displayfld_->setSensitive( true );
+	displayfld_->setChecked( true );
     }
 }
 

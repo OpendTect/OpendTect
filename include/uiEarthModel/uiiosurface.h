@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.21 2007-12-18 14:58:16 cvsjaap Exp $
+ RCS:           $Id: uiiosurface.h,v 1.22 2008-01-18 06:46:20 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,10 +22,12 @@ class IOObj;
 class MultiID;
 
 class uiBinIDSubSel;
+class uiColorInput;
 class uiGenInput;
 class uiIOObjSel;
 class uiLabeledListBox;
 class uiCheckBox;
+class uiStratLevelSel;
 
 
 namespace EM { class Surface; class SurfaceIODataSelection; };
@@ -77,15 +79,45 @@ protected:
 class uiSurfaceWrite : public uiIOSurface
 {
 public:
+
+    class Setup
+    {
+    public:
+
+			Setup( const char* typ )
+			: typ_(typ)
+			, withsubsel_(false)
+			, withcolorfld_(false)
+			, withstratfld_(false)
+			, withdisplayfld_(false)
+			, dispaytext_("Replace in tree")
+			{}
+
+	mDefSetupMemb(bool,withsubsel)
+	mDefSetupMemb(bool,withcolorfld)
+	mDefSetupMemb(bool,withstratfld)
+	mDefSetupMemb(bool,withdisplayfld)
+	mDefSetupMemb(BufferString,dispaytext)
+	mDefSetupMemb(BufferString,typ)
+
+    };
+
 			uiSurfaceWrite(uiParent*,const EM::Surface&,
-				       const char* type);
+				       const uiSurfaceWrite::Setup& setup);
+			uiSurfaceWrite(uiParent*,
+				       const uiSurfaceWrite::Setup& setup);
 
     virtual bool	processInput();
+    const char*		getStratLevelName() const;
+    Color		getColor() const;
     bool		replaceInTree()	const;
 
 protected:
+    void		stratLvlChg(CallBacker*);
     void 		ioDataSelChg(CallBacker*);
-    uiCheckBox*		replacefld;
+    uiCheckBox*		displayfld_;
+    uiColorInput*       colbut_;
+    uiStratLevelSel*    stratlvlfld_;
 };
 
 
