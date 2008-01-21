@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsioprov.h,v 1.10 2008-01-17 14:36:26 cvsbert Exp $
+ RCS:		$Id: seispsioprov.h,v 1.11 2008-01-21 17:56:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,9 @@ class IOObj;
   * positive number for single inline usage
   * mUdf(int) (=default) for scanning the entire datastore
 
+  For 2D pre-stack data stores, you have to pass a line name to get the
+  relevant reader. This can return null if the line name is not found.
+
  */
 
 class SeisPSIOProvider
@@ -50,13 +53,13 @@ public:
 
     virtual			~SeisPSIOProvider()	{}
 
-    virtual SeisPS3DReader*	makeReader(const char*,int inl=mUdf(int)) const
+    virtual SeisPS3DReader*	make3DReader(const char*,int i=mUdf(int)) const
 				{ return 0; }
-    virtual SeisPS2DReader*	make2DReader(const char*) const
+    virtual SeisPS2DReader*	make2DReader(const char*,const char* lnm) const
 				{ return 0; }
-    virtual SeisPSWriter*	makeWriter(const char*) const
+    virtual SeisPSWriter*	make3DWriter(const char*) const
 				{ return 0; }
-    virtual SeisPSWriter*	make2DWriter(const char*) const
+    virtual SeisPSWriter*	make2DWriter(const char*,const char* lnm) const
 				{ return 0; }
 
     const char*			type() const		{ return type_.buf(); }
@@ -85,9 +88,10 @@ public:
 
     // Convenience functions
     const SeisPSIOProvider*	provider(const char* typ) const;
-    SeisPS3DReader*		getReader(const IOObj&,int inl=mUdf(int)) const;
-    SeisPS2DReader*		get2DReader(const IOObj&) const;
-    SeisPSWriter*		getWriter(const IOObj&) const;
+    SeisPS3DReader*		get3DReader(const IOObj&,int i=mUdf(int)) const;
+    SeisPS2DReader*		get2DReader(const IOObj&,const char* lnm) const;
+    SeisPSWriter*		get3DWriter(const IOObj&) const;
+    SeisPSWriter*		get2DWriter(const IOObj&,const char* lnm) const;
 
 protected:
 

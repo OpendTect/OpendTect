@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.23 2008-01-17 12:25:27 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.24 2008-01-21 17:56:13 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -26,9 +26,9 @@ class CBVSSeisPSIOProvider : public SeisPSIOProvider
 {
 public:
 			CBVSSeisPSIOProvider() : SeisPSIOProvider("CBVS") {}
-    SeisPS3DReader*	makeReader( const char* dirnm, int inl ) const
+    SeisPS3DReader*	make3DReader( const char* dirnm, int inl ) const
 			{ return new SeisCBVSPS3DReader(dirnm,inl); }
-    SeisPSWriter*	makeWriter( const char* dirnm ) const
+    SeisPSWriter*	make3DWriter( const char* dirnm ) const
 			{ return new SeisCBVSPS3DWriter(dirnm); }
     static int		factid;
 };
@@ -50,18 +50,121 @@ SeisCBVSPSIO::~SeisCBVSPSIO()
 }
 
 
+bool SeisCBVSPSIO::dirNmOK( bool forread ) const
+{
+    if ( File_isDirectory(dirnm_) )
+	return true;
+
+    if ( forread )
+    {
+	errmsg_ = "Directory '"; errmsg_ += dirnm_;
+	errmsg_ += "' does not exist";
+	return false;
+    }
+
+    File_createDir( dirnm_, 0 );
+    if ( !File_isDirectory(dirnm_) )
+    {
+	errmsg_ = "Cannot create directory '";
+	errmsg_ += dirnm_; errmsg_ += "'";
+	return false;
+    }
+
+    return true;
+}
+
+
+bool SeisCBVSPSIO::goTo( SeisTrcTranslator* tr, const BinID& bid, int nr ) const
+{
+    if ( !tr ) return false;
+
+    if ( !tr->goTo( BinID(bid.crl,nr+1) ) )
+    {
+	if ( !tr->goTo( BinID(bid.crl,1) ) )
+	    { errmsg_ = "Crossline not present"; return false; }
+	for ( int idx=1; idx<nr; idx++ )
+	{
+	    if ( !tr->goTo( BinID(bid.crl,idx+1) ) )
+		{ tr->goTo( BinID(bid.crl,idx) ); break; }
+	}
+    }
+    return true;
+}
+
+
+bool SeisCBVSPSIO::prepGather( SeisTrcTranslator* tr, int crl,
+			     SeisTrcBuf& gath ) const
+{
+    if ( !tr ) return false;
+
+    gath.deepErase(); gath.setIsOwner( true );
+    if ( !tr->goTo( BinID(crl,1) ) )
+	{ errmsg_ = "Crossline not present"; return false; }
+    return true;
+}
+
+
+BufferString SeisCBVSPSIO::get2DFileName( const char* lnm ) const
+{
+    BufferString fnm( lnm );
+    cleanupString( fnm.buf(), NO, NO, NO );
+
+    FilePath fp( dirnm_ );
+    fp.add( fnm ).setExtension( "cbvs" );
+
+    fnm = fp.fullPath();
+    return fnm;
+}
+
+
+bool SeisCBVSPSIO::getSampleNames( BufferStringSet& nms ) const
+{
+    FilePath fp( dirnm_ ); fp.add( "samplenames.txt" );
+    const BufferString fnm( fp.fullPath() );
+
+    StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
+    if ( !sd.usable() ) return false;
+
+    nms.deepErase();
+    BufferString nm;
+    while ( StrmOper::readLine(*sd.istrm,&nm) )
+	nms.add( nm.buf() );
+    sd.close();
+
+    return true;
+}
+
+
+bool SeisCBVSPSIO::setSampleNames( const BufferStringSet& nms ) const
+{
+    FilePath fp( dirnm_ ); fp.add( "samplenames.txt" );
+    const BufferString fnm( fp.fullPath() );
+    if ( nms.isEmpty() )
+    {
+	if ( File_exists(fnm) )
+	    File_remove( fnm, NO );
+	return true;
+    }
+
+    StreamData sd( StreamProvider(fp.fullPath()).makeOStream() );
+    if ( !sd.usable() ) return false;
+
+    *sd.ostrm << nms.get(0);
+    for ( int idx=1; idx<nms.size(); idx++ )
+	*sd.ostrm << '\n' << nms.get(idx);
+    sd.close();
+
+    return true;
+}
+
+
 SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
     	: SeisCBVSPSIO(dirnm)
     	, posdata_(*new PosInfo::CubeData)
     	, curtr_(0)
     	, curinl_(mUdf(int))
 {
-    if ( !File_isDirectory(dirnm_) )
-    {
-	errmsg_ = "Directory '"; errmsg_ += dirnm_;
-	errmsg_ += "' does not exist";
-	return;
-    }
+    if ( !dirNmOK(true) ) return;
 
     if ( mIsUdf(inl) )
     {
@@ -159,8 +262,7 @@ bool SeisCBVSPS3DReader::mkTr( int inl ) const
 
     if( !File_exists( (const char*)filep ) )
     {
-	errmsg_ = "No Pre Stack data available for that inline.\n";
-	errmsg_ += "Please choose another inline.";
+	errmsg_ = "No Pre Stack data available for inline "; errmsg_ += inl;
 	return false;
     }
 
@@ -188,10 +290,8 @@ SeisTrc* SeisCBVSPS3DReader::getNextTrace( const BinID& bid,
 
 bool SeisCBVSPS3DReader::getGather( int crl, SeisTrcBuf& gath ) const
 {
-    gath.deepErase();
-    gath.setIsOwner( true );
-    if ( !curtr_->goTo( BinID(crl,1) ) )
-	{ errmsg_ = "Crossline not present"; return false; }
+    if ( !prepGather( curtr_, crl, gath ) )
+	return false;
 
     const BinID bid( curinl_, crl );
     const Coord coord = SI().transform( bid );
@@ -210,44 +310,14 @@ bool SeisCBVSPS3DReader::getGather( int crl, SeisTrcBuf& gath ) const
 
 SeisTrc* SeisCBVSPS3DReader::getTrace( const BinID& bid, int nr ) const
 {
-    if ( !mkTr(bid.inl) ) return false;
-
-    if ( !curtr_->goTo( BinID(bid.crl,nr+1) ) )
-    {
-	if ( !curtr_->goTo( BinID(bid.crl,1) ) )
-	    { errmsg_ = "Crossline not present"; return false; }
-	for ( int idx=1; idx<nr; idx++ )
-	{
-	    if ( !curtr_->goTo( BinID(bid.crl,idx+1) ) )
-		{ curtr_->goTo( BinID(bid.crl,idx) ); break; }
-	}
-    }
-
-    return getNextTrace( bid, SI().transform(bid) );
+    return mkTr(bid.inl) && goTo(curtr_,bid,nr)
+	 ? getNextTrace( bid, SI().transform(bid) ) : 0;
 }
 
 
 bool SeisCBVSPS3DReader::getGather( const BinID& bid, SeisTrcBuf& gath ) const
 {
     return mkTr( bid.inl ) && getGather( bid.crl, gath );
-}
-
-
-bool SeisCBVSPS3DReader::getSampleNames( BufferStringSet& nms ) const
-{
-    FilePath fp( dirnm_ ); fp.add( "samplenames.txt" );
-    const BufferString fnm( fp.fullPath() );
-
-    StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
-    if ( !sd.usable() ) return false;
-
-    nms.deepErase();
-    BufferString nm;
-    while ( StrmOper::readLine(*sd.istrm,&nm) )
-	nms.add( nm.buf() );
-    sd.close();
-
-    return true;
 }
 
 
@@ -258,16 +328,7 @@ SeisCBVSPS3DWriter::SeisCBVSPS3DWriter( const char* dirnm )
     	, prevbid_(*new BinID(mUdf(int),mUdf(int)))
 	, nringather_(1)
 {
-    if ( !File_isDirectory(dirnm_) )
-    {
-	if ( File_exists(dirnm_) )
-	{
-	    errmsg_ = "Existing file '";
-	    errmsg_ += dirnm_; errmsg_ += "'. Remove or rename.";
-	    return;
-	}
-	File_createDir(dirnm_,0);
-    }
+    if ( !dirNmOK(false) ) return;
 }
 
 
@@ -351,24 +412,44 @@ bool SeisCBVSPS3DWriter::put( const SeisTrc& trc )
 }
 
 
-bool SeisCBVSPS3DWriter::setSampleNames( const BufferStringSet& nms ) const
+SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, const char* lnm )
+    	: SeisCBVSPSIO(dirnm)
+    	, SeisPS2DReader(lnm)
+    	, posdata_(*new PosInfo::Line2DData)
+    	, tr_(0)
 {
-    FilePath fp( dirnm_ ); fp.add( "samplenames.txt" );
-    const BufferString fnm( fp.fullPath() );
-    if ( nms.isEmpty() )
-    {
-	if ( File_exists(fnm) )
-	    File_remove( fnm, NO );
-	return true;
-    }
+    if ( !dirNmOK(true) ) return;
 
-    StreamData sd( StreamProvider(fp.fullPath()).makeOStream() );
-    if ( !sd.usable() ) return false;
+    const BufferString fnm( get2DFileName(lnm) );
+    if ( !File_exists(fnm) ) return;
 
-    *sd.ostrm << nms.get(0);
-    for ( int idx=1; idx<nms.size(); idx++ )
-	*sd.ostrm << '\n' << nms.get(idx);
-    sd.close();
+    errmsg_ = "";
+    tr_ = CBVSSeisTrcTranslator::make( fnm, false, true, &errmsg_ );
+}
+
+
+SeisCBVSPS2DReader::~SeisCBVSPS2DReader()
+{
+    delete &posdata_;
+    delete tr_;
+}
+
+
+SeisTrc* SeisCBVSPS2DReader::getTrace( const BinID& bid, int nr ) const
+{
+    if ( !tr_ ) return 0;
+
+    if ( !goTo(tr_,bid,nr) )
+	return 0;
+
+    return 0;
+}
+
+
+bool SeisCBVSPS2DReader::getGather( const BinID& bid, SeisTrcBuf& tbuf ) const
+{
+    if ( !prepGather(tr_,bid.crl,tbuf) )
+	return false;
 
     return true;
 }

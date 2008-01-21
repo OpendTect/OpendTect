@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.6 2008-01-10 17:00:44 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.7 2008-01-21 17:56:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -276,7 +276,7 @@ uiFlatViewWin* uiPSViewerMgr::create2DViewer( const MultiID& mid,
 	vwr.setPack( false, gather->id(), false, !haddata );
     }
     
-    PtrMan<SeisPSReader> rdr = SPSIOPF().getReader( *ioobj, bid.inl );
+    PtrMan<SeisPSReader> rdr = SPSIOPF().get3DReader( *ioobj, bid.inl );
     if ( !rdr )
 	mErrRes( "This Pre-Stack data store cannot be handled" )
 

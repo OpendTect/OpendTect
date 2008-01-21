@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.13 2008-01-17 12:18:48 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.14 2008-01-21 17:56:13 cvsbert Exp $";
 
 #include "prestackgather.h"
 
@@ -81,7 +81,7 @@ bool Gather::readFrom( const MultiID& mid, const BinID& bid,
 bool Gather::readFrom( const IOObj& ioobj, const BinID& bid, 
 			   BufferString* errmsg )
 {
-    PtrMan<SeisPSReader> rdr = SPSIOPF().getReader( ioobj, bid.inl );
+    PtrMan<SeisPSReader> rdr = SPSIOPF().get3DReader( ioobj, bid.inl );
     if ( !rdr )
     {
 	if ( errmsg )

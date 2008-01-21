@@ -4,7 +4,7 @@
  * DATE     : Oct 2007
 -*/
 
-static const char* rcsID = "$Id: seispsmerge.cc,v 1.5 2008-01-15 16:19:43 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsmerge.cc,v 1.6 2008-01-21 17:56:13 cvsbert Exp $";
 
 #include "segposinfo.h"
 #include "seisbuf.h"
@@ -54,7 +54,7 @@ void SeisPSMerger::init( const HorSampling& subsel )
     const bool nosubsel = hs == subsel;
     for ( int idx=0; idx<nrobjs_; idx++ )
     {
-	SeisPS3DReader* rdr = SPSIOPF().getReader( *inobjs_[idx] );
+	SeisPS3DReader* rdr = SPSIOPF().get3DReader( *inobjs_[idx] );
 	if ( !rdr ) continue;
 
 	StepInterval<int> inlrg;
@@ -75,7 +75,7 @@ void SeisPSMerger::init( const HorSampling& subsel )
     totnr_ = nosubsel ? hs.totalNr() : subsel.totalNr();
     iter_ = nosubsel ? new HorSamplingIterator( hs )
 		     : new HorSamplingIterator( subsel );
-    writer_ = SPSIOPF().getWriter( *outobj_ );
+    writer_ = SPSIOPF().get3DWriter( *outobj_ );
 }
 
 

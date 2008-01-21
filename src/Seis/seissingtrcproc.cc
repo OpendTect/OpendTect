@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.39 2007-11-23 11:59:06 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.40 2008-01-21 17:56:13 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -100,7 +100,7 @@ bool SeisSingleTraceProc::mkWriter( const IOObj* out )
     }
 
     BufferString dsimpl( out->fullUserExpr(false) );
-    pswrr_ = siop->makeWriter( dsimpl );
+    pswrr_ = siop->make3DWriter( dsimpl );
     if ( !pswrr_ )
     {
 	curmsg_ = "Cannot make PreStack writer for '";

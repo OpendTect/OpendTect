@@ -21,6 +21,10 @@
 #include "separstr.h"
 #include "iopar.h"
 
+
+#define mCurLineKey (lkp ? lkp->lineKey() : seldata->lineKey())
+
+
 SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const LineKeyProvider* l )
 	: SeisStoreAccess(ioob)
     	, lineauxiopar(*new IOPar)
@@ -89,32 +93,37 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	return false;
     }
 
-    if ( is2d )
+    if ( is2d && !psioprov )
     {
 	if ( !next2DLine() )
 	    return false;
     }
     else if ( psioprov )
     {
-	pswriter = psioprov->makeWriter( ioobj->fullUserExpr(Conn::Write) );
+	const char* psstorkey = ioobj->fullUserExpr(Conn::Write);
+	pswriter = is2d ? psioprov->make2DWriter( psstorkey, mCurLineKey )
+	    		: psioprov->make3DWriter( psstorkey );
 	if ( !pswriter )
 	{
 	    errmsg = "Cannot open Pre-Stack data store for write";
 	    return false;
 	}
 	pswriter->usePar( ioobj->pars() );
-	if ( !ioobj->pars().find(SeisPSIOProvider::sKeyCubeID) )
+	if ( !is2d )
 	{
-	    IOM().to( ioobj->key() );
-	    BufferString nm( "{" ); nm += ioobj->name(); nm += "}";
-	    IOX* iox = new IOX( nm );
-	    iox->setTranslator( mTranslKey(SeisPSCubeSeisTrc) );
-	    iox->setGroup( mTranslGroupName(SeisTrc) );
-	    iox->acquireNewKey();
-	    ioobj->pars().set( SeisPSIOProvider::sKeyCubeID, iox->key() );
-	    IOM().dirPtr()->commitChanges( ioobj );
-	    iox->setOwnKey( ioobj->key() );
-	    IOM().dirPtr()->addObj( iox, true );
+	    if ( !ioobj->pars().find(SeisPSIOProvider::sKeyCubeID) )
+	    {
+		IOM().to( ioobj->key() );
+		BufferString nm( "{" ); nm += ioobj->name(); nm += "}";
+		IOX* iox = new IOX( nm );
+		iox->setTranslator( mTranslKey(SeisPSCubeSeisTrc) );
+		iox->setGroup( mTranslGroupName(SeisTrc) );
+		iox->acquireNewKey();
+		ioobj->pars().set( SeisPSIOProvider::sKeyCubeID, iox->key() );
+		IOM().dirPtr()->commitChanges( ioobj );
+		iox->setOwnKey( ioobj->key() );
+		IOM().dirPtr()->addObj( iox, true );
+	    }
 	}
     }
     else
@@ -192,9 +201,6 @@ bool SeisTrcWriter::ensureRightConn( const SeisTrc& trc, bool first )
 
     return true;
 }
-
-
-#define mCurLineKey (lkp ? lkp->lineKey() : seldata->lineKey())
 
 
 bool SeisTrcWriter::next2DLine()

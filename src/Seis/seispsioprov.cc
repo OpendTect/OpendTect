@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seispsioprov.cc,v 1.14 2008-01-17 14:36:26 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsioprov.cc,v 1.15 2008-01-21 17:56:13 cvsbert Exp $";
 
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -47,13 +47,13 @@ const SeisPSIOProvider* SeisPSIOProviderFactory::provider( const char* t ) const
 }
 
 
-SeisPS3DReader* SeisPSIOProviderFactory::getReader( const IOObj& ioobj,
-						    int inl ) const
+SeisPS3DReader* SeisPSIOProviderFactory::get3DReader( const IOObj& ioobj,
+						      int inl ) const
 {
     if ( provs_.isEmpty() ) return 0;
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
     SeisPS3DReader* reader =
-	prov ? prov->makeReader( ioobj.fullUserExpr(true), inl ) : 0;
+	prov ? prov->make3DReader( ioobj.fullUserExpr(true), inl ) : 0;
 
     if ( reader )
 	reader->usePar( ioobj.pars() );
@@ -62,12 +62,13 @@ SeisPS3DReader* SeisPSIOProviderFactory::getReader( const IOObj& ioobj,
 }
 
 
-SeisPS2DReader* SeisPSIOProviderFactory::get2DReader( const IOObj& ioobj ) const
+SeisPS2DReader* SeisPSIOProviderFactory::get2DReader( const IOObj& ioobj,
+						      const char* lnm ) const
 {
     if ( provs_.isEmpty() ) return 0;
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
     SeisPS2DReader* reader =
-	prov ? prov->make2DReader( ioobj.fullUserExpr(true) ) : 0;
+	prov ? prov->make2DReader( ioobj.fullUserExpr(true), lnm ) : 0;
 
     if ( reader )
 	reader->usePar( ioobj.pars() );
@@ -76,12 +77,26 @@ SeisPS2DReader* SeisPSIOProviderFactory::get2DReader( const IOObj& ioobj ) const
 }
 
 
-SeisPSWriter* SeisPSIOProviderFactory::getWriter( const IOObj& ioobj ) const
+SeisPSWriter* SeisPSIOProviderFactory::get3DWriter( const IOObj& ioobj ) const
 {
     if ( provs_.isEmpty() ) return 0;
     const SeisPSIOProvider* prov = provider( ioobj.translator() );
     SeisPSWriter* writer =
-	prov ? prov->makeWriter( ioobj.fullUserExpr(false) ) : 0;
+	prov ? prov->make3DWriter( ioobj.fullUserExpr(false) ) : 0;
+    if ( writer )
+	writer->usePar( ioobj.pars() );
+
+    return writer;
+}
+
+
+SeisPSWriter* SeisPSIOProviderFactory::get2DWriter( const IOObj& ioobj,
+       						    const char* lnm ) const
+{
+    if ( provs_.isEmpty() ) return 0;
+    const SeisPSIOProvider* prov = provider( ioobj.translator() );
+    SeisPSWriter* writer =
+	prov ? prov->make2DWriter( ioobj.fullUserExpr(false), lnm ) : 0;
     if ( writer )
 	writer->usePar( ioobj.pars() );
 
@@ -147,7 +162,7 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
 	{ errmsg = "Wrong connection from Object Manager"; return false; }
     const char* typ = sconn->ioobj ? sconn->ioobj->translator() : "CBVS";
     if ( sconn->ioobj )
-	psrdr_ = SPSIOPF().getReader( *sconn->ioobj );
+	psrdr_ = SPSIOPF().get3DReader( *sconn->ioobj );
     else
 	psrdr_ = new SeisCBVSPS3DReader( sconn->fileName() );
     conn->close();
