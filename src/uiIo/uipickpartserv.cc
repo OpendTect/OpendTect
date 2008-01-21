@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.49 2007-12-10 03:56:57 cvsnanne Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.50 2008-01-21 04:13:19 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,7 +127,8 @@ bool uiPickPartServer::createEmptySet( bool aspolygon )
 {
     uiCreatePicks dlg( parent() );
     mHandleDlg();
-    newps->disp_.connect_ = aspolygon;
+    newps->disp_.connect_ = aspolygon ? Pick::Set::Disp::Open
+				      : Pick::Set::Disp::None;
     return newps ? storeNewSet( newps ) : false;
 }
 

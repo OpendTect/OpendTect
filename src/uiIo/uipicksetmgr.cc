@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipicksetmgr.cc,v 1.4 2007-12-10 03:56:57 cvsnanne Exp $
+ RCS:           $Id: uipicksetmgr.cc,v 1.5 2008-01-21 04:13:19 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ bool uiPickSetMgr::storeNewSet( Pick::Set*& ps ) const
     if ( uiIOObj::fillCtio(*ctio,true) )
     {
 	PtrMan<IOObj> ioobj = ctio->ioobj;
-	if ( ps->disp_.connect_ )
+	if ( ps->disp_.connect_ != Pick::Set::Disp::None )
 	{
 	    ioobj->pars().set( sKey::Type, sKey::Polygon );
 	    IOM().commitChanges( *ioobj );

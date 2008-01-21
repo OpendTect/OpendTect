@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.34 2008-01-07 08:17:42 cvsnanne Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.35 2008-01-21 04:13:15 cvsraman Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -167,8 +167,7 @@ void LocationDisplay::fullRedraw( CallBacker* )
     while ( idx<group_->size() )
 	group_->removeObject( idx );
 
-    showLine( set_->disp_.connect_ );
-
+    showLine( set_->disp_.connect_ != Pick::Set::Disp::None );
 }
 
 
@@ -215,7 +214,7 @@ void LocationDisplay::createLine()
     }
 
     int nrnodes = polyline_->size();
-    if ( nrnodes ) 
+    if ( nrnodes && set_->disp_.connect_==Pick::Set::Disp::Close ) 
 	polyline_->setPoint( nrnodes, polyline_->getPoint(0) );
 } 
 
@@ -224,7 +223,7 @@ void LocationDisplay::showLine( bool yn )
 {
     if ( yn ) needline_ = true;
     if ( !needline_ ) return;
-    if ( !polyline_ ) createLine();
+    if ( !polyline_ || polyline_->size() <= set_->size() ) createLine();
     polyline_->turnOn( yn );
 }
 
@@ -539,7 +538,7 @@ void LocationDisplay::setChg( CallBacker* cb )
 void LocationDisplay::dispChg( CallBacker* )
 {
     getMaterial()->setColor( set_->disp_.color_ );
-    showLine( set_->disp_.connect_ );
+    showLine( set_->disp_.connect_ != Pick::Set::Disp::None );
 }
 
 
@@ -560,7 +559,7 @@ bool LocationDisplay::addPick( const Coord3& pos, const Sphere& dir,
 {
     int locidx = -1;
     bool insertpick = false;
-    if ( lineShown() )
+    if ( set_->disp_.connect_ == Pick::Set::Disp::Close )
     {
 	float mindist = mUdf(float);
 	for ( int idx=0; idx<set_->size(); idx++ )

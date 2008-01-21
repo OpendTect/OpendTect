@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uipickpropdlg.cc,v 1.5 2007-12-10 03:56:57 cvsnanne Exp $
+ RCS:           $Id: uipickpropdlg.cc,v 1.6 2008-01-21 04:11:54 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ uiPickPropDlg::uiPickPropDlg( uiParent* p, Pick::Set& set )
     : uiMarkerStyleDlg(p,"Pick properties"), set_(set)
 {
     linefld_ = new uiCheckBox( this, "Draw line" );
-    linefld_->setChecked( set_.disp_.connect_ );
+    linefld_->setChecked( set_.disp_.connect_ == Pick::Set::Disp::Close );
     linefld_->activated.notify( mCB(this,uiPickPropDlg,connectSel) );
     linefld_->attach( rightTo, typefld );
 }
@@ -64,7 +64,8 @@ void uiPickPropDlg::colSel( CallBacker* )
 
 void uiPickPropDlg::connectSel( CallBacker* )
 {
-    set_.disp_.connect_ = linefld_->isChecked();
+    set_.disp_.connect_ = linefld_->isChecked() ? Pick::Set::Disp::Close
+						: Pick::Set::Disp::None;;
     Pick::Mgr().reportDispChange( this, set_ );
 }
 
