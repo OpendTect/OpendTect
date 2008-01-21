@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribparam.cc,v 1.29 2008-01-16 16:08:51 cvshelene Exp $";
+static const char* rcsID = "$Id: attribparam.cc,v 1.30 2008-01-21 09:23:56 cvshelene Exp $";
 
 #include "attribparam.h"
 #include "attribparamgroup.h"
@@ -136,6 +136,7 @@ BoolParam::BoolParam( const char* nm )
 BoolParam::BoolParam( const char* nm, bool defval, bool isreq )
     : ValParam(nm,new BoolInpSpec(true,"yes","no",false))
 {
+    setValue( defval );
     setDefaultValue( defval );
     setRequired( isreq );
 }

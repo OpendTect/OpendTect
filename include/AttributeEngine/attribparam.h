@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribparam.h,v 1.29 2008-01-16 16:08:51 cvshelene Exp $
+ RCS:           $Id: attribparam.h,v 1.30 2008-01-21 09:23:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -146,6 +146,7 @@ template <class T>
 NumParam<T>::NumParam( const char* key, T defval, bool isreq )
     : ValParam( key, new NumInpSpec<T>() )
 {
+    setValue( defval );
     setDefaultValue( defval );
     required_ = isreq;
 }
@@ -261,6 +262,7 @@ NumGateParam<T>::NumGateParam( const char* key, const Interval<T>& defaultgate,
 			       bool isreq )
     : ValParam(key,new NumInpIntervalSpec<T>())
 {
+    setValue( defaultgate );
     setDefaultValue( defaultgate );
     setRequired( isreq );
 }
