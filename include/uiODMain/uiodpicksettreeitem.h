@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodpicksettreeitem.h,v 1.7 2007-07-05 06:34:36 cvsraman Exp $
+ RCS:		$Id: uiodpicksettreeitem.h,v 1.8 2008-01-21 04:15:17 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -64,6 +64,7 @@ protected:
     MenuItem		dirmnuitem_;
     MenuItem		onlyatsectmnuitem_;
     MenuItem		propertymnuitem_;
+    MenuItem		closepolyitem_;
 };
 
 
