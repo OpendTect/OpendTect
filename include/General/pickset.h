@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		May 2001
  Contents:	PickSet base classes
- RCS:		$Id: pickset.h,v 1.34 2007-12-10 03:56:57 cvsnanne Exp $
+ RCS:		$Id: pickset.h,v 1.35 2008-01-21 04:09:37 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,12 +98,14 @@ public:
 			Disp()
 			    : color_(Color::NoColor)
 			    , markertype_(3) // Sphere
-			    , connect_(false)
+			    , connect_(None)
 			    , pixsize_(3)		{}
+	enum Connection { None, Open, Close };
+			DeclareEnumUtils(Connection);
 	Color		color_;		//!< color
 	int		pixsize_;	//!< size in pixels
 	int		markertype_;	//!< MarkerStyle3D
-	bool		connect_;	//!< connect picks in set order
+	Connection	connect_;	//!< connect picks in set order
     };
 
     Disp		disp_;

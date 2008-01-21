@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.52 2008-01-09 13:54:34 cvsbert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.53 2008-01-21 04:10:05 cvsraman Exp $";
 
 #include "pickset.h"
 
@@ -399,6 +399,9 @@ void Pick::SetMgr::objRm( CallBacker* cb )
 }
 
 
+DefineEnumNames( Pick::Set::Disp, Connection, 0, "Connection" )
+{ "None", "Open", "Close", 0 };
+
 Pick::Set::Set( const char* nm )
     : NamedObject(nm)
     , pars_(*new IOPar)
@@ -436,7 +439,7 @@ void Pick::Set::fillPar( IOPar& par ) const
 
     par.set( sKey::Size, disp_.pixsize_ );
     par.set( sKeyMarkerType, disp_.markertype_ );
-    par.setYN( sKeyConnect, disp_.connect_ );
+    par.set( sKeyConnect, eString(Disp::Connection,disp_.connect_) );
     par.merge( pars_ );
 }
 
@@ -450,7 +453,16 @@ bool Pick::Set::usePar( const IOPar& par )
     disp_.pixsize_ = 3;
     par.get( sKey::Size, disp_.pixsize_ );
     par.get( sKeyMarkerType, disp_.markertype_ );
-    par.getYN( sKeyConnect, disp_.connect_ );
+
+    bool doconnect;
+    par.getYN( sKeyConnect, doconnect );	// For Backward Compatibility
+    if ( doconnect ) disp_.connect_ = Disp::Close;
+    else
+    {
+	const char* res = par.find( sKeyConnect );
+	disp_.connect_ = res && *res ? eEnum( Disp::Connection, res )
+	    			     : Disp::None;
+    }
 
     pars_ = par;
     pars_.removeWithKey( sKey::Color );
