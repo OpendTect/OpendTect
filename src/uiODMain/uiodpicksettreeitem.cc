@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.35 2007-12-10 03:56:57 cvsnanne Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.36 2008-01-21 04:14:11 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -217,6 +217,7 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     , dirmnuitem_("Set &directions ...")
     , onlyatsectmnuitem_("Display only at s&ections")
     , propertymnuitem_("&Properties ...")
+    , closepolyitem_("&Close Polygon")
 {
     displayid_ = did;
     Pick::Mgr().setChanged.notify( mCB(this,uiODPickSetTreeItem,setChg) );
@@ -280,6 +281,9 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() )
 	return;
 
+    if ( set_.disp_.connect_ == Pick::Set::Disp::Open )
+	mAddMenuItem( menu, &closepolyitem_, true, false );
+
     mAddMenuItem( menu, &storemnuitem_, true, false );
     mAddMenuItem( menu, &storeasmnuitem_, true, false );
 //    mAddMenuItem( menu, &dirmnuitem_, true, false );
@@ -307,6 +311,13 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() || mnuid==-1 || menu->isHandled() )
 	return;
 
+    if ( set_.disp_.connect_==Pick::Set::Disp::Open 
+	 && mnuid==closepolyitem_.id )
+    {
+	menu->setIsHandled( true );
+	set_.disp_.connect_ = Pick::Set::Disp::Close;
+	Pick::Mgr().reportDispChange( this, set_ );
+    }
     if ( mnuid==storemnuitem_.id )
     {
 	menu->setIsHandled( true );
