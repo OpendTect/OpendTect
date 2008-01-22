@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visannot.cc,v 1.23 2005-02-11 11:13:37 nanne Exp $";
+static const char* rcsID = "$Id: visannot.cc,v 1.24 2008-01-22 08:05:39 cvsnanne Exp $";
 
 #include "visannot.h"
 #include "vistext.h"
@@ -88,10 +88,12 @@ Annotation::Annotation()
     texts->ref();
     textswitch->addChild( texts->getInventorNode() );
     textswitch->whichChild = 0;
-    Text2* text = Text2::create(); texts->addObject( text );
-    text = Text2::create(); texts->addObject( text );
-    text = Text2::create(); texts->addObject( text );
 
+#define mAddText \
+    text = Text2::create(); text->setJustification( Text2::Right ); \
+    texts->addObject( text );
+
+    Text2* text = 0; mAddText mAddText mAddText
 
     addChild( scaleswitch );
     SoGroup* scalegroup = new SoGroup;
