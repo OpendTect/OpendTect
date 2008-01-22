@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.cc,v 1.16 2007-10-12 09:12:19 cvssulochana Exp $
+ RCS:           $Id: uimathattrib.cc,v 1.17 2008-01-22 16:24:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,14 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 					    : (uiObject*)inpfld_ );
     }
 
+    BufferString str = "Provide a starting value\n";
+    str += "for recursive function";
+    recstartfld_ = new uiGenInput( this, str, FloatInpSpec() );
+    recstartfld_->setPrefHeightInChar(2);
+    recstartfld_->attach( alignedBelow,
+	    cstsflds_.isEmpty() ? (uiObject*)attribflds_[attribflds_.size()-1]
+				: (uiObject*)cstsflds_[cstsflds_.size()-1] );
+
     setHAlignObj( inpfld_ );
 }
 
@@ -77,7 +85,7 @@ void uiMathAttrib::parsePush( CallBacker* )
     if ( !expr && strcmp( inpfld_->text(), "" ) )
 	mErrRet( "Could not parse this equation", )
 
-    nrvariables_ = expr ? expr->getNrVariables() : 0;
+    nrvariables_ = expr ? expr->getNrDiffVariables() : 0;
     if ( nrvariables_ > cNrVars )
     {
 	uiMSG().error( "Max. nr of variables you can use is 6" );
@@ -92,7 +100,7 @@ void uiMathAttrib::parsePush( CallBacker* )
 	BufferString xstr = "x"; xstr += idx;
 	for ( int idy=0; idy<nrvariables_; idy++ )
 	{
-	    if ( !strcmp( expr->getVariableStr(idy), xstr.buf() ) )
+	    if ( !strcmp( expr->getVarPrefixStr(idy), xstr.buf() ) )
 	    {
 		nrxvars_++;
 		found = true;
@@ -104,7 +112,7 @@ void uiMathAttrib::parsePush( CallBacker* )
 	BufferString varstr = "c"; varstr += idx;
 	for ( int idy=0; idy<nrvariables_; idy++ )
 	{
-	    if ( !strcmp( expr->getVariableStr(idy), varstr.buf() ) )
+	    if ( !strcmp( expr->getVarPrefixStr(idy), varstr.buf() ) )
 	    {
 		nrcstvars_++;
 		found = true;
@@ -117,7 +125,8 @@ void uiMathAttrib::parsePush( CallBacker* )
 	BufferString errmsg = "Formula should have x0, x1, x2 ...";
 	errmsg += "or c0, c1, c2 ...\n";
 	errmsg += "Please take care of the numbering:\n";
-       	errmsg += "first x0, then x1...";
+       	errmsg += "first x0, then x1...\n";
+	errmsg += "For recursive formula please use 'THIS[-1]'.";
 	uiMSG().error( errmsg.buf() );
 	nrvariables_ = 0;
 	return;
@@ -138,6 +147,8 @@ void uiMathAttrib::parsePush( CallBacker* )
 	
 	cstsflds_[idx]->display( dodisplay );
     }
+    
+    recstartfld_->display( expr && expr->isRecursive() );
 }
 
 
@@ -160,6 +171,13 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 	    const ValParam& param = (ValParam&)(*cstset)[idx];
 	    cstsflds_[idx+nrxvars_]->setValue(param.getfValue(0));
 	}
+    }
+    
+    if ( desc.getValParam( Math::recstartStr() ) )
+    {
+	float recstart = desc.getValParam( Math::recstartStr() )->getfValue(0);
+	if ( !mIsUdf( recstart ) )
+	    recstartfld_->setValue( recstart );
     }
     
     return true;
@@ -190,17 +208,18 @@ bool uiMathAttrib::getParameters( Desc& desc )
     Math::getInputTable( expr, cstinptable, true );
     Math::getInputTable( expr, xinptable, false );
     int nrcsts = cstinptable.size();
-    int nrxvars = xinptable.size();
+    int nrxvars = expr->getNrDiffVariables();
     mDescGetParamGroup(FloatParam,cstset,desc,Math::cstStr())
     cstset->setSize( nrcsts );
-    if ( cstsflds_.size() < nrxvars+nrcsts ) return false;
+    if ( cstsflds_.size() < nrxvars ) return false;
     
     for ( int idx=0; idx<nrcsts; idx++ )
     {
 	FloatParam& fparam = (FloatParam&)(*cstset)[idx];
-	fparam.setValue( cstsflds_[idx+nrxvars]->getfValue(0) );
+	fparam.setValue( cstsflds_[idx+nrxvars-nrcsts]->getfValue(0) );
     }
     
+    mSetFloat( Math::recstartStr(), recstartfld_->getfValue() );
     return true;
 }
 

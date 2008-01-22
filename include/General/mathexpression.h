@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: mathexpression.h,v 1.7 2004-01-13 13:15:25 kristofer Exp $
+ RCS:           $Id: mathexpression.h,v 1.8 2008-01-22 16:24:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include <sets.h>
 #include <gendefs.h>
+#include "bufstringset.h"
 
 
 /*!\brief parses a string with a mathematical expression.
@@ -46,11 +47,22 @@ class MathExpression
 public:
 
     static MathExpression* 	parse( const char* );
+    static void			getPrefixAndShift(const char*,BufferString&,
+	    					  int&);
     virtual float		getValue() const		= 0;
 
     virtual const char*		getVariableStr( int ) const;
     virtual int			getNrVariables() const;
     virtual void		setVariable( int, float );
+
+    //returns the number of different variables : 
+    //recursive "THIS" and shifted variables are excluded
+    int				getNrDiffVariables() const;
+    const char*			getVarPrefixStr( int idx ) const
+				{ return varprefixes_.get( idx ).buf(); }
+    int				getPrefixIdx( const char* str ) const
+				{ return varprefixes_.indexOf(str); }
+    bool			isRecursive() const	{ return isrecursive_; }
 
     virtual MathExpression*	clone() const = 0;
 
@@ -59,14 +71,18 @@ public:
 protected:
 				MathExpression(int nrinputs);
 
-    int				getNrInputs() const { return inputs.size(); }
+    int				getNrInputs() const { return inputs_.size(); }
     bool			setInput( int, MathExpression* );
     void			copyInput( MathExpression* target ) const;
 
+    void			checkVarPrefix(const char*);
 
-    ObjectSet<TypeSet<int> >	variableobj;
-    ObjectSet<TypeSet<int> >	variablenr;
-    ObjectSet<MathExpression>	inputs;
+
+    ObjectSet<TypeSet<int> >	variableobj_;
+    ObjectSet<TypeSet<int> >	variablenr_;
+    ObjectSet<MathExpression>	inputs_;
+    BufferStringSet		varprefixes_;
+    bool			isrecursive_;
 
 };
 

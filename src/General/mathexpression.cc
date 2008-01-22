@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2000
- RCS:           $Id: mathexpression.cc,v 1.38 2008-01-15 16:19:43 cvsbert Exp $
+ RCS:           $Id: mathexpression.cc,v 1.39 2008-01-22 16:24:39 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,8 +111,8 @@ public: \
 mMathExpressionClass( Plus, 2 )
 float MathExpressionPlus::getValue() const
 {
-    float val0 = inputs[0]->getValue();
-    float val1 = inputs[1]->getValue();
+    float val0 = inputs_[0]->getValue();
+    float val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
 	return mUdf(float);
     return val0+val1;
@@ -122,8 +122,8 @@ float MathExpressionPlus::getValue() const
 mMathExpressionClass( Minus, 2 )
 float MathExpressionMinus::getValue() const
 {
-    float val0 = inputs[0]->getValue();
-    float val1 = inputs[1]->getValue();
+    float val0 = inputs_[0]->getValue();
+    float val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
 	return mUdf(float);
 
@@ -134,8 +134,8 @@ float MathExpressionMinus::getValue() const
 mMathExpressionClass( Multiply, 2 )
 float MathExpressionMultiply::getValue() const
 {
-    float val0 = inputs[0]->getValue();
-    float val1 = inputs[1]->getValue();
+    float val0 = inputs_[0]->getValue();
+    float val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
 	return mUdf(float);
 
@@ -146,8 +146,8 @@ float MathExpressionMultiply::getValue() const
 mMathExpressionClass( Divide, 2 )
 float MathExpressionDivide::getValue() const
 {
-    float val0 = inputs[0]->getValue();
-    float val1 = inputs[1]->getValue();
+    float val0 = inputs_[0]->getValue();
+    float val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) || mIsZero(val1,mDefEps) )
 	return mUdf(float);
 
@@ -158,15 +158,15 @@ float MathExpressionDivide::getValue() const
 mMathExpressionClass( Abs, 1 )
 float MathExpressionAbs::getValue() const
 {
-    return fabs(inputs[0]->getValue());
+    return fabs(inputs_[0]->getValue());
 }
 
 
 mMathExpressionClass( Power, 2 )
 float MathExpressionPower::getValue() const
 {
-    float val0 = inputs[0]->getValue();
-    float val1 = inputs[1]->getValue();
+    float val0 = inputs_[0]->getValue();
+    float val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
 	return mUdf(float);
 
@@ -184,9 +184,9 @@ float MathExpressionPower::getValue() const
 mMathExpressionClass( Condition, 3 )
 float MathExpressionCondition::getValue() const
 {
-    float val0 = inputs[0]->getValue();
-    float val1 = inputs[1]->getValue();
-    float val2 = inputs[2]->getValue();
+    float val0 = inputs_[0]->getValue();
+    float val1 = inputs_[1]->getValue();
+    float val2 = inputs_[2]->getValue();
     if ( Values::isUdf(val0) )
 	return mUdf(float);
 
@@ -197,8 +197,8 @@ float MathExpressionCondition::getValue() const
 mMathExpressionClass( LessOrEqual, 2 )
 float MathExpressionLessOrEqual::getValue() const
 {
-    float val0 = inputs[0]->getValue();
-    float val1 = inputs[1]->getValue();
+    float val0 = inputs_[0]->getValue();
+    float val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
 	return mUdf(float);
 
@@ -209,8 +209,8 @@ float MathExpressionLessOrEqual::getValue() const
 mMathExpressionClass( Less, 2 )
 float MathExpressionLess::getValue() const
 {
-    float val0 = inputs[0]->getValue();
-    float val1 = inputs[1]->getValue();
+    float val0 = inputs_[0]->getValue();
+    float val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
 	return mUdf(float);
 
@@ -221,8 +221,8 @@ float MathExpressionLess::getValue() const
 mMathExpressionClass( MoreOrEqual, 2 )
 float MathExpressionMoreOrEqual::getValue() const
 {
-    float val0 = inputs[0]->getValue();
-    float val1 = inputs[1]->getValue();
+    float val0 = inputs_[0]->getValue();
+    float val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
 	return mUdf(float);
 
@@ -233,8 +233,8 @@ float MathExpressionMoreOrEqual::getValue() const
 mMathExpressionClass( More, 2 )
 float MathExpressionMore::getValue() const
 {
-    float val0 = inputs[0]->getValue();
-    float val1 = inputs[1]->getValue();
+    float val0 = inputs_[0]->getValue();
+    float val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
 	return mUdf(float);
 
@@ -245,8 +245,8 @@ float MathExpressionMore::getValue() const
 mMathExpressionClass( Equal, 2 )
 float MathExpressionEqual::getValue() const
 {
-    float val0 = inputs[0]->getValue();
-    float val1 = inputs[1]->getValue();
+    float val0 = inputs_[0]->getValue();
+    float val1 = inputs_[1]->getValue();
 
     const bool val0udf = Values::isUdf(val0);
     const bool val1udf = Values::isUdf(val1);
@@ -264,8 +264,8 @@ float MathExpressionEqual::getValue() const
 mMathExpressionClass( NotEqual, 2 )
 float MathExpressionNotEqual::getValue() const
 {
-    float val0 = inputs[0]->getValue();
-    float val1 = inputs[1]->getValue();
+    float val0 = inputs_[0]->getValue();
+    float val1 = inputs_[1]->getValue();
 
     const bool val0udf = Values::isUdf(val0);
     const bool val1udf = Values::isUdf(val1);
@@ -283,8 +283,8 @@ float MathExpressionNotEqual::getValue() const
 mMathExpressionClass( OR, 2 )
 float MathExpressionOR::getValue() const
 {
-    float val0 = inputs[0]->getValue();
-    float val1 = inputs[1]->getValue();
+    float val0 = inputs_[0]->getValue();
+    float val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
 	return mUdf(float);
 
@@ -295,8 +295,8 @@ float MathExpressionOR::getValue() const
 mMathExpressionClass( AND, 2 )
 float MathExpressionAND::getValue() const
 {
-    float val0 = inputs[0]->getValue();
-    float val1 = inputs[1]->getValue();
+    float val0 = inputs_[0]->getValue();
+    float val1 = inputs_[1]->getValue();
     if ( Values::isUdf(val0) || Values::isUdf(val1) )
 	return mUdf(float);
 
@@ -307,7 +307,7 @@ float MathExpressionAND::getValue() const
 mMathExpressionClass( Random, 1 )
 float MathExpressionRandom::getValue() const
 {
-    double maxval = inputs[0]->getValue();
+    double maxval = inputs_[0]->getValue();
     if ( Values::isUdf(maxval) )
 	return mUdf(float);
 
@@ -319,7 +319,7 @@ float MathExpressionRandom::getValue() const
 mMathExpressionClass( GaussRandom, 1 )
 float MathExpressionGaussRandom::getValue() const
 {
-    const double stdev = inputs[0]->getValue();
+    const double stdev = inputs_[0]->getValue();
     if ( Values::isUdf(stdev) )
 	return mUdf(float);
 
@@ -337,7 +337,7 @@ public: \
  \
     float		getValue() const \
 			{ \
-			    float val = inputs[0]->getValue(); \
+			    float val = inputs_[0]->getValue(); \
 			    if ( Values::isUdf(val) ) \
 				return mUdf(float); \
  \
@@ -378,8 +378,8 @@ public: \
 			{ \
 			    Stats::RunCalc<float> stats( \
 				Stats::RunCalcSetup().require(Stats::statnm)); \
-			    for ( int idx=0; idx<inputs.size(); idx++) \
-				stats += inputs[idx]->getValue(); \
+			    for ( int idx=0; idx<inputs_.size(); idx++) \
+				stats += inputs_[idx]->getValue(); \
  \
 			    return stats.getValue(Stats::statnm); \
 			} \
@@ -387,7 +387,7 @@ public: \
     MathExpression*	clone() const \
 			{ \
 			    MathExpression* res = \
-				new MathExpression##statnm( inputs.size() ); \
+				new MathExpression##statnm( inputs_.size() ); \
 			    copyInput( res ); \
 			    return res; \
 			} \
@@ -406,9 +406,9 @@ const char* MathExpression::getVariableStr( int var ) const
 {
     if ( var>=getNrVariables() ) return 0;
 
-    int input = (*variableobj[var])[0];
-    int v = (*variablenr[var])[0];
-    return inputs[input]->getVariableStr( v );
+    int input = (*variableobj_[var])[0];
+    int v = (*variablenr_[var])[0];
+    return inputs_[input]->getVariableStr( v );
 }
 
 
@@ -416,12 +416,12 @@ void MathExpression::setVariable( int var, float val )
 {
     if ( var>=getNrVariables() || var<0 ) return;
 
-    for ( int idx=0; idx<variableobj[var]->size(); idx++ )
+    for ( int idx=0; idx<variableobj_[var]->size(); idx++ )
     {
-	int input = (*variableobj[var])[idx];
-	int v = (*variablenr[var])[idx];
+	int input = (*variableobj_[var])[idx];
+	int v = (*variablenr_[var])[idx];
 
-	inputs[input]->setVariable( v, val );
+	inputs_[input]->setVariable( v, val );
     }
 }
 
@@ -430,8 +430,8 @@ bool MathExpression::setInput( int inp, MathExpression* obj )
 {
     if ( inp>=0 && inp<getNrInputs() )
     {
-	if ( inputs[inp] ) return false;
-	delete inputs.replace( inp, obj );
+	if ( inputs_[inp] ) return false;
+	delete inputs_.replace( inp, obj );
 
 	for ( int idx=0; idx<obj->getNrVariables(); idx++ )
 	{
@@ -443,8 +443,8 @@ bool MathExpression::setInput( int inp, MathExpression* obj )
 	    {
 		if ( !strcmp( str, getVariableStr(idy) ) )	
 		{
-		    (*variableobj[idy]) += inp;
-		    (*variablenr[idy]) += idx;
+		    (*variableobj_[idy]) += inp;
+		    (*variablenr_[idy]) += idx;
 		    found = true;
 		    break;
 		}
@@ -452,8 +452,9 @@ bool MathExpression::setInput( int inp, MathExpression* obj )
 
 	    if ( !found )
 	    {
-		variableobj += new TypeSet<int>( 1, inp );
-		variablenr += new TypeSet<int>( 1, idx );
+		variableobj_ += new TypeSet<int>( 1, inp );
+		variablenr_ += new TypeSet<int>( 1, idx );
+		checkVarPrefix( str );
 	    }
 	}
 		
@@ -746,6 +747,7 @@ MathExpression* MathExpression::parse( const char* input )
 	    if ( str[idx-1]=='*' ) continue;
 	    if ( str[idx-1]=='/' ) continue;
 	    if ( str[idx-1]=='^' ) continue;
+	    if ( str[idx-1]=='[' ) continue;
 	    if ( idx > 1 && caseInsensitiveEqual( &str[idx-1], "e", 1 )
 		&& !isalpha(str[idx-2]) ) continue;
 
@@ -913,7 +915,7 @@ MathExpression* MathExpression::parse( const char* input )
 	    }
 	}
 
-	ObjectSet<MathExpression> inputs;
+	ObjectSet<MathExpression> inputs_;
 
 	int prevstop = 3;
 	for ( int idx=0; idx<argumentstop.size(); idx++ )
@@ -926,32 +928,32 @@ MathExpression* MathExpression::parse( const char* input )
 	    MathExpression* inp = parse( arg );
 	    if ( !inp )
 	    {
-		deepErase( inputs );
+		deepErase( inputs_ );
 		return 0;
 	    }
 
-	    inputs += inp;
+	    inputs_ += inp;
 	}
 
 	MathExpression* res = 0;
 	if ( !strncasecmp( str, "max(", 4 ) )
-	    res = (MathExpression*) new MathExpressionMax( inputs.size() );
+	    res = (MathExpression*) new MathExpressionMax( inputs_.size() );
 	else if ( !strncasecmp( str, "min(", 4 ) )
-	    res = (MathExpression*) new MathExpressionMin( inputs.size() );
+	    res = (MathExpression*) new MathExpressionMin( inputs_.size() );
 	else if ( !strncasecmp( str, "sum(", 4 ) )
-	    res = (MathExpression*) new MathExpressionSum( inputs.size() );
+	    res = (MathExpression*) new MathExpressionSum( inputs_.size() );
 	else if ( !strncasecmp( str, "med(", 4 ) )
-	    res = (MathExpression*) new MathExpressionMedian( inputs.size() );
+	    res = (MathExpression*) new MathExpressionMedian( inputs_.size() );
 	else if ( !strncasecmp( str, "avg(", 4 ) )
-	    res = (MathExpression*) new MathExpressionAverage( inputs.size() );
+	    res = (MathExpression*) new MathExpressionAverage( inputs_.size() );
 	else if ( !strncasecmp( str, "var(", 4 ) )
-	    res = (MathExpression*) new MathExpressionVariance( inputs.size() );
+	    res = (MathExpression*) new MathExpressionVariance( inputs_.size());
 
 	if ( !res )
 	    return res;
 
-	for ( int idx=0; idx<inputs.size(); idx++ )
-	    res->setInput( idx, inputs[idx] );
+	for ( int idx=0; idx<inputs_.size(); idx++ )
+	    res->setInput( idx, inputs_[idx] );
 
 	return res;
     }
@@ -969,7 +971,7 @@ MathExpression* MathExpression::parse( const char* input )
     {
 	if ( (!idx&&isdigit(str[idx])) || !isalnum(str[idx]) )
 	{
-	    isvariable = str[idx] == '_' ? true : false;
+	    isvariable = str[idx] == '_' || str[idx] == '[' || str[idx] == ']';
 	    break;
 	}
     }
@@ -981,24 +983,66 @@ MathExpression* MathExpression::parse( const char* input )
 }
 
 
+void MathExpression::getPrefixAndShift( const char* str,
+					BufferString& varprefix, int& shift )
+{
+    int startbracketidx = -1;
+    int endbracketidx = -1;
+    for ( int charidx=0; charidx<strlen(str); charidx++ )
+    {
+	if ( str[charidx]=='[' )
+	    startbracketidx = charidx;
+	if ( str[charidx]==']' )
+	{
+	    endbracketidx = charidx;
+	    break;
+	}
+    }
+
+    int nrchars = startbracketidx>-1 ? startbracketidx : strlen(str);
+    ArrPtrMan<char> prefix = new char [nrchars+1];
+    strncpy( prefix, &str[0], nrchars );
+    prefix[nrchars] = 0;
+
+    nrchars = endbracketidx>-1 ? endbracketidx - startbracketidx - 1 : 0;
+    if ( !nrchars )
+	shift = 0;
+    else
+    {
+	ArrPtrMan<char> shiftstr = new char [nrchars+1];
+	strncpy( shiftstr, &str[startbracketidx+1], nrchars );
+	shiftstr[nrchars] = 0;
+	shift = atoi( shiftstr );
+    }
+    
+    varprefix = prefix;
+}
+
+
 MathExpression::MathExpression( int sz )
 {
-    inputs.allowNull();
+    inputs_.allowNull();
     for ( int idx=0; idx<sz; idx++ )
-	inputs += 0;
+	inputs_ += 0;
 }
 
 
 MathExpression::~MathExpression( )
 {
-    deepErase( inputs );
-    deepErase( variableobj );
-    deepErase( variablenr );
+    deepErase( inputs_ );
+    deepErase( variableobj_ );
+    deepErase( variablenr_ );
 }
 
 
 int MathExpression::getNrVariables() const
-{ return variableobj.size(); }
+{ return variableobj_.size(); }
+
+
+int MathExpression::getNrDiffVariables() const
+{
+    return varprefixes_.size();
+}
 
 
 void MathExpression::copyInput( MathExpression* target ) const
@@ -1006,5 +1050,23 @@ void MathExpression::copyInput( MathExpression* target ) const
     int sz = getNrInputs();
 
     for ( int idx=0; idx<sz; idx++ )
-	target->setInput(idx, inputs[idx]->clone() );
+	target->setInput(idx, inputs_[idx]->clone() );
 }
+
+
+void MathExpression::checkVarPrefix( const char* str )
+{
+    BufferString prefix;
+    int shift;
+    getPrefixAndShift( str, prefix, shift );
+
+    if ( !strcmp( prefix, "THIS" ) )
+    {
+	isrecursive_ = true;
+	return;
+    }
+
+    varprefixes_.addIfNew( prefix );
+}
+
+
