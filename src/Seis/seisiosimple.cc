@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisiosimple.cc,v 1.5 2007-11-23 11:59:06 cvsbert Exp $";
+static const char* rcsID = "$Id: seisiosimple.cc,v 1.6 2008-01-22 16:03:16 cvsbert Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -38,10 +38,11 @@ SeisIOSimple::Data::Data( const char* filenm, Seis::GeomType gt )
     	, resampler_(0)
 	, subselpars_(*new IOPar("subsel"))
 	, geom_(gt)
+	, nroffsperpos_(1)
 {
     clear(true);
     isasc_ = havepos_ = true;
-    havenr_ = havesd_ = isxy_ = remnull_ = false;
+    havenr_ = havesd_ = haveoffs_ = haveazim_ = isxy_ = remnull_ = false;
 
     if ( filenm && *filenm )
 	fname_ = filenm;
@@ -52,6 +53,7 @@ SeisIOSimple::Data::Data( const SeisIOSimple::Data& d )
     	: scaler_(0)
 	, resampler_(0)
 	, subselpars_(*new IOPar("subsel"))
+	, nroffsperpos_(1)
 {
     *this = d;
 }
@@ -67,6 +69,8 @@ SeisIOSimple::Data& SeisIOSimple::Data::operator=( const SeisIOSimple::Data& d )
     nrsamples_ = d.nrsamples_;
     havepos_ = d.havepos_; isxy_ = d.isxy_;
     havenr_ = d.havenr_; nrdef_ = d.nrdef_;
+    haveoffs_ = d.haveoffs_; offsdef_ = d.offsdef_; haveazim_ = d.haveazim_;
+    nroffsperpos_ = d.nroffsperpos_;
     inldef_ = d.inldef_; crldef_ = d.crldef_; nrcrlperinl_ = d.nrcrlperinl_;
     startpos_ = d.startpos_; steppos_ = d.steppos_;
     remnull_ = d.remnull_;
@@ -124,6 +128,7 @@ void SeisIOSimple::Data::clear( bool survchg )
 					  crldef_.start+crldef_.step) );
     steppos_.x = fabs( nextpos.x - startpos_.x );
     steppos_.y = fabs( nextpos.y - startpos_.y );
+    offsdef_.start = 0; offsdef_.step = SI().crlDistance();
 }
 
 
@@ -148,12 +153,15 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
 	sa = wrr_ = new SeisTrcWriter( ioobj );
     else
 	sa = rdr_ = new SeisTrcReader( ioobj );
-    errmsg_ = sa->errMsg();
+    errmsg_ = sa ? sa->errMsg() : 0;
     if ( !errmsg_.isEmpty() )
 	return;
 
-    Seis::SelData* seldata = Seis::SelData::get( data_.subselpars_ );
-    sa->setSelData( seldata );
+    if ( !isimp_ )
+    {
+	Seis::SelData* seldata = Seis::SelData::get( data_.subselpars_ );
+	sa->setSelData( seldata );
+    }
 
     StreamProvider sp( data_.fname_ );
     sd_ = isimp_ ? sp.makeIStream() : sp.makeOStream(); 
@@ -279,7 +287,7 @@ int SeisIOSimple::nextStep()
 
 int SeisIOSimple::readImpTrc( SeisTrc& trc )
 {
-    BinID bid; Coord coord; int nr;
+    BinID bid; Coord coord; int nr = 1; float offs = 0, azim = 0;
 
     if ( !data_.havenr_ )
 	nr = data_.nrdef_.start + nrdone_ * data_.nrdef_.step;
@@ -293,18 +301,16 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 
     if ( !data_.havepos_ )
     {
-	if ( data_.geom_ == Seis::Line )
+	if ( Seis::is2D(data_.geom_) )
 	{
-	    int nrinl = nrdone_ / data_.nrcrlperinl_;
-	    int nrcrl = nrdone_ % data_.nrcrlperinl_;
 	    coord.x = data_.startpos_.x + nrdone_ * data_.steppos_.x;
 	    coord.y = data_.startpos_.y + nrdone_ * data_.steppos_.y;
 	    bid = SI().transform( coord );
 	}
 	else
 	{
-	    int nrinl = nrdone_ / data_.nrcrlperinl_;
-	    int nrcrl = nrdone_ % data_.nrcrlperinl_;
+	    const int nrinl = nrdone_ / data_.nrcrlperinl_;
+	    const int nrcrl = nrdone_ % data_.nrcrlperinl_;
 	    bid.inl = data_.inldef_.start + nrinl * data_.inldef_.step;
 	    bid.crl = data_.crldef_.start + nrcrl * data_.crldef_.step;
 	    coord = SI().transform( bid );
@@ -334,12 +340,38 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	    }
 	    coord = SI().transform( bid );
 	}
+
+    }
+
+    if ( Seis::isPS(data_.geom_) )
+    {
+	if ( data_.haveoffs_ )
+	{
+	    if ( data_.isasc_ )
+		*sd_.istrm >> offs;
+	    else
+		mStrmBinRead( offs, float );
+	}
+	else
+	{
+	    const int offsnr = nrdone_ % data_.nroffsperpos_;
+	    offs = data_.offsdef_.start + offsnr * data_.offsdef_.step;
+	}
+	if ( data_.haveazim_ )
+	{
+	    if ( data_.isasc_ )
+		*sd_.istrm >> azim;
+	    else
+		mStrmBinRead( azim, float );
+	}
     }
 
     trc.info() = trc_.info();
     trc.reSize( data_.nrsamples_, 0 );
     trc.info().binid = bid;
     trc.info().coord = coord;
+    trc.info().offset = offs;
+    trc.info().azimuth = azim;
     trc.info().nr = nr;
     float val;
     for ( int idx=0; idx<data_.nrsamples_; idx++ )
@@ -448,6 +480,26 @@ int SeisIOSimple::writeExpTrc()
 		mStrmBinWrite( bid.inl, int );
 		mStrmBinWrite( bid.crl, int );
 	    }
+	}
+    }
+
+    if ( Seis::isPS(data_.geom_) )
+    {
+	if ( data_.haveoffs_ )
+	{
+	    const float offs = trc_.info().offset;
+	    if ( data_.isasc_ )
+		*sd_.ostrm << offs << '\t';
+	    else
+		mStrmBinWrite( offs, float );
+	}
+	if ( data_.haveazim_ )
+	{
+	    const float azim = trc_.info().azimuth;
+	    if ( data_.isasc_ )
+		*sd_.ostrm << azim << '\t';
+	    else
+		mStrmBinWrite( azim, float );
 	}
     }
 
