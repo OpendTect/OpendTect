@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.24 2008-01-21 17:56:13 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.25 2008-01-22 11:07:45 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -30,6 +30,10 @@ public:
 			{ return new SeisCBVSPS3DReader(dirnm,inl); }
     SeisPSWriter*	make3DWriter( const char* dirnm ) const
 			{ return new SeisCBVSPS3DWriter(dirnm); }
+    SeisPS2DReader*	make2DReader( const char* dirnm, const char* lnm ) const
+			{ return new SeisCBVSPS2DReader(dirnm,lnm); }
+    SeisPSWriter*	make2DWriter( const char* dirnm, const char* lnm ) const
+			{ return new SeisCBVSPS2DWriter(dirnm,lnm); }
     static int		factid;
 };
 
@@ -39,6 +43,9 @@ int CBVSSeisPSIOProvider::factid = SPSIOPF().add( new CBVSSeisPSIOProvider );
 
 SeisCBVSPSIO::SeisCBVSPSIO( const char* dirnm )
     	: dirnm_(dirnm)
+    	, reqdtype_(DataCharacteristics::Auto)
+    	, tr_(0)
+	, nringather_(1)
 {
     BufferString& sm = const_cast<BufferString&>( selmask_ );
     sm = "*."; sm += CBVSSeisTrcTranslator::sKeyDefExtension;
@@ -47,60 +54,14 @@ SeisCBVSPSIO::SeisCBVSPSIO( const char* dirnm )
 
 SeisCBVSPSIO::~SeisCBVSPSIO()
 {
+    close();
 }
 
 
-bool SeisCBVSPSIO::dirNmOK( bool forread ) const
+void SeisCBVSPSIO::close()
 {
-    if ( File_isDirectory(dirnm_) )
-	return true;
-
-    if ( forread )
-    {
-	errmsg_ = "Directory '"; errmsg_ += dirnm_;
-	errmsg_ += "' does not exist";
-	return false;
-    }
-
-    File_createDir( dirnm_, 0 );
-    if ( !File_isDirectory(dirnm_) )
-    {
-	errmsg_ = "Cannot create directory '";
-	errmsg_ += dirnm_; errmsg_ += "'";
-	return false;
-    }
-
-    return true;
-}
-
-
-bool SeisCBVSPSIO::goTo( SeisTrcTranslator* tr, const BinID& bid, int nr ) const
-{
-    if ( !tr ) return false;
-
-    if ( !tr->goTo( BinID(bid.crl,nr+1) ) )
-    {
-	if ( !tr->goTo( BinID(bid.crl,1) ) )
-	    { errmsg_ = "Crossline not present"; return false; }
-	for ( int idx=1; idx<nr; idx++ )
-	{
-	    if ( !tr->goTo( BinID(bid.crl,idx+1) ) )
-		{ tr->goTo( BinID(bid.crl,idx) ); break; }
-	}
-    }
-    return true;
-}
-
-
-bool SeisCBVSPSIO::prepGather( SeisTrcTranslator* tr, int crl,
-			     SeisTrcBuf& gath ) const
-{
-    if ( !tr ) return false;
-
-    gath.deepErase(); gath.setIsOwner( true );
-    if ( !tr->goTo( BinID(crl,1) ) )
-	{ errmsg_ = "Crossline not present"; return false; }
-    return true;
+    delete tr_; tr_ = 0;
+    nringather_ = 1;
 }
 
 
@@ -158,10 +119,102 @@ bool SeisCBVSPSIO::setSampleNames( const BufferStringSet& nms ) const
 }
 
 
+void SeisCBVSPSIO::usePar( const IOPar& iopar )
+{
+    const char* res = iopar.find( CBVSSeisTrcTranslator::sKeyDataStorage );
+    if ( res && *res )
+	reqdtype_ = (DataCharacteristics::UserType)(*res-'0');
+}
+
+
+bool SeisCBVSPSIO::dirNmOK( bool forread ) const
+{
+    if ( File_isDirectory(dirnm_) )
+	return true;
+
+    if ( forread )
+    {
+	errmsg_ = "Directory '"; errmsg_ += dirnm_;
+	errmsg_ += "' does not exist";
+	return false;
+    }
+
+    File_createDir( dirnm_, 0 );
+    if ( !File_isDirectory(dirnm_) )
+    {
+	errmsg_ = "Cannot create directory '";
+	errmsg_ += dirnm_; errmsg_ += "'";
+	return false;
+    }
+
+    return true;
+}
+
+
+SeisTrc* SeisCBVSPSIO::readNewTrace( int crlnr ) const
+{
+    SeisTrc* trc = new SeisTrc;
+    if ( !tr_->read(*trc) )
+	{ delete trc; return 0; }
+    if ( trc->info().binid.inl != crlnr )
+	{ delete trc; return 0; }
+
+    return trc;
+}
+
+
+bool SeisCBVSPSIO::goTo( int crlnr, int nr ) const
+{
+    if ( !tr_ ) return false;
+
+    if ( !tr_->goTo( BinID(crlnr,nr+1) ) )
+    {
+	if ( !tr_->goTo( BinID(crlnr,1) ) )
+	    { errmsg_ = "Crossline not present"; return false; }
+	for ( int idx=1; idx<nr; idx++ )
+	{
+	    if ( !tr_->goTo( BinID(crlnr,idx+1) ) )
+		{ tr_->goTo( BinID(crlnr,idx) ); break; }
+	}
+    }
+    return true;
+}
+
+
+bool SeisCBVSPSIO::prepGather( int crlnr, SeisTrcBuf& gath ) const
+{
+    if ( !tr_ ) return false;
+
+    gath.deepErase(); gath.setIsOwner( true );
+    if ( !tr_->goTo( BinID(crlnr,1) ) )
+	{ errmsg_ = "Trace number not present"; return false; }
+    return true;
+}
+
+
+bool SeisCBVSPSIO::startWrite( const char* fnm, const SeisTrc& trc )
+{
+    if ( !tr_->initWrite(new StreamConn(fnm,Conn::Write),trc) )
+    {
+	errmsg_ = "Trying to start writing to '";
+	errmsg_ += fnm; errmsg_ += "':\n";
+	errmsg_ += tr_->errMsg();
+	return false;
+    }
+
+    ObjectSet<SeisTrcTranslator::TargetComponentData>& ci= tr_->componentInfo();
+    const DataCharacteristics dc( reqdtype_ == DataCharacteristics::Auto
+				? trc.data().getInterpreter()->dataChar()
+				: DataCharacteristics( reqdtype_ ) );
+    for ( int idx=0; idx<ci.size(); idx++ )
+	ci[idx]->datachar = dc;
+    return true;
+}
+
+
 SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
     	: SeisCBVSPSIO(dirnm)
     	, posdata_(*new PosInfo::CubeData)
-    	, curtr_(0)
     	, curinl_(mUdf(int))
 {
     if ( !dirNmOK(true) ) return;
@@ -197,7 +250,6 @@ SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
 SeisCBVSPS3DReader::~SeisCBVSPS3DReader()
 {
     delete &posdata_;
-    delete curtr_;
 }
 
 
@@ -206,7 +258,7 @@ void SeisCBVSPS3DReader::addInl( int inl )
     if ( !mkTr(inl) ) return;
 
     PosInfo::LineData* newid = new PosInfo::LineData( inl );
-    const CBVSInfo::SurvGeom& sg = curtr_->readMgr()->info().geom;
+    const CBVSInfo::SurvGeom& sg = tr_->readMgr()->info().geom;
 
     if ( sg.fullyrectandreg )
 
@@ -246,12 +298,13 @@ void SeisCBVSPS3DReader::addInl( int inl )
 
 bool SeisCBVSPS3DReader::mkTr( int inl ) const
 {
-    if ( curtr_ && curinl_ == inl )
+    if ( tr_ && curinl_ == inl )
 	return true;
     else if ( mIsUdf(inl) )
 	return false;
 
-    delete curtr_; curtr_ = 0;
+    CBVSSeisTrcTranslator*& tr = const_cast<CBVSSeisTrcTranslator*&>(tr_);
+    delete tr; tr = 0;
     curinl_ = inl;
 
     FilePath fp( dirnm_ );
@@ -267,21 +320,17 @@ bool SeisCBVSPS3DReader::mkTr( int inl ) const
     }
 
     errmsg_ = "";
-    curtr_ = CBVSSeisTrcTranslator::make( fp.fullPath(), false, false,
+    tr = CBVSSeisTrcTranslator::make( fp.fullPath(), false, false,
 					  &errmsg_ );
-    return curtr_;
+    return tr_;
 }
 
 
 SeisTrc* SeisCBVSPS3DReader::getNextTrace( const BinID& bid,
 					   const Coord& coord ) const
 {
-    SeisTrc* trc = new SeisTrc;
-    if ( !curtr_->read(*trc) )
-	{ delete trc; return 0; }
-    if ( trc->info().binid.inl != bid.crl )
-	{ delete trc; return 0; }
-
+    SeisTrc* trc = readNewTrace( bid.crl );
+    if ( !trc ) return 0;
     trc->info().nr = trc->info().binid.crl;
     trc->info().binid = bid; trc->info().coord = coord;
     return trc;
@@ -290,7 +339,7 @@ SeisTrc* SeisCBVSPS3DReader::getNextTrace( const BinID& bid,
 
 bool SeisCBVSPS3DReader::getGather( int crl, SeisTrcBuf& gath ) const
 {
-    if ( !prepGather( curtr_, crl, gath ) )
+    if ( !prepGather( crl, gath ) )
 	return false;
 
     const BinID bid( curinl_, crl );
@@ -299,7 +348,7 @@ bool SeisCBVSPS3DReader::getGather( int crl, SeisTrcBuf& gath ) const
     {
 	SeisTrc* trc = getNextTrace( bid, coord );
 	if ( !trc )
-	    { errmsg_ = curtr_->errMsg(); return errmsg_.isEmpty(); }
+	    { errmsg_ = tr_->errMsg(); return errmsg_.isEmpty(); }
 	gath.add( trc );
     }
 
@@ -310,7 +359,7 @@ bool SeisCBVSPS3DReader::getGather( int crl, SeisTrcBuf& gath ) const
 
 SeisTrc* SeisCBVSPS3DReader::getTrace( const BinID& bid, int nr ) const
 {
-    return mkTr(bid.inl) && goTo(curtr_,bid,nr)
+    return mkTr(bid.inl) && goTo(bid.crl,nr)
 	 ? getNextTrace( bid, SI().transform(bid) ) : 0;
 }
 
@@ -323,10 +372,7 @@ bool SeisCBVSPS3DReader::getGather( const BinID& bid, SeisTrcBuf& gath ) const
 
 SeisCBVSPS3DWriter::SeisCBVSPS3DWriter( const char* dirnm )
     	: SeisCBVSPSIO(dirnm)
-    	, reqdtype_(DataCharacteristics::Auto)
-    	, tr_(0)
     	, prevbid_(*new BinID(mUdf(int),mUdf(int)))
-	, nringather_(1)
 {
     if ( !dirNmOK(false) ) return;
 }
@@ -334,37 +380,19 @@ SeisCBVSPS3DWriter::SeisCBVSPS3DWriter( const char* dirnm )
 
 SeisCBVSPS3DWriter::~SeisCBVSPS3DWriter()
 {
-    close();
     delete &prevbid_;
 }
 
 
 void SeisCBVSPS3DWriter::close()
 {
-    delete tr_; tr_ = 0;
+    SeisCBVSPSIO::close();
     prevbid_ = BinID( mUdf(int), mUdf(int) );
-    nringather_ = 1;
-}
-
-
-void SeisCBVSPS3DWriter::usePar( const IOPar& iopar )
-{
-    const char* res = iopar.find( CBVSSeisTrcTranslator::sKeyDataStorage );
-    if ( res && *res )
-	reqdtype_ = (DataCharacteristics::UserType)(*res-'0');
 }
 
 
 bool SeisCBVSPS3DWriter::newInl( const SeisTrc& trc )
 {
-    if ( mIsUdf(prevbid_.inl) )
-    {
-	if ( reqdtype_ == DataCharacteristics::Auto )
-	    dc_ = trc.data().getInterpreter()->dataChar();
-	else
-	    dc_ = DataCharacteristics( reqdtype_ );
-    }
-
     const BinID& trcbid = trc.info().binid;
     BufferString fnm = trcbid.inl; fnm += ext();
     FilePath fp( dirnm_ ); fp.add( fnm );
@@ -372,18 +400,7 @@ bool SeisCBVSPS3DWriter::newInl( const SeisTrc& trc )
 
     if ( tr_ ) delete tr_;
     tr_ = CBVSSeisTrcTranslator::getInstance();
-    if ( !tr_->initWrite(new StreamConn(fnm,Conn::Write),trc) )
-    {
-	errmsg_ = "Trying to start writing to '";
-	errmsg_ += fnm; errmsg_ += "':\n";
-	errmsg_ += tr_->errMsg();
-	return false;
-    }
-    ObjectSet<SeisTrcTranslator::TargetComponentData>& ci= tr_->componentInfo();
-    for ( int idx=0; idx<ci.size(); idx++ )
-	ci[idx]->datachar = dc_;
-
-    return true;
+    return startWrite( fnm, trc );
 }
 
 
@@ -416,7 +433,6 @@ SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, const char* lnm )
     	: SeisCBVSPSIO(dirnm)
     	, SeisPS2DReader(lnm)
     	, posdata_(*new PosInfo::Line2DData)
-    	, tr_(0)
 {
     if ( !dirNmOK(true) ) return;
 
@@ -424,14 +440,25 @@ SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, const char* lnm )
     if ( !File_exists(fnm) ) return;
 
     errmsg_ = "";
-    tr_ = CBVSSeisTrcTranslator::make( fnm, false, true, &errmsg_ );
+    tr_ = CBVSSeisTrcTranslator::make( fnm, false, false, &errmsg_ );
+    if ( !tr_ ) return;
+
+    TypeSet<Coord> coords; TypeSet<BinID> binids;
+    tr_->readMgr()->getPositions( coords );
+    tr_->readMgr()->getPositions( binids );
+
+    for ( int idx=0; idx<coords.size(); idx++ )
+    {
+	PosInfo::Line2DPos p( binids[idx].crl );
+	p.coord_ = coords[idx];
+	posdata_.posns += p;
+    }
 }
 
 
 SeisCBVSPS2DReader::~SeisCBVSPS2DReader()
 {
     delete &posdata_;
-    delete tr_;
 }
 
 
@@ -439,17 +466,78 @@ SeisTrc* SeisCBVSPS2DReader::getTrace( const BinID& bid, int nr ) const
 {
     if ( !tr_ ) return 0;
 
-    if ( !goTo(tr_,bid,nr) )
+    if ( !goTo(bid.crl,nr) )
 	return 0;
 
-    return 0;
+    SeisTrc* trc = readNewTrace( bid.crl );
+    if ( !trc ) return 0;
+    trc->info().nr = trc->info().binid.inl;
+    trc->info().binid = SI().transform( trc->info().coord );
+    return trc;
 }
 
 
 bool SeisCBVSPS2DReader::getGather( const BinID& bid, SeisTrcBuf& tbuf ) const
 {
-    if ( !prepGather(tr_,bid.crl,tbuf) )
+    if ( !prepGather(bid.crl,tbuf) )
 	return false;
 
+    SeisTrc* trc = readNewTrace( bid.crl );
+    if ( !trc ) return false;
+    while ( trc )
+    {
+	tbuf.add( trc );
+	trc = readNewTrace( bid.crl );
+    }
+
     return true;
+}
+
+
+SeisCBVSPS2DWriter::SeisCBVSPS2DWriter( const char* dirnm, const char* lnm )
+    	: SeisCBVSPSIO(dirnm)
+    	, prevnr_(mUdf(int))
+    	, lnm_(lnm)
+{
+    if ( !dirNmOK(false) ) return;
+}
+
+
+bool SeisCBVSPS2DWriter::ensureTr( const SeisTrc& trc )
+{
+    if ( tr_ ) return true;
+
+    tr_ = CBVSSeisTrcTranslator::getInstance();
+    tr_->setCoordPol( true, true );
+    return startWrite( get2DFileName(lnm_), trc );
+}
+
+
+void SeisCBVSPS2DWriter::close()
+{
+    SeisCBVSPSIO::close();
+    prevnr_ = mUdf(int);
+}
+
+
+bool SeisCBVSPS2DWriter::put( const SeisTrc& trc )
+{
+    if ( !ensureTr(trc) ) return false;
+
+    SeisTrcInfo& ti = const_cast<SeisTrcInfo&>( trc.info() );
+    const int trcnr = ti.nr;
+    if ( ti.nr != prevnr_ )
+	nringather_ = 1;
+    prevnr_ = ti.nr;
+
+    const BinID trcbid( ti.binid );
+    ti.binid = BinID( ti.nr, nringather_ );
+    bool res = tr_->write( trc );
+    ti.binid = trcbid;
+    if ( !res )
+	errmsg_ = tr_->errMsg();
+    else
+	nringather_++;
+
+    return res;
 }

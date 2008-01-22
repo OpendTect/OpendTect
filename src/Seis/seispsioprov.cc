@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seispsioprov.cc,v 1.15 2008-01-21 17:56:13 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsioprov.cc,v 1.16 2008-01-22 11:07:45 cvsbert Exp $";
 
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -17,8 +17,9 @@ static const char* rcsID = "$Id: seispsioprov.cc,v 1.15 2008-01-21 17:56:13 cvsb
 #include "seistrc.h"
 #include "segposinfo.h"
 #include "filegen.h"
-#include "ioobj.h"
+#include "iox.h"
 #include "ioman.h"
+#include "iodir.h"
 #include "iopar.h"
 #include "keystrs.h"
 
@@ -44,6 +45,24 @@ const SeisPSIOProvider* SeisPSIOProviderFactory::provider( const char* t ) const
 	    return provs_[idx];
 
     return 0;
+}
+
+
+void SeisPSIOProviderFactory::mk3DPostStackProxy( IOObj& ioobj )
+{
+    if ( ioobj.pars().find(SeisPSIOProvider::sKeyCubeID) )
+	return;
+
+    IOM().to( ioobj.key() );
+    BufferString nm( "{" ); nm += ioobj.name(); nm += "}";
+    IOX* iox = new IOX( nm );
+    iox->setTranslator( mTranslKey(SeisPSCubeSeisTrc) );
+    iox->setGroup( mTranslGroupName(SeisTrc) );
+    iox->acquireNewKey();
+    ioobj.pars().set( SeisPSIOProvider::sKeyCubeID, iox->key() );
+    IOM().dirPtr()->commitChanges( &ioobj );
+    iox->setOwnKey( ioobj.key() );
+    IOM().dirPtr()->addObj( iox, true );
 }
 
 
@@ -157,16 +176,22 @@ const char* SeisPSCubeSeisTrcTranslator::connType() const
 
 bool SeisPSCubeSeisTrcTranslator::initRead_()
 {
-    mDynamicCastGet(StreamConn*,sconn,conn->conn())
-    if ( !sconn )
-	{ errmsg = "Wrong connection from Object Manager"; return false; }
-    const char* typ = sconn->ioobj ? sconn->ioobj->translator() : "CBVS";
-    if ( sconn->ioobj )
-	psrdr_ = SPSIOPF().get3DReader( *sconn->ioobj );
+    if ( conn->ioobj )
+    {
+	mDynamicCastGet(IOX*,iox,conn->ioobj)
+	IOObj* useioobj = iox ? iox->getIOObj() : conn->ioobj->clone();
+	psrdr_ = SPSIOPF().get3DReader( *useioobj );
+	delete useioobj;
+    }
     else
+    {
+	mDynamicCastGet(StreamConn*,sconn,conn->conn())
+	if ( !sconn )
+	    { errmsg = "Wrong connection from Object Manager"; return false; }
 	psrdr_ = new SeisCBVSPS3DReader( sconn->fileName() );
+    }
     conn->close();
-    errmsg = psrdr_->errMsg();
+    errmsg = psrdr_ ? psrdr_->errMsg() : "Cannot find PS data store type";
     if ( errmsg && *errmsg )
 	return false;
 

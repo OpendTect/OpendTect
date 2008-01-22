@@ -17,7 +17,6 @@
 #include "iostrm.h"
 #include "iox.h"
 #include "ioman.h"
-#include "iodir.h"
 #include "separstr.h"
 #include "iopar.h"
 
@@ -110,21 +109,7 @@ bool SeisTrcWriter::prepareWork( const SeisTrc& trc )
 	}
 	pswriter->usePar( ioobj->pars() );
 	if ( !is2d )
-	{
-	    if ( !ioobj->pars().find(SeisPSIOProvider::sKeyCubeID) )
-	    {
-		IOM().to( ioobj->key() );
-		BufferString nm( "{" ); nm += ioobj->name(); nm += "}";
-		IOX* iox = new IOX( nm );
-		iox->setTranslator( mTranslKey(SeisPSCubeSeisTrc) );
-		iox->setGroup( mTranslGroupName(SeisTrc) );
-		iox->acquireNewKey();
-		ioobj->pars().set( SeisPSIOProvider::sKeyCubeID, iox->key() );
-		IOM().dirPtr()->commitChanges( ioobj );
-		iox->setOwnKey( ioobj->key() );
-		IOM().dirPtr()->addObj( iox, true );
-	    }
-	}
+	    SPSIOPF().mk3DPostStackProxy( *ioobj );
     }
     else
     {

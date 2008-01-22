@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsioprov.h,v 1.11 2008-01-21 17:56:13 cvsbert Exp $
+ RCS:		$Id: seispsioprov.h,v 1.12 2008-01-22 11:07:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,9 @@ public:
     SeisPS2DReader*		get2DReader(const IOObj&,const char* lnm) const;
     SeisPSWriter*		get3DWriter(const IOObj&) const;
     SeisPSWriter*		get2DWriter(const IOObj&,const char* lnm) const;
+
+    void			mk3DPostStackProxy(IOObj&);
+    				//!< Adds entry to omf for post-stack access
 
 protected:
 

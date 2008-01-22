@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seiscbvsps.h,v 1.11 2008-01-21 17:56:13 cvsbert Exp $
+ RCS:		$Id: seiscbvsps.h,v 1.12 2008-01-22 11:07:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,26 +36,35 @@ class CBVSSeisTrcTranslator;
 class SeisCBVSPSIO
 {
 public:
-
     			SeisCBVSPSIO(const char* dirnm);
 			// Check errMsg() to see failure
     virtual		~SeisCBVSPSIO();
 
-    bool		dirNmOK(bool forread) const;
-    bool		goTo(SeisTrcTranslator*,const BinID&,int) const;
-    bool		prepGather(SeisTrcTranslator*,int,SeisTrcBuf&) const;
-
     BufferString	get2DFileName(const char* lnm) const;
+
+    void		usePar(const IOPar&);
+    void		setPrefStorType( DataCharacteristics::UserType ut )
+						{ reqdtype_ = ut; }
 
     bool		getSampleNames(BufferStringSet&) const;
     bool		setSampleNames(const BufferStringSet&) const;
 
 protected:
 
+    mutable BufferString		errmsg_;
+    const BufferString			dirnm_;
+    const BufferString			selmask_;
+    int					nringather_;
+    DataCharacteristics::UserType	reqdtype_;
+    CBVSSeisTrcTranslator*		tr_;
 
-    mutable BufferString errmsg_;
-    const BufferString	dirnm_;
-    const BufferString	selmask_;
+    void		close();
+    bool		dirNmOK(bool forread) const;
+    SeisTrc*		readNewTrace(int) const;
+    bool		goTo(int,int) const;
+    bool		prepGather(int,SeisTrcBuf&) const;
+    bool		startWrite(const char*,const SeisTrc&);
+
     const char*		ext() const	{ return selmask_.buf()+1; }
 
 };
@@ -64,7 +73,7 @@ protected:
 /*!\brief reads from a CBVS pre-stack seismic data store. */
 
 class SeisCBVSPS3DReader : public SeisPS3DReader
-		         , private SeisCBVSPSIO
+		         , public SeisCBVSPSIO
 {
 public:
 
@@ -89,7 +98,6 @@ protected:
     bool		getGather(int,SeisTrcBuf&) const;
     SeisTrc*		getNextTrace(const BinID&,const Coord&) const;
 
-    mutable CBVSSeisTrcTranslator* curtr_;
     mutable int		curinl_;
 
 };
@@ -98,7 +106,7 @@ protected:
 /*!\brief reads from a CBVS pre-stack seismic data store. */
 
 class SeisCBVSPS2DReader : public SeisPS2DReader
-		         , private SeisCBVSPSIO
+		         , public SeisCBVSPSIO
 {
 public:
 
@@ -116,9 +124,7 @@ public:
 
 protected:
 
-    PosInfo::Line2DData&	posdata_;
-
-    CBVSSeisTrcTranslator*	tr_;
+    PosInfo::Line2DData& posdata_;
 
 };
 
@@ -131,7 +137,7 @@ protected:
  */
 
 class SeisCBVSPS3DWriter : public SeisPSWriter
-		         , private SeisCBVSPSIO
+		         , public SeisCBVSPSIO
 {
 public:
 
@@ -139,26 +145,15 @@ public:
 			// Check errMsg() to see failure
 			~SeisCBVSPS3DWriter();
 
-    void		setPrefStorType( DataCharacteristics::UserType ut )
-						{ reqdtype_ = ut; }
-    void		usePar(const IOPar&);
-    void		close();
-
     bool		put(const SeisTrc&);
     const char*		errMsg() const		{ return errmsg_.buf(); } 
-
-    bool		setSampleNames( BufferStringSet& bss ) const
-			{ return SeisCBVSPSIO::setSampleNames(bss); }
+    void		close();
 
 protected:
 
-    BinID&				prevbid_;
-    int					nringather_;
-    DataCharacteristics::UserType	reqdtype_;
-    DataCharacteristics			dc_;
-    SeisTrcTranslator*			tr_;
+    BinID&		prevbid_;
 
-    bool				newInl(const SeisTrc&);
+    bool		newInl(const SeisTrc&);
 
 };
 
@@ -170,31 +165,25 @@ protected:
  */
 
 class SeisCBVSPS2DWriter : public SeisPSWriter
-		         , private SeisCBVSPSIO
+		         , public SeisCBVSPSIO
 {
 public:
 
-    			SeisCBVSPS2DWriter(const char* dirnm);
+    			SeisCBVSPS2DWriter(const char* dirnm,const char* lnm);
 			// Check errMsg() to see failure
-			~SeisCBVSPS2DWriter();
-
-    void		setPrefStorType( DataCharacteristics::UserType ut )
-						{ reqdtype_ = ut; }
-    void		usePar(const IOPar&);
-    void		close();
 
     bool		put(const SeisTrc&);
     const char*		errMsg() const		{ return errmsg_.buf(); } 
+    void		close();
 
     bool		setSampleNames( BufferStringSet& bss ) const
 			{ return SeisCBVSPSIO::setSampleNames(bss); }
 
 protected:
 
-    int				nringather_;
-    DataCharacteristics::UserType	reqdtype_;
-    DataCharacteristics		dc_;
-    SeisTrcTranslator*		tr_;
+    int			prevnr_;
+    BufferString	lnm_;
+    bool		ensureTr(const SeisTrc&);
 
 };
 
