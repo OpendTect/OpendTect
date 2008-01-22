@@ -33,8 +33,8 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const LineKeyProvider* l )
 }
 
 
-SeisTrcWriter::SeisTrcWriter( const char* fnm, bool isps )
-	: SeisStoreAccess(fnm,isps)
+SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is2d, bool isps )
+	: SeisStoreAccess(fnm,is2d,isps)
     	, lineauxiopar(*new IOPar)
 	, lkp(0)
 {

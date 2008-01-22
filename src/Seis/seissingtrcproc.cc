@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.40 2008-01-21 17:56:13 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.41 2008-01-22 15:04:17 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -29,7 +29,6 @@ static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.40 2008-01-21 17:56:13 c
 #define mInitVars() \
 	: Executor(nm) \
 	, wrr_(0) \
-	, pswrr_(0) \
 	, msg_(msg) \
 	, nrskipped_(0) \
 	, intrc_(*new SeisTrc) \
@@ -82,34 +81,7 @@ SeisSingleTraceProc::SeisSingleTraceProc( ObjectSet<IOObj> objset,
 bool SeisSingleTraceProc::mkWriter( const IOObj* out )
 {
     if ( !out ) return false;
-
-    if ( strcmp(out->group(),mTranslGroupName(SeisPS)) )
-    {
-	wrr_ = new SeisTrcWriter( out );
-	return true;
-    }
-
-    BufferString dstyp = "CBVS"; out->pars().get( "Data Store Type", dstyp );
-    const SeisPSIOProvider* siop = SPSIOPF().provider( dstyp );
-    if ( !siop )
-    {
-	curmsg_ = "Pre-Stack data store type '";
-	curmsg_ += dstyp;
-	curmsg_ += "' not found";
-	return false;
-    }
-
-    BufferString dsimpl( out->fullUserExpr(false) );
-    pswrr_ = siop->make3DWriter( dsimpl );
-    if ( !pswrr_ )
-    {
-	curmsg_ = "Cannot make PreStack writer for '";
-	curmsg_ += dsimpl;
-	curmsg_ += "'";
-	return false;
-    }
-
-    pswrr_->usePar( out->pars() );
+    wrr_ = new SeisTrcWriter( out );
     return true;
 }
 
@@ -138,7 +110,6 @@ void SeisSingleTraceProc::setInput( const IOObj* in, const IOObj* out,
 SeisSingleTraceProc::~SeisSingleTraceProc()
 {
     delete wrr_;
-    delete pswrr_;
     delete &intrc_;
     delete &wrrkey_;
     delete scaler_;
@@ -184,7 +155,7 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 		szdone = true;
 	    }
 	}
-	if ( is3d && !pswrr_ && !szdone )
+	if ( is3d && !wrr_->isPS() && !szdone )
 	{
 	    CubeSampling cs;
 	    if ( SeisTrcTranslator::getRanges(*ioobjs[idx],cs) )
@@ -321,7 +292,7 @@ int SeisSingleTraceProc::getNextTrc()
 
 void SeisSingleTraceProc::prepareNullFilling()
 {
-    if ( rdrset_.isEmpty() || !is3d_ || pswrr_ )
+    if ( rdrset_.isEmpty() || !is3d_ || wrr_->isPS() )
 	{ fillnull_ = false; return; }
 
     const SeisTrcReader& rdr = *rdrset_[0];
@@ -430,8 +401,6 @@ bool SeisSingleTraceProc::writeTrc()
 
     if ( wrr_ && !wrr_->put(*worktrc_) )
 	{ curmsg_ = wrr_->errMsg(); return Executor::ErrorOccurred; }
-    else if ( pswrr_ && !pswrr_->put(*worktrc_) )
-	{ curmsg_ = pswrr_->errMsg(); return Executor::ErrorOccurred; }
 
     nrwr_++;
     return true;
@@ -440,8 +409,7 @@ bool SeisSingleTraceProc::writeTrc()
 
 int SeisSingleTraceProc::nextStep()
 {
-    if ( rdrset_.size() <= currentobj_ || !rdrset_[currentobj_]
-	|| (!wrr_ && !pswrr_) )
+    if ( rdrset_.size() <= currentobj_ || !rdrset_[currentobj_] || !wrr_ )
 	return Executor::ErrorOccurred;
 
     for ( int idx=0; idx<trcsperstep_; idx++ )

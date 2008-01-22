@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.43 2008-01-16 16:16:30 cvsbert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.44 2008-01-22 15:04:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,9 +49,10 @@ static void adaptCtxt( const IOObjContext& c, const uiSeisSel::Setup& s,
 {
     IOObjContext& ctxt = const_cast<IOObjContext&>( c );
     const bool is2d = Seis::is2D(s.geom_);
-    ctxt.trglobexpr = uiSeisSelDlg::standardTranslSel( is2d, ctxt.forread );
-    ctxt.deftransl = uiSeisSelDlg::standardTranslSel( is2d, ctxt.forread );
-    if ( is2d && !ctxt.allowcnstrsabsent && chgtol )
+    ctxt.trglobexpr = uiSeisSelDlg::standardTranslSel( s.geom_, ctxt.forread );
+    ctxt.deftransl = uiSeisSelDlg::standardTranslSel( s.geom_, ctxt.forread );
+    if ( Seis::is2D(s.geom_) && !Seis::isPS(s.geom_)
+	    && !ctxt.allowcnstrsabsent && chgtol )
 	ctxt.allowcnstrsabsent = true;	//change required to get any 2D LineSet
 }
 
@@ -99,9 +100,10 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 
 static const char* trglobexprs[] = { "2D", "CBVS", "CBVS`PS Cube" };
 
-const char* uiSeisSelDlg::standardTranslSel( bool is2d, bool forread )
+const char* uiSeisSelDlg::standardTranslSel( Seis::GeomType geom, bool forread )
 {
-    return trglobexprs[is2d ? 0 : (forread?2:1)];
+    return Seis::isPS(geom) ? trglobexprs[1]
+	: (Seis::is2D(geom) ? trglobexprs[0] : trglobexprs[2]);
 }
 
 
@@ -114,8 +116,9 @@ void uiSeisSelDlg::entrySel( CallBacker* )
 
     uiSeisIOObjInfo oinf( *ioobj, false );
     const bool is2d = oinf.is2D();
-    attrfld_->display( is2d );
-    if ( !is2d || !selgrp->getCtxtIOObj().ctxt.forread ) return;
+    const bool isps = oinf.isPS();
+    attrfld_->display( is2d && isps );
+    if ( !is2d || isps || !selgrp->getCtxtIOObj().ctxt.forread ) return;
 
     BufferStringSet nms;
     oinf.getAttribNames( nms );
@@ -204,7 +207,7 @@ const char* uiSeisSel::userNameFromKey( const char* txt ) const
 
 bool uiSeisSel::existingTyped() const
 {
-    return !is2D() ? uiIOObjSel::existingTyped()
+    return !is2D() || isPS() ? uiIOObjSel::existingTyped()
 	 : existingUsrName( LineKey(getInput()).lineName() );
 }
 

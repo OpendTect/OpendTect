@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          Jan 2008
- RCS:		$Id: uiprestackattrib.cc,v 1.6 2008-01-18 14:40:37 cvsbert Exp $
+ RCS:		$Id: uiprestackattrib.cc,v 1.7 2008-01-22 15:04:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ mInitAttribUI(uiPreStackAttrib,PreStack,"PreStack",sKeyBasicGrp)
 
 uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.17")
-	, ctio_(*mMkCtxtIOObj(SeisPS))
+	, ctio_(is2d?*mMkCtxtIOObj(SeisPS2D):*mMkCtxtIOObj(SeisPS3D))
 {
     inpfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(is2d,true) );
 

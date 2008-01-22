@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.26 2008-01-16 16:16:29 cvsbert Exp $
+ RCS:           $Id: uiseissel.h,v 1.27 2008-01-22 15:04:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,7 @@ public:
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
 
-    static const char*	standardTranslSel(bool,bool);
+    static const char*	standardTranslSel(Seis::GeomType,bool);
 
 protected:
 

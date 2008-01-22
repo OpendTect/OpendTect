@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.13 2007-11-29 14:36:04 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.14 2008-01-22 15:04:17 cvsbert Exp $";
 
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
@@ -67,11 +67,12 @@ void SeisIOObjInfo::setType()
 
     const BufferString trgrpnm( ioobj_->group() );
     bool isps = false;
-    if ( trgrpnm == mTranslGroupName(SeisPS) )
+    if ( SeisTrcTranslator::isPS(*ioobj_) )
 	isps = true;
-    else if ( trgrpnm != mTranslGroupName(SeisTrc) )
-	{ bad_ = true; return; }
     ioobj_->pars().getYN( SeisTrcTranslator::sKeyIsPS, isps );
+
+    if ( !isps && strcmp(ioobj_->group(),mTranslGroupName(SeisTrc)) )
+	{ bad_ = true; return; }
 
     const bool is2d = SeisTrcTranslator::is2D( *ioobj_, false );
     geomtype_ = isps ? (is2d ? Seis::LinePS : Seis::VolPS)

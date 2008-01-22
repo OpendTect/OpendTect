@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Oct 2006
- RCS:           $Id: uiseispsman.h,v 1.2 2007-11-01 07:10:34 cvsraman Exp $
+ RCS:           $Id: uiseispsman.h,v 1.3 2008-01-22 15:04:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ class uiToolButton;
 class uiSeisPreStackMan : public uiObjFileMan
 {
 public:
-			uiSeisPreStackMan(uiParent*);
+			uiSeisPreStackMan(uiParent*,bool for2d);
 			~uiSeisPreStackMan();
 
 protected:

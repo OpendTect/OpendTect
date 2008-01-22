@@ -6,17 +6,21 @@ ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
- Date:		21-3-1996
- RCS:		$Id: seispsfact.h,v 1.3 2008-01-14 12:06:47 cvsbert Exp $
+ Date:		2005
+ RCS:		$Id: seispsfact.h,v 1.4 2008-01-22 15:04:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "seispsioprov.h"
 
-#define sKeySeisPSTranslatorGroup "Pre-Stack Seismics"
-defineTranslatorGroup(SeisPS,sKeySeisPSTranslatorGroup);
-defineTranslator(CBVS,SeisPS,"CBVS");
+#define sKeySeisPS3DTranslatorGroup "Pre-Stack Seismics"
+defineTranslatorGroup(SeisPS3D,sKeySeisPS3DTranslatorGroup);
+defineTranslator(CBVS,SeisPS3D,"CBVS");
+
+#define sKeySeisPS2DTranslatorGroup "2D Pre-Stack Seismics"
+defineTranslatorGroup(SeisPS2D,sKeySeisPS2DTranslatorGroup);
+defineTranslator(CBVS,SeisPS2D,"CBVS");
 
 
 #endif

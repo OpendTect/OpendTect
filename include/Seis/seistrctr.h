@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.48 2008-01-10 09:59:03 cvsbert Exp $
+ RCS:		$Id: seistrctr.h,v 1.49 2008-01-22 15:04:17 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -206,6 +206,7 @@ public:
 	    			  const char* linekey=0);
 
     static bool		is2D(const IOObj&,bool only_internal=false);
+    static bool		isPS(const IOObj&);
     bool		isPS() const		{ return is_prestack; }
 
     static const char*	sKeyIs2D;

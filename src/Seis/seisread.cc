@@ -5,9 +5,10 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.76 2008-01-21 17:56:13 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.77 2008-01-22 15:04:17 cvsbert Exp $";
 
 #include "seisread.h"
+#include "seispsread.h"
 #include "seistrctr.h"
 #include "seis2dline.h"
 #include "seispsioprov.h"
@@ -34,6 +35,7 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 	: SeisStoreAccess(ioob)
     	, outer(mUndefPtr(HorSampling))
     	, fetcher(0)
+    	, psrdr_(0)
     	, tbuf(0)
 {
     init();
@@ -44,9 +46,10 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
 
 
 SeisTrcReader::SeisTrcReader( const char* fname )
-	: SeisStoreAccess(fname)
+	: SeisStoreAccess(fname,false,false)
     	, outer(mUndefPtr(HorSampling))
     	, fetcher(0)
+    	, psrdr_(0)
     	, tbuf(0)
 {
     init();
@@ -72,6 +75,7 @@ void SeisTrcReader::init()
     if ( tbuf ) tbuf->deepErase();
     mDelOuter; outer = mUndefPtr(HorSampling);
     delete fetcher; fetcher = 0;
+    delete psrdr_; psrdr_ = 0;
     nrfetchers = 0; curlineidx = -1;
 }
 
@@ -85,10 +89,11 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
     }
     else if ( psioprov )
     {
-	pErrMsg( "Cannot access Pre-Stack data through SeisTrcReader (yet)" );
-	errmsg = "'"; errmsg += ioobj->name();
-	errmsg += "' is a Pre-Stack data store";
-	return false;
+	const char* fnm = ioobj->fullUserExpr(Conn::Read);
+	if ( is2d )
+	    psrdr_ = psioprov->make2DReader( fnm, lineKey() );
+	else
+	    psrdr_ = psioprov->make3DReader( fnm );
     }
     if ( (is2d && !lset) || (!is2d && !trl) )
     {
@@ -123,7 +128,7 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 
 void SeisTrcReader::startWork()
 {
-    if ( psioprov || !trl ) return;
+    if ( !psrdr_ && !trl ) return;
 
     outer = 0;
     if ( is2d )
@@ -343,7 +348,7 @@ LineKey SeisTrcReader::lineKey() const
 	if ( curlineidx >= 0 && lset->nrLines() > curlineidx )
 	    return lset->lineKey( curlineidx );
     }
-    else if ( seldata )
+    if ( seldata )
 	return seldata->lineKey();
     else if ( ioobj )
 	return LineKey(ioobj->name(),ioobj->pars().find(sKey::Attribute));

@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seispsioprov.cc,v 1.16 2008-01-22 11:07:45 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsioprov.cc,v 1.17 2008-01-22 15:04:17 cvsbert Exp $";
 
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -132,11 +132,13 @@ SeisTrc* SeisPSReader::getTrace( const BinID& bid, int trcnr ) const
 }
 
 
-mDefSimpleTranslatorSelector(SeisPS,sKeySeisPSTranslatorGroup)
-mDefSimpleTranslatorioContext(SeisPS,Seis)
+mDefSimpleTranslatorSelector(SeisPS3D,sKeySeisPS3DTranslatorGroup)
+mDefSimpleTranslatorioContext(SeisPS3D,Seis)
+mDefSimpleTranslatorSelector(SeisPS2D,sKeySeisPS2DTranslatorGroup)
+mDefSimpleTranslatorioContext(SeisPS2D,Seis)
 
 
-bool CBVSSeisPSTranslator::implRemove( const IOObj* ioobj ) const
+bool CBVSSeisPS3DTranslator::implRemove( const IOObj* ioobj ) const
 {
     if ( !ioobj ) return false;
     BufferString fnm( ioobj->fullUserExpr(true) );
@@ -145,6 +147,16 @@ bool CBVSSeisPSTranslator::implRemove( const IOObj* ioobj ) const
     const char* res = ioobj->pars().find( SeisPSIOProvider::sKeyCubeID );
     if ( res )
 	IOM().permRemove( MultiID(res) );
+    return !File_exists(fnm);
+}
+
+
+bool CBVSSeisPS2DTranslator::implRemove( const IOObj* ioobj ) const
+{
+    if ( !ioobj ) return false;
+    BufferString fnm( ioobj->fullUserExpr(true) );
+    if ( File_exists(fnm) )
+	File_remove( fnm, File_isDirectory(fnm) );
     return !File_exists(fnm);
 }
 

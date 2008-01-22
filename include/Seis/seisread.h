@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.28 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:		$Id: seisread.h,v 1.29 2008-01-22 15:04:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 class Executor;
 class HorSampling;
 class SeisTrcBuf;
+class SeisPSReader;
 namespace PosInfo { class Line2DData; }
 namespace Seis { class Bounds; class Bounds2D; }
 
@@ -95,6 +96,7 @@ protected:
     Seis::ReadMode	readmode;
     bool		entryis2d;
     StepInterval<int>	curtrcnrrg;
+    SeisPSReader*	psrdr_;
 
     void		init();
     Conn*		openFirst();

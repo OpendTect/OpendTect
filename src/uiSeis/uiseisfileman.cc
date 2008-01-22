@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.68 2007-10-24 07:52:32 cvsnanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.69 2008-01-22 15:04:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,17 +76,30 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
     selgrp->setPrefWidthInChar( cPrefWidth );
     infofld->setPrefWidthInChar( cPrefWidth );
 
-    IOObjContext psctxt( SeisPSTranslatorGroup::ioContext() );
+    IOObjContext psctxt( SeisPS3DTranslatorGroup::ioContext() );
     IOObj* psioobj = IOM().getFirst( psctxt );
-    if ( psioobj )
+    const bool have3d = psioobj; delete psioobj;
+    psctxt = SeisPS2DTranslatorGroup::ioContext();
+    psioobj = IOM().getFirst( psctxt );
+    const bool have2d = psioobj; delete psioobj;
+
+    uiToolButton* ps3dbut = 0; uiToolButton* ps2dbut = 0;
+    if ( have3d )
     {
-	delete psioobj;
-	uiToolButton* psbut = new uiToolButton( this, "&Pre-Stack",
-				    ioPixmap("man_ps.png"),
-				    mCB(this,uiSeisFileMan,manPS) );
-	psbut->setToolTip( "Manage Pre-Stack data" );
-	psbut->attach( rightBorder );
+	ps3dbut = new uiToolButton( this, "&Pre-Stack",
+			ioPixmap(have2d ? "man_ps3d.png" : "man_ps.png"),
+			mCB(this,uiSeisFileMan,manPS3D) );
+	ps3dbut->setToolTip( "Manage 3D Pre-Stack data" );
     }
+    if ( have2d )
+    {
+	ps2dbut = new uiToolButton( this, "Pre-Stack &2D",
+			ioPixmap(have3d ? "man_ps2d.png" : "man_ps.png"),
+			mCB(this,uiSeisFileMan,manPS2D) );
+	ps2dbut->setToolTip( "Manage 2D Pre-Stack data" );
+    }
+    if ( have2d && have3d )
+	ps3dbut->attach( rightBorder );
 
     selChg(0);
 }
@@ -537,8 +550,15 @@ void uiSeisFileMan::copyMan2DPush( CallBacker* )
 }
 
 
-void uiSeisFileMan::manPS( CallBacker* )
+void uiSeisFileMan::manPS3D( CallBacker* )
 {
-    uiSeisPreStackMan dlg( this );
+    uiSeisPreStackMan dlg( this, false );
+    dlg.go();
+}
+
+
+void uiSeisFileMan::manPS2D( CallBacker* )
+{
+    uiSeisPreStackMan dlg( this, true );
     dlg.go();
 }

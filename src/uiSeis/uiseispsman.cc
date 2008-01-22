@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Aug 2007
- RCS:           $Id: uiseispsman.cc,v 1.4 2007-12-18 16:46:56 cvsbert Exp $
+ RCS:           $Id: uiseispsman.cc,v 1.5 2008-01-22 15:04:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,19 +19,22 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 
 
-uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p )
+uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
     : uiObjFileMan(p,uiDialog::Setup("Pre-stack seismics management",
                                      "Manage Pre-stack seismics",
                                      "103.4.0").nrstatusflds(1),
-	    	   SeisPSTranslatorGroup::ioContext() )
+	    	   is2d ? SeisPS2DTranslatorGroup::ioContext()
+		        : SeisPS3DTranslatorGroup::ioContext() )
+    , mrgbut(0)
 {
     createDefaultUI();
     selgrp->setPrefWidthInChar( 50 );
     infofld->setPrefWidthInChar( 60 );
     uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
-    mrgbut = manipgrp->addButton( ioPixmap("mergeseis.png"),
-	    			mCB(this,uiSeisPreStackMan,mergePush),
-				"Merge cubes" );
+    if ( !is2d )
+	mrgbut = manipgrp->addButton( ioPixmap("mergeseis.png"),
+				    mCB(this,uiSeisPreStackMan,mergePush),
+				    "Merge cubes" );
     selChg(0);
 }
 
