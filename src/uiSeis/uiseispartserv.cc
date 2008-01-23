@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.79 2007-12-26 19:00:51 cvskris Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.80 2008-01-23 12:23:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,21 +63,21 @@ uiSeisPartServer::uiSeisPartServer( uiApplService& a )
 bool uiSeisPartServer::ioSeis( int opt, bool forread )
 {
     PtrMan<uiDialog> dlg = 0;
-    if ( opt == 3 )
+    if ( opt == 4 )
 	dlg = new uiSeisImpCBVS( appserv().parent() );
-    else if ( opt < 3 )
+    else if ( opt < 4 )
     {
 	Seis::GeomType gt = opt == 0 ? Seis::Vol
 	    		 : (opt == 1 ? Seis::Line
-				     : Seis::VolPS);
+			 : (opt == 2 ? Seis::VolPS : Seis::LinePS));
 	if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) ) return true;
 	dlg = new uiSeisSegYImpExp( appserv().parent(), forread, segyid_, gt );
     }
     else
     {
-	Seis::GeomType gt = opt == 4 ? Seis::Vol
-	    		 : (opt == 5 ? Seis::Line
-				     : Seis::VolPS);
+	Seis::GeomType gt = opt == 5 ? Seis::Vol
+	    		 : (opt == 6 ? Seis::Line
+			 : (opt == 7 ? Seis::VolPS : Seis::LinePS));
 	if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) ) return true;
 	dlg = new uiSeisIOSimple( appserv().parent(), gt, forread );
     }
