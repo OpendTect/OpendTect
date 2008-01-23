@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: madseisio.h,v 1.2 2007-11-23 11:59:06 cvsbert Exp $
+ * ID       : $Id: madseisio.h,v 1.3 2008-01-23 15:10:16 cvsbert Exp $
 -*/
 
 #include "madio.h"
@@ -51,19 +51,15 @@ class SeisSeqInp : public Seis::SeqInp
 public:
 
     			SeisSeqInp(Seis::GeomType gt=Seis::Vol);
-    			SeisSeqInp(Seis::GeomType,const FileSpec&,
-				   const Seis::SelData&);
+    			SeisSeqInp(Seis::GeomType,const FileSpec&);
     virtual		~SeisSeqInp();
 
     virtual const char*	type() const		{ return getType(); }
-    virtual Seis::GeomType geomType() const	{ return getGeomType(); }
+    virtual Seis::GeomType geomType() const	{ return gt_; }
 
     virtual bool	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
     virtual bool	get(SeisTrc&) const;
-
-    const Seis::SelData& selData() const	{ return *seldata_; }
-    void		setSelData(const Seis::SelData&);
 
     virtual bool	open();
 
@@ -72,9 +68,8 @@ public:
 
 protected:
 
-    Seis::SelData*	seldata_;
-
     virtual void	setErrMsg( const char* s ) { errmsg_ = s; }
+
 };
 
 
@@ -88,7 +83,7 @@ public:
     virtual		~SeisSeqOut();
 
     virtual const char*	type() const		{ return getType(); }
-    virtual Seis::GeomType geomType() const	{ return getGeomType(); }
+    virtual Seis::GeomType geomType() const	{ return gt_; }
 
     virtual void	fillPar(IOPar&) const;
     virtual bool	usePar(const IOPar&);
