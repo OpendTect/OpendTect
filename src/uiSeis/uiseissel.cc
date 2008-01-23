@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.44 2008-01-22 15:04:17 cvsbert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.45 2008-01-23 12:28:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,12 +75,13 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     , attrfld_(0)
 {
     const bool is2d = Seis::is2D( setup.geom_ );
+    const bool isps = Seis::isPS( setup.geom_ );
     allowcnstrsabsent_ = kp_allowcnstrsabsent;
     setTitleText( is2d ? "Select Line Set" : "Select Cube" );
 
     uiGroup* topgrp = selgrp->getTopGroup();
 
-    if ( setup.selattr_ && is2d )
+    if ( setup.selattr_ && is2d && !isps )
     {
 	if ( selgrp->getCtxtIOObj().ctxt.forread )
 	    attrfld_ = new uiGenInput( selgrp,"Attribute",StringListInpSpec() );
@@ -117,8 +118,8 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     uiSeisIOObjInfo oinf( *ioobj, false );
     const bool is2d = oinf.is2D();
     const bool isps = oinf.isPS();
-    attrfld_->display( is2d && isps );
-    if ( !is2d || isps || !selgrp->getCtxtIOObj().ctxt.forread ) return;
+    attrfld_->display( is2d && !isps );
+    if ( !selgrp->getCtxtIOObj().ctxt.forread ) return;
 
     BufferStringSet nms;
     oinf.getAttribNames( nms );
