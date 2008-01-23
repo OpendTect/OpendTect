@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.81 2008-01-22 15:04:17 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.82 2008-01-23 11:16:47 cvsbert Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -87,7 +87,7 @@ bool SeisTrcTranslator::is2D( const IOObj& ioobj, bool internal_only )
 
 bool SeisTrcTranslator::isPS( const IOObj& ioobj )
 {
-    return *ioobj.translator() == 'P' || *(ioobj.translator()+2) == 'P';
+    return *ioobj.group() == 'P' || *(ioobj.group()+2) == 'P';
 }
 
 
