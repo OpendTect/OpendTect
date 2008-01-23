@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.111 2008-01-23 12:28:08 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.112 2008-01-23 20:17:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -649,7 +649,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
 	if ( dlg.go() )
 	{
 	    StreamData sd( StreamProvider(dlg.fileName()).makeOStream() );
-	    if ( sd.usable() ) dumpDPMs( *sd.ostrm );
+	    if ( sd.usable() ) DataPackMgr::dumpDPMs( *sd.ostrm );
 	}
     } break;
 
