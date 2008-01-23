@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackagc.cc,v 1.6 2007-11-14 17:54:32 cvskris Exp $";
+static const char* rcsID = "$Id: prestackagc.cc,v 1.7 2008-01-23 20:56:59 cvskris Exp $";
 
 #include "prestackagc.h"
 
@@ -40,12 +40,18 @@ bool AGC::prepareWork()
     if ( !Processor::prepareWork() )
 	return false;
 
-    const float zstep = input_->posData().range(false).step;
+    for ( int idx=inputs_.size()-1; idx>=0; idx-- )
+    {
+	if ( !inputs_[idx] ) continue;
 
-    samplewindow_.start = mNINT( window_.start/zstep );
-    samplewindow_.stop = mNINT( window_.stop/zstep );
+	const float zstep = inputs_[idx]->posData().range(false).step;
 
-    return true;
+	samplewindow_.start = mNINT( window_.start/zstep );
+	samplewindow_.stop = mNINT( window_.stop/zstep );
+	return true;
+    }
+
+    return false;
 }
 
 
@@ -82,61 +88,69 @@ bool AGC::usePar( const IOPar& par )
 
 bool AGC::doWork( int start, int stop, int )
 {
-    const int nrsamples = input_->data().info().getSize(Gather::zDim());
-
     const bool doclip = !mIsZero( mutefraction_, 1e-5 );
     DataClipper clipper;
 
     for ( int offsetidx=start; offsetidx<=stop; offsetidx++, reportNrDone() )
     {
-	mVariableLengthArr( float, energies, nrsamples );
-	for ( int sampleidx=0; sampleidx<nrsamples; sampleidx++ )
+	for ( int idx=outputs_.size()-1; idx>=0; idx-- )
 	{
-	    const float value = input_->data().get(offsetidx,sampleidx);
-	    energies[sampleidx] = mIsUdf( value ) ? value : value*value;
-	}
-
-	Interval<float> cliprange;
-	if ( doclip )
-	{
-	    clipper.putData( energies, nrsamples );
-	    if ( !clipper.calculateRange(mutefraction_,0,cliprange) )
-	    {
-		//todo: copy old trace
+	    Gather* output = outputs_[idx];
+	    const Gather* input = inputs_[idx];
+	    if ( !output || !input )
 		continue;
-	    }
-	}
 
-	for ( int sampleidx=0; sampleidx<nrsamples; sampleidx++ )
-	{
-	    int nrenergies = 0;
-	    float energysum = 0;
-	    for ( int energyidx=sampleidx+samplewindow_.start;
-		      energyidx<=sampleidx+samplewindow_.stop;
-		      energyidx++ )
+	    const int nrsamples = input->data().info().getSize( Gather::zDim());
+	    
+	    mVariableLengthArr( float, energies, nrsamples );
+	    for ( int sampleidx=0; sampleidx<nrsamples; sampleidx++ )
 	    {
-		if ( energyidx<0 || energyidx>=nrsamples )
-		    continue;
-
-		const float energy = energies[energyidx];
-		if ( mIsUdf( energy ) )
-		    continue;
-
-		if ( doclip && !cliprange.includes( energy ) )
-		    continue;
-		
-		energysum += energy;
-		nrenergies++;
+		const float value = input->data().get(offsetidx,sampleidx);
+		energies[sampleidx] = mIsUdf( value ) ? value : value*value;
 	    }
 
-	    float outputval = 0;
-	    if ( nrenergies && !mIsZero(energysum,1e-6) )
+	    Interval<float> cliprange;
+	    if ( doclip )
 	    {
-		const float inpval = input_->data().get(offsetidx,sampleidx);
-		outputval = inpval/sqrt(energysum/nrenergies);
+		clipper.putData( energies, nrsamples );
+		if ( !clipper.calculateRange(mutefraction_,0,cliprange) )
+		{
+		    //todo: copy old trace
+		    continue;
+		}
 	    }
 
-	    output_->data().set( offsetidx, sampleidx, outputval );
+	    for ( int sampleidx=0; sampleidx<nrsamples; sampleidx++ )
+	    {
+		int nrenergies = 0;
+		float energysum = 0;
+		for ( int energyidx=sampleidx+samplewindow_.start;
+			  energyidx<=sampleidx+samplewindow_.stop;
+			  energyidx++ )
+		{
+		    if ( energyidx<0 || energyidx>=nrsamples )
+			continue;
+
+		    const float energy = energies[energyidx];
+		    if ( mIsUdf( energy ) )
+			continue;
+
+		    if ( doclip && !cliprange.includes( energy ) )
+			continue;
+		    
+		    energysum += energy;
+		    nrenergies++;
+		}
+
+		float outputval = 0;
+		if ( nrenergies && !mIsZero(energysum,1e-6) )
+		{
+		    const float inpval = input->data().get(offsetidx,sampleidx);
+		    outputval = inpval/sqrt(energysum/nrenergies);
+		}
+
+		output->data().set( offsetidx, sampleidx, outputval );
+	    }
 	}
     }
 

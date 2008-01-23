@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.12 2007-12-06 20:05:45 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.13 2008-01-23 20:56:59 cvskris Exp $";
 
 #include "prestackprocessor.h"
 
@@ -21,41 +21,163 @@ mImplFactory( Processor, PF );
 
 Processor::Processor( const char* nm )
     : ParallelTask( nm )
-    , output_( 0 )
-    , input_( 0 )
-{}
+    , outputstepout_( 0, 0 )
+{
+    inputs_.allowNull( true ); 
+    outputs_.allowNull( true );
+    reset();
+}
 
 
 Processor::~Processor()
 {
-    if ( output_ ) DPM( DataPackMgr::FlatID ).release( output_->id() );
-    if ( input_ ) DPM( DataPackMgr::FlatID ).release( input_->id() );
+    freeArray( inputs_ );
+    freeArray( outputs_ );
 }
 
 
-void Processor::setInput( DataPack::ID id )
+const BinID& Processor::getInputStepout() const
+{ return outputstepout_; }
+
+
+const BinID& Processor::getOutputStepout() const
+{ return outputstepout_; }
+
+
+bool Processor::reset()
 {
-    mObtainDataPack( input_, Gather*, DataPackMgr::FlatID, id );
+    outputstepout_ = BinID(0,0);
+
+    freeArray( inputs_ );
+    freeArray( outputs_ );
+
+    outputs_ += 0;
+    outputinterest_ += false;
+    inputs_ += 0;
+
+    return true;
 }
 
 
-DataPack::ID Processor::getOutput() const
-{ return output_ ? output_->id() : DataPack::cNoID; }
+bool  Processor::wantsInput(const BinID&) const
+{ return true; }
+
+void Processor::setInput( const BinID& relbid, DataPack::ID id )
+{
+    Gather* input = 0;
+    mObtainDataPack( input, Gather*, DataPackMgr::FlatID, id );
+
+    const BinID inputstepout = getInputStepout();
+    const int offset = getRelBidOffset( relbid, inputstepout );
+    if ( offset>=inputs_.size() )
+    {
+	if ( input ) DPM( DataPackMgr::FlatID ).release( input->id() );
+	return;
+    }
+
+    if ( inputs_[offset] )
+    {
+	DPM( DataPackMgr::FlatID ).release( inputs_[offset]->id() );
+    }
+
+    inputs_.replace( offset, input );
+}
+
+#define mAddStepoutStep( array, arrtype, oldstepout, newstepout ) \
+{ \
+    arrtype arrcopy( array ); \
+    array.erase(); \
+ \
+    for ( int idx=-newstepout.inl; idx<=newstepout.inl; idx++ ) \
+    { \
+	for ( int idy=-newstepout.crl; idy<=newstepout.crl; idy++ ) \
+	{ \
+	    const BinID curpos( idx, idy ); \
+\
+	    if ( idy<-oldstepout.crl || idy>oldstepout.crl || \
+	         idx<-oldstepout.inl || idx>oldstepout.inl ) \
+	    { \
+		array += 0; \
+	    } \
+	    else \
+	    { \
+		const int oldoffset=getRelBidOffset(curpos,oldstepout);\
+		array += arrcopy[oldoffset]; \
+	    } \
+	} \
+    } \
+}
+
+	    
+bool Processor::setOutputInterest( const BinID& relbid, bool yn )
+{
+    const BinID needestepout( abs(relbid.inl),abs(relbid.crl) );
+
+    if ( needestepout.inl>outputstepout_.inl ||
+	 needestepout.crl>outputstepout_.crl )
+    {
+	const BinID newstepout( mMAX(outputstepout_.inl,needestepout.inl),
+		                mMAX(outputstepout_.inl,needestepout.inl) );
+	mAddStepoutStep(outputs_,ObjectSet<Gather>,newstepout,outputstepout_);
+	mAddStepoutStep(outputinterest_,BoolTypeSet,newstepout,outputstepout_);
+	outputstepout_ = newstepout;
+    }
+
+    const int offset=getRelBidOffset( relbid,outputstepout_ );
+    outputinterest_[offset] = yn;
+    
+    return true;
+}
+
+
+DataPack::ID Processor::getOutput( const BinID& relbid ) const
+{
+    const Gather* res = outputs_[getRelBidOffset(relbid,outputstepout_)];
+    return res ? res->id() : DataPack::cNoID;
+}
 
 
 bool Processor::prepareWork()
 {
-    if ( !input_ ) return false;
-
-    if ( output_ )
+    const BinID inputstepout = getInputStepout();
+    for ( int idx=-inputstepout.inl; idx<=inputstepout.inl; idx++ )
     {
-	DPM( DataPackMgr::FlatID ).release( output_->id() );
-	output_ = 0;
+	for ( int idy=-inputstepout.crl; idy<=inputstepout.crl; idy++ )
+	{
+	    const BinID curpos( idx, idy );
+	    if ( !wantsInput( curpos ) )
+		continue;
+
+	    
+	    const int offset = getRelBidOffset(curpos,inputstepout);
+
+	    if ( !inputs_[offset] )
+		return false;
+	}
     }
 
-    output_ = createOutputArray(*input_);
-    DPM( DataPackMgr::FlatID ).add( output_ );
-    DPM( DataPackMgr::FlatID ).obtain( output_->id() );
+    freeArray( outputs_ );
+
+    for ( int idx=-outputstepout_.inl; idx<=outputstepout_.inl; idx++ )
+    {
+	for ( int idy=-outputstepout_.crl; idy<=outputstepout_.crl; idy++ )
+	{
+	    const BinID curpos( idx, idy );
+
+	    const int outputoffset = getRelBidOffset(curpos,outputstepout_);
+
+	    if ( outputinterest_[outputoffset] )
+	    {
+		const int inputoffset = getRelBidOffset(curpos,inputstepout);
+		Gather* output = createOutputArray(*inputs_[inputoffset] );
+		outputs_ += output;
+		DPM( DataPackMgr::FlatID ).add( output );
+		DPM( DataPackMgr::FlatID ).obtain( output->id() );
+	    }
+	    else
+		outputs_ += 0;
+	}
+    }
 
     return true;
 }
@@ -68,51 +190,128 @@ Gather* Processor::createOutputArray( const Gather& input ) const
 
 int Processor::nrOffsets() const
 {
-    return input_->data().info().getSize( Gather::offsetDim() );
+    int max = 0;
+    for ( int idx=inputs_.size()-1; idx>=0; idx-- )
+    {
+	if ( !inputs_[idx] )
+	    continue;
+
+	const int nroffsets =
+	    inputs_[idx]->data().info().getSize( Gather::offsetDim() );
+
+	max = mMAX(max,nroffsets);
+    }
+
+    return max;
+}
+
+
+int Processor::getRelBidOffset( const BinID& relbid, const BinID& stepout )
+{
+    const BinID start = -stepout;
+    const BinID diff = relbid - start;
+    return diff.inl*(stepout.crl*2+1)+diff.crl;
 }
 
 
 ProcessManager::ProcessManager()
-    : input_( 0 )
-    , output_( 0 )
-    , setupChange( this )
+    : setupChange( this )
 {}
 
 
 ProcessManager::~ProcessManager()
 {
     deepErase( processors_ );
-    if ( output_ ) DPM( DataPackMgr::FlatID ).release( output_->id() );
-    if ( input_ ) DPM( DataPackMgr::FlatID ).release( input_->id() );
 }
 
 
-void ProcessManager::setInput( DataPack::ID id )
+
+bool ProcessManager::reset()
 {
-    mObtainDataPack( input_, Gather*, DataPackMgr::FlatID, id );
+    for ( int idx=0; idx<processors_.size(); idx++ )
+	if ( !processors_[idx]->reset() )
+	    return false;
+
+    BinID outputstepout( 0, 0 );
+    return processors_[processors_.size()-1]->setOutputInterest(
+	    						outputstepout, true );
+
+}
+
+
+BinID ProcessManager::getInputStepout() const
+{
+    if ( processors_.size() ) return processors_[0]->getInputStepout();
+    return BinID( 0, 0 );
+}
+
+
+bool ProcessManager::wantsInput( const BinID& relbid ) const
+{
+    return processors_.size()
+	? processors_[0]->wantsInput( relbid ) 
+	: false;
+}
+
+
+void ProcessManager::setInput( const BinID& relbid, DataPack::ID id )
+{
+    if ( processors_.size() )
+	processors_[0]->setInput( relbid, id );
 }
 
 
 bool ProcessManager::process(bool forceall)
 {
-    DataPack::ID curinput = input_->id();
-    for ( int idx=0; idx<processors_.size(); idx++ )
+    for ( int proc=processors_.size()-1; proc>0; proc-- )
     {
-	processors_[idx]->setInput( curinput );
-	if ( !processors_[idx]->prepareWork() || !processors_[idx]->execute() )
-	    return false;
+	const BinID inputstepout = processors_[proc]->getInputStepout();
 
-	curinput = processors_[idx]->getOutput();
+	for ( int idz=-inputstepout.inl; idz<=inputstepout.inl; idz++ )
+	{
+	    for ( int idu=-inputstepout.crl;idu<=inputstepout.crl;idu++)
+	    {
+		const BinID relinput(idz,idu);
+		if ( !processors_[proc]->wantsInput( relinput ) )
+		    continue;
+
+		if ( !processors_[proc-1]->setOutputInterest( relinput, true ) )
+		    return false;
+	    }
+	}
     }
+    
+    for ( int proc=0; proc<processors_.size(); proc++ )
+    {
+	if ( proc )
+	{
+	    const BinID stepout = processors_[proc]->getOutputStepout();
+	    for ( int idx=-stepout.inl; idx<=stepout.inl; idx++ )
+	    {
+		for ( int idy=-stepout.crl; idy<=stepout.crl; idy++ )
+		{
+		    const BinID relbid( idx,idy );
+		    processors_[proc]->setInput( relbid,
+			    processors_[proc-1]->getOutput( relbid ));
 
-    mObtainDataPack( output_, Gather*, DataPackMgr::FlatID,curinput);
+		}
+	    }
+	}
+
+	if ( !processors_[proc]->prepareWork() || !processors_[proc]->execute())
+	    return false;
+    }
 
     return true;
 }
 
 
 DataPack::ID ProcessManager::getOutput() const
-{ return output_ ? output_->id() : DataPack::cNoID; }
+{
+    return processors_.size()
+	? processors_[processors_.size()-1]->getOutput(BinID(0,0))
+	: DataPack::cNoID;
+}
 
 
 void ProcessManager::addProcessor( Processor* sgp )
@@ -202,6 +401,18 @@ bool ProcessManager::usePar( const IOPar& par )
     setupChange.trigger();
 
     return true;
+}
+
+
+void Processor::freeArray( ObjectSet<Gather>& arr )
+{
+    for ( int idx=0; idx<arr.size(); idx++ )
+    {
+	if ( arr[idx] )
+	    DPM( DataPackMgr::FlatID ).release( arr[idx]->id() );
+    }
+
+    arr.erase();
 }
 
 

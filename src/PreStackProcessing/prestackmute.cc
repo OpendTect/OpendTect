@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackmute.cc,v 1.8 2007-11-14 17:54:32 cvskris Exp $";
+static const char* rcsID = "$Id: prestackmute.cc,v 1.9 2008-01-23 20:56:59 cvskris Exp $";
 
 #include "prestackmute.h"
 
@@ -119,19 +119,28 @@ bool Mute::doWork( int start, int stop, int )
     if ( !muter_ )
 	return false;
 
-    const int nrsamples = input_->data().info().getSize(Gather::zDim());
     for ( int ioffs=start; ioffs<=stop; ioffs++, reportNrDone() )
     {
-	const float offs = input_->getOffset(ioffs);
-	const float mutez = def_.value( offs, input_->getBinID() );
-	const float mutepos = Muter::mutePos( mutez, input_->posData().range(false) );
+	for ( int idx=outputs_.size()-1; idx>=0; idx-- )
+	{
+	    Gather* output = outputs_[idx];
+	    const Gather* input = inputs_[idx];
+	    if ( !output || !input )
+		continue;
 
-	Array1DSlice<float> slice( output_->data() );
-	slice.setPos( 0, ioffs );
-	if ( !slice.init() )
-	    continue;
+	    const int nrsamples = input->data().info().getSize(Gather::zDim());
+	    const float offs = input->getOffset(ioffs);
+	    const float mutez = def_.value( offs, input->getBinID() );
+	    const float mutepos =
+		Muter::mutePos( mutez, input->posData().range(false) );
 
-	muter_->mute( slice, nrsamples, mutepos );
+	    Array1DSlice<float> slice( output->data() );
+	    slice.setPos( 0, ioffs );
+	    if ( !slice.init() )
+		continue;
+
+	    muter_->mute( slice, nrsamples, mutepos );
+	}
     }
 
     return true;

@@ -4,18 +4,13 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackstacker.cc,v 1.4 2007-11-14 17:54:32 cvskris Exp $";
+static const char* rcsID = "$Id: prestackstacker.cc,v 1.5 2008-01-23 20:56:59 cvskris Exp $";
 
 #include "prestackstacker.h"
 
 #include "ranges.h"
-//#include "ioobj.h"
-//#include "ioman.h"
 #include "iopar.h"
-//#include "muter.h"
 #include "prestackgather.h"
-//#include "prestackmutedef.h"
-//#include "prestackmutedeftransl.h"
 
 
 using namespace PreStack;
@@ -85,28 +80,41 @@ bool Stack::usePar( const IOPar& par )
 
 bool Stack::doWork( int start, int stop, int )
 {
-    const int nroffsets = input_->data().info().getSize(Gather::offsetDim());
     for ( int idz=start; idz<=stop; idz++, reportNrDone() )
     {
-	int nrvals = 0;
-	float stack;
-	for ( int ioff=0; ioff<nroffsets; ioff++ )
-	{
-	    const float offset = input_->getOffset(ioff);
-	    if ( offsetrg_ && !offsetrg_->includes( offset ) )
-		continue;
+	 for ( int idx=outputs_.size()-1; idx>=0; idx-- )
+	 {
+	     Gather* output = outputs_[idx];
+	     const Gather* input = inputs_[idx];
+	     if ( !output || !input )
+		 continue;
 
-	    const float val = input_->data().get( ioff, idz );
-	    if ( mIsUdf(val) )
-		continue;
+	     if ( idz>=input->data().info().getSize( Gather::zDim() ) ||
+		  idz>=output->data().info().getSize( Gather::zDim() ) )
+		 continue;
 
-	    if ( !nrvals ) stack = val;
-	    else stack += val;
+	    const int nroffsets =
+		input->data().info().getSize(Gather::offsetDim());
+	    int nrvals = 0;
+	    float stack;
+	    for ( int ioff=0; ioff<nroffsets; ioff++ )
+	    {
+		const float offset = input->getOffset(ioff);
+		if ( offsetrg_ && !offsetrg_->includes( offset ) )
+		    continue;
 
-	    nrvals += 0;
+		const float val = input->data().get( ioff, idz );
+		if ( mIsUdf(val) )
+		    continue;
+
+		if ( !nrvals ) stack = val;
+		else stack += val;
+
+		nrvals += 0;
+	    }
+
+	    output->data().set( 0, idz, nrvals ? stack/nrvals : mUdf(float) );
 	}
-
-	output_->data().set( 0, idz, nrvals ? stack/nrvals : mUdf(float) );
     }
 
     return true;
@@ -127,4 +135,17 @@ Gather* Stack::createOutputArray( const Gather& input ) const
 
 
 int Stack::totalNr() const
-{ return input_->data().info().getSize( Gather::zDim() ); }
+{
+    int max = 0;
+    for ( int idx=inputs_.size()-1; idx>=0; idx-- )
+    {
+	if ( !inputs_[idx] )
+	    continue;
+
+	const int nrz = inputs_[idx]->data().info().getSize( Gather::zDim() );
+
+	max = mMAX(max,nrz);
+    }
+
+    return max;
+}

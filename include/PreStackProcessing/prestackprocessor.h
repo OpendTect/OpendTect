@@ -7,17 +7,18 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.10 2007-12-06 20:05:45 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.11 2008-01-23 20:56:59 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "task.h"
 #include "bufstringset.h"
 #include "datapack.h"
-#include "sets.h"
 #include "factory.h"
+#include "position.h"
+#include "sets.h"
+#include "task.h"
 
 class IOPar;
 
@@ -31,8 +32,17 @@ class Processor : public ParallelTask
 public:
     virtual			~Processor();
 
-    void			setInput(DataPack::ID);
-    DataPack::ID		getOutput() const;
+    virtual bool		reset();
+
+    virtual const BinID&	getInputStepout() const;
+    virtual bool		wantsInput(const BinID& relbid) const;
+    void			setInput(const BinID& relbid,DataPack::ID);
+
+    const BinID&		getOutputStepout() const;
+    virtual bool		setOutputInterest(const BinID& relbid,bool);
+    bool			getOutputInterest(const BinID& relbid) const;
+    DataPack::ID		getOutput(const BinID& relbid) const;
+    
     virtual bool		prepareWork();
     virtual const char*		errMsg() const { return 0; }
 
@@ -56,9 +66,18 @@ public:
 protected:
     				Processor( const char* nm );
     virtual Gather*		createOutputArray(const Gather& input) const;
+    static void			setStepout(ObjectSet<Gather>&,
+	    				   const BinID& oldstepout,
+					   const BinID& newstepout);
+    static int			getRelBidOffset(const BinID& stepout,
+	    					const BinID& relbid);
+    static void			freeArray(ObjectSet<Gather>&);
 
-    Gather*			output_;
-    const Gather*		input_;
+    BinID			outputstepout_;
+    ObjectSet<Gather>		outputs_;
+    BoolTypeSet			outputinterest_;
+
+    ObjectSet<Gather>		inputs_;
 };
 
 
@@ -69,7 +88,12 @@ class ProcessManager : public CallBacker
 public:
     				ProcessManager();
     				~ProcessManager();
-    void			setInput(DataPack::ID);
+
+    BinID			getInputStepout() const;
+    virtual bool		wantsInput(const BinID& relbid) const;
+    void			setInput(const BinID& relbid,DataPack::ID);
+
+    bool			reset();
     bool			process(bool forceall);
     DataPack::ID		getOutput() const;
 
@@ -93,8 +117,6 @@ protected:
     static const char*	sKeyNrProcessors()	{ return "Nr processors"; }
 
     ObjectSet<Processor>	processors_;
-    const Gather*		input_;
-    const Gather*		output_;
 };
 
 }; //namespace
