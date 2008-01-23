@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2000
- RCS:           $Id: mathexpression.cc,v 1.39 2008-01-22 16:24:39 cvshelene Exp $
+ RCS:           $Id: mathexpression.cc,v 1.40 2008-01-23 11:03:01 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,60 +32,60 @@ ________________________________________________________________________
 class MathExpressionVariable : public MathExpression
 {
 public:
-				MathExpressionVariable( const char* str_ )
+				MathExpressionVariable( const char* str )
 				    : MathExpression( 0 )		
-				    , str( new char[strlen(str_)+1] )
-				{ strcpy( str, str_ ); }
+				    , str_( new char[strlen(str)+1] )
+				{ strcpy( str_, str ); checkVarPrefix(str); }
 
-				~MathExpressionVariable() { delete [] str; }
+				~MathExpressionVariable() { delete [] str_; }
 
     const char*			getVariableStr( int ) const
-				{ return str; }
+				{ return str_; }
 
     int				getNrVariables() const { return 1; }
 
     float			getValue() const
 				{
-				    return val;
+				    return val_;
 				}
 
     void			setVariable( int, float nv )
-				{ val = nv; }
+				{ val_ = nv; }
 
     MathExpression*		clone() const
 				{
 				    MathExpression* res =
-						new MathExpressionVariable(str);
+					new MathExpressionVariable(str_);
 				    copyInput( res );
 				    return res;
 				}
 
 
 protected:
-    float 			val;
-    char*			str;
+    float 			val_;
+    char*			str_;
 };
 
 
 class MathExpressionConstant : public MathExpression
 {
 public:
-				MathExpressionConstant( float val_ )
-				    : val ( val_ )
+				MathExpressionConstant( float val )
+				    : val_ ( val )
 				    , MathExpression( 0 )		{}
 
-    float			getValue() const { return val; }
+    float			getValue() const { return val_; }
 
     MathExpression*		clone() const
 				{
 				    MathExpression* res =
-						new MathExpressionConstant(val);
+					new MathExpressionConstant(val_);
 				    copyInput( res );
 				    return res;
 				}
 
 protected:
-    float 			val;
+    float 			val_;
 };
 
 
@@ -1020,6 +1020,7 @@ void MathExpression::getPrefixAndShift( const char* str,
 
 
 MathExpression::MathExpression( int sz )
+    : isrecursive_(false)
 {
     inputs_.allowNull();
     for ( int idx=0; idx<sz; idx++ )
