@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.110 2008-01-23 12:19:20 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.111 2008-01-23 12:28:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -580,8 +580,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpSeisSimplePS2DMnuItm: mDoOp(Imp,Seis,8); break;
     case mExpSeisSEGY3DMnuItm: 	mDoOp(Exp,Seis,0); break;
     case mExpSeisSEGY2DMnuItm: 	mDoOp(Exp,Seis,1); break;
-    case mExpSeisSimple3DMnuItm: mDoOp(Exp,Seis,2); break;
-    case mExpSeisSimple2DMnuItm: mDoOp(Exp,Seis,3); break;
+    case mExpSeisSimple3DMnuItm: mDoOp(Exp,Seis,5); break;
+    case mExpSeisSimple2DMnuItm: mDoOp(Exp,Seis,6); break;
     case mImpHorAsciiMnuItm: mDoOp(Imp,Hor,0); break;
     case mImpHorAsciiAttribMnuItm: mDoOp(Imp,Hor,1); break;
     case mExpHorAsciiMnuItm: 	mDoOp(Exp,Hor,0); break;
