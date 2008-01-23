@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsread.h,v 1.8 2008-01-21 17:56:13 cvsbert Exp $
+ RCS:		$Id: seispsread.h,v 1.9 2008-01-23 15:11:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ class SeisPSReader
 public:
 
     virtual		~SeisPSReader()					{}
+    virtual bool	is2D() const					= 0;
 
     virtual void	usePar(const IOPar&)				{}
 
@@ -50,6 +51,8 @@ class SeisPS3DReader : public SeisPSReader
 {
 public:
 
+    bool		is2D() const		{ return false; }
+
     virtual const PosInfo::CubeData&	posData() const			= 0;
 
 };
@@ -62,6 +65,7 @@ class SeisPS2DReader : public SeisPSReader
 public:
     			SeisPS2DReader( const char* lnm )
 			    : lnm_(lnm)		{}
+    bool		is2D() const		{ return true; }
     const char*		lineName() const	{ return lnm_.buf(); }
 
     			// Cannot use name overloading: seems gcc prob
