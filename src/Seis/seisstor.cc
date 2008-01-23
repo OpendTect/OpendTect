@@ -5,13 +5,14 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.34 2008-01-23 12:20:07 cvsbert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.35 2008-01-23 15:12:06 cvsbert Exp $";
 
 #include "seisseqio.h"
 #include "seisread.h"
 #include "seiswrite.h"
 #include "seisbounds.h"
 #include "seistrctr.h"
+#include "seistrc.h"
 #include "seis2dline.h"
 #include "seispsioprov.h"
 #include "seisselectionimpl.h"
@@ -21,6 +22,7 @@ static const char* rcsID = "$Id: seisstor.cc,v 1.34 2008-01-23 12:20:07 cvsbert 
 #include "ioman.h"
 #include "iodir.h"
 #include "strmprov.h"
+#include "segposinfo.h"
 #include "keystrs.h"
 
 const char* SeisStoreAccess::sNrTrcs = "Nr of traces";
@@ -199,30 +201,45 @@ void Seis::SeqIO::fillPar( IOPar& iop ) const
 mImplFactory( Seis::SeqInp, Seis::SeqInp::factory );
 mImplFactory( Seis::SeqOut, Seis::SeqOut::factory );
 
-Seis::SelData& Seis::SeqInp::emptySelData() const
-{
-    static Seis::RangeSelData sd(false);
-    sd.setIsAll( true );
-    return sd;
-}
-
 
 void Seis::SeqInp::fillPar( IOPar& iop ) const
 {
     Seis::SeqIO::fillPar( iop );
-    selData().fillPar( iop );
+    Seis::putInPar( geomType(), iop );
 }
 
+
+Seis::GeomType Seis::SeqInp::getGeomType( const IOPar& iop )
+{
+    Seis::GeomType gt;
+    return Seis::getFromPar(iop,gt) ? gt : Seis::Vol;
+}
+
+
+Seis::ODSeqInp::ODSeqInp()
+    : rdr_(0)
+    , psrdr_(0)
+    , gath_(*new SeisTrcBuf(true))
+    , curposidx_(-1)
+    , segidx_(0)
+    , ldidx_(0)
+{
+}
 
 Seis::ODSeqInp::~ODSeqInp()
 {
     delete rdr_;
+    delete psrdr_;
+    delete &gath_;
 }
 
 
 Seis::GeomType Seis::ODSeqInp::geomType() const
 {
-    return rdr_ ? rdr_->geomType() : Seis::Vol;
+    return rdr_		?				rdr_->geomType()
+	: (psrdr_	? (psrdr_->is2D()	?	Seis::LinePS
+						:	Seis::VolPS)
+						:	Seis::Vol);
 }
 
 
@@ -232,30 +249,26 @@ void Seis::ODSeqInp::initClass()
 }
 
 
-const Seis::SelData& Seis::ODSeqInp::selData() const
-{
-    return rdr_ && rdr_->selData() ? *rdr_->selData() : emptySelData();
-}
-
-
-void Seis::ODSeqInp::setSelData( const Seis::SelData& sd )
-{
-    if ( rdr_ )
-	rdr_->setSelData( sd.clone() );
-}
-
-
 bool Seis::ODSeqInp::usePar( const IOPar& iop )
 {
-    if ( rdr_ ) delete rdr_;
-    rdr_ = new SeisTrcReader;
-    rdr_->usePar( iop );
-    if ( rdr_->errMsg() && *rdr_->errMsg() )
+    if ( rdr_ ) delete rdr_; rdr_ = 0;
+    if ( psrdr_ ) delete psrdr_; psrdr_ = 0;
+
+    Seis::GeomType gt = getGeomType( iop );
+    if ( !Seis::isPS(gt) )
     {
-	errmsg_ = rdr_->errMsg();
-	delete rdr_; rdr_ = 0;
+	rdr_ = new SeisTrcReader;
+	rdr_->usePar( iop );
+	if ( rdr_->errMsg() && *rdr_->errMsg() )
+	{
+	    errmsg_ = rdr_->errMsg();
+	    delete rdr_; rdr_ = 0;
+	}
+	return rdr_;
     }
-    return rdr_;
+
+    errmsg_ = "TODO: create PS Reader from IOPar";
+    return false;
 }
 
 
@@ -268,20 +281,77 @@ void Seis::ODSeqInp::fillPar( IOPar& iop ) const
 
 bool Seis::ODSeqInp::get( SeisTrc& trc ) const
 {
-    if ( !rdr_ ) return false;
+    if ( !rdr_ && !psrdr_ )
+	{ errmsg_ = "No reader available"; return false; }
 
-    if ( !rdr_->get(trc) )
+    if ( rdr_ )
     {
+	if ( rdr_->get(trc) )
+	    return true;
 	errmsg_ = rdr_->errMsg();
 	return false;
     }
-    return true;
+
+    if ( !gath_.isEmpty() )
+    {
+	trc = *gath_.get( 0 );
+	delete gath_.remove( ((int)0) );
+	return true;
+    }
+
+    curposidx_++;
+    if ( psrdr_->is2D() )
+    {
+	const SeisPS2DReader& rdr = *((const SeisPS2DReader*)psrdr_);
+	const PosInfo::Line2DPos& lp = rdr.posData().posns[curposidx_];
+	if ( !rdr.getGath(lp.nr_,gath_) )
+	{
+	    errmsg_ = rdr.errMsg();
+	    return false;
+	}
+    }
+    else
+    {
+	const SeisPS3DReader& rdr = *((const SeisPS3DReader*)psrdr_);
+	const PosInfo::LineData& ld = *rdr.posData()[ldidx_];
+	const PosInfo::LineData::Segment& seg = ld.segments_[segidx_];
+	if ( curposidx_ <= seg.nrSteps() )
+	{
+	    const BinID curpos( ld.linenr_, seg.atIndex(curposidx_) );
+	    if ( !rdr.getGather(curpos,gath_) )
+	    {
+		errmsg_ = rdr.errMsg();
+		return false;
+	    }
+	}
+	else
+	{
+	    segidx_++; curposidx_ = -1;
+	    if ( segidx_ >= ld.segments_.size() )
+	    {
+		segidx_ = 0;
+		ldidx_++;
+		if ( ldidx_ >= rdr.posData().size() )
+		    return false;
+	    }
+	}
+    }
+
+    return get( trc );
 }
 
 
 Seis::Bounds* Seis::ODSeqInp::getBounds() const
 {
-    return rdr_ ? rdr_->getBounds() : 0;
+    if ( rdr_ ) return rdr_->getBounds();
+    return 0; //TODO PS bounds
+}
+
+
+int Seis::ODSeqInp::estimateTotalNumber() const
+{
+    Seis::Bounds* bds = getBounds();
+    return bds ? bds->expectedNrTraces() : -1;
 }
 
 
@@ -329,4 +399,3 @@ bool Seis::ODSeqOut::put( const SeisTrc& trc )
     }
     return true;
 }
-
