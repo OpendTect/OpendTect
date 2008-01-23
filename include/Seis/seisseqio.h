@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: seisseqio.h,v 1.7 2007-11-23 11:59:06 cvsbert Exp $
+ * ID       : $Id: seisseqio.h,v 1.8 2008-01-23 15:11:08 cvsbert Exp $
 -*/
 
 #include "seistype.h"
@@ -13,6 +13,8 @@
 
 class IOPar;
 class SeisTrc;
+class SeisTrcBuf;
+class SeisPSReader;
 class SeisTrcReader;
 class SeisTrcWriter;
 class BufferStringSet;
@@ -51,49 +53,61 @@ class SeqInp : public SeqIO
 public:
 
     virtual bool	get(SeisTrc&) const		= 0;
-    virtual const Seis::SelData& selData() const	= 0;
 
     virtual void	fillPar(IOPar&) const;
 
     virtual Seis::Bounds* getBounds() const		{ return 0; }
+    virtual int		estimateTotalNumber() const	{ return -1; }
 
     mDefineFactoryInClass(SeqInp,factory);
 
 protected:
 
-    Seis::SelData&	emptySelData() const;
+    static Seis::GeomType getGeomType(const IOPar&);
+
 };
 
 
-/*!\brief OpendTect-internal Seismic Sequential input */
+/*!\brief OpendTect-internal Seismic Sequential input
+ 
+  Set the reader via usePar or explicitly. The idea is to either provide
+  a PreStackReader or a SeisTrcReader. If both present, SeisTrcReader will
+  be used.
+ 
+ */
 
 
 class ODSeqInp : public SeqInp
 {
 public:
 
-    			ODSeqInp() : rdr_(0)	{}
+    			ODSeqInp();
     			~ODSeqInp();
 
     virtual const char*	type() const		{ return sKeyODType; }
 
     virtual Seis::GeomType geomType() const;
-    virtual const Seis::SelData& selData() const;
-    virtual void	setSelData(const Seis::SelData&);
 
     virtual bool	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
     virtual bool	get(SeisTrc&) const;
 
     virtual Seis::Bounds* getBounds() const;
+    virtual int		estimateTotalNumber() const;
 
     static void		initClass();
     static SeqInp*	create()		{ return new ODSeqInp; }
 
+    SeisTrcReader*	rdr_;
+    SeisPSReader*	psrdr_;
+
 protected:
 
+    mutable SeisTrcBuf&	gath_;
+    mutable int		curposidx_;
+    mutable int		segidx_;
+    mutable int		ldidx_;
 
-    SeisTrcReader*	rdr_;
 };
 
 
@@ -114,6 +128,12 @@ public:
 };
 
 
+/*!\brief Seismic Sequential output via SeistrcWriter
+
+  The wrr_ will be deleted on destruction.
+ 
+ */
+
 class ODSeqOut : public SeqOut
 {
 public:
@@ -130,8 +150,6 @@ public:
 
     static void		initClass();
     static SeqOut*	create()		{ return new ODSeqOut; }
-
-protected:
 
     SeisTrcWriter*	wrr_;
 
