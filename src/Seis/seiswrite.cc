@@ -243,12 +243,7 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
     if ( seldata && seldata->selRes( trc.info().binid ) )
 	return true;
 
-    if ( is2d )
-    {
-	if ( !put2D(trc) )
-	    return false;
-    }
-    else if ( psioprov )
+    if ( psioprov )
     {
 	if ( !pswriter )
 	    return false;
@@ -257,6 +252,11 @@ bool SeisTrcWriter::put( const SeisTrc& trc )
 	    errmsg = pswriter->errMsg();
 	    return false;
 	}
+    }
+    else if ( is2d )
+    {
+	if ( !put2D(trc) )
+	    return false;
     }
     else
     {
