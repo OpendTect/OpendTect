@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisiosimple.cc,v 1.6 2008-01-22 16:03:16 cvsbert Exp $";
+static const char* rcsID = "$Id: seisiosimple.cc,v 1.7 2008-01-23 12:29:52 cvsbert Exp $";
 
 #include "seisiosimple.h"
 #include "seisread.h"
@@ -22,6 +22,8 @@ static const char* rcsID = "$Id: seisiosimple.cc,v 1.6 2008-01-22 16:03:16 cvsbe
 #include "ioobj.h"
 #include "iopar.h"
 #include "scaler.h"
+#include "keystrs.h"
+#include "linekey.h"
 #include "msgh.h"
 
 #include <math.h>
@@ -37,8 +39,8 @@ SeisIOSimple::Data::Data( const char* filenm, Seis::GeomType gt )
     	: scaler_(0)
     	, resampler_(0)
 	, subselpars_(*new IOPar("subsel"))
+	, linekey_(*new LineKey)
 	, geom_(gt)
-	, nroffsperpos_(1)
 {
     clear(true);
     isasc_ = havepos_ = true;
@@ -53,7 +55,7 @@ SeisIOSimple::Data::Data( const SeisIOSimple::Data& d )
     	: scaler_(0)
 	, resampler_(0)
 	, subselpars_(*new IOPar("subsel"))
-	, nroffsperpos_(1)
+	, linekey_(*new LineKey)
 {
     *this = d;
 }
@@ -76,6 +78,7 @@ SeisIOSimple::Data& SeisIOSimple::Data::operator=( const SeisIOSimple::Data& d )
     remnull_ = d.remnull_;
     setScaler( d.scaler_ );
     setResampler( d.resampler_ );
+    linekey_ = d.linekey_;
     subselpars_ = d.subselpars_;
 
     return *this;
@@ -86,6 +89,7 @@ SeisIOSimple::Data::~Data()
 {
     delete scaler_;
     delete resampler_;
+    delete &linekey_;
     delete &subselpars_;
 }
 
@@ -112,7 +116,7 @@ void SeisIOSimple::Data::clear( bool survchg )
 	return;
 
     subselpars_.clear();
-    fname_ = GetDataDir(); seiskey_ = "";
+    fname_ = GetDataDir(); seiskey_ = ""; linekey_ = "";
     sd_.start = (float)SI().zRange(false).start;
     sd_.step = (float)SI().zRange(false).step;
     nrsamples_ = SI().zRange(false).nrSteps() + 1;
@@ -123,6 +127,7 @@ void SeisIOSimple::Data::clear( bool survchg )
     nrcrlperinl_ = (SI().sampling(false).hrg.stop.crl
 		 - SI().sampling(false).hrg.start.crl)
 		    / crldef_.step + 1;
+    nroffsperpos_ = 10; // cannot think of a good default ...
     startpos_ = SI().transform( BinID(inldef_.start,crldef_.start) );
     Coord nextpos = SI().transform( BinID(inldef_.start+inldef_.step,
 					  crldef_.start+crldef_.step) );
@@ -144,6 +149,9 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
     	, importer_(0)
     	, nrdone_(0)
     	, firsttrc_(true)
+	, offsnr_(0)
+	, prevbid_(mUdf(int),0)
+	, prevnr_(mUdf(int))
 {
     PtrMan<IOObj> ioobj = IOM().get( data_.seiskey_ );
     if ( !ioobj ) return;
@@ -153,15 +161,18 @@ SeisIOSimple::SeisIOSimple( const Data& d, bool imp )
 	sa = wrr_ = new SeisTrcWriter( ioobj );
     else
 	sa = rdr_ = new SeisTrcReader( ioobj );
-    errmsg_ = sa ? sa->errMsg() : 0;
+    errmsg_ = sa->errMsg();
     if ( !errmsg_.isEmpty() )
 	return;
 
-    if ( !isimp_ )
+    if ( !data_.linekey_.isEmpty() )
     {
-	Seis::SelData* seldata = Seis::SelData::get( data_.subselpars_ );
-	sa->setSelData( seldata );
+	data_.subselpars_.set( sKey::LineKey, data_.linekey_ );
+	data_.subselpars_.set( sKey::Attribute, data_.linekey_.attrName());
+	    // Needed because attrnm can disappear from line key
     }
+    Seis::SelData* seldata = Seis::SelData::get( data_.subselpars_ );
+    sa->setSelData( seldata );
 
     StreamProvider sp( data_.fname_ );
     sd_ = isimp_ ? sp.makeIStream() : sp.makeOStream(); 
@@ -288,6 +299,8 @@ int SeisIOSimple::nextStep()
 int SeisIOSimple::readImpTrc( SeisTrc& trc )
 {
     BinID bid; Coord coord; int nr = 1; float offs = 0, azim = 0;
+    const bool is2d = Seis::is2D(data_.geom_);
+    const bool isps = Seis::isPS(data_.geom_);
 
     if ( !data_.havenr_ )
 	nr = data_.nrdef_.start + nrdone_ * data_.nrdef_.step;
@@ -301,16 +314,17 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 
     if ( !data_.havepos_ )
     {
-	if ( Seis::is2D(data_.geom_) )
+	const int nrposdone = isps ? nrdone_ / data_.nroffsperpos_ : nrdone_;
+	if ( is2d )
 	{
-	    coord.x = data_.startpos_.x + nrdone_ * data_.steppos_.x;
-	    coord.y = data_.startpos_.y + nrdone_ * data_.steppos_.y;
+	    coord.x = data_.startpos_.x + nrposdone * data_.steppos_.x;
+	    coord.y = data_.startpos_.y + nrposdone * data_.steppos_.y;
 	    bid = SI().transform( coord );
 	}
 	else
 	{
-	    const int nrinl = nrdone_ / data_.nrcrlperinl_;
-	    const int nrcrl = nrdone_ % data_.nrcrlperinl_;
+	    const int nrinl = nrposdone / data_.nrcrlperinl_;
+	    const int nrcrl = nrposdone % data_.nrcrlperinl_;
 	    bid.inl = data_.inldef_.start + nrinl * data_.inldef_.step;
 	    bid.crl = data_.crldef_.start + nrcrl * data_.crldef_.step;
 	    coord = SI().transform( bid );
@@ -343,19 +357,16 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 
     }
 
-    if ( Seis::isPS(data_.geom_) )
+    if ( isps )
     {
-	if ( data_.haveoffs_ )
+	if ( !data_.haveoffs_ )
+	    offs = data_.offsdef_.start + offsnr_ * data_.offsdef_.step;
+	else
 	{
 	    if ( data_.isasc_ )
 		*sd_.istrm >> offs;
 	    else
 		mStrmBinRead( offs, float );
-	}
-	else
-	{
-	    const int offsnr = nrdone_ % data_.nroffsperpos_;
-	    offs = data_.offsdef_.start + offsnr * data_.offsdef_.step;
 	}
 	if ( data_.haveazim_ )
 	{
@@ -364,15 +375,21 @@ int SeisIOSimple::readImpTrc( SeisTrc& trc )
 	    else
 		mStrmBinRead( azim, float );
 	}
+	if ( (is2d && nr != prevnr_) || (!is2d && bid != prevbid_) )
+	    offsnr_ = 0;
+	else
+	    offsnr_++;
     }
 
     trc.info() = trc_.info();
     trc.reSize( data_.nrsamples_, 0 );
     trc.info().binid = bid;
+    prevbid_ = bid;
     trc.info().coord = coord;
     trc.info().offset = offs;
     trc.info().azimuth = azim;
     trc.info().nr = nr;
+    prevnr_ = nr;
     float val;
     for ( int idx=0; idx<data_.nrsamples_; idx++ )
     {

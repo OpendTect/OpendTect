@@ -14,6 +14,7 @@
 class IOPar;
 class Scaler;
 class SeisTrc;
+class LineKey;
 class CtxtIOObj;
 class StreamData;
 class uiGenInput;
@@ -68,6 +69,7 @@ public:
 			// 2D only
 	Coord		startpos_;
 	Coord		steppos_;
+	LineKey&	linekey_;
 
 	Scaler*		scaler_;
 	SeisResampler*	resampler_;
@@ -103,6 +105,9 @@ protected:
     SeisImporter*	importer_;
     bool		firsttrc_;
     int			nrdone_;
+    int			offsnr_;
+    int			prevnr_;
+    BinID		prevbid_;
     BufferString	errmsg_;
 
     void		startImpRead();

@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.5 2007-12-05 11:55:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.6 2008-01-23 12:29:52 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -17,7 +17,9 @@ static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.5 2007-12-05 11:55:49 cvs
 #include "uiscaler.h"
 #include "uilabel.h"
 #include "uimsg.h"
+#include "uibutton.h"
 #include "seistrctr.h"
+#include "seispsioprov.h"
 #include "seisselection.h"
 #include "seisresampler.h"
 #include "ctxtioobj.h"
@@ -39,6 +41,7 @@ static bool survChanged()
     return !issame;
 }
 
+
 #define mDefData(nm,geom) \
 SeisIOSimple::Data& uiSeisIOSimple::data##nm() \
 { \
@@ -57,7 +60,10 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 				  : "Export seismics to simple flat file",
 			      "Specify parameters for I/O",
 			      imp ? "103.0.11" : "103.0.12") )
-    	, ctio(*mMkCtxtIOObj(SeisTrc))
+    	, ctio(	Seis::isPS(gt) ?
+		(Seis::is2D(gt) ? *mMkCtxtIOObj(SeisPS2D)
+		 		: *mMkCtxtIOObj(SeisPS3D))
+				: *mMkCtxtIOObj(SeisTrc))
     	, sdfld(0)
 	, havenrfld(0)
 	, nrdeffld(0)
@@ -66,19 +72,15 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     	, isxyfld(0)
     	, lnmfld(0)
     	, isascfld(0)
+    	, haveoffsbut(0)
     	, isimp_(imp)
     	, geom_(gt)
 {
-    if ( isPS() )
-    {
-	new uiLabel( this, "Pre-Stack not supported (yet)" );
-	return;
-    }
-
     data().clear( survChanged() );
     ctio.ctxt.forread = !isimp_;
     ctio.ctxt.trglobexpr = "CBVS";
     const bool is2d = is2D();
+    const bool isps = isPS();
 
     uiSeparator* sep = 0;
     if ( isimp_ )
@@ -168,6 +170,26 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	    stepnrfld->attach( rightOf, stepposfld );
 	    attachobj = stepposfld->attachObj();
 	}
+	if ( isps )
+	{
+	    haveoffsbut = new uiCheckBox( this, "Offset",
+		    			 mCB(this,uiSeisIOSimple,haveoffsSel) );
+	    haveoffsbut->attach( alignedBelow, attachobj );
+	    haveoffsbut->setChecked( data().haveoffs_ );
+	    haveazimbut = new uiCheckBox( this, "Azimuth" );
+	    haveazimbut->attach( rightOf, haveoffsbut );
+	    haveazimbut->setChecked( data().haveazim_ );
+	    pspposlbl = new uiLabel( this, "Position includes", haveoffsbut );
+	    const float stopoffs =
+			data().offsdef_.atIndex(data().nroffsperpos_-1);
+	    offsdeffld = new uiGenInput( this,
+		    		"Offset definition: start, stop, step",
+				 FloatInpSpec(data().offsdef_.start),
+				 FloatInpSpec(stopoffs),
+		   		 FloatInpSpec(data().offsdef_.step) );
+	    offsdeffld->attach( alignedBelow, haveoffsbut );
+	    attachobj = offsdeffld->attachObj();
+	}
     }
 
     havesdfld = new uiGenInput( this, isimp_
@@ -194,7 +216,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	seisfld->attach( alignedBelow, remnullfld );
 	if ( is2d )
 	{
-	    lnmfld = new uiGenInput( this, "Line name in Set" );
+	    lnmfld = new uiGenInput( this,
+		    		     isps ? "Line name" : "Line name in Set" );
 	    lnmfld->attach( alignedBelow, seisfld );
 	}
     }
@@ -253,6 +276,7 @@ void uiSeisIOSimple::initFlds( CallBacker* cb )
     havesdSel( cb );
     haveposSel( cb );
     isascSel( cb );
+    haveoffsSel( cb );
 }
 
 
@@ -302,6 +326,7 @@ void uiSeisIOSimple::haveposSel( CallBacker* cb )
     }
 
     havenrSel( cb );
+    haveoffsSel( cb );
 }
 
 
@@ -310,6 +335,18 @@ void uiSeisIOSimple::havenrSel( CallBacker* cb )
     if ( !nrdeffld ) return;
     nrdeffld->display( haveposfld->getBoolValue()
 	    	    && !havenrfld->getBoolValue() );
+}
+
+
+void uiSeisIOSimple::haveoffsSel( CallBacker* cb )
+{
+    if ( !haveoffsbut ) return;
+    const bool havepos = haveposfld->getBoolValue();
+    const bool haveoffs = haveoffsbut->isChecked();
+    pspposlbl->display( havepos );
+    haveoffsbut->display( havepos );
+    haveazimbut->display( havepos );
+    offsdeffld->display( !havepos || !haveoffs );
 }
 
 
@@ -329,7 +366,6 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     data().subselpars_.clear();
     if ( is2D() )
     {
-	BufferString attrnm = seisfld->attrNm();
 	BufferString linenm;
 	if ( isimp_ )
 	{
@@ -337,10 +373,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	    if ( linenm.isEmpty() )
 		mErrRet( "Please enter a line name" )
 	}
-	LineKey lk( linenm, attrnm );
-	data().subselpars_.set( sKey::LineKey, lk );
-	data().subselpars_.set( sKey::Attribute, attrnm );
-		// Needed because attrnm can disappear from line key
+	data().linekey_ = LineKey( linenm, seisfld->attrNm() );
     }
 
     data().seiskey_ = ctio.ioobj->key();
@@ -371,9 +404,15 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	    data().nrdef_.start = nrdeffld->getIntValue(0);
 	    data().nrdef_.step = nrdeffld->getIntValue(1);
 	}
+	if ( isPS() )
+	{
+	    data().haveoffs_ = haveoffsbut->isChecked();
+	    data().haveazim_ = haveazimbut->isChecked();
+	}
     }
     else if ( isimp_ )
     {
+	data().haveoffs_ = false;
 	if ( is2D() )
 	{
 	    data().startpos_ = startposfld->getCoord();
@@ -397,6 +436,15 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
 	    }
 	    data().nrcrlperinl_ = nrcpi;
 	}
+    }
+
+    if ( isPS() && !data().haveoffs_ )
+    {
+	data().offsdef_.start = offsdeffld->getfValue( 0 );
+	data().offsdef_.step = offsdeffld->getfValue( 2 );
+	const float offsstop = offsdeffld->getfValue( 1 );
+	data().nroffsperpos_ =
+			data().offsdef_.nearestIndex( offsstop ) + 1;
     }
 
     if ( subselfld )
