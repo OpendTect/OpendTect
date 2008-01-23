@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: uipsviewerpi.cc,v 1.4 2007-10-12 19:14:34 cvskris Exp $";
+static const char* rcsID = "$Id: uipsviewerpi.cc,v 1.5 2008-01-23 15:11:44 cvsbert Exp $";
 
 #include "plugins.h"
 #include "uipsviewermanager.h"
@@ -20,10 +20,11 @@ extern "C" int GetuiPreStackViewerPluginType()
 extern "C" PluginInfo* GetuiPreStackViewerPluginInfo()
 {
     static PluginInfo retpi = {
-    "PreStackViewer Plugin",
+    "Pre-Stack Viewer",
     "dGB - Kristofer/Yuancheng",
     "1.1.1",
-    "PreStack Editor - User Interface." };
+    "This is the PreStack Viewer in the 3D scene."
+	"\nIt can be activated by right-clicking on a plane in the scene." };
     return &retpi;
 }
 
