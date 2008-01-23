@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.34 2007-11-27 13:23:28 cvshelene Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.35 2008-01-23 12:19:20 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -44,10 +44,12 @@ ________________________________________________________________________
 #define mSessAutoMnuItm		(mFileSessMnu + 30)
 #define mImpSeisSEGY3DMnuItm	(mFileImpMnu + 10)
 #define mImpSeisSEGY2DMnuItm	(mFileImpMnu + 11)
-#define mImpSeisSEGYPSMnuItm	(mFileImpMnu + 12)
-#define mImpSeisSimple3DMnuItm	(mFileImpMnu + 13)
-#define mImpSeisSimple2DMnuItm	(mFileImpMnu + 14)
-#define mImpSeisSimplePSMnuItm	(mFileImpMnu + 15)
+#define mImpSeisSEGYPS3DMnuItm	(mFileImpMnu + 12)
+#define mImpSeisSEGYPS2DMnuItm	(mFileImpMnu + 13)
+#define mImpSeisSimple3DMnuItm	(mFileImpMnu + 14)
+#define mImpSeisSimple2DMnuItm	(mFileImpMnu + 15)
+#define mImpSeisSimplePS3DMnuItm (mFileImpMnu + 16)
+#define mImpSeisSimplePS2DMnuItm (mFileImpMnu + 17)
 #define mImpSeisCBVSMnuItm	(mFileImpMnu + 20)
 #define mImpHorAsciiMnuItm	(mFileImpMnu + 30)
 #define mImpHorAsciiAttribMnuItm (mFileImpMnu + 31)
@@ -59,10 +61,8 @@ ________________________________________________________________________
 #define mImpWvltMnuItm		(mFileImpMnu + 70)
 #define mExpSeisSEGY3DMnuItm	(mFileExpMnu + 10)
 #define mExpSeisSEGY2DMnuItm	(mFileExpMnu + 11)
-#define mExpSeisSEGYPSMnuItm	(mFileExpMnu + 12)
-#define mExpSeisSimple3DMnuItm	(mFileExpMnu + 13)
-#define mExpSeisSimple2DMnuItm	(mFileExpMnu + 14)
-#define mExpSeisSimplePSMnuItm	(mFileExpMnu + 15)
+#define mExpSeisSimple3DMnuItm	(mFileExpMnu + 14)
+#define mExpSeisSimple2DMnuItm	(mFileExpMnu + 15)
 #define mExpHorAsciiMnuItm	(mFileExpMnu + 20)
 #define mExpPickMnuItm		(mFileExpMnu + 50)
 #define mManSeisMnuItm		(mFileManMnu + 10)

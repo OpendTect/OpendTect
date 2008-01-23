@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.109 2007-12-13 16:29:37 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.110 2008-01-23 12:19:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -202,11 +202,14 @@ void uiODMenuMgr::fillImportMenu()
     uiPopupMenu* impseissgy = new uiPopupMenu( &appl_, "&SEG-Y" );
     mInsertItem( impseissgy, "&3D ...", mImpSeisSEGY3DMnuItm );
     mInsertItem( impseissgy, "&2D ...", mImpSeisSEGY2DMnuItm );
-    mInsertItem( impseissgy, "&Pre-Stack ...", mImpSeisSEGYPSMnuItm );
+    mInsertItem( impseissgy, "&Pre-Stack 3D ...", mImpSeisSEGYPS3DMnuItm );
+    // mInsertItem( impseissgy, "&Pre-Stack 2D ...", mImpSeisSEGYPS2DMnuItm );
     impseis->insertItem( impseissgy );
     uiPopupMenu* impseissimple = new uiPopupMenu( &appl_, "S&imple file" );
     mInsertItem( impseissimple, "&3D ...", mImpSeisSimple3DMnuItm );
     mInsertItem( impseissimple, "&2D ...", mImpSeisSimple2DMnuItm );
+    mInsertItem( impseissimple, "&Pre-Stack 3D ...", mImpSeisSimplePS3DMnuItm );
+    mInsertItem( impseissimple, "&Pre-Stack 2D ...", mImpSeisSimplePS2DMnuItm );
     impseis->insertItem( impseissimple );
     mInsertItem( impseis, "&CBVS ...", mImpSeisCBVSMnuItm );
 
@@ -568,17 +571,17 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mSessAutoMnuItm: 	appl_.autoSession(); break;
     case mImpSeisSEGY3DMnuItm:	mDoOp(Imp,Seis,0); break;
     case mImpSeisSEGY2DMnuItm:	mDoOp(Imp,Seis,1); break;
-    case mImpSeisSEGYPSMnuItm:	mDoOp(Imp,Seis,2); break;
-    case mImpSeisCBVSMnuItm: 	mDoOp(Imp,Seis,3); break;
-    case mImpSeisSimple3DMnuItm: mDoOp(Imp,Seis,4); break;
-    case mImpSeisSimple2DMnuItm: mDoOp(Imp,Seis,5); break;
-    case mImpSeisSimplePSMnuItm: mDoOp(Imp,Seis,6); break;
+    case mImpSeisSEGYPS3DMnuItm: mDoOp(Imp,Seis,2); break;
+    case mImpSeisSEGYPS2DMnuItm: mDoOp(Imp,Seis,3); break;
+    case mImpSeisCBVSMnuItm: 	mDoOp(Imp,Seis,4); break;
+    case mImpSeisSimple3DMnuItm: mDoOp(Imp,Seis,5); break;
+    case mImpSeisSimple2DMnuItm: mDoOp(Imp,Seis,6); break;
+    case mImpSeisSimplePS3DMnuItm: mDoOp(Imp,Seis,7); break;
+    case mImpSeisSimplePS2DMnuItm: mDoOp(Imp,Seis,8); break;
     case mExpSeisSEGY3DMnuItm: 	mDoOp(Exp,Seis,0); break;
     case mExpSeisSEGY2DMnuItm: 	mDoOp(Exp,Seis,1); break;
-    case mExpSeisSEGYPSMnuItm: 	mDoOp(Exp,Seis,2); break;
-    case mExpSeisSimple3DMnuItm: mDoOp(Exp,Seis,4); break;
-    case mExpSeisSimple2DMnuItm: mDoOp(Exp,Seis,5); break;
-    case mExpSeisSimplePSMnuItm: mDoOp(Exp,Seis,6); break;
+    case mExpSeisSimple3DMnuItm: mDoOp(Exp,Seis,2); break;
+    case mExpSeisSimple2DMnuItm: mDoOp(Exp,Seis,3); break;
     case mImpHorAsciiMnuItm: mDoOp(Imp,Hor,0); break;
     case mImpHorAsciiAttribMnuItm: mDoOp(Imp,Hor,1); break;
     case mExpHorAsciiMnuItm: 	mDoOp(Exp,Hor,0); break;
