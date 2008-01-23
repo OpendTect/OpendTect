@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.26 2008-01-08 03:45:00 cvsnanne Exp $
+ RCS:           $Id: uilineedit.cc,v 1.27 2008-01-23 15:51:10 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,10 @@ bool uiLineEditBody::event( QEvent* ev )
     if ( activatetxt_ )
 	handle_.setvalue_( activatetxt_ );
     if ( activateenter_ )
+    {
+	handle_.editingFinished.trigger();
 	handle_.returnPressed.trigger();
+    }
     
     handle_.activatedone.trigger();
     return true;
