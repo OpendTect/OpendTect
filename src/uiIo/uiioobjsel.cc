@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.108 2008-01-09 13:54:34 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.109 2008-01-24 09:58:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -489,7 +489,10 @@ void uiIOObjSel::usePar( const IOPar& iopar )
 {
     const char* res = iopar.find( "ID" );
     if ( res && *res )
+    {
+	ctio.setObj( MultiID(res) );
 	setInput( res );
+    }
 }
 
 
