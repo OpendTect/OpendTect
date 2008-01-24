@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.80 2008-01-23 12:23:21 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.81 2008-01-24 14:50:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -165,14 +165,15 @@ void uiSeisPartServer::get2DLineInfo( BufferStringSet& linesets,
     ObjectSet<IOObj> ioobjs = IOM().dirPtr()->getObjs();
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
-	const IOObj* ioobj = ioobjs[idx];
-	if ( strcmp(ioobj->translator(),"2D") ) continue;
+	const IOObj& ioobj = *ioobjs[idx];
+	if ( !SeisTrcTranslator::is2D(ioobj)
+	  || SeisTrcTranslator::isPS(ioobj) ) continue;
 
-	uiSeisIOObjInfo oinf(*ioobj,false);
+	uiSeisIOObjInfo oinf(ioobj,false);
 	BufferStringSet lnms;
 	oinf.getLineNames( lnms );
-	linesets.add( ioobj->name() );
-	setids += ioobj->key();
+	linesets.add( ioobj.name() );
+	setids += ioobj.key();
 	linenames += lnms;
     }
 }
@@ -221,26 +222,19 @@ bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linekey,
 }
 
 
-BufferStringSet uiSeisPartServer::getStoredGathersList() const
+void uiSeisPartServer::getStoredGathersList( bool for3d,
+					     BufferStringSet& nms ) const
 {
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
     const ObjectSet<IOObj>& ioobjs = IOM().dirPtr()->getObjs();
 
-    BufferStringSet ioobjnms;
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj& ioobj = *ioobjs[idx];
-	if ( strcmp(ioobj.group(),sKey::PSSeis) ) continue;
-	ioobjnms.add( (const char*)ioobj.name() );
-	if ( ioobjnms.size() > 1 )
-	{
-	    for ( int icmp=ioobjnms.size()-2; icmp>=0; icmp-- )
-	    {
-		if ( ioobjnms.get(icmp) > ioobjnms.get(icmp+1) )
-		    ioobjnms.swap(icmp,icmp+1);
-	    }
-	}
+	if ( SeisTrcTranslator::isPS(ioobj)
+	  && SeisTrcTranslator::is2D(ioobj) != for3d )
+	    nms.add( (const char*)ioobj.name() );
     }
-    
-    return ioobjnms;
+
+    nms.sort();
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.7 2008-01-21 17:56:13 cvsbert Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.8 2008-01-24 14:50:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,13 +80,13 @@ void uiPSViewerMgr::createMenuCB( CallBacker* cb )
 
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, dataobj.ptr() );
     if ( pdd && pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Timeslice ) 
-//	     && menu->getMenuType()==uiMenuHandler::fromScene )
     {
 	uiSeisPartServer* seisserv = ODMainWin()->applMgr().seisServer();
-	if ( seisserv->getStoredGathersList().size() )
+	BufferStringSet gnms; seisserv->getStoredGathersList(true,gnms);
+	if ( gnms.size() )
 	{
 	    selectpsdatamenuitem_.removeItems();
-	    selectpsdatamenuitem_.createItems(seisserv->getStoredGathersList());
+	    selectpsdatamenuitem_.createItems(gnms);
 	    mAddMenuItem( menu, &selectpsdatamenuitem_, true, false );
 	}
     }

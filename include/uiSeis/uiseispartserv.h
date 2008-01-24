@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.27 2007-12-26 19:00:51 cvskris Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.28 2008-01-24 14:50:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ public:
 	    				   BufferStringSet&) const;
     bool		create2DOutput(const MultiID&,const char* linekey,
 				       CubeSampling&,SeisTrcBuf&);
-    BufferStringSet 	getStoredGathersList() const;
+    void 		getStoredGathersList(bool for3d,BufferStringSet&) const;
 
     void		manageSeismics();
     void		importWavelets();

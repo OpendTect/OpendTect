@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.21 2008-01-17 11:45:34 cvsbert Exp $
+ RCS:           $Id: attribsel.cc,v 1.22 2008-01-24 14:50:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -240,15 +240,12 @@ void SelInfo::fillStored( const char* filter )
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj& ioobj = *ioobjs[idx];
-	const bool is2d = !strcmp(ioobj.translator(),"2D");
-	const bool isvalid3d = !strcmp(ioobj.translator(),"CBVS")
-			    || !strcmp(ioobj.translator(),"PS Cube");
-	const bool isps = !strcmp(ioobj.group(),sKey::PSSeis);
+	if ( SeisTrcTranslator::isPS( ioobj ) ) continue;
+	const bool is2d = SeisTrcTranslator::is2D(ioobj);
+	const bool isvalid3d = !is2d && (!strcmp(ioobj.translator(),"CBVS")
+			    || !strcmp(ioobj.translator(),"PS Cube"));
 	const bool isdepth = ioobj.pars().find(sKey::DepthDomain);
-	if ( (is2d && !is2d_)
-	  || (isvalid3d && is2d_)
-	  || (!is2d && !isvalid3d)
-	  || isps || isdepth )
+	if ( isdepth || (is2d && !is2d_) || (!is2d && !isvalid3d) )
 	    continue;
 
 	const char* res = ioobj.pars().find( sKey::Type );
