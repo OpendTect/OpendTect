@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.51 2007-08-23 15:25:19 cvsbert Exp $
+ RCS:           $Id: uiobj.h,v 1.52 2008-01-24 18:38:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,6 +90,7 @@ public:
     void		setSensitive(bool yn=true);
     bool		sensitive() const;
     bool		visible() const;
+    bool		isDisplayed() const;
 
     int			prefHNrPics() const;
     virtual void	setPrefWidth(int);

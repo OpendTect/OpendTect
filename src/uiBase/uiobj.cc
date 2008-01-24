@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.69 2007-12-27 09:41:10 cvsnanne Exp $
+ RCS:           $Id: uiobj.cc,v 1.70 2008-01-24 18:38:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -310,6 +310,8 @@ bool uiObject::sensitive() const
 bool uiObject::visible() const
     { return mConstBody()->uivisible(); }
 
+bool uiObject::isDisplayed() const
+    { return mConstBody()->isDisplayed(); }
 
 int uiObject::prefHNrPics() const
     { return mConstBody()->prefHNrPics(); }
