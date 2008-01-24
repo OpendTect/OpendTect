@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          14/02/2003
- RCS:           $Id: uitabbar.h,v 1.14 2008-01-03 12:16:03 cvsnanne Exp $
+ RCS:           $Id: uitabbar.h,v 1.15 2008-01-24 18:40:53 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ public:
 
     void		setCurrentTab(int id);
     int			currentTabId() const;
+    const char*		textOfTab(int id) const;
     
     int			size() const;
 
@@ -46,6 +47,10 @@ public:
     int			idOf(const uiGroup*) const;
     int			idOf(const uiTab*) const;
     uiGroup*		page(int id) const;
+
+    			//! Force activation in GUI thread
+    void		activate(int id);
+    Notifier<uiTabBar>	activatedone;
 
 protected:
 
