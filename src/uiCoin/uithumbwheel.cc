@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2002
- RCS:           $Id: uithumbwheel.cc,v 1.8 2007-10-23 11:24:25 cvsjaap Exp $
+ RCS:           $Id: uithumbwheel.cc,v 1.9 2008-01-24 08:17:11 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,9 +105,9 @@ bool uiThumbWheel::handleEvent( const QEvent* ev )
     if ( ev->type() != sQEventActivate ) return false;
 
     wheelPressed.trigger();
-    wheelMoved.trigger();
     lastmv += activateangle_;
     setValue( lastmv );
+    wheelMoved.trigger();
     wheelReleased.trigger();
 
     activatedone.trigger();
