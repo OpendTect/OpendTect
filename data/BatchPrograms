@@ -13,42 +13,6 @@ cbvs_dump
 	Comment: If 'Output.Mode' is set to 'Inquire', ranges are reported for the cube.
 	ExampleInput: cbvs_dump_example.par
 !
-cbvs_export_xyzv
-	Arg: M`FileRead`Input seismic cube
-	Arg: M`FileWrite`Output X Y Z Value file
-	Arg: O`QWord`Subcube specification
-	Comment: Convert (part of) seismic cubes of the 'CBVS' format
-	Comment: The optional subcube specification is of the form:
-	Comment: >>inl1,inl2,inlstep,crl1,crl2,crlstep[,startz,stepz,nrz]
-	Comment: Note: If specified, z range should be in seconds, meters or feet (whichever is appropriate).
-!
-cbvs_swap_inlcrl
-	Arg: M`FileRead`Input seismic cube
-	Arg: M`FileWrite`Output seismic cube
-	Comment: Allows using cross-line sorted Import files.
-	Comment: OpendTect needs Inline-sorted seismic data. If you have access to crossline-sorted data only, you need to use a trick.
-	Comment: Load the cube from SEG-Y or 'simple file' with the cross-line as in-line number, and vice versa. You can only do that if you set the inline- and xline-ranges so that this 'mirrored' setup would be inside the survey rectangle. The Coordinate settings on the other hand need no change - these should be OK for the final situation all the time.
-	Comment: After the import, you can set the inline- and xline-ranges to what they should be.
-	Comment:When all that is done, use this cbvs_swap_inlcrl program to switch the inline and crossline number.
-	Comment: Lastly, remove the 'swapped' imported cubes (you won't need those anymore) and import the new cubes via 'Import-Seismics-CBVS'.
-!
-process_attrib
-	Arg: M`FileRead`Parameter file
-	Comment: Use the OpendTect Attribute Engine.
-	Comment: Is used by OpendTect for batch output, so it is unlikely that you will need to use the program from this place.
-!
-seis_cut_poly
-	Arg: M`FileRead`Parameter file
-	Comment: Select part of a seismic cube - inside a polygon
-	Comment: Optionally, leave out locations inside the polygon
-	ExampleInput: seis_cut_poly_example.par
-!
-rect_seis
-	Arg: M`FileRead`Parameter file
-	Comment: Fills gaps in an irregular cube by inserting null traces.
-	Comment: Unlike OpendTect, some ancient packages require fully filled cubes.
-	ExampleInput: rect_seis_example.par
-!
 lmhostid
 	Comment: Display the FlexLM hostid of this machine
 	Comment: May be required for commercial plugins.
