@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.69 2008-01-22 15:04:17 cvsbert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.70 2008-01-24 10:34:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -264,7 +264,7 @@ uiSeis2DMan( uiParent* p, const IOObj& ioobj )
     lineset = new Seis2DLineSet( ioobj.fullUserExpr(true) );
 
     uiGroup* topgrp = new uiGroup( this, "Top" );
-    linelist = new uiLabeledListBox( topgrp, "2D lines", true,
+    linelist = new uiLabeledListBox( topgrp, "2D lines", false,
 	    			     uiLabeledListBox::AboveMid );
     linelist->box()->selectionChanged.notify( mCB(this,uiSeis2DMan,lineSel) );
 
