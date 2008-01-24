@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.8 2008-01-24 14:50:40 cvsbert Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.9 2008-01-24 16:00:07 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,6 +89,8 @@ void uiPSViewerMgr::createMenuCB( CallBacker* cb )
 	    selectpsdatamenuitem_.createItems(gnms);
 	    mAddMenuItem( menu, &selectpsdatamenuitem_, true, false );
 	}
+	else
+	    mResetMenuItem( &selectpsdatamenuitem_ );
     }
     else
 	mResetMenuItem( &selectpsdatamenuitem_ );
