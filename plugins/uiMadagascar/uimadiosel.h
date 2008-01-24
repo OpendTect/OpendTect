@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: uimadiosel.h,v 1.4 2007-12-31 15:57:38 cvsbert Exp $
+ * ID       : $Id: uimadiosel.h,v 1.5 2008-01-24 10:01:40 cvsbert Exp $
 -*/
 
 #include "uicompoundparsel.h"
@@ -87,7 +87,7 @@ protected:
     // Inp only:
     uiSeis3DSubSel*	subsel3dfld_;
     uiSeis2DSubSel*	subsel2dfld_;
-    uiFileInput*	subselmadfld_;
+    uiSeis2DSubSel*	subsel2dpsfld_;
 
     void		initWin(CallBacker*);
     void		typSel(CallBacker*);

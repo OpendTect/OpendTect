@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.7 2008-01-22 15:04:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.8 2008-01-24 10:01:40 cvsbert Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -35,7 +35,7 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	, ctiops3d_(*mMkCtxtIOObj(SeisPS3D))
 	, ctiops2d_(*mMkCtxtIOObj(SeisPS2D))
 	, seis3dfld_(0), seis2dfld_(0), seisps3dfld_(0), seisps2dfld_(0)
-	, subsel3dfld_(0), subsel2dfld_(0), subselmadfld_(0)
+	, subsel3dfld_(0), subsel2dfld_(0), subsel2dpsfld_(0)
     	, idx3d_(-1), idx2d_(-1)
 	, iop_(iop)
 {
@@ -82,14 +82,18 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	seis2dfld_ = new uiSeisSel( this, ctio2d_,uiSeisSel::Setup(Seis::Line));
 	seis2dfld_->attach( alignedBelow, typfld_ );
 	seis2dfld_->selectiondone.notify( mCB(this,uiMadIOSelDlg,selChg) );
-	seisps2dfld_ = new uiSeisSel( this, ctio2d_,
+	seisps2dfld_ = new uiSeisSel( this, ctiops2d_,
 					uiSeisSel::Setup(Seis::LinePS) );
 	seisps2dfld_->attach( alignedBelow, typfld_ );
 	seisps2dfld_->selectiondone.notify( mCB(this,uiMadIOSelDlg,selChg) );
 	if ( isinp )
 	{
-	    subsel2dfld_ = new uiSeis2DSubSel( this,Seis::SelSetup(Seis::Line));
+	    subsel2dfld_ = new uiSeis2DSubSel( this,
+		    				Seis::SelSetup(Seis::Line));
 	    subsel2dfld_->attach( alignedBelow, seis2dfld_ );
+	    subsel2dpsfld_ = new uiSeis2DSubSel( this,
+		    				Seis::SelSetup(Seis::LinePS));
+	    subsel2dpsfld_->attach( alignedBelow, seis2dfld_ );
 	}
     }
 
@@ -97,8 +101,6 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
     setup.defseldir( ODMad::FileSpec::defPath() );
     madfld_ = new uiFileInput( this, "Data file", setup );
     madfld_->attach( alignedBelow, typfld_ );
-    subselmadfld_ = new uiFileInput( this, "Mask file (if any)", setup );
-    subselmadfld_->attach( alignedBelow, madfld_ );
 
     finaliseDone.notify( mCB(this,uiMadIOSelDlg,initWin) );
 }
@@ -156,7 +158,7 @@ uiSeisSel* uiMadIOSelDlg::seisSel( Seis::GeomType gt )
 uiSeisSubSel* uiMadIOSelDlg::seisSubSel( Seis::GeomType gt )
 {
     if ( Seis::is2D(gt) )
-	return subsel2dfld_;
+	return Seis::isPS(gt) ? subsel2dpsfld_ : subsel2dfld_;
     return subsel3dfld_;
 }
 
@@ -176,13 +178,14 @@ void uiMadIOSelDlg::typSel( CallBacker* )
     if ( seis2dfld_ ) seis2dfld_->display( choice == idx2d_ );
     if ( seisps2dfld_ ) seisps2dfld_->display( choice == idxps2d_ );
     madfld_->display( choice == idxmad_ );
-    subselmadfld_->display( choice == idxmad_ );
     if ( !isInp() ) return;
 
     if ( subsel3dfld_ )
 	subsel3dfld_->display( choice == idx3d_ || choice == idxps3d_ );
     if ( subsel2dfld_ )
-	subsel2dfld_->display( choice == idx2d_ || choice == idxps2d_ );
+	subsel2dfld_->display( choice == idx2d_ );
+    if ( subsel2dpsfld_ )
+	subsel2dpsfld_->display( choice == idxps2d_ );
 }
 
 
@@ -203,25 +206,29 @@ void uiMadIOSelDlg::selChg( CallBacker* )
 void uiMadIOSelDlg::usePar( const IOPar& iop )
 {
     ODMad::ProcFlow::IOType iot = ODMad::ProcFlow::ioType( iop );
-    const bool isinp = isInp();
+    const Seis::GeomType gt = (Seis::GeomType)iot;
+
+    if ( iot == ODMad::ProcFlow::None )
+	typfld_->setValue( 0 );
+    else
+	typfld_->setText( iot == ODMad::ProcFlow::Madagascar
+			? ODMad::sKeyMadagascar
+			: Seis::nameOf(gt) );
+    typSel( this );
+    if ( iot == ODMad::ProcFlow::None ) return;
+
     if ( iot == ODMad::ProcFlow::Madagascar )
     {
 	BufferString txt;
 	if ( iop.get(sKey::FileName,txt) )
 	    madfld_->setFileName( txt );
-	if ( iop.get(sKey::IOSelection,txt) )
-	    subselmadfld_->setText( txt );
-    }
-    else if ( iot != ODMad::ProcFlow::None )
-    {
-	const Seis::GeomType gt = (Seis::GeomType)iot;
-	typfld_->setText( Seis::nameOf(gt) );
-	seisSel( gt )->usePar( iop );
-	if ( isinp )
-	    seisSubSel( gt )->usePar( iop );
+	return;
     }
 
-    typSel( this );
+    seisSel( gt )->usePar( iop );
+    selChg( this );
+    if ( isInp() )
+	seisSubSel( gt )->usePar( iop );
 }
 
 
@@ -231,10 +238,7 @@ void uiMadIOSelDlg::fillPar( IOPar& iop )
     ODMad::ProcFlow::setIOType( iop, ioType() );
     const bool isinp = isInp();
     if ( isMad() )
-    {
 	iop.set( sKey::FileName, madfld_->fileName() );
-	iop.set( sKey::IOSelection, subselmadfld_->text() );
-    }
     else if ( !isNone() )
     {
 	const Seis::GeomType gt = geomType();
@@ -242,7 +246,7 @@ void uiMadIOSelDlg::fillPar( IOPar& iop )
 	if ( isinp )
 	{
 	    if ( Seis::is2D(gt) )
-		subsel2dfld_->fillPar( iop );
+		(Seis::isPS(gt)?subsel2dpsfld_:subsel2dfld_)->fillPar( iop );
 	    else
 		subsel3dfld_->fillPar( iop );
 	}
