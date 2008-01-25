@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2000
- RCS:           $Id: mathexpression.cc,v 1.40 2008-01-23 11:03:01 cvshelene Exp $
+ RCS:           $Id: mathexpression.cc,v 1.41 2008-01-25 10:06:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -1071,3 +1071,19 @@ void MathExpression::checkVarPrefix( const char* str )
 }
 
 
+int MathExpression::getPrefixIdx( const char* str, bool skipcstvar ) const
+{
+    if ( skipcstvar )
+    {
+	int nrcstpreffound = 0;
+	for ( int idx=0; idx<varprefixes_.size(); idx++ )
+	{
+	    if ( !strcmp( str, getVarPrefixStr(idx) ) )
+		return idx - nrcstpreffound;
+	    else if ( !strncmp( getVarPrefixStr(idx), "c", 1 ) )
+		nrcstpreffound++;
+	}
+    }
+    
+    return varprefixes_.indexOf(str);
+}

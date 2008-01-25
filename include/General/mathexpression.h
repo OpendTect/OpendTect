@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          10-12-1999
- RCS:           $Id: mathexpression.h,v 1.8 2008-01-22 16:24:38 cvshelene Exp $
+ RCS:           $Id: mathexpression.h,v 1.9 2008-01-25 10:06:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,8 +60,7 @@ public:
     int				getNrDiffVariables() const;
     const char*			getVarPrefixStr( int idx ) const
 				{ return varprefixes_.get( idx ).buf(); }
-    int				getPrefixIdx( const char* str ) const
-				{ return varprefixes_.indexOf(str); }
+    int				getPrefixIdx(const char*,bool) const;
     bool			isRecursive() const	{ return isrecursive_; }
 
     virtual MathExpression*	clone() const = 0;
