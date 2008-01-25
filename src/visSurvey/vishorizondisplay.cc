@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.38 2008-01-03 19:53:49 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.39 2008-01-25 04:52:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -364,9 +364,7 @@ bool HorizonDisplay::usesTexture() const
 
 
 bool HorizonDisplay::hasColor() const
-{
-    return !usesTexture();
-}
+{ return true; }
 
 
 bool HorizonDisplay::getOnlyAtSectionsDisplay() const
