@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.23 2008-01-22 16:24:39 cvshelene Exp $
+ RCS:           $Id: mathattrib.cc,v 1.24 2008-01-25 10:07:54 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -199,8 +199,11 @@ bool Math::getInputAndShift( int varidx, int& inpidx, int& shift) const
     BufferString prefix;
     expression_->getPrefixAndShift( expression_->getVariableStr(varidx),
 	   			    prefix, shift );
-    inpidx = expression_->getPrefixIdx( prefix );
-    return (inpidx>=0 || !strcmp(prefix,"THIS")) && !mIsUdf(shift) && shift<=0;
+    inpidx = expression_->getPrefixIdx( prefix, true );
+    bool isrec = !strcmp(prefix,"THIS");
+    bool inpok = inpidx>=0 || isrec;
+    bool shiftok = !mIsUdf(shift) && ( !isrec || shift<=0 );
+    return inpok && shiftok;
 }
 
 
