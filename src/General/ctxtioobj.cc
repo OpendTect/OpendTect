@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.33 2008-01-22 15:04:17 cvsbert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.34 2008-01-25 09:37:11 cvsjaap Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -225,7 +225,7 @@ bool IOObjContext::validIOObj( const IOObj& ioobj ) const
 {
     if ( trgroup )
     {
-	if ( strcmp(trgroup->userName(),ioobj.group()) )
+	if ( !trgroup->objSelector(ioobj.group()) )
 	    return false;
 
 	// check if the translator is present at all
