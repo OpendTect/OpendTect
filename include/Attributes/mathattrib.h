@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.h,v 1.11 2008-01-22 16:24:38 cvshelene Exp $
+ RCS:           $Id: mathattrib.h,v 1.12 2008-01-25 13:32:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,8 @@ private:
 					: varidx_( varidx )
 					, inputidx_( inputidx )
 					, shift_( shift )
-					, sampgate_( Interval<int>(shift,0) ) {}
+					, sampgate_( Interval<int>(shift,0) )
+				{ sampgate_.sort(); }
 				
 	bool			operator ==(VAR var) const
 				{ return var.varidx_ == varidx_
