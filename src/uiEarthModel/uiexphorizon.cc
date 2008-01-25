@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.48 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.49 2008-01-25 13:58:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -236,7 +236,7 @@ bool uiExportHorizon::writeAscii()
 	    else
 	    {
 		// ostreams print doubles awfully
-		str = "";
+		str.setEmpty();
 		str += crd.x; str += "\t"; str += crd.y;
 		*sdo.ostrm << str;
 	    }
@@ -246,7 +246,10 @@ bool uiExportHorizon::writeAscii()
 		if ( mIsUdf(crd.z) ) 
 		    *sdo.ostrm << '\t' << udfstr;
 		else
-		    *sdo.ostrm << '\t' << zfac * crd.z;
+		{
+		    str = "\n"; str += zfac * crd.z;
+		    *sdo.ostrm << str;
+		}
 	    }
 
 	    for ( int idx=0; idx<nrattribs; idx++ )
@@ -255,7 +258,10 @@ bool uiExportHorizon::writeAscii()
 		if ( mIsUdf(auxvalue) )
 		    *sdo.ostrm << '\t' << udfstr;
 		else
-		    *sdo.ostrm << '\t' << auxvalue;
+		{
+		    str = "\n"; str += auxvalue;
+		    *sdo.ostrm << str;
+		}
 	    }
 
 	    *sdo.ostrm << '\n';
