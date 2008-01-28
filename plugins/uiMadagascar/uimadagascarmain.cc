@@ -5,13 +5,14 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.14 2007-12-20 16:18:54 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.15 2008-01-28 16:38:58 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
 #include "uimadbldcmd.h"
 #include "madprocflow.h"
 #include "madprocflowtr.h"
+#include "madprocexec.h"
 #include "madio.h"
 #include "uilistbox.h"
 #include "uibutton.h"
@@ -21,6 +22,7 @@ static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.14 2007-12-20 16:18:54 
 #include "uisplitter.h"
 #include "uiioobjsel.h"
 #include "uifiledlg.h"
+#include "uiexecutor.h"
 #include "uimsg.h"
 #include "pixmap.h"
 #include "ioman.h"
@@ -270,5 +272,9 @@ void uiMadagascarMain::exportFlow( CallBacker* )
 
 bool uiMadagascarMain::acceptOK( CallBacker* )
 {
+    ODMad::ProcFlow pf; getFlow( pf );
+    ODMad::ProcExec pe( pf );
+    uiExecutor uiex( this, pe );
+    uiex.go();
     return false;
 }
