@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.3 2007-08-22 10:42:51 cvsbert Exp $
+ RCS:           $Id: uicolortable.cc,v 1.4 2008-01-28 10:35:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ uiColorTable::uiColorTable( uiParent* p, bool vert )
 	: uiGroup(p,"Color table display/edit")
 	, mStdInitList
 {
-    maxfld_ = new uiLineEdit( this, "", "Max" );
+    maxfld_ = new uiLineEdit( this, "", "ColTab Max" );
     maxfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
     maxfld_->setHSzPol( uiObject::Small );
 
@@ -37,7 +37,7 @@ uiColorTable::uiColorTable( uiParent* p, bool vert )
     canvas_->getMouseEventHandler().buttonPressed.notify(
 			mCB(this,uiColorTable,canvasClick) );
 
-    minfld_ = new uiLineEdit( this, "", "Min" );
+    minfld_ = new uiLineEdit( this, "", "ColTab Min" );
     minfld_->setHSzPol( uiObject::Small );
     minfld_->attach( vertical_ ? rightAlignedBelow : rightOf, canvas_ );
     minfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
