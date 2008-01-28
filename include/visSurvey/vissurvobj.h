@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.84 2007-12-18 12:19:35 cvsnanne Exp $
+ RCS:		$Id: vissurvobj.h,v 1.85 2008-01-28 23:30:27 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -69,7 +69,7 @@ public:
     virtual void		getPickingMessage( BufferString& msg ) const
     				{ msg = "Picking"; }
 
-    virtual void		snapToTracePos(Coord3&)	{}
+    virtual void		snapToTracePos(Coord3&)	const {}
     				//<\Snaps coordinate to a trace position
 
     virtual NotifierAccess*	getMovementNotifier()	{ return 0; }

@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.27 2007-12-07 11:40:59 cvsnanne Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.28 2008-01-28 23:30:27 cvsyuancheng Exp $
  ________________________________________________________________________
 
 -*/
@@ -693,7 +693,18 @@ bool Seis2DDisplay::getCacheValue( int attrib, int version,
 }
 
 
-void Seis2DDisplay::snapToTracePos( Coord3& pos )
+int Seis2DDisplay::getNearestTraceNr( Coord3& pos )
+{
+    int trcidx = -1;
+    float mindist;
+    if ( getNearestTrace( pos, trcidx, mindist ) )
+    	return trcidx;
+    else
+	return -1;
+}
+
+
+void Seis2DDisplay::snapToTracePos( Coord3& pos ) const
 {
     int trcidx = -1;
     float mindist;
