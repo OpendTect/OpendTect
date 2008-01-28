@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: flatviewaxesdrawer.cc,v 1.6 2007-12-12 15:44:40 cvsbert Exp $
+ RCS:           $Id: flatviewaxesdrawer.cc,v 1.7 2008-01-28 21:48:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 FlatView::AxesDrawer::AxesDrawer( FlatView::Viewer& vwr, ioDrawArea& da )
     : DrawAxis2D(&da)
     , vwr_(vwr)
-    , altdim0_(0)
+    , altdim0_(mUdf(int))
 {
 }
 
