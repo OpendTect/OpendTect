@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: attributes.html,v 1.1 2008-01-18 09:13:00 bert Exp $
+  - RCS:	$Id: attributes.html,v 1.2 2008-01-29 16:30:43 helene Exp $
  -->
 
 <body background="../backg.png"><title>Plugins [OpendTect Programmer's manual V3.0]</title>
@@ -19,10 +19,10 @@
 
 <a name=intro><h2>Intro</h2>
 
-<p>To make OpendTect  use my own algortithms to produce new seismic data, OpendTect has the concept of Attributes. Attributes implement algorithms etc. etc.
+<p>To make OpendTect  use my own algorithms to produce new seismic data, OpendTect has the concept of Attributes.
 </p>
 <p>Attributes are the concept of making an output at a certain location. When defining an attribute, we don't care at all about how the seismic data around a certain position is provided to us. For this, there is the Attribute Engine which is a part of the base system. Thus, we only have to worry about our algorithms that deliver a certain value given the seismic data around the location. This data can originate from different input cubes.</p>
-<p>Thus, Attributes (can) have many inputs from other attributes or stored cubes, and they can produce many outputs. To make an attribute work, you will have to create:
+<p>Attributes (can) have many inputs from other attributes or stored cubes, and they can produce many outputs. To make an attribute work, you will have to create:
 <ul>
 <li>A subclass of Attrib::Provider (the part that does the actual work)
 <li>A subclass of uiAttribDescEd (the GUI part: it makes the attribute accessible to users)
@@ -40,18 +40,27 @@ These are the <a name=phases>phases in the attribute class definition.
 </p>
 
 <a name=descfuncs><h3>Description functions</h3>
+The description functions declare and describe all the parameters that will be required to make the attribute work; they also specify the number and type of the inputs and outputs.
+
+<h4>initClass()</h4>
+This is the most important description class, the one where all parameters are declared with their corresponding types and eventually some default values or limits; the inputs and outputs are also listed here.</p>
+<p>This function CANNOT be omitted, even the simplest attribute you can imagine will require at least the description of its output type.</p>
+
+<h4>updateDesc()</h4>
 
 <a name=initfuncs><h3>Initialization functions</h3>
 The initialization functions are called before the actual work starts. The are used for allocating buffers, connecting input and output, and so forth.
 
 <h4>getInputOutput()</h4>
-Specify the outputs of your inputs that you need for calculation among the available outputs of that input. In many cases you will not have to supplly this function.</p>
-<p><i>Usage</i>: Say our input #5 has 3 outputs and we need only the second and third. Then we'd have:
-<code><pre>if ( input == 5 )
-{ res += 1; res += 2; }
-return true;
+In this function you can specify the outputs of your inputs that you need for calculation among the available outputs of that input. In many cases you will not have to supply this function.</p>
+<p><i>Usage</i>: Say our input #5 has 3 outputs and we only need the second and third. Then we'd have:
+<code><pre>Attrib::MyAttribute::getInputOutput( int input, TypeSet<int>& outs )
+{
+    if ( input == 5 ) { res += 1; res += 2; }
+    return true;
+}
 </pre></code>
-If blabla then we would have returned false.
+If an extra check on the input had shown it was empty then we would have returned false.
 </p>
 
 
