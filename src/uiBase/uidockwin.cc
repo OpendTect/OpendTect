@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.26 2007-12-24 05:29:20 cvsnanne Exp $
+ RCS:           $Id: uidockwin.cc,v 1.27 2008-01-29 05:32:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,8 +31,8 @@ public:
     void		construct();
 
 #define mHANDLE_OBJ     uiDockWin
-#define mQWIDGET_BASE   mQDockWindow
-#define mQWIDGET_BODY   mQDockWindow
+#define mQWIDGET_BASE   QDockWidget
+#define mQWIDGET_BODY   QDockWidget
 #define UIBASEBODY_ONLY
 #define UIPARENT_BODY_CENTR_WIDGET
 #include                "i_uiobjqtbody.h"
@@ -47,7 +47,7 @@ protected:
 
     virtual void        resizeEvent( QResizeEvent* ev )
     {
-	mQDockWindow::resizeEvent(ev);
+	QDockWidget::resizeEvent(ev);
 
 	if ( redrtimer.isActive() ) redrtimer.stop();
 	redrtimer.start( 300, true );
@@ -56,7 +56,7 @@ protected:
 // not at moves...
     virtual void        moveEvent( QMoveEvent* ev )
     {
-	mQDockWindow::moveEvent(ev);
+	QDockWidget::moveEvent(ev);
 
 	if ( redrtimer.isActive() ) redrtimer.stop();
 	redrtimer.start( 300, true );
