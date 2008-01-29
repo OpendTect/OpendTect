@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2000
- RCS:           $Id: mathexpression.cc,v 1.41 2008-01-25 10:06:47 cvshelene Exp $
+ RCS:           $Id: mathexpression.cc,v 1.42 2008-01-29 13:51:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -1004,15 +1004,21 @@ void MathExpression::getPrefixAndShift( const char* str,
     strncpy( prefix, &str[0], nrchars );
     prefix[nrchars] = 0;
 
-    nrchars = endbracketidx>-1 ? endbracketidx - startbracketidx - 1 : 0;
-    if ( !nrchars )
-	shift = 0;
+    if ( endbracketidx == -1 && startbracketidx > -1 )
+	shift = mUdf(int);
     else
     {
-	ArrPtrMan<char> shiftstr = new char [nrchars+1];
-	strncpy( shiftstr, &str[startbracketidx+1], nrchars );
-	shiftstr[nrchars] = 0;
-	shift = atoi( shiftstr );
+	nrchars = endbracketidx>-1 ? endbracketidx - startbracketidx - 1 : 0;
+	if ( !nrchars )
+	    shift = 0;
+	else
+	{
+	    ArrPtrMan<char> shiftstr = new char [nrchars+1];
+	    strncpy( shiftstr, &str[startbracketidx+1], nrchars );
+	    shiftstr[nrchars] = 0;
+	    shift = isNumberString( shiftstr, NO ) ? atoi( shiftstr )
+						   : mUdf(int);
+	}
     }
     
     varprefix = prefix;
