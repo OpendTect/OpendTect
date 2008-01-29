@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.17 2008-01-28 23:30:27 cvsyuancheng Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.18 2008-01-29 16:46:09 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -91,7 +91,7 @@ public:
 	    					BufferString&) const;
     void			getObjectInfo(BufferString&) const;
     void			snapToTracePos(Coord3&) const;
-    int				getNearestTraceNr(Coord3&);
+    int				getNearestTraceNr(Coord3&) const;
 
     void			setLineSetID(const MultiID& mid);
     const MultiID&		lineSetID() const;
