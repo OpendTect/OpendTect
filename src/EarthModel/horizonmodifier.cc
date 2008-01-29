@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2006
- RCS:		$Id: horizonmodifier.cc,v 1.2 2007-05-22 03:23:23 cvsnanne Exp $
+ RCS:		$Id: horizonmodifier.cc,v 1.3 2008-01-29 10:29:18 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "horizonmodifier.h"
 
 #include "cubesampling.h"
-#include "emhorizon3d.h"
+#include "emhorizon.h"
 #include "emmanager.h"
 
 
@@ -35,11 +35,11 @@ HorizonModifier::~HorizonModifier()
 bool HorizonModifier::setHorizons( const MultiID& mid1, const MultiID& mid2 )
 {
     EM::ObjectID objid = EM::EMM().getObjectID( mid1 );
-    mDynamicCastGet(EM::Horizon3D*,tophor,EM::EMM().getObject(objid))
+    mDynamicCastGet(EM::Horizon*,tophor,EM::EMM().getObject(objid))
     tophor_ = tophor;
 
     objid = EM::EMM().getObjectID( mid2 );
-    mDynamicCastGet(EM::Horizon3D*,bothor,EM::EMM().getObject(objid))
+    mDynamicCastGet(EM::Horizon*,bothor,EM::EMM().getObject(objid))
     bothor_ = bothor;
 
     if ( tophor_ && bothor_ )
@@ -101,8 +101,8 @@ void HorizonModifier::doWork()
 
 void HorizonModifier::shiftNode( const EM::SubID& subid )
 {
-    const EM::Horizon3D* statichor = topisstatic_ ? tophor_ : bothor_;
-    EM::Horizon3D* dynamichor = topisstatic_ ? bothor_ : tophor_;
+    const EM::Horizon* statichor = topisstatic_ ? tophor_ : bothor_;
+    EM::Horizon* dynamichor = topisstatic_ ? bothor_ : tophor_;
 
     const float extrashift = topisstatic_ ? 0.001 : -0.001;
     const float newz = statichor->getPos( statichor->sectionID(0), subid ).z;
@@ -113,6 +113,6 @@ void HorizonModifier::shiftNode( const EM::SubID& subid )
 
 void HorizonModifier::removeNode( const EM::SubID& subid )
 {
-    EM::Horizon3D* dynamichor = topisstatic_ ? bothor_ : tophor_;
+    EM::Horizon* dynamichor = topisstatic_ ? bothor_ : tophor_;
     dynamichor->unSetPos( dynamichor->sectionID(0), subid, false );
 }

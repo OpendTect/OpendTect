@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		April 2006
- RCS:		$Id: horizonmodifier.h,v 1.2 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:		$Id: horizonmodifier.h,v 1.3 2008-01-29 10:29:22 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "multiid.h"
 
-namespace EM { class Horizon3D; }
+namespace EM { class Horizon; }
 class HorSampling;
 
 class HorizonModifier
@@ -39,8 +39,8 @@ protected:
     void			shiftNode(const EM::SubID&);
     void			removeNode(const EM::SubID&);
 
-    EM::Horizon3D*		tophor_;
-    EM::Horizon3D*		bothor_;
+    EM::Horizon*		tophor_;
+    EM::Horizon*		bothor_;
 
     ModifyMode			modifymode_;
     bool			topisstatic_;
