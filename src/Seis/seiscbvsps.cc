@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.25 2008-01-22 11:07:45 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.26 2008-01-29 09:00:13 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -488,6 +488,11 @@ bool SeisCBVSPS2DReader::getGather( const BinID& bid, SeisTrcBuf& tbuf ) const
     {
 	tbuf.add( trc );
 	trc = readNewTrace( bid.crl );
+	if ( trc )
+	{
+	    trc->info().nr = bid.crl;
+	    trc->info().binid = SI().transform( trc->info().coord );
+	}
     }
 
     return true;
