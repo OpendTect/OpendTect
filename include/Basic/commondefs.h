@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.10 2007-10-10 04:20:34 cvsnanne Exp $
+ RCS:		$Id: commondefs.h,v 1.11 2008-01-29 04:59:42 cvsnanne Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -48,6 +48,14 @@ ________________________________________________________________________
 
 #ifndef M_SQRT1_2
 # define M_SQRT1_2	0.70710678118654752440
+#endif
+
+#ifndef MAXFLOAT
+# define MAXFLOAT	3.40282347e+38F
+#endif
+
+#ifndef MAXDOUBLE
+# define MAXDOUBLE	1.7976931348623157e+308
 #endif
 
 #ifdef __win__
