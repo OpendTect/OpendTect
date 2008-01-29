@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.27 2008-01-29 10:13:03 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.28 2008-01-29 16:23:46 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -447,11 +447,17 @@ SeisCBVSPS2DReader::SeisCBVSPS2DReader( const char* dirnm, const char* lnm )
     tr_->readMgr()->getPositions( coords );
     tr_->readMgr()->getPositions( binids );
 
+    int prevnr = mUdf(int);
     for ( int idx=0; idx<coords.size(); idx++ )
     {
-	PosInfo::Line2DPos p( binids[idx].crl );
-	p.coord_ = coords[idx];
-	posdata_.posns += p;
+	const int curnr = binids[idx].inl;
+	if ( curnr != prevnr )
+	{
+	    PosInfo::Line2DPos p( curnr );
+	    p.coord_ = coords[idx];
+	    posdata_.posns += p;
+	    prevnr = curnr;
+	}
     }
 }
 
