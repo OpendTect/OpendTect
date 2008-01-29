@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Aug 2007
- RCS:           $Id: import_hor2d.cc,v 1.3 2007-10-29 05:43:48 cvsnanne Exp $
+ RCS:           $Id: import_hor2d.cc,v 1.4 2008-01-29 04:56:18 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "emposid.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfacegeometry.h"
+#include "initearthmodel.h"
 #include "ioman.h"
 #include "position.h"
 #include "ptrman.h"
@@ -278,6 +279,7 @@ static int doWork( int argc, char** argv )
     if ( !readFromFile( data, argv[1], argv[2], argc-3 ) )
 	return 1;
 
+    EarthModel::initStdClasses();
     ObjectSet<EM::Horizon2D> horizons;
     for ( int hdx=0; hdx<argc-3; hdx++ )
     {
