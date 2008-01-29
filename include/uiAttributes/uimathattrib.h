@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.h,v 1.8 2008-01-22 16:24:39 cvshelene Exp $
+ RCS:           $Id: uimathattrib.h,v 1.9 2008-01-29 13:56:21 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class uiAttrSel;
 class uiGenInput;
 class uiPushButton;
 class uiTable;
+class MathExpression;
 
 /*! \brief Math Attribute description editor */
 
@@ -42,6 +43,8 @@ protected:
     int			nrxvars_;
     int			nrcstvars_;
     void 		parsePush(CallBacker*);
+    void		updateDisplay(bool);
+    void		checkVarSpelAndShift(MathExpression*,bool&,bool&);
 
     bool		setParameters(const Attrib::Desc&);
     bool		setInput(const Attrib::Desc&);

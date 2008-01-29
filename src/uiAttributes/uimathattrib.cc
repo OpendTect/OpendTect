@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.cc,v 1.17 2008-01-22 16:24:39 cvshelene Exp $
+ RCS:           $Id: uimathattrib.cc,v 1.18 2008-01-29 13:56:21 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,45 +93,31 @@ void uiMathAttrib::parsePush( CallBacker* )
 	return;
     }
 
-    bool found = false;
-    nrxvars_= nrcstvars_ = 0;
-    for ( int idx=0; idx<nrvariables_; idx++ )
-    {
-	BufferString xstr = "x"; xstr += idx;
-	for ( int idy=0; idy<nrvariables_; idy++ )
-	{
-	    if ( !strcmp( expr->getVarPrefixStr(idy), xstr.buf() ) )
-	    {
-		nrxvars_++;
-		found = true;
-	    }
-	} 
-    }
-    for ( int idx=0; idx<nrvariables_-nrxvars_; idx++ )
-    {
-	BufferString varstr = "c"; varstr += idx;
-	for ( int idy=0; idy<nrvariables_; idy++ )
-	{
-	    if ( !strcmp( expr->getVarPrefixStr(idy), varstr.buf() ) )
-	    {
-		nrcstvars_++;
-		found = true;
-	    }
-	}
-    }
+    bool foundvar = false;
+    bool correctshifts = true;
+    checkVarSpelgAndShift( expr, foundvar, correctshifts );
 
-    if ( ( !found && nrvariables_ ) || ( nrxvars_+nrcstvars_!=nrvariables_) )
+    const bool varspellingok = ( foundvar || !nrvariables_ )
+				&& ( nrxvars_+nrcstvars_==nrvariables_ );
+    if ( !varspellingok || !correctshifts )
     {
 	BufferString errmsg = "Formula should have x0, x1, x2 ...";
 	errmsg += "or c0, c1, c2 ...\n";
-	errmsg += "Please take care of the numbering:\n";
+	errmsg += "Please take care of the numbering: ";
        	errmsg += "first x0, then x1...\n";
-	errmsg += "For recursive formula please use 'THIS[-1]'.";
+	errmsg += "Please read documentation for detailed examples\n ";
+	errmsg += "over recursive formulas, shift....";
 	uiMSG().error( errmsg.buf() );
 	nrvariables_ = 0;
 	return;
     }
 
+    updateDisplay( expr && expr->isRecursive() );
+}
+
+
+void uiMathAttrib::updateDisplay( bool userecfld )
+{
     for ( int idx=0; idx<cNrXVars; idx++ )
 	attribflds_[idx]->display( idx<nrxvars_ );
     
@@ -148,7 +134,49 @@ void uiMathAttrib::parsePush( CallBacker* )
 	cstsflds_[idx]->display( dodisplay );
     }
     
-    recstartfld_->display( expr && expr->isRecursive() );
+    recstartfld_->display( userecfld );
+}
+
+
+void uiMathAttrib::checkVarSpelAndShift( MathExpression* expr,
+					  bool& foundvar, bool& correctshifts )
+{
+    nrxvars_= nrcstvars_ = 0;
+    if ( !expr ) return;
+
+    for ( int idx=0; idx<nrvariables_; idx++ )
+    {
+	BufferString xstr = "x"; xstr += idx;
+	for ( int idy=0; idy<nrvariables_; idy++ )
+	{
+	    if ( !strcmp( expr->getVarPrefixStr(idy), xstr.buf() ) )
+	    {
+		nrxvars_++;
+		foundvar = true;
+	    }
+	} 
+    }
+    for ( int idx=0; idx<nrvariables_-nrxvars_; idx++ )
+    {
+	BufferString varstr = "c"; varstr += idx;
+	for ( int idy=0; idy<nrvariables_; idy++ )
+	{
+	    if ( !strcmp( expr->getVarPrefixStr(idy), varstr.buf() ) )
+	    {
+		nrcstvars_++;
+		foundvar = true;
+	    }
+	}
+    }
+
+    for ( int idx=0; idx<expr->getNrVariables(); idx++ )
+    {
+	int shift;
+	BufferString testprefix;
+	expr->getPrefixAndShift( expr->getVariableStr(idx), testprefix, shift );
+	if ( strncmp( testprefix, "c", 1 ) && mIsUdf(shift) )
+	    correctshifts = false;
+    }
 }
 
 
