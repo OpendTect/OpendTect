@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: datapackbase.h,v 1.5 2007-05-09 21:33:08 cvskris Exp $
+ RCS:		$Id: datapackbase.h,v 1.6 2008-01-30 16:38:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,29 @@ template <class T> class Array3D;
 class FlatPosData;
 class CubeSampling;
 class BufferStringSet;
+
+/*!\brief DataPack for point data. */
+    
+class PointDataPack : public DataPack
+{
+public:
+
+    virtual int			size() const			= 0;
+    virtual BinID		binID(int) const		= 0;
+    virtual float		z(int) const			= 0;
+    virtual Coord		coord(int) const;
+
+    virtual bool		simpleCoords() const		{ return true; }
+    				//!< If true, coords are always SI().tranform(b)
+    virtual bool		isOrdered() const		{ return false;}
+    				//!< If yes, one can draw a line between the pts
+
+protected:
+
+    				PointDataPack( const char* categry )
+				    : DataPack( categry )	{}
+
+};
 
 /*!\brief DataPack for flat data.
 
