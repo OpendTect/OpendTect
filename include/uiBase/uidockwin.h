@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.h,v 1.16 2007-12-24 05:29:20 cvsnanne Exp $
+ RCS:           $Id: uidockwin.h,v 1.17 2008-01-30 10:20:29 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 class uiDockWinBody;
 class uiGroup;
 class uiObject;
+class uiMainWin;
 class QDockWidget;
 
 class uiDockWin : public uiParent
@@ -34,6 +35,8 @@ public:
     const uiGroup* 	topGroup() const 
 			    { return const_cast<uiDockWin*>(this)->topGroup(); }
 
+    virtual uiMainWin*	mainwin();
+
     void		setFloating(bool);
     bool		isFloating() const;
 
@@ -43,6 +46,8 @@ protected:
 
     uiDockWinBody*	body_;
     virtual uiObject*	mainobject();
+
+    uiParent *		parent_;
 };
 
 #endif

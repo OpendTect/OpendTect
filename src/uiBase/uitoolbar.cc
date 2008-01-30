@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.44 2007-12-24 05:29:20 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.45 2008-01-30 10:20:29 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -306,6 +306,14 @@ void uiToolBar::reLoadPixMaps()
 
 void uiToolBar::clear()
 { body_->clear(); }
+
+
+uiMainWin* uiToolBar::mainwin()
+{ 
+    mDynamicCastGet(uiMainWin*,uimw,parent_)
+    return uimw;
+}
+
 
 const ObjectSet<uiObject>& uiToolBar::objectList() const
 { return body_->objectList(); }

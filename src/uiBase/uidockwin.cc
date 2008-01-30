@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.cc,v 1.27 2008-01-29 05:32:00 cvsnanne Exp $
+ RCS:           $Id: uidockwin.cc,v 1.28 2008-01-30 10:20:29 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidockwin.h"
 #include "uigroup.h"
+#include "uimainwin.h"
 #include "uiparentbody.h"
 
 #include <QDockWidget>
@@ -139,6 +140,7 @@ void uiDockWinBody::finalise()
 uiDockWin::uiDockWin( uiParent* parnt, const char* nm )
     : uiParent( nm, 0 )
     , body_( 0 )
+    , parent_( parnt )
 { 
     body_= new uiDockWinBody( *this, parnt, nm ); 
     setBody( body_ );
@@ -157,6 +159,14 @@ const char* uiDockWin::getDockName() const
 
 uiGroup* uiDockWin::topGroup()	    	   
 { return body_->uiCentralWidg(); }
+
+
+uiMainWin* uiDockWin::mainwin()
+{ 
+    mDynamicCastGet(uiMainWin*,uimw,parent_);
+    return uimw;
+}
+
 
 uiObject* uiDockWin::mainobject()
 { return body_->uiCentralWidg()->mainObject(); }
