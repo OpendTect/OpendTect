@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uicolor.h,v 1.13 2007-02-02 12:38:47 cvsbert Exp $
+ RCS:           $Id: uicolor.h,v 1.14 2008-01-30 11:18:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,10 @@ class uiCheckBox;
 */
 bool  	selectColor(Color&,uiParent* parnt=0,const char* seltxt=0,
 		    bool withtransp=false); 
+
+// To be used by cmddriver to select a color while closing the QColorDialog
+void		setExternalColor( const Color& );
+static Color*	externalcolor = 0;
 
 
 /*! \brief small element for color selection. Has no text label.

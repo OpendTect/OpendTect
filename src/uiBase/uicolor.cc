@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink / Bril
  Date:          22/05/2000
- RCS:           $Id: uicolor.cc,v 1.18 2007-04-12 06:46:40 cvsdgb Exp $
+ RCS:           $Id: uicolor.cc,v 1.19 2008-01-30 11:18:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,6 +81,17 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
 	rgb = newcol.rgb(); 
     }
 
+    if ( externalcolor )		// Command driver interference
+    {
+	col = *externalcolor;
+	if ( !withtransp )
+	    col.setTransparency( 0 );
+
+	delete externalcolor;
+	externalcolor = 0;
+	return true;
+    }
+
     if ( ok )
     {
 	col.setRgb( rgb );
@@ -89,6 +100,16 @@ bool selectColor( Color& col, uiParent* parnt, const char* nm, bool withtransp )
     }
 
     return ok;
+}
+
+
+void setExternalColor( const Color& col )
+{
+    
+    if ( !externalcolor )
+	externalcolor = new Color( col );
+    else
+	*externalcolor = col;
 }
 
 
