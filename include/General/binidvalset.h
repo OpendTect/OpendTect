@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.15 2007-10-05 17:57:54 cvskris Exp $
+ RCS:		$Id: binidvalset.h,v 1.16 2008-01-30 15:04:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ public:
     BinIDValueSet&	operator =(const BinIDValueSet&);
 
     inline void		allowDuplicateBids( bool yn )
-			{ allowdup = yn; if ( !yn ) removeDuplicateBids(); }
+			{ allowdup_ = yn; if ( !yn ) removeDuplicateBids(); }
     void		empty();
     void		append(const BinIDValueSet&);
     void		copyStructureFrom(const BinIDValueSet&);
@@ -100,7 +100,7 @@ public:
     bool		prev(Pos&,bool skip_duplcate_bids=false) const;
     bool		valid(const BinID&) const;
 
-    void		get(const Pos&,BinID&,float* v=0) const;
+    void		get(const Pos&,BinID&,float* v=0,int mxnrvals=-1) const;
     BinID		getBinID(const Pos&) const;
     Pos			getPos(int global_idx) const;
     			//!< Slow. And 0 < global_idx < totalNr() is not checked
@@ -115,8 +115,8 @@ public:
 
     			// more get, set and add: see below
 
-    inline int		nrVals() const		{ return nrvals; }
-    inline int		nrInls() const		{ return inls.size(); }
+    inline int		nrVals() const		{ return nrvals_; }
+    inline int		nrInls() const		{ return inls_.size(); }
     int			nrCrls(int inl) const;
     inline bool		isEmpty() const		{ return !nrInls(); }
     inline bool		includes( const BinID& b ) const
@@ -156,7 +156,8 @@ public:
     void		get(const Pos&,BinIDValue&) const;
     void		get(const Pos&,BinID&,float&) const;
     void		get(const Pos&,BinID&,float&,float&) const;
-    void		get(const Pos&,BinID&,TypeSet<float>&) const;
+    void		get(const Pos&,BinID&,TypeSet<float>&,
+	    		    int maxnrvals=-1) const; //!< max == -1 => all
     void		set(const Pos&,float);
     void		set(const Pos&,float,float);
     void		set(const Pos&,const TypeSet<float>&);
@@ -168,50 +169,50 @@ public:
 
     			// Fast
     bool		getFrom(std::istream&);
-				//!< re-structures but keeps allowdup
+				//!< re-structures but keeps allowdup_
     				//!< considers only 'reasonable' lines to add
     bool		putTo(std::ostream&) const;
     bool		areBinidValuesThere(const BinIDValues&) const;
 
     inline float*	getVals( const Pos& pos )
-			{ return valsets[pos.i]->arr() + nrvals*pos.j; }
+			{ return valsets_[pos.i]->arr() + nrvals_*pos.j; }
     			//!< Direct access to value arrays. No check on valid()!
     inline const float*	getVals( const Pos& pos ) const
-			{ return valsets[pos.i]->arr() + nrvals*pos.j; }
+			{ return valsets_[pos.i]->arr() + nrvals_*pos.j; }
     			//!< Direct access to value arrays. No check on valid()!
 
 protected:
 
-    const int			nrvals;
-    TypeSet<int>		inls;
-    ObjectSet< TypeSet<int> >	crlsets;
-    ObjectSet< TypeSet<float> > valsets;
-    bool			allowdup;
+    const int			nrvals_;
+    TypeSet<int>		inls_;
+    ObjectSet< TypeSet<int> >	crlsets_;
+    ObjectSet< TypeSet<float> > valsets_;
+    bool			allowdup_;
 
     void		addNew(Pos&,int,const float*);
     void		sortPart(TypeSet<int>&,TypeSet<float>&,
 	    			 int,int,int,bool);
 
     inline int		getInl( const Pos& pos ) const
-    			{ return inls[pos.i]; }
+    			{ return inls_[pos.i]; }
     inline int		getCrl( const Pos& pos ) const
-    			{ return (*crlsets[pos.i])[pos.j]; }
+    			{ return (*crlsets_[pos.i])[pos.j]; }
     inline TypeSet<int>& getCrlSet( const Pos& pos )
-			{ return *crlsets[pos.i]; }
+			{ return *crlsets_[pos.i]; }
     inline const TypeSet<int>& getCrlSet( const Pos& pos ) const
-			{ return *crlsets[pos.i]; }
+			{ return *crlsets_[pos.i]; }
     inline TypeSet<float>& getValSet( const Pos& pos )
-			{ return *valsets[pos.i]; }
+			{ return *valsets_[pos.i]; }
     inline const TypeSet<float>& getValSet( const Pos& pos ) const
-			{ return *valsets[pos.i]; }
+			{ return *valsets_[pos.i]; }
     inline TypeSet<int>& getCrlSet( int idx )
-			{ return *crlsets[idx]; }
+			{ return *crlsets_[idx]; }
     inline const TypeSet<int>& getCrlSet( int idx ) const
-			{ return *crlsets[idx]; }
+			{ return *crlsets_[idx]; }
     inline TypeSet<float>& getValSet( int idx )
-			{ return *valsets[idx]; }
+			{ return *valsets_[idx]; }
     inline const TypeSet<float>& getValSet( int idx ) const
-			{ return *valsets[idx]; }
+			{ return *valsets_[idx]; }
 
 };
 
