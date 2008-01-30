@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.cc,v 1.18 2008-01-29 13:56:21 cvshelene Exp $
+ RCS:           $Id: uimathattrib.cc,v 1.19 2008-01-30 08:32:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,7 +95,7 @@ void uiMathAttrib::parsePush( CallBacker* )
 
     bool foundvar = false;
     bool correctshifts = true;
-    checkVarSpelgAndShift( expr, foundvar, correctshifts );
+    checkVarSpelAndShift( expr, foundvar, correctshifts );
 
     const bool varspellingok = ( foundvar || !nrvariables_ )
 				&& ( nrxvars_+nrcstvars_==nrvariables_ );
