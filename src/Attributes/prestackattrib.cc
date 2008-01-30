@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackattrib.cc,v 1.6 2008-01-22 15:04:17 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackattrib.cc,v 1.7 2008-01-30 15:01:52 cvshelene Exp $";
 
 #include "prestackattrib.h"
 
@@ -112,7 +112,7 @@ void PreStack::prepPriorToBoundsCalc()
 	mErrRet("Cannot find pre-stack data store ",psid_," in object manager")
 
     if ( desc.is2D() )
-	psrdr_ = SPSIOPF().get2DReader( *ioobj, curlinekey_.buf() );
+	psrdr_ = SPSIOPF().get2DReader( *ioobj, curlinekey_.lineName().buf() );
     else
 	psrdr_ = SPSIOPF().get3DReader( *ioobj );
     delete ioobj;
