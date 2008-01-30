@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.120 2008-01-18 16:27:44 cvsjaap Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.121 2008-01-30 04:33:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -210,6 +210,8 @@ int uiODSceneMgr::addScene( bool maximized )
 	scn.sovwr_->setStereoOffset(
 		scenes_[0]->sovwr_->getStereoOffset() );
 	scn.sovwr_->showRotAxis( scenes_[0]->sovwr_->rotAxisShown() );
+	if ( !scenes_[0]->sovwr_->isCameraPerspective() )
+	    scn.sovwr_->toggleCameraType();
     }
 
     return sceneid;
