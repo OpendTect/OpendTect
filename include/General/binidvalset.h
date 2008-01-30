@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.16 2008-01-30 15:04:38 cvsbert Exp $
+ RCS:		$Id: binidvalset.h,v 1.17 2008-01-30 15:13:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -180,6 +180,9 @@ public:
     inline const float*	getVals( const Pos& pos ) const
 			{ return valsets_[pos.i]->arr() + nrvals_*pos.j; }
     			//!< Direct access to value arrays. No check on valid()!
+    inline float	getVal( const Pos& pos, int valnr ) const
+    			//!< Direct access to value arrays. No check on valid()!
+			{ return getVals(pos)[valnr]; }
 
 protected:
 
