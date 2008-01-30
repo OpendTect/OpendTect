@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.121 2008-01-30 04:33:36 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.122 2008-01-30 10:25:55 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -636,7 +636,7 @@ void uiODSceneMgr::setActiveScene( const char* scenenm )
 void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 {
     BufferString capt( "Tree scene " ); capt += vwridx;
-    uiDockWin* dw = new uiDockWin( 0, capt );
+    uiDockWin* dw = new uiDockWin( &appl_, capt );
 
     scn.lv_ = new uiListView( dw, capt );
     scn.lv_->addColumn( "Elements" );
