@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.h,v 1.15 2007-10-08 08:56:48 cvsjaap Exp $
+ RCS:           $Id: uispinbox.h,v 1.16 2008-01-31 07:34:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,9 @@ public:
     void		setSuffix(const char*);
 
     void		doSnap( bool yn )		{ dosnap_ = yn; }
+
+    void		setKeyboardTracking(bool);
+    bool		keyboardTracking() const;
 
     Notifier<uiSpinBox>	valueChanged;
     Notifier<uiSpinBox>	valueChanging;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.27 2007-10-08 08:56:48 cvsjaap Exp $
+ RCS:           $Id: uispinbox.cc,v 1.28 2008-01-31 07:33:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,25 +15,13 @@ ________________________________________________________________________
 #include "i_qspinbox.h"
 #include "uiobjbody.h"
 
-#include <qapplication.h>
-#include <qevent.h>
-#include <qlineedit.h>
-#include <qvalidator.h>
+#include <QApplication>
+#include <QEvent>
+#include <QLineEdit>
+#include <QValidator>
 #include <math.h>
 
-#ifdef USEQT3
-# define mGetStep	lineStep
-# define mSetStep	setLineStep
-#else
-# define mGetStep	singleStep
-# define mSetStep	setSingleStep
-#endif
-
-#ifdef USEQT3
-class uiSpinBoxBody : public uiObjBodyImpl<uiSpinBox,mQSpinBox>
-#else
-class uiSpinBoxBody : public uiObjBodyImplNoQtNm<uiSpinBox,mQSpinBox>
-#endif
+class uiSpinBoxBody : public uiObjBodyImplNoQtNm<uiSpinBox,QDoubleSpinBox>
 {
 public:
 
@@ -48,7 +36,6 @@ public:
     void		activateStep(int nrsteps);
     bool		event(QEvent*);
 
-#ifndef USEQT3
     QValidator::State	validate( QString& input, int& pos ) const
 			{
 			    const double val = input.toDouble();
@@ -56,7 +43,6 @@ public:
 				input.setNum( maximum() );
 			    return QDoubleSpinBox::validate( input, pos );
 			}
-#endif
 
 protected:
 
@@ -77,18 +63,11 @@ private:
 
 
 uiSpinBoxBody::uiSpinBoxBody( uiSpinBox& handle, uiParent* p, const char* nm )
-#ifdef USEQT3
-    : uiObjBodyImpl<uiSpinBox,mQSpinBox>(handle,p,nm)
-#else
-    : uiObjBodyImplNoQtNm<uiSpinBox,mQSpinBox>(handle,p,nm)
-#endif
+    : uiObjBodyImplNoQtNm<uiSpinBox,QDoubleSpinBox>(handle,p,nm)
     , messenger_(*new i_SpinBoxMessenger(this,&handle))
     , dval(new QDoubleValidator(this,"Validator"))
 {
     setHSzPol( uiObject::Small );
-#ifdef USEQT3
-    setValidator( dval );
-#endif
     setCorrectionMode( QAbstractSpinBox::CorrectToNearestValue );
 }
 
@@ -153,7 +132,7 @@ bool uiSpinBoxBody::event( QEvent* ev )
     else if ( ev->type() == sQEventActStep  )
 	stepBy( activatesteps_ );
     else
-	return mQSpinBox::event( ev );
+	return QDoubleSpinBox::event( ev );
 
     handle_.activatedone.trigger();
     return true;
@@ -171,6 +150,7 @@ uiSpinBox::uiSpinBox( uiParent* p, int dec, const char* nm )
     , factor_(1)
 {
     setNrDecimals( dec );
+    setKeyboardTracking( false );
     valueChanged.notify( mCB(this,uiSpinBox,snapToStep) );
 }
 
@@ -198,13 +178,7 @@ void uiSpinBox::activateStep( int nrsteps )
 
 void uiSpinBox::setNrDecimals( int dec )
 {
-#ifdef USEQT3
-    if ( dec < 0 ) dec = 0;
-    factor_ = (int)pow(10,(float)dec);
-    body_->setNrDecimals( dec );
-#else
     body_->setDecimals( dec );
-#endif
 }
 
 
@@ -248,63 +222,6 @@ StepInterval<float> uiSpinBox::getFInterval() const
 }
 
 
-#ifdef USEQT3
-int uiSpinBox::getValue() const
-{ return body_->value() / factor_; }
-
-float uiSpinBox::getFValue() const	
-{ return (float)body_->value() / factor_; }
-
-void uiSpinBox::setValue( int val )
-{ body_->setValue( val*factor_ ); }
-
-void uiSpinBox::setValue( float val )
-{ body_->setValue( mNINT(val*factor_) ); }
-
-void uiSpinBox::setMinValue( int val )
-{ body_->setMinValue( val*factor_ ); }
-
-void uiSpinBox::setMinValue( float val )
-{ body_->setMinValue( mNINT(val*factor_) ); }
-
-int uiSpinBox::minValue() const
-{ return body_->minValue() / factor_; }
-
-float uiSpinBox::minFValue() const
-{ return (float)body_->minValue() / factor_; }
-
-void uiSpinBox::setMaxValue( int val )
-{ body_->setMaxValue( val*factor_ ); }
-
-void uiSpinBox::setMaxValue( float val )
-{ body_->setMaxValue( mNINT(val*factor_) ); }
-
-int uiSpinBox::maxValue() const
-{ return body_->maxValue() / factor_; }
-
-float uiSpinBox::maxFValue() const
-{ return (float)body_->maxValue() / factor_; }
-
-int uiSpinBox::step() const
-{ return body_->mGetStep() / factor_; }
-
-float uiSpinBox::fstep() const
-{ return (float)body_->mGetStep() / factor_; }
-
-void uiSpinBox::setStep( int step, bool snapcur )		
-{ setStep( (float)step, snapcur ); }
-
-
-void uiSpinBox::setStep( float step, bool snapcur )
-{
-    if ( !step ) step = 1;
-    body_->mSetStep( mNINT(step*factor_) );
-    dosnap_ = snapcur;
-    snapToStep(0);
-}
-
-#else
-
 int uiSpinBox::getValue() const
 { return mNINT(body_->value()); }
 
@@ -342,10 +259,10 @@ float uiSpinBox::maxFValue() const
 { return (float)body_->maximum(); }
 
 int uiSpinBox::step() const
-{ return mNINT(body_->mGetStep()); }
+{ return mNINT(body_->singleStep()); }
 
 float uiSpinBox::fstep() const
-{ return (float)body_->mGetStep(); }
+{ return (float)body_->singleStep(); }
 
 void uiSpinBox::setStep( int step_, bool snapcur )		
 { setStep( (double)step_, snapcur ); }
@@ -353,17 +270,14 @@ void uiSpinBox::setStep( int step_, bool snapcur )
 void uiSpinBox::setStep( float step_, bool snapcur )
 {
     if ( !step_ ) step_ = 1;
-    body_->mSetStep( step_ );
+    body_->setSingleStep( step_ );
     dosnap_ = snapcur;
     snapToStep(0);
 }
-#endif
 
 
 void uiSpinBox::setPrefix( const char* suffix )
-{
-    body_->setPrefix( suffix );
-}
+{ body_->setPrefix( suffix ); }
 
 
 const char* uiSpinBox::prefix() const
@@ -375,9 +289,7 @@ const char* uiSpinBox::prefix() const
 
 
 void uiSpinBox::setSuffix( const char* suffix )
-{
-    body_->setSuffix( suffix );
-}
+{ body_->setSuffix( suffix ); }
 
 
 const char* uiSpinBox::suffix() const
@@ -386,6 +298,13 @@ const char* uiSpinBox::suffix() const
     res = (const char*) body_->suffix();
     return res;
 }
+
+
+void uiSpinBox::setKeyboardTracking( bool yn )
+{ body_->setKeyboardTracking( yn ); }
+
+bool uiSpinBox::keyboardTracking() const
+{ return body_->keyboardTracking(); }
 
 //------------------------------------------------------------------------------
 
