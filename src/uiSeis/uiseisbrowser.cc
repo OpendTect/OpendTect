@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.13 2008-01-10 11:16:13 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.14 2008-01-31 10:47:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,6 +203,8 @@ void uiSeisBrowser::setPos( const BinID& bid )
 
 bool uiSeisBrowser::doSetPos( const BinID& bid, bool force )
 {
+    NotifyStopper notifstop( tbl_->valueChanged );
+
     if ( !tbl_ )
 	return false;
     if ( !force && bid == ctrc_.info().binid )
@@ -634,9 +636,10 @@ void uiSeisBrowser::trcbufViewerClosed( CallBacker* )
 
 void uiSeisBrowser::valChgReDraw( CallBacker* )
 {
-    
     commitChanges();
     const RowCol rc = tbl_->currentCell();
+    if ( rc.row<0 || rc.col<0 ) return;
+
     SeisTrc* trace = tbuf_.get( rc.col );
     const float chgdval = tbl_->getfValue( rc );
     trace->set( rc.row, chgdval, compnr_ );
