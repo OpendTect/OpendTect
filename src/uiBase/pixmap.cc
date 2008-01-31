@@ -4,28 +4,28 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.25 2007-08-22 10:53:57 cvsbert Exp $
+ RCS:           $Id: pixmap.cc,v 1.26 2008-01-31 07:49:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "pixmap.h"
-#include "errh.h"
 
-#include "color.h"
 #include "arraynd.h"
 #include "arrayndimpl.h"
 #include "arrayrgb.h"
-#include "uirgbarray.h"
+#include "color.h"
 #include "colortab.h"
-#include "separstr.h"
+#include "errh.h"
 #include "filegen.h"
 #include "filepath.h"
 #include "oddirs.h"
+#include "separstr.h"
+#include "uirgbarray.h"
 
-#include <qpixmap.h>
-#include <qbitmap.h>
-#include <qcolor.h>
+#include <QPixmap>
+#include <QBitmap>
+#include <QColor>
 
 
 ioPixmap::ioPixmap( const ioPixmap& pm )
@@ -35,19 +35,19 @@ ioPixmap::ioPixmap( const ioPixmap& pm )
 }
 
 
-ioPixmap::ioPixmap( const ArrayRGB& anImage )
+ioPixmap::ioPixmap( const ArrayRGB& rgbarr )
     : qpixmap_(new QPixmap)
     , srcname_("[ArrayRGB]")
 {
-    convertFromArrayRGB( anImage );
+    convertFromArrayRGB( rgbarr );
 }
 
 
-ioPixmap::ioPixmap( const uiRGBArray& anImage )
+ioPixmap::ioPixmap( const uiRGBArray& rgbarr )
     : qpixmap_(new QPixmap)
     , srcname_("[uiRGBArray]")
 {
-    convertFromRGBArray( anImage );
+    convertFromRGBArray( rgbarr );
 }
 
 
@@ -137,29 +137,21 @@ ioPixmap::~ioPixmap()
 }
 
 
-void ioPixmap::convertFromArrayRGB( const ArrayRGB& theImage )
+void ioPixmap::convertFromArrayRGB( const ArrayRGB& rgbarr )
 {
     releaseDrawTool();
 
-    if( !qpixmap_ ) qpixmap_ = new QPixmap;
-#ifdef USEQT3
-    qpixmap_->convertFromImage( theImage.qImage(), Qt::OrderedAlphaDither);
-#else
-    *qpixmap_ = QPixmap::fromImage( theImage.qImage(), Qt::OrderedAlphaDither);
-#endif
+    if ( !qpixmap_ ) qpixmap_ = new QPixmap;
+    *qpixmap_ = QPixmap::fromImage( rgbarr.qImage(), Qt::OrderedAlphaDither );
 }    
 
 
-void ioPixmap::convertFromRGBArray( const uiRGBArray& theImage )
+void ioPixmap::convertFromRGBArray( const uiRGBArray& rgbarr )
 {
     releaseDrawTool();
 
     if( !qpixmap_ ) qpixmap_ = new QPixmap;
-#ifdef USEQT3
-    qpixmap_->convertFromImage( theImage.qImage(), Qt::OrderedAlphaDither);
-#else
-    *qpixmap_ = QPixmap::fromImage( theImage.qImage(), Qt::OrderedAlphaDither);
-#endif
+    *qpixmap_ = QPixmap::fromImage( rgbarr.qImage(), Qt::OrderedAlphaDither );
 }    
 
 
@@ -179,6 +171,7 @@ void ioPixmap::fill( const Color& col )
 { qpixmap_->fill( QColor(col.r(),col.g(),col.b()) ); }
 
 
+// ----- ioBitmap -----
 ioBitmap::ioBitmap( const char* filenm, const char * format )
 {
     qpixmap_ = new QBitmap( filenm, format );

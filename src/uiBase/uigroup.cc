@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.cc,v 1.57 2007-05-09 16:53:08 cvsjaap Exp $
+ RCS:           $Id: uigroup.cc,v 1.58 2008-01-31 07:49:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,14 +15,10 @@ ________________________________________________________________________
 #include "i_layoutitem.h"
 #include "envvars.h"
 #include "errh.h"
-#include <qwidget.h>
-#include <iostream>
 
-#ifdef USEQT3
-# include <qframe.h>
-#else
-# include <QFrame>
-#endif
+#include <QFrame>
+#include <QWidget>
+#include <iostream>
 
 
 class uiGroupObjBody;
@@ -63,21 +59,8 @@ class uiGroupObjBody  : public uiObjectBody, public QFrame
     friend class		i_uiGroupLayoutItem;
     friend			uiGroup* gtDynamicCastToGrp( QWidget*);
 public:
-
-				uiGroupObjBody( uiGroupObj& handle, 
-						uiParent* parnt,
-						const char* nm )
-				    : uiObjectBody( parnt, nm )
-#ifdef USEQT3
-				    , QFrame( parnt && parnt->pbody() ?  
-					parnt->pbody()->managewidg() : 0, nm )
-#else
-				    , QFrame( parnt && parnt->pbody() ?
-					parnt->pbody()->managewidg() : 0 )
-#endif
-				    , handle_( handle )
-				    , prntbody_( 0 )			
-				{}
+    				uiGroupObjBody(uiGroupObj&,uiParent*,
+					       const char*);
 
 #define mHANDLE_OBJ     	uiGroupObj
 #define mQWIDGET_BASE		QFrame
@@ -116,21 +99,8 @@ class uiGroupParentBody : public uiParentBody
     friend		uiGroup* gtDynamicCastToGrp( QWidget*);
 
 public:
-			uiGroupParentBody( uiGroup& handle, 
-					 uiGroupObjBody& objbdy,
-					 uiParent* parnt=0,
-					 const char* nm="uiGroupObjBody" )
-                            : uiParentBody( nm )
-                            , handle_( handle )
-			    , loMngr( 0 ) , halignobj( 0 ), hcentreobj( 0 )
-			    , objbody_( objbdy )
-			{ 
-			    loMngr = new i_LayoutMngr( objbdy.qwidget(), 
-			       nm, objbdy );
-
-			    loMngr->deleteNotify(
-					mCB(this,uiGroupParentBody,mngrDel) );
-			}
+    			uiGroupParentBody(uiGroup&,uiGroupObjBody&,uiParent*,
+					  const char* nm="uiGroupObjBody");
 
     virtual		~uiGroupParentBody()		
 			{
@@ -199,6 +169,20 @@ private:
     uiGroupObjBody&	objbody_;
 
 };
+
+
+// ----- uiGroupParentBody -----
+uiGroupParentBody::uiGroupParentBody( uiGroup& handle, uiGroupObjBody& objbdy,
+				      uiParent* parnt=0, const char* nm )
+    : uiParentBody( nm )
+    , handle_( handle )
+    , loMngr( 0 ) , halignobj( 0 ), hcentreobj( 0 )
+    , objbody_( objbdy )
+{ 
+    loMngr = new i_LayoutMngr( objbdy.qwidget(), nm, objbdy );
+    loMngr->deleteNotify( mCB(this,uiGroupParentBody,mngrDel) );
+}
+
 
 void uiGroupParentBody::setHCentreObj( uiObject* obj )
 { 
@@ -290,12 +274,23 @@ void uiGroupParentBody::setHAlignObj( uiObject* obj )
 }
 
 
+// ----- uiGroupObjBody -----
+    uiGroupObjBody::uiGroupObjBody( uiGroupObj& handle, uiParent* parnt,
+	    			    const char* nm )
+    : uiObjectBody( parnt, nm )
+    , QFrame( parnt && parnt->pbody() ?  parnt->pbody()->managewidg() : 0 )
+    , handle_( handle )
+    , prntbody_( 0 )			
+{}
+
+
 void uiGroupObjBody::reDraw( bool deep )
 { 
     prntbody_->handle_.reDraw_(deep);
     prntbody_->loMngr->forceChildrenRedraw( this, deep ); 
     uiObjectBody::reDraw( deep ); // calls qWidget().update()
 }
+
 
 int uiGroupObjBody::stretch( bool hor, bool ) const
 {
@@ -331,7 +326,7 @@ i_LayoutItem* uiGroupObjBody::mkLayoutItem_( i_LayoutMngr& mngr )
 void uiGroupObjBody::finalise_()	{ prntbody_->finalise(); }
 
 
-
+// ----- i_uiGroupLayoutItem -----
 i_uiGroupLayoutItem::i_uiGroupLayoutItem( i_LayoutMngr& mngr, 
 					  uiGroupObjBody& obj, 
 					  uiGroupParentBody& par )

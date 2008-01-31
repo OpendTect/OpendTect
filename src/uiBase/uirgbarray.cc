@@ -4,21 +4,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril & H. Huck
  Date:          08/09/2006
- RCS:           $Id: uirgbarray.cc,v 1.6 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: uirgbarray.cc,v 1.7 2008-01-31 07:49:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uirgbarray.h"
-#include <qimage.h>
-#include <qcolor.h>
 
+#include <QImage>
+#include <QColor>
 
-#ifdef USEQT3
-# define mImgFmt 32
-#else
-# define mImgFmt QImage::Format_RGB32
-#endif
 
 uiRGBArray::uiRGBArray()
         : qimg_(new QImage)
@@ -43,7 +38,7 @@ void uiRGBArray::setSize( int d0, int d1 )
 	return;
 
     delete qimg_;
-    qimg_ = new QImage( d0, d1, mImgFmt );
+    qimg_ = new QImage( d0, d1, QImage::Format_RGB32 );
 }
 
 
