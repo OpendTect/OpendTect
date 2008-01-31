@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.1 2008-01-30 16:38:39 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.2 2008-01-31 06:33:28 cvsnanne Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -252,6 +252,14 @@ Coord DataPointSet::coord( DataPointSet::RowID rid ) const
     mChkRowID(rid,Coord::udf());
     Pos p( pos(rid) );
     return p.coord();
+}
+
+
+float DataPointSet::z( DataPointSet::RowID rid ) const
+{
+    mChkRowID(rid,mUdf(float));
+    Pos p( pos(rid) );
+    return p.z();
 }
 
 
