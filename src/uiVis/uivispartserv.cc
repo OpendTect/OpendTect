@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.361 2007-12-24 05:30:17 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.362 2008-01-31 22:28:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -400,10 +400,10 @@ int uiVisPartServer::getSceneID( int visid ) const
 }
 
 
-const char* uiVisPartServer::getDepthDomainKey( int sceneid ) const
+const char* uiVisPartServer::getZDomainKey( int sceneid ) const
 {
     const visSurvey::Scene* scene = getScene( sceneid );
-    return scene ? scene->getDepthDomainKey() : 0;
+    return scene ? scene->getZDomainKey() : 0;
 }
 
 
