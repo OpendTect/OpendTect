@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2006
- RCS:		$Id: uivisslicepos3d.cc,v 1.6 2007-02-28 16:53:42 cvsnanne Exp $
+ RCS:		$Id: uivisslicepos3d.cc,v 1.7 2008-01-31 07:43:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,7 @@ uiSlicePos::uiSlicePos( uiParent* p )
     sliceposbox_ = new uiLabeledSpinBox( grp, "Crossline", 0,
 	    				 "Slice position" );
     sliceposbox_->setSensitive( curpdd_ );
-    sliceposbox_->box()->valueChanged.notify(
+    sliceposbox_->box()->valueChanging.notify(
 	    			mCB(this,uiSlicePos,slicePosChg) );
 
     slicestepbox_ = new uiLabeledSpinBox( grp, "Step", 0, "Slice step" );
@@ -119,7 +119,7 @@ void uiSlicePos::setBoxRanges()
 
     uiSpinBox* posbox = sliceposbox_->box();
     uiSpinBox* stepbox = slicestepbox_->box();
-    NotifyStopper posstop( posbox->valueChanged );
+    NotifyStopper posstop( posbox->valueChanging );
     NotifyStopper stepstop( stepbox->valueChanged );
 
     const CubeSampling& survey = SI().sampling( true );
@@ -154,7 +154,7 @@ void uiSlicePos::setPosBoxValue()
     if ( !curpdd_ ) return;
 
     uiSpinBox* posbox = sliceposbox_->box();
-    NotifyStopper posstop( posbox->valueChanged );
+    NotifyStopper posstop( posbox->valueChanging );
 
     const CubeSampling cs = curpdd_->getCubeSampling( true, true );
     const Display::Orientation orientation = curpdd_->getOrientation();
