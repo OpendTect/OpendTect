@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.15 2007-12-24 16:51:22 cvsbert Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.16 2008-01-31 10:43:27 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -63,9 +63,9 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     mnu.insertItem( new uiMenuItem("&New"), 0 );
     mnu.insertItem( new uiMenuItem("&Load ..."), 1 );
     uiPopupMenu* genmnu = new uiPopupMenu( getUiParent(), "&Generate" );
-    genmnu->insertItem( new uiMenuItem("From &Existing"), 2 );
-    genmnu->insertItem( new uiMenuItem("Along &Contours"), 3 );
-    genmnu->insertItem( new uiMenuItem("From &Polygon"), 4 );
+    genmnu->insertItem( new uiMenuItem("From &Existing ..."), 2 );
+    genmnu->insertItem( new uiMenuItem("Along &Contours ..."), 3 );
+    genmnu->insertItem( new uiMenuItem("From &Polygon ..."), 4 );
     mnu.insertItem( genmnu );
     addStandardItems( mnu );
     const int mnuid = mnu.exec();
