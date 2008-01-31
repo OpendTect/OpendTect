@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.9 2007-09-28 05:09:09 cvsnanne Exp $
+ RCS:           $Id: uiattrsel.h,v 1.10 2008-01-31 19:06:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ public:
     const NLAModel*		nlamodel;
     int				outputnr;
     bool			shwcubes;
-    BufferString		depthdomainkey;
+    BufferString		zdomainkey;
 
     const Attrib::DescSet&	attrSet() const	{ return *attrset; }
 };
@@ -73,25 +73,25 @@ public:
 			//!< -1 if not selected
     int			outputNr() const	{ return attrdata_.outputnr; }
 			//!< -1 if not selected
-    const char*		depthDomainKey() const	{ return depthdomainkey_; }
+    const char*		zDomainKey() const	{ return zdomainkey_; }
 
 protected:
 
     uiAttrSelData	attrdata_;
     Attrib::SelInfo*	attrinf_;
     bool		in_action_;
-    BufferString	depthdomainkey_;
+    BufferString	zdomainkey_;
 
     uiButtonGroup*	selgrp_;
     uiRadioButton*	storfld_;
     uiRadioButton*	attrfld_;
     uiRadioButton*	nlafld_;
-    uiRadioButton*	depthdomainfld_;
+    uiRadioButton*	zdomainfld_;
 
     uiListBox*		storoutfld_;
     uiListBox*		attroutfld_;
     uiListBox*		nlaoutfld_;
-    uiListBox*		depthdomoutfld_;
+    uiListBox*		zdomoutfld_;
     uiGenInput*		filtfld_;
     uiGenInput*		attr2dfld_;
 

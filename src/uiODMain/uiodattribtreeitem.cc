@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodattribtreeitem.cc,v 1.15 2008-01-25 04:51:04 cvsnanne Exp $
+ RCS:		$Id: uiodattribtreeitem.cc,v 1.16 2008-01-31 19:06:39 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -75,8 +75,8 @@ bool uiODAttribTreeItem::anyButtonClick( uiListViewItem* item )
 {\
     if ( scene && scene->getDataTransform() )\
     {\
-	subitem = attrserv->depthdomainAttribMenuItem( *as,\
-				scene->getDepthDomainKey(), is2d, needext );\
+	subitem = attrserv->zDomainAttribMenuItem( *as,\
+				scene->getZDomainKey(), is2d, needext );\
 	mAddMenuItem( &mnu, subitem, subitem->nrItems(), subitem->checked );\
     }\
 }

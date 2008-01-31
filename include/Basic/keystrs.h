@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.25 2008-01-24 14:03:24 cvsbert Exp $
+ RCS:		$Id: keystrs.h,v 1.26 2008-01-31 19:06:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,9 +39,7 @@ namespace sKey
     extern const char*	Color		mImpl("Color");
     extern const char*	ZDomain		mImpl("ZDomain");
     extern const char*	Time		mImpl("Time");
-    extern const char*	TimeDomain	mImpl("Time Domain");
     extern const char*	Depth		mImpl("Depth");
-    extern const char*	DepthDomain	mImpl("Depth Domain");
     extern const char*	Desc		mImpl("Description");
     extern const char*	Factor		mImpl("Factor");
     extern const char*	FileName	mImpl("File name");

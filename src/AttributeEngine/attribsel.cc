@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.22 2008-01-24 14:50:40 cvsbert Exp $
+ RCS:           $Id: attribsel.cc,v 1.23 2008-01-31 19:06:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,6 @@ const char* SelSpec::sKeyID()		{ return "Attrib ID"; }
 const char* SelSpec::sKeyIsNLA()	{ return "Is attrib NLA Model"; }
 const char* SelSpec::sKeyObjRef()	{ return "Object Reference"; }
 const char* SelSpec::sKeyDefStr()	{ return "Definition"; }
-const char* SelSpec::sKeyDepthDomainStr() { return "Depth Domain"; }
 const char* SelSpec::sKeyIs2D()		{ return "Is 2D"; }
 static const char* isnnstr = "Is attrib NN"; // for backward compatibility
 
@@ -60,14 +59,20 @@ bool SelSpec::operator!=( const SelSpec& ss ) const
 
 void SelSpec::setDepthDomainKey( const Desc& desc )
 {
-    depthdomainkey_ = "";
+    zdomainkey_ = "";
     MultiID mid;
     if ( !desc.getMultiID(mid) )
 	return;
 
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( ioobj )
-	ioobj->pars().get( sKey::DepthDomain, depthdomainkey_ );
+    {
+	if ( !ioobj->pars().get( sKey::ZDomain, zdomainkey_ ) )
+	{
+	    //Legacy. Can be removed in od4
+	    ioobj->pars().get( "Depth Domain", zdomainkey_ );
+	}
+    }
 }
 
 
@@ -172,7 +177,7 @@ void SelSpec::fillPar( IOPar& par ) const
     par.setYN( sKeyIsNLA(), isnla_ );
     par.set( sKeyObjRef(), objref_ );
     par.set( sKeyDefStr(), defstring_ );
-    par.set( sKeyDepthDomainStr(), depthdomainkey_ );
+    par.set( sKey::ZDomain, zdomainkey_ );
     par.setYN( sKeyIs2D(), is2d_ );
 }
 
@@ -185,7 +190,8 @@ bool SelSpec::usePar( const IOPar& par )
     				par.getYN( isnnstr, isnla_ );
     objref_ = "";		par.get( sKeyObjRef(), objref_ );
     defstring_ = "";		par.get( sKeyDefStr(), defstring_ );
-    depthdomainkey_ = "";	par.get( sKeyDepthDomainStr(), depthdomainkey_);
+    zdomainkey_ = "";		if ( !par.get( sKey::ZDomain, zdomainkey_ ) )
+				    par.get( "Depth Domain", zdomainkey_);
     is2d_ = false;		par.getYN( sKeyIs2D(), is2d_ );
     		
     return true;
@@ -244,8 +250,9 @@ void SelInfo::fillStored( const char* filter )
 	const bool is2d = SeisTrcTranslator::is2D(ioobj);
 	const bool isvalid3d = !is2d && (!strcmp(ioobj.translator(),"CBVS")
 			    || !strcmp(ioobj.translator(),"PS Cube"));
-	const bool isdepth = ioobj.pars().find(sKey::DepthDomain);
-	if ( isdepth || (is2d && !is2d_) || (!is2d && !isvalid3d) )
+	const bool isdepth = ioobj.pars().find("Depth Domain");//Legacy
+	const bool isz = ioobj.pars().find(sKey::ZDomain);
+	if ( isdepth || isz || (is2d && !is2d_) || (!is2d && !isvalid3d) )
 	    continue;
 
 	const char* res = ioobj.pars().find( sKey::Type );
@@ -316,7 +323,7 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms )
 }
 
 
-void SelInfo::getSpecialItems( const char* depthdomainkey,
+void SelInfo::getSpecialItems( const char* zdomainkey,
 			       BufferStringSet& nms )
 {
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
@@ -325,9 +332,15 @@ void SelInfo::getSpecialItems( const char* depthdomainkey,
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj& ioobj = *ioobjs[idx];
-	const char* res = ioobj.pars().find( sKey::DepthDomain );
-	if ( res && !strcmp(res,depthdomainkey) )
+	const char* zres = ioobj.pars().find( sKey::ZDomain );
+	if ( zres && !strcmp(zres,zdomainkey) )
 	    nms.add( ioobj.name() );
+	else //Legacy
+	{
+	    const char* dres = ioobj.pars().find( "Depth Domain" );
+	    if ( dres && !strcmp(dres,zdomainkey) )
+		nms.add( ioobj.name() );
+	}
     }
 
     nms.sort();

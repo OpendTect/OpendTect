@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.24 2007-10-22 10:27:24 cvsnanne Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.25 2008-01-31 19:06:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,8 +55,8 @@ uiAttrSelDlg::uiAttrSelDlg( uiParent* p, const char* seltxt,
 	, attr2dfld_(0)
 	, nlafld_(0)
 	, nlaoutfld_(0)
-    	, depthdomainfld_(0)
-	, depthdomoutfld_(0)
+    	, zdomainfld_(0)
+	, zdomoutfld_(0)
 	, in_action_(false)
 {
     attrinf_ = new SelInfo( atd.attrset, atd.nlamodel, is2d, ignoreid );
@@ -167,10 +167,10 @@ void uiAttrSelDlg::createSelectionButtons()
 	nlafld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
     }
 
-    if ( !attrdata_.depthdomainkey.isEmpty() )
+    if ( !attrdata_.zdomainkey.isEmpty() )
     {
-	depthdomainfld_ = new uiRadioButton( selgrp_, attrdata_.depthdomainkey);
-	depthdomainfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
+	zdomainfld_ = new uiRadioButton( selgrp_, attrdata_.zdomainkey);
+	zdomainfld_->activated.notify( mCB(this,uiAttrSelDlg,selDone) );
     }
 }
 
@@ -211,14 +211,14 @@ void uiAttrSelDlg::createSelectionFields()
 	nlaoutfld_->attach( rightOf, selgrp_ );
     }
 
-    if ( !attrdata_.depthdomainkey.isEmpty() )
+    if ( !attrdata_.zdomainkey.isEmpty() )
     {
 	BufferStringSet nms;
-	SelInfo::getSpecialItems( attrdata_.depthdomainkey, nms );
-	depthdomoutfld_ = new uiListBox( this, nms );
-	depthdomoutfld_->setHSzPol( uiObject::Wide );
-	depthdomoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
-	depthdomoutfld_->attach( rightOf, selgrp_ );
+	SelInfo::getSpecialItems( attrdata_.zdomainkey, nms );
+	zdomoutfld_ = new uiListBox( this, nms );
+	zdomoutfld_->setHSzPol( uiObject::Wide );
+	zdomoutfld_->doubleClicked.notify( mCB(this,uiAttrSelDlg,accept) );
+	zdomoutfld_->attach( rightOf, selgrp_ );
     }
 
 }
@@ -230,7 +230,7 @@ int uiAttrSelDlg::selType() const
 	return 1;
     if ( nlafld_ && nlafld_->isChecked() )
 	return 2;
-    if ( depthdomainfld_ && depthdomainfld_->isChecked() )
+    if ( zdomainfld_ && zdomainfld_->isChecked() )
 	return 3;
     return 0;
 }
@@ -253,7 +253,7 @@ void uiAttrSelDlg::selDone( CallBacker* c )
     const int seltyp = selType();
     if ( attroutfld_ ) attroutfld_->display( seltyp == 1 );
     if ( nlaoutfld_ ) nlaoutfld_->display( seltyp == 2 );
-    if ( depthdomoutfld_ ) depthdomoutfld_->display( seltyp == 3 );
+    if ( zdomoutfld_ ) zdomoutfld_->display( seltyp == 3 );
     if ( storoutfld_ )
     {
 	storoutfld_->display( seltyp == 0 );
@@ -310,14 +310,14 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 {
     attrdata_.attribid = DescID::undef();
     attrdata_.outputnr = -1;
-    depthdomainkey_ = "";
+    zdomainkey_ = "";
     if ( !selgrp_ || !in_action_ ) return true;
 
     int selidx = -1;
     const int seltyp = selType();
     if ( seltyp==1 )		selidx = attroutfld_->currentItem();
     else if ( seltyp==2 )	selidx = nlaoutfld_->currentItem();
-    else if ( seltyp==3 )	selidx = depthdomoutfld_->currentItem();
+    else if ( seltyp==3 )	selidx = zdomoutfld_->currentItem();
     else			selidx = storoutfld_->currentItem();
     if ( selidx < 0 )
 	return false;
@@ -329,7 +329,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     else if ( seltyp == 3 )
     {
 	BufferStringSet nms;
-	SelInfo::getSpecialItems( attrdata_.depthdomainkey, nms );
+	SelInfo::getSpecialItems( attrdata_.zdomainkey, nms );
 	IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id));
 	PtrMan<IOObj> ioobj = IOM().getLocal( nms.get(selidx) );
 	if ( !ioobj ) return false;
@@ -337,7 +337,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
 	LineKey linekey( ioobj->key() );
 	DescSet& as = const_cast<DescSet&>( *attrdata_.attrset );
 	attrdata_.attribid = as.getStoredID( linekey, 0, true );
-	depthdomainkey_ = attrdata_.depthdomainkey;
+	zdomainkey_ = attrdata_.zdomainkey;
     }
     else
     {

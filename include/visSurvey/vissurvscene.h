@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.46 2007-09-07 18:28:31 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.47 2008-01-31 19:06:38 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -111,10 +111,10 @@ public:
 
     bool			isRightHandSystem() const;
 
-    void			setDepthDomainKey( const char* key )
-				    { depthdomainkey_ = key; }
-    const char*			getDepthDomainKey() const
-				    { return depthdomainkey_; }
+    void			setZDomainKey( const char* key )
+				    { zdomainkey_ = key; }
+    const char*			getZDomainKey() const
+				    { return zdomainkey_; }
 
     void			setMarkerPos( const Coord3& );
     void			setMarkerSize( float );
@@ -150,7 +150,7 @@ protected:
     BufferString		mouseposval_;
     BufferString		mouseposstr_;
     float			curzscale_;
-    BufferString		depthdomainkey_;
+    BufferString		zdomainkey_;
     bool			allowshading_;
 
     static const char*		sKeyShowAnnot();

@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.179 2007-09-27 09:13:32 cvsbert Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.180 2008-01-31 19:06:39 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -683,9 +683,9 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
 	res.zrg.step = SI().zRange(true).step;
 
-	const char* depthdomain = attrib>=0 && attrib<nrAttribs() 
-				    ? getSelSpec(attrib)->depthDomainKey() : 0;
-	const bool alreadytransformed = depthdomain && *depthdomain;
+	const char* zdomain = attrib>=0 && attrib<nrAttribs() 
+				    ? getSelSpec(attrib)->zDomainKey() : 0;
+	const bool alreadytransformed = zdomain && *zdomain;
 	if ( alreadytransformed ) return res;
 
 	if ( datatransform_ && !displayspace )
@@ -769,8 +769,8 @@ void PlaneDataDisplay::setData( int attrib, const Attrib::DataCubes* datacubes )
 	dim1 = Attrib::DataCubes::cInlDim();
     }
 
-    const char* depthdomain = getSelSpec(attrib)->depthDomainKey();
-    const bool alreadytransformed = depthdomain && *depthdomain;
+    const char* zdomain = getSelSpec(attrib)->zDomainKey();
+    const bool alreadytransformed = zdomain && *zdomain;
 
     const int nrcubes = datacubes->nrCubes();
     texture_->setNrVersions( attrib, nrcubes );

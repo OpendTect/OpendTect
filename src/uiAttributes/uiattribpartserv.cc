@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.81 2007-12-14 05:15:23 cvssatyaki Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.82 2008-01-31 19:06:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -238,7 +238,7 @@ const NLAModel* uiAttribPartServer::getNLAModel( bool is2d ) const
 }
 
 
-bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* depthkey,
+bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* zkey,
        				       bool is2d )
 {
     DescSetMan* adsman = getAdsMan( is2d );
@@ -246,7 +246,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* depthkey,
     attrdata.attribid = selspec.isNLA() ? SelSpec::cNoAttrib() : selspec.id();
     attrdata.outputnr = selspec.isNLA() ? selspec.id().asInt() : -1;
     attrdata.nlamodel = getNLAModel(is2d);
-    attrdata.depthdomainkey = depthkey;
+    attrdata.zdomainkey = zkey;
     uiAttrSelDlg dlg( parent(), "View Data", attrdata, false );
     if ( !dlg.go() )
 	return false;
@@ -262,7 +262,7 @@ bool uiAttribPartServer::selectAttrib( SelSpec& selspec, const char* depthkey,
 	selspec.setRefFromID( *attrdata.nlamodel );
     else if ( !isnla )
 	selspec.setRefFromID( *adsman->descSet() );
-    selspec.setDepthDomainKey( dlg.depthDomainKey() );
+    selspec.setZDomainKey( dlg.zDomainKey() );
 
     return true;
 }
@@ -871,18 +871,18 @@ MenuItem* uiAttribPartServer::nlaAttribMenuItem( const SelSpec& as, bool is2d,
 
 
 // TODO: create more general function, for now it does what we need
-MenuItem* uiAttribPartServer::depthdomainAttribMenuItem( const SelSpec& as,
+MenuItem* uiAttribPartServer::zDomainAttribMenuItem( const SelSpec& as,
 							 const char* key,
 							 bool is2d, bool useext)
 {
-    MenuItem* depthdomainmnuitem = is2d ? &depthdomain2dmnuitem_ 
-					: &depthdomain3dmnuitem_;
+    MenuItem* zdomainmnuitem = is2d ? &zdomain2dmnuitem_ 
+				    : &zdomain3dmnuitem_;
     BufferString itmtxt = key;
     itmtxt += useext ? ( is2d ? " Cubes" : " 2D Lines") : " Data";
-    depthdomainmnuitem->text = itmtxt;
-    depthdomainmnuitem->removeItems();
-    depthdomainmnuitem->checkable = true;
-    depthdomainmnuitem->checked = false;
+    zdomainmnuitem->text = itmtxt;
+    zdomainmnuitem->removeItems();
+    zdomainmnuitem->checkable = true;
+    zdomainmnuitem->checked = false;
 
     BufferStringSet ioobjnms;
     SelInfo::getSpecialItems( key, ioobjnms );
@@ -891,12 +891,12 @@ MenuItem* uiAttribPartServer::depthdomainAttribMenuItem( const SelSpec& as,
 	const BufferString& nm = ioobjnms.get( idx );
 	MenuItem* itm = new MenuItem( nm );
 	const bool docheck = nm == as.userRef();
-	mAddManagedMenuItem( depthdomainmnuitem, itm, true, docheck );
-	if ( docheck ) depthdomainmnuitem->checked = true;
+	mAddManagedMenuItem( zdomainmnuitem, itm, true, docheck );
+	if ( docheck ) zdomainmnuitem->checked = true;
     }
 
-    depthdomainmnuitem->enabled = depthdomainmnuitem->nrItems();
-    return depthdomainmnuitem;
+    zdomainmnuitem->enabled = zdomainmnuitem->nrItems();
+    return zdomainmnuitem;
 }
 
 
@@ -906,7 +906,7 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
     bool is2d = stored2dmnuitem_.findItem(mnuid) ||
 		calc2dmnuitem_.findItem(mnuid) ||
 		nla2dmnuitem_.findItem(mnuid) ||
-		depthdomain2dmnuitem_.findItem(mnuid);
+		zdomain2dmnuitem_.findItem(mnuid);
 
     DescSetMan* adsman = getAdsMan( is2d );
     uiAttrSelData attrdata( adsman->descSet() );
@@ -914,8 +914,8 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
     SelInfo attrinf( attrdata.attrset, attrdata.nlamodel, is2d );
     const MenuItem* calcmnuitem = is2d ? &calc2dmnuitem_ : &calc3dmnuitem_;
     const MenuItem* nlamnuitem = is2d ? &nla2dmnuitem_ : &nla3dmnuitem_;
-    const MenuItem* depthdomainmnuitem = is2d ? &depthdomain2dmnuitem_
-					      : &depthdomain3dmnuitem_;
+    const MenuItem* zdomainmnuitem = is2d ? &zdomain2dmnuitem_
+					      : &zdomain3dmnuitem_;
 
     DescID attribid = SelSpec::cAttribNotSel();
     int outputnr = -1;
@@ -962,9 +962,9 @@ bool uiAttribPartServer::handleAttribSubMenu( int mnuid, SelSpec& as ) const
 	outputnr = nlamnuitem->itemIndex(nlamnuitem->findItem(mnuid));
 	isnla = true;
     }
-    else if ( depthdomainmnuitem->findItem(mnuid) )
+    else if ( zdomainmnuitem->findItem(mnuid) )
     {
-	const MenuItem* item = depthdomainmnuitem->findItem( mnuid );
+	const MenuItem* item = zdomainmnuitem->findItem( mnuid );
 	IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id));
 	PtrMan<IOObj> ioobj = IOM().getLocal( item->text );
 	if ( ioobj )

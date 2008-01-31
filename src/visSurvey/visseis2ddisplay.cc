@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.29 2008-01-29 16:46:09 cvsyuancheng Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.30 2008-01-31 19:06:39 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -323,8 +323,8 @@ void Seis2DDisplay::setData( int attrib,
 
 	PtrMan<Array2D<float> > tmparr = 0;
 	Array2D<float>* usedarr = 0;
-	const char* depthdomain = getSelSpec(attrib)->depthDomainKey();
-	const bool alreadytransformed = depthdomain && *depthdomain;
+	const char* zdomain = getSelSpec(attrib)->zDomainKey();
+	const bool alreadytransformed = zdomain && *zdomain;
 	if ( alreadytransformed || !datatransform_ )
 	    usedarr = arr;
 	else

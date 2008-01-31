@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Sep 2001
- RCS:           $Id: attribsel.h,v 1.15 2007-11-15 13:26:47 cvshelene Exp $
+ RCS:           $Id: attribsel.h,v 1.16 2008-01-31 19:06:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ public:
     const char*		userRef() const		{ return ref_; }
     const char*		objectRef() const	{ return objref_; }
     const char*		defString() const	{ return defstring_; }
-    const char*		depthDomainKey() const	{ return depthdomainkey_; }
+    const char*		zDomainKey() const	{ return zdomainkey_; }
 
     bool		operator==(const SelSpec&) const;
     bool		operator!=(const SelSpec&) const;
@@ -65,14 +65,14 @@ public:
 			    { objref_ = objr; }
     void		setDefString( const char* def )
 			    { defstring_ = def;}
-    void		setDepthDomainKey( const char* key )
-			    { depthdomainkey_ = key; }
+    void		setZDomainKey( const char* key )
+			    { zdomainkey_ = key; }
     void		setDepthDomainKey(const Desc&);
 
     void		set( const char* r, DescID i, bool isnla, 
 	    		     const char* objr )
 			{ ref_ = r; id_ = i; isnla_ = isnla; objref_ = objr;
-		          defstring_ = ""; depthdomainkey_ = ""; }
+		          defstring_ = ""; zdomainkey_ = ""; }
 
     void		setIDFromRef(const NLAModel&);
     void		setIDFromRef(const DescSet&);
@@ -96,7 +96,7 @@ protected:
     BufferString	ref_;
     BufferString	objref_;
     BufferString	defstring_;
-    BufferString	depthdomainkey_;
+    BufferString	zdomainkey_;
     DescID		id_;
     bool		isnla_;
     StepInterval<int>	discrspec_;
@@ -107,7 +107,6 @@ protected:
     static const char*	sKeyID();
     static const char*	sKeyIsNLA();
     static const char*	sKeyDefStr();
-    static const char*	sKeyDepthDomainStr();
     static const char*	sKeyIs2D();
 
     void		setDiscr(const DescSet&);
