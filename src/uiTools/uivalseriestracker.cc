@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uivalseriestracker.cc,v 1.1 2007-06-25 19:30:09 cvskris Exp $
+ RCS:           $Id: uivalseriestracker.cc,v 1.2 2008-01-31 22:05:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,14 +19,20 @@ ________________________________________________________________________
 
 #define mErrRet(s) { uiMSG().error( s ); return false; }
 
-uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker )
+uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker,
+       				bool hideeventtype )
     : uiDlgGroup( p , "Event tracker")
     , tracker_( tracker )
 {
-    evfld_ = new uiGenInput( this, "Event type",
-	    		    StringListInpSpec(EventTracker::sEventNames()) );
-    evfld_->setValue( EventTracker::getEventTypeIdx( tracker_.trackEvent() ) );
-    evfld_->valuechanged.notify( mCB(this,uiEventTracker,selEventType) );
+    if ( hideeventtype )
+	evfld_ = 0;
+    else
+    {
+	evfld_ = new uiGenInput( this, "Event type",
+				StringListInpSpec(EventTracker::sEventNames()) );
+	evfld_->setValue( EventTracker::getEventTypeIdx( tracker_.trackEvent() ) );
+	evfld_->valuechanged.notify( mCB(this,uiEventTracker,selEventType) );
+    }
 
     BufferString srchwindtxt( "Search window " );
     srchwindtxt += SI().getZUnit();
@@ -36,7 +42,7 @@ uiEventTracker::uiEventTracker( uiParent* p, EventTracker& tracker )
 	    mNINT(tracker_.permittedZRange().start * SI().zFactor()),
 	    mNINT(tracker_.permittedZRange().stop * SI().zFactor()) );
     srchgatefld_->setValue( srchintv );
-    srchgatefld_->attach( alignedBelow, evfld_ );
+    if ( evfld_ ) srchgatefld_->attach( alignedBelow, evfld_ );
 
     thresholdtypefld_ = new uiGenInput( this, "Threshold type",
 		BoolInpSpec(true,"Cut-off amplitude","Relative difference") );
@@ -107,7 +113,10 @@ void uiEventTracker::selAmpThresholdType( CallBacker* )
 
 void uiEventTracker::selEventType( CallBacker* )
 {
-    const VSEvent::Type ev = EventTracker::cEventTypes()[evfld_->getIntValue()];
+    const VSEvent::Type ev = evfld_
+	? EventTracker::cEventTypes()[evfld_->getIntValue()]
+	: tracker_.trackEvent();
+
     const bool thresholdneeded = ev==VSEvent::Min || ev==VSEvent::Max;
     thresholdtypefld_->setSensitive( thresholdneeded );
     ampthresholdfld_->setSensitive( thresholdneeded );
@@ -116,8 +125,11 @@ void uiEventTracker::selEventType( CallBacker* )
 
 bool uiEventTracker::acceptOK()
 {
-    VSEvent::Type evtyp = EventTracker::cEventTypes()[evfld_->getIntValue()];
-    tracker_.setTrackEvent( evtyp );
+    if ( evfld_ )
+    {
+	VSEvent::Type evtyp= EventTracker::cEventTypes()[evfld_->getIntValue()];
+	tracker_.setTrackEvent( evtyp );
+    }
 
     const Interval<int> intv = srchgatefld_->getIInterval();
     if ( intv.start>0 || intv.stop<0 || intv.start==intv.stop )
