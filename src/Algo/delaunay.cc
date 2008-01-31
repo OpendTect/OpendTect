@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.2 2008-01-31 21:18:24 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.3 2008-01-31 21:33:49 cvsyuancheng Exp $";
 
 #include "delaunay.h"
 #include "sorting.h"
@@ -41,7 +41,7 @@ int DelaunayTriangulation::triangulate()
 
     createPermutation();
 
-    if ( totalsz_ < 4 )
+    if ( totalsz_ < 3 )
 	return 0;
 
     if ( !ensureDistinctness() )

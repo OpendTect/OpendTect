@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.3 2008-01-31 21:18:24 cvsyuancheng Exp $
+ RCS:           $Id: delaunay.h,v 1.4 2008-01-31 21:33:49 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,8 +34,8 @@ public:
 
     int			triangulate();
     			/*!<Return 1 if success;
-			     0 if there are less than 4 points;
-			    -1 if all the points are on the same line;
+			     0 if there are less than 3 points;
+			    -1 if all the points(>2) are on the same line;
 			    -2	fail for some other reasons.	 */
 
     const TypeSet<int>&	getCoordIndices() const	{ return result_; }
@@ -152,6 +152,7 @@ inline bool sameSide2D( Coord p1, Coord p2, Coord a, Coord b )
 
 
 inline bool sameSide3D( Coord3 p1, Coord3 p2, Coord3 a, Coord3 b )
+    /*!< Check p1, p2 are on the same side of the edge AB or not.*/
 {
     Coord3 cp1 = (b-a).cross(p1-a);
     Coord3 cp2 = (b-a).cross(p2-a);
@@ -160,6 +161,7 @@ inline bool sameSide3D( Coord3 p1, Coord3 p2, Coord3 a, Coord3 b )
 
 
 inline bool pointInTriangle2D( Coord p, Coord a, Coord b, Coord c )
+    /*!< Check the point p is in the triangle ABC or not.*/
 {
     if ( sameSide2D(p,a,b,c) && sameSide2D(p,b,a,c) && sameSide2D(p,c,a,b) )
 	return true;
@@ -169,6 +171,7 @@ inline bool pointInTriangle2D( Coord p, Coord a, Coord b, Coord c )
 
 
 inline bool pointInTriangle3D( Coord3 p, Coord3 a, Coord3 b, Coord3 c )
+    /*!< Check the point p is in the triangle ABC or not.*/
 {
     if ( sameSide3D(p,a,b,c) && sameSide3D(p,b,a,c) && sameSide3D(p,c,a,b) )
 	return true;
