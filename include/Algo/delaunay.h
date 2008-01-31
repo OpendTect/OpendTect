@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.2 2008-01-16 22:06:26 cvskris Exp $
+ RCS:           $Id: delaunay.h,v 1.3 2008-01-31 21:18:24 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,9 +16,7 @@ ________________________________________________________________________
 #include "task.h"
 #include "position.h"
 
-namespace Geometry
-{
-
+class Coord2List;
 /*! Constructs a Delaunay triangulation of a set of 2D vertices.
     References: 
     1: "Voronoi diagrams - a study of a fundamental geometric data structure"
@@ -31,10 +29,14 @@ class DelaunayTriangulation
 {
 
 public:
-    			DelaunayTriangulation(const TypeSet<Coord>& coords);
+    			DelaunayTriangulation(const Coord2List&);
 			~DelaunayTriangulation();
 
-    bool		triangulate();
+    int			triangulate();
+    			/*!<Return 1 if success;
+			     0 if there are less than 4 points;
+			    -1 if all the points are on the same line;
+			    -2	fail for some other reasons.	 */
 
     const TypeSet<int>&	getCoordIndices() const	{ return result_; }
     			/*!<Coord indices are sorted in threes, i.e
@@ -53,7 +55,7 @@ public:
 
 protected:
     
-    bool		createPermutation();
+    void		createPermutation();
     bool		ensureDistinctness();
     int			findHealthyTriangle(int cn0,int cn1,int cn,int& lr);
     			/*<Start from point cn, search next point index which
@@ -61,7 +63,7 @@ protected:
 
     bool		createInitialTriangles(int pid,int lr);
     bool		insertTriangle(int idx,int& ledg,int& ltri);
-    
+   
     void		visibleEdge(int pid,int& lt,int& le,int& rt,int& re);
     void		findRightMostEdge(int& rtri,int& redg,int pid);
     void		findLeftMostEdge(int& ltri,int& ledg,int pid);
@@ -83,7 +85,8 @@ protected:
     TypeSet<int>	neighbours_;
     TypeSet<int>	permutation_;
     TypeSet<int>	stack_;
-    const TypeSet<Coord>& coordlist_;
+    const Coord2List&	coordlist_;
+    int			totalsz_;
 };
 
 
@@ -139,6 +142,39 @@ protected:
     TypeSet<int>		permutation_;
 };
 
-};
+
+inline bool sameSide2D( Coord p1, Coord p2, Coord a, Coord b )
+    /*!< Check p1, p2 are on the same side of the edge AB or not.*/
+{
+    Coord v1 = p1-a, v2 = p2-a, vb = b-a;
+    return (v1.x*vb.y-v1.y*vb.x)*(v2.x*vb.y-v2.y*vb.x)>=0 ? true : false;
+}
+
+
+inline bool sameSide3D( Coord3 p1, Coord3 p2, Coord3 a, Coord3 b )
+{
+    Coord3 cp1 = (b-a).cross(p1-a);
+    Coord3 cp2 = (b-a).cross(p2-a);
+    return cp1.dot(cp2)>=0 ? true : false;
+}
+
+
+inline bool pointInTriangle2D( Coord p, Coord a, Coord b, Coord c )
+{
+    if ( sameSide2D(p,a,b,c) && sameSide2D(p,b,a,c) && sameSide2D(p,c,a,b) )
+	return true;
+    else
+	return false;
+}
+
+
+inline bool pointInTriangle3D( Coord3 p, Coord3 a, Coord3 b, Coord3 c )
+{
+    if ( sameSide3D(p,a,b,c) && sameSide3D(p,b,a,c) && sameSide3D(p,c,a,b) )
+	return true;
+    else
+	return false;
+}
+
 #endif
 

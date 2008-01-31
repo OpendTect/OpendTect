@@ -4,58 +4,66 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.1 2008-01-16 19:32:23 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.2 2008-01-31 21:18:24 cvsyuancheng Exp $";
 
 #include "delaunay.h"
 #include "sorting.h"
-
+#include "positionlist.h"
 
 #define mTolerance 0.0000001
 
 
-namespace Geometry
-{
-
-
-DelaunayTriangulation::DelaunayTriangulation( const TypeSet<Coord>& coords )
+DelaunayTriangulation::DelaunayTriangulation( const Coord2List& coords )
     : coordlist_( coords )
-{}
+    , totalsz_( 0 )  
+{
+    int sz = 0;
+    int previd = -1;
+    while ( coordlist_.nextID(previd)!= -1 )
+    {
+	sz++;
+	previd = coordlist_.nextID(previd);
+    }
+    
+    totalsz_ = sz;
+}
 
 
 DelaunayTriangulation::~DelaunayTriangulation()
 {}
 
 
-bool DelaunayTriangulation::triangulate()
+int DelaunayTriangulation::triangulate()
 {
-    int sz = coordlist_.size();
     stack_.erase();
     result_.erase();
-    neighbours_.setSize( 6*sz-6, 0 );
+    neighbours_.setSize( 6*totalsz_-6, 0 );
 
-    if ( !createPermutation() )
-	return false;
+    createPermutation();
+
+    if ( totalsz_ < 4 )
+	return 0;
 
     if ( !ensureDistinctness() )
-	return false;
+	return -2;
 
     int lr;
     const int firsttriidx = findHealthyTriangle( 0, 1, 2, lr );
-    if ( firsttriidx < 2 || lr == 0 )
-	return false;
+    if ( lr == 0 )
+	return -1;
 
     if ( !createInitialTriangles( firsttriidx, lr ) )
-	return false;
+	return -2;
 
     int ledg = 2;
     int ltri = lr == -1 ? result_.size()/3 - 1 : 0;
-    for ( int idx=firsttriidx+1; idx<coordlist_.size(); idx++ )
+    for ( int idx=firsttriidx+1; idx<totalsz_; idx++ )
     {
 	if ( !insertTriangle( idx, ledg, ltri ) )
-	    return false;
+	    return -2;
     }
-    
-    return true;
+  
+    return 1;
 }
 
 
@@ -104,7 +112,7 @@ bool DelaunayTriangulation::insertTriangle( int i0, int& ledg, int& ltri )
 	
 	stack_ += result_.size()/3;
 
-	if ( coordlist_.size() < stack_.size() )
+	if ( permutation_.size() < stack_.size() )
 	    return false;
 
     	if ( tri == rtri && edg == redg )
@@ -209,7 +217,7 @@ int DelaunayTriangulation::swapEdge( int pid, int& ltri, int& ledg )
 		   neighbours_[3*(s-1)+2] = tri+1;
 	       
 	       stack_ += tri+1;
-	       if ( coordlist_.size() < stack_.size() )
+	       if ( permutation_.size() < stack_.size() )
 		   return 8;
 	   }
 	   else
@@ -407,35 +415,38 @@ bool DelaunayTriangulation::createInitialTriangles( int firstidx, int lr )
 }
 
 
-bool DelaunayTriangulation::createPermutation()
+void DelaunayTriangulation::createPermutation()
 {
-    const int nrcoords = coordlist_.size();
-
     permutation_.erase();
-
-    for ( int idx=0; idx<coordlist_.size(); idx++ )
+    for ( int idx=0; idx<totalsz_; idx++ )
 	permutation_ += idx;
 
-    TypeSet<Coord> coordcopy( coordlist_ );
+    TypeSet<Coord> coordcopy;
+    int previd = -1;
+    while ( coordlist_.nextID(previd)!= -1 )
+    {
+	int nextid = coordlist_.nextID(previd);
+	if ( nextid != -1 )
+    	    coordcopy += coordlist_.get( nextid );
+
+	previd = nextid;
+    }
 
     sort_coupled( coordcopy.arr(), permutation_.arr(), permutation_.size() );
-    
-    return true;
 }
 
 
 bool DelaunayTriangulation::ensureDistinctness() 
 {
-    const int nrcoords = coordlist_.size();
     int p0 = permutation_[0];
-    for ( int idx = 1; idx < nrcoords; idx++ )
+    for ( int idx = 1; idx < totalsz_; idx++ )
     {
 	int p1 = p0;
 	p0 = permutation_[idx];
 	
 	int id = -1;
-	const Coord c1 = coordlist_[p1];
-	const Coord c0 = coordlist_[p0];
+	const Coord c1 = coordlist_.get( p1 );
+	const Coord c0 = coordlist_.get( p0 );
 	
 	for ( int idy = 0; idy <= 1; idy++ )
 	{
@@ -478,8 +489,8 @@ int DelaunayTriangulation::findHealthyTriangle(int i0, int i1, int id, int& lr)
 
 int DelaunayTriangulation::getSideOfLine( int pi0, int pi1, int pid )
 {
-    const Coord v01 = coordlist_[pi1] - coordlist_[pi0];
-    const Coord vt = coordlist_[pid] - coordlist_[pi0];
+    const Coord v01 = coordlist_.get( pi1 ) - coordlist_.get( pi0 );
+    const Coord vt = coordlist_.get( pid ) - coordlist_.get( pi0 );
 
     double tolabs = fabs(v01.x) > fabs(v01.y) ? fabs(v01.x) : fabs(v01.y);
     tolabs = tolabs > fabs(vt.x) ? tolabs : fabs(vt.x);
@@ -501,10 +512,10 @@ int DelaunayTriangulation::getSideOfLine( int pi0, int pi1, int pid )
 
 int DelaunayTriangulation::selectDiagonal(int c0, int c1, int c2, int c3) const
 {
-  Coord d10 = coordlist_[c1] - coordlist_[c0];
-  Coord d12 = coordlist_[c1] - coordlist_[c2];
-  Coord d30 = coordlist_[c3] - coordlist_[c0];
-  Coord d32 = coordlist_[c3] - coordlist_[c2];
+  Coord d10 = coordlist_.get( c1 ) - coordlist_.get( c0 );
+  Coord d12 = coordlist_.get( c1 ) - coordlist_.get( c2 );
+  Coord d30 = coordlist_.get( c3 ) - coordlist_.get( c0 );
+  Coord d32 = coordlist_.get( c3 ) - coordlist_.get( c2 );
   
   double maxxy301 = fabs(d30.x) > fabs(d30.y) ? fabs(d30.x) : fabs(d30.y);
   maxxy301 = maxxy301 > fabs(d10.y) ? maxxy301 : fabs(d10.y);
@@ -563,4 +574,3 @@ double DelaunayTriangulation::mEpsilon() const
 }
 
 
-}; //namespace

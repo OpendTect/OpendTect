@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.53 2007-11-20 18:24:37 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.54 2008-01-31 21:20:00 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
@@ -326,7 +326,10 @@ void ArrayNDFileStor<T>::close()
 #define mImplSetStorage( _getsize ) \
 { \
     if ( !s->setSize(_getsize) ) \
+    { \
+	delete s; \
 	return false; \
+    } \
     delete stor_; stor_=s;  \
     return true; \
 }
