@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.2 2008-01-31 06:33:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.3 2008-01-31 07:46:41 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -258,8 +258,7 @@ Coord DataPointSet::coord( DataPointSet::RowID rid ) const
 float DataPointSet::z( DataPointSet::RowID rid ) const
 {
     mChkRowID(rid,mUdf(float));
-    Pos p( pos(rid) );
-    return p.z();
+    return bivSet().getVal( bvsidxs_[rid], 0 );
 }
 
 
