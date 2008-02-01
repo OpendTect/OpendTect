@@ -7,26 +7,27 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.33 2007-12-07 08:11:22 cvssatyaki Exp $
+ RCS:           $Id: uitable.h,v 1.34 2008-02-01 05:44:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "uiobj.h"
+
 #include "color.h"
 #include "rowcol.h"
-#include "uigroup.h"
+#include "keyenum.h"
 
-class uiLabel;
-class ioPixmap;
-class uiTableBody;
-class UserInputObj;
-class MouseEvent;
 class BufferStringSet;
+class ioPixmap;
+class uiLabel;
+class uiTableBody;
 
 
 class uiTable : public uiObject
 {
 friend class		i_tableMessenger;
+friend class		uiTableBody;
 public:
 
     typedef Geom::Size2D<int>	Size;
@@ -36,8 +37,17 @@ public:
 	NoSelection,	//!< No cell can be selected by the user.
 	Single,		//!< a single range of cells.
 	Multi,		//!< multiple ranges of cells.
-	SingleRow,	//!< one row at once.
-	MultiRow,	//!< multiple rows.
+	SingleRow
+    };
+
+    enum SelectionBehavior
+    {
+	SelectItems, SelectRows, SelectColumns
+    };
+
+    enum ResizeMode
+    {
+	Interactive, Fixed, Stretch, ResizeToContents
     };
 
     class Setup
@@ -211,6 +221,7 @@ public:
     void		setValue(const RowCol&,double);
 
     void		setSelectionMode(SelectionMode);
+    void		setSelectionBehavior(SelectionBehavior);
     void		editCell(const RowCol&,bool replace=false);
 
 protected:
@@ -220,9 +231,8 @@ protected:
 
     mutable Setup	setup_;
 
-    CNotifier<uiTable,const MouseEvent&>	clicked;
-    void		clicked_(CallBacker*);
-    void		rightClk();
+    void		popupMenu(CallBacker*);
+    OD::ButtonState	buttonstate_;
 
     void		geometrySet_(CallBacker*);
     void		updateCellSizes(const uiSize* sz=0);
