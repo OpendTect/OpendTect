@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.33 2008-01-18 16:26:13 cvsjaap Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.34 2008-02-01 10:59:19 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -69,25 +69,24 @@ public:
 				    shoule be added above or below eventual
 				    existing siblings.
 				    \note child becomes mine regardless of
-				    	  return value.
-				*/
+				    	  return value.  */
     virtual void		removeChild( uiTreeItem* );
     virtual const uiTreeItem*	findChild( const char* name ) const;
     				/*!<Finds a child in the tree below
-				    this item.
-				*/
+				    this item.  */
     virtual const uiTreeItem*	findChild( int selkey ) const;
     				/*!<Finds a child in the tree below
-				    this item.
-				*/
+				    this item.  */
     virtual uiTreeItem*		findChild( const char* name );
     				/*!<Finds a child in the tree below
-				    this item.
-				*/
+				    this item.  */
     virtual uiTreeItem*		findChild( int selkey );
     				/*!<Finds a child in the tree below
-				    this item.
-				*/
+				    this item.  */
+    virtual void		findChildren(const char*,
+	    				     ObjectSet<uiTreeItem>&);
+    				/*!<Finds all children in the tree below this
+				    item. */
 
     template<class T> inline void setProperty(const char* key, const T&);
     				/*!<Sets a keyed value that has been retrieved
