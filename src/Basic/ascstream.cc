@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.22 2008-01-09 13:54:34 cvsbert Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.23 2008-02-01 18:42:37 cvskris Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
@@ -159,9 +159,13 @@ void ascistream::init( std::istream* strm, bool rdhead )
 	    return;
 
 	removeTrailingBlanks(filetype.buf());
-	char* ptr = filetype.buf() + strlen(filetype) - 4;
-	if ( caseInsensitiveEqual(ptr,"file",0) ) *ptr = '\0';
-	removeTrailingBlanks(filetype.buf());
+	if ( filetype.size()>=4 )
+	{
+	    char* ptr = filetype.buf() + strlen(filetype) - 4;
+	    if ( caseInsensitiveEqual(ptr,"file",0) ) *ptr = '\0';
+	    removeTrailingBlanks(filetype.buf());
+	}
+
 
 	next();
     }
