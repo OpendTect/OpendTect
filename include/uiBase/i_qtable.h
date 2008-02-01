@@ -1,5 +1,5 @@
-#ifndef i_q4table_h
-#define i_q4table_h
+#ifndef i_qtable_h
+#define i_qtable_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: i_qtable.h,v 1.1 2008-02-01 05:02:56 cvsnanne Exp $
+ RCS:		$Id: i_qtable.h,v 1.2 2008-02-01 05:22:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
