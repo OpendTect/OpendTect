@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.18 2008-01-29 16:46:09 cvsyuancheng Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.19 2008-02-01 23:17:06 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -97,6 +97,7 @@ public:
     const MultiID&		lineSetID() const;
 
     Coord			getCoord(int trcnr) const;
+    Coord			getNormal(int trcnr) const;
 
     bool			setDataTransform(ZAxisTransform*);
     const ZAxisTransform*	getDataTransform() const;

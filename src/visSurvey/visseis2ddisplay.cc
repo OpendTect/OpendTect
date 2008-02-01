@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.31 2008-02-01 17:17:25 cvskris Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.32 2008-02-01 23:17:06 cvsyuancheng Exp $
  ________________________________________________________________________
 
 -*/
@@ -752,7 +752,43 @@ Coord Seis2DDisplay::getCoord( int trcnr ) const
 	if ( geometry_.posns[idx].nr_ == trcnr )
 	    return geometry_.posns[idx].coord_;
     }
+    
     return Coord::udf();
+}
+
+
+Coord Seis2DDisplay::getNormal( int trcnr ) const
+{
+    int posid = -1;
+    int sz = geometry_.posns.size();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( geometry_.posns[idx].nr_ == trcnr )
+	{
+	    posid = idx; 
+	    break;
+	}
+    }
+
+    if ( posid == -1 || sz == -1 )
+	return Coord(mUdf(float), mUdf(float));
+
+    Coord pos = geometry_.posns[posid].coord_;
+    Coord v1;
+    if ( posid+1<sz )    
+	v1 = geometry_.posns[posid-1].coord_- pos; 
+    else if ( posid-1>=0 )
+	v1 = pos - geometry_.posns[posid+1].coord_;
+
+    if ( v1.x == 0 )
+	return Coord( 1, 0 );
+    else if ( v1.y == 0 )
+	return Coord( 0, 1 );
+    else
+    {
+	float length = sqrt( v1.x*v1.x + v1.y*v1.y );
+	return Coord( -v1.y/length, v1.x/length );
+    }
 }
 
 
