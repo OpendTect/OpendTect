@@ -4,20 +4,23 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.37 2008-01-07 13:07:34 cvsbert Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.38 2008-02-01 16:25:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uifiledlg.h"
+
+#include "envvars.h"
 #include "filegen.h"
 #include "filepath.h"
 #include "oddirs.h"
+#include "separstr.h"
+
 #include "uiparentbody.h"
 #include "uidialog.h"
 #include "uilineedit.h"
 #include "uilabel.h"
-#include "envvars.h"
 
 #include <QFileDialog>
 
@@ -160,7 +163,7 @@ int uiFileDialog::go()
 #endif
 
     if ( fd->exec() != QDialog::Accepted )
-	return 0;
+    	return lookForExternalFilenames( dirname, flt );
 
     QStringList list = fd->selectedFiles();
     if (  list.size() )
@@ -211,4 +214,156 @@ void uiFileDialog::string2List( const BufferString& string,
     QStringList qlist = QStringList::split( (QString)filesep, (QString)string );
     for ( int idx=0; idx<qlist.size(); idx++ )
 	list += new BufferString( qlist[idx].toAscii().constData() );
+}
+
+
+FileMultiString* uiFileDialog::externalfilenames_ = 0;
+BufferString uiFileDialog::extfilenameserrmsg_ = "";
+
+
+void uiFileDialog::setExternalFilenames( const FileMultiString& fms )
+{
+    extfilenameserrmsg_.setEmpty();
+
+    if ( !externalfilenames_ )
+	externalfilenames_ = new FileMultiString( fms );
+    else
+	*externalfilenames_ = fms;
+}
+
+
+const char* uiFileDialog::getExternalFilenamesErrMsg()
+{
+    return extfilenameserrmsg_.isEmpty() ? 0 : extfilenameserrmsg_.buf();
+}
+
+
+static bool filterIncludesExt( const char* filter, const char* ext )
+{
+    if ( !filter )
+	return false;
+
+    const char* fltptr = filter;
+    while ( *fltptr != '\0' )
+    {
+	fltptr++;
+	if ( *(fltptr-1) != '*' )
+	    continue;
+	if ( *(fltptr) != '.' )
+	    return true;
+	
+	if ( !ext )
+	    continue;
+	const char* extptr = ext;
+	while ( true )
+	{ 
+	    fltptr++;
+	    if ( *extptr == '\0' )
+	    {
+		if ( !isalnum(*fltptr) )
+		    return true;
+		break;
+	    }
+	    if ( *extptr != *fltptr )
+		break;
+	    extptr++;
+	}
+    }
+    return false;
+}
+
+
+#define mRetErrMsg( pathname, msg ) \
+{ \
+    if ( msg ) \
+    { \
+	extfilenameserrmsg_ += "Path name \""; \
+	extfilenameserrmsg_ += pathname; \
+	extfilenameserrmsg_ += "\" "; \
+	extfilenameserrmsg_ += msg; \
+    } \
+    delete externalfilenames_; \
+    externalfilenames_ = 0; \
+    return msg ? 0 : 1; \
+}
+
+int uiFileDialog::lookForExternalFilenames( const char* dir, 
+					    const char* filters )
+{
+    if ( !externalfilenames_ )
+	return 0;
+
+    deepErase( filenames );
+    fn.setEmpty();
+
+    if ( externalfilenames_->isEmpty() )
+	mRetErrMsg( "", mode_==ExistingFiles ? 0 : "should not be empty" );
+
+    BufferStringSet filterset;
+    const SeparString fltsep( filters, uiFileDialog::filesep[0] );
+    for ( int fltidx=0; fltidx<fltsep.size(); fltidx++ )
+	filterset.add( fltsep[fltidx] );
+    
+    for ( int idx=0; idx<externalfilenames_->size(); idx++ )
+    {
+	BufferString fname( externalfilenames_[idx] );
+	FilePath fp( fname );
+	if ( !fp.isAbsolute() )
+	{
+	    fp = currentdir_.isEmpty() ? dir : currentdir_.buf();
+	    fp.add( fname );
+	}
+	fname = fp.fullPath();
+
+	if ( !idx && externalfilenames_->size()>1 && mode_!=ExistingFiles )
+	    mRetErrMsg( fname, "expected to be solitary" );
+
+	if ( File_isDirectory(fname) )
+	{
+	    if ( mode_!=Directory && mode_!=DirectoryOnly )
+		mRetErrMsg( fname, "specifies an existing directory" );
+	    if ( !forread_ && !File_isWritable(fname) )
+		mRetErrMsg( fname, "specifies a read-only directory" );
+	}
+	else 
+	{
+	    if ( mode_==Directory || mode_==DirectoryOnly )
+		mRetErrMsg( fname, "specifies no existing directory" );
+
+	    if ( !File_exists(fname) )
+	    {
+		if ( mode_ != AnyFile ) 
+		    mRetErrMsg( fname, "specifies no existing file" );
+		if ( fp.nrLevels() > 1 )
+		{
+		    if ( !File_isDirectory(fp.pathOnly()) )
+			mRetErrMsg( fname, "ends in non-existing directory" );
+		    if ( !forread_ && !File_isWritable(fp.pathOnly()) )
+			mRetErrMsg( fname, "ends in a read-only directory" );
+		}
+	    }
+	    else if ( !forread_ && File_isWritable(fname) )
+		mRetErrMsg( fname, "specifies a read-only file" );
+	}
+
+	BufferString* bs = new BufferString( fname );
+#ifdef __win__
+	replaceCharacter( bs->buf(), '/', '\\' );
+#endif
+	filenames += bs;
+	
+	if ( !idx )
+	    fn = *bs;
+
+	for ( int fltidx=filterset.size()-1; fltidx>=0; fltidx-- )
+	{
+	    if ( !filterIncludesExt(filterset[fltidx]->buf(),fp.extension()) )
+		filterset.remove( fltidx );
+	}
+	if ( filterset.isEmpty() )
+	    mRetErrMsg( fname, "has an incompatible file extension" );
+    }
+
+    selectedfilter_ = filterset[0]->buf();
+    mRetErrMsg( "", 0 );
 }

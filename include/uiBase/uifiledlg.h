@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.17 2007-02-26 16:41:22 cvsnanne Exp $
+ RCS:           $Id: uifiledlg.h,v 1.18 2008-02-01 16:25:40 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 class uiParent;
+class FileMultiString;
 
 /*!\brief Dialog to get a file or directory name from user
 */
@@ -71,6 +72,13 @@ public:
     static void		string2List(const BufferString&,
 	    			    BufferStringSet&);
 
+			// To be used by cmddriver to select filename(s)
+			// while closing the QFileDialog
+    int			lookForExternalFilenames(const char* dir,
+	    					 const char* filters);
+    static void		setExternalFilenames(const FileMultiString&);
+    static const char*	getExternalFilenamesErrMsg();
+
 protected:
 
     BufferString	fn;
@@ -86,6 +94,9 @@ protected:
     BufferString	currentdir_;
     bool		addallexts_;
     bool		forread_;
+    
+    static FileMultiString*	externalfilenames_;
+    static BufferString		extfilenameserrmsg_;
 };
 
 #endif
