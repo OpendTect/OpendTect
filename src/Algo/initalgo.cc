@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne and Kristofer
  Date:          December 2007
- RCS:           $Id: initalgo.cc,v 1.1 2007-12-02 09:22:51 cvsnanne Exp $
+ RCS:           $Id: initalgo.cc,v 1.2 2008-02-01 14:02:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "initalgo.h"
 #include "windowfunction.h"
+#include "posprovider.h"
 
 void Algo::initStdClasses()
 {
@@ -20,4 +21,5 @@ void Algo::initStdClasses()
     BlackmanWindow::initClass();
     BartlettWindow::initClass();
     CosTaperWindow::initClass();
+    Pos::RectVolumeProvider::initClass();
 }
