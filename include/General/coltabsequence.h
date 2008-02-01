@@ -1,5 +1,5 @@
-#ifndef colortab_h
-#define colortab_h
+#ifndef coltabsequence_h
+#define coltabsequence_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-3-2000
- RCS:		$Id: coltabsequence.h,v 1.2 2007-09-12 17:40:04 cvsbert Exp $
+ RCS:		$Id: coltabsequence.h,v 1.3 2008-02-01 07:59:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
