@@ -4,13 +4,14 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.9 2008-01-07 20:50:31 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.10 2008-02-01 23:19:09 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
 
 #include "visprestackviewer.h"
 
+#include "ioman.h"
 #include "iopar.h"
 #include "prestackgather.h"
 #include "survinfo.h"
@@ -22,6 +23,7 @@ _______________________________________________________________________________
 #include "vismaterial.h"
 #include "vispickstyle.h"
 #include "visplanedatadisplay.h"
+#include "visseis2ddisplay.h"
 
 mCreateFactoryEntry( PreStackView::PreStackViewer );
 
@@ -39,11 +41,15 @@ PreStackViewer::PreStackViewer()
     , bid_(-1,-1)
     , mid_( 0 )		
     , section_( 0 )
+    , seis2d_( 0 )
     , factor_( 1 )
+    , trcnr_( 0 )
+    , basedirection_( mUdf(float), mUdf(float) )		 
+    , seis2dpos_( mUdf(float), mUdf(float) )		 
     , width_( mDefaultWidth )
     , offsetrange_( 0, mDefaultWidth )
     , zrg_( SI().zRange(true) )
-    , positiveside_( true )
+    , posside_( true )
     , autowidth_( true )
 {
     setMaterial( 0 );
@@ -92,9 +98,12 @@ PreStackViewer::PreStackViewer()
 
 PreStackViewer::~PreStackViewer()
 {
-    planedragger_->motion.remove( mCB( this, PreStackViewer, draggerMotion ) );
-    planedragger_->finished.remove( mCB( this, PreStackViewer, finishedCB ) );
-    planedragger_->unRef();
+    if ( section_ && planedragger_ )
+    { 
+	planedragger_->motion.remove( mCB(this,PreStackViewer,draggerMotion) );
+	planedragger_->finished.remove( mCB(this,PreStackViewer,finishedCB) );
+	planedragger_->unRef();
+    }
 
     pickstyle_->unRef();
     draggerrect_->unRef();
@@ -109,6 +118,9 @@ PreStackViewer::~PreStackViewer()
     		mCB( this, PreStackViewer, sectionMovedCB ) );
     	section_->unRef();
     }
+    
+    if ( seis2d_ )
+    	seis2d_->unRef();
 }
 
 
@@ -137,7 +149,7 @@ bool PreStackViewer::setPosition( const BinID& nb )
 	{
 	    delete gather;
 	    if ( haddata )
-		 flatviewer_->setPack( false, DataPack::cNoID, false );
+		flatviewer_->setPack( false, DataPack::cNoID, false );
 	    else
 	    {
 		dataChangedCB( 0 );
@@ -169,10 +181,10 @@ void PreStackViewer::displaysAutoWidth( bool yn )
 
 void PreStackViewer::displaysOnPositiveSide( bool yn )
 {
-    if ( positiveside_ == yn )
+    if ( posside_ == yn )
 	return;
 
-    positiveside_ = yn;
+    posside_ = yn;
     dataChangedCB( 0 );
 }
 
@@ -186,7 +198,6 @@ void PreStackViewer::setFactor( float scale )
     dataChangedCB( 0 );
 }
 
-
 void PreStackViewer::setWidth( float width )
 {
     if ( width_ == width )
@@ -199,22 +210,12 @@ void PreStackViewer::setWidth( float width )
 
 void PreStackViewer::dataChangedCB( CallBacker* )
 {
-    if ( !section_ || factor_<0 || width_<0 )
+    if ( !section_ && !seis2d_ || factor_<0 || width_<0 )
 	return;
 
-    const bool offsetalonginl =
-	section_->getOrientation()==visSurvey::PlaneDataDisplay::Crossline;
-
-    const Coord direction = offsetalonginl
-	? Coord( 0, positiveside_ ? 1 : -1 )
-	: Coord( positiveside_ ? 1 : -1, 0 );
-
-    const float offsetscale = offsetalonginl
-	? SI().inlDistance()
-	: SI().crlDistance();
-
-    if ( offsetscale<=0 )
-       return;	
+    const Coord direction = posside_ ? basedirection_ : -basedirection_;
+    const float offsetscale = Coord( basedirection_.x*SI().inlDistance(),
+	    			     basedirection_.y*SI().crlDistance()).abs();
 
     const FlatDataPack* fdp = flatviewer_->pack( false );
     if ( fdp )
@@ -223,7 +224,11 @@ void PreStackViewer::dataChangedCB( CallBacker* )
 	zrg_.setFrom( fdp->posData().range( false ) );
     }
 
-    const Coord startpos( bid_.inl, bid_.crl );
+
+    Coord startpos( bid_.inl, bid_.crl );
+    if ( seis2d_ )
+	startpos = seis2dpos_;
+
     const Coord stoppos = autowidth_
 	? startpos + direction*offsetrange_.width()*factor_ / offsetscale
 	: startpos + direction*width_ / offsetscale;
@@ -240,23 +245,26 @@ void PreStackViewer::dataChangedCB( CallBacker* )
 
 
     flatviewer_->setPosition( c10, c11, c00, c01 );
-    planedragger_->setDim(
-	section_->getOrientation()==visSurvey::PlaneDataDisplay::Inline ? 1:0 );
-
-    const Coord3 width( fabs(stoppos.x-startpos.x),
-	    	        fabs(stoppos.y-startpos.y), zrg_.width(true) );
-
-    planedragger_->setSize( width );
-
-    const Coord3 center( ( startpos+stoppos )/2, ( zrg_.start+zrg_.stop )/2 );
-    planedragger_->setCenter( center );
-
-    const Interval<float> xlim = Interval<float>( SI().inlRange( true ).start, 
-	    					  SI().inlRange( true ).stop );
-    const Interval<float> ylim = Interval<float>( SI().crlRange( true ).start,
-	  					  SI().crlRange( true ).stop ); 
-
-    planedragger_->setSpaceLimits( xlim, ylim, SI().zRange( true ) );    
+    if ( section_ )
+    {
+	planedragger_->setDim( section_->getOrientation() 
+		==visSurvey::PlaneDataDisplay::Inline ? 1:0 );
+    
+	const Coord3 width( fabs(stoppos.x-startpos.x),
+		fabs(stoppos.y-startpos.y), zrg_.width(true) );
+    	planedragger_->setSize( width );
+	
+    	const Coord3 center( (startpos+stoppos)/2, (zrg_.start+zrg_.stop)/2 );
+    	planedragger_->setCenter( center );
+	
+    	const Interval<float> xlim = Interval<float>( 
+		SI().inlRange( true ).start, SI().inlRange( true ).stop );
+    	const Interval<float> ylim = Interval<float>( 
+		SI().crlRange( true ).start, SI().crlRange( true ).stop ); 
+	
+    	planedragger_->setSpaceLimits( xlim, ylim, SI().zRange( true ) );    
+    }
+    
     draggermaterial_->setTransparency( 1 ); 
 }
 
@@ -272,7 +280,11 @@ const visSurvey::PlaneDataDisplay* PreStackViewer::getSectionDisplay() const
 void PreStackViewer::setDisplayTransformation( visBase::Transformation* nt )
 { 
     flatviewer_->setDisplayTransformation( nt ); 
-    planedragger_->setDisplayTransformation( nt );
+    if ( planedragger_ )
+	planedragger_->setDisplayTransformation( nt );
+
+    if ( seis2d_ )
+	seis2d_->setDisplayTransformation( nt );
 }
 
 
@@ -291,7 +303,10 @@ void PreStackViewer::setSectionDisplay( visSurvey::PlaneDataDisplay* pdd )
 	return;
 
     section_->ref();
-    dataChangedCB( 0 );
+
+    const bool offsetalonginl = 
+	section_->getOrientation()==visSurvey::PlaneDataDisplay::Crossline;
+    basedirection_ = offsetalonginl ? Coord( 0, 1  ) : Coord( 1, 0 );
 
     if ( section_->getOrientation() == visSurvey::PlaneDataDisplay::Timeslice )
 	return;
@@ -324,22 +339,94 @@ void  PreStackViewer::sectionMovedCB( CallBacker* )
 }    
 
 
+const visSurvey::Seis2DDisplay* PreStackViewer::getSeis2DDisplay() const
+{ return seis2d_; }
+
+
+void PreStackViewer::setSeis2DData( DataPack::ID dpid )
+{
+    flatviewer_->setPack( false, dpid, false, true );
+    dataChangedCB(0);
+}
+
+
+DataPack::ID PreStackViewer::getDataPackID() const
+{
+    return flatviewer_->packID( false );
+}
+
+
+bool PreStackViewer::is3DSeis() const
+{
+    if ( section_ )
+	return true;
+    else
+	return false;
+}
+
+
+void PreStackViewer::setSeis2DDisplay(visSurvey::Seis2DDisplay* s2d, int trcnr)
+{
+    if ( planedragger_ )
+    { 
+     	planedragger_->motion.remove( mCB(this,PreStackViewer,draggerMotion) );
+    	planedragger_->finished.remove( mCB(this,PreStackViewer,finishedCB) );
+    	planedragger_->unRef();
+    }
+
+    pickstyle_->setStyle( visBase::PickStyle::Shape );
+    if ( seis2d_ ) 
+	seis2d_->unRef();
+
+    trcnr_ = trcnr;
+    seis2d_ = s2d;
+    
+    const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) );
+    basedirection_ = SI().binID2Coord().transformBackNoSnap(
+	    seis2d_->getNormal( trcnr_ ) ) - orig;
+    seis2dpos_ = SI().binID2Coord().transformBackNoSnap( 
+	    seis2d_->getCoord(trcnr))-orig;
+    if ( !seis2d_ )
+	return;
+
+    seis2d_->ref();
+}
+
+
+const char* PreStackViewer::lineName()
+{
+    if ( !seis2d_ )
+	return 0;
+
+    return seis2d_->name();
+}
+
+
 void  PreStackViewer::otherObjectsMoved( const ObjectSet<const SurveyObject>&
 					 , int whichobj )
 {
-    if ( !section_ )
+    if ( !section_ && ! seis2d_ )
 	return;
 
     if ( whichobj == -1 )
     {
-	turnOn( section_->isShown() );
+	if ( section_ )
+    	    turnOn( section_->isShown() );
+
+	if ( seis2d_ )
+	    turnOn( seis2d_->isShown() );
 	return; 
     }
 
-    if ( section_->id() != whichobj )
+    if ( section_ && section_->id() != whichobj ||
+	 seis2d_ && seis2d_->id() != whichobj )
 	return;
     
-    turnOn( section_->isShown() );
+    if ( section_ )
+	turnOn( section_->isShown() );
+
+    if ( seis2d_ )
+	turnOn( seis2d_->isShown() );
 }
 
 
@@ -387,15 +474,25 @@ void  PreStackViewer::finishedCB( CallBacker* )
 }
 
 
-void PreStackViewer::getMousePosInfo( const visBase::EventInfo&,
+void PreStackViewer::getMousePosInfo( const visBase::EventInfo& ei,
 				      const Coord3& pos, 
 				      BufferString& val,
 				      BufferString& info ) const
 {
     val = "";
     info = "";
-    if ( !flatviewer_ || !section_ ) 
+    if ( !flatviewer_  ) 
 	return;
+
+    if ( seis2d_ )
+    {
+	seis2d_->getMousePosInfo( ei, pos, val, info );
+	return;
+    }
+
+    if ( !section_ )
+	return;
+
     const FlatDataPack* fdp = flatviewer_->pack(false);
     if ( !fdp ) return;
 
@@ -457,7 +554,7 @@ void PreStackViewer::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyBinID(), bid_ );
     par.set( sKeyMultiID(), mid_ );
     par.setYN( sKeyiAutoWidth(), autowidth_ );
-    par.setYN( sKeySide(), positiveside_ );
+    par.setYN( sKeySide(), posside_ );
     par.set( sKeySectionID(), section_->id() );
     
     if ( autowidth_ )
@@ -497,8 +594,7 @@ int PreStackViewer::usePar( const IOPar& par )
     setMultiID( mid );
     if ( !setPosition( bid ) )
 	return -1;
-   
-    
+       
     float factor, width;
     if ( par.get(sKeyFactor(), factor) )
 	setFactor( factor );

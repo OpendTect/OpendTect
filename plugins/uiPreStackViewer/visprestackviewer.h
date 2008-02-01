@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.5 2007-12-18 20:35:59 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.6 2008-02-01 23:19:09 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,12 @@ namespace visBase
     class PickStyle;
 };
 
-namespace visSurvey { class PlaneDataDisplay; };
+namespace visSurvey 
+{ 
+    class PlaneDataDisplay; 
+    class Seis2DDisplay;
+};
+
 
 namespace PreStackView
 {
@@ -39,15 +44,26 @@ public:
     void			setMultiID(const MultiID& mid);
     bool			isInlCrl() const { return true; }
     
+    bool			is3DSeis() const;
+    DataPack::ID		getDataPackID() const;
+
+    				//3D case
     bool			setPosition(const BinID&);
     const BinID&		getPosition() const;
     void			setSectionDisplay(visSurvey::PlaneDataDisplay*);
-    const visSurvey::PlaneDataDisplay* getSectionDisplay() const;		
+    const visSurvey::PlaneDataDisplay* getSectionDisplay() const;	
+   
+   				//2D case 
+    const visSurvey::Seis2DDisplay*    getSeis2DDisplay() const;    
+    void			setSeis2DDisplay(visSurvey::Seis2DDisplay*,
+	    					 int trcnr);
+    void			setSeis2DData(DataPack::ID);
+    int				traceNr() const 	  { return trcnr_; }
+    const char*			lineName();
 
     bool                        displayAutoWidth() const { return autowidth_; }
     void                        displaysAutoWidth(bool yn);
-    bool                        displayOnPositiveSide() const 
-    							{return positiveside_; }
+    bool                        displayOnPositiveSide() const {return posside_;}
     void                        displaysOnPositiveSide(bool yn);
     float                       getFactor() { return factor_; }
     void			setFactor(float scale);
@@ -76,8 +92,8 @@ public:
 
 protected:
     					~PreStackViewer();
-    void				dataChangedCB(CallBacker*);
     void				setDisplayTransformation(mVisTrans*);
+    void				dataChangedCB(CallBacker*);
     void				sectionMovedCB(CallBacker*);
 
     void				draggerMotion(CallBacker*);
@@ -93,8 +109,12 @@ protected:
     
     MultiID				mid_;
     visSurvey::PlaneDataDisplay*	section_;
+    visSurvey::Seis2DDisplay*		seis2d_;
+    int 				trcnr_;
+    Coord				basedirection_;
+    Coord				seis2dpos_;
 
-    bool				positiveside_;
+    bool				posside_;
     bool				autowidth_;
     float				factor_;
     float				width_;

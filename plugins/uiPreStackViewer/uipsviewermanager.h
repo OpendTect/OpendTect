@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2007
- RCS:		$Id: uipsviewermanager.h,v 1.2 2007-10-03 21:09:18 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.h,v 1.3 2008-02-01 23:19:09 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ public:
 
 protected:
     
-    uiFlatViewWin*		create2DViewer(const MultiID&, const BinID&);
+    uiFlatViewWin*		create2DViewer(PreStackView::PreStackViewer*);
     void			createMenuCB(CallBacker*);
     void			handleMenuCB(CallBacker*);
     void			removeAllCB(CallBacker*);

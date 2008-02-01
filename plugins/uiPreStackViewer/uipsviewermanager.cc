@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.9 2008-01-24 16:00:07 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.10 2008-02-01 23:19:08 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "uivispartserv.h"
 #include "visplanedatadisplay.h"
 #include "visprestackviewer.h"
+#include "visseis2ddisplay.h"
 
 
 namespace PreStackView
@@ -79,14 +80,18 @@ void uiPSViewerMgr::createMenuCB( CallBacker* cb )
     RefMan<visBase::DataObject> dataobj = visserv_->getObject( menu->menuID() );
 
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, dataobj.ptr() );
-    if ( pdd && pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Timeslice ) 
+    mDynamicCastGet( visSurvey::Seis2DDisplay*, s2d, dataobj.ptr() );
+    if ( pdd && pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Timeslice 
+	   || s2d ) 
     {
 	uiSeisPartServer* seisserv = ODMainWin()->applMgr().seisServer();
-	BufferStringSet gnms; seisserv->getStoredGathersList(true,gnms);
+
+	BufferStringSet gnms; seisserv->getStoredGathersList(!s2d,gnms);
 	if ( gnms.size() )
 	{
 	    selectpsdatamenuitem_.removeItems();
 	    selectpsdatamenuitem_.createItems(gnms);
+	    
 	    mAddMenuItem( menu, &selectpsdatamenuitem_, true, false );
 	}
 	else
@@ -110,6 +115,8 @@ void uiPSViewerMgr::createMenuCB( CallBacker* cb )
     }
 }
 
+
+#define mErrRet(msg) { uiMSG().error(msg); return; }
 
 void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
 {
@@ -149,38 +156,66 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
 
 	RefMan<visBase::DataObject> dataobj = visserv_->
 	    getObject( menu->menuID() );
+		    
+	Coord3 pickedpos = menu->getPickedPos();
+	if ( !pickedpos.isDefined() )
+	    return;
+    
 	mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, dataobj.ptr() );
-
+	mDynamicCastGet( visSurvey::Seis2DDisplay*, s2d, dataobj.ptr() );
+	if ( !pdd && !s2d )
+	    return;
+	    
 	PreStackViewer* viewer = PreStackViewer::create();
 	viewer->ref();
 	viewer->setMultiID( ioobj->key() );
-	viewer->setSectionDisplay( pdd ); 
 	
 	visserv_->addObject( viewer, sceneid, false );
 	viewers_ += viewer;
-	
-	BinID bid;
-	if (  menu->getMenuType()==uiMenuHandler::fromScene )
-	{
-	    const Coord3 pickedpos = menu->getPickedPos();
-    	    if ( !pickedpos.isDefined() )
-    		return;
 
-	    bid = SI().transform( pickedpos );
-	}
-	else 
+	if ( pdd )
+	{  
+	
+	    viewer->setSectionDisplay( pdd ); 
+	    BinID bid = SI().transform( pickedpos );
+	    if (  menu->getMenuType() != uiMenuHandler::fromScene ) 
+	    {
+		CubeSampling cs = pdd->getCubeSampling();
+		cs.snapToSurvey();
+		bid = BinID( (cs.hrg.stop.inl + cs.hrg.start.inl + 1)/2,
+			(cs.hrg.stop.crl + cs.hrg.start.crl + 1)/2 );
+	    }
+
+	    if ( !viewer->setPosition( bid ) )
+		return;
+    	} 
+	else if ( s2d )
 	{
-	    if ( !pdd ) return;
+	    int trcnr = s2d->getNearestTraceNr( pickedpos );
+	    viewer->setSeis2DDisplay( s2d, trcnr );
+	    PtrMan<SeisPSReader> psrdr = SPSIOPF().get2DReader( 
+		    *ioobj, s2d->name() );
 	    
-	    CubeSampling cs = pdd->getCubeSampling();
-  	    cs.snapToSurvey();
-  	    bid = BinID( (cs.hrg.stop.inl + cs.hrg.start.inl + 1)/2,
-		         (cs.hrg.stop.crl + cs.hrg.start.crl + 1)/2 );
+	    if ( !psrdr )
+		mErrRet( "Could not find reader" );
+
+	    SeisTrcBuf* tbuf = new SeisTrcBuf( true );
+	    if ( !psrdr->getGather( BinID(0,trcnr), *tbuf ) )
+		mErrRet( "Can not find gather" );
+	    
+	    if ( tbuf->size() == 0 )
+		mErrRet( "Gather is empty" );
+	    
+	    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( tbuf, 
+		    Seis::LinePS, SeisTrcInfo::Offset, "Pre-Stack Gather", 0 );
+
+	    DPM(DataPackMgr::FlatID).add( dp );
+	    DPM(DataPackMgr::FlatID).obtain( dp->id() );
+
+	    viewer->setSeis2DData( dp->id() ); 
+	    DPM(DataPackMgr::FlatID).release( dp );
 	}
 
-	if ( !viewer->setPosition( bid ) )
-	    return;
-	
 	if ( viewer->getScene() )
 	    viewer->getScene()->change.notifyIfNotNotified( mCB( this, 
 			uiPSViewerMgr,sceneChangeCB ) );
@@ -196,7 +231,6 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
 	
 	visserv_->removeObject( psv, sceneid );
 	viewers_ -= psv;
-	psv->unRef();
     }
     else if ( mnuid==proptymenuitem_.id )
     {
@@ -219,8 +253,7 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
 	mDynamicCastGet( PreStackView::PreStackViewer*, psv, dataobj.ptr() );
 	if ( !psv ) return;
 
-	uiFlatViewWin* viewwin = create2DViewer( psv->getMultiID(),
-						 psv->getBinID() );
+    	uiFlatViewWin* viewwin = create2DViewer( psv );
 	if ( viewwin )
 	{
     	    viewwindows_ += viewwin;
@@ -233,19 +266,31 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
 #define mErrRes(msg) { uiMSG().error(msg); return 0; }
 
 
-uiFlatViewWin* uiPSViewerMgr::create2DViewer( const MultiID& mid, 
-					      const BinID& bid )
+uiFlatViewWin* uiPSViewerMgr::create2DViewer(
+	PreStackView::PreStackViewer* psv ) 
 {
-    PtrMan<IOObj> ioobj = IOM().get( mid );
+    PtrMan<IOObj> ioobj = IOM().get( psv->getMultiID() );
     if ( !ioobj ) 
 	return 0;
 
     BufferString title( "Gather from [" );
     title += ioobj->name();
-    title += "] at "; 
-    title += bid.inl; 
-    title += "/"; 
-    title += bid.crl;
+    title += "] ";
+    const bool is3d = psv->is3DSeis();
+    if ( is3d )
+    {
+	const BinID bid = psv->getBinID();
+     	title += "at " ;
+    	title += bid.inl; 
+    	title += "/"; 
+    	title += bid.crl;
+    }
+    else
+    {
+     	title += "at trace " ;
+	title += psv->traceNr();
+    }
+
     uiFlatViewWin* viewwin = new uiFlatViewMainWin( 
 	    ODMainWin()->applMgr().seisServer()->appserv().parent(), 
 	    uiFlatViewMainWin::Setup(title) );
@@ -256,45 +301,27 @@ uiFlatViewWin* uiPSViewerMgr::create2DViewer( const MultiID& mid,
     uiFlatViewer& vwr = viewwin->viewer();
     vwr.appearance().annot_.setAxesAnnot( true );
     vwr.appearance().setGeoDefaults( true );
-    vwr.appearance().ddpars_.show( true, false );
+    vwr.appearance().ddpars_.show( false, true );
     vwr.appearance().ddpars_.wva_.overlap_ = 1;
 
-    const bool haddata = vwr.pack( false );
-    PreStack::Gather* gather = new PreStack::Gather;
-    if ( !gather->readFrom( mid, bid ) )
+    const int id = psv->getDataPackID();
+    DataPack* dp = DPM(DataPackMgr::FlatID).obtain( id );
+    dp->setName( ioobj->name() );
+    mDynamicCastGet( const FlatDataPack*, fdp, dp );
+    if ( !fdp )
     {
-	delete gather;
-	if ( haddata )
-	    vwr.setPack( false, DataPack::cNoID, false );
-	else
-	{
-	    uiMSG().error("There is no data available");
-	    return 0;
-	}
+	if ( dp ) DPM(DataPackMgr::FlatID).release( dp );
+	return false;
     }
-    else
-    {
-	DPM(DataPackMgr::FlatID).add( gather );
-	vwr.setPack( false, gather->id(), false, !haddata );
-    }
-    
-    PtrMan<SeisPSReader> rdr = SPSIOPF().get3DReader( *ioobj, bid.inl );
-    if ( !rdr )
-	mErrRes( "This Pre-Stack data store cannot be handled" )
 
-    SeisTrcBuf* tbuf = new SeisTrcBuf( true );
-    if ( !rdr->getGather(bid,*tbuf) )
-        mErrRes( rdr->errMsg() )
-    
-    const int tbufsz = tbuf->size();
-    if ( tbufsz == 0 )
-        mErrRes( "Gather is empty" )
-
-    int pw = 200 + 10 * tbuf->size();
+    vwr.setPack( false, id, true );
+    int pw = 200 + 10 * fdp->data().info().getSize( 1 );
     if ( pw < 400 ) pw = 400; if ( pw > 800 ) pw = 800;
-    vwr.setInitialSize( uiSize(pw,500) );
+    
+    vwr.setInitialSize( uiSize(pw,500) );  
     viewwin->addControl( new uiFlatViewStdControl( vwr,
 			 uiFlatViewStdControl::Setup().withstates(false) ) );
+    DPM(DataPackMgr::FlatID).release( id );
     return viewwin;
 }
 
@@ -305,8 +332,18 @@ void uiPSViewerMgr::sceneChangeCB( CallBacker* )
     {
 	PreStackView::PreStackViewer* psv = viewers_[idx];
 
-	visBase::Scene* scene = psv->getScene();
-	if ( !scene || scene->getFirstIdx( psv->getSectionDisplay() )==-1 )
+	const visSurvey::PlaneDataDisplay* pdd = psv->getSectionDisplay();
+	const visSurvey::Seis2DDisplay*    s2d = psv->getSeis2DDisplay();
+	visBase::Scene* scene = psv->getScene();	
+	if ( pdd && (!scene || scene->getFirstIdx( pdd )==-1 ) )
+	{
+	    viewers_.remove( idx );
+	    if ( scene ) visserv_->removeObject( psv, scene->id() );
+	    psv->unRef();
+	    idx--;
+	}
+	
+	if ( s2d && (!scene || scene->getFirstIdx( s2d )==-1 ) )
 	{
 	    viewers_.remove( idx );
 	    if ( scene ) visserv_->removeObject( psv, scene->id() );
@@ -328,6 +365,9 @@ void uiPSViewerMgr::sessionRestoreCB( CallBacker* )
     {
 	mDynamicCastGet( PreStackView::PreStackViewer*, psv,
 			 visserv_->getObject(vispsviewids[idx]) );
+	if ( !psv )
+	    continue;
+
 	viewers_ += psv;
 	psv->ref();
     }
@@ -352,13 +392,19 @@ void uiPSViewerMgr::sessionRestoreCB( CallBacker* )
 	     !viewerpar->get( sKeyBinID(), bid ) )
 	    continue;
 
-	uiFlatViewWin* viewwin = create2DViewer( mid, bid );
-
-	if ( !viewwin )
-	    continue;
-
-	viewwindows_ += viewwin;
-	viewwin->start();
+	for ( int idy = 0; idy < viewers_.size(); idy++ )
+	{
+	    if ( viewers_[idy]->getMultiID() != mid || 
+		 viewers_[idy]->getBinID() != bid )
+		continue;
+	    
+    	    uiFlatViewWin* viewwin = create2DViewer( viewers_[idy] );
+    	    if ( !viewwin )
+    		continue;
+    
+	    viewwindows_ += viewwin;
+    	    viewwin->start();
+	}
     }
 }
 
