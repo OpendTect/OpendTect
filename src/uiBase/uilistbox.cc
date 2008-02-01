@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.85 2008-01-09 13:54:34 cvsbert Exp $
+ RCS:           $Id: uilistbox.cc,v 1.86 2008-02-01 05:20:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "pixmap.h"
 
-#include "i_q4listbox.h"
+#include "i_qlistbox.h"
 #include <QApplication>
 #include <QKeyEvent>
 #include <QMouseEvent>
@@ -457,11 +457,7 @@ bool uiListBox::isPresent( const char* txt ) const
     const int sz = size();
     for ( int idx=0; idx<sz; idx++ )
     {
-#ifdef USEQT3
-	BufferString itmtxt( body_->text(idx) );
-#else
-	BufferString itmtxt( body_->item(idx)->text().toAscii().constData() );
-#endif
+	BufferString itmtxt( body_->item(idx)->text().toAscii().data() );
 	char* ptr = itmtxt.buf();
 	mSkipBlanks( ptr );
 	if ( !strcmp(txt,ptr) ) return true;
