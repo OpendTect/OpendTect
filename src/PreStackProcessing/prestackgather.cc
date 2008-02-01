@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.14 2008-01-21 17:56:13 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.15 2008-02-01 20:21:39 cvskris Exp $";
 
 #include "prestackgather.h"
 
@@ -150,6 +150,13 @@ float Gather::getOffset( int idx ) const
 float Gather::getAzimuth( int idx ) const
 {
     return trcBuf().get( idx )->info().azimuth;
+}
+
+
+OffsetAzimuth Gather::getOffsetAzimuth( int idx ) const
+{
+    return OffsetAzimuth( posData().position( true, idx ), 
+	    		  trcBuf().get( idx )->info().azimuth );
 }
 
 

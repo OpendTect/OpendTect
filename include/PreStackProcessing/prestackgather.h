@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.10 2007-10-17 02:25:15 cvskris Exp $
+ RCS:		$Id: prestackgather.h,v 1.11 2008-02-01 20:21:39 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "arrayndimpl.h"
 #include "multiid.h"
 #include "position.h"
+#include "offsetazimuth.h"
 #include "samplingdata.h"
 #include "seisbufadapters.h"
 
@@ -48,6 +49,7 @@ public:
 
     float			getOffset(int) const;
     float			getAzimuth(int) const;
+    OffsetAzimuth		getOffsetAzimuth(int) const;
 
     bool			isOffsetAngle() const	{return offsetisangle_;}
     bool			isCorrected() const	{ return iscorr_; }
