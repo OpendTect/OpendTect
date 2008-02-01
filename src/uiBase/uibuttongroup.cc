@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/2001
- RCS:           $Id: uibuttongroup.cc,v 1.15 2007-08-13 12:48:58 cvsjaap Exp $
+ RCS:           $Id: uibuttongroup.cc,v 1.16 2008-02-01 06:18:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,21 +12,8 @@ ________________________________________________________________________
 #include "uibuttongroup.h"
 #include "uiobjbody.h"
 
-#ifdef USEQT3
-# define mQButtonGroup	QButtonGroup
-# define mButton	QButton
-# define mHorizontal	Horizontal
-# define mVertical	Vertical
-# include <qbuttongroup.h>
-# include <qbutton.h>
-#else
-# define mQButtonGroup	Q3ButtonGroup
-# define mButton	QAbstractButton
-# define mHorizontal	Qt::Horizontal
-# define mVertical	Qt::Vertical
-# include <Q3ButtonGroup>
-# include <QAbstractButton>
-#endif
+#include <Q3ButtonGroup>
+#include <QAbstractButton>
 
 #include "errh.h"
 
@@ -34,18 +21,15 @@ class uiButtonGroupObjBody;
 class uiButtonGroupParentBody;
 
 
-class uiButtonGroupObjBody : public uiObjectBody  , public mQButtonGroup
+class uiButtonGroupObjBody : public uiObjectBody  , public Q3ButtonGroup
 {
 public:
 			uiButtonGroupObjBody(uiButtonGroupObj& handle, 
 					uiParent* parnt, const char* txt, 
                                         bool vertical, int strips )
 			: uiObjectBody( parnt, txt )
-			, mQButtonGroup( strips, 
-
-// Qt seems to have a different notion of "Horizontal" then I have....
-					vertical ? mHorizontal: mVertical,
-
+			, Q3ButtonGroup(strips, vertical ? Qt::Horizontal
+							 : Qt::Vertical,
 					txt,
 					parnt && parnt->pbody() ?
 					parnt->pbody()->managewidg() : 0, txt )
@@ -55,7 +39,7 @@ public:
 
 #define mHANDLE_OBJ	uiButtonGroupObj
 #define mQWIDGET_BASE	QWidget
-#define mQWIDGET_BODY	mQButtonGroup
+#define mQWIDGET_BODY	Q3ButtonGroup
 #include		"i_uiobjqtbody.h"
 
 public:
@@ -184,7 +168,7 @@ void uiButtonGroup::selectButton( int id )
 
 int uiButtonGroup::selectedId() const
 {
-    mButton* selbut = grpobj_->body_->selected();
+    QAbstractButton* selbut = grpobj_->body_->selected();
     return grpobj_->body_->id( selbut );
 }
 
@@ -197,7 +181,7 @@ int uiButtonGroup::nrButtons() const
 
 void uiButtonGroup::setSensitive( int id, bool yn )
 {
-    mButton* but = grpobj_->body_->find( id );
+    QAbstractButton* but = grpobj_->body_->find( id );
     if ( but ) but->setEnabled( yn );
 }
 
