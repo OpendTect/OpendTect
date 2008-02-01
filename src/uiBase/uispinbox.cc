@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.28 2008-01-31 07:33:59 cvsnanne Exp $
+ RCS:           $Id: uispinbox.cc,v 1.29 2008-02-01 04:01:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -301,10 +301,21 @@ const char* uiSpinBox::suffix() const
 
 
 void uiSpinBox::setKeyboardTracking( bool yn )
-{ body_->setKeyboardTracking( yn ); }
+{
+#if QT_VERSION >= 0x040300
+    body_->setKeyboardTracking( yn );
+#endif
+}
+
 
 bool uiSpinBox::keyboardTracking() const
-{ return body_->keyboardTracking(); }
+{
+#if QT_VERSION < 0x040300
+    return false;
+#else
+    return body_->keyboardTracking();
+#endif
+}
 
 //------------------------------------------------------------------------------
 
