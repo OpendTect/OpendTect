@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.31 2007-12-07 12:13:18 cvsraman Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.32 2008-02-01 16:57:51 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -378,15 +378,15 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 
 	BufferString lbl( "Z-Range " ); lbl += SI().getZUnit();
-	Interval<int> intzrg( mNINT(curzrg_.start*1000), 
-			      mNINT(curzrg_.stop*1000) );
-	uiGenInputDlg dlg( getUiParent(), "Specify 2D line Z_Range", lbl,
+	Interval<int> intzrg( mNINT(curzrg_.start*SI().zFactor()), 
+			      mNINT(curzrg_.stop*SI().zFactor()) );
+	uiGenInputDlg dlg( getUiParent(), "Specify 2D line Z-Range", lbl,
 			   new IntInpIntervalSpec(intzrg) );
 	if ( !dlg.go() ) return;
 
 	intzrg = dlg.getFld()->getIInterval();
-	curzrg_.start = float(intzrg.start) / 1000;
-	curzrg_.stop = float(intzrg.stop) / 1000;
+	curzrg_.start = float(intzrg.start) / SI().zFactor();
+	curzrg_.stop = float(intzrg.stop) / SI().zFactor();
 	for ( int idx=0; idx<children_.size(); idx++ )
 	    ((uiOD2DLineSetSubItem*)children_[idx])->setZRange( curzrg_ );
     }
