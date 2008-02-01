@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.25 2008-01-18 16:24:00 cvsjaap Exp $
+ RCS:           $Id: uitreeview.h,v 1.26 2008-02-01 05:43:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,16 +15,7 @@ ________________________________________________________________________
 #include "uiobj.h"
 #include "bufstringset.h"
 
-#ifdef USEQT3
-  class QListViewItem;
-# define mQListViewItem QListViewItem
-# define mQListView	QListView
-#else
-  class Q3ListViewItem;
-# define mQListViewItem Q3ListViewItem
-# define mQListView	Q3ListView
-#endif
-
+class Q3ListViewItem;
 class uiListViewBody;
 class uiListViewItem;
 class ioPixmap;
@@ -36,7 +27,6 @@ class uiListView : public uiObject
     friend class		uiListViewItemBody;
 
 public:
-
 			uiListView(uiParent* parnt,
 				   const char* nm="uiListView",
 				   int preferredNrLines=0,
@@ -64,40 +54,40 @@ public:
 			// returns index of new column
     int			addColumn(const char* label,int size=-1);
 
-    void		removeColumn( int index );
-    void		setColumnText( int column, const char* label );
+    void		removeColumn(int index );
+    void		setColumnText(int column,const char* label);
 
-    const char*		columnText( int column ) const;
-    void		setColumnWidth( int column, int width );
-    int			columnWidth( int column ) const;
+    const char*		columnText(int column) const;
+    void		setColumnWidth(int column,int width);
+    int			columnWidth(int column) const;
 
     enum		WidthMode { Manual, Maximum };
-    void		setColumnWidthMode( int column, WidthMode );
-    WidthMode		columnWidthMode( int column ) const;
+    void		setColumnWidthMode(int column,WidthMode);
+    WidthMode		columnWidthMode(int column) const;
     int			columns() const;
 
-    void		setColumnAlignment( int, int );
-    int			columnAlignment( int ) const;
+    void		setColumnAlignment(int,int);
+    int			columnAlignment(int) const;
 
-    void		ensureItemVisible( const uiListViewItem*  );
+    void		ensureItemVisible(const uiListViewItem*);
 
-    void		setMultiSelection( bool yn );
+    void		setMultiSelection(bool yn);
     bool		isMultiSelection() const;
 
     enum		SelectionMode { Single, Multi, Extended, NoSelection };
-    void		setSelectionMode( SelectionMode mode );
+    void		setSelectionMode(SelectionMode);
     SelectionMode	selectionMode() const;
 
     void		clearSelection();
-    void		setSelected( uiListViewItem*, bool );
-    bool		isSelected( const uiListViewItem* ) const;
+    void		setSelected(uiListViewItem*,bool);
+    bool		isSelected(const uiListViewItem*) const;
     uiListViewItem*	selectedItem() const;
 
 			//! shows or hides an item's children
-    void		setOpen( uiListViewItem* , bool );
-    bool		isOpen( const uiListViewItem* ) const;
+    void		setOpen(uiListViewItem*,bool);
+    bool		isOpen(const uiListViewItem*) const;
 
-    void		setCurrentItem( uiListViewItem* );
+    void		setCurrentItem(uiListViewItem*);
 
     uiListViewItem*	currentItem() const;
     uiListViewItem*	firstChild() const;
@@ -105,7 +95,7 @@ public:
 
     int			childCount() const;
 
-    void		setItemMargin( int );
+    void		setItemMargin(int);
     int			itemMargin() const;
 
     void		setSorting(int column,bool increasing=true);
@@ -120,7 +110,7 @@ public:
 
     void		clear();
     void		invertSelection();
-    void		selectAll( bool yn );
+    void		selectAll(bool yn);
 
 			//! re-draws at next X-loop
     void		triggerUpdate();
@@ -161,7 +151,7 @@ protected:
     uiListViewItem*	lastitemnotified;
     int			column_;
 
-    void		setNotifiedItem( mQListViewItem* );
+    void		setNotifiedItem( Q3ListViewItem* );
     void		setNotifiedColumn( int col )	{ column_ = col; }
 
     uiListViewBody*	lvbody()	{ return body_; }
@@ -299,11 +289,11 @@ public:
     			//!< passes CBCapsule<const char*>* cb
     			//!< If you handle it, set cb->data = 0;
 
-    static mQListViewItem*	 qitemFor( uiListViewItem* );
-    static const mQListViewItem*  qitemFor( const uiListViewItem* );
+    static Q3ListViewItem*	 qitemFor(uiListViewItem*);
+    static const Q3ListViewItem* qitemFor(const uiListViewItem*);
 
-    static uiListViewItem* 	 itemFor( mQListViewItem* );
-    static const uiListViewItem* itemFor( const mQListViewItem* );
+    static uiListViewItem* 	 itemFor(Q3ListViewItem*);
+    static const uiListViewItem* itemFor(const Q3ListViewItem*);
 
 protected:
 

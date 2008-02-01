@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.32 2008-01-18 16:24:00 cvsjaap Exp $
+ RCS:           $Id: uitreeview.cc,v 1.33 2008-02-01 05:43:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,28 +16,18 @@ ________________________________________________________________________
 #include "pixmap.h"
 #include "uishortcutsmgr.h"
 
-#include <qapplication.h>
-#include <qevent.h>
-#include <qpixmap.h>
-#include <qsize.h>
+#include <QApplication>
+#include <QKeyEvent>
+#include <QPixmap>
+#include <QSize>
 
-#ifdef USEQT3
-# define mQScrollView		QScrollView
-# define mQListView		QListView
-# define mQCheckListItem        QCheckListItem
 #include "i_qlistview.h"
-#else
-# define mQScrollView		Q3ScrollView
-# define mQListView		Q3ListView
-# define mQCheckListItem        Q3CheckListItem
-#include "i_q4listview.h"
-#endif
 
 
 #define mQitemFor(itm)		uiListViewItem::qitemFor(itm)
 #define mItemFor(itm)		uiListViewItem::itemFor(itm)
 
-class uiListViewBody : public uiObjBodyImpl<uiListView,mQListView>
+class uiListViewBody : public uiObjBodyImpl<uiListView,Q3ListView>
 {
 
 public:
@@ -84,7 +74,7 @@ private:
 
 uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parnt, 
 			const char* nm, int nrl )
-    : uiObjBodyImpl<uiListView,mQListView>( handle, parnt, nm )
+    : uiObjBodyImpl<uiListView,Q3ListView>( handle, parnt, nm )
     , messenger_ (*new i_listVwMessenger(*this, handle))
     , prefnrlines( nrl )
     , lvhandle_(handle)
@@ -115,7 +105,7 @@ void uiListViewBody::keyPressEvent( QKeyEvent* event )
     if ( cbc.data.key() != 0 )
     {
 	lvhandle_.unusedKey.trigger();
-	mQListView::keyPressEvent( event );
+	Q3ListView::keyPressEvent( event );
     }
 }
 
@@ -125,16 +115,16 @@ bool uiListViewBody::moveItem( QKeyEvent* event )
     if ( event->state() != Qt::ShiftButton )
 	return false;
 
-    mQListViewItem* currentitem = currentItem();
+    Q3ListViewItem* currentitem = currentItem();
     if ( !currentitem ) return false;
 
-    mQListViewItem* parent = currentitem->parent();
+    Q3ListViewItem* parent = currentitem->parent();
     if ( !parent ) return false;
 
-    mQListViewItem* moveafteritem = 0;
+    Q3ListViewItem* moveafteritem = 0;
     if ( event->key() == Qt::Key_Up )
     {
-	mQListViewItem* itmabove = currentitem->itemAbove();
+	Q3ListViewItem* itmabove = currentitem->itemAbove();
 	moveafteritem = itmabove ? itmabove->itemAbove() : 0;
     }
     else if ( event->key() == Qt::Key_Down )
@@ -224,7 +214,7 @@ bool uiListViewBody::event( QEvent* ev )
 	}
     }
     else
-	return mQListView::event( ev );
+	return Q3ListView::event( ev );
 
     lvhandle_.activatedone.trigger();
     return true;
@@ -268,18 +258,18 @@ uiListViewBody& uiListView::mkbody( uiParent* p, const char* nm, int nl)
 
 void uiListView::setHScrollBarMode( ScrollMode mode )
 {
-    mQScrollView::ScrollBarMode qmode;
-    if ( mode==AlwaysOn ) qmode = mQScrollView::AlwaysOn;
-    else if ( mode==AlwaysOff ) qmode = mQScrollView::AlwaysOff;
+    Q3ScrollView::ScrollBarMode qmode;
+    if ( mode==AlwaysOn ) qmode = Q3ScrollView::AlwaysOn;
+    else if ( mode==AlwaysOff ) qmode = Q3ScrollView::AlwaysOff;
     body_->setHScrollBarMode( qmode );
 }
 
 
 void uiListView::setVScrollBarMode( ScrollMode mode )
 {
-    mQScrollView::ScrollBarMode qmode;
-    if ( mode==AlwaysOn ) qmode = mQScrollView::AlwaysOn;
-    else if ( mode==AlwaysOff ) qmode = mQScrollView::AlwaysOff;
+    Q3ScrollView::ScrollBarMode qmode;
+    if ( mode==AlwaysOn ) qmode = Q3ScrollView::AlwaysOn;
+    else if ( mode==AlwaysOff ) qmode = Q3ScrollView::AlwaysOff;
     body_->setVScrollBarMode( qmode );
 }
 
@@ -384,12 +374,12 @@ void uiListView::setColumnWidthMode( int column, WidthMode mod )
     switch( mod )
     {
     case Manual : 
-	body_->setColumnWidthMode( column, mQListView::Manual );
+	body_->setColumnWidthMode( column, Q3ListView::Manual );
     break;
 
     default:
     case Maximum : 
-	body_->setColumnWidthMode( column, mQListView::Maximum );
+	body_->setColumnWidthMode( column, Q3ListView::Maximum );
     break;
     }
 }
@@ -399,11 +389,11 @@ uiListView::WidthMode uiListView::columnWidthMode( int column ) const
 {
     switch( body_->columnWidthMode(column) )
     {
-    case mQListView::Manual :
+    case Q3ListView::Manual :
 	return Manual;
 
     default:
-    case mQListView::Maximum : 
+    case Q3ListView::Maximum : 
 	return Maximum;
     }
 }
@@ -438,20 +428,20 @@ void uiListView::setSelectionMode( SelectionMode mod )
     switch( mod )
     {
     case Single : 
-	body_->setSelectionMode( mQListView::Single );
+	body_->setSelectionMode( Q3ListView::Single );
     break;
 
     case Multi : 
-	body_->setSelectionMode( mQListView::Multi );
+	body_->setSelectionMode( Q3ListView::Multi );
     break;
 
     case Extended : 
-	body_->setSelectionMode( mQListView::Extended );
+	body_->setSelectionMode( Q3ListView::Extended );
     break;
 
     default:
     case NoSelection : 
-	body_->setSelectionMode( mQListView::NoSelection );
+	body_->setSelectionMode( Q3ListView::NoSelection );
     break;
     }
 }
@@ -460,17 +450,17 @@ uiListView::SelectionMode uiListView::selectionMode() const
 {
     switch( body_->selectionMode() )
     {
-    case mQListView::Single :
+    case Q3ListView::Single :
 	return Single;
 
-    case mQListView::Multi :
+    case Q3ListView::Multi :
 	return Multi;
 
-    case mQListView::Extended :
+    case Q3ListView::Extended :
 	return Extended;
 
     default:
-    case mQListView::NoSelection : 
+    case Q3ListView::NoSelection : 
 	return NoSelection;
     }
 }
@@ -560,7 +550,7 @@ uiListViewItem* uiListView::findItem( const char* text, int column ) const
     update.
 */
 void uiListView::clear()
-    { body_->mQListView::clear(); }
+    { body_->Q3ListView::clear(); }
 
 void uiListView::invertSelection()
     { body_->invertSelection(); }
@@ -576,7 +566,7 @@ void uiListView::selectAll( bool yn )
 void uiListView::triggerUpdate()
     { body_->triggerUpdate(); }
 
-void uiListView::setNotifiedItem( mQListViewItem* itm)
+void uiListView::setNotifiedItem( Q3ListViewItem* itm)
     { lastitemnotified = mItemFor( itm ); }
 
 
@@ -592,52 +582,52 @@ void uiListView::activateMenu( uiListViewItem& uilvwitm )
 { body_->activateMenu( uilvwitm ); }
 
 
-class uiQListViewItem : public mQListViewItem
+class uiQListViewItem : public Q3ListViewItem
 {
 public:
 				uiQListViewItem( uiListViewItem& it, 
-						 mQListViewItem* parent ) 
-				: mQListViewItem( parent )
+						 Q3ListViewItem* parent ) 
+				: Q3ListViewItem( parent )
 				, item_( it )
 				{}
 
 				uiQListViewItem( uiListViewItem& it, 
-						 mQListView* parent ) 
-				: mQListViewItem( parent )
+						 Q3ListView* parent ) 
+				: Q3ListViewItem( parent )
 				, item_( it )
 				{}
 
     uiListViewItem&		uiItem() 	{ return item_; }
     const uiListViewItem&	uiItem() const 	{ return item_; }
 
-#define mBaseItemClsss		mQListViewItem
+#define mBaseItemClsss		Q3ListViewItem
 #include			"i_uilistview.h"
 
 protected:
     uiListViewItem&		item_;
 };
 
-class uiQCheckListItem : public mQCheckListItem
+class uiQCheckListItem : public Q3CheckListItem
 {
 public:
 				uiQCheckListItem( uiListViewItem& it, 
-						  mQListViewItem* parent,
+						  Q3ListViewItem* parent,
 						  Type tt) 
-				: mQCheckListItem( parent, QString(), tt )
+				: Q3CheckListItem( parent, QString(), tt )
 				, item_( it )
 				{}
 
 				uiQCheckListItem( uiListViewItem& it, 
 						  uiQCheckListItem* parent,
 						  Type tt) 
-				: mQCheckListItem( parent, QString(), tt )
+				: Q3CheckListItem( parent, QString(), tt )
 				, item_( it )
 				{}
 
 				uiQCheckListItem( uiListViewItem& it, 
-						  mQListView* parent,
+						  Q3ListView* parent,
 						  Type tt) 
-				: mQCheckListItem( parent, QString(), tt )
+				: Q3CheckListItem( parent, QString(), tt )
 				, item_( it )
 				{}
 
@@ -648,7 +638,7 @@ public:
 				    { item_.stateChanged.trigger(&item_); }
 
 
-#define mBaseItemClsss		mQCheckListItem
+#define mBaseItemClsss		Q3CheckListItem
 #include			"i_uilistview.h"
 
 protected:
@@ -663,18 +653,18 @@ public:
 						uiListView*, uiListViewItem*,
 						const uiListViewItem::Setup& );
 
-    mQListViewItem&		item()			{ return itm; }
-    const mQListViewItem&	item() const		{ return itm; }
+    Q3ListViewItem&		item()			{ return itm; }
+    const Q3ListViewItem&	item() const		{ return itm; }
     uiQCheckListItem*		chklstitem()		{ return clitm; }
     const uiQCheckListItem*	chklstitem() const	{ return clitm; }
 
 private:
 
-    mQListViewItem& 		mkitem( uiListViewItem&, uiListView*, 
+    Q3ListViewItem& 		mkitem( uiListViewItem&, uiListView*, 
 					uiListViewItem*, 
 					const uiListViewItem::Setup& setup );
 
-    mQListViewItem&		itm;
+    Q3ListViewItem&		itm;
     uiQCheckListItem*		clitm;
 
 };
@@ -687,7 +677,7 @@ uiListViewItemBody::uiListViewItemBody( uiListViewItem& handle,uiListView* lv,
     clitm = dynamic_cast<uiQCheckListItem*>( &itm );
 }
 
-mQListViewItem& uiListViewItemBody::mkitem( uiListViewItem& handle,
+Q3ListViewItem& uiListViewItemBody::mkitem( uiListViewItem& handle,
     uiListView* lv, uiListViewItem* lvitm, const uiListViewItem::Setup& setup )
 {
     if( setup.type_ == uiListViewItem::Standard )
@@ -697,17 +687,17 @@ mQListViewItem& uiListViewItemBody::mkitem( uiListViewItem& handle,
 	if( lvitm && lvitm->itmbody() )
 	    return *new uiQListViewItem( handle, &lvitm->itmbody()->item() );
 
-	return *new uiQListViewItem( handle, (mQListView*)0 );
+	return *new uiQListViewItem( handle, (Q3ListView*)0 );
 
     }
     else
     {
-	mQCheckListItem::Type tt = mQCheckListItem::Controller;
+	Q3CheckListItem::Type tt = Q3CheckListItem::Controller;
 	switch( setup.type_ )
 	{
-	case uiListViewItem::RadioButton : tt = mQCheckListItem::RadioButton; 
+	case uiListViewItem::RadioButton : tt = Q3CheckListItem::RadioButton; 
 	break;
-	case uiListViewItem::CheckBox	 : tt = mQCheckListItem::CheckBox; 
+	case uiListViewItem::CheckBox	 : tt = Q3CheckListItem::CheckBox; 
 	break;
 	}
 
@@ -722,7 +712,7 @@ mQListViewItem& uiListViewItemBody::mkitem( uiListViewItem& handle,
 	    return *new uiQCheckListItem(handle, &lvitm->itmbody()->item(),tt);
 	}
 
-	return *new uiQCheckListItem( handle, (mQListView*)0, tt );
+	return *new uiQCheckListItem( handle, (Q3ListView*)0, tt );
     }
 }
 
@@ -798,13 +788,13 @@ void uiListViewItem::removeItem( uiListViewItem* itm)
 
 int uiListViewItem::siblingIndex() const
 {
-    const mQListViewItem* thisp = &mQthing();
-    const mQListViewItem* parentitem = mQthing().parent();
-    const mQListView* parentlistview = mQthing().listView();
+    const Q3ListViewItem* thisp = &mQthing();
+    const Q3ListViewItem* parentitem = mQthing().parent();
+    const Q3ListView* parentlistview = mQthing().listView();
     if ( !parentitem && !parentlistview )
 	return -1;
     
-    mQListViewItem* curitem = parentitem ? parentitem->firstChild()  
+    Q3ListViewItem* curitem = parentitem ? parentitem->firstChild()  
 					 : parentlistview->firstChild();
     int idx=0;
     while ( curitem && curitem!=thisp )
@@ -829,7 +819,7 @@ int uiListViewItem::depth() const
 void uiListViewItem::setText( const char* txt, int column )
 { 
     QString txt_(txt);
-    mQListViewItem& itm = mQthing();
+    Q3ListViewItem& itm = mQthing();
 
     itm.setText(column,txt_); 
 }
@@ -900,7 +890,7 @@ uiListViewItem* uiListViewItem::itemBelow()
 
 uiListView* uiListViewItem::listView() const
 {
-    mQListView* lv = mQthing().listView();
+    Q3ListView* lv = mQthing().listView();
     uiListViewBody* lvb = dynamic_cast<uiListViewBody*>(lv);
     if ( !lvb ) return 0;
 
@@ -974,18 +964,18 @@ bool uiListViewItem::multiLinesEnabled() const
 
 
 
-mQListViewItem* uiListViewItem::qitemFor( uiListViewItem* itm )
+Q3ListViewItem* uiListViewItem::qitemFor( uiListViewItem* itm )
 {
     return &itm->body_->item();
 }
 
-const mQListViewItem*  uiListViewItem::qitemFor( const uiListViewItem* itm )
+const Q3ListViewItem*  uiListViewItem::qitemFor( const uiListViewItem* itm )
 {
     return &itm->body_->item();
 }
 
 
-uiListViewItem*  uiListViewItem::itemFor( mQListViewItem* itm )
+uiListViewItem*  uiListViewItem::itemFor( Q3ListViewItem* itm )
 {
     uiQListViewItem* uiql = dynamic_cast<uiQListViewItem*>(itm);
     if( uiql )  return &uiql->uiItem();
@@ -996,7 +986,7 @@ uiListViewItem*  uiListViewItem::itemFor( mQListViewItem* itm )
     return 0;
 }
 
-const uiListViewItem* uiListViewItem::itemFor( const mQListViewItem* itm )
+const uiListViewItem* uiListViewItem::itemFor( const Q3ListViewItem* itm )
 {
     const uiQListViewItem* uiql = dynamic_cast<const uiQListViewItem*>(itm);
     if( uiql )  return &uiql->uiItem();
