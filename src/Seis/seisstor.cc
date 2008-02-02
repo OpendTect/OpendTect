@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.35 2008-01-23 15:12:06 cvsbert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.36 2008-02-02 14:05:40 cvsbert Exp $";
 
 #include "seisseqio.h"
 #include "seisread.h"
@@ -364,6 +364,12 @@ Seis::ODSeqOut::~ODSeqOut()
 Seis::GeomType Seis::ODSeqOut::geomType() const
 {
     return wrr_ ? wrr_->geomType() : Seis::Vol;
+}
+
+
+void Seis::ODSeqOut::initClass()
+{
+    Seis::SeqOut::factory().addCreator( create, sKeyODType );
 }
 
 
