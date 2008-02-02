@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.1 2008-01-30 16:38:39 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.2 2008-02-02 14:05:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,9 +96,7 @@ public:
 				     const ObjectSet<DataColDef>&);
     			DataPointSet(const TypeSet<DataRow>&,
 				     const BufferStringSet& valnms);
-    			DataPointSet(const PosVecDataSet&,bool haveoffs=false,
-				     bool havegroup=false);
-			//!< Must have Z column, opt xoffs&yoffs and group cols
+    			DataPointSet(const PosVecDataSet&);
     			DataPointSet(const DataPointSet&);
     virtual		~DataPointSet();
     DataPointSet&	operator =(const DataPointSet&);
