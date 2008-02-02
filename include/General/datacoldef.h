@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jan 2005
- RCS:		$Id: datacoldef.h,v 1.3 2005-06-08 16:45:34 cvsbert Exp $
+ RCS:		$Id: datacoldef.h,v 1.4 2008-02-02 14:05:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,10 @@ public:
 				DataColDef( const char* nm, const char* ref=0,
 					    const UnitOfMeasure* un=0 )
 				: name_(nm), ref_(ref), unit_(un)	{}
+    bool			operator ==( const DataColDef& dcd ) const
+				{ return name_ == dcd.name_
+				      && ref_ == dcd.ref_
+				      && unit_ == dcd.unit_; }
 
     BufferString		name_;
     BufferString		ref_;
