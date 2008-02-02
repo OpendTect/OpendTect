@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.3 2008-01-31 07:46:41 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.4 2008-02-02 14:04:48 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -72,8 +72,7 @@ DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
 }
 
 
-DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool hasoffs,
-       			    bool hasgrp	)
+DataPointSet::DataPointSet( const PosVecDataSet& pdvs )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
 {
@@ -81,7 +80,11 @@ DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool hasoffs,
 
     const BinIDValueSet& bvs = pdvs.data();
     const int bvssz = bvs.nrVals();
-    int startidx = hasoffs ? 3 : 1; if ( hasgrp ) startidx++;
+    const bool isdps = bvssz >= nrfixedcols_
+		    && pdvs.colDef(1) == data_.colDef(1)
+		    && pdvs.colDef(2) == data_.colDef(2)
+		    && pdvs.colDef(3) == data_.colDef(3);
+    const int startidx = isdps ? nrfixedcols_ : 1;
     if ( bvssz < startidx ) return;
 
     for ( int idx=startidx; idx<bvssz; idx++ )
@@ -95,8 +98,11 @@ DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool hasoffs,
     {
 	bvs.get( bvspos, dr.pos_.binid_, vals );
 	dr.pos_.z_ = vals[0];
-	if ( hasoffs )
-	    { dr.pos_.offsx_ = vals[1]; dr.pos_.offsy_ = vals[2]; }
+	if ( isdps )
+	{
+	    dr.pos_.offsx_ = vals[1]; dr.pos_.offsy_ = vals[2];
+	    dr.grp_ = (short)vals[3];
+	}
 	for ( int idx=startidx; idx<bvssz; idx++ )
 	    dr.data_[idx-startidx] = vals[idx];
 	addRow( dr );
