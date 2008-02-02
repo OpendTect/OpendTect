@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posprovider.h,v 1.1 2008-02-01 14:02:04 cvsbert Exp $
+ RCS:           $Id: posprovider.h,v 1.2 2008-02-02 13:01:52 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -83,7 +83,7 @@ public:
 
 			RectVolumeProvider(bool for2d);
     virtual void	reset();
-    virtual bool	initialize();
+    virtual bool	initialize()		{ reset(); return true; }
 
     virtual bool	toNextPos();
     virtual bool	toNextZ();
