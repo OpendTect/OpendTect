@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uioddatatreeitem.h,v 1.10 2007-11-27 11:58:14 cvsraman Exp $
+ RCS:		$Id: uioddatatreeitem.h,v 1.11 2008-02-04 07:09:58 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -29,6 +29,7 @@ public:
 				~uiODDataTreeItem();
 
     bool			select();
+    int				displayID() const;
     int				attribNr() const;
 
     static const int		cPixmapWidth()		{ return 16; }
@@ -57,7 +58,6 @@ protected:
     bool			isSelectable() const	{ return true; }
     bool			isExpandable() const	{ return false; }
     const char*			parentType() const	{ return parenttype_; }
-    int				displayID() const;
     bool			showSubMenu();
 
     virtual void		createMenuCB(CallBacker*);
