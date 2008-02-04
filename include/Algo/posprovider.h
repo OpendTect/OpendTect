@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posprovider.h,v 1.2 2008-02-02 13:01:52 cvsbert Exp $
+ RCS:           $Id: posprovider.h,v 1.3 2008-02-04 16:23:26 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -15,102 +15,156 @@ ________________________________________________________________________
 
 #include "position.h"
 #include "factory.h"
-#include "cubesampling.h"
+#include "ranges.h"
 class Executor;
 class IOPar;
+class CubeSampling;
 
 namespace Pos
 {
 
-/*!\brief provides an area subselection.
+/*!\brief provides a subselection.
 
   Most providers require initialization. initialize() will always initialize
   the object, but this may take a long time. If that is an issue,
   try obtaining the initializer(). If that is null, then call initialize().
-  If you need to iterate through the area again, use reset().
+  If you need to iterate again, use reset().
+
+  toNextPos() will ignore any Z settings and go to the first Z on the next 
+  position. toNextZ() is the normal 'iterator increment'. After initialization,
+  you need to do toNextZ() or toNextPos() for a valid position.
+
+  The Provider can also return whether a position is included.
+
  */
 
-class AreaProvider
+class Provider
 {
 public:
+
+    virtual		~Provider()		{}
 
     virtual bool	initialize();
-    virtual Executor*	initializer() const		{ return 0; }
+    virtual Executor*	initializer() const	{ return 0; }
 
-    virtual void	reset()				{}
+    virtual void	reset()			= 0;
 
-    virtual bool	toNextPos()			= 0;
-    virtual BinID	curBinID() const		= 0;
+    virtual bool	toNextPos()		= 0;
+    virtual bool	toNextZ()		= 0;
+    virtual Coord	curCoord() const	= 0;
+    virtual float	curZ() const		= 0;
+
+    virtual bool	includes(const Coord&,float z=mUdf(float)) const = 0;
+
+    virtual void	usePar(const IOPar&)			= 0;
+    virtual void	fillPar(IOPar&) const			= 0;
+
+};
+
+
+/*!\brief provides a subselection for 3D surveys */
+
+class Provider3D : public Provider
+{
+public:
+
+    virtual BinID	curBinID() const	= 0;
     virtual Coord	curCoord() const;
 
-    virtual bool	isSelected(const BinID&) const	= 0;
-    virtual bool	isSelected(const Coord&) const;
+    virtual bool	includes(const BinID&,float z=mUdf(float)) const = 0;
+    virtual bool	includes(const Coord&,float z=mUdf(float)) const;
 
-    virtual void	usePar(const IOPar&)		= 0;
-    virtual void	fillPar(IOPar&) const		= 0;
-
-    mDefineFactory1ParamInClass(AreaProvider,bool,factory);
+    mDefineFactoryInClass(Provider3D,factory);
 
 };
 
 
-/*!\brief provides a volume subselection.
+/*!\brief provides a subselection for 2D surveys - requires the line name(s). */
 
-  * Requires creation parameter: for 2D lines?
-  * toNextZ may go to the next position.
- */
-
-class VolumeProvider : public AreaProvider
+class Provider2D
 {
 public:
 
-    virtual bool	toNextZ()				{ return false;}
-    virtual float	curZ() const				= 0;
+    virtual int		curNr() const				= 0;
+    virtual bool	includes(int,float z=mUdf(float)) const	= 0;
 
-    virtual bool	isSelected(const BinID&,float) const	= 0;
-    virtual bool	isSelected(const Coord&,float) const;
-
-    mDefineFactory1ParamInClass(VolumeProvider,bool,factory);
+    mDefineFactoryInClass(Provider2D,factory);
 
 };
 
 
-/*!\brief Volume/Area provider based on CubeSampling */
+/*!\brief 3D provider based on CubeSampling */
 
-class RectVolumeProvider : public VolumeProvider
+class Rect3DProvider : public Provider3D
 {
 public:
 
-			RectVolumeProvider(bool for2d);
+			Rect3DProvider();
+			~Rect3DProvider();
+
     virtual void	reset();
-    virtual bool	initialize()		{ reset(); return true; }
 
     virtual bool	toNextPos();
     virtual bool	toNextZ();
 
     virtual BinID	curBinID() const	{ return curbid_; }
     virtual float	curZ() const		{ return curz_; }
-    virtual bool	isSelected( const BinID& b ) const
-			{ return cs_.hrg.includes( b ); }
-    virtual bool	isSelected(const BinID&,float) const;
+    virtual bool	includes(const BinID&,float z=mUdf(float)) const;
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
 
-    CubeSampling	cs_;
+    CubeSampling&	sampling()		{ return cs_; }
+    const CubeSampling&	sampling() const	{ return cs_; }
 
 protected:
 
-    bool		is2d_;
+    CubeSampling&	cs_;
     BinID		curbid_;
     float		curz_;
 
 public:
 
     static void		initClass();
-    static AreaProvider* createAP( bool for2d )
-    			{ return new RectVolumeProvider(for2d); }
-    static VolumeProvider* createVP( bool for2d )
-    			{ return new RectVolumeProvider(for2d); }
+    static Provider3D*	create()	{ return new Rect3DProvider; }
+
+};
+
+
+/*!\brief 2D provider based on StepInterval<int> */
+
+class Rect2DProvider : public Provider2D
+{
+public:
+
+			Rect2DProvider();
+
+    virtual void	reset();
+
+    virtual bool	toNextPos();
+    virtual bool	toNextZ();
+
+    virtual int		curNr() const		{ return curnr_; }
+    virtual float	curZ() const		{ return curz_; }
+    virtual bool	includes(int,float z=mUdf(float)) const;
+    virtual void	usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
+
+    const StepInterval<int>&	nrRange() const	{ return rg_; }
+    StepInterval<int>&		nrRange()	{ return rg_; }
+    const StepInterval<float>&	zRange() const	{ return zrg_; }
+    StepInterval<float>&	zRange()	{ return zrg_; }
+
+protected:
+
+    StepInterval<int>	rg_;
+    StepInterval<float>	zrg_;
+    int			curnr_;
+    float		curz_;
+
+public:
+
+    static void		initClass();
+    static Provider2D*	create()	{ return new Rect2DProvider; }
 
 };
 
