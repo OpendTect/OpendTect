@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.9 2007-12-24 16:51:22 cvsbert Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.10 2008-02-04 16:21:00 cvsbert Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -405,7 +405,7 @@ void Seis::TableSelData::usePar( const IOPar& iop )
     {
 	StreamData sd( StreamProvider(res).makeIStream() );
 	if ( sd.usable() )
-	    bvs_.getFrom( *sd.istrm );
+	    { bvs_.getFrom( *sd.istrm ); sd.close(); }
     }
 
     if ( bvs_.isEmpty() )
