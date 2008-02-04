@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.89 2007-12-24 05:34:16 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.90 2008-02-04 16:26:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ ________________________________________________________________________
 #include "timer.h"
 
 #include "initalgo.h"
+#include "initgeneral.h"
 #include "initattributes.h"
 #include "initattributeengine.h"
 #include "initearthmodel.h"
@@ -89,6 +90,7 @@ uiODMain* ODMainWin()
 void initAll()
 {
     Algo::initStdClasses();
+    General::initStdClasses();
     EarthModel::initStdClasses();
     Seis::initStdClasses();
     AttributeEngine::initStdClasses();
