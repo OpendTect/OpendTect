@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne and Kristofer
  Date:          December 2007
- RCS:           $Id: initalgo.cc,v 1.2 2008-02-01 14:02:15 cvsbert Exp $
+ RCS:           $Id: initalgo.cc,v 1.3 2008-02-04 16:22:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,5 +21,6 @@ void Algo::initStdClasses()
     BlackmanWindow::initClass();
     BartlettWindow::initClass();
     CosTaperWindow::initClass();
-    Pos::RectVolumeProvider::initClass();
+    Pos::Rect3DProvider::initClass();
+    Pos::Rect2DProvider::initClass();
 }
