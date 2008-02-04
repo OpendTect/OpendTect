@@ -8,12 +8,11 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.8 2008-01-09 13:54:34 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.9 2008-02-04 16:19:18 cvsbert Exp $";
 
 #include "uicreatepicks.h"
 
 #include "uibinidsubsel.h"
-#include "uibutton.h"
 #include "uicolor.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
