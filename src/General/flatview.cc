@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.28 2007-12-13 09:31:00 cvsbert Exp $
+ RCS:           $Id: flatview.cc,v 1.29 2008-02-04 16:49:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -258,24 +258,20 @@ void FlatView::Annotation::AuxData::empty()
 
 #define mIOPDoWVA(fn,keynm,memb) \
     iop.fn( IOPar::compKey(sKeyWVA,keynm), memb )
-#define mIOPDoWVA2(fn,keynm,memb1,memb2) \
-    iop.fn( IOPar::compKey(sKeyWVA,keynm), memb1, memb2 )
 #define mIOPDoVD(fn,keynm,memb) \
     iop.fn( IOPar::compKey(sKeyVD,keynm), memb )
-#define mIOPDoVD2(fn,keynm,memb1,memb2) \
-    iop.fn( IOPar::compKey(sKeyVD,keynm), memb1, memb2 )
 
 void FlatView::DataDispPars::fillPar( IOPar& iop ) const
 {
     mIOPDoVD( setYN, sKeyShow, vd_.show_ );
-    mIOPDoVD2( set, sKeyDispRg, vd_.rg_.start, vd_.rg_.stop );
+    mIOPDoVD( set, sKeyDispRg, vd_.rg_ );
     mIOPDoVD( set, sKeyColTab, vd_.ctab_ );
     mIOPDoVD( setYN, sKeyBlocky, vd_.blocky_ );
     mIOPDoVD( set, sKeyClipPerc, vd_.clipperc_ );
     mIOPDoVD( set, sKeyMidValue, vd_.midvalue_ );
 
     mIOPDoWVA( setYN, sKeyShow, wva_.show_ );
-    mIOPDoWVA2( set, sKeyDispRg, wva_.rg_.start, wva_.rg_.stop );
+    mIOPDoWVA( set, sKeyDispRg, wva_.rg_ );
     mIOPDoWVA( setYN, sKeyBlocky, wva_.blocky_ );
     mIOPDoWVA( set, sKeyClipPerc, wva_.clipperc_ );
     mIOPDoWVA( set, sKeyWiggCol, wva_.wigg_ );
@@ -290,14 +286,14 @@ void FlatView::DataDispPars::fillPar( IOPar& iop ) const
 void FlatView::DataDispPars::usePar( const IOPar& iop )
 {
     mIOPDoVD( getYN, sKeyShow, vd_.show_ );
-    mIOPDoVD2( get, sKeyDispRg, vd_.rg_.start, vd_.rg_.stop );
+    mIOPDoVD( get, sKeyDispRg, vd_.rg_ );
     mIOPDoVD( get, sKeyColTab, vd_.ctab_ );
     mIOPDoVD( getYN, sKeyBlocky, vd_.blocky_ );
     mIOPDoVD( get, sKeyClipPerc, vd_.clipperc_ );
     mIOPDoVD( get, sKeyMidValue, vd_.midvalue_ );
 
     mIOPDoWVA( getYN, sKeyShow, wva_.show_ );
-    mIOPDoWVA2( get, sKeyDispRg, wva_.rg_.start, wva_.rg_.stop );
+    mIOPDoWVA( get, sKeyDispRg, wva_.rg_ );
     mIOPDoWVA( getYN, sKeyBlocky, wva_.blocky_ );
     mIOPDoWVA( get, sKeyClipPerc, wva_.clipperc_ );
     mIOPDoWVA( get, sKeyWiggCol, wva_.wigg_ );

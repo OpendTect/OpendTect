@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.32 2007-11-29 14:36:03 cvsbert Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.33 2008-02-04 16:49:33 cvsbert Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -450,8 +450,7 @@ bool CubeSampling::operator==( const CubeSampling& cs ) const
 
 bool CubeSampling::usePar( const IOPar& par )
 {
-    return hrg.usePar( par ) &&
-	   par.get( sKey::ZRange, zrg.start, zrg.stop, zrg.step );
+    return hrg.usePar( par ) && par.get( sKey::ZRange, zrg );
 }
 
 

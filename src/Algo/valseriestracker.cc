@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: valseriestracker.cc,v 1.2 2007-06-25 21:45:10 cvskris Exp $";
+static const char* rcsID = "$Id: valseriestracker.cc,v 1.3 2008-02-04 16:49:33 cvsbert Exp $";
 
 #include "valseriestracker.h"
 
@@ -350,11 +350,11 @@ void EventTracker::fillPar( IOPar& iopar ) const
 {
     ValSeriesTracker::fillPar( iopar );
     iopar.set( sKeyTrackEvent(), eString(VSEvent::Type,evtype_) );
-    iopar.set( sKeyPermittedZRange(), permzrange_.start, permzrange_.stop );
+    iopar.set( sKeyPermittedZRange(), permzrange_ );
     iopar.set( sKeyValueThreshold(), ampthreshold_ );
     iopar.set( sKeyAllowedVariance(), allowedvar_);
     iopar.setYN( sKeyUseAbsThreshold(), useabsthreshold_ );
-    iopar.set( sKeySimWindow(), similaritywin_.start, similaritywin_.stop );
+    iopar.set( sKeySimWindow(), similaritywin_ );
     iopar.set( sKeySimThreshold(), similaritythreshold_ );
     iopar.setYN( sKeyTrackByValue(), !usesimilarity_ );
 }
@@ -367,11 +367,11 @@ bool EventTracker::usePar( const IOPar& iopar )
 
     const char* res = iopar.find( sKeyTrackEvent() );
     if ( res && *res ) evtype_ = eEnum(VSEvent::Type,res);
-    iopar.get( sKeyPermittedZRange(),permzrange_.start,permzrange_.stop );
+    iopar.get( sKeyPermittedZRange(), permzrange_ );
     iopar.get( sKeyValueThreshold(), ampthreshold_ );
     iopar.get( sKeyAllowedVariance(), allowedvar_);
     iopar.getYN( sKeyUseAbsThreshold(), useabsthreshold_ );
-    iopar.get( sKeySimWindow(),similaritywin_.start,similaritywin_.stop );
+    iopar.get( sKeySimWindow(),similaritywin_ );
     iopar.get( sKeySimThreshold(), similaritythreshold_ );
     bool trackbyvalue;
     if ( iopar.getYN( sKeyTrackByValue(), trackbyvalue ) )

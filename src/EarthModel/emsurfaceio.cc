@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.95 2007-12-18 14:58:16 cvsjaap Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.96 2008-02-04 16:49:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -213,8 +213,8 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 	sectionnames_ += sectionname.size() ? new BufferString(sectionname) : 0;
     }
 
-    par_->get( sKeyRowRange(), rowrange_.start, rowrange_.stop, rowrange_.step);
-    par_->get( sKeyColRange(), colrange_.start, colrange_.stop, colrange_.step);
+    par_->get( sKeyRowRange(), rowrange_ );
+    par_->get( sKeyColRange(), colrange_ );
 
     for ( int idx=0; idx<nrSections(); idx++ )
 	sectionsel_ += sectionID(idx);
