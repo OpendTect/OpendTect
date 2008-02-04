@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.32 2008-02-01 16:57:51 cvskris Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.33 2008-02-04 07:31:37 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ___________________________________________________________________
 #include "uimenuhandler.h"
 #include "uimsg.h"
 #include "uiodapplmgr.h"
+#include "uiodeditattribcolordlg.h"
 #include "uiodscenemgr.h"
 #include "uiseispartserv.h"
 #include "uislicesel.h"
@@ -30,7 +31,6 @@ ___________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribsel.h"
-#include "colortab.h"
 #include "externalattrib.h"
 #include "linekey.h"
 #include "segposinfo.h"
@@ -104,6 +104,7 @@ uiOD2DLineSetTreeItem::uiOD2DLineSetTreeItem( const MultiID& mid )
     , addattritm_("Add A&ttribute")
     , removeattritm_("Re&move Attribute")
     , editattritm_("&Edit Attribute")
+    , editcoltabitm_("Edit Color Settings")
     , showitm_("&Show all")
     , hideitm_("&Hide all")
     , showlineitm_("&Lines")
@@ -203,15 +204,18 @@ void uiOD2DLineSetTreeItem::createAttrMenu( uiMenuHandler* menu )
 
     if ( displayedattribs.size() )
     {
-	if ( displayedattribs.size()>1
-	     || displayedattribs.get(0)!="<Unselected>" )
+	editattritm_.createItems( displayedattribs );
+	mAddMenuItem( menu, &editattritm_, true, false );
+	const int emptyidx = displayedattribs.indexOf( "<Unselected>" );
+	if ( emptyidx >= 0 ) displayedattribs.remove( emptyidx );
+
+	if ( displayedattribs.size() )
 	{
+	    editcoltabitm_.createItems( displayedattribs );
+	    mAddMenuItem( menu, &editcoltabitm_, true, false );
 	    removeattritm_.createItems( displayedattribs );
     	    mAddMenuItem( menu, &removeattritm_, true, false );
 	}
-
-	editattritm_.createItems( displayedattribs );
-	mAddMenuItem( menu, &editattritm_, true, false );
     }
 }
     
@@ -287,34 +291,40 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	    lineitem->addAttrib( as );
 	}
     }
+    else if ( editcoltabitm_.itemIndex(mnuid)!=-1 )
+    {
+	menu->setIsHandled( true );
+	const int itmidx = editcoltabitm_.itemIndex( mnuid );
+	BufferString attrnm = editcoltabitm_.getItem(itmidx)->text;
+	ObjectSet<uiTreeItem> set;
+	findChildren( attrnm, set );
+	if ( set.size() )
+	{
+	    uiODEditAttribColorDlg dlg( ODMainWin(), set, attrnm );
+	    dlg.go();
+	}
+    }
     else if ( editattritm_.itemIndex(mnuid)!=-1 )
     {
 	menu->setIsHandled( true );
 	const int itmidx = editattritm_.itemIndex( mnuid );
 	BufferString curnm = editattritm_.getItem(itmidx)->text;
-	const char* attribnm = curnm=="<Unselected>" ? 0 : curnm.buf();
+	const char* attribnm = curnm=="<Unselected>" ? "<right-click>"
+	    					     : curnm.buf();
 	const Attrib::DescSet* ds = applMgr()->attrServer()->curDescSet( true );
 	uiAttr2DSelDlg dlg( ODMainWin(), ds, setid_, attribnm );
 	if ( !dlg.go() ) return;
 
-	if ( dlg.needToSetColTab() )
-	{
-	    const char* coltabnm = dlg.getColTabName();
-	    for ( int idx=0; idx<children_.size(); idx++ )
-	    {
-		mDynamicCastGet(uiOD2DLineSetSubItem*,litem,children_[idx])
-		litem->setColorTable( curnm, coltabnm );
-	    }
-	}
-
+	ObjectSet<uiTreeItem> set;
+	findChildren( attribnm, set );
 	const int attrtype = dlg.getSelType();
 	if ( attrtype == 0 )
 	{
 	    const char* newattrnm = dlg.getStoredAttrName();
-	    for ( int idx=0; idx<children_.size(); idx++ )
+	    for ( int idx=0; idx<set.size(); idx++ )
 	    {
-		mDynamicCastGet(uiOD2DLineSetSubItem*,litem,children_[idx])
-		litem->replaceAttrib( attribnm, newattrnm );
+		mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
+		if ( item ) item->displayStoredData( newattrnm );
 	    }
 	}
 	else if ( attrtype == 1 )
@@ -327,10 +337,10 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	    }
 
 	    as.set( *desc );
-	    for ( int idx=0; idx<children_.size(); idx++ )
+	    for ( int idx=0; idx<set.size(); idx++ )
 	    {
-		mDynamicCastGet(uiOD2DLineSetSubItem*,litem,children_[idx])
-		litem->replaceAttrib( attribnm, as );
+		mDynamicCastGet(uiOD2DLineSetAttribItem*,item,set[idx])
+		item->setAttrib( as );
 	    }
 	}
     }
@@ -478,33 +488,6 @@ uiODDataTreeItem* uiOD2DLineSetSubItem::createAttribItem(
 
     if ( !res ) res = new uiOD2DLineSetAttribItem( parenttype );
     return res;
-}
-
-
-void uiOD2DLineSetSubItem::setColorTable( const char* attrnm,
-					  const char* ctabnm )
-{
-    if ( !attrnm || !(*attrnm) || !ctabnm || !(*ctabnm) )
-	return;
-
-    BufferString itemnm = attrnm;
-    if ( itemnm=="<Unselected>") itemnm = "<right-click>";
-
-    for ( int idx=0; idx<children_.size(); idx++ )
-    {
-	mDynamicCastGet( uiOD2DLineSetAttribItem*, item, children_[idx] );
-	if ( !item || itemnm!=item->name() ) continue;
-
-	const int id = applMgr()->visServer()->getColTabId( displayID(),
-							    item->attribNr() );
-	if ( id < 0 ) continue;
-
-	mDynamicCastGet(visBase::VisColorTab*,obj,visBase::DM().getObject(id) );
-	ColorTable::get( ctabnm, obj->colorSeq().colors() );
-	obj->sequencechange.trigger();
-    }
-
-    updateColumnText( uiODSceneMgr::cColorColumn() );
 }
 
 
@@ -715,43 +698,6 @@ void uiOD2DLineSetSubItem::removeAttrib( const char* attribnm )
 	item->prepareForShutdown();
 	removeChild( item );
 	idx--;
-    }
-}
-
-
-void uiOD2DLineSetSubItem::replaceAttrib( const char* oldnm, const char* newnm)
-{
-    BufferString itemnm;
-    if ( oldnm && *oldnm )
-	itemnm = oldnm;
-    else
-	itemnm = "<right-click>";
-
-    for ( int idx=0; idx<children_.size(); idx++ )
-    {
-	mDynamicCastGet( uiOD2DLineSetAttribItem*, item, children_[idx] );
-	if ( !item || itemnm!=item->name() ) continue;
-
-	item->displayStoredData( newnm );
-    }
-}
-
-
-void uiOD2DLineSetSubItem::replaceAttrib( const char* oldnm,
-					  const Attrib::SelSpec& newas )
-{
-    BufferString itemnm;
-    if ( oldnm && *oldnm )
-	itemnm = oldnm;
-    else
-	itemnm = "<right-click>";
-
-    for ( int idx=0; idx<children_.size(); idx++ )
-    {
-	mDynamicCastGet( uiOD2DLineSetAttribItem*, item, children_[idx] );
-	if ( !item || itemnm!=item->name() ) continue;
-
-	item->setAttrib( newas );
     }
 }
 
