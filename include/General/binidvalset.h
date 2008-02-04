@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		July 2004
- RCS:		$Id: binidvalset.h,v 1.17 2008-01-30 15:13:49 cvsbert Exp $
+ RCS:		$Id: binidvalset.h,v 1.18 2008-02-04 16:22:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,7 @@ public:
     struct Pos
     {
 			Pos( int ii=-1, int jj=-1 ) : i(ii), j(jj)	{}
+	void		reset()			{ i = j = -1; }
 	inline bool	operator ==( const Pos& p ) const
 						{ return i == p.i && j == p.j; }
 	inline bool	operator !=( const Pos& p ) const
