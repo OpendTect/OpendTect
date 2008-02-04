@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodseis2dtreeitem.h,v 1.6 2007-12-07 12:13:11 cvsraman Exp $
+ RCS:		$Id: uiodseis2dtreeitem.h,v 1.7 2008-02-04 07:11:22 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -60,6 +60,7 @@ protected:
     MenuItem            zrgitm_;
     MenuItem            addattritm_;
     MenuItem            removeattritm_;
+    MenuItem		editcoltabitm_;
     MenuItem            editattritm_;
     MenuItem            showitm_;
     MenuItem            hideitm_;
@@ -83,9 +84,6 @@ public:
     void		showLineName(bool);
     void		setZRange(const Interval<float>);
     void		removeAttrib(const char*);
-    void		replaceAttrib(const char*,const char*);
-    void                replaceAttrib(const char*,const Attrib::SelSpec&);
-    void		setColorTable(const char* attrnm,const char* ctabnm);
 
 protected:
 			~uiOD2DLineSetSubItem();
