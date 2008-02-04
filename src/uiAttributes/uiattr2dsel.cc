@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Nov 2007
- RCS:           $Id: uiattr2dsel.cc,v 1.3 2007-12-10 05:25:22 cvsraman Exp $
+ RCS:           $Id: uiattr2dsel.cc,v 1.4 2008-02-04 07:33:04 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "attribparam.h"
 #include "attribsel.h"
 #include "attribstorprovider.h"
-#include "colortab.h"
 #include "hilbertattrib.h"
 #include "ioman.h"
 #include "iodir.h"
@@ -33,7 +32,6 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uibuttongroup.h"
-#include "uicombobox.h"
 #include "uigeninput.h"
 #include "uilabel.h"
 #include "uilistbox.h"
@@ -49,11 +47,9 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
 	, descid_(-1,true)
 	, curnm_(curnm)
 	, seltype_(0)
-	, usecoltab_(false)
 	, selgrp_(0)
 	, storoutfld_(0)
 	, attroutfld_(0)
-	, coltabsel_(0)
 {
     attrinf_ = new SelInfo( ds, 0, true );
 
@@ -75,7 +71,6 @@ uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
     }
 
     selgrp_->selectButton( seltype_ );
-    createColorFields();
     finaliseStart.notify( mCB( this,uiAttr2DSelDlg,doFinalise) );
 }
 
@@ -90,34 +85,10 @@ uiAttr2DSelDlg::~uiAttr2DSelDlg()
 static int sPixmapWidth = 16;
 static int sPixmapHeight = 10;
 
-void uiAttr2DSelDlg::createColorFields()
-{
-    coltabfld_ = new uiCheckBox( this, "Set Color Table for this attribute");
-    coltabfld_->activated.notify( mCB(this,uiAttr2DSelDlg,colTabSel) );
-    coltabfld_->attach( alignedBelow, storoutfld_ );
-    if ( attroutfld_ ) coltabfld_->attach( ensureBelow, attroutfld_ );
-
-    NamedBufferStringSet ctabs( "Color table" );
-    ColorTable::getNames( ctabs );
-    ctabs.sort();
-    coltabsel_ = new uiComboBox( this, ctabs, "Select Color Table" );
-    const int nrcoltabs = ctabs.size();
-    for ( int idx=0; idx<nrcoltabs; idx++ )
-    {
-	const char* ctname = ctabs.get( idx );
-	ioPixmap pm( ctname, sPixmapWidth, sPixmapHeight );
-	coltabsel_->setPixmap( pm, idx );
-    }
-
-    coltabsel_->attach( rightTo, coltabfld_ );
-}
-
-
 
 void uiAttr2DSelDlg::doFinalise( CallBacker* )
 {
     selDone(0);
-    colTabSel(0);
 }
 
 
@@ -177,13 +148,6 @@ void uiAttr2DSelDlg::selDone( CallBacker* c )
 }
 
 
-void uiAttr2DSelDlg::colTabSel( CallBacker* c )
-{
-    usecoltab_ = coltabfld_->isChecked();
-    coltabsel_->setSensitive( usecoltab_ );
-}
-
-
 bool uiAttr2DSelDlg::acceptOK( CallBacker* )
 {
     int selidx = -1;
@@ -211,7 +175,6 @@ bool uiAttr2DSelDlg::acceptOK( CallBacker* )
     else if ( seltype_ == 0 )
 	storednm_ = storoutfld_->getText();
 
-    if ( usecoltab_ ) coltabnm_ = coltabsel_->text();
     return true;
 }
 
