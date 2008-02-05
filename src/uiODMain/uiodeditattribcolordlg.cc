@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	R. K. Singh
  Date: 		Jan 2008
- RCS:		$Id: uiodeditattribcolordlg.cc,v 1.2 2008-02-05 09:53:18 cvsraman Exp $
+ RCS:		$Id: uiodeditattribcolordlg.cc,v 1.3 2008-02-05 10:05:35 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ___________________________________________________________________
 #include "colortab.h"
 #include "coltabedit.h"
 #include "uibutton.h"
+#include "uicursor.h"
 #include "uiodapplmgr.h"
 #include "uiodattribtreeitem.h"
 #include "uiodscenemgr.h"
@@ -70,6 +71,7 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 
 void uiODEditAttribColorDlg::doApply( CallBacker* )
 {
+    uiCursorChanger cursorchanger( uiCursor::Wait );
     ColorTable newct = *coltabed_->getColorTable();
     newct.scaleTo( Interval<float>(0,1) );
     const bool autoscale = coltabed_->autoScale();
