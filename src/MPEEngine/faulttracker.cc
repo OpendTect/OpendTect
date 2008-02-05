@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulttracker.cc,v 1.3 2007-09-13 06:05:29 cvskris Exp $";
+static const char* rcsID = "$Id: faulttracker.cc,v 1.4 2008-02-05 22:01:21 cvskris Exp $";
 
 #include "faulttracker.h"
 
@@ -57,6 +57,7 @@ FaultTracker::~FaultTracker()
 
 SectionTracker* FaultTracker::createSectionTracker( EM::SectionID sid )
 {
+    return 0;
     if ( !getFault() ) return 0;
 
     SurfaceSourceSelector* srcsel =
