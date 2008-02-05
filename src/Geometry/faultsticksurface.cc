@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: faultsticksurface.cc,v 1.3 2007-10-24 16:18:13 cvskris Exp $";
+static const char* rcsID = "$Id: faultsticksurface.cc,v 1.4 2008-02-05 21:38:46 cvskris Exp $";
 
 #include "faultsticksurface.h"
 
@@ -20,6 +20,7 @@ namespace Geometry
 
 #define mGetValidKnotIdx( knotidx, knotnr, stickidx, extra, errorres ) \
 \
+    if ( !firstcols_.size() ) return errorres; \
     const int knotidx = knotnr - firstcols_[stickidx]; \
     if ( knotidx<0 && knotidx>sticks_[stickidx]->size()+extra ) \
 	return errorres;
