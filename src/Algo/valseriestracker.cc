@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: valseriestracker.cc,v 1.3 2008-02-04 16:49:33 cvsbert Exp $";
+static const char* rcsID = "$Id: valseriestracker.cc,v 1.4 2008-02-05 20:47:47 cvskris Exp $";
 
 #include "valseriestracker.h"
 
@@ -476,7 +476,7 @@ bool EventTracker::snap( float threshold )
 	return false;
 
     targetdepth_ = eventpos;
-	return true;
+    return true;
 }
 
 
