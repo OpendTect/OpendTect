@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.36 2007-06-21 19:35:21 cvskris Exp $
+ RCS:           $Id: emfault.cc,v 1.37 2008-02-05 21:46:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "emfault.h"
 #include "emsurfacetr.h"
 #include "emmanager.h"
+#include "emrowcoliterator.h"
 #include "errh.h"
 #include "cubicbeziersurface.h"
 #include "survinfo.h"
@@ -42,26 +43,29 @@ const IOObjContext& Fault::getIOObjContext() const
 
 FaultGeometry::FaultGeometry( Fault& flt )
     : SurfaceGeometry(flt)
-{
-}
+{ }
 
 
 FaultGeometry::~FaultGeometry()
 {}
 
 
-Geometry::CubicBezierSurface*
+Geometry::FaultStickSurface*
 FaultGeometry::sectionGeometry( const EM::SectionID& sid )
 {
     Geometry::Element* res = SurfaceGeometry::sectionGeometry( sid );
-    return reinterpret_cast<Geometry::CubicBezierSurface*>( res );
+    return (Geometry::FaultStickSurface*) res;
 }
 
 
-Geometry::CubicBezierSurface* FaultGeometry::createSectionGeometry() const
-{ return new Geometry::CubicBezierSurface( RowCol(1,1) ); }
+Geometry::FaultStickSurface* FaultGeometry::createSectionGeometry() const
+{ return new Geometry::FaultStickSurface; }
 
 
+
+EMObjectIterator* FaultGeometry::createIterator( const SectionID& sid,
+						 const CubeSampling* cs) const
+{ return new RowColIterator( surface_, sid, cs ); }
 
 
 }; //namespace

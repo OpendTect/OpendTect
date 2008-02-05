@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.27 2007-06-21 19:35:21 cvskris Exp $
+ RCS:		$Id: emfault.h,v 1.28 2008-02-05 21:46:15 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
-#include "cubicbeziersurface.h"
+#include "faultsticksurface.h"
 
 
 template <class T> class SortedList;
@@ -28,12 +28,18 @@ class FaultGeometry : public SurfaceGeometry
 public:
     			FaultGeometry( Fault& );
 			~FaultGeometry();
+    int			nrSticks() const;
+    void		insertStick(const EM::SectionID&, int sticknr,
+	    			    const Coord3&,bool addtohistory);
+    void		removeStick(const EM::SectionID&, int sticknr);
 
-    Geometry::CubicBezierSurface*
+    Geometry::FaultStickSurface*
 			sectionGeometry(const EM::SectionID&);
+    EMObjectIterator*	createIterator(const SectionID&,
+	    			       const CubeSampling*) const;
 
 protected:
-    Geometry::CubicBezierSurface*	createSectionGeometry() const;
+    Geometry::FaultStickSurface*	createSectionGeometry() const;
 };
 
 
