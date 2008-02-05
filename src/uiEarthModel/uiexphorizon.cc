@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.49 2008-01-25 13:58:24 cvsbert Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.50 2008-02-05 10:06:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,11 +27,11 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "keystrs.h"
 #include "uicursor.h"
-#include "uiexecutor.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uiiosurface.h"
 #include "uimsg.h"
+#include "uitaskrunner.h"
 
 #include <stdio.h>
 
@@ -151,8 +151,9 @@ bool uiExportHorizon::writeAscii()
     mDynamicCastGet(EM::Horizon3D*,hor,emobj.ptr())
     PtrMan<Executor> loader = hor->geometry().loader( &sels );
     if ( !loader ) mErrRet("Cannot read horizon")
-    uiExecutor dlg( this, *loader );
-    if ( !dlg.go() ) return false;
+
+    uiTaskRunner taskrunner( this );
+    if ( !taskrunner.execute(*loader) ) return false;
 
     infld->getSelection( sels );
     if ( dogf && sels.selvalues.size() > 1 &&
@@ -166,8 +167,8 @@ bool uiExportHorizon::writeAscii()
 	for ( int idx=0; idx<sels.selvalues.size(); idx++ )
 	    exgrp.add( hor->auxdata.auxDataLoader(sels.selvalues[idx]) );
 
-	uiExecutor datadlg( this, exgrp );
-	if ( !datadlg.go() ) return false;
+	uiTaskRunner datatask( this );
+	if ( !datatask.execute(exgrp) ) return false;
     }
 
     uiCursorChanger cursorlock( uiCursor::Wait );
