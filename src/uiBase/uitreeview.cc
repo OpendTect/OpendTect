@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.33 2008-02-01 05:43:15 cvsnanne Exp $
+ RCS:           $Id: uitreeview.cc,v 1.34 2008-02-05 20:46:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,8 @@ uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parnt,
     , messenger_ (*new i_listVwMessenger(*this, handle))
     , prefnrlines( nrl )
     , lvhandle_(handle)
+    , actitem_( 0 )
+    , actexpand_( true )
 {
     setStretch( 1, ( nrTxtLines()== 1) ? 0 : 1 );
     setHSzPol( uiObject::MedVar ) ;
