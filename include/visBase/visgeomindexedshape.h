@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: visgeomindexedshape.h,v 1.3 2007-10-30 20:24:23 cvsyuancheng Exp $
+ RCS:		$Id: visgeomindexedshape.h,v 1.4 2008-02-05 21:55:46 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 namespace Geometry { class IndexedShape; class IndexedGeometry; }
 
 class SoIndexedShape;
+class TaskRunner;
 
 namespace visBase
 {
@@ -36,12 +37,13 @@ public:
     void			setDisplayTransformation(mVisTrans*);
     mVisTrans*			getDisplayTransformation();
 
-    void			setSurface(Geometry::IndexedShape*);
+    void			setSurface(Geometry::IndexedShape*,
+	    				   TaskRunner* = 0);
     				//!<Does not become mine, should remain
 				//!<in memory
     void			setRightHandSystem(bool);
 
-    void			touch(bool forall);
+    void			touch(bool forall,TaskRunner* =0);
 
 protected:
 						~GeomIndexedShape();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: visgeomindexedshape.cc,v 1.6 2008-01-07 22:23:25 cvskris Exp $
+ RCS:           $Id: visgeomindexedshape.cc,v 1.7 2008-02-05 21:55:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include <Inventor/nodes/SoIndexedLineSet.h>
 #include <SoIndexedTriangleFanSet.h>
 #include <Inventor/nodes/SoNormalBinding.h>
+#include <Inventor/SoDB.h>
 
 mCreateFactoryEntry( visBase::GeomIndexedShape );
 
@@ -65,13 +66,13 @@ void GeomIndexedShape::setRightHandSystem( bool yn )
 }
 
 
-void GeomIndexedShape::setSurface( Geometry::IndexedShape* ns )
+void GeomIndexedShape::setSurface( Geometry::IndexedShape* ns, TaskRunner* tr )
 {
     shape_ = ns;
     shape_->setCoordList( new CoordListAdapter(*coords_),
 	    		  new NormalListAdapter(*normals_) );
     shape_->setRightHandedNormals( righthandsystem_ );
-    touch( false );
+    touch( false, tr );
 }
 
 
@@ -112,10 +113,11 @@ if ( geom->type_==Geometry::IndexedGeometry::type ) \
     list##s_ = new##list##s; \
     list##geoms_ = new##list##geoms
 
-void GeomIndexedShape::touch( bool forall )
+void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
 {
+    SoDB::writelock();
     if ( shape_ && shape_->needsUpdate() )
-	shape_->update( forall );
+	shape_->update( forall, tr );
 
     ObjectSet<SoIndexedShape> newstrips;
     ObjectSet<const Geometry::IndexedGeometry> newstripgeoms;
@@ -176,6 +178,7 @@ void GeomIndexedShape::touch( bool forall )
     mRemoveOld( strip );
     mRemoveOld( fan );
     mRemoveOld( line );
+    SoDB::writeunlock();
 }
 
 }; // namespace visBase
