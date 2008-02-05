@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.78 2007-09-07 18:35:17 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.79 2008-02-05 21:40:56 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -428,7 +428,7 @@ bool EMObject::isPosAttribLocked( int attr ) const
 bool EMObject::isEmpty() const
 {
     PtrMan<EM::EMObjectIterator> iterator = createIterator( -1 );
-    return iterator->next().objectID()==-1;
+    return !iterator || iterator->next().objectID()==-1;
 }
 
 
