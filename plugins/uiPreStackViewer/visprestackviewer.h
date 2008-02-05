@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.6 2008-02-01 23:19:09 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.7 2008-02-05 16:09:50 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,16 +85,20 @@ public:
     static const char*		sKeyBinID()	{ return "PreStack BinID"; }
     static const char*		sKeyMultiID()	{ return "PreStack MultiID"; }
     static const char*		sKeySectionID() { return "Section ID"; }
+    static const char*		sKeySeis2DID()	{ return "Seis2D ID"; }
     static const char*		sKeyFactor()	{ return "PSViewer Factor"; }
     static const char*		sKeyWidth() 	{ return "PSViewer Width"; }
     static const char*		sKeyiAutoWidth(){ return "PSViewer AutoWidth"; }
     static const char*		sKeySide() 	{ return "PSViewer ShowSide"; }
+    static const char*		sKeyTraceNr() 	{ return "Seis2D TraceNumber"; }
+    static const char*		sKeyLineName() 	{ return "Seis2D LineName"; }
 
 protected:
     					~PreStackViewer();
     void				setDisplayTransformation(mVisTrans*);
     void				dataChangedCB(CallBacker*);
     void				sectionMovedCB(CallBacker*);
+    void				seis2DMovedCB(CallBacker*);
 
     void				draggerMotion(CallBacker*);
     void				finishedCB(CallBacker*);

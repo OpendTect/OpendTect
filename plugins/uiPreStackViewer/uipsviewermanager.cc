@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.10 2008-02-01 23:19:08 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.11 2008-02-05 16:09:50 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,7 @@ uiPSViewerMgr::~uiPSViewerMgr()
     menuhandler->createnotifier.remove( mCB(this,uiPSViewerMgr,createMenuCB) );
     menuhandler->handlenotifier.remove( mCB(this,uiPSViewerMgr,handleMenuCB) );
 
+    delete visserv_;
     removeAllCB( 0 );
     deepErase( viewwindows_ );
 }    
@@ -231,6 +232,7 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
 	
 	visserv_->removeObject( psv, sceneid );
 	viewers_ -= psv;
+	psv->unRef();
     }
     else if ( mnuid==proptymenuitem_.id )
     {
@@ -306,11 +308,14 @@ uiFlatViewWin* uiPSViewerMgr::create2DViewer(
 
     const int id = psv->getDataPackID();
     DataPack* dp = DPM(DataPackMgr::FlatID).obtain( id );
+    if ( !dp )
+	return 0;
+
     dp->setName( ioobj->name() );
     mDynamicCastGet( const FlatDataPack*, fdp, dp );
     if ( !fdp )
     {
-	if ( dp ) DPM(DataPackMgr::FlatID).release( dp );
+	DPM(DataPackMgr::FlatID).release( dp );
 	return false;
     }
 
