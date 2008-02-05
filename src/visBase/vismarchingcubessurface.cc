@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: vismarchingcubessurface.cc,v 1.11 2007-10-30 20:24:23 cvsyuancheng Exp $
+ RCS:           $Id: vismarchingcubessurface.cc,v 1.12 2008-02-05 22:02:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,8 +87,8 @@ void MarchingCubesSurface::setSurface( ::MarchingCubesSurface& ns )
 }
 
 
-void MarchingCubesSurface::touch( bool forall )
-{ shape_->touch( forall ); }
+void MarchingCubesSurface::touch( bool forall, TaskRunner* tr )
+{ shape_->touch( forall, tr ); }
 
 
 ::MarchingCubesSurface* MarchingCubesSurface::getSurface()
