@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2005
- RCS:           $Id: uivalseriestracker.h,v 1.2 2008-01-31 22:05:15 cvskris Exp $
+ RCS:           $Id: uivalseriestracker.h,v 1.3 2008-02-05 20:44:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ public:
 				bool hideeventtype=false);
 			~uiEventTracker();
 
-    bool			acceptOK();
+    bool		acceptOK();
 protected:
     void			selEventType(CallBacker*);
     void			selAmpThresholdType(CallBacker*);
