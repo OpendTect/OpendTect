@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.78 2007-12-24 05:32:50 cvsnanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.79 2008-02-05 22:11:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -330,7 +330,7 @@ bool VolumeDisplay::isVolRenShown() const
 { return volren_ && volren_->isOn(); }
 
 
-int VolumeDisplay::addIsoSurface()
+int VolumeDisplay::addIsoSurface( TaskRunner* tr )
 {
     visBase::MarchingCubesSurface* isosurface =
 				    visBase::MarchingCubesSurface::create();
@@ -344,7 +344,7 @@ int VolumeDisplay::addIsoSurface()
     isovalues_ += cache_ ? scalarfield_->getColorTab().getInterval().center()
 			 : mUdf(float);
 
-    updateIsoSurface( isosurfaces_.size()-1 );
+    updateIsoSurface( isosurfaces_.size()-1, tr );
 
     //Insert before the volume transform
     insertChild( childIndex(voltrans_->getInventorNode()),
@@ -408,18 +408,18 @@ float VolumeDisplay::isoValue( const visBase::MarchingCubesSurface* mcd ) const
 
 
 void VolumeDisplay::setIsoValue( const visBase::MarchingCubesSurface* mcd,
-				 float nv )
+				 float nv, TaskRunner* tr )
 {
     const int idx = isosurfaces_.indexOf( mcd );
     if ( idx<0 )
 	return;
 
     isovalues_[idx] = nv;
-    updateIsoSurface( idx );
+    updateIsoSurface( idx, tr );
 }
 
 
-void VolumeDisplay::updateIsoSurface( int idx )
+void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 {
     if ( !cache_ || !cache_->getCube(0).isOK() || mIsUdf(isovalues_[idx]) )
 	isosurfaces_[idx]->getSurface()->removeAll();
@@ -430,12 +430,12 @@ void VolumeDisplay::updateIsoSurface( int idx )
 		cache_->inlsampling, cache_->crlsampling,
 		SamplingData<float>( cache_->z0*cache_->zstep, cache_->zstep ));
 	isosurfaces_[idx]->getSurface()->setVolumeData( 0, 0, 0,
-		cache_->getCube(0), isovalues_[idx] );
+		cache_->getCube(0), isovalues_[idx], tr );
 	isosurfaces_[idx]->getMaterial()->setColor(
 	    scalarfield_->getColorTab().color(isovalues_[idx]));
     }
 
-    isosurfaces_[idx]->touch( false );
+    isosurfaces_[idx]->touch( false, tr );
 }
 
 

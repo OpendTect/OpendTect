@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.51 2007-12-24 05:32:50 cvsnanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.52 2008-02-05 22:11:23 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -21,6 +21,7 @@ ________________________________________________________________________
 class CubeSampling;
 class MarchingCubesSurface;
 class ZAxisTransform;
+class TaskRunner;
 class ZAxisTransformer;
 
 namespace Attrib { class SelSpec; class DataCubes; }
@@ -60,7 +61,7 @@ public:
     bool			isVolRenShown() const;
     int				volRenID() const;
 
-    int				addIsoSurface();
+    int				addIsoSurface(TaskRunner* = 0);
     				/*!\note return with removeChild(displayid). */
     void			removeChild(int displayid);
 
@@ -85,7 +86,8 @@ public:
     float			isoValue(
 	    			    const visBase::MarchingCubesSurface*) const;
     void			setIsoValue(
-	    			    const visBase::MarchingCubesSurface*,float);
+	    			    const visBase::MarchingCubesSurface*,
+				    float, TaskRunner* = 0);
 
     CubeSampling		getCubeSampling(int attrib) const;
     void			setCubeSampling(const CubeSampling&);
@@ -130,7 +132,7 @@ protected:
 	    					int attrib) const;
     void			materialChange(CallBacker*);
     void			colTabChange(CallBacker*);
-    void			updateIsoSurface(int);
+    void			updateIsoSurface(int,TaskRunner* = 0);
 
     visBase::Transformation*			voltrans_;
     visBase::BoxDragger*			boxdragger_;
