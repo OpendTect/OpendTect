@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.11 2008-02-05 16:09:50 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.12 2008-02-05 16:11:05 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -413,20 +413,15 @@ void PreStackViewer::setSeis2DDisplay(visSurvey::Seis2DDisplay* s2d, int trcnr)
 
 void  PreStackViewer::seis2DMovedCB( CallBacker* )
 {
-    int newtrcnr = trcnr_;
-
     if ( !seis2d_ )
 	return;
-    else
-    {
     
-	const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) );
-	basedirection_ = SI().binID2Coord().transformBackNoSnap(
-    		seis2d_->getNormal( trcnr_ ) ) - orig;
-    
-	seis2dpos_ = SI().binID2Coord().transformBackNoSnap( 
-    		seis2d_->getCoord(trcnr_))-orig;
-    }
+    const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) );
+    basedirection_ = SI().binID2Coord().transformBackNoSnap(
+	    seis2d_->getNormal( trcnr_ ) ) - orig;
+
+    seis2dpos_ = SI().binID2Coord().transformBackNoSnap( 
+	    seis2d_->getCoord(trcnr_))-orig;
 
     dataChangedCB(0);
 }    
@@ -658,10 +653,13 @@ int PreStackViewer::usePar( const IOPar& par )
 	int tnr;
 	if ( !par.get(sKeyTraceNr(),tnr) )
 	    return -1;
+	
 	PtrMan<SeisPSReader> psrdr = SPSIOPF().get2DReader( *IOM().get(mid), 
 		s2d->name() );
 
-	if ( !psrdr ) return -1;
+	if ( !psrdr ) 
+	    return -1;
+	
 	SeisTrcBuf* tbuf = new SeisTrcBuf( true );
 	if ( !psrdr->getGather( BinID(0,tnr), *tbuf ) )
 	    return -1;
@@ -678,28 +676,6 @@ int PreStackViewer::usePar( const IOPar& par )
 	DPM(DataPackMgr::FlatID).release( dp );
 	
 	setSeis2DDisplay( s2d, tnr );
-/*
-	const bool haddata = flatviewer_->pack( false );
-	PreStack::Gather* gather = new PreStack::Gather;
-	if ( !gather->readFrom( *IOM().get( mid ), tnr, s2d->name() ) )
-	{
-	    delete gather;
-	    if ( haddata )
-		flatviewer_->setPack( false, DataPack::cNoID, false );
-	    else
-	    {
-		dataChangedCB( 0 );
-		return -1;
-	    }
-	}
-	else
-	{
-	    DPM(DataPackMgr::FlatID).add( gather );
-	    flatviewer_->setPack( false, gather->id(), false, !haddata );
-	}
-	
-	turnOn( true );
-*/	
     }
        
     float factor, width;
