@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Dec 2006
- RCS:		$Id: valseriestracker.h,v 1.3 2007-06-25 21:45:10 cvskris Exp $
+ RCS:		$Id: valseriestracker.h,v 1.4 2008-02-05 20:43:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,9 @@ public:
     				/*!<In samples*/
     void			setTrackEvent(VSEvent::Type ev);
     VSEvent::Type		trackEvent() const;
+    bool			snap(float threshold);
+				/*!Snaps at nearest event. Only
+				   needs target data.*/
 
     void			useSimilarity(bool yn);
     bool			usesSimilarity() const;
@@ -98,7 +101,6 @@ public:
     bool			usePar(const IOPar& par);
 protected:
 
-    bool		snap(float threshold);
     ValueSeriesEvent<float,float>
 			findExtreme(const ValueSeriesEvFinder<float, float>&,
 			const Interval<float>&,float,float&,bool&,float&) const;
