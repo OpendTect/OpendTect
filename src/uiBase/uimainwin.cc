@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.138 2007-12-24 05:29:20 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.139 2008-02-05 10:24:14 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ ________________________________________________________________________
 #include <QApplication>
 #include <QCloseEvent>
 #include <QColorDialog>
+#include <QDesktopWidget>
 #include <QDialog>
 #include <QDockWidget>
 #include <QFileDialog>
@@ -107,9 +108,11 @@ public:
 			}
 
     void		close();
-
+    
     void		activateClose();  //! force activation in GUI thread
     void		activateQDlg( int retval ); 
+    void		activateGrab( const char* filenm, int zoom=1,
+				      const char* format=0, int quality=-1 );
 
     bool		poppedUp() const { return popped_up; }
     bool		touch()
@@ -147,6 +150,8 @@ protected:
     virtual void	finalise( bool trigger_finalise_start_stop=true );
     void		closeEvent(QCloseEvent*);
     void 		closeQDlgChild(int retval,bool parentcheck=true);
+    void		grabAndSave(const char* filenm, int zoom=1,
+				    const char* format=0, int quality=-1 );
     bool		event(QEvent*);
 
     void		renewToolbarsMenu();
@@ -157,6 +162,11 @@ protected:
 
     bool		exitapponclose_;
     int			qdlgretval_;
+
+    const char*		grabfilenm;
+    const char*		grabformat;
+    int			grabzoom;
+    int			grabquality;
 
     uiStatusBar* 	statusbar;
     uiMenuBar* 		menubar;
@@ -328,8 +338,23 @@ void uiMainWinBody::closeQDlgChild( int retval, bool parentcheck )
 }
 
 
+void uiMainWinBody::grabAndSave( const char* filenm, int zoom,
+				 const char* format, int quality )
+{
+    WId winid = winId();
+    if ( zoom <= 0 )
+	winid = QApplication::desktop()->winId();
+    else if ( zoom>=2 && qApp->activeModalWidget() )
+	winid = qApp->activeModalWidget()->winId();
+
+    QPixmap snapshot = QPixmap::grabWindow( winid );
+    snapshot.save( QString(filenm), format, quality );
+}
+
+
 static const QEvent::Type sQEventActClose = (QEvent::Type) (QEvent::User+0);
 static const QEvent::Type sQEventActQDlg  = (QEvent::Type) (QEvent::User+1);
+static const QEvent::Type sQEventActGrab  = (QEvent::Type) (QEvent::User+2);
 
 bool uiMainWinBody::event( QEvent* ev )
 {
@@ -339,6 +364,8 @@ bool uiMainWinBody::event( QEvent* ev )
 	closeQDlgChild( qdlgretval_, false );
 	// Using parentcheck=true would be neat, but it turns out that
 	// QDialogs not always have their parent set correctly (yet).
+    else if ( ev->type() == sQEventActGrab )
+	grabAndSave( grabfilenm, grabzoom, grabformat, grabquality );
     else
 	return QMainWindow::event( ev );
     
@@ -359,6 +386,17 @@ void uiMainWinBody::activateQDlg( int retval )
     qdlgretval_ = retval;
     QEvent* actqdlgevent = new QEvent( sQEventActQDlg );
     QApplication::postEvent( this, actqdlgevent );
+}
+
+void uiMainWinBody::activateGrab( const char* filenm, int zoom,
+				  const char* format, int quality )
+{
+    grabfilenm = filenm;
+    grabzoom = zoom;
+    grabformat = format;
+    grabquality = quality;
+    QEvent* actgrabevent = new QEvent( sQEventActGrab );
+    QApplication::postEvent( this, actgrabevent );
 }
 
 
@@ -556,6 +594,12 @@ bool uiMainWin::finalised() const		{ return body_->finalised(); }
 void uiMainWin::setExitAppOnClose( bool yn )	{ body_->exitapponclose_ = yn; }
 bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
 bool uiMainWin::isModal() const			{ return body_->isModal(); }
+
+
+void uiMainWin::activateGrab( const char* filenm, int zoom,
+			      const char* format, int quality )
+{ body_->activateGrab( filenm, zoom, format, quality ); }
+
 
 void uiMainWin::moveDockWindow( uiDockWin& dwin, Dock d, int index )
     { body_->uimoveDockWindow(dwin,d,index); }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.57 2007-12-24 05:29:20 cvsnanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.58 2008-02-05 10:24:14 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,7 @@ public:
     static int		activeModalQDlgRetVal(int butnr);
 
     static void		getTopLevelWindows(ObjectSet<uiMainWin>&);
-
+    
     void		setCaption( const char* txt );
     void		setIcon(const char* img[],const char* icntxt); //!< XPM
     virtual void        show();
@@ -81,6 +81,8 @@ public:
 
     void		activateClose();    //! Force activation in GUI thread
     void		activateQDlg(int retval);
+    void		activateGrab(const char* filenm, int zoom=1,
+				     const char* format=0,int quality=-1);
     Notifier<uiMainWin> activatedone;
 
     bool		isHidden() const;
