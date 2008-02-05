@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		August 2006
- RCS:		$Id: vismarchingcubessurface.h,v 1.10 2007-10-30 20:24:23 cvsyuancheng Exp $
+ RCS:		$Id: vismarchingcubessurface.h,v 1.11 2008-02-05 22:08:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ template <class T> class SamplingData;
 class MarchingCubesSurface;
 class ExplicitMarchingCubesSurface;
 class SoShapeHints;
+class TaskRunner;
 
 namespace visBase
 {
@@ -44,7 +45,7 @@ public:
 						  const SamplingData<float>&);
     const SamplingData<float>&		getScale(int dim) const;
 
-    void				touch(bool forall);
+    void				touch(bool forall,TaskRunner* =0);
     void				renderOneSide( int side );
     					/*!< 0 = visisble from both sides.
 					     1 = visisble from positive side
