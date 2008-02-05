@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.7 2008-02-05 16:09:50 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.8 2008-02-05 18:18:15 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "vissurvobj.h"
 #include "visobject.h"
+
+class IOObj;
 
 namespace visBase 
 {
@@ -57,7 +59,9 @@ public:
     const visSurvey::Seis2DDisplay*    getSeis2DDisplay() const;    
     void			setSeis2DDisplay(visSurvey::Seis2DDisplay*,
 	    					 int trcnr);
-    void			setSeis2DData(DataPack::ID);
+    bool			setSeis2DData(const IOObj*);
+   				//To use, set Seis2DDisplay first.
+
     int				traceNr() const 	  { return trcnr_; }
     const char*			lineName();
 

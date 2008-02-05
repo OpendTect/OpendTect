@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.12 2008-02-05 16:11:05 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.13 2008-02-05 18:18:15 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -14,7 +14,9 @@ _______________________________________________________________________________
 #include "ioman.h"
 #include "iopar.h"
 #include "prestackgather.h"
+#include "seispsioprov.h"
 #include "survinfo.h"
+#include "uimsg.h"
 #include "viscoord.h"
 #include "visdataman.h"
 #include "visdepthtabplanedragger.h"
@@ -25,7 +27,6 @@ _______________________________________________________________________________
 #include "visplanedatadisplay.h"
 #include "visseis2ddisplay.h"
 
-#include "seispsioprov.h"
 
 mCreateFactoryEntry( PreStackView::PreStackViewer );
 
@@ -142,7 +143,17 @@ void PreStackViewer::setColor( Color nc )
 
 
 void  PreStackViewer::setMultiID( const MultiID& mid )
-{ mid_ = mid; }
+{ 
+    mid_ = mid;
+
+    if ( seis2d_ && seis2d_->getMovementNotifier() )
+	seis2d_->getMovementNotifier()->notify( 
+    		    mCB( this, PreStackViewer, seis2DMovedCB ) );
+    
+    if ( section_ && section_->getMovementNotifier() )
+	section_->getMovementNotifier()->notify(
+		mCB( this, PreStackViewer, sectionMovedCB ) );
+}
  
 
 bool PreStackViewer::setPosition( const BinID& nb )
@@ -352,10 +363,37 @@ const visSurvey::Seis2DDisplay* PreStackViewer::getSeis2DDisplay() const
 { return seis2d_; }
 
 
-void PreStackViewer::setSeis2DData( DataPack::ID dpid )
+#define mErrRet(msg) { uiMSG().error(msg); return false; }
+
+bool PreStackViewer::setSeis2DData( const IOObj* ioobj ) 
 {
-    flatviewer_->setPack( false, dpid, false, true );
+    if ( !ioobj )
+	return false;
+
+    if ( !seis2d_ || trcnr_<0 )
+	mErrRet( "Seis2D display is not set" )
+
+    PtrMan<SeisPSReader> psrdr = SPSIOPF().get2DReader(*ioobj,seis2d_->name());
+    if ( !psrdr ) 
+	mErrRet( "Could not find reader" )
+    
+    SeisTrcBuf* tbuf = new SeisTrcBuf( true );
+    if ( !psrdr->getGather( BinID(0,trcnr_), *tbuf ) )
+	mErrRet( "Can not find gather" )
+    
+    if ( tbuf->size() == 0 )
+	mErrRet( "Gather is empty" )
+
+    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( tbuf, Seis::LinePS, 
+	    SeisTrcInfo::Offset, "Pre-Stack Gather", 0 );
+
+    DPM(DataPackMgr::FlatID).add( dp );
+    DPM(DataPackMgr::FlatID).obtain( dp->id() );
+    flatviewer_->setPack( false, dp->id(), false, true );
+    DPM(DataPackMgr::FlatID).release( dp );
+	
     dataChangedCB(0);
+    return true;
 }
 
 
@@ -395,16 +433,17 @@ void PreStackViewer::setSeis2DDisplay(visSurvey::Seis2DDisplay* s2d, int trcnr)
 
     trcnr_ = trcnr;
     seis2d_ = s2d;
-    
+    seis2d_->ref();
+
+    if ( !seis2d_ )
+	return;
+
     const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) );
     basedirection_ = SI().binID2Coord().transformBackNoSnap(
 	    seis2d_->getNormal( trcnr_ ) ) - orig;
     seis2dpos_ = SI().binID2Coord().transformBackNoSnap( 
 	    seis2d_->getCoord(trcnr))-orig;
-    if ( !seis2d_ )
-	return;
 
-    seis2d_->ref();
     if ( seis2d_->getMovementNotifier() )
 	seis2d_->getMovementNotifier()->notify( 
     		    mCB( this, PreStackViewer, seis2DMovedCB ) );
@@ -653,29 +692,10 @@ int PreStackViewer::usePar( const IOPar& par )
 	int tnr;
 	if ( !par.get(sKeyTraceNr(),tnr) )
 	    return -1;
-	
-	PtrMan<SeisPSReader> psrdr = SPSIOPF().get2DReader( *IOM().get(mid), 
-		s2d->name() );
 
-	if ( !psrdr ) 
-	    return -1;
-	
-	SeisTrcBuf* tbuf = new SeisTrcBuf( true );
-	if ( !psrdr->getGather( BinID(0,tnr), *tbuf ) )
-	    return -1;
-	
-	if ( tbuf->size() == 0 )
-	    return -1;
-
-	SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( tbuf, Seis::LinePS, 
-		SeisTrcInfo::Offset, "Pre-Stack Gather", 0 );
-
-	DPM(DataPackMgr::FlatID).add( dp );
-	DPM(DataPackMgr::FlatID).obtain( dp->id() );
-	setSeis2DData( dp->id() );
-	DPM(DataPackMgr::FlatID).release( dp );
-	
 	setSeis2DDisplay( s2d, tnr );
+	if ( !setSeis2DData( IOM().get(mid) ) )
+	    return -1;
     }
        
     float factor, width;

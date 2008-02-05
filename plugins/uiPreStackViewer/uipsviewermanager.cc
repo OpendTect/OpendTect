@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.11 2008-02-05 16:09:50 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.12 2008-02-05 18:18:15 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,6 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "prestackgather.h"
-#include "seispsread.h"
-#include "seispsioprov.h"
 #include "survinfo.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
@@ -117,8 +115,6 @@ void uiPSViewerMgr::createMenuCB( CallBacker* cb )
 }
 
 
-#define mErrRet(msg) { uiMSG().error(msg); return; }
-
 void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
@@ -194,27 +190,8 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
 	{
 	    int trcnr = s2d->getNearestTraceNr( pickedpos );
 	    viewer->setSeis2DDisplay( s2d, trcnr );
-	    PtrMan<SeisPSReader> psrdr = SPSIOPF().get2DReader( 
-		    *ioobj, s2d->name() );
-	    
-	    if ( !psrdr )
-		mErrRet( "Could not find reader" );
-
-	    SeisTrcBuf* tbuf = new SeisTrcBuf( true );
-	    if ( !psrdr->getGather( BinID(0,trcnr), *tbuf ) )
-		mErrRet( "Can not find gather" );
-	    
-	    if ( tbuf->size() == 0 )
-		mErrRet( "Gather is empty" );
-	    
-	    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( tbuf, 
-		    Seis::LinePS, SeisTrcInfo::Offset, "Pre-Stack Gather", 0 );
-
-	    DPM(DataPackMgr::FlatID).add( dp );
-	    DPM(DataPackMgr::FlatID).obtain( dp->id() );
-
-	    viewer->setSeis2DData( dp->id() ); 
-	    DPM(DataPackMgr::FlatID).release( dp );
+	    if ( !viewer->setSeis2DData( ioobj ) )
+		return;
 	}
 
 	if ( viewer->getScene() )
