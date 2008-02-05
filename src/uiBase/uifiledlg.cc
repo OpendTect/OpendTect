@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.38 2008-02-01 16:25:40 cvsjaap Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.39 2008-02-05 10:22:06 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,7 +163,7 @@ int uiFileDialog::go()
 #endif
 
     if ( fd->exec() != QDialog::Accepted )
-    	return lookForExternalFilenames( dirname, flt );
+    	return processExternalFilenames( dirname, flt );
 
     QStringList list = fd->selectedFiles();
     if (  list.size() )
@@ -264,7 +264,7 @@ static bool filterIncludesExt( const char* filter, const char* ext )
 		    return true;
 		break;
 	    }
-	    if ( *extptr != *fltptr )
+	    if ( tolower(*extptr) != tolower(*fltptr) )
 		break;
 	    extptr++;
 	}
@@ -287,7 +287,7 @@ static bool filterIncludesExt( const char* filter, const char* ext )
     return msg ? 0 : 1; \
 }
 
-int uiFileDialog::lookForExternalFilenames( const char* dir, 
+int uiFileDialog::processExternalFilenames( const char* dir, 
 					    const char* filters )
 {
     if ( !externalfilenames_ )
@@ -298,6 +298,11 @@ int uiFileDialog::lookForExternalFilenames( const char* dir,
 
     if ( externalfilenames_->isEmpty() )
 	mRetErrMsg( "", mode_==ExistingFiles ? 0 : "should not be empty" );
+
+    if ( !dir )
+	dir = currentdir_.isEmpty() ? GetPersonalDir() : currentdir_.buf();
+    if ( !filters )
+	filters = filter_.buf();
 
     BufferStringSet filterset;
     const SeparString fltsep( filters, uiFileDialog::filesep[0] );
@@ -310,7 +315,7 @@ int uiFileDialog::lookForExternalFilenames( const char* dir,
 	FilePath fp( fname );
 	if ( !fp.isAbsolute() )
 	{
-	    fp = currentdir_.isEmpty() ? dir : currentdir_.buf();
+	    fp = dir;
 	    fp.add( fname );
 	}
 	fname = fp.fullPath();
@@ -342,7 +347,7 @@ int uiFileDialog::lookForExternalFilenames( const char* dir,
 			mRetErrMsg( fname, "ends in a read-only directory" );
 		}
 	    }
-	    else if ( !forread_ && File_isWritable(fname) )
+	    else if ( !forread_ && !File_isWritable(fname) )
 		mRetErrMsg( fname, "specifies a read-only file" );
 	}
 

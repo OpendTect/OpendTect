@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.18 2008-02-01 16:25:40 cvsjaap Exp $
+ RCS:           $Id: uifiledlg.h,v 1.19 2008-02-05 10:22:05 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,8 +74,8 @@ public:
 
 			// To be used by cmddriver to select filename(s)
 			// while closing the QFileDialog
-    int			lookForExternalFilenames(const char* dir,
-	    					 const char* filters);
+    int			processExternalFilenames(const char* dir=0,
+	    					 const char* filters=0);
     static void		setExternalFilenames(const FileMultiString&);
     static const char*	getExternalFilenamesErrMsg();
 
