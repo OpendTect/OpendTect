@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.39 2008-01-25 04:52:06 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.40 2008-02-05 09:24:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -1510,12 +1510,8 @@ void HorizonDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     if ( emobject_ && !emobject_->isFullyLoaded() )
     {
-	par.set( sKeyRowRange, displayedRowRange().start,
-		 displayedRowRange().stop,
-		 displayedRowRange().step );
-	par.set( sKeyColRange, displayedColRange().start,
-		  displayedColRange().stop,
-		  displayedColRange().step );
+	par.set( sKeyRowRange, displayedRowRange() );
+	par.set( sKeyColRange, displayedColRange() );
     }
 
     par.setYN( sKeyTexture, usesTexture() );
@@ -1556,8 +1552,8 @@ int HorizonDisplay::usePar( const IOPar& par )
     if ( !par.get(sKeyEarthModelID,parmid_) )
 	return -1;
 
-    par.get( sKeyRowRange, parrowrg_.start, parrowrg_.stop, parrowrg_.step );
-    par.get( sKeyColRange, parcolrg_.start, parcolrg_.stop, parcolrg_.step );
+    par.get( sKeyRowRange, parrowrg_ );
+    par.get( sKeyColRange, parcolrg_ );
 
     if ( !par.getYN(sKeyTexture,usestexture_) )
 	usestexture_ = true;

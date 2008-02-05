@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.32 2008-02-01 23:17:06 cvsyuancheng Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.33 2008-02-05 09:24:17 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -858,9 +858,8 @@ void Seis2DDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     par.set( sKeyLineSetID(), linesetid_ );
     par.setYN( sKeyShowLineName(), lineNameShown() );
-    par.set( sKeyTrcNrRange(), trcnrrg_.start, trcnrrg_.stop );
-    const Interval<int> samplerg = getSampleRange();
-    par.set( sKeyZRange(), samplerg.start, samplerg.stop );
+    par.set( sKeyTrcNrRange(), trcnrrg_ );
+    par.set( sKeyZRange(), getSampleRange() );
 }
 
 
@@ -888,8 +887,8 @@ int Seis2DDisplay::usePar( const IOPar& par )
 	int res =  visSurvey::MultiTextureSurveyObject::usePar( par );
 	if ( res!=1 ) return res;
 
-	par.get( sKeyTrcNrRange(), trcnrrg_.start, trcnrrg_.stop );
-//	par.get( sKeyZRange(), samplerg_.start, samplerg_.stop );
+	par.get( sKeyTrcNrRange(), trcnrrg_ );
+//	par.get( sKeyZRange(), samplerg_ );
 	bool showlinename = false;
 	par.getYN( sKeyShowLineName(), showlinename );
 	showLineName( showlinename );

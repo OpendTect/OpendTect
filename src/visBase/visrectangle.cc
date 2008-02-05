@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2002
- RCS:           $Id: visrectangle.cc,v 1.45 2006-03-12 13:39:11 cvsbert Exp $
+ RCS:           $Id: visrectangle.cc,v 1.46 2008-02-05 09:24:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -588,20 +588,18 @@ int Rectangle::usePar( const IOPar& iopar )
 	setWidth( xwidth, ywidth );
 
     StepInterval<float> range;
-    if ( iopar.get( xrangestr, range.start, range.stop, range.step ) )
+    if ( iopar.get( xrangestr, range ) )
 	xrange = range;
-
-    if ( iopar.get( yrangestr, range.start, range.stop, range.step ) )
+    if ( iopar.get( yrangestr, range ) )
 	yrange = range;
-
-    if ( iopar.get( zrangestr, range.start, range.stop, range.step ) )
+    if ( iopar.get( zrangestr, range ) )
 	zrange = range;
 
     Interval<float> wrange;
-    if ( iopar.get( xwidhtrange, wrange.start, wrange.stop ))
+    if ( iopar.get( xwidhtrange, wrange ))
 	wxrange = wrange;
 
-    if ( iopar.get( ywidhtrange, wrange.start, wrange.stop ))
+    if ( iopar.get( ywidhtrange, wrange ))
 	wyrange = wrange;
 
     float w, h, d;
@@ -626,12 +624,12 @@ void Rectangle::fillPar( IOPar& iopar, TypeSet<int>& saveids ) const
     iopar.set( origostr, pos.x, pos.y, pos.z );
     iopar.set( widthstr, width(0), width(1) );
 
-    iopar.set( xrangestr, xrange.start, xrange.stop, xrange.step );
-    iopar.set( yrangestr, yrange.start, yrange.stop, yrange.step );
-    iopar.set( zrangestr, zrange.start, zrange.stop, zrange.step );
+    iopar.set( xrangestr, xrange );
+    iopar.set( yrangestr, yrange );
+    iopar.set( zrangestr, zrange );
 
-    iopar.set( xwidhtrange, wxrange.start, wxrange.stop );
-    iopar.set( ywidhtrange, wyrange.start, wyrange.stop );
+    iopar.set( xwidhtrange, wxrange );
+    iopar.set( ywidhtrange, wyrange );
 
     Coord3 draggersize = getDraggerSize();
     iopar.set( draggersizestr, draggersize.x, draggersize.y, draggersize.z );

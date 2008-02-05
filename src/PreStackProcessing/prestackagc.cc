@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackagc.cc,v 1.7 2008-01-23 20:56:59 cvskris Exp $";
+static const char* rcsID = "$Id: prestackagc.cc,v 1.8 2008-02-05 09:24:17 cvsbert Exp $";
 
 #include "prestackagc.h"
 
@@ -73,14 +73,14 @@ float AGC::getLowEnergyMute() const
 
 void AGC::fillPar( IOPar& par ) const
 {
-    par.set( sKeyWindow(), window_.start, window_.stop );
+    par.set( sKeyWindow(), window_ );
     par.set( sKeyMuteFraction(), mutefraction_ );
 }
 
 
 bool AGC::usePar( const IOPar& par )
 {
-    par.get( sKeyWindow(), window_.start, window_.stop );
+    par.get( sKeyWindow(), window_ );
     par.get( sKeyMuteFraction(), mutefraction_ );
     return true;
 }

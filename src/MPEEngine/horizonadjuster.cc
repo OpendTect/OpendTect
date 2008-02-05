@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.45 2007-07-02 10:57:18 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.46 2008-02-05 09:24:17 cvsbert Exp $";
 
 #include "horizonadjuster.h"
 
@@ -324,8 +324,8 @@ void HorizonAdjuster::fillPar( IOPar& iopar ) const
     tracker_->fillPar( trackerpar );
     iopar.mergeComp( trackerpar, sKeyTracker() );
     if ( attribsel_ ) attribsel_->fillPar( iopar );
-    iopar.set( sKeyPermittedZRange(), permzrange_.start, permzrange_.stop );
-    iopar.set( sKeySimWindow(), similaritywin_.start, similaritywin_.stop );
+    iopar.set( sKeyPermittedZRange(), permzrange_ );
+    iopar.set( sKeySimWindow(), similaritywin_ );
 }
 
 
@@ -369,8 +369,8 @@ bool HorizonAdjuster::usePar( const IOPar& iopar )
 	    tracker_->useSimilarity( !byvalue );
     }
 
-    iopar.get( sKeyPermittedZRange(),permzrange_.start,permzrange_.stop );
-    iopar.get( sKeySimWindow(),similaritywin_.start,similaritywin_.stop );
+    iopar.get( sKeyPermittedZRange(), permzrange_ );
+    iopar.get( sKeySimWindow(), similaritywin_ );
 
     return SectionAdjuster::usePar( iopar );
 }

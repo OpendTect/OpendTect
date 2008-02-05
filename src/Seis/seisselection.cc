@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.10 2008-02-04 16:21:00 cvsbert Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.11 2008-02-05 09:24:17 cvsbert Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -386,7 +386,7 @@ void Seis::TableSelData::fillPar( IOPar& iop ) const
 {
     Seis::SelData::fillPar( iop );
     if ( isall_ ) return;
-    iop.set( mGetTableKey("ExtraZ"), extraz_.start, extraz_.stop );
+    iop.set( mGetTableKey("ExtraZ"), extraz_ );
     bvs_.fillPar( iop, mGetTableKey("Data") );
 }
 
@@ -411,7 +411,7 @@ void Seis::TableSelData::usePar( const IOPar& iop )
     if ( bvs_.isEmpty() )
 	bvs_.usePar( iop, mGetTableKey("Data") );
 
-    iop.get( mGetTableKey("ExtraZ"), extraz_.start, extraz_.stop );
+    iop.get( mGetTableKey("ExtraZ"), extraz_ );
 }
 
 
@@ -602,7 +602,7 @@ void Seis::PolySelData::fillPar( IOPar& iop ) const
     Seis::SelData::fillPar( iop );
     if ( isall_ ) return;
 
-    iop.set( mGetPolyKey(sKey::ZRange), zrg_.start, zrg_.stop);
+    iop.set( mGetPolyKey(sKey::ZRange), zrg_ );
     iop.set( mGetPolyKey("Stepoutreach"), stepoutreach_ );
 
     iop.set( mGetPolyKey("NrPolygons"), polys_.size() );
@@ -617,7 +617,7 @@ void Seis::PolySelData::usePar( const IOPar& iop )
     Seis::SelData::usePar( iop );
     if ( isall_ ) return; 
 
-    iop.get( mGetPolyKey(sKey::ZRange), zrg_.start, zrg_.stop);
+    iop.get( mGetPolyKey(sKey::ZRange), zrg_ );
     iop.get( mGetPolyKey("Stepoutreach"), stepoutreach_ );
 
     const char* res = iop.find( mGetPolyKey("ID") );

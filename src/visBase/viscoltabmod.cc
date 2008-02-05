@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2003
- RCS:           $Id: viscoltabmod.cc,v 1.9 2007-07-18 14:37:39 cvskris Exp $
+ RCS:           $Id: viscoltabmod.cc,v 1.10 2008-02-05 09:24:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,7 +97,7 @@ int VisColTabMod::usePar( const IOPar& par )
     if ( res != 1 ) return res;
 
     par.get( clipratestr, cliprate0, cliprate1 );
-    par.get( rangestr, range.stop, range.start );
+    par.get( rangestr, range );
     par.getYN( reversestr, reverse );
     par.getYN( useclipstr, useclip );
 
@@ -109,7 +109,7 @@ void VisColTabMod::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( par, saveids );
     par.set( clipratestr, cliprate0, cliprate1 );
-    par.set( rangestr, range.start, range.stop );
+    par.set( rangestr, range );
     par.setYN( reversestr, reverse );
     par.setYN( useclipstr, useclip );
 }

@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.98 2008-01-09 09:23:18 cvsjaap Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.99 2008-02-05 09:24:17 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -1029,18 +1029,15 @@ void RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
     
     const Interval<float> depthrg = getDataTraceRange();
-    par.set( sKeyDepthInterval(), depthrg.start, depthrg.stop );
+    par.set( sKeyDepthInterval(), depthrg );
 
     const int nrknots = nrKnots();
     par.set( sKeyNrKnots(), nrknots );
 
     for ( int idx=0; idx<nrknots; idx++ )
     {
-	BufferString key;
-	key = sKeyKnotPrefix();
-	key += idx;
-	BinID bid = getKnotPos( idx );
-	par.set( key, bid.inl, bid.crl );
+	BufferString key = sKeyKnotPrefix(); key += idx;
+	par.set( key, getKnotPos(idx) );
     }
 
     par.set( sKeyNrAttribs(), as_.size() );
@@ -1131,19 +1128,17 @@ int RandomTrackDisplay::usePar( const IOPar& par )
     }
 
     Interval<float> intv;
-    if ( par.get( sKeyDepthInterval(), intv.start, intv.stop ) )
+    if ( par.get( sKeyDepthInterval(), intv ) )
 	setDepthInterval( intv );
 
     int nrknots = 0;
     par.get( sKeyNrKnots(), nrknots );
 
-    BufferString key;
+    BufferString key; BinID pos;
     for ( int idx=0; idx<nrknots; idx++ )
     {
-	key = sKeyKnotPrefix();
-	key += idx;
-	BinID pos;
-	par.get( key, pos.inl, pos.crl );
+	key = sKeyKnotPrefix(); key += idx;
+	par.get( key, pos );
 	if ( idx < 2 )
 	    setKnotPos( idx, pos );
 	else
