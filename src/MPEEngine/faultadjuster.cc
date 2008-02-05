@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultadjuster.cc,v 1.4 2007-10-22 10:34:33 cvsnanne Exp $";
+static const char* rcsID = "$Id: faultadjuster.cc,v 1.5 2008-02-05 21:51:15 cvskris Exp $";
 
 #include "faultadjuster.h"
 
@@ -176,8 +176,8 @@ void FaultAdjuster::getTargetPositions( EM::SubID target, const EM::SubID* src,
 
     if ( srcrc.col==rc.col ) // tracking up/down
     {
-	const Geometry::ParametricSurface* psurf = 
-	    				fault_.geometry().sectionGeometry(0);
+	const Geometry::ParametricSurface* psurf = 0;
+	    				//fault_.geometry().sectionGeometry(0);
 	if ( !psurf ) return;
 	Geometry::ParametricCurve* pcurv = psurf->createRowCurve( rc.r() );
 	mDynamicCastGet(Geometry::CubicBezierCurve*,bcurv,pcurv)
