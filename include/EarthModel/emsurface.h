@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.62 2006-11-06 10:34:59 cvsjaap Exp $
+ RCS:		$Id: emsurface.h,v 1.63 2008-02-05 21:36:34 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -34,7 +34,8 @@ class SurfaceRelations;
 class SurfaceGeometry;
 
 /*!\brief Base class for surfaces
-  This is the base class for surfaces like horizons and faults. A surface is made up by one or more segments or patches, so they can overlap. 
+  This is the base class for surfaces like horizons and faults. A surface is
+  made up by one or more segments or patches, so they can overlap. 
 */
 
 
