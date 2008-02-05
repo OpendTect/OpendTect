@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posprovider.h,v 1.3 2008-02-04 16:23:26 cvsbert Exp $
+ RCS:           $Id: posprovider.h,v 1.4 2008-02-05 14:25:26 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,8 @@ ________________________________________________________________________
 class Executor;
 class IOPar;
 class CubeSampling;
+namespace PosInfo { class Line2DData; }
+
 
 namespace Pos
 {
@@ -42,7 +44,9 @@ class Provider
 {
 public:
 
+    virtual Provider*	clone() const		= 0;
     virtual		~Provider()		{}
+    virtual bool	is2D() const		= 0;
 
     virtual bool	initialize();
     virtual Executor*	initializer() const	{ return 0; }
@@ -56,6 +60,8 @@ public:
 
     virtual bool	includes(const Coord&,float z=mUdf(float)) const = 0;
 
+    virtual void	getZRange(Interval<float>&) const	= 0;
+
     virtual void	usePar(const IOPar&)			= 0;
     virtual void	fillPar(IOPar&) const			= 0;
 
@@ -68,11 +74,15 @@ class Provider3D : public Provider
 {
 public:
 
-    virtual BinID	curBinID() const	= 0;
+    virtual bool	is2D() const		{ return false; }
+
+    virtual BinID	curBinID() const				= 0;
     virtual Coord	curCoord() const;
 
     virtual bool	includes(const BinID&,float z=mUdf(float)) const = 0;
     virtual bool	includes(const Coord&,float z=mUdf(float)) const;
+
+    virtual void	getExtent(BinID& start,BinID& stop) const	= 0;
 
     mDefineFactoryInClass(Provider3D,factory);
 
@@ -81,90 +91,16 @@ public:
 
 /*!\brief provides a subselection for 2D surveys - requires the line name(s). */
 
-class Provider2D
+class Provider2D : public Provider
 {
 public:
+
+    virtual bool	is2D() const				{ return true; }
 
     virtual int		curNr() const				= 0;
     virtual bool	includes(int,float z=mUdf(float)) const	= 0;
 
     mDefineFactoryInClass(Provider2D,factory);
-
-};
-
-
-/*!\brief 3D provider based on CubeSampling */
-
-class Rect3DProvider : public Provider3D
-{
-public:
-
-			Rect3DProvider();
-			~Rect3DProvider();
-
-    virtual void	reset();
-
-    virtual bool	toNextPos();
-    virtual bool	toNextZ();
-
-    virtual BinID	curBinID() const	{ return curbid_; }
-    virtual float	curZ() const		{ return curz_; }
-    virtual bool	includes(const BinID&,float z=mUdf(float)) const;
-    virtual void	usePar(const IOPar&);
-    virtual void	fillPar(IOPar&) const;
-
-    CubeSampling&	sampling()		{ return cs_; }
-    const CubeSampling&	sampling() const	{ return cs_; }
-
-protected:
-
-    CubeSampling&	cs_;
-    BinID		curbid_;
-    float		curz_;
-
-public:
-
-    static void		initClass();
-    static Provider3D*	create()	{ return new Rect3DProvider; }
-
-};
-
-
-/*!\brief 2D provider based on StepInterval<int> */
-
-class Rect2DProvider : public Provider2D
-{
-public:
-
-			Rect2DProvider();
-
-    virtual void	reset();
-
-    virtual bool	toNextPos();
-    virtual bool	toNextZ();
-
-    virtual int		curNr() const		{ return curnr_; }
-    virtual float	curZ() const		{ return curz_; }
-    virtual bool	includes(int,float z=mUdf(float)) const;
-    virtual void	usePar(const IOPar&);
-    virtual void	fillPar(IOPar&) const;
-
-    const StepInterval<int>&	nrRange() const	{ return rg_; }
-    StepInterval<int>&		nrRange()	{ return rg_; }
-    const StepInterval<float>&	zRange() const	{ return zrg_; }
-    StepInterval<float>&	zRange()	{ return zrg_; }
-
-protected:
-
-    StepInterval<int>	rg_;
-    StepInterval<float>	zrg_;
-    int			curnr_;
-    float		curz_;
-
-public:
-
-    static void		initClass();
-    static Provider2D*	create()	{ return new Rect2DProvider; }
 
 };
 

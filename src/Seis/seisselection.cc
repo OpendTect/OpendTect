@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.11 2008-02-05 09:24:17 cvsbert Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.12 2008-02-05 14:25:26 cvsbert Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -20,6 +20,9 @@ static const char* rcsID = "$Id: seisselection.cc,v 1.11 2008-02-05 09:24:17 cvs
 #include "survinfo.h"
 #include "keystrs.h"
 #include "linekey.h"
+#include "rectposprovider.h"
+#include "tableposprovider.h"
+#include "polyposprovider.h"
 #include "strmprov.h"
 
 #define mGetSpecKey(s,k) IOPar::compKey(sKey::s,k)
@@ -80,6 +83,15 @@ Seis::SelData* Seis::SelData::get( const IOPar& iop )
     Seis::SelData* sd = get( t );
     sd->usePar( iop );
     return sd;
+}
+
+
+Seis::SelData* Seis::SelData::get( const Pos::Provider& prov )
+{
+    if ( prov.is2D() )
+	return 0;
+
+    return 0;
 }
 
 
@@ -446,7 +458,7 @@ void Seis::TableSelData::include( const Seis::SelData& sd )
     }
     else
     {
-	pErrMsg( "Not impl" );
+	// pErrMsg( "Not impl" );
     }
 }
 
@@ -545,7 +557,7 @@ void Seis::PolySelData::copyFrom( const Seis::SelData& sd )
     }
     else
     {
-	pErrMsg( "Not impl" );
+	// pErrMsg( "Not impl" );
     }
 }
 
@@ -620,33 +632,20 @@ void Seis::PolySelData::usePar( const IOPar& iop )
     iop.get( mGetPolyKey(sKey::ZRange), zrg_ );
     iop.get( mGetPolyKey("Stepoutreach"), stepoutreach_ );
 
-    const char* res = iop.find( mGetPolyKey("ID") );
-    if ( !res || !*res )
-	res = iop.find( "ID" );
-
-    if ( res && *res )
+    int nrpolys = 0;
+    iop.get( mGetPolyKey("NrPolygons"), nrpolys );
+    if ( nrpolys < 2 )
     {
-	PtrMan<IOObj> ioobj = IOM().get( res );
-	if ( !ioobj ) return;
-
-	BufferString msg;
-	ODPolygon<float>* poly = PickSetTranslator::getPolygon(*ioobj,msg);
+	ODPolygon<float>* poly = Pos::PolyProvider3D::polyFromPar(iop,0);
 	if ( poly )
 	{
 	    deepErase( polys_ );
 	    polys_ += poly;
 	}
-	else
-	{
-	    if ( strcmp(res,"ID") )
-		ErrMsg( msg );
-	}
     }
-
-    if ( polys_.isEmpty() )
+    else
     {
-	int nrpolys = 0;
-	iop.get( mGetPolyKey("NrPolygons"), nrpolys );
+	deepErase( polys_ );
 	for ( int idx=0; idx<nrpolys; idx++ )
 	{
 	    polys_ += new ODPolygon<float>;

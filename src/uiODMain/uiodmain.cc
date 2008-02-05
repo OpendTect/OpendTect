@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.90 2008-02-04 16:26:05 cvsbert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.91 2008-02-05 14:25:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,6 +51,7 @@ ________________________________________________________________________
 
 #include "initalgo.h"
 #include "initgeneral.h"
+#include "initgeometry.h"
 #include "initattributes.h"
 #include "initattributeengine.h"
 #include "initearthmodel.h"
@@ -91,6 +92,7 @@ void initAll()
 {
     Algo::initStdClasses();
     General::initStdClasses();
+    Geometry::initStdClasses();
     EarthModel::initStdClasses();
     Seis::initStdClasses();
     AttributeEngine::initStdClasses();

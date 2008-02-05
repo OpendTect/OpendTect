@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Nov 2007
- RCS:		$Id: seisselection.h,v 1.2 2007-12-05 11:55:49 cvsbert Exp $
+ RCS:		$Id: seisselection.h,v 1.3 2008-02-05 14:25:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class IOPar;
 class BinID;
 class LineKey;
+namespace Pos { class Provider; }
 
 
 namespace Seis
@@ -88,7 +89,8 @@ public:
     typedef SelType	Type;
     virtual Type	type() const		= 0;
     static SelData*	get(Type);		//!< empty
-    static SelData*	get(const IOPar&);	//!< filled
+    static SelData*	get(const IOPar&);	//!< fully filled
+    static SelData*	get(const Pos::Provider&); //!< filled; some defaults
     virtual SelData*	clone() const		= 0;
     virtual void	copyFrom(const SelData&) = 0;	
 
