@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultseedpicker.cc,v 1.3 2007-01-29 21:02:50 cvskris Exp $";
+static const char* rcsID = "$Id: faultseedpicker.cc,v 1.4 2008-02-05 21:57:47 cvskris Exp $";
 
 #include "faultseedpicker.h"
 
@@ -20,9 +20,9 @@ namespace MPE
 {
 
 FaultSeedPicker::FaultSeedPicker( MPE::EMTracker& t )
-    : tracker( t )
-    , sectionid( -1 )
-    , isactive( false )
+    : tracker_( t )
+    , sectionid_( -1 )
+    , isactive_( false )
 {}
 
 
@@ -31,11 +31,11 @@ bool FaultSeedPicker::canSetSectionID() const
 
 
 bool FaultSeedPicker::setSectionID( const EM::SectionID& sid )
-{ sectionid = sid; return true; }
+{ sectionid_ = sid; return true; }
 
 
 EM::SectionID FaultSeedPicker::getSectionID() const
-{ return sectionid; }
+{ return sectionid_; }
 
 
 bool FaultSeedPicker::startSeedPick()
@@ -43,97 +43,89 @@ bool FaultSeedPicker::startSeedPick()
     if ( !sectionIsEmpty() )
 	return false;
 
-    const EM::ObjectID emobjid = tracker.objectID();
+    const EM::ObjectID emobjid = tracker_.objectID();
     mDynamicCastGet( EM::Fault*, fault, EM::EMM().getObject(emobjid) );
-    didchecksupport = fault->enableGeometryChecks( false );
+    didchecksupport_ = fault->enableGeometryChecks( false );
 
-    isactive = true;
-    nrseeds = 0;
+    isactive_ = true;
+    nrseeds_ = 0;
     return true;
 }
 
 
 bool FaultSeedPicker::canAddSeed() const
-{ return sectionIsEmpty(); }
+{ return true; }
 
 
-bool FaultSeedPicker::addSeed( const Coord3& pos )
+bool FaultSeedPicker::addSeed( const Coord3& pos, bool )
 {
-    /*
-    const EM::ObjectID emobjid = tracker.objectID();
+    const EM::ObjectID emobjid = tracker_.objectID();
     mDynamicCastGet( EM::Fault*, fault, EM::EMM().getObject(emobjid) );
 
     if ( sectionIsEmpty() )
     {
-	stickstart = RowCol(0,0);
+	stickstart_ = RowCol(0,0);
 
-	//inc nrseeds here since fault->setPos will trigger cbs that will 
+	//inc nrseeds_ here since fault->setPos will trigger cbs that will 
 	//ask the nr of seeds. 
-	nrseeds++;
-	const EM::PosID pid( fault->id(), sectionid,stickstart.getSerialized());
+	nrseeds_++;
+	const EM::PosID pid( fault->id(), sectionid_,
+			     stickstart_.getSerialized() );
 	if ( !fault->setPos( pid, pos, true ) )
 	{
-	    nrseeds--;
+	    nrseeds_--;
 	    return false;
 	}
 
 	fault->setPosAttrib( pid, EM::EMObject::sSeedNode, true );
-
     }
     else if ( nrSeeds()==1 )
     {
-	const Coord3 existingpos = fault->getPos( sectionid, 0 );
-	isrowstick = mIsEqual(existingpos.z,pos.z,mDefEps );
-	const RowCol newseedrc = stickstep = isrowstick
-	    ? RowCol( 0, fault->geometry.step().row )
-	    : RowCol( (existingpos.z<pos.z?1:-1)*fault->geometry.step().col, 0);
+	const Coord3 existingpos = fault->getPos( sectionid_, 0 );
+	bool newstick = false; //TODO
+	EM::FaultGeometry& geom = fault->geometry();
+	const RowCol newseedrc = stickstep_ = newstick
+	    ? RowCol( 0, 1 )
+	    : RowCol( existingpos.z<pos.z?1:-1, 0);
 
-	//inc nrseeds here since fault->setPos will trigger cbs that will 
+	//inc nrseeds_ here since fault->setPos will trigger cbs that will 
 	//ask the nr of seeds. 
-	nrseeds++;
-	const EM::PosID pid( fault->id(), sectionid, newseedrc.getSerialized());
+	nrseeds_++;
+	const EM::PosID pid( fault->id(), sectionid_,newseedrc.getSerialized());
 	if ( !fault->setPos( pid, pos, true ) )
 	{
-	    nrseeds--;
+	    nrseeds_--;
 	    return false;
 	}
+
 	fault->setPosAttrib( pid, EM::EMObject::sSeedNode, true );
     }
     else
     {
-	if ( isrowstick )
-	{
-	    const Coord3 existingpos = fault->getPos( sectionid, 0 );
-	    if ( !mIsEqual(existingpos.z,pos.z,mDefEps ) )
-	    {
-		errmsg = "New seed must be at the same depth as the previous"
-		         " ones.";
-		return false;
-	    }
-
-	}
-
+	/*
 	const RowCol newseedrc = getNewSeedRc( pos );
-	const EM::PosID pid( fault->id(), sectionid,newseedrc.getSerialized());
+	const EM::PosID pid( fault->id(), sectionid_,newseedrc.getSerialized());
 	if ( fault->isDefined(pid) )
 	{
-	    if ( isrowstick
-		    ? !fault->geometry.insertCol(sectionid,newseedrc.col,true)
-		    : !fault->geometry.insertRow(sectionid,newseedrc.row,true) )
+	    EM::FaultGeometry& geom = fault->geometry();
+	    if ( isrowstick_
+		    ? !geom.insertCol(sectionid_,newseedrc.col,true)
+		    : !geom.insertRow(sectionid_,newseedrc.row,true))
 		return false;
 	}
 
-	//inc nrseeds here since fault->setPos will trigger cbs that will 
+	//inc nrseeds_ here since fault->setPos will trigger cbs that will 
 	//ask the nr of seeds. 
-	nrseeds++;
+	nrseeds_++;
 	if ( !fault->setPos( pid, pos, true ) )
 	{
-	    nrseeds--;
+	    nrseeds_--;
 	    return false;
 	}
 	fault->setPosAttrib( pid, EM::EMObject::sSeedNode, true );
+	*/
     }
-    */
+
     return true;
 }
 
@@ -151,28 +143,31 @@ bool FaultSeedPicker::removeSeed( const EM::PosID& )
 bool FaultSeedPicker::reTrack() { return true; }
 
 
-int FaultSeedPicker::nrSeeds() const { return nrseeds; }
+int FaultSeedPicker::nrSeeds() const { return nrseeds_; }
 
 
 bool FaultSeedPicker::stopSeedPick(bool iscancel)
 {
-    const EM::ObjectID emobjid = tracker.objectID();
+    const EM::ObjectID emobjid = tracker_.objectID();
     mDynamicCastGet( EM::Fault*, fault, EM::EMM().getObject(emobjid) );
-    fault->enableGeometryChecks( didchecksupport );
+    fault->enableGeometryChecks( didchecksupport_ );
 
     return true;
 }
 
 
 const char* FaultSeedPicker::errMsg() const
-{ return errmsg[0] ? (const char*) errmsg : 0; }
+{ return errmsg_[0] ? (const char*) errmsg_ : 0; }
 
 
 bool FaultSeedPicker::sectionIsEmpty() const
 {
-    const EM::ObjectID emobjid = tracker.objectID();
+    const EM::ObjectID emobjid = tracker_.objectID();
     const EM::EMObject* emobject = EM::EMM().getObject(emobjid);
-    PtrMan<EM::EMObjectIterator> iterator = emobject->createIterator(sectionid);
+    PtrMan<EM::EMObjectIterator> iterator = emobject->createIterator(sectionid_);
+
+    if ( !iterator )
+	return true;
     
     while ( true )
     {
@@ -190,37 +185,38 @@ bool FaultSeedPicker::sectionIsEmpty() const
 
 RowCol FaultSeedPicker::getNewSeedRc( const Coord3& pos ) const
 {
-    const EM::ObjectID emobjid = tracker.objectID();
+    return RowCol(-1,-1);
+    const EM::ObjectID emobjid = tracker_.objectID();
     mDynamicCastGet( EM::Fault*, fault, EM::EMM().getObject(emobjid) );
-
-    if ( !isrowstick )
+/*
+    if ( !isrowstick_ )
     {
-	const int inc = stickstep.row>0 ? 1 : -1;
+	const int inc = stickstep_.row>0 ? 1 : -1;
 	const float compz = pos.z*inc;
-	for ( int idx=0; idx<nrseeds; idx++ )
+	for ( int idx=0; idx<nrseeds_; idx++ )
 	{
-	    const float seedcompz = fault->getPos( sectionid,
-			(stickstart+stickstep*idx).getSerialized() ).z * inc;
+	    const float seedcompz = fault->getPos( sectionid_,
+			(stickstart_+stickstep_*idx).getSerialized() ).z * inc;
 	    if ( seedcompz>compz )
 	    {
 		if ( !idx )
-		    return stickstart-stickstep;
+		    return stickstart_-stickstep_;
 
-		return stickstart+stickstep*idx;
+		return stickstart_+stickstep_*idx;
 	    }
 	}
 
-	return stickstart+stickstep*nrseeds;
+	return stickstart_+stickstep_*nrseeds_;
     }
 
 
     float minsqdist;
     RowCol closestrc;
 
-    for ( int idx=0; idx<nrseeds; idx++ )
+    for ( int idx=0; idx<nrseeds_; idx++ )
     {
-	const RowCol rc = stickstart+stickstep*idx;
-	const Coord seedpos = fault->getPos( sectionid, rc.getSerialized() );
+	const RowCol rc = stickstart_+stickstep_*idx;
+	const Coord seedpos = fault->getPos( sectionid_, rc.getSerialized() );
 	const float sqdist = seedpos.sqDistTo( pos );
 
 	if ( !idx || sqdist<minsqdist )
@@ -230,12 +226,12 @@ RowCol FaultSeedPicker::getNewSeedRc( const Coord3& pos ) const
 	}
     }
 
-    const RowCol prevrc = closestrc-stickstep;
-    const RowCol nextrc = closestrc+stickstep;
+    const RowCol prevrc = closestrc-stickstep_;
+    const RowCol nextrc = closestrc+stickstep_;
 
-    const Coord3 prevknotpos =fault->getPos( sectionid, prevrc.getSerialized());
-    const Coord3 closestpos =fault->getPos(sectionid,closestrc.getSerialized());
-    const Coord3 nextknotpos =fault->getPos( sectionid, nextrc.getSerialized());
+    const Coord3 prevknotpos =fault->getPos( sectionid_, prevrc.getSerialized());
+    const Coord3 closestpos =fault->getPos(sectionid_,closestrc.getSerialized());
+    const Coord3 nextknotpos =fault->getPos( sectionid_, nextrc.getSerialized());
 
     if ( prevknotpos.isDefined() && nextknotpos.isDefined() )
     {
@@ -260,6 +256,7 @@ RowCol FaultSeedPicker::getNewSeedRc( const Coord3& pos ) const
 
     pErrMsg("Hmm");
     return RowCol(-1,-1);
+    */
 }
 
 

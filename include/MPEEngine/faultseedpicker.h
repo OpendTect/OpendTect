@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: faultseedpicker.h,v 1.4 2006-04-07 14:31:47 cvsjaap Exp $
+ RCS:           $Id: faultseedpicker.h,v 1.5 2008-02-05 21:57:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ public:
     bool		startSeedPick();
 
     bool		canAddSeed() const;
-    bool		addSeed(const Coord3&);
+    bool		addSeed(const Coord3&,bool);
     bool		canRemoveSeed() const;
     bool		removeSeed(const EM::PosID&);
     bool		reTrack();
@@ -45,25 +45,24 @@ public:
     static const char*	seedConModeText(int mode,
 				bool abbrev=false)	{ return ""; }
 
-    void		blockSeedPick(bool yn)		{ blockpicking = yn; }
-    bool		isSeedPickBlocked() const	{ return blockpicking; }
+    void		blockSeedPick(bool yn)		{ blockpicking_ = yn; }
+    bool		isSeedPickBlocked() const	{ return blockpicking_;}
 
    const char*		errMsg() const; 
 protected:
     bool		sectionIsEmpty() const;
     RowCol		getNewSeedRc(const Coord3&) const;
 
-    MPE::EMTracker&	tracker;
+    MPE::EMTracker&	tracker_;
 
-    BufferString	errmsg;
-    RowCol		stickstep;
-    RowCol		stickstart;
-    bool		isactive;
-    int			nrseeds;
-    EM::SectionID	sectionid;
-    bool		isrowstick;
-    bool		didchecksupport;
-    bool		blockpicking;
+    BufferString	errmsg_;
+    RowCol		stickstep_;
+    RowCol		stickstart_;
+    bool		isactive_;
+    int			nrseeds_;
+    EM::SectionID	sectionid_;
+    bool		didchecksupport_;
+    bool		blockpicking_;
 
 };
 
