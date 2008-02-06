@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.97 2008-02-06 04:36:34 cvsraman Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.98 2008-02-06 13:01:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -454,8 +454,8 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 
 	Array2DInterpolator<float> interpolator( *arr );
 	interpolator.pars() = arr2dinterpfld_->pars_;
-	interpolator.setColDistRatio( SI().crlDistance()*hs.step.crl/
-		(hs.step.inl*SI().inlDistance() ));
+	interpolator.setDist( true, SI().crlDistance()*hs.step.crl );
+	interpolator.setDist( false, hs.step.inl*SI().inlDistance() );
 	uiTaskRunner taskrunner( this );
 	if ( !taskrunner.execute(interpolator) )
 	    return false;

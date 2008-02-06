@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra / Bert Bril
  Date:		Sep 2005 / Nov 2006
- RCS:		$Id: uichangesurfacedlg.cc,v 1.16 2008-02-06 10:13:35 cvsraman Exp $
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.17 2008-02-06 13:01:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -239,8 +239,8 @@ Executor* uiInterpolHorizonDlg::getWorker( Array2D<float>& a2d,
 {
     Array2DInterpolator<float>* ret = new Array2DInterpolator<float>( a2d );
     ret->pars() = a2dInterp()->getInput();
-    ret->setColDistRatio( SI().crlDistance()*colrg.step/
-			 (SI().inlDistance()*rowrg.step) );
+    ret->setDist( true, SI().crlDistance()*colrg.step );
+    ret->setDist( false, SI().inlDistance()*rowrg.step );
     return ret;
 }
 

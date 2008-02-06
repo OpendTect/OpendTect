@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.14 2008-02-06 10:20:33 cvsbert Exp $
+ RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.15 2008-02-06 13:01:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,8 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
 
     grdtypfld_ = new uiGenInput( this, "Gridding type",
 	    		BoolInpSpec(true,"Inverse distance","Extension") );
-    grdtypfld_->valuechanged.notify( mCB(this,uiHor3DFrom2DDlg,typChg) );
+    const CallBack tchgcb( mCB(this,uiHor3DFrom2DDlg,typChg) );
+    grdtypfld_->valuechanged.notify( tchgcb );
     nriterfld_ = new uiGenInput( this, "Maximum extension steps",
 	    			IntInpSpec(nrsteps) );
     nriterfld_->attach( alignedBelow, grdtypfld_ );
@@ -56,6 +57,8 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
     outfld_->attach( alignedBelow, nriterfld_ );
     displayfld_ = new uiCheckBox( this, "Display after generation" );
     displayfld_->attach( alignedBelow, outfld_ );
+
+    finaliseDone.notify( tchgcb );
 }
 
 
