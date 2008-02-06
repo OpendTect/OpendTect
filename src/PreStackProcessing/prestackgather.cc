@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.15 2008-02-01 20:21:39 cvskris Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.16 2008-02-06 23:35:39 cvsyuancheng Exp $";
 
 #include "prestackgather.h"
 
@@ -90,7 +90,26 @@ bool Gather::readFrom( const IOObj& ioobj, const BinID& bid,
 	return false;
     }
 
+    linename_.setEmpty();
     return readFrom( ioobj, *rdr, bid, errmsg );
+}
+
+
+bool Gather::readFrom( const IOObj& ioobj, const int tracenr, 
+	const char* linename, BufferString* errmsg )
+{
+    PtrMan<SeisPSReader> rdr = SPSIOPF().get2DReader( ioobj, linename );
+    if ( !rdr )
+    {
+	if ( errmsg )
+	    (*errmsg) = "This Pre-Stack data store cannot be handeled.";
+	delete arr2d_; arr2d_ = 0;
+	return false;
+    }
+
+    linename_ = linename;
+
+    return readFrom( ioobj, *rdr, BinID(0,tracenr), errmsg );
 }
 
 
@@ -140,6 +159,12 @@ bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid,
     storagemid_ = ioobj.key();
 
     return true;
+}
+
+
+const char* Gather::getSeis2DName() const
+{
+    return linename_.isEmpty() ? 0 : linename_.buf();
 }
 
 

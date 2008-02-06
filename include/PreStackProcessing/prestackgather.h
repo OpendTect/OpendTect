@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.11 2008-02-01 20:21:39 cvskris Exp $
+ RCS:		$Id: prestackgather.h,v 1.12 2008-02-06 23:35:39 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -33,6 +33,7 @@ public:
     				Gather(const Gather&);
     				~Gather();
 
+    bool			is3D() const { return linename_.isEmpty(); }				
     bool			setSize( int nroff, int nrz );
 
     bool			readFrom(const MultiID&, const BinID&,
@@ -41,6 +42,16 @@ public:
 	    				 BufferString* errmsg=0);
     bool			readFrom(const IOObj&,SeisPSReader& rdr,
 	    				 const BinID&,BufferString* errmsg=0);
+
+    				//for 3d only
+    const BinID&		getBinID() const 	{ return binid_; }
+
+				//for 2D only.
+    bool			readFrom(const IOObj&, const int tracenr, 
+	    				 const char* linename,
+    					 BufferString* errmsg=0);
+    int				getSeis2DTraceNr() const { return binid_.crl; }
+    const char*			getSeis2DName() const;
 
     bool			isLoaded() const	{ return arr2d_; }
 
@@ -55,7 +66,7 @@ public:
     bool			isCorrected() const	{ return iscorr_; }
     bool			zIsTime() const		{ return zit_; }
 
-    const BinID&		getBinID() const 	{ return binid_; }
+
     const MultiID&		getVelocityID() const	{ return velocitymid_; }
     const MultiID&		getStorageID() const    { return storagemid_; }
 
@@ -76,6 +87,8 @@ protected:
 
     bool			zit_;
     BinID			binid_;
+
+    BufferString		linename_;
 };
 
 }; //namespace
