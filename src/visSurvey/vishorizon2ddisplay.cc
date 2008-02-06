@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizon2ddisplay.cc,v 1.7 2007-02-27 11:33:45 cvsjaap Exp $
+ RCS:           $Id: vishorizon2ddisplay.cc,v 1.8 2008-02-06 11:46:30 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,9 +17,11 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "rowcolsurface.h"
 #include "visdrawstyle.h"
+#include "vismarker.h"
 #include "vismaterial.h"
 #include "vispolyline.h"
 #include "vispointset.h"
+#include "visseis2ddisplay.h"
 #include "viscoord.h"
 #include "vistransform.h"
 
@@ -108,7 +110,7 @@ void Horizon2DDisplay::removeSectionDisplay( const EM::SectionID& sid )
 }
 
 
-void Horizon2DDisplay::updateSection( int idx )
+void Horizon2DDisplay::updateSection( int idx, const TypeSet<int>* lineidsel )
 {
     const EM::SectionID sid = emobject_->sectionID( idx );
 
@@ -125,6 +127,9 @@ void Horizon2DDisplay::updateSection( int idx )
     RowCol rc;
     for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
     {
+	if ( lineidsel && lineidsel->indexOf(rc.row)<0 )
+	    continue;
+
 	const StepInterval<int> colrg = rcs->colRange( rc.row );
 
 	Coord3 prevpos = Coord3::udf();
@@ -212,7 +217,88 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
     {
 	getMaterial()->setColor( emobject_->preferredColor() );
     }
+}
 
+
+void Horizon2DDisplay::updateLinesOnSections(
+			const ObjectSet<const Seis2DDisplay>& seis2dlist )
+{
+    mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_ );
+    if ( !h2d ) return;
+
+    TypeSet<int> lineidset;
+    for ( int idx=0; idx<h2d->geometry().nrLines(); idx++ )
+    {
+	int lineid = h2d->geometry().lineID( idx );
+	const char* linenm = h2d->geometry().lineName(lineid);
+	const MultiID& lineset = h2d->geometry().lineSet(lineid);
+
+	for ( int idy=0; idy<seis2dlist.size(); idy++ )
+	{
+	    if ( !strcmp(seis2dlist[idy]->name(), linenm) &&
+		 seis2dlist[idy]->lineSetID()==lineset )
+	    {
+		lineidset += lineid;
+		break;
+	    }
+	}
+    }
+    
+    TypeSet<int>* lineidsel = displayonlyatsections_ ? &lineidset : 0;
+    
+    for ( int sidx=0; sidx<sids_.size(); sidx++ )
+	updateSection( sids_[sidx], lineidsel );
+}
+
+
+void Horizon2DDisplay::updateSeedsOnSections(
+			const ObjectSet<const Seis2DDisplay>& seis2dlist )
+{
+    for ( int idx=0; idx<posattribmarkers_.size(); idx++ )
+    {
+	visBase::DataObjectGroup* group = posattribmarkers_[idx];
+	for ( int idy=0; idy<group->size(); idy++ )
+	{
+	    mDynamicCastGet(visBase::Marker*,marker,group->getObject(idy));
+	    if ( !marker ) continue;
+
+	    marker->turnOn( !displayonlyatsections_ );
+	    Coord3 pos = marker->centerPos(true);
+	    for ( int idz=0; idz<seis2dlist.size(); idz++ )
+	    {
+		const float dist = seis2dlist[idz]->calcDist(pos);
+		if ( dist < seis2dlist[idz]->maxDist() )
+		{
+		    marker->turnOn(true);
+		    break;
+		}
+	    }
+	}
+    }
+}
+
+
+void Horizon2DDisplay::otherObjectsMoved(
+		    const ObjectSet<const SurveyObject>& objs, int movedobj )
+{
+    bool refresh = movedobj==-1 || movedobj==id();
+    ObjectSet<const Seis2DDisplay> seis2dlist;
+
+    for ( int idx=0; idx<objs.size(); idx++ )
+    {
+	mDynamicCastGet(const Seis2DDisplay*,seis2d,objs[idx]);
+	if ( seis2d )
+	{
+	    seis2dlist += seis2d;
+	    if ( movedobj==seis2d->id() )
+		refresh = true;
+	}
+    }
+
+    if ( !refresh ) return;
+    
+    updateLinesOnSections( seis2dlist );
+    updateSeedsOnSections( seis2dlist );
 }
 
 

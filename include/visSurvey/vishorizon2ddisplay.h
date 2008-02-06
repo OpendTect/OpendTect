@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizon2ddisplay.h,v 1.4 2007-02-27 14:11:37 cvsjaap Exp $
+ RCS:           $Id: vishorizon2ddisplay.h,v 1.5 2008-02-06 11:46:30 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -21,9 +21,10 @@ ________________________________________________________________________
 namespace visBase { class DrawStyle; class IndexedPolyLine; class PointSet; }
 namespace EM { class Horizon2D; }
 
-
 namespace visSurvey
 {
+
+class Seis2DDisplay;
 
 class Horizon2DDisplay :  public  EMObjectDisplay
 {
@@ -39,9 +40,18 @@ protected:
     void			removeSectionDisplay(const EM::SectionID&);
     bool			addSection(const EM::SectionID&);
 
-    void			updateSection(int);
+    void			updateSection(int idx,
+					      const TypeSet<int>* lineidsel=0);
     void			emChangeCB(CallBacker*);
     bool			setEMObject(const EM::ObjectID&);
+
+    void			otherObjectsMoved(
+				    const ObjectSet<const SurveyObject>&,
+				    int whichobj );
+    void			updateLinesOnSections(
+	    				const ObjectSet<const Seis2DDisplay>&);
+    void			updateSeedsOnSections(
+	    				const ObjectSet<const Seis2DDisplay>&);
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);
