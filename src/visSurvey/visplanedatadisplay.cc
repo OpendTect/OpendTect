@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.180 2008-01-31 19:06:39 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.181 2008-02-06 23:37:06 cvsyuancheng Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -710,7 +710,11 @@ bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid )
     mDynamicCastGet(const Attrib::Flat3DDataPack*,fdp,datapack);
     const bool res = setDataVolume( attrib, fdp ? &fdp->cube() : 0 );
     if ( !res )
+    {
+	datapackids_[attrib] = oldid;
+	dpman.release( dpid );
 	return false;
+    }
 
     dpman.release( oldid );
     return true;
