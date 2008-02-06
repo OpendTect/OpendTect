@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2007
- RCS:		$Id: emhor2dto3d.h,v 1.3 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:		$Id: emhor2dto3d.h,v 1.4 2008-02-06 10:20:33 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "executor.h"
 #include "bufstring.h"
+#include "horsampling.h"
 
 class HorSampling;
 class Array2DInterpolatorPars;
@@ -30,9 +31,18 @@ class Hor2DTo3D : public Executor
 {
 public:
 
-				Hor2DTo3D(const Horizon2D&,
-					  const HorSampling&,
-					  int nrsteps, // < 1 is unlimited
+    class Setup
+    {
+    public:
+				Setup(bool do_gridding);
+
+	mDefSetupMemb(bool,dogrid);
+	mDefSetupMemb(HorSampling,hs);	// default from SI()
+	mDefSetupMemb(int,nrsteps);	// default 0 => unlimited
+	mDefSetupMemb(float,srchrad);	// default 10 * inline distance
+    };
+
+				Hor2DTo3D(const Horizon2D&,const Setup&,
 					  Horizon3D&);  
 					  // current 3d-hor content is removed
 				~Hor2DTo3D();
@@ -48,6 +58,7 @@ protected:
     Horizon3D&			hor3d_;
     BufferString		msg_;
     int				cursectnr_;
+    Setup			setup_;
 
     ObjectSet<Hor2DTo3DSectionData>	sd_;
     Array2DInterpolator<float>*		curinterp_;

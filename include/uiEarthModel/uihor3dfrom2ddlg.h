@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uihor3dfrom2ddlg.h,v 1.4 2007-02-13 13:15:46 cvsjaap Exp $
+ RCS:           $Id: uihor3dfrom2ddlg.h,v 1.5 2008-02-06 10:20:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,11 +45,15 @@ protected:
     const EM::Horizon2D& 	hor2d_;
     uiEMPartServer*		emserv_;
 
+    uiGenInput*			grdtypfld_;
     uiGenInput*			nriterfld_;
+    uiGenInput*			srchradfld_;
     uiIOObjSel*			outfld_;
     uiCheckBox*			displayfld_;
 
     MultiID			selid_;
+
+    void			typChg(CallBacker*);
 
 };
 

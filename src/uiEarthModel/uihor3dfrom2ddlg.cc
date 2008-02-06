@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.13 2008-02-06 04:36:34 cvsraman Exp $
+ RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.14 2008-02-06 10:20:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 static int nrsteps = 10;
+static float srchrad = -1;
 
 uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
 				    uiEMPartServer* ems )
@@ -39,12 +40,21 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
     , selid_( -1 )
 {
     ctio_.ctxt.forread = false;
+    if ( srchrad < 0 )
+	srchrad = SI().inlDistance() * 40;
 
-    nriterfld_ = new uiGenInput( this, "Maximum interpolation steps",
+    grdtypfld_ = new uiGenInput( this, "Gridding type",
+	    		BoolInpSpec(true,"Inverse distance","Extension") );
+    grdtypfld_->valuechanged.notify( mCB(this,uiHor3DFrom2DDlg,typChg) );
+    nriterfld_ = new uiGenInput( this, "Maximum extension steps",
 	    			IntInpSpec(nrsteps) );
+    nriterfld_->attach( alignedBelow, grdtypfld_ );
+    srchradfld_ = new uiGenInput( this, "Search radius", FloatInpSpec(srchrad));
+    srchradfld_->attach( alignedBelow, grdtypfld_ );
+
     outfld_ = new uiIOObjSel( this, ctio_, "Output Horizon" );
     outfld_->attach( alignedBelow, nriterfld_ );
-    displayfld_ = new uiCheckBox( this, "Display after import" );
+    displayfld_ = new uiCheckBox( this, "Display after generation" );
     displayfld_->attach( alignedBelow, outfld_ );
 }
 
@@ -52,6 +62,14 @@ uiHor3DFrom2DDlg::uiHor3DFrom2DDlg( uiParent* p, const EM::Horizon2D& h2d,
 uiHor3DFrom2DDlg::~uiHor3DFrom2DDlg()
 {
     delete ctio_.ioobj; delete &ctio_;
+}
+
+
+void uiHor3DFrom2DDlg::typChg( CallBacker* )
+{
+    const bool isgrd = grdtypfld_->getBoolValue();
+    nriterfld_->display( !isgrd );
+    srchradfld_->display( isgrd );
 }
 
 
@@ -96,10 +114,13 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     hor3d->ref();
     hor3d->setPreferredColor( hor2d_.preferredColor() );
 
-    Executor* exec = new EM::Hor2DTo3D( hor2d_, SI().sampling(true).hrg,
-	    			        nriterfld_->getIntValue(), *hor3d );
+    EM::Hor2DTo3D::Setup setup( grdtypfld_->getBoolValue() );
+    setup.srchrad( srchradfld_->getfValue() )
+	 .nrsteps( nriterfld_->getIntValue() );
+    Executor* exec = new EM::Hor2DTo3D( hor2d_, setup, *hor3d );
     uiTaskRunner* taskrunner = new uiTaskRunner( this );
     bool rv = taskrunner->execute( *exec );
+
     delete exec; exec = 0;
     delete taskrunner;
 #undef mErrRet
