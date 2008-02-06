@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: polyposprovider.cc,v 1.1 2008-02-05 14:25:26 cvsbert Exp $";
+static const char* rcsID = "$Id: polyposprovider.cc,v 1.2 2008-02-06 13:01:02 cvsbert Exp $";
 
 #include "polyposprovider.h"
 #include "keystrs.h"
@@ -182,5 +182,5 @@ void Pos::PolyProvider3D::getExtent( BinID& start, BinID& stop ) const
 
 void Pos::PolyProvider3D::initClass()
 {
-    Pos::Provider3D::factory().addCreator( create, "Polygon" );
+    Pos::Provider3D::factory().addCreator( create, sKey::Polygon );
 }
