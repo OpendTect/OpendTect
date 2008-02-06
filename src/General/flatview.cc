@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.29 2008-02-04 16:49:33 cvsbert Exp $
+ RCS:           $Id: flatview.cc,v 1.30 2008-02-06 19:13:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -215,7 +215,6 @@ FlatView::Annotation::AuxData::AuxData( const char* nm )
     , namepos_( mUdf(int) )
     , linestyle_( LineStyle::None, 1, Color::NoColor )
     , fillcolor_( Color::NoColor )
-    , markerstyle_( MarkerStyle2D::None )
     , close_( false )
     , x1rg_( 0 )
     , x2rg_( 0 )
@@ -229,7 +228,7 @@ FlatView::Annotation::AuxData::AuxData(const FlatView::Annotation::AuxData& aux)
     , namepos_( aux.namepos_ )
     , linestyle_( aux.linestyle_ )
     , fillcolor_( aux.fillcolor_ )
-    , markerstyle_( aux.markerstyle_ )
+    , markerstyles_( aux.markerstyles_ )
     , close_( aux.close_ )
     , x1rg_( aux.x1rg_ ? new Interval<double>( *aux.x1rg_ ) : 0 )
     , x2rg_( aux.x2rg_ ? new Interval<double>( *aux.x2rg_ ) : 0 )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.20 2007-11-27 10:30:37 cvsdgb Exp $
+ RCS:           $Id: flatauxdataeditor.cc,v 1.21 2008-02-06 19:13:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -518,7 +518,6 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 	if ( !hasmoved_ && !ev.shiftStatus() || !polygonsel_.size() )
 	{
 	    Annotation::AuxData* polysel = new Annotation::AuxData( 0 );
-	    polysel->markerstyle_.color_.setTransparency( 255 );
 	    polysel->linestyle_ = polygonsellst_;
 	    polysel->fillcolor_.setTransparency( 255 );
 	    polysel->poly_ += trans.transform( RowCol(prevpt_.x,prevpt_.y) );
@@ -572,9 +571,9 @@ bool AuxDataEditor::updateSelection( const Geom::Point2D<int>& pt )
 	if ( !auxdata_[idx] )
 	    continue;
 
-	const int rng = auxdata_[idx]->markerstyle_.size_;
-	const Geom::PixRectangle<int> markerrect( pt.x-rng, pt.y-rng,
-						  pt.x+rng, pt.y+rng );
+	const int nrmarkerstyles = auxdata_[idx]->markerstyles_.size();
+	if ( !nrmarkerstyles )
+	    continue;
 
 	const Rect wr = getWorldRect( ids_[idx] );
 	RCol2Coord transform;
@@ -589,6 +588,12 @@ bool AuxDataEditor::updateSelection( const Geom::Point2D<int>& pt )
 	{
 	    const RowCol rc = transform.transformBack( dataset[idy] );
 	    const Geom::Point2D<int> displaypos( rc.row, rc.col );
+
+	    const int markeridx = mMIN(idy,nrmarkerstyles-1);
+
+	    const int rng = auxdata_[idx]->markerstyles_[markeridx].size_;
+	    const Geom::PixRectangle<int> markerrect( pt.x-rng, pt.y-rng,
+						  pt.x+rng, pt.y+rng );
 	    if ( !markerrect.isInside( displaypos ) )
 		continue;
 

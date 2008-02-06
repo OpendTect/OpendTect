@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.39 2007-12-27 09:42:31 cvsnanne Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.40 2008-02-06 19:13:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -419,7 +419,8 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 
     ioDrawTool& dt = canvas_.drawTool();
     TypeSet<uiPoint> ptlist;
-    for ( int idx=ad.poly_.size()-1; idx>=0; idx-- )
+    const int nrpoints = ad.poly_.size();
+    for ( int idx=0; idx<nrpoints; idx++ )
 	ptlist += w2u.transform( ad.poly_[idx] ) + datarect.topLeft();
 
     const bool drawfill = ad.close_ && ad.fillcolor_.isVisible();
@@ -435,7 +436,7 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 	}
 	else
 	{
-	    if ( ad.close_ && ptlist.size()>3 )
+	    if ( ad.close_ && nrpoints>3 )
 		ptlist += ptlist[0]; // close poly
 
 	    ObjectSet<TypeSet<uiPoint> > lines;
@@ -448,14 +449,17 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 	}
     }
 
-    if ( ad.markerstyle_.isVisible() )
+    const int nrmarkerstyles = ad.markerstyles_.size();
+    if ( nrmarkerstyles )
     {
-	for ( int idx=ptlist.size()-1; idx>=0; idx-- )
+	for ( int idx=nrpoints-1; idx>=0; idx-- )
 	{
-	    if ( datarect.isOutside(ptlist[idx] ) )
+	    const int styleidx = mMIN(idx,nrmarkerstyles-1);
+	    if ( !ad.markerstyles_[styleidx].isVisible() ||
+		 datarect.isOutside(ptlist[idx] ) )
 		continue;
 
-	    dt.drawMarker( ptlist[idx], ad.markerstyle_ );
+	    dt.drawMarker( ptlist[idx], ad.markerstyles_[styleidx] );
 	}
     }
 
@@ -463,7 +467,7 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
     {
 	int listpos = ad.namepos_;
 	if ( listpos < 0 ) listpos=0;
-	if ( listpos > ptlist.size() ) listpos = ptlist.size()-1;
+	if ( listpos > nrpoints ) listpos = nrpoints-1;
 
 	dt.drawText( ptlist[listpos], ad.name_.buf(), mAlign(Middle,Middle) );
     }

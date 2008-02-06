@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.24 2007-12-12 16:52:09 cvsbert Exp $
+ RCS:           $Id: flatview.h,v 1.25 2008-02-06 19:13:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,8 @@ public:
 						//!< center=0, after last=1
 	LineStyle		linestyle_;
 	Color			fillcolor_;
-	MarkerStyle2D		markerstyle_;
+	TypeSet<MarkerStyle2D>	markerstyles_;
+	bool			areMarkersVisible() const;
 
 	Interval<double>*	x1rg_;		//!<if 0, use viewer's rg & zoom
 	Interval<double>*	x2rg_;		//!<if 0, use viewer's rg & zoom

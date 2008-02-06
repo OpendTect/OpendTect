@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.17 2007-12-12 15:44:40 cvsbert Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.18 2008-02-06 19:13:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -399,7 +399,9 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
 	linestyles_ += auxdata.linestyle_;
 	indices_ += idx;
 	fillcolors_ += auxdata.fillcolor_;
-	markerstyles_ += auxdata.markerstyle_;
+	markerstyles_ += auxdata.markerstyles_.size()
+	    ? auxdata.markerstyles_[0]
+	    : MarkerStyle2D();
 	x1rgs_ += auxdata.x1rg_ ? *auxdata.x1rg_ : Interval<double>( 0, 1 );
 	x2rgs_ += auxdata.x2rg_ ? *auxdata.x2rg_ : Interval<double>( 0, 1 );
 	auxnames.add( auxdata.name_.buf() );
@@ -443,7 +445,9 @@ void uiFVAnnotPropTab::putToScreen()
 	enabled_[idx] = annot_.auxdata_[indices_[idx]]->enabled_;
 	linestyles_[idx] = annot_.auxdata_[indices_[idx]]->linestyle_;
 	fillcolors_[idx] = annot_.auxdata_[indices_[idx]]->fillcolor_;
-	markerstyles_[idx] = annot_.auxdata_[indices_[idx]]->markerstyle_;
+	markerstyles_[idx] = annot_.auxdata_[indices_[idx]]->markerstyles_.size()
+	    ? annot_.auxdata_[indices_[idx]]->markerstyles_[0]
+	    : MarkerStyle2D();
 	x1rgs_[idx] = annot_.auxdata_[indices_[idx]]->x1rg_
 	    ? *annot_.auxdata_[indices_[idx]]->x1rg_
 	    : Interval<double>( 0, 1 );
@@ -472,7 +476,8 @@ void uiFVAnnotPropTab::getFromScreen()
     {
 	annot_.auxdata_[indices_[idx]]->linestyle_ = linestyles_[idx];
 	annot_.auxdata_[indices_[idx]]->fillcolor_ = fillcolors_[idx];
-	annot_.auxdata_[indices_[idx]]->markerstyle_ = markerstyles_[idx];
+	if ( annot_.auxdata_[indices_[idx]]->markerstyles_.size() )
+	    annot_.auxdata_[indices_[idx]]->markerstyles_[0]=markerstyles_[idx];
 	annot_.auxdata_[indices_[idx]]->enabled_ = enabled_[idx];
 	if ( annot_.auxdata_[indices_[idx]]->x1rg_ )
 	    *annot_.auxdata_[indices_[idx]]->x1rg_ = x1rgs_[idx];
