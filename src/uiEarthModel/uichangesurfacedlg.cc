@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra / Bert Bril
  Date:		Sep 2005 / Nov 2006
- RCS:		$Id: uichangesurfacedlg.cc,v 1.15 2007-12-10 12:59:52 cvsbert Exp $
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.16 2008-02-06 10:13:35 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uiarray2dchg.h"
 #include "uicursor.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uistepoutsel.h"
@@ -104,8 +104,8 @@ bool uiChangeSurfaceDlg::readHorizon()
 	reader = EM::EMM().objectLoader( mid );
 	if ( !reader ) return false;
 
-	uiExecutor dlg( this, *reader );
-	if ( !dlg.go() )
+	uiTaskRunner dlg( this );
+	if ( !dlg.execute(*reader) )
 	{
 	    delete reader;
 	    return false;
@@ -143,8 +143,8 @@ bool uiChangeSurfaceDlg::doProcessing()
 	PtrMan<Executor> worker = getWorker( *arr,
 			horizon_->geometry().rowRange(sid),
 			horizon_->geometry().colRange(sid) );
-	uiExecutor dlg( this, *worker );
-	if ( !dlg.go() )
+	uiTaskRunner dlg( this );
+	if ( !dlg.execute(*worker) )
 	{
 	    delete arr;
 	    horizon_->unRef();
@@ -187,8 +187,8 @@ bool uiChangeSurfaceDlg::saveHorizon()
 	return false;
     }
 
-    uiExecutor dlg( this, *exec );
-    const bool res = dlg.go();
+    uiTaskRunner dlg( this );
+    const bool res = dlg.execute( *exec );
     return res;
 }
 

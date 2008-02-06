@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.131 2007-12-24 16:51:22 cvsbert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.132 2008-02-06 10:13:35 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "emmarchingcubessurfacetr.h"
 #include "emmarchingcubessurface.h"
+#include "executor.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -38,7 +39,7 @@ ________________________________________________________________________
 
 #include "uichangesurfacedlg.h"
 #include "uihor3dfrom2ddlg.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uiexphorizon.h"
 #include "uigeninputdlg.h"
 #include "uiimpfault.h"
@@ -309,8 +310,8 @@ void uiEMPartServer::selectMarchingCubes( TypeSet<EM::ObjectID>& ids )
     object->setMultiID( dlg.ioObj()->key() );
     Executor* exec = object->loader();
 
-    uiExecutor execdlg( appserv().parent(), *exec );
-    if ( !execdlg.go() )
+    uiTaskRunner execdlg( appserv().parent() );
+    if ( !execdlg.execute(*exec) )
     {
 	object->unRef();
 	delete exec;
@@ -350,8 +351,8 @@ void uiEMPartServer::selectSurfaces( TypeSet<EM::ObjectID>& objids,
 	obj->ref();
     }
 
-    uiExecutor execdlg( appserv().parent(), *exec );
-    if ( !execdlg.go() )
+    uiTaskRunner execdlg( appserv().parent() );
+    if ( !execdlg.execute(*exec) )
     {
 	for ( int idx=0; idx<surfaceids.size(); idx++ )
 	{
@@ -387,8 +388,8 @@ bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
     for ( int idx=0; idx<selattribs.size(); idx++ )
 	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
 
-    uiExecutor exdlg( appserv().parent(), exgrp );
-    return exdlg.go();
+    uiTaskRunner exdlg( appserv().parent() );
+    return exdlg.execute( exgrp );
 }
 
 
@@ -444,8 +445,8 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
     for ( int idx=0; idx<selattribs.size(); idx++ )
 	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
 
-    uiExecutor exdlg( appserv().parent(), exgrp );
-    return exdlg.go();
+    uiTaskRunner exdlg( appserv().parent() );
+    return exdlg.execute( exgrp );
 }
 
 
@@ -495,8 +496,8 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas ) const
     if ( !exec )
 	return false;
 
-    uiExecutor exdlg( appserv().parent(), *exec );
-    return exdlg.go();
+    uiTaskRunner exdlg( appserv().parent() );
+    return exdlg.execute( *exec );
 }
 
 
@@ -523,8 +524,8 @@ bool uiEMPartServer::storeAuxData( const EM::ObjectID& id, bool storeas ) const
 	return false;
     }
 
-    uiExecutor exdlg( appserv().parent(), *saver );
-    return exdlg.go();
+    uiTaskRunner exdlg( appserv().parent() );
+    return exdlg.execute( *saver );
 }
 
 
@@ -694,8 +695,8 @@ bool uiEMPartServer::loadSurface( const MultiID& mid,
 
     EM::EMObject* obj = em_.getObject( em_.getObjectID(mid) );
     obj->ref();
-    uiExecutor exdlg( appserv().parent(), *exec );
-    if ( exdlg.go() <= 0 )
+    uiTaskRunner exdlg( appserv().parent() );
+    if ( exdlg.execute(*exec) <= 0 )
     {
 	obj->unRef();
 	return false;
