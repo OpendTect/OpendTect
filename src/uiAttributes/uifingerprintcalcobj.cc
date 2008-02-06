@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          June 2006
- RCS:           $Id: uifingerprintcalcobj.cc,v 1.7 2007-04-11 10:10:19 cvsbert Exp $
+ RCS:           $Id: uifingerprintcalcobj.cc,v 1.8 2008-02-06 04:22:04 cvsraman Exp $
 
 ________________________________________________________________________
 
@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "seis2dline.h"
 #include "segposinfo.h"
 #include "survinfo.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "ptrman.h"
 #include "statrand.h"
 
@@ -198,8 +198,8 @@ bool calcFingParsObject::computeValsAndRanges()
     }
 
     proc->setName( "Compute reference values" );
-    uiExecutor dlg( parent_, *proc );
-    if ( !dlg.go() )
+    uiTaskRunner taskrunner( parent_ );
+    if ( !taskrunner.execute(*proc) )
 	return false;
 
     extractAndSaveValsAndRanges();

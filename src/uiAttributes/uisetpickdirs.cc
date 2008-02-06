@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Nov 2003
- RCS:           $Id: uisetpickdirs.cc,v 1.9 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:           $Id: uisetpickdirs.cc,v 1.10 2008-02-06 04:22:04 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ ________________________________________________________________________
 //#include "attribdescsetproc.h"
 //#include "attriboutputimpl.h"
 //#include "attribexecutor.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "survinfo.h"
 #include "rcol2coord.h"
 
@@ -337,8 +337,8 @@ void uiSetPickDirs::calcAttribs( const BinIDValueSet& locations,
 	return 0;
     }
 
-    uiExecutor dlg( this, *outexec );
-    if ( !dlg.go() ) return 0;
+    uiTaskRunner taskrunner( this );
+    if ( !taskrunner.execute(*outexec) ) return 0;
 
     return fs;
 */

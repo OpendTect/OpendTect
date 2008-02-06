@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.82 2008-01-31 19:06:39 cvskris Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.83 2008-02-06 04:22:04 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ ________________________________________________________________________
 #include "uiattrsel.h"
 #include "uiattrvolout.h"
 #include "uievaluatedlg.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uiioobjsel.h"
 #include "uimenu.h"
 #include "uimsg.h"
@@ -458,8 +458,8 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
     bool success = true;
     if ( aem->getNrOutputsToBeProcessed(*process) != 0 )
     {
-	uiExecutor dlg( parent(), *process );
-	success = dlg.go();
+	uiTaskRunner taskrunner( parent() );
+	success = taskrunner.execute( *process );
     }
 
     const DataCubes* output = aem->getDataCubesOutput( *process );
@@ -498,8 +498,8 @@ bool uiAttribPartServer::createOutput( ObjectSet<BinIDValueSet>& values )
     if ( !process )
 	{ uiMSG().error(errmsg); return false; }
 
-    uiExecutor dlg( parent(), *process );
-    if ( !dlg.go() ) return false;
+    uiTaskRunner taskrunner( parent() );
+    if ( !taskrunner.execute(*process) ) return false;
 
     return true;
 }
@@ -538,8 +538,8 @@ bool uiAttribPartServer::createOutput( const BinIDValueSet& bidvalset,
     if ( !process )
 	{ uiMSG().error(errmsg); return false; }
 
-    uiExecutor dlg( parent(), *process );
-    if ( !dlg.go() ) return false;
+    uiTaskRunner taskrunner( parent() );
+    if ( !taskrunner.execute(*process) ) return false;
 
     return true;
 }
@@ -557,8 +557,8 @@ DataPack::ID uiAttribPartServer::create2DOutput( const CubeSampling& cs,
     if ( !process )
 	{ uiMSG().error(errmsg); return -1; }
 
-    uiExecutor dlg( parent(), *process );
-    if ( !dlg.go() )
+    uiTaskRunner taskrunner( parent() );
+    if ( !taskrunner.execute(*process) )
 	return -1;
 
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
@@ -623,8 +623,8 @@ bool uiAttribPartServer::extractData( const NLACreationDesc& desc,
     {
 	PosVecOutputGen pvog( *adsman->descSet(), desc.design.inputs,
 				     bivsets, outvds );
-	uiExecutor dlg( parent(), pvog );
-	if ( !dlg.go() )
+	uiTaskRunner taskrunner( parent() );
+	if ( !taskrunner.execute(pvog) )
 	    return false;
 	else if ( outvds.size() != bivsets.size() )
 	{

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uiattribcrossplot.cc,v 1.6 2007-02-05 18:19:47 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.7 2008-02-06 04:22:04 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ ________________________________________________________________________
 
 #include "uimsg.h"
 #include "uilistbox.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uiioobjsel.h"
 #include "uiposdataedit.h"
 
@@ -125,8 +125,8 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 
     ObjectSet<PosVecDataSet> outvdss;
     PosVecOutputGen pvog( ads_, attrssel, bivsets, outvdss );
-    uiExecutor uiex( this, pvog );
-    if ( !uiex.go() )
+    uiTaskRunner taskrunner( this );
+    if ( !taskrunner.execute(pvog) )
 	return false;
 
     for ( int idx=0; idx<outvdss.size(); idx++ )
