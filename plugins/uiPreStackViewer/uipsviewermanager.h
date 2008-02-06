@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2007
- RCS:		$Id: uipsviewermanager.h,v 1.3 2008-02-01 23:19:09 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.h,v 1.4 2008-02-06 23:34:42 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 
 class uiVisPartServer;
 class uiFlatViewWin;
+class uiMenuHandler;
 
 namespace PreStackView
 {
@@ -38,10 +39,19 @@ public:
     static const char*		sKeyNrWindows() { return "Number of windows"; } 
     static const char*		sKeyMultiID() {return "uiFlatViewWin MultiID";}
     static const char*		sKeyBinID()   { return "uiFlatViewWin binid"; } 
+    static const char*		sKeyIs3D()    { return "Seis3D display"; } 
+    static const char*		sKeyTraceNr() { return "Seis2D TraceNr"; } 
+    static const char*		sKeySeis2DName() { return "Seis2D Name"; } 
 
 protected:
     
-    uiFlatViewWin*		create2DViewer(PreStackView::PreStackViewer*);
+    uiFlatViewWin*		create2DViewer(BufferString,int datapackid);
+    int				getSceneID(int mnid);
+    BufferString		getSeis2DTitle(const int trnr,BufferString);
+    BufferString		getSeis3DTitle(BinID,BufferString);
+    bool			addNewPSViewer(const uiMenuHandler*,
+	    				       int sceneid,int mnuidx);
+    void			removeViewWin(const int dpid);
     void			createMenuCB(CallBacker*);
     void			handleMenuCB(CallBacker*);
     void			removeAllCB(CallBacker*);

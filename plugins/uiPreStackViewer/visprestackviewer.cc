@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.13 2008-02-05 18:18:15 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.14 2008-02-06 23:34:42 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -104,6 +104,9 @@ PreStackViewer::~PreStackViewer()
     pickstyle_->unRef();
     draggerrect_->unRef();
     draggermaterial_->unRef();
+
+    flatviewer_->dataChange.remove( mCB( this, PreStackViewer, dataChangedCB ));
+    flatviewer_->unRef();
     
     if ( section_ )
     {
@@ -128,9 +131,6 @@ PreStackViewer::~PreStackViewer()
     		    mCB( this, PreStackViewer, seis2DMovedCB ) );
 	seis2d_->unRef();
     }
-
-    flatviewer_->dataChange.remove( mCB( this, PreStackViewer, dataChangedCB ));
-    flatviewer_->unRef();
 }
 
 
@@ -373,26 +373,26 @@ bool PreStackViewer::setSeis2DData( const IOObj* ioobj )
     if ( !seis2d_ || trcnr_<0 )
 	mErrRet( "Seis2D display is not set" )
 
-    PtrMan<SeisPSReader> psrdr = SPSIOPF().get2DReader(*ioobj,seis2d_->name());
-    if ( !psrdr ) 
-	mErrRet( "Could not find reader" )
+    const bool haddata = flatviewer_->pack( false );
+    PreStack::Gather* gather = new PreStack::Gather;
+    if ( !gather->readFrom( *ioobj, trcnr_, seis2d_->name() ) )
+    {
+	delete gather;
+	if ( haddata )
+	    flatviewer_->setPack( false, DataPack::cNoID, false );
+	else
+	{
+	    dataChangedCB( 0 );
+	    return false;
+	}
+    }
+    else
+    {
+	DPM(DataPackMgr::FlatID).add( gather );
+	flatviewer_->setPack( false, gather->id(), false, !haddata );
+    }
     
-    SeisTrcBuf* tbuf = new SeisTrcBuf( true );
-    if ( !psrdr->getGather( BinID(0,trcnr_), *tbuf ) )
-	mErrRet( "Can not find gather" )
-    
-    if ( tbuf->size() == 0 )
-	mErrRet( "Gather is empty" )
-
-    SeisTrcBufDataPack* dp = new SeisTrcBufDataPack( tbuf, Seis::LinePS, 
-	    SeisTrcInfo::Offset, "Pre-Stack Gather", 0 );
-
-    DPM(DataPackMgr::FlatID).add( dp );
-    DPM(DataPackMgr::FlatID).obtain( dp->id() );
-    flatviewer_->setPack( false, dp->id(), false, true );
-    DPM(DataPackMgr::FlatID).release( dp );
-	
-    dataChangedCB(0);
+    turnOn( true );
     return true;
 }
 
