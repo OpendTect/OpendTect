@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: uiarray2dchg.cc,v 1.3 2007-02-05 18:19:48 cvsbert Exp $
+ RCS:		$Id: uiarray2dchg.cc,v 1.4 2008-02-06 14:33:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,28 +30,64 @@ uiArr2DInterpolPars::uiArr2DInterpolPars( uiParent* p,
     maxholefld_->setWithCheck( true ); maxholefld_->setChecked( isdef );
     maxholefld_->attach( alignedBelow, extrapolatefld_ );
 
+    doextendfld_ = new uiGenInput( this, "Fill type",
+		       BoolInpSpec(pars.useextension_,"Extension","Gridding") );
+    doextendfld_->attach( alignedBelow, maxholefld_ );
+    const CallBack cb( mCB(this,uiArr2DInterpolPars,doExtChg) );
+    doextendfld_->valuechanged.notify( cb );
+
     isdef = pars.maxnrsteps_ > 0;
-    maxstepsfld_ = new uiGenInput( this, "Maximum interpolation steps",
+    maxstepsfld_ = new uiGenInput( this, "Maximum extension steps",
 	    			  IntInpSpec(isdef ? pars.maxnrsteps_ : 1) );
     maxstepsfld_->setWithCheck( true ); maxstepsfld_->setChecked( isdef );
-    maxstepsfld_->attach( alignedBelow, maxholefld_ );
+    maxstepsfld_->attach( alignedBelow, doextendfld_ );
+
+    isdef = pars.srchrad_ > 0;
+    srchradfld_ = new uiGenInput( this, "Search radius",
+	    			  FloatInpSpec(isdef ? pars.srchrad_ : 1000) );
+    srchradfld_->setWithCheck( true ); srchradfld_->setChecked( isdef );
+    srchradfld_->attach( alignedBelow, doextendfld_ );
 
     setHAlignObj( extrapolatefld_ );
+    mainwin()->finaliseDone.notify( cb );
+}
+
+
+void uiArr2DInterpolPars::doExtChg( CallBacker* )
+{
+    const bool isext = doextendfld_->getBoolValue();
+    maxstepsfld_->display( isext );
+    srchradfld_->display( !isext );
 }
 
 
 Array2DInterpolatorPars uiArr2DInterpolPars::getInput() const
 {
     Array2DInterpolatorPars pars;
+
     pars.extrapolate_ = extrapolatefld_->getBoolValue();
+    pars.useextension_ = doextendfld_->getBoolValue();
+
     pars.maxholesize_ = maxholefld_->isChecked()
 		       ? maxholefld_->getIntValue() : -1;
     if ( pars.maxholesize_ < 1 || mIsUdf(pars.maxholesize_) )
 	pars.maxholesize_ = -1;
-    pars.maxnrsteps_ = maxstepsfld_->isChecked()
-		       ? maxstepsfld_->getIntValue() : -1;
-    if ( pars.maxnrsteps_ < 1 || mIsUdf(pars.maxnrsteps_) )
-	pars.maxnrsteps_ = -1;
+
+    if ( pars.useextension_ )
+    {
+	pars.maxnrsteps_ = maxstepsfld_->isChecked()
+			   ? maxstepsfld_->getIntValue() : -1;
+	if ( pars.maxnrsteps_ < 1 || mIsUdf(pars.maxnrsteps_) )
+	    pars.maxnrsteps_ = -1;
+    }
+    else
+    {
+	pars.srchrad_ = srchradfld_->isChecked()
+			   ? srchradfld_->getfValue() : -1;
+	if ( pars.srchrad_ < 0 || mIsUdf(pars.srchrad_) )
+	    pars.srchrad_ = -1;
+    }
+
     return pars;
 }
 

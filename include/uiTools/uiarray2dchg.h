@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: uiarray2dchg.h,v 1.2 2007-10-22 11:33:03 cvsnanne Exp $
+ RCS:		$Id: uiarray2dchg.h,v 1.3 2008-02-06 14:33:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,11 @@ protected:
 
     uiGenInput*	extrapolatefld_;
     uiGenInput*	maxholefld_;
+    uiGenInput*	doextendfld_;
     uiGenInput*	maxstepsfld_;
+    uiGenInput*	srchradfld_;
 
+    void	doExtChg(CallBacker*);
 };
 
 
