@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.96 2007-12-13 06:02:40 cvsraman Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.97 2008-02-06 04:36:34 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uibutton.h"
 #include "uicolor.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uifileinput.h"
 #include "uigeninputdlg.h"
 #include "uiioobjsel.h"
@@ -254,8 +254,8 @@ bool uiImportHorizon::doScan()
     if ( !getFileNames(filenms) ) return false;
 
     scanner_ = new HorizonScanner( filenms, fd_, isgeom_ );
-    uiExecutor dlg( this, *scanner_ );
-    dlg.go();
+    uiTaskRunner taskrunner( this );
+    taskrunner.execute( *scanner_ );
 
     HorSampling hs;
     hs.set( scanner_->inlRg(), scanner_->crlRg() );
@@ -306,8 +306,8 @@ void uiImportHorizon::stratLvlChg( CallBacker* )
 	horizon->unRef(); \
 	return false; \
     } \
-    uiExecutor dlg( this, *exec ); \
-    rv = dlg.execute(); \
+    uiTaskRunner taskrunner( this ); \
+    rv = taskrunner.execute( *exec ); \
     delete exec; 
 
 bool uiImportHorizon::doImport()
@@ -348,8 +348,8 @@ bool uiImportHorizon::doImport()
     if ( attrnms.size() )
 	importer.add( horizon->auxDataImporter(sections,attrnms,startidx,hs) );
 
-    uiExecutor impdlg( this, importer );
-    const bool success = impdlg.go();
+    uiTaskRunner taskrunner( this );
+    const bool success = taskrunner.execute( importer );
     deepErase( sections );
     if ( !success )
 	mErrRetUnRef("Cannot import horizon")
@@ -456,8 +456,8 @@ bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 	interpolator.pars() = arr2dinterpfld_->pars_;
 	interpolator.setColDistRatio( SI().crlDistance()*hs.step.crl/
 		(hs.step.inl*SI().inlDistance() ));
-	uiExecutor uiex( this, interpolator );
-	if ( !uiex.execute() )
+	uiTaskRunner taskrunner( this );
+	if ( !taskrunner.execute(interpolator) )
 	    return false;
 
 	for ( int inl=0; inl<hs.nrInl(); inl++ )
@@ -512,8 +512,8 @@ EM::Horizon3D* uiImportHorizon::loadHor()
     Executor* loader = emobj->loader();
     if ( !loader ) mErrRet( "Cannot load horizon");
 
-    uiExecutor loaddlg( this, *loader );
-    if ( !loaddlg.go() )
+    uiTaskRunner taskrunner( this );
+    if ( !taskrunner.execute(*loader) )
 	return 0;
 
     mDynamicCastGet(EM::Horizon3D*,horizon,emobj)

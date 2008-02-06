@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.12 2007-07-06 08:29:43 cvsjaap Exp $
+ RCS:           $Id: uihor3dfrom2ddlg.cc,v 1.13 2008-02-06 04:36:34 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uibutton.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uimsg.h"
 
 #include "emhorizon2d.h"
@@ -98,10 +98,10 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
 
     Executor* exec = new EM::Hor2DTo3D( hor2d_, SI().sampling(true).hrg,
 	    			        nriterfld_->getIntValue(), *hor3d );
-    uiExecutor* interpdlg = new uiExecutor( this, *exec );
-    bool rv = interpdlg->go();
+    uiTaskRunner* taskrunner = new uiTaskRunner( this );
+    bool rv = taskrunner->execute( *exec );
     delete exec; exec = 0;
-    delete interpdlg;
+    delete taskrunner;
 #undef mErrRet
 #define mErrRet() { hor3d->unRef(); delete exec; return false; }
     if ( !rv ) mErrRet()
@@ -109,8 +109,8 @@ bool uiHor3DFrom2DDlg::acceptOK( CallBacker* )
     exec = hor3d->saver();
     if ( !exec ) mErrRet()
 
-    uiExecutor dlg( this, *exec );
-    rv = dlg.execute();
+    uiTaskRunner savedlg( this );
+    rv = savedlg.execute( *exec );
     delete exec;
 
     if ( !rv || !doDisplay() )

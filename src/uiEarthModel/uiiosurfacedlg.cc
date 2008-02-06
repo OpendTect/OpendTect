@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.25 2008-01-18 06:47:34 cvsraman Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.26 2008-02-06 04:36:34 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 
 
 uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf )
@@ -195,8 +195,8 @@ bool uiCopySurface::acceptOK( CallBacker* )
     PtrMan<Executor> loader = surface->geometry().loader( &sdsel );
     if ( !loader ) mErrRet("Cannot read surface")
 
-    uiExecutor loaddlg( this, *loader );
-    if ( !loaddlg.go() ) return false;
+    uiTaskRunner loaddlg( this );
+    if ( !loaddlg.execute(*loader) ) return false;
 
     IOObj* newioobj = outfld->ctxtIOObj().ioobj;
     const MultiID& mid = newioobj->key();
@@ -204,8 +204,8 @@ bool uiCopySurface::acceptOK( CallBacker* )
     PtrMan<Executor> saver = surface->geometry().saver( 0, &mid );
     if ( !saver ) mErrRet("Cannot save surface")
 
-    uiExecutor savedlg( this, *saver );
-    if ( !savedlg.go() ) return false;
+    uiTaskRunner savedlg( this );
+    if ( !savedlg.execute(*saver) ) return false;
 
     const BufferString oldsurfname = ioobj->fullUserExpr( true );
     const BufferString newsurfname = newioobj->fullUserExpr( true );

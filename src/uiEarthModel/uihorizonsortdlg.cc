@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2005
- RCS:		$Id: uihorizonsortdlg.cc,v 1.8 2007-12-10 12:59:52 cvsbert Exp $
+ RCS:		$Id: uihorizonsortdlg.cc,v 1.9 2008-02-06 04:36:34 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uihorizonsortdlg.h"
 
 #include "uicursor.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 
@@ -103,8 +103,8 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
     HorizonSorter* horsorter = new HorizonSorter( horids );
     execgrp.add( horsorter );
 
-    uiExecutor dlg( this, execgrp );
-    if ( !dlg.go() ) return false;
+    uiTaskRunner taskrunner( this );
+    if ( !taskrunner.execute(execgrp) ) return false;
 
     horsorter->getSortedList( horids );
     deepUnRef( horizons_ );

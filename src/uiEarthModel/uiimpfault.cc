@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.18 2006-02-17 17:27:14 cvsbert Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.19 2008-02-06 04:36:34 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "strmdata.h"
 #include "strmprov.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "filegen.h"
@@ -90,16 +90,16 @@ bool uiImportLMKFault::handleAscii()
 	mErrRet( "Cannot import fault" );
     }
 
-    uiExecutor dlg( this, *exec );
-    if ( !dlg.go() )
+    uiTaskRunner taskrunner( this );
+    if ( !taskrunner.execute(*exec) )
     {
 	fault->unRef();
-	mErrRet( dlg.lastMsg() );
+	mErrRet( taskrunner.lastMsg() );
     }
 /*
     PtrMan<Executor> saveexec = fault->geometry.saver();
-    uiExecutor savedlg( this, *saveexec );
-    if ( !savedlg.go() )
+    uiTaskRunner taskrunner( this );
+    if ( !taskrunner.execute(*saveexec) )
     {
 	fault->unRef();
 	mErrRet( savedlg.lastMsg() );
