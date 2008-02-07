@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.13 2008-02-06 23:34:42 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.14 2008-02-07 14:30:18 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -429,7 +429,7 @@ void uiPSViewerMgr::sessionRestoreCB( CallBacker* )
 }
 
 
-BufferString uiPSViewerMgr::getSeis2DTitle( const int tracenr,BufferString nm )
+const char* uiPSViewerMgr::getSeis2DTitle( const int tracenr, BufferString nm )
 {
     BufferString title( "Gather from [" );
     title += nm;
@@ -440,7 +440,7 @@ BufferString uiPSViewerMgr::getSeis2DTitle( const int tracenr,BufferString nm )
 }
 
 
-BufferString uiPSViewerMgr::getSeis3DTitle( BinID bid, BufferString name )
+const char* uiPSViewerMgr::getSeis3DTitle( BinID bid, BufferString name )
 {
     BufferString title( "Gather from [" );
     title += name;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2007
- RCS:		$Id: uipsviewermanager.h,v 1.4 2008-02-06 23:34:42 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.h,v 1.5 2008-02-07 14:30:18 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,8 +47,8 @@ protected:
     
     uiFlatViewWin*		create2DViewer(BufferString,int datapackid);
     int				getSceneID(int mnid);
-    BufferString		getSeis2DTitle(const int trnr,BufferString);
-    BufferString		getSeis3DTitle(BinID,BufferString);
+    const char*			getSeis2DTitle(const int trnr,BufferString);
+    const char*			getSeis3DTitle(BinID,BufferString);
     bool			addNewPSViewer(const uiMenuHandler*,
 	    				       int sceneid,int mnuidx);
     void			removeViewWin(const int dpid);
