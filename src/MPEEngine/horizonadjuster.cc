@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.46 2008-02-05 09:24:17 cvsbert Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.47 2008-02-07 18:59:33 cvskris Exp $";
 
 #include "horizonadjuster.h"
 
@@ -37,9 +37,13 @@ HorizonAdjuster::HorizonAdjuster( EM::Horizon& hor,
     , attribsel_(0)
     , attrdata_(0)
     , tracker_( new EventTracker )
-    , permzrange_( -5*SI().zStep(), 5*SI().zStep() )
-    , similaritywin_( -10*SI().zStep(), 10*SI().zStep() )
-{ }
+{
+    tracker_->setSimilarityWindow(
+	    Interval<float>(-10*SI().zStep(), 10*SI().zStep() ) );
+    tracker_->setPermittedRange(
+	    Interval<float>(-5*SI().zStep(), 5*SI().zStep() ) );
+    tracker_->setRangeStep( SI().zStep() );
+}
 
 
 HorizonAdjuster::~HorizonAdjuster()
@@ -67,14 +71,11 @@ void HorizonAdjuster::reset()
 
 
 void HorizonAdjuster::setPermittedZRange( const Interval<float>& rg )
-{ 
-    permzrange_ = rg;
-    permzrange_.sort(); 
-}
+{ tracker_->setPermittedRange( rg ); }
 
 
 Interval<float> HorizonAdjuster::permittedZRange() const
-{ return permzrange_; }
+{ return tracker_->permittedRange(); }
 
 
 void HorizonAdjuster::setTrackByValue( bool yn )
@@ -118,14 +119,11 @@ bool HorizonAdjuster::useAbsThreshold() const
 
 
 void HorizonAdjuster::setSimilarityWindow( const Interval<float>& rg )
-{ 
-    similaritywin_ = rg;
-    similaritywin_.sort();
-}
+{ tracker_->setSimilarityWindow( rg ); }
 
 
 Interval<float> HorizonAdjuster::similarityWindow() const
-{ return similaritywin_; }
+{ return tracker_->similarityWindow(); }
 
 
 void HorizonAdjuster::setSimilarityThreshold( float th )
@@ -194,15 +192,9 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 		    cube.info().getOffset( toinlidx, tocrlidx, 0 ) ); 
 
     const float startz = horizon_.getPos( sectionid_, to.getSerialized() ).z;
-    tracker_->setPermittedZRange(
-	Interval<int>(mNINT(permzrange_.start/sd.step),
-	    	      mNINT(permzrange_.stop/sd.step)) );
-    tracker_->setSimilarityWindow(
-	Interval<int>(mNINT(similaritywin_.start/sd.step),
-	    	      mNINT(similaritywin_.stop/sd.step)) );
+    tracker_->setRangeStep( sd.step );
 
     tracker_->setTarget( &toarr, zsz, sd.getIndex(startz) );
-
 
     if ( from.inl!=-1 && from.crl!=-1 )
     {
@@ -262,12 +254,12 @@ CubeSampling HorizonAdjuster::getAttribCube( const Attrib::SelSpec& sp ) const
 
     CubeSampling res = engine().activeVolume();
 
-    res.zrg.start += permzrange_.start;
-    res.zrg.stop += permzrange_.stop;
+    res.zrg.start += tracker_->permittedRange().start;
+    res.zrg.stop += tracker_->permittedRange().stop;
     if ( !trackByValue() )
     {
-	res.zrg.start += similaritywin_.start;
-	res.zrg.stop += similaritywin_.stop;
+	res.zrg.start += tracker_->similarityWindow().start;
+	res.zrg.stop += tracker_->similarityWindow().stop;
     }
 
     res.snapToSurvey();
@@ -324,8 +316,6 @@ void HorizonAdjuster::fillPar( IOPar& iopar ) const
     tracker_->fillPar( trackerpar );
     iopar.mergeComp( trackerpar, sKeyTracker() );
     if ( attribsel_ ) attribsel_->fillPar( iopar );
-    iopar.set( sKeyPermittedZRange(), permzrange_ );
-    iopar.set( sKeySimWindow(), similaritywin_ );
 }
 
 
@@ -369,8 +359,16 @@ bool HorizonAdjuster::usePar( const IOPar& iopar )
 	    tracker_->useSimilarity( !byvalue );
     }
 
-    iopar.get( sKeyPermittedZRange(), permzrange_ );
-    iopar.get( sKeySimWindow(), similaritywin_ );
+    //The ranges was written in OD3.2, so this can be 
+    //removed when OD5 is released.
+    //Range is now stored with tracker
+    Interval<float> permzrange;
+    if ( iopar.get( "Permitted Z range", permzrange ) )
+	tracker_->setPermittedRange( permzrange );
+
+    Interval<float> similaritywin;
+    if ( iopar.get( "Similarity window", similaritywin ) )
+	tracker_->setSimilarityWindow(similaritywin);
 
     return SectionAdjuster::usePar( iopar );
 }

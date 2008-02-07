@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: horizonadjuster.h,v 1.22 2007-05-31 22:31:10 cvskris Exp $
+ RCS:           $Id: horizonadjuster.h,v 1.23 2008-02-07 18:59:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,8 +75,6 @@ protected:
     Attrib::SelSpec*		attribsel_;
     const Attrib::DataCubes*	attrdata_;
     EM::Horizon&		horizon_;
-    Interval<float>		permzrange_;
-    Interval<float>		similaritywin_;
     EventTracker*		tracker_;
 
 private:
@@ -87,8 +85,6 @@ private:
 
     void		setHorizonPick(const BinID& bid, float val);
 
-    static const char*	sKeyPermittedZRange()	{ return "Permitted Z range"; }
-    static const char*	sKeySimWindow()		{ return "Similarity window"; }
     static const char*	sKeyTracker()		{ return "Tracker"; }
     static const char*	sKeyAttribID()		{ return "Attribute"; }
 };

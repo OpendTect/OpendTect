@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: valseriestracker.cc,v 1.4 2008-02-05 20:47:47 cvskris Exp $";
+static const char* rcsID = "$Id: valseriestracker.cc,v 1.5 2008-02-07 18:59:33 cvskris Exp $";
 
 #include "valseriestracker.h"
 
@@ -76,7 +76,7 @@ void ValSeriesTracker::setTarget( const ValueSeries<float>* vs, int sz,
 
 
 EventTracker::EventTracker()
-    : permzrange_( -5, 5 )
+    : permrange_( -5, 5 )
     , ampthreshold_( mUdf(float) )
     , allowedvar_( 0.20 )
     , evtype_( VSEvent::Max )
@@ -84,14 +84,16 @@ EventTracker::EventTracker()
     , similaritywin_( -10, 10 )
     , usesimilarity_( false )
     , similaritythreshold_( 0.8 )
+    , normalizesimi_( false )
     , quality_( 1 )
+    , rangestep_( 1 )
 {}
 
 
-void EventTracker::setPermittedZRange( const Interval<int>& rg )
+void EventTracker::setPermittedRange( const Interval<float>& rg )
 {
-    permzrange_ = rg;
-    permzrange_.sort();
+    permrange_ = rg;
+    permrange_.sort();
 }
 
 
@@ -107,8 +109,8 @@ bool EventTracker::isOK() const
 }
 
 
-const Interval<int>& EventTracker::permittedZRange() const
-{ return permzrange_; }
+const Interval<float>& EventTracker::permittedRange() const
+{ return permrange_; }
 
 
 void EventTracker::setTrackEvent( VSEvent::Type ev )
@@ -143,6 +145,14 @@ bool EventTracker::usesSimilarity() const
 { return usesimilarity_; }
 
 
+void EventTracker::normalizeSimilarityValues( bool yn )
+{ normalizesimi_ = yn; }
+
+
+bool EventTracker::normalizesSimilarityValues() const
+{ return normalizesimi_; }
+
+
 void EventTracker::setUseAbsThreshold( bool abs )
 { useabsthreshold_ = abs; }
 
@@ -151,14 +161,14 @@ bool EventTracker::useAbsThreshold() const
 { return useabsthreshold_; }
 
 
-void EventTracker::setSimilarityWindow( const Interval<int>& rg )
+void EventTracker::setSimilarityWindow( const Interval<float>& rg )
 {
     similaritywin_ = rg;
     similaritywin_.sort();
 }
 
 
-const Interval<int>& EventTracker::similarityWindow() const
+const Interval<float>& EventTracker::similarityWindow() const
 { return similaritywin_; }
 
 
@@ -206,15 +216,17 @@ bool EventTracker::track()
 	return res;
     }
 
+    const Interval<int> permsamplerange( mNINT(permrange_.start/rangestep_),
+				       mNINT(permrange_.stop/rangestep_) );
     float upsample, upsim; bool upflatstart;
-    const bool findup = permzrange_.start<=0
-	? findMaxSimilarity( -permzrange_.start, -1, 1,
+    const bool findup = permsamplerange.start<=0
+	? findMaxSimilarity( -permsamplerange.start, -1, 1,
 			     upsample, upsim, upflatstart )
 	: false;
 
     float dnsample, dnsim; bool dnflatstart;
-    const bool finddn = permzrange_.stop>=0
-	? findMaxSimilarity( permzrange_.stop, 1, 1, dnsample,dnsim,dnflatstart)
+    const bool finddn = permsamplerange.stop>=0
+	? findMaxSimilarity( permsamplerange.stop, 1, 1, dnsample,dnsim,dnflatstart)
 	: false;
 
     if ( findup && finddn )
@@ -275,8 +287,10 @@ bool EventTracker::track()
 bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 	float& res, float& maxsim, bool& flatstart ) const
 {
-    int firstsourcesample = mNINT(sourcedepth_) + similaritywin_.start;
-    Interval<int> actualsimilaritywin = similaritywin_;
+    const Interval<int> similaritysamplewin( mNINT(similaritywin_.start/rangestep_),
+	    				     mNINT(similaritywin_.stop/rangestep_) );
+    int firstsourcesample = mNINT(sourcedepth_) + similaritysamplewin.start;
+    Interval<int> actualsimilaritywin = similaritysamplewin;
     if ( firstsourcesample<0 )
     {
 	actualsimilaritywin.start -= firstsourcesample;
@@ -312,7 +326,7 @@ bool EventTracker::findMaxSimilarity( int nrtests, int step, int nrgracetests,
 	    break;
 
 	const float sim = similarity( *sourcevs_, *targetvs_, nrsamples,
-		false, firstsourcesample, targetstart );
+		normalizesimi_, firstsourcesample, targetstart );
 
 	if ( idx && sim<maxsim )
 	{
@@ -350,13 +364,14 @@ void EventTracker::fillPar( IOPar& iopar ) const
 {
     ValSeriesTracker::fillPar( iopar );
     iopar.set( sKeyTrackEvent(), eString(VSEvent::Type,evtype_) );
-    iopar.set( sKeyPermittedZRange(), permzrange_ );
+    iopar.set( sKeyPermittedRange(), permrange_ );
     iopar.set( sKeyValueThreshold(), ampthreshold_ );
     iopar.set( sKeyAllowedVariance(), allowedvar_);
     iopar.setYN( sKeyUseAbsThreshold(), useabsthreshold_ );
     iopar.set( sKeySimWindow(), similaritywin_ );
     iopar.set( sKeySimThreshold(), similaritythreshold_ );
     iopar.setYN( sKeyTrackByValue(), !usesimilarity_ );
+    iopar.setYN( sKeyNormSimi(), normalizesimi_ );
 }
 
 
@@ -367,11 +382,12 @@ bool EventTracker::usePar( const IOPar& iopar )
 
     const char* res = iopar.find( sKeyTrackEvent() );
     if ( res && *res ) evtype_ = eEnum(VSEvent::Type,res);
-    iopar.get( sKeyPermittedZRange(), permzrange_ );
+    iopar.get( sKeyPermittedRange(), permrange_ );
     iopar.get( sKeyValueThreshold(), ampthreshold_ );
     iopar.get( sKeyAllowedVariance(), allowedvar_);
     iopar.getYN( sKeyUseAbsThreshold(), useabsthreshold_ );
     iopar.get( sKeySimWindow(),similaritywin_ );
+    iopar.getYN( sKeyNormSimi(), normalizesimi_ );
     iopar.get( sKeySimThreshold(), similaritythreshold_ );
     bool trackbyvalue;
     if ( iopar.getYN( sKeyTrackByValue(), trackbyvalue ) )
@@ -389,8 +405,10 @@ bool EventTracker::snap( float threshold )
     const SamplingData<float> sd( 0, 1 );
     ValueSeriesEvFinder<float, float> evfinder( *targetvs_, targetsize_-1, sd );
 
-    const float upbound = targetdepth_ + permzrange_.start - 0.01;
-    const float dnbound = targetdepth_ + permzrange_.stop  + 0.01;
+    const Interval<int> permsamplerange( mNINT(permrange_.start/rangestep_),
+				       mNINT(permrange_.stop/rangestep_) );
+    const float upbound = targetdepth_ + permsamplerange.start - 0.01;
+    const float dnbound = targetdepth_ + permsamplerange.stop  + 0.01;
 
     const Interval<float> uprg( targetdepth_, mMAX(0,upbound-1) );
     const Interval<float> dnrg( targetdepth_, mMIN(targetsize_-1, dnbound+1) );
