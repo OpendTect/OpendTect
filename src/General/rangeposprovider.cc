@@ -1,0 +1,251 @@
+/*+
+ * COPYRIGHT: (C) dGB Beheer B.V.
+ * AUTHOR   : Bert
+ * DATE     : Feb 2008
+-*/
+
+static const char* rcsID = "$Id: rangeposprovider.cc,v 1.1 2008-02-07 16:10:40 cvsbert Exp $";
+
+#include "rangeposprovider.h"
+#include "survinfo.h"
+#include "segposinfo.h"
+#include "iopar.h"
+#include "cubesampling.h"
+#include "keystrs.h"
+
+
+Pos::RangeProvider3D::RangeProvider3D()
+    : cs_(*new CubeSampling(true))
+{
+    reset();
+}
+
+
+Pos::RangeProvider3D::RangeProvider3D( const Pos::RangeProvider3D& p )
+    : cs_(*new CubeSampling(false))
+{
+    *this = p;
+}
+
+
+Pos::RangeProvider3D::~RangeProvider3D()
+{
+    delete &cs_;
+}
+
+
+Pos::RangeProvider3D& Pos::RangeProvider3D::operator =(
+					const Pos::RangeProvider3D& p )
+{
+    if ( &p != this )
+    {
+	cs_ = p.cs_;
+	curbid_ = p.curbid_;
+	curz_ = p.curz_;
+    }
+    return *this;
+}
+
+
+void Pos::RangeProvider3D::reset()
+{
+    curbid_ = BinID( cs_.hrg.start.inl, cs_.hrg.start.crl-cs_.hrg.step.crl );
+    curz_ = cs_.zrg.stop;
+}
+
+
+bool Pos::RangeProvider3D::toNextPos()
+{
+    curbid_.crl += cs_.hrg.step.crl;
+    if ( curbid_.crl > cs_.hrg.stop.crl )
+    {
+	curbid_.inl += cs_.hrg.step.inl;
+	if ( curbid_.inl > cs_.hrg.stop.inl )
+	    return false;
+    }
+
+    curz_ = cs_.zrg.start;
+    return true;
+}
+
+
+#define mZrgEps (1e-6*cs_.zrg.step)
+
+bool Pos::RangeProvider3D::toNextZ()
+{
+    curz_ += cs_.zrg.step;
+    if ( curz_ > cs_.zrg.stop+mZrgEps )
+	return toNextPos();
+    return true;
+}
+
+
+bool Pos::RangeProvider3D::includes( const BinID& bid, float z ) const
+{
+    bool issel = cs_.hrg.includes(bid);
+    if ( !issel ) return false;
+
+    return mIsUdf(z) ? true : z < cs_.zrg.stop+mZrgEps;
+}
+
+
+void Pos::RangeProvider3D::usePar( const IOPar& iop )
+{
+    cs_.usePar( iop );
+}
+
+
+void Pos::RangeProvider3D::fillPar( IOPar& iop ) const
+{
+    cs_.fillPar( iop );
+}
+
+
+void Pos::RangeProvider3D::getExtent( BinID& start, BinID& stop ) const
+{
+    start = cs_.hrg.start; stop = cs_.hrg.stop;
+}
+
+
+void Pos::RangeProvider3D::getZRange( Interval<float>& zrg ) const
+{
+    assign( zrg, cs_.zrg );
+}
+
+
+void Pos::RangeProvider3D::initClass()
+{
+    Pos::Provider3D::factory().addCreator( create, sKey::Range );
+}
+
+
+Pos::RangeProvider2D::RangeProvider2D()
+    : ld_(*new PosInfo::Line2DData)
+    , rg_(1,mUdf(int),1)
+    , zrg_(SI().zRange(false))
+{
+    reset();
+}
+
+
+Pos::RangeProvider2D::RangeProvider2D( const Pos::RangeProvider2D& p )
+    : ld_(*new PosInfo::Line2DData)
+{
+    *this = p;
+}
+
+
+Pos::RangeProvider2D::~RangeProvider2D()
+{
+    delete &ld_;
+}
+
+
+Pos::RangeProvider2D& Pos::RangeProvider2D::operator =(
+					const Pos::RangeProvider2D& p )
+{
+    if ( &p == this )
+    {
+	ld_ = p.ld_;
+	rg_ = p.rg_;
+	zrg_ = p.zrg_;
+	curidx_ = p.curidx_;
+	curz_ = p.curz_;
+    }
+    return *this;
+}
+
+
+void Pos::RangeProvider2D::reset()
+{
+    curidx_ = -1;
+    curz_ = zrg_.stop;
+}
+
+
+bool Pos::RangeProvider2D::toNextPos()
+{
+    while ( true )
+    {
+	curidx_++;
+	const int curnr = curNr();
+	if ( curnr < rg_.start )
+	    continue;
+	if ( curnr > rg_.stop )
+	    return false;
+	if ( (curnr-rg_.start) % rg_.step == 0 )
+	    break;
+    }
+
+    curz_ = zrg_.start;
+    if ( curz_ < ld_.zrg.start ) curz_ = ld_.zrg.start;
+    if ( curz_ > ld_.zrg.stop ) return false;
+
+    return true;
+}
+
+
+#undef mZrgEps
+#define mZrgEps (1e-6*zrg_.step)
+
+bool Pos::RangeProvider2D::toNextZ()
+{
+    curz_ += zrg_.step;
+    return curz_ > ld_.zrg.stop+mZrgEps || curz_ > zrg_.stop+mZrgEps
+	 ? toNextPos() : true;
+}
+
+
+int Pos::RangeProvider2D::curNr() const
+{
+    return ld_.posns[curidx_].nr_;
+}
+
+
+Coord Pos::RangeProvider2D::curCoord() const
+{
+    return ld_.posns[curidx_].coord_;
+}
+
+
+bool Pos::RangeProvider2D::includes( int nr, float z ) const
+{
+    bool issel = rg_.includes( nr );
+    if ( !issel ) return false;
+
+    return mIsUdf(z) ? true : z < zrg_.stop+mZrgEps;
+}
+
+
+bool Pos::RangeProvider2D::includes( const Coord& c, float z ) const
+{
+    bool found = false;
+    for ( int idx=0; idx<ld_.posns.size(); idx++ )
+    {
+	if ( ld_.posns[idx].coord_ == c )
+	    { found = true; break; }
+    }
+    if ( !found ) return false;
+
+    return mIsUdf(z) ? true : z < zrg_.stop+mZrgEps;
+}
+
+
+void Pos::RangeProvider2D::usePar( const IOPar& iop )
+{
+    iop.get( sKey::Range, rg_ );
+    iop.get( sKey::ZRange, zrg_ );
+}
+
+
+void Pos::RangeProvider2D::fillPar( IOPar& iop ) const
+{
+    iop.set( sKey::Range, rg_ );
+    iop.set( sKey::ZRange, zrg_ );
+}
+
+
+void Pos::RangeProvider2D::initClass()
+{
+    Pos::Provider2D::factory().addCreator( create, sKey::Range );
+}

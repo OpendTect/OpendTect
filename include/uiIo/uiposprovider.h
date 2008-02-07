@@ -7,30 +7,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovider.h,v 1.1 2008-02-06 16:04:32 cvsbert Exp $
+ RCS:           $Id: uiposprovider.h,v 1.2 2008-02-07 16:10:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
-#include "factory.h"
 class IOPar;
 class uiGenInput;
 namespace Pos { class Provider; }
-
-/*! \brief group for subselecting an area for 2D or 3D seismics */
-
-class uiPosProvGroup : public uiGroup
-{
-public:
-			uiPosProvGroup(uiParent*);
-
-    virtual void	usePar(const IOPar&)		= 0;
-    virtual bool	fillPar(IOPar&) const		= 0;
-
-    mDefineFactory1ParamInClass(uiPosProvGroup,uiParent*,factory);
-
-};
+class uiPosProvGroup;
 
 /*! \brief lets user choose a way to provide positions */
 

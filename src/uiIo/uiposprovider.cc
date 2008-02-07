@@ -2,23 +2,21 @@
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        R. K. Singh
- Date:          Aug 2007
+ Author:        Bert
+ Date:          Feb 2008
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.1 2008-02-06 16:04:32 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.2 2008-02-07 16:10:40 cvsbert Exp $";
 
-#include "uiposprovider.h"
+#include "uiposprovgroup.h"
 #include "uigeninput.h"
 #include "uimainwin.h"
 #include "uilabel.h"
 #include "keystrs.h"
 #include "posprovider.h"
 #include "iopar.h"
-
-mImplFactory1Param(uiPosProvGroup,uiParent*,uiPosProvGroup::factory);
 
 
 uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
@@ -37,7 +35,7 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
     BufferStringSet reqnms;
     if ( setup_.choicetype_ != Setup::All )
     {
-	reqnms.add( setup_.is2d_ ? "Segment" : "Volume" );
+	reqnms.add( sKey::Range );
 	if ( setup_.choicetype_ == Setup::OnlySeisTypes )
 	{
 	    reqnms.add( sKey::Table );
@@ -51,7 +49,8 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	if ( !reqnms.isEmpty() && reqnms.indexOf(nm) < 0 )
 	    continue;
 
-	uiPosProvGroup* grp = uiPosProvGroup::factory().create(nm,this,true);
+	uiPosProvGroup* grp = uiPosProvGroup::factory()
+	    			.create(nm,this,setup_,true);
 	if ( !grp ) continue;
 
 	nms.add( nm );

@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.13 2008-02-07 14:53:54 cvsbert Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.14 2008-02-07 16:10:40 cvsbert Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -20,7 +20,6 @@ static const char* rcsID = "$Id: seisselection.cc,v 1.13 2008-02-07 14:53:54 cvs
 #include "survinfo.h"
 #include "keystrs.h"
 #include "linekey.h"
-#include "rectposprovider.h"
 #include "tableposprovider.h"
 #include "polyposprovider.h"
 #include "strmprov.h"
