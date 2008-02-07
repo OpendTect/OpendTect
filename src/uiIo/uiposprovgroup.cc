@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.1 2008-02-07 16:10:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.2 2008-02-07 16:17:05 cvsbert Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -19,6 +19,11 @@ static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.1 2008-02-07 16:10:40 cvs
 mImplFactory2Param(uiPosProvGroup,uiParent*,const uiPosProvider::Setup&,
 		   uiPosProvGroup::factory);
 
+
+uiPosProvGroup::uiPosProvGroup( uiParent* p, const uiPosProvider::Setup& su )
+    : uiGroup(p,su.seltxt_)
+{
+}
 
 uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
 					  const uiPosProvider::Setup& su )
