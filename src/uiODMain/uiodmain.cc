@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.91 2008-02-05 14:25:26 cvsbert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.92 2008-02-07 16:21:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ ________________________________________________________________________
 #include "initprestackprocessing.h"
 #include "initseis.h"
 #include "initsood.h"
+#include "inituiio.h"
 #include "inituiattributes.h"
 #include "inituimpe.h"
 #include "inituivolumeprocessing.h"
@@ -101,6 +102,7 @@ void initAll()
     Attributes::initStdClasses();
     MPEEngine::initStdClasses();
 
+    uiIo::initStdClasses();
     uiAttributes::initStdClasses();
     uiVolumeProcessing::initStdClasses();
     uiPreStackProcessing::initStdClasses();
