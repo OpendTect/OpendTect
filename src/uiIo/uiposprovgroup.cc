@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.2 2008-02-07 16:17:05 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.3 2008-02-07 16:51:37 cvsbert Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -24,6 +24,7 @@ uiPosProvGroup::uiPosProvGroup( uiParent* p, const uiPosProvider::Setup& su )
     : uiGroup(p,su.seltxt_)
 {
 }
+
 
 uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
 					  const uiPosProvider::Setup& su )
@@ -50,4 +51,32 @@ bool uiRangePosProvGroup::fillPar( IOPar& ) const
 void uiRangePosProvGroup::initClass()
 {
     uiPosProvGroup::factory().addCreator( create, sKey::Range );
+}
+
+
+uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
+					const uiPosProvider::Setup& su )
+    : uiPosProvGroup(p,su)
+{
+    BufferString lbl( su.is2d_ ? "\n2D" : "\n3D" );
+    lbl += " Poly group ";
+    lbl += su.withz_ ? "+" : "-"; lbl += "Z";
+    new uiLabel( this, lbl );
+}
+
+
+void uiPolyPosProvGroup::usePar( const IOPar& )
+{
+}
+
+
+bool uiPolyPosProvGroup::fillPar( IOPar& ) const
+{
+    return true;
+}
+
+
+void uiPolyPosProvGroup::initClass()
+{
+    uiPosProvGroup::factory().addCreator( create, sKey::Polygon );
 }

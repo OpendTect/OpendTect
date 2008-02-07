@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.2 2008-02-07 16:10:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.3 2008-02-07 16:51:37 cvsbert Exp $";
 
 #include "uiposprovgroup.h"
 #include "uigeninput.h"
@@ -67,7 +67,10 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	for ( int idx=0; idx<grps_.size(); idx++ )
 	    grps_[idx]->attach( alignedBelow, selfld_ );
 	selfld_->valuechanged.notify( selcb );
+	setHAlignObj( selfld_ );
     }
+    else
+	setHAlignObj( grps_[0] );
 
     mainwin()->finaliseDone.notify( selcb );
 }
