@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.17 2007-09-20 05:53:18 cvsraman Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.18 2008-02-07 13:20:42 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -633,28 +633,64 @@ const char* Table::AscIO::text( int ifld ) const
 }
 
 
+static const char* trimmedNumbStr( const char* sval, bool isint )
+{
+    if ( !*sval ) return 0;
+    const int flg = isint ? YES : NO;
+    if ( isNumberString(sval,flg) )
+	return sval;
+
+    while ( *sval && !isdigit(*sval) && *sval != '.' && *sval != '-' )
+	sval++;
+    if ( !*sval ) return 0;
+    if ( isNumberString(sval,flg) )
+	return sval;
+
+    static BufferString bufstr;
+    bufstr = sval;
+    sval = bufstr.buf();
+    char* ptr = bufstr.buf() + bufstr.size() - 1;
+    while ( *ptr && !isdigit(*ptr) && *ptr != '.' )
+	ptr--;
+    *(ptr+1) = '\0';
+    return isNumberString(sval,flg) ? sval : 0;
+}
+
+
 int Table::AscIO::getIntValue( int ifld ) const
 {
     if ( ifld >= vals_.size() )
 	return mUdf(int);
-    const char* val = vals_.get( ifld );
-    return *val ? atoi( val ) : mUdf(int);
+    const char* sval = trimmedNumbStr( vals_.get(ifld), true );
+    return sval && *sval ? atoi( sval ) : mUdf(int);
 }
 
 
-#define mDefFltGetVal(typ,fn) \
-typ Table::AscIO::fn( int ifld ) const \
-{ \
-    if ( ifld >= vals_.size() ) \
-	return mUdf(typ); \
-    const char* sval = vals_.get( ifld ); \
-    if ( !*sval || !isNumberString(sval,NO) ) return mUdf(typ); \
-    typ val = atof( sval ); \
-    if ( mIsUdf(val) ) return val; \
- \
-    const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : 0; \
-    return unit ? unit->internalValue( val ) : val; \
+float Table::AscIO::getfValue( int ifld ) const
+{
+    if ( ifld >= vals_.size() )
+	return mUdf(float);
+
+    const char* sval = trimmedNumbStr( vals_.get(ifld), false );
+    if ( !sval ) return mUdf(float);
+    float val = atof( sval );
+    if ( mIsUdf(val) ) return val;
+
+    const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : 0;
+    return unit ? unit->internalValue( val ) : val;
 }
 
-mDefFltGetVal(float,getfValue)
-mDefFltGetVal(double,getdValue)
+
+double Table::AscIO::getdValue( int ifld ) const
+{
+    if ( ifld >= vals_.size() )
+	return mUdf(double);
+
+    const char* sval = trimmedNumbStr( vals_.get(ifld), false );
+    if ( !sval ) return mUdf(double);
+    double val = atof( sval );
+    if ( mIsUdf(val) ) return val;
+
+    const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : 0;
+    return unit ? unit->internalValue( val ) : val;
+}
