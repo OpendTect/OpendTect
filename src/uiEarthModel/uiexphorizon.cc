@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.50 2008-02-05 10:06:21 cvsnanne Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.51 2008-02-07 13:18:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -248,7 +248,7 @@ bool uiExportHorizon::writeAscii()
 		    *sdo.ostrm << '\t' << udfstr;
 		else
 		{
-		    str = "\n"; str += zfac * crd.z;
+		    str = "\t"; str += zfac * crd.z;
 		    *sdo.ostrm << str;
 		}
 	    }
@@ -260,7 +260,7 @@ bool uiExportHorizon::writeAscii()
 		    *sdo.ostrm << '\t' << udfstr;
 		else
 		{
-		    str = "\n"; str += auxvalue;
+		    str = "\t"; str += auxvalue;
 		    *sdo.ostrm << str;
 		}
 	    }
