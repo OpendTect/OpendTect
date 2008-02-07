@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.7 2007-12-06 20:05:45 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackprocessor.cc,v 1.8 2008-02-07 20:17:13 cvskris Exp $";
 
 #include "uiprestackprocessor.h"
 
@@ -30,7 +30,7 @@ uiProcessorManager::uiProcessorManager( uiParent* p, ProcessManager& man )
 
     uiLabel* label = new uiLabel( this, "Preprocessing methods" );
 
-    factorylist_ = new uiListBox( this, PF().getNames() );
+    factorylist_ = new uiListBox( this, PF().getNames(true) );
     factorylist_->selectionChanged.notify(
 	    mCB(this,uiProcessorManager,factoryClickCB) );
     factorylist_->attach( ensureBelow, label );
@@ -82,7 +82,10 @@ void uiProcessorManager::updateList()
     int idx=0;
     for ( ; idx<manager_.nrProcessors(); idx ++ )
     {
-	const char* text =  manager_.getProcessor(idx)->name();
+	const char* procnm =  manager_.getProcessor(idx)->name();
+	const int factoryidx = PF().getNames(false).indexOf(procnm);
+	const char* text = PF().getNames(true)[factoryidx]->buf();
+
 	if ( idx>=processorlist_->size() )
 	    processorlist_->addItem( text, false);
 	else
@@ -172,7 +175,8 @@ void uiProcessorManager::addProcessorCB( CallBacker* )
     if ( factorylist_->nextSelected(-1)==-1 )
 	return;
 
-    Processor* proc = PF().create( factorylist_->getText() );
+    const char* nm = PF().getNames(false)[factorylist_->currentItem()]->buf();
+    Processor* proc = PF().create( nm );
     if ( !proc ) return;
 
     manager_.addProcessor( proc );
