@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.31 2007-12-04 12:25:06 cvsbert Exp $
+ RCS:           $Id: uiiosel.h,v 1.32 2008-02-07 13:17:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,8 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "bufstringset.h"
 class UserIDSet;
-class uiLabeledComboBox;
+class uiLabel;
+class uiComboBox;
 class uiPushButton;
 class IOPar;
 
@@ -66,6 +67,8 @@ public:
 
     void		stretchHor(bool);
 
+    uiComboBox*		inpBox()		{ return inp_; }
+
 protected:
 
     CallBack		doselcb_;
@@ -74,7 +77,8 @@ protected:
     bool		selok_;
     bool		keepmytxt_;
 
-    uiLabeledComboBox*	inp_;
+    uiComboBox*		inp_;
+    uiLabel*		lbl_;
     uiPushButton*	selbut_;
 
     void		selDone(CallBacker*);

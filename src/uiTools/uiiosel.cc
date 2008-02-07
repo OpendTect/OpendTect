@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.44 2006-11-21 14:00:08 cvsbert Exp $
+ RCS:           $Id: uiiosel.cc,v 1.45 2008-02-07 13:17:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,17 +36,18 @@ uiIOSelect::uiIOSelect( uiParent* p, const CallBack& butcb, const char* txt,
 {
     if ( withclear ) addSpecialItem( "" );
 
-    inp_ = new uiLabeledComboBox( this, txt, "uiIOSelect", true );
-    inp_->box()->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
-    inp_->label()->setAlignment( uiLabel::AlignRight );
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, txt, "uiIOSelect",
+	    					    true );
+    inp_ = lcb->box(); lbl_ = lcb->label();
+    inp_->selectionChanged.notify( mCB(this,uiIOSelect,selDone) );
+    lbl_->setAlignment( uiLabel::AlignRight );
 
     selbut_ = new uiPushButton( this, buttontxt, false );
     selbut_->activated.notify( mCB(this,uiIOSelect,doSel) );
-    selbut_->attach( rightOf, inp_ );
+    selbut_->attach( rightOf, lcb );
 
-    setHAlignObj( inp_->box() );
-    setHCentreObj( inp_->box() );
-
+    setHAlignObj( lcb );
+    setHCentreObj( lcb );
     mainObject()->finaliseStart.notify( mCB(this,uiIOSelect,doFinalise) );
 
 }
@@ -61,7 +62,7 @@ uiIOSelect::~uiIOSelect()
 
 void uiIOSelect::stretchHor( bool yn )
 {
-    inp_->box()->setHSzPol( uiObject::MedMax );
+    inp_->setHSzPol( uiObject::MedMax );
 }
 
 
@@ -73,24 +74,24 @@ void uiIOSelect::doFinalise()
 
 void uiIOSelect::updateFromEntries()
 {
-    int curitnr = inp_->box()->size() ? inp_->box()->currentItem() : -1;
+    int curitnr = inp_->size() ? inp_->currentItem() : -1;
     BufferString curusrnm;
     if ( curitnr >= 0 )
-	curusrnm = inp_->box()->textOfItem( curitnr );
+	curusrnm = inp_->textOfItem( curitnr );
 
     if ( keepmytxt_ )
-	curusrnm = inp_->box()->text();
+	curusrnm = inp_->text();
 
-    inp_->box()->empty();
+    inp_->empty();
 
     for ( int idx=0; idx<specialitems.size(); idx++ )
-	inp_->box()->addItem( specialitems.getValue(idx) );
+	inp_->addItem( specialitems.getValue(idx) );
 
     for ( int idx=0; idx<entries_.size(); idx++ )
     {
 	const char* usrnm = userNameFromKey( *entries_[idx] );
 	if ( usrnm )
-	    inp_->box()->addItem( usrnm );
+	    inp_->addItem( usrnm );
 	else
 	{
 	    delete entries_[idx];
@@ -99,11 +100,11 @@ void uiIOSelect::updateFromEntries()
 	}
     }
 
-    if ( curitnr >= 0 && inp_->box()->size() )
-	inp_->box()->setCurrentItem( curusrnm );
+    if ( curitnr >= 0 && inp_->size() )
+	inp_->setCurrentItem( curusrnm );
 
     if ( keepmytxt_ )
-	inp_->box()->setText( curusrnm );
+	inp_->setText( curusrnm );
 }
 
 
@@ -143,7 +144,7 @@ void uiIOSelect::updateHistory( IOPar& iopar ) const
 void uiIOSelect::getHistory( const IOPar& iopar )
 {
     checkState();
-    bool haveold = inp_->box()->size();
+    bool haveold = inp_->size();
     bool havenew = false; BufferString bs;
     for ( int idx=1; ; idx++ )
     {
@@ -175,7 +176,7 @@ void uiIOSelect::addSpecialItem( const char* key, const char* value )
 
 const char* uiIOSelect::getInput() const
 {
-    return inp_->box()->text();
+    return inp_->text();
 }
 
 
@@ -195,7 +196,7 @@ const char* uiIOSelect::getKey() const
 
 void uiIOSelect::checkState() const
 {
-    if ( inp_->box()->size() != specialitems.size() + entries_.size() )
+    if ( inp_->size() != specialitems.size() + entries_.size() )
 	const_cast<uiIOSelect*>(this)->updateFromEntries();
 }
 
@@ -206,7 +207,7 @@ void uiIOSelect::setInput( const char* key )
 
     if ( specialitems.find(key) )
     {
-	inp_->box()->setCurrentItem( specialitems.find(key) );
+	inp_->setCurrentItem( specialitems.find(key) );
 	return;
     }
 
@@ -220,42 +221,42 @@ void uiIOSelect::setInput( const char* key )
 	const int boxidx = idx + nrspec;
 	if ( *entries_[idx] == key )
 	{
-	    inp_->box()->setItemText( boxidx, usrnm );
-	    inp_->box()->setCurrentItem( boxidx );
+	    inp_->setItemText( boxidx, usrnm );
+	    inp_->setCurrentItem( boxidx );
 	    return;
 	}
     }
 
     entries_ += new BufferString( key );
-    inp_->box()->addItem( usrnm );
-    inp_->box()->setCurrentItem( nrspec + nrentries );
+    inp_->addItem( usrnm );
+    inp_->setCurrentItem( nrspec + nrentries );
 }
 
 
 void uiIOSelect::setInputText( const char* txt )
 {
-    inp_->box()->setText( txt );
+    inp_->setText( txt );
 }
 
 
 int uiIOSelect::getCurrentItem() const
 {
     checkState();
-    if ( inp_->box()->size() == 0 )
+    if ( inp_->size() == 0 )
 	return -1;
 
-    const char* curtxt = inp_->box()->text();
-    if ( !inp_->box()->isPresent(curtxt) )
+    const char* curtxt = inp_->text();
+    if ( !inp_->isPresent(curtxt) )
 	return -1;
 
-    return inp_->box()->currentItem();
+    return inp_->currentItem();
 }
 
 
 void uiIOSelect::setCurrentItem( int idx )
 {
     checkState();
-    if ( idx >= 0 ) inp_->box()->setCurrentItem( idx );
+    if ( idx >= 0 ) inp_->setCurrentItem( idx );
 }
 
 
@@ -297,7 +298,7 @@ void uiIOSelect::selDone( CallBacker* )
 
 void uiIOSelect::empty( bool withclear )
 {
-    inp_->box()->empty();
+    inp_->empty();
 
     if ( entries_.size() ) 
 	entries_.erase();
@@ -308,20 +309,20 @@ void uiIOSelect::empty( bool withclear )
 
 void uiIOSelect::setReadOnly( bool yn )
 {
-    inp_->box()->setReadOnly( yn );
+    inp_->setReadOnly( yn );
 }
 
 
 const char* uiIOSelect::labelText() const
 {
-    return inp_->label()->text();
+    return lbl_->text();
 }
 
 
 void uiIOSelect::setLabelText( const char* s )
 {
-    inp_->label()->setPrefWidthInChar( strlen(s)+1 );
-    return inp_->label()->setText( s );
+    lbl_->setPrefWidthInChar( strlen(s)+1 );
+    return lbl_->setText( s );
 }
 
 

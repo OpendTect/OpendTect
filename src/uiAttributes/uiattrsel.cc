@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.25 2008-01-31 19:06:39 cvskris Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.26 2008-02-07 13:17:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -504,7 +504,7 @@ void uiAttrSel::doSel( CallBacker* )
 {
     if ( !attrdata_.attrset ) return;
 
-    uiAttrSelDlg dlg( this, inp_->label()->text(), attrdata_, is2d_, ignoreid );
+    uiAttrSelDlg dlg( this, lbl_->text(), attrdata_, is2d_, ignoreid );
     if ( dlg.go() )
     {
 	attrdata_.attribid = dlg.attribID();
