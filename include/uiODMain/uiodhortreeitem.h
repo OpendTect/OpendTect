@@ -1,5 +1,5 @@
-#ifndef uiodhorfaulttreeitem_h
-#define uiodhorfaulttreeitem_h
+#ifndef uiodhortreeitem_h
+#define uiodhortreeitem_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodhortreeitem.h,v 1.1 2008-02-05 22:21:01 cvskris Exp $
+ RCS:		$Id: uiodhortreeitem.h,v 1.2 2008-02-07 19:38:57 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
