@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.13 2008-01-23 20:56:59 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.14 2008-02-08 16:19:46 cvskris Exp $";
 
 #include "prestackprocessor.h"
 
@@ -83,32 +83,7 @@ void Processor::setInput( const BinID& relbid, DataPack::ID id )
     inputs_.replace( offset, input );
 }
 
-#define mAddStepoutStep( array, arrtype, oldstepout, newstepout ) \
-{ \
-    arrtype arrcopy( array ); \
-    array.erase(); \
- \
-    for ( int idx=-newstepout.inl; idx<=newstepout.inl; idx++ ) \
-    { \
-	for ( int idy=-newstepout.crl; idy<=newstepout.crl; idy++ ) \
-	{ \
-	    const BinID curpos( idx, idy ); \
-\
-	    if ( idy<-oldstepout.crl || idy>oldstepout.crl || \
-	         idx<-oldstepout.inl || idx>oldstepout.inl ) \
-	    { \
-		array += 0; \
-	    } \
-	    else \
-	    { \
-		const int oldoffset=getRelBidOffset(curpos,oldstepout);\
-		array += arrcopy[oldoffset]; \
-	    } \
-	} \
-    } \
-}
 
-	    
 bool Processor::setOutputInterest( const BinID& relbid, bool yn )
 {
     const BinID needestepout( abs(relbid.inl),abs(relbid.crl) );
@@ -118,8 +93,10 @@ bool Processor::setOutputInterest( const BinID& relbid, bool yn )
     {
 	const BinID newstepout( mMAX(outputstepout_.inl,needestepout.inl),
 		                mMAX(outputstepout_.inl,needestepout.inl) );
-	mAddStepoutStep(outputs_,ObjectSet<Gather>,newstepout,outputstepout_);
-	mAddStepoutStep(outputinterest_,BoolTypeSet,newstepout,outputstepout_);
+	mPSProcAddStepoutStep( outputs_, ObjectSet<Gather>,
+			       newstepout, outputstepout_ );
+	mPSProcAddStepoutStep( outputinterest_, BoolTypeSet,
+			       newstepout, outputstepout_ );
 	outputstepout_ = newstepout;
     }
 
@@ -139,25 +116,16 @@ DataPack::ID Processor::getOutput( const BinID& relbid ) const
 
 bool Processor::prepareWork()
 {
-    const BinID inputstepout = getInputStepout();
-    for ( int idx=-inputstepout.inl; idx<=inputstepout.inl; idx++ )
-    {
-	for ( int idy=-inputstepout.crl; idy<=inputstepout.crl; idy++ )
-	{
-	    const BinID curpos( idx, idy );
-	    if ( !wantsInput( curpos ) )
-		continue;
+    bool found = false;
+    for ( int idx=inputs_.size()-1; idx>=0; idx-- )
+	if ( inputs_[idx] ) { found = true; break; }
 
-	    
-	    const int offset = getRelBidOffset(curpos,inputstepout);
-
-	    if ( !inputs_[offset] )
-		return false;
-	}
-    }
+    if ( !found )
+	return false;
 
     freeArray( outputs_ );
 
+    BinID inputstepout = getInputStepout();
     for ( int idx=-outputstepout_.inl; idx<=outputstepout_.inl; idx++ )
     {
 	for ( int idy=-outputstepout_.crl; idy<=outputstepout_.crl; idy++ )

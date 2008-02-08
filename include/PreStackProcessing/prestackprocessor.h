@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.11 2008-01-23 20:56:59 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.12 2008-02-08 16:19:46 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -33,6 +33,8 @@ public:
     virtual			~Processor();
 
     virtual bool		reset();
+
+    virtual const char*		userName() const { return name(); }
 
     virtual const BinID&	getInputStepout() const;
     virtual bool		wantsInput(const BinID& relbid) const;
@@ -66,9 +68,6 @@ public:
 protected:
     				Processor( const char* nm );
     virtual Gather*		createOutputArray(const Gather& input) const;
-    static void			setStepout(ObjectSet<Gather>&,
-	    				   const BinID& oldstepout,
-					   const BinID& newstepout);
     static int			getRelBidOffset(const BinID& stepout,
 	    					const BinID& relbid);
     static void			freeArray(ObjectSet<Gather>&);
@@ -118,6 +117,33 @@ protected:
 
     ObjectSet<Processor>	processors_;
 };
+
+
+#define mPSProcAddStepoutStep( array, arrtype, oldstepout, newstepout ) \
+{ \
+    arrtype arrcopy( array ); \
+    array.erase(); \
+\
+    for ( int idx=-newstepout.inl; idx<=newstepout.inl; idx++ ) \
+    { \
+	for ( int idy=-newstepout.crl; idy<=newstepout.crl; idy++ ) \
+	{ \
+	    const BinID curpos( idx, idy ); \
+\
+	    if ( idy<-oldstepout.crl || idy>oldstepout.crl || \
+		idx<-oldstepout.inl || idx>oldstepout.inl ) \
+	    { \
+		array += 0; \
+	    } \
+	    else \
+	    { \
+		const int oldoffset=getRelBidOffset(curpos,oldstepout);\
+		array += arrcopy[oldoffset]; \
+	    } \
+	} \
+    } \
+}
+
 
 }; //namespace
 
