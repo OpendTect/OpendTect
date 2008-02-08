@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.36 2008-01-21 04:14:11 cvsraman Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.37 2008-02-08 07:34:46 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -212,8 +212,8 @@ uiTreeItem* uiODPickSetTreeItemFactory::create( int visid, uiTreeItem* ) const
 
 uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     : set_(ps)
-    , storemnuitem_("&Store")
-    , storeasmnuitem_("Store &As ...")
+    , storemnuitem_("&Save")
+    , storeasmnuitem_("Save &As ...")
     , dirmnuitem_("Set &directions ...")
     , onlyatsectmnuitem_("Display only at s&ections")
     , propertymnuitem_("&Properties ...")
@@ -281,22 +281,18 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() )
 	return;
 
-    if ( set_.disp_.connect_ == Pick::Set::Disp::Open )
-	mAddMenuItem( menu, &closepolyitem_, true, false );
-
-    mAddMenuItem( menu, &storemnuitem_, true, false );
-    mAddMenuItem( menu, &storeasmnuitem_, true, false );
-//    mAddMenuItem( menu, &dirmnuitem_, true, false );
-
     mDynamicCastGet(visSurvey::PickSetDisplay*,psd,
 		    visserv_->getObject(displayid_));
 
-    mDynamicCastGet(visSurvey::Scene*,scene,
-	    	    applMgr()->visServer()->getObject(sceneID()));
-    const bool hastransform = scene && scene->getDataTransform();
+    if ( set_.disp_.connect_ == Pick::Set::Disp::Open )
+	mAddMenuItem( menu, &closepolyitem_, true, false )
+    else
+	mResetMenuItem( &closepolyitem_ )
 
-    mAddMenuItem( menu, &onlyatsectmnuitem_, true, !psd->allShown() );
     mAddMenuItem( menu, &propertymnuitem_, true, false );
+    mAddMenuItem( menu, &onlyatsectmnuitem_, true, !psd->allShown() );
+    mAddMenuItem( menu, &storemnuitem_, true, false );
+    mAddMenuItem( menu, &storeasmnuitem_, true, false );
 }
 
 
