@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.12 2008-02-08 16:19:46 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.13 2008-02-08 18:02:31 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -68,8 +68,8 @@ public:
 protected:
     				Processor( const char* nm );
     virtual Gather*		createOutputArray(const Gather& input) const;
-    static int			getRelBidOffset(const BinID& stepout,
-	    					const BinID& relbid);
+    static int			getRelBidOffset(const BinID& relbid,
+	    					const BinID& stepout);
     static void			freeArray(ObjectSet<Gather>&);
 
     BinID			outputstepout_;
