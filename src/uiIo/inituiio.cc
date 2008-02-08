@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: inituiio.cc,v 1.2 2008-02-07 16:51:37 cvsbert Exp $
+ RCS:           $Id: inituiio.cc,v 1.3 2008-02-08 09:56:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,4 +16,5 @@ void uiIo::initStdClasses()
 {
     uiRangePosProvGroup::initClass();
     uiPolyPosProvGroup::initClass();
+    uiTablePosProvGroup::initClass();
 }

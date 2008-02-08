@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovgroupstd.h,v 1.2 2008-02-07 16:51:37 cvsbert Exp $
+ RCS:           $Id: uiposprovgroupstd.h,v 1.3 2008-02-08 09:56:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,23 @@ public:
 
     static uiPosProvGroup* create( uiParent* p, const uiPosProvider::Setup& s )
     			{ return new uiPolyPosProvGroup(p,s); }
+    static void		initClass();
+};
+
+
+/*! \brief UI for TablePosProvider */
+
+class uiTablePosProvGroup : public uiPosProvGroup
+{
+public:
+			uiTablePosProvGroup(uiParent*,
+					   const uiPosProvider::Setup&);
+
+    virtual void	usePar(const IOPar&);
+    virtual bool	fillPar(IOPar&) const;
+
+    static uiPosProvGroup* create( uiParent* p, const uiPosProvider::Setup& s )
+    			{ return new uiTablePosProvGroup(p,s); }
     static void		initClass();
 };
 
