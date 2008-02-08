@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.37 2008-02-08 07:34:46 cvsnanne Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.38 2008-02-08 08:09:20 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -215,7 +215,7 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     , storemnuitem_("&Save")
     , storeasmnuitem_("Save &As ...")
     , dirmnuitem_("Set &directions ...")
-    , onlyatsectmnuitem_("Display only at s&ections")
+    , onlyatsectmnuitem_("Display &only at sections")
     , propertymnuitem_("&Properties ...")
     , closepolyitem_("&Close Polygon")
 {
