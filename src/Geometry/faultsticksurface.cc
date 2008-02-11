@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: faultsticksurface.cc,v 1.4 2008-02-05 21:38:46 cvskris Exp $";
+static const char* rcsID = "$Id: faultsticksurface.cc,v 1.5 2008-02-11 16:37:06 cvsjaap Exp $";
 
 #include "faultsticksurface.h"
 
@@ -77,9 +77,12 @@ bool FaultStickSurface::insertStick( const Coord3& firstpos,
     sticks_.insertAt( new TypeSet<Coord3>, stickidx );
     editplanenormals_.insert( stickidx, normvec );
     firstcols_.insert( stickidx, 0 );
-    insertKnot( RowCol(stickidx,0), firstpos );
+    sticks_[stickidx]->insert( 0, firstpos );
 
     triggerNrPosCh( RowCol(sticknr,StickInsert).getSerialized() );
+    if ( blocksCallBacks() )
+	blockCallBacks( true, true );
+
     return true;
 }
 
@@ -93,6 +96,9 @@ bool FaultStickSurface::removeStick( int sticknr )
     firstcols_.remove( stickidx );
 
     triggerNrPosCh( RowCol(sticknr,StickRemove).getSerialized() );
+    if ( blocksCallBacks() )
+	blockCallBacks( true, true );
+    
     return true;
 }
 
@@ -189,8 +195,33 @@ bool FaultStickSurface::areSticksVertical() const
 const Coord3& FaultStickSurface::getEditPlaneNormal( int sticknr ) const
 {
     mGetValidStickIdx( stickidx, sticknr, 0, Coord3::udf() );
+    if ( stickidx < editplanenormals_.size() )
+	return editplanenormals_[stickidx];
 
-    return editplanenormals_[stickidx];
+    return Coord3::udf();
+}
+
+
+void FaultStickSurface::addEditPlaneNormal( const Coord3& editnormal )
+{
+    editplanenormals_ += editnormal;
+
+    if ( editplanenormals_.size() > 1 )
+	return;
+    if ( !editnormal.isDefined() || mIsZero(editnormal.sqAbs(),mDefEps) )
+	return;
+
+    const Coord3 normvec = editnormal.normalize();
+    sticksvertical_ = fabs(normvec.z) < 0.5;
+}
+
+
+void FaultStickSurface::addUdfRow( int sticknr, int firstknotnr, int nrknots )
+{
+    if ( isEmpty() )
+	firstrow_ = sticknr;
+    firstcols_ += firstknotnr;
+    sticks_ += new TypeSet<Coord3>( nrknots, Coord3::udf() );
 }
 
 

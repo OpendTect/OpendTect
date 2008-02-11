@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl / J.C. Glas
 Date:          September 2007
-RCS:           $Id: faultsticksurface.h,v 1.6 2007-12-27 16:07:46 cvskris Exp $
+RCS:           $Id: faultsticksurface.h,v 1.7 2008-02-11 16:37:06 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,10 +18,10 @@ namespace Geometry
 {
 
 class FaultStickSurface : public RowColSurface
-{ mRefCountImpl(FaultStickSurface);
+{   mRefCountImpl(FaultStickSurface);
 public:
     			FaultStickSurface();
-    bool		isEmpty() const { return !sticks_.size(); }
+    bool		isEmpty() const		{ return !sticks_.size(); }
     Element*		clone() const;
 
     bool		insertStick(const Coord3& firstpos,
@@ -32,7 +32,7 @@ public:
     bool		removeKnot(const RCol&);
 
     StepInterval<int>	rowRange() const;
-    StepInterval<int>	colRange(int row) const;
+    StepInterval<int>	colRange(int sticknr) const;
 
     bool		setKnot(const RCol&,const Coord3&);
     Coord3		getKnot(const RCol&) const;
@@ -41,6 +41,10 @@ public:
     bool		areSticksVertical() const;
     const Coord3&	getEditPlaneNormal(int sticknr) const;				
     enum ChangeTag	{StickChange=__mUndefIntVal+1,StickInsert,StickRemove};
+    
+    			// To be used by surface reader only
+    void		addUdfRow(int sticknr,int firstknotnr,int nrknots);
+    void		addEditPlaneNormal(const Coord3&);
 
 protected:
 

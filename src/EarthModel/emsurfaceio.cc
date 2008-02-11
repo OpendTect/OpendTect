@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.96 2008-02-04 16:49:33 cvsbert Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.97 2008-02-11 16:37:06 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "ascstream.h"
 #include "datachar.h"
 #include "datainterp.h"
+#include "emfault.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emsurfacegeometry.h"
@@ -586,7 +587,14 @@ int dgbSurfaceReader::nextStep()
     if ( hor2d )
     {
 	hor2d->geometry().sectionGeometry( sectionid )->
-	    addUdfRow(firstcol, firstcol+nrcols-1, colstep );
+	    addUdfRow( firstcol, firstcol+nrcols-1, colstep );
+    }
+
+    mDynamicCastGet(Fault*,flt,surface_);
+    if ( flt )
+    {
+	flt->geometry().sectionGeometry( sectionid )->
+	    addUdfRow( currentRow(), firstcol, firstcol+nrcols-1 );
     }
 
     if ( !nrcols )

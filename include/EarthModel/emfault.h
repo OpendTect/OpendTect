@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.28 2008-02-05 21:46:15 cvskris Exp $
+ RCS:		$Id: emfault.h,v 1.29 2008-02-11 16:37:06 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -28,15 +28,27 @@ class FaultGeometry : public SurfaceGeometry
 public:
     			FaultGeometry( Fault& );
 			~FaultGeometry();
-    int			nrSticks() const;
-    void		insertStick(const EM::SectionID&, int sticknr,
-	    			    const Coord3&,bool addtohistory);
-    void		removeStick(const EM::SectionID&, int sticknr);
+    int			nrSticks(const SectionID&) const;
+    bool		insertStick(const SectionID&, int sticknr,
+	    			    const Coord3& pos,const Coord3& editnormal,
+				    bool addtohistory);
+    bool		removeStick(const SectionID&, int sticknr,
+				    bool addtohistory);
+    bool		insertKnot(const SectionID&, const SubID&,
+	    			   const Coord3& pos,bool addtohistory);
+    bool		removeKnot(const SectionID&, const SubID&,
+	    			   bool addtohistory);
 
     Geometry::FaultStickSurface*
-			sectionGeometry(const EM::SectionID&);
+			sectionGeometry(const SectionID&);
+    const Geometry::FaultStickSurface*
+			sectionGeometry(const SectionID&) const;
+
     EMObjectIterator*	createIterator(const SectionID&,
 	    			       const CubeSampling*) const;
+
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
 protected:
     Geometry::FaultStickSurface*	createSectionGeometry() const;
