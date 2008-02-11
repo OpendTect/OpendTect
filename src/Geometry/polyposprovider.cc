@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: polyposprovider.cc,v 1.2 2008-02-06 13:01:02 cvsbert Exp $";
+static const char* rcsID = "$Id: polyposprovider.cc,v 1.3 2008-02-11 17:23:05 cvsbert Exp $";
 
 #include "polyposprovider.h"
 #include "keystrs.h"
@@ -177,6 +177,13 @@ void Pos::PolyProvider3D::fillPar( IOPar& iop ) const
 void Pos::PolyProvider3D::getExtent( BinID& start, BinID& stop ) const
 {
     start = hs_.start; stop = hs_.stop;
+}
+
+
+int Pos::PolyProvider3D::estNrPos() const
+{
+    float fnr = poly_.area() / (hs_.step.inl * hs_.step.crl);
+    return mNINT(fnr);
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posprovider.h,v 1.4 2008-02-05 14:25:26 cvsbert Exp $
+ RCS:           $Id: posprovider.h,v 1.5 2008-02-11 17:23:05 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -58,13 +58,15 @@ public:
     virtual Coord	curCoord() const	= 0;
     virtual float	curZ() const		= 0;
 
-    virtual bool	includes(const Coord&,float z=mUdf(float)) const = 0;
-
+    virtual bool	includes(const Coord&,
+	    			 float z=mUdf(float)) const	= 0;
     virtual void	getZRange(Interval<float>&) const	= 0;
 
-    virtual void	usePar(const IOPar&)			= 0;
-    virtual void	fillPar(IOPar&) const			= 0;
+    virtual void	usePar(const IOPar&)	= 0;
+    virtual void	fillPar(IOPar&) const	= 0;
 
+    virtual int		estNrPos() const	= 0;
+    virtual int		estNrZPerPos() const	{ return 1; }
 };
 
 

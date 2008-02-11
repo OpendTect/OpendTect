@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: rangeposprovider.h,v 1.1 2008-02-07 16:10:40 cvsbert Exp $
+ RCS:           $Id: rangeposprovider.h,v 1.2 2008-02-11 17:23:05 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,8 @@ public:
 
     virtual void	getExtent(BinID& start,BinID& stop) const;
     virtual void	getZRange(Interval<float>&) const;
+    virtual int		estNrPos() const;
+    virtual int		estNrZPerPos() const;
 
     CubeSampling&	sampling()		{ return cs_; }
     const CubeSampling&	sampling() const	{ return cs_; }
@@ -96,6 +98,10 @@ public:
 			{ assign( rg, rg_ ); }
     virtual void	getZRange( Interval<float>& rg ) const
 			{ assign( rg, zrg_ ); }
+    virtual int		estNrPos() const
+			{ return rg_.nrSteps() + 1; }
+    virtual int		estNrZPerPos() const
+			{ return zrg_.nrSteps() + 1; }
 
     StepInterval<int>&		nrRange()	{ return rg_; }
     const StepInterval<int>&	nrRange() const	{ return rg_; }

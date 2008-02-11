@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovider.h,v 1.2 2008-02-07 16:10:40 cvsbert Exp $
+ RCS:           $Id: uiposprovider.h,v 1.3 2008-02-11 17:23:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ public:
 			    , withz_(with_z)
 			    , is2d_(false)
 			    , choicetype_(OnlyRanges)	{}
+	virtual	~Setup()				{}
 	mDefSetupMemb(BufferString,seltxt)
 	mDefSetupMemb(bool,withz)
 	mDefSetupMemb(bool,is2d)

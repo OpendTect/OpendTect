@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: tableposprovider.h,v 1.1 2008-02-07 14:53:54 cvsbert Exp $
+ RCS:           $Id: tableposprovider.h,v 1.2 2008-02-11 17:23:05 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -49,6 +49,8 @@ public:
 
     void		getExtent(BinID&,BinID&) const;
     void		getZRange(Interval<float>&) const;
+    int			estNrPos() const	{ return bvs_.totalSize(); }
+    int			estNrZPerPos() const	{ return 1; }
 
     BinIDValueSet&	binidValueSet()		{ return bvs_; }
     const BinIDValueSet& binidValueSet() const	{ return bvs_; }

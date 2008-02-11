@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.3 2008-02-07 16:51:37 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.4 2008-02-11 17:23:05 cvsbert Exp $";
 
 #include "uiposprovgroup.h"
 #include "uigeninput.h"
@@ -24,13 +24,9 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	, setup_(su)
 	, selfld_(0)
 {
-    Factory<Pos::Provider*>* fact;
-    if ( setup_.is2d_ )
-	fact = (Factory<Pos::Provider*>*)(&Pos::Provider2D::factory());
-    else
-	fact = (Factory<Pos::Provider*>*)(&Pos::Provider3D::factory());
-
-    const BufferStringSet& factnms( fact->getNames() );
+    const BufferStringSet& factnms( setup_.is2d_
+	    ? Pos::Provider2D::factory().getNames()
+	    : Pos::Provider3D::factory().getNames() );
     BufferStringSet nms;
     BufferStringSet reqnms;
     if ( setup_.choicetype_ != Setup::All )
@@ -60,18 +56,20 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 
     const CallBack selcb( mCB(this,uiPosProvider,selChg) );
     if ( grps_.size() == 0 )
+    {
 	new uiLabel( this, "No position providers available" );
+	return;
+    }
+
     if ( grps_.size() > 1 )
     {
 	selfld_ = new uiGenInput( this, setup_.seltxt_, StringListInpSpec(nms));
 	for ( int idx=0; idx<grps_.size(); idx++ )
 	    grps_[idx]->attach( alignedBelow, selfld_ );
 	selfld_->valuechanged.notify( selcb );
-	setHAlignObj( selfld_ );
     }
-    else
-	setHAlignObj( grps_[0] );
 
+    setHAlignObj( grps_[0] );
     mainwin()->finaliseDone.notify( selcb );
 }
 
@@ -109,4 +107,24 @@ bool uiPosProvider::fillPar( IOPar& iop ) const
     const int selidx = selfld_ ? selfld_->getIntValue() : 0;
     iop.set( sKey::Type, grps_[selidx]->name() );
     return grps_[selidx]->fillPar(iop);
+}
+
+
+Pos::Provider* uiPosProvider::createProvider() const
+{
+    IOPar iop;
+    if ( !fillPar(iop) )
+	return 0;
+
+    const int selidx = selfld_ ? selfld_->getIntValue() : 0;
+    const char* nm = grps_[selidx]->name();
+    Pos::Provider* prov;
+    if ( setup_.is2d_ )
+	prov = Pos::Provider2D::factory().create( nm );
+    else
+	prov = Pos::Provider3D::factory().create( nm );
+
+    if ( prov )
+	prov->usePar( iop );
+    return prov;
 }
