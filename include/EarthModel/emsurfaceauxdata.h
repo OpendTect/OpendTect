@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceauxdata.h,v 1.5 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:		$Id: emsurfaceauxdata.h,v 1.6 2008-02-12 12:12:11 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,8 @@ ________________________________________________________________________
 class Executor;
 class IOObj;
 class IOPar;
+
+template <class T> class Array2D;
 
 namespace EM
 {
@@ -53,20 +55,22 @@ public:
 				    is removed; */
     int			auxDataIndex(const char*) const;
     			/*!<\return The dataidx of this aux data name, or -1 */
-    int			addAuxData( const char* name );
+    int			addAuxData(const char* name);
     			/*!<\return The dataidx of the new data.
 				    The index is persistent in runtime.  */
 
     void		setAuxDataName(int,const char*);    
-    void		removeAuxData( int dataidx);
+    void		removeAuxData(int dataidx);
     float		getAuxDataVal(int dataidx,const PosID& posid) const;
-    void		setAuxDataVal(int dataidx, const PosID& posid,
-				      float value );
+    void		setAuxDataVal(int dataidx,const PosID& posid,float val);
 
     bool		isChanged(int) const;
     void		resetChangedFlag();
 
     static BufferString	getAuxDataFileName(const IOObj&,const char* attrnm);
+
+    Array2D<float>*	createArray2D(int dataidx,SectionID) const;
+    void		setArray2D(int dataidx,SectionID,const Array2D<float>&);
 
     virtual bool	usePar( const IOPar& );
     virtual void	fillPar( IOPar& ) const;

@@ -4,27 +4,28 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurfaceauxdata.cc,v 1.14 2007-06-21 19:35:21 cvskris Exp $
+ RCS:           $Id: emsurfaceauxdata.cc,v 1.15 2008-02-12 12:12:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emsurfaceauxdata.h"
 
+#include "arrayndimpl.h"
 #include "emhorizon3d.h"
 #include "emsurfacegeometry.h"
 #include "emsurfacetr.h"
 #include "emsurfauxdataio.h"
-#include "parametricsurface.h"
-#include "ioman.h"
-#include "iopar.h"
-#include "ioobj.h"
-#include "iostrm.h"
-#include "strmprov.h"
-#include "ptrman.h"
-#include "settings.h"
 #include "executor.h"
 #include "filegen.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "iopar.h"
+#include "iostrm.h"
+#include "parametricsurface.h"
+#include "ptrman.h"
+#include "settings.h"
+#include "strmprov.h"
 
 namespace EM
 {
@@ -290,16 +291,59 @@ BufferString SurfaceAuxData::getAuxDataFileName( const IOObj& ioobj,
 
     return filenm;
 }
+ 
+
+Array2D<float>* SurfaceAuxData::createArray2D( int dataidx, SectionID sid) const
+{
+    const StepInterval<int> rowrg = horizon_.geometry().rowRange( sid );
+    const StepInterval<int> colrg = horizon_.geometry().colRange( sid );
+    if ( rowrg.width(false)<1 || colrg.width(false)<1 )
+	return 0;
+
+    PosID posid( horizon_.id(), sid );
+    Array2DImpl<float>* arr =
+	new Array2DImpl<float>( rowrg.nrSteps()+1, colrg.nrSteps()+1 );
+    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+    {
+	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+	{
+	    posid.setSubID( RowCol(row,col).getSerialized() );
+	    const float val = getAuxDataVal( dataidx, posid);
+	    arr->set( row, col, val );
+	}
+    }
+
+    return arr;
+}
+
+
+void SurfaceAuxData::setArray2D( int dataidx, SectionID sid,
+				 const Array2D<float>& arr2d )
+{
+    const StepInterval<int> rowrg = horizon_.geometry().rowRange( sid );
+    const StepInterval<int> colrg = horizon_.geometry().colRange( sid );
+    if ( rowrg.width(false)<1 || colrg.width(false)<1 )
+	return;
+
+    PosID posid( horizon_.id(), sid );
+
+    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+    {
+	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+	{
+	    posid.setSubID( RowCol(row,col).getSerialized() );
+	    const float val = arr2d.get( rowrg.getIndex(row),
+		    			 colrg.getIndex(col) );
+	    setAuxDataVal( dataidx, posid, val );
+	}
+    }
+}
 
 
 bool SurfaceAuxData::usePar( const IOPar& par )
-{
-    return true;
-}
-
+{ return true; }
 
 void SurfaceAuxData::fillPar( IOPar& par ) const
-{
-}
+{}
 
 }; //namespace
