@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.362 2008-01-31 22:28:17 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.363 2008-02-12 12:06:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,7 +43,7 @@ ________________________________________________________________________
 #include "uimpeman.h"
 #include "uislicepos.h"
 #include "uitoolbar.h"
-#include "uibinidsubsel.h"
+#include "uiselsurvranges.h"
 #include "uizscaledlg.h"
 
 
@@ -908,14 +908,11 @@ void uiVisPartServer::toHome( CallBacker* )
 
 bool uiVisPartServer::setWorkingArea()
 {
-    uiBinIDSubSelDlg dlg( appserv().parent(), uiBinIDSubSel::Setup()
-					       .withz(true)
-					       .withstep(false)
-					       .showsurvinfo(true)
-					       .allowall(false) );
+    uiDialog dlg( appserv().parent(), uiDialog::Setup("Set work volume",
+			"Specify work boundaries","0.3.4") );
+    uiSelSubvol* sel = new uiSelSubvol( &dlg, false );
     if ( !dlg.go() ) return false;
-    CubeSampling cs = dlg.data().cs_;
-    cs.limitTo( SI().sampling(false) );
+    CubeSampling cs = sel->getSampling();
     const_cast<SurveyInfo&>(SI()).setWorkRange( cs );
 
     TypeSet<int> sceneids;
