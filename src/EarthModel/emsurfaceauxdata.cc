@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurfaceauxdata.cc,v 1.15 2008-02-12 12:12:11 cvsnanne Exp $
+ RCS:           $Id: emsurfaceauxdata.cc,v 1.16 2008-02-12 12:40:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -309,7 +309,7 @@ Array2D<float>* SurfaceAuxData::createArray2D( int dataidx, SectionID sid) const
 	{
 	    posid.setSubID( RowCol(row,col).getSerialized() );
 	    const float val = getAuxDataVal( dataidx, posid);
-	    arr->set( row, col, val );
+	    arr->set( rowrg.getIndex(row), colrg.getIndex(col), val );
 	}
     }
 
