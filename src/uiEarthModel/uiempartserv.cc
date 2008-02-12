@@ -4,13 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.132 2008-02-06 10:13:35 cvsraman Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.133 2008-02-12 12:53:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiempartserv.h"
 
+#include "array2dinterpol.h"
+#include "arraynd.h"
 #include "binidvalset.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
@@ -37,6 +39,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "varlenarray.h"
 
+#include "uiarray2dchg.h"
 #include "uichangesurfacedlg.h"
 #include "uihor3dfrom2ddlg.h"
 #include "uitaskrunner.h"
@@ -669,6 +672,48 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
     }
 
     return true;
+}
+
+
+BinIDValueSet* uiEMPartServer::interpolateAuxData( const EM::ObjectID& oid,
+						   const char* nm )
+{
+    mDynamicCastAll(oid);
+    if ( !hor3d ) return 0;
+
+    const int auxidx = hor3d->auxdata.auxDataIndex( nm );
+    if ( auxidx < 0 )
+    { uiMSG().error("Cannot read attrib data"); return 0; }
+
+    uiArr2DInterpolParsDlg dlg( parent() );
+    if ( !dlg.go() ) return 0;
+
+    const EM::SectionID sid = hor3d->sectionID( 0 );
+    const StepInterval<int> rowrg = hor3d->geometry().rowRange( sid );
+    const StepInterval<int> colrg = hor3d->geometry().colRange( sid );
+
+    PtrMan< Array2D<float> > arr2d =
+	hor3d->auxdata.createArray2D( auxidx, sid );
+    Array2DInterpolator<float> exec( *arr2d.ptr() );
+    exec.pars() = dlg.getInput();
+    exec.setDist( true, SI().crlDistance()*colrg.step );
+    exec.setDist( false, SI().inlDistance()*rowrg.step );
+
+    uiTaskRunner execdlg( parent() );
+    if ( !execdlg.execute(exec) )
+	return 0;
+
+    BinIDValueSet* res = new BinIDValueSet( 2, false );
+    for ( int row=rowrg.start; row<=rowrg.stop; row+=rowrg.step )
+    {
+	for ( int col=colrg.start; col<=colrg.stop; col+=colrg.step )
+	{
+	    res->add( BinID(row,col), 0, arr2d->get(rowrg.getIndex(row),
+						    colrg.getIndex(col)) );
+	}
+    }
+
+    return res;
 }
 
 

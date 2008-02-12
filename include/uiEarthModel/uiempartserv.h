@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.62 2007-12-24 16:51:22 cvsbert Exp $
+ RCS:           $Id: uiempartserv.h,v 1.63 2008-02-12 12:53:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,6 +104,7 @@ public:
 	    			   ObjectSet<BinIDValueSet>&) const;
     bool		getAllAuxData(const EM::ObjectID&,BufferStringSet&,
 	    			      ObjectSet<BinIDValueSet>&) const;
+    BinIDValueSet*	interpolateAuxData(const EM::ObjectID&,const char* nm);
 
     const char*		genRandLine(int opt);
 
