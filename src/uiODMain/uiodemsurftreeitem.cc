@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.25 2007-09-17 12:44:31 cvskris Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.26 2008-02-12 12:54:15 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -132,6 +132,8 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
     , depthattribmnuitem_("Z values")
     , savesurfacedatamnuitem_("Save attribute ...")
     , loadsurfacedatamnuitem_("Surface data ...")
+    , fillholesmnuitem_("Fill &holes ...")
+    , changed_(false)
     , emid_(objid)
     , uivisemobj_(uv)
 {
@@ -157,7 +159,9 @@ void uiODEarthModelSurfaceDataTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
 		  as->id()==Attrib::SelSpec::cNoAttrib() );
 
-    mAddMenuItem( menu, &savesurfacedatamnuitem_, as && as->id() >= 0, false );
+    const bool enabsave = changed_ || (as && as->id()>=0); 
+    mAddMenuItem( menu, &savesurfacedatamnuitem_, enabsave, false );
+    mAddMenuItem( menu, &fillholesmnuitem_, true, false );
 }
 
 
@@ -179,7 +183,9 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	{
 	    const int auxnr =
 		applMgr()->EMServer()->setAuxData( emid_, vals, name_, 1 );
-	    applMgr()->EMServer()->storeAuxData( emid_, true );
+	    const bool saved =
+		applMgr()->EMServer()->storeAuxData( emid_, true );
+	    changed_ = !saved;
 	}
     }
     else if ( mnuid==depthattribmnuitem_.id )
@@ -187,6 +193,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	uivisemobj_->setDepthAsAttrib( attribNr() );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
+	changed_ = false;
     }
     else if ( mnuid==loadsurfacedatamnuitem_.id )
     {
@@ -202,6 +209,21 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 		Attrib::SelSpec(attrnm,Attrib::SelSpec::cOtherAttrib()) );
 	visserv->setRandomPosData( displayID(), attribNr(), &vals );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
+	changed_ = false;
+    }
+    else if ( mnuid==fillholesmnuitem_.id )
+    {
+	menu->setIsHandled( true );
+
+	ObjectSet<BinIDValueSet> vals;
+	BinIDValueSet* set =
+	    applMgr()->EMServer()->interpolateAuxData( emid_, name_ );
+	if ( !set ) return;
+	vals += set;
+	visserv->setSelSpec( displayID(), attribNr(),
+		Attrib::SelSpec(name_,Attrib::SelSpec::cOtherAttrib()) );
+	visserv->setRandomPosData( displayID(), attribNr(), &vals );
+	changed_ = true;
     }
 }
 
