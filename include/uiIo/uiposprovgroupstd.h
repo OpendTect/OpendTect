@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovgroupstd.h,v 1.5 2008-02-12 09:07:35 cvsbert Exp $
+ RCS:           $Id: uiposprovgroupstd.h,v 1.6 2008-02-12 11:57:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,9 @@ class CtxtIOObj;
 class CubeSampling;
 class uiGenInput;
 class uiIOObjSel;
+class uiSelHRange;
+class uiSelZRange;
+class uiSelNrRange;
 class uiIOFileSelect;
 
 
@@ -27,18 +30,9 @@ class uiRangePosProvGroup : public uiPosProvGroup
 {
 public:
 
-    struct Setup : public uiPosProvider::Setup
-    {
-			Setup( const char* txt, bool with_z )
-			    : uiPosProvider::Setup(txt,with_z)
-			    , withstep_(true)
-			    , useworksi_(true)		{}
-	mDefSetupMemb(bool,withstep)
-	mDefSetupMemb(bool,useworksi)
-    };
-
 			uiRangePosProvGroup(uiParent*,
-					    const uiPosProvider::Setup&);
+					    const uiPosProvider::Setup&,
+					    bool wstep=true);
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
@@ -51,12 +45,9 @@ public:
 
 protected:
 
-    bool		wstep_;
-    bool		wsi_;
-
-    uiGenInput*		inlfld_;
-    uiGenInput*		crlfld_;
-    uiGenInput*		zfld_;
+    uiSelHRange*	hrgfld_;
+    uiSelNrRange*	nrrgfld_;
+    uiSelZRange*	zrgfld_;
 
 };
 
@@ -85,7 +76,7 @@ protected:
     CtxtIOObj&		ctio_;
 
     uiIOObjSel*		polyfld_;
-    uiGenInput*		zfld_;
+    uiSelZRange*	zrgfld_;
 
 };
 

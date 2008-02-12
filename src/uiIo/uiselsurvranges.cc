@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiselsurvranges.cc,v 1.1 2008-02-12 11:29:50 cvsbert Exp $
+ RCS:           $Id: uiselsurvranges.cc,v 1.2 2008-02-12 11:57:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,8 +39,8 @@ uiSelZRange::uiSelZRange( uiParent* p, bool wstep )
     }
 
     const CallBack cb( mCB(this,uiSelZRange,valChg) );
-    startfld_->valueChanged.notify( cb );
-    stopfld_->valueChanged.notify( cb );
+    startfld_->valueChanging.notify( cb );
+    stopfld_->valueChanging.notify( cb );
     setRange( SI().zRange(true) );
     setHAlignObj( startfld_ );
 }
@@ -119,8 +119,8 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
     }
 
     const CallBack cb( mCB(this,uiSelNrRange,valChg) );
-    startfld_->valueChanged.notify( cb );
-    stopfld_->valueChanged.notify( cb );
+    startfld_->valueChanging.notify( cb );
+    stopfld_->valueChanging.notify( cb );
     setRange( wrg );
     setHAlignObj( startfld_ );
 }
