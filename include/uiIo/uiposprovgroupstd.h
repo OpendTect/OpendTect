@@ -7,16 +7,18 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovgroupstd.h,v 1.4 2008-02-11 17:23:05 cvsbert Exp $
+ RCS:           $Id: uiposprovgroupstd.h,v 1.5 2008-02-12 09:07:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiposprovgroup.h"
+class MultiID;
 class CtxtIOObj;
 class CubeSampling;
 class uiGenInput;
 class uiIOObjSel;
+class uiIOFileSelect;
 
 
 /*! \brief UI for RangePosProvider */
@@ -71,6 +73,9 @@ public:
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
 
+    bool		getID(MultiID&) const;
+    void		getZRange(StepInterval<float>&) const;
+
     static uiPosProvGroup* create( uiParent* p, const uiPosProvider::Setup& s )
     			{ return new uiPolyPosProvGroup(p,s); }
     static void		initClass();
@@ -96,9 +101,23 @@ public:
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
 
+    bool		getID(MultiID&) const;
+    bool		getFileName(BufferString&) const;
+
     static uiPosProvGroup* create( uiParent* p, const uiPosProvider::Setup& s )
     			{ return new uiTablePosProvGroup(p,s); }
     static void		initClass();
+
+protected:
+
+    CtxtIOObj&		ctio_;
+
+    uiGenInput*		selfld_;
+    uiIOObjSel*		psfld_;
+    uiIOFileSelect*	tffld_;
+
+    void		selChg(CallBacker*);
+
 };
 
 

@@ -8,19 +8,21 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.5 2008-02-11 17:23:05 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.6 2008-02-12 09:07:35 cvsbert Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
-#include "uilabel.h"
 #include "uiioobjsel.h"
-#include "iopar.h"
-#include "ctxtioobj.h"
-#include "ioobj.h"
-#include "survinfo.h"
-#include "keystrs.h"
+#include "uimsg.h"
 #include "cubesampling.h"
 #include "picksettr.h"
+#include "ctxtioobj.h"
+#include "survinfo.h"
+#include "keystrs.h"
+#include "ioobj.h"
+#include "iopar.h"
+#include "oddirs.h"
+#include "filegen.h"
 
 mImplFactory2Param(uiPosProvGroup,uiParent*,const uiPosProvider::Setup&,
 		   uiPosProvGroup::factory);
@@ -191,16 +193,33 @@ void uiPolyPosProvGroup::usePar( const IOPar& iop )
 }
 
 
+#define mErrRet(s) { uiMSG().error(s); return false; }
+
 bool uiPolyPosProvGroup::fillPar( IOPar& iop ) const
 {
     if ( !polyfld_->fillPar(iop) )
-	return false;
+	mErrRet("Please select the polygon")
 
     const float fac = 1. / SI().zFactor();
-    StepInterval<float> zrg; zfld_->getFStepInterval();
+    StepInterval<float> zrg = zfld_->getFStepInterval();
     zrg.scale( 1. / SI().zFactor() );
     iop.set( sKey::ZRange, zrg );
     return true;
+}
+
+
+bool uiPolyPosProvGroup::getID( MultiID& ky ) const
+{
+    if ( !polyfld_->commitInput(false) || !ctio_.ioobj )
+	return false;
+    ky = ctio_.ioobj->key();
+    return true;
+}
+
+
+void uiPolyPosProvGroup::getZRange( StepInterval<float>& zrg ) const
+{
+    zrg = zfld_ ? zfld_->getFStepInterval() : SI().zRange(true);
 }
 
 
@@ -213,21 +232,81 @@ void uiPolyPosProvGroup::initClass()
 uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
 					const uiPosProvider::Setup& su )
     : uiPosProvGroup(p,su)
+    , ctio_(*mMkCtxtIOObj(PickSet))
 {
-    BufferString lbl( su.is2d_ ? "2D" : "3D" );
-    lbl += " Table group ";
-    lbl += su.withz_ ? "+" : "-"; lbl += "Z";
-    new uiLabel( this, lbl );
+    ctio_.fillIfOnlyOne( IOObjContext::Loc );
+    const CallBack selcb( mCB(this,uiTablePosProvGroup,selChg) );
+
+    selfld_ = new uiGenInput( this, "Data from",
+	    		      BoolInpSpec(true,"Pick Set","Table file") );
+    selfld_->valuechanged.notify( selcb );
+    psfld_ = new uiIOObjSel( this, ctio_ );
+    psfld_->attach( alignedBelow, selfld_ );
+    tffld_ = new uiIOFileSelect( this, sKey::FileName, true,
+	    			 GetDataDir(), true );
+    tffld_->getHistory( uiIOFileSelect::ixtablehistory );
+    tffld_->attach( alignedBelow, selfld_ );
+
+    setHAlignObj( selfld_ );
+    mainwin()->finaliseDone.notify( selcb );
 }
 
 
-void uiTablePosProvGroup::usePar( const IOPar& )
+void uiTablePosProvGroup::selChg( CallBacker* )
 {
+    const bool isps = selfld_->getBoolValue();
+    psfld_->display( isps );
+    tffld_->display( !isps );
 }
 
 
-bool uiTablePosProvGroup::fillPar( IOPar& ) const
+void uiTablePosProvGroup::usePar( const IOPar& iop )
 {
+    const char* idres = iop.find( "ID" );
+    const char* fnmres = iop.find( sKey::FileName );
+    const bool isfnm = fnmres && *fnmres;
+    selfld_->setValue( !isfnm );
+    if ( idres ) psfld_->setInput( idres );
+    if ( fnmres ) tffld_->setInput( fnmres );
+}
+
+
+bool uiTablePosProvGroup::fillPar( IOPar& iop ) const
+{
+    if ( selfld_->getBoolValue() )
+    {
+	if ( !psfld_->fillPar(iop) )
+	    mErrRet("Please select the Pick Set")
+	iop.removeWithKey( sKey::FileName );
+    }
+    else
+    {
+	const BufferString fnm = tffld_->getInput();
+	if ( fnm.isEmpty() )
+	    mErrRet("Please provide the table file name")
+	else if ( File_isEmpty(fnm.buf()) )
+	    mErrRet("Please select an existing/readable file")
+	iop.set( sKey::FileName, fnm );
+	iop.removeWithKey( "ID" );
+    }
+    return true;
+}
+
+
+bool uiTablePosProvGroup::getID( MultiID& ky ) const
+{
+    if ( !selfld_->getBoolValue() || !psfld_->commitInput(false) )
+	return false;
+    ky = ctio_.ioobj->key();
+    return true;
+}
+
+
+bool uiTablePosProvGroup::getFileName( BufferString& fnm ) const
+{
+    if ( selfld_->getBoolValue() )
+	return false;
+    fnm = tffld_->getInput();
     return true;
 }
 
