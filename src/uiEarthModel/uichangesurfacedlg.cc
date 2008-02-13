@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra / Bert Bril
  Date:		Sep 2005 / Nov 2006
- RCS:		$Id: uichangesurfacedlg.cc,v 1.17 2008-02-06 13:01:31 cvsbert Exp $
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.18 2008-02-13 05:03:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -249,20 +249,7 @@ const char* uiInterpolHorizonDlg::infoMsg( const Executor* ex ) const
 {
     mDynamicCastGet(const Array2DInterpolator<float>*,interp,ex)
     if ( !interp ) { pErrMsg("Huh?"); return 0; }
-    int maxlvl = 0;
-    const int nrfilled = interp->nrInterpolated( &maxlvl );
-    if ( nrfilled == 0 )
-	infomsg_ = "No nodes filled - no interpolations";
-    else if ( nrfilled == 1 )
-	infomsg_ = "One node filled";
-    else
-    {
-	infomsg_ = nrfilled; infomsg_ += " nodes filled in ";
-	infomsg_ += maxlvl; infomsg_ += " step";
-	if ( maxlvl > 1 ) infomsg_ += "s";
-    }
-
-    return infomsg_;
+    return interp->infoMsg();
 }
 
 

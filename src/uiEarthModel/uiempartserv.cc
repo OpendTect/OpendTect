@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.133 2008-02-12 12:53:31 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.134 2008-02-13 05:03:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -683,7 +683,10 @@ BinIDValueSet* uiEMPartServer::interpolateAuxData( const EM::ObjectID& oid,
 
     const int auxidx = hor3d->auxdata.auxDataIndex( nm );
     if ( auxidx < 0 )
-    { uiMSG().error("Cannot read attrib data"); return 0; }
+    {
+	uiMSG().error("Cannot find attribute data");
+	return 0;
+    }
 
     uiArr2DInterpolParsDlg dlg( parent() );
     if ( !dlg.go() ) return 0;
@@ -694,13 +697,13 @@ BinIDValueSet* uiEMPartServer::interpolateAuxData( const EM::ObjectID& oid,
 
     PtrMan< Array2D<float> > arr2d =
 	hor3d->auxdata.createArray2D( auxidx, sid );
-    Array2DInterpolator<float> exec( *arr2d.ptr() );
-    exec.pars() = dlg.getInput();
-    exec.setDist( true, SI().crlDistance()*colrg.step );
-    exec.setDist( false, SI().inlDistance()*rowrg.step );
+    Array2DInterpolator<float> interp( *arr2d.ptr() );
+    interp.pars() = dlg.getInput();
+    interp.setDist( true, SI().crlDistance()*colrg.step );
+    interp.setDist( false, SI().inlDistance()*rowrg.step );
 
     uiTaskRunner execdlg( parent() );
-    if ( !execdlg.execute(exec) )
+    if ( !execdlg.execute(interp) )
 	return 0;
 
     BinIDValueSet* res = new BinIDValueSet( 2, false );
@@ -712,6 +715,10 @@ BinIDValueSet* uiEMPartServer::interpolateAuxData( const EM::ObjectID& oid,
 						    colrg.getIndex(col)) );
 	}
     }
+
+    const char* infomsg = interp.infoMsg();
+    if ( infomsg && *infomsg )
+	uiMSG().message( infomsg );
 
     return res;
 }
