@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: timedepthconv.h,v 1.3 2008-01-07 22:38:19 cvskris Exp $
+ RCS:		$Id: timedepthconv.h,v 1.4 2008-02-13 12:25:58 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -45,7 +45,7 @@ public:
     int			addVolumeOfInterest(const CubeSampling&,bool);
     void		setVolumeOfInterest(int,const CubeSampling&,bool);
     void		removeVolumeOfInterest(int);
-    bool		loadDataIfMissing(int);
+    bool		loadDataIfMissing(int,TaskRunner* =0);
     void		transform(const BinID&,const SamplingData<float>&,
 	    			  int,float*) const;
     void		transformBack(const BinID&,const SamplingData<float>&,

@@ -4,7 +4,7 @@
  * DATE     : Sep 2007
 -*/
 
-static const char* rcsID = "$Id: zaxistransformer.cc,v 1.3 2007-10-30 16:53:35 cvskris Exp $";
+static const char* rcsID = "$Id: zaxistransformer.cc,v 1.4 2008-02-13 12:25:33 cvsnanne Exp $";
 
 #include "zaxistransformer.h"
 
@@ -68,14 +68,14 @@ bool ZAxisTransformer::doPrepare(int)
 }
 
 
-bool ZAxisTransformer::loadTransformData()
+bool ZAxisTransformer::loadTransformData( TaskRunner* taskrunner )
 {
     if ( voiid_==-1 )
 	voiid_ = transform_.addVolumeOfInterest( outputcs_, forward_ );
     else
 	transform_.setVolumeOfInterest( voiid_, outputcs_, forward_ );
 
-    return transform_.loadDataIfMissing( voiid_ );
+    return transform_.loadDataIfMissing( voiid_, taskrunner );
 }
 
 

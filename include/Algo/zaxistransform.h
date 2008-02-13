@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.15 2007-09-17 12:29:46 cvskris Exp $
+ RCS:           $Id: zaxistransform.h,v 1.16 2008-02-13 12:25:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 class Coord3;
 class CubeSampling;
 class IOPar;
+class TaskRunner;
 
 /*! Baseclass for z stretching in different ways. The z-stretch may be dependent
 on the location (binid). The various transforms can be retrieved from factory
@@ -40,7 +41,7 @@ public:
     virtual void	setVolumeOfInterest(int,const CubeSampling&,
 	    				    bool zistrans=false);
     virtual void	removeVolumeOfInterest(int);
-    virtual bool	loadDataIfMissing(int);
+    virtual bool	loadDataIfMissing(int,TaskRunner* =0);
     				
     virtual void		transform(const BinID&, 
 	    				  const SamplingData<float>&,

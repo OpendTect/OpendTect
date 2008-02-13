@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2007
- RCS:           $Id: zaxistransformer.h,v 1.3 2007-10-30 16:53:35 cvskris Exp $
+ RCS:           $Id: zaxistransformer.h,v 1.4 2008-02-13 12:25:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "task.h"
 #include "cubesampling.h"
 
+class TaskRunner;
 class ZAxisTransform;
 
 template <class T> class Array3D;
@@ -37,7 +38,7 @@ public:
     Array3D<float>*	getOutput(bool transfer);
     			/*!<\param transfer specifies whether the caller will
 			                    take over the array.  */
-    bool		loadTransformData();
+    bool		loadTransformData(TaskRunner* =0);
 
 protected:
     bool		doPrepare(int);

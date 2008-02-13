@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: timedepthconv.cc,v 1.3 2008-01-07 22:38:19 cvskris Exp $";
+static const char* rcsID = "$Id: timedepthconv.cc,v 1.4 2008-02-13 12:25:58 cvsnanne Exp $";
 
 #include "timedepthconv.h"
 
@@ -150,7 +150,7 @@ void Time2DepthStretcher::removeVolumeOfInterest( int id )
 }
 
 
-bool Time2DepthStretcher::loadDataIfMissing( int id )
+bool Time2DepthStretcher::loadDataIfMissing( int id, TaskRunner* )
 {
     if ( !velreader_ )
 	return true;
