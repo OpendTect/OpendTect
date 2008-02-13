@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoColTabMultiTexture2.cc,v 1.2 2007-09-07 16:21:59 cvskris Exp $
+ RCS:           $Id: SoColTabMultiTexture2.cc,v 1.3 2008-02-13 21:54:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,8 @@ SoColTabMultiTextureProcessor::SoColTabMultiTextureProcessor( int nrthreads )
 	SbThread* thread = SbThread::create( threadFunc, this );
 
 	threadrangemutex_.lock();
+	threadstarts_.append( -1 );
+	threadstops_.append( -1 );
 	threads_.append( thread );
 	threadrangemutex_.unlock();
     }
