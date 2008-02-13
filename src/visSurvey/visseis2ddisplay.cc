@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.33 2008-02-05 09:24:17 cvsbert Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.34 2008-02-13 17:43:57 cvsjaap Exp $
  ________________________________________________________________________
 
 -*/
@@ -150,6 +150,7 @@ bool Seis2DDisplay::setZRange( const Interval<float>& nzrg )
 			  curzrg_.includes( zrg.stop );
     curzrg_.setFrom( zrg );
     updateVizPath();
+    geomchanged_.trigger();
     return usecache;
 }
 
@@ -536,7 +537,7 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
 
     int trcidx; float mindist;
     getNearestTrace( xytpos, trcidx, mindist );
-    return mindist<0 && mIsUdf(mindist) ? mUdf(float) : sqrt( mindist );
+    return mindist<0 || mIsUdf(mindist) ? mUdf(float) : sqrt( mindist );
 }
 
 

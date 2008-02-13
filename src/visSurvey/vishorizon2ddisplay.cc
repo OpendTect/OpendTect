@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizon2ddisplay.cc,v 1.8 2008-02-06 11:46:30 cvsjaap Exp $
+ RCS:           $Id: vishorizon2ddisplay.cc,v 1.9 2008-02-13 17:43:57 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,10 +110,10 @@ void Horizon2DDisplay::removeSectionDisplay( const EM::SectionID& sid )
 }
 
 
-void Horizon2DDisplay::updateSection( int idx, const TypeSet<int>* lineidsel )
+void Horizon2DDisplay::updateSection( int idx,
+				      const TypeSet<Interval<float> >* zrgs )
 {
     const EM::SectionID sid = emobject_->sectionID( idx );
-
     mDynamicCastGet( const Geometry::RowColSurface*, rcs,
 	    	     emobject_->sectionGeometry( sid ) );
 
@@ -127,9 +127,6 @@ void Horizon2DDisplay::updateSection( int idx, const TypeSet<int>* lineidsel )
     RowCol rc;
     for ( rc.row=rowrg.start; rc.row<=rowrg.stop; rc.row+=rowrg.step )
     {
-	if ( lineidsel && lineidsel->indexOf(rc.row)<0 )
-	    continue;
-
 	const StepInterval<int> colrg = rcs->colRange( rc.row );
 
 	Coord3 prevpos = Coord3::udf();
@@ -142,7 +139,10 @@ void Horizon2DDisplay::updateSection( int idx, const TypeSet<int>* lineidsel )
 	    if ( !Coord(pos).isDefined() )
 		continue;
 
-	    if ( !pos.isDefined() )
+	    mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_ );
+	    const int lnidx = h2d->geometry().lineIndex( rc.row );
+
+	    if ( !pos.isDefined() || zrgs && !(*zrgs)[lnidx].includes(pos.z) )
 	    {
 		if ( indexinline==1 )
 		{
@@ -223,31 +223,38 @@ void Horizon2DDisplay::emChangeCB( CallBacker* cb )
 void Horizon2DDisplay::updateLinesOnSections(
 			const ObjectSet<const Seis2DDisplay>& seis2dlist )
 {
+    if ( !displayonlyatsections_ )
+    {
+	for ( int sidx=0; sidx<sids_.size(); sidx++ )
+	    updateSection( sids_[sidx] );
+	return;
+    }
+    
     mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_ );
     if ( !h2d ) return;
 
-    TypeSet<int> lineidset;
+    TypeSet<Interval<float> > zranges;
     for ( int idx=0; idx<h2d->geometry().nrLines(); idx++ )
     {
 	int lineid = h2d->geometry().lineID( idx );
 	const char* linenm = h2d->geometry().lineName(lineid);
 	const MultiID& lineset = h2d->geometry().lineSet(lineid);
 
+	Interval<float> zrg( mUdf(float), mUdf(float) );
 	for ( int idy=0; idy<seis2dlist.size(); idy++ )
 	{
 	    if ( !strcmp(seis2dlist[idy]->name(), linenm) &&
 		 seis2dlist[idy]->lineSetID()==lineset )
 	    {
-		lineidset += lineid;
+		zrg = seis2dlist[idy]->getZRange( true );
 		break;
 	    }
 	}
+	zranges += zrg;
     }
     
-    TypeSet<int>* lineidsel = displayonlyatsections_ ? &lineidset : 0;
-    
     for ( int sidx=0; sidx<sids_.size(); sidx++ )
-	updateSection( sids_[sidx], lineidsel );
+	updateSection( sids_[sidx], &zranges );
 }
 
 
@@ -267,7 +274,8 @@ void Horizon2DDisplay::updateSeedsOnSections(
 	    for ( int idz=0; idz<seis2dlist.size(); idz++ )
 	    {
 		const float dist = seis2dlist[idz]->calcDist(pos);
-		if ( dist < seis2dlist[idz]->maxDist() )
+		if ( dist<seis2dlist[idz]->maxDist() &&
+		     seis2dlist[idz]->getZRange(false).includes(pos.z) )
 		{
 		    marker->turnOn(true);
 		    break;
