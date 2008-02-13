@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.33 2008-01-10 10:07:51 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.34 2008-02-13 13:28:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -458,8 +458,9 @@ void uiAttrTrcSelOut::objSel( CallBacker* cb )
     
     HorSampling horsampling;
     getComputableSurf( horsampling );
-    uiBinIDSubSel::Data subseldata = bidsubselfld_->data();
-    subseldata.cs_.hrg = horsampling; bidsubselfld_->setData( subseldata );
+    CubeSampling cs = bidsubselfld_->envelope();
+    cs.hrg = horsampling;
+    bidsubselfld_->setInput( cs );
 }
 
 

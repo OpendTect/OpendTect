@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.42 2007-12-05 11:55:49 cvsbert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.43 2008-02-13 13:28:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,7 +98,7 @@ void uiSeisImpCBVS::init( bool fromioobj )
     }
 
     uiSeisTransfer::Setup sts( Seis::Vol );
-    sts.withnullfill(fromioobj).withstep(true).allowtable(true).allowpoly(true);
+    sts.withnullfill(fromioobj).withstep(true).onlyrange(false);
     transffld = new uiSeisTransfer( this, sts );
     transffld->attach( alignedBelow,
 	    		modefld ? (uiGroup*)modefld : (uiGroup*)oinpfld );

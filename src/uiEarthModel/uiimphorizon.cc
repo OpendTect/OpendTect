@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.98 2008-02-06 13:01:31 cvsbert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.99 2008-02-13 13:28:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -257,14 +257,9 @@ bool uiImportHorizon::doScan()
     uiTaskRunner taskrunner( this );
     taskrunner.execute( *scanner_ );
 
-    HorSampling hs;
-    hs.set( scanner_->inlRg(), scanner_->crlRg() );
-    uiBinIDSubSel::Data data;
-    data.cs_.hrg = hs;
-    data.allowedrange_.hrg = hs;
-    data.allowedrange_.hrg.step.inl = SI().inlStep();
-    data.allowedrange_.hrg.step.crl = SI().crlStep();
-    subselfld_->setData( data );
+    CubeSampling cs( true );
+    cs.hrg.set( scanner_->inlRg(), scanner_->crlRg() );
+    subselfld_->setInput( cs );
     return true;
 }
 
@@ -334,7 +329,7 @@ bool uiImportHorizon::doImport()
     if ( dofill )
 	fillUdfs( sections );
 
-    HorSampling hs = subselfld_->data().cs_.hrg;
+    HorSampling hs = subselfld_->envelope().hrg;
     ExecutorGroup importer( "Importing horizon" );
     importer.setNrDoneText( "Nr positions done" );
     int startidx = 0;
@@ -428,7 +423,7 @@ bool uiImportHorizon::checkInpFlds()
 
 bool uiImportHorizon::fillUdfs( ObjectSet<BinIDValueSet>& sections )
 {
-    HorSampling hs = subselfld_->data().cs_.hrg;
+    HorSampling hs = subselfld_->envelope().hrg;
 
     for ( int idx=0; idx<sections.size(); idx++ )
     {

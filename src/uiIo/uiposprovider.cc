@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.4 2008-02-11 17:23:05 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.5 2008-02-13 13:28:48 cvsbert Exp $";
 
 #include "uiposprovgroup.h"
 #include "uigeninput.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uiposprovider.cc,v 1.4 2008-02-11 17:23:05 cvsb
 #include "keystrs.h"
 #include "posprovider.h"
 #include "iopar.h"
+#include "cubesampling.h"
 
 
 uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
@@ -53,6 +54,8 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	grp->setName( nm );
 	grps_ += grp;
     }
+    if ( setup_.allownone_ )
+	nms.add( "All" );
 
     const CallBack selcb( mCB(this,uiPosProvider,selChg) );
     if ( grps_.size() == 0 )
@@ -61,7 +64,7 @@ uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
 	return;
     }
 
-    if ( grps_.size() > 1 )
+    if ( nms.size() > 1 )
     {
 	selfld_ = new uiGenInput( this, setup_.seltxt_, StringListInpSpec(nms));
 	for ( int idx=0; idx<grps_.size(); idx++ )
@@ -83,6 +86,15 @@ void uiPosProvider::selChg( CallBacker* )
 }
 
 
+uiPosProvGroup* uiPosProvider::curGrp() const
+{
+    if ( grps_.size() < 1 ) return 0;
+    const int selidx = selfld_ ? selfld_->getIntValue() : 0;
+    return const_cast<uiPosProvGroup*>(
+	    selidx < grps_.size() ? grps_[selidx] : 0);
+}
+
+
 void uiPosProvider::usePar( const IOPar& iop )
 {
     BufferString typ;
@@ -97,16 +109,22 @@ void uiPosProvider::usePar( const IOPar& iop )
 	    return;
 	}
     }
+
+    if ( selfld_ )
+	selfld_->setValue( ((int)0) );
 }
 
 
 bool uiPosProvider::fillPar( IOPar& iop ) const
 {
-    if ( grps_.size() < 1 ) return false;
+    if ( grps_.size() < 1 )
+	return false;
 
-    const int selidx = selfld_ ? selfld_->getIntValue() : 0;
-    iop.set( sKey::Type, grps_[selidx]->name() );
-    return grps_[selidx]->fillPar(iop);
+    if ( isAll() )
+	iop.set( sKey::Type, sKey::None );
+
+    const uiPosProvGroup* curgrp = curGrp();
+    return curgrp ? curgrp->fillPar(iop) : true;
 }
 
 
@@ -116,15 +134,8 @@ Pos::Provider* uiPosProvider::createProvider() const
     if ( !fillPar(iop) )
 	return 0;
 
-    const int selidx = selfld_ ? selfld_->getIntValue() : 0;
-    const char* nm = grps_[selidx]->name();
-    Pos::Provider* prov;
     if ( setup_.is2d_ )
-	prov = Pos::Provider2D::factory().create( nm );
+	return Pos::Provider2D::make( iop );
     else
-	prov = Pos::Provider3D::factory().create( nm );
-
-    if ( prov )
-	prov->usePar( iop );
-    return prov;
+	return Pos::Provider3D::make( iop );
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          October 2007
- RCS:           $Id: uiprestkmergedlg.cc,v 1.5 2008-01-22 15:04:17 cvsbert Exp $
+ RCS:           $Id: uiprestkmergedlg.cc,v 1.6 2008-02-13 13:28:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -249,7 +249,7 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
 {
     if ( !setSelectedVols() ) return false;
 
-    HorSampling hs = subselfld_->data().cs_.hrg;
+    HorSampling hs = subselfld_->envelope().hrg;
     PtrMan<SeisPSMerger> Exec =
 	   new SeisPSMerger( selobjs_, outctio_.ioobj, hs );
     uiExecutor dlg( this, *Exec );

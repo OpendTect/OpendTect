@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.50 2008-01-07 10:55:30 cvsnanne Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.51 2008-02-13 13:28:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -170,8 +170,8 @@ public:
 					//!< not an existing IOObj name
     CtxtIOObj&		ctxtIOObj()	{ return ctio; }
 
-    virtual bool	fillPar(IOPar&) const;
-    virtual void	usePar(const IOPar&);
+    virtual bool	fillPar(IOPar&,const char* compky=0) const;
+    virtual void	usePar(const IOPar&,const char* compky=0);
 
     void		setForRead( bool yn )		{ forread = yn; }
     void		setUnselectables( const ObjectSet<MultiID>& s )

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.7 2008-02-12 11:57:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.8 2008-02-13 13:28:48 cvsbert Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -80,6 +80,7 @@ void uiRangePosProvGroup::usePar( const IOPar& iop )
 
 bool uiRangePosProvGroup::fillPar( IOPar& iop ) const
 {
+    iop.set( sKey::Type, sKey::Range );
     CubeSampling cs; getCubeSampling( cs );
     cs.fillPar( iop );
     return true;
@@ -131,25 +132,28 @@ uiPolyPosProvGroup::~uiPolyPosProvGroup()
 }
 
 
+#define mErrRet(s) { uiMSG().error(s); return false; }
+#define mGetPolyKey(k) IOPar::compKey(sKey::Polygon,k)
+
+
 void uiPolyPosProvGroup::usePar( const IOPar& iop )
 {
-    polyfld_->usePar( iop );
+    polyfld_->usePar( iop, sKey::Polygon );
     if ( zrgfld_ )
     {
 	StepInterval<float> zrg( SI().zRange(true) );
-	iop.get( sKey::ZRange, zrg );
+	iop.get( mGetPolyKey(sKey::ZRange), zrg );
 	zrgfld_->setRange( zrg );
     }
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
-
 bool uiPolyPosProvGroup::fillPar( IOPar& iop ) const
 {
-    if ( !polyfld_->fillPar(iop) )
+    iop.set( sKey::Type, sKey::Polygon );
+    if ( !polyfld_->fillPar(iop,sKey::Polygon) )
 	mErrRet("Please select the polygon")
-    iop.set( sKey::ZRange, zrgfld_->getRange() );
+    iop.set( mGetPolyKey(sKey::ZRange), zrgfld_->getRange() );
     return true;
 }
 
@@ -205,11 +209,12 @@ void uiTablePosProvGroup::selChg( CallBacker* )
     tffld_->display( !isps );
 }
 
+#define mGetTableKey(k) IOPar::compKey(sKey::Table,k)
 
 void uiTablePosProvGroup::usePar( const IOPar& iop )
 {
-    const char* idres = iop.find( "ID" );
-    const char* fnmres = iop.find( sKey::FileName );
+    const char* idres = iop.find( mGetTableKey("ID") );
+    const char* fnmres = iop.find( mGetTableKey(sKey::FileName) );
     const bool isfnm = fnmres && *fnmres;
     selfld_->setValue( !isfnm );
     if ( idres ) psfld_->setInput( idres );
@@ -219,11 +224,12 @@ void uiTablePosProvGroup::usePar( const IOPar& iop )
 
 bool uiTablePosProvGroup::fillPar( IOPar& iop ) const
 {
+    iop.set( sKey::Type, sKey::Table );
     if ( selfld_->getBoolValue() )
     {
-	if ( !psfld_->fillPar(iop) )
+	if ( !psfld_->fillPar(iop,sKey::Table) )
 	    mErrRet("Please select the Pick Set")
-	iop.removeWithKey( sKey::FileName );
+	iop.removeWithKey( mGetTableKey(sKey::FileName) );
     }
     else
     {
@@ -232,8 +238,8 @@ bool uiTablePosProvGroup::fillPar( IOPar& iop ) const
 	    mErrRet("Please provide the table file name")
 	else if ( File_isEmpty(fnm.buf()) )
 	    mErrRet("Please select an existing/readable file")
-	iop.set( sKey::FileName, fnm );
-	iop.removeWithKey( "ID" );
+	iop.set( mGetTableKey(sKey::FileName), fnm );
+	iop.removeWithKey( mGetTableKey("ID") );
     }
     return true;
 }

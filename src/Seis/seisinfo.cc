@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.45 2008-01-29 10:13:55 cvsbert Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.46 2008-02-13 13:28:48 cvsbert Exp $";
 
 #include "seisinfo.h"
 #include "seisbounds.h"
@@ -70,9 +70,9 @@ public:
 
 DefineEnumNames(SeisEnum,SelType,0,"Selection type")
 {
-	"Range",
-	"Table",
-	"Polygon",
+	sKey::Range,
+	sKey::Table,
+	sKey::Polygon,
 	0
 };
 

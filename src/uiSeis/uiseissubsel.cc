@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.46 2007-12-05 11:55:49 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.47 2008-02-13 13:28:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseissubsel.h"
 #include "uibinidsubsel.h"
+#include "uiselsurvranges.h"
 #include "uiseisioobjinfo.h"
 #include "uigeninput.h"
 #include "seistrctr.h"
@@ -21,6 +22,7 @@ ________________________________________________________________________
 #include "separstr.h"
 #include "cubesampling.h"
 #include "keystrs.h"
+#include "posprovider.h"
 #include "uimsg.h"
 
 
@@ -43,11 +45,7 @@ uiSeis3DSubSel::uiSeis3DSubSel( uiParent* p, const Seis::SelSetup& ss )
     	: uiGroup(p,"3D seis subsel")
 {
     uiBinIDSubSel::Setup bss;
-    bss.withz(!ss.withoutz_).withstep(ss.withstep_);
-    if ( ss.allowtable_ )
-	bss.types_ += uiBinIDSubSel::Tbl;
-    if ( ss.allowpoly_ )
-	bss.types_ += uiBinIDSubSel::Poly;
+    bss.withz(!ss.withoutz_).withstep(ss.withstep_).onlyranges(ss.onlyrange_);
 
     selfld = new uiBinIDSubSel( this, bss );
     setHAlignObj( selfld );
@@ -68,29 +66,21 @@ uiCompoundParSel* uiSeis3DSubSel::compoundParSel()
 
 void uiSeis3DSubSel::setInput( const HorSampling& hs )
 {
-    uiBinIDSubSel::Data data = selfld->data();
-    data.cs_.hrg = hs;
-    if ( !data.isAll() )
-	data.type_ = uiBinIDSubSel::Range;
-    selfld->setData( data );
+    CubeSampling cs = selfld->envelope(); cs.hrg = hs;
+    selfld->setInput( cs, false );
 }
 
 
 void uiSeis3DSubSel::setInput( const StepInterval<float>& zrg )
 {
-    uiBinIDSubSel::Data data = selfld->data();
-    data.cs_.zrg = zrg;
-    selfld->setData( data );
+    CubeSampling cs = selfld->envelope(); cs.zrg = zrg;
+    selfld->setInput( cs, false );
 }
 
 
 void uiSeis3DSubSel::setInput( const CubeSampling& cs )
 {
-    uiBinIDSubSel::Data data = selfld->data();
-    data.cs_ = cs;
-    if ( !data.isAll() )
-	data.type_ = uiBinIDSubSel::Range;
-    selfld->setData( data );
+    selfld->setInput( cs, false );
 }
 
 
@@ -106,35 +96,31 @@ void uiSeis3DSubSel::setInput( const IOObj& ioobj )
 
 bool uiSeis3DSubSel::isAll() const
 {
-    return selfld->data().isAll();
+    return selfld->isAll();
 }
 
 
 void uiSeis3DSubSel::getSampling( HorSampling& hs ) const
 {
-    if ( selfld->type() == uiBinIDSubSel::Range )
-	hs = selfld->data().cs_.hrg;
-    else 
-    {
+    if ( selfld->isAll() )
 	hs = SI().sampling(false).hrg;
-	hs.step.inl = hs.step.crl = 1;
-    }
+    else 
+	hs = selfld->envelope().hrg;
 }
 
 
 void uiSeis3DSubSel::getZRange( StepInterval<float>& zrg ) const
 {
-    if ( selfld->type() == uiBinIDSubSel::Range
-      || selfld->type() == uiBinIDSubSel::Poly )
-	zrg = selfld->data().cs_.zrg;
-    else 
+    if ( selfld->isAll() )
 	zrg = SI().zRange(false);
+    else 
+	zrg = selfld->envelope().zrg;
 }
 
 
 bool uiSeis3DSubSel::fillPar( IOPar& iop ) const
 {
-    return selfld->fillPar(iop);
+    selfld->fillPar(iop); return true;
 }
 
 
@@ -146,13 +132,19 @@ void uiSeis3DSubSel::usePar( const IOPar& iop )
 
 int uiSeis3DSubSel::expectedNrSamples() const
 {
-    return selfld->data().expectedNrSamples();
+    const Pos::Provider* pp = selfld->curProvider();
+    if ( !pp ) return SI().zRange(false).nrSteps() + 1;
+
+    return pp->estNrZPerPos();
 }
 
 
 int uiSeis3DSubSel::expectedNrTraces() const
 {
-    return selfld->data().expectedNrTraces();
+    const Pos::Provider* pp = selfld->curProvider();
+    if ( !pp ) return SI().zRange(false).nrSteps() + 1;
+
+    return pp->estNrPos();
 }
 
 
@@ -432,19 +424,8 @@ uiSeis2DSubSelDlg::uiSeis2DSubSelDlg( uiParent* p )
     selfld = new uiGenInput( this, "Select", BoolInpSpec(true,"All","Part") );
     selfld->valuechanged.notify( mCB(this,uiSeis2DSubSelDlg,selChg) );
 
-    trcrgfld = new uiGenInput( this, "Trace number range",
-			       IntInpIntervalSpec(true) );
-    trcrgfld->setValue( 1, 0 ); trcrgfld->setValue( 1, 2 );
-    trcrgfld->attach( alignedBelow, selfld );
-
-    StepInterval<float> zrg = SI().zRange(true);
-    BufferString fldtxt = "Z range "; fldtxt += SI().getZUnit();
-    zrgfld = new uiGenInput( this, fldtxt, FloatInpIntervalSpec(true) );
-    const float zfac = SI().zFactor();
-    zrgfld->setValue( zrg.start*zfac, 0 );
-    zrgfld->setValue( zrg.stop*zfac, 1 );
-    zrgfld->setValue( zrg.step*zfac, 2 );
-    zrgfld->attach( alignedBelow, trcrgfld );
+    rgfld = new uiSelSubline( this, true );
+    rgfld->attach( alignedBelow, selfld );
 
     finaliseDone.notify( mCB(this,uiSeis2DSubSelDlg,selChg) );
 }
@@ -454,10 +435,8 @@ void uiSeis2DSubSelDlg::setInput( const uiSeis2DSubSel::PosData& data )
 {
     data_ = data;
     selfld->setValue( data_.isall_ );
-    trcrgfld->setValue( data_.trcrg_ );
-    StepInterval<float> zrg = data_.zrg_;
-    zrg.scale( SI().zFactor() );
-    zrgfld->setValue( zrg );
+    rgfld->nrfld_->setRange( data_.trcrg_ );
+    rgfld->zfld_->setRange( data_.zrg_ );
     selChg();
 }
 
@@ -467,9 +446,8 @@ const uiSeis2DSubSel::PosData& uiSeis2DSubSelDlg::getInput() const
     data_.isall_ = selfld->getBoolValue();
     if ( !data_.isall_ )
     {
-	data_.trcrg_ = trcrgfld->getIStepInterval();
-	data_.zrg_ = zrgfld->getFStepInterval();
-	data_.zrg_.scale( 1/SI().zFactor() );
+	data_.trcrg_ = rgfld->nrfld_->getRange();
+	data_.zrg_ = rgfld->zfld_->getRange();
     }
     return data_;
 }
@@ -477,8 +455,7 @@ const uiSeis2DSubSel::PosData& uiSeis2DSubSelDlg::getInput() const
 void uiSeis2DSubSelDlg::selChg( CallBacker* )
 {
     data_.isall_ = selfld->getBoolValue();
-    trcrgfld->display( !data_.isall_ );
-    zrgfld->display( !data_.isall_ );
+    rgfld->display( !data_.isall_ );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovgroup.h,v 1.1 2008-02-07 16:10:40 cvsbert Exp $
+ RCS:           $Id: uiposprovgroup.h,v 1.2 2008-02-13 13:28:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "factory.h"
 
 
-/*! \brief group for subselecting an area for 2D or 3D seismics */
+/*! \brief group for providing positions, usually for 2D or 3D seismics */
 
 class uiPosProvGroup : public uiGroup
 {

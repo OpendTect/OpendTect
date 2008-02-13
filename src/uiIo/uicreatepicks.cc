@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.9 2008-02-04 16:19:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.10 2008-02-13 13:28:48 cvsbert Exp $";
 
 #include "uicreatepicks.h"
 
@@ -34,7 +34,7 @@ static const char* rcsID = "$Id: uicreatepicks.cc,v 1.9 2008-02-04 16:19:18 cvsb
 #include "survinfo.h"
 
 static int sLastNrPicks = 500;
-static const char* sGeoms3D[] = { "Cube", "On Horizon", "Between Horizons", 0 };
+static const char* sGeoms3D[] = { "Volume", "On Horizon", "Between Horizons",0};
 static const char* sGeoms2D[] = { "Z Range", "Between Horizons", 0 };
 
 
@@ -142,22 +142,15 @@ uiGenRandPicks3D::uiGenRandPicks3D( uiParent* p, const BufferStringSet& hornms )
 	geomfld_->valuechanged.notify( mCB(this,uiGenRandPicks,geomSel) );
     }
 
-    volsubselfld_ = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
-	    			.withz(true)
-				.withstep(false)
-				.showsurvinfo(true)
-				.alltxt("From entire survey") );
-    volsubselfld_->attach( alignedBelow,
-	    			geomfld_ ? geomfld_ : nrfld_ );
+    uiBinIDSubSel::Setup su; su.withz(true).withstep(false).onlyranges(true);
+    volsubselfld_ = new uiBinIDSubSel( this, su );
+    volsubselfld_->attach( alignedBelow, geomfld_ ? geomfld_ : nrfld_ );
     if ( geomfld_ )
     {
 	horselfld_->attach( alignedBelow, geomfld_ );
 	horsel2fld_->attach( rightOf, horselfld_ );
-	horsubselfld_ = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
-				.withz(false)
-				.withstep(false)
-				.showsurvinfo(true)
-				.alltxt("From entire horizon") );
+	su.withz(false);
+	horsubselfld_ = new uiBinIDSubSel( this, su );
 	horsubselfld_->attach( alignedBelow, horselfld_ );
     }
 
@@ -183,19 +176,19 @@ void uiGenRandPicks3D::mkRandPars()
     randpars_.nr_ = nrfld_->getIntValue();
     randpars_.needhor_ = geomfld_ && geomfld_->getIntValue();
 
-    const HorSampling& hs = 
-       (randpars_.needhor_ ? horsubselfld_ : volsubselfld_)->data().cs_.hrg;
-    randpars_.hs_ = hs;
+    uiBinIDSubSel* ss = randpars_.needhor_ ? horsubselfld_ : volsubselfld_;
+    CubeSampling cs = ss->envelope();
+    randpars_.hs_ = cs.hrg;
 
-    if ( randpars_.needhor_ )
+    if ( !randpars_.needhor_ )
+	randpars_.zrg_ = cs.zrg;
+    else
     {
 	randpars_.horidx_ = hornms_.indexOf( horselfld_->box()->text() );
 	randpars_.horidx2_ = -1;
 	if ( geomfld_->getIntValue() == 2 )
 	    randpars_.horidx2_ = hornms_.indexOf( horsel2fld_->text() );
     }
-    else
-	randpars_.zrg_ = volsubselfld_->data().cs_.zrg;
 }
 
 

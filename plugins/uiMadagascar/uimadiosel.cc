@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.8 2008-01-24 10:01:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.9 2008-02-13 13:28:48 cvsbert Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -73,7 +73,7 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	if ( isinp )
 	{
 	    subsel3dfld_ = new uiSeis3DSubSel( this, Seis::SelSetup(Seis::Vol)
-					.allowtable(true).allowpoly(true) );
+					.onlyrange(false) );
 	    subsel3dfld_->attach( alignedBelow, seis3dfld_ );
 	}
     }

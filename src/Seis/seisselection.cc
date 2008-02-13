@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.14 2008-02-07 16:10:40 cvsbert Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.15 2008-02-13 13:28:48 cvsbert Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -76,6 +76,8 @@ Seis::SelData* Seis::SelData::get( const IOPar& iop )
 {
     Type t = Seis::Range;
     const char* res = iop.find( sKey::BinIDSel );
+    if ( !res )
+	res = iop.find( sKey::Type );
     if ( res && *res )
 	t = Seis::selTypeOf(res);
 

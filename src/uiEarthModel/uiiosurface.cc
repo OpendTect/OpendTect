@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.46 2008-01-18 06:46:55 cvsraman Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.47 2008-02-13 13:28:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,9 +149,8 @@ void uiIOSurface::fillSectionFld( const BufferStringSet& sections )
 void uiIOSurface::fillRangeFld( const HorSampling& hrg )
 {
     if ( !rgfld ) return;
-    uiBinIDSubSel::Data subseldata = rgfld->data();
-    subseldata.cs_.hrg = subseldata.allowedrange_.hrg = hrg;
-    rgfld->setData( subseldata );
+    CubeSampling cs( rgfld->envelope() );
+    cs.hrg = hrg; rgfld->setInput( cs );
 }
 
 
@@ -168,10 +167,10 @@ bool uiIOSurface::haveAttrSel() const
 
 void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels ) const
 {
-    if ( !rgfld || !rgfld->data().isRg() )
+    if ( !rgfld || !rgfld->isAll() )
 	sels.rg.init( false );
     else
-	sels.rg = rgfld->data().cs_.hrg;
+	sels.rg = rgfld->envelope().hrg;
 
     if ( SI().sampling(true) != SI().sampling(false) )
     {
@@ -354,10 +353,10 @@ void uiSurfaceWrite::ioDataSelChg( CallBacker* )
     bool issubsel = sectionfld &&
 		    sectionfld->box()->size()!=sectionfld->box()->nrSelected();
 
-    if ( rgfld && rgfld->data().isRg() )
+    if ( rgfld && !rgfld->isAll() )
     {
-	const HorSampling& hrg = rgfld->data().cs_.hrg;
-	const HorSampling& maxhrg = rgfld->data().allowedrange_.hrg;
+	const HorSampling& hrg = rgfld->envelope().hrg;
+	const HorSampling& maxhrg = SI().sampling(false).hrg;
 	issubsel = issubsel || hrg.inlRange()!=maxhrg.inlRange();
 	issubsel = issubsel || hrg.crlRange()!=maxhrg.crlRange();
     }

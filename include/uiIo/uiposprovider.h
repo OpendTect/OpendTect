@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovider.h,v 1.3 2008-02-11 17:23:05 cvsbert Exp $
+ RCS:           $Id: uiposprovider.h,v 1.4 2008-02-13 13:28:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ class IOPar;
 class uiGenInput;
 namespace Pos { class Provider; }
 class uiPosProvGroup;
+class CubeSampling;
 
 /*! \brief lets user choose a way to provide positions */
 
@@ -32,11 +33,13 @@ public:
 			    : seltxt_(txt)
 			    , withz_(with_z)
 			    , is2d_(false)
+			    , allownone_(false)
 			    , choicetype_(OnlyRanges)	{}
 	virtual	~Setup()				{}
 	mDefSetupMemb(BufferString,seltxt)
 	mDefSetupMemb(bool,withz)
 	mDefSetupMemb(bool,is2d)
+	mDefSetupMemb(bool,allownone)
 	mDefSetupMemb(ChoiceType,choicetype)
     };
 
@@ -46,6 +49,9 @@ public:
     bool		fillPar(IOPar&) const;
 
     Pos::Provider*	createProvider() const;
+    Pos::Provider*	getProviderInfo(CubeSampling&) const;
+
+    bool		isAll() const		{ return !curGrp(); }
 
 protected:
 
@@ -54,6 +60,7 @@ protected:
     Setup			setup_;
 
     void			selChg(CallBacker*);
+    uiPosProvGroup*		curGrp() const;
 };
 
 

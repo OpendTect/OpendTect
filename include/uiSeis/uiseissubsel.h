@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.19 2007-12-05 11:55:49 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.20 2008-02-13 13:28:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class IOObj;
 class uiGenInput;
 class HorSampling;
 class CubeSampling;
+class uiSelSubline;
 class uiBinIDSubSel;
 class uiSeis2DSubSel;
 class BufferStringSet;
@@ -171,8 +172,7 @@ public:
 protected:
 
     uiGenInput*		selfld;
-    uiGenInput*		trcrgfld;
-    uiGenInput*		zrgfld;
+    uiSelSubline*	rgfld;
     mutable uiSeis2DSubSel::PosData data_;
     friend class	uiSeis2DSubSel;
 

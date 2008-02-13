@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Nov 2007
- RCS:		$Id: seisselection.h,v 1.3 2008-02-05 14:25:26 cvsbert Exp $
+ RCS:		$Id: seisselection.h,v 1.4 2008-02-13 13:28:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,8 +32,7 @@ public:
 		SelSetup( Seis::GeomType gt )
 		    : is2d_(Seis::is2D(gt))
 		    , isps_(Seis::isPS(gt))
-		    , allowtable_(false)		//!< 3D only
-		    , allowpoly_(false)			//!< 3D only
+		    , onlyrange_(true)
 		    , fornewentry_(false)		//!< 2D only
 		    , multiline_(false)			//!< 2D only
 		    , withoutz_(false)
@@ -41,8 +40,7 @@ public:
 		SelSetup( bool is_2d, bool is_ps=false )
 		    : is2d_(is_2d)
 		    , isps_(is_ps)
-		    , allowtable_(false)		//!< 3D only
-		    , allowpoly_(false)			//!< 3D only
+		    , onlyrange_(true)
 		    , fornewentry_(false)		//!< 2D only
 		    , multiline_(false)			//!< 2D only
 		    , withoutz_(false)
@@ -50,8 +48,7 @@ public:
 
     mDefSetupClssMemb(SelSetup,bool,is2d)
     mDefSetupClssMemb(SelSetup,bool,isps)
-    mDefSetupClssMemb(SelSetup,bool,allowtable)
-    mDefSetupClssMemb(SelSetup,bool,allowpoly)
+    mDefSetupClssMemb(SelSetup,bool,onlyrange)
     mDefSetupClssMemb(SelSetup,bool,fornewentry)
     mDefSetupClssMemb(SelSetup,bool,multiline)
     mDefSetupClssMemb(SelSetup,bool,withoutz)
