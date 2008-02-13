@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizon2ddisplay.h,v 1.5 2008-02-06 11:46:30 cvsjaap Exp $
+ RCS:           $Id: vishorizon2ddisplay.h,v 1.6 2008-02-13 18:41:53 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -41,7 +41,8 @@ protected:
     bool			addSection(const EM::SectionID&);
 
     void			updateSection(int idx,
-					      const TypeSet<int>* lineidsel=0);
+				    const TypeSet<Interval<float> >* zrgs=0);
+					      
     void			emChangeCB(CallBacker*);
     bool			setEMObject(const EM::ObjectID&);
 
