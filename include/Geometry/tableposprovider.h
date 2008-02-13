@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: tableposprovider.h,v 1.2 2008-02-11 17:23:05 cvsbert Exp $
+ RCS:           $Id: tableposprovider.h,v 1.3 2008-02-13 13:28:00 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -34,6 +34,7 @@ public:
 			TableProvider3D( const TableProvider3D& tp )
 			: bvs_(1,true)	{ *this = tp; }
     TableProvider3D&	operator =(const TableProvider3D&);
+    const char*		type() const;	//!< sKey::Table
     TableProvider3D*	clone() const	{ return new TableProvider3D(*this); }
 
     virtual void	reset()		{ pos_.reset(); }
@@ -46,6 +47,7 @@ public:
     virtual bool	includes(const BinID&,float) const;
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
+    virtual void	getSummary(BufferString&) const;
 
     void		getExtent(BinID&,BinID&) const;
     void		getZRange(Interval<float>&) const;

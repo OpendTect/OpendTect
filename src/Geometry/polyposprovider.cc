@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: polyposprovider.cc,v 1.3 2008-02-11 17:23:05 cvsbert Exp $";
+static const char* rcsID = "$Id: polyposprovider.cc,v 1.4 2008-02-13 13:28:00 cvsbert Exp $";
 
 #include "polyposprovider.h"
 #include "keystrs.h"
@@ -54,26 +54,39 @@ Pos::PolyProvider3D& Pos::PolyProvider3D::operator =( const PolyProvider3D& pp )
 }
 
 
-bool Pos::PolyProvider3D::initialize()
+const char* Pos::PolyProvider3D::type() const
 {
-    const int nrvtx = poly_.size();
-    if ( nrvtx < 2 ) return false;
+    return sKey::Polygon;
+}
 
-    const Interval<float> xrg( poly_.getRange(true) );
-    const Interval<float> yrg( poly_.getRange(false) );
+
+static void setHS( const ODPolygon<float>& poly, HorSampling& hs )
+{
+    if ( poly.size() < 2 )
+	{ hs = SI().sampling(true).hrg; return; }
+
+    const Interval<float> xrg( poly.getRange(true) );
+    const Interval<float> yrg( poly.getRange(false) );
 #define mSetStart(xy,ic) \
-    hs_.start.ic = (int)ceil( xy##rg.start - 1e-6 ); \
-    if ( hs_.start.ic % hs_.step.ic ) \
-	hs_.start.ic += hs_.step.ic - (hs_.start.ic % hs_.step.ic)
+    hs.start.ic = (int)ceil( xy##rg.start - 1e-6 ); \
+    if ( hs.start.ic % hs.step.ic ) \
+	hs.start.ic += hs.step.ic - (hs.start.ic % hs.step.ic)
     mSetStart(x,inl);
     mSetStart(y,crl);
 #define mSetStop(xy,ic) \
-    hs_.stop.ic = (int)floor( xy##rg.stop + 1e-6 ); \
-    if ( hs_.stop.ic % hs_.step.ic ) \
-	hs_.stop.ic -= hs_.step.ic - (hs_.stop.ic % hs_.step.ic)
+    hs.stop.ic = (int)floor( xy##rg.stop + 1e-6 ); \
+    if ( hs.stop.ic % hs.step.ic ) \
+	hs.stop.ic -= hs.step.ic - (hs.stop.ic % hs.step.ic)
     mSetStop(x,inl);
     mSetStop(y,crl);
+}
 
+
+bool Pos::PolyProvider3D::initialize()
+{
+    if ( poly_.size() < 2 ) return false;
+
+    setHS( poly_, hs_ );
     curbid_ = hs_.start;
     if ( !toNextPos() )
 	return false;
@@ -131,9 +144,6 @@ bool Pos::PolyProvider3D::includes( const BinID& bid, float z ) const
 ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr )
 {
     const char* res = iop.find( mGetPolyKey("ID") );
-    if ( !res || !*res )
-	res = iop.find( "ID" );
-
     ODPolygon<float>* ret = 0;
     if ( res && *res )
     {
@@ -162,7 +172,11 @@ void Pos::PolyProvider3D::usePar( const IOPar& iop )
     iop.get( mGetPolyKey(sKey::ZRange), zrg_ );
     iop.get( mGetPolyKey("Steps"), hs_.step );
     ODPolygon<float>* poly = polyFromPar( iop );
-    if ( poly ) poly_ = *poly;
+    if ( poly )
+    {
+	poly_ = *poly;
+	setHS( poly_, hs_ );
+    }
 }
 
 
@@ -171,6 +185,18 @@ void Pos::PolyProvider3D::fillPar( IOPar& iop ) const
     iop.set( mGetPolyKey(sKey::ZRange), zrg_ );
     iop.set( mGetPolyKey("Steps"), hs_.step );
     ::fillPar( iop, poly_, mGetPolyKey(((int)0)) );
+}
+
+
+void Pos::PolyProvider3D::getSummary( BufferString& txt ) const
+{
+    if ( poly_.isEmpty() ) return;
+    txt += "area "; BufferString tmp;
+    hs_.start.fill( tmp.buf() ); txt += tmp; txt += "-";
+    hs_.stop.fill( tmp.buf() ); txt += tmp;
+    const int nrsamps = zrg_.nrSteps() + 1;
+    if ( nrsamps > 1 )
+	{ txt += " ("; txt += nrsamps; txt += " samples)"; }
 }
 
 

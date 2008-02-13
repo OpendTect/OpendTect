@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: tableposprovider.cc,v 1.1 2008-02-07 14:53:54 cvsbert Exp $";
+static const char* rcsID = "$Id: tableposprovider.cc,v 1.2 2008-02-13 13:28:00 cvsbert Exp $";
 
 #include "tableposprovider.h"
 #include "keystrs.h"
@@ -45,6 +45,12 @@ Pos::TableProvider3D& Pos::TableProvider3D::operator =(
 	pos_ = tp.pos_;
     }
     return *this;
+}
+
+
+const char* Pos::TableProvider3D::type() const
+{
+    return sKey::Table;
 }
 
 
@@ -91,9 +97,6 @@ void Pos::TableProvider3D::getBVSFromPar( const IOPar& iop, BinIDValueSet& bvs )
     if ( bvs.isEmpty() )
     {
 	res = iop.find( mGetTableKey(sKey::FileName) );
-	if ( !res || !*res )
-	    res = iop.find( sKey::FileName );
-
 	if ( res && *res )
 	{
 	    StreamData sd( StreamProvider(res).makeIStream() );
@@ -120,11 +123,31 @@ void Pos::TableProvider3D::fillPar( IOPar& iop ) const
 }
 
 
+void Pos::TableProvider3D::getSummary( BufferString& txt ) const
+{
+    const int sz = bvs_.totalSize();
+    if ( sz < 1 ) return;
+    txt += sz; txt += " point"; if ( sz > 1 ) txt += "s";
+    BinID start, stop;
+    getExtent( start, stop );
+    BufferString tmp; start.fill( tmp.buf() );
+    if ( start == stop )
+	{ txt += " at "; txt += tmp; }
+    else
+    {
+	txt += " in "; txt += tmp; txt += "-";
+	stop.fill( tmp.buf() ); txt += tmp;
+    }
+}
+
+
 void Pos::TableProvider3D::getExtent( BinID& start, BinID& stop ) const
 {
     BinIDValueSet::Pos p; bvs_.next(p);
-    start = stop = bvs_.getBinID(p);
+    if ( !p.valid() )
+	{ start = stop = BinID(0,0); return; }
 
+    start = stop = bvs_.getBinID(p);
     while ( bvs_.next(p) )
     {
 	const BinID bid( bvs_.getBinID(p) );
@@ -140,8 +163,10 @@ void Pos::TableProvider3D::getExtent( BinID& start, BinID& stop ) const
 void Pos::TableProvider3D::getZRange( Interval<float>& zrg ) const
 {
     BinIDValueSet::Pos p; bvs_.next(p);
-    zrg.start = zrg.stop = *bvs_.getVals(p);
+    if ( !p.valid() )
+	{ zrg.start = zrg.stop = 0; return; }
 
+    zrg.start = zrg.stop = *bvs_.getVals(p);
     while ( bvs_.next(p) )
     {
 	const float z = *bvs_.getVals(p);

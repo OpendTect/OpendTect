@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: rangeposprovider.cc,v 1.2 2008-02-11 17:23:05 cvsbert Exp $";
+static const char* rcsID = "$Id: rangeposprovider.cc,v 1.3 2008-02-13 13:28:00 cvsbert Exp $";
 
 #include "rangeposprovider.h"
 #include "survinfo.h"
@@ -44,6 +44,12 @@ Pos::RangeProvider3D& Pos::RangeProvider3D::operator =(
 	curz_ = p.curz_;
     }
     return *this;
+}
+
+
+const char* Pos::RangeProvider3D::type() const
+{
+    return sKey::Range;
 }
 
 
@@ -98,6 +104,17 @@ void Pos::RangeProvider3D::usePar( const IOPar& iop )
 void Pos::RangeProvider3D::fillPar( IOPar& iop ) const
 {
     cs_.fillPar( iop );
+}
+
+
+void Pos::RangeProvider3D::getSummary( BufferString& txt ) const
+{
+    BufferString tmp;
+    cs_.hrg.start.fill( tmp.buf() ); txt += tmp; txt += "-";
+    cs_.hrg.stop.fill( tmp.buf() ); txt += tmp;
+    const int nrsamps = cs_.zrg.nrSteps() + 1;
+    if ( nrsamps > 1 )
+	{ txt += " ("; txt += nrsamps; txt += " samples)"; }
 }
 
 
@@ -165,6 +182,12 @@ Pos::RangeProvider2D& Pos::RangeProvider2D::operator =(
 	curz_ = p.curz_;
     }
     return *this;
+}
+
+
+const char* Pos::RangeProvider2D::type() const
+{
+    return sKey::Range;
 }
 
 
@@ -254,6 +277,15 @@ void Pos::RangeProvider2D::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Range, rg_ );
     iop.set( sKey::ZRange, zrg_ );
+}
+
+
+void Pos::RangeProvider2D::getSummary( BufferString& txt ) const
+{
+    txt += rg_.start; txt += "-";
+    if ( !mIsUdf(rg_.stop) )
+	txt += rg_.stop;
+    txt += " ("; txt += zrg_.nrSteps() + 1; txt += " samples)";
 }
 
 

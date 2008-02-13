@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: rangeposprovider.h,v 1.2 2008-02-11 17:23:05 cvsbert Exp $
+ RCS:           $Id: rangeposprovider.h,v 1.3 2008-02-13 13:28:00 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -30,6 +30,7 @@ public:
 			RangeProvider3D(const RangeProvider3D&);
 			~RangeProvider3D();
     RangeProvider3D&	operator =(const RangeProvider3D&);
+    const char*		type() const;	//!< sKey::Range
     virtual Provider*	clone() const	{ return new RangeProvider3D(*this); }
 
     virtual void	reset();
@@ -42,6 +43,7 @@ public:
     virtual bool	includes(const BinID&,float z=mUdf(float)) const;
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
+    virtual void	getSummary(BufferString&) const;
 
     virtual void	getExtent(BinID& start,BinID& stop) const;
     virtual void	getZRange(Interval<float>&) const;
@@ -79,6 +81,7 @@ public:
 			RangeProvider2D(const RangeProvider2D&);
 			~RangeProvider2D();
     RangeProvider2D&	operator =(const RangeProvider2D&);
+    const char*		type() const;	//!< sKey::Range
     virtual Provider*	clone() const	{ return new RangeProvider2D(*this); }
 
     virtual void	reset();
@@ -93,6 +96,7 @@ public:
     virtual bool	includes(const Coord&,float z=mUdf(float)) const;
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
+    virtual void	getSummary(BufferString&) const;
 
     virtual void	getExtent( Interval<int>& rg ) const
 			{ assign( rg, rg_ ); }

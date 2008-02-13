@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: polyposprovider.h,v 1.3 2008-02-11 17:23:05 cvsbert Exp $
+ RCS:           $Id: polyposprovider.h,v 1.4 2008-02-13 13:28:00 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -30,6 +30,7 @@ public:
 			PolyProvider3D(const PolyProvider3D&);
 			~PolyProvider3D();
     PolyProvider3D&	operator =(const PolyProvider3D&);
+    const char*		type() const;	//!< sKey::Polygon
     Provider*		clone() const	{ return new PolyProvider3D(*this); }
 
     virtual bool	initialize();
@@ -43,6 +44,7 @@ public:
     virtual bool	includes(const BinID&,float) const;
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
+    virtual void	getSummary(BufferString&) const;
 
     virtual void	getExtent(BinID&,BinID&) const;
     virtual void	getZRange( Interval<float>& zrg ) const
