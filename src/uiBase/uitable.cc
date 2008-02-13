@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.56 2008-02-01 05:44:56 cvsnanne Exp $
+ RCS:           $Id: uitable.cc,v 1.57 2008-02-13 10:35:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,7 @@ uiTableBody::uiTableBody( uiTable& handle, uiParent* parnt, const char* nm,
 
     QHeaderView* vhdr = verticalHeader();
     vhdr->setResizeMode( QHeaderView::ResizeToContents );
+
     QHeaderView* hhdr = horizontalHeader();
     hhdr->setResizeMode( QHeaderView::Stretch );
 }
@@ -116,6 +117,7 @@ void uiTableBody::setLines( int prefnrlines )
 	setPrefHeight( mMIN(prefh,200) );
     }
 }
+
 
 int uiTableBody::nrTxtLines() const
 { return rowCount()>=0 ? rowCount()+1 : 7; }
@@ -209,6 +211,9 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
 	setDefaultRowLabels();
     if ( s.defcollbl_ )
 	setDefaultColLabels();
+
+    QHeaderView* hhdr = body_->horizontalHeader();
+    hhdr->setMinimumSectionSize( (int)(s.mincolwdt_*body_->fontWdt()) );
 }
 
 
@@ -341,35 +346,6 @@ void uiTable::setRowHeightInChar( int row, float h )
 }
 
 
-void uiTable::removeRCs( const TypeSet<int>& idxs, bool col )
-{
-    if ( idxs.size() < 1 ) return;
-    const int first = idxs[0];
-    if ( idxs.size() == 1 )
-    {
-	col ? removeColumn( first ) : removeRow( first );
-	return;
-    }
-
-/*
-    mQMemArray<int> qidxs( idxs.size() );
-    for ( int idx=0; idx<idxs.size(); idx++ )
-	qidxs.at(idx) = idxs[idx];
-
-    if ( col )
-    {
-	body_->removeColumns( qidxs );
-	updateCol( first );
-    }
-    else
-    {
-	body_->removeRows( qidxs );
-	updateRow( first );
-    }
-*/
-}
-
-
 void uiTable::insertRows( int row, int cnt )
 {
     for ( int idx=0; idx<cnt; idx++ )
@@ -385,6 +361,14 @@ void uiTable::insertColumns( int col, int cnt )
 	body_->insertColumn( col );
 
     updateCol( col );
+}
+
+
+void uiTable::removeRCs( const TypeSet<int>& idxs, bool col )
+{
+    if ( idxs.size() < 1 ) return;
+    for ( int idx=idxs.size()-1; idx>=0; idx-- )
+	col ? removeColumn( idxs[idx] ) : removeRow( idxs[idx] );
 }
 
 
@@ -506,6 +490,20 @@ bool uiTable::isRowHidden( int row ) const
 { return body_->isRowHidden(row); }
 
 
+void uiTable::setColumnResizeMode( ResizeMode mode )
+{
+    QHeaderView* header = body_->horizontalHeader();
+    header->setResizeMode( (QHeaderView::ResizeMode)(int)mode );
+}
+
+
+void uiTable::setRowResizeMode( ResizeMode mode )
+{
+    QHeaderView* header = body_->verticalHeader();
+    header->setResizeMode( (QHeaderView::ResizeMode)(int)mode );
+}
+
+
 void uiTable::setColumnStretchable( int col, bool yn )
 {
     QHeaderView* header = body_->horizontalHeader();
@@ -575,6 +573,7 @@ void uiTable::setRowLabel( int row, const char* label )
 	body_->setVerticalHeaderItem( row, itm );
     }
     itm->setText( label );
+    itm->setToolTip( label );
 }
 
 
@@ -611,6 +610,7 @@ void uiTable::setColumnLabel( int col, const char* label )
 	body_->setHorizontalHeaderItem( col, itm );
     }
     itm->setText( label );
+    itm->setToolTip( label );
 }
 
 

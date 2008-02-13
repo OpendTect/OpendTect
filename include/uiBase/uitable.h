@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.34 2008-02-01 05:44:56 cvsnanne Exp $
+ RCS:           $Id: uitable.h,v 1.35 2008-02-13 10:35:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,9 +95,8 @@ public:
 
     };
 
-                        uiTable(uiParent*, const Setup&,const char* nm="Table");
+                        uiTable(uiParent*,const Setup&,const char* nm="Table");
     virtual 		~uiTable();
-
 
     const char*		text(const RowCol&) const;
     void		setText(const RowCol&,const char*);
@@ -130,6 +129,10 @@ public:
     void		setRowHeight(int row,int h);
     void		setRowHeightInChar(int row,float h);
 
+    void		setColumnResizeMode(ResizeMode);
+    			//!<Default is Stretch
+    void		setRowResizeMode(ResizeMode);
+    			//!<Default is ResizeToContents
     void		setColumnStretchable(int,bool);
     void		setRowStretchable(int,bool);
     bool		isColumnStretchable(int) const;
@@ -237,8 +240,8 @@ protected:
     void		geometrySet_(CallBacker*);
     void		updateCellSizes(const uiSize* sz=0);
 
+    void		removeRCs(const TypeSet<int>&,bool col);
     void		update(bool row,int nr);
-    void		removeRCs(const TypeSet<int>&,bool);
 
 private:
 
