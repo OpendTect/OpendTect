@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.41 2007-12-10 12:59:52 cvsbert Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.42 2008-02-13 05:05:56 cvsnanne Exp $
 
 ________________________________________________________________________
 
@@ -169,7 +169,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     manlbl_ = new uiLabel( this, 
 	    		   "Please select some attributes and go to Advanced" );
     manlbl_->attach( alignedBelow, refgrp_ );
-    
+
     table_ = new uiTable( this,uiTable::Setup().rowdesc("")
 					.rowgrow(true)
 					.minrowhgt(1.5)
@@ -183,9 +183,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     const char* collbls[] = { "Reference attributes", 0 };
     table_->setColumnLabels( collbls );
     table_->setNrRows( sInitNrRows );
-    table_->setRowHeight( -1, 4 );
     table_->setStretch( 2, 0 );
-    table_->setPrefHeightInChar( 8 );
     table_->setToolTip( "Right-click to add, insert or remove an attribute" );
     if ( linefld_ )	table_->attach( alignedBelow, linefld_ );
     else		table_->attach( alignedBelow, statsfld_ );
