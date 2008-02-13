@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Jan 2007
- RCS:           $Id: emhor2dto3d.cc,v 1.6 2008-02-06 13:01:31 cvsbert Exp $
+ RCS:           $Id: emhor2dto3d.cc,v 1.7 2008-02-13 13:11:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,6 +117,8 @@ Hor2DTo3D::Hor2DTo3D( const Horizon2D& h2d, const Setup& setup, Horizon3D& h3d )
     else
     {
 	curinterp_ = new Array2DInterpolator<float>( sd_[cursectnr_]->arr_ );
+	curinterp_->setDist( true, SI().crlDistance() );
+	curinterp_->setDist( false, SI().inlDistance() );
 	curinterp_->pars().useextension_ = !setup_.dogrid_;
 	curinterp_->pars().extrapolate_ = true;
 	curinterp_->pars().maxholesize_ = -1;
