@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.9 2007-12-05 11:55:49 cvsbert Exp $
+ RCS:		$Id: polygon.h,v 1.10 2008-02-13 13:23:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -176,7 +176,8 @@ Interval<T> ODPolygon<T>::getRange( bool forx ) const
 {
     if ( poly_.isEmpty() ) return Interval<T>( udf_.x, udf_.y );
     Geom::Point2D<T> vtx0 = getVertex( 0 );
-    Interval<float> ret( vtx0.x, vtx0.x );
+    Interval<float> ret;
+    ret.start = ret.stop = forx ? vtx0.x : vtx0.y;
     for ( int idx=1; idx<size(); idx++ )
     {
 	const Geom::Point2D<T>& vtx = getVertex( idx );
