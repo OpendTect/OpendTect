@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.14 2008-01-31 10:47:04 cvsnanne Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.15 2008-02-13 12:30:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -168,7 +168,9 @@ void uiSeisBrowser::createTable()
     			     .manualresize( true ) );
     
     tbl_->valueChanged.notify( mCB(this,uiSeisBrowser,valChgReDraw) );
-    tbl_->setStretch(1,1);
+    tbl_->setStretch( 1, 1 );
+    tbl_->setPrefHeight( 400 );
+    tbl_->setPrefWidth( 600 );
 }
 
 
