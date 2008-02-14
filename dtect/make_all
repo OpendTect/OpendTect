@@ -93,27 +93,13 @@ if ( $doupd == yes ) then
 endif
 
 if ( $dodeps == yes ) then
-
-    if ( $?MAIN_DGB_HOST ) then
-	if ( `hostname` == $MAIN_DGB_HOST ) set docpdeps=no
-    else
-	set docpdeps=no
-    endif
-    if ( $HDIR == win ) set docpdeps=no
-
-    if( $docpdeps == no ) then
-	make dep MODS=$mods
-	cd plugins ; make dep
-	cd ../spec ; make dep
-	cd ..
-	touch $depsdonefile
-    else
-	cd src ; ./cpdeps
-	cd ../plugins ; ./cpdeps
-	cd ../spec ; ./cpdeps
-	cd ..
-    endif
+    make dep MODS=$mods
+    cd plugins ; make dep
+    cd ../spec ; make dep
+    cd ..
+    touch $depsdonefile
 endif
+
 make lib MODS=$mods
 make MODS=$mods
 cd plugins
