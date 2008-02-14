@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.67 2007-12-14 05:15:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.68 2008-02-14 15:32:03 cvsjaap Exp $";
 
 #include "emmanager.h"
 
@@ -343,6 +343,17 @@ const char* EMManager::getSurfaceData( const MultiID& id, SurfaceIOData& sd )
 void EMManager::syncGeometry( const ObjectID& id )
 {
     syncGeomReq.trigger( id );
+}
+
+
+void EMManager::burstAlertToAll( bool yn )
+{
+    for ( int idx=nrLoadedObjects()-1; idx>=0; idx-- )
+    {
+	const EM::ObjectID oid = objectID( idx );
+	EM::EMObject* emobj = getObject( oid );
+	emobj->setBurstAlert( yn );
+    }
 }
 
 

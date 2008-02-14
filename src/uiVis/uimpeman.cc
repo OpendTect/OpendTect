@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.123 2007-12-24 05:31:34 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.124 2008-02-14 15:32:03 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -829,22 +829,12 @@ void uiMPEMan::loadPostponedData()
 }
 
 
-#define mBurstAlertToAllEMObjects( yn ) \
-{ \
-    for ( int idx=EM::EMM().nrLoadedObjects()-1; idx>=0; idx-- ) \
-    { \
-	const EM::ObjectID oid = EM::EMM().objectID( idx ); \
-	EM::EMObject* emobj = EM::EMM().getObject( oid ); \
-	emobj->setBurstAlert( yn ); \
-    } \
-}
-
 void uiMPEMan::undoPush( CallBacker* )
 {
-    mBurstAlertToAllEMObjects(true);
+    EM::EMM().burstAlertToAll( true );
     if ( !EM::EMM().undo().unDo( 1, true  ) )
 	uiMSG().error("Could not undo everything.");
-    mBurstAlertToAllEMObjects(false);
+    EM::EMM().burstAlertToAll( false );
 
     updateButtonSensitivity(0);
 }
@@ -852,10 +842,10 @@ void uiMPEMan::undoPush( CallBacker* )
 
 void uiMPEMan::redoPush( CallBacker* )
 {
-    mBurstAlertToAllEMObjects(true);
+    EM::EMM().burstAlertToAll( true );
     if ( !EM::EMM().undo().reDo( 1, true ) )
 	uiMSG().error("Could not redo everything.");
-    mBurstAlertToAllEMObjects(false);
+    EM::EMM().burstAlertToAll( false );
 
     updateButtonSensitivity(0);
 }

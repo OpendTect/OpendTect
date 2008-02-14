@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.37 2007-11-14 20:31:41 cvskris Exp $
+ RCS:		$Id: emmanager.h,v 1.38 2008-02-14 15:32:03 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -101,6 +101,8 @@ public:
 			     due to "Save as" operations and similar. */
 
     void		syncGeometry( const ObjectID& );
+
+    void		burstAlertToAll( bool yn );
 
 protected:
     Undo&			undo_;
