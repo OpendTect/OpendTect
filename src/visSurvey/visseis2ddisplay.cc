@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.34 2008-02-13 17:43:57 cvsjaap Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.35 2008-02-14 15:34:11 cvsjaap Exp $
  ________________________________________________________________________
 
 -*/
@@ -534,10 +534,21 @@ SurveyObject* Seis2DDisplay::duplicate() const
 float Seis2DDisplay::calcDist( const Coord3& pos ) const
 {
     Coord3 xytpos = scene_->getUTM2DisplayTransform()->transformBack( pos );
-
+    
     int trcidx; float mindist;
     getNearestTrace( xytpos, trcidx, mindist );
-    return mindist<0 || mIsUdf(mindist) ? mUdf(float) : sqrt( mindist );
+    if ( mindist<0 || mIsUdf(mindist) )
+	return mUdf(float);
+
+    Interval<float> zrg = getZRange( true );
+    float zdif = 0;
+    if ( !zrg.includes(xytpos.z) )
+    {
+	zdif = mMIN( fabs(xytpos.z-zrg.start), fabs(xytpos.z-zrg.stop) );
+	zdif *= SI().zFactor() * scene_->getZScale();
+    }
+
+    return sqrt( mindist + zdif*zdif );
 }
 
 
