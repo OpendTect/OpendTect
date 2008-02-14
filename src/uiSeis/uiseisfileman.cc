@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.70 2008-01-24 10:34:24 cvsnanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.71 2008-02-14 09:53:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -264,22 +264,24 @@ uiSeis2DMan( uiParent* p, const IOObj& ioobj )
     lineset = new Seis2DLineSet( ioobj.fullUserExpr(true) );
 
     uiGroup* topgrp = new uiGroup( this, "Top" );
-    linelist = new uiLabeledListBox( topgrp, "2D lines", false,
-	    			     uiLabeledListBox::AboveMid );
-    linelist->box()->selectionChanged.notify( mCB(this,uiSeis2DMan,lineSel) );
+    uiLabeledListBox* lllb = new uiLabeledListBox( topgrp, "2D lines", false,
+						  uiLabeledListBox::AboveMid );
+    linelist = lllb->box();
+    linelist->selectionChanged.notify( mCB(this,uiSeis2DMan,lineSel) );
+    linelist->setMultiSelect(true);
 
-    uiManipButGrp* linebutgrp = new uiManipButGrp( linelist );
+    uiManipButGrp* linebutgrp = new uiManipButGrp( lllb );
     linebutgrp->addButton( uiManipButGrp::Rename, 
 	    		   mCB(this,uiSeis2DMan,renameLine), "Rename line" );
-    linebutgrp->attach( rightTo, linelist->box() );
+    linebutgrp->attach( rightTo, lllb );
 
-    attriblist = new uiLabeledListBox( topgrp, "Attributes", true,
-				       uiLabeledListBox::AboveMid );
-    attriblist->box()->selectionChanged.notify( 
-	    				mCB(this,uiSeis2DMan,attribSel) );
-    attriblist->attach( rightTo, linelist );
+    uiLabeledListBox* allb = new uiLabeledListBox( topgrp, "Attributes", true,
+						   uiLabeledListBox::AboveMid );
+    attriblist = allb->box();
+    attriblist->selectionChanged.notify( mCB(this,uiSeis2DMan,attribSel) );
+    allb->attach( rightTo, lllb );
 
-    uiManipButGrp* butgrp = new uiManipButGrp( attriblist );
+    uiManipButGrp* butgrp = new uiManipButGrp( allb );
     butgrp->addButton( uiManipButGrp::Rename,
 	    	       mCB(this,uiSeis2DMan,renameAttrib), "Rename attribute" );
     butgrp->addButton( uiManipButGrp::Remove,
@@ -288,7 +290,7 @@ uiSeis2DMan( uiParent* p, const IOObj& ioobj )
     browsebut = butgrp->addButton( ioPixmap("browseseis.png"),
 	    	       mCB(this,uiSeis2DMan,browsePush),
 		       "Browse/edit this line" );
-    butgrp->attach( rightTo, attriblist->box() );
+    butgrp->attach( rightTo, attriblist );
 
     uiGroup* botgrp = new uiGroup( this, "Bottom" );
     infofld = new uiTextEdit( botgrp, "File Info", true );
@@ -313,7 +315,7 @@ uiSeis2DMan( uiParent* p, const IOObj& ioobj )
 
 void fillLineBox()
 {
-    uiListBox* lb = linelist->box();
+    uiListBox* lb = linelist;
     const int curitm = lb->size() ? lb->currentItem() : 0;
     BufferStringSet linenames;
     objinfo->getLineNames( linenames );
@@ -326,7 +328,7 @@ void fillLineBox()
 void lineSel( CallBacker* )
 {
     BufferStringSet sellines;
-    linelist->box()->getSelectedItems( sellines );
+    linelist->getSelectedItems( sellines );
     BufferStringSet sharedattribs;
     for ( int idx=0; idx<sellines.size(); idx++ )
     {
@@ -353,10 +355,10 @@ void lineSel( CallBacker* )
 	}
     }
 
-    attriblist->box()->empty();
+    attriblist->empty();
     sharedattribs.sort();
-    attriblist->box()->addItems( sharedattribs );
-    attriblist->box()->setSelected( 0, true );
+    attriblist->addItems( sharedattribs );
+    attriblist->setSelected( 0, true );
 }
 
 
@@ -364,8 +366,8 @@ void attribSel( CallBacker* )
 {
     infofld->setText( "" );
     BufferStringSet linenms, attribnms;
-    linelist->box()->getSelectedItems( linenms );
-    attriblist->box()->getSelectedItems( attribnms );
+    linelist->getSelectedItems( linenms );
+    attriblist->getSelectedItems( attribnms );
     if ( linenms.isEmpty() || attribnms.isEmpty() )
 	{ browsebut->setSensitive( false ); return; }
 
@@ -410,7 +412,7 @@ void attribSel( CallBacker* )
 
 void browsePush( CallBacker* )
 {
-    const LineKey lk( linelist->box()->getText(), attriblist->box()->getText());
+    const LineKey lk( linelist->getText(), attriblist->getText());
     doBrowse( this, objinfo->ioObj(), &lk );
 }
 
@@ -418,14 +420,14 @@ void browsePush( CallBacker* )
 void removeAttrib( CallBacker* )
 {
     BufferStringSet attribnms;
-    attriblist->box()->getSelectedItems( attribnms );
+    attriblist->getSelectedItems( attribnms );
     if ( attribnms.isEmpty()
       || !uiMSG().askGoOn("All selected attributes will be removed.\n"
 			     "Do you want to continue?") )
 	return;
 
     BufferStringSet sellines;
-    linelist->box()->getSelectedItems( sellines );
+    linelist->getSelectedItems( sellines );
     for ( int idx=0; idx<sellines.size(); idx++ )
     {
 	const char* linename = sellines.get(idx);
@@ -455,14 +457,14 @@ bool rename( const char* oldnm, BufferString& newnm )
 void renameLine( CallBacker* )
 {
     BufferStringSet linenms;
-    linelist->box()->getSelectedItems( linenms );
+    linelist->getSelectedItems( linenms );
     if ( linenms.isEmpty() ) return;
 
     const char* linenm = linenms.get(0);
     BufferString newnm;
     if ( !rename(linenm,newnm) ) return;
     
-    if ( linelist->box()->isPresent(newnm) )
+    if ( linelist->isPresent(newnm) )
     {
 	uiMSG().error( "Linename already in use" );
 	return;
@@ -481,21 +483,21 @@ void renameLine( CallBacker* )
 void renameAttrib( CallBacker* )
 {
     BufferStringSet attribnms;
-    attriblist->box()->getSelectedItems( attribnms );
+    attriblist->getSelectedItems( attribnms );
     if ( attribnms.isEmpty() ) return;
 
     const char* attribnm = attribnms.get(0);
     BufferString newnm;
     if ( !rename(attribnm,newnm) ) return;
 
-    if ( attriblist->box()->isPresent(newnm) )
+    if ( attriblist->isPresent(newnm) )
     {
 	uiMSG().error( "Attribute name already in use" );
 	return;
     }
 
     BufferStringSet sellines;
-    linelist->box()->getSelectedItems( sellines );
+    linelist->getSelectedItems( sellines );
     for ( int idx=0; idx<sellines.size(); idx++ )
     {
 	const char* linenm = sellines.get(idx);
@@ -514,8 +516,8 @@ void renameAttrib( CallBacker* )
 
 protected:
 
-    uiLabeledListBox*	linelist;
-    uiLabeledListBox*	attriblist;
+    uiListBox*		linelist;
+    uiListBox*		attriblist;
     uiTextEdit*		infofld;
     uiToolButton*	browsebut;
 
