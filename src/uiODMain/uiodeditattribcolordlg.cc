@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	R. K. Singh
  Date: 		Jan 2008
- RCS:		$Id: uiodeditattribcolordlg.cc,v 1.4 2008-02-14 07:01:22 cvsraman Exp $
+ RCS:		$Id: uiodeditattribcolordlg.cc,v 1.5 2008-02-14 07:15:39 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -107,7 +107,7 @@ void uiODEditAttribColorDlg::doApply( CallBacker* )
 	    obj->setSymmetry( symm );
 	    obj->autoscalechange.enable( true );
 	    obj->triggerAutoScaleChange();
-	    if ( idx == itemusedineditor_ )
+	    if ( autoscale && idx == itemusedineditor_ )
 	    {
 		const Interval<float> newintv = obj->getInterval();
 		ColorTable newcoltab = obj->colorSeq().colors();
