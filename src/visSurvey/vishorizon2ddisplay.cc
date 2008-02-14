@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizon2ddisplay.cc,v 1.9 2008-02-13 17:43:57 cvsjaap Exp $
+ RCS:           $Id: vishorizon2ddisplay.cc,v 1.10 2008-02-14 15:38:23 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -237,8 +237,8 @@ void Horizon2DDisplay::updateLinesOnSections(
     for ( int idx=0; idx<h2d->geometry().nrLines(); idx++ )
     {
 	int lineid = h2d->geometry().lineID( idx );
-	const char* linenm = h2d->geometry().lineName(lineid);
-	const MultiID& lineset = h2d->geometry().lineSet(lineid);
+	const char* linenm = h2d->geometry().lineName( lineid );
+	const MultiID& lineset = h2d->geometry().lineSet( lineid );
 
 	Interval<float> zrg( mUdf(float), mUdf(float) );
 	for ( int idy=0; idy<seis2dlist.size(); idy++ )
@@ -274,8 +274,7 @@ void Horizon2DDisplay::updateSeedsOnSections(
 	    for ( int idz=0; idz<seis2dlist.size(); idz++ )
 	    {
 		const float dist = seis2dlist[idz]->calcDist(pos);
-		if ( dist<seis2dlist[idz]->maxDist() &&
-		     seis2dlist[idz]->getZRange(false).includes(pos.z) )
+		if ( dist < seis2dlist[idz]->maxDist() )
 		{
 		    marker->turnOn(true);
 		    break;
@@ -289,6 +288,8 @@ void Horizon2DDisplay::updateSeedsOnSections(
 void Horizon2DDisplay::otherObjectsMoved(
 		    const ObjectSet<const SurveyObject>& objs, int movedobj )
 {
+    if ( burstalertison_ ) return;
+
     bool refresh = movedobj==-1 || movedobj==id();
     ObjectSet<const Seis2DDisplay> seis2dlist;
 
