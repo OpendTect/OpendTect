@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	R. K. Singh
  Date: 		Jan 2008
- RCS:		$Id: uiodeditattribcolordlg.cc,v 1.3 2008-02-05 10:05:35 cvsraman Exp $
+ RCS:		$Id: uiodeditattribcolordlg.cc,v 1.4 2008-02-14 07:01:22 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
        						const char* attrnm )
     : uiDialog(p,uiDialog::Setup("Color Settings","",""))
     , items_(set)
+    , itemusedineditor_(-1)
 {
     if ( attrnm && *attrnm )
     {
@@ -49,11 +50,13 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 	if ( !obj ) continue;
 
 	ctabobj = obj;
+	itemusedineditor_ = idx;
 	break;
     }
 
+    const Interval<float> intv = ctabobj->getInterval();
     ColorTable ctab = ctabobj->colorSeq().colors();
-    ctab.scaleTo( Interval<float>(0,1) );
+    ctab.scaleTo( intv );
     coltabed_ = new ColorTableEditor( this, ColorTableEditor::Setup()
 	    			      .editable(true).withclip(true)
 				      .vertical(true), &ctab );
@@ -72,8 +75,8 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 void uiODEditAttribColorDlg::doApply( CallBacker* )
 {
     uiCursorChanger cursorchanger( uiCursor::Wait );
-    ColorTable newct = *coltabed_->getColorTable();
-    newct.scaleTo( Interval<float>(0,1) );
+    ColorTable coltab = *coltabed_->getColorTable();
+    coltab.scaleTo( Interval<float>(0,1) );
     const bool autoscale = coltabed_->autoScale();
     const Interval<float> intv = coltabed_->getColorTable()->getInterval();
     const float cliprate = coltabed_->getClipRate();
@@ -90,9 +93,9 @@ void uiODEditAttribColorDlg::doApply( CallBacker* )
 	mDynamicCastGet(visBase::VisColorTab*,obj,visBase::DM().getObject(id))
 	if ( !obj ) continue;
 
-	if ( !(newct == obj->colorSeq().colors()) )
+	if ( !(coltab == obj->colorSeq().colors()) )
 	{
-	    obj->colorSeq().colors() = newct;
+	    obj->colorSeq().colors() = coltab;
 	    obj->triggerSeqChange();
 	}
 	if ( obj->autoScale()!=autoscale || obj->clipRate()!=cliprate
@@ -104,6 +107,13 @@ void uiODEditAttribColorDlg::doApply( CallBacker* )
 	    obj->setSymmetry( symm );
 	    obj->autoscalechange.enable( true );
 	    obj->triggerAutoScaleChange();
+	    if ( idx == itemusedineditor_ )
+	    {
+		const Interval<float> newintv = obj->getInterval();
+		ColorTable newcoltab = obj->colorSeq().colors();
+		newcoltab.scaleTo( newintv );
+		coltabed_->setColorTable( &newcoltab );
+	    }
 	}
 	if ( !autoscale && obj->getInterval() != intv )
 	    obj->scaleTo( intv );

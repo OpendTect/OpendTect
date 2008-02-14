@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		Feb 2008
- RCS:		$Id: uiodeditattribcolordlg.h,v 1.1 2008-02-04 07:11:22 cvsraman Exp $
+ RCS:		$Id: uiodeditattribcolordlg.h,v 1.2 2008-02-14 07:01:29 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -30,6 +30,7 @@ protected:
 	
 	ColorTableEditor*	coltabed_;
 	ObjectSet<uiTreeItem>&	items_;
+	int			itemusedineditor_;
 
 	void			initApplyButton(CallBacker*);
 	void			doApply(CallBacker*);
