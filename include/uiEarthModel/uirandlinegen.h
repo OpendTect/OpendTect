@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Nov 2007
- RCS:           $Id: uirandlinegen.h,v 1.2 2007-12-24 16:51:22 cvsbert Exp $
+ RCS:           $Id: uirandlinegen.h,v 1.3 2008-02-14 09:45:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ class CtxtIOObj;
 class uiGenInput;
 class uiIOObjSel;
 class uiCheckBox;
+class uiSelZRange;
 
 
 /*! \brief Generate random lines from contours of a horizon */
@@ -93,7 +94,7 @@ protected:
 
     uiIOObjSel*		infld_;
     uiIOObjSel*		outfld_;
-    uiGenInput*		zrgfld_;
+    uiSelZRange*	zrgfld_;
 
     bool		acceptOK(CallBacker*);
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uirandlinegen.cc,v 1.8 2007-12-28 10:28:39 cvsbert Exp $
+ RCS:           $Id: uirandlinegen.cc,v 1.9 2008-02-14 09:45:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uigeninput.h"
+#include "uiselsurvranges.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
@@ -246,8 +247,7 @@ uiGenRanLineFromPolygon::uiGenRanLineFromPolygon( uiParent* p )
     inctio_.fillIfOnlyOne( IOObjContext::Loc );
 
     infld_ = new uiIOObjSel( this, inctio_, "Input Polygon" );
-    Interval<float> zrg; assign( zrg, SI().zRange(true) );
-    zrgfld_ = new uiGenInput( this, "Z Range", FloatInpIntervalSpec(zrg) );
+    zrgfld_ = new uiSelZRange( this, true );
     zrgfld_->attach( alignedBelow, infld_ );
     outfld_ = new uiIOObjSel( this, outctio_, "Output Random Line" );
     outfld_->attach( alignedBelow, zrgfld_ );
@@ -289,7 +289,7 @@ bool uiGenRanLineFromPolygon::acceptOK( CallBacker* )
     }
     if ( rl->isEmpty() )
 	{ delete rl; mErrRet("Empty input polygon") }
-    rl->setZRange( zrgfld_->getFInterval() );
+    rl->setZRange( zrgfld_->getRange() );
 
     Geometry::RandomLineSet outrls;
     outrls.addLine( rl );
