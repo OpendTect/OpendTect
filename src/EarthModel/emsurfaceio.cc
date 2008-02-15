@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.97 2008-02-11 16:37:06 cvsjaap Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.98 2008-02-15 10:46:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -594,7 +594,7 @@ int dgbSurfaceReader::nextStep()
     if ( flt )
     {
 	flt->geometry().sectionGeometry( sectionid )->
-	    addUdfRow( currentRow(), firstcol, firstcol+nrcols-1 );
+	    addUdfRow( currentRow(), firstcol, nrcols );
     }
 
     if ( !nrcols )
