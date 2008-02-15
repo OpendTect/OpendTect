@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.45 2007-10-10 01:00:31 cvskris Exp $
+ RCS:		$Id: sets.h,v 1.46 2008-02-15 17:31:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,17 +78,21 @@ public:
     virtual const T&	operator[]( int idx ) const
 			    { return tvec[idx]; }
 
-    virtual int		indexOf( const T& typ, bool forward=true ) const
+    virtual int		indexOf( const T& typ, bool forward=true,
+	    			 int start=-1 ) const
 			{
 			    if ( forward )
 			    {
 				const unsigned int sz = size();
-				for ( unsigned int idx=0; idx<sz; idx++ )
+				if ( start<0 || start>=sz ) start = 0;
+				for ( unsigned int idx=start; idx<sz; idx++ )
 				    if ( tvec[idx] == typ ) return idx;
 			    }
 			    else
 			    {
-				for ( int idx=size()-1; idx>=0; idx-- )
+				const unsigned int sz = size();
+				if ( start<0 || start>=sz ) start = sz-1;
+				for ( int idx=start; idx>=0; idx-- )
 				    if ( tvec[idx] == typ ) return idx;
 			    }
 
