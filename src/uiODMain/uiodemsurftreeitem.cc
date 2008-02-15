@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.26 2008-02-12 12:54:15 cvsnanne Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.27 2008-02-15 07:38:23 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -132,7 +132,9 @@ uiODEarthModelSurfaceDataTreeItem::uiODEarthModelSurfaceDataTreeItem(
     , depthattribmnuitem_("Z values")
     , savesurfacedatamnuitem_("Save attribute ...")
     , loadsurfacedatamnuitem_("Surface data ...")
+    , algomnuitem_("&Algorithms")
     , fillholesmnuitem_("Fill &holes ...")
+    , filtermnuitem_("&Filter ...")
     , changed_(false)
     , emid_(objid)
     , uivisemobj_(uv)
@@ -161,7 +163,9 @@ void uiODEarthModelSurfaceDataTreeItem::createMenuCB( CallBacker* cb )
 
     const bool enabsave = changed_ || (as && as->id()>=0); 
     mAddMenuItem( menu, &savesurfacedatamnuitem_, enabsave, false );
-    mAddMenuItem( menu, &fillholesmnuitem_, true, false );
+    mAddMenuItem( menu, &algomnuitem_, true, false );
+    mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, true, false );
+    mAddMenuItem( &algomnuitem_, &filtermnuitem_, true, false );
 }
 
 
@@ -174,6 +178,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	return;
 
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
+    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
     if ( mnuid==savesurfacedatamnuitem_.id )
     {
 	menu->setIsHandled( true );
@@ -183,8 +188,16 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	{
 	    const int auxnr =
 		applMgr()->EMServer()->setAuxData( emid_, vals, name_, 1 );
+	    BufferString auxdatanm;
 	    const bool saved =
-		applMgr()->EMServer()->storeAuxData( emid_, true );
+		applMgr()->EMServer()->storeAuxData( emid_, auxdatanm, true );
+	    if ( saved )
+	    {
+		const Attrib::SelSpec newas( auxdatanm,
+			Attrib::SelSpec::cOtherAttrib() );
+		visserv->setSelSpec( displayID(), attribNr(), newas );
+		updateColumnText( uiODSceneMgr::cNameColumn() );
+	    }
 	    changed_ = !saved;
 	}
     }
@@ -211,13 +224,22 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	changed_ = false;
     }
-    else if ( mnuid==fillholesmnuitem_.id )
+    else if ( mnuid==fillholesmnuitem_.id || mnuid==filtermnuitem_.id )
     {
 	menu->setIsHandled( true );
 
+	if ( !as || as->id()!=Attrib::SelSpec::cOtherAttrib() )
+	{
+	    uiMSG().error( "This algorithm can only be applied on Surface data."
+		    	   "\nPlease save attribute first" );
+	    return;
+	}
 	ObjectSet<BinIDValueSet> vals;
-	BinIDValueSet* set =
-	    applMgr()->EMServer()->interpolateAuxData( emid_, name_ );
+	BinIDValueSet* set = 0;
+	if ( mnuid==fillholesmnuitem_.id )
+	    set = applMgr()->EMServer()->interpolateAuxData( emid_, name_ );
+	else
+	    set = applMgr()->EMServer()->filterAuxData( emid_, name_ );
 	if ( !set ) return;
 	vals += set;
 	visserv->setSelSpec( displayID(), attribNr(),
@@ -231,8 +253,7 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 BufferString uiODEarthModelSurfaceDataTreeItem::createDisplayName() const
 {
     uiVisPartServer* visserv = ODMainWin()->applMgr().visServer();
-    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(),
-	    					     attribNr() );
+    const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
 
     if ( as->id()==Attrib::SelSpec::cNoAttrib() )
 	return BufferString("Z values");

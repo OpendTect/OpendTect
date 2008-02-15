@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.h,v 1.16 2007-12-18 14:58:16 cvsjaap Exp $
+ RCS:           $Id: uiiosurfacedlg.h,v 1.17 2008-02-15 07:38:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ public:
     			uiStoreAuxData(uiParent*,const EM::Horizon3D&);
 
     bool		doOverWrite() const	{ return dooverwrite_; }
+    const char*		auxdataName() const;
 
 protected:
     uiGenInput*		attrnmfld_;

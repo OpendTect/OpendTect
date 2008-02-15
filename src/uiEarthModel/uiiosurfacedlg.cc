@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.26 2008-02-06 04:36:34 cvsraman Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.27 2008-02-15 07:38:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,6 +99,10 @@ uiStoreAuxData::uiStoreAuxData( uiParent* p, const EM::Horizon3D& surf )
     attrnmfld_ = new uiGenInput( this, "Attribute" );
     attrnmfld_->setText( surface_.auxdata.auxDataName(0) );
 }
+
+
+const char* uiStoreAuxData::auxdataName() const
+{ return attrnmfld_->text(); }
 
 
 bool uiStoreAuxData::acceptOK( CallBacker* )

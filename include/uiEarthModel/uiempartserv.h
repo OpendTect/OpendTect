@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.63 2008-02-12 12:53:31 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.64 2008-02-15 07:38:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,6 +95,7 @@ public:
     bool		storeObject(const EM::ObjectID&,
 	    			    bool storeas=false) const;
     bool		storeAuxData(const EM::ObjectID&,
+	    			     BufferString& auxdataname,
 	    			     bool storeas=false) const;
     int			setAuxData(const EM::ObjectID&,
 	    			   ObjectSet<const BinIDValueSet>&,
@@ -105,6 +106,7 @@ public:
     bool		getAllAuxData(const EM::ObjectID&,BufferStringSet&,
 	    			      ObjectSet<BinIDValueSet>&) const;
     BinIDValueSet*	interpolateAuxData(const EM::ObjectID&,const char* nm);
+    BinIDValueSet*	filterAuxData(const EM::ObjectID&,const char* nm);
 
     const char*		genRandLine(int opt);
 
@@ -125,6 +127,8 @@ protected:
     void		selectSurfaces(TypeSet<EM::ObjectID>&,const char* type);
     bool		loadAuxData(const EM::ObjectID&,const TypeSet<int>&);
     void		syncGeometry(CallBacker*);
+    BinIDValueSet*	changeAuxData(const EM::ObjectID&,const char* nm,
+	    			      bool interp);
 
     EM::ObjectID	selemid_;
     EM::EMManager&	em_;
