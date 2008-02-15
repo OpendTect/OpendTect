@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.33 2008-02-04 07:31:37 cvsraman Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.34 2008-02-15 06:36:22 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -207,14 +207,18 @@ void uiOD2DLineSetTreeItem::createAttrMenu( uiMenuHandler* menu )
 	editattritm_.createItems( displayedattribs );
 	mAddMenuItem( menu, &editattritm_, true, false );
 	const int emptyidx = displayedattribs.indexOf( "<Unselected>" );
+	if ( emptyidx<0 || displayedattribs.size()>1 )
+	{
+	    removeattritm_.createItems( displayedattribs );
+    	    mAddMenuItem( menu, &removeattritm_, true, false );
+	}
+
 	if ( emptyidx >= 0 ) displayedattribs.remove( emptyidx );
 
 	if ( displayedattribs.size() )
 	{
 	    editcoltabitm_.createItems( displayedattribs );
 	    mAddMenuItem( menu, &editcoltabitm_, true, false );
-	    removeattritm_.createItems( displayedattribs );
-    	    mAddMenuItem( menu, &removeattritm_, true, false );
 	}
     }
 }
