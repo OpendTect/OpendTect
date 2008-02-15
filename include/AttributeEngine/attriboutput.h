@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.33 2008-02-15 16:54:32 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.34 2008-02-15 16:59:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -291,6 +291,7 @@ public:
 
     bool			getDesiredVolume(CubeSampling&) const
     				{ return true;}
+    bool			useCoords() const		{ return true; }
     bool			wantsOutput(const BinID&) const;
     bool			wantsOutput(const Coord&) const;
     virtual void		collectData(const DataHolder&,float step,
