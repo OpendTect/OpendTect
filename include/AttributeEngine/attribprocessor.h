@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.19 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:           $Id: attribprocessor.h,v 1.20 2008-02-15 16:58:35 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,8 @@ public:
 						       : "Processing"; }
 
     void		addOutputInterest(int sel)     { outpinterest_ += sel; }
-    bool		setZIntervals(TypeSet< Interval<int> >&, BinID);
+    bool		setZIntervals(TypeSet< Interval<int> >&,
+	    			      const BinID&,const Coord&);
     void		computeAndSetRefZStep();
     
     Notifier<Attrib::Processor>      moveonly;

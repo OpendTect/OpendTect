@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.54 2007-11-23 11:59:06 cvsbert Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.55 2008-02-15 16:58:35 cvshelene Exp $";
 
 #include "attribprocessor.h"
 
@@ -153,7 +153,8 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
     if ( is2d_ && curtrcinfo )
     {
 	mDynamicCastGet( LocationOutput*, locoutp, outputs_[0] );
-	if ( locoutp ) 
+	mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
+	if ( locoutp || taboutp ) 
 	    curbid = curtrcinfo->binid;
 	else
 	{
@@ -172,7 +173,7 @@ void Processor::fullProcess( const SeisTrcInfo* curtrcinfo )
     }
 
     TypeSet< Interval<int> > localintervals;
-    bool isset = setZIntervals( localintervals, curbid );
+    bool isset = setZIntervals( localintervals, curbid, curtrcinfo->coord );
 
     for ( int idi=0; idi<localintervals.size(); idi++ )
     {
@@ -320,7 +321,8 @@ void Processor::prepareForTableOutput()
     {
 	provider_->setSelData( sd_ );
 	mDynamicCastGet( LocationOutput*, locoutp, outputs_[0] );
-	if ( locoutp )
+	mDynamicCastGet( TableOutput*, taboutp, outputs_[0] );
+	if ( locoutp || taboutp )
 	{
 	    Interval<float> extraz( -2*provider_->getRefStep(), 
 		    		    2*provider_->getRefStep() );
@@ -354,23 +356,28 @@ void Processor::computeAndSetPosAndDesVol( CubeSampling& globalcs )
 
 
 bool Processor::setZIntervals( TypeSet< Interval<int> >& localintervals, 
-			       BinID curbid )
+			       const BinID& curbid, const Coord& curcoords )
 {
     //TODO: Smarter way if output's intervals don't intersect
     bool isset = false;
     TypeSet<float> exactz;
     for ( int idx=0; idx<outputs_.size(); idx++ )
     {
-	if ( !outputs_[idx]->wantsOutput(curbid) || curbid == prevbid_ ) 
+	const bool wantout = outputs_[idx]->useCoords()
+	    			? outputs_[idx]->wantsOutput(curcoords)
+				: outputs_[idx]->wantsOutput(curbid);
+	if ( !wantout || curbid == prevbid_ ) 
 	    continue;
 
+	const float refzstep = provider_->getRefStep();
+	TypeSet< Interval<int> > localzrange = outputs_[idx]->useCoords()
+	    	? outputs_[idx]->getLocalZRanges( curcoords, refzstep, exactz )
+		: outputs_[idx]->getLocalZRanges( curbid, refzstep, exactz );
 	if ( isset )
-	    localintervals.append ( outputs_[idx]->
-		getLocalZRanges( curbid, provider_->getRefStep(), exactz ) );
+	    localintervals.append ( localzrange );
 	else
 	{
-	    localintervals = outputs_[idx]->
-		getLocalZRanges( curbid, provider_->getRefStep(), exactz );
+	    localintervals = localzrange;
 	    isset = true;
 	}
     }
