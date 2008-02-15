@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.cc,v 1.13 2008-01-10 08:49:18 cvshelene Exp $
+ RCS:           $Id: emhorizonutils.cc,v 1.14 2008-02-15 17:03:59 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,9 +13,11 @@ ________________________________________________________________________
 
 #include "binidvalset.h"
 #include "cubesampling.h"
+#include "datapointset.h"
 
 #include "emmanager.h"
 #include "emhorizon3d.h"
+#include "emhorizon2d.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
 #include "parametricsurface.h"
@@ -117,8 +119,7 @@ Surface* HorizonUtils::getSurface( const MultiID& id )
 
 
 void HorizonUtils::getPositions( std::ostream& strm, const MultiID& id,
-				 ObjectSet<BinIDValueSet>& data,
-       				 const Geom::PosRectangle<double>* xyrg	)
+				 ObjectSet<BinIDValueSet>& data )
 {
     Surface* surface = getSurface(id);
     if ( !surface ) return;
@@ -144,14 +145,58 @@ void HorizonUtils::getPositions( std::ostream& strm, const MultiID& id,
 	}
 
 	const Coord3 crd = surface->getPos( pid );
-	if ( !xyrg || (xyrg && xyrg->contains( crd, 1e-6 )) )
-	{
-	    const BinID bid = SI().transform(crd);
-	    res->add( bid, crd.z );
-	}
+	const BinID bid = SI().transform(crd);
+	res->add( bid, crd.z );
 	++pm;
     }
 
+    pm.setFinished();
+    strm << "Done!" << std::endl;
+}
+
+
+void HorizonUtils::getExactCoords( std::ostream& strm, const MultiID& id,
+				   ObjectSet<DataPointSet>& data )
+{
+    Surface* surface = getSurface(id);
+    if ( !surface ) return;
+
+    mDynamicCastGet(Horizon2D*,hor2d,surface);
+    if ( hor2d )
+	hor2d->syncGeometry();
+
+    strm << "\nFetching surface positions ...\n" ;
+    TextStreamProgressMeter pm( strm );
+    deepErase( data );
+
+    PtrMan<EMObjectIterator> iterator = surface->createIterator(-1);
+    SectionID sid = -1;
+    //multiple sections not used!!
+    DataPointSet* res = 0;
+    while ( iterator )
+    {
+	const EM::PosID pid = iterator->next();
+	if ( pid.objectID()==-1 )
+	    break;
+
+	if ( pid.sectionID() != sid )
+	{
+	    TypeSet<DataPointSet::DataRow> pts;
+	    BufferStringSet nms;
+	    res = new DataPointSet( pts, nms );
+	    data += res;
+	    sid = pid.sectionID();
+	}
+
+	const Coord3 crd = surface->getPos( pid );
+	DataPointSet::Pos newpos( crd );
+	DataPointSet::DataRow dtrow( newpos );
+	res->addRow( dtrow );
+	++pm;
+    }
+
+    if ( res ) res->dataChanged();
+    
     pm.setFinished();
     strm << "Done!" << std::endl;
 }
@@ -317,17 +362,17 @@ void HorizonUtils::addSurfaceData( const MultiID& id,
 
 void HorizonUtils::getWantedPos2D( std::ostream& strm,
 				   ObjectSet<MultiID>& midset, 
-				   BinIDValueSet& bivs,
-				   const Geom::PosRectangle<double>* xylimits,
+				   DataPointSet& dtps,
+				   const HorSampling& horsamp,
 				   const Interval<float>& extraz )
 {
-    ObjectSet<BinIDValueSet> possurf0;
-    ObjectSet<BinIDValueSet> possurf1;
-    getPositions( strm, *(midset[0]), possurf0, xylimits );
+    ObjectSet<DataPointSet> possurf0;
+    ObjectSet<DataPointSet> possurf1;
+    getExactCoords( strm, *(midset[0]), possurf0 );
     bool use2hor = midset.size() == 2;
 
     if ( use2hor )
-	getPositions( strm, *(midset[1]), possurf1, xylimits );
+	getExactCoords( strm, *(midset[1]), possurf1 );
 
     mIsEmptyErr( possurf0.isEmpty(), *(midset[0]) )
     mIsEmptyErr( use2hor && possurf1.isEmpty(), *(midset[1]) )
@@ -337,29 +382,34 @@ void HorizonUtils::getWantedPos2D( std::ostream& strm,
 	//Remark: multiple sections for the same horizon not fully used here;
 	//	  loop over the different sections but use only the first Z 
 	//	  found for each BinID
-	for ( int idxsurf0=0; idxsurf0<possurf0.size(); idxsurf0++ )
+	for ( int secsurf0=0; secsurf0<possurf0.size(); secsurf0++ )
 	{
-	    BinID bid = possurf0[idxsurf0]->firstPos();
-	    BinIDValueSet::Pos pos0 = possurf0[idxsurf0]->findFirst(bid);
-	    while ( true )
+	    for (int ptsurf0=0; ptsurf0<possurf0[secsurf0]->size(); ptsurf0++)
 	    {
-		for ( int idxsurf1=0; idxsurf1<possurf1.size(); idxsurf1++ )
+		if ( !horsamp.includes( possurf0[secsurf0]->binID(ptsurf0) ) )
+		    continue;
+		const Coord coordsurf0 = possurf0[secsurf0]->coord( ptsurf0 );
+	    
+		for ( int secsurf1=0; secsurf1<possurf1.size(); secsurf1++ )
 		{
-		    if ( possurf1[idxsurf1]->valid( bid ) )
+		    DataPointSet::RowID rid = possurf1[secsurf1]->
+						findFirstCoord( coordsurf0 );
+		    if ( rid > -1 )
 		    {
-			float z0, z1;
-			possurf0[idxsurf0]->get( pos0, bid , z0 );
-			possurf1[idxsurf1]->get(
-				possurf1[idxsurf1]->findFirst(bid), bid , z1 );
+			const float z0 = possurf0[secsurf0]->z( ptsurf0 );
+			const float z1 = possurf1[secsurf1]->z( rid );
 			const float ztop = (z0>z1 ? z1 : z0) + extraz.start;
 			const float zbot = (z0>z1 ? z0 : z1) + extraz.stop;
-			bivs.add( bid, ztop, zbot );
+			DataPointSet::Pos pos( coordsurf0, ztop );
+			DataPointSet::DataRow dtrow( pos );
+			dtrow.data_ += zbot;
+			dtps.addRow( dtrow );
 			break;
 		    }
 		}
-		if ( !possurf0[idxsurf0]->next(pos0) ) break;
-	    }
+	    }	
 	}
+	dtps.dataChanged();
     }
 }
     

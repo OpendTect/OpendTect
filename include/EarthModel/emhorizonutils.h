@@ -7,18 +7,18 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.h,v 1.6 2008-01-10 08:49:18 cvshelene Exp $
+ RCS:           $Id: emhorizonutils.h,v 1.7 2008-02-15 17:03:59 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sets.h"
 #include "ranges.h"
-#include "geometry.h"
 
 class RowCol;
 class MultiID;
 class BinIDValueSet;
+class DataPointSet;
 class HorSampling;
 class BufferStringSet;
 
@@ -41,16 +41,16 @@ public:
     static float 	getMissingZ(const RowCol&,const Surface*,int);
     static Surface* 	getSurface(const MultiID&);
     static void 	getPositions(std::ostream&,const MultiID&,
-				     ObjectSet<BinIDValueSet>&,
-				     const Geom::PosRectangle<double>* xyrg=0);
+				     ObjectSet<BinIDValueSet>&);
+    static void 	getExactCoords(std::ostream&,const MultiID&,
+				     ObjectSet<DataPointSet>&);
     static void 	getWantedPositions(std::ostream&,ObjectSet<MultiID>&,
 					   BinIDValueSet&,const HorSampling&,
 					   const Interval<float>& extraz,
 					   int nrinterpsamp,int mainhoridx,
 					   float extrawidth);
     static void 	getWantedPos2D(std::ostream&,ObjectSet<MultiID>&,
-				       BinIDValueSet&,
-				       const Geom::PosRectangle<double>*,
+				       DataPointSet&,const HorSampling&,
 				       const Interval<float>& extraz);
     static bool		getZInterval(int idi,int idc,Surface*,Surface*,
 	    			     float& topz,float& botz,int nrinterpsamp,
