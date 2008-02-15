@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.5 2008-02-11 16:34:42 cvsjaap Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.6 2008-02-15 16:12:08 cvsjaap Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -76,7 +76,7 @@ ExplFaultStickSurface::ExplFaultStickSurface( FaultStickSurface* surf )
     , displaysticks_( true )
     , displaypanels_( true )
 {
-    setSurface( surface_ );
+    setSurface( surf );
 }
 
 
@@ -101,10 +101,14 @@ void ExplFaultStickSurface::setSurface( FaultStickSurface* fss )
     if ( surface_ )
     {
 	surface_->ref();
-	insertAll();
-	update();
 	surface_->nrpositionnotifier.notify(
 			mCB(this,ExplFaultStickSurface,surfaceChange) );
+
+	if ( coordlist_ )
+	{
+	    insertAll();
+	    update();
+	}
     }
 }
 
@@ -330,9 +334,10 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
     TypeSet<int> lknotreversed;
     if ( sum1>sum2 )
     {
-	lknot = &lknotreversed;
 	for ( int idx=lsize-1; idx>=0; idx-- )
 	    lknotreversed += (*lknot)[idx];
+
+	lknot = &lknotreversed;
     }
 
     int lidx=0; int ridx=0;
