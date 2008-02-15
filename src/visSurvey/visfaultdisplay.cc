@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.1 2008-02-05 22:09:11 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.2 2008-02-15 16:10:31 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -120,6 +120,8 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 
 	explicitsurface_ = new Geometry::ExplFaultStickSurface( fss ); 
 	displaysurface_->setSurface( explicitsurface_ );
+	if ( explicitsurface_ ) 
+	    explicitsurface_->updateAll();
     }
 
     if ( !editor_ )
