@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.2 2008-02-02 14:05:14 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.3 2008-02-15 16:49:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,9 @@ public:
 			Pos(const Coord&,float z);
 			Pos(const Coord3&);
 
+	bool		operator ==(const Pos& pos) const 
+			{ return binid_==pos.binid_ && offsx_ ==pos.offsx_
+			    	&& offsy_==pos.offsy_ && z_==pos.z_; }
 	const BinID&	binID() const	{ return binid_; }
 	Coord		coord() const;
 	float		z() const	{ return z_; }
@@ -77,6 +80,9 @@ public:
 			    : pos_(p), grp_((short)grp)
 							{ setSel( issel ); }
 
+	bool			operator ==(const DataRow& dr) const 
+				{ return pos_==dr.pos_ && grp_==dr.grp_
+				    	&& data_==dr.data_; }
 	const BinID&		binID() const		{ return pos_.binID(); }
 	Coord			coord() const		{ return pos_.coord(); }
 	const TypeSet<float>&	data() const		{ return data_; }
@@ -102,15 +108,11 @@ public:
     DataPointSet&	operator =(const DataPointSet&);
 
     int			nrCols() const;
+    int			nrFixedCols() const		{ return nrfixedcols_; }
     const char*		colName(ColID) const;
     const UnitOfMeasure* unit(ColID) const;
     const DataColDef&	colDef(ColID) const;
     ColID		indexOf(const char*) const;
-
-    const PosVecDataSet& dataSet() const		{ return data_; }
-    const BinIDValueSet& bivSet() const;
-    int			bivSetIdx( ColID idx ) const
-						{ return idx-nrfixedcols_; }
 
     int			size() const;		//!< PointDataPack impl
     Pos			pos(RowID) const;
@@ -119,6 +121,8 @@ public:
     Coord		coord(RowID) const;	//!< PointDataPack impl
     float		z(RowID) const;		//!< PointDataPack impl
     float		value(ColID,RowID) const;
+    float*		getValues(RowID);
+    const float*	getValues(RowID) const;
     unsigned short	group(RowID) const;
     bool		selected(RowID) const;
     bool		inactive( RowID rid ) const { return group(rid) == 0; }
@@ -127,11 +131,17 @@ public:
     void		setSelected(RowID,bool);
     void		setInactive(RowID,bool);
 
-    BinIDValueSet&	bivSet() { return const_cast<DataPointSet*>
+    const PosVecDataSet& dataSet() const		{ return data_; }
+    const BinIDValueSet& bivSet() const { return const_cast<DataPointSet*>
 					  (this)->bivSet(); }
+    BinIDValueSet&	bivSet();
     			//!< The idea is to manage vectors with the selection
     			//!< mechanism. But if you really must remove
     			//!< vectors, this is your access point
+    
+    int			bivSetIdx( ColID idx ) const
+						{ return idx+nrfixedcols_; }
+
     void		dataChanged()			{ calcIdxs(); }
     			//!< When data modified, you want to call this.
     			//!< all RowIDs may change
@@ -140,6 +150,9 @@ public:
     			//!< In case you want to change the definition of a col
     void		addRow(const DataRow&);
     			//!< When finished, you have to call dataChanged()
+    RowID		findFirstCoord(const Coord&) const;
+    RowID		getRowID( BinIDValueSet::Pos bidvspos ) const
+			{ return bvsidxs_.indexOf( bidvspos ); }
 
     // DataPack interface impl
     bool		simpleCoords() const		{ return false; }
