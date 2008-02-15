@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.38 2008-02-08 08:09:20 cvsnanne Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.39 2008-02-15 10:58:21 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -215,6 +215,7 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     , storemnuitem_("&Save")
     , storeasmnuitem_("Save &As ...")
     , dirmnuitem_("Set &directions ...")
+    , storepolyasfaultmnuitem_("Store poly as fault")
     , onlyatsectmnuitem_("Display &only at sections")
     , propertymnuitem_("&Properties ...")
     , closepolyitem_("&Close Polygon")
@@ -293,6 +294,9 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &onlyatsectmnuitem_, true, !psd->allShown() );
     mAddMenuItem( menu, &storemnuitem_, true, false );
     mAddMenuItem( menu, &storeasmnuitem_, true, false );
+#ifdef __debug__
+    mAddMenuItem( menu, &storepolyasfaultmnuitem_, true, false );
+#endif
 }
 
 
@@ -328,6 +332,11 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	applMgr()->setPickSetDirs( set_ );
+    }
+    else if ( mnuid==storepolyasfaultmnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	applMgr()->storePolyAsFault( set_ );
     }
     else if ( mnuid==onlyatsectmnuitem_.id )
     {

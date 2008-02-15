@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.54 2007-12-19 07:03:08 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.55 2008-02-15 10:58:21 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,6 +112,7 @@ public:
     bool			storePickSets();
     bool			storePickSet(const Pick::Set&);
     bool			storePickSetAs(const Pick::Set&);
+    bool			storePolyAsFault(const Pick::Set&);
     bool			setPickSetDirs(Pick::Set&);
     bool			pickSetsStored() const;
 
