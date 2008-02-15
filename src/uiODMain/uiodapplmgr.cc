@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.226 2008-02-15 07:41:04 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.227 2008-02-15 10:45:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -594,6 +594,9 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    }
 
 	    visserv_->setRandomPosData( visid, attrib, &data );
+//TODO use datapacks for Rdm pos. pb : how to deal with bidvset and surfdata?
+	  // other solution: create datapack from the EMObjectDisplay/HorDisp 
+//	    visserv_->setDataPackID( visid, attrib, &data );
 
 	    deepErase( data );
 	    return true;
