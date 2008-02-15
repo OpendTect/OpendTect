@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.34 2008-02-15 06:36:22 cvsraman Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.35 2008-02-15 07:50:08 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ ___________________________________________________________________
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribsel.h"
+#include "emmanager.h"
 #include "externalattrib.h"
 #include "linekey.h"
 #include "segposinfo.h"
@@ -260,6 +261,15 @@ void uiOD2DLineSetTreeItem::createMenuCB( CallBacker* cb )
 }
 
 
+#define mForAllKidsWithBurstCtrl( action ) \
+    int lastidx = children_.size()-1; \
+    for ( int idx=0; idx<=lastidx; idx++ ) \
+    { \
+	if ( !idx || idx==lastidx ) \
+	    EM::EMM().burstAlertToAll( !idx ); \
+	((uiOD2DLineSetSubItem*) children_[idx])->action; \
+    }
+
 void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
@@ -377,8 +387,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	const bool turnon = mnuid==showlineitm_.id;
-	for ( int idx=0; idx<children_.size(); idx++ )
-	    children_[idx]->setChecked( turnon, true );
+	mForAllKidsWithBurstCtrl( setChecked(turnon,true) );
     }
     else if ( mnuid==showlblitm_.id || mnuid==hidelblitm_.id )
     {
@@ -401,8 +410,7 @@ void uiOD2DLineSetTreeItem::handleMenuCB( CallBacker* cb )
 	intzrg = dlg.getFld()->getIInterval();
 	curzrg_.start = float(intzrg.start) / SI().zFactor();
 	curzrg_.stop = float(intzrg.stop) / SI().zFactor();
-	for ( int idx=0; idx<children_.size(); idx++ )
-	    ((uiOD2DLineSetSubItem*)children_[idx])->setZRange( curzrg_ );
+	mForAllKidsWithBurstCtrl( setZRange(curzrg_) );
     }
 }
 
