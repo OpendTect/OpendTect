@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: faultsticksurface.cc,v 1.5 2008-02-11 16:37:06 cvsjaap Exp $";
+static const char* rcsID = "$Id: faultsticksurface.cc,v 1.6 2008-02-15 10:48:10 cvsjaap Exp $";
 
 #include "faultsticksurface.h"
 
@@ -149,7 +149,7 @@ StepInterval<int> FaultStickSurface::colRange( int sticknr ) const
     mGetValidStickIdx( stickidx, sticknr, 0, mEmptyInterval() );
 
     const int firstcol = firstcols_[stickidx];
-    return StepInterval<int>( firstcol, firstcol+sticks_[stickidx]->size(), 1 );
+    return StepInterval<int>(firstcol, firstcol+sticks_[stickidx]->size()-1, 1);
 }
 
 
