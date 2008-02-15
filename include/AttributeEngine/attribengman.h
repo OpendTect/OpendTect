@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.26 2007-11-23 09:09:44 cvshelene Exp $
+ RCS:           $Id: attribengman.h,v 1.27 2008-02-15 16:54:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 class BinIDValueSet;
 class BufferStringSet;
 class CubeSampling;
+class DataPointSet;
 class Executor;
 class IOPar;
 class LineKey;
@@ -94,10 +95,12 @@ public:
 					   Interval<float>* cubezbounds = 0);
     Processor*		create2DVarZOutput(BufferString& errmsg,
 	    				   const IOPar& pars,
-					   const LineKey& lkey,
-	    				   const BinIDValueSet& bidvalset,
+	    				   const DataPointSet& bidvalset,
 	    				   float outval=0,
 					   Interval<float>* cubezbounds = 0);
+    Processor*		getTableOutExecutor( DataPointSet& datapointset,
+	    				     BufferString& errmsg );
+    Executor*		getTableExtractor(DataPointSet&,const Attrib::DescSet&);
     int			getNrOutputsToBeProcessed(const Processor&) const;
 
     const char*		getCurUserRef() const;
@@ -121,7 +124,8 @@ protected:
 
 private:
 
-    friend class		AEMFeatureExtracter;
+    friend class		AEMFeatureExtracter;//TODO will soon be removed
+    friend class		AEMTableExtractor;
 
     void			clearZPtrs();
 

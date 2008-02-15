@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.32 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:           $Id: attriboutput.h,v 1.33 2008-02-15 16:54:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 class BinID;
 class BinIDValueSet;
+class DataPointSet;
 class LineKey;
 class MultiID;
 class SeisTrc;
@@ -41,7 +42,9 @@ public:
 
     virtual bool		getDesiredVolume(CubeSampling&) const
     				{ return true; }
-    virtual bool		wantsOutput(const BinID&) const		 = 0;
+    virtual bool		useCoords() const		{ return false;}
+    virtual bool		wantsOutput(const BinID&) const	{ return false;}
+    virtual bool		wantsOutput(const Coord&) const	{ return false;}
     virtual const DataCubes*	getDataCubes() const 	{ return 0; }
     virtual DataCubes*		getDataCubes(float)	{ return 0; }
 
@@ -52,6 +55,9 @@ public:
 
     virtual TypeSet<Interval<int> > getLocalZRanges(const BinID&,float,
 	    					    TypeSet<float>&) const =0;
+    virtual TypeSet<Interval<int> > getLocalZRanges(const Coord&,float,
+	    					    TypeSet<float>&) const
+				{ TypeSet<Interval<int> > empty; return empty; }
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&)		 = 0;
     virtual void		writeTrc()		{};
@@ -115,8 +121,10 @@ public:
     
     virtual bool		doInit();
     virtual void		set2D( bool yn = true )		{ is2d_ = yn; }
+    virtual bool		useCoords() const		{ return false;}
     bool			getDesiredVolume(CubeSampling&) const;
     bool			wantsOutput(const BinID&) const;
+    virtual bool		wantsOutput(const Coord&) const	{ return false;}
     bool			setStorageID(const MultiID&);
     void			setGeometry( const CubeSampling& cs )
 				{ doSetGeometry(cs); }
@@ -129,6 +137,9 @@ public:
 				{ outptypes_ = typ; }
     virtual TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
 	    						TypeSet<float>&) const;
+    virtual TypeSet< Interval<int> >	getLocalZRanges(const Coord&,float,
+	    						TypeSet<float>&) const
+				{ return TypeSet< Interval<int> >(); }
 
     static const char*		seisidkey;
     static const char*		attribkey;
@@ -159,13 +170,15 @@ class Trc2DVarZStorOutput : public SeisTrcStorOutput
 {
 public:
 				Trc2DVarZStorOutput(const LineKey&,
-						    const BinIDValueSet&,float);
+						    const DataPointSet&,float);
     
     bool			doInit();
     void			set2D(bool)			{}
+    bool			useCoords() const		{ return true; }
 
+    bool			wantsOutput(const Coord&) const;
     void			setTrcsBounds(Interval<float>);
-    TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
+    TypeSet< Interval<int> >	getLocalZRanges(const Coord&,float,
 	    					TypeSet<float>&) const;
 
     virtual void		collectData(const DataHolder&,float step,
@@ -174,7 +187,7 @@ protected:
 
     const CubeSampling		getCS();
 
-    const BinIDValueSet&	zvalues_;
+    const DataPointSet&		poszvalues_;
     float			stdtrcsz_;
     float			stdstarttime_;
     float			outval_;
@@ -224,6 +237,7 @@ public:
     TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
 	    					TypeSet<float>&) const;
     
+    //TODO : check where we want to put this: output?
     static const char*		filenamekey;
     static const char*		locationkey;
     static const char*		attribkey;
@@ -267,6 +281,41 @@ protected:
     float			stdtrcsz_;
     float			stdstarttime_;
 };
+
+
+class TableOutput : public Output
+{
+public:
+    				TableOutput(DataPointSet&);
+				~TableOutput() {};
+
+    bool			getDesiredVolume(CubeSampling&) const
+    				{ return true;}
+    bool			wantsOutput(const BinID&) const;
+    bool			wantsOutput(const Coord&) const;
+    virtual void		collectData(const DataHolder&,float step,
+	    				    const SeisTrcInfo&);
+    TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
+	    					TypeSet<float>&) const;
+    TypeSet< Interval<int> >	getLocalZRanges(const Coord&,float,
+	    					TypeSet<float>&) const;
+    
+protected:
+    DataPointSet&		datapointset_;
+    int				classstatus_; 	// -1 Unknow 
+    					      	//  0 Interpolate
+    					      	//  1 Classification
+
+    bool			arebiddupl_;	
+
+    void			computeAndSetVals(const DataHolder&,float,
+	    					  float,float*,float&,bool&);
+    bool			areBIDDuplicated() const;
+    void			addLocalInterval(TypeSet<Interval<int> >&,
+	    				         TypeSet<float>&,
+						 int,float) const;
+};
+
 
 } // namespace Attrib
 

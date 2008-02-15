@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.68 2007-11-23 09:09:44 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.69 2008-02-15 16:54:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 
 #include "binidvalset.h"
 #include "cubesampling.h"
+#include "datapointset.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -788,6 +789,92 @@ Processor* EngineMan::createLocationOutput( BufferString& errmsg,
     return proc;
 }
 
+
+//TODO TableOutput should later on replace at least Location- and TrcSel-Output
+//AEMFeatureExtractor will also be replaced by AEMTableExtractor
+class AEMTableExtractor : public Executor
+{
+public:
+AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
+		   const Attrib::DescSet& descset )
+    : Executor("Extracting attributes")
+{
+    const int nrinps = datapointset.nrCols();
+    for ( int idx=0; idx<nrinps; idx++ )
+    {
+	const DescID id = descset.getID( datapointset.colName(idx), true );
+	if ( id == DescID::undef() )
+	    continue;
+	SelSpec ss( 0, id );
+	ss.setRefFromID( descset );
+	aem.attrspecs_ += ss;
+    }
+
+    proc = aem.getTableOutExecutor( datapointset, errmsg );
+}
+
+~AEMTableExtractor()		{ delete proc; }
+
+int totalNr() const		{ return proc ? proc->totalNr() : -1; }
+int nrDone() const		{ return proc ? proc->nrDone() : 0; }
+const char* nrDoneText() const	{ return proc ? proc->nrDoneText() : ""; }
+
+const char* message() const
+{
+    return *(const char*)errmsg ? errmsg.buf() 
+	: (proc ? proc->message() : "Cannot create output");
+}
+
+int haveError( const char* msg )
+{
+    if ( msg ) errmsg = msg;
+    return -1;
+}
+
+int nextStep()
+{
+    if ( !proc ) return haveError( 0 );
+
+    int rv = proc->doStep();
+    if ( rv >= 0 ) return rv;
+    return haveError( proc->message() );
+}
+
+    BufferString		errmsg;
+    Processor*			proc;
+    TypeSet<DescID>		outattribs;
+};
+
+
+Executor* EngineMan::getTableExtractor( DataPointSet& datapointset,
+       					const Attrib::DescSet& descset )
+{
+    setAttribSet( &descset );
+    return new AEMTableExtractor( *this, datapointset, descset );
+}
+
+
+Processor* EngineMan::getTableOutExecutor( DataPointSet& datapointset,
+					   BufferString& errmsg )
+{
+    if ( datapointset.size() == 0 ) mErrRet("No locations to extract data on");
+
+    Processor* proc = getProcessor(errmsg);
+    if ( !proc )
+	return 0; 
+
+    ObjectSet<BinIDValueSet> bidsets;
+    bidsets += &datapointset.bivSet();
+    computeIntersect2D( bidsets );
+    TableOutput* tableout = new TableOutput( datapointset );
+    if ( !tableout ) return 0;
+
+    proc->addOutput( tableout );
+
+    return proc;
+}
+
+
 #undef mErrRet
 #define mErrRet(s) { errmsg = s; return false; }
 
@@ -865,15 +952,19 @@ Processor* EngineMan::createTrcSelOutput( BufferString& errmsg,
 
 Processor* EngineMan::create2DVarZOutput( BufferString& errmsg,
 					  const IOPar& pars,
-				          const LineKey& lkey,
-					  const BinIDValueSet& bidvalset,
+					  const DataPointSet& datapointset,
 					  float outval,
        					  Interval<float>* cubezbounds )
 {
+    PtrMan<IOPar> output = pars.subselect( "Output.1" );
+    const char* linename = output->find(sKey::LineKey);
+    setLineKey( linename );
+
     Processor* proc = getProcessor( errmsg );
     if ( !proc ) return 0;
 
-    Trc2DVarZStorOutput* attrout = new Trc2DVarZStorOutput( lkey, bidvalset,
+    LineKey lkey( linename, proc->getAttribName() );
+    Trc2DVarZStorOutput* attrout = new Trc2DVarZStorOutput( lkey, datapointset,
 	    						    outval );
     attrout->doUsePar( pars );
     if ( cubezbounds )
