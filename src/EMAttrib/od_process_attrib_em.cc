@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.44 2008-01-10 08:44:05 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.45 2008-02-15 17:05:58 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,8 @@ ________________________________________________________________________
 
 #include "batchprog.h"
 #include "binidvalset.h"
+#include "datapointset.h"
+#include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "emhorizonutils.h"
 #include "emmanager.h"
@@ -40,9 +42,13 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "progressmeter.h"
 #include "ptrman.h"
+#include "segposinfo.h"
 #include "seisbuf.h"
+#include "seisioobjinfo.h"
+#include "seisjobexecprov.h"
 #include "seistrc.h"
 #include "seiswrite.h"
+#include "seis2dline.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "timefun.h"
@@ -61,6 +67,31 @@ using namespace EM;
     std::cerr << s << std::endl; \
     return false; \
 }
+
+
+class CallBackMgr : public CallBacker
+{
+public:
+	
+    bool		sync2DGeometryCB(CallBacker*);
+
+			CallBackMgr(std::ostream& strm)
+			    : CallBacker()
+			    , strm_( strm )
+			{ 
+			    cb_ = mCB(this,CallBackMgr,sync2DGeometryCB);
+			    EM::EMM().syncGeomReq.notify( cb_ );
+			}
+			~CallBackMgr()
+			{
+			    EM::EMM().syncGeomReq.remove( cb_ );
+			}
+			
+protected:
+    CallBack		cb_;
+    std::ostream&	strm_;
+};
+
 
 static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
 			    bool stepout )
@@ -114,19 +145,6 @@ static bool getObjectID( const IOPar& iopar, const char* str, bool claimmissing,
 }
 
 
-static HorSampling getHorSampling( const Geom::PosRectangle<double>* xylimits )
-{
-    HorSampling horsamp;
-    BinID topleftbid = SI().transform( xylimits->topLeft() );
-    BinID botrightbid = SI().transform( xylimits->bottomRight() );
-    horsamp.start = BinID( mMIN( topleftbid.inl, botrightbid.inl ),
-	    		   mMIN( topleftbid.crl, botrightbid.crl ) );
-    horsamp.stop = BinID( mMAX( topleftbid.inl, botrightbid.inl ),
-	    		  mMAX( topleftbid.crl, botrightbid.crl ) );
-    return horsamp;
-}
-
-    
 static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 		     ObjectSet<MultiID>& midset, BufferString& errmsg, 
 		     bool iscubeoutp, MultiID& outpid  )
@@ -177,8 +195,17 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 
 #define mPIDMsg(s) { strm << "\n["<< GetPID() <<"]: " << s << std::endl; }
 
-static bool process( std::ostream& strm, Processor* proc, 
-		     const MultiID& outid = 0 , SeisTrcBuf* tbuf = 0 )
+#define mSetCommState(State) \
+    if ( comm ) \
+    { \
+	comm->setState( MMSockCommunic::State ); \
+	if ( !comm->updateState() ) \
+	    mRetHostErr( comm->errMsg() ) \
+    }
+
+
+static bool process( std::ostream& strm, Processor* proc, bool useoutwfunc, 
+		    const MultiID& outid = 0 , SeisTrcBuf* tbuf = 0 )
 {
     bool cont = true;
     bool loading = true;
@@ -196,17 +223,18 @@ static bool process( std::ostream& strm, Processor* proc,
 	    strm << "Estimated number of positions to be processed"
 		 <<"(regular survey): " << proc->totalNr() << std::endl;
 	    strm << "Loading cube data ..." << std::endl;
-	   
-	    if ( tbuf )
+
+	    if ( !useoutwfunc && tbuf )
 	    {
 		PtrMan<IOObj> ioseisout = IOM().get( outid );
 		writer = new SeisTrcWriter( ioseisout );
 		if ( !tbuf->size() ||!writer->prepareWork(*(tbuf->get(0))) )
 		{ 
 		    BufferString err = strlen( writer->errMsg() ) ? 
-				       writer->errMsg() : 
-				       "ERROR: no trace computed";
-		    mErrRet( err ); }
+						    writer->errMsg() : 
+						    "ERROR: no trace computed";
+		    mErrRet( err );
+		}
 	    }
 	}
 
@@ -231,14 +259,16 @@ static bool process( std::ostream& strm, Processor* proc,
 	    break;
 	}
 
-	if ( tbuf )
+	if ( !useoutwfunc && tbuf )
 	{
 	    if ( !writer->put(*(tbuf->get(0))) )
-		{ mErrRet( writer->errMsg() ); }
+	    { mErrRet( writer->errMsg() ); }
 
 	    SeisTrc* trc = tbuf->remove(0);
 	    delete trc;
 	}
+	else if ( useoutwfunc && res>= 0 )
+	    proc->outputs_[0]->writeTrc();
 
 	nriter++;
     }
@@ -250,6 +280,24 @@ static bool process( std::ostream& strm, Processor* proc,
     // It is VERY important workers are destroyed BEFORE the last writeStatus!!!
     mDestroyWorkers
     return true;
+}
+
+
+static HorSampling getHorSamp( IOPar* geompar )
+{
+    HorSampling hsamp;
+    if ( !geompar->get( SurveyInfo::sKeyInlRange,
+			hsamp.start.inl, hsamp.stop.inl )
+	 || !geompar->get( SurveyInfo::sKeyCrlRange,
+			   hsamp.start.crl, hsamp.stop.crl ) )
+    {
+	hsamp.start.inl = 0;
+	hsamp.stop.inl = mUdf(int);
+	hsamp.start.crl = 0;
+	hsamp.stop.inl = mUdf(int);
+    }
+
+    return hsamp;
 }
 
 
@@ -269,6 +317,8 @@ bool BatchProgram::go( std::ostream& strm )
     }
 
     showHostName( strm );
+    Seis2DLineSet::installPreSet( pars(), SeisJobExecProv::sKeyOutputLS,
+				  SeisJobExecProv::sKeyWorkLS );
 
     BufferString type;
     pars().get( "Output.1.Type",type );
@@ -286,24 +336,8 @@ bool BatchProgram::go( std::ostream& strm )
 
     PtrMan<IOPar> geompar = pars().subselect(sKey::Geometry);
     HorSampling hsamp;
-    Geom::PosRectangle<double>* xylimits = new Geom::PosRectangle<double>();
     if ( iscubeoutp && geompar )
-    {
-	bool is3d = geompar->get( SurveyInfo::sKeyInlRange,
-				hsamp.start.inl, hsamp.stop.inl )
-	    	    && geompar->get( SurveyInfo::sKeyCrlRange,
-			    	hsamp.start.crl, hsamp.stop.crl );
-	if ( !is3d )
-	{
-	    Interval<double> xrange, yrange;
-	    geompar->get( SurveyInfo::sKeyXRange, xrange.start, xrange.stop );
-	    geompar->get( SurveyInfo::sKeyYRange, yrange.start, yrange.stop );
-	    xylimits->setLeftRight( xrange );
-	    xylimits->setTopBottom( yrange );
-	    hsamp = getHorSampling( xylimits );
-	}
-	
-    }
+	hsamp = getHorSamp( geompar );
 
     ObjectSet<EMObject> objects;
     for ( int idx=0; idx<midset.size(); idx++ )
@@ -384,7 +418,7 @@ bool BatchProgram::go( std::ostream& strm )
 	Processor* proc = aem.createLocationOutput( errmsg, bivs );
 	if ( !proc ) mErrRet( errmsg );
 
-	if ( !process(strm,proc) ) return false;
+	if ( !process( strm, proc, false ) ) return false;
         HorizonUtils::addSurfaceData( *(midset[0]), attribrefs, bivs );
 	EMObject* obj = EMM().getObject( EMM().getObjectID(*midset[0]) );
 	mDynamicCastGet(Horizon3D*,horizon,obj)
@@ -423,26 +457,70 @@ bool BatchProgram::go( std::ostream& strm )
 	    zbounds.scale( 1/SI().zFactor() );
 	}
 
+	CallBackMgr cbmgr(strm);
+	const bool is2d = attribset.is2D();
 	BinIDValueSet bivs(2,false);
-	if ( attribset.is2D() )
-	    HorizonUtils::getWantedPos2D( strm, midset, bivs, xylimits, extraz);
+	TypeSet<DataPointSet::DataRow> startset;
+	BufferStringSet valnms("z2");
+	DataPointSet dtps( startset, valnms );
+	if ( is2d )
+	    HorizonUtils::getWantedPos2D( strm, midset, dtps, hsamp, extraz);
 	else
 	    HorizonUtils::getWantedPositions( strm, midset, bivs, hsamp,
 		    			      extraz, nrinterpsamp, mainhoridx,
 					      extrawidth );
 	SeisTrcBuf seisoutp( false );
-	Processor* proc = 
-	    aem.createTrcSelOutput( errmsg, bivs, seisoutp, outval,
-		    		    zboundsset ? &zbounds : 0 );
+	Processor* proc =
+	    is2d ? aem.create2DVarZOutput( errmsg, pars(), dtps, outval,
+		    			   zboundsset ? &zbounds : 0 )
+	    	 : aem.createTrcSelOutput( errmsg, bivs, seisoutp, outval,
+					   zboundsset ? &zbounds : 0 ); 
 	if ( !proc ) mErrRet( errmsg );
-	if ( !process( strm, proc, outpid, &seisoutp ) ) return false;
+	if ( !process( strm, proc, is2d ) ) return false;
+	
     }
 
     strm << "Successfully saved data." << std::endl;
 
     deepErase(midset);
     deepUnRef( objects );
-    delete xylimits;
 
     return true;
 }
+
+
+bool CallBackMgr::sync2DGeometryCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack( const EM::ObjectID&, emid, cb );
+    mDynamicCastGet( EM::Horizon2D*, h2d, EM::EMM().getObject( emid ) );
+    for ( int lidx=0; h2d && lidx<h2d->geometry().nrLines(); lidx++ )
+    {
+	const int lineid = h2d->geometry().lineID( lidx );
+	if ( h2d->geometry().syncBlocked(lineid) )
+	    continue;
+	const MultiID& lsetid = h2d->geometry().lineSet( lineid );
+	const char* linenm = h2d->geometry().lineName( lineid );
+	PosInfo::Line2DData ldat;
+	PtrMan<IOObj> ioobj = IOM().get( lsetid );
+	if ( !ioobj ) return false;
+	BufferString fnm = ioobj->fullUserExpr(true);
+	Seis2DLineSet lineset( fnm );
+	int lineidx = lineset.indexOf( linenm );
+	if ( lineidx < 0 )
+	{
+	    BufferStringSet attribs;
+	    SeisIOObjInfo sobjinfo( lsetid );
+	    sobjinfo.getAttribNamesForLine( linenm, attribs, true );
+	    if ( attribs.isEmpty() ) return false;
+	    lineidx = lineset.indexOf( LineKey(linenm,attribs.get(0)) );
+	    if ( lineidx < 0 ) return false;
+	}
+
+	lineset.getGeometry( lineidx, ldat );
+	h2d->geometry().syncLine( lsetid, linenm, ldat );
+    }
+
+    return true;
+}
+
+
