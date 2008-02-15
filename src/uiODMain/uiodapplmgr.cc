@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.225 2008-01-31 22:28:18 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.226 2008-02-15 07:41:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -413,6 +413,8 @@ void uiODApplMgr::setZScale()
 
 bool uiODApplMgr::selectAttrib( int id, int attrib )
 {
+    if ( appl_.isRestoringSession() ) return false;
+
     if ( id < 0 ) return false;
     const Attrib::SelSpec* as = visserv_->getSelSpec( id, attrib );
     if ( !as ) return false;
@@ -1221,7 +1223,8 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
 	    emserv_->setAuxData( emid, data, specs[idx].userRef(), idx+1 );
-	    emserv_->storeAuxData( emid );
+	    BufferString dummy;
+	    emserv_->storeAuxData( emid, dummy, false );
 	}
     }
     else
