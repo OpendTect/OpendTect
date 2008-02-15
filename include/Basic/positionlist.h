@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: positionlist.h,v 1.5 2008-01-31 21:21:03 cvsyuancheng Exp $
+ RCS:           $Id: positionlist.h,v 1.6 2008-02-15 20:28:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,50 +48,20 @@ public:
 };
 
 
-class TypeSetCoord2: public Coord2List
+class Coord2ListImpl : public Coord2List
 { 
-public:
-
-    int			nextID(int previd) const 
-    			{
-			   if ( previd == points_.size()-1 ) 
-			       return -1;
-			   else 
-			       return indices_[previd+1]; 
-			}
-
-    Coord		get(int id) const 		
-    			{ 
-			    if ( id<0 || id>=points_.size() )
-				return Coord( mUdf(double), mUdf(double) );
-			    else
-    				return points_[id]; 
-			}
-
-    void		set(int id,const Coord& co)	
-    			{ 
-			    if ( id<0 || id>=points_.size() )
-				return;
-
-			    points_[id] = co; 
-			}
-
-    int			add(const Coord& co) 		
-    			{ 
-			    points_ += co; 
-			    indices_ += points_.size()-1;
-			    return points_.size()-1;
-			}
-
-    void		remove(int id)
-			{
-			    indices_ -= id;
-			    points_ -= points_[id];
-			}
+public:			
+    			Coord2ListImpl();
+    int			nextID(int previd) const;
+    Coord		get(int id) const;
+    void		set(int id,const Coord&);	
+    int			add(const Coord&); 		
+    void		remove(int id);
+    int			getSize() const 	{ return points_.size(); }
 
 protected:
 
-    TypeSet<int> 	indices_;
+    TypeSet<int>	removedids_;
     TypeSet<Coord> 	points_;
 };
 
