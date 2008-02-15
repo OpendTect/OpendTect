@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodhortreeitem.cc,v 1.1 2008-02-05 22:21:01 cvskris Exp $
+ RCS:		$Id: uiodhortreeitem.cc,v 1.2 2008-02-15 07:40:12 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -95,7 +95,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	    if ( itm )
 	    {
 		itm->visEMObject()->setOnlyAtSectionsDisplay( onlyatsection );
-		itm->updateColumnText(uiODSceneMgr::cColorColumn());
+		itm->updateColumnText( uiODSceneMgr::cColorColumn() );
 	    }
 	}
     }
@@ -236,8 +236,7 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 			EM::EMM().getObject( objectid ) );
 
 	if ( !horizon ) return;
-	RefMan<ZAxisTransform> transform =
-	    new EM::HorizonZTransform(horizon);
+	RefMan<ZAxisTransform> transform = new EM::HorizonZTransform(horizon);
 	mDynamicCastGet(visSurvey::Scene*,scene,
 	    applMgr()->visServer()->getObject(sceneid));
 	if ( !scene ) return;
@@ -264,9 +263,21 @@ uiODHorizon2DParentTreeItem::uiODHorizon2DParentTreeItem()
 
 bool uiODHorizon2DParentTreeItem::showSubMenu()
 {
+    mDynamicCastGet(visSurvey::Scene*,scene,
+	    	    ODMainWin()->applMgr().visServer()->getObject(sceneID()));
+    const bool hastransform = scene && scene->getDataTransform();
+
     uiPopupMenu mnu( getUiParent(), "Action" );
     mnu.insertItem( new uiMenuItem("&Load ..."), 0 );
-    mnu.insertItem( new uiMenuItem("&New ..."), 1 );
+    uiMenuItem* newmenu = new uiMenuItem("&New ...");
+    mnu.insertItem( newmenu, 1 );
+    newmenu->setEnabled( !hastransform );
+    if ( children_.size() )
+    {
+	mnu.insertSeparator();
+	mnu.insertItem( new uiMenuItem("&Display all only at sections"), 2 );
+	mnu.insertItem( new uiMenuItem("&Show all in full"), 3 );
+    }
     addStandardItems( mnu );
 
     const int mnuid = mnu.exec();
@@ -294,6 +305,19 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 	mps->setCurrentAttribDescSet(applMgr()->attrServer()->curDescSet(true));
 	mps->addTracker( EM::Horizon2D::typeStr(), sceneID() );
 	return true;
+    }
+    else if ( mnuid == 2 || mnuid == 3 )
+    {
+	const bool onlyatsection = mnuid == 2;
+	for ( int idx=0; idx<children_.size(); idx++ )
+	{
+	    mDynamicCastGet(uiODHorizon2DTreeItem*,itm,children_[idx])
+	    if ( itm )
+	    {
+		itm->visEMObject()->setOnlyAtSectionsDisplay( onlyatsection );
+		itm->updateColumnText( uiODSceneMgr::cColorColumn() );
+	    }
+	}
     }
     else
 	handleStandardItems( mnuid );
