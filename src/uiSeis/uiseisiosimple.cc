@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.6 2008-01-23 12:29:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.7 2008-02-16 11:39:45 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -367,13 +367,14 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     if ( is2D() )
     {
 	BufferString linenm;
-	if ( isimp_ )
+	if ( lnmfld )
 	{
 	    linenm = lnmfld->text();
 	    if ( linenm.isEmpty() )
 		mErrRet( "Please enter a line name" )
+	    data().linekey_.setLineName( linenm );
 	}
-	data().linekey_ = LineKey( linenm, seisfld->attrNm() );
+	data().linekey_.setAttrName( seisfld->attrNm() );
     }
 
     data().seiskey_ = ctio.ioobj->key();
