@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.11 2007-11-09 14:47:23 cvshelene Exp $
+ RCS:           $Id: statruncalc.h,v 1.12 2008-02-18 16:29:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,7 +109,8 @@ public:
     			{ return used ? nrused_ : nradded_; }
     inline bool		isEmpty() const		{ return size() == 0; }
 
-    inline double	mean() const;
+    inline int		count() const		{ return nrused_; }
+    inline double	average() const;
     inline double	variance() const; 
     inline double	normvariance() const;
     inline T		mostFreq() const;
@@ -186,18 +187,18 @@ public:
     			//!< Only use for Min, Max or Median
     inline double	getValue(Type) const;
 
-#   undef		mDefEqFn
-#   define		mDefEqFn(ret,fn) \
-    inline ret		fn() const		{ return calc_.fn(); }
-    mDefEqFn(double,	mean)
-    mDefEqFn(double,	variance)
-    mDefEqFn(double,	normvariance)
-    mDefEqFn(T,		mostFreq)
-    mDefEqFn(T,		sum)
-    mDefEqFn(T,		sqSum)
-    mDefEqFn(double,	rms)
-    mDefEqFn(double,	stdDev)
-#   undef		mDefEqFn
+#   define			mRunCalcDefEqFn(ret,fn) \
+    inline ret			fn() const	{ return calc_.fn(); }
+    mRunCalcDefEqFn(int,	count)
+    mRunCalcDefEqFn(double,	average)
+    mRunCalcDefEqFn(double,	variance)
+    mRunCalcDefEqFn(double,	normvariance)
+    mRunCalcDefEqFn(T,		mostFreq)
+    mRunCalcDefEqFn(T,		sum)
+    mRunCalcDefEqFn(T,		sqSum)
+    mRunCalcDefEqFn(double,	rms)
+    mRunCalcDefEqFn(double,	stdDev)
+#   undef			mRunCalcDefEqFn
     inline T		median( int* i=0 ) const { return calc_.median(i); }
     inline T		min(int* i=0) const;
     inline T		max(int* i=0) const;
@@ -418,7 +419,8 @@ double RunCalc<T>::getValue( Stats::Type t ) const
 {
     switch ( t )
     {
-	case Average:		return mean();
+	case Count:		return count();
+	case Average:		return average();
 	case StdDev:		return stdDev();
 	case Variance:		return variance();
 	case NormVariance:	return normvariance();			
@@ -465,7 +467,7 @@ inline double RunCalc<T>::stdDev() const
 
 
 template <class T>
-inline double RunCalc<T>::mean() const
+inline double RunCalc<T>::average() const
 {
     mChkEmpty(double);
 
@@ -570,7 +572,7 @@ inline double RunCalc<T>::normvariance() const
     if ( nrused_ < 2 ) return 0;
 
     double fact = 0.1;
-    double avg = mean();
+    double avg = average();
     double var = variance();
     return var / (avg*avg + fact*var);
 }
