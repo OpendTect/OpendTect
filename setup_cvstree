@@ -1,6 +1,6 @@
 #!/bin/csh
 # This script initialises a work dir after CVS checkout
-# $Id: setup_cvstree,v 1.10 2008-02-18 07:59:42 cvsnanne Exp $
+# $Id: setup_cvstree,v 1.11 2008-02-18 09:14:59 cvsnanne Exp $
 
 if ( $#argv < 1 ) then
     set od_wdir=`pwd`
@@ -82,9 +82,10 @@ set coindir=
 set fftwdir=
 set dosimvollib=0
 if ( -e /users/appman/bin/set_basedir.csh ) then
-    set qtdir=$basedir/qt/devel
-    set coindir=$basedir/coin/devel
-    set fftwdir=$basedir/fftw/devel
+    source /users/appman/bin/set_basedir.csh
+    set qtdir=$BASE_DIR/qt/devel
+    set coindir=$BASE_DIR/coin/devel
+    set fftwdir=$BASE_DIR/fftw/devel
 endif
 if ( $?OD_QTDIR ) then
     set qtdir=$OD_QTDIR
