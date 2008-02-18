@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.h,v 1.2 2003-11-07 12:21:54 bert Exp $
+ RCS:           $Id: uiimpfault.h,v 1.3 2008-02-18 11:00:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,6 @@ class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
 class uiScaler;
-class uiBinIDSubSel;
 
 
 /*! \brief Dialog for fault selection */

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiselsurvranges.h,v 1.1 2008-02-12 11:29:39 cvsbert Exp $
+ RCS:           $Id: uiselsurvranges.h,v 1.2 2008-02-18 11:00:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "cubesampling.h"
 class uiSpinBox;
+class uiLineEdit;
 
 /*!\brief Selects sub-Z-range. Default will be SI() work Z Range. */
 
@@ -52,7 +53,7 @@ public:
 protected:
 
     uiSpinBox*		startfld_;
-    uiSpinBox*		stopfld_;
+    uiLineEdit*		stopfld_;
     uiSpinBox*		stepfld_;
     int			defstep_;
 

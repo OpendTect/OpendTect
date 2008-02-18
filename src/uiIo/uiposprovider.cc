@@ -8,16 +8,17 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.5 2008-02-13 13:28:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.6 2008-02-18 11:00:48 cvsbert Exp $";
 
 #include "uiposprovgroup.h"
+#include "uipossubsel.h"
+#include "rangeposprovider.h"
 #include "uigeninput.h"
 #include "uimainwin.h"
 #include "uilabel.h"
-#include "keystrs.h"
-#include "posprovider.h"
-#include "iopar.h"
+#include "uidialog.h"
 #include "cubesampling.h"
+#include "keystrs.h"
 
 
 uiPosProvider::uiPosProvider( uiParent* p, const uiPosProvider::Setup& su )
@@ -139,3 +140,195 @@ Pos::Provider* uiPosProvider::createProvider() const
     else
 	return Pos::Provider3D::make( iop );
 }
+
+
+uiPosProvSel::uiPosProvSel( uiParent* p, const uiPosProvSel::Setup& su )
+    : uiCompoundParSel(p,getSelText(su))
+    , setup_(su)
+    , prov_(0)
+    , cs_(*new CubeSampling(false))
+{
+    mkNewProv(false);
+    butPush.notify( mCB(this,uiPosProvSel,doDlg) );
+}
+
+
+uiPosProvSel::~uiPosProvSel()
+{
+    delete prov_;
+    delete &cs_;
+}
+
+
+BufferString uiPosProvSel::getSelText( const Setup& su ) const
+{
+    BufferString seltxt( su.withz_ ? "Volume" : "Area" );
+    seltxt += " subselection";
+    return seltxt;
+}
+
+
+BufferString uiPosProvSel::getSummary() const
+{
+    BufferString ret;
+    if ( !prov_ )
+	ret = "-";
+    else
+    {
+	ret = prov_->type(); ret[1] = '\0'; ret += ": ";
+	prov_->getSummary( ret );
+    }
+    return ret;
+}
+
+
+void uiPosProvSel::setCSToAll() const
+{
+    if ( setup_.is2d_ )
+	cs_.set2DDef();
+    else
+	cs_ = CubeSampling(true);
+}
+
+
+void uiPosProvSel::setProvFromCS()
+{
+    delete prov_;
+    if ( setup_.is2d_ )
+    {
+	Pos::RangeProvider2D* rp2d = new Pos::RangeProvider2D;
+	rp2d->nrRange() = cs_.hrg.crlRange();
+	rp2d->zRange() = cs_.zrg;
+	prov_ = rp2d;
+    }
+    else
+    {
+	Pos::RangeProvider3D* rp3d = new Pos::RangeProvider3D;
+	rp3d->sampling() = cs_;
+	prov_ = rp3d;
+    }
+    prov_->fillPar( iop_ );
+    updateSummary();
+}
+
+
+void uiPosProvSel::mkNewProv( bool updsumm )
+{
+    delete prov_;
+    if ( setup_.is2d_ )
+	prov_ = Pos::Provider2D::make( iop_ );
+    else
+	prov_ = Pos::Provider3D::make( iop_ );
+
+    if ( prov_ )
+	prov_->getCubeSampling( cs_ );
+    else
+    {
+	setCSToAll();
+	if ( !setup_.allownone_ )
+	    { setProvFromCS(); return; }
+    }
+
+    if ( updsumm )
+	updateSummary();
+}
+
+
+void uiPosProvSel::setInput( const CubeSampling& cs, bool chgtyp )
+{
+    if ( chgtyp || (prov_ && !strcmp(prov_->type(),sKey::Range)) )
+    {
+	cs_ = cs;
+	setProvFromCS();
+    }
+}
+
+
+bool uiPosProvSel::isAll() const
+{
+    if ( setup_.allownone_ )
+	return !prov_;
+
+    CubeSampling cskp = cs_;
+    setCSToAll();
+    const bool ret = cs_ == cskp;
+    cs_ = cskp;
+    return ret;
+}
+
+
+void uiPosProvSel::setToAll()
+{
+    if ( !setup_.allownone_ )
+    {
+	iop_.set( sKey::Type, sKey::None );
+	mkNewProv( true );
+    }
+    else
+    {
+	setCSToAll();
+	setProvFromCS();
+    }
+}
+
+
+void uiPosProvSel::doDlg( CallBacker* )
+{
+    uiDialog dlg( this, uiDialog::Setup("Positions","Specify positions",
+					"0.0.0" ) );
+    uiPosProvider* pp = new uiPosProvider( &dlg, setup_ );
+    pp->usePar( iop_ );
+    if ( dlg.go() )
+    {
+	pp->fillPar( iop_ );
+	mkNewProv();
+    }
+}
+
+
+void uiPosProvSel::usePar( const IOPar& iop )
+{
+    iop_.merge( iop );
+    mkNewProv();
+}
+
+
+uiPosSubSel::uiPosSubSel( uiParent* p, const uiPosSubSel::Setup& su )
+    : uiGroup(p,"uiPosSubSel")
+    , selChange(this)
+{
+    uiPosProvider::Setup ppsu( su.seltxt_, su.withz_ );
+    ppsu.is2d( su.is2d_ )
+	.allownone( true )
+	.choicetype( (uiPosProvider::Setup::ChoiceType)su.choicetype_ );
+    ps_ = new uiPosProvSel( this, ppsu );
+    ps_->butPush.notify( mCB(this,uiPosSubSel,selChg) );
+    setHAlignObj( ps_ );
+}
+
+
+void uiPosSubSel::selChg( CallBacker* )
+{
+    selChange.trigger();
+}
+
+
+#define mDefFn(ret,nm,typ,arg,cnst,retstmt) \
+ret uiPosSubSel::nm( typ arg ) cnst \
+{ \
+    retstmt ps_->nm( arg ); \
+}
+#define mDefFn2(ret,nm,typ1,arg1,typ2,arg2,cnst) \
+ret uiPosSubSel::nm( typ1 arg1, typ2 arg2 ) cnst \
+{ \
+    ps_->nm( arg1, arg2 ); \
+}
+
+mDefFn(void,usePar,const IOPar&,iop,,)
+mDefFn(void,fillPar,IOPar&,iop,const,)
+mDefFn(Pos::Provider*,curProvider,,,,return)
+mDefFn(const Pos::Provider*,curProvider,,,const,return)
+mDefFn(const CubeSampling&,envelope,,,const,return)
+mDefFn(bool,isAll,,,const,return)
+mDefFn(void,setToAll,,,,)
+mDefFn2(void,setInput,const CubeSampling&,cs,bool,ct,)

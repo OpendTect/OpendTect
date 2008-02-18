@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.47 2008-02-13 13:28:48 cvsbert Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.48 2008-02-18 11:00:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiiosurface.h"
 
-#include "uibinidsubsel.h"
+#include "uipossubsel.h"
 #include "uibutton.h"
 #include "uicolor.h"
 #include "uigeninput.h"
@@ -82,8 +82,8 @@ void uiIOSurface::mkSectionFld( bool labelabove )
 
 void uiIOSurface::mkRangeFld()
 {
-    rgfld = new uiBinIDSubSel( this, uiBinIDSubSel::Setup().withstep(true) );
-    rgfld->butPush.notify( mCB(this,uiIOSurface,ioDataSelChg) );
+    rgfld = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
+    rgfld->selChange.notify( mCB(this,uiIOSurface,ioDataSelChg) );
 }
 
 

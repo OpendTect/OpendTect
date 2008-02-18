@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.19 2008-02-06 04:36:34 cvsraman Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.20 2008-02-18 11:00:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,6 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "uimsg.h"
 #include "uiscaler.h"
-#include "uibinidsubsel.h"
 #include "scaler.h"
 #include "survinfo.h"
 

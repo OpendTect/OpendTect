@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: rangeposprovider.cc,v 1.3 2008-02-13 13:28:00 cvsbert Exp $";
+static const char* rcsID = "$Id: rangeposprovider.cc,v 1.4 2008-02-18 11:00:47 cvsbert Exp $";
 
 #include "rangeposprovider.h"
 #include "survinfo.h"
@@ -282,9 +282,20 @@ void Pos::RangeProvider2D::fillPar( IOPar& iop ) const
 
 void Pos::RangeProvider2D::getSummary( BufferString& txt ) const
 {
-    txt += rg_.start; txt += "-";
-    if ( !mIsUdf(rg_.stop) )
-	txt += rg_.stop;
+    const bool noend = mIsUdf(rg_.stop);
+    if ( rg_.start == 1 && noend )
+	txt += "[all]";
+    else
+    {
+	txt += rg_.start; txt += "-";
+	if ( noend )
+	    txt += "[last]";
+	else
+	    txt += rg_.stop;
+    }
+    if ( rg_.step != 1 )
+	{ txt += " step "; txt += rg_.step; }
+
     txt += " ("; txt += zrg_.nrSteps() + 1; txt += " samples)";
 }
 

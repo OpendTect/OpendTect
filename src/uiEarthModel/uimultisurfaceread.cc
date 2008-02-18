@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uimultisurfaceread.cc,v 1.10 2007-08-24 11:56:55 cvsnanne Exp $
+ RCS:           $Id: uimultisurfaceread.cc,v 1.11 2008-02-18 11:00:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimultisurfaceread.h"
 
-#include "uibinidsubsel.h"
+#include "uipossubsel.h"
 #include "uilistbox.h"
 #include "ioobj.h"
 #include "ctxtioobj.h"

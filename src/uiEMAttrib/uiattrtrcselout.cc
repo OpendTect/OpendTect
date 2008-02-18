@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.34 2008-02-13 13:28:48 cvsbert Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.35 2008-02-18 11:00:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 #include "uiattrsel.h"
-#include "uibinidsubsel.h"
+#include "uipossubsel.h"
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -164,7 +164,7 @@ void uiAttrTrcSelOut::createZIntervalFld( uiParent* prnt )
 {
     const char* gatelabel = "Z Interval required around surfaces";
     gatefld_ = new uiGenInput( prnt, gatelabel, FloatInpIntervalSpec() );
-    gatefld_->attach( alignedBelow, bidsubselfld_ );
+    gatefld_->attach( alignedBelow, possubselfld_ );
     uiLabel* lbl = new uiLabel( prnt, SI().getZUnit() );
     lbl->attach( rightOf, (uiObject*)gatefld_ );
 }
@@ -194,9 +194,9 @@ void uiAttrTrcSelOut::createExtraZBotFld( uiParent* prnt )
 
 void uiAttrTrcSelOut::createSubSelFld( uiParent* prnt )
 {
-    bidsubselfld_ = new uiBinIDSubSel( prnt, uiBinIDSubSel::Setup()
-	    				   .withz(false).withstep(true) );
-    bidsubselfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)objfld_
+    possubselfld_ = new uiPosSubSel( prnt,
+	    			     uiPosSubSel::Setup(ads_.is2D(),false) );
+    possubselfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)objfld_
 	    					       : (uiGroup*)obj2fld_ );
 }
 
@@ -206,7 +206,7 @@ void uiAttrTrcSelOut::createOutsideValFld( uiParent* prnt )
     const char* outsidevallabel = "Value outside computed area";
     outsidevalfld_ = new uiGenInput( prnt, outsidevallabel, FloatInpSpec() );
     outsidevalfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)gatefld_ 
-						   : (uiGroup*)bidsubselfld_ );
+						   : (uiGroup*)possubselfld_ );
     outsidevalfld_->setValue(0);
 }
 
@@ -343,7 +343,7 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     }
 
     PtrMan<IOPar> subselpar = new IOPar;
-    bidsubselfld_->fillPar( *subselpar );
+    possubselfld_->fillPar( *subselpar );
 
     HorSampling horsamp; horsamp.usePar( *subselpar );
     if ( horsamp.isEmpty() )
@@ -458,9 +458,9 @@ void uiAttrTrcSelOut::objSel( CallBacker* cb )
     
     HorSampling horsampling;
     getComputableSurf( horsampling );
-    CubeSampling cs = bidsubselfld_->envelope();
+    CubeSampling cs = possubselfld_->envelope();
     cs.hrg = horsampling;
-    bidsubselfld_->setInput( cs );
+    possubselfld_->setInput( cs );
 }
 
 

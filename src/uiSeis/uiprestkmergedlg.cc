@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          October 2007
- RCS:           $Id: uiprestkmergedlg.cc,v 1.6 2008-02-13 13:28:48 cvsbert Exp $
+ RCS:           $Id: uiprestkmergedlg.cc,v 1.7 2008-02-18 11:00:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiprestkmergedlg.h"
 
-#include "uibinidsubsel.h"
+#include "uipossubsel.h"
 #include "uilistbox.h"
 #include "uigeninput.h"
 #include "uibutton.h"
@@ -65,8 +65,7 @@ void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
     selvolsbox_ = new uiListBox( topgrp, "Selected Volumes", true );
     outctio_.ctxt.forread = false;
     outpfld_ = new uiIOObjSel( this, outctio_, "Output Volume" );
-    subselfld_ = new uiBinIDSubSel( this, uiBinIDSubSel::Setup().withz(false)
-	    			    .withstep(true) );
+    subselfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Aug 2007
- RCS:           $Id: uicreatepicks.h,v 1.4 2007-11-29 14:36:03 cvsbert Exp $
+ RCS:           $Id: uicreatepicks.h,v 1.5 2008-02-18 11:00:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class IOObj;
 class uiGroup;
 class uiComboBox;
 class uiColorInput;
-class uiBinIDSubSel;
+class uiPosSubSel;
 class uiGenInput;
 class uiLabeledComboBox;
 class uiLabeledListBox;
@@ -99,8 +99,8 @@ public:
 
 protected:
 
-    uiBinIDSubSel*	volsubselfld_;
-    uiBinIDSubSel*	horsubselfld_;
+    uiPosSubSel*	volsubselfld_;
+    uiPosSubSel*	horsubselfld_;
 
     bool		acceptOK(CallBacker*);
     void		mkRandPars();

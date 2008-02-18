@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiselsurvranges.cc,v 1.2 2008-02-12 11:57:08 cvsbert Exp $
+ RCS:           $Id: uiselsurvranges.cc,v 1.3 2008-02-18 11:00:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiselsurvranges.h"
 #include "survinfo.h"
 #include "uispinbox.h"
+#include "uilineedit.h"
 #include "uilabel.h"
 
 
@@ -106,8 +107,8 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
     startfld_ = new uiSpinBox( this, 0, BufferString(nm," start") );
     startfld_->setInterval( rg );
     uiLabel* lbl = new uiLabel( this, BufferString(nm," range"), startfld_ );
-    stopfld_ = new uiSpinBox( this, 0, BufferString(nm," stop") );
-    stopfld_->setInterval( rg );
+    stopfld_ = new uiLineEdit( this, "", BufferString(nm," stop") );
+    stopfld_->setHSzPol( uiObject::Small );
     stopfld_->attach( rightOf, startfld_ );
 
     if ( wstep )
@@ -120,7 +121,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 
     const CallBack cb( mCB(this,uiSelNrRange,valChg) );
     startfld_->valueChanging.notify( cb );
-    stopfld_->valueChanging.notify( cb );
+    stopfld_->editingFinished.notify( cb );
     setRange( wrg );
     setHAlignObj( startfld_ );
 }
@@ -128,11 +129,11 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 
 void uiSelNrRange::valChg( CallBacker* cb )
 {
-    if ( startfld_->getValue() > stopfld_->getValue() )
+    if ( startfld_->getValue() > stopfld_->getIntValue() )
     {
 	const bool chgstart = cb == stopfld_;
 	if ( chgstart )
-	    startfld_->setValue( stopfld_->getValue() );
+	    startfld_->setValue( stopfld_->getIntValue() );
 	else
 	    stopfld_->setValue( startfld_->getValue() );
     }
@@ -141,7 +142,9 @@ void uiSelNrRange::valChg( CallBacker* cb )
 
 StepInterval<int> uiSelNrRange::getRange() const
 {
-    return StepInterval<int>( startfld_->getValue(), stopfld_->getValue(),
+    const char* txt = stopfld_->text();
+    const int stopval = txt && *txt ? atoi(txt) : mUdf(int);
+    return StepInterval<int>( startfld_->getValue(), stopval,
 	    		      stepfld_ ? stepfld_->getValue() : defstep_ );
 }
 
@@ -149,7 +152,10 @@ StepInterval<int> uiSelNrRange::getRange() const
 void uiSelNrRange::setRange( const StepInterval<int>& rg )
 {
     startfld_->setValue( rg.start );
-    stopfld_->setValue( rg.stop );
+    if ( mIsUdf(rg.stop) )
+	stopfld_->setText( "" );
+    else
+	stopfld_->setValue( rg.stop );
     if ( stepfld_ )
 	stepfld_->setValue( rg.step );
 }

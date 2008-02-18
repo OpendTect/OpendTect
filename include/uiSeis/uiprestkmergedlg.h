@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          October 2007
- RCS:           $Id: uiprestkmergedlg.h,v 1.2 2007-11-30 07:01:18 cvsraman Exp $
+ RCS:           $Id: uiprestkmergedlg.h,v 1.3 2008-02-18 11:00:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class CtxtIOObj;
 class IOObj;
 class MultiID;
 class uiIOObjSel;
-class uiBinIDSubSel;
+class uiPosSubSel;
 class uiGenInput;
 class uiListBox;
 class uiToolButton;
@@ -57,7 +57,7 @@ protected:
     uiToolButton*	movedownward_;
 
     uiIOObjSel*		outpfld_;
-    uiBinIDSubSel*	subselfld_;
+    uiPosSubSel*	subselfld_;
     
     CtxtIOObj&          inctio_;
     CtxtIOObj&          outctio_;

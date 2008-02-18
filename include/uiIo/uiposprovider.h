@@ -7,13 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovider.h,v 1.4 2008-02-13 13:28:48 cvsbert Exp $
+ RCS:           $Id: uiposprovider.h,v 1.5 2008-02-18 11:00:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uigroup.h"
-class IOPar;
+#include "uicompoundparsel.h"
+#include "iopar.h"
 class uiGenInput;
 namespace Pos { class Provider; }
 class uiPosProvGroup;
@@ -37,10 +37,10 @@ public:
 			    , choicetype_(OnlyRanges)	{}
 	virtual	~Setup()				{}
 	mDefSetupMemb(BufferString,seltxt)
-	mDefSetupMemb(bool,withz)
 	mDefSetupMemb(bool,is2d)
-	mDefSetupMemb(bool,allownone)
+	mDefSetupMemb(bool,withz)
 	mDefSetupMemb(ChoiceType,choicetype)
+	mDefSetupMemb(bool,allownone)
     };
 
     			uiPosProvider(uiParent*,const Setup&);
@@ -49,7 +49,6 @@ public:
     bool		fillPar(IOPar&) const;
 
     Pos::Provider*	createProvider() const;
-    Pos::Provider*	getProviderInfo(CubeSampling&) const;
 
     bool		isAll() const		{ return !curGrp(); }
 
@@ -61,6 +60,47 @@ protected:
 
     void			selChg(CallBacker*);
     uiPosProvGroup*		curGrp() const;
+};
+
+
+/*!\brief CompoundParSel to capture a user's Pos::Provider wishes */
+
+
+class uiPosProvSel : public uiCompoundParSel
+{
+public:
+
+    typedef uiPosProvider::Setup Setup;
+
+    			uiPosProvSel(uiParent*,const Setup&);
+    			~uiPosProvSel();
+
+    void		usePar(const IOPar&);
+    void		fillPar( IOPar& iop ) const	{ iop.merge(iop_); }
+
+    Pos::Provider*	curProvider()			{ return prov_; }
+    const Pos::Provider* curProvider() const		{ return prov_; }
+
+    const CubeSampling&	envelope() const		{ return cs_; }
+    void		setInput(const CubeSampling&,bool chgtype=true);
+
+    bool		isAll() const;
+    void		setToAll();
+
+protected:
+
+    Setup		setup_;
+    IOPar		iop_;
+    Pos::Provider*	prov_;
+    mutable CubeSampling& cs_;
+
+    void		doDlg(CallBacker*);
+    BufferString	getSelText(const Setup&) const;
+    BufferString	getSummary() const;
+    void		setCSToAll() const;
+    void		setProvFromCS();
+    void		mkNewProv(bool updsumm=true);
+
 };
 
 

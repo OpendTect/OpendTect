@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.29 2008-02-01 04:01:31 cvsnanne Exp $
+ RCS:           $Id: uispinbox.cc,v 1.30 2008-02-18 11:00:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -229,10 +229,18 @@ float uiSpinBox::getFValue() const
 { return (float)body_->value(); }
 
 void uiSpinBox::setValue( int val )
-{ body_->setValue( val ); }
+{
+    if ( mIsUdf(val) )
+	val = maxValue();
+    body_->setValue( val );
+}
 
 void uiSpinBox::setValue( float val )
-{ body_->setValue( val ); }
+{
+    if ( mIsUdf(val) )
+	val = maxFValue();
+    body_->setValue( val );
+}
 
 void uiSpinBox::setMinValue( int val )
 { body_->setMinimum( val ); }

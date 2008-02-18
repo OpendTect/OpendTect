@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.h,v 1.9 2008-01-10 08:41:18 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.h,v 1.10 2008-02-18 11:00:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class NLAModel;
 class uiGenInput;
 class uiIOObjSel;
 class uiSeisSel;
-class uiBinIDSubSel;
+class uiPosSubSel;
 class HorSampling;
 
 namespace Attrib { class DescSet; }
@@ -80,7 +80,7 @@ protected:
     uiGenInput*		gatefld_;
     uiGenInput*         extraztopfld_;
     uiGenInput*         extrazbotfld_;
-    uiBinIDSubSel*	bidsubselfld_;
+    uiPosSubSel*	possubselfld_;
     uiGenInput*		outsidevalfld_;
     uiGenInput*		interpfld_;
     uiGenInput*		nrsampfld_;

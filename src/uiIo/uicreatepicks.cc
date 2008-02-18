@@ -8,11 +8,11 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.10 2008-02-13 13:28:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.11 2008-02-18 11:00:48 cvsbert Exp $";
 
 #include "uicreatepicks.h"
 
-#include "uibinidsubsel.h"
+#include "uipossubsel.h"
 #include "uicolor.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
@@ -142,15 +142,15 @@ uiGenRandPicks3D::uiGenRandPicks3D( uiParent* p, const BufferStringSet& hornms )
 	geomfld_->valuechanged.notify( mCB(this,uiGenRandPicks,geomSel) );
     }
 
-    uiBinIDSubSel::Setup su; su.withz(true).withstep(false).onlyranges(true);
-    volsubselfld_ = new uiBinIDSubSel( this, su );
+    uiPosSubSel::Setup su(false,true); su.withstep(false);
+    volsubselfld_ = new uiPosSubSel( this, su );
     volsubselfld_->attach( alignedBelow, geomfld_ ? geomfld_ : nrfld_ );
     if ( geomfld_ )
     {
 	horselfld_->attach( alignedBelow, geomfld_ );
 	horsel2fld_->attach( rightOf, horselfld_ );
 	su.withz(false);
-	horsubselfld_ = new uiBinIDSubSel( this, su );
+	horsubselfld_ = new uiPosSubSel( this, su );
 	horsubselfld_->attach( alignedBelow, horselfld_ );
     }
 
@@ -176,7 +176,7 @@ void uiGenRandPicks3D::mkRandPars()
     randpars_.nr_ = nrfld_->getIntValue();
     randpars_.needhor_ = geomfld_ && geomfld_->getIntValue();
 
-    uiBinIDSubSel* ss = randpars_.needhor_ ? horsubselfld_ : volsubselfld_;
+    uiPosSubSel* ss = randpars_.needhor_ ? horsubselfld_ : volsubselfld_;
     CubeSampling cs = ss->envelope();
     randpars_.hs_ = cs.hrg;
 

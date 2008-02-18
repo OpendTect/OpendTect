@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.99 2008-02-13 13:28:48 cvsbert Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.100 2008-02-18 11:00:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiimphorizon.h"
 #include "uiarray2dchg.h"
-#include "uibinidsubsel.h"
+#include "uipossubsel.h"
 
 #include "uicombobox.h"
 #include "uilistbox.h"
@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "emsurfaceauxdata.h"
+#include "uicompoundparsel.h"
 #include "horizonscanner.h"
 #include "ioobj.h"
 #include "pickset.h"
@@ -147,8 +148,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, scanbut_ );
 
-    subselfld_ = new uiBinIDSubSel( this, uiBinIDSubSel::Setup()
-	    				  .withz(false).withstep(true) );
+    subselfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
     subselfld_->attach( alignedBelow, attrlistfld_ );
     subselfld_->attach( ensureBelow, sep );
     subselfld_->setSensitive( false );

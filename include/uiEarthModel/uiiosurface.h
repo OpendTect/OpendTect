@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.22 2008-01-18 06:46:20 cvsraman Exp $
+ RCS:           $Id: uiiosurface.h,v 1.23 2008-02-18 11:00:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class IODirEntryList;
 class IOObj;
 class MultiID;
 
-class uiBinIDSubSel;
+class uiPosSubSel;
 class uiColorInput;
 class uiGenInput;
 class uiIOObjSel;
@@ -68,7 +68,7 @@ protected:
 
     uiLabeledListBox*	sectionfld;
     uiLabeledListBox*	attribfld;
-    uiBinIDSubSel*	rgfld;
+    uiPosSubSel*	rgfld;
     uiIOObjSel*		objfld;
 
     CtxtIOObj&		ctio;

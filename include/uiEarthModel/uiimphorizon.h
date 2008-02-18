@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.h,v 1.23 2007-12-13 06:01:27 cvsraman Exp $
+ RCS:           $Id: uiimphorizon.h,v 1.24 2008-02-18 11:00:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ class CtxtIOObj;
 class HorizonScanner;
 class IOObj;
 class MultiID;
-class uiBinIDSubSel;
 class uiCheckBox;
 class uiColorInput;
 class uiLabeledListBox;
@@ -29,6 +28,7 @@ class uiGenInput;
 class uiImpHorArr2DInterpPars;
 class uiIOObjSel;
 class uiPushButton;
+class uiPosSubSel;
 class uiScaler;
 class uiStratLevelSel;
 class uiTableImpDataSel;
@@ -52,7 +52,7 @@ protected:
     uiPushButton*       scanbut_;
     uiLabeledListBox*	attrlistfld_;
     uiPushButton*	addbut_;
-    uiBinIDSubSel*	subselfld_;
+    uiPosSubSel*	subselfld_;
     uiGenInput*		filludffld_;
     uiImpHorArr2DInterpPars*	arr2dinterpfld_;
     uiTableImpDataSel*  dataselfld_;
