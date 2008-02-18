@@ -14,8 +14,8 @@ static const char* rcsID = "$Id";
 #include "settings.h"
 
 DefineNameSpaceEnumNames(Stats,Type,0,"Statistics types")
-{ "Average", "Median", "StdDev", "Variance", "Min", "Max", "MostFrequent",
-  "Sum", "SquareSum", "NormVariance", 0 };
+{ "Count", "Average", "Median", "StdDev", "Variance", "Min", "Max",
+  "MostFrequent", "Sum", "SquareSum", "NormVariance", 0 };
 
 int Stats::RandGen::seed_ = 0;
 
