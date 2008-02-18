@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.30 2008-02-06 19:13:26 cvskris Exp $
+ RCS:           $Id: flatview.cc,v 1.31 2008-02-18 05:48:08 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -381,7 +381,11 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
     const IndexInfo ix = pd.indexInfo( true, pt.x );
     const IndexInfo iy = pd.indexInfo( false, pt.y );
     if ( !ix.inundef_ && !iy.inundef_ )
+    {
+	const float val = arr.get( ix.nearest_, iy.nearest_ );
+	iop.set( "Value", val );
 	dp->getAuxInfo( ix.nearest_, iy.nearest_, iop );
+    }
 }
 
 

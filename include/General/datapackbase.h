@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: datapackbase.h,v 1.6 2008-01-30 16:38:39 cvsbert Exp $
+ RCS:		$Id: datapackbase.h,v 1.7 2008-02-18 05:48:18 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,8 +72,8 @@ public:
     virtual Coord3		getCoord(int,int) const;
     				//!< int,int = Array2D position
     				//!< if not overloaded, returns posData() (z=0)
-    virtual bool		posDataIsCoord() const	{ return true; }
 
+    virtual bool		posDataIsCoord() const	{ return true; }
 				// Alternative positions for dim0
     virtual void		getAltDim0Keys(BufferStringSet&) const {}
     				//!< First one is 'default'
@@ -101,6 +101,34 @@ private:
 
 };
 
+
+/*!\brief DataPack for 2D data to be plotted on a Map. */
+
+class MapDataPack : public FlatDataPack
+{
+public:
+    				MapDataPack(const char* categry,const char* nm,
+					    Array2D<float>*);
+
+    void			setDimNames( const char* xlbl,const char* ylbl)
+				{ xlbl_ = xlbl; ylbl_ = ylbl; }
+    const char*			dimName( bool dim0 ) const
+				{ return dim0 ? xlbl_ : ylbl_; }
+
+    				//!< Alternatively, it can be in Inl/Crl
+    bool			posDataIsCoord() const	{ return isposcoord_; }
+    void			setPosCoord(bool yn)	{ isposcoord_ = yn; }
+    Coord			get2DCoord(int,int) const;
+    				//!< int,int = Array2D position
+    virtual void		getAuxInfo(int idim0,int idim1,IOPar&) const;
+
+protected:
+
+    bool			isposcoord_;
+    BufferString		xlbl_;
+    BufferString		ylbl_;
+
+};
 
 /*!\brief DataPack for volume data. */
     
