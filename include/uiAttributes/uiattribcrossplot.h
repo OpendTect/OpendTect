@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiattribcrossplot.h,v 1.1 2005-08-15 15:50:25 cvsnanne Exp $
+ RCS:           $Id: uiattribcrossplot.h,v 1.2 2008-02-18 22:40:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,8 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 namespace Attrib { class DescSet; }
-class uiLabeledListBox;
+class uiListBox;
+class uiPosProvider;
 
 
 class uiAttribCrossPlot : public uiDialog
@@ -29,15 +30,13 @@ public:
 
 protected:
 
-    uiLabeledListBox*		attrsfld;
-    uiLabeledListBox*		pssfld;
+    uiListBox*		attrsfld_;
+    uiPosProvider*	posprovfld_;
 
-    bool			acceptOK(CallBacker*);
-    void			saveData(CallBacker*);
+    bool		acceptOK(CallBacker*);
 
-    const Attrib::DescSet&	ads_;
-    BufferStringSet		attrdefs_;
-    BufferStringSet		psdefs_;
+    const Attrib::DescSet& ads_;
+    BufferStringSet	attrdefs_;
 };
 
 
