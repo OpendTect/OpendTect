@@ -5,13 +5,13 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: uitutseistools.cc,v 1.11 2007-12-05 11:55:49 cvsbert Exp $";
+static const char* rcsID = "$Id: uitutseistools.cc,v 1.12 2008-02-18 05:57:35 cvsraman Exp $";
 
 #include "uitutseistools.h"
 #include "tutseistools.h"
 #include "uiseissel.h"
 #include "uigeninput.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uimsg.h"
 #include "seistrctr.h"
 #include "seisselection.h"
@@ -120,6 +120,6 @@ bool uiTutSeisTools::acceptOK( CallBacker* )
     break;
     }
 
-    uiExecutor dlg( this, tst_ );
-    return dlg.go();
+    uiTaskRunner taskrunner( this );
+    return taskrunner.execute( tst_ );
 }

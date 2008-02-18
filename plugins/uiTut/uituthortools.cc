@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uituthortools.cc,v 1.6 2007-12-10 12:59:52 cvsbert Exp $";
+static const char* rcsID = "$Id: uituthortools.cc,v 1.7 2008-02-18 05:57:35 cvsraman Exp $";
 
 #include "uituthortools.h"
 #include "ctxtioobj.h"
@@ -14,7 +14,7 @@ static const char* rcsID = "$Id: uituthortools.cc,v 1.6 2007-12-10 12:59:52 cvsb
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "emsurfacetr.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 
 uiTutHorTools::uiTutHorTools( uiParent* p )
 	: uiDialog( p, Setup( "Tut Horizon tools",
@@ -123,8 +123,8 @@ EM::Horizon3D* uiTutHorTools::loadHor( const IOObj* ioobj )
         uiMSG().error( errmsg );
 	return 0;
     }
-    uiExecutor dlg( this, *exec );
-    dlg.go();
+    uiTaskRunner taskrunner( this );
+    taskrunner.execute( *exec );
     EM::EMObject* emobj = em.getObject( em.getObjectID(ioobj->key()) );
     emobj->ref();
     mDynamicCastGet(EM::Horizon3D*,horizon,emobj)
@@ -140,8 +140,8 @@ void uiTutHorTools::saveData(bool geom)
     else
 	exec = thickcalc_->dataSaver();
 
-    uiExecutor dlg( this, *exec );
-    dlg.go();
+    uiTaskRunner taskrunner( this );
+    taskrunner.execute( *exec );
 }
 
 
@@ -163,8 +163,8 @@ bool uiTutHorTools::acceptOK( CallBacker* )
 
 	if ( !initHorSmoothener() )
 	    return false; 
-	uiExecutor dlg( this, *smoothnr_ );
-	retval = dlg.go();
+	uiTaskRunner taskrunner( this );
+	retval = taskrunner.execute( *smoothnr_ );
     }
     else
     {
@@ -178,8 +178,8 @@ bool uiTutHorTools::acceptOK( CallBacker* )
 
 	if ( !initThicknessFinder() )
 	    return false;
-	uiExecutor dlg( this, *thickcalc_ );
-	retval = dlg.go();
+	uiTaskRunner taskrunner( this );
+	retval = taskrunner.execute( *thickcalc_ );
     }
 
     if ( retval )
