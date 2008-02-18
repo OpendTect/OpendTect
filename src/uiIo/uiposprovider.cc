@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.6 2008-02-18 11:00:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.7 2008-02-18 16:32:17 cvsbert Exp $";
 
 #include "uiposprovgroup.h"
 #include "uipossubsel.h"
@@ -143,7 +143,7 @@ Pos::Provider* uiPosProvider::createProvider() const
 
 
 uiPosProvSel::uiPosProvSel( uiParent* p, const uiPosProvSel::Setup& su )
-    : uiCompoundParSel(p,getSelText(su))
+    : uiCompoundParSel(p,su.seltxt_)
     , setup_(su)
     , prov_(0)
     , cs_(*new CubeSampling(false))
@@ -157,14 +157,6 @@ uiPosProvSel::~uiPosProvSel()
 {
     delete prov_;
     delete &cs_;
-}
-
-
-BufferString uiPosProvSel::getSelText( const Setup& su ) const
-{
-    BufferString seltxt( su.withz_ ? "Volume" : "Area" );
-    seltxt += " subselection";
-    return seltxt;
 }
 
 

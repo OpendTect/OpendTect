@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          June 2005
- RCS:           $Id: similarityattrib.cc,v 1.33 2007-11-09 16:53:52 cvshelene Exp $
+ RCS:           $Id: similarityattrib.cc,v 1.34 2008-02-18 16:32:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -306,7 +306,7 @@ bool Similarity::computeData( const DataHolder& output, const BinID& relpos,
 	else
 	{
 	    if ( outputinterest[0] )
-		setOutputValue( output, 0, idx, z0, stats.mean() );
+		setOutputValue( output, 0, idx, z0, stats.average() );
 	    if ( outputinterest[1] )
 		setOutputValue( output, 1, idx, z0, stats.median() );
 	    if ( outputinterest[2] ) 

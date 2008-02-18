@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.15 2008-02-13 13:28:48 cvsbert Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.16 2008-02-18 16:32:17 cvsbert Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -304,6 +304,11 @@ int Seis::RangeSelData::selRes( const BinID& bid ) const
 		? 2 : 0;
     int crlres = cs_.hrg.start.crl > bid.crl || cs_.hrg.stop.crl < bid.crl
 		? 2 : 0;
+    int rv = inlres + 256 * crlres;
+    if ( rv != 0 ) return rv;
+
+    inlres = (bid.inl - cs_.hrg.start.inl) % cs_.hrg.step.inl ? 1 : 0;
+    crlres = (bid.crl - cs_.hrg.start.crl) % cs_.hrg.step.crl ? 1 : 0;
     return inlres + 256 * crlres;
 }
 

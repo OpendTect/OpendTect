@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2006
- RCS:		$Id: prestackmutedef.cc,v 1.4 2007-07-23 15:09:12 cvskris Exp $
+ RCS:		$Id: prestackmutedef.cc,v 1.5 2008-02-18 16:32:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,5 +115,5 @@ float MuteDef::value( float offs, const BinID& pos ) const
 	calc.addValue( val, normalweight / sqdist );
     }
 
-    return calc.mean();
+    return calc.average();
 }

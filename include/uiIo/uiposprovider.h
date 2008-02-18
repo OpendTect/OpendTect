@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovider.h,v 1.5 2008-02-18 11:00:47 cvsbert Exp $
+ RCS:           $Id: uiposprovider.h,v 1.6 2008-02-18 16:32:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,7 +95,6 @@ protected:
     mutable CubeSampling& cs_;
 
     void		doDlg(CallBacker*);
-    BufferString	getSelText(const Setup&) const;
     BufferString	getSummary() const;
     void		setCSToAll() const;
     void		setProvFromCS();

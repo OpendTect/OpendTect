@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: rangeposprovider.cc,v 1.4 2008-02-18 11:00:47 cvsbert Exp $";
+static const char* rcsID = "$Id: rangeposprovider.cc,v 1.5 2008-02-18 16:32:17 cvsbert Exp $";
 
 #include "rangeposprovider.h"
 #include "survinfo.h"
@@ -268,14 +268,18 @@ bool Pos::RangeProvider2D::includes( const Coord& c, float z ) const
 
 void Pos::RangeProvider2D::usePar( const IOPar& iop )
 {
-    iop.get( sKey::Range, rg_ );
+    CubeSampling cs(false); cs.set2DDef();
+    if ( cs.usePar(iop) )
+	rg_ = cs.hrg.crlRange();
     iop.get( sKey::ZRange, zrg_ );
 }
 
 
 void Pos::RangeProvider2D::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::Range, rg_ );
+    CubeSampling cs(false); cs.set2DDef();
+    cs.hrg.start.crl = rg_.start; cs.hrg.stop.crl = rg_.stop;
+    cs.hrg.step.crl = rg_.step; cs.hrg.fillPar( iop );
     iop.set( sKey::ZRange, zrg_ );
 }
 
