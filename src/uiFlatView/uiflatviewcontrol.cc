@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.31 2007-12-12 15:44:40 cvsbert Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.32 2008-02-18 05:50:55 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,13 +24,14 @@ ________________________________________________________________________
     butnm->setToolTip( tt )
 
 uiFlatViewControl::uiFlatViewControl( uiFlatViewer& vwr, uiParent* p,
-				      bool wrubb )
+				      bool wrubb, bool withwva )
     : uiGroup(p ? p : vwr.attachObj()->parent(),"Flat viewer control")
     , zoommgr_(*new FlatView::ZoomMgr)
     , haverubber_(wrubb)
     , propdlg_(0)
     , infoChanged(this)
     , viewerAdded(this)
+    , withwva_(withwva)
 {
     setBorder( 0 );
     addViewer( vwr );
@@ -237,7 +238,8 @@ void uiFlatViewControl::doPropertiesDialog( int vieweridx )
     if ( propdlg_ ) delete propdlg_;
     propdlg_ = new uiFlatViewPropDlg( vwr.attachObj()->parent(), vwr,
 				  mCB(this,uiFlatViewControl,applyProperties),
-	   			  annots.size() ? &annots : 0, selannot );
+	   			  annots.size() ? &annots : 0, selannot,
+	   			  withwva_ );
     propdlg_->windowClosed.notify(mCB(this,uiFlatViewControl,propDlgClosed));
     propdlg_->go();
 }

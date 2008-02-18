@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.cc,v 1.7 2007-08-29 16:22:59 cvsbert Exp $
+ RCS:           $Id: uiflatviewstdcontrol.cc,v 1.8 2008-02-18 05:50:55 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ ________________________________________________________________________
 
 uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					    const Setup& setup )
-    : uiFlatViewControl(vwr,setup.parent_,true)
+    : uiFlatViewControl(vwr,setup.parent_,true,setup.withwva_)
     , manipbut_(0)
     , menu_(*new uiMenuHandler(&vwr,-1))	//TODO multiple menus ?
     , propertiesmnuitem_("Properties...",100)

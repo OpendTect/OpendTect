@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.h,v 1.10 2007-12-12 15:44:40 cvsbert Exp $
+ RCS:           $Id: uiflatviewpropdlg.h,v 1.11 2008-02-18 05:51:17 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ public:
 			uiFlatViewPropDlg(uiParent*,FlatView::Viewer&,
 					  const CallBack& applcb,
 					  const BufferStringSet* anns=0,
-					  int selann=0);
+					  int selann=0, bool withwva=true);
     FlatView::Viewer&	viewer() 			{ return vwr_; }
 
     void		putAllToScreen();

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.21 2007-11-08 14:50:38 cvskris Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.22 2008-02-18 05:51:17 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,13 +65,15 @@ public:
 
 protected:
 
-    			uiFlatViewControl(uiFlatViewer&,uiParent*,bool);
+    			uiFlatViewControl(uiFlatViewer&,uiParent*,bool,
+					  bool withwva=true);
 
     ObjectSet<uiFlatViewer> vwrs_;
     FlatView::ZoomMgr&	zoommgr_;
     bool		haverubber_;
     BufferString	category_;
     IOPar		infopars_;
+    bool		withwva_;
 
     uiFlatViewPropDlg*  propdlg_;
 

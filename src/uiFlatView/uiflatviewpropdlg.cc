@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.18 2008-02-06 19:13:26 cvskris Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.19 2008-02-18 05:50:55 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -558,7 +558,7 @@ void uiFVAnnotPropTab::updateAuxFlds( int idx )
 uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 				      const CallBack& applcb,
 				      const BufferStringSet* annots,
-       				      int selannot )
+       				      int selannot, bool withwva )
     : uiTabStackDlg(p,uiDialog::Setup("Display properties",
 				      "Specify display properties",
 				      "51.0.0"))
@@ -568,8 +568,12 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 {
     vwr_.fillPar( initialpar_ );
 
-    wvatab_ = new uiFVWVAPropTab( tabParent(), vwr_ );
-    addGroup( wvatab_ );
+    if ( withwva )
+    {
+	wvatab_ = new uiFVWVAPropTab( tabParent(), vwr_ );
+	addGroup( wvatab_ );
+    }
+
     vdtab_ = new uiFVVDPropTab( tabParent(), vwr_ );
     addGroup( vdtab_ );
     annottab_ = new uiFVAnnotPropTab( tabParent(), vwr_, annots );
