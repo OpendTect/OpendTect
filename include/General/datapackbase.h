@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: datapackbase.h,v 1.7 2008-02-18 05:48:18 cvsraman Exp $
+ RCS:		$Id: datapackbase.h,v 1.8 2008-02-19 09:51:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ public:
     virtual BinID		binID(int) const		= 0;
     virtual float		z(int) const			= 0;
     virtual Coord		coord(int) const;
+    virtual int			trcNr(int) const		{ return 0; }
 
     virtual bool		simpleCoords() const		{ return true; }
     				//!< If true, coords are always SI().tranform(b)

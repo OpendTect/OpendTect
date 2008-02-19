@@ -4,17 +4,19 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.5 2008-02-15 16:49:44 cvshelene Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.6 2008-02-19 09:51:23 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
 #include "posvecdataset.h"
+#include "posprovider.h"
 #include "bufstringset.h"
 #include "survinfo.h"
 
-const int DataPointSet::nrfixedcols_ = 4;
-const int DataPointSet::groupcol_ = 3;
 static const char* sKeyDPS = "Data Point Set";
+const int DataPointSet::groupcol_ = 3;
+#define mAdd2DMembs(is2d) \
+    	is2d_(is2d), nrfixedcols_(is2d?5:4)
 
 
 DataPointSet::Pos::Pos( const Coord& c, float _z )
@@ -41,6 +43,21 @@ void DataPointSet::Pos::setOffs( const Coord& c )
 }
 
 
+void DataPointSet::Pos::set( const BinID& bid, const Coord& c )
+{
+    binid_ = bid;
+    setOffs( c );
+}
+
+
+void DataPointSet::Pos::set( const BinID& bid, const Coord3& c )
+{
+    binid_ = bid;
+    setOffs( c );
+    z_ = c.z;
+}
+
+
 Coord DataPointSet::Pos::coord() const
 {
     Coord sc( SI().transform(binid_) );
@@ -50,9 +67,10 @@ Coord DataPointSet::Pos::coord() const
 
 
 DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
-			    const ObjectSet<DataColDef>& dcds )
+			    const ObjectSet<DataColDef>& dcds, bool is2d )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
+    	, mAdd2DMembs(is2d)
 {
     initPVDS();
     init( pts, dcds );
@@ -60,9 +78,10 @@ DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
 
 
 DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
-			    const BufferStringSet& nms )
+			    const BufferStringSet& nms, bool is2d )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
+    	, mAdd2DMembs(is2d)
 {
     initPVDS();
     ObjectSet<DataColDef> dcds;
@@ -72,9 +91,39 @@ DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
 }
 
 
-DataPointSet::DataPointSet( const PosVecDataSet& pdvs )
+DataPointSet::DataPointSet( ::Pos::Provider& prov,
+			    const ObjectSet<DataColDef>& dcds )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
+    	, mAdd2DMembs(prov.is2D())
+{
+    initPVDS();
+    ::Pos::Provider2D* prov2d = 0; ::Pos::Provider3D* prov3d = 0;
+    if ( is2d_ )
+	prov2d = (::Pos::Provider2D*)(&prov);
+    else
+	prov3d = (::Pos::Provider3D*)(&prov);
+
+    const int nrcols = dcds.size();
+    DataPointSet::DataRow dr;
+    while ( prov.toNextZ() )
+    {
+	const Coord crd( prov.curCoord() );
+	const BinID bid( is2d_ ? SI().transform(crd) : prov3d->curBinID() );
+	dr.pos_.set( bid, crd );
+	dr.pos_.z_ = prov.curZ();
+	if ( is2d_ )
+	    dr.pos_.nr_ = prov2d->curNr();
+	dr.data_.setSize( nrcols, mUdf(float) );
+	addRow( dr );
+    }
+}
+
+
+DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool is2d )
+	: PointDataPack(sKeyDPS)
+	, data_(*new PosVecDataSet)
+    	, mAdd2DMembs(is2d)
 {
     initPVDS();
 
@@ -102,6 +151,8 @@ DataPointSet::DataPointSet( const PosVecDataSet& pdvs )
 	{
 	    dr.pos_.offsx_ = vals[1]; dr.pos_.offsy_ = vals[2];
 	    dr.grp_ = (short)vals[3];
+	    if ( is2d_ )
+		dr.pos_.nr_ = mNINT(vals[4]);
 	}
 	for ( int idx=startidx; idx<bvssz; idx++ )
 	    dr.data_[idx-startidx] = vals[idx];
@@ -115,6 +166,7 @@ DataPointSet::DataPointSet( const PosVecDataSet& pdvs )
 DataPointSet::DataPointSet( const DataPointSet& dps )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
+    	, mAdd2DMembs(dps.is2d_)
 {
     data_ = dps.data_;
     bvsidxs_ = dps.bvsidxs_;
@@ -133,6 +185,8 @@ DataPointSet& DataPointSet::operator =( const DataPointSet& dps )
     {
 	data_ = dps.data_;
 	bvsidxs_ = dps.bvsidxs_;
+	is2d_ = dps.is2d_;
+	const_cast<int&>(nrfixedcols_) = dps.nrfixedcols_;
     }
     return *this;
 }
@@ -143,6 +197,8 @@ void DataPointSet::initPVDS()
     data_.add( new DataColDef("X Offset") );
     data_.add( new DataColDef("Y Offset") );
     data_.add( new DataColDef("Selection status") );
+    if ( is2d_ )
+	data_.add( new DataColDef("Trace number") );
 }
 
 
@@ -226,7 +282,10 @@ DataPointSet::Pos DataPointSet::pos( DataPointSet::RowID rid ) const
 {
     mChkRowID(rid,Pos());
     const float* vals = bivSet().getVals( bvsidxs_[rid] );
-    return Pos( binID(rid), vals[0], vals[1], vals[2] );
+    Pos p( binID(rid), vals[0], vals[1], vals[2] );
+    if ( is2d_ )
+	p.nr_ = mNINT(vals[4]);
+    return p;
 }
 
 
@@ -237,8 +296,8 @@ DataPointSet::DataRow DataPointSet::dataRow( DataPointSet::RowID rid ) const
     const float* vals = bivSet().getVals( bvsidxs_[rid] );
     const int nrvals = bivSet().nrVals();
 
-    DataRow dr( Pos(binID(rid),vals[0],vals[1],vals[2]) );
-    dr.grp_ = (short)mNINT(vals[3]);
+    DataRow dr( pos(rid) );
+    dr.grp_ = (short)mNINT(vals[groupcol_]);
     for ( int idx=nrfixedcols_; idx<nrvals; idx++ )
 	dr.data_ += vals[idx];
 
@@ -265,6 +324,14 @@ float DataPointSet::z( DataPointSet::RowID rid ) const
 {
     mChkRowID(rid,mUdf(float));
     return bivSet().getVal( bvsidxs_[rid], 0 );
+}
+
+
+int DataPointSet::trcNr( DataPointSet::RowID rid ) const
+{
+    mChkRowID(rid,0); if ( !is2d_ ) return 0;
+    const float fnr = bivSet().getVal( bvsidxs_[rid], groupcol_+1 );
+    return mNINT(fnr);
 }
 
 
@@ -337,6 +404,8 @@ void DataPointSet::addRow( const DataPointSet::DataRow& dr )
     bivs.value(1) = dr.pos_.offsx_;
     bivs.value(2) = dr.pos_.offsy_;
     bivs.value(3) = dr.grp_;
+    if ( is2d_ )
+	bivs.value(4) = dr.pos_.nr_;
     for ( int idx=0; idx<nrvals; idx++ )
 	bivs.value(nrfixedcols_+idx) = dr.data_[idx];
     bivSet().add( bivs );

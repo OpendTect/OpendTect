@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.3 2008-02-15 16:49:44 cvshelene Exp $
+ RCS:		$Id: datapointset.h,v 1.4 2008-02-19 09:51:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class BinIDValueSet;
 class PosVecDataSet;
 class UnitOfMeasure;
 class BufferStringSet;
+namespace Pos { class Provider; }
 
 
 /*!\brief Set of data points with group selection.
@@ -30,6 +31,9 @@ class BufferStringSet;
   The design is based on the model that you extract data in some way which
   should then be quickly accessible. The data set is not meant to be
   manipulated other than via setSelected() and setGroup().
+
+  For data associated with 2D seismics, you can specify that the DataPointSet
+  needs to be 2D; then also 'trcNr() can be used.
 
 */
 
@@ -44,11 +48,11 @@ public:
 
     struct Pos
     {
-			Pos() : offsx_(0), offsy_(0), z_(0)	{}
+			Pos() : offsx_(0), offsy_(0), z_(0), nr_(0)	{}
 			Pos( const BinID& bid, float _z,
 			     float offsx=0, float offsy=0 )
-			    : binid_(bid), z_(_z)
-			    , offsx_(offsx), offsy_(offsy)	{}
+			    : binid_(bid), nr_(0), z_(_z)
+			    , offsx_(offsx), offsy_(offsy)		{}
 			Pos(const Coord&,float z);
 			Pos(const Coord3&);
 
@@ -59,9 +63,13 @@ public:
 	Coord		coord() const;
 	float		z() const	{ return z_; }
 
+	void		set(const BinID&,const Coord&);
+	void		set(const BinID&,const Coord3&);
+
 	BinID		binid_;
 	float		offsx_, offsy_;
 	float		z_;
+	int		nr_;			//!< unused if not 2D
 
     protected:
 
@@ -99,10 +107,14 @@ public:
     };
 
     			DataPointSet(const TypeSet<DataRow>&,
-				     const ObjectSet<DataColDef>&);
+				     const ObjectSet<DataColDef>&,
+				     bool is2d=false);
     			DataPointSet(const TypeSet<DataRow>&,
-				     const BufferStringSet& valnms);
-    			DataPointSet(const PosVecDataSet&);
+				     const BufferStringSet& valnms,
+				     bool is2d=false);
+    			DataPointSet(::Pos::Provider&,
+				     const ObjectSet<DataColDef>&);
+    			DataPointSet(const PosVecDataSet&,bool is2d=false);
     			DataPointSet(const DataPointSet&);
     virtual		~DataPointSet();
     DataPointSet&	operator =(const DataPointSet&);
@@ -120,6 +132,7 @@ public:
     BinID		binID(RowID) const;	//!< PointDataPack impl
     Coord		coord(RowID) const;	//!< PointDataPack impl
     float		z(RowID) const;		//!< PointDataPack impl
+    int			trcNr(RowID) const;	//!< PointDataPack impl, 2D only
     float		value(ColID,RowID) const;
     float*		getValues(RowID);
     const float*	getValues(RowID) const;
@@ -165,14 +178,15 @@ protected:
 
     PosVecDataSet&		data_;
     TypeSet<BinIDValueSet::Pos>	bvsidxs_;
+    bool			is2d_;
 
     void		initPVDS();
     void		init(const TypeSet<DataRow>&,
 	    		     const ObjectSet<DataColDef>&);
     void		calcIdxs();
 
-    static const int	nrfixedcols_;
     static const int	groupcol_;
+    const int		nrfixedcols_;
 };
 
 
