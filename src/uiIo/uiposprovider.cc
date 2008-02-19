@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.7 2008-02-18 16:32:17 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.8 2008-02-19 15:14:51 cvsbert Exp $";
 
 #include "uiposprovgroup.h"
 #include "uipossubsel.h"
@@ -121,11 +121,14 @@ bool uiPosProvider::fillPar( IOPar& iop ) const
     if ( grps_.size() < 1 )
 	return false;
 
-    if ( isAll() )
-	iop.set( sKey::Type, sKey::None );
+    if ( !isAll() )
+    {
+	const uiPosProvGroup* curgrp = curGrp();
+	return curgrp ? curgrp->fillPar(iop) : true;
+    }
 
-    const uiPosProvGroup* curgrp = curGrp();
-    return curgrp ? curgrp->fillPar(iop) : true;
+    iop.set( sKey::Type, sKey::None );
+    return true;
 }
 
 
@@ -148,6 +151,7 @@ uiPosProvSel::uiPosProvSel( uiParent* p, const uiPosProvSel::Setup& su )
     , prov_(0)
     , cs_(*new CubeSampling(false))
 {
+    iop_.set( sKey::Type, sKey::None );
     mkNewProv(false);
     butPush.notify( mCB(this,uiPosProvSel,doDlg) );
 }

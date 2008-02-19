@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.37 2007-12-05 11:55:49 cvsbert Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.38 2008-02-19 15:14:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -216,25 +216,16 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 
     transffld->selfld->fillPar( subselpar );
     CubeSampling cs; cs.usePar( subselpar );
+    IOPar tmpiop;
     if ( !cs.hrg.isEmpty() )
-    {
-	key = keybase; key += SeisTrcStorOutput::inlrangekey;
-	iop.set( key, cs.hrg.start.inl, cs.hrg.stop.inl );
-	key = keybase; key += SeisTrcStorOutput::crlrangekey;
-	iop.set( key, cs.hrg.start.crl, cs.hrg.stop.crl );
-    }
+	cs.fillPar( tmpiop );
     else
     {
-	CubeSampling curcs;
-	todofld->getRanges( curcs );
-	key = keybase; key += SeisTrcStorOutput::inlrangekey;
-	iop.set( key, curcs.hrg.start.inl, curcs.hrg.stop.inl );
-	key = keybase; key += SeisTrcStorOutput::crlrangekey;
-	iop.set( key, curcs.hrg.start.crl, curcs.hrg.stop.crl );
+	CubeSampling curcs; todofld->getRanges( curcs );
+	curcs.fillPar( tmpiop );
     }
+    iop.mergeComp( tmpiop, keybase );
 
-    key = keybase; key += SeisTrcStorOutput::depthrangekey;
-    iop.set( key, cs.zrg.start*SI().zFactor(), cs.zrg.stop*SI().zFactor() );
     CubeSampling::removeInfo( subselpar );
     iop.mergeComp( subselpar, keybase );
 

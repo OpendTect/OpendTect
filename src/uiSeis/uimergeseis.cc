@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.37 2007-12-05 11:55:49 cvsbert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.38 2008-02-19 15:14:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -192,13 +192,8 @@ bool uiMergeSeis::handleInput( int& nrsamps, int& bps )
 	}
 
 	IOPar* iopar = new IOPar;
-	iopar->set( sKey::BinIDSel, sKey::Range );
-	iopar->set( sKey::FirstInl, cs.hrg.start.inl );
-        iopar->set( sKey::LastInl, cs.hrg.stop.inl );
-        iopar->set( sKey::StepInl, abs(cs.hrg.step.inl) );
-	iopar->set( sKey::FirstCrl, cs.hrg.start.crl );
-        iopar->set( sKey::LastCrl, cs.hrg.stop.crl );
-        iopar->set( sKey::StepCrl, abs(cs.hrg.step.crl) );
+	iopar->set( sKey::Type, sKey::Range );
+	cs.fillPar( *iopar );
 	seliops += iopar;
 	order[idx] = idx;
 	inlstart[idx] = cs.hrg.start.inl;

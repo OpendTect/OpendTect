@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.70 2008-02-19 14:00:15 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.71 2008-02-19 15:14:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,23 +122,14 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	proc->addOutputInterest(idx);
     
     PtrMan<IOPar> outpar = iopar.subselect( IOPar::compKey("Output",1) );
-    const char* bsres = outpar ? outpar->find( sKey::BinIDSel ) : 0;
-    if ( !bsres || *bsres != 'N' )
-    {
-	outpar->get( "In-line range", cs_.hrg.start.inl, cs_.hrg.stop.inl );
-	outpar->get( "Cross-line range",cs_.hrg.start.crl, cs_.hrg.stop.crl);
-	outpar->get( "Depth range", cs_.zrg.start, cs_.zrg.stop );
-	cs_.zrg.start /= SI().zFactor();
-	cs_.zrg.stop /= SI().zFactor();
-    }
+    if ( outpar )
+	cs_.usePar( *outpar );
     else
     {
-	cs_.init();
 	if ( attribset.is2D() )
-	{
-	    cs_.hrg.start.inl = 0; cs_.hrg.stop.inl = mUdf(int);
-	    cs_.hrg.start.crl = 1; cs_.hrg.stop.crl = mUdf(int);
-	}
+	    cs_.set2DDef();
+	else
+	    cs_.init();
     }
 
     const Attrib::Desc* curdesc = attribset.getDesc( ids[0] );

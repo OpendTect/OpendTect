@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.25 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.26 2008-02-19 15:14:51 cvsbert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -231,6 +231,7 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
     IOPar jpiopar( iopar_ );
     jpiopar.set( seisoutkey_, tmpstorid_ );
     jpiopar.setYN( mOutKey(sKey::BinIDSel), true );
+    jpiopar.set( mOutKey(sKey::Type), sKey::Range );
 
     return ptrnrs ? new InlineSplitJobDescProv( jpiopar, *ptrnrs, rgkey )
 		  : new InlineSplitJobDescProv( jpiopar, rgkey );

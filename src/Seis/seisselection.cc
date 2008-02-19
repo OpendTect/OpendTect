@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.16 2008-02-18 16:32:17 cvsbert Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.17 2008-02-19 15:14:51 cvsbert Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -49,7 +49,8 @@ void Seis::SelData::copyFrom( const Seis::SelData& sd )
 
 void Seis::SelData::removeFromPar( IOPar& iop )
 {
-    iop.set( sKey::BinIDSel, sKey::No );
+    iop.removeWithKey( sKey::BinIDSel );
+    iop.set( sKey::Type, sKey::None );
 }
 
 
@@ -72,15 +73,10 @@ Seis::SelData* Seis::SelData::get( Type t )
 }
 
 
+
 Seis::SelData* Seis::SelData::get( const IOPar& iop )
 {
-    Type t = Seis::Range;
-    const char* res = iop.find( sKey::BinIDSel );
-    if ( !res )
-	res = iop.find( sKey::Type );
-    if ( res && *res )
-	t = Seis::selTypeOf(res);
-
+    const Type t = Seis::selTypeOf( iop.find(sKey::Type) );
     Seis::SelData* sd = get( t );
     sd->usePar( iop );
     return sd;
@@ -118,7 +114,8 @@ Interval<float> Seis::SelData::zRange() const
 
 void Seis::SelData::fillPar( IOPar& iop ) const
 {
-    iop.set( sKey::BinIDSel, isall_ ? sKey::No : Seis::nameOf(type()) );
+    const char* typstr = Seis::nameOf(type());
+    iop.set( sKey::Type, isall_ ? sKey::None : typstr );
     if ( linekey_.isEmpty() )
 	iop.removeWithKey( sKey::LineKey );
     else
@@ -128,8 +125,14 @@ void Seis::SelData::fillPar( IOPar& iop ) const
 
 void Seis::SelData::usePar( const IOPar& iop )
 {
+    const char* res = iop.find( sKey::Type );
+    if ( !res )
+	res = iop.find( sKey::BinIDSel );
+    if ( !res || !*res || *res == *sKey::None )
+	isall_ = true;
+
     iop.get( sKey::LineKey, linekey_ );
-    const char* res = iop.find( sKey::Attribute );
+    res = iop.find( sKey::Attribute );
     if ( res && *res )
 	linekey_.setAttrName( res );
 }
