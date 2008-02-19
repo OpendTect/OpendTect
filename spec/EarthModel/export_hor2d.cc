@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Aug 2007
- RCS:           $Id: export_hor2d.cc,v 1.1 2008-01-02 11:39:38 cvsnanne Exp $
+ RCS:           $Id: export_hor2d.cc,v 1.2 2008-02-19 08:51:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,9 +135,10 @@ static int doWork( int argc, char** argv )
 		continue;
 
 	    outstrm << linenm.buf() << '\t'
-		    << linedata.posns[posidx].nr_ << '\t'
-		    << linedata.posns[posidx].coord_.x << '\t'
-		    << linedata.posns[posidx].coord_.y << '\t';
+		    << linedata.posns[posidx].nr_ << '\t';
+	    outstrm << getStringFromDouble( 0, linedata.posns[posidx].coord_.x )
+		    << '\t';
+	    outstrm << getStringFromDouble( 0, linedata.posns[posidx].coord_.y);
 	    bid.crl = linedata.posns[posidx].nr_;
 	    for ( int horidx=0; horidx<horizons.size(); horidx++ )
 	    {
@@ -147,7 +148,7 @@ static int doWork( int argc, char** argv )
 		if ( bid.inl>=0 )
 		    crd = hor->getPos( hor->sectionID(0), bid.getSerialized() );
 		const float val = mIsUdf(crd.z) ? udfval : crd.z;
-		outstrm << val << '\t';
+		outstrm << '\t' << getStringFromFloat(0,val);
 	    }
 	    outstrm << std::endl;
 	}
