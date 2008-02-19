@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.26 2008-02-07 13:17:59 cvsbert Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.27 2008-02-19 08:03:41 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -471,8 +471,19 @@ const char* uiAttrSel::userNameFromKey( const char* txt ) const
 	return IOObj::isKey(nm) ? IOM().nameOf(nm) : nm;
     }
 
+    LineKey lk;
     const Desc* ad = attrdata_.attrset->getDesc( attrid );
-    usrnm = ad ? ad->userRef() : "";
+    lk.setLineName( ad ? ad->userRef() : "" );
+    if ( is2d_ && ad && ad->isStored() )
+    {
+	BufferString defstr; ad->getDefStr( defstr );
+	BufferStringSet nms;
+	SelInfo::getAttrNames( defstr, nms );
+	if ( outnr >= 0 && outnr < nms.size() )
+	    lk.setAttrName( nms.get(outnr) );
+    }
+
+    usrnm = lk;
     return usrnm.buf();
 }
 
