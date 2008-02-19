@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.58 2007-11-23 11:59:06 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.59 2008-02-19 09:51:02 cvsbert Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -735,13 +735,14 @@ Seis2DGeomDumper( const Seis2DLineSet& l, std::ostream& o, bool inr, float z,
 	: Executor("Geometry extraction")
 	, ls(l)
 	, strm(o)
-	, incnr(inr)
+	, donr(inr)
 	, curidx(-1)
 	, totalnr(-1)
 	, lnshandled(0)
 	, ptswritten(0)
 	, zval(z)
 	, incz(!mIsUdf(z))
+	, dolnm(true)
 {
     lastidx = ls.nrLines() - 1;
     if ( lastidx < 0 )
@@ -767,6 +768,7 @@ Seis2DGeomDumper( const Seis2DLineSet& l, std::ostream& o, bool inr, float z,
 		return;
 	    }
 	    lastidx = curidx;
+	    dolnm = false;
 	}
     }
 
@@ -820,7 +822,9 @@ int nextStep()
     {
 	const PosInfo::Line2DPos& pos = geom.posns[idx];
 	outstr = "";
-	if ( incnr )
+	if ( dolnm )
+	    { outstr += ls.lineKey(curidx); outstr += "\t"; }
+	if ( donr )
 	    { outstr += pos.nr_; outstr += "\t"; }
 	outstr += pos.coord_.x; outstr += "\t";
 	outstr += pos.coord_.y;
@@ -847,7 +851,8 @@ int nextStep()
     BufferString		attrnm;
     const bool			incz;
     const float			zval;
-    bool			incnr;
+    bool			donr;
+    bool			dolnm;
     int				curidx;
     int				lastidx;
     int				totalnr;
