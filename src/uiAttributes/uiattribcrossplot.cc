@@ -4,18 +4,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uiattribcrossplot.cc,v 1.8 2008-02-18 16:32:17 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.9 2008-02-19 12:49:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiattribcrossplot.h"
+#include "uidatapointset.h"
 #include "seisioobjinfo.h"
 #include "attribsel.h"
-#include "posvecdataset.h"
+#include "datacoldef.h"
+#include "datapointset.h"
+#include "posprovider.h"
 #include "attribdescset.h"
-#include "attribposvecoutput.h"
-#include "posvecdatasettr.h"
+#include "attribengman.h"
 #include "keystrs.h"
 #include "ioobj.h"
 #include "ioman.h"
@@ -30,7 +32,7 @@ ________________________________________________________________________
 
 using namespace Attrib;
 
-uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const DescSet& d )
+uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 	: uiDialog(p,uiDialog::Setup("Attribute cross-plotting",
 		     "Select attributes and locations for cross-plot"
 		     ,"101.3.0"))
@@ -39,7 +41,7 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const DescSet& d )
     uiLabeledListBox* llb = new uiLabeledListBox( this,
 	    					  "Attributes to calculate" );
     attrsfld_ = llb->box();
-    SelInfo attrinf( &ads_, 0, ads_.is2D() );
+    Attrib::SelInfo attrinf( &ads_, 0, ads_.is2D() );
     for ( int idx=0; idx<attrinf.attrnms.size(); idx++ )
     {
 	attrsfld_->addItem( attrinf.attrnms.get(idx), false );
@@ -79,40 +81,30 @@ uiAttribCrossPlot::~uiAttribCrossPlot()
 
 bool uiAttribCrossPlot::acceptOK( CallBacker* )
 {
+    PtrMan<Pos::Provider> prov = posprovfld_->createProvider();
+    if ( !prov )
+	mErrRet("Internal: no Pos::Provider")
 
-    /*
-    ObjectSet<PosVecDataSet> outvdss;
-    PosVecOutputGen pvog( ads_, attrssel, bivsets, outvdss );
-    uiExecutor uiex( this, pvog );
+    ObjectSet<DataColDef> dcds;
+    for ( int idx=0; idx<attrdefs_.size(); idx++ )
+    {
+	if ( attrsfld_->isSelected(idx) )
+	    dcds += new DataColDef( attrsfld_->textOfItem(idx),
+		    		    attrdefs_.get(idx) );
+    }
+    if ( dcds.isEmpty() )
+	mErrRet("Please select at least one attribute to evaluate")
+
+    DataPointSet dps( *prov, dcds );
+    if ( dps.size() < 1 )
+	mErrRet("No positions selected")
+
+    Attrib::EngineMan aem;
+    PtrMan<Executor> ex = aem.getTableExtractor( dps, ads_ );
+    uiExecutor uiex( this, *ex );
     if ( !uiex.go() )
 	return false;
 
-    for ( int idx=0; idx<outvdss.size(); idx++ )
-	outvdss[idx]->setName( psusrnms.get(idx) );
-
-    uiPosDataEdit dlg( this, outvdss, "Attribute data", uiPosDataEdit::Both,
-	    		ads_.is2D() );
-    dlg.saveData.notify( mCB(this, uiAttribCrossPlot,saveData) );
+    uiDataPointSet dlg( this, dps, uiDataPointSet::Setup("Attribute data") );
     return dlg.go() ? true : false;
-    */
-    return true;
 }
-
-/*
-
-void uiAttribCrossPlot::saveData( CallBacker* cb )
-{
-    mDynamicCastGet(uiPosDataEdit*,dlg,cb)
-    if ( !dlg ) { pErrMsg("Huh"); return; }
-
-    CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
-    ctio.ctxt.forread = false;
-    uiIOObjSelDlg seldlg( this, ctio );
-    if ( !seldlg.go() )
-	return;
-    ctio.setObj( seldlg.ioObj()->clone() );
-
-    dlg->stdSave( *ctio.ioobj, true );
-    delete ctio.ioobj;
-}
-*/
