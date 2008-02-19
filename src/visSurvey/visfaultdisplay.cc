@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.3 2008-02-19 15:21:31 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.4 2008-02-19 16:27:14 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -124,6 +124,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	displaysurface_->setSurface( explicitsurface_ );
 	if ( explicitsurface_ ) 
 	    explicitsurface_->updateAll();
+	displaysurface_->touch( false );
     }
 
     if ( !editor_ )
