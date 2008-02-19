@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Aug 2007
- RCS:           $Id: import_hor2d.cc,v 1.5 2008-02-19 09:58:34 cvsnanne Exp $
+ RCS:           $Id: import_hor2d.cc,v 1.6 2008-02-19 10:00:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,7 +109,6 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
   		   const char* linesetnm, const int nrhors )
 {
     StreamProvider sp( filename );
-    std::cerr << sp.fullName()<<"\n"<<sp.fileName()<<"\n"<<sp.hostName()<<"\n";
     StreamData sd = sp.makeIStream();
     std::cerr << "Input File= " << filename << "\n";
     if ( !sd.usable() ) return prError( "input file is not OK" );
