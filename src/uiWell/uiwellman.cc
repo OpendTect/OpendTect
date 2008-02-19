@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2003
- RCS:           $Id: uiwellman.cc,v 1.36 2007-08-29 12:21:50 cvsbert Exp $
+ RCS:           $Id: uiwellman.cc,v 1.37 2008-02-19 11:20:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uitextedit.h"
 #include "uiwelldlgs.h"
+#include "uiwellmarkerdlg.h"
 
 
 uiWellMan::uiWellMan( uiParent* p )
