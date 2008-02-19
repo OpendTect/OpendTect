@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.6 2008-02-15 16:12:08 cvsjaap Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.7 2008-02-19 15:21:31 cvsjaap Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -92,7 +92,7 @@ void ExplFaultStickSurface::setSurface( FaultStickSurface* fss )
     {
 	surface_->nrpositionnotifier.remove(
 			mCB(this,ExplFaultStickSurface,surfaceChange) );
-	surface_->unRef();
+	surface_->unRefNoDelete();
     }
 
     removeAll();
@@ -125,7 +125,10 @@ void ExplFaultStickSurface::removeAll()
 
 void ExplFaultStickSurface::insertAll()
 {
-    for ( int idx=0; surface_ && idx<=surface_->rowRange().nrSteps(); idx++ )
+    if ( !surface_ || surface_->isEmpty() )
+	return;
+
+    for ( int idx=0; idx<=surface_->rowRange().nrSteps(); idx++ )
     {
 	insertStick( idx );
 	if ( idx ) insertPanel( idx-1 );
