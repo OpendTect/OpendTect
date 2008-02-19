@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Aug 2007
- RCS:           $Id: import_hor2d.cc,v 1.4 2008-01-29 04:56:18 cvsraman Exp $
+ RCS:           $Id: import_hor2d.cc,v 1.5 2008-02-19 09:58:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,6 +119,8 @@ bool readFromFile( ObjectSet<HorLine2D>& data, const char* filename,
 
     IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Seis)->id) );
     PtrMan<IOObj> lsetobj = IOM().getLocal( linesetnm );
+    BufferString msg( "Cannot find LineSet: " ); msg += linesetnm; 
+    if ( !lsetobj ) return prError( msg );
     BufferString fnm = lsetobj->fullUserExpr(true);
     Seis2DLineSet lineset( fnm );
 
