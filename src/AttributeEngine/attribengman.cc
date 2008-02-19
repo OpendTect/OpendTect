@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.69 2008-02-15 16:54:32 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.70 2008-02-19 14:00:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -952,7 +952,7 @@ Processor* EngineMan::createTrcSelOutput( BufferString& errmsg,
 
 Processor* EngineMan::create2DVarZOutput( BufferString& errmsg,
 					  const IOPar& pars,
-					  const DataPointSet& datapointset,
+					  DataPointSet* datapointset,
 					  float outval,
        					  Interval<float>* cubezbounds )
 {

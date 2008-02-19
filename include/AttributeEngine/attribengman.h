@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.27 2008-02-15 16:54:32 cvshelene Exp $
+ RCS:           $Id: attribengman.h,v 1.28 2008-02-19 14:00:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,7 +95,7 @@ public:
 					   Interval<float>* cubezbounds = 0);
     Processor*		create2DVarZOutput(BufferString& errmsg,
 	    				   const IOPar& pars,
-	    				   const DataPointSet& bidvalset,
+	    				   DataPointSet* bidvalset,
 	    				   float outval=0,
 					   Interval<float>* cubezbounds = 0);
     Processor*		getTableOutExecutor( DataPointSet& datapointset,
