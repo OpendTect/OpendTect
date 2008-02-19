@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.6 2008-02-19 09:51:23 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.7 2008-02-19 12:49:41 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -98,6 +98,9 @@ DataPointSet::DataPointSet( ::Pos::Provider& prov,
     	, mAdd2DMembs(prov.is2D())
 {
     initPVDS();
+    for ( int idx=0; idx<dcds.size(); idx++ )
+	data_.add( new DataColDef(*dcds[idx]) );
+
     ::Pos::Provider2D* prov2d = 0; ::Pos::Provider3D* prov3d = 0;
     if ( is2d_ )
 	prov2d = (::Pos::Provider2D*)(&prov);
@@ -117,6 +120,8 @@ DataPointSet::DataPointSet( ::Pos::Provider& prov,
 	dr.data_.setSize( nrcols, mUdf(float) );
 	addRow( dr );
     }
+
+    calcIdxs();
 }
 
 
