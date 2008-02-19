@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.71 2008-02-19 15:14:51 cvsbert Exp $
+ RCS:           $Id: attribengman.cc,v 1.72 2008-02-19 16:52:05 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,7 +121,8 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
     for ( int idx=1; idx<ids.size(); idx++ )
 	proc->addOutputInterest(idx);
     
-    PtrMan<IOPar> outpar = iopar.subselect( IOPar::compKey("Output",1) );
+    BufferString basekey = IOPar::compKey( "Output",1 );
+    PtrMan<IOPar> outpar = iopar.subselect( IOPar::compKey(basekey,"Sub") );
     if ( outpar )
 	cs_.usePar( *outpar );
     else
