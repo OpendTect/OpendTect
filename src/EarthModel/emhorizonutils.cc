@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.cc,v 1.14 2008-02-15 17:03:59 cvshelene Exp $
+ RCS:           $Id: emhorizonutils.cc,v 1.15 2008-02-19 15:19:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -183,7 +183,7 @@ void HorizonUtils::getExactCoords( std::ostream& strm, const MultiID& id,
 	{
 	    TypeSet<DataPointSet::DataRow> pts;
 	    BufferStringSet nms;
-	    res = new DataPointSet( pts, nms );
+	    res = new DataPointSet( pts, nms, true );
 	    data += res;
 	    sid = pid.sectionID();
 	}
@@ -362,7 +362,7 @@ void HorizonUtils::addSurfaceData( const MultiID& id,
 
 void HorizonUtils::getWantedPos2D( std::ostream& strm,
 				   ObjectSet<MultiID>& midset, 
-				   DataPointSet& dtps,
+				   DataPointSet* dtps,
 				   const HorSampling& horsamp,
 				   const Interval<float>& extraz )
 {
@@ -403,13 +403,13 @@ void HorizonUtils::getWantedPos2D( std::ostream& strm,
 			DataPointSet::Pos pos( coordsurf0, ztop );
 			DataPointSet::DataRow dtrow( pos );
 			dtrow.data_ += zbot;
-			dtps.addRow( dtrow );
+			dtps->addRow( dtrow );
 			break;
 		    }
 		}
 	    }	
 	}
-	dtps.dataChanged();
+	dtps->dataChanged();
     }
 }
     

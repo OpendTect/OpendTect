@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.68 2008-02-15 16:54:32 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.69 2008-02-19 15:19:38 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -877,22 +877,23 @@ const CubeSampling Trc2DVarZStorOutput::getCS()
 
 
 Trc2DVarZStorOutput::Trc2DVarZStorOutput( const LineKey& lk,
-       					  const DataPointSet& poszvalues,
+       					  DataPointSet* poszvalues,
 					  float outval )
     : SeisTrcStorOutput( getCS(), lk )
     , poszvalues_(poszvalues)
     , outval_(outval)
 {
     is2d_ = true;
-    const int nrinterv = (poszvalues_.nrCols()+1)/2;
+    const int nrinterv = (poszvalues_->nrCols()+1)/2;
     float zmin = mUdf(float);
     float zmax = -mUdf(float);
     for ( int idx=0; idx<nrinterv; idx+=2 )
     {
-	//DataPointSet has Bid + z + 3 fixed cols (offsets+flag)
-	float val = poszvalues_.bivSet().valRange(idx==0 ? idx : idx+3).start;
+	int z1colidx = idx==0 ? idx : idx+poszvalues_->nrFixedCols();
+	int z2colidx = idx==0 ? poszvalues_->nrFixedCols() : z1colidx+1;
+	float val = poszvalues_->bivSet().valRange( z1colidx ).start;
 	if ( val < zmin ) zmin = val;
-	val = poszvalues_.bivSet().valRange(idx+4).stop;
+	val = poszvalues_->bivSet().valRange( z2colidx ).stop;
 	if ( val > zmax ) zmax = val;
     }
 
@@ -986,7 +987,7 @@ void Trc2DVarZStorOutput::collectData( const DataHolder& data, float refstep,
 	    else
 	    {
 		float val = data.series(desoutputs_[comp])->value(idx-startidx);
-		trc_->set(idx, val, comp);
+		trc_->set(idx, val*100, comp);
 	    }
 	}
     }
@@ -1011,22 +1012,22 @@ TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
 						    float zstep,
 						    TypeSet<float>& ) const
 {
-    DataPointSet::RowID rowid = poszvalues_.findFirstCoord( coord );
+    DataPointSet::RowID rowid = poszvalues_->findFirstCoord( coord );
     const BinID bid = SI().transform( coord );
     TypeSet< Interval<int> > sampleinterval;
-    for ( int idx=rowid; idx<poszvalues_.size(); idx++ )
+    for ( int idx=rowid; idx<poszvalues_->size(); idx++ )
     {
-	if ( poszvalues_.binID( idx ) != bid ) break;
-	if ( poszvalues_.coord( idx ) == coord )
+	if ( poszvalues_->binID( idx ) != bid ) break;
+	if ( poszvalues_->coord( idx ) == coord )
 	{
-	    Interval<int> interval( mNINT(poszvalues_.z(idx)/zstep),
-		    		    mNINT(poszvalues_.value(0,idx)/zstep) );
+	    Interval<int> interval( mNINT(poszvalues_->z(idx)/zstep),
+		    		    mNINT(poszvalues_->value(0,idx)/zstep) );
 	    sampleinterval += interval;
-	    const int nrextrazintv = (poszvalues_.nrCols()-1)/2;
+	    const int nrextrazintv = (poszvalues_->nrCols()-1)/2;
 	    for ( int idi=0; idi<nrextrazintv; idi+=2 ) //to keep it general
 	    {
-		Interval<int> intv( mNINT(poszvalues_.value(idi+1,idx)/zstep),
-				    mNINT(poszvalues_.value(idi+2,idx)/zstep) );
+		Interval<int> intv( mNINT(poszvalues_->value(idi+1,idx)/zstep),
+				    mNINT(poszvalues_->value(idi+2,idx)/zstep));
 		sampleinterval += intv;
 	    }
 	}
@@ -1038,7 +1039,7 @@ TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
 
 bool Trc2DVarZStorOutput::wantsOutput( const Coord& coord ) const
 {
-    return poszvalues_.findFirstCoord( coord ) > -1;
+    return poszvalues_->findFirstCoord( coord ) > -1;
 }
 
 

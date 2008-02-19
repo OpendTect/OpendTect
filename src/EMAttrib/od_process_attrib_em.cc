@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.45 2008-02-15 17:05:58 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.46 2008-02-19 15:19:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -461,8 +461,9 @@ bool BatchProgram::go( std::ostream& strm )
 	const bool is2d = attribset.is2D();
 	BinIDValueSet bivs(2,false);
 	TypeSet<DataPointSet::DataRow> startset;
-	BufferStringSet valnms("z2");
-	DataPointSet dtps( startset, valnms );
+	BufferStringSet valnms;
+	valnms.add("z2");
+	DataPointSet* dtps = new DataPointSet( startset, valnms, true );
 	if ( is2d )
 	    HorizonUtils::getWantedPos2D( strm, midset, dtps, hsamp, extraz);
 	else
@@ -478,6 +479,7 @@ bool BatchProgram::go( std::ostream& strm )
 	if ( !proc ) mErrRet( errmsg );
 	if ( !process( strm, proc, is2d ) ) return false;
 	
+	delete dtps;
     }
 
     strm << "Successfully saved data." << std::endl;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.34 2008-02-15 16:59:52 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.35 2008-02-19 15:19:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -170,7 +170,7 @@ class Trc2DVarZStorOutput : public SeisTrcStorOutput
 {
 public:
 				Trc2DVarZStorOutput(const LineKey&,
-						    const DataPointSet&,float);
+						    DataPointSet*,float);
     
     bool			doInit();
     void			set2D(bool)			{}
@@ -187,7 +187,7 @@ protected:
 
     const CubeSampling		getCS();
 
-    const DataPointSet&		poszvalues_;
+    DataPointSet*		poszvalues_;
     float			stdtrcsz_;
     float			stdstarttime_;
     float			outval_;
