@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.57 2008-02-13 10:35:39 cvsnanne Exp $
+ RCS:           $Id: uitable.cc,v 1.58 2008-02-20 09:57:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,12 +30,15 @@ ________________________________________________________________________
 class CellObject
 {
     public:
-			CellObject( QWidget* qw, uiObject* obj )
+			CellObject( QWidget* qw, uiObject* obj,
+				    const RowCol& rc )
 			    : qwidget_(qw)
-			    , object_(obj)	{}
+			    , object_(obj)
+			    , rowcol_(rc)    {}
 
     uiObject*		object_;
     QWidget*		qwidget_;
+    RowCol		rowcol_;
 };
 
 
@@ -53,11 +56,15 @@ public:
     void		clearCellObject(const RowCol&);
     uiObject*		getCellObject(const RowCol&) const;
     void		setCellObject(const RowCol&,uiObject*);
+    RowCol		getCell(uiObject*);
 
 protected:
     virtual void	mouseReleaseEvent(QMouseEvent*);
 
     ObjectSet<CellObject> cellobjects_;
+
+    BoolTypeSet		columnsreadonly;
+    BoolTypeSet		rowsreadonly;
 
 private:
 
@@ -140,7 +147,7 @@ void uiTableBody::setCellObject( const RowCol& rc, uiObject* obj )
 {
     QWidget* qwidget = obj->body()->qwidget();
     setCellWidget( rc.row, rc.col, qwidget );
-    cellobjects_ += new CellObject( qwidget, obj );
+    cellobjects_ += new CellObject( qwidget, obj, rc );
 }
 
 
@@ -160,6 +167,18 @@ uiObject* uiTableBody::getCellObject( const RowCol& rc ) const
     }
 
     return obj;
+}
+
+
+RowCol uiTableBody::getCell( uiObject* obj )
+{
+    for ( int idx=0; idx<cellobjects_.size(); idx++ )
+    {
+	if ( cellobjects_[idx]->object_ == obj )
+	    return cellobjects_[idx]->rowcol_;
+    }
+
+    return RowCol( -1, -1 );
 }
 
 
@@ -444,11 +463,15 @@ void uiTable::setText( const RowCol& rc, const char* txt )
 }
 
 
+static QAbstractItemView::EditTriggers triggers_ro =
+					QAbstractItemView::NoEditTriggers;
+static QAbstractItemView::EditTriggers triggers =
+					QAbstractItemView::EditKeyPressed |
+					QAbstractItemView::AnyKeyPressed;
+
 void uiTable::setTableReadOnly( bool yn )
 {
-    body_->setEditTriggers( yn ? QAbstractItemView::NoEditTriggers
-	    		       : QAbstractItemView::EditKeyPressed |
-			         QAbstractItemView::AnyKeyPressed );
+    body_->setEditTriggers( yn ? triggers_ro : triggers );
 }
 
 
@@ -458,17 +481,66 @@ bool uiTable::isTableReadOnly() const
 }
 
 
+static Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEditable |
+				Qt::ItemIsEnabled;
+static Qt::ItemFlags flags_ro = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+
 void uiTable::setColumnReadOnly( int col, bool yn )
-{ pErrMsg( "Not impl yet" ); }
+{
+    for ( int row=0; row<nrRows(); row++ )
+    {
+	QTableWidgetItem* itm = body_->item( row, col );
+	if ( itm ) itm->setFlags( yn ? flags_ro : flags );
+    }
+}
+
 
 void uiTable::setRowReadOnly( int row, bool yn )
-{ pErrMsg( "Not impl yet" ); }
+{
+    for ( int col=0; col<nrCols(); col++ )
+    {
+	QTableWidgetItem* itm = body_->item( row, col );
+	if ( itm ) itm->setFlags( yn ? flags_ro : flags );
+    }
+}
+
 
 bool uiTable::isColumnReadOnly( int col ) const
-{  pErrMsg( "Not impl yet" ); return false; }
+{
+    int nritems = 0;
+    int nrro = 0;
+    for ( int row=0; row<nrRows(); row++ )
+    {
+	QTableWidgetItem* itm = body_->item( row, col );
+	if ( itm )
+	{
+	    nritems ++;
+	    if ( !itm->flags().testFlag(Qt::ItemIsEditable) )
+		nrro++;
+	}
+    }
 
-bool uiTable::isRowReadOnly( int col ) const
-{  pErrMsg( "Not impl yet" ); return false; }
+    return nrro == nritems;
+}
+
+
+bool uiTable::isRowReadOnly( int row ) const
+{
+    int nritems = 0;
+    int nrro = 0;
+    for ( int col=0; col<nrCols(); col++ )
+    {
+	QTableWidgetItem* itm = body_->item( row, col );
+	if ( itm )
+	{
+	    nritems++;
+	    if ( !itm->flags().testFlag(Qt::ItemIsEditable) )
+		nrro++;
+	}
+    }
+
+    return nrro == nritems;
+}
 
 
 void uiTable::hideColumn( int col, bool yn )
@@ -547,10 +619,10 @@ void uiTable::setColor( const RowCol& rc, const Color& col )
 
 const Color uiTable::getColor( const RowCol& rc ) const
 {
-    BufferString coltxt = text(rc);
-    if ( !*coltxt ) coltxt = "white";
-	
-    QColor qcol( coltxt.buf() );
+    QTableWidgetItem* itm = body_->getItem( rc, false );
+    if ( !itm ) return Color(255,255,255);
+
+    const QColor qcol = itm->background();
     return Color( qcol.red(), qcol.green(), qcol.blue() );
 }
 
@@ -930,3 +1002,7 @@ uiObject* uiTable::getCellObject( const RowCol& rc ) const
 
 void uiTable::clearCellObject( const RowCol& rc )
 { body_->clearCellObject( rc ); }
+
+
+RowCol uiTable::getCell( uiObject* obj )
+{ return body_->getCell( obj ); }
