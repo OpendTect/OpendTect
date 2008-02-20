@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2004
- RCS:           $Id: uimpepartserv.h,v 1.30 2007-02-22 12:33:37 cvsjaap Exp $
+ RCS:           $Id: uimpepartserv.h,v 1.31 2008-02-20 19:38:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,9 +67,6 @@ public:
     				/*!<\returns false if cancel was pressed. */
     void			useSavedSetupDlg(const EM::ObjectID&,
 	    					 const EM::SectionID&);
-
-    void			showRelationsDlg(const EM::ObjectID&,
-	    					 EM::SectionID);
 
     int				activeTrackerID() const;
     				/*!< returns the trackerid of the last event */

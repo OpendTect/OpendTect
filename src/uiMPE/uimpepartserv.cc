@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.64 2007-12-14 05:15:23 cvssatyaki Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.65 2008-02-20 19:38:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,6 @@ ________________________________________________________________________
 #include "uihorizontracksetup.h"
 #include "uimpewizard.h"
 #include "uimsg.h"
-#include "uisurfacerelationdlg.h"
 
 const int uiMPEPartServer::evGetAttribData	= 0;
 const int uiMPEPartServer::evStartSeedPick	= 1;
@@ -276,17 +275,6 @@ void uiMPEPartServer::useSavedSetupDlg( const EM::ObjectID& emid,
 
     if ( uiMSG().askGoOn(mAskGoOnStr(setupavailable)) )
 	    showSetupDlg( emid, sid, true );
-}
-
-
-void uiMPEPartServer::showRelationsDlg( const EM::ObjectID& objid,
-					EM::SectionID sid )
-{
-    bool allowhorsel = false;
-    bool allowfltsel = true;
-    uiSurfaceRelationDlg dlg( appserv().parent(), objid,
-			      allowhorsel, allowfltsel );
-    dlg.go();
 }
 
 
