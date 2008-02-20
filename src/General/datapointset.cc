@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.8 2008-02-20 12:45:07 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.9 2008-02-20 16:24:33 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -94,7 +94,8 @@ DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
 
 
 DataPointSet::DataPointSet( ::Pos::Provider& prov,
-			    const ObjectSet<DataColDef>& dcds )
+			    const ObjectSet<DataColDef>& dcds,
+       			    const ::Pos::FilterSet* filts )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
     	, mAdd2DMembs(prov.is2D())
@@ -119,6 +120,14 @@ DataPointSet::DataPointSet( ::Pos::Provider& prov,
 	dr.pos_.z_ = prov.curZ();
 	if ( is2d_ )
 	    dr.pos_.nr_ = prov2d->curNr();
+	if ( filts )
+	{
+	    if ( is2d_ && !filts->includes(dr.pos_.nr_,dr.pos_.z_) )
+		continue;
+	    if ( !is2d_ && !filts->includes(dr.pos_.binid_,dr.pos_.z_) )
+		continue;
+	    filts->adjustZ( dr.pos_.coord(), dr.pos_.z_ );
+	}
 	dr.data_.setSize( nrcols, mUdf(float) );
 	addRow( dr );
     }
@@ -438,31 +447,41 @@ void DataPointSet::dumpInfo( IOPar& iop ) const
 	iop.set( IOPar::compKey("Col",idx), colName(idx) );
 }
 
-void DataPointSet::use( const ObjectSet<const ::Pos::Filter>& filts, bool purge)
+
+void DataPointSet::filter( const ::Pos::FilterSet& filts, bool purge )
 {
+    if ( is2d_ != filts.is2D() ) return;
+
     TypeSet<BinIDValueSet::Pos> torem;
     for ( int ifilt=0; ifilt<filts.size(); ifilt++ )
     {
-	const ::Pos::Filter& filt = *filts[ifilt];
-	if ( filt.is2D() != is2d_ ) continue;
-
-	mDynamicCastGet(const ::Pos::Filter3D*,filt3d,&filt)
-	mDynamicCastGet(const ::Pos::Filter2D*,filt2d,&filt)
 	for ( RowID irow=0; irow<size(); irow++ )
 	{
 	    if ( !purge && inactive(irow) ) continue;
 
-	    const bool isfilt = is2d_ ? filt2d->includes(trcNr(irow),z(irow))
-				      : filt3d->includes(binID(irow),z(irow));
-	    if ( !isfilt ) continue;
+	    bool isinc;
+	    const float rowz = z( irow );
+	    if ( is2d_ )
+		isinc = filts.includes( trcNr(irow), rowz );
+	    else
+		isinc = filts.includes( binID(irow), rowz );
 
-	    if ( !purge )
-		setInactive( irow, true );
+	    if ( isinc )
+	    {
+		float newrowz = rowz;
+		filts.adjustZ( coord(irow), newrowz );
+		bivSet().set( bvsidxs_[irow], newrowz );
+	    }
 	    else
 	    {
-		const BinIDValueSet::Pos bvspos( bvsidxs_[irow] );
-		if ( torem.indexOf(bvspos) < 0 )
-		    torem += bvspos;
+		if ( !purge )
+		    setInactive( irow, true );
+		else
+		{
+		    const BinIDValueSet::Pos bvspos( bvsidxs_[irow] );
+		    if ( torem.indexOf(bvspos) < 0 )
+			torem += bvspos;
+		}
 	    }
 	}
     }

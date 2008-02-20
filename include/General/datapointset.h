@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.5 2008-02-20 12:45:07 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.6 2008-02-20 16:24:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class BinIDValueSet;
 class PosVecDataSet;
 class UnitOfMeasure;
 class BufferStringSet;
-namespace Pos { class Filter; class Provider; }
+namespace Pos { class FilterSet; class Provider; }
 
 
 /*!\brief Set of data points with group selection.
@@ -113,7 +113,8 @@ public:
 				     const BufferStringSet& valnms,
 				     bool is2d=false);
     			DataPointSet(::Pos::Provider&,
-				     const ObjectSet<DataColDef>&);
+				     const ObjectSet<DataColDef>&,
+				     const ::Pos::FilterSet* fs=0);
     			DataPointSet(const PosVecDataSet&,bool is2d=false);
     			DataPointSet(const DataPointSet&);
     virtual		~DataPointSet();
@@ -144,10 +145,12 @@ public:
     void		setSelected(RowID,bool);
     void		setInactive(RowID,bool);
 
-    void		use(const ObjectSet<const ::Pos::Filter>&,
-	    		    bool purge=false);
+    void		filter(const ::Pos::FilterSet&,bool purge=false);
+    			//!< purge can be very slow. Consider the constructor.
     void		purgeInactive();
+				//!< can be very slow
     void		purgeSelected(bool selected_rows=true);
+				//!< can be very slow
 
     const PosVecDataSet& dataSet() const		{ return data_; }
     const BinIDValueSet& bivSet() const { return const_cast<DataPointSet*>

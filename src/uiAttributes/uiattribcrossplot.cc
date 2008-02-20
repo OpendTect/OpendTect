@@ -2,9 +2,9 @@
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        N. Hemstra
- Date:          March 2003
- RCS:           $Id: uiattribcrossplot.cc,v 1.10 2008-02-20 12:46:03 cvsbert Exp $
+ Author:        N. Hemstra / Bert
+ Date:          March 2003 / Feb 2008
+ RCS:           $Id: uiattribcrossplot.cc,v 1.11 2008-02-20 16:24:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,13 +20,14 @@ ________________________________________________________________________
 #include "attribdescset.h"
 #include "attribengman.h"
 #include "keystrs.h"
+#include "executor.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "iopar.h"
 
 #include "uimsg.h"
 #include "uilistbox.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uiioobjsel.h"
 #include "uiposdataedit.h"
 #include "uiposprovider.h"
@@ -93,6 +94,15 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     if ( !prov )
 	mErrRet("Internal: no Pos::Provider")
 
+    uiTaskRunner tr( this );
+    PtrMan<Executor> provinit = prov->initializer();
+    if ( provinit && !tr.execute(*provinit) )
+	mErrRet(0)
+    else if ( !prov->initialize() )
+	mErrRet("Cannot initialize the position generator")
+
+    const bool is2d = prov->is2D();
+
     ObjectSet<DataColDef> dcds;
     for ( int idx=0; idx<attrdefs_.size(); idx++ )
     {
@@ -103,22 +113,35 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     if ( dcds.isEmpty() )
 	mErrRet("Please select at least one attribute to evaluate")
 
-    dps = new DataPointSet( *prov, dcds );
+    Pos::FilterSet* filts = 0;
+    IOPar iop; iop.set( sKey::Type, Pos::RandomFilter::typeStr() );
+    iop.set( Pos::RandomFilter::ratioStr(), 0.1 );
+    Pos::Filter* filt;
+    if ( is2d )
+	filt = Pos::Filter2D::make( iop );
+    else
+	filt = Pos::Filter3D::make( iop );
+    if ( filt )
+    {
+	PtrMan<Executor> filtinit = filt->initializer();
+	if ( filtinit && !tr.execute(*filtinit) )
+	    mErrRet(0)
+	else if ( !filt->initialize() )
+	    mErrRet("Cannot initialize the position filter")
+	filts = new Pos::FilterSet(is2d);
+	filts->add( filt );
+    }
+
+    dps = new DataPointSet( *prov, dcds, filts );
     if ( dps->size() < 1 )
 	mErrRet("No positions selected")
 
     dps->setName( "Attribute cross-plot" );
     mDPM.add( dps );
 
-    Pos::RandomFilter3D filt; filt.passratio_ = 0.1;
-    filt.initialize();
-    ObjectSet<const Pos::Filter> filters; filters += &filt;
-    dps->use( filters, true );
-
     Attrib::EngineMan aem;
-    PtrMan<Executor> ex = aem.getTableExtractor( *dps, ads_ );
-    uiExecutor uiex( this, *ex );
-    if ( !uiex.go() )
+    PtrMan<Executor> tabextr = aem.getTableExtractor( *dps, ads_ );
+    if ( !tr.execute(*tabextr) )
 	mErrRet(0)
 
     uiDataPointSet* dlg = new uiDataPointSet( this, *dps,

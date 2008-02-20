@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilter.h,v 1.1 2008-02-20 12:44:02 cvsbert Exp $
+ RCS:           $Id: posfilter.h,v 1.2 2008-02-20 16:24:33 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -23,6 +23,18 @@ namespace Pos
 {
 
 /*!\brief decideds whether a given position should be included
+
+  Some Filters require time-consuming initialization.
+  initialize() will always initialize the object, but this may take a long
+  time. If that is an issue, try obtaining the initializer().
+  If that is null, then call initialize(). If you need to iterate again, use
+  reset().
+
+  After 'usePar' the object may be in an intermediate state. You should be
+  able to ask all kinds of global questions, but not toNextPos(), toNextZ(),
+  curCoord(), curZ(), or includes(). For that, you have to initialize() the
+  object.
+
 
   Filter2D and Filter3D have factories. These are meant for 'true' Filters,
   therefore no Providers wanted.
@@ -46,7 +58,7 @@ public:
     virtual bool	includes(const Coord&,
 	    			 float z=mUdf(float)) const	= 0;
     virtual bool	hasZAdjustment() const			{ return false;}
-    virtual float	adjustedZ( const Coord&, float z )	{ return z; }
+    virtual float	adjustedZ(const Coord&, float z ) const	{ return z; }
 
     virtual void	usePar(const IOPar&)			= 0;
     virtual void	fillPar(IOPar&) const			= 0;
@@ -84,6 +96,38 @@ public:
 
     mDefineFactoryInClass(Filter2D,factory);
     static Filter2D*	make(const IOPar&);
+
+};
+
+
+/*!\brief Set of Filters. Owns the Filters. */
+
+class FilterSet : public ObjectSet<Pos::Filter>
+{
+public:
+
+    			FilterSet( bool is2d )
+			    : is2d_(is2d)			{}
+			FilterSet( const FilterSet& fs )	{ *this = fs; }
+			~FilterSet();
+    FilterSet&		operator =(const FilterSet&);
+
+    bool		is2D() const		{ return is2d_; }
+
+    void		add(Filter*);		//!< safer than += operator
+    void		add(const IOPar&);
+
+    virtual bool	includes(const Coord&,float z=mUdf(float)) const;
+    bool		includes(const BinID&,float z=mUdf(float)) const;
+			//!< For 2D, assumes trcnr in crl
+    bool		includes(int,float z=mUdf(float)) const;
+			//!< Only works for 2D
+
+    void		adjustZ(const Coord&,float&) const;
+
+protected:
+
+    bool		is2d_;
 
 };
 

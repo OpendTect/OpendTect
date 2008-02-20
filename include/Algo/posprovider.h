@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posprovider.h,v 1.7 2008-02-20 12:44:02 cvsbert Exp $
+ RCS:           $Id: posprovider.h,v 1.8 2008-02-20 16:24:33 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -22,17 +22,6 @@ namespace Pos
 {
 
 /*!\brief provides a series of positions; can also be used fo subselection.
-
-  Some providers require time-consuming initialization.
-  initialize() will always initialize the object, but this may take a long
-  time. If that is an issue, try obtaining the initializer().
-  If that is null, then call initialize(). If you need to iterate again, use
-  reset().
-
-  After 'usePar' the object may be in an intermediate state. You should be
-  able to ask all kinds of global questions, but not toNextPos(), toNextZ(),
-  curCoord(), curZ(), or includes(). For that, you have to initialize() the
-  object.
 
   toNextPos() will ignore any Z settings and go to the first Z on the next 
   position. toNextZ() is the normal 'iterator increment'. After initialization,
