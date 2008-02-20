@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.7 2008-02-19 15:21:31 cvsjaap Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.8 2008-02-20 11:52:02 cvsjaap Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -71,10 +71,12 @@ protected:
 };
 
 
-ExplFaultStickSurface::ExplFaultStickSurface( FaultStickSurface* surf )
+ExplFaultStickSurface::ExplFaultStickSurface( FaultStickSurface* surf,
+					      float zscale )
     : surface_( 0 )
     , displaysticks_( true )
     , displaypanels_( true )
+    , scalefacs_( 1, 1, zscale )
 {
     setSurface( surf );
 }
@@ -110,6 +112,13 @@ void ExplFaultStickSurface::setSurface( FaultStickSurface* fss )
 	    update();
 	}
     }
+}
+
+
+void ExplFaultStickSurface::setZScale( float zscale )
+{
+    scalefacs_.z = zscale;
+    updateAll();
 }
 
 
@@ -293,7 +302,8 @@ void ExplFaultStickSurface::emptyPanel( int panelidx )
 
 
 #define mSqDist( coordidx1, coordidx2 ) \
-    coordlist_->get(coordidx1).sqDistTo( coordlist_->get(coordidx2) ) 
+    coordlist_->get(coordidx1).scaleBy(scalefacs_).sqDistTo( \
+    coordlist_->get(coordidx2).scaleBy(scalefacs_) ) 
 
 #define mNextKnotLeft( lindex, rindex ) \
     ( rindex>=rsize-1 ? true : \

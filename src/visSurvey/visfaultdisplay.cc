@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.4 2008-02-19 16:27:14 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.5 2008-02-20 11:52:02 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.4 2008-02-19 16:27:14 cv
 #include "iopar.h"
 #include "mpeengine.h"
 #include "randcolor.h"
+#include "survinfo.h"
 #include "visevent.h"
 #include "visgeomindexedshape.h"
 #include "vismaterial.h"
@@ -120,7 +121,8 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	mDynamicCastGet( Geometry::FaultStickSurface*, fss,
 			 emfault_->sectionGeometry( emfault_->sectionID(0)) );
 
-	explicitsurface_ = new Geometry::ExplFaultStickSurface( fss ); 
+	const float zscale = SI().zFactor() * scene_->getZScale();
+	explicitsurface_ = new Geometry::ExplFaultStickSurface( fss, zscale ); 
 	displaysurface_->setSurface( explicitsurface_ );
 	if ( explicitsurface_ ) 
 	    explicitsurface_->updateAll();

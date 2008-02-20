@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.2 2008-01-18 15:39:20 cvskris Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.3 2008-02-20 11:52:02 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "indexedshape.h"
+#include "position.h"
 
 class RCol;
 
@@ -28,12 +29,14 @@ class ExplFaultStickSurface: public Geometry::IndexedShape,
 			     public CallBacker
 {
 public:
-			ExplFaultStickSurface(FaultStickSurface*);
-			~ExplFaultStickSurface();
+			ExplFaultStickSurface(FaultStickSurface*,float zscale);
+    			~ExplFaultStickSurface();
 
     void		setSurface(FaultStickSurface*);
     FaultStickSurface*	getSurface()			{ return surface_; }
     const FaultStickSurface* getSurface() const		{ return surface_; }
+
+    void		setZScale( float );
     
     void		updateAll();
     void		display(bool sticks,bool panels);
@@ -69,6 +72,7 @@ protected:
     bool		displaypanels_;
 
     FaultStickSurface*	surface_;
+    Coord3		scalefacs_;
 
     ObjectSet<IndexedGeometry>			sticks_;
     ObjectSet<ObjectSet<IndexedGeometry> >	panels_;
