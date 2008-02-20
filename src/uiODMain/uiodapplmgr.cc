@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.228 2008-02-15 10:58:21 cvsjaap Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.229 2008-02-20 11:47:54 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -448,65 +448,35 @@ bool uiODApplMgr::storePickSetAs( const Pick::Set& ps )
 #include "uitaskrunner.h"
 bool uiODApplMgr::storePolyAsFault( const Pick::Set& ps )
 { 
-    if ( ps.size() < 1 )
-	return false;
+    int stickinl = mUdf(int);
+    int stickcrl = mUdf(int);
+    double stickz = mUdf(double);
 
-    float xmin = ps[0].pos.x; float xmax = xmin;
-    float ymin = ps[0].pos.y; float ymax = ymin;
-    float zmin = ps[0].pos.y; float zmax = zmin;
-    for ( int idx=1; idx<ps.size(); idx++ )
-    {
-	if ( ps[idx].pos.x<xmin ) xmin = ps[idx].pos.x; 
-	if ( ps[idx].pos.y<ymin ) ymin = ps[idx].pos.y; 
-	if ( ps[idx].pos.z<zmin ) zmin = ps[idx].pos.z; 
-	if ( ps[idx].pos.x>xmax ) xmax = ps[idx].pos.x; 
-	if ( ps[idx].pos.y>ymax ) ymax = ps[idx].pos.y; 
-	if ( ps[idx].pos.z>zmax ) zmax = ps[idx].pos.z; 
-    }
-    const float xydif = sqrt((xmax-xmin)*(xmax-xmin)+(ymax-ymin)*(ymax-ymin));
-    const float zdif = zmax - zmin;
-
-    TypeSet<float> dist; 
-    for ( int idx=0; idx<ps.size()-1; idx++ )
-    {
-	Coord xy0 = ps[idx].pos;
-	Coord xy1 = ps[idx+1].pos;
-	float xydist = xy0.distTo( xy1 );
-	float zdist = fabs( ps[idx].pos.z - ps[idx+1].pos.z );
-	dist += zdif ? (xydif ? xydist/xydif+zdist/zdif : zdist) : xydist; 
-    }
-    TypeSet<float> sorted( dist );
-    sort( sorted );
-
-    float maxratio = 0;
-    int maxratioidx = -1;
-    for ( int idx=sorted.size()/2; idx<sorted.size()-1; idx++ )
-    {
-	float ratio = sorted[idx] ? sorted[idx+1]/sorted[idx] : 0;
-	if ( maxratio <  ratio )
-	{
-	    maxratio = ratio;
-	    maxratioidx = idx;
-	}
-    }
-    const float threshold = maxratio>=2 ? sorted[maxratioidx] :
-			    (sorted.size() ? sorted[sorted.size()-1] : 0);
-    
     EM::ObjectID objid = 
 	EM::EMM().createObject( EM::Fault::typeStr(), ps.name() );
     EM::EMObject* emobj = EM::EMM().getObject( objid );
     mDynamicCastGet( EM::Fault*, flt, emobj );
     EM::FaultGeometry& fgeom = flt->geometry();
     EM::SectionID sid = flt->sectionID( 0 );
-    fgeom.insertStick( sid, 0, ps[0].pos, Coord3(0,0,1), false );
-    for ( int idx=0; idx<dist.size(); idx++ )
+
+    for ( int idx=0; idx<ps.size(); idx++ )
     {
-	if ( dist[idx] > threshold )
-	    fgeom.insertStick( sid, 0, ps[idx+1].pos, Coord3(0,0,1), false );
+	const BinID bid = SI().transform( ps[idx].pos );
+	if ( bid.inl != stickinl ) stickinl = mUdf(int);
+	if ( bid.crl != stickcrl ) stickcrl = mUdf(int);
+	if ( ps[idx].pos.z != stickz ) stickz = mUdf(double);
+	
+	if ( mIsUdf(stickinl) && mIsUdf(stickcrl) && mIsUdf(stickz) )
+	{
+	    fgeom.insertStick( sid, 0, ps[idx].pos, Coord3(0,0,1), false );
+	    stickinl = bid.inl;
+	    stickcrl = bid.crl;
+	    stickz = ps[idx].pos.z;
+	}
 	else
 	{
-	    RowCol rc( 0,0 );
-	    fgeom.insertKnot( sid, rc.getSerialized(), ps[idx+1].pos, false );
+	    RowCol rc( 0, 0 );
+	    fgeom.insertKnot( sid, rc.getSerialized(), ps[idx].pos, false );
 	}
     }
 
@@ -520,6 +490,7 @@ bool uiODApplMgr::storePolyAsFault( const Pick::Set& ps )
     
     return true;
 }
+
 
 bool uiODApplMgr::setPickSetDirs( Pick::Set& ps )
 { return attrserv_->setPickSetDirs( ps, nlaserv_ ? &nlaserv_->getModel() : 0 );}
