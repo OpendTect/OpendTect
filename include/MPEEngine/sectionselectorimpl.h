@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectionselectorimpl.h,v 1.5 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:           $Id: sectionselectorimpl.h,v 1.6 2008-02-20 21:07:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,11 +19,7 @@ ________________________________________________________________________
 #include "sets.h"
 
 
-namespace EM
-{
-    class Horizon3D;
-    class HorizontalTube;
-}
+namespace EM { class Horizon3D; }
 
 
 namespace MPE
