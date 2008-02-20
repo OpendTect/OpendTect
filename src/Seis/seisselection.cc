@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.17 2008-02-19 15:14:51 cvsbert Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.18 2008-02-20 13:49:02 cvsbert Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -375,7 +375,7 @@ void Seis::TableSelData::copyFrom( const Seis::SelData& sd )
     }
     else
     {
-	pErrMsg( "Not impl" );
+	//This delivers an enormous table - usually for nothing
     }
 }
 
@@ -551,9 +551,18 @@ void Seis::PolySelData::copyFrom( const Seis::SelData& sd )
 	for ( int idx=0; idx<psd.polys_.size(); idx++ )
 	    polys_ += new ODPolygon<float>( *psd.polys_[idx] );
     }
-    else
+    else if ( sd.type() == Seis::Range )
     {
-	// pErrMsg( "Not impl" );
+	mDynamicCastGet(const Seis::RangeSelData*,rsd,&sd)
+	if ( !rsd ) pErrMsg( "Huh" );
+	ODPolygon<float>* poly = new ODPolygon<float>;
+	const CubeSampling& cs = rsd->cubeSampling();
+	poly->add( Geom::Point2D<float>(cs.hrg.start.inl,cs.hrg.start.crl) );
+	poly->add( Geom::Point2D<float>(cs.hrg.stop.inl,cs.hrg.start.crl) );
+	poly->add( Geom::Point2D<float>(cs.hrg.stop.inl,cs.hrg.stop.crl) );
+	poly->add( Geom::Point2D<float>(cs.hrg.start.inl,cs.hrg.stop.crl) );
+	deepErase( polys_ );
+	polys_ += poly;
     }
 }
 
