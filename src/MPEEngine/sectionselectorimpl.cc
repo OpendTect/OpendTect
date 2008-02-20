@@ -8,13 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.14 2007-05-22 03:23:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: sectionselectorimpl.cc,v 1.15 2008-02-20 21:05:53 cvskris Exp $";
 
 #include "sectionselectorimpl.h"
 
 #include "binidsurface.h"
 #include "emhorizon3d.h"
-#include "geomtube.h"
 #include "survinfo.h"
 #include "trackplane.h"
 
