@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2003
- RCS:		$Id: uiwellmarkerdlg.cc,v 1.1 2008-02-19 11:20:30 cvsnanne Exp $
+ RCS:		$Id: uiwellmarkerdlg.cc,v 1.2 2008-02-20 04:44:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "uistratlvlsel.h"
 #include "uitable.h"
 
 #include "ctxtioobj.h"
@@ -30,7 +31,8 @@ ________________________________________________________________________
 
 
 
-static const char* mrkrcollbls[] = { "Name", "Depth (MD)", "Color", 0 };
+static const char* mrkrcollbls[] = { "Name", "Depth (MD)", "Color",
+    				     "Tied to level", 0 };
 static const int nremptyrows = 5;
 
 #define mFromFeetFac 0.3048
@@ -103,6 +105,9 @@ void uiMarkerDlg::setMarkerSet( const ObjectSet<Well::Marker>& markers,
 	table->setText( RowCol(irow,0), marker->name() );
 	table->setValue( RowCol(irow,1), marker->dah*zfac );
 	table->setColor( RowCol(irow,2), marker->color );
+	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, false, false );
+	levelsel->levelChanged.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
+	table->setCellObject( RowCol(irow,3), levelsel->attachObj() );
     }
     Well::Marker mrk;
     for ( int irow=startrow+nrnew; irow<nrrows; irow++ )
@@ -110,7 +115,21 @@ void uiMarkerDlg::setMarkerSet( const ObjectSet<Well::Marker>& markers,
 	table->setText( RowCol(irow,0), "" );
 	table->setText( RowCol(irow,1), "" );
 	table->setColor( RowCol(irow,2), mrk.color );
+	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, false, false );
+	levelsel->levelChanged.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
+	table->setCellObject( RowCol(irow,3), levelsel->attachObj() );
     }
+}
+
+
+void uiMarkerDlg::stratLvlChg( CallBacker* cb )
+{
+    mDynamicCastGet(uiStratLevelSel*,levelsel,cb)
+    const Color* col = levelsel ? levelsel->getLvlColor() : 0;
+    if ( !col ) return;
+
+    const RowCol rc = table->getCell( levelsel->attachObj() );
+    table->setColor( RowCol(rc.row,2), *col );
 }
 
 

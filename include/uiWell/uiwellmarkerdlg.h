@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		May 2007
- RCS:		$Id: uiwellmarkerdlg.h,v 1.1 2008-02-19 11:20:30 cvsnanne Exp $
+ RCS:		$Id: uiwellmarkerdlg.h,v 1.2 2008-02-20 04:44:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ protected:
     void			mouseClick(CallBacker*);
     void			rdFile(CallBacker*);
     bool			acceptOK(CallBacker*);
+    void			stratLvlChg(CallBacker*);
 };
 
 #endif
