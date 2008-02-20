@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          August 2007
- RCS:		$Id: uistratutildlgs.cc,v 1.5 2007-09-26 15:24:19 cvshelene Exp $
+ RCS:		$Id: uistratutildlgs.cc,v 1.6 2008-02-20 04:40:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,7 +157,7 @@ void uiStratLevelDlg::setLvlInfo( const char* lvlnm )
 {
     Interval<float> lvltrg;
     Color lvlcol;
-    if ( !lvlnm && !uistratmgr_->getLvlPars( lvlnm, lvltrg, lvlcol ) )
+    if ( !lvlnm || !*lvlnm || !uistratmgr_->getLvlPars(lvlnm,lvltrg,lvlcol) )
 	return;
 
     lvlnmfld_->setText( lvlnm );
