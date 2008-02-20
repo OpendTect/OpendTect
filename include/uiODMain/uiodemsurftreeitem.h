@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodemsurftreeitem.h,v 1.4 2008-02-15 07:38:23 cvsnanne Exp $
+ RCS:		$Id: uiodemsurftreeitem.h,v 1.5 2008-02-20 19:36:50 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -53,7 +53,6 @@ private:
     MenuItem		enabletrackingmnuitem_;
     MenuItem		changesetupmnuitem_;
     MenuItem		reloadmnuitem_;
-    MenuItem		relationsmnuitem_;
     MenuItem		starttrackmnuitem_;
 };
 

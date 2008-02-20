@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.27 2008-02-15 07:38:23 cvsnanne Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.28 2008-02-20 19:36:50 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -51,7 +51,6 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , enabletrackingmnuitem_("Enable tracking")
     , changesetupmnuitem_("Change setup ...")
     , reloadmnuitem_("Reload")
-    , relationsmnuitem_("Relations ...")
     , starttrackmnuitem_("Start tracking ...")
 {
     enabletrackingmnuitem_.checkable = true;
@@ -293,7 +292,6 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    mAddMenuItem( trackmnu, &starttrackmnuitem_, true, false );
 	    mResetMenuItem( &changesetupmnuitem_ );
 	    mResetMenuItem( &enabletrackingmnuitem_ );
-	    mResetMenuItem( &relationsmnuitem_ );
 	}
 	else if ( hastracker && section!=-1 && !visserv_->isLocked(displayid_)&&
 		  !hastransform )
@@ -302,9 +300,6 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	    mAddMenuItem( trackmnu, &changesetupmnuitem_, true, false );
 	    mAddMenuItem( trackmnu, &enabletrackingmnuitem_, true,
 			  mps->isTrackingEnabled(mps->getTrackerID(emid_)) );
-	    mResetMenuItem( &relationsmnuitem_ );
-	    //mAddMenuItem( trackmnu, &relationsmnuitem_,
-	//	    mIsObject(EM::Horizon::typeStr()), false );
 	}
 
     }
@@ -313,7 +308,6 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &starttrackmnuitem_ );
 	mResetMenuItem( &changesetupmnuitem_ );
 	mResetMenuItem( &enabletrackingmnuitem_ );
-	mResetMenuItem( &relationsmnuitem_ );
     }
 
     mAddMenuItem( menu, &savemnuitem_,
@@ -424,11 +418,6 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 
 	uivisemobj_ = new uiVisEMObject(getUiParent(),emid_,sceneID(),visserv_);
 	displayid_ = uivisemobj_->id();
-    }
-    else if ( mnuid==relationsmnuitem_.id )
-    {	
-	menu->setIsHandled(true);
-	mps->showRelationsDlg( emid_, sectionid );
     }
     else if ( mnuid==enabletrackingmnuitem_.id )
     {
