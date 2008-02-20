@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.39 2008-02-19 16:52:05 cvshelene Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.40 2008-02-20 06:40:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -224,7 +224,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	CubeSampling curcs; todofld->getRanges( curcs );
 	curcs.fillPar( tmpiop );
     }
-    Bufferstring selkey = keybase; selkey += ".Sub";
+    BufferString selkey = keybase; selkey += ".Sub";
     iop.mergeComp( tmpiop, selkey );
 
     CubeSampling::removeInfo( subselpar );
