@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.69 2008-02-19 15:19:38 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.70 2008-02-20 10:03:55 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -987,7 +987,7 @@ void Trc2DVarZStorOutput::collectData( const DataHolder& data, float refstep,
 	    else
 	    {
 		float val = data.series(desoutputs_[comp])->value(idx-startidx);
-		trc_->set(idx, val*100, comp);
+		trc_->set(idx, val, comp);
 	    }
 	}
     }
