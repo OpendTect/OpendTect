@@ -7,19 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posprovider.h,v 1.6 2008-02-13 13:28:00 cvsbert Exp $
+ RCS:           $Id: posprovider.h,v 1.7 2008-02-20 12:44:02 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "position.h"
-#include "factory.h"
+#include "posfilter.h"
 #include "ranges.h"
-class Executor;
-class IOPar;
 class CubeSampling;
-namespace PosInfo { class Line2DData; }
 
 
 namespace Pos
@@ -44,34 +40,21 @@ namespace Pos
 
  */
 
-class Provider
+class Provider : public Pos::Filter
 {
 public:
 
     virtual Provider*	clone() const				= 0;
-    virtual		~Provider()				{}
-
-    virtual const char*	type() const				= 0;
-    virtual bool	is2D() const				= 0;
-
-    virtual bool	initialize();
-    virtual Executor*	initializer() const			{ return 0; }
-    virtual void	reset()					= 0;
 
     virtual bool	toNextPos()				= 0;
     virtual bool	toNextZ()				= 0;
     virtual Coord	curCoord() const			= 0;
     virtual float	curZ() const				= 0;
 
-    virtual bool	includes(const Coord&,
-	    			 float z=mUdf(float)) const	= 0;
     virtual void	getZRange(Interval<float>&) const	= 0;
     virtual int		estNrPos() const			= 0;
     virtual int		estNrZPerPos() const			{ return 1; }
 
-    virtual void	usePar(const IOPar&)			= 0;
-    virtual void	fillPar(IOPar&) const			= 0;
-    virtual void	getSummary(BufferString&) const		= 0;
     virtual void	getCubeSampling(CubeSampling&) const;
 
 };
