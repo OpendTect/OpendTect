@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.40 2007-09-04 17:05:49 cvsnanne Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.41 2008-02-20 21:39:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 
 #include "emsurface.h"
 #include "emsurfacetr.h"
-#include "emsurfacerelations.h"
 #include "emsurfaceauxdata.h"
 
 #include "emsurfaceedgeline.h"
@@ -293,7 +292,6 @@ bool SurfaceGeometry::removeSection( const SectionID& sid, bool addtoundo )
 	}
     }
 
-    surface_.relations.removeSection( sid );
     BufferString name = *sectionnames_[idx];
 
     delete sections_[idx];
@@ -331,8 +329,6 @@ SectionID SurfaceGeometry::cloneSection( const SectionID& sid )
 
     Geometry::Element* newsurf = sections_[sectionidx]->clone();
     const SectionID res = addSectionInternal( newsurf, 0, -1, true );
-
-    surface_.relations.cloneSectionRelation( sid, res );
 
     return res;
 }

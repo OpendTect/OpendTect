@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emundo.h,v 1.1 2007-07-06 14:11:05 cvskris Exp $
+ RCS:		$Id: emundo.h,v 1.2 2008-02-20 21:39:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -57,28 +57,6 @@ protected:
     int			attrib;
 };
 
-
-class SurfaceRelationEvent : public UndoEvent
-{
-public:
-    			SurfaceRelationEvent( char prevrelation,
-				const EM::ObjectID& cuttedsurface,
-				const EM::SectionID& cuttedsection,
-				const EM::ObjectID& cuttingsurface,
-				const EM::SectionID& cuttingsection );
-    const char*		getStandardDesc() const;
-    bool		unDo();
-    bool		reDo();
-
-protected:
-    bool		restoreRelation();
-
-    char		prevrelation;
-    EM::ObjectID	cuttedobject;
-    EM::SectionID	cuttedsection;
-    EM::ObjectID	cuttingobject;
-    EM::SectionID	cuttingsection;
-};
 
 /*! Saves information from a EMObject::changePosID call */
 

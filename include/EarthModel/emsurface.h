@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.63 2008-02-05 21:36:34 cvskris Exp $
+ RCS:		$Id: emsurface.h,v 1.64 2008-02-20 21:39:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -30,7 +30,6 @@ class EMManager;
 
 class EdgeLineManager;
 class SurfaceAuxData;
-class SurfaceRelations;
 class SurfaceGeometry;
 
 /*!\brief Base class for surfaces
@@ -68,8 +67,6 @@ public:
 
     bool			enableGeometryChecks(bool);
     bool			isGeometryChecksEnabled() const;
-
-    SurfaceRelations&		relations;
 
     virtual SurfaceGeometry&		geometry()			= 0;
     virtual const SurfaceGeometry&	geometry() const;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emundo.cc,v 1.1 2007-07-06 14:11:05 cvskris Exp $
+ RCS:           $Id: emundo.cc,v 1.2 2008-02-20 21:39:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,6 @@ ________________________________________________________________________
 
 #include "emmanager.h"
 #include "emsurface.h"
-#include "emsurfacerelations.h"
 #include "errh.h"
 #include "iopar.h"
 
@@ -113,58 +112,6 @@ bool EM::SetPosAttribUndoEvent::reDo()
 {
     mSetPosAttribUndoEvenUndoRedo( yn );
 }
-
-
-EM::SurfaceRelationEvent::SurfaceRelationEvent( char prevrelation_,
-    const EM::ObjectID& cuttedobject_, const EM::SectionID& cuttedsection_,
-    const EM::ObjectID& cuttingobject_, const EM::SectionID& cuttingsection_ )
-    : prevrelation( prevrelation_ )
-    , cuttedobject( cuttedobject_ )
-    , cuttedsection( cuttedsection_ )
-    , cuttingobject( cuttingobject_ )
-    , cuttingsection( cuttingsection_ )
-{}
-
-
-const char* EM::SurfaceRelationEvent::getStandardDesc() const
-{
-    return "Modified surface relation";
-}
-
-
-bool EM::SurfaceRelationEvent::unDo()
-{
-    return restoreRelation();
-}
-
-
-bool EM::SurfaceRelationEvent::reDo()
-{
-    return restoreRelation();
-}
-
-
-bool EM::SurfaceRelationEvent::restoreRelation()
-{
-    EM::EMManager& emm = EM::EMM();
-    mDynamicCastGet( EM::Surface*, cuttedsurface, emm.getObject(cuttedobject));
-    if ( !cuttedsurface ) return false;
-
-    SurfaceRelations& relations = cuttedsurface->relations;
-
-    const char currentrelation =
-	relations.getRelation( cuttedsection, cuttingobject, cuttingsection );
-
-    if ( !prevrelation )
-	relations.removeRelation( cuttedsection, cuttingobject, cuttingsection,
-				  false );
-    else
-	relations.setRelation( cuttedsection, cuttingobject, cuttingsection,
-			       prevrelation>0, false );
-    prevrelation = currentrelation;
-    return true;
-}
-
 
 
 EM::PosIDChangeEvent::PosIDChangeEvent( const EM::PosID& from_,

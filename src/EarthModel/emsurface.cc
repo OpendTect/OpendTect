@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurface.cc,v 1.87 2007-07-05 17:27:24 cvskris Exp $
+ RCS:           $Id: emsurface.cc,v 1.88 2008-02-20 21:39:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
-#include "emsurfacerelations.h"
 #include "iopar.h"
 
 
@@ -113,16 +112,14 @@ void SurfaceIODataSelection::setDefault()
 
 Surface::Surface( EMManager& man)
     : EMObject( man )
-    , relations( *new SurfaceRelations(*this ) )
 {
 }
 
 
 Surface::~Surface()
-{ delete &relations; }
+{}
 
-void Surface::removeAll()
-{ relations.removeAll(); }
+void Surface::removeAll() {}
 
 int Surface::nrSections() const
 { return geometry().nrSections(); }
@@ -170,14 +167,12 @@ const SurfaceGeometry& Surface::geometry() const
 
 bool Surface::usePar( const IOPar& par )
 {
-    return EMObject::usePar(par) && geometry().usePar(par) &&
-	   relations.usePar(par);
+    return EMObject::usePar(par) && geometry().usePar(par);
 }
 
 
 void Surface::fillPar( IOPar& par ) const
 {
     EMObject::fillPar( par );
-    relations.fillPar( par );
     geometry().fillPar( par );
 }
