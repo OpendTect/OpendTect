@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.4 2008-02-19 09:51:23 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.5 2008-02-20 12:45:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ class BinIDValueSet;
 class PosVecDataSet;
 class UnitOfMeasure;
 class BufferStringSet;
-namespace Pos { class Provider; }
+namespace Pos { class Filter; class Provider; }
 
 
 /*!\brief Set of data points with group selection.
@@ -144,6 +144,11 @@ public:
     void		setSelected(RowID,bool);
     void		setInactive(RowID,bool);
 
+    void		use(const ObjectSet<const ::Pos::Filter>&,
+	    		    bool purge=false);
+    void		purgeInactive();
+    void		purgeSelected(bool selected_rows=true);
+
     const PosVecDataSet& dataSet() const		{ return data_; }
     const BinIDValueSet& bivSet() const { return const_cast<DataPointSet*>
 					  (this)->bivSet(); }
@@ -169,7 +174,6 @@ public:
 
     // DataPack interface impl
     bool		simpleCoords() const		{ return false; }
-    void		getAuxInfo(RowID,IOPar&) const;
     float		nrKBytes() const;
     void		dumpInfo(IOPar&) const;
 

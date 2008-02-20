@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.7 2008-02-19 12:49:41 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.8 2008-02-20 12:45:07 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -12,6 +12,8 @@ static const char* rcsID = "$Id: datapointset.cc,v 1.7 2008-02-19 12:49:41 cvsbe
 #include "posprovider.h"
 #include "bufstringset.h"
 #include "survinfo.h"
+#include "iopar.h"
+#include "keystrs.h"
 
 static const char* sKeyDPS = "Data Point Set";
 const int DataPointSet::groupcol_ = 3;
@@ -417,24 +419,91 @@ void DataPointSet::addRow( const DataPointSet::DataRow& dr )
 }
 
 
-void DataPointSet::getAuxInfo( DataPointSet::RowID rid, IOPar& iop ) const
-{
-    //TODO
-}
-
-
 float DataPointSet::nrKBytes() const
 {
     const int twointsz = 2 * sizeof(int);
     const float rowsz = kbfac_ * (twointsz + bivSet().nrVals()*sizeof(float));
     const int nrrows = bivSet().totalSize();
-    return bivSet().totalSize() * (rowsz + twointsz);
+    return nrrows * (rowsz + twointsz);
 }
 
 
 void DataPointSet::dumpInfo( IOPar& iop ) const
 {
-    //TODO
+    iop.set( sKey::Type, "PointSet" );
+    iop.set( "Number of rows", bivSet().totalSize() );
+    const int nrcols = nrCols();
+    iop.set( "Number of cols", nrcols );
+    for ( int idx=0; idx<nrcols; idx++ )
+	iop.set( IOPar::compKey("Col",idx), colName(idx) );
+}
+
+void DataPointSet::use( const ObjectSet<const ::Pos::Filter>& filts, bool purge)
+{
+    TypeSet<BinIDValueSet::Pos> torem;
+    for ( int ifilt=0; ifilt<filts.size(); ifilt++ )
+    {
+	const ::Pos::Filter& filt = *filts[ifilt];
+	if ( filt.is2D() != is2d_ ) continue;
+
+	mDynamicCastGet(const ::Pos::Filter3D*,filt3d,&filt)
+	mDynamicCastGet(const ::Pos::Filter2D*,filt2d,&filt)
+	for ( RowID irow=0; irow<size(); irow++ )
+	{
+	    if ( !purge && inactive(irow) ) continue;
+
+	    const bool isfilt = is2d_ ? filt2d->includes(trcNr(irow),z(irow))
+				      : filt3d->includes(binID(irow),z(irow));
+	    if ( !isfilt ) continue;
+
+	    if ( !purge )
+		setInactive( irow, true );
+	    else
+	    {
+		const BinIDValueSet::Pos bvspos( bvsidxs_[irow] );
+		if ( torem.indexOf(bvspos) < 0 )
+		    torem += bvspos;
+	    }
+	}
+    }
+
+    if ( !torem.isEmpty() )
+    {
+	bivSet().remove( torem );
+	calcIdxs();
+    }
+}
+
+
+void DataPointSet::purgeInactive()
+{
+    TypeSet<BinIDValueSet::Pos> torem;
+    for ( RowID irow=0; irow<size(); irow++ )
+    {
+	if ( inactive(irow) )
+	    torem += bvsidxs_[irow];
+    }
+    if ( !torem.isEmpty() )
+    {
+	bivSet().remove( torem );
+	calcIdxs();
+    }
+}
+
+
+void DataPointSet::purgeSelected( bool sel )
+{
+    TypeSet<BinIDValueSet::Pos> torem;
+    for ( RowID irow=0; irow<size(); irow++ )
+    {
+	if ( sel != selected(irow) )
+	    torem += bvsidxs_[irow];
+    }
+    if ( !torem.isEmpty() )
+    {
+	bivSet().remove( torem );
+	calcIdxs();
+    }
 }
 
 
