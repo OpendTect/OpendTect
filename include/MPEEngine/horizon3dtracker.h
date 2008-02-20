@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: horizon3dtracker.h,v 1.4 2007-05-22 04:08:58 cvsnanne Exp $
+ RCS:		$Id: horizon3dtracker.h,v 1.5 2008-02-20 20:19:33 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,6 @@ namespace EM { class Horizon3D; };
 namespace MPE
 {
 
-class ConsistencyChecker;
 class Horizon3DSeedPicker;
 
 /*!\brief Horizon tracker
@@ -46,9 +45,6 @@ protected:
     const EM::Horizon3D*	getHorizon() const;
 
     SectionTracker*		createSectionTracker(EM::SectionID);
-    ConsistencyChecker*		getConsistencyChecker();
-    
-    ConsistencyChecker*		consistencychecker;
     Horizon3DSeedPicker*	seedpicker;
 };
 

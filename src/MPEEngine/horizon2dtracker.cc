@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: horizon2dtracker.cc,v 1.4 2007-09-13 06:05:29 cvskris Exp $
+ RCS:           $Id: horizon2dtracker.cc,v 1.5 2008-02-20 20:19:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "horizon2dselector.h"
 #include "mpeengine.h"
 #include "sectiontracker.h"
-#include "consistencychecker.h"
 #include "survinfo.h"
 
 

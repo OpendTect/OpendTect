@@ -8,13 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emtracker.cc,v 1.36 2007-10-10 09:31:21 cvsjaap Exp $";
+static const char* rcsID = "$Id: emtracker.cc,v 1.37 2008-02-20 20:19:33 cvskris Exp $";
 
 #include "emtracker.h"
 
 #include "attribsel.h"
 #include "autotracker.h"
-#include "consistencychecker.h"
 #include "undo.h"
 #include "emmanager.h"
 #include "emobject.h"
@@ -70,9 +69,6 @@ bool EMTracker::trackSections( const TrackPlane& plane )
 
 
     const int initialhistnr = EM::EMM().undo().currentEventID();
-    ConsistencyChecker* consistencychecker = getConsistencyChecker();
-    if ( consistencychecker ) consistencychecker->reset();
-
     bool success = true;
     for ( int idx=0; idx<emobject_->nrSections(); idx++ )
     {
@@ -89,23 +85,10 @@ bool EMTracker::trackSections( const TrackPlane& plane )
 	    errmsg_ = sectiontracker->errMsg();
 	    success = false;
 	}
-	else if ( consistencychecker )
-	{
-	    const TypeSet<EM::SubID>& addedpos = 
-		sectiontracker->extender()->getAddedPositions();
-	    for ( int posidx=0; posidx<addedpos.size(); posidx++ )
-	    {
-		posid.setSubID( addedpos[posidx] );
-		consistencychecker->addNodeToCheck( posid );
-	    }
-	}
     }
 
     if ( !success )
 	return false;
-
-    if ( consistencychecker )
-	consistencychecker->nextStep();
 
     return true;
 }

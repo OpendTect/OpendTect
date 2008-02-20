@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: emtracker.h,v 1.26 2007-09-13 06:05:29 cvskris Exp $
+ RCS:           $Id: emtracker.h,v 1.27 2008-02-20 20:19:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,6 @@ namespace Attrib { class SelSpec; }
 namespace MPE
 {
 
-class ConsistencyChecker;
 class SectionTracker;
 class TrackPlane;
 class EMSeedPicker;
@@ -69,7 +68,6 @@ protected:
     virtual SectionTracker*	createSectionTracker(EM::SectionID) = 0;
     virtual void		erasePositions(EM::SectionID,
 	    				       const TypeSet<EM::SubID>&);
-    virtual ConsistencyChecker*	getConsistencyChecker()		{ return 0; }
 
     bool			isenabled_;
     ObjectSet<SectionTracker>	sectiontrackers_;

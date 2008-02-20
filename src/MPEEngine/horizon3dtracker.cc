@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: horizon3dtracker.cc,v 1.7 2007-09-13 06:05:29 cvskris Exp $
+ RCS:           $Id: horizon3dtracker.cc,v 1.8 2008-02-20 20:19:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ ________________________________________________________________________
 #include "mpeengine.h"
 #include "sectionselectorimpl.h"
 #include "sectiontracker.h"
-#include "consistencychecker.h"
 #include "survinfo.h"
 
 
@@ -31,7 +30,6 @@ namespace MPE
 
 Horizon3DTracker::Horizon3DTracker( EM::Horizon3D* hor )
     : EMTracker(hor)
-    , consistencychecker(0)
     , seedpicker( 0 )
 {}
 
@@ -95,16 +93,5 @@ EM::Horizon3D* Horizon3DTracker::getHorizon()
 const EM::Horizon3D* Horizon3DTracker::getHorizon() const 
 { return const_cast<Horizon3DTracker*>(this)->getHorizon(); }
 
-
-ConsistencyChecker* Horizon3DTracker::getConsistencyChecker()
-{
-    mDynamicCastGet(EM::Horizon3D*,horizon,emObject());
-    if ( !horizon ) return 0;
-
-    if ( !consistencychecker )
-	consistencychecker = new ConsistencyChecker( *horizon );
-
-    return consistencychecker;
-}
 
 }; // namespace MPE
