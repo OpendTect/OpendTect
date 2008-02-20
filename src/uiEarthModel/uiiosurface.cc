@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.48 2008-02-18 11:00:47 cvsbert Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.49 2008-02-20 04:44:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -244,7 +244,8 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
     {
 	stratlvlfld_ = new uiStratLevelSel( this );
 	stratlvlfld_->attach( alignedBelow, objfld );
-	stratlvlfld_->selchanged_.notify(mCB(this,uiSurfaceWrite,stratLvlChg));
+	stratlvlfld_->levelChanged.notify(
+		mCB(this,uiSurfaceWrite,stratLvlChg) );
     }
 
     if ( setup.withcolorfld_ )
