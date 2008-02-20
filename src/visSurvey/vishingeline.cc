@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: vishingeline.cc,v 1.16 2007-05-22 03:23:22 cvsnanne Exp $
+ RCS:           $Id: vishingeline.cc,v 1.17 2008-02-20 21:21:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,8 +31,7 @@ namespace visSurvey
 {
 
 #define mStopColor	1
-#define mCutColor	2
-#define mConnectColor	3
+#define mConnectColor	2
 
 EdgeLineSetDisplay::EdgeLineSetDisplay()
     : VisualObjectImpl(true)
@@ -45,8 +44,6 @@ EdgeLineSetDisplay::EdgeLineSetDisplay()
 
     getMaterial()->setColor( Color(178,178,178), 0 );
     getMaterial()->setDiffIntensity(1,0);
-    getMaterial()->setColor( Color(0,0,255), mCutColor );
-    getMaterial()->setDiffIntensity(1,mCutColor);
     getMaterial()->setColor( Color(255,0,0), mStopColor );
     getMaterial()->setDiffIntensity(1,mStopColor);
     getMaterial()->setColor( Color(0,255,0), mConnectColor );
@@ -206,12 +203,6 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
 		materialindex = mConnectColor;
 		showsegment =
 		    connline->getSection()<connline->connectingSection();
-	    }
-	    else if ( dynamic_cast<const EM::SurfaceCutLine*>
-						    (edgelinesegment) )
-	    {
-		materialindex = mCutColor;
-		showsegment = false;
 	    }
 
 	    if ( !showdefault && showsegment )
