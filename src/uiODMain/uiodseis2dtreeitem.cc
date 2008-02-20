@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.35 2008-02-15 07:50:08 cvsjaap Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.36 2008-02-20 05:56:26 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ bool uiODSeis2DParentTreeItem::showSubMenu()
     if ( !success ) return false;
 
     uiOD2DLineSetTreeItem* newitm = new uiOD2DLineSetTreeItem( mid );
-    addChild( newitm, true );
+    addChild( newitm, false );
     newitm->selectAddLines();
 
     return true;
@@ -157,7 +157,7 @@ void uiOD2DLineSetTreeItem::selectAddLines()
 
     uiCursorChanger cursorchgr( uiCursor::Wait );
     for ( int idx=linenames.size()-1; idx>=0; idx-- )
-	addChild( new uiOD2DLineSetSubItem(linenames.get(idx)), true );
+	addChild( new uiOD2DLineSetSubItem(linenames.get(idx)), false );
 }
 
 

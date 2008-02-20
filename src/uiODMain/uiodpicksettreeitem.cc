@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.39 2008-02-15 10:58:21 cvsjaap Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.40 2008-02-20 05:56:26 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -78,7 +78,7 @@ void uiODPickSetParentTreeItem::setAdd( CallBacker* cb )
     if ( !ps ) return;
 
     uiODDisplayTreeItem* item = new uiODPickSetTreeItem( -1, *ps );
-    addChild( item, true );
+    addChild( item, false );
     item->setChecked( display_on_add );
 }
 
