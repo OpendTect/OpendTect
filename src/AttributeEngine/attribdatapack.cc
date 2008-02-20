@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2007
- RCS:           $Id: attribdatapack.cc,v 1.26 2007-12-18 14:52:24 cvshelene Exp $
+ RCS:           $Id: attribdatapack.cc,v 1.27 2008-02-20 17:50:32 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ Flat3DDataPack::Flat3DDataPack( DescID did, const DataCubes& dc, int cubeidx )
     : ::FlatDataPack(categoryStr(true))
     , DataPackCommon(did)
     , cube_(dc)
+    , cubeidx_( cubeidx )	       
     , arr2dsl_(0)
     , arr2dsource_(0)
     , usemultcubes_( cubeidx == -1 )
@@ -62,7 +63,10 @@ Flat3DDataPack::Flat3DDataPack( DescID did, const DataCubes& dc, int cubeidx )
 	dir_ = CubeSampling::Z;
 	
     if ( usemultcubes_ )
+    {
 	createA2DSFromMultCubes();
+	cubeidx_ = -1;
+    }
     else
 	createA2DSFromSingCube( cubeidx );
     

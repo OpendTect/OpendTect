@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: attribdatapack.h,v 1.21 2007-12-18 14:50:24 cvshelene Exp $
+ RCS:		$Id: attribdatapack.h,v 1.22 2008-02-20 17:50:32 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,6 +120,7 @@ public:
     virtual bool	isVertical() const
     			{ return dir_ != CubeSampling::Z; }
 
+    int			getCubeIdx() const	{ return cubeidx_; }
     const DataCubes&	cube() const		{ return cube_; }
     Array2D<float>&	data();
     CubeSampling::Dir	dataDir() const		{ return dir_; }
@@ -138,6 +139,7 @@ protected:
     Array2D<float>*	arr2dsource_;
     CubeSampling::Dir	dir_;
     bool		usemultcubes_;
+    int			cubeidx_;
 
     void		setPosData();
     void		createA2DSFromMultCubes();
