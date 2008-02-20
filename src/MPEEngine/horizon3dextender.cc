@@ -8,15 +8,13 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dextender.cc,v 1.12 2007-07-27 14:55:32 cvskris Exp $";
+static const char* rcsID = "$Id: horizon3dextender.cc,v 1.13 2008-02-20 21:11:34 cvskris Exp $";
 
 #include "horizon3dextender.h"
 
 #include "binidsurface.h"
 #include "emfault.h"
 #include "emhorizon3d.h"
-#include "emhorizontaltube.h"
-#include "geomtube.h"
 #include "survinfo.h"
 #include "trackplane.h"
 #include "mpeengine.h"
