@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.26 2008-01-31 19:06:39 cvskris Exp $
+ RCS:		$Id: keystrs.h,v 1.27 2008-02-20 12:44:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ namespace sKey
     extern const char*	None		mImpl("None");
     extern const char*	Pars		mImpl("Parameters");
     extern const char*	Polygon		mImpl("Polygon");
+    extern const char*	Random		mImpl("Random");
     extern const char*	Range		mImpl("Range");
     extern const char*	Selection	mImpl("Selection");
     extern const char*	Shortcuts	mImpl("Shortcuts");
