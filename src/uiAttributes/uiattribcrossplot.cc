@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uiattribcrossplot.cc,v 1.9 2008-02-19 12:49:53 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.10 2008-02-20 12:46:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "posprovider.h"
+#include "posrandomfilter.h"
 #include "attribdescset.h"
 #include "attribengman.h"
 #include "keystrs.h"
@@ -77,10 +78,17 @@ uiAttribCrossPlot::~uiAttribCrossPlot()
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
+#define mDPM DPM(DataPackMgr::PointID)
+
+#define mErrRet(s) \
+{ \
+    if ( dps ) mDPM.release(dps->id()); \
+    if ( s ) uiMSG().error(s); return false; \
+}
 
 bool uiAttribCrossPlot::acceptOK( CallBacker* )
 {
+    DataPointSet* dps = 0;
     PtrMan<Pos::Provider> prov = posprovfld_->createProvider();
     if ( !prov )
 	mErrRet("Internal: no Pos::Provider")
@@ -95,16 +103,25 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     if ( dcds.isEmpty() )
 	mErrRet("Please select at least one attribute to evaluate")
 
-    DataPointSet dps( *prov, dcds );
-    if ( dps.size() < 1 )
+    dps = new DataPointSet( *prov, dcds );
+    if ( dps->size() < 1 )
 	mErrRet("No positions selected")
 
+    dps->setName( "Attribute cross-plot" );
+    mDPM.add( dps );
+
+    Pos::RandomFilter3D filt; filt.passratio_ = 0.1;
+    filt.initialize();
+    ObjectSet<const Pos::Filter> filters; filters += &filt;
+    dps->use( filters, true );
+
     Attrib::EngineMan aem;
-    PtrMan<Executor> ex = aem.getTableExtractor( dps, ads_ );
+    PtrMan<Executor> ex = aem.getTableExtractor( *dps, ads_ );
     uiExecutor uiex( this, *ex );
     if ( !uiex.go() )
-	return false;
+	mErrRet(0)
 
-    uiDataPointSet dlg( this, dps, uiDataPointSet::Setup("Attribute data") );
-    return dlg.go() ? true : false;
+    uiDataPointSet* dlg = new uiDataPointSet( this, *dps,
+			uiDataPointSet::Setup("Attribute data").modal(false) );
+    return dlg->go() ? true : false;
 }
