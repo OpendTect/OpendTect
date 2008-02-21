@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.182 2008-02-13 17:43:57 cvsjaap Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.183 2008-02-21 11:13:14 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -53,6 +53,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , moving_(this)
     , movefinished_(this)
     , orientation_( Inline )
+    , csfromsession_(true)
 {
     volumecache_.allowNull( true );
     rposcache_.allowNull( true );
@@ -178,7 +179,12 @@ void PlaneDataDisplay::updateRanges( bool resetic, bool resetz )
 {
     CubeSampling survey( SI().sampling(true) );
     if ( datatransform_ )
-	survey.zrg.setFrom( datatransform_->getZInterval(false) );
+    {
+	if ( csfromsession_ != survey )
+	    survey = csfromsession_;
+	else
+	    survey.zrg.setFrom( datatransform_->getZInterval(false) );
+    }
 	
     const Interval<float> inlrg( survey.hrg.start.inl, survey.hrg.stop.inl );
     const Interval<float> crlrg( survey.hrg.start.crl, survey.hrg.stop.crl );
@@ -1085,7 +1091,10 @@ int PlaneDataDisplay::usePar( const IOPar& par )
 
     CubeSampling cs;
     if ( cs.usePar( par ) )
+    {
+	csfromsession_ = cs;
 	setCubeSampling( cs );
+    }
 
     int gridlinesid;
     if ( par.get(sKeyGridLinesID(),gridlinesid) )

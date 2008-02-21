@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.79 2008-02-05 22:11:23 cvskris Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.80 2008-02-21 11:13:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ VolumeDisplay::VolumeDisplay()
     , allowshading_(false)
     , datatransform_(0)
     , datatransformer_(0)
+    , csfromsession_(true)
 {
     boxdragger_->ref();
     addChild( boxdragger_->getInventorNode() );
@@ -196,10 +197,15 @@ void VolumeDisplay::updateRanges( bool updateic, bool updatez )
 {
     if ( !datatransform_ ) return;
 
-    Interval<float> zrg = datatransform_->getZInterval( false );
-    CubeSampling cs = getCubeSampling( 0 );
-    assign( cs.zrg, zrg );
-    setCubeSampling( cs );
+    if ( csfromsession_ != SI().sampling(true) )
+	setCubeSampling( csfromsession_ );
+    else
+    {
+	Interval<float> zrg = datatransform_->getZInterval( false );
+	CubeSampling cs = getCubeSampling( 0 );
+	assign( cs.zrg, zrg );
+	setCubeSampling( cs );
+    }
 }
 
 
@@ -967,7 +973,10 @@ int VolumeDisplay::usePar( const IOPar& par )
 
     CubeSampling cs;
     if ( cs.usePar(par) )
+    {
+	csfromsession_ = cs;
 	setCubeSampling( cs );
+    }
 
     useSOPar( par );
     return 1;

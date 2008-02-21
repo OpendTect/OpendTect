@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.52 2008-02-05 22:11:23 cvskris Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.53 2008-02-21 11:13:14 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -159,6 +159,7 @@ protected:
     bool			allowshading_;
     BufferString		sliceposition_;
     BufferString		slicename_;
+    CubeSampling		csfromsession_;
 
     static const char*		volumestr;
     static const char*		inlinestr;

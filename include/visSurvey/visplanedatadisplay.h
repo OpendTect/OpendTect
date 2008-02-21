@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.101 2007-09-18 15:58:04 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.102 2008-02-21 11:13:14 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -173,6 +173,7 @@ protected:
     ObjectSet<const Attrib::DataCubes>	volumecache_;
     ObjectSet<BinIDValueSet>		rposcache_;
 
+    CubeSampling			csfromsession_;
     BinID				curicstep_;
     float				curzstep_;
     ZAxisTransform*			datatransform_;
