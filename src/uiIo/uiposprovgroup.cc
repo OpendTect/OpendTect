@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.9 2008-02-21 09:40:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.10 2008-02-21 10:12:06 cvsbert Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -203,6 +203,7 @@ bool uiPolyPosProvGroup::fillPar( IOPar& iop ) const
 void uiPolyPosProvGroup::setExtractionDefaults()
 {
     CubeSampling cs( true ); getExtrDefCubeSampling( cs );
+    stepfld_->setSteps( cs.zrg );
     zrgfld_->setRange( cs.zrg );
 }
 
