@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.46 2008-01-18 16:24:52 cvsjaap Exp $
+ RCS:           $Id: uimenu.cc,v 1.47 2008-02-21 11:10:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -283,6 +283,26 @@ int uiMenuItemContainer::nrItems() const
 
 const ObjectSet<uiMenuItem>& uiMenuItemContainer::items() const
     { return body_->itms_; }
+
+
+uiMenuItem* uiMenuItemContainer::find( int id )
+{
+    for ( int idx=0; idx<body_->nrItems(); idx++ )
+    {
+	uiMenuItem* itm = body_->itms_[idx];
+	if ( itm->id() == id )
+	    return itm;
+
+	mDynamicCastGet(uiPopupItem*,popupitm,itm)
+	if ( popupitm )
+	{
+	    uiMenuItem* itm = popupitm->menu().find( id );
+	    if ( itm ) return itm;
+	}
+    }
+
+    return 0;
+}
 
 
 uiMenuItem* uiMenuItemContainer::find( const MenuItemSeparString& str )

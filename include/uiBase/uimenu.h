@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.41 2008-01-18 16:24:52 cvsjaap Exp $
+ RCS:           $Id: uimenu.h,v 1.42 2008-02-21 11:10:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ public:
 
     uiMenuItem*			find(const MenuItemSeparString&);
     uiMenuItem*			find(const char* itmtxt);
+    uiMenuItem*			find(int id);
 	
     int				insertItem(uiMenuItem*,int id=-1);
     				/*!<\param id The id that is returned if the
