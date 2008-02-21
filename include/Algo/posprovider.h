@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posprovider.h,v 1.8 2008-02-20 16:24:33 cvsbert Exp $
+ RCS:           $Id: posprovider.h,v 1.9 2008-02-21 15:29:10 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -32,6 +32,8 @@ namespace Pos
 class Provider : public Pos::Filter
 {
 public:
+
+    virtual bool	isProvider() const			{ return true; }
 
     virtual Provider*	clone() const				= 0;
 

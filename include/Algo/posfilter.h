@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilter.h,v 1.2 2008-02-20 16:24:33 cvsbert Exp $
+ RCS:           $Id: posfilter.h,v 1.3 2008-02-21 15:29:10 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -50,6 +50,7 @@ public:
 
     virtual const char*	type() const				= 0;
     virtual bool	is2D() const				= 0;
+    virtual bool	isProvider() const			{ return false;}
 
     virtual bool	initialize();
     virtual Executor*	initializer() const			{ return 0; }
@@ -124,6 +125,9 @@ public:
 			//!< Only works for 2D
 
     void		adjustZ(const Coord&,float&) const;
+
+    void		fillPar(IOPar&) const;
+    void		usePar(const IOPar&);
 
 protected:
 
