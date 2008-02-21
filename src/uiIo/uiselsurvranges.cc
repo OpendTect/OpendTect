@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiselsurvranges.cc,v 1.3 2008-02-18 11:00:48 cvsbert Exp $
+ RCS:           $Id: uiselsurvranges.cc,v 1.4 2008-02-21 09:25:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -158,6 +158,46 @@ void uiSelNrRange::setRange( const StepInterval<int>& rg )
 	stopfld_->setValue( rg.stop );
     if ( stepfld_ )
 	stepfld_->setValue( rg.step );
+}
+
+
+uiSelSteps::uiSelSteps( uiParent* p, bool is2d )
+	: uiGroup(p,"Step selection")
+	, inlfld_(0)
+{
+    BinID stp( 0, 1 );
+    const char* lbl = "Trace number step";
+    uiSpinBox* firstbox = 0;
+    if ( !is2d )
+    {
+	stp = SI().sampling(true).hrg.step;
+	firstbox = inlfld_ = new uiSpinBox( this, 0, "inline step" );
+	inlfld_->setInterval( StepInterval<int>(stp.inl,1000000,stp.inl) );
+	lbl = "Inline/Crossline steps";
+    }
+    crlfld_ = new uiSpinBox( this, 0, "crossline step" );
+    crlfld_->setInterval( StepInterval<int>(stp.crl,1000000,stp.crl) );
+    if ( inlfld_ )
+	crlfld_->attach( rightOf, inlfld_ );
+    else
+	firstbox = crlfld_;
+
+    new uiLabel( this, lbl, firstbox );
+    setHAlignObj( firstbox );
+}
+
+
+BinID uiSelSteps::getSteps() const
+{
+    return BinID( inlfld_ ? inlfld_->getValue() : 0, crlfld_->getValue() );
+}
+
+
+void uiSelSteps::setSteps( const BinID& bid )
+{
+    crlfld_->setValue( bid.crl );
+    if ( inlfld_ )
+	inlfld_->setValue( bid.inl );
 }
 
 

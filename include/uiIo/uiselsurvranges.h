@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiselsurvranges.h,v 1.2 2008-02-18 11:00:47 cvsbert Exp $
+ RCS:           $Id: uiselsurvranges.h,v 1.3 2008-02-21 09:25:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ protected:
 };
 
 
-/*!\brief Selects sub-volume. Default will be SI() work area */
+/*!\brief Selects range of trace numbers */
 
 class uiSelNrRange : public uiGroup
 {
@@ -58,6 +58,25 @@ protected:
     int			defstep_;
 
     void		valChg(CallBacker*);
+
+};
+
+
+/*!\brief Selects step(s) in inl/crl or trcnrs */
+
+class uiSelSteps : public uiGroup
+{
+public:
+
+                        uiSelSteps(uiParent*,bool is2d);
+
+    BinID		getSteps() const;
+    void		setSteps(const BinID&);
+
+protected:
+
+    uiSpinBox*		inlfld_;
+    uiSpinBox*		crlfld_;
 
 };
 
