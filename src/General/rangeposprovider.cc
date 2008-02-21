@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: rangeposprovider.cc,v 1.5 2008-02-18 16:32:17 cvsbert Exp $";
+static const char* rcsID = "$Id: rangeposprovider.cc,v 1.6 2008-02-21 13:47:05 cvsbert Exp $";
 
 #include "rangeposprovider.h"
 #include "survinfo.h"
@@ -68,6 +68,7 @@ bool Pos::RangeProvider3D::toNextPos()
 	curbid_.inl += cs_.hrg.step.inl;
 	if ( curbid_.inl > cs_.hrg.stop.inl )
 	    return false;
+	curbid_.crl = cs_.hrg.start.crl;
     }
 
     curz_ = cs_.zrg.start;
