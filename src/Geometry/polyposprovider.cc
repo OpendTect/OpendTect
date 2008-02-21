@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: polyposprovider.cc,v 1.4 2008-02-13 13:28:00 cvsbert Exp $";
+static const char* rcsID = "$Id: polyposprovider.cc,v 1.5 2008-02-21 09:40:51 cvsbert Exp $";
 
 #include "polyposprovider.h"
 #include "keystrs.h"
@@ -170,7 +170,8 @@ ODPolygon<float>* Pos::PolyProvider3D::polyFromPar( const IOPar& iop, int nr )
 void Pos::PolyProvider3D::usePar( const IOPar& iop )
 {
     iop.get( mGetPolyKey(sKey::ZRange), zrg_ );
-    iop.get( mGetPolyKey("Steps"), hs_.step );
+    iop.get( mGetPolyKey(sKey::StepInl), hs_.step.inl );
+    iop.get( mGetPolyKey(sKey::StepCrl), hs_.step.crl );
     ODPolygon<float>* poly = polyFromPar( iop );
     if ( poly )
     {
@@ -183,7 +184,8 @@ void Pos::PolyProvider3D::usePar( const IOPar& iop )
 void Pos::PolyProvider3D::fillPar( IOPar& iop ) const
 {
     iop.set( mGetPolyKey(sKey::ZRange), zrg_ );
-    iop.set( mGetPolyKey("Steps"), hs_.step );
+    iop.set( mGetPolyKey(sKey::StepInl), hs_.step.inl );
+    iop.set( mGetPolyKey(sKey::StepCrl), hs_.step.crl );
     ::fillPar( iop, poly_, mGetPolyKey(((int)0)) );
 }
 
