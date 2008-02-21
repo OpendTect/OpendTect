@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.40 2008-02-05 09:24:17 cvsbert Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.41 2008-02-21 22:53:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -601,7 +601,13 @@ void HorizonDisplay::setDepthAsAttrib( int attrib )
 	while ( positions[idx]->next(pos,true) )
 	{
 	    float* vals = positions[idx]->getVals(pos);
-	    vals[1] = vals[0];
+	    if ( zaxistransform_ )
+	    {
+		vals[1] = zaxistransform_->transform(
+			BinIDValue( positions[idx]->getBinID(pos), vals[0] ) );
+	    }
+	    else
+		vals[1] = vals[0];
 	}
     }
 
