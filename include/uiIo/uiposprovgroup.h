@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovgroup.h,v 1.2 2008-02-13 13:28:48 cvsbert Exp $
+ RCS:           $Id: uiposprovgroup.h,v 1.3 2008-02-21 09:39:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,8 @@ public:
 
     virtual void	usePar(const IOPar&)		= 0;
     virtual bool	fillPar(IOPar&) const		= 0;
+
+    virtual void	setExtractionDefaults()		{}
 
     mDefineFactory2ParamInClass(uiPosProvGroup,uiParent*,
 	    			const uiPosProvider::Setup&,factory);
