@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.25 2008-02-06 19:13:26 cvskris Exp $
+ RCS:           $Id: flatview.h,v 1.26 2008-02-21 20:00:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,7 @@ public:
 
 	bool			enabled_; 	//!<Turns on/off everything
 	BufferString		name_;
+	Alignment		namealignment_;
 	int			namepos_;	//!<nodraw=udf, before first=-1,
 						//!< center=0, after last=1
 	LineStyle		linestyle_;

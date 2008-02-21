@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.40 2008-02-06 19:13:26 cvskris Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.41 2008-02-21 20:00:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -469,7 +469,7 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 	if ( listpos < 0 ) listpos=0;
 	if ( listpos > nrpoints ) listpos = nrpoints-1;
 
-	dt.drawText( ptlist[listpos], ad.name_.buf(), mAlign(Middle,Middle) );
+	dt.drawText( ptlist[listpos], ad.name_.buf(), ad.namealignment_ );
     }
 }
 
