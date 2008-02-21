@@ -17,3 +17,6 @@ lmhostid
 	Comment: Display the FlexLM hostid of this machine
 	Comment: May be required for commercial plugins.
 !
+glxinfo
+	Comment: Display OpenGL information
+!
