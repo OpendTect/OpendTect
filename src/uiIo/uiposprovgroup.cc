@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.8 2008-02-13 13:28:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.9 2008-02-21 09:40:07 cvsbert Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -87,6 +87,38 @@ bool uiRangePosProvGroup::fillPar( IOPar& iop ) const
 }
 
 
+static void getExtrDefCubeSampling( CubeSampling& cs )
+{
+    int nrsamps = cs.zrg.nrSteps() + 1;
+    if ( nrsamps > 2000 ) cs.zrg.step *= 1000;
+    else if ( nrsamps > 200 ) cs.zrg.step *= 100;
+    else if ( nrsamps > 20 ) cs.zrg.step *= 10;
+    else if ( nrsamps > 10 ) cs.zrg.step *= 5;
+    nrsamps = cs.zrg.nrSteps() + 1;
+
+    const int nrextr = cs.hrg.totalNr() * nrsamps;
+    int blocks = nrextr / 50000;
+    float fstepfac = sqrt( blocks );
+    int stepfac = mNINT(fstepfac);
+    cs.hrg.step.inl *= stepfac;
+    cs.hrg.step.crl *= stepfac;
+}
+
+
+void uiRangePosProvGroup::setExtractionDefaults()
+{
+    CubeSampling cs( true ); getExtrDefCubeSampling( cs );
+    if ( hrgfld_ )
+	hrgfld_->setSampling( cs.hrg );
+    if ( nrrgfld_ )
+    {
+	cs.hrg.step.crl = 10;
+	nrrgfld_->setRange( cs.hrg.crlRange() );
+    }
+    zrgfld_->setRange( cs.zrg );
+}
+
+
 void uiRangePosProvGroup::getCubeSampling( CubeSampling& cs ) const
 {
     cs = SI().sampling( false );
@@ -116,10 +148,13 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
     ctio_.fillIfOnlyOne( IOObjContext::Loc );
     polyfld_ = new uiIOObjSel( this, ctio_, sKey::Polygon );
 
+    stepfld_ = new uiSelSteps( this, false );
+    stepfld_->attach( alignedBelow, polyfld_ );
+
     if ( su.withz_ )
     {
 	zrgfld_ = new uiSelZRange( this, true );
-	zrgfld_->attach( alignedBelow, polyfld_ );
+	zrgfld_->attach( alignedBelow, stepfld_ );
     }
 
     setHAlignObj( polyfld_ );
@@ -139,6 +174,10 @@ uiPolyPosProvGroup::~uiPolyPosProvGroup()
 void uiPolyPosProvGroup::usePar( const IOPar& iop )
 {
     polyfld_->usePar( iop, sKey::Polygon );
+    BinID stps( SI().sampling(true).hrg.step );
+    iop.get( mGetPolyKey(sKey::StepInl), stps.inl );
+    iop.get( mGetPolyKey(sKey::StepCrl), stps.crl );
+    stepfld_->setSteps( stps );
     if ( zrgfld_ )
     {
 	StepInterval<float> zrg( SI().zRange(true) );
@@ -153,8 +192,18 @@ bool uiPolyPosProvGroup::fillPar( IOPar& iop ) const
     iop.set( sKey::Type, sKey::Polygon );
     if ( !polyfld_->fillPar(iop,sKey::Polygon) )
 	mErrRet("Please select the polygon")
+    const BinID stps( stepfld_->getSteps() );
+    iop.set( mGetPolyKey(sKey::StepInl), stps.inl );
+    iop.set( mGetPolyKey(sKey::StepCrl), stps.crl );
     iop.set( mGetPolyKey(sKey::ZRange), zrgfld_->getRange() );
     return true;
+}
+
+
+void uiPolyPosProvGroup::setExtractionDefaults()
+{
+    CubeSampling cs( true ); getExtrDefCubeSampling( cs );
+    zrgfld_->setRange( cs.zrg );
 }
 
 

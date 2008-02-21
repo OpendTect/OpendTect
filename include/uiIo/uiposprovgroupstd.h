@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovgroupstd.h,v 1.6 2008-02-12 11:57:08 cvsbert Exp $
+ RCS:           $Id: uiposprovgroupstd.h,v 1.7 2008-02-21 09:40:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ class CtxtIOObj;
 class CubeSampling;
 class uiGenInput;
 class uiIOObjSel;
+class uiSelSteps;
 class uiSelHRange;
 class uiSelZRange;
 class uiSelNrRange;
@@ -36,6 +37,8 @@ public:
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
+
+    void		setExtractionDefaults();
 
     void		getCubeSampling(CubeSampling&) const;
 
@@ -64,6 +67,8 @@ public:
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
 
+    void		setExtractionDefaults();
+
     bool		getID(MultiID&) const;
     void		getZRange(StepInterval<float>&) const;
 
@@ -76,6 +81,7 @@ protected:
     CtxtIOObj&		ctio_;
 
     uiIOObjSel*		polyfld_;
+    uiSelSteps*		stepfld_;
     uiSelZRange*	zrgfld_;
 
 };

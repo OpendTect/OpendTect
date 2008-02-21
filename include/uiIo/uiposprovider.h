@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovider.h,v 1.6 2008-02-18 16:32:17 cvsbert Exp $
+ RCS:           $Id: uiposprovider.h,v 1.7 2008-02-21 09:40:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ public:
 
     void		usePar(const IOPar&);
     bool		fillPar(IOPar&) const;
+    void		setExtractionDefaults();
 
     Pos::Provider*	createProvider() const;
 

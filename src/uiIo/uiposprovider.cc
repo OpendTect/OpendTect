@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.8 2008-02-19 15:14:51 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.9 2008-02-21 09:40:07 cvsbert Exp $";
 
 #include "uiposprovgroup.h"
 #include "uipossubsel.h"
@@ -129,6 +129,13 @@ bool uiPosProvider::fillPar( IOPar& iop ) const
 
     iop.set( sKey::Type, sKey::None );
     return true;
+}
+
+
+void uiPosProvider::setExtractionDefaults()
+{
+    for ( int idx=0; idx<grps_.size(); idx++ )
+	grps_[idx]->setExtractionDefaults();
 }
 
 
