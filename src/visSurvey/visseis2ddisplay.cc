@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.35 2008-02-14 15:34:11 cvsjaap Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.36 2008-02-21 11:12:17 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -860,6 +860,7 @@ void Seis2DDisplay::clearTexture( int attribnr )
     texture_->enableTexture( attribnr, false );
 
     Attrib::SelSpec as;
+    as.set2DFlag(true);
     setSelSpec( attribnr, as );
 }
 
