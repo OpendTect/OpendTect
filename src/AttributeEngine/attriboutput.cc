@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.70 2008-02-20 10:03:55 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.71 2008-02-21 13:48:48 cvsbert Exp $";
 
 #include "attriboutput.h"
 
@@ -78,7 +78,7 @@ void Output::ensureSelType( Seis::SelType st )
     if ( seldata_->type() != st )
     {
 	Seis::SelData* newseldata = Seis::SelData::get( st );
-	newseldata->copyFrom( *seldata_ );
+	newseldata->lineKey() = seldata_->lineKey();
 	delete seldata_; seldata_ = newseldata;
     }
 }
@@ -342,6 +342,8 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
 
 bool SeisTrcStorOutput::doInit()
 {
+    ensureSelType( Seis::Range );
+
     if ( *storid_.buf() )
     {
 	PtrMan<IOObj> ioseisout = IOM().get( storid_ );
@@ -362,7 +364,6 @@ bool SeisTrcStorOutput::doInit()
 
     desiredvolume_.normalise();
     seldata_->lineKey().setAttrName( "" );
-    ensureSelType( Seis::Range );
 
     if ( !is2d_ )
     {
@@ -913,6 +914,7 @@ void Trc2DVarZStorOutput::setTrcsBounds( Interval<float> intv )
 
 bool Trc2DVarZStorOutput::doInit()
 {
+    ensureSelType( Seis::Range );
     if ( *storid_.buf() )
     {
 	PtrMan<IOObj> ioseisout = IOM().get( storid_ );
@@ -939,7 +941,6 @@ bool Trc2DVarZStorOutput::doInit()
 
     desiredvolume_.normalise();
     seldata_->lineKey().setAttrName( "" );
-    ensureSelType( Seis::Range );
 
     return true;
 }
