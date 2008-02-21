@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.14 2008-02-08 16:19:46 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.15 2008-02-21 20:57:29 cvskris Exp $";
 
 #include "prestackprocessor.h"
 
@@ -139,8 +139,7 @@ bool Processor::prepareWork()
 		const int inputoffset = getRelBidOffset(curpos,inputstepout);
 		Gather* output = createOutputArray(*inputs_[inputoffset] );
 		outputs_ += output;
-		DPM( DataPackMgr::FlatID ).add( output );
-		DPM( DataPackMgr::FlatID ).obtain( output->id() );
+		DPM( DataPackMgr::FlatID ).addAndObtain( output );
 	    }
 	    else
 		outputs_ += 0;
