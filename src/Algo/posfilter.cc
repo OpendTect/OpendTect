@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: posfilter.cc,v 1.1 2008-02-21 15:29:10 cvsbert Exp $";
+static const char* rcsID = "$Id: posfilter.cc,v 1.2 2008-02-22 11:40:03 cvsbert Exp $";
 
 #include "posprovider.h"
 #include "posrandomfilter.h"
@@ -211,7 +211,7 @@ void Pos::RandomFilter::doFillPar( IOPar& iop ) const
 
 void Pos::RandomFilter::mkSummary( BufferString& txt ) const
 {
-    txt += "remove " ; (1-passratio_)*100; txt += "%";
+    txt += "Remove " ; txt += (1-passratio_)*100; txt += "%";
 }
 
 
