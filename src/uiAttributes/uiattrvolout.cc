@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.41 2008-02-21 14:44:19 cvshelene Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.42 2008-02-22 05:07:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -193,25 +193,21 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     for ( int idx=0; idx<attrpar.size(); idx++ )
     {
         const char* nm = attrpar.getKey(idx);
-        BufferString key(SeisTrcStorOutput::attribkey);
-        key += "."; key += nm;
-        iop.add( key, attrpar.getValue(idx) );
+        iop.add( IOPar::compKey(SeisTrcStorOutput::attribkey,nm),
+		 attrpar.getValue(idx) );
     }
 
-    BufferString key;
-    BufferString keybase = Output::outputstr; keybase += ".1.";
-    key = keybase; key += sKey::Type;
-    iop.set( key, "Cube" );
+    const BufferString keybase = IOPar::compKey( Output::outputstr, 1 );
+    iop.set( IOPar::compKey(keybase,sKey::Type), "Cube" );
 
-    key = keybase; key += SeisTrcStorOutput::attribkey;
-    key += "."; key += DescSet::highestIDStr();
-    iop.set( key, 1 );
+    const BufferString attribkey =
+	IOPar::compKey( keybase, SeisTrcStorOutput::attribkey );
+    iop.set( IOPar::compKey(attribkey,DescSet::highestIDStr()), 1 );
 
-    key = keybase; key += SeisTrcStorOutput::attribkey; key += ".0";
-    iop.set( key, targetid.asInt() );
+    iop.set( IOPar::compKey(attribkey,0), targetid.asInt() );
 
-    key = keybase; key += SeisTrcStorOutput::seisidkey;
-    iop.set( key, ctio.ioobj->key() );
+    iop.set( IOPar::compKey(keybase,SeisTrcStorOutput::seisidkey),
+	     ctio.ioobj->key() );
     transffld->scfmtfld->updateIOObj( ctio.ioobj );
 
     IOPar tmpiop;
@@ -224,17 +220,17 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	CubeSampling curcs; todofld->getRanges( curcs );
 	curcs.fillPar( tmpiop );
     }
-    BufferString selkey = keybase; selkey += "Sub";
-    iop.mergeComp( tmpiop, selkey );
+
+    const BufferString subkey = IOPar::compKey( keybase, "Sub" );
+    iop.mergeComp( tmpiop, subkey );
 
     CubeSampling::removeInfo( subselpar );
-    iop.mergeComp( subselpar, keybase );
+    iop.mergeComp( subselpar, subkey );
 
     Scaler* sc = transffld->scfmtfld->getScaler();
     if ( sc )
     {
-	key = keybase; key += Output::scalekey;
-	iop.set( key, sc->toString() );
+	iop.set( IOPar::compKey(keybase,Output::scalekey), sc->toString() );
 	delete sc;
     }
 
