@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.3 2008-02-20 11:52:02 cvsjaap Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.4 2008-02-22 08:55:49 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,8 @@ protected:
     void		removeStick(int stickidx);
     void		insertStick(int stickidx);
 
+    void		updateTopology();
+    
     void		emptyPanel(int panelidx);
     void		fillPanel(int panelidx);
     void		removePanel(int panelidx);
@@ -75,6 +77,7 @@ protected:
     Coord3		scalefacs_;
 
     ObjectSet<IndexedGeometry>			sticks_;
+    BoolTypeSet					isrevstick_;
     ObjectSet<ObjectSet<IndexedGeometry> >	panels_;
 };
 

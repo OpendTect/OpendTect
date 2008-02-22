@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.8 2008-02-20 11:52:02 cvsjaap Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.9 2008-02-22 08:55:49 cvsjaap Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -159,6 +159,9 @@ void ExplFaultStickSurface::update()
     updater = new ExplFaultStickSurfaceUpdater( *this, true );
     updater->execute();
     delete updater;
+
+    updateTopology();
+    
     updater = new ExplFaultStickSurfaceUpdater( *this, false );
     updater->execute();
     delete updater;
@@ -287,6 +290,44 @@ void ExplFaultStickSurface::insertStick( int stickidx )
 }
 
 
+#define mSqDist( coordidx1, coordidx2 ) \
+    coordlist_->get(coordidx1).scaleBy(scalefacs_).sqDistTo( \
+    coordlist_->get(coordidx2).scaleBy(scalefacs_) ) 
+
+void ExplFaultStickSurface::updateTopology()
+{
+    isrevstick_.erase();
+    if ( !coordlist_ || sticks_.isEmpty() ) 
+	return;
+
+    isrevstick_ += false;
+    int previdx = 0;
+
+    for ( int curidx=1; curidx<sticks_.size(); curidx++ )
+    {
+	TypeSet<int>* prev = &sticks_[previdx]->coordindices_;
+	TypeSet<int>* cur = &sticks_[curidx]->coordindices_;
+
+	int prevsz = prev->size(); 
+	int cursz = cur->size();
+
+	if ( cursz <= 1 )
+	{
+	    isrevstick_ += false;
+	    continue;
+	}
+    
+	const float sum1 = mSqDist( (*prev)[0], (*cur)[0] ) +
+			   mSqDist( (*prev)[prevsz-1], (*cur)[cursz-1] );
+	const float sum2 = mSqDist( (*prev)[0], (*cur)[cursz-1] ) +
+			   mSqDist( (*prev)[prevsz-1], (*cur)[0] );
+
+	isrevstick_ += (sum1>sum2) != isrevstick_[previdx];
+	previdx = curidx;
+    }
+}
+
+
 void ExplFaultStickSurface::emptyPanel( int panelidx )
 {
     if ( panels_.validIdx(panelidx) )
@@ -301,10 +342,6 @@ void ExplFaultStickSurface::emptyPanel( int panelidx )
 }
 
 
-#define mSqDist( coordidx1, coordidx2 ) \
-    coordlist_->get(coordidx1).scaleBy(scalefacs_).sqDistTo( \
-    coordlist_->get(coordidx2).scaleBy(scalefacs_) ) 
-
 #define mNextKnotLeft( lindex, rindex ) \
     ( rindex>=rsize-1 ? true : \
     ( lindex>=lsize-1 ? false : \
@@ -317,7 +354,8 @@ void ExplFaultStickSurface::emptyPanel( int panelidx )
 
 void ExplFaultStickSurface::fillPanel( int panelidx )
 {
-    if ( !coordlist_ || !normallist_ || !panels_.validIdx(panelidx) )
+    if ( !coordlist_ || !normallist_ || !panels_.validIdx(panelidx) || 
+	 !sticks_.validIdx(panelidx+1) || !isrevstick_.validIdx(panelidx+1) )
 	return;
 
     ObjectSet<IndexedGeometry>& panel = *panels_[panelidx];
@@ -340,21 +378,17 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 	return;
     }
 
-    const float sum1 = mSqDist( (*lknot)[0], (*rknot)[0] ) +
-		       mSqDist( (*lknot)[lsize-1], (*rknot)[rsize-1] );
-    const float sum2 = mSqDist( (*lknot)[0], (*rknot)[rsize-1] ) +
-		       mSqDist( (*lknot)[lsize-1], (*rknot)[0] );
-    TypeSet<int> lknotreversed;
-    if ( sum1>sum2 )
+    TypeSet<int> rknotreversed;
+    if ( isrevstick_[panelidx] != isrevstick_[panelidx+1] )
     {
-	for ( int idx=lsize-1; idx>=0; idx-- )
-	    lknotreversed += (*lknot)[idx];
+	for ( int idx=rsize-1; idx>=0; idx-- )
+	    rknotreversed += (*rknot)[idx];
 
-	lknot = &lknotreversed;
+	rknot = &rknotreversed;
     }
 
     int lidx=0; int ridx=0;
-    bool mirrored = false;
+    bool mirroredpanel = isrevstick_[panelidx];
 	
     while ( lidx<lsize-1 || ridx<rsize-1 ) 
     {
@@ -365,12 +399,13 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 	    mSWAP( lknot, rknot, tmpset );
 	    mSWAP( lsize, rsize, tmpint );
 	    mSWAP( lidx, ridx, tmpint );
-	    mirrored = !mirrored;
+	    mirroredpanel = !mirroredpanel;
 	}
 
 	panel += new IndexedGeometry( IndexedGeometry::TriangleStrip,
 				      IndexedGeometry::PerFace,0,normallist_ );
 	IndexedGeometry& piece = *panel[panel.size()-1];
+	bool mirroredfirstpatch = mirroredpanel;
 	bool finalknotleft = true;
 	
 	if ( mNextKnotLeft(lidx+1,ridx) )
@@ -395,7 +430,7 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 		lidx+=2; ridx++;
 	    }
 	    finalknotleft = false;
-	    mirrored = !mirrored;
+	    mirroredfirstpatch = !mirroredfirstpatch;
 	}
 	else if ( mNextKnotLeft(lidx+1,ridx+1) )
 	{
@@ -436,7 +471,7 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 		finalknotleft = !finalknotleft;
 	}
 
-	calcNormals( piece, mirrored );
+	calcNormals( piece, mirroredfirstpatch );
     }
 
     if ( displaysticks_ )
@@ -461,7 +496,8 @@ void ExplFaultStickSurface::insertPanel( int panelidx )
 }
 
 
-void ExplFaultStickSurface::calcNormals( IndexedGeometry& piece, bool mirrored )
+void ExplFaultStickSurface::calcNormals( IndexedGeometry& piece,
+					 bool mirroredfirstpatch )
 {
     if ( !coordlist_ || !normallist_ || piece.type_==IndexedGeometry::Lines )
 	return;
@@ -481,7 +517,7 @@ void ExplFaultStickSurface::calcNormals( IndexedGeometry& piece, bool mirrored )
 	    vec1 -= coordlist_->get( piece.coordindices_[0] );
 
         Coord3 normal = vec1.cross( vec2 );
-	if ( mirrored != righthandednormals_ )
+	if ( mirroredfirstpatch != righthandednormals_ )
 	    normal = -normal;
 
 	if ( !normal.sqAbs() )
