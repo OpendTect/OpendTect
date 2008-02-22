@@ -8,9 +8,9 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.9 2008-02-21 09:40:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.10 2008-02-22 09:31:40 cvsbert Exp $";
 
-#include "uiposprovgroup.h"
+#include "uiposprovider.h"
 #include "uipossubsel.h"
 #include "rangeposprovider.h"
 #include "uigeninput.h"
@@ -300,8 +300,8 @@ uiPosSubSel::uiPosSubSel( uiParent* p, const uiPosSubSel::Setup& su )
     : uiGroup(p,"uiPosSubSel")
     , selChange(this)
 {
-    uiPosProvider::Setup ppsu( su.seltxt_, su.withz_ );
-    ppsu.is2d( su.is2d_ )
+    uiPosProvider::Setup ppsu( su.is2d_, su.withz_ );
+    ppsu.seltxt( su.seltxt_ )
 	.allownone( true )
 	.choicetype( (uiPosProvider::Setup::ChoiceType)su.choicetype_ );
     ps_ = new uiPosProvSel( this, ppsu );

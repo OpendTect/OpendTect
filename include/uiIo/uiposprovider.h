@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovider.h,v 1.7 2008-02-21 09:40:07 cvsbert Exp $
+ RCS:           $Id: uiposprovider.h,v 1.8 2008-02-22 09:31:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uicompoundparsel.h"
+#include "uiposprovgroup.h"
 #include "iopar.h"
 class uiGenInput;
 namespace Pos { class Provider; }
@@ -25,20 +26,17 @@ class uiPosProvider : public uiGroup
 {
 public:
 
-    struct Setup
+    struct Setup : public uiPosProvGroup::Setup
     {
 	enum ChoiceType	{ All, OnlySeisTypes, OnlyRanges };
 
-			Setup( const char* txt, bool with_z )
-			    : seltxt_(txt)
-			    , withz_(with_z)
-			    , is2d_(false)
+			Setup( bool is_2d, bool with_z )
+			    : uiPosProvGroup::Setup(is_2d,with_z)
+			    , seltxt_("Positions")
 			    , allownone_(false)
 			    , choicetype_(OnlyRanges)	{}
 	virtual	~Setup()				{}
 	mDefSetupMemb(BufferString,seltxt)
-	mDefSetupMemb(bool,is2d)
-	mDefSetupMemb(bool,withz)
 	mDefSetupMemb(ChoiceType,choicetype)
 	mDefSetupMemb(bool,allownone)
     };

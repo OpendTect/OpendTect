@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.11 2008-02-21 10:12:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.12 2008-02-22 09:31:40 cvsbert Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -25,18 +25,18 @@ static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.11 2008-02-21 10:12:48 cv
 #include "oddirs.h"
 #include "filegen.h"
 
-mImplFactory2Param(uiPosProvGroup,uiParent*,const uiPosProvider::Setup&,
+mImplFactory2Param(uiPosProvGroup,uiParent*,const uiPosProvGroup::Setup&,
 		   uiPosProvGroup::factory);
 
 
-uiPosProvGroup::uiPosProvGroup( uiParent* p, const uiPosProvider::Setup& su )
-    : uiGroup(p,su.seltxt_)
+uiPosProvGroup::uiPosProvGroup( uiParent* p, const uiPosProvGroup::Setup& su )
+    : uiGroup(p,"Pos Prov Group")
 {
 }
 
 
 uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
-					  const uiPosProvider::Setup& su,
+					  const uiPosProvGroup::Setup& su,
 					  bool wstep )
     : uiPosProvGroup(p,su)
     , hrgfld_(0)
@@ -138,7 +138,7 @@ void uiRangePosProvGroup::initClass()
 
 
 uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
-					const uiPosProvider::Setup& su )
+					const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
     , ctio_(*mMkCtxtIOObj(PickSet))
     , zrgfld_(0)
@@ -230,7 +230,7 @@ void uiPolyPosProvGroup::initClass()
 
 
 uiTablePosProvGroup::uiTablePosProvGroup( uiParent* p,
-					const uiPosProvider::Setup& su )
+					const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
     , ctio_(*mMkCtxtIOObj(PickSet))
 {

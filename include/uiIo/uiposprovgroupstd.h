@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovgroupstd.h,v 1.7 2008-02-21 09:40:07 cvsbert Exp $
+ RCS:           $Id: uiposprovgroupstd.h,v 1.8 2008-02-22 09:31:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ class uiRangePosProvGroup : public uiPosProvGroup
 public:
 
 			uiRangePosProvGroup(uiParent*,
-					    const uiPosProvider::Setup&,
+					    const uiPosProvGroup::Setup&,
 					    bool wstep=true);
 
     virtual void	usePar(const IOPar&);
@@ -42,7 +42,7 @@ public:
 
     void		getCubeSampling(CubeSampling&) const;
 
-    static uiPosProvGroup* create( uiParent* p, const uiPosProvider::Setup& s )
+    static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)
     			{ return new uiRangePosProvGroup(p,s); }
     static void		initClass();
 
@@ -61,7 +61,7 @@ class uiPolyPosProvGroup : public uiPosProvGroup
 {
 public:
 			uiPolyPosProvGroup(uiParent*,
-					   const uiPosProvider::Setup&);
+					   const uiPosProvGroup::Setup&);
 			~uiPolyPosProvGroup();
 
     virtual void	usePar(const IOPar&);
@@ -72,7 +72,7 @@ public:
     bool		getID(MultiID&) const;
     void		getZRange(StepInterval<float>&) const;
 
-    static uiPosProvGroup* create( uiParent* p, const uiPosProvider::Setup& s )
+    static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)
     			{ return new uiPolyPosProvGroup(p,s); }
     static void		initClass();
 
@@ -93,7 +93,7 @@ class uiTablePosProvGroup : public uiPosProvGroup
 {
 public:
 			uiTablePosProvGroup(uiParent*,
-					   const uiPosProvider::Setup&);
+					   const uiPosProvGroup::Setup&);
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
@@ -101,7 +101,7 @@ public:
     bool		getID(MultiID&) const;
     bool		getFileName(BufferString&) const;
 
-    static uiPosProvGroup* create( uiParent* p, const uiPosProvider::Setup& s )
+    static uiPosProvGroup* create( uiParent* p, const uiPosProvGroup::Setup& s)
     			{ return new uiTablePosProvGroup(p,s); }
     static void		initClass();
 

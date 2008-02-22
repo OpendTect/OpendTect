@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovgroup.h,v 1.3 2008-02-21 09:39:18 cvsbert Exp $
+ RCS:           $Id: uiposprovgroup.h,v 1.4 2008-02-22 09:31:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiposprovider.h"
+#include "uiposfiltgroup.h"
 #include "factory.h"
 
 
@@ -21,17 +21,26 @@ ________________________________________________________________________
 class uiPosProvGroup : public uiGroup
 {
 public:
-			uiPosProvGroup(uiParent*,const uiPosProvider::Setup&);
+
+    struct Setup : public uiPosFiltGroup::Setup
+    {
+			Setup( bool is_2d, bool with_z )
+			    : uiPosFiltGroup::Setup(is_2d)
+			    , withz_(with_z)		{}
+
+	virtual	~Setup()				{}
+	mDefSetupMemb(bool,withz)
+    };
+
+			uiPosProvGroup(uiParent*,const Setup&);
 
     virtual void	usePar(const IOPar&)		= 0;
     virtual bool	fillPar(IOPar&) const		= 0;
 
     virtual void	setExtractionDefaults()		{}
 
-    mDefineFactory2ParamInClass(uiPosProvGroup,uiParent*,
-	    			const uiPosProvider::Setup&,factory);
+    mDefineFactory2ParamInClass(uiPosProvGroup,uiParent*,const Setup&,factory);
 
 };
-
 
 #endif
