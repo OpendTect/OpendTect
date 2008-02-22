@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilter.h,v 1.3 2008-02-21 15:29:10 cvsbert Exp $
+ RCS:           $Id: posfilter.h,v 1.4 2008-02-22 15:02:45 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -97,41 +97,6 @@ public:
 
     mDefineFactoryInClass(Filter2D,factory);
     static Filter2D*	make(const IOPar&);
-
-};
-
-
-/*!\brief Set of Filters. Owns the Filters. */
-
-class FilterSet : public ObjectSet<Pos::Filter>
-{
-public:
-
-    			FilterSet( bool is2d )
-			    : is2d_(is2d)			{}
-			FilterSet( const FilterSet& fs )	{ *this = fs; }
-			~FilterSet();
-    FilterSet&		operator =(const FilterSet&);
-
-    bool		is2D() const		{ return is2d_; }
-
-    void		add(Filter*);		//!< safer than += operator
-    void		add(const IOPar&);
-
-    virtual bool	includes(const Coord&,float z=mUdf(float)) const;
-    bool		includes(const BinID&,float z=mUdf(float)) const;
-			//!< For 2D, assumes trcnr in crl
-    bool		includes(int,float z=mUdf(float)) const;
-			//!< Only works for 2D
-
-    void		adjustZ(const Coord&,float&) const;
-
-    void		fillPar(IOPar&) const;
-    void		usePar(const IOPar&);
-
-protected:
-
-    bool		is2d_;
 
 };
 

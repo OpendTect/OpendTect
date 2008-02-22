@@ -8,10 +8,10 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposfilterset.cc,v 1.1 2008-02-22 09:31:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposfilterset.cc,v 1.2 2008-02-22 15:02:45 cvsbert Exp $";
 
 #include "uiposfilterset.h"
-#include "posfilter.h"
+#include "posfilterset.h"
 #include "uiposprovgroup.h"
 #include "uimainwin.h"
 #include "uilistbox.h"
@@ -131,14 +131,52 @@ int uiPosFilterSet::selIdx() const
 
 void uiPosFilterSet::usePar( const IOPar& iop )
 {
+    for ( int igrp=0; igrp<grps_.size(); igrp++ )
+	issel_[igrp] = false;
+
+    for ( int ipar=0; ; ipar++ )
+    {
+	PtrMan<IOPar> subiop = iop.subselect(IOPar::compKey(sKey::Filter,ipar));
+	if ( !subiop || !subiop->size() ) break;
+	const char* typ = subiop->find( sKey::Type );
+	if ( !typ ) continue;
+
+	for ( int igrp=0; igrp<grps_.size(); igrp++ )
+	{
+	    if ( grps_[igrp]->name() == typ )
+	    {
+		mDynamicCastGet(uiPosFiltGroup*,pfgrp,grps_[igrp])
+		mDynamicCastGet(uiPosProvGroup*,ppgrp,grps_[igrp])
+		if ( pfgrp ) pfgrp->usePar( *subiop );
+		if ( ppgrp ) ppgrp->usePar( *subiop );
+		issel_[igrp] = true;
+		break;
+	    }
+	}
+    }
+    selChg( this );
 }
 
 
 bool uiPosFilterSet::fillPar( IOPar& iop ) const
 {
-    iop.removeWithKey( BufferString(sKey::Filter,"*") );
-    if ( grps_.isEmpty() < 1 )
-	return true;
+    iop.removeWithKey( IOPar::compKey(sKey::Filter,"*") );
+    if ( grps_.isEmpty() ) return true;
+
+    int ipar = 0;
+    for ( int igrp=0; igrp<grps_.size(); igrp++ )
+    {
+	if ( !issel_[igrp] ) continue;
+
+	const BufferString keybase( IOPar::compKey(sKey::Filter,ipar) );
+	IOPar subiop;
+	subiop.set( sKey::Type, grps_[igrp]->name() );
+	mDynamicCastGet(const uiPosFiltGroup*,pfgrp,grps_[igrp])
+	mDynamicCastGet(const uiPosProvGroup*,ppgrp,grps_[igrp])
+	if ( pfgrp ) pfgrp->fillPar( subiop );
+	if ( ppgrp ) ppgrp->fillPar( subiop );
+	iop.mergeComp( subiop, keybase );
+    }
 
     return true;
 }
@@ -155,7 +193,12 @@ uiPosFilterSetSel::uiPosFilterSetSel( uiParent* p,
 
 BufferString uiPosFilterSetSel::getSummary() const
 {
-    return BufferString("-");
+    BufferString txt;
+    if ( setup_.is2d_ )
+	{ Pos::FilterSet2D pfs; pfs.usePar( iop_ ); pfs.getSummary( txt ); }
+    else
+	{ Pos::FilterSet3D pfs; pfs.usePar( iop_ ); pfs.getSummary( txt ); }
+    return txt;
 }
 
 

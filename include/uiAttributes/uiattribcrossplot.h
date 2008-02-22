@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiattribcrossplot.h,v 1.2 2008-02-18 22:40:19 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.h,v 1.3 2008-02-22 15:02:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 namespace Attrib { class DescSet; }
 class uiListBox;
 class uiPosProvider;
+class uiPosFilterSetSel;
 
 
 class uiAttribCrossPlot : public uiDialog
@@ -32,6 +33,7 @@ protected:
 
     uiListBox*		attrsfld_;
     uiPosProvider*	posprovfld_;
+    uiPosFilterSetSel*	posfiltfld_;
 
     bool		acceptOK(CallBacker*);
 

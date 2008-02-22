@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposfiltgroup.h,v 1.1 2008-02-22 09:31:40 cvsbert Exp $
+ RCS:           $Id: uiposfiltgroup.h,v 1.2 2008-02-22 15:02:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ public:
 
     virtual void	usePar(const IOPar&)		= 0;
     virtual bool	fillPar(IOPar&) const		= 0;
+    virtual void	getSummary(BufferString&) const	= 0;
 
     mDefineFactory2ParamInClass(uiPosFiltGroup,uiParent*,const Setup&,factory);
 
@@ -53,6 +54,7 @@ public:
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
+    virtual void	getSummary(BufferString&) const;
 
     static uiPosFiltGroup* create( uiParent* p, const Setup& s )
     			{ return new uiRandPosFiltGroup(p,s); }

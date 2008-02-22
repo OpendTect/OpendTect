@@ -4,10 +4,11 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: posfilter.cc,v 1.2 2008-02-22 11:40:03 cvsbert Exp $";
+static const char* rcsID = "$Id: posfilter.cc,v 1.3 2008-02-22 15:02:45 cvsbert Exp $";
 
-#include "posprovider.h"
+#include "posfilterset.h"
 #include "posrandomfilter.h"
+#include "posprovider.h"
 #include "survinfo.h"
 #include "executor.h"
 #include "iopar.h"
@@ -19,6 +20,7 @@ mImplFactory(Pos::Filter3D,Pos::Filter3D::factory);
 mImplFactory(Pos::Filter2D,Pos::Filter2D::factory);
 mImplFactory(Pos::Provider3D,Pos::Provider3D::factory);
 mImplFactory(Pos::Provider2D,Pos::Provider2D::factory);
+const char* Pos::FilterSet::typeStr() { return "Set"; }
 const char* Pos::RandomFilter::typeStr() { return sKey::Random; }
 const char* Pos::RandomFilter::ratioStr() { return "Pass ratio"; }
 
@@ -39,7 +41,11 @@ bool Pos::Filter3D::includes( const Coord& c, float z ) const
 
 Pos::Filter3D* Pos::Filter3D::make( const IOPar& iop )
 {
-    Pos::Filter3D* filt = factory().create( iop.find(sKey::Type) );
+    const char* typ = iop.find(sKey::Type);
+    if ( !typ ) return 0;
+    Pos::Filter3D* filt = strcmp(typ,Pos::FilterSet::typeStr())
+			? factory().create( typ )
+			: (Pos::Filter3D*)new Pos::FilterSet3D;
     if ( filt )
 	filt->usePar( iop );
     return filt;
@@ -48,7 +54,11 @@ Pos::Filter3D* Pos::Filter3D::make( const IOPar& iop )
 
 Pos::Filter2D* Pos::Filter2D::make( const IOPar& iop )
 {
-    Pos::Filter2D* filt = factory().create( iop.find(sKey::Type) );
+    const char* typ = iop.find(sKey::Type);
+    if ( !typ ) return 0;
+    Pos::Filter2D* filt = strcmp(typ,Pos::FilterSet::typeStr())
+			? factory().create( typ )
+			: (Pos::Filter2D*)new Pos::FilterSet2D;
     if ( filt )
 	filt->usePar( iop );
     return filt;
@@ -61,60 +71,20 @@ Pos::FilterSet::~FilterSet()
 }
 
 
-Pos::FilterSet& Pos::FilterSet::operator =( const Pos::FilterSet& fs )
+void Pos::FilterSet::copyFrom( const Pos::FilterSet& fs )
 {
-    if ( this != &fs )
+    if ( this != &fs && is2d() == fs.is2d() )
     {
-	is2d_ = fs.is2d_;
 	deepErase( *this );
 	for ( int idx=0; idx<fs.size(); idx++ )
 	    *this += fs[idx]->clone();
     }
-    return *this;
-}
-
-
-bool Pos::FilterSet::includes( const Coord& c, float z ) const
-{
-    for ( int idx=0; idx<size(); idx++ )
-	if ( !(*this)[idx]->includes(c) )
-	    return false;
-    return true;
-}
-
-
-bool Pos::FilterSet::includes( const BinID& b, float z ) const
-{
-    if ( is2d_ )
-	return includes( b.crl, z );
-
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	Pos::Filter3D* f3d = (Pos::Filter3D*)((*this)[idx]);
-	if ( !f3d->includes(b,z) )
-	    return false;
-    }
-    return true;
-}
-
-
-bool Pos::FilterSet::includes( int nr, float z ) const
-{
-    if ( !is2d_ ) return false;
-
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	Pos::Filter2D* f2d = (Pos::Filter2D*)((*this)[idx]);
-	if ( !f2d->includes(nr,z) )
-	    return false;
-    }
-    return true;
 }
 
 
 void Pos::FilterSet::add( Filter* filt )
 {
-    if ( !filt || is2d_ != filt->is2D() ) return;
+    if ( !filt || is2d() != filt->is2D() ) return;
     *this += filt;
 }
 
@@ -122,7 +92,7 @@ void Pos::FilterSet::add( Filter* filt )
 void Pos::FilterSet::add( const IOPar& iop )
 {
     Pos::Filter* filt;
-    if ( is2d_ )
+    if ( is2d() )
 	filt = Pos::Filter2D::make( iop );
     else
 	filt = Pos::Filter3D::make( iop );
@@ -131,47 +101,66 @@ void Pos::FilterSet::add( const IOPar& iop )
 }
 
 
-void Pos::FilterSet::adjustZ( const Coord& c, float& z ) const
+bool Pos::FilterSet::IMPL_initialize()
+{
+    for ( int idx=0; idx<size(); idx++ )
+	if ( !(*this)[idx]->initialize() )
+	    return false;
+    return true;
+}
+
+
+Executor* Pos::FilterSet::IMPL_initializer() const
+{
+    ExecutorGroup* egrp = new ExecutorGroup( "Position filters initializer",
+	   				     true );
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	Executor* ex = (*this)[idx]->initializer();
+	if ( ex ) egrp->add( ex );
+    }
+
+    if ( egrp->nrExecutors() < 1 )
+	{ delete egrp; egrp = 0; }
+    return egrp;
+}
+
+
+void Pos::FilterSet::IMPL_reset()
+{
+    for ( int idx=0; idx<size(); idx++ )
+	(*this)[idx]->reset();
+}
+
+
+bool Pos::FilterSet::IMPL_includes( const Coord& c, float z ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+	if ( !(*this)[idx]->includes(c,z) )
+	    return false;
+    return true;
+}
+
+
+void Pos::FilterSet::IMPL_adjustZ( const Coord& c, float& z ) const
 {
     for ( int idx=0; idx<size(); idx++ )
 	z = (*this)[idx]->adjustedZ( c, z );
 }
 
 
-void Pos::FilterSet::usePar( const IOPar& iop )
+bool Pos::FilterSet::IMPL_hasZAdjustment() const
 {
-    deepErase( *this );
-
-    for ( int idx=0; ; idx++ )
-    {
-	const BufferString keybase( IOPar::compKey(sKey::Filter,idx) );
-	PtrMan<IOPar> subpar = iop.subselect( keybase );
-	if ( !subpar || !subpar->size() ) return;
-
-	const char* typ = subpar->find( sKey::Type );
-	Filter* filt = 0;
-	if ( is2d_ )
-	    filt = Pos::Filter2D::make( typ );
-	else
-	    filt = Pos::Filter3D::make( typ );
-
-	if ( !filt )
-	{
-	    if ( is2d_ )
-		filt = Pos::Provider2D::make( typ );
-	    else
-		filt = Pos::Provider3D::make( typ );
-	}
-	if ( !filt ) continue;
-
-	filt->usePar( *subpar );
-	*this += filt;
-    }
+    for ( int idx=0; idx<size(); idx++ )
+	if ( (*this)[idx]->hasZAdjustment() )
+	    return true;
+    return false;
 }
 
 
-void Pos::FilterSet::fillPar( IOPar& iop ) const
+void Pos::FilterSet::IMPL_fillPar( IOPar& iop ) const
 {
+    iop.set( sKey::Type, "Set" );
     for ( int idx=0; idx<size(); idx++ )
     {
 	const Filter& filt = *(*this)[idx];
@@ -182,6 +171,113 @@ void Pos::FilterSet::fillPar( IOPar& iop ) const
 	iop.mergeComp( filtpar, keybase );
     }
 }
+
+
+void Pos::FilterSet::IMPL_usePar( const IOPar& iop )
+{
+    deepErase( *this );
+
+    for ( int idx=0; ; idx++ )
+    {
+	const BufferString keybase( IOPar::compKey(sKey::Filter,idx) );
+	PtrMan<IOPar> subpar = iop.subselect( keybase );
+	if ( !subpar || !subpar->size() ) return;
+
+	Filter* filt = 0;
+	if ( is2d() )
+	    filt = Pos::Filter2D::make( *subpar );
+	else
+	    filt = Pos::Filter3D::make( *subpar );
+
+	if ( !filt )
+	{
+	    if ( is2d() )
+		filt = Pos::Provider2D::make( *subpar );
+	    else
+		filt = Pos::Provider3D::make( *subpar );
+	}
+
+	if ( filt ) continue;
+	    *this += filt;
+    }
+}
+
+
+void Pos::FilterSet::IMPL_getSummary( BufferString& txt ) const
+{
+    if ( isEmpty() ) return;
+
+    if ( size() > 1 ) txt += "{";
+    (*this)[0]->getSummary( txt );
+    for ( int idx=1; idx<size(); idx++ )
+    {
+	txt += ",";
+	(*this)[idx]->getSummary( txt );
+    }
+    if ( size() > 1 ) txt += "}";
+}
+
+
+bool Pos::FilterSet3D::includes( const BinID& b, float z ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	Pos::Filter3D* f3d = (Pos::Filter3D*)((*this)[idx]);
+	if ( !f3d->includes(b,z) )
+	    return false;
+    }
+    return true;
+}
+
+
+bool Pos::FilterSet2D::includes( int nr, float z ) const
+{
+    for ( int idx=0; idx<size(); idx++ )
+    {
+	Pos::Filter2D* f2d = (Pos::Filter2D*)((*this)[idx]);
+	if ( !f2d->includes(nr,z) )
+	    return false;
+    }
+    return true;
+}
+
+bool	Pos::FilterSet3D::initialize()
+	{ return IMPL_initialize(); }
+void	Pos::FilterSet3D::reset()
+	{ IMPL_reset(); }
+void	Pos::FilterSet3D::fillPar(IOPar& i) const
+	{ IMPL_fillPar(i); }
+void	Pos::FilterSet3D::usePar(const IOPar& i)
+	{ IMPL_usePar(i); }
+Executor* Pos::FilterSet3D::initializer() const
+	{ return IMPL_initializer(); }
+bool	Pos::FilterSet3D::includes(const Coord& c,float z) const
+	{ return IMPL_includes(c,z); }
+void	Pos::FilterSet3D::adjustZ(const Coord& c,float& z) const
+	{ IMPL_adjustZ(c,z); }
+bool	Pos::FilterSet3D::hasZAdjustment() const
+	{ return IMPL_hasZAdjustment(); }
+void	Pos::FilterSet3D::getSummary(BufferString& t) const
+	{ IMPL_getSummary(t); }
+
+bool	Pos::FilterSet2D::initialize()
+	{ return IMPL_initialize(); }
+void	Pos::FilterSet2D::reset()
+	{ IMPL_reset(); }
+void	Pos::FilterSet2D::fillPar(IOPar& i) const
+	{ IMPL_fillPar(i); }
+void	Pos::FilterSet2D::usePar(const IOPar& i)
+	{ IMPL_usePar(i); }
+Executor* Pos::FilterSet2D::initializer() const
+	{ return IMPL_initializer(); }
+bool	Pos::FilterSet2D::includes(const Coord& c,float z) const
+	{ return IMPL_includes(c,z); }
+void	Pos::FilterSet2D::adjustZ(const Coord& c,float& z) const
+	{ IMPL_adjustZ(c,z); }
+bool	Pos::FilterSet2D::hasZAdjustment() const
+	{ return IMPL_hasZAdjustment(); }
+void	Pos::FilterSet2D::getSummary(BufferString& t) const
+	{ IMPL_getSummary(t); }
 
 
 void Pos::RandomFilter::initStats()

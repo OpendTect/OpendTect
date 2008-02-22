@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposfiltgroup.cc,v 1.1 2008-02-22 09:31:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposfiltgroup.cc,v 1.2 2008-02-22 15:02:45 cvsbert Exp $";
 
 #include "uiposfiltgroup.h"
 #include "posrandomfilter.h"
@@ -55,6 +55,12 @@ bool uiRandPosFiltGroup::fillPar( IOPar& iop ) const
     const int perc = percpassfld_->getValue();
     iop.set( Pos::RandomFilter::ratioStr(), perc*0.01 );
     return true;
+}
+
+
+void uiRandPosFiltGroup::getSummary( BufferString& txt ) const
+{
+    txt += "Rand ["; txt += percpassfld_->getValue(); txt += "]"; 
 }
 
 

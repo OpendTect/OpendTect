@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.9 2008-02-20 16:24:33 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.10 2008-02-22 15:02:45 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -93,40 +93,61 @@ DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
 }
 
 
-DataPointSet::DataPointSet( ::Pos::Provider& prov,
+DataPointSet::DataPointSet( ::Pos::Provider3D& prov,
 			    const ObjectSet<DataColDef>& dcds,
-       			    const ::Pos::FilterSet* filts )
+       			    const ::Pos::Filter3D* filt )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
-    	, mAdd2DMembs(prov.is2D())
+    	, mAdd2DMembs(false)
 {
     initPVDS();
     for ( int idx=0; idx<dcds.size(); idx++ )
 	data_.add( new DataColDef(*dcds[idx]) );
 
-    ::Pos::Provider2D* prov2d = 0; ::Pos::Provider3D* prov3d = 0;
-    if ( is2d_ )
-	prov2d = (::Pos::Provider2D*)(&prov);
-    else
-	prov3d = (::Pos::Provider3D*)(&prov);
+    const int nrcols = dcds.size();
+    DataPointSet::DataRow dr;
+    while ( prov.toNextZ() )
+    {
+	dr.pos_.set( prov.curBinID(), prov.curCoord() );
+	dr.pos_.z_ = prov.curZ();
+	if ( filt )
+	{
+	    if ( !filt->includes(dr.pos_.binid_,dr.pos_.z_) )
+		continue;
+	    filt->adjustedZ( dr.pos_.coord(), dr.pos_.z_ );
+	}
+	dr.data_.setSize( nrcols, mUdf(float) );
+	addRow( dr );
+    }
+
+    calcIdxs();
+}
+
+
+DataPointSet::DataPointSet( ::Pos::Provider2D& prov,
+			    const ObjectSet<DataColDef>& dcds,
+       			    const ::Pos::Filter2D* filt )
+	: PointDataPack(sKeyDPS)
+	, data_(*new PosVecDataSet)
+    	, mAdd2DMembs(true)
+{
+    initPVDS();
+    for ( int idx=0; idx<dcds.size(); idx++ )
+	data_.add( new DataColDef(*dcds[idx]) );
 
     const int nrcols = dcds.size();
     DataPointSet::DataRow dr;
     while ( prov.toNextZ() )
     {
 	const Coord crd( prov.curCoord() );
-	const BinID bid( is2d_ ? SI().transform(crd) : prov3d->curBinID() );
-	dr.pos_.set( bid, crd );
+	dr.pos_.set( SI().transform(crd), crd );
 	dr.pos_.z_ = prov.curZ();
-	if ( is2d_ )
-	    dr.pos_.nr_ = prov2d->curNr();
-	if ( filts )
+	dr.pos_.nr_ = prov.curNr();
+	if ( filt )
 	{
-	    if ( is2d_ && !filts->includes(dr.pos_.nr_,dr.pos_.z_) )
+	    if ( !filt->includes(dr.pos_.nr_,dr.pos_.z_) )
 		continue;
-	    if ( !is2d_ && !filts->includes(dr.pos_.binid_,dr.pos_.z_) )
-		continue;
-	    filts->adjustZ( dr.pos_.coord(), dr.pos_.z_ );
+	    filt->adjustedZ( dr.pos_.coord(), dr.pos_.z_ );
 	}
 	dr.data_.setSize( nrcols, mUdf(float) );
 	addRow( dr );
@@ -445,52 +466,6 @@ void DataPointSet::dumpInfo( IOPar& iop ) const
     iop.set( "Number of cols", nrcols );
     for ( int idx=0; idx<nrcols; idx++ )
 	iop.set( IOPar::compKey("Col",idx), colName(idx) );
-}
-
-
-void DataPointSet::filter( const ::Pos::FilterSet& filts, bool purge )
-{
-    if ( is2d_ != filts.is2D() ) return;
-
-    TypeSet<BinIDValueSet::Pos> torem;
-    for ( int ifilt=0; ifilt<filts.size(); ifilt++ )
-    {
-	for ( RowID irow=0; irow<size(); irow++ )
-	{
-	    if ( !purge && inactive(irow) ) continue;
-
-	    bool isinc;
-	    const float rowz = z( irow );
-	    if ( is2d_ )
-		isinc = filts.includes( trcNr(irow), rowz );
-	    else
-		isinc = filts.includes( binID(irow), rowz );
-
-	    if ( isinc )
-	    {
-		float newrowz = rowz;
-		filts.adjustZ( coord(irow), newrowz );
-		bivSet().set( bvsidxs_[irow], newrowz );
-	    }
-	    else
-	    {
-		if ( !purge )
-		    setInactive( irow, true );
-		else
-		{
-		    const BinIDValueSet::Pos bvspos( bvsidxs_[irow] );
-		    if ( torem.indexOf(bvspos) < 0 )
-			torem += bvspos;
-		}
-	    }
-	}
-    }
-
-    if ( !torem.isEmpty() )
-    {
-	bivSet().remove( torem );
-	calcIdxs();
-    }
 }
 
 

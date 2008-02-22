@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiattribcrossplot.cc,v 1.12 2008-02-21 09:41:25 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.13 2008-02-22 15:02:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 #include "datacoldef.h"
 #include "datapointset.h"
 #include "posprovider.h"
-#include "posrandomfilter.h"
+#include "posfilterset.h"
 #include "attribdescset.h"
 #include "attribengman.h"
 #include "keystrs.h"
@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uiposdataedit.h"
 #include "uiposprovider.h"
+#include "uiposfilterset.h"
 
 using namespace Attrib;
 
@@ -67,11 +68,16 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 	attrsfld_->setCurrentItem( int(0) );
     attrsfld_->setMultiSelect( true );
 
-    uiPosProvider::Setup su( "Select locations by", true );
-    su.choicetype( uiPosProvider::Setup::All ).withz(true).is2d( ads_.is2D() );
-    posprovfld_ = new uiPosProvider( this, su );
+    uiPosProvider::Setup psu( ads_.is2D(), true );
+    psu.seltxt( "Select locations by" ).choicetype( uiPosProvider::Setup::All );
+    posprovfld_ = new uiPosProvider( this, psu );
     posprovfld_->setExtractionDefaults();
     posprovfld_->attach( alignedBelow, llb );
+
+    uiPosFilterSet::Setup fsu( ads_.is2D() );
+    fsu.seltxt( "Location filters" ).incprovs( false );
+    posfiltfld_ = new uiPosFilterSetSel( this, fsu );
+    posfiltfld_->attach( alignedBelow, posprovfld_ );
 }
 
 
@@ -114,26 +120,18 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     if ( dcds.isEmpty() )
 	mErrRet("Please select at least one attribute to evaluate")
 
-    Pos::FilterSet* filts = 0;
-    IOPar iop; iop.set( sKey::Type, Pos::RandomFilter::typeStr() );
-    iop.set( Pos::RandomFilter::ratioStr(), 0.1 );
-    Pos::Filter* filt;
     if ( is2d )
-	filt = Pos::Filter2D::make( iop );
-    else
-	filt = Pos::Filter3D::make( iop );
-    if ( filt )
     {
-	PtrMan<Executor> filtinit = filt->initializer();
-	if ( filtinit && !tr.execute(*filtinit) )
-	    mErrRet(0)
-	else if ( !filt->initialize() )
-	    mErrRet("Cannot initialize the position filter")
-	filts = new Pos::FilterSet(is2d);
-	filts->add( filt );
+	Pos::Filter2D* filt = 0;
+	Pos::Provider2D* p2d = (Pos::Provider2D*)prov.ptr();
+	dps = new DataPointSet( *p2d, dcds, filt );
     }
-
-    dps = new DataPointSet( *prov, dcds, filts );
+    else
+    {
+	Pos::Filter3D* filt = 0;
+	Pos::Provider3D* p3d = (Pos::Provider3D*)prov.ptr();
+	dps = new DataPointSet( *p3d, dcds, filt );
+    }
     if ( dps->size() < 1 )
 	mErrRet("No positions selected")
 
