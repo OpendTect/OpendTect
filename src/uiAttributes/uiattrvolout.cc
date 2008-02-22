@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.42 2008-02-22 05:07:43 cvsnanne Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.43 2008-02-22 17:45:34 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,8 @@ void uiAttrVolOut::singLineSel( CallBacker* )
 {
     if ( !transffld->selFld2D() ) return;
 
-    if ( singmachfld_ ) singmachfld_->setValue( transffld->selFld2D()->isSingLine() );
+    if ( singmachfld_ )
+	singmachfld_->setValue( transffld->selFld2D()->isSingLine() );
     singTogg( 0 );
     if ( singmachfld_ ) singmachfld_->display( false );
 }
@@ -211,21 +212,38 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     transffld->scfmtfld->updateIOObj( ctio.ioobj );
 
     IOPar tmpiop;
+    CubeSampling cs;
     transffld->selfld->fillPar( tmpiop );
-    CubeSampling cs; cs.usePar( subselpar );
-    if ( !cs.hrg.isEmpty() )
-	cs.fillPar( tmpiop );
-    else
+    BufferString typestr;
+    //Subselection type and geometry will have an extra level key: 'Sub'
+    if ( tmpiop.get( sKey::Type, typestr ) )
+	tmpiop.removeWithKey( sKey::Type );
+    
+    CubeSampling::removeInfo( tmpiop );
+    iop.mergeComp( tmpiop, keybase );
+    tmpiop.clear();
+    if ( strcmp( typestr.buf(), "" ) )
+	tmpiop.set( sKey::Type, typestr );
+    
+    bool usecs = strcmp( typestr.buf(), "None" );
+    if ( usecs )
     {
-	CubeSampling curcs; todofld->getRanges( curcs );
-	curcs.fillPar( tmpiop );
+	cs.usePar( subselpar );
+	if ( !cs.hrg.isEmpty() )
+	    cs.fillPar( tmpiop );
+	else
+	{
+	    CubeSampling curcs; todofld->getRanges( curcs );
+	    curcs.fillPar( tmpiop );
+	}
     }
 
     const BufferString subkey = IOPar::compKey( keybase, "Sub" );
     iop.mergeComp( tmpiop, subkey );
 
     CubeSampling::removeInfo( subselpar );
-    iop.mergeComp( subselpar, subkey );
+    subselpar.removeWithKey( sKey::Type );
+    iop.mergeComp( subselpar, keybase );
 
     Scaler* sc = transffld->scfmtfld->getScaler();
     if ( sc )
@@ -252,9 +270,12 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	}
     }
 
-    EngineMan::getPossibleVolume( *clonedset, cs, linename, targetid );
-    iop.set( sKeyMaxInlRg, cs.hrg.start.inl, cs.hrg.stop.inl, cs.hrg.step.inl );
-    iop.set( sKeyMaxCrlRg, cs.hrg.start.crl, cs.hrg.stop.crl, cs.hrg.step.crl );
+    if ( usecs )
+    {
+	EngineMan::getPossibleVolume( *clonedset, cs, linename, targetid );
+	iop.set(sKeyMaxInlRg,cs.hrg.start.inl,cs.hrg.stop.inl,cs.hrg.step.inl);
+	iop.set(sKeyMaxCrlRg,cs.hrg.start.crl,cs.hrg.stop.crl,cs.hrg.step.crl);
+    }
     delete clonedset;
 
     return true;
