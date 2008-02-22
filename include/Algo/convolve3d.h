@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Feb 2008
- RCS:           $Id: convolve3d.h,v 1.1 2008-02-21 23:09:09 cvskris Exp $
+ RCS:           $Id: convolve3d.h,v 1.2 2008-02-22 23:13:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -103,42 +103,57 @@ bool Convolver3D<T>::doWork( int start, int stop, int )
     const int ysz0 = y_->info().getSize( 0 );
     const int ysz1 = y_->info().getSize( 1 );
     const int ysz2 = y_->info().getSize( 2 );
+/*
+    const Interval<int> xrg0( -xshift0_, xsz0-xshift0_-1 );
+    const Interval<int> xrg1( -xshift1_, xsz1-xshift1_-1 );
+    const Interval<int> xrg2( -xshift2_, xsz2-xshift2_-1 );
 
-    int startpos[3];
+    const Interval<int> yrg0( -yshift0_, ysz0-yshift0_-1 );
+    const Interval<int> yrg1( -yshift1_, ysz1-yshift1_-1 );
+    const Interval<int> yrg2( -yshift2_, ysz2-yshift2_-1 );
 
-    z_->info().gerArrayPos( start, curpos );
+    const Interval<int> rg0( mMAX(xrg0.start,yrg0.start),
+			     mMIN(xrg0.stop,yrg0.stop) );
+    const Interval<int> rg1( mMAX(xrg1.start,yrg1.start),
+			     mMIN(xrg1.stop,yrg1.stop) );
+    const Interval<int> rg2( mMAX(xrg2.start,yrg2.start),
+			     mMIN(xrg2.stop,yrg2.stop) );
+			     */
+    int curpos[3];
 
-    ArrayNDIter iterator;
-    iterator.setPos( startpos );
+    z_->info().getArrayPos( start, curpos );
+
+    ArrayNDIter iterator( z_->info() );
+    iterator.setPos( curpos );
 
     for ( int idx=start; idx<=stop; idx++ )
     {
-	const int* zpos = iterator.getPos();
+	const int* zvar = iterator.getPos();
 	T sum = 0;
 	int nrsamples = 0;
 	for ( int idx0=0; idx0<xsz0; idx0++ )
 	{
-	    const int xdim0 = idx0+xshift0_;
-	    const int ydim0 = correlate_ ? zpos[0]+xdim0 : zpos[0]-xdim0;
-	    const int idy0 = ydim0-yshift0_;
-	    if ( idy0<0 || idy0>=dim0ysz )
+	    const int xvar0 = idx0-xshift0_;
+	    const int yvar0 = correlate_ ? xvar0-zvar[0] : zvar[0]-xvar0;
+	    const int idy0 = yvar0+yshift0_;
+	    if ( idy0<0 || idy0>=ysz0 )
 		continue;
 
 	    for ( int idx1=0; idx1<xsz1; idx1++ )
 	    {
-		const int xdim1 = idx1+xshift1_;
-		const int ydim1 = correlate_ ? zpos[1]+xdim1 : zpos[1]-xdim1;
-		const int idy1 = ydim1-yshift1_;
-		if ( idy1<0 || idy1>=dim1ysz )
+		const int xvar1 = idx1-xshift1_;
+		const int yvar1 = correlate_ ? xvar1-zvar[1] : zvar[1]-xvar1;
+		const int idy1 = yvar1+yshift1_;
+		if ( idy1<0 || idy1>=ysz1 )
 		    continue;
 
 		for ( int idx2=0; idx2<xsz2; idx2++ )
 		{
-		    const int xdim2 = idx2+xshift2_;
-		    const int ydim2 = correlate_
-			? zpos[2]+xdim2
-			: zpos[2]-xdim2;
-		    const int idy2 = ydim2-yshift2_;
+		    const int xvar2 = idx2-xshift2_;
+		    const int yvar2 = correlate_
+			? xvar2-zvar[2]
+			: zvar[2]-xvar2;
+		    const int idy2 = yvar2+yshift2_;
 		    if ( idy2<0 || idy2>=ysz2 )
 			continue;
 
@@ -157,7 +172,7 @@ bool Convolver3D<T>::doWork( int start, int stop, int )
 	}
 
 	if ( !nrsamples )
-	    z_->set( curpos, 0 )
+	    z_->set( curpos, 0 );
 	else if ( normalize_ )
 	    z_->set( curpos, sum/nrsamples );
 	else
