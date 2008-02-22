@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurfaceauxdata.cc,v 1.16 2008-02-12 12:40:49 cvsnanne Exp $
+ RCS:           $Id: emsurfaceauxdata.cc,v 1.17 2008-02-22 10:30:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -216,7 +216,8 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
     PtrMan<IOObj> ioobj = IOM().get( horizon_.multiID() );
     if ( !ioobj )
 	{ horizon_.errmsg_ = "Cannot find surface"; return 0; }
-    StreamConn* conn = dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Read));
+    PtrMan<StreamConn> conn =
+	dynamic_cast<StreamConn*>(ioobj->getConn(Conn::Read));
     if ( !conn ) return 0;
 
     bool binary = true;
