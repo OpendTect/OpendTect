@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndinfo.h,v 1.10 2007-09-13 19:38:38 cvsnanne Exp $
+ RCS:		$Id: arrayndinfo.h,v 1.11 2008-02-25 18:45:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -35,7 +35,7 @@ public:
     			/*!<Returns offset in a 'flat' array.*/
     virtual bool	validPos(const int*) const;
     			/*!<Checks if the position exists. */
-    virtual void	getArrayPos(od_uint64, int*) const;
+    virtual bool	getArrayPos(od_uint64, int*) const;
     			/*!<Given an offset, what is the ND position. */
 
 protected:

@@ -4,10 +4,11 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* rcsID = "$Id: arrayndinfo.cc,v 1.10 2007-09-13 19:38:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: arrayndinfo.cc,v 1.11 2008-02-25 18:45:40 cvskris Exp $";
 
-#include <arrayndinfo.h>
+#include "arrayndinfo.h"
 
+#include "sets.h"
 
 bool ArrayNDInfo::setSize(int dim, int sz)
 { return false; }
@@ -46,18 +47,31 @@ bool ArrayNDInfo::validPos( const int* pos ) const
 }
 
 
-void ArrayNDInfo::getArrayPos( od_uint64 mempos, int* pos ) const
+bool ArrayNDInfo::getArrayPos( od_uint64 mempos, int* pos ) const
 {
     const int ndim = getNDim();
-    for ( int idx=0; idx<ndim; idx++ )
-    {
-	int tsz = 1;
-	for ( int idy=idx+1; idy<ndim; idy++ )
-	    tsz *= getSize(idy);
+    TypeSet<int> dimdevisor( ndim, 1 );
 
-	pos[idx] = mempos/tsz;
-	mempos = mempos%tsz;
+    int product = 1;
+
+    for ( int idx=ndim-1; idx>=0; idx-- )
+    {
+	const int size = getSize( idx );
+	dimdevisor[idx] = product;
+	product *= size;
     }
+
+    pos[0] = mempos/dimdevisor[0];
+    if ( pos[0]>=getSize(0) )
+	return false;
+
+    for ( int idx=1; idx<ndim; idx++ )
+    {
+	pos[idx] = mempos/dimdevisor[idx];
+	mempos = mempos%dimdevisor[idx];
+    }
+
+    return true;
 }
 	
 
