@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposfilterset.cc,v 1.2 2008-02-22 15:02:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposfilterset.cc,v 1.3 2008-02-25 15:05:04 cvsbert Exp $";
 
 #include "uiposfilterset.h"
 #include "posfilterset.h"
@@ -163,6 +163,7 @@ bool uiPosFilterSet::fillPar( IOPar& iop ) const
     iop.removeWithKey( IOPar::compKey(sKey::Filter,"*") );
     if ( grps_.isEmpty() ) return true;
 
+    iop.set( sKey::Type, Pos::FilterSet::typeStr() );
     int ipar = 0;
     for ( int igrp=0; igrp<grps_.size(); igrp++ )
     {
