@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiattribcrossplot.cc,v 1.14 2008-02-25 15:11:12 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.15 2008-02-25 16:32:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,8 +38,8 @@ using namespace Attrib;
 uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 	: uiDialog(p,uiDialog::Setup("Attribute cross-plotting",
 		     "Select attributes and locations for cross-plot"
-		     ,"101.3.0"))
-	, ads_(d)
+		     ,"101.3.0").modal(false))
+	, ads_(*d.clone())
 {
     uiLabeledListBox* llb = new uiLabeledListBox( this,
 	    					  "Attributes to calculate" );
@@ -83,6 +83,7 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 
 uiAttribCrossPlot::~uiAttribCrossPlot()
 {
+    delete const_cast<Attrib::DescSet*>(&ads_);
 }
 
 
