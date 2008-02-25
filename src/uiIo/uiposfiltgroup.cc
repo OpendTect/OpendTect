@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposfiltgroup.cc,v 1.2 2008-02-22 15:02:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposfiltgroup.cc,v 1.3 2008-02-25 14:10:09 cvsbert Exp $";
 
 #include "uiposfiltgroup.h"
 #include "posrandomfilter.h"
@@ -66,5 +66,5 @@ void uiRandPosFiltGroup::getSummary( BufferString& txt ) const
 
 void uiRandPosFiltGroup::initClass()
 {
-    uiPosFiltGroup::factory().addCreator( create, sKey::Range );
+    uiPosFiltGroup::factory().addCreator( create, sKey::Random );
 }
