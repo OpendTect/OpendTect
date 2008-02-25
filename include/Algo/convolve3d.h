@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Feb 2008
- RCS:           $Id: convolve3d.h,v 1.2 2008-02-22 23:13:40 cvskris Exp $
+ RCS:           $Id: convolve3d.h,v 1.3 2008-02-25 19:05:58 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -103,28 +103,14 @@ bool Convolver3D<T>::doWork( int start, int stop, int )
     const int ysz0 = y_->info().getSize( 0 );
     const int ysz1 = y_->info().getSize( 1 );
     const int ysz2 = y_->info().getSize( 2 );
-/*
-    const Interval<int> xrg0( -xshift0_, xsz0-xshift0_-1 );
-    const Interval<int> xrg1( -xshift1_, xsz1-xshift1_-1 );
-    const Interval<int> xrg2( -xshift2_, xsz2-xshift2_-1 );
 
-    const Interval<int> yrg0( -yshift0_, ysz0-yshift0_-1 );
-    const Interval<int> yrg1( -yshift1_, ysz1-yshift1_-1 );
-    const Interval<int> yrg2( -yshift2_, ysz2-yshift2_-1 );
+    int startpos[3];
 
-    const Interval<int> rg0( mMAX(xrg0.start,yrg0.start),
-			     mMIN(xrg0.stop,yrg0.stop) );
-    const Interval<int> rg1( mMAX(xrg1.start,yrg1.start),
-			     mMIN(xrg1.stop,yrg1.stop) );
-    const Interval<int> rg2( mMAX(xrg2.start,yrg2.start),
-			     mMIN(xrg2.stop,yrg2.stop) );
-			     */
-    int curpos[3];
-
-    z_->info().getArrayPos( start, curpos );
+    if ( !z_->info().getArrayPos( start, startpos ) )
+	return false;
 
     ArrayNDIter iterator( z_->info() );
-    iterator.setPos( curpos );
+    iterator.setPos( startpos );
 
     for ( int idx=start; idx<=stop; idx++ )
     {
@@ -171,12 +157,9 @@ bool Convolver3D<T>::doWork( int start, int stop, int )
 	    }
 	}
 
-	if ( !nrsamples )
-	    z_->set( curpos, 0 );
-	else if ( normalize_ )
-	    z_->set( curpos, sum/nrsamples );
-	else
-	    z_->set( curpos, sum );
+	if ( !nrsamples ) z_->set( zvar, 0 );
+	else if ( normalize_ ) z_->set( zvar, sum/nrsamples );
+	else z_->set( zvar, sum );
 
 	if ( !iterator.next() && idx!=stop )
 	    return false;
