@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.72 2008-02-25 09:09:50 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.73 2008-02-25 15:10:27 cvsbert Exp $";
 
 #include "attriboutput.h"
 
@@ -1213,10 +1213,17 @@ void TableOutput::addLocalInterval( TypeSet< Interval<int> >& sampintv,
 
 bool TableOutput::areBIDDuplicated() const
 {
-    BinIDValueSet tmpset( datapointset_.bivSet() );
-    tmpset.allowDuplicateBids(false);
-    
-    return tmpset.totalSize()<datapointset_.size();
+    if ( datapointset_.isEmpty() ) return false;
+
+    BinID prevbid( datapointset_.binID(0) );
+    for ( int idx=1; idx<datapointset_.size(); idx++ )
+    {
+	const BinID bid( datapointset_.binID(idx) );
+	if ( bid == prevbid ) return true;
+	prevbid = bid;
+    }
+
+    return false;
 }
 
 } // namespace Attrib
