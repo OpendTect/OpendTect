@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiattribcrossplot.cc,v 1.13 2008-02-22 15:02:45 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.14 2008-02-25 15:11:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,15 +120,16 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     if ( dcds.isEmpty() )
 	mErrRet("Please select at least one attribute to evaluate")
 
+    IOPar iop; posfiltfld_->fillPar( iop );
     if ( is2d )
     {
-	Pos::Filter2D* filt = 0;
+	Pos::Filter2D* filt = Pos::Filter2D::make( iop );
 	Pos::Provider2D* p2d = (Pos::Provider2D*)prov.ptr();
 	dps = new DataPointSet( *p2d, dcds, filt );
     }
     else
     {
-	Pos::Filter3D* filt = 0;
+	Pos::Filter3D* filt = Pos::Filter3D::make( iop );
 	Pos::Provider3D* p3d = (Pos::Provider3D*)prov.ptr();
 	dps = new DataPointSet( *p3d, dcds, filt );
     }
