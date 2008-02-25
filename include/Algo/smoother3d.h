@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: smoother3d.h,v 1.1 2008-02-22 23:14:03 cvskris Exp $
+ RCS:		$Id: smoother3d.h,v 1.2 2008-02-25 18:49:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,8 @@ Smoother3D<T>::Smoother3D()
     : windowparam_( mUdf(float) )
     , window_( 1, 1, 1 )
 {
+    convolver_.setNormalize( true );
+    convolver_.setCorrelate( false );
     window_.set( 0, 0, 0, 1 );
 }
 
