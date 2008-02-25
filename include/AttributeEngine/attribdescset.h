@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.28 2007-12-11 11:27:53 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.29 2008-02-25 16:26:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,7 +113,13 @@ protected:
     TypeSet<DescID>		ids;
     BufferString		errmsg;
     bool			is2d_;
+
+private:
+
     bool			is2dset_;
+    				DescSet( const DescSet& )
+				    : descToBeRemoved(this)		{}
+				// crap. Don't even TRY to use. Use clone()!
 };
 
 } // namespace Attrib
