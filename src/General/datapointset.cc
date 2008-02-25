@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.10 2008-02-22 15:02:45 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.11 2008-02-25 14:44:06 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -306,12 +306,6 @@ DataPointSet::ColID DataPointSet::indexOf( const char* nm ) const
 BinIDValueSet& DataPointSet::bivSet()
 {
     return data_.data();
-}
-
-
-int DataPointSet::size() const
-{
-    return bvsidxs_.size();
 }
 
 

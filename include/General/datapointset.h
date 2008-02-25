@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.7 2008-02-22 15:02:45 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.8 2008-02-25 14:44:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,19 +125,22 @@ public:
     DataPointSet&	operator =(const DataPointSet&);
 
     int			nrCols() const;
-    int			nrFixedCols() const		{ return nrfixedcols_; }
+    int			nrFixedCols() const	{ return nrfixedcols_; }
     const char*		colName(ColID) const;
     const UnitOfMeasure* unit(ColID) const;
     const DataColDef&	colDef(ColID) const;
     ColID		indexOf(const char*) const;
 
-    int			size() const;		//!< PointDataPack impl
+    			// size, binID, coord, z and trcNr impl PointDataPack
+    int			size() const		{ return bvsidxs_.size(); }
+    BinID		binID(RowID) const;
+    Coord		coord(RowID) const;
+    float		z(RowID) const;
+    int			trcNr(RowID) const;
+
+    bool		isEmpty() const		{ return bvsidxs_.isEmpty(); }
     Pos			pos(RowID) const;
     DataRow		dataRow(RowID) const;
-    BinID		binID(RowID) const;	//!< PointDataPack impl
-    Coord		coord(RowID) const;	//!< PointDataPack impl
-    float		z(RowID) const;		//!< PointDataPack impl
-    int			trcNr(RowID) const;	//!< PointDataPack impl, 2D only
     float		value(ColID,RowID) const;
     float*		getValues(RowID);
     const float*	getValues(RowID) const;
