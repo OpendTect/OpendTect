@@ -4,21 +4,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne and Kristofer
  Date:          December 2007
- RCS:           $Id: inituivolumeprocessing.cc,v 1.1 2007-12-06 20:05:45 cvskris Exp $
+ RCS:           $Id: inituivolumeprocessing.cc,v 1.2 2008-02-25 19:14:55 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "inituivolumeprocessing.h"
 
-#include "uivolumeprocessingattrib.h"
-#include "uihorinterfiller.h"
-#include "uimarchingcubesprocessing.h"
+#include "uivolprochorinterfiller.h"
+#include "uivolprocmarchingcubes.h"
 
 void uiVolumeProcessing::initStdClasses()
 {
     VolProc::uiHorInterFiller::initClass();
-    VolProc::uiMarchingCubesProcessing::initClass();
+    VolProc::uiMarchingCubes::initClass();
 }
 
 

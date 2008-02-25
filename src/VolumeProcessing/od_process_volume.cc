@@ -4,15 +4,14 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.7 2007-12-06 20:05:44 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.8 2008-02-25 19:14:54 cvskris Exp $";
 
 #include "batchprog.h"
 
-#include "horinterfiller.h"
+#include "attribdatacubeswriter.h"
 #include "ioman.h"
-#include "volumeprocessing.h"
-#include "volumewriter.h"
-#include "volumeprocessingtrans.h"
+#include "volprocchain.h"
+#include "volproctrans.h"
 
 #include "initalgo.h"
 #include "initvolumeprocessing.h"
@@ -27,7 +26,7 @@ bool BatchProgram::go( std::ostream& strm )
     pars().get( VolProcessingTranslatorGroup::sKeyChainID(), chainid );
     PtrMan<IOObj> ioobj = IOM().get( chainid );
     
-    RefMan<VolProc::ProcessingChain> chain = new VolProc::ProcessingChain;
+    RefMan<VolProc::Chain> chain = new VolProc::Chain;
     BufferString errmsg;
     if ( !VolProcessingTranslator::retrieve( *chain, ioobj, errmsg ) )
     {
@@ -51,7 +50,7 @@ bool BatchProgram::go( std::ostream& strm )
 	return false;
     }
     
-    VolProc::ProcessingChainExecutor pce( *chain );
+    VolProc::ChainExecutor pce( *chain );
     RefMan<Attrib::DataCubes> cube = new Attrib::DataCubes;
 
     cube->setSizeAndPos( cs );
@@ -76,7 +75,8 @@ bool BatchProgram::go( std::ostream& strm )
 	return false;
     }	
 
-    VolProc::VolumeWriter writer( outputid, *cube );
+    const TypeSet<int> indices( 1, 0 );
+    Attrib::DataCubesWriter writer( outputid, *cube, indices );
     if ( !writer.execute( &strm ) )
     {
 	return false;
