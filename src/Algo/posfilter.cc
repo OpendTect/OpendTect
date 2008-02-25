@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: posfilter.cc,v 1.3 2008-02-22 15:02:45 cvsbert Exp $";
+static const char* rcsID = "$Id: posfilter.cc,v 1.4 2008-02-25 15:06:17 cvsbert Exp $";
 
 #include "posfilterset.h"
 #include "posrandomfilter.h"
@@ -197,7 +197,7 @@ void Pos::FilterSet::IMPL_usePar( const IOPar& iop )
 		filt = Pos::Provider3D::make( *subpar );
 	}
 
-	if ( filt ) continue;
+	if ( filt )
 	    *this += filt;
     }
 }
