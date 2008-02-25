@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.66 2008-01-09 13:54:34 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.67 2008-02-25 16:32:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -1000,8 +1000,15 @@ void uiAttribDescSetEd::crossPlot( CallBacker* )
 {
     if ( !adsman || !adsman->descSet() ) return;
 
-    uiAttribCrossPlot dlg( this, *adsman->descSet() );
-    dlg.go();
+    uiAttribCrossPlot* dlg = new uiAttribCrossPlot( this, *adsman->descSet() );
+    dlg->windowClosed.notify( mCB(this,uiAttribDescSetEd,launchedWinClose) );
+    dlg->show();
+}
+
+
+void uiAttribDescSetEd::launchedWinClose( CallBacker* cb )
+{
+    delete cb;
 }
 
 
