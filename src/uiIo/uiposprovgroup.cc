@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.12 2008-02-22 09:31:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.13 2008-02-25 09:03:35 cvshelene Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -125,7 +125,7 @@ void uiRangePosProvGroup::getCubeSampling( CubeSampling& cs ) const
     if ( hrgfld_ )
 	cs.hrg = hrgfld_->getSampling();
     if ( nrrgfld_ )
-	cs.hrg.set( StepInterval<int>(1,mUdf(int),1), nrrgfld_->getRange() );
+	cs.hrg.set( StepInterval<int>(0,mUdf(int),1), nrrgfld_->getRange() );
     if ( zrgfld_ )
 	cs.zrg = zrgfld_->getRange();
 }
