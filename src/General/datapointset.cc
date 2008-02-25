@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.11 2008-02-25 14:44:06 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.12 2008-02-25 15:05:31 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -114,7 +114,7 @@ DataPointSet::DataPointSet( ::Pos::Provider3D& prov,
 	{
 	    if ( !filt->includes(dr.pos_.binid_,dr.pos_.z_) )
 		continue;
-	    filt->adjustedZ( dr.pos_.coord(), dr.pos_.z_ );
+	    dr.pos_.z_ = filt->adjustedZ( dr.pos_.coord(), dr.pos_.z_ );
 	}
 	dr.data_.setSize( nrcols, mUdf(float) );
 	addRow( dr );
