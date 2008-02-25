@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizon2ddisplay.h,v 1.6 2008-02-13 18:41:53 cvsjaap Exp $
+ RCS:           $Id: vishorizon2ddisplay.h,v 1.7 2008-02-25 16:12:47 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -40,8 +40,15 @@ protected:
     void			removeSectionDisplay(const EM::SectionID&);
     bool			addSection(const EM::SectionID&);
 
-    void			updateSection(int idx,
-				    const TypeSet<Interval<float> >* zrgs=0);
+    struct LineRanges
+    {
+	TypeSet<TypeSet<Interval<int> > >	trcrgs;
+	TypeSet<TypeSet<Interval<float> > >	zrgs;
+    };
+
+    bool			withinRanges(const RowCol&,float z,
+					     const LineRanges& );	
+    void			updateSection(int idx,const LineRanges* lr=0);
 					      
     void			emChangeCB(CallBacker*);
     bool			setEMObject(const EM::ObjectID&);

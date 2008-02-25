@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizon2ddisplay.cc,v 1.10 2008-02-14 15:38:23 cvsjaap Exp $
+ RCS:           $Id: vishorizon2ddisplay.cc,v 1.11 2008-02-25 16:12:47 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,8 +110,24 @@ void Horizon2DDisplay::removeSectionDisplay( const EM::SectionID& sid )
 }
 
 
-void Horizon2DDisplay::updateSection( int idx,
-				      const TypeSet<Interval<float> >* zrgs )
+bool Horizon2DDisplay::withinRanges( const RowCol& rc, float z, 
+				     const LineRanges& linergs )
+{
+    if ( rc.row<linergs.trcrgs.size() && rc.row<linergs.zrgs.size() )
+    {
+	for ( int idx=0; idx<linergs.trcrgs[rc.row].size(); idx++ )
+	{
+	    if ( idx<linergs.zrgs[rc.row].size() &&
+		 linergs.zrgs[rc.row][idx].includes(z) && 
+		 linergs.trcrgs[rc.row][idx].includes(rc.col) )
+		return true;
+	}
+    }
+    return false;
+}
+
+
+void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 {
     const EM::SectionID sid = emobject_->sectionID( idx );
     mDynamicCastGet( const Geometry::RowColSurface*, rcs,
@@ -139,10 +155,8 @@ void Horizon2DDisplay::updateSection( int idx,
 	    if ( !Coord(pos).isDefined() )
 		continue;
 
-	    mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_ );
-	    const int lnidx = h2d->geometry().lineIndex( rc.row );
-
-	    if ( !pos.isDefined() || zrgs && !(*zrgs)[lnidx].includes(pos.z) )
+	    if ( !pos.isDefined() || 
+		 lineranges && !withinRanges(rc,pos.z,*lineranges) )
 	    {
 		if ( indexinline==1 )
 		{
@@ -229,32 +243,47 @@ void Horizon2DDisplay::updateLinesOnSections(
 	    updateSection( sids_[sidx] );
 	return;
     }
-    
+
     mDynamicCastGet( const EM::Horizon2D*, h2d, emobject_ );
     if ( !h2d ) return;
-
-    TypeSet<Interval<float> > zranges;
-    for ( int idx=0; idx<h2d->geometry().nrLines(); idx++ )
+    
+    TypeSet<Coord> xy0;
+    TypeSet<Coord> xy1;
+    for ( int idx=0; idx<seis2dlist.size(); idx++ )
     {
-	int lineid = h2d->geometry().lineID( idx );
-	const char* linenm = h2d->geometry().lineName( lineid );
-	const MultiID& lineset = h2d->geometry().lineSet( lineid );
+	const Interval<int>& trcrg  = seis2dlist[idx]->getTraceNrRange();
+	xy0 += seis2dlist[idx]->getCoord( trcrg.start );
+	xy1 += seis2dlist[idx]->getCoord( trcrg.stop );
+    }
 
-	Interval<float> zrg( mUdf(float), mUdf(float) );
-	for ( int idy=0; idy<seis2dlist.size(); idy++ )
+    LineRanges linergs;
+    for ( int lnidx=0; lnidx<h2d->geometry().nrLines(); lnidx++ )
+    {
+	int lineid = h2d->geometry().lineID( lnidx );
+	linergs.trcrgs += TypeSet<Interval<int> >();
+	linergs.zrgs += TypeSet<Interval<float> >();
+	for ( int idx=0; idx<seis2dlist.size(); idx++ )
 	{
-	    if ( !strcmp(seis2dlist[idy]->name(), linenm) &&
-		 seis2dlist[idy]->lineSetID()==lineset )
-	    {
-		zrg = seis2dlist[idy]->getZRange( true );
-		break;
-	    }
+	    const Interval<int>& trcrg  = seis2dlist[idx]->getTraceNrRange();
+	    RowCol rc( lineid, trcrg.start );
+	    Coord pos = emobject_->getPos( 0, rc.getSerialized() ); 
+	    if ( !xy0[idx].isDefined() || !mIsEqual(xy0[idx].x,pos.x,mDefEps) 
+				       || !mIsEqual(xy0[idx].y,pos.y,mDefEps) )
+		continue;
+
+	    rc.col = trcrg.stop;
+	    pos = emobject_->getPos( 0, rc.getSerialized() ); 
+	    if ( !xy1[idx].isDefined() || !mIsEqual(xy1[idx].x,pos.x,mDefEps) 
+				       || !mIsEqual(xy1[idx].y,pos.y,mDefEps) )
+		continue;
+
+	    linergs.trcrgs[lnidx] += trcrg;
+	    linergs.zrgs[lnidx] += seis2dlist[idx]->getZRange( true );
 	}
-	zranges += zrg;
     }
     
     for ( int sidx=0; sidx<sids_.size(); sidx++ )
-	updateSection( sids_[sidx], &zranges );
+	updateSection( sids_[sidx], &linergs );
 }
 
 
