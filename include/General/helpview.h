@@ -6,7 +6,7 @@
  * DATE     : 18-8-2000
 -*/
  
-#include <bufstring.h>
+#include "bufstring.h"
 
 
 /*!\brief Pops up the help system
@@ -30,21 +30,10 @@ public:
     static BufferString	getURLForWinID(const char*);
     			//!< Combines Link -> WinID -> URL
 
-    static void		use(const char* url,const char* wintitl=0);
-    			//!< Pops up help viewer for URL.
-    			//!< Jan 2003: no real internet-URLs yet, just filenames
-    			//!< Pass url==null for main help index for app.
-
-
-    static void		doHelp( const char* relurl, const char* wintitl=0);
-			/*!< Pops up help viewer with url relative to data/ */
-
-
-    static BufferString	applnm;
+    static BufferString	basenm;
     			// Determines default scope= subdir from data/ directory
     static const char*	subdirNm(const char* scope=0);
     			// scope + "Doc" . If !scope || !*scope: applnm used
-
 };
 
 #endif

@@ -4,12 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodhelpmenumgr.cc,v 1.11 2007-09-12 14:42:27 cvsbert Exp $
+ RCS:           $Id: uiodhelpmenumgr.cc,v 1.12 2008-02-26 11:09:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.11 2007-09-12 14:42:27 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.12 2008-02-26 11:09:34 cvsnanne Exp $";
 
 #include "uiodhelpmenumgr.h"
 #include "uiodmenumgr.h"
@@ -25,6 +25,8 @@ static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.11 2007-09-12 14:42:27 c
 #include "oddirs.h"
 #include "errh.h"
 
+static const char* oddirnm = "base";
+
 #define mInsertItem(mnu,txt,id) \
     mnu->insertItem( \
 	new uiMenuItem(txt,mCB(mnumgr_,uiODMenuMgr,handleClick)), id )
@@ -34,15 +36,14 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
 	, helpmnu_(mm->helpMnu())
     	, mnumgr_(mm)
 {
-    const BufferString datadir( mGetSWDirDataDir() );
-    scanEntries( datadir );
+    scanEntries( mGetUserDocDir() );
     mkVarMenu();
     if ( havedtectdoc_ )
     {
 	mInsertItem( helpmnu_, "Ad&min ...", mAdminMnuItm );
 	mInsertItem( helpmnu_, "&Programmer ...", mProgrammerMnuItm );
     }
-    mkAboutMenu( datadir );
+    mkAboutMenu();
 }
 
 
@@ -90,13 +91,15 @@ bool uiODHelpDocInfo::getFrom( std::istream& strm, const char* dirnm )
 }
 
 
-void uiODHelpMenuMgr::scanEntries( const char* datadir )
+void uiODHelpMenuMgr::scanEntries( const char* docdir )
 {
-    DirList dl( datadir, DirList::DirsOnly, "*Doc" );
+    DirList dl( docdir, DirList::DirsOnly );
     int mnuidx = 1;
     for ( int hidx=0, idx=0; idx<dl.size(); idx++ )
     {
 	const BufferString dirnm = dl.get( idx );
+	if ( dirnm == "Programmer" ) continue;
+
 	uiODHelpDocInfo* di = new uiODHelpDocInfo;
 	FilePath fp( dl.dirName() ); fp.add( dirnm );
 	const BufferString fulldirnm = fp.fullPath();
@@ -108,16 +111,15 @@ void uiODHelpMenuMgr::scanEntries( const char* datadir )
 	    if ( !File_exists(fp.fullPath()) )
 		{ delete di; sd.close(); continue; }
 	    di->starturl = fp.fullPath();
-	    FilePath iconfp( datadir );
+	    FilePath iconfp( docdir );
 	    di->iconfnm = iconfp.add( "defhelpicon.png" ).fullPath();
 	    di->nm = dirnm;
-	    *(strstr(di->nm.buf(),"Doc")) = '\0';
 	}
 	sd.close();
 
 	di->id = mHelpVarMnuBase + varentries_.size();
 	varentries_ += di;
-	if ( dirnm == "dTectDoc" )
+	if ( dirnm == oddirnm )
 	{
 	    havedtectdoc_ = true;
 	    if ( varentries_.size() > 1 )
@@ -158,14 +160,14 @@ void uiODHelpMenuMgr::mkVarMenu()
 }
 
 
-void uiODHelpMenuMgr::mkAboutMenu( const char* datadir )
+void uiODHelpMenuMgr::mkAboutMenu()
 {
     uiPopupMenu* submnu = new uiPopupMenu( &mnumgr_->appl_, "&About" );
     helpmnu_->insertItem( submnu );
     mInsertItem( submnu, "&General ...", mHelpAboutMnuBase );
 
-    FilePath fp( datadir ); fp.add( "ReleaseInfo" );
-    DirList dl( fp.fullPath() );
+    FilePath fp( GetDocFileDir("ReleaseInfo") );
+    DirList dl( fp.fullPath(), DirList::FilesOnly );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
 	uiODHelpDocInfo* di = new uiODHelpDocInfo;
@@ -185,21 +187,8 @@ void uiODHelpMenuMgr::mkAboutMenu( const char* datadir )
 }
 
 
-static const char* getHelpF( const char* subdir, const char* infnm,
-			     const char* basedirnm = "dTectDoc" )
-{
-    FilePath fp( basedirnm );
-    if ( subdir && *subdir ) fp.add( subdir );
-    fp.add( infnm );
-    static BufferString fnm;
-    fnm = fp.fullPath();
-    fnm = GetSetupDataFileName( ODSetupLoc_SWDirOnly, fnm.buf() );
-    return fnm.buf();
-}
-
-
 bool uiODHelpMenuMgr::getPopupData( int id, BufferString& title,
-				     BufferString& helpurl )
+				    BufferString& helpurl )
 {
     const bool isabout = id < mHelpVarMnuBase;
 
@@ -218,8 +207,6 @@ bool uiODHelpMenuMgr::getPopupData( int id, BufferString& title,
 	return false;
     }
 
-    title = isabout ? "" : "Documentation for ";
-    title += di->nm;
     helpurl = di->starturl;
     return true;
 }
@@ -227,38 +214,36 @@ bool uiODHelpMenuMgr::getPopupData( int id, BufferString& title,
 
 void uiODHelpMenuMgr::handle( int id, const char* itemname )
 {
+    FilePath fp;
     BufferString helpurl;
-    BufferString title;
     switch( id )
     {
     case mAdminMnuItm:
-	title = "OpendTect System administrator";
-	helpurl = getHelpF( "ApplMan", "index.html" );
-    break;
+    {
+	fp = mGetSysAdmDocDir();
+	helpurl = fp.add("base").add("index.html").fullPath();
+    } break;
     case mProgrammerMnuItm:
-	title = "d-Tect";
-        helpurl = getHelpF( "Programmer", "index.html" );
-    break;
+    {
+	fp = mGetProgrammerDocDir(); 
+        helpurl = fp.add("index.html").fullPath();
+    } break;
     case mHelpAboutMnuBase:
     {
-	title = "About OpendTect";
+	fp = mGetUserDocDir();
 	const char* htmlfnm = "about.html";
-	const BufferString dddirnm
-		= GetSetupDataFileName( ODSetupLoc_SWDirOnly, "dTectDoc" );
-	helpurl = FilePath(dddirnm).add(htmlfnm).fullPath();
-	helpurl = File_exists(helpurl) ? getHelpF(0,htmlfnm) : htmlfnm;
+	helpurl = fp.add(oddirnm).add(htmlfnm).fullPath();
+	if ( !File_exists(helpurl) )
+	    helpurl = GetDocFileDir( htmlfnm );
     } break;
     default:
     {
+	BufferString title;
 	if ( !getPopupData( id, title, helpurl) )
 	    return;
     } break;
 
     }
 
-#ifdef USEQT3
-    HelpViewer::doHelp( helpurl, title );
-#else
     uiDesktopServices::openUrl( helpurl );
-#endif
 }

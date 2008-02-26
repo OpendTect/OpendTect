@@ -5,9 +5,10 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.32 2008-01-09 13:54:34 cvsbert Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.33 2008-02-26 11:09:34 cvsnanne Exp $";
 
 #include "helpview.h"
+
 #include "ascstream.h"
 #include "multiid.h"
 #include "errh.h"
@@ -21,222 +22,31 @@ static const char* rcsID = "$Id: helpview.cc,v 1.32 2008-01-09 13:54:34 cvsbert 
 
 #include "debugmasks.h"
 
-#ifdef __win__
-# include <windows.h>
-# include <ctype.h>
-
-
-static bool GetBrowser( BufferString& defaultBrowser, BufferString& browserArgs)
-{
-    defaultBrowser = "";
-    browserArgs = "";
-
-    #define BSIZE 256
-    static char vbuff[BSIZE];
-    static char arg[32];
-    UCHAR  *value = (UCHAR *)vbuff;
-    UCHAR  name[BSIZE];
-    HKEY  mykey;
-    DWORD  keyNameSize;
-    DWORD  keyValSize;
-    LONG  ret;
-    char  *keyName = "HTTP\\shell\\open\\command";
-    DWORD  keyType;
-
-
-    ret = RegOpenKeyEx( HKEY_CLASSES_ROOT, keyName, 0,
-			KEY_ALL_ACCESS, &mykey);
-
-    if (ret != ERROR_SUCCESS)
-    {
-	char* keynm = "http\\shell\\open\\command";
-
-	ret = RegOpenKeyEx( HKEY_CLASSES_ROOT, keynm, 0,
-			    KEY_ALL_ACCESS, &mykey);
-
-	if (ret != ERROR_SUCCESS)
-	{
-	    defaultBrowser =
-			"C:\\Program Files\\Internet Explorer\\iexplore.exe";
-	    browserArgs = " -nohome ";
-
-
-	    if ( DBG::isOn(DBG_DBG) )
-	    {
-		BufferString
-		    msg( "Unable to find browser in registry. Trying: " );
-		msg += defaultBrowser;
-		msg += " ";
-		msg += browserArgs;
-
-		DBG::message( msg );
-	    }
-
-	    return false;
-	}
-    }
-
-    memset(value, 0, sizeof(value));
-
-    for (int ii = 0; ; ii++)
-    {
-	keyValSize = BSIZE;
-	keyNameSize = BSIZE;
-	ret = RegEnumValue( mykey, ii, (char *)name, &keyNameSize, NULL,
-			    &keyType, (UCHAR *)value, &keyValSize);
-
-	if ( ret != ERROR_SUCCESS )
-	    break;
-
-	if ( *name )         // If this isn't the default
-	    continue;        //    Then don't use it
-
-	char* chr = (char *)value;
-
-	// Replace all quotes with spaces
-	while (1)
-	{
-	    if ((chr = strchr(chr, '"')) == NULL)
-		break;
-	    *chr++ = ' ';
-	}
-
-
-	// Remove everything from '%' on
-	if ((chr = strchr((LPCSTR)value, '%')) != NULL)
-	    *chr = '\0';       //
-
-
-	// Move all chars after '.exe' to argument buffers
-
-	chr = strstr((LPCSTR)value, ".exe");
-	if (!chr)
-	    chr = strstr((LPCSTR)value, ".EXE");
-	if (!chr)         // No '.exe' string in file name
-	    break;
-
-	chr += 4;         // Bump past ".exe"
-	if (*chr)         // If any command tail
-	{
-	    strcpy(arg, chr);      // Copy command tail to argument buffer
-	    *chr = '\0';       // NULL terminate command
-	    browserArgs = (char *)arg;    // Save arguments
-	}
-	if (*value == (UCHAR)' ')
-	    value++;
-
-	// Get --> default browser exe file
-	defaultBrowser = (const char *)value;
-    }
-
-    RegCloseKey(mykey);
-
-    return ( !defaultBrowser.isEmpty() );
-}
-
-#endif
 
 static const char* sMainIndex = "MainIndex";
 static const char* sNotInstHtml = "docnotinst.html";
-BufferString HelpViewer::applnm( "dTect" );
+
+BufferString HelpViewer::basenm( "base" );
 
 
 const char* HelpViewer::subdirNm( const char* scnm )
 {
     static char ret[40];
-    strcpy( ret, scnm && *scnm ? scnm : applnm.buf() );
-    strcat( ret, "Doc" );
+    strcpy( ret, scnm && *scnm ? scnm : basenm.buf() );
+//    strcat( ret, "Doc" );
     return ret;
 }
 
 
-void HelpViewer::use( const char* url, const char* wintitl )
-{
-    static BufferString _url;
-    _url = url;
-    if ( !url || !*url )
-    {
-	_url = getURLForLinkName( sMainIndex, applnm );
-    }
-
-
-#ifdef __win__
-
-    BufferString browser;
-    BufferString args;
-    GetBrowser( browser, args );
-
-    args += " \"file://";
-    replaceCharacter( _url.buf(), '\\' , '/' );
-    args += _url;
-    args += "\"";
-
-    if ( DBG::isOn(DBG_DBG) )
-    {
-        BufferString msg( "Launching browser: " );
-	msg += browser;
-	msg += " ";
-	msg += args;
-
-        DBG::message( msg );
-    }
-
-
-    HINSTANCE ret = ShellExecute( NULL, NULL, browser, args, NULL, SW_NORMAL);
-    int err = (int) ret;
-
-    if ( err > 32 ) return;
-
-    char *ptr = NULL;
-    FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER |
-	FORMAT_MESSAGE_FROM_SYSTEM,
-	0, GetLastError(), 0, (char *)&ptr, 1024, NULL);
-
-    BufferString errmsg( "Error opening \"" );
-    errmsg += url;
-    errmsg += "\" :\n";
-    errmsg += ptr;
-
-    ErrMsg( errmsg );
-
-    LocalFree(ptr);
-
-#else
-
-    replaceCharacter(_url.buf(),' ','%');
-    url = (const char*)_url;
-
-    BufferString cmd( "@" );
-    cmd += mGetExecScript();
-
-    cmd += " HtmlViewer \"";
-    cmd += url; cmd += "\" ";
-    BufferString title( wintitl );
-    if ( title.isEmpty() )
-	title = "Documentation for OpendTect";
-    cleanupString( title.buf(), NO, YES, YES );
-    cmd += title;
-
-    StreamProvider strmprov( cmd );
-    if ( !strmprov.executeCommand(false) )
-    {
-	BufferString s( "Failed to submit command '" );
-	s += strmprov.command(); s += "'";
-	ErrMsg( s );
-    }
-
-#endif
-}
-
-
 #define mGetDataFileName(fnm) GetSetupDataFileName(ODSetupLoc_SWDirOnly,fnm)
+#define mGetDocFileName(fnm) GetSetupDataFileName(ODSetupLoc_SWDirOnly,fnm)
 
-void HelpViewer::doHelp( const char* relurl, const char* wt )
+static const char* getDocFileName( const char* fnm )
 {
-    BufferString docpath( mGetDataFileName(relurl) );
-    BufferString wintitle( wt );
-    replaceCharacter( wintitle.buf(), ' ', '_' );
-    use( docpath, wintitle );
+    static BufferString docfnm;
+    docfnm = mGetUserDocDir();
+    docfnm = FilePath( docfnm ).add( fnm ).fullPath();
+    return docfnm.buf();
 }
 
 
@@ -244,12 +54,12 @@ static StreamData openHFile( const char* nm, const char* scope )
 {
     FileNameString fnm;
     BufferString subfnm( HelpViewer::subdirNm(scope) );
-    if ( !File_exists(mGetDataFileName(subfnm)) )
-	fnm = mGetDataFileName( sNotInstHtml );
+    if ( !File_exists(getDocFileName(subfnm)) )
+	fnm = getDocFileName( sNotInstHtml );
     else
     {
 	subfnm = FilePath( subfnm ).add( nm ).fullPath();
-	fnm = mGetDataFileName( subfnm );
+	fnm = getDocFileName( subfnm );
     }
 
     StreamData sd = StreamProvider( fnm ).makeIStream();
@@ -392,7 +202,7 @@ BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* scope )
     }
 
     FilePath fp( GetSoftwareDir() );
-    fp.add( "data" ).add( subdirNm(scope) );
+    fp.add( "doc" ).add( subdirNm(scope) );
     if ( istodo )
 	htmlfnm = "todo.html";
     else if ( htmlfnm.isEmpty() )
@@ -407,7 +217,7 @@ BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* scope )
     }
 
     if ( !File_exists(url) )
-	url = mGetDataFileName( istodo ? "todo.html" : "notfound.html" );
+	url = getDocFileName( istodo ? "todo.html" : "notfound.html" );
     else if ( linknm != sMainIndex && !istodo )
 	{ url += "#"; url += linknm; }
 
@@ -419,10 +229,10 @@ BufferString HelpViewer::getURLForWinID( const char* winid )
 {
     BufferString scope( getScope(winid) );
     BufferString subfnm( HelpViewer::subdirNm(scope) );
-    if ( !File_exists(mGetDataFileName(subfnm)) )
-	return BufferString( mGetDataFileName(sNotInstHtml) );
+    if ( !File_exists(getDocFileName(subfnm)) )
+	return BufferString( getDocFileName(sNotInstHtml) );
 
     BufferString lnm = getLinkNameForWinID( winid );
-    if ( lnm.isEmpty() ) return lnm;
+//    if ( lnm.isEmpty() ) return lnm;
     return getURLForLinkName( lnm, scope );
 }
