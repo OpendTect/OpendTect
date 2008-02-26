@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.101 2008-02-20 04:44:06 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.102 2008-02-26 09:17:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -287,10 +287,8 @@ MultiID uiImportHorizon::getSelID() const
 
 void uiImportHorizon::stratLvlChg( CallBacker* )
 {
-    if ( !stratlvlfld_ ) return;
-    const char* lvlname = stratlvlfld_->getLvlName();
-    if ( lvlname && *lvlname )
-	colbut_->setColor( *stratlvlfld_->getLvlColor() );
+    const Color* col = stratlvlfld_ ? stratlvlfld_->getLevelColor() : 0;
+    if ( col ) colbut_->setColor( *col );
 }
     
 #define mErrRet(s) { uiMSG().error(s); return 0; }
@@ -493,7 +491,7 @@ EM::Horizon3D* uiImportHorizon::createHor() const
 
     horizon->change.disable();
     horizon->setMultiID( mid );
-    horizon->setTiedToLvl( stratlvlfld_->getLvlName() );
+    horizon->setStratLevelID( stratlvlfld_->getLevelID() );
     horizon->setPreferredColor( colbut_->color() );
     horizon->ref();
     return horizon;

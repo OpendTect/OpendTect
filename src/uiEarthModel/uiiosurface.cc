@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.49 2008-02-20 04:44:06 cvsnanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.50 2008-02-26 09:17:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -330,16 +330,14 @@ bool uiSurfaceWrite::replaceInTree() const
 
 void uiSurfaceWrite::stratLvlChg( CallBacker* )
 {
-    if ( !stratlvlfld_ ) return;
-    const char* lvlname = stratlvlfld_->getLvlName();
-    if ( lvlname && *lvlname )
-	colbut_->setColor( *stratlvlfld_->getLvlColor() );
+    const Color* col = stratlvlfld_ ? stratlvlfld_->getLevelColor() : 0;
+    if ( col ) colbut_->setColor( *col );
 }
 
 
-const char* uiSurfaceWrite::getStratLevelName() const
+int uiSurfaceWrite::getStratLevelID() const
 {
-    return stratlvlfld_ ? stratlvlfld_->getLvlName() : 0;
+    return stratlvlfld_ ? stratlvlfld_->getLevelID() : -1;
 }
 
 

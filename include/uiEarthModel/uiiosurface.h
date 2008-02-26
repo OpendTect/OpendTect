@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.23 2008-02-18 11:00:47 cvsbert Exp $
+ RCS:           $Id: uiiosurface.h,v 1.24 2008-02-26 09:17:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,13 +108,14 @@ public:
 				       const uiSurfaceWrite::Setup& setup);
 
     virtual bool	processInput();
-    const char*		getStratLevelName() const;
+    int			getStratLevelID() const;
     Color		getColor() const;
     bool		replaceInTree()	const;
 
 protected:
     void		stratLvlChg(CallBacker*);
     void 		ioDataSelChg(CallBacker*);
+
     uiCheckBox*		displayfld_;
     uiColorInput*       colbut_;
     uiStratLevelSel*    stratlvlfld_;
