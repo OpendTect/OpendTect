@@ -4,23 +4,25 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.23 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.24 2008-02-26 10:58:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uicrdevenv.h"
+
+#include "uidesktopservices.h"
 #include "uifileinput.h"
-#include "helpview.h"
+#include "uimain.h"
 #include "uimsg.h"
-#include "ioman.h"
-#include "settings.h"
+
+#include "envvars.h"
 #include "filegen.h"
 #include "filepath.h"
-#include "strmprov.h"
+#include "ioman.h"
 #include "oddirs.h"
-#include "envvars.h"
-#include "uimain.h"
+#include "settings.h"
+#include "strmprov.h"
 
 #ifdef __win__
 # include "winutils.h"
@@ -30,8 +32,7 @@ static void showProgrDoc()
 {
     FilePath fp( "dTectDoc" );
     fp.add( "Programmer" ).add( __iswin__ ? "windows.html" : "unix.html" );
-    HelpViewer::doHelp( fp.fullPath(), 
-			"Getting started with OpendTect development" );
+    uiDesktopServices::openUrl( fp.fullPath() );
 }
 
 #undef mHelpFile
