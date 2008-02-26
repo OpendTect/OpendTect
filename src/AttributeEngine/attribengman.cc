@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.73 2008-02-25 09:05:16 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.74 2008-02-26 12:51:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -953,7 +953,7 @@ Processor* EngineMan::create2DVarZOutput( BufferString& errmsg,
     Processor* proc = getProcessor( errmsg );
     if ( !proc ) return 0;
 
-    LineKey lkey( linename, proc->getAttribName() );
+    LineKey lkey( linename, proc->getAttribUserRef() );
     Trc2DVarZStorOutput* attrout = new Trc2DVarZStorOutput( lkey, datapointset,
 	    						    outval );
     attrout->doUsePar( pars );
