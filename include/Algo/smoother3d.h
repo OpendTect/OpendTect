@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: smoother3d.h,v 1.2 2008-02-25 18:49:05 cvskris Exp $
+ RCS:		$Id: smoother3d.h,v 1.3 2008-02-26 22:46:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,9 @@ public:
    		 		/*!Must be at least the size of input.*/
     bool			setWindow(const char* nm,float param,
 	    				  int sz0,int sz1,int sz2);
+    int				getWindowSize(int dim) const;
+    const char*			getWindowName() const;
+    float			getWindowParam() const;
 
     inline void			fillPar(IOPar&) const;
     inline bool			usePar(const IOPar&);
@@ -44,11 +47,11 @@ public:
     inline void			controlWork(Task::Control);
     inline Task::Control	getState() const;
 
-protected:
-
     static const char*		sKeyWinFunc() { return "Window function"; }
     static const char*		sKeyWinParam() { return "Window parameter"; }
     static const char*		sKeyWinSize() { return "Window size"; }
+
+protected:
 
     Convolver3D<T>		convolver_;
 
@@ -67,6 +70,21 @@ Smoother3D<T>::Smoother3D()
     convolver_.setCorrelate( false );
     window_.set( 0, 0, 0, 1 );
 }
+
+
+template <class T> inline
+int Smoother3D<T>::getWindowSize(int dim) const
+{ return window_.info().getSize( dim ); }
+
+
+template <class T> inline
+const char* Smoother3D<T>::getWindowName() const
+{ return windowname_.buf(); }
+
+
+template <class T> inline
+float Smoother3D<T>::getWindowParam() const
+{ return windowparam_; }
 
 
 template <class T> inline
@@ -94,7 +112,7 @@ bool Smoother3D<T>::setWindow( const char* nm, float param,
     if ( wf->hasVariable() && !wf->setVariable( param ) )
 	return false;
 
-    if ( sz0<0 || sz1<0 || sz2<0 )
+    if ( sz0<=0 || sz1<=0 || sz2<=0 )
 	return false;
 
     window_.setSize( sz0, sz1, sz2 );
@@ -106,13 +124,13 @@ bool Smoother3D<T>::setWindow( const char* nm, float param,
 
     for ( int idx0=0; idx0<sz0; idx0++ )
     {
-	pos[0] = ((double)(idx0-hsz0))/hsz0;
+	pos[0] = hsz0 ? ((double)(idx0-hsz0))/hsz0 : 0;
 	for ( int idx1=0; idx1<sz1; idx1++ )
 	{
-	    pos[1] = ((double)(idx1-hsz1))/hsz1;
+	    pos[1] = hsz1 ? ((double)(idx1-hsz1))/hsz1 : 0;
 	    for ( int idx2=0; idx2<sz2; idx2++ )
 	    {
-		pos[2] = ((double)(idx2-hsz2))/hsz2;
+		pos[2] = hsz2 ? ((double)(idx2-hsz2))/hsz2 : 0;
 
 		window_.set( idx0, idx1, idx2, wf->getValue( pos.abs() ) );
 	    }
