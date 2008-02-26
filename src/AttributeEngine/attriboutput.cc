@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.73 2008-02-25 15:10:27 cvsbert Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.74 2008-02-26 16:19:40 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -1013,13 +1013,16 @@ TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
 						    float zstep,
 						    TypeSet<float>& ) const
 {
-    DataPointSet::RowID rowid = poszvalues_->findFirstCoord( coord );
-    const BinID bid = SI().transform( coord );
+    //TODO : for some reason horizon coords in 2D are now rounded, check why
+    Coord roundedcoord( (int)coord.x, (int)coord.y ); 
+    DataPointSet::RowID rowid = poszvalues_->findFirstCoord( roundedcoord );
+    const BinID bid = SI().transform( roundedcoord );
     TypeSet< Interval<int> > sampleinterval;
     for ( int idx=rowid; idx<poszvalues_->size(); idx++ )
     {
 	if ( poszvalues_->binID( idx ) != bid ) break;
-	if ( poszvalues_->coord( idx ) == coord )
+	if ( mIsEqual( poszvalues_->coord(idx).x, roundedcoord.x, 1e-3 )
+	   &&mIsEqual( poszvalues_->coord(idx).y, roundedcoord.y, 1e-3 ) )
 	{
 	    Interval<int> interval( mNINT(poszvalues_->z(idx)/zstep),
 		    		    mNINT(poszvalues_->value(0,idx)/zstep) );
@@ -1040,7 +1043,9 @@ TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
 
 bool Trc2DVarZStorOutput::wantsOutput( const Coord& coord ) const
 {
-    return poszvalues_->findFirstCoord( coord ) > -1;
+    //TODO : for some reason horizon coords in 2D are now rounded, check why
+    Coord roundedcoord( (int)coord.x, (int)coord.y ); 
+    return poszvalues_->findFirstCoord( roundedcoord ) > -1;
 }
 
 
