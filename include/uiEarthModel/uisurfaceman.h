@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.15 2007-08-29 12:32:29 cvsbert Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.16 2008-02-26 09:13:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,8 @@ protected:
 
     void		copyCB(CallBacker*);
     void		setRelations(CallBacker*);
+    void		stratSel(CallBacker*);
+
     void		removeAttribCB(CallBacker*);
     void		renameAttribCB(CallBacker*);
 

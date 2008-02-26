@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.41 2007-11-29 14:36:04 cvsbert Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.42 2008-02-26 09:13:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,25 +70,33 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
     manipgrp->addButton( ioPixmap("copyobj.png"), mCB(this,uiSurfaceMan,copyCB),
 			 mGetCopyStr(typ) );
 
-    attribfld = new uiListBox( this, "Calculated attributes", true );
-    attribfld->attach( rightOf, selgrp );
-    attribfld->setToolTip( "Calculated attributes" );
+    if ( mGet(typ,true,true,true,false) )
+    {
+	attribfld = new uiListBox( this, "Calculated attributes", true );
+	attribfld->attach( rightOf, selgrp );
+	attribfld->setToolTip( "Calculated attributes" );
 
-    uiManipButGrp* butgrp = new uiManipButGrp( this );
-    butgrp->addButton( uiManipButGrp::Remove,
-	    	       mCB(this,uiSurfaceMan,removeAttribCB),
-		       "Remove selected attribute(s)" );
-    butgrp->addButton( uiManipButGrp::Rename,
-	    	       mCB(this,uiSurfaceMan,renameAttribCB),
-	    	       "Rename selected attribute" );
-    butgrp->attach( rightTo, attribfld );
+	uiManipButGrp* butgrp = new uiManipButGrp( this );
+	butgrp->addButton( uiManipButGrp::Remove,
+			   mCB(this,uiSurfaceMan,removeAttribCB),
+			   "Remove selected attribute(s)" );
+	butgrp->addButton( uiManipButGrp::Rename,
+			   mCB(this,uiSurfaceMan,renameAttribCB),
+			   "Rename selected attribute" );
+	butgrp->attach( rightTo, attribfld );
 
-    uiPushButton* relbut = new uiPushButton( this, "&Relations", false );
-    relbut->activated.notify( mCB(this,uiSurfaceMan,setRelations) );
-    relbut->attach( alignedBelow, selgrp );
-    relbut->attach( ensureBelow, attribfld );
+	uiPushButton* stratbut =
+	    new uiPushButton( this, "&Stratigraphy", false );
+	stratbut->activated.notify( mCB(this,uiSurfaceMan,stratSel) );
+	stratbut->attach( alignedBelow, selgrp );
 
-    infofld->attach( ensureBelow, relbut );
+	uiPushButton* relbut = new uiPushButton( this, "&Relations", false );
+	relbut->activated.notify( mCB(this,uiSurfaceMan,setRelations) );
+	relbut->attach( rightTo, stratbut );
+	relbut->attach( ensureBelow, attribfld );
+	infofld->attach( ensureBelow, relbut );
+    }
+
     selChg( this ); 
 }
 
@@ -284,4 +292,10 @@ double uiSurfaceMan::getFileSize( const char* filenm, int& nrfiles ) const
     }
 
     return totalsz;
+}
+
+
+void uiSurfaceMan::stratSel( CallBacker* )
+{
+    uiMSG().message( "Not impl. yet" );
 }
