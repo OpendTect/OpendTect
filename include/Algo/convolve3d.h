@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Feb 2008
- RCS:           $Id: convolve3d.h,v 1.3 2008-02-25 19:05:58 cvskris Exp $
+ RCS:           $Id: convolve3d.h,v 1.4 2008-02-26 22:44:38 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "arraynd.h"
 #include "task.h"
-#include "rowcol.h"
+#include "math2.h"
 
 /*!Convolves (or correlates) two 3D signals. */
 
@@ -38,7 +38,12 @@ public:
     			/*!<If true, the convolution will be replaced by a
 			   correllation. */
 
+    inline bool		execute();
+
 protected:
+    inline bool		shouldFFT() const;
+
+    bool		doFFT();
     inline bool		doWork( int, int, int );
     int			totalNr() const { return z_->info().getTotalSz(); }
     const Array3D<T>*	x_;
@@ -167,5 +172,55 @@ bool Convolver3D<T>::doWork( int start, int stop, int )
 
     return true;
 }
+
+
+template <class T> inline
+bool Convolver3D<T>::execute()
+{
+    if ( shouldFFT() )
+	return doFFT();
+
+    return ParallelTask::execute();
+}
+
+
+template <class T> inline
+bool Convolver3D<T>::doFFT()
+{
+    //TODO
+    return false;
+}
+	
+
+template <class T> inline
+bool Convolver3D<T>::shouldFFT() const
+{
+    return false; //Remove when doFFT is implemented
+
+    if ( correlate_ || normalize_ )
+	return false;
+
+    if ( !x_ || !y_ || !z_ )
+	return false;
+
+    if ( typeid(T)!=typeid(float) )
+	return false;
+
+    const int xsz = x_->info().getTotalSz();
+    const int ysz = y_->info().getTotalSz();
+    const int zsz = z_->info().getTotalSz();
+
+    int maxsz = x_->info().getTotalSz();
+    maxsz = mMAX( maxsz, y_->info().getTotalSz() );
+    maxsz = mMAX( maxsz, z_->info().getTotalSz() );
+
+    const int tradsz = zsz * mMIN(ysz,xsz);
+    const float fftszf = maxsz * Math::Log( (float) maxsz );
+    const int fftsz = mNINT( fftszf );
+
+
+    return fftsz<tradsz;
+}
+
 
 #endif
