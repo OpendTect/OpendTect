@@ -8,10 +8,10 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposfiltgroup.cc,v 1.3 2008-02-25 14:10:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposfiltgroup.cc,v 1.4 2008-02-26 08:55:18 cvsbert Exp $";
 
-#include "uiposfiltgroup.h"
-#include "posrandomfilter.h"
+#include "uiposfiltgroupstd.h"
+#include "posfilterstd.h"
 #include "uispinbox.h"
 #include "uilabel.h"
 #include "keystrs.h"
@@ -67,4 +67,44 @@ void uiRandPosFiltGroup::getSummary( BufferString& txt ) const
 void uiRandPosFiltGroup::initClass()
 {
     uiPosFiltGroup::factory().addCreator( create, sKey::Random );
+}
+
+
+uiSubsampPosFiltGroup::uiSubsampPosFiltGroup( uiParent* p,
+					const uiPosFiltGroup::Setup& su )
+    : uiPosFiltGroup(p,su)
+{
+    eachfld_ = new uiSpinBox( this, 0, "Take each" );
+    eachfld_->setInterval( StepInterval<int>(2,999999,1) );
+    new uiLabel( this, "Pass one every", eachfld_ );
+    setHAlignObj( eachfld_ );
+}
+
+
+void uiSubsampPosFiltGroup::usePar( const IOPar& iop )
+{
+    int nr = eachfld_->getValue();
+    iop.get( Pos::SubsampFilter::eachStr(), nr );
+    eachfld_->setValue( nr );
+}
+
+
+bool uiSubsampPosFiltGroup::fillPar( IOPar& iop ) const
+{
+    iop.set( sKey::Type, sKey::Subsample );
+    iop.set( Pos::SubsampFilter::eachStr(), eachfld_->getValue() );
+    return true;
+}
+
+
+void uiSubsampPosFiltGroup::getSummary( BufferString& txt ) const
+{
+    const int nr = eachfld_->getValue();
+    txt += "Each "; txt += nr; txt += getRankPostFix( nr );
+}
+
+
+void uiSubsampPosFiltGroup::initClass()
+{
+    uiPosFiltGroup::factory().addCreator( create, sKey::Subsample );
 }

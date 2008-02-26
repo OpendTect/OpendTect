@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiattribcrossplot.cc,v 1.15 2008-02-25 16:32:26 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.16 2008-02-26 08:55:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,23 +121,28 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     if ( dcds.isEmpty() )
 	mErrRet("Please select at least one attribute to evaluate")
 
-    IOPar iop; posfiltfld_->fillPar( iop );
+    IOPar iop; posfiltfld_->fillPar( iop ); BufferString filtsumm;
     if ( is2d )
     {
 	Pos::Filter2D* filt = Pos::Filter2D::make( iop );
 	Pos::Provider2D* p2d = (Pos::Provider2D*)prov.ptr();
 	dps = new DataPointSet( *p2d, dcds, filt );
+	if ( filt ) filt->getSummary( filtsumm );
     }
     else
     {
 	Pos::Filter3D* filt = Pos::Filter3D::make( iop );
 	Pos::Provider3D* p3d = (Pos::Provider3D*)prov.ptr();
 	dps = new DataPointSet( *p3d, dcds, filt );
+	if ( filt ) filt->getSummary( filtsumm );
     }
     if ( dps->size() < 1 )
 	mErrRet("No positions selected")
 
-    dps->setName( "Attribute cross-plot" );
+    BufferString dpsnm; prov->getSummary( dpsnm );
+    if ( !filtsumm.isEmpty() )
+	{ dpsnm += " / "; dpsnm += filtsumm; }
+    dps->setName( dpsnm );
     mDPM.add( dps );
 
     Attrib::EngineMan aem;

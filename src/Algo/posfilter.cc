@@ -4,10 +4,10 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: posfilter.cc,v 1.4 2008-02-25 15:06:17 cvsbert Exp $";
+static const char* rcsID = "$Id: posfilter.cc,v 1.5 2008-02-26 08:55:18 cvsbert Exp $";
 
 #include "posfilterset.h"
-#include "posrandomfilter.h"
+#include "posfilterstd.h"
 #include "posprovider.h"
 #include "survinfo.h"
 #include "executor.h"
@@ -23,6 +23,8 @@ mImplFactory(Pos::Provider2D,Pos::Provider2D::factory);
 const char* Pos::FilterSet::typeStr() { return "Set"; }
 const char* Pos::RandomFilter::typeStr() { return sKey::Random; }
 const char* Pos::RandomFilter::ratioStr() { return "Pass ratio"; }
+const char* Pos::SubsampFilter::typeStr() { return sKey::Subsample; }
+const char* Pos::SubsampFilter::eachStr() { return "Pass each"; }
 
 
 bool Pos::Filter::initialize()
@@ -320,6 +322,43 @@ void Pos::RandomFilter3D::initClass()
 void Pos::RandomFilter2D::initClass()
 {
     Pos::Filter2D::factory().addCreator( create, sKey::Random );
+}
+
+
+bool Pos::SubsampFilter::drawRes() const
+{
+    seqnr_++;
+    return seqnr_ % each_ == 0;
+}
+
+
+void Pos::SubsampFilter::doUsePar( const IOPar& iop )
+{
+    iop.get( eachStr(), each_ );
+}
+
+
+void Pos::SubsampFilter::doFillPar( IOPar& iop ) const
+{
+    iop.set( eachStr(), each_ );
+}
+
+
+void Pos::SubsampFilter::mkSummary( BufferString& txt ) const
+{
+    txt += "Pass each " ; txt += each_; txt += getRankPostFix(each_);
+}
+
+
+void Pos::SubsampFilter3D::initClass()
+{
+    Pos::Filter3D::factory().addCreator( create, sKey::Subsample );
+}
+
+
+void Pos::SubsampFilter2D::initClass()
+{
+    Pos::Filter2D::factory().addCreator( create, sKey::Subsample );
 }
 
 

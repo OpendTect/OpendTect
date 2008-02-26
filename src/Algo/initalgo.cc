@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne and Kristofer
  Date:          December 2007
- RCS:           $Id: initalgo.cc,v 1.6 2008-02-20 12:44:02 cvsbert Exp $
+ RCS:           $Id: initalgo.cc,v 1.7 2008-02-26 08:55:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "initalgo.h"
 #include "windowfunction.h"
 #include "gridding.h"
-#include "posrandomfilter.h"
+#include "posfilterstd.h"
 
 void Algo::initStdClasses()
 {
@@ -28,4 +28,6 @@ void Algo::initStdClasses()
 
     Pos::RandomFilter3D::initClass();
     Pos::RandomFilter2D::initClass();
+    Pos::SubsampFilter3D::initClass();
+    Pos::SubsampFilter2D::initClass();
 }

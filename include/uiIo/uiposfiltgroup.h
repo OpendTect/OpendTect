@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposfiltgroup.h,v 1.2 2008-02-22 15:02:45 cvsbert Exp $
+ RCS:           $Id: uiposfiltgroup.h,v 1.3 2008-02-26 08:55:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,6 @@ ________________________________________________________________________
 #include "uigroup.h"
 #include "factory.h"
 class IOPar;
-class uiSpinBox;
 
 
 /*! \brief group for providing positions, usually for 2D or 3D seismics */
@@ -40,29 +39,6 @@ public:
     virtual void	getSummary(BufferString&) const	= 0;
 
     mDefineFactory2ParamInClass(uiPosFiltGroup,uiParent*,const Setup&,factory);
-
-};
-
-
-/*! \brief UI for Random Position filter */
-
-class uiRandPosFiltGroup : public uiPosFiltGroup
-{
-public:
-
-			uiRandPosFiltGroup(uiParent*,const Setup&);
-
-    virtual void	usePar(const IOPar&);
-    virtual bool	fillPar(IOPar&) const;
-    virtual void	getSummary(BufferString&) const;
-
-    static uiPosFiltGroup* create( uiParent* p, const Setup& s )
-    			{ return new uiRandPosFiltGroup(p,s); }
-    static void		initClass();
-
-protected:
-
-    uiSpinBox*		percpassfld_;
 
 };
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposfilterset.cc,v 1.3 2008-02-25 15:05:04 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposfilterset.cc,v 1.4 2008-02-26 08:55:18 cvsbert Exp $";
 
 #include "uiposfilterset.h"
 #include "posfilterset.h"
@@ -88,6 +88,8 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 	selfld_ = new uiListBox( this, "Filter selection" );
 	selfld_->addItems( nms );
 	selfld_->selectionChanged.notify( selcb );
+	int ph = nms.size(); if ( ph > 9 ) ph = 9;
+	selfld_->setPrefHeightInChar( ph );
 	attobj = selfld_;
     }
 
@@ -177,6 +179,8 @@ bool uiPosFilterSet::fillPar( IOPar& iop ) const
 	if ( pfgrp ) pfgrp->fillPar( subiop );
 	if ( ppgrp ) ppgrp->fillPar( subiop );
 	iop.mergeComp( subiop, keybase );
+
+	ipar++;
     }
 
     return true;
