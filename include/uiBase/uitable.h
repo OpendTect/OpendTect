@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.36 2008-02-20 09:57:58 cvsnanne Exp $
+ RCS:           $Id: uitable.h,v 1.37 2008-02-26 06:23:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,6 +109,9 @@ public:
     uiObject*		getCellObject(const RowCol&) const;
     void		clearCellObject(const RowCol&);
     RowCol		getCell(uiObject*);
+    void		setCellGroup(const RowCol&,uiGroup*);
+    uiGroup*		getCellGroup(const RowCol&) const;
+    RowCol		getCell(uiGroup*);
 
     int			nrRows() const;
     int			nrCols() const;

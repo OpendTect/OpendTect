@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.58 2008-02-20 09:57:58 cvsnanne Exp $
+ RCS:           $Id: uitable.cc,v 1.59 2008-02-26 06:23:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -992,6 +992,24 @@ void uiTable::ensureCellVisible( const RowCol& rc )
     QTableWidgetItem* itm = body_->item( rc.row, rc.col );
     body_->scrollToItem( itm );
 }
+
+
+void uiTable::setCellGroup( const RowCol& rc, uiGroup* grp )
+{
+    if ( !grp ) return;
+    body_->setCellObject( rc, grp->attachObj() );
+}
+
+
+uiGroup* uiTable::getCellGroup( const RowCol& rc ) const
+{
+    mDynamicCastGet(uiGroupObj*,grpobj,getCellObject(rc));
+    return grpobj ? grpobj->group() : 0;
+}
+
+
+RowCol uiTable::getCell( uiGroup* grp )
+{ return grp ? getCell( grp->attachObj() ) : RowCol(-1,-1); }
 
 
 void uiTable::setCellObject( const RowCol& rc, uiObject* obj )

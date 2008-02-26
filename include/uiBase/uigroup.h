@@ -7,14 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uigroup.h,v 1.34 2007-07-19 12:28:50 cvskris Exp $
+ RCS:           $Id: uigroup.h,v 1.35 2008-02-26 06:23:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include <uiobj.h>
-#include <uiparent.h>
-#include <callback.h>
+#include "uiobj.h"
+#include "uiparent.h"
+#include "callback.h"
+
 class IOPar;
 
 class uiGroupBody;
@@ -24,9 +25,6 @@ class uiGroup;
 class uiGroupObjBody;
 class uiGroupParentBody;
 
-//class uiTabStack;
-//class uiTab;
-
 class QWidget;
 
 
@@ -34,10 +32,12 @@ class uiGroupObj : public uiObject
 { 	
 friend class uiGroup;
 protected:
-			uiGroupObj( uiGroup*,uiParent*, const char*, bool );
+			uiGroupObj(uiGroup*,uiParent*,const char*,bool);
 public:
 
     virtual		~uiGroupObj();
+
+    uiGroup*		group() const		{ return uigrp_; }
 
     const ObjectSet<uiObjHandle>* childList() const;
 
