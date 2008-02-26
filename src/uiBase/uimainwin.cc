@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.139 2008-02-05 10:24:14 cvsjaap Exp $
+ RCS:           $Id: uimainwin.cc,v 1.140 2008-02-26 10:54:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -572,11 +572,7 @@ QWidget* uiMainWin::qWidget() const
 void uiMainWin::provideHelp( const char* winid )
 {
     BufferString fnm = HelpViewer::getURLForWinID( winid );
-#ifdef USEQT3
-    HelpViewer::use( fnm );
-#else
     uiDesktopServices::openUrl( fnm );
-#endif
 }
 
 uiStatusBar* uiMainWin::statusBar()		{ return body_->uistatusbar(); }
@@ -623,9 +619,7 @@ void uiMainWin::removeToolBar( uiToolBar* tb )
 
 void uiMainWin::addToolBarBreak()
 {
-#ifndef USEQT3
     body_->addToolBarBreak();
-#endif 
 }
 
 
@@ -771,18 +765,6 @@ void uiMainWin::getTopLevelWindows( ObjectSet<uiMainWin>& windowlist )
 
 void uiMainWin::setSensitive( bool yn )
 {
-/*
-#ifdef USEQT3
-    QPtrList<QDockWindow> dws = body_->dockWindows();
-#else
-    QList<mQDockWindow*> dws = body_->dockWindows();
-#endif
-    for ( int idx=0; idx<dws.count(); idx++ )
-    {
-	mQDockWindow* qdwin = dws.at( idx );
-	if ( qdwin ) qdwin->setEnabled( yn );
-    }
-*/
     if ( menuBar() ) menuBar()->setSensitive( yn );
     body_->setEnabled( yn );
 }
