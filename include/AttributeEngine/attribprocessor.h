@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.20 2008-02-15 16:58:35 cvshelene Exp $
+ RCS:           $Id: attribprocessor.h,v 1.21 2008-02-26 12:50:09 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,8 @@ public:
                      /*!< triggered after a position is reached that requires
                           no processing, e.g. during initial buffer fills. */
     
-    const char*		getAttribName(); 	
+    const char*		getAttribName() const; 	
+    const char*		getAttribUserRef() const; 	
     Provider*		getProvider() 		{ return provider_; }
     ObjectSet<Output>   outputs_;
 
