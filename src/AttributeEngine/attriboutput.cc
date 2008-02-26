@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.74 2008-02-26 16:19:40 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.75 2008-02-26 16:30:09 cvsbert Exp $";
 
 #include "attriboutput.h"
 
@@ -1091,8 +1091,8 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
     {
 	if ( info.binid != datapointset_.binID(idx) ) break;
 	
-	const float zval = datapointset_.z(rid);
-	float* vals = datapointset_.getValues( rid );
+	const float zval = datapointset_.z(idx);
+	float* vals = datapointset_.getValues( idx );
 	const int lowz = mNINT( (zval/refstep)-0.5 );
 	const int highz = mNINT( (zval/refstep)+0.5 );
 	bool isfulldataok = datarg.includes(lowz-1) && datarg.includes(highz+1);
