@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2003
- RCS:		$Id: uiwellmarkerdlg.cc,v 1.2 2008-02-20 04:44:43 cvsnanne Exp $
+ RCS:		$Id: uiwellmarkerdlg.cc,v 1.3 2008-02-26 09:17:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,12 @@ ________________________________________________________________________
 
 static const char* mrkrcollbls[] = { "Name", "Depth (MD)", "Color",
     				     "Tied to level", 0 };
-static const int nremptyrows = 5;
+static const int sNrEmptyRows = 5;
+
+static const int sNameCol  = 0;
+static const int sDepthCol = 1;
+static const int sColorCol = 2;
+static const int sLevelCol = 3;
 
 #define mFromFeetFac 0.3048
 #define mSetSIDepthInFeetDef(zinft) \
@@ -45,31 +50,33 @@ uiMarkerDlg::uiMarkerDlg( uiParent* p, const Well::Track& t )
 	: uiDialog(p,uiDialog::Setup("Well Markers",
 				     "Define marker properties",
 				     "107.1.1"))
-    	, track(t)
+    	, track_(t)
 {
-    table = new uiTable( this, uiTable::Setup().rowdesc("Marker")
-	    				       .rowgrow(true) 
-					       .defrowlbl("") );
-    table->setColumnLabels( mrkrcollbls );
-    table->setColumnReadOnly( 2, true );
-    table->setNrRows( nremptyrows );
-    table->leftClicked.notify( mCB(this,uiMarkerDlg,mouseClick) );
+    table_ = new uiTable( this, uiTable::Setup().rowdesc("Marker")
+	    				        .rowgrow(true) 
+					        .defrowlbl("") );
+    table_->setColumnLabels( mrkrcollbls );
+    table_->setColumnReadOnly( sColorCol, true );
+    table_->setColumnResizeMode( uiTable::ResizeToContents );
+    table_->setColumnStretchable( sLevelCol, true );
+    table_->setNrRows( sNrEmptyRows );
+    table_->leftClicked.notify( mCB(this,uiMarkerDlg,mouseClick) );
 
     BoolInpSpec mft( !SI().depthsInFeetByDefault(), "Meter", "Feet" );
-    unitfld = new uiGenInput( this, "Depth unit", mft );
-    unitfld->attach( leftAlignedBelow, table );
+    unitfld_ = new uiGenInput( this, "Depth unit", mft );
+    unitfld_->attach( leftAlignedBelow, table_ );
 
     uiButton* rfbut = new uiPushButton( this, "&Read file",
 	    				mCB(this,uiMarkerDlg,rdFile), false );
-    rfbut->attach( rightTo, unitfld ); rfbut->attach( rightBorder );
+    rfbut->attach( rightTo, unitfld_ ); rfbut->attach( rightBorder );
 }
 
 
 int uiMarkerDlg::getNrRows() const
 {
-    for ( int idx=table->nrRows()-1; idx>=0; idx-- )
+    for ( int idx=table_->nrRows()-1; idx>=0; idx-- )
     {
-	const char* txt = table->text( RowCol(idx,0) );
+	const char* txt = table_->text( RowCol(idx,sNameCol) );
 	if ( txt && *txt ) return idx+1;
     }
     return 0;
@@ -78,12 +85,12 @@ int uiMarkerDlg::getNrRows() const
 
 void uiMarkerDlg::mouseClick( CallBacker* )
 {
-    RowCol rc = table->notifiedCell();
-    if ( rc.col != 2 ) return;
+    RowCol rc = table_->notifiedCell();
+    if ( rc.col != sColorCol ) return;
 
-    Color newcol = table->getColor( rc );
+    Color newcol = table_->getColor( rc );
     if ( selectColor(newcol,this,"Marker color") )
-	table->setColor( rc, newcol );
+	table_->setColor( rc, newcol );
 }
 
 
@@ -93,31 +100,32 @@ void uiMarkerDlg::setMarkerSet( const ObjectSet<Well::Marker>& markers,
     const int nrnew = markers.size();
     if ( !nrnew ) return;
 
-    const float zfac = unitfld->getBoolValue() ? 1 : 1./mFromFeetFac;
+    const float zfac = unitfld_->getBoolValue() ? 1 : 1./mFromFeetFac;
     int startrow = add ? getNrRows() : 0;
-    const int nrrows = nrnew + nremptyrows + startrow;
-    table->setNrRows( nrrows );
+    const int nrrows = nrnew + sNrEmptyRows + startrow;
+    table_->setNrRows( nrrows );
 
     for ( int idx=0; idx<nrnew; idx++ )
     {
 	int irow = startrow + idx;
 	const Well::Marker* marker = markers[idx];
-	table->setText( RowCol(irow,0), marker->name() );
-	table->setValue( RowCol(irow,1), marker->dah*zfac );
-	table->setColor( RowCol(irow,2), marker->color );
+	table_->setText( RowCol(irow,sNameCol), marker->name() );
+	table_->setValue( RowCol(irow,sDepthCol), marker->dah_*zfac );
+	table_->setColor( RowCol(irow,sColorCol), marker->color_ );
 	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, false, false );
 	levelsel->levelChanged.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
-	table->setCellObject( RowCol(irow,3), levelsel->attachObj() );
+	table_->setCellGroup( RowCol(irow,sLevelCol), levelsel );
+	levelsel->setLevelID( marker->stratlevelid_ );
     }
     Well::Marker mrk;
     for ( int irow=startrow+nrnew; irow<nrrows; irow++ )
     {
-	table->setText( RowCol(irow,0), "" );
-	table->setText( RowCol(irow,1), "" );
-	table->setColor( RowCol(irow,2), mrk.color );
+	table_->setText( RowCol(irow,sNameCol), "" );
+	table_->setText( RowCol(irow,sDepthCol), "" );
+	table_->setColor( RowCol(irow,sColorCol), mrk.color_ );
 	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, false, false );
 	levelsel->levelChanged.notify( mCB(this,uiMarkerDlg,stratLvlChg) );
-	table->setCellObject( RowCol(irow,3), levelsel->attachObj() );
+	table_->setCellGroup( RowCol(irow,sLevelCol), levelsel );
     }
 }
 
@@ -125,11 +133,11 @@ void uiMarkerDlg::setMarkerSet( const ObjectSet<Well::Marker>& markers,
 void uiMarkerDlg::stratLvlChg( CallBacker* cb )
 {
     mDynamicCastGet(uiStratLevelSel*,levelsel,cb)
-    const Color* col = levelsel ? levelsel->getLvlColor() : 0;
+    const Color* col = levelsel ? levelsel->getLevelColor() : 0;
     if ( !col ) return;
 
-    const RowCol rc = table->getCell( levelsel->attachObj() );
-    table->setColor( RowCol(rc.row,2), *col );
+    const RowCol rc = table_->getCell( levelsel );
+    table_->setColor( RowCol(rc.row,sColorCol), *col );
 }
 
 
@@ -179,9 +187,9 @@ void uiMarkerDlg::rdFile( CallBacker* )
 {
     uiReadMarkerFile dlg( this );
     if ( !dlg.go() ) return;
-    Well::Data wd; wd.track() = track;
+    Well::Data wd; wd.track() = track_;
     Well::AscImporter wdai( wd );
-    const bool inft = !unitfld->getBoolValue();
+    const bool inft = !unitfld_->getBoolValue();
     const char* res = wdai.getMarkers( dlg.fnm, dlg.istvd, inft );
     if ( res && *res )
 	uiMSG().error( res );
@@ -194,16 +202,20 @@ void uiMarkerDlg::getMarkerSet( ObjectSet<Well::Marker>& markers ) const
 {
     deepErase( markers );
 
-    const float zfac = unitfld->getBoolValue() ? 1 : mFromFeetFac;
+    const float zfac = unitfld_->getBoolValue() ? 1 : mFromFeetFac;
     const int nrrows = getNrRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {
-	const char* txt = table->text( RowCol(idx,0) );
+	const char* txt = table_->text( RowCol(idx,sNameCol) );
 	if ( !txt || !*txt ) continue;
 
 	Well::Marker* marker = new Well::Marker( txt );
-	marker->dah = table->getfValue( RowCol(idx,1) ) * zfac;
-	marker->color = table->getColor( RowCol(idx,2) );
+	marker->dah_ = table_->getfValue( RowCol(idx,sDepthCol) ) * zfac;
+	marker->color_ = table_->getColor( RowCol(idx,sColorCol) );
+
+	mDynamicCastGet(uiStratLevelSel*,levelsel,
+			table_->getCellGroup(RowCol(idx,sLevelCol)))
+	marker->stratlevelid_ = levelsel ? levelsel->getLevelID() : -1;
 	markers += marker;
     }
 }
@@ -211,6 +223,6 @@ void uiMarkerDlg::getMarkerSet( ObjectSet<Well::Marker>& markers ) const
 
 bool uiMarkerDlg::acceptOK( CallBacker* )
 {
-    mSetSIDepthInFeetDef(!unitfld->getBoolValue());
+    mSetSIDepthInFeetDef( !unitfld_->getBoolValue() );
     return true;
 }

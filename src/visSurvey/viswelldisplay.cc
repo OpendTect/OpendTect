@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.73 2007-10-24 20:05:28 cvskris Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.74 2008-02-26 09:17:36 cvsnanne Exp $";
 
 #include "viswelldisplay.h"
 
@@ -199,15 +199,15 @@ void WellDisplay::updateMarkers( CallBacker* )
     for ( int idx=0; idx<wd->markers().size(); idx++ )
     {
 	Well::Marker* wellmarker = wd->markers()[idx];
-	Coord3 pos = wd->track().getPos( wellmarker->dah );
+	Coord3 pos = wd->track().getPos( wellmarker->dah_ );
 	if ( !pos.x && !pos.y && !pos.z ) continue;
 
 	if ( zistime_ )
-	    pos.z = wd->d2TModel()->getTime( wellmarker->dah );
+	    pos.z = wd->d2TModel()->getTime( wellmarker->dah_ );
 	else if ( zinfeet_ )
 	    mMeter2Feet(pos.z)
 
-	well_->addMarker( pos, wellmarker->color, wellmarker->name() );
+	well_->addMarker( pos, wellmarker->color_, wellmarker->name() );
     }
 }
 
@@ -373,7 +373,7 @@ void WellDisplay::getMousePosInfo( const visBase::EventInfo&,
     for ( int idx=0; idx<wd->markers().size(); idx++ )
     {
 	Well::Marker* wellmarker = wd->markers()[idx];
-	Coord3 markerpos = wd->track().getPos( wellmarker->dah );
+	Coord3 markerpos = wd->track().getPos( wellmarker->dah_ );
 	if ( !mIsEqual(markerpos.z,mousez,zstep2) )
 	    continue;
 

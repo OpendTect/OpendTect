@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellmarker.h,v 1.4 2006-08-21 17:14:45 cvsbert Exp $
+ RCS:		$Id: wellmarker.h,v 1.5 2008-02-26 09:17:36 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -24,13 +24,15 @@ class Marker : public ::NamedObject
 public:
 
 			Marker( const char* nm= 0 )
-			: ::NamedObject(nm), dah(0), istop(true)
+			: ::NamedObject(nm), dah_(0), istop_(true)
+			, stratlevelid_(-1)
 						{}
 
-    BufferString	desc;
-    float		dah;
-    bool		istop;
-    Color		color;
+    BufferString	desc_;
+    float		dah_;
+    bool		istop_;
+    Color		color_;
+    int			stratlevelid_;
 
     static const char*	sKeyDah;
 };

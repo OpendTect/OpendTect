@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellreader.cc,v 1.23 2007-01-29 20:35:43 cvskris Exp $";
+static const char* rcsID = "$Id: wellreader.cc,v 1.24 2008-02-26 09:17:36 cvsnanne Exp $";
 
 #include "wellreader.h"
 #include "welldata.h"
@@ -357,16 +357,18 @@ bool Well::Reader::getMarkers( std::istream& strm ) const
 	if ( iopar.get(key,bs) )
 	{
 	    FileMultiString fms( bs );
-	    wm->istop = *fms[0] == 'T';
-	    wm->desc = fms[1];
+	    wm->istop_ = *fms[0] == 'T';
+	    wm->desc_ = fms[1];
 	}
 	key = IOPar::compKey( basekey, sKey::Color );
 	if ( iopar.get(key,bs) )
-	    wm->color.use( bs.buf() );
+	    wm->color_.use( bs.buf() );
 	key = IOPar::compKey( basekey, Well::Marker::sKeyDah );
 	if ( !iopar.get(key,bs) )
 	    { delete wm; continue; }
-	wm->dah = atof( bs.buf() );
+	wm->dah_ = atof( bs.buf() );
+	key = IOPar::compKey( basekey, sKey::StratRef );
+	iopar.get( key, wm->stratlevelid_ );
 	wd.markers() += wm;
     }
 

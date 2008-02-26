@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.33 2007-04-02 16:36:53 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.34 2008-02-26 09:17:36 cvsnanne Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -207,7 +207,7 @@ void Well::TrackSampler::getLimitPos( const ObjectSet<Marker>& markers,
 	{
 	    if ( markers[idx]->name() == mrknm )
 	    {
-		val = markers[idx]->dah;
+		val = markers[idx]->dah_;
 		break;
 	    }
 	}

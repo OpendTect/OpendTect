@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellwriter.cc,v 1.8 2006-03-12 13:39:11 cvsbert Exp $";
+static const char* rcsID = "$Id: wellwriter.cc,v 1.9 2008-02-26 09:17:36 cvsnanne Exp $";
 
 #include "wellwriter.h"
 #include "welldata.h"
@@ -185,13 +185,15 @@ bool Well::Writer::putMarkers( std::ostream& strm ) const
 	astrm.put( key, wm.name() );
 	key = IOPar::compKey( basekey, sKey::Desc );
 	FileMultiString fms;
-	fms += wm.istop ? "T" : "B"; fms += wm.desc;
+	fms += wm.istop_ ? "T" : "B"; fms += wm.desc_;
 	astrm.put( key, fms );
 	key = IOPar::compKey( basekey, sKey::Color );
-	BufferString bs; wm.color.fill( bs.buf() );
+	BufferString bs; wm.color_.fill( bs.buf() );
 	astrm.put( key, bs );
 	key = IOPar::compKey( basekey, Well::Marker::sKeyDah );
-	astrm.put( key, wm.dah );
+	astrm.put( key, wm.dah_ );
+	key = IOPar::compKey( basekey, sKey::StratRef );
+	astrm.put( key, wm.stratlevelid_ );
     }
 
     return strm.good();

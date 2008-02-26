@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		May 2007
- RCS:		$Id: uiwellmarkerdlg.h,v 1.2 2008-02-20 04:44:43 cvsnanne Exp $
+ RCS:		$Id: uiwellmarkerdlg.h,v 1.3 2008-02-26 09:17:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,9 +31,9 @@ public:
 
 protected:
 
-    uiTable*			table;
-    uiGenInput*			unitfld;
-    const Well::Track&		track;
+    uiTable*			table_;
+    uiGenInput*			unitfld_;
+    const Well::Track&		track_;
 
     int				getNrRows() const;
     void			mouseClick(CallBacker*);
