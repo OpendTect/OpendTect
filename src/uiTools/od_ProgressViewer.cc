@@ -4,25 +4,27 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          August 2001
- RCS:           $Id: od_ProgressViewer.cc,v 1.11 2005-08-26 18:19:29 cvsbert Exp $
+ RCS:           $Id: od_ProgressViewer.cc,v 1.12 2008-02-26 10:51:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "helpview.h"
-#include "timer.h"
-#include "uimenu.h"
-#include "uitextedit.h"
+#include "uidesktopservices.h"
+#include "uifont.h"
+#include "uigroup.h"
 #include "uimain.h"
 #include "uimainwin.h"
-#include "uigroup.h"
+#include "uimenu.h"
 #include "uistatusbar.h"
-#include "uifont.h"
-#include "sighndl.h"
+#include "uitextedit.h"
 #include <iostream>
 #include <ctype.h>
 
+#include "filepath.h"
+#include "oddirs.h"
 #include "prog.h"
+#include "sighndl.h"
+#include "timer.h"
 
 #define mBufLen 81
 
@@ -183,7 +185,8 @@ void uiProgressViewer::quitFn( CallBacker* )
 
 void uiProgressViewer::helpFn( CallBacker* )
 {
-    HelpViewer::use( 0 );
+    FilePath fp( mGetUserDocDir() ); fp.add( "base" ).add( "index.html" );
+    uiDesktopServices::openUrl( fp.fullPath() );
 }
 
 
