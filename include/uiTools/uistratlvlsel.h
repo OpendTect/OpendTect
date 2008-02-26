@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          September 2007
- RCS:           $Id: uistratlvlsel.h,v 1.4 2008-02-20 04:42:44 cvsnanne Exp $
+ RCS:           $Id: uistratlvlsel.h,v 1.5 2008-02-26 09:17:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,8 @@ ________________________________________________________________________
 class Color;
 class uiComboBox;
 
+namespace Strat { class Level; }
+
 /*!\brief used to tie a object ( Horizon, well marker... ) to a Strat::Level */
 
 class uiStratLevelSel : public uiGroup
@@ -25,8 +27,12 @@ public:
 
 			uiStratLevelSel(uiParent*,bool withlabel=true,
 					bool withdefine=true);
-    const char*		getLvlName() const;	
-    const Color*	getLvlColor() const;
+
+    const Strat::Level*	selectedLevel() const;
+
+    const Color*	getLevelColor() const;
+    int			getLevelID() const;
+    void		setLevelID(int);
 
     Notifier<uiStratLevelSel> levelChanged;
 

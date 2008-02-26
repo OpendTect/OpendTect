@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: stratreftree.h,v 1.4 2007-09-26 15:24:19 cvshelene Exp $
+ RCS:		$Id: stratreftree.h,v 1.5 2008-02-26 09:17:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,8 @@ public:
 
     void		addLevel( Level* l )		{ lvls_ += l; }
     int			nrLevels() const		{ return lvls_.size(); }
-    const Level*	level( int idx ) const		{ return lvls_[idx]; }
+    const Level*	levelFromIdx( int idx ) const	{ return lvls_[idx]; }
+    const Level*	levelFromID(int id) const;
     const Level*	getLevel(const char*) const;
     const Level*	getLevel(const UnitRef*,bool top=true) const;
     int			getLevelIdx( const Level* lvl ) const

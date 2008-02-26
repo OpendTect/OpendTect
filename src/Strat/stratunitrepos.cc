@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.22 2007-09-13 14:36:12 cvshelene Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.23 2008-02-26 09:17:39 cvsnanne Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -135,6 +135,17 @@ const Level* RefTree::getLevel( const UnitRef* u, bool top ) const
     for ( int idx=0; idx<lvls_.size(); idx++ )
     {
 	if ( lvls_[idx]->unit_ == u && lvls_[idx]->top_ == top )
+	    return lvls_[idx];
+    }
+    return 0;
+}
+
+
+const Level* RefTree::levelFromID( int id ) const
+{
+    for ( int idx=0; idx<lvls_.size(); idx++ )
+    {
+	if ( lvls_[idx]->id_ == id )
 	    return lvls_[idx];
     }
     return 0;
@@ -492,7 +503,7 @@ void UnitRepository::copyCurTreeAtLoc( Repos::Source loc )
     RefTree* tree = new RefTree( curtree->treeName(), loc );
     for ( int idx=0; idx<curtree->nrLevels(); idx++ )
     {
-	Level* lvl = new Level( *curtree->level( idx ) );
+	Level* lvl = new Level( *curtree->levelFromIdx( idx ) );
 	tree->addLevel( lvl );
     }
     UnitRef::Iter it( *curtree );

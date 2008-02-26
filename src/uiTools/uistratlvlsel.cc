@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          September 2007
- RCS:		$Id: uistratlvlsel.cc,v 1.7 2008-02-20 04:42:44 cvsnanne Exp $
+ RCS:		$Id: uistratlvlsel.cc,v 1.8 2008-02-26 09:17:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ uiStratLevelSel::uiStratLevelSel( uiParent* p, bool wlbl, bool wdefine )
     BufferStringSet bfset;
     bfset.add( sNoLevelTxt );
     for ( int idx=0; idx<Strat::RT().nrLevels(); idx++ )
-	bfset.add( Strat::RT().level(idx)->name() );
+	bfset.add( Strat::RT().levelFromIdx(idx)->name() );
 
     uiObject* attachobj = 0;
     if ( wlbl )
@@ -41,6 +41,7 @@ uiStratLevelSel::uiStratLevelSel( uiParent* p, bool wlbl, bool wdefine )
     else
     {
 	lvlnmfld_ = new uiComboBox( this, bfset );
+	lvlnmfld_->setStretch( 2, 2 );
 	attachobj = lvlnmfld_;
     }
     lvlnmfld_->selectionChanged.notify( mCB(this,uiStratLevelSel,selLvlCB) );
@@ -58,31 +59,46 @@ uiStratLevelSel::uiStratLevelSel( uiParent* p, bool wlbl, bool wdefine )
 }
 
 
-void uiStratLevelSel::defineLvlCB( CallBacker* )
+const Strat::Level* uiStratLevelSel::selectedLevel() const
 {
-    const_cast<uiStratTreeWin&>(StratTWin()).show();
-}
-
-
-const char* uiStratLevelSel::getLvlName() const
-{
-    return strcmp(sNoLevelTxt,lvlnmfld_->text()) ? lvlnmfld_->text() : 0;
-}
-
-
-const Color* uiStratLevelSel::getLvlColor() const
-{
-    if ( !strcmp(sNoLevelTxt,lvlnmfld_->text()) )
-	return 0;
-
+    const int selidx = lvlnmfld_->currentItem();
+    if ( selidx == 0 ) return 0;
     const Strat::Level* lvl = Strat::RT().getLevel( lvlnmfld_->text() );
-    if ( !lvl ) return 0;
+    return lvl;
+}
 
-    return &lvl->color_;
+
+const Color* uiStratLevelSel::getLevelColor() const
+{
+    const Strat::Level* lvl = selectedLevel();
+    return lvl ? &lvl->color_ : 0;
+}
+
+
+int uiStratLevelSel::getLevelID() const
+{
+    const Strat::Level* lvl = selectedLevel();
+    return lvl ? lvl->id_ : -1;
+}
+
+
+void uiStratLevelSel::setLevelID( int id )
+{
+    const Strat::Level* lvl = Strat::RT().levelFromID( id );
+    if ( !lvl )
+	lvlnmfld_->setCurrentItem( (int)0 );
+    else
+	lvlnmfld_->setCurrentItem( lvl->name() );
 }
 
 
 void uiStratLevelSel::selLvlCB( CallBacker* )
 {
     levelChanged.trigger();
+}
+
+
+void uiStratLevelSel::defineLvlCB( CallBacker* )
+{
+    const_cast<uiStratTreeWin&>(StratTWin()).show();
 }
