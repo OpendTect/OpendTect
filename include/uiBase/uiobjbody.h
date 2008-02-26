@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.44 2007-12-27 09:41:10 cvsnanne Exp $
+ RCS:           $Id: uiobjbody.h,v 1.45 2008-02-26 06:20:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,10 +42,6 @@ public:
     virtual		~uiObjectBody();
 
     void		setToolTip(const char*);
-#ifdef USEQT3
-    static void		enableToolTips(bool yn=true);
-    static bool		toolTipsEnabled();
-#endif
 
     void 		display(bool yn=true,bool shrink=false,
 				 bool maximised=false);
@@ -258,13 +254,13 @@ class uiObjBodyImplNoQtNm : public uiObjectBody, public T
 {
 public:
 
-                        uiObjBodyImplNoQtNm( C& handle, uiParent* parnt, 
-				       const char* nm )
-			    : uiObjectBody( parnt, nm )
-			    , T( parnt && parnt->pbody() ? 
-				     parnt->pbody()->managewidg() : 0 )
-			    , handle_( handle )
-			    {}
+uiObjBodyImplNoQtNm( C& handle, uiParent* parnt, const char* nm )
+    : uiObjectBody( parnt, nm )
+    , T( parnt && parnt->pbody() ? parnt->pbody()->managewidg() : 0 )
+    , handle_( handle )
+{
+    this->setObjectName( nm );
+}
 
 #include		"i_uiobjqtbody.h"
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.52 2008-01-24 18:38:44 cvsjaap Exp $
+ RCS:           $Id: uiobj.h,v 1.53 2008-02-26 06:20:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,11 +71,6 @@ public:
 
     static void		useNameToolTip(bool);
     
-#ifdef USEQT3
-    static void		enableToolTips(bool yn=true);
-    static bool		toolTipsEnabled();
-#endif
-
     void		display(bool yn = true,bool shrink=false,
 				bool maximised=false);
     void		setFocus();
