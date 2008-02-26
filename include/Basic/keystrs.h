@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.28 2008-02-21 14:48:18 cvsbert Exp $
+ RCS:		$Id: keystrs.h,v 1.29 2008-02-26 04:21:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,8 +37,6 @@ namespace sKey
     extern const char*	Attribute	mImpl("Attribute");
     extern const char*	Attributes	mImpl("Attributes");
     extern const char*	Color		mImpl("Color");
-    extern const char*	ZDomain		mImpl("ZDomain");
-    extern const char*	Time		mImpl("Time");
     extern const char*	Depth		mImpl("Depth");
     extern const char*	Desc		mImpl("Description");
     extern const char*	Factor		mImpl("Factor");
@@ -46,6 +44,7 @@ namespace sKey
     extern const char*	Filter		mImpl("Filter");
     extern const char*	FloatUdf	mImpl("1e30");
     extern const char*	Geometry	mImpl("Geometry");
+    extern const char*	ID		mImpl("ID");
     extern const char*	IOSelection	mImpl("I/O Selection");
     extern const char*	Keys		mImpl("Keys");
     extern const char*	LineKey		mImpl("Line key");
@@ -63,12 +62,14 @@ namespace sKey
     extern const char*	StratRef	mImpl("Strat Level");
     extern const char*	Survey		mImpl("Survey");
     extern const char*	Table		mImpl("Table");
-    extern const char*	Type		mImpl("Type");
+    extern const char*	Time		mImpl("Time");
     extern const char*	Title		mImpl("Title");
+    extern const char*	Type		mImpl("Type");
     extern const char*	Undef		mImpl("Undefined");
     extern const char*	Value		mImpl("Value");
     extern const char*	Wheeler		mImpl("Wheeler");
     extern const char*	Yes		mImpl("Yes");
+    extern const char*	ZDomain		mImpl("ZDomain");
 
     extern const char*	Average		mImpl("Average");
     extern const char*	Maximum		mImpl("Maximum");
