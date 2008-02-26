@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiattribcrossplot.cc,v 1.16 2008-02-26 08:55:18 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.17 2008-02-26 16:47:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,6 +151,6 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 	mErrRet(0)
 
     uiDataPointSet* dlg = new uiDataPointSet( this, *dps,
-			uiDataPointSet::Setup("Attribute data").modal(false) );
+			uiDataPointSet::Setup("Attribute data") );
     return dlg->go() ? true : false;
 }
