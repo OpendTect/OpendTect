@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2008
- RCS:           $Id: uiattremout.cc,v 1.1 2008-01-10 08:41:18 cvshelene Exp $
+ RCS:           $Id: uiattremout.cc,v 1.2 2008-02-26 12:53:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 
 #include "uiattremout.h"
 #include "attribdescset.h"
+#include "attribdesc.h"
 #include "attribengman.h"
 #include "attriboutput.h"
 #include "uiattrsel.h"
@@ -80,6 +81,19 @@ bool uiAttrEMOut::fillPar( IOPar& iopar )
         const char* nm = attrpar.getKey( idx );
         iopar.add( IOPar::compKey(SeisTrcStorOutput::attribkey,nm),
 		   attrpar.getValue(idx) );
+    }
+
+    if ( attrfld_->is2D() )
+    {
+	MultiID ky;
+	DescSet descset(true);
+	if ( nlamodel_ )
+	    descset.usePar( nlamodel_->pars() );
+
+	const Desc* desc = nlamodel_ ? descset.getFirstStored()
+				     : clonedset->getFirstStored();
+	if ( desc && desc->getMultiID(ky) )
+	    iopar.set( "Input Line Set", ky );
     }
 
     ads_.removeDesc( nladescid_ );
