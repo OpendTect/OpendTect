@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: volprocsmoother.h,v 1.1 2008-02-25 19:14:54 cvskris Exp $
+ RCS:		$Id: volprocsmoother.h,v 1.2 2008-02-26 23:01:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,17 +32,15 @@ public:
     const char*		type() const			{ return sKeyType(); }
     bool		needsInput(const HorSampling&) const { return true; }
 
-    bool		setKernel(const char*,float param,
-	    			  int sz0,int sz1,int sz2);
+    bool		setOperator(const char*,float param,
+	    			    int inlsz,int crlsz,int zsz);
+    			//!<Size is set in multiples of inl/crl/z-step from SI.
+    int			inlSz() const;
+    int			crlSz() const;
+    int			zSz() const;
+    const char*		getOperatorName() const;
+    float		getOperatorParam() const;
 
-    bool 		setTopHorizon(const MultiID*,float tv);
-    const MultiID*	getTopHorizonID() const;
-    float		getTopValue() const;
-    
-    bool		setBottomHorizon(const MultiID*,float bv);	
-    const MultiID*	getBottomHorizonID() const;
-    float		getBottomValue() const;
-    
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
     
@@ -52,6 +50,7 @@ public:
 
 protected:
     static Step*		create(Chain&);
+    static const char*		sKeyZStepout()		{ return "ZStepout"; }
 
     bool                        prepareComp(int)	{ return true; }
 
