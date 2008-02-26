@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.35 2008-02-18 11:00:47 cvsbert Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.36 2008-02-26 12:56:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 #include "uiattrsel.h"
-#include "uipossubsel.h"
+#include "uiseissubsel.h"
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -66,7 +66,7 @@ uiAttrTrcSelOut::uiAttrTrcSelOut( uiParent* p, const DescSet& ad,
     else
 	createTwoHorUI();
     
-    addStdFields( false, true );
+    addStdFields();
 
     objSel(0);
     if ( usesinglehor_ && !ads_.is2D() )
@@ -164,7 +164,7 @@ void uiAttrTrcSelOut::createZIntervalFld( uiParent* prnt )
 {
     const char* gatelabel = "Z Interval required around surfaces";
     gatefld_ = new uiGenInput( prnt, gatelabel, FloatInpIntervalSpec() );
-    gatefld_->attach( alignedBelow, possubselfld_ );
+    gatefld_->attach( alignedBelow, seissubselfld_ );
     uiLabel* lbl = new uiLabel( prnt, SI().getZUnit() );
     lbl->attach( rightOf, (uiObject*)gatefld_ );
 }
@@ -194,9 +194,9 @@ void uiAttrTrcSelOut::createExtraZBotFld( uiParent* prnt )
 
 void uiAttrTrcSelOut::createSubSelFld( uiParent* prnt )
 {
-    possubselfld_ = new uiPosSubSel( prnt,
-	    			     uiPosSubSel::Setup(ads_.is2D(),false) );
-    possubselfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)objfld_
+    seissubselfld_ = uiSeisSubSel::get( prnt,
+	    Seis::SelSetup(ads_.is2D()).onlyrange(false).multiline(true) );
+    seissubselfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)objfld_
 	    					       : (uiGroup*)obj2fld_ );
 }
 
@@ -206,7 +206,7 @@ void uiAttrTrcSelOut::createOutsideValFld( uiParent* prnt )
     const char* outsidevallabel = "Value outside computed area";
     outsidevalfld_ = new uiGenInput( prnt, outsidevallabel, FloatInpSpec() );
     outsidevalfld_->attach( alignedBelow, usesinglehor_ ? (uiGroup*)gatefld_ 
-						   : (uiGroup*)possubselfld_ );
+						   : (uiGroup*)seissubselfld_ );
     outsidevalfld_->setValue(0);
 }
 
@@ -329,31 +329,46 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     fillOutPar( iopar, Output::tskey, SeisTrcStorOutput::seisidkey,
 	    	ctioout_.ioobj->key() );
     
-    BufferString outnm = outpfld_->getInput();
+    BufferString outnm = ads_.is2D() ? attrfld_->getAttrName()
+				     : outpfld_->getInput();
     iopar.set( "Target value", outnm );
 
-    BufferString keybase = sKey::Geometry; keybase += ".";
-    BufferString key = keybase; key += LocationOutput::surfidkey; key += ".0";
+    BufferString tmpkey = IOPar::compKey( LocationOutput::surfidkey, 0);
+    BufferString key = IOPar::compKey( sKey::Geometry, tmpkey );
     iopar.set( key, ctio_.ioobj->key() );
 
     if ( !usesinglehor_ )
     {
-	key = keybase; key += LocationOutput::surfidkey; key += ".1";
+	tmpkey = IOPar::compKey( LocationOutput::surfidkey, 1);
+	key = IOPar::compKey( sKey::Geometry, tmpkey );
 	iopar.set( key, ctio2_.ioobj->key() );
     }
 
     PtrMan<IOPar> subselpar = new IOPar;
-    possubselfld_->fillPar( *subselpar );
+    seissubselfld_->fillPar( *subselpar );
 
     HorSampling horsamp; horsamp.usePar( *subselpar );
     if ( horsamp.isEmpty() )
 	getComputableSurf( horsamp );
 
-    key = keybase; key += SeisTrcStorOutput::inlrangekey;
-    iopar.set( key, horsamp.start.inl, horsamp.stop.inl );
+    BufferString typestr;
+    subselpar->get( sKey::Type, typestr );
+    bool usesamp = strcmp( typestr.buf(), "None" );
+    if ( usesamp )
+    {
+	mDynamicCastGet( uiSeis2DSubSel* , seis2dsubsel, seissubselfld_ );
+	if ( !seis2dsubsel && seis2dsubsel->isSingLine() )
+	{
+	    key = IOPar::compKey(sKey::Geometry,SeisTrcStorOutput::inlrangekey);
+	    iopar.set( key, horsamp.start.inl, horsamp.stop.inl );
 
-    key = keybase; key += SeisTrcStorOutput::crlrangekey;
-    iopar.set( key, horsamp.start.crl, horsamp.stop.crl );
+	    key = IOPar::compKey(sKey::Geometry,SeisTrcStorOutput::crlrangekey);
+	    iopar.set( key, horsamp.start.crl, horsamp.stop.crl );
+	}
+    }
+
+    CubeSampling::removeInfo( *subselpar );
+    iopar.mergeComp( *subselpar, sKey::Geometry );
 
     Interval<float> zinterval;
     if ( gatefld_ )
@@ -367,10 +382,10 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     BufferString gatestr = zinterval.start; gatestr += "`";
     gatestr += zinterval.stop;
     
-    key = keybase; key += "ExtraZInterval";
+    key = IOPar::compKey( sKey::Geometry, "ExtraZInterval" );
     iopar.set( key, gatestr );
 
-    key = keybase; key += "Outside Value";
+    key = IOPar::compKey( sKey::Geometry, "Outside Value" );
     iopar.set( key, outsidevalfld_->getfValue() );
 
     int nrsamp = 0;
@@ -378,15 +393,15 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	nrsamp = interpfld_->getBoolValue() ? mUdf(int) 
 	    				   : nrsampfld_->getIntValue();
     
-    key = keybase; key += "Interpolation Stepout";
+    key = IOPar::compKey( sKey::Geometry, "Interpolation Stepout" );
     iopar.set( key, nrsamp );
 
-    if ( !usesinglehor_ && addwidthfld_->getBoolValue() )
+    if ( !usesinglehor_ && addwidthfld_ && addwidthfld_->getBoolValue() )
     {
-	key = keybase; key += "Artificial Width";
+	key = IOPar::compKey( sKey::Geometry, "Artificial Width" );
 	iopar.set( key, widthfld_->getfValue() );
 	
-	key = keybase; key += "Leading Horizon";
+	key = IOPar::compKey( sKey::Geometry, "Leading Horizon" );
 	iopar.set( key, mainhorfld_->getBoolValue()? 1 : 2 );
     }
     
@@ -399,7 +414,7 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
    
     if ( !mIsUdf(cubezbounds.start) )
     {
-	key = keybase; key += "Z Boundaries";
+	key = IOPar::compKey( sKey::Geometry, "Z Boundaries" );
 	iopar.set( key, zboundsstr );
     }
     
@@ -447,6 +462,17 @@ BufferString uiAttrTrcSelOut::createAddWidthLabel()
 void uiAttrTrcSelOut::attribSel( CallBacker* cb )
 {
     setParFileNmDef( attrfld_->getInput() );
+    if ( ads_.is2D() )
+    {
+	MultiID key;
+	const Desc* desc = ads_.getFirstStored();
+	if ( desc && desc->getMultiID(key) )
+	{
+	    PtrMan<IOObj> ioobj = IOM().get( key );
+	    if ( ioobj )
+		seissubselfld_->setInput( *ioobj );
+	}
+    }
 }
 
 
@@ -458,9 +484,7 @@ void uiAttrTrcSelOut::objSel( CallBacker* cb )
     
     HorSampling horsampling;
     getComputableSurf( horsampling );
-    CubeSampling cs = possubselfld_->envelope();
-    cs.hrg = horsampling;
-    possubselfld_->setInput( cs );
+    seissubselfld_->setInput( horsampling );
 }
 
 

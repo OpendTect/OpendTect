@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.h,v 1.10 2008-02-18 11:00:47 cvsbert Exp $
+ RCS:           $Id: uiattrtrcselout.h,v 1.11 2008-02-26 12:56:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ class NLAModel;
 class uiGenInput;
 class uiIOObjSel;
 class uiSeisSel;
-class uiPosSubSel;
+class uiSeisSubSel;
 class HorSampling;
 
 namespace Attrib { class DescSet; }
@@ -80,7 +80,7 @@ protected:
     uiGenInput*		gatefld_;
     uiGenInput*         extraztopfld_;
     uiGenInput*         extrazbotfld_;
-    uiPosSubSel*	possubselfld_;
+    uiSeisSubSel*	seissubselfld_;
     uiGenInput*		outsidevalfld_;
     uiGenInput*		interpfld_;
     uiGenInput*		nrsampfld_;
@@ -92,14 +92,6 @@ protected:
     uiSeisSel*          outpfld_;
     uiDialog*		xparsdlg_;
     bool		usesinglehor_;
-
-    /* TODO: XY sub selection for 2D horizons; shall we only use survey coords
-    class uiXYSubSel : public uiCompoundParSel
-    {
-    };
-
-    uiXYSubSel*		xysubselfld*;
-    */
 
 private:
 
