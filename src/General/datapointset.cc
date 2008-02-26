@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.13 2008-02-26 09:54:25 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.14 2008-02-26 13:11:38 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -426,7 +426,7 @@ unsigned short DataPointSet::group( DataPointSet::RowID rid ) const
 }
 
 
-bool DataPointSet::selected( DataPointSet::RowID rid ) const
+bool DataPointSet::isSelected( DataPointSet::RowID rid ) const
 {
     mChkRowID(rid,0);
     return bivSet().getVal( bvsidxs_[rid], groupcol_ ) > 0.5;
@@ -436,7 +436,7 @@ bool DataPointSet::selected( DataPointSet::RowID rid ) const
 void DataPointSet::setGroup( DataPointSet::RowID rid, unsigned short newgrp )
 {
     mChkRowID(rid,);
-    short grp = selected(rid) ? newgrp : -newgrp;
+    short grp = isSelected(rid) ? newgrp : -newgrp;
     bivSet().getVals( bvsidxs_[rid] )[ groupcol_ ] = grp;
 }
 
@@ -498,7 +498,7 @@ void DataPointSet::purgeInactive()
     TypeSet<BinIDValueSet::Pos> torem;
     for ( RowID irow=0; irow<size(); irow++ )
     {
-	if ( inactive(irow) )
+	if ( isInactive(irow) )
 	    torem += bvsidxs_[irow];
     }
     if ( !torem.isEmpty() )
@@ -514,7 +514,7 @@ void DataPointSet::purgeSelected( bool sel )
     TypeSet<BinIDValueSet::Pos> torem;
     for ( RowID irow=0; irow<size(); irow++ )
     {
-	if ( sel != selected(irow) )
+	if ( sel != isSelected(irow) )
 	    torem += bvsidxs_[irow];
     }
     if ( !torem.isEmpty() )

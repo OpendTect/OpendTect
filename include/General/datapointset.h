@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.9 2008-02-26 09:54:25 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.10 2008-02-26 13:11:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,6 +124,7 @@ public:
     			DataPointSet(const DataPointSet&);
     virtual		~DataPointSet();
     DataPointSet&	operator =(const DataPointSet&);
+    bool		is2D() const		{ return is2d_; }
 
     int			nrCols() const;
     int			nrFixedCols() const	{ return nrfixedcols_; }
@@ -146,8 +147,8 @@ public:
     float*		getValues(RowID);
     const float*	getValues(RowID) const;
     unsigned short	group(RowID) const;
-    bool		selected(RowID) const;
-    bool		inactive( RowID rid ) const { return group(rid) == 0; }
+    bool		isSelected(RowID) const;
+    bool		isInactive( RowID rid ) const { return group(rid) == 0;}
 
     void		setGroup(RowID,unsigned short);
     void		setSelected(RowID,bool);
