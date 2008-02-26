@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.12 2008-02-25 15:05:31 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.13 2008-02-26 09:54:25 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -147,7 +147,7 @@ DataPointSet::DataPointSet( ::Pos::Provider2D& prov,
 	{
 	    if ( !filt->includes(dr.pos_.nr_,dr.pos_.z_) )
 		continue;
-	    filt->adjustedZ( dr.pos_.coord(), dr.pos_.z_ );
+	    dr.pos_.z_ = filt->adjustedZ( dr.pos_.coord(), dr.pos_.z_ );
 	}
 	dr.data_.setSize( nrcols, mUdf(float) );
 	addRow( dr );
@@ -194,6 +194,36 @@ DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool is2d )
 	for ( int idx=startidx; idx<bvssz; idx++ )
 	    dr.data_[idx-startidx] = vals[idx];
 	addRow( dr );
+    }
+
+    calcIdxs();
+}
+
+
+DataPointSet::DataPointSet( const DataPointSet& dps, const ::Pos::Filter& filt )
+	: PointDataPack(sKeyDPS)
+	, data_(*new PosVecDataSet)
+    	, mAdd2DMembs(dps.is2d_)
+{
+    data_.copyStructureFrom( dps.data_ );
+    const int typ = filt.is2D() != dps.is2d_ ? -1 : (dps.is2d_ ? 1 : 0);
+
+    mDynamicCastGet(const ::Pos::Filter3D*,f3d,&filt)
+    mDynamicCastGet(const ::Pos::Filter2D*,f2d,&filt)
+
+    for ( RowID irow=0; irow<dps.size(); irow++ )
+    {
+	DataRow dr( dps.dataRow(irow) );
+	bool inc = true;
+	if ( typ == -1 )
+	    inc = filt.includes( dr.pos_.coord(), dr.pos_.z_ );
+	else if ( f3d )
+	    inc = f3d->includes( dr.pos_.binID(), dr.pos_.z_ );
+	else if ( f2d )
+	    inc = f2d->includes( dr.pos_.nr_, dr.pos_.z_ );
+
+	if ( inc )
+	    addRow( dr );
     }
 
     calcIdxs();
