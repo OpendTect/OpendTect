@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.9 2007-06-14 17:25:11 cvsbert Exp $
+ RCS:		$Id: oddirs.h,v 1.10 2008-02-26 10:26:06 cvsnanne Exp $
 ________________________________________________________________________
 
 OpendTect directories.
@@ -87,6 +87,13 @@ const char* GetPlfSubDir(void);
   Ouput medio 2007 is one of lux32, lux64, sol32, mac or win.
  
  */
+
+const char* GetDocFileDir(const char* filedir);
+/*!< Location of Documentation */
+#define mGetUserDocDir()	GetDocFileDir("User")
+#define mGetProgrammerDocDir()	GetDocFileDir("Programmer")
+#define mGetSysAdmDocDir()	GetDocFileDir("SysAdm")
+
 
 const char* GetExecScript(int remote);
 /*!< Location of launch script for external programs

@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.2 2008-01-09 13:54:34 cvsbert Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.3 2008-02-26 10:26:06 cvsnanne Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -372,6 +372,15 @@ const char* GetSetupDataFileName( ODSetupLocType lt, const char* fnm )
     }
 
     return filenm;
+}
+
+
+const char* GetDocFileDir( const char* filedir )
+{
+    static FileNameString dirnm;
+    strcpy( dirnm, mkFullPath(GetSoftwareDir(),"doc") );
+    strcpy( dirnm, mkFullPath(dirnm,filedir) );
+    return dirnm;
 }
 
 
