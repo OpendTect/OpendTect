@@ -61,6 +61,8 @@ int main( int narg, char** argv )
 	    	SoGLRenderAction::SORTED_OBJECT_SORTED_TRIANGLE_BLEND );
 
     myViewer->setSceneGraph( myGraph );
+    if ( argv[1] )
+	myViewer->setTitle( argv[1] );
     myViewer->show();
 
     SoQt::show(myWindow);
