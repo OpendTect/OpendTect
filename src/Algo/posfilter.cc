@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: posfilter.cc,v 1.6 2008-02-27 09:48:36 cvsbert Exp $";
+static const char* rcsID = "$Id: posfilter.cc,v 1.7 2008-02-27 14:36:36 cvsbert Exp $";
 
 #include "posfilterset.h"
 #include "posfilterstd.h"
@@ -69,56 +69,56 @@ Pos::Filter2D* Pos::Filter2D::make( const IOPar& iop )
 
 Pos::FilterSet::~FilterSet()
 {
-    deepErase( *this );
+    deepErase( filts_ );
 }
 
 
 void Pos::FilterSet::copyFrom( const Pos::FilterSet& fs )
 {
-    if ( this != &fs && is2d() == fs.is2d() )
+    if ( this != &fs && is2D() == fs.is2D() )
     {
-	deepErase( *this );
+	deepErase( filts_ );
 	for ( int idx=0; idx<fs.size(); idx++ )
-	    *this += fs[idx]->clone();
+	    filts_ += fs.filts_[idx]->clone();
     }
 }
 
 
 void Pos::FilterSet::add( Filter* filt )
 {
-    if ( !filt || is2d() != filt->is2D() ) return;
-    *this += filt;
+    if ( !filt || is2D() != filt->is2D() ) return;
+    filts_ += filt;
 }
 
 
 void Pos::FilterSet::add( const IOPar& iop )
 {
     Pos::Filter* filt;
-    if ( is2d() )
+    if ( is2D() )
 	filt = Pos::Filter2D::make( iop );
     else
 	filt = Pos::Filter3D::make( iop );
     if ( filt )
-	*this += filt;
+	filts_ += filt;
 }
 
 
-bool Pos::FilterSet::IMPL_initialize()
+bool Pos::FilterSet::initialize()
 {
     for ( int idx=0; idx<size(); idx++ )
-	if ( !(*this)[idx]->initialize() )
+	if ( !filts_[idx]->initialize() )
 	    return false;
     return true;
 }
 
 
-Executor* Pos::FilterSet::IMPL_initializer()
+Executor* Pos::FilterSet::initializer()
 {
     ExecutorGroup* egrp = new ExecutorGroup( "Position filters initializer",
 	   				     true );
     for ( int idx=0; idx<size(); idx++ )
     {
-	Executor* ex = (*this)[idx]->initializer();
+	Executor* ex = filts_[idx]->initializer();
 	if ( ex ) egrp->add( ex );
     }
 
@@ -128,44 +128,44 @@ Executor* Pos::FilterSet::IMPL_initializer()
 }
 
 
-void Pos::FilterSet::IMPL_reset()
+void Pos::FilterSet::reset()
 {
     for ( int idx=0; idx<size(); idx++ )
-	(*this)[idx]->reset();
+	filts_[idx]->reset();
 }
 
 
-bool Pos::FilterSet::IMPL_includes( const Coord& c, float z ) const
+bool Pos::FilterSet::includes( const Coord& c, float z ) const
 {
     for ( int idx=0; idx<size(); idx++ )
-	if ( !(*this)[idx]->includes(c,z) )
+	if ( !filts_[idx]->includes(c,z) )
 	    return false;
     return true;
 }
 
 
-void Pos::FilterSet::IMPL_adjustZ( const Coord& c, float& z ) const
+void Pos::FilterSet::adjustZ( const Coord& c, float& z ) const
 {
     for ( int idx=0; idx<size(); idx++ )
-	z = (*this)[idx]->adjustedZ( c, z );
+	z = filts_[idx]->adjustedZ( c, z );
 }
 
 
-bool Pos::FilterSet::IMPL_hasZAdjustment() const
+bool Pos::FilterSet::hasZAdjustment() const
 {
     for ( int idx=0; idx<size(); idx++ )
-	if ( (*this)[idx]->hasZAdjustment() )
+	if ( filts_[idx]->hasZAdjustment() )
 	    return true;
     return false;
 }
 
 
-void Pos::FilterSet::IMPL_fillPar( IOPar& iop ) const
+void Pos::FilterSet::fillPar( IOPar& iop ) const
 {
     iop.set( sKey::Type, "Set" );
     for ( int idx=0; idx<size(); idx++ )
     {
-	const Filter& filt = *(*this)[idx];
+	const Filter& filt = *filts_[idx];
 	IOPar filtpar;
 	filtpar.set( sKey::Type, filt.type() );
 	filt.fillPar( filtpar );
@@ -175,9 +175,9 @@ void Pos::FilterSet::IMPL_fillPar( IOPar& iop ) const
 }
 
 
-void Pos::FilterSet::IMPL_usePar( const IOPar& iop )
+void Pos::FilterSet::usePar( const IOPar& iop )
 {
-    deepErase( *this );
+    deepErase( filts_ );
 
     for ( int idx=0; ; idx++ )
     {
@@ -186,35 +186,35 @@ void Pos::FilterSet::IMPL_usePar( const IOPar& iop )
 	if ( !subpar || !subpar->size() ) return;
 
 	Filter* filt = 0;
-	if ( is2d() )
+	if ( is2D() )
 	    filt = Pos::Filter2D::make( *subpar );
 	else
 	    filt = Pos::Filter3D::make( *subpar );
 
 	if ( !filt )
 	{
-	    if ( is2d() )
+	    if ( is2D() )
 		filt = Pos::Provider2D::make( *subpar );
 	    else
 		filt = Pos::Provider3D::make( *subpar );
 	}
 
 	if ( filt )
-	    *this += filt;
+	    filts_ += filt;
     }
 }
 
 
-void Pos::FilterSet::IMPL_getSummary( BufferString& txt ) const
+void Pos::FilterSet::getSummary( BufferString& txt ) const
 {
     if ( isEmpty() ) return;
 
     if ( size() > 1 ) txt += "{";
-    (*this)[0]->getSummary( txt );
+    filts_[0]->getSummary( txt );
     for ( int idx=1; idx<size(); idx++ )
     {
 	txt += ",";
-	(*this)[idx]->getSummary( txt );
+	filts_[idx]->getSummary( txt );
     }
     if ( size() > 1 ) txt += "}";
 }
@@ -224,7 +224,7 @@ bool Pos::FilterSet3D::includes( const BinID& b, float z ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	Pos::Filter3D* f3d = (Pos::Filter3D*)((*this)[idx]);
+	mDynamicCastGet(const Pos::Filter3D*,f3d,filts_[idx])
 	if ( !f3d->includes(b,z) )
 	    return false;
     }
@@ -236,50 +236,12 @@ bool Pos::FilterSet2D::includes( int nr, float z ) const
 {
     for ( int idx=0; idx<size(); idx++ )
     {
-	Pos::Filter2D* f2d = (Pos::Filter2D*)((*this)[idx]);
+	mDynamicCastGet(const Pos::Filter2D*,f2d,filts_[idx])
 	if ( !f2d->includes(nr,z) )
 	    return false;
     }
     return true;
 }
-
-bool	Pos::FilterSet3D::initialize()
-	{ return IMPL_initialize(); }
-void	Pos::FilterSet3D::reset()
-	{ IMPL_reset(); }
-void	Pos::FilterSet3D::fillPar(IOPar& i) const
-	{ IMPL_fillPar(i); }
-void	Pos::FilterSet3D::usePar(const IOPar& i)
-	{ IMPL_usePar(i); }
-Executor* Pos::FilterSet3D::initializer()
-	{ return IMPL_initializer(); }
-bool	Pos::FilterSet3D::includes(const Coord& c,float z) const
-	{ return IMPL_includes(c,z); }
-void	Pos::FilterSet3D::adjustZ(const Coord& c,float& z) const
-	{ IMPL_adjustZ(c,z); }
-bool	Pos::FilterSet3D::hasZAdjustment() const
-	{ return IMPL_hasZAdjustment(); }
-void	Pos::FilterSet3D::getSummary(BufferString& t) const
-	{ IMPL_getSummary(t); }
-
-bool	Pos::FilterSet2D::initialize()
-	{ return IMPL_initialize(); }
-void	Pos::FilterSet2D::reset()
-	{ IMPL_reset(); }
-void	Pos::FilterSet2D::fillPar(IOPar& i) const
-	{ IMPL_fillPar(i); }
-void	Pos::FilterSet2D::usePar(const IOPar& i)
-	{ IMPL_usePar(i); }
-Executor* Pos::FilterSet2D::initializer()
-	{ return IMPL_initializer(); }
-bool	Pos::FilterSet2D::includes(const Coord& c,float z) const
-	{ return IMPL_includes(c,z); }
-void	Pos::FilterSet2D::adjustZ(const Coord& c,float& z) const
-	{ IMPL_adjustZ(c,z); }
-bool	Pos::FilterSet2D::hasZAdjustment() const
-	{ return IMPL_hasZAdjustment(); }
-void	Pos::FilterSet2D::getSummary(BufferString& t) const
-	{ IMPL_getSummary(t); }
 
 
 void Pos::RandomFilter::initStats()
@@ -295,19 +257,19 @@ bool Pos::RandomFilter::drawRes() const
 }
 
 
-void Pos::RandomFilter::doUsePar( const IOPar& iop )
+void Pos::RandomFilter::usePar( const IOPar& iop )
 {
     iop.get( ratioStr(), passratio_ );
 }
 
 
-void Pos::RandomFilter::doFillPar( IOPar& iop ) const
+void Pos::RandomFilter::fillPar( IOPar& iop ) const
 {
     iop.set( ratioStr(), passratio_ );
 }
 
 
-void Pos::RandomFilter::mkSummary( BufferString& txt ) const
+void Pos::RandomFilter::getSummary( BufferString& txt ) const
 {
     txt += "Remove " ; txt += (1-passratio_)*100; txt += "%";
 }
@@ -332,19 +294,19 @@ bool Pos::SubsampFilter::drawRes() const
 }
 
 
-void Pos::SubsampFilter::doUsePar( const IOPar& iop )
+void Pos::SubsampFilter::usePar( const IOPar& iop )
 {
     iop.get( eachStr(), each_ );
 }
 
 
-void Pos::SubsampFilter::doFillPar( IOPar& iop ) const
+void Pos::SubsampFilter::fillPar( IOPar& iop ) const
 {
     iop.set( eachStr(), each_ );
 }
 
 
-void Pos::SubsampFilter::mkSummary( BufferString& txt ) const
+void Pos::SubsampFilter::getSummary( BufferString& txt ) const
 {
     txt += "Pass each " ; txt += each_; txt += getRankPostFix(each_);
 }

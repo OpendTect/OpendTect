@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilterset.h,v 1.2 2008-02-27 09:48:36 cvsbert Exp $
+ RCS:           $Id: posfilterset.h,v 1.3 2008-02-27 14:36:36 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -16,17 +16,6 @@ ________________________________________________________________________
 #include "posfilter.h"
 
 
-#define mDeclPosFiltSetFns(virtspec,pfx) \
-    virtspec const char* pfx##type() const { return typeStr(); } \
-    virtspec bool	pfx##initialize(); \
-    virtspec Executor*	pfx##initializer(); \
-    virtspec void	pfx##reset(); \
-    virtspec bool	pfx##includes(const Coord&,float) const; \
-    virtspec void	pfx##adjustZ(const Coord&,float&) const; \
-    virtspec bool	pfx##hasZAdjustment() const; \
-    virtspec void	pfx##fillPar(IOPar&) const; \
-    virtspec void	pfx##usePar(const IOPar&); \
-    virtspec void	pfx##getSummary(BufferString&) const
 
 
 namespace Pos
@@ -34,25 +23,52 @@ namespace Pos
 
 /*!\brief Set of Filters. Owns the Filters. */
 
-class FilterSet : public ObjectSet<Pos::Filter>
+class FilterSet : public virtual Pos::Filter
 {
 public:
 
     virtual		~FilterSet();
 
-    void		add(Filter*);		//!< safer than += operator
+    void		add(Filter*);
     void		add(const IOPar&);
 
     static const char*	typeStr();		//!< "Set"
 
+    virtual bool	initialize();
+    virtual Executor*	initializer();
+    virtual void	reset();
+    virtual bool	includes(const Coord&,float) const;
+    virtual void	adjustZ(const Coord&,float&) const;
+    virtual bool	hasZAdjustment() const;
+    virtual void	fillPar(IOPar&) const;
+    virtual void	usePar(const IOPar&);
+    virtual void	getSummary(BufferString&) const;
+
+    bool		isEmpty() const	{ return filts_.isEmpty(); }
+    int			size() const	{ return filts_.size(); }
+
+    ObjectSet<Pos::Filter>& filters()			{ return filts_; }
+    const ObjectSet<Pos::Filter>& filters() const	{ return filts_; }
+
 protected:
+
+    ObjectSet<Pos::Filter>	filts_;
 
     void		copyFrom(const FilterSet&);
 
-    virtual bool	is2d() const		= 0;
-    mDeclPosFiltSetFns(,IMPL_);
-
 };
+
+
+#define mSimpPosFilterSetDefFns(dim) \
+			FilterSet##dim()	{} \
+			FilterSet##dim( const FilterSet##dim& fs ) \
+					{ *this = fs; } \
+    FilterSet##dim&	operator =( const FilterSet##dim& fs ) \
+					{ copyFrom(fs); return *this; } \
+    virtual Filter*	clone() const	{ return new FilterSet##dim(*this); } \
+    virtual const char* type() const	{ return typeStr(); } \
+    virtual bool	includes( const Coord& c, float z=1e30 ) const \
+			{ return Pos::FilterSet::includes(c,z); } \
 
 
 class FilterSet3D : public FilterSet
@@ -60,26 +76,10 @@ class FilterSet3D : public FilterSet
 {
 public:
 
-			FilterSet3D()	{}
-			FilterSet3D( const FilterSet3D& fs )
-					{ *this = fs; }
-    FilterSet3D&	operator =( const FilterSet3D& fs )
-					{ copyFrom(fs); return *this; }
-    virtual Filter*	clone() const	{ return new FilterSet3D(*this); }
     virtual bool	is2D() const	{ return false; }
-
-    mDeclPosFiltSetFns(virtual,);
-
     virtual bool	includes(const BinID&,float z=mUdf(float)) const;
 
-    Filter3D*		filt3D( int idx )
-    			{ return (Pos::Filter3D*)((*this)[idx]); }
-    const Filter3D*	filt3D( int idx ) const
-    			{ return (const Pos::Filter3D*)((*this)[idx]); }
-
-protected:
-
-    virtual bool	is2d() const		{ return false; }
+    mSimpPosFilterSetDefFns(3D)
 
 };
 
@@ -89,25 +89,10 @@ class FilterSet2D : public FilterSet
 {
 public:
 
-			FilterSet2D()	{}
-			FilterSet2D( const FilterSet2D& fs )	{ *this = fs; }
-    FilterSet&		operator =( const FilterSet& fs )
-					{ copyFrom(fs); return *this; }
-    virtual Filter*	clone() const	{ return new FilterSet2D(*this); }
     virtual bool	is2D() const	{ return true; }
-
-    mDeclPosFiltSetFns(virtual,);
-
     virtual bool	includes(int,float z=mUdf(float)) const;
 
-    Filter2D*		filt2D( int idx )
-    			{ return (Pos::Filter2D*)((*this)[idx]); }
-    const Filter2D*	filt2D( int idx ) const
-    			{ return (const Pos::Filter2D*)((*this)[idx]); }
-
-protected:
-
-    virtual bool	is2d() const		{ return true; }
+    mSimpPosFilterSetDefFns(2D)
 
 };
 

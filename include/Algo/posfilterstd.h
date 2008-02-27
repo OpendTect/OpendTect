@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilterstd.h,v 1.1 2008-02-26 08:55:18 cvsbert Exp $
+ RCS:           $Id: posfilterstd.h,v 1.2 2008-02-27 14:36:36 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ namespace Pos
 
 /*!\brief Passes a percentage of the positions */
 
-class RandomFilter
+class RandomFilter : public virtual Pos::Filter
 {
 public:
 
@@ -30,6 +30,13 @@ public:
 			RandomFilter( const RandomFilter& rf )
 			    : passratio_(rf.passratio_)	{}
 
+    bool		initialize()	{ reset(); return true; }
+    void		reset()		{ initStats(); }
+
+    virtual void	usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
+    virtual void	getSummary(BufferString&) const;
+
     float		passratio_;
 
     static const char*	typeStr();
@@ -37,28 +44,29 @@ public:
 
 protected:
 
-    virtual void	doUsePar(const IOPar&);
-    virtual void	doFillPar(IOPar&) const;
-    virtual void	mkSummary(BufferString&) const;
-
-    void		doReset()		{ initStats(); }
     void		initStats();
     bool		drawRes() const;
 };
 
 
-#define mStdFiltAddVirtFns \
-    virtual const char*	type() const	{ return typeStr(); } \
-    virtual bool	initialize()	{ reset(); return true; } \
-    virtual void	reset()		{ doReset(); } \
-    virtual void	usePar( const IOPar& iop ) \
-					{ doUsePar(iop); } \
-    virtual void	fillPar( IOPar& iop ) const \
-					{ doFillPar(iop); } \
-    virtual void	getSummary( BufferString& s ) const \
-					{ mkSummary(s); } \
-    virtual bool	includes( const Coord&, float z=mUdf(float) ) const \
-					{ return drawRes(); }
+#define mSimpPosFilterDefFnsBase \
+virtual const char* type() const { return typeStr(); } \
+virtual bool includes(const Coord&,float z=1e30) const { return drawRes(); } \
+static void initClass()
+
+#define mSimpPosFilterDefFns3D(clssnm) \
+virtual bool includes(const BinID&,float z=1e30) const { return drawRes(); } \
+virtual bool is2D() const	{ return false; } \
+virtual Filter*	clone() const	{ return new clssnm##Filter3D(*this); } \
+static Filter3D* create()	{ return new clssnm##Filter3D; } \
+mSimpPosFilterDefFnsBase
+
+#define mSimpPosFilterDefFns2D(clssnm) \
+virtual bool includes(int,float z=1e30) const { return drawRes(); } \
+virtual bool is2D() const	{ return false; } \
+virtual Filter*	clone() const	{ return new clssnm##Filter2D(*this); } \
+static Filter2D* create()	{ return new clssnm##Filter2D; } \
+mSimpPosFilterDefFnsBase
 
 
 /*!\brief Passes a percentage of the positions (3D) */
@@ -68,16 +76,7 @@ class RandomFilter3D : public Pos::Filter3D
 {
 public:
 
-    virtual Filter*	clone() const	{ return new RandomFilter3D(*this); }
-    virtual bool	is2D() const	{ return false; }
-
-    virtual bool	includes( const BinID&, float z=mUdf(float) ) const
-			{ return drawRes(); }
-
-    static void		initClass();
-    static Filter3D*	create()	{ return new RandomFilter3D; }
-
-			mStdFiltAddVirtFns
+    mSimpPosFilterDefFns3D(Random);
 
 };
 
@@ -89,22 +88,13 @@ class RandomFilter2D : public Pos::Filter2D
 {
 public:
 
-    virtual Filter*	clone() const	{ return new RandomFilter2D(*this); }
-    virtual bool	is2D() const	{ return true; }
+    mSimpPosFilterDefFns2D(Random);
 
-    virtual bool	includes( int, float z=mUdf(float) ) const
-			{ return drawRes(); }
-
-    static void		initClass();
-    static Filter2D*	create()	{ return new RandomFilter2D; }
-
-
-			mStdFiltAddVirtFns
 };
 
 /*!\brief Passes each nth position */
 
-class SubsampFilter
+class SubsampFilter : public virtual Pos::Filter
 {
 public:
 
@@ -112,6 +102,12 @@ public:
 			    : each_(2), seqnr_(0)			{}
 			SubsampFilter( const SubsampFilter& sf )
 			    : each_(sf.each_), seqnr_(sf.seqnr_)	{}
+
+    void		reset()		{ seqnr_ = 0; }
+
+    virtual void	usePar(const IOPar&);
+    virtual void	fillPar(IOPar&) const;
+    virtual void	getSummary(BufferString&) const;
 
     int			each_;
 
@@ -122,12 +118,7 @@ protected:
 
     mutable int		seqnr_;
 
-    virtual void	doUsePar(const IOPar&);
-    virtual void	doFillPar(IOPar&) const;
-    virtual void	mkSummary(BufferString&) const;
-
     bool		drawRes() const;
-    void		doReset()		{ seqnr_ = 0; }
 };
 
 
@@ -138,16 +129,7 @@ class SubsampFilter3D : public Pos::Filter3D
 {
 public:
 
-    virtual Filter*	clone() const	{ return new SubsampFilter3D(*this); }
-    virtual bool	is2D() const	{ return false; }
-
-    virtual bool	includes( const BinID&, float z=mUdf(float) ) const
-			{ return drawRes(); }
-
-    static void		initClass();
-    static Filter3D*	create()	{ return new SubsampFilter3D; }
-
-			mStdFiltAddVirtFns
+    mSimpPosFilterDefFns3D(Subsamp);
 
 };
 
@@ -159,16 +141,8 @@ class SubsampFilter2D : public Pos::Filter2D
 {
 public:
 
-    virtual Filter*	clone() const	{ return new SubsampFilter2D(*this); }
-    virtual bool	is2D() const	{ return true; }
+    mSimpPosFilterDefFns2D(Subsamp);
 
-    virtual bool	includes( int, float z=mUdf(float) ) const
-			{ return drawRes(); }
-
-    static void		initClass();
-    static Filter2D*	create()	{ return new SubsampFilter2D; }
-
-			mStdFiltAddVirtFns
 };
 
 

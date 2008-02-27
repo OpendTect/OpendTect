@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posprovider.h,v 1.9 2008-02-21 15:29:10 cvsbert Exp $
+ RCS:           $Id: posprovider.h,v 1.10 2008-02-27 14:36:36 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ namespace Pos
 
  */
 
-class Provider : public Pos::Filter
+class Provider : public virtual Pos::Filter
 {
 public:
 
@@ -53,7 +53,8 @@ public:
 
 /*!\brief provides a subselection for 3D surveys */
 
-class Provider3D : public Provider
+class Provider3D : public Filter3D
+		 , public Provider
 {
 public:
 
@@ -75,7 +76,8 @@ public:
 
 /*!\brief provides a subselection for 2D surveys - requires the line name(s). */
 
-class Provider2D : public Provider
+class Provider2D : public Filter2D
+		 , public Provider
 {
 public:
 
