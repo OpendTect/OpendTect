@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.1 2008-02-27 11:06:10 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.2 2008-02-27 13:42:08 cvsbert Exp $";
 
 #include "emsurfaceposprov.h"
 #include "emsurface.h"
@@ -13,6 +13,10 @@ static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.1 2008-02-27 11:06:10 c
 #include "iopar.h"
 #include "keystrs.h"
 #include "survinfo.h"
+
+const char* Pos::EMSurfaceProvider3D::id1Key()		{ return "ID.1"; }
+const char* Pos::EMSurfaceProvider3D::id2Key()		{ return "ID.2"; }
+const char* Pos::EMSurfaceProvider3D::zstepKey()	{ return "Z Step"; }
 
 
 Pos::EMSurfaceProvider3D::EMSurfaceProvider3D()
@@ -77,6 +81,11 @@ Executor* Pos::EMSurfaceProvider3D::initializer()
 }
 
 
+void Pos::EMSurfaceProvider3D::reset()
+{
+}
+
+
 bool Pos::EMSurfaceProvider3D::toNextPos()
 {
     return false;
@@ -128,18 +137,18 @@ float Pos::EMSurfaceProvider3D::adjustedZ( const Coord& c, float z ) const
 
 void Pos::EMSurfaceProvider3D::usePar( const IOPar& iop )
 {
-    iop.get( mGetSurfKey("ID.1"), id1_ );
-    iop.get( mGetSurfKey("ID.2"), id2_ );
-    iop.get( mGetSurfKey("Z Step"), zstep_ );
+    iop.get( mGetSurfKey(id1Key()), id1_ );
+    iop.get( mGetSurfKey(id2Key()), id2_ );
+    iop.get( mGetSurfKey(zstepKey()), zstep_ );
     // Here read header(s) to get hs_ and zrg's
 }
 
 
 void Pos::EMSurfaceProvider3D::fillPar( IOPar& iop ) const
 {
-    iop.set( mGetSurfKey("ID.1"), id1_ );
-    iop.set( mGetSurfKey("ID.2"), id2_ );
-    iop.set( mGetSurfKey("Z Step"), zstep_ );
+    iop.set( mGetSurfKey(id1Key()), id1_ );
+    iop.set( mGetSurfKey(id2Key()), id2_ );
+    iop.set( mGetSurfKey(zstepKey()), zstep_ );
 }
 
 

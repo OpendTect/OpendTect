@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: emsurfaceposprov.h,v 1.1 2008-02-27 11:06:10 cvsbert Exp $
+ RCS:           $Id: emsurfaceposprov.h,v 1.2 2008-02-27 13:42:08 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -70,6 +70,10 @@ public:
     			{ return idx ? surf2_ : surf1_; }
     float		zStep() const		{ return zstep_; }
     void		setZStep( float s )	{ zstep_ = s; }
+
+    static const char*	id1Key();
+    static const char*	id2Key();
+    static const char*	zstepKey();
 
 protected:
 
