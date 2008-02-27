@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposfilterset.h,v 1.1 2008-02-22 09:31:40 cvsbert Exp $
+ RCS:           $Id: uiposfilterset.h,v 1.2 2008-02-27 17:27:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ protected:
     BoolTypeSet			isprov_;
 
     uiGenInput*			ynfld_;
-    ObjectSet<uiGroup>		grps_;
+    ObjectSet<uiPosFiltGroup>	grps_;
     uiListBox*			selfld_;
 
     void			ynChg(CallBacker*);

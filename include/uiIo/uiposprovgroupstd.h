@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovgroupstd.h,v 1.8 2008-02-22 09:31:40 cvsbert Exp $
+ RCS:           $Id: uiposprovgroupstd.h,v 1.9 2008-02-27 17:27:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ public:
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
+    void		getSummary(BufferString&) const;
 
     void		setExtractionDefaults();
 
@@ -52,6 +53,8 @@ protected:
     uiSelNrRange*	nrrgfld_;
     uiSelZRange*	zrgfld_;
 
+    uiPosProvGroup::Setup setup_;
+
 };
 
 
@@ -66,6 +69,7 @@ public:
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
+    void		getSummary(BufferString&) const;
 
     void		setExtractionDefaults();
 
@@ -97,6 +101,7 @@ public:
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;
+    void		getSummary(BufferString&) const;
 
     bool		getID(MultiID&) const;
     bool		getFileName(BufferString&) const;

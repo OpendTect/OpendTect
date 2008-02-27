@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.1 2008-02-27 13:42:08 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.2 2008-02-27 17:27:24 cvsbert Exp $";
 
 #include "uisurfaceposprov.h"
 #include "emsurfaceposprov.h"
@@ -41,9 +41,11 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     ctio1_.fillIfOnlyOne( IOObjContext::Surf );
     surf1fld_ = new uiIOObjSel( this, ctio1_, "Surface" );
 
+    const CallBack selcb( mCB(this,uiSurfacePosProvGroup,selChg) );
     selfld_ = new uiGenInput( this, "Select",
 	    		BoolInpSpec(true,"On surface","To a 2nd surface") );
     selfld_->attach( alignedBelow, surf1fld_ );
+    selfld_->valuechanged.notify( selcb );
 
     surf2fld_ = new uiIOObjSel( this, ctio2_, "Bottom surface" );
     surf2fld_->attach( alignedBelow, selfld_ );
@@ -53,10 +55,12 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     float zstep = SI().zRange(true).step;
     int v = (int)((zstep * zfac_) + .5);
     zstepfld_->setValue( v );
+    zstepfld_->setInterval( StepInterval<int>(1,999999,1) );
     BufferString txt( "Z step " ); txt += SI().getZUnit();
-    new uiLabel( this, txt, zstepfld_ );
+    zsteplbl_ = new uiLabel( this, txt, zstepfld_ );
 
     setHAlignObj( surf1fld_ );
+    mainwin()->finaliseDone.notify( selcb );
 }
 
 
@@ -64,6 +68,15 @@ uiSurfacePosProvGroup::~uiSurfacePosProvGroup()
 {
     delete ctio1_.ioobj; delete &ctio1_;
     delete ctio2_.ioobj; delete &ctio2_;
+}
+
+
+void uiSurfacePosProvGroup::selChg( CallBacker* )
+{
+    const bool have2 = !selfld_->getBoolValue();
+    surf2fld_->display( have2 );
+    zstepfld_->display( have2 );
+    zsteplbl_->display( have2 );
 }
 
 
@@ -108,6 +121,13 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
 
     iop.set( sKey::Type, sKey::Surface );
     return true;
+}
+
+
+void uiSurfacePosProvGroup::getSummary( BufferString& txt ) const
+{
+    if ( !surf1fld_ ) return;
+    txt += selfld_->getBoolValue() ? "On surface" : "Between surfaces";
 }
 
 

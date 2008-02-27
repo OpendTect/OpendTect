@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovgroup.h,v 1.4 2008-02-22 09:31:40 cvsbert Exp $
+ RCS:           $Id: uiposprovgroup.h,v 1.5 2008-02-27 17:27:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 
 /*! \brief group for providing positions, usually for 2D or 3D seismics */
 
-class uiPosProvGroup : public uiGroup
+class uiPosProvGroup : public uiPosFiltGroup
 {
 public:
 
@@ -33,9 +33,6 @@ public:
     };
 
 			uiPosProvGroup(uiParent*,const Setup&);
-
-    virtual void	usePar(const IOPar&)		= 0;
-    virtual bool	fillPar(IOPar&) const		= 0;
 
     virtual void	setExtractionDefaults()		{}
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.13 2008-02-25 09:03:35 cvshelene Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.14 2008-02-27 17:27:24 cvsbert Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -30,7 +30,7 @@ mImplFactory2Param(uiPosProvGroup,uiParent*,const uiPosProvGroup::Setup&,
 
 
 uiPosProvGroup::uiPosProvGroup( uiParent* p, const uiPosProvGroup::Setup& su )
-    : uiGroup(p,"Pos Prov Group")
+    : uiPosFiltGroup(p,su)
 {
 }
 
@@ -42,6 +42,7 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
     , hrgfld_(0)
     , nrrgfld_(0)
     , zrgfld_(0)
+    , setup_(su)
 {
     uiObject* attobj = 0;
     if ( su.is2d_ )
@@ -54,7 +55,7 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
 	hrgfld_ = new uiSelHRange( this, wstep );
 	attobj = hrgfld_->attachObj();
     }
-    if ( su.withz_ )
+    if ( setup_.withz_ )
     {
 	zrgfld_ = new uiSelZRange( this, wstep );
 	zrgfld_->attach( alignedBelow, attobj );
@@ -84,6 +85,13 @@ bool uiRangePosProvGroup::fillPar( IOPar& iop ) const
     CubeSampling cs; getCubeSampling( cs );
     cs.fillPar( iop );
     return true;
+}
+
+
+void uiRangePosProvGroup::getSummary( BufferString& txt ) const
+{
+    CubeSampling cs; getCubeSampling( cs );
+    txt += setup_.withz_ ? "Sub-volume" : "Sub-area";
 }
 
 
@@ -200,6 +208,12 @@ bool uiPolyPosProvGroup::fillPar( IOPar& iop ) const
 }
 
 
+void uiPolyPosProvGroup::getSummary( BufferString& txt ) const
+{
+    txt += "Within polygon";
+}
+
+
 void uiPolyPosProvGroup::setExtractionDefaults()
 {
     CubeSampling cs( true ); getExtrDefCubeSampling( cs );
@@ -292,6 +306,12 @@ bool uiTablePosProvGroup::fillPar( IOPar& iop ) const
 	iop.removeWithKey( mGetTableKey("ID") );
     }
     return true;
+}
+
+
+void uiTablePosProvGroup::getSummary( BufferString& txt ) const
+{
+    txt += "In table";
 }
 
 

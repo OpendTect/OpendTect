@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposfilterset.cc,v 1.4 2008-02-26 08:55:18 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposfilterset.cc,v 1.5 2008-02-27 17:27:24 cvsbert Exp $";
 
 #include "uiposfilterset.h"
 #include "posfilterset.h"
@@ -42,7 +42,6 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 	    grp->setName( nm );
 	    grps_ += grp;
 	    issel_ += false;
-	    isprov_ += false;
 	}
     }
 
@@ -63,7 +62,6 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 		grp->setName( nm );
 		grps_ += grp;
 		issel_ += false;
-		isprov_ += true;
 	    }
 	}
     }
@@ -147,10 +145,7 @@ void uiPosFilterSet::usePar( const IOPar& iop )
 	{
 	    if ( grps_[igrp]->name() == typ )
 	    {
-		mDynamicCastGet(uiPosFiltGroup*,pfgrp,grps_[igrp])
-		mDynamicCastGet(uiPosProvGroup*,ppgrp,grps_[igrp])
-		if ( pfgrp ) pfgrp->usePar( *subiop );
-		if ( ppgrp ) ppgrp->usePar( *subiop );
+		grps_[igrp]->usePar( *subiop );
 		issel_[igrp] = true;
 		break;
 	    }
@@ -174,10 +169,7 @@ bool uiPosFilterSet::fillPar( IOPar& iop ) const
 	const BufferString keybase( IOPar::compKey(sKey::Filter,ipar) );
 	IOPar subiop;
 	subiop.set( sKey::Type, grps_[igrp]->name() );
-	mDynamicCastGet(const uiPosFiltGroup*,pfgrp,grps_[igrp])
-	mDynamicCastGet(const uiPosProvGroup*,ppgrp,grps_[igrp])
-	if ( pfgrp ) pfgrp->fillPar( subiop );
-	if ( ppgrp ) ppgrp->fillPar( subiop );
+	grps_[igrp]->fillPar( subiop );
 	iop.mergeComp( subiop, keybase );
 
 	ipar++;
