@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.h,v 1.17 2007-03-28 12:20:46 cvsbert Exp $
+ RCS:           $Id: pixmap.h,v 1.18 2008-02-27 11:16:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,10 +18,12 @@ ________________________________________________________________________
 class QBitmap;
 class QPaintDevice;
 class QPixmap;
+
 class ArrayRGB;	//will go in the end, replaced by : uiRGBArray
-class uiRGBArray;
+class BufferStringSet;
 class Color;
 class ColorTable;
+class uiRGBArray;
 
 
 /*!\brief Off-screen pixel-based paint device
@@ -65,6 +67,10 @@ public:
     bool		isEmpty() const;
 
     const char*		source() const		{ return srcname_.buf(); }
+
+    bool		save(const char* fnm,const char* fmt=0,
+	    		     int quality=-1) const;
+    static void		supportedImageFormats(BufferStringSet&);
 
 protected:
     

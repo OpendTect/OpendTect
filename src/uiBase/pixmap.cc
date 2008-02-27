@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.26 2008-01-31 07:49:10 cvsnanne Exp $
+ RCS:           $Id: pixmap.cc,v 1.27 2008-02-27 11:16:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "arraynd.h"
 #include "arrayndimpl.h"
 #include "arrayrgb.h"
+#include "bufstringset.h"
 #include "color.h"
 #include "colortab.h"
 #include "errh.h"
@@ -26,7 +27,7 @@ ________________________________________________________________________
 #include <QPixmap>
 #include <QBitmap>
 #include <QColor>
-
+#include <QImageWriter>
 
 ioPixmap::ioPixmap( const ioPixmap& pm )
     : qpixmap_(new QPixmap(*pm.qpixmap_))
@@ -169,6 +170,18 @@ bool ioPixmap::isEmpty() const
 
 void ioPixmap::fill( const Color& col )
 { qpixmap_->fill( QColor(col.r(),col.g(),col.b()) ); }
+
+
+bool ioPixmap::save( const char* fnm, const char* fmt, int quality ) const
+{ return qpixmap_ ? qpixmap_->save( fnm, fmt, quality ) : false; }
+
+
+void ioPixmap::supportedImageFormats( BufferStringSet& list )
+{
+    QList<QByteArray> qlist = QImageWriter::supportedImageFormats();
+    for ( int idx=0; idx<qlist.size(); idx++ )
+	list.add( qlist[idx].constData() );
+}
 
 
 // ----- ioBitmap -----
