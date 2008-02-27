@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilterset.h,v 1.1 2008-02-22 15:02:45 cvsbert Exp $
+ RCS:           $Id: posfilterset.h,v 1.2 2008-02-27 09:48:36 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #define mDeclPosFiltSetFns(virtspec,pfx) \
     virtspec const char* pfx##type() const { return typeStr(); } \
     virtspec bool	pfx##initialize(); \
-    virtspec Executor*	pfx##initializer() const; \
+    virtspec Executor*	pfx##initializer(); \
     virtspec void	pfx##reset(); \
     virtspec bool	pfx##includes(const Coord&,float) const; \
     virtspec void	pfx##adjustZ(const Coord&,float&) const; \

@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: posfilter.cc,v 1.5 2008-02-26 08:55:18 cvsbert Exp $";
+static const char* rcsID = "$Id: posfilter.cc,v 1.6 2008-02-27 09:48:36 cvsbert Exp $";
 
 #include "posfilterset.h"
 #include "posfilterstd.h"
@@ -112,7 +112,7 @@ bool Pos::FilterSet::IMPL_initialize()
 }
 
 
-Executor* Pos::FilterSet::IMPL_initializer() const
+Executor* Pos::FilterSet::IMPL_initializer()
 {
     ExecutorGroup* egrp = new ExecutorGroup( "Position filters initializer",
 	   				     true );
@@ -251,7 +251,7 @@ void	Pos::FilterSet3D::fillPar(IOPar& i) const
 	{ IMPL_fillPar(i); }
 void	Pos::FilterSet3D::usePar(const IOPar& i)
 	{ IMPL_usePar(i); }
-Executor* Pos::FilterSet3D::initializer() const
+Executor* Pos::FilterSet3D::initializer()
 	{ return IMPL_initializer(); }
 bool	Pos::FilterSet3D::includes(const Coord& c,float z) const
 	{ return IMPL_includes(c,z); }
@@ -270,7 +270,7 @@ void	Pos::FilterSet2D::fillPar(IOPar& i) const
 	{ IMPL_fillPar(i); }
 void	Pos::FilterSet2D::usePar(const IOPar& i)
 	{ IMPL_usePar(i); }
-Executor* Pos::FilterSet2D::initializer() const
+Executor* Pos::FilterSet2D::initializer()
 	{ return IMPL_initializer(); }
 bool	Pos::FilterSet2D::includes(const Coord& c,float z) const
 	{ return IMPL_includes(c,z); }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilter.h,v 1.4 2008-02-22 15:02:45 cvsbert Exp $
+ RCS:           $Id: posfilter.h,v 1.5 2008-02-27 09:48:36 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -35,9 +35,9 @@ namespace Pos
   curCoord(), curZ(), or includes(). For that, you have to initialize() the
   object.
 
-
-  Filter2D and Filter3D have factories. These are meant for 'true' Filters,
-  therefore no Providers wanted.
+  Filter2D and Filter3D have factories. Providers too. Standard providers
+  are not added to the Filter factory. Non-standard should in general be added
+  to both.
  
  */
 
@@ -53,7 +53,7 @@ public:
     virtual bool	isProvider() const			{ return false;}
 
     virtual bool	initialize();
-    virtual Executor*	initializer() const			{ return 0; }
+    virtual Executor*	initializer()				{ return 0; }
     virtual void	reset()					= 0;
 
     virtual bool	includes(const Coord&,
