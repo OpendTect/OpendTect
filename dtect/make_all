@@ -112,7 +112,7 @@ programmer_doc:
 if ( $dodoc == yes ) then
     cdw
     make doc MODS=.mods.od
-    cd data/dTectDoc/Programmer/Generated
+    cd doc/Programmer/Generated
     ./mk_paths_relative
     GenModDeps --html $WORK/Pmake/ModDeps.od index.html
 endif
