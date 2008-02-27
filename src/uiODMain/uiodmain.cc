@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.92 2008-02-07 16:21:38 cvsbert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.93 2008-02-27 13:42:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ ________________________________________________________________________
 #include "initsood.h"
 #include "inituiio.h"
 #include "inituiattributes.h"
+#include "inituiearthmodel.h"
 #include "inituimpe.h"
 #include "inituivolumeprocessing.h"
 #include "inituiprestackprocessing.h"
@@ -104,6 +105,7 @@ void initAll()
 
     uiIo::initStdClasses();
     uiAttributes::initStdClasses();
+    uiEarthModel::initStdClasses();
     uiVolumeProcessing::initStdClasses();
     uiPreStackProcessing::initStdClasses();
     uiMPE::initStdClasses();
