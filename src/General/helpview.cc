@@ -5,67 +5,35 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.33 2008-02-26 11:09:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.34 2008-02-27 10:22:06 cvsnanne Exp $";
 
 #include "helpview.h"
 
 #include "ascstream.h"
-#include "multiid.h"
-#include "errh.h"
-#include "oddirs.h"
 #include "envvars.h"
-#include "strmprov.h"
+#include "errh.h"
 #include "filegen.h"
 #include "filepath.h"
-#include "string2.h"
-#include <stdlib.h>
-
-#include "debugmasks.h"
+#include "multiid.h"
+#include "oddirs.h"
+#include "strmprov.h"
 
 
 static const char* sMainIndex = "MainIndex";
+static const char* sODDir = "base";
+static const char* sIndexHtml = "index.html";
+static const char* sBookHtml = "book1.htm";
+static const char* sNotFoundHtml = "notfound.html";
 static const char* sNotInstHtml = "docnotinst.html";
+static const char* sToDoHtml = "todo.html";
 
-BufferString HelpViewer::basenm( "base" );
 
-
-const char* HelpViewer::subdirNm( const char* scnm )
+static StreamData getStreamData( const char* fnm )
 {
-    static char ret[40];
-    strcpy( ret, scnm && *scnm ? scnm : basenm.buf() );
-//    strcat( ret, "Doc" );
-    return ret;
-}
-
-
-#define mGetDataFileName(fnm) GetSetupDataFileName(ODSetupLoc_SWDirOnly,fnm)
-#define mGetDocFileName(fnm) GetSetupDataFileName(ODSetupLoc_SWDirOnly,fnm)
-
-static const char* getDocFileName( const char* fnm )
-{
-    static BufferString docfnm;
-    docfnm = mGetUserDocDir();
-    docfnm = FilePath( docfnm ).add( fnm ).fullPath();
-    return docfnm.buf();
-}
-
-
-static StreamData openHFile( const char* nm, const char* scope )
-{
-    FileNameString fnm;
-    BufferString subfnm( HelpViewer::subdirNm(scope) );
-    if ( !File_exists(getDocFileName(subfnm)) )
-	fnm = getDocFileName( sNotInstHtml );
-    else
-    {
-	subfnm = FilePath( subfnm ).add( nm ).fullPath();
-	fnm = getDocFileName( subfnm );
-    }
-
     StreamData sd = StreamProvider( fnm ).makeIStream();
     if ( !sd.usable() )
     {
-	FileNameString msg( "Help file '" );
+	BufferString msg( "Help file '" );
 	msg += fnm; msg += "' not available";
 	ErrMsg( msg ); sd.close();
     }
@@ -92,18 +60,23 @@ static BufferString getScope( const char* inp )
 	*ptr = '\0';
 	ret = winid;
     }
+
+    if ( ret.isEmpty() )
+	ret = sODDir;
     return ret;
 }
 
 
-BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid )
+BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid,
+       					      const char* docdir )
 {
     if ( !inpwinid || !*inpwinid ) return BufferString( sMainIndex );
 
-    BufferString scope( getScope(inpwinid) );
     BufferString winid( unScoped(inpwinid) );
 
-    StreamData sd = openHFile( "WindowLinkTable.txt", scope );
+    const BufferString fnm =
+	FilePath( docdir ).add( "WindowLinkTable.txt" ).fullPath();
+    StreamData sd = getStreamData( fnm );
     if ( !sd.usable() )
 	return BufferString("");
     std::istream& strm = *sd.istrm;
@@ -172,54 +145,55 @@ BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid )
 }
 
 
-BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* scope )
+BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* docdir)
 {
     BufferString linknm( lnm );
     if ( linknm.isEmpty() )
 	linknm = sMainIndex;
-    BufferString htmlfnm;
+
     const bool ismainidx = linknm == sMainIndex;
     const bool istodo = linknm == "TODO";
-    if ( !ismainidx && !istodo )
+    BufferString url;
+    if ( ismainidx || istodo )
     {
-	StreamData sd = openHFile( "LinkFileTable.txt", scope );
-	if ( sd.usable() )
+	url = ismainidx ? FilePath( docdir ).add( sIndexHtml ).fullPath().buf()
+			: GetDocFileDir( sToDoHtml );
+	if ( ismainidx && !File_exists(url) )
 	{
-	    std::string lnk, fnm;
-	    std::istream& strm = *sd.istrm;
-	    while ( strm.good() )
-	    {
-		strm >> lnk >> fnm;
-		if ( caseInsensitiveEqual(lnk.c_str(),linknm.buf(),0) )
-		{
-		    htmlfnm = fnm.c_str();
-		    linknm = lnk.c_str();
-		    break;
-		}
-	    }
-	    sd.close();
+	    url = FilePath( docdir ).add( sBookHtml ).fullPath();
+	    if ( !File_exists(url) )
+		url = GetDocFileDir( sNotFoundHtml );
 	}
+	return url;
     }
 
-    FilePath fp( GetSoftwareDir() );
-    fp.add( "doc" ).add( subdirNm(scope) );
-    if ( istodo )
-	htmlfnm = "todo.html";
-    else if ( htmlfnm.isEmpty() )
-	htmlfnm = "index.html";
-
-    fp.add( htmlfnm );
-    BufferString url = fp.fullPath();
-    if ( ismainidx && !File_exists(url) )
+    const BufferString ftnm =
+	FilePath( docdir ).add( "LinkFileTable.txt" ).fullPath();
+    StreamData sd = getStreamData( ftnm );
+    BufferString htmlfnm;
+    if ( sd.usable() )
     {
-	fp.setFileName( htmlfnm == "index.html" ? "book1.htm" : "index.html" );
-	url = fp.fullPath();
+	std::string lnk, fnm;
+	std::istream& strm = *sd.istrm;
+	while ( strm.good() )
+	{
+	    strm >> lnk >> fnm;
+	    if ( caseInsensitiveEqual(lnk.c_str(),linknm.buf(),0) )
+	    {
+		htmlfnm = fnm.c_str();
+		linknm = lnk.c_str();
+		break;
+	    }
+	}
+	sd.close();
     }
 
+    const char* fnm = htmlfnm.isEmpty() ? sIndexHtml : htmlfnm.buf();
+    url = FilePath( docdir ).add( fnm ).fullPath();
     if ( !File_exists(url) )
-	url = getDocFileName( istodo ? "todo.html" : "notfound.html" );
-    else if ( linknm != sMainIndex && !istodo )
-	{ url += "#"; url += linknm; }
+	url = GetDocFileDir( sNotFoundHtml );
+    else
+    { url += "#"; url += linknm; }
 
     return url;
 }
@@ -227,12 +201,11 @@ BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* scope )
 
 BufferString HelpViewer::getURLForWinID( const char* winid )
 {
-    BufferString scope( getScope(winid) );
-    BufferString subfnm( HelpViewer::subdirNm(scope) );
-    if ( !File_exists(getDocFileName(subfnm)) )
-	return BufferString( getDocFileName(sNotInstHtml) );
+    const BufferString docdir =
+	FilePath( mGetUserDocDir() ).add( getScope(winid) ).fullPath();
+    if ( !File_exists(docdir) )
+	return BufferString( GetDocFileDir(sNotInstHtml) );
 
-    BufferString lnm = getLinkNameForWinID( winid );
-//    if ( lnm.isEmpty() ) return lnm;
-    return getURLForLinkName( lnm, scope );
+    const BufferString lnm = getLinkNameForWinID( winid, docdir );
+    return getURLForLinkName( lnm.buf(), docdir );
 }
