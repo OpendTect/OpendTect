@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.10 2008-02-26 13:11:38 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.11 2008-02-28 10:04:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,8 +19,7 @@ class BinIDValueSet;
 class PosVecDataSet;
 class UnitOfMeasure;
 class BufferStringSet;
-namespace Pos { class Filter; class Filter3D; class Filter2D;
-		class Provider2D; class Provider3D; }
+namespace Pos { class Filter; class Provider; }
 
 
 /*!\brief Set of data points with group selection.
@@ -113,12 +112,9 @@ public:
     			DataPointSet(const TypeSet<DataRow>&,
 				     const BufferStringSet& valnms,
 				     bool is2d=false);
-    			DataPointSet(::Pos::Provider3D&,
+    			DataPointSet(::Pos::Provider&,
 				     const ObjectSet<DataColDef>&,
-				     const ::Pos::Filter3D* f=0);
-    			DataPointSet(::Pos::Provider2D&,
-				     const ObjectSet<DataColDef>&,
-				     const ::Pos::Filter2D* f=0);
+				     const ::Pos::Filter* f=0);
     			DataPointSet(const PosVecDataSet&,bool is2d=false);
     			DataPointSet(const DataPointSet&,const ::Pos::Filter&);
     			DataPointSet(const DataPointSet&);

@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.14 2008-02-26 13:11:38 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.15 2008-02-28 10:04:21 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -93,61 +93,49 @@ DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
 }
 
 
-DataPointSet::DataPointSet( ::Pos::Provider3D& prov,
+DataPointSet::DataPointSet( ::Pos::Provider& prov,
 			    const ObjectSet<DataColDef>& dcds,
-       			    const ::Pos::Filter3D* filt )
+       			    const ::Pos::Filter* filt )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
-    	, mAdd2DMembs(false)
+    	, mAdd2DMembs(prov.is2D())
 {
     initPVDS();
     for ( int idx=0; idx<dcds.size(); idx++ )
 	data_.add( new DataColDef(*dcds[idx]) );
 
-    const int nrcols = dcds.size();
-    DataPointSet::DataRow dr;
-    while ( prov.toNextZ() )
-    {
-	dr.pos_.set( prov.curBinID(), prov.curCoord() );
-	dr.pos_.z_ = prov.curZ();
-	if ( filt )
-	{
-	    if ( !filt->includes(dr.pos_.binid_,dr.pos_.z_) )
-		continue;
-	    dr.pos_.z_ = filt->adjustedZ( dr.pos_.coord(), dr.pos_.z_ );
-	}
-	dr.data_.setSize( nrcols, mUdf(float) );
-	addRow( dr );
-    }
-
-    calcIdxs();
-}
-
-
-DataPointSet::DataPointSet( ::Pos::Provider2D& prov,
-			    const ObjectSet<DataColDef>& dcds,
-       			    const ::Pos::Filter2D* filt )
-	: PointDataPack(sKeyDPS)
-	, data_(*new PosVecDataSet)
-    	, mAdd2DMembs(true)
-{
-    initPVDS();
-    for ( int idx=0; idx<dcds.size(); idx++ )
-	data_.add( new DataColDef(*dcds[idx]) );
+    mDynamicCastGet(const ::Pos::Provider3D*,p3d,filt)
+    mDynamicCastGet(const ::Pos::Provider2D*,p2d,filt)
+    mDynamicCastGet(const ::Pos::Filter3D*,f3d,filt)
+    mDynamicCastGet(const ::Pos::Filter2D*,f2d,filt)
 
     const int nrcols = dcds.size();
     DataPointSet::DataRow dr;
     while ( prov.toNextZ() )
     {
 	const Coord crd( prov.curCoord() );
-	dr.pos_.set( SI().transform(crd), crd );
+	if ( p3d )
+	    dr.pos_.set( p3d->curBinID(), crd );
+	else
+	{
+	    dr.pos_.set( SI().transform(crd), crd );
+	    dr.pos_.nr_ = p2d->curNr();
+	}
 	dr.pos_.z_ = prov.curZ();
-	dr.pos_.nr_ = prov.curNr();
 	if ( filt )
 	{
-	    if ( !filt->includes(dr.pos_.nr_,dr.pos_.z_) )
-		continue;
-	    dr.pos_.z_ = filt->adjustedZ( dr.pos_.coord(), dr.pos_.z_ );
+	    if ( f3d )
+	    {
+		if ( !f3d->includes(dr.pos_.binid_,dr.pos_.z_) )
+		    continue;
+	    }
+	    else if ( f2d )
+	    {
+		if ( !f2d->includes(dr.pos_.nr_,dr.pos_.z_) )
+		    continue;
+	    }
+	    if ( filt->hasZAdjustment() )
+		dr.pos_.z_ = filt->adjustedZ( crd, dr.pos_.z_ );
 	}
 	dr.data_.setSize( nrcols, mUdf(float) );
 	addRow( dr );
