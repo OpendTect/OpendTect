@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.64 2008-02-20 21:39:16 cvskris Exp $
+ RCS:		$Id: emsurface.h,v 1.65 2008-02-28 12:16:54 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -16,13 +16,10 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "position.h"
 
-template <class T, class AT> class TopList;
-
-/*!
-*/
-
 class BinID;
+class IOObj;
 class RowCol;
+template <class T, class AT> class TopList;
 
 namespace EM
 {
@@ -70,6 +67,9 @@ public:
 
     virtual SurfaceGeometry&		geometry()			= 0;
     virtual const SurfaceGeometry&	geometry() const;
+
+    static BufferString		getParFileName(const IOObj&);
+    static BufferString		getSetupFileName(const IOObj&);
 
 protected:
     friend class		SurfaceGeometry;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurface.cc,v 1.88 2008-02-20 21:39:16 cvskris Exp $
+ RCS:           $Id: emsurface.cc,v 1.89 2008-02-28 12:16:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,8 @@ ________________________________________________________________________
 #include "emsurfacegeometry.h"
 #include "emsurfaceiodata.h"
 #include "emsurfaceauxdata.h"
+#include "filepath.h"
+#include "ioobj.h"
 #include "iopar.h"
 
 
@@ -163,6 +165,22 @@ bool Surface::isGeometryChecksEnabled() const
 
 const SurfaceGeometry& Surface::geometry() const
 { return const_cast<Surface*>(this)->geometry(); }
+
+
+BufferString Surface::getParFileName( const IOObj& ioobj )
+{
+    FilePath fp( ioobj.fullUserExpr(true) );
+    fp.setExtension( "par" );
+    return fp.fullPath();
+}
+
+
+BufferString Surface::getSetupFileName( const IOObj& ioobj )
+{
+    FilePath fp( ioobj.fullUserExpr(true) );
+    fp.setExtension( "ts" );
+    return fp.fullPath();
+}
 
 
 bool Surface::usePar( const IOPar& par )
