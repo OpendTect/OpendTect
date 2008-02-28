@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.74 2008-02-26 12:51:42 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.75 2008-02-28 15:51:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 
 #include "binidvalset.h"
 #include "cubesampling.h"
+#include "datacoldef.h"
 #include "datapointset.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -792,10 +793,13 @@ AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
     const int nrinps = datapointset.nrCols();
     for ( int idx=0; idx<nrinps; idx++ )
     {
-	const DescID id = descset.getID( datapointset.colName(idx), true );
-	if ( id == DescID::undef() )
+	const char* str = datapointset.colDef(idx).ref_.buf();
+	char* ptrtosep = strchr( str, '`' );
+	ptrtosep='\0';
+	const DescID did( atoi(str), true );
+	if ( did == DescID::undef() )
 	    continue;
-	SelSpec ss( 0, id );
+	SelSpec ss( 0, did );
 	ss.setRefFromID( descset );
 	aem.attrspecs_ += ss;
     }
