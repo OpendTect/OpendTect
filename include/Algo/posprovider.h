@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posprovider.h,v 1.10 2008-02-27 14:36:36 cvsbert Exp $
+ RCS:           $Id: posprovider.h,v 1.11 2008-02-28 08:25:25 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,7 @@ namespace Pos
 
  */
 
-class Provider : public virtual Pos::Filter
+class Provider : public virtual Filter
 {
 public:
 
@@ -46,6 +46,7 @@ public:
     virtual int		estNrPos() const			= 0;
     virtual int		estNrZPerPos() const			{ return 1; }
 
+    virtual float	estRatio(const Provider&) const;
     virtual void	getCubeSampling(CubeSampling&) const;
 
 };

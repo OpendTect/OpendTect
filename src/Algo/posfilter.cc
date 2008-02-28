@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: posfilter.cc,v 1.7 2008-02-27 14:36:36 cvsbert Exp $";
+static const char* rcsID = "$Id: posfilter.cc,v 1.8 2008-02-28 08:25:25 cvsbert Exp $";
 
 #include "posfilterset.h"
 #include "posfilterstd.h"
@@ -30,8 +30,18 @@ const char* Pos::SubsampFilter::eachStr() { return "Pass each"; }
 bool Pos::Filter::initialize()
 {
     Executor* exec = initializer();
-    if ( exec ) return exec->execute();
-    reset(); return true;
+    if ( !exec ) { reset(); return true; }
+    const bool res = exec->execute();
+    delete exec; return res;
+}
+
+
+bool Pos::Filter::initialize( TaskRunner& tr )
+{
+    Executor* exec = initializer();
+    if ( !exec ) { reset(); return true; }
+    const bool res = tr.execute( *exec );
+    delete exec; return res;
 }
 
 
@@ -207,7 +217,8 @@ void Pos::FilterSet::usePar( const IOPar& iop )
 
 void Pos::FilterSet::getSummary( BufferString& txt ) const
 {
-    if ( isEmpty() ) return;
+    if ( isEmpty() )
+	{ txt += "-"; return; }
 
     if ( size() > 1 ) txt += "{";
     filts_[0]->getSummary( txt );
@@ -217,6 +228,15 @@ void Pos::FilterSet::getSummary( BufferString& txt ) const
 	filts_[idx]->getSummary( txt );
     }
     if ( size() > 1 ) txt += "}";
+}
+
+
+float Pos::FilterSet::estRatio( const Pos::Provider& prov ) const
+{
+    float ratio = 1;
+    for ( int idx=0; idx<size(); idx++ )
+	ratio *= filts_[idx]->estRatio( prov );
+    return ratio;
 }
 
 
@@ -321,6 +341,14 @@ void Pos::SubsampFilter3D::initClass()
 void Pos::SubsampFilter2D::initClass()
 {
     Pos::Filter2D::factory().addCreator( create, sKey::Subsample );
+}
+
+
+float Pos::Provider::estRatio( const Pos::Provider& prov ) const
+{
+    CubeSampling provcs( true ); prov.getCubeSampling( provcs );
+    float provnr = provcs.hrg.totalNr(); provnr *= provcs.zrg.nrSteps() + 1;
+    return ( provnr / estNrPos() ) / estNrZPerPos();
 }
 
 

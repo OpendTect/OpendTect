@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilterstd.h,v 1.2 2008-02-27 14:36:36 cvsbert Exp $
+ RCS:           $Id: posfilterstd.h,v 1.3 2008-02-28 08:25:25 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -21,7 +21,7 @@ namespace Pos
 
 /*!\brief Passes a percentage of the positions */
 
-class RandomFilter : public virtual Pos::Filter
+class RandomFilter : public virtual Filter
 {
 public:
 
@@ -36,6 +36,7 @@ public:
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
     virtual void	getSummary(BufferString&) const;
+    virtual float	estRatio(const Provider&) const	{ return passratio_; }
 
     float		passratio_;
 
@@ -71,8 +72,8 @@ mSimpPosFilterDefFnsBase
 
 /*!\brief Passes a percentage of the positions (3D) */
 
-class RandomFilter3D : public Pos::Filter3D
-		     , public Pos::RandomFilter
+class RandomFilter3D : public Filter3D
+		     , public RandomFilter
 {
 public:
 
@@ -83,8 +84,8 @@ public:
 
 /*!\brief Passes a percentage of the positions (2D) */
 
-class RandomFilter2D : public Pos::Filter2D
-		     , public Pos::RandomFilter
+class RandomFilter2D : public Filter2D
+		     , public RandomFilter
 {
 public:
 
@@ -94,7 +95,7 @@ public:
 
 /*!\brief Passes each nth position */
 
-class SubsampFilter : public virtual Pos::Filter
+class SubsampFilter : public virtual Filter
 {
 public:
 
@@ -108,6 +109,7 @@ public:
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
     virtual void	getSummary(BufferString&) const;
+    virtual float	estRatio(const Provider&) const	{ return 1./each_; }
 
     int			each_;
 
@@ -124,8 +126,8 @@ protected:
 
 /*!\brief Passes each nth position (3D) */
 
-class SubsampFilter3D : public Pos::Filter3D
-		      , public Pos::SubsampFilter
+class SubsampFilter3D : public Filter3D
+		      , public SubsampFilter
 {
 public:
 
@@ -136,15 +138,14 @@ public:
 
 /*!\brief Passes each nth position (2D) */
 
-class SubsampFilter2D : public Pos::Filter2D
-		      , public Pos::SubsampFilter
+class SubsampFilter2D : public Filter2D
+		      , public SubsampFilter
 {
 public:
 
     mSimpPosFilterDefFns2D(Subsamp);
 
 };
-
 
 } // namespace
 

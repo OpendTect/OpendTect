@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilterset.h,v 1.3 2008-02-27 14:36:36 cvsbert Exp $
+ RCS:           $Id: posfilterset.h,v 1.4 2008-02-28 08:25:25 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ namespace Pos
 
 /*!\brief Set of Filters. Owns the Filters. */
 
-class FilterSet : public virtual Pos::Filter
+class FilterSet : public virtual Filter
 {
 public:
 
@@ -43,16 +43,17 @@ public:
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
     virtual void	getSummary(BufferString&) const;
+    virtual float	estRatio(const Provider&) const;
 
     bool		isEmpty() const	{ return filts_.isEmpty(); }
     int			size() const	{ return filts_.size(); }
 
-    ObjectSet<Pos::Filter>& filters()			{ return filts_; }
-    const ObjectSet<Pos::Filter>& filters() const	{ return filts_; }
+    ObjectSet<Filter>& filters()			{ return filts_; }
+    const ObjectSet<Filter>& filters() const	{ return filts_; }
 
 protected:
 
-    ObjectSet<Pos::Filter>	filts_;
+    ObjectSet<Filter>	filts_;
 
     void		copyFrom(const FilterSet&);
 
@@ -68,7 +69,7 @@ protected:
     virtual Filter*	clone() const	{ return new FilterSet##dim(*this); } \
     virtual const char* type() const	{ return typeStr(); } \
     virtual bool	includes( const Coord& c, float z=1e30 ) const \
-			{ return Pos::FilterSet::includes(c,z); } \
+			{ return FilterSet::includes(c,z); } \
 
 
 class FilterSet3D : public FilterSet

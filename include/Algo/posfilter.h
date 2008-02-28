@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilter.h,v 1.6 2008-02-27 14:36:36 cvsbert Exp $
+ RCS:           $Id: posfilter.h,v 1.7 2008-02-28 08:25:25 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -15,20 +15,23 @@ ________________________________________________________________________
 
 #include "position.h"
 #include "factory.h"
-class Executor;
 class IOPar;
+class Executor;
+class TaskRunner;
 
 
 namespace Pos
 {
+class Provider;
 
 /*!\brief decideds whether a given position should be included
 
   Some Filters require time-consuming initialization.
   initialize() will always initialize the object, but this may take a long
-  time. If that is an issue, try obtaining the initializer().
-  If that is null, then call initialize(). If you need to iterate again, use
-  reset().
+  time. If that is an issue, try obtaining the initializer(). If that is null,
+  then call initialize(). If you need to iterate again, use reset().
+  If you have a TaskRunner, the convenience function initialize(TaskRunner&)
+  will do all necessary initializations for you.
 
   After 'usePar' the object may be in an intermediate state. You should be
   able to ask all kinds of global questions, but not toNextPos(), toNextZ(),
@@ -54,6 +57,7 @@ public:
 
     virtual bool	initialize();
     virtual Executor*	initializer()				{ return 0; }
+    bool		initialize(TaskRunner&);
     virtual void	reset()					= 0;
 
     virtual bool	includes(const Coord&,
@@ -65,6 +69,7 @@ public:
     virtual void	fillPar(IOPar&) const			= 0;
 
     virtual void	getSummary(BufferString&) const		= 0;
+    virtual float	estRatio(const Provider&) const		= 0;
 };
 
 
