@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.15 2008-02-28 10:04:21 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.16 2008-02-28 14:27:45 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -104,8 +104,8 @@ DataPointSet::DataPointSet( ::Pos::Provider& prov,
     for ( int idx=0; idx<dcds.size(); idx++ )
 	data_.add( new DataColDef(*dcds[idx]) );
 
-    mDynamicCastGet(const ::Pos::Provider3D*,p3d,filt)
-    mDynamicCastGet(const ::Pos::Provider2D*,p2d,filt)
+    mDynamicCastGet(const ::Pos::Provider3D*,p3d,&prov)
+    mDynamicCastGet(const ::Pos::Provider2D*,p2d,&prov)
     mDynamicCastGet(const ::Pos::Filter3D*,f3d,filt)
     mDynamicCastGet(const ::Pos::Filter2D*,f2d,filt)
 
