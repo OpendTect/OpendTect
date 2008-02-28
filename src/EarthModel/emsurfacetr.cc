@@ -4,20 +4,22 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.20 2007-10-24 08:23:11 cvsjaap Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.21 2008-02-28 12:18:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emsurfacetr.h"
-#include "emsurfaceio.h"
 
 #include "ascstream.h"
 #include "datachar.h"
 #include "datainterp.h"
+#include "emsurface.h"
+#include "emsurfaceio.h"
 #include "emsurfauxdataio.h"
 #include "executor.h"
 #include "filegen.h"
+#include "filepath.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "iostrm.h"
@@ -165,10 +167,14 @@ bool EMSurfaceTranslator::implRemove( const IOObj* ioobj ) const
 	    gap++;
     }
 
-    StreamProvider setupsp( EM::dgbSurfDataWriter::createSetupName(basenm) );
-    setupsp.addPathIfNecessary( pathnm );
-    if ( setupsp.exists(true) )
-	setupsp.remove(false);
+#define mRemove( fn ) { \
+    StreamProvider parsp( EM::Surface::fn(*ioobj) ); \
+    parsp.addPathIfNecessary( pathnm ); \
+    if ( parsp.exists(true) ) \
+	parsp.remove(false); }
+
+    mRemove( getSetupFileName )
+    mRemove( getParFileName )
 
     return res;
 }
@@ -191,12 +197,17 @@ bool EMSurfaceTranslator::implRename( const IOObj* ioobj, const char* newnm,
 	    gap++;
     }
 
-    StreamProvider oldsetupsp( EM::dgbSurfDataWriter::createSetupName(basenm) );
-    oldsetupsp.addPathIfNecessary( pathnm );
-    StreamProvider newsetupsp( EM::dgbSurfDataWriter::createSetupName(newnm) );
-    newsetupsp.addPathIfNecessary( pathnm );
-    if ( oldsetupsp.exists(true) )
-	oldsetupsp.rename( newsetupsp.fileName(), cb );
+#define mRename( fn ) { \
+    FilePath fp( EM::Surface::fn(*ioobj) ); \
+    StreamProvider oldsp( fp.fullPath() ); \
+    oldsp.addPathIfNecessary( pathnm ); \
+    FilePath newfp( newnm ); \
+    newfp.setExtension( fp.extension() ); \
+    if ( oldsp.exists(true) ) \
+	oldsp.rename( newfp.fullPath(), cb ); }
+
+    mRename( getSetupFileName )
+    mRename( getParFileName )
     
     return res;
 }

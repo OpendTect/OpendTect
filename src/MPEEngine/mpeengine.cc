@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: mpeengine.cc,v 1.83 2007-12-14 05:15:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: mpeengine.cc,v 1.84 2008-02-28 12:18:05 cvsnanne Exp $";
 
 #include "mpeengine.h"
 
@@ -18,12 +18,10 @@ static const char* rcsID = "$Id: mpeengine.cc,v 1.83 2007-12-14 05:15:23 cvssaty
 #include "ctxtioobj.h"
 #include "emeditor.h"
 #include "emmanager.h"
-#include "emobject.h"
-#include "emsurfauxdataio.h"
 #include "emseedpicker.h"
+#include "emsurface.h"
 #include "emtracker.h"
 #include "executor.h"
-#include "filepath.h"
 #include "geomelement.h"
 #include "ioman.h"
 #include "ioobject.h"
@@ -474,18 +472,8 @@ CubeSampling Engine::getDefaultActiveVolume()
 BufferString Engine::setupFileName( const MultiID& mid ) const
 {
     PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( ioobj )
-    {
-	FilePath surffilenm( ioobj->fullUserExpr(true) );
-	BufferString surfstr = surffilenm.fileName();
-	BufferString setupstr = EM::dgbSurfDataWriter::createSetupName(surfstr);
-	FilePath setupfilenm( setupstr );
-	FilePath setuppath( IOObjContext::getDataDirName(IOObjContext::Surf) );
-	setupfilenm.setPath( setuppath.fullPath() );
-	return BufferString( setupfilenm.fullPath() );
-    }
-
-    return BufferString("");
+    return ioobj.ptr() ? EM::Surface::getSetupFileName(*ioobj)
+		       : BufferString("");
 }
 
 

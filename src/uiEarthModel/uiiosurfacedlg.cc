@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.27 2008-02-15 07:38:23 cvsnanne Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.28 2008-02-28 12:18:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,20 +12,20 @@ ________________________________________________________________________
 #include "uiiosurfacedlg.h"
 #include "uiiosurface.h"
 
-#include "emsurfaceiodata.h"
-#include "emsurfaceauxdata.h"
-#include "emsurfacetr.h"
-#include "emsurfauxdataio.h"
-#include "uimsg.h"
 #include "ctxtioobj.h"
-#include "filegen.h"
-#include "ioobj.h"
-#include "emsurface.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
 #include "emmanager.h"
+#include "emsurfaceauxdata.h"
+#include "emsurfaceiodata.h"
+#include "emsurfacetr.h"
+#include "executor.h"
+#include "filegen.h"
+#include "ioobj.h"
+
 #include "uigeninput.h"
 #include "uiioobjsel.h"
+#include "uimsg.h"
 #include "uitaskrunner.h"
 
 
@@ -211,12 +211,8 @@ bool uiCopySurface::acceptOK( CallBacker* )
     uiTaskRunner savedlg( this );
     if ( !savedlg.execute(*saver) ) return false;
 
-    const BufferString oldsurfname = ioobj->fullUserExpr( true );
-    const BufferString newsurfname = newioobj->fullUserExpr( true );
-    const BufferString oldsetupname =
-		       EM::dgbSurfDataWriter::createSetupName( oldsurfname );
-    const BufferString newsetupname = 
-		       EM::dgbSurfDataWriter::createSetupName( newsurfname );
+    const BufferString oldsetupname = EM::Surface::getSetupFileName( *ioobj );
+    const BufferString newsetupname = EM::Surface::getSetupFileName( *newioobj);
     if ( File_exists(oldsetupname) ) 
 	File_copy( oldsetupname, newsetupname, false );
 
