@@ -8,10 +8,11 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposfilterset.cc,v 1.5 2008-02-27 17:27:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposfilterset.cc,v 1.6 2008-02-28 10:05:16 cvsbert Exp $";
 
 #include "uiposfilterset.h"
 #include "posfilterset.h"
+#include "posprovider.h"
 #include "uiposprovgroup.h"
 #include "uimainwin.h"
 #include "uilistbox.h"
@@ -48,8 +49,8 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
     if ( setup_.incprovs_ )
     {
 	const BufferStringSet& provnms( setup_.is2d_
-			    ? Pos::Filter2D::factory().getNames()
-			    : Pos::Filter3D::factory().getNames() );
+			    ? Pos::Provider2D::factory().getNames()
+			    : Pos::Provider3D::factory().getNames() );
 	for ( int idx=0; idx<provnms.size(); idx++ )
 	{
 	    const BufferString& nm( provnms.get(idx) );
@@ -86,7 +87,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 	selfld_ = new uiListBox( this, "Filter selection" );
 	selfld_->addItems( nms );
 	selfld_->selectionChanged.notify( selcb );
-	int ph = nms.size(); if ( ph > 9 ) ph = 9;
+	int ph = nms.size()-1; if ( ph > 9 ) ph = 9;
 	selfld_->setPrefHeightInChar( ph );
 	attobj = selfld_;
     }
