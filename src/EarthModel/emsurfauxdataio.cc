@@ -4,25 +4,26 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jun 2003
- RCS:           $Id: emsurfauxdataio.cc,v 1.32 2007-11-29 14:36:04 cvsbert Exp $
+ RCS:           $Id: emsurfauxdataio.cc,v 1.33 2008-02-28 12:18:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emsurfauxdataio.h"
+
 #include "ascstream.h"
-#include "datainterp.h"
-#include "datachar.h"
-#include "emhorizon3d.h"
-#include "emsurfacegeometry.h"
-#include "emsurfaceauxdata.h"
-#include "filepath.h"
-#include "parametricsurface.h"
-#include "iopar.h"
-#include "survinfo.h"
-#include "strmprov.h"
-#include "filegen.h"
 #include "cubesampling.h"
+#include "datachar.h"
+#include "datainterp.h"
+#include "emhorizon3d.h"
+#include "emsurfaceauxdata.h"
+#include "emsurfacegeometry.h"
+#include "filegen.h"
+#include "iopar.h"
+#include "parametricsurface.h"
+#include "strmprov.h"
+#include "survinfo.h"
+
 #include <iostream>
 
 namespace EM
@@ -182,14 +183,6 @@ BufferString dgbSurfDataWriter::createHovName( const char* base, int idx )
     BufferString res( base );
     res += "^"; res += idx; res += ".hov";
     return res;
-}
-
-
-BufferString dgbSurfDataWriter::createSetupName( const char* curname )
-{
-    FilePath setupname( curname );
-    setupname.setExtension( "ts", true );
-    return setupname.fullPath();
 }
 
 
