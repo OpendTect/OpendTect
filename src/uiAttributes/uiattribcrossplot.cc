@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiattribcrossplot.cc,v 1.17 2008-02-26 16:47:39 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.18 2008-02-28 10:05:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,7 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
     posprovfld_->attach( alignedBelow, llb );
 
     uiPosFilterSet::Setup fsu( ads_.is2D() );
-    fsu.seltxt( "Location filters" ).incprovs( false );
+    fsu.seltxt( "Location filters" ).incprovs( true );
     posfiltfld_ = new uiPosFilterSetSel( this, fsu );
     posfiltfld_->attach( alignedBelow, posprovfld_ );
 }
@@ -103,13 +103,8 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 	mErrRet("Internal: no Pos::Provider")
 
     uiTaskRunner tr( this );
-    PtrMan<Executor> provinit = prov->initializer();
-    if ( provinit && !tr.execute(*provinit) )
-	mErrRet(0)
-    else if ( !prov->initialize() )
-	mErrRet("Cannot initialize the position generator")
-
-    const bool is2d = prov->is2D();
+    const char* msg = prov->initialize( tr );
+    if ( msg ) mErrRet(*msg?msg:0)
 
     ObjectSet<DataColDef> dcds;
     for ( int idx=0; idx<attrdefs_.size(); idx++ )
@@ -121,27 +116,18 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     if ( dcds.isEmpty() )
 	mErrRet("Please select at least one attribute to evaluate")
 
-    IOPar iop; posfiltfld_->fillPar( iop ); BufferString filtsumm;
-    if ( is2d )
-    {
-	Pos::Filter2D* filt = Pos::Filter2D::make( iop );
-	Pos::Provider2D* p2d = (Pos::Provider2D*)prov.ptr();
-	dps = new DataPointSet( *p2d, dcds, filt );
-	if ( filt ) filt->getSummary( filtsumm );
-    }
-    else
-    {
-	Pos::Filter3D* filt = Pos::Filter3D::make( iop );
-	Pos::Provider3D* p3d = (Pos::Provider3D*)prov.ptr();
-	dps = new DataPointSet( *p3d, dcds, filt );
-	if ( filt ) filt->getSummary( filtsumm );
-    }
+    IOPar iop; posfiltfld_->fillPar( iop );
+    Pos::Filter* filt = Pos::Filter::make( iop, prov->is2D() );
+    dps = new DataPointSet( *prov, dcds, filt );
     if ( dps->size() < 1 )
 	mErrRet("No positions selected")
 
     BufferString dpsnm; prov->getSummary( dpsnm );
-    if ( !filtsumm.isEmpty() )
-	{ dpsnm += " / "; dpsnm += filtsumm; }
+    if ( filt )
+    {
+	BufferString filtsumm; filt->getSummary( filtsumm );
+	dpsnm += " / "; dpsnm += filtsumm;
+    }
     dps->setName( dpsnm );
     mDPM.add( dps );
 
