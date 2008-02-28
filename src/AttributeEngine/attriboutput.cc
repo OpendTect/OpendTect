@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.75 2008-02-26 16:30:09 cvsbert Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.76 2008-02-28 15:52:00 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -1169,8 +1169,8 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
     
     for ( int idx=rid; idx<datapointset_.size(); idx++ )
     {
-	if ( bid != datapointset_.binID( rid ) ) break;
-	addLocalInterval( sampleinterval, exactz, rid, zstep );
+	if ( bid != datapointset_.binID( idx ) ) break;
+	addLocalInterval( sampleinterval, exactz, idx, zstep );
     }
 
     return sampleinterval;
@@ -1189,8 +1189,8 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
     
     for ( int idx=rid; idx<datapointset_.size(); idx++ )
     {
-	if ( coord != datapointset_.coord( rid ) ) break;
-	addLocalInterval( sampleinterval, exactz, rid, zstep );
+	if ( coord != datapointset_.coord( idx ) ) break;
+	addLocalInterval( sampleinterval, exactz, idx, zstep );
     }
 
     return sampleinterval;
