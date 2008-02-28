@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.62 2007-12-13 07:35:29 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.63 2008-02-28 15:49:45 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -266,17 +266,16 @@ void DescSet::handleOldAttributes( BufferString& attribname, IOPar& descpar,
 
 #define mHandleDescErr( str ) \
 { \
-    errmsg = str; \
     if ( !errmsgs ) \
 	return 0; \
 \
-    (*errmsgs) += new BufferString(errmsg); \
+    (*errmsgs) += new BufferString(str); \
     return 0;\
 }
 
 
-Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar, 
-			   const BufferString& defstring, 
+Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
+			   const BufferString& defstring,
 			   BufferStringSet* errmsgs )
 {
     Desc* dsc = PF().createDescCopy( attrname );
@@ -329,6 +328,17 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 	dsc->selectOutput(selout);
 
     return dsc;
+}
+
+
+Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
+			   const BufferString& defstring )
+{
+    BufferStringSet* errmsgs = new BufferStringSet();
+    Desc* newdesc = createDesc( attrname , descpar, defstring, errmsgs );
+    errmsg = errmsgs->get(0);
+    delete errmsgs;
+    return newdesc;
 }
 
 
@@ -410,8 +420,9 @@ bool DescSet::usePar( const IOPar& par, BufferStringSet* errmsgs )
 
 	handleOldAttributes( attribname, *descpar, defstring );
 	
-	RefMan<Desc> dsc =
-		createDesc( attribname, *descpar, defstring, errmsgs );
+	RefMan<Desc> dsc;
+	dsc = errmsgs ? createDesc( attribname, *descpar, defstring, errmsgs )
+	    	      : createDesc( attribname, *descpar, defstring );
 	if ( !dsc )
 	    { res = false; continue; }
 
