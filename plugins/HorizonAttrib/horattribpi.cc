@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: horattribpi.cc,v 1.3 2007-03-26 13:45:53 cvsbert Exp $
+ RCS:		$Id: horattribpi.cc,v 1.4 2008-02-28 12:25:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "horizonattrib.h"
+#include "initearthmodel.h"
 #include "plugins.h"
 
 
@@ -33,6 +34,7 @@ extern "C" PluginInfo* GetHorizonAttribPluginInfo()
 
 extern "C" const char* InitHorizonAttribPlugin( int, char** )
 {
+    EarthModel::initStdClasses();
     Attrib::Horizon::initClass();
 
     return 0; // All OK - no error messages
