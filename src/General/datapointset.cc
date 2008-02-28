@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.16 2008-02-28 14:27:45 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.17 2008-02-28 14:47:06 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -302,9 +302,9 @@ const UnitOfMeasure* DataPointSet::unit( DataPointSet::ColID cid ) const
 }
 
 
-const DataColDef& DataPointSet::colDef( DataPointSet::ColID cid ) const
+DataColDef& DataPointSet::gtColDef( DataPointSet::ColID cid ) const
 {
-    return data_.colDef( nrfixedcols_ + cid );
+    return const_cast<DataPointSet*>(this)->data_.colDef( nrfixedcols_ + cid );
 }
 
 

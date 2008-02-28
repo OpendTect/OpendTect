@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.11 2008-02-28 10:04:21 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.12 2008-02-28 14:47:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,7 +126,7 @@ public:
     int			nrFixedCols() const	{ return nrfixedcols_; }
     const char*		colName(ColID) const;
     const UnitOfMeasure* unit(ColID) const;
-    const DataColDef&	colDef(ColID) const;
+    const DataColDef&	colDef( ColID i ) const	{ return gtColDef(i); }
     ColID		indexOf(const char*) const;
 
     			// size, binID, coord, z and trcNr impl PointDataPack
@@ -167,14 +167,13 @@ public:
     void		dataChanged()			{ calcIdxs(); }
     			//!< When data modified, you want to call this.
     			//!< all RowIDs may change
-    DataColDef&		colDef( ColID cid )
-			{ return const_cast<DataPointSet*>(this)->colDef(cid); }
     			//!< In case you want to change the definition of a col
     void		addRow(const DataRow&);
     			//!< When finished, you have to call dataChanged()
     RowID		findFirstCoord(const Coord&) const;
     RowID		getRowID( BinIDValueSet::Pos bidvspos ) const
 			{ return bvsidxs_.indexOf( bidvspos ); }
+    DataColDef&		colDef( ColID i )		{ return gtColDef(i); }
 
     // DataPack interface impl
     bool		simpleCoords() const		{ return false; }
@@ -195,6 +194,8 @@ protected:
 
     static const int	groupcol_;
     const int		nrfixedcols_;
+
+    DataColDef&		gtColDef(ColID) const;
 };
 
 
