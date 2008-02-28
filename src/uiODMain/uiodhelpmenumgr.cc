@@ -4,21 +4,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodhelpmenumgr.cc,v 1.12 2008-02-26 11:09:34 cvsnanne Exp $
+ RCS:           $Id: uiodhelpmenumgr.cc,v 1.13 2008-02-28 12:20:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.12 2008-02-26 11:09:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.13 2008-02-28 12:20:40 cvsnanne Exp $";
 
 #include "uiodhelpmenumgr.h"
 #include "uiodmenumgr.h"
 #include "uiodstdmenu.h"
 #include "uidesktopservices.h"
 #include "uimenu.h"
-#include "dirlist.h"
-#include "helpview.h"
 #include "ascstream.h"
+#include "dirlist.h"
 #include "strmprov.h"
 #include "filepath.h"
 #include "filegen.h"
@@ -170,8 +169,11 @@ void uiODHelpMenuMgr::mkAboutMenu()
     DirList dl( fp.fullPath(), DirList::FilesOnly );
     for ( int idx=0; idx<dl.size(); idx++ )
     {
-	uiODHelpDocInfo* di = new uiODHelpDocInfo;
+	if ( File_isDirectory(dl.fullPath(idx)) )
+	    continue;
+
 	const BufferString fnm = dl.get( idx );
+	uiODHelpDocInfo* di = new uiODHelpDocInfo;
 	di->id = mHelpAboutMnuBase + idx + 1;
 	di->nm = fnm; di->nm += " ...";
 	di->starturl = dl.fullPath(idx);
