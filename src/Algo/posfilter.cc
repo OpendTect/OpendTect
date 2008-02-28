@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: posfilter.cc,v 1.8 2008-02-28 08:25:25 cvsbert Exp $";
+static const char* rcsID = "$Id: posfilter.cc,v 1.9 2008-02-28 10:03:13 cvsbert Exp $";
 
 #include "posfilterset.h"
 #include "posfilterstd.h"
@@ -36,12 +36,30 @@ bool Pos::Filter::initialize()
 }
 
 
-bool Pos::Filter::initialize( TaskRunner& tr )
+const char* Pos::Filter::initialize( TaskRunner& tr )
 {
     Executor* exec = initializer();
-    if ( !exec ) { reset(); return true; }
-    const bool res = tr.execute( *exec );
-    delete exec; return res;
+    if ( exec )
+    {
+	const bool res = tr.execute( *exec );
+	delete exec; return res ? 0 : "";
+    }
+
+    if ( initialize() )
+	return 0;
+
+    static BufferString txt;
+    txt = "Cannot initialize '"; getSummary( txt ); txt += "'";
+    return txt.buf();
+}
+
+
+Pos::Filter* Pos::Filter::make( const IOPar& iop, bool is2d )
+{
+    if ( is2d )
+       return Pos::Filter2D::make(iop);
+    else
+       return Pos::Filter3D::make(iop);
 }
 
 
@@ -103,11 +121,7 @@ void Pos::FilterSet::add( Filter* filt )
 
 void Pos::FilterSet::add( const IOPar& iop )
 {
-    Pos::Filter* filt;
-    if ( is2D() )
-	filt = Pos::Filter2D::make( iop );
-    else
-	filt = Pos::Filter3D::make( iop );
+    Pos::Filter* filt = Pos::Filter::make( iop, is2D() );
     if ( filt )
 	filts_ += filt;
 }
@@ -195,19 +209,9 @@ void Pos::FilterSet::usePar( const IOPar& iop )
 	PtrMan<IOPar> subpar = iop.subselect( keybase );
 	if ( !subpar || !subpar->size() ) return;
 
-	Filter* filt = 0;
-	if ( is2D() )
-	    filt = Pos::Filter2D::make( *subpar );
-	else
-	    filt = Pos::Filter3D::make( *subpar );
-
+	Pos::Filter* filt = Pos::Filter::make( *subpar, is2D() );
 	if ( !filt )
-	{
-	    if ( is2D() )
-		filt = Pos::Provider2D::make( *subpar );
-	    else
-		filt = Pos::Provider3D::make( *subpar );
-	}
+	    filt = Pos::Provider::make( *subpar, is2D() );
 
 	if ( filt )
 	    filts_ += filt;
@@ -382,6 +386,15 @@ bool Pos::Provider3D::includes( const Coord& c, float z ) const
 Coord Pos::Provider3D::curCoord() const
 {
     return SI().transform( curBinID() );
+}
+
+
+Pos::Provider* Pos::Provider::make( const IOPar& iop, bool is2d )
+{
+    if ( is2d )
+       return Pos::Provider2D::make(iop);
+    else
+       return Pos::Provider3D::make(iop);
 }
 
 

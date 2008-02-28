@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posprovider.h,v 1.11 2008-02-28 08:25:25 cvsbert Exp $
+ RCS:           $Id: posprovider.h,v 1.12 2008-02-28 10:03:13 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -49,6 +49,7 @@ public:
     virtual float	estRatio(const Provider&) const;
     virtual void	getCubeSampling(CubeSampling&) const;
 
+    static Provider*	make(const IOPar&,bool is2d);
 };
 
 

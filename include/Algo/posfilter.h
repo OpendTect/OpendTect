@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilter.h,v 1.7 2008-02-28 08:25:25 cvsbert Exp $
+ RCS:           $Id: posfilter.h,v 1.8 2008-02-28 10:03:13 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -57,7 +57,6 @@ public:
 
     virtual bool	initialize();
     virtual Executor*	initializer()				{ return 0; }
-    bool		initialize(TaskRunner&);
     virtual void	reset()					= 0;
 
     virtual bool	includes(const Coord&,
@@ -70,6 +69,11 @@ public:
 
     virtual void	getSummary(BufferString&) const		= 0;
     virtual float	estRatio(const Provider&) const		= 0;
+
+    const char*		initialize(TaskRunner&);
+    			//!< Returns null on success. If return string is
+    			//!< non-empty, there is an (undisplayed) error message
+    static Filter*	make(const IOPar&,bool is2d);
 };
 
 
