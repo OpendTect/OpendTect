@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.55 2008-02-29 20:37:28 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.56 2008-02-29 21:45:38 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -474,7 +474,7 @@ template <class T> inline
 T Array2DImpl<T>::get( int p0, int p1 ) const
 {
     const od_int64 offset = in.getOffset( p0, p1);
-    return ptr_ ? ptr_[offset] : stor_->value(in.getOffset(p0,p1));
+    return ptr_ ? ptr_[offset] : stor_->value( offset );
 }
 
 
