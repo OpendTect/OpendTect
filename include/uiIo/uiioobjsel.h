@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.51 2008-02-13 13:28:48 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.52 2008-02-29 11:27:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,10 +76,10 @@ public:
     uiGenInput*			getNameField()		{ return nmfld; }
     uiListBox*			getListField()		{ return listfld; }
     uiIOObjManipGroup*		getManipGroup();
+    const ObjectSet<MultiID>&	getIOObjIds() const	{ return ioobjids_; }
 
     virtual bool		fillPar(IOPar&) const;
     virtual void		usePar(const IOPar&);
-
 
 protected:
 
