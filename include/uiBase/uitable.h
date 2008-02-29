@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.37 2008-02-26 06:23:21 cvsnanne Exp $
+ RCS:           $Id: uitable.h,v 1.38 2008-02-29 11:25:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,8 +29,6 @@ class uiTable : public uiObject
 friend class		i_tableMessenger;
 friend class		uiTableBody;
 public:
-
-    typedef Geom::Size2D<int>	Size;
 
     enum SelectionMode
     {
@@ -54,8 +52,8 @@ public:
     {
     public:
 
-		    Setup()
-			: size_(-1,-1)
+		    Setup(int nrrows=-1,int nrcols=-1)
+			: size_(nrrows,nrcols)
 			, rowdesc_("Row")	
 			, coldesc_("Column")
 			, rowgrow_(false) //!< can extra rows be added by user?
@@ -76,7 +74,7 @@ public:
 					//!< if not, adapt size of cells auto
 				{}
 
-	mDefSetupMemb(Size,size)
+	mDefSetupMemb(RowCol,size)
 	mDefSetupMemb(BufferString,rowdesc)
 	mDefSetupMemb(BufferString,coldesc)
 	mDefSetupMemb(bool,rowgrow)
@@ -117,10 +115,6 @@ public:
     int			nrCols() const;
     void		setNrRows(int);
     void		setNrCols(int);
-
-    Size		size() const	{ return Size( nrCols(), nrRows() ); }
-    inline void		setSize( const Size& s)
-			{ setNrCols( s.width() ); setNrRows( s.height() ); }
 
     int			columnWidth(int) const;
     int			rowHeight(int) const;

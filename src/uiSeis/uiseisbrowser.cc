@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.15 2008-02-13 12:30:48 cvsnanne Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.16 2008-02-29 11:25:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -161,9 +161,9 @@ void uiSeisBrowser::createMenuAndToolBar()
 
 void uiSeisBrowser::createTable()
 {
-    uiTable::Size sz( 2 * stepout_ + 1, tr_->readMgr()->info().nrsamples );
-    tbl_ = new uiTable( this, uiTable::Setup()
-			     .size(sz) 
+    const int nrrows = tr_->readMgr()->info().nrsamples;
+    const int nrcols = 2*stepout_ + 1;
+    tbl_ = new uiTable( this, uiTable::Setup(nrrows,nrcols)
 			     .selmode(uiTable::Multi)
     			     .manualresize( true ) );
     

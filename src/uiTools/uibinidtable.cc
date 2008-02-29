@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2003
- RCS:           $Id: uibinidtable.cc,v 1.11 2007-02-22 18:14:40 cvskris Exp $
+ RCS:           $Id: uibinidtable.cc,v 1.12 2008-02-29 11:25:08 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ void uiBinIDTable::setBinIDs( const TypeSet<BinID>& bids )
 
 void uiBinIDTable::getBinIDs( TypeSet<BinID>& bids ) const
 {
-    int nrrows = table_->size().height();
+    int nrrows = table_->nrRows();
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	BinID bid(0,0);

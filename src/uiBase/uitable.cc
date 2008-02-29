@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.59 2008-02-26 06:23:21 cvsnanne Exp $
+ RCS:           $Id: uitable.cc,v 1.60 2008-02-29 11:25:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -208,7 +208,7 @@ void uiTableBody::clearCellObject( const RowCol& rc )
 
 
 uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
-    : uiObject(p,nm,mkbody(p,nm,s.size_.height(),s.size_.width()))
+    : uiObject(p,nm,mkbody(p,nm,s.size_.row,s.size_.col))
     , setup_(s)
     , buttonstate_(OD::NoButton)
     , valueChanged(this)
