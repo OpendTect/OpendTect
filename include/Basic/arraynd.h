@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.27 2007-10-23 21:07:49 cvskris Exp $
+ RCS:		$Id: arraynd.h,v 1.28 2008-02-29 20:34:59 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -71,14 +71,14 @@ public:
 					     want to do that. */
     virtual bool			canChangeNrDims() const
     					{ return false; }
-    virtual bool			setInfo( ArrayNDInfo& )
+    virtual bool			setInfo( const ArrayNDInfo& )
 					{ return false; }
 
 protected:
  
     virtual const ValueSeries<T>* getStorage_() const { return 0; }
 
-    const T*			getData_() const
+    virtual const T*		getData_() const
 				{
 				    if ( getStorage_() )
 					return getStorage()->arr();
