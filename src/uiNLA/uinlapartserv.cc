@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.42 2007-10-22 07:06:19 cvsnanne Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.43 2008-02-29 11:38:18 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -288,7 +288,7 @@ uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& usels,
 	, usrsels(usels)
 {
     BufferStringSet opts;
-    opts.add( "Use" ); opts.add( "Merge into" ); opts.add( "Drop" );
+    opts.add( "Use" ).add( "Merge into" ).add( "Drop" );
     uiLabeledComboBox* prevoptlcb = 0;
     for ( int icode=0; icode<codes.size(); icode++ )
     {
