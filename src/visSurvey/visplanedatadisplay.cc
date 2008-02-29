@@ -4,16 +4,16 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.183 2008-02-21 11:13:14 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.184 2008-02-29 15:21:02 cvsyuancheng Exp $";
 
 #include "visplanedatadisplay.h"
 
 #include "arrayndimpl.h"
 #include "attribsel.h"
 #include "attribdatacubes.h"
-#include "arrayndslice.h"
 #include "binidvalset.h"
 #include "attribdatapack.h"
+#include "cubesampling.h"
 #include "keyenum.h"
 #include "survinfo.h"
 #include "simpnumer.h"
@@ -31,7 +31,7 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.183 2008-02-21 11:13
 #include "iopar.h"
 #include "settings.h"
 #include "zaxistransform.h"
-#include "zaxistransformer.h"
+#include "zaxistransformdatapack.h"
 
 
 mCreateFactoryEntry( visSurvey::PlaneDataDisplay );
@@ -49,11 +49,10 @@ PlaneDataDisplay::PlaneDataDisplay()
     , curicstep_(SI().inlStep(),SI().crlStep())
     , curzstep_(SI().zStep())
     , datatransform_( 0 )
-    , datatransformer_( 0 )
     , moving_(this)
     , movefinished_(this)
     , orientation_( Inline )
-    , csfromsession_(true)
+    , csfromsession_( true )			    
 {
     volumecache_.allowNull( true );
     rposcache_.allowNull( true );
@@ -123,11 +122,6 @@ PlaneDataDisplay::PlaneDataDisplay()
 
     updateRanges( true, true );
 
-    volumecache_ += 0;
-    rposcache_ += 0;
-    datapackids_ += -1;
-
-
     int buttonkey = OD::NoButton;
     mSettUse( get, "dTect.MouseInteraction", sKeyDepthKey(), buttonkey );
     dragger_->setTransDragKeys( true, buttonkey );
@@ -144,14 +138,20 @@ PlaneDataDisplay::~PlaneDataDisplay()
     dragger_->rightClicked()->remove(
 	    		mCB(this,PlaneDataDisplay,draggerRightClick) );
 
-    deepUnRef( volumecache_ );
     deepErase( rposcache_ );
-
-    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
-    for ( int idx=0; idx<datapackids_.size(); idx++ )
-	dpman.release( datapackids_[idx] );
-
     setDataTransform( 0 );
+
+    for ( int idx=volumecache_.size()-1; idx>=0; idx-- )
+	DPM(DataPackMgr::FlatID).release( volumecache_[idx] );
+
+    for ( int idy=0; idy<displaycache_.size(); idy++ )
+    {
+	const TypeSet<DataPack::ID>& dpids = *displaycache_[idy];
+	for ( int idx=dpids.size()-1; idx>=0; idx-- )
+	    DPM(DataPackMgr::FlatID).release( dpids[idx] );
+    }
+
+    deepErase( displaycache_ );
 
     rectangle_->unRef();
     dragger_->unRef();
@@ -310,10 +310,6 @@ bool PlaneDataDisplay::setDataTransform( ZAxisTransform* zat )
     }
 
     datatransform_ = zat;
-
-    delete datatransformer_;
-    datatransformer_ = 0;
-
     if ( datatransform_ )
     {
 	datatransform_->ref();
@@ -342,16 +338,17 @@ int PlaneDataDisplay::getTranslationDragKeys(bool depth) const
 void PlaneDataDisplay::dataTransformCB( CallBacker* )
 {
     updateRanges( false, true );
-
     for ( int idx=0; idx<volumecache_.size(); idx++ )
     {
 	if ( volumecache_[idx] )
-	    setData( idx, volumecache_[idx] );
+	{
+	    setVolumeDataPackNoCache( idx, volumecache_[idx] );
+	}
 	else if ( rposcache_[idx] )
 	{
 	    ObjectSet<BinIDValueSet> set;
 	    set += rposcache_[idx];
-	    setData( idx, &set );
+	    setRandomPosDataNoCache( idx, &set );
 	}
     }
 }
@@ -511,14 +508,7 @@ void PlaneDataDisplay::setResolution( int res )
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
     {
-	if ( volumecache_[idx] )
-	    setData( idx, volumecache_[idx] );
-	else if ( rposcache_[idx] )
-	{
-	    ObjectSet<BinIDValueSet> set;
-	    set += rposcache_[idx];
-	    setData( idx, &set );
-	}
+	updateFromDisplayIDs( idx );
     }
 }
 
@@ -535,18 +525,23 @@ void PlaneDataDisplay::addCache()
 {
     volumecache_ += 0;
     rposcache_ += 0;
-    datapackids_ += -1;
+    displaycache_ += new TypeSet<DataPack::ID>;
 }
 
 
 void PlaneDataDisplay::removeCache( int attrib )
 {
-    if ( volumecache_[attrib] ) volumecache_[attrib]->unRef();
+    DPM(DataPackMgr::FlatID).release( volumecache_[attrib] );
     volumecache_.remove( attrib );
+
     if ( rposcache_[attrib] ) delete rposcache_[attrib];
     rposcache_.remove( attrib );
-    DPM( DataPackMgr::FlatID ).release( datapackids_[attrib] );
-    datapackids_.remove( attrib );
+
+    const TypeSet<DataPack::ID>& dpids = *displaycache_[attrib];
+    for ( int idx=dpids.size()-1; idx>=0; idx-- )
+	DPM(DataPackMgr::FlatID).release( dpids[idx] );
+
+    delete displaycache_.remove( attrib );
 }
 
 
@@ -554,18 +549,26 @@ void PlaneDataDisplay::swapCache( int a0, int a1 )
 {
     volumecache_.swap( a0, a1 );
     rposcache_.swap( a0, a1 );
-    datapackids_.swap( a0, a1 );
+    displaycache_.swap( a0, a1 );
 }
 
 
 void PlaneDataDisplay::emptyCache( int attrib )
 {
-    if ( volumecache_[attrib] ) volumecache_[attrib]->unRef();
+    DPM(DataPackMgr::FlatID).release( volumecache_[attrib] );
     volumecache_.replace( attrib, 0 );
+
     if ( rposcache_[attrib] ) delete rposcache_[attrib];
     rposcache_.replace( attrib, 0 );
-    DPM( DataPackMgr::FlatID ).release( datapackids_[attrib] );
-    datapackids_[attrib] = -1;
+    
+    if ( displaycache_[attrib] )
+    {
+	TypeSet<DataPack::ID>& dpids = *displaycache_[attrib];
+    	for ( int idx=dpids.size()-1; idx>=0; idx-- )
+	    DPM(DataPackMgr::FlatID).release( dpids[idx] );
+
+	dpids.erase();
+    }
 }
 
 
@@ -583,9 +586,6 @@ CubeSampling PlaneDataDisplay::getCubeSampling( int attrib ) const
 
 void PlaneDataDisplay::getRandomPos( ObjectSet<BinIDValueSet>& pos ) const
 {
-    if ( !datatransformer_->loadTransformData() )
-	return;
-
     const CubeSampling cs = getCubeSampling( true, true, 0 ); //attrib?
     HorSamplingIterator iter( cs.hrg );
 
@@ -610,11 +610,13 @@ void PlaneDataDisplay::setRandomPosData( int attrib,
     if ( attrib>=nrAttribs() )
 	return;
 
-    setData( attrib, data );
+    setRandomPosDataNoCache( attrib, data );
 
-    if ( rposcache_[attrib] ) delete rposcache_[attrib];
-    rposcache_.replace( attrib, data && data->size()
-	    ? new BinIDValueSet(*(*data)[0]) : 0 );
+    if ( rposcache_[attrib] ) 
+	delete rposcache_[attrib];
+
+    rposcache_.replace( attrib,
+	    		data&&data->size() ? new BinIDValueSet( *(*data)[0] ) : 0 );
 }
 
 
@@ -646,16 +648,6 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
 
     texture_->clearAll();
     movefinished_.trigger();
-
-    if ( !datatransform_ )
-	return;
-
-    if ( !datatransformer_ )
-	datatransformer_ = new ZAxisTransformer( *datatransform_, true );
-
-    //Try to load data here, so other objects (i.e. picksets) may read the data.
-    datatransformer_->setOutputRange( cs );
-    datatransformer_->loadTransformData();
 }
 
 
@@ -700,6 +692,7 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
 	    res.zrg.step = SI().zRange( true ).step;
 	}
     }
+
     return res;
 }
 
@@ -709,188 +702,182 @@ bool PlaneDataDisplay::setDataPackID( int attrib, DataPack::ID dpid )
     if ( attrib>=nrAttribs() )
 	return false;
 
-    DataPack::ID oldid = datapackids_[attrib];
-    datapackids_[attrib] = dpid;
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
     const DataPack* datapack = dpman.obtain( dpid );
-    mDynamicCastGet(const Attrib::Flat3DDataPack*,fdp,datapack);
-    const bool res = setDataVolume( attrib, fdp ? &fdp->cube() : 0 );
-    if ( !res )
+    mDynamicCastGet( const Attrib::Flat3DDataPack*, f3ddp, datapack );
+    if ( !f3ddp )
     {
-	datapackids_[attrib] = oldid;
 	dpman.release( dpid );
 	return false;
     }
 
-    dpman.release( oldid );
+    setVolumeDataPackNoCache( attrib, f3ddp );
+    if ( volumecache_[attrib] )
+	dpman.release( volumecache_[attrib] );
+
+    volumecache_.replace( attrib, f3ddp );
     return true;
+}
+ 
+
+void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib, 
+			const Attrib::Flat3DDataPack* f3ddp )
+{
+    if ( !f3ddp ) return;
+    TypeSet<DataPack::ID> attridpids;
+    
+    //set display datapack.
+    ObjectSet<const FlatDataPack> displaypacks;
+    for ( int idx=0; idx<f3ddp->cube().nrCubes(); idx++ )
+    {
+	if ( f3ddp->getCubeIdx()==idx )
+	{
+	    DPM( DataPackMgr::FlatID ).obtain( f3ddp->id() );
+	    displaypacks += f3ddp;
+	    attridpids += f3ddp->id();
+	}
+	else
+	{
+	    Attrib::Flat3DDataPack* ndp =
+		new Attrib::Flat3DDataPack(f3ddp->descID(),f3ddp->cube(),idx);
+	    DPM( DataPackMgr::FlatID ).addAndObtain( ndp );
+	    displaypacks += ndp;
+	    attridpids += ndp->id();
+	}
+    }
+
+    //set data transform if necessary.
+    const char* zdomain = getSelSpec(attrib)->zDomainKey();
+    const bool alreadytransformed = zdomain && *zdomain;
+
+    if ( !alreadytransformed && datatransform_ )
+    {
+	attridpids.erase();
+	for ( int idx=0; idx<displaypacks.size(); idx++ )
+	{
+	    ZAxisTransformDataPack*  ztransformdp = 
+		new ZAxisTransformDataPack( *displaypacks[idx], 
+			f3ddp->cube().cubeSampling(), *datatransform_ ); 
+
+	    ztransformdp->setInterpolate( !isClassification(attrib) );
+	    ztransformdp->setOutputCS( getCubeSampling(true,true) );
+	    ztransformdp->transform();
+
+	    DPM( DataPackMgr::FlatID ).addAndObtain( ztransformdp );
+	    attridpids += ztransformdp->id();
+	    DPM( DataPackMgr::FlatID ).release( displaypacks[idx] );
+	}
+    }
+
+    setDisplayDataPackIDs( attrib, attridpids );
+    
+    for ( int idx=0; idx<attridpids.size(); idx++ )
+	DPM( DataPackMgr::FlatID ).release( attridpids[idx] );
 }
 
 
 DataPack::ID PlaneDataDisplay::getDataPackID( int attrib ) const
 {
-    return datapackids_.validIdx(attrib) ? datapackids_[attrib] : -1;
+    return volumecache_.validIdx(attrib) &&  volumecache_[attrib] 
+	? volumecache_[attrib]->id() : -1;
 }
 
 
-bool PlaneDataDisplay::setDataVolume( int attrib,
-				      const Attrib::DataCubes* datacubes )
+void PlaneDataDisplay::setRandomPosDataNoCache( int attrib, 
+			const ObjectSet<BinIDValueSet>* data )
 {
-    if ( attrib>=nrAttribs() )
-	return false;
+    if ( !data ) return;
 
-    setData( attrib, datacubes );
-
-    if ( volumecache_[attrib] ) volumecache_[attrib]->unRef();
-    volumecache_.replace( attrib, datacubes );
-    if ( datacubes ) datacubes->ref();
-    return true;
-}
-
-
-void PlaneDataDisplay::setData( int attrib, const Attrib::DataCubes* datacubes )
-{
-    if ( !datacubes )
-    {
-	texture_->setData( attrib, 0, 0 );
-	texture_->turnOn( false );
-	return;
-    }
-
-    //Do subselection of input if input is too big
-
-    int unuseddim, dim0, dim1;
-    if ( orientation_==Inline )
-    {
-	unuseddim = Attrib::DataCubes::cInlDim();
-	dim0 = Attrib::DataCubes::cZDim();
-	dim1 = Attrib::DataCubes::cCrlDim();
-    }
-    else if ( orientation_==Crossline )
-    {
-	unuseddim = Attrib::DataCubes::cCrlDim();
-	dim0 = Attrib::DataCubes::cZDim();
-	dim1 = Attrib::DataCubes::cInlDim();
-    }
-    else
-    {
-	unuseddim = Attrib::DataCubes::cZDim();
-	dim0 = Attrib::DataCubes::cCrlDim();
-	dim1 = Attrib::DataCubes::cInlDim();
-    }
-
-    const char* zdomain = getSelSpec(attrib)->zDomainKey();
-    const bool alreadytransformed = zdomain && *zdomain;
-
-    const int nrcubes = datacubes->nrCubes();
-    texture_->setNrVersions( attrib, nrcubes );
-    for ( int idx=0; idx<nrcubes; idx++ )
-    {
-	PtrMan<Array3D<float> > tmparray = 0;
-	const Array3D<float>* usedarray = 0;
-	if ( alreadytransformed || !datatransform_ )
-	    usedarray = &datacubes->getCube(idx);
-	else
-	{
-	    if ( !datatransformer_ )
-		datatransformer_ = new ZAxisTransformer( *datatransform_, true);
-
-	    datatransformer_->setInterpolate( !isClassification(attrib) );
-	    datatransformer_->setInput( datacubes->getCube( idx ),
-		    		   datacubes->cubeSampling() );
-	    datatransformer_->setOutputRange( getCubeSampling(true,true) );
-
-	    if ( !datatransformer_->execute() )
-	    {
-		pErrMsg("Transform failed");
-		return;
-	    }
-
-	    tmparray = datatransformer_->getOutput( true );
-	    if ( !tmparray )
-	    {
-		pErrMsg("No output from transform" );
-		return;
-	    }
-
-	    usedarray = tmparray;
-	}
-
-	Array2DSlice<float> slice(*usedarray);
-	slice.setPos( unuseddim, 0 );
-	slice.setDimMap( 0, dim0 );
-	slice.setDimMap( 1, dim1 );
-
-	if ( slice.init() )
-	{
-	    if ( !texture_->usesShading() && resolution_ )
-		texture_->setDataOversample( attrib, idx, resolution_, 
-					     !isClassification( attrib ),
-		       			     &slice, true );
-	    else texture_->setData( attrib, idx, &slice, true );
-
-	    if ( !idx )
-	    {
-		setTextureCoords( slice.info().getSize(0),
-				  slice.info().getSize(1) );
-	    }
-	}
-	else
-	{
-	    texture_->turnOn(false);
-	    pErrMsg( "Could not init slice." );
-	}
-    }
-
-    texture_->turnOn( true );
-}
-
-
-void PlaneDataDisplay::setData( int attrib,
-				const ObjectSet<BinIDValueSet>* data )
-{
-    if ( !data || data->size()<1 || (*data)[0]->nrVals()<2 )
-    {
-	texture_->setData( attrib, 0, 0 );
-	texture_->turnOn( false );
-	return;
-    }
-
-    const CubeSampling cs = getCubeSampling( true, true, 0 ); //attrib?
+    const CubeSampling cs = getCubeSampling( true, true, 0 );
     const BinIDValueSet& set( *(*data)[0] );
-    Array2DImpl<float> texturedata( cs.hrg.nrCrl(), cs.hrg.nrInl() );
 
-    texture_->setNrVersions( attrib, set.nrVals()-1 );
+    TypeSet<DataPack::ID> attridpids;
     for ( int idx=1; idx<set.nrVals(); idx++ )
     {
-	const int nrvals = texturedata.info().getTotalSz();
+	Array2DImpl<float>* arr = 
+	    new Array2DImpl<float> ( cs.hrg.nrInl(), cs.hrg.nrCrl() );
+	FlatDataPack* fdp = new FlatDataPack( 
+		Attrib::DataPackCommon::categoryStr(false), arr );	
+        DPM(DataPackMgr::FlatID).addAndObtain( fdp );
+        attridpids += fdp->id();
+
+    	float* texturedataptr = arr->getData();    
+    	for ( int idy=0; idy<arr->info().getTotalSz(); idy++ )
+    	    (*texturedataptr++) = mUdf(float);
 	
-	float* texturedataptr = texturedata.getData();
-	for ( int idy=0; idy<nrvals; idy++ )
-	    (*texturedataptr++) = mUdf(float);
+    	BinIDValueSet::Pos pos;
+    	BinID bid;
+    	while ( set.next(pos,true) )
+    	{
+    	    set.get( pos, bid );
+    	    BinID idxs = (bid-cs.hrg.start)/cs.hrg.step;
+    	    arr->set( idxs.inl, idxs.crl, set.getVals(pos)[idx]);
+    	}
 
-	BinIDValueSet::Pos pos;
-	BinID bid;
-	while ( set.next(pos,true) )
-	{
-	    set.get( pos, bid );
-	    BinID idxs = (bid-cs.hrg.start)/cs.hrg.step;
-	    texturedata.set( idxs.crl, idxs.inl, set.getVals(pos)[idx]);
-	}
-
-	texture_->setData( attrib, idx-1, &texturedata, true );
-	if ( !texture_->usesShading() && resolution_ )
-	    texture_->setDataOversample( attrib, idx-1, resolution_, 
-					 !isClassification( attrib ),
-					 &texturedata, true );
-	else
-	    texture_->setData( attrib, idx-1, &texturedata, true );
     }
 
-    setTextureCoords( texturedata.info().getSize(1),
-	    	      texturedata.info().getSize(0) );
+    setDisplayDataPackIDs( attrib, attridpids );
+
+    for ( int idx=0; idx<attridpids.size(); idx++ )
+	DPM(DataPackMgr::FlatID).release( attridpids[idx] );
+}
+
+
+void PlaneDataDisplay::setDisplayDataPackIDs( int attrib,
+			const TypeSet<DataPack::ID>& newdpids )
+{
+    TypeSet<DataPack::ID>& dpids = *displaycache_[attrib];
+    for ( int idx=dpids.size()-1; idx>=0; idx-- )
+	DPM(DataPackMgr::FlatID).release( dpids[idx] );
+
+    dpids = newdpids;
+
+    for ( int idx=dpids.size()-1; idx>=0; idx-- )
+	DPM(DataPackMgr::FlatID).obtain( dpids[idx] );
+
+    updateFromDisplayIDs( attrib );
+}
+
+
+void PlaneDataDisplay::updateFromDisplayIDs( int attrib )
+{
+    const TypeSet<DataPack::ID>& dpids = *displaycache_[attrib];
+    int sz = dpids.size();
+    if ( sz<1 )
+    {
+	texture_->setData( attrib, 0, 0 );
+	texture_->turnOn( false );
+	return;
+    }
+
+    texture_->setNrVersions( attrib, sz );
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	int dpid = dpids[idx];
+	const DataPack* datapack = DPM(DataPackMgr::FlatID).obtain( dpid );
+	mDynamicCastGet( const FlatDataPack*, fdp, datapack );
+	if ( !fdp )
+	    continue;
+
+	const Array2D<float>& dparr = fdp->data();
+	if ( !texture_->usesShading() && resolution_ )
+	    texture_->setDataOversample( attrib, idx, resolution_, 
+		    !isClassification( attrib ), &dparr, true );
+	else
+	    texture_->setData( attrib, idx, &dparr, true );
+	
+	if ( !idx )
+	    setTextureCoords(dparr.info().getSize(0),dparr.info().getSize(1));
+    }
+    
     texture_->turnOn( true );
 }
+
+
+const TypeSet<DataPack::ID>* PlaneDataDisplay::getDisplayDataPackIDs(int attrib)
+{ 
+    return displaycache_.validIdx(attrib) ? displaycache_[attrib] : 0; 
+} 
 
 
 void PlaneDataDisplay::setTextureCoords( int sz0, int sz1 )
@@ -906,11 +893,11 @@ void PlaneDataDisplay::setTextureCoords( int sz0, int sz1 )
     const SamplingData<float> dim1scale( -0.5, 0, sz1-0.5, 1);
     const Interval<float> dim0rg( dim0scale.interval(sz0) );
     const Interval<float> dim1rg( dim1scale.interval(sz1) );
-
+    
     tcoords->setCoord( 0, Coord3( dim1rg.start, dim0rg.start, 0 ) );
-    tcoords->setCoord( 1, Coord3( dim1rg.start, dim0rg.stop, 0 ) );
+    tcoords->setCoord( 1, Coord3( dim1rg.stop, dim0rg.start, 0 ) );
     tcoords->setCoord( 2, Coord3( dim1rg.stop, dim0rg.stop, 0 ) );
-    tcoords->setCoord( 3, Coord3( dim1rg.stop, dim0rg.start, 0 ) );
+    tcoords->setCoord( 3, Coord3( dim1rg.start, dim0rg.stop, 0 ) );
 }
 
 
@@ -935,7 +922,8 @@ inline int getPow2Sz( int actsz, bool above=true, int minsz=1,
 
 const Attrib::DataCubes* PlaneDataDisplay::getCacheVolume( int attrib ) const
 {
-    return attrib<volumecache_.size() ? volumecache_[attrib] : 0;
+    return attrib<volumecache_.size() && volumecache_[attrib]
+	? &volumecache_[attrib]->cube() : 0;
 }
 
 
@@ -1049,8 +1037,8 @@ bool PlaneDataDisplay::getCacheValue( int attrib, int version,
     if ( attrib<volumecache_.size() && volumecache_[attrib] )
     {
 	const int ver = texture_->currentVersion(attrib);
-	const Attrib::DataCubes* vc = volumecache_[attrib];
-	return vc->getValue( ver, bidv, &res, false );
+	const Attrib::DataCubes& vc = volumecache_[attrib]->cube();
+	return vc.getValue( ver, bidv, &res, false );
     }
     else if ( attrib<rposcache_.size() && rposcache_[attrib] )
     {

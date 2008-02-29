@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.102 2008-02-21 11:13:14 cvsnanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.103 2008-02-29 15:21:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -17,9 +17,7 @@ ________________________________________________________________________
 #include "vismultiattribsurvobj.h"
 #include "ranges.h"
 
-template <class T> class Array2D;
-class ZAxisTransformer;
-
+template <class T> class Array2DImpl;
 namespace visBase
 {
     class Coordinates;
@@ -30,8 +28,8 @@ namespace visBase
     class PickStyle;
 };
 
-
-namespace Attrib { class DataCubes; }
+class FlatDataPack;
+namespace Attrib { class Flat3DDataPack; }
 
 namespace visSurvey
 {
@@ -91,8 +89,6 @@ public:
     DataPack::ID		getDataPackID(int attrib) const;
     virtual DataPackMgr::ID	getDataPackMgrID() const
     				{ return DataPackMgr::FlatID; }
-    bool			setDataVolume(int attrib,
-	    				      const Attrib::DataCubes*);
     const Attrib::DataCubes*	getCacheVolume(int attrib) const;
    
     visBase::GridLines*		gridlines()		{ return gridlines_; }
@@ -127,17 +123,23 @@ public:
 						 returned.
 				    \returns	combination of OD::ButtonState*/
     bool                	isVerticalPlane() const;
+   
+    const TypeSet<DataPack::ID>* getDisplayDataPackIDs(int attrib);
 
     static const char*		sKeyDepthKey()		{ return "DepthKey"; }
     static const char*		sKeyPlaneKey()		{ return "PlaneKey"; }
 
 protected:
 				~PlaneDataDisplay();
-    void			updateMainSwitch();
-
-    void			setData(int attrib,const Attrib::DataCubes*);
-    void			setData(int attrib,
+    void			setVolumeDataPackNoCache(int attrib,
+	    				const Attrib::Flat3DDataPack*);
+    void			setRandomPosDataNoCache(int attrib,
 	    				const ObjectSet<BinIDValueSet>*);
+    void			setDisplayDataPackIDs(int attrib,
+	    				const TypeSet<DataPack::ID>& dpids);
+    void			updateFromDisplayIDs(int attrib);
+
+    void			updateMainSwitch();
     void			updateRanges(bool resetpos=false);
     void			updateRanges(bool resetinlcrl=false,
 	    				     bool resetz=false);
@@ -168,16 +170,15 @@ protected:
     Orientation				orientation_;
     visBase::FaceSet*			draggerrect_;
     visBase::DrawStyle*			draggerdrawstyle_;
-
-    TypeSet<DataPack::ID>		datapackids_;
-    ObjectSet<const Attrib::DataCubes>	volumecache_;
+    
+    ObjectSet< TypeSet<DataPack::ID> >	displaycache_;
     ObjectSet<BinIDValueSet>		rposcache_;
+    ObjectSet<const Attrib::Flat3DDataPack> volumecache_;
 
     CubeSampling			csfromsession_;
     BinID				curicstep_;
     float				curzstep_;
     ZAxisTransform*			datatransform_;
-    ZAxisTransformer*			datatransformer_;
     Notifier<PlaneDataDisplay>		moving_;
     Notifier<PlaneDataDisplay>		movefinished_;
 
