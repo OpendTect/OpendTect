@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Oct 2003
  Contents:	Set of BufferStrings
- RCS:		$Id: bufstringset.h,v 1.9 2007-12-11 15:18:09 cvsbert Exp $
+ RCS:		$Id: bufstringset.h,v 1.10 2008-02-29 10:30:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,8 @@ public:
     BufferStringSet&	operator =(const BufferStringSet&);
     bool		operator ==(const BufferStringSet&) const;
 
-    void		add( const char* s )	{ *this += new BufferString(s);}
+    BufferStringSet&	add( const char* s )
+    			{ *this += new BufferString(s); return *this; }
     bool		addIfNew(const char*);	//!< returns whether added
     void		add(const BufferStringSet&,bool allowduplicates);
     						//!< makes copies
