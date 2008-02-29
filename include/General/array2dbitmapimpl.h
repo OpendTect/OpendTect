@@ -6,12 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmapimpl.h,v 1.8 2007-07-18 14:58:09 cvskris Exp $
+ RCS:           $Id: array2dbitmapimpl.h,v 1.9 2008-02-29 22:01:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "array2dbitmap.h"
+#include "task.h"
 
 
 /*! \brief Common pars for A2DBitMapGenerators */
@@ -98,7 +99,7 @@ struct VDA2DBitMapGenPars : public A2DBitMapGenPars
 
 /*! \brief Wiggles/Variable Area Drawing on A2DBitMap's. */
 
-class VDA2DBitMapGenerator : public A2DBitMapGenerator
+class VDA2DBitMapGenerator : public A2DBitMapGenerator, ParallelTask
 {
 public:
 
@@ -109,6 +110,8 @@ public:
     const VDA2DBitMapGenPars&	vdpars() const	{ return gtPars(); }
 
 protected:
+    int				totalNr() const;
+    bool			doWork(int,int,int);
 
     inline VDA2DBitMapGenPars& gtPars() const
 				{ return (VDA2DBitMapGenPars&)pars_; }
@@ -129,6 +132,8 @@ protected:
     void			drawVal(int,int,float);
 
     bool			dumpXPM(std::ostream&) const;
+
+    TypeSet<int>		stripstodraw_;
 };
 
 

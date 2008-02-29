@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.24 2007-09-13 19:38:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.25 2008-02-29 22:01:36 cvskris Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -438,6 +438,8 @@ void VDA2DBitMapGenerator::doFill()
     const float avgdim0dist = setup_.avgDist( 0 );
     strippixs_ = avgdim0dist * setup_.getPixPerDim(0);
 
+    stripstodraw_.erase();
+
     for ( int idim0=0; idim0<szdim0_; idim0++ )
     {
 	float pos2chk = dim0pos_[idim0];
@@ -445,9 +447,27 @@ void VDA2DBitMapGenerator::doFill()
 	if ( pos2chk > dim0rg_.stop ) pos2chk -= avgdim0dist*.5;
 
 	if ( setup_.isInside(0,pos2chk) )
-	    drawStrip( idim0 );
+	    stripstodraw_ += idim0;
     }
+
+    execute();
 }
+
+
+bool VDA2DBitMapGenerator::doWork( int start, int stop, int )
+{
+    for ( int idx=start; idx<=stop; idx++ )
+    {
+	drawStrip( stripstodraw_[idx] );
+    }
+
+    return true;
+}
+
+
+int VDA2DBitMapGenerator::totalNr() const
+{ return stripstodraw_.size(); }
+
 
 
 void VDA2DBitMapGenerator::drawStrip( int idim0 )
@@ -571,30 +591,67 @@ void VDA2DBitMapGenerator::fillInterpPars(
 {
     float v[12];
     const Array2D<float>& inpdata = data_.data();
+    const ValueSeries<float>* storage = inpdata.getStorage();
+    const float* storageptr = storage ? storage->arr() : 0;
 
-    v[0] = mV00Val;
-    v[1] = mV01Val;
-    v[2] = mV10Val;
-    v[3] = mV11Val;
-
-    if ( !vdpars().lininterp_ )
+    if ( storageptr )
     {
-	v[4] = idim0 > 0
-			 ? inpdata.get(idim0-1,idim1) : v[0];
-	v[5] = idim0 > 0 ? (idim1 < szdim1_-1
-			 ? inpdata.get(idim0-1,idim1+1) : v[4]) : v[1];
-	v[6] = idim1 > 0
-			 ? inpdata.get(idim0,idim1-1) : v[0];
-	v[7]  = idim1 < szdim1_-2
-			 ? inpdata.get(idim0,idim1+2) : v[1];
-	v[8] = idim0 < szdim0_-1 ? (idim1 > 0
-			 ? inpdata.get(idim0+1,idim1-1) : v[4]) : v[2];
-	v[9]  = idim0 < szdim0_-1 ? (idim1 < szdim1_-2
-			 ? inpdata.get(idim0+1,idim1+2) : v[3]) : v[7];
-	v[10]  = idim0 < szdim0_-2
-			 ? inpdata.get(idim0+2,idim1) : v[2];
-	v[11]  = idim0 < szdim0_-2 ? (idim1 < szdim1_-1
-			 ? inpdata.get(idim0+2,idim1+1) : v[2]) : v[10];
+	const Array2DInfo& info = inpdata.info();
+	storageptr += info.getOffset( idim0, idim1 );
+	int offset11 = 0;
+	int offset01 = 0;
+	int offset10 = 0;
+	if ( idim1 < szdim1_-1 ) { offset01++; offset11++; }
+	if ( idim0 < szdim0_-1 ) { offset10 += szdim1_; offset11 += szdim1_; }
+
+	v[0] = *storageptr;
+	v[1] = storageptr[offset01];
+	v[2] = storageptr[offset10];
+	v[3] = storageptr[offset11];
+
+	if ( !vdpars().lininterp_ )
+	{
+	    v[4] = idim0 > 0 ? storageptr[-szdim1_] : v[0];
+	    v[5] = idim0 > 0 ? (idim1 < szdim1_-1
+			     ? storageptr[-szdim1_+1] : v[4]) : v[1];
+	    v[6] = idim1 > 0 ? storageptr[-1] : v[0];
+	    v[7]  = idim1 < szdim1_-2 ? storageptr[2] : v[1];
+	    v[8] = idim0 < szdim0_-1 ? (idim1 > 0
+			     ? storageptr[szdim1_-1] : v[4]) : v[2];
+	    v[9]  = idim0 < szdim0_-1 ? (idim1 < szdim1_-2
+			     ? storageptr[szdim1_+2] : v[3] ) : v[7];
+	    v[10]  = idim0 < szdim0_-2
+			     ? storageptr[szdim1_*2] : v[2];
+	    v[11]  = idim0 < szdim0_-2 ? (idim1 < szdim1_-1 
+			     ? storageptr[szdim1_*2+1] : v[2]) : v[10];
+	}
+    }
+    else
+    {
+	v[0] = mV00Val;
+	v[1] = mV01Val;
+	v[2] = mV10Val;
+	v[3] = mV11Val;
+
+	if ( !vdpars().lininterp_ )
+	{
+	    v[4] = idim0 > 0
+			     ? inpdata.get(idim0-1,idim1) : v[0];
+	    v[5] = idim0 > 0 ? (idim1 < szdim1_-1
+			     ? inpdata.get(idim0-1,idim1+1) : v[4]) : v[1];
+	    v[6] = idim1 > 0
+			     ? inpdata.get(idim0,idim1-1) : v[0];
+	    v[7]  = idim1 < szdim1_-2
+			     ? inpdata.get(idim0,idim1+2) : v[1];
+	    v[8] = idim0 < szdim0_-1 ? (idim1 > 0
+			     ? inpdata.get(idim0+1,idim1-1) : v[4]) : v[2];
+	    v[9]  = idim0 < szdim0_-1 ? (idim1 < szdim1_-2
+			     ? inpdata.get(idim0+1,idim1+2) : v[3]) : v[7];
+	    v[10]  = idim0 < szdim0_-2
+			     ? inpdata.get(idim0+2,idim1) : v[2];
+	    v[11]  = idim0 < szdim0_-2 ? (idim1 < szdim1_-1
+			     ? inpdata.get(idim0+2,idim1+1) : v[2]) : v[10];
+	}
     }
 
     interp.set( v );
