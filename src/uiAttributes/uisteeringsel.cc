@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.25 2007-12-05 11:55:49 cvsbert Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.26 2008-02-29 11:22:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,9 +58,7 @@ uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads,
     }
 
     BufferStringSet steertyps;
-    steertyps.add ( "None" );
-    steertyps.add ( "Central" );
-    steertyps.add ( "Full" );
+    steertyps.add( "None" ).add( "Central" ).add( "Full" );
     if ( withconstdir ) steertyps.add ( "Constant direction" );
     typfld = new uiGenInput( this, "Steering", StringListInpSpec(steertyps) );
     typfld->valuechanged.notify( mCB(this,uiSteeringSel,typeSel));

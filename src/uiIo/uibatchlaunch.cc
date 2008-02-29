@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.59 2007-12-11 11:52:28 cvsnanne Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.60 2008-02-29 11:22:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,9 +76,7 @@ uiBatchLaunch::uiBatchLaunch( uiParent* p, const IOPar& ip,
 			     BoolInpSpec(true,"Local",dispstr) );
     remfld_->valuechanged.notify( mCB(this,uiBatchLaunch,remSel) );
 
-    opts_.add( "Output window" );
-    opts_.add( "Log file" );
-    opts_.add( "Standard output" );
+    opts_.add( "Output window" ).add( "Log file" ).add( "Standard output" );
     if ( wp )
 	opts_.add( "Parameter report (no run)" );
     optfld_ = new uiLabeledComboBox( this, opts_, "Output to" );
