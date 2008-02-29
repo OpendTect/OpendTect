@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.16 2008-02-06 23:35:39 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.17 2008-02-29 20:38:12 cvskris Exp $";
 
 #include "prestackgather.h"
 
@@ -27,15 +27,15 @@ static const char* rcsID = "$Id: prestackgather.cc,v 1.16 2008-02-06 23:35:39 cv
 
 using namespace PreStack;
 
-const char* Gather::sKeyIsAngleGather()	{ return "Angle Gather"; }
-const char* Gather::sKeyIsNMO()		{ return "Is NMO Corrected"; }
+const char* Gather::sDataPackCategory()		{ return "Pre-Stack Gather"; }
+const char* Gather::sKeyIsAngleGather()		{ return "Angle Gather"; }
+const char* Gather::sKeyIsNMO()			{ return "Is NMO Corrected"; }
 const char* Gather::sKeyVelocityCubeID()	{ return "Velocity volume"; }
 const char* Gather::sKeyZisTime()		{ return "Z Is Time"; }
 const char* Gather::sKeyPostStackDataID()	{ return "Post Stack Data"; }
 
 Gather::Gather()
-    : SeisTrcBufDataPack( 0, Seis::VolPS, SeisTrcInfo::Offset,
-	    		     "Pre-Stack Gather", 0 )
+    : FlatDataPack( sDataPackCategory(), new Array2DImpl<float>(0,0) )
     , offsetisangle_( false )
     , iscorr_( false )
     , binid_( -1, -1 )
@@ -45,7 +45,7 @@ Gather::Gather()
 
 
 Gather::Gather( const Gather& gather )
-    : SeisTrcBufDataPack( gather )
+    : FlatDataPack( gather )
     , offsetisangle_( gather.offsetisangle_ )
     , iscorr_( gather.iscorr_ )
     , binid_( gather.binid_ )
@@ -96,7 +96,7 @@ bool Gather::readFrom( const IOObj& ioobj, const BinID& bid,
 
 
 bool Gather::readFrom( const IOObj& ioobj, const int tracenr, 
-	const char* linename, BufferString* errmsg )
+		       const char* linename, BufferString* errmsg )
 {
     PtrMan<SeisPSReader> rdr = SPSIOPF().get2DReader( ioobj, linename );
     if ( !rdr )
@@ -116,31 +116,78 @@ bool Gather::readFrom( const IOObj& ioobj, const int tracenr,
 bool Gather::readFrom( const IOObj& ioobj, SeisPSReader& rdr, const BinID& bid, 
 		       BufferString* errmsg )
 {
-    SeisTrcBuf* tbuf = new SeisTrcBuf( true );
+    PtrMan<SeisTrcBuf> tbuf = new SeisTrcBuf( true );
     if ( !rdr.getGather(bid,*tbuf) )
     {
 	if ( errmsg ) (*errmsg) = rdr.errMsg();
 	delete arr2d_; arr2d_ = 0;
-	delete tbuf;
 	return false;
     }
 
     tbuf->sort( true, SeisTrcInfo::Offset );
 
+    bool isset = false;
+    StepInterval<double> zrg;
     for ( int idx=tbuf->size()-1; idx>-1; idx-- )
     {
-	if ( mIsUdf( tbuf->get(idx)->info().offset ) )
+	const SeisTrc* trc = tbuf->get( idx );
+	if ( mIsUdf( trc->info().offset ) )
 	    delete tbuf->remove( idx );
+
+	const int trcsz = trc->size();
+	if ( !isset )
+	{
+	    isset = true;
+	    zrg.setFrom( trc->info().sampling.interval( trcsz ) );
+	}
+	else
+	{
+	    zrg.start = mMIN( trc->info().sampling.start, zrg.start );
+	    zrg.stop = mMAX( trc->info().sampling.atIndex( trcsz ), zrg.stop );
+	    zrg.step = mMIN( trc->info().sampling.step, zrg.step );
+	}
     }
 
-    if ( tbuf->isEmpty() )
+    if ( !isset )
     {
 	delete arr2d_; arr2d_ = 0;
-	delete tbuf;
 	return false;
     }
 
-    setBuffer( tbuf, Seis::VolPS, SeisTrcInfo::Offset, 0 );
+    int nrsamples = zrg.nrSteps()+1;
+    if ( zrg.atIndex(nrsamples-1)<zrg.stop )
+	nrsamples++;
+
+    const Array2DInfoImpl newinfo( tbuf->size(), nrsamples );
+    if ( !arr2d_->setInfo( newinfo ) )
+    {
+	delete arr2d_;
+	arr2d_ = new Array2DImpl<float>( newinfo );
+	if ( !arr2d_ || !arr2d_->isOK() )
+	{
+	    delete arr2d_; arr2d_ = 0;
+	    return false;
+	}
+    }
+
+    azimuths_.setSize( tbuf->size(), mUdf(float) );
+
+    for ( int trcidx=tbuf->size()-1; trcidx>=0; trcidx-- )
+    {
+	const SeisTrc* trc = tbuf->get( trcidx );
+	for ( int idx=0; idx<nrsamples; idx++ )
+	{
+	    const float val = trc->getValue( zrg.atIndex( idx ), 0 );
+	    arr2d_->set( trcidx, idx, val );
+	}
+
+	azimuths_[trcidx] = trc->info().azimuth;
+    }
+
+    double offset;
+    posData().setX1Pos( tbuf->getHdrVals(SeisTrcInfo::Offset, offset),
+	   		tbuf->size(), offset );
+    posData().setRange( false, zrg );
 
     offsetisangle_ = false;
     ioobj.pars().getYN(sKeyIsAngleGather(), offsetisangle_ );
@@ -174,14 +221,14 @@ float Gather::getOffset( int idx ) const
 
 float Gather::getAzimuth( int idx ) const
 {
-    return trcBuf().get( idx )->info().azimuth;
+    return azimuths_[idx];
 }
 
 
 OffsetAzimuth Gather::getOffsetAzimuth( int idx ) const
 {
     return OffsetAzimuth( posData().position( true, idx ), 
-	    		  trcBuf().get( idx )->info().azimuth );
+	    		  azimuths_[idx] );
 }
 
 

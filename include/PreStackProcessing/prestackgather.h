@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackgather.h,v 1.12 2008-02-06 23:35:39 cvsyuancheng Exp $
+ RCS:		$Id: prestackgather.h,v 1.13 2008-02-29 20:38:12 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,15 +18,16 @@ ________________________________________________________________________
 #include "position.h"
 #include "offsetazimuth.h"
 #include "samplingdata.h"
-#include "seisbufadapters.h"
+#include "datapackbase.h"
 
 class IOObj;
 class SeisPSReader;
+class SeisTrcBufDataPack;
 
 namespace PreStack
 {
 
-class Gather : public SeisTrcBufDataPack
+class Gather : public FlatDataPack
 {
 public:
     				Gather();
@@ -72,6 +73,7 @@ public:
 
     static bool			getVelocityID(const MultiID& stor,MultiID& vid);
 
+    static const char*		sDataPackCategory();
     static const char*		sKeyIsAngleGather();
     static const char*		sKeyIsNMO();
     static const char*		sKeyZisTime();
@@ -87,6 +89,7 @@ protected:
 
     bool			zit_;
     BinID			binid_;
+    TypeSet<float>		azimuths_;
 
     BufferString		linename_;
 };
