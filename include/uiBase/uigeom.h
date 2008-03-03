@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.16 2007-02-20 14:54:14 cvskris Exp $
+ RCS:           $Id: uigeom.h,v 1.17 2008-03-03 14:27:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,33 @@ public:
     inline int          vNrPics() const;
     inline void		setHNrPics( int np );
     inline void		setVNrPics( int np );
+};
+
+
+class uiBorder
+{
+public:
+    			uiBorder()	: lt_(0,0), rb_(0,0)	{}
+    			uiBorder( int l, int t, int r, int b )
+			    	: lt_(l,t), rb_(r,b)	{}
+    bool		operator ==( const uiBorder& b ) const
+			{ return lt_ == b.lt_ && rb_ == b.rb_; }
+    bool		operator !=( const uiBorder& b ) const
+			{ return !(*this == b); }
+
+    int			left() const	{ return lt_.width(); }
+    int			right() const	{ return rb_.width(); }
+    int			top() const	{ return lt_.height(); }
+    int			bottom() const	{ return rb_.height(); }
+
+    uiSize		lt_;
+    uiSize		rb_;
+
+    inline uiPoint	drawPt(const uiPoint& relpt) const;
+    inline uiPoint	relPt(const uiPoint& drawpt) const;
+    inline uiRect	getRect(const uiSize&,int extrapix=0) const;
+    uiBorder&		operator +=( const uiBorder& b )
+			{ lt_ += b.lt_; rb_ += b.rb_; return *this; }
 };
 
 
@@ -190,5 +217,26 @@ inline void uiRect::setHNrPics( int np )
 //! nr of pics should be > 0 
 inline void uiRect::setVNrPics( int np )	
 { setBottom( top() + mMAX( 1, np ) - 1 ); }
+
+
+inline uiPoint uiBorder::drawPt( const uiPoint& relpt ) const
+{
+    return uiPoint( relpt.x+lt_.width(), relpt.y+lt_.height());
+}
+
+
+inline uiPoint uiBorder::relPt( const uiPoint& dpt ) const
+{
+    return uiPoint( dpt.x-lt_.width(), dpt.y-lt_.height() );
+}
+
+
+uiRect uiBorder::getRect( const uiSize& sz, int extr ) const
+{
+    return uiRect( lt_.width()+extr, lt_.height()+extr,
+	    	   sz.width()-rb_.width()-2*extr,
+		   sz.height()-rb_.height()-2*extr );
+}
+
 
 #endif
