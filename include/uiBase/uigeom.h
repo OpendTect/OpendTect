@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.17 2008-03-03 14:27:47 cvsbert Exp $
+ RCS:           $Id: uigeom.h,v 1.18 2008-03-03 15:01:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ public:
 class uiBorder
 {
 public:
-    			uiBorder()	: lt_(0,0), rb_(0,0)	{}
+    			uiBorder( int i=0 )	: lt_(i,i), rb_(i,i)	{}
     			uiBorder( int l, int t, int r, int b )
 			    	: lt_(l,t), rb_(r,b)	{}
     bool		operator ==( const uiBorder& b ) const
