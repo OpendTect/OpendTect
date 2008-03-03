@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.60 2008-01-10 09:59:25 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.61 2008-03-03 09:44:30 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -257,6 +257,8 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     hdef.pinfo = &pinfo;
     txthead.setPosInfo( hdef );
     txthead.setStartPos( outsd.start );
+    if ( GetEnvVarYN("OD_WRITE_EBCDIC_SEGY_HDR" ) )
+	txthead.setEbcdic();
     if ( !sConn().doIO( txthead.txt, SegyTxtHeaderLength ) )
 	mErrRet("Cannot write SEG-Y textual header")
 
