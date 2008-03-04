@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.68 2008-02-14 15:32:03 cvsjaap Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.69 2008-03-04 12:03:41 cvsnanne Exp $";
 
 #include "emmanager.h"
 
@@ -15,11 +15,12 @@ static const char* rcsID = "$Id: emmanager.cc,v 1.68 2008-02-14 15:32:03 cvsjaap
 #include "emmarchingcubessurface.h"
 #include "emhorizonztransform.h"
 #include "emobject.h"
+#include "emsurfaceio.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "errh.h"
 #include "executor.h"
-#include "iodir.h"
+#include "iodirentry.h"
 #include "iopar.h"
 #include "ioman.h"
 #include "ptrman.h"
@@ -318,7 +319,7 @@ const char* EMManager::getSurfaceData( const MultiID& id, SurfaceIOData& sd )
 	if ( !tr )
 	{ return "Cannot create translator"; }
 
-	if ( !tr->startRead( *ioobj ) )
+	if ( !tr->startRead(*ioobj) )
 	{
 	    static BufferString msg;
 	    msg = tr->errMsg();
@@ -340,6 +341,19 @@ const char* EMManager::getSurfaceData( const MultiID& id, SurfaceIOData& sd )
 }
 
 
+void EMManager::get2DHorizons( const MultiID& linesetid, const char* linenm,
+			       TypeSet<MultiID>& ids ) const
+{
+    IOObjContext ctxt = EMHorizon2DTranslatorGroup::ioContext();
+    IOM().to( ctxt.getSelKey() );
+    IODirEntryList list( IOM().dirPtr(), ctxt );
+    for ( int idx=0; idx<list.size(); idx++ )
+    {
+//	dgbSurfaceReader reader( list[idx] );
+    }
+}
+
+
 void EMManager::syncGeometry( const ObjectID& id )
 {
     syncGeomReq.trigger( id );
@@ -355,6 +369,55 @@ void EMManager::burstAlertToAll( bool yn )
 	emobj->setBurstAlert( yn );
     }
 }
+
+
+IOPar* EMManager::getSurfacePars( const IOObj& ioobj ) const
+{
+    PtrMan<dgbSurfaceReader> rdr = new dgbSurfaceReader( ioobj, ioobj.group() );
+    return rdr.ptr() && rdr->pars() ? new IOPar(*rdr->pars()) : 0;
+}
+
+
+bool EMManager::readPars( const MultiID& mid, IOPar& par ) const
+{
+    const char* objtype = objectType( mid );
+    if ( strcmp(objtype,Horizon2D::typeStr()) &&
+	 strcmp(objtype,Horizon3D::typeStr()) ) return false;
+
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj ) return false;
+
+    BufferString filenm = Surface::getParFileName( *ioobj );
+    const bool res = par.read( filenm, "Surface parameters" );
+
+    if ( !res )
+    {
+	IOPar* surfpar = getSurfacePars( *ioobj );
+	int icol;
+	if ( surfpar && surfpar->get(sKey::Color,icol) )
+	{
+	    Color col; col.setRgb( icol );
+	    par.set( sKey::Color, col );
+	}
+    }
+    par.set( sKey::Name, ioobj->name() );
+    return res;
+}
+
+
+bool EMManager::writePars( const MultiID& mid, const IOPar& par ) const
+{
+    const char* objtype = objectType( mid );
+    if ( strcmp(objtype,Horizon2D::typeStr()) &&
+	 strcmp(objtype,Horizon3D::typeStr()) ) return false;
+
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj ) return false;
+
+    BufferString filenm = Surface::getParFileName( *ioobj );
+    return par.write( filenm, "Surface parameters" );
+}
+
 
 
 } // namespace EM

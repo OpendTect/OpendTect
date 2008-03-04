@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmanager.h,v 1.38 2008-02-14 15:32:03 cvsjaap Exp $
+ RCS:		$Id: emmanager.h,v 1.39 2008-03-04 12:03:41 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -45,7 +45,6 @@ public:
 			EMManager();
 			~EMManager();
 
-    static void		initClasses();
     void		empty();
 
     Undo&		undo();
@@ -84,25 +83,31 @@ public:
 
     EMObject*		createTempObject(const char* type);
 
-    const char*		getSurfaceData(const MultiID&, SurfaceIOData&);
+    const char*		getSurfaceData(const MultiID&,SurfaceIOData&);
     			// returns err msg or null if OK
+    void		get2DHorizons(const MultiID& lineset,const char* linenm,
+	    			      TypeSet<MultiID>&) const;
 
     			/*Interface from EMObject to report themselves */
     void		addObject(EMObject*);
     void		removeObject(const EMObject*);
 
-    ObjectID		getObjectID( const MultiID& ) const;
+    ObjectID		getObjectID(const MultiID&) const;
     			/*!<\note that the relationship between storage id 
 			     (MultiID) and EarthModel id (ObjectID) may change
 			     due to "Save as" operations and similar. */
-    MultiID		getMultiID( const ObjectID& ) const;
+    MultiID		getMultiID(const ObjectID&) const;
     			/*!<\note that the relationship between storage id 
 			     (MultiID) and EarthModel id (ObjectID) may change
 			     due to "Save as" operations and similar. */
 
-    void		syncGeometry( const ObjectID& );
+    void		syncGeometry(const ObjectID&);
+    void		burstAlertToAll(bool yn);
 
-    void		burstAlertToAll( bool yn );
+    IOPar*		getSurfacePars(const IOObj&) const;
+
+    bool		readPars(const MultiID&,IOPar&) const;
+    bool		writePars(const MultiID&,const IOPar&) const;
 
 protected:
     Undo&			undo_;
