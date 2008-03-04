@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.93 2008-02-27 13:42:27 cvsbert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.94 2008-03-04 11:59:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,7 +90,7 @@ uiODMain* ODMainWin()
 }
 
 
-void initAll()
+static void initNonUiStdClasses()
 {
     Algo::initStdClasses();
     General::initStdClasses();
@@ -102,7 +102,11 @@ void initAll()
     VolumeProcessing::initStdClasses();
     Attributes::initStdClasses();
     MPEEngine::initStdClasses();
+}
 
+
+static void initUiStdClasses()
+{
     uiIo::initStdClasses();
     uiAttributes::initStdClasses();
     uiEarthModel::initStdClasses();
@@ -118,20 +122,20 @@ void initAll()
 
 int ODMain( int argc, char** argv )
 {
+    initNonUiStdClasses();
+
     PIM().setArgs( argc, argv );
     PIM().loadAuto( false );
+
     uiODMain* odmain = new uiODMain( *new uicMain(argc,argv) );
-
-    initAll();
-
 #ifndef USEQT3
     ioPixmap pm( mGetSetupFileName("splash.png") );
     uiSplashScreen splash( pm );
     splash.show();
     splash.showMessage( "Loading plugins ..." );
 #endif
-
     manODMainWin( odmain );
+
     bool dodlg = true;
     Settings::common().getYN( uiPluginSel::sKeyDoAtStartup, dodlg );
     ObjectSet<PluginManager::Data>& pimdata = PIM().getData();
@@ -141,6 +145,8 @@ int ODMain( int argc, char** argv )
 	if ( dlg.nrPlugins() )
 	    dlg.go();
     }
+
+    initUiStdClasses();
     PIM().loadAuto( true );
     if ( !odmain->ensureGoodSurveySetup() )
 	return 1;
