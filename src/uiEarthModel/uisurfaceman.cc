@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.42 2008-02-26 09:13:41 cvsnanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.43 2008-03-04 12:04:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,13 +12,14 @@ ________________________________________________________________________
 
 #include "uisurfaceman.h"
 
+#include "ascstream.h"
 #include "ctxtioobj.h"
 #include "filegen.h"
 #include "ioobj.h"
+#include "multiid.h"
 #include "oddirs.h"
 #include "pixmap.h"
 #include "strmprov.h"
-#include "ascstream.h"
 
 #include "emmanager.h"
 #include "emsurfaceauxdata.h"
@@ -34,6 +35,8 @@ ________________________________________________________________________
 #include "uiiosurfacedlg.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uistratlvlsel.h"
+#include "uitable.h"
 #include "uitextedit.h"
 
 
@@ -295,7 +298,81 @@ double uiSurfaceMan::getFileSize( const char* filenm, int& nrfiles ) const
 }
 
 
+class uiSurfaceStratDlg : public uiDialog
+{
+public:
+uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
+    : uiDialog(p,uiDialog::Setup("Stratigraphy","",""))
+    , objids_(ids)
+{
+    tbl_ = new uiTable( this, uiTable::Setup(ids.size(),3), "StratTable" );
+    BufferStringSet lbls; lbls.add( "Name" ).add( "Color" ).add( "Level" );
+    tbl_->setColumnLabels( lbls );
+    tbl_->setTableReadOnly( true );
+    tbl_->setRowResizeMode( uiTable::Interactive );
+    tbl_->setColumnResizeMode( uiTable::ResizeToContents );
+    tbl_->setColumnStretchable( 2, true );
+    tbl_->setPrefWidth( 400 );
+
+    IOPar par;
+    for ( int idx=0; idx<ids.size(); idx++ )
+    {
+	par.clear();
+	EM::EMM().readPars( *ids[idx], par );
+	tbl_->setText( RowCol(idx,0), par[sKey::Name] );
+	Color col( Color::White );
+	par.get( sKey::Color, col );
+	tbl_->setColor( RowCol(idx,1), col );
+
+	uiStratLevelSel* levelsel = new uiStratLevelSel( 0, false, false );
+	levelsel->levelChanged.notify( mCB(this,uiSurfaceStratDlg,lvlChg) );
+	tbl_->setCellGroup( RowCol(idx,2), levelsel );
+	int lvlid = -1;
+	par.get( sKey::StratRef, lvlid );
+	levelsel->setLevelID( lvlid );
+    }
+}
+
+
+protected:
+
+void lvlChg( CallBacker* cb )
+{
+    mDynamicCastGet(uiStratLevelSel*,levelsel,cb) 
+    const Color* col = levelsel ? levelsel->getLevelColor() : 0;
+    if ( !col ) return;
+
+    const RowCol rc = tbl_->getCell( levelsel );
+    tbl_->setColor( RowCol(rc.row,1), *col );
+}
+
+bool acceptOK( CallBacker* )
+{
+    for ( int idx=0; idx<objids_.size(); idx++ )
+    {
+	IOPar par;
+	Color col = tbl_->getColor( RowCol(idx,1) );
+	par.set( sKey::Color, col );
+
+	mDynamicCastGet(uiStratLevelSel*,levelsel,
+			tbl_->getCellGroup(RowCol(idx,2)))
+	const int lvlid = levelsel ? levelsel->getLevelID() : -1;
+	par.set( sKey::StratRef, lvlid );
+	EM::EMM().writePars( *objids_[idx], par );
+    }
+
+    return true;
+}
+
+
+    uiTable*	tbl_;
+    const ObjectSet<MultiID>& objids_;
+
+};
+
+
 void uiSurfaceMan::stratSel( CallBacker* )
 {
-    uiMSG().message( "Not impl. yet" );
+    const ObjectSet<MultiID>& ids = selgrp->getIOObjIds();
+    uiSurfaceStratDlg dlg( this, ids ); dlg.go();
 }
