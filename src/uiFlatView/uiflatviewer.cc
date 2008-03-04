@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.41 2008-02-21 20:00:55 cvskris Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.42 2008-03-04 11:58:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -193,7 +193,7 @@ void uiFlatViewer::handleChange( DataChangeType dct )
     if ( annot.haveAxisAnnot(true) )
 	{ b += annotsz_.height(); t += annotsz_.height(); }
 
-    canvas_.setBorders( uiSize(l,t), uiSize(r,b) );
+    canvas_.setBorder( uiBorder(l,t,r,b) );
     canvas_.forceNewFill();
 }
 
