@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.h,v 1.2 2007-02-28 13:37:04 cvshelene Exp $
+ RCS:           $Id: uirgbarraycanvas.h,v 1.3 2008-03-04 11:56:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ class uiRGBArrayCanvas : public uiCanvas
 public:
     			uiRGBArrayCanvas(uiParent*,uiRGBArray&);
 
-    void		setBorders(const uiSize& lfttop,const uiSize& rghtbot);
+    void		setBorder(const uiBorder&);
     void		setBGColor(const Color&); //!< everything
     void		setDrawArr(bool);	//!< Draw the arr or not?
 
@@ -48,13 +48,9 @@ public:
     			//!< In this area the 'rest' needs to be drawn
     			//!< in your own reDrawHandler or at postDraw
 
-    inline int		leftBorder() const	{ return border_.left(); }
-    inline int		rightBorder() const	{ return border_.right(); }
-    inline int		topBorder() const	{ return border_.top(); }
-    inline int		bottomBorder() const	{ return border_.bottom(); }
+    inline const uiBorder& border() const	{ return border_; }
     inline const Color&	bgColor() const		{ return bgcolor_; }
     inline bool		arrDrawn() const	{ return dodraw_; }
-
 
     Notifier<uiRGBArrayCanvas>	newFillNeeded;
     Notifier<uiRGBArrayCanvas>	rubberBandUsed;	// CallBacker: CBCapsule<uiRect>
@@ -62,7 +58,7 @@ public:
 protected:
 
     uiRGBArray&		rgbarr_;
-    uiRect		border_;
+    uiBorder		border_;
     Color		bgcolor_;
     bool		dodraw_;
 

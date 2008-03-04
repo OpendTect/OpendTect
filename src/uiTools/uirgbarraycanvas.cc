@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.cc,v 1.6 2007-03-28 15:16:41 cvsbert Exp $
+ RCS:           $Id: uirgbarraycanvas.cc,v 1.7 2008-03-04 11:56:59 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -29,13 +29,8 @@ uiRGBArrayCanvas::uiRGBArrayCanvas( uiParent* p, uiRGBArray& a )
 }
 
 
-void uiRGBArrayCanvas::setBorders( const uiSize& tl, const uiSize& br )
+void uiRGBArrayCanvas::setBorder( const uiBorder& newborder )
 {
-    uiRect newborder;
-    newborder.setLeft( tl.width() );
-    newborder.setTop( tl.height() );
-    newborder.setRight( br.width() );
-    newborder.setBottom( br.height() );
     if ( border_ != newborder )
     {
 	border_ = newborder;
@@ -82,11 +77,7 @@ void uiRGBArrayCanvas::beforeDraw( CallBacker* )
 {
     const uiSize totsz( width(), height() );
     const int unusedpix = 1;
-    arrarea_.setLeft( border_.left() + unusedpix );
-    arrarea_.setTop( border_.top() + unusedpix );
-    arrarea_.setRight( totsz.width() - border_.right() - 2 * unusedpix );
-    arrarea_.setBottom( totsz.height() - border_.bottom() - 2 * unusedpix );
-
+    arrarea_ = border_.getRect( totsz, unusedpix );
     const int xsz = arrarea_.width() + 1;
     const int ysz = arrarea_.height() + 1;
     if ( xsz < 1 || ysz < 1 )
