@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.9 2008-02-13 13:28:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.10 2008-03-04 09:28:11 cvsnanne Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -99,6 +99,7 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 
     uiFileInput::Setup setup;
     setup.defseldir( ODMad::FileSpec::defPath() );
+    setup.forread( false );
     madfld_ = new uiFileInput( this, "Data file", setup );
     madfld_->attach( alignedBelow, typfld_ );
 
