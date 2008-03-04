@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.18 2008-03-03 15:01:31 cvsbert Exp $
+ RCS:           $Id: uigeom.h,v 1.19 2008-03-04 12:17:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "geometry.h"
+#include "enums.h"
 
 typedef Geom::Point2D<int> uiPoint;
 typedef Geom::Point2D<double> uiWorldPoint;
@@ -38,6 +39,10 @@ public:
 class uiRect  : public Geom::PixRectangle<int>
 {
 public:
+
+    enum Side		{ Left, Top, Right, Bottom };
+    			DeclareEnumUtils(Side)
+
     inline		uiRect( int l = 0 , int t = 0, int r = 0 , int b = 0 );
     inline		uiRect( const uiPoint& tl, const uiPoint& br );
     inline uiSize	getPixelSize() const;
@@ -56,6 +61,9 @@ public:
     inline int          vNrPics() const;
     inline void		setHNrPics( int np );
     inline void		setVNrPics( int np );
+
+    int			get(Side) const;
+    void		set(Side,int);
 };
 
 
@@ -96,7 +104,7 @@ inline uiRect::uiRect( const uiPoint& tl, const uiPoint& br )
 {}
 
 
-uiSize	uiRect::getPixelSize() const
+inline uiSize uiRect::getPixelSize() const
 { return uiSize( hNrPics(),vNrPics() ); }
 
 
@@ -218,6 +226,11 @@ inline void uiRect::setHNrPics( int np )
 inline void uiRect::setVNrPics( int np )	
 { setBottom( top() + mMAX( 1, np ) - 1 ); }
 
+inline int uiRect::get( uiRect::Side s ) const
+{ return s<Right ? (s==Left?left():top()) : (s==Right?right():bottom()); }
+inline void uiRect::set( uiRect::Side s, int i )
+{ s<Right?(s==Left?setLeft(i):setTop(i)):(s==Right?setRight(i):setBottom(i)); }
+
 
 inline uiPoint uiBorder::drawPt( const uiPoint& relpt ) const
 {
@@ -231,7 +244,7 @@ inline uiPoint uiBorder::relPt( const uiPoint& dpt ) const
 }
 
 
-uiRect uiBorder::getRect( const uiSize& sz, int extr ) const
+inline uiRect uiBorder::getRect( const uiSize& sz, int extr ) const
 {
     return uiRect( lt_.width()+extr, lt_.height()+extr,
 	    	   sz.width()-rb_.width()-2*extr,
