@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.15 2008-03-05 20:24:57 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.16 2008-03-05 22:19:29 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -363,15 +363,13 @@ const visSurvey::Seis2DDisplay* PreStackViewer::getSeis2DDisplay() const
 { return seis2d_; }
 
 
-#define mErrRet(msg) { uiMSG().error(msg); return false; }
-
 bool PreStackViewer::setSeis2DData( const IOObj* ioobj ) 
 {
     if ( !ioobj )
 	return false;
 
     if ( !seis2d_ || trcnr_<0 )
-	mErrRet( "Seis2D display is not set" )
+	return false;
 
     const bool haddata = flatviewer_->pack( false );
     PreStack::Gather* gather = new PreStack::Gather;
@@ -393,7 +391,6 @@ bool PreStackViewer::setSeis2DData( const IOObj* ioobj )
     }
     
     turnOn( true );
-
     return true;
 }
 

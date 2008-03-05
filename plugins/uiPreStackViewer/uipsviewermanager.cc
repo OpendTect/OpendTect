@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.14 2008-02-07 14:30:18 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.15 2008-03-05 22:19:29 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -205,6 +205,8 @@ int uiPSViewerMgr::getSceneID( int mnid )
 }
 
 
+#define mErrReturn(msg) { uiMSG().error(msg); return false; }
+
 bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu, 
 				    int sceneid, int mnuidx )
 {
@@ -214,19 +216,19 @@ bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu,
     PtrMan<IOObj> ioobj = IOM().getLocal(
 	    selectpsdatamenuitem_.getItem(mnuidx)->text );
     if ( !ioobj )
-	return false;
+	mErrReturn( "No object selected" )
 
     RefMan<visBase::DataObject> dataobj = visserv_->
 	getObject( menu->menuID() );
 		
     Coord3 pickedpos = menu->getPickedPos();
     if ( !pickedpos.isDefined() )
-	return false;
+	mErrReturn( "Position is not defined." )
 
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, dataobj.ptr() );
     mDynamicCastGet( visSurvey::Seis2DDisplay*, s2d, dataobj.ptr() );
     if ( !pdd && !s2d )
-	return false;
+	mErrReturn( "Display panel is not set." )
 	
     PreStackViewer* viewer = PreStackViewer::create();
     viewer->ref();
@@ -247,14 +249,14 @@ bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu,
 	}
 
 	if ( !viewer->setPosition( bid ) )
-	    return false;
+	    mErrReturn( "No prestack data at this position" )
     } 
     else if ( s2d )
     {
 	int trcnr = s2d->getNearestTraceNr( pickedpos );
 	viewer->setSeis2DDisplay( s2d, trcnr );
 	if ( !viewer->setSeis2DData( ioobj ) )
-	    return false;
+	    mErrReturn( "No prestack data at this position" )
     }
 
     if ( viewer->getScene() )
