@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.43 2008-01-07 20:48:50 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.44 2008-03-05 20:06:50 cvsyuancheng Exp $";
 
 
 #include "vismultitexture2.h"
@@ -177,6 +177,9 @@ bool MultiTexture2::splitsTexture()
 
 void MultiTexture2::splitTexture( bool yn )
 {
+    if ( dosplittexture_ == yn )
+	return;
+
     dosplittexture_ = yn;
     updateSoTextureInternal( 0 );
 }
