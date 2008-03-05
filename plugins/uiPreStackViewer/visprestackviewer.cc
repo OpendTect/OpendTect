@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.14 2008-02-06 23:34:42 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.15 2008-03-05 20:24:57 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -264,7 +264,7 @@ void PreStackViewer::dataChangedCB( CallBacker* )
     const Coord3 c10( startpos, zrg_.stop );
 
 
-    flatviewer_->setPosition( c10, c11, c00, c01 );
+    flatviewer_->setPosition( c00, c01, c10, c11 );
     if ( section_ )
     {
 	planedragger_->setDim( section_->getOrientation() 
@@ -393,6 +393,7 @@ bool PreStackViewer::setSeis2DData( const IOObj* ioobj )
     }
     
     turnOn( true );
+
     return true;
 }
 
