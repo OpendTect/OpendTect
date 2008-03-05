@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: initvisbase.cc,v 1.2 2008-02-06 05:01:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: initvisbase.cc,v 1.3 2008-03-05 19:29:15 cvsyuancheng Exp $";
 
 
 #include "initvisbase.h"
@@ -42,6 +42,7 @@ static const char* rcsID = "$Id: initvisbase.cc,v 1.2 2008-02-06 05:01:44 cvsnan
 #include "vismultitexture2.h"
 #include "visnormals.h"
 #include "visparametricsurface.h"
+#include "vissplittexture2rectangle.h"
 #include "vispickstyle.h"
 #include "vispointset.h"
 #include "vispolygonoffset.h"
@@ -93,6 +94,7 @@ void initStdClasses()
     EventCatcher::initClass();
     FaceSet::initClass();
     FlatViewer::initClass();
+    SplitTexture2Rectangle::initClass();
     ForegroundLifter::initClass();
     GeomIndexedShape::initClass();
     GridLines::initClass();
