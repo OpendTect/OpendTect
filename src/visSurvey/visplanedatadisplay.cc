@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.184 2008-02-29 15:21:02 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.185 2008-03-05 20:55:08 cvsyuancheng Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -14,22 +14,23 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.184 2008-02-29 15:21
 #include "binidvalset.h"
 #include "attribdatapack.h"
 #include "cubesampling.h"
+#include "iopar.h"
 #include "keyenum.h"
-#include "survinfo.h"
+#include "settings.h"
 #include "simpnumer.h"
+#include "survinfo.h"
 #include "vismaterial.h"
 #include "vistexturecoords.h"
 #include "viscoord.h"
 #include "visdataman.h"
 #include "visdepthtabplanedragger.h"
 #include "visdrawstyle.h"
-#include "visgridlines.h"
-#include "vispickstyle.h"
 #include "visfaceset.h"
+#include "visgridlines.h"
 #include "vismultitexture2.h"
+#include "vispickstyle.h"
+#include "vissplittexture2rectangle.h"
 #include "vistransform.h"
-#include "iopar.h"
-#include "settings.h"
 #include "zaxistransform.h"
 #include "zaxistransformdatapack.h"
 
@@ -42,7 +43,7 @@ DefineEnumNames(PlaneDataDisplay,Orientation,1,"Orientation")
 { "Inline", "Crossline", "Timeslice", 0 };
 
 PlaneDataDisplay::PlaneDataDisplay()
-    : rectangle_( visBase::FaceSet::create() )
+    : rectangle_( visBase::SplitTexture2Rectangle::create() )
     , rectanglepickstyle_( visBase::PickStyle::create() )
     , dragger_( visBase::DepthTabPlaneDragger::create() )
     , gridlines_( visBase::GridLines::create() )
@@ -103,15 +104,6 @@ PlaneDataDisplay::PlaneDataDisplay()
 
     rectangle_->ref();
     addChild( rectangle_->getInventorNode() );
-    rectangle_->setCoordIndex( 0, 0 );
-    rectangle_->setCoordIndex( 1, 1 );
-    rectangle_->setCoordIndex( 2, 2 );
-    rectangle_->setCoordIndex( 3, 3 );
-    rectangle_->setCoordIndex( 4, -1 );
-    rectangle_->setVertexOrdering(
-	    visBase::VertexShape::cClockWiseVertexOrdering() );
-    rectangle_->setShapeType( visBase::VertexShape::cUnknownShapeType() );
-
     material_->setColor( Color::White );
     material_->setAmbience( 0.8 );
     material_->setDiffIntensity( 0.8 );
@@ -419,6 +411,7 @@ void PlaneDataDisplay::coltabChanged( CallBacker* )
     showManipulator( false );
 }
 
+
 /*
 SurveyObject* PlaneDataDisplay::duplicate() const
 {
@@ -507,9 +500,7 @@ void PlaneDataDisplay::setResolution( int res )
     texture_->clearAll();
 
     for ( int idx=0; idx<nrAttribs(); idx++ )
-    {
 	updateFromDisplayIDs( idx );
-    }
 }
 
 
@@ -542,6 +533,12 @@ void PlaneDataDisplay::removeCache( int attrib )
 	DPM(DataPackMgr::FlatID).release( dpids[idx] );
 
     delete displaycache_.remove( attrib );
+    
+    if ( texture_->splitsTexture() )
+    {
+	for ( int idx=0; idx<displaycache_.size(); idx++ )
+    	    updateFromDisplayIDs( idx );
+    }
 }
 
 
@@ -550,6 +547,11 @@ void PlaneDataDisplay::swapCache( int a0, int a1 )
     volumecache_.swap( a0, a1 );
     rposcache_.swap( a0, a1 );
     displaycache_.swap( a0, a1 );
+    if ( texture_->splitsTexture() )
+    {
+	for ( int idx=0; idx<displaycache_.size(); idx++ )
+    	    updateFromDisplayIDs( idx );
+    }
 }
 
 
@@ -616,7 +618,7 @@ void PlaneDataDisplay::setRandomPosData( int attrib,
 	delete rposcache_[attrib];
 
     rposcache_.replace( attrib,
-	    		data&&data->size() ? new BinIDValueSet( *(*data)[0] ) : 0 );
+	    data&&data->size() ? new BinIDValueSet( *(*data)[0] ) : 0 );
 }
 
 
@@ -625,20 +627,21 @@ void PlaneDataDisplay::setCubeSampling( CubeSampling cs )
     cs = snapPosition( cs );
     const HorSampling& hrg = cs.hrg;
 
-    visBase::Coordinates* coords = rectangle_->getCoordinates();
     if ( orientation_==Inline || orientation_==Crossline )
     {
-	coords->setPos( 0, Coord3(hrg.start.inl,hrg.start.crl,cs.zrg.start) );
-	coords->setPos( 1, Coord3(hrg.start.inl,hrg.start.crl,cs.zrg.stop) );
-	coords->setPos( 2, Coord3(hrg.stop.inl,hrg.stop.crl,cs.zrg.stop) );
-	coords->setPos( 3, Coord3(hrg.stop.inl,hrg.stop.crl, cs.zrg.start) );
+	rectangle_->setPosition(
+		Coord3( hrg.start.inl, hrg.start.crl, cs.zrg.start ),
+		Coord3( hrg.stop.inl,  hrg.stop.crl,  cs.zrg.start ),
+		Coord3( hrg.start.inl, hrg.start.crl, cs.zrg.stop ),
+		Coord3( hrg.stop.inl,  hrg.stop.crl,  cs.zrg.stop ) );
     }
     else 
     {
-	coords->setPos( 0, Coord3(hrg.start.inl,hrg.start.crl,cs.zrg.start) );
-	coords->setPos( 1, Coord3(hrg.start.inl,hrg.stop.crl,cs.zrg.stop) );
-	coords->setPos( 2, Coord3(hrg.stop.inl,hrg.stop.crl,cs.zrg.stop) );
-	coords->setPos( 3, Coord3(hrg.stop.inl,hrg.start.crl,cs.zrg.start) );
+	rectangle_->setPosition(
+		Coord3( hrg.start.inl, hrg.start.crl, cs.zrg.stop ),
+		Coord3( hrg.stop.inl,  hrg.start.crl, cs.zrg.start ),
+		Coord3( hrg.start.inl, hrg.stop.crl,  cs.zrg.start ),
+		Coord3( hrg.stop.inl,  hrg.stop.crl,  cs.zrg.stop ) );
     }
 
     setDraggerPos( cs );
@@ -656,41 +659,39 @@ CubeSampling PlaneDataDisplay::getCubeSampling( bool manippos,
        						int attrib ) const
 {
     CubeSampling res(false);
-    if ( manippos || rectangle_->getCoordinates()->size()>=4 )
+    Coord3 c0, c1;
+
+    if ( manippos )
     {
-	Coord3 c0, c1;
-	if ( manippos )
-	{
-	    const Coord3 center = dragger_->center();
-	    Coord3 halfsize = dragger_->size()/2;
-	    halfsize[orientation_] = 0;
+	const Coord3 center = dragger_->center();
+	Coord3 halfsize = dragger_->size()/2;
+	halfsize[orientation_] = 0;
 
-	    c0 = center + halfsize;
-	    c1 = center - halfsize;
-	}
-	else
-	{
-	    c0 = rectangle_->getCoordinates()->getPos(0);
-	    c1 = rectangle_->getCoordinates()->getPos(2);
-	}
+	c0 = center + halfsize;
+	c1 = center - halfsize;
+    }
+    else
+    {
+	c0 = rectangle_->getPosition( false, false );
+	c1 = rectangle_->getPosition( true, true );
+    }
 
-	res.hrg.start = res.hrg.stop = BinID(mNINT(c0.x),mNINT(c0.y) );
-	res.zrg.start = res.zrg.stop = c0.z;
-	res.hrg.include( BinID(mNINT(c1.x),mNINT(c1.y)) );
-	res.zrg.include( c1.z );
-	res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
-	res.zrg.step = SI().zRange(true).step;
+    res.hrg.start = res.hrg.stop = BinID(mNINT(c0.x),mNINT(c0.y) );
+    res.zrg.start = res.zrg.stop = c0.z;
+    res.hrg.include( BinID(mNINT(c1.x),mNINT(c1.y)) );
+    res.zrg.include( c1.z );
+    res.hrg.step = BinID( SI().inlStep(), SI().crlStep() );
+    res.zrg.step = SI().zRange(true).step;
 
-	const char* zdomain = attrib>=0 && attrib<nrAttribs() 
-				    ? getSelSpec(attrib)->zDomainKey() : 0;
-	const bool alreadytransformed = zdomain && *zdomain;
-	if ( alreadytransformed ) return res;
+    const char* zdomain = attrib>=0 && attrib<nrAttribs() 
+				? getSelSpec(attrib)->zDomainKey() : 0;
+    const bool alreadytransformed = zdomain && *zdomain;
+    if ( alreadytransformed ) return res;
 
-	if ( datatransform_ && !displayspace )
-	{
-	    res.zrg.setFrom( datatransform_->getZInterval(true) );
-	    res.zrg.step = SI().zRange( true ).step;
-	}
+    if ( datatransform_ && !displayspace )
+    {
+	res.zrg.setFrom( datatransform_->getZInterval(true) );
+	res.zrg.step = SI().zRange( true ).step;
     }
 
     return res;
@@ -746,7 +747,7 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	}
     }
 
-    //set data transform if necessary.
+    //transform data if necessary.
     const char* zdomain = getSelSpec(attrib)->zDomainKey();
     const bool alreadytransformed = zdomain && *zdomain;
 
@@ -813,7 +814,6 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
     	    BinID idxs = (bid-cs.hrg.start)/cs.hrg.step;
     	    arr->set( idxs.inl, idxs.crl, set.getVals(pos)[idx]);
     	}
-
     }
 
     setDisplayDataPackIDs( attrib, attridpids );
@@ -857,19 +857,26 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib )
 	const DataPack* datapack = DPM(DataPackMgr::FlatID).obtain( dpid );
 	mDynamicCastGet( const FlatDataPack*, fdp, datapack );
 	if ( !fdp )
+	{
+	    texture_->turnOn( false );
 	    continue;
+	}
 
 	const Array2D<float>& dparr = fdp->data();
 	if ( !texture_->usesShading() && resolution_ )
 	    texture_->setDataOversample( attrib, idx, resolution_, 
 		    !isClassification( attrib ), &dparr, true );
 	else
+	{
+	    texture_->splitTexture( true );
 	    texture_->setData( attrib, idx, &dparr, true );
-	
-	if ( !idx )
-	    setTextureCoords(dparr.info().getSize(0),dparr.info().getSize(1));
+	    rectangle_->enableSpliting( texture_->canUseShading() );
+	    rectangle_->setUsedTextureUnits( texture_->getUsedTextureUnits() );
+	    rectangle_->setOriginalTextureSize( dparr.info().getSize(1),
+		    				dparr.info().getSize(0) );
+	}
     }
-    
+   
     texture_->turnOn( true );
 }
 
@@ -878,27 +885,6 @@ const TypeSet<DataPack::ID>* PlaneDataDisplay::getDisplayDataPackIDs(int attrib)
 { 
     return displaycache_.validIdx(attrib) ? displaycache_[attrib] : 0; 
 } 
-
-
-void PlaneDataDisplay::setTextureCoords( int sz0, int sz1 )
-{
-    visBase::TextureCoords* tcoords = rectangle_->getTextureCoords();
-    if ( !tcoords )
-    {
-	tcoords = visBase::TextureCoords::create();
-	rectangle_->setTextureCoords( tcoords );
-    }
-
-    const SamplingData<float> dim0scale( -0.5, 0, sz0-0.5, 1);
-    const SamplingData<float> dim1scale( -0.5, 0, sz1-0.5, 1);
-    const Interval<float> dim0rg( dim0scale.interval(sz0) );
-    const Interval<float> dim1rg( dim1scale.interval(sz1) );
-    
-    tcoords->setCoord( 0, Coord3( dim1rg.start, dim0rg.start, 0 ) );
-    tcoords->setCoord( 1, Coord3( dim1rg.stop, dim0rg.start, 0 ) );
-    tcoords->setCoord( 2, Coord3( dim1rg.stop, dim0rg.stop, 0 ) );
-    tcoords->setCoord( 3, Coord3( dim1rg.start, dim0rg.stop, 0 ) );
-}
 
 
 inline int getPow2Sz( int actsz, bool above=true, int minsz=1,

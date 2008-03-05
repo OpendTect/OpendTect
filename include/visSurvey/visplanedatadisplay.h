@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.103 2008-02-29 15:21:02 cvsyuancheng Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.104 2008-03-05 20:55:08 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -26,6 +26,7 @@ namespace visBase
     class FaceSet;
     class GridLines;
     class PickStyle;
+    class SplitTexture2Rectangle;
 };
 
 class FlatDataPack;
@@ -150,7 +151,6 @@ protected:
     void			draggerRightClick(CallBacker*);
     void			setDraggerPos(const CubeSampling&);
     void			dataTransformCB(CallBacker*);
-    void			setTextureCoords(int sz0,int sz1);
     
     bool			getCacheValue(int attrib,int version,
 					      const Coord3&,float&) const;
@@ -165,7 +165,8 @@ protected:
     visBase::DepthTabPlaneDragger*	dragger_;
     visBase::Material*			draggermaterial_;
     visBase::PickStyle*			rectanglepickstyle_;
-    visBase::FaceSet*			rectangle_;
+    visBase::SplitTexture2Rectangle*	rectangle_;
+
     visBase::GridLines*			gridlines_;
     Orientation				orientation_;
     visBase::FaceSet*			draggerrect_;
