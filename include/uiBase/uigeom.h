@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.21 2008-03-06 12:57:15 cvsbert Exp $
+ RCS:           $Id: uigeom.h,v 1.22 2008-03-06 14:11:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,9 @@ public:
 
     enum Side		{ Left, Right, Top, Bottom };
     			DeclareEnumUtils(Side)
-    static bool		isHor( Side s )			{ return s < Top; }
+    static inline bool	isHor( Side s )			{ return s < Top; }
+    static uiRect::Side	across(uiRect::Side);
+    static uiRect::Side	clockWise(uiRect::Side);
 
     inline		uiRect( int l = 0 , int t = 0, int r = 0 , int b = 0 );
     inline		uiRect( const uiPoint& tl, const uiPoint& br );
@@ -233,16 +235,24 @@ inline void uiRect::setHNrPics( int np )
 inline void uiRect::setVNrPics( int np )	
 { setBottom( top() + mMAX( 1, np ) - 1 ); }
 
-#define mUIGeomImplGetSet4Side(clss) \
-inline int clss::get( uiRect::Side s ) const \
-{ return s<uiRect::Top	? (s == uiRect::Left ? left() : right()) \
-    			: (s == uiRect::Top ? top():bottom() ); } \
-inline void clss::set( uiRect::Side s, int i ) \
-{ s<uiRect::Top ? (s == uiRect::Left ? setLeft(i) : setRight(i)) \
-    		: (s == uiRect::Top ? setTop(i) : setBottom(i)); }
 
-mUIGeomImplGetSet4Side(uiRect)
-mUIGeomImplGetSet4Side(uiBorder)
+inline uiRect::Side uiRect::across( uiRect::Side s )
+{ return uiRect::isHor(s) ? (s == uiRect::Left ? uiRect::Right : uiRect::Left)
+    			  : (s == uiRect::Top ? uiRect::Bottom :uiRect::Top ); }
+inline uiRect::Side uiRect::clockWise( uiRect::Side s )
+{ return uiRect::isHor(s) ? (s == uiRect::Left ? uiRect::Bottom : uiRect::Top)
+    			  : (s == uiRect::Top ? uiRect::Left :uiRect::Right ); }
+
+#define mUIGeomImplSideFns(clss) \
+inline int clss::get( uiRect::Side s ) const \
+{ return uiRect::isHor(s) ? (s == uiRect::Left ? left() : right()) \
+    			  : (s == uiRect::Top ? top():bottom() ); } \
+inline void clss::set( uiRect::Side s, int i ) \
+{ uiRect::isHor(s) ? (s == uiRect::Left ? setLeft(i) : setRight(i)) \
+    		   : (s == uiRect::Top ? setTop(i) : setBottom(i)); }
+
+mUIGeomImplSideFns(uiRect)
+mUIGeomImplSideFns(uiBorder)
 
 
 inline uiPoint uiBorder::drawPt( const uiPoint& relpt ) const
