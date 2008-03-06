@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.43 2008-03-04 12:04:19 cvsnanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.44 2008-03-06 06:38:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -319,7 +319,7 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
     {
 	par.clear();
 	EM::EMM().readPars( *ids[idx], par );
-	tbl_->setText( RowCol(idx,0), par[sKey::Name] );
+	tbl_->setText( RowCol(idx,0), EM::EMM().objectName(*ids[idx]) );
 	Color col( Color::White );
 	par.get( sKey::Color, col );
 	tbl_->setColor( RowCol(idx,1), col );
