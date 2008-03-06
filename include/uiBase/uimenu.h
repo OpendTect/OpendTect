@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.42 2008-02-21 11:10:03 cvsnanne Exp $
+ RCS:           $Id: uimenu.h,v 1.43 2008-03-06 07:06:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,15 +15,15 @@ ________________________________________________________________________
 #include "uihandle.h"
 #include "separstr.h"
 
-class uiParent;
 
 class uiMenuItem;
+class uiMenuItemContainerBody;
+class uiParent;
 class uiPopupMenu;
 class uiPopupItem;
+class ioPixmap;
 
-class uiMenuItemContainerBody;
 class i_MenuMessenger;
-
 template<class> class uiMenuItemContainerBodyImpl;
 
 class QAction;
@@ -96,6 +96,8 @@ public:
 				//! sets a new text 2b displayed
     void			setText(const char*);
     const char*			text() const;
+
+    void			setPixmap(const ioPixmap&);
 
     bool			isEnabled() const;
     void			setEnabled(bool);
