@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.20 2008-03-04 14:20:17 cvsbert Exp $
+ RCS:           $Id: uigeom.h,v 1.21 2008-03-06 12:57:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,10 +79,16 @@ public:
     bool		operator !=( const uiBorder& b ) const
 			{ return !(*this == b); }
 
-    int			left() const	{ return lt_.width(); }
-    int			right() const	{ return rb_.width(); }
-    int			top() const	{ return lt_.height(); }
-    int			bottom() const	{ return rb_.height(); }
+    int			left() const		{ return lt_.width(); }
+    int			right() const		{ return rb_.width(); }
+    int			top() const		{ return lt_.height(); }
+    int			bottom() const		{ return rb_.height(); }
+    void		setLeft( int i )	{ lt_.setWidth(i); }
+    void		setRight( int i )	{ rb_.setWidth(i); }
+    void		setTop( int i )		{ lt_.setHeight(i); }
+    void		setBottom( int i )	{ rb_.setHeight(i); }
+    int			get(uiRect::Side) const;
+    void		set(uiRect::Side,int);
 
     uiSize		lt_;
     uiSize		rb_;
@@ -227,10 +233,16 @@ inline void uiRect::setHNrPics( int np )
 inline void uiRect::setVNrPics( int np )	
 { setBottom( top() + mMAX( 1, np ) - 1 ); }
 
-inline int uiRect::get( uiRect::Side s ) const
-{ return s<Top ? (s==Left?left():right()) : (s==Top?top():bottom()); }
-inline void uiRect::set( uiRect::Side s, int i )
-{ s<Top?(s==Left?setLeft(i):setRight(i)):(s==Top?setTop(i):setBottom(i)); }
+#define mUIGeomImplGetSet4Side(clss) \
+inline int clss::get( uiRect::Side s ) const \
+{ return s<uiRect::Top	? (s == uiRect::Left ? left() : right()) \
+    			: (s == uiRect::Top ? top():bottom() ); } \
+inline void clss::set( uiRect::Side s, int i ) \
+{ s<uiRect::Top ? (s == uiRect::Left ? setLeft(i) : setRight(i)) \
+    		: (s == uiRect::Top ? setTop(i) : setBottom(i)); }
+
+mUIGeomImplGetSet4Side(uiRect)
+mUIGeomImplGetSet4Side(uiBorder)
 
 
 inline uiPoint uiBorder::drawPt( const uiPoint& relpt ) const
