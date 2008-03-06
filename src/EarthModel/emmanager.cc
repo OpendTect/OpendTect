@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.70 2008-03-06 06:37:15 cvsnanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.71 2008-03-06 14:13:07 cvsbert Exp $";
 
 #include "emmanager.h"
 
@@ -414,7 +414,7 @@ bool EMManager::writePars( const MultiID& mid, const IOPar& newpar ) const
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj || !readPars(mid,par) ) return false;
 
-    par.merge( newpar )
+    par.merge( newpar );
     BufferString filenm = Surface::getParFileName( *ioobj );
     return par.write( filenm, "Surface parameters" );
 }
