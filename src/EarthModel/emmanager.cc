@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.69 2008-03-04 12:03:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.70 2008-03-06 06:37:15 cvsnanne Exp $";
 
 #include "emmanager.h"
 
@@ -400,24 +400,23 @@ bool EMManager::readPars( const MultiID& mid, IOPar& par ) const
 	    par.set( sKey::Color, col );
 	}
     }
-    par.set( sKey::Name, ioobj->name() );
     return res;
 }
 
 
-bool EMManager::writePars( const MultiID& mid, const IOPar& par ) const
+bool EMManager::writePars( const MultiID& mid, const IOPar& newpar ) const
 {
     const char* objtype = objectType( mid );
     if ( strcmp(objtype,Horizon2D::typeStr()) &&
 	 strcmp(objtype,Horizon3D::typeStr()) ) return false;
 
+    IOPar par;
     PtrMan<IOObj> ioobj = IOM().get( mid );
-    if ( !ioobj ) return false;
+    if ( !ioobj || !readPars(mid,par) ) return false;
 
+    par.merge( newpar )
     BufferString filenm = Surface::getParFileName( *ioobj );
     return par.write( filenm, "Surface parameters" );
 }
-
-
 
 } // namespace EM
