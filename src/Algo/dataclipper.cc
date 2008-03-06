@@ -4,13 +4,14 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.18 2007-12-26 19:08:27 cvskris Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.19 2008-03-06 16:20:50 cvskris Exp $";
 
 
 #include "dataclipper.h"
 
 #include "arraynd.h"
 #include "math.h"
+#include "math2.h"
 #include "sorting.h"
 #include "statrand.h"
 #include "undefval.h"
@@ -37,7 +38,7 @@ void DataClipper::setApproxNrValues( int n, int statsz )
 }
 
 
-void DataClipper::putData( float v )
+void DataClipper::putData( float val )
 {
     if ( subselect_ )
     {
@@ -47,7 +48,7 @@ void DataClipper::putData( float v )
 	    return;
     }
 
-    if ( !mIsUdf( v ) ) samples_ += v;
+    if ( Math::IsNormalNumber( val ) && !mIsUdf( val ) ) samples_ += val;
 }
 
 #define mPutDataImpl( getfunc ) \
@@ -60,7 +61,7 @@ void DataClipper::putData( float v )
 	    rand *= (nrvals-1); \
 	    const int sampidx = mNINT(rand); \
 	    getfunc; \
-	    if ( !mIsUdf( val ) ) \
+	    if ( Math::IsNormalNumber( val ) && !mIsUdf( val ) ) \
 		samples_ += val; \
 	} \
     } \
@@ -69,7 +70,7 @@ void DataClipper::putData( float v )
 	for ( int sampidx=0; sampidx<nrvals; sampidx++ ) \
 	{ \
 	    getfunc; \
-	    if ( !mIsUdf( val ) ) samples_ += val; \
+	    if ( Math::IsNormalNumber( val ) && !mIsUdf( val ) ) samples_ += val; \
 	} \
     }
 
