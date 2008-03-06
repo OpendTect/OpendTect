@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.1 2008-03-06 14:16:58 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.2 2008-03-06 18:25:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,36 +44,47 @@ class uiAxisHandler
 {
 public:
 
-			uiAxisHandler(ioDrawTool&,uiRect::Side);
+    struct Setup
+    {
+			Setup( uiRect::Side s )
+			    : side_(s)
+			    , islog_(false)	{}
+
+	mDefSetupMemb(uiRect::Side,side)
+	mDefSetupMemb(bool,islog)
+	mDefSetupMemb(uiBorder,border)
+	mDefSetupMemb(LineStyle,style)
+    };
+
+			uiAxisHandler(ioDrawTool&,const Setup&);
     void		setRange( const StepInterval<float>& rg )
 						{ rg_ = rg; reCalc(); }
-    void		setIsLog( bool yn )	{ islog_ = yn; reCalc(); }
+    void		setIsLog( bool yn )	{ setup_.islog_ = yn; reCalc();}
     void		setBorder( const uiBorder& b )
-						{ border_ = b; }
+						{ setup_.border_ = b; reCalc();}
     void		setBegin( const uiAxisHandler* ah )
 						{ beghndlr_ = ah; }
     void		setEnd( const uiAxisHandler* ah )
 						{ endhndlr_ = ah; }
 
+    float		getVal(int pix) const;
+    float		getRelPos(float absval) const;
+    int			getPix(float absval) const;
+
+    void		plotAxis() const;
+
+    const Setup&	setup() const	{ return setup_; }
+    StepInterval<float>	range() const	{ return rg_; }
+    bool		isHor() const	{ return uiRect::isHor(setup_.side_); }
+
     int			pixToEdge() const;
     int			pixBefore() const;
     int			pixAfter() const;
-    float		getRelPos(float) const;
-    int			getPix(float) const;
-
-    void		plotAxis(LineStyle) const;
-
-    uiRect::Side	side() const	{ return side_; }
-    StepInterval<float>	range() const	{ return rg_; }
-    uiBorder		border() const	{ return border_; }
-    bool		isLog() const	{ return islog_; }
-
-    bool		isHor() const	{ return uiRect::isHor(side_); }
 
 protected:
 
     ioDrawTool&		dt_;
-    const uiRect::Side	side_;
+    Setup		setup_;
     bool		islog_;
     StepInterval<float>	rg_;
     uiBorder		border_;
@@ -90,7 +101,7 @@ protected:
     int			axsz_;
 
     int			getRelPosPix(float) const;
-    void		drawAxisLine(LineStyle) const;
+    void		drawAxisLine() const;
     void		annotPos(int,const char*) const;
     void		drawGridLine(int) const;
 

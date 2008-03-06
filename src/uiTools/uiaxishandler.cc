@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.cc,v 1.1 2008-03-06 14:16:58 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.cc,v 1.2 2008-03-06 18:25:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,13 +15,12 @@ ________________________________________________________________________
 #include "draw.h"
 
 
-uiAxisHandler::uiAxisHandler( ioDrawTool& dt, uiRect::Side sde )
+uiAxisHandler::uiAxisHandler( ioDrawTool& dt, const uiAxisHandler::Setup& su )
     : dt_(dt)
-    , side_(sde)
+    , setup_(su)
     , ticsz_(2)
     , beghndlr_(0)
     , endhndlr_(0)
-    , islog_(false)
 {
     setRange( StepInterval<float>(0,1,1) );
 }
@@ -53,8 +52,8 @@ void uiAxisHandler::reCalc()
     {
 	float pos = rg_.start + idx*rg_.step;
 	str = pos; strs_.add( str );
-	if ( islog_ )	pos = log( pos - rg_.start + 1 );
-	else		pos /= rgwdth;
+	if ( setup_.islog_ )	pos = log( pos - rg_.start + 1 );
+	else			pos /= rgwdth;
 	pos_ += pos;
 	const int wdth = font.width( str );
 	if ( wdthx_ < wdth ) wdthx_ = wdth;
@@ -62,7 +61,7 @@ void uiAxisHandler::reCalc()
     }
 
     str = rg_.stop; strs_.add( str );
-    pos_ += islog_ ? log( rgwdth + 1 ) : 1;
+    pos_ += setup_.islog_ ? log( rgwdth + 1 ) : 1;
     const int wdth = font.width( str );
     if ( wdthx_ < wdth ) wdthx_ = wdth;
 
@@ -71,36 +70,31 @@ void uiAxisHandler::reCalc()
 }
 
 
-int uiAxisHandler::pixToEdge() const
+float uiAxisHandler::getVal( int pix ) const
 {
-    int ret = ticsz_ + border_.get(side_);
-    ret += isHor() ? wdthy_ : wdthx_;
-    return ret;
+    float relpix;
+    if ( isHor() )
+	{ pix -= pixBefore(); relpix = pix; }
+    else
+	{ pix -= pixAfter(); relpix = axsz_-pix; }
+    relpix /= axsz_;
+
+    if ( !setup_.islog_ )
+	return rg_.start + rg_.width() * relpix;
+
+    relpix = exp( relpix );
+    return rg_.start + rg_.width() * (relpix / pos_[pos_.size()-1]);
 }
 
 
 float uiAxisHandler::getRelPos( float v ) const
 {
     float relv = v - rg_.start;
-    if ( !islog_ )
+    if ( !setup_.islog_ )
 	return relv / (rg_.stop - rg_.start);
 
     if ( relv < -0.9 ) relv = -0.9;
     return log( relv + 1 ) / pos_[pos_.size()-1];
-}
-
-
-int uiAxisHandler::pixBefore() const
-{
-    if ( beghndlr_ ) return beghndlr_->pixToEdge();
-    return border_.get( isHor() ? uiRect::Left : uiRect::Bottom );
-}
-
-
-int uiAxisHandler::pixAfter() const
-{
-    if ( endhndlr_ ) return endhndlr_->pixToEdge();
-    return border_.get( isHor() ? uiRect::Right : uiRect::Top );
 }
 
 
@@ -117,13 +111,36 @@ int uiAxisHandler::getPix( float pos ) const
 }
 
 
-void uiAxisHandler::plotAxis( LineStyle ls ) const
+int uiAxisHandler::pixToEdge() const
 {
-    drawAxisLine( ls );
+    int ret = ticsz_ + setup_.border_.get(setup_.side_);
+    ret += isHor() ? wdthy_ : wdthx_;
+    return ret;
+}
 
-    if ( ls.isVisible() )
+
+int uiAxisHandler::pixBefore() const
+{
+    if ( beghndlr_ ) return beghndlr_->pixToEdge();
+    return setup_.border_.get( isHor() ? uiRect::Left : uiRect::Bottom );
+}
+
+
+int uiAxisHandler::pixAfter() const
+{
+    if ( endhndlr_ ) return endhndlr_->pixToEdge();
+    return setup_.border_.get( isHor() ? uiRect::Right : uiRect::Top );
+}
+
+
+
+void uiAxisHandler::plotAxis() const
+{
+    drawAxisLine();
+
+    if ( setup_.style_.isVisible() )
     {
-	dt_.setLineStyle( ls );
+	dt_.setLineStyle( setup_.style_ );
 	for ( int idx=0; idx<pos_.size(); idx++ )
 	{
 	    const float relpos = pos_[idx] / pos_[pos_.size()-1];
@@ -131,6 +148,7 @@ void uiAxisHandler::plotAxis( LineStyle ls ) const
 	}
     }
 
+    LineStyle ls( setup_.style_ );
     ls.width_ = 1; ls.type_ = LineStyle::Solid;
     dt_.setLineStyle( ls );
     for ( int idx=0; idx<pos_.size(); idx++ )
@@ -141,15 +159,16 @@ void uiAxisHandler::plotAxis( LineStyle ls ) const
 }
 
 
-void uiAxisHandler::drawAxisLine( LineStyle ls ) const
+void uiAxisHandler::drawAxisLine() const
 {
+    LineStyle ls( setup_.style_ );
     ls.type_ = LineStyle::Solid;
     dt_.setLineStyle( ls );
 
     const int edgepix = pixToEdge();
     if ( isHor() )
     {
-	if ( side_ == uiRect::Top )
+	if ( setup_.side_ == uiRect::Top )
 	    dt_.drawLine( pixBefore(), edgepix, devsz_-pixAfter(), edgepix );
 	else
 	{
@@ -160,7 +179,7 @@ void uiAxisHandler::drawAxisLine( LineStyle ls ) const
     }
     else
     {
-	if ( side_ == uiRect::Left )
+	if ( setup_.side_ == uiRect::Left )
 	    dt_.drawLine( edgepix, pixAfter(), edgepix, devsz_-pixBefore() );
 	else
 	{
@@ -177,7 +196,7 @@ void uiAxisHandler::annotPos( int pix, const char* txt ) const
     const int edgepix = pixToEdge();
     if ( isHor() )
     {
-	const bool istop = side_ == uiRect::Top;
+	const bool istop = setup_.side_ == uiRect::Top;
 	const int y0 = istop ? edgepix : dt_.getDevHeight() - edgepix;
 	const int y1 = istop ? y0 - ticsz_ : y0 + ticsz_;
 	dt_.drawLine( pix, y0, pix, y1 );
@@ -187,7 +206,7 @@ void uiAxisHandler::annotPos( int pix, const char* txt ) const
     }
     else
     {
-	const bool isleft = side_ == uiRect::Left;
+	const bool isleft = setup_.side_ == uiRect::Left;
 	const int x0 = isleft ? edgepix : dt_.getDevWidth() - edgepix;
 	const int x1 = isleft ? x0 - ticsz_ : x0 + ticsz_;
 	dt_.drawLine( x0, pix, x1, pix );
@@ -204,7 +223,7 @@ void uiAxisHandler::drawGridLine( int pix ) const
     const uiAxisHandler* hndlr = beghndlr_ ? beghndlr_ : endhndlr_;
     const int ppix0 = hndlr ? hndlr->pixBefore() : edgepix;
     const int ppix1 = hndlr ? hndlr->pixAfter()
-			    : border_.get( uiRect::across(side_) );
+			    : setup_.border_.get(uiRect::across(setup_.side_));
     if ( isHor() )
 	dt_.drawLine( pix, ppix0, pix, dt_.getDevHeight() - ppix1 );
     else
