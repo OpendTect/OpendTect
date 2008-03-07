@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seismerge.cc,v 1.1 2008-03-07 09:43:42 cvsbert Exp $";
+static const char* rcsID = "$Id: seismerge.cc,v 1.2 2008-03-07 10:47:34 cvsbert Exp $";
 
 #include "seismerge.h"
 #include "seisread.h"
@@ -21,7 +21,7 @@ static const char* rcsID = "$Id: seismerge.cc,v 1.1 2008-03-07 09:43:42 cvsbert 
 #include <iostream>
 
 
-SeisMerge::SeisMerge( const ObjectSet<IOPar>& iops, const IOPar& outiop,
+SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 		      bool is2d )
     	: Executor(is2d?"Merging line parts":"Merging cubes")
     	, is2d_(is2d)
@@ -31,6 +31,8 @@ SeisMerge::SeisMerge( const ObjectSet<IOPar>& iops, const IOPar& outiop,
     	, totnrpos_(-1)
     	, curbid_(SI().sampling(false).hrg.start)
     	, trcbuf_(*new SeisTrcBuf(false))
+    	, stacktrcs_(true)
+    	, nrsamps_(-1)
 {
     if ( !iops.isEmpty() )
 	{ errmsg_ = "Nothing to merge"; return; }
@@ -65,7 +67,7 @@ SeisMerge::SeisMerge( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 }
 
 
-SeisMerge::~SeisMerge()
+SeisMerger::~SeisMerger()
 {
     deepErase( rdrs_ );
     delete wrr_;
@@ -74,13 +76,13 @@ SeisMerge::~SeisMerge()
 }
 
 
-const char* SeisMerge::message() const
+const char* SeisMerger::message() const
 {
     return errmsg_.isEmpty() ? errmsg_.buf() : "Handling traces";
 }
 
 
-int SeisMerge::nextStep()
+int SeisMerger::nextStep()
 {
     if ( currdridx_ < 0 )
 	return Executor::ErrorOccurred;
@@ -112,7 +114,7 @@ int SeisMerge::nextStep()
 }
 
 
-SeisTrc* SeisMerge::getNewTrc()
+SeisTrc* SeisMerger::getNewTrc()
 {
     SeisTrc* ret = 0;
 
@@ -142,7 +144,7 @@ SeisTrc* SeisMerge::getNewTrc()
 }
 
 
-SeisTrc* SeisMerge::getTrcFrom( SeisTrcReader& rdr )
+SeisTrc* SeisMerger::getTrcFrom( SeisTrcReader& rdr )
 {
     SeisTrc* newtrc = new SeisTrc;
     if ( !rdr.get(*newtrc) )
@@ -154,7 +156,7 @@ SeisTrc* SeisMerge::getTrcFrom( SeisTrcReader& rdr )
 }
 
 
-void SeisMerge::get3DTraces()
+void SeisMerger::get3DTraces()
 {
     trcbuf_.deepErase();
     for ( int idx=0; idx<rdrs_.size(); idx++ )
@@ -170,14 +172,14 @@ void SeisMerge::get3DTraces()
 }
 
 
-SeisTrc* SeisMerge::getStacked( SeisTrcBuf& buf )
+SeisTrc* SeisMerger::getStacked( SeisTrcBuf& buf )
 {
     if ( buf.isEmpty() )
 	return 0;
 
     SeisTrc& trc( *buf.get(0) );
     const int sz = buf.size();
-    if ( sz > 1 )
+    if ( sz > 1 && stacktrcs_ )
     {
 	SeisTrcPropChg stckr( trc );
 	for ( int idx=1; idx<sz; idx++ )
@@ -190,7 +192,7 @@ SeisTrc* SeisMerge::getStacked( SeisTrcBuf& buf )
 }
 
 
-bool SeisMerge::toNextPos()
+bool SeisMerger::toNextPos()
 {
     const HorSampling& hs( SI().sampling(false).hrg );
 
@@ -206,19 +208,43 @@ bool SeisMerge::toNextPos()
 }
 
 
-int SeisMerge::writeTrc( SeisTrc* trc )
+int SeisMerger::writeTrc( SeisTrc* trc )
 {
+    if ( nrsamps_ < 0 )
+    {
+	nrsamps_ = trc->size();
+	sd_ = trc->info().sampling;
+    }
+    else if ( trc->size() != nrsamps_ || trc->info().sampling != sd_ )
+    {
+	SeisTrc* newtrc = new SeisTrc;
+	newtrc->info() = trc->info();
+	newtrc->info().sampling = sd_;
+	newtrc->reSize( nrsamps_, false );
+	const int nrcomps = trc->nrComponents();
+	for ( int isamp=0; isamp<nrsamps_; isamp++ )
+	{
+	    const float x = newtrc->info().samplePos(isamp);
+	    for ( int icomp=0; icomp<nrcomps; icomp++ )
+		newtrc->set( isamp, trc->getValue(x,icomp), icomp );
+	}
+	delete trc; trc = newtrc;
+    }
     bool ret = wrr_->put( *trc );
-    delete trc;
-    if ( ret )
-	return Executor::MoreToDo;
+    if ( !ret )
+    {
+	delete trc;
+	errmsg_ = wrr_->errMsg();
+	return Executor::ErrorOccurred;
+    }
 
-    errmsg_ = wrr_->errMsg();
-    return Executor::ErrorOccurred;
+    delete trc;
+    return Executor::MoreToDo;
+
 }
 
 
-int SeisMerge::writeFromBuf()
+int SeisMerger::writeFromBuf()
 {
     if ( trcbuf_.isEmpty() )
     {

@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Mar 2008
- RCS:		$Id: seismerge.h,v 1.1 2008-03-07 09:43:42 cvsbert Exp $
+ RCS:		$Id: seismerge.h,v 1.2 2008-03-07 10:47:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "executor.h"
 #include "position.h"
+#include "samplingdata.h"
 class IOPar;
 class SeisTrc;
 class SeisTrcBuf;
@@ -23,19 +24,21 @@ class SeisTrcWriter;
 
 /*!\brief Merges 2D and 3D post-stack data */
 
-class SeisMerge : public Executor
+class SeisMerger : public Executor
 {
 public:
 
-    			SeisMerge(const ObjectSet<IOPar>& in,const IOPar& out,
+    			SeisMerger(const ObjectSet<IOPar>& in,const IOPar& out,
 				  bool is2d);
-    virtual		~SeisMerge();
+    virtual		~SeisMerger();
 
     const char*		message() const;
     int			nrDone() const		{ return nrpos_; }
     int			totalNr() const		{ return totnrpos_; }
     const char*		nrDoneText() const	{ return "Positions handled"; }
     int			nextStep();
+
+    bool		stacktrcs_; //!< If not, first trace will be used
 
 protected:
 
@@ -49,6 +52,8 @@ protected:
 
     BinID			curbid_;
     SeisTrcBuf&			trcbuf_;
+    int				nrsamps_;
+    SamplingData<float>		sd_;
 
     SeisTrc*			getNewTrc();
     SeisTrc*			getTrcFrom(SeisTrcReader&);
