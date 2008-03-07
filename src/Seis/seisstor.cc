@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.36 2008-02-02 14:05:40 cvsbert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.37 2008-03-07 12:39:46 cvsbert Exp $";
 
 #include "seisseqio.h"
 #include "seisread.h"
@@ -144,13 +144,13 @@ bool SeisStoreAccess::close()
 
 void SeisStoreAccess::fillPar( IOPar& iopar ) const
 {
-    if ( ioobj ) iopar.set( "ID", ioobj->key() );
+    if ( ioobj ) iopar.set( sKey::ID, ioobj->key() );
 }
 
 
 void SeisStoreAccess::usePar( const IOPar& iopar )
 {
-    const char* res = iopar.find( "ID" );
+    const char* res = iopar.find( sKey::ID );
     BufferString tmp;
     if ( !res )
     {

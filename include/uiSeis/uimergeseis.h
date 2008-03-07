@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2002
- RCS:           $Id: uimergeseis.h,v 1.8 2007-04-24 16:38:21 cvsbert Exp $
+ RCS:           $Id: uimergeseis.h,v 1.9 2008-03-07 12:39:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,12 +16,10 @@ ________________________________________________________________________
 
 class IOObj;
 class IOPar;
-class SeisTrc;
-class uiSeisSel;
 class CtxtIOObj;
-class uiCheckBox;
-class uiLabeledListBox;
-class SeisSingleTraceProc;
+class uiListBox;
+class uiSeisSel;
+class uiGenInput;
 
 
 class uiMergeSeis : public uiDialog
@@ -32,20 +30,15 @@ public:
 
 protected:
 
-    uiLabeledListBox*   seisinpfld;
-    uiSeisSel*		seisoutfld;
-    uiCheckBox*		remfld;
+    uiListBox*		inpfld_;
+    uiGenInput*		stackfld_;
+    uiSeisSel*		outfld_;
 
-    ObjectSet<MultiID>	ioobjids;
-    ObjectSet<IOObj>	selobjs;
-    ObjectSet<IOPar>	seliops;
-    CtxtIOObj&		ctio;
-    int			inpsz;
-    bool		rev;
+    ObjectSet<MultiID>	ioobjids_;
+    CtxtIOObj&		ctio_;
 
     virtual bool	acceptOK(CallBacker*);
-    bool		handleInput(int&,int&);
-    int			checkRanges();
+    bool		getInput(ObjectSet<IOPar>&,IOPar&);
 };
 
 #endif

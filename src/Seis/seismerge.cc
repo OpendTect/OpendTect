@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seismerge.cc,v 1.2 2008-03-07 10:47:34 cvsbert Exp $";
+static const char* rcsID = "$Id: seismerge.cc,v 1.3 2008-03-07 12:39:46 cvsbert Exp $";
 
 #include "seismerge.h"
 #include "seisread.h"
@@ -34,7 +34,7 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
     	, stacktrcs_(true)
     	, nrsamps_(-1)
 {
-    if ( !iops.isEmpty() )
+    if ( iops.isEmpty() )
 	{ errmsg_ = "Nothing to merge"; return; }
     if ( iops.size() == 1 )
 	{ errmsg_ = "One single entry to merge: Please use copy"; return; }
@@ -44,7 +44,7 @@ SeisMerger::SeisMerger( const ObjectSet<IOPar>& iops, const IOPar& outiop,
 	SeisTrcReader* newrdr = new SeisTrcReader;
 	rdrs_ += newrdr;
 	newrdr->usePar( *iops[idx] );
-	if ( newrdr->errMsg() && *newrdr->errMsg() )
+	if ( !newrdr->prepareWork() )
 	{
 	    errmsg_ = newrdr->errMsg();
 	    deepErase( rdrs_ );
@@ -87,7 +87,7 @@ int SeisMerger::nextStep()
     if ( currdridx_ < 0 )
 	return Executor::ErrorOccurred;
 
-    if ( is2d_ &&  rdrs_.isEmpty() )
+    if ( is2d_ && rdrs_.isEmpty() )
 	return writeFromBuf();
 
     SeisTrc* newtrc = getNewTrc();
@@ -136,7 +136,7 @@ SeisTrc* SeisMerger::getNewTrc()
 
 	get3DTraces();
 	ret = getStacked( trcbuf_ );
-	if ( ret || !toNextPos() )
+	if ( !toNextPos() || ret )
 	    break;
     }
 
