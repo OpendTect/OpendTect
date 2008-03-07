@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.63 2008-02-28 15:49:45 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.64 2008-03-07 10:31:37 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -336,7 +336,7 @@ Desc* DescSet::createDesc( const BufferString& attrname, const IOPar& descpar,
 {
     BufferStringSet* errmsgs = new BufferStringSet();
     Desc* newdesc = createDesc( attrname , descpar, defstring, errmsgs );
-    errmsg = errmsgs->get(0);
+    errmsg = errmsgs && !errmsgs->isEmpty() ? errmsgs->get(0) : "";
     delete errmsgs;
     return newdesc;
 }
