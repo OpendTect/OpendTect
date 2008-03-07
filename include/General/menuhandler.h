@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.8 2007-10-09 23:11:06 cvskris Exp $
+ RCS:           $Id: menuhandler.h,v 1.9 2008-03-07 20:58:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -235,6 +235,7 @@ protected:
     (item)->enabled = true; \
     (item)->checked = false; \
     (item)->id = -1; \
+    (item)->removeItems(); \
 }
 
 #define mAddMenuItemWithManageFlag( parent, item, manage, enab, check ) \
