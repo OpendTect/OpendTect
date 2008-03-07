@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.48 2008-02-18 11:00:47 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.49 2008-03-07 12:06:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,7 +115,7 @@ int uiSeisSubSel::expectedNrSamples() const
 int uiSeisSubSel::expectedNrTraces() const
 {
     const Pos::Provider* pp = selfld_->curProvider();
-    if ( !pp ) return SI().sampling(false).totalNr();
+    if ( !pp ) return SI().sampling(false).hrg.totalNr();
 
     return pp->estNrPos();
 }
