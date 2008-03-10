@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilter.h,v 1.8 2008-02-28 10:03:13 cvsbert Exp $
+ RCS:           $Id: posfilter.h,v 1.9 2008-03-10 16:33:20 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -26,16 +26,12 @@ class Provider;
 
 /*!\brief decideds whether a given position should be included
 
-  Some Filters require time-consuming initialization.
-  initialize() will always initialize the object, but this may take a long
-  time. If that is an issue, try obtaining the initializer(). If that is null,
-  then call initialize(). If you need to iterate again, use reset().
-  If you have a TaskRunner, the convenience function initialize(TaskRunner&)
-  will do all necessary initializations for you.
+  Some Filters require initialization. There are two levels of initialization:
 
-  After 'usePar' the object may be in an intermediate state. You should be
+  * After 'usePar' the object may be in an intermediate state. You should be
   able to ask all kinds of global questions, but not toNextPos(), toNextZ(),
-  curCoord(), curZ(), or includes(). For that, you have to initialize() the
+  curCoord(), curZ(), or includes().
+  * To be able to fully use all functions, you have to initialize() the
   object.
 
   Filter2D and Filter3D have factories. Providers too. Standard providers
@@ -55,8 +51,7 @@ public:
     virtual bool	is2D() const				= 0;
     virtual bool	isProvider() const			{ return false;}
 
-    virtual bool	initialize();
-    virtual Executor*	initializer()				{ return 0; }
+    virtual bool	initialize( TaskRunner* tr=0 )		{ return true; }
     virtual void	reset()					= 0;
 
     virtual bool	includes(const Coord&,
@@ -70,9 +65,6 @@ public:
     virtual void	getSummary(BufferString&) const		= 0;
     virtual float	estRatio(const Provider&) const		= 0;
 
-    const char*		initialize(TaskRunner&);
-    			//!< Returns null on success. If return string is
-    			//!< non-empty, there is an (undisplayed) error message
     static Filter*	make(const IOPar&,bool is2d);
 };
 

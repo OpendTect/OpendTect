@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: posfilter.cc,v 1.9 2008-02-28 10:03:13 cvsbert Exp $";
+static const char* rcsID = "$Id: posfilter.cc,v 1.10 2008-03-10 16:33:20 cvsbert Exp $";
 
 #include "posfilterset.h"
 #include "posfilterstd.h"
@@ -25,33 +25,6 @@ const char* Pos::RandomFilter::typeStr() { return sKey::Random; }
 const char* Pos::RandomFilter::ratioStr() { return "Pass ratio"; }
 const char* Pos::SubsampFilter::typeStr() { return sKey::Subsample; }
 const char* Pos::SubsampFilter::eachStr() { return "Pass each"; }
-
-
-bool Pos::Filter::initialize()
-{
-    Executor* exec = initializer();
-    if ( !exec ) { reset(); return true; }
-    const bool res = exec->execute();
-    delete exec; return res;
-}
-
-
-const char* Pos::Filter::initialize( TaskRunner& tr )
-{
-    Executor* exec = initializer();
-    if ( exec )
-    {
-	const bool res = tr.execute( *exec );
-	delete exec; return res ? 0 : "";
-    }
-
-    if ( initialize() )
-	return 0;
-
-    static BufferString txt;
-    txt = "Cannot initialize '"; getSummary( txt ); txt += "'";
-    return txt.buf();
-}
 
 
 Pos::Filter* Pos::Filter::make( const IOPar& iop, bool is2d )
@@ -127,28 +100,12 @@ void Pos::FilterSet::add( const IOPar& iop )
 }
 
 
-bool Pos::FilterSet::initialize()
+bool Pos::FilterSet::initialize( TaskRunner* tr )
 {
     for ( int idx=0; idx<size(); idx++ )
-	if ( !filts_[idx]->initialize() )
+	if ( !filts_[idx]->initialize( tr ) )
 	    return false;
     return true;
-}
-
-
-Executor* Pos::FilterSet::initializer()
-{
-    ExecutorGroup* egrp = new ExecutorGroup( "Position filters initializer",
-	   				     true );
-    for ( int idx=0; idx<size(); idx++ )
-    {
-	Executor* ex = filts_[idx]->initializer();
-	if ( ex ) egrp->add( ex );
-    }
-
-    if ( egrp->nrExecutors() < 1 )
-	{ delete egrp; egrp = 0; }
-    return egrp;
 }
 
 
