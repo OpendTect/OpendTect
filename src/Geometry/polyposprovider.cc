@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: polyposprovider.cc,v 1.5 2008-02-21 09:40:51 cvsbert Exp $";
+static const char* rcsID = "$Id: polyposprovider.cc,v 1.6 2008-03-10 16:33:49 cvsbert Exp $";
 
 #include "polyposprovider.h"
 #include "keystrs.h"
@@ -82,7 +82,7 @@ static void setHS( const ODPolygon<float>& poly, HorSampling& hs )
 }
 
 
-bool Pos::PolyProvider3D::initialize()
+bool Pos::PolyProvider3D::initialize( TaskRunner* )
 {
     if ( poly_.size() < 2 ) return false;
 

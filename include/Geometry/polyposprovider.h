@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: polyposprovider.h,v 1.4 2008-02-13 13:28:00 cvsbert Exp $
+ RCS:           $Id: polyposprovider.h,v 1.5 2008-03-10 16:33:49 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ public:
     const char*		type() const;	//!< sKey::Polygon
     Provider*		clone() const	{ return new PolyProvider3D(*this); }
 
-    virtual bool	initialize();
+    virtual bool	initialize(TaskRunner* tr=0);
     virtual void	reset()		{ initialize(); }
 
     virtual bool	toNextPos();
