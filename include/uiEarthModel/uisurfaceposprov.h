@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uisurfaceposprov.h,v 1.2 2008-02-27 17:27:24 cvsbert Exp $
+ RCS:           $Id: uisurfaceposprov.h,v 1.3 2008-03-10 16:35:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ class CtxtIOObj;
 class uiGenInput;
 class uiIOObjSel;
 class uiSpinBox;
+class uiSelZRange;
 class uiLabel;
 
 /*! \brief UI for SurfacePosProvider */
@@ -44,9 +45,10 @@ protected:
 
     uiIOObjSel*		surf1fld_;
     uiIOObjSel*		surf2fld_;
-    uiGenInput*		selfld_;
+    uiGenInput*		issingfld_;
     uiSpinBox*		zstepfld_;
     uiLabel*		zsteplbl_;
+    uiSelZRange*	extrazfld_;
 
     void		selChg(CallBacker*);
 };

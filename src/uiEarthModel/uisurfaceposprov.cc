@@ -8,13 +8,14 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.2 2008-02-27 17:27:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uisurfaceposprov.cc,v 1.3 2008-03-10 16:35:14 cvsbert Exp $";
 
 #include "uisurfaceposprov.h"
 #include "emsurfaceposprov.h"
 #include "uiioobjsel.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
+#include "uiselsurvranges.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "emsurfacetr.h"
@@ -42,13 +43,13 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     surf1fld_ = new uiIOObjSel( this, ctio1_, "Surface" );
 
     const CallBack selcb( mCB(this,uiSurfacePosProvGroup,selChg) );
-    selfld_ = new uiGenInput( this, "Select",
+    issingfld_ = new uiGenInput( this, "Select",
 	    		BoolInpSpec(true,"On surface","To a 2nd surface") );
-    selfld_->attach( alignedBelow, surf1fld_ );
-    selfld_->valuechanged.notify( selcb );
+    issingfld_->attach( alignedBelow, surf1fld_ );
+    issingfld_->valuechanged.notify( selcb );
 
     surf2fld_ = new uiIOObjSel( this, ctio2_, "Bottom surface" );
-    surf2fld_->attach( alignedBelow, selfld_ );
+    surf2fld_->attach( alignedBelow, issingfld_ );
 
     zstepfld_ = new uiSpinBox( this, 0, "Z step" );
     zstepfld_->attach( alignedBelow, surf2fld_ );
@@ -58,6 +59,10 @@ uiSurfacePosProvGroup::uiSurfacePosProvGroup( uiParent* p,
     zstepfld_->setInterval( StepInterval<int>(1,999999,1) );
     BufferString txt( "Z step " ); txt += SI().getZUnit();
     zsteplbl_ = new uiLabel( this, txt, zstepfld_ );
+
+    txt = "Extra Z "; txt += SI().getZUnit();
+    extrazfld_ = new uiSelZRange( this, false, true, txt );
+    extrazfld_->attach( alignedBelow, zstepfld_ );
 
     setHAlignObj( surf1fld_ );
     mainwin()->finaliseDone.notify( selcb );
@@ -73,10 +78,11 @@ uiSurfacePosProvGroup::~uiSurfacePosProvGroup()
 
 void uiSurfacePosProvGroup::selChg( CallBacker* )
 {
-    const bool have2 = !selfld_->getBoolValue();
-    surf2fld_->display( have2 );
-    zstepfld_->display( have2 );
-    zsteplbl_->display( have2 );
+    const bool isbtwn = !issingfld_->getBoolValue();
+    surf2fld_->display( isbtwn );
+    zstepfld_->display( isbtwn );
+    zsteplbl_->display( isbtwn );
+    extrazfld_->display( isbtwn );
 }
 
 
@@ -89,14 +95,23 @@ void uiSurfacePosProvGroup::usePar( const IOPar& iop )
 {
     if ( !surf1fld_ ) return;
 
-    surf1fld_->usePar( iop, mGetSurfKey(id1) );
-    surf2fld_->usePar( iop, mGetSurfKey(id2) );
-    selfld_->setValue( ((bool)ctio2_.ioobj) );
+    surf1fld_->setInput( MultiID(iop.find(mGetSurfKey(id1))) );
+    const char* res = iop.find( mGetSurfKey(id2) );
+    const bool issing = !res || !*res;
+    if ( !issing )
+	surf2fld_->setInput( MultiID(res) );
+    issingfld_->setValue( issing );
 
     float zstep = zstepfld_->getValue() / zfac_;
     iop.get( mGetSurfKey(zstep), zstep );
     int v = (int)((zstep * zfac_) + .5);
     zstepfld_->setValue( v );
+
+    StepInterval<float> ez = extrazfld_->getRange();
+    iop.get( mGetSurfKey(extraZ), ez );
+    extrazfld_->setRange( ez );
+
+    selChg( 0 );
 }
 
 
@@ -104,19 +119,26 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
 {
     if ( !surf1fld_ ) return false;
 
-    if ( !surf1fld_->fillPar(iop,mGetSurfKey(id1)) )
+    surf1fld_->processInput();
+    if ( !ctio1_.ioobj )
 	mErrRet("Please select the surface")
+    iop.set( mGetSurfKey(id1), ctio1_.ioobj->key() );
 
-    const bool isbtwn = selfld_->getBoolValue();
-    if ( !selfld_->getBoolValue() )
+    if ( issingfld_->getBoolValue() )
 	iop.removeWithKey( mGetSurfKey(id2) );
     else
     {
-	if ( !surf2fld_->fillPar(iop,mGetSurfKey(id2)) )
+	surf2fld_->processInput();
+	if ( !ctio2_.ioobj )
 	    mErrRet("Please select the bottom surface")
+	iop.set( mGetSurfKey(id2), ctio2_.ioobj->key() );
 
 	const float zstep = zstepfld_->getValue() / zfac_;
 	iop.set( mGetSurfKey(zstep), zstep );
+	Interval<float> ez; assign( ez, extrazfld_->getRange() );
+	if ( mIsUdf(ez.start) ) ez.start = 0;
+	if ( mIsUdf(ez.stop) ) ez.stop = 0;
+	iop.set( mGetSurfKey(extraZ), ez );
     }
 
     iop.set( sKey::Type, sKey::Surface );
@@ -127,7 +149,7 @@ bool uiSurfacePosProvGroup::fillPar( IOPar& iop ) const
 void uiSurfacePosProvGroup::getSummary( BufferString& txt ) const
 {
     if ( !surf1fld_ ) return;
-    txt += selfld_->getBoolValue() ? "On surface" : "Between surfaces";
+    txt += issingfld_->getBoolValue() ? "On surface" : "Between surfaces";
 }
 
 
