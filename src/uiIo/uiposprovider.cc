@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.10 2008-02-22 09:31:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.11 2008-03-10 12:34:44 cvsbert Exp $";
 
 #include "uiposprovider.h"
 #include "uipossubsel.h"
@@ -211,6 +211,7 @@ void uiPosProvSel::setProvFromCS()
 	prov_ = rp3d;
     }
     prov_->fillPar( iop_ );
+    iop_.set( sKey::Type, prov_->type() );
     updateSummary();
 }
 
