@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiselsurvranges.cc,v 1.5 2008-03-10 12:33:52 cvsbert Exp $
+ RCS:           $Id: uiselsurvranges.cc,v 1.6 2008-03-10 16:34:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,18 +15,27 @@ ________________________________________________________________________
 #include "uilineedit.h"
 #include "uilabel.h"
 
+static const int cUnLim = 1000000;
 
-uiSelZRange::uiSelZRange( uiParent* p, bool wstep )
+
+uiSelZRange::uiSelZRange( uiParent* p, bool wstep, bool isrel,
+			  const char* lbltxt )
 	: uiGroup(p,"Z range selection")
 	, stepfld_(0)
 {
-    StepInterval<float> zrg( SI().zRange(false) );
-    zrg.scale( SI().zFactor() );
-    StepInterval<int> irg( mNINT(zrg.start), mNINT(zrg.stop), mNINT(zrg.step) );
+    StepInterval<int> irg( -cUnLim, cUnLim, 1 );
+    if ( !isrel )
+    {
+	StepInterval<float> zrg( SI().zRange(false) );
+	zrg.scale( SI().zFactor() );
+	irg = StepInterval<int>( mNINT(zrg.start), mNINT(zrg.stop),
+				 mNINT(zrg.step) );
+    }
 
     startfld_ = new uiSpinBox( this, 0, "Z start" );
     startfld_->setInterval( irg );
-    uiLabel* lbl = new uiLabel( this, "Z Range", startfld_ );
+    if ( !lbltxt ) lbltxt = "Z Range";
+    uiLabel* lbl = new uiLabel( this, lbltxt, startfld_ );
     stopfld_ = new uiSpinBox( this, 0, "Z stop" );
     stopfld_->setInterval( irg );
     stopfld_->attach( rightOf, startfld_ );
@@ -34,7 +43,7 @@ uiSelZRange::uiSelZRange( uiParent* p, bool wstep )
     if ( wstep )
     {
 	stepfld_ = new uiSpinBox( this, 0, "Z step" );
-	stepfld_->setInterval( StepInterval<int>(irg.step,100000,irg.step) );
+	stepfld_->setInterval( StepInterval<int>(irg.step,cUnLim,irg.step) );
 	lbl = new uiLabel( this, "step", stepfld_ );
 	lbl->attach( rightOf, stopfld_ );
     }
@@ -42,7 +51,10 @@ uiSelZRange::uiSelZRange( uiParent* p, bool wstep )
     const CallBack cb( mCB(this,uiSelZRange,valChg) );
     startfld_->valueChanging.notify( cb );
     stopfld_->valueChanging.notify( cb );
-    setRange( SI().zRange(true) );
+    if ( isrel )
+	setRange( StepInterval<float>(0,0,1) );
+    else
+	setRange( SI().zRange(true) );
     setHAlignObj( startfld_ );
 }
 
@@ -128,7 +140,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
     if ( wstep )
     {
 	stepfld_ = new uiSpinBox( this, 0, BufferString(nm," step") );
-	stepfld_->setInterval( StepInterval<int>(rg.step,100000,rg.step) );
+	stepfld_->setInterval( StepInterval<int>(rg.step,cUnLim,rg.step) );
 	lbl = new uiLabel( this, "step", stepfld_ );
 	if ( stopfld )
 	    lbl->attach( rightOf, stopfld );
@@ -204,11 +216,11 @@ uiSelSteps::uiSelSteps( uiParent* p, bool is2d )
     {
 	stp = SI().sampling(true).hrg.step;
 	firstbox = inlfld_ = new uiSpinBox( this, 0, "inline step" );
-	inlfld_->setInterval( StepInterval<int>(stp.inl,1000000,stp.inl) );
+	inlfld_->setInterval( StepInterval<int>(stp.inl,cUnLim,stp.inl) );
 	lbl = "Inline/Crossline steps";
     }
     crlfld_ = new uiSpinBox( this, 0, "crossline step" );
-    crlfld_->setInterval( StepInterval<int>(stp.crl,1000000,stp.crl) );
+    crlfld_->setInterval( StepInterval<int>(stp.crl,cUnLim,stp.crl) );
     if ( inlfld_ )
 	crlfld_->attach( rightOf, inlfld_ );
     else

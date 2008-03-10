@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiselsurvranges.h,v 1.4 2008-03-10 12:33:52 cvsbert Exp $
+ RCS:           $Id: uiselsurvranges.h,v 1.5 2008-03-10 16:34:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,8 @@ class uiLineEdit;
 class uiSelZRange : public uiGroup
 {
 public:
-                        uiSelZRange(uiParent*,bool wstep);
+                        uiSelZRange(uiParent*,bool wstep,
+				    bool isrel=false,const char* lbltxt=0);
 
     StepInterval<float>	getRange() const;
     void		setRange(const StepInterval<float>&);
