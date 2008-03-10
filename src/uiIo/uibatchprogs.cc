@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchprogs.cc,v 1.29 2007-06-14 17:25:11 cvsbert Exp $
+ RCS:           $Id: uibatchprogs.cc,v 1.30 2008-03-10 12:32:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -307,12 +307,14 @@ bool uiBatchProgLaunch::acceptOK( CallBacker* )
     comm += " --inxterm+askclose ";
     if ( bpi.issys ) comm += "--sys ";
 
-    comm += "\"";
-
-    FilePath progfp(  progfld->box()->text() );
-    comm += progfp.fullPath( FilePath::Unix );
-
-    comm += "\"";
+    const char* progtxt = progfld->box()->text();
+    if ( progtxt && *progtxt && *progtxt != '[' )
+    {
+	comm += "\"";
+	FilePath progfp( progfld->box()->text() );
+	comm += progfp.fullPath( FilePath::Unix );
+	comm += "\"";
+    }
 
     ObjectSet<uiGenInput>& inplst = *inps[selidx];
     for ( int iinp=0; iinp<inplst.size(); iinp++ )
