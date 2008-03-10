@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: sectiontracker.h,v 1.12 2007-10-30 16:53:35 cvskris Exp $
+ RCS:           $Id: sectiontracker.h,v 1.13 2008-03-10 15:40:58 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,6 +69,9 @@ public:
     const MultiID&		setupID() const;
     bool			hasInitializedSetup() const;
 
+    void			setSeedOnlyPropagation(bool yn);
+    bool			propagatingFromSeedOnly() const;
+
     const Attrib::SelSpec&	getDisplaySpec() const;
     void			setDisplaySpec(const Attrib::SelSpec&);
 
@@ -95,13 +98,17 @@ protected:
     bool			useadjuster;
     MultiID			setupid;
     Attrib::SelSpec&		displayas;
+    bool			seedonlypropagation;
 
     SectionSourceSelector*	selector_;
     SectionExtender*		extender_;
     SectionAdjuster*		adjuster_;
 
+    
+
     static const char*		trackerstr;
     static const char*		useadjusterstr;
+    static const char*		seedonlypropstr;
 };
 
 };

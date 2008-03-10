@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2005
- RCS:           $Id: uihorizontracksetup.h,v 1.7 2007-03-29 11:35:48 cvsjaap Exp $
+ RCS:           $Id: uihorizontracksetup.h,v 1.8 2008-03-10 15:40:58 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,8 @@ protected:
     void			initEventGroup();
     uiGroup*			createSimiGroup();
     void			initSimiGroup();
+    uiGroup*			createAutoGroup();
+    void			initAutoGroup();
 
     void			selUseSimilarity(CallBacker*);
     void			selAmpThresholdType(CallBacker*);
@@ -68,6 +70,7 @@ protected:
     uiGenInput*			simithresholdfld;
     uiGenInput*			compwinfld;
     uiGenInput*			extriffailfld;
+    uiGenInput*			seedonlypropfld;
     uiGroup*			maingrp;
     uiPushButton*		applybut;
 

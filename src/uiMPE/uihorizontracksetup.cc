@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uihorizontracksetup.cc,v 1.15 2007-05-24 13:53:49 cvsjaap Exp $
+ RCS:           $Id: uihorizontracksetup.cc,v 1.16 2008-03-10 15:40:58 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,9 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
 
     uiGroup* simigrp = createSimiGroup();
     tabgrp_->addTab( simigrp, "Similarity" );
+
+    uiGroup* autogrp = createAutoGroup();
+    tabgrp_->addTab( autogrp, "Autotrack" );
 }
 
 
@@ -137,6 +140,16 @@ uiGroup* uiHorizonSetupGroup::createSimiGroup()
 }
 
 
+uiGroup* uiHorizonSetupGroup::createAutoGroup()
+{
+    uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Autotrack" );
+    
+    seedonlypropfld = new uiGenInput( grp, "Propagate from seed nodes only",
+				      BoolInpSpec(false,"Yes","No") );
+    return grp;
+}
+
+
 uiHorizonSetupGroup::~uiHorizonSetupGroup()
 {
 }
@@ -181,6 +194,7 @@ void uiHorizonSetupGroup::setSectionTracker( SectionTracker* st )
     selAmpThresholdType(0);
     initSimiGroup();
     selUseSimilarity(0);
+    initAutoGroup();
 }
 
 
@@ -225,6 +239,12 @@ void uiHorizonSetupGroup::initSimiGroup()
     compwinfld->setValue( simiintv );
 
     simithresholdfld->setValue( horadj_->similarityThreshold() );
+}
+
+
+void uiHorizonSetupGroup::initAutoGroup()
+{
+    seedonlypropfld->setValue( sectiontracker_->propagatingFromSeedOnly() );
 }
 
 
@@ -333,6 +353,13 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
     {
 	fieldchange = true;
 	horadj_->removeOnFailure( rmonfail );
+    }
+
+    const bool seedonlyprop = seedonlypropfld->getBoolValue();
+    if ( sectiontracker_->propagatingFromSeedOnly() != seedonlyprop )    
+    {
+	fieldchange = true;
+	sectiontracker_->setSeedOnlyPropagation( seedonlyprop );
     }
 
     return true;

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.19 2007-07-06 14:11:05 cvskris Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.20 2008-03-10 15:40:58 cvsjaap Exp $";
 
 #include "sectiontracker.h"
 
@@ -28,6 +28,7 @@ namespace MPE
 
 const char* SectionTracker::trackerstr = "Tracker";
 const char* SectionTracker::useadjusterstr = "Use adjuster";
+const char* SectionTracker::seedonlypropstr = "Seed only propagation";
 
 SectionTracker::SectionTracker( EM::EMObject& emobj,
 				const EM::SectionID& sectionid,
@@ -40,6 +41,7 @@ SectionTracker::SectionTracker( EM::EMObject& emobj,
     , extender_(extender__)
     , adjuster_(adjuster__)
     , useadjuster(true)
+    , seedonlypropagation(false)
     , displayas(*new Attrib::SelSpec)
 {
     emobject.ref();
@@ -322,10 +324,20 @@ const Attrib::SelSpec& SectionTracker::getDisplaySpec() const
 { return displayas; }
 
 
+void SectionTracker::setSeedOnlyPropagation( bool yn )
+{ seedonlypropagation = yn; }
+
+
+bool SectionTracker::propagatingFromSeedOnly() const
+{ return seedonlypropagation; }
+
+
 void SectionTracker::fillPar( IOPar& par ) const
 {
     IOPar trackpar;
     trackpar.setYN( useadjusterstr, adjusterUsed() );
+    trackpar.setYN( seedonlypropstr, seedonlypropagation );
+
     par.mergeComp( trackpar, trackerstr );
     if ( selector_ ) selector_->fillPar( par );
     if ( extender_ ) extender_->fillPar( par );
@@ -339,6 +351,7 @@ bool SectionTracker::usePar( const IOPar& par )
     bool dummy = true;
     if ( trackpar ) trackpar->getYN( useadjusterstr, dummy );
     useAdjuster( dummy );
+    if ( trackpar ) trackpar->getYN( seedonlypropstr, seedonlypropagation );
 	
     if ( selector_ && !selector_->usePar(par) ) return false;
     if ( extender_ && !extender_->usePar(par) ) return false;
