@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiselsurvranges.h,v 1.3 2008-02-21 09:25:25 cvsbert Exp $
+ RCS:           $Id: uiselsurvranges.h,v 1.4 2008-03-10 12:33:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,11 +53,15 @@ public:
 protected:
 
     uiSpinBox*		startfld_;
-    uiLineEdit*		stopfld_;
+    uiSpinBox*		icstopfld_;
+    uiLineEdit*		nrstopfld_;
     uiSpinBox*		stepfld_;
     int			defstep_;
 
     void		valChg(CallBacker*);
+
+    int			getStopVal() const;
+    void		setStopVal(int);
 
 };
 

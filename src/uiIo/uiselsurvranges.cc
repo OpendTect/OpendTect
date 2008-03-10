@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiselsurvranges.cc,v 1.4 2008-02-21 09:25:25 cvsbert Exp $
+ RCS:           $Id: uiselsurvranges.cc,v 1.5 2008-03-10 12:33:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,6 +91,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 	, stepfld_(0)
 	, defstep_(1)
 {
+    const CallBack cb( mCB(this,uiSelNrRange,valChg) );
     StepInterval<int> rg( 1, mUdf(int), 1 );
     StepInterval<int> wrg( rg );
     const char* nm = "Number";
@@ -107,44 +108,78 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
     startfld_ = new uiSpinBox( this, 0, BufferString(nm," start") );
     startfld_->setInterval( rg );
     uiLabel* lbl = new uiLabel( this, BufferString(nm," range"), startfld_ );
-    stopfld_ = new uiLineEdit( this, "", BufferString(nm," stop") );
-    stopfld_->setHSzPol( uiObject::Small );
-    stopfld_->attach( rightOf, startfld_ );
+    uiObject* stopfld;
+    if ( typ == Gen )
+    {
+	stopfld = nrstopfld_ = new uiLineEdit( this, "",
+						BufferString(nm," stop") );
+	nrstopfld_->setHSzPol( uiObject::Small );
+	nrstopfld_->editingFinished.notify( cb );
+    }
+    else
+    {
+	stopfld = icstopfld_ = new uiSpinBox( this, 0,
+						BufferString(nm," stop") );
+	icstopfld_->setInterval( rg );
+	icstopfld_->valueChanging.notify( cb );
+    }
+    stopfld->attach( rightOf, startfld_ );
 
     if ( wstep )
     {
 	stepfld_ = new uiSpinBox( this, 0, BufferString(nm," step") );
 	stepfld_->setInterval( StepInterval<int>(rg.step,100000,rg.step) );
 	lbl = new uiLabel( this, "step", stepfld_ );
-	lbl->attach( rightOf, stopfld_ );
+	if ( stopfld )
+	    lbl->attach( rightOf, stopfld );
     }
 
-    const CallBack cb( mCB(this,uiSelNrRange,valChg) );
     startfld_->valueChanging.notify( cb );
-    stopfld_->editingFinished.notify( cb );
     setRange( wrg );
     setHAlignObj( startfld_ );
 }
 
 
+int uiSelNrRange::getStopVal() const
+{
+    if ( icstopfld_ )
+	return icstopfld_->getValue();
+
+    const char* txt = nrstopfld_->text();
+    return txt && *txt ? atoi(txt) : mUdf(int);
+}
+
+
+void uiSelNrRange::setStopVal( int nr )
+{
+    if ( icstopfld_ )
+	icstopfld_->setValue( nr );
+    else
+    {
+	if ( mIsUdf(nr) )
+	    nrstopfld_->setText( "" );
+	else
+	    nrstopfld_->setValue( nr );
+    }
+}
+
+
 void uiSelNrRange::valChg( CallBacker* cb )
 {
-    if ( startfld_->getValue() > stopfld_->getIntValue() )
+    if ( startfld_->getValue() > getStopVal() )
     {
-	const bool chgstart = cb == stopfld_;
-	if ( chgstart )
-	    startfld_->setValue( stopfld_->getIntValue() );
+	const bool chgstop = cb == startfld_;
+	if ( chgstop )
+	    setStopVal( startfld_->getValue() );
 	else
-	    stopfld_->setValue( startfld_->getValue() );
+	    startfld_->setValue( getStopVal() );
     }
 }
 
 
 StepInterval<int> uiSelNrRange::getRange() const
 {
-    const char* txt = stopfld_->text();
-    const int stopval = txt && *txt ? atoi(txt) : mUdf(int);
-    return StepInterval<int>( startfld_->getValue(), stopval,
+    return StepInterval<int>( startfld_->getValue(), getStopVal(),
 	    		      stepfld_ ? stepfld_->getValue() : defstep_ );
 }
 
@@ -152,10 +187,7 @@ StepInterval<int> uiSelNrRange::getRange() const
 void uiSelNrRange::setRange( const StepInterval<int>& rg )
 {
     startfld_->setValue( rg.start );
-    if ( mIsUdf(rg.stop) )
-	stopfld_->setText( "" );
-    else
-	stopfld_->setValue( rg.stop );
+    setStopVal( rg.stop );
     if ( stepfld_ )
 	stepfld_->setValue( rg.step );
 }
