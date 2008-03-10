@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiattribcrossplot.cc,v 1.19 2008-02-28 15:54:29 cvshelene Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.20 2008-03-10 16:35:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,15 +112,15 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 	mErrRet("Internal: no Pos::Provider")
 
     uiTaskRunner tr( this );
-    const char* msg = prov->initialize( tr );
-    if ( msg ) mErrRet(*msg?msg:0)
+    if ( !prov->initialize( &tr ) )
+	return false;
 
     ObjectSet<DataColDef> dcds;
     for ( int idx=0; idx<attrdefs_.size(); idx++ )
     {
 	if ( attrsfld_->isSelected(idx) )
 	{
-	    if ( !strncmp( attrsfld_->textOfItem(idx), "[", 1 ) 
+	    if ( *attrsfld_->textOfItem(idx) == '['
 		 && !strstr( attrdefs_.get(idx),
 		     	     Attrib::StorageProvider::attribName() ) )
 	    {
@@ -149,6 +149,9 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 
     IOPar iop; posfiltfld_->fillPar( iop );
     Pos::Filter* filt = Pos::Filter::make( iop, prov->is2D() );
+    if ( !filt->initialize( &tr ) )
+	return false;
+
     dps = new DataPointSet( *prov, dcds, filt );
     if ( dps->size() < 1 )
 	mErrRet("No positions selected")
@@ -168,7 +171,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     Attrib::EngineMan aem;
     PtrMan<Executor> tabextr = aem.getTableExtractor( *dps, ads_ );
     if ( !tr.execute(*tabextr) )
-	mErrRet(0)
+	return false;
 
     uiDataPointSet* dlg = new uiDataPointSet( this, *dps,
 			uiDataPointSet::Setup("Attribute data") );
