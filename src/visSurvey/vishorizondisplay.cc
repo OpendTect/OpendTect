@@ -4,16 +4,23 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.41 2008-02-21 22:53:27 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.42 2008-03-11 13:40:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "vishorizondisplay.h"
 
+#include "attribdatapack.h"
 #include "attribsel.h"
 #include "binidvalset.h"
+#include "emdatapack.h"
 #include "emhorizon3d.h"
+#include "emsurfaceauxdata.h"
+#include "emsurfaceedgeline.h"
+#include "iopar.h"
+#include "isocontourtracer.h"
+#include "survinfo.h"
 #include "mpeengine.h"
 #include "viscoord.h"
 #include "visdataman.h"
@@ -30,11 +37,6 @@ ________________________________________________________________________
 #include "vismaterial.h"
 #include "vistransform.h"
 #include "viscolortab.h"
-#include "survinfo.h"
-#include "iopar.h"
-#include "emsurfaceauxdata.h"
-#include "emsurfaceedgeline.h"
-#include "isocontourtracer.h"
 #include "zaxistransform.h"
 
 #include <math.h>
@@ -72,6 +74,7 @@ HorizonDisplay::HorizonDisplay()
     coltabs_ += visBase::VisColorTab::create();
     coltabs_[0]->ref();
     enabled_ += true;
+    datapackids_ += -1;
 }
 
 
@@ -97,6 +100,10 @@ HorizonDisplay::~HorizonDisplay()
 
 	zaxistransform_->unRef();
     }
+
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
+    for ( int idx=0; idx<datapackids_.size(); idx++ )
+	dpman.release( datapackids_[idx] );
 }
 
 
@@ -444,6 +451,7 @@ bool HorizonDisplay::addAttrib()
     coltabs_ += visBase::VisColorTab::create();
     coltabs_[coltabs_.size()-1]->ref();
     enabled_ += true;
+    datapackids_ += -1;
 
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
@@ -472,6 +480,8 @@ bool HorizonDisplay::removeAttrib( int attrib )
     coltabs_[attrib]->unRef();
     coltabs_.remove( attrib );
     enabled_.remove( attrib );
+    DPM( DataPackMgr::FlatID ).release( datapackids_[attrib] );
+    datapackids_.remove( attrib );
 
     delete as_[attrib];
     as_.remove( attrib );
@@ -491,6 +501,7 @@ bool HorizonDisplay::swapAttribs( int a0, int a1 )
     as_.swap( a0, a1 );
     coltabs_.swap( a0, a1 );
     enabled_.swap( a0, a1 );
+    datapackids_.swap( a0, a1 );
     return true;
 }
 
@@ -1660,5 +1671,28 @@ int HorizonDisplay::usePar( const IOPar& par )
     return 1;
 }
 
+
+bool HorizonDisplay::setDataPackID( int attrib, DataPack::ID dpid )
+{
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
+    const DataPack* datapack = dpman.obtain( dpid );
+    mDynamicCastGet(const EM::HorDataPack*,dphor,datapack);
+    if ( !dphor )
+    {
+	dpman.release( dpid );
+	return false;
+    }
+
+    DataPack::ID oldid = datapackids_[attrib];
+    datapackids_[attrib] = dpid;
+    dpman.release( oldid );
+    return true;
+}
+
+
+DataPack::ID HorizonDisplay::getDataPackID( int attrib ) const
+{
+    return datapackids_[attrib];
+}
 
 }; // namespace visSurvey

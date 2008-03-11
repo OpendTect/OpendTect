@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.19 2008-01-03 19:53:49 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.20 2008-03-11 13:40:57 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -74,8 +74,11 @@ public:
     const Attrib::SelSpec*	getSelSpec(int) const;
     void			setSelSpec(int,const Attrib::SelSpec&);
     void			setDepthAsAttrib(int);
+    bool                        setDataPackID(int attrib,DataPack::ID);
+    DataPack::ID                getDataPackID(int attrib) const;
+    virtual DataPackMgr::ID     getDataPackMgrID() const	{ return 1; }
 
-    bool			allowMaterialEdit() const { return true; }
+    bool			allowMaterialEdit() const 	{ return true; }
     bool			hasColor() const;
 
     EM::SectionID		getSectionID(int visid) const;
@@ -94,7 +97,7 @@ public:
     void			setResolution(int);
     				/*!< 0 is automatic */
 
-    bool			allowPicks() const	{ return true; }
+    bool			allowPicks() const		{ return true; }
     void			getMousePosInfo(const visBase::EventInfo& pos,
 	    					const Coord3&,
 	    					BufferString& val,
@@ -116,6 +119,9 @@ public:
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar(const IOPar&);
 
+    bool                        canBDispOn2DViewer() const      { return true; }
+    bool                        isVerticalPlane() const		{ return false;}
+        
 protected:
     				~HorizonDisplay();
     void			removeEMStuff();
@@ -164,6 +170,7 @@ protected:
     float				edgelineradius_;
 
     ObjectSet<Attrib::SelSpec>		as_;
+    TypeSet<DataPack::ID>		datapackids_;
     ObjectSet<visBase::VisColorTab>	coltabs_;
     BoolTypeSet				enabled_;
     bool				validtexture_;
