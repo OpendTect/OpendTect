@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.71 2008-03-04 12:17:24 cvsbert Exp $
+ RCS:           $Id: uiobj.cc,v 1.72 2008-03-11 20:49:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -170,16 +170,16 @@ void uiParentBody::finaliseChildren()
     if ( !finalised_ )
     {
 	finalised_= true;
-	for ( int idx=0; idx<children.size(); idx++ )
-	    children[idx]->finalise();
+	for ( int idx=0; idx<children_.size(); idx++ )
+	    children_[idx]->finalise();
     }
 }
 
 
 void uiParentBody::clearChildren()
 {
-    for ( int idx=0; idx<children.size(); idx++ )
-	children[idx]->clear();
+    for ( int idx=0; idx<children_.size(); idx++ )
+	children_[idx]->clear();
 }
 
 
