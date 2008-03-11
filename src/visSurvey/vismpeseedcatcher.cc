@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.25 2007-12-19 12:32:22 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.26 2008-03-11 14:48:17 cvsjaap Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -306,8 +306,10 @@ void MPEClickCatcher::sendUnderlying2DSeis(
 	
 	if ( lineid < 0 )
 	{
-	    float disttoseis2d = seis2ddisp->calcDist(
-		    eventinfo.displaypickedpos );
+	    Coord3 pos = eventinfo.worldpickedpos;
+	    if ( transformation_ )
+		pos = transformation_->transform( pos );
+	    float disttoseis2d = seis2ddisp->calcDist( pos );
 	    
 	    if ( !seis2dclosest || disttoseis2d<mindisttoseis2d )
 	    {
