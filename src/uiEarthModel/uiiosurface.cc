@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.50 2008-02-26 09:17:32 cvsnanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.51 2008-03-11 09:21:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -167,7 +167,7 @@ bool uiIOSurface::haveAttrSel() const
 
 void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels ) const
 {
-    if ( !rgfld || !rgfld->isAll() )
+    if ( !rgfld || rgfld->isAll() )
 	sels.rg.init( false );
     else
 	sels.rg = rgfld->envelope().hrg;
