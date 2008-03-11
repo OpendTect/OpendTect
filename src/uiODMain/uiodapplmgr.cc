@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.230 2008-02-28 12:19:38 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.231 2008-03-11 13:36:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,11 +25,14 @@ ________________________________________________________________________
 #include "uiseispartserv.h"
 #include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
+#include "visfaultdisplay.h"
+#include "vishorizondisplay.h"
 #include "vispicksetdisplay.h"
 #include "vispolylinedisplay.h"
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
 
+#include "emdatapack.h"
 #include "emhorizon2d.h"
 #include "emseedpicker.h"
 #include "emsurfacetr.h"
@@ -620,6 +623,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		const MultiID surfmid = visserv_->getMultiID(visid);
 		const EM::ObjectID emid = emserv_->getObjectID(surfmid);
 		const int auxdatanr = emserv_->loadAuxData(emid,myas.userRef());
+		bool allok = true;
 		if ( auxdatanr<0 )
 		    uiMSG().error( "Cannot find stored data" );
 		else
@@ -628,9 +632,10 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		    ObjectSet<BinIDValueSet> vals;
 		    emserv_->getAuxData( emid, auxdatanr, attrnm, vals );
 		    visserv_->setRandomPosData( visid, attrib, &vals );
+		    allok = createAndSetEMDataPack( visid, attrib, vals );
 		}
-		
-		return  auxdatanr>=0;
+
+		return  auxdatanr>=0 && allok;
 	    }
 
 	    ObjectSet<BinIDValueSet> data;
@@ -643,12 +648,9 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 	    }
 
 	    visserv_->setRandomPosData( visid, attrib, &data );
-//TODO use datapacks for Rdm pos. pb : how to deal with bidvset and surfdata?
-	  // other solution: create datapack from the EMObjectDisplay/HorDisp 
-//	    visserv_->setDataPackID( visid, attrib, &data );
-
+	    bool allok = createAndSetEMDataPack( visid, attrib, data );
 	    deepErase( data );
-	    return true;
+	    return allok;
 	}
 	case uiVisPartServer::OtherFormat :
 	{
@@ -1367,3 +1369,40 @@ void uiODApplMgr::cleanPreview()
 
     previds.erase();
 }
+
+
+bool uiODApplMgr::createAndSetEMDataPack( int visid, int attrib,
+					  ObjectSet<BinIDValueSet> data )
+{
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hordisp,
+		    visserv_->getObject(visid) );
+    mDynamicCastGet(visSurvey::FaultDisplay*,faultdisp,
+		    visserv_->getObject(visid) );
+    const EM::ObjectID emobjid = hordisp ? hordisp->getObjectID()
+				 	 : faultdisp ? faultdisp->getEMID(): -1;
+    EM::EMObject* emobj = EM::EMM().getObject( emobjid );
+    DataPack::ID cacheid = hordisp->getDataPackID( attrib );
+    if ( cacheid==-1 )
+	useDefColTab( visid, attrib );
+    const Attrib::DescID did = attrserv_->targetID( false );
+    DataPack* newpack = 0;
+    if ( hordisp )
+    {
+	mDynamicCastGet( EM::Horizon*, horizon, emobj );
+	if ( !horizon ) return false;	//Huh??
+	newpack = new EM::HorDataPack( *horizon, did, data );
+    }
+    else if ( faultdisp )
+    {
+	mDynamicCastGet( EM::Fault*, fault, emobj );
+	if ( !fault ) return false;	//Huh??
+	newpack = new EM::FaultDataPack( *fault, did, data );
+    }
+    
+    newpack->setName( attrserv_->targetUserRef() );
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
+    dpman.add( newpack );
+    visserv_->setDataPackID( visid, attrib, newpack->id() );
+    return newpack->id() > -1;
+}
+

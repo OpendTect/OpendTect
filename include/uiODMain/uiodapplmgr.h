@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.55 2008-02-15 10:58:21 cvsjaap Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.56 2008-03-11 13:36:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ class uiVisPartServer;
 class uiWellAttribPartServer;
 class uiWellPartServer;
 
+class BinIDValueSet;
 class Color;
 class Coord;
 class MultiID;
@@ -193,6 +194,9 @@ protected:
     void			cleanPreview();
 
     void			manStrat();
+
+    bool			createAndSetEMDataPack(int visid,int attrib,
+	    					      ObjectSet<BinIDValueSet>);
 
     friend class		uiODApplService;
 
