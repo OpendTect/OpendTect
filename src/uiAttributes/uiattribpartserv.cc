@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.83 2008-02-06 04:22:04 cvsraman Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.84 2008-03-11 13:33:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -382,6 +382,12 @@ Attrib::DescID uiAttribPartServer::targetID( bool for2d, int nr ) const
 {
     return targetspecs_.size() <= nr ? Attrib::DescID::undef()
 				     : targetspecs_[nr].id();
+}
+
+
+const char* uiAttribPartServer::targetUserRef( int nr ) const
+{
+    return targetspecs_.size() <= nr ? 0 : targetspecs_[nr].userRef();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.33 2008-01-31 19:06:38 cvskris Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.34 2008-03-11 13:33:52 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,6 +120,8 @@ public:
     bool		isDataClassified(const Array3D<float>&) const;
 
     Attrib::DescID	getStoredID(const LineKey&,bool is2d);
+    Attrib::DescID	targetID(bool is2d,int nr=0) const;
+    const char*		targetUserRef(int nr=0) const;
     IOObj*		getIOObj(const Attrib::SelSpec&) const;
 
     bool		extractData(const NLACreationDesc&,
@@ -191,7 +193,6 @@ protected:
 					    const Attrib::SelSpec&,bool);
     void		insertNumerousItems(const BufferStringSet&,
 	    				    const Attrib::SelSpec&,bool,bool);
-    Attrib::DescID	targetID(bool is2d,int nr=0) const;
 
     static const char*	attridstr_;
     BufferString	nlaname_;
