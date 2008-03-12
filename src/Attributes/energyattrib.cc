@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.25 2008-01-15 16:19:43 cvsbert Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.26 2008-03-12 10:45:03 cvshelene Exp $";
 
 #include "energyattrib.h"
 
@@ -33,6 +33,9 @@ void Energy::initClass()
     gate->setDefaultValue( defgate );
     desc->addParam( gate );
 
+    BoolParam* dograd = new BoolParam( dogradStr(), false, false );
+    desc->addParam( dograd );
+
     desc->addInput( InputSpec("Input Data",true) );
     desc->setNrOutputs( Seis::UnknowData, 3 );
 
@@ -45,6 +48,7 @@ Energy::Energy( Desc& ds )
 {
     if ( !isOK() ) return;
 
+    mGetBool( dograd_, dogradStr() );
     mGetFloatInterval( gate_, gateStr() );
     gate_.scale( 1/zFactor() );
 }
@@ -92,6 +96,38 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
 		setOutputValue( output, 2, outidx, z0, Math::Log(val) );
 	}
     }
+
+    //post processing for gradient
+    if ( dograd_ )
+    {
+	for ( int ido=0; ido<nrOutputs(); ido++ )
+	{
+	    if ( !isOutputEnabled(ido) ) continue;
+	    float prevval = mUdf(float);
+	    for ( int idx=0; idx<stopidx; idx++ )
+	    {
+		const float curval = output.series(ido)->value(idx);
+		float nextval = idx<stopidx-1 ? output.series(ido)->value(idx+1)
+		    			      : mUdf(float);
+		float gradval;
+		if ( mIsUdf(prevval) )
+		{
+		    if ( mIsUdf(nextval) )
+			gradval = mUdf(float);
+		    else
+			gradval = nextval - curval;
+		}
+		else if ( mIsUdf(nextval) )
+		    gradval = curval - prevval;
+		else
+		    gradval = (nextval - prevval)/2;
+
+		prevval = curval;
+		setOutputValue( output, ido, idx, z0, gradval );
+	    }
+	}
+    }
+    //TODO : case 1 sample [horizon, pickset]
 
     return true;
 }

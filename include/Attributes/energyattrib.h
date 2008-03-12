@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: energyattrib.h,v 1.10 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: energyattrib.h,v 1.11 2008-03-12 10:45:03 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ namespace Attrib
 
 /*!\brief "Energy Attribute"
 
-Energy gate=
+Energy gate= dograd=
 
 Calculates the squared sum of the gate's samples divided by the number of
 samples in the gate.
@@ -29,10 +29,12 @@ samples in the gate.
 Input:
 0		Data
 
-Outputs:
+Outputs:	
 0		The energy
 1		Square root of the energy
 2		Ln of the energy
+
+if Gradient is selected outputs will be : grad(Energy), grad(sqrt(Energy)), ...
 */
     
 
@@ -44,6 +46,7 @@ public:
 
     static const char*  attribName()		{ return "Energy"; }
     static const char*  gateStr()		{ return "gate"; }
+    static const char*  dogradStr()		{ return "dograd"; }
 
 protected:
     			~Energy() {}
@@ -59,6 +62,7 @@ protected:
     			   { return &gate_; }
     
     Interval<float>	gate_;
+    bool		dograd_;
     int			dataidx_;
     const DataHolder*	inputdata_;
 };
