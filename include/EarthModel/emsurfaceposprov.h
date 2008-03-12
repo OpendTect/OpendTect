@@ -7,16 +7,19 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: emsurfaceposprov.h,v 1.3 2008-03-10 16:35:14 cvsbert Exp $
+ RCS:           $Id: emsurfaceposprov.h,v 1.4 2008-03-12 21:58:29 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "posprovider.h"
+
+#include "emposid.h"
 #include "horsampling.h"
 #include "multiid.h"
-namespace EM { class Surface; }
+
+namespace EM { class RowColIterator; class Surface; }
 
 namespace Pos
 {
@@ -85,6 +88,11 @@ protected:
     HorSampling		hs_;
     Interval<float>	zrg1_;
     Interval<float>	zrg2_;
+
+    EM::RowColIterator*	iterator_;
+    EM::PosID		curpos_;
+    Interval<float>	curzrg_;
+    float		curz_;
 
 };
 

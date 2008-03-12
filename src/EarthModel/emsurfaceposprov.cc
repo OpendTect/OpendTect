@@ -4,16 +4,20 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.3 2008-03-10 16:35:14 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.4 2008-03-12 21:58:29 cvsnanne Exp $";
 
 #include "emsurfaceposprov.h"
+
+#include "cubesampling.h"
+#include "emmanager.h"
+#include "emrowcoliterator.h"
 #include "emsurface.h"
-#include "ioobj.h"
+#include "emsurfaceiodata.h"
 #include "ioman.h"
+#include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
 #include "survinfo.h"
-#include "cubesampling.h"
 
 const char* Pos::EMSurfaceProvider::id1Key()		{ return "ID.1"; }
 const char* Pos::EMSurfaceProvider::id2Key()		{ return "ID.2"; }
@@ -29,6 +33,9 @@ Pos::EMSurfaceProvider::EMSurfaceProvider()
     , extraz_(0,0)
     , zrg1_(0,0)
     , zrg2_(0,0)
+    , iterator_(0)
+    , curz_(mUdf(float))
+    , curzrg_(0,0)
 {
 }
 
@@ -73,36 +80,70 @@ const char* Pos::EMSurfaceProvider::type() const
 
 bool Pos::EMSurfaceProvider::initialize( TaskRunner* tr )
 {
-    if ( nrSurfaces() == 0 ) return 0;
-    // Read surface(s) here
-    // EMM().loadIfNotFullyLoaded
-    return 0;
+    if ( nrSurfaces() == 0 ) return false;
+
+    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( id1_, tr );
+    mDynamicCastGet(EM::Surface*,surf1,emobj)
+    if ( !surf1 ) return false;
+    surf1_ = surf1; surf1_->ref();
+
+    if ( !id2_.isEmpty() )
+    {
+	emobj = EM::EMM().loadIfNotFullyLoaded( id2_, tr );
+	mDynamicCastGet(EM::Surface*,surf2,emobj)
+	if ( !surf2 ) return false;
+	surf2_ = surf2; surf2_->ref();
+    }
+
+    if ( !iterator_ )
+	iterator_ = new EM::RowColIterator( *surf1_, surf1_->sectionID(0) );
+    return true;
 }
 
 
 void Pos::EMSurfaceProvider::reset()
 {
+    delete iterator_; iterator_ = 0;
+    curpos_ = EM::PosID( -1, -1, -1 );
 }
 
 
 bool Pos::EMSurfaceProvider::toNextPos()
 {
-    return false;
+    curpos_ = iterator_->next();
+    if ( curpos_.objectID() == -1 )
+	return false;
+
+    curzrg_.start = curzrg_.stop = surf1_->getPos( curpos_ ).z;
+    if ( surf2_ )
+	curzrg_.stop = surf2_->getPos( surf2_->sectionID(0), curpos_.subID()).z;
+    curzrg_ += extraz_;
+
+    if ( surf2_ || extraz_.width()>0 )
+    {
+	SI().snapZ( curzrg_.start, 1 );
+	SI().snapZ( curzrg_.stop, -1 );
+    }
+    curz_ = curzrg_.start;
+    return true;
 }
 
 
 bool Pos::EMSurfaceProvider::toNextZ()
 {
-    if ( !surf2_ ) return toNextPos();
+    if ( mIsUdf(curz_) || !surf2_ )
+	return toNextPos();
+
+    curz_ += zstep_;
+    if ( curz_ > curzrg_.stop )
+	return toNextPos();
 
     return true;
 }
 
 
 float Pos::EMSurfaceProvider::curZ() const
-{
-    return 0;
-}
+{ return curz_; }
 
 
 bool Pos::EMSurfaceProvider::hasZAdjustment() const
@@ -129,18 +170,18 @@ void Pos::EMSurfaceProvider::usePar( const IOPar& iop )
     iop.get( mGetSurfKey(zstepKey()), zstep_ );
     iop.get( mGetSurfKey(extraZKey()), extraz_ );
 
-    /*
-    if ( id1.isEmpty() ) return;
-    PtrMan<IOObj> ioobj = IOM().get( id1 );
-    if ( !ioobj ) return;
-    PtrMan<IOPar> par = EM::EMM().getSurfacePars( *ioobj );
-    if ( !par || !par->size() ) return;
+    if ( id1_.isEmpty() ) return;
+    EM::SurfaceIOData sd;
+    const char* res = EM::EMM().getSurfaceData( id1_, sd );
+    if ( res ) return;
 
+    hs_ = sd.rg;
 
-
-    if ( id2.isEmpty() ) return;
-    // Here read header(s) to get hs_ and zrg's
-    */
+    if ( id2_.isEmpty() ) return;
+    res = EM::EMM().getSurfaceData( id2_, sd );
+    if ( res ) return;
+    hs_.limitTo( sd.rg );
+    // TODO: get zrg's
 }
 
 
@@ -209,7 +250,8 @@ int Pos::EMSurfaceProvider::nrSurfaces() const
 
 BinID Pos::EMSurfaceProvider3D::curBinID() const
 {
-    return BinID(0,0);
+    BinID bid; bid.setSerialized( curpos_.subID() );
+    return bid;
 }
 
 
@@ -218,10 +260,24 @@ bool Pos::EMSurfaceProvider3D::includes( const BinID& bid, float z ) const
     if ( !surf1_ )
 	return true;
 
+    // TODO: support multiple sections
+    Interval<float> zrg;
+    const EM::SubID subid = bid.getSerialized();
+    const Coord3 crd1 = surf1_->getPos( surf1_->sectionID(0), subid );
     if ( surf2_ )
-	return true; // between surf1 and surf2
+    {
+	const Coord3 crd2 = surf2_->getPos( surf2_->sectionID(0), subid );
+	zrg.start = crd1.z; zrg.stop = crd2.z;
+    }
+    else
+    {
+	zrg.start = crd1.z - SI().zStep()/2;
+	zrg.stop = crd1.z + SI().zStep()/2;
+    }
 
-    return false; // return true when z is within half a Z step
+    zrg.sort();
+    zrg += extraz_;
+    return zrg.includes( z );
 }
 
 
