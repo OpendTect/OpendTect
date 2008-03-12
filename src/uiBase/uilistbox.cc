@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.86 2008-02-01 05:20:24 cvsnanne Exp $
+ RCS:           $Id: uilistbox.cc,v 1.87 2008-03-12 21:58:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -522,6 +522,19 @@ void uiListBox::setCurrentItem( int idx )
     body_->setCurrentRow( idx );
     if ( body_->selectionMode() != mExtended )
 	setSelected( idx );
+}
+
+
+void uiListBox::setItemChecked( int idx, bool yn )
+{
+    if ( validIndex(idx) )
+	body_->item(idx)->setCheckState( yn ? Qt::Checked : Qt::Unchecked );
+}
+
+
+bool uiListBox::isItemChecked( int idx ) const
+{
+    return validIndex(idx) && body_->item(idx)->checkState() == Qt::Checked;
 }
 
 

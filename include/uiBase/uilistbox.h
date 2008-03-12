@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.39 2008-01-07 10:54:28 cvsnanne Exp $
+ RCS:           $Id: uilistbox.h,v 1.40 2008-03-12 21:58:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,9 @@ public:
     			//!< check for [...] around text
     void                setCurrentItem(int);
     void                setCurrentItem(const char*); //!< First match
+
+    void		setItemChecked(int,bool);
+    bool		isItemChecked(int) const;
 
     void		getSelectedItems(BufferStringSet&);
     void		getSelectedItems(TypeSet<int>&);
