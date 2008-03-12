@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.49 2007-07-19 20:30:19 cvskris Exp $
+ RCS:		$Id: ranges.h,v 1.50 2008-03-12 21:13:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ public:
     inline bool		operator==(const Interval<T>&) const;
     inline bool		operator!=(const Interval<T>&) const;
     inline Interval<T>	operator+(const Interval<T>&) const;
+    inline Interval<T>&	operator+=(const Interval<T>&);
     template <class X>
     const Interval<T>&	setFrom(const Interval<X>&);
 
@@ -337,6 +338,10 @@ bool Interval<T>::operator!=( const Interval<T>& i ) const
 template <class T> inline
 Interval<T> Interval<T>::operator+( const Interval<T>& i ) const
 { return Interval<T>(start+i.start, stop+i.stop); }
+
+template <class T> inline
+Interval<T>& Interval<T>::operator+=( const Interval<T>& i )
+{ start += i.start; stop += i.stop; return *this; }
 
 
 template <class T> template <class X> inline
