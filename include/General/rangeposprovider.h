@@ -7,14 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: rangeposprovider.h,v 1.3 2008-02-13 13:28:00 cvsbert Exp $
+ RCS:           $Id: rangeposprovider.h,v 1.4 2008-03-12 09:48:03 cvsbert Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "posprovider.h"
-namespace PosInfo { class Line2DData; }
 
 
 namespace Pos
@@ -79,7 +78,6 @@ public:
 
 			RangeProvider2D();
 			RangeProvider2D(const RangeProvider2D&);
-			~RangeProvider2D();
     RangeProvider2D&	operator =(const RangeProvider2D&);
     const char*		type() const;	//!< sKey::Range
     virtual Provider*	clone() const	{ return new RangeProvider2D(*this); }
@@ -111,14 +109,11 @@ public:
     const StepInterval<int>&	nrRange() const	{ return rg_; }
     StepInterval<float>&	zRange()	{ return zrg_; }
     const StepInterval<float>&	zRange() const	{ return zrg_; }
-    PosInfo::Line2DData&	lineData()	{ return ld_; }
-    const PosInfo::Line2DData&	lineData() const { return ld_; }
 
 protected:
 
     StepInterval<int>	rg_;
     StepInterval<float>	zrg_;
-    PosInfo::Line2DData& ld_;
     int			curidx_;
     float		curz_;
 

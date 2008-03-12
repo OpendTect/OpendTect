@@ -1,0 +1,120 @@
+#ifndef posinfo_h
+#define posinfo_h
+
+/*+
+________________________________________________________________________
+
+ CopyRight:	(C) dGB Beheer B.V.
+ Author:	Bert
+ Date:		2005 / Mar 2008
+ RCS:		$Id: posinfo.h,v 1.1 2008-03-12 09:48:03 cvsbert Exp $
+________________________________________________________________________
+
+-*/
+
+#include "sets.h"
+#include "indexinfo.h"
+#include "position.h"
+
+
+/*!\brief Position info, often segmented
+
+In data cubes with gaps and other irregulaities, a complete description
+of the positions present can be done by describing the regular segments
+per inline. No sorting of inlines is required.
+
+The crossline segments are assumed to be sorted, i.e.:
+[1-3,1] [5-9,2] : OK
+[9-5,-1] [3-1,-1] : OK
+[5-9,2] [1-3,1] : Not OK
+
+Note that the LineData class is also interesting for 2D lines with trace
+numbers.
+
+*/
+
+namespace PosInfo
+{
+
+/*!\brief Position info for a line - in a 3D cube, that would be an inline.
+	  Stored as (crossline-)number segments. */
+
+struct LineData
+{
+    typedef StepInterval<int>	Segment;
+
+				LineData( int i ) : linenr_(i)	{}
+
+    const int			linenr_;
+    TypeSet<Segment>		segments_;
+
+    int				size() const;
+    int				nearestSegment(double) const;
+    IndexInfo			getIndexInfo(double) const;
+
+};
+
+
+/*!\brief Position info for an entire 3D cube. */
+
+class CubeData : public ObjectSet<LineData>
+{
+public:
+    			CubeData()		{}
+    			CubeData( const CubeData& cd )
+						{ *this = cd; }
+			~CubeData()		{ deepErase(*this); }
+    CubeData&		operator =(const CubeData&);
+
+    int			indexOf(int inl) const;
+    bool		includes(int inl,int crl) const;
+    bool		getInlRange(StepInterval<int>&) const;
+    			//!< Returns whether fully regular.
+    bool		getCrlRange(StepInterval<int>&) const;
+    			//!< Returns whether fully regular.
+
+    bool		haveInlStepInfo() const	{ return size() > 1; }
+    bool		haveCrlStepInfo() const;
+    bool		isFullyRectAndReg() const;
+
+    void		add( LineData* ld )	{ *this += ld; }
+
+    void		sort();
+};
+
+
+/*!\brief One position on a 2D line */
+
+class Line2DPos
+{
+public:
+
+		Line2DPos( int n=0 ) : nr_(n)            {}
+    bool	operator ==( const Line2DPos& p ) const { return nr_ == p.nr_; }
+    bool	operator !=( const Line2DPos& p ) const { return nr_ != p.nr_; }
+    bool	operator >( const Line2DPos& p ) const  { return nr_ > p.nr_; }
+
+    int		nr_;
+    Coord	coord_;
+
+};
+
+
+/*!\brief Position info for a 2D line */
+
+class Line2DData
+{
+public:
+
+			Line2DData();
+
+    StepInterval<float> zrg;
+    TypeSet<Line2DPos>  posns;
+
+    void                dump(std::ostream&,bool pretty=true) const;
+
+};
+
+} // namespace PosInfo
+
+#endif

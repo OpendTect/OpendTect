@@ -4,13 +4,13 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.26 2008-02-19 15:14:51 cvsbert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.27 2008-03-12 09:48:03 cvsbert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
 #include "seis2dline.h"
 #include "seissingtrcproc.h"
-#include "segposinfo.h"
+#include "posinfo.h"
 #include "jobdescprov.h"
 #include "jobrunner.h"
 #include "ctxtioobj.h"

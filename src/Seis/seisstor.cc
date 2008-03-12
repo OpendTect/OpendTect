@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data storage
 -*/
 
-static const char* rcsID = "$Id: seisstor.cc,v 1.37 2008-03-07 12:39:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seisstor.cc,v 1.38 2008-03-12 09:48:03 cvsbert Exp $";
 
 #include "seisseqio.h"
 #include "seisread.h"
@@ -22,7 +22,7 @@ static const char* rcsID = "$Id: seisstor.cc,v 1.37 2008-03-07 12:39:46 cvsbert 
 #include "ioman.h"
 #include "iodir.h"
 #include "strmprov.h"
-#include "segposinfo.h"
+#include "posinfo.h"
 #include "keystrs.h"
 
 const char* SeisStoreAccess::sNrTrcs = "Nr of traces";

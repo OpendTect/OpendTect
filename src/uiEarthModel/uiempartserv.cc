@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.135 2008-02-15 07:38:23 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.136 2008-03-12 09:48:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ ________________________________________________________________________
 #include "surfaceinfo.h"
 #include "survinfo.h"
 #include "varlenarray.h"
+#include "posinfo.h"
 
 #include "uiarray2dchg.h"
 #include "uichangesurfacedlg.h"
@@ -932,10 +933,10 @@ void uiEMPartServer::getSurfaceDef3D( const TypeSet<EM::ObjectID>& selhorids,
     id = getObjectID(horid); \
 }
 void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
-				      ObjectSet<PosInfo::Line2DData> geoms,
-				      BufferStringSet& selectlines,
-				      TypeSet<Coord>& coords,
-				      TypeSet< Interval<float> >& zrgs )
+				  const ObjectSet<PosInfo::Line2DData>& geoms,
+				  BufferStringSet& selectlines,
+				  TypeSet<Coord>& coords,
+				  TypeSet< Interval<float> >& zrgs )
 {
     EM::ObjectID id;
     mGetObjId(0,id);
@@ -947,8 +948,8 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 
     for ( int lidx=0; lidx<selectlines.size(); lidx++ )
     {
-	PosInfo::Line2DData* line = geoms[lidx];
-	if ( !line ) continue;
+	const PosInfo::Line2DData* ld = geoms[lidx];
+	if ( !ld ) continue;
 
 	BufferString lnm = *selectlines[lidx];
 	int lineidx = hor2d1->geometry().lineIndex( lnm );
@@ -958,12 +959,12 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 	const int lineid2 = hor2d2->geometry().lineID( lineidx );
 	if ( lineid1<0 || lineid2<0 ) continue;
 
-	for ( int trcidx=0; trcidx<line->posns.size(); trcidx++ )
+	for ( int trcidx=0; trcidx<ld->posns.size(); trcidx++ )
 	{
 	    const EM::SubID subid1 = 
-		RowCol( lineid1, line->posns[trcidx].nr_ ).getSerialized();
+		RowCol( lineid1, ld->posns[trcidx].nr_ ).getSerialized();
 	    const EM::SubID subid2 =
-		RowCol( lineid2, line->posns[trcidx].nr_ ).getSerialized();
+		RowCol( lineid2, ld->posns[trcidx].nr_ ).getSerialized();
 
 	    const float z1 = hor2d1->getPos(0,subid1).z;
 	    const float z2 = hor2d2->getPos(0,subid2).z;
@@ -972,7 +973,7 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 	    {
 		Interval<float> zrg( z1, z2 );	
 		zrgs += zrg;
-		coords += line->posns[trcidx].coord_;
+		coords += ld->posns[trcidx].coord_;
 	    }
 	}
     }

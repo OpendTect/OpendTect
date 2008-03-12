@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          June 2006
- RCS:           $Id: uifingerprintcalcobj.cc,v 1.8 2008-02-06 04:22:04 cvsraman Exp $
+ RCS:           $Id: uifingerprintcalcobj.cc,v 1.9 2008-03-12 09:48:03 cvsbert Exp $
 
 ________________________________________________________________________
 
@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "picksettr.h"
 #include "seis2dline.h"
-#include "segposinfo.h"
+#include "posinfo.h"
 #include "survinfo.h"
 #include "uitaskrunner.h"
 #include "ptrman.h"

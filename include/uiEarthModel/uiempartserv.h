@@ -7,15 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.64 2008-02-15 07:38:23 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.65 2008-03-12 09:48:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emposid.h"
 #include "multiid.h"
-#include "segposinfo.h"
 #include "uiapplserv.h"
+#include "position.h"
 
 
 class BinID;
@@ -27,6 +27,7 @@ class SurfaceInfo;
 class uiPopupMenu;
 
 namespace Pick { class Set; }
+namespace PosInfo { class Line2DData; }
 
 template <class T> class Interval;
 
@@ -88,7 +89,7 @@ public:
 	    			        BinIDValueSet&,
 				        const HorSampling&) const;
     void		getSurfaceDef2D(const ObjectSet<MultiID>&,
-	    				ObjectSet<PosInfo::Line2DData>,
+	    				const ObjectSet<PosInfo::Line2DData>&,
 	    				BufferStringSet&,TypeSet<Coord>&,
 					TypeSet< Interval<float> >&);
 

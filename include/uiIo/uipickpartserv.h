@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uipickpartserv.h,v 1.36 2007-12-10 03:56:57 cvsnanne Exp $
+ RCS:           $Id: uipickpartserv.h,v 1.37 2008-03-12 09:48:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,14 +18,14 @@ ________________________________________________________________________
 #include "multiid.h"
 #include "binidvalset.h"
 #include "bufstringset.h"
-#include "segposinfo.h"
 #include "cubesampling.h"
 
 class Color;
 class IOObj;
 class SurfaceInfo;
 class RandLocGenPars;
-namespace Pick { class Set; class SetMgr; };
+namespace Pick { class Set; class SetMgr; }
+namespace PosInfo { class Line2DData; }
 
 
 /*! \brief Service provider for application level - seismics */

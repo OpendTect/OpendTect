@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilter.h,v 1.9 2008-03-10 16:33:20 cvsbert Exp $
+ RCS:           $Id: posfilter.h,v 1.10 2008-03-12 09:48:03 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,7 @@ ________________________________________________________________________
 class IOPar;
 class Executor;
 class TaskRunner;
+namespace PosInfo { class Line2DData; }
 
 
 namespace Pos
@@ -51,7 +52,8 @@ public:
     virtual bool	is2D() const				= 0;
     virtual bool	isProvider() const			{ return false;}
 
-    virtual bool	initialize( TaskRunner* tr=0 )		{ return true; }
+    virtual bool	initialize( TaskRunner* tr=0 )
+    			{ reset(); return true; }
     virtual void	reset()					= 0;
 
     virtual bool	includes(const Coord&,
@@ -91,13 +93,24 @@ public:
 class Filter2D : public virtual Filter
 {
 public:
+    			Filter2D() : ld_(0)			{}
+			~Filter2D();
 
     virtual bool	is2D() const				{ return true; }
+    virtual bool	worksWithCoords() const			{ return ld_; }
 
     virtual bool	includes(int,float z=mUdf(float)) const	= 0;
 
     mDefineFactoryInClass(Filter2D,factory);
     static Filter2D*	make(const IOPar&);
+
+    virtual void	setLineData(PosInfo::Line2DData*);
+    virtual PosInfo::Line2DData*	lineData()		{ return ld_; }
+    virtual const PosInfo::Line2DData*	lineData() const	{ return ld_; }
+
+protected:
+
+    PosInfo::Line2DData* ld_;
 
 };
 

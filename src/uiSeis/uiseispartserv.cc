@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.81 2008-01-24 14:50:40 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.82 2008-03-12 09:48:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include "seis2dline.h"
 #include "seisbuf.h"
 #include "seisbufadapters.h"
-#include "segposinfo.h"
+#include "posinfo.h"
 #include "survinfo.h"
 #include "seistrc.h"
 #include "seistrcprop.h"

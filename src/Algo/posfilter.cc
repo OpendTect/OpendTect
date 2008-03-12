@@ -4,11 +4,12 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: posfilter.cc,v 1.10 2008-03-10 16:33:20 cvsbert Exp $";
+static const char* rcsID = "$Id: posfilter.cc,v 1.11 2008-03-12 09:48:03 cvsbert Exp $";
 
 #include "posfilterset.h"
 #include "posfilterstd.h"
 #include "posprovider.h"
+#include "posinfo.h"
 #include "survinfo.h"
 #include "executor.h"
 #include "iopar.h"
@@ -55,6 +56,12 @@ Pos::Filter3D* Pos::Filter3D::make( const IOPar& iop )
 }
 
 
+Pos::Filter2D::~Filter2D()
+{
+    delete ld_;
+}
+
+
 Pos::Filter2D* Pos::Filter2D::make( const IOPar& iop )
 {
     const char* typ = iop.find(sKey::Type);
@@ -65,6 +72,12 @@ Pos::Filter2D* Pos::Filter2D::make( const IOPar& iop )
     if ( filt )
 	filt->usePar( iop );
     return filt;
+}
+
+
+void Pos::Filter2D::setLineData( PosInfo::Line2DData* ld )
+{
+    delete ld_; ld_ = ld;
 }
 
 

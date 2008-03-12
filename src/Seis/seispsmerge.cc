@@ -4,12 +4,12 @@
  * DATE     : Oct 2007
 -*/
 
-static const char* rcsID = "$Id: seispsmerge.cc,v 1.6 2008-01-21 17:56:13 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsmerge.cc,v 1.7 2008-03-12 09:48:03 cvsbert Exp $";
 
-#include "segposinfo.h"
+#include "seispsmerge.h"
+#include "posinfo.h"
 #include "seisbuf.h"
 #include "seispsioprov.h"
-#include "seispsmerge.h"
 #include "seispsread.h"
 #include "seispswrite.h"
 #include "seistrc.h"

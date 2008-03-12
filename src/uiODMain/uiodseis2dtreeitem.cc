@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.36 2008-02-20 05:56:26 cvsnanne Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.37 2008-03-12 09:48:03 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ ___________________________________________________________________
 #include "emmanager.h"
 #include "externalattrib.h"
 #include "linekey.h"
-#include "segposinfo.h"
+#include "posinfo.h"
 #include "survinfo.h"
 #include "viscolortab.h"
 

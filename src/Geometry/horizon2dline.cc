@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2006
- RCS:		$Id: horizon2dline.cc,v 1.7 2007-08-24 06:55:44 cvsjaap Exp $
+ RCS:		$Id: horizon2dline.cc,v 1.8 2008-03-12 09:48:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "horizon2dline.h"
 
-#include "segposinfo.h"
+#include "posinfo.h"
 #include "undefval.h"
 
 namespace Geometry

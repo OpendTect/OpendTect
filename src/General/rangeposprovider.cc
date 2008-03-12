@@ -4,11 +4,11 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: rangeposprovider.cc,v 1.6 2008-02-21 13:47:05 cvsbert Exp $";
+static const char* rcsID = "$Id: rangeposprovider.cc,v 1.7 2008-03-12 09:48:03 cvsbert Exp $";
 
 #include "rangeposprovider.h"
 #include "survinfo.h"
-#include "segposinfo.h"
+#include "posinfo.h"
 #include "iopar.h"
 #include "cubesampling.h"
 #include "keystrs.h"
@@ -150,8 +150,7 @@ void Pos::RangeProvider3D::initClass()
 
 
 Pos::RangeProvider2D::RangeProvider2D()
-    : ld_(*new PosInfo::Line2DData)
-    , rg_(1,mUdf(int),1)
+    : rg_(1,mUdf(int),1)
     , zrg_(SI().zRange(false))
 {
     reset();
@@ -159,15 +158,8 @@ Pos::RangeProvider2D::RangeProvider2D()
 
 
 Pos::RangeProvider2D::RangeProvider2D( const Pos::RangeProvider2D& p )
-    : ld_(*new PosInfo::Line2DData)
 {
     *this = p;
-}
-
-
-Pos::RangeProvider2D::~RangeProvider2D()
-{
-    delete &ld_;
 }
 
 
@@ -176,11 +168,11 @@ Pos::RangeProvider2D& Pos::RangeProvider2D::operator =(
 {
     if ( &p == this )
     {
-	ld_ = p.ld_;
 	rg_ = p.rg_;
 	zrg_ = p.zrg_;
 	curidx_ = p.curidx_;
 	curz_ = p.curz_;
+	setLineData( p.ld_ ? new PosInfo::Line2DData(*p.ld_) : 0);
     }
     return *this;
 }
@@ -194,7 +186,7 @@ const char* Pos::RangeProvider2D::type() const
 
 void Pos::RangeProvider2D::reset()
 {
-    curidx_ = -1;
+    curidx_ = ld_ ? -1 : rg_.start - rg_.step;
     curz_ = zrg_.stop;
 }
 
@@ -203,7 +195,7 @@ bool Pos::RangeProvider2D::toNextPos()
 {
     while ( true )
     {
-	curidx_++;
+	curidx_ += ld_ ? 1 : rg_.step;
 	const int curnr = curNr();
 	if ( curnr < rg_.start )
 	    continue;
@@ -214,8 +206,11 @@ bool Pos::RangeProvider2D::toNextPos()
     }
 
     curz_ = zrg_.start;
-    if ( curz_ < ld_.zrg.start ) curz_ = ld_.zrg.start;
-    if ( curz_ > ld_.zrg.stop ) return false;
+    if ( ld_ )
+    {
+	if ( curz_ < ld_->zrg.start ) curz_ = ld_->zrg.start;
+	if ( curz_ > ld_->zrg.stop ) return false;
+    }
 
     return true;
 }
@@ -227,20 +222,25 @@ bool Pos::RangeProvider2D::toNextPos()
 bool Pos::RangeProvider2D::toNextZ()
 {
     curz_ += zrg_.step;
-    return curz_ > ld_.zrg.stop+mZrgEps || curz_ > zrg_.stop+mZrgEps
-	 ? toNextPos() : true;
+    if ( curz_ > zrg_.stop+mZrgEps )
+	return toNextPos();
+
+    if ( ld_ && curz_ > ld_->zrg.stop+mZrgEps )
+	return toNextPos();
+
+    return true;
 }
 
 
 int Pos::RangeProvider2D::curNr() const
 {
-    return ld_.posns[curidx_].nr_;
+    return ld_ ? ld_->posns[curidx_].nr_ : curidx_;
 }
 
 
 Coord Pos::RangeProvider2D::curCoord() const
 {
-    return ld_.posns[curidx_].coord_;
+    return ld_ ? ld_->posns[curidx_].coord_ : Coord(0,0);
 }
 
 
@@ -255,15 +255,18 @@ bool Pos::RangeProvider2D::includes( int nr, float z ) const
 
 bool Pos::RangeProvider2D::includes( const Coord& c, float z ) const
 {
+    if ( !ld_ ) return false;
+
     bool found = false;
-    for ( int idx=0; idx<ld_.posns.size(); idx++ )
+    for ( int idx=0; idx<ld_->posns.size(); idx++ )
     {
-	if ( ld_.posns[idx].coord_ == c )
+	if ( ld_->posns[idx].coord_ == c )
 	    { found = true; break; }
     }
     if ( !found ) return false;
 
-    return mIsUdf(z) ? true : z < zrg_.stop+mZrgEps;
+    return mIsUdf(z) ? true : z < zrg_.stop+mZrgEps
+			   && z < ld_->zrg.stop+mZrgEps;
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.42 2008-02-13 05:05:56 cvsnanne Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.43 2008-03-12 09:48:03 cvsbert Exp $
 
 ________________________________________________________________________
 
@@ -45,7 +45,7 @@ ________________________________________________________________________
 #include "uiseissel.h"
 #include "uiseisioobjinfo.h"
 #include "seis2dline.h"
-#include "segposinfo.h"
+#include "posinfo.h"
 #include "ptrman.h"
 
 using namespace Attrib;

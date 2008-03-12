@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.36 2008-02-21 11:12:17 cvsnanne Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.37 2008-03-12 09:48:04 cvsbert Exp $
  ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@
 #include "iopar.h"
 #include "ptrman.h"
 #include "samplfunc.h"
-#include "segposinfo.h"
+#include "posinfo.h"
 #include "seisinfo.h"
 #include "survinfo.h"
 #include "zaxistransform.h"

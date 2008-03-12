@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.231 2008-03-11 13:36:47 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.232 2008-03-12 09:48:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "odsession.h"
 #include "ptrman.h"
-#include "segposinfo.h"
+#include "posinfo.h"
 
 #include "uimsg.h"
 #include "uifontsel.h"

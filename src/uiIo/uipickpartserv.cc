@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.50 2008-01-21 04:13:19 cvsraman Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.51 2008-03-12 09:48:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "ioobj.h"
 #include "survinfo.h"
+#include "posinfo.h"
 #include "statrand.h"
 #include "ptrman.h"
 
