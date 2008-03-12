@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.76 2008-03-12 10:26:04 cvsbert Exp $
+ RCS:           $Id: attribengman.cc,v 1.77 2008-03-12 10:26:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ ________________________________________________________________________
 #include "nladesign.h"
 #include "nlamodel.h"
 #include "ptrman.h"
-#include "posinfo.h"
+#include "linesetposinfo.h"
 #include "seis2dline.h"
 #include "separstr.h"
 #include "survinfo.h"
