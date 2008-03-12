@@ -4,37 +4,39 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiattribcrossplot.cc,v 1.20 2008-03-10 16:35:02 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.21 2008-03-12 21:59:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiattribcrossplot.h"
-#include "uidatapointset.h"
-#include "seisioobjinfo.h"
-#include "attribsel.h"
-#include "datacoldef.h"
-#include "datapointset.h"
-#include "posprovider.h"
-#include "posfilterset.h"
-#include "posvecdataset.h"
+
 #include "attribdesc.h"
 #include "attribdescset.h"
 #include "attribengman.h"
+#include "attribsel.h"
 #include "attribstorprovider.h"
-#include "keystrs.h"
+#include "datacoldef.h"
+#include "datapointset.h"
 #include "executor.h"
-#include "ioobj.h"
 #include "ioman.h"
+#include "ioobj.h"
 #include "iopar.h"
+#include "keystrs.h"
+#include "posprovider.h"
+#include "posfilterset.h"
+#include "posvecdataset.h"
+#include "seisioobjinfo.h"
 
-#include "uimsg.h"
-#include "uilistbox.h"
-#include "uitaskrunner.h"
+#include "uicursor.h"
+#include "uidatapointset.h"
 #include "uiioobjsel.h"
+#include "uilistbox.h"
+#include "uimsg.h"
 #include "uiposdataedit.h"
-#include "uiposprovider.h"
 #include "uiposfilterset.h"
+#include "uiposprovider.h"
+#include "uitaskrunner.h"
 
 using namespace Attrib;
 
@@ -147,11 +149,13 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     if ( dcds.isEmpty() )
 	mErrRet("Please select at least one attribute to evaluate")
 
+    uiCursor::setOverride( uiCursor::Wait );
     IOPar iop; posfiltfld_->fillPar( iop );
     Pos::Filter* filt = Pos::Filter::make( iop, prov->is2D() );
-    if ( !filt->initialize( &tr ) )
+    if ( filt && !filt->initialize(&tr) )
 	return false;
 
+    uiCursor::restoreOverride();
     dps = new DataPointSet( *prov, dcds, filt );
     if ( dps->size() < 1 )
 	mErrRet("No positions selected")
