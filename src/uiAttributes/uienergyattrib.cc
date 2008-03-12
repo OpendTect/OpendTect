@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uienergyattrib.cc,v 1.10 2007-10-12 09:12:19 cvssulochana Exp $
+ RCS:		$Id: uienergyattrib.cc,v 1.11 2008-03-12 10:44:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,8 +42,11 @@ uiEnergyAttrib::uiEnergyAttrib( uiParent* p, bool is2d )
     gatefld_ = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
     gatefld_->attach( alignedBelow, inpfld_ );
 
+    gradientfld_ = new uiGenInput( this, "compute gradient", BoolInpSpec(true));
+    gradientfld_->attach( alignedBelow, gatefld_ );
+
     outpfld_ = new uiGenInput( this, "Output", StringListInpSpec(outpstrs) );
-    outpfld_->attach( alignedBelow, gatefld_ );
+    outpfld_->attach( alignedBelow, gradientfld_ );
     setHAlignObj( gatefld_ );
 }
 
@@ -54,6 +57,7 @@ bool uiEnergyAttrib::setParameters( const Desc& desc )
 	return false;
 
     mIfGetFloatInterval( Energy::gateStr(), gate, gatefld_->setValue(gate) );
+    mIfGetBool( Energy::dogradStr(), dograd, gradientfld_->setValue(dograd) );
     return true;
 }
 
@@ -78,6 +82,7 @@ bool uiEnergyAttrib::getParameters( Desc& desc )
 	return false;
 
     mSetFloatInterval( Energy::gateStr(), gatefld_->getFInterval() );
+    mSetBool( Energy::dogradStr(), gradientfld_->getBoolValue() );
     return true;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uienergyattrib.h,v 1.6 2006-12-20 11:23:00 cvshelene Exp $
+ RCS:           $Id: uienergyattrib.h,v 1.7 2008-03-12 10:44:08 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ protected:
 
     uiAttrSel*		inpfld_;
     uiGenInput*		gatefld_;
+    uiGenInput*		gradientfld_;
     uiGenInput*         outpfld_;
 
     bool		setParameters(const Attrib::Desc&);
