@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposfilterset.cc,v 1.6 2008-02-28 10:05:16 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposfilterset.cc,v 1.7 2008-03-12 22:00:13 cvsnanne Exp $";
 
 #include "uiposfilterset.h"
 #include "posfilterset.h"
@@ -23,9 +23,10 @@ static const char* rcsID = "$Id: uiposfilterset.cc,v 1.6 2008-02-28 10:05:16 cvs
 
 
 uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
-	: uiGroup(p,"uiPosFilterSet")
-	, setup_(su)
-	, selfld_(0)
+    : uiGroup(p,"uiPosFilterSet")
+    , setup_(su)
+    , selfld_(0)
+    , ynfld_(0)
 {
     BufferStringSet nms;
 
@@ -80,7 +81,9 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
     {
 	uiLabel* lbl2 = new uiLabel( this, nms.get(0) );
 	uiLabel* lbl1 = new uiLabel( this, "Filter: ", lbl2 );
-	attobj = lbl2;
+	ynfld_ = new uiGenInput( this, "Use", BoolInpSpec(false) );
+	ynfld_->attach( alignedBelow, lbl2 );
+	attobj = ynfld_->attachObj();
     }
     else
     {
@@ -90,24 +93,15 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 	int ph = nms.size()-1; if ( ph > 9 ) ph = 9;
 	selfld_->setPrefHeightInChar( ph );
 	attobj = selfld_;
+	for ( int idx=0; idx<nms.size(); idx++ )
+	    selfld_->setItemChecked( idx, false );
     }
 
-    ynfld_ = new uiGenInput( this, "Use", BoolInpSpec(false) );
-    ynfld_->attach( alignedBelow, attobj );
-    ynfld_->valuechanged.notify( mCB(this,uiPosFilterSet,ynChg) );
-
     for ( int idx=0; idx<grps_.size(); idx++ )
-	grps_[idx]->attach( alignedBelow, ynfld_ );
+	grps_[idx]->attach( alignedBelow, attobj );
 
     setHAlignObj( grps_[0] );
     mainwin()->finaliseDone.notify( selcb );
-}
-
-
-void uiPosFilterSet::ynChg( CallBacker* )
-{
-    issel_[selIdx()] = ynfld_->getBoolValue();
-    selChg( 0 );
 }
 
 
@@ -117,10 +111,7 @@ void uiPosFilterSet::selChg( CallBacker* cb )
 
     const int selidx = selIdx();
     for ( int idx=0; idx<grps_.size(); idx++ )
-	grps_[idx]->display( idx == selidx && issel_[idx] );
-
-    if ( cb )
-	ynfld_->setValue( issel_[selidx] );
+	grps_[idx]->display( idx == selidx );
 }
 
 
@@ -152,6 +143,13 @@ void uiPosFilterSet::usePar( const IOPar& iop )
 	    }
 	}
     }
+
+    if ( ynfld_ ) ynfld_->setValue( issel_[0] );
+    else
+    {
+	for ( int idx=0; idx<issel_.size(); idx++ )
+	    selfld_->setItemChecked( idx, issel_[idx] );
+    }
     selChg( this );
 }
 
@@ -165,7 +163,9 @@ bool uiPosFilterSet::fillPar( IOPar& iop ) const
     int ipar = 0;
     for ( int igrp=0; igrp<grps_.size(); igrp++ )
     {
-	if ( !issel_[igrp] ) continue;
+	if ( (ynfld_ && !ynfld_->getBoolValue()) || 
+	     (selfld_ && !selfld_->isItemChecked(igrp) ) )
+	    continue;
 
 	const BufferString keybase( IOPar::compKey(sKey::Filter,ipar) );
 	IOPar subiop;

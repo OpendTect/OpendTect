@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposfilterset.h,v 1.2 2008-02-27 17:27:24 cvsbert Exp $
+ RCS:           $Id: uiposfilterset.h,v 1.3 2008-03-12 22:00:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,6 @@ protected:
     ObjectSet<uiPosFiltGroup>	grps_;
     uiListBox*			selfld_;
 
-    void			ynChg(CallBacker*);
     void			selChg(CallBacker*);
     int				selIdx() const;
 };
