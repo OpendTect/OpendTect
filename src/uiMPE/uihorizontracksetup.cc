@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uihorizontracksetup.cc,v 1.16 2008-03-10 15:40:58 cvsjaap Exp $
+ RCS:           $Id: uihorizontracksetup.cc,v 1.17 2008-03-12 09:18:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,8 +78,9 @@ uiHorizonSetupGroup::uiHorizonSetupGroup( uiParent* p,
     uiGroup* simigrp = createSimiGroup();
     tabgrp_->addTab( simigrp, "Similarity" );
 
-    uiGroup* autogrp = createAutoGroup();
-    tabgrp_->addTab( autogrp, "Autotrack" );
+    autogrp_ = createAutoGroup();
+    tabgrp_->addTab( autogrp_, "Autotrack" );
+    inwizard_ = p && !strncmp(p->name(),"Page",4);
 }
 
 
@@ -144,8 +145,8 @@ uiGroup* uiHorizonSetupGroup::createAutoGroup()
 {
     uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Autotrack" );
     
-    seedonlypropfld = new uiGenInput( grp, "Propagate from seed nodes only",
-				      BoolInpSpec(false,"Yes","No") );
+    startpropfld = new uiGenInput( grp, "Start propagation from",
+		   BoolInpSpec(true,"all boundary nodes","seed nodes only") );
     return grp;
 }
 
@@ -244,7 +245,11 @@ void uiHorizonSetupGroup::initSimiGroup()
 
 void uiHorizonSetupGroup::initAutoGroup()
 {
-    seedonlypropfld->setValue( sectiontracker_->propagatingFromSeedOnly() );
+    startpropfld->setValue( !sectiontracker_->propagatingFromSeedOnly() );
+    
+    const bool is2d = sectiontracker_ && sectiontracker_->adjuster() &&
+		      sectiontracker_->adjuster()->is2D();
+    tabgrp_->setTabEnabled( autogrp_, !is2d && !inwizard_ ); 
 }
 
 
@@ -355,7 +360,7 @@ bool uiHorizonSetupGroup::commitToTracker( bool& fieldchange ) const
 	horadj_->removeOnFailure( rmonfail );
     }
 
-    const bool seedonlyprop = seedonlypropfld->getBoolValue();
+    const bool seedonlyprop = !startpropfld->getBoolValue();
     if ( sectiontracker_->propagatingFromSeedOnly() != seedonlyprop )    
     {
 	fieldchange = true;

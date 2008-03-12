@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2005
- RCS:           $Id: uihorizontracksetup.h,v 1.8 2008-03-10 15:40:58 cvsjaap Exp $
+ RCS:           $Id: uihorizontracksetup.h,v 1.9 2008-03-12 09:18:44 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ protected:
     void			selEventType(CallBacker*);
 
     uiTabStack*			tabgrp_;
+    uiGroup*			autogrp_;
     uiAttrSel*			inpfld;
     uiGenInput*			usesimifld;
     uiGenInput*			thresholdtypefld;
@@ -70,9 +71,11 @@ protected:
     uiGenInput*			simithresholdfld;
     uiGenInput*			compwinfld;
     uiGenInput*			extriffailfld;
-    uiGenInput*			seedonlypropfld;
+    uiGenInput*			startpropfld;
     uiGroup*			maingrp;
     uiPushButton*		applybut;
+
+    bool			inwizard_;
 
     const Attrib::DescSet*	attrset_;
     SectionTracker*		sectiontracker_;
