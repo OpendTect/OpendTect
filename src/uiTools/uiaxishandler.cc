@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.cc,v 1.2 2008-03-06 18:25:29 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.cc,v 1.3 2008-03-12 08:35:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ void uiAxisHandler::reCalc()
     if ( fsteps > 100 )
     	rg_.step /= (fsteps / 100);
 
-    BufferString str; str = rg_.start;
+    BufferString str; str = rg_.start; strs_.add( str );
     pos_ += 0;
     const uiFont& font = uiFontList::get();
     wdthx_ = font.width( str );
