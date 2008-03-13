@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.9 2008-01-10 11:16:13 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.10 2008-03-13 11:28:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ public :
 	mDefSetupMemb(LineKey,linekey)
 
     };
-			uiSeisBrowser(uiParent*,const Setup&);
+			uiSeisBrowser(uiParent*,const Setup&,bool);
 			~uiSeisBrowser();
 
     bool		isOK() const			{ return tbl_; }
@@ -66,6 +66,7 @@ public :
     int			stepOut()			{ return stepout_; }
     void		setStepout(int);
     bool		is2D() const;
+    bool 		is2d_;
 
     const BinID&	curBinID() const;
     const float		curZ() const;
