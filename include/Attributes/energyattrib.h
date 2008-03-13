@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: energyattrib.h,v 1.11 2008-03-12 10:45:03 cvshelene Exp $
+ RCS:           $Id: energyattrib.h,v 1.12 2008-03-13 16:16:26 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,8 +60,11 @@ protected:
 
     const Interval<float>* reqZMargin(int input,int output) const
     			   { return &gate_; }
+    const Interval<int>* desZSampMargin(int input,int output) const
+    			   { return &dessampgate_; }
     
     Interval<float>	gate_;
+    Interval<int>	dessampgate_;
     bool		dograd_;
     int			dataidx_;
     const DataHolder*	inputdata_;

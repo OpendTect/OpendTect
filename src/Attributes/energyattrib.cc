@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.26 2008-03-12 10:45:03 cvshelene Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.27 2008-03-13 16:16:26 cvshelene Exp $";
 
 #include "energyattrib.h"
 
@@ -45,12 +45,15 @@ void Energy::initClass()
 
 Energy::Energy( Desc& ds )
     : Provider(ds)
+    , dessampgate_(0,0)
 {
     if ( !isOK() ) return;
 
     mGetBool( dograd_, dogradStr() );
     mGetFloatInterval( gate_, gateStr() );
     gate_.scale( 1/zFactor() );
+    if ( dograd_ )
+	dessampgate_ = Interval<int>(-1,1);
 }
 
 
@@ -104,12 +107,43 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
 	{
 	    if ( !isOutputEnabled(ido) ) continue;
 	    float prevval = mUdf(float);
-	    for ( int idx=0; idx<stopidx; idx++ )
+	    for ( int idx=0; idx<output.nrsamples_; idx++ )
 	    {
 		const float curval = output.series(ido)->value(idx);
-		float nextval = idx<stopidx-1 ? output.series(ido)->value(idx+1)
-		    			      : mUdf(float);
+		float nextval = idx < output.nrsamples_-1
+		    		? output.series(ido)->value(idx+1): mUdf(float);
 		float gradval;
+		if ( mIsUdf(prevval) && mIsUdf(nextval) )
+		{
+		    const bool xtratops = inputdata_->z0_<(z0+samplegate.start);
+		    const bool xtrabots = inputdata_->z0_+inputdata_->nrsamples_
+					    >(z0+nrsamples+samplegate.stop);
+		    if ( nrsamples == 1 && ( xtratops || xtrabots) )
+		    {
+			wcalc.clear();
+			const int startidx = xtratops ? samplegate.start-1
+						      : samplegate.start;
+			const int lastidx = sz + (xtratops ? 1 : 0)
+			    		       + (xtrabots ? 1 : 0);
+			for ( int idx=0; idx<lastidx; idx++ )
+			{
+			    wcalc += getInputValue( *inputdata_, dataidx_,
+						    startidx+idx, z0 );
+			    if ( idx<sz-1 ) continue;
+			    float enval = wcalc.sqSum() / sz;
+			    if ( ido==1 )
+				enval = Math::Sqrt(enval);
+			    else if ( ido==2 )
+				enval = Math::Log(enval);
+
+			    if ( idx==sz-1 && xtratops )
+				prevval = enval; 
+			    else if ( (idx==sz+1) || ( idx==sz && !xtratops) )
+				nextval = enval;
+			}
+		    }
+		}
+		
 		if ( mIsUdf(prevval) )
 		{
 		    if ( mIsUdf(nextval) )
@@ -127,7 +161,6 @@ bool Energy::computeData( const DataHolder& output, const BinID& relpos,
 	    }
 	}
     }
-    //TODO : case 1 sample [horizon, pickset]
 
     return true;
 }
