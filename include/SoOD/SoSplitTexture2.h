@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Dec 2006
- RCS:           $Id: SoSplitTexture2.h,v 1.6 2007-12-31 17:49:12 cvskris Exp $
+ RCS:           $Id: SoSplitTexture2.h,v 1.7 2008-03-14 14:03:03 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -27,6 +27,7 @@ class SoFieldSensor;
 class SoSensor;
 class SoGLImage;
 class SoState;
+class SoElement;
 
 /*!Adds a texture to the scene. The texture is however not sent to OpenGL,
    but is put on the state. Multiple SoSplitTexture2Part can then fetch
@@ -88,7 +89,8 @@ protected:
     SbPList			imagedata_;
 
     SoFieldSensor*	originsensor_;
-    bool		needregeenration_;
+    bool		needregenration_;
+    SoElement*		matchinfo_;
 };
 
 #endif

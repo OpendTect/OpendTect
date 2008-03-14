@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2006
- RCS:           $Id: SoSplitTexture2.cc,v 1.10 2008-01-03 19:24:19 cvskris Exp $
+ RCS:           $Id: SoSplitTexture2.cc,v 1.11 2008-03-14 14:03:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,9 @@ void SoSplitTexture2::GLRender( SoGLRenderAction* action )
     SoState* state = action->getState();
     const int unit = SoTextureUnitElement::get( state );
     SoSplitTexture2Element::set( state, this, unit, sz, nrcomp, values );
+    SoCacheElement::setInvalid( true );
+    if ( state->isCacheOpen() )
+	SoCacheElement::invalidate(state);
 
 }
 
@@ -95,7 +98,8 @@ void SoSplitTexture2Part::initClass()
 
 
 SoSplitTexture2Part::SoSplitTexture2Part()
-    : needregeenration_( true )
+    : needregenration_( true )
+    , matchinfo_( 0 )
 {
     SO_NODE_CONSTRUCTOR( SoSplitTexture2Part );
     SO_NODE_ADD_FIELD( origin, (SbVec2i32(0,0) ) );
@@ -111,12 +115,14 @@ SoSplitTexture2Part::~SoSplitTexture2Part()
 {
     removeImageData();
     delete originsensor_;
+    delete matchinfo_;
 }
+
 
 void SoSplitTexture2Part::fieldChangeCB( void* data, SoSensor* )
 {
     SoSplitTexture2Part* ptr = (SoSplitTexture2Part*) data;
-    ptr->needregeenration_ = true;
+    ptr->needregenration_ = true;
 }
 
 
@@ -125,10 +131,16 @@ void SoSplitTexture2Part::fieldChangeCB( void* data, SoSensor* )
 
 void SoSplitTexture2Part::GLRender( SoGLRenderAction* action )
 {
-    if ( needregeenration_ )
-	removeImageData();
-
     SoState* state = action->getState();
+    const SoElement* splitelem = state->getConstElement(
+	    SoSplitTexture2Element::getClassStackIndex() );
+
+    if ( !needregenration_ && matchinfo_ && splitelem && 
+	 !splitelem->matches(matchinfo_) )
+	needregenration_ = true;
+	
+    if ( needregenration_ )
+	removeImageData();
 
     if ( SoTextureOverrideElement::getImageOverride(state) )
 	return;
@@ -138,7 +150,7 @@ void SoSplitTexture2Part::GLRender( SoGLRenderAction* action )
     for ( int idx=textureunits.getNum()-1; idx>=0; idx-- )
 	GLRenderUnit( textureunits[idx], state );
 
-    if ( needregeenration_ )
+    if ( needregenration_ )
     {
 	SoCacheElement::setInvalid( true );
 	if ( state->isCacheOpen() )
@@ -147,8 +159,8 @@ void SoSplitTexture2Part::GLRender( SoGLRenderAction* action )
 
     SoTextureUnitElement::set( state, this, prevunit );
 
-    needregeenration_ = false;
-
+    needregenration_ = false;
+    delete matchinfo_; matchinfo_ = splitelem->copyMatchInfo();
 }
 
 
@@ -180,8 +192,8 @@ void SoSplitTexture2Part::GLRenderUnit( int unit, SoState* state )
 
     SbVec2s sourcesize;
     int numcomponents;
-    const unsigned char* sourcedata = SoSplitTexture2Element::get( state, unit,
-	    sourcesize, numcomponents );
+    const unsigned char* sourcedata =
+	SoSplitTexture2Element::get( state, unit, sourcesize, numcomponents );
 
     if ( !sourcedata )
 	return;
@@ -202,13 +214,13 @@ void SoSplitTexture2Part::GLRenderUnit( int unit, SoState* state )
 	if ( !imagedata->imagedata_ )
 	    return;
 
-	needregeenration_ = true;
+	needregenration_ = true;
     }
 
     const float quality = SoTextureQualityElement::get(state);
     SoTextureUnitElement::set( state, this, unit );
 
-    if ( needregeenration_ )
+    if ( needregenration_ )
     {
 	for ( int idx=0; idx<sz[mSlowDim]; idx++ )
 	{
@@ -268,7 +280,7 @@ void SoSplitTexture2Part::GLRenderUnit( int unit, SoState* state )
 					   imagedata->glimage_, glmodel,
 					   SbColor(1,1,1) );
 	SoGLMultiTextureEnabledElement::set( state, this, unit,
-				!needregeenration_ && quality > 0.0f);
+				!needregenration_ && quality > 0.0f);
 	if ( !unit && isOverride() )
 	    SoTextureOverrideElement::setImageOverride( state, true );
     }
