@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.11 2008-03-14 09:30:55 cvsbert Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.12 2008-03-14 12:16:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ public :
 	mDefSetupMemb(LineKey,linekey)
 
     };
-			uiSeisBrowser(uiParent*,const Setup&);
+			uiSeisBrowser(uiParent*,const Setup&,bool);
 			~uiSeisBrowser();
 
     bool		isOK() const			{ return tbl_; }
