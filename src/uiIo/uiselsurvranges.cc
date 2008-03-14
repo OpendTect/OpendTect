@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiselsurvranges.cc,v 1.6 2008-03-10 16:34:32 cvsbert Exp $
+ RCS:           $Id: uiselsurvranges.cc,v 1.7 2008-03-14 09:32:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,8 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 			       : "Number range selection"))
 	, stepfld_(0)
 	, defstep_(1)
+	, icstopfld_(0)
+	, nrstopfld_(0)
 {
     const CallBack cb( mCB(this,uiSelNrRange,valChg) );
     StepInterval<int> rg( 1, mUdf(int), 1 );
