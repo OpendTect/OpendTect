@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.16 2008-01-31 10:43:27 cvsnanne Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.17 2008-03-14 14:35:45 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ___________________________________________________________________
 
 #include "uibinidtable.h"
 #include "uibutton.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uidialog.h"
 #include "uiempartserv.h"
 #include "uiioobjsel.h"
@@ -119,7 +119,7 @@ bool uiODRandomLineParentTreeItem::load()
 	lockgeom = !cb->isChecked();
     }
 
-    uiCursorChanger cursorchgr( uiCursor::Wait );
+    MouseCursorChanger cursorchgr( MouseCursor::Wait );
     for ( int idx=0; idx<selitms.size(); idx++ )
     {
 	uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem(-1);

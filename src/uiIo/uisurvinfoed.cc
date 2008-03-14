@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.91 2007-10-25 15:17:19 cvssatyaki Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.92 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uicombobox.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uifiledlg.h"
 #include "uigeninput.h"
 #include "uigroup.h"
@@ -400,9 +400,9 @@ bool uiSurveyInfoEditor::copySurv( const char* inpath, const char* indirnm,
 	uiMSG().error( msg );
 	return false;
     }
-    uiCursor::setOverride( uiCursor::Wait );
+    MouseCursorManager::setOverride( MouseCursor::Wait );
     File_copy( fnmin, fnmout, YES );
-    uiCursor::restoreOverride();
+    MouseCursorManager::restoreOverride();
     if ( !File_exists(fnmout) )
     {
 	BufferString msg( "Copy " ); msg += fnmin;

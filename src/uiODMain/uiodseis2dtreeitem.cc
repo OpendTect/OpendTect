@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.37 2008-03-12 09:48:03 cvsbert Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.38 2008-03-14 14:35:45 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ___________________________________________________________________
 
 #include "uiattribpartserv.h"
 #include "uiattr2dsel.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
 #include "uimenu.h"
@@ -155,7 +155,7 @@ void uiOD2DLineSetTreeItem::selectAddLines()
     BufferStringSet linenames;
     applMgr()->seisServer()->select2DLines( setid_, linenames );
 
-    uiCursorChanger cursorchgr( uiCursor::Wait );
+    MouseCursorChanger cursorchgr( MouseCursor::Wait );
     for ( int idx=linenames.size()-1; idx>=0; idx-- )
 	addChild( new uiOD2DLineSetSubItem(linenames.get(idx)), false );
 }
@@ -789,7 +789,7 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
     Attrib::SelSpec myas;
     if ( storeditm_.itemIndex(mnuid)!=-1 )
     {
-	uiCursorChanger cursorchgr( uiCursor::Wait );
+	MouseCursorChanger cursorchgr( MouseCursor::Wait );
 	menu->setIsHandled(true);
 	displayStoredData( storeditm_.findItem(mnuid)->text );
     }
@@ -800,7 +800,7 @@ void uiOD2DLineSetAttribItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==attrnoneitm_.id )
     {
-	uiCursorChanger cursorchgr( uiCursor::Wait );
+	MouseCursorChanger cursorchgr( MouseCursor::Wait );
 	menu->setIsHandled(true);
 	clearAttrib();
     }
@@ -836,7 +836,7 @@ bool uiOD2DLineSetAttribItem::displayStoredData( const char* attribnm )
     if ( dpid < 0 )
 	return false;
 
-    uiCursorChanger cursorchgr( uiCursor::Wait );
+    MouseCursorChanger cursorchgr( MouseCursor::Wait );
     s2d->setSelSpec( attribNr(), myas );
     s2d->setDataPackID( attribNr(), dpid );
 

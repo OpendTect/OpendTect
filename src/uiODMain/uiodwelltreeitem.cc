@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodwelltreeitem.cc,v 1.18 2007-11-14 09:16:40 cvsbert Exp $
+ RCS:		$Id: uiodwelltreeitem.cc,v 1.19 2008-03-14 14:35:45 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ ___________________________________________________________________
 #include "uiwellattribpartserv.h"
 #include "uiwellpartserv.h"
 #include "uiwellpropdlg.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 
 #include "viswelldisplay.h"
 
@@ -361,7 +361,7 @@ void uiODWellTreeItem::handleMenuCB( CallBacker* cb )
 	wd->setupPicking( !yn );
 	if ( !yn )
 	{
-	    uiCursorChanger cursorchgr( uiCursor::Wait );
+	    MouseCursorChanger cursorchgr( MouseCursor::Wait );
 	    wd->showKnownPositions();
 	}
     }

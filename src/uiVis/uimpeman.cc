@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.124 2008-02-14 15:32:03 cvsjaap Exp $
+ RCS:           $Id: uimpeman.cc,v 1.125 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 #include "uicombobox.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uiexecutor.h"
 #include "uimainwin.h"
 #include "uimsg.h"
@@ -381,7 +381,7 @@ void uiMPEMan::seedClick( CallBacker* )
     }
 
     const int currentevent = EM::EMM().undo().currentEventID();
-    uiCursor::setOverride( uiCursor::Wait );
+    MouseCursorManager::setOverride( MouseCursor::Wait );
     emobj->setBurstAlert( true );
     
     const bool ctrlshiftclicked = clickcatcher->info().isCtrlClicked() &&
@@ -401,7 +401,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	seedpicker->addSeed( seedpos, ctrlshiftclicked );
     
     emobj->setBurstAlert( false );
-    uiCursor::restoreOverride();
+    MouseCursorManager::restoreOverride();
     setUndoLevel(currentevent);
     
     if ( !isPickingInWizard() )
@@ -641,7 +641,7 @@ void uiMPEMan::attribSel( CallBacker* )
     if ( trackerisshown && attribfld->currentItem() )
 	loadPostponedData();
 
-    uiCursorChanger cursorchanger( uiCursor::Wait );
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
     if ( !attribfld->currentItem() )
     {
@@ -993,7 +993,7 @@ void uiMPEMan::visObjectLockedCB()
 
 void uiMPEMan::trackForward( CallBacker* )
 {
-    uiCursorChanger cursorlock( uiCursor::Wait );
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
     const int nrsteps = nrstepsbox->getValue();
     mGetDisplays(false)
     const int currentevent = EM::EMM().undo().currentEventID();
@@ -1005,7 +1005,7 @@ void uiMPEMan::trackForward( CallBacker* )
 
 void uiMPEMan::trackBackward( CallBacker* )
 {
-    uiCursorChanger cursorlock( uiCursor::Wait );
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
     const int nrsteps = nrstepsbox->getValue();
     mGetDisplays(false)
     const int currentevent = EM::EMM().undo().currentEventID();
@@ -1027,7 +1027,7 @@ void uiMPEMan::trackInVolume( CallBacker* )
     updateButtonSensitivity();
    
     NotifyStopper selstopper( EM::EMM().undo().changenotifier );
-    uiCursor::setOverride( uiCursor::Wait );
+    MouseCursorManager::setOverride( MouseCursor::Wait );
     PtrMan<Executor> exec = engine().trackInVolume();
     if ( exec )
     {
@@ -1041,7 +1041,7 @@ void uiMPEMan::trackInVolume( CallBacker* )
 	setUndoLevel(currentevent);
     }
 
-    uiCursor::restoreOverride();
+    MouseCursorManager::restoreOverride();
     engine().setTrackMode(tm);
     updateButtonSensitivity();
 }
@@ -1052,11 +1052,11 @@ void uiMPEMan::showTracker( bool yn )
     if ( yn && attribfld->currentItem() ) 
 	loadPostponedData();
 
-    uiCursor::setOverride( uiCursor::Wait );
+    MouseCursorManager::setOverride( MouseCursor::Wait );
     mGetDisplays(true)
     for ( int idx=0; idx<displays.size(); idx++ )
 	displays[idx]->showDragger(yn);
-    uiCursor::restoreOverride();
+    MouseCursorManager::restoreOverride();
     updateButtonSensitivity();
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.65 2008-02-20 19:38:07 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.66 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "sectiontracker.h"
 #include "sectionadjuster.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uiexecutor.h"
 #include "uihorizontracksetup.h"
 #include "uimpewizard.h"
@@ -364,7 +364,7 @@ void uiMPEPartServer::loadAttribData()
     if ( blockdataloading_ || postponedcs_==MPE::engine().activeVolume() )
 	return;
 
-    uiCursorChanger changer( uiCursor::Wait );
+    MouseCursorChanger changer( MouseCursor::Wait );
 
     ObjectSet<const Attrib::SelSpec> attribselspecs;
     MPE::engine().getNeededAttribs(attribselspecs);

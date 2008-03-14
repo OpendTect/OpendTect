@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra / Bert Bril
  Date:		Sep 2005 / Nov 2006
- RCS:		$Id: uichangesurfacedlg.cc,v 1.18 2008-02-13 05:03:37 cvsnanne Exp $
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.19 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uichangesurfacedlg.h"
 
 #include "uiarray2dchg.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uitaskrunner.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -125,7 +125,7 @@ bool uiChangeSurfaceDlg::readHorizon()
 
 bool uiChangeSurfaceDlg::doProcessing()
 {
-    uiCursorChanger chgr( uiCursor::Wait );
+    MouseCursorChanger chgr( MouseCursor::Wait );
     for ( int idx=0; idx<horizon_->geometry().nrSections(); idx++ )
     {
 	EM::SectionID sid = horizon_->geometry().sectionID( idx );

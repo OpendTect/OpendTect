@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.36 2008-01-07 13:07:24 cvsbert Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.37 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uicombobox.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uifileinput.h"
 #include "uilabel.h"
 #include "uimsg.h"
@@ -382,7 +382,7 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     FilePath filepath( fileinputfld_->fileName() );
     dirname_ = filepath.pathOnly();
 
-    uiCursorChanger cursorchanger( uiCursor::Wait );
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
     if ( dovrmlfld_ && dovrmlfld_->getBoolValue() )
     {

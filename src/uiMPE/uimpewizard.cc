@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.81 2007-10-01 10:24:20 cvsnanne Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.82 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uicolor.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uigeninput.h"
 #include "uigroup.h"
 #include "uiioobjsel.h"
@@ -843,9 +843,9 @@ void Wizard::retrackCB( CallBacker* )
 
     EM::EMObject* emobj = EM::EMM().getObject( currentobject );
     emobj->setBurstAlert( true );
-    uiCursor::setOverride( uiCursor::Wait );
+    MouseCursorManager::setOverride( MouseCursor::Wait );
     seedpicker->reTrack();
-    uiCursor::restoreOverride();
+    MouseCursorManager::restoreOverride();
     emobj->setBurstAlert( false );
 
     undo.setUserInteractionEnd( undo.currentEventID() );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.cc,v 1.18 2007-02-22 14:22:59 cvskris Exp $
+ RCS:           $Id: uiwellattribsel.cc,v 1.19 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "welltrack.h"
 
 #include "uiattrsel.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uiexecutor.h"
 #include "uigeninput.h"
 #include "uimsg.h"
@@ -106,7 +106,7 @@ bool uiWellAttribSel::acceptOK( CallBacker* )
     if ( !inputsOK() )
 	return false;
 
-    uiCursorChanger cursor( uiCursor::Wait );
+    MouseCursorChanger cursor( MouseCursor::Wait );
 
     BinIDValueSet bidset( 2, true );
     TypeSet<BinIDValueSet::Pos> positions;

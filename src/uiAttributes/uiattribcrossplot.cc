@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiattribcrossplot.cc,v 1.21 2008-03-12 21:59:42 cvsnanne Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.22 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ ________________________________________________________________________
 #include "posvecdataset.h"
 #include "seisioobjinfo.h"
 
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uidatapointset.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
@@ -149,13 +149,13 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     if ( dcds.isEmpty() )
 	mErrRet("Please select at least one attribute to evaluate")
 
-    uiCursor::setOverride( uiCursor::Wait );
+    MouseCursorManager::setOverride( MouseCursor::Wait );
     IOPar iop; posfiltfld_->fillPar( iop );
     Pos::Filter* filt = Pos::Filter::make( iop, prov->is2D() );
     if ( filt && !filt->initialize(&tr) )
 	return false;
 
-    uiCursor::restoreOverride();
+    MouseCursorManager::restoreOverride();
     dps = new DataPointSet( *prov, dcds, filt );
     if ( dps->size() < 1 )
 	mErrRet("No positions selected")

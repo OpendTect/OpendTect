@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodfaulttreeitem.cc,v 1.1 2008-02-05 22:14:24 cvskris Exp $
+ RCS:		$Id: uiodfaulttreeitem.cc,v 1.2 2008-03-14 14:35:45 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ___________________________________________________________________
 #include "emfault.h"
 #include "emmanager.h"
 
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uiempartserv.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
@@ -48,7 +48,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
     {
 	TypeSet<EM::ObjectID> emids;
 	applMgr()->EMServer()->selectFaults( emids );
-	uiCursorChanger uics( uiCursor::Wait );
+	MouseCursorChanger uics( MouseCursor::Wait );
 	for ( int idx=0; idx<emids.size(); idx++ )
 	{
 	    if ( emids[idx]<0 ) continue;

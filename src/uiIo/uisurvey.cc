@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.84 2007-11-19 21:10:22 cvsyuancheng Exp $
+ RCS:           $Id: uisurvey.cc,v 1.85 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ ________________________________________________________________________
 #include "uisetdatadir.h"
 #include "uitextedit.h"
 #include "uifileinput.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uimain.h"
 #include "uifont.h"
 #include "iodrawtool.h"
@@ -112,7 +112,7 @@ static bool copySurv( const char* from, const char* todirnm, int mb )
 
     const BufferString fromdir = getTrueDir( FilePath(from).fullPath() );
 
-    uiCursorChanger cc( uiCursor::Wait );
+    MouseCursorChanger cc( MouseCursor::Wait );
     if ( !File_copy( fromdir, todir, YES ) )
     {
         uiMSG().error( "Cannot copy the survey data" );
@@ -406,9 +406,9 @@ void uiSurvey::rmButPushed( CallBacker* )
     if ( !uiMSG().askGoOn( msg ) ) return;
 
 
-    uiCursor::setOverride( uiCursor::Wait );
+    MouseCursorManager::setOverride( MouseCursor::Wait );
     bool rmres = File_remove( truedirnm, YES );
-    uiCursor::restoreOverride();
+    MouseCursorManager::restoreOverride();
     if ( !rmres )
     {
         msg = truedirnm; msg += "\nnot removed properly";

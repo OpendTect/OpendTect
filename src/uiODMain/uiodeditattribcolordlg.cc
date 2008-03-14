@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	R. K. Singh
  Date: 		Jan 2008
- RCS:		$Id: uiodeditattribcolordlg.cc,v 1.5 2008-02-14 07:15:39 cvsraman Exp $
+ RCS:		$Id: uiodeditattribcolordlg.cc,v 1.6 2008-03-14 14:35:45 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ___________________________________________________________________
 #include "colortab.h"
 #include "coltabedit.h"
 #include "uibutton.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uiodapplmgr.h"
 #include "uiodattribtreeitem.h"
 #include "uiodscenemgr.h"
@@ -24,7 +24,7 @@ ___________________________________________________________________
 
 uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 						ObjectSet<uiTreeItem>& set,
-       						const char* attrnm )
+						const char* attrnm )
     : uiDialog(p,uiDialog::Setup("Color Settings","",""))
     , items_(set)
     , itemusedineditor_(-1)
@@ -58,7 +58,7 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
     ColorTable ctab = ctabobj->colorSeq().colors();
     ctab.scaleTo( intv );
     coltabed_ = new ColorTableEditor( this, ColorTableEditor::Setup()
-	    			      .editable(true).withclip(true)
+				      .editable(true).withclip(true)
 				      .vertical(true), &ctab );
     coltabed_->setPrefHeight( 400 );
     const bool autoscale = ctabobj->autoScale();
@@ -74,7 +74,7 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 
 void uiODEditAttribColorDlg::doApply( CallBacker* )
 {
-    uiCursorChanger cursorchanger( uiCursor::Wait );
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
     ColorTable coltab = *coltabed_->getColorTable();
     coltab.scaleTo( Interval<float>(0,1) );
     const bool autoscale = coltabed_->autoScale();

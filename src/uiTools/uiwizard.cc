@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uiwizard.cc,v 1.11 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:           $Id: uiwizard.cc,v 1.12 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,7 +13,7 @@ ________________________________________________________________________
 #include "uiwizard.h"
 
 #include "uibutton.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uigroup.h"
 
 uiWizard::uiWizard( uiParent* p, uiDialog::Setup& s_ )
@@ -56,7 +56,7 @@ void uiWizard::displayPage( int idx, bool yn )
 bool uiWizard::acceptOK( CallBacker* )
 {
     const int prevpage = pageidx;
-    uiCursorChanger cursorchanger( uiCursor::Wait );
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
     bool firstpage = pageidx == firstPage();
 
     if ( !leavePage(pageidx,false) )
@@ -87,7 +87,7 @@ bool uiWizard::rejectOK( CallBacker* cb )
 	return true;
     }
 
-    uiCursorChanger cursorchanger( uiCursor::Wait );
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
     if ( !leavePage(pageidx,true) )
 	return false;
 

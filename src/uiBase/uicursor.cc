@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/05/2004
- RCS:           $Id: uicursor.cc,v 1.7 2007-05-03 18:11:44 cvskris Exp $
+ RCS:           $Id: uicursor.cc,v 1.8 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,47 +16,48 @@ ________________________________________________________________________
 #include "qapplication.h"
 
 
-uiCursor::uiCursor( Shape sh )
-    : qcursor_( *new QCursor )
+void uiCursorManager::initClass()
 {
-    setShape( sh );
+    MouseCursorManager::setMgr( new uiCursorManager );
 }
 
-
-uiCursor::uiCursor( const ioPixmap& pm, int hotx, int hoty )
-    : qcursor_( *new QCursor )
-{
-    setPixmap( pm, hotx, hoty );
-}
+uiCursorManager::uiCursorManager()
+{ } 
 
 
-uiCursor::~uiCursor()
-{ delete &qcursor_; }
+uiCursorManager::~uiCursorManager()
+{}
 
 
-void uiCursor::setShape( Shape sh )
+void uiCursorManager::setOverrideShape( MouseCursor::Shape sh, bool replace )
 {
     Qt::CursorShape qshape = (Qt::CursorShape)(int) sh;
-    qcursor_.setShape( qshape );
+    QCursor qcursor;
+    qcursor.setShape( qshape );
+    QApplication::setOverrideCursor( qcursor,  replace );
 }
 
 
-void uiCursor::setPixmap( const ioPixmap& pm, int hotx, int hoty )
+void uiCursorManager::setOverrideFile( const char* fn, int hotx, int hoty,
+				       bool replace )
 {
-    qcursor_ = QCursor( *pm.qpixmap(), hotx, hoty );
+    ioPixmap pixmap( fn );
+    QApplication::setOverrideCursor( QCursor( *pixmap.qpixmap(), hotx, hoty ),
+	    			     replace );
 }
 
 
-void uiCursor::setOverride( const uiCursor& cursor, bool replace )
+void uiCursorManager::setOverrideCursor( const MouseCursor& mc, bool replace )
 {
-    QApplication::setOverrideCursor( cursor.qcursor_,  replace );
+    if ( mc.shape_==MouseCursor::Bitmap )
+	setOverrideFile( mc.filename_, mc.hotx_, mc.hoty_, replace );
+    else
+	setOverrideShape( mc.shape_, replace );
 }
 
 
-void uiCursor::restoreOverride()
+
+void uiCursorManager::restoreInternal()
 {
     QApplication::restoreOverrideCursor();
 }
-
-
-const QCursor& uiCursor::qcursor() const { return qcursor_; }

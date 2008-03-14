@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.26 2007-12-24 05:31:59 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.27 2008-03-14 14:35:45 cvskris Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -17,7 +17,7 @@ static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.26 2007-12-24 05:31:59 cvs
 #include "settings.h"
 #include "viscolortab.h"
 #include "visdataman.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 
 
 static const char* sSetKey = "dTect.Color table.Name";
@@ -112,7 +112,7 @@ void uiVisColTabEd::setPrefWidth( int width )
 void uiVisColTabEd::colTabEdChangedCB( CallBacker* )
 {
     if ( !coltab_ ) return;
-    uiCursorChanger cursorchanger( uiCursor::Wait );
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
     bool seqchange = false;
     bool rangechange = false;

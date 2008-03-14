@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: uimenuhandler.cc,v 1.9 2007-10-22 05:30:41 cvsnanne Exp $
+ RCS:           $Id: uimenuhandler.cc,v 1.10 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uimenuhandler.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uimenu.h"
 
 const int uiMenuHandler::fromTree = 1;
@@ -39,9 +39,9 @@ bool uiMenuHandler::executeMenuInternal()
     
     freeid_ = 0;
     removeItems();
-    uiCursor::setOverride( uiCursor::Wait );
+    MouseCursorManager::setOverride( MouseCursor::Wait );
     createnotifier.trigger();
-    uiCursor::restoreOverride();
+    MouseCursorManager::restoreOverride();
 
     PtrMan<uiPopupMenu> menu = createMenu( getItems() );
     if ( !menu ) return true;

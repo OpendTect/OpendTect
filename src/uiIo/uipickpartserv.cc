@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.51 2008-03-12 09:48:03 cvsbert Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.52 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uipickpartserv.h"
 
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uicreatepicks.h"
 #include "uiimppickset.h"
 #include "uiioobjsel.h"
@@ -169,7 +169,7 @@ bool uiPickPartServer::createRandomSet( bool is2d )
 
 bool uiPickPartServer::mkRandLocs3D( Pick::Set& ps, const RandLocGenPars& rp )
 {
-    uiCursorChanger cursorlock( uiCursor::Wait );
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
 
     Stats::RandGen::init();
     selhs_ = rp.hs_;
@@ -218,7 +218,7 @@ bool uiPickPartServer::mkRandLocs3D( Pick::Set& ps, const RandLocGenPars& rp )
 
 bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
 {
-    uiCursorChanger cursorlock( uiCursor::Wait );
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
 
     Stats::RandGen::init();
     setid_ = setids_[rp.lsetidx_];

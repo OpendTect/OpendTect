@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.185 2008-03-05 20:55:08 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.186 2008-03-14 14:35:45 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -103,6 +103,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     addChild( rectanglepickstyle_->getInventorNode() );
 
     rectangle_->ref();
+    rectangle_->removeSwitch();
     addChild( rectangle_->getInventorNode() );
     material_->setColor( Color::White );
     material_->setAmbience( 0.8 );

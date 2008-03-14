@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.363 2008-02-12 12:06:52 cvsbert Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.364 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ ________________________________________________________________________
 
 #include "uiattribtransdlg.h"
 #include "uicolor.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uifiledlg.h"
 #include "uimaterialdlg.h"
 #include "uimenuhandler.h"
@@ -561,7 +561,7 @@ bool uiVisPartServer::setDataPackID( int id, int attrib, DataPack::ID dpid )
     if ( !so )
 	return false;
 
-    uiCursorChanger cursorlock( uiCursor::Wait );
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
     return so->setDataPackID( attrib, dpid );
 }
 
@@ -581,7 +581,7 @@ bool uiVisPartServer::setCubeData( int id, int attrib,
     if ( !so )
 	return false;
 
-    uiCursorChanger cursorlock( uiCursor::Wait );
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
     return so->setDataVolume( attrib, attribdata );
 }
 
@@ -604,7 +604,7 @@ int uiVisPartServer::nrTextures( int id, int attrib ) const
 
 void uiVisPartServer::selectTexture( int id, int attrib, int textureidx )
 {
-    uiCursorChanger cursorlock( uiCursor::Wait );
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->selectTexture( attrib, textureidx );
 }
@@ -620,7 +620,7 @@ int uiVisPartServer::selectedTexture( int id, int attrib ) const
 void uiVisPartServer::getRandomPos( int id,
 				    ObjectSet<BinIDValueSet>& bivs ) const
 {
-    uiCursorChanger cursorlock( uiCursor::Wait );
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
     visBase::DataObject* dobj = visBase::DM().getObject( id );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->getRandomPos( bivs );
@@ -630,7 +630,7 @@ void uiVisPartServer::getRandomPos( int id,
 void uiVisPartServer::getRandomPosCache( int id, int attrib,
 				    ObjectSet<const BinIDValueSet>& bivs ) const
 {
-    uiCursorChanger cursorlock( uiCursor::Wait );
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
     visBase::DataObject* dobj = visBase::DM().getObject( id );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->getRandomPosCache( attrib, bivs );
@@ -640,7 +640,7 @@ void uiVisPartServer::getRandomPosCache( int id, int attrib,
 void uiVisPartServer::setRandomPosData( int id, int attrib,
 					const ObjectSet<BinIDValueSet>* bp )
 {
-    uiCursorChanger cursorlock( uiCursor::Wait );
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so ) so->setRandomPosData( attrib, bp );
 }
@@ -648,7 +648,7 @@ void uiVisPartServer::setRandomPosData( int id, int attrib,
 
 void uiVisPartServer::getDataTraceBids( int id, TypeSet<BinID>& bids ) const
 {
-    uiCursorChanger cursorlock( uiCursor::Wait );
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so )
 	so->getDataTraceBids( bids );
@@ -664,7 +664,7 @@ Interval<float> uiVisPartServer::getDataTraceRange( int id ) const
 
 void uiVisPartServer::setTraceData( int id, int attrib, SeisTrcBuf& data )
 {
-    uiCursorChanger cursorlock( uiCursor::Wait );
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
     if ( so )
 	so->setTraceData( attrib, data );
@@ -1497,7 +1497,7 @@ void uiVisPartServer::handleMenuCB(CallBacker* cb)
     }
     else if ( resmnuitem_.id!=-1 && resmnuitem_.itemIndex(mnuid)!=-1 )
     {
-	uiCursorChanger cursorlock( uiCursor::Wait );
+	MouseCursorChanger cursorlock( MouseCursor::Wait );
 	so->setResolution( resmnuitem_.itemIndex(mnuid) );
 	menu->setIsHandled( true );
     }

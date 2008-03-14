@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.64 2007-11-14 09:16:40 cvsbert Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.65 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,7 @@ ________________________________________________________________________
 #include "emsurfaceiodata.h"
 #include "survinfo.h"
 #include "uiexecutor.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uigeninputdlg.h"
 #include "uimenu.h"
 #include "uimpe.h"
@@ -55,7 +55,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 
     mDynamicCastGet(const visSurvey::HorizonDisplay*,hordisp,emod);
 
-    uiCursorChanger cursorchanger( uiCursor::Wait );
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
 
     const MultiID mid = emod->getMultiID();
     EM::ObjectID emid = EM::EMM().getObjectID( mid );
@@ -164,7 +164,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, const EM::ObjectID& emid,
     emod->setDisplayTransformation( scene->getUTM2DisplayTransform() );
     emod->setDataTransform( scene->getDataTransform() );
 
-    uiCursorChanger cursorchanger(uiCursor::Wait);
+    MouseCursorChanger cursorchanger(MouseCursor::Wait);
     if ( !emod->setEMObject(emid) ) mRefUnrefRet
 
     visserv_->addObject( emod, sceneid, true );
@@ -282,7 +282,7 @@ const char* uiVisEMObject::getObjectType( int id )
 
 void uiVisEMObject::setDepthAsAttrib( int attrib )
 {
-    uiCursorChanger cursorchanger( uiCursor::Wait );
+    MouseCursorChanger cursorchanger( MouseCursor::Wait );
     mDynamicCastGet( visSurvey::HorizonDisplay*, hordisp, getDisplay() );
     if ( hordisp ) hordisp->setDepthAsAttrib( attrib );
 }

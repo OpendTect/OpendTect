@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2006
- RCS:		$Id: uihorizonrelations.cc,v 1.8 2008-02-06 04:36:34 cvsraman Exp $
+ RCS:		$Id: uihorizonrelations.cc,v 1.9 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uihorizonrelations.h"
 
 #include "uibutton.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uitaskrunner.h"
 #include "uigeninput.h"
 #include "uihorizonsortdlg.h"
@@ -251,13 +251,13 @@ protected:
 
 void uiHorizonRelationsDlg::checkCrossingsCB( CallBacker* )
 {
-    uiCursorChanger chgr( uiCursor::Wait );
+    MouseCursorChanger chgr( MouseCursor::Wait );
 
     HorizonSorter sorter( horids_ );
     sorter.setName( "Check crossings" );
     uiTaskRunner taskrunner( this );
     if ( !taskrunner.execute(sorter) ) return;
-    uiCursor::restoreOverride();
+    MouseCursorManager::restoreOverride();
 
     int count = 0;
     for ( int idx=0; idx<horids_.size(); idx++ )

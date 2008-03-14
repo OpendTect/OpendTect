@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.33 2007-07-19 07:33:05 cvsjaap Exp $
+ RCS:           $Id: uimsg.cc,v 1.34 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uimsg.h"
 
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uimain.h"
 #include "uimainwin.h"
 #include "uistatusbar.h"
@@ -90,7 +90,7 @@ void uiMsg::setNextCaption( const char* s )
 
 
 #define mPrepCursor() \
-    uiCursorChanger cc( uiCursor::Arrow )
+    MouseCursorChanger cc( MouseCursor::Arrow )
 #define mPrepTxt() \
     mPrepCursor(); \
     BufferString msg( text ); if ( p2 ) msg += p2; if ( p3 ) msg += p3

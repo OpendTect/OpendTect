@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uiparent.h,v 1.16 2007-09-28 03:50:14 cvsnanne Exp $
+ RCS:           $Id: uiparent.h,v 1.17 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,13 +15,13 @@ ________________________________________________________________________
 #include "uiobj.h"
 #include "uilayout.h"
 
+class MouseCursor;
 class uiObjHandle;
 class uiObjectBody;
 class uiObject;
 class uiMainWin;
 class Color;
 class uiParentBody;
-class uiCursor;
 
 
 class uiParent : public uiObjHandle
@@ -81,7 +81,7 @@ public:
     const uiFont*	font() const		  { mRetMO(font,0); }
     void		setFont( const uiFont& f) { mIfMO()->setFont(f); }
     void		setCaption(const char* c) { mIfMO()->setCaption(c); }
-    void		setCursor(const uiCursor& c) { mIfMO()->setCursor(c);}
+    void		setCursor(const MouseCursor& c) {mIfMO()->setCursor(c);}
 
     uiSize		actualsize( bool include_border) const
 			{

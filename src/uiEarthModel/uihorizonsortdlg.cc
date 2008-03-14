@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2005
- RCS:		$Id: uihorizonsortdlg.cc,v 1.9 2008-02-06 04:36:34 cvsraman Exp $
+ RCS:		$Id: uihorizonsortdlg.cc,v 1.10 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uihorizonsortdlg.h"
 
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uitaskrunner.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"

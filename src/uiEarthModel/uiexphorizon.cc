@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.51 2008-02-07 13:18:29 cvsbert Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.52 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ ________________________________________________________________________
 #include "strmprov.h"
 #include "survinfo.h"
 #include "keystrs.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uifileinput.h"
 #include "uigeninput.h"
 #include "uiiosurface.h"
@@ -171,7 +171,7 @@ bool uiExportHorizon::writeAscii()
 	if ( !datatask.execute(exgrp) ) return false;
     }
 
-    uiCursorChanger cursorlock( uiCursor::Wait );
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
 
     const float zfac = SI().zIsTime() ? 1000 : 1;
     const int nrattribs = hor->auxdata.nrAuxData();

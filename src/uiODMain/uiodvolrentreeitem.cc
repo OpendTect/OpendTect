@@ -4,14 +4,14 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.19 2007-11-14 09:16:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.20 2008-03-14 14:35:45 cvskris Exp $";
 
 
 #include "uiodvolrentreeitem.h"
 
 #include "uiamplspectrum.h"
 #include "uiattribpartserv.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uilistview.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
@@ -303,7 +303,7 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
 	}
 
 	isshown = true;
-	uiCursorChanger cursorchanger( uiCursor::Wait );
+	MouseCursorChanger cursorchanger( MouseCursor::Wait );
 	addChild( new uiODVolrenSubTreeItem(voldisp->addIsoSurface()), true );
     }
     else if ( uiODAttribTreeItem::handleSelMenu( mnuid, displayID(), 0 ) )

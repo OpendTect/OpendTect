@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.53 2008-02-26 06:20:20 cvsnanne Exp $
+ RCS:           $Id: uiobj.h,v 1.54 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,8 +20,8 @@ ________________________________________________________________________
 
 #include <stdlib.h>
 
+class MouseCursor;
 class uiFont;
-class uiCursor;
 class uiObjectBody;
 class uiParent;
 class uiGroup;
@@ -76,7 +76,7 @@ public:
     void		setFocus();
     bool		hasFocus() const;
 
-    void		setCursor(const uiCursor&);
+    void		setCursor(const MouseCursor&);
 
     const Color&	backgroundColor() const;
     void                setBackgroundColor(const Color&);

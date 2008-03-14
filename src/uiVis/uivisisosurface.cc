@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2006
- RCS:		$Id: uivisisosurface.cc,v 1.6 2007-09-12 16:59:04 cvskris Exp $
+ RCS:		$Id: uivisisosurface.cc,v 1.7 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "iodrawtool.h"
 #include "mouseevent.h"
 #include "uicanvas.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uigeninput.h"
 #include "uihistogramdisplay.h"
 #include "uibutton.h"
@@ -148,7 +148,7 @@ void uiVisIsoSurfaceThresholdDlg::handleClick( CallBacker* cb, bool isdouble )
 
 void uiVisIsoSurfaceThresholdDlg::updateIsoDisplay( float nv )
 {
-    uiCursorChanger changer( uiCursor::Wait );
+    MouseCursorChanger changer( MouseCursor::Wait );
     vd_->setIsoValue( isosurfacedisplay_, nv );
     histogramdisplay_->update();
 }

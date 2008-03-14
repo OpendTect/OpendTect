@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.94 2008-03-04 11:59:08 cvsbert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.95 2008-03-14 14:35:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "oddatadirmanip.h"
 #include "uiattribpartserv.h"
 #include "uicmain.h"
-#include "uicursor.h"
+#include "mousecursor.h"
 #include "uidockwin.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -59,6 +59,7 @@ ________________________________________________________________________
 #include "initprestackprocessing.h"
 #include "initseis.h"
 #include "initsood.h"
+#include "inituibase.h"
 #include "inituiio.h"
 #include "inituiattributes.h"
 #include "inituiearthmodel.h"
@@ -107,6 +108,7 @@ static void initNonUiStdClasses()
 
 static void initUiStdClasses()
 {
+    uiBase::initStdClasses();
     uiIo::initStdClasses();
     uiAttributes::initStdClasses();
     uiEarthModel::initStdClasses();
@@ -514,7 +516,7 @@ bool uiODMain::updateSession()
 
 void uiODMain::doRestoreSession()
 {
-    uiCursor::setOverride( uiCursor(uiCursor::Wait) );
+    MouseCursorManager::setOverride( MouseCursor::Wait );
     sceneMgr().cleanUp( false );
     applMgr().resetServers();
     restoringsess_ = true;
@@ -535,15 +537,15 @@ void uiODMain::doRestoreSession()
 	applMgr().visServer()->calculateAllAttribs();
     else
     {
-	uiCursor::restoreOverride();
+	MouseCursorManager::restoreOverride();
 	uiMSG().error( "An error occurred while reading session file.\n"
 		       "A new scene will be launched" );	
-	uiCursor::setOverride( uiCursor(uiCursor::Wait) );
+	MouseCursorManager::setOverride( MouseCursor::Wait );
 	sceneMgr().cleanUp( true );
     }
 
     restoringsess_ = false;
-    uiCursor::restoreOverride();
+    MouseCursorManager::restoreOverride();
 }
 
 
