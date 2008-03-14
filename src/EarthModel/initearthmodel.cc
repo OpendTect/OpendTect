@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki	
  Date:          December 2007
- RCS:           $Id: initearthmodel.cc,v 1.2 2008-02-27 11:06:10 cvsbert Exp $
+ RCS:           $Id: initearthmodel.cc,v 1.3 2008-03-14 09:32:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,5 +30,6 @@ void EarthModel::initStdClasses()
     EM::HorizonZTransform::initClass();
     EM::MarchingCubesSurface::initClass();
     Pos::EMSurfaceProvider3D::initClass();
+    Pos::EMSurfaceProvider2D::initClass();
 }
 
