@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoSplitTexture2Element.h,v 1.3 2007-11-20 10:33:47 cvskris Exp $
+ RCS:		$Id: SoSplitTexture2Element.h,v 1.4 2008-03-14 14:02:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,7 @@ public:
 				    const int numcomponents,
 				    const unsigned char* bytes);
 
-    static const unsigned char*	get(const SoState*, int unit, SbVec2s& size,
+    static const unsigned char*	get(SoState*, int unit, SbVec2s& size,
 				    int& numcomponents);
 	
     static void			initClass();

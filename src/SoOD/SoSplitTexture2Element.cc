@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          November 2007
- RCS:           $Id: SoSplitTexture2Element.cc,v 1.2 2007-11-19 22:47:20 cvskris Exp $
+ RCS:           $Id: SoSplitTexture2Element.cc,v 1.3 2008-03-14 14:02:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,8 @@ void SoSplitTexture2Element::set( SoState* const state, SoNode* node,
 				  const unsigned char* bytes )
 {
     SoSplitTexture2Element * elem =
-	(SoSplitTexture2Element *) state->getElement(classStackIndex);
+	(SoSplitTexture2Element *) getElement( state, classStackIndex, node );
+
     if ( elem )
 	elem->setElt(unit, size, numcomponents, bytes );
 }
@@ -52,11 +53,11 @@ void SoSplitTexture2Element::setElt( int unit, const SbVec2s & size,
 }
 
 
-const unsigned char* SoSplitTexture2Element::get( const SoState* state,
+const unsigned char* SoSplitTexture2Element::get( SoState* state,
 	int unit, SbVec2s& size, int& numcomponents )
 {
-    SoSplitTexture2Element * elem =
-	(SoSplitTexture2Element*) state->getConstElement(classStackIndex);
+    const SoSplitTexture2Element* elem = (SoSplitTexture2Element*)
+	getConstElement(state,classStackIndex);
 
     if ( unit>=elem->numcomps_.getLength() )
 	return 0;
