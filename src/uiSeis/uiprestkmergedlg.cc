@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          October 2007
- RCS:           $Id: uiprestkmergedlg.cc,v 1.7 2008-02-18 11:00:47 cvsbert Exp $
+ RCS:           $Id: uiprestkmergedlg.cc,v 1.8 2008-03-14 11:59:11 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uigeninput.h"
 #include "uibutton.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uilabel.h"
@@ -251,6 +251,6 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
     HorSampling hs = subselfld_->envelope().hrg;
     PtrMan<SeisPSMerger> Exec =
 	   new SeisPSMerger( selobjs_, outctio_.ioobj, hs );
-    uiExecutor dlg( this, *Exec );
-    return dlg.go();
+    uiTaskRunner dlg( this);
+    return dlg.execute( *Exec );
 }

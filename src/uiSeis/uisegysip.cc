@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2004
- RCS:		$Id: uisegysip.cc,v 1.10 2007-05-02 10:34:21 cvsbert Exp $
+ RCS:		$Id: uisegysip.cc,v 1.11 2008-03-14 11:59:11 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uisegysip.h"
 #include "uiseissegyentry.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uimsg.h"
 #include "seisscanner.h"
 #include "cubesampling.h"
@@ -47,8 +47,8 @@ bool uiSEGYSurvInfoProvider::getInfo( uiDialog* d, CubeSampling& cs,
     if ( !ioobj ) return false;
 
     SeisScanner scanner( *ioobj );
-    uiExecutor ex( d, scanner );
-    bool res = ex.go();
+    uiTaskRunner ex( d );
+    bool res = ex.execute( scanner );
     if ( scanner.nrDone() < 2 )
 	return false;
 

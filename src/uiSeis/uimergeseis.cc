@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.39 2008-03-07 12:39:46 cvsbert Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.40 2008-03-14 11:59:11 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 #include "uiseissel.h"
 #include "uilistbox.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 
@@ -83,8 +83,8 @@ bool uiMergeSeis::acceptOK( CallBacker* )
 
     SeisMerger mrgr( inpars, outpar, false );
     mrgr.stacktrcs_ = stackfld_->getBoolValue();
-    uiExecutor dlg( this, mrgr );
-    return dlg.go();
+    uiTaskRunner dlg( this );
+    return dlg.execute( mrgr );
 }
 
 

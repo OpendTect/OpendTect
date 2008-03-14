@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uiseis2dgeom.cc,v 1.12 2007-12-05 11:55:49 cvsbert Exp $
+ RCS:		$Id: uiseis2dgeom.cc,v 1.13 2008-03-14 11:59:11 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,9 +18,10 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uifileinput.h"
 #include "uiseisioobjinfo.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uimsg.h"
 #include "ctxtioobj.h"
+#include "executor.h"
 #include "survinfo.h"
 #include "strmprov.h"
 #include "oddirs.h"
@@ -116,8 +117,8 @@ bool uiSeisDump2DGeom::acceptOK( CallBacker* )
     Seis2DLineSet ls( ctio.ioobj->fullUserExpr(true) );
 
     Executor* dmper = ls.geometryDumper( *sd.ostrm, incnr, zval, lk );
-    uiExecutor dlg( this, *dmper );
-    bool rv = dlg.go();
+    uiTaskRunner dlg( this );
+    bool rv = dlg.execute( *dmper );
 
     delete dmper; sd.close();
     return rv;
