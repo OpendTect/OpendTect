@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.17 2008-02-28 14:47:06 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.18 2008-03-14 09:33:26 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: datapointset.cc,v 1.17 2008-02-28 14:47:06 cvsb
 #include "posprovider.h"
 #include "bufstringset.h"
 #include "survinfo.h"
+#include "idxable.h"
 #include "iopar.h"
 #include "keystrs.h"
 
@@ -513,18 +514,33 @@ void DataPointSet::purgeSelected( bool sel )
 }
 
 
-DataPointSet::RowID DataPointSet::findFirstCoord( const Coord& crd ) const
+DataPointSet::RowID DataPointSet::getRowID( BinIDValueSet::Pos bvspos ) const
+{
+    int rid = -1;
+    return IdxAble::findPos( bvsidxs_.arr(), bvsidxs_.size(), bvspos, -1, rid )
+	? rid : -1;
+}
+
+
+DataPointSet::RowID DataPointSet::findFirst( const BinID& bid ) const
+{
+    BinIDValueSet::Pos bpos = bivSet().findFirst( bid );
+    return getRowID( bpos );
+}
+
+
+DataPointSet::RowID DataPointSet::findFirst( const Coord& crd ) const
 {
     const BinID bid = SI().transform( crd );
-    BinIDValueSet::Pos firstpos = bivSet().findFirst( bid );
-    int rowid = getRowID( firstpos );
-    if ( rowid<0 ) return -1;
+    const DataPointSet::RowID rid = findFirst( bid );
+    if ( rid < 0 ) return -1;
 
-    for ( int idx=rowid; idx<size(); idx++ )
+    for ( int idx=rid; idx<size(); idx++ )
     {
-	if ( binID( idx ) != bid ) break;
-	if ( mIsEqual( coord(idx).x, crd.x, 1e-3 )
-	   &&mIsEqual( coord(idx).y, crd.y, 1e-3 ) ) return idx;
+	if ( binID(idx) != bid ) break;
+	Coord c( coord(idx) );
+	if ( mIsEqual( c.x, crd.x, 1e-3 )
+	  && mIsEqual( c.y, crd.y, 1e-3 ) ) return idx;
     }
 
     return -1;

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.76 2008-02-28 15:52:00 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.77 2008-03-14 09:33:26 cvsbert Exp $";
 
 #include "attriboutput.h"
 
@@ -1015,7 +1015,7 @@ TypeSet< Interval<int> > Trc2DVarZStorOutput::getLocalZRanges(
 {
     //TODO : for some reason horizon coords in 2D are now rounded, check why
     Coord roundedcoord( (int)coord.x, (int)coord.y ); 
-    DataPointSet::RowID rowid = poszvalues_->findFirstCoord( roundedcoord );
+    DataPointSet::RowID rowid = poszvalues_->findFirst( roundedcoord );
     const BinID bid = SI().transform( roundedcoord );
     TypeSet< Interval<int> > sampleinterval;
     for ( int idx=rowid; idx<poszvalues_->size(); idx++ )
@@ -1045,7 +1045,7 @@ bool Trc2DVarZStorOutput::wantsOutput( const Coord& coord ) const
 {
     //TODO : for some reason horizon coords in 2D are now rounded, check why
     Coord roundedcoord( (int)coord.x, (int)coord.y ); 
-    return poszvalues_->findFirstCoord( roundedcoord ) > -1;
+    return poszvalues_->findFirst( roundedcoord ) > -1;
 }
 
 
@@ -1065,7 +1065,7 @@ TableOutput::TableOutput( DataPointSet& datapointset )
 void TableOutput::collectData( const DataHolder& data, float refstep,
 			       const SeisTrcInfo& info )
 {
-    DataPointSet::RowID rid = datapointset_.findFirstCoord( info.coord );
+    DataPointSet::RowID rid = datapointset_.findFirst( info.coord );
     if ( rid<0 ) return;
 
     const int desnrvals = desoutputs_.size();
@@ -1152,25 +1152,24 @@ bool TableOutput::wantsOutput( const BinID& bid ) const
 
 bool TableOutput::wantsOutput( const Coord& coord ) const
 {
-    return datapointset_.findFirstCoord( coord ) > -1;
+    return datapointset_.findFirst( coord ) > -1;
 }
 
 
 TypeSet< Interval<int> > TableOutput::getLocalZRanges(
 						const BinID& bid, float zstep,
-						TypeSet<float>& exactz) const
+						TypeSet<float>& exactz ) const
 {
-    //TODO not 100% optimized, case of picksets for instance->find better algo
     TypeSet< Interval<int> > sampleinterval;
     
-    BinIDValueSet::Pos pos = datapointset_.bivSet().findFirst( bid );
+    const BinIDValueSet& bvs = datapointset_.bivSet();
+    BinIDValueSet::Pos pos = bvs.findFirst( bid );
+
     DataPointSet::RowID rid = datapointset_.getRowID( pos );
-    if ( rid< 0 ) return sampleinterval;
-    
-    for ( int idx=rid; idx<datapointset_.size(); idx++ )
+    while ( pos.valid() && bid == bvs.getBinID(pos) )
     {
-	if ( bid != datapointset_.binID( idx ) ) break;
-	addLocalInterval( sampleinterval, exactz, idx, zstep );
+	addLocalInterval( sampleinterval, exactz, rid, zstep );
+	rid++;
     }
 
     return sampleinterval;
@@ -1181,10 +1180,9 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
 						const Coord& coord, float zstep,
 						TypeSet<float>& exactz) const
 {
-    //TODO not 100% optimized, case of picksets for instance->find better algo
     TypeSet< Interval<int> > sampleinterval;
     
-    DataPointSet::RowID rid = datapointset_.findFirstCoord( coord );
+    DataPointSet::RowID rid = datapointset_.findFirst( coord );
     if ( rid< 0 ) return sampleinterval;
     
     for ( int idx=rid; idx<datapointset_.size(); idx++ )

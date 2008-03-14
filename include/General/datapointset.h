@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.12 2008-02-28 14:47:06 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.13 2008-03-14 09:33:26 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,6 +153,9 @@ public:
     void		purgeInactive();
     void		purgeSelected(bool selected_rows=true);
 
+    RowID		findFirst(const Coord&) const;
+    RowID		findFirst(const BinID&) const;
+
     const PosVecDataSet& dataSet() const		{ return data_; }
     const BinIDValueSet& bivSet() const { return const_cast<DataPointSet*>
 					  (this)->bivSet(); }
@@ -170,9 +173,7 @@ public:
     			//!< In case you want to change the definition of a col
     void		addRow(const DataRow&);
     			//!< When finished, you have to call dataChanged()
-    RowID		findFirstCoord(const Coord&) const;
-    RowID		getRowID( BinIDValueSet::Pos bidvspos ) const
-			{ return bvsidxs_.indexOf( bidvspos ); }
+    RowID		getRowID(BinIDValueSet::Pos) const;
     DataColDef&		colDef( ColID i )		{ return gtColDef(i); }
 
     // DataPack interface impl
