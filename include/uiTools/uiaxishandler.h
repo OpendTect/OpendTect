@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.2 2008-03-06 18:25:29 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.3 2008-03-14 09:31:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,11 +32,11 @@ class ioDrawTool;
 
   The drawAxis will plot the axis. If LineStyle::Type is not LineStyle::None,
   grid lines will be drawn, too. If it *is* None, then still the color and
-  size will be used for drawing the axis (which  is laways Solid).
+  size will be used for drawing the axis (which  is always Solid).
 
   Use AxisLayout (linear.h) to find 'nice' ranges, like:
-  AxisLayout al( start, stop );
-  ahndlr.setRange( StepInterval<float>(al.start,al.sd.step,al.sd.step) );
+  AxisLayout al( Interval<float>(start,stop) );
+  ahndlr.setRange( StepInterval<float>(al.sd.start,al.stop,al.sd.step) );
  
  */
 
