@@ -5,12 +5,14 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: tutseistools.cc,v 1.7 2007-06-08 06:13:43 cvsraman Exp $";
+static const char* rcsID = "$Id: tutseistools.cc,v 1.8 2008-03-14 09:15:35 cvsnageswara Exp $";
 
+#include "cubesampling.h"
 #include "tutseistools.h"
 #include "seisread.h"
 #include "seiswrite.h"
 #include "seisioobjinfo.h"
+#include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seistrcprop.h"
 #include "ioobj.h"
@@ -19,7 +21,7 @@ static const char* rcsID = "$Id: tutseistools.cc,v 1.7 2007-06-08 06:13:43 cvsra
 Tut::SeisTools::SeisTools()
     : Executor("Tutorial tools: Direct Seismic")
     , inioobj_(0), outioobj_(0)
-    , rdr_(0), wrr_(0)
+    , rdr_(0), wrr_(0), cs_(*new CubeSampling)
     , trcin_(*new SeisTrc)
     , trcout_(*new SeisTrc)
 {
@@ -50,15 +52,13 @@ void Tut::SeisTools::clear()
 
 
 void Tut::SeisTools::setInput( const IOObj& ioobj )
-{
-    delete inioobj_; inioobj_ = ioobj.clone();
-}
-
+{ delete inioobj_; inioobj_ = ioobj.clone(); }
 
 void Tut::SeisTools::setOutput( const IOObj& ioobj )
-{
-    delete outioobj_; outioobj_ = ioobj.clone();
-}
+{ delete outioobj_; outioobj_ = ioobj.clone(); }
+
+void Tut::SeisTools::setRange( const CubeSampling& cs )
+{ cs_ = cs; }
 
 
 const char* Tut::SeisTools::message() const
@@ -86,6 +86,9 @@ int Tut::SeisTools::totalNr() const
 bool Tut::SeisTools::createReader()
 {
     rdr_ = new SeisTrcReader( inioobj_ );
+    Seis::RangeSelData* sd = new Seis::RangeSelData( cs_ );
+    rdr_->setSelData( sd );
+
     rdr_->forceFloatData( action_ != Smooth );
     if ( !rdr_->prepareWork() )
     {

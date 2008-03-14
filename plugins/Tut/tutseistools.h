@@ -5,11 +5,12 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: tutseistools.h,v 1.4 2007-06-01 06:23:48 cvsraman Exp $
+ * ID       : $Id: tutseistools.h,v 1.5 2008-03-14 09:15:35 cvsnageswara Exp $
 -*/
 
 #include "executor.h"
 #include "bufstring.h"
+class CubeSampling;
 class IOObj;
 class SeisTrc;
 class SeisTrcReader;
@@ -38,6 +39,7 @@ public:
 
     void		setInput(const IOObj&);
     void		setOutput(const IOObj&);
+    void		setRange(const CubeSampling&);
     inline void		setAction( Action a )	{ action_ = a; }
     inline void		setScale( float f, float s )
 						{ factor_ = f; shift_ = s; }
@@ -56,6 +58,7 @@ protected:
 
     IOObj*		inioobj_;
     IOObj*		outioobj_;
+    CubeSampling&	cs_;
     Action		action_;
     float		factor_;
     float		shift_;
