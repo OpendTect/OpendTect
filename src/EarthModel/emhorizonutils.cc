@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.cc,v 1.15 2008-02-19 15:19:38 cvshelene Exp $
+ RCS:           $Id: emhorizonutils.cc,v 1.16 2008-03-14 14:32:25 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -393,7 +393,7 @@ void HorizonUtils::getWantedPos2D( std::ostream& strm,
 		for ( int secsurf1=0; secsurf1<possurf1.size(); secsurf1++ )
 		{
 		    DataPointSet::RowID rid = possurf1[secsurf1]->
-						findFirstCoord( coordsurf0 );
+						findFirst( coordsurf0 );
 		    if ( rid > -1 )
 		    {
 			const float z0 = possurf0[secsurf0]->z( ptsurf0 );
