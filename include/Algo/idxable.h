@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert & Kris
  Date:		Mar 2006
- RCS:		$Id: idxable.h,v 1.8 2007-09-13 19:38:38 cvsnanne Exp $
+ RCS:		$Id: idxable.h,v 1.9 2008-03-14 09:29:39 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -80,7 +80,7 @@ bool findPos( const T1& posarr, T3 sz, T2 pos, T3 beforefirst, T3& idx )
 
     if ( pos == posarr[0] )
 	{ idx = 0; return true; }
-    else if ( pos >= posarr[sz-1] )
+    else if ( pos > posarr[sz-1] || pos == posarr[sz-1] )
     	{ idx = sz-1; return pos == posarr[sz-1]; }
 
     T3 idx1 = 0;
