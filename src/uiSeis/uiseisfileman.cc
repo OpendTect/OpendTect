@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.71 2008-02-14 09:53:11 cvsbert Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.72 2008-03-14 05:45:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -230,21 +230,21 @@ void uiSeisFileMan::mergeDump2DPush( CallBacker* )
 }
 
 
-static void doBrowse( uiParent* p, const IOObj* ioobj, const LineKey* lk )
+static void doBrowse( uiParent* p, const IOObj* ioobj, const LineKey* lk, bool is2d )
 {
     if ( !ioobj ) return;
 
     uiSeisBrowser::Setup setup( ioobj->key(), lk ? Seis::Line : Seis::Vol );
     if ( lk )
 	setup.linekey( *lk );
-    uiSeisBrowser dlg( p, setup );
+    uiSeisBrowser dlg( p, setup, is2d );
     dlg.go();
 }
 
 
 void uiSeisFileMan::browsePush( CallBacker* )
 {
-    doBrowse( this, curioobj_, 0 );
+    doBrowse( this, curioobj_, 0, false );
 }
 
 
@@ -413,7 +413,7 @@ void attribSel( CallBacker* )
 void browsePush( CallBacker* )
 {
     const LineKey lk( linelist->getText(), attriblist->getText());
-    doBrowse( this, objinfo->ioObj(), &lk );
+    doBrowse( this, objinfo->ioObj(), &lk, true );
 }
 
 
