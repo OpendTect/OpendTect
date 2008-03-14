@@ -5,12 +5,13 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: uitutseistools.cc,v 1.12 2008-02-18 05:57:35 cvsraman Exp $";
-
+static const char* rcsID = "$Id: uitutseistools.cc,v 1.13 2008-03-14 09:17:13 cvsnageswara Exp $";
+#include "cubesampling.h"
 #include "uitutseistools.h"
 #include "tutseistools.h"
 #include "uiseissel.h"
 #include "uigeninput.h"
+#include "uiseissubsel.h"
 #include "uitaskrunner.h"
 #include "uimsg.h"
 #include "seistrctr.h"
@@ -33,12 +34,15 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p )
 
     // The input seismic object
     inpfld_ = new uiSeisSel( this, inctio_, uiSeisSel::Setup(Seis::Vol) );
-
+    
+    subselfld_ = uiSeisSubSel::get( this, Seis::SelSetup(Seis::Vol) );
+    
+    subselfld_->attachObj()->attach( alignedBelow, inpfld_ );
     // What seismic tool is required?
     actionfld_ = new uiGenInput( this, "Action",
 	    			 StringListInpSpec(actions) );
     actionfld_->valuechanged.notify( choicecb );
-    actionfld_->attach( alignedBelow, inpfld_ );
+    actionfld_->attach(centeredBelow, subselfld_ );
 
     // Parameters for scaling
     scalegrp_ = new uiGroup( this, "Scale group" );
@@ -59,7 +63,7 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p )
     outctio_.ctxt.forread = false;
     outfld_ = new uiSeisSel( this, outctio_, uiSeisSel::Setup(Seis::Vol) );
     outfld_->attach( alignedBelow, scalegrp_ );
-
+    
     // Make sure only relevant stuff is displayed on startup
     finaliseDone.notify( choicecb );
 }
@@ -99,6 +103,11 @@ bool uiTutSeisTools::acceptOK( CallBacker* )
     tst_.clear();
     tst_.setInput( *inctio_.ioobj );
     tst_.setOutput( *outctio_.ioobj );
+
+    CubeSampling  cs;
+    subselfld_->getSampling( cs.hrg );
+    subselfld_->getZRange( cs.zrg );
+    tst_.setRange( cs );
 
     // Set action-specific parameters
     tst_.setAction( (Tut::SeisTools::Action)actionfld_->getIntValue() );

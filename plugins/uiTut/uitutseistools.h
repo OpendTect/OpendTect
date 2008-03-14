@@ -4,11 +4,12 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: uitutseistools.h,v 1.5 2007-05-11 12:19:25 cvsbert Exp $
+ * ID       : $Id: uitutseistools.h,v 1.6 2008-03-14 09:17:13 cvsnageswara Exp $
 -*/
 
 #include "uidialog.h"
 class uiSeisSel;
+class uiSeisSubSel;
 class uiGenInput;
 class CtxtIOObj;
 namespace Tut { class SeisTools; }
@@ -28,6 +29,7 @@ protected:
     Tut::SeisTools&	tst_;
 
     uiSeisSel*		inpfld_;
+    uiSeisSubSel*	subselfld_;
     uiSeisSel*		outfld_;
     uiGroup*		scalegrp_;
     uiGenInput*		actionfld_;
