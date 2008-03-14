@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.16 2008-02-29 11:25:08 cvsnanne Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.17 2008-03-14 03:21:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,10 +32,12 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "iopar.h"
 #include "oddirs.h"
 #include "ptrman.h"
 #include "safefileio.h"
 #include "samplingdata.h"
+#include "seis2dline.h"
 #include "seisbuf.h"
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -47,8 +49,10 @@ ________________________________________________________________________
 
 
 
-uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& setup )
+uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& setup,
+			      bool is2d)
     : uiDialog(p,setup)
+    , is2d_(is2d)
     , tr_(0)
     , tro_(0)
     , tbl_(0)
@@ -120,12 +124,28 @@ void uiSeisBrowser::setZ( float z )
 
 bool uiSeisBrowser::openData( const uiSeisBrowser::Setup& setup )
 {
+    BufferString emsg;
     PtrMan<IOObj> ioobj = IOM().get( setup.id_ );
     if ( !ioobj ) return false;
 
-    BufferString emsg;
-    tr_ = CBVSSeisTrcTranslator::make( ioobj->fullUserExpr(true), false,
-	    			Seis::is2D(setup.geom_), &emsg );
+    if ( is2d_ )
+    {
+	//SeisIOObjInfo seisioinfo( id_ );
+	Seis2DLineSet seislineset( ioobj->fullUserExpr(true) );
+	const int index = seislineset.indexOf( setup.linekey_ );
+	IOPar par( seislineset.getInfo(index) );
+	BufferString fname = par.find( sKey::FileName );
+	FilePath fp( fname );
+	if ( !fp.isAbsolute() )
+	    fp.setPath( IOObjContext::getDataDirName(IOObjContext::Seis) );
+	tr_ = CBVSSeisTrcTranslator::make( fp.fullPath(), false,
+					   Seis::is2D(setup.geom_), &emsg );
+    }
+    else
+    {
+	tr_ = CBVSSeisTrcTranslator::make( ioobj->fullUserExpr(true), false,
+				    Seis::is2D(setup.geom_), &emsg );
+    }
     if ( !tr_ )
     {
 	uiMSG().error( emsg );
@@ -152,7 +172,10 @@ void uiSeisBrowser::createMenuAndToolBar()
     uitb_ = new uiToolBar( this, "Tool Bar" );
     mAddButton("gotopos.png",goToPush,"",false );
     mAddButton("info.png",infoPush,"",false );
-    crlwisebutidx_ = mAddButton("crlwise.png",switchViewTypePush,"",true );
+    if (!is2d_ )
+    {
+	crlwisebutidx_ = mAddButton("crlwise.png",switchViewTypePush,"",true );
+    }
     mAddButton("leftarrow.png",leftArrowPush,"",false );
     mAddButton("rightarrow.png",rightArrowPush,"",false );
     showwgglbutidx_ = mAddButton("viewflat.png",showWigglePush,"",false );
@@ -163,7 +186,8 @@ void uiSeisBrowser::createTable()
 {
     const int nrrows = tr_->readMgr()->info().nrsamples;
     const int nrcols = 2*stepout_ + 1;
-    tbl_ = new uiTable( this, uiTable::Setup(nrrows,nrcols)
+    uiTable::Size sz( nrcols, nrrows );
+    tbl_ = new uiTable( this, uiTable::Setup().size( sz )
 			     .selmode(uiTable::Multi)
     			     .manualresize( true ) );
     
