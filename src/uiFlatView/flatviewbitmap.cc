@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewbitmap.cc,v 1.11 2007-12-12 15:44:40 cvsbert Exp $
+ RCS:           $Id: flatviewbitmap.cc,v 1.12 2008-03-17 21:43:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,21 +123,34 @@ Geom::Point2D<int> FlatView::BitMapMgr::dataOffs(
 bool FlatView::BitMapMgr::generate( const Geom::PosRectangle<double>& wr,
 				    const Geom::Size2D<int>& sz )
 {
-    if ( !gen_ || !vwr_.pack(wva_) ) return true;
+    if ( !gen_ )
+	return true;
 
-    const FlatPosData& pd = vwr_.pack(wva_)->posData();
+    mObtainDataPackToLocalVar( pack, const FlatDataPack*, DataPackMgr::FlatID,
+	                                   vwr_.packID(wva_) );
+
+
+    if ( !pack ) return true;
+
+    const FlatPosData& pd = pack->posData();
     pos_->setDimRange( 0, Interval<float>(wr.left()-pd.offset(true),
 					  wr.right()-pd.offset(true)) );
     pos_->setDimRange( 1, Interval<float>( wr.bottom(), wr.top() ) );
 
     bmp_ = new A2DBitMapImpl( sz.width(), sz.height() );
     if ( !bmp_ || !bmp_->isOK() || !bmp_->getData() )
-	{ delete bmp_; bmp_ = 0; return false; }
+    {
+	delete bmp_; bmp_ = 0;
+	DPM(DataPackMgr::FlatID).release(pack);
+	return false;
+    }
 
     wr_ = wr; sz_ = sz;
     A2DBitMapGenerator::initBitMap( *bmp_ );
     gen_->setBitMap( *bmp_ );
     gen_->fill();
+
+    DPM(DataPackMgr::FlatID).release(pack);
     return true;
 }
 
