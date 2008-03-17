@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          30/01/2006
- RCS:           $Id: keyenum.cc,v 1.2 2007-03-15 16:15:06 cvsbert Exp $
+ RCS:           $Id: keyenum.cc,v 1.3 2008-03-17 21:03:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,22 @@ static const char* nms[] =
 const int transtbl[] =
 { 0x00000000, 0x00000001, 0x00000002, 0x00000004, 0x000000ff, 0x02000000,
   0x04000000, 0x08000000, 0x10000000, 0xfe000000, 0x20000000 };
+
+
+#define mImplButtonStateFunc( func, buttenum ) \
+bool OD::func( OD::ButtonState st ) \
+{ \
+    const unsigned int state = (unsigned int) st; \
+    const unsigned int mask = (unsigned int) buttenum; \
+    return (state & mask); \
+}
+
+mImplButtonStateFunc( leftMouseButton, LeftButton );
+mImplButtonStateFunc( middleMouseButton, MidButton );
+mImplButtonStateFunc( rightMouseButton, RightButton );
+mImplButtonStateFunc( shiftKeyboardButton, ShiftButton );
+mImplButtonStateFunc( ctrlKeyboardButton, ControlButton );
+mImplButtonStateFunc( altKeyboardButton, AltButton );
 
 
 OD::ButtonState OD::stateOf( const char* nm )

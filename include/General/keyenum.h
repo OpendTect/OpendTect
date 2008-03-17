@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          27/01/2006
- RCS:           $Id: keyenum.h,v 1.3 2007-03-15 16:15:21 cvsbert Exp $
+ RCS:           $Id: keyenum.h,v 1.4 2008-03-17 21:03:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,12 @@ namespace OD
     const char*		nameOf(ButtonState);
     ButtonState		stateOf(const char*);
 
+    bool		leftMouseButton(ButtonState);
+    bool		middleMouseButton(ButtonState);
+    bool		rightMouseButton(ButtonState);
+    bool		shiftKeyboardButton(ButtonState);
+    bool		ctrlKeyboardButton(ButtonState);
+    bool		altKeyboardButton(ButtonState);
 };
 
 #endif
