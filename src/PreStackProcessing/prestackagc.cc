@@ -4,38 +4,37 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackagc.cc,v 1.8 2008-02-05 09:24:17 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackagc.cc,v 1.9 2008-03-17 14:41:01 cvskris Exp $";
 
 #include "prestackagc.h"
 
-#include "dataclipper.h"
+#include "agc.h"
+#include "arrayndslice.h"
 #include "flatposdata.h"
 #include "iopar.h"
 #include "prestackgather.h"
 #include "varlenarray.h"
 
 
-using namespace PreStack;
 
-
-void AGC::initClass()
+void PreStack::AGC::initClass()
 {
-    PF().addCreator( AGC::createFunc, AGC::sName() );
+    PF().addCreator( PreStack::AGC::createFunc, PreStack::AGC::sName() );
 }
 
 
-Processor* AGC::createFunc()
-{ return new AGC; }
+PreStack::Processor* PreStack::AGC::createFunc()
+{ return new PreStack::AGC; }
 
 
-AGC::AGC()
+PreStack::AGC::AGC()
     : Processor( sName() )
     , window_( -100, 100 )
     , mutefraction_( 0 )
 {}
 
 
-bool AGC::prepareWork()
+bool PreStack::AGC::prepareWork()
 {
     if ( !Processor::prepareWork() )
 	return false;
@@ -55,30 +54,30 @@ bool AGC::prepareWork()
 }
 
 
-void AGC::setWindow( const Interval<float>& iv )
+void PreStack::AGC::setWindow( const Interval<float>& iv )
 { window_ = iv; }
 
 
-const Interval<float>& AGC::getWindow() const
+const Interval<float>& PreStack::AGC::getWindow() const
 { return window_; }
 
 
-void AGC::setLowEnergyMute( float iv )
+void PreStack::AGC::setLowEnergyMute( float iv )
 { mutefraction_ = iv; }
 
 
-float AGC::getLowEnergyMute() const
+float PreStack::AGC::getLowEnergyMute() const
 { return mutefraction_; }
 
 
-void AGC::fillPar( IOPar& par ) const
+void PreStack::AGC::fillPar( IOPar& par ) const
 {
     par.set( sKeyWindow(), window_ );
     par.set( sKeyMuteFraction(), mutefraction_ );
 }
 
 
-bool AGC::usePar( const IOPar& par )
+bool PreStack::AGC::usePar( const IOPar& par )
 {
     par.get( sKeyWindow(), window_ );
     par.get( sKeyMuteFraction(), mutefraction_ );
@@ -86,10 +85,10 @@ bool AGC::usePar( const IOPar& par )
 }
 
 
-bool AGC::doWork( int start, int stop, int )
+bool PreStack::AGC::doWork( int start, int stop, int )
 {
-    const bool doclip = !mIsZero( mutefraction_, 1e-5 );
-    DataClipper clipper;
+    ::AGC<float> agc;
+    agc.setMuteFraction( mutefraction_ );
 
     for ( int offsetidx=start; offsetidx<=stop; offsetidx++, reportNrDone() )
     {
@@ -100,57 +99,19 @@ bool AGC::doWork( int start, int stop, int )
 	    if ( !output || !input )
 		continue;
 
-	    const int nrsamples = input->data().info().getSize( Gather::zDim());
-	    
-	    mVariableLengthArr( float, energies, nrsamples );
-	    for ( int sampleidx=0; sampleidx<nrsamples; sampleidx++ )
-	    {
-		const float value = input->data().get(offsetidx,sampleidx);
-		energies[sampleidx] = mIsUdf( value ) ? value : value*value;
-	    }
+	    Array1DSlice<float> inputtrace( input->data() );
+	    inputtrace.setDimMap( 0, Gather::zDim() );
+	    inputtrace.setPos( 1, offsetidx );
 
-	    Interval<float> cliprange;
-	    if ( doclip )
-	    {
-		clipper.putData( energies, nrsamples );
-		if ( !clipper.calculateRange(mutefraction_,0,cliprange) )
-		{
-		    //todo: copy old trace
-		    continue;
-		}
-	    }
+	    Array1DSlice<float> outputtrace( output->data() );
+	    outputtrace.setDimMap( 0, Gather::zDim() );
+	    outputtrace.setPos( 1, offsetidx );
+	    if ( !inputtrace.init() || !outputtrace.init() )
+		continue;
 
-	    for ( int sampleidx=0; sampleidx<nrsamples; sampleidx++ )
-	    {
-		int nrenergies = 0;
-		float energysum = 0;
-		for ( int energyidx=sampleidx+samplewindow_.start;
-			  energyidx<=sampleidx+samplewindow_.stop;
-			  energyidx++ )
-		{
-		    if ( energyidx<0 || energyidx>=nrsamples )
-			continue;
-
-		    const float energy = energies[energyidx];
-		    if ( mIsUdf( energy ) )
-			continue;
-
-		    if ( doclip && !cliprange.includes( energy ) )
-			continue;
-		    
-		    energysum += energy;
-		    nrenergies++;
-		}
-
-		float outputval = 0;
-		if ( nrenergies && !mIsZero(energysum,1e-6) )
-		{
-		    const float inpval = input->data().get(offsetidx,sampleidx);
-		    outputval = inpval/sqrt(energysum/nrenergies);
-		}
-
-		output->data().set( offsetidx, sampleidx, outputval );
-	    }
+	    agc.setInput( inputtrace, inputtrace.info().getSize(0) );
+	    agc.setOutput( outputtrace );
+	    agc.execute( false );
 	}
     }
 
