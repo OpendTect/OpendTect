@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprovider.h,v 1.68 2008-01-03 20:27:09 cvskris Exp $
+ RCS:           $Id: attribprovider.h,v 1.69 2008-03-17 13:15:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -199,6 +199,10 @@ protected:
     				{ return false; }
     virtual bool		setNrThreads( int idx ) 	{ return true; }
     virtual int			minTaskSize() const		{ return 25; }
+    virtual bool		finalizeCalculation(bool scs)	{ return scs; }
+    				/*!<Called one all computeData have returned.
+				    \param scs is true if all computeData
+					   were successful. */
 
     				// DataHolder stuff
     DataHolder*			getDataHolder(const BinID& relpos);

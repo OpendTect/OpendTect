@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.105 2007-11-23 11:59:06 cvsbert Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.106 2008-03-17 13:15:21 cvskris Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -66,6 +66,10 @@ bool doWork( int start, int stop, int threadid )
 
 bool doPrepare( int nrthreads )
 { return provider_.setNrThreads( nrthreads ); }
+
+
+bool doFinish( bool success )
+{ return provider_.finalizeCalculation( success ); }
 
 protected:
 
@@ -931,7 +935,11 @@ const DataHolder* Provider::getData( const BinID& relpos, int idi )
 
     bool success = false;
     if ( !allowParallelComputation() )
+    {
+	setNrThreads( 1 );
 	success = computeData( *outdata, relpos, z0, nrsamples, 0 );
+	success = finalizeCalculation( success );
+    }
     else
     {
 	if ( !providertask_ )
