@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.9 2007-12-07 19:36:37 cvskris Exp $
+ RCS:		$Id: task.h,v 1.10 2008-03-17 14:40:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,7 +154,13 @@ public:
     virtual int		totalNr() const					= 0;
     			/*!<\returns the number of times the process should be
 			    run. */
-    bool		execute();
+    bool		execute() { return execute(true); }
+    			/*!<Runs the process the desired number of times. \note
+			    that the function has static threads (normally the
+			    same number as there are processors on the machine),
+			    and these static threads will be shared by all
+			    instances of ParallelTask::execute. */
+    virtual bool	execute(bool parallel);
     			/*!<Runs the process the desired number of times. \note
 			    that the function has static threads (normally the
 			    same number as there are processors on the machine),
