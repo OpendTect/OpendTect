@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2006
- RCS:		$Id: uivisisosurface.cc,v 1.7 2008-03-14 14:35:45 cvskris Exp $
+ RCS:		$Id: uivisisosurface.cc,v 1.8 2008-03-17 15:26:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ uiVisIsoSurfaceThresholdDlg::uiVisIsoSurfaceThresholdDlg( uiParent* p,
     histogramdisplay_->postDraw.notify(
 	    mCB(this,uiVisIsoSurfaceThresholdDlg,updateHistogramDisplay) );
 
-    thresholdfld_ = new uiGenInput( this, "Threshold",
+    thresholdfld_ = new uiGenInput( this, "Iso value",
 	    			    FloatInpSpec(initialvalue_) );
     thresholdfld_->attach( alignedBelow, histogramdisplay_ );
     updatebutton_ = new uiPushButton( this, "Update",
