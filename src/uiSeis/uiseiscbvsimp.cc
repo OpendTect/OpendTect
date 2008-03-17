@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.43 2008-02-13 13:28:48 cvsbert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.44 2008-03-17 05:49:47 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,14 +24,14 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "oddirs.h"
 #include "keystrs.h"
+#include "executor.h"
 
 #include "uimsg.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
 #include "uiseistransf.h"
 #include "uiseisioobjinfo.h"
-#include "uiexecutor.h"
-
+#include "uitaskrunner.h"
 
 uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
 	: uiDialog(p,Setup("Import CBVS cube",
@@ -260,8 +260,9 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
     if ( !stp )
 	{ rmTmpIOObj(); return false; }
 
-    uiExecutor dlg( this, *stp );
-    bool rv = dlg.go() == 1 && !ioobjinfo.is2D() && ioobjinfo.provideUserInfo();
+    uiTaskRunner dlg(this);
+    bool rv = dlg.execute(*stp) == 1 && !ioobjinfo.is2D() && ioobjinfo.provideUserInfo();
+
     rmTmpIOObj();
     return rv;
 }

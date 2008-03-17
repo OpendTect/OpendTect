@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.82 2008-03-12 09:48:03 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.83 2008-03-17 05:49:47 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,8 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "seistrcprop.h"
 
-#include "uiexecutor.h"
+//#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
 #include "uiflatviewmainwin.h"
@@ -217,8 +218,9 @@ bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linekey,
 
     lineset.getCubeSampling( cs, lidx );
     PtrMan<Executor> exec = lineset.lineFetcher( lidx, buf );
-    uiExecutor dlg( appserv().parent(), *exec );
-    return dlg.go();
+//    uiExecutor dlg( appserv().parent(), *exec );
+    uiTaskRunner dlg ( appserv().parent() );
+    return dlg.execute( *exec );
 }
 
 

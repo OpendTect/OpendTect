@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.110 2006-12-28 21:10:33 cvsnanne Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.111 2008-03-17 05:49:47 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ ________________________________________________________________________
 #include "uiseparator.h"
 #include "uitextfile.h"
 #include "uiiosel.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uimsg.h"
 #include "uistatusbar.h"
 #include "uislider.h"
@@ -750,13 +750,13 @@ bool uiSeisMMProc::wrapUp( bool force )
 	return false;
 
     Executor* exec = jobprov ? jobprov->getPostProcessor() : 0;
-    if ( exec )
+    if (exec)
     {
-	uiExecutor uiex( this, *exec );
-	if ( !uiex.go() )
-	    { delete exec; return false; }
-	delete exec;
-    }
+	uiTaskRunner uiex (this);
+	if (!uiex.execute (*exec) )
+	  { delete exec; return false; }
+	delete exec;	
+    }   
 
     progrfld->append( "Processing completed" );
     setCtrlStyle( LeaveOnly );

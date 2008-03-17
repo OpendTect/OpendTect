@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.7 2008-02-16 11:39:45 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.8 2008-03-17 05:49:47 cvsnageswara Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -12,7 +12,7 @@ static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.7 2008-02-16 11:39:45 cvs
 #include "uiseissel.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uiseparator.h"
 #include "uiscaler.h"
 #include "uilabel.h"
@@ -460,6 +460,7 @@ bool uiSeisIOSimple::acceptOK( CallBacker* )
     }
 
     SeisIOSimple sios( data(), isimp_ );
-    uiExecutor dlg( this, sios );
-    return dlg.go();
+//    uiExecutor dlg( this, sios );
+    uiTaskRunner dlg( this );
+    return dlg.execute( sios );
 }
