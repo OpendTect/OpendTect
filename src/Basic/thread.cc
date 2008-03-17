@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.31 2007-11-15 13:17:32 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.32 2008-03-17 19:13:32 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -57,6 +57,33 @@ bool Threads::Mutex::tryLock()
 {
     return pthread_mutex_trylock( &mutex ) != EBUSY;
 }
+
+
+Threads::MutexLocker::MutexLocker( Mutex& mutex, bool wait )
+    : mutex_( mutex )
+    , islocked_( true )
+{
+    if ( wait ) mutex_.lock();
+    else islocked_ = mutex_.tryLock();
+}
+
+
+Threads::MutexLocker::~MutexLocker()
+{
+    if ( islocked_ ) mutex_.unLock();
+}
+
+
+void Threads::MutexLocker::unLock()
+{ islocked_ = false; mutex_.unLock(); }
+
+
+void Threads::MutexLocker::lock()
+{ islocked_ = true; mutex_.lock(); }
+
+
+bool Threads::MutexLocker::isLocked() const
+{ return islocked_; }
 
 
 Threads::ReadWriteLock::ReadWriteLock()
