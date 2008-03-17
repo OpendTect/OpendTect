@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.104 2007-10-24 20:05:28 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.105 2008-03-17 21:09:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,17 +148,20 @@ void EMObjectDisplay::clickCB( CallBacker* cb )
     if ( eventinfo.type == visBase::Keyboard )
 	keycb = eventinfo.key=='n' && eventinfo.pressed;
     else if ( eventinfo.type == visBase::MouseClick )
+    {
 	mousecb =
-	    eventinfo.mousebutton==visBase::EventInfo::leftMouseButton() &&
-	    eventinfo.pressed;
+	    eventinfo.pressed && OD::leftMouseButton( eventinfo.buttonstate_ );
+    }
 
     if ( !keycb && !mousecb ) return;
 
     EM::PosID closestnode = findClosestNode( eventinfo.displaypickedpos );
     if ( mousecb && editor_ )
     {
-	editor_->mouseClick( closestnode, eventinfo.shift, eventinfo.alt,
-			    eventinfo.ctrl );
+	editor_->mouseClick( closestnode,
+	    OD::shiftKeyboardButton( eventinfo.buttonstate_ ),
+	    OD::altKeyboardButton( eventinfo.buttonstate_ ),
+	    OD::ctrlKeyboardButton( eventinfo.buttonstate_ ) );
 	eventcatcher_->setHandled();
     }
     else if ( keycb )

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.74 2008-02-26 09:17:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.75 2008-03-17 21:09:14 cvskris Exp $";
 
 #include "viswelldisplay.h"
 
@@ -499,7 +499,7 @@ void WellDisplay::pickCB( CallBacker* cb )
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
     if ( eventinfo.type != visBase::MouseClick ||
-	 eventinfo.mousebutton != visBase::EventInfo::leftMouseButton() )
+	 !OD::leftMouseButton(eventinfo.buttonstate_) )
 	return;
 
     int eventid = -1;
@@ -523,7 +523,9 @@ void WellDisplay::pickCB( CallBacker* cb )
     }
     else
     {
-	if ( eventinfo.ctrl && !eventinfo.alt && !eventinfo.shift )
+	if ( OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+	     !OD::altKeyboardButton(eventinfo.buttonstate_) &&
+	     !OD::shiftKeyboardButton(eventinfo.buttonstate_) )
 	{
 	    if ( eventinfo.pickedobjids.size() && eventid==mousepressid_ )
 	    {
@@ -547,7 +549,9 @@ void WellDisplay::pickCB( CallBacker* cb )
 
 	    eventcatcher_->setHandled();
 	}
-	else if ( !eventinfo.ctrl && !eventinfo.alt && !eventinfo.shift )
+	else if ( !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+		  !OD::altKeyboardButton(eventinfo.buttonstate_) &&
+		  !OD::shiftKeyboardButton(eventinfo.buttonstate_) )
 	{
 	    if ( eventinfo.pickedobjids.size() && eventid==mousepressid_ )
 	    {

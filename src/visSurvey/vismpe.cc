@@ -4,7 +4,7 @@
      * DATE     : Oct 1999
     -*/
 
-    static const char* rcsID = "$Id: vismpe.cc,v 1.55 2007-10-24 20:05:28 cvskris Exp $";
+    static const char* rcsID = "$Id: vismpe.cc,v 1.56 2008-03-17 21:09:14 cvskris Exp $";
 
 #include "vismpe.h"
 
@@ -549,8 +549,10 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
     if ( eventinfo.type != visBase::MouseClick )
 	return;
 
-    if ( eventinfo.mousebutton==visBase::EventInfo::leftMouseButton() && 
-	 eventinfo.shift && !eventinfo.ctrl && !eventinfo.alt &&
+    if ( OD::leftMouseButton(eventinfo.buttonstate_) &&
+	 OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
+	 !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+	 !OD::altKeyboardButton(eventinfo.buttonstate_) &&
 	 eventinfo.pickedobjids.indexOf(id())!=-1 )
     {
 	if ( eventinfo.pressed )
@@ -568,8 +570,10 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 	}
 	sceneeventcatcher_->setHandled();
     }
-    else if ( eventinfo.mousebutton==visBase::EventInfo::rightMouseButton() && 
-	      eventinfo.shift && !eventinfo.ctrl && !eventinfo.alt &&
+    else if ( OD::rightMouseButton( eventinfo.buttonstate_ ) &&
+	      OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
+	      !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+	      !OD::altKeyboardButton(eventinfo.buttonstate_) &&
 	      eventinfo.pickedobjids.indexOf(id())!=-1 && isDraggerShown() )
     {
 	if ( eventinfo.pressed )
@@ -587,10 +591,12 @@ void MPEDisplay::mouseClickCB( CallBacker* cb )
 	}
 	sceneeventcatcher_->setHandled();
     }
-    else if ( eventinfo.mousebutton==visBase::EventInfo::leftMouseButton() &&
-	     !eventinfo.shift && !eventinfo.ctrl && !eventinfo.alt &&
-	     isBoxDraggerShown() &&
-	     eventinfo.pickedobjids.indexOf(boxdragger_->id())==-1 )
+    else if ( OD::leftMouseButton(eventinfo.buttonstate_) &&
+	      !OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
+	      !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+	      !OD::altKeyboardButton(eventinfo.buttonstate_) &&
+	      isBoxDraggerShown() &&
+	      eventinfo.pickedobjids.indexOf(boxdragger_->id())==-1 )
     {
 	showBoxDragger( false );
 	sceneeventcatcher_->setHandled();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: visevent.cc,v 1.25 2007-10-24 20:05:28 cvskris Exp $
+ RCS:           $Id: visevent.cc,v 1.26 2008-03-17 21:09:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,15 +34,16 @@ namespace visBase
 
 
 const char* EventCatcher::eventtypestr = "EventType";
-const char EventInfo::leftMouseButton() { return 0; }
-const char EventInfo::middleMouseButton() { return 1; }
-const char EventInfo::rightMouseButton() { return 2; }
+//const char EventInfo::leftMouseButton() { return 0; }
+//const char EventInfo::middleMouseButton() { return 1; }
+//const char EventInfo::rightMouseButton() { return 2; }
 
 EventInfo::EventInfo()
     : detail(0)
     , worldpickedpos( Coord3::udf() )
     , localpickedpos( Coord3::udf() )
     , displaypickedpos( Coord3::udf() )
+    , buttonstate_( OD::NoButton )
 {}
 
 
@@ -182,11 +183,17 @@ void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
     if ( eventcatcher->isHandled() ) return;
     const SoEvent* event = evcb->getEvent();
 
-    EventInfo eventinfo;
-    eventinfo.shift = event->wasShiftDown();
-    eventinfo.ctrl = event->wasCtrlDown();
-    eventinfo.alt = event->wasAltDown();
+    int buttonstate = 0;
+    if ( event->wasShiftDown() )
+	buttonstate += OD::ShiftButton;
 
+    if ( event->wasCtrlDown() )
+	buttonstate += OD::ControlButton;
+
+    if ( event->wasAltDown() )
+	buttonstate += OD::AltButton;
+
+    EventInfo eventinfo;
     const SbVec2s mousepos = event->getPosition();
     eventinfo.mousepos.x = mousepos[0];
     eventinfo.mousepos.y = mousepos[1];
@@ -261,11 +268,11 @@ void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
 	const SoMouseButtonEvent* mbevent = (const SoMouseButtonEvent*) event;
 	SoMouseButtonEvent::Button button = mbevent->getButton();
 	if ( button==SoMouseButtonEvent::BUTTON1 )
-	    eventinfo.mousebutton = EventInfo::leftMouseButton();
+	    buttonstate += OD::LeftButton;
 	if ( button==SoMouseButtonEvent::BUTTON2 )
-	    eventinfo.mousebutton = EventInfo::rightMouseButton();
+	    buttonstate += OD::RightButton;
 	if ( button==SoMouseButtonEvent::BUTTON3 )
-	    eventinfo.mousebutton = EventInfo::middleMouseButton();
+	    buttonstate += OD::MidButton;
 
 	if ( SoMouseButtonEvent::isButtonPressEvent( mbevent, button ) )
 	    eventinfo.pressed = true;
@@ -274,6 +281,8 @@ void EventCatcher::internalCB( void* userdata, SoEventCallback* evcb )
 
 	eventinfo.type = MouseClick;
     }
+
+    eventinfo.buttonstate_ = (OD::ButtonState) buttonstate;
 
     eventcatcher->eventhappened.trigger( eventinfo, eventcatcher );
     eventcatcher->nothandled.trigger( eventinfo, eventcatcher );

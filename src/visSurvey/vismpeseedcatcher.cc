@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.26 2008-03-11 14:48:17 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpeseedcatcher.cc,v 1.27 2008-03-17 21:09:14 cvskris Exp $";
 
 #include "vismpeseedcatcher.h"
 
@@ -152,15 +152,15 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
     if ( eventinfo.type!=visBase::MouseClick || !eventinfo.pressed )
 	return;
 
-    if ( eventinfo.mousebutton!=visBase::EventInfo::leftMouseButton() )
+    if ( !OD::leftMouseButton(eventinfo.buttonstate_) )
 	return;
 
-    if ( eventinfo.alt )
+    if ( OD::altKeyboardButton(eventinfo.buttonstate_) )
 	return;
     
-    info().setCtrlClicked( eventinfo.ctrl );
-    info().setShiftClicked( eventinfo.shift );
-    info().setAltClicked( eventinfo.alt );
+    info().setCtrlClicked( OD::ctrlKeyboardButton(eventinfo.buttonstate_) );
+    info().setShiftClicked( OD::shiftKeyboardButton(eventinfo.buttonstate_) );
+    info().setAltClicked( OD::altKeyboardButton(eventinfo.buttonstate_) );
     info().setPos( eventinfo.displaypickedpos );
 
     for ( int idx=0; idx<eventinfo.pickedobjids.size(); idx++ )
@@ -187,7 +187,8 @@ void MPEClickCatcher::clickCB( CallBacker* cb )
 	    break;
 	}
 
-	if ( eventinfo.ctrl != eventinfo.shift )
+	if ( OD::ctrlKeyboardButton(eventinfo.buttonstate_) !=
+	     OD::shiftKeyboardButton(eventinfo.buttonstate_) )
 	    continue;
 	    
 	mDynamicCastGet( visSurvey::RandomTrackDisplay*, rtdisp, dataobj );
@@ -375,7 +376,9 @@ void MPEClickCatcher::sendUnderlyingPlanes(
     
     if ( !nodepos.isDefined() )
     {
-	 if ( eventinfo.ctrl != eventinfo.shift ) return;
+	if ( OD::ctrlKeyboardButton(eventinfo.buttonstate_) !=
+	     OD::shiftKeyboardButton(eventinfo.buttonstate_) )
+	    return;
 	 nodepos = eventinfo.worldpickedpos;
     }
 

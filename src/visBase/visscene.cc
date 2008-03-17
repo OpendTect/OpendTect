@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2002
- RCS:           $Id: visscene.cc,v 1.34 2007-10-24 20:05:28 cvskris Exp $
+ RCS:           $Id: visscene.cc,v 1.35 2008-03-17 21:09:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,7 +119,7 @@ void Scene::mousePickCB( CallBacker* cb )
     }
 
     if ( eventinfo.type!=MouseClick ) return;
-    if ( eventinfo.mousebutton==EventInfo::middleMouseButton() ) return;
+    if ( OD::middleMouseButton(eventinfo.buttonstate_) ) return;
 
     if ( eventinfo.pressed )
     {
@@ -142,8 +142,12 @@ void Scene::mousePickCB( CallBacker* cb )
 	const int sz = eventinfo.pickedobjids.size();
 	if ( !sz && mousedownid_==-1 )
 	{
-	    if ( !eventinfo.shift && !eventinfo.alt && !eventinfo.ctrl )
+	    if ( !OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
+		 !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+		 !OD::altKeyboardButton(eventinfo.buttonstate_) )
+	    {
 		DM().selMan().deSelectAll();
+	    }
 	}
 
 	bool markerclicked = false;
@@ -155,7 +159,7 @@ void Scene::mousePickCB( CallBacker* cb )
 
 	    if ( dataobj->selectable() && idisok )
 	    {
-		if ( eventinfo.mousebutton==EventInfo::rightMouseButton() &&
+		if ( OD::rightMouseButton(eventinfo.buttonstate_) &&
 			dataobj->rightClicked() )
 		{
 		    mDynamicCastGet( visBase::Marker*, emod, dataobj );
@@ -166,9 +170,13 @@ void Scene::mousePickCB( CallBacker* cb )
 		    }
 		    dataobj->triggerRightClick(&eventinfo);
 		}
-		else if ( eventinfo.shift && !eventinfo.alt && !eventinfo.ctrl )
+		else if ( OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
+			  !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+			  !OD::altKeyboardButton(eventinfo.buttonstate_) )
 		    DM().selMan().select( mousedownid_, true );
-		else if ( !eventinfo.shift && !eventinfo.alt && !eventinfo.ctrl)
+		else if ( !OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
+			  !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+			  !OD::altKeyboardButton(eventinfo.buttonstate_) )
 		    DM().selMan().select( mousedownid_, false );
 
 		break;

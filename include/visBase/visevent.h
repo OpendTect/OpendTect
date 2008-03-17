@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visevent.h,v 1.19 2007-10-24 20:05:28 cvskris Exp $
+ RCS:		$Id: visevent.h,v 1.20 2008-03-17 21:09:14 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "keyenum.h"
 #include "visdata.h"
 #include "position.h"
 #include "trigonometry.h"
@@ -39,11 +40,7 @@ public:
 				~EventInfo();
     EventType			type;
 
-    char			mousebutton;
-				//!< Only set if type==MouseClick
-    static const char		leftMouseButton();
-    static const char		rightMouseButton();
-    static const char		middleMouseButton();
+    OD::ButtonState		buttonstate_;
 
     Line3			mouseline;
     				/*!< The line projected from the mouse-position
@@ -68,9 +65,6 @@ public:
 
     				// These are always set
     Coord			mousepos;
-    bool			shift;
-    bool			ctrl;
-    bool			alt;
 };
 
 
