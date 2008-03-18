@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Nov 2007
- RCS:           $Id: latlong.cc,v 1.7 2008-01-09 13:54:34 cvsbert Exp $
+ RCS:           $Id: latlong.cc,v 1.8 2008-03-18 15:39:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,7 @@ void LatLong2Coord::set( const LatLong& ll, const Coord& c )
 
 LatLong LatLong2Coord::transform( const Coord& c ) const
 {
-    if ( mIsUdf(lngdist_) ) return reflatlng_;
+    if ( !isOK() ) return reflatlng_;
 
     Coord coorddist( (c.x - refcoord_.x) * scalefac_,
 	    	     (c.y - refcoord_.y) * scalefac_ );
@@ -102,7 +102,7 @@ LatLong LatLong2Coord::transform( const Coord& c ) const
 
 Coord LatLong2Coord::transform( const LatLong& ll ) const
 {
-    if ( mIsUdf(latdist_) ) return SI().minCoord(true);
+    if ( !isOK() ) return SI().minCoord(true);
 
     const LatLong latlongdist( ll.lat_ - reflatlng_.lat_,
 			       ll.lng_ - reflatlng_.lng_ );
