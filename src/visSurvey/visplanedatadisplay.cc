@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.187 2008-03-18 18:47:52 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.188 2008-03-18 18:57:25 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -1126,9 +1126,16 @@ void PlaneDataDisplay::updateMouseCursorCB( CallBacker* cb )
     if ( cb )
     {
 	mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
-	const unsigned int buttonstate = (unsigned int)  eventinfo.buttonstate_;
-	if (  buttonstate==dragger_->getTransDragKeys(false) )
-	    newstatus = 2;
+	if ( eventinfo.pickedobjids.indexOf(id())==-1 )
+	    newstatus = 0;
+	else
+	{
+	    const unsigned int buttonstate =
+		(unsigned int) eventinfo.buttonstate_;
+
+	    if ( buttonstate==dragger_->getTransDragKeys(false) )
+		newstatus = 2;
+	}
     }
 
     if ( !isSelected() || !isOn() || isLocked() )
