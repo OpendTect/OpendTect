@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.73 2008-03-14 14:35:45 cvskris Exp $
+ RCS:           $Id: uiobj.cc,v 1.74 2008-03-18 17:41:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobj.h"
 #include "uiobjbody.h"
-#include "mousecursor.h"
+#include "uicursor.h"
 #include "uimainwin.h"
 #include "i_layoutitem.h"
 #include "errh.h"
@@ -283,19 +283,9 @@ bool uiObject::hasFocus() const
 
 void uiObject::setCursor( const MouseCursor& cursor )
 {
-    if ( cursor.shape_==MouseCursor::Bitmap )
-    {
-	ioPixmap pixmap( cursor.filename_ );
-	body()->qwidget()->setCursor(
-		QCursor(*pixmap.qpixmap(),cursor.hotx_,cursor.hoty_) );
-    }
-    else
-    {
-	 Qt::CursorShape qshape = (Qt::CursorShape)(int) cursor.shape_;
-	 QCursor qcursor;
-	 qcursor.setShape( qshape );
-	 body()->qwidget()->setCursor( qcursor );
-    }
+    QCursor qcursor;
+    uiCursorManager::fillQCursor( cursor, qcursor );
+    body()->qwidget()->setCursor( qcursor );
 }
 
 
