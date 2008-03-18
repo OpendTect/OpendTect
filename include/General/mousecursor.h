@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2008
- RCS:           $Id: mousecursor.h,v 1.1 2008-03-14 14:09:10 cvskris Exp $
+ RCS:           $Id: mousecursor.h,v 1.2 2008-03-18 18:42:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,31 +25,35 @@ public:
 		    /*! This enum type defines the various cursors that can be
 		        used.
 
-			\value Arrow  standard arrow cursor
-			\value UpArrow  upwards arrow
-			\value Cross  crosshair
-			\value Wait  hourglass/watch
-			\value Ibeam  ibeam/text entry
-			\value SizeVer  vertical resize
-			\value SizeHor  horizontal resize
-			\value SizeFDiag  diagonal resize (\)
-			\value SizeBDiag  diagonal resize (/)
-			\value SizeAll  all directions resize
-			\value Blank  blank/invisible cursor
-			\value SplitV  vertical splitting
-			\value SplitH  horizontal splitting
-			\value PointingHand  a pointing hand
-			\value Forbidden  a slashed circle
-			\value WhatsThis  an arrow with a question mark
+			\value Arrow		standard arrow cursor
+			\value UpArrow		upwards arrow
+			\value Cross		crosshair
+			\value Wait		hourglass/watch
+			\value Ibeam		ibeam/text entry
+			\value SizeVer		vertical resize
+			\value SizeHor 		horizontal resize
+			\value SizeFDiag	diagonal resize (\)
+			\value SizeBDiag	diagonal resize (/)
+			\value SizeAll		all directions resize
+			\value Blank		blank/invisible cursor
+			\value SplitV		vertical splitting
+			\value SplitH		horizontal splitting
+			\value PointingHand	a pointing hand
+			\value Forbidden	a slashed circle
+			\value WhatsThis	an arrow with a question mark
 			\value Bitmap
+			\value NotSet 
 
 			Arrow is the default for widgets in a normal state.
 		    */
     enum Shape	{ Arrow, UpArrow, Cross, Wait, Ibeam,
 		  SizeVer, SizeHor, SizeBDiag, SizeFDiag, SizeAll,
 		  Blank, SplitV, SplitH, PointingHand, Forbidden,
-		  WhatsThis, Last = WhatsThis, Bitmap = 24
+		  WhatsThis, Last = WhatsThis, Bitmap = 24, NotSet
 		};
+    			MouseCursor() : shape_( NotSet )		{}
+    bool		operator==(const MouseCursor&) const;
+    bool		operator!=(const MouseCursor&) const;
 
     Shape		shape_;
     BufferString	filename_;

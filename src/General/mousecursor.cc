@@ -4,9 +4,25 @@
  * DATE     : Mar 2008
 -*/
 
-static const char* rcsID = "$Id: mousecursor.cc,v 1.1 2008-03-14 14:09:10 cvskris Exp $";
+static const char* rcsID = "$Id: mousecursor.cc,v 1.2 2008-03-18 18:42:12 cvskris Exp $";
 
 #include "mousecursor.h"
+
+
+bool MouseCursor::operator==( const MouseCursor& mc ) const
+{
+    if ( mc.shape_!=shape_ )
+	return false;
+
+    if ( mc.shape_!=Bitmap )
+	return true;
+
+    return mc.filename_==filename_ && mc.hotx_==hotx_ && mc.hoty_==hoty_;
+}
+
+
+bool MouseCursor::operator!=( const MouseCursor& mc ) const
+{ return !(*this==mc); }
 
 
 PtrMan<MouseCursorManager> MouseCursorManager::mgr_ = 0;
