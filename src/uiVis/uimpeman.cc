@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.125 2008-03-14 14:35:45 cvskris Exp $
+ RCS:           $Id: uimpeman.cc,v 1.126 2008-03-18 06:33:46 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,10 +25,11 @@ ________________________________________________________________________
 #include "mpeengine.h"
 #include "sectiontracker.h"
 #include "survinfo.h"
+#include "executor.h"
 
 #include "uicombobox.h"
 #include "mousecursor.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uimainwin.h"
 #include "uimsg.h"
 #include "uislider.h"
@@ -1032,8 +1033,8 @@ void uiMPEMan::trackInVolume( CallBacker* )
     if ( exec )
     {
 	const int currentevent = EM::EMM().undo().currentEventID();
-	uiExecutor uiexec( toolbar, *exec );
-	if ( !uiexec.go() )
+	uiTaskRunner uiexec( toolbar );
+	if ( !uiexec.execute( *exec ) )
 	{
 	    if ( engine().errMsg() )
 		uiMSG().error( engine().errMsg() );

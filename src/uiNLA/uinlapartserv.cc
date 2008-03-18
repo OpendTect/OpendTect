@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.43 2008-02-29 11:38:18 cvsnanne Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.44 2008-03-18 06:33:46 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ ________________________________________________________________________
 
 #include "uicombobox.h"
 #include "uidistribution.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
@@ -95,8 +95,8 @@ void uiNLAPartServer::getBinIDValueSets(
 							     crdesc.pars,
 							     bivsets );
 	if ( !ex ) return;
-	uiExecutor uiex( appserv().parent(), *ex );
-	if ( !uiex.go() )
+	uiTaskRunner uiex( appserv().parent() );
+	if ( !uiex.execute(*ex) )
 	    deepErase( bivsets );
     }
 }
@@ -242,8 +242,8 @@ bool uiNLAPartServer::extractDirectData( const ObjectSet<PosVecDataSet>& vdss )
     // Fetch the well data
     Well::LogDataExtracter lde( crdesc.outids, bivsets );
     lde.usePar( crdesc.pars );
-    uiExecutor uiex( appserv().parent(), lde );
-    if ( uiex.go() )
+    uiTaskRunner uiex( appserv().parent() );
+    if ( uiex.execute(lde) )
     {
 	// Add a column to the input data
 	const BufferString outnm = crdesc.design.outputs.get(0);

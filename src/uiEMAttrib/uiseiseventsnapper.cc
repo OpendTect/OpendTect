@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiseiseventsnapper.cc,v 1.10 2007-12-10 12:59:52 cvsbert Exp $
+ RCS:           $Id: uiseiseventsnapper.cc,v 1.11 2008-03-18 06:33:46 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uiseiseventsnapper.h"
 
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
@@ -95,8 +95,8 @@ bool uiSeisEventSnapper::readHorizon()
 	reader = EM::EMM().objectLoader( mid );
 	if ( !reader ) return false;
 
-	uiExecutor dlg( this, *reader );
-	if ( !dlg.go() )
+	uiTaskRunner dlg( this );
+	if ( !dlg.execute( *reader ) )
 	{
 	    delete reader;
 	    return false;
@@ -133,8 +133,9 @@ bool uiSeisEventSnapper::saveHorizon()
 
     if ( !exec ) return false;
 
-    uiExecutor dlg( this, *exec );
-    const bool res = dlg.go();
+    uiTaskRunner dlg( this );
+//    const bool res = dlg.execuye( *exec );
+    const bool res = dlg.execute( *exec );
     return res;
 }
 
@@ -156,8 +157,9 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* )
     Interval<float> rg = gatefld_->getFInterval();
     rg.scale( 1 / SI().zFactor() );
     snapper.setSearchGate( rg );
-    uiExecutor dlg( this, snapper );
-    if ( !dlg.go() )
+   
+    uiTaskRunner dlg( this );
+    if ( !dlg.execute( snapper ) )
 	return false;
 
     BinIDValueSet::Pos pos;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribsel.cc,v 1.19 2008-03-14 14:35:45 cvskris Exp $
+ RCS:           $Id: uiwellattribsel.cc,v 1.20 2008-03-18 06:33:46 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ ________________________________________________________________________
 
 #include "uiattrsel.h"
 #include "mousecursor.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 
@@ -199,8 +199,8 @@ bool uiWellAttribSel::extractData( BinIDValueSet& bidset )
     PtrMan<Attrib::Processor> process =
 		aem.createLocationOutput( errmsg, bivsset );
     if ( !process ) mErrRet( errmsg );
-    uiExecutor uiexec( this, *process );
-    return uiexec.go();
+    uiTaskRunner uiexec( this);
+    return uiexec.execute(*process);
 }
 
 

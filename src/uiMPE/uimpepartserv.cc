@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.66 2008-03-14 14:35:45 cvskris Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.67 2008-03-18 06:33:46 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ ________________________________________________________________________
 #include "sectiontracker.h"
 #include "sectionadjuster.h"
 #include "mousecursor.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uihorizontracksetup.h"
 #include "uimpewizard.h"
 #include "uimsg.h"
@@ -462,8 +462,8 @@ void uiMPEPartServer::loadEMObjectCB(CallBacker*)
     if ( !emobj ) return;
 
     emobj->ref();
-    uiExecutor uiexec( appserv().parent(), *exec );
-    const bool keepobj = uiexec.go();
+    uiTaskRunner uiexec( appserv().parent() );
+     const bool keepobj = uiexec.execute(*exec);	
     exec.erase();
     if ( keepobj )
 	emobj->unRefNoDelete();

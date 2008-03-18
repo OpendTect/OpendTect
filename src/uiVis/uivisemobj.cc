@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.65 2008-03-14 14:35:45 cvskris Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.66 2008-03-18 06:33:46 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,8 @@ ________________________________________________________________________
 #include "emobject.h"
 #include "emsurfaceiodata.h"
 #include "survinfo.h"
-#include "uiexecutor.h"
+#include "executor.h"
+#include "uitaskrunner.h"
 #include "mousecursor.h"
 #include "uigeninputdlg.h"
 #include "uimenu.h"
@@ -106,8 +107,8 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 	    emid = EM::EMM().getObjectID( mid );
 	    EM::EMObject* emobject = EM::EMM().getObject( emid );
 	    emobject->ref();
-	    uiExecutor dlg( uiparent_, *exec );
-	    if ( !dlg.go() )
+	    uiTaskRunner dlg( uiparent_ );
+	    if ( !dlg.execute( *exec ) )
 	    {
 		emid = -1;
 		emobject->unRef();

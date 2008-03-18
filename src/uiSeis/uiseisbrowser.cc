@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.18 2008-03-14 05:45:16 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.19 2008-03-18 06:33:46 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 #include "uiseisbrowser.h"
 
 #include "uibutton.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uigeninput.h"
@@ -618,8 +618,8 @@ bool uiSeisBrowser::storeChgdData()
     
     uiSeisBrowseWriter* wrtr = new uiSeisBrowseWriter( setup_, tbufchgdtrcs_,
 	    					       is2D() );
-    uiExecutor dlg( this, *wrtr );
-    return dlg.go();
+    uiTaskRunner dlg( this );
+    return dlg.execute( *wrtr );
 }
 
 
