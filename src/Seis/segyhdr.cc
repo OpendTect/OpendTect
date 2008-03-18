@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.51 2008-03-14 08:23:11 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.52 2008-03-18 13:35:27 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -496,6 +496,8 @@ SegyTraceheader::SegyTraceheader( unsigned char* b, bool rev1,
     , needswap(SEGY_NeedDataSwapping())
     , isrev1(rev1)
     , seqnr(1)
+    , lineseqnr(1)
+    , previnl(-1)
 {
 }
 
@@ -576,16 +578,21 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
     if ( !isrev1 ) // starting default
 	putRev1Flds( ti, buf );
 
-    IbmFormat::putInt( seqnr, buf );
-    IbmFormat::putInt( seqnr++, buf+4 );
+    IbmFormat::putShort( 1, buf+28 ); // trid
+    IbmFormat::putShort( 1, buf+34 ); // duse
+    IbmFormat::putShort( 1, buf+88 ); // counit
 
-    IbmFormat::putShort( 1, buf+88 );   // counit
+    const bool is2d = SegyTxtHeader::info2d;
+    if ( !is2d && ti.binid.inl != previnl )
+	lineseqnr = 1;
+    previnl = ti.binid.inl;
+    IbmFormat::putInt( seqnr, buf );
+    IbmFormat::putInt( is2d ? seqnr : lineseqnr, buf+4 );
+    seqnr++; lineseqnr++;
 
     // Now the more general standards
-    const bool is2d = SegyTxtHeader::info2d;
     IbmFormat::putInt( is2d ? ti.nr : ti.binid.crl, buf+16 ); // ep
     IbmFormat::putInt( is2d ? ti.binid.crl : ti.nr, buf+20 ); // cdp
-    IbmFormat::putShort( 1, buf+28 );
     IbmFormat::putShort( -10, buf+70 ); // scalco
     if ( mIsUdf(ti.coord.x) )
     {

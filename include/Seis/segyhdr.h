@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.15 2007-11-29 14:36:03 cvsbert Exp $
+ RCS:		$Id: segyhdr.h,v 1.16 2008-03-18 13:35:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,8 +127,10 @@ public:
     unsigned char*	buf;
     bool		needswap; /* overrule using OD_SEGY_DATA_SWAPPED */
     const SegyTraceheaderDef&	hdef;
-    int			seqnr;
     bool		isrev1;
+    int			seqnr;
+    int			lineseqnr;
+    int			previnl;
 
     void		print(std::ostream&) const;
 
