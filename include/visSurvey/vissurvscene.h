@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.47 2008-01-31 19:06:38 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.48 2008-03-18 17:14:24 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 
 class HorSampling;
 class CubeSampling;
+class MouseCursor;
 class ZAxisTransform;
 class Color;
 
@@ -95,6 +96,7 @@ public:
     				/*! If not xyt it is inlcrlt */
     BufferString		getMousePosValue() const;
     BufferString		getMousePosString() const;
+    const MouseCursor*		getMouseCursor() const;
 
     void			objectMoved(CallBacker*);
 
@@ -149,6 +151,7 @@ protected:
     Coord3			xytmousepos_;
     BufferString		mouseposval_;
     BufferString		mouseposstr_;
+    const MouseCursor*		mousecursor_;
     float			curzscale_;
     BufferString		zdomainkey_;
     bool			allowshading_;

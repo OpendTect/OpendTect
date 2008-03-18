@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.85 2008-01-28 23:30:27 cvsyuancheng Exp $
+ RCS:		$Id: vissurvobj.h,v 1.86 2008-03-18 17:14:24 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -181,6 +181,12 @@ public:
 					    BufferString& val,
 					    BufferString& info) const
 				{ val = mUdf(float); info = ""; }
+    virtual const MouseCursor*	getMouseCursor() const		{ return 0; }
+
+    				/*!<Returns a mouse cursor that will
+				    be used if this object under the
+				    mouse in Act mode. */
+				    
     virtual void		getObjectInfo(BufferString&) const	{}
 
     				// Data via DataPacks

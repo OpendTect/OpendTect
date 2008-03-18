@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.100 2007-09-07 18:28:31 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.101 2008-03-18 17:14:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ Scene::Scene()
     , curzscale_(-1)
     , datatransform_( 0 )
     , allowshading_(true)
+    , mousecursor_( 0 )
 {
     events_.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
     setAmbientLight( 1 );
@@ -304,6 +305,10 @@ BufferString Scene::getMousePosString() const
 { return mouseposstr_; }
 
 
+const MouseCursor* Scene::getMouseCursor() const
+{ return mousecursor_; }
+
+
 void Scene::objectMoved( CallBacker* cb )
 {
     ObjectSet<const SurveyObject> activeobjects;
@@ -367,6 +372,8 @@ void Scene::mouseMoveCB( CallBacker* cb )
 		    if ( newmouseposval[0] )
 			mouseposval_ = newmouseposval;
 		}
+
+		mousecursor_ = so->getMouseCursor();
 
 		break;
 	    }
