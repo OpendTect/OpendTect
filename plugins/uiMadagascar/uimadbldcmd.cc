@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.13 2008-01-09 13:54:34 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.14 2008-03-18 09:09:47 cvsraman Exp $";
 
 #include "uimadbldcmd.h"
 #include "uimsg.h"
@@ -41,6 +41,32 @@ static BufferString& separateProgName( const char* cmd, bool wantprog )
     }
     *retptr = '\0';
     return ret;
+}
+
+
+static const char* separatePars( const char* cmd )
+{
+    BufferString* ret = new BufferString;
+    char buf[80];
+
+    while ( cmd && *cmd )
+    {
+	cmd = getNextWord( cmd, buf );
+	if ( !*buf ) break;
+
+	int idx = 0;
+	while ( buf[idx++] )
+	{
+	    if ( buf[idx] == '=' )
+	    {
+		*ret += " ";
+		*ret += buf;
+		break;
+	    }
+	}
+    }
+
+    return ret->buf();
 }
 
 
@@ -163,7 +189,10 @@ uiMadagascarBldCmd::~uiMadagascarBldCmd()
 
 const char*  uiMadagascarBldCmd::command() const
 {
-    return cmdfld_->text();
+    const char* text = cmdfld_->text();
+    BufferString* comm = new BufferString( separateProgName(text,true) );
+    *comm += separatePars( text );
+    return comm->buf();
 }
 
 
