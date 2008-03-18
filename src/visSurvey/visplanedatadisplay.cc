@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.186 2008-03-14 14:35:45 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.187 2008-03-18 18:47:52 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -26,6 +26,7 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.186 2008-03-14 14:35
 #include "visdepthtabplanedragger.h"
 #include "visdrawstyle.h"
 #include "visfaceset.h"
+#include "visevent.h"
 #include "visgridlines.h"
 #include "vismultitexture2.h"
 #include "vispickstyle.h"
@@ -54,6 +55,7 @@ PlaneDataDisplay::PlaneDataDisplay()
     , movefinished_(this)
     , orientation_( Inline )
     , csfromsession_( true )			    
+    , eventcatcher_( 0 )
 {
     volumecache_.allowNull( true );
     rposcache_.allowNull( true );
@@ -126,6 +128,7 @@ PlaneDataDisplay::PlaneDataDisplay()
 
 PlaneDataDisplay::~PlaneDataDisplay()
 {
+    setSceneEventCatcher( 0 );
     dragger_->motion.remove( mCB(this,PlaneDataDisplay,draggerMotion) );
     dragger_->finished.remove( mCB(this,PlaneDataDisplay,draggerFinish) );
     dragger_->rightClicked()->remove(
@@ -1095,6 +1098,48 @@ bool PlaneDataDisplay::isVerticalPlane() const
 {
     return orientation_ != PlaneDataDisplay::Timeslice;
 }
+
+
+void PlaneDataDisplay::setSceneEventCatcher( visBase::EventCatcher* ec )
+{
+    if ( eventcatcher_ )
+    {
+	eventcatcher_->eventhappened.remove(
+		mCB(this,PlaneDataDisplay,updateMouseCursorCB) );
+	eventcatcher_->unRef();
+    }
+
+    eventcatcher_ = ec;
+
+    if ( eventcatcher_ )
+    {
+	eventcatcher_->ref();
+	eventcatcher_->eventhappened.notify(
+		mCB(this,PlaneDataDisplay,updateMouseCursorCB) );
+    }
+}
+
+
+void PlaneDataDisplay::updateMouseCursorCB( CallBacker* cb )
+{
+    char newstatus = 1; // 1= zdrag, 2=pan
+    if ( cb )
+    {
+	mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+	const unsigned int buttonstate = (unsigned int)  eventinfo.buttonstate_;
+	if (  buttonstate==dragger_->getTransDragKeys(false) )
+	    newstatus = 2;
+    }
+
+    if ( !isSelected() || !isOn() || isLocked() )
+	newstatus = 0;
+
+    if ( !newstatus ) mousecursor_.shape_ = MouseCursor::NotSet;
+    else if ( newstatus==1 ) mousecursor_.shape_ = MouseCursor::PointingHand;
+    else mousecursor_.shape_ = MouseCursor::SizeAll;
+}
+
+
 
 } // namespace visSurvey
 

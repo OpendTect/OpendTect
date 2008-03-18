@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.104 2008-03-05 20:55:08 cvsyuancheng Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.105 2008-03-18 18:47:52 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 
 #include "vismultiattribsurvobj.h"
+#include "mousecursor.h"
 #include "ranges.h"
 
 template <class T> class Array2DImpl;
@@ -94,6 +95,7 @@ public:
    
     visBase::GridLines*		gridlines()		{ return gridlines_; }
 
+    const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
     void			getMousePosInfo(const visBase::EventInfo&,
 	    					const Coord3&,
 	    					BufferString& val,
@@ -131,6 +133,7 @@ public:
     static const char*		sKeyPlaneKey()		{ return "PlaneKey"; }
 
 protected:
+
 				~PlaneDataDisplay();
     void			setVolumeDataPackNoCache(int attrib,
 	    				const Attrib::Flat3DDataPack*);
@@ -141,6 +144,7 @@ protected:
     void			updateFromDisplayIDs(int attrib);
 
     void			updateMainSwitch();
+    void			setSceneEventCatcher(visBase::EventCatcher*);
     void			updateRanges(bool resetpos=false);
     void			updateRanges(bool resetinlcrl=false,
 	    				     bool resetz=false);
@@ -151,6 +155,7 @@ protected:
     void			draggerRightClick(CallBacker*);
     void			setDraggerPos(const CubeSampling&);
     void			dataTransformCB(CallBacker*);
+    void			updateMouseCursorCB(CallBacker*);
     
     bool			getCacheValue(int attrib,int version,
 					      const Coord3&,float&) const;
@@ -158,10 +163,14 @@ protected:
     void			removeCache(int);
     void			swapCache(int,int);
     void			emptyCache(int);
+    void			triggerSel() { updateMouseCursorCB( 0 ); }
+    void			triggerDeSel() { updateMouseCursorCB( 0 ); }
     bool			hasCache(int) const;
 
     CubeSampling		snapPosition(const CubeSampling&) const;
 
+    visBase::EventCatcher*		eventcatcher_;
+    MouseCursor				mousecursor_;
     visBase::DepthTabPlaneDragger*	dragger_;
     visBase::Material*			draggermaterial_;
     visBase::PickStyle*			rectanglepickstyle_;
