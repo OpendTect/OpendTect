@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		9-4-1996
  Contents:	Geographics lat/long <-> Coord transform (an estimate)
- RCS:		$Id: latlong.h,v 1.5 2007-11-19 11:56:07 cvsbert Exp $
+ RCS:		$Id: latlong.h,v 1.6 2008-03-18 15:38:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ public:
 
 			LatLong2Coord();
 			LatLong2Coord(const Coord&,const LatLong&);
-    bool		isOK() const	{ return !mIsUdf(latdist_); }
+    bool		isOK() const	{ return !mIsUdf(lngdist_); }
 
     void		set(const LatLong&,const Coord&);
     void		setCoordsInFeet( bool yn )
@@ -63,7 +63,7 @@ public:
     bool		use(const char*);
 
     Coord		refCoord() const	{ return refcoord_; }
-    Coord		refLatLong() const	{ return reflatlng_; }
+    LatLong		refLatLong() const	{ return reflatlng_; }
     bool		coordsInFeet() const	{ return scalefac_ < 0.7; }
 
 protected:
