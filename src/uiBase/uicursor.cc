@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/05/2004
- RCS:           $Id: uicursor.cc,v 1.8 2008-03-14 14:35:45 cvskris Exp $
+ RCS:           $Id: uicursor.cc,v 1.9 2008-03-18 17:38:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,21 @@ uiCursorManager::~uiCursorManager()
 {}
 
 
+void uiCursorManager::fillQCursor( const MouseCursor& mc, QCursor& qcursor )
+{
+    if ( mc.shape_==MouseCursor::Bitmap )
+    {
+	ioPixmap pixmap( mc.filename_ );
+	qcursor = QCursor( *pixmap.qpixmap(), mc.hotx_, mc.hoty_ );
+    }
+    else
+    {
+	const Qt::CursorShape qshape = (Qt::CursorShape)(int) mc.shape_;
+	qcursor.setShape( qshape );
+    }
+}
+
+
 void uiCursorManager::setOverrideShape( MouseCursor::Shape sh, bool replace )
 {
     Qt::CursorShape qshape = (Qt::CursorShape)(int) sh;
@@ -49,10 +64,9 @@ void uiCursorManager::setOverrideFile( const char* fn, int hotx, int hoty,
 
 void uiCursorManager::setOverrideCursor( const MouseCursor& mc, bool replace )
 {
-    if ( mc.shape_==MouseCursor::Bitmap )
-	setOverrideFile( mc.filename_, mc.hotx_, mc.hoty_, replace );
-    else
-	setOverrideShape( mc.shape_, replace );
+    QCursor qcursor;
+    fillQCursor( mc, qcursor );
+    QApplication::setOverrideCursor( qcursor, replace );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/05/2004
- RCS:           $Id: uicursor.h,v 1.9 2008-03-14 14:35:44 cvskris Exp $
+ RCS:           $Id: uicursor.h,v 1.10 2008-03-18 17:38:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,10 +25,9 @@ public:
 
 protected:
 		~uiCursorManager();
-
-protected:
 		uiCursorManager();
 
+    static void	fillQCursor(const MouseCursor&,QCursor&);
     void	setOverrideShape(MouseCursor::Shape,bool replace);
     void	setOverrideCursor(const MouseCursor&,bool replace);
     void	setOverrideFile(const char* filenm,
