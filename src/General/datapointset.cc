@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.18 2008-03-14 09:33:26 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.19 2008-03-18 15:22:40 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -18,8 +18,10 @@ static const char* rcsID = "$Id: datapointset.cc,v 1.18 2008-03-14 09:33:26 cvsb
 
 static const char* sKeyDPS = "Data Point Set";
 const int DataPointSet::groupcol_ = 3;
-#define mAdd2DMembs(is2d) \
-    	is2d_(is2d), nrfixedcols_(is2d?5:4)
+#define mAddMembs(is2d,mini) \
+    	  is2d_(is2d) \
+    	, nrfixedcols_(is2d?(mini?2:5):(mini?1:4)) \
+	, minimal_(mini)
 
 
 DataPointSet::Pos::Pos( const Coord& c, float _z )
@@ -70,10 +72,11 @@ Coord DataPointSet::Pos::coord() const
 
 
 DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
-			    const ObjectSet<DataColDef>& dcds, bool is2d )
+			    const ObjectSet<DataColDef>& dcds, bool is2d,
+			    bool mini )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
-    	, mAdd2DMembs(is2d)
+    	, mAddMembs(is2d,mini)
 {
     initPVDS();
     init( pts, dcds );
@@ -81,10 +84,10 @@ DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
 
 
 DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
-			    const BufferStringSet& nms, bool is2d )
+			    const BufferStringSet& nms, bool is2d, bool mini )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
-    	, mAdd2DMembs(is2d)
+    	, mAddMembs(is2d,mini)
 {
     initPVDS();
     ObjectSet<DataColDef> dcds;
@@ -96,10 +99,10 @@ DataPointSet::DataPointSet( const TypeSet<DataPointSet::DataRow>& pts,
 
 DataPointSet::DataPointSet( ::Pos::Provider& prov,
 			    const ObjectSet<DataColDef>& dcds,
-       			    const ::Pos::Filter* filt )
+       			    const ::Pos::Filter* filt, bool mini )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
-    	, mAdd2DMembs(prov.is2D())
+    	, mAddMembs(prov.is2D(),mini)
 {
     initPVDS();
     for ( int idx=0; idx<dcds.size(); idx++ )
@@ -146,10 +149,10 @@ DataPointSet::DataPointSet( ::Pos::Provider& prov,
 }
 
 
-DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool is2d )
+DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool is2d, bool mini )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
-    	, mAdd2DMembs(is2d)
+    	, mAddMembs(is2d,mini)
 {
     initPVDS();
 
@@ -192,7 +195,7 @@ DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool is2d )
 DataPointSet::DataPointSet( const DataPointSet& dps, const ::Pos::Filter& filt )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
-    	, mAdd2DMembs(dps.is2d_)
+    	, mAddMembs(dps.is2d_,dps.minimal_)
 {
     data_.copyStructureFrom( dps.data_ );
     const int typ = filt.is2D() != dps.is2d_ ? -1 : (dps.is2d_ ? 1 : 0);
@@ -222,7 +225,7 @@ DataPointSet::DataPointSet( const DataPointSet& dps, const ::Pos::Filter& filt )
 DataPointSet::DataPointSet( const DataPointSet& dps )
 	: PointDataPack(sKeyDPS)
 	, data_(*new PosVecDataSet)
-    	, mAdd2DMembs(dps.is2d_)
+    	, mAddMembs(dps.is2d_,dps.minimal_)
 {
     data_ = dps.data_;
     bvsidxs_ = dps.bvsidxs_;
@@ -242,6 +245,7 @@ DataPointSet& DataPointSet::operator =( const DataPointSet& dps )
 	data_ = dps.data_;
 	bvsidxs_ = dps.bvsidxs_;
 	is2d_ = dps.is2d_;
+	minimal_ = dps.minimal_;
 	const_cast<int&>(nrfixedcols_) = dps.nrfixedcols_;
     }
     return *this;
@@ -250,9 +254,12 @@ DataPointSet& DataPointSet::operator =( const DataPointSet& dps )
 
 void DataPointSet::initPVDS()
 {
-    data_.add( new DataColDef("X Offset") );
-    data_.add( new DataColDef("Y Offset") );
-    data_.add( new DataColDef("Selection status") );
+    if ( !minimal_ )
+    {
+	data_.add( new DataColDef("X Offset") );
+	data_.add( new DataColDef("Y Offset") );
+	data_.add( new DataColDef("Selection status") );
+    }
     if ( is2d_ )
 	data_.add( new DataColDef("Trace number") );
 }
@@ -332,9 +339,11 @@ DataPointSet::Pos DataPointSet::pos( DataPointSet::RowID rid ) const
 {
     mChkRowID(rid,Pos());
     const float* vals = bivSet().getVals( bvsidxs_[rid] );
-    Pos p( binID(rid), vals[0], vals[1], vals[2] );
+    Pos p( binID(rid), vals[0] );
+    if ( !minimal_ )
+	{ p.offsx_ = vals[1]; p.offsy_ = vals[2]; }
     if ( is2d_ )
-	p.nr_ = mNINT(vals[4]);
+	p.nr_ = mNINT(vals[nrfixedcols_-1]);
     return p;
 }
 
@@ -347,7 +356,8 @@ DataPointSet::DataRow DataPointSet::dataRow( DataPointSet::RowID rid ) const
     const int nrvals = bivSet().nrVals();
 
     DataRow dr( pos(rid) );
-    dr.grp_ = (short)mNINT(vals[groupcol_]);
+    if ( !minimal_ )
+	dr.grp_ = (short)mNINT(vals[groupcol_]);
     for ( int idx=nrfixedcols_; idx<nrvals; idx++ )
 	dr.data_ += vals[idx];
 
@@ -365,8 +375,7 @@ BinID DataPointSet::binID( DataPointSet::RowID rid ) const
 Coord DataPointSet::coord( DataPointSet::RowID rid ) const
 {
     mChkRowID(rid,Coord::udf());
-    Pos p( pos(rid) );
-    return p.coord();
+    return pos(rid).coord();
 }
 
 
@@ -380,7 +389,7 @@ float DataPointSet::z( DataPointSet::RowID rid ) const
 int DataPointSet::trcNr( DataPointSet::RowID rid ) const
 {
     mChkRowID(rid,0); if ( !is2d_ ) return 0;
-    const float fnr = bivSet().getVal( bvsidxs_[rid], groupcol_+1 );
+    const float fnr = bivSet().getVal( bvsidxs_[rid], nrfixedcols_-1 );
     return mNINT(fnr);
 }
 
@@ -409,6 +418,7 @@ const float* DataPointSet::getValues( DataPointSet::RowID rid ) const
     
 unsigned short DataPointSet::group( DataPointSet::RowID rid ) const
 {
+    if ( minimal_ ) return 0;
     mChkRowID(rid,0);
     const float v = bivSet().getVal( bvsidxs_[rid], groupcol_ );
     return (unsigned short)((v < -0.5 ? -v : v)+.5);
@@ -417,6 +427,7 @@ unsigned short DataPointSet::group( DataPointSet::RowID rid ) const
 
 bool DataPointSet::isSelected( DataPointSet::RowID rid ) const
 {
+    if ( minimal_ ) return true;
     mChkRowID(rid,0);
     return bivSet().getVal( bvsidxs_[rid], groupcol_ ) > 0.5;
 }
@@ -424,6 +435,7 @@ bool DataPointSet::isSelected( DataPointSet::RowID rid ) const
 
 void DataPointSet::setGroup( DataPointSet::RowID rid, unsigned short newgrp )
 {
+    if ( minimal_ ) return;
     mChkRowID(rid,);
     short grp = isSelected(rid) ? newgrp : -newgrp;
     bivSet().getVals( bvsidxs_[rid] )[ groupcol_ ] = grp;
@@ -432,6 +444,7 @@ void DataPointSet::setGroup( DataPointSet::RowID rid, unsigned short newgrp )
 
 void DataPointSet::setSelected( DataPointSet::RowID rid, bool sel )
 {
+    if ( minimal_ ) return;
     mChkRowID(rid,);
     short grp = (short)group( rid );
     if ( (!sel && grp > 0) || (sel && grp < 0) ) grp = -grp;
@@ -441,6 +454,7 @@ void DataPointSet::setSelected( DataPointSet::RowID rid, bool sel )
 
 void DataPointSet::setInactive( DataPointSet::RowID rid, bool sel )
 {
+    if ( minimal_ ) return;
     mChkRowID(rid,);
     bivSet().getVals( bvsidxs_[rid] )[ groupcol_ ] = 0;
 }
@@ -451,11 +465,14 @@ void DataPointSet::addRow( const DataPointSet::DataRow& dr )
     const int nrvals = nrCols();
     BinIDValues bivs( dr.pos_.binid_, nrvals + nrfixedcols_ );
     bivs.value(0) = dr.pos_.z_;
-    bivs.value(1) = dr.pos_.offsx_;
-    bivs.value(2) = dr.pos_.offsy_;
-    bivs.value(3) = dr.grp_;
+    if ( !minimal_ )
+    {
+	bivs.value(1) = dr.pos_.offsx_;
+	bivs.value(2) = dr.pos_.offsy_;
+	bivs.value(3) = dr.grp_;
+    }
     if ( is2d_ )
-	bivs.value(4) = dr.pos_.nr_;
+	bivs.value(nrfixedcols_-1) = dr.pos_.nr_;
     for ( int idx=0; idx<nrvals; idx++ )
 	bivs.value(nrfixedcols_+idx) = dr.data_[idx];
     bivSet().add( bivs );
@@ -473,7 +490,10 @@ float DataPointSet::nrKBytes() const
 
 void DataPointSet::dumpInfo( IOPar& iop ) const
 {
-    iop.set( sKey::Type, "PointSet" );
+    BufferString typstr( "PointSet (" );
+    typstr += is2d_ ? "2D" : "3D";
+    typstr += minimal_ ? ",minimal)" : ")";
+    iop.set( sKey::Type, typstr );
     iop.set( "Number of rows", bivSet().totalSize() );
     const int nrcols = nrCols();
     iop.set( "Number of cols", nrcols );
@@ -532,6 +552,7 @@ DataPointSet::RowID DataPointSet::findFirst( const BinID& bid ) const
 DataPointSet::RowID DataPointSet::findFirst( const Coord& crd ) const
 {
     const BinID bid = SI().transform( crd );
+    if ( minimal_ ) return findFirst( bid );
     const DataPointSet::RowID rid = findFirst( bid );
     if ( rid < 0 ) return -1;
 

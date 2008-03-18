@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.13 2008-03-14 09:33:26 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.14 2008-03-18 15:22:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,9 @@ namespace Pos { class Filter; class Provider; }
 
   For data associated with 2D seismics, you can specify that the DataPointSet
   needs to be 2D; then also 'trcNr() can be used.
+
+  For large sets, you may not be interested in precise X and Y, and
+  grouping/selection. The specify the 'minimal' flag on construction.
 
 */
 
@@ -108,19 +111,21 @@ public:
 
     			DataPointSet(const TypeSet<DataRow>&,
 				     const ObjectSet<DataColDef>&,
-				     bool is2d=false);
+				     bool is2d,bool minimal=false);
     			DataPointSet(const TypeSet<DataRow>&,
 				     const BufferStringSet& valnms,
-				     bool is2d=false);
+				     bool is2d,bool minimal=false);
     			DataPointSet(::Pos::Provider&,
 				     const ObjectSet<DataColDef>&,
-				     const ::Pos::Filter* f=0);
-    			DataPointSet(const PosVecDataSet&,bool is2d=false);
+				     const ::Pos::Filter* f=0,bool minimal=false);
+    			DataPointSet(const PosVecDataSet&,bool is2d,
+					bool minimal=false);
     			DataPointSet(const DataPointSet&,const ::Pos::Filter&);
     			DataPointSet(const DataPointSet&);
     virtual		~DataPointSet();
     DataPointSet&	operator =(const DataPointSet&);
     bool		is2D() const		{ return is2d_; }
+    bool		isMinimal() const	{ return minimal_; }
 
     int			nrCols() const;
     int			nrFixedCols() const	{ return nrfixedcols_; }
@@ -187,6 +192,7 @@ protected:
     PosVecDataSet&		data_;
     TypeSet<BinIDValueSet::Pos>	bvsidxs_;
     bool			is2d_;
+    bool			minimal_;
 
     void		initPVDS();
     void		init(const TypeSet<DataRow>&,
