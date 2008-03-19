@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.19 2008-02-18 05:50:55 cvsraman Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.20 2008-03-19 14:35:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,8 +152,10 @@ void uiFlatViewDataDispPropTab::getCommonFromScreen()
     FlatView::DataDispPars::Common& pars = commonPars();
 
     pars.show_ = doDisp();
-    pars.clipperc_ = useclipfld_->getBoolValue()
-				? clipratiofld_->getfValue() : 0;
+    pars.clipperc_ =
+	    useclipfld_->getBoolValue() && !mIsUdf( clipratiofld_->getfValue() )
+	? clipratiofld_->getfValue()
+	: 0;
     pars.rg_ = useclipfld_->getBoolValue()
 			    ? Interval<float>(mUdf(float),mUdf(float))
 			    : rgfld_->getFInterval();
