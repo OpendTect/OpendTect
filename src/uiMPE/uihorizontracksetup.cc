@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: uihorizontracksetup.cc,v 1.17 2008-03-12 09:18:44 cvsjaap Exp $
+ RCS:           $Id: uihorizontracksetup.cc,v 1.18 2008-03-19 11:22:51 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,7 +89,7 @@ uiGroup* uiHorizonSetupGroup::createEventGroup()
     uiGroup* grp = new uiGroup( tabgrp_->tabGroup(), "Event" );
 
     inpfld = new uiAttrSel( grp, attrset_, attrset_ ? attrset_->is2D() : false,
-	    		    "Seismic data" );
+	    		    "Input data" );
     grp->setHAlignObj( inpfld );
 
     evfld = new uiGenInput( grp, "Event type",
