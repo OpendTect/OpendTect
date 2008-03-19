@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.136 2008-03-12 09:48:03 cvsbert Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.137 2008-03-19 09:13:09 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -938,13 +938,22 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 				  TypeSet<Coord>& coords,
 				  TypeSet< Interval<float> >& zrgs )
 {
+    if ( !selhorids.size() ) return;
+
     EM::ObjectID id;
+    const bool issecondhor = selhorids.size()>1;
     mGetObjId(0,id);
     mDynamicCastGet(EM::Horizon2D*,hor2d1,em_.getObject(id));
     
-    mGetObjId(1,id);
-    mDynamicCastGet(EM::Horizon2D*,hor2d2,em_.getObject(id));
-    if ( !hor2d1 || !hor2d2 ) return;
+    EM::Horizon2D* hor2d2 = 0;
+    if ( issecondhor )
+    {
+	mGetObjId(1,id);
+	mDynamicCastGet(EM::Horizon2D*,hor,em_.getObject(id));
+	hor2d2 = hor;
+    }
+
+    if ( !hor2d1 || ( issecondhor && !hor2d2 ) ) return;
 
     for ( int lidx=0; lidx<selectlines.size(); lidx++ )
     {
@@ -955,23 +964,31 @@ void uiEMPartServer::getSurfaceDef2D( const ObjectSet<MultiID>& selhorids,
 	int lineidx = hor2d1->geometry().lineIndex( lnm );
 	const int lineid1 = hor2d1->geometry().lineID( lineidx );
 
-	lineidx = hor2d2->geometry().lineIndex( lnm );
-	const int lineid2 = hor2d2->geometry().lineID( lineidx );
-	if ( lineid1<0 || lineid2<0 ) continue;
+	int lineid2 = -1;
+	if ( issecondhor )
+	{
+	    lineidx = hor2d2->geometry().lineIndex( lnm );
+	    lineid2 = hor2d2->geometry().lineID( lineidx );
+	}
+
+	if ( lineid1<0 || ( issecondhor && lineid2<0 ) ) continue;
 
 	for ( int trcidx=0; trcidx<ld->posns.size(); trcidx++ )
 	{
 	    const EM::SubID subid1 = 
 		RowCol( lineid1, ld->posns[trcidx].nr_ ).getSerialized();
-	    const EM::SubID subid2 =
-		RowCol( lineid2, ld->posns[trcidx].nr_ ).getSerialized();
-
 	    const float z1 = hor2d1->getPos(0,subid1).z;
-	    const float z2 = hor2d2->getPos(0,subid2).z;
-
-	    if ( !mIsUdf(z1) && !mIsUdf(z2) )
+	    float z2 = mUdf(float);
+	    if ( issecondhor )
 	    {
-		Interval<float> zrg( z1, z2 );	
+		const EM::SubID subid2 =
+		    RowCol( lineid2, ld->posns[trcidx].nr_ ).getSerialized();
+		z2 = hor2d2->getPos(0,subid2).z;
+	    }
+
+	    if ( !mIsUdf(z1) && ( !issecondhor || !mIsUdf(z2) ) )
+	    {
+		Interval<float> zrg( z1, issecondhor ? z2 : z1 );	
 		zrgs += zrg;
 		coords += ld->posns[trcidx].coord_;
 	    }
