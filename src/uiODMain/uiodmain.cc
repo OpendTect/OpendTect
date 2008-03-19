@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.95 2008-03-14 14:35:45 cvskris Exp $
+ RCS:           $Id: uiodmain.cc,v 1.96 2008-03-19 13:16:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ ________________________________________________________________________
 #include "uitoolbar.h"
 #include "uisurvinfoed.h"
 #include "ui2dsip.h"
+#include "uisplashscreen.h"
 
 #include "ctxtioobj.h"
 #include "envvars.h"
@@ -69,10 +70,6 @@ ________________________________________________________________________
 #include "initvisbase.h"
 #include "initvissurvey.h"
 #include "initvolumeprocessing.h"
-
-#ifndef USEQT3
-# include "uisplashscreen.h"
-#endif
 
 static const int cCTHeight = 200;
 
@@ -130,12 +127,10 @@ int ODMain( int argc, char** argv )
     PIM().loadAuto( false );
 
     uiODMain* odmain = new uiODMain( *new uicMain(argc,argv) );
-#ifndef USEQT3
     ioPixmap pm( mGetSetupFileName("splash.png") );
     uiSplashScreen splash( pm );
     splash.show();
     splash.showMessage( "Loading plugins ..." );
-#endif
     manODMainWin( odmain );
 
     bool dodlg = true;
@@ -153,13 +148,10 @@ int ODMain( int argc, char** argv )
     if ( !odmain->ensureGoodSurveySetup() )
 	return 1;
 
-#ifdef USEQT3
-    odmain->initScene();
-#else
     splash.showMessage( "Initializing Scene ..." );
     odmain->initScene();
     splash.finish( odmain );
-#endif
+
     odmain->go();
     delete odmain;
     return 0;
@@ -182,6 +174,7 @@ uiODMain::uiODMain( uicMain& a )
     , restoringsess_(false)
     , sessionSave(this)
     , sessionRestore(this)
+    , justBeforeGo(this)
     , applicationClosing(this)
 {
     uiMSG().setMainWin( this );
@@ -306,6 +299,8 @@ void uiODMain::initScene()
 {
     scenemgr_->initMenuMgrDepObjs();
     applMgr().visServer()->showMPEToolbar( false );
+
+    justBeforeGo.trigger();
 }
 
 

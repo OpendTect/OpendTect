@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmain.h,v 1.17 2007-10-22 08:43:15 cvsraman Exp $
+ RCS:           $Id: uiodmain.h,v 1.18 2008-03-19 13:16:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,11 +49,13 @@ public:
     uiODSceneMgr&	sceneMgr()	{ return *scenemgr_; }
     uiVisColTabEd&	colTabEd()	{ return *ctabed_; }
 
-    Notifier<uiODMain>	sessionSave;	//!< When triggered, put data in pars
-    Notifier<uiODMain>	sessionRestore;	//!< When triggered, get data from pars
-    Notifier<uiODMain>	applicationClosing;//!< When triggered, prepare for shutdown
+    Notifier<uiODMain>	sessionSave;	//!< Put data in pars
+    Notifier<uiODMain>	sessionRestore;	//!< Get data from pars
     IOPar&		sessionPars();	//!< On session save or restore
     					//!< notification, to get/put data
+
+    Notifier<uiODMain>	justBeforeGo;	//!< Scenes inited, auto-plugins loaded
+    Notifier<uiODMain>	applicationClosing;//!< Prepare for shutdown
 
     bool		askStore(bool& askedanything);
     			/*!< Asks user if session, picksets or attributesets
