@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2008
- RCS:		$Id: agc.h,v 1.2 2008-03-19 13:30:42 cvskris Exp $
+ RCS:		$Id: agc.h,v 1.3 2008-03-19 17:43:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,8 @@ template <class T> inline
 void AGC<T>::computeEnergyMute()
 {
     energymute_ = 0;
-    if ( mIsZero(mutefraction_,1e-5) )
+    if ( mIsUdf(mutefraction_) ||
+	 mIsZero(mutefraction_,1e-5) )
 	return;
 
     const int sample = mNINT(size_*mutefraction_);
