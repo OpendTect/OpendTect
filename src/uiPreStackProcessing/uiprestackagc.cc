@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackagc.cc,v 1.2 2007-07-20 19:36:04 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackagc.cc,v 1.3 2008-03-19 17:48:11 cvskris Exp $";
 
 #include "uiprestackagc.h"
 
@@ -37,9 +37,12 @@ uiAGC::uiAGC( uiParent* p,AGC* sgagc )
 {
     windowfld_ = new uiGenInput( this, "Window width",
 			     FloatInpSpec(processor_->getWindow().width() ));
-    lowenergymute_ = new uiGenInput( this, "Low energy mute", FloatInpSpec() );
+    lowenergymute_ = new uiGenInput( this, "Low energy mute (%)",
+	    			     FloatInpSpec() );
     lowenergymute_->attach( alignedBelow, windowfld_ );
-    lowenergymute_->setValue( processor_->getLowEnergyMute() );
+    const float lowenergymute = processor_->getLowEnergyMute();
+    lowenergymute_->setValue(
+	    mIsUdf(lowenergymute) ? mUdf(float) : lowenergymute*100 );
 }
 
 
@@ -55,7 +58,19 @@ bool uiAGC::acceptOK( CallBacker* )
     }
 
     processor_->setWindow( Interval<float>( -width/2, width/2 ) );
-    processor_->setLowEnergyMute( lowenergymute_->getfValue() );
+    const float lowenerymute = lowenergymute_->getfValue();
+    if ( mIsUdf(lowenerymute) ) processor_->setLowEnergyMute( mUdf(float) );
+    else
+    {
+	if ( lowenerymute<0 || lowenerymute>99 )
+	{
+	    uiMSG().error("Low energy mute must be between 0 and 99");
+	    return false;
+	}
+
+	processor_->setLowEnergyMute( lowenerymute*100 );
+    }
+
     return true;
 }
 
