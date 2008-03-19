@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.53 2008-01-21 04:10:05 cvsraman Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.54 2008-03-19 09:16:21 cvsraman Exp $";
 
 #include "pickset.h"
 
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: pickset.cc,v 1.53 2008-01-21 04:10:05 cvsraman 
 #include "separstr.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "unitofmeasure.h"
 #include <ctype.h>
 
 
@@ -490,8 +491,15 @@ void PickSetAscIO::createDescBody( Table::FormatDesc* fd, bool isxy,
     fd->bodyinfos_ += new Table::TargetInfo( isxy ? "Y Coordinate" : "Crl No.",
 				 FloatInpSpec(), Table::Required );
     if ( iszreq )
-	fd->bodyinfos_ += new Table::TargetInfo( "Z Values", FloatInpSpec(), 
-				 Table::Required, PropertyRef::surveyZType() );
+    {
+	Table::TargetInfo* ti =
+	    new Table::TargetInfo( "Z Values", FloatInpSpec(), Table::Required,
+		    		   PropertyRef::surveyZType() );
+	const char* un = SI().zIsTime() ? "Milliseconds"
+	                                : SI().zInFeet() ? "Feet" : "Meter";
+	ti->selection_.unit_ = UoMR().get( un );
+	fd->bodyinfos_ += ti;
+    }
 }
 
 
