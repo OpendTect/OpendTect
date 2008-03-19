@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.42 2008-01-03 07:54:35 cvsnanne Exp $
+ RCS:           $Id: uimain.cc,v 1.43 2008-03-19 13:15:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "errh.h"
 #include "debugmasks.h"
 #include "settings.h"
+#include "bufstringset.h"
 #include "qapplication.h"
 #include "uimsg.h"
 
@@ -153,6 +154,14 @@ int uiMain::exec()
 {
     if ( !app_ )  { pErrMsg("Huh?") ; return -1; }
     return app_->exec();
+}
+
+
+void uiMain::getCmdLineArgs( BufferStringSet& args ) const
+{
+    QStringList qargs = app_->arguments();
+    for ( int idx=0; idx<qargs.count(); idx++ )
+	args.add( qargs.at(idx).toAscii() );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/12/1999
- RCS:           $Id: uimain.h,v 1.12 2007-02-14 16:37:50 cvsdgb Exp $
+ RCS:           $Id: uimain.h,v 1.13 2008-03-19 13:15:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ class uiMainWin;
 class QApplication;
 class uiFont;
 class QWidget;
+class BufferStringSet;
 
 
 class uiMain
@@ -34,6 +35,7 @@ public:
     virtual int		exec();	
     void 		exit(int retcode=0);
 
+    void		getCmdLineArgs(BufferStringSet&) const;
     void		setTopLevel(uiMainWin*);
     uiMainWin*		topLevel()			{ return mainobj_; }
     void		setFont(const uiFont&,bool passtochildren);    
