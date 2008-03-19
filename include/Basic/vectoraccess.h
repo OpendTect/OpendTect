@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		Mar 2002
  Contents:	Access to STL vector class with extensions
- RCS:		$Id: vectoraccess.h,v 1.22 2006-06-28 17:41:27 cvskris Exp $
+ RCS:		$Id: vectoraccess.h,v 1.23 2008-03-19 15:57:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,8 +88,10 @@ public:
 
     inline void		fill( const T& val )
 			{
-			    for ( int i=0; i<size(); i++ )
-				v[i] = val;
+			    const int sz = size();
+			    T* arr = sz ? &v[0] : 0;
+			    for ( int i=sz-1; i>=0; i--,arr++ )
+				*arr = val;
 			}
 
     void moveAfter( const T& t, const T& aft )
