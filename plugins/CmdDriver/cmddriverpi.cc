@@ -10,6 +10,7 @@ static const char* rcsID = "$Id";
 #include "uiodmain.h"
 #include "uiodmenumgr.h"
 #include "uimenu.h"
+#include "uimain.h"
 #include "uimsg.h"
 #include "uidialog.h"
 #include "uifileinput.h"
@@ -17,6 +18,8 @@ static const char* rcsID = "$Id";
 #include "filepath.h"
 #include "oddirs.h"
 #include "plugins.h"
+#include "timer.h"
+#include "ioman.h"
 
 extern "C" int GetCmdDriverPluginType()
 {
@@ -34,6 +37,9 @@ extern "C" PluginInfo* GetCmdDriverPluginInfo()
     return &retpii;
 }
 
+static const char* autoexecfnm = "autoexec.cmd";
+
+
 class uiCmdDriverMgr : public CallBacker
 {
 public:
@@ -41,31 +47,18 @@ public:
 
     uiODMain&		appl_;
     CmdDriver*		drv_;
+    Timer*		tim_;
     uiPopupMenu*	cmddrvmnu_;
     uiMenuItem*		runcmddrvitm_;
     uiMenuItem*		nameguideitm_;
+    void		handleAutoExecution();
     void		doIt(CallBacker*);
+    void		autoStart(CallBacker*);
+    void		delayedStart(CallBacker*);
     void		toolTipChange(CallBacker*);
+    void		survChg(CallBacker*);
 
 };
-
-
-uiCmdDriverMgr::uiCmdDriverMgr( uiODMain& a )
-    	: appl_(a)
-    	, drv_(0)
-{
-    uiODMenuMgr& mnumgr = appl_.menuMgr();
-    cmddrvmnu_ = new uiPopupMenu( &appl_, "Command &Driver" );
-    mnumgr.utilMnu()->insertItem( cmddrvmnu_ );
-    runcmddrvitm_ = new uiMenuItem( "&Run ...",
-				    mCB(this,uiCmdDriverMgr,doIt) );
-    cmddrvmnu_->insertItem( runcmddrvitm_ );
-    nameguideitm_ = new uiMenuItem( "&Tooltip name guide",
-				    mCB(this,uiCmdDriverMgr,toolTipChange) );
-    cmddrvmnu_->insertItem( nameguideitm_ );
-    nameguideitm_->setCheckable( true );
-    nameguideitm_->setChecked( false );
-}
 
 
 class uiCmdDriverInps : public uiDialog
@@ -77,7 +70,7 @@ uiCmdDriverInps( uiParent* p, CmdDriver& d )
 			    " to execute","0.0.0"))
 	, drv_(d)
 {
-    fnmfld = new uiFileInput( this, "Command file", uiFileInput::Setup()
+    fnmfld = new uiFileInput( this, "Command file", uiFileInput::Setup(lastinp_)
 				.filter("*.cmd")
 				.forread(true)
 				.withexamine(true) );
@@ -124,6 +117,7 @@ bool acceptOK( CallBacker* )
     }
 
     drv_.setOutputDir( fnm );
+    lastinp_ = fnm;
     return true;
 }
 
@@ -133,20 +127,106 @@ bool acceptOK( CallBacker* )
     BufferString	fnm;
     CmdDriver&		drv_;
 
+    static BufferString	lastinp_;
+
 };
 
+BufferString uiCmdDriverInps::lastinp_;
 
-void uiCmdDriverMgr::doIt( CallBacker* )
+
+uiCmdDriverMgr::uiCmdDriverMgr( uiODMain& a )
+    	: appl_(a)
+    	, drv_(0)
+    	, tim_(0)
+{
+    uiODMenuMgr& mnumgr = appl_.menuMgr();
+    cmddrvmnu_ = new uiPopupMenu( &appl_, "Command &Driver" );
+    mnumgr.utilMnu()->insertItem( cmddrvmnu_ );
+    runcmddrvitm_ = new uiMenuItem( "&Run ...",
+				    mCB(this,uiCmdDriverMgr,doIt) );
+    cmddrvmnu_->insertItem( runcmddrvitm_ );
+    nameguideitm_ = new uiMenuItem( "&Tooltip name guide",
+				    mCB(this,uiCmdDriverMgr,toolTipChange) );
+    cmddrvmnu_->insertItem( nameguideitm_ );
+    nameguideitm_->setCheckable( true );
+    nameguideitm_->setChecked( false );
+
+    handleAutoExecution();
+}
+
+
+void uiCmdDriverMgr::handleAutoExecution()
+{
+    appl_.justBeforeGo.notify( mCB(this,uiCmdDriverMgr,delayedStart) );
+
+    BufferStringSet cmdline; uiMain::theMain().getCmdLineArgs( cmdline );
+    for ( int idx=1; idx<cmdline.size(); idx++ )
+    {
+	char* str = cmdline.get(idx).buf();
+	char* ptr = strchr( str, '=' );
+	if ( !ptr ) continue;
+	*ptr++ = '\0';
+	if ( strcmp(str,"cmd") ) continue;
+
+	const BufferString fnm( ptr );
+	if ( File_exists(fnm) )
+	    { uiCmdDriverInps::lastinp_ = fnm; return; }
+    }
+
+    FilePath fp( GetSettingsDir() );
+    fp.add( autoexecfnm );
+    const BufferString fnm( fp.fullPath() );
+    if ( File_exists(fnm) )
+	uiCmdDriverInps::lastinp_ = fnm;
+}
+
+
+void uiCmdDriverMgr::delayedStart( CallBacker* )
+{
+    delete tim_;
+    tim_ = new Timer( "CmdDriver startup" );
+    tim_->start( 1500, true );
+    tim_->tick.notify( mCB(this,uiCmdDriverMgr,autoStart) );
+}
+
+
+void uiCmdDriverMgr::autoStart( CallBacker* cb )
+{
+    IOM().afterSurveyChange.notify( mCB(this,uiCmdDriverMgr,survChg) );
+    if ( !uiCmdDriverInps::lastinp_.isEmpty() )
+	doIt( 0 );
+}
+
+
+
+void uiCmdDriverMgr::survChg( CallBacker* cb )
+{
+    const BufferString fnm( GetProcFileName(autoexecfnm) );
+    if ( File_exists(fnm) )
+    {
+	uiCmdDriverInps::lastinp_ = fnm;
+	doIt( 0 );
+    }
+}
+
+void uiCmdDriverMgr::doIt( CallBacker* cb )
 {
     if ( drv_ ) delete drv_;
     drv_ = new CmdDriver( cmddrvmnu_ );
-    uiCmdDriverInps* dlg = new uiCmdDriverInps( &appl_, *drv_ );
-    bool ret = dlg->go();
-    delete dlg;
-    if ( !ret )
-    	{ delete drv_; drv_ = 0; return; }
+    bool res;
+    if ( !cb )
+	res = drv_->getActionsFromFile( uiCmdDriverInps::lastinp_ );
+    else
+    {
+	uiCmdDriverInps* dlg = new uiCmdDriverInps( &appl_, *drv_ );
+	res = dlg->go();
+	delete dlg;
+    }
     
-    drv_->execute();
+    if ( res )
+	drv_->execute();
+    else
+	{ delete drv_; drv_ = 0; }
 }
 
 
