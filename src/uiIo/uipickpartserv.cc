@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uipickpartserv.cc,v 1.52 2008-03-14 14:35:45 cvskris Exp $
+ RCS:           $Id: uipickpartserv.cc,v 1.53 2008-03-19 09:14:21 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -232,7 +232,9 @@ bool uiPickPartServer::mkRandLocs2D(Pick::Set& ps,const RandLocGenPars& rp)
     if ( rp.needhor_ )
     {
 	selhorids_ += new MultiID( hinfos_[rp.horidx_]->multiid );
-	selhorids_ += new MultiID( hinfos_[rp.horidx2_]->multiid );
+	if ( rp.horidx2_ >= 0 )
+	    selhorids_ += new MultiID( hinfos_[rp.horidx2_]->multiid );
+
 	hor2dzrgs_.erase();
 	sendEvent( evGetHorDef2D );
     }

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.11 2008-02-18 11:00:48 cvsbert Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.12 2008-03-19 09:14:21 cvsraman Exp $";
 
 #include "uicreatepicks.h"
 
@@ -34,8 +34,10 @@ static const char* rcsID = "$Id: uicreatepicks.cc,v 1.11 2008-02-18 11:00:48 cvs
 #include "survinfo.h"
 
 static int sLastNrPicks = 500;
-static const char* sGeoms3D[] = { "Volume", "On Horizon", "Between Horizons",0};
-static const char* sGeoms2D[] = { "Z Range", "Between Horizons", 0 };
+static const char* sGeoms3D[] = { "Volume", "On Horizon",
+    				  "Between Horizons", 0};
+static const char* sGeoms2D[] = { "Z Range", "On Horizon",
+    				  "Between Horizons", 0 };
 
 
 uiCreatePicks::uiCreatePicks( uiParent* p )
@@ -252,10 +254,9 @@ void uiGenRandPicks2D::geomSel( CallBacker* cb )
     if ( !geomfld_ ) return;
 
     const int geomtyp = geomfld_->getIntValue();
-    const bool needhor = geomtyp == 1;
-    zfld_->display( !needhor );
-    horselfld_->display( needhor );
-    horsel2fld_->display( needhor );
+    zfld_->display( geomtyp==0 );
+    horselfld_->display( geomtyp!=0 );
+    horsel2fld_->display( geomtyp==2 );
 }
 
 
@@ -279,7 +280,9 @@ void uiGenRandPicks2D::mkRandPars()
     if ( randpars_.needhor_ )
     {
 	randpars_.horidx_ = hornms_.indexOf( horselfld_->box()->text() );
-	randpars_.horidx2_ = hornms_.indexOf( horsel2fld_->text() );
+	randpars_.horidx2_ = -1;
+	if ( geomfld_->getIntValue() == 2 )
+	    randpars_.horidx2_ = hornms_.indexOf( horsel2fld_->text() );
     }
     else
     {
@@ -297,7 +300,7 @@ bool uiGenRandPicks2D::acceptOK( CallBacker* )
     {
 	if ( !strcmp(horselfld_->box()->text(),"Select") )
 	    mErrRet( "Please Select a valid horizon" );
-	if ( !strcmp(horsel2fld_->text(),"Select") )
+	if ( choice==2 && !strcmp(horsel2fld_->text(),"Select") )
 	    mErrRet( "Please Select a valid second horizon" );
     }
     else
