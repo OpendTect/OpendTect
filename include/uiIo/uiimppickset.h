@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.h,v 1.6 2007-08-07 04:45:31 cvsraman Exp $
+ RCS:           $Id: uiimppickset.h,v 1.7 2008-03-19 11:25:04 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,8 @@ ________________________________________________________________________
 
 class CtxtIOObj;
 class IOObj;
+class uiCheckBox;
+class uiColorInput;
 class uiLabeledComboBox;
 class uiFileInput;
 class uiGenInput;
@@ -36,7 +38,9 @@ protected:
 
     uiIOObjSel*		objfld_;
     uiIOObjSel*		horinputfld_;
+    uiColorInput*	colorfld_;
     uiGenInput*		xyfld_;
+    uiCheckBox*		polyfld_;
     uiLabeledComboBox*	zfld_;
     uiLabeledComboBox*  horinpfld_;
     uiGenInput*		constzfld_;

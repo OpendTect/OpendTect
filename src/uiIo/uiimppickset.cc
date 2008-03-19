@@ -4,12 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.28 2007-09-20 09:48:59 cvsraman Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.29 2008-03-19 11:24:57 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiimppickset.h"
+#include "uibutton.h"
+#include "uicolor.h"
 #include "uicombobox.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
@@ -20,6 +22,8 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
+#include "ioman.h"
+#include "randcolor.h"
 #include "strmdata.h"
 #include "strmprov.h"
 #include "surfaceinfo.h"
@@ -105,6 +109,12 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
 
 	objfld_->attach( alignedBelow, constzfld_ );
 	objfld_->attach( ensureBelow, sep );
+
+	colorfld_ = new uiColorInput( this, getRandStdDrawColor(), "Color" );
+	colorfld_->attach( alignedBelow, objfld_ );
+
+	polyfld_ = new uiCheckBox( this, "Import as Polygon" );
+	polyfld_->attach( rightTo, colorfld_ );
     }
     else
 	filefld_->attach( alignedBelow, objfld_ );
@@ -148,7 +158,7 @@ bool uiImpExpPickSet::doImport()
     float constz = zchoice==1 ? constzfld_->getfValue() : 0;
     if ( SI().zIsTime() ) constz /= 1000;
 
-    ps.disp_.color_ = Color::DgbColor;
+    ps.disp_.color_ = colorfld_->color();
     PickSetAscIO aio( fd_ );
     aio.get( *sdi.istrm, ps, isxy, zchoice==0, constz );
     sdi.close();
@@ -157,6 +167,16 @@ bool uiImpExpPickSet::doImport()
     {
 	serv_->fillZValsFrmHor( &ps, horinpfld_->box()->currentItem() );
     }
+
+    const bool ispolygon = polyfld_->isChecked();
+    if ( ispolygon )
+    {
+	ps.disp_.connect_ = Pick::Set::Disp::Close;
+	ctio_.ioobj->pars().set( sKey::Type, sKey::Polygon );
+	IOM().commitChanges( *ctio_.ioobj );
+    }
+    else
+	ps.disp_.connect_ = Pick::Set::Disp::None;
 
     BufferString errmsg;
     if ( !PickSetTranslator::store(ps,ctio_.ioobj,errmsg) )
