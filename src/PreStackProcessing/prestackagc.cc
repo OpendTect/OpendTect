@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackagc.cc,v 1.9 2008-03-17 14:41:01 cvskris Exp $";
+static const char* rcsID = "$Id: prestackagc.cc,v 1.10 2008-03-19 13:31:22 cvskris Exp $";
 
 #include "prestackagc.h"
 
@@ -101,11 +101,11 @@ bool PreStack::AGC::doWork( int start, int stop, int )
 
 	    Array1DSlice<float> inputtrace( input->data() );
 	    inputtrace.setDimMap( 0, Gather::zDim() );
-	    inputtrace.setPos( 1, offsetidx );
+	    inputtrace.setPos( Gather::offsetDim(), offsetidx );
 
 	    Array1DSlice<float> outputtrace( output->data() );
 	    outputtrace.setDimMap( 0, Gather::zDim() );
-	    outputtrace.setPos( 1, offsetidx );
+	    outputtrace.setPos( Gather::offsetDim(), offsetidx );
 	    if ( !inputtrace.init() || !outputtrace.init() )
 		continue;
 
