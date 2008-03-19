@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.30 2008-02-18 11:00:47 cvsbert Exp $
+ RCS:           $Id: uispinbox.cc,v 1.31 2008-03-19 15:37:00 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,7 +125,7 @@ bool uiSpinBoxBody::event( QEvent* ev )
     if ( ev->type() == sQEventActField )
     {
 	if ( activatetxt_ )
-	    lineEdit()->setText( activatetxt_ );
+	    setValue( valueFromText(QString(activatetxt_ )) );
 	if ( activateenter_ )
 	    handle_.valueChanged.trigger();
     }
