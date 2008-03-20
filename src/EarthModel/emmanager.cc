@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.72 2008-03-10 17:10:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.73 2008-03-20 21:36:32 cvskris Exp $";
 
 #include "emmanager.h"
 
@@ -324,7 +324,7 @@ const char* EMManager::getSurfaceData( const MultiID& id, SurfaceIOData& sd )
 	    static BufferString msg;
 	    msg = tr->errMsg();
 	    if ( msg.isEmpty() )
-		{ msg = "Cannot read '"; msg += ioobj->name(); msg += "'"; }
+		{ msg = "Cannot read '"; msg += ioobj->name().buf(); msg += "'"; }
 
 	    return msg.buf();
 	}
@@ -387,8 +387,8 @@ bool EMManager::readPars( const MultiID& mid, IOPar& par ) const
     PtrMan<IOObj> ioobj = IOM().get( mid );
     if ( !ioobj ) return false;
 
-    BufferString filenm = Surface::getParFileName( *ioobj );
-    const bool res = par.read( filenm, "Surface parameters" );
+    const BufferString filenm = Surface::getParFileName( *ioobj );
+    const bool res = par.read( filenm.buf(), "Surface parameters" );
 
     if ( !res )
     {
@@ -416,8 +416,8 @@ bool EMManager::writePars( const MultiID& mid, const IOPar& newpar ) const
 
     readPars( mid, par );
     par.merge( newpar );
-    BufferString filenm = Surface::getParFileName( *ioobj );
-    return par.write( filenm, "Surface parameters" );
+    const BufferString filenm = Surface::getParFileName( *ioobj );
+    return par.write( filenm.buf(), "Surface parameters" );
 }
 
 } // namespace EM

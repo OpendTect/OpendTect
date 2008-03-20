@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacetr.h,v 1.9 2007-11-28 10:58:15 cvshelene Exp $
+ RCS:		$Id: emsurfacetr.h,v 1.10 2008-03-20 21:36:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -103,7 +103,7 @@ public:
     Executor*			writer(const IOObj&,bool fullimplremove=true);
 				/*!< Executor is managed by client. */ 
 
-    const char*			errMsg() const		{ return errmsg_; }
+    const char*			errMsg() const		{ return errmsg_.buf();}
 
     virtual bool		implRemove(const IOObj*) const;
     virtual bool		implRename(const IOObj*,const char*,

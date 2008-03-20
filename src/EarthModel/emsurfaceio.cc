@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.98 2008-02-15 10:46:42 cvsjaap Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.99 2008-03-20 21:36:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,8 +95,9 @@ dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
 {
     sectionnames_.allowNull();
 
-    BufferString exnm = "Reading surface '"; exnm += ioobj.name(); exnm += "'";
-    setName( exnm );
+    BufferString exnm = "Reading surface '"; exnm += ioobj.name().buf();
+    exnm += "'";
+    setName( exnm.buf() );
     setNrDoneText( "Nr done" );
     auxdataexecs_.allowNull(true);
     if ( !conn_ || !conn_->forRead()  )
@@ -197,7 +198,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 	{
 	    int sectionid = idx;
 	    BufferString key = sSectionIDKey( idx );
-	    par.get(key, sectionid);
+	    par.get(key.buf(), sectionid);
 	    sectionids_+= sectionid;
 
 	}
@@ -209,7 +210,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
     {
 	const BufferString key = sSectionNameKey( idx );
 	BufferString sectionname;
-	par_->get(key,sectionname);
+	par_->get(key.buf(),sectionname);
 		    
 	sectionnames_ += sectionname.size() ? new BufferString(sectionname) : 0;
     }
@@ -241,10 +242,10 @@ void dgbSurfaceReader::createAuxDataReader()
 
 	BufferString hovfnm( 
 		dgbSurfDataWriter::createHovName(conn_->fileName(),idx) );
-	if ( File_isEmpty(hovfnm) )
+	if ( File_isEmpty(hovfnm.buf()) )
 	{ gap++; continue; }
 
-	dgbSurfDataReader* dreader = new dgbSurfDataReader( hovfnm );
+	dgbSurfDataReader* dreader = new dgbSurfDataReader( hovfnm.buf() );
 	if ( dreader->dataName() )
 	{
 	    auxdatanames_ += new BufferString(dreader->dataName());
@@ -334,7 +335,7 @@ int dgbSurfaceReader::nrAuxVals() const
 
 const char* dgbSurfaceReader::auxDataName( int idx ) const
 {
-    return *auxdatanames_[idx];
+    return auxdatanames_[idx]->buf();
 }
 
 
@@ -411,7 +412,7 @@ void dgbSurfaceReader::setGeometry()
     if ( surface_ )
     {
 	surface_->removeAll();
-	surface_->setDBInfo( dbinfo_ );
+	surface_->setDBInfo( dbinfo_.buf() );
 	for ( int idx=0; idx<auxdatasel_.size(); idx++ )
 	{
 	    if ( auxdatasel_[idx]>=auxdataexecs_.size() )
@@ -581,7 +582,7 @@ int dgbSurfaceReader::nextStep()
     }
 
     int colstep = colrange_.step;
-    par_->get( sColStepKey( currentRow() ), colstep );
+    par_->get( sColStepKey( currentRow() ).buf(), colstep );
 
     mDynamicCastGet(Horizon2D*,hor2d,surface_);
     if ( hor2d )
@@ -954,8 +955,8 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm,
 void dgbSurfaceReader::createSection( const SectionID& sectionid )
 {
     const int index = sectionids_.indexOf(sectionid);
-    surface_->geometry().addSection( sectionnames_[index] ?
-			       *sectionnames_[index] : 0, sectionid, false );
+    surface_->geometry().addSection( sectionnames_[index]->buf()
+	    ? sectionnames_[index]->buf() : 0, sectionid, false );
     mDynamicCastGet( Geometry::BinIDSurface*,bidsurf,
 	    	     surface_->geometry().sectionGeometry(sectionid) );
     if ( !bidsurf )
@@ -981,7 +982,7 @@ void dgbSurfaceReader::createSection( const SectionID& sectionid )
 
 const char* dgbSurfaceReader::message() const
 {
-    return msg_;
+    return msg_.buf();
 }
 
 
@@ -1157,7 +1158,7 @@ dgbSurfaceWriter::~dgbSurfaceWriter()
 	{
 	    const int idxcolstep = geometry_.colRange(idx).step;
 	    if ( idxcolstep != colrange_.step )
-		par_.set( dgbSurfaceReader::sColStepKey(idx), idxcolstep );
+		par_.set( dgbSurfaceReader::sColStepKey(idx).buf(),idxcolstep );
 	}
 
 	ascostream astream( strm );
@@ -1188,7 +1189,7 @@ SectionID dgbSurfaceWriter::sectionID( int idx ) const
 
 const char* dgbSurfaceWriter::sectionName( int idx ) const
 {
-    return surface_.sectionName(sectionID(idx));
+    return surface_.sectionName(sectionID(idx)).buf();
 }
 
 
@@ -1327,7 +1328,7 @@ int dgbSurfaceWriter::nextStep()
 
 	std::ostream& strm = conn_->oStream();
 	ascostream astream( strm );
-	astream.putHeader( filetype_ );
+	astream.putHeader( filetype_.buf() );
 	versionpar.putTo( astream );
 	nrsectionsoffsetoffset_ = strm.tellp();
 	writeInt64( strm, 0, sEOL() );
@@ -1340,7 +1341,8 @@ int dgbSurfaceWriter::nextStep()
 
 	    BufferString fnm( dgbSurfDataWriter::createHovName( 
 		    			conn_->fileName(),auxdatasel_[idx]) );
-	    add(new dgbSurfDataWriter(*hor,auxdatasel_[idx],0,binary_,fnm));
+	    add(new dgbSurfDataWriter(*hor,auxdatasel_[idx],0,binary_,
+				      fnm.buf()));
 	    // TODO:: Change binid sampler so not all values are written when
 	    // there is a subselection
 	}
@@ -1406,7 +1408,7 @@ int dgbSurfaceWriter::nextStep()
 
 const char* dgbSurfaceWriter::message() const
 {
-    return msg_;
+    return msg_.buf();
 }
 
 
@@ -1523,7 +1525,7 @@ bool dgbSurfaceWriter::writeNewSection( std::ostream& strm )
 
     if ( sectionname.size() )
     {
-	par_.set( dgbSurfaceReader::sSectionNameKey(sectionindex_),
+	par_.set( dgbSurfaceReader::sSectionNameKey(sectionindex_).buf(),
 		  sectionname );
     }
 

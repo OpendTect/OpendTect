@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.26 2008-01-16 16:16:29 cvsbert Exp $
+ RCS:		$Id: transl.h,v 1.27 2008-03-20 21:46:40 cvskris Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -165,7 +165,8 @@ private: \
 public: \
     Translator* getNew() const \
     { \
-	Translator* tr = new spec##clss##Translator(typeName(),userName()); \
+	Translator* tr = new spec##clss##Translator(typeName().buf(), \
+						    userName().buf()); \
 	tr->setGroup( group_ ); return tr; \
     } \
     static spec##clss##Translator* getInstance(); \

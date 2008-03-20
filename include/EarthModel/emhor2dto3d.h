@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2007
- RCS:		$Id: emhor2dto3d.h,v 1.4 2008-02-06 10:20:33 cvsbert Exp $
+ RCS:		$Id: emhor2dto3d.h,v 1.5 2008-03-20 21:36:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -48,7 +48,7 @@ public:
 				~Hor2DTo3D();
 
     int				nextStep();
-    const char*			message() const		{ return msg_; }
+    const char*			message() const		{ return msg_.buf(); }
     const char*			nrDoneText() const;
     int				nrDone() const;
 

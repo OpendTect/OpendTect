@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.64 2008-01-10 11:16:13 cvssatyaki Exp $
+ RCS:		$Id: survinfo.h,v 1.65 2008-03-20 21:39:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,7 +93,7 @@ public:
     Pol2D		getSurvDataType() const	{ return survdatatype_; }
     bool		has2D() const;
     bool		has3D() const;
-    const char*		comment() const		{ return comment_; }
+    const char*		comment() const		{ return comment_.buf(); }
 
     void		snap(BinID&,BinID direction=BinID(0,0)) const;
 			//!< dir = 0 : auto; -1 round downward, 1 round upward
@@ -131,9 +131,9 @@ public:
 
     const IOPar&	pars() const			{ return pars_; }
     			// Project name will be stored
-    const char*		getWSProjName() const	{ return wsprojnm_; }
+    const char*		getWSProjName() const	{ return wsprojnm_.buf(); }
     			// Password only in memory this session
-    const char*		getWSPwd() const	{ return wspwd_; }
+    const char*		getWSPwd() const	{ return wspwd_.buf(); }
     BufferString	getDirName() const	{ return dirname; }
 
 	// Some fns moved to bottom that have 'no user servicable parts inside'

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emobject.cc,v 1.79 2008-02-05 21:40:56 cvskris Exp $";
+static const char* rcsID = "$Id: emobject.cc,v 1.80 2008-03-20 21:36:32 cvskris Exp $";
 
 #include "emobject.h"
 
@@ -458,7 +458,7 @@ bool EMObject::usePar( const IOPar& par )
 	attribkey += idx;
 
 	int attrib;
-	if ( !par.get(attribkey,attrib) )
+	if ( !par.get(attribkey.buf(),attrib) )
 	    continue;
 
 	TypeSet<int> sections;
@@ -470,8 +470,8 @@ bool EMObject::usePar( const IOPar& par )
 	BufferString subidkey = attribkey;
 	subidkey += posattrposidstr;
 
-	par.get( sectionkey, sections );
-	par.get( subidkey, subids );
+	par.get( sectionkey.buf(), sections );
+	par.get( subidkey.buf(), subids );
 
 	const int minsz = mMIN( sections.size(), subids.size() );
 	for ( int idy=0; idy<minsz; idy++ )
@@ -489,8 +489,9 @@ bool EMObject::usePar( const IOPar& par )
 	BufferString markerstylekey = attribkey;
 	markerstylekey += markerstylestr;
 	BufferString markerstyleparstr;
-	if ( par.get(markerstylekey,markerstyleparstr) )
-	    posattribs_[curposattridx]->style_.fromString( markerstyleparstr );
+	if ( par.get(markerstylekey.buf(),markerstyleparstr) )
+	    posattribs_[curposattridx]->style_.fromString(
+		    			markerstyleparstr.buf() );
     }
 
     return true;
@@ -510,7 +511,7 @@ void EMObject::fillPar( IOPar& par ) const
 
 	BufferString attribkey = posattrprefixstr;
 	attribkey += keyid++;
-	par.set( attribkey, attrib );
+	par.set( attribkey.buf(), attrib );
 
 	TypeSet<int> attrpatches;
 	TypeSet<SubID> subids;
@@ -525,14 +526,14 @@ void EMObject::fillPar( IOPar& par ) const
 	BufferString subidkey = attribkey;
 	subidkey += posattrposidstr;
 
-	par.set( patchkey, attrpatches );
-	par.set( subidkey, subids );
+	par.set( patchkey.buf(), attrpatches );
+	par.set( subidkey.buf(), subids );
 	
 	BufferString markerstylekey = attribkey;
 	markerstylekey += markerstylestr;
 	BufferString markerstyleparstr;
 	posattribs_[idx]->style_.toString( markerstyleparstr );
-	par.set( markerstylekey, markerstyleparstr );
+	par.set( markerstylekey.buf(), markerstyleparstr.buf() );
     }
 
     par.set( nrposattrstr, keyid );

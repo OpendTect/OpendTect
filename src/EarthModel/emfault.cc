@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.38 2008-02-11 16:37:06 cvsjaap Exp $
+ RCS:           $Id: emfault.cc,v 1.39 2008-03-20 21:36:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,7 +151,7 @@ void FaultGeometry::fillPar( IOPar& par ) const
 	for ( int sticknr=stickrg.start; sticknr<=stickrg.stop; sticknr++ )
 	{
 	    mDefEditNormalStr( editnormstr, sid, sticknr );
-	    par.set( editnormstr, fss->getEditPlaneNormal(sticknr) );
+	    par.set( editnormstr.buf(), fss->getEditPlaneNormal(sticknr) );
 	}
     }
 }
@@ -170,7 +170,7 @@ bool FaultGeometry::usePar( const IOPar& par )
 	{
 	    mDefEditNormalStr( editnormstr, sid, sticknr );
 	    Coord3 editnormal( Coord3::udf() ); 
-	    par.get( editnormstr, editnormal ); 
+	    par.get( editnormstr.buf(), editnormal ); 
 	    fss->addEditPlaneNormal( editnormal );
 	}
     }

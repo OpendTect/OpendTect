@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.21 2008-02-28 12:18:05 cvsnanne Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.22 2008-03-20 21:36:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,14 +143,14 @@ Executor* EMSurfaceTranslator::writer( const IOObj& ioobj, bool fullremove )
     BufferString pathnm = iostrm->dirName(); \
     BufferString basenm = iostrm->fileName(); \
  \
-    StreamProvider sp( basenm ); \
-    sp.addPathIfNecessary( pathnm ); \
+    StreamProvider sp( basenm.buf() ); \
+    sp.addPathIfNecessary( pathnm.buf() ); \
     bool res = sp.fn;
 
 #define mImplLoopStart \
     if ( gap > 100 ) break; \
-    StreamProvider loopsp( EM::dgbSurfDataWriter::createHovName(basenm,nr) ); \
-    loopsp.addPathIfNecessary( pathnm );
+    StreamProvider loopsp( EM::dgbSurfDataWriter::createHovName(basenm.buf(),nr).buf() ); \
+    loopsp.addPathIfNecessary( pathnm.buf() );
 
 
 bool EMSurfaceTranslator::implRemove( const IOObj* ioobj ) const
@@ -168,8 +168,8 @@ bool EMSurfaceTranslator::implRemove( const IOObj* ioobj ) const
     }
 
 #define mRemove( fn ) { \
-    StreamProvider parsp( EM::Surface::fn(*ioobj) ); \
-    parsp.addPathIfNecessary( pathnm ); \
+    StreamProvider parsp( EM::Surface::fn(*ioobj).buf() ); \
+    parsp.addPathIfNecessary( pathnm.buf() ); \
     if ( parsp.exists(true) ) \
 	parsp.remove(false); }
 
@@ -189,8 +189,9 @@ bool EMSurfaceTranslator::implRename( const IOObj* ioobj, const char* newnm,
     for ( int nr=0; ; nr++ )
     {
 	mImplLoopStart;
-	StreamProvider spnew( EM::dgbSurfDataWriter::createHovName(newnm,nr) );
-	spnew.addPathIfNecessary( pathnm );
+	StreamProvider spnew(
+		EM::dgbSurfDataWriter::createHovName(newnm,nr).buf() );
+	spnew.addPathIfNecessary( pathnm.buf() );
 	if ( loopsp.exists(true) )
 	    loopsp.rename( spnew.fileName(), cb );
 	else
@@ -198,13 +199,13 @@ bool EMSurfaceTranslator::implRename( const IOObj* ioobj, const char* newnm,
     }
 
 #define mRename( fn ) { \
-    FilePath fp( EM::Surface::fn(*ioobj) ); \
-    StreamProvider oldsp( fp.fullPath() ); \
-    oldsp.addPathIfNecessary( pathnm ); \
+    FilePath fp( EM::Surface::fn(*ioobj).buf() ); \
+    StreamProvider oldsp( fp.fullPath().buf() ); \
+    oldsp.addPathIfNecessary( pathnm.buf() ); \
     FilePath newfp( newnm ); \
     newfp.setExtension( fp.extension() ); \
     if ( oldsp.exists(true) ) \
-	oldsp.rename( newfp.fullPath(), cb ); }
+	oldsp.rename( newfp.fullPath().buf(), cb ); }
 
     mRename( getSetupFileName )
     mRename( getParFileName )
@@ -246,7 +247,7 @@ bool dgbEMSurfaceTranslator::prepRead()
 {
     if ( reader_ ) delete reader_;
     BufferString unm = group() ? group()->userName() : 0;
-    reader_ = new EM::dgbSurfaceReader( *ioobj_, unm );
+    reader_ = new EM::dgbSurfaceReader( *ioobj_, unm.buf() );
     if ( !reader_->isOK() )
     {
 	errmsg_ = reader_->message();
@@ -325,7 +326,7 @@ Executor* dgbEMSurfaceTranslator::getWriter()
 {
     BufferString unm = group() ? group()->userName() : 0;
     EM::dgbSurfaceWriter* res =
-	new EM::dgbSurfaceWriter(ioobj_,unm, *surface,getBinarySetting());
+	new EM::dgbSurfaceWriter(ioobj_,unm.buf(), *surface,getBinarySetting());
     res->setWriteOnlyZ( writeOnlyZ() );
 
     if ( hasRangeSelection() && !sels_.rg.isEmpty() )

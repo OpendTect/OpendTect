@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.56 2008-02-29 21:45:38 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.57 2008-03-20 21:39:30 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -280,7 +280,7 @@ ArrayNDFileStor<T>::~ArrayNDFileStor()
 {
     Threads::MutexLocker mlock( mutex_ );
     if ( strm_ ) close();
-    File_remove( name_, false );
+    File_remove( name_.buf(), false );
 }
 
 
@@ -288,8 +288,8 @@ template <class T> inline
 void ArrayNDFileStor<T>::setTempStorageDir( const char* dir )
 {
     close();
-    File_remove( name_, false );
-    FilePath fp( name_ );
+    File_remove( name_.buf(), false );
+    FilePath fp( name_.buf() );
     fp.setPath( File_isDirectory(dir) && File_isWritable(dir) ? dir : "/tmp/" );
     name_ = fp.fullPath();
 }
@@ -304,7 +304,7 @@ void ArrayNDFileStor<T>::open()
     if ( strm_ ) close();
     else if ( openfailed_ || streamfail_ ) return;
 
-    strm_ = new std::fstream( name_, std::fstream::binary
+    strm_ = new std::fstream( name_.buf(), std::fstream::binary
 				     | std::fstream::out
 				     | std::fstream::trunc );
     mChckStrm
@@ -322,7 +322,7 @@ void ArrayNDFileStor<T>::open()
     }
 
     strm_->close();
-    strm_->open( name_, std::fstream::binary
+    strm_->open( name_.buf(), std::fstream::binary
 		    | std::fstream::out
 		    | std::fstream::in );
     mChckStrm

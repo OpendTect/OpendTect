@@ -5,7 +5,7 @@
  * FUNCTION : Unit IDs
 -*/
  
-static const char* rcsID = "$Id: compoundkey.cc,v 1.4 2006-11-21 14:00:06 cvsbert Exp $";
+static const char* rcsID = "$Id: compoundkey.cc,v 1.5 2008-03-20 21:39:30 cvskris Exp $";
 
 #include "multiid.h"
 #include "globexpr.h"
@@ -19,9 +19,11 @@ static char bufstr[4096];
 char* CompoundKey::fromKey( int keynr, bool tobuf ) const
 {
     bufstr[0] = '\0';
-    if ( keynr<1 && !tobuf ) return (char*)((const char*)id);
+    if ( keynr<1 && !tobuf ) return (char*) id_.buf();
 
-    const char* ptr = (const char*)id;
+    const char* ptr = (const char*)id_;
+    if ( !ptr ) return 0;
+
     while ( keynr )
     {
 	ptr = strchr( ptr, '.' );
@@ -42,10 +44,10 @@ char* CompoundKey::fromKey( int keynr, bool tobuf ) const
 
 int CompoundKey::nrKeys() const
 {
-    if ( id.isEmpty() ) return 0;
+    if ( id_.isEmpty() ) return 0;
 
     int nrkeys = 1;
-    const char* ptr = id;
+    const char* ptr = id_;
     while ( ( ptr=strchr(ptr,'.') ) ) { nrkeys++; ptr++; }
 
     return nrkeys;
@@ -73,7 +75,7 @@ void CompoundKey::setKey( int ikey, const char* s )
 
 CompoundKey CompoundKey::upLevel() const
 {
-    if ( id.isEmpty() ) return CompoundKey("");
+    if ( id_.isEmpty() ) return CompoundKey("");
     CompoundKey newid( *this );
 
     int nrkeys = nrKeys();
@@ -91,18 +93,18 @@ CompoundKey CompoundKey::upLevel() const
 
 bool CompoundKey::isUpLevelOf( const CompoundKey& ky ) const
 {
-    return nrKeys() < ky.nrKeys() && matchString( id, ky.id );
+    return nrKeys() < ky.nrKeys() && matchString( id_, ky.id_ );
 }
 
 
 bool CompoundKey::matchGE( const char* cre ) const
 {
-    return GlobExpr(id).matches(cre);
+    return GlobExpr(id_).matches(cre);
 }
 
 
 int MultiID::leafID() const
 {
-    const char* ptr = strrchr( id, '.' );
-    return atoi( ptr ? ptr+1 : (const char*)id );
+    const char* ptr = strrchr( id_, '.' );
+    return atoi( ptr ? ptr+1 : (const char*)id_ );
 }

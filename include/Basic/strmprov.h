@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-5-1995
  Contents:	Generalized stream opener.
- RCS:		$Id: strmprov.h,v 1.21 2006-02-20 11:29:23 cvsnanne Exp $
+ RCS:		$Id: strmprov.h,v 1.22 2008-03-20 21:43:20 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,9 +70,9 @@ public:
     		//!< If type is Command, execute command without opening pipe
 
     const char*	fullName() const;
-    const char*	hostName() const			{ return hostname; }
-    const char*	fileName() const			{ return fname; }
-    const char*	command() const				{ return fname; }
+    const char*	hostName() const			{return hostname.buf();}
+    const char*	fileName() const			{ return fname.buf(); }
+    const char*	command() const				{ return fname.buf(); }
     int		blockSize() const			{ return blocksize; }
 
     void	setHostName( const char* hname )	{ hostname = hname; }

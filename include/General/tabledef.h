@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.15 2007-09-07 10:58:17 cvsraman Exp $
+ RCS:		$Id: tabledef.h,v 1.16 2008-03-20 21:45:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,7 +178,7 @@ public:
 				  && elems_[ielem].isInFile(); }
 	const char*	getVal( int ielem ) const
 			    { return ielem >= elems_.size() ? 0
-				   : ((const char*)elems_[ielem].val_); }
+				   : elems_[ielem].val_.buf(); }
 
 	bool		isFilled() const
 	    		{ return elems_.size() > 0 && !elems_[0].isEmpty(); }

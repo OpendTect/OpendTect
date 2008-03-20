@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.65 2008-02-28 12:16:54 cvsnanne Exp $
+ RCS:		$Id: emsurface.h,v 1.66 2008-03-20 21:36:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -53,7 +53,7 @@ public:
     Executor*			saver();
     Executor*			loader();
 
-    const char*			dbInfo() const		 { return dbinfo; }
+    const char*			dbInfo() const		 { return dbinfo.buf();}
     void			setDBInfo(const char* s) { dbinfo = s; }
 
     virtual bool		usePar(const IOPar&);

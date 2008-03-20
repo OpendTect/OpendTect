@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Nov 2006
- RCS:		$Id: tableascio.h,v 1.5 2007-01-08 17:10:48 cvsbert Exp $
+ RCS:		$Id: tableascio.h,v 1.6 2008-03-20 21:45:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,7 @@ public:
     virtual			~AscIO();
 
     const FormatDesc&		desc() const		{ return fd_; }
-    const char*			errMsg() const		{ return errmsg_; }
+    const char*			errMsg() const		{ return errmsg_.buf();}
 
 protected:
 

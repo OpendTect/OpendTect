@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emsurfaceauxdata.cc,v 1.17 2008-02-22 10:30:12 cvsnanne Exp $
+ RCS:           $Id: emsurfaceauxdata.cc,v 1.18 2008-03-20 21:36:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ int SurfaceAuxData::nrAuxData() const
 const char* SurfaceAuxData::auxDataName( int dataidx ) const
 {
     if ( nrAuxData() && auxdatanames[dataidx] )
-	return *auxdatanames[dataidx];
+	return auxdatanames[dataidx]->buf();
 
     return 0;
 }
@@ -200,9 +200,9 @@ Executor* SurfaceAuxData::auxDataLoader( int selidx )
 
 	BufferString filenm = getAuxDataFileName( *ioobj, 
 					sel.sd.valnames[validx]->buf() );
-	if ( !*filenm ) continue;
+	if ( filenm.isEmpty() ) continue;
 
-	dgbSurfDataReader* rdr = new dgbSurfDataReader(filenm);
+	dgbSurfDataReader* rdr = new dgbSurfDataReader(filenm.buf());
 	rdr->setSurface( horizon_ );
 	grp->add( rdr );
     }
@@ -228,7 +228,7 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
     {
 	if ( dataidx<0 ) dataidx = 0;
 	fnm = getAuxDataFileName( *ioobj, auxDataName(dataidx) );
-	return new dgbSurfDataWriter(horizon_,dataidx,0,binary,fnm);
+	return new dgbSurfDataWriter(horizon_,dataidx,0,binary,fnm.buf());
     }
 
     ExecutorGroup* grp = new ExecutorGroup( "Surface attributes saver" );
@@ -239,11 +239,11 @@ Executor* SurfaceAuxData::auxDataSaver( int dataidx, bool overwrite )
 	for ( int idx=0; ; idx++ )
 	{
 	    fnm = dgbSurfDataWriter::createHovName( conn->fileName(), idx );
-	    if ( !File_exists(fnm) )
+	    if ( !File_exists(fnm.buf()) )
 		break;
 	}
 
-	Executor* exec = new dgbSurfDataWriter(horizon_,selidx,0,binary,fnm);
+	Executor* exec = new dgbSurfDataWriter(horizon_,selidx,0,binary,fnm.buf());
 	grp->add( exec );
     }
 
@@ -282,10 +282,10 @@ BufferString SurfaceAuxData::getAuxDataFileName( const IOObj& ioobj,
 	if ( gap > 100 ) return "";
 
 	filenm = EM::dgbSurfDataWriter::createHovName(sp.fileName(),idx);
-	if ( File_isEmpty(filenm) )
+	if ( File_isEmpty(filenm.buf()) )
 	{ gap++; continue; }
 
-	EM::dgbSurfDataReader rdr( filenm );
+	EM::dgbSurfDataReader rdr( filenm.buf() );
 	if ( !strcmp(rdr.dataName(),attrnm) )
 	    break;
     }

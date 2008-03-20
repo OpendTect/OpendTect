@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: multiid.h,v 1.4 2007-04-04 16:51:40 cvsbert Exp $
+ RCS:		$Id: multiid.h,v 1.5 2008-03-20 21:39:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,19 +27,19 @@ public:
 			{ add(i); }
 
     MultiID&		operator =( const MultiID& mi )
-			{ id = mi.id; return *this; }
+			{ id_ = mi.id_; return *this; }
     MultiID&		operator =( const CompoundKey& ck )
-			{ id = (const char*)ck; return *this; }
+			{ id_ = (const char*)ck; return *this; }
     MultiID&		operator =( const char* s )
-			{ id = s; return *this; }
+			{ id_ = s; return *this; }
 
     inline bool		operator==( const MultiID& m ) const
-			{ return id == m.id; }
+			{ return id_ == m.id_; }
     inline bool		operator==( const char* s ) const
-			{ return id == s; }
+			{ return id_ == s; }
 
     inline int		ID( int idx ) const
-			{ return atoi(key(idx)); }
+			{ return atoi(key(idx).buf()); }
     inline void		setID( int idx, int i )
 			{ setKey( idx, getStringFromInt(i) ); }
     int			leafID() const;

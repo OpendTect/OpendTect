@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.35 2007-07-05 17:27:24 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.36 2008-03-20 21:36:32 cvskris Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -661,7 +661,7 @@ EdgeLineSegment* EM::EdgeLineSegment::factory( const IOPar& par,
 
     for ( int idx=0; idx<factories().size(); idx++ )
     {
-	if ( strcmp( factories()[idx]->name, name ) )
+	if ( strcmp( factories()[idx]->name, name.buf() ) )
 	    continue;
 
 	EdgeLineSegment* els = factories()[idx]->func( surf, sect );
@@ -1412,7 +1412,7 @@ void EdgeLine::fillPar( IOPar& par ) const
 	BufferString key = segmentprefixstr;
 	key += idx;
 
-	par.mergeComp( segmentpar, key );
+	par.mergeComp( segmentpar, key.buf() );
     }
 }
 
@@ -1427,7 +1427,7 @@ bool EdgeLine::usePar( const IOPar& par )
 	BufferString key = segmentprefixstr;
 	key += idx;
 
-	PtrMan<IOPar> segmentpar = par.subselect( key );
+	PtrMan<IOPar> segmentpar = par.subselect( key.buf() );
 	if ( !segmentpar ) 
 	    continue;
 
@@ -1811,7 +1811,7 @@ void EdgeLineSet::fillPar( IOPar& par ) const
 
 	IOPar linepar;
 	lines[idx]->fillPar( linepar );
-	par.mergeComp( linepar, key );
+	par.mergeComp( linepar, key.buf() );
     }
 }
 
@@ -1837,7 +1837,7 @@ bool EdgeLineSet::usePar( const IOPar& par )
 	BufferString key = lineprefixstr;
 	key += idx;
 
-	PtrMan<IOPar> linepar = par.subselect(key);
+	PtrMan<IOPar> linepar = par.subselect(key.buf());
 	if ( !linepar ) continue;
 	EdgeLine* el = new EdgeLine( horizon_, section );
 	if ( !el->usePar( *linepar ) )
@@ -1975,7 +1975,7 @@ void EdgeLineManager::fillPar( IOPar& par ) const
 	els->fillPar( elspar );
 	BufferString key = sectionkey;
 	key += horizon_.geometry().sectionID(idx);
-	par.mergeComp( elspar, key );
+	par.mergeComp( elspar, key.buf() );
     }
 }
 
@@ -1988,7 +1988,7 @@ bool EdgeLineManager::usePar( const IOPar& par )
 	BufferString key = sectionkey;
 	key += horizon_.geometry().sectionID(idx);
 
-	PtrMan<IOPar> elspar = par.subselect(key);
+	PtrMan<IOPar> elspar = par.subselect(key.buf());
 	if ( !elspar ) continue;
 
 	EdgeLineSet* els = new EdgeLineSet( horizon_, horizon_.geometry().sectionID(idx) );

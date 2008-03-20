@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-3-2001
  Contents:	Common Binary Volume Storage format io
- RCS:		$Id: cbvsio.h,v 1.12 2005-09-20 16:28:08 cvsbert Exp $
+ RCS:		$Id: cbvsio.h,v 1.13 2008-03-20 21:46:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,8 +77,7 @@ public:
 
     inline bool		failed() const		{ return errMsg(); }
     inline const char*	errMsg() const
-			{ return *(const char*)errmsg_ ? (const char*)errmsg_
-							: errMsg_(); }
+			{ return errmsg_.isEmpty() ? errMsg_() : errmsg_.buf();}
 
     virtual void	close() 		= 0;
 

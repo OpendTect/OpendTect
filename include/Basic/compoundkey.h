@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		15-1-2000
- RCS:		$Id: compoundkey.h,v 1.6 2006-11-21 14:00:06 cvsbert Exp $
+ RCS:		$Id: compoundkey.h,v 1.7 2008-03-20 21:39:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,20 +33,20 @@ class CompoundKey
 {
 public:
 
-    inline		CompoundKey( const char* s=0 )	{ if ( s ) id = s; }
+    inline		CompoundKey( const char* s=0 )	{ if ( s ) id_ = s; }
     inline		CompoundKey( const CompoundKey& ck ) 
-			: id(ck.id)			{}
-    inline CompoundKey&	operator=(const char* s)	{ id = s; return *this;}
+			: id_(ck.id_)			{}
+    inline CompoundKey&	operator=(const char* s)	{id_ = s; return *this;}
     inline CompoundKey&	operator+=(const char*);
-    inline bool		operator==(const char* s) const	{ return id == s; }
+    inline bool		operator==(const char* s) const	{ return id_ == s; }
     inline bool		operator==(const CompoundKey& u) const
-							{ return id == u.id; }
-    inline bool		operator!=(const char* s) const	{ return id != s; }
+							{ return id_ == u.id_; }
+    inline bool		operator!=(const char* s) const	{ return id_ != s; }
     inline bool		operator!=(const CompoundKey& u) const
-							{ return id != u.id; }
-    inline bool		isEmpty() const			{ return id.isEmpty(); }
-    inline		operator const char*() const	{ return id; }
-    inline char*	buf()				{ return id.buf(); }
+							{ return id_ != u.id_; }
+    inline bool		isEmpty() const			{ return id_.isEmpty();}
+    inline		operator const char*() const	{ return id_.buf(); }
+    inline char*	buf()				{ return id_.buf(); }
 
     int			nrKeys() const;
     BufferString	key(int) const;
@@ -58,7 +58,7 @@ public:
 
 protected:
 
-    BufferString	id;
+    BufferString	id_;
     char*		fromKey(int,bool cptobuf=false) const;
 
 };
@@ -71,8 +71,8 @@ inline std::istream& operator >>( std::istream& strm, CompoundKey& uid )
 
 inline CompoundKey& CompoundKey::operator +=( const char* s )
 {
-    if ( id[0] ) id += ".";
-    id += s;
+    if ( !id_.isEmpty() ) id_ += ".";
+    id_ += s;
     return *this;
 }
 

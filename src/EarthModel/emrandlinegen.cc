@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2007
- RCS:           $Id: emrandlinegen.cc,v 1.9 2008-01-09 13:19:26 cvsjaap Exp $
+ RCS:           $Id: emrandlinegen.cc,v 1.10 2008-03-20 21:36:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,7 +107,7 @@ void EM::RandomLineSetByContourGenerator::createLines(
 		    if ( usrpolynr > 1 )
 			{ nm += "-"; nm += usrpolynr; }
 		    usrpolynr++;
-		    rl->setName( nm );
+		    rl->setName( nm.buf() );
 
 		    rls.addLine( rl );
 		    Interval<float> zrg( setup_.linezrg_ );
@@ -151,7 +151,7 @@ void EM::RandomLineByShiftGenerator::crLine( const Geometry::RandomLine& rl,
 
     while ( true )
     {
-	Geometry::RandomLine* outrl = new Geometry::RandomLine( newnm );
+	Geometry::RandomLine* outrl = new Geometry::RandomLine( newnm.buf() );
 	outrl->setZRange( rl.zRange() );
 	TypeSet<int> dirflips;
 	TypeSet<Coord> fusioncrds;

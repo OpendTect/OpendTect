@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.15 2007-09-03 16:19:45 cvsjaap Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.16 2008-03-20 21:36:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -260,7 +260,7 @@ void Horizon2DGeometry::fillPar( IOPar& par ) const
     {
 	BufferString linesetkey = linesetprefixstr_;
 	linesetkey += idx;
-	par.set( linesetkey, linesets_[idx] );
+	par.set( linesetkey.buf(), linesets_[idx] );
     }
 }
 
@@ -278,7 +278,7 @@ bool Horizon2DGeometry::usePar( const IOPar& par )
 	linesetkey += idx;
 
 	MultiID mid;
-	linesets_ += par.get(linesetkey,mid) ? mid : MultiID(-1);
+	linesets_ += par.get(linesetkey.buf(),mid) ? mid : MultiID(-1);
     }
 
     ((Horizon2D&) surface_).syncGeometry();

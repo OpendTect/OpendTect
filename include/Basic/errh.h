@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		19-10-1995
  Contents:	Error handler
- RCS:		$Id: errh.h,v 1.11 2004-04-01 13:39:50 bert Exp $
+ RCS:		$Id: errh.h,v 1.12 2008-03-20 21:39:30 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -50,7 +50,7 @@ inline void programmerErrMsg( const char* msg, const char* cname,
     str += ": ";
     str += msg;
 
-    ErrMsg( str, true );
+    ErrMsg( str.buf(), true );
 }
 
 #ifdef __debug__

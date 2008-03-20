@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: datapackbase.h,v 1.8 2008-02-19 09:51:23 cvsbert Exp $
+ RCS:		$Id: datapackbase.h,v 1.9 2008-03-20 21:46:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,7 +114,7 @@ public:
     void			setDimNames( const char* xlbl,const char* ylbl)
 				{ xlbl_ = xlbl; ylbl_ = ylbl; }
     const char*			dimName( bool dim0 ) const
-				{ return dim0 ? xlbl_ : ylbl_; }
+				{ return dim0 ? xlbl_.buf() : ylbl_.buf(); }
 
     				//!< Alternatively, it can be in Inl/Crl
     bool			posDataIsCoord() const	{ return isposcoord_; }

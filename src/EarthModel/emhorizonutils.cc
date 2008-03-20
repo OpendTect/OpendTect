@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.cc,v 1.16 2008-03-14 14:32:25 cvsyuancheng Exp $
+ RCS:           $Id: emhorizonutils.cc,v 1.17 2008-03-20 21:36:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -331,7 +331,7 @@ void HorizonUtils::addSurfaceData( const MultiID& id,
 
     horizon->auxdata.removeAll();
     for ( int idx=0; idx<attrnms.size(); idx++ )
-	horizon->auxdata.addAuxData( attrnms.get(idx) );
+	horizon->auxdata.addAuxData( attrnms.get(idx).buf() );
 
     for ( int sectionidx=0; sectionidx<data.size(); sectionidx++ )
     {

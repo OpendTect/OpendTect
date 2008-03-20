@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jun 2003
- RCS:           $Id: emsurfauxdataio.cc,v 1.33 2008-02-28 12:18:56 cvsnanne Exp $
+ RCS:           $Id: emsurfauxdataio.cc,v 1.34 2008-03-20 21:36:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ dgbSurfDataWriter::dgbSurfDataWriter( const Horizon3D& surf,int dataidx,
 	par.set( sKeyFloatDataChar(), dc );
     }
 
-    StreamData sd = StreamProvider( filename_ ).makeOStream();
+    StreamData sd = StreamProvider( filename_.buf() ).makeOStream();
     if ( !sd.usable() ) return;
     stream_ = sd.ostrm;
     if ( !(*stream_) ) return;
@@ -228,7 +228,7 @@ int dgbSurfDataWriter::totalNr() const
 
 
 const char* dgbSurfDataWriter::message() const
-{ return errmsg_; }
+{ return errmsg_.buf(); }
 
 
 
@@ -324,7 +324,7 @@ const char* dgbSurfDataReader::dataInfo() const
 void dgbSurfDataReader::setSurface( Horizon3D& surf )
 {
     surf_ = &surf;
-    dataidx_ = surf_->auxdata.addAuxData( dataname_ );
+    dataidx_ = surf_->auxdata.addAuxData( dataname_.buf() );
     surf_->geometry().setShift( shift_ );
 }
 
@@ -420,6 +420,6 @@ int dgbSurfDataReader::totalNr() const
 
 
 const char* dgbSurfDataReader::message() const
-{ return errmsg_; }
+{ return errmsg_.buf(); }
 
 }; //nsamespace

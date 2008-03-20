@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.21 2007-12-13 06:04:11 cvsraman Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.22 2008-03-20 21:36:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,7 +80,7 @@ int HorizonScanner::totalNr() const
     totalnr_ = 0;
     for ( int idx=0; idx<filenames_.size(); idx++ )
     {
-	StreamProvider sp( filenames_.get(0) );
+	StreamProvider sp( filenames_.get(0).buf() );
 	StreamData sd = sp.makeIStream();
 	if ( !sd.usable() ) continue;
 
@@ -106,10 +106,10 @@ void HorizonScanner::report( IOPar& iopar ) const
     BufferString str = "Report for horizon file(s):\n";
     for ( int idx=0; idx<filenames_.size(); idx++ )
     {
-	str += filenames_.get(idx); str += "\n";
+	str += filenames_.get(idx).buf(); str += "\n";
     }
     str += "\n\n";
-    iopar.setName( str );
+    iopar.setName( str.buf() );
 
     if ( isxy_ != selxy_ )
     {
@@ -120,7 +120,7 @@ void HorizonScanner::report( IOPar& iopar ) const
 	iopar.add( "But the positions in input file appear to be in", actual );
 	BufferString msg = "OpendTect will use ";
 	msg += actual; msg += " for final import";
-	iopar.add( msg, "" );
+	iopar.add( msg.buf(), "" );
     }
 
     iopar.add( "->", "Geometry" );
@@ -138,7 +138,7 @@ void HorizonScanner::report( IOPar& iopar ) const
 	iopar.add( "->", "Data values" );
 	for ( int idx=firstattribidx; idx<valranges_.size(); idx++ )
 	{
-	    const char* attrnm = fd_.bodyinfos_[idx+1]->name();
+	    const char* attrnm = fd_.bodyinfos_[idx+1]->name().buf();
 	    iopar.set( IOPar::compKey(attrnm,"Minimum value"),
 		       valranges_[idx].start );
 	    iopar.set( IOPar::compKey(attrnm,"Maximum value"),
@@ -153,7 +153,7 @@ void HorizonScanner::report( IOPar& iopar ) const
 	iopar.add( "->", "Warning" );
 	iopar.add( "These positions were rejected", "" );
 	for ( int idx=0; idx<rejectedlines_.size(); idx++ )
-	    iopar.add( BufferString(idx), rejectedlines_.get(idx) );
+	    iopar.add( BufferString(idx).buf(), rejectedlines_.get(idx).buf() );
     }
 }
 
@@ -197,7 +197,7 @@ bool HorizonScanner::reInitAscIO( const char* fnm )
 
 bool HorizonScanner::analyzeData()
 {
-    if ( !reInitAscIO( filenames_.get(0) ) ) return false;
+    if ( !reInitAscIO( filenames_.get(0).buf() ) ) return false;
 
     udfval_ = ascio_->getUdfVal();
     const float fac = SI().zIsTime() ? 0.001
@@ -271,7 +271,7 @@ int HorizonScanner::nextStep()
     if ( fileidx_ >= filenames_.size() )
 	return Executor::Finished;
 
-    if ( !ascio_ && !reInitAscIO( filenames_.get(fileidx_) ) )
+    if ( !ascio_ && !reInitAscIO( filenames_.get(fileidx_).buf() ) )
 	return Executor::ErrorOccurred;
 
     TypeSet<float> data;
@@ -346,7 +346,7 @@ int HorizonScanner::nextStep()
 	rej += data[1];
 	if ( isgeom_ )
 	{ rej += "\t"; rej += data[2]; }
-	rejectedlines_.add( rej );
+	rejectedlines_.add( rej.buf() );
     }
 
     firsttime_ = false;

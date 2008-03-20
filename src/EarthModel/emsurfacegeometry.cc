@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2002
- RCS:           $Id: emsurfacegeometry.cc,v 1.41 2008-02-20 21:39:16 cvskris Exp $
+ RCS:           $Id: emsurfacegeometry.cc,v 1.42 2008-03-20 21:36:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,7 +133,7 @@ bool SurfaceSectionUndoEvent::action( bool doadd ) const
     Surface* emsurface = dynamic_cast<Surface*>(objectptr);
 
     if ( doadd )
-	return emsurface->geometry().addSection( name, sid, false );
+	return emsurface->geometry().addSection( name.buf(), sid, false );
 
     emsurface->geometry().removeSection( sid, false );
     return true;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.100 2007-12-13 06:05:58 cvsraman Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.101 2008-03-20 21:36:32 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ AuxDataImporter( Horizon3D& hor, const ObjectSet<BinIDValueSet>& sects,
 	if ( nm.isEmpty() )
 	    { nm = "Imported attribute "; nm += attribidx; }
 
-	attrindexes += horizon.auxdata.addAuxData( nm );
+	attrindexes += horizon.auxdata.addAuxData( nm.buf() );
     }
 
     sectionidx = -1;
@@ -615,8 +615,8 @@ void Horizon3DAscIO::createDescBody( Table::FormatDesc* fd,
     for ( int idx=0; idx<attrnms.size(); idx++ )
     {
 	BufferString fldname = attrnms.get( idx );
-	Table::TargetInfo* ti = new Table::TargetInfo( fldname, FloatInpSpec(),
-		  		Table::Required );
+	Table::TargetInfo* ti = new Table::TargetInfo( fldname.buf(),
+		FloatInpSpec(), Table::Required );
 	if ( fldname == "Z values" )
 	{
 	    ti->setPropertyType( PropertyRef::surveyZType() );
