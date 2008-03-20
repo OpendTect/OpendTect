@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.34 2008-02-05 20:46:36 cvskris Exp $
+ RCS:           $Id: uitreeview.cc,v 1.35 2008-03-20 21:44:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -741,18 +741,20 @@ uiListViewItem::uiListViewItem( uiListViewItem*  parent, const char* txt )
 
 
 uiListViewItem::uiListViewItem( uiListView*  parent, const Setup& setup )
-: uiHandle<uiListViewItemBody>( *setup.labels_[0], &mkbody( parent, 0, setup ) )
-, stateChanged( this )
-, keyPressed( this )
+    : uiHandle<uiListViewItemBody>( setup.labels_.size()? *setup.labels_[0] : 0,
+	    			    &mkbody( parent, 0, setup ) )
+    , stateChanged( this )
+    , keyPressed( this )
 { 
     init(setup); 
 }
 
 
 uiListViewItem::uiListViewItem( uiListViewItem*  parent, const Setup& setup )
-: uiHandle<uiListViewItemBody>( *setup.labels_[0], &mkbody( 0, parent, setup ) )
-, stateChanged( this )
-, keyPressed( this )
+    : uiHandle<uiListViewItemBody>( setup.labels_.size()? *setup.labels_[0] : 0,
+				    &mkbody( 0, parent, setup ) )
+    , stateChanged( this )
+    , keyPressed( this )
 { 
     init(setup); 
 }
