@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.22 2008-03-06 14:11:31 cvsbert Exp $
+ RCS:           $Id: uigeom.h,v 1.23 2008-03-20 10:38:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ public:
 
     enum Side		{ Left, Right, Top, Bottom };
     			DeclareEnumUtils(Side)
-    static inline bool	isHor( Side s )			{ return s < Top; }
+    static inline bool	isHor( Side s )			{ return s > Right; }
     static uiRect::Side	across(uiRect::Side);
     static uiRect::Side	clockWise(uiRect::Side);
 
