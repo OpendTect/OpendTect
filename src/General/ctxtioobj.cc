@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.34 2008-01-25 09:37:11 cvsjaap Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.35 2008-03-20 21:40:50 cvskris Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -135,6 +135,14 @@ BufferString IOObjContext::getDataDirName( StdSelType sst )
 	    dirnm = altdirnm;
     }
     return dirnm;
+}
+
+
+MultiID IOObjContext::getSelKey() const
+{
+    return selkey.isEmpty()
+	? MultiID( stdseltype == None ? "" : getStdDirData(stdseltype)->id )
+	: selkey;
 }
 
 

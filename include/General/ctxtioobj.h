@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.27 2008-01-17 14:34:43 cvsbert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.28 2008-03-20 21:40:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,12 +85,7 @@ public:
     				//!< Including legacy names - smart
 
     inline bool		hasStdSelKey() const	{ return stdseltype != None; }
-    inline MultiID	getSelKey() const
-			{
-			    return *((const char*)selkey) ? selkey
-				 : MultiID( stdseltype == None ? ""
-				 : getStdDirData(stdseltype)->id );
-			}
+    MultiID		getSelKey() const;
     void		fillTrGroup();
     			//!< Uses stdseltype to make a trgroup
     			//!< Should never be necessary
