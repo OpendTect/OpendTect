@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.3 2008-03-14 09:31:36 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.4 2008-03-20 14:55:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "draw.h"
 #include "ranges.h"
 #include "bufstringset.h"
+#include "namedobj.h"
 #include "uigeom.h"
 class ioDrawTool;
 
@@ -40,7 +41,7 @@ class ioDrawTool;
  
  */
 
-class uiAxisHandler
+class uiAxisHandler : public NamedObject
 {
 public:
 
@@ -54,18 +55,18 @@ public:
 	mDefSetupMemb(bool,islog)
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(LineStyle,style)
+	mDefSetupMemb(BufferString,name)
     };
 
 			uiAxisHandler(ioDrawTool&,const Setup&);
-    void		setRange( const StepInterval<float>& rg )
-						{ rg_ = rg; reCalc(); }
+    void		setRange(const StepInterval<float>&);
     void		setIsLog( bool yn )	{ setup_.islog_ = yn; reCalc();}
     void		setBorder( const uiBorder& b )
 						{ setup_.border_ = b; reCalc();}
     void		setBegin( const uiAxisHandler* ah )
-						{ beghndlr_ = ah; }
+						{ beghndlr_ = ah; newDevSize();}
     void		setEnd( const uiAxisHandler* ah )
-						{ endhndlr_ = ah; }
+						{ endhndlr_ = ah; newDevSize();}
 
     float		getVal(int pix) const;
     float		getRelPos(float absval) const;
@@ -80,6 +81,8 @@ public:
     int			pixToEdge() const;
     int			pixBefore() const;
     int			pixAfter() const;
+
+    void		newDevSize(); //!< Call this when appropriate
 
 protected:
 
@@ -99,11 +102,14 @@ protected:
     TypeSet<float>	pos_;
     int			devsz_;
     int			axsz_;
+    bool		rgisrev_;
+    float		rgwidth_;
 
     int			getRelPosPix(float) const;
     void		drawAxisLine() const;
     void		annotPos(int,const char*) const;
     void		drawGridLine(int) const;
+    void		drawName() const;
 
 };
 
