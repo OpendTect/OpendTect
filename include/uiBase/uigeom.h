@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uigeom.h,v 1.23 2008-03-20 10:38:08 cvsbert Exp $
+ RCS:           $Id: uigeom.h,v 1.24 2008-03-20 12:23:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -237,19 +237,19 @@ inline void uiRect::setVNrPics( int np )
 
 
 inline uiRect::Side uiRect::across( uiRect::Side s )
-{ return uiRect::isHor(s) ? (s == uiRect::Left ? uiRect::Right : uiRect::Left)
-    			  : (s == uiRect::Top ? uiRect::Bottom :uiRect::Top ); }
+{ return uiRect::isHor(s) ? (s == uiRect::Top ? uiRect::Bottom :uiRect::Top)
+    			  : (s == uiRect::Left ? uiRect::Right : uiRect::Left); }
 inline uiRect::Side uiRect::clockWise( uiRect::Side s )
-{ return uiRect::isHor(s) ? (s == uiRect::Left ? uiRect::Bottom : uiRect::Top)
-    			  : (s == uiRect::Top ? uiRect::Left :uiRect::Right ); }
+{ return uiRect::isHor(s) ? (s == uiRect::Top ? uiRect::Left :uiRect::Right)
+    			  : (s == uiRect::Left ? uiRect::Bottom : uiRect::Top);}
 
 #define mUIGeomImplSideFns(clss) \
 inline int clss::get( uiRect::Side s ) const \
-{ return uiRect::isHor(s) ? (s == uiRect::Left ? left() : right()) \
-    			  : (s == uiRect::Top ? top():bottom() ); } \
+{ return uiRect::isHor(s) ? (s == uiRect::Top ?  top()  : bottom()) \
+    			  : (s == uiRect::Left ? left() : right() ); } \
 inline void clss::set( uiRect::Side s, int i ) \
-{ uiRect::isHor(s) ? (s == uiRect::Left ? setLeft(i) : setRight(i)) \
-    		   : (s == uiRect::Top ? setTop(i) : setBottom(i)); }
+{ uiRect::isHor(s) ? (s == uiRect::Top ? setTop(i) : setBottom(i)) \
+    		   : (s == uiRect::Left ? setLeft(i) : setRight(i)); }
 
 mUIGeomImplSideFns(uiRect)
 mUIGeomImplSideFns(uiBorder)
