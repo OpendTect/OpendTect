@@ -168,7 +168,9 @@ void uiCmdDriverMgr::handleAutoExecution()
 	*ptr++ = '\0';
 	if ( strcmp(str,"cmd") ) continue;
 
-	const BufferString fnm( ptr );
+	const char* fnm = ptr;
+	if ( !File_exists(fnm) && !FilePath(fnm).isAbsolute() )
+	    fnm = GetProcFileName( fnm );
 	if ( File_exists(fnm) )
 	    { uiCmdDriverInps::lastinp_ = fnm; return; }
     }
