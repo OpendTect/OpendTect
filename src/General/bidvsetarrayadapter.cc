@@ -1,0 +1,51 @@
+/*+
+ * COPYRIGHT: (C) dGB Beheer B.V.
+ * AUTHOR   : H. Huck
+ * DATE     : 14-3-2008
+-*/
+
+static const char* rcsID = "$Id: bidvsetarrayadapter.cc,v 1.1 2008-03-21 15:48:00 cvshelene Exp $";
+
+#include "bidvsetarrayadapter.h"
+#include "survinfo.h"
+
+
+BIDValSetArrAdapter::BIDValSetArrAdapter( const BinIDValueSet& bidvs, int colnr)
+    : bidvs_( bidvs )
+    , targetcolidx_( colnr )
+{
+    inlrg_ = bidvs.inlRange();
+    crlrg_ = bidvs.crlRange();
+    const int inlsz = inlrg_.width()+1;
+    const int crlsz = crlrg_.width()+1;
+    arrinfo_ = Array2DInfoImpl( inlsz, crlsz );
+}
+
+
+
+void BIDValSetArrAdapter::set( int inlidx, int crlidx, float value )
+{
+    BinID bid;
+    bid.inl = inlrg_.start + inlidx*SI().inlStep();
+    bid.crl = crlrg_.start + crlidx*SI().crlStep();
+    BinIDValueSet::Pos pos = bidvs_.findFirst( bid );
+    if ( !pos.valid() || bidvs_.nrVals()<targetcolidx_ ) return;
+
+    float* allvals = bidvs_.getVals( pos );
+    allvals[targetcolidx_] = value;
+    bidvs_.set( pos, allvals );
+}
+
+
+float BIDValSetArrAdapter::get( int inlidx, int crlidx ) const
+{
+    BinID bid;
+    bid.inl = inlrg_.start + inlidx*SI().inlStep();
+    bid.crl = crlrg_.start + crlidx*SI().crlStep();
+    BinIDValueSet::Pos pos = bidvs_.findFirst( bid );
+    if ( !pos.valid() || bidvs_.nrVals()<targetcolidx_ )
+	return mUdf(float);
+
+    return bidvs_.getVal( pos, targetcolidx_ );
+}
+
