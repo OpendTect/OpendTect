@@ -4,7 +4,7 @@
  * DATE     : Mar 2008
 -*/
 
-static const char* rcsID = "$Id: mousecursor.cc,v 1.2 2008-03-18 18:42:12 cvskris Exp $";
+static const char* rcsID = "$Id: mousecursor.cc,v 1.3 2008-03-21 15:00:08 cvskris Exp $";
 
 #include "mousecursor.h"
 
@@ -25,7 +25,7 @@ bool MouseCursor::operator!=( const MouseCursor& mc ) const
 { return !(*this==mc); }
 
 
-PtrMan<MouseCursorManager> MouseCursorManager::mgr_ = 0;
+MouseCursorManager* MouseCursorManager::mgr_ = 0;
 
 
 void MouseCursorManager::setOverride( MouseCursor::Shape s, bool replace )
