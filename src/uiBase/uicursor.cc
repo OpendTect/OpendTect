@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/05/2004
- RCS:           $Id: uicursor.cc,v 1.9 2008-03-18 17:38:05 cvskris Exp $
+ RCS:           $Id: uicursor.cc,v 1.10 2008-03-21 14:37:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,8 @@ ________________________________________________________________________
 
 void uiCursorManager::initClass()
 {
-    MouseCursorManager::setMgr( new uiCursorManager );
+    static uiCursorManager uimgr;
+    MouseCursorManager::setMgr( &uimgr );
 }
 
 uiCursorManager::uiCursorManager()

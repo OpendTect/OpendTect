@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2008
- RCS:           $Id: mousecursor.h,v 1.2 2008-03-18 18:42:12 cvskris Exp $
+ RCS:           $Id: mousecursor.h,v 1.3 2008-03-21 14:37:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,6 +100,7 @@ public:
 
     static MouseCursorManager*		mgr();
     static void				setMgr(MouseCursorManager*);
+    					//!<\note I will not manage manager
 
 protected:
     virtual void setOverrideShape(MouseCursor::Shape,bool replace)	= 0;
@@ -109,7 +110,7 @@ protected:
     virtual void restoreInternal()					= 0;
 
 
-    static PtrMan<MouseCursorManager>	mgr_;
+    static MouseCursorManager*		mgr_;
 };
 
 
