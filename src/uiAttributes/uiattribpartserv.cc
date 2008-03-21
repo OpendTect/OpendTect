@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.84 2008-03-11 13:33:53 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.85 2008-03-21 16:03:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ ________________________________________________________________________
 #include "binidvalset.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
+#include "datapointset.h"
 #include "executor.h"
 #include "iodir.h"
 #include "iopar.h"
@@ -385,12 +386,6 @@ Attrib::DescID uiAttribPartServer::targetID( bool for2d, int nr ) const
 }
 
 
-const char* uiAttribPartServer::targetUserRef( int nr ) const
-{
-    return targetspecs_.size() <= nr ? 0 : targetspecs_[nr].userRef();
-}
-
-
 EngineMan* uiAttribPartServer::createEngMan( const CubeSampling* cs, 
 					     const char* linekey )
 {
@@ -494,19 +489,20 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 }
 
 
-bool uiAttribPartServer::createOutput( ObjectSet<BinIDValueSet>& values )
+bool uiAttribPartServer::createOutput( DataPointSet& posvals )
 {
     PtrMan<EngineMan> aem = createEngMan();
     if ( !aem ) return false;
 
     BufferString errmsg;
-    PtrMan<Processor> process = aem->createLocationOutput( errmsg, values );
+    PtrMan<Processor> process = aem->getTableOutExecutor( posvals, errmsg );
     if ( !process )
 	{ uiMSG().error(errmsg); return false; }
 
     uiTaskRunner taskrunner( parent() );
     if ( !taskrunner.execute(*process) ) return false;
 
+    posvals.setName( targetspecs_[0].userRef() );
     return true;
 }
 

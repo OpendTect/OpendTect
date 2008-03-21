@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.34 2008-03-11 13:33:52 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.35 2008-03-21 16:03:50 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ class BinID;
 class BinIDValueSet;
 class BufferStringSet;
 class CubeSampling;
+class DataPointSet;
 class Executor;
 class IOObj;
 class IOPar;
@@ -108,7 +109,7 @@ public:
     DataPack::ID	createOutput(const CubeSampling&,DataPack::ID);
     const Attrib::DataCubes* createOutput(const CubeSampling&,
 				          const Attrib::DataCubes* prevslcs=0);
-    bool		createOutput(ObjectSet<BinIDValueSet>&);
+    bool		createOutput(DataPointSet&);
     bool		createOutput(const BinIDValueSet&,SeisTrcBuf&);
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
 	    				    TypeSet<BinID>* path);
@@ -120,8 +121,6 @@ public:
     bool		isDataClassified(const Array3D<float>&) const;
 
     Attrib::DescID	getStoredID(const LineKey&,bool is2d);
-    Attrib::DescID	targetID(bool is2d,int nr=0) const;
-    const char*		targetUserRef(int nr=0) const;
     IOObj*		getIOObj(const Attrib::SelSpec&) const;
 
     bool		extractData(const NLACreationDesc&,
@@ -185,6 +184,8 @@ protected:
 
     Attrib::DescSetMan* getAdsMan(bool) const;
     Attrib::DescSetMan* getAdsMan(bool);
+
+    Attrib::DescID	targetID(bool is2d,int nr=0) const;
 
     BufferStringSet	get2DStoredLSets(const Attrib::SelInfo&) const;
     BufferStringSet	get2DStoredItems(const MultiID&) const;
