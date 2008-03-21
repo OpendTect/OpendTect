@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.137 2008-03-19 09:13:09 cvsraman Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.138 2008-03-21 16:12:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,10 +12,10 @@ ________________________________________________________________________
 #include "uiempartserv.h"
 
 #include "arraynd.h"
-#include "binidvalset.h"
 #include "ctxtioobj.h"
 #include "cubesampling.h"
 #include "datainpspec.h"
+#include "datapointset.h"
 #include "emfault.h"
 #include "undo.h"
 #include "emhorizon3d.h"
@@ -535,14 +535,15 @@ bool uiEMPartServer::storeAuxData( const EM::ObjectID& id,
 
 
 int uiEMPartServer::setAuxData( const EM::ObjectID& id,
-				ObjectSet<const BinIDValueSet>& data, 
+				DataPointSet& data, 
 				const char* attribnm, int idx )
 {
     mDynamicCastAll(id);
     if ( !hor3d ) { uiMSG().error( "Cannot find horizon" ); return -1; }
-    if ( data.isEmpty() ) { uiMSG().error( "No data calculated" ); return -1; }
+    if ( !data.size() ) { uiMSG().error( "No data calculated" ); return -1; }
 
-    const int nrdatavals = data[0]->nrVals();
+    const BinIDValueSet& bivs = data.bivSet();
+    const int nrdatavals = bivs.nrVals();
     if ( idx>=nrdatavals ) return -1;
 
     BufferString auxnm;
@@ -559,21 +560,17 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id,
 
     BinID bid;
     BinIDValueSet::Pos pos;
-    for ( int sidx=0; sidx<data.size(); sidx++ )
-    {
-	const EM::SectionID sectionid = hor3d->sectionID( sidx );
-	const BinIDValueSet& bivs = *data[sidx];
-	mVariableLengthArr( float, vals, bivs.nrVals() );
+    const EM::SectionID sectionid = hor3d->sectionID( 0 );
+    mVariableLengthArr( float, vals, bivs.nrVals() );
 
-	EM::PosID posid( id, sectionid );
-	while ( bivs.next(pos) )
-	{
-	    bivs.get( pos, bid, vals );
-	    RowCol rc( bid.inl, bid.crl );
-	    EM::SubID subid = rc.getSerialized();
-	    posid.setSubID( subid );
-	    hor3d->auxdata.setAuxDataVal( auxdatanr, posid, vals[idx] );
-	}
+    EM::PosID posid( id, sectionid );
+    while ( bivs.next(pos) )
+    {
+	bivs.get( pos, bid, vals );
+	RowCol rc( bid.inl, bid.crl );
+	EM::SubID subid = rc.getSerialized();
+	posid.setSubID( subid );
+	hor3d->auxdata.setAuxDataVal( auxdatanr, posid, vals[idx] );
     }
 
     return auxdatanr;
@@ -581,32 +578,20 @@ int uiEMPartServer::setAuxData( const EM::ObjectID& id,
 
 
 bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
-				 BufferString& auxdataname,
-	                         ObjectSet<BinIDValueSet>& auxdata ) const
+				 DataPointSet& auxdata ) const
 {
     mDynamicCastAll(oid);
     if ( !hor3d || !hor3d->auxdata.auxDataName(auxdatanr) )
 	return false;
 
-    auxdataname = hor3d->auxdata.auxDataName( auxdatanr );
-    deepErase( auxdata );
-    auxdata.allowNull( true );
-
+    auxdata.setName( hor3d->auxdata.auxDataName( auxdatanr ) );
     for ( int idx=0; idx<hor3d->nrSections(); idx++ )
     {
 	const EM::SectionID sid = hor3d->sectionID( idx );
 	if ( !hor3d->geometry().sectionGeometry(sid) )
-	{
-	    auxdata += 0;
 	    continue;
-	}
 
-	BinIDValueSet* res = new BinIDValueSet( 2, false );
-	auxdata += res;
-
-	float auxvals[2];
 	BinID bid;
-	auxvals[0] = 0;
 	PtrMan<EM::EMObjectIterator> iterator = hor3d->createIterator( sid );
 	while ( true )
 	{
@@ -614,34 +599,32 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
 	    if ( pid.objectID()==-1 )
 		break;
 
-	    auxvals[1] = hor3d->auxdata.getAuxDataVal( auxdatanr, pid );
 	    bid.setSerialized( pid.subID() );
-	    res->add( bid, auxvals );
+	    DataPointSet::Pos newpos( bid, 0 );
+	    DataPointSet::DataRow dtrow( newpos );
+	    dtrow.data_ += hor3d->auxdata.getAuxDataVal( auxdatanr, pid );
+	    auxdata.addRow( dtrow );
 	}
     }
 
+    auxdata.dataChanged();
     return true;
 }
 
 
 bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 				    BufferStringSet& nms,
-				    ObjectSet<BinIDValueSet>& data ) const
+				    DataPointSet& data ) const
 {
     mDynamicCastAll(oid);
     if ( !hor3d ) return false;
 
-    deepErase( data );
-    data.allowNull( true );
-
+    data.bivSet().allowDuplicateBids(false);
     for ( int sidx=0; sidx<hor3d->nrSections(); sidx++ )
     {
 	const EM::SectionID sid = hor3d->sectionID( sidx );
 	if ( !hor3d->geometry().sectionGeometry(sid) )
-	{
-	    data += 0;
 	    continue;
-	}
 
 	for ( int idx=0; idx<hor3d->auxdata.nrAuxData(); idx++ )
 	{
@@ -650,9 +633,9 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 	}
 
 	const int nrauxdata = nms.size()+1;
-	BinIDValueSet* res = new BinIDValueSet( nrauxdata, false );
-	data += res;
-
+	if ( data.bivSet().nrVals() < nrauxdata )
+	    data.bivSet().setNrVals( nrauxdata );
+	
 	mVariableLengthArr( float, auxvals, nrauxdata );
 	auxvals[0] = 0;
 	BinID bid;
@@ -669,9 +652,10 @@ bool uiEMPartServer::getAllAuxData( const EM::ObjectID& oid,
 		auxvals[idx+1] = hor3d->auxdata.getAuxDataVal( auxidx, pid );
 	    }
 	    bid.setSerialized( pid.subID() );
-	    res->add( bid, auxvals );
+	    data.bivSet().add( bid, auxvals );
 	}
     }
+    data.dataChanged();
 
     return true;
 }

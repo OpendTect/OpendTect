@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.42 2008-03-11 13:40:57 cvshelene Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.43 2008-03-21 16:12:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,11 +13,12 @@ ________________________________________________________________________
 
 #include "attribdatapack.h"
 #include "attribsel.h"
-#include "binidvalset.h"
-#include "emdatapack.h"
+#include "bidvsetarrayadapter.h"
+#include "datapointset.h"
 #include "emhorizon3d.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceedgeline.h"
+#include "flatposdata.h"
 #include "iopar.h"
 #include "isocontourtracer.h"
 #include "survinfo.h"
@@ -595,69 +596,74 @@ void HorizonDisplay::setDepthAsAttrib( int attrib )
 {
     as_[attrib]->set( "", Attrib::SelSpec::cNoAttrib(), false, "" );
 
-    ObjectSet<BinIDValueSet> positions;
+    TypeSet<DataPointSet::DataRow> pts;
+    BufferStringSet nms;
+    DataPointSet positions( pts, nms, false, true );
     getRandomPos( positions );
 
-    if ( positions.isEmpty() )
-    {
-	return;
-    }
+    if ( !positions.size() ) return;
 
-    for ( int idx=0; idx<positions.size(); idx++ )
-    {
-	if ( positions[idx]->nrVals()!=2 )
-	    positions[idx]->setNrVals(2);
+    BinIDValueSet& bivs = positions.bivSet();
+    if ( bivs.nrVals()!=2 )
+	bivs.setNrVals(2);
 
-	BinIDValueSet::Pos pos;
-	while ( positions[idx]->next(pos,true) )
+    BinIDValueSet::Pos pos;
+    while ( bivs.next(pos,true) )
+    {
+	float* vals = bivs.getVals(pos);
+	if ( zaxistransform_ )
 	{
-	    float* vals = positions[idx]->getVals(pos);
-	    if ( zaxistransform_ )
-	    {
-		vals[1] = zaxistransform_->transform(
-			BinIDValue( positions[idx]->getBinID(pos), vals[0] ) );
-	    }
-	    else
-		vals[1] = vals[0];
+	    vals[1] = zaxistransform_->transform(
+		    BinIDValue( bivs.getBinID(pos), vals[0] ) );
 	}
+	else
+	    vals[1] = vals[0];
     }
 
+    BIDValSetArrAdapter* bvsarr = new BIDValSetArrAdapter(positions.bivSet(),0);
+    MapDataPack* newpack = new MapDataPack( "Geometry", "Depth", bvsarr);
+/*    StepInterval<double> inlrg( bvsarr->inlrg_.start, bvsarr->inlrg_.stop,
+				SI().inlStep() );
+    StepInterval<double> crlrg( bvsarr->crlrg_.start, bvsarr->crlrg_.stop,
+				SI().crlStep() );
+    newpack->posData().setRange( true, inlrg );
+    newpack->posData().setRange( false, crlrg );
+    newpack->setPosCoord( false );*/
+    newpack->setDimNames( "In-Line", "Cross-line" );
+    DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
+    dpman.add( newpack );
+    setDataPackID( attrib, newpack->id() );
     setRandomPosData( attrib, &positions );
-    deepErase( positions );
 }
 
 
-void HorizonDisplay::getRandomPos( ObjectSet<BinIDValueSet>& data ) const
+void HorizonDisplay::getRandomPos( DataPointSet& data ) const
 {
-    deepErase( data );
+    //put all sections in the same DataPointSet: anyway we are not -yet?- able 
+    //to display attributes on horizon with different value for each section
+    data.bivSet().allowDuplicateBids(false);
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
 	mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( !psurf ) return;
 
-	data += new BinIDValueSet( 1, false );
-	BinIDValueSet& res = *data[idx];
-	psurf->getDataPositions( res, getTranslation().z/SI().zFactor() );
+	psurf->getDataPositions( data.bivSet(),
+				 getTranslation().z/SI().zFactor() );
     }
+    data.dataChanged();
 }
 
 
-void HorizonDisplay::getRandomPosCache( int attrib,
-				 ObjectSet<const BinIDValueSet>& data ) const
+void HorizonDisplay::getRandomPosCache( int attrib, DataPointSet& data ) const
 {
-    data.erase();
-    data.allowNull( true );
     for ( int idx=0; idx<sections_.size(); idx++ )
     {
 	mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[idx]);
-	if ( !psurf )
-	{
-	    data += 0;
-	    continue;
-	}
+	if ( !psurf ) continue;
 
-	data += psurf->getCache( attrib );
+	data.bivSet().append( *psurf->getCache( attrib ) );
     }
+    data.dataChanged();
 }
 
 
@@ -675,8 +681,7 @@ void HorizonDisplay::updateSingleColor()
 }
 
 
-void HorizonDisplay::setRandomPosData( int attrib,
-				 const ObjectSet<BinIDValueSet>* data )
+void HorizonDisplay::setRandomPosData( int attrib, const DataPointSet* data )
 {
     validtexture_ = true;
 
@@ -691,17 +696,16 @@ void HorizonDisplay::setRandomPosData( int attrib,
 	return;
     }
 
-    int idx = 0;
-    for ( ; idx<data->size(); idx++ )
+    //TODO make it compatible with multiple sections which all contain data
+    //when (if) we are able to display all this info
+    if ( sections_.size() )
     {
-	if ( idx>=sections_.size() ) break;
-
-	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
+	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[0]);
 	if ( psurf )
-	    psurf->setTextureData( (*data)[idx], attrib );
+	    psurf->setTextureData( &data->bivSet(), attrib );
     }
 
-    for ( ; idx<sections_.size(); idx++ )
+    for ( int idx=1; idx<sections_.size(); idx++ )
     {
 	mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( psurf ) psurf->setTextureData( 0, attrib );
@@ -1676,12 +1680,7 @@ bool HorizonDisplay::setDataPackID( int attrib, DataPack::ID dpid )
 {
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
     const DataPack* datapack = dpman.obtain( dpid );
-    mDynamicCastGet(const EM::HorDataPack*,dphor,datapack);
-    if ( !dphor )
-    {
-	dpman.release( dpid );
-	return false;
-    }
+    if ( !datapack ) return false;
 
     DataPack::ID oldid = datapackids_[attrib];
     datapackids_[attrib] = dpid;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.233 2008-03-14 14:35:45 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.234 2008-03-21 16:12:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,30 +32,32 @@ ________________________________________________________________________
 #include "visrandomtrackdisplay.h"
 #include "visseis2ddisplay.h"
 
-#include "emdatapack.h"
+#include "attribdescset.h"
+#include "attribdatacubes.h"
+#include "attribsel.h"
+#include "bidvsetarrayadapter.h"
+#include "datapointset.h"
 #include "emhorizon2d.h"
 #include "emseedpicker.h"
 #include "emsurfacetr.h"
 #include "emtracker.h"
-#include "mpeengine.h"
-#include "externalattrib.h"
-#include "attribdescset.h"
-#include "attribdatacubes.h"
-#include "attribsel.h"
-#include "filepath.h"
-#include "seisbuf.h"
-#include "posvecdataset.h"
-#include "pickset.h"
-#include "survinfo.h"
 #include "errh.h"
-#include "iopar.h"
+#include "externalattrib.h"
+#include "filepath.h"
+#include "flatposdata.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "iopar.h"
 #include "linekey.h"
+#include "mpeengine.h"
 #include "oddirs.h"
 #include "odsession.h"
-#include "ptrman.h"
+#include "pickset.h"
 #include "posinfo.h"
+#include "posvecdataset.h"
+#include "ptrman.h"
+#include "seisbuf.h"
+#include "survinfo.h"
 
 #include "uimsg.h"
 #include "uifontsel.h"
@@ -494,7 +496,7 @@ ________________________________________________________________________
 
 
     bool uiODApplMgr::setPickSetDirs( Pick::Set& ps )
-    { return attrserv_->setPickSetDirs( ps, nlaserv_ ? &nlaserv_->getModel() : 0 );}
+    { return attrserv_->setPickSetDirs(ps, nlaserv_ ? &nlaserv_->getModel():0);}
 
     bool uiODApplMgr::pickSetsStored() const
     { return pickserv_->pickSetsStored(); }
@@ -533,7 +535,8 @@ ________________________________________________________________________
 	}
 
 	Attrib::SelSpec myas( *as );
-	if ( myas.id()!=Attrib::DescID::undef() ) attrserv_->updateSelSpec( myas );
+	if ( myas.id()!=Attrib::DescID::undef() )
+	    attrserv_->updateSelSpec( myas );
 	if ( myas.id()<-1 )
 	{
 	    uiMSG().error( "Cannot find selected attribute" );
@@ -557,12 +560,12 @@ ________________________________________________________________________
 		if ( myas.id()==Attrib::SelSpec::cOtherAttrib() )
 		{
 		    PtrMan<Attrib::ExtAttribCalc> calc = 
-				    Attrib::ExtAttrFact().create( 0, myas, false );
+				Attrib::ExtAttrFact().create( 0, myas, false );
 
 		    if ( !calc )
 		    {
-			BufferString errstr = "Selected attribute is not present ";
-			errstr += "in the set\n and cannot be created";
+			BufferString errstr = "Selected attribute is not ";
+			errstr += "present in the set\n and cannot be created";
 			uiMSG().error( errstr );
 			return false;
 		    }
@@ -628,29 +631,27 @@ ________________________________________________________________________
 		    uiMSG().error( "Cannot find stored data" );
 		else
 		{
-		    BufferString attrnm;
-		    ObjectSet<BinIDValueSet> vals;
-		    emserv_->getAuxData( emid, auxdatanr, attrnm, vals );
-		    visserv_->setRandomPosData( visid, attrib, &vals );
-		    allok = createAndSetEMDataPack( visid, attrib, vals );
+		    TypeSet<DataPointSet::DataRow> pts;
+		    BufferStringSet nms;
+		    DataPointSet vals( pts, nms, false, true );
+		    emserv_->getAuxData( emid, auxdatanr, vals );
+		    createAndSetMapDataPack( visid, attrib, vals, 1 );
 		}
 
-		return  auxdatanr>=0 && allok;
+		return  auxdatanr>=0;
 	    }
 
-	    ObjectSet<BinIDValueSet> data;
+	    TypeSet<DataPointSet::DataRow> pts;
+	    BufferStringSet nms;
+	    DataPointSet data( pts, nms, false, true );
 	    visserv_->getRandomPos( visid, data );
 	    attrserv_->setTargetSelSpec( myas );
 	    if ( !attrserv_->createOutput(data) )
-	    {
-		deepErase( data );
 		return false;
-	    }
 
-	    visserv_->setRandomPosData( visid, attrib, &data );
-	    bool allok = createAndSetEMDataPack( visid, attrib, data );
-	    deepErase( data );
-	    return allok;
+	    //Use the first value stored in the set, what else? (0 stands for Z)
+	    createAndSetMapDataPack( visid, attrib, data, 1 );
+	    return true;
 	}
 	case uiVisPartServer::OtherFormat :
 	{
@@ -698,12 +699,12 @@ bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
     }
     else if ( format==uiVisPartServer::RandomPos )
     {
-	ObjectSet<BinIDValueSet> data;
+	TypeSet<DataPointSet::DataRow> pts;
+	BufferStringSet nms;
+	DataPointSet data( pts, nms, false, true );
 	visserv_->getRandomPos( visid, data );
-
 	attrserv_->createOutput( data );
 	visserv_->setRandomPosData( visid, attrib, &data );
-	deepErase( data );
     }
     else
     {
@@ -1266,14 +1267,16 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	    				visserv_->getAttributeFormat( visid );
 	if ( format!=uiVisPartServer::RandomPos ) return false;
 
-	ObjectSet<const BinIDValueSet> data;
+	TypeSet<DataPointSet::DataRow> pts;
+	BufferStringSet nms;
+	DataPointSet data( pts, nms, false, true );
 	visserv_->getRandomPosCache( visid, attrnr, data );
 	if ( data.isEmpty() ) return false;
 
 	const MultiID mid = visserv_->getMultiID( visid );
 	const EM::ObjectID emid = emserv_->getObjectID( mid );
 	const TypeSet<Attrib::SelSpec>& specs = attrserv_->getTargetSelSpecs();
-	const int nrvals = data[0]->nrVals()-1;
+	const int nrvals = data.bivSet().nrVals()-1;
 	for ( int idx=0; idx<nrvals; idx++ )
 	{
 	    emserv_->setAuxData( emid, data, specs[idx].userRef(), idx+1 );
@@ -1371,38 +1374,25 @@ void uiODApplMgr::cleanPreview()
 }
 
 
-bool uiODApplMgr::createAndSetEMDataPack( int visid, int attrib,
-					  ObjectSet<BinIDValueSet> data )
+void uiODApplMgr::createAndSetMapDataPack( int visid, int attrib,
+					   const DataPointSet& data, int colnr )
 {
-    mDynamicCastGet(visSurvey::HorizonDisplay*,hordisp,
-		    visserv_->getObject(visid) );
-    mDynamicCastGet(visSurvey::FaultDisplay*,faultdisp,
-		    visserv_->getObject(visid) );
-    const EM::ObjectID emobjid = hordisp ? hordisp->getObjectID()
-				 	 : faultdisp ? faultdisp->getEMID(): -1;
-    EM::EMObject* emobj = EM::EMM().getObject( emobjid );
-    DataPack::ID cacheid = hordisp->getDataPackID( attrib );
-    if ( cacheid==-1 )
+    DataPack::ID cacheid = visserv_->getDataPackID( visid, attrib );
+    if ( cacheid == -1 )
 	useDefColTab( visid, attrib );
-    const Attrib::DescID did = attrserv_->targetID( false );
-    DataPack* newpack = 0;
-    if ( hordisp )
-    {
-	mDynamicCastGet( EM::Horizon*, horizon, emobj );
-	if ( !horizon ) return false;	//Huh??
-	newpack = new EM::HorDataPack( *horizon, did, data );
-    }
-    else if ( faultdisp )
-    {
-	mDynamicCastGet( EM::Fault*, fault, emobj );
-	if ( !fault ) return false;	//Huh??
-	newpack = new EM::FaultDataPack( *fault, did, data );
-    }
-    
-    newpack->setName( attrserv_->targetUserRef() );
+    BIDValSetArrAdapter* bvsarr = new BIDValSetArrAdapter(data.bivSet(), colnr);
+    MapDataPack* newpack = new MapDataPack( "Attribute", data.name(), bvsarr );
+    StepInterval<double> inlrg( bvsarr->inlrg_.start, bvsarr->inlrg_.stop, 
+	    			SI().inlStep() );
+    StepInterval<double> crlrg( bvsarr->crlrg_.start, bvsarr->crlrg_.stop,
+	    			SI().crlStep() );
+    newpack->posData().setRange( true, inlrg );
+    newpack->posData().setRange( false, crlrg );
+    newpack->setPosCoord( false );
+    newpack->setDimNames( "In-Line", "Cross-line" );
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
     dpman.add( newpack );
     visserv_->setDataPackID( visid, attrib, newpack->id() );
-    return newpack->id() > -1;
+    visserv_->setRandomPosData( visid, attrib, &data );
 }
 

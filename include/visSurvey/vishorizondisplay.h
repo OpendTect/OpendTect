@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.20 2008-03-11 13:40:57 cvshelene Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.21 2008-03-21 16:12:51 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -66,7 +66,7 @@ public:
     bool			swapAttribs(int attrib0,int attrib1);
     void			setAttribTransparency(int,unsigned char);
     unsigned char		getAttribTransparency(int) const;
-    void			enableAttrib(int attrib, bool yn);
+    void			enableAttrib(int attrib,bool yn);
     bool			isAttribEnabled(int attrib) const;
     void			setAngleFlag(int attrib,bool yn);
     bool			isAngle(int attrib) const;
@@ -83,13 +83,11 @@ public:
 
     EM::SectionID		getSectionID(int visid) const;
 
-    void			getRandomPos(ObjectSet<BinIDValueSet>&) const;
-    void			getRandomPosCache(int,
-	    				ObjectSet<const BinIDValueSet>&) const;
-    void			setRandomPosData( int,
-					   const ObjectSet<BinIDValueSet>*);
+    void			getRandomPos(DataPointSet&) const;
+    void			getRandomPosCache(int,DataPointSet&) const;
+    void			setRandomPosData( int,const DataPointSet*);
 
-    bool			hasStoredAttrib( int attrib ) const;
+    bool			hasStoredAttrib(int attrib) const;
 
     int				nrResolutions() const;
     BufferString		getResolutionName(int) const;

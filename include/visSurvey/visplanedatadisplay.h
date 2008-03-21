@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.105 2008-03-18 18:47:52 cvskris Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.106 2008-03-21 16:12:51 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -30,6 +30,7 @@ namespace visBase
     class SplitTexture2Rectangle;
 };
 
+class BinIDValueSet;
 class FlatDataPack;
 namespace Attrib { class Flat3DDataPack; }
 
@@ -82,9 +83,9 @@ public:
     CubeSampling		getCubeSampling(bool manippos,
 	    					bool displayspace,
 						int attrib=-1) const;
-    void			getRandomPos( ObjectSet<BinIDValueSet>& ) const;
-    void			setRandomPosData( int attrib,
-					    const ObjectSet<BinIDValueSet>*);
+    void			getRandomPos(DataPointSet&) const;
+    void			setRandomPosData(int attrib,
+	    					 const DataPointSet*);
     void			setCubeSampling(CubeSampling);
 
     bool			setDataPackID(int attrib,DataPack::ID);
@@ -138,7 +139,7 @@ protected:
     void			setVolumeDataPackNoCache(int attrib,
 	    				const Attrib::Flat3DDataPack*);
     void			setRandomPosDataNoCache(int attrib,
-	    				const ObjectSet<BinIDValueSet>*);
+	    						const BinIDValueSet*);
     void			setDisplayDataPackIDs(int attrib,
 	    				const TypeSet<DataPack::ID>& dpids);
     void			updateFromDisplayIDs(int attrib);

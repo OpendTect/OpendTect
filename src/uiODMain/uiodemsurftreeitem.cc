@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.28 2008-02-20 19:36:50 cvskris Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.29 2008-03-21 16:12:51 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ___________________________________________________________________
 #include "uilistview.h"
 #include "uimenuhandler.h"
 
-#include "binidvalset.h"
+#include "datapointset.h"
 
 #include "uiattribpartserv.h"
 #include "uiempartserv.h"
@@ -181,9 +181,11 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==savesurfacedatamnuitem_.id )
     {
 	menu->setIsHandled( true );
-	ObjectSet<const BinIDValueSet> vals;
+	TypeSet<DataPointSet::DataRow> pts;
+	BufferStringSet nms;
+	DataPointSet vals( pts, nms, false, true );
 	visserv->getRandomPosCache( displayID(), attribNr(), vals );
-	if ( vals.size() && vals[0]->nrVals()>=2 )
+	if ( vals.size() && vals.bivSet().nrVals()>=2 )
 	{
 	    const int auxnr =
 		applMgr()->EMServer()->setAuxData( emid_, vals, name_, 1 );
@@ -214,7 +216,8 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	    return;
 
 	BufferStringSet attrnms;
-	ObjectSet<BinIDValueSet> vals;
+	TypeSet<DataPointSet::DataRow> pts;
+	DataPointSet vals( pts, attrnms, false, true );
 	applMgr()->EMServer()->getAllAuxData( emid_, attrnms, vals );
 	BufferString attrnm = attrnms.size() ? attrnms.get(0) : "";
 	visserv->setSelSpec( displayID(), attribNr(),
@@ -233,14 +236,17 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 		    	   "\nPlease save attribute first" );
 	    return;
 	}
-	ObjectSet<BinIDValueSet> vals;
+	
+	TypeSet<DataPointSet::DataRow> pts;
+	BufferStringSet nms;
+	DataPointSet vals( pts, nms, false, true );
 	BinIDValueSet* set = 0;
 	if ( mnuid==fillholesmnuitem_.id )
 	    set = applMgr()->EMServer()->interpolateAuxData( emid_, name_ );
 	else
 	    set = applMgr()->EMServer()->filterAuxData( emid_, name_ );
 	if ( !set ) return;
-	vals += set;
+	vals.bivSet().append( *set );
 	visserv->setSelSpec( displayID(), attribNr(),
 		Attrib::SelSpec(name_,Attrib::SelSpec::cOtherAttrib()) );
 	visserv->setRandomPosData( displayID(), attribNr(), &vals );

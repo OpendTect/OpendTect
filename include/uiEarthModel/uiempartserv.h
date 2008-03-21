@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.65 2008-03-12 09:48:03 cvsbert Exp $
+ RCS:           $Id: uiempartserv.h,v 1.66 2008-03-21 16:12:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 class BinID;
 class HorSampling;
 class BinIDValueSet;
+class DataPointSet;
 class BufferStringSet;
 class MultiID;
 class SurfaceInfo;
@@ -99,13 +100,11 @@ public:
 	    			     BufferString& auxdataname,
 	    			     bool storeas=false) const;
     int			setAuxData(const EM::ObjectID&,
-	    			   ObjectSet<const BinIDValueSet>&,
-				   const char* nm,int valnr);
+	    			   DataPointSet&,const char* nm,int valnr);
     bool		getAuxData(const EM::ObjectID&,int auxdatanr,
-	    			   BufferString& auxdataname,
-	    			   ObjectSet<BinIDValueSet>&) const;
+	    			   DataPointSet&) const;
     bool		getAllAuxData(const EM::ObjectID&,BufferStringSet&,
-	    			      ObjectSet<BinIDValueSet>&) const;
+	    			      DataPointSet&) const;
     BinIDValueSet*	interpolateAuxData(const EM::ObjectID&,const char* nm);
     BinIDValueSet*	filterAuxData(const EM::ObjectID&,const char* nm);
 

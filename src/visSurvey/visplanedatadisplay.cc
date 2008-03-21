@@ -4,16 +4,16 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.188 2008-03-18 18:57:25 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.189 2008-03-21 16:12:51 cvshelene Exp $";
 
 #include "visplanedatadisplay.h"
 
 #include "arrayndimpl.h"
 #include "attribsel.h"
 #include "attribdatacubes.h"
-#include "binidvalset.h"
 #include "attribdatapack.h"
 #include "cubesampling.h"
+#include "datapointset.h"
 #include "iopar.h"
 #include "keyenum.h"
 #include "settings.h"
@@ -342,8 +342,7 @@ void PlaneDataDisplay::dataTransformCB( CallBacker* )
 	}
 	else if ( rposcache_[idx] )
 	{
-	    ObjectSet<BinIDValueSet> set;
-	    set += rposcache_[idx];
+	    BinIDValueSet set(*rposcache_[idx]);
 	    setRandomPosDataNoCache( idx, &set );
 	}
     }
@@ -590,13 +589,11 @@ CubeSampling PlaneDataDisplay::getCubeSampling( int attrib ) const
 }
 
 
-void PlaneDataDisplay::getRandomPos( ObjectSet<BinIDValueSet>& pos ) const
+void PlaneDataDisplay::getRandomPos( DataPointSet& pos ) const
 {
     const CubeSampling cs = getCubeSampling( true, true, 0 ); //attrib?
     HorSamplingIterator iter( cs.hrg );
 
-    BinIDValueSet* res = new BinIDValueSet( 1, false );
-    pos += res;
     BinIDValue curpos;
     curpos.value = cs.zrg.start;
     while ( iter.next(curpos.binid) )
@@ -605,24 +602,25 @@ void PlaneDataDisplay::getRandomPos( ObjectSet<BinIDValueSet>& pos ) const
 	if ( mIsUdf(depth) )
 	    continue;
 
-	res->add( curpos.binid, depth );
+	DataPointSet::Pos newpos( curpos.binid, depth );
+	DataPointSet::DataRow dtrow( newpos );
+	pos.addRow( dtrow );
     }
+    pos.dataChanged();
 }
 
 
-void PlaneDataDisplay::setRandomPosData( int attrib,
-					 const ObjectSet<BinIDValueSet>* data )
+void PlaneDataDisplay::setRandomPosData( int attrib, const DataPointSet* data )
 {
     if ( attrib>=nrAttribs() )
 	return;
 
-    setRandomPosDataNoCache( attrib, data );
+    setRandomPosDataNoCache( attrib, &data->bivSet() );
 
     if ( rposcache_[attrib] ) 
 	delete rposcache_[attrib];
 
-    rposcache_.replace( attrib,
-	    data&&data->size() ? new BinIDValueSet( *(*data)[0] ) : 0 );
+    rposcache_.replace( attrib, data ? new BinIDValueSet(data->bivSet()) : 0 );
 }
 
 
@@ -788,16 +786,14 @@ DataPack::ID PlaneDataDisplay::getDataPackID( int attrib ) const
 }
 
 
-void PlaneDataDisplay::setRandomPosDataNoCache( int attrib, 
-			const ObjectSet<BinIDValueSet>* data )
+void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
+						const BinIDValueSet* bivset )
 {
-    if ( !data ) return;
+    if ( !bivset ) return;
 
     const CubeSampling cs = getCubeSampling( true, true, 0 );
-    const BinIDValueSet& set( *(*data)[0] );
-
     TypeSet<DataPack::ID> attridpids;
-    for ( int idx=1; idx<set.nrVals(); idx++ )
+    for ( int idx=1; idx<bivset->nrVals(); idx++ )
     {
 	Array2DImpl<float>* arr = 
 	    new Array2DImpl<float> ( cs.hrg.nrInl(), cs.hrg.nrCrl() );
@@ -812,11 +808,11 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
 	
     	BinIDValueSet::Pos pos;
     	BinID bid;
-    	while ( set.next(pos,true) )
+    	while ( bivset->next(pos,true) )
     	{
-    	    set.get( pos, bid );
+    	    bivset->get( pos, bid );
     	    BinID idxs = (bid-cs.hrg.start)/cs.hrg.step;
-    	    arr->set( idxs.inl, idxs.crl, set.getVals(pos)[idx]);
+    	    arr->set( idxs.inl, idxs.crl, bivset->getVals(pos)[idx]);
     	}
     }
 

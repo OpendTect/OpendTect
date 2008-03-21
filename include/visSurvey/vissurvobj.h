@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvobj.h,v 1.86 2008-03-18 17:14:24 cvskris Exp $
+ RCS:		$Id: vissurvobj.h,v 1.87 2008-03-21 16:12:51 cvshelene Exp $
 ________________________________________________________________________
 
 
@@ -23,7 +23,7 @@ ________________________________________________________________________
 #include "vissurvscene.h"
 
 
-class BinIDValueSet;
+class DataPointSet;
 class IOPar;
 class LineStyle;
 class NotifierAccess;
@@ -212,15 +212,14 @@ public:
     virtual void		setTraceData(int attrib,SeisTrcBuf&);
 
 				// Random pos
-    virtual void		getRandomPos( ObjectSet<BinIDValueSet>&) const{}
-				/*!< Content of objectset becomes callers.
-				     Every patch is put in a BinIDValueSet. */
+				/*!< Every position is put in the DataPointSet
+				  no matter which original patch it belongs to*/
+    virtual void		getRandomPos(DataPointSet&) const	{}
     virtual void		getRandomPosCache(int attrib,
-	    				ObjectSet<const BinIDValueSet>&) const{}
+	    					  DataPointSet&) const	{}
     virtual void		setRandomPosData( int attrib,
-	    				   const ObjectSet<BinIDValueSet>*) {}
-    				/*!< Every patch should have a BinIDValueSet */
-    virtual void		readAuxData()	{}
+	    					  const DataPointSet*)	{}
+    virtual void		readAuxData()				{}
 
     virtual void		setScene( Scene* scn )	{ scene_ = scn; }
     virtual const Scene*	getScene() const	{ return scene_; }

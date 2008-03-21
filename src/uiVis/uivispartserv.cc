@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.364 2008-03-14 14:35:45 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.365 2008-03-21 16:12:51 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -617,32 +617,31 @@ int uiVisPartServer::selectedTexture( int id, int attrib ) const
 }
 
 
-void uiVisPartServer::getRandomPos( int id,
-				    ObjectSet<BinIDValueSet>& bivs ) const
+void uiVisPartServer::getRandomPos( int id, DataPointSet& dtps ) const
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     visBase::DataObject* dobj = visBase::DM().getObject( id );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->getRandomPos( bivs );
+    if ( so ) so->getRandomPos( dtps );
 }
 
 
 void uiVisPartServer::getRandomPosCache( int id, int attrib,
-				    ObjectSet<const BinIDValueSet>& bivs ) const
+					 DataPointSet& dtps ) const
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     visBase::DataObject* dobj = visBase::DM().getObject( id );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->getRandomPosCache( attrib, bivs );
+    if ( so ) so->getRandomPosCache( attrib, dtps );
 }
 
 
 void uiVisPartServer::setRandomPosData( int id, int attrib,
-					const ObjectSet<BinIDValueSet>* bp )
+					const DataPointSet* dtps )
 {
     MouseCursorChanger cursorlock( MouseCursor::Wait );
     mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id));
-    if ( so ) so->setRandomPosData( attrib, bp );
+    if ( so ) so->setRandomPosData( attrib, dtps );
 }
 
 
