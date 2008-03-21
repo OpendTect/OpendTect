@@ -4,7 +4,7 @@
  * DATE     : 9-3-1999
 -*/
 
-static const char* rcsID = "$Id: arrayndinfo.cc,v 1.11 2008-02-25 18:45:40 cvskris Exp $";
+static const char* rcsID = "$Id: arrayndinfo.cc,v 1.12 2008-03-21 11:15:19 cvshelene Exp $";
 
 #include "arrayndinfo.h"
 
@@ -65,6 +65,7 @@ bool ArrayNDInfo::getArrayPos( od_uint64 mempos, int* pos ) const
     if ( pos[0]>=getSize(0) )
 	return false;
 
+    mempos = mempos%dimdevisor[0];
     for ( int idx=1; idx<ndim; idx++ )
     {
 	pos[idx] = mempos/dimdevisor[idx];
