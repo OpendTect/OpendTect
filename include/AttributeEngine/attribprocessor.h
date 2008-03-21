@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribprocessor.h,v 1.21 2008-02-26 12:50:09 cvshelene Exp $
+ RCS:           $Id: attribprocessor.h,v 1.22 2008-03-21 14:04:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,35 +30,41 @@ class Provider;
 class Processor : public Executor
 {
 public:
-    			Processor(Desc&,const char*,BufferString&);
-    			~Processor();
+    				Processor(Desc&,const char*,BufferString&);
+    				~Processor();
 
-    virtual bool	isOK() const;
-    void		addOutput(Output*);
+    virtual bool		isOK() const;
+    void			addOutput(Output*);
 
-    int			nextStep();
-    void		init();
-    int			totalNr() const;
-    int 		nrDone() const 		{ return nrdone_; }
-    const char*         message() const
-			{ return *(const char*)errmsg_ ? (const char*)errmsg_
-						       : "Processing"; }
+    int				nextStep();
+    void			init();
+    int				totalNr() const;
+    int 			nrDone() const;
+    const char*         	message() const;
 
-    void		addOutputInterest(int sel)     { outpinterest_ += sel; }
-    bool		setZIntervals(TypeSet< Interval<int> >&,
-	    			      const BinID&,const Coord&);
-    void		computeAndSetRefZStep();
+    void			addOutputInterest(int sel);
+    bool			setZIntervals(TypeSet< Interval<int> >&,
+					      const BinID&,const Coord&);
+    void			computeAndSetRefZStep();
     
-    Notifier<Attrib::Processor>      moveonly;
-                     /*!< triggered after a position is reached that requires
-                          no processing, e.g. during initial buffer fills. */
+    Notifier<Attrib::Processor>	moveonly;
+				/*!< triggered after a position is reached that
+				     requires no processing, e.g. during initial
+				     buffer fills. */
     
-    const char*		getAttribName() const; 	
-    const char*		getAttribUserRef() const; 	
-    Provider*		getProvider() 		{ return provider_; }
-    ObjectSet<Output>   outputs_;
+    const char*			getAttribName() const; 	
+    const char*			getAttribUserRef() const; 	
+    Provider*			getProvider() 		{ return provider_; }
+    ObjectSet<Output>   	outputs_;
 
 protected:
+    void		useFullProcess(int&);
+    void		useSCProcess(int&);
+    void		fullProcess(const SeisTrcInfo*);
+
+    void		defineGlobalOutputSpecs(TypeSet<int>&,CubeSampling&);
+    void		prepareForTableOutput();
+    void		computeAndSetPosAndDesVol(CubeSampling&);
 
     Desc&		desc_;
     Provider*		provider_;
@@ -72,14 +78,6 @@ protected:
 
     BinID		prevbid_;
     Seis::SelData*	sd_;
-
-    void		useFullProcess(int&);
-    void		useSCProcess(int&);
-    void		fullProcess(const SeisTrcInfo*);
-
-    void		defineGlobalOutputSpecs(TypeSet<int>&,CubeSampling&);
-    void		prepareForTableOutput();
-    void		computeAndSetPosAndDesVol(CubeSampling&);
 };
 
 

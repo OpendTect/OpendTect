@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.56 2008-02-26 12:50:09 cvshelene Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.57 2008-03-21 14:04:40 cvskris Exp $";
 
 #include "attribprocessor.h"
 
@@ -397,6 +397,18 @@ int Processor::totalNr() const
 {
     return provider_ ? provider_->getTotalNrPos(is2d_) : 0;
 }
+
+
+int Processor::nrDone() const
+{ return nrdone_; }
+
+
+const char* Processor::message() const
+{ return errmsg_.isEmpty() ? "Processing" : errmsg_; }
+
+
+void Processor::addOutputInterest( int sel )
+{ outpinterest_ += sel; }
 
 
 const char* Processor::getAttribName() const
