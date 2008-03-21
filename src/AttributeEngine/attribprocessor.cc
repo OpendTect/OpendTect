@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.57 2008-03-21 14:04:40 cvskris Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.58 2008-03-21 15:21:28 cvskris Exp $";
 
 #include "attribprocessor.h"
 
@@ -404,7 +404,7 @@ int Processor::nrDone() const
 
 
 const char* Processor::message() const
-{ return errmsg_.isEmpty() ? "Processing" : errmsg_; }
+{ return errmsg_.isEmpty() ? "Processing" : errmsg_.buf(); }
 
 
 void Processor::addOutputInterest( int sel )
