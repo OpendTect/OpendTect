@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.14 2008-03-18 15:22:40 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.15 2008-03-21 15:55:12 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,7 +117,8 @@ public:
 				     bool is2d,bool minimal=false);
     			DataPointSet(::Pos::Provider&,
 				     const ObjectSet<DataColDef>&,
-				     const ::Pos::Filter* f=0,bool minimal=false);
+				     const ::Pos::Filter* f=0,
+				     bool minimal=false);
     			DataPointSet(const PosVecDataSet&,bool is2d,
 					bool minimal=false);
     			DataPointSet(const DataPointSet&,const ::Pos::Filter&);
