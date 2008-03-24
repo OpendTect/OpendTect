@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: initvisbase.cc,v 1.3 2008-03-05 19:29:15 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: initvisbase.cc,v 1.4 2008-03-24 15:52:27 cvsyuancheng Exp $";
 
 
 #include "initvisbase.h"
@@ -42,7 +42,9 @@ static const char* rcsID = "$Id: initvisbase.cc,v 1.3 2008-03-05 19:29:15 cvsyua
 #include "vismultitexture2.h"
 #include "visnormals.h"
 #include "visparametricsurface.h"
+#include "vissplittexturerandomline.h"
 #include "vissplittexture2rectangle.h"
+#include "vissplittextureseis2d.h"
 #include "vispickstyle.h"
 #include "vispointset.h"
 #include "vispolygonoffset.h"
@@ -94,7 +96,6 @@ void initStdClasses()
     EventCatcher::initClass();
     FaceSet::initClass();
     FlatViewer::initClass();
-    SplitTexture2Rectangle::initClass();
     ForegroundLifter::initClass();
     GeomIndexedShape::initClass();
     GridLines::initClass();
@@ -123,6 +124,9 @@ void initStdClasses()
     RotationDragger::initClass();
     Scene::initClass();
     ShapeScale::initClass();
+    SplitTextureRandomLine::initClass();
+    SplitTexture2Rectangle::initClass();
+    SplitTextureSeis2D::initClass();
     Text2::initClass();
     TextBox::initClass();
     Texture2::initClass();
