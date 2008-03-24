@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.25 2008-01-15 16:19:43 cvsbert Exp $
+ RCS:		$Id: simpnumer.h,v 1.26 2008-03-24 15:44:51 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
@@ -82,6 +82,26 @@ int nextPower( int val, int base )
     int res = 1;
     while ( res<val ) res *= base;
     return res;
+}
+
+
+/*!>
+ Find number of blocks when given total number of samples, the base size for  
+ each block and the number of samples overlaped between two blocks.
+ */
+
+
+inline
+int nrBlocks( int totalsamples, int basesize, int overlapsize )
+{
+    int res = 0;
+    while ( totalsamples>basesize )
+    {
+	res++;
+	totalsamples = totalsamples - basesize + overlapsize;
+    }
+    
+    return res+1;
 }
 
 
