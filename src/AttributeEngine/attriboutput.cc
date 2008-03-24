@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.77 2008-03-14 09:33:26 cvsbert Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.78 2008-03-24 20:16:57 cvskris Exp $";
 
 #include "attriboutput.h"
 
@@ -290,7 +290,7 @@ bool SeisTrcStorOutput::wantsOutput( const BinID& bid ) const
 
 bool SeisTrcStorOutput::setStorageID( const MultiID& storid )
 {
-    if ( *((const char*)storid) )
+    if ( !storid.isEmpty() )
     {
 	PtrMan<IOObj> ioseisout = IOM().get( storid );
 	if ( !ioseisout )

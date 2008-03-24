@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.91 2008-01-10 08:52:11 cvshelene Exp $
+ RCS:           $Id: survinfo.cc,v 1.92 2008-03-24 20:16:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -210,7 +210,7 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
     char buf[1024];
     while ( astream.stream().getline(buf,1024) )
     {
-	if ( *((const char*)si->comment_) )
+	if ( !si->comment_.isEmpty() )
 	    si->comment_ += "\n";
 	si->comment_ += buf;
     }

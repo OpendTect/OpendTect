@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.35 2008-03-20 21:40:50 cvskris Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.36 2008-03-24 20:16:57 cvskris Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -247,7 +247,7 @@ bool IOObjContext::validIOObj( const IOObj& ioobj ) const
 	}
     }
 
-    if ( *((const char*)trglobexpr) )
+    if ( !trglobexpr.isEmpty() )
     {
 	FileMultiString fms( trglobexpr );
 	const int sz = fms.size();
