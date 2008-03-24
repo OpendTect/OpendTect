@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.16 2008-03-05 22:19:29 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.17 2008-03-24 15:57:15 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -439,8 +439,8 @@ void PreStackViewer::setSeis2DDisplay(visSurvey::Seis2DDisplay* s2d, int trcnr)
     const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) );
     basedirection_ = SI().binID2Coord().transformBackNoSnap(
 	    seis2d_->getNormal( trcnr_ ) ) - orig;
-    seis2dpos_ = SI().binID2Coord().transformBackNoSnap( 
-	    seis2d_->getCoord(trcnr))-orig;
+    seis2dpos_ = SI().binID2Coord().transformBackNoSnap(
+	    seis2d_->getCoord(trcnr)); 
 
     if ( seis2d_->getMovementNotifier() )
 	seis2d_->getMovementNotifier()->notify( 
