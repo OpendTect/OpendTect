@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.96 2008-03-19 13:16:13 cvsbert Exp $
+ RCS:           $Id: uiodmain.cc,v 1.97 2008-03-24 20:15:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ ________________________________________________________________________
 #include "initseis.h"
 #include "initsood.h"
 #include "inituibase.h"
+#include "inituitools.h"
 #include "inituiio.h"
 #include "inituiattributes.h"
 #include "inituiearthmodel.h"
@@ -106,6 +107,7 @@ static void initNonUiStdClasses()
 static void initUiStdClasses()
 {
     uiBase::initStdClasses();
+    uiTools::initStdClasses();
     uiIo::initStdClasses();
     uiAttributes::initStdClasses();
     uiEarthModel::initStdClasses();
