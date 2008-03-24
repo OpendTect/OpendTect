@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2007
- RCS:           $Id: uitaskrunner.h,v 1.3 2008-02-06 04:35:23 cvsraman Exp $
+ RCS:           $Id: uitaskrunner.h,v 1.4 2008-03-24 20:12:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ public:
 			~uiTaskRunner();
 
     bool		execute(Task& t);
-    const char*		lastMsg() const		{ return prevmessage_; }
+    const char*		lastMsg() const		{ return prevmessage_.buf(); }
 
 protected:
 
