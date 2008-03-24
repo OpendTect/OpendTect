@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: emsticksettransl.cc,v 1.8 2006-08-30 16:03:27 cvsbert Exp $";
+static const char* rcsID = "$Id: emsticksettransl.cc,v 1.9 2008-03-24 21:07:07 cvskris Exp $";
 
 #include "emsticksettransl.h"
 
@@ -98,27 +98,26 @@ Executor* EMStickSetTranslator::writer( const EM::StickSet& hor, const IOObj* io
 	return false;
     }
 
-    PtrMan<BufferString> formatfilename
-			= new BufferString( ioobj->pars()["Format file"] );
-    if ( !(*formatfilename)[0] )
+    BufferString formatfilename( ioobj->pars()["Format file"] );
+    if ( formatfilename.isEmpty() )
     {
 	const char* deffilename = ((StreamConn*) conn)->fileName();
-	*formatfilename = deffilename;
+	formatfilename = deffilename;
 	for ( int idx=strlen(deffilename)-1; idx>=0; idx-- )
 	{
 	    if ( deffilename[idx]=='.' )
 	    {
-		(*formatfilename)[idx] = 0;
+		formatfilename[idx] = 0;
 		break;
 	    }
 	}
 
-	(*formatfilename) += ".fault_fmt";
-	ioobj->pars().set( "Format file", *formatfilename );
+	formatfilename += ".fault_fmt";
+	ioobj->pars().set( "Format file", formatfilename );
 	IOM().commitChanges( *ioobj );
     }
 
-    return tr->writer( hor, conn, formatfilename->buf() );
+    return tr->writer( hor, conn, formatfilename.buf() );
 }
 
 
