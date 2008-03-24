@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.19 2008-02-01 23:17:06 cvsyuancheng Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.20 2008-03-24 15:54:29 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -24,7 +24,7 @@ namespace visBase
 {
     class Text2;
     class Transformation;
-    class TriangleStripSet;
+    class SplitTextureSeis2D;
 }
 
 namespace Attrib  { class Data2DHolder; }
@@ -80,7 +80,7 @@ public:
 
     float			calcDist(const Coord3&) const;
 
-    int				nrResolutions() const		{ return 3; }
+    int				nrResolutions() const;
     int				getResolution() const;
     void			setResolution(int);
 
@@ -127,9 +127,6 @@ protected:
 				    trcnrrg_. Will also update the
 				    z-coordinates & texture coordinates.*/
 
-    void			setStrip(const TypeSet<Coord>&,
-	    				 const Interval<float>&,
-					 int stripidx,const Interval<int>&);
     void			updateLineNamePos();
     void			setData(int attrib,const Attrib::Data2DHolder&);
     bool			getNearestTrace(const Coord3&,int& idx,
@@ -137,6 +134,7 @@ protected:
     void			dataTransformCB(CallBacker*);
     void			updateRanges(bool trc,bool z);
 
+    visBase::SplitTextureSeis2D*		triangles_;
     ObjectSet<const Attrib::Data2DHolder>	cache_;
     TypeSet<DataPack::ID>			datapackids_;
     MultiID					linesetid_;
@@ -145,8 +143,6 @@ protected:
     Interval<float>				curzrg_;
     Interval<int>				trcnrrg_;
     Interval<int>				maxtrcnrrg_;
-
-    ObjectSet<visBase::TriangleStripSet>	planes_;
 
     visBase::Transformation*			transformation_;
     visBase::Text2*				linename_;
