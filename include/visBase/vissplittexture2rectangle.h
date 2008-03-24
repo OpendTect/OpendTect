@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		2-28-2008
- RCS:		$Id: vissplittexture2rectangle.h,v 1.1 2008-03-05 19:29:14 cvsyuancheng Exp $
+ RCS:		$Id: vissplittexture2rectangle.h,v 1.2 2008-03-24 15:56:10 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,8 +52,6 @@ public:
 
 protected:
     			~SplitTexture2Rectangle();
-
-    static int		nrBlocks(int totalnr,int maxnr,int overlap); 
     void		updateFaceSets(); 
     void		updateCoordinates(); 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		2-28-2008
- RCS:		$Id: vissplittexture2rectangle.cc,v 1.1 2008-03-05 19:29:15 cvsyuancheng Exp $
+ RCS:		$Id: vissplittexture2rectangle.cc,v 1.2 2008-03-24 15:56:10 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,6 +91,9 @@ void SplitTexture2Rectangle::updateFaceSets( )
     if ( nrrowblocks_==0 || nrcolblocks_==0 )
 	return;
 
+    if ( dosplit_ && usedunits_.size()<0 )
+	return;
+
     ObjectSet<SoIndexedFaceSet> unusedfacesets = facesets_;
     ObjectSet<SoTextureCoordinate2> unusedtexturecoords = texturecoords_;
     ObjectSet<SoSplitTexture2Part> unusedsplittextures = splittextures_;
@@ -99,13 +102,13 @@ void SplitTexture2Rectangle::updateFaceSets( )
     {
 	const int firstrow = row * (mMaxRowSz-1);
 	int lastrow = firstrow + mMaxRowSz-1;
-	if ( lastrow>=rowsz_ ) lastrow = rowsz_-1;
+	if ( lastrow>=rowsz_ || nrrowblocks_==1 ) lastrow = rowsz_-1;
 
 	for ( int col=0; col<nrcolblocks_; col++ )
 	{
 	    const int firstcol = col * (mMaxColSz-1);
 	    int lastcol = firstcol + mMaxColSz-1;
-	    if ( lastcol>=colsz_ ) lastcol = colsz_-1;
+	    if ( lastcol>=colsz_ || nrcolblocks_==1 ) lastcol = colsz_-1;
 	    
 	    SoIndexedFaceSet* fs = 0;
 	    SoTextureCoordinate2* tc = 0;
@@ -224,7 +227,9 @@ void SplitTexture2Rectangle::updateFaceSets( )
 
 void SplitTexture2Rectangle::setUsedTextureUnits( const TypeSet<int>& units )
 { 
-    usedunits_ = units; 
+    usedunits_ = units;
+    if ( dosplit_ )
+       updateFaceSets();	
 }
 
 
@@ -266,19 +271,6 @@ mVisTrans* SplitTexture2Rectangle::getDisplayTransformation()
 void SplitTexture2Rectangle::setDisplayTransformation( mVisTrans* nt )
 { 
     coords_->setDisplayTransformation( nt );
-}
-
-
-int SplitTexture2Rectangle::nrBlocks( int totalnr, int base, int overlap )
-{
-    int res = 0;
-    while ( totalnr>base )
-    {
-	res++;
-	totalnr = totalnr - base + overlap;
-    }
-
-    return res+1;
 }
 
 
