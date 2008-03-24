@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.59 2008-01-09 09:23:18 cvsjaap Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.60 2008-03-24 15:53:42 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -21,8 +21,13 @@ ________________________________________________________________________
 class CubeSampling;
 class BinID;
 
-namespace visBase { class TriangleStripSet; class MultiTexture2; 
-		    class EventCatcher; class RandomTrackDragger; };
+namespace visBase 
+{ 
+    class SplitTextureRandomLine; 
+    class MultiTexture2; 
+    class EventCatcher; 
+    class RandomTrackDragger; 
+};
 
 namespace Attrib { class SelSpec; }
 
@@ -107,7 +112,6 @@ public:
 				    If knotnr==nrKnots, a knot is added at the
 				    end
 				*/
-
     				
     int				nrKnots() const;
     void			addKnot(const BinID&);
@@ -167,7 +171,7 @@ protected:
     void			knotNrChanged(CallBacker*);
 
 
-    visBase::TriangleStripSet*	triangles_;
+    visBase::SplitTextureRandomLine* triangles_;
     visBase::RandomTrackDragger* dragger_;
     visBase::MultiTexture2*	texture_;
     ObjectSet<Attrib::SelSpec>	as_;
@@ -175,6 +179,7 @@ protected:
     int				selknotidx_;
     TypeSet<DataPack::ID>	datapackids_;
     TypeSet<BinID>		trcspath_;
+    TypeSet<BinID>		knots_;
 
     ZAxisTransform*		datatransform_;
 

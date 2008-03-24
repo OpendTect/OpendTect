@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.99 2008-02-05 09:24:17 cvsbert Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.100 2008-03-24 15:53:42 cvsyuancheng Exp $
  ________________________________________________________________________
 
 -*/
@@ -23,9 +23,9 @@
 #include "survinfo.h"
 #include "visdataman.h"
 #include "vismaterial.h"
-#include "vistristripset.h"
 #include "visrandomtrack.h"
 #include "visrandomtrackdragger.h"
+#include "vissplittexturerandomline.h"
 #include "vistexturecoords.h"
 #include "vistransform.h"
 #include "viscolortab.h"
@@ -50,7 +50,7 @@ const char* RandomTrackDisplay::sKeyLockGeometry()  { return "Lock geometry"; }
 RandomTrackDisplay::RandomTrackDisplay()
     : VisualObjectImpl(true)
     , texture_( visBase::MultiTexture2::create() )
-    , triangles_( visBase::TriangleStripSet::create() )
+    , triangles_( visBase::SplitTextureRandomLine::create() )
     , dragger_( visBase::RandomTrackDragger::create() )
     , knotmoving_(this)
     , moving_(this)
@@ -90,11 +90,6 @@ RandomTrackDisplay::RandomTrackDisplay()
 
     triangles_->ref();
     addChild( triangles_->getInventorNode() );
-    triangles_->setMaterial( 0 );
-    triangles_->setVertexOrdering(
-	    visBase::VertexShape::cClockWiseVertexOrdering() );
-    triangles_->setShapeType( visBase::VertexShape::cUnknownShapeType() );
-    triangles_->setTextureCoords( visBase::TextureCoords::create() );
 
     const StepInterval<float>& survinterval = SI().zRange(true);
     const StepInterval<float> inlrange( SI().sampling(true).hrg.start.inl,
@@ -135,7 +130,6 @@ RandomTrackDisplay::~RandomTrackDisplay()
     texture_->unRef();
     dragger_->unRef();
 
-
     deepErase( as_ );
     deepErase( cache_ );
 
@@ -174,14 +168,7 @@ void RandomTrackDisplay::setDepthInterval( const Interval<float>& intv )
 	 mIsEqual(curint.stop,intv.stop, 1e-3 ) )
 	return;
 
-    visBase::Coordinates* coords = triangles_->getCoordinates();
-    for ( int idx=0; idx<coords->size(); idx++ )
-    {
-	coords->setPos( idx, Coord3( coords->getPos(idx), intv.start) );
-	idx++;
-	coords->setPos( idx, Coord3( coords->getPos(idx), intv.stop) );
-    }
-
+    triangles_->setDepthRange( intv );
     dragger_->setDepthRange( intv );
 
     texture_->clearAll();
@@ -191,21 +178,19 @@ void RandomTrackDisplay::setDepthInterval( const Interval<float>& intv )
 
 Interval<float> RandomTrackDisplay::getDepthInterval() const
 {
-    const visBase::Coordinates* coords = triangles_->getCoordinates();
-    return Interval<float>( coords->getPos(0).z,  coords->getPos(1).z );
+    return triangles_->getDepthRange();
 }
 
 
 Interval<float> RandomTrackDisplay::getDataTraceRange() const
 {
     //TODO Adapt if ztransform is present
-    const visBase::Coordinates* coords = triangles_->getCoordinates();
-    return Interval<float>( coords->getPos(0).z,  coords->getPos(1).z );
+    return triangles_->getDepthRange();
 }
 
 
 int RandomTrackDisplay::nrKnots() const
-{ return triangles_->getCoordinates()->size()/2; }
+{ return knots_.size(); }
 
 
 void RandomTrackDisplay::addKnot( const BinID& bid )
@@ -213,16 +198,10 @@ void RandomTrackDisplay::addKnot( const BinID& bid )
     const BinID sbid = snapPosition( bid );
     if ( checkPosition(sbid) )
     {
-	const Interval<float> zrg( getDataTraceRange() );
-	visBase::Coordinates* coords = triangles_->getCoordinates();
-	const int i0 = coords->addPos( Coord3( sbid.inl, sbid.crl, zrg.start) );
-	const int i1 = coords->addPos( Coord3( sbid.inl, sbid.crl, zrg.stop) );
-
-	const int idx = triangles_->nrCoordIndex();
-	triangles_->setCoordIndex( i0, i0 );
-	triangles_->setCoordIndex( i1, i1 );
-
-	dragger_->setKnot( i0/2, Coord(sbid.inl,sbid.crl) );
+	knots_ += sbid;
+	triangles_->setDepthRange( getDataTraceRange() );
+	triangles_->setLineKnots( knots_ );	
+	dragger_->setKnot( knots_.size()-1, Coord(sbid.inl,sbid.crl) );
 	texture_->clearAll();
 	moving_.trigger();
     }
@@ -234,15 +213,9 @@ void RandomTrackDisplay::insertKnot( int knotidx, const BinID& bid )
     const BinID sbid = snapPosition(bid);
     if ( checkPosition(sbid) )
     {
-	const Interval<float> zrg( getDataTraceRange() );
-	visBase::Coordinates* coords = triangles_->getCoordinates();
-	coords->insertPos( knotidx*2, Coord3(sbid.inl,sbid.crl,zrg.start) );
-	coords->insertPos( knotidx*2+1, Coord3(sbid.inl,sbid.crl,zrg.stop) );
-
-	const int ciidx = triangles_->nrCoordIndex();
-	triangles_->setCoordIndex( ciidx, ciidx );
-	triangles_->setCoordIndex( ciidx+1, ciidx+1 );
-
+	knots_.insert( knotidx, sbid );
+	triangles_->setDepthRange( getDataTraceRange() );
+	triangles_->setLineKnots( knots_ );	
 	dragger_->insertKnot( knotidx, Coord(sbid.inl,sbid.crl) );
 	texture_->clearAll();
 	for ( int idx=0; idx<nrAttribs(); idx++ )
@@ -255,8 +228,7 @@ void RandomTrackDisplay::insertKnot( int knotidx, const BinID& bid )
 
 BinID RandomTrackDisplay::getKnotPos( int knotidx ) const
 {
-    const Coord3 crd = triangles_->getCoordinates()->getPos(knotidx*2);
-    return BinID( (int)crd.x, (int)crd.y ); 
+    return knots_[knotidx];
 }
 
 
@@ -284,11 +256,10 @@ void RandomTrackDisplay::setKnotPos( int knotidx, const BinID& bid, bool check )
     const BinID sbid = snapPosition(bid);
     if ( !check || checkPosition(sbid) )
     {
-	const Interval<float> zrg( getDataTraceRange() );
-	visBase::Coordinates* coords = triangles_->getCoordinates();
-	coords->setPos( knotidx*2, Coord3( sbid.inl, sbid.crl, zrg.start) );
-	coords->setPos( knotidx*2+1, Coord3( sbid.inl, sbid.crl, zrg.stop) );
+	knots_[knotidx] = sbid;
 
+	triangles_->setDepthRange( getDataTraceRange() );
+	triangles_->setLineKnots( knots_ );	
 	dragger_->setKnot( knotidx, Coord(sbid.inl,sbid.crl) );
 	texture_->clearAll();
 	moving_.trigger();
@@ -355,10 +326,8 @@ void RandomTrackDisplay::removeKnot( int knotidx )
 	return;
     }
 
-    triangles_->removeCoordIndexAfter( triangles_->nrCoordIndex()-3 );
-    triangles_->getCoordinates()->removePos( knotidx*2, false );
-    triangles_->getCoordinates()->removePos( knotidx*2, false );
-
+    knots_.remove(knotidx);
+    triangles_->setLineKnots( knots_ );	
     dragger_->removeKnot( knotidx );
 }
 
@@ -510,32 +479,15 @@ void RandomTrackDisplay::setData( int attrib, const SeisTrcBuf& trcbuf )
 	    }
 	}
 
+	texture_->splitTexture( true );
 	texture_->setData( attrib, sidx, &array, true );
+	
+	triangles_->enableSpliting( texture_->canUseShading() );
+	triangles_->setTextureUnits( texture_->getUsedTextureUnits() );	
+	triangles_->setDepthRange( zrg );
+	triangles_->setTexturePath( path, nrsamp );
     }
-
-    const LinScaler horscale( -0.5, 0, path.size()-0.5, 1 );
-    const LinScaler vertscale( -0.5, 0, nrsamp-0.5, 1 );
-    const float toptcoord = vertscale.scale(0);
-    const float bottomtcoord = vertscale.scale(nrsamp-1);
-
-    for ( int idx=0; idx<nrKnots(); idx++ )
-    {
-	const Coord crd = dragger_->getKnot(idx);
-	const BinID bid = BinID( mNINT(crd.x), mNINT(crd.y) );
-	const int index = path.indexOf(bid);
-	if ( index<0 )
-	{
-	    pErrMsg("Knot not found in path");
-	    return;
-	}
-
-	float horcoord = horscale.scale( index );
-	triangles_->getTextureCoords()->setCoord( idx*2,
-					      Coord3(toptcoord,horcoord,0));
-	triangles_->getTextureCoords()->setCoord( idx*2+1,
-					      Coord3(bottomtcoord,horcoord,0));
-    }
-
+    
     texture_->turnOn( true );
 }
 
@@ -692,7 +644,6 @@ void RandomTrackDisplay::acceptManipulation()
 	const Coord crd = dragger_->getKnot(idx);
 	setKnotPos( idx, BinID( mNINT(crd.x), mNINT(crd.y) ));
     }
-
 
     ismanip_ = false;
 }
@@ -1027,7 +978,6 @@ void RandomTrackDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     visBase::VisualObjectImpl::fillPar( par, saveids );
 
-    
     const Interval<float> depthrg = getDataTraceRange();
     par.set( sKeyDepthInterval(), depthrg );
 
