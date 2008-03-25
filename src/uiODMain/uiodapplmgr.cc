@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.234 2008-03-21 16:12:51 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.235 2008-03-25 16:51:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,521 +74,518 @@ ________________________________________________________________________
 #include "uistrattreewin.h"
 
 
-    static BufferString retstr;
+static BufferString retstr;
 
 
-    class uiODApplService : public uiApplService
+class uiODApplService : public uiApplService
+{
+public:
+			uiODApplService( uiParent* p, uiODApplMgr& am )
+			: par_(p), applman_(am)	{}
+    uiParent*		parent() const		{ return par_; }
+    bool		eventOccurred( const uiApplPartServer* ps, int evid )
+			{ return applman_.handleEvent( ps, evid ); }
+    void*		getObject( const uiApplPartServer* ps, int evid )
+			{ return applman_.deliverObject( ps, evid ); }
+
+    uiODApplMgr&	applman_;
+    uiParent*		par_;
+
+};
+
+
+uiODApplMgr::uiODApplMgr( uiODMain& a )
+	: appl_(a)
+	, applservice_(*new uiODApplService(&a,*this))
+	, nlaserv_(0)
+	, getOtherFormatData(this)
+	, otherformatvisid_(-1)
+	, otherformatattrib_(-1)
+	, convertposdlg_( 0 )				
+{
+    pickserv_ = new uiPickPartServer( applservice_ );
+    visserv_ = new uiVisPartServer( applservice_ );
+    attrserv_ = new uiAttribPartServer( applservice_ );
+    seisserv_ = new uiSeisPartServer( applservice_ );
+    emserv_ = new uiEMPartServer( applservice_ );
+    emattrserv_ = new uiEMAttribPartServer( applservice_ );
+    wellserv_ = new uiWellPartServer( applservice_ );
+    wellattrserv_ = new uiWellAttribPartServer( applservice_ );
+    mpeserv_ = new uiMPEPartServer( applservice_ );
+
+    IOM().surveyToBeChanged.notify( mCB(this,uiODApplMgr,surveyToBeChanged) );
+    IOM().surveyChanged.notify( mCB(this,uiODApplMgr,surveyChanged) );
+}
+
+
+uiODApplMgr::~uiODApplMgr()
+{
+    IOM().surveyToBeChanged.remove( mCB(this,uiODApplMgr,surveyToBeChanged) );
+    delete mpeserv_;
+    delete pickserv_;
+    delete nlaserv_;
+    delete attrserv_;
+    delete seisserv_;
+    delete visserv_;
+
+    delete convertposdlg_;
+    delete emserv_;
+    delete emattrserv_;
+    delete wellserv_;
+    delete wellattrserv_;
+    delete &applservice_;
+}
+
+
+void uiODApplMgr::resetServers()
+{
+    if ( nlaserv_ ) nlaserv_->reset();
+    delete attrserv_; delete mpeserv_;
+    attrserv_ = new uiAttribPartServer( applservice_ );
+    mpeserv_ = new uiMPEPartServer( applservice_ );
+    visserv_->deleteAllObjects();
+    emserv_->removeUndo();
+}
+
+
+int uiODApplMgr::manageSurvey()
+{
+    BufferString prevnm = GetDataDir();
+    uiSurvey dlg( &appl_ );
+    if ( !dlg.go() )
+	return 0;
+    else if ( prevnm == GetDataDir() )
+	return 1;
+    else
+	return 2;
+}
+
+
+void uiODApplMgr::surveyToBeChanged( CallBacker* )
+{
+    if ( convertposdlg_ )
     {
-    public:
-			    uiODApplService( uiParent* p, uiODApplMgr& am )
-			    : par_(p), applman_(am)	{}
-	uiParent*		parent() const		{ return par_; }
-	bool		eventOccurred( const uiApplPartServer* ps, int evid )
-			    { return applman_.handleEvent( ps, evid ); }
-	void*		getObject( const uiApplPartServer* ps, int evid )
-			    { return applman_.deliverObject( ps, evid ); }
-
-	uiODApplMgr&	applman_;
-	uiParent*		par_;
-
-    };
-
-
-    uiODApplMgr::uiODApplMgr( uiODMain& a )
-	    : appl_(a)
-	    , applservice_(*new uiODApplService(&a,*this))
-	    , nlaserv_(0)
-	    , getOtherFormatData(this)
-	    , otherformatvisid_(-1)
-	    , otherformatattrib_(-1)
-	    , convertposdlg_( 0 )				
-    {
-	pickserv_ = new uiPickPartServer( applservice_ );
-	visserv_ = new uiVisPartServer( applservice_ );
-	attrserv_ = new uiAttribPartServer( applservice_ );
-	seisserv_ = new uiSeisPartServer( applservice_ );
-	emserv_ = new uiEMPartServer( applservice_ );
-	emattrserv_ = new uiEMAttribPartServer( applservice_ );
-	wellserv_ = new uiWellPartServer( applservice_ );
-	wellattrserv_ = new uiWellAttribPartServer( applservice_ );
-	mpeserv_ = new uiMPEPartServer( applservice_ );
-
-	IOM().surveyToBeChanged.notify( mCB(this,uiODApplMgr,surveyToBeChanged) );
-	IOM().surveyChanged.notify( mCB(this,uiODApplMgr,surveyChanged) );
-    }
-
-
-    uiODApplMgr::~uiODApplMgr()
-    {
-	IOM().surveyToBeChanged.remove( mCB(this,uiODApplMgr,surveyToBeChanged) );
-	delete mpeserv_;
-	delete pickserv_;
-	delete nlaserv_;
-	delete attrserv_;
-	delete seisserv_;
-	delete visserv_;
-
 	delete convertposdlg_;
-	delete emserv_;
-	delete emattrserv_;
-	delete wellserv_;
-	delete wellattrserv_;
-	delete &applservice_;
+	convertposdlg_ = 0;
     }
 
+    bool anythingasked = false;
+    appl_.askStore( anythingasked );
 
-    void uiODApplMgr::resetServers()
+    if ( nlaserv_ ) nlaserv_->reset();
+    delete attrserv_; attrserv_ = 0;
+    delete mpeserv_; mpeserv_ = 0;
+    if ( appl_.sceneMgrAvailable() )
+	sceneMgr().cleanUp( false );
+}
+
+
+void uiODApplMgr::surveyChanged( CallBacker* )
+{
+    bool douse = false; MultiID id;
+    ODSession::getStartupData( douse, id );
+    if ( !douse || id == "" )
+	sceneMgr().addScene( true );
+
+    attrserv_ = new uiAttribPartServer( applservice_ );
+    mpeserv_ = new uiMPEPartServer( applservice_ );
+    MPE::engine().init();
+}
+
+
+bool uiODApplMgr::editNLA( bool is2d )
+{
+    if ( !nlaserv_ ) return false;
+
+    nlaserv_->set2DEvent( is2d );
+    bool res = nlaserv_->go();
+    if ( !res ) attrserv_->setNLAName( nlaserv_->modelName() );
+    return res;
+}
+
+
+void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
+{
+    switch ( ot )
     {
-	if ( nlaserv_ ) nlaserv_->reset();
-	delete attrserv_; delete mpeserv_;
-	attrserv_ = new uiAttribPartServer( applservice_ );
-	mpeserv_ = new uiMPEPartServer( applservice_ );
-	visserv_->deleteAllObjects();
-	emserv_->removeUndo();
-    }
-
-
-    int uiODApplMgr::manageSurvey()
-    {
-	BufferString prevnm = GetDataDir();
-	uiSurvey dlg( &appl_ );
-	if ( !dlg.go() )
-	    return 0;
-	else if ( prevnm == GetDataDir() )
-	    return 1;
-	else
-	    return 2;
-    }
-
-
-    void uiODApplMgr::surveyToBeChanged( CallBacker* )
-    {
-	if ( convertposdlg_ )
+    case Seis:
+	switch ( at )
 	{
-	    delete convertposdlg_;
-	    convertposdlg_ = 0;
+	case Imp:	seisserv_->importSeis( opt );	break;
+	case Exp:	seisserv_->exportSeis( opt );	break;
+	case Man:	seisserv_->manageSeismics();	break;
 	}
-
-	bool anythingasked = false;
-	appl_.askStore( anythingasked );
-
-	if ( nlaserv_ ) nlaserv_->reset();
-	delete attrserv_; attrserv_ = 0;
-	delete mpeserv_; mpeserv_ = 0;
-	if ( appl_.sceneMgrAvailable() )
-	    sceneMgr().cleanUp( false );
-    }
-
-
-    void uiODApplMgr::surveyChanged( CallBacker* )
-    {
-	bool douse = false; MultiID id;
-	ODSession::getStartupData( douse, id );
-	if ( !douse || id == "" )
-	    sceneMgr().addScene( true );
-
-	attrserv_ = new uiAttribPartServer( applservice_ );
-	mpeserv_ = new uiMPEPartServer( applservice_ );
-	MPE::engine().init();
-    }
-
-
-    bool uiODApplMgr::editNLA( bool is2d )
-    {
-	if ( !nlaserv_ ) return false;
-
-	nlaserv_->set2DEvent( is2d );
-	bool res = nlaserv_->go();
-	if ( !res ) attrserv_->setNLAName( nlaserv_->modelName() );
-	return res;
-    }
-
-
-    void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
-    {
-	switch ( ot )
+    break;
+    case Hor:
+	switch ( at )
 	{
-	case Seis:
-	    switch ( at )
-	    {
-	    case Imp:	seisserv_->importSeis( opt );	break;
-	    case Exp:	seisserv_->exportSeis( opt );	break;
-	    case Man:	seisserv_->manageSeismics();	break;
-	    }
-	break;
-	case Hor:
-	    switch ( at )
-	    {
-	    case Imp:	
-		if ( opt == 0 )
-		    emserv_->importHorizon( true );
-		else if ( opt == 1 )
-		    emserv_->importHorizon( false );
-		break;
-	    case Exp:	emserv_->exportHorizon();			break;
-	    case Man:
-		if ( opt == 0 )
-		    emserv_->manageSurfaces(
-				     EMAnyHorizonTranslatorGroup::keyword );
-		else if ( opt == 1 )
-		    emserv_->manageSurfaces( EMHorizon2DTranslatorGroup::keyword );
-		else if ( opt == 2 )
-		    emserv_->manageSurfaces( EMHorizon3DTranslatorGroup::keyword );
-		break;
-	    }
-	break;
-	case Flt:
-	    switch( at )
-	    {
-	    case Man:	emserv_->manageSurfaces(
-				     EMFaultTranslatorGroup::keyword );	break;
-	    }
-	break;
-	case Wll:
-	    switch ( at )
-	    {
-	    case Imp:
-		if ( opt == 0 )
-		    wellserv_->importTrack();
-		else if ( opt == 1 )
-		    wellserv_->importLogs();
-		else if ( opt == 2 )
-		    wellserv_->importMarkers();
-
+	case Imp:	
+	    if ( opt == 0 )
+		emserv_->importHorizon( true );
+	    else if ( opt == 1 )
+		emserv_->importHorizon( false );
 	    break;
-	    case Man:	wellserv_->manageWells();	break;
-	    }
-	break;
-	case Attr:
-	    if ( at == Man ) attrserv_->manageAttribSets();
-	break;
-	case Pick:
-	    switch ( at )
-	    {
-	    case Imp:	pickserv_->impexpSet( true );	break;
-	    case Exp:	pickserv_->impexpSet( false );	break;
-	    case Man:	pickserv_->managePickSets();	break;
-	    }
-	break;
-	case Wvlt:
-	    switch ( at )
-	    {
-	    case Imp:	seisserv_->importWavelets();	break;
-	    default:	seisserv_->manageWavelets();	break;
-	    }
-	break;
-	case Strat:
-	    switch ( at )
-	    {
-	    default:	manStrat();	break;
-	    }
-	break;
+	case Exp:	emserv_->exportHorizon();			break;
+	case Man:
+	    if ( opt == 0 )
+		emserv_->manageSurfaces(
+				 EMAnyHorizonTranslatorGroup::keyword );
+	    else if ( opt == 1 )
+		emserv_->manageSurfaces( EMHorizon2DTranslatorGroup::keyword );
+	    else if ( opt == 2 )
+		emserv_->manageSurfaces( EMHorizon3DTranslatorGroup::keyword );
+	    break;
 	}
-    }
-
-
-    void uiODApplMgr::manStrat()
-    {
-	const_cast<uiStratTreeWin&>(StratTWin()).show();
-    }
-
-
-    void uiODApplMgr::importLMKFault()
-    { emserv_->importLMKFault(); }
-
-
-    void uiODApplMgr::enableMenusAndToolBars( bool yn )
-    {
-	sceneMgr().disabRightClick( !yn );
-	visServer()->disabMenus( !yn );
-	visServer()->disabToolBars( !yn );
-	menuMgr().dtectTB()->setSensitive( yn );
-	menuMgr().manTB()->setSensitive( yn );
-	menuMgr().enableMenuBar( yn );
-    }
-
-
-    void uiODApplMgr::enableTree( bool yn )
-    {
-	sceneMgr().disabTrees( !yn );
-	visServer()->blockMouseSelection( !yn );
-    }
-
-
-    void uiODApplMgr::enableSceneManipulation( bool yn )
-    {
-	if ( !yn ) sceneMgr().setToViewMode();
-	menuMgr().enableActButton( yn );
-    }
-
-
-    void uiODApplMgr::editAttribSet()
-    {
-	editAttribSet( SI().has2D() );
-    }
-
-
-    void uiODApplMgr::editAttribSet( bool is2d )
-    {
-	enableMenusAndToolBars( false );
-	enableSceneManipulation( false );
-
-	attrserv_->editSet( is2d ); 
-    }
-
-
-    void uiODApplMgr::createHorOutput( int tp, bool is2d )
-    {
-	emattrserv_->setDescSet( attrserv_->curDescSet(is2d) );
-	MultiID nlaid; const NLAModel* nlamdl = 0;
-	if ( nlaserv_ )
+    break;
+    case Flt:
+	switch( at )
 	{
-	    nlaserv_->set2DEvent( is2d );
-	    nlaid = nlaserv_->modelId();
-	    nlamdl = &nlaserv_->getModel();
+	case Man:
+	    emserv_->manageSurfaces( EMFaultTranslatorGroup::keyword );	break;
 	}
-	emattrserv_->setNLA( nlamdl, nlaid );
-
-	uiEMAttribPartServer::HorOutType type =
-	      tp==0 ? uiEMAttribPartServer::OnHor :
-	    ( tp==1 ? uiEMAttribPartServer::AroundHor : 
-		      uiEMAttribPartServer::BetweenHors );
-	emattrserv_->createHorizonOutput( type );
-    }
-
-
-    void uiODApplMgr::createVol( bool is2d )
-    {
-	MultiID nlaid;
-	if ( nlaserv_ )
+    break;
+    case Wll:
+	switch ( at )
 	{
-	    nlaserv_->set2DEvent( is2d );
-	    nlaid = nlaserv_->modelId();
+	case Imp:
+	    if ( opt == 0 )
+		wellserv_->importTrack();
+	    else if ( opt == 1 )
+		wellserv_->importLogs();
+	    else if ( opt == 2 )
+		wellserv_->importMarkers();
+
+	break;
+	case Man:	wellserv_->manageWells();	break;
 	}
-	attrserv_->outputVol( nlaid, is2d );
+    break;
+    case Attr:
+	if ( at == Man ) attrserv_->manageAttribSets();
+    break;
+    case Pick:
+	switch ( at )
+	{
+	case Imp:	pickserv_->impexpSet( true );	break;
+	case Exp:	pickserv_->impexpSet( false );	break;
+	case Man:	pickserv_->managePickSets();	break;
+	}
+    break;
+    case Wvlt:
+	switch ( at )
+	{
+	case Imp:	seisserv_->importWavelets();	break;
+	default:	seisserv_->manageWavelets();	break;
+	}
+    break;
+    case Strat:
+	switch ( at )
+	{
+	default:	manStrat();	break;
+	}
+    break;
     }
+}
 
 
-    void uiODApplMgr::reStartProc() {uiRestartBatchDialog dlg( &appl_ ); dlg.go();}
-    void uiODApplMgr::batchProgs() { uiBatchProgLaunch dlg( &appl_ ); dlg.go(); }
-    void uiODApplMgr::pluginMan() { uiPluginMan dlg( &appl_ ); dlg.go(); }
+void uiODApplMgr::manStrat()
+{
+    const_cast<uiStratTreeWin&>(StratTWin()).show();
+}
 
-    void uiODApplMgr::posConversion()
+
+void uiODApplMgr::importLMKFault()
+{ emserv_->importLMKFault(); }
+
+
+void uiODApplMgr::enableMenusAndToolBars( bool yn )
+{
+    sceneMgr().disabRightClick( !yn );
+    visServer()->disabMenus( !yn );
+    visServer()->disabToolBars( !yn );
+    menuMgr().dtectTB()->setSensitive( yn );
+    menuMgr().manTB()->setSensitive( yn );
+    menuMgr().enableMenuBar( yn );
+}
+
+
+void uiODApplMgr::enableTree( bool yn )
+{
+    sceneMgr().disabTrees( !yn );
+    visServer()->blockMouseSelection( !yn );
+}
+
+
+void uiODApplMgr::enableSceneManipulation( bool yn )
+{
+    if ( !yn ) sceneMgr().setToViewMode();
+    menuMgr().enableActButton( yn );
+}
+
+
+void uiODApplMgr::editAttribSet()
+{
+    editAttribSet( SI().has2D() );
+}
+
+
+void uiODApplMgr::editAttribSet( bool is2d )
+{
+    enableMenusAndToolBars( false );
+    enableSceneManipulation( false );
+
+    attrserv_->editSet( is2d ); 
+}
+
+
+void uiODApplMgr::createHorOutput( int tp, bool is2d )
+{
+    emattrserv_->setDescSet( attrserv_->curDescSet(is2d) );
+    MultiID nlaid; const NLAModel* nlamdl = 0;
+    if ( nlaserv_ )
     {
-       if ( !convertposdlg_ ) 
-	   convertposdlg_ = new uiConvertPos( &appl_, SI(), false );
-
-       convertposdlg_->go(); 
+	nlaserv_->set2DEvent( is2d );
+	nlaid = nlaserv_->modelId();
+	nlamdl = &nlaserv_->getModel();
     }
+    emattrserv_->setNLA( nlamdl, nlaid );
 
-    void uiODApplMgr::manageShortcuts()
-    { uiShortcutsDlg dlg(&appl_,"ODScene"); dlg.go(); }
+    uiEMAttribPartServer::HorOutType type =
+	  tp==0 ? uiEMAttribPartServer::OnHor :
+	( tp==1 ? uiEMAttribPartServer::AroundHor : 
+		  uiEMAttribPartServer::BetweenHors );
+    emattrserv_->createHorizonOutput( type );
+}
 
 
-    void uiODApplMgr::setFonts()
+void uiODApplMgr::createVol( bool is2d )
+{
+    MultiID nlaid;
+    if ( nlaserv_ )
     {
-	uiSetFonts dlg( &appl_, "Set font types" );
-	dlg.go();
+	nlaserv_->set2DEvent( is2d );
+	nlaid = nlaserv_->modelId();
     }
+    attrserv_->outputVol( nlaid, is2d );
+}
 
 
-    void uiODApplMgr::setStereoOffset()
-    {
-	ObjectSet<uiSoViewer> vwrs;
-	sceneMgr().getSoViewers( vwrs );
-	uiStereoDlg dlg( &appl_, vwrs );
-	dlg.go();
-    }
+void uiODApplMgr::reStartProc() {uiRestartBatchDialog dlg( &appl_ ); dlg.go();}
+void uiODApplMgr::batchProgs() { uiBatchProgLaunch dlg( &appl_ ); dlg.go(); }
+void uiODApplMgr::pluginMan() { uiPluginMan dlg( &appl_ ); dlg.go(); }
+
+void uiODApplMgr::posConversion()
+{
+   if ( !convertposdlg_ ) 
+       convertposdlg_ = new uiConvertPos( &appl_, SI(), false );
+
+   convertposdlg_->go(); 
+}
+
+void uiODApplMgr::manageShortcuts()
+{ uiShortcutsDlg dlg(&appl_,"ODScene"); dlg.go(); }
 
 
-    void uiODApplMgr::setWorkingArea()
-    {
-	if ( visserv_->setWorkingArea() )
-	    sceneMgr().viewAll(0);
-    }
+void uiODApplMgr::setFonts()
+{
+    uiSetFonts dlg( &appl_, "Set font types" );
+    dlg.go();
+}
 
 
-    void uiODApplMgr::setZScale()
-    {
-	visserv_->setZScale();
-    }
+void uiODApplMgr::setStereoOffset()
+{
+    ObjectSet<uiSoViewer> vwrs;
+    sceneMgr().getSoViewers( vwrs );
+    uiStereoDlg dlg( &appl_, vwrs );
+    dlg.go();
+}
 
 
-    bool uiODApplMgr::selectAttrib( int id, int attrib )
-    {
-	if ( appl_.isRestoringSession() ) return false;
-
-	if ( id < 0 ) return false;
-	const Attrib::SelSpec* as = visserv_->getSelSpec( id, attrib );
-	if ( !as ) return false;
-
-	const char* key = visserv_->getZDomainKey( visserv_->getSceneID(id) );
-	Attrib::SelSpec myas( *as );
-	const bool selok = attrserv_->selectAttrib( myas, key, myas.is2D() );
-	if ( selok )
-	    visserv_->setSelSpec( id, attrib, myas );
-
-	return selok;
-    }
+void uiODApplMgr::setWorkingArea()
+{
+    if ( visserv_->setWorkingArea() )
+	sceneMgr().viewAll(0);
+}
 
 
-    void uiODApplMgr::selectWells( ObjectSet<MultiID>& wellids )
-    { wellserv_->selectWells( wellids ); }
+void uiODApplMgr::setZScale()
+{
+    visserv_->setZScale();
+}
 
-    bool uiODApplMgr::storePickSets()
-    { return pickserv_->storeSets(); }
 
-    bool uiODApplMgr::storePickSet( const Pick::Set& ps )
-    { return pickserv_->storeSet( ps ); }
+bool uiODApplMgr::selectAttrib( int id, int attrib )
+{
+    if ( appl_.isRestoringSession() ) return false;
 
-    bool uiODApplMgr::storePickSetAs( const Pick::Set& ps )
-    { return pickserv_->storeSetAs( ps ); }
+    if ( id < 0 ) return false;
+    const Attrib::SelSpec* as = visserv_->getSelSpec( id, attrib );
+    if ( !as ) return false;
+
+    const char* key = visserv_->getZDomainKey( visserv_->getSceneID(id) );
+    Attrib::SelSpec myas( *as );
+    const bool selok = attrserv_->selectAttrib( myas, key, myas.is2D() );
+    if ( selok )
+	visserv_->setSelSpec( id, attrib, myas );
+
+    return selok;
+}
+
+
+void uiODApplMgr::selectWells( ObjectSet<MultiID>& wellids )
+{ wellserv_->selectWells( wellids ); }
+
+bool uiODApplMgr::storePickSets()
+{ return pickserv_->storeSets(); }
+
+bool uiODApplMgr::storePickSet( const Pick::Set& ps )
+{ return pickserv_->storeSet( ps ); }
+
+bool uiODApplMgr::storePickSetAs( const Pick::Set& ps )
+{ return pickserv_->storeSetAs( ps ); }
 
 
 #include "emfault.h"
 #include "emmanager.h"
 #include "executor.h"
 #include "uitaskrunner.h"
-    bool uiODApplMgr::storePolyAsFault( const Pick::Set& ps )
-    { 
-	int stickinl = mUdf(int);
-	int stickcrl = mUdf(int);
-	double stickz = mUdf(double);
+bool uiODApplMgr::storePolyAsFault( const Pick::Set& ps )
+{ 
+    int stickinl = mUdf(int);
+    int stickcrl = mUdf(int);
+    double stickz = mUdf(double);
 
-	EM::ObjectID objid = 
-	    EM::EMM().createObject( EM::Fault::typeStr(), ps.name() );
-	EM::EMObject* emobj = EM::EMM().getObject( objid );
-	mDynamicCastGet( EM::Fault*, flt, emobj );
-	EM::FaultGeometry& fgeom = flt->geometry();
-	EM::SectionID sid = flt->sectionID( 0 );
+    EM::ObjectID objid = 
+	EM::EMM().createObject( EM::Fault::typeStr(), ps.name() );
+    EM::EMObject* emobj = EM::EMM().getObject( objid );
+    mDynamicCastGet( EM::Fault*, flt, emobj );
+    EM::FaultGeometry& fgeom = flt->geometry();
+    EM::SectionID sid = flt->sectionID( 0 );
 
-	for ( int idx=0; idx<ps.size(); idx++ )
-	{
-	    const BinID bid = SI().transform( ps[idx].pos );
-	    if ( bid.inl != stickinl ) stickinl = mUdf(int);
-	    if ( bid.crl != stickcrl ) stickcrl = mUdf(int);
-	    if ( ps[idx].pos.z != stickz ) stickz = mUdf(double);
-	    
-	    if ( mIsUdf(stickinl) && mIsUdf(stickcrl) && mIsUdf(stickz) )
-	    {
-		fgeom.insertStick( sid, 0, ps[idx].pos, Coord3(0,0,1), false );
-		stickinl = bid.inl;
-		stickcrl = bid.crl;
-		stickz = ps[idx].pos.z;
-	    }
-	    else
-	    {
-		RowCol rc( 0, 0 );
-		fgeom.insertKnot( sid, rc.getSerialized(), ps[idx].pos, false );
-	    }
-	}
-
-	PtrMan<Executor> exec = flt->saver();
-	if ( exec )
-	{
-	    uiTaskRunner dlg( &appl_ );
-	    dlg.execute( *exec );
-	}
-	EM::EMM().removeObject( emobj );
+    for ( int idx=0; idx<ps.size(); idx++ )
+    {
+	const BinID bid = SI().transform( ps[idx].pos );
+	if ( bid.inl != stickinl ) stickinl = mUdf(int);
+	if ( bid.crl != stickcrl ) stickcrl = mUdf(int);
+	if ( ps[idx].pos.z != stickz ) stickz = mUdf(double);
 	
-	return true;
-    }
-
-
-    bool uiODApplMgr::setPickSetDirs( Pick::Set& ps )
-    { return attrserv_->setPickSetDirs(ps, nlaserv_ ? &nlaserv_->getModel():0);}
-
-    bool uiODApplMgr::pickSetsStored() const
-    { return pickserv_->pickSetsStored(); }
-
-
-    void uiODApplMgr::useDefColTab( int visid, int attrib )
-    {
-	if ( appl_.isRestoringSession() ) return;
-
-	const int coltabid = visserv_->getColTabId( visid, attrib );
-	appl_.colTabEd().setColTab( coltabid );
-	const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attrib );
-	if ( !as ) return;
-
-	PtrMan<IOObj> ioobj = attrserv_->getIOObj( *as );
-	if ( !ioobj ) return;
-
-	FilePath fp( ioobj->fullUserExpr(true) );
-	fp.setExtension( "par" );
-	BufferString fnm = fp.fullPath();
-	IOPar iop;
-	if ( iop.read(fnm,sKey::Pars) )
-	    appl_.colTabEd().usePar( iop );
-    }
-
-
-    bool uiODApplMgr::getNewData( int visid, int attrib )
-    {
-	if ( visid<0 ) return false;
-
-	const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attrib );
-	if ( !as )
+	if ( mIsUdf(stickinl) && mIsUdf(stickcrl) && mIsUdf(stickz) )
 	{
-	    uiMSG().error( "Cannot calculate attribute on this object" );
-	    return false;
+	    fgeom.insertStick( sid, 0, ps[idx].pos, Coord3(0,0,1), false );
+	    stickinl = bid.inl;
+	    stickcrl = bid.crl;
+	    stickz = ps[idx].pos.z;
 	}
-
-	Attrib::SelSpec myas( *as );
-	if ( myas.id()!=Attrib::DescID::undef() )
-	    attrserv_->updateSelSpec( myas );
-	if ( myas.id()<-1 )
+	else
 	{
-	    uiMSG().error( "Cannot find selected attribute" );
-	    return false;
-	} 
+	    RowCol rc( 0, 0 );
+	    fgeom.insertKnot( sid, rc.getSerialized(), ps[idx].pos, false );
+	}
+    }
 
-	bool res = false;
-	switch ( visserv_->getAttributeFormat(visid) )
+    PtrMan<Executor> exec = flt->saver();
+    if ( exec )
+    {
+	uiTaskRunner dlg( &appl_ );
+	dlg.execute( *exec );
+    }
+    EM::EMM().removeObject( emobj );
+    
+    return true;
+}
+
+
+bool uiODApplMgr::setPickSetDirs( Pick::Set& ps )
+{ return attrserv_->setPickSetDirs(ps, nlaserv_ ? &nlaserv_->getModel():0);}
+
+bool uiODApplMgr::pickSetsStored() const
+{ return pickserv_->pickSetsStored(); }
+
+
+void uiODApplMgr::useDefColTab( int visid, int attrib )
+{
+    if ( appl_.isRestoringSession() ) return;
+
+    const int coltabid = visserv_->getColTabId( visid, attrib );
+    appl_.colTabEd().setColTab( coltabid );
+    const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attrib );
+    if ( !as ) return;
+
+    PtrMan<IOObj> ioobj = attrserv_->getIOObj( *as );
+    if ( !ioobj ) return;
+
+    FilePath fp( ioobj->fullUserExpr(true) );
+    fp.setExtension( "par" );
+    BufferString fnm = fp.fullPath();
+    IOPar iop;
+    if ( iop.read(fnm,sKey::Pars) )
+	appl_.colTabEd().usePar( iop );
+}
+
+
+bool uiODApplMgr::getNewData( int visid, int attrib )
+{
+    if ( visid<0 ) return false;
+
+    const Attrib::SelSpec* as = visserv_->getSelSpec( visid, attrib );
+    if ( !as )
+    {
+	uiMSG().error( "Cannot calculate attribute on this object" );
+	return false;
+    }
+
+    Attrib::SelSpec myas( *as );
+    if ( myas.id()!=Attrib::DescID::undef() )
+	attrserv_->updateSelSpec( myas );
+    if ( myas.id()<-1 )
+    {
+	uiMSG().error( "Cannot find selected attribute" );
+	return false;
+    } 
+
+    bool res = false;
+    switch ( visserv_->getAttributeFormat(visid) )
+    {
+	case uiVisPartServer::Cube :
 	{
-	    case uiVisPartServer::Cube :
+	    const DataPack::ID cacheid =
+				visserv_->getDataPackID( visid, attrib );
+	    if ( cacheid == DataPack::cNoID )
+		useDefColTab( visid, attrib );
+
+	    CubeSampling cs = visserv_->getCubeSampling( visid, attrib );
+	    if ( !cs.isDefined() )
+		return false;
+
+	    if ( myas.id()==Attrib::SelSpec::cOtherAttrib() )
 	    {
-		const Attrib::DataCubes* cache =
-				    visserv_->getCachedData( visid, attrib );
-		if ( !cache )
-		    useDefColTab( visid, attrib );
+		PtrMan<Attrib::ExtAttribCalc> calc = 
+			    Attrib::ExtAttrFact().create( 0, myas, false );
 
-		CubeSampling cs = visserv_->getCubeSampling( visid, attrib );
-		if ( !cs.isDefined() )
-		    return false;
-
-		if ( myas.id()==Attrib::SelSpec::cOtherAttrib() )
+		if ( !calc )
 		{
-		    PtrMan<Attrib::ExtAttribCalc> calc = 
-				Attrib::ExtAttrFact().create( 0, myas, false );
+		    BufferString errstr = "Selected attribute is not ";
+		    errstr += "present in the set\n and cannot be created";
+		    uiMSG().error( errstr );
+		    return false;
+		}
 
-		    if ( !calc )
-		    {
-			BufferString errstr = "Selected attribute is not ";
-			errstr += "present in the set\n and cannot be created";
-			uiMSG().error( errstr );
-			return false;
-		    }
-
-		    MouseCursorChanger cursorchgr( MouseCursor::Wait );
-		RefMan<const Attrib::DataCubes> newdata =
-				calc->createAttrib( cs, cache );
-		if ( !newdata && !calc->errmsg_.isEmpty() )
+		MouseCursorChanger cursorchgr( MouseCursor::Wait );
+		const DataPack::ID dpid = calc->createAttrib( cs, cacheid );
+		if ( dpid==DataPack::cNoID && !calc->errmsg_.isEmpty() )
 		{
 		    uiMSG().error( calc->errmsg_ );
 		    return false;
 		}
 
-		res = newdata;
-		visserv_->setCubeData( visid, attrib, newdata );
+		res = dpid != DataPack::cNoID;
+		visserv_->setDataPackID( visid, attrib, dpid );
 		break;
 	    }
 
-	    const DataPack::ID cacheid =
-				visserv_->getDataPackID( visid, attrib );
 	    attrserv_->setTargetSelSpec( myas );
 	    const DataPack::ID newid = attrserv_->createOutput( cs, cacheid );
-	    if ( newid == -1 )
+	    if ( newid == DataPack::cNoID )
 	    {
 		visserv_->setCubeData( visid, attrib, 0 );
 		return false;
