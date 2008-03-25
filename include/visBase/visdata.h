@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.50 2008-03-25 18:38:36 cvskris Exp $
+ RCS:		$Id: visdata.h,v 1.51 2008-03-25 20:28:36 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -61,6 +61,7 @@ public:
     virtual const SoNode*	getInventorNode() const;
 
     virtual bool		pickable() const 	{ return selectable(); }
+    virtual bool		rightClickable() const 	{ return selectable(); }
     virtual bool		selectable() const	{ return false; }
     void			select() const;
     				/*<! Is here for convenience. Will rewire to

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2002
- RCS:           $Id: visscene.cc,v 1.35 2008-03-17 21:09:14 cvskris Exp $
+ RCS:           $Id: visscene.cc,v 1.36 2008-03-25 20:28:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,7 +130,7 @@ void Scene::mousePickCB( CallBacker* cb )
 	{
 	    const DataObject* dataobj =
 			    DM().getObject(eventinfo.pickedobjids[idx]);
-	    if ( dataobj->selectable() )
+	    if ( dataobj->selectable() || dataobj->rightClickable() )
 	    {
 		mousedownid_ = eventinfo.pickedobjids[idx];
 		break;
@@ -157,10 +157,11 @@ void Scene::mousePickCB( CallBacker* cb )
 	    DataObject* dataobj = DM().getObject(eventinfo.pickedobjids[idx]);
 	    const bool idisok = markerclicked || mousedownid_==dataobj->id();
 
-	    if ( dataobj->selectable() && idisok )
+	    if ( idisok )
 	    {
-		if ( OD::rightMouseButton(eventinfo.buttonstate_) &&
-			dataobj->rightClicked() )
+		if ( dataobj->rightClickable() &&
+		     OD::rightMouseButton(eventinfo.buttonstate_) &&
+		     dataobj->rightClicked() )
 		{
 		    mDynamicCastGet( visBase::Marker*, emod, dataobj );
 		    if ( emod ) 
@@ -170,14 +171,17 @@ void Scene::mousePickCB( CallBacker* cb )
 		    }
 		    dataobj->triggerRightClick(&eventinfo);
 		}
-		else if ( OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
+		else if ( dataobj->selectable() )
+		{
+		    if ( OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
 			  !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
 			  !OD::altKeyboardButton(eventinfo.buttonstate_) )
-		    DM().selMan().select( mousedownid_, true );
-		else if ( !OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
+			DM().selMan().select( mousedownid_, true );
+		    else if ( !OD::shiftKeyboardButton(eventinfo.buttonstate_)&&
 			  !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
 			  !OD::altKeyboardButton(eventinfo.buttonstate_) )
-		    DM().selMan().select( mousedownid_, false );
+			DM().selMan().select( mousedownid_, false );
+		}
 
 		break;
 	    }
