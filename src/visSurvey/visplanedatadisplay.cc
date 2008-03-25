@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.189 2008-03-21 16:12:51 cvshelene Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.190 2008-03-25 15:25:42 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -487,13 +487,13 @@ NotifierAccess* PlaneDataDisplay::getManipulationNotifier()
 
 int PlaneDataDisplay::nrResolutions() const
 {
-    return texture_->usesShading() ? 1 : 3;
+    return texture_->canUseShading() ? 1 : 3;
 }
 
 
 void PlaneDataDisplay::setResolution( int res )
 {
-    if ( texture_->usesShading() )
+    if ( texture_->canUseShading() )
 	return;
 
     if ( res==resolution_ )
