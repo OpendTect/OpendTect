@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.110 2008-02-13 13:28:48 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.111 2008-03-25 16:53:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -424,7 +424,8 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 	caption += c.ctxt.trgroup->userName();
     else
 	caption += c.ctxt.name();
-    if ( ismultisel ) caption += "(s)";
+    if ( !c.ctxt.forread ) caption += " as";
+    else if ( ismultisel ) caption += "(s)";
 
     setCaption( caption );
     setOkText( "&Ok (Select)" );
