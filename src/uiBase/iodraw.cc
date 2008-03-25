@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.35 2008-01-03 12:23:19 cvsnanne Exp $
+ RCS:           $Id: iodraw.cc,v 1.36 2008-03-25 15:34:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -261,18 +261,19 @@ int ioDrawTool::getDevWidth() const
 
 void ioDrawTool::drawPoint( const uiPoint& pt, bool hl )
 {
-    qpainter_->drawPoint( pt.x, pt.y );
-    qpainter_->drawPoint( pt.x-1, pt.y );
-    qpainter_->drawPoint( pt.x+1, pt.y );
-    qpainter_->drawPoint( pt.x, pt.y-1 );
-    qpainter_->drawPoint( pt.x, pt.y+1 );
+    QPoint pts[13]; int ptnr = 0;
+#define mSetPt(ox,oy) pts[ptnr].setX(pt.x+ox); pts[ptnr++].setY(pt.y+oy)
+    mSetPt( 0, 0 );
+    mSetPt( -1, 0 ); mSetPt( 1, 0 );
+    mSetPt( 0, -1 ); mSetPt( 0, 1 );
     if ( hl )
     {
-	qpainter_->drawPoint( pt.x-1, pt.y-1 );
-	qpainter_->drawPoint( pt.x+1, pt.y-1 );
-	qpainter_->drawPoint( pt.x-1, pt.y+1 );
-	qpainter_->drawPoint( pt.x+1, pt.y+1 );
+	mSetPt( -1, -1 ); mSetPt( 1, -1 );
+	mSetPt( -1, 1 ); mSetPt( 1, 1 );
+	mSetPt( 2, 0 ); mSetPt( -2, 0 );
+	mSetPt( 0, 2 ); mSetPt( 0, -2 );
     }
+    qpainter_->drawPoints( pts, ptnr );
 }
 
 
