@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: externalattrib.h,v 1.7 2007-11-08 19:46:11 cvskris Exp $
+ RCS:		$Id: externalattrib.h,v 1.8 2008-03-25 16:50:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,9 +40,11 @@ public:
 				     compute it or not. */
     virtual const DataCubes*	createAttrib(const CubeSampling&,
 				             const DataCubes*)		= 0;
+    virtual DataPack::ID	createAttrib(const CubeSampling&,
+					DataPack::ID=DataPack::cNoID)	= 0;
     virtual bool		createAttrib(ObjectSet<BinIDValueSet>&) = 0;
     virtual bool		createAttrib(const BinIDValueSet&,
-						     SeisTrcBuf&)	= 0;
+					     SeisTrcBuf&)		= 0;
     virtual DataPack::ID	createAttrib(const CubeSampling&,
 	    				     const LineKey&)		= 0;
 

@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocattrib.cc,v 1.1 2008-02-25 19:14:54 cvskris Exp $";
+static const char* rcsID = "$Id: volprocattrib.cc,v 1.2 2008-03-25 16:50:12 cvsnanne Exp $";
 
 #include "volprocattrib.h"
 
@@ -172,6 +172,13 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
     }
 
     return true;
+}
+
+
+DataPack::ID ExternalAttribCalculator::createAttrib(
+			const CubeSampling& cs, DataPack::ID dpid )
+{
+    return DataPack::cNoID;
 }
 
 

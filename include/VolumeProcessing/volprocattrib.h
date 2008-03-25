@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: volprocattrib.h,v 1.1 2008-02-25 19:14:54 cvskris Exp $
+ RCS:		$Id: volprocattrib.h,v 1.2 2008-03-25 16:50:12 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -70,6 +70,7 @@ public:
     static BufferString		createDefinition(const MultiID& setup);
 
     bool			setTargetSelSpec(const Attrib::SelSpec&);
+    DataPack::ID		createAttrib(const CubeSampling&,DataPack::ID);
     const Attrib::DataCubes*	createAttrib(const CubeSampling&,
 					     const Attrib::DataCubes*);
     bool			createAttrib(ObjectSet<BinIDValueSet>&);
