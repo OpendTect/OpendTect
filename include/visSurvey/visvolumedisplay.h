@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.54 2008-03-25 13:16:40 cvskris Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.55 2008-03-25 20:32:35 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 
 #include "visobject.h"
+#include "mousecursor.h"
 #include "vissurvobj.h"
 #include "ranges.h"
 
@@ -133,9 +134,13 @@ protected:
     void			materialChange(CallBacker*);
     void			colTabChange(CallBacker*);
     void			updateIsoSurface(int,TaskRunner* = 0);
+    bool			pickable() const { return true; }
+    bool			rightClickable() const { return true; }
     bool			selectable() const { return false; }
     				//!<Makes impossible to click on it and
 				//!<by mistake get the drag-box up
+    bool			isSelected() const;
+    const MouseCursor*		getMouseCursor() const { return &mousecursor_; }
 
     visBase::Transformation*			voltrans_;
     visBase::BoxDragger*			boxdragger_;
@@ -152,6 +157,12 @@ protected:
 
     void			dataTransformCB(CallBacker*);
     void			updateRanges(bool updateic,bool updatez);
+    void			updateMouseCursorCB(CallBacker*);
+    void			setSceneEventCatcher(visBase::EventCatcher*);
+
+    void			triggerSel() { updateMouseCursorCB( 0 ); }
+    void			triggerDeSel() { updateMouseCursorCB( 0 ); }
+
 
     ZAxisTransform*		datatransform_;
     ZAxisTransformer*		datatransformer_;
@@ -163,6 +174,9 @@ protected:
     BufferString		sliceposition_;
     BufferString		slicename_;
     CubeSampling		csfromsession_;
+
+    MouseCursor			mousecursor_;
+    visBase::EventCatcher*	eventcatcher_;
 
 
     static const char*		volumestr;

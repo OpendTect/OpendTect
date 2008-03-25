@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.80 2008-02-21 11:13:14 cvsnanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.81 2008-03-25 20:32:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "visboxdragger.h"
 #include "viscolortab.h"
 #include "visdataman.h"
+#include "visevent.h"
 #include "vismarchingcubessurface.h"
 #include "vismaterial.h"
 #include "visselman.h"
@@ -65,6 +66,7 @@ VolumeDisplay::VolumeDisplay()
     , datatransform_(0)
     , datatransformer_(0)
     , csfromsession_(true)
+    , eventcatcher_( 0 )
 {
     boxdragger_->ref();
     addChild( boxdragger_->getInventorNode() );
@@ -81,6 +83,8 @@ VolumeDisplay::VolumeDisplay()
 
 VolumeDisplay::~VolumeDisplay()
 {
+    setSceneEventCatcher( 0 );
+
     if ( scalarfield_ )
     {
 	scalarfield_->getColorTab().rangechange.remove(
@@ -980,6 +984,54 @@ int VolumeDisplay::usePar( const IOPar& par )
 
     useSOPar( par );
     return 1;
+}
+
+
+void VolumeDisplay::setSceneEventCatcher( visBase::EventCatcher* ec )
+{
+    if ( eventcatcher_ )
+    {
+	eventcatcher_->eventhappened.remove(
+	    mCB(this,VolumeDisplay,updateMouseCursorCB) );
+	eventcatcher_->unRef();
+    }
+
+    eventcatcher_ = ec;
+
+    if ( eventcatcher_ )
+    {
+	eventcatcher_->ref();
+	eventcatcher_->eventhappened.notify(
+	    mCB(this,VolumeDisplay,updateMouseCursorCB) );
+    }
+}
+
+
+bool VolumeDisplay::isSelected() const
+{
+    return visBase::DM().selMan().selected().indexOf( id()) != -1;
+}
+
+
+void VolumeDisplay::updateMouseCursorCB( CallBacker* cb )
+{
+    char newstatus = 1; // 1=pan, 2=tabs
+    if ( cb )
+    {
+	mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
+	if ( eventinfo.pickedobjids.indexOf(boxdragger_->id())==-1 )
+	    newstatus = 0;
+	else
+	{
+	    //TODO determine if tabs
+	}
+    }
+
+    if ( !isSelected() || !isOn() || isLocked() )
+	newstatus = 0;
+
+    if ( !newstatus ) mousecursor_.shape_ = MouseCursor::NotSet;
+    else if ( newstatus==1 ) mousecursor_.shape_ = MouseCursor::SizeAll;
 }
 
 
