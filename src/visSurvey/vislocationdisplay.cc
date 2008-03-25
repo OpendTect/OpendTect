@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.36 2008-03-17 21:09:14 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.37 2008-03-25 20:31:18 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -284,15 +284,15 @@ void LocationDisplay::pickCB( CallBacker* cb )
     {
 	visBase::DataObject* dataobj =
 	    		visBase::DM().getObject( eventinfo.pickedobjids[idx] );
-	if ( dataobj->selectable() )
-	{
+	if ( dataobj->pickable() )
 	    eventid = eventinfo.pickedobjids[idx];
-	    break;
-	}
 
 	mDynamicCastGet(const SurveyObject*,so,dataobj);
 	if ( so && so->allowPicks() )
 	    pickedsobjid_ = eventid;
+
+	if ( eventid!=-1 )
+	    break;
     }
 
     if ( eventid==-1 )
@@ -317,15 +317,15 @@ void LocationDisplay::pickCB( CallBacker* cb )
 	    {
 		setUnpickable( true );
 		waitsforpositionid_ = selfpickidx;
-		eventcatcher_->setHandled();
 	    }
 	    const int selfdirpickidx = isDirMarkerClick(eventinfo.pickedobjids);
 	    if ( selfdirpickidx!=-1 )
 	    {
 		setUnpickable( true );
 		waitsfordirectionid_ = selfpickidx;
-		eventcatcher_->setHandled();
 	    }
+
+	    eventcatcher_->setHandled();
 	}
     }
     else 
@@ -387,7 +387,7 @@ bool LocationDisplay::getPickSurface( const visBase::EventInfo& evi,
 	const DataObject* pickedobj =
 	    visBase::DM().getObject( evi.pickedobjids[idx] );
 
-	if ( eventid==-1 && pickedobj->selectable() )
+	if ( eventid==-1 && pickedobj->pickable() )
 	{
 	    eventid = evi.pickedobjids[idx];
 	    if ( validpicksurface )
