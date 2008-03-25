@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.4 2008-03-12 21:58:29 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.5 2008-03-25 11:41:17 cvsnanne Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -155,8 +155,9 @@ bool Pos::EMSurfaceProvider::hasZAdjustment() const
 float Pos::EMSurfaceProvider::adjustedZ( const Coord& c, float z ) const
 {
     if ( !hasZAdjustment() ) return z;
-    // return Z on surface
-    return z;
+
+    const BinID bid = SI().transform( c );
+    return surf1_->getPos( surf1_->sectionID(0), bid.getSerialized() ).z;
 }
 
 
@@ -264,10 +265,17 @@ bool Pos::EMSurfaceProvider3D::includes( const BinID& bid, float z ) const
     Interval<float> zrg;
     const EM::SubID subid = bid.getSerialized();
     const Coord3 crd1 = surf1_->getPos( surf1_->sectionID(0), subid );
+    if ( !crd1.isDefined() )
+	return false;
+
     if ( surf2_ )
     {
 	const Coord3 crd2 = surf2_->getPos( surf2_->sectionID(0), subid );
+	if ( !crd2.isDefined() )
+	    return false;
+
 	zrg.start = crd1.z; zrg.stop = crd2.z;
+	zrg.sort();
     }
     else
     {
@@ -275,7 +283,6 @@ bool Pos::EMSurfaceProvider3D::includes( const BinID& bid, float z ) const
 	zrg.stop = crd1.z + SI().zStep()/2;
     }
 
-    zrg.sort();
     zrg += extraz_;
     return zrg.includes( z );
 }
