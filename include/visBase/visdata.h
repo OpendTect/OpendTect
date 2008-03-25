@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.49 2007-10-12 19:41:29 cvskris Exp $
+ RCS:		$Id: visdata.h,v 1.50 2008-03-25 18:38:36 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -60,6 +60,7 @@ public:
     virtual SoNode*		getInventorNode()	{ return 0; }
     virtual const SoNode*	getInventorNode() const;
 
+    virtual bool		pickable() const 	{ return selectable(); }
     virtual bool		selectable() const	{ return false; }
     void			select() const;
     				/*<! Is here for convenience. Will rewire to
@@ -67,7 +68,7 @@ public:
     void			deSelect() const;
     				/*<! Is here for convenience. Will rewire to
 				     SelectionManager.	*/
-    bool			isSelected() const;
+    virtual bool		isSelected() const;
     virtual NotifierAccess*	selection() 		{ return 0; }
     virtual NotifierAccess*	deSelection() 		{ return 0; }
     virtual NotifierAccess*	rightClicked()		{ return 0; }
