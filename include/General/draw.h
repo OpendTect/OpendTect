@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/07/2000
- RCS:           $Id: draw.h,v 1.19 2007-07-25 17:09:21 cvsbert Exp $
+ RCS:           $Id: draw.h,v 1.20 2008-03-25 10:20:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,18 +42,16 @@ public:
 			DeclareEnumUtils(Type)
 
 			MarkerStyle2D( Type tp=Square, int sz=2,
-				       Color col=Color::Black,
-				       const char* fk=0 )
-			: type_(tp), size_(sz), color_(col), fontkey_(fk) {}
+				       Color col=Color::Black )
+			: type_(tp), size_(sz), color_(col)	{}
 
     bool		operator==(const MarkerStyle2D& a) const
 			{ return a.type_==type_ && a.size_==size_ &&
-			         a.color_==color_ && a.fontkey_==a.fontkey_; }
+			         a.color_==color_; }
 
     Type		type_;
     int			size_;
     Color		color_;
-    BufferString	fontkey_;
 
     inline bool		isVisible() const
 			{ return type_!=None && size_>0 && color_.isVisible(); }
