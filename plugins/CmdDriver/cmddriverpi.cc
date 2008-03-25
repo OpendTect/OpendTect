@@ -74,25 +74,22 @@ uiCmdDriverInps( uiParent* p, CmdDriver& d )
 				.filter("*.cmd")
 				.forread(true)
 				.withexamine(true) );
-    const BufferString procdir = GetProcFileName(0);
-    fnmfld->setDefaultSelectionDir( procdir );
-    outdirfld = new uiFileInput( this, "Output directory",
-	    			uiFileInput::Setup(procdir)
-				.forread(false)
-				.directories(true) );
-    outdirfld->attach( alignedBelow, fnmfld );
-    outdirfld->setDefaultSelectionDir( procdir );
-    popupfld = new uiGenInput( this, "Show status window",
-	    			BoolInpSpec(true) );
-    popupfld->attach( alignedBelow, outdirfld );
+    fnmfld->setDefaultSelectionDir( drv_.outputDir() );
+
+    FilePath fp( drv_.outputDir() ); fp.add( drv_.logFileName() );
+    logfnmfld = new uiFileInput( this, "Output log file",
+	    			uiFileInput::Setup(fp.fullPath())
+				.forread(false) );
+    logfnmfld->attach( alignedBelow, fnmfld );
+    logfnmfld->setDefaultSelectionDir( drv_.outputDir() );
 }
 
 bool acceptOK( CallBacker* )
 {
-    FilePath fp( outdirfld->fileName() );
-    if ( !File_exists(fp.pathOnly()) )
+    FilePath fp( logfnmfld->fileName() );
+    if ( !File_isWritable(fp.pathOnly()) )
     {
-	uiMSG().error( drv_.errMsg() );
+	uiMSG().error( "Output log file cannot be written to this directory" );
 	return false;
     }
 
@@ -108,22 +105,14 @@ bool acceptOK( CallBacker* )
 	return false;
     }
 
-    fnm = fp.fullPath();
-    if ( !File_isDirectory(fnm) )
-    {
-	if ( File_exists(fnm) )
-	    File_remove(fnm,NO);
-	File_createDir( fnm, 0 );
-    }
-
-    drv_.setOutputDir( fnm );
+    drv_.setOutputDir( fp.pathOnly() );
+    drv_.setLogFileName( fp.fileName() );
     lastinp_ = fnm;
     return true;
 }
 
     uiFileInput*	fnmfld;
-    uiFileInput*	outdirfld;
-    uiGenInput*		popupfld;
+    uiFileInput*	logfnmfld;
     BufferString	fnm;
     CmdDriver&		drv_;
 
