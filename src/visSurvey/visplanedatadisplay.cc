@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.191 2008-03-25 15:37:44 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.192 2008-03-25 16:38:32 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -580,6 +580,20 @@ void PlaneDataDisplay::emptyCache( int attrib )
 bool PlaneDataDisplay::hasCache( int attrib ) const
 {
     return volumecache_[attrib] || rposcache_[attrib];
+}
+
+
+void PlaneDataDisplay::triggerSel()
+{
+    updateMouseCursorCB( 0 );
+    visBase::VisualObject::triggerSel();
+}
+
+
+void PlaneDataDisplay::triggerDeSel()
+{
+    updateMouseCursorCB( 0 );
+    visBase::VisualObject::triggerDeSel();
 }
 
 

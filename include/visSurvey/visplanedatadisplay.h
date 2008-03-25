@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.106 2008-03-21 16:12:51 cvshelene Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.107 2008-03-25 16:38:32 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -164,9 +164,9 @@ protected:
     void			removeCache(int);
     void			swapCache(int,int);
     void			emptyCache(int);
-    void			triggerSel() { updateMouseCursorCB( 0 ); }
-    void			triggerDeSel() { updateMouseCursorCB( 0 ); }
     bool			hasCache(int) const;
+    void			triggerSel();
+    void			triggerDeSel();
 
     CubeSampling		snapPosition(const CubeSampling&) const;
 
