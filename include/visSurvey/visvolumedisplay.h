@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.53 2008-02-21 11:13:14 cvsnanne Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.54 2008-03-25 13:16:40 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -133,6 +133,9 @@ protected:
     void			materialChange(CallBacker*);
     void			colTabChange(CallBacker*);
     void			updateIsoSurface(int,TaskRunner* = 0);
+    bool			selectable() const { return false; }
+    				//!<Makes impossible to click on it and
+				//!<by mistake get the drag-box up
 
     visBase::Transformation*			voltrans_;
     visBase::BoxDragger*			boxdragger_;
@@ -160,6 +163,7 @@ protected:
     BufferString		sliceposition_;
     BufferString		slicename_;
     CubeSampling		csfromsession_;
+
 
     static const char*		volumestr;
     static const char*		inlinestr;
