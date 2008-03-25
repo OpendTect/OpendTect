@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: posfilter.cc,v 1.11 2008-03-12 09:48:03 cvsbert Exp $";
+static const char* rcsID = "$Id: posfilter.cc,v 1.12 2008-03-25 11:40:39 cvsnanne Exp $";
 
 #include "posfilterset.h"
 #include "posfilterstd.h"
@@ -138,10 +138,11 @@ bool Pos::FilterSet::includes( const Coord& c, float z ) const
 }
 
 
-void Pos::FilterSet::adjustZ( const Coord& c, float& z ) const
+float Pos::FilterSet::adjustedZ( const Coord& c, float z ) const
 {
     for ( int idx=0; idx<size(); idx++ )
 	z = filts_[idx]->adjustedZ( c, z );
+    return z;
 }
 
 

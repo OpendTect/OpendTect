@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilterset.h,v 1.5 2008-03-10 16:33:20 cvsbert Exp $
+ RCS:           $Id: posfilterset.h,v 1.6 2008-03-25 11:40:39 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -37,7 +37,7 @@ public:
     virtual bool	initialize(TaskRunner*);
     virtual void	reset();
     virtual bool	includes(const Coord&,float) const;
-    virtual void	adjustZ(const Coord&,float&) const;
+    virtual float	adjustedZ(const Coord&,float) const;
     virtual bool	hasZAdjustment() const;
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
