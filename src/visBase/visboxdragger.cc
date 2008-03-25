@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visboxdragger.cc,v 1.13 2005-02-07 12:45:40 nanne Exp $
+ RCS:           $Id: visboxdragger.cc,v 1.14 2008-03-25 20:29:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,14 @@ ________________________________________________________________________
 #include "survinfo.h"
 
 #include <Inventor/draggers/SoTabBoxDragger.h>
+#include <Inventor/nodes/SoCoordinate3.h>
+#include <Inventor/nodes/SoIndexedLineSet.h>
+#include <Inventor/nodes/SoIndexedTriangleStripSet.h>
+#include <Inventor/nodes/SoMaterial.h>
+#include <Inventor/nodes/SoNormalBinding.h>
+#include <Inventor/nodes/SoPickStyle.h>
+#include <Inventor/nodes/SoScale.h>
+#include <Inventor/nodes/SoSeparator.h>
 #include <Inventor/nodes/SoSwitch.h>
 #include <Inventor/nodes/SoShapeHints.h>
 
@@ -28,43 +36,95 @@ BoxDragger::BoxDragger()
     , motion( this )
     , changed( this )
     , finished( this )
-    , onoff( new SoSwitch )
-    , boxdragger( new SoTabBoxDragger )
-    , xinterval( 0 )
-    , yinterval( 0 )
-    , zinterval( 0 )
+    , onoff_( new SoSwitch )
+    , boxdragger_( new SoTabBoxDragger )
+    , xinterval_( 0 )
+    , yinterval_( 0 )
+    , zinterval_( 0 )
+    , selectable_( false )
 {
-    onoff->addChild( boxdragger );
-    onoff->ref();
-    boxdragger->addStartCallback(
+    onoff_->addChild( boxdragger_ );
+    onoff_->ref();
+    boxdragger_->addStartCallback(
 	    BoxDragger::startCB, this );
-    boxdragger->addMotionCallback(
+    boxdragger_->addMotionCallback(
 	    BoxDragger::motionCB, this );
-    boxdragger->addValueChangedCallback(
+    boxdragger_->addValueChangedCallback(
 	    BoxDragger::valueChangedCB, this );
-    boxdragger->addFinishCallback(
+    boxdragger_->addFinishCallback(
 	    BoxDragger::finishCB, this );
 
     setOwnShapeHints();
+
+    SoSeparator* boxsep = new SoSeparator;
+    boxsep->ref();
+
+    SoMaterial* boxmaterial = new SoMaterial;
+    boxsep->addChild( boxmaterial );
+    
+    SoPickStyle* boxstyle = new SoPickStyle;
+    boxsep->addChild( boxstyle );
+    boxstyle->style = SoPickStyle::UNPICKABLE;
+
+    SoShapeHints* hints = new SoShapeHints;
+    boxsep->addChild( hints );
+    hints->vertexOrdering = SI().isClockWise()
+	? SoShapeHints::COUNTERCLOCKWISE : SoShapeHints::CLOCKWISE;
+
+    SoCoordinate3* coords = new SoCoordinate3;
+    boxsep->addChild( coords );
+    coords->point.set1Value( 0, -1, -1, -1 );
+    coords->point.set1Value( 1, -1, -1,  1 );
+    coords->point.set1Value( 2, -1,  1, -1 );
+    coords->point.set1Value( 3, -1,  1,  1 );
+    coords->point.set1Value( 4,  1, -1, -1 );
+    coords->point.set1Value( 5,  1, -1,  1 );
+    coords->point.set1Value( 6,  1,  1, -1 );
+    coords->point.set1Value( 7,  1,  1,  1 );
+
+    SoNormalBinding* nb = new SoNormalBinding;
+    boxsep->addChild( nb );
+    nb->value = SoNormalBinding::PER_FACE;
+
+    SoIndexedTriangleStripSet* strip = new SoIndexedTriangleStripSet;
+    boxsep->addChild( strip );
+    const int tricoordindices[] =
+	{ 0, 1, 2, 3, 6, 7, 4, 5, 0, 1, -1, 0, 2, 4, 6, -1, 1, 5, 3, 7 };
+    strip->coordIndex.setValuesPointer( 20, tricoordindices );
+
+    const int trinormindices[] =
+	{ 0, 1, 2, 3, 6, 7, 4, 5, 0, 1, -1, 0, 2, 4, 6, -1, 1, 5, 3, 7 };
+
+    SoMaterial* linematerial = new SoMaterial;
+    boxsep->addChild( linematerial );
+
+    const int linecoordincices[] =
+	{ 0, 1, 3, 2, 0, 4, 6, 2, -1, 4, 5, 7, 6, -1, 3, 7, -1, 1, 5 };
+    SoIndexedLineSet* lines = new SoIndexedLineSet;
+    boxsep->addChild( lines );
+    lines->coordIndex.setValuesPointer( 19, linecoordincices );
+
+    boxdragger_->setPart( "boxGeom", boxsep );
+    boxsep->unref();
 
 }
 
 
 BoxDragger::~BoxDragger()
 {
-    boxdragger->removeStartCallback(
+    boxdragger_->removeStartCallback(
 	    BoxDragger::startCB, this );
-    boxdragger->removeMotionCallback(
+    boxdragger_->removeMotionCallback(
 	    BoxDragger::motionCB, this );
-    boxdragger->removeValueChangedCallback(
+    boxdragger_->removeValueChangedCallback(
 	    BoxDragger::valueChangedCB, this );
-    boxdragger->removeFinishCallback(
+    boxdragger_->removeFinishCallback(
 	    BoxDragger::finishCB, this );
 
-    onoff->unref();
-    delete xinterval;
-    delete yinterval;
-    delete zinterval;
+    onoff_->unref();
+    delete xinterval_;
+    delete yinterval_;
+    delete zinterval_;
 }
 
 
@@ -80,7 +140,7 @@ void BoxDragger::setOwnShapeHints()
     for ( int i = 1; i <= 6; i++ )
     {
 	BufferString str( tabstr ); str += i;
-	child = (SoDragger*)boxdragger->getPart( str.buf(), false );
+	child = (SoDragger*)boxdragger_->getPart( str.buf(), false );
 	child->setPart( "scaleTabHints", myHints );
     }
 }
@@ -88,28 +148,28 @@ void BoxDragger::setOwnShapeHints()
 
 void BoxDragger::setCenter( const Coord3& pos )
 {
-    boxdragger->translation.setValue( pos.x, pos.y, pos.z );
-    prevcenter = pos;
+    boxdragger_->translation.setValue( pos.x, pos.y, pos.z );
+    prevcenter_ = pos;
 }
 
 
 Coord3 BoxDragger::center() const
 {
-    SbVec3f pos = boxdragger->translation.getValue();
+    SbVec3f pos = boxdragger_->translation.getValue();
     return Coord3( pos[0], pos[1], pos[2] );
 }
 
 
 void BoxDragger::setWidth( const Coord3& pos )
 {
-    boxdragger->scaleFactor.setValue( pos.x/2, pos.y/2, pos.z/2 );
-    prevwidth = pos;
+    boxdragger_->scaleFactor.setValue( pos.x/2, pos.y/2, pos.z/2 );
+    prevwidth_ = pos;
 }
 
 
 Coord3 BoxDragger::width() const
 {
-    SbVec3f pos = boxdragger->scaleFactor.getValue();
+    SbVec3f pos = boxdragger_->scaleFactor.getValue();
     return Coord3( pos[0]*2, pos[1]*2, pos[2]*2 );
 }
 
@@ -118,41 +178,41 @@ void BoxDragger::setSpaceLimits( const Interval<float>& x,
 					  const Interval<float>& y,
 					  const Interval<float>& z)
 {
-    if ( !xinterval )
+    if ( !xinterval_ )
     {
-	xinterval = new Interval<float>(x);
-	yinterval = new Interval<float>(y);
-	zinterval = new Interval<float>(z);
+	xinterval_ = new Interval<float>(x);
+	yinterval_ = new Interval<float>(y);
+	zinterval_ = new Interval<float>(z);
 	return;
     }
 
-    *xinterval = x;
-    *yinterval = y;
-    *zinterval = z;
+    *xinterval_ = x;
+    *yinterval_ = y;
+    *zinterval_ = z;
 }
 
 
 void BoxDragger::turnOn( bool yn )
 {
-    onoff->whichChild = yn ? 0 : SO_SWITCH_NONE;
+    onoff_->whichChild = yn ? 0 : SO_SWITCH_NONE;
 }
 
 
 bool BoxDragger::isOn() const
 {
-    return !onoff->whichChild.getValue();
+    return !onoff_->whichChild.getValue();
 }
 
 
 SoNode* BoxDragger::getInventorNode()
-{ return onoff; }
+{ return onoff_; }
 
 
 void BoxDragger::startCB( void* obj, SoDragger* )
 {
     BoxDragger* thisp = (BoxDragger*)obj;
-    thisp->prevcenter = thisp->center();
-    thisp->prevwidth = thisp->width();
+    thisp->prevcenter_ = thisp->center();
+    thisp->prevwidth_ = thisp->width();
     thisp->started.trigger();
 }
 
@@ -163,16 +223,16 @@ void BoxDragger::motionCB( void* obj, SoDragger* )
 }
 
 #define mCheckDim(dim)\
-if ( thisp->dim##interval )\
+if ( thisp->dim##interval_ )\
 {\
-    if ( !thisp->dim##interval->includes(center.dim-width.dim/2) || \
-	 !thisp->dim##interval->includes(center.dim+width.dim/2))\
+    if ( !thisp->dim##interval_->includes(center.dim-width.dim/2) || \
+	 !thisp->dim##interval_->includes(center.dim+width.dim/2))\
     {\
-	if ( constantwidth ) center.dim = thisp->prevcenter.dim; \
+	if ( constantwidth ) center.dim = thisp->prevcenter_.dim; \
 	else \
 	{ \
-	    width.dim = thisp->prevwidth.dim; \
-	    center.dim = thisp->prevcenter.dim; \
+	    width.dim = thisp->prevwidth_.dim; \
+	    center.dim = thisp->prevcenter_.dim; \
 	} \
 	change = true; \
     }\
@@ -186,11 +246,11 @@ void BoxDragger::valueChangedCB( void* obj, SoDragger* )
     Coord3 width = thisp->width();
 
     const bool constantwidth =
-	mIsEqualRel(width.x,thisp->prevwidth.x,1e-6) &&
-	mIsEqualRel(width.y,thisp->prevwidth.y,1e-6) &&
-	mIsEqualRel(width.z,thisp->prevwidth.z,1e-6);
+	mIsEqualRel(width.x,thisp->prevwidth_.x,1e-6) &&
+	mIsEqualRel(width.y,thisp->prevwidth_.y,1e-6) &&
+	mIsEqualRel(width.z,thisp->prevwidth_.z,1e-6);
 
-    if  ( constantwidth && center==thisp->prevcenter )
+    if  ( constantwidth && center==thisp->prevcenter_ )
 	return;
 
     bool change = false;
@@ -204,8 +264,8 @@ void BoxDragger::valueChangedCB( void* obj, SoDragger* )
 	thisp->setWidth(  width );
     }
 
-    thisp->prevcenter = center;
-    thisp->prevwidth = width;
+    thisp->prevcenter_ = center;
+    thisp->prevwidth_ = width;
 
     ( (BoxDragger*)obj )->changed.trigger();
 }

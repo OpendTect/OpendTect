@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visboxdragger.h,v 1.10 2004-01-05 09:43:47 kristofer Exp $
+ RCS:		$Id: visboxdragger.h,v 1.11 2008-03-25 20:29:45 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -44,6 +44,10 @@ public:
     void			turnOn(bool yn);
     bool			isOn() const;
 
+
+    bool			selectable() const { return selectable_; }
+    void			setSelectable(bool yn) { selectable_ = yn; }
+
     Notifier<BoxDragger>	started;
     Notifier<BoxDragger>	motion;
     Notifier<BoxDragger>	changed;
@@ -60,15 +64,16 @@ protected:
     static void			valueChangedCB(void*, SoDragger* );
     static void			finishCB( void*, SoDragger* );
 
-    SoSwitch*			onoff;
-    SoTabBoxDragger*		boxdragger;
+    SoSwitch*			onoff_;
+    SoTabBoxDragger*		boxdragger_;
 
-    Interval<float>*		xinterval;
-    Interval<float>*		yinterval;
-    Interval<float>*		zinterval;
+    Interval<float>*		xinterval_;
+    Interval<float>*		yinterval_;
+    Interval<float>*		zinterval_;
 
-    Coord3			prevwidth;
-    Coord3			prevcenter;
+    Coord3			prevwidth_;
+    Coord3			prevcenter_;
+    bool			selectable_;
 };
 
 };
