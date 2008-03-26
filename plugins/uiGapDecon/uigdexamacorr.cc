@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.25 2007-12-14 05:30:37 cvsnanne Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.26 2008-03-26 10:39:39 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ ________________________________________________________________________
 #include "colortab.h"
 #include "ptrman.h"
 #include "survinfo.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uiflatviewer.h"
 #include "uiflatviewmainwin.h"
 #include "uiflatviewstdcontrol.h"
@@ -73,8 +73,8 @@ bool GapDeconACorrView::computeAutocorr( bool isqc )
     }
 
     proc->setName( "Compute autocorrelation values" );
-    uiExecutor dlg( parent_, *proc );
-    if ( !dlg.go() )
+    uiTaskRunner dlg( parent_ );
+    if ( !dlg.execute(*proc ) )
 	return false;
 
     dset_->is2D() ? createFD2DDataPack( isqc, *d2dh )
