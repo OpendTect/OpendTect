@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.32 2008-02-18 05:50:55 cvsraman Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.33 2008-03-26 20:17:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -280,13 +280,16 @@ void uiFlatViewControl::applyProperties( CallBacker* cb )
 
 void uiFlatViewControl::saveProperties( FlatView::Viewer& vwr )
 {
-    BufferString cat( category_ );
-    if ( category_.isEmpty() )
+    const FlatDataPack* fdp = vwr.pack( true );
+    if ( !fdp ) fdp = vwr.pack( false );
+
+    BufferString cat( "General" );
+
+    if ( fdp )
     {
-	const FlatDataPack* fdp = vwr.pack( true );
-	if ( !fdp ) fdp = vwr.pack( false );
-	cat = fdp ? fdp->category() : "General";
-	category_ = cat;
+	cat = fdp->category();
+	if ( category_.isEmpty() )
+	    category_ = cat;
     }
 
     vwr.storeDefaults( cat );
