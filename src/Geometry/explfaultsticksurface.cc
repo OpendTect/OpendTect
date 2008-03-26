@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.9 2008-02-22 08:55:49 cvsjaap Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.10 2008-03-26 13:53:54 cvsjaap Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -165,6 +165,7 @@ void ExplFaultStickSurface::update()
     updater = new ExplFaultStickSurfaceUpdater( *this, false );
     updater->execute();
     delete updater;
+    
 }
 
 
@@ -201,6 +202,7 @@ void ExplFaultStickSurface::display( bool ynsticks, bool ynpanels )
 void ExplFaultStickSurface::addToGeometries( IndexedGeometry* piece )
 {
     geometrieslock_.writeLock();
+    piece->ischanged_ = true;
     geometries_ += piece;
     geometrieslock_.writeUnLock();
 }
@@ -211,7 +213,10 @@ void ExplFaultStickSurface::addToGeometries( ObjectSet<IndexedGeometry>& pieces)
     geometrieslock_.writeLock();
     
     for ( int idx=0; idx<pieces.size(); idx++ )
+    {
+	pieces[idx]->ischanged_ = true;
 	geometries_ += pieces[idx];
+    }
 
     geometrieslock_.writeUnLock();
 }
@@ -474,7 +479,7 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 	calcNormals( piece, mirroredfirstpatch );
     }
 
-    if ( displaysticks_ )
+    if ( displaypanels_ )
 	addToGeometries( panel );
 }
 
@@ -491,7 +496,7 @@ void ExplFaultStickSurface::removePanel( int panelidx )
 
 void ExplFaultStickSurface::insertPanel( int panelidx )
 {
-    if ( panelidx>=0 || panelidx<=panels_.size() )
+    if ( panelidx>=0 && panelidx<=panels_.size() )
 	panels_.insertAt( new ObjectSet<IndexedGeometry>, panelidx );
 }
 
@@ -546,13 +551,13 @@ void ExplFaultStickSurface::surfaceChange( CallBacker* cb )
 	if ( rc.c()==FaultStickSurface::StickInsert )
 	{
 	    emptyPanel( stickidx-1 );
-	    insertPanel( stickidx );
+	    insertPanel( !stickidx ? 0 : stickidx-1 );
 	    insertStick( stickidx );
 	}
 	if ( rc.c()==FaultStickSurface::StickRemove )
 	{
-	    emptyPanel( stickidx-1 );
-	    removePanel( stickidx );
+	    emptyPanel( stickidx );
+	    removePanel( !stickidx ? 0 : stickidx-1 );
 	    removeStick( stickidx );
 	}
     }

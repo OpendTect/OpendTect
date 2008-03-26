@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.4 2008-02-22 08:55:49 cvsjaap Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.5 2008-03-26 13:53:54 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,9 +37,11 @@ public:
     const FaultStickSurface* getSurface() const		{ return surface_; }
 
     void		setZScale( float );
-    
     void		updateAll();
+
     void		display(bool sticks,bool panels);
+    bool		areSticksDisplayed() const    { return displaysticks_; }
+    bool		arePanelsDisplayed() const    { return displaypanels_; }
 
 protected:
     friend		class ExplFaultStickSurfaceUpdater;    

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: faulteditor.h,v 1.1 2005-12-12 17:52:19 cvskris Exp $
+ RCS:           $Id: faulteditor.h,v 1.2 2008-03-26 13:53:54 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,10 +27,13 @@ public:
     static void			initClass();
 
     void			getEditIDs(TypeSet<EM::PosID>&) const;
+    bool			addEditID( const EM::PosID& );
+    bool			removeEditID( const EM::PosID& );
 
 protected:
 
     Geometry::ElementEditor*	createEditor(const EM::SectionID&);
+    TypeSet<EM::PosID>		editpids_;
 };
 
 

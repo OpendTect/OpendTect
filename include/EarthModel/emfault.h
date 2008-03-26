@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.29 2008-02-11 16:37:06 cvsjaap Exp $
+ RCS:		$Id: emfault.h,v 1.30 2008-03-26 13:53:54 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -38,6 +38,9 @@ public:
 	    			   const Coord3& pos,bool addtohistory);
     bool		removeKnot(const SectionID&, const SubID&,
 	    			   bool addtohistory);
+    
+    bool		areSticksVertical(const SectionID&) const;
+    const Coord3&	getEditPlaneNormal(const SectionID&,int sticknr) const;
 
     Geometry::FaultStickSurface*
 			sectionGeometry(const SectionID&);
@@ -45,7 +48,7 @@ public:
 			sectionGeometry(const SectionID&) const;
 
     EMObjectIterator*	createIterator(const SectionID&,
-	    			       const CubeSampling*) const;
+	    			       const CubeSampling* =0) const;
 
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
@@ -64,6 +67,8 @@ class Fault : public Surface
 public:
 
     FaultGeometry&		geometry();
+    const FaultGeometry&	geometry() const;
+
 
 protected:
     const IOObjContext&		getIOObjContext() const;

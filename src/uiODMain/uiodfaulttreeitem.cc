@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodfaulttreeitem.cc,v 1.2 2008-03-14 14:35:45 cvskris Exp $
+ RCS:		$Id: uiodfaulttreeitem.cc,v 1.3 2008-03-26 13:53:54 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -91,7 +91,10 @@ uiODFaultTreeItem::uiODFaultTreeItem( const EM::ObjectID& oid )
     , emid_( oid )
     , savemnuitem_("Save")
     , saveasmnuitem_("Save as ...")
-{}
+    , dispsticksonlymnuitem_("Display sticks only")
+{
+    dispsticksonlymnuitem_.checkable = true;
+}
 
 
 uiODFaultTreeItem::uiODFaultTreeItem( int id, bool dummy )
@@ -178,6 +181,8 @@ void uiODFaultTreeItem::createMenuCB( CallBacker* cb )
     if ( !fd )
 	return;
 
+    mAddMenuItem( menu, &dispsticksonlymnuitem_, true,
+		  !faultdisplay_->arePanelsDisplayed() );
     mAddMenuItem( menu, &savemnuitem_,
 		  applMgr()->EMServer()->isChanged(emid_) &&
 		  applMgr()->EMServer()->isFullyLoaded(emid_) &&
@@ -209,5 +214,10 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled(true);
 	applMgr()->EMServer()->storeObject(emid_,false);
+    }
+    else if ( mnuid==dispsticksonlymnuitem_.id )
+    {
+	menu->setIsHandled(true);
+	faultdisplay_->display( true, dispsticksonlymnuitem_.checked );
     }
 }

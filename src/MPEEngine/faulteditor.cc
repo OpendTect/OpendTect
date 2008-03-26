@@ -8,13 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulteditor.cc,v 1.3 2007-09-13 06:05:29 cvskris Exp $";
+static const char* rcsID = "$Id: faulteditor.cc,v 1.4 2008-03-26 13:53:54 cvsjaap Exp $";
 
 #include "faulteditor.h"
 
 #include "emfault.h"
-#include "cubicbeziersurface.h"
-#include "geeditorimpl.h"
+#include "faultsticksurfedit.h"
 #include "mpeengine.h"
 
 namespace MPE
@@ -42,23 +41,39 @@ Geometry::ElementEditor* FaultEditor::createEditor( const EM::SectionID& sid )
     const Geometry::Element* ge = emObject().sectionGeometry( sid );
     if ( !ge ) return 0;
 
-    mDynamicCastGet(const Geometry::CubicBezierSurface*,surface,ge);
+    mDynamicCastGet(const Geometry::FaultStickSurface*,surface,ge);
     if ( !surface ) return 0;
     
-    return new Geometry::ElementEditorImpl(
-	    *const_cast<Geometry::CubicBezierSurface*>(surface),
-	    Coord3::udf(), Coord3(0,0,1), false );
+    return new Geometry::FaultStickSurfEditor(
+			*const_cast<Geometry::FaultStickSurface*>(surface) );
 }
 
 
-void FaultEditor::getEditIDs( TypeSet<EM::PosID>& ids ) const
+void FaultEditor::getEditIDs( TypeSet<EM::PosID>& pids ) const
+{ pids = editpids_; }
+
+
+bool FaultEditor::addEditID( const EM::PosID& pid )
 {
-    // TODO: create modes like: all, sparse, clicked pos
-    ids.erase();
-    ObjectEditor::getEditIDs( ids );
+    if ( editpids_.indexOf(pid) < 0 )
+    {
+	editpids_ += pid;
+	editpositionchange.trigger();
+    }
+
+    return true;
+}
+
+
+bool FaultEditor::removeEditID( const EM::PosID& pid )
+{
+    const int idx = editpids_.indexOf( pid );
+    if ( idx < 0 )
+	return false;
     
-    // clickedpos
-    // ids = editids;
+    editpids_.removeFast( idx );
+    editpositionchange.trigger();
+    return true;
 }
 
 

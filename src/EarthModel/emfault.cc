@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.39 2008-03-20 21:36:32 cvskris Exp $
+ RCS:           $Id: emfault.cc,v 1.40 2008-03-26 13:53:54 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,10 @@ Fault::~Fault()
 
 
 FaultGeometry& Fault::geometry()
+{ return geometry_; }
+
+
+const FaultGeometry& Fault::geometry() const
 { return geometry_; }
 
 
@@ -118,6 +122,21 @@ bool FaultGeometry::insertKnot( const SectionID& sid, const SubID& subid,
 
     // TODO: addtohistory
     return true;
+}
+
+
+bool FaultGeometry::areSticksVertical( const SectionID& sid ) const
+{
+    const Geometry::FaultStickSurface* fss = sectionGeometry( sid );
+    return fss ? fss->areSticksVertical() : false;
+}
+
+
+const Coord3& FaultGeometry::getEditPlaneNormal( const SectionID& sid,
+						 int sticknr ) const
+{
+    const Geometry::FaultStickSurface* fss = sectionGeometry( sid );
+    return fss ? fss->getEditPlaneNormal(sticknr) : Coord3::udf();
 }
 
 
