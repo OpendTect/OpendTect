@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.cc,v 1.4 2008-03-20 14:55:10 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.cc,v 1.5 2008-03-26 16:46:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,9 +29,10 @@ uiAxisHandler::uiAxisHandler( ioDrawTool& dt, const uiAxisHandler::Setup& su )
 }
 
 
-void uiAxisHandler::setRange( const StepInterval<float>& rg )
+void uiAxisHandler::setRange( const StepInterval<float>& rg, float* astart )
 {
     rg_ = rg;
+    annotstart_ = astart ? *astart : rg_.start;
 
     float fsteps = (rg_.stop - rg_.start) / rg_.step;
     if ( fsteps < 0 )
@@ -53,31 +54,28 @@ void uiAxisHandler::reCalc()
 {
     pos_.erase(); strs_.deepErase();
 
-    BufferString str; str = rg_.start; strs_.add( str );
-    pos_ += 0;
+    StepInterval<float> annotrg( rg_ );
+    annotrg.start = annotstart_;
+
     const uiFont& font = uiFontList::get();
-    wdthx_ = font.width( str );
     wdthy_ = font.height();
+    BufferString str;
 
-    const int nrsteps = rg_.nrSteps();
-    for ( int idx=1; idx<=nrsteps; idx++ )
+    const int nrsteps = annotrg.nrSteps();
+    for ( int idx=0; idx<=nrsteps; idx++ )
     {
-	float relpos = idx * rg_.step;
-	float pos = rg_.start + relpos;
+	float pos = annotrg.start + idx * rg_.step;
 	str = pos; strs_.add( str );
-	pos = rgisrev_ ? -relpos : relpos;
-	pos /= rgwidth_;
+	float relpos = pos - rg_.start;
+	if ( rgisrev_ ) relpos = -relpos;
+	relpos /= rgwidth_;
 	if ( setup_.islog_ )
-	    pos = log( 1 + pos );
-	pos_ += pos;
+	    relpos = log( 1 + relpos );
+	pos_ += relpos;
 	const int wdth = font.width( str );
-	if ( wdthx_ < wdth ) wdthx_ = wdth;
+	if ( idx == 0 )			wdthx_ = font.width( str );
+	else if ( wdthx_ < wdth )	wdthx_ = wdth;
     }
-
-    str = rg_.stop; strs_.add( str );
-    pos_ += setup_.islog_ ? logof2 : 1;
-    const int wdth = font.width( str );
-    if ( wdthx_ < wdth ) wdthx_ = wdth;
 
     newDevSize();
 }
@@ -132,8 +130,10 @@ int uiAxisHandler::getPix( float pos ) const
 
 int uiAxisHandler::pixToEdge() const
 {
-    int ret = ticsz_ + setup_.border_.get(setup_.side_);
-    ret += isHor() ? wdthy_ : wdthx_;
+    int ret = setup_.border_.get(setup_.side_);
+    if ( setup_.noannot_ ) return ret;
+
+    ret += ticsz_ + (isHor() ? wdthy_ : wdthx_);
     return ret;
 }
 
@@ -168,6 +168,8 @@ void uiAxisHandler::plotAxis() const
 	    drawGridLine( getRelPosPix(relpos) );
 	}
     }
+
+    if ( setup_.noannot_ ) return;
 
     LineStyle ls( setup_.style_ );
     ls.width_ = 1; ls.type_ = LineStyle::Solid;

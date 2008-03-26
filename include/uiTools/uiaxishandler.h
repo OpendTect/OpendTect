@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.4 2008-03-20 14:55:10 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.5 2008-03-26 16:46:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,17 +49,19 @@ public:
     {
 			Setup( uiRect::Side s )
 			    : side_(s)
+			    , noannot_(false)
 			    , islog_(false)	{}
 
 	mDefSetupMemb(uiRect::Side,side)
 	mDefSetupMemb(bool,islog)
+	mDefSetupMemb(bool,noannot)
 	mDefSetupMemb(uiBorder,border)
 	mDefSetupMemb(LineStyle,style)
 	mDefSetupMemb(BufferString,name)
     };
 
 			uiAxisHandler(ioDrawTool&,const Setup&);
-    void		setRange(const StepInterval<float>&);
+    void		setRange(const StepInterval<float>&,float* axstart=0);
     void		setIsLog( bool yn )	{ setup_.islog_ = yn; reCalc();}
     void		setBorder( const uiBorder& b )
 						{ setup_.border_ = b; reCalc();}
@@ -90,6 +92,7 @@ protected:
     Setup		setup_;
     bool		islog_;
     StepInterval<float>	rg_;
+    float		annotstart_;
     uiBorder		border_;
     int			ticsz_;
     const uiAxisHandler* beghndlr_;

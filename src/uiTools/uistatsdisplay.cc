@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mid 2005
- RCS:           $Id: uistatsdisplay.cc,v 1.1 2008-03-26 13:21:40 cvsbert Exp $
+ RCS:           $Id: uistatsdisplay.cc,v 1.2 2008-03-26 16:46:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,37 +13,45 @@ ________________________________________________________________________
 #include "uistatsdisplaywin.h"
 
 #include "uicanvas.h"
-#include "uihistogramdisplay.h"
 #include "uilabel.h"
 #include "uigeninput.h"
 #include "uiseparator.h"
 #include "uistatusbar.h"
+#include "uiaxishandler.h"
 
 #include "arraynd.h"
 #include "bufstring.h"
 #include "datapackbase.h"
 #include "samplingdata.h"
 #include "statruncalc.h"
+#include "linear.h"
 #include "errh.h"
 
-static const int sCanvasHeight = 250;
-static const int sCanvasWidth = 400;
-static const int cBoundarySz = 20;
+static const int cCanvasHeight = 250;
+static const int cCanvasWidth = 400;
+static const int cBoundarySz = 10;
+static const Color cHistColor( 200, 100, 65 );
 
 uiStatsDisplay::uiStatsDisplay( uiParent* p, bool withplot, bool withtext )
     : uiGroup( p, "Statistics display group" )
     , canvas_(0)
     , countfld_(0)
+    , xax_(0)
+    , yax_(0)
 {
     if ( withplot )
     {
 	canvas_ = new uiCanvas( this );
-	canvas_->setPrefHeight( sCanvasHeight );
-	canvas_->setPrefWidth( sCanvasWidth );
+	canvas_->setPrefHeight( cCanvasHeight );
+	canvas_->setPrefWidth( cCanvasWidth );
 	canvas_->setStretch( 2, 2 );
-	histogramdisplay_ = new uiHistogramDisplay( canvas_ );
-	histogramdisplay_->setColor( Color(200,100,65,5) );
 	canvas_->postDraw.notify( mCB(this,uiStatsDisplay,reDraw) );
+	uiAxisHandler::Setup su( uiRect::Bottom );
+	su.border_ = uiBorder( 10 );
+	xax_ = new uiAxisHandler( canvas_->drawTool(), su );
+	su.side( uiRect::Left ).noannot( true );
+	yax_ = new uiAxisHandler( canvas_->drawTool(), su );
+	xax_->setBegin( yax_ ); yax_->setBegin( xax_ );
     }
 
     uiSeparator* sep = 0;
@@ -80,6 +88,13 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, bool withplot, bool withtext )
 }
 
 
+uiStatsDisplay::~uiStatsDisplay()
+{
+    delete xax_;
+    delete yax_;
+}
+
+
 bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 {
     DataPackMgr& dpman = DPM( dmid );
@@ -104,19 +119,6 @@ bool uiStatsDisplay::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 
     dpman.release( dpid );
     return true;
-}
-
-
-void uiStatsDisplay::setInfo( const Stats::RunCalc<float>& rc )
-{
-    if ( !countfld_ ) return;
-    countfld_->setValue( rc.count() );
-    minmaxfld_->setValue( rc.min(), 0 );
-    minmaxfld_->setValue( rc.max(), 1 );
-    avgstdfld_->setValue( rc.average(), 0 );
-    avgstdfld_->setValue( rc.stdDev(), 1 );
-    medrmsfld_->setValue( rc.median(), 0 );
-    medrmsfld_->setValue( rc.rms(), 1 );
 }
 
 
@@ -179,53 +181,79 @@ void uiStatsDisplay::setData( const float* array, int sz )
 
 void uiStatsDisplay::setData( const Stats::RunCalc<float>& rc )
 {
-    const int nrpts = rc.count();
-    const int nrintv = getNrIntervals( nrpts );
-    TypeSet<float> histogram( nrintv, 0 );
-    const float min = rc.min(); const float max = rc.max();
-    const float factor = nrintv / (max-min);
-    for ( int idx=0; idx<nrpts; idx++ )
-    {
-	const int seg = (int)(factor * (rc.vals_[idx] - min));
-	if ( seg < 0 || seg > nrintv )
-	    { pErrMsg("Huh"); continue; }
-	histogram[seg]++;
-    }
+    updateHistogram( rc );
 
-    const float step = nrpts / ((float)nrintv);
-    xrg_ = StepInterval<float>( rc.min(), rc.max(), step );
-    setHistogram( histogram );
-    setInfo( rc );
+    if ( !countfld_ ) return;
+    countfld_->setValue( rc.count() );
+    minmaxfld_->setValue( rc.min(), 0 );
+    minmaxfld_->setValue( rc.max(), 1 );
+    avgstdfld_->setValue( rc.average(), 0 );
+    avgstdfld_->setValue( rc.stdDev(), 1 );
+    medrmsfld_->setValue( rc.median(), 0 );
+    medrmsfld_->setValue( rc.rms(), 1 );
 }
 
 
-void uiStatsDisplay::setHistogram( const TypeSet<float>& histogram )
+void uiStatsDisplay::updateHistogram( const Stats::RunCalc<float>& rc )
 {
-    if ( !canvas_ ) return;
-
-    float maxhist = 0;
-    for ( int idx=0; idx<histogram.size(); idx++ )
+    const int nrpts = rc.count();
+    const int nrintv = getNrIntervals( nrpts );
+    histdata_.setSize( nrintv );
+    const float min = rc.min(); const float max = rc.max();
+    const float step = (max - min) / nrintv;
+    for ( int idx=0; idx<nrpts; idx++ )
     {
-	if ( maxhist < histogram[idx] )
-	maxhist = histogram[idx];
+	const int seg = (int)((rc.vals_[idx] - min) / step);
+	if ( seg < 0 || seg > nrintv )
+	    { pErrMsg("Huh"); continue; }
+	histdata_[seg]++;
     }
 
-    SamplingData<float> sd( 0, 1 );
-    histogramdisplay_->setHistogram( histogram, sd );
-    histogramdisplay_->setBoundaryRect(
-	    uiRect(cBoundarySz,0,cBoundarySz,cBoundarySz) );
-    histogramdisplay_->setXAxis( xrg_ );
+    if ( canvas_ )
+    {
+	StepInterval<float> xrg( min + 0.5*step, max - 0.5*step, step );
+	AxisLayout axlyo; axlyo.setDataRange( xrg );
+	xrg.step = axlyo.sd.step;
+	if ( !mIsEqual(xrg.start,axlyo.sd.start,axlyo.sd.step*1e-6) )
+	    axlyo.sd.start += axlyo.sd.step;
+	xax_->setRange( xrg, &axlyo.sd.start );
 
-    canvas_->update();
+	Stats::RunCalcSetup rcsu; rcsu.require( Stats::Max );
+	Stats::RunCalc<float> yrc( rcsu );
+	yrc.addValues( histdata_.size(), histdata_.arr() );
+	StepInterval<float> yrg( 0, yrc.max(), 1 );
+	axlyo.setDataRange( yrg ); yrg.step = axlyo.sd.step;
+	yax_->setRange( yrg );
+
+	canvas_->update();
+    }
 }
 
 
 void uiStatsDisplay::reDraw( CallBacker* cb )
 {
-    ioDrawTool& drawtool = canvas_->drawTool();
-    drawtool.setBackgroundColor( Color::White );
-    drawtool.clear();
-    histogramdisplay_->reDraw( cb );
+    xax_->newDevSize();
+    yax_->newDevSize();
+
+    xax_->plotAxis();
+
+    TypeSet<uiPoint> ptlist; uiPoint firstpt;
+    const int nrhistpts = histdata_.size();
+    float dx = (xax_->range().stop-xax_->range().start) / (nrhistpts-1);
+    for ( int idx=0; idx<nrhistpts; idx++ )
+    {
+	const float xval = xax_->range().start + dx * idx;
+	const uiPoint pt( xax_->getPix(xval), yax_->getPix(histdata_[idx]) );
+	ptlist += pt;
+	if ( idx == 0 )
+	    firstpt = pt;
+    }
+    ptlist += firstpt;
+
+    ioDrawTool& dt = canvas_->drawTool();
+    dt.setPenColor( cHistColor );
+    dt.setFillColor( cHistColor );
+    dt.drawPolygon( ptlist );
 }
 
 
@@ -235,7 +263,7 @@ uiStatsDisplayWin::uiStatsDisplayWin( uiParent* p,
     , disp_(*new uiStatsDisplay(this,su.withplot_,su.withtext_))
 {
     statusBar()->addMsgFld( "Data name", uiStatusBar::Left, 2 );
-    statusBar()->addMsgFld( "Ref name", uiStatusBar::Right, 2 );
+    statusBar()->addMsgFld( "Ref name", uiStatusBar::Left, 2 );
 }
 
 
@@ -251,6 +279,6 @@ void uiStatsDisplayWin::setDataName( const char* nm )
     char* ptr = strchr( txt, '\n' );
     if ( ptr ) *ptr++ = '\0';
     else	ptr = "";
-    statusBar()->setLabelTxt( 0, txt );
-    statusBar()->setLabelTxt( 1, ptr );
+    statusBar()->message( txt, 0 );
+    statusBar()->message( ptr, 1 );
 }
