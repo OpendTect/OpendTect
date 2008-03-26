@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.18 2007-11-14 09:16:39 cvsbert Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.19 2008-03-26 13:21:40 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -18,7 +18,8 @@ ___________________________________________________________________
 #include "uioddisplaytreeitem.h"
 #include "uiodscenemgr.h"
 #include "uivispartserv.h"
-#include "uistatisticsdlg.h"
+#include "uistatsdisplay.h"
+#include "uistatsdisplaywin.h"
 #include "uiamplspectrum.h"
 #include "attribsel.h"
 #include "colortab.h"
@@ -316,9 +317,10 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	const DataPack::ID dpid = visserv->getDataPackID( displayID(),
 							  attribNr() );
 	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
-	uiStatisticsDlg dlg( applMgr()->applService().parent() );
-	dlg.setDataPackID( dpid, dmid );
-	dlg.go();
+	uiStatsDisplayWin dwin( applMgr()->applService().parent(),
+				uiStatsDisplayWin::Setup(true) );
+	dwin.statsDisplay().setDataPackID( dpid, dmid );
+	dwin.show();
 	menu->setIsHandled( true );
     }
     else if ( mnuid==amplspectrumitem_.id )

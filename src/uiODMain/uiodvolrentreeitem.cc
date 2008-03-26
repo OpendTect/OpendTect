@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.22 2008-03-26 13:10:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.23 2008-03-26 13:21:40 cvsbert Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -21,7 +21,8 @@ static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.22 2008-03-26 13:10:1
 #include "uiodscenemgr.h"
 #include "uiodmarchingcubessurfacetreeitem.h"
 #include "uislicesel.h"
-#include "uistatisticsdlg.h"
+#include "uistatsdisplay.h"
+#include "uistatsdisplaywin.h"
 #include "vismarchingcubessurface.h"
 #include "vismarchingcubessurfacedisplay.h"
 #include "uiviscoltabed.h"
@@ -249,9 +250,10 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
     {
         const DataPack::ID dpid = visserv_->getDataPackID( displayID(), 0 );
         const DataPackMgr::ID dmid = visserv_->getDataPackMgrID( displayID() );
-        uiStatisticsDlg dlg( applMgr()->applService().parent() );
-        dlg.setDataPackID( dpid, dmid );
-        dlg.go();
+	uiStatsDisplayWin dwin( applMgr()->applService().parent(),
+				uiStatsDisplayWin::Setup(true) );
+	dwin.statsDisplay().setDataPackID( dpid, dmid );
+	dwin.show();
         menu->setIsHandled( true );
     }	
     else if ( mnuid==amplspectrummnuitem_.id )
