@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.47 2008-03-19 15:31:03 cvskris Exp $
+ RCS:		$Id: sets.h,v 1.48 2008-03-26 08:46:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -412,10 +412,8 @@ TypeSet<T>& TypeSet<T>::copy( const TypeSet<T>& ts )
 	    { erase(); append(ts); }
 	else
 	{
-	    const T* srcptr = ts.arr();
-	    T* dstptr = arr();
-
-	    memcpy( dstptr, srcptr, sizeof(T)*size() );
+	    for ( unsigned int idx=0; idx<sz; idx++ )
+		(*this)[idx] = ts[idx];
 	}
     }
 
@@ -429,11 +427,10 @@ void TypeSet<T>::append( const TypeSet<T>& ts )
     const unsigned int sz = ts.size();
     if ( !sz ) return;
 
-    tvec_.setCapacity( sz+size() );
+    setCapacity( sz+size() );
 
-    const T* ptr = ts.arr();
-    for ( unsigned int idx=0; idx<sz; idx++, ptr++ )
-	tvec_.push_back(*ptr);
+    for ( unsigned int idx=0; idx<sz; idx++ )
+	*this += ts[idx];
 }
 
 
