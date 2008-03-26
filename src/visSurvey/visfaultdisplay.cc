@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.7 2008-03-26 13:53:54 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.8 2008-03-26 15:45:16 cvsjaap Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -290,16 +290,21 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     }
 
     if ( eventinfo.type!=visBase::MouseClick || eventinfo.pressed ||
-	 !OD::leftMouseButton(eventinfo.buttonstate_) || eventinfo.alt )
+	 !OD::leftMouseButton(eventinfo.buttonstate_) ||
+	 OD::altKeyboardButton(eventinfo.buttonstate_) )
 	return;
 
-    if ( mousepid.objectID()!=-1 && !eventinfo.ctrl && !eventinfo.shift )
+    if ( mousepid.objectID()!=-1 &&
+	 !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+	 !OD::shiftKeyboardButton(eventinfo.buttonstate_) )
     {
 	setEditID( mousepid );
 	updateKnotMarkers();
     }
 
-    if ( mousepid.objectID()!=-1 && eventinfo.ctrl && !eventinfo.shift )
+    if ( mousepid.objectID()!=-1 &&
+	 OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+	 !OD::shiftKeyboardButton(eventinfo.buttonstate_) )
     {
 	emfault_->geometry().removeKnot( mousepid.sectionID(),
 					 mousepid.subID(), true );
@@ -314,7 +319,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     if ( displaytransform_ ) 
 	pos = displaytransform_->transformBack( pos ); 
 
-    if ( !eventinfo.ctrl && !eventinfo.shift )
+    if ( !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+	 !OD::ctrlKeyboardButton(eventinfo.buttonstate_) )
     {
 	emfault_->geometry().insertKnot( knots[2].sectionID(),
 		mMAX(knots[2].subID(), knots[3].subID()), pos, true );
@@ -327,7 +333,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     else if ( mouseplanecs_.defaultDir()==CubeSampling::Crl ) 
 	editnormal = Coord3( SI().binID2Coord().colDir(), 0 );
 
-    if ( !eventinfo.ctrl && eventinfo.shift )
+    if ( !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+	 OD::ctrlKeyboardButton(eventinfo.buttonstate_) )
     {
 	RowCol rc; rc.setSerialized( mMAX(knots[0].subID(),knots[1].subID()) );
 	
