@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.25 2008-02-29 22:01:36 cvskris Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.26 2008-03-26 19:40:04 cvskris Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -28,13 +28,20 @@ const char VDA2DBitMapGenPars::cMaxFill		= 120;
 #define mXPMEndLn "\",\n"
 
 
-Interval<float> A2DBitMapInpData::scale( float clipratio, float midval ) const
+Interval<float> A2DBitMapInpData::scale( const Interval<float>& clipratio,
+					 float midval ) const
 {
     Interval<float> res;
     if ( mIsUdf(midval) )
-	clipper_.getRange( clipratio, res );
+    {
+	if ( mIsUdf(clipratio.stop) )
+	    clipper_.getRange( clipratio.start, res );
+	else
+	    clipper_.getRange( clipratio.start, clipratio.stop, res );
+    }
     else
-	clipper_.getSymmetricRange( clipratio, midval, res );
+	clipper_.getSymmetricRange( clipratio.start, midval, res );
+
     return res;
 }
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.20 2008-03-19 14:35:43 cvskris Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.21 2008-03-26 19:40:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,15 +44,29 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     dispfld_->selectionChanged.notify(
 	    		mCB(this,uiFlatViewDataDispPropTab,dispSel) );
 
-    useclipfld_ = new uiGenInput( this, "Use clipping", BoolInpSpec(true) );
+    const char* clipmodes[] = { "None", "Symmetrical", "Assymetrical", 0 };
+
+    useclipfld_ = new uiGenInput( this, "Use clipping",
+	    			  StringListInpSpec( clipmodes ) );
     useclipfld_->valuechanged.notify(
 	    		mCB(this,uiFlatViewDataDispPropTab,clipSel) );
     useclipfld_->attach( alignedBelow, lcb );
 
-    clipratiofld_ = new uiGenInput( this, "Percentage clip", FloatInpSpec() );
-    clipratiofld_->setElemSzPol(uiObject::Small);
-    clipratiofld_->attach( alignedBelow, useclipfld_ );
-    clipratiofld_->display( useclipfld_->getBoolValue() );
+    symclipratiofld_ = new uiGenInput( this,"Percentage clip",FloatInpSpec() );
+    symclipratiofld_->setElemSzPol(uiObject::Small);
+    symclipratiofld_->attach( alignedBelow, useclipfld_ );
+    symclipratiofld_->display( useclipfld_->getIntValue()==1 );
+
+    midvalfld_ = new uiGenInput( this, "Mid value", FloatInpSpec() );
+    midvalfld_->setElemSzPol(uiObject::Small);
+    midvalfld_->attach( alignedBelow, symclipratiofld_ );
+    midvalfld_->display( useclipfld_->getIntValue()==1 );
+
+    assymclipratiofld_ = new uiGenInput( this,"Percentage clip",
+	    				  FloatInpIntervalSpec() );
+    assymclipratiofld_->setElemSzPol(uiObject::Small);
+    assymclipratiofld_->attach( alignedBelow, useclipfld_ );
+    assymclipratiofld_->display( useclipfld_->getIntValue()==2 );
 
     rgfld_ = new uiGenInput( this, "Range", FloatInpIntervalSpec() );
     rgfld_->attach( alignedBelow, useclipfld_ );
@@ -60,7 +74,7 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     
     blockyfld_ = new uiGenInput( this,
 	    	 "Display blocky (no interpolation)", BoolInpSpec(true) );
-    blockyfld_->attach( alignedBelow, rgfld_ );
+    blockyfld_->attach( alignedBelow, midvalfld_ );
 
     lastcommonfld_ = blockyfld_->attachObj();
 }
@@ -75,9 +89,11 @@ bool uiFlatViewDataDispPropTab::doDisp() const
 void uiFlatViewDataDispPropTab::clipSel(CallBacker*)
 {
     const bool dodisp = doDisp();
-    const bool useclip = useclipfld_->getBoolValue();
-    clipratiofld_->display( dodisp && useclip );
-    rgfld_->display( dodisp && !useclip );
+    const int clip = useclipfld_->getIntValue();
+    symclipratiofld_->display( dodisp && clip==1 );
+    midvalfld_->display( dodisp && clip==1 );
+    assymclipratiofld_->display( dodisp && clip==2 );
+    rgfld_->display( dodisp && !clip );
 }
 
 
@@ -123,8 +139,16 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
     if ( !havedata )
 	dispfld_->setCurrentItem( 0 );
 
-    useclipfld_->setValue( mIsUdf( pars.rg_.start ) );
-    clipratiofld_->setValue( pars.clipperc_ );
+    if ( !mIsUdf( pars.rg_.start ) )
+	useclipfld_->setValue( 0 );
+    else if ( mIsUdf( pars.clipperc_.stop ) )
+	useclipfld_->setValue( 1 );
+    else
+	useclipfld_->setValue( 2 );
+
+    symclipratiofld_->setValue( pars.clipperc_.start );
+    assymclipratiofld_->setValue( pars.clipperc_ );
+    midvalfld_->display( pars.midvalue_ );
     rgfld_->setValue( pars.rg_ );
     blockyfld_->setValue( pars.blocky_ );
     setDataNames();
@@ -152,13 +176,24 @@ void uiFlatViewDataDispPropTab::getCommonFromScreen()
     FlatView::DataDispPars::Common& pars = commonPars();
 
     pars.show_ = doDisp();
-    pars.clipperc_ =
-	    useclipfld_->getBoolValue() && !mIsUdf( clipratiofld_->getfValue() )
-	? clipratiofld_->getfValue()
-	: 0;
-    pars.rg_ = useclipfld_->getBoolValue()
-			    ? Interval<float>(mUdf(float),mUdf(float))
-			    : rgfld_->getFInterval();
+    const int clip = useclipfld_->getIntValue();
+
+    if ( !clip )
+	pars.rg_ = rgfld_->getFInterval();
+    else if ( clip==1 )
+    {
+	pars.rg_ = Interval<float>(mUdf(float),mUdf(float));
+	pars.clipperc_.start = symclipratiofld_->getfValue();
+	pars.clipperc_.stop = mUdf(float);
+	pars.midvalue_ = midvalfld_->getfValue();
+    }
+    else
+    {
+	pars.rg_ = Interval<float>(mUdf(float),mUdf(float));
+	pars.clipperc_ = assymclipratiofld_->getFInterval();
+    }
+
+
     pars.blocky_ = blockyfld_->getBoolValue();
 
     setData();
@@ -390,7 +425,7 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
     for ( int idx=0; idx<annot_.auxdata_.size(); idx++ )
     {
 	const FlatView::Annotation::AuxData& auxdata = *annot_.auxdata_[idx];
-	if ( !auxdata.name_.buf()[0] || !auxdata.editpermissions_ )
+	if ( auxdata.name_.isEmpty() || !auxdata.editpermissions_ )
 	    continue;
 
 	if ( !auxdata.enabled_ && !auxdata.editpermissions_->onoff_ )

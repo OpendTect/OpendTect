@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.13 2007-07-18 14:58:09 cvskris Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.14 2008-03-26 19:40:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ struct A2DBitMapGenPars
 		  , autoscale_(true)
 		  , fliplr_(false)
 		  , fliptb_(false)
-		  , clipratio_(0.025)
+		  , clipratio_(0.025,0.025)
 		  , midvalue_( mUdf(float) )
 		  , scale_(0,1)			{}
 
@@ -38,7 +38,7 @@ struct A2DBitMapGenPars
     bool	autoscale_;	//!< If not, use the scale_
     bool	fliplr_;	//!< Flip left/right
     bool	fliptb_;	//!< Flip top/bottom
-    float	clipratio_;	//!< ratio of numbers to be clipped before
+    Interval<float> clipratio_;	//!< ratio of numbers to be clipped before
     				//!< determining min/max, only when autoscale_
     float	midvalue_;	//!< if mUdf(float), use the median data value
     Interval<float> scale_;	//!< Used when autoscale_ is false
@@ -58,7 +58,8 @@ public:
 			    : data_(d) { collectData(); }
 
     const Array2D<float>& data() const	{ return data_; }
-    Interval<float>	scale(float clipratio,float midval) const;
+    Interval<float>	scale(const Interval<float>& clipratio,
+	    		      float midval) const;
     virtual float	midVal() const;
 
     void		collectData(); //!< again.

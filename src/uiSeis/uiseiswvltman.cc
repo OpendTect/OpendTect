@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.24 2007-12-13 16:29:37 cvsbert Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.25 2008-03-26 19:40:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,8 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     app.annot_.setAxesAnnot( false );
     app.setGeoDefaults( true );
     app.ddpars_.show( true, false );
-    app.ddpars_.wva_.overlap_ = 0; app.ddpars_.wva_.clipperc_ = 0;
+    app.ddpars_.wva_.overlap_ = 0;
+    app.ddpars_.wva_.clipperc_.start = app.ddpars_.wva_.clipperc_.stop = 0;
     app.ddpars_.wva_.left_ = Color( 250, 250, 0 );
     app.ddpars_.wva_.mid_ = Color( 150, 150, 150 );
     app.ddpars_.wva_.midvalue_ = mUdf(float);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewbitmap.cc,v 1.12 2008-03-17 21:43:25 cvskris Exp $
+ RCS:           $Id: flatviewbitmap.cc,v 1.13 2008-03-26 19:40:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,12 +66,16 @@ void FlatView::BitMapMgr::setupChg()
 	wvagen->wvapars().fillleft_ = wvapars.left_.isVisible();
 	wvagen->wvapars().fillright_ = wvapars.right_.isVisible();
 	wvagen->wvapars().overlap_ = wvapars.overlap_;
-	wvagen->wvapars().midvalue_ = wvapars.midvalue_;
 	gen_ = wvagen;
     }
     const DataDispPars::Common* pars = &app.ddpars_.wva_;
     if ( !wva_ ) pars = &app.ddpars_.vd_;
-    gen_->pars().clipratio_ = pars->clipperc_ * 0.01;
+    gen_->pars().clipratio_.start = pars->clipperc_.start * 0.01;
+    gen_->pars().clipratio_.stop = mIsUdf(pars->clipperc_.stop)
+	? mUdf(float)
+	: pars->clipperc_.stop * 0.01;
+    gen_->pars().midvalue_ = pars->midvalue_;
+
     gen_->pars().nointerpol_ = pars->blocky_;
     gen_->pars().fliplr_ = app.annot_.x1_.reversed_;
     gen_->pars().fliptb_ = !app.annot_.x2_.reversed_;

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.26 2008-02-21 20:00:55 cvskris Exp $
+ RCS:           $Id: flatview.h,v 1.27 2008-03-26 19:40:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,10 +151,10 @@ public:
 
 	bool		show_;	   // default=true
 	Interval<float>	rg_;	   // default=mUdf(float)
-	float		clipperc_; // default from ColorTable
+	Interval<float>	clipperc_; // default from ColorTable
+				   // stop=undef
 	bool		blocky_;   // default=false
 	float		midvalue_; //!< undef => auto data mid
-
     };
 
     //!\brief Variable Density (=color-bar driven) parameters

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewproptabs.h,v 1.6 2007-12-12 15:44:40 cvsbert Exp $
+ RCS:           $Id: uiflatviewproptabs.h,v 1.7 2008-03-26 19:40:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,9 @@ protected:
 
     uiComboBox*		dispfld_;
     uiGenInput*		useclipfld_;
-    uiGenInput*		clipratiofld_;
+    uiGenInput*		symclipratiofld_;
+    uiGenInput*		assymclipratiofld_;
+    uiGenInput*		midvalfld_;
     uiGenInput*		rgfld_;
     uiGenInput*		blockyfld_;
 

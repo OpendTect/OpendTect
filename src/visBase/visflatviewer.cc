@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.cc,v 1.6 2008-03-05 20:05:20 cvsyuancheng Exp $
+ RCS:		$Id: visflatviewer.cc,v 1.7 2008-03-26 19:40:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,7 +101,7 @@ void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt )
 		const Interval<float>& range = appearance().ddpars_.vd_.rg_;
 		
 		if ( mIsUdf( range.start ) || mIsUdf( range.stop ) )
-		    vct.setClipRate( appearance().ddpars_.vd_.clipperc_ ); 
+		    vct.setClipRate( appearance().ddpars_.vd_.clipperc_.start );
 		else 
 		    vct.scaleTo( range );
     }			
