@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.40 2008-02-20 05:56:26 cvsnanne Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.41 2008-03-26 15:25:42 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -294,9 +294,7 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &onlyatsectmnuitem_, true, !psd->allShown() );
     mAddMenuItem( menu, &storemnuitem_, true, false );
     mAddMenuItem( menu, &storeasmnuitem_, true, false );
-#ifdef __debug__
     mAddMenuItem( menu, &storepolyasfaultmnuitem_, true, false );
-#endif
 }
 
 
