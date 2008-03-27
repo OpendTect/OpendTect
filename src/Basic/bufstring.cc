@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.8 2007-09-27 09:07:02 cvsbert Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.9 2008-03-27 20:07:36 cvskris Exp $";
 
 #include "bufstring.h"
 
@@ -15,9 +15,9 @@ static const char* rcsID = "$Id: bufstring.cc,v 1.8 2007-09-27 09:07:02 cvsbert 
 #include <string.h>
 
 
-#define mDeclMinlen : minlen_(mMaxUserIDLength+1)
+#define mDeclMinlen : minlen_(mMaxUserIDLength+1), buf_( 0 ), len_( 0 )
 #define mSimpConstrImpl(pars,impl) \
-    BufferString::BufferString pars mDeclMinlen { init(); impl; }
+    BufferString::BufferString pars mDeclMinlen { impl; }
 
 mSimpConstrImpl( (), )
 mSimpConstrImpl( (const char* s), if ( s ) *this = s )
@@ -26,7 +26,7 @@ mSimpConstrImpl( (float f), *this = f )
 mSimpConstrImpl( (double d), *this = d )
 
 BufferString::BufferString( const BufferString& bs )
-    mDeclMinlen { init(); *this = bs; }
+    mDeclMinlen { *this = bs; }
 
 mSimpConstrImpl( (const char* s1, const char* s2, const char* s3),
 		 *this = s1; *this += s2; *this += s3 )
@@ -46,7 +46,9 @@ BufferString::~BufferString()
 
 bool BufferString::operator==( const char* s ) const
 {
-    if ( !s ) return *buf_ == '\0';
+    if ( !s || !(*s) ) return isEmpty();
+
+    if ( isEmpty() ) return false;
 
     const char* ptr = buf_;
     while ( *s && *ptr )
@@ -54,6 +56,19 @@ bool BufferString::operator==( const char* s ) const
 
     return *ptr == *s;
 }
+
+
+char* BufferString::buf()
+{
+    if ( !buf_ )
+	init();
+
+    return buf_;
+}
+
+
+bool BufferString::isEmpty() const
+{ return !buf_ || !(*buf_); }
 
 
 void BufferString::setEmpty()
@@ -81,20 +96,21 @@ BufferString& BufferString::operator=( const BufferString& bs )
 { if ( &bs != this ) *this = bs.buf_; return *this; }
 
 BufferString& BufferString::operator=( int i )
-{ *buf_ = '\0'; *this += i; return *this; }
+{ if ( buf_ ) *buf_ = '\0'; *this += i; return *this; }
 
 BufferString& BufferString::operator=( float f )
-{ *buf_ = '\0'; *this += f; return *this; }
+{ if ( buf_ ) *buf_ = '\0'; *this += f; return *this; }
 
 BufferString& BufferString::operator=( double d )
-{ *buf_ = '\0'; *this += d; return *this; }
+{ if ( buf_ ) *buf_ = '\0'; *this += d; return *this; }
 
 
 BufferString& BufferString::operator +=( const char* s )
 {
     if ( s && *s )
     {
-	setBufSize( (unsigned int)(strlen(s) + strlen(buf_)) + 1 );
+	const unsigned int newsize = strlen(s) + (buf_ ? strlen(buf_) : 0) +1;
+	setBufSize( newsize );
 
 	char* ptr = buf_;
 	while ( *ptr ) ptr++;
@@ -115,7 +131,7 @@ BufferString& BufferString::operator+=( double d )
 
 unsigned int BufferString::size() const	
 {
-    return strlen(buf_);
+    return buf_ ? strlen(buf_) : 0;
 }
 
 
@@ -143,7 +159,7 @@ void BufferString::setBufSize( unsigned int newlen )
 	*buf_ = '\0';
     else
     {
-	int newsz = strlen( oldbuf ) + 1;
+	int newsz = (oldbuf ? strlen( oldbuf ) : 0) + 1;
 	if ( newsz > newlen )
 	{
 	    newsz = newlen;
