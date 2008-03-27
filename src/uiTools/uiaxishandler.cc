@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.cc,v 1.5 2008-03-26 16:46:08 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.cc,v 1.6 2008-03-27 16:47:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,7 +160,7 @@ void uiAxisHandler::plotAxis() const
     {
 	dt_.setLineStyle( setup_.style_ );
 	Interval<int> toplot( 0, pos_.size()-1 );
-	if ( beghndlr_ ) toplot.start++;
+	if ( beghndlr_ && rg_.start == annotstart_ ) toplot.start++;
 	if ( endhndlr_ ) toplot.stop--;
 	for ( int idx=toplot.start; idx<=toplot.stop; idx++ )
 	{

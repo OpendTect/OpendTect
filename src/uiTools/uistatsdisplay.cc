@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mid 2005
- RCS:           $Id: uistatsdisplay.cc,v 1.2 2008-03-26 16:46:08 cvsbert Exp $
+ RCS:           $Id: uistatsdisplay.cc,v 1.3 2008-03-27 16:47:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -237,18 +237,22 @@ void uiStatsDisplay::reDraw( CallBacker* cb )
 
     xax_->plotAxis();
 
-    TypeSet<uiPoint> ptlist; uiPoint firstpt;
+    TypeSet<uiPoint> ptlist;
     const int nrhistpts = histdata_.size();
     float dx = (xax_->range().stop-xax_->range().start) / (nrhistpts-1);
+    ptlist += uiPoint( xax_->getPix(xax_->range().start), yax_->getPix(0) );
+    const uiPoint firstpt( xax_->getPix(xax_->range().start), yax_->getPix(0) );
     for ( int idx=0; idx<nrhistpts; idx++ )
     {
 	const float xval = xax_->range().start + dx * idx;
 	const uiPoint pt( xax_->getPix(xval), yax_->getPix(histdata_[idx]) );
 	ptlist += pt;
-	if ( idx == 0 )
-	    firstpt = pt;
+	if ( idx == nrhistpts-1 )
+	{
+	    ptlist += uiPoint( pt.x, yax_->getPix(0) );
+	    ptlist += firstpt;
+	}
     }
-    ptlist += firstpt;
 
     ioDrawTool& dt = canvas_->drawTool();
     dt.setPenColor( cHistColor );
