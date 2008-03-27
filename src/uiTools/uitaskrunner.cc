@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink/A.H. Bril
  Date:          Aug 2000/Oct 2001
- RCS:           $Id: uitaskrunner.cc,v 1.2 2007-12-13 21:23:27 cvskris Exp $
+ RCS:           $Id: uitaskrunner.cc,v 1.3 2008-03-27 11:26:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,24 +115,27 @@ void uiTaskRunner::updateFields()
 	prevnrdonetext_ = nrdonetext;
     }
 
-    if ( totalnr>0 )
+    const bool nrdonechg = prevnrdone_ != nrdone;
+    if ( nrdonechg )
     {
-	if ( prevtotalnr_<=0 )
+	prevnrdone_ = nrdone;
+	BufferString str; str += nrdone;
+	sb.message( str, 2 );
+    }
+
+    if ( totalnr > 0 )
+    {
+	if ( prevtotalnr_ <= 0 )
 	    progbar_->display( true );
 
-	if ( totalnr!=prevtotalnr_ )
+	if ( totalnr != prevtotalnr_ )
 	{
 	    progbar_->setTotalSteps( totalnr );
 	    prevtotalnr_ = totalnr;
 	}
 
-	if ( prevnrdone_!=nrdone )
-	{
+	if ( nrdonechg )
 	    progbar_->setProgress( nrdone );
-	    prevnrdone_ = nrdone;
-	    BufferString str; str += nrdone;
-	    sb.message( str, 2 );
-	}
 
 	const float fpercentage = 100. * ((float)nrdone) / totalnr;
 	int percentage = (int)fpercentage;
@@ -146,7 +149,7 @@ void uiTaskRunner::updateFields()
 	    prevpercentage_ = percentage;
 	}
     }
-    else if ( prevtotalnr_>0 )
+    else if ( prevtotalnr_ > 0 )
 	progbar_->display( false );
 
     dispinfomutex_.unLock();
