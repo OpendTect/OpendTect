@@ -4,7 +4,7 @@
  * DATE     : Oct 2007
 -*/
 
-static const char* rcsID = "$Id: seispsmerge.cc,v 1.7 2008-03-12 09:48:03 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsmerge.cc,v 1.8 2008-03-27 13:14:52 cvsbert Exp $";
 
 #include "seispsmerge.h"
 #include "posinfo.h"
@@ -22,7 +22,7 @@ SeisPSMerger::SeisPSMerger( ObjectSet<IOObj> objset, const IOObj* out,
 	, inobjs_(objset)
 	, outobj_(out)
 	, writer_(0)
-	, msg_("Nothing")
+	, msg_("Handling gathers")
 	, totnr_(-1)
 	, nrdone_(0)
 {
@@ -88,7 +88,7 @@ const char* SeisPSMerger::message() const
 
 const char* SeisPSMerger::nrDoneText() const
 {
-    return "Traces written";
+    return "Gathers written";
 }
 
 
