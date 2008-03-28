@@ -4,7 +4,7 @@
  * DATE     : Oct 2004
 -*/
 
-static const char* rcsID = "$Id: linekey.cc,v 1.8 2008-01-09 13:54:34 cvsbert Exp $";
+static const char* rcsID = "$Id: linekey.cc,v 1.9 2008-03-28 12:07:46 cvsbert Exp $";
 
 #include "linekey.h"
 #include "iopar.h"
@@ -33,6 +33,8 @@ bool LineKey::operator ==( const LineKey& lk ) const
 BufferString LineKey::lineName() const
 {
     BufferString ret( *this );
+    if ( ret.isEmpty() ) return ret;
+
     char* ptr = strchr( ret.buf(), '|' );
     if ( ptr ) *ptr = '\0';
 
@@ -44,6 +46,8 @@ BufferString LineKey::lineName() const
 BufferString LineKey::attrName() const
 {
     BufferString ret;
+    if ( isEmpty() ) return ret;
+
     const char* ptr = strchr( buf(), '|' );
     if ( ptr )
 	{ ptr++; mSkipBlanks(ptr); }
