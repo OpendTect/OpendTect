@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.92 2008-03-24 20:16:57 cvskris Exp $
+ RCS:           $Id: survinfo.cc,v 1.93 2008-03-28 09:22:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -739,3 +739,16 @@ bool SurveyInfo::has2D() const
 
 bool SurveyInfo::has3D() const
 { return survdatatype_ == No2D || survdatatype_ == Both2DAnd3D; }
+
+
+float SurveyInfo::computeAngleXInl() const
+{
+    Coord mincoord = minCoord(false);
+    Coord maxcoord = maxCoord(false);
+    float isz = inlRange(false).width() * inlDistance();
+    float csz = crlRange(false).width() * crlDistance();
+    float xsz = fabs( maxcoord.x - mincoord.x );
+    float ysz = fabs( maxcoord.y - mincoord.y );
+    return acos( ( xsz - isz*ysz/csz ) / ( csz - isz*isz/csz) );
+}
+

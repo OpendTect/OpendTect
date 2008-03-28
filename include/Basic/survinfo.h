@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.65 2008-03-20 21:39:30 cvskris Exp $
+ RCS:		$Id: survinfo.h,v 1.66 2008-03-28 09:22:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,6 +112,7 @@ public:
     bool		isClockWise() const;
     			/*!< Orientation is determined by rotating the
 			     inline axis to the crossline axis. */
+    float		computeAngleXInl() const;
 
     Coord		minCoord(bool work) const;
     Coord		maxCoord(bool work) const;
