@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.141 2008-03-11 20:49:44 cvskris Exp $
+ RCS:           $Id: uimainwin.cc,v 1.142 2008-03-28 16:40:03 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -268,11 +268,14 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 
 uiMainWinBody::~uiMainWinBody()
 {
-    toolbarsmnu_->clear();
-    delete toolbarsmnu_;
-
     deleteAllChildren(); //delete them now to make sure all ui objects
     			 //are deleted before their body counterparts
+    
+    for ( int idx=toolbars_.size()-1; idx>=0; idx-- )
+	delete toolbars_.remove(idx);
+
+    toolbarsmnu_->clear();
+    delete toolbarsmnu_;
 }
 
 
