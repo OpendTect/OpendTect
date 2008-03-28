@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiselsurvranges.cc,v 1.7 2008-03-14 09:32:24 cvsbert Exp $
+ RCS:           $Id: uiselsurvranges.cc,v 1.8 2008-03-28 10:04:00 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,16 +34,19 @@ uiSelZRange::uiSelZRange( uiParent* p, bool wstep, bool isrel,
 
     startfld_ = new uiSpinBox( this, 0, "Z start" );
     startfld_->setInterval( irg );
+    startfld_->doSnap( true );
     if ( !lbltxt ) lbltxt = "Z Range";
     uiLabel* lbl = new uiLabel( this, lbltxt, startfld_ );
     stopfld_ = new uiSpinBox( this, 0, "Z stop" );
     stopfld_->setInterval( irg );
+    stopfld_->doSnap( true );
     stopfld_->attach( rightOf, startfld_ );
 
     if ( wstep )
     {
 	stepfld_ = new uiSpinBox( this, 0, "Z step" );
 	stepfld_->setInterval( StepInterval<int>(irg.step,cUnLim,irg.step) );
+	stepfld_->doSnap( true );
 	lbl = new uiLabel( this, "step", stepfld_ );
 	lbl->attach( rightOf, stopfld_ );
     }
@@ -121,6 +124,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 
     startfld_ = new uiSpinBox( this, 0, BufferString(nm," start") );
     startfld_->setInterval( rg );
+    startfld_->doSnap( true );
     uiLabel* lbl = new uiLabel( this, BufferString(nm," range"), startfld_ );
     uiObject* stopfld;
     if ( typ == Gen )
@@ -135,6 +139,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
 	stopfld = icstopfld_ = new uiSpinBox( this, 0,
 						BufferString(nm," stop") );
 	icstopfld_->setInterval( rg );
+	icstopfld_->doSnap( true );
 	icstopfld_->valueChanging.notify( cb );
     }
     stopfld->attach( rightOf, startfld_ );
@@ -143,6 +148,7 @@ uiSelNrRange::uiSelNrRange( uiParent* p, uiSelNrRange::Type typ, bool wstep )
     {
 	stepfld_ = new uiSpinBox( this, 0, BufferString(nm," step") );
 	stepfld_->setInterval( StepInterval<int>(rg.step,cUnLim,rg.step) );
+	stepfld_->doSnap( true );
 	lbl = new uiLabel( this, "step", stepfld_ );
 	if ( stopfld )
 	    lbl->attach( rightOf, stopfld );
@@ -219,10 +225,12 @@ uiSelSteps::uiSelSteps( uiParent* p, bool is2d )
 	stp = SI().sampling(true).hrg.step;
 	firstbox = inlfld_ = new uiSpinBox( this, 0, "inline step" );
 	inlfld_->setInterval( StepInterval<int>(stp.inl,cUnLim,stp.inl) );
+	inlfld_->doSnap( true );
 	lbl = "Inline/Crossline steps";
     }
     crlfld_ = new uiSpinBox( this, 0, "crossline step" );
     crlfld_->setInterval( StepInterval<int>(stp.crl,cUnLim,stp.crl) );
+    crlfld_->doSnap( true );
     if ( inlfld_ )
 	crlfld_->attach( rightOf, inlfld_ );
     else
