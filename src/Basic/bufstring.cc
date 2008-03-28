@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: bufstring.cc,v 1.9 2008-03-27 20:07:36 cvskris Exp $";
+static const char* rcsID = "$Id: bufstring.cc,v 1.10 2008-03-28 18:33:35 cvskris Exp $";
 
 #include "bufstring.h"
 
@@ -256,7 +256,7 @@ bool BufferString::operator <( const char* s ) const
 
 const BufferString& BufferString::empty()
 {
-    static BufferString ret;
+    static BufferString ret("");
     return ret;
 }
 
