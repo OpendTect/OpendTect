@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: datapackbase.h,v 1.9 2008-03-20 21:46:40 cvskris Exp $
+ RCS:		$Id: datapackbase.h,v 1.10 2008-03-28 09:34:29 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,7 +110,9 @@ class MapDataPack : public FlatDataPack
 public:
     				MapDataPack(const char* categry,const char* nm,
 					    Array2D<float>*);
+				~MapDataPack();
 
+    Array2D<float>&		data();
     void			setDimNames( const char* xlbl,const char* ylbl)
 				{ xlbl_ = xlbl; ylbl_ = ylbl; }
     const char*			dimName( bool dim0 ) const
@@ -122,10 +124,18 @@ public:
     Coord			get2DCoord(int,int) const;
     				//!< int,int = Array2D position
     virtual void		getAuxInfo(int idim0,int idim1,IOPar&) const;
+    void			setPropsAndInit(StepInterval<double> dim0rg,
+	    					StepInterval<double> dim1rg,
+						bool,BufferStringSet*);
 
 protected:
 
+    void			createXYRotArray();
+    float			getValAtIdx(int,int) const;
+    
+    Array2D<float>*		xyrotarr2d_;
     bool			isposcoord_;
+    bool			wantxy_;
     BufferString		xlbl_;
     BufferString		ylbl_;
 
