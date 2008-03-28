@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		12-4-2000
  Contents:	Variable buffer length strings with minimum size.
- RCS:		$Id: bufstring.h,v 1.30 2008-03-28 13:36:55 cvsbert Exp $
+ RCS:		$Id: bufstring.h,v 1.31 2008-03-28 14:55:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,9 +46,9 @@ public:
 
    char*		buf();		//!< Allocation of min length guaranteed
    inline const char*	buf() const	{ return buf_ ? buf_ : empty().buf_; }
-   inline		operator const char*() const	{ return buf_; }	
-   inline char&		operator []( int idx )		{ return buf_[idx]; }
-   const char&		operator []( int idx ) const	{ return buf_[idx]; }
+   inline		operator const char*() const	{ return buf(); }	
+   inline char&		operator []( int idx )		{ return buf()[idx]; }
+   inline const char&	operator []( int idx ) const	{ return buf()[idx]; }
    bool			isEmpty() const;
    void			setEmpty();
 
@@ -64,8 +64,8 @@ public:
    BufferString&	operator+=(double);
 
    unsigned int		size() const;
-   char&		lastChar()		{ return buf_[size()-1]; }
-   const char&		lastChar() const	{ return buf_[size()-1]; }
+   inline char&		lastChar()		{ return buf()[size()-1]; }
+   inline const char&	lastChar() const	{ return buf()[size()-1]; }
    inline unsigned int	bufSize() const		{ return len_; }
    void			setBufSize(unsigned int);
    inline unsigned int	minBufSize() const	{ return minlen_; }
@@ -98,10 +98,10 @@ std::ostream& operator <<(std::ostream&,const BufferString&);
 std::istream& operator >>(std::istream&,BufferString&);
 
 inline bool BufferString::operator==( const BufferString& s ) const
-{ return operator ==( s.buf_ ); }
+{ return operator ==( s.buf() ); }
 
 inline bool BufferString::operator!=( const BufferString& s ) const
-{ return operator !=( s.buf_ ); }
+{ return operator !=( s.buf() ); }
 
 inline  bool BufferString::operator!=( const char* s ) const
 { return ! (*this == s); }
