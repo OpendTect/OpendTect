@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2007
- RCS:		$Id: zaxistransformdatapack.h,v 1.4 2007-10-18 07:01:33 cvsnanne Exp $
+ RCS:		$Id: zaxistransformdatapack.h,v 1.5 2008-03-28 21:23:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,9 @@ public:
 
     void			setInterpolate( bool yn ) { interpolate_ = yn; }
     bool			getInterpolate() const	 { return interpolate_;}
+
+
+    const ZAxisTransform&	getTransform() const { return transform_; }
 
     virtual Array2D<float>&	data();
     virtual void       		dumpInfo(IOPar&) const;
