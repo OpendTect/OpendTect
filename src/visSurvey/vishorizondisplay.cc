@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.43 2008-03-21 16:12:51 cvshelene Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.44 2008-03-28 10:18:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -622,14 +622,13 @@ void HorizonDisplay::setDepthAsAttrib( int attrib )
 
     BIDValSetArrAdapter* bvsarr = new BIDValSetArrAdapter(positions.bivSet(),0);
     MapDataPack* newpack = new MapDataPack( "Geometry", "Depth", bvsarr);
-/*    StepInterval<double> inlrg( bvsarr->inlrg_.start, bvsarr->inlrg_.stop,
+    StepInterval<double> inlrg( bvsarr->inlrg_.start, bvsarr->inlrg_.stop,
 				SI().inlStep() );
     StepInterval<double> crlrg( bvsarr->crlrg_.start, bvsarr->crlrg_.stop,
 				SI().crlStep() );
-    newpack->posData().setRange( true, inlrg );
-    newpack->posData().setRange( false, crlrg );
-    newpack->setPosCoord( false );*/
-    newpack->setDimNames( "In-Line", "Cross-line" );
+    BufferStringSet dimnames;
+    dimnames.add( "In-Line" ).add( "Cross-line" );
+    newpack->setPropsAndInit( inlrg, crlrg, false, &dimnames );
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
     dpman.add( newpack );
     setDataPackID( attrib, newpack->id() );

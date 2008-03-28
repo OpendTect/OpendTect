@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.235 2008-03-25 16:51:06 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.236 2008-03-28 10:18:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -1383,10 +1383,9 @@ void uiODApplMgr::createAndSetMapDataPack( int visid, int attrib,
 	    			SI().inlStep() );
     StepInterval<double> crlrg( bvsarr->crlrg_.start, bvsarr->crlrg_.stop,
 	    			SI().crlStep() );
-    newpack->posData().setRange( true, inlrg );
-    newpack->posData().setRange( false, crlrg );
-    newpack->setPosCoord( false );
-    newpack->setDimNames( "In-Line", "Cross-line" );
+    BufferStringSet dimnames;
+    dimnames.add( "In-Line" ).add( "Cross-line" );
+    newpack->setPropsAndInit( inlrg, crlrg, false, &dimnames );
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
     dpman.add( newpack );
     visserv_->setDataPackID( visid, attrib, newpack->id() );
