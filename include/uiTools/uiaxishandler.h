@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.5 2008-03-26 16:46:08 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.6 2008-03-29 11:20:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,7 @@ protected:
     int			wdthy_;
     BufferStringSet	strs_;
     TypeSet<float>	pos_;
+    float		endpos_;
     int			devsz_;
     int			axsz_;
     bool		rgisrev_;

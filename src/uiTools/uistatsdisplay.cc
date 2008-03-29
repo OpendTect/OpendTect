@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mid 2005
- RCS:           $Id: uistatsdisplay.cc,v 1.3 2008-03-27 16:47:59 cvsbert Exp $
+ RCS:           $Id: uistatsdisplay.cc,v 1.4 2008-03-29 11:20:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -266,8 +266,7 @@ uiStatsDisplayWin::uiStatsDisplayWin( uiParent* p,
     : uiMainWin(p,"Data statistics",-1,false,su.modal_)
     , disp_(*new uiStatsDisplay(this,su.withplot_,su.withtext_))
 {
-    statusBar()->addMsgFld( "Data name", uiStatusBar::Left, 2 );
-    statusBar()->addMsgFld( "Ref name", uiStatusBar::Left, 2 );
+    statusBar()->addMsgFld( "Data name", uiStatusBar::Left, 1 );
 }
 
 
@@ -280,9 +279,7 @@ void uiStatsDisplayWin::setData( const Stats::RunCalc<float>& rc )
 void uiStatsDisplayWin::setDataName( const char* nm )
 {
     BufferString txt( nm );
-    char* ptr = strchr( txt, '\n' );
-    if ( ptr ) *ptr++ = '\0';
-    else	ptr = "";
+    char* nlptr = strchr( txt, '\n' );
+    if ( nlptr ) *nlptr = '\0';
     statusBar()->message( txt, 0 );
-    statusBar()->message( ptr, 1 );
 }

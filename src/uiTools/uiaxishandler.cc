@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.cc,v 1.6 2008-03-27 16:47:59 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.cc,v 1.7 2008-03-29 11:20:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ void uiAxisHandler::reCalc()
 	if ( idx == 0 )			wdthx_ = font.width( str );
 	else if ( wdthx_ < wdth )	wdthx_ = wdth;
     }
-
+    endpos_ = setup_.islog_ ? logof2 : 1;
     newDevSize();
 }
 
@@ -160,12 +160,11 @@ void uiAxisHandler::plotAxis() const
     {
 	dt_.setLineStyle( setup_.style_ );
 	Interval<int> toplot( 0, pos_.size()-1 );
-	if ( beghndlr_ && rg_.start == annotstart_ ) toplot.start++;
-	if ( endhndlr_ ) toplot.stop--;
-	for ( int idx=toplot.start; idx<=toplot.stop; idx++ )
+	for ( int idx=0; idx<pos_.size(); idx++ )
 	{
-	    const float relpos = pos_[idx] / pos_[pos_.size()-1];
-	    drawGridLine( getRelPosPix(relpos) );
+	    const float relpos = pos_[idx] / endpos_;
+	    if ( relpos>0.01 && relpos<1.01 && (!endhndlr_ || relpos<0.99) )
+		drawGridLine( getRelPosPix(relpos) );
 	}
     }
 
@@ -176,7 +175,7 @@ void uiAxisHandler::plotAxis() const
     dt_.setLineStyle( ls );
     for ( int idx=0; idx<pos_.size(); idx++ )
     {
-	const float relpos = pos_[idx] / pos_[pos_.size()-1];
+	const float relpos = pos_[idx] / endpos_;
 	annotPos( getRelPosPix(relpos), strs_.get(idx) );
     }
 
