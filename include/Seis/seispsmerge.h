@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		Oct 2007
- RCS:		$Id: seispsmerge.h,v 1.3 2007-11-30 07:03:06 cvsraman Exp $
+ RCS:		$Id: seispsmerge.h,v 1.4 2008-03-31 08:22:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,36 +17,34 @@ ________________________________________________________________________
 class IOObj;
 class SeisPSReader;
 class SeisPSWriter;
+namespace Seis { class SelData; }
 
 
-/*!\brief Single trace processing executor
+/*!\brief Pre-Stack seismic data merger
 
-When a trace info is read, the selection callback is triggered. You can then
-use skipCurTrc(). When the trace is read, the processing callback is triggered.
-You can set you own trace as output trace, otherwise the input trace will be
-taken.
+  The order in which the stores are in the ObjectSet is important: the first
+  data store at a position will be used.
 
 */
 
 class SeisPSMerger : public Executor
 {
 public:
-			SeisPSMerger(ObjectSet<IOObj>,const IOObj*,
-				     const HorSampling&);
+			SeisPSMerger(const ObjectSet<IOObj>& in,
+				     const IOObj& out,
+				     const Seis::SelData* sd=0);
     virtual		~SeisPSMerger();
 
-    virtual const char*	message() const;
-    virtual const char*	nrDoneText() const;
-    virtual int		nrDone() const;
-    virtual int		totalNr() const;
+    virtual const char*	message() const		{ return msg_.buf(); }
+    virtual const char*	nrDoneText() const	{ return "Gathers written"; }
+    virtual int		nrDone() const		{ return nrdone_; }
+    virtual int		totalNr() const		{ return totnr_; }
     virtual int		nextStep();
 
 protected:
 
-    ObjectSet<IOObj>	inobjs_;
-    const IOObj*	outobj_;
     BinID		curbid_;
-    int			nrobjs_;
+    Seis::SelData*	sd_;
 
     HorSamplingIterator*	iter_;
     ObjectSet<SeisPSReader>	readers_;
@@ -57,7 +55,6 @@ protected:
     int			nrdone_;
 
     void		init(const HorSampling&);
-    int			doNextPos();
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          October 2007
- RCS:           $Id: uiprestkmergedlg.h,v 1.3 2008-02-18 11:00:47 cvsbert Exp $
+ RCS:           $Id: uiprestkmergedlg.h,v 1.4 2008-03-31 08:22:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,9 +30,12 @@ class uiToolButton;
 class uiPreStackMergeDlg : public uiDialog
 {
 public:
+
     			uiPreStackMergeDlg(uiParent*);
+    			~uiPreStackMergeDlg();
 
 protected:
+
     void		fillListBox();
     bool		setSelectedVols();
     

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          October 2007
- RCS:           $Id: uiprestkmergedlg.cc,v 1.8 2008-03-14 11:59:11 cvsnageswara Exp $
+ RCS:           $Id: uiprestkmergedlg.cc,v 1.9 2008-03-31 08:22:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ ________________________________________________________________________
 #include "seisioobjinfo.h"
 #include "seispsioprov.h"
 #include "seispsmerge.h"
+#include "seisselection.h"
 #include "seissingtrcproc.h"
 #include "transl.h"
 #include "uiioobjsel.h"
@@ -59,13 +60,24 @@ uiPreStackMergeDlg::uiPreStackMergeDlg( uiParent* p )
 }
 
 
+uiPreStackMergeDlg::~uiPreStackMergeDlg()
+{
+    deepErase( selobjs_ );
+    delete inctio_.ioobj; delete outctio_.ioobj;
+    delete &inctio_; delete &outctio_;
+}
+
+
 void uiPreStackMergeDlg::createFields( uiGroup* topgrp )
 {
     volsbox_ = new uiListBox( topgrp, "Available Volumes", true );
     selvolsbox_ = new uiListBox( topgrp, "Selected Volumes", true );
     outctio_.ctxt.forread = false;
     outpfld_ = new uiIOObjSel( this, outctio_, "Output Volume" );
-    subselfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
+    uiPosSubSel::Setup psssu( false, false );
+    psssu.choicetype( uiPosSubSel::Setup::OnlySeisTypes )
+	 .withstep( false );
+    subselfld_ = new uiPosSubSel( this, psssu );
 }
 
 
@@ -172,7 +184,7 @@ void uiPreStackMergeDlg::fillListBox()
 
 bool uiPreStackMergeDlg::setSelectedVols()
 {
-    selobjs_.erase();
+    deepErase( selobjs_ );
     const int nrobjs = selvolsbox_->size();
     if ( nrobjs < 2 )
     {
@@ -182,6 +194,7 @@ bool uiPreStackMergeDlg::setSelectedVols()
 
     BufferString storage = "";
     static const char* storagekey = "Data storage";
+    bool altstormsgdone = false;
     for ( int idx=0; idx<nrobjs; idx++ )
     {
 	const char* txt = selvolsbox_->textOfItem(idx);
@@ -192,12 +205,14 @@ bool uiPreStackMergeDlg::setSelectedVols()
 	IOObj* ioobj = IOM().get( id );
 	if ( !ioobj ) continue;
 
-	if ( !selobjs_.size() )
+	if ( selobjs_.isEmpty() )
 	    storage = ioobj->pars().find( storagekey );
-	else if ( storage != ioobj->pars().find(storagekey) )
+	else if ( !altstormsgdone && storage != ioobj->pars().find(storagekey) )
 	{
-	    uiMSG().error( "Files with different storage types selected" );
-	    return false;
+	    altstormsgdone = true;
+	    if ( !uiMSG().askGoOn( "Not all stores have the same storage type."
+				   "\nContinue?" ) )
+		return false;
 	}
 
 	selobjs_ += ioobj;
@@ -248,9 +263,14 @@ bool uiPreStackMergeDlg::acceptOK( CallBacker* cb )
 {
     if ( !setSelectedVols() ) return false;
 
-    HorSampling hs = subselfld_->envelope().hrg;
-    PtrMan<SeisPSMerger> Exec =
-	   new SeisPSMerger( selobjs_, outctio_.ioobj, hs );
-    uiTaskRunner dlg( this);
+    PtrMan<Seis::SelData> sd = 0;
+    if ( !subselfld_->isAll() )
+    {
+	IOPar iop; subselfld_->fillPar( iop );
+	sd = Seis::SelData::get( iop );
+    }
+    PtrMan<SeisPSMerger> Exec = new SeisPSMerger( selobjs_, *outctio_.ioobj,
+	    					  sd );
+    uiTaskRunner dlg( this );
     return dlg.execute( *Exec );
 }

@@ -4,9 +4,10 @@
  * DATE     : Oct 2007
 -*/
 
-static const char* rcsID = "$Id: seispsmerge.cc,v 1.8 2008-03-27 13:14:52 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsmerge.cc,v 1.9 2008-03-31 08:22:51 cvsbert Exp $";
 
 #include "seispsmerge.h"
+#include "seisselection.h"
 #include "posinfo.h"
 #include "seisbuf.h"
 #include "seispsioprov.h"
@@ -16,24 +17,46 @@ static const char* rcsID = "$Id: seispsmerge.cc,v 1.8 2008-03-27 13:14:52 cvsber
 #include "ioobj.h"
 
 
-SeisPSMerger::SeisPSMerger( ObjectSet<IOObj> objset, const IOObj* out,
-       			    const HorSampling& subsel ) 
-  	: Executor("Pre-Stack data Merger")
-	, inobjs_(objset)
-	, outobj_(out)
+SeisPSMerger::SeisPSMerger( const ObjectSet<IOObj>& inobjs, const IOObj& out,
+       			    const Seis::SelData* sd )
+  	: Executor("Merging Pre-Stack data")
 	, writer_(0)
+	, sd_(sd && !sd->isAll() ? sd->clone() : 0)
 	, msg_("Handling gathers")
 	, totnr_(-1)
 	, nrdone_(0)
 {
-    if ( inobjs_.isEmpty() )
+    HorSampling hs;
+    for ( int idx=0; idx<inobjs.size(); idx++ )
     {
-	msg_ = "No input specified";
-	return;
-    }
+	SeisPS3DReader* rdr = SPSIOPF().get3DReader( *inobjs[idx] );
+	if ( !rdr ) continue;
 
-    nrobjs_ = inobjs_.size();
-    init( subsel );
+	Interval<int> inlrg, crlrg; StepInterval<int> rg;
+	rdr->posData().getInlRange( rg ); assign( inlrg, rg );
+	rdr->posData().getCrlRange( rg ); assign( crlrg, rg );
+	if ( idx == 0 )
+	    hs.set( inlrg, crlrg );
+	else
+	{
+    	    hs.include( BinID(inlrg.start,crlrg.start) );
+    	    hs.include( BinID(inlrg.stop,crlrg.stop) );
+	}
+
+	readers_ += rdr;
+    }
+    if ( readers_.isEmpty() )
+	{ msg_ = "No valid inputs specified"; return; }
+
+    totnr_ = sd_ ? sd_->expectedNrTraces() : hs.totalNr();
+    iter_ = new HorSamplingIterator( hs );
+
+    PtrMan<IOObj> outobj = out.clone();
+    writer_ = SPSIOPF().get3DWriter( *outobj );
+    if ( !writer_ )
+	{ deepErase(readers_); msg_ = "Cannot create output writer"; return; }
+
+    SPSIOPF().mk3DPostStackProxy( *outobj );
 }
 
 
@@ -41,105 +64,36 @@ SeisPSMerger::~SeisPSMerger()
 {
     delete iter_;
     delete writer_;
-    delete outobj_;
-    deepErase( inobjs_ );
+    delete sd_;
     deepErase( readers_ );
-}
-
-
-void SeisPSMerger::init( const HorSampling& subsel )
-{
-    totnr_ = 0;
-    HorSampling hs;
-    const bool nosubsel = hs == subsel;
-    for ( int idx=0; idx<nrobjs_; idx++ )
-    {
-	SeisPS3DReader* rdr = SPSIOPF().get3DReader( *inobjs_[idx] );
-	if ( !rdr ) continue;
-
-	StepInterval<int> inlrg;
-	StepInterval<int> crlrg;
-	rdr->posData().getInlRange( inlrg );
-	rdr->posData().getCrlRange( crlrg );
-	if ( !idx ) hs.set( (Interval<int>)inlrg, (Interval<int>)crlrg );
-	else
-	{
-	    BinID start( inlrg.start, crlrg.start );
-    	    BinID stop( inlrg.stop, crlrg.stop );
-    	    hs.include( start ); hs.include( stop );
-	}
-
-	readers_ += rdr;
-    }
-
-    totnr_ = nosubsel ? hs.totalNr() : subsel.totalNr();
-    iter_ = nosubsel ? new HorSamplingIterator( hs )
-		     : new HorSamplingIterator( subsel );
-    writer_ = SPSIOPF().get3DWriter( *outobj_ );
-}
-
-
-const char* SeisPSMerger::message() const
-{
-    const char* msg = msg_.buf();
-    return msg;
-}
-
-
-const char* SeisPSMerger::nrDoneText() const
-{
-    return "Gathers written";
-}
-
-
-int SeisPSMerger::nrDone() const
-{
-    return nrdone_;
-}
-
-
-int SeisPSMerger::totalNr() const
-{
-    return totnr_;
 }
 
 
 int SeisPSMerger::nextStep()
 {
-    const int ret = doNextPos();
-    if ( ret == 0 ) return Executor::Finished;
-    if ( ret == -1 ) return Executor::ErrorOccurred;
+    if ( readers_.isEmpty() )
+	return Executor::ErrorOccurred;
 
-    nrdone_ ++;
-    return Executor::MoreToDo;
-}
-
-
-int SeisPSMerger::doNextPos()
-{
-    if ( !iter_->next(curbid_) )
-	return 0;
-
-    for ( int idx=0; idx<readers_.size(); idx++ )
+    SeisTrcBuf trcbuf( true );
+    while ( true )
     {
-	SeisTrcBuf* trcbuf = new SeisTrcBuf(true);
-	if ( !readers_[idx]->getGather(curbid_, *trcbuf) )
-	{
-	    delete trcbuf;
+	if ( !iter_->next(curbid_) )
+	    return Executor::Finished;
+	if ( sd_ && !sd_->isOK(curbid_) )
 	    continue;
-	}
 
-	for ( int tdx=0; tdx<trcbuf->size(); tdx++ )
+	for ( int idx=0; idx<readers_.size(); idx++ )
 	{
-	    SeisTrc* trc = trcbuf->get( tdx );
-	    if ( !writer_->put(*trc) )
-		return -1;
+	    if ( readers_[idx]->getGather(curbid_,trcbuf) )
+	    {
+		for ( int tdx=0; tdx<trcbuf.size(); tdx++ )
+		{
+		    if ( !writer_->put(*trcbuf.get(tdx)) )
+			return Executor::ErrorOccurred;
+		}
+		nrdone_ ++;
+		return Executor::MoreToDo;
+	    }
 	}
-
-	delete trcbuf;
-	break;
     }
-
-    return 1;
 }
-
