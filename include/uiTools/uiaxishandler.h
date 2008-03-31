@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.6 2008-03-29 11:20:44 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.7 2008-03-31 20:38:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ class ioDrawTool;
 
   The drawAxis will plot the axis. If LineStyle::Type is not LineStyle::None,
   grid lines will be drawn, too. If it *is* None, then still the color and
-  size will be used for drawing the axis (which  is always Solid).
+  size will be used for drawing the axis (the axis' style is always Solid).
 
   Use AxisLayout (linear.h) to find 'nice' ranges, like:
   AxisLayout al( Interval<float>(start,stop) );
@@ -74,7 +74,7 @@ public:
     float		getRelPos(float absval) const;
     int			getPix(float absval) const;
 
-    void		plotAxis() const;
+    void		plotAxis() const; //!< draws gridlines if appropriate
 
     const Setup&	setup() const	{ return setup_; }
     StepInterval<float>	range() const	{ return rg_; }
@@ -85,6 +85,8 @@ public:
     int			pixAfter() const;
 
     void		newDevSize(); //!< Call this when appropriate
+
+    void		drawGridLine(int) const; //!< Already called by plotAxis
 
 protected:
 
@@ -112,7 +114,6 @@ protected:
     int			getRelPosPix(float) const;
     void		drawAxisLine() const;
     void		annotPos(int,const char*) const;
-    void		drawGridLine(int) const;
     void		drawName() const;
 
 };

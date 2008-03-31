@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra / Bert
  Date:          Aug 2007
- RCS:           $Id: uistatsdisplay.h,v 1.2 2008-03-26 16:46:08 cvsbert Exp $
+ RCS:           $Id: uistatsdisplay.h,v 1.3 2008-03-31 20:37:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,8 @@ public:
     uiCanvas*			canvas()	  { return canvas_; }
     uiAxisHandler*		getAxis( bool x ) { return x ? xax_ : yax_; }
 
+    void			setMarkValue(float);
+
 protected:
 
     uiCanvas*			canvas_;
@@ -45,14 +47,16 @@ protected:
     uiGenInput*			avgstdfld_;
     uiGenInput*			medrmsfld_;
 
-    TypeSet<float>		histdata_;
     uiAxisHandler*		xax_;
     uiAxisHandler*		yax_;
+    TypeSet<int>		histdata_;
+
+    int				histmaxidx_;
+    int				histcount_;
+    float			markval_;
 
     void                        reDraw(CallBacker*);
     void			updateHistogram(const Stats::RunCalc<float>&);
-    
-    SamplingData<float>	  	sd_;
 };
 
 
