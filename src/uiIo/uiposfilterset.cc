@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposfilterset.cc,v 1.7 2008-03-12 22:00:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiposfilterset.cc,v 1.8 2008-03-31 16:36:00 cvsjaap Exp $";
 
 #include "uiposfilterset.h"
 #include "posfilterset.h"
@@ -94,7 +94,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 	selfld_->setPrefHeightInChar( ph );
 	attobj = selfld_;
 	for ( int idx=0; idx<nms.size(); idx++ )
-	    selfld_->setItemChecked( idx, false );
+	    selfld_->setItemCheckable( idx, true );
     }
 
     for ( int idx=0; idx<grps_.size(); idx++ )

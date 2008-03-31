@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.87 2008-03-12 21:58:01 cvsnanne Exp $
+ RCS:           $Id: uilistbox.cc,v 1.88 2008-03-31 16:36:00 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ public:
     int			maxSelectable() const;
 
     void		activateClick(int idx,bool leftclick,bool doubleclick);
+    void		activateButton(int idx);
     void		activateSelect(const TypeSet<int>&);
     bool		event(QEvent*);
 
@@ -144,7 +145,8 @@ int uiListBoxBody::maxSelectable() const
 
 
 static const QEvent::Type sQEventActClick  = (QEvent::Type) (QEvent::User+0);
-static const QEvent::Type sQEventActSelect = (QEvent::Type) (QEvent::User+1);
+static const QEvent::Type sQEventActButton = (QEvent::Type) (QEvent::User+1);
+static const QEvent::Type sQEventActSelect = (QEvent::Type) (QEvent::User+2);
 
 
 void uiListBoxBody::activateClick( int idx, bool leftclick, bool doubleclick )
@@ -153,6 +155,14 @@ void uiListBoxBody::activateClick( int idx, bool leftclick, bool doubleclick )
     actleftclick_ = leftclick;
     actdoubleclick_ = doubleclick;
     QEvent* actevent = new QEvent( sQEventActClick );
+    QApplication::postEvent( this, actevent );
+}
+
+
+void uiListBoxBody::activateButton( int idx )
+{
+    actidx_ = idx;
+    QEvent* actevent = new QEvent( sQEventActButton );
     QApplication::postEvent( this, actevent );
 }
 
@@ -181,6 +191,16 @@ bool uiListBoxBody::event( QEvent* ev )
 		handle_.leftButtonClicked.trigger();
 	    else
 		handle_.rightButtonClicked.trigger();
+	}
+    }
+    else if ( ev->type() == sQEventActButton )
+    {
+	if ( handle_.isItemCheckable(actidx_) )
+	{
+	    handle_.setItemChecked( actidx_, !handle_.isItemChecked(actidx_) );
+	    clearSelection();
+	    item( actidx_ )->setSelected( true );
+	    handle_.selectionChanged.trigger();
 	}
     }
     else if ( ev->type() == sQEventActSelect )
@@ -317,6 +337,7 @@ void uiListBox::addItem( const char* text, bool embed )
     QString qs;
     createQString( qs, text, embed );
     body_->addItem( qs );
+    setItemCheckable( size()-1, false );
 }
 
 
@@ -348,7 +369,10 @@ void uiListBox::addItems( const BufferStringSet& strs )
 {
     int curidx = currentItem();
     for ( int idx=0; idx<strs.size(); idx++ )
+    {
 	body_->addItem( QString( strs.get(idx) ) );
+	setItemCheckable( size()-1, false );
+    }
     setCurrentItem( curidx < 0 ? 0 : curidx );
 }
 
@@ -361,6 +385,8 @@ void uiListBox::insertItem( const char* text, int index, bool embed )
 	body_->addItem( qs );
     else
 	body_->insertItem( index, qs );
+
+    setItemCheckable( index<0 ? 0 : index, false );
 }
 
 
@@ -525,16 +551,33 @@ void uiListBox::setCurrentItem( int idx )
 }
 
 
+void uiListBox::setItemCheckable( int idx, bool yn )
+{
+    Qt::ItemFlags flags = body_->item(idx)->flags();
+    if ( bool(flags&Qt::ItemIsUserCheckable) != yn )
+    {
+	body_->item(idx)->setFlags( flags^Qt::ItemIsUserCheckable );
+	setItemChecked( idx, false );
+    }
+}
+
+
+bool uiListBox::isItemCheckable( int idx ) const
+{
+    return validIndex(idx) && body_->item(idx)->flags()&Qt::ItemIsUserCheckable;
+}
+
+
 void uiListBox::setItemChecked( int idx, bool yn )
 {
-    if ( validIndex(idx) )
+    if ( isItemCheckable(idx) )
 	body_->item(idx)->setCheckState( yn ? Qt::Checked : Qt::Unchecked );
 }
 
 
 bool uiListBox::isItemChecked( int idx ) const
 {
-    return validIndex(idx) && body_->item(idx)->checkState() == Qt::Checked;
+    return validIndex(idx) && body_->item(idx)->checkState()==Qt::Checked;
 }
 
 
@@ -583,6 +626,10 @@ int uiListBox::optimumFieldWidth( int minwdth, int maxwdth ) const
 
 void uiListBox::activateClick( int idx, bool leftclick, bool doubleclick )
 { body_->activateClick( idx, leftclick, doubleclick ); }
+
+
+void uiListBox::activateButton( int idx )
+{ body_->activateButton( idx ); }
 
 
 void uiListBox::activateSelect( const TypeSet<int>& selection )
