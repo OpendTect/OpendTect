@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.14 2008-03-18 09:09:47 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.15 2008-03-31 11:03:13 cvsraman Exp $";
 
 #include "uimadbldcmd.h"
 #include "uimsg.h"
@@ -15,7 +15,7 @@ static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.14 2008-03-18 09:09:47 cvsra
 #include "uibutton.h"
 #include "uisplitter.h"
 #include "uiseparator.h"
-#include "uiexecutor.h"
+#include "uitaskrunner.h"
 #include "uitextedit.h"
 #include "maddefs.h"
 #include "executor.h"
@@ -82,8 +82,8 @@ uiMadagascarBldCmd::uiMadagascarBldCmd( uiParent* p )
     if ( allok && !ODMad::PI().scanned() )
     {
 	Executor* ex = ODMad::PI().getScanner();
-	uiExecutor dlg( this, *ex );
-	allok = dlg.go() && ODMad::PI().defs().size() > 0;
+	uiTaskRunner dlg( this );
+	allok = dlg.execute(*ex) && ODMad::PI().defs().size() > 0;
 	delete ex;
     }
 
