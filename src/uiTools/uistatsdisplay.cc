@@ -2,9 +2,9 @@
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        Duntao Wei
- Date:          Mid 2005
- RCS:           $Id: uistatsdisplay.cc,v 1.5 2008-03-31 14:38:13 cvsbert Exp $
+ Author:        Bert
+ Date:          Mar 2008
+ RCS:           $Id: uistatsdisplay.cc,v 1.6 2008-03-31 15:46:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,8 @@ ________________________________________________________________________
 static const int cCanvasHeight = 250;
 static const int cCanvasWidth = 400;
 static const int cBoundarySz = 10;
-static const Color cHistColor( 200, 100, 65 );
+static const Color cHistColor( Color::DgbColor );
+static const Color cMarkColor( 240, 0, 0 );
 
 uiStatsDisplay::uiStatsDisplay( uiParent* p, bool withplot, bool withtext )
     : uiGroup( p, "Statistics display group" )
@@ -38,6 +39,9 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, bool withplot, bool withtext )
     , countfld_(0)
     , xax_(0)
     , yax_(0)
+    , histmaxidx_(0)
+    , histcount_(0)
+    , markval_(mUdf(float))
 {
     if ( withplot )
     {
@@ -64,11 +68,8 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, bool withplot, bool withtext )
     if ( withtext )
     {
 	uiGroup* valgrp = new uiGroup( this, "Values group" );
-	countfld_ = new uiGenInput( valgrp, "Number of values" );
-	countfld_->setReadOnly();
 	minmaxfld_ = new uiGenInput( valgrp, "Value range",
 				     FloatInpSpec(), FloatInpSpec() );
-	minmaxfld_->attach( alignedBelow, countfld_ );
 	minmaxfld_->setReadOnly();
 	avgstdfld_ = new uiGenInput( valgrp, "Mean/Std Deviation",
 				     DoubleInpSpec(), DoubleInpSpec() );
@@ -78,6 +79,12 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, bool withplot, bool withtext )
 				     FloatInpSpec(), DoubleInpSpec() );
 	medrmsfld_->attach( alignedBelow, avgstdfld_ );	
 	medrmsfld_->setReadOnly();
+	if ( !canvas_ )
+	{
+	    countfld_ = new uiGenInput( valgrp, "Number of values" );
+	    countfld_->setReadOnly();
+	    countfld_->attach( alignedBelow, medrmsfld_ );	
+	}
 
 	if ( sep )
 	{
@@ -183,8 +190,9 @@ void uiStatsDisplay::setData( const Stats::RunCalc<float>& rc )
 {
     updateHistogram( rc );
 
-    if ( !countfld_ ) return;
-    countfld_->setValue( rc.count() );
+    if ( !minmaxfld_ ) return;
+    if ( countfld_ )
+	countfld_->setValue( rc.count() );
     minmaxfld_->setValue( rc.min(), 0 );
     minmaxfld_->setValue( rc.max(), 1 );
     avgstdfld_->setValue( rc.average(), 0 );
@@ -201,6 +209,8 @@ void uiStatsDisplay::updateHistogram( const Stats::RunCalc<float>& rc )
     histdata_.setSize( nrintv );
     const float min = rc.min(); const float max = rc.max();
     const float step = (max - min) / nrintv;
+    histmaxidx_ = histcount_ = 0;
+    int histmax = 0;
     for ( int idx=0; idx<nrpts; idx++ )
     {
 	int seg = (int)((rc.vals_[idx] - min) / step);
@@ -208,7 +218,9 @@ void uiStatsDisplay::updateHistogram( const Stats::RunCalc<float>& rc )
 	    { pErrMsg("Huh"); continue; }
 	if ( seg < 0 )		seg = 0;
 	if ( seg == nrintv )	seg = nrintv - 1;
-	histdata_[seg]++;
+	histdata_[seg]++; histcount_++;
+	if ( histdata_[seg] > histmax )
+	    { histmax = histdata_[seg]; histmaxidx_ = seg; }
     }
 
     if ( canvas_ )
@@ -220,15 +232,19 @@ void uiStatsDisplay::updateHistogram( const Stats::RunCalc<float>& rc )
 	    axlyo.sd.start += axlyo.sd.step;
 	xax_->setRange( xrg, &axlyo.sd.start );
 
-	Stats::RunCalcSetup rcsu; rcsu.require( Stats::Max );
-	Stats::RunCalc<float> yrc( rcsu );
-	yrc.addValues( histdata_.size(), histdata_.arr() );
-	StepInterval<float> yrg( 0, yrc.max(), 1 );
+	StepInterval<float> yrg( 0, histmax, 1 );
 	axlyo.setDataRange( yrg ); yrg.step = axlyo.sd.step;
 	yax_->setRange( yrg );
 
 	canvas_->update();
     }
+}
+
+
+void uiStatsDisplay::setMarkValue( float val )
+{
+    markval_ = val;
+    if ( canvas_ ) canvas_->update();
 }
 
 
@@ -260,6 +276,18 @@ void uiStatsDisplay::reDraw( CallBacker* cb )
     dt.setPenColor( cHistColor );
     dt.setFillColor( cHistColor );
     dt.drawPolygon( ptlist );
+
+    if ( !mIsUdf(markval_) )
+    {
+	dt.setPenColor( cMarkColor );
+	xax_->drawGridLine( xax_->getPix(markval_) );
+    }
+
+    dt.setPenColor( Color::Black );
+    BufferString str( "Max=" ); str += histdata_[histmaxidx_];
+    dt.drawText( 0, 0, str, mAlign(Start,Start) );
+    str = "N="; str += histcount_;
+    dt.drawText( dt.getDevWidth()-1, 0, str, mAlign(Stop,Start) );
 }
 
 
