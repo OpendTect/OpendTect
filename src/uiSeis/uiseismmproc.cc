@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.111 2008-03-17 05:49:47 cvsnageswara Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.112 2008-03-31 10:42:02 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -750,12 +750,13 @@ bool uiSeisMMProc::wrapUp( bool force )
 	return false;
 
     Executor* exec = jobprov ? jobprov->getPostProcessor() : 0;
-    if (exec)
+    if ( exec )
     {
-	uiTaskRunner uiex (this);
-	if (!uiex.execute (*exec) )
-	  { delete exec; return false; }
-	delete exec;	
+	uiTaskRunner uitr( this );
+	const bool res = uitr.execute( *exec );
+	delete exec;
+	if ( !res )
+	    return false;
     }   
 
     progrfld->append( "Processing completed" );

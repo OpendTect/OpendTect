@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.26 2008-03-26 10:39:39 cvsnageswara Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.27 2008-03-31 10:45:32 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,7 @@ bool GapDeconACorrView::computeAutocorr( bool isqc )
 
     proc->setName( "Compute autocorrelation values" );
     uiTaskRunner dlg( parent_ );
-    if ( !dlg.execute(*proc ) )
+    if ( !dlg.execute(*proc) )
 	return false;
 
     dset_->is2D() ? createFD2DDataPack( isqc, *d2dh )

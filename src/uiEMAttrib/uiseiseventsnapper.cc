@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiseiseventsnapper.cc,v 1.11 2008-03-18 06:33:46 cvsnageswara Exp $
+ RCS:           $Id: uiseiseventsnapper.cc,v 1.12 2008-03-31 10:42:02 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,7 +96,7 @@ bool uiSeisEventSnapper::readHorizon()
 	if ( !reader ) return false;
 
 	uiTaskRunner dlg( this );
-	if ( !dlg.execute( *reader ) )
+	if ( !dlg.execute(*reader) )
 	{
 	    delete reader;
 	    return false;
@@ -134,9 +134,7 @@ bool uiSeisEventSnapper::saveHorizon()
     if ( !exec ) return false;
 
     uiTaskRunner dlg( this );
-//    const bool res = dlg.execuye( *exec );
-    const bool res = dlg.execute( *exec );
-    return res;
+    return dlg.execute( *exec );
 }
 
 
@@ -159,7 +157,7 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* )
     snapper.setSearchGate( rg );
    
     uiTaskRunner dlg( this );
-    if ( !dlg.execute( snapper ) )
+    if ( !dlg.execute(snapper) )
 	return false;
 
     BinIDValueSet::Pos pos;

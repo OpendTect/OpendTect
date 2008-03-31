@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.84 2008-03-26 10:39:39 cvsnageswara Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.85 2008-03-31 10:42:02 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -213,12 +213,12 @@ bool uiSeisPartServer::create2DOutput( const MultiID& mid, const char* linekey,
 {
     mGet2DLineSet(false)
 
-    int lidx = lineset.indexOf( linekey );
+    const int lidx = lineset.indexOf( linekey );
     if ( lidx < 0 ) return false;
 
     lineset.getCubeSampling( cs, lidx );
     PtrMan<Executor> exec = lineset.lineFetcher( lidx, buf );
-    uiTaskRunner dlg ( appserv().parent() );
+    uiTaskRunner dlg( appserv().parent() );
     return dlg.execute( *exec );
 }
 

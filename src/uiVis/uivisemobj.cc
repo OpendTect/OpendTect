@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.66 2008-03-18 06:33:46 cvsnageswara Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.67 2008-03-31 10:42:02 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,7 +108,7 @@ uiVisEMObject::uiVisEMObject( uiParent* uip, int newid, uiVisPartServer* vps )
 	    EM::EMObject* emobject = EM::EMM().getObject( emid );
 	    emobject->ref();
 	    uiTaskRunner dlg( uiparent_ );
-	    if ( !dlg.execute( *exec ) )
+	    if ( !dlg.execute(*exec) )
 	    {
 		emid = -1;
 		emobject->unRef();

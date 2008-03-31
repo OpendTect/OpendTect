@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.67 2008-03-18 06:33:46 cvsnageswara Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.68 2008-03-31 10:42:02 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -463,7 +463,7 @@ void uiMPEPartServer::loadEMObjectCB(CallBacker*)
 
     emobj->ref();
     uiTaskRunner uiexec( appserv().parent() );
-     const bool keepobj = uiexec.execute(*exec);	
+    const bool keepobj = uiexec.execute( *exec );	
     exec.erase();
     if ( keepobj )
 	emobj->unRefNoDelete();

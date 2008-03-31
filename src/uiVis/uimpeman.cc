@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.126 2008-03-18 06:33:46 cvsnageswara Exp $
+ RCS:           $Id: uimpeman.cc,v 1.127 2008-03-31 10:42:02 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -1033,8 +1033,8 @@ void uiMPEMan::trackInVolume( CallBacker* )
     if ( exec )
     {
 	const int currentevent = EM::EMM().undo().currentEventID();
-	uiTaskRunner uiexec( toolbar );
-	if ( !uiexec.execute( *exec ) )
+	uiTaskRunner uitr( toolbar );
+	if ( !uitr.execute(*exec) )
 	{
 	    if ( engine().errMsg() )
 		uiMSG().error( engine().errMsg() );

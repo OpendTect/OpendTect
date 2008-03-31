@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.44 2008-03-17 05:49:47 cvsnageswara Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.45 2008-03-31 10:42:02 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -252,7 +252,7 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
 	{ rmTmpIOObj(); return false; }
 
     const char* titl = oinpfld ? "Copying seismic data"
-				: "Importing CBVS seismic cube";
+			       : "Importing CBVS seismic cube";
     const char* attrnm = oinpfld ? oinpfld->attrNm() : "";
     PtrMan<Executor> stp = transffld->getTrcProc( *inctio_.ioobj,
 	    			*outctio_.ioobj, titl, "Loading data",
@@ -260,8 +260,9 @@ bool uiSeisImpCBVS::acceptOK( CallBacker* )
     if ( !stp )
 	{ rmTmpIOObj(); return false; }
 
-    uiTaskRunner dlg(this);
-    bool rv = dlg.execute(*stp) == 1 && !ioobjinfo.is2D() && ioobjinfo.provideUserInfo();
+    uiTaskRunner dlg( this );
+    const bool rv = dlg.execute(*stp) && !ioobjinfo.is2D() &&
+		    ioobjinfo.provideUserInfo();
 
     rmTmpIOObj();
     return rv;
