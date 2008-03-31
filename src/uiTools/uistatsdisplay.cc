@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Duntao Wei
  Date:          Mid 2005
- RCS:           $Id: uistatsdisplay.cc,v 1.4 2008-03-29 11:20:44 cvsbert Exp $
+ RCS:           $Id: uistatsdisplay.cc,v 1.5 2008-03-31 14:38:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,9 +203,11 @@ void uiStatsDisplay::updateHistogram( const Stats::RunCalc<float>& rc )
     const float step = (max - min) / nrintv;
     for ( int idx=0; idx<nrpts; idx++ )
     {
-	const int seg = (int)((rc.vals_[idx] - min) / step);
-	if ( seg < 0 || seg > nrintv )
+	int seg = (int)((rc.vals_[idx] - min) / step);
+	if ( seg < -1 || seg > nrintv )
 	    { pErrMsg("Huh"); continue; }
+	if ( seg < 0 )		seg = 0;
+	if ( seg == nrintv )	seg = nrintv - 1;
 	histdata_[seg]++;
     }
 
