@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2006
- RCS:           $Id: SoSplitTexture2.cc,v 1.11 2008-03-14 14:03:03 cvskris Exp $
+ RCS:           $Id: SoSplitTexture2.cc,v 1.12 2008-04-01 12:33:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -263,7 +263,7 @@ void SoSplitTexture2Part::GLRenderUnit( int unit, SoState* state )
 	}
 
 	imagedata->glimage_->setData( imagedata->imagedata_, sz, numcomponents,
-	    SoGLImage::CLAMP, SoGLImage::CLAMP, quality, false, state );
+	    SoGLImage::CLAMP, SoGLImage::CLAMP, quality, false, 0 );
     }
 
     const SoTextureImageElement::Model glmodel =
