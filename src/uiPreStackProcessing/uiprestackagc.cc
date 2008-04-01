@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackagc.cc,v 1.3 2008-03-19 17:48:11 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackagc.cc,v 1.4 2008-04-01 18:20:36 cvskris Exp $";
 
 #include "uiprestackagc.h"
 
@@ -31,11 +31,15 @@ uiDialog* uiAGC::create( uiParent* p, Processor* sgp )
 }
 
 
-uiAGC::uiAGC( uiParent* p,AGC* sgagc )
+uiAGC::uiAGC( uiParent* p, AGC* sgagc )
     : uiDialog( p, uiDialog::Setup("AGC setup",0,"dgb:104.2.0") )
     , processor_( sgagc )
 {
-    windowfld_ = new uiGenInput( this, "Window width",
+    BufferString label = "Window width ";
+    BufferString unit;
+    processor_->getWindowUnit( unit, true );
+    label += unit;
+    windowfld_ = new uiGenInput( this, label.buf(),
 			     FloatInpSpec(processor_->getWindow().width() ));
     lowenergymute_ = new uiGenInput( this, "Low energy mute (%)",
 	    			     FloatInpSpec() );
