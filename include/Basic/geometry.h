@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.31 2007-10-22 11:56:47 cvsnanne Exp $
+ RCS:           $Id: geometry.h,v 1.32 2008-04-01 22:03:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -507,10 +507,11 @@ template <class T> inline
 Point2D<T> Rectangle<T>::moveInside( const Point2D<T>& pt ) const
 {
     Point2D<T> res = pt;
-    res.x = mMAX( res.x, left() );
-    res.x = mMIN( res.x, right() );
-    res.y = mMAX( res.y, top() );
-    res.y = mMIN( res.y, bottom() );
+
+    res.x = mMAX( res.x, mMIN( left(), right() ) );
+    res.x = mMIN( res.x, mMAX( left(), right() ) );
+    res.y = mMAX( res.y, mMIN( bottom(), top() ) );
+    res.y = mMIN( res.y, mMAX( bottom(), top() ) );
 
     return res;
 }
