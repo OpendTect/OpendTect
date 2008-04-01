@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uistatsdisplay.cc,v 1.9 2008-04-01 14:11:47 cvsbert Exp $
+ RCS:           $Id: uistatsdisplay.cc,v 1.10 2008-04-01 15:42:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -200,9 +200,17 @@ void uiStatsDisplay::updateHistogram( const Stats::RunCalc<float>& rc )
 	histdata[seg] += 1; histcount_++;
     }
 
+    setHistogram( histdata, Interval<float>(min + 0.5*step, max - 0.5*step),
+	    	  histcount_ );
+}
+
+
+void uiStatsDisplay::setHistogram( const TypeSet<float>& histdata,
+				   Interval<float> xrg, int nrvals )
+{
+    histcount_ = nrvals;
     if ( funcdisp_ )
-	funcdisp_->setVals( Interval<float>(min + 0.5*step, max - 0.5*step),
-	       		    histdata.arr(), nrintv );
+	funcdisp_->setVals( xrg, histdata.arr(), histdata.size() );
 }
 
 
@@ -218,7 +226,7 @@ void uiStatsDisplay::setMarkValue( float val )
 
 void uiStatsDisplay::putN( CallBacker* cb )
 {
-    if ( !setup_.countinplot_ || !funcdisp_ ) return;
+    if ( !setup_.countinplot_ || !funcdisp_ || histcount_ < 1 ) return;
 
     ioDrawTool& dt = funcdisp_->drawTool();
     dt.setPenColor( Color::Black );

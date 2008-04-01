@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra / Bert
  Date:          Aug 2007
- RCS:           $Id: uistatsdisplay.h,v 1.5 2008-04-01 13:22:53 cvsbert Exp $
+ RCS:           $Id: uistatsdisplay.h,v 1.6 2008-04-01 15:42:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,11 @@ public:
 
     uiFunctionDisplay*		funcDisp()	  { return funcdisp_; }
     void			setMarkValue(float);
+
+    void			setHistogram(const TypeSet<float>&,
+	    				     Interval<float>,int N=-1);
+    				//!< Cannot update the text part if you have it
+    				//!< N is the total count of the input data
 
 protected:
 
