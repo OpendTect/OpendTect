@@ -4,27 +4,23 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uistatsdisplay.cc,v 1.7 2008-04-01 09:27:04 cvsbert Exp $
+ RCS:           $Id: uistatsdisplay.cc,v 1.8 2008-04-01 13:22:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
+#include "uifunctiondisplay.h"
 
-#include "uicanvas.h"
-#include "uilabel.h"
 #include "uigeninput.h"
 #include "uiseparator.h"
 #include "uistatusbar.h"
-#include "uiaxishandler.h"
 
 #include "arraynd.h"
 #include "bufstring.h"
 #include "datapackbase.h"
-#include "samplingdata.h"
 #include "statruncalc.h"
-#include "linear.h"
 #include "errh.h"
 
 static const int cCanvasHeight = 250;
@@ -36,34 +32,22 @@ static const Color cMarkColor( 230, 0, 0 );
 uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
     : uiGroup( p, "Statistics display group" )
     , setup_(su)
-    , canvas_(0)
+    , funcdisp_(0)
     , countfld_(0)
-    , xax_(0)
-    , yax_(0)
-    , histmaxidx_(0)
     , histcount_(0)
-    , markval_(mUdf(float))
 {
     if ( setup_.withplot_ )
     {
-	canvas_ = new uiCanvas( this );
-	canvas_->setPrefHeight( cCanvasHeight );
-	canvas_->setPrefWidth( cCanvasWidth );
-	canvas_->setStretch( 2, 2 );
-	canvas_->postDraw.notify( mCB(this,uiStatsDisplay,reDraw) );
-	uiAxisHandler::Setup asu( uiRect::Bottom );
-	asu.border_ = uiBorder( 10 );
-	xax_ = new uiAxisHandler( canvas_->drawTool(), asu );
-	asu.side( uiRect::Left ).noannot( true );
-	yax_ = new uiAxisHandler( canvas_->drawTool(), asu );
-	xax_->setBegin( yax_ ); yax_->setBegin( xax_ );
+	uiFunctionDisplay::Setup fsu;
+	fsu.yrg_.start = 0; fsu.fillbelow( true );
+	funcdisp_ = new uiFunctionDisplay( this, fsu );
     }
 
     uiSeparator* sep = 0;
     if ( setup_.withplot_ && setup_.withtext_ )
     {
 	sep = new uiSeparator( this, "Hor sep" );
-	sep->attach( stretchedBelow, canvas_ );
+	sep->attach( stretchedBelow, funcdisp_ );
     }
 
     if ( setup_.withtext_ )
@@ -80,7 +64,9 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
 				     FloatInpSpec(), DoubleInpSpec() );
 	medrmsfld_->attach( alignedBelow, avgstdfld_ );	
 	medrmsfld_->setReadOnly();
-	if ( !canvas_ || !setup_.countinplot_ )
+	if ( funcdisp_ && setup_.countinplot_ )
+	    funcdisp_->postDraw.notify( mCB(this,uiStatsDisplay,putN) );
+	else
 	{
 	    countfld_ = new uiGenInput( valgrp, "Number of values" );
 	    countfld_->setReadOnly();
@@ -89,17 +75,10 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
 
 	if ( sep )
 	{
-	    valgrp->attach( centeredBelow, canvas_ );
+	    valgrp->attach( centeredBelow, funcdisp_ );
 	    valgrp->attach( ensureBelow, sep );
 	}
     }
-}
-
-
-uiStatsDisplay::~uiStatsDisplay()
-{
-    delete xax_;
-    delete yax_;
 }
 
 
@@ -207,11 +186,10 @@ void uiStatsDisplay::updateHistogram( const Stats::RunCalc<float>& rc )
 {
     const int nrpts = rc.count();
     const int nrintv = getNrIntervals( nrpts );
-    histdata_.erase(); histdata_.setSize( nrintv, 0 );
+    TypeSet<float> histdata( nrintv, 0 );
     const float min = rc.min(); const float max = rc.max();
     const float step = (max - min) / nrintv;
-    histmaxidx_ = histcount_ = 0;
-    int histmax = 0;
+    histcount_ = 0;
     for ( int idx=0; idx<nrpts; idx++ )
     {
 	int seg = (int)((rc.vals_[idx] - min) / step);
@@ -219,74 +197,27 @@ void uiStatsDisplay::updateHistogram( const Stats::RunCalc<float>& rc )
 	    { pErrMsg("Huh"); continue; }
 	if ( seg < 0 )		seg = 0;
 	if ( seg == nrintv )	seg = nrintv - 1;
-	histdata_[seg]++; histcount_++;
-	if ( histdata_[seg] > histmax )
-	    { histmax = histdata_[seg]; histmaxidx_ = seg; }
+	histdata[seg] += 1; histcount_++;
     }
 
-    if ( canvas_ )
-    {
-	StepInterval<float> xrg( min + 0.5*step, max - 0.5*step, step );
-	AxisLayout axlyo; axlyo.setDataRange( xrg );
-	xrg.step = axlyo.sd.step;
-	if ( !mIsEqual(xrg.start,axlyo.sd.start,axlyo.sd.step*1e-6) )
-	    axlyo.sd.start += axlyo.sd.step;
-	xax_->setRange( xrg, &axlyo.sd.start );
-
-	StepInterval<float> yrg( 0, histmax, 1 );
-	axlyo.setDataRange( yrg ); yrg.step = axlyo.sd.step;
-	yax_->setRange( yrg );
-
-	canvas_->update();
-    }
+    if ( funcdisp_ )
+	funcdisp_->setVals( Interval<float>(min + 0.5*step, max - 0.5*step),
+	       		    histdata.arr(), nrintv );
 }
 
 
 void uiStatsDisplay::setMarkValue( float val )
 {
-    markval_ = val;
-    if ( canvas_ ) canvas_->update();
+    if ( funcdisp_ ) funcdisp_->setMarkValue( val, true );
 }
 
 
-void uiStatsDisplay::reDraw( CallBacker* cb )
+void uiStatsDisplay::putN( CallBacker* cb )
 {
-    xax_->newDevSize();
-    yax_->newDevSize();
+    if ( !setup_.countinplot_ || !funcdisp_ ) return;
 
-    xax_->plotAxis();
-
-    TypeSet<uiPoint> ptlist;
-    const int nrhistpts = histdata_.size();
-    float dx = (xax_->range().stop-xax_->range().start) / (nrhistpts-1);
-    ptlist += uiPoint( xax_->getPix(xax_->range().start), yax_->getPix(0) );
-    const uiPoint firstpt( xax_->getPix(xax_->range().start), yax_->getPix(0) );
-    for ( int idx=0; idx<nrhistpts; idx++ )
-    {
-	const float xval = xax_->range().start + dx * idx;
-	const uiPoint pt( xax_->getPix(xval), yax_->getPix(histdata_[idx]) );
-	ptlist += pt;
-	if ( idx == nrhistpts-1 )
-	{
-	    ptlist += uiPoint( pt.x, yax_->getPix(0) );
-	    ptlist += firstpt;
-	}
-    }
-
-    ioDrawTool& dt = canvas_->drawTool();
-    dt.setPenColor( cHistColor );
-    dt.setFillColor( cHistColor );
-    dt.drawPolygon( ptlist );
-
-    if ( !mIsUdf(markval_) )
-    {
-	dt.setPenColor( cMarkColor );
-	xax_->drawGridLine( xax_->getPix(markval_) );
-    }
-
+    ioDrawTool& dt = funcdisp_->drawTool();
     dt.setPenColor( Color::Black );
-    if ( !setup_.countinplot_ ) return;
-
     BufferString str = "N="; str += histcount_;
     dt.drawText( dt.getDevWidth()/2, 0, str, mAlign(Middle,Start) );
 }
