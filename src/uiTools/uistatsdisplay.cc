@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uistatsdisplay.cc,v 1.8 2008-04-01 13:22:53 cvsbert Exp $
+ RCS:           $Id: uistatsdisplay.cc,v 1.9 2008-04-01 14:11:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
     if ( setup_.withplot_ )
     {
 	uiFunctionDisplay::Setup fsu;
-	fsu.yrg_.start = 0; fsu.fillbelow( true );
+	fsu.yrg_.start = 0; fsu.annoty( false ).fillbelow( true );
 	funcdisp_ = new uiFunctionDisplay( this, fsu );
     }
 
@@ -208,7 +208,11 @@ void uiStatsDisplay::updateHistogram( const Stats::RunCalc<float>& rc )
 
 void uiStatsDisplay::setMarkValue( float val )
 {
-    if ( funcdisp_ ) funcdisp_->setMarkValue( val, true );
+    if ( funcdisp_ )
+    {
+	funcdisp_->setMarkValue( val, true );
+	funcdisp_->update();
+    }
 }
 
 

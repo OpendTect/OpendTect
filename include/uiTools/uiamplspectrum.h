@@ -7,7 +7,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        Satyaki Maitra
 Date:          September 2007
-RCS:           $Id: uiamplspectrum.h,v 1.2 2008-01-03 12:17:24 cvsnanne Exp $
+RCS:           $Id: uiamplspectrum.h,v 1.3 2008-04-01 14:11:46 cvsbert Exp $
 ______________________________________________________________________
                        
 */   
@@ -18,18 +18,17 @@ ______________________________________________________________________
 #include <complex>
 typedef std::complex<float> float_complex;
 
-class uiCanvas;
-class uiHistogramDisplay;
+class uiFunctionDisplay;
 class FFT;
-
 template <class T> class Array2D;
 template <class T> class Array3D;
 template <class T> class Array1DImpl;
 
-class uiAmplSpectrum : public uiDialog
+
+class uiAmplSpectrum : public uiMainWin
 {
 public:
-    				uiAmplSpectrum( uiParent* p );
+    				uiAmplSpectrum(uiParent*);
 				~uiAmplSpectrum();
 
     void			setDataPackID(DataPack::ID,DataPackMgr::ID);
@@ -37,23 +36,19 @@ public:
     void			setData(const Array3D<float>&);
 
 protected:
-    uiCanvas*                   canvas_;
-    uiHistogramDisplay*         histogramdisplay_;
 
-    void                        reDraw(CallBacker*);
+    uiFunctionDisplay*		disp_;
 
     void			initFFT(int nrsamples);
     bool			compute(const Array3D<float>&);
-    void			draw();
+    void			putDispData();
     
     Array1DImpl<float_complex>* timedomain_;
     Array1DImpl<float_complex>* freqdomain_;
     Array1DImpl<float_complex>* freqdomainsum_;
 
     FFT*			fft_;
-    uiRect			bdrect_;
     int				nrtrcs_;
-    StepInterval<float>         xrg_;
 };
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.1 2008-04-01 13:22:53 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.2 2008-04-01 14:11:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,9 @@ public:
 				    : xrg_(mUdf(float),mUdf(float))
 				    , yrg_(mUdf(float),mUdf(float))
 				    , y2rg_(mUdf(float),mUdf(float))
-				    , ycol_(0,100,0)
-				    , y2col_(0,0,150)
+				    , bgcol_(Color::White)
+				    , ycol_(0,0,150)
+				    , y2col_(0,200,0)
 				    , xmarkcol_(150,0,0)
 				    , ymarkcol_(150,0,0)
 				    , canvaswidth_(400)
@@ -40,6 +41,7 @@ public:
 	mDefSetupMemb(Interval<float>,xrg)	//!< if fixed start or end
 	mDefSetupMemb(Interval<float>,yrg)	//!< if fixed start or end
 	mDefSetupMemb(Interval<float>,y2rg)	//!< if fixed start or end
+	mDefSetupMemb(Color,bgcol)
 	mDefSetupMemb(Color,ycol)
 	mDefSetupMemb(Color,y2col)
 	mDefSetupMemb(Color,xmarkcol)

@@ -4,48 +4,33 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:          September 2007
- RCS:           $Id: uiamplspectrum.cc,v 1.2 2008-01-03 12:17:24 cvsnanne Exp $
+ RCS:           $Id: uiamplspectrum.cc,v 1.3 2008-04-01 14:11:47 cvsbert Exp $
 _______________________________________________________________________
                    
 -*/   
 
 #include "uiamplspectrum.h"
-
-#include "uicanvas.h"
-#include "uihistogramdisplay.h"
-#include "uigeom.h"
+#include "uifunctiondisplay.h"
 
 #include "arrayndimpl.h"
 #include "arrayndutils.h"
 #include "arrayndwrapper.h"
 #include "bufstring.h"
 #include "datapackbase.h"
-#include "drawaxis2d.h"
 #include "fft.h"
-#include "sets.h"
 #include "survinfo.h"
-
-#define mTransHeight    250
-#define mTransWidth     500
 
 
 uiAmplSpectrum::uiAmplSpectrum( uiParent* p )
-    : uiDialog( p, uiDialog::Setup("Amplitude Spectrum",0,0) )
+    : uiMainWin( p,"Amplitude Spectrum", 0, false, true )
     , timedomain_(0)
     , freqdomain_(0)
     , freqdomainsum_(0)
     , fft_(0)
 {
-    setCtrlStyle( LeaveOnly );
-    canvas_ = new uiCanvas( this );
-    canvas_->setPrefHeight( mTransHeight );
-    canvas_->setPrefWidth( mTransWidth );
-    canvas_->setStretch(0,0);
-    histogramdisplay_ = new uiHistogramDisplay( canvas_ );
-    histogramdisplay_->setColor( Color(200,100,65,5) );
-    canvas_->postDraw.notify( mCB(this,uiAmplSpectrum,reDraw) );
-
-    bdrect_ = uiRect( 20, 5, 20, 20 );
+    uiFunctionDisplay::Setup su;
+    su.annoty(false).fillbelow(true).canvaswidth(600).canvasheight(400);
+    disp_ = new uiFunctionDisplay( this, su );
 }
 
 
@@ -99,7 +84,7 @@ void uiAmplSpectrum::setData( const Array3D<float>& array )
     nrtrcs_ = sz0 * sz1;
     initFFT( sz2 );
     compute( array );
-    draw();
+    putDispData();
 }
 
 
@@ -154,33 +139,13 @@ bool uiAmplSpectrum::compute( const Array3D<float>& array )
 }
 
 
-void uiAmplSpectrum::draw() 
+void uiAmplSpectrum::putDispData() 
 {
     const int fftsz = freqdomainsum_->info().getSize(0) / 2;
-    TypeSet<float> histogram( fftsz, 0 );
-
+    TypeSet<float> vals( fftsz, 0 );
     for ( int idx=0; idx<fftsz; idx++ )
-    {
-	const float val = abs(freqdomainsum_->get(idx)) / nrtrcs_;
-	histogram[idx] = val;
-    }
-
-    const float df = FFT::getDf( SI().zStep(), fftsz );
-    SamplingData<float> sd( 0, df );
-    histogramdisplay_->setHistogram( histogram, sd );
-    histogramdisplay_->setBoundaryRect( bdrect_ );
+	vals[idx] = abs(freqdomainsum_->get(idx)) / nrtrcs_;
 
     const float maxfreq = mNINT( fft_->getNyqvist( SI().zStep() ) );
-    const float step = maxfreq/5;
-    StepInterval<float> xrg( 0, maxfreq, step );
-    histogramdisplay_->setXAxis( xrg ); 
-}
-
-
-void uiAmplSpectrum::reDraw( CallBacker* cb )
-{
-    ioDrawTool& drawtool = canvas_->drawTool();
-    drawtool.setBackgroundColor( Color::White );
-    drawtool.clear();
-    histogramdisplay_->reDraw( cb );
+    disp_->setVals( Interval<float>(0,maxfreq), vals.arr(), fftsz );
 }

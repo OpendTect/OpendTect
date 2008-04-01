@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.20 2008-04-01 09:27:33 cvsbert Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.21 2008-04-01 14:11:47 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -328,9 +328,8 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	const DataPack::ID dpid = visserv->getDataPackID( displayID(),
 							  attribNr() );
 	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
-	uiAmplSpectrum dlg( applMgr()->applService().parent() );
-	dlg.setDataPackID( dpid, dmid );
-	dlg.go();
+	uiAmplSpectrum asd( applMgr()->applService().parent() );
+	asd.setDataPackID( dpid, dmid ); asd.show();
 	menu->setIsHandled( true );
     }
     else if ( mnuid==view2dwvaitem_.id || mnuid==view2dvditem_.id )
