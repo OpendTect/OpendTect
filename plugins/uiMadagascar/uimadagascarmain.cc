@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.16 2008-03-18 09:09:47 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.17 2008-04-01 07:20:49 cvsraman Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -278,6 +278,11 @@ bool uiMadagascarMain::acceptOK( CallBacker* )
     ODMad::ProcFlow pf; getFlow( pf );
     IOPar iop;
     pf.fillPar( iop );
+#ifdef HAVE_OUTPUT_OPTIONS
     uiBatchLaunch dlg( this, iop, 0, "odmadexec", false );
     return dlg.go();
+#else
+    pErrMsg( "Not impl." );
+    return true;
+#endif
 }
