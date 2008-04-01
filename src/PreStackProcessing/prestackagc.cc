@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackagc.cc,v 1.10 2008-03-19 13:31:22 cvskris Exp $";
+static const char* rcsID = "$Id: prestackagc.cc,v 1.11 2008-04-01 18:20:14 cvskris Exp $";
 
 #include "prestackagc.h"
 
@@ -14,7 +14,7 @@ static const char* rcsID = "$Id: prestackagc.cc,v 1.10 2008-03-19 13:31:22 cvskr
 #include "iopar.h"
 #include "prestackgather.h"
 #include "varlenarray.h"
-
+#include "survinfo.h"
 
 
 void PreStack::AGC::initClass()
@@ -60,6 +60,12 @@ void PreStack::AGC::setWindow( const Interval<float>& iv )
 
 const Interval<float>& PreStack::AGC::getWindow() const
 { return window_; }
+
+
+void PreStack::AGC::getWindowUnit( BufferString& buf, bool parens ) const
+{
+    buf = SI().getZUnit( parens );
+}
 
 
 void PreStack::AGC::setLowEnergyMute( float iv )

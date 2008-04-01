@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackagc.h,v 1.3 2007-11-14 17:54:32 cvskris Exp $
+ RCS:		$Id: prestackagc.h,v 1.4 2008-04-01 18:20:14 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -31,6 +31,8 @@ public:
 
     void			setWindow(const Interval<float>&);
     const Interval<float>&	getWindow() const;
+    void			getWindowUnit(BufferString&,
+	    				      bool withparens) const;
 
     void			setLowEnergyMute(float fraction);
     float			getLowEnergyMute() const;
