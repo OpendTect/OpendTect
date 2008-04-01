@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2008
- RCS:		$Id: agc.h,v 1.3 2008-03-19 17:43:02 cvskris Exp $
+ RCS:		$Id: agc.h,v 1.4 2008-04-01 18:19:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -188,7 +188,7 @@ bool AGC<T>::doWork( int start, int stop, int threadidx )
 	if ( nrenergies ) energysum /= nrenergies;
 
 	float outputval = 0;
-	if ( energysum>=energymute_ )
+	if ( energysum>=energymute_ && energysum>0 )
 	{
 	    const T inpval = input_->value(idx);
 	    outputval = mIsUdf( inpval ) ? inpval : inpval/sqrt( energysum );
