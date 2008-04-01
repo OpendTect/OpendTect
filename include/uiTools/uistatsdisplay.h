@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra / Bert
  Date:          Aug 2007
- RCS:           $Id: uistatsdisplay.h,v 1.3 2008-03-31 20:37:15 cvsbert Exp $
+ RCS:           $Id: uistatsdisplay.h,v 1.4 2008-04-01 09:27:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,8 +25,19 @@ namespace Stats { template <class T> class RunCalc; }
 class uiStatsDisplay : public uiGroup
 {
 public:
-				uiStatsDisplay(uiParent*,bool withplot=true,
-						bool withtext=true);
+
+    struct Setup
+    {
+				Setup()
+				    : withplot_(true)
+				    , withtext_(true)
+				    , countinplot_(true)	{}
+
+	mDefSetupMemb(bool,withplot)
+	mDefSetupMemb(bool,withtext)
+	mDefSetupMemb(bool,countinplot)
+    };
+				uiStatsDisplay(uiParent*,const Setup&);
 				~uiStatsDisplay();
 
     bool                        setDataPackID(DataPack::ID,DataPackMgr::ID);
@@ -51,6 +62,7 @@ protected:
     uiAxisHandler*		yax_;
     TypeSet<int>		histdata_;
 
+    const Setup			setup_;
     int				histmaxidx_;
     int				histcount_;
     float			markval_;

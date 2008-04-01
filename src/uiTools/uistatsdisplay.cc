@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uistatsdisplay.cc,v 1.6 2008-03-31 15:46:47 cvsbert Exp $
+ RCS:           $Id: uistatsdisplay.cc,v 1.7 2008-04-01 09:27:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,11 +30,12 @@ ________________________________________________________________________
 static const int cCanvasHeight = 250;
 static const int cCanvasWidth = 400;
 static const int cBoundarySz = 10;
-static const Color cHistColor( Color::DgbColor );
-static const Color cMarkColor( 240, 0, 0 );
+static const Color cHistColor( 0, 200, 0 );
+static const Color cMarkColor( 230, 0, 0 );
 
-uiStatsDisplay::uiStatsDisplay( uiParent* p, bool withplot, bool withtext )
+uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
     : uiGroup( p, "Statistics display group" )
+    , setup_(su)
     , canvas_(0)
     , countfld_(0)
     , xax_(0)
@@ -43,29 +44,29 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, bool withplot, bool withtext )
     , histcount_(0)
     , markval_(mUdf(float))
 {
-    if ( withplot )
+    if ( setup_.withplot_ )
     {
 	canvas_ = new uiCanvas( this );
 	canvas_->setPrefHeight( cCanvasHeight );
 	canvas_->setPrefWidth( cCanvasWidth );
 	canvas_->setStretch( 2, 2 );
 	canvas_->postDraw.notify( mCB(this,uiStatsDisplay,reDraw) );
-	uiAxisHandler::Setup su( uiRect::Bottom );
-	su.border_ = uiBorder( 10 );
-	xax_ = new uiAxisHandler( canvas_->drawTool(), su );
-	su.side( uiRect::Left ).noannot( true );
-	yax_ = new uiAxisHandler( canvas_->drawTool(), su );
+	uiAxisHandler::Setup asu( uiRect::Bottom );
+	asu.border_ = uiBorder( 10 );
+	xax_ = new uiAxisHandler( canvas_->drawTool(), asu );
+	asu.side( uiRect::Left ).noannot( true );
+	yax_ = new uiAxisHandler( canvas_->drawTool(), asu );
 	xax_->setBegin( yax_ ); yax_->setBegin( xax_ );
     }
 
     uiSeparator* sep = 0;
-    if ( withplot && withtext )
+    if ( setup_.withplot_ && setup_.withtext_ )
     {
 	sep = new uiSeparator( this, "Hor sep" );
 	sep->attach( stretchedBelow, canvas_ );
     }
 
-    if ( withtext )
+    if ( setup_.withtext_ )
     {
 	uiGroup* valgrp = new uiGroup( this, "Values group" );
 	minmaxfld_ = new uiGenInput( valgrp, "Value range",
@@ -79,7 +80,7 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, bool withplot, bool withtext )
 				     FloatInpSpec(), DoubleInpSpec() );
 	medrmsfld_->attach( alignedBelow, avgstdfld_ );	
 	medrmsfld_->setReadOnly();
-	if ( !canvas_ )
+	if ( !canvas_ || !setup_.countinplot_ )
 	{
 	    countfld_ = new uiGenInput( valgrp, "Number of values" );
 	    countfld_->setReadOnly();
@@ -206,7 +207,7 @@ void uiStatsDisplay::updateHistogram( const Stats::RunCalc<float>& rc )
 {
     const int nrpts = rc.count();
     const int nrintv = getNrIntervals( nrpts );
-    histdata_.setSize( nrintv );
+    histdata_.erase(); histdata_.setSize( nrintv, 0 );
     const float min = rc.min(); const float max = rc.max();
     const float step = (max - min) / nrintv;
     histmaxidx_ = histcount_ = 0;
@@ -284,17 +285,18 @@ void uiStatsDisplay::reDraw( CallBacker* cb )
     }
 
     dt.setPenColor( Color::Black );
-    BufferString str( "Max=" ); str += histdata_[histmaxidx_];
-    dt.drawText( 0, 0, str, mAlign(Start,Start) );
-    str = "N="; str += histcount_;
-    dt.drawText( dt.getDevWidth()-1, 0, str, mAlign(Stop,Start) );
+    if ( !setup_.countinplot_ ) return;
+
+    BufferString str = "N="; str += histcount_;
+    dt.drawText( dt.getDevWidth()/2, 0, str, mAlign(Middle,Start) );
 }
 
 
 uiStatsDisplayWin::uiStatsDisplayWin( uiParent* p,
-					const uiStatsDisplayWin::Setup& su )
-    : uiMainWin(p,"Data statistics",-1,false,su.modal_)
-    , disp_(*new uiStatsDisplay(this,su.withplot_,su.withtext_))
+					const uiStatsDisplay::Setup& su,
+       					bool ismodal )
+    : uiMainWin(p,"Data statistics",-1,false,ismodal)
+    , disp_(*new uiStatsDisplay(this,su))
 {
     statusBar()->addMsgFld( "Data name", uiStatusBar::Left, 1 );
 }
@@ -312,4 +314,10 @@ void uiStatsDisplayWin::setDataName( const char* nm )
     char* nlptr = strchr( txt, '\n' );
     if ( nlptr ) *nlptr = '\0';
     statusBar()->message( txt, 0 );
+}
+
+
+void uiStatsDisplayWin::setMarkValue( float val )
+{
+    disp_.setMarkValue( val );
 }

@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uistatsdisplaywin.h,v 1.1 2008-03-26 13:21:40 cvsbert Exp $
+ RCS:           $Id: uistatsdisplaywin.h,v 1.2 2008-04-01 09:27:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uimainwin.h"
+#include "uistatsdisplay.h"
 class uiStatsDisplay;
 namespace Stats { template <class T> class RunCalc; }
 
@@ -22,23 +23,14 @@ class uiStatsDisplayWin : public uiMainWin
 {
 public:
 
-    struct Setup
-    {
-				Setup( bool ismodal=false )
-				    : modal_(ismodal)
-				    , withplot_(true)
-				    , withtext_(true)	{}
-
-	mDefSetupMemb(bool,modal)
-	mDefSetupMemb(bool,withplot)
-	mDefSetupMemb(bool,withtext)
-    };
-
-    				uiStatsDisplayWin(uiParent*,const Setup&);
+    				uiStatsDisplayWin(uiParent*,
+						  const uiStatsDisplay::Setup&,
+						  bool ismodal=false);
 
     uiStatsDisplay&		statsDisplay()		{ return disp_; }
     void			setData(const Stats::RunCalc<float>&);
     void			setDataName(const char*);
+    void			setMarkValue(float);
 
 protected:
 
