@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.19 2008-03-26 13:21:40 cvsbert Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.20 2008-04-01 09:27:33 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -317,8 +317,8 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	const DataPack::ID dpid = visserv->getDataPackID( displayID(),
 							  attribNr() );
 	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
-	uiStatsDisplayWin dwin( applMgr()->applService().parent(),
-				uiStatsDisplayWin::Setup(true) );
+	uiStatsDisplay::Setup su; su.countinplot( false );
+	uiStatsDisplayWin dwin( applMgr()->applService().parent(), su, true );
 	dwin.statsDisplay().setDataPackID( dpid, dmid );
 	dwin.show();
 	menu->setIsHandled( true );

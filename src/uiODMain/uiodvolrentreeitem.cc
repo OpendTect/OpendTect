@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.23 2008-03-26 13:21:40 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.24 2008-04-01 09:27:33 cvsbert Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -250,8 +250,8 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
     {
         const DataPack::ID dpid = visserv_->getDataPackID( displayID(), 0 );
         const DataPackMgr::ID dmid = visserv_->getDataPackMgrID( displayID() );
-	uiStatsDisplayWin dwin( applMgr()->applService().parent(),
-				uiStatsDisplayWin::Setup(true) );
+	uiStatsDisplay::Setup su; su.countinplot( false );
+	uiStatsDisplayWin dwin( applMgr()->applService().parent(), su, true );
 	dwin.statsDisplay().setDataPackID( dpid, dmid );
 	dwin.show();
         menu->setIsHandled( true );
