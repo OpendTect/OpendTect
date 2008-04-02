@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.36 2008-03-25 15:34:52 cvsbert Exp $
+ RCS:           $Id: iodraw.cc,v 1.37 2008-04-02 06:38:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -207,9 +207,9 @@ Color ioDrawTool::backgroundColor() const
 void ioDrawTool::setBackgroundColor( const Color& c )
 {
     preparePainter();
-    QBrush br( qpainter_->background() );
-    br.setColor( QColor( QRgb(c.rgb()) ) );
-    qpainter_->setBackground( br );
+    qpainter_->setBackgroundMode( Qt::OpaqueMode );
+    QBrush brush( QColor(c.r(),c.g(),c.b()) );
+    qpainter_->setBackground( brush );
 }
 
 
@@ -223,10 +223,10 @@ void ioDrawTool::clear( const uiRect* rect, const Color* col )
 void ioDrawTool::drawBackgroundPixmap( const Color* col )
 {
     preparePainter();
-    if ( col ) setBackgroundColor( *col );
+    const Color c = col ? *col : Color::Black;
     qpainter_->setBackgroundMode( Qt::OpaqueMode );
-    qpainter_->setBrush( Qt::DiagCrossPattern );
-    drawRect( uiRect( 0, 0, getDevWidth(), getDevHeight() ) );
+    QBrush brush( QColor(c.r(),c.g(),c.b()), Qt::DiagCrossPattern );
+    qpainter_->setBackground( brush );
 }
 
 
