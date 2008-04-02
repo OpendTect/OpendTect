@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.236 2008-03-28 10:18:13 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.237 2008-04-02 11:39:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -679,8 +679,8 @@ bool uiODApplMgr::evaluateAttribute( int visid, int attrib )
     if ( format == uiVisPartServer::Cube )
     {
 	const CubeSampling cs = visserv_->getCubeSampling( visid );
-	RefMan<const Attrib::DataCubes> newdata = attrserv_->createOutput( cs );
-	visserv_->setCubeData( visid, attrib, newdata );
+	DataPack::ID packid  = attrserv_->createOutput( cs, DataPack::cNoID );
+	visserv_->setDataPackID( visid, attrib, packid );
     }
     else if ( format==uiVisPartServer::Traces )
     {
