@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.11 2008-03-04 09:30:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.12 2008-04-02 11:43:57 cvsraman Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -229,7 +229,10 @@ void uiMadIOSelDlg::usePar( const IOPar& iop )
     seisSel( gt )->usePar( iop );
     selChg( this );
     if ( isInp() )
-	seisSubSel( gt )->usePar( iop );
+    {
+	PtrMan<IOPar> subpar = iop.subselect( sKey::Selection );
+	if ( subpar ) seisSubSel( gt )->usePar( *subpar );
+    }
 }
 
 
@@ -246,10 +249,14 @@ void uiMadIOSelDlg::fillPar( IOPar& iop )
 	seisSel(gt)->fillPar( iop );
 	if ( isinp )
 	{
+	    IOPar subpar;
 	    if ( Seis::is2D(gt) )
-		(Seis::isPS(gt)?subsel2dpsfld_:subsel2dfld_)->fillPar( iop );
+		(Seis::isPS(gt)?subsel2dpsfld_:subsel2dfld_)->fillPar( subpar );
 	    else
-		subsel3dfld_->fillPar( iop );
+		subsel3dfld_->fillPar( subpar );
+
+	    if ( subpar.size() )
+		iop.mergeComp( subpar, sKey::Selection );
 	}
     }
 }
