@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.29 2008-03-21 16:12:51 cvshelene Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.30 2008-04-02 16:28:53 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -184,8 +184,9 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	TypeSet<DataPointSet::DataRow> pts;
 	BufferStringSet nms;
 	DataPointSet vals( pts, nms, false, true );
+	vals.bivSet().setNrVals(2);
 	visserv->getRandomPosCache( displayID(), attribNr(), vals );
-	if ( vals.size() && vals.bivSet().nrVals()>=2 )
+	if ( vals.size() )
 	{
 	    const int auxnr =
 		applMgr()->EMServer()->setAuxData( emid_, vals, name_, 1 );
@@ -246,6 +247,9 @@ void uiODEarthModelSurfaceDataTreeItem::handleMenuCB( CallBacker* cb )
 	else
 	    set = applMgr()->EMServer()->filterAuxData( emid_, name_ );
 	if ( !set ) return;
+	if ( vals.bivSet().nrVals()< set->nrVals() )
+	    vals.bivSet().setNrVals( set->nrVals() );
+	
 	vals.bivSet().append( *set );
 	visserv->setSelSpec( displayID(), attribNr(),
 		Attrib::SelSpec(name_,Attrib::SelSpec::cOtherAttrib()) );
