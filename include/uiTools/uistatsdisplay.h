@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra / Bert
  Date:          Aug 2007
- RCS:           $Id: uistatsdisplay.h,v 1.6 2008-04-01 15:42:37 cvsbert Exp $
+ RCS:           $Id: uistatsdisplay.h,v 1.7 2008-04-02 10:57:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,12 +43,15 @@ public:
     void			setData(const Stats::RunCalc<float>&);
 
     uiFunctionDisplay*		funcDisp()	  { return funcdisp_; }
-    void			setMarkValue(float);
+    void			setMarkValue(float,bool forx);
 
     void			setHistogram(const TypeSet<float>&,
 	    				     Interval<float>,int N=-1);
     				//!< Cannot update the text part if you have it
     				//!< N is the total count of the input data
+
+    int				nrInpVals() const	{ return nrinpvals_; }
+    int				nrClasses() const	{ return nrclasses_; }
 
 protected:
 
@@ -59,7 +62,8 @@ protected:
     uiGenInput*			medrmsfld_;
 
     const Setup			setup_;
-    int				histcount_;
+    int				nrclasses_;
+    int				nrinpvals_;
 
     void			updateHistogram(const Stats::RunCalc<float>&);
     void			putN(CallBacker*);

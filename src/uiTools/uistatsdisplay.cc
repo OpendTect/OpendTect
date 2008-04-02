@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uistatsdisplay.cc,v 1.11 2008-04-02 10:26:46 cvsbert Exp $
+ RCS:           $Id: uistatsdisplay.cc,v 1.12 2008-04-02 10:57:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,8 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
     , funcdisp_(0)
     , minmaxfld_(0)
     , countfld_(0)
-    , histcount_(0)
+    , nrclasses_(0)
+    , nrinpvals_(0)
 {
     if ( setup_.withplot_ )
     {
@@ -188,40 +189,40 @@ void uiStatsDisplay::setData( const Stats::RunCalc<float>& rc )
 void uiStatsDisplay::updateHistogram( const Stats::RunCalc<float>& rc )
 {
     const int nrpts = rc.count();
-    const int nrintv = getNrIntervals( nrpts );
-    TypeSet<float> histdata( nrintv, 0 );
+    nrclasses_ = getNrIntervals( nrpts );
+    TypeSet<float> histdata( nrclasses_, 0 );
     const float min = rc.min(); const float max = rc.max();
-    const float step = (max - min) / nrintv;
-    histcount_ = 0;
+    const float step = (max - min) / nrclasses_;
+    nrinpvals_ = 0;
     for ( int idx=0; idx<nrpts; idx++ )
     {
 	int seg = (int)((rc.vals_[idx] - min) / step);
-	if ( seg < -1 || seg > nrintv )
+	if ( seg < -1 || seg > nrclasses_ )
 	    { pErrMsg("Huh"); continue; }
-	if ( seg < 0 )		seg = 0;
-	if ( seg == nrintv )	seg = nrintv - 1;
-	histdata[seg] += 1; histcount_++;
+	if ( seg < 0 )			seg = 0;
+	if ( seg == nrclasses_ )	seg = nrclasses_ - 1;
+	histdata[seg] += 1; nrinpvals_++;
     }
 
     setHistogram( histdata, Interval<float>(min + 0.5*step, max - 0.5*step),
-	    	  histcount_ );
+	    	  nrinpvals_ );
 }
 
 
 void uiStatsDisplay::setHistogram( const TypeSet<float>& histdata,
 				   Interval<float> xrg, int nrvals )
 {
-    histcount_ = nrvals;
+    nrinpvals_ = nrvals;
     if ( funcdisp_ )
 	funcdisp_->setVals( xrg, histdata.arr(), histdata.size() );
 }
 
 
-void uiStatsDisplay::setMarkValue( float val )
+void uiStatsDisplay::setMarkValue( float val, bool forx )
 {
     if ( funcdisp_ )
     {
-	funcdisp_->setMarkValue( val, true );
+	funcdisp_->setMarkValue( val, forx );
 	funcdisp_->update();
     }
 }
@@ -229,11 +230,11 @@ void uiStatsDisplay::setMarkValue( float val )
 
 void uiStatsDisplay::putN( CallBacker* cb )
 {
-    if ( !setup_.countinplot_ || !funcdisp_ || histcount_ < 1 ) return;
+    if ( !setup_.countinplot_ || !funcdisp_ || nrinpvals_ < 1 ) return;
 
     ioDrawTool& dt = funcdisp_->drawTool();
     dt.setPenColor( Color::Black );
-    BufferString str = "N="; str += histcount_;
+    BufferString str = "N="; str += nrinpvals_;
     dt.drawText( dt.getDevWidth()/2, 0, str, mAlign(Middle,Start) );
 }
 
@@ -263,7 +264,7 @@ void uiStatsDisplayWin::setDataName( const char* nm )
 }
 
 
-void uiStatsDisplayWin::setMarkValue( float val )
+void uiStatsDisplayWin::setMarkValue( float val, bool forx )
 {
-    disp_.setMarkValue( val );
+    disp_.setMarkValue( val, forx );
 }
