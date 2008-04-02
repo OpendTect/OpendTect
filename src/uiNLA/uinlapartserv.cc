@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.44 2008-03-18 06:33:46 cvsnageswara Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.45 2008-04-02 10:57:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ ________________________________________________________________________
 #include "welltransl.h"
 
 #include "uicombobox.h"
-#include "uidistribution.h"
+#include "uistatsdisplay.h"
 #include "uitaskrunner.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
@@ -114,22 +114,22 @@ uiPrepNLAData( uiParent* p, ObjectSet<PosVecDataSet>& vdss )
     sort_array( datavals.arr(), datavals.size() );
 
     uiGroup* graphgrp = new uiGroup( this, "Graph group" );
-    plotfld = new uiDistribPlot( graphgrp );
-    varname = vdss[0]->colDef(vdss[0]->nrCols()-1).name_;
-    plotfld->setData( datavals.arr(), datavals.size(), varname );
-    bsetup.nrptsperclss = plotfld->avgCount();
-    plotfld->setAnnotatedNrClasses( bsetup.nrptsperclss );
+    uiStatsDisplay::Setup su; su.withtext(false);
+    statsfld_ = new uiStatsDisplay( graphgrp, su );
+    statsfld_->setData( datavals.arr(), datavals.size() );
+    bsetup_.nrptsperclss = statsfld_->nrInpVals() / statsfld_->nrClasses();
+    statsfld_->setMarkValue( bsetup_.nrptsperclss, false );
 
     uiGroup* datagrp = new uiGroup( this, "Data group" );
     dobalfld = new uiGenInput( datagrp, "Balance data", BoolInpSpec(true) );
     dobalfld->valuechanged.notify( mCB(this,uiPrepNLAData,doBalChg) );
 
     nrptspclssfld = new uiGenInput( datagrp, "Data points per class",
-				IntInpSpec(bsetup.nrptsperclss) );
+				IntInpSpec(bsetup_.nrptsperclss) );
     nrptspclssfld->attach( alignedBelow, dobalfld );
     nrptspclssfld->valuechanged.notify( mCB(this,uiPrepNLAData,cutoffChg) );
     percnoisefld = new uiGenInput( datagrp, "Percentage noise when adding",
-				   FloatInpSpec(bsetup.noiselvl*100) );
+				   FloatInpSpec(bsetup_.noiselvl*100) );
     percnoisefld->attach( alignedBelow, nrptspclssfld );
 
     rg_.start = datavals[0];
@@ -158,14 +158,14 @@ void doBalChg( CallBacker* )
     const bool dobal = dobalfld->getBoolValue();
     nrptspclssfld->display( dobal );
     percnoisefld->display( dobal );
-    bsetup.nrptsperclss = dobal ? nrptspclssfld->getIntValue() : -1;
-    plotfld->setAnnotatedNrClasses( bsetup.nrptsperclss );
+    bsetup_.nrptsperclss = dobal ? nrptspclssfld->getIntValue() : -1;
+    statsfld_->setMarkValue( bsetup_.nrptsperclss, false );
 }
 
 void cutoffChg( CallBacker* )
 {
-    bsetup.nrptsperclss = nrptspclssfld->getIntValue();
-    plotfld->setAnnotatedNrClasses( bsetup.nrptsperclss );
+    bsetup_.nrptsperclss = nrptspclssfld->getIntValue();
+    statsfld_->setMarkValue( bsetup_.nrptsperclss, false );
 }
 
 void valrgChg( CallBacker* )
@@ -178,7 +178,7 @@ void valrgChg( CallBacker* )
 	if ( rg_.includes( datavals[idx] ) )
 	    newdatavals += datavals[idx];
     }
-    plotfld->setData( newdatavals.arr(), newdatavals.size(), varname );
+    statsfld_->setData( newdatavals.arr(), newdatavals.size() );
 }
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
@@ -189,33 +189,32 @@ bool acceptOK( CallBacker* )
     {
 	rg_ = valrgfld->getFInterval();
 	rg_.sort();
-	bsetup.nrptsperclss = nrptspclssfld->getIntValue();
-	if ( bsetup.nrptsperclss < 1 || mIsUdf(bsetup.nrptsperclss) )
+	bsetup_.nrptsperclss = nrptspclssfld->getIntValue();
+	if ( bsetup_.nrptsperclss < 1 || mIsUdf(bsetup_.nrptsperclss) )
 	    mErrRet("Please enter a valid number of points per class")
-	bsetup.noiselvl = percnoisefld->getfValue();
-	if ( mIsUdf(bsetup.noiselvl) )
-	    bsetup.noiselvl = 0;
-	if ( bsetup.noiselvl > 100 || bsetup.noiselvl < -1e-6 )
+	bsetup_.noiselvl = percnoisefld->getfValue();
+	if ( mIsUdf(bsetup_.noiselvl) )
+	    bsetup_.noiselvl = 0;
+	if ( bsetup_.noiselvl > 100 || bsetup_.noiselvl < -1e-6 )
 	    mErrRet("Please enter a valid number of points per class")
-	bsetup.noiselvl *= 0.01;
+	bsetup_.noiselvl *= 0.01;
     }
 
-    bsetup.nrclasses = plotfld->nrClasses();
+    bsetup_.nrclasses = statsfld_->nrClasses();
     return true;
 }
 
-    uiDistribPlot*	plotfld;
+    uiStatsDisplay*	statsfld_;
     uiGenInput*		dobalfld;
     uiGenInput*		valrgfld;
     uiGenInput*		nrptspclssfld;
     uiGenInput*		percnoisefld;
 
     TypeSet<float>	datavals;
-    BufferString	varname;
 
     bool		dobal_;
     Interval<float>	rg_;
-    NLADataPreparer::BalanceSetup bsetup;
+    NLADataPreparer::BalanceSetup bsetup_;
 };
 
 
@@ -557,13 +556,13 @@ const char* uiNLAPartServer::prepareInputData(
 		NLADataPreparer dptrain( trainvds.data(), targetcol );
 		dptrain.removeUndefs(); dptrain.limitRange( pddlg.rg_ );
 		if ( pddlg.dobal_ )
-		    dptrain.balance( pddlg.bsetup );
+		    dptrain.balance( pddlg.bsetup_ );
 		if ( !testvds.data().isEmpty() )
 		{
 		    NLADataPreparer dptest( testvds.data(), targetcol );
 		    dptest.removeUndefs(); dptest.limitRange( pddlg.rg_ );
 		    if ( pddlg.dobal_ )
-			dptest.balance( pddlg.bsetup );
+			dptest.balance( pddlg.bsetup_ );
 		}
 	    }
 	}
