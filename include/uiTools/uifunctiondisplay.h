@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.2 2008-04-01 14:11:46 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.3 2008-04-02 10:25:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ public:
 				    , ymarkcol_(150,0,0)
 				    , canvaswidth_(400)
 				    , canvasheight_(250)
-				    , border_(10)
+				    , border_(20,10,20,10)
 				    , annoty_(true)
 				    , fillbelow_(false)		{}
 
