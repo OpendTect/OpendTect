@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.cc,v 1.15 2007-12-27 09:41:10 cvsnanne Exp $
+ RCS:           $Id: uiobjbody.cc,v 1.16 2008-04-02 12:06:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -222,9 +222,12 @@ const Color& uiObjectBody::uibackgroundColor() const
 }
 
 
-void uiObjectBody::uisetBackgroundColor( const Color& c )
+void uiObjectBody::uisetBackgroundColor( const Color& col )
 {
-    qwidget()->setPaletteBackgroundColor( QColor( QRgb( c.rgb() ) ) );
+    QPalette palette;
+    palette.setColor( QPalette::Base,
+	    	      QColor(col.r(),col.g(),col.b()) );
+    qwidget()->setPalette( palette );
 }
 
 
