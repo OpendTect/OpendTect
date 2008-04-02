@@ -4,7 +4,7 @@
  * DATE     : 14-3-2008
 -*/
 
-static const char* rcsID = "$Id: bidvsetarrayadapter.cc,v 1.1 2008-03-21 15:48:00 cvshelene Exp $";
+static const char* rcsID = "$Id: bidvsetarrayadapter.cc,v 1.2 2008-04-02 09:30:05 cvshelene Exp $";
 
 #include "bidvsetarrayadapter.h"
 #include "survinfo.h"
@@ -16,8 +16,9 @@ BIDValSetArrAdapter::BIDValSetArrAdapter( const BinIDValueSet& bidvs, int colnr)
 {
     inlrg_ = bidvs.inlRange();
     crlrg_ = bidvs.crlRange();
-    const int inlsz = inlrg_.width()+1;
-    const int crlsz = crlrg_.width()+1;
+    //TODO we use SI steps, if needed it can be replaced by a user-defined one
+    const int inlsz = inlrg_.width()/SI().inlStep()+1;
+    const int crlsz = crlrg_.width()/SI().crlStep()+1;
     arrinfo_ = Array2DInfoImpl( inlsz, crlsz );
 }
 
