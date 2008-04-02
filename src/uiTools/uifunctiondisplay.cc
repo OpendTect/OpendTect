@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uifunctiondisplay.cc,v 1.2 2008-04-01 14:11:47 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.cc,v 1.3 2008-04-02 10:25:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ void uiFunctionDisplay::setVals( const Interval<float>& xrg, const float* yvals,
 
     const float dx = (xrg.stop-xrg.start) / (sz-1);
     for ( int idx=0; idx<sz; idx++ )
-	{ xvals_ += idx * dx; yvals_ += yvals[idx]; }
+	{ xvals_ += xrg.start + idx * dx; yvals_ += yvals[idx]; }
 
     gatherInfo(); update();
 }
