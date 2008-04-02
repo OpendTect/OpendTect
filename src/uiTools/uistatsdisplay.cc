@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uistatsdisplay.cc,v 1.10 2008-04-01 15:42:37 cvsbert Exp $
+ RCS:           $Id: uistatsdisplay.cc,v 1.11 2008-04-02 10:26:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
     : uiGroup( p, "Statistics display group" )
     , setup_(su)
     , funcdisp_(0)
+    , minmaxfld_(0)
     , countfld_(0)
     , histcount_(0)
 {
@@ -50,6 +51,7 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
 	sep->attach( stretchedBelow, funcdisp_ );
     }
 
+    const bool putcountinplot = funcdisp_ && setup_.countinplot_;
     if ( setup_.withtext_ )
     {
 	uiGroup* valgrp = new uiGroup( this, "Values group" );
@@ -64,9 +66,7 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
 				     FloatInpSpec(), DoubleInpSpec() );
 	medrmsfld_->attach( alignedBelow, avgstdfld_ );	
 	medrmsfld_->setReadOnly();
-	if ( funcdisp_ && setup_.countinplot_ )
-	    funcdisp_->postDraw.notify( mCB(this,uiStatsDisplay,putN) );
-	else
+	if ( !putcountinplot )
 	{
 	    countfld_ = new uiGenInput( valgrp, "Number of values" );
 	    countfld_->setReadOnly();
@@ -79,6 +79,9 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
 	    valgrp->attach( ensureBelow, sep );
 	}
     }
+
+    if ( putcountinplot )
+	funcdisp_->postDraw.notify( mCB(this,uiStatsDisplay,putN) );
 }
 
 
