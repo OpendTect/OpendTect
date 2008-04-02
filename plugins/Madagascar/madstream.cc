@@ -4,13 +4,10 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.1 2008-03-31 11:20:50 cvsraman Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.2 2008-04-02 11:44:37 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
-#include "filegen.h"
-#include "filepath.h"
-#include "dirlist.h"
 #include "strmprov.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -19,12 +16,10 @@ static const char* rcsID = "$Id: madstream.cc,v 1.1 2008-03-31 11:20:50 cvsraman
 #include "ptrman.h"
 #include "seisioobjinfo.h"
 #include "seisread.h"
-#include "seisselection.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seiswrite.h"
 
-#include <iostream>
 
 using namespace ODMad;
 
@@ -37,87 +32,125 @@ static const char* sKeyWrite = "Write";
 static const char* sKeyIn = "in";
 static const char* sKeyStdIn = "\"stdin\"";
 
+#undef mErrRet
+#define mErrRet(s) { errmsg_ = s; return; }
 
-MadStream::MadStream( const IOPar& par, bool isread )
+MadStream::MadStream( const IOPar& par )
     : istrm_(0)
     , ostrm_(0)
     , seisrdr_(0)
     , seiswrr_(0)
     , headerpars_(0)
+    , errmsg_(*new BufferString(""))
+    , iswrite_(false)
 {
-    if ( isread )
+    par.getYN( sKeyWrite, iswrite_ );
+    if ( iswrite_ )
     {
-	IOPar* inpar = par.subselect( sKeyInput );
-	if ( !inpar ) return;
+	PtrMan<IOPar> outpar = par.subselect( sKeyOutput );
+	if ( !outpar ) mErrRet( "Output parameters missing" );
 
-	BufferString inptyp = inpar->find( sKey::Type );
-	if ( inptyp == "None" || inptyp == "Madagascar" )
-	{
-	    if ( inptyp=="None" )
-		istrm_ = &std::cin;
-	    else
-	    {
-		const char* filenm = inpar->find( sKey::FileName );
-		istrm_ = StreamProvider(filenm).makeIStream().istrm;
-	    }
-
-	    fillHeaderPars();
-	    if ( !headerpars_ ) return;
-
-	    BufferString insrc = headerpars_->find( sKeyIn );
-	    if ( insrc == "" || insrc == sKeyStdIn ) return;
-
-	    StreamData sd = StreamProvider(insrc).makeIStream();
-	    if ( !sd.usable() ) return;
-
-	    if ( istrm_ && istrm_ != &std::cin ) delete istrm_;
-
-	    istrm_ = sd.istrm;
-	    headerpars_->set( sKeyIn, sKeyStdIn );
-	}
-	else
-	{
-	    MultiID inpid;
-	    if ( !inpar->get(sKey::ID,inpid) ) return;
-
-	    PtrMan<IOObj> ioobj = IOM().get( inpid );
-	    if ( !ioobj ) return;
-
-	    Seis::SelData* seldata = Seis::SelData::get( *inpar );
-	    mDynamicCastGet(Seis::RangeSelData*,rangesel,seldata)
-	    if ( !rangesel ) return;
-
-	    CubeSampling cs;
-	    SeisIOObjInfo seisinfo( ioobj );
-	    seisinfo.getRanges( cs );
-	    rangesel->cubeSampling().limitTo( cs );
-
-	    seisrdr_ = new SeisTrcReader( ioobj );
-	    seisrdr_->setSelData( rangesel );
-	    seisrdr_->prepareWork();
-	    fillHeaderPars( rangesel->cubeSampling() );
-	}
+	initWrite( outpar );
     }
     else
     {
-	IOPar* outpar = par.subselect( sKeyOutput );
-	if ( !outpar ) return;
+	PtrMan<IOPar> inpar = par.subselect( sKeyInput );
+	if ( !inpar ) mErrRet( "Input parameters missing" );
 
-	BufferString outptyp = outpar->find( sKey::Type );
-	if ( outptyp=="None" || outptyp=="Madagascar" ) return;
-	
+	initRead( inpar );
+    }
+}
+
+
+void MadStream::initRead( IOPar* par )
+{
+    BufferString inptyp = par->find( sKey::Type );
+    if ( inptyp == "None" || inptyp == "Madagascar" )
+    {
+	if ( inptyp=="None" )
+	    istrm_ = &std::cin;
+	else
+	{
+	    const char* filenm = par->find( sKey::FileName );
+	    istrm_ = StreamProvider(filenm).makeIStream().istrm;
+	}
+
+	fillHeaderPars();
+	if ( !headerpars_ ) mErrRet( "Error reading RSF header" );;
+
+	BufferString insrc = headerpars_->find( sKeyIn );
+	if ( insrc == "" || insrc == sKeyStdIn ) return;
+
+	StreamData sd = StreamProvider(insrc).makeIStream();
+	if ( !sd.usable() ) mErrRet( "Cannot read RSF data file" );;
+
+	if ( istrm_ && istrm_ != &std::cin ) delete istrm_;
+
+	istrm_ = sd.istrm;
+	headerpars_->set( sKeyIn, sKeyStdIn );
+	return;
+    }
+
+    Seis::GeomType gt = Seis::geomTypeOf( inptyp );
+    if ( gt == Seis::Vol )
+    {
+	MultiID inpid;
+	if ( !par->get(sKey::ID,inpid) ) mErrRet( "Input ID missing" );
+
+	PtrMan<IOObj> ioobj = IOM().get( inpid );
+	if ( !ioobj ) mErrRet( "Cannot find input data" );
+
+	CubeSampling cs;
+	SeisIOObjInfo seisinfo( ioobj );
+	seisinfo.getRanges( cs );
+
+	PtrMan<IOPar> subpar = par->subselect( sKey::Selection );
+	Seis::SelData* seldata = Seis::SelData::get( *subpar );
+	mDynamicCastGet(Seis::RangeSelData*,rangesel,seldata)
+	if ( rangesel ) cs.limitTo( rangesel->cubeSampling() );
+
+	seisrdr_ = new SeisTrcReader( ioobj );
+	seisrdr_->setSelData( seldata );
+	seisrdr_->prepareWork();
+	fillHeaderPars( cs );
+    }
+    else
+    {
+	errmsg_ = "Input Type: ";
+	errmsg_ += inptyp;
+	errmsg_ += " not supported";
+	return;
+    }
+}
+ 
+
+void MadStream::initWrite( IOPar* par )
+{
+    BufferString outptyp = par->find( sKey::Type );
+    Seis::GeomType gt = Seis::geomTypeOf( outptyp );
+    if ( gt == Seis::Vol )
+    {
 	istrm_ = &std::cin;
 	MultiID outpid;
-	if ( !outpar->get(sKey::ID,outpid) ) return;
+	if ( !par->get(sKey::ID,outpid) ) mErrRet( "Output data ID missing" );
 
 	PtrMan<IOObj> ioobj = IOM().get( outpid );
-	if ( !ioobj ) return;
+	if ( !ioobj ) mErrRet( "Cannot find output object" );
 
 	seiswrr_ = new SeisTrcWriter( ioobj );
+	if ( !seiswrr_ ) mErrRet( "Cannot write to output object" );
+
 	fillHeaderPars();
-    }	
+    }
+    else
+    {
+	errmsg_ = "Output Type: ";
+	errmsg_ += outptyp;
+	errmsg_ += " not supported";
+	return;
+    }
 }
-	
+#undef mErrRet
 
 MadStream::~MadStream()
 {
@@ -129,6 +162,7 @@ MadStream::~MadStream()
     }
 
     delete seisrdr_; delete seiswrr_;
+    delete errmsg_;
 }
 
 
@@ -196,6 +230,22 @@ int MadStream::getNrSamples() const
     if ( headerpars_ ) headerpars_->get( "n1", nrsamps );
 
     return nrsamps;
+}
+
+
+bool MadStream::isOK() const
+{
+    if ( errMsg() ) return false;
+
+    return true;
+}
+
+
+const char* MadStream::errMsg() const
+{
+    if ( errmsg_ == "" ) return 0;
+    else 
+	return errmsg_.buf();
 }
 
 

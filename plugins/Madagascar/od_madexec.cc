@@ -4,26 +4,18 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		March 2008
- RCS:		$Id: od_madexec.cc,v 1.1 2008-03-31 11:20:50 cvsraman Exp $
+ RCS:		$Id: od_madexec.cc,v 1.2 2008-04-02 11:44:37 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "madstream.h"
 #include "batchprog.h"
-#include "cubesampling.h"
-#include "filegen.h"
 #include "filepath.h"
-#include "ioman.h"
 #include "iopar.h"
-#include "iostrm.h"
 #include "keystrs.h"
 #include "progressmeter.h"
-#include "ptrman.h"
 #include "strmprov.h"
-#include <iostream>
-
-#include "prog.h"
 
 
 static const char* sKeyRSFEndOfHeader = "\014\014\004";
@@ -80,9 +72,15 @@ const char* getProcString( IOPar& pars )
 
 bool processMad( IOPar& pars, std::ostream& strm )
 {
+    ODMad::MadStream mstrm( pars );
+    if ( !mstrm.isOK() )
+    {
+	strm << "Error: " << mstrm.errMsg();
+	return false;
+    }
+
     const char* comm = getProcString( pars ); 
     StreamData sd = StreamProvider( comm ).makeOStream();
-    ODMad::MadStream mstrm( pars, true );
     if ( !mstrm.putHeader(*sd.ostrm) ) return false;
 
     TextStreamProgressMeter pm( strm );
@@ -114,7 +112,13 @@ bool BatchProgram::go( std::ostream& strm )
     pars().getYN( sKeyWrite, dowrite );
     if ( dowrite )
     {
-	ODMad::MadStream mstrm( pars(), false );
+	ODMad::MadStream mstrm( pars() );
+	if ( !mstrm.isOK() )
+	{
+	    strm << "Error: " << mstrm.errMsg();
+	    return false;
+	}
+
 	if ( !mstrm.writeTraces() ) return false;
 
 	StreamProvider sp( argv_[1] );
