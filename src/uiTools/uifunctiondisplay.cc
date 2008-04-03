@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uifunctiondisplay.cc,v 1.5 2008-04-03 15:48:56 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.cc,v 1.6 2008-04-03 21:25:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -339,21 +339,29 @@ void uiFunctionDisplay::mouseDClick( CallBacker* )
 
     const float xval = xax_->getVal(ev.pos().x);
     const float yval = yax_->getVal(ev.pos().y);
-    for ( int idx=0; idx<xvals_.size(); idx++ )
+    if ( xval > xvals_[xvals_.size()-1] )
     {
-	if ( xval > xvals_[idx] )
-	    continue;
-
-	if ( xval == xvals_[idx] )
-	    yvals_[idx] = yval;
-	else
+	xvals_ += xval; yvals_ += yval;
+	selpt_ = xvals_.size()-1;
+    }
+    else
+    {
+	for ( int idx=0; idx<xvals_.size(); idx++ )
 	{
-	    xvals_.insert( idx, xval );
-	    yvals_.insert( idx, yval );
-	}
+	    if ( xval > xvals_[idx] )
+		continue;
 
-	selpt_ = idx;
-	break;
+	    if ( xval == xvals_[idx] )
+		yvals_[idx] = yval;
+	    else
+	    {
+		xvals_.insert( idx, xval );
+		yvals_.insert( idx, yval );
+	    }
+
+	    selpt_ = idx;
+	    break;
+	}
     }
 
     pointSelected.trigger();
