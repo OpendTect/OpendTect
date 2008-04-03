@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.15 2008-03-21 15:55:12 cvshelene Exp $
+ RCS:		$Id: datapointset.h,v 1.16 2008-04-03 08:25:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,6 +156,7 @@ public:
     void		setSelected(RowID,bool);
     void		setInactive(RowID,bool);
 
+    int			nrActive() const;
     void		purgeInactive();
     void		purgeSelected(bool selected_rows=true);
 
@@ -169,6 +170,9 @@ public:
     			//!< The idea is to manage vectors with the selection
     			//!< mechanism. But if you really must remove
     			//!< vectors, this is your access point
+    PosVecDataSet&	dataSet()		{ return data_; }
+    			//!< To add/remove columns. Never remove the position
+    			//!< columns!
     
     int			bivSetIdx( ColID idx ) const
 						{ return idx+nrfixedcols_; }
@@ -181,6 +185,8 @@ public:
     			//!< When finished, you have to call dataChanged()
     RowID		getRowID(BinIDValueSet::Pos) const;
     DataColDef&		colDef( ColID i )		{ return gtColDef(i); }
+    			DataPointSet(bool is2d,bool minimal=false);
+			//!< use dataSet() to add columns
 
     // DataPack interface impl
     bool		simpleCoords() const		{ return false; }
