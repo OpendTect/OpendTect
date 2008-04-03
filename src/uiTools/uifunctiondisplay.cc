@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uifunctiondisplay.cc,v 1.4 2008-04-03 07:09:43 cvsnanne Exp $
+ RCS:           $Id: uifunctiondisplay.cc,v 1.5 2008-04-03 15:48:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uifunctiondisplay.h"
 #include "uiaxishandler.h"
+#include "mouseevent.h"
 #include "linear.h"
 
 static const int cBoundarySz = 10;
@@ -23,6 +24,9 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     , yax_(0)
     , xmarkval_(mUdf(float))
     , ymarkval_(mUdf(float))
+    , selpt_(0)
+    , pointSelected(this)
+    , pointChanged(this)
 {
     setPrefWidth( setup_.canvaswidth_ );
     setPrefHeight( setup_.canvasheight_ );
@@ -36,6 +40,18 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     xax_->setBegin( yax_ ); yax_->setBegin( xax_ );
     asu.side( uiRect::Right ).noannot( !setup_.annoty_ );
     y2ax_ = new uiAxisHandler( drawTool(), asu );
+
+    if ( setup_.editable_ )
+    {
+	getMouseEventHandler().buttonPressed.notify(
+				mCB(this,uiFunctionDisplay,mousePress) );
+	getMouseEventHandler().buttonReleased.notify(
+				mCB(this,uiFunctionDisplay,mouseRelease) );
+	getMouseEventHandler().movement.notify(
+				mCB(this,uiFunctionDisplay,mouseMove) );
+	getMouseEventHandler().doubleClick.notify(
+				mCB(this,uiFunctionDisplay,mouseDClick) );
+    }
 }
 
 
@@ -205,6 +221,18 @@ void uiFunctionDisplay::reDrawHandler( uiRect )
 	dt.drawPolygon( y2ptlist );
     }
 
+    if ( setup_.pointsz_ > 0 )
+    {
+	const MarkerStyle2D mst( MarkerStyle2D::Square, setup_.pointsz_,
+				 setup_.ycol_ );
+	for ( int idx=0; idx<nrpts; idx++ )
+	{
+	    const int xpix = xax_->getPix( xvals_[idx] );
+	    const uiPoint pt( xpix, yax_->getPix(yvals_[idx]) );
+	    dt.drawMarker( pt, mst );
+	}
+    }
+
     if ( !mIsUdf(xmarkval_) )
     {
 	dt.setPenColor( setup_.xmarkcol_ );
@@ -215,4 +243,119 @@ void uiFunctionDisplay::reDrawHandler( uiRect )
 	dt.setPenColor( setup_.ymarkcol_ );
 	yax_->drawGridLine( yax_->getPix(ymarkval_) );
     }
+}
+
+
+#define mGetMousePos()  \
+    if ( getMouseEventHandler().isHandled() ) \
+	return; \
+    const MouseEvent& ev = getMouseEventHandler().event(); \
+    if ( !(ev.buttonState() & OD::LeftButton ) || \
+	  (ev.buttonState() & OD::MidButton ) || \
+	  (ev.buttonState() & OD::RightButton ) ) \
+        return; \
+    const bool isctrl = ev.ctrlStatus(); \
+    const bool isoth = ev.shiftStatus() || ev.altStatus(); \
+    const bool isnorm = !isctrl && !isoth
+
+static const float cRelTol = 0.01; // 1% of axis size
+
+
+bool uiFunctionDisplay::setSelPt()
+{
+    const MouseEvent& ev = getMouseEventHandler().event();
+
+    int newsel = -1; float mindistsq = 1e30;
+    const float xpix = xax_->getRelPos( xax_->getVal(ev.pos().x) );
+    const float ypix = yax_->getRelPos( yax_->getVal(ev.pos().y) );
+    for ( int idx=0; idx<xvals_.size(); idx++ )
+    {
+	const float x = xax_->getRelPos( xvals_[idx] );
+	const float y = yax_->getRelPos( yvals_[idx] );
+	const float distsq = (x-xpix)*(x-xpix) + (y-ypix)*(y-ypix);
+	if ( distsq < mindistsq )
+	    { newsel = idx; mindistsq = distsq; }
+    }
+    selpt_ = -1;
+    if ( mindistsq > cRelTol*cRelTol ) return false;
+    selpt_ = newsel;
+    return true;
+}
+
+
+void uiFunctionDisplay::mousePress( CallBacker* )
+{
+    if ( mousedown_ ) return; mousedown_ = true;
+    mGetMousePos();
+    if ( isoth || !setSelPt() ) return;
+
+    if ( isnorm )
+	pointSelected.trigger();
+}
+
+
+void uiFunctionDisplay::mouseRelease( CallBacker* )
+{
+    if ( !mousedown_ ) return; mousedown_ = false;
+    mGetMousePos();
+    if ( !isctrl || selpt_ < 0 || xvals_.size() < 3 ) return;
+
+    xvals_.remove( selpt_ );
+    yvals_.remove( selpt_ );
+    if ( !y2vals_.isEmpty() )
+	y2vals_.remove( selpt_ );
+
+    selpt_ = -1;
+    pointChanged.trigger();
+    update();
+}
+
+
+void uiFunctionDisplay::mouseMove( CallBacker* )
+{
+    if ( !mousedown_ ) return;
+    mGetMousePos();
+    if ( !isnorm || selpt_ < 0 ) return;
+
+    float xval = xax_->getVal(ev.pos().x);
+    if ( selpt_ > 0 && xvals_[selpt_-1] >= xval )
+	return;
+    if ( selpt_ < xvals_.size() - 1 && xvals_[selpt_+1] <= xval )
+	return;
+
+    const float yval = yax_->getVal(ev.pos().y);
+    xvals_[selpt_] = xval; yvals_[selpt_] = yval;
+
+    pointChanged.trigger();
+    update();
+}
+
+
+void uiFunctionDisplay::mouseDClick( CallBacker* )
+{
+    mousedown_ = false;
+    mGetMousePos();
+    if ( !isnorm ) return;
+
+    const float xval = xax_->getVal(ev.pos().x);
+    const float yval = yax_->getVal(ev.pos().y);
+    for ( int idx=0; idx<xvals_.size(); idx++ )
+    {
+	if ( xval > xvals_[idx] )
+	    continue;
+
+	if ( xval == xvals_[idx] )
+	    yvals_[idx] = yval;
+	else
+	{
+	    xvals_.insert( idx, xval );
+	    yvals_.insert( idx, yval );
+	}
+
+	selpt_ = idx;
+	break;
+    }
+
+    pointSelected.trigger();
+    update();
 }
