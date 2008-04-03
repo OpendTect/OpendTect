@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.44 2008-03-05 20:06:50 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.45 2008-04-03 19:14:05 cvsyuancheng Exp $";
 
 
 #include "vismultitexture2.h"
@@ -817,8 +817,8 @@ void MultiTexture2::reviewShading()
     if ( canUseShading() )
     {
 	const int maxshadingsize = SoShaderTexture2::getMaxSize();
-	if ( size_.row>0 && size_.col>0 &&
-	     size_.row<=maxshadingsize && size_.col<=maxshadingsize )
+	if ( size_.row>0 && size_.col>0 && ( dosplittexture_ ||
+	     size_.row<=maxshadingsize && size_.col<=maxshadingsize) )
 	    res = true;
 	else if ( newsize_ && size_.row>0 && size_.col>0 )
 	{
