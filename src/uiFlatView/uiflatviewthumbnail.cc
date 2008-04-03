@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Aug 2007
- RCS:           $Id: uiflatviewthumbnail.cc,v 1.6 2007-11-08 14:50:39 cvskris Exp $
+ RCS:           $Id: uiflatviewthumbnail.cc,v 1.7 2008-04-03 07:09:43 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -65,8 +65,7 @@ void uiFlatViewThumbnail::setColors( Color fg, Color bg )
 void uiFlatViewThumbnail::reDrawHandler( uiRect updarea )
 {
     ioDrawTool& dt = drawTool();
-    dt.setBackgroundColor( bgcolor_ );
-    dt.clear();
+    dt.setDrawAreaBackgroundColor( bgcolor_ );
 
     mDeclW2UVars( viewer_.curView() );
     dt.setPenColor( Color::Black );

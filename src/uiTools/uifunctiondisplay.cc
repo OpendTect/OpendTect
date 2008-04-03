@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uifunctiondisplay.cc,v 1.3 2008-04-02 10:25:49 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.cc,v 1.4 2008-04-03 07:09:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,6 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 {
     setPrefWidth( setup_.canvaswidth_ );
     setPrefHeight( setup_.canvasheight_ );
-    setBackgroundColor( setup_.bgcol_ );
     setStretch( 2, 2 );
     preDraw.notify( mCB(this,uiFunctionDisplay,gatherInfo) );
     uiAxisHandler::Setup asu( uiRect::Bottom );
@@ -153,7 +152,8 @@ void uiFunctionDisplay::gatherInfo()
 
 void uiFunctionDisplay::reDrawHandler( uiRect )
 {
-    drawTool().setBackgroundColor( setup_.bgcol_ );
+    ioDrawTool& dt = drawTool();
+    dt.setDrawAreaBackgroundColor( setup_.bgcol_ );
     if ( yvals_.isEmpty() ) return;
     const bool havey2 = !y2vals_.isEmpty();
 
@@ -191,7 +191,6 @@ void uiFunctionDisplay::reDrawHandler( uiRect )
 	    y2ptlist += uiPoint( xpix, y2ax_->getPix(y2vals_[idx]) );
     }
 
-    ioDrawTool& dt = drawTool();
     dt.setPenColor( setup_.ycol_ );
     dt.setFillColor( setup_.fillbelow_ ? setup_.ycol_ : Color::NoColor );
     if ( setup_.fillbelow_ )

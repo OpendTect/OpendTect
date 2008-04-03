@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.cc,v 1.7 2008-03-04 11:56:59 cvsbert Exp $
+ RCS:           $Id: uirgbarraycanvas.cc,v 1.8 2008-04-03 07:09:43 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -98,8 +98,7 @@ void uiRGBArrayCanvas::beforeDraw( CallBacker* )
 void uiRGBArrayCanvas::reDrawHandler( uiRect updarea )
 {
     ioDrawTool& dt = drawTool();
-    dt.setBackgroundColor( bgcolor_ );
-    dt.clear();
+    dt.setDrawAreaBackgroundColor( bgcolor_ );
     updarea_ = updarea;
     if ( !dodraw_ )
 	return;

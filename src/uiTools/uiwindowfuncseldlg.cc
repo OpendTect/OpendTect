@@ -4,10 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2007
- RCS:           $Id: uiwindowfuncseldlg.cc,v 1.2 2008-03-06 04:38:28 cvssatyaki Exp $
+ RCS:           $Id: uiwindowfuncseldlg.cc,v 1.3 2008-04-03 07:09:43 cvsnanne Exp $
 ________________________________________________________________________
 
-      -*/
+-*/
 
 
 #include "uiwindowfuncseldlg.h"
@@ -49,13 +49,12 @@ void uiWindowFuncSelDlg::setCurrentWindowFunc( const char* nm )
     WindowFunction* winfunc = WinFuncs().create( nm );
     if ( !winfunc )
 	return;
+
     for ( int idx=0; idx<xrg.nrSteps(); idx++ )
     {
 	const float x = xrg.atIndex( idx );
 	const float y = winfunc->getValue( x );
-    
-	const uiPoint newpt( transform_->transform(uiWorldPoint(x,y)) );
-	pointlist_ += newpt;
+	pointlist_ += uiPoint( transform_->transform(uiWorldPoint(x,y)) );
     }
 
     canvas_->update();
@@ -71,10 +70,9 @@ void uiWindowFuncSelDlg::setColor( const Color& nc )
 
 void uiWindowFuncSelDlg::reDraw( CallBacker* )
 {
-    ioDrawTool& drawtool = canvas_->drawTool();
-    drawtool.setPenColor( color_ );
-    drawtool.setPenWidth( 2 );
-    drawtool.setBackgroundColor( Color::White );
-    drawtool.clear();
-    drawtool.drawPolyline( pointlist_ );
+    ioDrawTool& dt = canvas_->drawTool();
+    dt.setPenColor( color_ );
+    dt.setPenWidth( 2 );
+    dt.setDrawAreaBackgroundColor( Color::White );
+    dt.drawPolyline( pointlist_ );
 }
