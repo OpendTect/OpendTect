@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		3-12-2008
- RCS:		$Id: vissplittexturerandomline.h,v 1.1 2008-03-24 15:48:27 cvsyuancheng Exp $
+ RCS:		$Id: vissplittexturerandomline.h,v 1.2 2008-04-03 19:13:16 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,9 +15,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "visobject.h"
 
-class SoSplitTexture2Part;
-class SoTextureCoordinate3;
-class SoIndexedTriangleStripSet;
+class SoSeparator;
 
 namespace visBase
 {
@@ -60,9 +58,7 @@ protected:
     TypeSet<int>			usedunits_;
 
     Coordinates*			coords_;
-    ObjectSet<SoSplitTexture2Part>	splittextures_;
-    ObjectSet<SoTextureCoordinate3>	texturecoords_;
-    ObjectSet<SoIndexedTriangleStripSet> tristrips_;
+    ObjectSet<SoSeparator>		separators_;
 };
 
 }; // Namespace

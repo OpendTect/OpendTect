@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		2-28-2008
- RCS:		$Id: vissplittexture2rectangle.cc,v 1.2 2008-03-24 15:56:10 cvsyuancheng Exp $
+ RCS:		$Id: vissplittexture2rectangle.cc,v 1.3 2008-04-03 19:13:16 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,8 +20,9 @@ ________________________________________________________________________
 #include "vistexturecoords.h"
 #include "SoSplitTexture2.h"
 
-#include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoIndexedFaceSet.h>
+#include <Inventor/nodes/SoSeparator.h>
+#include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoTextureCoordinate2.h>
 
 #define mMaxRowSz 256 
@@ -57,14 +58,8 @@ SplitTexture2Rectangle::~SplitTexture2Rectangle()
 {
     coords_->unRef();
 
-    for ( int idx=0; idx<splittextures_.size(); idx++ )
-	splittextures_[idx]->unref();
-
-    for ( int idx=0; idx<facesets_.size(); idx++ )
-    {
-	facesets_[idx]->unref();
-	texturecoords_[idx]->unref();
-    }
+    for ( int idx=0; idx<separators_.size(); idx++ )
+	separators_[idx]->unref();
 }
 
 
@@ -94,9 +89,7 @@ void SplitTexture2Rectangle::updateFaceSets( )
     if ( dosplit_ && usedunits_.size()<0 )
 	return;
 
-    ObjectSet<SoIndexedFaceSet> unusedfacesets = facesets_;
-    ObjectSet<SoTextureCoordinate2> unusedtexturecoords = texturecoords_;
-    ObjectSet<SoSplitTexture2Part> unusedsplittextures = splittextures_;
+    ObjectSet<SoSeparator> unusedseparators = separators_;
     
     for ( int row=0; row<nrrowblocks_; row++ )
     {
@@ -110,39 +103,70 @@ void SplitTexture2Rectangle::updateFaceSets( )
 	    int lastcol = firstcol + mMaxColSz-1;
 	    if ( lastcol>=colsz_ || nrcolblocks_==1 ) lastcol = colsz_-1;
 	    
+	    SoSeparator* sep = 0;
 	    SoIndexedFaceSet* fs = 0;
 	    SoTextureCoordinate2* tc = 0;
 	    SoSplitTexture2Part* sp = 0;
 
-	    if ( unusedfacesets.size() )
+	    if ( unusedseparators.size() )
+		sep = unusedseparators.remove( 0 );
+	    else
 	    {
-		fs = unusedfacesets.remove( 0 );
-		tc = unusedtexturecoords.remove( 0 );
-		if ( dosplit_ && unusedsplittextures.size() )
-		    sp =  unusedsplittextures.remove( 0 );
+		sep =new SoSeparator;
+		sep->ref();
+		addChild( sep );
+		separators_ += sep;
+	    }
+
+	    if ( sep->getNumChildren() )
+	    {
+		fs = (SoIndexedFaceSet*)
+		    sep->getChild( sep->getNumChildren()-1 );
 	    }
 	    else
 	    {
-		if ( dosplit_ )
-		{
-		    sp = new SoSplitTexture2Part;
-		    sp->ref();
-		    addChild( sp );
-		    splittextures_ += sp;
-		}
-
-		tc = new SoTextureCoordinate2;
-		tc->ref();
-		addChild( tc );
-		texturecoords_ += tc;
-
 		fs = new SoIndexedFaceSet;
-		fs->ref();
-		addChild( fs );
+		sep->addChild( fs );
 		const int tindices[] = { 0, 1, 3, 2 };
 		fs->textureCoordIndex.setValues( 0, 4, tindices );
-		facesets_ += fs;
 	    }
+	    
+	    if ( sep->getNumChildren()>1 )
+	    {
+		tc = (SoTextureCoordinate2*)
+		    sep->getChild( sep->getNumChildren()-2 );
+	    }
+	    else
+	    {
+		tc = new SoTextureCoordinate2;
+		sep->insertChild( tc, 0 );
+		
+		if ( sep->findChild(tc)!=sep->findChild(fs)-1 )
+		{
+		    sep->removeChild( tc );
+		    sep->insertChild( tc, sep->findChild( fs ) );
+		}
+	    }
+		
+	    if ( dosplit_ )
+	    {
+		if ( sep->getNumChildren()>2 )
+		    sp = (SoSplitTexture2Part*)
+			sep->getChild( sep->getNumChildren()-3 );
+		else
+		{
+		    sp = new SoSplitTexture2Part;
+		    sep->insertChild( sp, 0 );
+		    
+		    if ( sep->findChild(sp)!=sep->findChild(tc)-1 )
+		    {
+			sep->removeChild( sp );
+			sep->insertChild( sp, sep->findChild( tc ) );
+		    }
+		}
+	    }
+	    else while ( sep->getNumChildren()>2 )
+		sep->removeChild( 0 );
 
 	    const int rowsz = lastrow-firstrow+1;
 	    const int colsz = lastcol-firstcol+1;
@@ -200,25 +224,12 @@ void SplitTexture2Rectangle::updateFaceSets( )
 	}
     }
 
-    for ( int idx=unusedfacesets.size()-1; idx>=0; idx-- )
+    for ( int idx=unusedseparators.size()-1; idx>=0; idx-- )
     {
-	facesets_ -= unusedfacesets[idx];
-	unusedfacesets[idx]->unref();
-	removeChild( unusedfacesets[idx] );
-	unusedfacesets.remove( idx );
-
-	texturecoords_ -= unusedtexturecoords[idx];
-	unusedtexturecoords[idx]->unref();
-	removeChild( unusedtexturecoords[idx] );
-	unusedtexturecoords.remove( idx );
-    }
-
-    for ( int idx=unusedsplittextures.size()-1; idx>=0; idx-- )
-    {
-	splittextures_ -= unusedsplittextures[idx];
-	removeChild( unusedsplittextures[idx] );
-	unusedsplittextures[idx]->unref();
-	unusedsplittextures.remove( idx );
+	separators_ -= unusedseparators[idx];
+	unusedseparators[idx]->unref();
+	removeChild( unusedseparators[idx] );
+	unusedseparators.remove( idx );
     }
 
     updateCoordinates();

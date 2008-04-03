@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		3-12-2008
- RCS:		$Id: vissplittexturerandomline.cc,v 1.1 2008-03-24 15:48:27 cvsyuancheng Exp $
+ RCS:		$Id: vissplittexturerandomline.cc,v 1.2 2008-04-03 19:13:16 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,8 +16,9 @@ ________________________________________________________________________
 #include "viscoord.h"
 #include "SoSplitTexture2.h"
 
-#include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoIndexedTriangleStripSet.h>
+#include <Inventor/nodes/SoSeparator.h>
+#include <Inventor/nodes/SoShapeHints.h>
 #include <Inventor/nodes/SoTextureCoordinate3.h>
 
 #define mMaxHorSz 256
@@ -50,14 +51,9 @@ SplitTextureRandomLine::SplitTextureRandomLine()
 SplitTextureRandomLine::~SplitTextureRandomLine()
 {
     coords_->unRef();
-    for ( int idx=0; idx<splittextures_.size(); idx++ )
-	splittextures_[idx]->unref();
 
-    for ( int idx=0; idx<tristrips_.size(); idx++ )
-	tristrips_[idx]->unref();
-
-    for ( int idx=0; idx<texturecoords_.size(); idx++ )
-	texturecoords_[idx]->unref();
+    for ( int idx=0; idx<separators_.size(); idx++ )
+	separators_[idx]->unref();
 }
 
 
@@ -132,16 +128,6 @@ void SplitTextureRandomLine::setDisplayTransformation( mVisTrans* nt )
 { coords_->setDisplayTransformation( nt ); }
 
 
-#define mRemoveUnused( unused, object ) \
-for ( int idx=unused.size()-1; idx>=0; idx-- ) \
-{ \
-    object -= unused[idx]; \
-    removeChild( unused[idx] ); \
-    unused[idx]->unref(); \
-    unused.remove( idx ); \
-}
-
-
 void SplitTextureRandomLine::updateDisplay( )
 {
     if ( !knots_.size() || !zrg_.width() )
@@ -157,9 +143,7 @@ void SplitTextureRandomLine::updateDisplay( )
     const int nrhorblocks =  shouldsplit ? nrBlocks( pathsz,mMaxHorSz,1 ) : 1;
     const int nrzblocks = shouldsplit ? nrBlocks( nrzpixels_,mMaxVerSz,1 ) : 1;
 
-    ObjectSet<SoIndexedTriangleStripSet> unusedtristrips = tristrips_;
-    ObjectSet<SoTextureCoordinate3> unusedtexturecoords = texturecoords_;
-    ObjectSet<SoSplitTexture2Part> unusedsplittextures = splittextures_;
+    ObjectSet<SoSeparator> unusedseparators = separators_;
 
     int coordidx = 0;
     for ( int horidx=0; horidx<nrhorblocks; horidx++ )
@@ -187,57 +171,73 @@ void SplitTextureRandomLine::updateDisplay( )
 	
 	for ( int idz=0; idz<nrzblocks; idz++ )
 	{
+	    SoSeparator* sep = 0;
 	    SoTextureCoordinate3* tc = 0;
 	    SoSplitTexture2Part* sp = 0;
 	    SoIndexedTriangleStripSet* triangle = 0;
 
-	    if ( unusedtristrips.size() )
-		triangle = unusedtristrips.remove( 0 );
+	    if ( unusedseparators.size() )
+		sep = unusedseparators.remove( 0 );
+	    else
+	    {
+		sep =new SoSeparator;
+		sep->ref();
+		addChild( sep );
+		separators_ += sep;
+	    }
+
+	    if ( sep->getNumChildren() )
+	    {
+		triangle = (SoIndexedTriangleStripSet*)
+		    sep->getChild( sep->getNumChildren()-1 );
+	    }
 	    else
 	    {
 		triangle = new SoIndexedTriangleStripSet;
-		triangle->ref();
-		addChild( triangle );
-		tristrips_ += triangle;
+		sep->addChild( triangle );
 	    }
 
 	    if ( pathsz && nrzpixels_ )
 	    {
-		if ( unusedtexturecoords.size() )
-		    tc = unusedtexturecoords.remove( 0 );
+		if ( sep->getNumChildren()>1 )
+		{
+		    tc = (SoTextureCoordinate3*)
+			sep->getChild( sep->getNumChildren()-2 );
+		}
 		else
 		{
 		    tc = new SoTextureCoordinate3;
-		    tc->ref();
-		    addChild( tc );
-		    texturecoords_ += tc;
-		}
-
-		if ( childIndex(tc)!=childIndex(triangle)-1 )
-		{
-		    removeChild( tc );
-		    insertChild( childIndex( triangle ), tc );
+		    sep->insertChild( tc, 0 );
+		    
+		    if ( sep->findChild(tc)!=sep->findChild(triangle)-1 )
+		    {
+			sep->removeChild( tc );
+			sep->insertChild( tc, sep->findChild( triangle ) );
+		    }
 		}
 
 		if ( shouldsplit )
 		{
-		    if ( unusedsplittextures.size() )
-			sp = unusedsplittextures.remove( 0 );
+		    if ( sep->getNumChildren()>2 )
+			sp = (SoSplitTexture2Part*)
+			    sep->getChild( sep->getNumChildren()-3 );
 		    else
 		    {
 			sp = new SoSplitTexture2Part;
-			sp->ref();
-			insertChild( childIndex( tc ), sp );
-			splittextures_ += sp;
+			sep->insertChild( sp, 0 );
+			
+			if ( sep->findChild(sp)!=sep->findChild(tc)-1 )
+			{
+			    sep->removeChild( sp );
+			    sep->insertChild( sp, sep->findChild( tc ) );
+			}
 		    }
-
-		    if ( childIndex(sp)!=childIndex(tc)-1 )
-		    {
-			removeChild( sp );
-			insertChild( childIndex( tc ), sp );
-		    }		
 		}
+		else while ( sep->getNumChildren()>2 )
+		    sep->removeChild( 0 );
 	    }
+	    else while ( sep->getNumChildren()>1 )
+		sep->removeChild( 0 );
 
 	    const int startzpixel = idz * (mMaxVerSz-1);
 	    int stopzpixel = startzpixel + mMaxVerSz-1;
@@ -312,10 +312,13 @@ void SplitTextureRandomLine::updateDisplay( )
     }
 
     coords_->removeAfter( coordidx-1 );
-    
-    mRemoveUnused( unusedtristrips, tristrips_ );
-    mRemoveUnused( unusedtexturecoords, texturecoords_ );
-    mRemoveUnused( unusedsplittextures, splittextures_ );
+    for ( int idx=unusedseparators.size()-1; idx>=0; idx-- )
+    { 
+    	separators_ -= unusedseparators[idx]; 
+    	removeChild( unusedseparators[idx] ); 
+    	unusedseparators[idx]->unref(); 
+    	unusedseparators.remove( idx ); 
+    }
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		2-28-2008
- RCS:		$Id: vissplittexture2rectangle.h,v 1.2 2008-03-24 15:56:10 cvsyuancheng Exp $
+ RCS:		$Id: vissplittexture2rectangle.h,v 1.3 2008-04-03 19:13:16 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,9 +15,7 @@ ________________________________________________________________________
 #include "position.h"
 #include "visobject.h"
 
-class SoSplitTexture2Part;
-class SoTextureCoordinate2;
-class SoIndexedFaceSet;
+class SoSeparator;
 
 namespace visBase
 {
@@ -67,15 +65,13 @@ protected:
     int			nrrowblocks_;
     int			nrcolblocks_;
 
-    Coordinates*	coords_;
     Coord3		c00_;
     Coord3		c01_;
     Coord3		c10_;
     Coord3		c11_;
 
-    ObjectSet<SoSplitTexture2Part>	splittextures_;
-    ObjectSet<SoTextureCoordinate2>	texturecoords_;
-    ObjectSet<SoIndexedFaceSet>		facesets_;
+    Coordinates*		coords_;
+    ObjectSet<SoSeparator>	separators_;
 };
 
 }; // Namespace
