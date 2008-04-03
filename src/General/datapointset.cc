@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.19 2008-03-18 15:22:40 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.20 2008-04-03 08:25:30 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -68,6 +68,15 @@ Coord DataPointSet::Pos::coord() const
     Coord sc( SI().transform(binid_) );
     sc.x += offsx_; sc.y += offsy_;
     return sc;
+}
+
+
+DataPointSet::DataPointSet( bool is2d, bool mini )
+	: PointDataPack(sKeyDPS)
+	, data_(*new PosVecDataSet)
+    	, mAddMembs(is2d,mini)
+{
+    initPVDS();
 }
 
 
@@ -499,6 +508,18 @@ void DataPointSet::dumpInfo( IOPar& iop ) const
     iop.set( "Number of cols", nrcols );
     for ( int idx=0; idx<nrcols; idx++ )
 	iop.set( IOPar::compKey("Col",idx), colName(idx) );
+}
+
+
+int DataPointSet::nrActive() const
+{
+    int ret = 0;
+    for ( RowID irow=0; irow<size(); irow++ )
+    {
+	if ( !isInactive(irow) )
+	    ret++;
+    }
+    return ret;
 }
 
 
