@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.52 2008-03-18 13:35:27 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.53 2008-04-03 09:06:26 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -586,8 +586,8 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
     if ( !is2d && ti.binid.inl != previnl )
 	lineseqnr = 1;
     previnl = ti.binid.inl;
-    IbmFormat::putInt( seqnr, buf );
-    IbmFormat::putInt( is2d ? seqnr : lineseqnr, buf+4 );
+    IbmFormat::putInt( is2d ? seqnr : lineseqnr, buf );
+    IbmFormat::putInt( seqnr, buf+4 );
     seqnr++; lineseqnr++;
 
     // Now the more general standards
