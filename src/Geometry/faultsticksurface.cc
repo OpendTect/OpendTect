@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: faultsticksurface.cc,v 1.6 2008-02-15 10:48:10 cvsjaap Exp $";
+static const char* rcsID = "$Id: faultsticksurface.cc,v 1.7 2008-04-03 15:53:43 cvsjaap Exp $";
 
 #include "faultsticksurface.h"
 
@@ -79,7 +79,7 @@ bool FaultStickSurface::insertStick( const Coord3& firstpos,
     firstcols_.insert( stickidx, 0 );
     sticks_[stickidx]->insert( 0, firstpos );
 
-    triggerNrPosCh( RowCol(sticknr,StickInsert).getSerialized() );
+    triggerNrPosCh( RowCol(stickidx,StickInsert).getSerialized() );
     if ( blocksCallBacks() )
 	blockCallBacks( true, true );
 
@@ -95,7 +95,7 @@ bool FaultStickSurface::removeStick( int sticknr )
     editplanenormals_.remove( stickidx );
     firstcols_.remove( stickidx );
 
-    triggerNrPosCh( RowCol(sticknr,StickRemove).getSerialized() );
+    triggerNrPosCh( RowCol(stickidx,StickRemove).getSerialized() );
     if ( blocksCallBacks() )
 	blockCallBacks( true, true );
     
@@ -112,7 +112,7 @@ bool FaultStickSurface::insertKnot( const RCol& rc, const Coord3& pos )
     mGetValidKnotIdx( knotidx, rc.c(), stickidx, 1, false );
     
     sticks_[stickidx]->insert( knotidx, pos );
-    triggerNrPosCh( RowCol(rc.r(),StickChange).getSerialized() );
+    triggerNrPosCh( RowCol(stickidx,StickChange).getSerialized() );
 
     return true;
 }
@@ -127,7 +127,7 @@ bool FaultStickSurface::removeKnot( const RCol& rc )
 	return removeStick( rc.r() );
 
     sticks_[stickidx]->remove( knotidx );
-    triggerNrPosCh( RowCol(rc.r(),StickChange).getSerialized() );
+    triggerNrPosCh( RowCol(stickidx,StickChange).getSerialized() );
     
     return true;
 }
@@ -162,7 +162,7 @@ bool FaultStickSurface::setKnot( const RCol& rc, const Coord3& pos )
     mGetValidKnotIdx( knotidx, rc.c(), stickidx, 0, false );
 
     (*sticks_[stickidx])[knotidx] = pos;
-    triggerNrPosCh( RowCol(rc.r(),StickChange).getSerialized() );
+    triggerNrPosCh( RowCol(stickidx,StickChange).getSerialized() );
 
     return true;
 }

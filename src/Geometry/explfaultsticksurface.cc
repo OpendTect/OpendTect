@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.10 2008-03-26 13:53:54 cvsjaap Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.11 2008-04-03 15:53:43 cvsjaap Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -540,7 +540,7 @@ void ExplFaultStickSurface::surfaceChange( CallBacker* cb )
     {
 	RowCol rc;
 	rc.setSerialized( (*pidlist)[idx] );
-	const int stickidx = surface_->rowRange().getIndex( rc.r() );
+	const int stickidx = rc.r();
 
 	if ( rc.c()==FaultStickSurface::StickChange )
 	{
