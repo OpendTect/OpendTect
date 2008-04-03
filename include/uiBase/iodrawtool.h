@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.27 2008-01-03 12:24:22 cvsnanne Exp $
+ RCS:           $Id: iodrawtool.h,v 1.28 2008-04-03 05:48:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 #include "uigeom.h"
 #include "draw.h"
 
-class Color;
 class uiFont;
 class ioPixmap;
 class QPainter;
@@ -34,6 +33,11 @@ class ioDrawTool
 {
 public:
 
+    enum BackgroundMode	{ Transparent, Opaque };
+
+    void		setDrawAreaBackgroundColor(const Color&);
+    void		setBackgroundMode(BackgroundMode);
+    BackgroundMode	backgroundMode() const;
     Color		backgroundColor() const;
     void		setBackgroundColor(const Color&);
     void		clear(const uiRect* r=0,const Color* c=0);
@@ -121,6 +125,7 @@ private:
     QPaintDevice&	qpaintdev_;
 
     const uiFont*	font_;
+    Color		areabgcolor_;
 };
 
 #endif

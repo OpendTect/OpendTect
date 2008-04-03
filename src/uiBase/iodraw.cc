@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.37 2008-04-02 06:38:57 cvsnanne Exp $
+ RCS:           $Id: iodraw.cc,v 1.38 2008-04-03 05:48:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ ioDrawTool::ioDrawTool( QPaintDevice* pd )
     , qpen_(*new QPen())
     , qpaintdev_(*pd)
     , font_(&uiFontList::get())
+    , areabgcolor_(Color::White)
 {
     if ( !pd )
 	pErrMsg( "Null paint device passed. Crash will follow" );
@@ -196,6 +197,29 @@ void ioDrawTool::drawHalfSquare( const uiPoint& from, double ang, double d,
 }
 
 
+void ioDrawTool::setDrawAreaBackgroundColor( const Color& col )
+{
+    preparePainter();
+    QRectF rect( 0, 0, getDevWidth(), getDevHeight() );
+    qpainter_->fillRect( rect, QColor(col.r(),col.g(),col.b()) );
+    areabgcolor_ = col;
+}
+
+
+void ioDrawTool::setBackgroundMode( BackgroundMode mode )
+{
+    preparePainter();
+    Qt::BGMode qmode = (Qt::BGMode)(int)mode;
+    qpainter_->setBackgroundMode( qmode );
+}
+
+
+ioDrawTool::BackgroundMode ioDrawTool::backgroundMode() const
+{
+    preparePainter();
+    return (BackgroundMode)(int)qpainter_->backgroundMode();
+}
+
 
 Color ioDrawTool::backgroundColor() const
 {
@@ -207,16 +231,18 @@ Color ioDrawTool::backgroundColor() const
 void ioDrawTool::setBackgroundColor( const Color& c )
 {
     preparePainter();
-    qpainter_->setBackgroundMode( Qt::OpaqueMode );
     QBrush brush( QColor(c.r(),c.g(),c.b()) );
     qpainter_->setBackground( brush );
 }
 
 
-void ioDrawTool::clear( const uiRect* rect, const Color* col )
+void ioDrawTool::clear( const uiRect* r, const Color* c )
 {
     preparePainter();
-    qpainter_->eraseRect( 0, 0, getDevWidth(), getDevHeight() );
+    const Color col = c ? *c : areabgcolor_;
+    QRectF qrect = r ? QRectF( r->left(), r->top(), r->right(), r->bottom() )
+		     : QRectF( 0, 0, getDevWidth(), getDevHeight() );
+    qpainter_->fillRect( qrect, QColor(col.r(),col.g(),col.b()) );
 }
 
 
