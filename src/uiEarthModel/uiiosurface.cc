@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.51 2008-03-11 09:21:37 cvsbert Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.52 2008-04-03 15:42:15 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -275,7 +275,8 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_,
     , colbut_(0)
     , stratlvlfld_(0)
 {
-    if ( setup.typ_ != EMHorizon2DTranslatorGroup::keyword )
+    if ( setup.typ_!=EMHorizon2DTranslatorGroup::keyword &&
+	 setup.typ_!=EMFaultTranslatorGroup::keyword )
     {
 	if ( surf_.nrSections() > 1 )
 	    mkSectionFld( false );
