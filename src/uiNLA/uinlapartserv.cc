@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.46 2008-04-03 11:18:47 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.47 2008-04-03 13:49:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -474,8 +474,7 @@ const char* uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 {
     const NLACreationDesc& crdesc = creationDesc();
 
-    const bool directextraction = crdesc.doextraction && crdesc.isdirect;
-    if ( directextraction )
+    if ( crdesc.doextraction && crdesc.isdirect )
     {
        if ( !extractDirectData(dpss) )
 	    mErrRet(0)
