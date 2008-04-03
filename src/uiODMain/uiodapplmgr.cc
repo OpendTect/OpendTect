@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.238 2008-04-03 11:18:48 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.239 2008-04-03 13:49:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -1129,29 +1129,24 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	{ pErrMsg("Huh"); return false; }
 	ObjectSet<DataPointSet> dpss;
 	const bool dataextraction = nlaserv_->willDoExtraction();
+	nlaserv_->getDataPointSets( dpss );
+	if ( dpss.isEmpty() )
+	    { uiMSG().error("No valid data locations found"); return false;}
 	if ( dataextraction )
 	{
-	    nlaserv_->getDataPointSets( dpss );
-	    if ( dpss.isEmpty() )
-		{ uiMSG().error("No valid data locations found"); return false;}
+	    if ( !attrserv_->extractData(dpss) )
+		return true;
+	    IOPar& iop = nlaserv_->storePars();
+	    attrserv_->curDescSet(nlaserv_->is2DEvent())->fillPar( iop );
+	    if ( iop.name().isEmpty() )
+		iop.setName( "Attributes" );
 	}
-	bool extrres = attrserv_->extractData( dpss );
-	if ( extrres )
-	{
-	    if ( dataextraction )
-	    {
-		IOPar& iop = nlaserv_->storePars();
-		attrserv_->curDescSet(nlaserv_->is2DEvent())->fillPar( iop );
-		if ( iop.name().isEmpty() )
-		    iop.setName( "Attributes" );
-	    }
-	    const char* res = nlaserv_->prepareInputData( dpss );
-	    if ( res && *res && strcmp(res,uiNLAPartServer::sKeyUsrCancel) )
-		uiMSG().warning( res );
-	    if ( !dataextraction ) // i.e. if we have just read a DataPointSet
-		attrserv_->replaceSet( dpss[0]->dataSet().pars(),
-					dpss[0]->is2D() );
-	}
+
+	const char* res = nlaserv_->prepareInputData( dpss );
+	if ( res && *res && strcmp(res,uiNLAPartServer::sKeyUsrCancel) )
+	    uiMSG().warning( res );
+	if ( !dataextraction ) // i.e. if we have just read a DataPointSet
+	    attrserv_->replaceSet( dpss[0]->dataSet().pars(), dpss[0]->is2D() );
 	deepErase(dpss);
     }
     else if ( evid == uiNLAPartServer::evSaveMisclass )
