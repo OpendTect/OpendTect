@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.237 2008-04-02 11:39:28 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.238 2008-04-03 11:18:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -1127,19 +1127,15 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 
 	if ( !attrserv_->curDescSet(nlaserv_->is2DEvent()) ) 
 	{ pErrMsg("Huh"); return false; }
-	ObjectSet<BinIDValueSet> bivss;
+	ObjectSet<DataPointSet> dpss;
 	const bool dataextraction = nlaserv_->willDoExtraction();
 	if ( dataextraction )
 	{
-	    nlaserv_->getBinIDValueSets( bivss );
-	    if ( bivss.isEmpty() )
+	    nlaserv_->getDataPointSets( dpss );
+	    if ( dpss.isEmpty() )
 		{ uiMSG().error("No valid data locations found"); return false;}
 	}
-	ObjectSet<PosVecDataSet> vdss;
-	bool extrres = attrserv_->extractData( nlaserv_->creationDesc(),
-					      bivss, vdss, 
-					      nlaserv_->is2DEvent() );
-	deepErase( bivss );
+	bool extrres = attrserv_->extractData( dpss );
 	if ( extrres )
 	{
 	    if ( dataextraction )
@@ -1149,32 +1145,30 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 		if ( iop.name().isEmpty() )
 		    iop.setName( "Attributes" );
 	    }
-	    const char* res = nlaserv_->prepareInputData( vdss );
+	    const char* res = nlaserv_->prepareInputData( dpss );
 	    if ( res && *res && strcmp(res,uiNLAPartServer::sKeyUsrCancel) )
 		uiMSG().warning( res );
-	    if ( !dataextraction ) // i.e. if we have just read a PosVecDataSet
-		attrserv_->replaceSet( vdss[0]->pars(), nlaserv_->is2DEvent() );
+	    if ( !dataextraction ) // i.e. if we have just read a DataPointSet
+		attrserv_->replaceSet( dpss[0]->dataSet().pars(),
+					dpss[0]->is2D() );
 	}
-	deepErase(vdss);
+	deepErase(dpss);
     }
     else if ( evid == uiNLAPartServer::evSaveMisclass )
     {
-	const BinIDValueSet& bvsmc = nlaserv_->vdsMCA().data();
-	BinIDValueSet mcpicks( 2, true );
-	mVariableLengthArr( float, vals, bvsmc.nrVals() );
-	BinID bid;
-	BinIDValueSet::Pos pos;
-	while ( bvsmc.next(pos) )
-	{
-	    bvsmc.get( pos, bid, vals );
-	    const float conf = vals[3];
-	    if ( mIsUdf(conf) )
-		continue;
+	const DataPointSet* dpsmc = nlaserv_->dpsMCA();
+	if ( !dpsmc ) return true;
 
-	    const int actualclass = mNINT(vals[1]);
-	    const int predclass = mNINT(vals[2]);
+	BinIDValueSet mcpicks( 2, true );
+	for ( int irow=0; irow<dpsmc->size(); irow++ )
+	{
+	    DataPointSet::DataRow dr( dpsmc->dataRow(irow) );
+	    const float conf = dr.data_[2];
+	    if ( mIsUdf(conf) ) continue;
+	    const int actualclass = mNINT(dr.data_[0]);
+	    const int predclass = mNINT(dr.data_[1]);
 	    if ( actualclass != predclass )
-		mcpicks.add( bid, vals[0], conf );
+		mcpicks.add( dr.pos_.binid_, dr.pos_.z_, conf );
 	}
 	pickserv_->setMisclassSet( mcpicks );
     }

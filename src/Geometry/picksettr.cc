@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jul 2005
- RCS:		$Id: picksettr.cc,v 1.13 2007-12-24 16:50:10 cvsbert Exp $
+ RCS:		$Id: picksettr.cc,v 1.14 2008-04-03 11:18:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "pickset.h"
 #include "ctxtioobj.h"
 #include "binidvalset.h"
+#include "datapointset.h"
 #include "ascstream.h"
 #include "ioobj.h"
 #include "iopar.h"
@@ -176,35 +177,75 @@ void PickSetTranslator::createBinIDValueSets(
 {
     for ( int idx=0; idx<ioobjids.size(); idx++ )
     {
+	TypeSet<Coord3> crds;
+	if ( !getCoordSet(ioobjids.get(idx),crds) )
+	    continue;
+
 	BinIDValueSet* bs = new BinIDValueSet( 1, true );
 	bivsets += bs;
 
-	MultiID key( ioobjids.get( idx ) );
-	const int setidx = Pick::Mgr().indexOf( key );
-	const Pick::Set* ps = setidx < 0 ? 0 : &Pick::Mgr().get( setidx );
-	Pick::Set* createdps = 0;
-	if ( !ps )
+	for ( int ipck=0; ipck<crds.size(); ipck++ )
 	{
-	    PtrMan<IOObj>ioobj = IOM().get( key );
-	    BufferString msg;
-	    if ( !ioobj )
-	    {
-		msg = "Cannot find PickSet with key "; msg += key;
-		ErrMsg( msg ); continue;
-	    }
-	    ps = createdps = new Pick::Set;
-	    if ( !retrieve(*createdps,ioobj,msg) )
-		{ ErrMsg( msg ); delete createdps; continue; }
+	    const Coord3& crd( crds[idx] );
+	    bs->add( SI().transform(crd), crd.z );
 	}
-
-	for ( int ipck=0; ipck<ps->size(); ipck++ )
-	{
-	    Pick::Location pl( (*ps)[ipck] );
-	    bs->add( SI().transform(pl.pos), pl.pos.z );
-	}
-
-	delete createdps;
     }
+}
+
+
+void PickSetTranslator::createDataPointSets( const BufferStringSet& ioobjids,
+					     ObjectSet<DataPointSet>& dpss,
+       					     bool is2d, bool mini )
+{
+    for ( int idx=0; idx<ioobjids.size(); idx++ )
+    {
+	TypeSet<Coord3> crds;
+	if ( !getCoordSet(ioobjids.get(idx),crds) )
+	    continue;
+
+	DataPointSet* dps = new DataPointSet( is2d, mini );
+	dpss += dps;
+
+	DataPointSet::DataRow dr;
+	for ( int ipck=0; ipck<crds.size(); ipck++ )
+	{
+	    const Coord3& crd( crds[idx] );
+	    dr.pos_.set( SI().transform(crd), crd );
+	    dps->addRow( dr );
+	}
+	dps->dataChanged();
+    }
+}
+
+
+bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds )
+{
+    const MultiID key( id );
+    const int setidx = Pick::Mgr().indexOf( key );
+    const Pick::Set* ps = setidx < 0 ? 0 : &Pick::Mgr().get( setidx );
+    Pick::Set* createdps = 0;
+    if ( !ps )
+    {
+	PtrMan<IOObj>ioobj = IOM().get( key );
+	BufferString msg;
+	if ( !ioobj )
+	{
+	    msg = "Cannot find PickSet with key "; msg += key;
+	    ErrMsg( msg ); return false;
+	}
+	ps = createdps = new Pick::Set;
+	if ( !retrieve(*createdps,ioobj,msg) )
+	    { ErrMsg( msg ); delete createdps; return false; }
+    }
+
+    for ( int ipck=0; ipck<ps->size(); ipck++ )
+    {
+	Pick::Location pl( (*ps)[ipck] );
+	crds += Coord3( pl.pos.x, pl.pos.y, pl.pos.z );
+    }
+
+    delete createdps;
+    return true;
 }
 
 

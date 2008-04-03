@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.35 2008-03-21 16:03:50 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.36 2008-04-03 11:18:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,9 +43,8 @@ class Executor;
 class IOObj;
 class IOPar;
 class LineKey;
-class NLACreationDesc;
 class NLAModel;
-class PosVecDataSet;
+class DataPointSet;
 class SeisTrcBuf;
 class SeisTrcInfo;
 class uiAttribDescSetEd;
@@ -123,9 +122,7 @@ public:
     Attrib::DescID	getStoredID(const LineKey&,bool is2d);
     IOObj*		getIOObj(const Attrib::SelSpec&) const;
 
-    bool		extractData(const NLACreationDesc&,
-				    const ObjectSet<BinIDValueSet>&,
-				    ObjectSet<PosVecDataSet>&,bool);
+    bool		extractData(ObjectSet<DataPointSet>&);
     bool		createAttributeSet(const BufferStringSet&,
 	    				   Attrib::DescSet*);
 

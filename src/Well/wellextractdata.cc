@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.34 2008-02-26 09:17:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.35 2008-04-03 11:18:47 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -15,10 +15,12 @@ static const char* rcsID = "$Id: wellextractdata.cc,v 1.34 2008-02-26 09:17:36 c
 #include "welllog.h"
 #include "welldata.h"
 #include "welltransl.h"
-#include "binidvalset.h"
+#include "datapointset.h"
+#include "posvecdataset.h"
 #include "survinfo.h"
 #include "iodirentry.h"
 #include "ctxtioobj.h"
+#include "datacoldef.h"
 #include "filepath.h"
 #include "strmprov.h"
 #include "ioobj.h"
@@ -43,6 +45,7 @@ const char* Well::TrackSampler::sKeySelPol = "Trace selection";
 const char* Well::TrackSampler::sKeyDataStart = "<Start of data>";
 const char* Well::TrackSampler::sKeyDataEnd = "<End of data>";
 const char* Well::TrackSampler::sKeyLogNm = "Log name";
+const char* Well::TrackSampler::sKeyFor2D = "For 2D";
 const char* Well::LogDataExtracter::sKeyLogNm = Well::TrackSampler::sKeyLogNm;
 
 DefineEnumNames(Well::LogDataExtracter,SamplePol,2,
@@ -105,15 +108,17 @@ int Well::InfoCollector::nextStep()
 
 
 Well::TrackSampler::TrackSampler( const BufferStringSet& i,
-				  ObjectSet<BinIDValueSet>& b )
+				  ObjectSet<DataPointSet>& d )
 	: Executor("Well data extraction")
 	, above(0)
     	, below(0)
     	, selpol(Corners)
     	, ids(i)
-    	, bivsets(b)
-    	, curidx(0)
+    	, dpss(d)
+    	, curid(0)
     	, timesurv(SI().zIsTime())
+    	, for2d(false)
+    	, minidps(false)
 {
 }
 
@@ -126,23 +131,24 @@ void Well::TrackSampler::usePar( const IOPar& pars )
     pars.get( sKeyLimits, above, below );
     const char* res = pars.find( sKeySelPol );
     if ( res && *res ) selpol = eEnum(SelPol,res);
+    pars.getYN( sKeyFor2D, for2d );
 }
 
 
 #define mRetNext() { \
     delete ioobj; \
-    curidx++; \
-    return curidx >= ids.size() ? Finished : MoreToDo; }
+    curid++; \
+    return curid >= ids.size() ? Finished : MoreToDo; }
 
 int Well::TrackSampler::nextStep()
 {
-    if ( curidx >= ids.size() )
+    if ( curid >= ids.size() )
 	return 0;
 
-    BinIDValueSet* bivset = new BinIDValueSet(1,true);
-    bivsets += bivset;
+    DataPointSet* dps = new DataPointSet( for2d, minidps );
+    dpss += dps;
 
-    IOObj* ioobj = IOM().get( MultiID(ids.get(curidx)) );
+    IOObj* ioobj = IOM().get( MultiID(ids.get(curid)) );
     if ( !ioobj ) mRetNext()
     Well::Data wd;
     Well::Reader wr( ioobj->fullUserExpr(true), wd );
@@ -152,12 +158,12 @@ int Well::TrackSampler::nextStep()
     if ( mIsUdf(fulldahrg.start) ) mRetNext()
     wr.getMarkers();
 
-    getData( wd, *bivset );
+    getData( wd, *dps );
     mRetNext();
 }
 
 
-void Well::TrackSampler::getData( const Well::Data& wd, BinIDValueSet& bivset )
+void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
 {
     Interval<float> dahrg;
     getLimitPos(wd.markers(),true,dahrg.start);
@@ -185,7 +191,7 @@ void Well::TrackSampler::getData( const Well::Data& wd, BinIDValueSet& bivset )
 	if ( biv.binid != prevbiv.binid
 	  || !mIsEqual(biv.value,prevbiv.value,mDefEps) )
 	{
-	    addBivs( bivset, biv, precisepos );
+	    addPosns( dps, biv, precisepos );
 	    prevbiv = biv;
 	}
     }
@@ -246,44 +252,45 @@ bool Well::TrackSampler::getSnapPos( const Well::Data& wd, float dah,
 }
 
 
-void Well::TrackSampler::addBivs( BinIDValueSet& bivset, const BinIDValue& biv,
+void Well::TrackSampler::addPosns( DataPointSet& dps, const BinIDValue& biv,
 				  const Coord3& precisepos ) const
 {
-    bivset.add( biv );
+    DataPointSet::DataRow dr;
+#define mAddRow(biv,pos) \
+    dr.pos_.z_ = biv.value; dr.pos_.set( biv.binid, pos ); dps.addRow( dr )
+
+    mAddRow( biv, precisepos );
+
     if ( selpol == Corners )
     {
 	BinID stp( SI().inlStep(), SI().crlStep() );
-	BinID bid( biv.binid.inl+stp.inl, biv.binid.crl+stp.crl );
-	Coord crd = SI().transform( bid );
-	double dist = crd.distTo( precisepos );
-	BinID nearest = bid; double lodist = dist;
-
-#define mTestNext(op1,op2) \
-	bid = BinID( biv.binid.inl op1 stp.inl, biv.binid.crl op2 stp.crl ); \
+	BinID bid, nearbid; Coord crd; double dist, lodist=1e30;
+#define mTestNext(ninl,ncrl) \
+	bid = BinID( biv.binid.inl+(ninl)*stp.inl, \
+		     biv.binid.crl+(ncrl)*stp.crl ); \
 	crd = SI().transform( bid ); \
-	dist = crd.distTo( precisepos ); \
+	dist = crd.sqDistTo( precisepos ); \
 	if ( dist < lodist ) \
-	    { lodist = dist; nearest = bid; }
-
-	mTestNext(+,-)
-	mTestNext(-,+)
-	mTestNext(-,-)
+	    { lodist = dist; nearbid = bid; }
+	
+	mTestNext(-1,-1); mTestNext(-1,1); mTestNext(1,1); mTestNext(1,-1);
 
 	BinIDValue newbiv( biv );
-	newbiv.binid.inl = nearest.inl; bivset.add( newbiv );
-	newbiv.binid.crl = nearest.crl; bivset.add( newbiv );
-	newbiv.binid.inl = biv.binid.inl; bivset.add( newbiv );
+#	define mAddExtraRow(bv) mAddRow( bv, SI().transform(bv.binid) )
+	newbiv.binid.inl = nearbid.inl; mAddExtraRow(newbiv);
+	newbiv.binid.crl = nearbid.crl; mAddExtraRow(newbiv);
+	newbiv.binid.inl = biv.binid.inl; mAddExtraRow(newbiv);
     }
 }
 
 
 Well::LogDataExtracter::LogDataExtracter( const BufferStringSet& i,
-					  const ObjectSet<BinIDValueSet>& b )
+					  ObjectSet<DataPointSet>& d )
 	: Executor("Well log data extraction")
 	, ids(i)
-	, bivsets(b)
+	, dpss(d)
     	, samppol(Med)
-	, curidx(0)
+	, curid(0)
     	, timesurv(SI().zIsTime())
 {
 }
@@ -299,22 +306,20 @@ void Well::LogDataExtracter::usePar( const IOPar& pars )
 
 #define mRetNext() { \
     delete ioobj; \
-    curidx++; \
-    return curidx >= ids.size() ? Finished : MoreToDo; }
+    curid++; \
+    return curid >= ids.size() ? Finished : MoreToDo; }
 
 int Well::LogDataExtracter::nextStep()
 {
-    if ( curidx >= ids.size() )
+    if ( curid >= ids.size() )
 	return 0;
 
-    TypeSet<float>* newres = new TypeSet<float>;
-    ress += newres;
-
     IOObj* ioobj = 0;
-    const BinIDValueSet& bivs = *bivsets[curidx];
-    if ( bivs.isEmpty() ) mRetNext()
+    if ( dpss.size() <= curid ) mRetNext()
+    DataPointSet& dps = *dpss[curid];
+    if ( dps.isEmpty() ) mRetNext()
 
-    ioobj = IOM().get( MultiID(ids.get(curidx)) );
+    ioobj = IOM().get( MultiID(ids.get(curid)) );
     if ( !ioobj ) mRetNext()
     Well::Data wd;
     Well::Reader wr( ioobj->fullUserExpr(true), wd );
@@ -331,8 +336,7 @@ int Well::LogDataExtracter::nextStep()
     if ( track.size() < 2 ) mRetNext()
     if ( !wr.getLogs() ) mRetNext()
     
-    getData( bivs, wd, track, *newres );
-
+    getData( dps, wd, track );
     mRetNext();
 }
 
@@ -340,43 +344,22 @@ int Well::LogDataExtracter::nextStep()
 #define mDefWinSz SI().zIsTime() ? wl.dahStep(true)*20 : SI().zStep()
 
 
-void Well::LogDataExtracter::getData( const BinIDValueSet& bivs,
+void Well::LogDataExtracter::getData( DataPointSet& dps,
 				      const Well::Data& wd,
-				      const Well::Track& track,
-				      TypeSet<float>& res ) const
+				      const Well::Track& track )
 {
-    // The order in 'res' is important. We can stop early, but we cannot
-    // leave out undefs.
-
     int wlidx = wd.logs().indexOf( lognm );
     if ( wlidx < 0 )
 	return;
-    const Well::Log& wl = wd.logs().getLog( wlidx );
 
-    if ( GetEnvVar("OD_WELL_EXTRACTION_DATA_DUMP") )
+    const Well::Log& wl = wd.logs().getLog( wlidx );
+    DataColDef* dcd = new DataColDef( lognm );
+    int dpscolidx = dps.dataSet().findColDef( *dcd, PosVecDataSet::NameExact );
+    if ( dpscolidx < 0 )
     {
-	StreamProvider sp( GetEnvVar("OD_WELL_EXTRACTION_DATA_DUMP") );
-	StreamData sd = sp.makeOStream();
-	if ( sd.usable() )
-	{
-	std::ostream& strm = *sd.ostrm;
-	float last_dah = track.dah( track.size()-1 );
-	const float dah_step = wl.dahStep(true);
-	for ( float d_ah=track.dah(0); d_ah<=last_dah; d_ah += dah_step )
-	{
-	    Coord3 tpos = track.getPos( d_ah );
-	    Coord3 zpos = wd.track().getPos( d_ah );
-	    float val = wl.getValue( d_ah );
-	    BinID bid = SI().transform( zpos );
-	    Coord bidcoord = SI().transform( bid );
-	    Coord offs( zpos.x - bidcoord.x, zpos.y - bidcoord.y );
-	    strm << d_ah << '\t' << val << '\t'
-		 << bid.inl << '\t' << bid.crl << '\t'
-		 << offs.x << '\t' << offs.y << '\t'
-		 << zpos.z << '\t' << tpos.z << '\n';
-	}
-	}
-	sd.close();
+	dps.dataSet().add( dcd );
+	dpscolidx = dps.dataSet().nrCols() - 1;
+	if ( dpscolidx < 0 ) return;
     }
 
     bool usegenalgo = !track.alwaysDownward();
@@ -387,7 +370,7 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivs,
     if ( usegenalgo )
     {
 	// Much slower, less precise but should always work
-	getGenTrackData( bivs, track, wl, res );
+	getGenTrackData( dps, track, wl, dpscolidx );
 	return;
     }
 
@@ -397,22 +380,20 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivs,
     int trackidx = 0;
     const float tol = 0.00001;
     float z1 = track.pos(trackidx).z;
-    BinIDValueSet::Pos bvpos;
-    BinIDValue biv;
-    while ( bivs.next(bvpos) )
+
+    int dpsrowidx = 0; float dpsz = 0;
+    while ( dpsrowidx < dps.size() )
     {
-	bivs.get( bvpos, biv );
-	if ( biv.value < z1 - tol )
-	    res += mUdf(float);
-	else
+	dpsz = dps.z(dpsrowidx);
+	if ( dpsz > z1 - tol )
 	    break;
     }
-    if ( !bvpos.valid() ) // Duh. All data below track.
-	{ res.erase(); return; }
+    if ( dpsrowidx >= dps.size() ) // Duh. All data below track.
+	return;
 
     for ( trackidx=0; trackidx<track.size(); trackidx++ )
     {
-	if ( track.pos(trackidx).z > biv.value - tol )
+	if ( track.pos(trackidx).z > dpsz - tol )
 	    break;
     }
     if ( trackidx >= track.size() ) // Duh. Entire track below data.
@@ -420,12 +401,11 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivs,
 
     float prevwinsz = mDefWinSz;
     float prevdah = mUdf(float);
-    bivs.prev( bvpos );
-    while ( bivs.next(bvpos) )
+    for ( ; dpsrowidx<dps.size(); dpsrowidx++ )
     {
-	bivs.get( bvpos, biv );
+	dpsz = dps.z(dpsrowidx);
 	float z2 = track.pos( trackidx ).z;
-	while ( biv.value > z2 )
+	while ( dpsz > z2 )
 	{
 	    trackidx++;
 	    if ( trackidx >= track.size() )
@@ -436,74 +416,63 @@ void Well::LogDataExtracter::getData( const BinIDValueSet& bivs,
 	    continue;
 
 	z1 = track.pos( trackidx - 1 ).z;
-	if ( z1 > biv.value )
+	if ( z1 > dpsz )
 	{
 	    // This is not uncommon. A new binid with higher posns.
 	    trackidx = 0;
-	    bivs.prev( bvpos );
+	    if ( dpsrowidx > 0 ) dpsrowidx--;
 	    mSetUdf(prevdah);
 	    continue;
 	}
 
-	float dah = ( (z2-biv.value) * track.dah(trackidx-1)
-		    + (biv.value-z1) * track.dah(trackidx) )
+	float dah = ( (z2-dpsz) * track.dah(trackidx-1)
+		    + (dpsz-z1) * track.dah(trackidx) )
 		    / (z2 - z1);
 
 	float winsz = mIsUdf(prevdah) ? prevwinsz : dah - prevdah;
-	addValAtDah( dah, wl, res, winsz );
+	addValAtDah( dah, wl, winsz, dps, dpscolidx, dpsrowidx );
 	prevwinsz = winsz;
 	prevdah = dah;
     }
 }
 
 
-void Well::LogDataExtracter::getGenTrackData( const BinIDValueSet& bivs,
+void Well::LogDataExtracter::getGenTrackData( DataPointSet& dps,
 					      const Well::Track& track,
 					      const Well::Log& wl,
-					      TypeSet<float>& res ) const
+					      int dpscolidx )
 {
-    BinIDValueSet::Pos bvpos;
-    BinIDValue biv;
-    while ( bivs.next(bvpos) )
-    {
-	bivs.get( bvpos, biv );
-	if ( !mIsUdf(biv.value) )
-	    break;
-	res += mUdf(float);
-    }
+    if ( !dps.isEmpty() || track.isEmpty() )
+	return;
 
-    if ( !bvpos.valid() || track.isEmpty() )
-	{ res.erase(); return; }
-
-    BinID b( biv.binid.inl+SI().inlStep(),  biv.binid.crl+SI().crlStep() );
-    const float dtol = SI().transform(biv.binid).distTo( SI().transform(b) );
+    const BinID firstbid = dps.binID( 0 );
+    BinID b( firstbid.inl+SI().inlStep(), firstbid.crl+SI().crlStep() );
+    const float dtol = SI().transform(firstbid).distTo( SI().transform(b) );
     const float ztol = SI().zStep() * 5;
     const float startdah = track.dah(0);
     const float dahstep = wl.dahStep(true);
 
     float prevdah = mUdf(float);
     float prevwinsz = mDefWinSz;
-    bivs.prev( bvpos );
-    while ( bivs.next(bvpos) )
+    DataPointSet::RowID dpsrowidx = 0;
+    BinIDValue biv;
+    for ( ; dpsrowidx<dps.size(); dpsrowidx++ )
     {
-	bivs.get( bvpos, biv );
+	biv.binid = dps.binID( dpsrowidx );
+	biv.value = dps.z( dpsrowidx );
 	float dah = findNearest( track, biv, startdah, dahstep );
 	if ( mIsUdf(dah) )
-	    { res += mUdf(float); continue; }
-	else
-	{
-	    Coord3 pos = track.getPos( dah );
-	    Coord coord = SI().transform( biv.binid );
-	    if ( coord.distTo(pos) > dtol || fabs(pos.z-biv.value) > ztol )
-		res += mUdf(float);
-	    else
-	    {
-		float winsz = mIsUdf(prevdah) ? prevwinsz : dah - prevdah;
-		addValAtDah( dah, wl, res, winsz );
-		prevwinsz = winsz;
-		prevdah = dah;
-	    }
-	}
+	    continue;
+
+	Coord3 pos = track.getPos( dah );
+	Coord coord = dps.coord( dpsrowidx );
+	if ( coord.distTo(pos) > dtol || fabs(pos.z-biv.value) > ztol )
+	    continue;
+
+	const float winsz = mIsUdf(prevdah) ? prevwinsz : dah - prevdah;
+	addValAtDah( dah, wl, winsz, dps, dpscolidx, dpsrowidx );
+	prevwinsz = winsz;
+	prevdah = dah;
     }
 }
 
@@ -537,12 +506,12 @@ float Well::LogDataExtracter::findNearest( const Well::Track& track,
 
 
 void Well::LogDataExtracter::addValAtDah( float dah, const Well::Log& wl,
-					  TypeSet<float>& res,
-					  float winsz ) const
+					  float winsz, DataPointSet& dps,
+       					  int dpscolidx, int dpsrowidx ) const
 {
     float val = samppol == Nearest ? wl.getValue( dah )
 				   : calcVal(wl,dah,winsz);
-    res += val;
+    dps.getValues(dpsrowidx)[dpscolidx] = val;
 }
 
 

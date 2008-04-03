@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.12 2004-07-16 15:35:25 bert Exp $
+ RCS:		$Id: wellextractdata.h,v 1.13 2008-04-03 11:18:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 #include "enums.h"
 
 class MultiID;
-class BinIDValueSet;
+class DataPointSet;
 class IODirEntryList;
 
 
@@ -73,7 +73,8 @@ protected:
 };
 
 
-/*!\brief Collects positions along selected well tracks */
+/*!\brief Collects positions along selected well tracks. The DataPointSets will
+  get new rows with the positions along the track. */
 
 class TrackSampler : public ::Executor
 {
@@ -83,7 +84,7 @@ public:
     			DeclareEnumUtils(SelPol)
 
 			TrackSampler(const BufferStringSet& ioobjids,
-				     ObjectSet<BinIDValueSet>&);
+				     ObjectSet<DataPointSet>&);
 
     BufferString	topmrkr;
     BufferString	botmrkr;
@@ -91,17 +92,19 @@ public:
     float		above;
     float		below;
     SelPol		selpol;
+    bool		for2d;
+    bool		minidps;
 
     void		usePar(const IOPar&);
 
     int			nextStep();
     const char*		message() const	   { return "Scanning well tracks"; }
     const char*		nrDoneText() const { return "Wells inspected"; }
-    int			nrDone() const	   { return curidx; }
+    int			nrDone() const	   { return curid; }
     int			totalNr() const	   { return ids.size(); }
 
     const BufferStringSet&	ioObjIds() const	{ return ids; }
-    ObjectSet<BinIDValueSet>&	bivSets()		{ return bivsets; }
+    ObjectSet<DataPointSet>&	dataPointSets()		{ return dpss; }
 
     static const char*	sKeyTopMrk;
     static const char*	sKeyBotMrk;
@@ -110,26 +113,27 @@ public:
     static const char*	sKeyDataStart;
     static const char*	sKeyDataEnd;
     static const char*	sKeyLogNm;
+    static const char*	sKeyFor2D;
 
 protected:
 
     const BufferStringSet&	ids;
-    ObjectSet<BinIDValueSet>&	bivsets;
-    int				curidx;
+    ObjectSet<DataPointSet>&	dpss;
+    int				curid;
     const bool			timesurv;
     Interval<float>		fulldahrg;
 
-    void		getData(const Data&,BinIDValueSet&);
+    void		getData(const Data&,DataPointSet&);
     void		getLimitPos(const ObjectSet<Marker>&,bool,float&) const;
     bool		getSnapPos(const Data&,float,BinIDValue&,int&,
 	    			   Coord3&) const;
-    void		addBivs(BinIDValueSet&,const BinIDValue&,
-				const Coord3&) const;
-
+    void		addPosns(DataPointSet&,const BinIDValue&,
+				 const Coord3&) const;
 };
 
 
-/*!\brief Collects positions along selected well tracks */
+/*!\brief Collects positions along selected well tracks. Will add column
+   to the DataPointSet. */
 
 class LogDataExtracter : public ::Executor
 {
@@ -139,8 +143,7 @@ public:
     			DeclareEnumUtils(SamplePol)
 
 			LogDataExtracter(const BufferStringSet& ioobjids,
-					 const ObjectSet<BinIDValueSet>&);
-			~LogDataExtracter()	{ deepErase(ress); }
+					 ObjectSet<DataPointSet>&);
 
     BufferString	lognm;
     SamplePol		samppol;
@@ -152,26 +155,23 @@ public:
     int			nextStep();
     const char*		message() const	   { return "Getting log values"; }
     const char*		nrDoneText() const { return "Wells handled"; }
-    int			nrDone() const	   { return curidx; }
+    int			nrDone() const	   { return curid; }
     int			totalNr() const	   { return ids.size(); }
 
     const BufferStringSet&	ioObjIds() const	{ return ids; }
-    const ObjectSet< TypeSet<float> >& results() const	{ return ress; }
 
 protected:
 
-    const BufferStringSet&		ids;
-    const ObjectSet<BinIDValueSet>&	bivsets;
-    ObjectSet< TypeSet<float> >		ress;
-    int					curidx;
-    const bool				timesurv;
+    const BufferStringSet&	ids;
+    ObjectSet<DataPointSet>&	dpss;
+    int				curid;
+    const bool			timesurv;
 
-    void		getData(const BinIDValueSet&,const Data&,const Track&,
-	    			TypeSet<float>&) const;
-    void		getGenTrackData(const BinIDValueSet&,const Track&,
-	    				const Log&,TypeSet<float>&) const;
-    void		addValAtDah(float,const Log&,TypeSet<float>&,
-	    				float) const;
+    void		getData(DataPointSet&,const Data&,const Track&);
+    void		getGenTrackData(DataPointSet&,const Track&,const Log&,
+	    				int);
+    void		addValAtDah(float,const Log&,float,
+	    			    DataPointSet&,int,int) const;
     float		calcVal(const Log&,float,float) const;
     float		findNearest(const Track&,const BinIDValue&,
 	    			    float,float) const;

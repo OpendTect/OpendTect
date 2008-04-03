@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.19 2006-12-21 10:48:24 cvshelene Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.20 2008-04-03 11:18:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,8 +17,7 @@ ________________________________________________________________________
 #include "nlamodel.h"
 #include "bufstringset.h"
 class IOPar;
-class UserIDSet;
-class BinIDValueSet;
+class DataPointSet;
 class PosVecDataSet;
 class NLACreationDesc;
 
@@ -75,33 +74,33 @@ public:
 
     			// Following should be filled on events
     BufferStringSet&	inputNames()			{ return inpnms; }
-    PosVecDataSet&	vdsTrain()			{ return trainvds; }
-    PosVecDataSet&	vdsTest()			{ return testvds; }
-    PosVecDataSet&	vdsMCA()			{ return mcvds; }
+    DataPointSet*	dpsTrain()			{ return traindps; }
+    DataPointSet*	dpsTest()			{ return testdps; }
+    DataPointSet*	dpsMCA()			{ return mcdps; }
     IOPar&		storePars()			{ return storepars; }
 
     virtual bool	fillPar(IOPar&) const			= 0;
     virtual void	usePar(const IOPar&)			= 0;
 
-    void		getBinIDValueSets(ObjectSet<BinIDValueSet>&) const;
-    const char*		prepareInputData(const ObjectSet<PosVecDataSet>&);
+    void		getDataPointSets(ObjectSet<DataPointSet>&) const;
+    const char*		prepareInputData(ObjectSet<DataPointSet>&);
 
     void		set2DEvent( bool is2d )		{ is2devent = is2d; }
     bool		is2DEvent()			{ return is2devent; }
 
 protected:
 
-    PosVecDataSet&	trainvds;
-    PosVecDataSet&	testvds;
-    PosVecDataSet&	mcvds;
+    DataPointSet*	traindps;
+    DataPointSet*	testdps;
+    DataPointSet*	mcdps;
     BufferStringSet	inpnms;
     IOPar&		storepars;
     bool		is2devent;
 
     void		writeSets(CallBacker*);
 
-    bool		extractDirectData(const ObjectSet<PosVecDataSet>&);
-    const char*		convertToClasses(const ObjectSet<PosVecDataSet>&,int);
+    bool		extractDirectData(ObjectSet<DataPointSet>&);
+    const char*		convertToClasses(const ObjectSet<DataPointSet>&,int);
 
     struct LithCodeData
     {

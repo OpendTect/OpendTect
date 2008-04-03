@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2001
- RCS:		$Id: nlacrdesc.h,v 1.7 2005-06-08 16:45:34 cvsbert Exp $
+ RCS:		$Id: nlacrdesc.h,v 1.8 2008-04-03 11:18:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "iopar.h"
 class BinIDValueSet;
-class PosVecDataSet;
+class DataPointSet;
 
 /*\brief Description of how an NLA analysis Feature set is to be created */
 
@@ -44,14 +44,9 @@ public:
 
     inline bool		isSupervised() const	{ return design.isSupervised();}
 
-    const char*		prepareData(const ObjectSet<PosVecDataSet>&,
-				     PosVecDataSet& train,
-				     PosVecDataSet& test) const;
-
-protected:
-
-    int			addBVSData(const BinIDValueSet&,BinIDValueSet&,
-	    			   int) const;
+    const char*		prepareData(const ObjectSet<DataPointSet>&,
+				     DataPointSet& train,
+				     DataPointSet& test) const;
 };
 
 

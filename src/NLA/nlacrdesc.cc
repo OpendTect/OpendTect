@@ -4,7 +4,7 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.13 2007-10-08 13:40:00 cvsbert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.14 2008-04-03 11:18:47 cvsbert Exp $";
 
 #include "nlacrdesc.h"
 
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: nlacrdesc.cc,v 1.13 2007-10-08 13:40:00 cvsbert
 #include "ioman.h"
 #include "linekey.h"
 #include "posvecdataset.h"
+#include "datapointset.h"
 #include "ptrman.h"
 #include "statrand.h"
 
@@ -42,88 +43,57 @@ void NLACreationDesc::clear()
 }
 
 
-const char* NLACreationDesc::prepareData( const ObjectSet<PosVecDataSet>& vdss,
-					  PosVecDataSet& trainvds,
-					  PosVecDataSet& testvds ) const
+const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
+					  DataPointSet& traindps,
+					  DataPointSet& testdps ) const
 {
-    trainvds.empty(); testvds.empty();
-    const char* res = 0;
-    const int nrout = vdss.size();
+    const int nrout = dpss.size();
     if ( !nrout )
 	{ return "Internal: No input BinIDValueSets to transfer data from"; }
 
     // For direct prediction, the sets are ready. If not, add a ColumnDef
     // for each output node
-    trainvds.copyStructureFrom( *vdss[0] );
+    traindps.dataSet().copyStructureFrom( dpss[0]->dataSet() );
     if ( doextraction && !isdirect )
     {
         for ( int iout=0; iout<nrout; iout++ )
 	{
 	    BufferString psnm = LineKey::defKey2DispName( outids.get(iout) );
-            trainvds.add( new DataColDef( psnm, *outids[iout] ) );
+            traindps.dataSet().add( new DataColDef( psnm, *outids[iout] ) );
 	}
     }
-    testvds.copyStructureFrom( trainvds );
+    testdps.dataSet().copyStructureFrom( traindps.dataSet() );
+
+    int totnrvec = 0;
+    for ( int idps=0; idps<dpss.size(); idps++ )
+	totnrvec += dpss[idps]->size();
 
     // Get the data into train and test set
-    for ( int idx=0; idx<vdss.size(); idx++ )
-    {
-        if ( !addBVSData(vdss[idx]->data(),trainvds.data(),idx) )
-        {
-            BufferString msg( "No values collected for '" );
-            msg += IOM().nameOf( *outids[idx] );
-            msg += "'";
-            UsrMsg( msg );
-        }
-    }
-
-    if ( res && *res ) return res;
-
-    BinIDValueSet& trainbvs = trainvds.data();
-    BinIDValueSet& testbvs = testvds.data();
+    Stats::RandGen::init();
     const bool extractrand = ratiotst > -0.001;
     const float tstratio = ratiotst < 0 ? -ratiotst : ratiotst;
-    const int needednrtest = (int)(trainbvs.totalSize() * tstratio + .5);
-    if ( needednrtest < 1  || needednrtest >= trainbvs.totalSize() )
-	return 0;
-
-    BinID bid;
-    ArrPtrMan<float> vals = new float [trainbvs.nrVals()];
-    const int totsz = trainbvs.totalSize();
-    int botidx = totsz - 1;
-    while ( testbvs.totalSize() < needednrtest )
+    const int lasttrain = (int)((1-ratiotst)*totnrvec + .5);
+    for ( int idps=0; idps<dpss.size(); idps++ )
     {
-	const int useidx = extractrand ? Stats::RandGen::getIndex( totsz )
-				       : botidx--;
-	BinIDValueSet::Pos pos = trainbvs.getPos( useidx );
-	trainbvs.get( pos, bid, vals );
-	trainbvs.remove( pos );
-	testbvs.add( bid, vals );
-    }
-
-    return res;
-}
-
-
-int NLACreationDesc::addBVSData( const BinIDValueSet& bvs,
-				 BinIDValueSet& bvsout, int iout ) const
-{
-    int nradded = 0;
-    BinIDValueSet::Pos pos;
-    const int totnrvals = bvsout.nrVals();
-    const int outnrvals = totnrvals - bvs.nrVals();
-    BinID bid;
-    ArrPtrMan<float> vals = new float [totnrvals];
-    while ( bvs.next( pos ) )
-    {
-	bvs.get( pos, bid, vals );
-	if ( !isdirect )
+	const DataPointSet& dps = *dpss[idps];
+	for ( DataPointSet::RowID irow=0; irow<dps.size(); irow++ )
 	{
-	    for ( int idx=0; idx<outnrvals; idx++ )
-		vals[totnrvals-outnrvals+idx] = idx == iout ? 1 : 0;
+	    DataPointSet::DataRow dr( dps.dataRow(irow) );
+	    if ( !isdirect )
+	    {
+		for ( int idx=0; idx<nrout; idx++ )
+		    dr.data_ += idx == idps ? 1 : 0;
+	    }
+
+	    const bool istrain = extractrand ? Stats::RandGen::get() < ratiotst
+					     : irow > lasttrain;
+	    if ( istrain )
+		traindps.addRow( dr );
+	    else
+		testdps.addRow( dr );
 	}
-	bvsout.add( bid, vals );
-	nradded++;
     }
-    return nradded;
+
+    traindps.dataChanged(); testdps.dataChanged();
+    return 0;
 }

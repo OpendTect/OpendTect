@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.45 2008-04-02 10:57:25 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.46 2008-04-03 11:18:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "picksettr.h"
 #include "posvecdataset.h"
 #include "posvecdatasettr.h"
+#include "datapointset.h"
 #include "ptrman.h"
 #include "sorting.h"
 #include "survinfo.h"
@@ -34,9 +35,8 @@ ________________________________________________________________________
 #include "uistatsdisplay.h"
 #include "uitaskrunner.h"
 #include "uigeninput.h"
-#include "uiioobjsel.h"
+#include "uidatapointset.h"
 #include "uimsg.h"
-#include "uiposdataedit.h"
 
 
 const int uiNLAPartServer::evPrepareWrite	= 0;
@@ -49,12 +49,18 @@ const int uiNLAPartServer::evSaveMisclass	= 6;
 const int uiNLAPartServer::evCreateAttrSet	= 7;
 const char* uiNLAPartServer::sKeyUsrCancel	= "User cancel";
 
+#define mDestroySets \
+{ \
+    delete traindps; traindps = 0; \
+    delete testdps; testdps = 0; \
+    delete mcdps; mcdps = 0; \
+}
 
 uiNLAPartServer::uiNLAPartServer( uiApplService& a )
 	: uiApplPartServer(a)
-	, trainvds(*new PosVecDataSet("Training data"))
-	, testvds(*new PosVecDataSet("Test data"))
-	, mcvds(*new PosVecDataSet("Misclassified"))
+	, traindps(0)
+	, testdps(0)
+	, mcdps(0)
 	, storepars(*new IOPar)
 {
 }
@@ -63,9 +69,7 @@ uiNLAPartServer::uiNLAPartServer( uiApplService& a )
 uiNLAPartServer::~uiNLAPartServer()
 {
     deepErase( inpnms );
-    delete &trainvds;
-    delete &testvds;
-    delete &mcvds;
+    mDestroySets
     delete &storepars;
 }
 
@@ -82,22 +86,27 @@ const BufferStringSet& uiNLAPartServer::modelInputs() const
 }
 
 
-void uiNLAPartServer::getBinIDValueSets(
-				  ObjectSet<BinIDValueSet>& bivsets ) const
+void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 {
     const NLACreationDesc& crdesc = creationDesc();
 
     if ( !crdesc.isdirect )
-	PickSetTranslator::createBinIDValueSets( crdesc.outids, bivsets );
+	PickSetTranslator::createDataPointSets( crdesc.outids, dpss, is2devent);
     else
     {
-	Executor* ex = WellTranslator::createBinIDValueSets( crdesc.outids,
-							     crdesc.pars,
-							     bivsets );
+	Executor* ex = WellTranslator::createDataPointSets(
+			    crdesc.outids, crdesc.pars, is2devent, dpss );
 	if ( !ex ) return;
 	uiTaskRunner uiex( appserv().parent() );
 	if ( !uiex.execute(*ex) )
-	    deepErase( bivsets );
+	    deepErase( dpss );
+    }
+
+    for ( int idx=0; idx<dpss.size(); idx++ )
+    {
+	PosVecDataSet& vds = dpss[idx]->dataSet();
+	for ( int iinp=0; iinp<crdesc.design.inputs.size(); iinp++ )
+	    vds.add( new DataColDef(crdesc.design.inputs.get(iinp)) );
     }
 }
 
@@ -106,10 +115,10 @@ class uiPrepNLAData : public uiDialog
 {
 public:
 
-uiPrepNLAData( uiParent* p, ObjectSet<PosVecDataSet>& vdss )
-    : uiDialog(p,uiDialog::Setup("Data preparation",gtTitle(vdss),"0.4.3"))
+uiPrepNLAData( uiParent* p, const DataPointSet& dps )
+    : uiDialog(p,uiDialog::Setup("Data preparation",gtTitle(dps),"0.4.3"))
 {
-    const BinIDValueSet& bvs = vdss[0]->data();
+    const BinIDValueSet& bvs = dps.dataSet().data();
     bvs.getColumn( bvs.nrVals() - 1, datavals, false );
     sort_array( datavals.arr(), datavals.size() );
 
@@ -142,9 +151,9 @@ uiPrepNLAData( uiParent* p, ObjectSet<PosVecDataSet>& vdss )
     datagrp->attach( centeredBelow, graphgrp );
 }
 
-const char* gtTitle( const ObjectSet<PosVecDataSet>& vdss ) const
+const char* gtTitle( const DataPointSet& dps ) const
 {
-    const PosVecDataSet& pvds = *vdss[0];
+    const PosVecDataSet& pvds = dps.dataSet();
     const DataColDef& dcd = pvds.colDef( pvds.nrCols()-1 );
     static BufferString ret;
     ret = "Specify data preparation for '";
@@ -182,6 +191,7 @@ void valrgChg( CallBacker* )
 }
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
+
 bool acceptOK( CallBacker* )
 {
     dobal_ = dobalfld->getBoolValue();
@@ -218,60 +228,21 @@ bool acceptOK( CallBacker* )
 };
 
 
-bool uiNLAPartServer::extractDirectData( const ObjectSet<PosVecDataSet>& vdss )
+bool uiNLAPartServer::extractDirectData( ObjectSet<DataPointSet>& dpss )
 {
     const NLACreationDesc& crdesc = creationDesc();
-    if ( vdss.size() != crdesc.outids.size() )
+    if ( dpss.size() != crdesc.outids.size() )
     {
 	if ( DBG::isOn() )
 	    DBG::message( "uiNLAPartServer::extractDirectData: "
-			  "Nr BinIDValue Sets != Nr. well IDs" );
+			  "Nr DataPointSets Sets != Nr. well IDs" );
 	return false;
     }
 
-    // Put the positions in new BinIDValueSets
-    ObjectSet<BinIDValueSet> bivsets;
-    for ( int idx=0; idx<vdss.size(); idx++ )
-    {
-	BinIDValueSet* newbvs = new BinIDValueSet( 1, true );
-	bivsets += newbvs;
-	newbvs->append( vdss[idx]->data() );
-    }
-
-    // Fetch the well data
-    Well::LogDataExtracter lde( crdesc.outids, bivsets );
+    Well::LogDataExtracter lde( crdesc.outids, dpss );
     lde.usePar( crdesc.pars );
     uiTaskRunner uiex( appserv().parent() );
-    if ( uiex.execute(lde) )
-    {
-	// Add a column to the input data
-	const BufferString outnm = crdesc.design.outputs.get(0);
-	for ( int idx=0; idx<vdss.size(); idx++ )
-	{
-	    PosVecDataSet& vds = const_cast<PosVecDataSet&>(*vdss[idx]);
-	    DataColDef* newdcd = new DataColDef( outnm );
-	    newdcd->ref_ = outnm;
-	    vds.add( newdcd );
-	    const TypeSet<float>& res = *lde.results()[idx];
-	    const int ressz = res.size();
-
-	    BinIDValueSet::Pos pos;
-	    const int lastidx = vds.data().nrVals() - 1;
-	    BinID bid;
-	    mVariableLengthArr( float, vals, lastidx+1 );
-	    int ivec = 0;
-	    while ( vds.data().next(pos) )
-	    {
-		vds.data().get( pos, bid, vals );
-		vals[lastidx] = ivec >= ressz ? mUdf(float) : res[ivec];
-		vds.data().set( pos, vals );
-		ivec++;
-	    }
-	}
-    }
-
-    deepErase( bivsets );
-    return true;
+    return uiex.execute(lde);
 }
 
 
@@ -362,17 +333,17 @@ bool acceptOK( CallBacker* )
 
 
 const char* uiNLAPartServer::convertToClasses(
-					const ObjectSet<PosVecDataSet>& vdss,
-					const int firstgoodvds )
+					const ObjectSet<DataPointSet>& dpss,
+					const int firstgooddps )
 {
-    const int valnr = vdss[firstgoodvds]->data().nrVals() - 1;
-    const char* valnm = vdss[firstgoodvds]->colDef(valnr).name_;
+    const int valnr = dpss[firstgooddps]->dataSet().data().nrVals() - 1;
+    const char* valnm = dpss[firstgooddps]->dataSet().colDef(valnr).name_;
 
     // Discover the litho codes
     LithCodeData lcd;
-    for ( int iset=firstgoodvds; iset<vdss.size(); iset++ )
+    for ( int iset=firstgooddps; iset<dpss.size(); iset++ )
     {
-	const BinIDValueSet& bvs = vdss[iset]->data();
+	const BinIDValueSet& bvs = dpss[iset]->dataSet().data();
 	BinIDValueSet::Pos pos;
 	while( bvs.next(pos) )
 	{
@@ -396,9 +367,9 @@ const char* uiNLAPartServer::convertToClasses(
 	return sKeyUsrCancel;
 
     lcd.useUserSels( usels );
-    for ( int iset=0; iset<vdss.size(); iset++ )
+    for ( int iset=0; iset<dpss.size(); iset++ )
     {
-	PosVecDataSet& vds = const_cast<PosVecDataSet&>( *vdss[iset] );
+	PosVecDataSet& vds = const_cast<PosVecDataSet&>(dpss[iset]->dataSet());
 	lcd.addCols( vds, valnm );
 	if ( !vds.data().isEmpty() )
 	    lcd.fillCols( vds, valnr );
@@ -495,102 +466,93 @@ void uiNLAPartServer::LithCodeData::fillCols( PosVecDataSet& vds,
 }
 
 
-const char* uiNLAPartServer::prepareInputData(
-		const ObjectSet<PosVecDataSet>& inpvdss )
+#undef mErrRet
+#define mErrRet(rv) \
+{ mDestroySets; return rv; }
+
+const char* uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 {
     const NLACreationDesc& crdesc = creationDesc();
 
     const bool directextraction = crdesc.doextraction && crdesc.isdirect;
     if ( directextraction )
     {
-       if ( !extractDirectData(inpvdss) )
-	    return 0;
+       if ( !extractDirectData(dpss) )
+	    mErrRet(0)
 
 	if ( crdesc.design.classification )
 	{
-	    int firstgoodvds = -1;
-	    for ( int iset=0; iset<inpvdss.size(); iset++ )
+	    int firstgooddps = -1;
+	    for ( int iset=0; iset<dpss.size(); iset++ )
 	    {
-		if ( !inpvdss[iset]->data().isEmpty() )
-		    { firstgoodvds = iset; break; }
+		if ( !dpss[iset]->isEmpty() )
+		    { firstgooddps = iset; break; }
 	    }
-	    if ( firstgoodvds == -1 )
-		return "No valid data found";
+	    if ( firstgooddps == -1 )
+		mErrRet("No valid data found")
 
-	    const int orgnrvals = inpvdss[firstgoodvds]->data().nrVals();
-	    const char* res = convertToClasses( inpvdss, firstgoodvds );
-	    if ( res )
-		return res;
+	    const PosVecDataSet& vds = dpss[firstgooddps]->dataSet();
+	    const int orgnrvals = vds.nrCols();
+	    const char* res = convertToClasses( dpss, firstgooddps );
+	    if ( res ) mErrRet(res)
 
 	    // change design output nodes to new nodes
 	    BufferStringSet& outps = const_cast<BufferStringSet&>(
 		    				crdesc.design.outputs );
 	    outps.deepErase();
-	    const int newnrvals = inpvdss[firstgoodvds]->data().nrVals();
+	    const int newnrvals = vds.data().nrVals();
 	    for ( int idx=orgnrvals; idx<newnrvals; idx++ )
-		outps.add( inpvdss[firstgoodvds]->colDef(idx).ref_ );
+		outps.add( vds.colDef(idx).ref_ );
 	}
     }
-    const char* res = crdesc.prepareData( inpvdss, trainvds, testvds );
-    if ( res ) return res;
+
+    mDestroySets;
+    traindps = new DataPointSet( is2devent, false );
+    testdps = new DataPointSet( is2devent, false );
+    const char* res = crdesc.prepareData( dpss, *traindps, *testdps );
+    if ( res ) mErrRet(res)
 
     // allow user to view and edit data
-    ObjectSet<PosVecDataSet> vdss;
-    vdss += &trainvds;
-    if ( !testvds.data().isEmpty() )
-	vdss += &testvds;
-    uiPosDataEdit dlg( appserv().parent(), vdss, 0, uiPosDataEdit::AllOnly );
-    dlg.saveData.notify( mCB(this,uiNLAPartServer,writeSets) );
-    if ( dlg.go() )
+    uiDataPointSet::Setup uidpssu("Training data",true);
+    uidpssu.wintitle("Training data").isconst( false );
+    uiDataPointSet* uidps = new uiDataPointSet( appserv().parent(),
+	    					*traindps, uidpssu );
+    uidps->storePars() = storepars;
+    bool ret = uidps->go();
+    delete uidps; if ( !ret ) mErrRet(sKeyUsrCancel)
+    if ( !testdps->isEmpty() )
     {
-	if ( vdss.size() < 2 )
-	    vdss += &testvds;
-	bool allok = true;
-	if ( crdesc.isdirect && !crdesc.design.classification )
-	{
-	    uiPrepNLAData pddlg( appserv().parent(), vdss );
-	    allok = pddlg.go();
-	    if ( allok )
-	    {
-		const int targetcol = trainvds.data().nrVals() - 1;
-		NLADataPreparer dptrain( trainvds.data(), targetcol );
-		dptrain.removeUndefs(); dptrain.limitRange( pddlg.rg_ );
-		if ( pddlg.dobal_ )
-		    dptrain.balance( pddlg.bsetup_ );
-		if ( !testvds.data().isEmpty() )
-		{
-		    NLADataPreparer dptest( testvds.data(), targetcol );
-		    dptest.removeUndefs(); dptest.limitRange( pddlg.rg_ );
-		    if ( pddlg.dobal_ )
-			dptest.balance( pddlg.bsetup_ );
-		}
-	    }
-	}
-
-	if ( allok )
-	    return 0;
+	uidpssu.wintitle("Test data");
+	uidps = new uiDataPointSet( appserv().parent(), *testdps, uidpssu );
+	uidps->storePars() = storepars;
+	bool ret = uidps->go();
+	delete uidps; if ( !ret ) mErrRet(sKeyUsrCancel)
     }
 
-    trainvds.data().empty(); testvds.data().empty();
-    return sKeyUsrCancel;
-}
+    bool allok = true;
+    if ( crdesc.isdirect && !crdesc.design.classification )
+    {
+	uiPrepNLAData pddlg( appserv().parent(), *traindps );
+	allok = pddlg.go();
+	if ( allok )
+	{
+	    const int targetcol = traindps->dataSet().data().nrVals() - 1;
+	    NLADataPreparer dptrain( traindps->dataSet().data(), targetcol );
+	    dptrain.removeUndefs(); dptrain.limitRange( pddlg.rg_ );
+	    if ( pddlg.dobal_ )
+		dptrain.balance( pddlg.bsetup_ );
+	    if ( !testdps->isEmpty() )
+	    {
+		NLADataPreparer dptest( testdps->dataSet().data(), targetcol );
+		dptest.removeUndefs(); dptest.limitRange( pddlg.rg_ );
+		if ( pddlg.dobal_ )
+		    dptest.balance( pddlg.bsetup_ );
+	    }
+	}
+    }
 
+    if ( allok )
+	return 0;
 
-void uiNLAPartServer::writeSets( CallBacker* cb )
-{
-    // Almost identical to uiAttribCrossPlot::saveData
-    // Couldn't think of a common place to put it
-    mDynamicCastGet(uiPosDataEdit*,dlg,cb)
-    if ( !dlg ) { pErrMsg("Huh"); return; }
-
-    CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
-    ctio.ctxt.forread = false;
-    ctio.ctxt.parconstraints.set( sKey::Type, "MVA Data" );
-    ctio.ctxt.includeconstraints = true;
-    uiIOObjSelDlg seldlg( appserv().parent(), ctio );
-    if ( !seldlg.go() )
-	return;
-    ctio.setObj( seldlg.ioObj()->clone() );
-    dlg->stdSave( *ctio.ioobj, false, &storepars );
-    delete ctio.ioobj;
+    mErrRet(sKeyUsrCancel)
 }

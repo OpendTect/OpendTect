@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.85 2008-03-21 16:03:50 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.86 2008-04-03 11:18:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ ________________________________________________________________________
 #include "nlacrdesc.h"
 #include "nlamodel.h"
 #include "posvecdataset.h"
+#include "datapointset.h"
 #include "ptrman.h"
 #include "seisbuf.h"
 #include "seisinfo.h"
@@ -613,40 +614,23 @@ bool uiAttribPartServer::isDataClassified( const Array3D<float>& array ) const
 }
 
 
-bool uiAttribPartServer::extractData( const NLACreationDesc& desc,
-				      const ObjectSet<BinIDValueSet>& bivsets,
-				      ObjectSet<PosVecDataSet>& outvds, 
-				      bool is2d )
+bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss ) 
 {
-    DescSetMan* adsman = getAdsMan( is2d );
+    if ( dpss.isEmpty() ) { pErrMsg("No inp data"); return 0; }
+    DescSetMan* adsman = getAdsMan( dpss[0]->is2D() );
     if ( !adsman->descSet() ) { pErrMsg("No attr set"); return 0; }
 
-    if ( desc.doextraction )
+    Attrib::EngineMan aem;
+    for ( int idx=0; idx<dpss.size(); idx++ )
     {
-	PosVecOutputGen pvog( *adsman->descSet(), desc.design.inputs,
-				     bivsets, outvds );
+	DataPointSet& dps = *dpss[idx];
+	Executor* tabextr = aem.getTableExtractor( dps, *adsman->descSet() );
 	uiTaskRunner taskrunner( parent() );
-	if ( !taskrunner.execute(pvog) )
+	if ( !taskrunner.execute(*tabextr) )
 	    return false;
-	else if ( outvds.size() != bivsets.size() )
-	{
-	    // Earlier error
-	    ErrMsg( "Error during data extraction (not all data extracted)." );
-	    return false;
-	}
+	delete tabextr;
     }
-    else
-    {
-	PtrMan<IOObj> ioobj = IOM().get( desc.vdsid );
-	PosVecDataSet* vds = new PosVecDataSet;
-	BufferString errmsg;
-	if ( !vds->getFrom(ioobj->fullUserExpr(true),errmsg) )
-	    { uiMSG().error( errmsg ); delete vds; return false; }
-	if ( vds->pars().isEmpty() || vds->data().isEmpty() )
-	    { uiMSG().error( "Invalid Training set specified" );
-		delete vds; return false; }
-	outvds += vds;
-    }
+
     return true;
 }
 

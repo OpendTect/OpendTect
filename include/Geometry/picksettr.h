@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		May 2001
- RCS:		$Id: picksettr.h,v 1.8 2007-12-24 16:49:58 cvsbert Exp $
+ RCS:		$Id: picksettr.h,v 1.9 2008-04-03 11:18:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,9 @@ ________________________________________________________________________
 #include "transl.h"
 #include "bufstringset.h"
 class Conn;
-namespace Pick { class Set; }
 class BinIDValueSet;
+class DataPointSet;
+namespace Pick { class Set; }
 template <class T> class ODPolygon;
 
 
@@ -42,9 +43,15 @@ public:
     static bool		retrieve(Pick::Set&,const IOObj*,BufferString&);
     static bool		store(const Pick::Set&,const IOObj*,BufferString&);
 
+    static bool		getCoordSet(const char* ioobjkey,TypeSet<Coord3>&);
+    			//!< Utility function
     static void		createBinIDValueSets(const BufferStringSet& ioobjids,
 					     ObjectSet<BinIDValueSet>&);
-    			//!< Utility function.
+    			//!< Utility function
+    static void		createDataPointSets(const BufferStringSet&,
+					     ObjectSet<DataPointSet>&,
+					     bool is2d,bool mini=false);
+    			//!< Utility function
     static ODPolygon<float>* getPolygon(const IOObj&,BufferString& errmsg);
     			//!< Returns null on failure
 };
