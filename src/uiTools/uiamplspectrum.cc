@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:          September 2007
- RCS:           $Id: uiamplspectrum.cc,v 1.3 2008-04-01 14:11:47 cvsbert Exp $
+ RCS:           $Id: uiamplspectrum.cc,v 1.4 2008-04-03 13:45:16 cvskris Exp $
 _______________________________________________________________________
                    
 -*/   
@@ -91,7 +91,7 @@ void uiAmplSpectrum::setData( const Array3D<float>& array )
 void uiAmplSpectrum::initFFT( int nrsamples ) 
 {
     fft_ = new FFT();
-    const int fftsz = fft_->_getNearBigFastSz( nrsamples );
+    const int fftsz = fft_->nearestBiggerFastSize( nrsamples );
     fft_->setInputInfo( Array1DInfoImpl(fftsz) );
     fft_->setDir( true );
     fft_->init();

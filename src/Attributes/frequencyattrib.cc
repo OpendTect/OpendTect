@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.18 2007-12-06 11:07:30 cvshelene Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.19 2008-04-03 13:45:16 cvskris Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -195,7 +195,7 @@ bool Frequency::computeData( const DataHolder& output, const BinID& relpos,
     Frequency* myself = const_cast<Frequency*>(this);
     if ( !fftisinit_ )
     {
-	myself->fftsz_ = FFT::_getNearBigFastSz((samplegate_.width()+1)*3);
+	myself->fftsz_ = FFT::nearestBiggerFastSize((samplegate_.width()+1)*3);
 	myself->fft_.setInputInfo(Array1DInfoImpl(fftsz_));
 	myself->fft_.setDir(true);
 	myself->fft_.init();
