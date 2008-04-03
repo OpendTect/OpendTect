@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.38 2008-02-29 11:25:08 cvsnanne Exp $
+ RCS:           $Id: uitable.h,v 1.39 2008-04-03 07:08:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,12 +203,15 @@ public:
     Notifier<uiTable>	leftClicked;
     Notifier<uiTable>	rightClicked;
     Notifier<uiTable>	doubleClicked;
+    Notifier<uiTable>	selectionChanged;
 
     const RowCol&	newCell() const		{ return newcell_; }
     Notifier<uiTable>	rowInserted;
     Notifier<uiTable>	rowDeleted;
     Notifier<uiTable>	colInserted;
     Notifier<uiTable>	colDeleted;
+    CNotifier<uiTable,int> rowClicked;
+    CNotifier<uiTable,int> columnClicked;
 
     void		setPixmap(const RowCol&,const ioPixmap&);
     void		setColor(const RowCol&,const Color&);
@@ -225,8 +228,29 @@ public:
     void		setSelectionBehavior(SelectionBehavior);
     void		editCell(const RowCol&,bool replace=false);
 
+    class SelectionRange
+    {
+    public:
+			SelectionRange()
+			    : firstrow_(-1), lastrow_(-1)
+			    , firstcol_(-1), lastcol_(-1)	{}
+
+	int		nrRows() const	{ return lastrow_-firstrow_+1; }
+	int		nrCols() const	{ return lastcol_-firstcol_+1; }
+
+	int		firstrow_;
+	int		lastrow_;
+
+	int		firstcol_;
+	int		lastcol_;
+    };
+
+
+    const ObjectSet<SelectionRange>&	selectedRanges() const;
+
 protected:
 
+    mutable ObjectSet<SelectionRange> selranges_;
     RowCol		notifcell_;
     RowCol		newcell_;
 

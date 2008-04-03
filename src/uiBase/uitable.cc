@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.60 2008-02-29 11:25:08 cvsnanne Exp $
+ RCS:           $Id: uitable.cc,v 1.61 2008-04-03 07:08:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -219,6 +219,9 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , colInserted(this)
     , rowDeleted(this)
     , colDeleted(this)
+    , selectionChanged(this)
+    , rowClicked(this)
+    , columnClicked(this)
 {
     rightClicked.notify( mCB(this,uiTable,popupMenu) );
     setGeometry.notify( mCB(this,uiTable,geometrySet_) );
@@ -244,7 +247,9 @@ uiTableBody& uiTable::mkbody( uiParent* p, const char* nm, int nr, int nc )
 
 
 uiTable::~uiTable()
-{}
+{
+    deepErase( selranges_ );
+}
 
 
 void uiTable::showGrid( bool yn )
@@ -1024,3 +1029,21 @@ void uiTable::clearCellObject( const RowCol& rc )
 
 RowCol uiTable::getCell( uiObject* obj )
 { return body_->getCell( obj ); }
+
+
+const ObjectSet<uiTable::SelectionRange>& uiTable::selectedRanges() const
+{
+    deepErase( selranges_ );
+    QList<QTableWidgetSelectionRange> qranges = body_->selectedRanges();
+    for ( int idx=0; idx<qranges.size(); idx++ )
+    {
+	uiTable::SelectionRange* rg = new uiTable::SelectionRange;
+	rg->firstrow_ = qranges[idx].topRow();
+	rg->lastrow_ = qranges[idx].bottomRow();
+	rg->firstcol_ = qranges[idx].leftColumn();
+	rg->lastcol_ = qranges[idx].rightColumn();
+	selranges_ += rg;
+    }
+
+    return selranges_;
+}

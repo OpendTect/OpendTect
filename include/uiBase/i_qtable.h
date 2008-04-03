@@ -7,15 +7,17 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: i_qtable.h,v 1.2 2008-02-01 05:22:25 cvsnanne Exp $
+ RCS:		$Id: i_qtable.h,v 1.3 2008-04-03 07:08:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uitable.h"
 
+#include <QHeaderView>
 #include <QObject>
 #include <QTableWidget>
+#include <QTableWidgetItem>
 #include <QWidget>
 
 
@@ -29,22 +31,27 @@ class i_tableMessenger : public QObject
     friend class	uiTableBody;
 
 protected:
-			i_tableMessenger( QTableWidget*  sender,
-					  uiTable* receiver )
-			: sender_( sender )
-			, receiver_( receiver )
-			{ 
-			    connect( sender, SIGNAL(cellChanged(int,int)),
-				     this,   SLOT(valueChanged(int,int)) );
+i_tableMessenger( QTableWidget*  sender, uiTable* receiver )
+    : sender_(sender)
+    , receiver_(receiver)
+{ 
+    connect( sender, SIGNAL(cellChanged(int,int)),
+	     this, SLOT(valueChanged(int,int)) );
 
-			    connect( sender, 
-				     SIGNAL(cellClicked(int,int)),
-				     this, SLOT(clicked(int,int)) );
+    connect( sender, SIGNAL(cellClicked(int,int)),
+	     this, SLOT(clicked(int,int)) );
 
-			    connect( sender, 
-				     SIGNAL(cellDoubleClicked(int,int)),
-				     this, SLOT(doubleClicked(int,int)) );
-			}
+    connect( sender, SIGNAL(cellDoubleClicked(int,int)),
+	     this, SLOT(doubleClicked(int,int)) );
+
+    connect( sender, SIGNAL(itemSelectionChanged()),
+	     this, SLOT(itemSelectionChanged()) );
+
+    connect( sender->verticalHeader(), SIGNAL(sectionClicked(int)),
+	     this, SLOT(rowClicked(int)) );
+    connect( sender->horizontalHeader(), SIGNAL(sectionClicked(int)),
+	     this, SLOT(columnClicked(int)) );
+}
 
     virtual		~i_tableMessenger() {}
    
@@ -73,8 +80,17 @@ void clicked( int row, int col )
 void doubleClicked( int row, int col )
 {
     receiver_->notifcell_ = RowCol(row,col);
-    receiver_->doubleClicked.trigger(*receiver_);
+    receiver_->doubleClicked.trigger( *receiver_ );
 }
+
+void itemSelectionChanged()
+{ receiver_->selectionChanged.trigger( *receiver_ ); }
+
+void rowClicked( int idx )
+{ receiver_->rowClicked.trigger( idx, *receiver_ ); }
+
+void columnClicked( int idx )
+{ receiver_->columnClicked.trigger( idx, *receiver_ ); }
 
 };
 
