@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Sep 1994, Aug 2006
- RCS:		$Id: factory.h,v 1.8 2007-12-03 22:10:31 cvskris Exp $
+ RCS:		$Id: factory.h,v 1.9 2008-04-03 16:12:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,14 +68,20 @@ public:
     inline void			addCreator(Creator,const char* nm,
 	    				   const char* username = 0);
     				//!<Name may be not be null
+				//!<If nm is found, old creator is replaced.
     inline T*			create(const char* nm) const;
     				//!<Name may be not be null
     const BufferStringSet&	getNames(bool username=false) const;
+    void			setDefaultName(int idx);
+    				//!<idx refers to names in names_,
+				//!<or -1 for none
+    const char*			getDefaultName() const;
 protected:
 
     BufferStringSet		names_;
     BufferStringSet		usernames_;
     TypeSet<Creator>		creators_;
+    BufferString		defaultname_;
 };
 
 
@@ -128,15 +134,23 @@ public:
     inline void			addCreator(Creator,const char* nm=0,
 	    				   const char* usernm = 0);
     				//!<Name may be be null
+				//!<If nm is found, old creator is replaced.
     inline T*			create(const char* nm, P, bool chknm=true)const;
     				//!<Name may be be null, if null name is given
 				//!<chknm will be forced to false
     const BufferStringSet&	getNames(bool username=false) const;
+
+    void			setDefaultName(int idx);
+    				//!<idx refers to names in names_,
+				//!<or -1 for none
+    const char*			getDefaultName() const;
+
 protected:
 
     BufferStringSet		names_;
     BufferStringSet		usernames_;
     TypeSet<Creator>		creators_;
+    BufferString		defaultname_;
 };
 
 
@@ -148,16 +162,24 @@ public:
     inline void			addCreator(Creator,const char* nm=0,
 	    				   const char* usernm = 0);
     				//!<Name may be be null
+				//!<If nm is found, old creator is replaced.
     inline T*			create(const char* nm, P0, P1,
 	    			       bool chknm=true)const;
     				//!<Name may be be null, if null name is given
 				//!<chknm will be forced to false
     const BufferStringSet&	getNames(bool username=false) const;
+
+    void			setDefaultName(int idx);
+    				//!<idx refers to names in names_,
+				//!<or -1 for none
+    const char*			getDefaultName() const;
+
 protected:
 
     BufferStringSet		names_;
     BufferStringSet		usernames_;
     TypeSet<Creator>		creators_;
+    BufferString		defaultname_;
 };
 
 
@@ -169,22 +191,17 @@ void Factory<T>::addCreator( Creator cr, const char* name,
 	return;
 
     const int idx = names_.indexOf( name );
-    if ( idx!=-1 )
+    if ( idx==-1 )
     {
-	if ( (username && *usernames_[idx]!=username) ||
-	     creators_[idx]!=cr )
-	{
-	    BufferString msg = "Refusing to add factory ";
-	    msg += name;
-	    pErrMsg(msg.buf());
-	}
-
-	return;
+	names_.add( name );
+	usernames_.add( username ? username : name );
+	creators_ += cr;
     }
-
-    names_.add( name );
-    usernames_.add( username ? username : name );
-    creators_ += cr;
+    else
+    {
+	*usernames_[idx] = username ? username : name;
+	creators_[idx] = cr;
+    }
 }
 
 
@@ -206,14 +223,37 @@ const BufferStringSet& Factory<T>::getNames( bool username ) const
 { return username ? usernames_ : names_; }
 
 
+template <class T> inline
+void Factory<T>::setDefaultName( int idx )
+{
+    if ( idx<0 || idx>=names_.size() )
+	defaultname_.empty();
+    else
+	defaultname_ = *names_[idx];
+}
+
+
+template <class T> inline
+const char* Factory<T>::getDefaultName() const
+{ return defaultname_.isEmpty() ? 0 : defaultname_.buf(); }
+
+
 template <class T, class P> inline
 void Factory1Param<T,P>::addCreator( Creator cr, const char* name,
 				     const char* username )
 {
-    names_.add( name );
-    usernames_.add( username ? username : name );
-
-    creators_ += cr;
+    const int idx = names_.indexOf( name );
+    if ( idx==-1 )
+    {
+	names_.add( name );
+	usernames_.add( username ? username : name );
+	creators_ += cr;
+    }
+    else
+    {
+	*usernames_[idx] = username ? username : name;
+	creators_[idx] = cr;
+    }
 }
 
 
@@ -243,13 +283,37 @@ const BufferStringSet& Factory1Param<T,P>::getNames( bool username ) const
 { return username ? usernames_ : names_; }
 
 
+template <class T, class P> inline
+void Factory1Param<T,P>::setDefaultName( int idx )
+{
+    if ( idx<0 || idx>=names_.size() )
+	defaultname_.empty();
+    else
+	defaultname_ = *names_[idx];
+}
+
+
+template <class T, class P> inline
+const char* Factory1Param<T,P>::getDefaultName() const
+{ return defaultname_.isEmpty() ? 0 : defaultname_.buf(); }
+
+
 template <class T, class P0, class P1> inline
 void Factory2Param<T,P0,P1>::addCreator( Creator cr, const char* name,
 					 const char* username )
 {
-    names_.add( name );
-    usernames_.add( username ? username : name );
-    creators_ += cr;
+    const int idx = names_.indexOf( name );
+    if ( idx==-1 )
+    {
+	names_.add( name );
+	usernames_.add( username ? username : name );
+	creators_ += cr;
+    }
+    else
+    {
+	*usernames_[idx] = username ? username : name;
+	creators_[idx] = cr;
+    }
 }
 
 
@@ -278,6 +342,21 @@ T* Factory2Param<T,P0,P1>::create( const char* name, P0 p0, P1 p1,
 template <class T, class P0, class P1> inline
 const BufferStringSet& Factory2Param<T,P0,P1>::getNames( bool username ) const
 { return username ? usernames_ : names_; }
+
+
+template <class T, class P0, class P1> inline
+void Factory2Param<T,P0,P1>::setDefaultName( int idx )
+{
+    if ( idx<0 || idx>=names_.size() )
+	defaultname_.empty();
+    else
+	defaultname_ = *names_[idx];
+}
+
+
+template <class T, class P0, class P1> inline
+const char* Factory2Param<T,P0,P1>::getDefaultName() const
+{ return defaultname_.isEmpty() ? 0 : defaultname_.buf(); }
 
 
 #define mDefineFactory( T, funcname ) \
