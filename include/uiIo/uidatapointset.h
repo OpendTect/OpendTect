@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.1 2008-04-03 08:28:30 cvsbert Exp $
+ RCS:           $Id: uidatapointset.h,v 1.2 2008-04-04 12:40:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,8 @@ public:
 				Setup(const char* wintitl,bool ismodal=false);
 
 	mDefSetupMemb(BufferString,wintitle)	//!< "Extracted data"
-	mDefSetupMemb(bool,isconst)		//!< true
+	mDefSetupMemb(bool,isconst)		//!< false
+	mDefSetupMemb(bool,allowretrieve)	//!< true
 	mDefSetupMemb(int,initialmaxnrlines)	//!< 4000
 
     };
@@ -50,8 +51,8 @@ public:
 					      const Setup&);
 				~uiDataPointSet();
 
-    DataPointSet&		pointSet()	{ return dps_; }
-    const DataPointSet&		pointSet() const { return dps_; }
+    DataPointSet&		pointSet()	{ return *dps_; }
+    const DataPointSet&		pointSet() const { return *dps_; }
 
     bool			is2D() const;
     int				size() const	{ return drowids_.size(); }
@@ -67,6 +68,7 @@ public:
     static void			stopCreateNotify(CallBacker*);
 
     uiTable*			table()		{ return tbl_; }
+    uiToolBar*			ioToolBar()	{ return iotb_; }
     uiToolBar*			dispToolBar()	{ return disptb_; }
     uiToolBar*			manipToolBar()	{ return maniptb_; }
 
@@ -77,7 +79,7 @@ public:
 
 protected:
 
-    DataPointSet&		dps_;
+    DataPointSet*		dps_;
     Setup			setup_;
     float			zfac_;
     BufferString		zunitnm_;
@@ -96,6 +98,7 @@ protected:
     mutable ObjectSet<Stats::RunCalc<float> > runcalcs_;
 
     uiTable*			tbl_;
+    uiToolBar*			iotb_;
     uiToolBar*			disptb_;
     uiToolBar*			maniptb_;
     uiSpinBox*			eachfld_;
@@ -103,7 +106,7 @@ protected:
     int				xplottbid_;
     int				statstbid_;
 
-    void			mkToolBar();
+    void			mkToolBars();
 
     				// default returns current row/col
     DRowID			dRowID(TRowID tid=-99) const;
@@ -127,11 +130,13 @@ protected:
     void			unSelCol(CallBacker*);
     void			colStepL(CallBacker*);
     void			colStepR(CallBacker*);
+    void			valChg(CallBacker*);
     void			eachChg(CallBacker*);
     void			toggXYIC(CallBacker*);
     void			setSortCol(CallBacker*);
     void			showCrossPlot(CallBacker*);
     void			showStatsWin(CallBacker*);
+    void			retrieve(CallBacker*);
     void			save(CallBacker*);
 
     bool			acceptOK(CallBacker*);
@@ -147,6 +152,11 @@ protected:
     uiStatsDisplayWin*		statswin_;
     void			statsClose(CallBacker*);
     void			showStats(DColID);
+
+private:
+
+    DataPointSet*		localdps_;
+    int				initVars();
 };
 
 

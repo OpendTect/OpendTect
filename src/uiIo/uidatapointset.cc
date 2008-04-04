@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.1 2008-04-03 08:28:30 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.2 2008-04-04 12:40:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,19 +24,21 @@ ________________________________________________________________________
 #include "statruncalc.h"
 #include "unitofmeasure.h"
 #include "keystrs.h"
+#include "oddirs.h"
 
 #include "uitable.h"
 #include "uilabel.h"
 #include "uispinbox.h"
 #include "uitoolbar.h"
 #include "uiioobjsel.h"
-#include "uigeninput.h"
+#include "uifileinput.h"
 #include "uimsg.h"
 
 
 uiDataPointSet::Setup::Setup( const char* wintitl, bool ismodal )
     : uiDialog::Setup(wintitl?wintitl:"Extracted data","","0.0.0")
-    , isconst_(true)
+    , isconst_(false)
+    , allowretrieve_(true)
     , initialmaxnrlines_(4000)
 {
     modal_ = ismodal;
@@ -62,28 +64,20 @@ void uiDataPointSet::stopCreateNotify( CallBacker* c )
 uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 				const uiDataPointSet::Setup& su )
 	: uiDialog(p,su)
-	, dps_(const_cast<DataPointSet&>(dps))
+	, dps_(const_cast<DataPointSet*>(&dps))
+	, localdps_(0)
     	, setup_(su)
-    	, sortcol_(-1)
-    	, statscol_(-1)
-    	, xcol_(-1), ycol_(-1), y2col_(-1)
-    	, dispxy_(dps.is2D())
     	, zfac_(SI().zFactor())
     	, zunitnm_(SI().getZUnit(false))
 	, tbl_(0)
-	, xplotwin_(0)
-	, statswin_(0)
+	, dispxy_(dps.is2D())
 {
-    mDPM.obtain( dps_.id() );
+    mDPM.obtain( dps_->id() );
     setCtrlStyle( LeaveOnly );
     runcalcs_.allowNull( true );
-    const int nrcols = dps_.nrCols() + nrPosCols();
-    for ( int idx=0; idx<nrcols+2; idx++ ) runcalcs_ += 0;
-    eachrow_ = dps_.size() / setup_.initialmaxnrlines_;
-    if ( eachrow_ < 1 ) eachrow_ = 1;
 
-    calcIdxs();
-    mkToolBar();
+    const int nrcols = initVars();
+    mkToolBars();
 
     uiLabel* titllbl = new uiLabel( this, dps.name() );
     titllbl->attach( hCentered );
@@ -93,6 +87,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 			  .selmode( uiTable::Multi )
 			  .manualresize( true ) );
     tbl_->attach( ensureBelow, titllbl );
+    tbl_->valueChanged.notify( mCB(this,uiDataPointSet,valChg) );
 
     setPrefWidth( 800 ); setPrefHeight( 600 );
     eachrow_ = -1; // force refill
@@ -101,13 +96,40 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 }
 
 
-uiDataPointSet::~uiDataPointSet()
+int uiDataPointSet::initVars()
 {
+    sortcol_ = statscol_ = xcol_ = ycol_ = y2col_ = -1;
+    xplotwin_ = 0; statswin_ = 0;
+
+    deepErase( runcalcs_ );
+    const int nrcols = dps_->nrCols() + nrPosCols();
+    for ( int idx=0; idx<nrcols+2; idx++ )
+	runcalcs_ += 0;
+
+    eachrow_ = dps_->size() / setup_.initialmaxnrlines_;
+    if ( eachrow_ < 1 ) eachrow_ = 1;
+
+    calcIdxs();
+    return nrcols;
 }
 
 
-void uiDataPointSet::mkToolBar()
+uiDataPointSet::~uiDataPointSet()
 {
+    delete localdps_;
+}
+
+
+void uiDataPointSet::mkToolBars()
+{
+    iotb_ = new uiToolBar( this, "I/O Tool bar" );
+#define mAddButton(fnm,func,tip) \
+    iotb_->addButton( fnm, mCB(this,uiDataPointSet,func), tip )
+    mAddButton( "saveset.png", save, "Save data" );
+    if ( setup_.allowretrieve_ )
+	mAddButton( "openset.png", retrieve, "Retrieve stored data" );
+#undef mAddButton
+
     maniptb_ = new uiToolBar( this, "Manip Tool bar" );
 #define mAddButton(fnm,func,tip) \
     maniptb_->addButton( fnm, mCB(this,uiDataPointSet,func), tip )
@@ -174,10 +196,10 @@ void uiDataPointSet::calcIdxs()
     const int orgtblsz = drowids_.size();
     drowids_.erase(); trowids_.erase(); sortidxs_.erase();
 
-    const int dpssz = dps_.size();
+    const int dpssz = dps_->size();
     for ( int did=0; did<dpssz; did++ )
     {
-	const bool inact = dps_.isInactive(did);
+	const bool inact = dps_->isInactive(did);
 	const bool hidden = did % eachrow_;
 	if ( inact || hidden )
 	    trowids_ += -1;
@@ -246,7 +268,7 @@ uiDataPointSet::TColID uiDataPointSet::tColID( DColID did ) const
 
 void uiDataPointSet::fillPos( TRowID tid )
 {
-    const DataPointSet::Pos pos( dps_.pos(dRowID(tid)) );
+    const DataPointSet::Pos pos( dps_->pos(dRowID(tid)) );
     RowCol rc( tid, 0 );
     if ( is2D() )
     {
@@ -273,7 +295,7 @@ void uiDataPointSet::fillPos( TRowID tid )
 
 void uiDataPointSet::fillData( TRowID tid )
 {
-    const DataPointSet::DataRow dr( dps_.dataRow(dRowID(tid)) );
+    const DataPointSet::DataRow dr( dps_->dataRow(dRowID(tid)) );
     RowCol rc( tid, 3 );
     if ( is2D() ) rc.c()++;
 
@@ -403,7 +425,7 @@ void uiDataPointSet::xplotRemReq( CallBacker* )
 {
     int drid, dcid; getXplotPos( drid, dcid );
     if ( drid < 0 ) return;
-    dps_.setInactive( drid, true );
+    dps_->setInactive( drid, true );
     const TRowID trid = tRowID( drid );
     if ( trid >= 0 )
 	redoAll();
@@ -446,7 +468,7 @@ void uiDataPointSet::statsClose( CallBacker* )
 const char* uiDataPointSet::userName( uiDataPointSet::DColID did ) const
 {
     if ( did >= 0 )
-	return dps_.colName( did );
+	return dps_->colName( did );
     else if ( did < -3 )
 	return "Trace number";
     else if ( did == -1 )
@@ -467,7 +489,7 @@ Stats::RunCalc<float>& uiDataPointSet::getRunCalc(
     int rcidx = dcid;
     if ( rcidx < 0 )
     {
-	rcidx = dps_.nrCols() - 1 - dcid;
+	rcidx = dps_->nrCols() - 1 - dcid;
 	if ( dispxy_ && (dcid == -2 || dcid == -3) )
 	   rcidx = runcalcs_.size() - dcid - 4;
     }
@@ -478,7 +500,7 @@ Stats::RunCalc<float>& uiDataPointSet::getRunCalc(
 #	define mReq(typ) require(Stats::typ)
 	su.mReq(Count).mReq(Average).mReq(Median).mReq(StdDev);
 	rc = new Stats::RunCalc<float>( su.mReq(Min).mReq(Max).mReq(RMS) );
-	for ( DRowID drid=0; drid<dps_.size(); drid++ )
+	for ( DRowID drid=0; drid<dps_->size(); drid++ )
 	    rc->addValue( getVal( dcid, drid ) );
 	runcalcs_.replace( rcidx, rc );
     }
@@ -505,7 +527,7 @@ void uiDataPointSet::showStats( uiDataPointSet::DColID dcid )
     txt += userName( dcid );
     if ( statscol_ >= 0 )
     {
-	const DataColDef& dcd = dps_.colDef( dcid );
+	const DataColDef& dcd = dps_->colDef( dcid );
 	if ( dcd.unit_ )
 	    { txt += " ("; txt += dcd.unit_->name(); txt += ")"; }
 	if ( dcd.ref_ != dcd.name_ )
@@ -527,23 +549,28 @@ void uiDataPointSet::showStats( uiDataPointSet::DColID dcid )
 float uiDataPointSet::getVal( DColID dcid, DRowID drid ) const
 {
     if ( dcid >= 0 )
-	return dps_.value( dcid, drid );
+	return dps_->value( dcid, drid );
     else if ( dcid == -1 )
-	return dps_.z( drid ) * zfac_;
+	return dps_->z( drid ) * zfac_;
     else if ( dcid < -3 )
-	return dps_.trcNr( drid );
+	return dps_->trcNr( drid );
 
     if ( dispxy_ )
-	return dcid == -3 ? dps_.coord(drid).x : dps_.coord(drid).y;
+	return dcid == -3 ? dps_->coord(drid).x : dps_->coord(drid).y;
 
-    return dcid == -3 ? dps_.binID(drid).inl : dps_.binID(drid).crl;
+    return dcid == -3 ? dps_->binID(drid).inl : dps_->binID(drid).crl;
 }
 
 
 void uiDataPointSet::setVal( DColID dcid, DRowID drid, float val )
 {
     if ( dcid < 0 ) return;
-    dps_.getValues(drid)[dcid] = val;
+    dps_->getValues(drid)[dcid] = val;
+}
+
+
+void uiDataPointSet::valChg( CallBacker* )
+{
 }
 
 
@@ -579,43 +606,134 @@ void uiDataPointSet::setSortCol( CallBacker* )
 
 bool uiDataPointSet::is2D() const
 {
-    return dps_.is2D();
+    return dps_->is2D();
 }
 
 
 bool uiDataPointSet::rejectOK( CallBacker* )
 {
-    mDPM.release( dps_.id() );
-    delete xplotwin_;
-    delete statswin_;
-    return true;
+    return acceptOK( 0 );
 }
 
 
 bool uiDataPointSet::acceptOK( CallBacker* )
 {
-    mDPM.release( dps_.id() );
+    mDPM.release( dps_->id() );
+    delete xplotwin_; delete statswin_;
     return true;
 }
 
 
+void uiDataPointSet::retrieve( CallBacker* )
+{
+    CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
+    ctio.ctxt.forread = true;
+    uiIOObjSelDlg seldlg( this, ctio );
+    if ( !seldlg.go() || !seldlg.ioObj() ) return;
+
+    PosVecDataSet pvds;
+    BufferString errmsg;
+    bool rv = pvds.getFrom(seldlg.ioObj()->fullUserExpr(true),errmsg);
+    if ( !rv )
+	{ uiMSG().error( errmsg ); return; }
+    if ( pvds.data().isEmpty() )
+	{ uiMSG().error("Selected data set is empty"); return; }
+    DataPointSet* newdps = new DataPointSet( pvds, dps_->is2D(),
+	    				     dps_->isMinimal() );
+    if ( newdps->isEmpty() )
+	{ delete newdps; uiMSG().error("Data set is not suitable"); return; }
+
+    rejectOK( 0 );
+    delete localdps_; localdps_ = newdps; dps_ = newdps;
+
+    TypeSet<int> cols;
+    for ( int idx=0; idx<tbl_->nrCols(); idx++ )
+	cols += idx;
+    tbl_->removeColumns( cols );
+
+    const int nrcols = initVars();
+    tbl_->setNrRows( size() );
+    tbl_->setNrCols( nrcols );
+    eachfld_->setValue( eachrow_ );
+
+    redoAll();
+}
+
+
+class uiDataPointSetSave : public uiDialog
+{
+public:
+
+uiDataPointSetSave( uiParent* p )
+    : uiDialog(p,uiDialog::Setup("Create output","Specify output","0.0.0"))
+    , ctio_(PosVecDataSetTranslatorGroup::ioContext())
+{
+    ctio_.ctxt.forread = false;
+    const CallBack tccb( mCB(this,uiDataPointSetSave,outTypChg) );
+
+    tabfld_ = new uiGenInput( this, "Output to",
+	    		BoolInpSpec(true,"Text file","OpendTect object") );
+    tabfld_->valuechanged.notify( tccb );
+    uiFileInput::Setup su;
+    su.defseldir(GetDataDir()).forread(false).filter("*.txt");
+    txtfld_ = new uiFileInput( this, "Output file", su );
+    txtfld_->attach( alignedBelow, tabfld_ );
+    selgrp_ = new uiIOObjSelGrp( this, ctio_ );
+    selgrp_->attach( alignedBelow, tabfld_ );
+
+    finaliseDone.notify( tccb );
+}
+
+~uiDataPointSetSave()
+{
+    delete ctio_.ioobj;
+}
+
+void outTypChg( CallBacker* )
+{
+    istab_ = tabfld_->getBoolValue();
+    txtfld_->display( istab_ );
+    selgrp_->display( !istab_ );
+}
+
+#define mErrRet(s) { uiMSG().error(s); return false; }
+bool acceptOK( CallBacker* )
+{
+    istab_ = tabfld_->getBoolValue();
+    if ( istab_ )
+    {
+	fname_ = txtfld_->fileName();
+	if ( fname_.isEmpty() )
+	    mErrRet("Please select the output file name")
+    }
+    else
+    {
+	if ( !selgrp_->processInput() )
+	    mErrRet("Please enter a name for the output")
+	fname_ = selgrp_->getCtxtIOObj().ioobj->fullUserExpr(false);
+    }
+
+    return true;
+}
+
+    CtxtIOObj		ctio_;
+    BufferString	fname_;
+    uiGenInput*		tabfld_;
+    uiFileInput*	txtfld_;
+    uiIOObjSelGrp*	selgrp_;
+    bool		istab_;
+};
+
+
 void uiDataPointSet::save( CallBacker* )
 {
-    if ( dps_.nrActive() < 1 ) return;
+    if ( dps_->nrActive() < 1 ) return;
 
-    CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
-    ctio.ctxt.forread = false;
-    ctio.ctxt.parconstraints.set( sKey::Type, "MVA Data" );
-    ctio.ctxt.includeconstraints = true;
-    uiIOObjSelDlg seldlg( this, ctio );
-    uiGenInput* odstlfld = new uiGenInput( &seldlg, "Store style",
-	    			BoolInpSpec(true,"OpendTect","Spreadsheet") );
-    odstlfld->attach( alignedBelow, seldlg.selGrp() );
-    if ( !seldlg.go() ) return;
+    uiDataPointSetSave uidpss( this );
+    if ( !uidpss.go() ) return;
 
-    dps_.dataSet().pars() = storepars_;
+    dps_->dataSet().pars() = storepars_;
     BufferString errmsg;
-    if ( !dps_.dataSet().putTo(ctio.ioobj->fullUserExpr(false),errmsg,
-    				!odstlfld->getBoolValue()) )
+    if ( !dps_->dataSet().putTo(uidpss.fname_,errmsg,uidpss.istab_) )
 	uiMSG().error( errmsg );
 }
