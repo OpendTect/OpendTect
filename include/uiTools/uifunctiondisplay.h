@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.4 2008-04-03 15:48:56 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.5 2008-04-04 07:48:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,8 @@ class uiAxisHandler;
 
   * No undefined values supportd (yet). X values can't be undef anyway.
   * You cannot change Setup::editable_ after construction.
+  * Y2 is just an optional annotation. It can not be edited, it does not
+    determine the X axis scale. Also, no markers are drawn.
  
  */
 
@@ -66,17 +68,18 @@ public:
 				uiFunctionDisplay(uiParent*,const Setup&);
 				~uiFunctionDisplay();
 
-    void			setVals(const Interval<float>&,
-	    				const float* yvals,int sz);
     void			setVals(const float* xvals,
 	    				const float* yvals,int sz);
-    void			setY2Vals(const float*);
+    void			setVals(const Interval<float>&,
+	    				const float* yvals,int sz);
+    void			setY2Vals(const float* xvals,
+	    				  const float* yvals,int sz);
     void			setMarkValue(float,bool is_x);
 
     const TypeSet<float>&	xVals() const	{ return xvals_; }
     const TypeSet<float>&	yVals() const	{ return yvals_; }
     uiAxisHandler*		xAxis()		{ return xax_; }
-    uiAxisHandler*		yAxis( bool y2 ) { return y2?yax_:y2ax_; }
+    uiAxisHandler*		yAxis( bool y2 ) { return y2 ? yax_ : y2ax_; }
     Setup&			setup()		{ return setup_; }
 
     int				size() const	{ return xvals_.size(); }
@@ -94,7 +97,8 @@ protected:
     uiAxisHandler*		y2ax_;
     TypeSet<float>		xvals_;
     TypeSet<float>		yvals_;
-    TypeSet<float>		y2vals_;
+    TypeSet<float>		y2yvals_;
+    TypeSet<float>		y2xvals_;
     float			xmarkval_;
     float			ymarkval_;
     int				selpt_;
@@ -109,6 +113,12 @@ protected:
     void			mouseDClick(CallBacker*);
 
     bool			setSelPt();
+    void			getRanges(const TypeSet<float>&,
+	    				  const TypeSet<float>&,
+					  const Interval<float>&,
+					  const Interval<float>&,
+					  StepInterval<float>&,
+					  StepInterval<float>&) const;
 };
 
 
