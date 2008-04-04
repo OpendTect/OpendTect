@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.cc,v 1.8 2008-04-03 07:09:43 cvsnanne Exp $
+ RCS:           $Id: uirgbarraycanvas.cc,v 1.9 2008-04-04 04:29:05 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@
 #include "pixmap.h"
 
 uiRGBArrayCanvas::uiRGBArrayCanvas( uiParent* p, uiRGBArray& a )
-    	: uiCanvas(p)
+    	: uiCanvas(p,Color::White,"RGB Array canvas")
 	, rgbarr_(a)
 	, newFillNeeded(this)
 	, rubberBandUsed(this)
@@ -24,7 +24,6 @@ uiRGBArrayCanvas::uiRGBArrayCanvas( uiParent* p, uiRGBArray& a )
 	, dodraw_(true)
 	, pixmap_(0)
 {
-    setBGColor( Color::White );
     preDraw.notify( mCB(this,uiRGBArrayCanvas,beforeDraw) );
 }
 
@@ -98,7 +97,6 @@ void uiRGBArrayCanvas::beforeDraw( CallBacker* )
 void uiRGBArrayCanvas::reDrawHandler( uiRect updarea )
 {
     ioDrawTool& dt = drawTool();
-    dt.setDrawAreaBackgroundColor( bgcolor_ );
     updarea_ = updarea;
     if ( !dodraw_ )
 	return;

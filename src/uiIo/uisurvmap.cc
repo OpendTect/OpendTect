@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.cc,v 1.11 2008-04-03 07:09:43 cvsnanne Exp $
+ RCS:           $Id: uisurvmap.cc,v 1.12 2008-04-04 04:29:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,6 @@ uiSurveyMap::uiSurveyMap( uiCanvas* cv )
 void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
 {
     ioDrawTool& dt = mapcanvas->drawTool();
-    dt.setDrawAreaBackgroundColor( Color::White );
     if ( survinfo->sampling(false).hrg.totalNr() < 2 )
     	return;
 
@@ -106,7 +105,7 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
 uiSurveyMapDlg::uiSurveyMapDlg( uiParent* p )
 	: uiDialog(p,Setup("Survey Map",0,"0.3.3"))
 {
-    cv = new uiCanvas( this, "survey map" );
+    cv = new uiCanvas( this, Color::White, "Survey map" );
     cv->setPrefHeight( 400 );
     cv->setPrefWidth( 400 );
     cv->setStretch(0,0);

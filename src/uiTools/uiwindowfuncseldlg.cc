@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2007
- RCS:           $Id: uiwindowfuncseldlg.cc,v 1.3 2008-04-03 07:09:43 cvsnanne Exp $
+ RCS:           $Id: uiwindowfuncseldlg.cc,v 1.4 2008-04-04 04:29:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p )
     , transform_(new uiWorld2Ui())
 {
     setCtrlStyle( LeaveOnly );
-    canvas_ = new uiCanvas( this );
+    canvas_ = new uiCanvas( this, Color::White, "Window/Taper canvas" );
     canvas_->setPrefHeight( mTransHeight );
     canvas_->setPrefWidth( mTransWidth );
     canvas_->setStretch(10,0);
@@ -73,6 +73,5 @@ void uiWindowFuncSelDlg::reDraw( CallBacker* )
     ioDrawTool& dt = canvas_->drawTool();
     dt.setPenColor( color_ );
     dt.setPenWidth( 2 );
-    dt.setDrawAreaBackgroundColor( Color::White );
     dt.drawPolyline( pointlist_ );
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uifunctiondisplay.cc,v 1.6 2008-04-03 21:25:35 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.cc,v 1.7 2008-04-04 04:29:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ static const int cBoundarySz = 10;
 
 uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
 				      const uiFunctionDisplay::Setup& su )
-    : uiCanvas( p, "Function display canvas" )
+    : uiCanvas(p,su.bgcol_,"Function display canvas" )
     , setup_(su)
     , xax_(0)
     , yax_(0)
@@ -169,7 +169,6 @@ void uiFunctionDisplay::gatherInfo()
 void uiFunctionDisplay::reDrawHandler( uiRect )
 {
     ioDrawTool& dt = drawTool();
-    dt.setDrawAreaBackgroundColor( setup_.bgcol_ );
     if ( yvals_.isEmpty() ) return;
     const bool havey2 = !y2vals_.isEmpty();
 

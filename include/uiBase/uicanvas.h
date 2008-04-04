@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.h,v 1.16 2007-03-08 10:29:49 cvsnanne Exp $
+ RCS:           $Id: uicanvas.h,v 1.17 2008-04-04 04:29:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,12 +21,14 @@ class uiScrollViewBody;
 class uiCanvas : public uiDrawableObj
 {
 public:
-				uiCanvas(uiParent*,const char *nm="uiCanvas");
+				uiCanvas(uiParent*,const Color&,const char*);
     virtual			~uiCanvas()			{}
 
     void			update();
     void			setMouseTracking(bool);
     bool			hasMouseTracking() const;
+
+    void			setBackgroundColor(const Color&);
 
 private:
 

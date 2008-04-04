@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.85 2008-03-14 14:35:45 cvskris Exp $
+ RCS:           $Id: uisurvey.cc,v 1.86 2008-04-04 04:29:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -145,7 +145,7 @@ uiSurvey::uiSurvey( uiParent* p )
     mkDirList();
 
     uiGroup* rightgrp = new uiGroup( this, "Survey selection right" );
-    mapcanvas = new uiCanvas( rightgrp, "Survey map" );
+    mapcanvas = new uiCanvas( rightgrp, Color::White, "Survey map" );
     mapcanvas->setPrefHeight( maphght );
     mapcanvas->setPrefWidth( mapwdth );
     mapcanvas->setStretch( 0, 0 );

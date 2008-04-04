@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Aug 2007
- RCS:           $Id: uiflatviewthumbnail.cc,v 1.7 2008-04-03 07:09:43 cvsnanne Exp $
+ RCS:           $Id: uiflatviewthumbnail.cc,v 1.8 2008-04-04 04:29:05 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@
 #include "iodrawtool.h"
 
 uiFlatViewThumbnail::uiFlatViewThumbnail( uiParent* p, uiFlatViewer& fv )
-    	: uiCanvas(p,"Flatview thumbnail canvas")
+    	: uiCanvas(p,Color::White,"Flatview thumbnail canvas")
 	, viewer_(fv)
 	, mousehandler_(getMouseEventHandler())
 	, feedbackwr_( 0 )
@@ -65,7 +65,6 @@ void uiFlatViewThumbnail::setColors( Color fg, Color bg )
 void uiFlatViewThumbnail::reDrawHandler( uiRect updarea )
 {
     ioDrawTool& dt = drawTool();
-    dt.setDrawAreaBackgroundColor( bgcolor_ );
 
     mDeclW2UVars( viewer_.curView() );
     dt.setPenColor( Color::Black );

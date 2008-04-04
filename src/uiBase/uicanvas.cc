@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.39 2008-01-03 12:23:19 cvsnanne Exp $
+ RCS:           $Id: uicanvas.cc,v 1.40 2008-04-04 04:29:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,14 @@ public:
     virtual             ~uiCanvasBody() {};
 
     void		updateCanvas()		{ QWidget::update(); }
+
+    void		setBackgroundColor( const Color& col )
+			{
+			    QPalette palette;
+			    palette.setColor( QPalette::Base,
+					QColor(col.r(),col.g(),col.b()) );
+			    QWidget::setPalette( palette );
+			}
 };
 
 
@@ -283,8 +291,11 @@ void uiScrollViewBody::contentsWheelEvent( QWheelEvent* e )
 
 
 
-uiCanvas::uiCanvas( uiParent* p, const char *nm )
-    : uiDrawableObj( p,nm, mkbody(p,nm) ) {}
+uiCanvas::uiCanvas( uiParent* p, const Color& col, const char *nm )
+    : uiDrawableObj( p,nm, mkbody(p,nm) )
+{
+    body_->setBackgroundColor( col );
+}
 
 
 uiCanvasBody& uiCanvas::mkbody( uiParent* p,const char* nm)
@@ -304,6 +315,10 @@ void uiCanvas::setMouseTracking( bool yn )
 
 bool uiCanvas::hasMouseTracking() const
 { return body_->hasMouseTracking(); }
+
+
+void uiCanvas::setBackgroundColor( const Color& col )
+{ body_->setBackgroundColor( col ); }
 
 
 

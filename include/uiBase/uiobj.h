@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.54 2008-03-14 14:35:45 cvskris Exp $
+ RCS:           $Id: uiobj.h,v 1.55 2008-04-04 04:29:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,10 +78,10 @@ public:
 
     void		setCursor(const MouseCursor&);
 
-    const Color&	backgroundColor() const;
-    void                setBackgroundColor(const Color&);
-    void		setBackgroundPixmap(const char**);
-    void		setBackgroundPixmap(const ioPixmap&);
+    virtual const Color& backgroundColor() const;
+    virtual void	setBackgroundColor(const Color&);
+    virtual void	setBackgroundPixmap(const char**);
+    virtual void	setBackgroundPixmap(const ioPixmap&);
     void		setSensitive(bool yn=true);
     bool		sensitive() const;
     bool		visible() const;
