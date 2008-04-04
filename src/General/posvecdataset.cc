@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: posvecdataset.cc,v 1.14 2006-08-16 10:51:20 cvsbert Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.15 2008-04-04 12:40:28 cvsbert Exp $";
 
 #include "posvecdataset.h"
 
@@ -251,7 +251,7 @@ static StreamData getInpSD( const char* fnm, BufferString& errmsg,
     std::string buf; *sd.istrm >> buf;
     sd.istrm->seekg( 0, std::ios::beg );
     char c = sd.istrm->peek();
-    tabstyle = buf != "dTect" && buf != "dGB-GDI";
+    tabstyle = buf != "dTect" && buf != "dGB-GDI"; // For legacy data
     if ( !tabstyle )
     {
 	ascistream strm( *sd.istrm );
@@ -415,13 +415,14 @@ bool PosVecDataSet::putTo( const char* fnm, BufferString& errmsg,
     BufferString str;
     if ( tabstyle )
     {
-	*sd.ostrm << "In-line\tX-line";
+	*sd.ostrm << "\"In-line\"\t\"X-line\"";
 	for ( int idx=0; idx<nrCols(); idx++ )
 	{
 	    const DataColDef& cd = colDef(idx);
-	    *sd.ostrm << '\t' << cd.name_;
+	    *sd.ostrm << "\t\"" << cd.name_;
 	    if ( cd.unit_ )
-		*sd.ostrm << " (" << cd.unit_->symbol() << ')';
+		*sd.ostrm << " (" << cd.unit_->symbol() << ")";
+	    *sd.ostrm << '"';
 	}
 	*sd.ostrm << '\n';
     }
