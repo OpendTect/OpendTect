@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2006
- RCS:		$Id: uivisisosurface.cc,v 1.9 2008-04-01 15:43:03 cvsbert Exp $
+ RCS:		$Id: uivisisosurface.cc,v 1.10 2008-04-04 04:11:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,7 +114,7 @@ uiFunctionDisplay& uiVisIsoSurfaceThresholdDlg::funcDisp()
 
 uiAxisHandler& uiVisIsoSurfaceThresholdDlg::xAxis()
 {
-    return *statsdisplay_->funcDisp()->getXAxis();
+    return *statsdisplay_->funcDisp()->xAxis();
 }
 
 
