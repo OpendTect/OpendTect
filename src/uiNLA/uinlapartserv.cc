@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.47 2008-04-03 13:49:13 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.48 2008-04-04 12:39:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -466,6 +466,17 @@ void uiNLAPartServer::LithCodeData::fillCols( PosVecDataSet& vds,
 }
 
 
+bool uiNLAPartServer::doDPSDlg( const char* wtitle, DataPointSet& dps )
+{
+    uiDataPointSet::Setup su( wtitle, true );
+    su.isconst(false).allowretrieve(false);
+    uiDataPointSet uidps( appserv().parent(), dps, su );
+    uidps.setCtrlStyle( uiDialog::DoAndLeave );
+    uidps.storePars() = storepars;
+    return uidps.go();
+}
+
+
 #undef mErrRet
 #define mErrRet(rv) \
 { mDestroySets; return rv; }
@@ -512,21 +523,10 @@ const char* uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
     if ( res ) mErrRet(res)
 
     // allow user to view and edit data
-    uiDataPointSet::Setup uidpssu("Training data",true);
-    uidpssu.wintitle("Training data").isconst( false );
-    uiDataPointSet* uidps = new uiDataPointSet( appserv().parent(),
-	    					*traindps, uidpssu );
-    uidps->storePars() = storepars;
-    bool ret = uidps->go();
-    delete uidps; if ( !ret ) mErrRet(sKeyUsrCancel)
-    if ( !testdps->isEmpty() )
-    {
-	uidpssu.wintitle("Test data");
-	uidps = new uiDataPointSet( appserv().parent(), *testdps, uidpssu );
-	uidps->storePars() = storepars;
-	bool ret = uidps->go();
-	delete uidps; if ( !ret ) mErrRet(sKeyUsrCancel)
-    }
+    if ( !doDPSDlg( "Training data", *traindps ) )
+	mErrRet(sKeyUsrCancel)
+    if ( !testdps->isEmpty() && !doDPSDlg("Test data",*testdps) )
+	mErrRet(sKeyUsrCancel)
 
     bool allok = true;
     if ( crdesc.isdirect && !crdesc.design.classification )

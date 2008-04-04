@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uinlapartserv.h,v 1.20 2008-04-03 11:18:47 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.h,v 1.21 2008-04-04 12:39:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,7 @@ protected:
 
     bool		extractDirectData(ObjectSet<DataPointSet>&);
     const char*		convertToClasses(const ObjectSet<DataPointSet>&,int);
+    bool		doDPSDlg(const char*,DataPointSet&);
 
     struct LithCodeData
     {
@@ -122,7 +123,7 @@ protected:
   This class was designed in such a way that the existing dGB Neural network
   module could be put in a plugin in an easy way. In that way we kept the
   possibility to make some money by selling our neural network stuff and
-  still make OpendTect free software.
+  still make OpendTect (almost) free software.
 
   Without this small sacrifice I don't think OpendTect would have ever started.
   We tried to keep the interface as general as possible, though. So it's very
