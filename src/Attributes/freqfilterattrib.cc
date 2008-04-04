@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.26 2008-04-03 13:45:16 cvskris Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.27 2008-04-04 04:10:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -416,17 +416,17 @@ void FreqFilter::fftFilter( const DataHolder& output,
 	z0safe = z0 - mNINT(nrsamp/2) + mNINT(nrsamples/2);
     }
     
-    if ( !fft.isinit() || !fftinv.isinit() || nrsamp>signal.info().getSize(0))
+    if ( !fft.isInit() || !fftinv.isInit() || nrsamp>signal.info().getSize(0))
     {
 	fftsz = FFT::nearestBiggerFastSize(nrsamp*3);
 	fft.setInputInfo( Array1DInfoImpl(fftsz) );
 	fft.setDir(true);
-	if ( fft.isinit() ) fft.setMeasure( false );
+	if ( fft.isInit() ) fft.setMeasure( false );
 	fft.init();
 
 	fftinv.setInputInfo( Array1DInfoImpl(fftsz) );
 	fftinv.setDir(false);
-	if ( fftinv.isinit() ) fftinv.setMeasure( false );
+	if ( fftinv.isInit() ) fftinv.setMeasure( false );
 	fftinv.init();
 	
 	setSz(nrsamp);
