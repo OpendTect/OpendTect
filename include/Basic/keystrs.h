@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.31 2008-02-27 09:21:27 cvsbert Exp $
+ RCS:		$Id: keystrs.h,v 1.32 2008-04-04 20:17:15 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,6 +95,7 @@ namespace sKey
 
     extern const char*	TmpStor		mImpl("Temporary storage location");
     extern const char*	LogFile		mImpl("Log file");
+    extern const char*	Version		mImpl("Version");
 };
 
 
