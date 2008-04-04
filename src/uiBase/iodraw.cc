@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.38 2008-04-03 05:48:16 cvsnanne Exp $
+ RCS:           $Id: iodraw.cc,v 1.39 2008-04-04 10:50:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -199,9 +199,6 @@ void ioDrawTool::drawHalfSquare( const uiPoint& from, double ang, double d,
 
 void ioDrawTool::setDrawAreaBackgroundColor( const Color& col )
 {
-    preparePainter();
-    QRectF rect( 0, 0, getDevWidth(), getDevHeight() );
-    qpainter_->fillRect( rect, QColor(col.r(),col.g(),col.b()) );
     areabgcolor_ = col;
 }
 
@@ -493,7 +490,10 @@ void ioDrawTool::preparePainter() const
     {
 	ioDrawTool& self = *const_cast<ioDrawTool*>( this );
 	self.qpainter_->setPen( qpen_ ); 
-	self.qpainter_->setFont( font_->qFont() ); 
+	self.qpainter_->setFont( font_->qFont() );
+	QRectF rect( 0, 0, self.getDevWidth(), self.getDevHeight() );
+	self.qpainter_->fillRect( rect,
+		QColor(areabgcolor_.r(),areabgcolor_.g(),areabgcolor_.b()) );
 	self.qpainterprepared_ = true;
     }
 }
