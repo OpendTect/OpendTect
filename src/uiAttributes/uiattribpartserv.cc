@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.86 2008-04-03 11:18:47 cvsbert Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.87 2008-04-04 15:31:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -623,8 +623,11 @@ bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss )
     Attrib::EngineMan aem;
     for ( int idx=0; idx<dpss.size(); idx++ )
     {
+	BufferString err;
 	DataPointSet& dps = *dpss[idx];
-	Executor* tabextr = aem.getTableExtractor( dps, *adsman->descSet() );
+	Executor* tabextr = aem.getTableExtractor( dps, *adsman->descSet(),err);
+	if ( !tabextr ) { pErrMsg(err); return 0; }
+
 	uiTaskRunner taskrunner( parent() );
 	if ( !taskrunner.execute(*tabextr) )
 	    return false;

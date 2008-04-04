@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.28 2008-02-19 14:00:15 cvshelene Exp $
+ RCS:           $Id: attribengman.h,v 1.29 2008-04-04 15:31:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,9 +98,13 @@ public:
 	    				   DataPointSet* bidvalset,
 	    				   float outval=0,
 					   Interval<float>* cubezbounds = 0);
-    Processor*		getTableOutExecutor( DataPointSet& datapointset,
-	    				     BufferString& errmsg );
-    Executor*		getTableExtractor(DataPointSet&,const Attrib::DescSet&);
+    Processor*		getTableOutExecutor(DataPointSet& datapointset,
+	    				    BufferString& errmsg);
+    Executor*		getTableExtractor(DataPointSet&,const Attrib::DescSet&,
+	    				  BufferString& errmsg);
+    static bool		ensureDPSAndADSPrepared(DataPointSet&,
+	    					const Attrib::DescSet&,
+						BufferString&);
     int			getNrOutputsToBeProcessed(const Processor&) const;
 
     const char*		getCurUserRef() const;

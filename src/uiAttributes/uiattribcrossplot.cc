@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiattribcrossplot.cc,v 1.22 2008-03-14 14:35:45 cvskris Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.23 2008-04-04 15:31:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,16 +51,8 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
     attrsfld_ = llb->box();
     Attrib::SelInfo attrinf( &ads_, 0, ads_.is2D() );
     for ( int idx=0; idx<attrinf.attrnms.size(); idx++ )
-    {
 	attrsfld_->addItem( attrinf.attrnms.get(idx), false );
-	BufferString defstr;
-	const Attrib::Desc* desc = ads_.getDesc( attrinf.attrids[idx] );
-	if ( desc )
-	    desc->getDefStr( defstr );
-	BufferString fulldef = attrinf.attrids[idx].asInt(); fulldef += "`";
-	fulldef += defstr;
-	attrdefs_.add( fulldef );
-    }
+    
     for ( int idx=0; idx<attrinf.ioobjids.size(); idx++ )
     {
 	BufferStringSet bss;
@@ -72,7 +64,6 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 	    const char* ioobjnm = attrinf.ioobjnms.get(idx).buf();
 	    attrsfld_->addItem(
 		    SeisIOObjInfo::defKey2DispName(defkey,ioobjnm) );
-	    attrdefs_.add( defkey );
 	}
     }
     if ( !attrsfld_->isEmpty() )
@@ -118,34 +109,12 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 	return false;
 
     ObjectSet<DataColDef> dcds;
-    for ( int idx=0; idx<attrdefs_.size(); idx++ )
+    for ( int idx=0; idx<attrsfld_->size(); idx++ )
     {
 	if ( attrsfld_->isSelected(idx) )
-	{
-	    if ( *attrsfld_->textOfItem(idx) == '['
-		 && !strstr( attrdefs_.get(idx),
-		     	     Attrib::StorageProvider::attribName() ) )
-	    {
-		int descid = prepareStoredDesc(idx);
-		if ( descid<0 )
-		{
-		    BufferString err = "Cannot use stored data"; 
-		    err += attrsfld_->textOfItem(idx);
-		    mErrRet(err);
-		}
-		
-		BufferString tmpstr;
-		const Attrib::Desc* desc = ads_.getDesc( DescID(descid,true) );
-		if ( !desc ) mErrRet("Huh?");
-		desc->getDefStr( tmpstr );
-		BufferString defstr = descid; defstr += "`"; defstr += tmpstr;
-		attrdefs_.get(idx) = defstr;
-	    }
-	    
-	    dcds += new DataColDef( attrsfld_->textOfItem(idx),
-				    attrdefs_.get(idx) );
-	}
+	    dcds += new DataColDef( attrsfld_->textOfItem(idx) );
     }
+    
     if ( dcds.isEmpty() )
 	mErrRet("Please select at least one attribute to evaluate")
 
@@ -172,8 +141,11 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     const_cast<PosVecDataSet*>( &(dps->dataSet()) )->pars() = descsetpars;
     mDPM.add( dps );
 
+    BufferString errmsg;
     Attrib::EngineMan aem;
-    PtrMan<Executor> tabextr = aem.getTableExtractor( *dps, ads_ );
+    PtrMan<Executor> tabextr = aem.getTableExtractor( *dps, ads_, errmsg );
+    if ( !errmsg.isEmpty() ) mErrRet(errmsg)
+	    
     if ( !tr.execute(*tabextr) )
 	return false;
 
@@ -183,24 +155,3 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 }
 
 
-int uiAttribCrossPlot::prepareStoredDesc( int idx )
-{
-    IOPar iopar;
-    BufferStringSet* errmsgs = new BufferStringSet();
-    BufferString defstring = Attrib::StorageProvider::attribName();
-    defstring += " "; defstring += Attrib::StorageProvider::keyStr();
-    defstring += "="; defstring += attrdefs_.get(idx); defstring += " output=0";
-    Desc* newdesc = ads_.createDesc( Attrib::StorageProvider::attribName(),
-	    			     iopar, defstring, errmsgs );
-    if ( !newdesc )
-    {
-	uiMSG().error( errmsgs->get(0) );
-	return -1;
-    }
-    
-    //TODO: we could maybe optimize by checking if stored desc already present
-    Attrib::DescID did = const_cast<Attrib::DescSet*>(&ads_)->addDesc(newdesc);
-
-    delete errmsgs;
-    return did.asInt();
-}

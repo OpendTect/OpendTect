@@ -4,13 +4,14 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.64 2008-03-07 10:31:37 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.65 2008-04-04 15:31:37 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
 #include "attribparam.h"
 #include "attribdesc.h"
 #include "attribfactory.h"
+#include "attribsel.h"
 #include "bufstringset.h"
 #include "keystrs.h"
 #include "separstr.h"
@@ -19,6 +20,7 @@ static const char* rcsID = "$Id: attribdescset.cc,v 1.64 2008-03-07 10:31:37 cvs
 #include "ioobj.h"
 #include "separstr.h"
 #include "gendefs.h"
+#include "seisioobjinfo.h"
 
 namespace Attrib
 {
@@ -803,6 +805,37 @@ Desc* DescSet::getFirstStored( bool usesteering ) const
     }
 
     return 0;
+}
+
+
+void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
+{
+    Attrib::SelInfo attrinf( this, 0, is2D() );
+    for ( int idx=0; idx<attrinf.attrnms.size(); idx++ )
+    {
+	BufferString defstr;
+	const Attrib::Desc* mydesc = getDesc( attrinf.attrids[idx] );
+	if ( mydesc )
+	    mydesc->getDefStr( defstr );
+	BufferString fulldef = attrinf.attrids[idx].asInt(); fulldef += "`";
+	fulldef += defstr;
+	attrdefs.add( fulldef );
+    }
+    for ( int idx=0; idx<attrinf.ioobjids.size(); idx++ )
+    {
+	BufferStringSet bss;
+	SeisIOObjInfo sii( MultiID( attrinf.ioobjids.get(idx) ) );
+	sii.getDefKeys( bss, true );
+	for ( int inm=0; inm<bss.size(); inm++ )
+	{
+	    const char* defkey = bss.get(inm).buf();
+	    const char* ioobjnm = attrinf.ioobjnms.get(idx).buf();
+	    BufferString fulldef =
+				SeisIOObjInfo::defKey2DispName(defkey,ioobjnm);
+	    fulldef += "`"; fulldef += defkey;
+	    attrdefs.add( fulldef );
+	}
+    }
 }
 
 }; // namespace Attrib

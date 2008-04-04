@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdescset.h,v 1.30 2008-02-28 15:49:45 cvshelene Exp $
+ RCS:           $Id: attribdescset.h,v 1.31 2008-04-04 15:31:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,6 +95,10 @@ public:
     void 			handleOldAttributes(BufferString&, IOPar&,
 						    BufferString&);
     void                        handleReferenceInput(Desc*);
+
+    				//!<will prepare strings for each desc, format :
+    				//!<DescID`definition string
+    void			fillInAttribColRefs(BufferStringSet&) const;
 
     bool                        is2DSet() const         { return is2dset_; }
     bool			is2D() const;

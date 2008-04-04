@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiattribcrossplot.h,v 1.4 2008-02-28 15:54:29 cvshelene Exp $
+ RCS:           $Id: uiattribcrossplot.h,v 1.5 2008-04-04 15:31:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,10 +36,8 @@ protected:
     uiPosFilterSetSel*	posfiltfld_;
 
     bool		acceptOK(CallBacker*);
-    int			prepareStoredDesc(int);
 
     const Attrib::DescSet&	ads_;
-    BufferStringSet	attrdefs_;
 };
 
 

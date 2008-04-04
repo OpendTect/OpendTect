@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.77 2008-03-12 10:26:40 cvsbert Exp $
+ RCS:           $Id: attribengman.cc,v 1.78 2008-04-04 15:31:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,10 +31,11 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "keystrs.h"
 #include "linekey.h"
+#include "linesetposinfo.h"
 #include "nladesign.h"
 #include "nlamodel.h"
+#include "posvecdataset.h"
 #include "ptrman.h"
-#include "linesetposinfo.h"
 #include "seis2dline.h"
 #include "separstr.h"
 #include "survinfo.h"
@@ -793,10 +794,10 @@ AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
     const int nrinps = datapointset.nrCols();
     for ( int idx=0; idx<nrinps; idx++ )
     {
-	const char* str = datapointset.colDef(idx).ref_.buf();
-	char* ptrtosep = strchr( str, '`' );
-	ptrtosep='\0';
-	const DescID did( atoi(str), true );
+	BufferString tmpstr( datapointset.colDef(idx).ref_ );
+	char* ptrtosep = strchr( tmpstr.buf(), '`' );
+	if ( ptrtosep )	*ptrtosep = '\0';
+	const DescID did( atoi(tmpstr.buf()), true );
 	if ( did == DescID::undef() )
 	    continue;
 	SelSpec ss( 0, did );
@@ -841,10 +842,18 @@ int nextStep()
 
 
 Executor* EngineMan::getTableExtractor( DataPointSet& datapointset,
-       					const Attrib::DescSet& descset )
+       					const Attrib::DescSet& descset,
+       					BufferString& errmsg )
 {
+    if ( !ensureDPSAndADSPrepared( datapointset, descset, errmsg ) )
+	return 0;
+    
     setAttribSet( &descset );
-    return new AEMTableExtractor( *this, datapointset, descset );
+    AEMTableExtractor* tabex = new AEMTableExtractor( *this, datapointset,
+	    					      descset );
+    if ( tabex && !tabex->errmsg.isEmpty() )
+	errmsg = tabex->errmsg;
+    return tabex;
 }
 
 
@@ -972,6 +981,92 @@ Processor* EngineMan::create2DVarZOutput( BufferString& errmsg,
 int EngineMan::getNrOutputsToBeProcessed( const Processor& proc ) const
 {
     return proc.outputs_.size();
+}
+
+
+bool EngineMan::ensureDPSAndADSPrepared( DataPointSet& datapointset,
+					 const Attrib::DescSet& descset,
+       					 BufferString& errmsg )
+{
+    BufferStringSet attrrefs;
+    descset.fillInAttribColRefs( attrrefs );
+    
+    const int nrdpsfixcols = datapointset.nrFixedCols();
+    for ( int idx=nrdpsfixcols; idx<datapointset.nrCols()+nrdpsfixcols; idx++ )
+    {
+	const char* nmstr = datapointset.dataSet().colDef(idx).name_.buf();
+	if ( !strncmp( nmstr, "[", 1 ) )
+	{
+	    int refidx = -1;
+	    for ( int ids=0; ids<attrrefs.size(); ids++ )
+	    {
+		BufferString tmpstr( attrrefs.get(ids) );
+		char* ptrtosep = strchr( tmpstr.buf(), '`' );
+		if ( ptrtosep )	*ptrtosep='\0';
+		if ( !strcmp( tmpstr.buf(), nmstr ) )
+		{
+		    refidx = ids;
+		    break;
+		}
+	    }
+	    
+	    DescID descid = DescID::undef();
+	    if ( refidx > -1 )
+	    {
+		const char* str = strchr( attrrefs.get(refidx).buf(), '`' );
+		if ( str )
+		{
+		    BufferString multiidstr( str + 1 );
+		    descid = const_cast<DescSet&>(descset).
+					getStoredID( multiidstr, 0, true );
+		}
+	    }
+	    
+	    if ( descid == DescID::undef() )
+	    {
+		BufferString err = "Cannot use stored data"; err += nmstr;
+		mErrRet(err);
+	    }
+
+	    BufferString tmpstr;
+	    const Attrib::Desc* desc = descset.getDesc( descid );
+	    if ( !desc ) mErrRet("Huh?");
+	    desc->getDefStr( tmpstr );
+	    BufferString defstr = descid.asInt(); defstr += "`";
+	    defstr += tmpstr;
+	    attrrefs.get(refidx) = defstr;
+	    datapointset.dataSet().colDef(idx).ref_ = defstr;
+	}
+
+	BufferString& refstr = datapointset.dataSet().colDef(idx).ref_;
+	if ( refstr.isEmpty() )
+	{
+	    int refidx = attrrefs.indexOf( nmstr ); //case ref misplaced in name
+	    if ( refidx == -1 )
+	    {
+		DescID did = descset.getID( nmstr, true );
+		if ( did != DescID::undef() )
+		{
+		    for ( int idref=0; idref< attrrefs.size(); idref++ )
+		    {
+			BufferString tmpstr( attrrefs.get(idref) );
+			char* ptrtosep = strchr( tmpstr.buf(), '`' );
+			if ( ptrtosep ) *ptrtosep = '\0';
+			const DescID candidatid( atoi(tmpstr.buf()), true );
+			if ( did == candidatid )
+			{
+			    refidx = idref;
+			    break;
+			}
+		    }
+		}
+	    }
+
+	    if ( refidx > -1 )
+		refstr = attrrefs.get( refidx );
+	}
+    }
+    return true;
 }
 
 } // namespace Attrib
