@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.36 2008-04-03 11:18:47 cvsbert Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.37 2008-04-07 11:02:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ class DataPointSet;
 class SeisTrcBuf;
 class SeisTrcInfo;
 class uiAttribDescSetEd;
+class uiAttribCrossPlot;
 namespace Pick { class Set; }
 template <class T> class Interval;
 template <class T> class Array3D;
@@ -125,6 +126,7 @@ public:
     bool		extractData(ObjectSet<DataPointSet>&);
     bool		createAttributeSet(const BufferStringSet&,
 	    				   Attrib::DescSet*);
+    void		doXPlot();
 
     const NLAModel*	getNLAModel(bool) const;
     void		setNLAName( const char* nm )	{ nlaname_ = nm; }
@@ -200,6 +202,9 @@ protected:
     int			sliceidx_;
     Attrib::DescSet*	evalset;
     TypeSet<Attrib::SelSpec> targetspecs_;
+
+    uiAttribCrossPlot*	xplotwin2d_;
+    uiAttribCrossPlot*	xplotwin3d_;
 };
 
 

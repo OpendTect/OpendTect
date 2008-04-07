@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiattribcrossplot.cc,v 1.23 2008-04-04 15:31:37 cvshelene Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.24 2008-04-07 11:02:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,11 +44,41 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 	: uiDialog(p,uiDialog::Setup("Attribute cross-plotting",
 		     "Select attributes and locations for cross-plot"
 		     ,"101.3.0").modal(false))
-	, ads_(*d.clone())
+	, ads_(*new Attrib::DescSet(d.is2D()))
 {
     uiLabeledListBox* llb = new uiLabeledListBox( this,
 	    					  "Attributes to calculate" );
     attrsfld_ = llb->box();
+    attrsfld_->setMultiSelect( true );
+
+    uiPosProvider::Setup psu( ads_.is2D(), true );
+    psu.seltxt( "Select locations by" ).choicetype( uiPosProvider::Setup::All );
+    posprovfld_ = new uiPosProvider( this, psu );
+    posprovfld_->setExtractionDefaults();
+    posprovfld_->attach( alignedBelow, llb );
+
+    uiPosFilterSet::Setup fsu( ads_.is2D() );
+    fsu.seltxt( "Location filters" ).incprovs( true );
+    posfiltfld_ = new uiPosFilterSetSel( this, fsu );
+    posfiltfld_->attach( alignedBelow, posprovfld_ );
+
+    setDescSet( d );
+}
+
+
+void uiAttribCrossPlot::setDescSet( const Attrib::DescSet& newads )
+{
+    IOPar iop; newads.fillPar( iop );
+    Attrib::DescSet& ads = const_cast<Attrib::DescSet&>( ads_ );
+    ads.removeAll(); ads.usePar( iop );
+    adsChg();
+}
+
+
+void uiAttribCrossPlot::adsChg()
+{
+    attrsfld_->empty();
+
     Attrib::SelInfo attrinf( &ads_, 0, ads_.is2D() );
     for ( int idx=0; idx<attrinf.attrnms.size(); idx++ )
 	attrsfld_->addItem( attrinf.attrnms.get(idx), false );
@@ -68,18 +98,6 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
     }
     if ( !attrsfld_->isEmpty() )
 	attrsfld_->setCurrentItem( int(0) );
-    attrsfld_->setMultiSelect( true );
-
-    uiPosProvider::Setup psu( ads_.is2D(), true );
-    psu.seltxt( "Select locations by" ).choicetype( uiPosProvider::Setup::All );
-    posprovfld_ = new uiPosProvider( this, psu );
-    posprovfld_->setExtractionDefaults();
-    posprovfld_->attach( alignedBelow, llb );
-
-    uiPosFilterSet::Setup fsu( ads_.is2D() );
-    fsu.seltxt( "Location filters" ).incprovs( true );
-    posfiltfld_ = new uiPosFilterSetSel( this, fsu );
-    posfiltfld_->attach( alignedBelow, posprovfld_ );
 }
 
 
