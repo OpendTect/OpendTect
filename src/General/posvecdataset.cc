@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: posvecdataset.cc,v 1.15 2008-04-04 12:40:28 cvsbert Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.16 2008-04-07 11:00:55 cvsbert Exp $";
 
 #include "posvecdataset.h"
 
@@ -97,13 +97,17 @@ PosVecDataSet::~PosVecDataSet()
 
 PosVecDataSet& PosVecDataSet::operator =( const PosVecDataSet& vds )
 {
-    if ( &vds != this )
-    {
-	name_ = vds.name();
-	copyStructureFrom( vds );
-	merge( vds );
-	pars_ = vds.pars_;
-    }
+    if ( &vds == this ) return *this;
+
+    copyStructureFrom( vds );
+    name_ = vds.name();
+    pars_ = vds.pars_;
+
+    const BinIDValueSet& bvs = vds.data();
+    BinIDValueSet::Pos pos;
+    while ( bvs.next(pos) )
+	data_.add( bvs.getBinID(pos), bvs.getVals( pos ) );
+
     return *this;
 }
 
@@ -209,8 +213,9 @@ void PosVecDataSet::merge( const PosVecDataSet& vds, OvwPolicy ovwpol,
 	const float* vdsvals = vds.data_.getVals(vdspos);
 	vds.data_.get( vdspos, bid );
 	BinIDValueSet::Pos pos = data_.findFirst( bid );
+	data_.prev( pos );
 	vals = 0;
-	while ( pos.valid() )
+	while ( data_.next(pos) )
 	{
 	    vals = data_.getVals( pos );
 	    const float z = *vals;
