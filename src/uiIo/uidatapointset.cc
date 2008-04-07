@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.3 2008-04-07 11:03:42 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.4 2008-04-07 18:32:09 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,8 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uifileinput.h"
 #include "uimsg.h"
+
+static const int cNrPosCols = 3;
 
 
 uiDataPointSet::Setup::Setup( const char* wintitl, bool ismodal )
@@ -71,7 +73,6 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     	, zfac_(SI().zFactor())
     	, zunitnm_(SI().getZUnit(false))
 	, tbl_(0)
-	, dispxy_(dps.is2D())
     	, unsavedchgs_(false)
     	, fillingtable_(true)
     	, valueChanged(this)
@@ -106,7 +107,7 @@ int uiDataPointSet::initVars()
     xplotwin_ = 0; statswin_ = 0;
 
     deepErase( runcalcs_ );
-    const int nrcols = dps_.nrCols() + nrPosCols();
+    const int nrcols = dps_.nrCols() + cNrPosCols;
     for ( int idx=0; idx<nrcols+2; idx++ )
 	runcalcs_ += 0;
 
@@ -156,21 +157,17 @@ void uiDataPointSet::mkToolBars()
 
 #define mAddButton(fnm,func,tip,istogg) \
     disptb_->addButton( fnm, mCB(this,uiDataPointSet,func), tip, istogg )
-    xyictbid_ = mAddButton( "toggxy.png", toggXYIC,
-	    		    "Toggle (X,Y) vs I/X", true );
     xplottbid_ = mAddButton( "xplot.png", showCrossPlot,
 	    		     "Show crossplot", false );
     statstbid_ = mAddButton( "statsinfo.png", showStatsWin,
-			    "Provide statistical info on column", false );
-
-    disptb_->turnOn( xyictbid_, is2D() );
+			     "Show histogram and stats for column", false );
 }
 
 
 void uiDataPointSet::updColNames()
 {
     const int nrcols = tbl_->nrCols();
-    const TColID zcid = nrPosCols()-1;
+    const TColID zcid = cNrPosCols-1;
     for ( TColID tid=0; tid<nrcols; tid++ )
     {
 	BufferString axnm;
@@ -259,13 +256,13 @@ uiDataPointSet::TRowID uiDataPointSet::tRowID( DRowID did ) const
 
 uiDataPointSet::DColID uiDataPointSet::dColID( TColID tid ) const
 {
-    return (tid < -1 ? tbl_->currentCol() : tid) - nrPosCols();
+    return (tid < -1 ? tbl_->currentCol() : tid) - cNrPosCols;
 }
 
 
 uiDataPointSet::TColID uiDataPointSet::tColID( DColID did ) const
 {
-    return did < -1-nrPosCols() ? tbl_->currentCol() : (did + nrPosCols());
+    return did < -1-cNrPosCols ? tbl_->currentCol() : (did + cNrPosCols);
 }
 
 
@@ -274,27 +271,19 @@ void uiDataPointSet::fillPos( TRowID tid )
     fillingtable_ = true;
     const DataPointSet::Pos pos( dps_.pos(dRowID(tid)) );
     RowCol rc( tid, 0 );
-    if ( is2D() )
-    {
-	tbl_->setValue( rc, pos.nr_ );
-	rc.c()++;
-    }
-    if ( dispxy_ )
-    {
-	const Coord c( pos.coord() );
-	tbl_->setValue( rc, c.x ); rc.c()++;
-	tbl_->setValue( rc, c.y ); rc.c()++;
-    }
-    else
-    {
-	const BinID bid( pos.binID() );
-	tbl_->setValue( rc, bid.inl ); rc.c()++;
-	tbl_->setValue( rc, bid.crl ); rc.c()++;
-    }
+    const Coord c( pos.coord() );
+    tbl_->setValue( rc, c.x ); rc.c()++;
+    tbl_->setValue( rc, c.y ); rc.c()++;
     float fz = zfac_ * pos.z_ * 100;
     int iz = mNINT(fz);
-
     tbl_->setValue( rc, iz * 0.01 );
+    BufferString rownm;
+    if ( is2D() )
+	rownm += pos.nr_;
+    else
+	{ rownm += pos.binid_.inl; rownm += "/"; rownm += pos.binid_.crl; }
+    tbl_->setRowLabel( tid, rownm );
+
     fillingtable_ = false;
 }
 
@@ -401,7 +390,7 @@ void uiDataPointSet::showCrossPlot( CallBacker* )
 void uiDataPointSet::getXplotPos( uiDataPointSet::DRowID& drid,
 				  uiDataPointSet::DColID& dcid ) const
 {
-    drid = -1; dcid = -nrPosCols()-1;
+    drid = -1; dcid = -cNrPosCols-1;
     if ( !xplotwin_ ) return;
     const uiDataPointSetCrossPlotter& xpl = xplotwin_->plotter();
     drid = xpl.selRow();
@@ -414,7 +403,7 @@ void uiDataPointSet::getXplotPos( uiDataPointSet::DRowID& drid,
 void uiDataPointSet::xplotSelChg( CallBacker* )
 {
     int drid, dcid; getXplotPos( drid, dcid );
-    if ( drid < 0 || dcid < -nrPosCols() ) return;
+    if ( drid < 0 || dcid < -cNrPosCols ) return;
 
     RowCol rc( tRowID(drid), tColID(dcid) );
     if ( rc.col >= 0 && rc.row >= 0 )
@@ -481,10 +470,8 @@ const char* uiDataPointSet::userName( uiDataPointSet::DColID did ) const
 	return "Trace number";
     else if ( did == -1 )
 	return "Z";
-    else if ( dispxy_ )
-	return did == -3 ? "X-Coord" : "Y-Coord";
     else
-	return did == -3 ? "In-line" : "X-line";
+	return did == -3 ? "X-Coord" : "Y-Coord";
 }
 
 
@@ -492,15 +479,11 @@ Stats::RunCalc<float>& uiDataPointSet::getRunCalc(
 				uiDataPointSet::DColID dcid ) const
 {
     static Stats::RunCalc<float> empty( Stats::RunCalcSetup(false) );
-    if ( dcid < -nrPosCols() ) return empty;
+    if ( dcid < -cNrPosCols ) return empty;
 
     int rcidx = dcid;
     if ( rcidx < 0 )
-    {
 	rcidx = dps_.nrCols() - 1 - dcid;
-	if ( dispxy_ && (dcid == -2 || dcid == -3) )
-	   rcidx = runcalcs_.size() - dcid - 4;
-    }
     Stats::RunCalc<float>* rc = runcalcs_[rcidx];
     if ( !rc )
     {
@@ -528,7 +511,7 @@ void uiDataPointSet::showStatsWin( CallBacker* )
 
 void uiDataPointSet::showStats( uiDataPointSet::DColID dcid )
 {
-    if ( dcid < -nrPosCols() ) return;
+    if ( dcid < -cNrPosCols ) return;
     statscol_ = tColID(dcid);
 
     BufferString txt( "Column: " );
@@ -567,10 +550,7 @@ float uiDataPointSet::getVal( DColID dcid, DRowID drid ) const
     else if ( dcid < -3 )
 	return dps_.trcNr( drid );
 
-    if ( dispxy_ )
-	return dcid == -3 ? dps_.coord(drid).x : dps_.coord(drid).y;
-
-    return dcid == -3 ? dps_.binID(drid).inl : dps_.binID(drid).crl;
+    return dcid == -3 ? dps_.coord(drid).x : dps_.coord(drid).y;
 }
 
 
@@ -604,23 +584,12 @@ void uiDataPointSet::valChg( CallBacker* )
 	DataPointSet::Pos& pos( afterchgdr_.pos_ );
 	if ( dcid == -1 )
 	    pos.z_ = tbl_->getfValue( cell ) / zfac_;
-	else if ( is2D() && dcid == -nrPosCols() )
-	    pos.nr_ = tbl_->getIntValue( cell );
 	else
 	{
-	    if ( dispxy_ )
-	    {
-		Coord crd( pos.coord() );
-		(dcid == -2 ? crd.x : crd.y) = tbl_->getValue( cell );
-		pos.set( SI().transform(crd), crd );
-	    }
-	    else
-	    {
-		BinID bid( pos.binID() );
-		(dcid == -2 ? bid.inl : bid.crl) = tbl_->getIntValue( cell );
-		pos.set( bid, SI().transform(bid) );
-	    }
-	    if ( pos.binID() != beforechgdr_.pos_.binID() )
+	    Coord crd( pos.coord() );
+	    (dcid == -cNrPosCols ? crd.x : crd.y) = tbl_->getValue( cell );
+	    pos.set( SI().transform(crd), crd );
+	    if ( pos.binid_ != beforechgdr_.pos_.binid_ )
 		dps_.bivSet().remove( dps_.bvsPos(drid) );
 	}
     }
@@ -644,13 +613,6 @@ void uiDataPointSet::eachChg( CallBacker* )
 	eachrow_ = neweachrow;
 	redoAll();
     }
-}
-
-
-void uiDataPointSet::toggXYIC( CallBacker* )
-{
-    dispxy_ = disptb_->isOn( xyictbid_ );
-    redoAll();
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.3 2008-04-07 11:03:42 cvsbert Exp $
+ RCS:           $Id: uidatapointset.h,v 1.4 2008-04-07 18:32:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,6 @@ protected:
     TypeSet<TRowID>		trowids_;	//!< often -1
     TypeSet<TRowID>		sortidxs_;
     int				eachrow_;
-    bool			dispxy_;
     TColID			xcol_;
     TColID			ycol_;
     TColID			y2col_;
@@ -111,7 +110,6 @@ protected:
     uiToolBar*			disptb_;
     uiToolBar*			maniptb_;
     uiSpinBox*			eachfld_;
-    int				xyictbid_;
     int				xplottbid_;
     int				statstbid_;
 
@@ -122,7 +120,6 @@ protected:
     TRowID			tRowID(DRowID did=-99) const;
     DColID			dColID(TColID tid=-99) const;
     TColID			tColID(DColID did=-99) const;
-    int				nrPosCols() const	{ return is2D()?4:3; }
     float			getVal(DColID,DRowID) const;
 
     void			calcIdxs();
