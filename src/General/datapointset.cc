@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.20 2008-04-03 08:25:30 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.21 2008-04-07 11:00:19 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -68,6 +68,23 @@ Coord DataPointSet::Pos::coord() const
     Coord sc( SI().transform(binid_) );
     sc.x += offsx_; sc.y += offsy_;
     return sc;
+}
+
+
+void DataPointSet::DataRow::getBVSValues( TypeSet<float>& vals,
+					  bool is2d, bool ismini ) const
+{
+    vals += pos_.z_;
+    if ( !ismini )
+    {
+	vals += pos_.offsx_;
+	vals += pos_.offsy_;
+	vals += grp_;
+    }
+    if ( is2d )
+	vals += pos_.nr_;
+    for ( int idx=0; idx<data_.size(); idx++ )
+	vals += data_[idx];
 }
 
 
@@ -471,20 +488,29 @@ void DataPointSet::setInactive( DataPointSet::RowID rid, bool sel )
 
 void DataPointSet::addRow( const DataPointSet::DataRow& dr )
 {
-    const int nrvals = nrCols();
-    BinIDValues bivs( dr.pos_.binid_, nrvals + nrfixedcols_ );
-    bivs.value(0) = dr.pos_.z_;
-    if ( !minimal_ )
+    TypeSet<float> vals; dr.getBVSValues( vals, is2d_, minimal_ );
+    bivSet().add( dr.binID(), vals );
+}
+
+
+bool DataPointSet::setRow( const DataPointSet::DataRow& dr )
+{
+    bool alreadyin = false;
+    BinIDValueSet::Pos bvspos = bivSet().findFirst( dr.pos_.binid_ );
+    while ( bvspos.valid() && bivSet().getBinID(bvspos) == dr.pos_.binid_ )
     {
-	bivs.value(1) = dr.pos_.offsx_;
-	bivs.value(2) = dr.pos_.offsy_;
-	bivs.value(3) = dr.grp_;
+	const float zval = *bivSet().getVals( bvspos );
+	if ( mIsZero(zval-dr.pos_.z_,mDefEps) )
+	    { alreadyin = true; break; }
+	bivSet().next( bvspos );
     }
-    if ( is2d_ )
-	bivs.value(nrfixedcols_-1) = dr.pos_.nr_;
-    for ( int idx=0; idx<nrvals; idx++ )
-	bivs.value(nrfixedcols_+idx) = dr.data_[idx];
-    bivSet().add( bivs );
+
+    if ( !alreadyin )
+	{ addRow( dr ); return true; }
+
+    TypeSet<float> vals; dr.getBVSValues( vals, is2d_, minimal_ );
+    bivSet().set( bvspos, vals );
+    return false;
 }
 
 

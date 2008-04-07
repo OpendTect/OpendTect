@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.16 2008-04-03 08:25:19 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.17 2008-04-07 11:00:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,8 @@ public:
 	bool			isInactive() const	{ return grp_ == 0; }
 	void			setSel( bool yn )
 	    			{ if ( grp_ >= 0 != yn ) grp_ = -grp_; }
+	void			getBVSValues(TypeSet<float>&,bool is2d,
+					     bool ismini) const;
 
 	Pos		pos_;
 	TypeSet<float>	data_;
@@ -183,8 +185,12 @@ public:
     			//!< In case you want to change the definition of a col
     void		addRow(const DataRow&);
     			//!< When finished, you have to call dataChanged()
+    bool		setRow(const DataRow&);
+    			//!< Can be add or change
+    			//!< Returns whether it's an add (see addRow)
     RowID		getRowID(BinIDValueSet::Pos) const;
     DataColDef&		colDef( ColID i )		{ return gtColDef(i); }
+    BinIDValueSet::Pos	bvsPos( RowID rid ) const	{ return bvsidxs_[rid];}
     			DataPointSet(bool is2d,bool minimal=false);
 			//!< use dataSet() to add columns
 
