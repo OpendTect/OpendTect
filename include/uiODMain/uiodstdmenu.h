@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.35 2008-01-23 12:19:20 cvsbert Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.36 2008-04-07 11:02:46 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -93,7 +93,8 @@ ________________________________________________________________________
 #define mCreateSurf3DMnuItm	(mUseHorMnu + 4)
 #define mCompBetweenHor3DMnuItm	(mUseHorMnu + 5)
 #define mCompAlongHor3DMnuItm	(mUseHorMnu + 6)
-#define mReStartMnuItm		(mProcMnu + 40)
+#define mXplotMnuItm		(mProcMnu + 40)
+#define mReStartMnuItm		(mProcMnu + 50)
 
 
 /* 'Windows' menu */

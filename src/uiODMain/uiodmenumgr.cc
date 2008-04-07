@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.113 2008-03-04 11:57:25 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.114 2008-04-07 11:02:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -327,6 +327,7 @@ void uiODMenuMgr::fillProcMenu()
     mCreateHorMnu( mnu3d, "&3D", 3D );
     procmnu_->insertItem( horitm );
     
+    mInsertItem( procmnu_, "&Cross-plot ...", mXplotMnuItm );
     mInsertItem( procmnu_, "&Re-Start ...", mReStartMnuItm );
 }
 
@@ -496,6 +497,7 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 	mAddTB(dtecttb_,"out_vol.png","Create 3D seismic output",false,
 	       seisOut3DCB);
     }
+    mAddTB(dtecttb_,"xplot.png","Crossplot",false,xPlot);
 
     dTectTBChanged.trigger();
 }
@@ -619,6 +621,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mCompBetweenHor2DMnuItm: applMgr().createHorOutput(2,true); break;
     case mCompBetweenHor3DMnuItm: applMgr().createHorOutput(2,false); break;
     case mReStartMnuItm: 	applMgr().reStartProc(); break;
+    case mXplotMnuItm:		applMgr().doXPlot(); break;
     case mAddSceneMnuItm:	sceneMgr().tile(); // leave this, or --> crash!
 				sceneMgr().addScene(true); break;
     case mCascadeMnuItm: 	sceneMgr().cascade(); break;
