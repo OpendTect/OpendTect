@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.193 2008-04-04 17:13:23 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.194 2008-04-07 19:37:50 cvsyuancheng Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -869,6 +869,7 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib )
 	if ( !fdp )
 	{
 	    texture_->turnOn( false );
+	    DPM(DataPackMgr::FlatID).release( dpid );
 	    continue;
 	}
 
@@ -885,6 +886,8 @@ void PlaneDataDisplay::updateFromDisplayIDs( int attrib )
 	    rectangle_->setOriginalTextureSize( dparr.info().getSize(1),
 		    				dparr.info().getSize(0) );
 	}
+	
+	DPM(DataPackMgr::FlatID).release( dpid );
     }
    
     texture_->turnOn( true );
