@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.36 2008-02-26 12:56:45 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.37 2008-04-07 11:00:34 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -357,7 +357,7 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
     if ( usesamp )
     {
 	mDynamicCastGet( uiSeis2DSubSel* , seis2dsubsel, seissubselfld_ );
-	if ( !seis2dsubsel && seis2dsubsel->isSingLine() )
+	if ( seis2dsubsel && seis2dsubsel->isSingLine() )
 	{
 	    key = IOPar::compKey(sKey::Geometry,SeisTrcStorOutput::inlrangekey);
 	    iopar.set( key, horsamp.start.inl, horsamp.stop.inl );
