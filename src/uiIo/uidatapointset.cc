@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.2 2008-04-04 12:40:40 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.3 2008-04-07 11:03:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 #include "keystrs.h"
 #include "oddirs.h"
+#include "unitofmeasure.h"
 
 #include "uitable.h"
 #include "uilabel.h"
@@ -64,15 +65,18 @@ void uiDataPointSet::stopCreateNotify( CallBacker* c )
 uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 				const uiDataPointSet::Setup& su )
 	: uiDialog(p,su)
-	, dps_(const_cast<DataPointSet*>(&dps))
-	, localdps_(0)
+	, dps_(*const_cast<DataPointSet*>(&dps))
+	, orgdps_(*new DataPointSet(dps))
     	, setup_(su)
     	, zfac_(SI().zFactor())
     	, zunitnm_(SI().getZUnit(false))
 	, tbl_(0)
 	, dispxy_(dps.is2D())
+    	, unsavedchgs_(false)
+    	, fillingtable_(true)
+    	, valueChanged(this)
 {
-    mDPM.obtain( dps_->id() );
+    mDPM.obtain( dps_.id() );
     setCtrlStyle( LeaveOnly );
     runcalcs_.allowNull( true );
 
@@ -102,11 +106,11 @@ int uiDataPointSet::initVars()
     xplotwin_ = 0; statswin_ = 0;
 
     deepErase( runcalcs_ );
-    const int nrcols = dps_->nrCols() + nrPosCols();
+    const int nrcols = dps_.nrCols() + nrPosCols();
     for ( int idx=0; idx<nrcols+2; idx++ )
 	runcalcs_ += 0;
 
-    eachrow_ = dps_->size() / setup_.initialmaxnrlines_;
+    eachrow_ = dps_.size() / setup_.initialmaxnrlines_;
     if ( eachrow_ < 1 ) eachrow_ = 1;
 
     calcIdxs();
@@ -116,7 +120,6 @@ int uiDataPointSet::initVars()
 
 uiDataPointSet::~uiDataPointSet()
 {
-    delete localdps_;
 }
 
 
@@ -196,10 +199,10 @@ void uiDataPointSet::calcIdxs()
     const int orgtblsz = drowids_.size();
     drowids_.erase(); trowids_.erase(); sortidxs_.erase();
 
-    const int dpssz = dps_->size();
+    const int dpssz = dps_.size();
     for ( int did=0; did<dpssz; did++ )
     {
-	const bool inact = dps_->isInactive(did);
+	const bool inact = dps_.isInactive(did);
 	const bool hidden = did % eachrow_;
 	if ( inact || hidden )
 	    trowids_ += -1;
@@ -268,7 +271,8 @@ uiDataPointSet::TColID uiDataPointSet::tColID( DColID did ) const
 
 void uiDataPointSet::fillPos( TRowID tid )
 {
-    const DataPointSet::Pos pos( dps_->pos(dRowID(tid)) );
+    fillingtable_ = true;
+    const DataPointSet::Pos pos( dps_.pos(dRowID(tid)) );
     RowCol rc( tid, 0 );
     if ( is2D() )
     {
@@ -289,18 +293,22 @@ void uiDataPointSet::fillPos( TRowID tid )
     }
     float fz = zfac_ * pos.z_ * 100;
     int iz = mNINT(fz);
+
     tbl_->setValue( rc, iz * 0.01 );
+    fillingtable_ = false;
 }
 
 
 void uiDataPointSet::fillData( TRowID tid )
 {
-    const DataPointSet::DataRow dr( dps_->dataRow(dRowID(tid)) );
+    const DataPointSet::DataRow dr( dps_.dataRow(dRowID(tid)) );
     RowCol rc( tid, 3 );
     if ( is2D() ) rc.c()++;
 
+    fillingtable_ = true;
     for ( int icol=0; icol<dr.data_.size(); icol++ )
 	{ tbl_->setValue( rc, dr.data_[icol] ); rc.c()++; }
+    fillingtable_ = false;
 }
 
 
@@ -425,7 +433,7 @@ void uiDataPointSet::xplotRemReq( CallBacker* )
 {
     int drid, dcid; getXplotPos( drid, dcid );
     if ( drid < 0 ) return;
-    dps_->setInactive( drid, true );
+    dps_.setInactive( drid, true );
     const TRowID trid = tRowID( drid );
     if ( trid >= 0 )
 	redoAll();
@@ -468,7 +476,7 @@ void uiDataPointSet::statsClose( CallBacker* )
 const char* uiDataPointSet::userName( uiDataPointSet::DColID did ) const
 {
     if ( did >= 0 )
-	return dps_->colName( did );
+	return dps_.colName( did );
     else if ( did < -3 )
 	return "Trace number";
     else if ( did == -1 )
@@ -489,7 +497,7 @@ Stats::RunCalc<float>& uiDataPointSet::getRunCalc(
     int rcidx = dcid;
     if ( rcidx < 0 )
     {
-	rcidx = dps_->nrCols() - 1 - dcid;
+	rcidx = dps_.nrCols() - 1 - dcid;
 	if ( dispxy_ && (dcid == -2 || dcid == -3) )
 	   rcidx = runcalcs_.size() - dcid - 4;
     }
@@ -500,7 +508,7 @@ Stats::RunCalc<float>& uiDataPointSet::getRunCalc(
 #	define mReq(typ) require(Stats::typ)
 	su.mReq(Count).mReq(Average).mReq(Median).mReq(StdDev);
 	rc = new Stats::RunCalc<float>( su.mReq(Min).mReq(Max).mReq(RMS) );
-	for ( DRowID drid=0; drid<dps_->size(); drid++ )
+	for ( DRowID drid=0; drid<dps_.size(); drid++ )
 	    rc->addValue( getVal( dcid, drid ) );
 	runcalcs_.replace( rcidx, rc );
     }
@@ -527,7 +535,7 @@ void uiDataPointSet::showStats( uiDataPointSet::DColID dcid )
     txt += userName( dcid );
     if ( statscol_ >= 0 )
     {
-	const DataColDef& dcd = dps_->colDef( dcid );
+	const DataColDef& dcd = dps_.colDef( dcid );
 	if ( dcd.unit_ )
 	    { txt += " ("; txt += dcd.unit_->name(); txt += ")"; }
 	if ( dcd.ref_ != dcd.name_ )
@@ -549,28 +557,81 @@ void uiDataPointSet::showStats( uiDataPointSet::DColID dcid )
 float uiDataPointSet::getVal( DColID dcid, DRowID drid ) const
 {
     if ( dcid >= 0 )
-	return dps_->value( dcid, drid );
+    {
+	float val = dps_.value( dcid, drid );
+	const UnitOfMeasure* mu = dps_.colDef( dcid ).unit_;
+	return mu ? mu->userValue(val) : val;
+    }
     else if ( dcid == -1 )
-	return dps_->z( drid ) * zfac_;
+	return dps_.z( drid ) * zfac_;
     else if ( dcid < -3 )
-	return dps_->trcNr( drid );
+	return dps_.trcNr( drid );
 
     if ( dispxy_ )
-	return dcid == -3 ? dps_->coord(drid).x : dps_->coord(drid).y;
+	return dcid == -3 ? dps_.coord(drid).x : dps_.coord(drid).y;
 
-    return dcid == -3 ? dps_->binID(drid).inl : dps_->binID(drid).crl;
-}
-
-
-void uiDataPointSet::setVal( DColID dcid, DRowID drid, float val )
-{
-    if ( dcid < 0 ) return;
-    dps_->getValues(drid)[dcid] = val;
+    return dcid == -3 ? dps_.binID(drid).inl : dps_.binID(drid).crl;
 }
 
 
 void uiDataPointSet::valChg( CallBacker* )
 {
+    if ( fillingtable_ ) return;
+
+    const RowCol& cell = tbl_->notifiedCell();
+    if ( cell.row < 0 || cell.col < 0 ) return;
+
+    const DColID dcid( dColID(cell.col) );
+    const DRowID drid( dRowID(cell.row) );
+
+    afterchgdr_ = beforechgdr_ = dps_.dataRow( drid );
+
+    if ( dcid >= 0 )
+    {
+	float val = tbl_->getfValue( cell );
+	const UnitOfMeasure* mu = dps_.colDef( dcid ).unit_;
+	afterchgdr_.data_[dcid] = mu ? mu->internalValue(val) : val;
+    }
+    else
+    {
+	const char* txt = tbl_->text( cell );
+	if ( !txt || !*txt )
+	{
+	    uiMSG().error( "Positioning values cannot be undefined" );
+	    fillPos( TRowID(drid) );
+	    return;
+	}
+	DataPointSet::Pos& pos( afterchgdr_.pos_ );
+	if ( dcid == -1 )
+	    pos.z_ = tbl_->getfValue( cell ) / zfac_;
+	else if ( is2D() && dcid == -nrPosCols() )
+	    pos.nr_ = tbl_->getIntValue( cell );
+	else
+	{
+	    if ( dispxy_ )
+	    {
+		Coord crd( pos.coord() );
+		(dcid == -2 ? crd.x : crd.y) = tbl_->getValue( cell );
+		pos.set( SI().transform(crd), crd );
+	    }
+	    else
+	    {
+		BinID bid( pos.binID() );
+		(dcid == -2 ? bid.inl : bid.crl) = tbl_->getIntValue( cell );
+		pos.set( bid, SI().transform(bid) );
+	    }
+	    if ( pos.binID() != beforechgdr_.pos_.binID() )
+		dps_.bivSet().remove( dps_.bvsPos(drid) );
+	}
+    }
+
+    if ( dps_.setRow(afterchgdr_) )
+    {
+	dps_.dataChanged();
+	redoAll(); tbl_->setCurrentCell( cell );
+    }
+    unsavedchgs_ = true;
+    valueChanged.trigger();
 }
 
 
@@ -606,19 +667,38 @@ void uiDataPointSet::setSortCol( CallBacker* )
 
 bool uiDataPointSet::is2D() const
 {
-    return dps_->is2D();
+    return dps_.is2D();
+}
+
+
+bool uiDataPointSet::saveOK()
+{
+    if ( !unsavedchgs_ )
+	return true;
+
+    int res = uiMSG().askGoOnAfter( "There are unsaved changes.\n"
+				    "Do you want to save the data?" );
+    if ( res == 2 )
+	return false;
+    else if ( res == 1 )
+	return true;
+
+    return doSave();
 }
 
 
 bool uiDataPointSet::rejectOK( CallBacker* )
 {
+    if ( !saveOK() )
+	return false;
+    dps_ = orgdps_;
     return acceptOK( 0 );
 }
 
 
 bool uiDataPointSet::acceptOK( CallBacker* )
 {
-    mDPM.release( dps_->id() );
+    mDPM.release( dps_.id() );
     delete xplotwin_; delete statswin_;
     return true;
 }
@@ -626,6 +706,8 @@ bool uiDataPointSet::acceptOK( CallBacker* )
 
 void uiDataPointSet::retrieve( CallBacker* )
 {
+    if ( !saveOK() ) return;
+
     CtxtIOObj ctio( PosVecDataSetTranslatorGroup::ioContext() );
     ctio.ctxt.forread = true;
     uiIOObjSelDlg seldlg( this, ctio );
@@ -638,13 +720,12 @@ void uiDataPointSet::retrieve( CallBacker* )
 	{ uiMSG().error( errmsg ); return; }
     if ( pvds.data().isEmpty() )
 	{ uiMSG().error("Selected data set is empty"); return; }
-    DataPointSet* newdps = new DataPointSet( pvds, dps_->is2D(),
-	    				     dps_->isMinimal() );
+    DataPointSet* newdps = new DataPointSet( pvds, dps_.is2D(),
+	    				     dps_.isMinimal() );
     if ( newdps->isEmpty() )
 	{ delete newdps; uiMSG().error("Data set is not suitable"); return; }
 
     rejectOK( 0 );
-    delete localdps_; localdps_ = newdps; dps_ = newdps;
 
     TypeSet<int> cols;
     for ( int idx=0; idx<tbl_->nrCols(); idx++ )
@@ -727,13 +808,22 @@ bool acceptOK( CallBacker* )
 
 void uiDataPointSet::save( CallBacker* )
 {
-    if ( dps_->nrActive() < 1 ) return;
+    doSave();
+}
+
+
+bool uiDataPointSet::doSave()
+{
+    if ( dps_.nrActive() < 1 ) return true;
 
     uiDataPointSetSave uidpss( this );
-    if ( !uidpss.go() ) return;
+    if ( !uidpss.go() ) return false;
 
-    dps_->dataSet().pars() = storepars_;
+    dps_.dataSet().pars() = storepars_;
     BufferString errmsg;
-    if ( !dps_->dataSet().putTo(uidpss.fname_,errmsg,uidpss.istab_) )
-	uiMSG().error( errmsg );
+    if ( !dps_.dataSet().putTo(uidpss.fname_,errmsg,uidpss.istab_) )
+	{ uiMSG().error( errmsg ); return false; }
+
+    unsavedchgs_ = false;
+    return true;
 }

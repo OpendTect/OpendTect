@@ -7,15 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.2 2008-04-04 12:40:40 cvsbert Exp $
+ RCS:           $Id: uidatapointset.h,v 1.3 2008-04-07 11:03:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+#include "datapointset.h"
 #include "rowcol.h"
 #include "iopar.h"
-class DataPointSet;
 class uiTable;
 class uiSpinBox;
 class uiToolBar;
@@ -32,8 +32,8 @@ public:
 
     typedef int			TRowID;
     typedef int			TColID;
-    typedef int			DRowID;
-    typedef int			DColID;
+    typedef DataPointSet::RowID	DRowID;
+    typedef DataPointSet::ColID	DColID;
 
     struct Setup : public uiDialog::Setup
     {
@@ -51,8 +51,8 @@ public:
 					      const Setup&);
 				~uiDataPointSet();
 
-    DataPointSet&		pointSet()	{ return *dps_; }
-    const DataPointSet&		pointSet() const { return *dps_; }
+    DataPointSet&		pointSet()	{ return dps_; }
+    const DataPointSet&		pointSet() const { return dps_; }
 
     bool			is2D() const;
     int				size() const	{ return drowids_.size(); }
@@ -76,10 +76,15 @@ public:
     Stats::RunCalc<float>&	getRunCalc(DColID) const;
 
     IOPar&			storePars()	{ return storepars_; }
+    Notifier<uiDataPointSet>	valueChanged;
+    void			getChanges(DataPointSet::DataRow& before,
+	    				   DataPointSet::DataRow& after) const
+				{ before = beforechgdr_; after = afterchgdr_; }
 
 protected:
 
-    DataPointSet*		dps_;
+    DataPointSet&		dps_;
+    DataPointSet		orgdps_;
     Setup			setup_;
     float			zfac_;
     BufferString		zunitnm_;
@@ -96,6 +101,10 @@ protected:
     TColID			sortcol_;
     TColID			statscol_;
     mutable ObjectSet<Stats::RunCalc<float> > runcalcs_;
+    DataPointSet::DataRow	beforechgdr_;
+    DataPointSet::DataRow	afterchgdr_;
+    bool			unsavedchgs_;
+    bool			fillingtable_;
 
     uiTable*			tbl_;
     uiToolBar*			iotb_;
@@ -115,7 +124,6 @@ protected:
     TColID			tColID(DColID did=-99) const;
     int				nrPosCols() const	{ return is2D()?4:3; }
     float			getVal(DColID,DRowID) const;
-    void			setVal(DColID,DRowID,float); //!< col >= 0
 
     void			calcIdxs();
     void			calcSortIdxs();
@@ -124,6 +132,8 @@ protected:
     void			fillPos(TRowID);
     void			fillData(TRowID);
     void			handleAxisColChg();
+    bool			saveOK();
+    bool			doSave();
 
     void			selXCol(CallBacker*);
     void			selYCol(CallBacker*);
@@ -155,7 +165,6 @@ protected:
 
 private:
 
-    DataPointSet*		localdps_;
     int				initVars();
 };
 
