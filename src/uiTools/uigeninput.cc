@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.80 2007-10-25 15:06:40 cvssatyaki Exp $
+ RCS:           $Id: uigeninput.cc,v 1.81 2008-04-07 10:30:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -351,12 +351,12 @@ uiPositionInpFld::uiPositionInpFld( uiGenInput* p, const DataInpSpec& dis,
     mDynamicCastGet(const PositionInpSpec*,spc,&dis)
     if ( !spc ) { pErrMsg("HUH - expect crash"); return; }
 
-    addFld( p, nm );
+    addFld( p, mName(dis,0,nm) );
     const bool istrcnr = spc->setup().is2d_ && !spc->setup().wantcoords_;
     if ( spc->setup().isps_ || !istrcnr )
-	addFld( p, nm );
+	addFld( p, mName(dis,1,nm) );
     if ( spc->setup().isps_ && !istrcnr )
-	addFld( p, nm );
+	addFld( p, mName(dis,2,nm) );
 
     init();
 }
