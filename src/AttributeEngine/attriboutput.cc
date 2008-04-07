@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.78 2008-03-24 20:16:57 cvskris Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.79 2008-04-07 14:13:14 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -1065,7 +1065,8 @@ TableOutput::TableOutput( DataPointSet& datapointset )
 void TableOutput::collectData( const DataHolder& data, float refstep,
 			       const SeisTrcInfo& info )
 {
-    DataPointSet::RowID rid = datapointset_.findFirst( info.coord );
+    DataPointSet::RowID rid = useCoords() ? datapointset_.findFirst(info.coord)
+					  : datapointset_.findFirst(info.binid);
     if ( rid<0 ) return;
 
     const int desnrvals = desoutputs_.size();
@@ -1156,6 +1157,12 @@ bool TableOutput::wantsOutput( const Coord& coord ) const
 }
 
 
+bool TableOutput::useCoords() const
+{
+    return datapointset_.is2D();
+}
+
+
 TypeSet< Interval<int> > TableOutput::getLocalZRanges(
 						const BinID& bid, float zstep,
 						TypeSet<float>& exactz ) const
@@ -1169,6 +1176,7 @@ TypeSet< Interval<int> > TableOutput::getLocalZRanges(
     while ( pos.valid() && bid == bvs.getBinID(pos) )
     {
 	addLocalInterval( sampleinterval, exactz, rid, zstep );
+	datapointset_.bivSet().next( pos );
 	rid++;
     }
 
