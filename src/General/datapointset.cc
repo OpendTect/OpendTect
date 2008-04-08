@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.21 2008-04-07 11:00:19 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.22 2008-04-08 16:16:33 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -586,6 +586,23 @@ DataPointSet::RowID DataPointSet::getRowID( BinIDValueSet::Pos bvspos ) const
     int rid = -1;
     return IdxAble::findPos( bvsidxs_.arr(), bvsidxs_.size(), bvspos, -1, rid )
 	? rid : -1;
+}
+
+
+DataPointSet::RowID DataPointSet::find( const DataPointSet::Pos& dpos ) const
+{
+    BinIDValueSet::Pos bpos = bivSet().findFirst( dpos.binid_ );
+    bivSet().prev( bpos );
+    while ( bivSet().next(bpos) )
+    {
+	if ( bivSet().getBinID(bpos) != dpos.binid_ )
+	    break;
+
+	const float zval = bivSet().getVals(bpos)[0];
+	if ( mIsZero(zval-dpos.z_,1e-6) )
+	    return getRowID( bpos );
+    }
+    return -1;
 }
 
 

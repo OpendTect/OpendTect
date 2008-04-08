@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.17 2008-04-07 11:00:19 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.18 2008-04-08 16:16:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -162,6 +162,7 @@ public:
     void		purgeInactive();
     void		purgeSelected(bool selected_rows=true);
 
+    RowID		find(const Pos&) const;
     RowID		findFirst(const Coord&) const;
     RowID		findFirst(const BinID&) const;
 
