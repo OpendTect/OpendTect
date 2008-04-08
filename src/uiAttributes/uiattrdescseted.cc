@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.67 2008-02-25 16:32:10 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.68 2008-04-08 13:34:02 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -1056,7 +1056,13 @@ bool uiAttribDescSetEd::hasInput( const Desc& desc, const DescID& id )
     for ( int idx=0; idx<desc.nrInputs(); idx++ )
     {
 	const Desc* inp = desc.getInput( idx );
-	if ( !inp ) return false;
+	if ( !inp )
+	{
+	    if ( desc.inputSpec(idx).enabled )
+		return false;
+	    else
+		continue;
+	}
 
 	if ( inp->id() == id ) return true;
     }
@@ -1064,7 +1070,7 @@ bool uiAttribDescSetEd::hasInput( const Desc& desc, const DescID& id )
     for ( int idx=0; idx<desc.nrInputs(); idx++ )
     {
 	const Desc* inp = desc.getInput( idx );
-	if ( inp->isHidden() && inp->nrInputs() )
+	if ( inp && inp->isHidden() && inp->nrInputs() )
 	    return hasInput( *inp, id );
     }
 
