@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.34 2008-04-08 14:33:54 cvskris Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.35 2008-04-08 17:33:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -274,7 +274,10 @@ void uiFlatViewControl::applyProperties( CallBacker* cb )
     const int selannot = propdlg_->selectedAnnot();
 
     vwr->setAnnotChoice( selannot );
-    vwr->handleChange( FlatView::Viewer::All );
+    //Don't send FlatView::Viewer::All, since that triggers a viewchange
+    vwr->handleChange( FlatView::Viewer::Annot );
+    vwr->handleChange( FlatView::Viewer::WVAPars );
+    vwr->handleChange( FlatView::Viewer::VDPars );
 }
 
 
