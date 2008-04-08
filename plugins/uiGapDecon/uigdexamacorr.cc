@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.28 2008-04-08 04:21:28 cvssatyaki Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.29 2008-04-08 20:04:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -199,9 +199,9 @@ void GapDeconACorrView::setUpViewWin( bool isqc )
 		uiFlatViewMainWin::Setup( isqc ? qctitle_ : examtitle_ ) );
 	uiFlatViewer& vwr = fvwin->viewer();
 	vwr.setPack( false, dp->id(), false, true );
-	vwr.setDarkBG( false );
 	FlatView::Appearance& app = vwr.appearance();
 	app.annot_.setAxesAnnot( true );
+	app.setDarkBG( false );
 	app.setGeoDefaults( true );
 	app.ddpars_.show( false, true );
 	vwr.appearance().ddpars_.vd_.rg_ = Interval<float>( -0.2, 0.2 );

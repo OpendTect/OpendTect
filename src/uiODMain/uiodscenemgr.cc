@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.124 2008-03-26 15:25:42 cvsjaap Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.125 2008-04-08 20:04:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -976,7 +976,7 @@ void uiODSceneMgr::Viewer2D::createViewWin( bool isvert )
     }
     uiFlatViewer& vwr = viewwin_->viewer();
     vwr.setInitialSize( uiSize(600,400) );
-    vwr.setDarkBG( wantdock );
+    vwr.appearance().setDarkBG( wantdock );
     vwr.appearance().setGeoDefaults(isvert);
     vwr.appearance().annot_.setAxesAnnot(true);
     viewwin_->addControl( new uiFlatViewStdControl( vwr,

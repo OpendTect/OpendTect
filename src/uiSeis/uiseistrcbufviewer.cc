@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          Nov 2007
- RCS:           $Id: uiseistrcbufviewer.cc,v 1.11 2008-01-10 11:16:13 cvssatyaki Exp $
+ RCS:           $Id: uiseistrcbufviewer.cc,v 1.12 2008-04-08 20:04:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,8 +26,8 @@ uiSeisTrcBufViewer::uiSeisTrcBufViewer( uiParent* p,
     : uiFlatViewMainWin( p, setup )      
 {
     viewer().setInitialSize( uiSize(400,500) );
-    viewer().setDarkBG( false );
     FlatView::Appearance& app = viewer().appearance();
+    app.setDarkBG( false );
     app.annot_.setAxesAnnot( true );
     app.setGeoDefaults( true );
     app.ddpars_.wva_.overlap_ = 1;
