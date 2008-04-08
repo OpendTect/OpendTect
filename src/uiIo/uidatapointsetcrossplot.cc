@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.1 2008-04-03 08:28:30 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.2 2008-04-08 16:18:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,9 +136,6 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     preDraw.notify( mCB(this,uiDataPointSetCrossPlotter,initDraw) );
     postDraw.notify( mCB(this,uiDataPointSetCrossPlotter,drawContent) );
 
-    if ( dps_.size() > cMaxPtsForMarkers )
-	setup_.markerstyle_.type_ = MarkerStyle2D::None;
-
     setPrefWidth( 600 );
     setPrefHeight( 500 );
     setStretch( 2, 2 );
@@ -177,8 +174,8 @@ int uiDataPointSetCrossPlotter::getRow(
     {
 	if ( rid % eachrow_ ) continue;
 
-	const float xval = uidps_.getVal( x_.colid_, rid );
-	const float yval = uidps_.getVal( ad.colid_, rid );
+	const float xval = uidps_.getVal( x_.colid_, rid, true );
+	const float yval = uidps_.getVal( ad.colid_, rid, true );
 	if ( mIsUdf(xval) || mIsUdf(yval) ) continue;
 
 	const float x = x_.axis_->getRelPos( xval );
@@ -293,15 +290,18 @@ void uiDataPointSetCrossPlotter::drawData(
     const uiAxisHandler& xah = *x_.axis_;
     const uiAxisHandler& yah = *yad.axis_;
     drawTool().setPenColor( yah.setup().style_.color_ );
+
     MarkerStyle2D mstyle( setup_.markerstyle_ );
+    if ( dps_.size()/eachrow_ > cMaxPtsForMarkers )
+	mstyle.type_ = MarkerStyle2D::None;
     mstyle.color_ = yah.setup().style_.color_;
 
     for ( uiDataPointSet::DRowID rid=0; rid<nrrows; rid++ )
     {
 	if ( rid % eachrow_ || dps_.isInactive(rid) ) continue;
 
-	const float xval = getVal( x_.colid_, rid );
-	const float yval = getVal( yad.colid_, rid );
+	const float xval = uidps_.getVal( x_.colid_, rid, true );
+	const float yval = uidps_.getVal( yad.colid_, rid, true );
 	if ( mIsUdf(xval) || mIsUdf(yval) ) continue;
 
 	const uiPoint pt( xah.getPix(xval), yah.getPix(yval) );
