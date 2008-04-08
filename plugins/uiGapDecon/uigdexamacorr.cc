@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uigdexamacorr.cc,v 1.27 2008-03-31 10:45:32 cvsnageswara Exp $
+ RCS:           $Id: uigdexamacorr.cc,v 1.28 2008-04-08 04:21:28 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,6 @@ ________________________________________________________________________
 #include "attribdataholder.h"
 #include "attribdatapack.h"
 #include "arrayndimpl.h"
-#include "colortab.h"
 #include "ptrman.h"
 #include "survinfo.h"
 #include "uitaskrunner.h"
