@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.98 2008-04-08 05:05:08 cvssatyaki Exp $
+ RCS:           $Id: uiodmain.cc,v 1.99 2008-04-08 12:20:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -639,11 +639,6 @@ bool uiODMain::closeOK()
     applicationClosing.trigger();
 
     if ( failed_ ) return true;
-
-    menumgr_->storePositions();
-    scenemgr_->storePositions();
-    if ( ctabwin_ )
-	ctabwin_->storePosition();
 
     bool askedanything = false;
     if ( !askStore(askedanything) )

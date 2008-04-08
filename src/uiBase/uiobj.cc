@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.74 2008-03-18 17:41:22 cvskris Exp $
+ RCS:           $Id: uiobj.cc,v 1.75 2008-04-08 12:20:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,13 +14,13 @@ ________________________________________________________________________
 #include "uicursor.h"
 #include "uimainwin.h"
 #include "i_layoutitem.h"
+
+#include "color.h"
 #include "errh.h"
 #include "pixmap.h"
-#include "timer.h"
-#include "color.h"
 #include "settings.h"
+#include "timer.h"
 
-#include <qsettings.h> 
 
 DefineEnumNames(uiRect,Side,1,"Side") { "Left", "Top", "Right", "Bottom", 0 };
 
@@ -93,70 +93,9 @@ const ObjectSet<uiObjHandle>* uiParent::childList() const
 }
 
 
-void uiParent::storePosition()
-{
-#ifdef SUPPORT_PERSISTENCE  // TODO remove or fixme
-    QWidget* widget = body()->qwidget();
-    if ( !widget ) { pErrMsg("no qwidget!"); return; }
-
-    QSettings settings;
-
-    BufferString key( "/dTect/geometry/" );
-    key += name();
-
-    QPoint p = widget->pos();
-
-    QString k(key); k += "x";
-    settings.writeEntry( k, p.x() );
-
-    k = key; k += "y";
-    settings.writeEntry( k, p.y() );
-
-    QSize s = widget->size();
-
-    k = key; k += "width";
-    settings.writeEntry( k, s.width() );
-
-    k = key; k += "height";
-    settings.writeEntry( k, s.height() );
-#endif
-}
-
 const Color& uiParent::backgroundColor() const
 {
     return mainObject() ? mainObject()->backgroundColor() : *new Color();
-}
-
-
-void uiParent::restorePosition()
-{
-#ifdef SUPPORT_PERSISTENCE  // TODO remove or fixme
-    QWidget* widget = body()->qwidget();
-    if ( !widget ) { pErrMsg("no qwidget!"); return; }
-
-    QSettings settings;
-
-    BufferString key( "/dTect/geometry/" );
-    key += name();
-
-    QString k(key); k += "width";
-    int w = settings.readNumEntry( k, -1 );
-
-    k = key; k += "height";
-    int h = settings.readNumEntry( k, -1 );
-
-    if ( w >= 0 && h >= 0 )
-	widget->resize( QSize(w,h) );
-
-    k = key; k += "x";
-    int x = settings.readNumEntry( k, -1 );
-
-    k = key; k += "y";
-    int y = settings.readNumEntry( k, -1 );
-
-    if ( x >= 0 && y >= 0 )
-	widget->move( QPoint(x,y) );
-#endif
 }
 
 
@@ -244,6 +183,7 @@ void uiObject::setToolTip(const char* t)
     doSetToolTip();
 }
 
+
 void uiObject::doSetToolTip()
 {
     if ( !mBody() )
@@ -259,14 +199,6 @@ void uiObject::doSetToolTip()
 	mBody()->setToolTip( normaltooltiptxt_ );
 } 
 
-
-#ifdef USEQT3
-void uiObject::enableToolTips(bool yn)	{ uiObjectBody::enableToolTips(yn); }
-
-
-bool uiObject::toolTipsEnabled() 
-    { return uiObjectBody::toolTipsEnabled(); }
-#endif
 
 void uiObject::display( bool yn, bool shrink, bool maximise )	
 { 

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.34 2007-09-28 03:56:30 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.35 2008-04-08 12:20:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,6 @@ public:
 
 
     			// Probably not needed by plugins
-    void		storePositions();
     void		updateStereoMenu();
     void		updateViewMode(bool);
     void		updateAxisMode(bool);

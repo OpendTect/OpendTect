@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.114 2008-04-07 11:02:47 cvsbert Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.115 2008-04-08 12:20:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,14 +98,6 @@ uiPopupMenu* uiODMenuMgr::getBaseMnu( uiODApplMgr::ActType at )
 uiPopupMenu* uiODMenuMgr::getMnu( bool imp, uiODApplMgr::ObjType ot )
 {
     return imp ? impmnus_[(int)ot] : expmnus_[(int)ot];
-}
-
-
-void uiODMenuMgr::storePositions()
-{
-    dtecttb_->storePosition();
-    cointb_->storePosition();
-    mantb_->storePosition();
 }
 
 

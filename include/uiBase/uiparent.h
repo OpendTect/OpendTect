@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uiparent.h,v 1.17 2008-03-14 14:35:45 cvskris Exp $
+ RCS:           $Id: uiparent.h,v 1.18 2008-04-08 12:20:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,11 +38,6 @@ public:
 				      bool reciprocal );
 
     const ObjectSet<uiObjHandle>* childList() const;
-
-			//! persists current widget position
-    void		storePosition();
-			//! restores persisted widget position
-    void		restorePosition();
 
     virtual uiMainWin*	mainwin()		{ return 0; }
 
