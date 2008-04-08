@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.6 2008-04-08 05:54:08 cvssatyaki Exp $
+ RCS:           $Id: uicolortable.cc,v 1.7 2008-04-08 06:50:38 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,8 +69,9 @@ uiColorTable::uiColorTable( uiParent* p, ColTab::Sequence& colseq, bool vert )
 
     if ( vert )
     {
-	canvas_->attach( rightAlignedBelow, minfld_ );
-	minfld_->attach( rightAlignedBelow, canvas_ );
+	minfld_->attach( topBorder, 20 );
+	canvas_->attach( centeredBelow, minfld_ );
+	maxfld_->attach( centeredBelow, canvas_ );
 	selfld_->attach( centeredBelow, maxfld_ );
     }
     else
@@ -78,9 +79,9 @@ uiColorTable::uiColorTable( uiParent* p, ColTab::Sequence& colseq, bool vert )
 	canvas_->attach( rightOf, minfld_ );
 	maxfld_->attach( rightOf, canvas_ );
 	selfld_->attach( rightOf, maxfld_ );
+	setHAlignObj(selfld_); setHCentreObj(selfld_);
     }
 
-    setHAlignObj(selfld_); setHCentreObj(selfld_);
     fillTabList();
 }
 
