@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.cc,v 1.16 2008-04-02 12:06:10 cvsnanne Exp $
+ RCS:           $Id: uiobjbody.cc,v 1.17 2008-04-08 12:19:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -476,23 +476,9 @@ uiSize uiObjectBody::actualsize( bool include_border ) const
 
 void uiObjectBody::setToolTip( const char* txt )
 {
-#ifdef USEQT3
-    QToolTip::add( qwidget(), txt );
-#else
     qwidget()->setToolTip( txt );
-#endif
 }
 
-#ifdef USEQT3
-void uiObjectBody::enableToolTips( bool yn )
-{
-    QToolTip::setEnabled( yn );
-}
-
-
-bool uiObjectBody::toolTipsEnabled()
-    { return QToolTip::enabled(); }
-#endif
 
 void uiObjectBody::uisetCaption( const char* str )
     { qwidget()->setCaption( QString( str ) ); }
