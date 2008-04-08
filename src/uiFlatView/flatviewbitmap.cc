@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewbitmap.cc,v 1.15 2008-04-08 11:21:25 cvsnanne Exp $
+ RCS:           $Id: flatviewbitmap.cc,v 1.16 2008-04-08 11:44:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -184,8 +184,7 @@ void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp,
     const Geom::Size2D<int> bmpsz(bmp.info().getSize(0),bmp.info().getSize(1));
     const Geom::Size2D<int> arrsz(arr_.getSize(true),arr_.getSize(false));
     const FlatView::DataDispPars::VD& pars = app_.ddpars_.vd_;
-    ColTab::Sequence ctab;
-    ColTab::SM().get( pars.ctab_, ctab );
+    ColTab::Sequence ctab( pars.ctab_.buf() );
 
     const int minfill = (int)VDA2DBitMapGenPars::cMinFill;
     const int maxfill = (int)VDA2DBitMapGenPars::cMaxFill;
