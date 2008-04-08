@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.4 2008-04-07 18:32:07 cvsbert Exp $
+ RCS:           $Id: uidatapointset.h,v 1.5 2008-04-08 16:19:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,10 +30,10 @@ class uiDataPointSet : public uiDialog
 { 	
 public:
 
-    typedef int			TRowID;
     typedef int			TColID;
-    typedef DataPointSet::RowID	DRowID;
+    typedef int			TRowID;
     typedef DataPointSet::ColID	DColID;
+    typedef DataPointSet::RowID	DRowID;
 
     struct Setup : public uiDialog::Setup
     {
@@ -81,6 +81,9 @@ public:
 	    				   DataPointSet::DataRow& after) const
 				{ before = beforechgdr_; after = afterchgdr_; }
 
+    void			setCurrent(DColID,DRowID);
+    void			setCurrent(const DataPointSet::Pos&,DColID);
+
 protected:
 
     DataPointSet&		dps_;
@@ -93,6 +96,7 @@ protected:
     TypeSet<DRowID>		drowids_;
     TypeSet<TRowID>		trowids_;	//!< often -1
     TypeSet<TRowID>		sortidxs_;
+    TypeSet<TRowID>		revsortidxs_;
     int				eachrow_;
     TColID			xcol_;
     TColID			ycol_;
@@ -111,7 +115,8 @@ protected:
     uiToolBar*			maniptb_;
     uiSpinBox*			eachfld_;
     int				xplottbid_;
-    int				statstbid_;
+    int				dispxytbid_;
+    int				dispztbid_;
 
     void			mkToolBars();
 
@@ -120,7 +125,7 @@ protected:
     TRowID			tRowID(DRowID did=-99) const;
     DColID			dColID(TColID tid=-99) const;
     TColID			tColID(DColID did=-99) const;
-    float			getVal(DColID,DRowID) const;
+    float			getVal(DColID,DRowID,bool userunits) const;
 
     void			calcIdxs();
     void			calcSortIdxs();
@@ -139,7 +144,7 @@ protected:
     void			colStepR(CallBacker*);
     void			valChg(CallBacker*);
     void			eachChg(CallBacker*);
-    void			toggXYIC(CallBacker*);
+    void			toggleXYZ(CallBacker*);
     void			setSortCol(CallBacker*);
     void			showCrossPlot(CallBacker*);
     void			showStatsWin(CallBacker*);
@@ -154,11 +159,13 @@ protected:
     void			xplotSelChg(CallBacker*);
     void			xplotRemReq(CallBacker*);
     void			xplotClose(CallBacker*);
-    void			getXplotPos(DRowID&,DColID&) const;
+    void			getXplotPos(DColID&,DRowID&) const;
 
     uiStatsDisplayWin*		statswin_;
     void			statsClose(CallBacker*);
     void			showStats(DColID);
+
+    bool			isDisp(bool) const;
 
 private:
 
