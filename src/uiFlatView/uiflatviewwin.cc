@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewwin.cc,v 1.9 2007-12-24 05:27:17 cvsnanne Exp $
+ RCS:           $Id: uiflatviewwin.cc,v 1.10 2008-04-08 20:06:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,10 @@ void uiFlatViewWin::cleanUp()
 void uiFlatViewWin::setDarkBG( bool yn )
 {
     for ( int idx=0; idx<vwrs_.size(); idx++ )
-	vwrs_[idx]->setDarkBG( yn );
+    {
+	vwrs_[idx]->appearance().setDarkBG( yn );
+    }
+
     viewerParent()->setBackgroundColor( yn ? Color::Black : Color::White );
 }
 
