@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: viscolortab.cc,v 1.42 2008-04-08 09:23:43 cvsnanne Exp $
+ RCS:           $Id: viscolortab.cc,v 1.43 2008-04-08 12:33:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,17 +33,19 @@ const char* VisColorTab::sKeyAutoScale()	{ return "Auto scale"; }
 const char* VisColorTab::sKeySymmetry()		{ return "Symmetry"; }
 const char* VisColorTab::sKeySymMidval()	{ return "Symmetry Midvalue"; }
 
+static const int sNrColors = 255;
 
 VisColorTab::VisColorTab()
     : sequencechange( this )
     , rangechange( this )
     , autoscalechange( this )
     , viscolseq_( 0 )
-    , indextable_( 0 )
     , ctmapper_(new ColTab::Mapper())
     , autoscale_( true )
 {
     setColorSeq( ColorSequence::create() );
+    indextable_ = new ColTab::IndexedLookUpTable( viscolseq_->colors(),
+	    					  sNrColors, ctmapper_ );
 }
 
 
@@ -121,22 +123,16 @@ Color VisColorTab::color( float val ) const
 }
 
 
-void VisColorTab::setNrSteps( int idx )
+void VisColorTab::setNrSteps( int nrsteps )
 {
-    if ( !indextable_ )
-	indextable_ = new ColTab::IndexedLookUpTable( viscolseq_->colors(),
-	    					  idx, ctmapper_ );
-    else
-    {
-	indextable_->setNrCols( idx );
-	indextable_->update();
-    }
+    indextable_->setNrCols( nrsteps );
+    indextable_->update();
 }
 
 
 int VisColorTab::nrSteps() const
 {
-    return indextable_ ? indextable_->nrCols() : 0;
+    return indextable_->nrCols();
 }
 
 
@@ -192,10 +188,7 @@ ColorSequence& VisColorTab::colorSeq()
 
 void VisColorTab::colorseqchanged()
 {
-    const int nrcols = nrSteps();
-    delete indextable_;
-    indextable_ = new ColTab::IndexedLookUpTable( viscolseq_->colors(),
-	    					  nrcols, ctmapper_ );
+    indextable_->update();
     sequencechange.trigger();
 }
 
