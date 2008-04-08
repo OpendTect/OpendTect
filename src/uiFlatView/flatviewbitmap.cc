@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewbitmap.cc,v 1.14 2008-04-08 05:05:07 cvssatyaki Exp $
+ RCS:           $Id: flatviewbitmap.cc,v 1.15 2008-04-08 11:21:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -187,11 +187,9 @@ void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp,
     ColTab::Sequence ctab;
     ColTab::SM().get( pars.ctab_, ctab );
 
-    //ColorTable ctab( pars.ctab_ );
     const int minfill = (int)VDA2DBitMapGenPars::cMinFill;
     const int maxfill = (int)VDA2DBitMapGenPars::cMaxFill;
-    ColTab::IndexedLookUpTable ctindex( ctab, maxfill - minfill + 1 );
-    //ctab.calcList( maxfill - minfill + 1 );
+    ColTab::IndexedLookUpTable ctindex( ctab, maxfill-minfill+1 );
 
     for ( int ix=0; ix<arrsz.width(); ix++ )
     {
@@ -203,7 +201,7 @@ void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp,
 	    if ( bmpval == A2DBitMapGenPars::cNoFill )
 		continue;
 
-	    Color col = ctindex.color( (int)bmpval - minfill );
+	    Color col = ctindex.colorForIndex( (int)bmpval-minfill );
 	    if ( col.isVisible() )
 		arr_.set( ix, iy, col );
 	}
