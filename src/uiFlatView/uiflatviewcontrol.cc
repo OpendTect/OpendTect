@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.33 2008-03-26 20:17:05 cvskris Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.34 2008-04-08 14:33:54 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -228,7 +228,7 @@ void uiFlatViewControl::rubBandCB( CallBacker* cb )
 }
 
 
-void uiFlatViewControl::doPropertiesDialog( int vieweridx )
+void uiFlatViewControl::doPropertiesDialog( int vieweridx, bool dowva )
 {
     //TODO what if more than one viewer? Also functions below
     uiFlatViewer& vwr = *vwrs_[vieweridx];
@@ -239,7 +239,7 @@ void uiFlatViewControl::doPropertiesDialog( int vieweridx )
     propdlg_ = new uiFlatViewPropDlg( vwr.attachObj()->parent(), vwr,
 				  mCB(this,uiFlatViewControl,applyProperties),
 	   			  annots.size() ? &annots : 0, selannot,
-	   			  withwva_ );
+	   			  withwva_ && dowva );
     propdlg_->windowClosed.notify(mCB(this,uiFlatViewControl,propDlgClosed));
     propdlg_->go();
 }
