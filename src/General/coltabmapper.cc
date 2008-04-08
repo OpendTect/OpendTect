@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.4 2008-04-08 06:33:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.5 2008-04-08 09:09:47 cvsnanne Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -15,7 +15,7 @@ namespace ColTab
 {
 static float defcliprate_ = mUdf(float);
 static const char* sKeyDefClipPerc = "dTect.Disp.Default clip perc";
-static bool defsymmidval_ = mUdf(float);
+static float defsymmidval_ = mUdf(float);
 static const char* sKeyDefSymmZero = "dTect.Disp.Default symmetry zero";
 static BufferString defcoltabnm_ = "Seismics";
 static const char* sKeyDefName = "dTect.Disp.Default Color table";
