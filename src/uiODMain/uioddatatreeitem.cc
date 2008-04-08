@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.22 2008-04-02 10:27:07 cvsbert Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.23 2008-04-08 13:52:37 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -22,7 +22,6 @@ ___________________________________________________________________
 #include "uistatsdisplaywin.h"
 #include "uiamplspectrum.h"
 #include "attribsel.h"
-#include "colortab.h"
 #include "pixmap.h"
 #include "viscolortab.h"
 
