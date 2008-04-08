@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	R. K. Singh
  Date: 		Jan 2008
- RCS:		$Id: uiodeditattribcolordlg.cc,v 1.7 2008-04-08 05:50:52 cvssatyaki Exp $
+ RCS:		$Id: uiodeditattribcolordlg.cc,v 1.8 2008-04-08 09:23:43 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
     const bool autoscale = ctabobj->autoScale();
     uicoltab_->setAutoScale( autoscale );
     uicoltab_->setClipRate( ctabobj->clipRate() );
-    uicoltab_->setSymmetry( ctabobj->getSymmetry() );
+    uicoltab_->setSymMidval( ctabobj->symMidval() );
 
     uiPushButton* applybut = new uiPushButton( this, "Apply", true );
     applybut->attach( centeredBelow, uicoltab_ );
@@ -77,7 +77,7 @@ void uiODEditAttribColorDlg::doApply( CallBacker* )
     const bool autoscale = uicoltab_->autoScale();
     const Interval<float> intv = uicoltab_->getInterval();
     const float cliprate = uicoltab_->getClipRate();
-    const bool symm = uicoltab_->getSymmetry();
+    const float symval = uicoltab_->getSymMidval();
     for ( int idx=0; idx<items_.size(); idx++ )
     {
 	mDynamicCastGet(uiODAttribTreeItem*,item,items_[idx])
@@ -96,12 +96,12 @@ void uiODEditAttribColorDlg::doApply( CallBacker* )
 	    obj->triggerSeqChange();
 	}
 	if ( obj->autoScale()!=autoscale || obj->clipRate()!=cliprate
-	  				 || obj->getSymmetry()!=symm )
+	  				 || obj->symMidval()!=symval )
 	{
 	    obj->autoscalechange.enable( false );
 	    obj->setAutoScale( autoscale );
 	    obj->setClipRate( cliprate );
-	    obj->setSymmetry( symm );
+	    obj->setSymMidval( symval );
 	    obj->autoscalechange.enable( true );
 	    obj->triggerAutoScaleChange();
 	    if ( autoscale && idx == itemusedineditor_ )
@@ -123,4 +123,3 @@ bool uiODEditAttribColorDlg::acceptOK( CallBacker* )
     doApply( 0 );
     return true;
 }
-

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolortab.h,v 1.18 2008-04-08 05:05:07 cvssatyaki Exp $
+ RCS:		$Id: viscolortab.h,v 1.19 2008-04-08 09:23:43 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -44,11 +44,8 @@ public:
     void			setAutoScale(bool yn);
     float			clipRate() const;
     void			setClipRate(float);
-    bool			getSymmetry() const;
-    void			setSymmetrical(Interval<float>&);
-    void			setSymmetry(bool);
-    float			getSymmidval()		{ return symmidval_; }
-    void			setSymmidval(float);
+    float			symMidval() const;
+    void			setSymMidval(float);
     void			scaleTo(const Interval<float>& rg);
     void			scaleTo(const float* values, int nrvalues);
     				/*!< Does only work if autoscale is true */
@@ -89,15 +86,13 @@ protected:
     ColorSequence*		viscolseq_;
 
     bool			autoscale_;
-    float			cliprate_;
-    float			symmidval_;
-    bool			symmetry_;
 
     static const char*		sKeyColorSeqID();
     static const char*		sKeyScaleFactor();
     static const char*		sKeyClipRate();
     static const char*		sKeyAutoScale();
-    static const char*          sKeySymmetry();
+    static const char*		sKeySymmetry();
+    static const char*		sKeySymMidval();
 };
 
 }; // Namespace

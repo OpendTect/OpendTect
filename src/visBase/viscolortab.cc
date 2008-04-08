@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: viscolortab.cc,v 1.41 2008-04-08 05:43:52 cvssatyaki Exp $
+ RCS:           $Id: viscolortab.cc,v 1.42 2008-04-08 09:23:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ const char* VisColorTab::sKeyScaleFactor()	{ return "Scale Factor"; }
 const char* VisColorTab::sKeyClipRate()		{ return "Cliprate"; }
 const char* VisColorTab::sKeyAutoScale()	{ return "Auto scale"; }
 const char* VisColorTab::sKeySymmetry()		{ return "Symmetry"; }
+const char* VisColorTab::sKeySymMidval()	{ return "Symmetry Midvalue"; }
 
 
 VisColorTab::VisColorTab()
@@ -41,8 +42,6 @@ VisColorTab::VisColorTab()
     , indextable_( 0 )
     , ctmapper_(new ColTab::Mapper())
     , autoscale_( true )
-    , symmetry_(false)
-    , cliprate_( ColTab::defClipRate() )
 {
     setColorSeq( ColorSequence::create() );
 }
@@ -74,43 +73,27 @@ void VisColorTab::setAutoScale( bool yn )
 }
 
 
-bool VisColorTab::getSymmetry() const
+void VisColorTab::setSymMidval( float symmidval )
 {
-    return symmetry_;
-}
+    if (  mIsEqual(symmidval,ctmapper_->symmidval_,mDefEps) ) return;
 
-
-void VisColorTab::setSymmetry( bool yn ) 
-{
-    if ( yn == symmetry_ ) return;
-
-    symmetry_ = yn;
-    if ( yn )
-	ctmapper_->symmidval_ = mUdf( float ); 
-    ctmapper_->update( true );
-}
-
-
-void VisColorTab::setSymmidval( float symmidval )
-{
-    symmetry_ = true;
-    symmidval_ = symmidval;
     ctmapper_->symmidval_ = symmidval;
     ctmapper_->update( true );
 }
 
 
+float VisColorTab::symMidval() const
+{ return ctmapper_->symmidval_; }
+
+
 float VisColorTab::clipRate() const
-{
-    return cliprate_;
-}
+{ return ctmapper_->cliprate_; }
 
 
 void VisColorTab::setClipRate( float ncr )
 {
-    if ( mIsEqual(ncr,cliprate_,mDefEps) ) return;
+    if ( mIsEqual(ncr,ctmapper_->cliprate_,mDefEps) ) return;
 
-    cliprate_ = ncr;
     ctmapper_->cliprate_ = ncr;
     ctmapper_->update( false );
 }
@@ -132,17 +115,7 @@ void VisColorTab::scaleTo( const ValueSeries<float>* values, int nrvalues )
 }
 
 
-void VisColorTab::setSymmetrical( Interval<float>& intv )
-{
-    float maxval = fabs(intv.start) > fabs(intv.stop)
-		 ? fabs(intv.start) : fabs(intv.stop);
-    bool flipped = intv.stop < intv.start;
-    intv.start = flipped ? maxval : -maxval;
-    intv.stop = flipped ? -maxval : maxval;
-}
-
-
-Color  VisColorTab::color( float val ) const
+Color VisColorTab::color( float val ) const
 {
     return indextable_->color( val );
 }
@@ -186,15 +159,12 @@ Color VisColorTab::tableColor( int idx ) const
 void VisColorTab::scaleTo( const Interval<float>& rg )
 {
     ctmapper_->setRange( rg );
-
     rangechange.trigger();
 }
 
 
 Interval<float> VisColorTab::getInterval() const
-{
-    return ctmapper_->range();
-}
+{ return ctmapper_->range(); }
 
 
 void VisColorTab::setColorSeq( ColorSequence* ns )
@@ -269,7 +239,10 @@ int VisColorTab::usePar( const IOPar& par )
 
     bool symmetry = false;
     par.getYN( sKeySymmetry(), symmetry );
-    setSymmetry( symmetry );
+
+    float symmidval = mUdf(float);
+    par.get( sKeySymMidval(), symmidval );
+    setSymMidval( symmetry ? 0 : symmidval );
 
     /*
     TODO: re-implement
@@ -288,9 +261,9 @@ void VisColorTab::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyColorSeqID(), viscolseq_->id() );
     if ( saveids.indexOf(viscolseq_->id())==-1 ) saveids += viscolseq_->id();
 //    par.set( sKeyScaleFactor(), scale_.toString() );
-    par.set( sKeyClipRate(), cliprate_ );
+    par.set( sKeyClipRate(), ctmapper_->cliprate_ );
     par.setYN( sKeyAutoScale(), autoscale_ );
-    par.setYN( sKeySymmetry(), symmetry_ );
+    par.set( sKeySymMidval(), ctmapper_->symmidval_ );
 }
 
 }; // namespace visBase

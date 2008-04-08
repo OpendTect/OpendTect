@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.8 2008-04-08 07:41:20 cvsnanne Exp $
+ RCS:           $Id: uicolortable.cc,v 1.9 2008-04-08 09:23:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,16 +33,16 @@ ________________________________________________________________________
 
 #define mStdInitList \
 	  seqChanged(this) \
-	, scaleChanged(this) 
+	, scaleChanged(this) \
+	, minfld_(0) \
+	, maxfld_(0)
 
 
 uiColorTable::uiColorTable( uiParent* p, ColTab::Sequence& colseq, bool vert )
 	: uiGroup(p,"Color table display/edit")
 	, mStdInitList
 	, coltabseq_(*new ColTab::Sequence(colseq))
-	, minfld_(0)
 	, canvas_(0)
-	, maxfld_(0)
 	, selfld_(0)
 	, symmidval_(0)
 {
@@ -179,7 +179,7 @@ void uiColorTable::canvasClick( CallBacker* )
     mnu->insertItem( new uiMenuItem("Flip",
 	mCB(this,uiColorTable,doFlip)), 0 );
     mnu->insertItem( new uiMenuItem("Ranges/Clipping ...",
-	mCB(this,uiColorTable,editClipRate)), 1 );
+	mCB(this,uiColorTable,editScaling)), 1 );
     mnu->insertItem( new uiMenuItem("Manage ...",
 	mCB(this,uiColorTable,doEdit)), 2 );
     mnu->exec();
@@ -200,7 +200,7 @@ class uiAutoRangeClipDlg : public uiDialog
 {
 public:
 
-uiAutoRangeClipDlg( uiParent* p, bool useclip, float cliprate, float symmmidval)
+uiAutoRangeClipDlg( uiParent* p, bool useclip, float cliprate, float symmidval)
     : uiDialog(p,uiDialog::Setup("Ranges/Clipping","Auto-range and clipping",
 				 "50.1.3"))
 {
@@ -214,17 +214,17 @@ uiAutoRangeClipDlg( uiParent* p, bool useclip, float cliprate, float symmmidval)
     clipfld->setElemSzPol( uiObject::Small );
     clipfld->attach( alignedBelow, doclipfld );
 
-    const bool setsymm = !mIsUdf(symmmidval);
+    const bool setsymm = !mIsUdf(symmidval);
     symmfld = new uiGenInput( this, "Set symmetrical", BoolInpSpec(setsymm) );
     symmfld->attach( alignedBelow, clipfld );
     symmfld->valuechanged.notify( mCB(this,uiAutoRangeClipDlg,symPush) );
-    symmidval = new uiGenInput( this, "Symmetrical Mid Value",
-	    			FloatInpSpec(0.0) );
-    symmidval->setElemSzPol( uiObject::Small );
-    symmidval->attach( alignedBelow, symmfld );
+    midvalfld = new uiGenInput( this, "Symmetrical Mid Value",
+	    			FloatInpSpec(symmidval) );
+    midvalfld->setElemSzPol( uiObject::Small );
+    midvalfld->attach( alignedBelow, symmfld );
 
     storfld = new uiCheckBox( this, "Save as default" );
-    storfld->attach( alignedBelow, symmidval );
+    storfld->attach( alignedBelow, midvalfld );
 
     clipPush(0);
     symPush(0);
@@ -235,14 +235,13 @@ void clipPush( CallBacker* )
     const bool doclip = doclipfld->getBoolValue();
     clipfld->display( doclip );
     symmfld->display( doclip );
-    symmidval->display( symmfld->getBoolValue() && doclip );
+    midvalfld->display( symmfld->getBoolValue() && doclip );
     storfld->display( doclip );
 }
 
 void symPush( CallBacker* )
 {
-    const bool symmetry = symmfld->getBoolValue();
-    symmidval->display( symmetry );
+    midvalfld->display( doclipfld->getBoolValue() && symmfld->getBoolValue() );
 }
 
 bool saveDef()
@@ -254,22 +253,21 @@ bool saveDef()
     uiGenInput*         doclipfld;
     uiGenInput*         clipfld;
     uiGenInput*         symmfld;
-    uiGenInput*         symmidval;
+    uiGenInput*         midvalfld;
     uiCheckBox*		storfld;
 };
 
 
 
-void uiColorTable::editClipRate( CallBacker* )
+void uiColorTable::editScaling( CallBacker* )
 {
     uiAutoRangeClipDlg dlg( this, autoscale_, cliprate_, symmidval_ );
     if ( dlg.go() )
     {
 	autoscale_ = dlg.doclipfld->getBoolValue();
 	cliprate_ = dlg.clipfld->getfValue() * 0.01;
-	symmetry_ = dlg.symmfld->getBoolValue();
-	if ( symmetry_ )
-	    symmidval_ = dlg.symmidval->getfValue();
+	const bool symmetry = dlg.symmfld->getBoolValue();
+	symmidval_ = symmetry ? dlg.midvalfld->getfValue() : mUdf(float);
 	if ( dlg.saveDef() )
 	    ColTab::setMapperDefaults( cliprate_, symmidval_ );
 	scaleChanged.trigger();

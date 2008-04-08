@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.15 2008-04-08 05:05:07 cvssatyaki Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.16 2008-04-08 09:23:43 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -49,6 +49,7 @@ public:
     static const char*          sKeyClipRate();
     static const char*          sKeyAutoScale();
     static const char*          sKeySymmetry();
+    static const char*          sKeySymMidval();
     void			colTabEdChangedCB(CallBacker*);
     void			colseqChanged(CallBacker*);
     void			colorTabChgdCB(CallBacker*);
@@ -71,8 +72,7 @@ protected:
     Interval<float>		coltabinterval_;
     bool			coltabautoscale_;
     float			coltabcliprate_;
-    float			ctsymidval_;
-    bool			coltabsymmetry_;
+    float			coltabsymidval_;
 };
 
 

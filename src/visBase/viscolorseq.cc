@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2003
- RCS:           $Id: viscolorseq.cc,v 1.16 2008-04-08 05:43:52 cvssatyaki Exp $
+ RCS:           $Id: viscolorseq.cc,v 1.17 2008-04-08 09:23:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,12 +21,9 @@ namespace visBase
 {
 
 ColorSequence::ColorSequence()
-    : coltabsequence_(*new ColTab::Sequence("Seismics"))
+    : coltabsequence_(*new ColTab::Sequence(""))
     , change( this )
 {
-    if ( ColTab::SM().size() == 0 ) // In case 'default' table is not found
-	ColTab::SM().get( "Seismics", coltabsequence_ );
-
     setName( coltabsequence_.name() );
 }
 

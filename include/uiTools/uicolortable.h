@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uicolortable.h,v 1.5 2008-04-08 07:41:20 cvsnanne Exp $
+ RCS:           $Id: uicolortable.h,v 1.6 2008-04-08 09:23:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,16 +38,14 @@ public:
     void		setTable(ColTab::Sequence&,bool emitnotif=true);
     void		setHistogram(const TypeSet<float>*);
     void		setInterval(const Interval<float>&);
-    Interval<float>&	getInterval()			{ return coltabrg_; }
+    Interval<float>	getInterval()			{ return coltabrg_; }
 
     void                setAutoScale( bool yn )		{ autoscale_ = yn; }
     bool                autoScale() const		{ return autoscale_; }
     void                setClipRate( float r )		{ cliprate_ = r; }
     float               getClipRate() const		{ return cliprate_; }
-    void                setSymmetry( bool yn )		{ symmetry_ = yn; }
-    bool                getSymmetry() const		{ return symmetry_; }
-    void                setSymmidval( float val )	{ symmidval_ = val; }
-    float               getSymmidval() const		{ return symmidval_; }
+    void                setSymMidval( float val )	{ symmidval_ = val; }
+    float               getSymMidval() const		{ return symmidval_; }
 
     Notifier<uiColorTable>	seqChanged;
     Notifier<uiColorTable>	scaleChanged;
@@ -56,7 +54,6 @@ protected:
 
     bool		autoscale_;
     float		cliprate_;
-    bool		symmetry_;
     float		symmidval_;
 
     ColTab::Sequence&	coltabseq_;
@@ -74,7 +71,7 @@ protected:
     void		rangeEntered(CallBacker*);
     void		doEdit(CallBacker*);
     void		doFlip(CallBacker*);
-    void		editClipRate(CallBacker*);
+    void		editScaling(CallBacker*);
     void		makeSymmetrical(CallBacker*);
     void		colTabChgdCB(CallBacker*);
     void		colTabManChgd(CallBacker*);

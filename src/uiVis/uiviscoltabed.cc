@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.30 2008-04-08 07:41:21 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.31 2008-04-08 09:23:43 cvsnanne Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -30,6 +30,7 @@ const char* uiVisColTabEd::sKeyScaleFactor()	{ return "Scale Factor"; }
 const char* uiVisColTabEd::sKeyClipRate()	{ return "Cliprate"; }
 const char* uiVisColTabEd::sKeyAutoScale()	{ return "Auto scale"; }
 const char* uiVisColTabEd::sKeySymmetry()	{ return "Symmetry"; }
+const char* uiVisColTabEd::sKeySymMidval()	{ return "Symmetry Midvalue"; }
 
 uiVisColTabEd::uiVisColTabEd( uiParent* p, bool vert )
     : uicoltab_(0)
@@ -124,7 +125,6 @@ void uiVisColTabEd::colTabEdChangedCB( CallBacker* )
 	viscoltab_->colorSeq().colors() = newct;
 	viscoltab_->colorSeq().colorsChanged();
 	colseq_ = newct;
-	uicoltab_->seqChanged.notify( coltabcb );
     }
 
     if ( uicoltab_->getInterval() != coltabinterval_ )
@@ -133,21 +133,15 @@ void uiVisColTabEd::colTabEdChangedCB( CallBacker* )
 	coltabinterval_ = uicoltab_->getInterval();
 	if ( coltabinterval_.start != coltabinterval_.stop )
 	    viscoltab_->scaleTo( coltabinterval_ );
-	uicoltab_->seqChanged.notify( coltabcb );
     }
 
     if ( uicoltab_->autoScale() != coltabautoscale_ ||
 	 coltabcliprate_ != uicoltab_->getClipRate() ||
-	 uicoltab_->getSymmetry() != coltabsymmetry_ ||
-	 uicoltab_->getSymmidval() != ctsymidval_ )
+	 uicoltab_->getSymMidval() != coltabsymidval_ )
     {
 	autoscalechange = true;
-	coltabsymmetry_ = uicoltab_->getSymmetry();
-	if ( coltabsymmetry_ )
-	{
-	    ctsymidval_ = uicoltab_->getSymmidval();
-	    viscoltab_->setSymmidval( ctsymidval_ );
-	}
+	coltabsymidval_ = uicoltab_->getSymMidval();
+	viscoltab_->setSymMidval( coltabsymidval_ );
 	coltabautoscale_ = uicoltab_->autoScale();
 	viscoltab_->setAutoScale( coltabautoscale_ );
 	coltabcliprate_ = uicoltab_->getClipRate();
@@ -196,16 +190,13 @@ void uiVisColTabEd::updateEditor()
     colseq_ = viscoltab_->colorSeq().colors();
     coltabautoscale_ = viscoltab_->autoScale();
     coltabcliprate_ = viscoltab_->clipRate();
-    coltabsymmetry_ = viscoltab_->getSymmetry();
-    if ( coltabsymmetry_ )
-	ctsymidval_ = viscoltab_->getSymmidval();
+    coltabsymidval_ = viscoltab_->symMidval();
 
     ColTab::Sequence& newct = colseq_;
     uicoltab_->setTable( viscoltab_->colorSeq().colors() );
     uicoltab_->setAutoScale( coltabautoscale_ );
-    uicoltab_->setSymmetry( coltabsymmetry_ );
     uicoltab_->setClipRate( coltabcliprate_ );
-    uicoltab_->setSymmidval( ctsymidval_ );
+    uicoltab_->setSymMidval( coltabsymidval_ );
     uicoltab_->setInterval( coltabinterval_ );
 }
 
@@ -248,9 +239,12 @@ bool uiVisColTabEd::usePar( const IOPar& par )
 	par.get( sKeyClipRate(), cliprate );
 	uicoltab_->setClipRate( cliprate );
 
-	bool symmetry;
+	bool symmetry = false;
 	par.getYN( sKeySymmetry(), symmetry );
-	uicoltab_->setSymmetry( symmetry );
+
+	float symmidval = mUdf(float);
+	par.get( sKeySymMidval(), symmidval );
+	uicoltab_->setSymMidval( symmetry ? 0 : symmidval );
     }
     else
     {
@@ -271,7 +265,7 @@ void uiVisColTabEd::fillPar( IOPar& par )
     if ( coltabautoscale_ )
     {
 	par.set( sKeyClipRate(), coltabcliprate_ );
-	par.setYN( sKeySymmetry(), coltabsymmetry_ );
+	par.set( sKeySymMidval(), coltabsymidval_ );
     }
     else
 	par.set( sKeyScaleFactor(), coltabinterval_ );
