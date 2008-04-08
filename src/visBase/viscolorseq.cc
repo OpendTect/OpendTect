@@ -4,14 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2003
- RCS:           $Id: viscolorseq.cc,v 1.15 2006-12-13 08:57:01 cvsnanne Exp $
+ RCS:           $Id: viscolorseq.cc,v 1.16 2008-04-08 05:43:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "viscolorseq.h"
 #include "bufstringset.h"
-#include "colortab.h"
+#include "coltab.h"
+#include "coltabsequence.h"
 #include "envvars.h"
 
 mCreateFactoryEntry( visBase::ColorSequence );
@@ -20,44 +21,42 @@ namespace visBase
 {
 
 ColorSequence::ColorSequence()
-    : coltab_( *new ColorTable("") )
+    : coltabsequence_(*new ColTab::Sequence("Seismics"))
     , change( this )
 {
-    if ( coltab_.cvs_.size() == 0 ) // In case 'default' table is not found
-	ColorTable::get( "Red-White-Blue", coltab_ );
+    if ( ColTab::SM().size() == 0 ) // In case 'default' table is not found
+	ColTab::SM().get( "Seismics", coltabsequence_ );
 
-    coltab_.scaleTo( Interval<float>( 0, 1 ) );
-    coltab_.calcList( 255 );
-    setName( coltab_.name() );
+    setName( coltabsequence_.name() );
 }
 
 
 ColorSequence::~ColorSequence()
 {
-    delete &coltab_;
+    delete &coltabsequence_;
 }
 
 
 void ColorSequence::loadFromStorage( const char* newnm )
 {
-    ColorTable::get( newnm, coltab_ );
+    ColTab::SM().get( newnm, coltabsequence_ );
     setName( newnm );
 
     colorsChanged();
 }
 
 
-ColorTable& ColorSequence::colors() { return coltab_; }
+ColTab::Sequence& ColorSequence::colors()
+{ return coltabsequence_; }
 
 
-const ColorTable& ColorSequence::colors() const { return coltab_; }
+const ColTab::Sequence& ColorSequence::colors() const
+{ return coltabsequence_; }
 
 
 void ColorSequence::colorsChanged()
 {
-    setName( coltab_.name() );
-    coltab_.scaleTo( Interval<float>( 0, 1 ) );
-    coltab_.calcList( 255 );
+    setName( coltabsequence_.name() );
     change.trigger();
 }
 
@@ -67,14 +66,12 @@ int ColorSequence::usePar( const IOPar& par )
     int res = DataObject::usePar( par );
     if ( res != 1 ) return res;
 
-    coltab_.usePar( par );
+    coltabsequence_.usePar( par );
 
-    NamedBufferStringSet coltabnames;
-    ColorTable::getNames( coltabnames, ColorTable::Both );
-    if ( coltabnames.indexOf(coltab_.name()) >= 0 )
-	ColorTable::get( coltab_.name(), coltab_ );
+    if ( ColTab::SM().indexOf(coltabsequence_.name()) >= 0 )
+	ColTab::SM().get( coltabsequence_.name(), coltabsequence_ );
     else
-	ColorTable::add( coltab_ );
+	ColTab::SM().set( coltabsequence_ );
 
     return 1;
 }
@@ -83,7 +80,7 @@ int ColorSequence::usePar( const IOPar& par )
 void ColorSequence::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( par, saveids );
-    coltab_.fillPar( par );
+    coltabsequence_.fillPar( par );
 }
 
 }; // namespace visBase

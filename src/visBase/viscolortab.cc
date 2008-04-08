@@ -4,18 +4,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: viscolortab.cc,v 1.40 2008-01-15 16:19:43 cvsbert Exp $
+ RCS:           $Id: viscolortab.cc,v 1.41 2008-04-08 05:43:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "viscolortab.h"
 
-#include "colortab.h"
+#include "coltabsequence.h"
+#include "coltabmapper.h"
+#include "coltabindex.h"
 #include "dataclipper.h"
 #include "iopar.h"
 #include "scaler.h"
 #include "visdataman.h"
+#include "valseries.h"
 #include "math2.h"
 
 mCreateFactoryEntry( visBase::VisColorTab );
@@ -34,11 +37,12 @@ VisColorTab::VisColorTab()
     : sequencechange( this )
     , rangechange( this )
     , autoscalechange( this )
-    , colseq_( 0 )
-    , scale_( *new LinScaler )
+    , viscolseq_( 0 )
+    , indextable_( 0 )
+    , ctmapper_(new ColTab::Mapper())
     , autoscale_( true )
     , symmetry_(false)
-    , cliprate_( ColorTable::defPercClip()/100 )
+    , cliprate_( ColTab::defClipRate() )
 {
     setColorSeq( ColorSequence::create() );
 }
@@ -46,13 +50,14 @@ VisColorTab::VisColorTab()
 
 VisColorTab::~VisColorTab()
 {
-    if ( colseq_ )
+    if ( viscolseq_ )
     {
-	colseq_->change.remove( mCB( this, VisColorTab, colorseqchanged ));
-	colseq_->unRef();
+	viscolseq_->change.remove( mCB(this,VisColorTab,colorseqchanged) );
+	viscolseq_->unRef();
     }
 
-    delete &scale_;
+    delete indextable_;
+    delete ctmapper_;
 }
 
 
@@ -80,7 +85,18 @@ void VisColorTab::setSymmetry( bool yn )
     if ( yn == symmetry_ ) return;
 
     symmetry_ = yn;
-    if ( autoscale_ ) autoscalechange.trigger();
+    if ( yn )
+	ctmapper_->symmidval_ = mUdf( float ); 
+    ctmapper_->update( true );
+}
+
+
+void VisColorTab::setSymmidval( float symmidval )
+{
+    symmetry_ = true;
+    symmidval_ = symmidval;
+    ctmapper_->symmidval_ = symmidval;
+    ctmapper_->update( true );
 }
 
 
@@ -95,31 +111,24 @@ void VisColorTab::setClipRate( float ncr )
     if ( mIsEqual(ncr,cliprate_,mDefEps) ) return;
 
     cliprate_ = ncr;
-    if ( autoscale_ ) autoscalechange.trigger();
+    ctmapper_->cliprate_ = ncr;
+    ctmapper_->update( false );
 }
 
 
 void VisColorTab::scaleTo( const float* values, int nrvalues )
 {
-    DataClipper clipper;
-    clipper.setApproxNrValues( nrvalues, 5000 );
-    clipper.putData( values, nrvalues );
-    Interval<float> range( 0, 1 );
-    clipper.calculateRange( cliprate_, range );
-    if ( symmetry_ ) setSymmetrical( range );
-    scaleTo( range );
+    float* valuesnc = const_cast<float*>(values);
+    const ArrayValueSeries<float,float>* arrvs =
+	new ArrayValueSeries<float,float>( valuesnc, false, nrvalues );
+    scaleTo( arrvs, nrvalues );
 }
 
 
-void VisColorTab::scaleTo( const ValueSeries<float>& values, int nrvalues )
+void VisColorTab::scaleTo( const ValueSeries<float>* values, int nrvalues )
 {
-    DataClipper clipper;
-    clipper.setApproxNrValues( nrvalues, 5000 );
-    clipper.putData( values, nrvalues );
-    Interval<float> range( 0, 1 );
-    clipper.calculateRange( cliprate_, range );
-    if ( symmetry_ ) setSymmetrical( range );
-    scaleTo( range );
+    ctmapper_->setData( values, nrvalues );
+    rangechange.trigger();
 }
 
 
@@ -135,19 +144,26 @@ void VisColorTab::setSymmetrical( Interval<float>& intv )
 
 Color  VisColorTab::color( float val ) const
 {
-    return colseq_->colors().color( scale_.scale( val ), false );
+    return indextable_->color( val );
 }
 
 
 void VisColorTab::setNrSteps( int idx )
 {
-    return colseq_->colors().calcList( idx );
+    if ( !indextable_ )
+	indextable_ = new ColTab::IndexedLookUpTable( viscolseq_->colors(),
+	    					  idx, ctmapper_ );
+    else
+    {
+	indextable_->setNrCols( idx );
+	indextable_->update();
+    }
 }
 
 
 int VisColorTab::nrSteps() const
 {
-    return colseq_->colors().nrColors();
+    return indextable_ ? indextable_->nrCols() : 0;
 }
 
 
@@ -155,30 +171,21 @@ int VisColorTab::colIndex( float val ) const
 {
     if ( !Math::IsNormalNumber(val) || mIsUdf(val) )
 	return nrSteps();
-    return colseq_->colors().colorIdx( scale_.scale( val ), nrSteps() );
+    return indextable_->indexForValue( val );
 }
 
 
 Color VisColorTab::tableColor( int idx ) const
 {
     return idx==nrSteps()
-    	? colseq_->colors().undefcolor_ : colseq_->colors().tableColor(idx);
+    	? viscolseq_->colors().undefColor()
+	: indextable_->colorForIndex( idx );  
 }
 
 
 void VisColorTab::scaleTo( const Interval<float>& rg )
 {
-    Interval<float> valrg = rg;
-    const float width = valrg.width();
-    if ( mIsZero(width,mDefEps) )
-    {
-	valrg.start--;
-	valrg.stop++;
-    }
-
-    scale_.factor = 1.0/valrg.width();
-    if ( valrg.start > valrg.stop ) scale_.factor *= -1;
-    scale_.constant = -valrg.start*scale_.factor;
+    ctmapper_->setRange( rg );
 
     rangechange.trigger();
 }
@@ -186,37 +193,39 @@ void VisColorTab::scaleTo( const Interval<float>& rg )
 
 Interval<float> VisColorTab::getInterval() const
 {
-    const float start = -scale_.constant / scale_.factor;
-    const float stop = start + 1 / scale_.factor;
-    return Interval<float>(start,stop);
+    return ctmapper_->range();
 }
 
 
 void VisColorTab::setColorSeq( ColorSequence* ns )
 {
-    if ( colseq_ )
+    if ( viscolseq_ )
     {
-	colseq_->change.remove( mCB( this, VisColorTab, colorseqchanged ));
-	colseq_->unRef();
+	viscolseq_->change.remove( mCB(this,VisColorTab,colorseqchanged) );
+	viscolseq_->unRef();
     }
 
-    colseq_ = ns;
-    colseq_->ref();
-    colseq_->change.notify( mCB( this, VisColorTab, colorseqchanged ));
+    viscolseq_ = ns;
+    viscolseq_->ref();
+    viscolseq_->change.notify( mCB(this,VisColorTab,colorseqchanged) );
     sequencechange.trigger();
 }
 
 
 const ColorSequence& VisColorTab::colorSeq() const
-{ return *colseq_; }
+{ return *viscolseq_; }
 
 
 ColorSequence& VisColorTab::colorSeq()
-{ return *colseq_; }
+{ return *viscolseq_; }
 
 
 void VisColorTab::colorseqchanged()
 {
+    const int nrcols = nrSteps();
+    delete indextable_;
+    indextable_ = new ColTab::IndexedLookUpTable( viscolseq_->colors(),
+	    					  nrcols, ctmapper_ );
     sequencechange.trigger();
 }
 
@@ -250,7 +259,7 @@ int VisColorTab::usePar( const IOPar& par )
 
     setColorSeq( cs );
 
-    float cliprate = ColorTable::defPercClip()/100;
+    float cliprate = ColTab::defClipRate();
     par.get( sKeyClipRate(), cliprate );
     setClipRate( cliprate );
 
@@ -262,10 +271,13 @@ int VisColorTab::usePar( const IOPar& par )
     par.getYN( sKeySymmetry(), symmetry );
     setSymmetry( symmetry );
 
+    /*
+    TODO: re-implement
     const char* scalestr = par.find( sKeyScaleFactor() );
     if ( !scalestr ) return -1;
-
     scale_.fromString( scalestr );
+    */
+
     return 1;
 }
 
@@ -273,9 +285,9 @@ int VisColorTab::usePar( const IOPar& par )
 void VisColorTab::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
     DataObject::fillPar( par, saveids );
-    par.set( sKeyColorSeqID(), colseq_->id() );
-    if ( saveids.indexOf(colseq_->id())==-1 ) saveids += colseq_->id();
-    par.set( sKeyScaleFactor(), scale_.toString() );
+    par.set( sKeyColorSeqID(), viscolseq_->id() );
+    if ( saveids.indexOf(viscolseq_->id())==-1 ) saveids += viscolseq_->id();
+//    par.set( sKeyScaleFactor(), scale_.toString() );
     par.set( sKeyClipRate(), cliprate_ );
     par.setYN( sKeyAutoScale(), autoscale_ );
     par.setYN( sKeySymmetry(), symmetry_ );
