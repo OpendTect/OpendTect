@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.3 2008-04-08 03:27:42 cvssatyaki Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.4 2008-04-08 06:33:48 cvsnanne Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -17,6 +17,18 @@ static float defcliprate_ = mUdf(float);
 static const char* sKeyDefClipPerc = "dTect.Disp.Default clip perc";
 static bool defsymmidval_ = mUdf(float);
 static const char* sKeyDefSymmZero = "dTect.Disp.Default symmetry zero";
+static BufferString defcoltabnm_ = "Seismics";
+static const char* sKeyDefName = "dTect.Disp.Default Color table";
+static const char* sKeyDefNameOld = "dTect.Color table.Name";
+}
+
+
+const char* ColTab::defSeqName()
+{
+    if ( !Settings::common().get(sKeyDefNameOld,defcoltabnm_) )
+	Settings::common().get( sKeyDefName, defcoltabnm_ );
+
+    return defcoltabnm_.buf();
 }
 
 

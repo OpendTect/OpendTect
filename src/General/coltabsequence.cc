@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.3 2008-04-08 03:27:42 cvssatyaki Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.4 2008-04-08 06:33:48 cvsnanne Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -46,7 +46,7 @@ ColTab::Sequence::Sequence( const char* nm )
     : NamedObject(nm)
     , mInitStdMembs(Color::LightGrey,Color::DgbColor)
 {
-    ColTab::SM().get( nm, *this );
+    ColTab::SM().get( nm && *nm ? nm : defSeqName(), *this );
 }
 
 
