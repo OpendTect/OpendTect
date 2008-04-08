@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2007
- RCS:		$Id: coltabindex.h,v 1.3 2007-09-26 11:15:38 cvsbert Exp $
+ RCS:		$Id: coltabindex.h,v 1.4 2008-04-08 03:27:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ public:
 
     void		setMapper( const Mapper* m )	{ mapper_ = m; }
     void		setNrCols( int n )		{ nrcols_ = n; }
+    int			nrCols()			{ return nrcols_; }
 
 protected:
 

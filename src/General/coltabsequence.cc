@@ -4,19 +4,22 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.2 2007-09-12 17:40:04 cvsbert Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.3 2008-04-08 03:27:42 cvssatyaki Exp $";
 
 #include "coltabsequence.h"
-#include "separstr.h"
-#include "iopar.h"
-#include "settings.h"
+#include "coltabindex.h"
+
 #include "ascstream.h"
-#include "ptrman.h"
-#include "oddirs.h"
 #include "bufstringset.h"
-#include "strmprov.h"
 #include "filegen.h"
+#include "iopar.h"
 #include "keystrs.h"
+#include "oddirs.h"
+#include "ptrman.h"
+#include "separstr.h"
+#include "sets.h"
+#include "settings.h"
+#include "strmprov.h"
 
 const char* ColTab::Sequence::sKeyValCol = "Value-Color";
 const char* ColTab::Sequence::sKeyMarkColor = "Marker color";
@@ -28,7 +31,6 @@ static const char* sKeyCtabSettsKey = "coltabs";
 #define mInitStdMembs(uc,mc) \
       undefcolor_(uc) \
     , markcolor_(mc) \
-    , issys_(false) \
     , colorChanged(this) \
     , transparencyChanged(this) \
     , toBeRemoved(this)
@@ -51,10 +53,11 @@ ColTab::Sequence::Sequence( const char* nm )
 ColTab::Sequence::Sequence( const ColTab::Sequence& ctab )
     : NamedObject(ctab)
     , r_(ctab.r_)
-    , g_(ctab.r_)
-    , b_(ctab.r_)
+    , g_(ctab.g_)
+    , b_(ctab.b_)
     , x_(ctab.x_)
     , tr_(ctab.tr_)
+    , type_(ctab.type_)
     , mInitStdMembs(ctab.undefcolor_,ctab.markcolor_)
 {
 }
@@ -72,16 +75,41 @@ ColTab::Sequence& ColTab::Sequence::operator=( const ColTab::Sequence& ctab )
     {
 	setName( ctab.name() );
 	r_ = ctab.r_;
-	g_ = ctab.r_;
-	b_ = ctab.r_;
+	g_ = ctab.g_;
+	b_ = ctab.b_;
 	x_ = ctab.x_;
 	tr_ = ctab.tr_;
 	undefcolor_ = ctab.undefcolor_;
 	markcolor_ = ctab.markcolor_;
-	issys_ = ctab.issys_;
+	type_ = ctab.type_;
 	triggerAll();
     }
     return *this;
+}
+
+
+bool ColTab::Sequence::operator==( const ColTab::Sequence& ctab )
+{
+   if ( ctab.name() != name() ||
+	ctab.size() != size() ||
+	ctab.tr_.size() != tr_.size() ||
+	ctab.undefcolor_ != undefcolor_ ||
+	ctab.markcolor_ != markcolor_ )          return false;
+
+   for ( int idx=0; idx<size(); idx++ )
+   {
+      if ( !mIsEqual(ctab.x_[idx],x_[idx],0.001) || ctab.r_[idx] != r_[idx] ||
+	   ctab.g_[idx] != g_[idx] || ctab.b_[idx] != b_[idx] )
+	  return false;
+   }
+
+   for ( int idx=0; idx<tr_.size(); idx++ )
+   {
+       if ( ctab.tr_[idx] != tr_[idx] )
+	   return false;
+   }
+
+   return true;
 }
 
 
@@ -159,30 +187,33 @@ bool ColTab::Sequence::hasTransparency() const
 }
 
 
-void ColTab::Sequence::setColor( float px, unsigned char pr, unsigned char pg,
+int ColTab::Sequence::setColor( float px, unsigned char pr, unsigned char pg,
 				 unsigned char pb )
 {
     if ( px > 1 ) px = 1; if ( px < 0 ) px = 0;
     const int sz = size();
 
+    int chgdidx = -1;
     bool done = false;
     for ( int idx=0; idx<sz; idx++ )
     {
 	const float x = x_[idx];
 	if ( mIsEqual(x,px,mDefEps) )
-	    { changeColor( idx, pr, pg, pb ); done = true; break; }
+	{ changeColor( idx, pr, pg, pb ); done = true; chgdidx = idx; break; }
 	else if ( px < x )
 	{
 	    x_.insert(idx,px);
 	    r_.insert(idx,pr); g_.insert(idx,pg); b_.insert(idx,pb);
+	    chgdidx = idx;
 	    done = true; break;
 	}
     }
 
     if ( !done )
-	{ r_ += pr; g_ += pg; b_ += pb; x_ += px; }
+	{ r_ += pr; g_ += pg; b_ += pb; x_ += px; chgdidx = x_.size()-1; }
 
     colorChanged.trigger();
+    return chgdidx;
 }
 
 
@@ -215,6 +246,22 @@ void ColTab::Sequence::changePos( int idx, float x )
 }
 
 
+void ColTab::Sequence::removeColor( int idx )
+{
+    if ( idx>0 && idx<size()-1 )
+    {
+	x_.remove( idx ); r_.remove( idx ); g_.remove( idx ); b_.remove( idx );
+	colorChanged.trigger();
+    }
+}
+
+
+void ColTab::Sequence::removeAllColors()
+{
+    x_.erase(); r_.erase(); g_.erase(); b_.erase();
+}
+
+
 void ColTab::Sequence::setTransparency( Geom::Point2D<float> pt )
 {
     if ( pt.x < 0 ) pt.x = 0; if ( pt.x > 1 ) pt.x = 1;
@@ -240,6 +287,13 @@ void ColTab::Sequence::setTransparency( Geom::Point2D<float> pt )
 void ColTab::Sequence::removeTransparencies()
 {
     tr_.erase();
+    transparencyChanged.trigger();
+}
+
+
+void ColTab::Sequence::removeTransparencyAt( int idx )
+{
+    tr_.remove( idx );
     transparencyChanged.trigger();
 }
 
@@ -345,6 +399,19 @@ ColTab::SeqMgr::SeqMgr()
     : seqAdded(this)
     , seqRemoved(this)
 {
+    readColTabs();
+}
+
+
+void ColTab::SeqMgr::refresh()
+{
+    deepErase( seqs_ );
+    readColTabs();
+}
+
+
+void ColTab::SeqMgr::readColTabs()
+{
     IOPar* iop = 0;
     BufferString fnm = mGetSetupFileName("ColTabs");
     if ( File_exists(fnm) )
@@ -357,16 +424,16 @@ ColTab::SeqMgr::SeqMgr()
 	    sd.close();
 	}
     }
-    if ( iop ) addFromPar( *iop );
+    if ( iop ) addFromPar( *iop, true );
     delete iop;
     if ( InSysAdmMode() ) return;
 
     Settings& setts( Settings::fetch(sKeyCtabSettsKey) );
-    addFromPar( setts );
+    addFromPar( setts, false );
 }
 
 
-void ColTab::SeqMgr::addFromPar( const IOPar& iop )
+void ColTab::SeqMgr::addFromPar( const IOPar& iop, bool fromsys )
 {
     for ( int idx=0; ; idx++ )
     {
@@ -383,9 +450,13 @@ void ColTab::SeqMgr::addFromPar( const IOPar& iop )
 
 	int existidx = indexOf( newseq->name() );
 	if ( existidx < 0 )
+	{
+	    newseq->setType( fromsys ? Sequence::System : Sequence::User );
 	    add( newseq );
+	}
 	else
 	{
+	    newseq->setType( Sequence::Edited );
 	    Sequence* oldseq = seqs_[existidx];
 	    seqs_.replace( existidx, newseq );
 	    oldseq->toBeRemoved.trigger( oldseq );
@@ -410,6 +481,14 @@ bool ColTab::SeqMgr::get( const char* nm, Sequence& seq )
     if ( idx < 0 ) return false;
     seq = *get( idx );
     return true;
+}
+
+
+void ColTab::SeqMgr::getSequenceNames( BufferStringSet& nms )
+{
+    nms.deepErase();
+    for ( int idx=0; idx<size(); idx++ )
+	nms.add( SM().get(idx)->name() );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-3-2000
- RCS:		$Id: coltabsequence.h,v 1.3 2008-02-01 07:59:45 cvsnanne Exp $
+ RCS:		$Id: coltabsequence.h,v 1.4 2008-04-08 03:27:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,8 +42,16 @@ public:
 			Sequence(const char*);	//!< Find by name in SeqMgr
 			Sequence(const Sequence&);
 			~Sequence();
+
+    enum Type		{ System, User, Edited };
+
     Sequence&		operator=(const Sequence&);
-    bool		isSys() const		{ return issys_; }
+    bool		operator==(const Sequence&);
+
+    bool		isSys() const
+    			{ return type_==System; }
+    Type		type() const		{ return type_; }
+    void		setType( Type tp )	{ type_ = tp; }
 
     Color		color(float pos) const; //!< 0 <= pos <= 1
 
@@ -61,10 +69,13 @@ public:
     void		changeColor(int,
 	    			    unsigned char,unsigned char,unsigned char);
     void		changePos(int,float);
-    void		setColor(float pos, //!< Insert or change
+    int			setColor(float pos, //!< Insert or change
 	    			 unsigned char,unsigned char,unsigned char);
+    void		removeColor(int);
+    void		removeAllColors();
     void		setTransparency(Geom::Point2D<float>);
     void		removeTransparencies();
+    void		removeTransparencyAt(int);
 
     void		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
@@ -81,26 +92,24 @@ public:
 			{ return markcolor_; }
     void		setMarkColor( Color c )
 			{ markcolor_ = c; triggerAll(); }
-    void		setIsSys( bool yn )	{ issys_ = yn; }
 
     static const char*	sKeyValCol;
     static const char*	sKeyMarkColor;
     static const char*	sKeyUdfColor;
     static const char*	sKeyTransparency;
     static const char*	sKeyCtbl;
-
+    
 protected:
 
-    bool			issys_;
-
+    TypeSet<float>		x_;
     TypeSet<unsigned char>	r_;
     TypeSet<unsigned char>	g_;
     TypeSet<unsigned char>	b_;
-    TypeSet<float>		x_;
     TypeSet< Geom::Point2D<float> > tr_;
 
     Color		undefcolor_;
     Color		markcolor_;
+    Type		type_;
 
     inline void		triggerAll() {	colorChanged.trigger();
 					transparencyChanged.trigger(); }
@@ -117,16 +126,18 @@ class SeqMgr : public CallBacker
 {
 public:
 
+    void		refresh();
+
     int			size() const		{ return seqs_.size(); }
     int			indexOf(const char*) const;
     const Sequence*	get( int idx ) const	{ return seqs_[idx]; }
     bool		get(const char*,Sequence&);
+    void		getSequenceNames(BufferStringSet&);
 
     void		set(const Sequence&); //!< if name not yet present, adds
     void		remove(int);
 
     bool		write(bool sys=false,bool applsetup=true);
-
 
     Notifier<SeqMgr>	seqAdded;
     Notifier<SeqMgr>	seqRemoved;
@@ -140,9 +151,10 @@ protected:
 
     friend SeqMgr&	SM();
 
-    void		addFromPar(const IOPar&);
+    void		addFromPar(const IOPar&,bool);
     void		add( Sequence* seq )
     			{ seqs_ += seq; seqAdded.trigger(); }
+    void		readColTabs();
 };
 
 SeqMgr& SM();

@@ -4,7 +4,7 @@
  * DATE     : Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabindex.cc,v 1.5 2007-10-30 16:53:35 cvskris Exp $";
+static const char* rcsID = "$Id: coltabindex.cc,v 1.6 2008-04-08 03:27:42 cvssatyaki Exp $";
 
 #include "coltabindex.h"
 #include "coltabsequence.h"
@@ -66,5 +66,6 @@ int ColTab::IndexedLookUpTable::indexForValue( float v ) const
     float ret = mapper_ ? mapper_->position( v ) : v;
     ret *= nrcols_;
     if ( ret > nrcols_- 0.9 ) ret = nrcols_- 0.9;
+    else if ( ret < 0 ) ret = 0;
     return (int)ret;
 }
