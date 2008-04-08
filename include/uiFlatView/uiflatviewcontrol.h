@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewcontrol.h,v 1.23 2008-04-08 14:33:54 cvskris Exp $
+ RCS:           $Id: uiflatviewcontrol.h,v 1.24 2008-04-08 17:31:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,7 +92,7 @@ protected:
     
     void		doPropertiesDialog(int vieweridx=0, bool dowva=true);
     void		propDlgClosed(CallBacker*);
-    void		applyProperties(CallBacker* cb);
+    virtual void	applyProperties(CallBacker* cb);
     void		saveProperties(FlatView::Viewer&);
 
 };
