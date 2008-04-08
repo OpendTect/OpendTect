@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.43 2008-03-11 20:55:35 cvskris Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.44 2008-04-08 20:12:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,8 +64,8 @@ uiFlatViewer::~uiFlatViewer()
 void uiFlatViewer::onFinalise( CallBacker* )
 {
     canvas_.display( displaycanvas_ );
+    canvas_.setBGColor( color(false) );
 }
-
 
 void uiFlatViewer::display( bool yn )
 {
@@ -85,13 +85,6 @@ uiRGBArray& uiFlatViewer::rgbArray()
 Color uiFlatViewer::color( bool foreground ) const
 {
     return appearance().darkBG() == foreground ? Color::White : Color::Black;
-}
-
-
-void uiFlatViewer::setDarkBG( bool yn )
-{
-    appearance().setDarkBG( yn );
-    canvas_.setBGColor( color(false) );
 }
 
 
@@ -209,6 +202,8 @@ void uiFlatViewer::drawBitMaps()
 {
     if ( !anysetviewdone_ )
 	setView( boundingBox() );
+
+    canvas_.setBGColor( color(false) );
 
     bool datachgd = false;
     for ( int idx=0; idx<reportedchanges_.size(); idx++ )
