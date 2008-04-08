@@ -1,5 +1,5 @@
-#ifndef viscoloseq_h
-#define viscoloseq_h
+#ifndef viscolorseq_h
+#define viscolorseq_h
 
 /*+
 ________________________________________________________________________
@@ -7,17 +7,17 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolorseq.h,v 1.8 2006-09-05 20:53:06 cvskris Exp $
+ RCS:		$Id: viscolorseq.h,v 1.9 2008-04-08 05:05:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "callback.h"
-#include "color.h"
 #include "visdata.h"
 
-class ColorTable;
+namespace ColTab { class Sequence; }
+
 
 namespace visBase
 {
@@ -31,12 +31,12 @@ class ColorSequence : public DataObject
 {
 public:
     static ColorSequence*	create()
-				mCreateDataObj(ColorSequence);
+				mCreateDataObj(ColorSequence); 
 
-    void			loadFromStorage(const char* nm);
-			
-    ColorTable&			colors();
-    const ColorTable&		colors() const;
+    void			loadFromStorage(const char*);
+
+    ColTab::Sequence&		colors();
+    const ColTab::Sequence&	colors() const;
     void			colorsChanged();
 				/*!< If you change the Colortable, notify me
 				     with this function */
@@ -45,11 +45,11 @@ public:
 
     int				usePar(const IOPar&);
     void			fillPar(IOPar&,TypeSet<int>&) const;
+
 protected:
     virtual			~ColorSequence();
 
-
-    ColorTable&			coltab_;
+    ColTab::Sequence&		coltabsequence_;
 };
 
 }; // Namespace

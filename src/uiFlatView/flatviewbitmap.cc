@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewbitmap.cc,v 1.13 2008-03-26 19:40:04 cvskris Exp $
+ RCS:           $Id: flatviewbitmap.cc,v 1.14 2008-04-08 05:05:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,8 +13,9 @@ ________________________________________________________________________
 #include "flatviewbmp2rgb.h"
 #include "array2dbitmapimpl.h"
 #include "arrayndimpl.h"
+#include "coltabsequence.h"
+#include "coltabindex.h"
 #include "uirgbarray.h"
-#include "colortab.h"
 
 
 FlatView::BitMapMgr::BitMapMgr( const FlatView::Viewer& vwr, bool wva )
@@ -183,10 +184,14 @@ void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp,
     const Geom::Size2D<int> bmpsz(bmp.info().getSize(0),bmp.info().getSize(1));
     const Geom::Size2D<int> arrsz(arr_.getSize(true),arr_.getSize(false));
     const FlatView::DataDispPars::VD& pars = app_.ddpars_.vd_;
-    ColorTable ctab( pars.ctab_ );
+    ColTab::Sequence ctab;
+    ColTab::SM().get( pars.ctab_, ctab );
+
+    //ColorTable ctab( pars.ctab_ );
     const int minfill = (int)VDA2DBitMapGenPars::cMinFill;
     const int maxfill = (int)VDA2DBitMapGenPars::cMaxFill;
-    ctab.calcList( maxfill - minfill + 1 );
+    ColTab::IndexedLookUpTable ctindex( ctab, maxfill - minfill + 1 );
+    //ctab.calcList( maxfill - minfill + 1 );
 
     for ( int ix=0; ix<arrsz.width(); ix++ )
     {
@@ -198,7 +203,7 @@ void FlatView::BitMap2RGB::drawVD( const A2DBitMap& bmp,
 	    if ( bmpval == A2DBitMapGenPars::cNoFill )
 		continue;
 
-	    Color col = ctab.tableColor( (int)bmpval - minfill );
+	    Color col = ctindex.color( (int)bmpval - minfill );
 	    if ( col.isVisible() )
 		arr_.set( ix, iy, col );
 	}

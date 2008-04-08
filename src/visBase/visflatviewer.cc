@@ -4,14 +4,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.cc,v 1.7 2008-03-26 19:40:04 cvskris Exp $
+ RCS:		$Id: visflatviewer.cc,v 1.8 2008-04-08 05:05:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "visflatviewer.h"
 #include "arraynd.h"
-#include "colortab.h"
+#include "coltab.h"
+#include "coltabsequence.h"
 #include "flatview.h"
 #include "viscolortab.h"
 #include "vismultitexture2.h"
@@ -93,9 +94,8 @@ void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt )
 	case VDPars : 	
 		const char* ctabname = appearance().ddpars_.vd_.ctab_.buf();
 		visBase::VisColorTab& vct = texture_->getColorTab( 0 );
-		ColorTable& ct = vct.colorSeq().colors();
-		
-		if ( ColorTable::get( ctabname, ct ) )
+		ColTab::Sequence& ct = vct.colorSeq().colors();
+		if ( ColTab::SM().get(ctabname,ct) )
 		    vct.colorSeq().colorsChanged();
 
 		const Interval<float>& range = appearance().ddpars_.vd_.rg_;

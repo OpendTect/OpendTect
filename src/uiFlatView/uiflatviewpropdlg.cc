@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.21 2008-03-26 19:40:04 cvskris Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.22 2008-04-08 05:05:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,8 +12,8 @@ ________________________________________________________________________
 #include "uiflatviewpropdlg.h"
 #include "uiflatviewproptabs.h"
 
-#include "coltabedit.h"
 #include "uicolor.h"
+#include "uicolortable.h"
 #include "uigeninput.h"
 #include "uicombobox.h"
 #include "uilabel.h"
@@ -305,11 +305,9 @@ uiFVVDPropTab::uiFVVDPropTab( uiParent* p, FlatView::Viewer& vwr )
     , pars_(ddpars_.vd_)
     , ctab_( ddpars_.vd_.ctab_.buf() )
 {
-    coltabfld_ =  new ColorTableEditor( this,
-		    ColorTableEditor::Setup().vertical(false).editable(false)
-					     .withclip(false), &ctab_ );
-    coltablbl_ = new uiLabel( this, "Color table", coltabfld_ );
-    coltabfld_->attach( alignedBelow, lastcommonfld_ );
+    uicoltab_ = new uiColorTable( this, ctab_, false );
+    uicoltablbl_ = new uiLabel( this, "Color table", uicoltab_ );
+    uicoltablbl_->attach( alignedBelow, lastcommonfld_ );
 }
 
 
@@ -321,15 +319,15 @@ const char* uiFVVDPropTab::dataName() const
 
 void uiFVVDPropTab::handleFieldDisplay( bool dodisp )
 {
-    coltabfld_->display( dodisp );
-    coltablbl_->display( dodisp );
+    uicoltab_->display( dodisp );
+    uicoltablbl_->display( dodisp );
 }
 
 
 void uiFVVDPropTab::putToScreen()
 {
-    ColorTable::get( pars_.ctab_, ctab_ );
-    coltabfld_->tableChanged( 0 );
+    ColTab::SM().get( pars_.ctab_, ctab_ );
+    uicoltab_->seqChanged.trigger();
     putCommonToScreen();
 }
 
@@ -339,7 +337,7 @@ void uiFVVDPropTab::getFromScreen()
     getCommonFromScreen();
     if ( !pars_.show_ ) return;
 
-    pars_.ctab_ = coltabfld_->getColorTable()->name();
+    pars_.ctab_ = uicoltab_->colTabSeq().name();
 }
 
 

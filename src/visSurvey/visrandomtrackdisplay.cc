@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.100 2008-03-24 15:53:42 cvsyuancheng Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.101 2008-04-08 05:05:08 cvssatyaki Exp $
  ________________________________________________________________________
 
 -*/
@@ -31,7 +31,6 @@
 #include "viscolortab.h"
 #include "viscoord.h"
 #include "vismultitexture2.h"
-#include "colortab.h"
 #include "ptrman.h"
 
 #include <math.h>

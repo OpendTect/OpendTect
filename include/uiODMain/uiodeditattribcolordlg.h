@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		Feb 2008
- RCS:		$Id: uiodeditattribcolordlg.h,v 1.2 2008-02-14 07:01:29 cvsraman Exp $
+ RCS:		$Id: uiodeditattribcolordlg.h,v 1.3 2008-04-08 05:05:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -15,7 +15,7 @@ ________________________________________________________________________
 
 #include "uidialog.h"
 
-class ColorTableEditor;
+class uiColorTable;
 class uiTreeItem;
 
 
@@ -28,7 +28,7 @@ public:
 
 protected:
 	
-	ColorTableEditor*	coltabed_;
+	uiColorTable*		uicoltab_;
 	ObjectSet<uiTreeItem>&	items_;
 	int			itemusedineditor_;
 

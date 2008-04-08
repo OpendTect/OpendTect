@@ -4,14 +4,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		2-28-2008
- RCS:		$Id: vissplittexture2rectangle.cc,v 1.3 2008-04-03 19:13:16 cvsyuancheng Exp $
+ RCS:		$Id: vissplittexture2rectangle.cc,v 1.4 2008-04-08 05:05:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "vissplittexture2rectangle.h"
 
-#include "colortab.h"
 #include "simpnumer.h"
 #include "viscolortab.h"
 #include "viscoord.h"

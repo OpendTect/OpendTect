@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.34 2008-03-26 19:40:04 cvskris Exp $
+ RCS:           $Id: flatview.cc,v 1.35 2008-04-08 05:05:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "settings.h"
 #include "survinfo.h"
 #include "keystrs.h"
-#include "colortab.h"
+#include "coltab.h"
 #include "datapackbase.h"
 
 
@@ -131,7 +131,7 @@ float* FlatPosData::getPositions( bool isx1 ) const
 FlatView::DataDispPars::Common::Common()
     : show_(true)
     , rg_(mUdf(float),mUdf(float))
-    , clipperc_(ColorTable::defPercClip(),mUdf(float) )
+    , clipperc_(ColTab::defClipRate(),mUdf(float))
     , blocky_(false)
     , midvalue_( mUdf(float) )
 {}

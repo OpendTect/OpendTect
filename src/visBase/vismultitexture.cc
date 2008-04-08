@@ -8,18 +8,17 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.27 2007-10-30 16:53:36 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.28 2008-04-08 05:05:08 cvssatyaki Exp $";
 
 #include "vismultitexture2.h"
 
-
-#include "task.h"
+#include "coltabsequence.h"
 #include "errh.h"
 #include "ranges.h"
+#include "task.h"
 #include "thread.h"
 #include "viscolortab.h"
 #include "viscolortabindexer.h"
-#include "colortab.h"
 
 
 #define mNrColors	255

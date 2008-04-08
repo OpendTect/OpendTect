@@ -6,12 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewproptabs.h,v 1.7 2008-03-26 19:40:04 cvskris Exp $
+ RCS:           $Id: uiflatviewproptabs.h,v 1.8 2008-04-08 05:05:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "colortab.h"
+#include "coltab.h"
+#include "coltabsequence.h"
 #include "flatview.h"
 #include "uidlggroup.h"
 
@@ -21,7 +22,7 @@ class uiComboBox;
 class uiCheckBox;
 class uiColorInput;
 class uiSelLineStyle;
-class ColorTableEditor;
+class uiColorTable;
 
     
 /*!\brief flat viewer properties tabs */
@@ -130,12 +131,12 @@ public:
 protected:
 
     FlatView::DataDispPars::VD&		pars_;
-    ColorTable		ctab_;
+    ColTab::Sequence			ctab_;
     virtual FlatView::DataDispPars::Common& commonPars() { return pars_; }
     virtual const char*	dataName() const;
 
-    ColorTableEditor*	coltabfld_;
-    uiLabel*		coltablbl_;
+    uiColorTable*	uicoltab_;
+    uiLabel*		uicoltablbl_;
 
     virtual void	handleFieldDisplay(bool);
     void		dispSel(CallBacker*);

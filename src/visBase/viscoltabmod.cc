@@ -4,14 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2003
- RCS:           $Id: viscoltabmod.cc,v 1.10 2008-02-05 09:24:17 cvsbert Exp $
+ RCS:           $Id: viscoltabmod.cc,v 1.11 2008-04-08 05:05:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "viscoltabmod.h"
 
-#include "colortab.h"
+#include "coltab.h"
 #include "dataclipper.h"
 #include "iopar.h"
 #include "scaler.h"
@@ -30,8 +30,8 @@ const char* VisColTabMod::useclipstr 	= "Use clipping";
 
 VisColTabMod::VisColTabMod()
     : range(Interval<float>(0,0))
-    , cliprate0(ColorTable::defPercClip()/100)
-    , cliprate1(ColorTable::defPercClip()/100)
+    , cliprate0(ColTab::defClipRate())
+    , cliprate1(ColTab::defClipRate())
     , useclip(true)
     , reverse(false)
     , datascale( *new LinScaler(0,1) )

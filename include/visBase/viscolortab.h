@@ -7,17 +7,24 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscolortab.h,v 1.17 2007-10-22 08:41:05 cvsraman Exp $
+ RCS:		$Id: viscolortab.h,v 1.18 2008-04-08 05:05:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "viscolorseq.h"
+#include "color.h"
+#include "ranges.h"
 
-template <class T> class Interval;
+namespace ColTab
+{
+    class Sequence;
+    class Mapper;
+    class IndexedLookUpTable;
+}
+
 template <class T> class ValueSeries;
-class LinScaler;
 
 namespace visBase
 {
@@ -38,12 +45,14 @@ public:
     float			clipRate() const;
     void			setClipRate(float);
     bool			getSymmetry() const;
-    void			setSymmetry(bool yn);
     void			setSymmetrical(Interval<float>&);
+    void			setSymmetry(bool);
+    float			getSymmidval()		{ return symmidval_; }
+    void			setSymmidval(float);
     void			scaleTo(const Interval<float>& rg);
     void			scaleTo(const float* values, int nrvalues);
     				/*!< Does only work if autoscale is true */
-    void			scaleTo(const ValueSeries<float>& values,
+    void			scaleTo(const ValueSeries<float>* values,
 	    				int nrvalues);
     				/*!< Does only work if autoscale is true */
     Interval<float>		getInterval() const;
@@ -75,11 +84,13 @@ protected:
 
     void			colorseqchanged();
 
-    ColorSequence*		colseq_;
-    LinScaler&			scale_;
+    ColTab::Mapper*		ctmapper_;
+    ColTab::IndexedLookUpTable*	indextable_;
+    ColorSequence*		viscolseq_;
 
     bool			autoscale_;
     float			cliprate_;
+    float			symmidval_;
     bool			symmetry_;
 
     static const char*		sKeyColorSeqID();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.81 2008-03-25 20:32:35 cvskris Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.82 2008-04-08 05:05:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,6 @@ ________________________________________________________________________
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
 #include "attribsel.h"
-#include "colortab.h"
 #include "cubesampling.h"
 #include "iopar.h"
 #include "marchingcubes.h"

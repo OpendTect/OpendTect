@@ -7,62 +7,81 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uicolortable.h,v 1.2 2007-08-20 16:00:55 cvsbert Exp $
+ RCS:           $Id: uicolortable.h,v 1.3 2008-04-08 05:05:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigroup.h"
-class uiLineEdit;
-class uiComboBox;
-class ColorTable;
-class ColTabScaling;
-class uiColorTableCanvas;
 
+class uiColorTableCanvas;
+class uiComboBox;
+class uiLineEdit;
+
+namespace ColTab { class Sequence; }
 
 class uiColorTable : public uiGroup
 {
 public:
 
-			uiColorTable(uiParent*,bool vertical);
+			uiColorTable(uiParent*,ColTab::Sequence& colseq,
+				     bool vertical);
 			   //!< Editable
-			uiColorTable(uiParent*,const ColorTable&,
-				     Interval<float>,bool vertical);
+			uiColorTable(uiParent*,const char*,bool vertical);
 			   //!< Display only
 			~uiColorTable();
 
-    const ColorTable&	colorTable() const	{ return coltab_; }
-    const ColTabScaling& tableScaling() const	{ return scale_; }
+    const ColTab::Sequence&	colTabSeq() const	{ return coltabseq_;}
+    ColTab::Sequence&		colTabSeq()    		{ return coltabseq_;}
 
+    void		setEdits(const Interval<float>&);
     void		setTable(const char*,bool emitnotif=true);
-    void		setTable(const ColorTable&,bool emitnotif=true);
-    void		setTableScaling(const ColTabScaling&,bool emit=true);
+    void		setTable(ColTab::Sequence&,bool emitnotif=true);
+    void		setHistogram(const TypeSet<float>*);
+    Interval<float>&	getInterval()			{ return coltabrg_; }
 
-    Notifier<uiColorTable>	tableSelected;
+    void                setAutoScale( bool yn )		{ autoscale_ = yn; }
+    bool                autoScale() const		{ return autoscale_; }
+    void                setClipRate( float r )		{ cliprate_ = r; }
+    float               getClipRate() const		{ return cliprate_; }
+    void                setSymmetry( bool yn )		{ symmetry_ = yn; }
+    bool                getSymmetry() const		{ return symmetry_; }
+    void                setSymmidval( float val )	{ symmidval_ = val; }
+    float               getSymmidval() const		{ return symmidval_; }
+
+    Notifier<uiColorTable>	seqChanged;
     Notifier<uiColorTable>	scaleChanged;
 
 protected:
 
-    ColorTable&		coltab_;
-    ColTabScaling&	scale_;
-    const bool		vertical_;
+    bool		autoscale_;
+    float		cliprate_;
+    bool		symmetry_;
+    float		symmidval_;
 
-    uiColorTableCanvas*	dispfld_;
+    ColTab::Sequence&	coltabseq_;
+    bool		vertical_;
+    Interval<float> 	coltabrg_;
+
+    TypeSet<float>	histogram_;
+    uiColorTableCanvas*	canvas_;
     uiLineEdit*		minfld_;
     uiLineEdit*		maxfld_;
     uiComboBox*		selfld_;
 
+    void		canvasClick(CallBacker*);
     void		tabSel(CallBacker*);
+    void		tableAdded(CallBacker*);
     void		rangeEntered(CallBacker*);
     void		doEdit(CallBacker*);
     void		doFlip(CallBacker*);
-    void		doApply4Man(CallBacker*);
+    void		editClipRate(CallBacker*);
     void		makeSymmetrical(CallBacker*);
-    void		mkCanvas(const Interval<float>&);
+    void		colTabChgdCB(CallBacker*);
+    void		colTabManChgd(CallBacker*);
 
     bool		isEditable() const	{ return maxfld_; }
     void		fillTabList();
-    void		setRangeFields();
 };
 
 

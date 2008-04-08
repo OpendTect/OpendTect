@@ -7,18 +7,19 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		24-01-2003
- RCS:		$Id: uiviscoltabed.h,v 1.14 2007-12-24 05:31:59 cvsnanne Exp $
+ RCS:		$Id: uiviscoltabed.h,v 1.15 2008-04-08 05:05:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 
 -*/
 
-#include "colortab.h"
 #include "uidialog.h"
 
 namespace visBase { class VisColorTab; }
-class ColorTableEditor;
+namespace ColTab { class Sequence; }
+class uiColorTable;
 class uiGroup;
+class IOPar;
 
 
 class uiVisColTabEd : public CallBacker
@@ -28,12 +29,13 @@ public:
 				~uiVisColTabEd();
 
     int				getColTab() const;
+    visBase::VisColorTab*	getColTab() 		{ return viscoltab_; }
     void			setColTab(int coltabid);
     void			setHistogram(const TypeSet<float>*);
     void			setPrefHeight(int);
     void			setPrefWidth(int);
     void			updateColTabList();
-    uiGroup*			colTabGrp()	{ return (uiGroup*)coltabed_; }
+    uiGroup*			colTabGrp()	{ return (uiGroup*)uicoltab_; }
 
     bool			usePar(const IOPar&);
     void                        fillPar(IOPar&);
@@ -47,11 +49,14 @@ public:
     static const char*          sKeyClipRate();
     static const char*          sKeyAutoScale();
     static const char*          sKeySymmetry();
+    void			colTabEdChangedCB(CallBacker*);
+    void			colseqChanged(CallBacker*);
+    void			colorTabChgdCB(CallBacker*);
+    void			colTabChangedCB(CallBacker*);
+    void			clipperChanged(CallBacker*);
 
 protected:
 
-    void			colTabEdChangedCB(CallBacker*);
-    void			colTabChangedCB(CallBacker*);
     void			delColTabCB(CallBacker*);
     void			updateEditor();
     void			enableCallBacks();
@@ -59,13 +64,14 @@ protected:
 
     const CallBack		coltabcb;
 
-    visBase::VisColorTab*	coltab_;
-    ColorTableEditor*		coltabed_;
+    visBase::VisColorTab*	viscoltab_;
+    uiColorTable*		uicoltab_;
 
-    ColorTable			colseq_;
+    ColTab::Sequence&		colseq_;
     Interval<float>		coltabinterval_;
     bool			coltabautoscale_;
     float			coltabcliprate_;
+    float			ctsymidval_;
     bool			coltabsymmetry_;
 };
 

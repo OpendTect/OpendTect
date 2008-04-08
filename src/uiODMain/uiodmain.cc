@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.97 2008-03-24 20:15:38 cvskris Exp $
+ RCS:           $Id: uiodmain.cc,v 1.98 2008-04-08 05:05:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,7 @@ ________________________________________________________________________
 #include "initvisbase.h"
 #include "initvissurvey.h"
 #include "initvolumeprocessing.h"
+
 
 static const int cCTHeight = 200;
 
@@ -279,8 +280,6 @@ bool uiODMain::buildUI()
 	ctabwin_ = new uiDockWin( this, "Color Table" );
 	ctabed_ = new uiVisColTabEd( ctabwin_, true );
 	ctabed_->coltabChange.notify( mCB(applmgr_,uiODApplMgr,coltabChg) );
-	ctabed_->setPrefHeight( cCTHeight );
-	ctabed_->setPrefWidth( 100 );
 	ctabed_->colTabGrp()->attach( hCentered );
 	addDockWindow( *ctabwin_, isontop ? uiMainWin::TornOff
 					  : uiMainWin::Left );
@@ -292,6 +291,7 @@ bool uiODMain::buildUI()
 	ctabed_->coltabChange.notify( mCB(applmgr_,uiODApplMgr,coltabChg) );
 	tb->addObject( ctabed_->colTabGrp()->attachObj() );
     }
+
 
     return true;
 }

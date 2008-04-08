@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.27 2008-02-27 11:16:51 cvsnanne Exp $
+ RCS:           $Id: pixmap.cc,v 1.28 2008-04-08 05:05:07 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,9 +14,13 @@ ________________________________________________________________________
 #include "arraynd.h"
 #include "arrayndimpl.h"
 #include "arrayrgb.h"
+#include "uirgbarray.h"
+#include "separstr.h"
+#include "coltab.h"
+#include "coltabsequence.h"
+#include "coltabindex.h"
 #include "bufstringset.h"
 #include "color.h"
-#include "colortab.h"
 #include "errh.h"
 #include "filegen.h"
 #include "filepath.h"
@@ -105,22 +109,21 @@ ioPixmap::ioPixmap( const char* fnm, const char* fmt )
 }
 
     
-ioPixmap::ioPixmap( const ColorTable& ctabin, int width, int height )
+ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int width, int height )
     : qpixmap_(0)
     , srcname_("[colortable]")
 {
-    ColorTable ctab = ctabin;
-    ctab.calcList( width );
-    if ( ctab.nrColors() == 0 )
+    if ( ctabin.size() == 0 )
     {
 	qpixmap_ = new QPixmap( width, height );
 	return;
     }
 
+    ColTab::IndexedLookUpTable table( ctabin, width );
     ArrayRGB rgb( height, width );
     for ( int idx1=0; idx1<rgb.info().getSize(1); idx1++ )
     {
-	const Color color = ctab.tableColor( idx1 );
+	const Color color = table.colorForIndex( idx1 );
 	for ( int idx2=0; idx2<rgb.info().getSize(0); idx2++ )
 	    rgb.set( idx2, idx1, color );
     }
