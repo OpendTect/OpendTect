@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.1 2008-04-03 08:28:30 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.2 2008-04-08 16:18:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,9 +100,6 @@ protected:
     virtual void		mkNewFill();
     void 			drawContent(CallBacker*);
 
-    float			getVal(uiDataPointSet::DColID cid,
-				       uiDataPointSet::DRowID rid ) const
-					{ return uidps_.getVal(cid,rid); }
     int				getRow(const AxisData&,uiPoint) const;
 
     bool			selNearest(const MouseEvent&);
