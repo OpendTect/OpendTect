@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.7 2008-04-08 06:50:38 cvssatyaki Exp $
+ RCS:           $Id: uicolortable.cc,v 1.8 2008-04-08 07:41:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,7 +112,7 @@ uiColorTable::~uiColorTable()
 }
 
 
-void uiColorTable::setEdits( const Interval<float>& range )
+void uiColorTable::setInterval( const Interval<float>& range )
 {
     if ( !minfld_ ) return;
     coltabrg_ = range;
@@ -235,6 +235,7 @@ void clipPush( CallBacker* )
     const bool doclip = doclipfld->getBoolValue();
     clipfld->display( doclip );
     symmfld->display( doclip );
+    symmidval->display( symmfld->getBoolValue() && doclip );
     storfld->display( doclip );
 }
 
@@ -281,7 +282,7 @@ void uiColorTable::doFlip( CallBacker* )
     Swap( coltabrg_.start , coltabrg_.stop );
     autoscale_ = false;
     scaleChanged.trigger();
-    setEdits( coltabrg_ );
+    setInterval( coltabrg_ );
 }
 
 

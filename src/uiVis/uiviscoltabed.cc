@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.29 2008-04-08 06:33:09 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.30 2008-04-08 07:41:21 cvsnanne Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -84,7 +84,7 @@ void uiVisColTabEd::setColTab( int id )
     if ( id > 0 )
     {
 	uicoltab_->setTable( viscoltab_->colorSeq().colors() );
-        uicoltab_->setEdits( viscoltab_->getInterval() );
+        uicoltab_->setInterval( viscoltab_->getInterval() );
     }
     uicoltab_->setSensitive( viscoltab_ );
 }
@@ -206,7 +206,7 @@ void uiVisColTabEd::updateEditor()
     uicoltab_->setSymmetry( coltabsymmetry_ );
     uicoltab_->setClipRate( coltabcliprate_ );
     uicoltab_->setSymmidval( ctsymidval_ );
-    uicoltab_->setEdits( coltabinterval_ );
+    uicoltab_->setInterval( coltabinterval_ );
 }
 
 
@@ -256,7 +256,7 @@ bool uiVisColTabEd::usePar( const IOPar& par )
     {
 	Interval<float> coltabrange;
 	par.get( sKeyScaleFactor(), coltabrange );
-	//uicoltab_->setInterval( coltabrange );
+	uicoltab_->setInterval( coltabrange );
     }
 
     colTabEdChangedCB( 0 );
