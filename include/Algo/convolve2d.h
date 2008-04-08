@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolve2d.h,v 1.4 2007-10-30 16:53:35 cvskris Exp $
+ RCS:           $Id: convolve2d.h,v 1.5 2008-04-08 14:37:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -40,9 +40,11 @@ protected:
     inline bool		doWork( int, int, int );
     int			totalNr() const { return z_->info().getSize( 0 ); }
     const Array2D<T>*	x_;
-    RowCol		xshift_;
+    int			xshift0_;
+    int			xshift1_;
     const Array2D<T>*	y_;
-    RowCol		yshift_;
+    int			yshift0_;
+    int			yshift1_;
     Array2D<T>*		z_;
     bool		normalize_;
     bool		correlate_;
@@ -52,9 +54,11 @@ protected:
 template <class T> inline
 Convolver2D<T>::Convolver2D()
     : x_( 0 )
-    , xshift_(0,0)
+    , xshift0_( 0 )
+    , xshift1_( 0 )
     , y_( 0 )
-    , yshift_(0,0)
+    , yshift0_( 0 )
+    , yshift1_( 0 )
     , z_( 0 )
     , normalize_( false )
     , correlate_( false )
@@ -65,8 +69,8 @@ template <class T> inline
 void Convolver2D<T>::setX( const Array2D<T>& x, int first0, int first1 )
 {
     x_ = &x;
-    xshift_.row = first0;
-    xshift_.col = first1;
+    xshift0_ = first0;
+    xshift1_ = first1;
 }
 
 
@@ -74,68 +78,71 @@ template <class T> inline
 void Convolver2D<T>::setY( const Array2D<T>& y, int first0, int first1 )
 {
     y_ = &y;
-    yshift_.row = first0;
-    yshift_.col = first1;
+    yshift0_ = first0;
+    yshift1_ = first1;
 }
 
 
 template <class T> inline
 bool Convolver2D<T>::doWork( int start, int stop, int )
 {
-    const int dim0xsz = x_->info().getSize( 0 );
-    const int dim1xsz = x_->info().getSize( 1 );
-    const int dim0ysz = y_->info().getSize( 0 );
-    const int dim1ysz = y_->info().getSize( 1 );
-    const int dim1zsz = z_->info().getSize( 1 );
+    const int xsz0 = x_->info().getSize( 0 );
+    const int xsz1 = x_->info().getSize( 1 );
+    const int ysz0 = y_->info().getSize( 0 );
+    const int ysz1 = y_->info().getSize( 1 );
 
-    for ( int idz0=start; idz0<=stop; idz0++, reportNrDone() )
+    int startpos[2];
+
+    if ( !z_->info().getArrayPos( start, startpos ) )
+	return false;
+
+    ArrayNDIter iterator( z_->info() );
+    iterator.setPos( startpos );
+
+    for ( int idx=start; idx<=stop; idx++ )
     {
-	const int zdim0 = idz0;
-	for ( int idz1=0; idz1<dim1zsz; idz1++ )
+	const int* zvar = iterator.getPos();
+	T sum = 0;
+	int nrsamples = 0;
+	for ( int idx0=0; idx0<xsz0; idx0++ )
 	{
-	    const int zdim1 = idz1;
+	    const int xvar0 = idx0-xshift0_;
+	    const int yvar0 = correlate_ ? xvar0-zvar[0] : zvar[0]-xvar0;
+	    const int idy0 = yvar0+yshift0_;
+	    if ( idy0<0 || idy0>=ysz0 )
+		continue;
 
-	    T sum = 0;
-	    int nrsamples = 0;
-	    for ( int idx0=0; idx0<dim0xsz; idx0++ )
+	    for ( int idx1=0; idx1<xsz1; idx1++ )
 	    {
-		const int xdim0 = idx0+xshift_.row;
-		const int ydim0 = correlate_ ? zdim0+xdim0 : zdim0-xdim0;
-		const int idy0 = ydim0-yshift_.row;
-		if ( idy0<0 || idy0>=dim0ysz )
+		const int xvar1 = idx1-xshift1_;
+		const int yvar1 = correlate_ ? xvar1-zvar[1] : zvar[1]-xvar1;
+		const int idy1 = yvar1+yshift1_;
+		if ( idy1<0 || idy1>=ysz1 )
 		    continue;
 
-		for ( int idx1=0; idx1<dim1xsz; idx1++ )
-		{
-		    const int xdim1 = idx1+xshift_.col;
-		    const int ydim1 = correlate_ ? zdim1+xdim1 : zdim1-xdim1;
-		    const int idy1 = ydim1-yshift_.col;
-		    if ( idy1<0 || idy1>=dim1ysz )
-			continue;
+		const T yval = y_->get( idy0, idy1 );
+		if ( mIsUdf(yval) )
+		    continue;
 
-		    const T yval = y_->get( idy0, idy1 );
-		    if ( mIsUdf(yval) )
-			continue;
+		const T xval = x_->get( idx0, idx1 );
+		if ( mIsUdf(xval) )
+		    continue;
 
-		    const T xval = x_->get( idy0, idy1 );
-		    if ( mIsUdf(xval) )
-			continue;
-
-		    sum += xval * yval;
-		    nrsamples++;
-		}
+		sum += xval * yval;
+		nrsamples++;
 	    }
-
-	    if ( !nrsamples )
-		z_->set( idz0, idz1, 0 );
-	    else if ( normalize_ )
-		z_->set( idz0, idz1, sum/nrsamples );
-	    else
-		z_->set( idz0, idz1, sum );
 	}
+
+	if ( !nrsamples ) z_->set( zvar, 0 );
+	else if ( normalize_ ) z_->set( zvar, sum/nrsamples );
+	else z_->set( zvar, sum );
+
+	if ( !iterator.next() && idx!=stop )
+	    return false;
     }
 
     return true;
 }
+
 
 #endif
