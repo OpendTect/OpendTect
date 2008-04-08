@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.240 2008-04-07 11:02:46 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.241 2008-04-08 13:43:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -1028,6 +1028,13 @@ bool uiODApplMgr::handlePickServEv( int evid )
 }
 
 
+#define mGetSelTracker( tracker ) \
+    const int selobjvisid = visserv_->getSelObjectId(); \
+    const MultiID selobjmid = visserv_->getMultiID(selobjvisid); \
+    const EM::ObjectID& emid = emserv_->getObjectID(selobjmid); \
+    const int trackerid = mpeserv_->getTrackerID(emid); \
+    MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid ); 
+
 bool uiODApplMgr::handleVisServEv( int evid )
 {
     int visid = visserv_->getEventObjId();
@@ -1055,11 +1062,7 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	sceneMgr().toHomePos(0);
     else if ( evid == uiVisPartServer::evShowSetupDlg )
     {
-	const int selobjvisid = visserv_->getSelObjectId();
-	const MultiID selobjmid = visserv_->getMultiID(selobjvisid);
-	const EM::ObjectID& emid = emserv_->getObjectID(selobjmid);
-	const int trackerid = mpeserv_->getTrackerID(emid);
-	MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+	mGetSelTracker( tracker );
 	const MPE::EMSeedPicker* seedpicker = tracker ? 
 					      tracker->getSeedPicker(false) : 0;
 	const EM::SectionID sid = seedpicker ? seedpicker->getSectionID() : -1;
@@ -1070,6 +1073,12 @@ bool uiODApplMgr::handleVisServEv( int evid )
 	mpeserv_->loadPostponedVolume();
     else if ( evid == uiVisPartServer::evToggleBlockDataLoad )
 	mpeserv_->blockDataLoading( !mpeserv_->isDataLoadingBlocked() );
+    else if ( evid == uiVisPartServer::evDisableSelTracker )
+    {
+	mGetSelTracker( tracker );
+	if ( tracker )
+	    tracker->enable( false );
+    }
     else
 	pErrMsg("Unknown event from visserv");
 

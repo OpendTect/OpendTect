@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.365 2008-03-21 16:12:51 cvshelene Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.366 2008-04-08 13:43:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ const int uiVisPartServer::evViewModeChange		= 12;
 const int uiVisPartServer::evShowSetupDlg		= 13;
 const int uiVisPartServer::evLoadPostponedData		= 14;
 const int uiVisPartServer::evToggleBlockDataLoad	= 15;
+const int uiVisPartServer::evDisableSelTracker		= 16;
 
 
 const char* uiVisPartServer::sKeyAppVel()		{ return "AppVel"; }
@@ -1078,6 +1079,12 @@ bool uiVisPartServer::sendShowSetupDlgEvent()
 bool uiVisPartServer::sendPickingStatusChangeEvent()
 {
    return sendEvent( evPickingStatusChange );
+}
+
+
+bool uiVisPartServer::sendDisableSelTrackerEvent()
+{
+   return sendEvent( evDisableSelTracker );
 }
 
 

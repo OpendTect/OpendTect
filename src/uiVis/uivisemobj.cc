@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.67 2008-03-31 10:42:02 cvsnageswara Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.68 2008-04-08 13:43:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -384,10 +384,12 @@ void uiVisEMObject::createMenuCB( CallBacker* cb )
     lockseedsmnuitem_.text = emobj->isPosAttribLocked(EM::EMObject::sSeedNode) ?
 			    "Un&lock" : "&Lock" ;	
     mAddMenuItem( &seedsmenuitem_, &lockseedsmnuitem_, true, false );
-    mAddMenuItem( &trackmenuitem_,&seedsmenuitem_,seedsmenuitem_.nrItems(),false );
+    mAddMenuItem( &trackmenuitem_, &seedsmenuitem_, seedsmenuitem_.nrItems(),
+		  false );
 
-    mAddMenuItem( menu, &trackmenuitem_, trackmenuitem_.nrItems(), false );
-
+    const bool isshifted = hordisp ? hordisp->getTranslation().z : false;
+    mAddMenuItem( menu, &trackmenuitem_,
+		  trackmenuitem_.nrItems() && !isshifted, false ); 
 #ifdef __debug__
     mAddMenuItem( menu, &removesectionmnuitem_, false, false );
     if ( emobj->nrSections()>1 && sid!=-1 )
@@ -497,6 +499,13 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 				   "\nDepth will be displayed instead" );
 		    hordisp->setDepthAsAttrib( attrib );
 		}
+	    }
+
+	    if ( newshift )
+	    {
+		emod->showPosAttrib( EM::EMObject::sSeedNode, false );
+		emod->enableEditing( false );
+		visserv_->sendDisableSelTrackerEvent();
 	    }
 
 	    visserv_->triggerTreeUpdate();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.199 2008-03-21 16:12:51 cvshelene Exp $
+ RCS:           $Id: uivispartserv.h,v 1.200 2008-04-08 13:43:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -261,6 +261,8 @@ public:
     void			turnSeedPickingOn(bool yn);
     static const int		evPickingStatusChange;
     bool			sendPickingStatusChangeEvent(); 
+    static const int		evDisableSelTracker;
+    bool			sendDisableSelTrackerEvent(); 
 
     bool			isPicking() const;
     				/*!<\returns true if the selected object
