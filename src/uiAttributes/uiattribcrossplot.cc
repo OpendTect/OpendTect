@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiattribcrossplot.cc,v 1.24 2008-04-07 11:02:09 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.25 2008-04-08 12:14:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,6 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
-#include "uiposdataedit.h"
 #include "uiposfilterset.h"
 #include "uiposprovider.h"
 #include "uitaskrunner.h"
