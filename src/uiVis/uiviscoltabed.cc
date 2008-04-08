@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.28 2008-04-08 05:05:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.29 2008-04-08 06:33:09 cvsnanne Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -31,19 +31,11 @@ const char* uiVisColTabEd::sKeyClipRate()	{ return "Cliprate"; }
 const char* uiVisColTabEd::sKeyAutoScale()	{ return "Auto scale"; }
 const char* uiVisColTabEd::sKeySymmetry()	{ return "Symmetry"; }
 
-BufferString getDefColTabName()
-{
-    BufferString ctname = "Seismics";
-    mSettUse(get,sSetKey,"",ctname);
-    return ctname;
-}
-
-
 uiVisColTabEd::uiVisColTabEd( uiParent* p, bool vert )
     : uicoltab_(0)
     , viscoltab_(0)
-    , colseq_( *new ColTab::Sequence() )
-    , coltabcb( mCB(this,uiVisColTabEd,colTabChangedCB) )
+    , colseq_(*new ColTab::Sequence(""))
+    , coltabcb(mCB(this,uiVisColTabEd,colTabChangedCB))
     , sequenceChange(this)
     , coltabChange(this)
 {
