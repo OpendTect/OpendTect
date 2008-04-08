@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2007
- RCS:		$Id: zaxistransformdatapack.cc,v 1.6 2008-04-08 14:36:04 cvskris Exp $
+ RCS:		$Id: zaxistransformdatapack.cc,v 1.7 2008-04-08 21:18:23 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ ZAxisTransformDataPack::ZAxisTransformDataPack( const FlatDataPack& fdp,
     , array2dsl_(0)
     , outputcs_( 0 )
 {
+    DPM( DataPackMgr::FlatID ).obtain( fdp.id() );
     setName( fdp.name() );
     posdata_.setRange( true, fdp.posData().range(true) );
     posdata_.setRange( false, fdp.posData().range(false) );
@@ -44,6 +45,7 @@ ZAxisTransformDataPack::ZAxisTransformDataPack( const FlatDataPack& fdp,
 
 ZAxisTransformDataPack::~ZAxisTransformDataPack()
 {
+    DPM( DataPackMgr::FlatID ).release( inputdp_.id() );
     transform_.unRef();
     delete outputcs_;
 }
