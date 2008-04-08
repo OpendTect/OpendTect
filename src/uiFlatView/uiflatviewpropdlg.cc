@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.23 2008-04-08 11:27:41 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.24 2008-04-08 18:54:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -623,6 +623,12 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
     enableSaveButton( "Save as Default" );
 
     putAllToScreen();
+
+    if ( withwva && vwr_.packID(true)==DataPack::cNoID &&
+	 vwr_.packID(false)!=DataPack::cNoID )
+    {
+	showGroup( 1 );
+    }
 }
 
 
