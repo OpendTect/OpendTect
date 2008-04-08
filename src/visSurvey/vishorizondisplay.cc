@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.44 2008-03-28 10:18:13 cvshelene Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.45 2008-04-08 13:35:27 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -752,6 +752,9 @@ void HorizonDisplay::setTranslation( const Coord3& nt )
 	mDynamicCastGet(visBase::ParametricSurface*,ps,sections_[idx]);
 	if ( ps ) ps->inValidateCache(-1);
     }
+   
+    if ( getOnlyAtSectionsDisplay() )
+	setOnlyAtSectionsDisplay( true );		/* retrigger */
 }
 
 
@@ -1242,7 +1245,8 @@ static void drawHorizonOnTimeSlice( const CubeSampling& cs,
 	   		  hor->geometry().colRange(sid) );
     ictracer.selectRectROI( cs.hrg.inlRange(), cs.hrg.crlRange() );
     ObjectSet<ODPolygon<float> > isocontours;
-    ictracer.getContours( isocontours, cs.zrg.start, false );
+    const float zshift = hor->geometry().getShift() / SI().zFactor();
+    ictracer.getContours( isocontours, cs.zrg.start-zshift, false );
     
     for ( int cidx=0; cidx<isocontours.size(); cidx++ )
     {
@@ -1452,7 +1456,7 @@ void HorizonDisplay::updateIntersectionLines(
 	    }
 	    else
 	    {
-		drawHorizonOnTimeSlice( cs, horizon, sid, 
+		drawHorizonOnTimeSlice( cs, horizon, sid,  
 				        zaxistransform_, line, cii );
 	    }
 	}
@@ -1500,7 +1504,10 @@ void HorizonDisplay::updateSectionSeeds(
 	    if ( !marker ) continue;
 	
 	    marker->turnOn( !displayonlyatsections_ );
-	    Coord3 pos = marker->centerPos(true);
+	    Coord3 pos = marker->centerPos();
+	    if ( transformation_ )
+		pos = transformation_->transform( pos );
+
 	    for ( int idz=0; idz<planelist.size(); idz++ )
 	    {
 		const float dist = objs[planelist[idz]]->calcDist(pos);
