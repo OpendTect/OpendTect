@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.9 2008-04-08 09:23:43 cvsnanne Exp $
+ RCS:           $Id: uicolortable.cc,v 1.10 2008-04-08 12:34:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,9 +148,15 @@ void uiColorTable::setHistogram( const TypeSet<float>* hist )
 void uiColorTable::fillTabList()
 {
     selfld_->empty();
-    for ( int idx=0; idx<ColTab::SM().size(); idx++ )
+    BufferStringSet seqnames;
+    ColTab::SM().getSequenceNames( seqnames );
+    seqnames.sort();
+    for ( int idx=0; idx<seqnames.size(); idx++ )
     {
-	const ColTab::Sequence& seq = *ColTab::SM().get( idx );
+	const int seqidx = ColTab::SM().indexOf( seqnames.get(idx) );
+	if ( seqidx<0 ) continue;
+
+	const ColTab::Sequence& seq = *ColTab::SM().get( seqidx );
 	selfld_->addItem( seq.name() );
 	selfld_->setPixmap( ioPixmap(seq,16,10), idx );
     }
