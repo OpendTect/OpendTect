@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uicolortable.h,v 1.3 2008-04-08 05:05:07 cvssatyaki Exp $
+ RCS:           $Id: uicolortable.h,v 1.4 2008-04-08 05:54:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,6 @@ protected:
     float		symmidval_;
 
     ColTab::Sequence&	coltabseq_;
-    bool		vertical_;
     Interval<float> 	coltabrg_;
 
     TypeSet<float>	histogram_;

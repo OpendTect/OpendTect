@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.5 2008-04-08 05:05:08 cvssatyaki Exp $
+ RCS:           $Id: uicolortable.cc,v 1.6 2008-04-08 05:54:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,6 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uicoltabtools.h"
-#include "uicoltabtransp.h"
 #include "uidialog.h"
 #include "uilineedit.h"
 #include "uicombobox.h"
@@ -33,8 +32,7 @@ ________________________________________________________________________
 #include <math.h>
 
 #define mStdInitList \
-	  vertical_(false) \
-	, seqChanged(this) \
+	  seqChanged(this) \
 	, scaleChanged(this) 
 
 
@@ -54,7 +52,7 @@ uiColorTable::uiColorTable( uiParent* p, ColTab::Sequence& colseq, bool vert )
     minfld_->setHSzPol( uiObject::Small );
     minfld_->setStretch( 0, 0 );
 
-    canvas_ = new uiColorTableCanvas( this, coltabseq_, vertical_ );
+    canvas_ = new uiColorTableCanvas( this, coltabseq_, vert );
     canvas_->getMouseEventHandler().buttonPressed.notify(
 			mCB(this,uiColorTable,canvasClick) );
     canvas_->setDrawArr( true );
@@ -67,13 +65,13 @@ uiColorTable::uiColorTable( uiParent* p, ColTab::Sequence& colseq, bool vert )
 
     selfld_ = new uiComboBox( this, "Table selection" );
     selfld_->selectionChanged.notify( mCB(this,uiColorTable,tabSel) );
-    selfld_->setStretch( 0, vertical_ ? 1 : 0 );
+    selfld_->setStretch( 0, vert ? 1 : 0 );
 
-    if ( vertical_ )
+    if ( vert )
     {
-	canvas_->attach( rightAlignedBelow, maxfld_ );
+	canvas_->attach( rightAlignedBelow, minfld_ );
 	minfld_->attach( rightAlignedBelow, canvas_ );
-	selfld_->attach( centeredBelow, minfld_ );
+	selfld_->attach( centeredBelow, maxfld_ );
     }
     else
     {
@@ -95,12 +93,12 @@ uiColorTable::uiColorTable( uiParent* p, const char* ctnm, bool vert )
 	, selfld_(0)
 {
     ColTab::SM().get( ctnm, coltabseq_ );
-    canvas_ = new uiColorTableCanvas( this, coltabseq_, vertical_ );
+    canvas_ = new uiColorTableCanvas( this, coltabseq_, vert );
 
     selfld_ = new uiComboBox( this, "Table selection" );
-    selfld_->attach( vertical_ ? alignedBelow : rightOf, canvas_ );
+    selfld_->attach( vert ? alignedBelow : rightOf, canvas_ );
     selfld_->selectionChanged.notify( mCB(this,uiColorTable,tabSel) );
-    selfld_->setStretch( 0, vertical_ ? 1 : 0 );
+    selfld_->setStretch( 0, vert ? 1 : 0 );
     setHAlignObj(canvas_); setHCentreObj(canvas_);
     
     fillTabList();
