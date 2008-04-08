@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.28 2008-04-08 05:05:07 cvssatyaki Exp $
+ RCS:           $Id: pixmap.cc,v 1.29 2008-04-08 12:17:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,14 +13,10 @@ ________________________________________________________________________
 
 #include "arraynd.h"
 #include "arrayndimpl.h"
-#include "arrayrgb.h"
-#include "uirgbarray.h"
-#include "separstr.h"
-#include "coltab.h"
-#include "coltabsequence.h"
-#include "coltabindex.h"
 #include "bufstringset.h"
 #include "color.h"
+#include "coltabindex.h"
+#include "coltabsequence.h"
 #include "errh.h"
 #include "filegen.h"
 #include "filepath.h"
@@ -33,18 +29,11 @@ ________________________________________________________________________
 #include <QColor>
 #include <QImageWriter>
 
+
 ioPixmap::ioPixmap( const ioPixmap& pm )
     : qpixmap_(new QPixmap(*pm.qpixmap_))
     , srcname_(pm.srcname_)
 {
-}
-
-
-ioPixmap::ioPixmap( const ArrayRGB& rgbarr )
-    : qpixmap_(new QPixmap)
-    , srcname_("[ArrayRGB]")
-{
-    convertFromArrayRGB( rgbarr );
 }
 
 
@@ -120,16 +109,17 @@ ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int width, int height )
     }
 
     ColTab::IndexedLookUpTable table( ctabin, width );
-    ArrayRGB rgb( height, width );
-    for ( int idx1=0; idx1<rgb.info().getSize(1); idx1++ )
+    uiRGBArray rgbarr;
+    rgbarr.setSize( width, height );
+    for ( int idx1=0; idx1<rgbarr.getSize(true); idx1++ )
     {
 	const Color color = table.colorForIndex( idx1 );
-	for ( int idx2=0; idx2<rgb.info().getSize(0); idx2++ )
-	    rgb.set( idx2, idx1, color );
+	for ( int idx2=0; idx2<rgbarr.getSize(false); idx2++ )
+	    rgbarr.set( idx1, idx2, color );
     }
 
     qpixmap_ = new QPixmap;
-    convertFromArrayRGB( rgb );
+    convertFromRGBArray( rgbarr );
 }
 
 
@@ -141,20 +131,11 @@ ioPixmap::~ioPixmap()
 }
 
 
-void ioPixmap::convertFromArrayRGB( const ArrayRGB& rgbarr )
-{
-    releaseDrawTool();
-
-    if ( !qpixmap_ ) qpixmap_ = new QPixmap;
-    *qpixmap_ = QPixmap::fromImage( rgbarr.qImage(), Qt::OrderedAlphaDither );
-}    
-
-
 void ioPixmap::convertFromRGBArray( const uiRGBArray& rgbarr )
 {
     releaseDrawTool();
 
-    if( !qpixmap_ ) qpixmap_ = new QPixmap;
+    if ( !qpixmap_ ) qpixmap_ = new QPixmap;
     *qpixmap_ = QPixmap::fromImage( rgbarr.qImage(), Qt::OrderedAlphaDither );
 }    
 
