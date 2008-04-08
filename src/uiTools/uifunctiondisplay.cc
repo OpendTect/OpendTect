@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uifunctiondisplay.cc,v 1.8 2008-04-04 07:48:29 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.cc,v 1.9 2008-04-08 04:30:01 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -177,7 +177,8 @@ void uiFunctionDisplay::reDrawHandler( uiRect )
     yax_->newDevSize();
     if ( havey2 ) y2ax_->newDevSize();
 
-    xax_->plotAxis();
+    if ( setup_.annotx_ )
+	xax_->plotAxis();
     if ( setup_.annoty_ )
     {
 	yax_->plotAxis();
@@ -213,9 +214,18 @@ void uiFunctionDisplay::reDrawHandler( uiRect )
 	{
 	    const int xpix = xax_->getPix( y2xvals_[idx] );
 	    if ( xpixintv.includes(xpix) )
-		yptlist += uiPoint( xpix, y2ax_->getPix(y2yvals_[idx]) );
+		y2ptlist += uiPoint( xpix, y2ax_->getPix(y2yvals_[idx]) );
 	}
     }
+
+    if ( havey2 )
+	dt.setPenColor( setup_.y2col_ );
+    dt.setFillColor( havey2 && setup_.fillbelowy2_ ? setup_.y2col_ 
+	    					   : Color::NoColor );
+    if ( setup_.fillbelowy2_ )
+	dt.drawPolygon( y2ptlist );
+    else
+	dt.drawPolyline( y2ptlist );
 
     dt.setPenColor( setup_.ycol_ );
     dt.setFillColor( setup_.fillbelow_ ? setup_.ycol_ : Color::NoColor );
@@ -225,12 +235,6 @@ void uiFunctionDisplay::reDrawHandler( uiRect )
 	dt.drawPolyline( yptlist );
 
     dt.setFillColor( Color::NoColor );
-    if ( havey2 )
-    {
-	dt.setPenColor( setup_.y2col_ );
-	dt.drawPolygon( y2ptlist );
-    }
-
     if ( setup_.pointsz_ > 0 )
     {
 	const MarkerStyle2D mst( MarkerStyle2D::Square, setup_.pointsz_,
@@ -325,13 +329,18 @@ void uiFunctionDisplay::mouseMove( CallBacker* )
     mGetMousePos();
     if ( !isnorm || selpt_ < 0 ) return;
 
-    float xval = xax_->getVal(ev.pos().x);
+    float xval = xax_->getVal( ev.pos().x );
     if ( selpt_ > 0 && xvals_[selpt_-1] >= xval )
 	return;
     if ( selpt_ < xvals_.size() - 1 && xvals_[selpt_+1] <= xval )
 	return;
 
-    const float yval = yax_->getVal(ev.pos().y);
+    float yval = yax_->getVal( ev.pos().y );
+    if ( yval > yax_->range().stop )
+	yval = yax_->range().stop;
+    else if ( yval < yax_->range().start )
+	yval = yax_->range().start;
+
     xvals_[selpt_] = xval; yvals_[selpt_] = yval;
 
     pointChanged.trigger();

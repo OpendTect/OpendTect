@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.5 2008-04-04 07:48:29 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.6 2008-04-08 04:30:00 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,10 +43,12 @@ public:
 				    , canvaswidth_(400)
 				    , canvasheight_(250)
 				    , border_(20,10,20,10)
+				    , annotx_(true)
 				    , annoty_(true)
 				    , pointsz_(0)
 				    , editable_(false)
-				    , fillbelow_(false)		{}
+				    , fillbelow_(false)
+				    , fillbelowy2_(false)	{}
 
 	mDefSetupMemb(Interval<float>,xrg)	//!< if fixed start or end
 	mDefSetupMemb(Interval<float>,yrg)	//!< if fixed start or end
@@ -59,10 +61,12 @@ public:
 	mDefSetupMemb(int,canvaswidth)
 	mDefSetupMemb(int,canvasheight)
 	mDefSetupMemb(uiBorder,border)
+	mDefSetupMemb(bool,annotx)
 	mDefSetupMemb(bool,annoty)
 	mDefSetupMemb(int,pointsz)		//!< If > 0, points are drawn
 	mDefSetupMemb(bool,editable)		//!< Add/remove/change Y1 pts
-	mDefSetupMemb(bool,fillbelow)		//!< only Y1 will get fill
+	mDefSetupMemb(bool,fillbelow)		//!< Y1 will get fill
+	mDefSetupMemb(bool,fillbelowy2)		//!< Y2 will get fill
     };
 
 				uiFunctionDisplay(uiParent*,const Setup&);
