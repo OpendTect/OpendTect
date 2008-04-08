@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: uihorattribpi.cc,v 1.5 2008-04-08 11:15:20 cvsnageswara Exp $
+ RCS:		$Id: uihorattribpi.cc,v 1.6 2008-04-08 11:36:09 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,18 +34,27 @@ extern "C" PluginInfo* GetuiHorizonAttribPluginInfo()
 }
 
 
-class uiSAMgr :  public CallBacker
+class uiStratAmpMgr :  public CallBacker
 {
 public:
-			uiSAMgr(uiODMain*);
+			uiStratAmpMgr(uiODMain*);
 
     uiODMain*		appl_;
+    void		updatemenu(CallBacker*);
     void		makeStratAmp(CallBacker*);
 };
 
 
-uiSAMgr::uiSAMgr( uiODMain* a )
+uiStratAmpMgr::uiStratAmpMgr( uiODMain* a )
 	: appl_(a)
+{
+    uiODMenuMgr& mnumgr = appl_->menuMgr();
+    mnumgr.dTectMnuChanged.notify(mCB(this,uiStratAmpMgr,updatemenu));
+    updatemenu(0);
+}
+
+
+void uiStratAmpMgr::updatemenu( CallBacker* )
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
     MenuItemSeparString horprocstr( "Create output using &Horizon" );
@@ -56,11 +65,11 @@ uiSAMgr::uiSAMgr( uiODMain* a )
     if ( !horpocitm ) return;
 
     horpocitm->menu().insertItem( new uiMenuItem("&Stratal Amplitude...",
-	       			  mCB(this,uiSAMgr,makeStratAmp)) );
+	       			  mCB(this,uiStratAmpMgr,makeStratAmp)) );
 }
 
 
-void uiSAMgr::makeStratAmp( CallBacker* )
+void uiStratAmpMgr::makeStratAmp( CallBacker* )
 {
     uiCalcStratAmp dlg( appl_ );
     dlg.go();
@@ -70,8 +79,8 @@ void uiSAMgr::makeStratAmp( CallBacker* )
 extern "C" const char* InituiHorizonAttribPlugin( int, char** )
 {
     uiHorizonAttrib::initClass();
-    static uiSAMgr* mgr = 0; if ( mgr ) return 0;
-    mgr = new uiSAMgr( ODMainWin() );
+    static uiStratAmpMgr* mgr = 0; if ( mgr ) return 0;
+    mgr = new uiStratAmpMgr( ODMainWin() );
 
     return 0;
 }
