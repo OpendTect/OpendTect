@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiattribcrossplot.cc,v 1.25 2008-04-08 12:14:09 cvsnanne Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.26 2008-04-09 14:03:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -138,11 +138,13 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     MouseCursorManager::setOverride( MouseCursor::Wait );
     IOPar iop; posfiltfld_->fillPar( iop );
     Pos::Filter* filt = Pos::Filter::make( iop, prov->is2D() );
+    MouseCursorManager::restoreOverride();
     if ( filt && !filt->initialize(&tr) )
 	return false;
 
-    MouseCursorManager::restoreOverride();
+    MouseCursorManager::setOverride( MouseCursor::Wait );
     dps = new DataPointSet( *prov, dcds, filt );
+    MouseCursorManager::restoreOverride();
     if ( dps->size() < 1 )
 	mErrRet("No positions selected")
 
@@ -160,7 +162,9 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 
     BufferString errmsg;
     Attrib::EngineMan aem;
+    MouseCursorManager::setOverride( MouseCursor::Wait );
     PtrMan<Executor> tabextr = aem.getTableExtractor( *dps, ads_, errmsg );
+    MouseCursorManager::restoreOverride();
     if ( !errmsg.isEmpty() ) mErrRet(errmsg)
 	    
     if ( !tr.execute(*tabextr) )

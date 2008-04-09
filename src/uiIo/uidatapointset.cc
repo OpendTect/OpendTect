@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.8 2008-04-09 12:17:06 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.9 2008-04-09 14:03:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "oddirs.h"
 #include "unitofmeasure.h"
+#include "mousecursor.h"
 
 #include "uitable.h"
 #include "uilabel.h"
@@ -76,6 +77,8 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     	, unsavedchgs_(false)
     	, fillingtable_(true)
     	, valueChanged(this)
+	, xplotwin_(0)
+	, statswin_(0)
 {
     mDPM.obtain( dps_.id() );
     setCtrlStyle( LeaveOnly );
@@ -93,6 +96,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 			  .manualresize( true ) );
     tbl_->attach( ensureBelow, titllbl );
     tbl_->valueChanged.notify( mCB(this,uiDataPointSet,valChg) );
+    tbl_->rowClicked.notify( mCB(this,uiDataPointSet,rowSel) );
 
     setPrefWidth( 800 ); setPrefHeight( 600 );
     eachrow_ = -1; // force refill
@@ -101,20 +105,26 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 }
 
 
+#define mCleanRunCalcs \
+    deepErase( runcalcs_ ); \
+    const int nrcols = dps_.nrCols() + cNrPosCols; \
+    for ( int idx=0; idx<nrcols; idx++ ) \
+	runcalcs_ += 0
+
 int uiDataPointSet::initVars()
 {
     sortcol_ = statscol_ = xcol_ = ycol_ = y2col_ = -1;
-    xplotwin_ = 0; statswin_ = 0;
+    delete xplotwin_; xplotwin_ = 0;
+    delete statswin_; statswin_ = 0;
 
-    deepErase( runcalcs_ );
-    const int nrcols = dps_.nrCols() + cNrPosCols;
-    for ( int idx=0; idx<nrcols; idx++ )
-	runcalcs_ += 0;
+    mCleanRunCalcs;
 
     eachrow_ = dps_.size() / setup_.initialmaxnrlines_;
     if ( eachrow_ < 1 ) eachrow_ = 1;
 
     calcIdxs();
+    if ( tbl_ )
+	disptb_->setSensitive( xplottbid_, true );
     return nrcols;
 }
 
@@ -391,29 +401,7 @@ void uiDataPointSet::colStepR( CallBacker* )
 void uiDataPointSet::rowSel( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,trid,cb);
-    selrows_ += trid;
-    handleSelRows();
     setStatsMarker( dRowID(trid) );
-}
-
-
-void uiDataPointSet::handleSelRows()
-{
-    bool havechgs = false;
-    for ( int idx=0; idx<selrows_.size(); idx++ )
-    {
-	const TRowID trid = selrows_[idx];
-	const DRowID drid = dRowID( trid );
-	const bool dpssel = dps_.isSelected( drid );
-	const bool tblsel = tbl_->isRowSelected( trid );
-	if ( dpssel != tblsel )
-	{
-	    havechgs = true;
-	    dps_.setSelected( drid, tblsel );
-	}
-    }
-    if ( havechgs && xplotwin_ )
-	xplotwin_->plotter().update();
 }
 
 
@@ -554,15 +542,18 @@ const char* uiDataPointSet::userName( uiDataPointSet::DColID did ) const
 }
 
 
+#define mGetRCIdx(dcid) \
+    int rcidx = dcid; \
+    if ( rcidx < 0 ) rcidx = dps_.nrCols() - 1 - dcid
+
+
 Stats::RunCalc<float>& uiDataPointSet::getRunCalc(
 				uiDataPointSet::DColID dcid ) const
 {
     static Stats::RunCalc<float> empty( Stats::RunCalcSetup(false) );
     if ( dcid < -cNrPosCols ) return empty;
 
-    int rcidx = dcid;
-    if ( rcidx < 0 )
-	rcidx = dps_.nrCols() - 1 - dcid;
+    mGetRCIdx(dcid);
     Stats::RunCalc<float>* rc = runcalcs_[rcidx];
     if ( !rc )
     {
@@ -571,7 +562,10 @@ Stats::RunCalc<float>& uiDataPointSet::getRunCalc(
 	su.mReq(Count).mReq(Average).mReq(Median).mReq(StdDev);
 	rc = new Stats::RunCalc<float>( su.mReq(Min).mReq(Max).mReq(RMS) );
 	for ( DRowID drid=0; drid<dps_.size(); drid++ )
-	    rc->addValue( getVal( dcid, drid, true ) );
+	{
+	    if ( !dps_.isInactive(drid) )
+		rc->addValue( getVal( dcid, drid, true ) );
+	}
 	runcalcs_.replace( rcidx, rc );
     }
 
@@ -687,12 +681,15 @@ void uiDataPointSet::valChg( CallBacker* )
     if ( poschgd )
 	dps_.bivSet().remove( dps_.bvsPos(drid) );
 
-    if ( dps_.setRow(afterchgdr_) )
+    bool setchg = dps_.setRow( afterchgdr_ ) || cell.c() == sortcol_;
+    if ( setchg )
     {
-	dps_.dataChanged();
-	redoAll(); setCurrent( afterchgdr_.pos_, dcid );
+	dps_.dataChanged(); redoAll();
+	setCurrent( afterchgdr_.pos_, dcid );
     }
 
+    mGetRCIdx(dcid);
+    delete runcalcs_.replace( rcidx, 0 );
     unsavedchgs_ = true;
     valueChanged.trigger();
 }
@@ -772,9 +769,11 @@ void uiDataPointSet::retrieve( CallBacker* )
     uiIOObjSelDlg seldlg( this, ctio );
     if ( !seldlg.go() || !seldlg.ioObj() ) return;
 
+    MouseCursorManager::setOverride( MouseCursor::Wait );
     PosVecDataSet pvds;
     BufferString errmsg;
     bool rv = pvds.getFrom(seldlg.ioObj()->fullUserExpr(true),errmsg);
+    MouseCursorManager::restoreOverride();
     if ( !rv )
 	{ uiMSG().error( errmsg ); return; }
     if ( pvds.data().isEmpty() )
@@ -784,12 +783,9 @@ void uiDataPointSet::retrieve( CallBacker* )
     if ( newdps->isEmpty() )
 	{ delete newdps; uiMSG().error("Data set is not suitable"); return; }
 
-    rejectOK( 0 );
-
-    TypeSet<int> cols;
-    for ( int idx=0; idx<tbl_->nrCols(); idx++ )
-	cols += idx;
-    tbl_->removeColumns( cols );
+    MouseCursorManager::setOverride( MouseCursor::Wait );
+    tbl_->clearTable();
+    dps_ = *newdps;
 
     const int nrcols = initVars();
     tbl_->setNrRows( size() );
@@ -797,6 +793,7 @@ void uiDataPointSet::retrieve( CallBacker* )
     eachfld_->setValue( eachrow_ );
 
     redoAll();
+    MouseCursorManager::restoreOverride();
 }
 
 
@@ -878,13 +875,20 @@ bool uiDataPointSet::doSave()
     uiDataPointSetSave uidpss( this );
     if ( !uidpss.go() ) return false;
 
-    dps_.dataSet().pars() = storepars_;
+    MouseCursorManager::setOverride( MouseCursor::Wait );
+    DataPointSet savedps( dps_ );
+    savedps.dataSet().pars() = storepars_;
+    savedps.purgeInactive();
     BufferString errmsg;
-    if ( !dps_.dataSet().putTo(uidpss.fname_,errmsg,uidpss.istab_) )
-	{ uiMSG().error( errmsg ); return false; }
+    const bool ret = savedps.dataSet().
+			putTo( uidpss.fname_, errmsg, uidpss.istab_ );
+    MouseCursorManager::restoreOverride();
+    if ( !ret )
+	uiMSG().error( errmsg );
+    else
+	unsavedchgs_ = false;
 
-    unsavedchgs_ = false;
-    return true;
+    return ret;
 }
 
 
@@ -899,11 +903,16 @@ void uiDataPointSet::delSelRows( CallBacker* )
 	    dps_.setInactive( dRowID(irow), true );
 	}
     }
-    if ( nrrem > 0 )
-	{ redoAll(); return; }
+    if ( nrrem < 1 )
+    {
+	uiMSG().message( "Please select the row(s) you want to remove."
+			 "\nby clicking on the row label(s)."
+			 "\nYou can select multiple rows by dragging,"
+			 "\nor by holding down the shift key when clicking." );
+	return;
+    }
 
-    uiMSG().message( "Please select the row(s) you want to remove."
-		     "\nby clicking on the row label(s)."
-		     "\nYou can select multiple rows by dragging,"
-		     "\nor by holding down the shift key when clicking." );
+    mCleanRunCalcs;
+    unsavedchgs_ = true;
+    redoAll();
 }
