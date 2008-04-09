@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.18 2007-11-15 13:53:47 cvshelene Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.19 2008-04-09 11:07:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -236,7 +236,7 @@ void uiStratRefTree::removeUnit( uiListViewItem* lvit )
 
 ioPixmap* uiStratRefTree::createLevelPixmap( const UnitRef* ref ) const
 {
-    uiRGBArray rgbarr;
+    uiRGBArray rgbarr( false );
     rgbarr.setSize( PMWIDTH, PMHEIGHT );
     rgbarr.clear( Color::White );
     for ( int idw=0; idw<PMWIDTH; idw++ )

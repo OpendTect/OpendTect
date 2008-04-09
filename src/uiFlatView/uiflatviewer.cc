@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.44 2008-04-08 20:12:34 cvskris Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.45 2008-04-09 11:08:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ float uiFlatViewer::bufextendratio_ = 0.4; // 0.5 = 50% means 3 times more area
 
 uiFlatViewer::uiFlatViewer( uiParent* p )
     : uiGroup(p,"Flat viewer")
-    , canvas_(*new uiRGBArrayCanvas(this,*new uiRGBArray))
+    , canvas_(*new uiRGBArrayCanvas(this,*new uiRGBArray(false)))
     , axesdrawer_(*new FlatView::AxesDrawer(*this,canvas_))
     , dim0extfac_(0.5)
     , wvabmpmgr_(0)

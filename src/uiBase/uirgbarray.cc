@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril & H. Huck
  Date:          08/09/2006
- RCS:           $Id: uirgbarray.cc,v 1.7 2008-01-31 07:49:10 cvsnanne Exp $
+ RCS:           $Id: uirgbarray.cc,v 1.8 2008-04-09 11:07:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,16 +15,19 @@ ________________________________________________________________________
 #include <QColor>
 
 
-uiRGBArray::uiRGBArray()
-        : qimg_(new QImage)
+uiRGBArray::uiRGBArray( bool walpha )
+    : qimg_(new QImage)
+    , withalpha_(walpha)
 {
 }
+
 
 uiRGBArray::uiRGBArray( const uiRGBArray& rgbarr )
 {
     qimg_ = new QImage( rgbarr.qImage() );
     qimg_->detach();
 }
+
 
 uiRGBArray::~uiRGBArray() 
 { 
@@ -38,7 +41,8 @@ void uiRGBArray::setSize( int d0, int d1 )
 	return;
 
     delete qimg_;
-    qimg_ = new QImage( d0, d1, QImage::Format_RGB32 );
+    qimg_ = new QImage( d0, d1, withalpha_ ? QImage::Format_ARGB32 
+	    				   : QImage::Format_RGB32 );
 }
 
 
@@ -56,8 +60,14 @@ void uiRGBArray::set( int i0, int i1, const Color& c )
 {
     if ( qimg_->width()<=i0 || qimg_->height()<=i1 )
 	return;
-    
-    qimg_->setPixel( i0, i1, (QRgb)c.rgb() );
+
+    if ( withalpha_ )
+    {
+	const Color newcol( c.r(), c.g(), c.b(), 255-c.t() );
+	qimg_->setPixel( i0, i1, (QRgb)newcol.rgb() );
+    }
+    else
+	qimg_->setPixel( i0, i1, (QRgb)c.rgb() );
 }
 
 

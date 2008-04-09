@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: pixmap.cc,v 1.29 2008-04-08 12:17:16 cvsnanne Exp $
+ RCS:           $Id: pixmap.cc,v 1.30 2008-04-09 11:07:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,7 +109,7 @@ ioPixmap::ioPixmap( const ColTab::Sequence& ctabin, int width, int height )
     }
 
     ColTab::IndexedLookUpTable table( ctabin, width );
-    uiRGBArray rgbarr;
+    uiRGBArray rgbarr( false );
     rgbarr.setSize( width, height );
     for ( int idx1=0; idx1<rgbarr.getSize(true); idx1++ )
     {

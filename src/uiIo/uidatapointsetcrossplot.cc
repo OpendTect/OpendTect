@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.2 2008-04-08 16:18:01 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.3 2008-04-09 11:07:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,7 @@ void uiDataPointSetCrossPlotter::AxisData::handleAutoScale()
 uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
 			    uiDataPointSet& uidps,
 			    const uiDataPointSetCrossPlotter::Setup& su )
-    : uiRGBArrayCanvas(p,*new uiRGBArray)
+    : uiRGBArrayCanvas(p,*new uiRGBArray(false))
     , dps_(uidps.pointSet())
     , uidps_(uidps)
     , setup_(su)
