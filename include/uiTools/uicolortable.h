@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uicolortable.h,v 1.6 2008-04-08 09:23:43 cvsnanne Exp $
+ RCS:           $Id: uicolortable.h,v 1.7 2008-04-09 12:42:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ public:
     ColTab::Sequence&		colTabSeq()    		{ return coltabseq_;}
 
     void		setTable(const char*,bool emitnotif=true);
-    void		setTable(ColTab::Sequence&,bool emitnotif=true);
+    void		setTable(const ColTab::Sequence&,bool emitnotif=true);
     void		setHistogram(const TypeSet<float>*);
     void		setInterval(const Interval<float>&);
     Interval<float>	getInterval()			{ return coltabrg_; }

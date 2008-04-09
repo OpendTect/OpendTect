@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.12 2008-04-09 12:28:08 cvsnanne Exp $
+ RCS:           $Id: uicolortable.cc,v 1.13 2008-04-09 12:42:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -129,7 +129,7 @@ void uiColorTable::setTable( const char* tblnm, bool emitnotif )
 }
 
 
-void uiColorTable::setTable( ColTab::Sequence& ctseq, bool emitnotif )
+void uiColorTable::setTable( const ColTab::Sequence& ctseq, bool emitnotif )
 {
     coltabseq_ = ctseq;
     selfld_->setCurrentItem( coltabseq_.name() );
@@ -170,7 +170,6 @@ void uiColorTable::tabSel( CallBacker* )
     const int cbidx = selfld_->currentItem();
     const char* seqnm = selfld_->textOfItem( cbidx );
     setTable( seqnm );
-    canvas_->forceNewFill();
     seqChanged.trigger();
 }
 
@@ -313,7 +312,7 @@ void uiColorTable::doEdit( CallBacker* )
 void uiColorTable::colTabManChgd( CallBacker* cb )
 {
     mDynamicCastGet(uiColorTableMan*,ctman,cb);
-    coltabseq_ = ctman->currentColTab();
+    setTable( ctman->currentColTab(), true );
     seqChanged.trigger();
 }
 
