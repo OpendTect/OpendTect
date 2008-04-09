@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolve2d.h,v 1.5 2008-04-08 14:37:25 cvskris Exp $
+ RCS:           $Id: convolve2d.h,v 1.6 2008-04-09 21:04:22 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -35,6 +35,8 @@ public:
     void		setCorrelate( bool yn )		{ correlate_ = yn; }
     			/*!<If true, the convolution will be replaced by a
 			   correllation. */
+    void		setHasUdfs(bool yn)		{ hasudfs_ = yn; }
+    			//!<Default is false
 
 protected:
     inline bool		doWork( int, int, int );
@@ -48,6 +50,7 @@ protected:
     Array2D<T>*		z_;
     bool		normalize_;
     bool		correlate_;
+    bool		hasudfs_;
 };
 
 
@@ -62,6 +65,7 @@ Convolver2D<T>::Convolver2D()
     , z_( 0 )
     , normalize_( false )
     , correlate_( false )
+    , hasudfs_( false )
 {}
 
 

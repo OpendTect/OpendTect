@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          Feb 2008
- RCS:           $Id: convolve3d.h,v 1.4 2008-02-26 22:44:38 cvskris Exp $
+ RCS:           $Id: convolve3d.h,v 1.5 2008-04-09 21:04:22 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -37,6 +37,8 @@ public:
     void		setCorrelate( bool yn )		{ correlate_ = yn; }
     			/*!<If true, the convolution will be replaced by a
 			   correllation. */
+    void		setHasUdfs(bool yn)		{ hasudfs_ = yn; }
+    			//!<Default is false
 
     inline bool		execute();
 
@@ -58,6 +60,8 @@ protected:
     Array3D<T>*		z_;
     bool		normalize_;
     bool		correlate_;
+
+    bool		hasudfs_;
 };
 
 
@@ -74,6 +78,7 @@ Convolver3D<T>::Convolver3D()
     , z_( 0 )
     , normalize_( false )
     , correlate_( false )
+    , hasudfs_( false )
 {}
 
 
