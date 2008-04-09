@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.6 2008-04-09 07:05:35 cvsbert Exp $
+ RCS:           $Id: uidatapointset.h,v 1.7 2008-04-09 12:17:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,6 +108,7 @@ protected:
     DataPointSet::DataRow	afterchgdr_;
     bool			unsavedchgs_;
     bool			fillingtable_;
+    TypeSet<TRowID>		selrows_;
 
     uiTable*			tbl_;
     uiToolBar*			iotb_;
@@ -168,6 +169,8 @@ protected:
     void			showStats(DColID);
 
     bool			isDisp(bool) const;
+    void			handleSelRows();
+    void			setStatsMarker(DRowID);
 
 private:
 

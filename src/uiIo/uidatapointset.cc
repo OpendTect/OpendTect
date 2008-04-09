@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.7 2008-04-09 10:56:38 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.8 2008-04-09 12:17:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,6 +140,7 @@ void uiDataPointSet::mkToolBars()
     mAddButton( "axis-x.png", selXCol, "Set data for X" );
     mAddButton( "axis-add-y.png", selYCol, "Select as Y data" );
     mAddButton( "axis-rm-y.png", unSelCol, "UnSelect as Y data" );
+    mAddButton( "delselrows.png", delSelRows, "Remove selected columns" );
     mAddButton( "axis-prev.png", colStepL, "Set Y one column left" );
     mAddButton( "axis-next.png", colStepR, "Set Y one column right" );
     mAddButton( "sortcol.png", setSortCol, "Set sorted column to current" );
@@ -387,8 +388,32 @@ void uiDataPointSet::colStepR( CallBacker* )
 }
 
 
-void uiDataPointSet::rowSel( CallBacker* )
+void uiDataPointSet::rowSel( CallBacker* cb )
 {
+    mCBCapsuleUnpack(int,trid,cb);
+    selrows_ += trid;
+    handleSelRows();
+    setStatsMarker( dRowID(trid) );
+}
+
+
+void uiDataPointSet::handleSelRows()
+{
+    bool havechgs = false;
+    for ( int idx=0; idx<selrows_.size(); idx++ )
+    {
+	const TRowID trid = selrows_[idx];
+	const DRowID drid = dRowID( trid );
+	const bool dpssel = dps_.isSelected( drid );
+	const bool tblsel = tbl_->isRowSelected( trid );
+	if ( dpssel != tblsel )
+	{
+	    havechgs = true;
+	    dps_.setSelected( drid, tblsel );
+	}
+    }
+    if ( havechgs && xplotwin_ )
+	xplotwin_->plotter().update();
 }
 
 
@@ -461,11 +486,16 @@ void uiDataPointSet::xplotSelChg( CallBacker* )
     if ( drid < 0 || dcid < -cNrPosCols ) return;
 
     setCurrent( dcid, drid );
-    if ( statswin_ && statscol_ >= 0 )
-    {
-	const float val = getVal( dColID(statscol_), drid, false );
-	statswin_->setMarkValue( val, true );
-    }
+    setStatsMarker( drid );
+}
+
+
+void uiDataPointSet::setStatsMarker( uiDataPointSet::DRowID drid )
+{
+    if ( !statswin_ || statscol_ < 0 ) return;
+
+    const float val = getVal( dColID(statscol_), drid, false );
+    statswin_->setMarkValue( val, true );
 }
 
 
@@ -860,4 +890,20 @@ bool uiDataPointSet::doSave()
 
 void uiDataPointSet::delSelRows( CallBacker* )
 {
+    int nrrem = 0;
+    for ( int irow=0; irow<tbl_->nrRows(); irow++ )
+    {
+	if ( tbl_->isRowSelected(irow) )
+	{
+	    nrrem++;
+	    dps_.setInactive( dRowID(irow), true );
+	}
+    }
+    if ( nrrem > 0 )
+	{ redoAll(); return; }
+
+    uiMSG().message( "Please select the row(s) you want to remove."
+		     "\nby clicking on the row label(s)."
+		     "\nYou can select multiple rows by dragging,"
+		     "\nor by holding down the shift key when clicking." );
 }

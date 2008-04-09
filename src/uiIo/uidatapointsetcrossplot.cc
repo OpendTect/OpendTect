@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.3 2008-04-09 11:07:02 cvsnanne Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.4 2008-04-09 12:17:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -331,9 +331,14 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     showy2tbid_ = disptb_.addButton( "showy2.png",
 	    	  mCB(this,uiDataPointSetCrossPlotWin,showY2),
 		  "Toggle show Y2", true );
+    disptb_.turnOn( showy2tbid_, plotter_.doy2_ );
+
+    /*
     showbdtbid_ = disptb_.addButton( "showbackdrop.png",
 	    	  mCB(this,uiDataPointSetCrossPlotWin,showBD),
 		      "Toggle data density backdrop", true );
+    disptb_.turnOn( showbdtbid_, plotter_.dobd_ );
+    */
 
     const int nrpts = uidps.pointSet().size();
     const int eachrow = 1 + nrpts / cMaxPtsForDisplay;
@@ -347,12 +352,10 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     disptb_.addObject( grp->attachObj() );
     plotter_.eachrow_ = eachrow;
 
+/*
     disptb_.addButton( "zoombackward.png",
 			mCB(this,uiDataPointSetCrossPlotWin,unZoom),
 			"Unzoom", false );
-
-    disptb_.turnOn( showy2tbid_, plotter_.doy2_ );
-    disptb_.turnOn( showbdtbid_, plotter_.dobd_ );
 
     selzoomtbid_ = maniptb_.addButton( "selzoom.png",
 	    	  mCB(this,uiDataPointSetCrossPlotWin,selZoom),
@@ -361,6 +364,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     maniptb_.addButton( "delsel.png",
 			mCB(this,uiDataPointSetCrossPlotWin,delSel),
 			"Delete selected", false );
+*/
 
     setPrefWidth( 600 );
     setPrefWidth( 500 );
