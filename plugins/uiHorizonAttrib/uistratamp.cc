@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID = "$Id: uistratamp.cc,v 1.1 2008-04-08 11:15:20 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uistratamp.cc,v 1.2 2008-04-09 04:14:52 cvsraman Exp $";
 
 #include "uistratamp.h"
 #include "stratamp.h"
@@ -58,8 +58,10 @@ uiCalcStratAmp::uiCalcStratAmp( uiParent* p )
     lbltxt += SI().getZUnit(); lbltxt += " Top";
     tophorshiftfld_ = new uiGenInput( this, lbltxt, FloatInpSpec(0) );
     tophorshiftfld_->attach( alignedBelow, horfld2_ );
+    tophorshiftfld_->setElemSzPol( uiObject::Small );
     bothorshiftfld_ = new uiGenInput( this, "Bottom", FloatInpSpec(0) );
     bothorshiftfld_->attach( rightTo, tophorshiftfld_ );
+    bothorshiftfld_->setElemSzPol( uiObject::Small );
 
     rangefld_= new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
     rangefld_->attach( alignedBelow, tophorshiftfld_ );
