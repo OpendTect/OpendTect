@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.cc,v 1.2 2008-04-09 11:11:37 cvsnanne Exp $
+ RCS:           $Id: uicoltabman.cc,v 1.3 2008-04-09 12:28:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,8 +45,8 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
     , ctab_(ctab)
     , orgctab_(0)
     , issaved_(true)
-    , changed(this)
-    , tableAdded(this)
+    , tableChanged(this)
+    , tableAddRem(this)
 {
     setShrinkAllowed( false );
 
@@ -65,9 +65,11 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
 
     const uiBorder uiborder( 0, 10, 0, 0 );
     uiFunctionDisplay::Setup su;
-    su.annotx(false).annoty(false).border(uiborder).yrg(Interval<float>(0,255))
-      .canvaswidth(mTransWidth).canvasheight(mTransHeight).fillbelowy2(true)
-      .ycol(Color(255,0,0)).y2col(Color(190,190,190)).editable(true).pointsz(2);
+    su.annotx(false).annoty(false).border(uiborder)
+      .xrg(Interval<float>(0,1)).yrg(Interval<float>(0,255))
+      .canvaswidth(mTransWidth).canvasheight(mTransHeight)
+      .ycol(Color(255,0,0)).y2col(Color(190,190,190))
+      .fillbelowy2(true).editable(true).pointsz(2);
     cttranscanvas_ = new uiFunctionDisplay( colgrp, su );
     cttranscanvas_->setStretch( 0, 0 );
     cttranscanvas_->pointChanged.notify( mCB(this,uiColorTableMan,transptChg) );
@@ -151,37 +153,26 @@ void uiColorTableMan::doFinalise( CallBacker* )
 
 void uiColorTableMan::refreshColTabList( const char* selctnm )
 {
-    ColTab::SM().getSequenceNames( allctnms_ );
-    sysctnms_.erase();
-    usrctnms_.erase();
-    editedctnms_.erase();
-    for ( int idx=0; idx<ColTab::SM().size(); idx++ )
-    {
-	switch ( ColTab::SM().get(idx)->type() )
-	{
-	    case ColTab::Sequence::System :
-	        sysctnms_.add( ColTab::SM().get(idx)->name()); break;
-	    case ColTab::Sequence::User :
-	        usrctnms_.add( ColTab::SM().get(idx)->name()); break;
-	    case ColTab::Sequence::Edited :
-	        editedctnms_.add( ColTab::SM().get(idx)->name()); break;
-	}
-    }
-
-    allctnms_.sort();
+    BufferStringSet allctnms;
+    ColTab::SM().getSequenceNames( allctnms );
+    allctnms.sort();
     coltablistfld_->clear();
-    for ( int idx=allctnms_.size()-1; idx>=0; idx-- )
+    for ( int idx=allctnms.size()-1; idx>=0; idx-- )
     {
-	const char* ctnm = allctnms_.get( idx );
-	const int sysidx = sysctnms_.indexOf( ctnm );
-	const int usridx = usrctnms_.indexOf( ctnm );
-	const int editedidx = editedctnms_.indexOf( ctnm );
-	BufferString status = sKeyOwn;
-	if ( editedidx>=0 )		status = sKeyEdited;
-	else if ( sysidx>=0 )		status = sKeyDefault;
+	const int seqidx = ColTab::SM().indexOf( allctnms.get(idx) );
+	if ( seqidx<0 ) continue;
+	const ColTab::Sequence* seq = ColTab::SM().get( seqidx );
+
+	BufferString status;
+        if ( seq->type() == ColTab::Sequence::System )
+	    status = sKeyDefault;
+	else if ( seq->type() == ColTab::Sequence::Edited )
+	    status = sKeyEdited;
+	else
+	    status = sKeyOwn;
 
 	uiListViewItem* itm = new uiListViewItem( coltablistfld_,
-			uiListViewItem::Setup().label(ctnm).label(status) );
+		uiListViewItem::Setup().label(seq->name()).label(status) );
     }
 
     uiListViewItem* itm = coltablistfld_->findItem( selctnm, 0 );
@@ -190,7 +181,6 @@ void uiColorTableMan::refreshColTabList( const char* selctnm )
     coltablistfld_->setCurrentItem( itm );
     coltablistfld_->setSelected( itm, true );
     coltablistfld_->ensureItemVisible( itm );
-    tableAdded.trigger();
 }
 
 
@@ -201,6 +191,7 @@ void uiColorTableMan::selChg( CallBacker* cb )
 	return;
 
     selstatus_ = itm->text( 1 );
+    removebut_->setSensitive( selstatus_ != sKeyDefault );
 
     markercanvas_->update();
     ctabcanvas_->forceNewFill();
@@ -214,15 +205,13 @@ void uiColorTableMan::selChg( CallBacker* cb )
 	yvals += ctab_.transparency(idx).y;
     }
     cttranscanvas_->setVals( Interval<float>(0,1), yvals.arr(), xvals.size()  );
-
     cttranscanvas_->update();
-    removebut_->setSensitive( selstatus_ != sKeyDefault );
 
     delete orgctab_;
     orgctab_ = new ColTab::Sequence( ctab_ );
     issaved_ = true;
     segmentfld_->setChecked( false );
-    changed.trigger();
+    tableChanged.trigger();
 }
 
 
@@ -257,10 +246,13 @@ void uiColorTableMan::removeCB( CallBacker* )
     writeToSettings( pars );
     deepErase( pars );
 
-    int newctabidx = allctnms_.indexOf( ctnm );
+    BufferStringSet allctnms;
+    ColTab::SM().getSequenceNames( allctnms );
+    allctnms.sort();
+    int newctabidx = allctnms.indexOf( ctnm );
     if ( newctabidx > 0 )
 	newctabidx--;
-    const BufferString selctnm = allctnms_.get( newctabidx );
+    const BufferString selctnm = allctnms.get( newctabidx );
     ColTab::SM().refresh();
     refreshColTabList( selctnm.buf() );
     selChg(0);
@@ -270,6 +262,7 @@ void uiColorTableMan::removeCB( CallBacker* )
 void uiColorTableMan::saveCB( CallBacker* )
 {
     saveColTab( true );
+    tableAddRem.trigger();
 }
 
 
@@ -287,30 +280,33 @@ bool uiColorTableMan::saveColTab( bool saveas )
     ColTab::Sequence newctab( ctab_ );
     newctab.setName( newname );
 
-    const int sysidx = sysctnms_.indexOf( newname );
-    const int usridx = usrctnms_.indexOf( newname );
-    const int editedidx = editedctnms_.indexOf( newname );
+    const int newidx = ColTab::SM().indexOf( newname );
+
     BufferString msg;
-    if ( sysidx>=0 )
-    {
-	msg += "The default colortable will be replaced.\n"
-	       "Do you wish to continue?\n"
-	       "(Default colortable can be recovered by "
-		   "removing the edited one)";
-	newctab.setType( ColTab::Sequence::Edited );
-    }
-    else if ( usridx>=0 )
-    {
-	msg += "Your own made colortable will be replaced\n"
-	       "Do you wish to continue?";
-    }
-    else if ( editedidx>=0 )
-    {
-	msg += "The Edited colortable will be replaced\n"
-	       "Do you wish to continue?";
-    }
-    else
+    if ( newidx<0 )
 	newctab.setType( ColTab::Sequence::User );
+    else
+    {
+	ColTab::Sequence::Type tp = ColTab::SM().get(newidx)->type();
+	if ( tp == ColTab::Sequence::System )
+	{
+	    msg += "The default colortable will be replaced.\n"
+		   "Do you wish to continue?\n"
+		   "(Default colortable can be recovered by "
+		       "removing the edited one)";
+	    newctab.setType( ColTab::Sequence::Edited );
+	}
+	else if ( tp == ColTab::Sequence::User )
+	{
+	    msg += "Your own made colortable will be replaced\n"
+		   "Do you wish to continue?";
+	}
+	else if ( tp == ColTab::Sequence::Edited )
+	{
+	    msg += "The Edited colortable will be replaced\n"
+		   "Do you wish to continue?";
+	}
+    }
 
     if ( !msg.isEmpty() && !uiMSG().askGoOn( msg ) ) 
 	return false;
@@ -319,7 +315,7 @@ bool uiColorTableMan::saveColTab( bool saveas )
 
     ObjectSet<IOPar> pars;
     readFromSettings( pars );
-    for ( int idx=0; usridx>=0 && idx<pars.size(); idx++ )
+    for ( int idx=0; idx<pars.size(); idx++ )
     {
 	const BufferString nm = pars[idx]->find( sKey::Name );
 	if ( nm != newname )
@@ -392,7 +388,7 @@ bool uiColorTableMan::acceptOK( CallBacker* )
 bool uiColorTableMan::rejectOK( CallBacker* )
 {
     ctab_ = *orgctab_;
-    changed.trigger();
+    tableChanged.trigger();
     return true;
 }
 
@@ -400,7 +396,7 @@ bool uiColorTableMan::rejectOK( CallBacker* )
 void uiColorTableMan::undefColSel( CallBacker* )
 {
     ctab_.undefColor() = undefcolfld_->color();
-    changed.trigger();
+    tableChanged.trigger();
 }
 
 
@@ -442,7 +438,7 @@ void uiColorTableMan::doSegmentize()
 	ColTab::SM().get( orgctab_->name(), ctab_ );
 	markercanvas_->update();
 	ctabcanvas_->forceNewFill();
-	changed.trigger();
+	tableChanged.trigger();
 	return;
     }
 
@@ -476,20 +472,20 @@ void uiColorTableMan::rightClick( CallBacker* )
 	ctabcanvas_->getMouseEventHandler().event();
     uiWorldPoint wpt = w2uictabcanvas_->transform( ev.pos() );
 
-    selidx = -1;
+    selidx_ = -1;
     for ( int idx=0; idx<ctab_.size(); idx++ )
     {
 	if ( ctab_.position(idx) > wpt.x )
 	{
-	    selidx = idx;
+	    selidx_ = idx;
 	    break;
 	}
     }
 
-    if ( selidx<0 ) return;
+    if ( selidx_<0 ) return;
     Color col = ctab_.color( wpt.x );
     if ( selectColor(col,this,"Color selection",false) )
-	ctab_.changeColor( selidx-1, col.r(), col.g(), col.b() );
+	ctab_.changeColor( selidx_-1, col.r(), col.g(), col.b() );
 
     ctabcanvas_->getMouseEventHandler().setHandled( true );
 }
@@ -526,7 +522,7 @@ void uiColorTableMan::mouseClk( CallBacker* cb )
     const MouseEvent& ev = markercanvas_->getMouseEventHandler().event();
     uiWorldPoint wpt = w2uimarker_->transform( ev.pos() );
 
-    selidx = -1;
+    selidx_ = -1;
     float mindiff = 5;
     uiWorldPoint wpp = w2uimarker_->worldPerPixel();
     float fac = (float)wpp.x;
@@ -537,7 +533,7 @@ void uiColorTableMan::mouseClk( CallBacker* cb )
 	float diffinpix = fabs(val-ref) / fabs(fac);
 	if ( diffinpix < mindiff )
 	{
-	    selidx = idx;
+	    selidx_ = idx;
 	    break;
 	}
     }
@@ -545,20 +541,20 @@ void uiColorTableMan::mouseClk( CallBacker* cb )
     if ( OD::RightButton != ev.buttonState() )
             return;
 
-    if ( selidx < 0 ) return;
+    if ( selidx_ < 0 ) return;
     uiPopupMenu mnu( this, "Action" );
-    if ( selidx && selidx != ctab_.size() - 1 )
+    if ( selidx_ && selidx_ != ctab_.size() - 1 )
             mnu.insertItem( new uiMenuItem("Remove color"), 0 );
     mnu.insertItem( new uiMenuItem("Change color ..."), 1 );
 
     int res = mnu.exec();
     if ( !res )
-            removeMarker( selidx );
+            removeMarker( selidx_ );
     else if ( res == 1 )
-            changeColor( selidx );
+            changeColor( selidx_ );
 
     markercanvas_->update();
-    selidx = -1;
+    selidx_ = -1;
     markercanvas_->getMouseEventHandler().setHandled( true );
 }
 
@@ -584,7 +580,7 @@ void uiColorTableMan::changeColor( int markeridx )
     if ( selectColor( col, this, "Color selection", false ) )
     {
 	ctab_.changeColor( markeridx, col.r(), col.g(), col.b() );
-	changed.trigger();
+	tableChanged.trigger();
     }
 }
 
@@ -597,7 +593,7 @@ void uiColorTableMan::mouse2Clk( CallBacker* cb )
     uiWorldPoint wpt = w2uimarker_->transform( ev.pos() );
     addMarker( wpt.x, true );
     markercanvas_->update();
-    selidx = -1;
+    selidx_ = -1;
     markercanvas_->getMouseEventHandler().setHandled( true );
 }
 
@@ -607,7 +603,7 @@ void uiColorTableMan::mouseRelease( CallBacker* )
     if ( markercanvas_->getMouseEventHandler().isHandled() )
 	return;
 
-    selidx = -1;
+    selidx_ = -1;
     markercanvas_->update();
     markercanvas_->getMouseEventHandler().setHandled( true );
 }
@@ -618,20 +614,20 @@ void uiColorTableMan::mouseMove( CallBacker* cb )
     if ( markercanvas_->getMouseEventHandler().isHandled() )
 	return;
 
-    if ( selidx<=0 || selidx==ctab_.size()-1 ) return;
+    if ( selidx_<=0 || selidx_==ctab_.size()-1 ) return;
 
     const MouseEvent& ev = markercanvas_->getMouseEventHandler().event();
     uiWorldPoint wpt = w2uimarker_->transform( ev.pos() );
 
-    const int twinidx = (selidx % 2) ? selidx + 1 : selidx - 1;
-    const float dist = ctab_.position(twinidx) - ctab_.position(selidx);
+    const int twinidx = (selidx_ % 2) ? selidx_ + 1 : selidx_ - 1;
+    const float dist = ctab_.position(twinidx) - ctab_.position(selidx_);
     if ( twinidx>0 && twinidx<ctab_.size()-1 && -mEps<dist && dist<mEps )
     {
-	const double shift =  wpt.x - ctab_.position(selidx);
+	const double shift =  wpt.x - ctab_.position(selidx_);
 	ctab_.changePos( twinidx, shift );
     }
 
-    ctab_.changePos( selidx, wpt.x );
+    ctab_.changePos( selidx_, wpt.x );
     markercanvas_->update();
     markercanvas_->getMouseEventHandler().setHandled( true );
 }
@@ -640,7 +636,7 @@ void uiColorTableMan::mouseMove( CallBacker* cb )
 void uiColorTableMan::sequenceChange( CallBacker* )
 {
     ctabcanvas_->forceNewFill();
-    changed.trigger();
+    tableChanged.trigger();
 }
 
 
@@ -667,9 +663,9 @@ void uiColorTableMan::transptChg( CallBacker* )
     {
 	Geom::Point2D<float> pt( cttranscanvas_->xVals()[ptidx],
 				 cttranscanvas_->yVals()[ptidx] );
-	if ( ptidx==0 && pt.x<0 )
+	if ( ptidx==0 && !mIsZero(pt.x,mEps) )
 	    pt.x = 0;
-	else if ( ptidx==nrpts-1 && pt.x>1 )
+	else if ( ptidx==nrpts-1 && !mIsZero(pt.x-1,mEps) )
 	    pt.x = 1;
 
 	ctab_.changeTransparency( ptidx, pt );

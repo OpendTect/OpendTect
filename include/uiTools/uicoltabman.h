@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.h,v 1.2 2008-04-09 11:11:37 cvsnanne Exp $
+ RCS:           $Id: uicoltabman.h,v 1.3 2008-04-09 12:28:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,8 +39,8 @@ public:
 
     void			setHistogram(const TypeSet<float>&);
 
-    Notifier<uiColorTableMan> 	tableAdded;
-    Notifier<uiColorTableMan> 	changed;
+    Notifier<uiColorTableMan> 	tableAddRem;
+    Notifier<uiColorTableMan> 	tableChanged;
 
 protected:
 
@@ -59,14 +59,8 @@ protected:
     ColTab::Sequence&         	ctab_;
     ColTab::Sequence*         	orgctab_;
 
-    NamedBufferStringSet	editedctnms_;
-    NamedBufferStringSet	sysctnms_;
-    NamedBufferStringSet	usrctnms_;
-    NamedBufferStringSet	allctnms_;
-    BufferStringSet		status_;
-
     bool			issaved_;
-    int				selidx;
+    int				selidx_;
 
     void			doFinalise(CallBacker*);
     void			selChg(CallBacker*);

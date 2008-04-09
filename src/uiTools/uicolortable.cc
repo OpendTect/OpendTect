@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.11 2008-04-09 11:11:37 cvsnanne Exp $
+ RCS:           $Id: uicolortable.cc,v 1.12 2008-04-09 12:28:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -303,8 +303,8 @@ void uiColorTable::makeSymmetrical( CallBacker* )
 void uiColorTable::doEdit( CallBacker* )
 {
     uiColorTableMan coltabman( this, coltabseq_ );
-    coltabman.changed.notify( mCB(this,uiColorTable,colTabManChgd) );
-    coltabman.tableAdded.notify( mCB(this,uiColorTable,tableAdded) );
+    coltabman.tableChanged.notify( mCB(this,uiColorTable,colTabManChgd) );
+    coltabman.tableAddRem.notify( mCB(this,uiColorTable,tableAdded) );
     coltabman.setHistogram( histogram_ );
     coltabman.go();
 }
