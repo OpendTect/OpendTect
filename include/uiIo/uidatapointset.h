@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.5 2008-04-08 16:19:04 cvsbert Exp $
+ RCS:           $Id: uidatapointset.h,v 1.6 2008-04-09 07:05:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -142,6 +142,7 @@ protected:
     void			unSelCol(CallBacker*);
     void			colStepL(CallBacker*);
     void			colStepR(CallBacker*);
+    void			rowSel(CallBacker*);
     void			valChg(CallBacker*);
     void			eachChg(CallBacker*);
     void			toggleXYZ(CallBacker*);
@@ -150,6 +151,7 @@ protected:
     void			showStatsWin(CallBacker*);
     void			retrieve(CallBacker*);
     void			save(CallBacker*);
+    void			delSelRows(CallBacker*);
 
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);

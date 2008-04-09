@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.5 2008-04-08 16:19:04 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.6 2008-04-09 07:05:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -384,6 +384,11 @@ void uiDataPointSet::colStepR( CallBacker* )
 	ycol_ = 0;
 
     handleAxisColChg();
+}
+
+
+void uiDataPointSet::rowSel( CallBacker* )
+{
 }
 
 
@@ -850,4 +855,9 @@ bool uiDataPointSet::doSave()
 
     unsavedchgs_ = false;
     return true;
+}
+
+
+void uiDataPointSet::delSelRows( CallBacker* )
+{
 }
