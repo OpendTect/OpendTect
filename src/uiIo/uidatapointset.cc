@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.6 2008-04-09 07:05:35 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.7 2008-04-09 10:56:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -265,7 +265,7 @@ uiDataPointSet::TRowID uiDataPointSet::tRowID( DRowID did ) const
 
 uiDataPointSet::DColID uiDataPointSet::dColID( TColID tid ) const
 {
-    if ( tid < -1 ) return tbl_->currentCol();
+    if ( tid < -1 ) tid = tbl_->currentCol();
     return tid - cNrPosCols;
 }
 
