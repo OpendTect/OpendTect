@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.10 2008-04-08 12:34:41 cvsnanne Exp $
+ RCS:           $Id: uicolortable.cc,v 1.11 2008-04-09 11:11:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ uiColorTable::uiColorTable( uiParent* p, ColTab::Sequence& colseq, bool vert )
     minfld_->setHSzPol( uiObject::Small );
     minfld_->setStretch( 0, 0 );
 
-    canvas_ = new uiColorTableCanvas( this, coltabseq_, vert );
+    canvas_ = new uiColorTableCanvas( this, coltabseq_, true, vert );
     canvas_->getMouseEventHandler().buttonPressed.notify(
 			mCB(this,uiColorTable,canvasClick) );
     canvas_->setDrawArr( true );
@@ -94,7 +94,7 @@ uiColorTable::uiColorTable( uiParent* p, const char* ctnm, bool vert )
 	, selfld_(0)
 {
     ColTab::SM().get( ctnm, coltabseq_ );
-    canvas_ = new uiColorTableCanvas( this, coltabseq_, vert );
+    canvas_ = new uiColorTableCanvas( this, coltabseq_, true, vert );
 
     selfld_ = new uiComboBox( this, "Table selection" );
     selfld_->attach( vert ? alignedBelow : rightOf, canvas_ );
@@ -303,8 +303,8 @@ void uiColorTable::makeSymmetrical( CallBacker* )
 void uiColorTable::doEdit( CallBacker* )
 {
     uiColorTableMan coltabman( this, coltabseq_ );
-    coltabman.applycb.notify( mCB(this,uiColorTable,colTabManChgd) );
-    coltabman.tableadded.notify( mCB(this,uiColorTable,tableAdded) );
+    coltabman.changed.notify( mCB(this,uiColorTable,colTabManChgd) );
+    coltabman.tableAdded.notify( mCB(this,uiColorTable,tableAdded) );
     coltabman.setHistogram( histogram_ );
     coltabman.go();
 }

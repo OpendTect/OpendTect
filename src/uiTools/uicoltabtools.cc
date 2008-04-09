@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
 Date:		Aug 2007
- RCS:           $Id: uicoltabtools.cc,v 1.4 2008-04-08 05:54:08 cvssatyaki Exp $
+ RCS:           $Id: uicoltabtools.cc,v 1.5 2008-04-09 11:11:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,28 +21,19 @@ ________________________________________________________________________
 #include "coltabindex.h"
 
 
-uiColorTableCanvas::uiColorTableCanvas( uiParent* p, ColTab::Sequence& ct,
-       					bool vert )
-    : uiRGBArrayCanvas(p,mkRGBArr())
+uiColorTableCanvas::uiColorTableCanvas( uiParent* p, const ColTab::Sequence& ct,
+       					bool withalpha, bool vert )
+    : uiRGBArrayCanvas(p,mkRGBArr(withalpha))
     , vertical_(vert)
     , ctseq_(ct)
-    , coltabchgd(this)
 {
+    setPrefHeight( vert ? 160 : 35 );
+    setPrefWidth( vert ? 30 : 70 );
+    setStretch( 0, 0 );
+
+    drawTool().useBackgroundPattern( withalpha );
+
     newFillNeeded.notify( mCB(this,uiColorTableCanvas,reFill) );
-    if ( vertical_ )
-    {
-	setPrefHeight( 160 ); setPrefWidth( 30 );
-	setStretch( 0, 0 );
-	const uiBorder brdr( 5, 5, 5, 5 );
-	setBorder( brdr );
-    }
-    else
-    {
-	setPrefWidth( 70 ); setPrefHeight( 35 );
-	setStretch( 0, 0 );
-	const uiBorder brdr( 5, 5, 5, 5 );
-	setBorder( brdr );
-    }
 }
 
 
@@ -52,17 +43,10 @@ uiColorTableCanvas::~uiColorTableCanvas()
 }
 
 
-uiRGBArray& uiColorTableCanvas::mkRGBArr()
+uiRGBArray& uiColorTableCanvas::mkRGBArr( bool withalpha )
 {
-    rgbarr_ = new uiRGBArray;
+    rgbarr_ = new uiRGBArray( withalpha );
     return *rgbarr_;
-}
-
-
-void uiColorTableCanvas::setColTab( ColTab::Sequence& colseq )
-{
-    ctseq_ = colseq;
-    reFill(0);
 }
 
 
@@ -85,6 +69,4 @@ void uiColorTableCanvas::reFill( CallBacker* )
 		rgbarr_->set( idx, idy, color );
 	}
     }
-    forceNewFill();
-    coltabchgd.trigger();
 }

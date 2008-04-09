@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.h,v 1.1 2008-04-08 04:56:10 cvssatyaki Exp $
+ RCS:           $Id: uicoltabman.h,v 1.2 2008-04-09 11:11:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,10 +39,8 @@ public:
 
     void			setHistogram(const TypeSet<float>&);
 
-    Notifier<uiColorTableMan> 	tableadded;
-    Notifier<uiColorTableMan> 	applycb;
-    Notifier<uiColorTableMan> 	markerchanged;
-    Notifier<uiColorTableMan> 	selectionchanged;
+    Notifier<uiColorTableMan> 	tableAdded;
+    Notifier<uiColorTableMan> 	changed;
 
 protected:
 
@@ -80,9 +78,7 @@ protected:
     void			mouseClk(CallBacker*);
     void			mouse2Clk(CallBacker*);
     void			mouseRelease(CallBacker*);
-    void			mrkrmouseMove(CallBacker*);
-
-    void			reFillTrans(CallBacker*);
+    void			mouseMove(CallBacker*);
 
     void			refreshColTabList(const char*);
 
@@ -93,14 +89,15 @@ protected:
     void			readFromSettings(ObjectSet<IOPar>&);
     void			writeToSettings(const ObjectSet<IOPar>&);
 
-//    void			transparencyChange(CallBacker*);
-    void			doApply(CallBacker*);
-//    void			mouseMove(CallBacker*);
     void			segmentSel(CallBacker*);
     void			nrSegmentsCB(CallBacker*);
+    void			undefColSel(CallBacker*);
     void			rightClick(CallBacker*);
     void			doSegmentize();
     void			drawMarkers(CallBacker*);
+    void			transptSel(CallBacker*);
+    void			transptChg(CallBacker*);
+    void			sequenceChange(CallBacker*);
 };
 
 #endif
