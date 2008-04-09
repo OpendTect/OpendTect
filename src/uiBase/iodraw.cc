@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.39 2008-04-04 10:50:44 cvsnanne Exp $
+ RCS:           $Id: iodraw.cc,v 1.40 2008-04-09 11:10:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ ioDrawTool::ioDrawTool( QPaintDevice* pd )
     , qpaintdev_(*pd)
     , font_(&uiFontList::get())
     , areabgcolor_(Color::White)
+    , usebgpattern_(false)
 {
     if ( !pd )
 	pErrMsg( "Null paint device passed. Crash will follow" );
@@ -108,6 +109,7 @@ void ioDrawTool::drawLine( const uiPoint& pt, double angle, double len )
 
 void ioDrawTool::drawLine( const TypeSet<uiPoint>& pts, bool close )
 {
+    preparePainter();
     const int nrpoints = pts.size();
     if ( nrpoints < 2 ) return;
 
@@ -240,16 +242,6 @@ void ioDrawTool::clear( const uiRect* r, const Color* c )
     QRectF qrect = r ? QRectF( r->left(), r->top(), r->right(), r->bottom() )
 		     : QRectF( 0, 0, getDevWidth(), getDevHeight() );
     qpainter_->fillRect( qrect, QColor(col.r(),col.g(),col.b()) );
-}
-
-
-void ioDrawTool::drawBackgroundPixmap( const Color* col )
-{
-    preparePainter();
-    const Color c = col ? *col : Color::Black;
-    qpainter_->setBackgroundMode( Qt::OpaqueMode );
-    QBrush brush( QColor(c.r(),c.g(),c.b()), Qt::DiagCrossPattern );
-    qpainter_->setBackground( brush );
 }
 
 
@@ -492,8 +484,18 @@ void ioDrawTool::preparePainter() const
 	self.qpainter_->setPen( qpen_ ); 
 	self.qpainter_->setFont( font_->qFont() );
 	QRectF rect( 0, 0, self.getDevWidth(), self.getDevHeight() );
-	self.qpainter_->fillRect( rect,
-		QColor(areabgcolor_.r(),areabgcolor_.g(),areabgcolor_.b()) );
+	QBrush brush;
+	if ( usebgpattern_ )
+	{
+	    qpainter_->setBackgroundMode( Qt::OpaqueMode );
+	    brush.setColor( QColor(0,0,0) );
+	    brush.setStyle( Qt::DiagCrossPattern );
+	    rect.setRect( 1, 1, self.getDevWidth()-2, self.getDevHeight()-2 );
+	}
+	else
+	    brush.setColor( QColor(areabgcolor_.r(),areabgcolor_.g(),
+				   areabgcolor_.b()) );
+	self.qpainter_->fillRect( rect, brush );
 	self.qpainterprepared_ = true;
     }
 }

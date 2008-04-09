@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.28 2008-04-03 05:48:16 cvsnanne Exp $
+ RCS:           $Id: iodrawtool.h,v 1.29 2008-04-09 11:10:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,12 +85,14 @@ public:
     void		drawArrow(const uiPoint& tail,const uiPoint& head,
 				  const ArrowStyle&);
 
-    void		drawBackgroundPixmap(const Color* c=0);
     void 		drawPixmap(const uiPoint& destTopLeft,const ioPixmap*, 
 				   const uiRect& srcAreaInPixmap);
     void		drawPixmap(int left,int top,ioPixmap*, 
 				   int srcleft,int srctop,
 				   int srcright,int srcbot);
+
+    void		useBackgroundPattern( bool yn )
+			{ usebgpattern_ = yn; }
 
     void		setRasterXor();
     void		setRasterNorm();
@@ -126,6 +128,7 @@ private:
 
     const uiFont*	font_;
     Color		areabgcolor_;
+    bool		usebgpattern_;
 };
 
 #endif
