@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.5 2008-04-09 09:33:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.6 2008-04-09 11:09:08 cvsnanne Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -294,6 +294,15 @@ void ColTab::Sequence::removeTransparencies()
 void ColTab::Sequence::removeTransparencyAt( int idx )
 {
     tr_.remove( idx );
+    transparencyChanged.trigger();
+}
+
+
+void ColTab::Sequence::changeTransparency( int idx, Geom::Point2D<float> pt )
+{
+    if ( !tr_.validIdx(idx) ) return;
+
+    tr_[idx] = pt;
     transparencyChanged.trigger();
 }
 
