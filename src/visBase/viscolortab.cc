@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: viscolortab.cc,v 1.43 2008-04-08 12:33:54 cvsnanne Exp $
+ RCS:           $Id: viscolortab.cc,v 1.44 2008-04-09 09:04:12 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ namespace visBase
 
 const char* VisColorTab::sKeyColorSeqID()	{ return "ColorSeq ID"; }
 const char* VisColorTab::sKeyScaleFactor()	{ return "Scale Factor"; }
+const char* VisColorTab::sKeyRange()		{ return "Range"; }
 const char* VisColorTab::sKeyClipRate()		{ return "Cliprate"; }
 const char* VisColorTab::sKeyAutoScale()	{ return "Auto scale"; }
 const char* VisColorTab::sKeySymmetry()		{ return "Symmetry"; }
@@ -36,16 +37,15 @@ const char* VisColorTab::sKeySymMidval()	{ return "Symmetry Midvalue"; }
 static const int sNrColors = 255;
 
 VisColorTab::VisColorTab()
-    : sequencechange( this )
-    , rangechange( this )
-    , autoscalechange( this )
-    , viscolseq_( 0 )
+    : sequencechange(this)
+    , rangechange(this)
+    , autoscalechange(this)
+    , viscolseq_(0)
+    , indextable_(0)
     , ctmapper_(new ColTab::Mapper())
-    , autoscale_( true )
+    , autoscale_(true)
 {
     setColorSeq( ColorSequence::create() );
-    indextable_ = new ColTab::IndexedLookUpTable( viscolseq_->colors(),
-	    					  sNrColors, ctmapper_ );
 }
 
 
@@ -173,6 +173,11 @@ void VisColorTab::setColorSeq( ColorSequence* ns )
 
     viscolseq_ = ns;
     viscolseq_->ref();
+
+    delete indextable_;
+    indextable_ = new ColTab::IndexedLookUpTable( viscolseq_->colors(),
+	    					  sNrColors, ctmapper_ );
+
     viscolseq_->change.notify( mCB(this,VisColorTab,colorseqchanged) );
     sequencechange.trigger();
 }
@@ -237,12 +242,24 @@ int VisColorTab::usePar( const IOPar& par )
     par.get( sKeySymMidval(), symmidval );
     setSymMidval( symmetry ? 0 : symmidval );
 
-    /*
-    TODO: re-implement
     const char* scalestr = par.find( sKeyScaleFactor() );
-    if ( !scalestr ) return -1;
-    scale_.fromString( scalestr );
-    */
+    if ( !scalestr )
+    {
+	float start = 0;
+	float stop = 0;
+	par.get( sKeyRange(), start, stop );
+	Interval<float> rg( start, stop );
+	ctmapper_->setRange( rg );
+    }
+    else // support for old sessions
+    {
+	LinScaler scale;
+	scale.fromString( scalestr );
+	const float start = -scale.constant / scale.factor;
+	const float stop = start + 1 / scale.factor;
+	Interval<float> rg( start, stop );
+	ctmapper_->setRange( rg );
+    }
 
     return 1;
 }
@@ -253,7 +270,7 @@ void VisColorTab::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     DataObject::fillPar( par, saveids );
     par.set( sKeyColorSeqID(), viscolseq_->id() );
     if ( saveids.indexOf(viscolseq_->id())==-1 ) saveids += viscolseq_->id();
-//    par.set( sKeyScaleFactor(), scale_.toString() );
+    par.set( sKeyRange(), ctmapper_->range() );
     par.set( sKeyClipRate(), ctmapper_->cliprate_ );
     par.setYN( sKeyAutoScale(), autoscale_ );
     par.set( sKeySymMidval(), ctmapper_->symmidval_ );
