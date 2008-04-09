@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.4 2008-04-08 06:33:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.5 2008-04-09 09:33:37 cvsnanne Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -164,7 +164,7 @@ float ColTab::Sequence::transparencyAt( float x ) const
 	{
 	    if ( mIsEqual(x,x1,mDefEps) )
 		return y1;
-	    x0 = tr_[0].x; y0 = tr_[0].y;
+	    x0 = tr_[idx-1].x; y0 = tr_[idx-1].y;
 	    const float frac = (x-x0) / (x1-x0);
 	    return frac * y1 + (1-frac) * y0;
 	}
