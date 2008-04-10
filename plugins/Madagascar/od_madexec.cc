@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		March 2008
- RCS:		$Id: od_madexec.cc,v 1.2 2008-04-02 11:44:37 cvsraman Exp $
+ RCS:		$Id: od_madexec.cc,v 1.3 2008-04-10 04:00:33 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "keystrs.h"
 #include "progressmeter.h"
+#include "seistype.h"
 #include "strmprov.h"
 
 
@@ -27,14 +28,16 @@ static const char* sKeyWrite = "Write";
 
 
 
-const char* getProcString( IOPar& pars )
+const char* getProcString( IOPar& pars, BufferString& errmsg )
 {
     BufferString* ret = new BufferString( "@" );
     IOPar* readpar = pars.subselect(sKeyInput);
-    if ( !readpar || !readpar->size() ) return 0;
+    if ( !readpar || !readpar->size() )
+    { errmsg = "No Input parameters"; return 0; }
 
     BufferStringSet procs;
     pars.get( sKeyProc, procs );
+    const bool isprocessing = procs.size() && !procs.get(0).isEmpty();
     for ( int pidx=0; pidx<procs.size(); pidx++ )
     {
 	BufferString proc = procs.get( pidx );
@@ -44,17 +47,27 @@ const char* getProcString( IOPar& pars )
     }
 
     IOPar* outpar = pars.subselect( sKeyOutput );
-    if ( !outpar || !outpar->size() ) return 0;
+    if ( !outpar || !outpar->size() )
+    { errmsg = "No Output parameters"; return 0; }
 
-    BufferString outtyp = outpar->find( sKey::Type );
-    if ( outtyp == sKey::None ) return ret->buf();
-    else if ( outtyp == sKeyMadagascar )
+    BufferString outptyp = outpar->find( sKey::Type );
+    if ( outptyp == sKey::None ) return StreamProvider::sStdIO;
+    else if ( outptyp == sKeyMadagascar )
     {
-	*ret += " out=stdout";
-	*ret += " > ";
-	*ret += outpar->find( sKey::FileName );
+	if ( isprocessing )
+	{
+	    *ret += " out=stdout";
+	    *ret += " > ";
+	    *ret += outpar->find( sKey::FileName );
+	}
+	else
+	    *ret = outpar->find( sKey::FileName );
+
+	return ret->buf();
     }
-    else
+    
+    Seis::GeomType gt = Seis::geomTypeOf( outptyp );
+    if ( gt == Seis::Vol )
     {
 	const bool dowrite = true;
 	pars.setYN( sKeyWrite, dowrite );
@@ -62,26 +75,44 @@ const char* getProcString( IOPar& pars )
 	BufferString fname = FilePath::getTempName( "par" );
 	std::cerr << "temp File: " << fname << std::endl;
 	pars.write( fname, 0 );
-	*ret += " | ./odmadexec ";
-	*ret += fname;
-    }
+	if ( isprocessing ) *ret += " | ";
 
-    return ret->buf();
+	*ret += "./odmadexec ";
+	*ret += fname;
+	return ret->buf();
+    }
+    else
+    {
+	errmsg = "Output Type ";
+	errmsg += outptyp;
+	errmsg += " not supported";
+	return 0;
+    }
 }
 
+
+#undef mErrRet
+#define mErrRet(s) { strm << "Error: " << s << std::endl; return false; }
 
 bool processMad( IOPar& pars, std::ostream& strm )
 {
     ODMad::MadStream mstrm( pars );
     if ( !mstrm.isOK() )
-    {
-	strm << "Error: " << mstrm.errMsg();
-	return false;
-    }
+	mErrRet( mstrm.errMsg() );
 
-    const char* comm = getProcString( pars ); 
-    StreamData sd = StreamProvider( comm ).makeOStream();
-    if ( !mstrm.putHeader(*sd.ostrm) ) return false;
+    BufferString errmsg;
+    const char* comm = getProcString( pars, errmsg );
+    if ( !comm )
+	mErrRet( errmsg );
+
+    StreamData sd;
+    if ( !strcmp(comm,StreamProvider::sStdIO) )
+	sd.ostrm = &std::cout;
+    else
+	sd = StreamProvider( comm ).makeOStream();
+
+    if ( !mstrm.putHeader(*sd.ostrm) )
+	mErrRet( "Cannot create RSF Header" );
 
     TextStreamProgressMeter pm( strm );
     pm.setName( "Madagascar Processing" );
@@ -100,6 +131,7 @@ bool processMad( IOPar& pars, std::ostream& strm )
 	pm.setNrDone( ++tracecount );
     }
 
+    delete[] trc;
     pm.setFinished();
     sd.close();
     return true;
@@ -114,10 +146,7 @@ bool BatchProgram::go( std::ostream& strm )
     {
 	ODMad::MadStream mstrm( pars() );
 	if ( !mstrm.isOK() )
-	{
-	    strm << "Error: " << mstrm.errMsg();
-	    return false;
-	}
+	    mErrRet( mstrm.errMsg() );
 
 	if ( !mstrm.writeTraces() ) return false;
 
@@ -129,5 +158,4 @@ bool BatchProgram::go( std::ostream& strm )
 	return processMad( pars(), strm );
 }
 
-
-
+#undef mErrRet

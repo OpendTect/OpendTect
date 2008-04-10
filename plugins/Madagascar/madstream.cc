@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.2 2008-04-02 11:44:37 cvsraman Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.3 2008-04-10 04:00:33 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -30,7 +30,7 @@ static const char* sKeyOutput = "Output";
 static const char* sKeyProc = "Proc";
 static const char* sKeyWrite = "Write";
 static const char* sKeyIn = "in";
-static const char* sKeyStdIn = "\"stdin\"";
+static const char* sKeyStdIn = "stdin";
 
 #undef mErrRet
 #define mErrRet(s) { errmsg_ = s; return; }
@@ -100,19 +100,19 @@ void MadStream::initRead( IOPar* par )
 	PtrMan<IOObj> ioobj = IOM().get( inpid );
 	if ( !ioobj ) mErrRet( "Cannot find input data" );
 
-	CubeSampling cs;
-	SeisIOObjInfo seisinfo( ioobj );
-	seisinfo.getRanges( cs );
-
 	PtrMan<IOPar> subpar = par->subselect( sKey::Selection );
 	Seis::SelData* seldata = Seis::SelData::get( *subpar );
 	mDynamicCastGet(Seis::RangeSelData*,rangesel,seldata)
-	if ( rangesel ) cs.limitTo( rangesel->cubeSampling() );
+
+	CubeSampling cs;
+	SeisIOObjInfo seisinfo( ioobj );
+	seisinfo.getRanges( cs );
+	if ( rangesel ) rangesel->cubeSampling().limitTo( cs );
 
 	seisrdr_ = new SeisTrcReader( ioobj );
 	seisrdr_->setSelData( seldata );
 	seisrdr_->prepareWork();
-	fillHeaderPars( cs );
+	if ( rangesel ) fillHeaderPars( rangesel->cubeSampling() );
     }
     else
     {
@@ -320,10 +320,11 @@ bool MadStream::writeTraces()
 		trc.set( isamp, buf[isamp], 0 );
 
 	    if ( !seiswrr_->put (trc) )
-		return false;
+	    { delete[] buf; return false; }
 
 	}
     }
 
+    delete[] buf;
     return true;
 }

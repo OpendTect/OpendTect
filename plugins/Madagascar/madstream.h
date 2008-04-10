@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R. K. Singh
  * DATE     : March 2008
- * ID       : $Id: madstream.h,v 1.2 2008-04-02 11:44:37 cvsraman Exp $
+ * ID       : $Id: madstream.h,v 1.3 2008-04-10 04:00:33 cvsraman Exp $
 -*/
 
 
@@ -12,9 +12,9 @@
 
 class BufferString;
 class CubeSampling;
+class IOPar;
 class SeisTrcReader;
 class SeisTrcWriter;
-class IOPar;
 
 namespace ODMad
 {
