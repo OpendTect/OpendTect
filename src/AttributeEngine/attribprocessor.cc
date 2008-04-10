@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribprocessor.cc,v 1.58 2008-03-21 15:21:28 cvskris Exp $";
+static const char* rcsID = "$Id: attribprocessor.cc,v 1.59 2008-04-10 14:08:18 cvsbert Exp $";
 
 #include "attribprocessor.h"
 
@@ -408,7 +408,7 @@ const char* Processor::message() const
 
 
 void Processor::addOutputInterest( int sel )
-{ outpinterest_ += sel; }
+{ outpinterest_.addIfNew( sel ); }
 
 
 const char* Processor::getAttribName() const

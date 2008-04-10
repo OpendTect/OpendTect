@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.78 2008-04-04 15:31:37 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.79 2008-04-10 14:08:18 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -802,7 +802,7 @@ AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
 	    continue;
 	SelSpec ss( 0, did );
 	ss.setRefFromID( descset );
-	aem.attrspecs_ += ss;
+	aem.attrspecs_.addIfNew( ss );
     }
 
     proc = aem.getTableOutExecutor( datapointset, errmsg );
