@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.19 2008-04-08 20:12:34 cvskris Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.20 2008-04-10 03:29:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,6 @@ class uiFlatViewer : public uiGroup
 public:
     			uiFlatViewer(uiParent*);
 			~uiFlatViewer();
-    void		display(bool yn);
 
     void		setExtraBorders(const uiSize& lt,const uiSize& rb);
     void		setInitialSize(uiSize);
@@ -82,7 +81,6 @@ protected:
     bool			anysetviewdone_;
     bool			x0rev_;
     bool			x1rev_;
-    bool			displaycanvas_;
 
     FlatView::BitMapMgr*	wvabmpmgr_;
     FlatView::BitMapMgr*	vdbmpmgr_;
