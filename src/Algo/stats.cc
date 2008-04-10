@@ -15,7 +15,7 @@ static const char* rcsID = "$Id";
 
 DefineNameSpaceEnumNames(Stats,Type,0,"Statistics types")
 { "Count", "Average", "Median", "StdDev", "Variance", "Min", "Max",
-  "MostFrequent", "Sum", "SquareSum", "NormVariance", 0 };
+  "MostFrequent", "Sum", "SquareSum", "RMS", "NormVariance", 0 };
 
 int Stats::RandGen::seed_ = 0;
 
