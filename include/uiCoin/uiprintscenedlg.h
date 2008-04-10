@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2002
- RCS:           $Id: uiprintscenedlg.h,v 1.13 2007-12-03 10:29:47 cvsnanne Exp $
+ RCS:           $Id: uiprintscenedlg.h,v 1.14 2008-04-10 04:24:13 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ protected:
     uiGenInput*		dpifld_;
     uiFileInput*	fileinputfld_;
 
+    void		write2settings();
     void		updateFilter();
     void		fileSel(CallBacker*);
     void		typeSel(CallBacker*);

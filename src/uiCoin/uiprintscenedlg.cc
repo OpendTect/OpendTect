@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.37 2008-03-14 14:35:45 cvskris Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.38 2008-04-10 04:24:13 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "ioman.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "ptrman.h"
 #include "settings.h"
@@ -36,6 +37,7 @@ ________________________________________________________________________
 #include <Inventor/SoOffscreenRenderer.h>
 #include <Inventor/SoOutput.h>
 
+static const char* sKeySnapshot = "snapshots";
 
 BufferString uiPrintSceneDlg::dirname_ = "";
 
@@ -170,8 +172,16 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     fileinputfld_->valuechanged.notify( mCB(this,uiPrintSceneDlg,fileSel) );
     mAttachToAbove( fileinputfld_ );
 
+    const char* settingsdir = GetSettingsDir();
+    FilePath fp;
+    fp.setPath( settingsdir );
+    fp.setFileName( "snapshots" );
+    IOPar par;
+    par.read( fp.fullPath(FilePath::Local), sKey::Pars );
+
     updateFilter();
     sceneSel(0);
+    usePar( par );
 
     IOM().afterSurveyChange.notify( mCB(this,uiPrintSceneDlg,surveyChanged) );
 }
@@ -429,6 +439,9 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     viewport.setWindowSize( mNINT(sizepix_[0]), mNINT(sizepix_[1]) );
     viewport.setPixelsPerInch( dpifld_->getfValue() );
 
+    if ( uiMSG().askGoOn(" Do you want to save the settings " ) )
+	write2settings();
+	
     PtrMan<SoOffscreenRenderer> sor = new SoOffscreenRenderer(viewport);
 
 #define col2f(rgb) float(col.rgb())/255
@@ -450,6 +463,20 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     }
 
     return true;
+}
+
+
+void uiPrintSceneDlg::write2settings()
+{
+    const char* settdir = GetSettingsDir();
+    FilePath fp;
+    fp.setPath( settdir );
+    fp.setFileName( "snapshots" );
+    IOPar iopar;
+    iopar.read( fp.fullPath(FilePath::Local), sKey::Pars );
+    fillPar( iopar );
+    if ( !iopar.write( fp.fullPath(FilePath::Local), sKey::Pars ) )
+	uiMSG().error( "Cannot write in to User Settings " );
 }
 
 
@@ -484,9 +511,9 @@ const char* uiPrintSceneDlg::getExtension() const
 void uiPrintSceneDlg::fillPar( IOPar& par ) const
 {
     if ( !heightfld_ ) return;
-    par.set( sKeyHeight(), heightfld_->box()->getValue() );
-    par.set( sKeyWidth(), widthfld_->box()->getValue() );
-    par.set( sKeyUnit(), unitfld_->getIntValue() );
+    par.set( sKeyHeight(), heightfld_->box()->getFValue() );
+    par.set( sKeyWidth(), widthfld_->box()->getFValue() );
+    par.set( sKeyUnit(), unitfld_->text("Unit") );
     par.set( sKeyRes(), dpifld_->getIntValue() );
 }
 
@@ -502,6 +529,11 @@ bool uiPrintSceneDlg::usePar( const IOPar& par )
     int ival;
     if ( par.get(sKeyUnit(),ival) ) unitfld_->setValue( ival );
     if ( par.get(sKeyRes(),ival) ) dpifld_->setValue( ival );
+    
+    sizecm_.setValue( widthfld_->box()->getFValue(),
+	    	      heightfld_->box()->getFValue() );
+    sCm2Inch( sizecm_, sizeinch_ );
+    sInch2Pixels( sizeinch_, sizepix_, dpifld_->getfValue() );
 
     return true;
 }
