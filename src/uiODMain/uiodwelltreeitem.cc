@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodwelltreeitem.cc,v 1.19 2008-03-14 14:35:45 cvskris Exp $
+ RCS:		$Id: uiodwelltreeitem.cc,v 1.20 2008-04-10 05:24:11 cvssatyaki Exp $
 ___________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ___________________________________________________________________
 #include "draw.h"
 
 #include "uiattribpartserv.h"
+#include "uicreateattriblogdlg.h"
 #include "uimenuhandler.h"
 #include "uimsg.h"
 #include "uiodscenemgr.h"
@@ -50,23 +51,24 @@ bool uiODWellParentTreeItem::showSubMenu()
     mnu.insertItem( new uiMenuItem("&New WellTrack ..."), 1 );
     if ( children_.size() > 1 )
     {
-	mnu.insertItem( new uiMenuItem("&Properties ..."), 2 );
+	mnu.insertItem( new uiMenuItem( "Create Attribute Log ..." ), 2 );
+	mnu.insertItem( new uiMenuItem("&Properties ..."), 3 );
 
-	mnu.insertSeparator( 20 );
+	mnu.insertSeparator( 30 );
 	uiPopupMenu* showmnu = new uiPopupMenu( getUiParent(), "&Show all" );
-	showmnu->insertItem( new uiMenuItem("Well names (&Top)"), 21 );
-	showmnu->insertItem( new uiMenuItem("Well names (&Bottom)"), 22 );
-	showmnu->insertItem( new uiMenuItem("&Markers"), 23 );
-	showmnu->insertItem( new uiMenuItem("Marker &Names"), 24 );
-	showmnu->insertItem( new uiMenuItem("&Logs"), 25 );
+	showmnu->insertItem( new uiMenuItem("Well names (&Top)"), 31 );
+	showmnu->insertItem( new uiMenuItem("Well names (&Bottom)"), 32 );
+	showmnu->insertItem( new uiMenuItem("&Markers"), 33 );
+	showmnu->insertItem( new uiMenuItem("Marker &Names"), 34 );
+	showmnu->insertItem( new uiMenuItem("&Logs"), 35 );
 	mnu.insertItem( showmnu );
 
 	uiPopupMenu* hidemnu = new uiPopupMenu( getUiParent(), "&Hide all" );
-	hidemnu->insertItem( new uiMenuItem("Well names (&Top)"), 31 );
-	hidemnu->insertItem( new uiMenuItem("Well names (&Bottom)"), 32 );
-	hidemnu->insertItem( new uiMenuItem("&Markers"), 33 );
-	hidemnu->insertItem( new uiMenuItem("Marker &Names"), 34 );
-	hidemnu->insertItem( new uiMenuItem("&Logs"), 35 );
+	hidemnu->insertItem( new uiMenuItem("Well names (&Top)"), 41 );
+	hidemnu->insertItem( new uiMenuItem("Well names (&Bottom)"), 42 );
+	hidemnu->insertItem( new uiMenuItem("&Markers"), 43 );
+	hidemnu->insertItem( new uiMenuItem("Marker &Names"), 44 );
+	hidemnu->insertItem( new uiMenuItem("&Logs"), 45 );
 	mnu.insertItem( hidemnu );
     }
     addStandardItems( mnu );
@@ -106,6 +108,17 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
     }
     else if ( mnuid == 2 )
     {
+	BufferStringSet wellnames;
+	for ( int idx=0; idx<children_.size(); idx++ )
+	    wellnames.add( children_[idx]->name() );
+
+	uiCreateAttribLogDlg dlg( getUiParent(), wellnames,
+		    applMgr()->attrServer()->curDescSet(false),
+		    ODMainWin()->applMgr().wellAttribServer()->getNLAModel());
+	dlg.go();
+    }
+    else if ( mnuid == 3 )
+    {
 	TypeSet<int> wdids;
 	visserv->findObject( typeid(visSurvey::WellDisplay), wdids );
 	ObjectSet<visSurvey::WellDisplay> wds;
@@ -128,7 +141,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 		itm->updateColumnText(uiODSceneMgr::cColorColumn());
 	}
     }
-    else if ( ( mnuid>20 && mnuid<26 ) || ( mnuid>30 && mnuid<36 ) )
+    else if ( ( mnuid>30 && mnuid<36 ) || ( mnuid>40 && mnuid<46 ) )
     {
 	for ( int idx=0; idx<children_.size(); idx++ )
 	{
@@ -141,16 +154,16 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 
 	    switch ( mnuid )
 	    {
-		case 21: wd->showWellTopName( true ); break;
-		case 22: wd->showWellBotName( true ); break;
-		case 23: wd->showMarkers( true ); break;
-		case 24: wd->showMarkerName( true ); break;
-		case 25: wd->showLogs( true ); break;
-		case 31: wd->showWellTopName( false ); break;
-		case 32: wd->showWellBotName( false ); break;
-		case 33: wd->showMarkers( false ); break;
-		case 34: wd->showMarkerName( false ); break;
-		case 35: wd->showLogs( false ); break;
+		case 31: wd->showWellTopName( true ); break;
+		case 32: wd->showWellBotName( true ); break;
+		case 33: wd->showMarkers( true ); break;
+		case 34: wd->showMarkerName( true ); break;
+		case 35: wd->showLogs( true ); break;
+		case 41: wd->showWellTopName( false ); break;
+		case 42: wd->showWellBotName( false ); break;
+		case 43: wd->showMarkers( false ); break;
+		case 44: wd->showMarkerName( false ); break;
+		case 45: wd->showLogs( false ); break;
 	    }
 	}
     }

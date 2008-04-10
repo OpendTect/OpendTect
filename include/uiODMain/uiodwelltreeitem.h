@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodwelltreeitem.h,v 1.2 2007-05-14 12:12:46 cvsraman Exp $
+ RCS:		$Id: uiodwelltreeitem.h,v 1.3 2008-04-10 05:24:11 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -16,7 +16,9 @@ ________________________________________________________________________
 #include "uiodattribtreeitem.h"
 #include "uioddisplaytreeitem.h"
 #include "multiid.h"
+#include "sets.h"
 
+class uiCreateAttribLogDlg;
 
 class uiODWellParentTreeItem : public uiODTreeItem
 {
