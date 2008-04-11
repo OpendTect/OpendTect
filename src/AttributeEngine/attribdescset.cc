@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.65 2008-04-04 15:31:37 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.66 2008-04-11 12:05:01 cvsbert Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -817,9 +817,8 @@ void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
 	const Attrib::Desc* mydesc = getDesc( attrinf.attrids[idx] );
 	if ( mydesc )
 	    mydesc->getDefStr( defstr );
-	BufferString fulldef = attrinf.attrids[idx].asInt(); fulldef += "`";
-	fulldef += defstr;
-	attrdefs.add( fulldef );
+	FileMultiString fms( defstr ); fms += attrinf.attrids[idx].asInt();
+	attrdefs.add( fms );
     }
     for ( int idx=0; idx<attrinf.ioobjids.size(); idx++ )
     {
@@ -830,10 +829,9 @@ void DescSet::fillInAttribColRefs( BufferStringSet& attrdefs ) const
 	{
 	    const char* defkey = bss.get(inm).buf();
 	    const char* ioobjnm = attrinf.ioobjnms.get(idx).buf();
-	    BufferString fulldef =
-				SeisIOObjInfo::defKey2DispName(defkey,ioobjnm);
-	    fulldef += "`"; fulldef += defkey;
-	    attrdefs.add( fulldef );
+	    FileMultiString fms(SeisIOObjInfo::defKey2DispName(defkey,ioobjnm));
+	    fms += defkey;
+	    attrdefs.add( fms );
 	}
     }
 }
