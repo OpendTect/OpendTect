@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.8 2008-04-09 14:03:59 cvsbert Exp $
+ RCS:           $Id: uidatapointset.h,v 1.9 2008-04-11 13:22:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,13 @@ class uiStatsDisplayWin;
 class uiDataPointSetCrossPlotWin;
 namespace Stats { template <class T> class RunCalc; }
 
-/*!\brief Edit DataPointSet */
+/*!\brief Edit DataPointSet.
+ 
+  The DataPointSet will be edited in-place. If you want to be able to
+  rollback on user cancel, you'll have to make a copy of the original set
+  yourself, and check the return value for the cancel.
+
+ */
 
 
 class uiDataPointSet : public uiDialog
@@ -87,7 +93,7 @@ public:
 protected:
 
     DataPointSet&		dps_;
-    DataPointSet		orgdps_;
+    DataPointSet		orgdps_; //!< This will be removed in 3.2
     Setup			setup_;
     float			zfac_;
     BufferString		zunitnm_;

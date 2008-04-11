@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jul 2005
- RCS:		$Id: picksettr.cc,v 1.14 2008-04-03 11:18:47 cvsbert Exp $
+ RCS:		$Id: picksettr.cc,v 1.15 2008-04-11 13:22:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -209,7 +209,7 @@ void PickSetTranslator::createDataPointSets( const BufferStringSet& ioobjids,
 	DataPointSet::DataRow dr;
 	for ( int ipck=0; ipck<crds.size(); ipck++ )
 	{
-	    const Coord3& crd( crds[idx] );
+	    const Coord3& crd( crds[ipck] );
 	    dr.pos_.set( SI().transform(crd), crd );
 	    dps->addRow( dr );
 	}
@@ -239,10 +239,7 @@ bool PickSetTranslator::getCoordSet( const char* id, TypeSet<Coord3>& crds )
     }
 
     for ( int ipck=0; ipck<ps->size(); ipck++ )
-    {
-	Pick::Location pl( (*ps)[ipck] );
-	crds += Coord3( pl.pos.x, pl.pos.y, pl.pos.z );
-    }
+	crds += ((*ps)[ipck]).pos;
 
     delete createdps;
     return true;

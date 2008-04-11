@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.9 2008-04-09 14:03:59 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.10 2008-04-11 13:22:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "iopar.h"
 #include "ioobj.h"
+#include "ioman.h"
 #include "survinfo.h"
 #include "statruncalc.h"
 #include "unitofmeasure.h"
@@ -69,7 +70,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 				const uiDataPointSet::Setup& su )
 	: uiDialog(p,su)
 	, dps_(*const_cast<DataPointSet*>(&dps))
-	, orgdps_(*new DataPointSet(dps))
+	, orgdps_(*new DataPointSet(false,true)) //TODO remove
     	, setup_(su)
     	, zfac_(SI().zFactor())
     	, zunitnm_(SI().getZUnit(false))
@@ -703,7 +704,8 @@ void uiDataPointSet::eachChg( CallBacker* )
     {
 	eachrow_ = neweachrow;
 	redoAll();
-	setCurrent( 0, 0 );
+	if ( !dps_.isEmpty() )
+	    setCurrent( 0, 0 );
     }
 }
 
@@ -747,7 +749,6 @@ bool uiDataPointSet::rejectOK( CallBacker* )
 {
     if ( !saveOK() )
 	return false;
-    dps_ = orgdps_;
     return acceptOK( 0 );
 }
 
@@ -801,11 +802,18 @@ class uiDataPointSetSave : public uiDialog
 {
 public:
 
-uiDataPointSetSave( uiParent* p )
+uiDataPointSetSave( uiParent* p, const char* typ )
     : uiDialog(p,uiDialog::Setup("Create output","Specify output","0.0.0"))
     , ctio_(PosVecDataSetTranslatorGroup::ioContext())
+    , type_(typ)
 {
     ctio_.ctxt.forread = false;
+    if ( !type_.isEmpty() )
+    {
+	ctio_.ctxt.parconstraints.set( sKey::Type, typ );
+	ctio_.ctxt.includeconstraints = true;
+	ctio_.ctxt.allowcnstrsabsent = false;
+    }
     const CallBack tccb( mCB(this,uiDataPointSetSave,outTypChg) );
 
     tabfld_ = new uiGenInput( this, "Output to",
@@ -847,7 +855,13 @@ bool acceptOK( CallBacker* )
     {
 	if ( !selgrp_->processInput() )
 	    mErrRet("Please enter a name for the output")
-	fname_ = selgrp_->getCtxtIOObj().ioobj->fullUserExpr(false);
+	ctio_.setObj( selgrp_->getCtxtIOObj().ioobj->clone() );
+	if ( !type_.isEmpty() )
+	{
+	    ctio_.ioobj->pars().set( sKey::Type, type_ );
+	    IOM().commitChanges( *ctio_.ioobj );
+	}
+	fname_ = ctio_.ioobj->fullUserExpr(false);
     }
 
     return true;
@@ -855,6 +869,7 @@ bool acceptOK( CallBacker* )
 
     CtxtIOObj		ctio_;
     BufferString	fname_;
+    BufferString	type_;
     uiGenInput*		tabfld_;
     uiFileInput*	txtfld_;
     uiIOObjSelGrp*	selgrp_;
@@ -872,7 +887,7 @@ bool uiDataPointSet::doSave()
 {
     if ( dps_.nrActive() < 1 ) return true;
 
-    uiDataPointSetSave uidpss( this );
+    uiDataPointSetSave uidpss( this, storepars_.find(sKey::Type) );
     if ( !uidpss.go() ) return false;
 
     MouseCursorManager::setOverride( MouseCursor::Wait );

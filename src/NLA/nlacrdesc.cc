@@ -4,7 +4,7 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.15 2008-04-03 13:48:53 cvsbert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.16 2008-04-11 13:22:25 cvsbert Exp $";
 
 #include "nlacrdesc.h"
 
@@ -52,7 +52,7 @@ static bool transferData2DPS( const PosVecDataSet& vds, DataPointSet& dps,
     for ( int idx=0; idx<2; idx++ )
     {
 	const DataColDef::MatchLevel ml = idx	? DataColDef::Exact
-	    					: DataColDef::None;
+	    					: DataColDef::Start;
 	for ( DataPointSet::ColID colid=0; colid<nrcols; colid++ )
 	{
 	    if ( tbl[colid] >= 0 ) continue;
@@ -101,7 +101,13 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
     const int nrout = dpss.size();
     if ( !nrout )
 	{ return "Internal: No input DataPointSets to transfer data from"; }
+    int totnrvec = 0;
+    for ( int idps=0; idps<dpss.size(); idps++ )
+	totnrvec += dpss[idps]->size();
+    if ( totnrvec < 1 )
+	return "No data vectors found";
 
+    BufferString dpsnmadd;
     if ( !doextraction )
     {
 	PtrMan<IOObj> ioobj = IOM().get( vdsid );
@@ -115,11 +121,19 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
 	DataPointSet& dps = const_cast<DataPointSet&>( *dpss[0] );
 	if ( !transferData2DPS(vds,dps,errmsg) )
 	    return errmsg.buf();
+	dpsnmadd += " (data from '";
+	dpsnmadd += ioobj->name(); dpsnmadd += "')";
     }
 
-    // For direct prediction, the sets are ready. If not, add a ColumnDef
-    // for each output node
+    BufferString setnm( "NN Training data" ); setnm += dpsnmadd;
+    traindps.setName( setnm );
+    setnm = "NN Test data"; setnm += dpsnmadd;
+    testdps.setName( setnm );
+    
+    // If not direct prediction, add a ColumnDef for each output node
     traindps.dataSet().copyStructureFrom( dpss[0]->dataSet() );
+    const int orgnrcols = traindps.dataSet().nrCols();
+    int nrcols = orgnrcols;
     if ( doextraction && !isdirect )
     {
         for ( int iout=0; iout<nrout; iout++ )
@@ -127,15 +141,9 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
 	    BufferString psnm = LineKey::defKey2DispName( outids.get(iout) );
             traindps.dataSet().add( new DataColDef( psnm, *outids[iout] ) );
 	}
+	nrcols = traindps.nrCols();
     }
     testdps.dataSet().copyStructureFrom( traindps.dataSet() );
-
-    int totnrvec = 0;
-    for ( int idps=0; idps<dpss.size(); idps++ )
-	totnrvec += dpss[idps]->size();
-
-    if ( totnrvec < 1 )
-	return "No data vectors found";
 
     // Get the data into train and test set
     Stats::RandGen::init();
@@ -148,18 +156,18 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
 	for ( DataPointSet::RowID irow=0; irow<dps.size(); irow++ )
 	{
 	    DataPointSet::DataRow dr( dps.dataRow(irow) );
-	    if ( !isdirect )
+	    if ( nrcols != orgnrcols )
 	    {
 		for ( int idx=0; idx<nrout; idx++ )
 		    dr.data_ += idx == idps ? 1 : 0;
 	    }
 
-	    const bool istrain = extractrand ? Stats::RandGen::get() < ratiotst
+	    const bool istest = extractrand ? Stats::RandGen::get() < ratiotst
 					     : irow > lasttrain;
-	    if ( istrain )
-		traindps.addRow( dr );
-	    else
+	    if ( istest )
 		testdps.addRow( dr );
+	    else
+		traindps.addRow( dr );
 	}
     }
 

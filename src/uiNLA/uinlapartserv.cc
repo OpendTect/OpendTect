@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.48 2008-04-04 12:39:55 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.49 2008-04-11 13:22:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "posvecdatasettr.h"
 #include "datapointset.h"
 #include "ptrman.h"
+#include "linekey.h"
 #include "sorting.h"
 #include "survinfo.h"
 #include "varlenarray.h"
@@ -106,7 +107,11 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
     {
 	PosVecDataSet& vds = dpss[idx]->dataSet();
 	for ( int iinp=0; iinp<crdesc.design.inputs.size(); iinp++ )
-	    vds.add( new DataColDef(crdesc.design.inputs.get(iinp)) );
+	{
+	    BufferString psnm = LineKey::defKey2DispName(
+		    			crdesc.design.inputs.get(iinp) );
+	    vds.add( new DataColDef(psnm) );
+	}
     }
 }
 
@@ -473,6 +478,7 @@ bool uiNLAPartServer::doDPSDlg( const char* wtitle, DataPointSet& dps )
     uiDataPointSet uidps( appserv().parent(), dps, su );
     uidps.setCtrlStyle( uiDialog::DoAndLeave );
     uidps.storePars() = storepars;
+    uidps.storePars().set( sKey::Type, "MVA Data" );
     return uidps.go();
 }
 

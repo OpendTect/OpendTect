@@ -157,12 +157,18 @@ void uiCmdDriverMgr::handleAutoExecution()
 	*ptr++ = '\0';
 	if ( strcmp(str,"cmd") ) continue;
 
-	const char* fnm = ptr;
-	if ( !ptr || !strcmp(ptr,"none") )
+	BufferString fnm( ptr );
+	if ( !ptr || fnm == "none" )
 	    return;
 
 	if ( !File_exists(fnm) && !FilePath(fnm).isAbsolute() )
 	    fnm = GetProcFileName( fnm );
+	if ( !File_exists(fnm) )
+	{
+	    FilePath fp( fnm );
+	    fp.setExtension( "cmd", true );
+	    fnm = fp.fullPath();
+	}
 	if ( File_exists(fnm) )
 	    { uiCmdDriverInps::lastinp_ = fnm; return; }
     }

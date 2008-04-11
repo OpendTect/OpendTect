@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: posvecdataset.cc,v 1.16 2008-04-07 11:00:55 cvsbert Exp $";
+static const char* rcsID = "$Id: posvecdataset.cc,v 1.17 2008-04-11 13:22:25 cvsbert Exp $";
 
 #include "posvecdataset.h"
 
@@ -64,9 +64,16 @@ void DataColDef::getFrom( const char* s )
     else
     {
 	name_ = fms[0];
-	ref_ = fms[1];
+	if ( sz > 1 )
+	    ref_ = fms[1];
 	if ( sz > 2 )
-	    unit_ = UoMR().get( fms[2] );
+	{
+	    const char* lastpart = fms.from(2);
+	    if ( isdigit(*lastpart) )
+		ref_ = fms.from( 1 );
+	    else
+		unit_ = UoMR().get( lastpart );
+	}
     }
 }
 
