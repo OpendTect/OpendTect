@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.5 2008-04-08 09:09:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.6 2008-04-11 11:33:36 cvsnanne Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -133,10 +133,11 @@ void ColTab::Mapper::update( bool full )
 	clipper_.fullSort();
     }
 
-    Interval<float> intv;
+    Interval<float> intv( -1, 1 );
     bool res = mIsUdf(symmidval_) ?
 	       clipper_.getRange( cliprate_, intv )
 	     : clipper_.getSymmetricRange( cliprate_, symmidval_, intv );
-    if ( res )
-	setRange( intv );
+    if ( mIsZero(intv.width(),mDefEps) )
+	intv += Interval<float>(-1,1);
+    setRange( intv );
 }
