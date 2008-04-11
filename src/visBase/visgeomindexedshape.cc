@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: visgeomindexedshape.cc,v 1.7 2008-02-05 21:55:46 cvskris Exp $
+ RCS:           $Id: visgeomindexedshape.cc,v 1.8 2008-04-11 09:19:08 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -115,7 +115,7 @@ if ( geom->type_==Geometry::IndexedGeometry::type ) \
 
 void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
 {
-    SoDB::writelock();
+    //SoDB::writelock();
     if ( shape_ && shape_->needsUpdate() )
 	shape_->update( forall, tr );
 
@@ -178,7 +178,7 @@ void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
     mRemoveOld( strip );
     mRemoveOld( fan );
     mRemoveOld( line );
-    SoDB::writeunlock();
+    //SoDB::writeunlock();
 }
 
 }; // namespace visBase
