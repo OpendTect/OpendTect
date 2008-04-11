@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.74 2007-11-26 15:55:29 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.75 2008-04-11 09:48:23 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -258,6 +258,7 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 	}
     }
 
+    setCurrentPosition( currentbid );
     alreadymoved = true;
     return 1;
 }
