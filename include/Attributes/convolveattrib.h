@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: convolveattrib.h,v 1.13 2007-03-23 11:35:08 cvshelene Exp $
+ RCS:           $Id: convolveattrib.h,v 1.14 2008-04-11 07:17:31 cvshelene Exp $
 ________________________________________________________________________
 
     
@@ -63,6 +63,7 @@ public:
     static const char*  	shapeTypeStr(int);
 
     static const float  	prewitt[];
+    static const float  	prewitt2D[];
 
 protected:
     				~Convolve();
@@ -105,7 +106,7 @@ protected:
 	int                     getSubKernelSize() const;
 	float                   getSum() const { return sum_; }
 
-				Kernel(int kernelfunc,int shape,int size);
+				Kernel(int kernelfunc,int shape,int size, bool);
 				~Kernel();
 
     protected:

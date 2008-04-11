@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          November 2006
- RCS:           $Id: uiconvolveattrib.cc,v 1.9 2007-12-10 12:59:52 cvsbert Exp $
+ RCS:           $Id: uiconvolveattrib.cc,v 1.10 2008-04-11 07:17:31 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,7 @@ static const char* outpstrs3d[] =
 
 static const char* outpstrs2d[] =
 {
+    	"Average gradient",
 	"Line gradient",
         "Time gradient",
         0
@@ -78,8 +79,10 @@ uiConvolveAttrib::uiConvolveAttrib( uiParent* p, bool is2d )
     szfld_->box()->setStep( cStepVal, true );
     szfld_->attach( alignedBelow, kernelfld_ );
 
+    const char* spherestr = is2d ? "Circle" : "Sphere";
+    const char* cubestr = is2d ? "Square" : "Cube";
     shapefld_ = new uiGenInput( this, "Shape",
-	    			BoolInpSpec(true,"Sphere","Cube") );
+	    			BoolInpSpec(true, spherestr, cubestr) );
     shapefld_->attach( alignedBelow, szfld_ );
 
     outpfld_ = new uiGenInput( this, "Output",
@@ -144,7 +147,7 @@ bool uiConvolveAttrib::setOutput( const Desc& desc )
     if ( kernelfld_->getIntValue() == 2 )
     {
 	const int selout = desc.selectedOutput();
-	outpfld_->setValue( inpfld_->is2D() ? selout-2 : selout );
+	outpfld_->setValue( selout );
     }
 
     return true;
@@ -181,13 +184,8 @@ bool uiConvolveAttrib::getInput( Desc& desc )
 
 bool uiConvolveAttrib::getOutput( Desc& desc )
 {
-    int selout = 0;
-    if ( kernelfld_->getIntValue() == 2 )
-    {
-	const int index = outpfld_->getIntValue();
-	selout = inpfld_->is2D() ? index + 2 : index;
-    }
-    
+    const int selout = kernelfld_->getIntValue()==2 ? outpfld_->getIntValue()
+						    : 0;
     fillOutput( desc, selout );
     return true;
 }

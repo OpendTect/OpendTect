@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: convolveattrib.cc,v 1.20 2007-03-23 11:35:08 cvshelene Exp $";
+static const char* rcsID = "$Id: convolveattrib.cc,v 1.21 2008-04-11 07:17:31 cvshelene Exp $";
 
 #include "convolveattrib.h"
 #include "attribdataholder.h"
@@ -110,6 +110,22 @@ const float Convolve::prewitt[] =
 };
 
 
+const float Convolve::prewitt2D[] = 
+{
+	// Kernel 0 (Crossline = Trace number)
+ 
+	-1,-1,-1, 	/* Trace nr = -1, Time = -dt -- +dt */
+	0, 0, 0, 	/* Trace nr =  0, Time = -dt -- +dt */
+	1, 1, 1, 	/* Trace nr = +1, Time = -dt -- +dt */ 
+
+	// Kernel 1 (Time)
+
+	-1, 0, 1, 	/* Trace nr = -1, Time = -dt -- +dt */
+	-1, 0, 1, 	/* Trace nr =  0, Time = -dt -- +dt */
+	-1, 0, 1 	/* Trace nr = +1, Time = -dt -- +dt */ 
+};
+
+
 void Convolve::updateDesc( Desc& desc )
 {
     const ValParam* kernel = desc.getValParam( kernelStr() );
@@ -123,7 +139,7 @@ void Convolve::updateDesc( Desc& desc )
     desc.setParamEnabled(waveletStr(),iswavelet);
     
     if ( isprewitt ) 
-	desc.setNrOutputs( Seis::UnknowData, 4 );
+	desc.setNrOutputs( Seis::UnknowData, desc.is2D() ? 3 : 4 );
 }
 
 
@@ -168,7 +184,7 @@ const Interval<int>& Convolve::Kernel::getSG( ) const
 { return sg_; }
 
 
-Convolve::Kernel::Kernel( int kernelfunc, int shapetype, int size)
+Convolve::Kernel::Kernel( int kernelfunc, int shapetype, int size, bool is2d )
     : kernel_( 0 )
     , sum_( 0 )
     , nrsubkernels_( 1 )
@@ -182,7 +198,7 @@ Convolve::Kernel::Kernel( int kernelfunc, int shapetype, int size)
 	nrsubkernels_ = 1;
 	const int hsz = size/2;
 
-	stepout_ = BinID(hsz,hsz);
+	stepout_ = is2d ? BinID(0,hsz) : BinID(hsz,hsz);
 	sg_ = Interval<int>(-hsz,hsz);
 
 	kernel_ = new float[getSubKernelSize()];
@@ -216,12 +232,15 @@ Convolve::Kernel::Kernel( int kernelfunc, int shapetype, int size)
     }
     else if ( kernelfunc==mKernelFunctionPrewitt )
     {
-	nrsubkernels_ = 3;
-	stepout_ = BinID(1,1);
+	nrsubkernels_ = is2d ? 2 : 3;
+	stepout_ = is2d ? BinID(0,1) : BinID(1,1);
 	sg_=Interval<int>(-1,1);
 	int sz = getSubKernelSize()*nrSubKernels();
 	kernel_ = new float[sz];
-	memcpy( kernel_, Convolve::prewitt, sz*sizeof(float) );
+	if ( is2d )
+	    memcpy( kernel_, Convolve::prewitt2D, sz*sizeof(float) );
+	else
+	    memcpy( kernel_, Convolve::prewitt, sz*sizeof(float) );
     }
 
     int subkernelsize = getSubKernelSize();
@@ -280,7 +299,7 @@ Convolve::Convolve( Desc& ds )
 	return;
     }
 
-    kernel_ = new Kernel( kerneltype_, shape_ , size_ );
+    kernel_ = new Kernel( kerneltype_, shape_ , size_, desc.is2D() );
     stepout_ = kernel_->getStepout();
 }
 
