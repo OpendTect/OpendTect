@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.9 2008-03-26 10:39:39 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.10 2008-04-11 08:32:58 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -252,7 +252,8 @@ uiSeparator* uiSeisIOSimple::mkDataManipFlds()
 	sep->attach( stretchedBelow, sdfld );
     else
     {
-	subselfld = uiSeisSubSel::get( this, Seis::SelSetup(geom_) );
+	subselfld = uiSeisSubSel::get( this, Seis::SelSetup(geom_)
+						.onlyrange(false) );
 	subselfld->attachObj()->attach( alignedBelow, seisfld );
     }
 
