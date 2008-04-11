@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.13 2008-04-09 12:42:16 cvsnanne Exp $
+ RCS:           $Id: uicolortable.cc,v 1.14 2008-04-11 11:34:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -197,6 +197,7 @@ void uiColorTable::rangeEntered( CallBacker* )
 {
     coltabrg_.start = minfld_->getfValue();
     coltabrg_.stop = maxfld_->getfValue();
+    autoscale_ = false;
     scaleChanged.trigger();
 }
 
@@ -223,8 +224,9 @@ uiAutoRangeClipDlg( uiParent* p, bool useclip, float cliprate, float symmidval)
     symmfld = new uiGenInput( this, "Set symmetrical", BoolInpSpec(setsymm) );
     symmfld->attach( alignedBelow, clipfld );
     symmfld->valuechanged.notify( mCB(this,uiAutoRangeClipDlg,symPush) );
+
     midvalfld = new uiGenInput( this, "Symmetrical Mid Value",
-	    			FloatInpSpec(symmidval) );
+			FloatInpSpec(mIsUdf(symmidval) ? 0 : symmidval) );
     midvalfld->setElemSzPol( uiObject::Small );
     midvalfld->attach( alignedBelow, symmfld );
 
@@ -282,7 +284,7 @@ void uiColorTable::editScaling( CallBacker* )
 
 void uiColorTable::doFlip( CallBacker* )
 {
-    Swap( coltabrg_.start , coltabrg_.stop );
+    Swap( coltabrg_.start, coltabrg_.stop );
     autoscale_ = false;
     scaleChanged.trigger();
     setInterval( coltabrg_ );
