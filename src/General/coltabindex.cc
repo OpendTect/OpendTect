@@ -4,12 +4,13 @@
  * DATE     : Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabindex.cc,v 1.6 2008-04-08 03:27:42 cvssatyaki Exp $";
+static const char* rcsID = "$Id: coltabindex.cc,v 1.7 2008-04-14 14:58:17 cvsbert Exp $";
 
 #include "coltabindex.h"
 #include "coltabsequence.h"
 #include "coltabmapper.h"
 #include "task.h"
+#include "math2.h"
 
 namespace ColTab
 {
@@ -61,8 +62,18 @@ void ColTab::IndexedLookUpTable::update()
 }
 
 
+Color ColTab::IndexedLookUpTable::colorForIndex( int idx ) const
+{
+    if ( idx < 0 || idx >= nrcols_ )
+	return seq_.undefColor();
+    return cols_[idx];
+}
+
+
 int ColTab::IndexedLookUpTable::indexForValue( float v ) const
 {
+    if ( !Math::IsNormalNumber(v) || mIsUdf(v) ) return -1;
+
     float ret = mapper_ ? mapper_->position( v ) : v;
     ret *= nrcols_;
     if ( ret > nrcols_- 0.9 ) ret = nrcols_- 0.9;
