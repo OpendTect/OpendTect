@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.200 2008-04-14 16:05:07 cvskris Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.201 2008-04-14 16:21:44 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -275,7 +275,9 @@ bool uiODSceneTreeItem::showSubMenu()
 	dlg.go();
     }
     else if ( mnuid==mDumpIV )
-	visserv->dumpOI( displayid_ );
+    {
+	visserv->dumpOI( displayid_, "Export scene as ..." );
+    }
 
     return true;
 }

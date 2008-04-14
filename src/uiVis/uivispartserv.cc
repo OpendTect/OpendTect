@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.366 2008-04-08 13:43:42 cvsjaap Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.367 2008-04-14 16:21:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -1246,10 +1246,10 @@ bool uiVisPartServer::setMaterial( int id )
 }
 
 
-bool uiVisPartServer::dumpOI( int id ) const
+bool uiVisPartServer::dumpOI( int id, const char* dlgtitle ) const
 {
     uiFileDialog filedlg( appserv().parent(), false, GetPersonalDir(), "*.iv",
-			  "Select output file" );
+			  dlgtitle );
     if ( filedlg.go() )
     {
 	visBase::DataObject* obj = visBase::DM().getObject( id );
