@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.38 2007-12-14 19:52:19 cvskris Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.39 2008-04-14 21:06:05 cvskris Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -420,7 +420,7 @@ double SeisTrcBufDataPack::getAltDim0Value( int ikey, int i0 ) const
     const SeisTrcBuf& buf = trcBuf();
     return i0 < 0 || i0 >= buf.size() || ikey >= flds_.size()
 	 ? FlatDataPack::getAltDim0Value( ikey, i0 )
-	 : buf.get(i0)->getValue( flds_[ikey] );
+	 : buf.get(i0)->info().getValue( flds_[ikey] );
 }
 
 
