@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimsg.cc,v 1.34 2008-03-14 14:35:45 cvskris Exp $
+ RCS:           $Id: uimsg.cc,v 1.35 2008-04-14 21:52:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,8 +57,8 @@ uiStatusBar* uiMsg::statusBar()
 
 QWidget* uiMsg::popParnt()
 {
-    uiMainWin* mw = uiMainWin::activeWindow();
-    if ( !mw ) mw = uimainwin_;
+    uiMainWin* mw = uimainwin_; //Always respect user's setting first.
+    if ( !mw ) mw = uiMainWin::activeWindow();
     if ( !mw ) mw = uiMain::theMain().topLevel();
 
     if ( !mw  )		return 0;
