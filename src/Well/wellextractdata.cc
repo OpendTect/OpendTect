@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.35 2008-04-03 11:18:47 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.36 2008-04-14 10:29:33 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -135,10 +135,17 @@ void Well::TrackSampler::usePar( const IOPar& pars )
 }
 
 
+static int closeDPSS( ObjectSet<DataPointSet>& dpss )
+{
+    for ( int idx=0; idx<dpss.size(); idx++ )
+	dpss[idx]->dataChanged();
+    return Executor::Finished;
+}
+
 #define mRetNext() { \
     delete ioobj; \
     curid++; \
-    return curid >= ids.size() ? Finished : MoreToDo; }
+    return curid >= ids.size() ? closeDPSS(dpss) : MoreToDo; }
 
 int Well::TrackSampler::nextStep()
 {
@@ -304,6 +311,7 @@ void Well::LogDataExtracter::usePar( const IOPar& pars )
 }
 
 
+#undef mRetNext
 #define mRetNext() { \
     delete ioobj; \
     curid++; \
