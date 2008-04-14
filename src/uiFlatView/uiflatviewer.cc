@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.46 2008-04-10 03:29:21 cvsnanne Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.47 2008-04-14 21:18:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -318,7 +318,12 @@ int uiFlatViewer::getAnnotChoices( BufferStringSet& bss ) const
 	fdp->getAltDim0Keys( bss );
     if ( !bss.isEmpty() )
 	bss.addIfNew( appearance().annot_.x1_.name_ );
-    return axesdrawer_.altdim0_;
+    if ( !mIsUdf(axesdrawer_.altdim0_ ) )
+	return axesdrawer_.altdim0_;
+
+    const int res = bss.indexOf( appearance().annot_.x1_.name_ );
+    return res<0 ? mUdf(int) : res;
+
 }
 
 
