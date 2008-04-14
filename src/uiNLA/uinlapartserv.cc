@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.49 2008-04-11 13:22:25 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.50 2008-04-14 14:54:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -131,7 +131,8 @@ uiPrepNLAData( uiParent* p, const DataPointSet& dps )
     uiStatsDisplay::Setup su; su.withtext(false);
     statsfld_ = new uiStatsDisplay( graphgrp, su );
     statsfld_->setData( datavals.arr(), datavals.size() );
-    bsetup_.nrptsperclss = statsfld_->nrInpVals() / statsfld_->nrClasses();
+    bsetup_.nrptsperclss = statsfld_->nrClasses() > 0
+		? statsfld_->nrInpVals() / statsfld_->nrClasses() : 1;
     statsfld_->setMarkValue( bsetup_.nrptsperclss, false );
 
     uiGroup* datagrp = new uiGroup( this, "Data group" );

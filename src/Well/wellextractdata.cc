@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.36 2008-04-14 10:29:33 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.37 2008-04-14 14:54:32 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -363,10 +363,12 @@ void Well::LogDataExtracter::getData( DataPointSet& dps,
     const Well::Log& wl = wd.logs().getLog( wlidx );
     DataColDef* dcd = new DataColDef( lognm );
     int dpscolidx = dps.dataSet().findColDef( *dcd, PosVecDataSet::NameExact );
-    if ( dpscolidx < 0 )
+    if ( dpscolidx >= 0 )
+	delete dcd;
+    else
     {
 	dps.dataSet().add( dcd );
-	dpscolidx = dps.dataSet().nrCols() - 1;
+	dpscolidx = dps.nrCols() - 1;
 	if ( dpscolidx < 0 ) return;
     }
 
