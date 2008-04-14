@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.24 2008-04-08 18:54:52 cvskris Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.25 2008-04-14 21:19:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -395,14 +395,20 @@ void uiFVAnnotPropTab::AxesGroup::getFromScreen()
 
 int uiFVAnnotPropTab::AxesGroup::getSelAnnot() const
 {
-    return annotselfld_ ? annotselfld_->getIntValue() : -1;
+    if ( annotselfld_ )
+    {
+	const int res = annotselfld_->getIntValue();
+	return res==-1 ? mUdf(int) : res;
+    }
+
+    return mUdf(int);
 }
 
 
 void uiFVAnnotPropTab::AxesGroup::setSelAnnot( int selannot )
 {
     if ( annotselfld_ )
-	annotselfld_->setValue( selannot );
+	annotselfld_->setValue( mIsUdf(selannot) ? -1 : selannot );
 }
 
 
