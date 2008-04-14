@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.39 2008-04-14 21:06:05 cvskris Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.40 2008-04-14 21:15:24 cvskris Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -97,10 +97,10 @@ bool SeisTrcBuf::isSorted( bool ascending, SeisTrcInfo::Fld fld ) const
     const int sz = size();
     if ( sz < 2 ) return true;
 
-    float prevval = get(0)->getValue(fld);
+    float prevval = get(0)->info().getValue(fld);
     for ( int idx=1; idx<sz; idx++ )
     {
-	float val = get(idx)->getValue(fld);
+	float val = get(idx)->info().getValue(fld);
 	float diff = val - prevval;
 	if ( !mIsZero(diff,mDefEps) )
 	{
@@ -122,11 +122,11 @@ void SeisTrcBuf::sort( bool ascending, SeisTrcInfo::Fld fld )
 
     ArrPtrMan<int> idxs = new int [sz];
     ArrPtrMan<float> vals = new float [sz];
-    const double offs = get(0)->getValue( fld );
+    const double offs = get(0)->info().getValue( fld );
     for ( int idx=0; idx<sz; idx++ )
     {
 	idxs[idx] = idx;
-	vals[idx] = (float)(get(idx)->getValue( fld ) - offs);
+	vals[idx] = (float)(get(idx)->info().getValue( fld ) - offs);
     }
     sort_coupled( (float*)vals, (int*)idxs, sz );
     ObjectSet<SeisTrc> tmp;
@@ -144,12 +144,12 @@ void SeisTrcBuf::enforceNrTrcs( int nrrequired, SeisTrcInfo::Fld fld )
     SeisTrc* prevtrc = get(0);
     if ( !prevtrc ) return;
 
-    float prevval = prevtrc->getValue( fld );
+    float prevval = prevtrc->info().getValue( fld );
     int nrwithprevval = 1;
     for ( int idx=1; idx<=size(); idx++ )
     {
 	SeisTrc* trc = idx==size() ? 0 : get(idx);
-	float val = trc ? trc->getValue( fld ) : 0;
+	float val = trc ? trc->info().getValue( fld ) : 0;
 
 	if ( trc && mIsEqual(prevval,val,mDefEps) )
 	{
@@ -183,9 +183,9 @@ float* SeisTrcBuf::getHdrVals( SeisTrcInfo::Fld fld, double& offs )
     if ( sz < 1 ) return 0;
 
     float* ret = new float [sz];
-    offs = get(0)->getValue( fld );
+    offs = get(0)->info().getValue( fld );
     for ( int idx=0; idx<sz; idx++ )
-	ret[idx] = (float)(get(idx)->getValue( fld ) - offs);
+	ret[idx] = (float)(get(idx)->info().getValue( fld ) - offs);
 
     return ret;
 }
