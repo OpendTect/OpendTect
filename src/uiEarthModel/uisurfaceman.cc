@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.44 2008-03-06 06:38:17 cvsnanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.45 2008-04-15 12:00:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,7 @@ uiSurfaceMan::uiSurfaceMan( uiParent* p, const char* typ )
                                      mGetManageStr(typ),
                                      "104.2.0").nrstatusflds(1),
 		   mGetIoContext(typ) )
+    , attribfld(0)
 {
     createDefaultUI();
     uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
@@ -231,6 +232,8 @@ void uiSurfaceMan::renameAttribCB( CallBacker* )
 
 void uiSurfaceMan::fillAttribList( const BufferStringSet& strs )
 {
+    if ( !attribfld ) return;
+
     attribfld->empty();
     for ( int idx=0; idx<strs.size(); idx++)
 	attribfld->addItem( strs[idx]->buf() );
