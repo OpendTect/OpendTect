@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.cc,v 1.3 2008-04-09 12:28:08 cvsnanne Exp $
+ RCS:           $Id: uicoltabman.cc,v 1.4 2008-04-15 12:02:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -204,7 +204,7 @@ void uiColorTableMan::selChg( CallBacker* cb )
 	xvals += ctab_.transparency(idx).x;
 	yvals += ctab_.transparency(idx).y;
     }
-    cttranscanvas_->setVals( Interval<float>(0,1), yvals.arr(), xvals.size()  );
+    cttranscanvas_->setVals( xvals.arr(), yvals.arr(), xvals.size()  );
     cttranscanvas_->update();
 
     delete orgctab_;
@@ -250,7 +250,7 @@ void uiColorTableMan::removeCB( CallBacker* )
     ColTab::SM().getSequenceNames( allctnms );
     allctnms.sort();
     int newctabidx = allctnms.indexOf( ctnm );
-    if ( newctabidx > 0 )
+    if ( newctabidx>0 && selstatus_==sKeyOwn )
 	newctabidx--;
     const BufferString selctnm = allctnms.get( newctabidx );
     ColTab::SM().refresh();
@@ -395,7 +395,7 @@ bool uiColorTableMan::rejectOK( CallBacker* )
 
 void uiColorTableMan::undefColSel( CallBacker* )
 {
-    ctab_.undefColor() = undefcolfld_->color();
+    ctab_.setUndefColor( undefcolfld_->color() );
     tableChanged.trigger();
 }
 
@@ -460,6 +460,7 @@ void uiColorTableMan::doSegmentize()
 
     markercanvas_->update();
     ctabcanvas_->forceNewFill();
+    tableChanged.trigger();
 }
 
 
@@ -485,7 +486,10 @@ void uiColorTableMan::rightClick( CallBacker* )
     if ( selidx_<0 ) return;
     Color col = ctab_.color( wpt.x );
     if ( selectColor(col,this,"Color selection",false) )
+    {
 	ctab_.changeColor( selidx_-1, col.r(), col.g(), col.b() );
+	tableChanged.trigger();
+    }
 
     ctabcanvas_->getMouseEventHandler().setHandled( true );
 }
@@ -544,14 +548,14 @@ void uiColorTableMan::mouseClk( CallBacker* cb )
     if ( selidx_ < 0 ) return;
     uiPopupMenu mnu( this, "Action" );
     if ( selidx_ && selidx_ != ctab_.size() - 1 )
-            mnu.insertItem( new uiMenuItem("Remove color"), 0 );
+	mnu.insertItem( new uiMenuItem("Remove color"), 0 );
     mnu.insertItem( new uiMenuItem("Change color ..."), 1 );
 
-    int res = mnu.exec();
-    if ( !res )
-            removeMarker( selidx_ );
-    else if ( res == 1 )
-            changeColor( selidx_ );
+    const int res = mnu.exec();
+    if ( res==0 )
+	removeMarker( selidx_ );
+    else if ( res==1 )
+	changeColor( selidx_ );
 
     markercanvas_->update();
     selidx_ = -1;
@@ -565,24 +569,27 @@ void uiColorTableMan::addMarker( float pos, bool withcolsel )
     const int markeridx = ctab_.setColor( pos, col.r(), col.g(), col.b() );
 
     if ( withcolsel ) changeColor( markeridx );
+    tableChanged.trigger();
 }
 
 
 void uiColorTableMan::removeMarker( int markeridx )
 {
     ctab_.removeColor( markeridx );
+    tableChanged.trigger();
 }
 
 
 void uiColorTableMan::changeColor( int markeridx )
 {
     Color col = ctab_.color( ctab_.position(markeridx) );
-    if ( selectColor( col, this, "Color selection", false ) )
+    if ( selectColor(col,this,"Color selection",false) )
     {
 	ctab_.changeColor( markeridx, col.r(), col.g(), col.b() );
 	tableChanged.trigger();
     }
 }
+
 
 void uiColorTableMan::mouse2Clk( CallBacker* cb )
 {
@@ -630,13 +637,13 @@ void uiColorTableMan::mouseMove( CallBacker* cb )
     ctab_.changePos( selidx_, wpt.x );
     markercanvas_->update();
     markercanvas_->getMouseEventHandler().setHandled( true );
+    tableChanged.trigger();
 }
 
 
 void uiColorTableMan::sequenceChange( CallBacker* )
 {
     ctabcanvas_->forceNewFill();
-    tableChanged.trigger();
 }
 
 
@@ -663,22 +670,45 @@ void uiColorTableMan::transptChg( CallBacker* )
     {
 	Geom::Point2D<float> pt( cttranscanvas_->xVals()[ptidx],
 				 cttranscanvas_->yVals()[ptidx] );
+	bool reset = false;
 	if ( ptidx==0 && !mIsZero(pt.x,mEps) )
+	{
 	    pt.x = 0;
+	    reset = true;
+	}
 	else if ( ptidx==nrpts-1 && !mIsZero(pt.x-1,mEps) )
+	{
 	    pt.x = 1;
+	    reset = true;
+	}
+
+	if ( reset )
+	{
+	    TypeSet<float> xvals;
+	    TypeSet<float> yvals;
+	    for ( int idx=0; idx<ctab_.transparencySize(); idx++ )
+	    {
+		xvals += ctab_.transparency(idx).x;
+		yvals += ctab_.transparency(idx).y;
+	    }
+	    cttranscanvas_->setVals( xvals.arr(), yvals.arr(), xvals.size() );
+	}
 
 	ctab_.changeTransparency( ptidx, pt );
     }
+    tableChanged.trigger();
 }
 
 
 void uiColorTableMan::transptSel( CallBacker* )
 {
     const int ptidx = cttranscanvas_->selPt();
-    if ( ptidx < 0 ) return;
+    const int nrpts = cttranscanvas_->xVals().size();
+    if ( ptidx<0 || nrpts == ctab_.transparencySize() )
+	return;
 
     Geom::Point2D<float> pt( cttranscanvas_->xVals()[ptidx],
 	    		     cttranscanvas_->yVals()[ptidx] );
     ctab_.setTransparency( pt );
+    tableChanged.trigger();
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.14 2008-04-11 11:34:09 cvsnanne Exp $
+ RCS:           $Id: uicolortable.cc,v 1.15 2008-04-15 12:02:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,8 +42,6 @@ uiColorTable::uiColorTable( uiParent* p, ColTab::Sequence& colseq, bool vert )
 	: uiGroup(p,"Color table display/edit")
 	, mStdInitList
 	, coltabseq_(*new ColTab::Sequence(colseq))
-	, canvas_(0)
-	, selfld_(0)
 	, symmidval_(0)
 {
     FloatInpSpec minfis;
@@ -56,6 +54,8 @@ uiColorTable::uiColorTable( uiParent* p, ColTab::Sequence& colseq, bool vert )
     canvas_->getMouseEventHandler().buttonPressed.notify(
 			mCB(this,uiColorTable,canvasClick) );
     canvas_->setDrawArr( true );
+    if ( !vert )
+	canvas_->setPrefHeight( minfld_->prefVNrPics()-2 );
 
     FloatInpSpec maxfis;
     maxfld_ = new uiLineEdit( this, maxfis, "Max" );
@@ -65,14 +65,13 @@ uiColorTable::uiColorTable( uiParent* p, ColTab::Sequence& colseq, bool vert )
 
     selfld_ = new uiComboBox( this, "Table selection" );
     selfld_->selectionChanged.notify( mCB(this,uiColorTable,tabSel) );
-    selfld_->setStretch( 0, vert ? 1 : 0 );
 
     if ( vert )
     {
-	minfld_->attach( topBorder, 20 );
-	canvas_->attach( centeredBelow, minfld_ );
-	maxfld_->attach( centeredBelow, canvas_ );
-	selfld_->attach( centeredBelow, maxfld_ );
+	minfld_->attach( topBorder, 2 );
+	canvas_->attach( centeredBelow, minfld_, 2 );
+	maxfld_->attach( centeredBelow, canvas_, 2 );
+	selfld_->attach( centeredBelow, maxfld_, 2 );
     }
     else
     {
@@ -89,9 +88,7 @@ uiColorTable::uiColorTable( uiParent* p, ColTab::Sequence& colseq, bool vert )
 uiColorTable::uiColorTable( uiParent* p, const char* ctnm, bool vert )
 	: uiGroup(p,"Color table display")
 	, mStdInitList
-	, coltabseq_( *new ColTab::Sequence() )
-	, canvas_(0)
-	, selfld_(0)
+	, coltabseq_(*new ColTab::Sequence())
 {
     ColTab::SM().get( ctnm, coltabseq_ );
     canvas_ = new uiColorTableCanvas( this, coltabseq_, true, vert );
@@ -313,8 +310,8 @@ void uiColorTable::doEdit( CallBacker* )
 
 void uiColorTable::colTabManChgd( CallBacker* cb )
 {
-    mDynamicCastGet(uiColorTableMan*,ctman,cb);
-    setTable( ctman->currentColTab(), true );
+    selfld_->setCurrentItem( coltabseq_.name() );
+    canvas_->forceNewFill();
     seqChanged.trigger();
 }
 

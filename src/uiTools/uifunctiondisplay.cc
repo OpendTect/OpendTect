@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uifunctiondisplay.cc,v 1.9 2008-04-08 04:30:01 cvssatyaki Exp $
+ RCS:           $Id: uifunctiondisplay.cc,v 1.10 2008-04-15 12:02:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -330,12 +330,18 @@ void uiFunctionDisplay::mouseMove( CallBacker* )
     if ( !isnorm || selpt_ < 0 ) return;
 
     float xval = xax_->getVal( ev.pos().x );
+    float yval = yax_->getVal( ev.pos().y );
+
     if ( selpt_ > 0 && xvals_[selpt_-1] >= xval )
 	return;
     if ( selpt_ < xvals_.size() - 1 && xvals_[selpt_+1] <= xval )
 	return;
 
-    float yval = yax_->getVal( ev.pos().y );
+    if ( xval > xax_->range().stop )
+	xval = xax_->range().stop;
+    else if ( xval < xax_->range().start )
+	xval = xax_->range().start;
+
     if ( yval > yax_->range().stop )
 	yval = yax_->range().stop;
     else if ( yval < yax_->range().start )
