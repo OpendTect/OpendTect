@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.40 2008-04-09 11:10:09 cvsnanne Exp $
+ RCS:           $Id: iodraw.cc,v 1.41 2008-04-15 10:33:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -483,19 +483,23 @@ void ioDrawTool::preparePainter() const
 	ioDrawTool& self = *const_cast<ioDrawTool*>( this );
 	self.qpainter_->setPen( qpen_ ); 
 	self.qpainter_->setFont( font_->qFont() );
-	QRectF rect( 0, 0, self.getDevWidth(), self.getDevHeight() );
-	QBrush brush;
 	if ( usebgpattern_ )
 	{
 	    qpainter_->setBackgroundMode( Qt::OpaqueMode );
+	    QBrush brush;
 	    brush.setColor( QColor(0,0,0) );
 	    brush.setStyle( Qt::DiagCrossPattern );
-	    rect.setRect( 1, 1, self.getDevWidth()-2, self.getDevHeight()-2 );
+	    self.qpainter_->fillRect(
+		   QRectF(1,1,self.getDevWidth()-2,self.getDevHeight()-2),
+		   brush );
 	}
 	else
-	    brush.setColor( QColor(areabgcolor_.r(),areabgcolor_.g(),
-				   areabgcolor_.b()) );
-	self.qpainter_->fillRect( rect, brush );
+	{
+	    qpainter_->setBackgroundMode( Qt::TransparentMode );
+	    self.qpainter_->fillRect(
+		    QRectF(0,0,self.getDevWidth(),self.getDevHeight()),
+		    QColor(areabgcolor_.r(),areabgcolor_.g(),areabgcolor_.b()));
+	}
 	self.qpainterprepared_ = true;
     }
 }
