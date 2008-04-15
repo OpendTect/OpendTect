@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.47 2008-04-14 21:18:00 cvskris Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.48 2008-04-15 16:29:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -222,7 +222,10 @@ void uiFlatViewer::drawBitMaps()
 	    offs = vdbmpmgr_->dataOffs( wr_, uisz );
     }
 
-    if ( mIsUdf(offs.x) )
+    const bool hasdata = packID(false)!=DataPack::cNoID ||
+			 packID(true)!=DataPack::cNoID;
+
+    if ( hasdata && mIsUdf(offs.x) )
     {
 	wvabmpmgr_->setupChg(); vdbmpmgr_->setupChg();
 	if ( !mkBitmaps(offs) )
@@ -233,7 +236,7 @@ void uiFlatViewer::drawBitMaps()
 	}
     }
 
-    if ( mIsUdf(offs.x) )
+    if ( hasdata && mIsUdf(offs.x) )
     {
 	ErrMsg( "Internal error during bitmap generation" );
 	return;
@@ -256,12 +259,11 @@ bool uiFlatViewer::mkBitmaps( uiPoint& offs )
     // Extend the viewed worldrect; check bounds
     uiWorldRect bufwr( wr_.grownBy(1+bufextendratio_) );
     const uiWorldRect bb( boundingBox() );
-#define mChkBound(bufside,op,bbside,Side) \
+    #define mChkBound(bufside,op,bbside,Side) \
     if ( bufwr.bufside() op bb.bbside() ) bufwr.set##Side( bb.bbside() )
     mChkBound(left,<,left,Left); mChkBound(left,>,right,Left);
     mChkBound(right,<,left,Right); mChkBound(right,>,right,Right);
     mChkBound(bottom,<,bottom,Bottom); mChkBound(top,<,bottom,Top);
-    mChkBound(top,>,top,Top); mChkBound(bottom,>,top,Bottom);
 
     // Calculate buffer size, snap buffer world rect
     Geom::Size2D<double> bufwrsz( bufwr.size() );
