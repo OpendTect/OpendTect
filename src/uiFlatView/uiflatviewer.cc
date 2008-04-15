@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.48 2008-04-15 16:29:23 cvskris Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.49 2008-04-15 22:21:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -236,9 +236,10 @@ void uiFlatViewer::drawBitMaps()
 	}
     }
 
-    if ( hasdata && mIsUdf(offs.x) )
+    if ( mIsUdf(offs.x) )
     {
-	ErrMsg( "Internal error during bitmap generation" );
+	if ( hasdata )
+	    ErrMsg( "Internal error during bitmap generation" );
 	return;
     }
 
