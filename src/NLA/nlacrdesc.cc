@@ -4,7 +4,7 @@
  * DATE     : June 2001
 -*/
  
-static const char* rcsID = "$Id: nlacrdesc.cc,v 1.16 2008-04-11 13:22:25 cvsbert Exp $";
+static const char* rcsID = "$Id: nlacrdesc.cc,v 1.17 2008-04-15 12:50:30 cvsbert Exp $";
 
 #include "nlacrdesc.h"
 
@@ -47,49 +47,6 @@ void NLACreationDesc::clear()
 static bool transferData2DPS( const PosVecDataSet& vds, DataPointSet& dps,
 			      BufferString& errmsg )
 {
-    const int nrcols = dps.nrCols();
-    TypeSet<int> tbl( nrcols, -1 );
-    for ( int idx=0; idx<2; idx++ )
-    {
-	const DataColDef::MatchLevel ml = idx	? DataColDef::Exact
-	    					: DataColDef::Start;
-	for ( DataPointSet::ColID colid=0; colid<nrcols; colid++ )
-	{
-	    if ( tbl[colid] >= 0 ) continue;
-
-	    const DataColDef& dpscd = dps.colDef( colid );
-	    for ( int vdscol=0; vdscol<vds.nrCols(); vdscol++ )
-	    {
-		if ( dpscd.compare(vds.colDef(vdscol),true) )
-		    { tbl[colid] = vdscol; break; }
-	    }
-	}
-    }
-
-    for ( int idx=0; idx<tbl.size(); idx++ )
-    {
-	if ( tbl[idx] < 0 )
-	{
-	    errmsg = "Input data contains no column '";
-	    errmsg += dps.colName( idx ); errmsg += "'";
-	    return false;
-	}
-    }
-
-    const BinIDValueSet& bvs = vds.data();
-    BinIDValueSet::Pos pos;
-    DataPointSet::DataRow dr; dr.data_.setSize( nrcols );
-    while ( bvs.next(pos) )
-    {
-	const float* vals = bvs.getVals( pos );
-	for ( DataPointSet::ColID colid=0; colid<nrcols; colid++ )
-	    dr.data_[ colid ] = vals[ tbl[colid] ];
-	dr.pos_.binid_ = bvs.getBinID( pos );
-	dr.pos_.z_ = vals[0];
-	dps.addRow( dr );
-    }
-
-    dps.dataChanged();
     return true;
 }
 
@@ -98,17 +55,18 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
 					  DataPointSet& traindps,
 					  DataPointSet& testdps ) const
 {
-    const int nrout = dpss.size();
-    if ( !nrout )
-	{ return "Internal: No input DataPointSets to transfer data from"; }
-    int totnrvec = 0;
-    for ( int idps=0; idps<dpss.size(); idps++ )
-	totnrvec += dpss[idps]->size();
-    if ( totnrvec < 1 )
-	return "No data vectors found";
-
+    int nrout = dpss.size();
     BufferString dpsnmadd;
-    if ( !doextraction )
+    int totnrvec = 0;
+
+    if ( doextraction )
+    {
+	if ( nrout < 1 )
+	    { return "Internal: No input DataPointSets to transfer data from"; }
+	for ( int idps=0; idps<dpss.size(); idps++ )
+	    totnrvec += dpss[idps]->size();
+    }
+    else
     {
 	PtrMan<IOObj> ioobj = IOM().get( vdsid );
 	if ( !ioobj )
@@ -118,12 +76,20 @@ const char* NLACreationDesc::prepareData( const ObjectSet<DataPointSet>& dpss,
 	    return errmsg.buf();
 	if ( vds.pars().isEmpty() || vds.data().isEmpty() )
 	    return "Invalid input data set specified";
-	DataPointSet& dps = const_cast<DataPointSet&>( *dpss[0] );
-	if ( !transferData2DPS(vds,dps,errmsg) )
-	    return errmsg.buf();
+
+	ObjectSet<DataPointSet>& ncdpss
+	    		= const_cast<ObjectSet<DataPointSet>&>( dpss );
+	const bool is2d = dpss[0]->is2D();
+	const bool ismini = dpss[0]->isMinimal();
+	deepErase( ncdpss );
+	ncdpss += new DataPointSet( vds, is2d, ismini );
 	dpsnmadd += " (data from '";
 	dpsnmadd += ioobj->name(); dpsnmadd += "')";
+	nrout = 1;
+	totnrvec = dpss[0]->size();
     }
+    if ( totnrvec < 1 )
+	return "No data vectors found";
 
     BufferString setnm( "NN Training data" ); setnm += dpsnmadd;
     traindps.setName( setnm );

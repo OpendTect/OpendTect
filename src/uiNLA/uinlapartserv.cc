@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.50 2008-04-14 14:54:32 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.51 2008-04-15 12:50:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -212,7 +212,7 @@ bool acceptOK( CallBacker* )
 	if ( mIsUdf(bsetup_.noiselvl) )
 	    bsetup_.noiselvl = 0;
 	if ( bsetup_.noiselvl > 100 || bsetup_.noiselvl < -1e-6 )
-	    mErrRet("Please enter a valid number of points per class")
+	    mErrRet("Please enter a valid noise level")
 	bsetup_.noiselvl *= 0.01;
     }
 
@@ -546,13 +546,19 @@ const char* uiNLAPartServer::prepareInputData( ObjectSet<DataPointSet>& dpss )
 	    NLADataPreparer dptrain( traindps->dataSet().data(), targetcol );
 	    dptrain.removeUndefs(); dptrain.limitRange( pddlg.rg_ );
 	    if ( pddlg.dobal_ )
+	    {
 		dptrain.balance( pddlg.bsetup_ );
+		traindps->dataChanged();
+	    }
 	    if ( !testdps->isEmpty() )
 	    {
 		NLADataPreparer dptest( testdps->dataSet().data(), targetcol );
 		dptest.removeUndefs(); dptest.limitRange( pddlg.rg_ );
 		if ( pddlg.dobal_ )
+		{
 		    dptest.balance( pddlg.bsetup_ );
+		    testdps->dataChanged();
+		}
 	    }
 	}
     }

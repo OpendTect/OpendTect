@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.37 2008-04-14 14:54:32 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.38 2008-04-15 12:50:31 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -392,7 +392,7 @@ void Well::LogDataExtracter::getData( DataPointSet& dps,
     float z1 = track.pos(trackidx).z;
 
     int dpsrowidx = 0; float dpsz = 0;
-    while ( dpsrowidx < dps.size() )
+    for ( ; dpsrowidx<dps.size(); dpsrowidx++ )
     {
 	dpsz = dps.z(dpsrowidx);
 	if ( dpsz > z1 - tol )

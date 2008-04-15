@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.10 2008-04-11 13:22:25 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.11 2008-04-15 12:50:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -817,7 +817,7 @@ uiDataPointSetSave( uiParent* p, const char* typ )
     const CallBack tccb( mCB(this,uiDataPointSetSave,outTypChg) );
 
     tabfld_ = new uiGenInput( this, "Output to",
-	    		BoolInpSpec(true,"Text file","OpendTect object") );
+	    		BoolInpSpec(false,"Text file","OpendTect object") );
     tabfld_->valuechanged.notify( tccb );
     uiFileInput::Setup su;
     su.defseldir(GetDataDir()).forread(false).filter("*.txt");
