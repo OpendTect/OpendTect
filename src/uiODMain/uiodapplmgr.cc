@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.241 2008-04-08 13:43:42 cvsjaap Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.242 2008-04-15 13:12:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -1141,14 +1141,16 @@ bool uiODApplMgr::handleNLAServEv( int evid )
 	// Put data in the training and test posvec data sets
 
 	if ( !attrserv_->curDescSet(nlaserv_->is2DEvent()) ) 
-	{ pErrMsg("Huh"); return false; }
+	    { pErrMsg("Huh"); return false; }
 	ObjectSet<DataPointSet> dpss;
 	const bool dataextraction = nlaserv_->willDoExtraction();
-	nlaserv_->getDataPointSets( dpss );
-	if ( dpss.isEmpty() )
-	    { uiMSG().error("No valid data locations found"); return false;}
-	if ( dataextraction )
+	if ( !dataextraction )
+	    dpss += new DataPointSet( nlaserv_->is2DEvent(), false );
+	else
 	{
+	    nlaserv_->getDataPointSets( dpss );
+	    if ( dpss.isEmpty() )
+		{ uiMSG().error("No valid data locations found"); return false;}
 	    if ( !attrserv_->extractData(dpss) )
 		return true;
 	    IOPar& iop = nlaserv_->storePars();
