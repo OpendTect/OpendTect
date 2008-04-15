@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.41 2008-04-04 10:50:44 cvsnanne Exp $
+ RCS:           $Id: uicanvas.cc,v 1.42 2008-04-15 10:35:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,23 +30,21 @@ static const int sDefaultWidth  = 1;
 static const int sDefaultHeight = 1;
 
 
-class uiCanvasBody : public uiDrawableObjBody<uiCanvas,QWidget>
+class uiCanvasBody : public uiDrawableObjBody<uiCanvas,QFrame>
 {
 
 public:
-                        uiCanvasBody( uiCanvas& handle, uiParent* p,
-				      const char *nm="uiCanvasBody")
-			    : uiDrawableObjBody<uiCanvas,QWidget>
-				( handle, p, nm ) 
-			    {
-				setStretch( 2, 2 );
-				setPrefWidth( sDefaultWidth );
-				setPrefHeight( sDefaultHeight );
-			    }
+uiCanvasBody( uiCanvas& handle, uiParent* p, const char *nm="uiCanvasBody")
+    : uiDrawableObjBody<uiCanvas,QFrame>( handle, p, nm ) 
+{
+    setStretch( 2, 2 );
+    setPrefWidth( sDefaultWidth );
+    setPrefHeight( sDefaultHeight );
+    setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
+}
 
-    virtual             ~uiCanvasBody() {};
-
-    void		updateCanvas()		{ QWidget::update(); }
+virtual		~uiCanvasBody()		{}
+void		updateCanvas()		{ QWidget::update(); }
 };
 
 
