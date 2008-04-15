@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.24 2008-01-15 16:19:43 cvsbert Exp $";
+static const char* rcsID = "$Id: dipfilterattrib.cc,v 1.25 2008-04-15 09:24:36 cvshelene Exp $";
 
 
 #include "dipfilterattrib.h"
@@ -152,9 +152,9 @@ DipFilter::DipFilter( Desc& ds )
     mGetFloat( taperlen, taperlenStr() );
     taperlen = taperlen/100;
 
-    kernel.setSize( size, size, size );
+    kernel.setSize( desc.is2D() ? 1 : size, size, size );
     valrange = Interval<float>(minvel,maxvel);
-    stepout = BinID( size/2, size/2 );
+    stepout = desc.is2D() ? BinID( 0, size/2 ) : BinID( size/2, size/2 );
     initKernel();
 }
 
@@ -167,11 +167,13 @@ bool DipFilter::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool DipFilter::initKernel()
 {
+    const bool is2d = desc.is2D();
     const int hsz = size/2;
+    const int hszinl = is2d ? 0 : hsz;
 
     float kernelsum = 0;
 
-    for ( int kii=-hsz; kii<=hsz; kii++ )
+    for ( int kii=-hszinl; kii<=hszinl; kii++ )
     {
 	float ki = kii * inldist();
 	float ki2 = ki*ki;
@@ -279,20 +281,20 @@ bool DipFilter::initKernel()
 		    }
 		}
 
-		kernel.set( hsz+kii, hsz+kci, hsz+kti, factor );
+		kernel.set( hszinl+kii, hsz+kci, hsz+kti, factor );
 		kernelsum += factor;
 	    }
 	}
     }
 
-    for ( int kii=-hsz; kii<=hsz; kii++ )
+    for ( int kii=-hszinl; kii<=hszinl; kii++ )
     {
 	for ( int kci=-hsz; kci<=hsz; kci++ )
 	{
 	    for ( int kti=-hsz; kti<=hsz; kti++ )
 	    {
-		kernel.set( hsz+kii, hsz+kci, hsz+kti, 
-			 kernel.get( hsz+kii, hsz+kci, hsz+kti )/ kernelsum);
+		kernel.set( hszinl+kii, hsz+kci, hsz+kti, 
+			 kernel.get( hszinl+kii, hsz+kci, hsz+kti )/ kernelsum);
 	    }
 	}
     }
@@ -312,7 +314,7 @@ float DipFilter::taper( float pos ) const
 
 bool DipFilter::getInputData( const BinID& relpos, int index )
 {
-    while ( inputdata.size()< (1+stepout.inl*2) * (1+stepout.inl*2) )
+    while ( inputdata.size()< (1+stepout.inl*2) * (1+stepout.crl*2) )
 	inputdata += 0;
     
     int idx = 0;
@@ -343,12 +345,13 @@ bool DipFilter::computeData( const DataHolder& output, const BinID& relpos,
     if ( outputinterest.isEmpty() ) return false;
 
     const int hsz = size/2;
+    const int sizeinl = desc.is2D() ? 1 : size;
     for ( int idx=0; idx<nrsamples; idx++)
     {
 	int dhoff = 0;
 	int nrvalues = 0;
 	float sum = 0;
-	for ( int idi=0; idi<size; idi++ )
+	for ( int idi=0; idi<sizeinl; idi++ )
 	{
 	    for ( int idc=0; idc<size; idc++ )
 	    {
