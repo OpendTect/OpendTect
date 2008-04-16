@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.44 2007-12-27 11:08:11 cvsnanne Exp $
+ RCS:           $Id: uicombobox.cc,v 1.45 2008-04-16 15:15:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -244,9 +244,17 @@ bool uiComboBox::isReadOnly() const
     return !body_->editable();
 }
 
+
 void uiComboBox::addItem( const char* text ) 
 { 
     insertItem( text, -1 );
+}
+
+
+void uiComboBox::addItems( const BufferStringSet& bss )
+{
+    for ( int idx=0; idx<bss.size(); idx++ )
+	insertItem( bss.get(idx), -1 );
 }
 
 
