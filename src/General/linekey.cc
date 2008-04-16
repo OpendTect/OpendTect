@@ -4,7 +4,7 @@
  * DATE     : Oct 2004
 -*/
 
-static const char* rcsID = "$Id: linekey.cc,v 1.10 2008-04-16 14:44:51 cvsbert Exp $";
+static const char* rcsID = "$Id: linekey.cc,v 1.11 2008-04-16 15:52:14 cvshelene Exp $";
 
 #include "linekey.h"
 #include "iopar.h"
@@ -51,6 +51,8 @@ BufferString LineKey::attrName() const
 	ptr = strchr( buf(), '|' );
 	if ( ptr )
 	    { ptr++; mSkipBlanks(ptr); }
+	else
+	    ptr = sKeyDefAttrib;
     }
 
     return BufferString( ptr );
