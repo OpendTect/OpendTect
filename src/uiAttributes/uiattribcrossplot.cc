@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiattribcrossplot.cc,v 1.27 2008-04-16 10:13:16 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.28 2008-04-16 15:40:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -238,8 +238,9 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     const_cast<PosVecDataSet*>( &(dps->dataSet()) )->pars() = descsetpars;
     mDPM.add( dps );
 
-    BufferString errmsg;
-    Attrib::EngineMan aem;
+    BufferString errmsg; Attrib::EngineMan aem;
+    if ( lnmfld_ )
+	aem.setLineKey( lnmfld_->text() );
     MouseCursorManager::setOverride( MouseCursor::Wait );
     PtrMan<Executor> tabextr = aem.getTableExtractor( *dps, ads_, errmsg );
     MouseCursorManager::restoreOverride();
