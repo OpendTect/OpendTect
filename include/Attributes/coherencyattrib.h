@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: coherencyattrib.h,v 1.12 2007-11-09 16:53:51 cvshelene Exp $
+ RCS:           $Id: coherencyattrib.h,v 1.13 2008-04-16 09:43:22 cvshelene Exp $
 ________________________________________________________________________
 
 Coherency type= gate= [maxdip=250] [ddip=10]
@@ -17,9 +17,9 @@ Calculates the coherency.
 Input:
 0       Data
 
-Output:
-0       Coherency
-1       Inline dip
+Output:	3D			2D
+0       Coherency		Coherency
+1       Inline dip		Trace dip
 2       Crossline dip
 -*/
 

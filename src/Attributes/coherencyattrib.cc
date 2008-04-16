@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.21 2008-01-15 16:19:43 cvsbert Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.22 2008-04-16 09:42:42 cvshelene Exp $";
 
 
 #include "coherencyattrib.h"
@@ -64,6 +64,9 @@ void Coherency::updateDesc( Desc& desc )
     const ValParam* type = desc.getValParam( sKeyType() );
     if ( type->getIntValue() == 2 )
 	desc.inputSpec(1).enabled = true;
+
+    if ( desc.is2D() )
+	desc.setNrOutputs( Seis::UnknowData, 2 );
 }
 
 
@@ -88,7 +91,8 @@ Coherency::Coherency( Desc& desc_ )
     ddip_ = ddip_/dipFactor();
 
     mGetBinID( stepout_, sKeyStepout() );
-    stepout_.inl = abs( stepout_.inl ); stepout_.crl = abs( stepout_.crl );
+    stepout_.inl = desc.is2D() ? 0 : abs( stepout_.inl );
+    stepout_.crl = abs( stepout_.crl );
 
     const float extraz = 
 		    (stepout_.inl*inldist()+stepout_.crl*crldist()) * maxdip_;
@@ -215,12 +219,13 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	float cursamp = z0 + idx;
-	float maxcoh = -1;
+	float maxcoh = 0;
 	float dipatmax;
 
 	float curdip = -maxdip_;
+	const bool is2d = desc.is2D();
 
-	while ( curdip <= maxdip_ )
+	while ( curdip <= maxdip_ && !is2d )
 	{
 	    float coh = calc1( cursamp, cursamp + (curdip * distinl_)/refstep,
 				samplegate, *inputdata_[0], *inputdata_[1] );
@@ -232,7 +237,7 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 	float cohres = maxcoh;
 	float inldip = dipatmax;
 
-	maxcoh = -1;
+	maxcoh = 0;
 	
 	curdip = -maxdip_;
 
@@ -246,11 +251,14 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 	}
 
 	cohres += maxcoh;
-	cohres /= 2;
+	if ( !is2d )
+	    cohres /= 2;
 
 	setOutputValue( output, 0, idx, z0, cohres );
-	setOutputValue( output, 1, idx, z0, inldip * dipFactor() );
-	setOutputValue( output, 2, idx, z0, dipatmax * dipFactor() );
+	setOutputValue( output, 1, idx, z0, is2d ? dipatmax * dipFactor()
+						 : inldip * dipFactor() );
+	if ( !is2d )
+	    setOutputValue( output, 2, idx, z0, dipatmax * dipFactor() );
     }
 
     return true;
@@ -260,6 +268,7 @@ bool Coherency::computeData1( const DataHolder& output, int z0,
 bool Coherency::computeData2( const DataHolder& output, int z0, 
 			      int nrsamples ) const
 {
+    const bool is2d = desc.is2D();
     Interval<int> samplegate( mNINT(gate_.start/refstep),
 				mNINT(gate_.stop/refstep) );
     for ( int idx=0; idx<nrsamples; idx++ )
@@ -269,7 +278,8 @@ bool Coherency::computeData2( const DataHolder& output, int z0,
 	float inldipatmax;
 	float crldipatmax;
 
-	float inldip = -maxdip_;
+	//in 2D suppress loop over inldip
+	float inldip = is2d ? maxdip_ : -maxdip_;	
 
 	while ( inldip <= maxdip_ )
 	{
@@ -290,8 +300,10 @@ bool Coherency::computeData2( const DataHolder& output, int z0,
 	}
 	
 	setOutputValue( output, 0, idx, z0, maxcoh );
-	setOutputValue( output, 1, idx, z0, inldipatmax * dipFactor() );
-	setOutputValue( output, 2, idx, z0, crldipatmax * dipFactor() );
+	setOutputValue( output, 1, idx, z0, is2d ? crldipatmax * dipFactor()
+						 : inldipatmax * dipFactor() );
+	if ( !is2d )
+	    setOutputValue( output, 2, idx, z0, crldipatmax * dipFactor() );
     }
 
     return true;
@@ -306,6 +318,7 @@ bool Coherency::getInputOutput( int input, TypeSet<int>& res ) const
 
 bool Coherency::getInputData( const BinID& relpos, int idx )
 {
+    const bool is2d = desc.is2D();
     const BinID bidstep = inputs[0]->getStepoutStep();
     if ( type_==1 )
     {
@@ -313,11 +326,11 @@ bool Coherency::getInputData( const BinID& relpos, int idx )
 	    inputdata_ += 0;
 
 	const DataHolder* datac = inputs[0]->getData( relpos, idx );
-	const DataHolder* datai = 
+	const DataHolder* datai = is2d ? 0 :
 	   inputs[0]->getData( BinID(relpos.inl+bidstep.inl, relpos.crl), idx );
 	const DataHolder* datax =
 	   inputs[0]->getData( BinID(relpos.inl, relpos.crl+bidstep.crl), idx );
-	if ( !datac || !datai || !datax )
+	if ( !datac || (!datai&&!is2d) || !datax )
 	    return false;
 
 	realidx_ = getDataIndex( 0 );
