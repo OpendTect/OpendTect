@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiattribcrossplot.cc,v 1.26 2008-04-09 14:03:59 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.27 2008-04-16 10:13:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,15 +23,18 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "posinfo.h"
 #include "posprovider.h"
 #include "posfilterset.h"
 #include "posvecdataset.h"
 #include "seisioobjinfo.h"
+#include "seis2dline.h"
 
 #include "mousecursor.h"
 #include "uidatapointset.h"
 #include "uiioobjsel.h"
 #include "uilistbox.h"
+#include "uicombobox.h"
 #include "uimsg.h"
 #include "uiposfilterset.h"
 #include "uiposprovider.h"
@@ -44,17 +47,29 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 		     "Select attributes and locations for cross-plot"
 		     ,"101.3.0").modal(false))
 	, ads_(*new Attrib::DescSet(d.is2D()))
+    	, lnmfld_(0)
+    	, l2ddata_(0)
 {
     uiLabeledListBox* llb = new uiLabeledListBox( this,
 	    					  "Attributes to calculate" );
     attrsfld_ = llb->box();
     attrsfld_->setMultiSelect( true );
 
+    uiGroup* attgrp = llb;
+    if ( ads_.is2D() )
+    {
+	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Line name" );
+	lnmfld_ = lcb->box();
+	lcb->attach( alignedBelow, llb );
+	attgrp = lcb;
+	lnmfld_->selectionChanged.notify( mCB(this,uiAttribCrossPlot,lnmChg) );
+    }
+
     uiPosProvider::Setup psu( ads_.is2D(), true );
     psu.seltxt( "Select locations by" ).choicetype( uiPosProvider::Setup::All );
     posprovfld_ = new uiPosProvider( this, psu );
     posprovfld_->setExtractionDefaults();
-    posprovfld_->attach( alignedBelow, llb );
+    posprovfld_->attach( alignedBelow, attgrp );
 
     uiPosFilterSet::Setup fsu( ads_.is2D() );
     fsu.seltxt( "Location filters" ).incprovs( true );
@@ -97,17 +112,69 @@ void uiAttribCrossPlot::adsChg()
     }
     if ( !attrsfld_->isEmpty() )
 	attrsfld_->setCurrentItem( int(0) );
+
+    if ( !lnmfld_ ) return;
+
+    lnmfld_->empty();
+    const Attrib::Desc* desc = ads_.getFirstStored( false );
+    if ( !desc ) return;
+    MultiID mid; desc->getMultiID( mid );
+    if ( mid.isEmpty() ) return;
+    SeisIOObjInfo sii( mid );
+    if ( !sii.isOK() || !sii.is2D() ) return;
+
+    BufferStringSet bss; sii.getLineNames( bss );
+    for ( int idx=0; idx<bss.size(); idx++ )
+	lnmfld_->addItem( bss.get(idx) );
+
+    lnmChg( 0 );
 }
 
 
 uiAttribCrossPlot::~uiAttribCrossPlot()
 {
     delete const_cast<Attrib::DescSet*>(&ads_);
+    delete l2ddata_;
+}
+
+
+#define mErrRet(s) { uiMSG().error(s); return; }
+
+
+void uiAttribCrossPlot::lnmChg( CallBacker* )
+{
+    delete l2ddata_; l2ddata_ = 0;
+    if ( !lnmfld_ ) return;
+
+    const Attrib::Desc* desc = ads_.getFirstStored( false );
+    if ( !desc )
+	mErrRet("No line set information in attribute set")
+    MultiID mid; desc->getMultiID( mid );
+    if ( mid.isEmpty() )
+	mErrRet("No line set found in attribute set")
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj )
+	mErrRet("Cannot find line set in object management")
+    Seis2DLineSet ls( ioobj->fullUserExpr(true) );
+    if ( ls.nrLines() < 1 )
+	mErrRet("Line set is empty")
+    const int idxof = ls.indexOf( lnmfld_->text() );
+    if ( idxof < 0 )
+	mErrRet("Cannot find selected line in line set")
+    l2ddata_ = new PosInfo::Line2DData;
+    if ( !ls.getGeometry( idxof, *l2ddata_ ) )
+    {
+	delete l2ddata_; l2ddata_ = 0;
+	mErrRet("Cannot get geometry of selected line")
+    }
+
+    //TODO: use l2ddata_ for something
 }
 
 
 #define mDPM DPM(DataPackMgr::PointID)
 
+#undef mErrRet
 #define mErrRet(s) \
 { \
     if ( dps ) mDPM.release(dps->id()); \
@@ -120,6 +187,14 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     PtrMan<Pos::Provider> prov = posprovfld_->createProvider();
     if ( !prov )
 	mErrRet("Internal: no Pos::Provider")
+
+    mDynamicCastGet(Pos::Provider2D*,p2d,prov.ptr())
+    if ( lnmfld_ )
+    {
+	if ( !l2ddata_ )
+	    mErrRet("Cannot work without line set position information")
+	p2d->setLineData( new PosInfo::Line2DData(*l2ddata_) );
+    }
 
     uiTaskRunner tr( this );
     if ( !prov->initialize( &tr ) )
@@ -137,7 +212,10 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     IOPar iop; posfiltfld_->fillPar( iop );
-    Pos::Filter* filt = Pos::Filter::make( iop, prov->is2D() );
+    PtrMan<Pos::Filter> filt = Pos::Filter::make( iop, prov->is2D() );
+    mDynamicCastGet(Pos::Filter2D*,f2d,filt.ptr())
+    if ( f2d )
+	f2d->setLineData( new PosInfo::Line2DData(*l2ddata_) );
     MouseCursorManager::restoreOverride();
     if ( filt && !filt->initialize(&tr) )
 	return false;
@@ -145,7 +223,7 @@ bool uiAttribCrossPlot::acceptOK( CallBacker* )
     MouseCursorManager::setOverride( MouseCursor::Wait );
     dps = new DataPointSet( *prov, dcds, filt );
     MouseCursorManager::restoreOverride();
-    if ( dps->size() < 1 )
+    if ( dps->isEmpty() )
 	mErrRet("No positions selected")
 
     BufferString dpsnm; prov->getSummary( dpsnm );
