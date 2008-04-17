@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.51 2008-04-15 12:50:31 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.52 2008-04-17 13:41:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,8 +95,8 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
 	PickSetTranslator::createDataPointSets( crdesc.outids, dpss, is2devent);
     else
     {
-	Executor* ex = WellTranslator::createDataPointSets(
-			    crdesc.outids, crdesc.pars, is2devent, dpss );
+	PtrMan<Executor> ex = WellTranslator::createDataPointSets(
+				crdesc.outids, crdesc.pars, is2devent, dpss );
 	if ( !ex ) return;
 	uiTaskRunner uiex( appserv().parent() );
 	if ( !uiex.execute(*ex) )
