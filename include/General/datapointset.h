@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.18 2008-04-08 16:16:33 cvsbert Exp $
+ RCS:		$Id: datapointset.h,v 1.19 2008-04-17 13:40:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,6 +103,8 @@ public:
 	bool			isInactive() const	{ return grp_ == 0; }
 	void			setSel( bool yn )
 	    			{ if ( grp_ >= 0 != yn ) grp_ = -grp_; }
+	void			setGroup( unsigned short grp )
+	    			{ grp_ = grp_ >= 0 ? grp : -grp; }
 	void			getBVSValues(TypeSet<float>&,bool is2d,
 					     bool ismini) const;
 
