@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          26/04/2000
- RCS:           $Id: uimsg.h,v 1.19 2007-08-23 07:09:56 cvskris Exp $
+ RCS:           $Id: uimsg.h,v 1.20 2008-04-17 09:44:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ public:
     bool	askGoOn(const char*,bool withyesno=true);
     		//!< withyesno false: 'Ok' and 'Cancel', true: 'Yes' and 'No'
     int		askGoOnAfter(const char*,const char* cnclmsg=0);
+    		//!< 0=yes, 1=no, 2=cancel
     bool	showMsgNextTime(const char*,const char* msg=0);
     		//!< The msg must be negative, like "Don't show msg again"
     		//!< Be sure to store the ret val in the user settings
