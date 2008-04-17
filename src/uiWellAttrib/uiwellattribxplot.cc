@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiwellattribxplot.cc,v 1.1 2008-04-17 09:09:05 cvsbert Exp $
+ RCS:           $Id: uiwellattribxplot.cc,v 1.2 2008-04-17 09:17:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,13 +53,14 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
     wellsfld_ = llbw->box();
     llbw->attach( alignedBelow, llba );
     uiLabeledListBox* llbl = new uiLabeledListBox( this, "Logs", true,
-						   uiLabeledListBox::AboveMid );
+						   uiLabeledListBox::RightTop );
     logsfld_ = llbl->box();
-    llbl->attach( rightOf, llbw );
+    llbl->attach( rightTo, llbw );
 
     radiusfld_ = new uiGenInput( this, "Radius around wells",
 	    			 IntInpSpec((int)(SI().inlDistance()+.5)) );
-    radiusfld_->attach( alignedBelow, llbl );
+    radiusfld_->attach( alignedBelow, llbw );
+    radiusfld_->attach( ensureBelow, llbl );
 
     uiLabeledComboBox* llc0 = new uiLabeledComboBox( this, "Extract between" );
     topmarkfld_ = llc0->box();
@@ -69,13 +70,13 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
     BufferString txt = "Distance above/below ";
     txt += SI().depthsInFeetByDefault() ? "(ft)" : "(m)";
     abovefld_ = new uiGenInput( this, txt, FloatInpSpec(0) );
-    abovefld_->attach( alignedBelow, topmarkfld_ );
+    abovefld_->attach( alignedBelow, llc0 );
     belowfld_ = new uiGenInput( this, "", FloatInpSpec(0) );
     belowfld_->attach( rightOf, abovefld_ );
 
     logresamplfld_ = new uiGenInput( this, "Log resampling method",
 		  StringListInpSpec(Well::LogDataExtracter::SamplePolNames) );
-    logresamplfld_->attach( alignedBelow, llc0 );
+    logresamplfld_->attach( alignedBelow, abovefld_ );
 
     setDescSet( d );
     finaliseDone.notify( mCB(this,uiWellAttribCrossPlot,initWin) );
