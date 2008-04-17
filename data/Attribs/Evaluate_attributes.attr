@@ -1,127 +1,89 @@
-dTect V1.0
+dTect V3.1
 Attribute definitions
-Thu Oct 30 11:36:59 2003
+Thu Apr 17 10:57:25 2008
 !
 Attribute Descriptions
-0.Definition: 100010.x
-0.UserRef: All Seismic data
-0.Type: Stored
+0.Definition: Storage id=100010.x output=0
+0.UserRef: Seismic Data
 0.Hidden: No
-0.Datatype: Amplitude
-0.Selected Attrib: 0
-1.Definition: Frequency gate=[-32,32] normalize=No window=CosTaper5 dumptofile=No
-1.UserRef: Q factor
-1.Type: Extracted
-1.Hidden: No
-1.Datatype: Other
+1.Definition: Hilbert halflen=30 output=0
+1.UserRef: _Seismic Data_imag
+1.Hidden: Yes
 1.Input.0: 0
-1.Input.1: 14
-1.Selected Attrib: 7
-2.Definition: Energy gate=[-20,20]
-2.UserRef: Energy
-2.Type: Extracted
+2.Definition: Frequency gate=[-28,28] normalize=no window=CosTaper paramval=0.05 dumptofile=no output=7
+2.UserRef: Q factor
 2.Hidden: No
-2.Datatype: Other
 2.Input.0: 0
-2.Selected Attrib: 0
-4.Definition: Convolve kernel=Laplacian shape=Sphere size=3
+2.Input.1: 1
+3.Definition: Energy gate=[-20,20] dograd=no output=0
+3.UserRef: Energy
+3.Hidden: No
+3.Input.0: 0
+4.Definition: Convolve kernel=Laplacian shape=Sphere size=3 output=0
 4.UserRef: Laplace (edge)
-4.Type: Extracted
 4.Hidden: No
-4.Datatype: Other
 4.Input.0: 0
-4.Selected Attrib: 0
-5.Definition: DipFilter size=9 type=LowPass maxvel=2000.000000 filterazi=No taperlen=10.000000
+5.Definition: DipFilter size=9 type=LowPass maxvel=2000 filterazi=no taperlen=10 output=0
 5.UserRef: Velocity fan
-5.Type: Extracted
 5.Hidden: No
-5.Datatype: Amplitude
 5.Input.0: 0
-5.Selected Attrib: 0
-10.Definition: Math expression=x0-x1 steering=No pos0=0,0 pos1=0,0
-10.UserRef: Math difference stack
-10.Type: Extracted
+6.Definition: Math expression=x0-x1 output=0
+6.UserRef: Math difference stack
+6.Hidden: No
+6.Input.0: 0
+6.Input.1: 4
+7.Definition: VolumeStatistics stepout=2,2 shape=Ellipse gate=[0,0] nrtrcs=1 steering=no output=2
+7.UserRef: Amplitude variance
+7.Hidden: No
+7.Input.0: 0
+8.Definition: VolumeStatistics stepout=2,2 shape=Ellipse gate=[0,0] nrtrcs=1 steering=no output=0
+8.UserRef: Amplitude average
+8.Hidden: No
+8.Input.0: 0
+9.Definition: Position stepout=2,2 gate=[0,0] oper=Min steering=no output=0
+9.UserRef: Edge Preserving filter (TLE Feb 2002)
+9.Hidden: No
+9.Input.0: 7
+9.Input.1: 8
+10.Definition: Frequency gate=[-28,28] normalize=no window=CosTaper paramval=0.05 dumptofile=no output=0
+10.UserRef: Frequency
 10.Hidden: No
-10.Datatype: Amplitude
 10.Input.0: 0
-10.Input.1: 4
-10.Selected Attrib: 0
-11.Definition: VolumeStatistics nrvolumes=1 stepout=2,2 shape=Ellipse gate=[0,0] steering=No
-11.UserRef: Amplitude variance
-11.Type: Extracted
+10.Input.1: 1
+11.Definition: Similarity gate=[-28,28] pos0=0,1 pos1=0,-1 extension=90 steering=no normalize=yes output=3
+11.UserRef: Similarity
 11.Hidden: No
-11.Datatype: Other
 11.Input.0: 0
-11.Selected Attrib: 2
-12.Definition: VolumeStatistics nrvolumes=1 stepout=2,2 shape=Ellipse gate=[0,0] steering=No
-12.UserRef: Amplitude average
-12.Type: Extracted
+12.Definition: Similarity gate=[-28,28] stepout=1,1 extension=Cube steering=no normalize=yes output=3
+12.UserRef: Cube similarity
 12.Hidden: No
-12.Datatype: Amplitude
 12.Input.0: 0
-12.Selected Attrib: 0
-13.Definition: Position stepout=2,2 gate=[0,0] oper=Min steering=No
-13.UserRef: Edge Preserving filter (TLE Feb 2002)
-13.Type: Extracted
+13.Definition: Convolve kernel=Prewitt output=0
+13.UserRef: Prewitt (gradient)
 13.Hidden: No
-13.Datatype: Other
-13.Input.0: 11
-13.Input.1: 12
-13.Selected Attrib: 0
-14.Definition: Hilbert halflen=30
-14.UserRef: _All lines_imag
-14.Type: Extracted
-14.Hidden: Yes
-14.Datatype: Amplitude
-14.Input.0: 0
-14.Selected Attrib: 0
-15.Definition: Frequency gate=[-32,32] normalize=No window=CosTaper5 dumptofile=No
-15.UserRef: Frequency
-15.Type: Extracted
+13.Input.0: 0
+14.Definition: Convolve kernel=Laplacian shape=Sphere size=3 output=0
+14.UserRef: Laplace on similarity
+14.Hidden: No
+14.Input.0: 11
+15.Definition: Instantaneous output=3
+15.UserRef: Hilbert trace
 15.Hidden: No
-15.Datatype: Other
 15.Input.0: 0
-15.Input.1: 14
-15.Selected Attrib: 0
-16.Definition: Similarity gate=[-32,32] pos0=-1,0 pos1=1,0 extension=90 steering=No normalize=No
-16.UserRef: Similarity
-16.Type: Extracted
+15.Input.1: 1
+16.Definition: Math expression=x0*cos(c0*PI/180)+x1*sin(c0*PI/180) constant0=90  output=0
+16.UserRef: Phase rotation of angle c0 (degrees)
 16.Hidden: No
-16.Datatype: Other
 16.Input.0: 0
-16.Selected Attrib: 0
-17.Definition: Similarity gate=[-32,32] stepout=1,1 extension=Cube steering=No normalize=No
-17.UserRef: Cube similarity
-17.Type: Extracted
+16.Input.1: 15
+17.Definition: Math expression=(1-c0)*x0+c0*THIS[-1] constant0=0.85  recstart=0 output=0
+17.UserRef: Single pole low-pass digital recursive filter
 17.Hidden: No
-17.Datatype: Other
 17.Input.0: 0
-17.Selected Attrib: 0
-18.Definition: Convolve kernel=Prewitt
-18.UserRef: Prewitt (gradient)
-18.Type: Extracted
+18.Definition: Math expression=((1+c0)/2)*x0-((1+c0)/2)*x0[-1]+c0*THIS[-1] constant0=0.86  recstart=0 output=0
+18.UserRef: Single pole high-pass digital recursive filter
 18.Hidden: No
-18.Datatype: Other
 18.Input.0: 0
-18.Selected Attrib: 2
-21.Definition: Convolve kernel=Laplacian shape=Sphere size=3
-21.UserRef: Laplace on similarity
-21.Type: Extracted
-21.Hidden: No
-21.Datatype: Other
-21.Input.0: 16
-21.Selected Attrib: 0
-22.Definition: Instantaneous
-22.UserRef: Hilbert trace
-22.Hidden: No
-22.Input.0: 0
-22.Input.1: 14
-22.Selected Attrib: 3
-23.Definition: Math expression=x0*cos(c0*PI/180)+x1*sin(c0*PI/180) constant0=90
-23.UserRef: Phase rotation of angle c0 (degrees)
-23.Hidden: No
-23.Input.0: 0
-23.Input.1: 22
-23.Selected Attrib: 0
-MaxNrKeys: 23
+MaxNrKeys: 18
+Type: 3D
 !
