@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.88 2008-04-07 11:02:09 cvsbert Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.89 2008-04-17 09:05:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,8 +87,6 @@ uiAttribPartServer::uiAttribPartServer( uiApplService& a )
     	, attrsetclosetim_("Attrset dialog close")
 	, stored2dmnuitem_("&Stored 2D Data")
 	, stored3dmnuitem_("Stored &Cubes")
-	, xplotwin2d_(0)
-	, xplotwin3d_(0)
 {
     attrsetclosetim_.tick.notify( 
 			mCB(this,uiAttribPartServer,attrsetDlgCloseTimTick) );
@@ -107,8 +105,6 @@ uiAttribPartServer::~uiAttribPartServer()
     delete adsman2d_;
     delete adsman3d_;
     delete attrsetdlg_;
-    delete xplotwin2d_;
-    delete xplotwin3d_;
     deepErase( linesets2dmnuitem_ );
 }
 
@@ -640,34 +636,6 @@ bool uiAttribPartServer::extractData( ObjectSet<DataPointSet>& dpss )
     }
 
     return true;
-}
-
-
-void uiAttribPartServer::doXPlot()
-{
-    const bool has2d = SI().has2D(); const bool has3d = SI().has3D();
-    DescSet* ds = has2d ? adsman2d_->descSet() : adsman3d_->descSet();
-    if ( has2d && has3d )
-    {
-	const bool valid2d = adsman2d_->descSet()->nrDescs( false, false ) > 0;
-	const bool valid3d = adsman3d_->descSet()->nrDescs( false, false ) > 0;
-	if ( valid2d && valid3d )
-	{
-	    if ( uiMSG().askGoOn( "Use 2D Attribute set?" ) )
-		ds = adsman3d_->descSet();
-	}
-	else if ( valid3d )
-	    ds = adsman3d_->descSet();
-    }
-
-    uiAttribCrossPlot*& xplotwin = ds == adsman2d_->descSet() ? xplotwin2d_
-							      : xplotwin3d_;
-    if ( !xplotwin )
-	xplotwin = new uiAttribCrossPlot( parent(), *ds );
-    else
-	xplotwin->setDescSet( *ds );
-
-    xplotwin->show();
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.cc,v 1.6 2006-12-21 10:48:24 cvshelene Exp $
+ RCS:           $Id: uiwellattribpartserv.cc,v 1.7 2008-04-17 09:05:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "nlamodel.h"
 #include "attribdescset.h"
 #include "uiwellattribsel.h"
+#include "uiwellattribxplot.h"
 
 #include "ptrman.h"
 #include "ioobj.h"
@@ -34,6 +35,8 @@ uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , attrset(new Attrib::DescSet(false)) //Default, set afterwards
     , nlamodel(0)
+    , xplotwin2d_(0)
+    , xplotwin3d_(0)
 {
 }
 
@@ -41,6 +44,8 @@ uiWellAttribPartServer::uiWellAttribPartServer( uiApplService& a )
 uiWellAttribPartServer::~uiWellAttribPartServer()
 {
     delete attrset;
+    delete xplotwin2d_;
+    delete xplotwin3d_;
 }
 
 
@@ -55,6 +60,21 @@ void uiWellAttribPartServer::setNLAModel( const NLAModel* mdl )
 {
     nlamodel = mdl;
 }
+
+
+void uiWellAttribPartServer::doXPlot()
+{
+    const bool is2d = attrset->is2D();
+
+    uiWellAttribCrossPlot*& xplotwin = is2d ? xplotwin2d_ : xplotwin3d_;
+    if ( !xplotwin )
+	xplotwin = new uiWellAttribCrossPlot( parent(), *attrset );
+    else
+	xplotwin->setDescSet( *attrset );
+
+    xplotwin->show();
+}
+
 
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
 

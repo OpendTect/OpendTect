@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.242 2008-04-15 13:12:37 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.243 2008-04-17 09:05:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -371,7 +371,7 @@ void uiODApplMgr::createVol( bool is2d )
 
 void uiODApplMgr::doXPlot()
 {
-    attrserv_->doXPlot();
+    wellattrserv_->doXPlot();
 }
 
 

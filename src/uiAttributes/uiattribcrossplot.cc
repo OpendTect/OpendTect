@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiattribcrossplot.cc,v 1.28 2008-04-16 15:40:11 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.29 2008-04-17 09:05:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,6 +150,7 @@ void uiAttribCrossPlot::lnmChg( CallBacker* )
     if ( !desc )
 	mErrRet("No line set information in attribute set")
     MultiID mid; desc->getMultiID( mid );
+    LineKey lk( (const char*)mid ); mid = lk.lineName();
     if ( mid.isEmpty() )
 	mErrRet("No line set found in attribute set")
     PtrMan<IOObj> ioobj = IOM().get( mid );
@@ -158,7 +159,8 @@ void uiAttribCrossPlot::lnmChg( CallBacker* )
     Seis2DLineSet ls( ioobj->fullUserExpr(true) );
     if ( ls.nrLines() < 1 )
 	mErrRet("Line set is empty")
-    const int idxof = ls.indexOf( lnmfld_->text() );
+    lk.setLineName( lnmfld_->text() );
+    const int idxof = ls.indexOf( lk );
     if ( idxof < 0 )
 	mErrRet("Cannot find selected line in line set")
     l2ddata_ = new PosInfo::Line2DData;

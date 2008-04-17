@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.h,v 1.4 2008-04-10 05:24:11 cvssatyaki Exp $
+ RCS:           $Id: uiwellattribpartserv.h,v 1.5 2008-04-17 09:05:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class MultiID;
 class NLAModel;
+class uiWellAttribCrossPlot;
 
 namespace Attrib { class DescSet; }
 
@@ -35,12 +36,15 @@ public:
 
     				// Services
     bool			createAttribLog(const MultiID&);
+    void			doXPlot();
 
 protected:
 
     Attrib::DescSet*		attrset;
     const NLAModel*		nlamodel;
 
+    uiWellAttribCrossPlot*	xplotwin2d_;
+    uiWellAttribCrossPlot*	xplotwin3d_;
 };
 
 /*!\mainpage WellAttrib User Interface
