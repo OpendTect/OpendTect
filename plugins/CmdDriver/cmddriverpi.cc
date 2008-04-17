@@ -175,9 +175,15 @@ void uiCmdDriverMgr::handleAutoExecution()
 
     FilePath fp( GetSettingsDir() );
     fp.add( autoexecfnm );
-    const BufferString fnm( fp.fullPath() );
+    BufferString fnm( fp.fullPath() );
     if ( File_exists(fnm) )
 	uiCmdDriverInps::lastinp_ = fnm;
+    else
+    {
+	fnm = GetProcFileName( autoexecfnm );
+	if ( File_exists(fnm) )
+	    uiCmdDriverInps::lastinp_ = fnm;
+    }
 }
 
 
