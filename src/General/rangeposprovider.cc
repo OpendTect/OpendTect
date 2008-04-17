@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: rangeposprovider.cc,v 1.7 2008-03-12 09:48:03 cvsbert Exp $";
+static const char* rcsID = "$Id: rangeposprovider.cc,v 1.8 2008-04-17 08:51:21 cvsbert Exp $";
 
 #include "rangeposprovider.h"
 #include "survinfo.h"
@@ -195,7 +195,15 @@ bool Pos::RangeProvider2D::toNextPos()
 {
     while ( true )
     {
-	curidx_ += ld_ ? 1 : rg_.step;
+	if ( !ld_ )
+	    curidx_ += rg_.step;
+	else
+	{
+	    curidx_++;
+	    if ( curidx_ >= ld_->posns.size() )
+		return false;
+	}
+
 	const int curnr = curNr();
 	if ( curnr < rg_.start )
 	    continue;
