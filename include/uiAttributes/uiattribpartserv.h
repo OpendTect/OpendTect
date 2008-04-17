@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.38 2008-04-17 09:05:34 cvsbert Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.39 2008-04-17 12:48:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -146,6 +146,11 @@ public:
 
     void                set2DEvent( bool is2d )		{ is2devsent_ = is2d; }
     bool                is2DEvent()                     { return is2devsent_; }
+    int			use3DMode() const;
+    			//!< If you have services that can work on 2D or 3D
+    			//!< 0 = 2D, 1 = 3D, -1 = user cancel
+    Attrib::DescSet*	getUserPrefDescSet() const;
+    			//!< For services that can work on 2D or 3D
 
 protected:
 

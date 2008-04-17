@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.243 2008-04-17 09:05:34 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.244 2008-04-17 12:48:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -371,6 +371,10 @@ void uiODApplMgr::createVol( bool is2d )
 
 void uiODApplMgr::doXPlot()
 {
+    Attrib::DescSet* ads = attrserv_->getUserPrefDescSet();
+    if ( !ads ) return;
+
+    wellattrserv_->setAttribSet( *ads );
     wellattrserv_->doXPlot();
 }
 

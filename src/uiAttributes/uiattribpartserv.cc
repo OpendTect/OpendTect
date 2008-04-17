@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.89 2008-04-17 09:05:34 cvsbert Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.90 2008-04-17 12:48:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -341,6 +341,31 @@ void uiAttribPartServer::getPossibleOutputs( bool is2d,
 bool uiAttribPartServer::setSaved( bool is2d ) const
 {
     return getAdsMan( is2d )->isSaved();
+}
+
+
+int uiAttribPartServer::use3DMode() const
+{
+    Attrib::DescSet* ads = getUserPrefDescSet();
+    if ( !ads ) return -1;
+    return adsman2d_ && ads == adsman2d_->descSet() ? 0 : 1;
+}
+
+
+Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() const
+{
+    Attrib::DescSet* ds3d = adsman3d_ ? adsman3d_->descSet() : 0;
+    Attrib::DescSet* ds2d = adsman2d_ ? adsman2d_->descSet() : 0;
+    if ( !ds3d && !ds2d ) return 0;
+    if ( !(ds3d && ds2d) ) return ds3d ? ds3d : ds2d;
+    const int nr3d = ds3d->nrDescs( false );
+    const int nr2d = ds2d->nrDescs( false );
+    if ( !(nr3d>0 && nr2d>0) ) return nr3d > 0 ? ds3d : ds2d;
+
+    int res = uiMSG().askGoOnAfter( "Do you want to use 3D attributes (Yes)\n"
+				    "or 2D attributes (No)?" );
+    if ( res == 2 ) return 0;
+    return res == 0 ? ds3d : ds2d;
 }
 
 
