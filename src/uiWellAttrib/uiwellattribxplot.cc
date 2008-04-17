@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiwellattribxplot.cc,v 1.2 2008-04-17 09:17:19 cvsbert Exp $
+ RCS:           $Id: uiwellattribxplot.cc,v 1.3 2008-04-17 13:41:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -182,13 +182,39 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 	    dcds += new DataColDef( logsfld_->textOfItem(idx) );
     }
 
-    dps = new DataPointSet( TypeSet<DataPointSet::DataRow>(), dcds,
-	    		    ads_.is2D(), false );
-    // Now extract ...!
-    /*
-    if ( dps->isEmpty() )
-	mErrRet("No positions selected")
-	*/
+    BufferStringSet ioobjids;
+    for ( int idx=0; idx<wellsfld_->size(); idx++ )
+    {
+	if ( wellsfld_->isSelected(idx) )
+	    ioobjids.add( wellobjs_[idx]->key() );
+    }
+    if ( ioobjids.isEmpty() )
+	mErrRet("Please select at least one well")
+    ObjectSet<DataPointSet> dpss;
+    Well::TrackSampler wts( ioobjids, dpss );
+    wts.for2d = ads_.is2D();
+    uiTaskRunner tr( this );
+    if ( !tr.execute(wts) )
+	return false;
+    if ( dpss.isEmpty() )
+	mErrRet("No wells found")
+
+    Well::LogDataExtracter wlde( ioobjids, dpss );
+    if ( !tr.execute(wlde) )
+	return false;
+
+    dps = new DataPointSet( *dpss[0] );
+    DataPointSet::DataRow dr;
+    for ( int idx=1; idx<dpss.size(); idx++ )
+    {
+	DataPointSet& curdps = *dpss[idx];
+	for ( int idr=0; idr<curdps.size(); idr++ )
+	{
+	    dr = curdps.dataRow( idr );
+	    dr.setGroup( (unsigned short)idx );
+	    dps->setRow( dr );
+	}
+    }
 
     dps->setName( "Attributes / Well data" );
     IOPar descsetpars;
@@ -202,7 +228,6 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
     PtrMan<Executor> tabextr = aem.getTableExtractor( *dps, ads_, errmsg );
     MouseCursorManager::restoreOverride();
     if ( !errmsg.isEmpty() ) mErrRet(errmsg)
-    uiTaskRunner tr( this );
     if ( !tr.execute(*tabextr) )
 	return false;
 
