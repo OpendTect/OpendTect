@@ -7,14 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.4 2008-01-31 21:33:49 cvsyuancheng Exp $
+ RCS:           $Id: delaunay.h,v 1.5 2008-04-18 16:48:22 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "position.h"
 #include "sets.h"
 #include "task.h"
-#include "position.h"
+#include "thread.h"
 
 class Coord2List;
 /*! Constructs a Delaunay triangulation of a set of 2D vertices.
@@ -90,94 +91,88 @@ protected:
 };
 
 
-class ParallelDelaunayTriangulation : public SequentialTask
+/*!For the triangulation, it will skip undefined or duplicated pointsi, all the 
+   points should be in random order. We use Optimistic method to triangulate.*/
+class DAGTriangleTree
 {
-    			ParallelDelaunayTriangulation(const TypeSet<Coord>&);
-			~ParallelDelaunayTriangulation();
+public:
+    			DAGTriangleTree(const TypeSet<Coord>&);
+    virtual		~DAGTriangleTree()	{}	
 
-    const TypeSet<int>&	getCoordIndices() const;
+    bool		insertPoint(int pointidx);
+    bool		getCoordIndices(TypeSet<int>&) const;
     			/*!<Coord indices are sorted in threes, i.e
 			    ci[0], ci[1], ci[2] is the first triangle
 			    ci[3], ci[4], ci[5] is the second triangle. */
-
-    int			nextStep()
-    			{
-			    const int sz = permutation_.size();
-			    if ( !sz ) return 0;
-			    if ( !insertPoint( permutation_[sz-1] ) )
-				return -1;
-
-			    permutation_.remove( sz-1 );
-			    return 1;
-			}
+    void		setEpsilon(double err)	{ epsilon_ = err; }
 
 protected:
 
-    bool		insertPoint(int idx);
-    char		isInside(int ci,int ti) const;
-    			/*!<\retval -1 outside
-			    \retval 0 on edge
-			    \revval 1 inside*/
-    bool		searchTriangle(int ci,TypeSet<int>& path) const;
-    			/*!<Returns the triangle that has ci inside.*/
-    bool		divideTriangle(int ci,int ti);
-    			/*!ci is assumed to be inside triangle*/
-    bool		splitTriangle(int ci,int ti); //Wrong interface
-    			/*!ci is assumed to be inside triangle*/
+    char		searchTriangle(int ci,int start, int& t0,int& t1) const;
+    			/*!<return t0, t1 as the index of two triangles which
+			    share on one edge of ci. if ci is in only one 
+			    triangle, then t1=-1. */
+    char		searchFurther( int ci,int ti0,int ti1,
+				       int& nti0, int& nti1 ) const; 
+    bool		searchTriangleOnEdge(int ci,int ti,int& resti) const;
+   			/*!<assume ci is on the edge of ti.*/
 
+    void		splitTriangleInside(int ci,int ti);
+    			/*!ci is assumed to be inside the triangle ti. */
+    void		splitTriangleOnEdge(int ci,int ti0,int ti1);
+    			/*!ci is on the shared edge of triangles ti0, ti1. */
+    void		legalizeTriangles(TypeSet<char>& v0s,TypeSet<char>& v1s,
+					  TypeSet<int>& tis);
+    			/*!Check neighbor triangle of the edge v0-v1 in ti, 
+			   where v0, v1 are local vetex indices 0, 1, 2. */
+    
+    void		setNeighbors(const int& vetexid, const int& crd,
+				     const int& ti,int& nb0,int& nb1);
+    int			searchChild(int v0,int v1,int ti) const;
+    char		isInside(int ci,int ti) const;
+    			/*!<\assume ci is not a vertex of ti;
+			     return -1 outside; 0 on one edge; 1 inside; */
     struct DAGTriangle
     {
 			DAGTriangle();
-
-	bool		operator==(const DAGTriangle&);
+	bool		operator==(const DAGTriangle&) const;
 
 	int		coordindices_[3];
 	int		childindices_[3];
+	int		neighbors_[3];
     };
 
-    int				curpt_;
-    Coord3			initialcoords_[3];
+    Threads::ConditionVar	condvar_; 
+    double			epsilon_;
     TypeSet<DAGTriangle>	triangles_;
-    const TypeSet<Coord>&	coordlist_;
-    TypeSet<int>		permutation_;
+    const TypeSet<Coord>*	coordlist_;
+    Coord			initialcoords_[3]; 
+    				/*!<-2,-3,-4 are their indices.*/
 };
 
 
-inline bool sameSide2D( Coord p1, Coord p2, Coord a, Coord b )
-    /*!< Check p1, p2 are on the same side of the edge AB or not.*/
+class ParallelDelaunayTriangulator : public ParallelTask
 {
-    Coord v1 = p1-a, v2 = p2-a, vb = b-a;
-    return (v1.x*vb.y-v1.y*vb.x)*(v2.x*vb.y-v2.y*vb.x)>=0 ? true : false;
-}
+public:
+			ParallelDelaunayTriangulator(const TypeSet<Coord>&);
+	
+    bool		getCoordIndices(TypeSet<int>&) const;
+    bool		isDataRandom()		{ return israndom_; }
+    void		dataIsRandom(bool yn)	{ israndom_ = yn; }
+
+protected:
+
+    int			totalNr() const 	{ return nrcoords_; }
+    bool		doWork( int, int, int );
+    bool		doPrepare(int);
+
+    DAGTriangleTree	dagtritree_;
+    TypeSet<int>	permutation_;
+    int			nrcoords_;
+    bool		israndom_;
+};
 
 
-inline bool sameSide3D( Coord3 p1, Coord3 p2, Coord3 a, Coord3 b )
-    /*!< Check p1, p2 are on the same side of the edge AB or not.*/
-{
-    Coord3 cp1 = (b-a).cross(p1-a);
-    Coord3 cp2 = (b-a).cross(p2-a);
-    return cp1.dot(cp2)>=0 ? true : false;
-}
-
-
-inline bool pointInTriangle2D( Coord p, Coord a, Coord b, Coord c )
-    /*!< Check the point p is in the triangle ABC or not.*/
-{
-    if ( sameSide2D(p,a,b,c) && sameSide2D(p,b,a,c) && sameSide2D(p,c,a,b) )
-	return true;
-    else
-	return false;
-}
-
-
-inline bool pointInTriangle3D( Coord3 p, Coord3 a, Coord3 b, Coord3 c )
-    /*!< Check the point p is in the triangle ABC or not.*/
-{
-    if ( sameSide3D(p,a,b,c) && sameSide3D(p,b,a,c) && sameSide3D(p,c,a,b) )
-	return true;
-    else
-	return false;
-}
 
 #endif
 

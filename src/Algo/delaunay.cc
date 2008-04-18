@@ -4,13 +4,13 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.3 2008-01-31 21:33:49 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.4 2008-04-18 16:48:22 cvsyuancheng Exp $";
 
 #include "delaunay.h"
-#include "sorting.h"
-#include "positionlist.h"
 
-#define mTolerance 0.0000001
+#include "positionlist.h"
+#include "sorting.h"
+#include "trigonometry.h"
 
 
 DelaunayTriangulation::DelaunayTriangulation( const Coord2List& coords )
@@ -494,7 +494,7 @@ int DelaunayTriangulation::getSideOfLine( int pi0, int pi1, int pid )
 
     double tolabs = fabs(v01.x) > fabs(v01.y) ? fabs(v01.x) : fabs(v01.y);
     tolabs = tolabs > fabs(vt.x) ? tolabs : fabs(vt.x);
-    tolabs = mTolerance * ( tolabs > fabs(vt.y) ? tolabs : fabs(vt.y) );
+    tolabs = 0.000001 * ( tolabs > fabs(vt.y) ? tolabs : fabs(vt.y) );
     
     double prod = v01.y * vt.x - v01.x * vt.y;
     int res;
@@ -572,5 +572,708 @@ double DelaunayTriangulation::mEpsilon() const
     
     return 2.0 * r;
 }
+
+
+ParallelDelaunayTriangulator::ParallelDelaunayTriangulator(
+	const TypeSet<Coord>& coordlist )
+    : ParallelTask( "Delaunay Triangulator" )
+    , dagtritree_( coordlist )
+    , nrcoords_( coordlist.size() )
+    , israndom_( false )
+{}
+
+
+bool ParallelDelaunayTriangulator::doPrepare( int )
+{
+    if ( israndom_ )
+	permutation_.erase();
+    else
+    {
+	int arr[nrcoords_];
+	for ( int idx=0; idx<nrcoords_; idx++ )
+	    arr[idx] = idx;
+
+	std::random_shuffle( arr, arr+nrcoords_ );
+	for ( int idx=0; idx<nrcoords_; idx++ )
+	    permutation_ += arr[idx];
+    }
+    
+    return true;
+}
+
+
+bool ParallelDelaunayTriangulator::doWork( int start, int stop, int )
+{
+    for ( int idx=start; idx<=stop && shouldContinue(); idx++, reportNrDone(1) )
+    {
+	if ( !dagtritree_.insertPoint( permutation_.size() ? permutation_[idx] 
+		    					   : idx ) )
+	    return false;
+    }
+
+    return true;
+}
+
+
+bool ParallelDelaunayTriangulator::getCoordIndices( TypeSet<int>& res ) const
+{
+    return dagtritree_.getCoordIndices(res);
+}
+
+
+DAGTriangleTree::DAGTriangleTree( const TypeSet<Coord>& coordlist )
+    : coordlist_( &coordlist )
+    , epsilon_( 1e-5 )
+{
+    Coord min = (*coordlist_)[0];
+    Coord max = (*coordlist_)[0];
+    for ( int idx=1; idx<(*coordlist_).size(); idx++ )
+    {
+	if ( (*coordlist_)[idx].x < min.x )
+	    min.x = (*coordlist_)[idx].x;
+
+	if ( (*coordlist_)[idx].y < min.y )
+	    min.y = (*coordlist_)[idx].y;
+
+	if ( (*coordlist_)[idx].x > max.x )
+	    max.x = (*coordlist_)[idx].x;
+
+	if ( (*coordlist_)[idx].y > max.y )
+	    max.y = (*coordlist_)[idx].y;
+    }
+
+    Coord center = (min+max)/2;
+    const float initialk = 3 * (max.x-min.x) * (max.y-min.y);
+    initialcoords_[0] = Coord( 0, initialk )+center;
+    initialcoords_[1] = Coord( initialk, 0 )+center;
+    initialcoords_[2] = Coord( -initialk, -initialk )+center;
+
+    DAGTriangle initnode;
+    initnode.coordindices_[0] = -2;
+    initnode.coordindices_[1] = -3;
+    initnode.coordindices_[2] = -4;
+    triangles_ +=initnode;
+}
+
+
+bool DAGTriangleTree::insertPoint( int ci )
+{
+    if ( mIsUdf((*coordlist_)[ci].x) || mIsUdf((*coordlist_)[ci].y) ) 
+    {
+	BufferString msg = "The point ";
+	msg += ci;
+	msg +=" is not defined!";
+	pErrMsg( msg );
+	return true; //For undefined point, skip.
+    }
+
+    int ti0, ti1;
+    const char res = searchTriangle( ci, 0, ti0, ti1 );
+    
+    if ( res==1 )
+    {
+	int nti0, nti1;
+	
+	condvar_.lock();
+	const int nres = searchFurther( ci, ti0, ti1, nti0, nti1 );
+	if ( nres==1 )
+	{
+	    if ( nti1==-1 )
+		splitTriangleInside( ci, nti0 );
+	    else
+		splitTriangleOnEdge( ci, nti0, nti1 );
+
+	    condvar_.signal( true );
+	    condvar_.unLock();
+	    return true;
+	}
+	else
+	{
+	    condvar_.signal( true );
+	    condvar_.unLock();
+	    if ( !nres )
+		return true;
+	    else
+	    {
+		BufferString msg = "\n Insert point ";
+		msg += ci;
+		msg += "failed!";
+		pErrMsg( msg );
+		return false;
+	    }
+	}
+    }
+    else if ( !res )
+	return true;
+    else  
+    {
+	BufferString msg = "\n Insert point ";
+	msg += ci;
+	msg += "failed!";
+	pErrMsg( msg );
+	return false;
+    }
+
+    return true;
+}
+
+
+#define mCrd( idx ) \
+	(idx>=0 ? (*coordlist_)[idx] : initialcoords_[-idx-2])
+
+
+char DAGTriangleTree::searchFurther( int ci, int ti0, int ti1, 
+				     int& nti0, int& nti1 ) const
+{
+    if ( ti1==-1 )
+	return searchTriangle( ci, ti0, nti0, nti1 );
+
+    nti0 = ti0;
+    nti1 = -1;
+    if ( searchTriangleOnEdge( ci, ti0, nti0 ) )
+    {
+	const int* crd = triangles_[nti0].coordindices_;
+	const int* nbor = triangles_[nti0].neighbors_;
+	if ( pointOnEdge2D( mCrd(ci), mCrd(crd[0]), mCrd(crd[1]), epsilon_ ) )
+	    nti1 = searchChild( crd[0], crd[1], nbor[0] );
+	else if ( pointOnEdge2D(mCrd(ci),mCrd(crd[0]),mCrd(crd[2]),epsilon_) )
+	    nti1 = searchChild( crd[0], crd[2], nbor[2] );
+	else
+	    nti1 = searchChild( crd[1], crd[2], nbor[1] );
+
+	return 1;
+    }
+    else
+    {
+	return searchTriangle( ci, nti0, nti0, nti1 );
+    }
+}
+
+
+char DAGTriangleTree::searchTriangle( int ci, int startti, 
+				      int& ti0, int& ti1 ) const
+{
+    if ( startti<0 )
+	startti = 0;
+
+    ti0 = startti;
+    ti1 = -1;
+    const int* children = triangles_[startti].childindices_;
+    for ( int childidx = 0; childidx<3; childidx++ )
+    {
+	const int curchild = children[childidx];
+	if ( curchild==-1 )
+	    continue;
+
+	const char mode = isInside( ci, curchild );
+	if ( mode==-1 )
+	    continue;
+	
+	if ( mode )
+	{
+	    ti0 = curchild;
+	    children = triangles_[curchild].childindices_;
+	    childidx = -1;
+	}
+	else
+	{
+	    const int* crds = triangles_[curchild].coordindices_;
+	    const Coord c0 = mCrd(ci)-mCrd(crds[0]);
+	    const Coord c1 = mCrd(ci)-mCrd(crds[1]);
+	    const Coord c2 = mCrd(ci)-mCrd(crds[2]);
+
+	    if ( mIsZero( c0.x*c0.x+c0.y*c0.y, epsilon_ ) ||
+		 mIsZero( c1.x*c1.x+c1.y*c1.y, epsilon_ ) ||
+   		 mIsZero( c2.x*c2.x+c2.y*c2.y, epsilon_ ) )
+	    return 0; //ci is the same as one of the inserted points, skip.
+
+	    if ( !searchTriangleOnEdge( ci, curchild, ti0 ) )
+	    {
+		if ( ti0==-1 )
+		    return -1;
+
+		children = triangles_[ti0].childindices_;
+		childidx = -1;
+	    }
+	    else
+	    {
+		const int* crd = triangles_[ti0].coordindices_;
+		const int* nbor = triangles_[ti0].neighbors_;
+		if ( pointOnEdge2D( mCrd(ci), mCrd(crd[0]), mCrd(crd[1]),
+			    epsilon_ ) )
+		    ti1 = searchChild( crd[0], crd[1], nbor[0] );
+		else if ( pointOnEdge2D( mCrd(ci), mCrd(crd[0]), mCrd(crd[2]),
+			    epsilon_ ) )
+		    ti1 = searchChild( crd[0], crd[2], nbor[2] );
+		else
+		    ti1 = searchChild( crd[1], crd[2], nbor[1] );
+
+		return 1;
+	    }
+	}
+    }
+
+    if ( ti0==ti1 )
+	ti1 = -1;
+
+    if ( ti0==-1 )
+    {
+	pErrMsg("Initial triangle is wrong");
+	return -1;
+    }
+
+    return 1;
+}
+
+
+bool DAGTriangleTree::searchTriangleOnEdge( int ci, int ti, int& resti ) const
+{
+    const int* child = triangles_[ti].childindices_;
+    if ( child[0]==-1 && child[1]==-1 && child[2]==-1 )
+    {
+	resti = ti;
+	return true;
+    }
+
+    for ( int idx=0; idx<3; idx++ )
+    {
+    	const int inchild = child[idx]!=-1 ? isInside(ci,child[idx]) : -1;
+    	if ( !inchild )
+    	    return searchTriangleOnEdge( ci, child[idx], resti );
+	else if ( inchild==1 )
+	{
+	    resti = child[idx];
+	    return false;
+	}
+    }
+
+    pErrMsg( "This should never happen." );
+    resti = -1;
+    return false;
+}
+
+
+char DAGTriangleTree::isInside( int ci, int ti ) const
+{
+    if ( ti==-1 )
+	return -1;
+
+    const int* crds = triangles_[ti].coordindices_;
+    if ( pointInTriangle2D(mCrd(ci),mCrd(crds[0]),mCrd(crds[1]),mCrd(crds[2])) )
+	return 1;
+
+    if ( pointOnEdge2D( mCrd(ci), mCrd(crds[0]), mCrd(crds[1]), epsilon_ ) || 
+	 pointOnEdge2D( mCrd(ci), mCrd(crds[1]), mCrd(crds[2]), epsilon_ ) ||
+	 pointOnEdge2D( mCrd(ci), mCrd(crds[0]), mCrd(crds[2]), epsilon_ ) )
+	return 0;
+
+    return -1;
+}
+
+
+void DAGTriangleTree::splitTriangleInside( int ci, int ti )
+{
+    if ( ti<0 || ti>=triangles_.size() )
+	return;
+
+    const int crd0 = triangles_[ti].coordindices_[0];
+    const int crd1 = triangles_[ti].coordindices_[1];
+    const int crd2 = triangles_[ti].coordindices_[2];
+
+    DAGTriangle triangle;
+    triangle.coordindices_[0] = crd0;
+    triangle.coordindices_[1] = crd1;
+    triangle.coordindices_[2] = ci;
+    triangles_ += triangle;
+    const int ti0 = triangles_.size()-1;
+
+    triangle.coordindices_[0] = crd0;
+    triangle.coordindices_[1] = ci; 
+    triangle.coordindices_[2] = crd2;
+    triangles_ += triangle;
+    const int ti1 = triangles_.size()-1;
+    
+    triangle.coordindices_[0] = ci; 
+    triangle.coordindices_[1] = crd1;
+    triangle.coordindices_[2] = crd2;
+    triangles_ += triangle;
+    const int ti2 = triangles_.size()-1;
+
+    triangles_[ti].childindices_[0] = ti0;
+    triangles_[ti].childindices_[1] = ti1;
+    triangles_[ti].childindices_[2] = ti2;
+
+    const int* nbti = triangles_[ti].neighbors_;
+    triangles_[ti0].neighbors_[0] = searchChild( crd0, crd1,nbti[0] );
+    triangles_[ti0].neighbors_[1] = searchChild( crd1, ci, ti2 );
+    triangles_[ti0].neighbors_[2] = searchChild( ci, crd0, ti1 );
+    triangles_[ti1].neighbors_[0] = searchChild( crd0, ci, ti0 );
+    triangles_[ti1].neighbors_[1] = searchChild( ci, crd2, ti2 );
+    triangles_[ti1].neighbors_[2] = searchChild( crd2, crd0, nbti[2] );
+    triangles_[ti2].neighbors_[0] = searchChild( ci, crd1, ti0 );
+    triangles_[ti2].neighbors_[1] = searchChild( crd1, crd2, nbti[1] );
+    triangles_[ti2].neighbors_[2] = searchChild( crd2, ci, ti1 );
+    
+    TypeSet<char> v0s; 
+    TypeSet<char> v1s; 
+    TypeSet<int> tis; 
+
+    v0s += 0; v1s += 1; tis += ti0;
+    v0s += 0; v1s += 2; tis += ti1;
+    v0s += 1; v1s += 2; tis += ti2;
+    
+    legalizeTriangles( v0s, v1s, tis );
+}
+
+void DAGTriangleTree::setNeighbors( const int& vetexidx, const int& crd, 
+				    const int& ti, int& nb0, int& nb1 ) 
+{ 
+    const int* crds = triangles_[ti].coordindices_;
+    const int* nbs = triangles_[ti].neighbors_;
+    if ( vetexidx==0 ) 
+    { 
+	if ( crd==crds[1] ) 
+	{ 
+	    nb0 = nbs[0]; 
+	    nb1 = nbs[2]; 
+	} 
+	else if ( crd==crds[2] ) 
+	{ 
+	    nb0 = nbs[2]; 
+	    nb1 = nbs[0]; 
+	} 
+    } 
+    else if ( vetexidx==1 ) 
+    { 
+ 	if ( crd==crds[0] ) 
+	{ 
+	    nb0 = nbs[0]; 
+	    nb1 = nbs[1]; 
+	} 
+	else if ( crd==crds[2] ) 
+	{ 
+	    nb0 = nbs[1]; 
+	    nb1 = nbs[0]; 
+	} 
+    } 
+    else if ( vetexidx==2 ) 
+    { 
+	if ( crd==crds[1] ) 
+	{ 
+	    nb0 = nbs[1]; 
+	    nb1 = nbs[2]; 
+	} 
+	else if ( crd==crds[0] ) 
+	{ 
+	    nb0 = nbs[2]; 
+	    nb1 = nbs[1]; 
+	} 
+    } 
+}
+
+void DAGTriangleTree::splitTriangleOnEdge( int ci, int ti0, int ti1 )
+{
+    if ( ti0==-1 || ti1==-1 )
+	return; 
+
+    const int* crds0 = triangles_[ti0].coordindices_;
+    const int* nb0 = triangles_[ti0].neighbors_;
+    int shared0, shared1;
+    int vti0;
+    int vti1 = -1;
+    int nbti00, nbti01;
+    if ( pointOnEdge2D( mCrd(ci), mCrd(crds0[0]), mCrd(crds0[1]), epsilon_ ) )
+    {
+	shared0 = crds0[0];
+	shared1 = crds0[1];
+	vti0 = crds0[2];
+	nbti00 = nb0[2];
+	nbti01 = nb0[1];
+    }
+    else if ( pointOnEdge2D(mCrd(ci),mCrd(crds0[1]),mCrd(crds0[2]),epsilon_) )
+    {
+	shared0 = crds0[1];
+	shared1 = crds0[2];
+	vti0 = crds0[0];
+	nbti00 = nb0[0];
+	nbti01 = nb0[2];
+    }
+    else
+    {
+	shared0 = crds0[2];
+	shared1 = crds0[0];
+	vti0 = crds0[1];
+	nbti00 = nb0[1];
+	nbti01 = nb0[0];
+    }
+
+    const int* crds1 = triangles_[ti1].coordindices_;
+    int vetexidx;
+    if ( crds1[0] != shared0 && crds1[0] != shared1 )
+    {
+	vti1 = crds1[0];
+	vetexidx = 0;
+    }
+    else if ( crds1[1] != shared0 && crds1[1] != shared1 )
+    {
+	vti1 = crds1[1];
+	vetexidx = 1;
+    }
+    else if ( crds1[2] != shared0 && crds1[2] != shared1 )
+    {
+	vti1 = crds1[2];
+	vetexidx = 2;
+    }
+
+    int nbti10, nbti11; 
+    setNeighbors( vetexidx, shared0, ti1, nbti10, nbti11 );
+    
+    DAGTriangle triangle;
+    triangle.coordindices_[0] = shared0;
+    triangle.coordindices_[1] = ci;
+    triangle.coordindices_[2] = vti0;
+    triangles_ += triangle;
+    const int nti0 = triangles_.size()-1;
+
+    triangle.coordindices_[0] = shared1;
+    triangle.coordindices_[1] = vti0;
+    triangle.coordindices_[2] = ci; 
+    triangles_ += triangle;
+    const int nti1 = triangles_.size()-1;
+
+    triangle.coordindices_[0] = shared0;
+    triangle.coordindices_[1] = vti1;
+    triangle.coordindices_[2] = ci; 
+    triangles_ += triangle;
+    const int nti2 = triangles_.size()-1;
+
+    triangle.coordindices_[0] = shared1;
+    triangle.coordindices_[1] = ci;;
+    triangle.coordindices_[2] = vti1; 
+    triangles_ += triangle;
+    const int nti3 = triangles_.size()-1;
+
+    triangles_[ti0].childindices_[0] = nti0;
+    triangles_[ti0].childindices_[1] = nti1;
+    triangles_[ti1].childindices_[0] = nti2;
+    triangles_[ti1].childindices_[1] = nti3;
+
+    triangles_[nti0].neighbors_[0] = searchChild( shared0, ci, nti2 );
+    triangles_[nti0].neighbors_[1] = searchChild( ci, vti0, nti1 );
+    triangles_[nti0].neighbors_[2] = searchChild( vti0, shared0, nbti00 );
+    triangles_[nti1].neighbors_[0] = searchChild( shared1, vti0, nbti01 );
+    triangles_[nti1].neighbors_[1] = searchChild( vti0, ci, nti0 );
+    triangles_[nti1].neighbors_[2] = searchChild( ci, shared1, nti3 );
+    triangles_[nti2].neighbors_[0] = searchChild( shared0, vti1, nbti10 );
+    triangles_[nti2].neighbors_[1] = searchChild( vti1, ci, nti3 );
+    triangles_[nti2].neighbors_[2] = searchChild( ci, shared0, nti0 );
+    triangles_[nti3].neighbors_[0] = searchChild( shared1, ci, nti1 );
+    triangles_[nti3].neighbors_[1] = searchChild( ci, vti1, nti2 );
+    triangles_[nti3].neighbors_[2] = searchChild( vti1, shared1, nbti11 );
+ 
+    TypeSet<char> v0s; 
+    TypeSet<char> v1s; 
+    TypeSet<int> tis; 
+
+    v0s += 0; v1s += 2; tis += nti0;
+    v0s += 0; v1s += 1; tis += nti1;
+    v0s += 0; v1s += 1; tis += nti2;
+    v0s += 0; v1s += 2; tis += nti3;
+
+    legalizeTriangles( v0s, v1s, tis );
+}
+
+
+void DAGTriangleTree::legalizeTriangles( TypeSet<char>& v0s, TypeSet<char>& v1s,
+					 TypeSet<int>& tis )
+{
+    int start = 0;
+    while ( v0s.size()>start )
+    {
+	const char v0 = v0s[start]; 
+	const char v1 = v1s[start];
+	const int ti = tis[start];
+	if ( start>10000 )
+	{
+	    v0s.remove( 0, start );
+	    v1s.remove( 0, start );
+	    tis.remove( 0, start );
+	    start = 0;
+	}
+	else
+	{
+	    start++;
+	}
+	
+	if ( ti<0 )
+	    continue;
+
+	int ci;
+	int checkti = -1;
+	if ( v0==0 && v1==1 || v0==1 && v1==0 )
+	{
+	    checkti = triangles_[ti].neighbors_[0];
+	    ci = 2;
+	}
+	else if ( v0==0 && v1==2 || v0==2 && v1==0 )
+	{
+	    checkti = triangles_[ti].neighbors_[2];
+	    ci = 1;
+	}
+	else if ( v0==1 && v1==2 || v0==2 && v1==1 )
+	{
+	    checkti = triangles_[ti].neighbors_[1];
+	    ci = 0;
+	}
+	
+	if ( checkti==-1 )
+	    continue;
+
+	const int shared0 = triangles_[ti].coordindices_[v0];
+	const int shared1 = triangles_[ti].coordindices_[v1];
+	const int crdci = triangles_[ti].coordindices_[ci];
+	const int* checkcrds = triangles_[checkti].coordindices_;
+	int checkpt =-1;
+	int vetexidx;
+	if ( checkcrds[0] != shared0 && checkcrds[0] != shared1 )
+	{
+	    checkpt = checkcrds[0];
+	    vetexidx = 0;
+	}
+	else if ( checkcrds[1] != shared0 && checkcrds[1] != shared1 )
+	{
+	    checkpt = checkcrds[1];
+	    vetexidx = 1;
+	}
+	else if ( checkcrds[2] != shared0 && checkcrds[2] != shared1 )
+	{
+	    checkpt = checkcrds[2];
+	    vetexidx = 2;
+	}
+
+	if ( checkpt==-1 )
+	    continue;
+
+	if ( !isInsideCircle( mCrd(checkpt), mCrd(crdci), 
+			      mCrd(shared0), mCrd(shared1) ) )
+	    continue;
+	    
+	DAGTriangle triangle;
+	triangle.coordindices_[0] = crdci;
+	triangle.coordindices_[1] = checkpt;
+	triangle.coordindices_[2] = shared0; 
+	triangles_ += triangle;
+	const int nti1 = triangles_.size()-1;
+
+	triangle.coordindices_[0] = shared1;
+	triangle.coordindices_[1] = checkpt;
+	triangle.coordindices_[2] = crdci; 
+	triangles_ += triangle;
+	const int nti2 = triangles_.size()-1;
+
+	triangles_[ti].childindices_[0] = nti1;
+	triangles_[ti].childindices_[1] = nti2;
+	triangles_[checkti].childindices_[0] = nti1;
+	triangles_[checkti].childindices_[1] = nti2;
+
+	int nb0, nb1;
+	int nbti0, nbti1;
+	setNeighbors( vetexidx, shared0, checkti, nb0, nb1 );
+	setNeighbors( ci, shared0, ti, nbti0, nbti1 );
+
+	triangles_[nti1].neighbors_[0] = searchChild( crdci, checkpt, nti2 );
+	triangles_[nti1].neighbors_[1] = searchChild( checkpt, shared0, nb0 );
+	triangles_[nti1].neighbors_[2] = searchChild( shared0, crdci, nbti0 );
+	triangles_[nti2].neighbors_[0] = searchChild( shared1, checkpt, nb1 );
+	triangles_[nti2].neighbors_[1] = searchChild( checkpt, crdci, nti1 );
+	triangles_[nti2].neighbors_[2] = searchChild( crdci, shared1, nbti1 );
+
+	v0s += 1; v1s += 2; tis += nti1;
+	v0s += 0; v1s += 1; tis += nti2;
+    }
+}
+
+
+bool DAGTriangleTree::getCoordIndices( TypeSet<int>& result ) const
+{
+    for ( int idx=triangles_.size()-1; idx>=0; idx-- )
+    {
+	const int* child = triangles_[idx].childindices_;
+	if ( child[0]!=-1 || child[1]!=-1 || child[2]!=-1 )
+	    continue;
+
+	const int* c = triangles_[idx].coordindices_;
+	if ( c[0]==-4 || c[0]==-2 || c[0]==-3 || c[1]==-4 || 
+	     c[1]==-2 || c[1]==-3 || c[2]==-4 || c[2]==-2 || c[2]==-3 )
+	    continue;
+	
+	result += c[0];
+	result += c[1];
+	result += c[2];
+    }
+
+    return result.size();
+}
+
+
+#define mSearch( child ) \
+if ( child!=-1 ) \
+{ \
+    const int* gc = triangles_[child].coordindices_; \
+    if ( gc[0]==v0 && gc[1]==v1 || gc[1]==v0 && gc[0]==v1 || \
+	 gc[0]==v0 && gc[2]==v1 || gc[2]==v0 && gc[0]==v1 || \
+	 gc[1]==v0 && gc[2]==v1 || gc[2]==v0 && gc[1]==v1 )  \
+	    return searchChild( v0, v1, child ); \
+}
+
+
+int DAGTriangleTree::searchChild( int v0, int v1, int ti ) const
+{
+    if ( ti==-1 )
+	return -1;
+
+    const int* child = triangles_[ti].childindices_;
+    if ( child[0]==-1 && child[1]==-1 && child[2]==-1 )
+	return ti;
+    
+    mSearch( child[0] );
+    mSearch( child[1] );
+    mSearch( child[2] );
+
+    return -1;
+}
+
+
+DAGTriangleTree::DAGTriangle::DAGTriangle()
+{
+    coordindices_[0] = -1;
+    coordindices_[1] = -1;
+    coordindices_[2] = -1;
+    childindices_[0] = -1;
+    childindices_[1] = -1;
+    childindices_[2] = -1;
+    neighbors_[0] = -1;
+    neighbors_[1] = -1;
+    neighbors_[2] = -1;
+}
+
+
+bool DAGTriangleTree::DAGTriangle::operator==( 
+	const DAGTriangle& dag ) const
+{
+    const int d0 = dag.coordindices_[0];
+    const int d1 = dag.coordindices_[1];
+    const int d2 = dag.coordindices_[2];
+    const int c0 = coordindices_[0];
+    const int c1 = coordindices_[1];
+    const int c2 = coordindices_[2];
+    return d0==c0 && d1==c1 && d2==c2 ||
+	   d0==c0 && d1==c2 && d2==c1 ||
+	   d0==c1 && d1==c0 && d2==c2 ||
+	   d0==c1 && d1==c2 && d2==c0 ||
+	   d0==c2 && d1==c1 && d2==c0 ||
+	   d0==c2 && d1==c0 && d2==c1; 
+}
+
 
 
