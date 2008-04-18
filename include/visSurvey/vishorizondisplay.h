@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.21 2008-03-21 16:12:51 cvshelene Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.22 2008-04-18 10:49:40 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -76,7 +76,8 @@ public:
     void			setDepthAsAttrib(int);
     bool                        setDataPackID(int attrib,DataPack::ID);
     DataPack::ID                getDataPackID(int attrib) const;
-    virtual DataPackMgr::ID     getDataPackMgrID() const	{ return 1; }
+    virtual DataPackMgr::ID     getDataPackMgrID() const
+				{ return DataPackMgr::FlatID; }
 
     bool			allowMaterialEdit() const 	{ return true; }
     bool			hasColor() const;

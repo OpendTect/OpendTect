@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visrandomtrackdisplay.h,v 1.60 2008-03-24 15:53:42 cvsyuancheng Exp $
+ RCS:		$Id: visrandomtrackdisplay.h,v 1.61 2008-04-18 10:49:40 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -97,7 +97,8 @@ public:
 
     bool                        setDataPackID(int attrib,DataPack::ID);
     DataPack::ID                getDataPackID(int attrib) const;
-    virtual DataPackMgr::ID     getDataPackMgrID() const        { return 1; }
+    virtual DataPackMgr::ID     getDataPackMgrID() const
+				{ return DataPackMgr::FlatID; }
 
     bool			canAddKnot(int knotnr) const;
     				/*!< If knotnr<nrKnots the function Checks if
