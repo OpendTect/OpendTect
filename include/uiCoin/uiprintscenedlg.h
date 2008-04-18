@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2002
- RCS:           $Id: uiprintscenedlg.h,v 1.14 2008-04-10 04:24:13 cvssatyaki Exp $
+ RCS:           $Id: uiprintscenedlg.h,v 1.15 2008-04-18 04:40:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,8 @@ protected:
     static const char*	sKeyWidth()	{ return "Width"; }
     static const char*	sKeyUnit()	{ return "Unit"; }
     static const char*	sKeyRes()	{ return "Resolution"; }
+    static const char*	sKeyLockAR()	{ return "Lock aspect ratio"; }
+    static const char*	sKeyFileType()	{ return "File type"; }
 };
 
 #endif

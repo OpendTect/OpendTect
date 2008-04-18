@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2002
- RCS:           $Id: uiprintscenedlg.cc,v 1.38 2008-04-10 04:24:13 cvssatyaki Exp $
+ RCS:           $Id: uiprintscenedlg.cc,v 1.39 2008-04-18 04:40:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,8 @@ ________________________________________________________________________
 #include <Inventor/SoOffscreenRenderer.h>
 #include <Inventor/SoOutput.h>
 
-static const char* sKeySnapshot = "snapshots";
+static const char* sKeySnapshot = "snapshot";
+static bool prevsavestate = true;
 
 BufferString uiPrintSceneDlg::dirname_ = "";
 
@@ -81,7 +82,8 @@ static void sInch2Cm( const SbVec2f& from, SbVec2f& to )
 uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
 				  const ObjectSet<uiSoViewer>& vwrs )
     : uiDialog(p,uiDialog::Setup("Create snapshot",
-				 "Enter image size and filename","50.0.1"))
+				 "Enter image size and filename","50.0.1")
+	         .savebutton(true).savetext("Save settings on OK"))
     , viewers_(vwrs)
     , screendpi_(SoOffscreenRenderer::getScreenPixelsPerInch())
     , sizepix_(*new SbVec2f)
@@ -172,17 +174,13 @@ uiPrintSceneDlg::uiPrintSceneDlg( uiParent* p,
     fileinputfld_->valuechanged.notify( mCB(this,uiPrintSceneDlg,fileSel) );
     mAttachToAbove( fileinputfld_ );
 
-    const char* settingsdir = GetSettingsDir();
-    FilePath fp;
-    fp.setPath( settingsdir );
-    fp.setFileName( "snapshots" );
-    IOPar par;
-    par.read( fp.fullPath(FilePath::Local), sKey::Pars );
-
     updateFilter();
     sceneSel(0);
-    usePar( par );
 
+    Settings& setts( Settings::fetch(sKeySnapshot) );
+    usePar( setts );
+
+    setSaveButtonChecked( prevsavestate );
     IOM().afterSurveyChange.notify( mCB(this,uiPrintSceneDlg,surveyChanged) );
 }
 
@@ -373,10 +371,6 @@ bool uiPrintSceneDlg::filenameOK() const
 	    uiMSG().error(msg);
 	    return false;
 	}
-	
-	msg += " exists. Overwrite?";
-	if ( !uiMSG().askGoOn(msg,true) )
-	    return false;
     }
 
     return true;
@@ -439,7 +433,8 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
     viewport.setWindowSize( mNINT(sizepix_[0]), mNINT(sizepix_[1]) );
     viewport.setPixelsPerInch( dpifld_->getfValue() );
 
-    if ( uiMSG().askGoOn(" Do you want to save the settings " ) )
+    prevsavestate = saveButtonChecked();
+    if ( prevsavestate )
 	write2settings();
 	
     PtrMan<SoOffscreenRenderer> sor = new SoOffscreenRenderer(viewport);
@@ -468,15 +463,11 @@ bool uiPrintSceneDlg::acceptOK( CallBacker* )
 
 void uiPrintSceneDlg::write2settings()
 {
-    const char* settdir = GetSettingsDir();
-    FilePath fp;
-    fp.setPath( settdir );
-    fp.setFileName( "snapshots" );
-    IOPar iopar;
-    iopar.read( fp.fullPath(FilePath::Local), sKey::Pars );
-    fillPar( iopar );
-    if ( !iopar.write( fp.fullPath(FilePath::Local), sKey::Pars ) )
-	uiMSG().error( "Cannot write in to User Settings " );
+    Settings& setts( Settings::fetch(sKeySnapshot) );
+    setts.clear();
+    fillPar( setts );
+    if ( !setts.write() )
+	uiMSG().error( "Cannot write settings" );
 }
 
 
@@ -513,8 +504,10 @@ void uiPrintSceneDlg::fillPar( IOPar& par ) const
     if ( !heightfld_ ) return;
     par.set( sKeyHeight(), heightfld_->box()->getFValue() );
     par.set( sKeyWidth(), widthfld_->box()->getFValue() );
-    par.set( sKeyUnit(), unitfld_->text("Unit") );
+    par.set( sKeyUnit(), unitfld_->text() );
     par.set( sKeyRes(), dpifld_->getIntValue() );
+    par.setYN( sKeyLockAR(), lockfld_->isChecked() );
+    par.set( sKeyFileType(), getExtension() );
 }
 
 
@@ -522,18 +515,41 @@ bool uiPrintSceneDlg::usePar( const IOPar& par )
 {
     if ( !heightfld_ ) return false;
 
+    BufferString res;
+    if ( par.get(sKeyUnit(),res) )
+	unitfld_->setText( res );
+    unitChg(0);
+
     float val;
-    if ( par.get(sKeyHeight(),val) ) heightfld_->box()->setValue( val );
-    if ( par.get(sKeyWidth(),val) ) widthfld_->box()->setValue( val );
+    if ( par.get(sKeyHeight(),val) )
+	heightfld_->box()->setValue( val );
+    if ( par.get(sKeyWidth(),val) )
+	widthfld_->box()->setValue( val );
 
-    int ival;
-    if ( par.get(sKeyUnit(),ival) ) unitfld_->setValue( ival );
-    if ( par.get(sKeyRes(),ival) ) dpifld_->setValue( ival );
-    
-    sizecm_.setValue( widthfld_->box()->getFValue(),
-	    	      heightfld_->box()->getFValue() );
-    sCm2Inch( sizecm_, sizeinch_ );
-    sInch2Pixels( sizeinch_, sizepix_, dpifld_->getfValue() );
+    bool lockar = true;
+    par.getYN( sKeyLockAR(), lockar );
+    lockfld_->setChecked( lockar );
 
+    int dpi;
+    if ( par.get(sKeyRes(),dpi) )
+	dpifld_->setValue( dpi );
+
+    res == "";
+    par.get( sKeyFileType(), res );
+
+    int idx = 0;
+    while ( imageformats[idx] )
+    {
+	if ( res != imageformats[idx] )
+	{
+	    idx++;
+	    continue;
+	}
+
+	fileinputfld_->setSelectedFilter( filters[idx] );
+	break;
+    }
+
+    updateSizes();
     return true;
 }
