@@ -4,10 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          March 2008
- RCS:           $Id: uicreateattriblogdlg.cc,v 1.2 2008-04-10 05:24:11 cvssatyaki Exp $
+ RCS:           $Id: uicreateattriblogdlg.cc,v 1.3 2008-04-18 12:25:38 cvsnanne Exp $
 _______________________________________________________________________
 
 -*/
+
+#include "uicreateattriblogdlg.h"
 
 #include "attribdescset.h"
 #include "attribengman.h"
@@ -19,18 +21,19 @@ _______________________________________________________________________
 #include "survinfo.h"
 #include "wellman.h"
 #include "welldata.h"
+#include "welld2tmodel.h"
+#include "wellextractdata.h"
 #include "welllog.h"
 #include "welllogset.h"
-#include "welld2tmodel.h"
-#include "welltrack.h"
 #include "wellmarker.h"
+#include "welltrack.h"
 
 #include "uiattrsel.h"
-#include "uicreateattriblogdlg.h"
-#include "uitaskrunner.h"
-#include "uilistbox.h"
 #include "uigeninput.h"
+#include "uilistbox.h"
 #include "uimsg.h"
+#include "uitaskrunner.h"
+
 
 uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 					    const BufferStringSet& wellnames,
@@ -52,10 +55,10 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     welllistfld_->addItems( wellnames );
 
     // TODO: Get markers from all wells
-    markernames_.add("<<Start of Data>>");
+    markernames_.add( Well::TrackSampler::sKeyDataStart );
     for ( int idx=0; idx<Well::MGR().wells()[0]->markers().size(); idx++ )
 	markernames_.add( Well::MGR().wells()[0]->markers()[idx]->name() );
-    markernames_.add("<<End of Data>>");
+    markernames_.add( Well::TrackSampler::sKeyDataEnd );
 
     StringListInpSpec slis( markernames_ );
     topmrkfld_ = new uiGenInput( this, "Extract between", slis );
@@ -67,7 +70,10 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     botmrkfld_->setValue( markernames_.size()-1 );
     botmrkfld_->setElemSzPol( uiObject::Medium );
 
-    stepfld_ = new uiGenInput( this, " Step Value ", IntInpSpec() );
+    const bool zinft = SI().depthsInFeetByDefault();
+    const float defstep = zinft ? 0.5 : 0.15;
+    BufferString lbl = "Step "; lbl += zinft ? "(ft)" : "(m)";
+    stepfld_ = new uiGenInput( this, lbl, FloatInpSpec(defstep) );
     stepfld_->attach( rightOf, botmrkfld_ );
 
     lognmfld_ = new uiGenInput( this, "Log name" );
@@ -120,17 +126,19 @@ bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 	BinIDValueSet bidset( 2, true );
 	TypeSet<BinIDValueSet::Pos> positions;
 	TypeSet<float> mdepths;
-	if ( !getPositions( bidset, *wd, positions, mdepths ) )
+	if ( !getPositions(bidset,*wd,positions,mdepths) )
 	    continue;
 
 	if ( positions.isEmpty() )
 	    mErrRet( "No positions extracted from well" );
+
 	if ( !extractData(bidset) )
 	    return false;
 
 	if ( !createLog(bidset,*wd,positions,mdepths) )
 	    return false;
     }
+
     return true;
 }
 
@@ -146,7 +154,7 @@ bool uiCreateAttribLogDlg::inputsOK( int wellno )
     if ( seldescid.asInt() < 0 && (nlamodel_ && outputnr<0) )
 	mErrRet( "No valid attribute selected" );
 
-    if( !stepfld_->getIntValue(0) || stepfld_->getIntValue(0)>100 )
+    if( stepfld_->getValue()<0 || stepfld_->getValue(0)>100 )
 	mErrRet( "Please Enter a valid step value" );
     
     BufferString lognm = lognmfld_->text();
@@ -170,7 +178,7 @@ bool uiCreateAttribLogDlg::getPositions( BinIDValueSet& bidset, Well::Data& wd,
 					 TypeSet<float>& mdepths )
 {
     const bool zinft = SI().depthsInFeetByDefault();
-    const int step = stepfld_->getIntValue();
+    const float step = stepfld_->getfValue();
     const int topmarker = markernames_.indexOf( topmrkfld_->text() );
     const int bottommarker = markernames_.indexOf( botmrkfld_->text() );
     float start = 0;
@@ -184,7 +192,7 @@ bool uiCreateAttribLogDlg::getPositions( BinIDValueSet& bidset, Well::Data& wd,
     {
 	if ( wd.markers().size() <= bottommarker-2 )
 	{
-	    BufferString msg("Cannot create the log of Well : ");
+	    BufferString msg( "Cannot create log for Well: " );
 	    msg += wd.name() ;
 	    uiMSG().error(msg);
 	    return false;
@@ -196,14 +204,12 @@ bool uiCreateAttribLogDlg::getPositions( BinIDValueSet& bidset, Well::Data& wd,
 
     if ( start > stop )
     {
-	BufferString msg("Please Choose the Markers correctly ");
+	BufferString msg( "Please choose the Markers correctly" );
 	uiMSG().error(msg);
 	return false;
     }
 
-    const StepInterval<float> intv = StepInterval<float>( (float)start,
-	    						  (float)stop,
-							  (float)step );
+    const StepInterval<float> intv = StepInterval<float>( start, stop, step );
     const int nrsteps = intv.nrSteps();
     for ( int idx=0; idx<nrsteps; idx++ )
     {
