@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.19 2008-04-09 11:07:02 cvsnanne Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.20 2008-04-18 14:37:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -212,8 +212,10 @@ void uiStratRefTree::insertSubUnit( uiListViewItem* lvit )
 	if ( parit )
 	    uistratmgr_->prepareParentUnit( getCodeFromLVIt( parit ).buf() );
 	
-	uistratmgr_->addUnit( getCodeFromLVIt( newitem ).buf(),
-			      newitem->text(2), newitem->text(1), true );
+	BufferString codestr = getCodeFromLVIt( newitem );
+	BufferString description = newitem->text(1);
+	BufferString lithonm = newitem->text(2);
+	uistratmgr_->addUnit( codestr.buf(), lithonm, description, true );
     }
 }
 

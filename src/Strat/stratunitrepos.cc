@@ -4,7 +4,7 @@
  * DATE     : Mar 2004
 -*/
 
-static const char* rcsID = "$Id: stratunitrepos.cc,v 1.23 2008-02-26 09:17:39 cvsnanne Exp $";
+static const char* rcsID = "$Id: stratunitrepos.cc,v 1.24 2008-04-18 14:37:28 cvshelene Exp $";
 
 #include "stratunitrepos.h"
 #include "stratlith.h"
@@ -358,6 +358,7 @@ void UnitRepository::addTreeFromFile( const Repos::FileProvider& rfp,
 
 int UnitRepository::findLith( const char* str ) const
 {
+    if ( !str ) return -1;
     for ( int idx=0; idx<liths_.size(); idx++ )
     {
 	if ( liths_[idx]->name() == str )
