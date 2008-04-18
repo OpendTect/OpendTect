@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiwellattribxplot.cc,v 1.3 2008-04-17 13:41:53 cvsbert Exp $
+ RCS:           $Id: uiwellattribxplot.cc,v 1.4 2008-04-18 13:49:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,30 +157,79 @@ void uiWellAttribCrossPlot::adsChg()
 }
 
 
-#define mDPM DPM(DataPackMgr::PointID)
-#define mErrRet(s) \
-{ \
-    if ( dps ) mDPM.release(dps->id()); \
-    if ( s ) uiMSG().error(s); return false; \
+static void addDCDs( uiListBox* lb, ObjectSet<DataColDef>& dcds,
+		     BufferStringSet& nms )
+{
+    for ( int idx=0; idx<lb->size(); idx++ )
+    {
+	if ( !lb->isSelected(idx) ) continue;
+	const char* nm = lb->textOfItem(idx);
+	nms.add( nm );
+	dcds += new DataColDef( nm );
+    }
 }
+
+
+#define mErrRet(s) { if ( s ) uiMSG().error(s); return false; }
+
+bool uiWellAttribCrossPlot::extractWellData( const BufferStringSet& ioobjids,
+					     const BufferStringSet& lognms,
+					     ObjectSet<DataPointSet>& dpss )
+{
+    Well::TrackSampler wts( ioobjids, dpss );
+    wts.for2d = ads_.is2D(); wts.lognms = lognms;
+    wts.topmrkr = topmarkfld_->text(); wts.botmrkr = botmarkfld_->text();
+    wts.above = abovefld_->getfValue(0,0);
+    wts.below = belowfld_->getfValue(0,0);
+    uiTaskRunner tr( this );
+    if ( !tr.execute(wts) )
+	return false;
+    if ( dpss.isEmpty() )
+	mErrRet("No wells found")
+
+    for ( int idx=0; idx<lognms.size(); idx++ )
+    {
+	Well::LogDataExtracter wlde( ioobjids, dpss );
+	wlde.lognm = lognms.get(idx);
+	wlde.samppol = (Well::LogDataExtracter::SamplePol)
+	    				logresamplfld_->getIntValue();
+	if ( !tr.execute(wlde) )
+	    return false;
+    }
+
+    return true;
+}
+
+
+bool uiWellAttribCrossPlot::extractAttribData( DataPointSet& dps )
+{
+    IOPar descsetpars;
+    ads_.fillPar( descsetpars );
+    const_cast<PosVecDataSet*>( &(dps.dataSet()) )->pars() = descsetpars;
+
+    MouseCursorManager::setOverride( MouseCursor::Wait );
+    Attrib::EngineMan aem; BufferString errmsg;
+    PtrMan<Executor> tabextr = aem.getTableExtractor( dps, ads_, errmsg );
+    MouseCursorManager::restoreOverride();
+    if ( !errmsg.isEmpty() )
+	mErrRet(errmsg)
+    uiTaskRunner tr( this );
+    return tr.execute( *tabextr );
+}
+
+
+#define mDPM DPM(DataPackMgr::PointID)
+#undef mErrRet
+#define mErrRet(s) { deepErase(dcds); if ( s ) uiMSG().error(s); return false; }
 
 bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 {
-    DataPointSet* dps = 0;
-
-    ObjectSet<DataColDef> dcds;
-    for ( int idx=0; idx<attrsfld_->size(); idx++ )
-    {
-	if ( attrsfld_->isSelected(idx) )
-	    dcds += new DataColDef( attrsfld_->textOfItem(idx) );
-    }
-    if ( dcds.isEmpty() )
-	mErrRet("Please select at least one attribute")
-    for ( int idx=0; idx<logsfld_->size(); idx++ )
-    {
-	if ( logsfld_->isSelected(idx) )
-	    dcds += new DataColDef( logsfld_->textOfItem(idx) );
-    }
+    ObjectSet<DataColDef> dcds; BufferStringSet attrnms;
+    addDCDs( attrsfld_, dcds,  attrnms );
+    BufferStringSet lognms;
+    addDCDs( logsfld_, dcds, lognms );
+    if ( lognms.isEmpty() )
+	mErrRet("Please select at least one log")
 
     BufferStringSet ioobjids;
     for ( int idx=0; idx<wellsfld_->size(); idx++ )
@@ -190,22 +239,17 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
     }
     if ( ioobjids.isEmpty() )
 	mErrRet("Please select at least one well")
+
     ObjectSet<DataPointSet> dpss;
-    Well::TrackSampler wts( ioobjids, dpss );
-    wts.for2d = ads_.is2D();
-    uiTaskRunner tr( this );
-    if ( !tr.execute(wts) )
-	return false;
-    if ( dpss.isEmpty() )
-	mErrRet("No wells found")
+    if ( !extractWellData(ioobjids,lognms,dpss) )
+	mErrRet(0)
 
-    Well::LogDataExtracter wlde( ioobjids, dpss );
-    if ( !tr.execute(wlde) )
-	return false;
-
-    dps = new DataPointSet( *dpss[0] );
+    MouseCursorManager::setOverride( MouseCursor::Wait );
+    DataPointSet* dps = new DataPointSet( TypeSet<DataPointSet::DataRow>(),
+	    				  dcds, ads_.is2D(), false );
+    deepErase( dcds );
     DataPointSet::DataRow dr;
-    for ( int idx=1; idx<dpss.size(); idx++ )
+    for ( int idx=0; idx<dpss.size(); idx++ )
     {
 	DataPointSet& curdps = *dpss[idx];
 	for ( int idr=0; idr<curdps.size(); idr++ )
@@ -215,22 +259,20 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 	    dps->setRow( dr );
 	}
     }
-
-    dps->setName( "Attributes / Well data" );
-    IOPar descsetpars;
-    ads_.fillPar( descsetpars );
-    const_cast<PosVecDataSet*>( &(dps->dataSet()) )->pars() = descsetpars;
-    mDPM.add( dps );
-
-    BufferString errmsg;
-    Attrib::EngineMan aem;
-    MouseCursorManager::setOverride( MouseCursor::Wait );
-    PtrMan<Executor> tabextr = aem.getTableExtractor( *dps, ads_, errmsg );
+    deepErase( dpss );
     MouseCursorManager::restoreOverride();
-    if ( !errmsg.isEmpty() ) mErrRet(errmsg)
-    if ( !tr.execute(*tabextr) )
-	return false;
+    if ( dps->isEmpty() )
+	mErrRet("No positions found matching criteria")
 
+    BufferString dpsnm( "Well data" );
+    if ( !attrnms.isEmpty() )
+    {
+	dpsnm += " / Attributes";
+	if ( !extractAttribData(*dps) )
+	    return false;
+    }
+
+    dps->setName( dpsnm );
     uiDataPointSet* dlg = new uiDataPointSet( this, *dps,
 			uiDataPointSet::Setup("Attribute data") );
     return dlg->go() ? true : false;
