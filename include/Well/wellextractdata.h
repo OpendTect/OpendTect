@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.13 2008-04-03 11:18:47 cvsbert Exp $
+ RCS:		$Id: wellextractdata.h,v 1.14 2008-04-18 13:48:40 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -88,7 +88,7 @@ public:
 
     BufferString	topmrkr;
     BufferString	botmrkr;
-    BufferString	lognm;
+    BufferStringSet	lognms;
     float		above;
     float		below;
     SelPol		selpol;
@@ -153,7 +153,7 @@ public:
     void		usePar(const IOPar&);
 
     int			nextStep();
-    const char*		message() const	   { return "Getting log values"; }
+    const char*		message() const	   { return msg_.buf(); }
     const char*		nrDoneText() const { return "Wells handled"; }
     int			nrDone() const	   { return curid; }
     int			totalNr() const	   { return ids.size(); }
@@ -166,6 +166,7 @@ protected:
     ObjectSet<DataPointSet>&	dpss;
     int				curid;
     const bool			timesurv;
+    BufferString		msg_;
 
     void		getData(DataPointSet&,const Data&,const Track&);
     void		getGenTrackData(DataPointSet&,const Track&,const Log&,
