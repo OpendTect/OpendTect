@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.75 2008-04-11 09:48:23 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.76 2008-04-18 14:56:58 cvshelene Exp $";
 
 #include "attribstorprovider.h"
 
@@ -220,7 +220,8 @@ int StorageProvider::moveToNextTrace( BinID startpos, bool firstcheck )
 	SeisMSCProvider::AdvanceState res = mscprov_->advance();
 	switch ( res )
 	{
-	    case SeisMSCProvider::Error:	return -1;
+	    case SeisMSCProvider::Error:	{ errmsg = mscprov_->errMsg();
+						  return -1; }
 	    case SeisMSCProvider::EndReached:	return 0;
 	    case SeisMSCProvider::Buffering:	continue;
 						//TODO return 'no new position'
