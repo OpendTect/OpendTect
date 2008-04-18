@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	R. K. Singh
  Date: 		Jan 2008
- RCS:		$Id: uiodeditattribcolordlg.cc,v 1.8 2008-04-08 09:23:43 cvsnanne Exp $
+ RCS:		$Id: uiodeditattribcolordlg.cc,v 1.9 2008-04-18 10:32:46 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -30,6 +30,8 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
     , items_(set)
     , itemusedineditor_(-1)
 {
+    setCtrlStyle( LeaveOnly );
+
     if ( attrnm && *attrnm )
     {
 	BufferString titletext = "Color Settings : ";
@@ -55,18 +57,14 @@ uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 	break;
     }
 
-    const Interval<float> intv = ctabobj->getInterval();
     ColTab::Sequence ctab = ctabobj->colorSeq().colors();
     uicoltab_ = new uiColorTable( this, ctab, true );
-    uicoltab_->setPrefHeight( 400 );
-    const bool autoscale = ctabobj->autoScale();
-    uicoltab_->setAutoScale( autoscale );
+    uicoltab_->setAutoScale( ctabobj->autoScale() );
     uicoltab_->setClipRate( ctabobj->clipRate() );
     uicoltab_->setSymMidval( ctabobj->symMidval() );
-
-    uiPushButton* applybut = new uiPushButton( this, "Apply", true );
-    applybut->attach( centeredBelow, uicoltab_ );
-    applybut->activated.notify( mCB(this,uiODEditAttribColorDlg,doApply) );
+    uicoltab_->setInterval( ctabobj->getInterval() );
+    uicoltab_->seqChanged.notify( mCB(this,uiODEditAttribColorDlg,doApply) );
+    uicoltab_->scaleChanged.notify( mCB(this,uiODEditAttribColorDlg,doApply) );
 }
 
 
@@ -93,6 +91,7 @@ void uiODEditAttribColorDlg::doApply( CallBacker* )
 	if ( !(coltab == obj->colorSeq().colors()) )
 	{
 	    obj->colorSeq().colors() = coltab;
+	    obj->colorSeq().colorsChanged();
 	    obj->triggerSeqChange();
 	}
 	if ( obj->autoScale()!=autoscale || obj->clipRate()!=cliprate
