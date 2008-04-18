@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.38 2008-04-15 12:50:31 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.39 2008-04-18 13:49:10 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -110,6 +110,8 @@ int Well::InfoCollector::nextStep()
 Well::TrackSampler::TrackSampler( const BufferStringSet& i,
 				  ObjectSet<DataPointSet>& d )
 	: Executor("Well data extraction")
+	, topmrkr(sKeyDataStart)
+	, botmrkr(sKeyDataEnd)
 	, above(0)
     	, below(0)
     	, selpol(Corners)
@@ -127,7 +129,7 @@ void Well::TrackSampler::usePar( const IOPar& pars )
 {
     pars.get( sKeyTopMrk, topmrkr );
     pars.get( sKeyBotMrk, botmrkr );
-    pars.get( sKeyLogNm, lognm );
+    pars.get( sKeyLogNm, lognms );
     pars.get( sKeyLimits, above, below );
     const char* res = pars.find( sKeySelPol );
     if ( res && *res ) selpol = eEnum(SelPol,res);
@@ -151,6 +153,8 @@ int Well::TrackSampler::nextStep()
 {
     if ( curid >= ids.size() )
 	return 0;
+    if ( lognms.isEmpty() )
+	{ "No well logs specified"; return Executor::ErrorOccurred; }
 
     DataPointSet* dps = new DataPointSet( for2d, minidps );
     dpss += dps;
@@ -160,9 +164,21 @@ int Well::TrackSampler::nextStep()
     Well::Data wd;
     Well::Reader wr( ioobj->fullUserExpr(true), wd );
     if ( !wr.getInfo() ) mRetNext()
-    if ( timesurv && !wr.getD2T() ) mRetNext()
-    fulldahrg = wr.getLogDahRange( lognm );
+    if ( timesurv && !wr.getD2T() )
+	mRetNext()
+
+    fulldahrg.start = mUdf(float);
+    int ilog = 0;
+    for ( ; mIsUdf(fulldahrg.start) && ilog<lognms.size(); ilog++ )
+	fulldahrg = wr.getLogDahRange( lognms.get(ilog) );
+    for ( ; ilog<lognms.size(); ilog++ )
+    {
+	Interval<float> newdahrg = wr.getLogDahRange( lognms.get(ilog) );
+	if ( mIsUdf(newdahrg.start) ) continue;
+	fulldahrg.include( newdahrg );
+    }
     if ( mIsUdf(fulldahrg.start) ) mRetNext()
+
     wr.getMarkers();
 
     getData( wd, *dps );
@@ -321,6 +337,8 @@ int Well::LogDataExtracter::nextStep()
 {
     if ( curid >= ids.size() )
 	return 0;
+    if ( msg_.isEmpty() )
+	{ msg_ = "Extracting '"; msg_ += lognm; msg_ += "'"; return MoreToDo; }
 
     IOObj* ioobj = 0;
     if ( dpss.size() <= curid ) mRetNext()
