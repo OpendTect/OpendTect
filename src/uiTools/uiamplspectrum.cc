@@ -4,12 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:          September 2007
- RCS:           $Id: uiamplspectrum.cc,v 1.4 2008-04-03 13:45:16 cvskris Exp $
+ RCS:           $Id: uiamplspectrum.cc,v 1.5 2008-04-18 11:06:58 cvsnanne Exp $
 _______________________________________________________________________
                    
 -*/   
 
 #include "uiamplspectrum.h"
+
+#include "uiaxishandler.h"
 #include "uifunctiondisplay.h"
 
 #include "arrayndimpl.h"
@@ -31,6 +33,8 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p )
     uiFunctionDisplay::Setup su;
     su.annoty(false).fillbelow(true).canvaswidth(600).canvasheight(400);
     disp_ = new uiFunctionDisplay( this, su );
+    disp_->xAxis()->setName( SI().zIsTime() ? "Frequency (Hz)" 
+	    				    : "Wavenumber (/m)" );
 }
 
 
