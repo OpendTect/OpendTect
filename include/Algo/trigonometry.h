@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.19 2006-08-03 21:16:58 cvskris Exp $
+ RCS:		$Id: trigonometry.h,v 1.20 2008-04-18 16:47:09 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -19,9 +19,71 @@ template <class T> class TypeSet;
 template <class T> class ObjectSet;
 
 /*!\brief
-
-
+Here are some commonly used functions to judge the position relation between 
+point and line, point and triangle, point and circle.
 */
+
+inline float deter33( const float* matrix )
+/*!<calculate the determinant of matrix. the 1st row is m0, m1, m2,
+ 					 the 2nd row is m3, m4, m5,
+					 the 3rd row is m6, m7, m8. */
+{
+    return matrix[0]*matrix[4]*matrix[8]+matrix[1]*matrix[5]*matrix[6]+
+	   matrix[2]*matrix[3]*matrix[7]-matrix[2]*matrix[4]*matrix[6]-
+   	   matrix[0]*matrix[5]*matrix[7]-matrix[1]*matrix[3]*matrix[8];	   
+}
+
+
+inline bool isInsideCircle( const Coord& pt, 
+			    const Coord& p1, const Coord& p2, const Coord& p3 )
+    /*!<Check the point pt is inside the circumcircle of p1, p2, p3 or not. */
+{
+    float m0[] = { p1.x, p1.y, 1, p2.x, p2.y, 1, p3.x, p3.y, 1 };
+    const float a = deter33( m0 );
+    float m1[] = { p1.dot(p1), p1.y, 1, p2.dot(p2), p2.y, 1, 
+		   p3.dot(p3), p3.y, 1 };
+    float m2[] = { p1.dot(p1), p1.x, 1, p2.dot(p2), p2.x, 1, 
+		   p3.dot(p3), p3.x, 1 };
+    float m3[] = { p1.dot(p1), p1.x, p1.y, p2.dot(p2), p2.x, p2.y, 
+		   p3.dot(p3), p3.x, p3.y };
+
+    return a*( a*pt.dot(pt)-deter33(m1)*pt.x+deter33(m2)*pt.y-deter33(m3) )<0;
+}
+
+
+inline bool sameSide2D( const Coord& p1, const Coord& p2, 
+			const Coord& a, const Coord& b )
+    /*!< Check p1, p2 are on the same side of the edge AB or not.*/
+{
+    return ((p1.x-a.x)*(b.y-a.y)-(p1.y-a.y)*(b.x-a.x))*
+	((p2.x-a.x)*(b.y-a.y)-(p2.y-a.y)*(b.x-a.x))>=0 ? true : false;
+}
+
+
+inline bool pointInTriangle2D( const Coord& p, 
+			       const Coord& a, const Coord& b, const Coord& c )
+    /*!< Check the point p is in the triangle ABC or not.*/
+{
+    if ( sameSide2D(p,a,b,c) && sameSide2D(p,b,a,c) && sameSide2D(p,c,a,b) )
+	return true;
+    else
+	return false;
+}
+
+
+inline bool pointOnEdge2D( const Coord& p, const Coord& a, const Coord& b, 
+			   double epsilon )
+    /*!< Check to see if the point P in on the edge AB or not.*/
+{
+    if ( (p-a).x*(b-p).x<0 || (p-a).y*(b-p).y<0 )
+	return false;
+
+    if ( mIsZero((p-a).x*(b-p).y-(b-p).x*(p-a).y, epsilon) )
+	return true;
+    else
+	return false;
+}
+
 
 typedef Coord3 Vector3;
 
