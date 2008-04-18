@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: binidvalset.cc,v 1.22 2008-01-30 15:04:44 cvsbert Exp $";
+static const char* rcsID = "$Id: binidvalset.cc,v 1.23 2008-04-18 13:47:39 cvsbert Exp $";
 
 #include "binidvalset.h"
 #include "iopar.h"
@@ -881,21 +881,49 @@ void BinIDValueSet::get( const BinIDValueSet::Pos& pos, BinID& bid,
 
 void BinIDValueSet::set( const BinIDValueSet::Pos& pos, float v )
 {
-    set( pos, &v );
+    if ( nrvals_ < 1 ) return;
+
+    if ( nrvals_ == 1 )
+	set( pos, &v );
+    else
+    {
+	TypeSet<float> vals( nrvals_, mUdf(float) );
+	vals[0] = v; set( pos, vals );
+    }
 }
 
 
 void BinIDValueSet::set( const BinIDValueSet::Pos& pos, float v1, float v2 )
 {
-    float v[2]; v[0] = v1; v[1] = v2;
-    set( pos, v );
+    if ( nrvals_ < 1 ) return;
+
+    if ( nrvals_ == 2 )
+    {
+	float v[2]; v[0] = v1; v[1] = v2;
+	set( pos, v );
+    }
+    else
+    {
+	TypeSet<float> vals( nrvals_, mUdf(float) );
+	vals[0] = v1; if ( nrvals_ > 1 ) vals[1] = v2; set( pos, vals );
+    }
 }
 
 
-void BinIDValueSet::set( const BinIDValueSet::Pos& pos,
-			 const TypeSet<float>& vals )
+void BinIDValueSet::set( const BinIDValueSet::Pos& pos, const TypeSet<float>& v)
 {
-    set( pos, vals.arr() );
+    if ( nrvals_ < 1 ) return;
+
+    if ( nrvals_ <= v.size() )
+	set( pos, v.arr() );
+    else
+    {
+	TypeSet<float> vals( nrvals_, mUdf(float) );
+	for ( int idx=0; idx<v.size(); idx++ )
+	    vals[idx] = v[idx];
+
+	set( pos, vals.arr() );
+    }
 }
 
 
