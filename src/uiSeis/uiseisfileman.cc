@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.72 2008-03-14 05:45:16 cvssatyaki Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.73 2008-04-18 11:03:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -230,7 +230,8 @@ void uiSeisFileMan::mergeDump2DPush( CallBacker* )
 }
 
 
-static void doBrowse( uiParent* p, const IOObj* ioobj, const LineKey* lk, bool is2d )
+static void doBrowse( uiParent* p, const IOObj* ioobj, const LineKey* lk,
+		      bool is2d )
 {
     if ( !ioobj ) return;
 
@@ -273,7 +274,7 @@ uiSeis2DMan( uiParent* p, const IOObj& ioobj )
     uiManipButGrp* linebutgrp = new uiManipButGrp( lllb );
     linebutgrp->addButton( uiManipButGrp::Rename, 
 	    		   mCB(this,uiSeis2DMan,renameLine), "Rename line" );
-    linebutgrp->attach( rightTo, lllb );
+    linebutgrp->attach( rightTo, linelist );
 
     uiLabeledListBox* allb = new uiLabeledListBox( topgrp, "Attributes", true,
 						   uiLabeledListBox::AboveMid );
