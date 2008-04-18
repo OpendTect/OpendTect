@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.17 2008-03-14 14:35:45 cvskris Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.18 2008-04-18 10:32:11 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -73,8 +73,8 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
 	addChild( new uiODRandomLineTreeItem(-1), false );
     else if ( mnuid == 1 )
 	load();
-    else if ( mnuid < 5 )
-	genRandLine( mnuid - 2 );
+    else if ( mnuid>1 && mnuid<5 )
+	genRandLine( mnuid-2 );
 
     handleStandardItems( mnuid );
     return true;
