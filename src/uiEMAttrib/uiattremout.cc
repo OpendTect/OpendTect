@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2008
- RCS:           $Id: uiattremout.cc,v 1.2 2008-02-26 12:53:44 cvshelene Exp $
+ RCS:           $Id: uiattremout.cc,v 1.3 2008-04-18 14:56:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,8 +92,9 @@ bool uiAttrEMOut::fillPar( IOPar& iopar )
 
 	const Desc* desc = nlamodel_ ? descset.getFirstStored()
 				     : clonedset->getFirstStored();
-	if ( desc && desc->getMultiID(ky) )
-	    iopar.set( "Input Line Set", ky );
+	BufferString storedid = desc ? desc->getStoredID() : "";
+	if ( !storedid.isEmpty() )
+	    iopar.set( "Input Line Set", storedid.buf() );
     }
 
     ads_.removeDesc( nladescid_ );

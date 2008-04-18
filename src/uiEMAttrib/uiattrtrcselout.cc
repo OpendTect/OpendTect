@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.37 2008-04-07 11:00:34 cvsraman Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.38 2008-04-18 14:56:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -464,13 +464,16 @@ void uiAttrTrcSelOut::attribSel( CallBacker* cb )
     setParFileNmDef( attrfld_->getInput() );
     if ( ads_.is2D() )
     {
-	MultiID key;
 	const Desc* desc = ads_.getFirstStored();
-	if ( desc && desc->getMultiID(key) )
+	if ( desc )
 	{
-	    PtrMan<IOObj> ioobj = IOM().get( key );
-	    if ( ioobj )
-		seissubselfld_->setInput( *ioobj );
+	    BufferString storedid = desc->getStoredID();
+	    if ( !storedid.isEmpty() )
+	    {
+		PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid.buf()) );
+		if ( ioobj )
+		    seissubselfld_->setInput( *ioobj );
+	    }
 	}
     }
 }

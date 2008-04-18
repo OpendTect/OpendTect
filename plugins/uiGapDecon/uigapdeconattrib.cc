@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          July  2006
- RCS:           $Id: uigapdeconattrib.cc,v 1.33 2007-12-13 11:19:02 cvsbert Exp $
+ RCS:           $Id: uigapdeconattrib.cc,v 1.34 2008-04-18 14:56:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -558,7 +558,7 @@ void uiGapDeconAttrib::getInputMID( MultiID& mid ) const
     
     Desc* tmpdesc = ads_->getFirstStored( false );
     if ( !tmpdesc ) return;
-    tmpdesc->getMultiID( mid );
+    mid = MultiID( tmpdesc->getStoredID().buf() );
 }
 
 //-----------------------------------------------------------------------------

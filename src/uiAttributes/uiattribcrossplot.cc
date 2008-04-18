@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiattribcrossplot.cc,v 1.29 2008-04-17 09:05:34 cvsbert Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.30 2008-04-18 14:56:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,9 +118,9 @@ void uiAttribCrossPlot::adsChg()
     lnmfld_->empty();
     const Attrib::Desc* desc = ads_.getFirstStored( false );
     if ( !desc ) return;
-    MultiID mid; desc->getMultiID( mid );
-    if ( mid.isEmpty() ) return;
-    SeisIOObjInfo sii( mid );
+    BufferString storedid = desc->getStoredID();
+    if ( storedid.isEmpty() ) return;
+    SeisIOObjInfo sii( MultiID(storedid.buf()) );
     if ( !sii.isOK() || !sii.is2D() ) return;
 
     BufferStringSet bss; sii.getLineNames( bss );
@@ -149,8 +149,9 @@ void uiAttribCrossPlot::lnmChg( CallBacker* )
     const Attrib::Desc* desc = ads_.getFirstStored( false );
     if ( !desc )
 	mErrRet("No line set information in attribute set")
-    MultiID mid; desc->getMultiID( mid );
-    LineKey lk( (const char*)mid ); mid = lk.lineName();
+    BufferString storedid = desc->getStoredID();
+    LineKey lk( storedid.buf() );
+    const MultiID mid( lk.lineName() );
     if ( mid.isEmpty() )
 	mErrRet("No line set found in attribute set")
     PtrMan<IOObj> ioobj = IOM().get( mid );

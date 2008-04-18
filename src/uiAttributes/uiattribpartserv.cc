@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.90 2008-04-17 12:48:23 cvsbert Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.91 2008-04-18 14:56:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -1019,10 +1019,10 @@ IOObj* uiAttribPartServer::getIOObj( const Attrib::SelSpec& as ) const
     const Attrib::Desc* desc = attrset->getDesc( as.id() );
     if ( !desc ) return 0;
 
-    MultiID id;
-    if ( !desc->isStored() || !desc->getMultiID(id) ) return 0;
+    BufferString storedid = desc->getStoredID();
+    if ( !desc->isStored() || storedid.isEmpty() ) return 0;
 
-    return IOM().get( id );
+    return IOM().get( MultiID(storedid.buf()) );
 }
 
 

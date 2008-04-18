@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribdescset.cc,v 1.66 2008-04-11 12:05:01 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdescset.cc,v 1.67 2008-04-18 14:56:22 cvshelene Exp $";
 
 #include "attribdescset.h"
 #include "attribstorprovider.h"
@@ -792,10 +792,10 @@ Desc* DescSet::getFirstStored( bool usesteering ) const
 	const Desc& dsc = *descs[idx];
 	if ( !dsc.isStored() ) continue;
 
-	MultiID mid;
-	if ( !dsc.getMultiID(mid) ) continue;
+	BufferString storedid = dsc.getStoredID();
+	if ( storedid.isEmpty() ) continue;
 
-	PtrMan<IOObj> ioobj = IOM().get( mid );
+	PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid.buf()) );
 	const char* res = ioobj ? ioobj->pars().find( "Type" ) : 0;
 	const bool issteer = res && *res == 'S';
 	if ( !usesteering && issteer ) continue;

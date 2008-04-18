@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.43 2008-02-22 17:45:34 cvshelene Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.44 2008-04-18 14:56:21 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,13 +121,17 @@ void uiAttrVolOut::attrSel( CallBacker* )
     {
 	MultiID key;
 	const Desc* desc = ads.getFirstStored();
-	if ( desc && desc->getMultiID(key) )
+	if ( desc )
 	{
-	    PtrMan<IOObj> ioobj = IOM().get( key );
-	    if ( ioobj )
+	    BufferString storedid = desc->getStoredID();
+	    if ( !storedid.isEmpty() )
 	    {
-		objfld->setInput( ioobj->key() );
-		transffld->setInput( *ioobj );
+		PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid.buf()) );
+		if ( ioobj )
+		{
+		    objfld->setInput( ioobj->key() );
+		    transffld->setInput( *ioobj );
+		}
 	    }
 	}
     }
@@ -263,10 +267,15 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 
 	const Desc* desc = nlamodel ? descset.getFirstStored()
 	    			    : clonedset->getFirstStored();
-	if ( desc && desc->getMultiID(ky) )
+	if ( desc )
 	{
-	    iop.set( "Input Line Set", ky );
-	    linename = ky;
+	    BufferString storedid = desc->getStoredID();
+	    if ( !storedid.isEmpty() )
+	    {
+		LineKey lk( storedid.buf() );
+		iop.set( "Input Line Set", lk.lineName() );
+		linename = lk.lineName();
+	    }
 	}
     }
 

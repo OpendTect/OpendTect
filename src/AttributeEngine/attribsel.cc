@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.24 2008-02-13 12:08:40 cvsnanne Exp $
+ RCS:           $Id: attribsel.cc,v 1.25 2008-04-18 14:56:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,11 +60,11 @@ bool SelSpec::operator!=( const SelSpec& ss ) const
 void SelSpec::setDepthDomainKey( const Desc& desc )
 {
     zdomainkey_ = "";
-    MultiID mid;
-    if ( !desc.getMultiID(mid) )
-	return;
 
-    PtrMan<IOObj> ioobj = IOM().get( mid );
+    BufferString storedid = desc.getStoredID();
+    if ( storedid.isEmpty() ) return;
+
+    PtrMan<IOObj> ioobj = IOM().get( MultiID(storedid.buf()) );
     if ( ioobj )
     {
 	if ( !ioobj->pars().get( sKey::ZDomain, zdomainkey_ ) )

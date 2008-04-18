@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.41 2007-12-11 11:27:52 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.42 2008-04-18 14:56:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,7 +99,7 @@ public:
     				/*!<If hidden, it won't show up in UI. */
 
     bool			isStored() const;
-    bool			getMultiID(MultiID&) const;
+    BufferString		getStoredID() const;
 
     void			setNeedProvInit( bool yn=true )
     				{ needprovinit_ = yn; }

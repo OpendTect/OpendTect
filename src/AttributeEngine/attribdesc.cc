@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.64 2007-12-13 07:35:29 cvshelene Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.65 2008-04-18 14:56:22 cvshelene Exp $";
 
 #include "attribdesc.h"
 
@@ -637,13 +637,15 @@ bool Desc::isStored() const
 }
 
 
-bool Desc::getMultiID( MultiID& mid ) const
+BufferString Desc::getStoredID() const
 {
-    if ( !isStored() ) return false;
-
-    const ValParam* keypar = getValParam( StorageProvider::keyStr() );
-    mid = keypar->getStringValue();
-    return true;
+    BufferString str;
+    if ( isStored() )
+    {
+	const ValParam* keypar = getValParam( StorageProvider::keyStr() );
+	str = keypar->getStringValue();
+    }
+    return str;
 }
 
 
