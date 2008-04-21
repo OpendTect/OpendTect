@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsitem.cc,v 1.1 2008-02-22 12:26:24 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitem.cc,v 1.2 2008-04-21 04:27:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,7 @@ ________________________________________________________________________
 
 #include "uigraphicsitem.h"
 
-#include <QGraphicsItem>
+#include <QGraphicsItemGroup>
 
 
 void uiGraphicsItem::show()	{ qgraphicsitem_->show(); }
@@ -34,3 +34,35 @@ void uiGraphicsItem::scale( float x, float y )
 { qgraphicsitem_->scale( x, y ); }
 
 
+// +++++ uiGraphicsItemGroup +++++
+
+uiGraphicsItemGroup::uiGraphicsItemGroup()
+    : uiGraphicsItem(mkQtObj())
+{}
+
+
+uiGraphicsItemGroup::~uiGraphicsItemGroup()
+{
+    delete qgraphicsitemgrp_;
+}
+
+
+QGraphicsItem* uiGraphicsItemGroup::mkQtObj()
+{
+    qgraphicsitemgrp_ = new QGraphicsItemGroup;
+    return qgraphicsitemgrp_;
+}
+
+
+void uiGraphicsItemGroup::add( uiGraphicsItem* itm )
+{
+    items_ += itm;
+    qgraphicsitemgrp_->addToGroup( itm->qGraphicsItem() );
+}
+
+
+void uiGraphicsItemGroup::remove( uiGraphicsItem* itm )
+{
+    items_ -= itm;
+    qgraphicsitemgrp_->removeFromGroup( itm->qGraphicsItem() );
+}
