@@ -2,9 +2,9 @@
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        N. Hemstra / Bert
- Date:          March 2003 / Feb 2008
- RCS:           $Id: uiwellattribxplot.cc,v 1.4 2008-04-18 13:49:42 cvsbert Exp $
+ Author:        Bert
+ Date:          Apr 2008
+ RCS:           $Id: uiwellattribxplot.cc,v 1.5 2008-04-21 16:03:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -224,10 +224,9 @@ bool uiWellAttribCrossPlot::extractAttribData( DataPointSet& dps )
 
 bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 {
-    ObjectSet<DataColDef> dcds; BufferStringSet attrnms;
-    addDCDs( attrsfld_, dcds,  attrnms );
-    BufferStringSet lognms;
-    addDCDs( logsfld_, dcds, lognms );
+    ObjectSet<DataColDef> dcds;
+    BufferStringSet attrnms; addDCDs( attrsfld_, dcds,  attrnms );
+    BufferStringSet lognms; addDCDs( logsfld_, dcds, lognms );
     if ( lognms.isEmpty() )
 	mErrRet("Please select at least one log")
 
@@ -248,18 +247,24 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
     DataPointSet* dps = new DataPointSet( TypeSet<DataPointSet::DataRow>(),
 	    				  dcds, ads_.is2D(), false );
     deepErase( dcds );
+    const int nrattribs = attrnms.size();
+    const int nrlogs = attrnms.size();
     DataPointSet::DataRow dr;
-    for ( int idx=0; idx<dpss.size(); idx++ )
+    for ( int idps=0; idps<dpss.size(); idps++ )
     {
-	DataPointSet& curdps = *dpss[idx];
+	DataPointSet& curdps = *dpss[idps];
 	for ( int idr=0; idr<curdps.size(); idr++ )
 	{
 	    dr = curdps.dataRow( idr );
-	    dr.setGroup( (unsigned short)idx );
+	    dr.data_.setSize( nrattribs + nrlogs, mUdf(float) );
+	    for ( int ilog=0; ilog<nrlogs; ilog++ )
+		dr.data_[nrattribs+ilog] = dr.data_[ilog];
+	    dr.setGroup( (unsigned short)idps );
 	    dps->setRow( dr );
 	}
     }
     deepErase( dpss );
+    dps->dataChanged();
     MouseCursorManager::restoreOverride();
     if ( dps->isEmpty() )
 	mErrRet("No positions found matching criteria")
