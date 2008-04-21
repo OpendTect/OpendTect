@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.14 2008-04-08 05:05:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.15 2008-04-21 04:08:46 cvsnanne Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -64,8 +64,17 @@ VolumeRenderScalarField::~VolumeRenderScalarField()
 {
     if ( ownsindexcache_ ) delete [] indexcache_;
     if ( ownsdatacache_ ) delete datacache_;
+    if ( ctab_ )
+    {
+	ctab_->rangechange.remove(
+		mCB(this,VolumeRenderScalarField,colorTabChCB) );
+	ctab_->sequencechange.remove(
+		mCB(this,VolumeRenderScalarField,colorSeqChCB) );
+	ctab_->autoscalechange.remove(
+		mCB(this,VolumeRenderScalarField,autoscaleChCB) );
+	ctab_->unRef();
+    }
     root_->unref();
-    ctab_->unRef();
 }
 
 
@@ -130,9 +139,7 @@ void VolumeRenderScalarField::setScalarField( const Array3D<float>* sc )
 	ValueSeries<float>* myvalser =
 	    new ArrayValueSeries<float,float>( totalsz );
 	if ( !myvalser || !myvalser->isOK() )
-	{
 	    delete myvalser;
-	}
 	else
 	{
 	    ArrayNDIter iter( sc->info() );
@@ -149,16 +156,10 @@ void VolumeRenderScalarField::setScalarField( const Array3D<float>* sc )
     }
 
     //TODO: if 8-bit data & some flags, use data itself
-    
-
     if ( ctab_->autoScale() )
-    {
 	clipData();
-    }
     else
-    {
 	makeIndices( doset );
-    }
 }
 
 
@@ -170,23 +171,23 @@ void VolumeRenderScalarField::setColorTab( VisColorTab& ctab )
     if ( ctab_ )
     {
 	ctab_->rangechange.remove(
-		mCB(this, VolumeRenderScalarField, colorTabChCB ));
+		mCB(this,VolumeRenderScalarField,colorTabChCB) );
 	ctab_->sequencechange.remove(
-		mCB(this, VolumeRenderScalarField, colorSeqChCB ));
+		mCB(this,VolumeRenderScalarField,colorSeqChCB) );
 	ctab_->autoscalechange.remove(
-		mCB(this, VolumeRenderScalarField, autoscaleChCB ));
+		mCB(this,VolumeRenderScalarField,autoscaleChCB) );
 	ctab_->unRef();
     }
 
     ctab_ = &ctab;
     ctab_->rangechange.notify(
-	    mCB( this, VolumeRenderScalarField, colorTabChCB ));
+	    mCB(this,VolumeRenderScalarField,colorTabChCB) );
     ctab_->sequencechange.notify(
-	    mCB( this, VolumeRenderScalarField,colorSeqChCB));
+	    mCB(this,VolumeRenderScalarField,colorSeqChCB) );
     ctab_->autoscalechange.notify(
-	    mCB( this,VolumeRenderScalarField,autoscaleChCB));
+	    mCB(this,VolumeRenderScalarField,autoscaleChCB) );
     ctab_->ref();
-    ctab_->setNrSteps(255);
+    ctab_->setNrSteps( 255 );
 
     makeColorTables();
     makeIndices( false );
