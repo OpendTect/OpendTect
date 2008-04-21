@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.79 2008-04-07 14:13:14 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.80 2008-04-21 04:27:34 cvsnanne Exp $";
 
 #include "attriboutput.h"
 
@@ -379,15 +379,14 @@ class COLineKeyProvider : public LineKeyProvider
 {
 public:
 
-COLineKeyProvider( SeisTrcStorOutput& c, const char* a, const char* lk )
-	: co_(c) , attrnm_(a) , linename_(lk) {}
+COLineKeyProvider( const char* a, const char* lk )
+	: attrnm_(a) , linename_(lk) {}
 
 LineKey lineKey() const
 {
     LineKey lk(linename_,attrnm_);
     return lk;
 }
-    SeisTrcStorOutput&   co_;
     BufferString        attrnm_;
     BufferString 	linename_;
 
@@ -462,7 +461,7 @@ void SeisTrcStorOutput::writeTrc()
 		attribname_ = IOM().nameOf(attribname_);
 
 	    writer_->setLineKeyProvider( 
-		new COLineKeyProvider( *this, attribname_, 
+		new COLineKeyProvider( attribname_, 
 		    		       curLineKey().lineName()) );
 	}
 
