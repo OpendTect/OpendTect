@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.11 2008-04-15 12:50:31 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.12 2008-04-21 16:02:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     	, valueChanged(this)
 	, xplotwin_(0)
 	, statswin_(0)
+	, iotb_(0)
 {
     mDPM.obtain( dps_.id() );
     setCtrlStyle( LeaveOnly );
@@ -98,6 +99,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     tbl_->attach( ensureBelow, titllbl );
     tbl_->valueChanged.notify( mCB(this,uiDataPointSet,valChg) );
     tbl_->rowClicked.notify( mCB(this,uiDataPointSet,rowSel) );
+    tbl_->setTableReadOnly( setup_.isconst_ );
 
     setPrefWidth( 800 ); setPrefHeight( 600 );
     eachrow_ = -1; // force refill
@@ -137,12 +139,15 @@ uiDataPointSet::~uiDataPointSet()
 
 void uiDataPointSet::mkToolBars()
 {
-    iotb_ = new uiToolBar( this, "I/O Tool bar" );
 #define mAddButton(fnm,func,tip) \
     iotb_->addButton( fnm, mCB(this,uiDataPointSet,func), tip )
-    mAddButton( "saveset.png", save, "Save data" );
-    if ( setup_.allowretrieve_ )
-	mAddButton( "openset.png", retrieve, "Retrieve stored data" );
+    if ( !setup_.isconst_ )
+    {
+	iotb_ = new uiToolBar( this, "I/O Tool bar" );
+	mAddButton( "saveset.png", save, "Save data" );
+	if ( setup_.allowretrieve_ )
+	    mAddButton( "openset.png", retrieve, "Retrieve stored data" );
+    }
 #undef mAddButton
 
     maniptb_ = new uiToolBar( this, "Manip Tool bar" );
