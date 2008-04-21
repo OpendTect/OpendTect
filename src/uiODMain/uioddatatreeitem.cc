@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.23 2008-04-08 13:52:37 cvsbert Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.24 2008-04-21 05:49:51 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -206,7 +206,7 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
     }
 
     const DataPack::ID dpid = visserv->getDataPackID( displayID(), attribNr() );
-    if ( dpid >= 0 )
+    if ( dpid > DataPack::cNoID )
     {
 	mAddMenuItem( menu, &statisticsitem_, true, false )
 	mAddMenuItem( menu, &amplspectrumitem_, true, false )
@@ -229,7 +229,8 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
     const bool hasztransform = scene && scene->getDataTransform();
 //TODO:remove when Z-transformed scenes are ok for 2D Viewer
  
-    if ( visserv->canBDispOn2DViewer(displayID()) && !hasztransform )
+    if ( visserv->canBDispOn2DViewer(displayID()) && !hasztransform
+	    && dpid>DataPack::cNoID )
     {
 	const Attrib::SelSpec* as =
 	    visserv->getSelSpec( displayID(), attribNr() );
