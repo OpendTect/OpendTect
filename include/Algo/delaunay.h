@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.5 2008-04-18 16:48:22 cvsyuancheng Exp $
+ RCS:           $Id: delaunay.h,v 1.6 2008-04-21 19:47:08 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,7 +92,7 @@ protected:
 
 
 /*!For the triangulation, it will skip undefined or duplicated pointsi, all the 
-   points should be in random order. We use Optimistic method to triangulate.*/
+   points should be in random order. We use pessimistic method to triangulate.*/
 class DAGTriangleTree
 {
 public:
@@ -142,7 +142,7 @@ protected:
 	int		neighbors_[3];
     };
 
-    Threads::ConditionVar	condvar_; 
+    Threads::ReadWriteLock	rwlock_; 
     double			epsilon_;
     TypeSet<DAGTriangle>	triangles_;
     const TypeSet<Coord>*	coordlist_;

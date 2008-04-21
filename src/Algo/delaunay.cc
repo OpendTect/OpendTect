@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.4 2008-04-18 16:48:22 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.5 2008-04-21 19:47:08 cvsyuancheng Exp $";
 
 #include "delaunay.h"
 
@@ -668,50 +668,64 @@ bool DAGTriangleTree::insertPoint( int ci )
     }
 
     int ti0, ti1;
+    rwlock_.readLock();
     const char res = searchTriangle( ci, 0, ti0, ti1 );
     
     if ( res==1 )
     {
 	int nti0, nti1;
-	
-	condvar_.lock();
-	const int nres = searchFurther( ci, ti0, ti1, nti0, nti1 );
-	if ( nres==1 )
+	if ( rwlock_.convToWriteLock() )
 	{
-	    if ( nti1==-1 )
-		splitTriangleInside( ci, nti0 );
+	    if ( ti1==-1 )
+		splitTriangleInside( ci, ti0 );
 	    else
-		splitTriangleOnEdge( ci, nti0, nti1 );
+		splitTriangleOnEdge( ci, ti0, ti1 );
 
-	    condvar_.signal( true );
-	    condvar_.unLock();
+	    rwlock_.writeUnLock();
 	    return true;
 	}
 	else
 	{
-	    condvar_.signal( true );
-	    condvar_.unLock();
-	    if ( !nres )
+	    const int nres = searchFurther( ci, ti0, ti1, nti0, nti1 );
+	    if ( nres==1 )
+	    {
+		if ( nti1==-1 )
+		    splitTriangleInside( ci, nti0 );
+		else
+		    splitTriangleOnEdge( ci, nti0, nti1 );
+
+		rwlock_.writeUnLock();
 		return true;
+	    }
 	    else
 	    {
-		BufferString msg = "\n Insert point ";
-		msg += ci;
-		msg += "failed!";
-		pErrMsg( msg );
-		return false;
+		rwlock_.writeUnLock();
+		if ( !nres )
+		    return true;
+		else
+		{
+		    BufferString msg = "\n Insert point ";
+		    msg += ci;
+		    msg += "failed!";
+		    pErrMsg( msg );
+		    return false;
+		}
 	    }
 	}
     }
-    else if ( !res )
-	return true;
-    else  
+    else 
     {
-	BufferString msg = "\n Insert point ";
-	msg += ci;
-	msg += "failed!";
-	pErrMsg( msg );
-	return false;
+	rwlock_.readUnLock();
+	if ( !res )
+    	    return true;
+	else  
+	{
+	    BufferString msg = "\n Insert point ";
+	    msg += ci;
+	    msg += "failed!";
+	    pErrMsg( msg );
+	    return false;
+	}
     }
 
     return true;
