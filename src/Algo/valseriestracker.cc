@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: valseriestracker.cc,v 1.5 2008-02-07 18:59:33 cvskris Exp $";
+static const char* rcsID = "$Id: valseriestracker.cc,v 1.6 2008-04-21 04:27:34 cvsnanne Exp $";
 
 #include "valseriestracker.h"
 
@@ -436,13 +436,13 @@ bool EventTracker::snap( float threshold )
     else if ( evtype_==VSEvent::Max || evtype_==VSEvent::Min )
     {
 	float upampl;
-	bool uploopskip;
+	bool uploopskip = false;
 	float uptroughampl;
 	ValueSeriesEvent<float,float> upevent =
 	    findExtreme(evfinder,uprg,threshold,upampl,uploopskip,uptroughampl);
 
 	float dnampl;
-	bool dnloopskip;
+	bool dnloopskip = false;
 	float dntroughampl;
 	ValueSeriesEvent<float,float> dnevent =
 	    findExtreme(evfinder,dnrg,threshold,dnampl,dnloopskip,dntroughampl);
