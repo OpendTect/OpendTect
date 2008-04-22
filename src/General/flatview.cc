@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.35 2008-04-08 05:05:07 cvssatyaki Exp $
+ RCS:           $Id: flatview.cc,v 1.36 2008-04-22 10:14:22 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ const char* DataDispPars::sKeyShow = "Show";
 const char* DataDispPars::sKeyDispRg = "Range";
 const char* DataDispPars::sKeyColTab = "Color Table";
 const char* DataDispPars::sKeyBlocky = "Blocky";
+const char* DataDispPars::sKeyAutoScale = "Auto Scale";
 const char* DataDispPars::sKeyClipPerc = "Percentage Clip";
 const char* DataDispPars::sKeyWiggCol = "Wiggle color";
 const char* DataDispPars::sKeyMidCol = "Mid color";
@@ -130,8 +131,9 @@ float* FlatPosData::getPositions( bool isx1 ) const
 
 FlatView::DataDispPars::Common::Common()
     : show_(true)
+    , autoscale_(true)
     , rg_(mUdf(float),mUdf(float))
-    , clipperc_(ColTab::defClipRate(),mUdf(float))
+    , clipperc_(ColTab::defClipRate()*100,mUdf(float))
     , blocky_(false)
     , midvalue_( mUdf(float) )
 {}
@@ -267,12 +269,14 @@ void FlatView::DataDispPars::fillPar( IOPar& iop ) const
     mIOPDoVD( set, sKeyDispRg, vd_.rg_ );
     mIOPDoVD( set, sKeyColTab, vd_.ctab_ );
     mIOPDoVD( setYN, sKeyBlocky, vd_.blocky_ );
+    mIOPDoVD( setYN, sKeyAutoScale, vd_.autoscale_ );
     mIOPDoVD( set, sKeyClipPerc, vd_.clipperc_ );
     mIOPDoVD( set, sKeyMidValue, vd_.midvalue_ );
 
     mIOPDoWVA( setYN, sKeyShow, wva_.show_ );
     mIOPDoWVA( set, sKeyDispRg, wva_.rg_ );
     mIOPDoWVA( setYN, sKeyBlocky, wva_.blocky_ );
+    mIOPDoWVA( setYN, sKeyAutoScale, wva_.autoscale_ );
     mIOPDoWVA( set, sKeyClipPerc, wva_.clipperc_ );
     mIOPDoWVA( set, sKeyWiggCol, wva_.wigg_ );
     mIOPDoWVA( set, sKeyMidCol, wva_.mid_ );
@@ -289,12 +293,14 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
     mIOPDoVD( get, sKeyDispRg, vd_.rg_ );
     mIOPDoVD( get, sKeyColTab, vd_.ctab_ );
     mIOPDoVD( getYN, sKeyBlocky, vd_.blocky_ );
+    mIOPDoVD( getYN, sKeyAutoScale, vd_.autoscale_ );
     mIOPDoVD( get, sKeyClipPerc, vd_.clipperc_ );
     mIOPDoVD( get, sKeyMidValue, vd_.midvalue_ );
 
     mIOPDoWVA( getYN, sKeyShow, wva_.show_ );
     mIOPDoWVA( get, sKeyDispRg, wva_.rg_ );
     mIOPDoWVA( getYN, sKeyBlocky, wva_.blocky_ );
+    mIOPDoWVA( getYN, sKeyAutoScale, wva_.autoscale_ );
     mIOPDoWVA( get, sKeyClipPerc, wva_.clipperc_ );
     mIOPDoWVA( get, sKeyWiggCol, wva_.wigg_ );
     mIOPDoWVA( get, sKeyMidCol, wva_.mid_ );
