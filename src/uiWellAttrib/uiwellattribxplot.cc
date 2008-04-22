@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uiwellattribxplot.cc,v 1.6 2008-04-22 14:20:06 cvsbert Exp $
+ RCS:           $Id: uiwellattribxplot.cc,v 1.7 2008-04-22 16:20:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,12 +26,14 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "posinfo.h"
 #include "posvecdataset.h"
+#include "posfilterset.h"
 #include "seisioobjinfo.h"
 #include "wellextractdata.h"
 #include "wellmarker.h"
 
 #include "mousecursor.h"
 #include "uidatapointset.h"
+#include "uiposfilterset.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
 #include "uicombobox.h"
@@ -46,6 +48,7 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
 		     "Select attributes and logs for cross-plot"
 		     ,"107.3.1").modal(false))
 	, ads_(*new Attrib::DescSet(d.is2D()))
+    	, posfiltfld_(0)
 {
     uiLabeledListBox* llba = new uiLabeledListBox( this, "Attributes", true );
     attrsfld_ = llba->box();
@@ -63,9 +66,19 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
     radiusfld_->attach( alignedBelow, llbw );
     radiusfld_->attach( ensureBelow, llbl );
 
+    uiGroup* attgrp = radiusfld_;
+    if ( !ads_.is2D() )
+    {
+	uiPosFilterSet::Setup fsu( false );
+	fsu.seltxt( "Filter positions" ).incprovs( true );
+	posfiltfld_ = new uiPosFilterSetSel( this, fsu );
+	posfiltfld_->attach( alignedBelow, radiusfld_ );
+	attgrp = posfiltfld_;
+    }
+
     uiLabeledComboBox* llc0 = new uiLabeledComboBox( this, "Extract between" );
     topmarkfld_ = llc0->box();
-    llc0->attach( alignedBelow, radiusfld_ );
+    llc0->attach( alignedBelow, attgrp );
     botmarkfld_ = new uiComboBox( this, "Bottom marker" );
     botmarkfld_->attach( rightOf, llc0 );
     BufferString txt = "Distance above/below ";
@@ -93,12 +106,14 @@ uiWellAttribCrossPlot::~uiWellAttribCrossPlot()
 
 void uiWellAttribCrossPlot::initWin( CallBacker* )
 {
+    wellsfld_->empty(); logsfld_->empty();
+    topmarkfld_->empty(); botmarkfld_->empty();
+
     Well::InfoCollector wic;
     uiTaskRunner tr( this );
     if ( !tr.execute(wic) ) return;
 
     BufferStringSet markernms, lognms;
-    markernms.add( Well::TrackSampler::sKeyDataStart );
     for ( int iid=0; iid<wic.ids().size(); iid++ )
     {
 	IOObj* ioobj = IOM().get( *wic.ids()[iid] );
@@ -113,9 +128,12 @@ void uiWellAttribCrossPlot::initWin( CallBacker* )
 	for ( int imrk=0; imrk<mrkrs.size(); imrk++ )
 	    markernms.addIfNew( mrkrs[imrk]->name() );
     }
+    markernms.sort();
+    markernms.insertAt( new BufferString(Well::TrackSampler::sKeyDataStart), 0);
     markernms.add( Well::TrackSampler::sKeyDataEnd );
 
-    logsfld_->addItems( lognms );
+    for ( int idx=0; idx<lognms.size(); idx++ )
+	logsfld_->addItem( lognms.get(idx) );
     topmarkfld_->addItems( markernms );
     botmarkfld_->addItems( markernms );
     topmarkfld_->setCurrentItem( 0 );
@@ -153,8 +171,6 @@ void uiWellAttribCrossPlot::adsChg()
 		    SeisIOObjInfo::defKey2DispName(defkey,ioobjnm) );
 	}
     }
-    if ( !attrsfld_->isEmpty() )
-	attrsfld_->setCurrentItem( int(0) );
 }
 
 
@@ -245,6 +261,20 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
     if ( !extractWellData(ioobjids,lognms,dpss) )
 	mErrRet(0)
 
+    PtrMan<Pos::Filter> filt = 0;
+    if ( posfiltfld_ )
+    {
+	IOPar iop; posfiltfld_->fillPar( iop );
+	filt = Pos::Filter::make( iop, false );
+	if ( filt )
+	{
+	    uiTaskRunner tr( this );
+	    if ( !filt->initialize(&tr) )
+		return false;
+	}
+    }
+
+
     MouseCursorManager::setOverride( MouseCursor::Wait );
     DataPointSet* dps = new DataPointSet( TypeSet<DataPointSet::DataRow>(),
 	    				  dcds, ads_.is2D(), false );
@@ -258,6 +288,9 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 	for ( int idr=0; idr<curdps.size(); idr++ )
 	{
 	    dr = curdps.dataRow( idr );
+	    if ( filt && !filt->includes(dr.pos_.coord()) )
+		continue;
+
 	    dr.data_.setSize( nrattribs + nrlogs, mUdf(float) );
 	    for ( int ilog=0; ilog<nrlogs; ilog++ )
 	    {
@@ -265,7 +298,7 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 		dr.data_[ilog] = mUdf(float);
 		dr.data_[nrattribs+ilog] = val;
 	    }
-	    dr.setGroup( (unsigned short)idps );
+	    dr.setGroup( (unsigned short)(idps+1) );
 	    dps->setRow( dr );
 	}
     }
