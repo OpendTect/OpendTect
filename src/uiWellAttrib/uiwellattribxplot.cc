@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uiwellattribxplot.cc,v 1.5 2008-04-21 16:03:06 cvsbert Exp $
+ RCS:           $Id: uiwellattribxplot.cc,v 1.6 2008-04-22 14:20:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,8 +57,9 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
     logsfld_ = llbl->box();
     llbl->attach( rightTo, llbw );
 
+    const float inldist = SI().inlDistance();
     radiusfld_ = new uiGenInput( this, "Radius around wells",
-	    			 IntInpSpec((int)(SI().inlDistance()+.5)) );
+	    			 FloatInpSpec((float)((int)(inldist+.5))) );
     radiusfld_->attach( alignedBelow, llbw );
     radiusfld_->attach( ensureBelow, llbl );
 
@@ -178,6 +179,7 @@ bool uiWellAttribCrossPlot::extractWellData( const BufferStringSet& ioobjids,
 {
     Well::TrackSampler wts( ioobjids, dpss );
     wts.for2d = ads_.is2D(); wts.lognms = lognms;
+    wts.locradius = radiusfld_->getfValue();
     wts.topmrkr = topmarkfld_->text(); wts.botmrkr = botmarkfld_->text();
     wts.above = abovefld_->getfValue(0,0);
     wts.below = belowfld_->getfValue(0,0);
@@ -258,7 +260,11 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 	    dr = curdps.dataRow( idr );
 	    dr.data_.setSize( nrattribs + nrlogs, mUdf(float) );
 	    for ( int ilog=0; ilog<nrlogs; ilog++ )
-		dr.data_[nrattribs+ilog] = dr.data_[ilog];
+	    {
+		const float val = dr.data_[ilog];
+		dr.data_[ilog] = mUdf(float);
+		dr.data_[nrattribs+ilog] = val;
+	    }
 	    dr.setGroup( (unsigned short)idps );
 	    dps->setRow( dr );
 	}
