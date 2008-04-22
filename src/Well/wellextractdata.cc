@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.41 2008-04-22 14:19:20 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.42 2008-04-22 16:19:39 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -190,7 +190,7 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
     	if ( mIsUdf(dahrg.start) ) return;
     getLimitPos(wd.markers(),false,dahrg.stop);
     	if ( mIsUdf(dahrg.stop) ) return;
-    if ( dahrg.start > dahrg.stop  ) return;
+    if ( dahrg.start > dahrg.stop ) Swap( dahrg.start, dahrg.stop );
 
     float dahincr = SI().zStep() * .5;
     if ( SI().zIsTime() )
@@ -414,14 +414,13 @@ void Well::LogDataExtracter::getData( DataPointSet& dps,
     // Should be OK for all wells without horizontal sections
 
     int trackidx = 0;
-    const float tol = 0.00001;
     float z1 = track.pos(trackidx).z;
 
     int dpsrowidx = 0; float dpsz = 0;
     for ( ; dpsrowidx<dps.size(); dpsrowidx++ )
     {
 	dpsz = dps.z(dpsrowidx);
-	if ( dpsz > z1 - tol )
+	if ( dpsz >= z1 )
 	    break;
     }
     if ( dpsrowidx >= dps.size() ) // Duh. All data below track.
@@ -429,7 +428,7 @@ void Well::LogDataExtracter::getData( DataPointSet& dps,
 
     for ( trackidx=0; trackidx<track.size(); trackidx++ )
     {
-	if ( track.pos(trackidx).z > dpsz - tol )
+	if ( track.pos(trackidx).z > dpsz )
 	    break;
     }
     if ( trackidx >= track.size() ) // Duh. Entire track below data.
@@ -448,7 +447,7 @@ void Well::LogDataExtracter::getData( DataPointSet& dps,
 		return;
 	    z2 = track.pos( trackidx ).z;
 	}
-	if ( trackidx == 0 )
+	if ( trackidx == 0 ) // Huh?
 	    continue;
 
 	z1 = track.pos( trackidx - 1 ).z;
