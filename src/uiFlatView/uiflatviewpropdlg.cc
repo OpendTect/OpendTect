@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.25 2008-04-14 21:19:26 cvskris Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.26 2008-04-22 10:15:27 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,9 +139,9 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
     if ( !havedata )
 	dispfld_->setCurrentItem( 0 );
 
-    if ( !mIsUdf( pars.rg_.start ) )
+    if ( !pars.autoscale_ )
 	useclipfld_->setValue( 0 );
-    else if ( mIsUdf( pars.clipperc_.stop ) )
+    else if ( mIsUdf(pars.clipperc_.stop) )
 	useclipfld_->setValue( 1 );
     else
 	useclipfld_->setValue( 2 );
@@ -177,22 +177,20 @@ void uiFlatViewDataDispPropTab::getCommonFromScreen()
 
     pars.show_ = doDisp();
     const int clip = useclipfld_->getIntValue();
+    pars.autoscale_ = clip != 0;
 
     if ( !clip )
 	pars.rg_ = rgfld_->getFInterval();
     else if ( clip==1 )
     {
-	pars.rg_ = Interval<float>(mUdf(float),mUdf(float));
 	pars.clipperc_.start = symclipratiofld_->getfValue();
 	pars.clipperc_.stop = mUdf(float);
 	pars.midvalue_ = midvalfld_->getfValue();
     }
     else
     {
-	pars.rg_ = Interval<float>(mUdf(float),mUdf(float));
 	pars.clipperc_ = assymclipratiofld_->getFInterval();
     }
-
 
     pars.blocky_ = blockyfld_->getBoolValue();
 
@@ -665,6 +663,7 @@ void uiFlatViewPropDlg::putAllToScreen()
 void uiFlatViewPropDlg::doApply( CallBacker* )
 {
     getAllFromScreen();
+    vwr_.fillPar( initialpar_ );
     applycb_.doCall( this );
 }
 
