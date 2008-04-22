@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiwellattribxplot.h,v 1.2 2008-04-18 13:49:42 cvsbert Exp $
+ RCS:           $Id: uiwellattribxplot.h,v 1.3 2008-04-22 16:20:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class uiComboBox;
 class uiGenInput;
 class DataPointSet;
 class BufferStringSet;
+class uiPosFilterSetSel;
 namespace Attrib { class DescSet; }
 
 
@@ -45,6 +46,7 @@ protected:
     uiGenInput*		abovefld_;
     uiGenInput*		belowfld_;
     uiGenInput*		logresamplfld_;
+    uiPosFilterSetSel*		posfiltfld_;
 
     void		adsChg();
     bool		extractWellData(const BufferStringSet&,
