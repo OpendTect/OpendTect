@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.40 2008-04-21 16:03:00 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.41 2008-04-22 14:19:20 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -36,12 +36,10 @@ static const char* rcsID = "$Id: wellextractdata.cc,v 1.40 2008-04-21 16:03:00 c
 #include <math.h>
 
 
-DefineEnumNames(Well::TrackSampler,SelPol,1,Well::TrackSampler::sKeySelPol)
-	{ "Nearest trace only", "All corners", 0 };
 const char* Well::TrackSampler::sKeyTopMrk = "Top marker";
 const char* Well::TrackSampler::sKeyBotMrk = "Bottom marker";
 const char* Well::TrackSampler::sKeyLimits = "Extraction extension";
-const char* Well::TrackSampler::sKeySelPol = "Trace selection";
+const char* Well::TrackSampler::sKeySelRadius = "Selection radius";
 const char* Well::TrackSampler::sKeyDataStart = "<Start of data>";
 const char* Well::TrackSampler::sKeyDataEnd = "<End of data>";
 const char* Well::TrackSampler::sKeyLogNm = "Log name";
@@ -114,7 +112,7 @@ Well::TrackSampler::TrackSampler( const BufferStringSet& i,
 	, botmrkr(sKeyDataEnd)
 	, above(0)
     	, below(0)
-    	, selpol(Corners)
+    	, locradius(0)
     	, ids(i)
     	, dpss(d)
     	, curid(0)
@@ -131,8 +129,7 @@ void Well::TrackSampler::usePar( const IOPar& pars )
     pars.get( sKeyBotMrk, botmrkr );
     pars.get( sKeyLogNm, lognms );
     pars.get( sKeyLimits, above, below );
-    const char* res = pars.find( sKeySelPol );
-    if ( res && *res ) selpol = eEnum(SelPol,res);
+    pars.get( sKeySelRadius, locradius );
     pars.getYN( sKeyFor2D, for2d );
 }
 
@@ -279,30 +276,44 @@ void Well::TrackSampler::addPosns( DataPointSet& dps, const BinIDValue& biv,
 				  const Coord3& precisepos ) const
 {
     DataPointSet::DataRow dr;
-#define mAddRow(biv,pos) \
-    dr.pos_.z_ = biv.value; dr.pos_.set( biv.binid, pos ); dps.addRow( dr )
+#define mAddRow(bv,pos) \
+    dr.pos_.z_ = bv.value; dr.pos_.set( bv.binid, pos ); dps.addRow( dr )
 
     mAddRow( biv, precisepos );
+    if ( mIsUdf(locradius) || locradius < 1e-3 )
+	return;
 
-    if ( selpol == Corners )
+    const float sqrlocradius = locradius * locradius;
+    const BinID stp( SI().inlStep(), SI().crlStep() );
+
+#define mTryAddRow(stmt) \
+{ \
+    stmt; \
+    crd = SI().transform( newbiv.binid ); \
+    if ( crd.sqDistTo(precisepos) <= sqrlocradius ) \
+	{ mAddRow(newbiv,crd); nradded++; } \
+}
+
+    BinIDValue newbiv( biv ); Coord crd;
+
+    for ( int idist=1; ; idist++ )
     {
-	BinID stp( SI().inlStep(), SI().crlStep() );
-	BinID bid, nearbid; Coord crd; double dist, lodist=1e30;
-#define mTestNext(ninl,ncrl) \
-	bid = BinID( biv.binid.inl+(ninl)*stp.inl, \
-		     biv.binid.crl+(ncrl)*stp.crl ); \
-	crd = SI().transform( bid ); \
-	dist = crd.sqDistTo( precisepos ); \
-	if ( dist < lodist ) \
-	    { lodist = dist; nearbid = bid; }
-	
-	mTestNext(-1,-1); mTestNext(-1,1); mTestNext(1,1); mTestNext(1,-1);
+	int nradded = 0;
 
-	BinIDValue newbiv( biv );
-#	define mAddExtraRow(bv) mAddRow( bv, SI().transform(bv.binid) )
-	newbiv.binid.inl = nearbid.inl; mAddExtraRow(newbiv);
-	newbiv.binid.crl = nearbid.crl; mAddExtraRow(newbiv);
-	newbiv.binid.inl = biv.binid.inl; mAddExtraRow(newbiv);
+	newbiv.binid.crl = biv.binid.crl - idist;
+	for ( int iinl=-idist; iinl<=idist; iinl++ )
+	    mTryAddRow(newbiv.binid.inl = biv.binid.inl + iinl)
+	newbiv.binid.crl = biv.binid.crl + idist;
+	for ( int iinl=-idist; iinl<=idist; iinl++ )
+	    mTryAddRow(newbiv.binid.inl = biv.binid.inl + iinl)
+	newbiv.binid.inl = biv.binid.inl + idist;
+	for ( int icrl=1-idist; icrl<idist; icrl++ )
+	    mTryAddRow(newbiv.binid.crl = biv.binid.crl + icrl)
+	newbiv.binid.inl = biv.binid.inl - idist;
+	for ( int icrl=1-idist; icrl<idist; icrl++ )
+	    mTryAddRow(newbiv.binid.crl = biv.binid.crl + icrl)
+
+	if ( nradded == 0 ) break;
     }
 }
 

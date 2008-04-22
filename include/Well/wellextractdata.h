@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.14 2008-04-18 13:48:40 cvsbert Exp $
+ RCS:		$Id: wellextractdata.h,v 1.15 2008-04-22 14:19:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,9 +80,6 @@ class TrackSampler : public ::Executor
 {
 public:
 
-    enum SelPol		{ NearPos, Corners };
-    			DeclareEnumUtils(SelPol)
-
 			TrackSampler(const BufferStringSet& ioobjids,
 				     ObjectSet<DataPointSet>&);
 
@@ -91,7 +88,7 @@ public:
     BufferStringSet	lognms;
     float		above;
     float		below;
-    SelPol		selpol;
+    float		locradius;
     bool		for2d;
     bool		minidps;
 
@@ -109,7 +106,7 @@ public:
     static const char*	sKeyTopMrk;
     static const char*	sKeyBotMrk;
     static const char*	sKeyLimits;
-    static const char*	sKeySelPol;
+    static const char*	sKeySelRadius;
     static const char*	sKeyDataStart;
     static const char*	sKeyDataEnd;
     static const char*	sKeyLogNm;
