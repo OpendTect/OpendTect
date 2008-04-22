@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.27 2008-03-26 19:40:04 cvskris Exp $
+ RCS:           $Id: flatview.h,v 1.28 2008-04-22 10:13:58 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,6 +150,7 @@ public:
 			Common();
 
 	bool		show_;	   // default=true
+	bool		autoscale_;// default=true
 	Interval<float>	rg_;	   // default=mUdf(float)
 	Interval<float>	clipperc_; // default from ColorTable
 				   // stop=undef
@@ -202,6 +203,7 @@ public:
     static const char*	sKeyDispRg;
     static const char*	sKeyColTab;
     static const char*	sKeyBlocky;
+    static const char*  sKeyAutoScale;
     static const char*	sKeyClipPerc;
     static const char*	sKeyWiggCol;
     static const char*	sKeyMidCol;
