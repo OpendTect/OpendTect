@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: flatviewbitmapmgr.h,v 1.2 2007-08-28 15:25:12 cvsbert Exp $
+ RCS:           $Id: flatviewbitmapmgr.h,v 1.3 2008-04-23 09:36:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ class BitMapMgr
 public:
 
 			BitMapMgr(const Viewer&,bool wva);
-			~BitMapMgr()		{ clearAll(); }
+			~BitMapMgr()			{ clearAll(); }
 
     void		setupChg();
     Geom::Point2D<int>	dataOffs(const Geom::PosRectangle<double>&,
@@ -33,7 +33,8 @@ public:
     bool		generate(const Geom::PosRectangle<double>&,
 	    			 const Geom::Size2D<int>&);
 			//!< fails only when isufficient memory
-    const A2DBitMap*	bitMap() const	{ return bmp_; }
+    const A2DBitMap*	bitMap() const			{ return bmp_; }
+    const A2DBitMapGenerator*	bitMapGen() const	{ return gen_; }
 
 protected:
 

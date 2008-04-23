@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.50 2008-04-22 10:15:27 cvsraman Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.51 2008-04-23 09:36:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -463,5 +463,16 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 
 	dt.drawText( ptlist[listpos], ad.name_.buf(), ad.namealignment_ );
     }
+}
+
+
+Interval<float> uiFlatViewer::getDataRange( bool iswva ) const
+{
+    Interval<float> rg;
+    FlatView::BitMapMgr* mgr = iswva ? wvabmpmgr_ : vdbmpmgr_;
+    if ( mgr && mgr->bitMapGen() )
+	rg = mgr->bitMapGen()->data().scale( Interval<float>(0,0), mUdf(float));
+
+    return rg;
 }
 

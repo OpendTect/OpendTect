@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.26 2008-04-22 10:15:27 cvsraman Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.27 2008-04-23 09:36:19 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,7 +149,6 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
     symclipratiofld_->setValue( pars.clipperc_.start );
     assymclipratiofld_->setValue( pars.clipperc_ );
     midvalfld_->display( pars.midvalue_ );
-    rgfld_->setValue( pars.rg_ );
     blockyfld_->setValue( pars.blocky_ );
     setDataNames();
     dispSel( 0 );
@@ -277,6 +276,9 @@ void uiFVWVAPropTab::putToScreen()
 #undef mSetCol
 
     putCommonToScreen();
+    const FlatView::DataDispPars::Common& pars = commonPars();
+    const bool udfrg = mIsUdf( pars.rg_.start ) && mIsUdf( pars.rg_.stop);
+    rgfld_->setValue( udfrg ? vwr_.getDataRange(true) : pars.rg_ );
 }
 
 
@@ -327,6 +329,9 @@ void uiFVVDPropTab::putToScreen()
     ColTab::SM().get( pars_.ctab_, ctab_ );
     uicoltab_->setTable( ctab_ );
     putCommonToScreen();
+    const FlatView::DataDispPars::Common& pars = commonPars();
+    const bool udfrg = mIsUdf( pars.rg_.start ) && mIsUdf( pars.rg_.stop );
+    rgfld_->setValue( udfrg ? vwr_.getDataRange(false) : pars.rg_ );
 }
 
 
