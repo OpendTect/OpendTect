@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.24 2008-01-25 10:07:54 cvshelene Exp $
+ RCS:           $Id: mathattrib.cc,v 1.25 2008-04-23 13:58:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -171,8 +171,15 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
     
     for ( int idx=0; idx<nrsamples; idx++ )
     {
+	if ( expression_->isRecursive() && idx == 0 )
+	{
+	    setOutputValue( output, 0, idx, z0, recstart_ );
+	    continue;
+	}
+	
 	for ( int xvaridx=0; xvaridx<nrxvars; xvaridx++ )
 	{
+	    
 	    const int variableidx = varstable_[xvaridx].varidx_;
 	    const int inpidx = varstable_[xvaridx].inputidx_;
 	    const int shift = varstable_[xvaridx].shift_;
