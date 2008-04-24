@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.4 2008-04-09 12:17:06 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.5 2008-04-24 09:22:32 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -367,13 +367,14 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 */
 
     setPrefWidth( 600 );
-    setPrefWidth( 500 );
+    setPrefHeight( 500 );
 }
 
 
 void uiDataPointSetCrossPlotWin::closeNotif( CallBacker* )
 {
     defsetup_ = plotter_.setup();
+    plotter_.eachrow_ = mUdf(int); // Make sure eachChg knows we are closing
 }
 
 
@@ -394,6 +395,8 @@ void uiDataPointSetCrossPlotWin::showBD( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 {
+    if ( mIsUdf(plotter_.eachrow_) ) return; // window is closing
+
     int neweachrow = eachfld_->getValue();
     if ( neweachrow < 1 ) neweachrow = 1;
     plotter_.eachrow_ = neweachrow;
