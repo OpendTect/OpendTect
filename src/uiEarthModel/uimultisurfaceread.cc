@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uimultisurfaceread.cc,v 1.11 2008-02-18 11:00:47 cvsbert Exp $
+ RCS:           $Id: uimultisurfaceread.cc,v 1.12 2008-04-24 06:00:27 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,6 +54,8 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* type )
 	sectionfld->display( false, true );
 	rgfld->display( false, true );
     }
+
+    selCB(0);
 }
 
 
