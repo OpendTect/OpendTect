@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.14 2008-01-22 15:04:17 cvsbert Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.15 2008-04-24 10:40:47 cvsraman Exp $";
 
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.14 2008-01-22 15:04:17 cvs
 #include "ioman.h"
 #include "iopar.h"
 #include "conn.h"
+#include "linekey.h"
 #include "survinfo.h"
 #include "cubesampling.h"
 #include "bufstringset.h"
@@ -253,7 +254,6 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss, bool add, bool attr,
 void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
 				    bool add, bool l4a ) const
 {
-
     mGetLineSet;
     if ( !nm || !*nm ) return;
 
@@ -268,10 +268,26 @@ void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
 	if ( target == requested )
 	    bss.addIfNew( listadd );
     }
+
     bss.sort();
 }
 
 
+bool SeisIOObjInfo::getRanges( const LineKey& lk, StepInterval<int>& trcrg,
+			       StepInterval<float>& zrg ) const
+{
+    PtrMan<Seis2DLineSet> lset = new Seis2DLineSet(ioobj_->fullUserExpr(true));
+    if ( lset->nrLines() == 0 )
+	return false;
+
+    const int lidx = lset->indexOf( lk );
+    if ( lidx < 0 )
+	return false;
+
+    return lset->getRanges( lidx, trcrg, zrg );
+}
+
+	
 BufferString SeisIOObjInfo::defKey2DispName( const char* defkey,
 					     const char* ioobjnm )
 {

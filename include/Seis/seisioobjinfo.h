@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.7 2007-05-21 15:41:23 cvsbert Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.8 2008-04-24 10:40:50 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "seistype.h"
 
 class IOObj;
+class LineKey;
 class MultiID;
 class CubeSampling;
 class BinIDValueSet;
@@ -78,6 +79,8 @@ public:
 	    				       BufferStringSet& b,
 					       bool add=true ) const
 				{ getNmsSubSel(nm,b,add,true); }
+    bool		getRanges(const LineKey& lk,StepInterval<int>& trcrg,
+	    			  StepInterval<float>& zrg) const;
 
     static void		initDefault(const char* type=0);
     			//!< Only does something if there is not yet a default
