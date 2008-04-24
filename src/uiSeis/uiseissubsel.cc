@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.50 2008-04-24 10:34:16 cvsraman Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.51 2008-04-24 11:32:07 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -245,6 +245,8 @@ void uiSeis2DSubSel::setInputWithAttrib( const IOObj& ioobj,
 
     if ( prevok )
 	lnmsfld_->setText( prevlnm );
+
+    lineChg( 0 );
 }
 
 
