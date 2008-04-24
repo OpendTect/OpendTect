@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.111 2008-03-25 16:53:31 cvsnanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.112 2008-04-24 12:33:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,6 +147,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 	manipgrpsubj->manipgrp_ = new uiIOObjManipGroup( *manipgrpsubj );
     }
 
+    listfld->setHSzPol( uiObject::Wide );
     listfld->selectionChanged.notify( mCB(this,uiIOObjSelGrp,selChg) );
     listfld->deleteButtonPressed.notify( mCB(this,uiIOObjSelGrp,delPress) );
     if ( (nmfld && !*nmfld->text()) || !nmfld )
