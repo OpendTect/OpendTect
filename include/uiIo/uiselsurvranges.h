@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiselsurvranges.h,v 1.5 2008-03-10 16:34:32 cvsbert Exp $
+ RCS:           $Id: uiselsurvranges.h,v 1.6 2008-04-24 10:32:01 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,8 @@ class uiSelZRange : public uiGroup
 public:
                         uiSelZRange(uiParent*,bool wstep,
 				    bool isrel=false,const char* lbltxt=0);
+			uiSelZRange(uiParent* p,StepInterval<float> limitrg,
+				    bool wstep,const char* lbltxt=0);
 
     StepInterval<float>	getRange() const;
     void		setRange(const StepInterval<float>&);
@@ -35,6 +37,7 @@ protected:
     uiSpinBox*		stepfld_;
 
     void		valChg(CallBacker*);
+    void		makeInpFields(const char*,bool,StepInterval<float>);
 
 };
 
@@ -47,6 +50,8 @@ public:
     enum Type		{ Inl, Crl, Gen };
 
                         uiSelNrRange(uiParent*,Type,bool wstep);
+			uiSelNrRange(uiParent*,StepInterval<int>,bool,
+				     const char*);
 
     StepInterval<int>	getRange() const;
     void		setRange(const StepInterval<int>&);
@@ -63,6 +68,7 @@ protected:
 
     int			getStopVal() const;
     void		setStopVal(int);
+    void		makeInpFields(const char*,StepInterval<int>,bool,bool);
 
 };
 
@@ -92,6 +98,8 @@ class uiSelHRange : public uiGroup
 {
 public:
                         uiSelHRange(uiParent*,bool wstep);
+                        uiSelHRange(uiParent*,const HorSampling& limiths,
+				    bool wstep);
 
     HorSampling		getSampling() const;
     void		setSampling(const HorSampling&);

@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovgroup.h,v 1.5 2008-02-27 17:27:24 cvsbert Exp $
+ RCS:           $Id: uiposprovgroup.h,v 1.6 2008-04-24 10:32:01 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiposfiltgroup.h"
+#include "cubesampling.h"
 #include "factory.h"
 
 
@@ -30,6 +31,7 @@ public:
 
 	virtual	~Setup()				{}
 	mDefSetupMemb(bool,withz)
+	mDefSetupMemb(CubeSampling,cs)
     };
 
 			uiPosProvGroup(uiParent*,const Setup&);

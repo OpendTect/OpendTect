@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uipossubsel.h,v 1.1 2008-02-18 11:00:47 cvsbert Exp $
+ RCS:           $Id: uipossubsel.h,v 1.2 2008-04-24 10:32:01 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,6 +61,7 @@ public:
 
     const CubeSampling&	envelope() const;
     void		setInput(const CubeSampling&,bool chgtype=true);
+    void                setInputLimit(const CubeSampling&);
 
     bool		isAll() const;
     void		setToAll();
