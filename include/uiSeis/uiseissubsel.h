@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.21 2008-02-18 11:00:47 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.22 2008-04-24 10:34:20 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,6 +84,7 @@ public:
     bool		fillPar(IOPar&) const;
     void		usePar(const IOPar&);
     void		setInput(const IOObj&);
+    void		setInputWithAttrib(const IOObj&,const char* attribnm);
 
     Notifier<uiSeis2DSubSel> lineSel;
     Notifier<uiSeis2DSubSel> singLineSel;
@@ -100,6 +101,9 @@ protected:
 
     bool		multiln_;
     BufferStringSet&	curlnms_;
+
+    TypeSet<StepInterval<int> >		trcrgs_;
+    TypeSet<StepInterval<float> >	zrgs_;
 
     void		lineChg(CallBacker*);
     void		singLineChg(CallBacker*);

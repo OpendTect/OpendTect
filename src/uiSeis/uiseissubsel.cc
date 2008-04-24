@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.49 2008-03-07 12:06:51 cvsbert Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.50 2008-04-24 10:34:16 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,20 +86,20 @@ void uiSeisSubSel::clear()
 void uiSeisSubSel::setInput( const HorSampling& hs )
 {
     CubeSampling cs = selfld_->envelope(); cs.hrg = hs;
-    selfld_->setInput( cs, false );
+    selfld_->setInputLimit( cs );
 }
 
 
 void uiSeisSubSel::setInput( const StepInterval<float>& zrg )
 {
     CubeSampling cs = selfld_->envelope(); cs.zrg = zrg;
-    selfld_->setInput( cs, false );
+    selfld_->setInputLimit( cs );
 }
 
 
 void uiSeisSubSel::setInput( const CubeSampling& cs )
 {
-    selfld_->setInput( cs, false );
+    selfld_->setInputLimit( cs );
 }
 
 
@@ -133,7 +133,7 @@ void uiSeis3DSubSel::setInput( const IOObj& ioobj )
     if ( !oinf.getRanges(cs) )
 	clear();
     else
-	selfld_->setInput( cs, false );
+	selfld_->setInputLimit( cs );
 }
 
 
@@ -163,7 +163,11 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const Seis::SelSetup& ss )
 	}
 	lnmsfld_->valuechanged.notify( mCB(this,uiSeis2DSubSel,lineChg) );
     }
-    fld->attach( alignedBelow, selfld_ );
+
+    if ( multiln_ )
+	fld->attach( alignedBelow, selfld_ );
+    else
+	selfld_->attach( alignedBelow, fld );
 }
 
 
@@ -185,6 +189,9 @@ void uiSeis2DSubSel::clear()
 	    lnmsfld_->setChecked( false );
 	lnmsfld_->newSpec( StringListInpSpec(emptylnms), 0 );
     }
+
+    trcrgs_.erase();
+    zrgs_.erase();
 }
 
 
@@ -198,6 +205,39 @@ void uiSeis2DSubSel::setInput( const IOObj& ioobj )
     curlnms_.erase();
 
     oinf.getLineNames( curlnms_ );
+    lnmsfld_->newSpec( StringListInpSpec(curlnms_), 0 );
+    const bool prevok = !prevlnm.isEmpty() && curlnms_.indexOf(prevlnm) >= 0;
+    if ( multiln_ )
+	lnmsfld_->setChecked( prevok );
+
+    if ( prevok )
+	lnmsfld_->setText( prevlnm );
+}
+
+
+void uiSeis2DSubSel::setInputWithAttrib( const IOObj& ioobj,
+					 const char* attribnm )
+{
+    clear();
+    if ( !lnmsfld_ ) return;
+
+    SeisIOObjInfo info( ioobj );
+    const BufferString prevlnm( selectedLine() );
+    curlnms_.erase();
+
+    info.getLineNamesWithAttrib( attribnm, curlnms_ );
+    for ( int idx=0; idx<curlnms_.size(); idx++ )
+    {
+	LineKey lk( curlnms_.get(idx), attribnm );
+	StepInterval<int> trcrg;
+	StepInterval<float> zrg;
+	if ( !info.getRanges(lk,trcrg,zrg) )
+	    break;
+
+	trcrgs_ += trcrg;
+	zrgs_ += zrg;
+    }
+
     lnmsfld_->newSpec( StringListInpSpec(curlnms_), 0 );
     const bool prevok = !prevlnm.isEmpty() && curlnms_.indexOf(prevlnm) >= 0;
     if ( multiln_ )
@@ -262,6 +302,19 @@ void uiSeis2DSubSel::setSelectedLine( const char* nm )
 
 void uiSeis2DSubSel::lineChg( CallBacker* )
 {
+    if ( isSingLine() )
+    {
+	const int lidx = lnmsfld_->getIntValue();
+	if ( lidx >= trcrgs_.size() || lidx >= zrgs_.size() )
+	    return;
+
+	CubeSampling cs;
+	StepInterval<int> inlrg( 0, 0, 1 );
+	cs.hrg.set( inlrg, trcrgs_[lidx] );
+	cs.zrg = zrgs_[lidx];
+	selfld_->provSel()->setInputLimit( cs );
+    }
+
     lineSel.trigger();
 }
 
