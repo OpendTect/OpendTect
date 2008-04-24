@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.11 2008-03-10 12:34:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.12 2008-04-24 10:31:57 cvsraman Exp $";
 
 #include "uiposprovider.h"
 #include "uipossubsel.h"
@@ -248,6 +248,12 @@ void uiPosProvSel::setInput( const CubeSampling& cs, bool chgtyp )
 }
 
 
+void uiPosProvSel::setInputLimit( const CubeSampling& cs )
+{
+    setup_.cs_ = cs;
+}
+
+
 bool uiPosProvSel::isAll() const
 {
     if ( setup_.allownone_ )
@@ -335,4 +341,5 @@ mDefFn(const Pos::Provider*,curProvider,,,const,return)
 mDefFn(const CubeSampling&,envelope,,,const,return)
 mDefFn(bool,isAll,,,const,return)
 mDefFn(void,setToAll,,,,)
+mDefFn(void,setInputLimit,const CubeSampling&,cs,,)
 mDefFn2(void,setInput,const CubeSampling&,cs,bool,ct,)
