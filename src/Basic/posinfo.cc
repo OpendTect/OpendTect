@@ -4,11 +4,11 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.1 2008-03-12 09:48:03 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.2 2008-04-25 11:17:10 cvsraman Exp $";
 
+#include "math2.h"
 #include "posinfo.h"
 #include "survinfo.h"
-#include "cubesampling.h"
 
 
 int PosInfo::LineData::size() const
@@ -76,12 +76,78 @@ PosInfo::CubeData& PosInfo::CubeData::operator =( const PosInfo::CubeData& cd )
 }
 
 
+int PosInfo::CubeData::totalSize() const
+{
+    int totalsize = 0;
+    for ( int idx=0; idx<size(); idx++ )
+	totalsize += (*this)[idx]->size();
+
+    return totalsize;
+}
+
+
 int PosInfo::CubeData::indexOf( int lnr ) const
 {
     for ( int idx=0; idx<size(); idx++ )
 	if ( (*this)[idx]->linenr_ == lnr )
 	    return idx;
     return -1;
+}
+
+
+void PosInfo::CubeData::limitTo( const HorSampling& hsin )
+{
+    HorSampling hs ( hsin );
+    hs.normalise();
+    for ( int iidx=size()-1; iidx>=0; iidx-- )
+    {
+	PosInfo::LineData* ld = (*this)[iidx];
+	if ( !hs.inlOK(ld->linenr_) )
+	{ ld = remove( iidx ); delete ld; continue; }
+
+	int nrvalidsegs = 0;
+	for ( int iseg=ld->segments_.size()-1; iseg>=0; iseg-- )
+	{
+	    StepInterval<int>& seg = ld->segments_[iseg];
+	    if ( seg.start > hs.stop.crl || seg.stop < hs.start.crl )
+	    { ld->segments_.remove( iseg ); continue; }
+
+	    seg.step = Math::LCMOf( seg.step, hs.step.crl );
+	    if ( !seg.step )
+	    { ld->segments_.remove( iseg ); continue; }
+
+	    if ( seg.start < hs.start.crl )
+	    {
+		int newstart = hs.start.crl;
+		int diff = newstart - seg.start;
+		if ( diff % seg.step )
+		{
+		    diff += seg.step - diff % seg.step;
+		    newstart = seg.start + diff;
+		}
+
+		seg.start = newstart;
+	    }
+	    if ( seg.stop > hs.stop.crl )
+	    {
+		int newstop = hs.stop.crl;
+		int diff = seg.stop - newstop;
+		if ( diff % seg.step )
+		{
+		    diff += seg.step - diff % seg.step;
+		    newstop = seg.stop - diff;
+		}
+
+		seg.stop = newstop;
+	    }
+	    if ( seg.start > seg.stop )
+		ld->segments_.remove( iseg );
+	    else nrvalidsegs++;
+	}
+
+	if ( !nrvalidsegs )
+	{ ld = remove( iidx ); delete ld; }
+    }
 }
 
 
@@ -236,9 +302,75 @@ bool PosInfo::CubeData::haveCrlStepInfo() const
 }
 
 
+bool PosInfo::CubeData::read( std::istream& strm )
+{
+    const int intsz = sizeof(int);
+    int buf[4];
+    strm.read( (char*)buf, intsz );
+    const int nrinl = buf[0];
+    if ( nrinl <= 0 ) return false;
+
+    for ( int iinl=0; iinl<nrinl; iinl++ )
+    {
+	strm.read( (char*)buf, 2 * intsz );
+	PosInfo::LineData* iinf = new PosInfo::LineData( buf[0] );
+	const int nrseg = buf[1];
+	PosInfo::LineData::Segment crls;
+	for ( int iseg=0; iseg<nrseg; iseg++ )
+	{
+	    strm.read( (char*)buf, 3 * intsz );
+
+	    crls.start = buf[0];
+	    crls.stop = buf[1];
+	    crls.step = buf[2];
+	    iinf->segments_ += crls;
+	}
+
+	add( iinf );
+    }
+
+    return true;
+}
+
+
+bool PosInfo::CubeData::write( std::ostream& strm ) const
+{
+    const int intsz = sizeof( int );
+    const int nrinl = this->size();
+    strm.write( (const char*)&nrinl, intsz );
+    for ( int iinl=0; iinl<nrinl; iinl++ )
+    {
+	const PosInfo::LineData& inlinf = *(*this)[iinl];
+	strm.write( (const char*)&inlinf.linenr_, intsz );
+	const int nrcrl = inlinf.segments_.size();
+	strm.write( (const char*)&nrcrl, intsz );
+	for ( int icrl=0; icrl<nrcrl; icrl++ )
+	{
+	    const PosInfo::LineData::Segment& seg = inlinf.segments_[icrl];
+	    strm.write( (const char*)&seg.start, intsz );
+	    strm.write( (const char*)&seg.stop, intsz );
+	    strm.write( (const char*)&seg.step, intsz );
+	}
+
+	if ( !strm.good() ) return false;
+    }
+
+    return true;
+}
+
+
 PosInfo::Line2DData::Line2DData()
 {
     zrg = SI().sampling(false).zrg;
+}
+
+
+void PosInfo::Line2DData::limitTo( Interval<int> trcrg )
+{
+    trcrg.sort();
+    for ( int idx=0; idx<posns.size(); idx++ )
+	if ( posns[idx].nr_ < trcrg.start || posns[idx].nr_ > trcrg.stop )
+	    posns.remove( idx-- );
 }
 
 
@@ -260,4 +392,55 @@ void PosInfo::Line2DData::dump( std::ostream& strm, bool pretty ) const
 	strm << pos.nr_ << '\t' << pos.coord_.x << '\t' << pos.coord_.y << '\n';
     }
     strm.flush();
+}
+
+
+bool PosInfo::Line2DData::read( std::istream& strm )
+{
+    float buf[3];
+    strm.read( (char*) buf, 3 * sizeof(float) );
+    zrg.start = buf[0];
+    zrg.stop = buf[1];
+    zrg.step = buf[2];
+
+    int linesz = 0;
+    strm.read( (char*) &linesz, sizeof(int) );
+    if ( !linesz ) return false;
+
+    posns.erase();
+    for ( int idx=0; idx<linesz; idx++ )
+    {
+	int trcnr = -1;
+	strm.read( (char*) &trcnr, sizeof(int) );
+	if ( trcnr<0 || strm.bad() || strm.eof() )
+	    return false;
+
+	PosInfo::Line2DPos pos( trcnr );
+	strm.read( (char*) buf, 2 * sizeof(float) );
+	pos.coord_.x = buf[0];
+	pos.coord_.y = buf[1];
+	posns += pos;
+    }
+
+    return true;
+}
+
+
+bool PosInfo::Line2DData::write( std::ostream& strm ) const
+{
+    float buf[] = { zrg.start, zrg.stop, zrg.step };
+    strm.write( (const char*) buf, 3 * sizeof(float) );
+
+    const int linesz = posns.size();
+    strm.write( (const char*) &linesz, sizeof(int) );
+
+    for ( int idx=0; idx<linesz; idx++ )
+    {
+	const PosInfo::Line2DPos& pos = posns[idx];
+	strm.write( (const char*) &pos.nr_, sizeof(int) );
+	buf[0] = pos.coord_.x; buf[1] = pos.coord_.y;
+	strm.write( (const char*) buf, 2 * sizeof(float) );
+    }
+
+    return strm.good();
 }
