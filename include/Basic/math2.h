@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: math2.h,v 1.5 2008-01-15 16:19:43 cvsbert Exp $
+ RCS:		$Id: math2.h,v 1.6 2008-04-25 11:15:03 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ inline float	degFromNorth( float azimuth )
 		    return deg < 0 ? deg + 360 : deg;
 		}
 
+int		LCMOf(int,int);
 bool		IsNormalNumber(double);
 double		IntPowerOf(double,int);
 double		PowerOf(double,double);
