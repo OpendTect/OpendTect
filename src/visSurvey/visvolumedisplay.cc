@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.82 2008-04-08 05:05:08 cvssatyaki Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.83 2008-04-25 07:30:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -840,7 +840,7 @@ SoNode* VolumeDisplay::getInventorNode()
 
 void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
 {
-    visBase::VisualObject::fillPar( par, saveids );
+    visBase::VisualObjectImpl::fillPar( par, saveids );
     const CubeSampling cs = getCubeSampling(false,true,0);
     cs.fillPar( par );
 
@@ -883,7 +883,7 @@ void VolumeDisplay::fillPar( IOPar& par, TypeSet<int>& saveids) const
 
 int VolumeDisplay::usePar( const IOPar& par )
 {
-    int res =  visBase::VisualObject::usePar( par );
+    int res =  visBase::VisualObjectImpl::usePar( par );
     if ( res!=1 ) return res;
 
     if ( !as_.usePar(par) ) return -1;
