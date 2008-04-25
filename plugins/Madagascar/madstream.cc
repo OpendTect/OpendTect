@@ -4,21 +4,29 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.3 2008-04-10 04:00:33 cvsraman Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.4 2008-04-25 11:10:40 cvsraman Exp $";
 
 #include "madstream.h"
+#include "cbvsreadmgr.h"
 #include "cubesampling.h"
-#include "strmprov.h"
+#include "filegen.h"
+#include "filepath.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "posinfo.h"
 #include "ptrman.h"
+#include "seis2dline.h"
 #include "seisioobjinfo.h"
+#include "seistrctr.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seiswrite.h"
+#include "strmprov.h"
+#include "survinfo.h"
+#include "progressmeter.h"
 
 
 using namespace ODMad;
@@ -31,15 +39,17 @@ static const char* sKeyProc = "Proc";
 static const char* sKeyWrite = "Write";
 static const char* sKeyIn = "in";
 static const char* sKeyStdIn = "stdin";
+static const char* sKeyPosFileName = "Pos File Name";
 
 #undef mErrRet
 #define mErrRet(s) { errmsg_ = s; return; }
+#define mErrBoolRet(s) { errmsg_ = s; return false; }
 
-MadStream::MadStream( const IOPar& par )
-    : istrm_(0)
-    , ostrm_(0)
-    , seisrdr_(0)
-    , seiswrr_(0)
+MadStream::MadStream( IOPar& par )
+    : pars_(par)
+    , is2d_(false),isps_(false)
+    , istrm_(0),ostrm_(0)
+    , seisrdr_(0),seiswrr_(0)
     , headerpars_(0)
     , errmsg_(*new BufferString(""))
     , iswrite_(false)
@@ -75,7 +85,7 @@ void MadStream::initRead( IOPar* par )
 	    istrm_ = StreamProvider(filenm).makeIStream().istrm;
 	}
 
-	fillHeaderPars();
+	fillHeaderParsFromStream();
 	if ( !headerpars_ ) mErrRet( "Error reading RSF header" );;
 
 	BufferString insrc = headerpars_->find( sKeyIn );
@@ -92,8 +102,9 @@ void MadStream::initRead( IOPar* par )
     }
 
     Seis::GeomType gt = Seis::geomTypeOf( inptyp );
-    if ( gt == Seis::Vol )
+    if ( gt == Seis::Vol || gt == Seis::Line )
     {
+	is2d_ = gt == Seis::Line;
 	MultiID inpid;
 	if ( !par->get(sKey::ID,inpid) ) mErrRet( "Input ID missing" );
 
@@ -103,16 +114,20 @@ void MadStream::initRead( IOPar* par )
 	PtrMan<IOPar> subpar = par->subselect( sKey::Selection );
 	Seis::SelData* seldata = Seis::SelData::get( *subpar );
 	mDynamicCastGet(Seis::RangeSelData*,rangesel,seldata)
+	if ( !rangesel ) mErrRet( "subselection??" );
 
 	CubeSampling cs;
-	SeisIOObjInfo seisinfo( ioobj );
-	seisinfo.getRanges( cs );
-	if ( rangesel ) rangesel->cubeSampling().limitTo( cs );
+	if ( !is2d_ )
+	{
+	    SeisIOObjInfo info( ioobj );
+	    info.getRanges( cs );
+	    rangesel->cubeSampling().limitTo( cs );
+	}
 
 	seisrdr_ = new SeisTrcReader( ioobj );
-	seisrdr_->setSelData( seldata );
+	seisrdr_->setSelData( rangesel );
 	seisrdr_->prepareWork();
-	if ( rangesel ) fillHeaderPars( rangesel->cubeSampling() );
+	fillHeaderParsFromSeis();
     }
     else
     {
@@ -128,9 +143,11 @@ void MadStream::initWrite( IOPar* par )
 {
     BufferString outptyp = par->find( sKey::Type );
     Seis::GeomType gt = Seis::geomTypeOf( outptyp );
-    if ( gt == Seis::Vol )
+    if ( gt == Seis::Vol || gt == Seis::Line )
     {
+	is2d_ = gt == Seis::Line;
 	istrm_ = &std::cin;
+	istrm_->sync();
 	MultiID outpid;
 	if ( !par->get(sKey::ID,outpid) ) mErrRet( "Output data ID missing" );
 
@@ -140,7 +157,18 @@ void MadStream::initWrite( IOPar* par )
 	seiswrr_ = new SeisTrcWriter( ioobj );
 	if ( !seiswrr_ ) mErrRet( "Cannot write to output object" );
 
-	fillHeaderPars();
+	if ( is2d_ )
+	{
+	    PtrMan<IOPar> subpar = par->subselect( sKey::Selection );
+	    Seis::SelData* seldata = Seis::SelData::get( *subpar );
+	    const char* attrnm = par->find( sKey::Attribute );
+	    if ( attrnm && *attrnm )
+		seldata->lineKey().setAttrName( attrnm );
+
+	    seiswrr_->setSelData( seldata );
+	}
+
+	fillHeaderParsFromStream();
     }
     else
     {
@@ -150,7 +178,6 @@ void MadStream::initWrite( IOPar* par )
 	return;
     }
 }
-#undef mErrRet
 
 MadStream::~MadStream()
 {
@@ -166,26 +193,136 @@ MadStream::~MadStream()
 }
 
 
-void MadStream::fillHeaderPars( const CubeSampling& cs )
+BufferString MadStream::getPosFileName( bool forread ) const
 {
-    if ( headerpars_ ) delete headerpars_; headerpars_ = 0;
+    BufferString posfnm;
+    if ( forread )
+    {
+	posfnm = pars_.find( sKeyPosFileName );
+	if ( !posfnm.isEmpty() && File_exists(posfnm) )
+	    return posfnm;
+	else posfnm.setEmpty();
+    }
 
-    headerpars_ = new IOPar;
-    headerpars_->set( "o1", cs.zrg.start );
-    headerpars_->set( "o2", cs.hrg.start.crl );
-    headerpars_->set( "o3", cs.hrg.start.inl );
+    BufferString typ = 
+	pars_.find( IOPar::compKey( forread ? sKeyInput : sKeyOutput,
+		    		    sKey::Type) );
+    std::cerr << "Type: " << typ << std::endl;
+    if ( typ == sKeyMadagascar )
+    {
+	BufferString outfnm =
+	    pars_.find( IOPar::compKey( forread ? sKeyInput : sKeyOutput,
+		    			sKey::FileName) );
+	FilePath fp( outfnm );
+	fp.setExtension( "pos" );
+	std::cerr << "Pos: " << fp.fullPath() << std::endl;
+	if ( !forread || File_exists(fp.fullPath()) )
+	    posfnm = fp.fullPath();
+    }
+    else if ( !forread )
+	posfnm = FilePath::getTempName( "pos" );
 
-    headerpars_->set( "n1", cs.nrZ() );
-    headerpars_->set( "n2", cs.nrCrl() );
-    headerpars_->set( "n3", cs.nrInl() );
-
-    headerpars_->set( "d1", cs.zrg.step );
-    headerpars_->set( "d2", cs.hrg.step.crl );
-    headerpars_->set( "d3", cs.hrg.step.inl );
+    return posfnm;
 }
 
 
-void MadStream::fillHeaderPars()
+#define mWriteToPosFile( obj ) \
+    StreamData sd = StreamProvider( posfnm ).makeOStream(); \
+    if ( !sd.usable() ) mErrRet( "Cannot create Pos file" ); \
+    if ( !obj.write(*sd.ostrm) ) \
+    { sd.close(); mErrRet( "Cannot write to Pos file" ); } \
+    sd.close(); \
+    pars_.set( sKeyPosFileName, posfnm );
+
+
+void MadStream::fillHeaderParsFromSeis()
+{
+    if ( !seisrdr_ ) mErrRet( "Cannot read input data" );
+
+    if ( headerpars_ ) delete headerpars_; headerpars_ = 0;
+
+    headerpars_ = new IOPar;
+    bool needposfile = true;
+    StepInterval<float> zrg;
+    StepInterval<int> trcrg;
+    int nrtrcs = 0;
+    BufferString posfnm = getPosFileName( false );
+    if ( is2d_ )
+    {
+	const IOObj* ioobj = seisrdr_->ioObj();
+	if ( !ioobj ) mErrRet( "No nput object" );
+
+	Seis2DLineSet lset( *ioobj );
+	const Seis::SelData* seldata = seisrdr_->selData();
+	if ( !seldata ) mErrRet( "Invalid data subselection" );
+
+	const int lidx = lset.indexOf( seldata->lineKey() );
+	if ( lidx < 0 ) mErrRet( "2D Line not found" );
+
+	PosInfo::Line2DData geom;
+	if ( !lset.getGeometry(lidx,geom) )
+	    mErrRet( "Line geometry not available" );
+
+	if ( !seldata->isAll() )
+	{
+	    geom.limitTo( seldata->crlRange() );
+	    geom.zrg.limitTo( seldata->zRange() );
+	}
+
+	zrg = geom.zrg;
+	mWriteToPosFile( geom )
+    }
+    else
+    {
+	SeisPacketInfo& pinfo = seisrdr_->seisTranslator()->packetInfo();
+	zrg = pinfo.zrg;
+	if ( pinfo.fullyrectandreg )
+	    needposfile = false;
+	else
+	{
+	    if ( !pinfo.cubedata ) mErrRet( "Incomplete Geometry Information" );
+
+	    PosInfo::CubeData newcd( *pinfo.cubedata );
+	    mDynamicCastGet(const Seis::RangeSelData*,rangesel,
+		    	    seisrdr_->selData())
+	    if ( rangesel ) newcd.limitTo( rangesel->cubeSampling().hrg );
+	    needposfile = !newcd.isFullyRectAndReg();
+	    if ( needposfile )
+	    {
+		nrtrcs = newcd.totalSize();
+		mWriteToPosFile( newcd )
+	    }
+	    
+	    newcd.erase();		// Because the pointers are not mine!
+	}
+	
+	if ( !needposfile )
+	{
+	    trcrg = pinfo.crlrg;
+	    headerpars_->set( "o3", pinfo.inlrg.start );
+	    headerpars_->set( "n3", pinfo.inlrg.nrSteps()+1 );
+	    headerpars_->set( "d3", pinfo.inlrg.step );
+	    if ( File_exists(posfnm) )
+		StreamProvider(posfnm).remove(); // While overwriting rsf
+	}
+    }
+
+    if ( nrtrcs )
+	headerpars_->set( "n2", nrtrcs );
+    else
+    {
+	headerpars_->set( "o2", trcrg.start );
+	headerpars_->set( "n2", trcrg.nrSteps()+1 );
+	headerpars_->set( "d2", trcrg.step );
+    }
+
+    headerpars_->set( "o1", zrg.start );
+    headerpars_->set( "n1", zrg.nrSteps()+1 );
+    headerpars_->set( "d1", zrg.step );
+}
+
+
+void MadStream::fillHeaderParsFromStream()
 {
     if ( headerpars_ ) delete headerpars_; headerpars_ = 0;
 
@@ -202,7 +339,6 @@ void MadStream::fillHeaderPars()
 	    linebuf[idx++] = c;
 	    if ( c==sKeyRSFEndOfHeader[nullcount] )
 		nullcount++;
-
 	}
 
 	if ( nullcount > 2 ) break;
@@ -251,7 +387,7 @@ const char* MadStream::errMsg() const
 
 bool MadStream::putHeader( std::ostream& strm )
 {
-    if ( !headerpars_ ) return false;
+    if ( !headerpars_ ) mErrBoolRet( "Header parameters not found" );
 
     for ( int idx=0; idx<headerpars_->size(); idx++ )
     {
@@ -279,21 +415,50 @@ bool MadStream::getNextTrace( float* arr )
     else if ( seisrdr_ )
     {
 	SeisTrc trc;
-	if ( seisrdr_->get(trc.info())!=1 || !seisrdr_->get(trc) ) return false;
+	const int rv = seisrdr_->get( trc.info() );
+	if ( rv < 0 ) mErrBoolRet( "Cannot read traces" )
+	else if ( rv == 0 ) return false;
+
+	if ( !seisrdr_->get(trc) ) mErrBoolRet( "Cannot read traces" );
 	for ( int idx=0; idx<trc.size(); idx++ )
 	    arr[idx] = trc.get( idx, 0 );
 
 	return true;
     }
 
-    return false;
+    mErrBoolRet( "No data source found" );
 }
 
 
+#define mReadFromPosFile( obj ) \
+    BufferString posfnm = getPosFileName( true ); \
+std::cerr << "Pos File Name: " << posfnm << std::endl; \
+    if ( !posfnm.isEmpty() ) \
+    { \
+	haspos = true; \
+	StreamProvider sp( posfnm ); \
+	StreamData possd = sp.makeIStream(); \
+	if ( !possd.usable() ) mErrBoolRet("Cannot Open Pos File"); \
+       	if ( !obj.read(*possd.istrm) ) mErrBoolRet("Cannot Read Pos File"); \
+	possd.close(); \
+	FilePath fp( posfnm ); \
+	if ( fp.pathOnly() == FilePath::getTempDir() ) \
+	    sp.remove(); \
+    }
+
 bool MadStream::writeTraces()
 {
-    int inlstart, crlstart, inlstep=1, crlstep=1, nrinl, nrcrl, nrsamps;
+    if ( !seiswrr_ )
+	mErrBoolRet( "Cannot initialize writing" );
+
+    if ( is2d_ )
+	return write2DTraces();
+
+    int inlstart=0, crlstart=1, inlstep=1, crlstep=1, nrinl=1, nrcrl, nrsamps;
     float zstart, zstep;
+    bool haspos = false;
+    PosInfo::CubeData cubedata;
+    mReadFromPosFile( cubedata );
     headerpars_->get( "o1", zstart );
     headerpars_->get( "o2", crlstart );
     headerpars_->get( "o3", inlstart );
@@ -304,27 +469,95 @@ bool MadStream::writeTraces()
     headerpars_->get( "d2", crlstep );
     headerpars_->get( "d3", inlstep );
     SamplingData<float> sd( zstart, zstep );
+    if ( haspos )
+	nrinl = cubedata.size();
+
     float* buf = new float[nrsamps];
     for ( int inlidx=0; inlidx<nrinl; inlidx++ )
     {
-	const int inl = inlstart + inlidx * inlstep;
-	for ( int crlidx=0; crlidx<nrcrl; crlidx++ )
+	const int inl = haspos ? cubedata[inlidx]->linenr_
+	    			: inlstart + inlidx * inlstep;
+
+	const int nrsegs = haspos ? cubedata[inlidx]->segments_.size() : 1;
+	for ( int segidx=0; segidx<nrsegs; segidx++ )
 	{
-	    const int crl = crlstart + crlidx * crlstep;
-	    std::cin.read( (char*)buf, nrsamps*sizeof(float) );
-	    SeisTrc trc( nrsamps );
-	    trc.info().sampling = sd;
-	    trc.info().binid = BinID( inl, crl );
+	    if ( haspos )
+	    {
+		StepInterval<int> seg = cubedata[inlidx]->segments_[segidx];
+		crlstart = seg.start; crlstep = seg.step;
+		nrcrl = seg.nrSteps() + 1;
+	    }
 
-	    for ( int isamp=0; isamp<nrsamps; isamp++ )
-		trc.set( isamp, buf[isamp], 0 );
+	    for ( int crlidx=0; crlidx<nrcrl; crlidx++ )
+	    {
+		int crl = crlstart + crlidx * crlstep;
+		std::cin.read( (char*)buf, nrsamps*sizeof(float) );
+		SeisTrc trc( nrsamps );
+		trc.info().sampling = sd;
+		trc.info().binid = BinID( inl, crl );
 
-	    if ( !seiswrr_->put (trc) )
-	    { delete[] buf; return false; }
+		for ( int isamp=0; isamp<nrsamps; isamp++ )
+		    trc.set( isamp, buf[isamp], 0 );
 
+		if ( !seiswrr_->put (trc) )
+		{ delete[] buf; mErrBoolRet("Cannot write trace"); }
+	    }
 	}
     }
 
     delete[] buf;
     return true;
 }
+
+
+bool MadStream::write2DTraces()
+{
+    PosInfo::Line2DData geom;
+    bool haspos = false;
+    std::cerr << "Reading Pos file" << std::endl;
+    mReadFromPosFile ( geom );
+    std::cerr << "Finished reading Pos file" << std::endl;
+    if ( !haspos ) mErrBoolRet( "Position data not available" );;
+
+    int trcstart=1, trcstep=1, nrtrcs=0, nrsamps=0;
+    float zstart, zstep;
+
+    headerpars_->get( "o1", zstart );
+    headerpars_->get( "o2", trcstart );
+    headerpars_->get( "n1", nrsamps );
+    headerpars_->get( "n2", nrtrcs );
+    headerpars_->get( "d1", zstep );
+    headerpars_->get( "d2", trcstep );
+    SamplingData<float> sd( zstart, zstep );
+
+    if ( nrtrcs != geom.posns.size() )
+	mErrBoolRet( "Line geometry doesn't match with data" );
+
+    TextStreamProgressMeter pm( std::cerr );
+    pm.setName( "Madagascar 2D" );
+    pm.setMessage( "Writing 2D Traces..." );
+    float* buf = new float[nrsamps];
+    for ( int idx=0; idx<geom.posns.size(); idx++ )
+    {
+	const int trcnr = geom.posns[idx].nr_;
+	std::cin.read( (char*)buf, nrsamps*sizeof(float) );
+	SeisTrc trc( nrsamps );
+	trc.info().sampling = sd;
+	trc.info().coord = geom.posns[idx].coord_;
+	trc.info().binid.crl = trcnr;
+	trc.info().nr = trcnr;
+
+	for ( int isamp=0; isamp<nrsamps; isamp++ )
+	    trc.set( isamp, buf[isamp], 0 );
+
+	if ( !seiswrr_->put (trc) )
+	{ delete[] buf; mErrBoolRet("Error writing traces"); }
+
+	pm.setNrDone( idx + 1 );
+    }
+
+    pm.setFinished();
+    delete[] buf;
+    return true;
+}
+#undef mErrRet

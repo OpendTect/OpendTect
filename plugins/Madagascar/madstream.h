@@ -4,13 +4,14 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R. K. Singh
  * DATE     : March 2008
- * ID       : $Id: madstream.h,v 1.3 2008-04-10 04:00:33 cvsraman Exp $
+ * ID       : $Id: madstream.h,v 1.4 2008-04-25 11:10:40 cvsraman Exp $
 -*/
 
 
 #include "strmdata.h"
 
 class BufferString;
+class CBVSInfo;
 class CubeSampling;
 class IOPar;
 class SeisTrcReader;
@@ -22,9 +23,10 @@ namespace ODMad
 class MadStream
 {
 public:
-    				MadStream(const IOPar&);
+    				MadStream(IOPar&);
 				~MadStream();
 
+    const IOPar*		getHeaderPars()		{ return headerpars_; }
     bool			getNextTrace(float*);
     int				getNrSamples() const;
     bool			putHeader(std::ostream&);
@@ -36,6 +38,9 @@ public:
 protected:
 
     bool			iswrite_;
+    bool			is2d_;
+    bool			isps_;
+    IOPar&			pars_;
     IOPar*			headerpars_;
     BufferString&		errmsg_;
 
@@ -47,8 +52,10 @@ protected:
 
     void			initRead(IOPar*);
     void			initWrite(IOPar*);
-    void			fillHeaderPars();
-    void			fillHeaderPars(const CubeSampling&);
+    void			fillHeaderParsFromStream();
+    void			fillHeaderParsFromSeis();
+    bool			write2DTraces();
+    BufferString		getPosFileName(bool forread=false) const;
 };
 
 

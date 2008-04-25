@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		March 2008
- RCS:		$Id: od_madexec.cc,v 1.3 2008-04-10 04:00:33 cvsraman Exp $
+ RCS:		$Id: od_madexec.cc,v 1.4 2008-04-25 11:10:40 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,14 +67,14 @@ const char* getProcString( IOPar& pars, BufferString& errmsg )
     }
     
     Seis::GeomType gt = Seis::geomTypeOf( outptyp );
-    if ( gt == Seis::Vol )
+    if ( gt == Seis::Vol || gt == Seis::Line )
     {
 	const bool dowrite = true;
 	pars.setYN( sKeyWrite, dowrite );
 	pars.set( "Log file", StreamProvider::sStdErr );
 	BufferString fname = FilePath::getTempName( "par" );
 	std::cerr << "temp File: " << fname << std::endl;
-	pars.write( fname, 0 );
+	pars.write( fname, sKey::Pars );
 	if ( isprocessing ) *ret += " | ";
 
 	*ret += "./odmadexec ";
@@ -148,10 +148,12 @@ bool BatchProgram::go( std::ostream& strm )
 	if ( !mstrm.isOK() )
 	    mErrRet( mstrm.errMsg() );
 
-	if ( !mstrm.writeTraces() ) return false;
+	std::cerr << "Going to write now..." << std::endl;
+	if ( !mstrm.writeTraces() )
+	    mErrRet( mstrm.errMsg() );
 
-	StreamProvider sp( argv_[1] );
-	sp.remove ( false );
+	StreamProvider sppar( argv_[1] );
+	sppar.remove ( false );
 	return true;
     }
     else
