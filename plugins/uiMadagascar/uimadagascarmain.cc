@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.17 2008-04-01 07:20:49 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.18 2008-04-25 11:09:46 cvsraman Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -44,6 +44,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     uiGroup* maingrp = new uiGroup( this, "Main group" );
 
     infld_ = new uiMadIOSel( maingrp, true );
+    infld_->selectionMade.notify( mCB(this,uiMadagascarMain,inpSel) );
 
     uiGroup* procgrp = crProcGroup( maingrp );
     procgrp->attach( alignedBelow, infld_ );
@@ -124,14 +125,29 @@ uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
 }
 
 
-void uiMadagascarMain::getFlow( ODMad::ProcFlow& pf )
+void uiMadagascarMain::inpSel( CallBacker* )
 {
-    infld_->fillPar( pf.input() );
-    outfld_->fillPar( pf.output() );
+    IOPar inpar;
+    infld_->fillPar( inpar );
+    outfld_->useParIfNeeded( inpar );
+}
+
+#undef mErrRet
+#define mErrRet(s) { uiMSG().error(s); return false; }
+
+bool uiMadagascarMain::getFlow( ODMad::ProcFlow& pf )
+{
+    if ( !infld_->fillPar(pf.input()) )
+	mErrRet( "Please specify input parameters" );
+    if ( !outfld_->fillPar(pf.output()) )
+	mErrRet( "Please specify output parameters" );
+
     pf.procs().deepErase();
     const int nrprocs = procsfld_->size();
     for ( int idx=0; idx<nrprocs; idx++ )
 	pf.addProc( procsfld_->textOfItem(idx) );
+
+    return true;
 }
 
 
@@ -275,7 +291,10 @@ void uiMadagascarMain::exportFlow( CallBacker* )
 
 bool uiMadagascarMain::acceptOK( CallBacker* )
 {
-    ODMad::ProcFlow pf; getFlow( pf );
+    ODMad::ProcFlow pf;
+    if ( !getFlow(pf) )
+	return false;
+
     IOPar iop;
     pf.fillPar( iop );
 #ifdef HAVE_OUTPUT_OPTIONS

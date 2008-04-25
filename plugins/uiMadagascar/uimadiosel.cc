@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.12 2008-04-02 11:43:57 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.13 2008-04-25 11:09:46 cvsraman Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -38,6 +38,7 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	, subsel3dfld_(0), subsel2dfld_(0), subsel2dpsfld_(0)
     	, idx3d_(-1), idx2d_(-1)
 	, iop_(iop)
+        , isinp_(isinp)
 {
     const bool have2d = SI().has2D();
     const bool have3d = SI().has3D();
@@ -73,7 +74,7 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	if ( isinp )
 	{
 	    subsel3dfld_ = new uiSeis3DSubSel( this, Seis::SelSetup(Seis::Vol)
-					.onlyrange(false) );
+					.onlyrange(true) );
 	    subsel3dfld_->attach( alignedBelow, seis3dfld_ );
 	}
     }
@@ -86,11 +87,11 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 					uiSeisSel::Setup(Seis::LinePS) );
 	seisps2dfld_->attach( alignedBelow, typfld_ );
 	seisps2dfld_->selectiondone.notify( mCB(this,uiMadIOSelDlg,selChg) );
+	subsel2dfld_ = new uiSeis2DSubSel( this, Seis::SelSetup(Seis::Line)
+						 .fornewentry(!isinp));
+	subsel2dfld_->attach( alignedBelow, seis2dfld_ );
 	if ( isinp )
 	{
-	    subsel2dfld_ = new uiSeis2DSubSel( this,
-		    				Seis::SelSetup(Seis::Line));
-	    subsel2dfld_->attach( alignedBelow, seis2dfld_ );
 	    subsel2dpsfld_ = new uiSeis2DSubSel( this,
 		    				Seis::SelSetup(Seis::LinePS));
 	    subsel2dpsfld_->attach( alignedBelow, seis2dfld_ );
@@ -179,7 +180,6 @@ void uiMadIOSelDlg::typSel( CallBacker* )
     if ( seis2dfld_ ) seis2dfld_->display( choice == idx2d_ );
     if ( seisps2dfld_ ) seisps2dfld_->display( choice == idxps2d_ );
     madfld_->display( choice == idxmad_ );
-    if ( !isInp() ) return;
 
     if ( subsel3dfld_ )
 	subsel3dfld_->display( choice == idx3d_ || choice == idxps3d_ );
@@ -192,13 +192,18 @@ void uiMadIOSelDlg::typSel( CallBacker* )
 
 void uiMadIOSelDlg::selChg( CallBacker* )
 {
-    if ( isMad() || isNone() || !isInp() ) return;
+    if ( isMad() || isNone() || !isinp_ ) return;
 
     const Seis::GeomType gt = geomType();
     CtxtIOObj& ctio = ctxtIOObj( gt );
     uiSeisSubSel* subsel = seisSubSel( gt );
-    if ( !ctio.ioobj )
+    if ( !ctio.ioobj && gt != Seis::Line )
 	subsel->clear();
+    else if ( gt == Seis::Line && isinp_ )
+    {
+	mDynamicCastGet(uiSeis2DSubSel*,subsel2d,subsel);
+	subsel2d->setInputWithAttrib( *ctio.ioobj, seisSel(gt)->attrNm() );
+    }
     else
 	subsel->setInput( *ctio.ioobj );
 }
@@ -228,62 +233,70 @@ void uiMadIOSelDlg::usePar( const IOPar& iop )
 
     seisSel( gt )->usePar( iop );
     selChg( this );
-    if ( isInp() )
+    uiSeisSubSel* subsel = seisSubSel( gt );
+    if ( subsel )
     {
 	PtrMan<IOPar> subpar = iop.subselect( sKey::Selection );
-	if ( subpar ) seisSubSel( gt )->usePar( *subpar );
+	if ( subpar ) subsel->usePar( *subpar );
     }
 }
 
 
-void uiMadIOSelDlg::fillPar( IOPar& iop )
+bool uiMadIOSelDlg::fillPar( IOPar& iop )
 {
     iop.clear();
     ODMad::ProcFlow::setIOType( iop, ioType() );
-    const bool isinp = isInp();
     if ( isMad() )
 	iop.set( sKey::FileName, madfld_->fileName() );
     else if ( !isNone() )
     {
 	const Seis::GeomType gt = geomType();
 	seisSel(gt)->fillPar( iop );
-	if ( isinp )
+	uiSeisSubSel* subsel = seisSubSel( gt );
+	if ( subsel )
 	{
 	    IOPar subpar;
-	    if ( Seis::is2D(gt) )
-		(Seis::isPS(gt)?subsel2dpsfld_:subsel2dfld_)->fillPar( subpar );
-	    else
-		subsel3dfld_->fillPar( subpar );
+	    if ( !subsel->fillPar(subpar) )
+		return false;
 
 	    if ( subpar.size() )
 		iop.mergeComp( subpar, sKey::Selection );
 	}
     }
+
+    return true;
 }
 
 
 #define mErrRet(s) \
 { \
-    uiMSG().error( "Please select the ", isinp ? "input " : "output ", s ); \
+    uiMSG().error( "Please select the ", isinp_ ? "input " : "output ", s ); \
     return false; \
 }
 
 bool uiMadIOSelDlg::getInp()
 {
-    const bool isinp = isInp();
     if ( isMad() )
     {
 	const BufferString fnm( madfld_->fileName() );
-	if ( fnm.isEmpty() || (isinp && !File_exists(fnm)) )
+	if ( fnm.isEmpty() || (isinp_ && !File_exists(fnm)) )
 	    mErrRet("file")
     }
     else if ( !isNone() )
     {
 	const Seis::GeomType gt = geomType();
-	if ( !seisSel(gt)->commitInput(!isinp) )
+	if ( gt != Seis::Vol && gt != Seis::Line )
+	{
+	    BufferString msgtxt( "Sorry, " );
+	    msgtxt += isinp_ ? "input type " : "output type ";
+	    msgtxt += typfld_->text();
+	    msgtxt += " not implemented yet";
+	    uiMSG().error( msgtxt ); return false;
+	} 
+	if ( !seisSel(gt)->commitInput(!isinp_) )
 	{
 	    mErrRet(Seis::isPS(gt) ? "data store" : "seismics")
-	    if ( !isinp && !Seis::is2D(gt) && ctio3d_.ioobj->implExists(false)
+	    if ( !isinp_ && !Seis::is2D(gt) && ctio3d_.ioobj->implExists(false)
 	       && !uiMSG().askGoOn("Output cube exists. Overwrite?") )
 		return false;
 	}
@@ -298,8 +311,7 @@ bool uiMadIOSelDlg::acceptOK( CallBacker* )
     if ( !getInp() )
 	return false;
 
-    fillPar( iop_ );
-    return true;
+    return fillPar( iop_ );
 }
 
 
@@ -307,6 +319,7 @@ uiMadIOSel::uiMadIOSel( uiParent* p, bool isinp )
 	: uiCompoundParSel(p,isinp ? "INPUT" : "OUTPUT")
 	, iop_(BufferString("Madagascar ",isinp?"input":"output"," selection"))
 	, isinp_(isinp)
+        , selectionMade(this)
 {
     butPush.notify( mCB(this,uiMadIOSel,doDlg) );
 }
@@ -319,10 +332,30 @@ void uiMadIOSel::usePar( const IOPar& iop )
 }
 
 
+void uiMadIOSel::useParIfNeeded( const IOPar& iop )
+{
+    BufferString typ = iop.find( sKey::Type );
+    if ( typ.isEmpty() || typ != Seis::nameOf(Seis::Line) ) return;
+
+    BufferString idval = iop.find( sKey::ID );
+    if ( !idval.isEmpty() )
+	iop_.set( sKey::ID, idval );
+
+    iop_.set( sKey::Type, typ );
+    const char* lkey = IOPar::compKey( sKey::Selection, sKey::LineKey );
+    BufferString lnm = iop.find( lkey );
+    if ( !lnm.isEmpty() )
+	iop_.set( lkey, lnm );
+
+    updateSummary();
+}
+
+
 void uiMadIOSel::doDlg( CallBacker* )
 {
     uiMadIOSelDlg dlg( this, iop_, isinp_ );
-    dlg.go();
+    if ( dlg.go() )
+	selectionMade.trigger();
 }
 
 

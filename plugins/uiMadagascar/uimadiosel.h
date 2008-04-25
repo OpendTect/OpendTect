@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : Sep 2007
- * ID       : $Id: uimadiosel.h,v 1.5 2008-01-24 10:01:40 cvsbert Exp $
+ * ID       : $Id: uimadiosel.h,v 1.6 2008-04-25 11:09:46 cvsraman Exp $
 -*/
 
 #include "uicompoundparsel.h"
@@ -28,8 +28,11 @@ public:
 			uiMadIOSel(uiParent*,bool isinp);
 
     void		usePar(const IOPar&);
-    void		fillPar( IOPar& iop ) const	{ iop.merge(iop_); }
+    void		useParIfNeeded(const IOPar&);
+    bool		fillPar( IOPar& iop ) const
+    			{ iop.merge(iop_); return iop_.size(); }
 
+    Notifier<uiMadIOSel>	selectionMade;
 protected:
 
     bool		isinp_;
@@ -49,7 +52,7 @@ public:
 			~uiMadIOSelDlg();
 
     inline bool		isInp() const
-    			{ return subsel3dfld_ || subsel2dfld_; }
+    			{ return isinp_; }
     bool		isNone() const;
     bool		isMad() const;
     inline bool		isOD() const	{ return !isMad() && !isNone(); }
@@ -67,7 +70,7 @@ public:
     uiSeisSubSel*	seisSubSel(Seis::GeomType);
 
     void		usePar(const IOPar&);
-    void		fillPar(IOPar&);
+    bool		fillPar(IOPar&);
 
 protected:
 
@@ -77,6 +80,7 @@ protected:
     CtxtIOObj&		ctiops2d_;
     int			idx3d_, idx2d_, idxps3d_, idxps2d_, idxmad_, idxnone_;
     IOPar&		iop_;
+    bool		isinp_;
 
     uiGenInput*		typfld_;
     uiSeisSel*		seis3dfld_;

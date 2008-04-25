@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : May 2007
- * ID       : $Id: uimadagascarmain.h,v 1.12 2007-12-20 16:18:54 cvsbert Exp $
+ * ID       : $Id: uimadagascarmain.h,v 1.13 2008-04-25 11:09:46 cvsraman Exp $
 -*/
 
 #include "uidialog.h"
@@ -25,7 +25,7 @@ public:
 			uiMadagascarMain(uiParent*);
 			~uiMadagascarMain();
 
-    void		getFlow(ODMad::ProcFlow&);
+    bool		getFlow(ODMad::ProcFlow&);
     void		setFlow(const ODMad::ProcFlow&);
 
 protected:
@@ -44,6 +44,7 @@ protected:
     void		hideReq(CallBacker*);
     void		butPush(CallBacker*);
     void		setButStates(CallBacker* cb=0);
+    void		inpSel(CallBacker*);
     void		selChg(CallBacker*);
     void		newFlow(CallBacker*);
     void		openFlow(CallBacker*);
