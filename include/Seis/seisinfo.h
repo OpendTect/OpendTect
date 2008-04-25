@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisinfo.h,v 1.22 2008-01-10 09:59:03 cvsbert Exp $
+ RCS:		$Id: seisinfo.h,v 1.23 2008-04-25 11:20:37 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 class SeisTrc;
 class PosAuxInfo;
 class IOPar;
+namespace PosInfo { class CubeData; }
 template <class T> class TypeSet;
 
 /*!\brief Information for a packet of seismics, AKA tape header info */
@@ -35,6 +36,9 @@ public:
     BufferString	usrinfo;
     BufferString	stdinfo;
     int			nr;
+    bool		fullyrectandreg;
+
+    const PosInfo::CubeData* cubedata;
 
     StepInterval<int>	inlrg;
     StepInterval<int>	crlrg;
