@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.51 2008-04-24 11:32:07 cvsraman Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.52 2008-04-25 11:13:39 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,7 +151,11 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const Seis::SelSetup& ss )
 {
     uiGenInput* fld;
     if ( ss.fornewentry_ && !multiln_ )
-	fld = lnmfld_ = new uiGenInput( this, "Store in Set as" );
+    {
+	selfld_->display( false );
+	fld = lnmfld_ = new uiGenInput( this, "Line name" );
+	setHAlignObj( fld );
+    }
     else
     {
 	fld = lnmsfld_ = new uiGenInput( this, multiln_ ? "One line only"
@@ -160,14 +164,13 @@ uiSeis2DSubSel::uiSeis2DSubSel( uiParent* p, const Seis::SelSetup& ss )
 	{
 	    lnmsfld_->setWithCheck( true );
 	    lnmsfld_->checked.notify( mCB(this,uiSeis2DSubSel,singLineChg) );
+	    fld->attach( alignedBelow, selfld_ );
 	}
+	else
+	    selfld_->attach( alignedBelow, fld );
+
 	lnmsfld_->valuechanged.notify( mCB(this,uiSeis2DSubSel,lineChg) );
     }
-
-    if ( multiln_ )
-	fld->attach( alignedBelow, selfld_ );
-    else
-	selfld_->attach( alignedBelow, fld );
 }
 
 
@@ -273,7 +276,12 @@ bool uiSeis2DSubSel::fillPar( IOPar& iopar ) const
 
     BufferString lnm( selectedLine() );
     if ( lnm.isEmpty() )
+    {
+	if ( lnmfld_ )
+	{ uiMSG().error("Please enter a line name"); return false; }
+
 	iopar.removeWithKey( sKey::LineKey );
+    }
     else
 	iopar.set( sKey::LineKey, lnm );
 
