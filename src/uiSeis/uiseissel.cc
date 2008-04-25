@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.47 2008-02-20 08:47:18 cvshelene Exp $
+ RCS:		$Id: uiseissel.cc,v 1.48 2008-04-25 11:12:38 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,8 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	if ( selgrp->getCtxtIOObj().ctxt.forread )
 	    attrfld_ = new uiGenInput( selgrp,"Attribute",StringListInpSpec() );
 	else
-	    attrfld_ = new uiGenInput( selgrp, "Attribute (if any)" );
+	    attrfld_ = new uiGenInput( selgrp, "Attribute",
+		    		       StringInpSpec(LineKey::sKeyDefAttrib) );
 	if ( selgrp->getNameField() )
 	    attrfld_->attach( alignedBelow, selgrp->getNameField() );
 	else
