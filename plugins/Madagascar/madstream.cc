@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.4 2008-04-25 11:10:40 cvsraman Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.5 2008-04-25 11:54:26 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cbvsreadmgr.h"
@@ -207,7 +207,6 @@ BufferString MadStream::getPosFileName( bool forread ) const
     BufferString typ = 
 	pars_.find( IOPar::compKey( forread ? sKeyInput : sKeyOutput,
 		    		    sKey::Type) );
-    std::cerr << "Type: " << typ << std::endl;
     if ( typ == sKeyMadagascar )
     {
 	BufferString outfnm =
@@ -215,7 +214,6 @@ BufferString MadStream::getPosFileName( bool forread ) const
 		    			sKey::FileName) );
 	FilePath fp( outfnm );
 	fp.setExtension( "pos" );
-	std::cerr << "Pos: " << fp.fullPath() << std::endl;
 	if ( !forread || File_exists(fp.fullPath()) )
 	    posfnm = fp.fullPath();
     }
@@ -285,7 +283,12 @@ void MadStream::fillHeaderParsFromSeis()
 	    PosInfo::CubeData newcd( *pinfo.cubedata );
 	    mDynamicCastGet(const Seis::RangeSelData*,rangesel,
 		    	    seisrdr_->selData())
-	    if ( rangesel ) newcd.limitTo( rangesel->cubeSampling().hrg );
+	    if ( rangesel && !rangesel->isAll() )
+	    {
+		newcd.limitTo( rangesel->cubeSampling().hrg );
+		zrg.limitTo( rangesel->cubeSampling().zrg );
+	    }
+
 	    needposfile = !newcd.isFullyRectAndReg();
 	    if ( needposfile )
 	    {
@@ -432,7 +435,6 @@ bool MadStream::getNextTrace( float* arr )
 
 #define mReadFromPosFile( obj ) \
     BufferString posfnm = getPosFileName( true ); \
-std::cerr << "Pos File Name: " << posfnm << std::endl; \
     if ( !posfnm.isEmpty() ) \
     { \
 	haspos = true; \
@@ -514,9 +516,7 @@ bool MadStream::write2DTraces()
 {
     PosInfo::Line2DData geom;
     bool haspos = false;
-    std::cerr << "Reading Pos file" << std::endl;
     mReadFromPosFile ( geom );
-    std::cerr << "Finished reading Pos file" << std::endl;
     if ( !haspos ) mErrBoolRet( "Position data not available" );;
 
     int trcstart=1, trcstep=1, nrtrcs=0, nrsamps=0;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		March 2008
- RCS:		$Id: od_madexec.cc,v 1.4 2008-04-25 11:10:40 cvsraman Exp $
+ RCS:		$Id: od_madexec.cc,v 1.5 2008-04-25 11:54:26 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,6 @@ const char* getProcString( IOPar& pars, BufferString& errmsg )
 	pars.setYN( sKeyWrite, dowrite );
 	pars.set( "Log file", StreamProvider::sStdErr );
 	BufferString fname = FilePath::getTempName( "par" );
-	std::cerr << "temp File: " << fname << std::endl;
 	pars.write( fname, sKey::Pars );
 	if ( isprocessing ) *ret += " | ";
 
@@ -148,7 +147,6 @@ bool BatchProgram::go( std::ostream& strm )
 	if ( !mstrm.isOK() )
 	    mErrRet( mstrm.errMsg() );
 
-	std::cerr << "Going to write now..." << std::endl;
 	if ( !mstrm.writeTraces() )
 	    mErrRet( mstrm.errMsg() );
 
