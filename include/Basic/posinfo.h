@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.1 2008-03-12 09:48:03 cvsbert Exp $
+ RCS:		$Id: posinfo.h,v 1.2 2008-04-25 11:15:35 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "sets.h"
+#include "cubesampling.h"
 #include "indexinfo.h"
 #include "position.h"
 
@@ -66,6 +67,7 @@ public:
 			~CubeData()		{ deepErase(*this); }
     CubeData&		operator =(const CubeData&);
 
+    int			totalSize() const;
     int			indexOf(int inl) const;
     bool		includes(int inl,int crl) const;
     bool		getInlRange(StepInterval<int>&) const;
@@ -79,7 +81,11 @@ public:
 
     void		add( LineData* ld )	{ *this += ld; }
 
+    void		limitTo(const HorSampling&);
     void		sort();
+
+    bool		read(std::istream&);
+    bool		write(std::ostream&) const;
 };
 
 
@@ -111,7 +117,10 @@ public:
     StepInterval<float> zrg;
     TypeSet<Line2DPos>  posns;
 
+    void		limitTo(Interval<int> trcrg);
     void                dump(std::ostream&,bool pretty=true) const;
+    bool		read(std::istream&);
+    bool		write(std::ostream&) const;
 
 };
 
