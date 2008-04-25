@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.cc,v 1.11 2007-12-05 11:55:49 cvsbert Exp $
+ RCS:           $Id: uiattrinpdlg.cc,v 1.12 2008-04-25 15:11:45 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,6 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
 
     inpfld = new uiSeisSel( this, ctio,
 	    		    uiSeisSel::Setup( is2d ? Seis::Line : Seis::Vol )
-			    .selattr(false)
 			    .seltxt(issteer ? "Select Steering cube"
 					    : "Select Seismics") );
     inpfld->attach( alignedBelow, txtfld );
