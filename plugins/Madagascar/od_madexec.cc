@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		March 2008
- RCS:		$Id: od_madexec.cc,v 1.5 2008-04-25 11:54:26 cvsraman Exp $
+ RCS:		$Id: od_madexec.cc,v 1.6 2008-04-28 06:36:02 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "filepath.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "oddirs.h"
 #include "progressmeter.h"
 #include "seistype.h"
 #include "strmprov.h"
@@ -30,7 +31,7 @@ static const char* sKeyWrite = "Write";
 
 const char* getProcString( IOPar& pars, BufferString& errmsg )
 {
-    BufferString* ret = new BufferString( "@" );
+    static BufferString ret( "@" );
     IOPar* readpar = pars.subselect(sKeyInput);
     if ( !readpar || !readpar->size() )
     { errmsg = "No Input parameters"; return 0; }
@@ -41,9 +42,9 @@ const char* getProcString( IOPar& pars, BufferString& errmsg )
     for ( int pidx=0; pidx<procs.size(); pidx++ )
     {
 	BufferString proc = procs.get( pidx );
-	if ( pidx ) *ret += " | ";
+	if ( pidx ) ret += " | ";
 
-	*ret += proc;
+	ret += proc;
     }
 
     IOPar* outpar = pars.subselect( sKeyOutput );
@@ -56,14 +57,14 @@ const char* getProcString( IOPar& pars, BufferString& errmsg )
     {
 	if ( isprocessing )
 	{
-	    *ret += " out=stdout";
-	    *ret += " > ";
-	    *ret += outpar->find( sKey::FileName );
+	    ret += " out=stdout";
+	    ret += " > ";
+	    ret += outpar->find( sKey::FileName );
 	}
 	else
-	    *ret = outpar->find( sKey::FileName );
+	    ret = outpar->find( sKey::FileName );
 
-	return ret->buf();
+	return ret.buf();
     }
     
     Seis::GeomType gt = Seis::geomTypeOf( outptyp );
@@ -74,11 +75,13 @@ const char* getProcString( IOPar& pars, BufferString& errmsg )
 	pars.set( "Log file", StreamProvider::sStdErr );
 	BufferString fname = FilePath::getTempName( "par" );
 	pars.write( fname, sKey::Pars );
-	if ( isprocessing ) *ret += " | ";
+	if ( isprocessing ) ret += " | ";
 
-	*ret += "./odmadexec ";
-	*ret += fname;
-	return ret->buf();
+	BufferString comm = GetExecScript( false );
+	comm += " ";
+	comm += "odmadexec";
+	ret += comm; ret += " "; ret += fname;
+	return ret.buf();
     }
     else
     {
@@ -130,7 +133,7 @@ bool processMad( IOPar& pars, std::ostream& strm )
 	pm.setNrDone( ++tracecount );
     }
 
-    delete[] trc;
+    delete [] trc;
     pm.setFinished();
     sd.close();
     return true;

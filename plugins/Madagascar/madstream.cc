@@ -4,10 +4,9 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.5 2008-04-25 11:54:26 cvsraman Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.6 2008-04-28 06:36:02 cvsraman Exp $";
 
 #include "madstream.h"
-#include "cbvsreadmgr.h"
 #include "cubesampling.h"
 #include "filegen.h"
 #include "filepath.h"
@@ -19,14 +18,12 @@ static const char* rcsID = "$Id: madstream.cc,v 1.5 2008-04-25 11:54:26 cvsraman
 #include "ptrman.h"
 #include "seis2dline.h"
 #include "seisioobjinfo.h"
-#include "seistrctr.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
 #include "seiswrite.h"
 #include "strmprov.h"
 #include "survinfo.h"
-#include "progressmeter.h"
 
 
 using namespace ODMad;
@@ -267,6 +264,7 @@ void MadStream::fillHeaderParsFromSeis()
 	    geom.zrg.limitTo( seldata->zRange() );
 	}
 
+	nrtrcs = geom.posns.size();
 	zrg = geom.zrg;
 	mWriteToPosFile( geom )
     }
@@ -274,6 +272,14 @@ void MadStream::fillHeaderParsFromSeis()
     {
 	SeisPacketInfo& pinfo = seisrdr_->seisTranslator()->packetInfo();
 	zrg = pinfo.zrg;
+	trcrg = pinfo.crlrg;
+	mDynamicCastGet(const Seis::RangeSelData*,rangesel,seisrdr_->selData())
+	if ( rangesel && !rangesel->isAll() )
+	{
+	    zrg.limitTo( rangesel->zRange() );
+	    trcrg.limitTo( rangesel->crlRange() );
+	}
+
 	if ( pinfo.fullyrectandreg )
 	    needposfile = false;
 	else
@@ -281,13 +287,8 @@ void MadStream::fillHeaderParsFromSeis()
 	    if ( !pinfo.cubedata ) mErrRet( "Incomplete Geometry Information" );
 
 	    PosInfo::CubeData newcd( *pinfo.cubedata );
-	    mDynamicCastGet(const Seis::RangeSelData*,rangesel,
-		    	    seisrdr_->selData())
 	    if ( rangesel && !rangesel->isAll() )
-	    {
 		newcd.limitTo( rangesel->cubeSampling().hrg );
-		zrg.limitTo( rangesel->cubeSampling().zrg );
-	    }
 
 	    needposfile = !newcd.isFullyRectAndReg();
 	    if ( needposfile )
@@ -301,10 +302,11 @@ void MadStream::fillHeaderParsFromSeis()
 	
 	if ( !needposfile )
 	{
-	    trcrg = pinfo.crlrg;
-	    headerpars_->set( "o3", pinfo.inlrg.start );
-	    headerpars_->set( "n3", pinfo.inlrg.nrSteps()+1 );
-	    headerpars_->set( "d3", pinfo.inlrg.step );
+	    StepInterval<int> inlrg =
+		rangesel ? rangesel->cubeSampling().hrg.inlRange() : pinfo.inlrg;
+	    headerpars_->set( "o3", inlrg.start );
+	    headerpars_->set( "n3", inlrg.nrSteps()+1 );
+	    headerpars_->set( "d3", inlrg.step );
 	    if ( File_exists(posfnm) )
 		StreamProvider(posfnm).remove(); // While overwriting rsf
 	}
@@ -502,12 +504,12 @@ bool MadStream::writeTraces()
 		    trc.set( isamp, buf[isamp], 0 );
 
 		if ( !seiswrr_->put (trc) )
-		{ delete[] buf; mErrBoolRet("Cannot write trace"); }
+		{ delete [] buf; mErrBoolRet("Cannot write trace"); }
 	    }
 	}
     }
 
-    delete[] buf;
+    delete [] buf;
     return true;
 }
 
@@ -533,9 +535,6 @@ bool MadStream::write2DTraces()
     if ( nrtrcs != geom.posns.size() )
 	mErrBoolRet( "Line geometry doesn't match with data" );
 
-    TextStreamProgressMeter pm( std::cerr );
-    pm.setName( "Madagascar 2D" );
-    pm.setMessage( "Writing 2D Traces..." );
     float* buf = new float[nrsamps];
     for ( int idx=0; idx<geom.posns.size(); idx++ )
     {
@@ -551,13 +550,10 @@ bool MadStream::write2DTraces()
 	    trc.set( isamp, buf[isamp], 0 );
 
 	if ( !seiswrr_->put (trc) )
-	{ delete[] buf; mErrBoolRet("Error writing traces"); }
-
-	pm.setNrDone( idx + 1 );
+	{ delete [] buf; mErrBoolRet("Error writing traces"); }
     }
 
-    pm.setFinished();
-    delete[] buf;
+    delete [] buf;
     return true;
 }
 #undef mErrRet
