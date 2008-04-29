@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uifunctiondisplay.cc,v 1.10 2008-04-15 12:02:42 cvsnanne Exp $
+ RCS:           $Id: uifunctiondisplay.cc,v 1.11 2008-04-29 07:38:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -208,14 +208,18 @@ void uiFunctionDisplay::reDrawHandler( uiRect )
 
     if ( havey2 )
     {
-	Interval<int> xpixintv( xax_->getPix( xax_->range().start ),
-				xax_->getPix( xax_->range().stop ) );
+	if ( setup_.fillbelowy2_ )
+	    y2ptlist += closept;
+	Interval<int> xpixintv( xax_->getPix(xax_->range().start),
+				xax_->getPix(xax_->range().stop) );
 	for ( int idx=0; idx<y2xvals_.size(); idx++ )
 	{
 	    const int xpix = xax_->getPix( y2xvals_[idx] );
 	    if ( xpixintv.includes(xpix) )
 		y2ptlist += uiPoint( xpix, y2ax_->getPix(y2yvals_[idx]) );
 	}
+	if ( setup_.fillbelowy2_ )
+	    y2ptlist += uiPoint( xpixintv.stop, closept.y );
     }
 
     if ( havey2 )
