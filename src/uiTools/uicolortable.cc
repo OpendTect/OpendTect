@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.15 2008-04-15 12:02:42 cvsnanne Exp $
+ RCS:           $Id: uicolortable.cc,v 1.16 2008-04-29 07:37:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,20 +15,22 @@ ________________________________________________________________________
 #include "color.h"
 #include "coltabsequence.h"
 #include "datainpspec.h"
-#include "pixmap.h"
 #include "iopar.h"
+#include "pixmap.h"
+#include "settings.h"
 
 #include "uibutton.h"
-#include "uicoltabtools.h"
-#include "uidialog.h"
-#include "uilineedit.h"
-#include "uicombobox.h"
 #include "uicoltabman.h"
-#include "uimenu.h"
-#include "uigeom.h"
+#include "uicoltabtools.h"
+#include "uicombobox.h"
+#include "uidialog.h"
 #include "uigeninput.h"
+#include "uigeom.h"
+#include "uilineedit.h"
+#include "uimenu.h"
 #include "uirgbarray.h"
 #include "uirgbarraycanvas.h"
+
 #include <math.h>
 
 #define mStdInitList \
@@ -173,17 +175,22 @@ void uiColorTable::tabSel( CallBacker* )
 
 void uiColorTable::canvasClick( CallBacker* )
 {
-    if ( canvas_->getMouseEventHandler().isHandled() ) return;
-    const MouseEvent& ev = canvas_->getMouseEventHandler().event();
+    if ( canvas_->getMouseEventHandler().isHandled() )
+	return;
 
-    if ( OD::RightButton != ev.buttonState() )  return;
+    const MouseEvent& ev = canvas_->getMouseEventHandler().event();
+    if ( OD::RightButton != ev.buttonState() )
+	return;
+
     PtrMan<uiPopupMenu> mnu = new uiPopupMenu( this, "Action" );
     mnu->insertItem( new uiMenuItem("Flip",
 	mCB(this,uiColorTable,doFlip)), 0 );
     mnu->insertItem( new uiMenuItem("Ranges/Clipping ...",
 	mCB(this,uiColorTable,editScaling)), 1 );
     mnu->insertItem( new uiMenuItem("Manage ...",
-	mCB(this,uiColorTable,doEdit)), 2 );
+	mCB(this,uiColorTable,doManage)), 2 );
+    mnu->insertItem( new uiMenuItem("Set as default",
+	mCB(this,uiColorTable,setAsDefault)), 3 );
     mnu->exec();
 
     canvas_->getMouseEventHandler().setHandled( true );
@@ -298,7 +305,7 @@ void uiColorTable::makeSymmetrical( CallBacker* )
 }
 
 
-void uiColorTable::doEdit( CallBacker* )
+void uiColorTable::doManage( CallBacker* )
 {
     uiColorTableMan coltabman( this, coltabseq_ );
     coltabman.tableChanged.notify( mCB(this,uiColorTable,colTabManChgd) );
@@ -308,11 +315,18 @@ void uiColorTable::doEdit( CallBacker* )
 }
 
 
-void uiColorTable::colTabManChgd( CallBacker* cb )
+void uiColorTable::colTabManChgd( CallBacker* )
 {
     selfld_->setCurrentItem( coltabseq_.name() );
     canvas_->forceNewFill();
     seqChanged.trigger();
+}
+
+
+void uiColorTable::setAsDefault( CallBacker* )
+{
+    mSettUse(set,"dTect.Color table.Name","",coltabseq_.name());
+    Settings::common().write();
 }
 
 

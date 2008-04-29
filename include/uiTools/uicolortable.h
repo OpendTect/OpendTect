@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert/Nanne
  Date:          Aug 2007
- RCS:           $Id: uicolortable.h,v 1.7 2008-04-09 12:42:16 cvsnanne Exp $
+ RCS:           $Id: uicolortable.h,v 1.8 2008-04-29 07:37:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,8 +69,9 @@ protected:
     void		tabSel(CallBacker*);
     void		tableAdded(CallBacker*);
     void		rangeEntered(CallBacker*);
-    void		doEdit(CallBacker*);
+    void		doManage(CallBacker*);
     void		doFlip(CallBacker*);
+    void		setAsDefault(CallBacker*);
     void		editScaling(CallBacker*);
     void		makeSymmetrical(CallBacker*);
     void		colTabChgdCB(CallBacker*);
