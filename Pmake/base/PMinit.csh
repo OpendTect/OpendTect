@@ -2,7 +2,7 @@
 #---------------------------------------------------------
 # Author: de Groot - Bril Earth Sciences ( A.H.Bril )
 # Pmake Environment initialization C-shell script
-# $Id: PMinit.csh,v 1.8 2006-09-11 09:19:00 cvsbert Exp $
+# $Id: PMinit.csh,v 1.9 2008-04-29 09:00:25 cvsnanne Exp $
 #---------------------------------------------------------
 
 if ( ! $?HDIR ) then
@@ -44,6 +44,8 @@ endif
 if ( ! $?GNUMAKE ) then
     if ( $HDIR == win ) then
 	setenv GNUMAKE	"/usr/bin/make"
+    else if ( $HDIR == mac ) then
+	setenv GNUMAKE "/usr/bin/gnumake"
     else
 	setenv GNUMAKE	"gmake"
     endif
