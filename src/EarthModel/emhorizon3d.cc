@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.101 2008-03-20 21:36:32 cvskris Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.102 2008-04-30 06:51:54 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -593,7 +593,6 @@ Table::FormatDesc* Horizon3DAscIO::getDesc()
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
 	    		StringInpSpec(sKey::FloatUdf), Table::Required );
     BufferStringSet attrnms;
-    attrnms.add( "Z values" );
     createDescBody( fd, attrnms );
     return fd;
 }
@@ -604,11 +603,11 @@ void Horizon3DAscIO::createDescBody( Table::FormatDesc* fd,
 {
     Table::TargetInfo* posinfo = new Table::TargetInfo( "", FloatInpSpec(),
 	   						Table::Required );
-    Table::TargetInfo::Form* form = new Table::TargetInfo::Form( "X/Y ",
+    Table::TargetInfo::Form* form = new Table::TargetInfo::Form( "Inl/Crl",
 	    						FloatInpSpec() );
     form->add( FloatInpSpec() );
     posinfo->add( form );
-    posinfo->form(0).setName( "Inl/Crl");
+    posinfo->form(0).setName( "X/Y");
     posinfo->form(0).add( FloatInpSpec() );
     fd->bodyinfos_ += posinfo;
 
@@ -655,7 +654,7 @@ bool Horizon3DAscIO::isXY() const
     if ( !xinfo ) return false;
 
     const int sel = xinfo->selection_.form_;
-    return sel==1 ? true : false;
+    return !sel;
 }
 
 
