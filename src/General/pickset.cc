@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.54 2008-03-19 09:16:21 cvsraman Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.55 2008-04-30 06:51:01 cvsraman Exp $";
 
 #include "pickset.h"
 
@@ -475,21 +475,26 @@ bool Pick::Set::usePar( const IOPar& par )
 
 
 
-Table::FormatDesc* PickSetAscIO::getDesc( bool isxy, bool iszreq )
+Table::FormatDesc* PickSetAscIO::getDesc( bool iszreq )
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "PickSet" );
-    createDescBody( fd, isxy, iszreq );
+    createDescBody( fd, iszreq );
     return fd;
 }
 
 
-void PickSetAscIO::createDescBody( Table::FormatDesc* fd, bool isxy, 
-							  bool iszreq )
+void PickSetAscIO::createDescBody( Table::FormatDesc* fd, bool iszreq )
 {
-    fd->bodyinfos_ += new Table::TargetInfo( isxy ? "X Coordinate" : "Inl No.", 
-				 FloatInpSpec(), Table::Required );
-    fd->bodyinfos_ += new Table::TargetInfo( isxy ? "Y Coordinate" : "Crl No.",
-				 FloatInpSpec(), Table::Required );
+    Table::TargetInfo* posinfo = new Table::TargetInfo( "", FloatInpSpec(),
+	    						Table::Required );
+    Table::TargetInfo::Form* form = new Table::TargetInfo::Form( "Inl/Crl",
+	    						FloatInpSpec() );
+    form->add( FloatInpSpec() );
+    posinfo->add( form );
+    posinfo->form(0).setName( "X/Y");
+    posinfo->form(0).add( FloatInpSpec() );
+    fd->bodyinfos_ += posinfo;
+
     if ( iszreq )
     {
 	Table::TargetInfo* ti =
@@ -503,16 +508,26 @@ void PickSetAscIO::createDescBody( Table::FormatDesc* fd, bool isxy,
 }
 
 
-void PickSetAscIO::updateDesc( Table::FormatDesc& fd, bool isxy, bool iszreq )
+void PickSetAscIO::updateDesc( Table::FormatDesc& fd, bool iszreq )
 {
     fd.bodyinfos_.erase();
-    createDescBody( &fd, isxy, iszreq );
+    createDescBody( &fd, iszreq );
 }
     
 
+bool PickSetAscIO::isXY() const
+{
+    const Table::TargetInfo* xinfo = fd_.bodyinfos_[0];
+    if ( !xinfo ) return false;
+
+    const int sel = xinfo->selection_.form_;
+    return !sel;
+}
+
+
 #define mErrRet(s) { if ( s ) errmsg_ = s; return 0; }
 
-bool PickSetAscIO::get( std::istream& strm, Pick::Set& ps, bool isxy, 
+bool PickSetAscIO::get( std::istream& strm, Pick::Set& ps,
 			bool iszreq, const float constz ) const
 {
     while ( true )
@@ -526,7 +541,7 @@ bool PickSetAscIO::get( std::istream& strm, Pick::Set& ps, bool isxy,
 	if ( mIsUdf(xread) || mIsUdf(yread) ) continue;
 
 	Coord pos( xread, yread );
-	if ( !isxy || !SI().isReasonable(pos) )
+	if ( !isXY() || !SI().isReasonable(pos) )
 	{
 	    BinID bid( mNINT(xread), mNINT(yread) );
 	    SI().snap( bid );
