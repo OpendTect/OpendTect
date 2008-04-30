@@ -5,7 +5,7 @@
  * DATE     : Mar 2007
 -*/
 
-static const char* rcsID = "$Id: uitutseistools.cc,v 1.13 2008-03-14 09:17:13 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uitutseistools.cc,v 1.14 2008-04-30 03:31:48 cvssatyaki Exp $";
 #include "cubesampling.h"
 #include "uitutseistools.h"
 #include "tutseistools.h"
@@ -15,6 +15,7 @@ static const char* rcsID = "$Id: uitutseistools.cc,v 1.13 2008-03-14 09:17:13 cv
 #include "uitaskrunner.h"
 #include "uimsg.h"
 #include "seistrctr.h"
+#include "seistype.h"
 #include "seisselection.h"
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -22,20 +23,21 @@ static const char* rcsID = "$Id: uitutseistools.cc,v 1.13 2008-03-14 09:17:13 cv
 static const char* actions[] = { "Scale", "Square", "Smooth", 0 };
 // Exactly the order of the Tut::SeisTools::Action enum
 
-uiTutSeisTools::uiTutSeisTools( uiParent* p )
+uiTutSeisTools::uiTutSeisTools( uiParent* p, Seis::GeomType gt )
 	: uiDialog( p, Setup( "Tut seismic tools",
 			      "Specify process parameters",
 			      "tut:105.0.1") )
     	, inctio_(*mMkCtxtIOObj(SeisTrc))
     	, outctio_(*mMkCtxtIOObj(SeisTrc))
+    	, geom_(gt)
     	, tst_(*new Tut::SeisTools)
 {
     const CallBack choicecb( mCB(this,uiTutSeisTools,choiceSel) );
 
     // The input seismic object
-    inpfld_ = new uiSeisSel( this, inctio_, uiSeisSel::Setup(Seis::Vol) );
+    inpfld_ = new uiSeisSel( this, inctio_, uiSeisSel::Setup(geom_) );
     
-    subselfld_ = uiSeisSubSel::get( this, Seis::SelSetup(Seis::Vol) );
+    subselfld_ = uiSeisSubSel::get( this, Seis::SelSetup(geom_) );
     
     subselfld_->attachObj()->attach( alignedBelow, inpfld_ );
     // What seismic tool is required?
@@ -61,7 +63,7 @@ uiTutSeisTools::uiTutSeisTools( uiParent* p )
 
     // The output seismic object
     outctio_.ctxt.forread = false;
-    outfld_ = new uiSeisSel( this, outctio_, uiSeisSel::Setup(Seis::Vol) );
+    outfld_ = new uiSeisSel( this, outctio_, uiSeisSel::Setup(geom_) );
     outfld_->attach( alignedBelow, scalegrp_ );
     
     // Make sure only relevant stuff is displayed on startup

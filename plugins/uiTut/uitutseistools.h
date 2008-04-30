@@ -4,10 +4,11 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R.K. Singh
  * DATE     : Mar 2007
- * ID       : $Id: uitutseistools.h,v 1.6 2008-03-14 09:17:13 cvsnageswara Exp $
+ * ID       : $Id: uitutseistools.h,v 1.7 2008-04-30 03:31:48 cvssatyaki Exp $
 -*/
 
 #include "uidialog.h"
+#include "seistype.h"
 class uiSeisSel;
 class uiSeisSubSel;
 class uiGenInput;
@@ -19,13 +20,14 @@ class uiTutSeisTools : public uiDialog
 {
 public:
 
-    			uiTutSeisTools(uiParent*);
+    			uiTutSeisTools(uiParent*,Seis::GeomType);
 			~uiTutSeisTools();
 
 protected:
 
     CtxtIOObj&		inctio_;
     CtxtIOObj&		outctio_;
+    Seis::GeomType	geom_;
     Tut::SeisTools&	tst_;
 
     uiSeisSel*		inpfld_;
