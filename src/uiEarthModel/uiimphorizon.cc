@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.102 2008-02-26 09:17:32 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.103 2008-04-30 06:58:35 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -185,6 +185,8 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     }
     else
 	outputfld_->attach( alignedBelow, subselfld_ );
+
+    finaliseDone.notify( mCB(this,uiImportHorizon,formatSel) );
 }
 
 
@@ -206,8 +208,12 @@ void uiImportHorizon::formatSel( CallBacker* cb )
     BufferStringSet attrnms;
     attrlistfld_->box()->getSelectedItems( attrnms );
     if ( isgeom_ ) attrnms.insertAt( new BufferString(sZVals), 0 );
+    const int nrattrib = attrnms.size();
     EM::Horizon3DAscIO::updateDesc( fd_, attrnms );
     dataselfld_->updateSummary();
+    dataselfld_->setSensitive( nrattrib );
+    scanbut_->setSensitive( *inpfld_->fileName() && nrattrib );
+    inpfld_->fileName();
     if ( !scanner_ ) 
     {
 	subselfld_->setSensitive( false );
@@ -232,8 +238,9 @@ void uiImportHorizon::addAttrib( CallBacker* cb )
 
 void uiImportHorizon::scanPush( CallBacker* )
 {
+    if ( !isgeom_ && !attrlistfld_->box()->nrSelected() )
+    { uiMSG().error("Please select at least one attribute"); return; }
     if ( !dataselfld_->commit() ) return;
-
     if ( !scanner_ && !doScan() ) return;
 
     if ( isgeom_ ) 
