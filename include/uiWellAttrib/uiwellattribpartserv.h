@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.h,v 1.5 2008-04-17 09:05:34 cvsbert Exp $
+ RCS:           $Id: uiwellattribpartserv.h,v 1.6 2008-04-30 04:01:02 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ public:
     const char*			name() const		{ return "Wells"; }
 
     				// Services
-    bool			createAttribLog(const MultiID&);
+    bool			createAttribLog(const MultiID&,int);
     void			doXPlot();
 
 protected:

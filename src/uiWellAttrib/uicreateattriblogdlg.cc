@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          March 2008
- RCS:           $Id: uicreateattriblogdlg.cc,v 1.3 2008-04-18 12:25:38 cvsnanne Exp $
+ RCS:           $Id: uicreateattriblogdlg.cc,v 1.4 2008-04-30 04:01:02 cvssatyaki Exp $
 _______________________________________________________________________
 
 -*/
@@ -38,10 +38,13 @@ _______________________________________________________________________
 uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 					    const BufferStringSet& wellnames,
 					    const Attrib::DescSet* attrib , 
-					    const NLAModel* mdl )
+					    const NLAModel* mdl,
+					    bool singlewell )
     : uiDialog(p,uiDialog::Setup("Create Attribute Log",
 				 "Select Wells from the list", 0) )
     , nlamodel_(mdl)
+    , wellnames_(wellnames)
+    , singlewell_(singlewell)
     , attrib_(attrib)
     , sellogidx_(-1)
 {
@@ -49,10 +52,13 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     attribfld_->setNLAModel( nlamodel_ );
     attribfld_->selectiondone.notify( mCB(this,uiCreateAttribLogDlg,selDone) );
 
-    welllistfld_ = new uiListBox( this );
-    welllistfld_->attach( alignedBelow, attribfld_ );
-    welllistfld_->setMultiSelect();
-    welllistfld_->addItems( wellnames );
+    if ( !singlewell )
+    {
+	welllistfld_ = new uiListBox( this );
+	welllistfld_->attach( alignedBelow, attribfld_ );
+	welllistfld_->setMultiSelect();
+	welllistfld_->addItems( wellnames );
+    }
 
     // TODO: Get markers from all wells
     markernames_.add( Well::TrackSampler::sKeyDataStart );
@@ -62,7 +68,11 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 
     StringListInpSpec slis( markernames_ );
     topmrkfld_ = new uiGenInput( this, "Extract between", slis );
-    topmrkfld_->attach( alignedBelow, welllistfld_ );
+    
+    if ( singlewell )
+	topmrkfld_->attach( alignedBelow, attribfld_ );
+    else
+	topmrkfld_->attach( alignedBelow, welllistfld_ );
     topmrkfld_->setValue( (int)0 );
     topmrkfld_->setElemSzPol( uiObject::Medium );
     botmrkfld_ = new uiGenInput( this, "", slis );
@@ -109,11 +119,15 @@ static int getWellIndex( const char* wellnm )
 
 bool uiCreateAttribLogDlg::acceptOK( CallBacker* )
 {
-    if ( welllistfld_->nrSelected() < 1 )
-	mErrRet( "Select at least one well" );
-
     BufferStringSet selwells;
-    welllistfld_->getSelectedItems( selwells );
+    if ( !singlewell_ )
+    {
+	if ( welllistfld_->nrSelected() < 1 )
+	    mErrRet( "Select at least one well" );
+	welllistfld_->getSelectedItems( selwells );
+    }
+    else
+	selwells.add( *wellnames_[0] );
     for ( int idx=0; idx<selwells.size(); idx++ )
     {
 	const int wellidx = getWellIndex( selwells.get(idx) );
@@ -154,7 +168,7 @@ bool uiCreateAttribLogDlg::inputsOK( int wellno )
     if ( seldescid.asInt() < 0 && (nlamodel_ && outputnr<0) )
 	mErrRet( "No valid attribute selected" );
 
-    if( stepfld_->getValue()<0 || stepfld_->getValue(0)>100 )
+    if( stepfld_->getfValue()<0 || stepfld_->getfValue(0)>100 )
 	mErrRet( "Please Enter a valid step value" );
     
     BufferString lognm = lognmfld_->text();

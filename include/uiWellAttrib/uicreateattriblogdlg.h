@@ -4,9 +4,9 @@
  ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        Satyaki
+ Author:        Satyaki Maitra
  Date:          March 2008
- RCS:           $Id: uicreateattriblogdlg.h,v 1.2 2008-04-10 05:24:11 cvssatyaki Exp $
+ RCS:           $Id: uicreateattriblogdlg.h,v 1.3 2008-04-30 04:01:02 cvssatyaki Exp $
  _______________________________________________________________________
 
       -*/
@@ -29,8 +29,9 @@ public:
     				uiCreateAttribLogDlg(uiParent*,
 						     const BufferStringSet&,
 					             const Attrib::DescSet*,
-						     const NLAModel*);
+						     const NLAModel*,bool);
 				~uiCreateAttribLogDlg();
+    int                         selectedLogIdx() const  { return sellogidx_; }
 
 protected:
     const Attrib::DescSet*	attrib_;
@@ -43,7 +44,9 @@ protected:
     uiGenInput*			stepfld_;
     uiGenInput*			lognmfld_;
     BufferStringSet		markernames_;
+    const BufferStringSet&	wellnames_;
     int 			sellogidx_;
+    bool 			singlewell_;
 
     bool                        inputsOK(int);
     bool                        getPositions(BinIDValueSet&,Well::Data&,

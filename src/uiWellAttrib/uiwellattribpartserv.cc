@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2004
- RCS:           $Id: uiwellattribpartserv.cc,v 1.7 2008-04-17 09:05:34 cvsbert Exp $
+ RCS:           $Id: uiwellattribpartserv.cc,v 1.8 2008-04-30 04:01:02 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,7 @@ ________________________________________________________________________
 #include "wellman.h"
 #include "nlamodel.h"
 #include "attribdescset.h"
-#include "uiwellattribsel.h"
+#include "uicreateattriblogdlg.h"
 #include "uiwellattribxplot.h"
 
 #include "ptrman.h"
@@ -78,15 +78,24 @@ void uiWellAttribPartServer::doXPlot()
 
 #define mErrRet(msg) { uiMSG().error(msg); return false; }
 
-bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid )
+bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid, int lognr )
 {
     Well::Data* wd = Well::MGR().get( wellid );
     if ( !wd ) mErrRet("Cannot read well data")
+    
+    BufferStringSet wellname;
+    wellname.add( wd->name() );
 
-    uiWellAttribSel dlg( appserv().parent(), *wd, *attrset, nlamodel );
-    if ( !dlg.go() )
+    if ( lognr<0 )
+    {
+	uiCreateAttribLogDlg dlg( appserv().parent(), wellname ,
+				  attrset, nlamodel, true );
+	dlg.go();
+       	lognr = dlg.selectedLogIdx();
+    }
+
+    if ( lognr<0 )
 	return false;
-
     PtrMan<IOObj> ioobj = IOM().get( wellid );
     if ( !ioobj ) mErrRet("Cannot find well in object manager")
 
@@ -97,12 +106,13 @@ bool uiWellAttribPartServer::createAttribLog( const MultiID& wellid )
     sp.addPathIfNecessary( iostrm->dirName() );
     BufferString fname( sp.fileName() );
     Well::Writer wtr( fname, *wd );
-   
-    const int lognr = dlg.selectedLogIdx() + 1;
-    BufferString logfnm = wtr.getFileName( Well::IO::sExtLog, lognr );
+ 
+    if ( lognr > wd->logs().size() - 1 )
+	lognr =  wd->logs().size() - 1;
+    BufferString logfnm = wtr.getFileName( Well::IO::sExtLog, lognr + 1 );
     StreamProvider splog( logfnm );
     StreamData sdo = splog.makeOStream();
-    wtr.putLog( *sdo.ostrm, wd->logs().getLog(lognr-1) );
+    wtr.putLog( *sdo.ostrm, wd->logs().getLog(lognr) );
     sdo.close();
 
     return true;
