@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2007
- RCS:           $Id: uiwindowfunctionsel.h,v 1.2 2007-10-18 10:25:56 cvssatyaki Exp $
+ RCS:           $Id: uiwindowfunctionsel.h,v 1.3 2008-04-30 03:13:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,7 @@ public:
 protected:
     void			windowChangedCB(CallBacker*);
     void			winfuncseldlgCB(CallBacker*);
+    void			windowClosed(CallBacker*);
 
     BufferString		errmsg_;
     Interval<float>		annotrange_;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.27 2008-04-04 04:10:46 cvsnanne Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.28 2008-04-30 03:13:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -227,10 +227,16 @@ void FreqFilter::initClass()
     isfftfilter->setDefaultValue( false );
     desc->addParam( isfftfilter );
 
-    EnumParam* window = new EnumParam( windowStr() );
-    window->addEnums( ArrayNDWindow::WindowTypeNames );
-    window->setDefaultValue( ArrayNDWindow::CosTaper5 );
+    StringParam* window = new StringParam( windowStr() );
+    window->setDefaultValue( "CosTaper" );
     desc->addParam( window );
+
+    FloatParam* variable = new FloatParam( paramvalStr() );
+    const float defval = 0.05;
+    variable->setDefaultValue( defval );
+    variable->setRequired( false );
+    desc->addParam(variable);
+
 
     desc->addOutputDataType( Seis::UnknowData );
 
@@ -243,6 +249,9 @@ void FreqFilter::initClass()
 
 void FreqFilter::updateDesc( Desc& desc )
 {
+    Attrib::ValParam* valpar = desc.getValParam( FreqFilter::paramvalStr() );
+    Attrib::ValParam* winpar = desc.getValParam( FreqFilter::windowStr() );
+    if ( !valpar || !winpar ) return;
     const ValParam* ftype = desc.getValParam( filtertypeStr() );
     const BufferString type = ftype->getStringValue();
     desc.setParamEnabled( minfreqStr(),
@@ -275,6 +284,8 @@ FreqFilter::FreqFilter( Desc& ds )
     , tmpfreqdomain(0)
     , timecplxoutp(0)
     , window(0)
+    , windowtype_(0)
+    , variable_(0)
 {
     if ( !isOK() ) return;
 
@@ -298,12 +309,14 @@ FreqFilter::FreqFilter( Desc& ds )
     mGetBool( isfftfilter, isfftfilterStr() );
 
     int wtype;
+    mGetString( windowtype_, windowStr() );
+    mGetFloat( variable_, paramvalStr() );
     mGetEnum( wtype, windowStr() );
     windowtype = (ArrayNDWindow::WindowType)wtype;
 
     if ( isfftfilter )
 	window = new ArrayNDWindow( Array1DInfoImpl(100),
-		 false, (ArrayNDWindow::WindowType) windowtype );
+				    false, windowtype_, variable_ );
 	
     zmargin = Interval<int>( -mNINT(mMINNRSAMPLES/2), mNINT(mMINNRSAMPLES/2) );
 }

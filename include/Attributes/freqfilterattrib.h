@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.h,v 1.9 2007-03-08 12:40:08 cvshelene Exp $
+ RCS:           $Id: freqfilterattrib.h,v 1.10 2008-04-30 03:13:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ public:
     static const char*  nrpolesStr()            { return "nrpoles"; }
     static const char*  isfftfilterStr()        { return "isfftfilter"; }
     static const char*  windowStr()             { return "window"; }
+    static const char*  paramvalStr()           { return "paramval"; }
     static const char*  filterTypeNamesStr(int);
 
 protected:
@@ -79,6 +80,8 @@ protected:
     FFT                         fft;
     FFT                         fftinv;
     int                         fftsz;
+    BufferString                windowtype_;
+    float                       variable_;
 
     Interval<int>		zmargin;
 

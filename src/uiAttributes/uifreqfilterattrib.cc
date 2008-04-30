@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.cc,v 1.14 2007-10-12 09:12:19 cvssulochana Exp $
+ RCS:           $Id: uifreqfilterattrib.cc,v 1.15 2008-04-30 03:13:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uiattrsel.h"
 #include "uigeninput.h"
 #include "uispinbox.h"
+#include "uiwindowfunctionsel.h"
 
 using namespace Attrib;
 
@@ -73,9 +74,8 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
     polesfld->box()->setMinValue( 2 );
     polesfld->attach( alignedBelow, freqfld );
 
-    winfld = new uiGenInput( this, "Window/Taper", StringListInpSpec(winstrs) );
-    winfld->setElemSzPol( uiObject::MedVar );
-    winfld->attach( alignedBelow, freqfld );
+    winfld = new uiWindowFunctionSel( this, "Window/Taper" );
+    winfld->attach( alignedBelow, polesfld );
     winfld->display (false);
 
     mainObject()->finaliseDone.notify( mCB(this,uiFreqFilterAttrib,finaliseCB));
@@ -121,7 +121,10 @@ bool uiFreqFilterAttrib::setParameters( const Desc& desc )
 	    	 freqfld->setValue(maxfreq,1) );
     mIfGetInt( FreqFilter::nrpolesStr(), nrpoles,
 	       polesfld->box()->setValue(nrpoles) )
-    mIfGetEnum( FreqFilter::windowStr(), window, winfld->setValue(window) );
+    mIfGetString( FreqFilter::windowStr(), window,
+			    winfld->setWindowName(window) );
+    mIfGetFloat( FreqFilter::paramvalStr(), variable,
+			     winfld->setWindowParamValue(variable) );
     mIfGetBool( FreqFilter::isfftfilterStr(), isfftfilter, 
 	    	isfftfld->setValue(isfftfilter) );
 
@@ -147,7 +150,8 @@ bool uiFreqFilterAttrib::getParameters( Desc& desc )
     mSetFloat( FreqFilter::minfreqStr(), freqfld->getfValue(0) );
     mSetFloat( FreqFilter::maxfreqStr(), freqfld->getfValue(1) );
     mSetInt( FreqFilter::nrpolesStr(), polesfld->box()->getValue() );
-    mSetEnum( FreqFilter::windowStr(), winfld->getIntValue() );
+    mSetString( FreqFilter::windowStr(), winfld->windowName() );
+    mSetFloat( FreqFilter::paramvalStr(), winfld->windowParamValue() );
     mSetBool( FreqFilter::isfftfilterStr(), isfftfld->getBoolValue() );
 
     return true;
