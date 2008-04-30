@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.29 2008-03-19 11:24:57 cvsraman Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.30 2008-04-30 06:53:11 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,8 +51,7 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
     , serv_(p)
     , ctio_(*mMkCtxtIOObj(PickSet))
     , import_(imp)
-    , fd_(*PickSetAscIO::getDesc(true,true))
-    , xyfld_(0)
+    , fd_(*PickSetAscIO::getDesc(true))
     , zfld_(0)
     , constzfld_(0)
     , dataselfld_(0)
@@ -72,16 +71,11 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
 
     if ( import_ )
     {
-	xyfld_ = new uiGenInput( this, "Positions in:",
-				BoolInpSpec(true,"X/Y","Inl/Crl") );
-	xyfld_->valuechanged.notify( mCB(this,uiImpExpPickSet,formatSel) );
-	xyfld_->attach( alignedBelow, filefld_ );
-
 	zfld_ = new uiLabeledComboBox( this, "Get Z values from" );
 	zfld_->box()->addItems( zoptions );
 	zfld_->box()->selectionChanged.notify( mCB(this,uiImpExpPickSet,
 		    		formatSel) );
-	zfld_->attach( alignedBelow, xyfld_ );
+	zfld_->attach( alignedBelow, filefld_ );
 
 	BufferString constzlbl = "Specify Constatnt Z value";
 	constzlbl += SI().getZUnit();
@@ -129,12 +123,11 @@ uiImpExpPickSet::~uiImpExpPickSet()
 
 void uiImpExpPickSet::formatSel( CallBacker* cb )
 {
-    const bool isxy = xyfld_->getBoolValue();
     const int zchoice = zfld_->box()->currentItem(); 
     const bool iszreq = zchoice == 0;
     constzfld_->display( zchoice == 1 );
     horinpfld_->display( zchoice == 2 );
-    PickSetAscIO::updateDesc( fd_, isxy, iszreq );
+    PickSetAscIO::updateDesc( fd_, iszreq );
     dataselfld_->updateSummary();
 }
 
@@ -153,14 +146,13 @@ bool uiImpExpPickSet::doImport()
 
     const char* psnm = objfld_->getInput();
     Pick::Set ps( psnm );
-    bool isxy = xyfld_ ? xyfld_->getBoolValue() : true;
     const int zchoice = zfld_->box()->currentItem();
     float constz = zchoice==1 ? constzfld_->getfValue() : 0;
     if ( SI().zIsTime() ) constz /= 1000;
 
     ps.disp_.color_ = colorfld_->color();
     PickSetAscIO aio( fd_ );
-    aio.get( *sdi.istrm, ps, isxy, zchoice==0, constz );
+    aio.get( *sdi.istrm, ps, zchoice==0, constz );
     sdi.close();
 
     if ( zchoice == 2 )

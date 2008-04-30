@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.h,v 1.7 2008-03-19 11:25:04 cvsraman Exp $
+ RCS:           $Id: uiimppickset.h,v 1.8 2008-04-30 06:52:31 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,6 @@ protected:
     uiIOObjSel*		objfld_;
     uiIOObjSel*		horinputfld_;
     uiColorInput*	colorfld_;
-    uiGenInput*		xyfld_;
     uiCheckBox*		polyfld_;
     uiLabeledComboBox*	zfld_;
     uiLabeledComboBox*  horinpfld_;
