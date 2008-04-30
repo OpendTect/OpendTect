@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.73 2008-04-18 11:03:51 cvsnanne Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.74 2008-04-30 04:02:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -236,6 +236,7 @@ static void doBrowse( uiParent* p, const IOObj* ioobj, const LineKey* lk,
     if ( !ioobj ) return;
 
     uiSeisBrowser::Setup setup( ioobj->key(), lk ? Seis::Line : Seis::Vol );
+    setup.readonly( ioobj->implReadOnly() );
     if ( lk )
 	setup.linekey( *lk );
     uiSeisBrowser dlg( p, setup, is2d );

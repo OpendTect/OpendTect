@@ -2,9 +2,9 @@
 ________________________________________________________________________
 
  CopyRight:     (C) dGB Beheer B.V.
- Author:        Satyaki
+ Author:        Satyaki Maitra
  Date:          Nov 2007
- RCS:           $Id: uiseistrcbufviewer.cc,v 1.12 2008-04-08 20:04:33 cvskris Exp $
+ RCS:           $Id: uiseistrcbufviewer.cc,v 1.13 2008-04-30 04:02:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.19 2008-03-18 06:33:46 cvsnageswara Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.20 2008-04-30 04:02:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,7 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& setup,
     , compnr_(0)
     , nrcomps_(1)
     , sd_(0)
+    , infodlg_(0)
     , strcbufview_(0)
     , setup_(setup)
 {
@@ -88,6 +89,7 @@ uiSeisBrowser::uiSeisBrowser( uiParent* p, const uiSeisBrowser::Setup& setup,
 
     setPos( setup.startpos_ );
     setZ( setup.startz_ );
+    tbl_->selectionChanged.notify( mCB(this,uiSeisBrowser,trcselectionChanged));
 }
 
 
@@ -194,6 +196,7 @@ void uiSeisBrowser::createTable()
     tbl_->setStretch( 1, 1 );
     tbl_->setPrefHeight( 400 );
     tbl_->setPrefWidth( 600 );
+    tbl_->setTableReadOnly( setup_.readonly_ );
 }
 
 
@@ -233,10 +236,7 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force )
     if ( !tbl_ )
 	return false;
     if ( !force && bid == ctrc_.info().binid )
-    {
-	//setZ( z );
 	return true;
-    }
 
     commitChanges();
     BinID binid( bid );
@@ -255,7 +255,10 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force )
     const bool havetrc = tr_->goTo( binid );
     const bool canread = havetrc && tr_->read( ctrc_ );
     if ( !canread )
-	uiMSG().warning( "Cannot read data at specified location" );
+    {
+	uiMSG().error( "Cannot read data at specified location" );
+	return false;
+    }
     if ( !havetrc || !canread )
     {	
 	ctrc_.info().binid = bid;
@@ -329,14 +332,19 @@ void uiSeisBrowser::fillTable()
     }
 
     for ( int idx=0; idx<tbuf_.size(); idx++ )
-	fillTableColumn( idx );
+    {
+	const SeisTrc& buftrc = *tbuf_.get(idx);
+	const int chidx = tbufchgdtrcs_.find(buftrc.info().binid,is2D());
+	if ( chidx < 0 )
+	    fillTableColumn( buftrc, idx );
+	else
+	    fillTableColumn( *(tbufchgdtrcs_.get(chidx)), idx );
+    }
 }
 
 
-void uiSeisBrowser::fillTableColumn( int colidx )
+void uiSeisBrowser::fillTableColumn( SeisTrc trc, int colidx )
 {
-    const SeisTrc& trc = *tbuf_.get( colidx );
-
     RowCol rc; rc.col = colidx;
     BufferString lbl;
     if ( is2D() )
@@ -390,59 +398,121 @@ void uiSeisBrowser::goTo( const BinID& bid )
 }
 
 
-class uiSeisBrowserInfoDlg : public uiDialog
+uiSeisBrowserInfoDlg::uiSeisBrowserInfoDlg( uiParent* p, SeisTrc& trc,
+					    bool is2d )
+    : uiDialog(p,uiDialog::Setup("Selected Trace Information",
+	       "","0.0.0").modal(false) )
+    , is2d_(is2d)  
 {
-public:
+    uiGroup* valgrp = new uiGroup( this, "Values group" );
 
-uiSeisBrowserInfoDlg( uiParent* p, SeisTrc& ctrc_ )
-    : uiDialog( p, uiDialog::Setup("Info","","0.0.0") )
-{
-    uiTextEdit* infofld_ = new uiTextEdit( this, "Trace Info", true );
+    coordfld_ = new uiGenInput( valgrp, "Coordinate",
+				FloatInpSpec(), FloatInpSpec() );
+    coordfld_->setReadOnly();
+
+    if ( is2d_ )
+    {
+	trcnrfld_ = new uiGenInput( valgrp, "Number",
+				    FloatInpSpec() );
+	trcnrfld_->attach( alignedBelow, coordfld_ );
+	trcnrfld_->setReadOnly();
+    }
+    else
+    {
+	binidfld_ = new uiGenInput( valgrp, "BinID",
+				    FloatInpSpec(), FloatInpSpec() );
+	binidfld_->attach( alignedBelow, coordfld_ );
+	binidfld_->setReadOnly();
+    }
+
+    zrangefld_ = new uiGenInput( valgrp, "Z-Range",
+				 FloatInpSpec(),FloatInpSpec(),FloatInpSpec());
+    zrangefld_->attach( alignedBelow, is2d_ ? trcnrfld_ : binidfld_ );
+    zrangefld_->setReadOnly();
+
+    samplefld_ = new uiGenInput( valgrp, "Number of samples",
+				 FloatInpSpec() );
+    samplefld_->attach( alignedBelow, zrangefld_ );
+    samplefld_->setReadOnly();
     
-    BufferString txt;
-    txt += "Coordinate of central trace: ";
-    txt += ctrc_.info().coord.x; txt += ", ";
-    txt += ctrc_.info().coord.y;
-
-    infofld_->setText( txt );
+    setTrace( trc );
+    
 }
-};
+
+
+void uiSeisBrowserInfoDlg::setTrace( const SeisTrc& trc )
+{
+    coordfld_->setValue( trc.info().coord.x, 0 );
+    coordfld_->setValue( trc.info().coord.y, 1 );
+    
+    if ( is2d_)
+    {
+	trcnrfld_->setValue( trc.info().nr );
+    }
+    else
+    {
+	binidfld_->setValue( trc.info().binid.inl, 0 );
+	binidfld_->setValue( trc.info().binid.crl, 1 );
+    }
+    
+    zrangefld_->setValue( trc.info().sampling.start, 0 );
+    zrangefld_->setValue( trc.info().sampling.start + trc.info().sampling.step
+	    		  * (trc.size()-1 ), 1 );
+    zrangefld_->setValue( trc.info().sampling.step, 2 );
+
+    samplefld_->setValue( trc.size(), 0 );
+}
 
 
 void uiSeisBrowser::infoPush( CallBacker* )
 {
-    uiSeisBrowserInfoDlg dlg( this, ctrc_); 
-    dlg.go(); 
+    SeisTrc trc( tbl_->currentCol()<0 ? ctrc_ : *tbuf_.get(tbl_->currentCol()));
+
+    if ( !infodlg_ )
+	infodlg_ = new uiSeisBrowserInfoDlg( this, trc, is2d_ );
+    infodlg_->go();
+
+}
+
+void uiSeisBrowser::trcselectionChanged( CallBacker* )
+{
+    if ( infodlg_ &&  tbl_->currentCol() >= 0 )
+	infodlg_->setTrace( *tbuf_.get(tbl_->currentCol()) );
 }
 
 
-void uiSeisBrowser::goToPush( CallBacker* )
+void uiSeisBrowser::goToPush( CallBacker* cb )
 {
     uiSeisBrowserGoToDlg dlg( this, curBinID(),is2D() );
     if ( dlg.go() )
 	/* user pressed OK AND input is OK */
-	setPos( dlg.pos_ );
+    {
+	if ( doSetPos( dlg.pos_, false ) )
+	    trcselectionChanged( cb );
+    }
     setTrcBufViewTitle();
     if (strcbufview_)
         strcbufview_->handleBufChange();
 }
 
 
-void uiSeisBrowser::rightArrowPush( CallBacker* )
+void uiSeisBrowser::rightArrowPush( CallBacker* cb )
 {
     goTo( getNextBid(curBinID(),stepout_,false) );
     setTrcBufViewTitle();
     if (strcbufview_)
 	strcbufview_->handleBufChange();
+    trcselectionChanged( cb );
 }
 
 
-void uiSeisBrowser::leftArrowPush( CallBacker* )
+void uiSeisBrowser::leftArrowPush( CallBacker* cb )
 {
     goTo( getNextBid(curBinID(),stepout_,true) );
     setTrcBufViewTitle();
     if (strcbufview_)
 	strcbufview_->handleBufChange();
+    trcselectionChanged( cb );
 }
 
 
@@ -552,15 +622,21 @@ uiSeisBrowseWriter( const uiSeisBrowser::Setup& setup, const SeisTrcBuf& tbuf,
 bool init()
 {
     if ( !tri_ ||  !tro_ )
-	 uiMSG().error( "" );
+    {
+	uiMSG().error( "" );
 	return false;
+    }
     if ( !safeio_->open(false) )
+    {
 	uiMSG().error( "Unable to open the file" );
 	return false;
+    }
     StreamConn* conno = new StreamConn( safeio_->strmdata() );
     if ( !tro_->initWrite( conno, *tbufchgdtrcs_.get(0)) )
+    {
 	uiMSG().error( "Unable to write" );
 	return false;
+    }
     if ( !tri_->readInfo(trc_.info()) )
     {
 	uiMSG().error( "Input cube is empty" );
@@ -637,6 +713,7 @@ void uiSeisBrowser::showWigglePush( CallBacker* )
 	dp->trcBufArr2D().setBufMine( false );
 	strcbufview_->getViewer()->usePack( true, dp->id() );
 	strcbufview_->start();
+	strcbufview_->handleBufChange();
 	strcbufview_->windowClosed.notify(
 			 mCB(this,uiSeisBrowser,trcbufViewerClosed) );
     }

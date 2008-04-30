@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.12 2008-03-14 12:16:41 cvsbert Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.13 2008-04-30 04:02:52 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,23 @@ class SeisTrcBuf;
 class uiSeisTrcBufViewer;
 class SeisTrcBufDataPack;
 class uiTable;
+class uiGenInput;
+
+
+class uiSeisBrowserInfoDlg : public uiDialog
+{
+    public :
+			uiSeisBrowserInfoDlg(uiParent*,SeisTrc&,bool);
+	void		setTrace(const SeisTrc&);
+  
+    protected:
+	bool		is2d_;
+	uiGenInput*	coordfld_;
+	uiGenInput*	trcnrfld_;
+	uiGenInput*	binidfld_;
+	uiGenInput*	zrangefld_;
+	uiGenInput*	samplefld_;
+};
 
 
 class uiSeisBrowser : public uiDialog
@@ -48,6 +65,7 @@ public :
 	mDefSetupMemb(BinID,startpos)
 	mDefSetupMemb(float,startz)
 	mDefSetupMemb(LineKey,linekey)
+	mDefSetupMemb(bool,readonly)
 
     };
 			uiSeisBrowser(uiParent*,const Setup&,bool);
@@ -80,6 +98,7 @@ protected:
     SeisTrcBuf&		tbufchgdtrcs_;
     SeisTrc&		ctrc_;
     uiSeisTrcBufViewer*	strcbufview_;
+    uiSeisBrowserInfoDlg*  infodlg_;
     const uiSeisBrowser::Setup& setup_;
     BufferString	title;
 
@@ -101,7 +120,7 @@ protected:
     void		createTable();
     void		fillTable();
     void		fillUdf(SeisTrc&);
-    void		fillTableColumn(int);
+    void		fillTableColumn(SeisTrc,int);
     BinID		getNextBid(const BinID&,int,bool) const;
     void		addTrc(SeisTrcBuf&,const BinID&);
     void		updateWiggleButtonStatus();
@@ -115,6 +134,7 @@ protected:
     bool		acceptOK(CallBacker*);
     void		showWigglePush(CallBacker*);
     void		trcbufViewerClosed(CallBacker*);
+    void		trcselectionChanged(CallBacker*);
     void		valChgReDraw(CallBacker*);
 
 private:
