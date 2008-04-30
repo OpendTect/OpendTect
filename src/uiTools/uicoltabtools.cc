@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
 Date:		Aug 2007
- RCS:           $Id: uicoltabtools.cc,v 1.5 2008-04-09 11:11:37 cvsnanne Exp $
+ RCS:           $Id: uicoltabtools.cc,v 1.6 2008-04-30 04:06:18 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,8 @@ uiColorTableCanvas::uiColorTableCanvas( uiParent* p, const ColTab::Sequence& ct,
     , vertical_(vert)
     , ctseq_(ct)
 {
-    setPrefHeight( vert ? 160 : 35 );
-    setPrefWidth( vert ? 30 : 70 );
+    setPrefHeight( vert ? 160 : 25 );
+    setPrefWidth( vert ? 30 : 80 );
     setStretch( 0, 0 );
 
     drawTool().useBackgroundPattern( withalpha );
