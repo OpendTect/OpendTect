@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.25 2007-12-06 11:09:42 cvshelene Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.26 2008-05-05 04:53:41 cvsnageswara Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -21,7 +21,7 @@ DataInpSpec::DataInpSpec( DataType t )
 
 DataInpSpec::DataInpSpec( const DataInpSpec& o )
     : tp_(o.tp_), prefempty_(true)
-    , nameidx_(o.nameidx_), name_(o.name_)
+    , nameidxs_(o.nameidxs_), names_(o.names_)
 {}
 
 
@@ -152,21 +152,23 @@ void DataInpSpec::setType( DataType t )
 
 const char* DataInpSpec::name( int idx ) const
 {
-    const int nmidx = nameidx_.indexOf( idx );
+    const int nmidx = nameidxs_.indexOf( idx );
     if ( nmidx < 0 ) 
 	return 0;
-    return name_[nmidx];
+    return names_.get( nmidx );
 }
 
 
-const DataInpSpec& DataInpSpec::setName( const char* nm, int idx )
+DataInpSpec& DataInpSpec::setName( const char* nm, int idx )
 {
-    const int nmidx = nameidx_.indexOf( idx );
+    const int nmidx = nameidxs_.indexOf( idx );
     if ( nmidx>=0 )
     {
-	nameidx_.remove( nmidx ); name_.remove( nmidx );
+	nameidxs_.remove( nmidx );
+	names_.remove( nmidx );
     }
-    nameidx_+=idx; name_+=nm;
+
+    nameidxs_ += idx; names_.add( nm );
     return *this;
 }
 

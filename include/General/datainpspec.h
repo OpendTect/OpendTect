@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/02/2001
- RCS:           $Id: datainpspec.h,v 1.68 2007-12-06 11:11:08 cvshelene Exp $
+ RCS:           $Id: datainpspec.h,v 1.69 2008-05-05 04:53:42 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,10 +125,8 @@ public:
     virtual void	setDefaultValue( bool b, int idx=0 )		{}
     virtual void	setDefaultValue( const char* s, int idx=0 )	{}
 
-    virtual const char*	name( int idx=0 ) const;
-    virtual const 
-	DataInpSpec&	setName( const char*, int idx=0);
-
+    virtual const char*	name(int idx=0) const;
+    virtual DataInpSpec& setName(const char*,int idx=0);
 
 protected:
 
@@ -136,13 +134,12 @@ protected:
     DataType		tp_;
     bool		prefempty_;
     
-    TypeSet<int> 	nameidx_;
-    TypeSet<const char*>   name_;
+    TypeSet<int> 	nameidxs_;
+    BufferStringSet	names_;
 
 private:
 
     static const char*	valuestr;
-
 };
 
 
