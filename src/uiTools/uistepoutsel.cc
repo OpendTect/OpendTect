@@ -8,12 +8,11 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uistepoutsel.cc,v 1.8 2007-06-07 09:07:42 cvsraman Exp $";
+static const char* rcsID = "$Id: uistepoutsel.cc,v 1.9 2008-05-05 05:01:53 cvsnageswara Exp $";
 
 #include "uistepoutsel.h"
 #include "uispinbox.h"
 #include "uilabel.h"
-
 
 inline static BufferString mkPrefx( const char* lbl )
 {
@@ -44,13 +43,22 @@ uiStepOutSel::uiStepOutSel( uiParent* p, bool single, const char* seltxt )
 }
 
 
+void uiStepOutSel::setFieldNames( const char* nmfld1, const char* nmfld2 )
+{
+    if ( nmfld1 && *nmfld1 )
+	fld1->setName( nmfld1 );
+    if ( fld2 && nmfld2 && *nmfld2 )
+	fld2->setName( nmfld2 );
+}
+
+
 void uiStepOutSel::init( const uiStepOutSel::Setup& setup )
 {
     const StepInterval<int> intv( setup.allowneg_ ? -999 : 0, 999, 1 );
 
     uiLabel* lbl = new uiLabel( this, setup.seltxt_ );
 
-    fld1 = new uiSpinBox( this, 0, "spinbox 1" );
+    fld1 = new uiSpinBox( this, 0, setup.lbl1_ );
     fld1->setPrefix( mkPrefx(setup.lbl1_) );
     fld1->attach( rightOf, lbl );
     fld1->setInterval( intv );
@@ -58,7 +66,7 @@ void uiStepOutSel::init( const uiStepOutSel::Setup& setup )
 
     if ( !setup.single_ )
     {
-	fld2 = new uiSpinBox( this, 0, "spinbox 2" );
+	fld2 = new uiSpinBox( this, 0, setup.lbl2_ );
 	fld2->setPrefix( mkPrefx(setup.lbl2_) );
 	fld2->attach( rightOf, fld1 );
 	fld2->setInterval( intv );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uistepoutsel.h,v 1.7 2007-06-07 09:05:25 cvsraman Exp $
+ RCS:           $Id: uistepoutsel.h,v 1.8 2008-05-05 05:01:53 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,8 @@ public:
     BinID		getBinID() const; //!< Similar remark as setBinID()
     void		setInterval(StepInterval<int> inlrg,
 	    			StepInterval<int> crlrg);
+
+    void		setFieldNames(const char* nm1,const char* nm2=0);
 
 protected:
 
