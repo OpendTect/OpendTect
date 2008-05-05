@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.13 2008-04-30 04:02:52 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.14 2008-05-05 11:44:00 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,14 +33,13 @@ class uiGenInput;
 class uiSeisBrowserInfoDlg : public uiDialog
 {
     public :
-			uiSeisBrowserInfoDlg(uiParent*,SeisTrc&,bool);
+			uiSeisBrowserInfoDlg(uiParent*,const SeisTrc&,bool);
 	void		setTrace(const SeisTrc&);
   
     protected:
 	bool		is2d_;
 	uiGenInput*	coordfld_;
-	uiGenInput*	trcnrfld_;
-	uiGenInput*	binidfld_;
+	uiGenInput*	trcnrbinidfld_;
 	uiGenInput*	zrangefld_;
 	uiGenInput*	samplefld_;
 };
@@ -120,7 +119,7 @@ protected:
     void		createTable();
     void		fillTable();
     void		fillUdf(SeisTrc&);
-    void		fillTableColumn(SeisTrc,int);
+    void		fillTableColumn(const SeisTrc&,int);
     BinID		getNextBid(const BinID&,int,bool) const;
     void		addTrc(SeisTrcBuf&,const BinID&);
     void		updateWiggleButtonStatus();

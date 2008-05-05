@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.20 2008-04-30 04:02:52 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.21 2008-05-05 11:44:00 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "oddirs.h"
 #include "ptrman.h"
+#include "ranges.h"
 #include "safefileio.h"
 #include "samplingdata.h"
 #include "seis2dline.h"
@@ -343,12 +344,12 @@ void uiSeisBrowser::fillTable()
 }
 
 
-void uiSeisBrowser::fillTableColumn( SeisTrc trc, int colidx )
+void uiSeisBrowser::fillTableColumn( const SeisTrc& trc, int colidx )
 {
     RowCol rc; rc.col = colidx;
     BufferString lbl;
     if ( is2D() )
-	lbl = trc.info().nr;
+	lbl = trc.info().binid.crl;
     else
 	{ lbl = trc.info().binid.inl; lbl += "/"; lbl += trc.info().binid.crl; }
     tbl_->setColumnLabel( colidx, lbl );
@@ -398,85 +399,20 @@ void uiSeisBrowser::goTo( const BinID& bid )
 }
 
 
-uiSeisBrowserInfoDlg::uiSeisBrowserInfoDlg( uiParent* p, SeisTrc& trc,
-					    bool is2d )
-    : uiDialog(p,uiDialog::Setup("Selected Trace Information",
-	       "","0.0.0").modal(false) )
-    , is2d_(is2d)  
-{
-    uiGroup* valgrp = new uiGroup( this, "Values group" );
-
-    coordfld_ = new uiGenInput( valgrp, "Coordinate",
-				FloatInpSpec(), FloatInpSpec() );
-    coordfld_->setReadOnly();
-
-    if ( is2d_ )
-    {
-	trcnrfld_ = new uiGenInput( valgrp, "Number",
-				    FloatInpSpec() );
-	trcnrfld_->attach( alignedBelow, coordfld_ );
-	trcnrfld_->setReadOnly();
-    }
-    else
-    {
-	binidfld_ = new uiGenInput( valgrp, "BinID",
-				    FloatInpSpec(), FloatInpSpec() );
-	binidfld_->attach( alignedBelow, coordfld_ );
-	binidfld_->setReadOnly();
-    }
-
-    zrangefld_ = new uiGenInput( valgrp, "Z-Range",
-				 FloatInpSpec(),FloatInpSpec(),FloatInpSpec());
-    zrangefld_->attach( alignedBelow, is2d_ ? trcnrfld_ : binidfld_ );
-    zrangefld_->setReadOnly();
-
-    samplefld_ = new uiGenInput( valgrp, "Number of samples",
-				 FloatInpSpec() );
-    samplefld_->attach( alignedBelow, zrangefld_ );
-    samplefld_->setReadOnly();
-    
-    setTrace( trc );
-    
-}
-
-
-void uiSeisBrowserInfoDlg::setTrace( const SeisTrc& trc )
-{
-    coordfld_->setValue( trc.info().coord.x, 0 );
-    coordfld_->setValue( trc.info().coord.y, 1 );
-    
-    if ( is2d_)
-    {
-	trcnrfld_->setValue( trc.info().nr );
-    }
-    else
-    {
-	binidfld_->setValue( trc.info().binid.inl, 0 );
-	binidfld_->setValue( trc.info().binid.crl, 1 );
-    }
-    
-    zrangefld_->setValue( trc.info().sampling.start, 0 );
-    zrangefld_->setValue( trc.info().sampling.start + trc.info().sampling.step
-	    		  * (trc.size()-1 ), 1 );
-    zrangefld_->setValue( trc.info().sampling.step, 2 );
-
-    samplefld_->setValue( trc.size(), 0 );
-}
-
-
 void uiSeisBrowser::infoPush( CallBacker* )
 {
-    SeisTrc trc( tbl_->currentCol()<0 ? ctrc_ : *tbuf_.get(tbl_->currentCol()));
+    const SeisTrc& trc = tbl_->currentCol()<0 ? ctrc_ 
+					      : *tbuf_.get(tbl_->currentCol());
 
     if ( !infodlg_ )
 	infodlg_ = new uiSeisBrowserInfoDlg( this, trc, is2d_ );
     infodlg_->go();
-
 }
+
 
 void uiSeisBrowser::trcselectionChanged( CallBacker* )
 {
-    if ( infodlg_ &&  tbl_->currentCol() >= 0 )
+    if ( infodlg_ && tbl_->currentCol() >= 0 )
 	infodlg_->setTrace( *tbuf_.get(tbl_->currentCol()) );
 }
 
@@ -758,4 +694,50 @@ void uiSeisBrowser::setTrcBufViewTitle()
     if ( strcbufview_ )
         strcbufview_->setWinTitle( title );
 
+}
+
+
+
+uiSeisBrowserInfoDlg::uiSeisBrowserInfoDlg( uiParent* p, const SeisTrc& trc,
+					    bool is2d )
+    : uiDialog(p,uiDialog::Setup("Selected Trace Information",
+	       "","0.0.0").modal(false) )
+    , is2d_(is2d)  
+{
+    uiGroup* valgrp = new uiGroup( this, "Values group" );
+
+    PositionInpSpec coordinpspec( PositionInpSpec::Setup(true,is2d_,false) ); 
+    coordfld_ = new uiGenInput( valgrp, "Coordinate", coordinpspec );
+    coordfld_->setReadOnly();
+
+    BufferString label( is2d_ ? "Trace Number" : "BinID" );
+    PositionInpSpec bidinpspec( PositionInpSpec::Setup(false,is2d_,false) ); 
+    trcnrbinidfld_ = new uiGenInput( valgrp, label.buf(), bidinpspec );
+    trcnrbinidfld_->attach( alignedBelow, coordfld_ );
+    trcnrbinidfld_->setReadOnly();
+
+    zrangefld_ = new uiGenInput( valgrp, "Z-Range", FloatInpIntervalSpec(true));
+    zrangefld_->attach( alignedBelow, trcnrbinidfld_ );
+    zrangefld_->setReadOnly();
+
+    samplefld_ = new uiGenInput( valgrp, "Number of samples", FloatInpSpec() );
+    samplefld_->attach( alignedBelow, zrangefld_ );
+    samplefld_->setReadOnly();
+    
+    setTrace( trc );
+}
+
+
+void uiSeisBrowserInfoDlg::setTrace( const SeisTrc& trc )
+{
+    coordfld_->setValue( trc.info().coord );
+
+    is2d_ ? trcnrbinidfld_->setValue( trc.info().binid.crl ) : 
+	    trcnrbinidfld_->setValue( trc.info().binid );
+    
+    StepInterval<float> intv( trc.info().sampling.start, trc.info().sampling.
+	    		      start + trc.info().sampling.step * (trc.size()-1),
+			      trc.info().sampling.step );
+    zrangefld_->setValue( intv );
+    samplefld_->setValue( trc.size() );
 }
