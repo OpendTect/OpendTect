@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.55 2008-04-04 04:29:05 cvsnanne Exp $
+ RCS:           $Id: uiobj.h,v 1.56 2008-05-05 04:59:12 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,8 @@ public:
 
     virtual int		width() const;	//!< Actual size in pixels
     virtual int		height() const;	//!< Actual size in pixels
+
+    virtual void	setName(const char*);
 
     void		setToolTip(const char*);
     const char*		toolTip() const;

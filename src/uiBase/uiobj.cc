@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.75 2008-04-08 12:20:46 cvsnanne Exp $
+ RCS:           $Id: uiobj.cc,v 1.76 2008-05-05 04:59:12 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -171,6 +171,13 @@ void uiObject::setVSzPol( SzPolicy p )
 
 uiObject::SzPolicy uiObject::szPol(bool hor) const
     { return mConstBody()->szPol(hor); }
+
+
+void uiObject::setName( const char* nm )
+{
+    uiObjHandle::setName( nm );
+    doSetToolTip();
+}
 
 
 const char* uiObject::toolTip() const
