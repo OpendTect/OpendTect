@@ -1,25 +1,31 @@
 /*+
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : A.H. Bril
- * DATE     : Sep 2003
+________________________________________________________________________
+
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        A.H. Bril
+ Date:          Sep 2003
+ RCS:           $Id: cmddriverpi.cc,v 1.16 2008-05-05 05:03:15 cvsnageswara Exp $
+________________________________________________________________________
+
 -*/
 
-static const char* rcsID = "$Id";
-
 #include "cmddriver.h"
-#include "uiodmain.h"
-#include "uiodmenumgr.h"
-#include "uimenu.h"
-#include "uimain.h"
-#include "uimsg.h"
+
 #include "uidialog.h"
 #include "uifileinput.h"
+#include "uimain.h"
+#include "uimenu.h"
+#include "uimsg.h"
+#include "uiodmain.h"
+#include "uiodmenumgr.h"
+
+#include "envvars.h"
 #include "filegen.h"
 #include "filepath.h"
+#include "ioman.h"
 #include "oddirs.h"
 #include "plugins.h"
 #include "timer.h"
-#include "ioman.h"
 
 extern "C" int GetCmdDriverPluginType()
 {
@@ -138,7 +144,8 @@ uiCmdDriverMgr::uiCmdDriverMgr( uiODMain& a )
 				    mCB(this,uiCmdDriverMgr,toolTipChange) );
     cmddrvmnu_->insertItem( nameguideitm_ );
     nameguideitm_->setCheckable( true );
-    nameguideitm_->setChecked( false );
+    nameguideitm_->setChecked( GetEnvVarYN("DTECT_USE_TOOLTIP_NAMEGUIDE") );
+    toolTipChange(0);
 
     handleAutoExecution();
 }
