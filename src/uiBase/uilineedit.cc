@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.28 2008-05-05 05:42:18 cvsnageswara Exp $
+ RCS:           $Id: uilineedit.cc,v 1.29 2008-05-05 07:08:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,6 +86,18 @@ bool uiLineEditBody::event( QEvent* ev )
 
 
 //------------------------------------------------------------------------------
+
+
+uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
+			const char* nm )
+    : uiObject( parnt, nm, mkbody(parnt,nm) )
+    , editingFinished(this), returnPressed(this)
+    , textChanged(this), activatedone(this)
+    , UserInputObjImpl<const char*>()
+{
+    setText( spec.text() );
+}
+
 
 uiLineEdit::uiLineEdit( uiParent* parnt, const char* nm ) 
     : uiObject( parnt, nm, mkbody(parnt,nm) )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/9/2000
- RCS:           $Id: uilineedit.h,v 1.17 2008-05-05 05:42:18 cvsnageswara Exp $
+ RCS:           $Id: uilineedit.h,v 1.18 2008-05-05 07:08:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,13 +23,14 @@ public:
 			//! pref_empty : return empty string/ null value
 			//  insted of undefined value, when line edit is empty.
                         uiLineEdit(uiParent*,const char* nm);
+                        uiLineEdit(uiParent*,const DataInpSpec&,const char* nm);
 
-    void		setEdited( bool = true );
+    void		setEdited(bool=true);
     bool		isEdited() const;
 
-    virtual void	setReadOnly( bool = true );
+    virtual void	setReadOnly(bool=true);
     virtual bool	isReadOnly() const;
-    virtual bool	update_( const DataInpSpec& spec );
+    virtual bool	update_(const DataInpSpec&);
 
     void		setPasswordMode();
 

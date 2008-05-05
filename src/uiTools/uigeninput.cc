@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.82 2008-05-05 05:42:29 cvsnageswara Exp $
+ RCS:           $Id: uigeninput.cc,v 1.83 2008-05-05 07:08:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -243,30 +243,25 @@ template <class T>
 class uiSimpleInputFld : public uiInputFld
 {
 public:
-			uiSimpleInputFld( uiGenInput* p, 
-					 const DataInpSpec& dis,
-					 const char* nm="Line Edit Field" ) 
-			    : uiInputFld( p, dis )
-			    , usrinpobj( *new T(p,  mName(dis,0,nm)) ) 
-			    {
-				init();
+uiSimpleInputFld( uiGenInput* p, const DataInpSpec& dis,
+		  const char* nm="Line Edit Field" ) 
+    : uiInputFld(p,dis)
+    , usrinpobj(*new T(p,dis,mName(dis,0,nm))) 
+{
+    init();
+    setReadOnly( false );
 
-				setReadOnly( false );
+    usrinpobj.notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
+    usrinpobj.notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
+}
 
-				usrinpobj.notifyValueChanging( 
-				   mCB(this,uiInputFld,valChangingNotify) );
+virtual	~uiSimpleInputFld()	{ delete &usrinpobj; }
 
-				usrinpobj.notifyValueChanged( 
-				   mCB(this,uiInputFld,valChangedNotify) );
-			    }
+virtual UserInputObj* element( int idx=0 )
+{ return idx == 0 ? &usrinpobj : 0; }
 
-    virtual		~uiSimpleInputFld()	{ delete &usrinpobj; }
-
-    virtual UserInputObj* element( int idx=0 )
-			    { return idx == 0 ? &usrinpobj : 0; }
-
-    virtual uiObject*	mainObj()
-			    { return dynamic_cast<uiObject*>(&usrinpobj); }
+virtual uiObject* mainObj()
+{ return dynamic_cast<uiObject*>(&usrinpobj); }
 
 protected:
 
