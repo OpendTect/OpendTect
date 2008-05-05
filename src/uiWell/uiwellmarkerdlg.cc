@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		October 2003
- RCS:		$Id: uiwellmarkerdlg.cc,v 1.3 2008-02-26 09:17:36 cvsnanne Exp $
+ RCS:		$Id: uiwellmarkerdlg.cc,v 1.4 2008-05-05 05:57:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,7 +156,7 @@ uiReadMarkerFile( uiParent* p )
     fnmfld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::WllInf) );
     istvdfld = new uiGenInput( this, "Depth (col 1) is",
-	    			BoolInpSpec(true,"TVDSS","MD") );
+	    			BoolInpSpec(false,"TVDSS","MD") );
     istvdfld->attach( alignedBelow, fnmfld );
     replfld = new uiGenInput( this, "Replace current markers",
 	    		      BoolInpSpec(true) );
