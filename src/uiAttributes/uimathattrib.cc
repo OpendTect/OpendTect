@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.cc,v 1.19 2008-01-30 08:32:18 cvshelene Exp $
+ RCS:           $Id: uimathattrib.cc,v 1.20 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 
 {
     inpfld_ = new uiGenInput( this, "Formula (e.g. x0 + c0 * x1)",
-	    		     StringInpSpec() );
+	    		     StringInpSpec().setName("Formula") );
 
     parsebut_ = new uiPushButton( this, "Set", true );
     parsebut_->activated.notify( mCB(this,uiMathAttrib,parsePush) );

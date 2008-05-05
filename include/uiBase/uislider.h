@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.17 2008-01-15 11:03:40 cvsraman Exp $
+ RCS:           $Id: uislider.h,v 1.18 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -110,9 +110,7 @@ public:
     };
 
                 	uiSliderExtra(uiParent*,const Setup&,
-				      const char* nm="SliderImpl");
-			uiSliderExtra(uiParent*,const char* lbl=0,
-				      const char* nm="SliderImpl");
+				      const char* nm);
 
     uiSlider*		sldr()			{ return slider; }
     uiLabel*		label()			{ return lbl; }

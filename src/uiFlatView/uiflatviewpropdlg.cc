@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.27 2008-04-23 09:36:19 cvshelene Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.28 2008-05-05 05:42:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -205,22 +205,32 @@ uiFVWVAPropTab::uiFVWVAPropTab( uiParent* p, FlatView::Viewer& vwr )
     overlapfld_->setElemSzPol(uiObject::Small);
     overlapfld_->attach( alignedBelow, lastcommonfld_ );
 
-    leftcolsel_ = new uiColorInput( this, pars_.left_, "Left fill", true );
+    leftcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.left_).
+	    			    lbltxt("Left fill").withcheck(true),
+				    "Left fill" );
     leftcolsel_->attach( alignedBelow, overlapfld_ );
     
-    rightcolsel_ = new uiColorInput( this, pars_.right_, "Right fill", true);
+    rightcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.right_).
+	    			     lbltxt("Right fill").withcheck(true),
+				     "Right fill" );
     rightcolsel_->attach( rightTo, leftcolsel_ );
 
-    wigcolsel_ = new uiColorInput( this, pars_.wigg_, "Draw wiggles", true );
+     wigcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.wigg_).
+	    	       		    lbltxt("Draw Wiggles").withcheck(true),
+				    "Draw wiggles" );
+
     wigcolsel_->attach( alignedBelow, leftcolsel_ );
     
-    midlcolsel_ = new uiColorInput( this, pars_.mid_, "Middle line", true );
+    midlcolsel_ = new uiColorInput( this, uiColorInput::Setup(pars_.mid_).
+				    lbltxt("Middle line").withcheck(true),
+				    "Middle line" );
+
     midlcolsel_->attach( rightOf, wigcolsel_ );
     rightcolsel_->attach( alignedWith, midlcolsel_ );
     midlcolsel_->dodrawchanged.notify( mCB(this,uiFVWVAPropTab,midlineSel) );
 
     midlinefld_ = new uiGenInput( this, "Display middle line at",
-			BoolInpSpec(true,"Specified value","Median value"));
+			BoolInpSpec(true,"Specified value","Median value") );
     midlinefld_->valuechanged.notify( mCB(this,uiFVWVAPropTab,midlineSel) );
     midlinefld_->attach( alignedBelow, wigcolsel_ );
 
@@ -422,7 +432,9 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
     , auxnamefld_( 0 )
     , currentaux_( 0 )
 {
-    colfld_ = new uiColorInput( this, annot_.color_, "Annotation color" );
+    colfld_ = new uiColorInput( this, uiColorInput::Setup(annot_.color_).
+	    			lbltxt("Annotation color"), 
+				"Annotation color" );
     x1_ = new AxesGroup( this, annot_.x1_, annots );
     x1_->attach( alignedBelow, colfld_ );
     x2_ = new AxesGroup( this, annot_.x2_ );
@@ -463,10 +475,12 @@ uiFVAnnotPropTab::uiFVAnnotPropTab( uiParent* p, FlatView::Viewer& vwr,
     linestylefld_->attach( alignedBelow, auxnamefld_ );
 
     linestylenocolorfld_ = new uiSelLineStyle( this, linestyles_[0],
-	    				"Line style", true, false, true  );
+					"Line style", true, false, true  );
     linestylenocolorfld_->attach( alignedBelow, auxnamefld_ );
 
-    fillcolorfld_ = new uiColorInput( this, fillcolors_[0] );
+    fillcolorfld_ = new uiColorInput( this, uiColorInput::Setup(fillcolors_[0]),
+				      "Fill color" );
+
     fillcolorfld_->attach( alignedBelow, linestylefld_ );
 
     x1rgfld_ = new uiGenInput( this, "X-Range", FloatInpIntervalSpec() );

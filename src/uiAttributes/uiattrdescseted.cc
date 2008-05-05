@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.68 2008-04-08 13:34:02 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.69 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -193,7 +193,7 @@ void uiAttribDescSetEd::createGroups()
     helpbut->activated.notify( mCB(this,uiAttribDescSetEd,helpButPush) );
     helpbut->attach( rightTo, attrtypefld );
 
-    attrnmfld = new uiLineEdit( rightgrp );
+    attrnmfld = new uiLineEdit( rightgrp, "Attribute name" );
     attrnmfld->setHSzPol( uiObject::Medium );
     attrnmfld->attach( alignedBelow, degrp );
     attrnmfld->returnPressed.notify( mCB(this,uiAttribDescSetEd,addPush) );

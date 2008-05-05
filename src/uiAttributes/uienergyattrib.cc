@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:		$Id: uienergyattrib.cc,v 1.11 2008-03-12 10:44:08 cvshelene Exp $
+ RCS:		$Id: uienergyattrib.cc,v 1.12 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,9 @@ uiEnergyAttrib::uiEnergyAttrib( uiParent* p, bool is2d )
 {
     inpfld_ = getInpFld();
 
-    gatefld_ = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
+    gatefld_ = new uiGenInput( this, gateLabel(),
+	    		FloatInpIntervalSpec().setName("Z start",0).
+	   		setName("Z stop",1) );
     gatefld_->attach( alignedBelow, inpfld_ );
 
     gradientfld_ = new uiGenInput( this, "compute gradient", BoolInpSpec(true));

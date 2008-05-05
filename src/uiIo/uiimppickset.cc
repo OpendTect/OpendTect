@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.30 2008-04-30 06:53:11 cvsraman Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.31 2008-05-05 05:42:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -104,7 +104,9 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
 	objfld_->attach( alignedBelow, constzfld_ );
 	objfld_->attach( ensureBelow, sep );
 
-	colorfld_ = new uiColorInput( this, getRandStdDrawColor(), "Color" );
+	colorfld_ = new uiColorInput( this,
+	       		           uiColorInput::Setup(getRandStdDrawColor()).
+	       			   lbltxt("Color") );
 	colorfld_->attach( alignedBelow, objfld_ );
 
 	polyfld_ = new uiCheckBox( this, "Import as Polygon" );

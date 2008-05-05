@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2003
- RCS:           $Id: uievaluatedlg.cc,v 1.17 2007-10-25 15:17:19 cvssatyaki Exp $
+ RCS:           $Id: uievaluatedlg.cc,v 1.18 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -264,7 +264,7 @@ uiEvaluateDlg::uiEvaluateDlg( uiParent* p, uiAttrDescEd& ade, bool store )
     calcbut->activated.notify( mCB(this,uiEvaluateDlg,calcPush) );
     calcbut->attach( rightTo, nrstepsfld );
 
-    sliderfld = new uiSliderExtra( this, "Slice" );
+    sliderfld = new uiSliderExtra( this, "Slice", "Slice slider" );
     sliderfld->attach( alignedBelow, nrstepsfld );
     sliderfld->sldr()->valueChanged.notify( 
 	    				mCB(this,uiEvaluateDlg,sliderMove) );

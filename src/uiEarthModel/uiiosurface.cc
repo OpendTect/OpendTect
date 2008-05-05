@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.52 2008-04-03 15:42:15 cvsjaap Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.53 2008-05-05 05:42:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -250,7 +250,8 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
 
     if ( setup.withcolorfld_ )
     {
-	colbut_ = new uiColorInput( this, getRandStdDrawColor(), "Base color" );
+	colbut_ = new uiColorInput( this, 
+	    uiColorInput::Setup(getRandStdDrawColor()).lbltxt("Base color") );
 	colbut_->attach( alignedBelow, objfld );
 	if ( stratlvlfld_ ) colbut_->attach( ensureBelow, stratlvlfld_ );
     }

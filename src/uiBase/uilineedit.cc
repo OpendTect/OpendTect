@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uilineedit.cc,v 1.27 2008-01-23 15:51:10 cvsjaap Exp $
+ RCS:           $Id: uilineedit.cc,v 1.28 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,23 +87,13 @@ bool uiLineEditBody::event( QEvent* ev )
 
 //------------------------------------------------------------------------------
 
-uiLineEdit::uiLineEdit( uiParent* parnt, const char* deftxt, const char* nm ) 
+uiLineEdit::uiLineEdit( uiParent* parnt, const char* nm ) 
     : uiObject( parnt, nm, mkbody(parnt,nm) )
     , editingFinished(this), returnPressed(this)
     , textChanged(this), activatedone(this)
     , UserInputObjImpl<const char*>()
 {
-    setText( deftxt ? deftxt : "" );
-}
-
-uiLineEdit::uiLineEdit( uiParent* parnt, const DataInpSpec& spec,
-			const char* nm )
-    : uiObject( parnt, nm, mkbody(parnt,nm) )
-    , editingFinished(this), returnPressed(this)
-    , textChanged(this), activatedone(this)
-    , UserInputObjImpl<const char*>()
-{
-    setText( spec.text() ? spec.text() : "" );
+    setText( "" );
 }
 
 
@@ -114,7 +104,7 @@ uiLineEditBody& uiLineEdit::mkbody( uiParent* parnt, const char* nm )
 }
 
 
-void uiLineEdit::activate(const char* txt, bool enter)
+void uiLineEdit::activate( const char* txt, bool enter )
 { body_->activate( txt, enter ); }
 
 

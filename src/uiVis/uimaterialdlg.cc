@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uimaterialdlg.cc,v 1.16 2008-01-25 04:49:42 cvsnanne Exp $
+ RCS:           $Id: uimaterialdlg.cc,v 1.17 2008-05-05 05:42:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,7 +92,8 @@ uiMaterialGrp::uiMaterialGrp( uiParent* p, visSurvey::SurveyObject* so,
 {
     if ( so->hasColor() )
     {
-	colinp_ = new uiColorInput(this,so->getColor(),"Base color");
+	colinp_ = new uiColorInput( this,
+		uiColorInput::Setup(so->getColor()).lbltxt("Base color") );
 	colinp_->colorchanged.notify( mCB(this,uiMaterialGrp,colorChangeCB) );
 	colinp_->setSensitive( color );
 	prevobj_ = colinp_;
@@ -119,7 +120,8 @@ void uiMaterialGrp::createSlider( bool domk, uiSlider*& slider,
 {
     if ( !domk ) return;
 
-    uiSliderExtra* se = new uiSliderExtra( this, lbltxt );
+    uiSliderExtra* se = new uiSliderExtra( this, uiSliderExtra::Setup(lbltxt),
+	    				   BufferString(lbltxt," slider") );
     slider = se->sldr();
     slider->valueChanged.notify( mCB(this,uiMaterialGrp,sliderMove) );
     if ( prevobj_ ) se->attach( alignedBelow, prevobj_ );

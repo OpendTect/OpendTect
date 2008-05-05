@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.cc,v 1.15 2008-04-30 03:13:16 cvssatyaki Exp $
+ RCS:           $Id: uifreqfilterattrib.cc,v 1.16 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,8 +65,9 @@ uiFreqFilterAttrib::uiFreqFilterAttrib( uiParent* p, bool is2d )
     typefld->attach( alignedBelow, isfftfld );
     typefld->valuechanged.notify( mCB(this,uiFreqFilterAttrib,typeSel) );
 
-    FloatInpSpec fis;
-    freqfld = new uiGenInput( this, "Min/max frequency(Hz)", fis, fis );
+    freqfld = new uiGenInput( this, "Min/max frequency(Hz)", 
+	    FloatInpSpec().setName("Min frequency"),
+	    FloatInpSpec().setName("Max frequency") );
     freqfld->setElemSzPol( uiObject::Small );
     freqfld->attach( alignedBelow, typefld );
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: uipositionattrib.cc,v 1.11 2007-10-12 09:12:19 cvssulochana Exp $
+ RCS:           $Id: uipositionattrib.cc,v 1.12 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,9 +40,12 @@ uiPositionAttrib::uiPositionAttrib( uiParent* p, bool is2d )
     inpfld = getInpFld( "Input attribute" );
 
     stepoutfld = new uiStepOutSel( this, is2d );
+    stepoutfld->setFieldNames( "Inl Stepout", "Crl Stepout" );
     stepoutfld->attach( alignedBelow, inpfld );
 
-    gatefld = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
+    gatefld = new uiGenInput( this, gateLabel(),
+			      FloatInpIntervalSpec().setName("Z start",0)
+						    .setName("Z stop",1) );
     gatefld->attach( alignedBelow, stepoutfld );
 
     steerfld = new uiSteeringSel( this, 0, is2d );

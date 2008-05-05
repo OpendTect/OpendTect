@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.125 2008-04-08 20:04:33 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.126 2008-05-05 05:42:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,7 +135,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     hwheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
     hwheel->attach( leftAlignedBelow, wsp_ );
 
-    zoomslider_ = new uiSliderExtra( &appl_, "Zoom" );
+    zoomslider_ = new uiSliderExtra( &appl_, "Zoom", "Zoom Slider" );
     zoomslider_->sldr()->valueChanged.notify( mWSMCB(zoomChanged) );
     zoomslider_->sldr()->setMinValue( cMinZoom );
     zoomslider_->sldr()->setMaxValue( cMaxZoom );
@@ -179,6 +179,8 @@ uiODSceneMgr::Scene& uiODSceneMgr::mkNewScene()
     scn.wsgrp_->closed().notify( mWSMCB(removeScene) );
     scenes_ += &scn;
     vwridx_++;
+    BufferString vwrnm( "Viewer Scene ", vwridx_ );
+    scn.sovwr_->setName( vwrnm );
     return scn;
 }
 

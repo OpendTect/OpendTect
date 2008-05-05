@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uivolstatsattrib.cc,v 1.18 2007-10-12 09:12:19 cvssulochana Exp $
+ RCS:           $Id: uivolstatsattrib.cc,v 1.19 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,9 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
 {
     inpfld = getInpFld();
 
-    gatefld = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
+    gatefld = new uiGenInput( this, gateLabel(), 
+	                      FloatInpIntervalSpec().setName("Z start",0)
+						    .setName("Z stop",1) );
     gatefld->attach( alignedBelow, inpfld );
 
     shapefld = new uiGenInput( this, "Shape",
@@ -56,6 +58,7 @@ uiVolumeStatisticsAttrib::uiVolumeStatisticsAttrib( uiParent* p, bool is2d )
     shapefld->display( !is2d_ );
     
     stepoutfld = new uiStepOutSel( this, is2d );
+    stepoutfld->setFieldNames( "Inl Stepout", "Crl Stepout" );
     stepoutfld->valueChanged.notify(
 			mCB(this,uiVolumeStatisticsAttrib,stepoutChg) );
     stepoutfld->attach( alignedBelow, shapefld );

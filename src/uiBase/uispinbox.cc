@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uispinbox.cc,v 1.31 2008-03-19 15:37:00 cvsjaap Exp $
+ RCS:           $Id: uispinbox.cc,v 1.32 2008-05-05 05:42:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -329,9 +329,10 @@ bool uiSpinBox::keyboardTracking() const
 
 uiLabeledSpinBox::uiLabeledSpinBox( uiParent* p, const char* txt, int dec,
 				    const char* nm )
-	: uiGroup(p,"Labeled spinBox")
+	: uiGroup(p,"LabeledSpinBox")
 {
-    sb = new uiSpinBox( this, dec, nm );
+    sb = new uiSpinBox( this, dec, nm && *nm ? nm : txt );
+    BufferString sblbl;
     lbl = new uiLabel( this, txt, sb );
     lbl->setAlignment( uiLabel::AlignRight );
     setHAlignObj( sb );

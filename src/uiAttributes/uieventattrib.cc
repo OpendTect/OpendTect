@@ -4,7 +4,7 @@
  CopyRight:	(C) dGB Beheer B.V.
  Author:	H. Payraudeau
  Date:		February 2005
- RCS:		$Id: uieventattrib.cc,v 1.10 2007-10-12 09:12:19 cvssulochana Exp $
+ RCS:		$Id: uieventattrib.cc,v 1.11 2008-05-05 05:42:18 cvsnageswara Exp $
  ________________________________________________________________________
 
 -*/
@@ -70,7 +70,9 @@ uiEventAttrib::uiEventAttrib( uiParent* p, bool is2d )
     outpfld = new uiGenInput( this, "Output", StringListInpSpec(outpstrs) );
     outpfld->attach( alignedBelow, issinglefld);
 
-    gatefld = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
+    gatefld = new uiGenInput( this, gateLabel(),
+	    		      FloatInpIntervalSpec().setName("Z start",0)
+			      			    .setName("Z stop",1) );
     gatefld->attach( alignedBelow, tonextfld);
     gatefld->display(false);
 

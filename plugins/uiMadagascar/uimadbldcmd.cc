@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.16 2008-04-25 11:09:46 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadbldcmd.cc,v 1.17 2008-05-05 05:42:18 cvsnageswara Exp $";
 
 #include "uimadbldcmd.h"
 #include "uimsg.h"
@@ -122,7 +122,7 @@ void uiMadagascarBldCmd::createMainPart( uiGroup* proggrp )
 
     uiGroup* infogrp = new uiGroup( 0, "Prog info group" );
 
-    srchfld_ = new uiLineEdit( infogrp, "", "Search field" );
+    srchfld_ = new uiLineEdit( infogrp, "Search field" );
     srchfld_->setToolTip( "Search expression" );
     srchfld_->setPrefWidthInChar( 15 );
     srchfld_->returnPressed.notify( mCB(this,uiMadagascarBldCmd,doSearch) );
@@ -132,7 +132,7 @@ void uiMadagascarBldCmd::createMainPart( uiGroup* proggrp )
     srchbut->activated.notify( mCB(this,uiMadagascarBldCmd,doSearch) );
     srchbut->attach( rightOf, srchfld_ );
 
-    descfld_ = new uiLineEdit( infogrp, "", "Desc fld" );
+    descfld_ = new uiLineEdit( infogrp, "Desc fld" );
     descfld_->attach( alignedBelow, srchfld_ );
     descfld_->setReadOnly( true );
     descfld_->setStretch( 2, 0 );
@@ -155,14 +155,14 @@ uiGroup* uiMadagascarBldCmd::createLowGroup()
 
     if ( progfld_ )
     {
-	synopsfld_ = new uiLineEdit( lowgrp, "", "Synopsis edit line" );
+	synopsfld_ = new uiLineEdit( lowgrp, "Synopsis edit line" );
 	synopsfld_->setReadOnly( true );
 	synopsfld_->setStretch( 2, 0 );
 	synopsfld_->setHSzPol( uiObject::WideVar );
 	new uiLabel( lowgrp, "Synopsis", synopsfld_ );
     }
 
-    cmdfld_ = new uiLineEdit( lowgrp, "", "Command edit line" );
+    cmdfld_ = new uiLineEdit( lowgrp, "Command edit line" );
     cmdfld_->setStretch( 2, 0 );
     cmdfld_->setHSzPol( uiObject::MedVar );
     new uiLabel( lowgrp, "Command line", cmdfld_ );

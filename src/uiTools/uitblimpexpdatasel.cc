@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.36 2008-01-07 04:04:58 cvsraman Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.37 2008-05-05 05:42:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -148,7 +148,7 @@ void addBoxes( int iform, int ifld )
 	rowspinbox->setPrefix( "row:" );
 	*rowboxes_[iform] += rowspinbox;
 	ObjectSet<uiLineEdit>& kwinps = *kwinps_[iform];
-	kwinp = new uiLineEdit( this );
+	kwinp = new uiLineEdit( this, "keyword" );
 	*kwinps_[iform] += kwinp;
 	kwinp->setHSzPol( uiObject::Small );
     }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.103 2008-04-30 06:58:35 cvsraman Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.104 2008-05-05 05:42:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,7 +175,9 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
 	stratlvlfld_->levelChanged.notify(
 		mCB(this,uiImportHorizon,stratLvlChg) );
 
-	colbut_ = new uiColorInput( this, getRandStdDrawColor(), "Base color" );
+	colbut_ = new uiColorInput( this,
+		  		   uiColorInput::Setup(getRandStdDrawColor())
+	       			   .lbltxt("Base color") );
 	colbut_->attach( alignedBelow, stratlvlfld_ );
 
 	displayfld_ = new uiCheckBox( this, "Display after import" );

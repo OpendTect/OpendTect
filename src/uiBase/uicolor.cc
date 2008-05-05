@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink / Bril
  Date:          22/05/2000
- RCS:           $Id: uicolor.cc,v 1.19 2008-01-30 11:18:40 cvsjaap Exp $
+ RCS:           $Id: uicolor.cc,v 1.20 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,30 +113,32 @@ void setExternalColor( const Color& col )
 }
 
 
-uiColorInput::uiColorInput( uiParent* p, const Color& col,
-			    const char* lbltxt, bool wyn, const char* dlgtxt )
+uiColorInput::uiColorInput( uiParent* p, const Setup& s, const char* nm )
 	: uiGroup(p,"Color input")
-	, dlgtxt_(dlgtxt)
+	, color_(s.color_)
+	, dlgtxt_(s.dlgtitle_)
 	, dodrawbox_(0)
-	, withalpha_(false)
+	, withalpha_(s.withalpha_)
 	, colorchanged(this)
 	, dodrawchanged(this)
 {
-    if ( wyn )
+    if ( s.withcheck_ )
     {
-	dodrawbox_ = new uiCheckBox( this, lbltxt );
+	dodrawbox_ = new uiCheckBox( this, s.lbltxt_);
 	dodrawbox_->setChecked( true );
 	dodrawbox_->activated.notify( mCB(this,uiColorInput,dodrawSel) );
     }
     colbut_ = new uiPushButton( this, "", false );
+    colbut_->setName( nm && *nm ? nm :
+	    ( s.lbltxt_ && *s.lbltxt_ ? s.lbltxt_.buf() : "Color") );
     colbut_->activated.notify( mCB(this,uiColorInput,selCol) );
     if ( dodrawbox_ )
 	colbut_->attach( rightOf, dodrawbox_ );
     
-    if ( !dodrawbox_ && lbltxt && *lbltxt )
-	new uiLabel( this, lbltxt, colbut_ );
+    if ( !dodrawbox_ && s.lbltxt_ && *s.lbltxt_)
+	new uiLabel( this, s.lbltxt_, colbut_ );
 
-    setColor( col ); 
+    setColor( color_ ); 
     setHAlignObj( colbut_ );
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          22/05/2000
- RCS:           $Id: uicolor.h,v 1.14 2008-01-30 11:18:40 cvsjaap Exp $
+ RCS:           $Id: uicolor.h,v 1.15 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,11 +41,27 @@ static Color*	externalcolor = 0;
 class uiColorInput : public uiGroup
 {
 public:
+    class Setup
+    {
+    public:
+			Setup(const Color& col)
+			    : color_(col)
+			    , lbltxt_("")
+			    , withcheck_(false)
+			    , dlgtitle_("Select color")
+			    , withalpha_(false)
+			{}
 
-				uiColorInput(uiParent*,const Color&,
-					     const char* lbltxt=0,
-					     bool withdodrawbox=false,
-					     const char* dlgtxt="Select color");
+	mDefSetupMemb(Color,color)
+	mDefSetupMemb(BufferString,lbltxt)
+	mDefSetupMemb(bool,withcheck)
+	mDefSetupMemb(BufferString,dlgtitle)
+	mDefSetupMemb(bool,withalpha)
+
+    };
+
+    				uiColorInput(uiParent*,const Setup&,
+					     const char* nm=0);
 
     const Color&		color() const	{ return color_; }
     void			setColor(const Color&);

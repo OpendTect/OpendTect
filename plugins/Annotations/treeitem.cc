@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.32 2007-12-10 12:59:52 cvsbert Exp $
+ RCS:           $Id: treeitem.cc,v 1.33 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -390,7 +390,8 @@ void SubItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	uiDialog dlg( getUiParent(), uiDialog::Setup("Set size", "Size", 0) );
 	uiSliderExtra* sliderfld = new uiSliderExtra( &dlg, 
-			uiSliderExtra::Setup("Size").nrdec(1).logscale(true) );
+			uiSliderExtra::Setup("Size").nrdec(1).logscale(true),
+	       		"Size" );
 	sliderfld->sldr()->setMinValue( 0.1 );
 	sliderfld->sldr()->setMaxValue( 10 );
 	sliderfld->sldr()->setValue( 1 );

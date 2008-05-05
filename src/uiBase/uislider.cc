@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.33 2008-01-18 12:22:46 cvsraman Exp $
+ RCS:           $Id: uislider.cc,v 1.34 2008-05-05 05:42:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -293,15 +293,6 @@ uiSliderExtra::uiSliderExtra( uiParent* p, const Setup& s, const char* nm )
 }
 
 
-uiSliderExtra::uiSliderExtra( uiParent* p, const char* lbl, const char* nm )
-    : uiGroup(p,nm)
-    , editfld(0)
-    , lbl(0)
-{
-    init( uiSliderExtra::Setup(lbl), nm );
-}
-
-
 void uiSliderExtra::init( const uiSliderExtra::Setup& setup, const char* nm )
 {
     slider = new uiSlider( this, nm, setup.nrdec_, setup.logscale_,
@@ -313,7 +304,7 @@ void uiSliderExtra::init( const uiSliderExtra::Setup& setup, const char* nm )
     if ( setup.withedit_ )
     {
 	slider->valueChanged.notify( mCB(this,uiSliderExtra,sliderMove) );
-	editfld = new uiLineEdit( this, FloatInpSpec() );
+	editfld = new uiLineEdit( this, BufferString(setup.lbl_," value") );
 	editfld->setHSzPol( uiObject::Small );
 	editfld->returnPressed.notify( mCB(this,uiSliderExtra,editRetPress) );
 	sliderMove(0);

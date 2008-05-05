@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          August 2007
- RCS:		$Id: uistratutildlgs.cc,v 1.6 2008-02-20 04:40:03 cvsnanne Exp $
+ RCS:		$Id: uistratutildlgs.cc,v 1.7 2008-05-05 05:42:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -130,7 +130,9 @@ uiStratLevelDlg::uiStratLevelDlg( uiParent* p, uiStratMgr* uistratmgr )
     , uistratmgr_( uistratmgr )
 {
     lvlnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
-    lvlcolfld_ = new uiColorInput( this, getRandStdDrawColor(), "Color" );
+    lvlcolfld_ = new uiColorInput( this,
+			           uiColorInput::Setup(getRandStdDrawColor() ).
+				   lbltxt("Color") );
     lvlcolfld_->attach( alignedBelow, lvlnmfld_ );
     lvltvstrgfld_ = new uiGenInput( this, "This level is ",
 	    			    BoolInpSpec(true,"Isochron","Diachron") );

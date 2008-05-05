@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.39 2008-02-05 10:22:06 cvsjaap Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.40 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,7 +122,8 @@ int uiFileDialog::go()
     {
 	uiDialog dlg( parnt_, uiDialog::Setup("Specify file name",
 				    "System file selection unavailable!",0) );
-	uiLineEdit* le = new uiLineEdit( &dlg, dirname, "File name" );
+	uiLineEdit* le = new uiLineEdit( &dlg, "File name" );
+	le->setText( dirname );
 	new uiLabel( &dlg, "File name", le );
 	if ( !dlg.go() ) return 0;
 	fn = le->text(); filenames.add( fn );

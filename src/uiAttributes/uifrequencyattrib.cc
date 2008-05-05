@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.cc,v 1.14 2007-12-06 11:08:21 cvshelene Exp $
+ RCS:           $Id: uifrequencyattrib.cc,v 1.15 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,9 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
 {
     inpfld = getImagInpFld();
 
-    gatefld = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
+    gatefld = new uiGenInput( this, gateLabel(), 
+	    		      FloatInpIntervalSpec().setName("Z start",0)
+			      			    .setName("Z stop",1) );
     gatefld->attach( alignedBelow, inpfld );
 
     normfld = new uiGenInput( this, "Normalize", BoolInpSpec(false) );

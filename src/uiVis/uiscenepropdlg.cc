@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          February 2006
- RCS:           $Id: uiscenepropdlg.cc,v 1.5 2007-02-05 18:19:48 cvsbert Exp $
+ RCS:           $Id: uiscenepropdlg.cc,v 1.6 2008-05-05 05:42:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,12 +62,14 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     annotscalefld_->activated.notify( mCB(this,uiScenePropertyDlg,updateCB) );
     annotscalefld_->setSensitive( survboxfld_->isChecked() );
 
-    bgcolfld_ = new uiColorInput( this, oldbgcolor_, "Background color" );
+    bgcolfld_ = new uiColorInput( this, uiColorInput::Setup( oldbgcolor_)
+					.lbltxt("Background color") );
     bgcolfld_->attach( alignedBelow, annotscalefld_ );
     bgcolfld_->colorchanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
 
     markersizefld_ = new uiSliderExtra( this,
-				uiSliderExtra::Setup("Mouse marker size"));
+				uiSliderExtra::Setup("Mouse marker size"),
+				"Marker size slider" );
     markersizefld_->sldr()->setMinValue( 1 );
     markersizefld_->sldr()->setMaxValue( 10 );
     markersizefld_->sldr()->setValue( scene->getMarkerSize() );
@@ -75,8 +77,8 @@ uiScenePropertyDlg::uiScenePropertyDlg( uiParent* p,
     markersizefld_->sldr()->valueChanged.notify(
 	    				mCB(this,uiScenePropertyDlg,updateCB) );
 
-    markercolfld_ = new uiColorInput( this, oldmarkercolor_,
-	    			      "Mouse marker color" );
+    markercolfld_ = new uiColorInput( this,
+	    uiColorInput::Setup(oldmarkercolor_).lbltxt("Mouse marker color") );
     markercolfld_->attach( alignedBelow, markersizefld_ );
     markercolfld_->colorchanged.notify( mCB(this,uiScenePropertyDlg,updateCB) );
 }

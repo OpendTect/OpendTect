@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:		$Id: uicoherencyattrib.cc,v 1.16 2007-12-20 08:32:07 cvsbert Exp $
+ RCS:		$Id: uicoherencyattrib.cc,v 1.17 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,9 @@ uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p, bool is2d )
 	is1fld->valuechanged.notify( mCB(this,uiCoherencyAttrib,is1Sel) );
     }
 
-    tgfld = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
+    tgfld = new uiGenInput( this, gateLabel(), 
+			    FloatInpIntervalSpec().setName("Z start",0)
+						  .setName("Z stop",1) );
     if ( is1fld )
 	tgfld->attach( alignedBelow, is1fld );
     else

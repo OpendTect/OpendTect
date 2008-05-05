@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uidipfilterattrib.cc,v 1.17 2007-10-12 09:12:19 cvssulochana Exp $
+ RCS:           $Id: uidipfilterattrib.cc,v 1.18 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,10 +55,12 @@ uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
     fltrtpfld->valuechanged.notify( mCB(this,uiDipFilterAttrib,filtSel) );
     fltrtpfld->attach( alignedBelow, szfld );
 
-    FloatInpSpec fis;
     BufferString lbl( "Min/max " );
     lbl += zIsTime() ? "velocity (m/s)" : "dip (deg)";
-    velfld = new uiGenInput( this, lbl, fis, fis );
+    const char* fldnm = zIsTime() ? " velocity" : " dip";
+    velfld = new uiGenInput( this, lbl,
+		FloatInpSpec().setName( BufferString("Min",fldnm).buf() ),
+		FloatInpSpec().setName( BufferString("Max",fldnm).buf() ) );
     velfld->setElemSzPol( uiObject::Small );
     velfld->attach( alignedBelow, fltrtpfld );
 
@@ -68,10 +70,12 @@ uiDipFilterAttrib::uiDipFilterAttrib( uiParent* p, bool is2d )
     azifld->valuechanged.notify( mCB(this,uiDipFilterAttrib,aziSel) );
 
     aziintfld = new uiGenInput( this, "Azimuth to pass (min/max)",
-				FloatInpIntervalSpec());
+				FloatInpIntervalSpec().setName("Min Azimuth",0)
+				.setName("Max Azimuth",1) );
     aziintfld->attach( alignedBelow, azifld );
 
-    taperfld = new uiGenInput( this, "Taper length (%)", FloatInpSpec() );
+    taperfld = new uiGenInput( this, "Taper length (%)", 
+			       FloatInpSpec().setName("Taper length") );
     taperfld->attach( alignedBelow, aziintfld );
 
     setHAlignObj( inpfld );

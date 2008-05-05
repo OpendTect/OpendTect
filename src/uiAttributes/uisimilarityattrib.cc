@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May  2005
- RCS:           $Id: uisimilarityattrib.cc,v 1.20 2007-10-12 09:12:19 cvssulochana Exp $
+ RCS:           $Id: uisimilarityattrib.cc,v 1.21 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,7 +66,10 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
 {
     inpfld = getInpFld();
 
-    gatefld = new uiGenInput( this, gateLabel(), FloatInpIntervalSpec() );
+    gatefld = new uiGenInput( this, gateLabel(),
+			      FloatInpIntervalSpec().setName("Z start",0)
+			      			    .setName("Z stop",1) );
+
     gatefld->attach( alignedBelow, inpfld );
 
     extfld = new uiGenInput( this, "Extension",
@@ -77,12 +80,16 @@ uiSimilarityAttrib::uiSimilarityAttrib( uiParent* p, bool is2d )
     uiStepOutSel::Setup setup( is2d );
     setup.seltxt( "Trace positions" ).allowneg( true );
     pos0fld = new uiStepOutSel( this, setup );
+    pos0fld->setFieldNames( "Trc1 Inl", "Trc1 Crl" );
     pos0fld->attach( alignedBelow, extfld );
     setup.seltxt( "&" );
     pos1fld = new uiStepOutSel( this, setup );
+    pos1fld->setFieldNames( "Trc2 Inl", "Trc2 Crl" );
     pos1fld->attach( rightOf, pos0fld );
+
     stepoutfld = new uiStepOutSel( this, is2d );
     stepoutfld->attach( alignedBelow, extfld );
+    stepoutfld->setFieldNames( "Inl Stepout", "Crl Stepout" );
 
     outpstatsfld = new uiGenInput( this, "Output statistic",
 				   StringListInpSpec(outpstrs) );

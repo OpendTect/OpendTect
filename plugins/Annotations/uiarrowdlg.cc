@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2006
- RCS:		$Id: uiarrowdlg.cc,v 1.1 2006-07-03 20:02:06 cvskris Exp $
+ RCS:		$Id: uiarrowdlg.cc,v 1.2 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,7 +37,8 @@ uiArrowDialog::uiArrowDialog( uiParent* p )
     linestylefld_->attach( alignedBelow, typefld_ );
 
     scalefld_ = new uiSliderExtra( this,
-	    		uiSliderExtra::Setup("Scale").nrdec(1).logscale(true) );
+	    		uiSliderExtra::Setup("Scale").nrdec(1).logscale(true),
+	   		"Size" );
     scalefld_->sldr()->setMinValue( 0.1 );
     scalefld_->sldr()->setMaxValue( 10 );
     scalefld_->sldr()->setValue( 1 );

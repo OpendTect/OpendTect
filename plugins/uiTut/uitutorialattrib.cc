@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: uitutorialattrib.cc,v 1.6 2007-07-11 06:53:16 cvsraman Exp $
+ RCS:           $Id: uitutorialattrib.cc,v 1.7 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,7 @@ uiTutorialAttrib::uiTutorialAttrib( uiParent* p, bool is2d )
     steerfld_->attach( alignedBelow, smoothdirfld_ );
 
     stepoutfld_ = new uiStepOutSel( this, is2d );
+    stepoutfld_->setFieldNames( "Stepout Inl", "Stepout Crl" );
     const StepInterval<int> intv( 0, 10, 1 );
     stepoutfld_->setInterval( intv, intv );
     stepoutfld_->attach( alignedBelow, steerfld_ );

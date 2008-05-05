@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uimarkerstyledlg.cc,v 1.2 2007-02-05 18:19:48 cvsbert Exp $
+ RCS:           $Id: uimarkerstyledlg.cc,v 1.3 2008-05-05 05:42:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,14 +28,16 @@ uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const char* title )
     typefld->valuechanged.notify( mCB(this,uiMarkerStyleDlg,typeSel) );
 
     sliderfld = new uiSliderExtra( this, 
-	    			   uiSliderExtra::Setup("Size").withedit(true));
+	    			   uiSliderExtra::Setup("Size").withedit(true)
+				   ,"Slider Size");
     sliderfld->sldr()->setMinValue( 1 );
     sliderfld->sldr()->setMaxValue( 15 );
     sliderfld->sldr()->valueChanged.notify(
 		mCB(this,uiMarkerStyleDlg,sliderMove));
     sliderfld->attach( alignedBelow, typefld );
 
-    colselfld = new uiColorInput( this, Color::White, "Color" );
+    colselfld = new uiColorInput( this,
+	    		uiColorInput::Setup(Color::White).lbltxt("Color") );
     colselfld->attach( alignedBelow, sliderfld );
     colselfld->colorchanged.notify( mCB(this,uiMarkerStyleDlg,colSel) );
 

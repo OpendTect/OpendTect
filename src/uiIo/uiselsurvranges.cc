@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiselsurvranges.cc,v 1.9 2008-04-24 10:31:57 cvsraman Exp $
+ RCS:           $Id: uiselsurvranges.cc,v 1.10 2008-05-05 05:42:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -161,19 +161,19 @@ void uiSelNrRange::makeInpFields( const char* lbltxt, StepInterval<int> limitrg,
     startfld_ = new uiSpinBox( this, 0, BufferString(lbltxt," start") );
     startfld_->setInterval( limitrg );
     startfld_->doSnap( true );
-    uiLabel* lbl = new uiLabel( this, BufferString(lbltxt," range"), startfld_ );
+    uiLabel* lbl = new uiLabel( this, BufferString(lbltxt," range"), startfld_);
     uiObject* stopfld;
     if ( isgen )
     {
-	stopfld = nrstopfld_ = new uiLineEdit( this, "",
-						BufferString(lbltxt," stop") );
+	stopfld = nrstopfld_ = new uiLineEdit( this,
+					       BufferString(lbltxt," stop") );
 	nrstopfld_->setHSzPol( uiObject::Small );
 	nrstopfld_->editingFinished.notify( cb );
     }
     else
     {
 	stopfld = icstopfld_ = new uiSpinBox( this, 0,
-						BufferString(lbltxt," stop") );
+					      BufferString(lbltxt," stop") );
 	icstopfld_->setInterval( limitrg );
 	icstopfld_->doSnap( true );
 	icstopfld_->valueChanging.notify( cb );

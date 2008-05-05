@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.64 2008-02-19 11:20:30 cvsnanne Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.65 2008-05-05 05:42:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -669,7 +669,8 @@ uiNewWellDlg::uiNewWellDlg( uiParent* p )
         : uiGetObjectName(p,uiGetObjectName::Setup("New Well",mkWellNms())
 	       			.inptxt("New well name") )
 {
-    colsel_ = new uiColorInput( this, getRandStdDrawColor(), "Color" );
+    colsel_ = new uiColorInput( this, uiColorInput::Setup(getRandStdDrawColor())
+	    			      .lbltxt("Color") );
     colsel_->attach( alignedBelow, inpFld() );
 }
 

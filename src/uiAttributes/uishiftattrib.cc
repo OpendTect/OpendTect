@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uishiftattrib.cc,v 1.17 2007-10-12 09:12:19 cvssulochana Exp $
+ RCS:           $Id: uishiftattrib.cc,v 1.18 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,9 +34,11 @@ uiShiftAttrib::uiShiftAttrib( uiParent* p, bool is2d )
     uiStepOutSel::Setup setup( is2d );
     setup.seltxt( "Shift" ).allowneg( true );
     stepoutfld_ = new uiStepOutSel( this, setup );
+    stepoutfld_->setFieldNames( "Inl shift", "Crl shift" );
     stepoutfld_->attach( alignedBelow, inpfld_ );
 
-    timefld_ = new uiGenInput( this, zDepLabel(0,0), FloatInpSpec() );
+    timefld_ = new uiGenInput( this, zDepLabel(0,0),
+			       FloatInpSpec().setName("Z shift") );
     timefld_->setElemSzPol(uiObject::Small);
     timefld_->attach( rightTo, stepoutfld_ );
 

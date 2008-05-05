@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2004
- RCS:           $Id: uispecdecompattrib.cc,v 1.17 2007-10-12 09:12:19 cvssulochana Exp $
+ RCS:           $Id: uispecdecompattrib.cc,v 1.18 2008-05-05 05:42:18 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,9 @@ uiSpecDecompAttrib::uiSpecDecompAttrib( uiParent* p, bool is2d )
     typefld->attach( alignedBelow, inpfld );
     typefld->valuechanged.notify( mCB(this,uiSpecDecompAttrib,typeSel) );
 
-    gatefld = new uiGenInput( this, gateLabel(), DoubleInpIntervalSpec() );
+    gatefld = new uiGenInput( this, gateLabel(),
+	    		      DoubleInpIntervalSpec().setName("Z start",0)
+						     .setName("Z stop",1) );
     gatefld->attach( alignedBelow, typefld );
 
     BufferString lbl( "Output frequency (" );

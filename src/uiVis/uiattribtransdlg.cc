@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: uiattribtransdlg.cc,v 1.3 2007-12-11 10:43:44 cvshelene Exp $
+ RCS:           $Id: uiattribtransdlg.cc,v 1.4 2008-05-05 05:42:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,8 @@ uiAttribTransDlg::uiAttribTransDlg( uiParent* p, visSurvey::SurveyObject& so,
     , attrib_( attrib )
     , initaltrans_( so.getAttribTransparency(attrib) )
 {
-    slider_ = new uiSliderExtra( this, uiSliderExtra::Setup("Transparency"));
+    slider_ = new uiSliderExtra( this, uiSliderExtra::Setup("Transparency"),
+	    			 "Transparency slider" );
     slider_->sldr()->setMinValue( 0 );
     slider_->sldr()->setMaxValue( 255 );
     slider_->sldr()->setStep( 1 );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.16 2008-04-29 07:37:32 cvsnanne Exp $
+ RCS:           $Id: uicolortable.cc,v 1.17 2008-05-05 05:42:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,8 +46,7 @@ uiColorTable::uiColorTable( uiParent* p, ColTab::Sequence& colseq, bool vert )
 	, coltabseq_(*new ColTab::Sequence(colseq))
 	, symmidval_(0)
 {
-    FloatInpSpec minfis;
-    minfld_ = new uiLineEdit( this, minfis, "Min" );
+    minfld_ = new uiLineEdit( this, "Min" );
     minfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
     minfld_->setHSzPol( uiObject::Small );
     minfld_->setStretch( 0, 0 );
@@ -59,8 +58,7 @@ uiColorTable::uiColorTable( uiParent* p, ColTab::Sequence& colseq, bool vert )
     if ( !vert )
 	canvas_->setPrefHeight( minfld_->prefVNrPics()-2 );
 
-    FloatInpSpec maxfis;
-    maxfld_ = new uiLineEdit( this, maxfis, "Max" );
+    maxfld_ = new uiLineEdit( this, "Max" );
     maxfld_->setHSzPol( uiObject::Small );
     maxfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
     maxfld_->setStretch( 0, 0 );

@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uicreatepicks.cc,v 1.12 2008-03-19 09:14:21 cvsraman Exp $";
+static const char* rcsID = "$Id: uicreatepicks.cc,v 1.13 2008-05-05 05:42:29 cvsnageswara Exp $";
 
 #include "uicreatepicks.h"
 
@@ -46,7 +46,9 @@ uiCreatePicks::uiCreatePicks( uiParent* p )
 				 "105.0.0"))
 {
     nmfld_ = new uiGenInput( this, "Name for new PickSet" );
-    colsel_ = new uiColorInput( this, getRandStdDrawColor(), "Color" );
+    colsel_ = new uiColorInput( this,
+	    		      uiColorInput::Setup(getRandStdDrawColor()).
+	   		      lbltxt("Color") );
     colsel_->attach( alignedBelow, nmfld_ );
 }
 

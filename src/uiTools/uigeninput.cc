@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.81 2008-04-07 10:30:42 cvsjaap Exp $
+ RCS:           $Id: uigeninput.cc,v 1.82 2008-05-05 05:42:29 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -247,7 +247,7 @@ public:
 					 const DataInpSpec& dis,
 					 const char* nm="Line Edit Field" ) 
 			    : uiInputFld( p, dis )
-			    , usrinpobj( *new T(p, dis, mName(dis,0,nm)) ) 
+			    , usrinpobj( *new T(p,  mName(dis,0,nm)) ) 
 			    {
 				init();
 
@@ -366,7 +366,7 @@ void uiPositionInpFld::addFld( uiParent* p, const char* nm )
 {
     const int elemidx = flds_.size();
     BufferString lenm( nm ); nm += elemidx;
-    uiLineEdit* fld = new uiLineEdit( p, 0, lenm );
+    uiLineEdit* fld = new uiLineEdit( p, lenm );
     flds_ += fld;
     fld->notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
     fld->notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
@@ -518,8 +518,8 @@ uiIntervalInpFld<T>::uiIntervalInpFld(uiGenInput* p, const DataInpSpec& dis,
 				    const char* nm) 
     : uiInputFld( p, dis )
     , intvalGrp( *new uiGroup(p,nm) ) 
-    , start( *new uiLineEdit(&intvalGrp,0,mName(dis,0,nm)) )
-    , stop( *new uiLineEdit(&intvalGrp,0,mName(dis,1,nm)) )
+    , start( *new uiLineEdit(&intvalGrp,mName(dis,0,nm)) )
+    , stop( *new uiLineEdit(&intvalGrp,mName(dis,1,nm)) )
     , step( 0 )
 {
     mDynamicCastGet(const NumInpIntervalSpec<T>*,spc,&dis)
@@ -536,7 +536,7 @@ uiIntervalInpFld<T>::uiIntervalInpFld(uiGenInput* p, const DataInpSpec& dis,
 
     if ( spc->hasStep() )
     {
-	step = new uiLineEdit(&intvalGrp,"",mName(dis,2,nm));
+	step = new uiLineEdit(&intvalGrp,mName(dis,2,nm));
 
 	step->notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
 	step->notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
@@ -700,13 +700,15 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt, const char* inputStr)
     , checked_(false), rdonly_(false), rdonlyset_(false)
     , elemszpol( uiObject::Undef )
 { 
-    inputs += new StringInpSpec( inputStr ); 
+    inputs += new StringInpSpec( inputStr );
+    if ( disptxt && *disptxt )
+	inputs[0]->setName( disptxt );
     mainObject()->finaliseStart.notify( mCB(this,uiGenInput,doFinalise) );
 }
 
 
-uiGenInput::uiGenInput( uiParent* p, const char* disptxt
-	    , const DataInpSpec& inp1 )
+uiGenInput::uiGenInput( uiParent* p, const char* disptxt,
+			const DataInpSpec& inp1 )
     : uiGroup( p, disptxt )
     , finalised( false )
     , idxes( *new TypeSet<FieldIdx> )
@@ -717,6 +719,9 @@ uiGenInput::uiGenInput( uiParent* p, const char* disptxt
     , elemszpol( uiObject::Undef )
 {
     inputs += inp1.clone();
+    const bool inputhasnm = inputs[0]->name() && *inputs[0]->name();
+    if ( disptxt && *disptxt && !inputhasnm )
+	inputs[0]->setName( disptxt );
     mainObject()->finaliseStart.notify( mCB(this,uiGenInput,doFinalise) );
 }
 
