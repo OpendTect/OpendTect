@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.115 2008-04-08 12:20:46 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.116 2008-05-05 05:35:40 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,7 +160,7 @@ void uiODMenuMgr::fillSurveyMenu()
     fillImportMenu();
     surveymnu_->insertItem( impmnu_ );
 
-    expmnu_ = new uiPopupMenu( &appl_, "E&xport" );
+    expmnu_ = new uiPopupMenu( &appl_, "Ex&port" );
     fillExportMenu();
     surveymnu_->insertItem( expmnu_ );
 
