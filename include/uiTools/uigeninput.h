@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2000
- RCS:           $Id: uigeninput.h,v 1.34 2007-10-25 15:06:40 cvssatyaki Exp $
+ RCS:           $Id: uigeninput.h,v 1.35 2008-05-06 08:42:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,10 +114,6 @@ Returns true, if changes are accepted.
     double		getdValue( mDeclArgs(double) ) const;
     double		getdValue( double undefVal ) const
 			    { return getdValue(0,undefVal) ; }
-
-    double		getValue( mDeclArgs(double) ) const
-			{ pErrMsg("will go in 3.0. Use getdValue.");
-			    return getdValue(nr,undefVal); }
 
     float		getfValue( mDeclArgs(float) ) const;
     float		getfValue( float undefVal ) const
