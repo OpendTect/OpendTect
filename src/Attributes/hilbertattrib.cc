@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: hilbertattrib.cc,v 1.21 2007-11-09 16:53:52 cvshelene Exp $
+ RCS:           $Id: hilbertattrib.cc,v 1.22 2008-05-06 09:30:43 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,15 +83,13 @@ float* Hilbert::makeHilbFilt( int hlen )
 class Masker
 {
 public:
-Masker( const DataHolder* dh, int shift, float avg, int dataidx )
+Masker( const DataHolder* dh, float avg, int dataidx )
     : data_(dh )
     , avg_(avg)
-    , shift_(shift)
     , dataidx_(dataidx) {}
 
-float operator[]( int idx ) const
+float operator[]( int pos ) const
 {
-    const int pos = shift_ + idx;
     float val = mUdf(float);
     if ( pos < 0 )
 	val = data_->series(dataidx_)->value(0) - avg_;
@@ -113,7 +111,6 @@ float operator[]( int idx ) const
 }
 
     const DataHolder*	data_;
-    const int		shift_;
     float		avg_;
     int			dataidx_;
 };
@@ -125,13 +122,23 @@ bool Hilbert::computeData( const DataHolder& output, const BinID& relpos,
     if ( !inputdata_ ) return false;
 
     const int shift = z0 - inputdata_->z0_;
-    Masker masker( inputdata_, shift, 0, dataidx_ );
+    Masker masker( inputdata_, 0, dataidx_ );
     float avg = 0;
-    int nrsamptooutput = nrsamples<hilbfilterlen_ ? hilbfilterlen_ : nrsamples;
+    const bool enoughsamps = nrsamples >= hilbfilterlen_;
+    const int arrminnrsamp = inputdata_->nrsamples_>hilbfilterlen_
+				? inputdata_->nrsamples_ : hilbfilterlen_;
+    const int nrsamptooutput = enoughsamps ? nrsamples : arrminnrsamp;
+    int startidx = enoughsamps ? shift : 0;
+    
+    //exceptional : case of a pick/timeslice at Z top border
+    const bool neednegstartidx = arrminnrsamp==hilbfilterlen_ && shift<halflen_;
+    if ( neednegstartidx )
+	startidx = shift - halflen_;
+    
     int nrsampleused = nrsamptooutput;
     for ( int idx=0; idx<nrsamptooutput; idx++ )
     {
-	float val = masker[idx];
+	float val = masker[ idx + startidx ];
 	if ( mIsUdf(val) )
 	{
 	    avg += 0;
@@ -142,17 +149,17 @@ bool Hilbert::computeData( const DataHolder& output, const BinID& relpos,
     }
 
     masker.avg_ = avg / nrsampleused;
-    float* newarr = new float[hilbfilterlen_];
-    float* outp = nrsamples>=hilbfilterlen_ ? output.series(0)->arr() : newarr;
+    const int inpstartidx = neednegstartidx ? startidx : 0;
+    float* newarr = new float[arrminnrsamp];
+    float* outp = enoughsamps ? output.series(0)->arr() : newarr;
     GenericConvolve( hilbfilterlen_, -halflen_, hilbfilter_,
-		     inputdata_->nrsamples_, 0, masker,
+		     inputdata_->nrsamples_, inpstartidx, masker,
 		     nrsamptooutput, 0, outp );
 
-    if ( nrsamples<hilbfilterlen_ )
+    if ( !enoughsamps )
     {
-	int startshift = (hilbfilterlen_-nrsamples)/2;
 	for ( int idx=0; idx<nrsamples; idx++ )
-	    setOutputValue( output, 0, idx, z0, outp[startshift+idx] );
+	    setOutputValue( output, 0, idx, z0, outp[shift+idx] );
     }
        
     delete [] newarr;
