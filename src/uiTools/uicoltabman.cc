@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.cc,v 1.5 2008-05-05 05:42:29 cvsnageswara Exp $
+ RCS:           $Id: uicoltabman.cc,v 1.6 2008-05-06 08:44:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -489,6 +489,7 @@ void uiColorTableMan::rightClick( CallBacker* )
     if ( selectColor(col,this,"Color selection",false) )
     {
 	ctab_.changeColor( selidx_-1, col.r(), col.g(), col.b() );
+	ctab_.changeColor( selidx_, col.r(), col.g(), col.b() );
 	tableChanged.trigger();
     }
 
@@ -564,16 +565,6 @@ void uiColorTableMan::mouseClk( CallBacker* cb )
 }
 
 
-void uiColorTableMan::addMarker( float pos, bool withcolsel )
-{
-    const Color col = ctab_.color( pos );
-    const int markeridx = ctab_.setColor( pos, col.r(), col.g(), col.b() );
-
-    if ( withcolsel ) changeColor( markeridx );
-    tableChanged.trigger();
-}
-
-
 void uiColorTableMan::removeMarker( int markeridx )
 {
     ctab_.removeColor( markeridx );
@@ -581,14 +572,17 @@ void uiColorTableMan::removeMarker( int markeridx )
 }
 
 
-void uiColorTableMan::changeColor( int markeridx )
+bool uiColorTableMan::changeColor( int markeridx )
 {
     Color col = ctab_.color( ctab_.position(markeridx) );
-    if ( selectColor(col,this,"Color selection",false) )
+    const bool res = selectColor( col, this, "Color selection", false );
+    if ( res )
     {
 	ctab_.changeColor( markeridx, col.r(), col.g(), col.b() );
 	tableChanged.trigger();
     }
+
+    return res;
 }
 
 
@@ -599,7 +593,14 @@ void uiColorTableMan::mouse2Clk( CallBacker* cb )
 
     const MouseEvent& ev = markercanvas_->getMouseEventHandler().event();
     uiWorldPoint wpt = w2uimarker_->transform( ev.pos() );
-    addMarker( wpt.x, true );
+
+    Color col = ctab_.color( wpt.x );
+    const bool res = selectColor( col, this, "Color selection", false );
+    if ( !res )
+	return;
+
+    ctab_.setColor( wpt.x, col.r(), col.g(), col.b() );
+    tableChanged.trigger();
     markercanvas_->update();
     selidx_ = -1;
     markercanvas_->getMouseEventHandler().setHandled( true );

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.h,v 1.3 2008-04-09 12:28:08 cvsnanne Exp $
+ RCS:           $Id: uicoltabman.h,v 1.4 2008-05-06 08:44:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,9 +76,8 @@ protected:
 
     void			refreshColTabList(const char*);
 
-    void			addMarker(float,bool);
     void			removeMarker(int);
-    void			changeColor(int);
+    bool			changeColor(int);
     bool			saveColTab(bool);
     void			readFromSettings(ObjectSet<IOPar>&);
     void			writeToSettings(const ObjectSet<IOPar>&);
