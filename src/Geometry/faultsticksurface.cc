@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: faultsticksurface.cc,v 1.7 2008-04-03 15:53:43 cvsjaap Exp $";
+static const char* rcsID = "$Id: faultsticksurface.cc,v 1.8 2008-05-06 10:07:31 cvsnanne Exp $";
 
 #include "faultsticksurface.h"
 
@@ -156,14 +156,16 @@ StepInterval<int> FaultStickSurface::colRange( int sticknr ) const
 bool FaultStickSurface::setKnot( const RCol& rc, const Coord3& pos )
 {
     if ( !pos.isDefined() )
-	return false;
+    {
+	removeKnot( rc );
+	return true;
+    }
 
     mGetValidStickIdx( stickidx, rc.r(), 0, false );
     mGetValidKnotIdx( knotidx, rc.c(), stickidx, 0, false );
 
     (*sticks_[stickidx])[knotidx] = pos;
     triggerNrPosCh( RowCol(stickidx,StickChange).getSerialized() );
-
     return true;
 }
 
