@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.244 2008-04-17 12:48:23 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.245 2008-05-06 11:57:37 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -1241,7 +1241,7 @@ bool uiODApplMgr::handleAttribServEv( int evid )
 	const int attrib = visserv_->getSelAttribNr();
 	if ( attrib<0 || attrib>=visserv_->getNrAttribs(visid) )
 	{
-	    uiMSG().error( "Please select an attribute treeitem" );
+	    uiMSG().error( "Please select an attribute element in the tree" );
 	    return false;
 	}
 	as.set2DFlag( attrserv_->is2DEvent() );
