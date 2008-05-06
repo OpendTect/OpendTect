@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.12 2008-04-24 10:31:57 cvsraman Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.13 2008-05-06 13:03:12 cvshelene Exp $";
 
 #include "uiposprovider.h"
 #include "uipossubsel.h"
@@ -285,7 +285,7 @@ void uiPosProvSel::setToAll()
 void uiPosProvSel::doDlg( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup("Positions","Specify positions",
-					"0.0.0" ) );
+					"103.1.6" ) );
     uiPosProvider* pp = new uiPosProvider( &dlg, setup_ );
     pp->usePar( iop_ );
     if ( dlg.go() )
