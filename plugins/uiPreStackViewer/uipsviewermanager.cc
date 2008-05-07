@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.15 2008-03-05 22:19:29 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.16 2008-05-07 12:33:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ namespace PreStackView
 
 uiPSViewerMgr::uiPSViewerMgr()
     : selectpsdatamenuitem_( "Display PS Gather" )
-    , proptymenuitem_( "Properties" )				 
+    , proptymenuitem_( "Properties ..." )				 
     , removemenuitem_( "Remove" ) 
     , viewermenuitem_( "View in 2D Panel" )
     , visserv_( ODMainWin()->applMgr().visServer() )  	      
@@ -117,7 +117,7 @@ void uiPSViewerMgr::createMenuCB( CallBacker* cb )
 void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
 {
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
-    mDynamicCastGet( uiMenuHandler*,menu,caller );
+    mDynamicCastGet(uiMenuHandler*,menu,caller);
 
     if ( menu->isHandled() )
 	return;
@@ -127,6 +127,12 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
 	return;
 
     const int mnuidx = selectpsdatamenuitem_.itemIndex( mnuid );
+
+    RefMan<visBase::DataObject> dataobj = visserv_->getObject( menu->menuID() );
+    mDynamicCastGet(PreStackView::PreStackViewer*,psv,dataobj.ptr())
+    if ( mnuidx < 0 && !psv )
+	return;
+
     if ( mnuidx>=0 )
     {
 	menu->setIsHandled( true );
@@ -135,13 +141,7 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==removemenuitem_.id )
     {
- 	RefMan<visBase::DataObject> dataobj = visserv_->
-	    getObject( menu->menuID() );
-	mDynamicCastGet( PreStackView::PreStackViewer*, psv, dataobj.ptr() );
-	if ( !psv ) return;
-
 	menu->setIsHandled( true );
-    
 	visserv_->removeObject( psv, sceneid );
 	viewers_ -= psv;
 	psv->unRef();
@@ -149,11 +149,6 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
     else if ( mnuid==proptymenuitem_.id )
     {
 	menu->setIsHandled( true );
-	RefMan<visBase::DataObject> dataobj = visserv_->
-	    getObject( menu->menuID() );
-	mDynamicCastGet( PreStackView::PreStackViewer*, psv, dataobj.ptr() );
-	if ( !psv ) return;
-
 	uiPSViewerSetting dlg( menu->getParent(), *psv, *this );
 	dlg.go(); 
 	if ( !dlg.acceptOK() )
@@ -162,11 +157,6 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
     else if ( mnuid==viewermenuitem_.id )
     {
 	menu->setIsHandled( true );
- 	RefMan<visBase::DataObject> dataobj = visserv_->
-	    getObject( menu->menuID() );
-	mDynamicCastGet( PreStackView::PreStackViewer*, psv, dataobj.ptr() );
-	if ( !psv ) return;
-	
 	PtrMan<IOObj> ioobj = IOM().get( psv->getMultiID() );
 	if ( !ioobj )
 	   return;
