@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddisplaytreeitem.cc,v 1.17 2007-11-21 09:58:58 cvsraman Exp $
+ RCS:		$Id: uioddisplaytreeitem.cc,v 1.18 2008-05-07 09:43:17 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
 	uiTreeItem* res = itmcreater->create( displayid, treeitem );
 	if ( res )
 	{
-	    treeitem->addChild( res, true );
+	    treeitem->addChild( res, false );
 	    return true;
 	}
     }
@@ -305,6 +305,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
 	addChild( newitem, false );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
+	newitem->select();
 	menu->setIsHandled(true);
     }
     else if ( mnuid==hidemnuitem_.id )
