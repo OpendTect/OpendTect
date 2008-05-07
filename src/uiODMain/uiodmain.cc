@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.100 2008-04-14 21:52:43 cvskris Exp $
+ RCS:           $Id: uiodmain.cc,v 1.101 2008-05-07 12:18:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -301,6 +301,7 @@ void uiODMain::initScene()
 {
     scenemgr_->initMenuMgrDepObjs();
     applMgr().visServer()->showMPEToolbar( false );
+    readSettings();
 
     justBeforeGo.trigger();
 }
@@ -636,6 +637,7 @@ bool uiODMain::askStoreAttribs( bool is2d, bool& askedanything )
 
 bool uiODMain::closeOK()
 {
+    saveSettings();
     applicationClosing.trigger();
 
     if ( failed_ ) return true;
