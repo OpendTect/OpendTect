@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.h,v 1.26 2007-07-06 14:11:05 cvskris Exp $
+ RCS:           $Id: uimpewizard.h,v 1.27 2008-05-07 06:04:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 class Color;
 class CtxtIOObj;
 class IOObj;
+class uiButtonGroup;
 class uiColorInput;
 class uiGenInput;
 class uiGroup;
