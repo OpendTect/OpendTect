@@ -4,11 +4,12 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocattrib.cc,v 1.2 2008-03-25 16:50:12 cvsnanne Exp $";
+static const char* rcsID = "$Id: volprocattrib.cc,v 1.3 2008-05-07 20:06:25 cvskris Exp $";
 
 #include "volprocattrib.h"
 
 #include "attribdesc.h"
+#include "attribdatapack.h"
 #include "attribsel.h"
 #include "ioman.h"
 #include "ioobj.h"
@@ -175,58 +176,28 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
 }
 
 
-DataPack::ID ExternalAttribCalculator::createAttrib(
-			const CubeSampling& cs, DataPack::ID dpid )
-{
-    return DataPack::cNoID;
-}
-
-
-const Attrib::DataCubes*
-ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
-					const Attrib::DataCubes* dc )
+DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
+						     DataPack::ID dpid )
 {
     if ( !chain_ || !chain_->nrSteps() )
-	return 0;
+	return DataPack::cNoID;
 
     chain_->setZSampling( SamplingData<float>( cs.zrg ), SI().zIsTime() );
-    Attrib::DataCubes* datacubes = new Attrib::DataCubes::DataCubes();
+    RefMan<Attrib::DataCubes> datacubes = new Attrib::DataCubes::DataCubes();
     if ( !datacubes->setSizeAndPos(cs) )
-    {
-	datacubes->unRef();
-	return 0;
-    }
+	return DataPack::cNoID;
 
     ChainExecutor executor( *chain_ );
     if ( !executor.setCalculationScope(datacubes) || !executor.execute() )
-    {
-	datacubes->unRef();
-	return 0;
-    }	
+	return DataPack::cNoID;
 
-    return datacubes;
+    if ( !datacubes->nrCubes() ) return DataPack::cNoID;
+
+    const Attrib::DescID did = Attrib::SelSpec::cOtherAttrib();
+    Attrib::Flat3DDataPack* ndp = new Attrib::Flat3DDataPack(did,*datacubes,0);
+    DPM( DataPackMgr::FlatID ).add( ndp );
+    return ndp->id();
 }
-
-
-bool ExternalAttribCalculator::createAttrib(ObjectSet<BinIDValueSet>&)
-{
-    return false;
-}
-
-
-bool ExternalAttribCalculator::createAttrib(const BinIDValueSet&, SeisTrcBuf&)
-{
-    return false;
-}
-
-
-DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling&,
-						     const LineKey&)
-{ return DataPack::cNoID; }
-
-
-bool ExternalAttribCalculator::isIndexes() const
-{ return false; }
 
 
 }; //namespace

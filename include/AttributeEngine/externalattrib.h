@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: externalattrib.h,v 1.8 2008-03-25 16:50:12 cvsnanne Exp $
+ RCS:		$Id: externalattrib.h,v 1.9 2008-05-07 20:06:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,20 +38,19 @@ public:
     virtual bool		setTargetSelSpec(const SelSpec&)	= 0;
     				/*!<\returns if this object can 
 				     compute it or not. */
-    virtual const DataCubes*	createAttrib(const CubeSampling&,
-				             const DataCubes*)		= 0;
     virtual DataPack::ID	createAttrib(const CubeSampling&,
-					DataPack::ID=DataPack::cNoID)	= 0;
-    virtual bool		createAttrib(ObjectSet<BinIDValueSet>&) = 0;
-    virtual bool		createAttrib(const BinIDValueSet&,
-					     SeisTrcBuf&)		= 0;
+					     DataPack::ID=DataPack::cNoID);
+    				//!<Utilizes createAttrib(CS,DC)
+    virtual bool		createAttrib(ObjectSet<BinIDValueSet>&);
+    virtual bool		createAttrib(const BinIDValueSet&, SeisTrcBuf&);
     virtual DataPack::ID	createAttrib(const CubeSampling&,
-	    				     const LineKey&)		= 0;
+	    				     const LineKey&);
 
-    virtual bool		isIndexes() const			= 0;
+    virtual bool		isIndexes() const;
 
     BufferString		errmsg_;
 };
+
 
 mDefineFactory1Param( ExtAttribCalc, const Attrib::SelSpec&, ExtAttrFact );
 

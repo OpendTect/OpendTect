@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: volprocattrib.h,v 1.2 2008-03-25 16:50:12 cvsnanne Exp $
+ RCS:		$Id: volprocattrib.h,v 1.3 2008-05-07 20:06:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -71,14 +71,6 @@ public:
 
     bool			setTargetSelSpec(const Attrib::SelSpec&);
     DataPack::ID		createAttrib(const CubeSampling&,DataPack::ID);
-    const Attrib::DataCubes*	createAttrib(const CubeSampling&,
-					     const Attrib::DataCubes*);
-    bool			createAttrib(ObjectSet<BinIDValueSet>&);
-    bool			createAttrib(const BinIDValueSet&, SeisTrcBuf&);
-    DataPack::ID		createAttrib(const CubeSampling&,
-					     const LineKey&);
-
-    bool			isIndexes() const;
 
 protected:
     static Attrib::ExtAttribCalc* create(const Attrib::SelSpec&);
