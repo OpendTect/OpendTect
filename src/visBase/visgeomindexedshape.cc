@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: visgeomindexedshape.cc,v 1.8 2008-04-11 09:19:08 cvsjaap Exp $
+ RCS:           $Id: visgeomindexedshape.cc,v 1.9 2008-05-07 12:35:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -145,10 +145,18 @@ void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
 
 	    if ( geom->ischanged_ )
 	    {
+		/* TODO: leads to crash. Probably because geom has been deleted.
 		shape->coordIndex.setValuesPointer(
 		    geom->coordindices_.size(), geom->coordindices_.arr() );
 
 		shape->normalIndex.setValuesPointer(
+		    geom->normalindices_.size(), geom->normalindices_.arr() );
+		*/
+
+		shape->coordIndex.setValues( 0,
+		    geom->coordindices_.size(), geom->coordindices_.arr() );
+
+		shape->normalIndex.setValues( 0,
 		    geom->normalindices_.size(), geom->normalindices_.arr() );
 	    }
 
