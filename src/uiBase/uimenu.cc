@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.48 2008-03-06 07:06:19 cvsnanne Exp $
+ RCS:           $Id: uimenu.cc,v 1.49 2008-05-07 09:43:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -246,6 +246,12 @@ const char* uiMenuItem::text() const
 
 void uiMenuItem::setPixmap( const ioPixmap& pm )
 { if ( qaction_ && pm.qpixmap() ) qaction_->setIcon( *pm.qpixmap() ); }
+
+void uiMenuItem::setShortcut( const char* sctxt )
+{
+    if ( qaction_ && sctxt && *sctxt )
+	qaction_->setShortcut( QString(sctxt) );
+}
 
 
 static const QEvent::Type sQEventActivate = (QEvent::Type) (QEvent::User + 0);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.h,v 1.43 2008-03-06 07:06:19 cvsnanne Exp $
+ RCS:           $Id: uimenu.h,v 1.44 2008-05-07 09:43:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,7 @@ public:
     const char*			text() const;
 
     void			setPixmap(const ioPixmap&);
+    void			setShortcut(const char*);
 
     bool			isEnabled() const;
     void			setEnabled(bool);
