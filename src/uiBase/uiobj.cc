@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.76 2008-05-05 04:59:12 cvsnageswara Exp $
+ RCS:           $Id: uiobj.cc,v 1.77 2008-05-07 06:06:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -198,7 +198,9 @@ void uiObject::doSetToolTip()
 
     if ( nametooltipactive_ )
     {
-	BufferString namestr = "\""; namestr += name(); namestr += "\"";
+	BufferString namestr = "\"";
+	namestr += !name().isEmpty() ? name().buf() : normaltooltiptxt_.buf();
+	namestr += "\"";
 	removeCharacter( namestr.buf(), '&' );
 	mBody()->setToolTip( namestr );
     }

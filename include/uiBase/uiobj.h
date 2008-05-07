@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.56 2008-05-05 04:59:12 cvsnageswara Exp $
+ RCS:           $Id: uiobj.h,v 1.57 2008-05-07 06:06:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,21 +15,17 @@ ________________________________________________________________________
 #include "uihandle.h"
 #include "uigeom.h"
 #include "uilayout.h"
-#include "errh.h"
-#include "sets.h"
 
 #include <stdlib.h>
 
+class Color;
 class MouseCursor;
 class uiFont;
 class uiObjectBody;
 class uiParent;
-class uiGroup;
 class uiMainWin;
-class uiButtonGroup;
 class i_LayoutItem;
 class ioPixmap;
-class Color;
 class QWidget;
 
 
@@ -154,7 +150,6 @@ public:
     static int		iconSize();
 
 protected:
-
                         //! hook. Accepts/denies closing of window.
     virtual bool	closeOK()	{ closed.trigger(); return true; } 
 
@@ -163,12 +158,11 @@ protected:
     
     void		doSetToolTip();
     static bool		nametooltipactive_;
-    const char*		normaltooltiptxt_;
+    BufferString	normaltooltiptxt_;
 
 private:
 
     uiParent*		parent_;
-
 };
 
 

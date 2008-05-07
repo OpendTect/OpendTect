@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.40 2008-05-07 05:39:21 cvsnageswara Exp $
+ RCS:           $Id: uitable.h,v 1.41 2008-05-07 06:06:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 class BufferStringSet;
 class ioPixmap;
+class uiGroup;
 class uiLabel;
 class uiTableBody;
 

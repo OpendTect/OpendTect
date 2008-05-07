@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          7/9/2000
- RCS:           $Id: uilabel.h,v 1.9 2006-03-02 16:49:47 cvsnanne Exp $
+ RCS:           $Id: uilabel.h,v 1.10 2008-05-07 06:06:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobj.h"
 
+class uiGroup;
 class uiLabelBody;
 
 class uiLabel : public uiObject
