@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.112 2008-03-31 10:42:02 cvsnageswara Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.113 2008-05-07 05:59:28 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -213,7 +213,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
 
     if ( avmachfld ) nicefld->setPrefWidthInChar( hostnmwdth );
 
-    jrppolselfld = new uiComboBox( jrppolgrp );
+    jrppolselfld = new uiComboBox( jrppolgrp, "JobRun policy" );
     jrppolselfld->addItem( "Run" );
     jrppolselfld->addItem( "Pause" );
     jrppolselfld->addItem( "Go - Only between" );
