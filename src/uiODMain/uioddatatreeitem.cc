@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.24 2008-04-21 05:49:51 cvsnanne Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.25 2008-05-07 09:42:31 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ uiODDataTreeItem::uiODDataTreeItem( const char* parenttype )
     , movetobottommnuitem_("to &bottom")
     , moveupmnuitem_("&up")
     , movedownmnuitem_("&down")
-    , removemnuitem_("&Remove")
+    , removemnuitem_("&Remove",-1000)
     , changetransparencyitem_("Change &transparency ...")
     , statisticsitem_("Show &Histogram ...")
     , amplspectrumitem_("Show &Amplitude Spectrum...")
