@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.92 2008-03-14 14:35:45 cvskris Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.93 2008-05-07 05:39:21 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -181,7 +181,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 
 	if ( nrprovs > 2 )
 	{
-	    sipobj = sipfld = new uiComboBox( this, "SIPs" );
+	    sipobj = sipfld = new uiComboBox( this, "Input parameters" );
 	    sipfld->attach( alignedBelow, pathfld );
 	    sipfld->attach( ensureBelow, horsep1 );
 	    for ( int idx=0; idx<nrprovs; idx++ )
@@ -222,10 +222,17 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     rglbl->attach( ensureBelow, horsep1 );
     uiGroup* rangegrp = new uiGroup( this, "Survey ranges" );
     inlfld = new uiGenInput( rangegrp, "In-line range",
-			     IntInpIntervalSpec(true) );
+			     IntInpIntervalSpec(true).setName("Inl from",0)
+			     			     .setName("Inl to",1)
+	   					     .setName("Inl step",2) );
     crlfld = new uiGenInput( rangegrp, "Cross-line range",
-			     IntInpIntervalSpec(true) );
-    zfld = new uiGenInput( rangegrp, "Z range", DoubleInpIntervalSpec(true) );
+			     IntInpIntervalSpec(true).setName("Crl from",0)
+				 		     .setName("Crl to",1) 
+						     .setName("Crl step",2) );
+    zfld = new uiGenInput( rangegrp, "Z range", 
+	    	 	   DoubleInpIntervalSpec(true).setName("Z from",0)
+	   					      .setName("Z to",1) 
+						      .setName("Z step",2) );
     rangegrp->setHAlignObj( inlfld );
     if ( sipobj )
 	rangegrp->attach( alignedBelow, sipobj ); 
@@ -255,17 +262,25 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     crdgrp = new uiGroup( this, "Coordinate settings" );
     PositionInpSpec::Setup psetup;
     ic0fld = new uiGenInput( crdgrp, "First In-line/Cross-line", 
-			     PositionInpSpec(psetup) ); 
+		     PositionInpSpec(psetup).setName("Inl Position1",0)
+	   				    .setName("Crl Position1",1) ); 
     ic0fld->valuechanging.notify( mCB(this,uiSurveyInfoEditor,setInl1Fld) );
     ic1fld = new uiGenInput( crdgrp, "Another position on above In-line",
-			     PositionInpSpec(psetup) ); 
-    ic2fld = new uiGenInput( crdgrp,
-		    "Position not on above In-line",
-		     PositionInpSpec(psetup) ); 
+		     PositionInpSpec(psetup).setName("Inl Position2",0)
+	   				    .setName("Crl Position2",1) ); 
+    ic2fld = new uiGenInput( crdgrp, "Position not on above In-line",
+		      PositionInpSpec(psetup).setName("Inl Position3",0)
+	   				     .setName("Crl Position3",1) ); 
     psetup.wantcoords_ = true;
-    xy0fld = new uiGenInput( crdgrp, "= (X,Y)", PositionInpSpec(psetup) );
-    xy1fld = new uiGenInput( crdgrp, "= (X,Y)", PositionInpSpec(psetup) );
-    xy2fld = new uiGenInput( crdgrp, "= (X,Y)", PositionInpSpec(psetup) );
+    xy0fld = new uiGenInput( crdgrp, "= (X,Y)", 
+	    			PositionInpSpec(psetup).setName("X",0)
+	   					       .setName("Y",1) );
+    xy1fld = new uiGenInput( crdgrp, "= (X,Y)",
+	    			PositionInpSpec(psetup).setName("X",0)
+	   					       .setName("Y",1) );
+    xy2fld = new uiGenInput( crdgrp, "= (X,Y)",
+	    			PositionInpSpec(psetup).setName("X",0)
+	   					       .setName("Y",1) );
     crdgrp->setHAlignObj( ic0fld );
     crdgrp->attach( alignedBelow, rangegrp );
     crdgrp->attach( ensureBelow, coordset );
@@ -276,17 +291,21 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     xy2fld->attach( rightOf, ic2fld );
 
     trgrp = new uiGroup( this, "I/C to X/Y transformation" );
-    x0fld = new uiGenInput ( trgrp, "X = ", DoubleInpSpec() );
+    x0fld = new uiGenInput ( trgrp, "X = ", DoubleInpSpec().setName("X") );
     x0fld->setElemSzPol( uiObject::Small );
-    xinlfld = new uiGenInput ( trgrp, "+ in-line *", DoubleInpSpec() );
+    xinlfld = new uiGenInput ( trgrp, "+ in-line *",
+	   			       DoubleInpSpec().setName("Inl") );
     xinlfld->setElemSzPol( uiObject::Small );
-    xcrlfld = new uiGenInput ( trgrp, "+ cross-line *", DoubleInpSpec() );
+    xcrlfld = new uiGenInput ( trgrp, "+ cross-line *",
+	   			      DoubleInpSpec().setName("Crl") );
     xcrlfld->setElemSzPol( uiObject::Small );
-    y0fld = new uiGenInput ( trgrp, "Y = ", DoubleInpSpec() );
+    y0fld = new uiGenInput ( trgrp, "Y = ", DoubleInpSpec().setName("Y"));
     y0fld->setElemSzPol( uiObject::Small );
-    yinlfld = new uiGenInput ( trgrp, "+ in-line *", DoubleInpSpec() );
+    yinlfld = new uiGenInput ( trgrp, "+ in-line *",
+	    			      DoubleInpSpec() .setName("Inl"));
     yinlfld->setElemSzPol( uiObject::Small );
-    ycrlfld = new uiGenInput ( trgrp, "+ cross-line *", DoubleInpSpec() );
+    ycrlfld = new uiGenInput ( trgrp, "+ cross-line *",
+	    			      DoubleInpSpec() .setName("Crl"));
     ycrlfld->setElemSzPol( uiObject::Small );
     overrule= new uiCheckBox( trgrp, "Overrule easy settings" );
     overrule->setChecked( false );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.cc,v 1.15 2007-03-05 15:12:44 cvshelene Exp $
+ RCS:           $Id: uiwellrdmlinedlg.cc,v 1.16 2008-05-07 05:39:21 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,9 +67,9 @@ uiWell2RandomLineDlg::uiWell2RandomLineDlg( uiParent* p, uiWellPartServer* ws )
 void uiWell2RandomLineDlg::createFields( uiGroup* topgrp )
 {
     wellsbox_ = new uiListBox( topgrp, "Available Wells", true );
-    selwellsbox_ = 
-	new uiTable( topgrp, uiTable::Setup().selmode( 
-		    				uiTable::SelectionMode(3) ) );
+    selwellsbox_ = new uiTable( topgrp, uiTable::Setup()
+				        .selmode(uiTable::SelectionMode(3) ),
+				"Wells Table" );
     selwellsbox_->setNrCols( 2 );
     selwellsbox_->setColumnLabel( 0, "Well Name" );
     selwellsbox_->setColumnLabel( 1, "Read Order" );
@@ -95,10 +95,10 @@ void uiWell2RandomLineDlg::createSelectButtons( uiGroup* selbuttons )
 
     uiLabel* sellbl = new uiLabel( selbuttons, "Select" );
     CallBack cb = mCB(this,uiWell2RandomLineDlg,selButPush);
-    toselect_ = new uiToolButton( selbuttons, "", pm0, cb );
+    toselect_ = new uiToolButton( selbuttons, "Move right", pm0, cb );
     toselect_->attach( centeredBelow, sellbl );
     toselect_->setHSzPol( uiObject::Undef );
-    fromselect_ = new uiToolButton( selbuttons, "", pm1, cb );
+    fromselect_ = new uiToolButton( selbuttons, "Move left", pm1, cb );
     fromselect_->attach( alignedBelow, toselect_ );
     fromselect_->setHSzPol( uiObject::Undef );
     selbuttons->setHAlignObj( toselect_ );
@@ -112,10 +112,10 @@ void uiWell2RandomLineDlg::createMoveButtons( uiGroup* movebuttons )
 
     uiLabel* movelbl = new uiLabel( movebuttons, "Change \n order" );
     CallBack cb = mCB(this,uiWell2RandomLineDlg,moveButPush);
-    moveupward_ = new uiToolButton( movebuttons, "", pm0, cb );
+    moveupward_ = new uiToolButton( movebuttons, "Move Up", pm0, cb );
     moveupward_->attach( centeredBelow, movelbl );
     moveupward_->setHSzPol( uiObject::Undef );
-    movedownward_ = new uiToolButton( movebuttons, "", pm1, cb );
+    movedownward_ = new uiToolButton( movebuttons, "Move Down", pm1, cb );
     movedownward_->attach( alignedBelow, moveupward_ );
     movedownward_->setHSzPol( uiObject::Undef );
     movebuttons->setHAlignObj( moveupward_ );
@@ -152,7 +152,7 @@ void uiWell2RandomLineDlg::selButPush( CallBacker* cb )
 	    }
 	    selwellsbox_->setText( RowCol(emptyrow,0),
 		    		   wellsbox_->textOfItem(idx));
-	    uiComboBox* box = new uiComboBox(0);
+	    uiComboBox* box = new uiComboBox( 0, "Type" );
 	    selwellsbox_->setCellObject( RowCol(emptyrow,1), box );
 	    box->addItems( sTypes );
 	    box->setValue( 0 );
@@ -197,6 +197,13 @@ void uiWell2RandomLineDlg::selButPush( CallBacker* cb )
 	    selectidx = selwellsbox_->nrRows()-1;
 	
 	selwellsbox_->selectRow( selectidx );
+    }
+
+    for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
+    {
+	mDynamicCastGet(uiComboBox*,box,
+			selwellsbox_->getCellObject(RowCol(idx,1)))
+	if ( box ) box->setName( BufferString("Type",idx) );
     }
 }
 
@@ -284,7 +291,7 @@ void uiWell2RandomLineDlg::previewPush( CallBacker* cb )
 #define mInsertRow(rowidx,text,val)\
 	selwellsbox_->insertRows( rowidx, 1 );\
 	selwellsbox_->setText( RowCol(rowidx,0), text );\
-	uiComboBox* newbox = new uiComboBox(0); \
+	uiComboBox* newbox = new uiComboBox(0,"Type"); \
 	newbox->addItems( sTypes ); \
 	newbox->setValue( val ); \
 	selwellsbox_->setCellObject( RowCol(rowidx,1), newbox );
@@ -316,6 +323,13 @@ void uiWell2RandomLineDlg::moveButPush( CallBacker* cb )
 	selwellsbox_->removeRow( index );
 	selwellsbox_->selectRow( index+1 );
 	selwellsbox_->setCurrentCell( RowCol(index+1,0) );
+    }
+
+    for ( int idx=0; idx<selwellsbox_->nrRows(); idx++ )
+    {
+	mDynamicCastGet(uiComboBox*,box,
+			selwellsbox_->getCellObject(RowCol(idx,1)))
+	if ( box ) box->setName( BufferString("Type",idx) );
     }
 }
 

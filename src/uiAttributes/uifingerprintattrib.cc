@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.43 2008-03-12 09:48:03 cvsbert Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.44 2008-05-07 05:39:21 cvsnageswara Exp $
 
 ________________________________________________________________________
 
@@ -104,7 +104,6 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d,"101.0.5")
     , ctio_(*mGetCtxtIOObj(PickSet,Loc))
     , refposfld_(0)
-    , refpos2dfld_(0)
     , linesetfld_(0)
     , linefld_(0)
     , sel2dbut_(0)
@@ -122,22 +121,16 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     uiLabel* lbl = new uiLabel( this, "Get values from" );
     lbl->attach( centeredLeftOf, refgrp_ );
 
-    if ( is2d_ )
-    {
-	refpos2dfld_ = new uiGenInput( this, "Trace number", IntInpSpec() );
-        refpos2dfld_->attach( alignedBelow, refgrp_ );
-    }
-    else
-    {
-	refposfld_ = new uiGenInput(this, "Position (Inl/Crl)",
-				PositionInpSpec(PositionInpSpec::Setup()) );
-	refposfld_->attach( alignedBelow, refgrp_ );
-    }
+    refposfld_ = new uiGenInput( this,
+			is2d_ ? "Trace number" : "Position (Inl/Crl)",
+			PositionInpSpec(PositionInpSpec::Setup(false,is2d_))
+	   		.setName("Inl position",0).setName("Crl position",1) );
+    refposfld_->attach( alignedBelow, refgrp_ );
 
     BufferString zlabel = "Z "; zlabel += SI().getZUnit();
     refposzfld_ = new uiGenInput( this, zlabel );
     refposzfld_->setElemSzPol( uiObject::Small );
-    refposzfld_->attach( rightTo, refposfld_ ? refposfld_ : refpos2dfld_ );
+    refposzfld_->attach( rightTo, refposfld_ );
     
     getposbut_ = new uiToolButton( this, "", ioPixmap("pick.png"),
 	    			   mCB(this,uiFingerPrintAttrib,getPosPush) );
@@ -146,8 +139,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     if ( is2d_ )
     {
 	linesetfld_ = new uiGenInput( this, "LineSet", StringInpSpec() );
-	linesetfld_-> attach( alignedBelow,
-			      refposfld_ ? refposfld_ : refpos2dfld_);
+	linesetfld_-> attach( alignedBelow, refposfld_ );
 
 	CallBack sel2dcb = mCB(this,uiFingerPrintAttrib,fillIn2DPos);
 	sel2dbut_ = new uiPushButton( this, "&Select", sel2dcb, false);
@@ -178,7 +170,8 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
 					.maxcolwdt(4*uiObject::baseFldSize())
 					.defrowlbl("")
 					.fillcol(true)
-					.fillrow(true) );
+					.fillrow(true) 
+    			       ,"Reference attributes table" );
 
     const char* collbls[] = { "Reference attributes", 0 };
     table_->setColumnLabels( collbls );
@@ -263,16 +256,8 @@ bool uiFingerPrintAttrib::setParameters( const Desc& desc )
     if ( strcmp(desc.attribName(),FingerPrint::attribName()) )
 	return false;
 
-    if ( is2d_ )
-    {
-	mIfGetBinID( FingerPrint::refposStr(),refpos2d,
-		     refpos2dfld_->setValue(refpos2d.crl) )
-    }
-    else
-    {
-	mIfGetBinID( FingerPrint::refposStr(), refpos,
-		     refposfld_->setValue(refpos) )
-    }
+    mIfGetBinID( FingerPrint::refposStr(), refpos,
+		 refposfld_->setValue(refpos) )
     mIfGetFloat( FingerPrint::refposzStr(), refposz,
 	    	 refposzfld_->setValue( refposz ) );
 
@@ -380,16 +365,11 @@ bool uiFingerPrintAttrib::getParameters( Desc& desc )
     if ( refgrpval == 1 )
     {
 	mSetFloat( FingerPrint::refposzStr(), refposzfld_->getfValue() );
+	mSetBinID( FingerPrint::refposStr(), refposfld_->getBinID() );
 	if ( is2d_ )
 	{
-	    mSetBinID( FingerPrint::refposStr(), 
-		    		BinID( 0,refpos2dfld_->getIntValue() ) );
 	    mSetString( FingerPrint::reflinesetStr(), lsid_ )
 	    mSetString( FingerPrint::ref2dlineStr(), linefld_->box()->text() )
-	}
-	else
-	{
-	    mSetBinID( FingerPrint::refposStr(), refposfld_->getBinID() );
 	}
     }
     else if ( refgrpval == 2 )
@@ -453,10 +433,7 @@ void uiFingerPrintAttrib::refSel( CallBacker* )
 {
     const bool refbutchecked = refposbut_->isChecked();
     const bool pickbutchecked = picksetbut_->isChecked();
-    if ( is2d_ ) 
-	refpos2dfld_->display( refbutchecked );
-    else
-	refposfld_->display( refbutchecked );
+    refposfld_->display( refbutchecked );
     refposzfld_->display( refbutchecked );
     if ( is2d_ )
     {
@@ -639,7 +616,7 @@ BinID uiFingerPrintAttrib::get2DRefPos() const
 	    }
 	    StepInterval<int> trcrg;
 	    lineset.getRanges( lineindex, trcrg, geometry->zrg );
-	    const int trcnr = refpos2dfld_->getIntValue();
+	    const int trcnr = refposfld_->getBinID().crl;
 	    return SI().transform( geometry->posns[trcnr-trcrg.start].coord_ );
 	}
     }

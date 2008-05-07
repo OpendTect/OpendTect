@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          September 2007
- RCS:		$Id: uistratlvlsel.cc,v 1.8 2008-02-26 09:17:39 cvsnanne Exp $
+ RCS:		$Id: uistratlvlsel.cc,v 1.9 2008-05-07 05:39:21 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,13 +34,14 @@ uiStratLevelSel::uiStratLevelSel( uiParent* p, bool wlbl, bool wdefine )
     if ( wlbl )
     {
 	uiLabeledComboBox* lcb = new uiLabeledComboBox( this, bfset,
-							"Tied to level" );
+					         	"Tied to level",
+							 "Tied to level" );
 	lvlnmfld_ = lcb->box();
 	attachobj = lcb->attachObj();
     }
     else
     {
-	lvlnmfld_ = new uiComboBox( this, bfset );
+	lvlnmfld_ = new uiComboBox( this, bfset, "Tied to level" );
 	lvlnmfld_->setStretch( 2, 2 );
 	attachobj = lvlnmfld_;
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.h,v 1.22 2008-04-16 15:15:39 cvsbert Exp $
+ RCS:           $Id: uicombobox.h,v 1.23 2008-05-07 05:39:21 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,14 +24,10 @@ class uiComboBox : public uiObject, public UserInputObjImpl<int>
 {
 public:
 
-			uiComboBox(uiParent*,const char* nm="Combo Box",
-				   bool editable=false);
+			uiComboBox(uiParent*,const char* nm);
 			uiComboBox(uiParent*,const BufferStringSet&,
-				   const char* nm="Combo Box",
-				   bool editable=false);
-			uiComboBox(uiParent*,const char**,
-				   const char* nm="Combo Box",
-				   bool editable=false);
+				   const char* nm);
+			uiComboBox(uiParent*,const char**,const char* nm);
     virtual 		~uiComboBox();
 
 			/*!  This is the text that is actually in the current
@@ -89,30 +85,28 @@ private:
     BufferString	rettxt;
 
     uiComboBoxBody*	body_;
-    uiComboBoxBody&	mkbody(uiParent*, const char*, bool);
-
+    uiComboBoxBody&	mkbody(uiParent*,const char*);
 };
 
 
 class uiLabeledComboBox : public uiGroup
 {
 public:
-		uiLabeledComboBox(uiParent*,const char* txt,
-				  const char* nm="Labeled Combobox",
-				  bool editable=false);
+		uiLabeledComboBox(uiParent*,const char* lbl,
+				  const char* nm=0);
 		uiLabeledComboBox(uiParent*,const BufferStringSet&,
-				  const char* txt,bool ed=false);
+				  const char* lbl,const char* nm=0);
 		uiLabeledComboBox(uiParent*,const char**,
-				  const char* txt,bool ed=false);
+				  const char* lbl,const char* nm=0);
 
-    uiComboBox*	box()		{ return cb; }
-    uiLabel*	label()		{ return labl; }
+    uiComboBox*	box()		{ return cb_; }
+    uiLabel*	label()		{ return labl_; }
 
 
 protected:
 
-    uiComboBox*	cb;
-    uiLabel*	labl;
+    uiComboBox*	cb_;
+    uiLabel*	labl_;
 
 };
 

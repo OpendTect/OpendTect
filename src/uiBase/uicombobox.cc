@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uicombobox.cc,v 1.45 2008-04-16 15:15:39 cvsbert Exp $
+ RCS:           $Id: uicombobox.cc,v 1.46 2008-05-07 05:39:21 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,14 +28,14 @@ class uiComboBoxBody : public uiObjBodyImpl<uiComboBox,QComboBox>
 public:
 
 			uiComboBoxBody( uiComboBox& handle, uiParent* p,
-					const char* nm, bool ed)
+					const char* nm )
 			    : uiObjBodyImpl<uiComboBox,QComboBox>(handle,p,nm)
 			    , messenger_( *new i_comboMessenger( this, &handle))
-			    {
-				setEditable( ed );
-				setAutoCompletion( ed );
-				setHSzPol( uiObject::Medium) ;
-			    }
+			{
+			    setEditable( false );
+			    setAutoCompletion( false );
+			    setHSzPol( uiObject::Medium) ;
+			}
 
     virtual		~uiComboBoxBody()
 			    { delete &messenger_; }
@@ -64,6 +64,7 @@ void uiComboBoxBody::activate( int idx )
     QApplication::postEvent( this, actevent );
 }
 
+
 bool uiComboBoxBody::event( QEvent* ev )
 {
     if ( ev->type() != sQEventActivate )
@@ -83,31 +84,26 @@ bool uiComboBoxBody::event( QEvent* ev )
 //------------------------------------------------------------------------------
 
 
-uiComboBox::uiComboBox(  uiParent* parnt, const char* nm, bool ed )
-						//false: no read/write
-    : uiObject( parnt, nm, mkbody(parnt,nm,ed) )
+uiComboBox::uiComboBox( uiParent* parnt, const char* nm )
+    : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selectionChanged( this ), activatedone( this )
 {
-    if ( ed ) setStretch( 1, 0 );
 }
 
 
-uiComboBox::uiComboBox(  uiParent* parnt, const BufferStringSet& uids,
-			 const char* nm, bool ed )
-    : uiObject( parnt, nm, mkbody(parnt,nm,ed) )
+uiComboBox::uiComboBox( uiParent* parnt, const BufferStringSet& uids,
+			const char* nm )
+    : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selectionChanged( this ), activatedone( this )
 { 
-    if ( ed ) setStretch( 1, 0 );
     addItems( uids );
 }
 
 
-uiComboBox::uiComboBox(  uiParent* parnt, const char** uids,
-			 const char* nm, bool ed )
-    : uiObject( parnt, nm, mkbody(parnt,nm,ed) )
+uiComboBox::uiComboBox( uiParent* parnt, const char** uids, const char* nm )
+    : uiObject( parnt, nm, mkbody(parnt,nm) )
     , selectionChanged( this ), activatedone( this )
 { 
-    if ( ed ) setStretch( 1, 0 );
     addItems( uids );
 }
 
@@ -116,16 +112,15 @@ uiComboBox::~uiComboBox()
 {}
 
 
-uiComboBoxBody& uiComboBox::mkbody(uiParent* parnt, const char* nm, bool ed)
+uiComboBoxBody& uiComboBox::mkbody( uiParent* parnt, const char* nm )
 {
-    body_= new uiComboBoxBody(*this,parnt,nm,ed);
+    body_ = new uiComboBoxBody( *this, parnt, nm );
     return *body_; 
 }
 
+
 int uiComboBox::currentItem() const
-{
-    return body_->currentItem();
-}
+{ return body_->currentItem(); }
 
 
 void uiComboBox::setPixmap( const ioPixmap& pixmap, int index )
@@ -137,9 +132,7 @@ void uiComboBox::setPixmap( const ioPixmap& pixmap, int index )
 
 
 void uiComboBox::empty()
-{
-    body_->QComboBox::clear();
-}
+{ body_->QComboBox::clear(); }
 
 
 const char* uiComboBox::text() const
@@ -183,9 +176,7 @@ const char* uiComboBox::textOfItem( int idx ) const
 
 
 int uiComboBox::size() const
-{
-    return body_->count();
-}
+{ return body_->count(); }
 
 
 void uiComboBox::setCurrentItem( const char* txt )
@@ -199,6 +190,7 @@ void uiComboBox::setCurrentItem( const char* txt )
 	    { body_->setCurrentItem( idx ); return; }
     }
 }
+
 
 void uiComboBox::setCurrentItem( int idx )
 {
@@ -234,21 +226,15 @@ bool uiComboBox::update_( const DataInpSpec& spec )
 
 
 void uiComboBox::setReadOnly( bool yn )
-{ 
-    body_->setEditable( !yn );
-}
+{ body_->setEditable( !yn ); }
 
 
 bool uiComboBox::isReadOnly() const
-{
-    return !body_->editable();
-}
+{ return !body_->editable(); }
 
 
 void uiComboBox::addItem( const char* text ) 
-{ 
-    insertItem( text, -1 );
-}
+{ insertItem( text, -1 ); }
 
 
 void uiComboBox::addItems( const BufferStringSet& bss )
@@ -274,31 +260,32 @@ void uiComboBox::activate( int idx )
 { body_->activate( idx ); }
 
 
+
 uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const char* txt,
-					const char* nm, bool ed )
+				      const char* nm )
 	: uiGroup(p,"Labeled combobox")
 {
-    cb = new uiComboBox( this, nm, ed );
-    labl = new uiLabel( this, txt, cb );
-    setHAlignObj( cb );
+    cb_ = new uiComboBox( this, nm && *nm ? nm : txt );
+    labl_ = new uiLabel( this, txt, cb_ );
+    setHAlignObj( cb_ );
 }
 
 
-uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const BufferStringSet& s,
-				      const char* nm, bool ed )
+uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const BufferStringSet& strs,
+				      const char* txt, const char* nm )
 	: uiGroup(p,"Labeled combobox")
 {
-    cb = new uiComboBox( this, s, nm, ed );
-    labl = new uiLabel( this, nm, cb );
-    setHAlignObj( cb );
+    cb_ = new uiComboBox( this, strs, nm && *nm ? nm : txt );
+    labl_ = new uiLabel( this, txt, cb_ );
+    setHAlignObj( cb_ );
 }
 
 
-uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const char** s,
-				      const char* nm, bool ed )
+uiLabeledComboBox::uiLabeledComboBox( uiParent* p, const char** strs,
+				      const char* txt, const char* nm )
 	: uiGroup(p,"Labeled combobox")
 {
-    cb = new uiComboBox( this, s, nm, ed );
-    labl = new uiLabel( this, nm, cb );
-    setHAlignObj( cb );
+    cb_ = new uiComboBox( this, strs, nm && *nm ? nm : txt );
+    labl_ = new uiLabel( this, txt, cb_ );
+    setHAlignObj( cb_ );
 }

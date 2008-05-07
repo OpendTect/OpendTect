@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          December 2004
- RCS:           $Id: uiscalingattrib.cc,v 1.14 2007-10-12 09:12:19 cvssulochana Exp $
+ RCS:           $Id: uiscalingattrib.cc,v 1.15 2008-05-07 05:39:21 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,8 @@ uiScalingAttrib::uiScalingAttrib( uiParent* p, bool is2d )
 					       .rowgrow(true)
 					       .defrowlbl("")
 					       .fillcol(true)
-					       .maxrowhgt(1) );
+					       .maxrowhgt(1)
+	   				       ,"Define Gate limits" );
 
     BufferString lblstart = "Start "; lblstart += SI().getZUnit();
     BufferString lblstop = "Stop "; lblstop += SI().getZUnit();

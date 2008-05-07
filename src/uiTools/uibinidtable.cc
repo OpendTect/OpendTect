@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          February 2003
- RCS:           $Id: uibinidtable.cc,v 1.12 2008-02-29 11:25:08 cvsnanne Exp $
+ RCS:           $Id: uibinidtable.cc,v 1.13 2008-05-07 05:39:21 cvsnageswara Exp $
  ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ uiBinIDTable::uiBinIDTable( uiParent* p, bool withz )
 {
     table_ = new uiTable( this, uiTable::Setup().rowdesc("Node")
 	    					.rowgrow(true)
-						.defrowlbl(true) );
+						.defrowlbl(true),"BinID Table" );
     table_->setNrCols( 2 );
     table_->setColumnLabel( 0, "Inline" );
     table_->setColumnLabel( 1, "Crossline" );
@@ -37,7 +37,8 @@ uiBinIDTable::uiBinIDTable( uiParent* p, bool withz )
     if ( withz_ )
     {
 	BufferString lbl = "Z range "; lbl += SI().getZUnit();
-	zfld_ = new uiGenInput( this, lbl, FloatInpIntervalSpec() );
+	zfld_ = new uiGenInput( this, lbl,
+	    FloatInpIntervalSpec().setName("Z start",0).setName("Z stop",1) );
 	zfld_->attach( leftAlignedBelow, table_ );
 	zfld_->attach( ensureBelow, hsep );
     }

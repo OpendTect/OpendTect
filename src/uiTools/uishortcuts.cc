@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          December 2005
- RCS:           $Id: uishortcuts.cc,v 1.10 2007-03-15 16:18:09 cvsbert Exp $
+ RCS:           $Id: uishortcuts.cc,v 1.11 2008-05-07 05:39:21 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,8 @@ uiShortcutsDlg::uiShortcutsDlg( uiParent* p, const char* selkey )
 	    lcbox->attach( alignedBelow, prevlcbox );
 	prevlcbox = lcbox;
 
-	uiComboBox* box = new uiComboBox( this, uiKeyDesc::sKeyKeyStrs() );
+	uiComboBox* box = new uiComboBox( this, uiKeyDesc::sKeyKeyStrs(),
+					  BufferString("Keys",idx).buf() );
 	box->setCurrentItem( kd.keyStr() );
 	keyboxes_ += box;
 	box->attach( rightOf, lcbox );

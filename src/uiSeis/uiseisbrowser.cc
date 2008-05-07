@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.21 2008-05-05 11:44:00 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.22 2008-05-07 05:39:21 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -191,7 +191,7 @@ void uiSeisBrowser::createTable()
     const int nrcols = 2*stepout_ + 1;
     tbl_ = new uiTable( this, uiTable::Setup( nrrows, nrcols )
 			     .selmode(uiTable::Multi)
-    			     .manualresize( true ) );
+    			     .manualresize( true ), "Seismic data" );
     
     tbl_->valueChanged.notify( mCB(this,uiSeisBrowser,valChgReDraw) );
     tbl_->setStretch( 1, 1 );

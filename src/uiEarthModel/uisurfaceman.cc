@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.45 2008-04-15 12:00:53 cvsnanne Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.46 2008-05-07 05:39:21 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -308,7 +308,8 @@ uiSurfaceStratDlg( uiParent* p,  const ObjectSet<MultiID>& ids )
     : uiDialog(p,uiDialog::Setup("Stratigraphy","",""))
     , objids_(ids)
 {
-    tbl_ = new uiTable( this, uiTable::Setup(ids.size(),3), "StratTable" );
+    tbl_ = new uiTable( this, uiTable::Setup(ids.size(),3), 
+			"Stratigraphy Table" );
     BufferStringSet lbls; lbls.add( "Name" ).add( "Color" ).add( "Level" );
     tbl_->setColumnLabels( lbls );
     tbl_->setTableReadOnly( true );

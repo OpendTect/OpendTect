@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.39 2008-04-03 07:08:48 cvsnanne Exp $
+ RCS:           $Id: uitable.h,v 1.40 2008-05-07 05:39:21 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,7 +93,7 @@ public:
 
     };
 
-                        uiTable(uiParent*,const Setup&,const char* nm="Table");
+                        uiTable(uiParent*,const Setup&,const char* nm);
     virtual 		~uiTable();
 
     const char*		text(const RowCol&) const;

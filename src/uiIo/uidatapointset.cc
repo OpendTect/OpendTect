@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.12 2008-04-21 16:02:05 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.13 2008-05-07 05:39:21 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,7 +95,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     tbl_ = new uiTable( this, uiTable::Setup(size(),nrcols)
 			  .rowgrow( false ).colgrow( false )
 			  .selmode( uiTable::Multi )
-			  .manualresize( true ) );
+			  .manualresize( true ), "Well information table" );
     tbl_->attach( ensureBelow, titllbl );
     tbl_->valueChanged.notify( mCB(this,uiDataPointSet,valChg) );
     tbl_->rowClicked.notify( mCB(this,uiDataPointSet,rowSel) );
