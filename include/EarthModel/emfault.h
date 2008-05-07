@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.30 2008-03-26 13:53:54 cvsjaap Exp $
+ RCS:		$Id: emfault.h,v 1.31 2008-05-07 12:37:11 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -26,9 +26,12 @@ class Fault;
 class FaultGeometry : public SurfaceGeometry
 {
 public:
-    			FaultGeometry( Fault& );
+    			FaultGeometry(Fault&);
 			~FaultGeometry();
+
     int			nrSticks(const SectionID&) const;
+    int			nrKnots(const SectionID&,int sticknr) const;
+
     bool		insertStick(const SectionID&, int sticknr,
 	    			    const Coord3& pos,const Coord3& editnormal,
 				    bool addtohistory);

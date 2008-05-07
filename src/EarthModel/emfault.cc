@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.40 2008-03-26 13:53:54 cvsjaap Exp $
+ RCS:           $Id: emfault.cc,v 1.41 2008-05-07 12:37:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,6 +83,13 @@ int FaultGeometry::nrSticks( const SectionID& sid ) const
 {
     const Geometry::FaultStickSurface* fss = sectionGeometry( sid );
     return !fss || fss->isEmpty() ? 0 : fss->rowRange().nrSteps()+1;
+}
+
+
+int FaultGeometry::nrKnots( const SectionID& sid, int sticknr ) const
+{
+    const Geometry::FaultStickSurface* fss = sectionGeometry( sid );
+    return !fss || fss->isEmpty() ? -1 : fss->colRange(sticknr).nrSteps()+1;
 }
 
 
