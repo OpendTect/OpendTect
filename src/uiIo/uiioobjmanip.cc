@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.30 2008-01-07 10:55:29 cvsnanne Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.31 2008-05-07 05:19:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -272,7 +272,8 @@ bool uiIOObjManipGroup::renameEntry( IOObj* ioobj, Translator* tr )
 	    fp.setFileName( deffp.fileName() );
 	    chiostrm.setFileName( fp.fullPath() );
 
-	    if ( !doReloc(tr,*iostrm,chiostrm) )
+	    const bool newfnm = strcmp(chiostrm.fileName(),iostrm->fileName());
+	    if ( newfnm && !doReloc(tr,*iostrm,chiostrm) )
 	    {
 		if ( strchr(newnm.buf(),'/') || strchr(newnm.buf(),'\\') )
 		{
