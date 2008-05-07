@@ -4,12 +4,10 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodhelpmenumgr.cc,v 1.13 2008-02-28 12:20:40 cvsnanne Exp $
+ RCS:           $Id: uiodhelpmenumgr.cc,v 1.14 2008-05-07 09:44:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
-
-static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.13 2008-02-28 12:20:40 cvsnanne Exp $";
 
 #include "uiodhelpmenumgr.h"
 #include "uiodmenumgr.h"
@@ -26,9 +24,12 @@ static const char* rcsID = "$Id: uiodhelpmenumgr.cc,v 1.13 2008-02-28 12:20:40 c
 
 static const char* oddirnm = "base";
 
-#define mInsertItem(mnu,txt,id) \
-    mnu->insertItem( \
-	new uiMenuItem(txt,mCB(mnumgr_,uiODMenuMgr,handleClick)), id )
+#define mInsertItem(mnu,txt,id,sc) \
+{ \
+    uiMenuItem* itm = new uiMenuItem(txt,mCB(mnumgr_,uiODMenuMgr,handleClick));\
+    mnu->insertItem( itm, id ); \
+    itm->setShortcut( sc ); \
+}
 
 uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
     	: havedtectdoc_(false)
@@ -39,8 +40,8 @@ uiODHelpMenuMgr::uiODHelpMenuMgr( uiODMenuMgr* mm )
     mkVarMenu();
     if ( havedtectdoc_ )
     {
-	mInsertItem( helpmnu_, "Ad&min ...", mAdminMnuItm );
-	mInsertItem( helpmnu_, "&Programmer ...", mProgrammerMnuItm );
+	mInsertItem( helpmnu_, "Ad&min ...", mAdminMnuItm, 0 );
+	mInsertItem( helpmnu_, "&Programmer ...", mProgrammerMnuItm, 0 );
     }
     mkAboutMenu();
 }
@@ -62,6 +63,7 @@ public:
     BufferString	nm;
     BufferString	iconfnm;
     BufferString	starturl;
+    BufferString	shortcut;
 
     bool		getFrom(std::istream&,const char*);
 };
@@ -84,6 +86,8 @@ bool uiODHelpDocInfo::getFrom( std::istream& strm, const char* dirnm )
 		fp.setPath( dirnm );
 	    (*astrm.keyWord() == 'S' ? starturl : iconfnm) = fp.fullPath();
 	}
+	else if ( astrm.hasKeyword("Shortcut") )
+	    shortcut = astrm.value();
     }
 
     return !nm.isEmpty();
@@ -133,7 +137,7 @@ void uiODHelpMenuMgr::insertVarItem( uiPopupMenu* mnu, int eidx, bool withicon )
     uiODHelpDocInfo& di = *varentries_[eidx];
     BufferString txt( di.nm );
     txt += " ...";
-    mInsertItem( mnu, txt, di.id );
+    mInsertItem( mnu, txt, di.id, di.shortcut );
 }
 
 
@@ -163,7 +167,7 @@ void uiODHelpMenuMgr::mkAboutMenu()
 {
     uiPopupMenu* submnu = new uiPopupMenu( &mnumgr_->appl_, "&About" );
     helpmnu_->insertItem( submnu );
-    mInsertItem( submnu, "&General ...", mHelpAboutMnuBase );
+    mInsertItem( submnu, "&General ...", mHelpAboutMnuBase, 0 );
 
     FilePath fp( GetDocFileDir("ReleaseInfo") );
     DirList dl( fp.fullPath(), DirList::FilesOnly );
@@ -184,7 +188,7 @@ void uiODHelpMenuMgr::mkAboutMenu()
     for ( int idx=0; idx<aboutentries_.size(); idx++ )
     {
 	const uiODHelpDocInfo* di = aboutentries_[idx];
-	mInsertItem( submnu, di->nm, di->id );
+	mInsertItem( submnu, di->nm, di->id, di->shortcut );
     }
 }
 
