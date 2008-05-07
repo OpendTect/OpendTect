@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.68 2007-09-04 21:40:05 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.69 2008-05-07 12:34:30 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -101,6 +101,8 @@ public:
 
     virtual bool		isOK() const		{ return true; }
 
+    void			setName( const char* nm )  { objname_ = nm; }
+    				/*!<The IOObj name overrules this */
     BufferString		name() const;
 
     virtual int			nrSections() const 			= 0;
@@ -211,13 +213,13 @@ protected:
     				//!<must be called after creation
     virtual Geometry::Element*	sectionGeometryInternal(const SectionID&);
     virtual void		prepareForDelete() const;
-
     void			posIDChangeCB(CallBacker*);
+
+    BufferString		objname_;
     ObjectID			id_;
     MultiID			storageid_;
     class EMManager&		manager_;
     BufferString		errmsg_;
-
 
     Color&			preferredcolor_;
 
