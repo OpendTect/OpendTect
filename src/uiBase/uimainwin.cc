@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.142 2008-03-28 16:40:03 cvsjaap Exp $
+ RCS:           $Id: uimainwin.cc,v 1.143 2008-05-07 12:22:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -185,6 +185,7 @@ private:
     void 		popTimTick(CallBacker*);
     Timer		poptimer;
     bool		popped_up;
+    uiSize		prefsz_;
 
 
     ObjectSet<uiDockWin>	wins2move;
@@ -209,6 +210,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* p,
 	, poptimer("Popup timer")
 	, popped_up(false)
 	, exitapponclose_(false)
+        , prefsz_(-1,-1)
 {
     if ( nm && *nm ) setCaption( nm );
     poptimer.tick.notify( mCB(this,uiMainWinBody,popTimTick) );
@@ -284,6 +286,8 @@ void uiMainWinBody::popTimTick( CallBacker* )
     if ( popped_up ) { pErrMsg( "huh?" ); }
 	popped_up = true;
     moveDockWindows();
+    if ( prefsz_.hNrPics()>0 && prefsz_.vNrPics()>0 )
+	resize( prefsz_.hNrPics(), prefsz_.vNrPics() );
 }
 
 
@@ -435,6 +439,7 @@ void uiMainWinBody::uimoveDockWindow( uiDockWin& dwin, uiMainWin::Dock dock,
     moveDockWindows();
 }
 
+
 void uiMainWinBody::moveDockWindows()
 {
     if ( !poppedUp() ) return;
@@ -536,8 +541,7 @@ void uiMainWinBody::readSettings()
     QSettings settings;
     settings.beginGroup( NamedObject::name().buf() );
     QSize qsz( settings.value("size",QSize(200,200)).toSize() );
-    handle_.setPrefWidth( qsz.width() );
-    handle_.setPrefHeight( qsz.height() );
+    prefsz_ = uiSize( qsz.width(), qsz.height() );
     restoreState( settings.value("state").toByteArray() );
     settings.endGroup();
 }
