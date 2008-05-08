@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.127 2008-05-08 03:56:27 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.128 2008-05-08 07:28:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -867,12 +867,10 @@ void uiODSceneMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     if ( !curvwr )
 	curvwr = &addViewer2D( visid );
 
-    bool isvert = visServ().isVerticalDisp( visid );
+    const bool isvert = visServ().isVerticalDisp( visid );
     curvwr->setUpView( visServ().getDataPackID(visid,attribid), dowva, isvert );
-    const ColTab::Sequence* seq =
-	appl_.applMgr().visServer()->getColTabSeq( visid, attribid );
-    curvwr->viewwin_->viewer().appearance().ddpars_.vd_.ctab_ =
-							seq ? seq->name() : "";
+    appl_.applMgr().visServer()->fillDispPars( visid, attribid,
+	    curvwr->viewwin_->viewer().appearance().ddpars_ );
 }
 
 

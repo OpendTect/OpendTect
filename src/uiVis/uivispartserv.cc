@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.368 2008-05-08 03:58:50 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.369 2008-05-08 07:28:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,8 @@ ________________________________________________________________________
 
 #include "attribsel.h"
 #include "binidvalset.h"
+#include "coltabsequence.h"
+#include "flatview.h"
 #include "iopar.h"
 #include "oddirs.h"
 #include "seisbuf.h"
@@ -702,21 +704,19 @@ int uiVisPartServer::getColTabId( int id, int attrib ) const
 }
 
 
-const ColTab::Sequence* uiVisPartServer::getColTabSeq( int id, int attr ) const
+void uiVisPartServer::fillDispPars( int id, int attr,
+				    FlatView::DataDispPars& pars ) const
 {
     const int ctid = getColTabId( id, attr );
-    if ( ctid < 0 ) return 0;
     mDynamicCastGet(visBase::VisColorTab*,coltab,getObject(ctid))
-    return coltab ? &coltab->colorSeq().colors() : 0;
-}
+    if ( !coltab ) return;
 
-
-void uiVisPartServer::setClipRate( int id, int attrib, float cr )
-{
-    const int ctid = getColTabId( id, attrib );
-    if ( ctid < 0 ) return;
-    mDynamicCastGet(visBase::VisColorTab*,coltab,getObject(ctid))
-    if ( coltab ) coltab->setClipRate( cr );
+    pars.vd_.ctab_ = coltab->colorSeq().colors().name();
+    pars.vd_.clipperc_ = pars.wva_.clipperc_ =
+	Interval<float>( coltab->clipRate()*100, mUdf(float) );
+    pars.vd_.autoscale_ = pars.wva_.autoscale_ = coltab->autoScale();
+    pars.vd_.rg_ = pars.wva_.rg_ = coltab->getInterval();
+    pars.vd_.midvalue_ = pars.wva_.midvalue_ = coltab->symMidval();
 }
 
 

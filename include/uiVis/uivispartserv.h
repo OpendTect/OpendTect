@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.202 2008-05-08 03:58:50 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.203 2008-05-08 07:28:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ class uiVisModeMgr;
 class uiVisPickRetriever;
 
 namespace Attrib    { class SelSpec; class DataCubes; }
-namespace ColTab    { class Sequence; }
+namespace FlatView  { class DataDispPars; }
 namespace Threads   { class Mutex; };
 namespace Tracking  { class TrackManager; };
 namespace visBase   { class DataObject; };
@@ -235,8 +235,8 @@ public:
 
     			// ColorTable stuff
     int				getColTabId(int id,int attrib ) const;
-    const ColTab::Sequence*	getColTabSeq(int id,int attrib) const;
-    void			setClipRate(int id,int attrib,float);
+    void			fillDispPars(int id,int attrib,
+	    				     FlatView::DataDispPars&) const;
     const TypeSet<float>*	getHistogram(int id,int attrib) const;
 
 				//General stuff
