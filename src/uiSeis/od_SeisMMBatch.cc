@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2002
- RCS:           $Id: od_SeisMMBatch.cc,v 1.19 2006-02-20 18:49:49 cvsbert Exp $
+ RCS:           $Id: od_SeisMMBatch.cc,v 1.20 2008-05-08 16:11:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,7 +71,7 @@ int main( int argc, char ** argv )
 #endif 
 
     const char* res = iop.find( sKey::Survey );
-    if ( res && *res && SI().name() != res )
+    if ( res && *res && SI().getDirName() != res )
 	IOMan::setSurvey( res );
 
     PIM().setArgs( argc, argv );
