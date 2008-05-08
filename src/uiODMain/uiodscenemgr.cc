@@ -4,12 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.126 2008-05-05 05:42:29 cvsnageswara Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.127 2008-05-08 03:56:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiodscenemgr.h"
+#include "scene.xpm"
+
 #include "uiodapplmgr.h"
 #include "uiodmenumgr.h"
 #include "uiodscenetreeitem.h"
@@ -35,11 +37,11 @@ ________________________________________________________________________
 #include "uitreeitemmanager.h"
 #include "uimsg.h"
 
+#include "coltabsequence.h"
 #include "ptrman.h"
 #include "settings.h"
 #include "sorting.h"
 #include "survinfo.h"
-#include "scene.xpm"
 
 // For factories
 #include "uiodhortreeitem.h"
@@ -865,8 +867,12 @@ void uiODSceneMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     if ( !curvwr )
 	curvwr = &addViewer2D( visid );
 
-    bool isvert = visServ().isVerticalDisp(visid);
+    bool isvert = visServ().isVerticalDisp( visid );
     curvwr->setUpView( visServ().getDataPackID(visid,attribid), dowva, isvert );
+    const ColTab::Sequence* seq =
+	appl_.applMgr().visServer()->getColTabSeq( visid, attribid );
+    curvwr->viewwin_->viewer().appearance().ddpars_.vd_.ctab_ =
+							seq ? seq->name() : "";
 }
 
 
