@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.h,v 1.19 2008-02-05 10:22:05 cvsjaap Exp $
+ RCS:           $Id: uifiledlg.h,v 1.20 2008-05-08 06:00:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,14 +58,13 @@ public:
     void		setDirectory( const char* dir )
 			{ currentdir_ = dir; }
 
-    void		setOkText( const char* txt )	{ oktxt_ = txt; }
-    void		setCancelText( const char* txt ){ cnclxt_ = txt; }
-
-    void		setAllowAllExts( bool yn=true )	{ addallexts_ = yn; }
+    void		setAllowAllExts( bool yn )	{ addallexts_ = yn; }
+    void		setConfirmOverwrite( bool yn )
+    			{ confirmoverwrite_ = yn; }
 
     int                 go();
 
-    static const char*	filesep;
+    static const char*	filesep_;
 
     static void		list2String(const BufferStringSet&,
 	    			    BufferString&);
@@ -86,14 +85,13 @@ protected:
     BufferString	fname_;
     BufferString	filter_;
     BufferString	caption_;
-    BufferString	oktxt_;
-    BufferString	cnclxt_;
     uiParent*		parnt_;
     BufferStringSet	filenames;
     BufferString	selectedfilter_;
     BufferString	currentdir_;
     bool		addallexts_;
     bool		forread_;
+    bool		confirmoverwrite_;
     
     static FileMultiString*	externalfilenames_;
     static BufferString		extfilenameserrmsg_;

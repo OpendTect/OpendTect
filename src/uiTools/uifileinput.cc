@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uifileinput.cc,v 1.41 2007-11-27 05:51:45 cvsnanne Exp $
+ RCS:           $Id: uifileinput.cc,v 1.42 2008-05-08 06:00:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const Setup& setup )
     , examinebut_(0)
     , addallexts_(setup.allowallextensions_)
     , tablevw_(setup.examinetablestyle_)
+    , confirmoverwrite_(setup.confirmoverwrite_)
 {
     setWithSelect( true );
     if ( setup.withexamine_ )
@@ -53,6 +54,7 @@ uiFileInput::uiFileInput( uiParent* p, const char* txt, const char* fnm )
     , selmode_(uiFileDialog::AnyFile)
     , examinebut_(0)
     , addallexts_(true)
+    , confirmoverwrite_(true)
 {
     setWithSelect( true );
 }
@@ -91,6 +93,7 @@ void uiFileInput::doSelect( CallBacker* )
     uiFileDialog dlg( this, forread_, fname, filter_ );
     dlg.setSelectedFilter( selfltr_ );
     dlg.setAllowAllExts( addallexts_ );
+    dlg.setConfirmOverwrite( confirmoverwrite_ );
 
     if ( selmodset_ )
 	dlg.setMode( selmode_ );

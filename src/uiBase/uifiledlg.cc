@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/09/2000
- RCS:           $Id: uifiledlg.cc,v 1.40 2008-05-05 05:42:18 cvsnageswara Exp $
+ RCS:           $Id: uifiledlg.cc,v 1.41 2008-05-08 06:00:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ ________________________________________________________________________
 #include <QFileDialog>
 
 
-const char* uiFileDialog::filesep = ";";
+const char* uiFileDialog::filesep_ = ";";
 
 class ODFileDialog : public QFileDialog
 {
@@ -56,18 +56,20 @@ QFileDialog::Mode qmodeForUiMode( uiFileDialog::Mode mode )
     return QFileDialog::AnyFile;
 }
 
+#define mCommon \
+    , fname_( fname ) \
+    , filter_( filter ) \
+    , caption_(caption) \
+    , parnt_(parnt) \
+    , addallexts_(false) \
+    , confirmoverwrite_(true)
 
 uiFileDialog::uiFileDialog( uiParent* parnt, bool forread,
 			    const char* fname, const char* filter,
 			    const char* caption )
 	: mode_( forread ? ExistingFile : AnyFile )
         , forread_( forread )
-	, fname_( fname )
-	, filter_( filter )
-	, caption_( caption )
-	, oktxt_( "Select" )
-	, parnt_( parnt )
-    	, addallexts_( false )
+        mCommon
 {
     if ( !caption || !*caption )
 	caption_ = forread ? "Open" : "Save As";
@@ -79,12 +81,7 @@ uiFileDialog::uiFileDialog( uiParent* parnt, Mode mode,
 			    const char* caption )
 	: mode_( mode )
         , forread_(true)
-	, fname_( fname )
-	, filter_( filter )
-	, caption_( caption )
-	, oktxt_( "Select" )
-	, parnt_( parnt )
-    	, addallexts_( false )
+	mCommon
 {}
 
 
@@ -154,6 +151,7 @@ int uiFileDialog::go()
 	    			: QFileDialog::AcceptSave );
     fd->setMode( qmodeForUiMode(mode_) );
     fd->setCaption( QString(caption_) );
+    fd->setConfirmOverwrite( confirmoverwrite_ );
     if ( !currentdir_.isEmpty() )
 	fd->setDirectory( QString(currentdir_.buf()) );
     if ( selectedfilter_.size() )
@@ -205,14 +203,15 @@ void uiFileDialog::list2String( const BufferStringSet& list,
     for ( int idx=0; idx<list.size(); idx++ )
 	qlist.append( (QString)list[idx]->buf() );
 
-    string = qlist.join( (QString)filesep ).toAscii().constData();
+    string = qlist.join( (QString)filesep_ ).toAscii().constData();
 }
 
 
 void uiFileDialog::string2List( const BufferString& string,
 				BufferStringSet& list )
 {
-    QStringList qlist = QStringList::split( (QString)filesep, (QString)string );
+    QStringList qlist = QStringList::split( (QString)filesep_,
+	    				    (QString)string );
     for ( int idx=0; idx<qlist.size(); idx++ )
 	list += new BufferString( qlist[idx].toAscii().constData() );
 }
@@ -306,7 +305,7 @@ int uiFileDialog::processExternalFilenames( const char* dir,
 	filters = filter_.buf();
 
     BufferStringSet filterset;
-    const SeparString fltsep( filters, uiFileDialog::filesep[0] );
+    const SeparString fltsep( filters, uiFileDialog::filesep_[0] );
     for ( int fltidx=0; fltidx<fltsep.size(); fltidx++ )
 	filterset.add( fltsep[fltidx] );
     
