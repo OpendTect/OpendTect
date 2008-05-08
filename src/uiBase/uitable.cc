@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.62 2008-04-24 12:23:36 cvsnanne Exp $
+ RCS:           $Id: uitable.cc,v 1.63 2008-05-08 12:30:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -265,7 +265,7 @@ void uiTable::setDefaultRowLabels()
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	BufferString lbl( setup_.rowdesc_ ); lbl += " ";
-	lbl += idx+1;
+	lbl += ( idx + setup_.defrowstartidx_ );
 	setRowLabel( idx, lbl );
     }
 }

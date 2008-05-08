@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.41 2008-05-07 06:06:23 cvsnanne Exp $
+ RCS:           $Id: uitable.h,v 1.42 2008-05-08 12:30:15 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,8 @@ public:
 			, defrowlbl_(false)
 			, manualresize_(false)
 					//!< if not, adapt size of cells auto
+			, defrowstartidx_( 1 )
+				    //!< default row label: start counting at 1 
 				{}
 
 	mDefSetupMemb(RowCol,size)
@@ -91,6 +93,7 @@ public:
 	mDefSetupMemb(bool,defrowlbl)
 	mDefSetupMemb(bool,defcollbl)
 	mDefSetupMemb(bool,manualresize)
+	mDefSetupMemb(int,defrowstartidx)
 
     };
 
