@@ -4,27 +4,30 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.61 2008-05-08 05:08:22 cvsraman Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.62 2008-05-08 06:01:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uibatchlaunch.h"
-#include "uicombobox.h"
-#include "uispinbox.h"
-#include "uifileinput.h"
-#include "uiseparator.h"
+
 #include "uibutton.h"
+#include "uicombobox.h"
+#include "uifileinput.h"
 #include "uimsg.h"
-#include "iopar.h"
-#include "strmdata.h"
-#include "strmprov.h"
-#include "hostdata.h"
+#include "uiseparator.h"
+#include "uispinbox.h"
+
+#include "filegen.h"
 #include "filepath.h"
+#include "hostdata.h"
+#include "ioman.h"
+#include "iopar.h"
+#include "keystrs.h"
 #include "oddirs.h"
 #include "ptrman.h"
-#include "keystrs.h"
-#include "ioman.h"
+#include "strmdata.h"
+#include "strmprov.h"
 
 static const char* sSingBaseNm = "batch_processing";
 static const char* sMultiBaseNm = "cube_processing";
@@ -268,7 +271,8 @@ void uiFullBatchDialog::addStdFields( bool forread, bool onlysinglemachine )
 			    : "Store processing specification as";
     parfnamefld_ = new uiFileInput( dogrp,txt, uiFileInput::Setup(singparfname_)
 					       .forread(forread)
-					       .filter("*.par;;*") );
+					       .filter("*.par;;*")
+					       .confirmoverwrite(false) );
     if ( !onlysinglemachine )
 	parfnamefld_->attach( alignedBelow, singmachfld_ );
 
@@ -305,6 +309,22 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 	getProcFilename( 0, "tmp_proc", inpfnm );
     else if ( !FilePath(inpfnm).isAbsolute() )
 	getProcFilename( inpfnm, sSingBaseNm, inpfnm );
+
+    if ( File_exists(inpfnm) )
+    {
+	if ( !File_isWritable(inpfnm) )
+	{
+	    BufferString msg( "Cannot write specifications to\n", inpfnm.buf(),
+		"\nPlease select another file, or make sure file is writable.");
+	    uiMSG().error( msg );
+	    return false;
+	}
+	else
+	{
+	    if ( !uiMSG().askGoOn("Overwrite existing specification file?") )
+		return false;
+	}
+    }
 
     const bool issing = !singmachfld_ || singmachfld_->getBoolValue();
 
