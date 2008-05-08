@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.201 2008-04-14 16:21:44 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.202 2008-05-08 03:58:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,15 +16,12 @@ ________________________________________________________________________
 #include "datapack.h"
 #include "menuhandler.h"
 #include "ranges.h"
-#include "sets.h"
 #include "thread.h"
 #include "uiapplserv.h"
-#include "vismpeseedcatcher.h"
 
 class BinIDValueSet;
 class BufferStringSet;
 class Color;
-class ColorTable;
 class DataPointSet;
 class MultiID;
 class PickSet;
@@ -39,6 +36,7 @@ class uiVisModeMgr;
 class uiVisPickRetriever;
 
 namespace Attrib    { class SelSpec; class DataCubes; }
+namespace ColTab    { class Sequence; }
 namespace Threads   { class Mutex; };
 namespace Tracking  { class TrackManager; };
 namespace visBase   { class DataObject; };
@@ -236,9 +234,10 @@ public:
     static const int	evToHomePos;
 
     			// ColorTable stuff
-    int				getColTabId(int id, int attrib ) const;
-    void			setClipRate(int id, int attrib, float);
-    const TypeSet<float>*	getHistogram(int id, int attrib ) const;
+    int				getColTabId(int id,int attrib ) const;
+    const ColTab::Sequence*	getColTabSeq(int id,int attrib) const;
+    void			setClipRate(int id,int attrib,float);
+    const TypeSet<float>*	getHistogram(int id,int attrib) const;
 
 				//General stuff
     bool			deleteAllObjects();
@@ -246,12 +245,12 @@ public:
     bool			setWorkingArea();
     static const int		evViewModeChange;
     void			setViewMode(bool yn,bool notify=true);
-    void			setSoloMode(bool, TypeSet< TypeSet<int> >, int);
+    void			setSoloMode(bool,TypeSet< TypeSet<int> >,int);
     bool                        isSoloMode() const;
     bool			isViewMode() const;
     void			turnOn(int,bool,bool doclean=false);
     bool			isOn(int) const;
-    void			updateDisplay(bool, int, int refid =-1);
+    void			updateDisplay(bool,int,int refid=-1);
 
     bool			canDuplicate(int) const;
     int				duplicateObject(int id,int sceneid);

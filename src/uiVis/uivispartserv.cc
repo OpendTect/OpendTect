@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.367 2008-04-14 16:21:44 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.368 2008-05-08 03:58:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -697,15 +697,25 @@ void uiVisPartServer::getObjectInfo( int id, BufferString& info ) const
 
 int uiVisPartServer::getColTabId( int id, int attrib ) const
 {
-    mDynamicCastGet(visSurvey::SurveyObject*, so, getObject(id) );
+    mDynamicCastGet(visSurvey::SurveyObject*,so,getObject(id))
     return so ? so->getColTabID( attrib ) : -1;
+}
+
+
+const ColTab::Sequence* uiVisPartServer::getColTabSeq( int id, int attr ) const
+{
+    const int ctid = getColTabId( id, attr );
+    if ( ctid < 0 ) return 0;
+    mDynamicCastGet(visBase::VisColorTab*,coltab,getObject(ctid))
+    return coltab ? &coltab->colorSeq().colors() : 0;
 }
 
 
 void uiVisPartServer::setClipRate( int id, int attrib, float cr )
 {
-    mDynamicCastGet(visBase::VisColorTab*,coltab,
-	            getObject(getColTabId(id, attrib)));
+    const int ctid = getColTabId( id, attrib );
+    if ( ctid < 0 ) return;
+    mDynamicCastGet(visBase::VisColorTab*,coltab,getObject(ctid))
     if ( coltab ) coltab->setClipRate( cr );
 }
 
