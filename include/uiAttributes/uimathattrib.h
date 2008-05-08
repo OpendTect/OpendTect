@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.h,v 1.9 2008-01-29 13:56:21 cvshelene Exp $
+ RCS:           $Id: uimathattrib.h,v 1.10 2008-05-08 12:31:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,13 +35,15 @@ protected:
 
     uiGenInput*         inpfld_;
     uiPushButton*	parsebut_;
+    uiTable*            xtable_;
+    uiTable*            ctable_;
     ObjectSet<uiAttrSel>  attribflds_;
-    ObjectSet<uiGenInput> cstsflds_;
     uiGenInput*		recstartfld_;
 
     int			nrvariables_;
     int			nrxvars_;
     int			nrcstvars_;
+    
     void 		parsePush(CallBacker*);
     void		updateDisplay(bool);
     void		checkVarSpelAndShift(MathExpression*,bool&,bool&);

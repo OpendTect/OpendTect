@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.cc,v 1.20 2008-05-05 05:42:18 cvsnageswara Exp $
+ RCS:           $Id: uimathattrib.cc,v 1.21 2008-05-08 12:31:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,12 +19,9 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "uitable.h"
 
 using namespace Attrib;
-
-static const int cNrVars = 6;
-static const int cNrXVars = 6;
-static const int cNrConstVars = 6;
 
 mInitAttribUI(uiMathAttrib,Math,"Mathematics",sKeyBasicGrp)
 
@@ -42,35 +39,47 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
     parsebut_->activated.notify( mCB(this,uiMathAttrib,parsePush) );
     parsebut_->attach( rightTo, inpfld_ );
 
-    for ( int idx=0; idx<cNrXVars; idx++ )
-    {
-        BufferString str( "Selection for x" );
-	str += idx;
-	uiAttrSel* attrbox = new uiAttrSel( this, 0, is2d, str );
-	attribflds_ += attrbox;
-	attrbox->display( false );
-	attrbox->attach( alignedBelow, idx ? (uiObject*)attribflds_[idx-1] 
-					   : (uiObject*)inpfld_ );
-    }
+    xtable_ = new uiTable( this,uiTable::Setup().rowdesc("X")
+					.minrowhgt(1.5)
+					.maxrowhgt(2)
+					.mincolwdt(3*uiObject::baseFldSize())
+					.maxcolwdt(3.5*uiObject::baseFldSize())
+					.defrowlbl("")
+					.fillcol(true)
+					.fillrow(true)
+					.defrowstartidx(0),
+				"Variable X attribute table" );
+    const char* xcollbls[] = { "Select input for", 0 };
+    xtable_->setColumnLabels( xcollbls );
+    xtable_->setNrRows( 3 );
+    xtable_->setStretch( 2, 0 );
+    xtable_->setRowResizeMode( uiTable::Fixed );
+    xtable_->setColumnResizeMode( uiTable::Fixed );
+    xtable_->attach( alignedBelow, inpfld_ );
 
-    for ( int idx=0; idx<cNrConstVars; idx++ )
-    {
-	uiGenInput* constbox = new uiGenInput( this, "Selection for c0",
-					       FloatInpSpec() );
-	cstsflds_ += constbox;
-	constbox->display( false );
-	constbox->attach( alignedBelow, idx ? (uiObject*)cstsflds_[idx-1] 
-					    : (uiObject*)inpfld_ );
-    }
-
+    ctable_ = new uiTable( this,uiTable::Setup().rowdesc("C")
+					.minrowhgt(1)
+					.maxrowhgt(1.2)
+					.mincolwdt(uiObject::baseFldSize())
+					.maxcolwdt(1.5*uiObject::baseFldSize())
+					.defrowlbl("")
+					.fillcol(true)
+					.fillrow(true)
+					.defrowstartidx(0),
+				"Constants C table" );
+    const char* ccollbls[] = { "Choose value for", 0 };
+    ctable_->setColumnLabels( ccollbls );
+    ctable_->setNrRows( 3 );
+    ctable_->setStretch( 1, 0 );
+    ctable_->setColumnResizeMode( uiTable::Fixed );
+    ctable_->setRowResizeMode( uiTable::Fixed );
+    ctable_->attach( alignedBelow, xtable_ );
+    
     BufferString str = "Provide a starting value\n";
     str += "for recursive function";
     recstartfld_ = new uiGenInput( this, str, FloatInpSpec() );
     recstartfld_->setPrefHeightInChar(2);
-    recstartfld_->attach( alignedBelow,
-	    cstsflds_.isEmpty() ? (uiObject*)attribflds_[attribflds_.size()-1]
-				: (uiObject*)cstsflds_[cstsflds_.size()-1] );
-
+    recstartfld_->attach( alignedBelow, ctable_ );
     setHAlignObj( inpfld_ );
 }
 
@@ -86,13 +95,6 @@ void uiMathAttrib::parsePush( CallBacker* )
 	mErrRet( "Could not parse this equation", )
 
     nrvariables_ = expr ? expr->getNrDiffVariables() : 0;
-    if ( nrvariables_ > cNrVars )
-    {
-	uiMSG().error( "Max. nr of variables you can use is 6" );
-	nrvariables_ = 0;
-	return;
-    }
-
     bool foundvar = false;
     bool correctshifts = true;
     checkVarSpelAndShift( expr, foundvar, correctshifts );
@@ -118,21 +120,21 @@ void uiMathAttrib::parsePush( CallBacker* )
 
 void uiMathAttrib::updateDisplay( bool userecfld )
 {
-    for ( int idx=0; idx<cNrXVars; idx++ )
-	attribflds_[idx]->display( idx<nrxvars_ );
-    
-    for ( int idx=0; idx<cNrConstVars; idx++ )
+    if ( attribflds_.size() != nrxvars_ )
+	attribflds_.erase();
+
+    xtable_->setNrRows( nrxvars_ );
+    for ( int idx=0; idx<nrxvars_; idx++ )
     {
-	bool dodisplay = idx>nrxvars_-1 && idx<nrvariables_;
-	if ( dodisplay )
-	{
-	    BufferString str( "Selection for c" );
-	    str += idx-nrxvars_;
-	    cstsflds_[idx]->setTitleText(str);
-	}
-	
-	cstsflds_[idx]->display( dodisplay );
+	uiAttrSel* attrbox = new uiAttrSel( 0, 0, is2d_, "" );
+	attrbox->setDescSet( ads_ );
+	attribflds_ += attrbox;
+	xtable_->setCellObject( RowCol(idx,0), attrbox->attachObj() );
     }
+    xtable_->display( nrxvars_ );
+    
+    ctable_->setNrRows( nrcstvars_ );
+    ctable_->display( nrcstvars_ );
     
     recstartfld_->display( userecfld );
 }
@@ -194,10 +196,11 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 	mDescGetConstParamGroup(FloatParam,cstset,desc,Math::cstStr());
 	for ( int idx=0; idx<cstset->size(); idx++ )
 	{
-	    if ( cstsflds_.size() <= idx+nrxvars_ ) return false;
+	    if ( ctable_->nrRows() < idx+1 )
+		ctable_->insertRows( idx, 1 );
 	    
 	    const ValParam& param = (ValParam&)(*cstset)[idx];
-	    cstsflds_[idx+nrxvars_]->setValue(param.getfValue(0));
+	    ctable_->setValue( idx, param.getfValue(0) );
 	}
     }
     
@@ -214,7 +217,7 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 
 bool uiMathAttrib::setInput( const Desc& desc )
 {
-    for ( int idx=0; idx<cNrVars; idx++ )
+    for ( int idx=0; idx<attribflds_.size(); idx++ )
 	putInp( attribflds_[idx], desc, idx );
 
     return true;
@@ -239,12 +242,12 @@ bool uiMathAttrib::getParameters( Desc& desc )
     int nrxvars = expr->getNrDiffVariables();
     mDescGetParamGroup(FloatParam,cstset,desc,Math::cstStr())
     cstset->setSize( nrcsts );
-    if ( cstsflds_.size() < nrxvars ) return false;
+    if ( ctable_->nrRows() < nrcsts ) return false;
     
     for ( int idx=0; idx<nrcsts; idx++ )
     {
 	FloatParam& fparam = (FloatParam&)(*cstset)[idx];
-	fparam.setValue( cstsflds_[idx+nrxvars-nrcsts]->getfValue(0) );
+	fparam.setValue( ctable_->getfValue( RowCol(idx,0) ) );
     }
     
     mSetFloat( Math::recstartStr(), recstartfld_->getfValue() );
@@ -254,7 +257,7 @@ bool uiMathAttrib::getParameters( Desc& desc )
 
 bool uiMathAttrib::getInput( Desc& desc )
 {
-    for ( int idx=0; idx<nrvariables_; idx++ )
+    for ( int idx=0; idx<nrxvars_; idx++ )
     {
 	attribflds_[idx]->processInput();
 	fillInp( attribflds_[idx], desc, idx );
