@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.112 2008-04-24 12:33:37 cvsnanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.113 2008-05-08 03:49:28 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -103,7 +103,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     filtfld->valuechanged.notify( mCB(this,uiIOObjSelGrp,filtChg) );
     if ( !seltxt || !*seltxt )
     {
-	listfld = new uiListBox( topgrp, "IOObj sel LB" );
+	listfld = new uiListBox( topgrp );
 	filtfld->attach( centeredAbove, listfld );
 	topgrp->setHAlignObj( listfld );
     }
@@ -115,6 +115,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 	listfld = llb->box();
     }
 
+    listfld->setName( "Objects list" );
     if ( ismultisel_ )
 	listfld->setMultiSelect( true );
     listfld->setPrefHeightInChar( 8 );
