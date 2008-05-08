@@ -7,12 +7,52 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.13 2008-02-08 18:02:31 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.14 2008-05-08 14:04:57 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
+/*!\mainpage PreStack Processing
+  Support for processing prestack gathers is done by a
+  PreStack::ProcessManager. The PreStack::ProcessManager has a chain of
+  PreStack::Processor which are run in sequence.
+
+  Example:
+  \code
+  PreStack::ProcessManager processmanager;
+  PreStack::AGC* agc = new PreStack::AGC;
+  agc->setWindow( Interval<float>( -120, 120 ) );
+  processmanager.addProcessor( agc );
+
+  processmanager.reset();
+  //Not really necessary since the manager has not been used before
+
+  const BinID stepout = processmanager.getInputStepout();
+  BinID relbid;
+  for ( relbid.inl=-stepout.inl; relbid.inl<=stepout.inl; relbid.inl++ )
+  {
+      for ( relbid.crl=-stepout.crl; relbid.crl<=stepout.crl; relbid.crl++ )
+      {
+          if ( !processor.wantsInput(relbid) )
+	      continue;
+
+	  const BinID inputbid( relbid*BinID(SI().inlStep(),SI().crlStep()) );
+
+	  const DataPack::ID dpid = getDataPackFromSomewhere( inputbid );
+	  if ( dpid==DataPack::cNoID )
+	      return error;
+
+	  processmanager.setInput( relbid, dpid );
+      }
+  }
+
+  if ( !processmanager.process() )
+      return error;
+
+  DataPack::ID result = processmanager.getOutput();
+\endcode
+*/
 #include "bufstringset.h"
 #include "datapack.h"
 #include "factory.h"
@@ -26,6 +66,9 @@ namespace PreStack
 {
 
 class Gather;
+
+/*!Processes prestackdata at one cdp location. The algorithm is implemented
+   in subclasses, and can be created by the PreStack::PF() factory. */
 
 class Processor : public ParallelTask
 {
@@ -81,7 +124,8 @@ protected:
 
 
 mDefineFactory( Processor, PF );
-
+/*!Orgainizes a number of PreStack::Processors into a chain which
+   can be processed. */
 class ProcessManager : public CallBacker
 {
 public:
@@ -93,18 +137,20 @@ public:
     void			setInput(const BinID& relbid,DataPack::ID);
 
     bool			reset();
-    bool			process(bool forceall);
+    				//!<Call when you are about to process new data
+    bool			process();
     DataPack::ID		getOutput() const;
 
-    void			addProcessor(Processor*);
     int				nrProcessors() const;
+    Processor*			getProcessor(int);
+    const Processor*		getProcessor(int) const;
+
+    void			addProcessor(Processor*);
     void			removeProcessor(int);
     void			swapProcessors(int,int);
 
-    Processor*			getProcessor(int);
-    void			notifyChange()	{ setupChange.trigger(); }
 
-    const Processor*		getProcessor(int) const;
+    void			notifyChange()	{ setupChange.trigger(); }
 
     Notifier<ProcessManager>	setupChange;
 
@@ -146,5 +192,6 @@ protected:
 
 
 }; //namespace
+
 
 #endif

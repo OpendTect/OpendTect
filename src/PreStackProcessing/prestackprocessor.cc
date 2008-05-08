@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.15 2008-02-21 20:57:29 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.16 2008-05-08 14:04:57 cvskris Exp $";
 
 #include "prestackprocessor.h"
 
@@ -228,7 +228,7 @@ void ProcessManager::setInput( const BinID& relbid, DataPack::ID id )
 }
 
 
-bool ProcessManager::process(bool forceall)
+bool ProcessManager::process()
 {
     for ( int proc=processors_.size()-1; proc>0; proc-- )
     {
