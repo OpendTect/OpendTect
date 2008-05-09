@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		March 2008
- RCS:		$Id: od_madexec.cc,v 1.6 2008-04-28 06:36:02 cvsraman Exp $
+ RCS:		$Id: od_madexec.cc,v 1.7 2008-05-09 13:08:56 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ const char* getProcString( IOPar& pars, BufferString& errmsg )
     }
     
     Seis::GeomType gt = Seis::geomTypeOf( outptyp );
-    if ( gt == Seis::Vol || gt == Seis::Line )
+    if (gt==Seis::Vol || gt==Seis::Line || gt==Seis::VolPS || gt==Seis::LinePS)
     {
 	const bool dowrite = true;
 	pars.setYN( sKeyWrite, dowrite );

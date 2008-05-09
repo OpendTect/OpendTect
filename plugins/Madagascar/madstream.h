@@ -4,10 +4,11 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R. K. Singh
  * DATE     : March 2008
- * ID       : $Id: madstream.h,v 1.4 2008-04-25 11:10:40 cvsraman Exp $
+ * ID       : $Id: madstream.h,v 1.5 2008-05-09 13:08:56 cvsraman Exp $
 -*/
 
 
+#include "position.h"
 #include "strmdata.h"
 
 class BufferString;
@@ -16,6 +17,12 @@ class CubeSampling;
 class IOPar;
 class SeisTrcReader;
 class SeisTrcWriter;
+class SeisTrcBuf;
+class SeisPSReader;
+class SeisPSWriter;
+
+namespace PosInfo { class CubeDataIterator; class Line2DData; }
+namespace Seis { class SelData; }
 
 namespace ODMad
 {
@@ -49,12 +56,23 @@ protected:
 
     SeisTrcReader*		seisrdr_;
     SeisTrcWriter*		seiswrr_;
+    SeisPSReader*		psrdr_;
+    SeisPSWriter*		pswrr_;
+
+    BinID			curbid_;
+    SeisTrcBuf*			trcbuf_;
+    PosInfo::CubeDataIterator*	iter_;
+    PosInfo::Line2DData*	l2ddata_;
+    int				nroffsets_;
+    int				curtrcidx_;		// For PS
 
     void			initRead(IOPar*);
     void			initWrite(IOPar*);
     void			fillHeaderParsFromStream();
     void			fillHeaderParsFromSeis();
+    void			fillHeaderParsFromPS(const Seis::SelData*);
     bool			write2DTraces();
+    bool			getNextPos(BinID&);
     BufferString		getPosFileName(bool forread=false) const;
 };
 
