@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.27 2008-03-12 09:48:03 cvsbert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.28 2008-05-09 14:05:03 cvshelene Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -37,6 +37,7 @@ const char* SeisJobExecProv::sKeyWorkLS = "Work Line Set";
 
 static const char* sKeyProcIs2D = "Processing is 2D";
 #define mOutKey(s) IOPar::compKey("Output.1",s)
+#define mOutSubKey(s) IOPar::compKey("Output.1.Sub",s)
 
 
 SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
@@ -205,16 +206,15 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
 
     TypeSet<int> inlnrs;
     TypeSet<int>* ptrnrs = 0;
-    BufferString rgkey = iopar_.find( "Inline Range Key" );
-    if ( rgkey.isEmpty() ) rgkey = mOutKey("In-line range");
+    IOPar* subselpar = iopar_.subselect( "Output.1.Sub" );
 
     mSetInlsPerJob( nrinlperjob );
-    InlineSplitJobDescProv jdp( iopar_, rgkey );
+    InlineSplitJobDescProv jdp( subselpar ? *subselpar : iopar_, 0 );
     jdp.getRange( todoinls_ );
 
     if ( havetempdir )
     {
-	getMissingLines( inlnrs, rgkey );
+	getMissingLines( inlnrs );
 	ptrnrs = &inlnrs;
 	mSetInlsPerJob( 1 );
     }
@@ -230,11 +230,10 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
 
     IOPar jpiopar( iopar_ );
     jpiopar.set( seisoutkey_, tmpstorid_ );
-    jpiopar.setYN( mOutKey(sKey::BinIDSel), true );
-    jpiopar.set( mOutKey(sKey::Type), sKey::Range );
+    jpiopar.set( mOutSubKey(sKey::Type), sKey::Range );
 
-    return ptrnrs ? new InlineSplitJobDescProv( jpiopar, *ptrnrs, rgkey )
-		  : new InlineSplitJobDescProv( jpiopar, rgkey );
+    return ptrnrs ? new InlineSplitJobDescProv( jpiopar, *ptrnrs, 0 )
+		  : new InlineSplitJobDescProv( jpiopar, 0 );
 }
 
 
@@ -277,8 +276,7 @@ BufferString SeisJobExecProv::getDefTempStorDir( const char* pth )
 }
 
 
-void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs,
-					 const char* rgkey ) const
+void SeisJobExecProv::getMissingLines( TypeSet<int>& inlnrs ) const
 {
     FilePath basefp( iopar_.find(sKey::TmpStor) );
 

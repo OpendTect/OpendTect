@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2002
- RCS:		$Id: seisjobexecprov.h,v 1.9 2005-10-20 07:15:23 cvsarend Exp $
+ RCS:		$Id: seisjobexecprov.h,v 1.10 2008-05-09 14:05:03 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,7 @@ protected:
 
     JobDescProv*	mk2DJobProv();
     JobDescProv*	mk3DJobProv(int ninlperjob);
-    void		getMissingLines(TypeSet<int>&,const char*) const;
+    void		getMissingLines(TypeSet<int>&) const;
     MultiID		tempStorID() const;
 
 };
