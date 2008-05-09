@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.118 2008-05-09 08:05:19 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.119 2008-05-09 12:41:59 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -490,7 +490,7 @@ void uiODMenuMgr::fillDtectTB( uiODApplMgr* appman )
 	mAddTB(dtecttb_,"out_vol.png","Create 3D seismic output",false,
 	       seisOut3DCB);
     }
-    mAddTB(dtecttb_,"xplot.png","Crossplot",false,xPlot);
+    mAddTB(dtecttb_,"xplot.png","Crossplot Attribute vs Well data",false,xPlot);
 
     dTectTBChanged.trigger();
 }
