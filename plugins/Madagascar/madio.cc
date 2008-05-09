@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: madio.cc,v 1.4 2007-12-31 15:57:58 cvsbert Exp $";
+static const char* rcsID = "$Id: madio.cc,v 1.5 2008-05-09 13:08:27 cvsraman Exp $";
 
 #include "madio.h"
 #include "keystrs.h"
@@ -96,24 +96,22 @@ bool ODMad::FileSpec::usePar( const IOPar& iop )
 
 const char* ODMad::FileSpec::defPath()
 {
-    static BufferString* ret = 0;
-    if ( ret ) return ret->buf();
+    static BufferString ret;
 
     FilePath fp( GetDataDir() ); fp.add( sKeyMadagascar );
-    ret = new BufferString( fp.fullPath() );
-    return ret->buf();
+    ret = fp.fullPath();
+    return ret.buf();
 }
 
 
 const char* ODMad::FileSpec::madDataPath()
 {
-    static BufferString* ret = 0;
-    if ( ret ) return ret->buf();
+    static BufferString ret;
 
-    ret = new BufferString( GetEnvVar("DATAPATH") );
-    if ( ret->isEmpty() )
-	*ret = defPath();
-    return ret->buf();
+    ret = GetEnvVar("DATAPATH");
+    if ( ret.isEmpty() )
+	ret = defPath();
+    return ret.buf();
 }
 
 
