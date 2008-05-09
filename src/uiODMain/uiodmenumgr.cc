@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.117 2008-05-08 05:57:12 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.118 2008-05-09 08:05:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,9 +50,9 @@ uiODMenuMgr::uiODMenuMgr( uiODMain* a )
     utilmnu_ = new uiPopupMenu( &appl_, "&Utilities" );
     helpmnu_ = new uiPopupMenu( &appl_, "&Help" );
 
-    dtecttb_ = new uiToolBar( &appl_, "OpendTect tools" );
-    cointb_ = new uiToolBar( &appl_, "Graphical tools" );
-    mantb_ = new uiToolBar( &appl_, "Manage data" );
+    dtecttb_ = new uiToolBar( &appl_, "OpendTect tools", uiToolBar::Top );
+    cointb_ = new uiToolBar( &appl_, "Graphical tools", uiToolBar::Left );
+    mantb_ = new uiToolBar( &appl_, "Manage data", uiToolBar::Right );
 
     appl_.applMgr().visServer()->createToolBars();
     IOM().surveyChanged.notify( mCB(this,uiODMenuMgr,updateDTectToolBar) );
@@ -265,6 +265,7 @@ void uiODMenuMgr::fillManMenu()
     }
     mInsertItem( manmnu_, "&PickSets ...", mManPickMnuItm );
     mInsertItem( manmnu_, "&Seismics ...", mManSeisMnuItm );
+    mInsertItem( manmnu_, "Strati&graphy ...", mManStratMnuItm );
     mInsertItem( manmnu_, "Wa&velets ...", mManWvltMnuItm );
     mInsertItem( manmnu_, "&Wells ...", mManWellMnuItm );
 }
@@ -597,6 +598,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mManAttrMnuItm:	mDoOp(Man,Attr,0); break;
     case mManNLAMnuItm:		mDoOp(Man,NLA,0); break;
     case mManSessMnuItm:	mDoOp(Man,Sess,0); break;
+    case mManStratMnuItm:	mDoOp(Man,Strat,0); break;
 
     case mExitMnuItm: 		appl_.exit(); break;
 
