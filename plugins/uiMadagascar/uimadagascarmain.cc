@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.18 2008-04-25 11:09:46 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.19 2008-05-09 13:09:37 cvsraman Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -15,15 +15,13 @@ static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.18 2008-04-25 11:09:46 
 #include "madprocexec.h"
 #include "madio.h"
 #include "uilistbox.h"
-#include "uibatchlaunch.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
 #include "uimenu.h"
 #include "uitoolbar.h"
-#include "uisplitter.h"
+#include "uiseparator.h"
 #include "uiioobjsel.h"
 #include "uifiledlg.h"
-#include "uiexecutor.h"
 #include "uimsg.h"
 #include "pixmap.h"
 #include "ioman.h"
@@ -32,16 +30,16 @@ static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.18 2008-04-25 11:09:46 
 
 
 uiMadagascarMain::uiMadagascarMain( uiParent* p )
-	: uiDialog( p, Setup( "Madagascar processing",
-			      "Processing flow",
-			      "0.0.0").menubar(true) )
+	: uiFullBatchDialog(p,Setup("Madagascar processing").menubar(true)
+				   .procprognm("odmadexec") )
 	, ctio_(*mMkCtxtIOObj(ODMadProcFlow))
 	, bldfld_(0)
 {
     setCtrlStyle( uiDialog::DoAndStay );
+    addStdFields( false, true );
     createMenus();
 
-    uiGroup* maingrp = new uiGroup( this, "Main group" );
+    uiGroup* maingrp = new uiGroup( uppgrp_, "Main group" );
 
     infld_ = new uiMadIOSel( maingrp, true );
     infld_->selectionMade.notify( mCB(this,uiMadagascarMain,inpSel) );
@@ -52,12 +50,13 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     outfld_ = new uiMadIOSel( maingrp, false );
     outfld_->attach( alignedBelow, procgrp );
 
-    bldfld_ = new uiMadagascarBldCmd( this );
+    bldfld_ = new uiMadagascarBldCmd( uppgrp_ );
     bldfld_->cmdAvailable.notify( mCB(this,uiMadagascarMain,cmdAvail) );
 
-    uiSplitter* spl = new uiSplitter( this, "Vert splitter", true );
-    spl->addGroup( maingrp );
-    spl->addGroup( bldfld_ );
+    uiSeparator* sep = new uiSeparator( uppgrp_, "VSep", false );
+    sep->attach( rightTo, maingrp );
+    bldfld_->attach( rightTo, sep );
+    uppgrp_->setHAlignObj( sep );
 
     finaliseDone.notify( mCB(this,uiMadagascarMain,setButStates) );
 }
@@ -289,19 +288,12 @@ void uiMadagascarMain::exportFlow( CallBacker* )
 }
 
 
-bool uiMadagascarMain::acceptOK( CallBacker* )
+bool uiMadagascarMain::fillPar( IOPar& iop )
 {
     ODMad::ProcFlow pf;
     if ( !getFlow(pf) )
 	return false;
 
-    IOPar iop;
     pf.fillPar( iop );
-#ifdef HAVE_OUTPUT_OPTIONS
-    uiBatchLaunch dlg( this, iop, 0, "odmadexec", false );
-    return dlg.go();
-#else
-    pErrMsg( "Not impl." );
     return true;
-#endif
 }

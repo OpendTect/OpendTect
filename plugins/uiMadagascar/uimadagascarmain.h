@@ -4,10 +4,10 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : May 2007
- * ID       : $Id: uimadagascarmain.h,v 1.13 2008-04-25 11:09:46 cvsraman Exp $
+ * ID       : $Id: uimadagascarmain.h,v 1.14 2008-05-09 13:09:37 cvsraman Exp $
 -*/
 
-#include "uidialog.h"
+#include "uibatchlaunch.h"
 #include "iopar.h"
 #include "madprocflow.h"
 class CtxtIOObj;
@@ -18,7 +18,7 @@ class uiToolButton;
 class uiMadagascarBldCmd;
 
 
-class uiMadagascarMain : public uiDialog
+class uiMadagascarMain : public uiFullBatchDialog
 {
 public:
 
@@ -50,8 +50,9 @@ protected:
     void		openFlow(CallBacker*);
     void		saveFlow(CallBacker*);
     void		exportFlow(CallBacker*);
-    bool		acceptOK(CallBacker*);
 
+    bool		prepareProcessing()	{ return true; }
+    bool		fillPar(IOPar&);
     void		createMenus();
     uiGroup*		crProcGroup(uiGroup*);
 

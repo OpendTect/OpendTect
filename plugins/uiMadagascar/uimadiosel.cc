@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.13 2008-04-25 11:09:46 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.14 2008-05-09 13:09:37 cvsraman Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -90,12 +90,9 @@ uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	subsel2dfld_ = new uiSeis2DSubSel( this, Seis::SelSetup(Seis::Line)
 						 .fornewentry(!isinp));
 	subsel2dfld_->attach( alignedBelow, seis2dfld_ );
-	if ( isinp )
-	{
-	    subsel2dpsfld_ = new uiSeis2DSubSel( this,
-		    				Seis::SelSetup(Seis::LinePS));
-	    subsel2dpsfld_->attach( alignedBelow, seis2dfld_ );
-	}
+	subsel2dpsfld_ = new uiSeis2DSubSel( this,Seis::SelSetup(Seis::LinePS)
+						  .fornewentry(!isinp));
+	subsel2dpsfld_->attach( alignedBelow, seis2dfld_ );
     }
 
     uiFileInput::Setup setup;
@@ -285,14 +282,6 @@ bool uiMadIOSelDlg::getInp()
     else if ( !isNone() )
     {
 	const Seis::GeomType gt = geomType();
-	if ( gt != Seis::Vol && gt != Seis::Line )
-	{
-	    BufferString msgtxt( "Sorry, " );
-	    msgtxt += isinp_ ? "input type " : "output type ";
-	    msgtxt += typfld_->text();
-	    msgtxt += " not implemented yet";
-	    uiMSG().error( msgtxt ); return false;
-	} 
 	if ( !seisSel(gt)->commitInput(!isinp_) )
 	{
 	    mErrRet(Seis::isPS(gt) ? "data store" : "seismics")
