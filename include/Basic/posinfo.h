@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.2 2008-04-25 11:15:35 cvsraman Exp $
+ RCS:		$Id: posinfo.h,v 1.3 2008-05-09 13:03:41 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,7 @@ public:
 			~CubeData()		{ deepErase(*this); }
     CubeData&		operator =(const CubeData&);
 
+    void		deepCopy(const CubeData&);
     int			totalSize() const;
     int			indexOf(int inl) const;
     bool		includes(int inl,int crl) const;
@@ -88,6 +89,24 @@ public:
     bool		write(std::ostream&) const;
 };
 
+
+/*!\brief Cube Data Iterator */
+
+class CubeDataIterator
+{
+public:
+    			CubeDataIterator(const CubeData& cd)
+			    : cubedata_(cd)
+			    , firstpos_(true)	{}
+
+    bool		next(BinID&);
+    void		reset()			{ firstpos_ = true; }
+
+protected:
+
+    bool		firstpos_;
+    const CubeData&	cubedata_;
+};
 
 /*!\brief One position on a 2D line */
 

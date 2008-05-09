@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.2 2008-04-25 11:17:10 cvsraman Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.3 2008-05-09 13:04:08 cvsraman Exp $";
 
 #include "math2.h"
 #include "posinfo.h"
@@ -73,6 +73,14 @@ PosInfo::CubeData& PosInfo::CubeData::operator =( const PosInfo::CubeData& cd )
 	    *this += new PosInfo::LineData( *cd[idx] );
     }
     return *this;
+}
+
+
+void PosInfo::CubeData::deepCopy( const PosInfo::CubeData& cd )
+{
+    deepErase( *this );
+    for ( int idx=0; idx<cd.size(); idx++ )
+	(*this) += new PosInfo::LineData( *cd[idx] );
 }
 
 
@@ -356,6 +364,56 @@ bool PosInfo::CubeData::write( std::ostream& strm ) const
     }
 
     return true;
+}
+
+
+bool PosInfo::CubeDataIterator::next( BinID& bid )
+{
+    if ( !cubedata_.size() ) return false;
+
+    if ( firstpos_ )
+    {
+	const PosInfo::LineData* ld = cubedata_[0];
+	if ( !ld || !ld->segments_.size() )
+	    return false;
+
+	bid.inl = ld->linenr_;
+	bid.crl = ld->segments_[0].start;
+	firstpos_ = false;
+	return true;
+    }
+
+    bool startnew = false;
+    for ( int idx=0; idx<cubedata_.size(); idx++ )
+    {
+	const PosInfo::LineData* ld = cubedata_[idx];
+	if ( !ld || !ld->segments_.size() )
+	    continue;
+
+	if ( !startnew && ld->linenr_ != bid.inl )
+	    continue;
+	
+	bid.inl = ld->linenr_;
+	for ( int sdx=0; sdx<ld->segments_.size(); sdx++ )
+	{
+	    StepInterval<int> crlrg = ld->segments_[sdx];
+	    if ( startnew )
+	    {
+		bid.crl = crlrg.start;	
+		return true;
+	    }
+
+	    if ( !crlrg.includes(bid.crl) ) continue;
+
+	    bid.crl = bid.crl + crlrg.step;
+	    if ( crlrg.includes(bid.crl) )
+		return true;
+	    else
+		startnew = true;
+	}
+    }
+
+    return false;
 }
 
 
