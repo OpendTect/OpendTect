@@ -4,15 +4,13 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodfaulttreeitem.cc,v 1.3 2008-03-26 13:53:54 cvsjaap Exp $
+ RCS:		$Id: uiodfaulttreeitem.cc,v 1.4 2008-05-09 09:12:01 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
 
 #include "uiodfaulttreeitem.h"
 
-//#include "arrayndimpl.h"
-//#include "marchingcubes.h"
 #include "uimpepartserv.h"
 #include "visfaultdisplay.h"
 #include "emfault.h"
@@ -25,7 +23,6 @@ ___________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uivispartserv.h"
-//#include "vismarchingcubessurfacedisplay.h"
 
 
 uiODFaultParentTreeItem::uiODFaultParentTreeItem()
@@ -62,9 +59,11 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	if ( !emo )
 	    return false;
 
-	addChild( new uiODFaultTreeItem( emo->id() ), false );
 	uiMPEPartServer* mps = applMgr()->mpeServer();
 	mps->addTracker( emo->id(), Coord3::udf() );
+	emo->setName( "<Fault>" );
+	addChild( new uiODFaultTreeItem( emo->id() ), false );
+
 	uiVisPartServer* visserv = applMgr()->visServer();
 	visserv->showMPEToolbar();
 	visserv->turnSeedPickingOn( true );
@@ -77,8 +76,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 }
 
 
-uiTreeItem* uiODFaultTreeItemFactory::create( int visid,
-						      uiTreeItem* ) const
+uiTreeItem* uiODFaultTreeItemFactory::create( int visid, uiTreeItem* ) const
 {
     mDynamicCastGet(visSurvey::FaultDisplay*,fd,
 	    ODMainWin()->applMgr().visServer()->getObject(visid));
@@ -86,12 +84,15 @@ uiTreeItem* uiODFaultTreeItemFactory::create( int visid,
 }
 
 
+#define mCommonInit \
+    , savemnuitem_("Save") \
+    , saveasmnuitem_("Save as ...") \
+    , dispsticksonlymnuitem_("Display sticks only")
+
 uiODFaultTreeItem::uiODFaultTreeItem( const EM::ObjectID& oid )
     : uiODDisplayTreeItem()
     , emid_( oid )
-    , savemnuitem_("Save")
-    , saveasmnuitem_("Save as ...")
-    , dispsticksonlymnuitem_("Display sticks only")
+    mCommonInit
 {
     dispsticksonlymnuitem_.checkable = true;
 }
@@ -99,11 +100,13 @@ uiODFaultTreeItem::uiODFaultTreeItem( const EM::ObjectID& oid )
 
 uiODFaultTreeItem::uiODFaultTreeItem( int id, bool dummy )
     : uiODDisplayTreeItem()
-    , emid_( -1 )
-    , savemnuitem_("Save")
-    , saveasmnuitem_("Save as ...")
-    , faultdisplay_( 0 )
-{ displayid_=id; }
+    , emid_(-1)
+    , faultdisplay_(0)
+    mCommonInit
+{
+    dispsticksonlymnuitem_.checkable = true;
+    displayid_ = id;
+}
 
 
 uiODFaultTreeItem::~uiODFaultTreeItem()
@@ -127,7 +130,7 @@ bool uiODFaultTreeItem::init()
 	faultdisplay_->ref();
 
 	visserv_->addObject( fd, sceneID(), true );
-	fd->setEMID(emid_);
+	fd->setEMID( emid_ );
     }
     else
     {
