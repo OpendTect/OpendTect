@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          August 2001
- RCS:           $Id: od_ProgressViewer.cc,v 1.12 2008-02-26 10:51:34 cvsnanne Exp $
+ RCS:           $Id: od_ProgressViewer.cc,v 1.13 2008-05-09 13:06:37 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "uitextedit.h"
 #include <iostream>
 #include <ctype.h>
+#include <signal.h>
 
 #include "filepath.h"
 #include "oddirs.h"
@@ -105,6 +106,14 @@ void uiProgressViewer::appendToText()
 void uiProgressViewer::doWork( CallBacker* )
 {
     bool ateof = strm.eof();
+    if ( kill(ppid,0) )
+    {
+	txtfld->append( "Program Terminated" );
+	quitmi->setText( "&Quit" );
+	ppid = 0;
+	return;
+    }
+
     if ( strm.eof() || strm.fail() )
     {
 	appendToText();
