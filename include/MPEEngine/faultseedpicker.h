@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: faultseedpicker.h,v 1.5 2008-02-05 21:57:47 cvskris Exp $
+ RCS:           $Id: faultseedpicker.h,v 1.6 2008-05-09 09:11:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,17 +33,19 @@ public:
     bool		canAddSeed() const;
     bool		addSeed(const Coord3&,bool);
     bool		canRemoveSeed() const;
-    bool		removeSeed(const EM::PosID&);
+    bool		removeSeed(const EM::PosID&,bool environment,
+	    			   bool retrack);
+
     bool		reTrack();
     int			nrSeeds() const;
 
     int			isMinimumNrOfSeeds() const	{ return 2; }
     bool		stopSeedPick(bool iscancel=false);
 
-    static int		nrSeedConnectModes()		{ return 0; }
-    static int		defaultSeedConMode()		{ return -1; }
-    static const char*	seedConModeText(int mode,
-				bool abbrev=false)	{ return ""; }
+    enum SeedConnectMode { DrawBetweenSeeds };
+    static int		nrSeedConnectModes()	{ return 1; }
+    static int		defaultSeedConMode()	{ return DrawBetweenSeeds; }
+    static const char*	seedConModeText(int mode,bool abbrev=false);
 
     void		blockSeedPick(bool yn)		{ blockpicking_ = yn; }
     bool		isSeedPickBlocked() const	{ return blockpicking_;}
@@ -66,6 +68,6 @@ protected:
 
 };
 
-};
+} // namespace MPE
 
 #endif

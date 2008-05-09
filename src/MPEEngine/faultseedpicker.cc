@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultseedpicker.cc,v 1.4 2008-02-05 21:57:47 cvskris Exp $";
+static const char* rcsID = "$Id: faultseedpicker.cc,v 1.5 2008-05-09 09:11:40 cvsnanne Exp $";
 
 #include "faultseedpicker.h"
 
@@ -23,6 +23,7 @@ FaultSeedPicker::FaultSeedPicker( MPE::EMTracker& t )
     : tracker_( t )
     , sectionid_( -1 )
     , isactive_( false )
+    , nrseeds_(0)
 {}
 
 
@@ -44,7 +45,7 @@ bool FaultSeedPicker::startSeedPick()
 	return false;
 
     const EM::ObjectID emobjid = tracker_.objectID();
-    mDynamicCastGet( EM::Fault*, fault, EM::EMM().getObject(emobjid) );
+    mDynamicCastGet(EM::Fault*,fault,EM::EMM().getObject(emobjid));
     didchecksupport_ = fault->enableGeometryChecks( false );
 
     isactive_ = true;
@@ -134,9 +135,13 @@ bool FaultSeedPicker::canRemoveSeed() const
 { return false; }
 
 
-bool FaultSeedPicker::removeSeed( const EM::PosID& )
+bool FaultSeedPicker::removeSeed( const EM::PosID& pid, bool enviromment,
+       				  bool retrack )
 {
-    return false;
+    EM::EMObject* emobj = EM::EMM().getObject( tracker_.objectID() );
+    emobj->setPosAttrib( pid, EM::EMObject::sSeedNode, false );
+    emobj->unSetPos( pid, true );
+    return true;
 }
 
 
@@ -259,6 +264,13 @@ RowCol FaultSeedPicker::getNewSeedRc( const Coord3& pos ) const
     */
 }
 
+
+const char* FaultSeedPicker::seedConModeText( int mode, bool abbrev)
+{
+    if ( (SeedConnectMode)mode == DrawBetweenSeeds )
+	return "Line manual";
+    return "Unknown mode";
+}
 
 
 }; // namespace MPE
