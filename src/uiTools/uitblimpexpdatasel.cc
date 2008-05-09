@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.37 2008-05-05 05:42:29 cvsnageswara Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.38 2008-05-09 13:05:31 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -402,7 +402,7 @@ protected:
 
 uiTableFormatDescFldsEd::uiTableFormatDescFldsEd( uiTableImpDataSel* ds,
 						  const char* hid )
-	: uiDialog(ds,uiDialog::Setup("Information definition",
+	: uiDialog(ds,uiDialog::Setup("Format definition",
 				      "Specify necessary information",hid)
 		      .savebutton(true).savebutispush(true)
 		      .savetext("Save format"))
@@ -535,7 +535,7 @@ class uiTableFmtDescFldsParSel : public uiCompoundParSel
 public:
 
 uiTableFmtDescFldsParSel( uiTableImpDataSel* p, const char* hid )
-    : uiCompoundParSel( p, "Information content", "Define" )
+    : uiCompoundParSel( p, "Format definition", "Define" )
     , impsel_(*p)
     , helpid_(hid)
     , descCommitted(this)
