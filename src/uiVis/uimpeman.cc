@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.127 2008-03-31 10:42:02 cvsnageswara Exp $
+ RCS:           $Id: uimpeman.cc,v 1.128 2008-05-09 08:07:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,15 +75,10 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
 {
     mDynamicCastGet(uiMainWin*,mw,p)
     mw->addToolBarBreak();
-    toolbar = new uiToolBar( p, "Tracking controls" );
+    toolbar = new uiToolBar( p, "Tracking controls", uiToolBar::Bottom );
 
     addButtons();
 
-#ifdef USEQT3
-    toolbar->setCloseMode( 2 );
-    toolbar->setResizeEnabled();
-    toolbar->setVerticallyStretchable(false);
-#endif
     updateAttribNames();
 
     EM::EMM().undo().changenotifier.notify(
@@ -395,12 +390,12 @@ void uiMPEMan::seedClick( CallBacker* )
 	    seedpicker->removeSeed( pid, true, true );
 	else if ( clickcatcher->info().isShiftClicked() )
 	    seedpicker->removeSeed( pid, true, false );
-	else
+	else if ( !emobj->isDefined(pid) )
 	    seedpicker->addSeed( seedpos, false );
     }
     else
 	seedpicker->addSeed( seedpos, ctrlshiftclicked );
-    
+
     emobj->setBurstAlert( false );
     MouseCursorManager::restoreOverride();
     setUndoLevel(currentevent);
