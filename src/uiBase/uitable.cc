@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.63 2008-05-08 12:30:15 cvshelene Exp $
+ RCS:           $Id: uitable.cc,v 1.64 2008-05-12 04:19:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -495,7 +495,7 @@ void uiTable::setColumnReadOnly( int col, bool yn )
 {
     for ( int row=0; row<nrRows(); row++ )
     {
-	QTableWidgetItem* itm = body_->item( row, col );
+	QTableWidgetItem* itm = body_->getItem( RowCol(row,col), true );
 	if ( itm ) itm->setFlags( yn ? flags_ro : flags );
     }
 }
@@ -505,7 +505,7 @@ void uiTable::setRowReadOnly( int row, bool yn )
 {
     for ( int col=0; col<nrCols(); col++ )
     {
-	QTableWidgetItem* itm = body_->item( row, col );
+	QTableWidgetItem* itm = body_->getItem( RowCol(row,col), true );
 	if ( itm ) itm->setFlags( yn ? flags_ro : flags );
     }
 }
