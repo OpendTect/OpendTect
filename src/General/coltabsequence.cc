@@ -4,7 +4,7 @@
  * DATE     : 1996 / Sep 2007
 -*/
 
-static const char* rcsID = "$Id: coltabsequence.cc,v 1.6 2008-04-09 11:09:08 cvsnanne Exp $";
+static const char* rcsID = "$Id: coltabsequence.cc,v 1.7 2008-05-12 07:18:02 cvssatyaki Exp $";
 
 #include "coltabsequence.h"
 #include "coltabindex.h"
@@ -228,20 +228,17 @@ void ColTab::Sequence::changeColor( int idx, unsigned char pr,
 }
 
 
+#define mEps 0.00001
+
 void ColTab::Sequence::changePos( int idx, float x )
 {
     const int sz = size();
-    if ( idx < 0 || idx >= sz ) return;
+    if ( idx<0 || idx>=sz ) return;
 
-    if ( x > 1 ) x = 1; if ( x < 0 ) x = 0;
+    if ( x > 1 ) x = 1;
+    if ( x < 0 ) x = 0;
 
-    if ( (idx > 0 && x_[idx-1] >= x) )
-	x_[idx] = x_[idx-1] + 1.01*mDefEps;
-    if ( (idx < sz-1 && x_[idx+1] <= x) )
-	x_[idx] = x_[idx-1] - 1.01*mDefEps;
-    else
-	x_[idx] = x;
-
+    x_[idx] = x;
     colorChanged.trigger();
 }
 
@@ -537,7 +534,7 @@ bool ColTab::SeqMgr::write( bool sys, bool applsetup )
 		newidx++;
 	    }
 	}
-	return setts.write();
+	return setts.write( false );
     }
 
     const BufferString fnm( applsetup
