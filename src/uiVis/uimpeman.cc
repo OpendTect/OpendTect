@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.128 2008-05-09 08:07:42 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.129 2008-05-12 08:30:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,28 +12,27 @@ ________________________________________________________________________
 #include "uimpeman.h"
 
 #include "attribsel.h"
-#include "undo.h"
 #include "emobject.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "emtracker.h"
+#include "executor.h"
 #include "faultseedpicker.h"
 #include "horizon2dseedpicker.h"
 #include "horizon3dseedpicker.h"
 #include "ioman.h"
 #include "keystrs.h"
+#include "mousecursor.h"
 #include "mpeengine.h"
 #include "sectiontracker.h"
 #include "survinfo.h"
-#include "executor.h"
+#include "undo.h"
 
 #include "uicombobox.h"
-#include "mousecursor.h"
-#include "uitaskrunner.h"
-#include "uimainwin.h"
 #include "uimsg.h"
 #include "uislider.h"
 #include "uispinbox.h"
+#include "uitaskrunner.h"
 #include "uitoolbar.h"
 #include "uiviscoltabed.h"
 #include "uivispartserv.h"
@@ -73,12 +72,8 @@ uiMPEMan::uiMPEMan( uiParent* p, uiVisPartServer* ps )
     , oldactivevol(false)
     , mpeintropending(false)
 {
-    mDynamicCastGet(uiMainWin*,mw,p)
-    mw->addToolBarBreak();
     toolbar = new uiToolBar( p, "Tracking controls", uiToolBar::Bottom );
-
     addButtons();
-
     updateAttribNames();
 
     EM::EMM().undo().changenotifier.notify(

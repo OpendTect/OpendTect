@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2006
- RCS:		$Id: uivisslicepos3d.cc,v 1.7 2008-01-31 07:43:49 cvsnanne Exp $
+ RCS:		$Id: uivisslicepos3d.cc,v 1.8 2008-05-12 08:30:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uislicepos.h"
 
 #include "uilabel.h"
-#include "uimainwin.h"
 #include "uispinbox.h"
 #include "uitoolbar.h"
 #include "uivispartserv.h"
@@ -29,9 +28,7 @@ uiSlicePos::uiSlicePos( uiParent* p )
     : curpdd_(0)
     , positionChg(this)
 {
-    mDynamicCastGet(uiMainWin*,mw,p)
-    mw->addToolBarBreak();
-    toolbar_ = new uiToolBar(p,"Slice position");
+    toolbar_ = new uiToolBar( p, "Slice position" );
 
     uiGroup* grp = new uiGroup( 0, "Position boxes" );
     sliceposbox_ = new uiLabeledSpinBox( grp, "Crossline", 0,
