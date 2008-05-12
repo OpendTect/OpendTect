@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.20 2008-02-18 11:00:47 cvsbert Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.21 2008-05-12 04:01:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -61,7 +61,6 @@ uiImportLMKFault::~uiImportLMKFault()
 }
 
 
-#define mWarnRet(s) { uiMSG().warning(s); return false; }
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool uiImportLMKFault::handleAscii()
@@ -120,18 +119,18 @@ bool uiImportLMKFault::acceptOK( CallBacker* )
 
 bool uiImportLMKFault::checkInpFlds()
 {
-    if ( ! *infld->fileName() )
-	mWarnRet( "Please select the input file" )
+    if ( !*infld->fileName() )
+	mErrRet( "Please select the input file" )
     else if ( !File_exists(infld->fileName()) )
-	mWarnRet( "Input file does not exist" )
+	mErrRet( "Input file does not exist" )
 
-    if ( ! *formatfilefld->fileName() )
-	mWarnRet( "Please select the format file" )
+    if ( !*formatfilefld->fileName() )
+	mErrRet( "Please select the format file" )
     else if ( !File_exists(formatfilefld->fileName()) )
-	mWarnRet( "Format file does not exist" )
+	mErrRet( "Format file does not exist" )
 
-    if ( !outfld->commitInput( true ) )
-	mWarnRet( "Please select the output" )
+    if ( !outfld->commitInput(true) )
+	mErrRet( "Please select the output" )
 
     return true;
 }
