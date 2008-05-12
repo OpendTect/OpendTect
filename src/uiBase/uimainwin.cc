@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.143 2008-05-07 12:22:55 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.144 2008-05-12 05:33:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -544,6 +544,8 @@ void uiMainWinBody::readSettings()
     prefsz_ = uiSize( qsz.width(), qsz.height() );
     restoreState( settings.value("state").toByteArray() );
     settings.endGroup();
+
+    updateToolbarsMenu();
 }
 
 
@@ -628,10 +630,7 @@ void uiMainWin::removeToolBar( uiToolBar* tb )
 
 
 void uiMainWin::addToolBarBreak()
-{
-    body_->addToolBarBreak();
-}
-
+{ body_->addToolBarBreak(); } 
 
 uiPopupMenu& uiMainWin::getToolbarsMenu() const
 { return body_->getToolbarsMenu(); }
