@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.44 2008-05-07 05:39:21 cvsnageswara Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.45 2008-05-12 04:19:58 cvsnanne Exp $
 
 ________________________________________________________________________
 
@@ -214,6 +214,7 @@ void uiFingerPrintAttrib::initTable( int nrrows )
     for ( int idx=0; idx<nrrows; idx++ )
     {
 	uiAttrSel* attrbox = new uiAttrSel( 0, 0, is2d_, "" );
+	attrbox->setBorder( 0 );
 	attribflds_ += attrbox;
 	table_->setCellObject( RowCol(idx,0), attrbox->attachObj() );
     }
