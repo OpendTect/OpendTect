@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.32 2008-05-12 05:33:06 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.h,v 1.33 2008-05-12 08:30:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,7 @@ public:
 
     virtual uiMainWin*  mainwin();
 
+    static ToolBarArea	pluginArea()		{ return uiToolBar::Right; }
     ToolBarArea		prefArea() const	{ return tbarea_; }
     QToolBar*		qwidget()		{ return qtoolbar_; }
 
