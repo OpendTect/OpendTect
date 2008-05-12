@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.6 2008-02-18 05:51:17 cvsraman Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.7 2008-05-12 05:32:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,12 +28,14 @@ public:
     {
 			Setup( uiParent* p=0 )
 			    : parent_(p)
+			    , helpid_("")
 			    , withwva_(true)
 			    , withstates_(true)		{}
 
 	mDefSetupMemb(uiParent*,parent) //!< null => viewer's parent
-	mDefSetupMemb(bool,     withwva)
-	mDefSetupMemb(bool,	withstates)
+	mDefSetupMemb(bool,withwva)
+	mDefSetupMemb(bool,withstates)
+	mDefSetupMemb(BufferString,helpid)
     };
 
     			uiFlatViewStdControl(uiFlatViewer&,const Setup&);
@@ -59,6 +61,7 @@ protected:
     void		flipCB(CallBacker*);
     void		parsCB(CallBacker*);
     void		stateCB(CallBacker*);
+    void		helpCB(CallBacker*);
 
     bool		handleUserClick();
 
@@ -66,6 +69,8 @@ protected:
     MenuItem           	propertiesmnuitem_;
     void                createMenuCB(CallBacker*);
     void                handleMenuCB(CallBacker*);
+
+    BufferString	helpid_;
 
 };
 

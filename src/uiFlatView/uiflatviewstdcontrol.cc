@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.cc,v 1.8 2008-02-18 05:50:55 cvsraman Exp $
+ RCS:           $Id: uiflatviewstdcontrol.cc,v 1.9 2008-05-12 05:32:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "uiflatviewer.h"
 #include "uiflatviewthumbnail.h"
 #include "uibutton.h"
+#include "uimainwin.h"
 #include "uimenuhandler.h"
 #include "uitoolbar.h"
 #include "mouseevent.h"
@@ -49,6 +50,12 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     tb_->addSeparator();
     mDefBut(parsbut_,"2ddisppars.png",parsCB,"Set display parameters");
+
+    if ( !setup.helpid_.isEmpty() )
+    {
+	uiToolButton* mDefBut(helpbut,"contexthelp.png",helpCB,"Help");
+	helpid_ = setup.helpid_;
+    }
 
     vwr.viewChanged.notify( mCB(this,uiFlatViewStdControl,vwChgCB) );
 
@@ -183,6 +190,12 @@ void uiFlatViewStdControl::stateCB( CallBacker* but )
 	drawbut_->setOn( !ismanip );
     else
 	manipbut_->setOn( ismanip );
+}
+
+
+void uiFlatViewStdControl::helpCB( CallBacker* )
+{
+    uiMainWin::provideHelp( helpid_ );
 }
 
 

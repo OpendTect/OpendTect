@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.128 2008-05-08 07:28:15 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.129 2008-05-12 05:32:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -986,5 +986,5 @@ void uiODSceneMgr::Viewer2D::createViewWin( bool isvert )
     vwr.appearance().setGeoDefaults(isvert);
     vwr.appearance().annot_.setAxesAnnot(true);
     viewwin_->addControl( new uiFlatViewStdControl( vwr,
-		    	      uiFlatViewStdControl::Setup(controlparent) ) );
+		uiFlatViewStdControl::Setup(controlparent).helpid("51.0.0") ) );
 }
