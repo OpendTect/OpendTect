@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.h,v 1.4 2008-05-06 08:44:01 cvsnanne Exp $
+ RCS:           $Id: uicoltabman.h,v 1.5 2008-05-12 07:43:44 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 class uiColorTableCanvas;
+class uiColTabMarkerCanvas;
 class uiFunctionDisplay;
 class IOPar;
 class uiCanvas;
@@ -46,13 +47,13 @@ protected:
 
     uiFunctionDisplay*		cttranscanvas_;
     uiColorTableCanvas*		ctabcanvas_;
-    uiCanvas*			markercanvas_;
+    uiColTabMarkerCanvas*	markercanvas_;
     uiListView*			coltablistfld_;
     uiPushButton*       	removebut_;
+    uiPushButton*       	importbut_;
     uiColorInput*       	undefcolfld_;
     uiCheckBox*			segmentfld_;
     uiSpinBox*			nrsegbox_;
-    uiWorld2Ui*			w2uimarker_;
     uiWorld2Ui*			w2uictabcanvas_;
 
     BufferString		selstatus_;
@@ -63,31 +64,24 @@ protected:
     int				selidx_;
 
     void			doFinalise(CallBacker*);
+    void			markerChgd(CallBacker*);
     void			selChg(CallBacker*);
     void			removeCB(CallBacker*);
     void			saveCB(CallBacker*);
     bool			acceptOK(CallBacker*);
     bool			rejectOK(CallBacker*);
 
-    void			mouseClk(CallBacker*);
-    void			mouse2Clk(CallBacker*);
-    void			mouseRelease(CallBacker*);
-    void			mouseMove(CallBacker*);
 
     void			refreshColTabList(const char*);
 
-    void			removeMarker(int);
-    bool			changeColor(int);
     bool			saveColTab(bool);
-    void			readFromSettings(ObjectSet<IOPar>&);
-    void			writeToSettings(const ObjectSet<IOPar>&);
 
     void			segmentSel(CallBacker*);
     void			nrSegmentsCB(CallBacker*);
     void			undefColSel(CallBacker*);
     void			rightClick(CallBacker*);
     void			doSegmentize();
-    void			drawMarkers(CallBacker*);
+    void			importColTab(CallBacker*);
     void			transptSel(CallBacker*);
     void			transptChg(CallBacker*);
     void			sequenceChange(CallBacker*);
