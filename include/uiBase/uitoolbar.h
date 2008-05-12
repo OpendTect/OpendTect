@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.31 2008-01-30 10:20:29 cvsjaap Exp $
+ RCS:           $Id: uitoolbar.h,v 1.32 2008-05-12 05:33:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ public:
 	    Right=0x2,	//!< To the right of the central uiGroup.
 	    Top=0x4,	//!< Above the central uiGroup, below the menubar.
 	    Bottom=0x8,	//!< Below the central uiGroup, above the status bar.
+	    None=0,	//!< No toolbar area
 	    All=0xf	//!< All areas.
     };
 
