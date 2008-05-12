@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.29 2008-03-12 09:48:03 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.30 2008-05-12 06:46:21 cvsraman Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -34,11 +34,40 @@ public:
 			{ return new SeisCBVSPS2DReader(dirnm,lnm); }
     SeisPSWriter*	make2DWriter( const char* dirnm, const char* lnm ) const
 			{ return new SeisCBVSPS2DWriter(dirnm,lnm); }
+    bool		getLineNames(const char*,BufferStringSet&) const;
     static int		factid;
 };
 
 // This adds the CBVS type pre-stack seismics data storage to the factory
 int CBVSSeisPSIOProvider::factid = SPSIOPF().add( new CBVSSeisPSIOProvider );
+
+
+bool CBVSSeisPSIOProvider::getLineNames( const char* dirnm,
+					 BufferStringSet& linenms) const
+{
+    deepErase( linenms );
+    DirList dl( dirnm, DirList::FilesOnly );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	BufferString filenm = dl.get( idx );
+	char* str = filenm.buf();
+	int cidx = 0;
+	while ( cidx < filenm.size() && str[cidx] != '.')
+	    cidx++;
+
+	if ( !cidx || cidx >= filenm.size() || str[cidx] != '.' )
+	    continue;
+
+	const char* ext = str + cidx + 1;
+	if ( strncmp(ext,"cbvs",4) )
+	    continue;
+
+	str[cidx] = '\0';
+	linenms.add( filenm );
+    }
+
+    return linenms.size();
+}
 
 
 SeisCBVSPSIO::SeisCBVSPSIO( const char* dirnm )

@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seispsioprov.cc,v 1.18 2008-03-12 09:48:03 cvsbert Exp $";
+static const char* rcsID = "$Id: seispsioprov.cc,v 1.19 2008-05-12 06:46:21 cvsraman Exp $";
 
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -63,6 +63,17 @@ void SeisPSIOProviderFactory::mk3DPostStackProxy( IOObj& ioobj )
     IOM().dirPtr()->commitChanges( &ioobj );
     iox->setOwnKey( ioobj.key() );
     IOM().dirPtr()->addObj( iox, true );
+}
+
+
+bool SeisPSIOProviderFactory::getLineNames( const IOObj& ioobj,
+					    BufferStringSet& linenms ) const
+{
+    if ( provs_.isEmpty() ) return false;
+
+    const SeisPSIOProvider* prov = provider( ioobj.translator() );
+    return prov ? prov->getLineNames( ioobj.fullUserExpr(true), linenms )
+		: false;
 }
 
 
