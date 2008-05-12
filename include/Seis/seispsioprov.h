@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispsioprov.h,v 1.13 2008-01-22 15:04:17 cvsbert Exp $
+ RCS:		$Id: seispsioprov.h,v 1.14 2008-05-12 06:45:59 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,6 +63,8 @@ public:
 				{ return 0; }
 
     const char*			type() const		{ return type_.buf(); }
+    virtual bool		getLineNames(const char*,BufferStringSet&) const
+    				{ return false; }
 
     static const char*		sKeyCubeID;
 
@@ -93,6 +95,8 @@ public:
     SeisPSWriter*		get3DWriter(const IOObj&) const;
     SeisPSWriter*		get2DWriter(const IOObj&,const char* lnm) const;
 
+    bool			getLineNames(const IOObj&,
+	    				     BufferStringSet&) const; // For 2D
     void			mk3DPostStackProxy(IOObj&);
     				//!< Adds entry to omf for post-stack access
 
