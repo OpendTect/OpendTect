@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.24 2008-02-26 09:17:32 cvsnanne Exp $
+ RCS:           $Id: uiiosurface.h,v 1.25 2008-05-12 04:05:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,23 +83,21 @@ public:
     class Setup
     {
     public:
-
 			Setup( const char* typ )
-			: typ_(typ)
-			, withsubsel_(false)
-			, withcolorfld_(false)
-			, withstratfld_(false)
-			, withdisplayfld_(false)
-			, dispaytext_("Replace in tree")
+			    : typ_(typ)
+			    , withsubsel_(false)
+			    , withcolorfld_(false)
+			    , withstratfld_(false)
+			    , withdisplayfld_(false)
+			    , displaytext_("Replace in tree")
 			{}
 
+	mDefSetupMemb(BufferString,typ)
 	mDefSetupMemb(bool,withsubsel)
 	mDefSetupMemb(bool,withcolorfld)
 	mDefSetupMemb(bool,withstratfld)
 	mDefSetupMemb(bool,withdisplayfld)
-	mDefSetupMemb(BufferString,dispaytext)
-	mDefSetupMemb(BufferString,typ)
-
+	mDefSetupMemb(BufferString,displaytext)
     };
 
 			uiSurfaceWrite(uiParent*,const EM::Surface&,
@@ -125,8 +123,23 @@ protected:
 class uiSurfaceRead : public uiIOSurface
 {
 public:
-    			uiSurfaceRead(uiParent*,const char* type,
-				      bool showattribfld=true);
+    class Setup
+    {
+    public:
+			Setup( const char* typ )
+			    : typ_(typ)
+			    , withsubsel_(false)
+			    , withattribfld_(true)
+			    , withsectionfld_(true)
+			{}
+
+	mDefSetupMemb(BufferString,typ)
+	mDefSetupMemb(bool,withsubsel)
+	mDefSetupMemb(bool,withattribfld)
+	mDefSetupMemb(bool,withsectionfld)
+    };
+
+    			uiSurfaceRead(uiParent*,const Setup&);
 
     virtual bool	processInput();
     void		setIOObj(const MultiID&);

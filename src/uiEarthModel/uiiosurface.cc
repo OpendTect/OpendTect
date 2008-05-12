@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.53 2008-05-05 05:42:29 cvsnageswara Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.54 2008-05-12 04:05:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -258,7 +258,7 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
 
     if ( setup.withdisplayfld_ )
     {
-       displayfld_ = new uiCheckBox( this, setup.dispaytext_ );
+       displayfld_ = new uiCheckBox( this, setup.displaytext_ );
        displayfld_->attach( alignedBelow, objfld );
        if ( stratlvlfld_ ) displayfld_->attach( ensureBelow, stratlvlfld_ );
        if ( colbut_ ) displayfld_->attach( ensureBelow, colbut_ );
@@ -375,31 +375,38 @@ void uiSurfaceWrite::ioDataSelChg( CallBacker* )
 }
 
 
-uiSurfaceRead::uiSurfaceRead( uiParent* p, const char* typ, 
-			      bool showattribfld )
-    : uiIOSurface(p,true,typ)
+uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
+    : uiIOSurface(p,true,setup.typ_)
 {
     mkObjFld( "Input Surface" );
+    uiGroup* attachobj = objfld;
 
-    mkSectionFld( showattribfld );
+    if ( setup.withsectionfld_ )
+	mkSectionFld( setup.withattribfld_ );
 
     if ( objfld->ctxtIOObj().ioobj )
 	objSel(0);
 
-    if ( showattribfld )
+    if ( setup.withattribfld_ )
     {
 	mkAttribFld();
 	attribfld->attach( alignedBelow, objfld );
 	sectionfld->attach( rightTo, attribfld );
+	attachobj = attribfld;
     }
-    else
+    else if ( setup.withsectionfld_ )
+    {
 	sectionfld->attach( alignedBelow, objfld );
+	attachobj = sectionfld;
+    }
 
-    mkRangeFld();
-    rgfld->attach( alignedBelow, showattribfld ? (uiObject*)attribfld
-	    				       : (uiObject*)sectionfld );
+    if ( setup.withsubsel_ )
+    {
+	mkRangeFld();
+	rgfld->attach( alignedBelow, attachobj );
+    }
 
-    setHAlignObj( rgfld );
+    setHAlignObj( objfld );
 }
 
 
@@ -407,7 +414,7 @@ void uiSurfaceRead::setIOObj( const MultiID& mid )
 {
     ctio.setObj( mid );
     objfld->updateInput();
-    objSel(0);
+    objSel( 0 );
 }
 
 

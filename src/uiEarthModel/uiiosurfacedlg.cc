@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.28 2008-02-28 12:18:05 cvsnanne Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.29 2008-05-12 04:05:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf )
     mDynamicCastGet(const EM::Horizon3D*,hor,&surface_)
     iogrp_ = new uiSurfaceWrite( this, surface_,
 	   			 uiSurfaceWrite::Setup(surface_.getTypeStr())
-	   			 .withsubsel(true).withdisplayfld(true) );
+	   			 .withdisplayfld(true).withsubsel(true) );
 }
 
 
@@ -68,7 +68,8 @@ bool uiWriteSurfaceDlg::replaceInTree() const
 uiReadSurfaceDlg::uiReadSurfaceDlg( uiParent* p, const char* typ )
     : uiDialog(p,uiDialog::Setup("Input selection","","104.3.0"))
 {
-    iogrp_ = new uiSurfaceRead( this, typ , false );
+    iogrp_ = new uiSurfaceRead( this,
+	    uiSurfaceRead::Setup(typ).withattribfld(false) );
 }
 
 
@@ -151,7 +152,8 @@ uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj )
     : uiDialog(p,Setup("Copy surface","","104.0.0"))
     , ctio_(mkCtxtIOObj(ioobj))
 {
-    inpfld = new uiSurfaceRead( this, ioobj.group(), false );
+    inpfld = new uiSurfaceRead( this,
+	    uiSurfaceRead::Setup(ioobj.group()).withattribfld(false) );
     inpfld->setIOObj( ioobj.key() );
 
     ctio_.ctxt.forread = false;
