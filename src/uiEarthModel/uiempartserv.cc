@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.138 2008-03-21 16:12:51 cvshelene Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.139 2008-05-12 03:58:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,34 +17,34 @@ ________________________________________________________________________
 #include "datainpspec.h"
 #include "datapointset.h"
 #include "emfault.h"
-#include "undo.h"
-#include "emhorizon3d.h"
 #include "emhorizon2d.h"
+#include "emhorizon3d.h"
 #include "emmanager.h"
+#include "emmarchingcubessurface.h"
+#include "emmarchingcubessurfacetr.h"
 #include "emposid.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
-#include "emmarchingcubessurfacetr.h"
-#include "emmarchingcubessurface.h"
 #include "executor.h"
 #include "iodir.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "parametricsurface.h"
 #include "pickset.h"
+#include "posinfo.h"
 #include "ptrman.h"
 #include "surfaceinfo.h"
 #include "survinfo.h"
+#include "undo.h"
 #include "varlenarray.h"
-#include "posinfo.h"
 
 #include "uiarray2dchg.h"
 #include "uichangesurfacedlg.h"
-#include "uihor3dfrom2ddlg.h"
-#include "uitaskrunner.h"
+#include "uiexpfault.h"
 #include "uiexphorizon.h"
 #include "uigeninputdlg.h"
+#include "uihor3dfrom2ddlg.h"
 #include "uiimpfault.h"
 #include "uiimphorizon.h"
 #include "uiioobjsel.h"
@@ -52,9 +52,10 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uimultisurfaceread.h"
+#include "uirandlinegen.h"
 #include "uiselsimple.h"
 #include "uisurfaceman.h"
-#include "uirandlinegen.h"
+#include "uitaskrunner.h"
 
 #include <math.h>
 
@@ -140,6 +141,16 @@ bool uiEMPartServer::importHorizon( bool isgeom )
 
 
 bool uiEMPartServer::exportHorizon() { return ioHorizon( false ); }
+
+
+bool uiEMPartServer::importFault()
+{ return true; }
+
+bool uiEMPartServer::exportFault()
+{
+    uiExportFault dlg( parent() );
+    return dlg.go();
+}
 
 
 BufferString uiEMPartServer::getName( const EM::ObjectID& id ) const
