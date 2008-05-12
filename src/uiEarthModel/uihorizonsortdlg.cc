@@ -4,17 +4,16 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2005
- RCS:		$Id: uihorizonsortdlg.cc,v 1.10 2008-03-14 14:35:45 cvskris Exp $
+ RCS:		$Id: uihorizonsortdlg.cc,v 1.11 2008-05-12 04:00:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uihorizonsortdlg.h"
 
-#include "mousecursor.h"
-#include "uitaskrunner.h"
 #include "uiioobjsel.h"
 #include "uimsg.h"
+#include "uitaskrunner.h"
 
 #include "ctxtioobj.h"
 #include "emhorizon.h"
@@ -25,6 +24,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "iopar.h"
 #include "keystrs.h"
+#include "mousecursor.h"
 #include "ptrman.h"
 
 
@@ -91,7 +91,7 @@ bool uiHorizonSortDlg::acceptOK( CallBacker* )
 	const EM::ObjectID oid = EM::EMM().getObjectID( horids[idx] );
 	const EM::EMObject* emobj = EM::EMM().getObject(oid);
 	if ( !emobj || !emobj->isFullyLoaded() )
-	    loadids +=  horids[idx];
+	    loadids += horids[idx];
     }
 
     Executor* horreader = EM::EMM().objectLoader( loadids );
