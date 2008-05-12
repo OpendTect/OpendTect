@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.7 2008-05-09 13:08:56 cvsraman Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.8 2008-05-12 06:48:55 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -508,7 +508,6 @@ bool MadStream::getNextPos( BinID& bid )
 	return false;
 
     bid.crl = l2ddata_->posns[idx+1].nr_;
-    std::cerr << "Crl: " << bid.crl << std::endl;
     return true;
 }
 
