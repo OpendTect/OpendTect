@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.245 2008-05-06 11:57:37 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.246 2008-05-12 04:07:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -225,7 +225,7 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 	    else if ( opt == 1 )
 		emserv_->importHorizon( false );
 	    break;
-	case Exp:	emserv_->exportHorizon();			break;
+	case Exp:	emserv_->exportHorizon(); break;
 	case Man:
 	    if ( opt == 0 )
 		emserv_->manageSurfaces(
@@ -240,6 +240,7 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
     case Flt:
 	switch( at )
 	{
+	case Exp:	emserv_->exportFault();		break;
 	case Man:
 	    emserv_->manageSurfaces( EMFaultTranslatorGroup::keyword );	break;
 	}
