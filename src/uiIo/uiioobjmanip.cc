@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjmanip.cc,v 1.31 2008-05-07 05:19:19 cvsnanne Exp $
+ RCS:           $Id: uiioobjmanip.cc,v 1.32 2008-05-12 05:29:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,7 @@ uiToolButton* uiManipButGrp::addButton( const char* pmnm, const CallBack& cb,
 uiToolButton* uiManipButGrp::addButton( const ioPixmap& pm, const CallBack& cb,
 					const char* tooltip )
 {
-    uiToolButton* button = new uiToolButton( this, "ToolButton", pm, cb );
+    uiToolButton* button = new uiToolButton( this, tooltip, pm, cb );
     button->setToolTip( tooltip );
     butdata += new ButData( button, pm, tooltip );
     altbutdata += 0;
