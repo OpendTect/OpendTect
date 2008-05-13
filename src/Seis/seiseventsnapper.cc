@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: seiseventsnapper.cc,v 1.4 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:		$Id: seiseventsnapper.cc,v 1.5 2008-05-13 10:38:45 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ SeisEventSnapper::SeisEventSnapper( const IOObj& ioobj, BinIDValueSet& bvs )
     const Interval<float> extraz( cs.zrg.start-zrg.start, cs.zrg.stop-zrg.stop);
     mscprov_->setSelData( new Seis::TableSelData(bvs,&zrg) );
     totalnr_ = bvs.totalSize();
+    nrdone_ = 0;
 }
 
 
