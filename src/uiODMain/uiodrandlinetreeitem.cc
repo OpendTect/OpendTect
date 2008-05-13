@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.18 2008-04-18 10:32:11 cvsnanne Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.19 2008-05-13 13:57:50 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ ___________________________________________________________________
 #include "uiselsimple.h"
 #include "uivispartserv.h"
 #include "uiwellpartserv.h"
+#include "uiseispartserv.h"
 #include "visrandomtrackdisplay.h"
 
 
@@ -155,6 +156,7 @@ uiODRandomLineTreeItem::uiODRandomLineTreeItem( int id )
     , insertnodemnuitem_("&Insert node")
     , usewellsmnuitem_("&Create from wells ...")
     , saveasmnuitem_("&Save ...")
+    , saveas2dmnuitem_("Save as &2D ...")
 { displayid_ = id; } 
 
 
@@ -220,6 +222,7 @@ void uiODRandomLineTreeItem::createMenuCB( CallBacker* cb )
     }
     mAddMenuItem( menu, &usewellsmnuitem_, !islocked, false );
     mAddMenuItem( menu, &saveasmnuitem_, true, false );
+    mAddMenuItem( menu, &saveas2dmnuitem_, true, false );
 }
 
 
@@ -249,24 +252,33 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	applMgr()->wellServer()->selectWellCoordsForRdmLine();
     }
-    else if ( mnuid == saveasmnuitem_.id )
+    else
     {
-	PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
-	ctio->ctxt.forread = false;
-	ctio->setName( rtd->name() );
-	uiIOObjSelDlg dlg( getUiParent(), *ctio, "Select", false );
-	if ( !dlg.go() )
-	    return;
-	    
 	TypeSet<BinID> bids; rtd->getAllKnotPos( bids );
 	Geometry::RandomLine* rln = new Geometry::RandomLine;
 	for ( int idx=0; idx<bids.size(); idx++ )
 	    rln->addNode( bids[idx] );
-	rln->setZRange( rtd->getDepthInterval() );
-	Geometry::RandomLineSet lset; lset.addLine( rln );
-	BufferString bs;
-	if ( !RandomLineSetTranslator::store(lset,dlg.ioObj(),bs) )
-	    uiMSG().error( bs );
+	    
+	if ( mnuid == saveasmnuitem_.id )
+	{
+	    PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
+	    ctio->ctxt.forread = false;
+	    ctio->setName( rtd->name() );
+	    uiIOObjSelDlg dlg( getUiParent(), *ctio, "Select", false );
+	    if ( !dlg.go() )
+		{ delete rln; return; }
+		
+	    rln->setZRange( rtd->getDepthInterval() );
+	    Geometry::RandomLineSet lset; lset.addLine( rln );
+	    BufferString bs;
+	    if ( !RandomLineSetTranslator::store(lset,dlg.ioObj(),bs) )
+		uiMSG().error( bs );
+	}
+	else if ( mnuid == saveas2dmnuitem_.id )
+	{
+	    applMgr()->seisServer()->storeRlnAs2DLine( *rln );
+	    delete rln;
+	}
     }
 }
 
