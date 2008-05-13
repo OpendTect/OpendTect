@@ -2,10 +2,9 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : Mar 2001
- * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.55 2008-04-30 06:51:01 cvsraman Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.56 2008-05-13 14:00:38 cvsbert Exp $";
 
 #include "pickset.h"
 

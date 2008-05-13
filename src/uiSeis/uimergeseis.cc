@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:		$Id: uimergeseis.cc,v 1.40 2008-03-14 11:59:11 cvsnageswara Exp $
+ RCS:		$Id: uimergeseis.cc,v 1.41 2008-05-13 14:00:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,9 +41,8 @@ uiMergeSeis::uiMergeSeis( uiParent* p )
     BufferStringSet ioobjnms("Stored seismic data");
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
-        const IOObj& ioobj = *ioobjs[idx];
-        if ( strcmp(ioobj.translator(),"CBVS") ) continue;
-        ioobjnms.add( ioobj.name() );
+	if ( ioobjs[idx]->isReadDefault() )
+	    ioobjnms.add( ioobjs[idx]->name() );
     }
 
     ioobjnms.sort();

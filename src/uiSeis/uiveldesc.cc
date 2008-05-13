@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2007
- RCS:           $Id: uiveldesc.cc,v 1.9 2008-01-14 14:52:59 cvskris Exp $
+ RCS:           $Id: uiveldesc.cc,v 1.10 2008-05-13 14:00:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -140,8 +140,7 @@ const IOObjContext& uiVelSel::ioContext()
     if ( !velctxt )
     {
 	velctxt = new IOObjContext( SeisTrcTranslatorGroup::ioContext() );
-	velctxt->trglobexpr = "CBVS";
-	velctxt->deftransl = velctxt->trglobexpr;
+	velctxt->deftransl = "CBVS";
 	velctxt->parconstraints.setYN( VelocityDesc::sKeyIsVelocity(), true );
 	velctxt->includeconstraints = true;
 	velctxt->allowcnstrsabsent = false;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsticksettransl.h,v 1.4 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: emsticksettransl.h,v 1.5 2008-05-13 14:00:38 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -63,6 +63,8 @@ public:
 	   			const char* formatfilename );
     virtual Executor*	writer( const EM::StickSet&, Conn*,
 	   			const char* formatfilename );
+
+    bool		isReadDefault() const		{ return false; }
 
     BufferString	warningmsg;
 

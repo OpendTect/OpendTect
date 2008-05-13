@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.49 2008-01-22 15:04:17 cvsbert Exp $
+ RCS:		$Id: seistrctr.h,v 1.50 2008-05-13 14:00:38 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -225,6 +225,8 @@ public:
 			{ return curlinekey; }
     void		setCurLineKey( const LineKey& lk )
     			{ curlinekey = lk; }
+
+    virtual bool	isReadDefault() const		{ return false; }
 
 protected:
 

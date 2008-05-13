@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.25 2008-04-18 14:56:22 cvshelene Exp $
+ RCS:           $Id: attribsel.cc,v 1.26 2008-05-13 14:00:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -248,11 +248,9 @@ void SelInfo::fillStored( const char* filter )
 	const IOObj& ioobj = *ioobjs[idx];
 	if ( SeisTrcTranslator::isPS( ioobj ) ) continue;
 	const bool is2d = SeisTrcTranslator::is2D(ioobj,true);
-	const bool isvalid3d = !is2d && (!strcmp(ioobj.translator(),"CBVS")
-			    || !strcmp(ioobj.translator(),"PS Cube"));
-	const bool isdepth = ioobj.pars().find("Depth Domain");//Legacy
+	const bool isvalid3d = !is2d && ioobj.isReadDefault();
 	const bool isz = ioobj.pars().find(sKey::ZDomain);
-	if ( isdepth || isz || (is2d && !is2d_) || (!is2d && !isvalid3d) )
+	if ( isz || (is2d && !is2d_) || (!is2d && !isvalid3d) )
 	    continue;
 
 	const char* res = ioobj.pars().find( sKey::Type );

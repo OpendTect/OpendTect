@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		31-7-1995
- RCS:		$Id: ioobj.h,v 1.21 2006-08-21 17:14:44 cvsbert Exp $
+ RCS:		$Id: ioobj.h,v 1.22 2008-05-13 14:00:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,6 +113,7 @@ public:
 
     static const int	tmpID; //!< 99999
     inline bool		isTmp() const	{ return key_.leafID() == tmpID; }
+    bool		isReadDefault() const;
 
     static int		addProducer(IOObjProducer*);
     			//!< Factory for IOObj types. Not for casual use.

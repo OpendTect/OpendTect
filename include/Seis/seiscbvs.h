@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		April 2001
- RCS:		$Id: seiscbvs.h,v 1.39 2008-01-16 16:16:29 cvsbert Exp $
+ RCS:		$Id: seiscbvs.h,v 1.40 2008-05-13 14:00:38 cvsbert Exp $
 ________________________________________________________________________
 
 CBVS-based seimic translator.
@@ -63,6 +63,8 @@ public:
 
     void		setCoordPol(bool dowrite,bool intrailer);
     void		setPreselDataType( int dt )	{ preseldatatype = dt; }
+
+    bool		isReadDefault() const		{ return true; }
 
 protected:
 

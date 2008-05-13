@@ -4,7 +4,7 @@
  * DATE     : 2-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioobj.cc,v 1.24 2006-11-21 14:00:07 cvsbert Exp $";
+static const char* rcsID = "$Id: ioobj.cc,v 1.25 2008-05-13 14:00:38 cvsbert Exp $";
 
 #include "iodir.h"
 #include "ioman.h"
@@ -280,6 +280,17 @@ int IOObj::put( ascostream& astream ) const
 int IOObj::myKey() const
 {
     return atoi( key_.key( key_.nrKeys()-1 ) );
+}
+
+
+bool IOObj::isReadDefault() const
+{
+    Translator* tr = getTranslator();
+    if ( !tr ) return false;
+
+    bool isrddef = tr->isReadDefault();
+    delete tr;
+    return isrddef;
 }
 
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-10-1995
  Contents:	Translators
- RCS:		$Id: transl.h,v 1.27 2008-03-20 21:46:40 cvskris Exp $
+ RCS:		$Id: transl.h,v 1.28 2008-05-13 14:00:38 cvsbert Exp $
 ________________________________________________________________________
 
 A translator is an object specific for a certain storage mechanism coupled with
@@ -136,6 +136,10 @@ public:
     				{ return group_ ? group_->defExtension() : 0; }
 
     void			setGroup( TranslatorGroup* g )	{ group_ = g; }
+
+    virtual bool		isReadDefault() const		{ return true; }
+    				//!< If true, objs are for 'normal' use, not
+    				//!< just import
 
 protected:
 
