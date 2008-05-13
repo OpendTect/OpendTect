@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiseiseventsnapper.cc,v 1.12 2008-03-31 10:42:02 cvsnageswara Exp $
+ RCS:           $Id: uiseiseventsnapper.cc,v 1.13 2008-05-13 10:16:52 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "ioobj.h"
+#include "mousecursor.h"
 #include "ptrman.h"
 #include "seiseventsnapper.h"
 #include "seisselection.h"
@@ -160,6 +161,8 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* )
     if ( !dlg.execute(snapper) )
 	return false;
 
+    horizon_->setBurstAlert( true );
+    MouseCursorManager::setOverride( MouseCursor::Wait );
     BinIDValueSet::Pos pos;
     while ( bivs.next(pos) )
     {
@@ -167,6 +170,8 @@ bool uiSeisEventSnapper::acceptOK( CallBacker* )
 	bivs.get( pos, bid, z );
 	horizon_->setPos( sid, bid.getSerialized(), Coord3(0,0,z), false );
     }
+    horizon_->setBurstAlert( false );
+    MouseCursorManager::restoreOverride();
 
     if ( !saveHorizon() )
 	mErrRet( "Cannot save horizon" )
