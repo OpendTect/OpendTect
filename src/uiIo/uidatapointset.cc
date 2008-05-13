@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.13 2008-05-07 05:39:21 cvsnageswara Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.14 2008-05-13 13:59:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,7 +70,6 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
 				const uiDataPointSet::Setup& su )
 	: uiDialog(p,su)
 	, dps_(*const_cast<DataPointSet*>(&dps))
-	, orgdps_(*new DataPointSet(false,true)) //TODO remove
     	, setup_(su)
     	, zfac_(SI().zFactor())
     	, zunitnm_(SI().getZUnit(false))
@@ -178,10 +177,10 @@ void uiDataPointSet::mkToolBars()
 			      "Toggle show X and Y columns", true );
     dispztbid_ = mAddButton( "toggz.png", toggleXYZ,
 			     "Toggle show Z column", true );
-    xplottbid_ = mAddButton( "xplot.png", showCrossPlot,
-	    		     "Show crossplot", false );
     mAddButton( "statsinfo.png", showStatsWin,
 			     "Show histogram and stats for column", false );
+    xplottbid_ = mAddButton( "xplot.png", showCrossPlot,
+	    		     "Show crossplot", false );
 
     disptb_->turnOn( dispxytbid_, true ); disptb_->turnOn( dispztbid_, true );
 }
