@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : R. K. Singh
  * DATE     : March 2008
- * ID       : $Id: madstream.h,v 1.5 2008-05-09 13:08:56 cvsraman Exp $
+ * ID       : $Id: madstream.h,v 1.6 2008-05-13 13:58:51 cvsbert Exp $
 -*/
 
 
@@ -12,7 +12,6 @@
 #include "strmdata.h"
 
 class BufferString;
-class CBVSInfo;
 class CubeSampling;
 class IOPar;
 class SeisTrcReader;
