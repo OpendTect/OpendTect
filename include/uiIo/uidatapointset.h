@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.9 2008-04-11 13:22:24 cvsbert Exp $
+ RCS:           $Id: uidatapointset.h,v 1.10 2008-05-13 13:57:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,7 +93,6 @@ public:
 protected:
 
     DataPointSet&		dps_;
-    DataPointSet		orgdps_; //!< This will be removed in 3.2
     Setup			setup_;
     float			zfac_;
     BufferString		zunitnm_;
