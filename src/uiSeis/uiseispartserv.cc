@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.85 2008-03-31 10:42:02 cvsnageswara Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.86 2008-05-13 13:58:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -238,4 +238,10 @@ void uiSeisPartServer::getStoredGathersList( bool for3d,
     }
 
     nms.sort();
+}
+
+
+void uiSeisPartServer::storeRlnAs2DLine( const Geometry::RandomLine& rln ) const
+{
+    uiMSG().error( "TODO" );
 }

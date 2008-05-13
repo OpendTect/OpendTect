@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.28 2008-01-24 14:50:40 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.29 2008-05-13 13:58:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ class uiPopupMenu;
 class uiFlatViewWin;
 
 namespace PosInfo { class Line2DData; }
+namespace Geometry { class RandomLine; }
 
 /*! \brief Seismic User Interface Part Server */
 
@@ -38,7 +39,6 @@ public:
 			//~uiSeisPartServer();
     const char*		name() const			{ return "Seismics"; }
 
-    enum ExternalType	{ SegY, CBVS };
     bool		importSeis(int opt);
     			//!< opt == (int)uiSeisSEGYEntry::DataType or 3 == CBVS
     bool		exportSeis(int opt);
@@ -56,6 +56,7 @@ public:
     bool		create2DOutput(const MultiID&,const char* linekey,
 				       CubeSampling&,SeisTrcBuf&);
     void 		getStoredGathersList(bool for3d,BufferStringSet&) const;
+    void		storeRlnAs2DLine(const Geometry::RandomLine&) const;
 
     void		manageSeismics();
     void		importWavelets();
