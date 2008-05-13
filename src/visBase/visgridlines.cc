@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2005
- RCS:           $Id: visgridlines.cc,v 1.9 2007-08-20 09:45:44 cvssulochana Exp $
+ RCS:           $Id: visgridlines.cc,v 1.10 2008-05-13 05:34:32 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,9 +92,50 @@ void GridLines::setGridCubeSampling( const CubeSampling& cs )
 }
 
 
+void GridLines::adjustGridCS()
+{
+    if ( !planecs_.isDefined() || !gridcs_.isDefined() )
+	return;
+    while ( planecs_.hrg.start.inl > gridcs_.hrg.start.inl ) 
+	gridcs_.hrg.start.inl += gridcs_.hrg.step.inl;
+    while( planecs_.hrg.start.inl < gridcs_.hrg.start.inl -
+				    gridcs_.hrg.step.inl )
+	gridcs_.hrg.start.inl -= gridcs_.hrg.step.inl;
+
+    while( planecs_.hrg.stop.inl > gridcs_.hrg.stop.inl +
+				   gridcs_.hrg.step.inl )
+	gridcs_.hrg.stop.inl += gridcs_.hrg.step.inl;
+    while( planecs_.hrg.stop.inl < gridcs_.hrg.stop.inl )
+	gridcs_.hrg.stop.inl -= gridcs_.hrg.step.inl;
+    
+    while( planecs_.hrg.start.crl > gridcs_.hrg.start.crl )
+	gridcs_.hrg.start.crl += gridcs_.hrg.step.crl;
+    while( planecs_.hrg.start.crl < gridcs_.hrg.start.crl -
+				    gridcs_.hrg.step.crl )
+	gridcs_.hrg.start.crl -= gridcs_.hrg.step.crl;
+    while( planecs_.hrg.stop.crl > gridcs_.hrg.stop.crl +
+				    gridcs_.hrg.step.crl )
+	gridcs_.hrg.stop.crl += gridcs_.hrg.step.crl;
+    while( planecs_.hrg.stop.crl < gridcs_.hrg.stop.crl )
+	gridcs_.hrg.stop.crl -= gridcs_.hrg.step.crl;
+
+    while( planecs_.zrg.start > gridcs_.zrg.start )
+	gridcs_.zrg.start += gridcs_.zrg.step;
+    while( planecs_.zrg.start < gridcs_.zrg.start -
+				gridcs_.zrg.step )
+	gridcs_.zrg.start -= gridcs_.zrg.step;
+    while( planecs_.zrg.stop > gridcs_.zrg.stop +
+			       gridcs_.zrg.step )
+	gridcs_.zrg.stop += gridcs_.zrg.step;
+    while( planecs_.zrg.stop < gridcs_.zrg.stop )
+	gridcs_.zrg.stop -= gridcs_.zrg.step;
+}
+    
+
 void GridLines::setPlaneCubeSampling( const CubeSampling& cs )
 {
     planecs_ = cs;
+    adjustGridCS();
     if ( inlines_ ) drawInlines();
     if ( crosslines_ ) drawCrosslines();
     if ( zlines_ ) drawZlines();
@@ -138,6 +179,7 @@ void GridLines::drawInlines()
 	inlines_ = addLineSet();
     else
 	emptyLineSet( inlines_ );
+
     
     const HorSampling& ghs = gridcs_.hrg;
     for ( int inl=ghs.start.inl; inl<=ghs.stop.inl; inl+=ghs.step.inl )
