@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uiselsurvranges.cc,v 1.10 2008-05-05 05:42:29 cvsnageswara Exp $
+ RCS:           $Id: uiselsurvranges.cc,v 1.11 2008-05-13 13:06:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,8 @@ uiSelZRange::uiSelZRange( uiParent* p, StepInterval<float> limitrg, bool wstep,
 void uiSelZRange::makeInpFields( const char* lbltxt, bool wstep,
 				 StepInterval<float> limitrg )
 {
+    if ( limitrg.step > SI().zRange(false).step )
+	limitrg.step = SI().zRange(false).step;
     limitrg.scale( SI().zFactor() );
     StepInterval<int> zrg( mNINT(limitrg.start), mNINT(limitrg.stop),
 			   mNINT(limitrg.step) );
