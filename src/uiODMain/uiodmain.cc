@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.101 2008-05-07 12:18:32 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.102 2008-05-14 05:01:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -492,6 +492,7 @@ void uiODMain::restoreSession( const IOObj* ioobj )
     cursession_ = &lastsession_; lastsession_.clear();
     ctabed_->updateColTabList();
     timer_.start( 200, true );
+    sceneMgr().setToViewMode( true );
 }
 
 
