@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.cc,v 1.7 2008-05-12 07:32:26 cvssatyaki Exp $
+ RCS:           $Id: uicoltabman.cc,v 1.8 2008-05-14 09:30:44 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -207,7 +207,10 @@ void uiColorTableMan::selChg( CallBacker* cb )
     orgctab_ = new ColTab::Sequence( ctab_ );
     issaved_ = true;
     segmentfld_->setChecked( markercanvas_->isSegmentized() );
-    nrsegbox_->setValue( ctab_.size()/2 );
+    if ( markercanvas_->isSegmentized() )
+	nrsegbox_->setValue( ctab_.size()/2 );
+    else
+	nrsegbox_->setValue( 8 );
     tableChanged.trigger();
 }
 
