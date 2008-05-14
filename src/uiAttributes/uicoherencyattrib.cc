@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:		$Id: uicoherencyattrib.cc,v 1.17 2008-05-05 05:42:18 cvsnageswara Exp $
+ RCS:		$Id: uicoherencyattrib.cc,v 1.18 2008-05-14 11:11:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,10 +50,13 @@ uiCoherencyAttrib::uiCoherencyAttrib( uiParent* p, bool is2d )
     else
 	tgfld->attach( alignedBelow, inpfld );
 
-    maxdipfld = new uiGenInput( this, sKeyMaxDip, FloatInpSpec() );
+    BufferString mdlbl = sKeyMaxDip; mdlbl += zIsTime() ? " (us/m)" : " (mm/m)";
+    maxdipfld = new uiGenInput( this, mdlbl, FloatInpSpec() );
     maxdipfld->attach( alignedBelow, tgfld );
 
-    deltadipfld = new uiGenInput( this, sKeyDeltaDip, FloatInpSpec() );
+    BufferString ddlbl = sKeyDeltaDip;
+    ddlbl += zIsTime() ? " (us/m)" : " (mm/m)";
+    deltadipfld = new uiGenInput( this, ddlbl, FloatInpSpec() );
     deltadipfld->attach( alignedBelow, maxdipfld );
 
     if ( is1fld )
