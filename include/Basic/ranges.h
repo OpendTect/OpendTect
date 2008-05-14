@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Ranges
- RCS:		$Id: ranges.h,v 1.50 2008-03-12 21:13:28 cvsnanne Exp $
+ RCS:		$Id: ranges.h,v 1.51 2008-05-14 20:40:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ class Interval
 public:
     inline		Interval();
     inline		Interval(const T& start,const T& stop);
+    virtual bool inline	isUdf() const;
     inline
     virtual Interval<T>* clone() const;
 
@@ -95,6 +96,8 @@ public:
     inline		StepInterval();
     inline		StepInterval(const T& start,const T& stop,
 				     const T& step);
+
+    virtual bool inline	isUdf() const;
 
     inline
     virtual cloneTp*	clone() const;
@@ -311,6 +314,12 @@ template <class T> inline Interval<T>::Interval( const T& t1, const T& t2 )
 { start = t1; stop = t2; }
 
 template <class T> inline
+bool Interval<T>::isUdf() const
+{
+    return mIsUdf(start) || mIsUdf(stop);
+}
+
+template <class T> inline
 Interval<T>* Interval<T>::clone() const		
 { return new Interval<T>( *this ); }
 
@@ -460,6 +469,13 @@ template <class T>
 StepInterval<T>::StepInterval( const T& t1, const T& t2, const T& t3 )
     : Interval<T>(t1,t2)
 { step = t3; }
+
+
+template <class T> inline
+bool StepInterval<T>::isUdf() const
+{
+    return Interval<T>::isUdf() || mIsUdf(step);
+}
 
 
 template <class T> inline
