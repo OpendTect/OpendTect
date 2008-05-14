@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.7 2008-01-14 12:06:47 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.8 2008-05-14 13:16:17 cvsbert Exp $";
 
 #include "seisimpbpsif.h"
 #include "seisimpps.h"
@@ -230,7 +230,11 @@ int SeisImpBPSIF::readBinary()
 	tmpltrc.set( idx, vbuf[2+idx], 0 );
     tmpltrc.info().nr = mNINT(vbuf[0]);
 
-    return addTrcsBinary( tmpltrc ) ? fileEnded() : Executor::MoreToDo;
+    if ( !addTrcsBinary(tmpltrc) )
+	return fileEnded();
+
+    nrshots_++;
+    return Executor::MoreToDo;
 }
 
 
@@ -286,11 +290,12 @@ bool SeisImpBPSIF::addTrcsBinary( const SeisTrc& tmpltrc )
     const int nrrcvattrs = rcvattrs_.size();
     const int nrshotattrs = shotattrs_.size();
 
-    float vbuf[2+nrrcvattrs];
+    const int nrrcvvals = 2+nrrcvattrs;
+    float vbuf[nrrcvvals];
     for ( int idx=0; idx<nrrcvpershot_; idx++ )
     {
 	if ( !StrmOper::readBlock( *cursd_.istrm, vbuf,
-		    		   (2+nrshotattrs)*sizeof(float) ) )
+		    		   nrrcvvals*sizeof(float) ) )
 	    return false;
 
 	SeisTrc* newtrc = new SeisTrc( tmpltrc );
@@ -299,7 +304,10 @@ bool SeisImpBPSIF::addTrcsBinary( const SeisTrc& tmpltrc )
 	    newtrc->set( nrshotattrs+idx, vbuf[2+idx], 0 );
 
 	newtrc->info().setPSFlds( rcvcoord, tmpltrc.info().coord, true );
-	datamgr_.add( newtrc );
+	if ( SI().sampling(false).hrg.includes(newtrc->info().binid) )
+	    datamgr_.add( newtrc );
+	else
+	    nrrejected_++;
     }
 
     return true;
