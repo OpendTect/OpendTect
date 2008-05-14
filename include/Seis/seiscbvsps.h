@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seiscbvsps.h,v 1.12 2008-01-22 11:07:45 cvsbert Exp $
+ RCS:		$Id: seiscbvsps.h,v 1.13 2008-05-14 13:14:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -149,6 +149,9 @@ public:
     const char*		errMsg() const		{ return errmsg_.buf(); } 
     void		close();
 
+    bool		setSampleNames( const BufferStringSet& bss ) const
+			{ return SeisCBVSPSIO::setSampleNames(bss); }
+
 protected:
 
     BinID&		prevbid_;
@@ -176,7 +179,7 @@ public:
     const char*		errMsg() const		{ return errmsg_.buf(); } 
     void		close();
 
-    bool		setSampleNames( BufferStringSet& bss ) const
+    bool		setSampleNames( const BufferStringSet& bss ) const
 			{ return SeisCBVSPSIO::setSampleNames(bss); }
 
 protected:
