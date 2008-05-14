@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.28 2008-03-20 21:40:50 cvskris Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.29 2008-05-14 13:14:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,7 @@ public:
     bool		maydooper;	//!< Will we allow add/remove etc?
     BufferString	deftransl;	//!< Translator to use for new entry
     BufferString	trglobexpr;	//!< Only select when matches globexpr
+    bool		inctrglobexpr;	//!< If false, disallow any matches
     					//!< Multiple: fill with FileMultiString
     IOPar&		parconstraints;	//!< Allow only/not with these pars
     bool		includeconstraints; //!< Are cnstr's only/not allowed

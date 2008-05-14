@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.36 2008-03-24 20:16:57 cvskris Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.37 2008-05-14 13:14:14 cvsbert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -76,7 +76,8 @@ void IOObjContext::init()
 {
     newonlevel = 1;
     multi = maychdir = false;
-    forread = maydooper = true;
+    forread = maydooper =
+    inctrglobexpr	= true;
     deftransl		= "";
     stdseltype		= None;
     includeconstraints	= true;
@@ -106,6 +107,7 @@ IOObjContext& IOObjContext::operator=( const IOObjContext& ct )
 	selkey = ct.selkey;
 	deftransl = ct.deftransl;
 	trglobexpr = ct.trglobexpr;
+	inctrglobexpr = ct.inctrglobexpr;
 	parconstraints = ct.parconstraints;
 	includeconstraints = ct.includeconstraints;
 	allowcnstrsabsent = ct.allowcnstrsabsent;
@@ -158,7 +160,8 @@ void IOObjContext::fillPar( IOPar& iopar ) const
     iopar.setYN( "Selection.Allow operations", maydooper );
     iopar.set( "Selection.Default translator", (const char*)deftransl );
     iopar.set( "Selection.Dir key", (const char*)selkey );
-    iopar.set( "Selection.Allow Translators", trglobexpr );
+    iopar.set( "Selection.Translator subsel", trglobexpr );
+    iopar.setYN( "Selection.Include Translator subsel", inctrglobexpr );
     iopar.mergeComp( parconstraints, sKeySelConstr );
     iopar.setYN( IOPar::compKey(sKeySelConstr,"Include"), includeconstraints );
     iopar.setYN( IOPar::compKey(sKeySelConstr,"AllowAbsent"),allowcnstrsabsent);
@@ -209,12 +212,13 @@ void IOObjContext::usePar( const IOPar& iopar )
     iopar.getYN( "Entries in other directories", maychdir );
     iopar.getYN( "Selection.For read", forread );
     iopar.getYN( "Selection.Allow operations", maydooper );
+    iopar.getYN( "Selection.Include Translator subsel", inctrglobexpr );
 
     res = iopar.find( "Selection.Default translator" );
     if ( res ) deftransl = res;
     res = iopar.find( "Selection.Dir key" );
     if ( res ) selkey = res;
-    res = iopar.find( "Selection.Allow Translators" );
+    res = iopar.find( "Selection.Translator subsel" );
     if ( res ) trglobexpr = res;
 
     IOPar* subiop = iopar.subselect( sKeySelConstr );
@@ -255,7 +259,12 @@ bool IOObjContext::validIOObj( const IOObj& ioobj ) const
 	{
 	    GlobExpr ge( fms[idx] );
 	    if ( ge.matches( ioobj.translator() ) )
-		break;
+	    {
+		if ( inctrglobexpr )
+		    break;
+		else
+		    return false;
+	    }
 	    else if ( idx == sz-1 )
 		return false;
 	}
