@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.48 2008-03-26 08:46:21 cvsbert Exp $
+ RCS:		$Id: sets.h,v 1.49 2008-05-14 20:39:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -193,6 +193,9 @@ public:
     inline virtual void		insertAfter( T* newptr, int idx );
     inline virtual void		copy( const ObjectSet<T>& os );
     inline virtual void		append( const ObjectSet<T>& os );
+
+    inline virtual void		push(T* ptr);
+    inline virtual T*		pop();
 
     inline virtual void		erase();
     virtual inline T*		remove( int idx );;
@@ -681,6 +684,20 @@ void ObjectSet<T>::append( const ObjectSet<T>& os )
     ovec_.setCapacity( size()+sz );
     for ( int idx=0; idx<sz; idx++ )
 	*this += const_cast<T*>( os[idx] );
+}
+
+
+template <class T> inline
+void ObjectSet<T>::push(T* ptr)
+{ *this +=ptr; }
+
+
+template <class T> inline
+T* ObjectSet<T>::pop()
+{
+    int sz=size();
+    if ( !sz ) return 0;
+    return remove(sz-1);
 }
 
 
