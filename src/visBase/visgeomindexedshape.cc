@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: visgeomindexedshape.cc,v 1.9 2008-05-07 12:35:17 cvsnanne Exp $
+ RCS:           $Id: visgeomindexedshape.cc,v 1.10 2008-05-14 20:48:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,10 @@ GeomIndexedShape::~GeomIndexedShape()
 
 
 void GeomIndexedShape::setDisplayTransformation( mVisTrans* nt )
-{ coords_->setDisplayTransformation( nt ); }
+{
+    coords_->setDisplayTransformation( nt );
+    normals_->setDisplayTransformation( nt );
+}
 
 
 mVisTrans* GeomIndexedShape::getDisplayTransformation()
@@ -153,11 +156,18 @@ void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
 		    geom->normalindices_.size(), geom->normalindices_.arr() );
 		*/
 
+		SbBool oldstatus = shape->coordIndex.enableNotify( false );
 		shape->coordIndex.setValues( 0,
 		    geom->coordindices_.size(), geom->coordindices_.arr() );
+		shape->coordIndex.setNum( geom->coordindices_.size() );
+		shape->coordIndex.enableNotify( oldstatus );
 
+
+		oldstatus = shape->normalIndex.enableNotify( false );
 		shape->normalIndex.setValues( 0,
 		    geom->normalindices_.size(), geom->normalindices_.arr() );
+		shape->normalIndex.setNum( geom->normalindices_.size() );
+		shape->normalIndex.enableNotify( oldstatus );
 	    }
 
 	    const int idy = childIndex( shape );
