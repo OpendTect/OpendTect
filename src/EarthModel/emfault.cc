@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.41 2008-05-07 12:37:11 cvsnanne Exp $
+ RCS:           $Id: emfault.cc,v 1.42 2008-05-14 20:51:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,10 @@ bool FaultGeometry::insertStick( const SectionID& sid, int sticknr,
     if ( !fss || !fss->insertStick(pos,editnormal,sticknr) )
 	return false;
 
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::BurstAlert;
+    surface_.change.trigger( cbdata );
+
     // TODO: addtohistory
     return true;
 }
@@ -113,6 +117,10 @@ bool FaultGeometry::removeStick( const SectionID& sid, int sticknr,
     if ( !fss || !fss->removeStick(sticknr) )
 	return false;
     
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::BurstAlert;
+    surface_.change.trigger( cbdata );
+
     // TODO: addtohistory
     return true;
 }
@@ -126,6 +134,10 @@ bool FaultGeometry::insertKnot( const SectionID& sid, const SubID& subid,
     rc.setSerialized( subid );
     if ( !fss || !fss->insertKnot(rc,pos) )
 	return false;
+
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::BurstAlert;
+    surface_.change.trigger( cbdata );
 
     // TODO: addtohistory
     return true;
@@ -155,6 +167,10 @@ bool FaultGeometry::removeKnot( const SectionID& sid, const SubID& subid,
     rc.setSerialized( subid );
     if ( !fss || !fss->removeKnot(rc) )
 	return false;
+
+    EMObjectCallbackData cbdata;
+    cbdata.event = EMObjectCallbackData::BurstAlert;
+    surface_.change.trigger( cbdata );
 
     // TODO: addtohistory
     return true;
