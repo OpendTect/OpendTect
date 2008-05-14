@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismultiattribsurvobj.h,v 1.11 2007-10-03 13:32:51 cvsyuancheng Exp $
+ RCS:		$Id: vismultiattribsurvobj.h,v 1.12 2008-05-14 05:32:57 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -101,17 +101,6 @@ private:
     static const char*		sKeyTextTrans();
 };
 
-}; // Namespace visSurvey
-
-
-/*! \mainpage 3D Visualisation - OpendTect specific
-
-  This module contains front-end classes for displaying 3D objects. Most 
-  functions in these classes deal with the geometry or position of the object, 
-  as well as handling new data and information about the attribute 
-  displayed.
-
-*/
-
+} // namespace visSurvey
 
 #endif
