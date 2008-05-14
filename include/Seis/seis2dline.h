@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.37 2007-11-23 11:59:06 cvsbert Exp $
+ RCS:		$Id: seis2dline.h,v 1.38 2008-05-14 11:13:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -193,6 +193,7 @@ class TwoDSeisTrcTranslator : public SeisTrcTranslator
     bool		implRemove(const IOObj*) const;
     bool		initRead_();		//!< supporting getRanges()
     bool		initWrite_(const SeisTrc&)	{ return false; }
+    bool		isReadDefault() const		{ return true; }
 
 };
 
