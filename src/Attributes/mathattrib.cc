@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.25 2008-04-23 13:58:32 cvshelene Exp $
+ RCS:           $Id: mathattrib.cc,v 1.26 2008-05-14 15:09:26 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ void Math::initClass()
     desc->addParam( cstset );
 
     desc->addParam( new FloatParam(recstartStr()) );
+    desc->addParam( new FloatParam(recstartposStr()) );
     
     desc->addInput( InputSpec("Data",true) );
     desc->addOutputDataType( Seis::UnknowData );
@@ -93,12 +94,16 @@ void Math::updateDesc( Desc& desc )
     }
 
     desc.setParamEnabled( cstStr(), nrcstvars );
-    desc.setParamEnabled( recstartStr(), formula->isRecursive() );
+
+    bool isrec = formula->isRecursive();
+    desc.setParamEnabled( recstartStr(), isrec );
+    desc.setParamEnabled( recstartposStr(), isrec );
 }
 
 
 Math::Math( Desc& dsc )
     : Provider( dsc )
+    , desintv_( Interval<float>(0,0) )
 {
     if ( !isOK() ) return;
 
@@ -119,7 +124,11 @@ Math::Math( Desc& dsc )
     getInputTable( expression_, cstsinputtable_, true );
     fillInVarsSet();
     if ( expression_->isRecursive() )
-	mGetFloat( recstart_, recstartStr() );
+    {
+	mGetFloat( recstartval_, recstartStr() );
+	mGetFloat( recstartpos_, recstartposStr() );
+	desintv_.start = -1000;	//ensure we get the entire trace beginning
+    }
 }
 
 
@@ -163,38 +172,73 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
     PtrMan<MathExpression> mathobj = expression_ ? expression_->clone() : 0;
     if ( !mathobj ) return false;
 
+    const bool isrec = expression_->isRecursive();
     const int nrxvars = varstable_.size();
     const int nrcstvars = cstsinputtable_.size();
     const int nrvar = mathobj->getNrVariables();
     if ( (nrxvars + nrcstvars) != nrvar ) 
 	return false;
+
+    //TODO: handle prev formulas where recstartpos_ did not exist
+    const int recstartidx = mNINT( recstartpos_/refstep );
+
+    //in case first samp is undef prevent result=undef
+    //on whole trace for recursive formulas
+    bool hasudf = isrec ? true : false;
     
-    for ( int idx=0; idx<nrsamples; idx++ )
+    //exceptional case: recstartpos_>z0
+    if ( isrec && recstartidx>z0 )
     {
-	if ( expression_->isRecursive() && idx == 0 )
+	for ( int idx=z0; idx<recstartidx; idx++ )
+	    setOutputValue( output, 0, idx-z0, z0, recstartval_ );
+    }
+    
+    const int loopstartidx = isrec ? recstartidx : z0;
+    const int loopstopidx = z0+nrsamples-1;
+
+    //A temp DataHolder is needed for recursive formulas
+    const int tmpholdersz = loopstopidx-recstartidx+1;
+    DataHolder* tmpholder = isrec ? new DataHolder(recstartidx, tmpholdersz): 0;
+    if ( tmpholder ) tmpholder->add();
+    
+    for ( int idx=loopstartidx; idx<loopstopidx; idx++ )
+    {
+	const int sampidx = idx - loopstartidx;
+	if ( isrec && sampidx == 0 )
 	{
-	    setOutputValue( output, 0, idx, z0, recstart_ );
+	    setOutputValue( *tmpholder, 0, sampidx, recstartidx, recstartval_ );
+	    if ( idx == z0 || ( recstartidx>z0 && idx==recstartidx) )
+		setOutputValue( output, 0, sampidx+loopstartidx-z0,
+				z0, recstartval_ );
+
 	    continue;
 	}
 	
 	for ( int xvaridx=0; xvaridx<nrxvars; xvaridx++ )
 	{
-	    
 	    const int variableidx = varstable_[xvaridx].varidx_;
 	    const int inpidx = varstable_[xvaridx].inputidx_;
 	    const int shift = varstable_[xvaridx].shift_;
-	    const DataHolder* inpdata = inpidx == -1 ? &output 
+	    const DataHolder* inpdata = inpidx == -1 ? tmpholder 
 						    : inputdata_[inpidx];
+	    const int refdhidx = inpidx == -1 ? recstartidx : z0;
+	    const int inpsampidx = inpidx == -1 ? sampidx 
+						: sampidx+loopstartidx-z0;
 	    int compidx = inpidx == -1 ? 0 : inputidxs_[inpidx];
-	    const float val = inpidx==-1 && shift+idx<0 
-			    ? recstart_ 
-			    : getInputValue( *inpdata, compidx, idx+shift, z0);
+	    const float val = inpidx==-1 && shift+idx-loopstartidx<0
+		? recstartval_
+		: getInputValue(*inpdata, compidx, inpsampidx+shift, refdhidx);
 	    mathobj->setVariable( variableidx, val );
 	}
 	for ( int cstidx=0; cstidx<nrcstvars; cstidx++ )
 	    mathobj->setVariable( cstsinputtable_[cstidx], csts_[cstidx] );
 
-	setOutputValue( output, 0, idx, z0, mathobj->getValue() );
+	const float result = mathobj->getValue(); 
+	if ( tmpholder )
+	    tmpholder->series(0)->setValue( sampidx, result );
+	
+	if ( idx >= z0 )
+	    setOutputValue( output, 0, sampidx+loopstartidx-z0, z0, result );
     }
 
     return true;
@@ -239,4 +283,8 @@ const Interval<int>* Math::reqZSampMargin( int inp, int ) const
 }
 
 
+const Interval<float>* Math::desZMargin( int inp, int ) const
+{
+    return &desintv_;
+}
 }; // namespace Attrib

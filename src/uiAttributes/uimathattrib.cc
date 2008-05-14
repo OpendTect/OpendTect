@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.cc,v 1.21 2008-05-08 12:31:04 cvshelene Exp $
+ RCS:           $Id: uimathattrib.cc,v 1.22 2008-05-14 15:09:26 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "attribdesc.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"
+#include "survinfo.h"
 #include "uiattrsel.h"
 #include "uibutton.h"
 #include "uigeninput.h"
@@ -80,6 +81,12 @@ uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
     recstartfld_ = new uiGenInput( this, str, FloatInpSpec() );
     recstartfld_->setPrefHeightInChar(2);
     recstartfld_->attach( alignedBelow, ctable_ );
+    
+    BufferString lbl = zDepLabel( "Provide a starting",
+	    			  "\nfor recursive function" );
+    recstartposfld_ = new uiGenInput( this, lbl, FloatInpSpec() );
+    recstartposfld_->setPrefHeightInChar(2);
+    recstartposfld_->attach( alignedBelow, recstartfld_ );
     setHAlignObj( inpfld_ );
 }
 
@@ -121,15 +128,17 @@ void uiMathAttrib::parsePush( CallBacker* )
 void uiMathAttrib::updateDisplay( bool userecfld )
 {
     if ( attribflds_.size() != nrxvars_ )
+    {
 	attribflds_.erase();
 
-    xtable_->setNrRows( nrxvars_ );
-    for ( int idx=0; idx<nrxvars_; idx++ )
-    {
-	uiAttrSel* attrbox = new uiAttrSel( 0, 0, is2d_, "" );
-	attrbox->setDescSet( ads_ );
-	attribflds_ += attrbox;
-	xtable_->setCellObject( RowCol(idx,0), attrbox->attachObj() );
+	xtable_->setNrRows( nrxvars_ );
+	for ( int idx=0; idx<nrxvars_; idx++ )
+	{
+	    uiAttrSel* attrbox = new uiAttrSel( 0, 0, is2d_, "" );
+	    attrbox->setDescSet( ads_ );
+	    attribflds_ += attrbox;
+	    xtable_->setCellObject( RowCol(idx,0), attrbox->attachObj() );
+	}
     }
     xtable_->display( nrxvars_ );
     
@@ -137,6 +146,7 @@ void uiMathAttrib::updateDisplay( bool userecfld )
     ctable_->display( nrcstvars_ );
     
     recstartfld_->display( userecfld );
+    recstartposfld_->display( userecfld );
 }
 
 
@@ -211,6 +221,14 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 	    recstartfld_->setValue( recstart );
     }
     
+    if ( desc.getValParam( Math::recstartposStr() ) )
+    {
+	float recstartpos = desc.getValParam( Math::recstartposStr() )
+	    						->getfValue(0);
+	if ( !mIsUdf( recstartpos ) )
+	    recstartposfld_->setValue( recstartpos * SI().zFactor() );
+    }
+    
     return true;
 }
 
@@ -251,6 +269,8 @@ bool uiMathAttrib::getParameters( Desc& desc )
     }
     
     mSetFloat( Math::recstartStr(), recstartfld_->getfValue() );
+    mSetFloat( Math::recstartposStr(),
+	       recstartposfld_->getfValue() / SI().zFactor() );
     return true;
 }
 

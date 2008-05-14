@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.h,v 1.10 2008-05-08 12:31:04 cvshelene Exp $
+ RCS:           $Id: uimathattrib.h,v 1.11 2008-05-14 15:09:26 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ protected:
     uiTable*            ctable_;
     ObjectSet<uiAttrSel>  attribflds_;
     uiGenInput*		recstartfld_;
+    uiGenInput*		recstartposfld_;
 
     int			nrvariables_;
     int			nrxvars_;

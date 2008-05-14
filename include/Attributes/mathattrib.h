@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.h,v 1.12 2008-01-25 13:32:42 cvshelene Exp $
+ RCS:           $Id: mathattrib.h,v 1.13 2008-05-14 15:09:26 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ public:
     static const char*		expressionStr()		{ return "expression"; }
     static const char*		cstStr()		{ return "constant"; }
     static const char*		recstartStr()		{ return "recstart"; }
+    static const char*		recstartposStr()	{ return "recstartpos";}
 
     static void 		getInputTable(const MathExpression*,
 					      TypeSet<int>&,bool);
@@ -56,6 +57,7 @@ protected:
 	    					 int& shift) const;
     void			fillInVarsSet();
 
+    const Interval<float>*	desZMargin(int input,int) const;
     const Interval<int>*        reqZSampMargin(int input,int) const;
 
 private:
@@ -65,7 +67,9 @@ private:
     TypeSet<int>		cstsinputtable_;
     TypeSet<float>		csts_;
     MathExpression*		expression_;
-    float			recstart_;
+    float			recstartval_;
+    float			recstartpos_;
+    Interval<float>		desintv_;
 
     struct VAR
     {
