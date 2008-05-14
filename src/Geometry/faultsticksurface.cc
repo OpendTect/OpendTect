@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: faultsticksurface.cc,v 1.8 2008-05-06 10:07:31 cvsnanne Exp $";
+static const char* rcsID = "$Id: faultsticksurface.cc,v 1.9 2008-05-14 20:43:11 cvskris Exp $";
 
 #include "faultsticksurface.h"
 
@@ -14,14 +14,14 @@ namespace Geometry
 
 #define mGetValidStickIdx( stickidx, sticknr, extra, errorres ) \
 \
-    const int stickidx = sticknr - firstrow_; \
-    if ( stickidx<0 || stickidx>sticks_.size()+extra ) \
+    int stickidx = sticknr - firstrow_; \
+    if ( stickidx<-extra || stickidx>sticks_.size()+extra ) \
 	return errorres;
 
 #define mGetValidKnotIdx( knotidx, knotnr, stickidx, extra, errorres ) \
 \
     if ( !firstcols_.size() ) return errorres; \
-    const int knotidx = knotnr - firstcols_[stickidx]; \
+    int knotidx = knotnr - firstcols_[stickidx]; \
     if ( knotidx<0 && knotidx>sticks_[stickidx]->size()+extra ) \
 	return errorres;
 
@@ -73,10 +73,25 @@ bool FaultStickSurface::insertStick( const Coord3& firstpos,
 	return false;
 
     mGetValidStickIdx( stickidx, sticknr, 1, false );
-    
-    sticks_.insertAt( new TypeSet<Coord3>, stickidx );
-    editplanenormals_.insert( stickidx, normvec );
-    firstcols_.insert( stickidx, 0 );
+    if ( stickidx==-1 )
+    {
+	firstrow_--;
+	stickidx++;
+    }
+
+    if ( stickidx==sticks_.size() )
+    {
+	sticks_ += new TypeSet<Coord3>;
+	editplanenormals_ += normvec;
+	firstcols_ += 0;
+    }
+    else
+    {
+	sticks_.insertAt( new TypeSet<Coord3>, stickidx );
+	editplanenormals_.insert( stickidx, normvec );
+	firstcols_.insert( stickidx, 0 );
+    }
+
     sticks_[stickidx]->insert( 0, firstpos );
 
     triggerNrPosCh( RowCol(stickidx,StickInsert).getSerialized() );
@@ -110,8 +125,17 @@ bool FaultStickSurface::insertKnot( const RCol& rc, const Coord3& pos )
 
     mGetValidStickIdx( stickidx, rc.r(), 0, false );
     mGetValidKnotIdx( knotidx, rc.c(), stickidx, 1, false );
-    
-    sticks_[stickidx]->insert( knotidx, pos );
+    if ( knotidx==-1 )
+    {
+	firstcols_[stickidx]--;
+	knotidx++;
+    }
+
+    if ( knotidx==sticks_[stickidx]->size() )
+	(*sticks_[stickidx]) += pos;
+    else
+	sticks_[stickidx]->insert( knotidx, pos );
+
     triggerNrPosCh( RowCol(stickidx,StickChange).getSerialized() );
 
     return true;
@@ -133,7 +157,7 @@ bool FaultStickSurface::removeKnot( const RCol& rc )
 }
 
 
-#define mEmptyInterval() StepInterval<int>( INT_MAX, INT_MIN, 1 )
+#define mEmptyInterval() StepInterval<int>( mUdf(int), mUdf(int), mUdf(int) )
 
 StepInterval<int> FaultStickSurface::rowRange() const
 {
@@ -157,15 +181,14 @@ bool FaultStickSurface::setKnot( const RCol& rc, const Coord3& pos )
 {
     if ( !pos.isDefined() )
     {
-	removeKnot( rc );
-	return true;
+	return removeKnot( rc );
     }
 
     mGetValidStickIdx( stickidx, rc.r(), 0, false );
     mGetValidKnotIdx( knotidx, rc.c(), stickidx, 0, false );
 
     (*sticks_[stickidx])[knotidx] = pos;
-    triggerNrPosCh( RowCol(stickidx,StickChange).getSerialized() );
+    triggerMovement( RowCol(stickidx,StickChange).getSerialized() );
     return true;
 }
 
@@ -194,9 +217,9 @@ bool FaultStickSurface::areSticksVertical() const
 }
 
 
-const Coord3& FaultStickSurface::getEditPlaneNormal( int sticknr ) const
+const Coord3& FaultStickSurface::getEditPlaneNormal( int stick ) const
 {
-    mGetValidStickIdx( stickidx, sticknr, 0, Coord3::udf() );
+    mGetValidStickIdx( stickidx, stick, 0, Coord3::udf() );
     if ( stickidx < editplanenormals_.size() )
 	return editplanenormals_[stickidx];
 
