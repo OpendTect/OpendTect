@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visnormals.h,v 1.8 2008-01-18 15:39:20 cvskris Exp $
+ RCS:		$Id: visnormals.h,v 1.9 2008-05-14 20:27:19 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -47,6 +47,8 @@ public:
     Coord3		getNormal(int) const;
 
     SoNode*		getInventorNode();
+    void		setDisplayTransformation( Transformation* nt );
+    Transformation*	getDisplayTransformation() { return transformation_; }
 
 protected:
     			~Normals();
@@ -57,6 +59,8 @@ protected:
 
     TypeSet<int>		unusednormals_;
     mutable Threads::Mutex&	mutex_;
+
+    Transformation*		transformation_;
     			
 };
 

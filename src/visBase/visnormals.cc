@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: visnormals.cc,v 1.12 2008-01-18 15:39:20 cvskris Exp $
+ RCS:           $Id: visnormals.cc,v 1.13 2008-05-14 20:27:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "errh.h"
 #include "trigonometry.h"
 #include "thread.h"
+#include "vistransform.h"
 
 #include <Inventor/nodes/SoNormal.h>
 
@@ -25,6 +26,7 @@ namespace visBase
 Normals::Normals()
     : normals_( new SoNormal )
     , mutex_( *new Threads::Mutex )
+    , transformation_( 0 )
 {
     normals_->ref();
     unusednormals_ += 0;
@@ -36,6 +38,8 @@ Normals::~Normals()
 {
     normals_->unref();
     delete &mutex_;
+
+    if ( transformation_ ) transformation_->unRef();
 }
 
 
@@ -88,9 +92,16 @@ int Normals::nextID( int previd ) const
 
 int Normals::addNormal( const Vector3& normal )
 {
+    Coord3 normaltoset = normal;
+    if ( transformation_ && normal.isDefined() )
+	normaltoset = transformation_->transformBack( normaltoset )-
+	    	      transformation_->transformBack( Coord3(0,0,0) );
+
     Threads::MutexLocker lock( mutex_ );
     const int res = getFreeIdx();
-    normals_->vector.set1Value( res, SbVec3f( normal.x, normal.y, normal.z ));
+    normals_->vector.set1Value( res,
+	    SbVec3f( normaltoset.x, normaltoset.y, normaltoset.z ));
+
     return res;
 }
 
@@ -116,7 +127,12 @@ Coord3 Normals::getNormal( int idx ) const
 {
     Threads::MutexLocker lock( mutex_ );
     const SbVec3f norm = normals_->vector[idx];
-    return Coord3( norm[0], norm[1], norm[2] );
+    Coord3 res( norm[0], norm[1], norm[2] );
+    if ( transformation_ && res.isDefined() )
+	return transformation_->transform( res ) -
+	       transformation_->transform( Coord3(0,0,0) );
+
+    return res;
 }
 
 
@@ -135,5 +151,25 @@ int  Normals::getFreeIdx()
 
     return normals_->vector.getNum();
 }
+
+
+void Normals::setDisplayTransformation( Transformation* nt )
+{
+    if ( nt==transformation_ ) return;
+
+    if ( normals_->vector.getNum()-unusednormals_.size() )
+    {
+	pErrMsg("setting transform will not transform existing values");
+    }
+
+    if ( transformation_ )
+	transformation_->unRef();
+
+    transformation_ = nt;
+
+    if ( transformation_ )
+	transformation_->ref();
+}
+
 
 }; // namespace visBase
