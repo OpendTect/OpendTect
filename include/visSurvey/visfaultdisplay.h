@@ -7,20 +7,19 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.2 2008-03-26 13:53:54 cvsjaap Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.3 2008-05-14 11:43:40 cvsnanne Exp $
 ________________________________________________________________________
 
 
 -*/
 
+#include "vismultiattribsurvobj.h"
+
 #include "emposid.h"
-#include "visobject.h"
-#include "vissurvobj.h"
 #include "ranges.h"
 
 
-namespace Geometry
-{ class ExplFaultStickSurface; }
+class DataPointSet;
 
 namespace visBase
 {
@@ -28,8 +27,8 @@ namespace visBase
     class Transformation;
 };
 
-
 namespace EM { class Fault; }
+namespace Geometry { class ExplFaultStickSurface; }
 
 
 namespace visSurvey
@@ -41,8 +40,7 @@ class MPEEditor;
 
 */
 
-class FaultDisplay : public visBase::VisualObjectImpl,
-		     public visSurvey::SurveyObject
+class FaultDisplay : public MultiTextureSurveyObject
 {
 public:
     static FaultDisplay*	create()
@@ -51,16 +49,24 @@ public:
     MultiID			getMultiID() const;
     bool			isInlCrl() const	{ return false; }
 
-    bool			hasColor() const	{ return true; }
+    virtual int			nrResolutions() const;
+    virtual void		setResolution(int);
+
+    SurveyObject::AttribFormat	getAttributeFormat() const
+				{ return SurveyObject::RandomPos; }
+    void			getRandomPos(DataPointSet&) const	{}
+    void			setRandomPosData(int,const DataPointSet*) {}
+
+    bool			hasColor() const		{ return true; }
     Color			getColor() const;
     void			setColor(Color);
-    bool			allowMaterialEdit() const { return true; }
+    bool			allowMaterialEdit() const	{ return true; }
     NotifierAccess*		materialChange();
 
     void			setDisplayTransformation(mVisTrans*);
     mVisTrans*			getDisplayTransformation();
     void			setRightHandSystem(bool);
-    
+
     void			setSceneEventCatcher(visBase::EventCatcher*);
 
     void			display(bool sticks,bool panels);
@@ -75,9 +81,18 @@ public:
 
 protected:
 
+    virtual			~FaultDisplay();
+
+    virtual bool		getCacheValue(int attrib,int version,
+					      const Coord3&,float&) const;
+    virtual void		addCache();
+    virtual void		removeCache(int);
+    virtual void		swapCache(int,int);
+    virtual void		emptyCache(int);
+    virtual bool		hasCache(int) const;
+
     static const char*		sKeyEarthModelID()	{ return "EM ID"; }
 
-    virtual			~FaultDisplay();
     void			mouseCB(CallBacker*);
 
     bool			segmentInPlane(const EM::PosID& knot1,

@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.9 2008-04-03 15:45:10 cvsjaap Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.10 2008-05-14 11:43:40 cvsnanne Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.9 2008-04-03 15:45:10 cv
 #include "vismaterial.h"
 #include "vismarker.h"
 #include "vismpeeditor.h"
+#include "vismultitexture2.h"
 #include "visplanedatadisplay.h"
 #include "vistransform.h"
 
@@ -33,7 +34,7 @@ namespace visSurvey
 {
 
 FaultDisplay::FaultDisplay()
-    : VisualObjectImpl(true)
+    : MultiTextureSurveyObject()
     , emfault_( 0 )
     , displaysurface_( 0 )
     , editor_( 0 )
@@ -714,6 +715,51 @@ void FaultDisplay::updateKnotMarkers()
 	}
     }
 }
+
+
+int FaultDisplay::nrResolutions() const
+{
+    return texture_->canUseShading() ? 1 : 3;
+}
+
+
+void FaultDisplay::setResolution( int res )
+{
+    if ( texture_->canUseShading() )
+	return;
+
+    if ( res==resolution_ )
+	return;
+
+    resolution_ = res;
+    texture_->clearAll();
+}
+
+
+bool FaultDisplay::getCacheValue( int attrib, int version, const Coord3& crd,
+				  float& value ) const
+{
+    return true;
+}
+
+
+void FaultDisplay::addCache()
+{}
+
+void FaultDisplay::removeCache( int attrib )
+{}
+
+void FaultDisplay::swapCache( int attr0, int attr1 )
+{}
+
+void FaultDisplay::emptyCache( int attrib )
+{}
+
+bool FaultDisplay::hasCache( int attrib ) const
+{
+    return false;
+}
+
 
 
 }; // namespace visSurvey
