@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodattribtreeitem.cc,v 1.16 2008-01-31 19:06:39 cvskris Exp $
+ RCS:		$Id: uiodattribtreeitem.cc,v 1.17 2008-05-14 05:03:23 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -134,7 +134,7 @@ void uiODAttribTreeItem::createMenuCB( CallBacker* cb )
 
     const uiAttribPartServer* attrserv = applMgr()->attrServer();
     const Attrib::SelSpec* as = visserv->getSelSpec( displayID(), attribNr() );
-    if ( attrserv->getIOObj(*as) )
+    if ( as && attrserv->getIOObj(*as) )
 	mAddMenuItem( menu, &colsettingsmnuitem_, true, false );
     
     uiODDataTreeItem::createMenuCB( cb );
