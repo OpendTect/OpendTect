@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.49 2008-05-13 14:00:38 cvsbert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.50 2008-05-14 11:25:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,8 +48,7 @@ static void adaptCtxt( const IOObjContext& c, const uiSeisSel::Setup& s,
 			bool chgtol )
 {
     IOObjContext& ctxt = const_cast<IOObjContext&>( c );
-    const bool is2d = Seis::is2D(s.geom_);
-    // ctxt.trglobexpr = uiSeisSelDlg::standardTranslSel( s.geom_, ctxt.forread );
+    ctxt.trglobexpr = uiSeisSelDlg::standardTranslSel( s.geom_, ctxt.forread );
     ctxt.deftransl = s.geom_ == Seis::Line ? "2D" : "CBVS";
     if ( s.geom_ == Seis::Line && !ctxt.allowcnstrsabsent && chgtol )
 	ctxt.allowcnstrsabsent = true;	//change required to get any 2D LineSet
