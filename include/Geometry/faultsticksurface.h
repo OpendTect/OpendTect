@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl / J.C. Glas
 Date:          September 2007
-RCS:           $Id: faultsticksurface.h,v 1.7 2008-02-11 16:37:06 cvsjaap Exp $
+RCS:           $Id: faultsticksurface.h,v 1.8 2008-05-14 20:41:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,25 +25,25 @@ public:
     Element*		clone() const;
 
     bool		insertStick(const Coord3& firstpos,
-				    const Coord3& editnormal,int sticknr=0);
-    bool		removeStick(int sticknr);
+				    const Coord3& editnormal,int stickidx=0);
+    bool		removeStick(int stickidx);
 
     bool		insertKnot(const RCol&,const Coord3&);
     bool		removeKnot(const RCol&);
 
     StepInterval<int>	rowRange() const;
-    StepInterval<int>	colRange(int sticknr) const;
+    StepInterval<int>	colRange(int stickidx) const;
 
     bool		setKnot(const RCol&,const Coord3&);
     Coord3		getKnot(const RCol&) const;
     bool		isKnotDefined(const RCol&) const;
 
     bool		areSticksVertical() const;
-    const Coord3&	getEditPlaneNormal(int sticknr) const;				
+    const Coord3&	getEditPlaneNormal(int stickidx) const;				
     enum ChangeTag	{StickChange=__mUndefIntVal+1,StickInsert,StickRemove};
     
     			// To be used by surface reader only
-    void		addUdfRow(int sticknr,int firstknotnr,int nrknots);
+    void		addUdfRow(int stickidx,int firstknotnr,int nrknots);
     void		addEditPlaneNormal(const Coord3&);
 
 protected:
