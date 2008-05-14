@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.45 2008-04-08 13:35:27 cvsjaap Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.46 2008-05-14 05:04:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -595,6 +595,10 @@ void HorizonDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
 void HorizonDisplay::setDepthAsAttrib( int attrib )
 {
     as_[attrib]->set( "", Attrib::SelSpec::cNoAttrib(), false, "" );
+    coltabs_[attrib]->setAutoScale( true );
+    coltabs_[attrib]->setClipRate( 0 );
+    coltabs_[attrib]->setSymMidval( mUdf(float) );
+
 
     TypeSet<DataPointSet::DataRow> pts;
     BufferStringSet nms;
