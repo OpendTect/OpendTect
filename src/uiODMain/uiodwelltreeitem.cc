@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodwelltreeitem.cc,v 1.21 2008-04-30 04:01:02 cvssatyaki Exp $
+ RCS:		$Id: uiodwelltreeitem.cc,v 1.22 2008-05-14 09:28:28 cvssatyaki Exp $
 ___________________________________________________________________
 
 -*/
@@ -54,8 +54,8 @@ bool uiODWellParentTreeItem::showSubMenu()
     mnu.insertItem( new uiMenuItem("&New WellTrack ..."), 1 );
     if ( children_.size() > 1 )
     {
-	mnu.insertItem( new uiMenuItem( "Select Log ..." ), 2 );
-	mnu.insertItem( new uiMenuItem( "Create Attribute Log ..." ), 3 );
+	mnu.insertItem( new uiMenuItem( "Create Attribute Log ..." ), 2 );
+	mnu.insertItem( new uiMenuItem( "Select Log ..." ), 3 );
 	mnu.insertItem( new uiMenuItem("&Properties ..."), 4 );
 
 	mnu.insertSeparator( 40 );
@@ -114,6 +114,29 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 
     else if ( mnuid == 2 )
     {
+	ObjectSet<MultiID> wellids;
+	BufferStringSet list;
+	for ( int idx = 0; idx<children_.size(); idx++ )
+	{
+	    mDynamicCastGet(uiODWellTreeItem*,itm,children_[idx]);
+	    if ( !itm )
+		continue;
+	    mDynamicCastGet(visSurvey::WellDisplay*,wd,
+			    visserv->getObject(itm->displayID()));
+	    wellids += new MultiID( wd->getMultiID() );
+	    list.add( children_[idx]->name() );
+	}
+	uiCreateAttribLogDlg dlg( getUiParent(), list, applMgr()->attrServer()->
+				  curDescSet(false), ODMainWin()->applMgr().
+				  wellAttribServer()->getNLAModel(), false );
+	if (! dlg.go() )
+	    return false;
+	for ( int idx=0; idx<wellids.size(); idx++ )
+	    ODMainWin()->applMgr().wellAttribServer()->createAttribLog(
+		*wellids[idx], dlg.selectedLogIdx() );
+    }
+    else if ( mnuid == 3 )
+    {
 	Interval<float> rightrange;  
 	Interval<float> leftrange;  
 	ObjectSet<MultiID> wellids;
@@ -142,31 +165,8 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	    welldisplayset[ selectedwells[idx] ]->displayRightLog();
 	    welldisplayset[ selectedwells[idx] ]->displayLeftLog();
 	}
-	
 	deepErase( wellids );
-    }
-    else if ( mnuid == 3 )
-    {
-	ObjectSet<MultiID> wellids;
-	BufferStringSet list;
-	for ( int idx = 0; idx<children_.size(); idx++ )
-	{
-	    mDynamicCastGet(uiODWellTreeItem*,itm,children_[idx]);
-	    if ( !itm )
-		continue;
-	    mDynamicCastGet(visSurvey::WellDisplay*,wd,
-			    visserv->getObject(itm->displayID()));
-	    wellids += new MultiID( wd->getMultiID() );
-	    list.add( children_[idx]->name() );
-	}
-	uiCreateAttribLogDlg dlg( getUiParent(), list, applMgr()->attrServer()->
-				  curDescSet(false), ODMainWin()->applMgr().
-				  wellAttribServer()->getNLAModel(), false );
-	if (! dlg.go() )
-	    return false;
-	for ( int idx=0; idx<wellids.size(); idx++ )
-	    ODMainWin()->applMgr().wellAttribServer()->createAttribLog(
-		*wellids[idx], dlg.selectedLogIdx() );
+	
     }
     else if ( mnuid == 4 )
     {
@@ -314,8 +314,8 @@ void uiODWellTreeItem::createMenuCB( CallBacker* cb )
 
     mDynamicCastGet(visSurvey::WellDisplay*,wd,visserv_->getObject(displayid_));
     const bool islocked = visserv_->isLocked( displayid_ );
-    mAddMenuItem( menu, &sellogmnuitem_, !islocked, false );
     mAddMenuItem( menu, &attrmnuitem_, true, false );
+    mAddMenuItem( menu, &sellogmnuitem_, !islocked, false );
     mAddMenuItem( menu, &propertiesmnuitem_, true, false );
     mAddMenuItem( menu, &editmnuitem_, !islocked, wd->isHomeMadeWell() );
     mAddMenuItem( menu, &storemnuitem_, wd->hasChanged(), false );
