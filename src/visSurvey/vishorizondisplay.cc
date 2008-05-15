@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.46 2008-05-14 05:04:32 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.47 2008-05-15 07:30:33 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -690,12 +690,8 @@ void HorizonDisplay::setRandomPosData( int attrib, const DataPointSet* data )
 
     if ( !data || !data->size() )
     {
-	for ( int idx=0; idx<sections_.size(); idx++ )
-	{
-	    mDynamicCastGet(visBase::ParametricSurface*,psurf,sections_[idx]);
-	    if ( psurf ) psurf->setTextureData( 0, attrib );
-	}
-
+	validtexture_ = false;
+	updateSingleColor();
 	return;
     }
 
