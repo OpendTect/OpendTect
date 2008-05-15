@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.cc,v 1.8 2008-04-08 05:05:08 cvssatyaki Exp $
+ RCS:		$Id: visflatviewer.cc,v 1.9 2008-05-15 19:04:28 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,18 +92,21 @@ void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt )
 		    break;
 	    }
 	case VDPars : 	
-		const char* ctabname = appearance().ddpars_.vd_.ctab_.buf();
 		visBase::VisColorTab& vct = texture_->getColorTab( 0 );
-		ColTab::Sequence& ct = vct.colorSeq().colors();
-		if ( ColTab::SM().get(ctabname,ct) )
-		    vct.colorSeq().colorsChanged();
+		vct.setAutoScale( appearance().ddpars_.vd_.autoscale_ );
+		if ( !mIsUdf(appearance().ddpars_.vd_.midvalue_) )
+    		    vct.setSymMidval( appearance().ddpars_.vd_.midvalue_ );
 
 		const Interval<float>& range = appearance().ddpars_.vd_.rg_;
-		
 		if ( mIsUdf( range.start ) || mIsUdf( range.stop ) )
-		    vct.setClipRate( appearance().ddpars_.vd_.clipperc_.start );
+		    vct.setClipRate( 
+			    appearance().ddpars_.vd_.clipperc_.start*0.01 );
 		else 
-		    vct.scaleTo( range );
+		    vct.scaleTo( Interval<float>(range.start*0.01,
+			       			 range.stop*0.01) );
+		
+		const char* ctabname = appearance().ddpars_.vd_.ctab_.buf();
+		vct.colorSeq().loadFromStorage( ctabname );
     }			
 }
 
