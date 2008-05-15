@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.36 2008-05-15 09:54:57 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.37 2008-05-15 10:18:23 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -146,7 +146,7 @@ SeisTrc* SeisTrc::getRelTrc( const ZGate& zgate, float sr ) const
 
 SeisTrc* SeisTrc::getExtendedTo( const ZGate& zgate, bool usevals ) const
 {
-    const float fnrsamps = (zgate.stop-zgate.start) / info_.sampling.step;
+    const float fnrsamps = (zgate.stop-zgate.start) / info_.sampling.step + 1;
     const int outnrsamps = mNINT( fnrsamps );
     const TraceDataInterpreter* tdi = data_.getInterpreter(0);
     DataCharacteristics dc( tdi ? tdi->dataChar() : DataCharacteristics() );
