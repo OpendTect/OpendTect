@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          23-10-1996
- RCS:           $Id: mpeengine.h,v 1.38 2007-12-14 05:15:23 cvssatyaki Exp $
+ RCS:           $Id: mpeengine.h,v 1.39 2008-05-15 20:24:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,72 +51,72 @@ public:
     				Engine();
     virtual			~Engine();
 
-    void			init();
+    void		init();
 
-    const CubeSampling&		activeVolume() const;
-    void			setActiveVolume(const CubeSampling&);
-    static CubeSampling		getDefaultActiveVolume();
-    Notifier<Engine>		activevolumechange;
+    const CubeSampling&	activeVolume() const;
+    void		setActiveVolume(const CubeSampling&);
+    static CubeSampling	getDefaultActiveVolume();
+    Notifier<Engine>	activevolumechange;
 
-    void			setActive2DLine(const MultiID& linesetid,
-	    					const char* linename);
-    const MultiID&		active2DLineSetID() const;
-    const BufferString&		active2DLineName() const;
+    void		setActive2DLine(const MultiID& linesetid,
+	    				const char* linename);
+    const MultiID&	active2DLineSetID() const;
+    const BufferString&	active2DLineName() const;
     
-    const TrackPlane&		trackPlane() const;
-    bool			setTrackPlane(const TrackPlane&,bool track);
-    void			setTrackMode(TrackPlane::TrackMode);
-    TrackPlane::TrackMode	getTrackMode()
-    				{ return trackplane_.getTrackMode(); }
-    Notifier<Engine>		trackplanechange;
-    Notifier<Engine>		trackplanetrack;
+    const TrackPlane&	trackPlane() const;
+    bool		setTrackPlane(const TrackPlane&,bool track);
+    void		setTrackMode(TrackPlane::TrackMode);
+    TrackPlane::TrackMode getTrackMode() { return trackplane_.getTrackMode(); }
+    Notifier<Engine>	trackplanechange;
+    Notifier<Engine>	trackplanetrack;
 
-    Notifier<Engine>		loadEMObject;
-    MultiID			midtoload;
+    Notifier<Engine>	loadEMObject;
+    MultiID		midtoload;
 
-    bool			trackAtCurrentPlane();
-    Executor*			trackInVolume();
+    bool		trackAtCurrentPlane();
+    Executor*		trackInVolume();
 
-    void			getAvailableTrackerTypes(BufferStringSet&)const;
+    void		getAvailableTrackerTypes(BufferStringSet&)const;
 
-    int				nrTrackersAlive() const;
-    int				highestTrackerID() const;
-    const EMTracker*		getTracker(int idx) const;
-    EMTracker*			getTracker(int idx);
-    int				getTrackerByObject(const EM::ObjectID&) const;
-    int				getTrackerByObject(const char*) const;
-    int				addTracker(EM::EMObject*);
-    void			removeTracker(int idx);
-    Notifier<Engine>		trackeraddremove;
+    int			nrTrackersAlive() const;
+    int			highestTrackerID() const;
+    const EMTracker*	getTracker(int idx) const;
+    EMTracker*		getTracker(int idx);
+    int			getTrackerByObject(const EM::ObjectID&) const;
+    int			getTrackerByObject(const char*) const;
+    int			addTracker(EM::EMObject*);
+    void		removeTracker(int idx);
+    Notifier<Engine>	trackeraddremove;
 
 
-    				/*Attribute stuff */
-    void 			setOneActiveTracker(const EMTracker*);
-    void 			unsetOneActiveTracker();
-    void			getNeededAttribs(
-				    ObjectSet<const Attrib::SelSpec>&) const;
-    CubeSampling		getAttribCube(const Attrib::SelSpec&) const;
-    				/*!< Returns the cube that is needed for
-				     this attrib, given that the activearea
-				     should be tracked. */
-    int				getCacheIndexOf(const Attrib::SelSpec&) const;
-    const Attrib::DataCubes*	getAttribCache(const Attrib::SelSpec&) const;
-    bool			setAttribData( const Attrib::SelSpec&,
-					       const Attrib::DataCubes*);
-    bool			cacheIncludes(const Attrib::SelSpec&,
-					      const CubeSampling&) const;
-    void			swapCacheAndItsBackup();
+    			/*Attribute stuff */
+    void 		setOneActiveTracker(const EMTracker*);
+    void 		unsetOneActiveTracker();
+    void		getNeededAttribs(
+			    ObjectSet<const Attrib::SelSpec>&) const;
+    CubeSampling	getAttribCube(const Attrib::SelSpec&) const;
+    			/*!< Returns the cube that is needed for
+			     this attrib, given that the activearea
+			     should be tracked. */
+    int			getCacheIndexOf(const Attrib::SelSpec&) const;
+    const Attrib::DataCubes*
+			getAttribCache(const Attrib::SelSpec&) const;
+    bool		setAttribData( const Attrib::SelSpec&,
+				       const Attrib::DataCubes*);
+    bool		cacheIncludes(const Attrib::SelSpec&,
+				      const CubeSampling&) const;
+    void		swapCacheAndItsBackup();
 
-    				/*Editors */
-    ObjectEditor*		getEditor(const EM::ObjectID&,bool create);
-    void			removeEditor(const EM::ObjectID&);
+    			/*Editors */
+    ObjectEditor*	getEditor(const EM::ObjectID&,bool create);
+    void		removeEditor(const EM::ObjectID&);
 
-    const char*			errMsg() const;
+    const char*		errMsg() const;
 
-    BufferString		setupFileName( const MultiID& ) const;
+    BufferString	setupFileName( const MultiID& ) const;
 
-    void			fillPar(IOPar&) const;
-    bool			usePar(const IOPar&);
+    void		fillPar(IOPar&) const;
+    bool		usePar(const IOPar&);
 
 protected:
     int				getFreeID();
