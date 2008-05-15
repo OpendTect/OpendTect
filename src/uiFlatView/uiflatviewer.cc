@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.51 2008-04-23 09:36:19 cvshelene Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.52 2008-05-15 18:36:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -468,7 +468,7 @@ void uiFlatViewer::drawAux( const FlatView::Annotation::AuxData& ad )
 
 Interval<float> uiFlatViewer::getDataRange( bool iswva ) const
 {
-    Interval<float> rg;
+    Interval<float> rg( mUdf(float), mUdf(float) );
     FlatView::BitMapMgr* mgr = iswva ? wvabmpmgr_ : vdbmpmgr_;
     if ( mgr && mgr->bitMapGen() )
 	rg = mgr->bitMapGen()->data().scale( Interval<float>(0,0), mUdf(float));

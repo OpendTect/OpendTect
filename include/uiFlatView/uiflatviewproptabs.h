@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewproptabs.h,v 1.8 2008-04-08 05:05:07 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewproptabs.h,v 1.9 2008-05-15 18:36:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,9 +32,6 @@ class uiFlatViewPropTab : public uiDlgGroup
 public:
 
     virtual void	putToScreen()		= 0;
-    virtual void	getFromScreen()		= 0;
-
-    bool		acceptOK()		{ getFromScreen(); return true;}
 
 protected:
     			uiFlatViewPropTab(uiParent*,FlatView::Viewer&,
@@ -57,8 +54,8 @@ public:
     virtual void	setData()			= 0;
 
 protected:
-    			uiFlatViewDataDispPropTab(uiParent*,
-					  FlatView::Viewer&,const char*);
+    			uiFlatViewDataDispPropTab(uiParent*,FlatView::Viewer&,
+				const char*,bool showdisplayfield=true);
 
     FlatView::DataDispPars& ddpars_;
     virtual FlatView::DataDispPars::Common& commonPars()	= 0;
@@ -70,17 +67,20 @@ protected:
     uiGenInput*		symclipratiofld_;
     uiGenInput*		assymclipratiofld_;
     uiGenInput*		midvalfld_;
+    uiGenInput*		usemidvalfld_;
     uiGenInput*		rgfld_;
     uiGenInput*		blockyfld_;
+    bool		showdisplayfield_;
 
     uiObject*		lastcommonfld_;
 
+    void		useMidVakSel(CallBacker*);
     void		dispSel(CallBacker*);
     void		clipSel(CallBacker*);
     virtual void	handleFieldDisplay(bool)	= 0;
 
     void		putCommonToScreen();
-    void		getCommonFromScreen();
+    bool		acceptOK();
     void		doSetData(bool);
 
 };
@@ -94,7 +94,7 @@ public:
     			uiFVWVAPropTab(uiParent*,FlatView::Viewer&);
 
     virtual void	putToScreen();
-    virtual void	getFromScreen();
+    bool		acceptOK();
     virtual void	setData()		{ doSetData(true); }
 
 protected:
@@ -125,7 +125,7 @@ public:
     			uiFVVDPropTab(uiParent*,FlatView::Viewer&);
 
     virtual void	putToScreen();
-    virtual void	getFromScreen();
+    virtual bool	acceptOK();
     virtual void	setData()		{ doSetData(false); }
 
 protected:
@@ -153,7 +153,7 @@ public:
 					 const BufferStringSet* annots);
 
     virtual void	putToScreen();
-    virtual void	getFromScreen();
+    virtual bool	acceptOK();
 
     int			getSelAnnot() const	{ return x1_->getSelAnnot(); }
     void		setSelAnnot( int i )	{ x1_->setSelAnnot( i ); }

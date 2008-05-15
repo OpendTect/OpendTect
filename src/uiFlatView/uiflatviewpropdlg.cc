@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.28 2008-05-05 05:42:29 cvsnageswara Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.29 2008-05-15 18:36:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,14 +35,21 @@ uiFlatViewPropTab::uiFlatViewPropTab( uiParent* p, FlatView::Viewer& vwr,
 
 
 uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
-		FlatView::Viewer& vwr, const char* tablbl )
+		FlatView::Viewer& vwr, const char* tablbl, bool show )
     : uiFlatViewPropTab(p,vwr,tablbl)
     , ddpars_(app_.ddpars_)
+    , showdisplayfield_( show )
+    , blockyfld_( 0 )
+    , dispfld_( 0 )
 {
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Display" );
-    dispfld_ = lcb->box();
-    dispfld_->selectionChanged.notify(
-	    		mCB(this,uiFlatViewDataDispPropTab,dispSel) );
+    uiLabeledComboBox* lcb = 0;
+    if ( showdisplayfield_ )
+    {
+	lcb = new uiLabeledComboBox( this, "Display" );
+	dispfld_ = lcb->box();
+	dispfld_->selectionChanged.notify(
+			    mCB(this,uiFlatViewDataDispPropTab,dispSel) );
+    }
 
     const char* clipmodes[] = { "None", "Symmetrical", "Assymetrical", 0 };
 
@@ -50,17 +57,25 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
 	    			  StringListInpSpec( clipmodes ) );
     useclipfld_->valuechanged.notify(
 	    		mCB(this,uiFlatViewDataDispPropTab,clipSel) );
-    useclipfld_->attach( alignedBelow, lcb );
+    if ( showdisplayfield_ )
+	useclipfld_->attach( alignedBelow, lcb );
 
     symclipratiofld_ = new uiGenInput( this,"Percentage clip",FloatInpSpec() );
     symclipratiofld_->setElemSzPol(uiObject::Small);
     symclipratiofld_->attach( alignedBelow, useclipfld_ );
     symclipratiofld_->display( useclipfld_->getIntValue()==1 );
 
+    usemidvalfld_ = new uiGenInput( this, "Use mid value", BoolInpSpec(true) );
+    usemidvalfld_->attach( alignedBelow, symclipratiofld_ );
+    usemidvalfld_->display( useclipfld_->getIntValue()==1 );
+    usemidvalfld_->valuechanged.notify(
+	    mCB(this, uiFlatViewDataDispPropTab, useMidVakSel) );
+    
     midvalfld_ = new uiGenInput( this, "Mid value", FloatInpSpec() );
     midvalfld_->setElemSzPol(uiObject::Small);
-    midvalfld_->attach( alignedBelow, symclipratiofld_ );
-    midvalfld_->display( useclipfld_->getIntValue()==1 );
+    midvalfld_->attach( alignedBelow, usemidvalfld_ );
+    midvalfld_->display( useclipfld_->getIntValue()==1 && 
+	    usemidvalfld_->getBoolValue() );
 
     assymclipratiofld_ = new uiGenInput( this,"Percentage clip",
 	    				  FloatInpIntervalSpec() );
@@ -71,18 +86,30 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     rgfld_ = new uiGenInput( this, "Range", FloatInpIntervalSpec() );
     rgfld_->attach( alignedBelow, useclipfld_ );
     rgfld_->display( !useclipfld_->getBoolValue() );
-    
-    blockyfld_ = new uiGenInput( this,
-	    	 "Display blocky (no interpolation)", BoolInpSpec(true) );
-    blockyfld_->attach( alignedBelow, midvalfld_ );
+   
+    if ( show )
+    {
+    	blockyfld_ = new uiGenInput( this,
+		"Display blocky (no interpolation)", BoolInpSpec(true) );
+    	blockyfld_->attach( alignedBelow, midvalfld_ );
+    }
 
-    lastcommonfld_ = blockyfld_->attachObj();
+    lastcommonfld_ = blockyfld_ ? blockyfld_->attachObj() : 0;
+}
+
+
+void uiFlatViewDataDispPropTab::useMidVakSel( CallBacker* )
+{
+    midvalfld_->display( useclipfld_->getIntValue()==1 && 
+	    		 usemidvalfld_->getBoolValue() );
+    commonPars().midvalue_ = mUdf( float );
+    midvalfld_->setValue( mUdf( float ) );
 }
 
 
 bool uiFlatViewDataDispPropTab::doDisp() const
 {
-    return dispfld_->currentItem() != 0;
+    return showdisplayfield_ ? dispfld_->currentItem() != 0 : true;
 }
 
 
@@ -91,7 +118,8 @@ void uiFlatViewDataDispPropTab::clipSel(CallBacker*)
     const bool dodisp = doDisp();
     const int clip = useclipfld_->getIntValue();
     symclipratiofld_->display( dodisp && clip==1 );
-    midvalfld_->display( dodisp && clip==1 );
+    midvalfld_->display( dodisp && clip==1 && usemidvalfld_->getBoolValue() );
+    usemidvalfld_->display( dodisp && clip==1 );
     assymclipratiofld_->display( dodisp && clip==2 );
     rgfld_->display( dodisp && !clip );
 }
@@ -101,7 +129,9 @@ void uiFlatViewDataDispPropTab::dispSel( CallBacker* )
 {
     const bool dodisp = doDisp();
     useclipfld_->display( dodisp );
-    blockyfld_->display( dodisp );
+    if ( blockyfld_ ) 
+	blockyfld_->display( dodisp );
+
     clipSel( 0 );
     handleFieldDisplay( dodisp );
 }
@@ -109,6 +139,9 @@ void uiFlatViewDataDispPropTab::dispSel( CallBacker* )
 
 void uiFlatViewDataDispPropTab::setDataNames()
 {
+    if ( !showdisplayfield_ )
+	return;
+
     dispfld_->empty();
     dispfld_->addItem( "No" );
     for ( int idx=0; idx<vwr_.availablePacks().size(); idx++ )
@@ -128,7 +161,7 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
 {
     const FlatView::DataDispPars::Common& pars = commonPars();
     bool havedata = pars.show_;
-    if ( havedata )
+    if ( havedata && showdisplayfield_ )
     {
 	const char* nm = dataName();
 	if ( dispfld_->isPresent( nm ) )
@@ -136,7 +169,8 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
 	else
 	    havedata = false;
     }
-    if ( !havedata )
+
+    if ( !havedata && showdisplayfield_ )
 	dispfld_->setCurrentItem( 0 );
 
     if ( !pars.autoscale_ )
@@ -146,10 +180,21 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
     else
 	useclipfld_->setValue( 2 );
 
+    const bool udfrg = mIsUdf( pars.rg_.start ) && mIsUdf( pars.rg_.stop);
+    rgfld_->setValue( udfrg ? vwr_.getDataRange(true) : pars.rg_ );
+
     symclipratiofld_->setValue( pars.clipperc_.start );
     assymclipratiofld_->setValue( pars.clipperc_ );
-    midvalfld_->display( pars.midvalue_ );
-    blockyfld_->setValue( pars.blocky_ );
+
+    const bool show = doDisp() && useclipfld_->getIntValue()==1 && 
+		      !mIsUdf(pars.midvalue_);
+    midvalfld_->display( show ); 
+    midvalfld_->setValue( pars.midvalue_ );
+    usemidvalfld_->setValue( !mIsUdf(pars.midvalue_) );
+    usemidvalfld_->display( pars.midvalue_ );
+    if ( blockyfld_ )
+	blockyfld_->setValue( pars.blocky_ );
+
     setDataNames();
     dispSel( 0 );
 }
@@ -157,6 +202,9 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
 
 void uiFlatViewDataDispPropTab::doSetData( bool wva )
 {
+    if ( !showdisplayfield_ )
+	return;
+
     if ( dispfld_->currentItem() == 0 )
 	{ vwr_.usePack( wva, DataPack::cNoID, false ); return; }
 
@@ -170,7 +218,7 @@ void uiFlatViewDataDispPropTab::doSetData( bool wva )
 }
 
 
-void uiFlatViewDataDispPropTab::getCommonFromScreen()
+bool uiFlatViewDataDispPropTab::acceptOK()
 {
     FlatView::DataDispPars::Common& pars = commonPars();
 
@@ -179,7 +227,9 @@ void uiFlatViewDataDispPropTab::getCommonFromScreen()
     pars.autoscale_ = clip != 0;
 
     if ( !clip )
+    {
 	pars.rg_ = rgfld_->getFInterval();
+    }
     else if ( clip==1 )
     {
 	pars.clipperc_.start = symclipratiofld_->getfValue();
@@ -191,9 +241,10 @@ void uiFlatViewDataDispPropTab::getCommonFromScreen()
 	pars.clipperc_ = assymclipratiofld_->getFInterval();
     }
 
-    pars.blocky_ = blockyfld_->getBoolValue();
-
+    pars.blocky_ = blockyfld_ ? blockyfld_->getBoolValue() : false;
     setData();
+
+    return true;
 }
 
 
@@ -287,15 +338,15 @@ void uiFVWVAPropTab::putToScreen()
 
     putCommonToScreen();
     const FlatView::DataDispPars::Common& pars = commonPars();
-    const bool udfrg = mIsUdf( pars.rg_.start ) && mIsUdf( pars.rg_.stop);
-    rgfld_->setValue( udfrg ? vwr_.getDataRange(true) : pars.rg_ );
 }
 
 
-void uiFVWVAPropTab::getFromScreen()
+bool uiFVWVAPropTab::acceptOK()
 {
-    getCommonFromScreen();
-    if ( !pars_.show_ ) return;
+    if ( !uiFlatViewDataDispPropTab::acceptOK() )
+	return false;
+
+    if ( !pars_.show_ ) return true;
 
     pars_.overlap_ = overlapfld_->getfValue();
     pars_.midvalue_ = midlinefld_->getBoolValue() ? midvalfld_->getfValue() 
@@ -307,6 +358,8 @@ void uiFVWVAPropTab::getFromScreen()
     mSetCol(wigcolsel_,wigg_);
     mSetCol(midlcolsel_,mid_);
 #undef mSetCol
+
+    return true;
 }
 
 
@@ -345,12 +398,15 @@ void uiFVVDPropTab::putToScreen()
 }
 
 
-void uiFVVDPropTab::getFromScreen()
+bool uiFVVDPropTab::acceptOK()
 {
-    getCommonFromScreen();
-    if ( !pars_.show_ ) return;
+    if ( !uiFlatViewDataDispPropTab::acceptOK() )
+	return false;
 
-    pars_.ctab_ = uicoltab_->colTabSeq().name();
+    if ( pars_.show_ )
+	pars_.ctab_ = uicoltab_->colTabSeq().name();
+
+    return true;
 }
 
 
@@ -519,14 +575,14 @@ void uiFVAnnotPropTab::putToScreen()
 }
 
 
-void uiFVAnnotPropTab::getFromScreen()
+bool uiFVAnnotPropTab::acceptOK()
 {
     annot_.color_ = colfld_->color();
     x1_->getFromScreen();
     x2_->getFromScreen();
 
     if ( !auxnamefld_ )
-	return;
+	return true;
 
     getFromAuxFld( currentaux_ );
 
@@ -542,6 +598,8 @@ void uiFVAnnotPropTab::getFromScreen()
 	if ( annot_.auxdata_[indices_[idx]]->x2rg_ )
 	    *annot_.auxdata_[indices_[idx]]->x2rg_ = x2rgs_[idx];
     }
+
+    return true;
 }
 
 		    
@@ -655,18 +713,6 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
 }
 
 
-void uiFlatViewPropDlg::getAllFromScreen()
-{
-    for ( int idx=0; idx<nrGroups(); idx++ )
-    {
-	mDynamicCastGet(uiFlatViewPropTab*,ptab,&getGroup(idx))
-	if ( ptab ) ptab->getFromScreen();
-    }
-    vwr_.appearance().annot_.title_ = titlefld_->text();
-    selannot_ = annottab_->getSelAnnot();
-}
-
-
 void uiFlatViewPropDlg::putAllToScreen()
 {
     for ( int idx=0; idx<nrGroups(); idx++ )
@@ -674,14 +720,15 @@ void uiFlatViewPropDlg::putAllToScreen()
 	mDynamicCastGet(uiFlatViewPropTab*,ptab,&getGroup(idx))
 	if ( ptab ) ptab->putToScreen();
     }
+
     titlefld_->setText( vwr_.appearance().annot_.title_ );
     annottab_->setSelAnnot( selannot_ );
 }
 
 
-void uiFlatViewPropDlg::doApply( CallBacker* )
+void uiFlatViewPropDlg::doApply( CallBacker* cb )
 {
-    getAllFromScreen();
+    acceptOK( cb );
     vwr_.fillPar( initialpar_ );
     applycb_.doCall( this );
 }
@@ -699,6 +746,8 @@ bool uiFlatViewPropDlg::acceptOK( CallBacker* cb )
     if ( !uiTabStackDlg::acceptOK(cb) )
 	return false;
 
-    getAllFromScreen();
+    vwr_.appearance().annot_.title_ = titlefld_->text();
+    selannot_ = annottab_->getSelAnnot();
+
     return true;
 }
