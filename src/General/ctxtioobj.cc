@@ -4,7 +4,7 @@
  * DATE     : 7-1-1996
 -*/
 
-static const char* rcsID = "$Id: ctxtioobj.cc,v 1.37 2008-05-14 13:14:14 cvsbert Exp $";
+static const char* rcsID = "$Id: ctxtioobj.cc,v 1.38 2008-05-15 12:40:14 cvsbert Exp $";
 
 #include "ctxtioobj.h"
 #include "ioobj.h"
@@ -74,8 +74,9 @@ IOObjContext::IOObjContext( const IOObjContext& rp )
 
 void IOObjContext::init()
 {
-    newonlevel = 1;
-    multi = maychdir = false;
+    newonlevel		= 1;
+    multi = maychdir	=
+    allownonreaddefault	= false;
     forread = maydooper =
     inctrglobexpr	= true;
     deftransl		= "";
@@ -111,6 +112,7 @@ IOObjContext& IOObjContext::operator=( const IOObjContext& ct )
 	parconstraints = ct.parconstraints;
 	includeconstraints = ct.includeconstraints;
 	allowcnstrsabsent = ct.allowcnstrsabsent;
+	allownonreaddefault = ct.allownonreaddefault;
     }
     return *this;
 }
@@ -165,6 +167,7 @@ void IOObjContext::fillPar( IOPar& iopar ) const
     iopar.mergeComp( parconstraints, sKeySelConstr );
     iopar.setYN( IOPar::compKey(sKeySelConstr,"Include"), includeconstraints );
     iopar.setYN( IOPar::compKey(sKeySelConstr,"AllowAbsent"),allowcnstrsabsent);
+    iopar.setYN( "Allow non-standard data types", allownonreaddefault );
 }
 
 
@@ -213,6 +216,7 @@ void IOObjContext::usePar( const IOPar& iopar )
     iopar.getYN( "Selection.For read", forread );
     iopar.getYN( "Selection.Allow operations", maydooper );
     iopar.getYN( "Selection.Include Translator subsel", inctrglobexpr );
+    iopar.getYN( "Allow non-standard data types", allownonreaddefault );
 
     res = iopar.find( "Selection.Default translator" );
     if ( res ) deftransl = res;

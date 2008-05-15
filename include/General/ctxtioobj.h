@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		7-1-1996
- RCS:		$Id: ctxtioobj.h,v 1.29 2008-05-14 13:14:14 cvsbert Exp $
+ RCS:		$Id: ctxtioobj.h,v 1.30 2008-05-15 12:40:14 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,6 +67,7 @@ public:
     IOPar&		parconstraints;	//!< Allow only/not with these pars
     bool		includeconstraints; //!< Are cnstr's only/not allowed
     bool		allowcnstrsabsent; //!< Are absent cnstrs OK?
+    bool		allownonreaddefault; //!< also SEG-Y etc.
 
     bool		validIOObj(const IOObj&) const;
 
