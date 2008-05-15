@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.10 2008-05-14 11:43:40 cvsnanne Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.11 2008-05-15 20:28:25 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -14,6 +14,7 @@ static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.10 2008-05-14 11:43:40 c
 #include "executor.h"
 #include "explfaultsticksurface.h"
 #include "faultsticksurface.h"
+#include "faulteditor.h"
 #include "iopar.h"
 #include "mpeengine.h"
 #include "randcolor.h"
@@ -23,46 +24,61 @@ static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.10 2008-05-14 11:43:40 c
 #include "visgeomindexedshape.h"
 #include "vismaterial.h"
 #include "vismarker.h"
-#include "vismpeeditor.h"
 #include "vismultitexture2.h"
+#include "vismpeeditor.h"
 #include "visplanedatadisplay.h"
+#include "visshapehints.h"
 #include "vistransform.h"
 
 mCreateFactoryEntry( visSurvey::FaultDisplay );
+
+#define mNearestKnotSize 4
+#define mDefaultKnotSize 2
 
 namespace visSurvey
 {
 
 FaultDisplay::FaultDisplay()
-    : MultiTextureSurveyObject()
-    , emfault_( 0 )
+    : emfault_( 0 )
     , displaysurface_( 0 )
-    , editor_( 0 )
+    , viseditor_( 0 )
+    , faulteditor_( 0 )
     , eventcatcher_( 0 )
     , explicitsurface_( 0 )
     , displaytransform_( 0 )
-    , mousedisplaypos_( Coord3::udf() )
-    , editpid_( EM::PosID::udf() )
+    , mousepos_( Coord3::udf() )
+    , shapehints_( visBase::ShapeHints::create() )
 {
     setColor( getRandomColor( false ) );
-    mouseplanecs_.setEmpty();
+    getMaterial()->setAmbience( 0.2 );
+    shapehints_->ref();
+    addChild( shapehints_->getInventorNode() );
+    shapehints_->setVertexOrder( visBase::ShapeHints::CounterClockWise );
 }
 
 
 FaultDisplay::~FaultDisplay()
 {
     setSceneEventCatcher( 0 );
-    if ( editor_ ) editor_->unRef();
+    if ( viseditor_ ) viseditor_->unRef();
 
     if ( emfault_ ) MPE::engine().removeEditor( emfault_->id() );
+    if ( faulteditor_ ) faulteditor_->unRef();
+    faulteditor_ = 0;
 
     if ( displaysurface_ )
 	displaysurface_->unRef();
 
     delete explicitsurface_;
 
-    if ( emfault_ ) emfault_->unRef();
+    if ( emfault_ )
+    {
+	emfault_->change.remove( mCB(this,FaultDisplay,emChangeCB) );
+       	emfault_->unRef();
+    }
+
     if ( displaytransform_ ) displaytransform_->unRef();
+    shapehints_->unRef();
 }
 
 
@@ -82,7 +98,7 @@ void FaultDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 	eventcatcher_->eventhappened.notify( mCB(this,FaultDisplay,mouseCB) );
     }
 
-    if ( editor_ ) editor_->setSceneEventCatcher( eventcatcher_ );
+    if ( viseditor_ ) viseditor_->setSceneEventCatcher( eventcatcher_ );
 }
 
 
@@ -95,10 +111,15 @@ EM::ObjectID FaultDisplay::getEMID() const
 bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 {
     if ( emfault_ )
+    {
+	emfault_->change.remove( mCB(this,FaultDisplay,emChangeCB) );
 	emfault_->unRef();
+    }
 
     emfault_ = 0;
-    if ( editor_ ) editor_->setEditor( (MPE::ObjectEditor*) 0 );
+    if ( faulteditor_ ) faulteditor_->unRef();
+    faulteditor_ = 0;
+    if ( viseditor_ ) viseditor_->setEditor( (MPE::ObjectEditor*) 0 );
 
     RefMan<EM::EMObject> emobject = EM::EMM().getObject( emid );
     mDynamicCastGet( EM::Fault*, emfault, emobject.ptr() );
@@ -109,6 +130,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     }
 
     emfault_ = emfault;
+    emfault_->change.notify( mCB(this,FaultDisplay,emChangeCB) );
     emfault_->ref();
 
     getMaterial()->setColor( emfault_->preferredColor() );
@@ -137,22 +159,25 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 
     explicitsurface_->setSurface( fss ); 
     displaysurface_->setSurface( explicitsurface_ );
-    explicitsurface_->updateAll();
-    displaysurface_->touch( false );
+    displaysurface_->touch( true );
 
-    if ( !editor_ )
+    if ( !viseditor_ )
     {
-	editor_ = visSurvey::MPEEditor::create();
-	editor_->ref();
-	editor_->setSceneEventCatcher( eventcatcher_ );
-	editor_->setDisplayTransformation( displaytransform_ );
-	addChild( editor_->getInventorNode() );
+	viseditor_ = visSurvey::MPEEditor::create();
+	viseditor_->ref();
+	viseditor_->setSceneEventCatcher( eventcatcher_ );
+	viseditor_->setDisplayTransformation( displaytransform_ );
+	addChild( viseditor_->getInventorNode() );
     }
 
-    editor_->setEditor( MPE::engine().getEditor( emid, true ) );
+    RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
+    mDynamicCastGet( MPE::FaultEditor*, fe, editor.ptr() );
+    faulteditor_ =  fe;
+    if ( faulteditor_ ) faulteditor_->ref();
+
+    viseditor_->setEditor( faulteditor_ );
     
     displaysurface_->turnOn( true );
-    showKnotMarkers( true );
 
     return true;
 }
@@ -236,7 +261,7 @@ int FaultDisplay::usePar( const IOPar& par )
 void FaultDisplay::setDisplayTransformation(visBase::Transformation* nt)
 {
     if ( displaysurface_ ) displaysurface_->setDisplayTransformation( nt );
-    if ( editor_ ) editor_->setDisplayTransformation( nt );
+    if ( viseditor_ ) viseditor_->setDisplayTransformation( nt );
 
     if ( displaytransform_ ) displaytransform_->unRef();
     displaytransform_ = nt;
@@ -257,15 +282,17 @@ visBase::Transformation* FaultDisplay::getDisplayTransformation()
 
 void FaultDisplay::mouseCB( CallBacker* cb )
 {
-    if ( !emfault_ || !isOn() || eventcatcher_->isHandled() || !isSelected() )
+    if ( !emfault_ || !faulteditor_ || !isOn() || eventcatcher_->isHandled() ||
+	 !isSelected() )
 	return;
 
-    if ( editor_ && !editor_->clickCB( cb ) )
-	return;
+    //if ( viseditor_ && !viseditor_->clickCB( cb ) )
+	//return;
 
     mCBCapsuleUnpack(const visBase::EventInfo&,eventinfo,cb);
-    
-    mouseplanecs_.setEmpty();
+   
+    CubeSampling mouseplanecs; 
+    mouseplanecs.setEmpty();
     EM::PosID mousepid( EM::PosID::udf() );
     bool mouseondragger = false;
 
@@ -273,102 +300,108 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     {
 	const int visid = eventinfo.pickedobjids[idx];
 	visBase::DataObject* dataobj = visBase::DM().getObject( visid );
-	mDynamicCastGet( visBase::Marker*, marker, dataobj );
-	if ( marker )
-	{
-	    mousepid = getMarkerPid( marker->centerPos() );
-	    break;
-	}
-	mDynamicCastGet( visBase::Dragger*, dragger, dataobj );
-	if ( dragger )
-	{
-	    mouseondragger = true;
-	    break;
-	}
+
 	mDynamicCastGet( visSurvey::PlaneDataDisplay*, plane, dataobj );
 	if ( plane )
 	{
-	    mouseplanecs_ = plane->getCubeSampling();
+	    mouseplanecs = plane->getCubeSampling();
 	    break;
 	}
     }
 
-    if ( mousedisplaypos_ != eventinfo.displaypickedpos )
+    Coord3 pos = eventinfo.displaypickedpos;
+    pos = scene_->getZScaleTransform()->transformBack( pos ); 
+    if ( displaytransform_ ) pos = displaytransform_->transformBack( pos ); 
+
+    if ( mousepos_ != pos )
     {
-	mousedisplaypos_ = eventinfo.displaypickedpos;
-	updateKnotMarkers();
+	mousepos_ = pos;
+	//updateKnotMarkerColor( pos );
     }
+
+    if ( !pos.isDefined() )
+	return;
+
+    if ( eventinfo.type==visBase::MouseClick &&
+	 OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+	 !OD::altKeyboardButton(eventinfo.buttonstate_) &&
+	 !OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
+	 OD::leftMouseButton(eventinfo.buttonstate_) )
+    {
+	if ( !eventinfo.pressed )
+	{
+	    const EM::PosID pid =
+		viseditor_->mouseClickDragger( eventinfo.pickedobjids );
+	    if ( !pid.isUdf() )
+	    {
+		const int stick = RowCol(pid.subID()).row;
+		if ( emfault_->geometry().nrKnots(pid.sectionID(),stick)==1 )
+		{
+		    emfault_->geometry().removeStick( pid.sectionID(), stick,
+			    			      true );
+		}
+		else
+		{
+		    emfault_->geometry().removeKnot( pid.sectionID(),
+			    			     pid.subID(), true );
+		}
+
+		displaysurface_->touch( false );
+	    }
+	}
+	eventcatcher_->setHandled();
+	return;
+    }
+
 
     if ( eventinfo.type!=visBase::MouseClick || eventinfo.pressed ||
-	 OD::altKeyboardButton(eventinfo.buttonstate_) )
+	 OD::altKeyboardButton(eventinfo.buttonstate_) ||
+	 !OD::leftMouseButton(eventinfo.buttonstate_) )
 	return;
-   
-    if ( mouseondragger && OD::rightMouseButton(eventinfo.buttonstate_) )
-    {
-	setEditID( EM::PosID::udf() );
-	updateKnotMarkers();
-	eventcatcher_->setHandled();
+
+    EM::PosID nearestpid0, nearestpid1, insertpid;
+    faulteditor_->getInteractionInfo( nearestpid0, nearestpid1, insertpid,
+	    			      pos, SI().zFactor() );
+
+    if ( insertpid.isUdf() )
 	return;
-    }
 
-    if ( !OD::leftMouseButton(eventinfo.buttonstate_) )
-	return;
-	
-    if ( mousepid.objectID()!=-1 &&
-	 !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
-	 !OD::shiftKeyboardButton(eventinfo.buttonstate_) )
+    if ( nearestpid0.isUdf() )
     {
-	setEditID( mousepid );
-	updateKnotMarkers();
-	eventcatcher_->setHandled();
-    }
+	//Add Stick
+	Coord3 editnormal(0,0,1);
+	if (  mouseplanecs.defaultDir()==CubeSampling::Inl )
+	    editnormal = Coord3( SI().binID2Coord().rowDir(), 0);
+	else if ( mouseplanecs.defaultDir()==CubeSampling::Crl ) 
+	    editnormal = Coord3( SI().binID2Coord().colDir(), 0 );
 
-    if ( mousepid.objectID()!=-1 &&
-	 OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
-	 !OD::shiftKeyboardButton(eventinfo.buttonstate_) )
-    {
-	setEditID( EM::PosID::udf() );
-	emfault_->geometry().removeKnot( mousepid.sectionID(),
-					 mousepid.subID(), true );
-	updateKnotMarkers();
-	displaysurface_->touch( false );
-	eventcatcher_->setHandled();
-    }
-
-    TypeSet<EM::PosID> knots;
-    getNearestKnots( knots );
-
-    Coord3 pos = mousedisplaypos_;
-    pos = scene_->getZScaleTransform()->transformBack( pos ); 
-    if ( displaytransform_ ) 
-	pos = displaytransform_->transformBack( pos ); 
-
-    if ( !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
-	 !OD::shiftKeyboardButton(eventinfo.buttonstate_) )
-    {
-	emfault_->geometry().insertKnot( knots[2].sectionID(),
-		mMAX(knots[2].subID(), knots[3].subID()), pos, true );
-	updateKnotMarkers();
-	displaysurface_->touch( false );
-	eventcatcher_->setHandled();
-    }
-
-    Coord3 editnormal(0,0,1);
-    if (  mouseplanecs_.defaultDir()==CubeSampling::Inl )
-	editnormal = Coord3( SI().binID2Coord().rowDir(), 0);
-    else if ( mouseplanecs_.defaultDir()==CubeSampling::Crl ) 
-	editnormal = Coord3( SI().binID2Coord().colDir(), 0 );
-
-    if ( !OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
-	 OD::shiftKeyboardButton(eventinfo.buttonstate_) )
-    {
-	RowCol rc; rc.setSerialized( mMAX(knots[0].subID(),knots[1].subID()) );
-	
-	emfault_->geometry().insertStick( knots[0].sectionID(), rc.row,
+	const RowCol rc( insertpid.subID() );
+    
+	emfault_->geometry().insertStick( insertpid.sectionID(), rc.row,
 					  pos, editnormal, true );
-	updateKnotMarkers();
 	displaysurface_->touch( false );
-	eventcatcher_->setHandled();
+	faulteditor_->editpositionchange.trigger();
+    }
+    else
+    {
+	emfault_->geometry().insertKnot( insertpid.sectionID(),
+		insertpid.subID(), pos, true );
+	faulteditor_->editpositionchange.trigger();
+    }
+
+    eventcatcher_->setHandled();
+}
+
+
+void FaultDisplay::emChangeCB( CallBacker* cb )
+{
+    mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
+
+    if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert ||
+	 cbdata.event==EM::EMObjectCallbackData::SectionChange ||
+	 cbdata.event==EM::EMObjectCallbackData::PositionChange )
+    {
+	displaysurface_->touch( false );
     }
 }
 
@@ -531,190 +564,14 @@ float FaultDisplay::nearestStickSegment( const Coord3& displaypos,
 }
 
 
-void FaultDisplay::getNearestKnots( TypeSet<EM::PosID>& knots ) const
+void FaultDisplay::showManipulator( bool yn )
 {
-    knots.erase();
-    knots.setSize( 4, EM::PosID::udf() );
-
-    if ( !emfault_ || mouseplanecs_.isEmpty() )
-	return;
-
-    EM::PosID adjstickpid;
-    const bool isinlcrl = mouseplanecs_.defaultDir() != CubeSampling::Z;
-
-    TypeSet<Coord3> vec, pos(3,Coord3::udf());
-    TypeSet<float> len, cos;
-
-    for ( int idx=0; idx<3; idx++ )
-    {
-	const bool* isinlcrlptr = idx ? 0 : &isinlcrl;
-	const EM::PosID* adjstickpidptr = idx ? &adjstickpid : 0;
-	
-	nearestStickSegment( mousedisplaypos_, pos[idx], knots[idx],
-			     knots[idx+1], 0, isinlcrlptr, adjstickpidptr );
-
-	vec += ( idx ? pos[idx] : mousedisplaypos_ ) - pos[0];
-	len += vec[idx].abs();
-	const float denom = len[idx] * len[0];
-	cos += pos[idx].isDefined() && denom ? vec[idx].dot(vec[0])/denom : 0;
-
-	if ( knots[0].objectID()==-1 )
-	    knots[0] = EM::PosID( -1, 0, 0 );
-
-	adjstickpid = knots[0];
-	RowCol rc; rc.setSerialized( adjstickpid.subID() );
-	rc.row += !idx || (idx==2 && pos[2].isDefined()) ? -1 : 1; 
-	adjstickpid.setSubID( rc.getSerialized() );
-    }
-    
-    if ( cos[2] > cos[1] )
-	knots[1] = knots[2];
-
-    if ( knots[1].objectID() == -1 )
-	knots[1] = adjstickpid;
-    
-    Coord3 dummycrd;
-    nearestStickSegment( mousedisplaypos_, dummycrd, knots[2], knots[3], 
-	    		 &mouseplanecs_ );
+    viseditor_->turnOn( yn );
 }
 
 
-EM::PosID FaultDisplay::getMarkerPid( const Coord3& markerpos )
-{
-    if ( !emfault_ )
-	return EM::PosID::udf();
-
-    PtrMan<EM::EMObjectIterator> iter = emfault_->geometry().createIterator(-1);
-    while ( true )
-    {
-	const EM::PosID pid = iter->next();
-	if ( pid.objectID() == -1 )
-	    return EM::PosID::udf();
-
-	const Coord3 pos = emfault_->getPos( pid );
-	if ( pos.isDefined() && Coord(pos)==markerpos 
-			     && fabs(pos.z-markerpos.z)<1e-5 )
-	    return pid;
-    }
-}
-
-
-void FaultDisplay::setEditID( const EM::PosID& pid )
-{
-    if ( !editor_ ) return;
-    
-    if ( pid.objectID() < 0 )
-    {
-	RefMan<MPE::ObjectEditor> emeditor = editor_->getMPEEditor();
-	if ( emeditor ) 
-	    emeditor->removeEditID( editpid_ );
-
-	editpid_ = EM::PosID::udf();
-    }
-    else if ( pid != editpid_ )
-    {
-	editor_->setMarkerSize(3);
-	editor_->mouseClick( pid, false, false, false );
-	editpid_ = pid;
-    }
-}
-
-
-void FaultDisplay::showKnotMarkers( bool yn )
-{
-    if ( yn && !knotmarkers_.size() )
-    {
-	for ( int idx=0; idx<3; idx++ )
-	{
-	    visBase::DataObjectGroup* group=visBase::DataObjectGroup::create();
-	    group->ref();
-	    addChild( group->getInventorNode() );
-	    knotmarkers_ += group;
-	    visBase::Material* knotmat = visBase::Material::create();
-	    group->addObject( knotmat );
-	    if ( idx==0 )
-		knotmat->setColor( Color(255,255,255) );
-	    else if ( idx==1 )
-		knotmat->setColor( Color(0,255,255) );
-	    else
-		knotmat->setColor( Color(0,255,0) );
-	}
-	updateKnotMarkers();
-    }
-    if ( !yn )
-    {
-	for ( int idx=knotmarkers_.size()-1; idx>=0; idx-- ) 
-	{
-	    removeChild( knotmarkers_[idx]->getInventorNode() );
-	    knotmarkers_[idx]->unRef();
-	    knotmarkers_.remove( idx );
-	}
-    }
-}
-
-
-void FaultDisplay::updateKnotMarkers()
-{
-    if ( !emfault_ )
-	return;
-
-    for ( int idx=0; idx<knotmarkers_.size(); idx++ )
-    {
-	while ( knotmarkers_[idx]->size() > 1 )
-	    knotmarkers_[idx]->removeObject( 1 );
-    }
-    if ( editor_ )
-	editor_->turnOn( false );
-    
-    TypeSet<EM::PosID> nearestknots;
-    getNearestKnots( nearestknots );
-
-    PtrMan<EM::EMObjectIterator> iter = emfault_->geometry().createIterator(-1);
-    while ( true )
-    {
-	const EM::PosID pid = iter->next();
-	if ( pid.objectID() == -1 )
-	    break;
-
-	const Coord3 pos = emfault_->getPos( pid );
-
-	visBase::Marker* marker = visBase::Marker::create();
-	marker->setMarkerStyle( emfault_->getPosAttrMarkerStyle(0) );
-	marker->setMaterial( 0 );
-	marker->setDisplayTransformation( displaytransform_ );
-	marker->setCenterPos(pos);
-	marker->setScreenSize( 2 );
-
-	if ( pid == nearestknots[2] )
-	{
-	    knotmarkers_[2]->addObject( marker );
-	    marker->setScreenSize( marker->getScreenSize()+2 );
-	}
-	else if ( pid == nearestknots[3] )
-	{
-	    knotmarkers_[2]->addObject( marker );
-	    marker->setScreenSize( marker->getScreenSize()+1 );
-	}
-	else if ( !stickNrDist(pid,nearestknots[0]) )
-	{
-	    knotmarkers_[1]->addObject( marker );
-	    marker->setScreenSize( marker->getScreenSize()+1 );
-	}
-	else if ( !stickNrDist(pid,nearestknots[1]) )
-	{
-	    knotmarkers_[1]->addObject( marker );
-	}
-	else
-	{
-	    if ( pid==editpid_ && editor_ )
-	    {
-		editor_->turnOn( true );
-		marker->setScreenSize( 0 );
-	    }
-	    knotmarkers_[0]->addObject( marker );
-	}
-    }
-}
+bool  FaultDisplay::isManipulatorShown() const
+{ return viseditor_->isOn(); }
 
 
 int FaultDisplay::nrResolutions() const
@@ -737,10 +594,8 @@ void FaultDisplay::setResolution( int res )
 
 
 bool FaultDisplay::getCacheValue( int attrib, int version, const Coord3& crd,
-				  float& value ) const
-{
-    return true;
-}
+	                          float& value ) const
+{ return true; }
 
 
 void FaultDisplay::addCache()
@@ -756,10 +611,7 @@ void FaultDisplay::emptyCache( int attrib )
 {}
 
 bool FaultDisplay::hasCache( int attrib ) const
-{
-    return false;
-}
-
+{ return false; }
 
 
 }; // namespace visSurvey

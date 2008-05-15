@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.3 2008-05-14 11:43:40 cvsnanne Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.4 2008-05-15 20:28:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -25,9 +25,11 @@ namespace visBase
 {
     class GeomIndexedShape;
     class Transformation;
+    class ShapeHints;
 };
 
 namespace EM { class Fault; }
+namespace MPE { class FaultEditor; }
 namespace Geometry { class ExplFaultStickSurface; }
 
 
@@ -63,6 +65,9 @@ public:
     bool			allowMaterialEdit() const	{ return true; }
     NotifierAccess*		materialChange();
 
+    void			showManipulator(bool);
+    bool			isManipulatorShown() const;
+
     void			setDisplayTransformation(mVisTrans*);
     mVisTrans*			getDisplayTransformation();
     void			setRightHandSystem(bool);
@@ -94,6 +99,7 @@ protected:
     static const char*		sKeyEarthModelID()	{ return "EM ID"; }
 
     void			mouseCB(CallBacker*);
+    void			emChangeCB(CallBacker*);
 
     bool			segmentInPlane(const EM::PosID& knot1,
 	                                       const EM::PosID& knot2,
@@ -111,21 +117,20 @@ protected:
     EM::PosID			getMarkerPid( const Coord3& markerpos );
     void			setEditID(const EM::PosID&);
 
-    void			showKnotMarkers(bool yn);
     void 			updateKnotMarkers();
+    void			updateKnotMarkerColor( const Coord3& mousepos );
 
     visBase::GeomIndexedShape*		displaysurface_;
     visBase::EventCatcher*		eventcatcher_;
 
     Geometry::ExplFaultStickSurface*	explicitsurface_;
     EM::Fault*				emfault_;
-    visSurvey::MPEEditor*		editor_;
+    visSurvey::MPEEditor*		viseditor_;
+    MPE::FaultEditor*			faulteditor_;
+    visBase::ShapeHints*		shapehints_;
     visBase::Transformation*		displaytransform_;
-    ObjectSet<visBase::DataObjectGroup> knotmarkers_;
-    
-    Coord3				mousedisplaypos_;
-    CubeSampling			mouseplanecs_;
-    EM::PosID				editpid_;
+
+    Coord3				mousepos_;
 };
 
 };
