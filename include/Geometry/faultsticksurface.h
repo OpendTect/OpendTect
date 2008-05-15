@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl / J.C. Glas
 Date:          September 2007
-RCS:           $Id: faultsticksurface.h,v 1.8 2008-05-14 20:41:53 cvskris Exp $
+RCS:           $Id: faultsticksurface.h,v 1.9 2008-05-15 22:04:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,9 +18,10 @@ namespace Geometry
 {
 
 class FaultStickSurface : public RowColSurface
-{   mRefCountImpl(FaultStickSurface);
+{
 public:
     			FaultStickSurface();
+    			~FaultStickSurface();
     bool		isEmpty() const		{ return !sticks_.size(); }
     Element*		clone() const;
 

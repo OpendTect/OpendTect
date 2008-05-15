@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.12 2008-05-15 20:23:14 cvskris Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.13 2008-05-15 22:04:57 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -85,6 +85,7 @@ ExplFaultStickSurface::ExplFaultStickSurface( FaultStickSurface* surf,
     , displaysticks_( true )
     , displaypanels_( true )
     , scalefacs_( 1, 1, zscale )
+    , needsupdate_( true )
 {
     paneltriangles_.allowNull( true );
     panellines_.allowNull( true );
@@ -106,7 +107,6 @@ void ExplFaultStickSurface::setSurface( FaultStickSurface* fss )
 			mCB(this,ExplFaultStickSurface,surfaceChange) );
 	surface_->movementnotifier.remove(
 			mCB(this,ExplFaultStickSurface,surfaceMovement) );
-	surface_->unRef();
     }
 
     removeAll();
@@ -114,7 +114,6 @@ void ExplFaultStickSurface::setSurface( FaultStickSurface* fss )
 
     if ( surface_ )
     {
-	surface_->ref();
 	surface_->nrpositionnotifier.notify(
 			mCB(this,ExplFaultStickSurface,surfaceChange) );
 	surface_->movementnotifier.notify(
@@ -177,8 +176,11 @@ bool ExplFaultStickSurface::update( bool forceall, TaskRunner* tr )
     //Now do panels
     updater = new ExplFaultStickSurfaceUpdater( *this, false );
 
-    if ( tr ) return tr->execute( *updater );
-    return updater->execute();
+    if ( (tr && !tr->execute( *updater ) ) || !updater->execute() )
+	return false;
+
+    needsupdate_ = false;
+    return true;
 }
 
 
@@ -290,7 +292,10 @@ void ExplFaultStickSurface::insertStick( int stickidx )
 {
     if ( stickidx>=0 || stickidx<=sticks_.size() )
     {
-	sticks_.insertAt(new IndexedGeometry(IndexedGeometry::Lines), stickidx);
+	sticks_.insertAt(
+	    new IndexedGeometry(IndexedGeometry::Lines,
+		IndexedGeometry::PerFace,coordlist_,normallist_),
+	    stickidx);
 	if ( displaysticks_ )
 	    addToGeometries( sticks_[stickidx] );
     }
@@ -365,7 +370,8 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
     {
 	if ( !lines )
 	{
-	    lines = new IndexedGeometry( IndexedGeometry::Lines );
+	    lines = new IndexedGeometry( IndexedGeometry::Lines,
+		    IndexedGeometry::PerFace, coordlist_, normallist_ );
 	    panellines_.replace( panelidx, lines );
 	    if ( displaypanels_ ) addToGeometries( lines );
 	}
@@ -378,7 +384,9 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 
     if ( !triangles )
     {
-	triangles = new IndexedGeometry( IndexedGeometry::TriangleStrip );
+	triangles = new IndexedGeometry( IndexedGeometry::TriangleStrip,
+					 IndexedGeometry::PerFace,
+					 coordlist_, normallist_ );
 	paneltriangles_.replace( panelidx, triangles );
 	if ( displaypanels_ ) addToGeometries( triangles );
     }
