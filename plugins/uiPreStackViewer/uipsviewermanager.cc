@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.16 2008-05-07 12:33:36 cvsnanne Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.17 2008-05-15 18:56:42 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "prestackgather.h"
 #include "survinfo.h"
+#include "uidlggroup.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
 #include "uiflatviewmainwin.h"
@@ -23,7 +24,8 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodmain.h"
-#include "uipsviewersetting.h"
+#include "uipsviewershapetab.h"
+#include "uipsviewersettingdlg.h"
 #include "uiseispartserv.h"
 #include "uivispartserv.h"
 #include "visplanedatadisplay.h"
@@ -39,7 +41,7 @@ uiPSViewerMgr::uiPSViewerMgr()
     , proptymenuitem_( "Properties ..." )				 
     , removemenuitem_( "Remove" ) 
     , viewermenuitem_( "View in 2D Panel" )
-    , visserv_( ODMainWin()->applMgr().visServer() )  	      
+    , visserv_( ODMainWin()->applMgr().visServer() )  	     
 {
     visserv_->removeAllNotifier().notify( mCB(this,uiPSViewerMgr,removeAllCB) );
     RefMan<MenuHandler> menuhandler = visserv_->getMenuHandler();
@@ -149,10 +151,8 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
     else if ( mnuid==proptymenuitem_.id )
     {
 	menu->setIsHandled( true );
-	uiPSViewerSetting dlg( menu->getParent(), *psv, *this );
-	dlg.go(); 
-	if ( !dlg.acceptOK() )
-	    return;
+	uiPSViewerSettingDlg dlg( menu->getParent(), *psv, *this );
+	dlg.go();
     }
     else if ( mnuid==viewermenuitem_.id )
     {
