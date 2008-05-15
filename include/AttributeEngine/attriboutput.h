@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.36 2008-04-07 14:13:14 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.37 2008-05-15 15:31:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,6 +133,7 @@ public:
     virtual void		collectData(const DataHolder&,float step,
 	    				    const SeisTrcInfo&);
     void			writeTrc();
+    void			setTrcGrow( bool yn )	{ growtrctosi_ = yn; }
     void			setOutpTypes(const TypeSet<Seis::DataType>& typ)
 				{ outptypes_ = typ; }
     virtual TypeSet< Interval<int> >	getLocalZRanges(const BinID&,float,
@@ -163,6 +164,7 @@ protected:
     BufferString		attribname_;
     Scaler*                     scaler_;
     TypeSet<Seis::DataType>	outptypes_;
+    bool			growtrctosi_;
 };
 
 

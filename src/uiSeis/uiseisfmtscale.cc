@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseisfmtscale.cc,v 1.19 2007-05-30 11:13:11 cvsbert Exp $
+ RCS:		$Id: uiseisfmtscale.cc,v 1.20 2008-05-15 15:31:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,10 +25,11 @@ class uiSeisFmtScaleData
 {
 public:
 
-uiSeisFmtScaleData() : stor_(0), sclr_(0), optim_(false)	{}
+uiSeisFmtScaleData() : stor_(0), sclr_(0), optim_(false), trcgrow_(false) {}
 uiSeisFmtScaleData( const uiSeisFmtScaleData& d ) : sclr_(0)
 {
     stor_ = d.stor_; optim_ = d.optim_;
+    trcgrow_ = d.trcgrow_;
     setScaler( d.sclr_ );
 }
 
@@ -46,6 +47,7 @@ Scaler* getScaler() const
     int		stor_;
     Scaler*	sclr_;
     bool	optim_;
+    bool	trcgrow_;
 
 };
 
@@ -75,12 +77,16 @@ uiSeisFmtScaleDlg( uiParent* p, Seis::GeomType gt, uiSeisFmtScaleData& d,
     if ( fixedfmtscl )
 	scalefld_->setSensitive( false );
 
+    trcgrowfld_ = new uiGenInput( this, "Adjust Z range to survey range",
+	    			  BoolInpSpec(false) );
+    trcgrowfld_->attach( alignedBelow, scalefld_ );
+
     if ( !Seis::isPS(gt_) )
     {
 	optimfld_ = new uiGenInput( this, "Optimize horizontal slice access",
 				   BoolInpSpec(true) );
 	optimfld_->setValue( data_.optim_ );
-	optimfld_->attach( alignedBelow, scalefld_ );
+	optimfld_->attach( alignedBelow, trcgrowfld_ );
     }
 }
 
@@ -89,11 +95,13 @@ bool acceptOK( CallBacker* )
     data_.stor_ = stortypfld_->getIntValue();
     data_.sclr_ = scalefld_->getScaler();
     data_.optim_ = optimfld_ && optimfld_->getBoolValue();
+    data_.trcgrow_ = trcgrowfld_->getBoolValue();
     return true;
 }
 
     uiGenInput*	stortypfld_;
     uiGenInput*	optimfld_;
+    uiGenInput*	trcgrowfld_;
     uiScaler*	scalefld_;
 
     uiSeisFmtScaleData&	data_;
@@ -195,6 +203,12 @@ int uiSeisFmtScale::getFormat() const
 bool uiSeisFmtScale::horOptim() const
 {
     return scalefld_ ? false : compfld_->data_.optim_;
+}
+
+
+bool uiSeisFmtScale::extendTrcToSI() const
+{
+    return compfld_->data_.trcgrow_;
 }
 
 

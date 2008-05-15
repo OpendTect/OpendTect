@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.80 2008-04-11 12:05:01 cvsbert Exp $
+ RCS:           $Id: attribengman.cc,v 1.81 2008-05-15 15:31:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ ________________________________________________________________________
 #include "posvecdataset.h"
 #include "ptrman.h"
 #include "seis2dline.h"
+#include "seistrc.h"
 #include "separstr.h"
 #include "survinfo.h"
 
@@ -137,6 +138,11 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
     BufferString attribname = curdesc->isStored() ? "" : curdesc->userRef();
     LineKey lkey( linename, attribname );
     SeisTrcStorOutput* storeoutp = createOutput( iopar, lkey );
+
+    bool exttrctosi;
+    if ( iopar.getYN( IOPar::compKey( basekey,SeisTrc::sKeyExtTrcToSI ),
+		      exttrctosi) )
+	storeoutp->setTrcGrow( exttrctosi );
     
     proc->addOutput( storeoutp );
     return proc;

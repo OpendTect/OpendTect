@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Oct 2001
- RCS:		$Id: seissingtrcproc.h,v 1.18 2008-01-22 15:04:17 cvsbert Exp $
+ RCS:		$Id: seissingtrcproc.h,v 1.19 2008-05-15 15:31:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,7 @@ public:
 
     void		setInput(const IOObj*,const IOObj*,const char*,
 				 const IOPar*,const char*);
+    void		setExtTrcToSI( bool yn )	{ extendtrctosi_ = yn; }
 
 protected:
 
@@ -104,6 +105,7 @@ protected:
     BinID		fillbid_;
     HorSampling		fillhs_;
     SeisTrc*		filltrc_;
+    bool		extendtrctosi_;
 
     bool		mkWriter(const IOObj*);
     void		nextObj();

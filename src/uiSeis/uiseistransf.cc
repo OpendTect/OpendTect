@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.43 2007-12-05 11:55:49 cvsbert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.44 2008-05-15 15:31:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -164,6 +164,7 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
     stp->skipNullTraces( removeNull() );
     stp->fillNullTraces( fillNull() );
     stp->setResampler( getResampler() );
+    stp->setExtTrcToSI( scfmtfld->extendTrcToSI() );
 
     return stp;
 }

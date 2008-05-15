@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.42 2008-05-13 10:13:27 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.43 2008-05-15 15:31:57 cvshelene Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -384,6 +384,13 @@ bool SeisSingleTraceProc::prepareTrc()
 
     if ( scaler_ )
 	const_cast<SeisTrc*>(worktrc_)->data().scale( *scaler_ );
+    
+    if ( extendtrctosi_ )
+    {
+	SeisTrc* newtrc = worktrc_->getExtendedTo( SI().zRange(true) );
+	const_cast<SeisTrc*>(worktrc_)->data().scale( *scaler_ );
+	delete newtrc;
+    }
 
     return true;
 }

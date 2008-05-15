@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.80 2008-04-21 04:27:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.81 2008-05-15 15:31:57 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -269,6 +269,7 @@ SeisTrcStorOutput::SeisTrcStorOutput( const CubeSampling& cs,
     , storinited_(0)
     , errmsg_(0)
     , scaler_(0)
+    , growtrctosi_(false)
 {
     seldata_->lineKey() = lk;
     attribname_ = lk.attrName();
@@ -450,6 +451,14 @@ void SeisTrcStorOutput::collectData( const DataHolder& data, float refstep,
 void SeisTrcStorOutput::writeTrc()
 {
     if ( !trc_ ) return;
+
+    SeisTrc* usetrc = trc_;
+    PtrMan<SeisTrc> tmptrc = 0;
+    if ( growtrctosi_ )
+    {
+	tmptrc = trc_->getExtendedTo( SI().zRange(true), true );
+	usetrc = tmptrc;
+    }
     
     if ( !storinited_ )
     {
@@ -465,7 +474,7 @@ void SeisTrcStorOutput::writeTrc()
 		    		       curLineKey().lineName()) );
 	}
 
-	if ( !writer_->prepareWork(*trc_) )
+	if ( !writer_->prepareWork(*usetrc) )
 	    { errmsg_ = writer_->errMsg(); return; }
 
 	SeisTrcTranslator* transl = writer_->seisTranslator();
@@ -481,7 +490,7 @@ void SeisTrcStorOutput::writeTrc()
 	storinited_ = true;
     }
     
-    if ( !writer_->put(*trc_) )
+    if ( !writer_->put(*usetrc) )
 	{ errmsg_ = writer_->errMsg(); }
 
     delete trc_;

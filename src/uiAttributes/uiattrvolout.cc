@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.44 2008-04-18 14:56:21 cvshelene Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.45 2008-05-15 15:31:57 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uiseisioobjinfo.h"
 #include "uigeninput.h"
 #include "uimsg.h"
+#include "seistrc.h"
 #include "seistrctr.h"
 #include "seisselection.h"
 #include "ctxtioobj.h"
@@ -76,7 +77,7 @@ uiAttrVolOut::uiAttrVolOut( uiParent* p, const DescSet& ad,
     ctio.ctxt.includeconstraints = false;
     ctio.ctxt.allowcnstrsabsent = true;
     objfld = new uiSeisSel( uppgrp_, ctio,
-	    		    uiSeisSel::Setup(is2d,false).selattr(false));
+			    uiSeisSel::Setup(is2d,false).selattr(false));
     objfld->attach( alignedBelow, transffld );
 
     uppgrp_->setHAlignObj( transffld );
@@ -214,6 +215,8 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     iop.set( IOPar::compKey(keybase,SeisTrcStorOutput::seisidkey),
 	     ctio.ioobj->key() );
     transffld->scfmtfld->updateIOObj( ctio.ioobj );
+    iop.setYN( IOPar::compKey(keybase,SeisTrc::sKeyExtTrcToSI),
+	       transffld->scfmtfld->extendTrcToSI() );
 
     IOPar tmpiop;
     CubeSampling cs;
