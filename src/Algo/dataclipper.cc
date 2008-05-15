@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: dataclipper.cc,v 1.19 2008-03-06 16:20:50 cvskris Exp $";
+static const char* rcsID = "$Id: dataclipper.cc,v 1.20 2008-05-15 18:31:45 cvsyuancheng Exp $";
 
 
 #include "dataclipper.h"
@@ -199,6 +199,12 @@ bool DataClipper::getRange( float cliprate, Interval<float>& range ) const
 bool DataClipper::getRange( float lowclip, float highclip,
 			    Interval<float>& range ) const
 {
+    if ( lowclip>1 || highclip>1 || highclip+lowclip>1 )
+    {
+	pErrMsg("The cliprate should between 0 and 1");
+	return false;
+    }
+
     int nrvals = samples_.size();
     if ( !nrvals ) return false;
 
