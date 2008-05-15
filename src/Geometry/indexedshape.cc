@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: indexedshape.cc,v 1.2 2008-01-18 15:39:20 cvskris Exp $";
+static const char* rcsID = "$Id: indexedshape.cc,v 1.3 2008-05-15 20:21:33 cvskris Exp $";
 
 #include "indexedshape.h"
 
@@ -61,8 +61,17 @@ void IndexedGeometry::removeAll()
 	}
     }
 
+    if ( coordindices_.size() || normalindices_.size() )
+	ischanged_ = true;
+
     coordindices_.erase();
     normalindices_.erase();
+}
+
+
+bool IndexedGeometry::isEmpty() const
+{
+    return coordindices_.isEmpty() && normalindices_.isEmpty();
 }
 
 

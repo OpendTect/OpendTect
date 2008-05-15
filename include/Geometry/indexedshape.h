@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.4 2008-01-18 15:39:20 cvskris Exp $
+RCS:           $Id: indexedshape.h,v 1.5 2008-05-15 20:21:33 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,7 @@ public:
     virtual 	~IndexedGeometry();
 
     void	removeAll();
+    bool	isEmpty() const;
 
 
     Threads::Mutex	lock_;
