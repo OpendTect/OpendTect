@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.31 2008-04-14 21:15:44 cvskris Exp $
+ RCS:		$Id: seistrc.h,v 1.32 2008-05-15 09:54:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,6 +94,10 @@ public:
     SeisTrc*		getRelTrc(const ZGate&,float sr=mUdf(float)) const;
     			//!< Resample around pick. No pick: returns null.
     			//!< ZGate is relative to pick
+    SeisTrc*		getExtendedTo(const ZGate&,bool usetrcvals=true) const;
+    			//!< Extends (or shrinks) trace to ZGate
+    			//!< Added values can be first/last value of input,
+    			//!< or zeros
 
 protected:
 

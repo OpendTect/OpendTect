@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.35 2007-12-06 16:16:44 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.36 2008-05-15 09:54:57 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -141,6 +141,41 @@ SeisTrc* SeisTrc::getRelTrc( const ZGate& zgate, float sr ) const
     }
 
     return ret;
+}
+
+
+SeisTrc* SeisTrc::getExtendedTo( const ZGate& zgate, bool usevals ) const
+{
+    const float fnrsamps = (zgate.stop-zgate.start) / info_.sampling.step;
+    const int outnrsamps = mNINT( fnrsamps );
+    const TraceDataInterpreter* tdi = data_.getInterpreter(0);
+    DataCharacteristics dc( tdi ? tdi->dataChar() : DataCharacteristics() );
+    SeisTrc* newtrc = new SeisTrc( outnrsamps, dc );
+    while ( newtrc->nrComponents() < nrComponents() )
+	newtrc->data_.addComponent( newtrc->size(),
+		data_.getInterpreter( newtrc->nrComponents() )->dataChar() );
+    if ( size() < 1 )
+	{ newtrc->zero(); return newtrc; }
+
+    newtrc->info_ = info_;
+    newtrc->info_.sampling.start = zgate.start;
+    const float z0 = info_.sampling.start - snapdist * info_.sampling.step;
+    const float z1 = samplePos( size() - 1 ) + snapdist * info_.sampling.step;
+
+    for ( int icomp=0; icomp<nrComponents(); icomp++ )
+    {
+	const float preval = usevals ? get(0,icomp) : 0;
+	const float postval = usevals ? get(size()-1,icomp) : 0;
+	for ( int isamp=0; isamp<newtrc->size(); isamp++ )
+	{
+	    const float z = newtrc->samplePos( isamp );
+	    const float val = (z < z0 ? preval : (z > z1 ? postval
+			    : getValue( z, icomp ) ) );
+	    newtrc->set( isamp, val, icomp );
+	}
+    }
+
+    return newtrc;
 }
 
 
