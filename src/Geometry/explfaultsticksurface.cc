@@ -4,13 +4,14 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.11 2008-04-03 15:53:43 cvsjaap Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.12 2008-05-15 20:23:14 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
 #include "task.h"
 #include "faultsticksurface.h"
 #include "positionlist.h"
+#include "sorting.h"
 
 namespace Geometry {
 
@@ -36,10 +37,17 @@ public:
     }
     else if ( explsurf_.displaypanels_ )
     {
-	for ( int idx=0; idx<explsurf_.panels_.size(); idx++ )
+	for ( int idx=0; idx<explsurf_.paneltriangles_.size()-1; idx++ )
 	{
-	    if ( explsurf_.panels_[idx]->isEmpty() )
-		updatelist_ += idx;
+	    if ( explsurf_.paneltriangles_[idx] &&
+		 !explsurf_.paneltriangles_[idx]->isEmpty() )
+		continue;
+
+	    if ( explsurf_.panellines_[idx] &&
+		 !explsurf_.panellines_[idx]->isEmpty() )
+		continue;
+
+	    updatelist_ += idx;
 	}
     }
 }
@@ -78,6 +86,8 @@ ExplFaultStickSurface::ExplFaultStickSurface( FaultStickSurface* surf,
     , displaypanels_( true )
     , scalefacs_( 1, 1, zscale )
 {
+    paneltriangles_.allowNull( true );
+    panellines_.allowNull( true );
     setSurface( surf );
 }
 
@@ -94,7 +104,9 @@ void ExplFaultStickSurface::setSurface( FaultStickSurface* fss )
     {
 	surface_->nrpositionnotifier.remove(
 			mCB(this,ExplFaultStickSurface,surfaceChange) );
-	surface_->unRefNoDelete();
+	surface_->movementnotifier.remove(
+			mCB(this,ExplFaultStickSurface,surfaceMovement) );
+	surface_->unRef();
     }
 
     removeAll();
@@ -105,11 +117,12 @@ void ExplFaultStickSurface::setSurface( FaultStickSurface* fss )
 	surface_->ref();
 	surface_->nrpositionnotifier.notify(
 			mCB(this,ExplFaultStickSurface,surfaceChange) );
+	surface_->movementnotifier.notify(
+			mCB(this,ExplFaultStickSurface,surfaceMovement) );
 
 	if ( coordlist_ )
 	{
 	    insertAll();
-	    update();
 	}
     }
 }
@@ -118,7 +131,8 @@ void ExplFaultStickSurface::setSurface( FaultStickSurface* fss )
 void ExplFaultStickSurface::setZScale( float zscale )
 {
     scalefacs_.z = zscale;
-    updateAll();
+    for ( int idx=sticks_.size()-2; idx>=0; idx-- )
+	emptyPanel( idx );
 }
 
 
@@ -126,7 +140,7 @@ void ExplFaultStickSurface::removeAll()
 {
     for ( int idx=sticks_.size()-1; idx>=0; idx-- )
     {
-	if ( idx ) removePanel( idx-1 );
+	removePanel( idx );
 	removeStick( idx );
     }
 }
@@ -145,92 +159,85 @@ void ExplFaultStickSurface::insertAll()
 }
 
 
-void ExplFaultStickSurface::updateAll()
+bool ExplFaultStickSurface::update( bool forceall, TaskRunner* tr )
 {
-    removeAll();
-    insertAll();
-    update();
-}
+    if ( forceall )
+    {
+	removeAll();
+	insertAll();
+    }
 
+    //First update the sticks since they are needed for the panels
+    PtrMan<ExplFaultStickSurfaceUpdater> updater =
+	new ExplFaultStickSurfaceUpdater( *this, true );
 
-void ExplFaultStickSurface::update()
-{
-    ExplFaultStickSurfaceUpdater* updater; 
-    updater = new ExplFaultStickSurfaceUpdater( *this, true );
-    updater->execute();
-    delete updater;
+    if ( (tr && !tr->execute( *updater ) ) || !updater->execute() )
+	return false;
 
-    updateTopology();
-    
+    //Now do panels
     updater = new ExplFaultStickSurfaceUpdater( *this, false );
-    updater->execute();
-    delete updater;
-    
+
+    if ( tr ) return tr->execute( *updater );
+    return updater->execute();
 }
 
 
 void ExplFaultStickSurface::display( bool ynsticks, bool ynpanels )
 {
-    for ( int idx=0; idx<sticks_.size(); idx++ )
+    if ( displaysticks_!=ynsticks )
     {
-	if ( displaysticks_==ynsticks || sticks_[idx]->coordindices_.isEmpty() )
-	    continue;
-
-	if ( ynsticks )
-	    addToGeometries( sticks_[idx] );
-	else
-	    removeFromGeometries( sticks_[idx] );
+	for ( int idx=0; idx<sticks_.size(); idx++ )
+	{
+	    if ( ynsticks )
+		addToGeometries( sticks_[idx] );
+	    else
+		removeFromGeometries( sticks_[idx] );
+	}
     }
+
     displaysticks_ = ynsticks;
 
-    for ( int idx=0; idx<panels_.size(); idx++ )
+    if ( displaypanels_!=ynpanels )
     {
-	if ( displaypanels_==ynpanels || panels_[idx]->isEmpty() )
-	    continue;
-
-	if ( ynpanels )
-	    addToGeometries( *panels_[idx] );
-	else
-	    removeFromGeometries( (*panels_[idx])[0], panels_[idx]->size() );
+	for ( int idx=0; idx<paneltriangles_.size(); idx++ )
+	{
+	    if ( ynpanels )
+	    {
+		addToGeometries( paneltriangles_[idx] );
+		addToGeometries( panellines_[idx] );
+	    }
+	    else
+	    {
+		removeFromGeometries( paneltriangles_[idx] );
+		removeFromGeometries( panellines_[idx] );
+	    }
+	}
     }
-    displaypanels_ = ynpanels;
 
-    update();
+    displaypanels_ = ynpanels;
 }
 
 
 void ExplFaultStickSurface::addToGeometries( IndexedGeometry* piece )
 {
     geometrieslock_.writeLock();
+    if ( geometries_.indexOf( piece )!=-1 )
+    {
+	pErrMsg("Adding more than once");
+    }
     piece->ischanged_ = true;
     geometries_ += piece;
     geometrieslock_.writeUnLock();
 }
 
 
-void ExplFaultStickSurface::addToGeometries( ObjectSet<IndexedGeometry>& pieces)
+void ExplFaultStickSurface::removeFromGeometries( const IndexedGeometry* ig )
 {
     geometrieslock_.writeLock();
-    
-    for ( int idx=0; idx<pieces.size(); idx++ )
-    {
-	pieces[idx]->ischanged_ = true;
-	geometries_ += pieces[idx];
-    }
+    const int idx = geometries_.indexOf( ig );
 
-    geometrieslock_.writeUnLock();
-}
-
-
-void ExplFaultStickSurface::removeFromGeometries( const IndexedGeometry* first,
-						  int total )
-{
-    geometrieslock_.writeLock();
-    const int firstidx = geometries_.indexOf( first );
-    const int lastidx = firstidx + total - 1;
-
-    if ( firstidx>=0 && lastidx<geometries_.size() )
-	geometries_.remove( firstidx, lastidx );
+    if ( idx!=-1 )
+	geometries_.removeFast( idx );
 
     geometrieslock_.writeUnLock();
 }
@@ -238,20 +245,12 @@ void ExplFaultStickSurface::removeFromGeometries( const IndexedGeometry* first,
 
 void ExplFaultStickSurface::emptyStick( int stickidx )
 {
-    if ( sticks_.validIdx(stickidx) )
-    {
-	TypeSet<int>& knots = sticks_[stickidx]->coordindices_;
+    if ( !sticks_.validIdx(stickidx) )
+	return;
 
-	if ( displaysticks_ && !knots.isEmpty() )
-	    removeFromGeometries( sticks_[stickidx] );
+    sticks_[stickidx]->removeAll();
 
-	if ( coordlist_ )
-	{
-	    for ( int idx=0; idx<knots.size(); idx++ )
-		coordlist_->remove( knots[idx] );
-	}
-	knots.erase(); 
-    }
+    needsupdate_ = true;
 }
 
 
@@ -273,8 +272,7 @@ void ExplFaultStickSurface::fillStick( int stickidx )
 	knots += coordlist_->add( pos );
     }
 
-    if ( displaysticks_ )
-	addToGeometries( sticks_[stickidx] );
+    sticks_[stickidx]->ischanged_ = true;
 }
 
 
@@ -282,7 +280,7 @@ void ExplFaultStickSurface::removeStick( int stickidx )
 {
     if ( sticks_.validIdx(stickidx) )
     {
-	emptyStick( stickidx );
+	removeFromGeometries( sticks_[stickidx] );
 	delete sticks_.remove( stickidx );
     }
 }
@@ -291,7 +289,11 @@ void ExplFaultStickSurface::removeStick( int stickidx )
 void ExplFaultStickSurface::insertStick( int stickidx )
 {
     if ( stickidx>=0 || stickidx<=sticks_.size() )
+    {
 	sticks_.insertAt(new IndexedGeometry(IndexedGeometry::Lines), stickidx);
+	if ( displaysticks_ )
+	    addToGeometries( sticks_[stickidx] );
+    }
 }
 
 
@@ -299,236 +301,186 @@ void ExplFaultStickSurface::insertStick( int stickidx )
     coordlist_->get(coordidx1).scaleBy(scalefacs_).sqDistTo( \
     coordlist_->get(coordidx2).scaleBy(scalefacs_) ) 
 
-void ExplFaultStickSurface::updateTopology()
-{
-    isrevstick_.erase();
-    if ( !coordlist_ || sticks_.isEmpty() ) 
-	return;
-
-    isrevstick_ += false;
-    int previdx = 0;
-
-    for ( int curidx=1; curidx<sticks_.size(); curidx++ )
-    {
-	TypeSet<int>* prev = &sticks_[previdx]->coordindices_;
-	TypeSet<int>* cur = &sticks_[curidx]->coordindices_;
-
-	int prevsz = prev->size(); 
-	int cursz = cur->size();
-
-	if ( cursz <= 1 )
-	{
-	    isrevstick_ += false;
-	    continue;
-	}
-    
-	const float sum1 = mSqDist( (*prev)[0], (*cur)[0] ) +
-			   mSqDist( (*prev)[prevsz-1], (*cur)[cursz-1] );
-	const float sum2 = mSqDist( (*prev)[0], (*cur)[cursz-1] ) +
-			   mSqDist( (*prev)[prevsz-1], (*cur)[0] );
-
-	isrevstick_ += (sum1>sum2) != isrevstick_[previdx];
-	previdx = curidx;
-    }
-}
-
 
 void ExplFaultStickSurface::emptyPanel( int panelidx )
 {
-    if ( panels_.validIdx(panelidx) )
-    {
-	ObjectSet<IndexedGeometry>& panel = *panels_[panelidx];
+    if ( !paneltriangles_.validIdx(panelidx) )
+	return;
 
-	if ( displaypanels_ && !panel.isEmpty() )
-	    removeFromGeometries( panel[0], panel.size() );
+    if ( paneltriangles_[panelidx] ) paneltriangles_[panelidx]->removeAll();
+    if ( panellines_[panelidx] ) panellines_[panelidx]->removeAll();
 
-	deepErase( panel );
-    }
+    needsupdate_ = true;
 }
 
 
-#define mNextKnotLeft( lindex, rindex ) \
-    ( rindex>=rsize-1 ? true : \
-    ( lindex>=lsize-1 ? false : \
-			mSqDist( (*lknot)[lindex+1], (*rknot)[rindex] ) \
-			 <= mSqDist( (*lknot)[lindex], (*rknot)[rindex+1] ) ))
+#define mSqDistArr( a, b ) sqdists[(a)*rsize+(b)]
 
-#define mAddKnotIndex( rl, offset ) \
-    if ( rl##idx+offset < rl##size ) \
-	piece.coordindices_ += (*rl##knot)[rl##idx+offset];
+#define mAddConnection( il, ir ) \
+{ \
+    lconn += il; \
+    rconn += ir; \
+    mSqDistArr( il, ir ) = mUdf(float); \
+}
+
+#define mAddTriangle( a, b, c ) \
+{									\
+    triangles->coordindices_ += coordlist_->add( coordlist_->get(a) );	\
+    triangles->coordindices_ += coordlist_->add( coordlist_->get(b) );	\
+    triangles->coordindices_ += coordlist_->add( coordlist_->get(c) );	\
+    triangles->coordindices_ += -1;					\
+    Coord3 vec1 = coordlist_->get( a );					\
+    const Coord3 vec2 = coordlist_->get( b )-vec1;			\
+    vec1 = coordlist_->get( c ) - vec1;					\
+    const Coord3 normal = righthandednormals_				\
+	? vec1.cross( vec2 )						\
+	: vec2.cross( vec1 );						\
+    triangles->normalindices_ += normallist_->add( normal );		\
+}
 
 void ExplFaultStickSurface::fillPanel( int panelidx )
 {
-    if ( !coordlist_ || !normallist_ || !panels_.validIdx(panelidx) || 
-	 !sticks_.validIdx(panelidx+1) || !isrevstick_.validIdx(panelidx+1) )
+    if ( !coordlist_ || !normallist_ || !paneltriangles_.validIdx(panelidx) )
 	return;
 
-    ObjectSet<IndexedGeometry>& panel = *panels_[panelidx];
-    TypeSet<int>* lknot = &sticks_[panelidx]->coordindices_;
-    TypeSet<int>* rknot = &sticks_[panelidx+1]->coordindices_;
-    
-    int lsize = lknot->size(); 
-    int rsize = rknot->size();
+    IndexedGeometry* triangles = paneltriangles_[panelidx];
+    IndexedGeometry* lines = panellines_[panelidx];
 
-    if ( !panel.isEmpty() || !lsize || !rsize )
+    if ( triangles && !triangles->isEmpty() )
+	triangles->removeAll();
+
+    if ( lines && !lines->isEmpty() )
+	lines->removeAll();
+    
+    const TypeSet<int>& lknots = sticks_[panelidx]->coordindices_;
+    const TypeSet<int>& rknots = sticks_[panelidx+1]->coordindices_;
+
+    const int lsize = lknots.size(); 
+    const int rsize = rknots.size();
+
+    if ( !lsize || !rsize )
 	return;
 
     if ( lsize==1 && rsize==1 )
     {
-	panel += new IndexedGeometry( IndexedGeometry::Lines );
-	panel[0]->coordindices_ += (*lknot)[0];
-	panel[0]->coordindices_ += (*rknot)[0];
-	if ( displaypanels_ )
-	    addToGeometries( panel );
+	if ( !lines )
+	{
+	    lines = new IndexedGeometry( IndexedGeometry::Lines );
+	    panellines_.replace( panelidx, lines );
+	    if ( displaypanels_ ) addToGeometries( lines );
+	}
+
+	lines->coordindices_ += lknots[0];
+	lines->coordindices_ += rknots[0];
+
 	return;
     }
 
-    TypeSet<int> rknotreversed;
-    if ( isrevstick_[panelidx] != isrevstick_[panelidx+1] )
+    if ( !triangles )
     {
-	for ( int idx=rsize-1; idx>=0; idx-- )
-	    rknotreversed += (*rknot)[idx];
-
-	rknot = &rknotreversed;
+	triangles = new IndexedGeometry( IndexedGeometry::TriangleStrip );
+	paneltriangles_.replace( panelidx, triangles );
+	if ( displaypanels_ ) addToGeometries( triangles );
     }
 
-    int lidx=0; int ridx=0;
-    bool mirroredpanel = isrevstick_[panelidx];
-	
-    while ( lidx<lsize-1 || ridx<rsize-1 ) 
+    float sqdists[lsize*rsize];
+    for ( int idx=0; idx<lsize; idx++ )
     {
-	if ( !mNextKnotLeft(lidx,ridx) )
+	for ( int idy=0; idy<rsize; idy++ )
 	{
-	    int tmpint;
-	    TypeSet<int>* tmpset;
-	    mSWAP( lknot, rknot, tmpset );
-	    mSWAP( lsize, rsize, tmpint );
-	    mSWAP( lidx, ridx, tmpint );
-	    mirroredpanel = !mirroredpanel;
+	    const float sqdist = mSqDist( lknots[idx], rknots[idy] );
+	    mSqDistArr( idx, idy ) =  sqdist;
 	}
-
-	panel += new IndexedGeometry( IndexedGeometry::TriangleStrip,
-				      IndexedGeometry::PerFace,0,normallist_ );
-	IndexedGeometry& piece = *panel[panel.size()-1];
-	bool mirroredfirstpatch = mirroredpanel;
-	bool finalknotleft = true;
-	
-	if ( mNextKnotLeft(lidx+1,ridx) )
-	{
-	    if ( mNextKnotLeft(lidx+2,ridx) )
-	    {
-		piece.type_ = IndexedGeometry::TriangleFan;
-		mAddKnotIndex( r, 0 );
-		mAddKnotIndex( l, 0 );
-		mAddKnotIndex( l, 1 );
-		mAddKnotIndex( l, 2 );
-		mAddKnotIndex( l, 3 );
-		lidx+=3; 
-	    }
-	    else
-	    {
-		mAddKnotIndex( l, 0 );
-		mAddKnotIndex( l, 1 );
-		mAddKnotIndex( r, 0 );
-		mAddKnotIndex( l, 2 );
-		mAddKnotIndex( r, 1 );
-		lidx+=2; ridx++;
-	    }
-	    finalknotleft = false;
-	    mirroredfirstpatch = !mirroredfirstpatch;
-	}
-	else if ( mNextKnotLeft(lidx+1,ridx+1) )
-	{
-	    mAddKnotIndex( l, 0 );
-	    mAddKnotIndex( r, 0 );
-	    mAddKnotIndex( l, 1 );
-	    mAddKnotIndex( r, 1 );
-	    mAddKnotIndex( l, 2 );
-	    lidx+=2; ridx++;
-	}
-	else
-	{
-	    piece.type_ = IndexedGeometry::TriangleFan;
-	    mAddKnotIndex( l, 1 );
-	    mAddKnotIndex( l, 0 );
-	    mAddKnotIndex( r, 0 );
-	    mAddKnotIndex( r, 1 );
-	    mAddKnotIndex( r, 2 );
-	    lidx++; ridx+=2;
-	}
-
-	while ( lidx<lsize-1 || ridx<rsize-1 )
-	{
-	    if ( mNextKnotLeft(lidx,ridx) )
-	    {
-		mAddKnotIndex( l, 1 );
-		lidx++;
-		if ( finalknotleft ) break;
-	    }
-	    else
-	    {
-		mAddKnotIndex( r, 1 );
-		ridx++;
-		if ( !finalknotleft ) break;
-	    }
-	    
-	    if ( piece.type_ == IndexedGeometry::TriangleStrip )
-		finalknotleft = !finalknotleft;
-	}
-
-	calcNormals( piece, mirroredfirstpatch );
     }
 
-    if ( displaypanels_ )
-	addToGeometries( panel );
+    TypeSet<int> lconn,rconn;
+    mAddConnection( 0, 0 );
+    mAddConnection( lsize-1, rsize-1 );
+
+    while ( true )
+    {
+	float minsqdist;
+	int minl=-1, minr;
+	for ( int idx=0; idx<lsize; idx++ )
+	{
+	    for ( int idy=0; idy<rsize; idy++ )
+	    {
+		const float sqdist = mSqDistArr( idx, idy );
+		if ( mIsUdf(sqdist) )
+		    continue;
+
+		if ( minl!=-1 && sqdist>minsqdist )
+		    continue;
+
+		minl = idx;
+		minr = idy;
+		minsqdist = sqdist;
+	    }
+	}
+
+	if ( minl==-1 )
+	    break;
+
+	mAddConnection( minl, minr );
+	//Remove connections that are not possible anylonger
+	for ( int idx=0; idx<lsize; idx++ )
+	{
+	    if ( idx==minl )
+		continue;
+
+	    for ( int idy=0; idy<rsize; idy++ )
+	    {
+		if ( idy==minr )
+		    continue;
+
+		if ( idx>minl == idy>minr )
+		    continue;
+
+		mSqDistArr( idx, idy ) = mUdf(float);
+	    }
+	}
+    }
+
+    for ( int lidx=0; lidx<lsize; lidx++ )
+    {
+	TypeSet<int> conns;
+	for ( int idx=lconn.size()-1; idx>=0; idx-- )
+	{
+	    if ( lconn[idx]!=lidx )
+		continue;
+
+	    conns += rconn[idx];
+	}
+
+	sort_array( conns.arr(), conns.size() );
+
+	if ( lidx )
+	    mAddTriangle( lknots[lidx], rknots[conns[0]], lknots[lidx-1] );
+
+	for ( int idx=1; idx<conns.size(); idx++ )
+	    mAddTriangle(lknots[lidx],rknots[conns[idx]],rknots[conns[idx-1]]);
+    }
 }
 
 
 void ExplFaultStickSurface::removePanel( int panelidx )
 {
-    if ( panels_.validIdx(panelidx) )
+    if ( paneltriangles_.validIdx(panelidx) )
     {
-	emptyPanel( panelidx );
-	delete panels_.remove( panelidx );
+	removeFromGeometries( paneltriangles_[panelidx] );
+	removeFromGeometries(  panellines_[panelidx] );
+	delete paneltriangles_.remove( panelidx );
+	delete panellines_.remove( panelidx );
     }
 }
 
 
 void ExplFaultStickSurface::insertPanel( int panelidx )
 {
-    if ( panelidx>=0 && panelidx<=panels_.size() )
-	panels_.insertAt( new ObjectSet<IndexedGeometry>, panelidx );
-}
-
-
-void ExplFaultStickSurface::calcNormals( IndexedGeometry& piece,
-					 bool mirroredfirstpatch )
-{
-    if ( !coordlist_ || !normallist_ || piece.type_==IndexedGeometry::Lines )
-	return;
-
-    for ( int idx=2; idx<piece.coordindices_.size(); idx++ )
+    if ( panelidx>=0 && panelidx<=paneltriangles_.size() )
     {
-	Coord3 vec1 = coordlist_->get( piece.coordindices_[idx-1] );
-	Coord3 vec2 = vec1 - coordlist_->get( piece.coordindices_[idx] );
-
-	if ( piece.type_ == IndexedGeometry::TriangleStrip )
-	{
-	    vec1 -= coordlist_->get( piece.coordindices_[idx-2] );
-	    if ( idx%2 == 1 )
-		vec1 = -vec1;
-	}
-	else 
-	    vec1 -= coordlist_->get( piece.coordindices_[0] );
-
-        Coord3 normal = vec1.cross( vec2 );
-	if ( mirroredfirstpatch != righthandednormals_ )
-	    normal = -normal;
-
-	if ( !normal.sqAbs() )
-	    normal = Coord3( 1, 0, 0 );	    
-	
-	piece.normalindices_ += normallist_->add( normal );
+	paneltriangles_.insertAt( 0, panelidx );
+	panellines_.insertAt( 0, panelidx );
     }
 }
 
@@ -561,7 +513,22 @@ void ExplFaultStickSurface::surfaceChange( CallBacker* cb )
 	    removeStick( stickidx );
 	}
     }
-    update();
+}
+
+
+void ExplFaultStickSurface::surfaceMovement( CallBacker* cb )
+{
+    mCBCapsuleUnpack( const TypeSet<GeomPosID>*, pidlist, cb );
+    for ( int idx=0; pidlist && idx<pidlist->size(); idx++ )
+    {
+	RowCol rc;
+	rc.setSerialized( (*pidlist)[idx] );
+	const int stickidx = rc.r();
+
+	emptyPanel( stickidx-1 );
+	emptyPanel( stickidx );
+	emptyStick( stickidx );
+    }
 }
 
 }; // namespace Geometry

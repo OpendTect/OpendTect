@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.5 2008-03-26 13:53:54 cvsjaap Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.6 2008-05-15 20:23:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,12 +32,13 @@ public:
 			ExplFaultStickSurface(FaultStickSurface*,float zscale);
     			~ExplFaultStickSurface();
 
+    bool		needsUpdate() const 		{ return needsupdate_; }
+
     void		setSurface(FaultStickSurface*);
     FaultStickSurface*	getSurface()			{ return surface_; }
     const FaultStickSurface* getSurface() const		{ return surface_; }
 
     void		setZScale( float );
-    void		updateAll();
 
     void		display(bool sticks,bool panels);
     bool		areSticksDisplayed() const    { return displaysticks_; }
@@ -48,28 +49,23 @@ protected:
 
     void		removeAll();
     void		insertAll();
-    void		update();
+    bool		update(bool forceall,TaskRunner*);
     
     void		addToGeometries(IndexedGeometry*);
-    void		addToGeometries(ObjectSet<IndexedGeometry>&);
-    void		removeFromGeometries(const IndexedGeometry* first,
-					     int total=1);
+    void		removeFromGeometries(const IndexedGeometry*);
 
     void		emptyStick(int stickidx);
     void		fillStick(int stickidx);
     void		removeStick(int stickidx);
     void		insertStick(int stickidx);
 
-    void		updateTopology();
-    
     void		emptyPanel(int panelidx);
     void		fillPanel(int panelidx);
     void		removePanel(int panelidx);
     void		insertPanel(int panelidx);
 
-    void		calcNormals(IndexedGeometry&,bool mirrored);
-
     void		surfaceChange(CallBacker*);
+    void		surfaceMovement(CallBacker*);
 
 
     bool		displaysticks_;
@@ -78,9 +74,11 @@ protected:
     FaultStickSurface*	surface_;
     Coord3		scalefacs_;
 
+    bool					needsupdate_;
+
     ObjectSet<IndexedGeometry>			sticks_;
-    BoolTypeSet					isrevstick_;
-    ObjectSet<ObjectSet<IndexedGeometry> >	panels_;
+    ObjectSet<IndexedGeometry>			paneltriangles_;
+    ObjectSet<IndexedGeometry>			panellines_;
 };
 
 };
