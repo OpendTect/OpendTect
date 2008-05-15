@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackgather.cc,v 1.17 2008-02-29 20:38:12 cvskris Exp $";
+static const char* rcsID = "$Id: prestackgather.cc,v 1.18 2008-05-15 18:41:01 cvsyuancheng Exp $";
 
 #include "prestackgather.h"
 
@@ -50,6 +50,10 @@ Gather::Gather( const Gather& gather )
     , iscorr_( gather.iscorr_ )
     , binid_( gather.binid_ )
     , zit_( gather.zit_ )
+    , azimuths_( gather.azimuths_ )
+    , velocitymid_( gather.velocitymid_ )
+    , storagemid_( gather.storagemid_ )
+    , linename_( gather.linename_ )				       
 {}
 
 

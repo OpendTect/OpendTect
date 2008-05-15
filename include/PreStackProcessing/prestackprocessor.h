@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: prestackprocessor.h,v 1.14 2008-05-08 14:04:57 cvskris Exp $
+ RCS:		$Id: prestackprocessor.h,v 1.15 2008-05-15 18:41:01 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -138,6 +138,7 @@ public:
 
     bool			reset();
     				//!<Call when you are about to process new data
+    bool			prepareWork();
     bool			process();
     DataPack::ID		getOutput() const;
 

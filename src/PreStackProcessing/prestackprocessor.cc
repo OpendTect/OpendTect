@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackprocessor.cc,v 1.16 2008-05-08 14:04:57 cvskris Exp $";
+static const char* rcsID = "$Id: prestackprocessor.cc,v 1.17 2008-05-15 18:41:01 cvsyuancheng Exp $";
 
 #include "prestackprocessor.h"
 
@@ -50,6 +50,7 @@ bool Processor::reset()
 
     freeArray( inputs_ );
     freeArray( outputs_ );
+    outputinterest_.erase();
 
     outputs_ += 0;
     outputinterest_ += false;
@@ -59,8 +60,11 @@ bool Processor::reset()
 }
 
 
-bool  Processor::wantsInput(const BinID&) const
-{ return true; }
+bool Processor::wantsInput( const BinID& bid ) const
+{ 
+    const int offset=getRelBidOffset( bid, outputstepout_ );
+    return outputinterest_[offset]; 
+}
 
 void Processor::setInput( const BinID& relbid, DataPack::ID id )
 {
@@ -92,11 +96,13 @@ bool Processor::setOutputInterest( const BinID& relbid, bool yn )
 	 needestepout.crl>outputstepout_.crl )
     {
 	const BinID newstepout( mMAX(outputstepout_.inl,needestepout.inl),
-		                mMAX(outputstepout_.inl,needestepout.inl) );
+		                mMAX(outputstepout_.crl,needestepout.crl) );
 	mPSProcAddStepoutStep( outputs_, ObjectSet<Gather>,
-			       newstepout, outputstepout_ );
+			       outputstepout_, newstepout );
+	mPSProcAddStepoutStep( inputs_, ObjectSet<Gather>,
+			       outputstepout_, newstepout );
 	mPSProcAddStepoutStep( outputinterest_, BoolTypeSet,
-			       newstepout, outputstepout_ );
+			       outputstepout_, newstepout );
 	outputstepout_ = newstepout;
     }
 
@@ -137,7 +143,13 @@ bool Processor::prepareWork()
 	    if ( outputinterest_[outputoffset] )
 	    {
 		const int inputoffset = getRelBidOffset(curpos,inputstepout);
-		Gather* output = createOutputArray(*inputs_[inputoffset] );
+		if ( !inputs_[inputoffset] )
+		{
+		    outputs_ += 0;
+		    continue;
+		}
+
+		Gather* output = createOutputArray(*(inputs_[inputoffset]) );
 		outputs_ += output;
 		DPM( DataPackMgr::FlatID ).addAndObtain( output );
 	    }
@@ -228,7 +240,7 @@ void ProcessManager::setInput( const BinID& relbid, DataPack::ID id )
 }
 
 
-bool ProcessManager::process()
+bool ProcessManager::prepareWork()
 {
     for ( int proc=processors_.size()-1; proc>0; proc-- )
     {
@@ -247,7 +259,13 @@ bool ProcessManager::process()
 	    }
 	}
     }
-    
+
+    return true;
+}
+
+
+bool ProcessManager::process()
+{
     for ( int proc=0; proc<processors_.size(); proc++ )
     {
 	if ( proc )
@@ -374,10 +392,7 @@ bool ProcessManager::usePar( const IOPar& par )
 void Processor::freeArray( ObjectSet<Gather>& arr )
 {
     for ( int idx=0; idx<arr.size(); idx++ )
-    {
-	if ( arr[idx] )
-	    DPM( DataPackMgr::FlatID ).release( arr[idx]->id() );
-    }
+	DPM( DataPackMgr::FlatID ).release( arr[idx] );
 
     arr.erase();
 }
