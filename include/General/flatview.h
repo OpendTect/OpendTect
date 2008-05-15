@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.29 2008-04-23 09:36:19 cvshelene Exp $
+ RCS:           $Id: flatview.h,v 1.30 2008-05-15 19:02:20 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -313,7 +313,7 @@ public:
     void		getAuxInfo(const Point&,IOPar&) const;
     
     virtual Interval<float> getDataRange(bool) const
-    			{ return Interval<float>(-mUdf(float),mUdf(float)); }
+    			{ return Interval<float>(mUdf(float),mUdf(float)); }
 
 protected:
 
