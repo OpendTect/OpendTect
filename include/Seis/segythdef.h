@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segythdef.h,v 1.5 2007-05-08 16:38:21 cvsbert Exp $
+ RCS:		$Id: segythdef.h,v 1.6 2008-05-15 11:12:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ public:
 				unsigned char c=21,
 				unsigned char x=73,
 				unsigned char y=77,
-				unsigned char t=1,
+				unsigned char t=5,
 				unsigned char o=37,
 				unsigned char a=255,
 				unsigned char p=255,
