@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          December 2007
- RCS:           $Id: initmpeengine.cc,v 1.1 2007-12-14 05:10:16 cvssatyaki Exp $
+ RCS:           $Id: initmpeengine.cc,v 1.2 2008-05-15 20:25:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,7 +19,7 @@ ________________________________________________________________________
 void MPEEngine::initStdClasses()
 {
     MPE::FaultEditor::initClass();
-    MPE::FaultTracker::initClass();
+    //MPE::FaultTracker::initClass();
     MPE::HorizonEditor::initClass();
     MPE::Horizon2DTracker::initClass();
     MPE::Horizon3DTracker::initClass();
