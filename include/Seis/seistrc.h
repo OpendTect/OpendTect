@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrc.h,v 1.32 2008-05-15 09:54:57 cvsbert Exp $
+ RCS:		$Id: seistrc.h,v 1.33 2008-05-15 15:27:16 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,8 @@ public:
     			//!< Extends (or shrinks) trace to ZGate
     			//!< Added values can be first/last value of input,
     			//!< or zeros
+
+    static const char*	sKeyExtTrcToSI;
 
 protected:
 
