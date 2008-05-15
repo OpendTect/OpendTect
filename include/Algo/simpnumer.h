@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.26 2008-03-24 15:44:51 cvsyuancheng Exp $
+ RCS:		$Id: simpnumer.h,v 1.27 2008-05-15 19:06:22 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
@@ -82,6 +82,36 @@ int nextPower( int val, int base )
     int res = 1;
     while ( res<val ) res *= base;
     return res;
+}
+
+inline int getPow2Sz(int actsz, bool above=true, int minsz=1, int maxsz=INT_MAX)
+{
+    char npow = 0; char npowextra = actsz == 1 ? 1 : 0;
+    int sz = actsz;
+    while ( sz>1 )
+    {
+	if ( above && !npowextra && sz % 2 )
+	    npowextra = 1;
+	sz /= 2; npow++;
+    }
+    
+    sz = intpow( 2, npow + npowextra );
+    if ( sz<minsz ) sz = minsz;
+    if ( sz>maxsz ) sz = maxsz;
+    return sz;
+}
+
+
+inline int nextPower2( int nr, int minnr, int maxnr )
+{
+    if ( nr>maxnr )
+	return maxnr;
+    
+    int newnr = minnr;
+    while ( nr > newnr )
+	newnr *= 2;
+    
+    return newnr;
 }
 
 
