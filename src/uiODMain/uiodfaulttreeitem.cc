@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodfaulttreeitem.cc,v 1.4 2008-05-09 09:12:01 cvsnanne Exp $
+ RCS:		$Id: uiodfaulttreeitem.cc,v 1.5 2008-05-15 21:58:59 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -59,8 +59,8 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	if ( !emo )
 	    return false;
 
-	uiMPEPartServer* mps = applMgr()->mpeServer();
-	mps->addTracker( emo->id(), Coord3::udf() );
+	//uiMPEPartServer* mps = applMgr()->mpeServer();
+	//mps->addTracker( emo->id(), Coord3::udf() );
 	emo->setName( "<Fault>" );
 	addChild( new uiODFaultTreeItem( emo->id() ), false );
 
@@ -199,7 +199,7 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
     uiODDisplayTreeItem::handleMenuCB(cb);
     mCBCapsuleUnpackWithCaller( int, mnuid, caller, cb );
     mDynamicCastGet(uiMenuHandler*,menu,caller);
-    if ( menu->menuID()!=displayID() || mnuid==-1 || menu->isHandled() )
+    if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
 
     if ( mnuid==saveasmnuitem_.id )
