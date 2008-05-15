@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.43 2008-02-26 09:17:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.44 2008-05-15 13:41:49 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -308,7 +308,9 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
     }
 
     if ( convs_.isEmpty() )
-	mErrRet( "Could not any valid log in file" )
+	mErrRet( "Could not find any valid log in file" )
+    if ( lfi.depthcolnr < 0 )
+	mErrRet( "Could not find a depth column ('DEPT' or 'DEPTH')" )
 
     lfi.zrg.sort();
     const UnitOfMeasure* unmeas = convs_[lfi.depthcolnr];
@@ -325,8 +327,6 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
 	mErrRet( "Only header found; No data" )
     else if ( lfi.lognms.size() < 1 )
 	mErrRet( "No logs present" )
-    else if ( lfi.depthcolnr < 0 )
-	mErrRet( "'DEPTH' not present in file" )
 
     return 0;
 }
