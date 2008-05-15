@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: visnormals.cc,v 1.13 2008-05-14 20:27:19 cvskris Exp $
+ RCS:           $Id: visnormals.cc,v 1.14 2008-05-15 20:13:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,8 +29,8 @@ Normals::Normals()
     , transformation_( 0 )
 {
     normals_->ref();
-    unusednormals_ += 0;
-    //!<To compensate for that the first coord is set by default by coin
+    for ( int idx=normals_->vector.getNum()-1; idx>=0; idx-- )
+	unusednormals_ += 0;
 }
 
 
