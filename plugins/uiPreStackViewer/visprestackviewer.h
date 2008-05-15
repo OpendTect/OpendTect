@@ -7,16 +7,18 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.8 2008-02-05 18:18:15 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.9 2008-05-15 18:55:30 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "vissurvobj.h"
 #include "visobject.h"
+#include "iopar.h"
 
 class IOObj;
 
+namespace PreStack { class ProcessManager; }
 namespace visBase 
 {
     class DepthTabPlaneDragger;
@@ -44,11 +46,16 @@ public:
     void			allowShading(bool yn);
     void			setColor(Color);			
     void			setMultiID(const MultiID& mid);
-    bool			isInlCrl() const { return true; }
-    
+    bool			isInlCrl() const 	{ return true; }
+   
+    				//for 3D only at present
+    bool			doPreProcessing(PreStack::ProcessManager*);
+    IOPar			getPreProcessingPars()	{ return procpars_; }
+
     bool			is3DSeis() const;
     DataPack::ID		getDataPackID() const;
 
+    visBase::FlatViewer*	flatViewer() { return flatviewer_; }
     				//3D case
     bool			setPosition(const BinID&);
     const BinID&		getPosition() const;
@@ -114,14 +121,15 @@ protected:
     visBase::FlatViewer*		flatviewer_;
     visBase::Material*			draggermaterial_;
     visBase::PickStyle*			pickstyle_;
-    
+
     MultiID				mid_;
     visSurvey::PlaneDataDisplay*	section_;
     visSurvey::Seis2DDisplay*		seis2d_;
     int 				trcnr_;
     Coord				basedirection_;
     Coord				seis2dpos_;
-
+    
+    IOPar				procpars_;
     bool				posside_;
     bool				autowidth_;
     float				factor_;

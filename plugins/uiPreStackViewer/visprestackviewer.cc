@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.17 2008-03-24 15:57:15 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.18 2008-05-15 18:55:30 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -14,6 +14,7 @@ _______________________________________________________________________________
 #include "ioman.h"
 #include "iopar.h"
 #include "prestackgather.h"
+#include "prestackprocessor.h"
 #include "seispsioprov.h"
 #include "survinfo.h"
 #include "uimsg.h"
@@ -154,7 +155,58 @@ void  PreStackViewer::setMultiID( const MultiID& mid )
 	section_->getMovementNotifier()->notify(
 		mCB( this, PreStackViewer, sectionMovedCB ) );
 }
- 
+
+
+bool PreStackViewer::doPreProcessing( PreStack::ProcessManager* mgr )
+{
+    if ( !flatviewer_->pack(false) )
+	return true;
+
+    if ( mgr )
+	mgr->fillPar( procpars_);
+
+    if ( !mgr || !mgr->nrProcessors() || !mgr->reset() )
+	return true;
+
+    const BinID stepout = mgr->getInputStepout();
+    if ( !mgr->prepareWork() )
+	return false;
+
+    BinID relbid;
+    for ( relbid.inl=-stepout.inl; relbid.inl<=stepout.inl; relbid.inl++ )
+    {
+	for ( relbid.crl=-stepout.crl; relbid.crl<=stepout.crl; relbid.crl++ )
+	{
+	    if ( !mgr->wantsInput(relbid) )
+		continue;
+	 
+	    const BinID inputbid = bid_ +
+		relbid*BinID(SI().inlStep(),SI().crlStep());
+	    PreStack::Gather* gather = new PreStack::Gather;
+	    if ( !gather->readFrom( mid_, inputbid ) )
+	    {
+		delete gather;
+		continue;
+	    }
+
+	    DPM( DataPackMgr::FlatID ).addAndObtain( gather );
+	    mgr->setInput( relbid, gather->id() );
+	    DPM( DataPackMgr::FlatID ).release( gather );
+	}
+    }
+   
+    if ( !mgr->process() )
+	return false;
+   
+    DataPack::ID newdpid = mgr->getOutput();
+    
+    DPM( DataPackMgr::FlatID ).obtain( newdpid );
+    flatviewer_->setPack( false, newdpid, false );
+    DPM( DataPackMgr::FlatID ).release( newdpid );
+
+    return true;
+}
+
 
 bool PreStackViewer::setPosition( const BinID& nb )
 {
@@ -615,7 +667,7 @@ void PreStackViewer::getMousePosInfo( const visBase::EventInfo& ei,
 
 void PreStackViewer::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 {
-   if ( !section_ && !seis2d_ )
+    if ( !section_ && !seis2d_ )
 	return;
 
     SurveyObject::fillSOPar( par );
