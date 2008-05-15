@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vismpeeditor.h,v 1.8 2005-10-19 15:47:53 cvskris Exp $
+ RCS:		$Id: vismpeeditor.h,v 1.9 2008-05-15 20:27:27 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -16,10 +16,8 @@ ________________________________________________________________________
 #include "visobject.h"
 
 #include "emposid.h"
-#include "geomelement.h"
 
 
-namespace Geometry { class ElementEditor; };
 namespace MPE { class ObjectEditor; };
 namespace EM { class EdgeLineSet; }
 
@@ -46,7 +44,6 @@ public:
     static MPEEditor*	create()
 			mCreateDataObj( MPEEditor );
 
-    void		setEditor( Geometry::ElementEditor* );
     void		setEditor( MPE::ObjectEditor* );
     MPE::ObjectEditor*	getMPEEditor() { return emeditor; }
     void		setSceneEventCatcher( visBase::EventCatcher* );
@@ -82,6 +79,7 @@ public:
 				    \returns wether the main object should
 				    continue to process the event.
 				*/
+    EM::PosID			mouseClickDragger(const TypeSet<int>&) const;
 			
 protected:
     				~MPEEditor();
@@ -99,7 +97,6 @@ protected:
 
     int				rightclicknode;
 
-    Geometry::ElementEditor*	geeditor;
     MPE::ObjectEditor*		emeditor;
 
     visBase::Material*		nodematerial;

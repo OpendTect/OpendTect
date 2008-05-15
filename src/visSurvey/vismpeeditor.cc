@@ -4,12 +4,11 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.25 2008-03-17 21:09:14 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.26 2008-05-15 20:27:27 cvskris Exp $";
 
 #include "vismpeeditor.h"
 
 #include "errh.h"
-#include "geeditor.h"
 #include "emeditor.h"
 #include "emsurface.h"
 #include "emsurfaceedgeline.h"
@@ -31,8 +30,7 @@ namespace visSurvey
 {
 
 MPEEditor::MPEEditor()
-    : geeditor( 0 )
-    , noderightclick( this )
+    : noderightclick( this )
     , emeditor( 0 )
     , eventcatcher( 0 )
     , transformation( 0 )
@@ -65,7 +63,6 @@ MPEEditor::~MPEEditor()
     }
 
 
-    setEditor( (Geometry::ElementEditor*) 0 );
     setEditor( (MPE::ObjectEditor*) 0 );
     setSceneEventCatcher( 0 );
     setDisplayTransformation( 0 );
@@ -78,31 +75,8 @@ MPEEditor::~MPEEditor()
 }
 
 
-void MPEEditor::setEditor( Geometry::ElementEditor* ge )
-{
-    if ( ge ) setEditor( (MPE::ObjectEditor*) 0 );
-    CallBack movementcb( mCB(this,MPEEditor,nodeMovement) );
-    CallBack numnodescb( mCB(this,MPEEditor,changeNumNodes) );
-    if ( geeditor )
-    {
-	geeditor->getElement().movementnotifier.remove( movementcb );
-	geeditor->editpositionchange.remove( numnodescb );
-    }
-
-    geeditor = ge;
-
-    if ( geeditor )
-    {
-	geeditor->getElement().movementnotifier.notify( movementcb );
-	geeditor->editpositionchange.notify( numnodescb );
-	changeNumNodes(0);
-    }
-}
-
-
 void MPEEditor::setEditor( MPE::ObjectEditor* eme )
 {
-    if ( eme ) setEditor( (Geometry::ElementEditor*) 0 );
     CallBack movementcb( mCB(this,MPEEditor,nodeMovement) );
     CallBack numnodescb( mCB(this,MPEEditor,changeNumNodes) );
 
@@ -189,18 +163,8 @@ void MPEEditor::changeNumNodes( CallBacker* )
     TypeSet<EM::PosID> editnodes;
     if ( emeditor )
 	emeditor->getEditIDs( editnodes );
-    else if ( geeditor )
-    {
-	posids.erase();
-	TypeSet<GeomPosID> gpids;
-	geeditor->getEditIDs( gpids );
-	for ( int idy=0; idy<gpids.size(); idy++ )
-	    editnodes += EM::PosID( -1, -1, gpids[idy] );
-    }
     else
-    {
 	posids.erase();
-    }
 
     TypeSet<EM::PosID> nodestoremove( posids );
     nodestoremove.createDifference( editnodes );
@@ -243,12 +207,6 @@ void MPEEditor::addDragger( const EM::PosID& pid )
 	translate2D = emeditor->mayTranslate2D(pid);
 	translate3D = emeditor->mayTranslate3D(pid);
     }
-    else if ( geeditor )
-    {
-	translate1D = geeditor->mayTranslate1D(pid.subID());
-	translate2D = geeditor->mayTranslate2D(pid.subID());
-	translate3D = geeditor->mayTranslate3D(pid.subID());
-    }
     else
 	return;
 
@@ -272,10 +230,8 @@ void MPEEditor::addDragger( const EM::PosID& pid )
     {
 	dragger->setDraggerType( visBase::Dragger::Translate2D );
 	const Coord3 defnormal( 0, 0, 1 );
-	const Coord3 desnormal = emeditor 
-	    ? emeditor->translation2DNormal( pid ).normalize()
-	    : geeditor->translation2DNormal( pid.subID() )
-							    .normalize();
+	const Coord3 desnormal = 
+	    emeditor->translation2DNormal( pid ).normalize().normalize();
 	const float angle = Math::ACos( defnormal.dot(desnormal) );
 	const Coord3 axis = defnormal.cross(desnormal);
 	dragger->setRotation( axis, angle );
@@ -284,10 +240,8 @@ void MPEEditor::addDragger( const EM::PosID& pid )
     {
 	dragger->setDraggerType( visBase::Dragger::Translate1D );
 	const Coord3 defori( 1, 0, 0 );
-	const Coord3 desori = emeditor 
-	    ? emeditor->translation1DDirection( pid ).normalize()
-	    : geeditor->translation1DDirection( pid.subID() )
-								.normalize();
+	const Coord3 desori =
+	    emeditor->translation1DDirection( pid ).normalize().normalize();
 	const float angle = Math::ACos( defori.dot(desori) );
 	const Coord3 axis = defori.cross(desori);
 	dragger->setRotation( axis, angle );
@@ -312,9 +266,7 @@ void MPEEditor::addDragger( const EM::PosID& pid )
     dragger->setOwnShape( shapescale, "translatorActive" );
     shapescale->unRef();
 
-    dragger->setPos( emeditor
-	    ? emeditor->getPosition(pid)
-	    : geeditor->getPosition(pid.subID()) );
+    dragger->setPos( emeditor->getPosition(pid) );
 
     addChild( dragger->getInventorNode() );
 
@@ -331,28 +283,20 @@ void MPEEditor::nodeMovement(CallBacker* cb)
     if ( emeditor )
     {
 	mCBCapsuleUnpack(const EM::EMObjectCallbackData&,cbdata,cb);
-	if ( cbdata.event!=EM::EMObjectCallbackData::PositionChange )
-	    return;
-
-	const int idx = posids.indexOf( cbdata.pid0 );
-	if ( idx==-1 ) return;
-
-	const Coord3 pos = emeditor->getPosition( cbdata.pid0 );
-	updateNodePos( idx,  emeditor->getPosition(cbdata.pid0) );
-    }
-    else if ( geeditor )
-    {
-	TypeSet<GeomPosID> pids;
-	mCBCapsuleUnpack(const TypeSet<GeomPosID>*,gpids,cb);
-	if ( gpids ) pids = *gpids;
-	else geeditor->getEditIDs( pids );
-
-	for ( int idx=0; idx<pids.size(); idx++ )
+	if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
 	{
-	    for ( int idy=0; idy<posids.size(); idy++ )
+	    const int idx = posids.indexOf( cbdata.pid0 );
+	    if ( idx==-1 ) return;
+
+	    const Coord3 pos = emeditor->getPosition( cbdata.pid0 );
+	    updateNodePos( idx, pos );
+	}
+	else if ( cbdata.event==EM::EMObjectCallbackData::BurstAlert )
+	{
+	    for ( int idx=0; idx<posids.size(); idx++ )
 	    {
-		if ( posids[idy].subID()==pids[idx] )
-		    updateNodePos( idy, geeditor->getPosition(pids[idx]));
+		const Coord3 pos = emeditor->getPosition( posids[idx] );
+		updateNodePos( idx, pos );
 	    }
 	}
     }
@@ -421,6 +365,18 @@ bool MPEEditor::clickCB( CallBacker* cb )
 }
 
 
+EM::PosID MPEEditor::mouseClickDragger( const TypeSet<int>& path ) const
+{
+    for ( int idx=draggers.size()-1; idx>=0; idx-- )
+    {
+	if ( path.indexOf(draggers[idx]->id()) != -1 )
+	    return posids[idx];
+    }
+
+    return EM::PosID::udf();
+}
+
+
 int MPEEditor::getRightClickNode() const { return rightclicknode; }
 
 
@@ -438,7 +394,6 @@ void MPEEditor::dragMotion( CallBacker* cb )
     const Coord3 np = draggers[idx]->getPos();
     isdragging = true;
     if ( emeditor ) emeditor->setPosition( np );
-    if ( geeditor ) geeditor->setPosition( posids[idx].subID(), np );
     isdragging = false;
 }
 
