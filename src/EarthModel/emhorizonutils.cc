@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: emhorizonutils.cc,v 1.17 2008-03-20 21:36:32 cvskris Exp $
+ RCS:           $Id: emhorizonutils.cc,v 1.18 2008-05-16 15:12:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -377,19 +377,19 @@ void HorizonUtils::getWantedPos2D( std::ostream& strm,
     mIsEmptyErr( possurf0.isEmpty(), *(midset[0]) )
     mIsEmptyErr( use2hor && possurf1.isEmpty(), *(midset[1]) )
 
-    if ( use2hor )
+    //Remark: multiple sections for the same horizon not fully used here;
+    //	  loop over the different sections but use only the first Z 
+    //	  found for each BinID
+    for ( int secsurf0=0; secsurf0<possurf0.size(); secsurf0++ )
     {
-	//Remark: multiple sections for the same horizon not fully used here;
-	//	  loop over the different sections but use only the first Z 
-	//	  found for each BinID
-	for ( int secsurf0=0; secsurf0<possurf0.size(); secsurf0++ )
+	for (int ptsurf0=0; ptsurf0<possurf0[secsurf0]->size(); ptsurf0++)
 	{
-	    for (int ptsurf0=0; ptsurf0<possurf0[secsurf0]->size(); ptsurf0++)
+	    if ( !horsamp.includes( possurf0[secsurf0]->binID(ptsurf0) ) )
+		continue;
+
+	    const Coord coordsurf0 = possurf0[secsurf0]->coord( ptsurf0 );
+	    if ( use2hor )
 	    {
-		if ( !horsamp.includes( possurf0[secsurf0]->binID(ptsurf0) ) )
-		    continue;
-		const Coord coordsurf0 = possurf0[secsurf0]->coord( ptsurf0 );
-	    
 		for ( int secsurf1=0; secsurf1<possurf1.size(); secsurf1++ )
 		{
 		    DataPointSet::RowID rid = possurf1[secsurf1]->
@@ -407,11 +407,22 @@ void HorizonUtils::getWantedPos2D( std::ostream& strm,
 			break;
 		    }
 		}
-	    }	
-	}
-	dtps->dataChanged();
+	    }
+	    else
+	    {
+		const float z0 = possurf0[secsurf0]->z( ptsurf0 );
+		const float ztop = z0 + extraz.start;
+		const float zbot = z0 + extraz.stop;
+		DataPointSet::Pos pos( coordsurf0, ztop );
+		DataPointSet::DataRow dtrow( pos );
+		dtrow.data_ += zbot;
+		dtps->addRow( dtrow );
+	    }
+	}	
     }
-}
     
+    dtps->dataChanged();
+}
+
 
 };//namespace
