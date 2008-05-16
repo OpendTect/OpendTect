@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseisfmtscale.cc,v 1.20 2008-05-15 15:31:57 cvshelene Exp $
+ RCS:		$Id: uiseisfmtscale.cc,v 1.21 2008-05-16 12:34:53 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -208,7 +208,7 @@ bool uiSeisFmtScale::horOptim() const
 
 bool uiSeisFmtScale::extendTrcToSI() const
 {
-    return compfld_->data_.trcgrow_;
+    return compfld_ ? compfld_->data_.trcgrow_ : false;
 }
 
 
