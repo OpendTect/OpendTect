@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulteditor.cc,v 1.5 2008-05-15 20:26:12 cvskris Exp $";
+static const char* rcsID = "$Id: faulteditor.cc,v 1.6 2008-05-16 22:12:11 cvskris Exp $";
 
 #include "faulteditor.h"
 
@@ -70,6 +70,15 @@ void FaultEditor::getInteractionInfo( EM::PosID& nearestpid0,
 	    return;
 
 	sid = emObject().sectionID( 0 );
+	const Geometry::Element* ge = emObject().sectionGeometry( sid );
+	if ( !ge ) return;
+
+	mDynamicCastGet(const Geometry::FaultStickSurface*,surface,ge);
+	if ( !surface ) return;
+
+	const StepInterval<int> rowrange = surface->rowRange();
+	if ( !rowrange.isUdf() )
+	    return;
 
 	insertpid.setObjectID( emObject().id() );
 	insertpid.setSectionID( sid );
@@ -96,7 +105,9 @@ void FaultEditor::getInteractionInfo( EM::PosID& nearestpid0,
 	insertpid.setObjectID( emObject().id() );
 	insertpid.setSectionID( sid );
 
-	const int newstick = mindist>0 ? stick : stick-rowrange.step;
+	const int newstick = mindist>0
+	    ? stick+rowrange.step
+	    : stick==rowrange.start ? stick-rowrange.step : stick;
 	insertpid.setSubID( RowCol( newstick, 0 ).getSerialized() );
 	return;
     }
@@ -132,14 +143,15 @@ float FaultEditor::getNearestStick( int& stick, EM::SectionID& sid,
 	{
 	    Coord3 avgpos( 0, 0, 0 );
 	    int count = 0;
-	    const StepInterval<int> colrange = surface->colRange( rowrange.atIndex(stickidx) );
+	    const int curstick = rowrange.atIndex(stickidx);
+	    const StepInterval<int> colrange = surface->colRange( curstick );
 	    if ( colrange.isUdf() )
 		continue;
 
 	    for ( int knotidx=colrange.nrSteps(); knotidx>=0; knotidx-- )
 	    {
 		const Coord3 pos = surface->getKnot(
-		  RowCol(rowrange.atIndex(stickidx),colrange.atIndex(knotidx)));
+		  RowCol(curstick,colrange.atIndex(knotidx)));
 
 		if ( pos.isDefined() )
 		{
@@ -153,7 +165,7 @@ float FaultEditor::getNearestStick( int& stick, EM::SectionID& sid,
 
 	    avgpos /= count;
 
-	    const Plane3 plane( surface->getEditPlaneNormal(stickidx),
+	    const Plane3 plane( surface->getEditPlaneNormal(curstick),
 		    		avgpos, false );
 	    const float disttoplane =
 		plane.distanceToPoint( mCompareCoord(mousepos), true );
@@ -161,7 +173,7 @@ float FaultEditor::getNearestStick( int& stick, EM::SectionID& sid,
 	    if ( selsectionidx==-1 || fabs(disttoplane)<fabs(mindist) )
 	    {
 		mindist = disttoplane;
-		selstick = rowrange.atIndex( stickidx );
+		selstick = curstick;
 		selsectionidx = sectionidx;
 	    }
 	}
@@ -171,7 +183,7 @@ float FaultEditor::getNearestStick( int& stick, EM::SectionID& sid,
 	return mUdf(float);
 
     sid = emObject().sectionID( selsectionidx );
-    stick =  selstick;
+    stick = selstick;
 
     return mindist;
 }
