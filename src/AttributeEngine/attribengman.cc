@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.81 2008-05-15 15:31:56 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.82 2008-05-16 15:10:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -967,6 +967,9 @@ Processor* EngineMan::create2DVarZOutput( BufferString& errmsg,
 {
     PtrMan<IOPar> output = pars.subselect( "Output.1" );
     const char* linename = output->find(sKey::LineKey);
+    if ( !linename )
+	linename = pars.find( IOPar::compKey(sKey::Geometry,sKey::LineKey) );
+
     setLineKey( linename );
 
     Processor* proc = getProcessor( errmsg );
