@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.5 2008-05-15 20:21:33 cvskris Exp $
+RCS:           $Id: indexedshape.h,v 1.6 2008-05-16 13:37:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "sets.h"
 #include "thread.h"
 
+class Coord2List;
 class Coord3List;
 class TaskRunner;
 
@@ -30,7 +31,8 @@ public:
     enum	NormalBinding { PerVertex, PerFace };
 
     		IndexedGeometry(Type,NormalBinding=PerFace,
-				Coord3List* coords=0, Coord3List* normals=0);
+				Coord3List* coords=0, Coord3List* normals=0,
+				Coord2List* texturecoords=0);
 		/*!<If coords or normals are given, used indices will be
 		    removed when object deleted or removeAll is called. If
 		    multiple geometries are sharing the coords/normals, 
@@ -47,12 +49,14 @@ public:
     NormalBinding	normalbinding_;
 
     TypeSet<int>	coordindices_;
+    TypeSet<int>	texturecoordindices_;
     TypeSet<int>	normalindices_;
 
     mutable bool	ischanged_;
 
 protected:
     Coord3List*		coordlist_;
+    Coord2List*		texturecoordlist_;
     Coord3List*		normallist_;
 };
 

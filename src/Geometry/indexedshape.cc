@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: indexedshape.cc,v 1.3 2008-05-15 20:21:33 cvskris Exp $";
+static const char* rcsID = "$Id: indexedshape.cc,v 1.4 2008-05-16 13:37:31 cvskris Exp $";
 
 #include "indexedshape.h"
 
@@ -15,15 +15,18 @@ namespace Geometry
 
 
 IndexedGeometry::IndexedGeometry( Type type, NormalBinding nb,
-				  Coord3List* coords, Coord3List* normals )
+				  Coord3List* coords, Coord3List* normals,
+				  Coord2List* texturecoordlist )
     : coordlist_( coords )
     , type_( type )
     , normalbinding_( nb )
+    , texturecoordlist_( texturecoordlist )
     , normallist_( normals )
     , ischanged_( true )
 {
-    if ( coordlist_ ) coordlist_->ref();
-    if ( normallist_ ) normallist_->ref();
+    if ( coordlist_ )		coordlist_->ref();
+    if ( normallist_ )		normallist_->ref();
+    if ( texturecoordlist_ )	texturecoordlist_->ref();
 }
 
 
@@ -34,6 +37,7 @@ IndexedGeometry::~IndexedGeometry()
     Threads::MutexLocker lock( lock_ );
     if ( coordlist_ ) coordlist_->unRef(); coordlist_ = 0;
     if ( normallist_ ) normallist_->unRef(); normallist_ = 0;
+    if ( texturecoordlist_ ) texturecoordlist_->unRef(); texturecoordlist_=0;
 }
 
 void IndexedGeometry::removeAll()
@@ -61,11 +65,23 @@ void IndexedGeometry::removeAll()
 	}
     }
 
-    if ( coordindices_.size() || normalindices_.size() )
+    if ( texturecoordlist_ )
+    {
+	for ( int idx=texturecoordindices_.size()-1; idx>=0; idx-- )
+	{
+	    if ( texturecoordindices_[idx]<0 )
+		continue;
+
+	    texturecoordlist_->remove( texturecoordindices_[idx] );
+	}
+    }
+
+    if ( coordindices_.size() || normalindices_.size() || texturecoordindices_.size() )
 	ischanged_ = true;
 
     coordindices_.erase();
     normalindices_.erase();
+    texturecoordindices_.erase();
 }
 
 
