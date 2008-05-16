@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.14 2008-05-16 14:53:57 cvskris Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.15 2008-05-16 18:11:05 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -156,7 +156,7 @@ void ExplFaultStickSurface::insertAll()
     for ( int idx=0; idx<=surface_->rowRange().nrSteps(); idx++ )
     {
 	insertStick( idx );
-	if ( idx ) insertPanel( idx-1 );
+	insertPanel( idx );
     }
 }
 
@@ -242,21 +242,23 @@ DataPack::ID ExplFaultStickSurface::getDataPointSet() const
 { return DataPack::cNoID; }
 
 
-void ExplFaultStickSurface::addToGeometries( IndexedGeometry* piece )
+void ExplFaultStickSurface::addToGeometries( IndexedGeometry* ig )
 {
+    if ( !ig ) return;
     geometrieslock_.writeLock();
-    if ( geometries_.indexOf( piece )!=-1 )
+    if ( geometries_.indexOf( ig )!=-1 )
     {
 	pErrMsg("Adding more than once");
     }
-    piece->ischanged_ = true;
-    geometries_ += piece;
+    ig->ischanged_ = true;
+    geometries_ += ig;
     geometrieslock_.writeUnLock();
 }
 
 
 void ExplFaultStickSurface::removeFromGeometries( const IndexedGeometry* ig )
 {
+    if ( !ig ) return;
     geometrieslock_.writeLock();
     const int idx = geometries_.indexOf( ig );
 
@@ -302,25 +304,28 @@ void ExplFaultStickSurface::fillStick( int stickidx )
 
 void ExplFaultStickSurface::removeStick( int stickidx )
 {
-    if ( sticks_.validIdx(stickidx) )
-    {
-	removeFromGeometries( sticks_[stickidx] );
-	delete sticks_.remove( stickidx );
-    }
+    if ( !sticks_.validIdx(stickidx) )
+	return;
+
+    removeFromGeometries( sticks_[stickidx] );
+    delete sticks_.remove( stickidx );
+    needsupdate_ = true;
 }
 
 
 void ExplFaultStickSurface::insertStick( int stickidx )
 {
-    if ( stickidx>=0 || stickidx<=sticks_.size() )
-    {
-	sticks_.insertAt(
-	    new IndexedGeometry(IndexedGeometry::Lines,
-		IndexedGeometry::PerFace,coordlist_,normallist_),
-	    stickidx);
-	if ( displaysticks_ )
-	    addToGeometries( sticks_[stickidx] );
-    }
+    if ( stickidx<0 || stickidx>sticks_.size() )
+	return;
+
+    sticks_.insertAt(
+	new IndexedGeometry(IndexedGeometry::Lines,
+	    IndexedGeometry::PerFace,coordlist_,normallist_),
+	stickidx);
+
+    if ( displaysticks_ ) addToGeometries( sticks_[stickidx] );
+
+    needsupdate_ = true;
 }
 
 
@@ -495,23 +500,25 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 
 void ExplFaultStickSurface::removePanel( int panelidx )
 {
-    if ( paneltriangles_.validIdx(panelidx) )
-    {
-	removeFromGeometries( paneltriangles_[panelidx] );
-	removeFromGeometries(  panellines_[panelidx] );
-	delete paneltriangles_.remove( panelidx );
-	delete panellines_.remove( panelidx );
-    }
+    if ( !paneltriangles_.validIdx(panelidx) )
+	return;
+
+    removeFromGeometries( paneltriangles_[panelidx] );
+    removeFromGeometries(  panellines_[panelidx] );
+    delete paneltriangles_.remove( panelidx );
+    delete panellines_.remove( panelidx );
+    needsupdate_ = true;
 }
 
 
 void ExplFaultStickSurface::insertPanel( int panelidx )
 {
-    if ( panelidx>=0 && panelidx<=paneltriangles_.size() )
-    {
-	paneltriangles_.insertAt( 0, panelidx );
-	panellines_.insertAt( 0, panelidx );
-    }
+    if ( panelidx<0 || panelidx>paneltriangles_.size() )
+	return;
+
+    paneltriangles_.insertAt( 0, panelidx );
+    panellines_.insertAt( 0, panelidx );
+    needsupdate_ = true;
 }
 
 
