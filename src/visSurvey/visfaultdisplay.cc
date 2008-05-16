@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.11 2008-05-15 20:28:25 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.12 2008-05-16 22:36:04 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.11 2008-05-15 20:28:25 c
 #include "mpeengine.h"
 #include "randcolor.h"
 #include "survinfo.h"
+#include "viscoord.h"
 #include "visdragger.h"
 #include "visevent.h"
 #include "visgeomindexedshape.h"
@@ -27,6 +28,7 @@ static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.11 2008-05-15 20:28:25 c
 #include "vismultitexture2.h"
 #include "vismpeeditor.h"
 #include "visplanedatadisplay.h"
+#include "vispolyline.h"
 #include "visshapehints.h"
 #include "vistransform.h"
 
@@ -40,15 +42,24 @@ namespace visSurvey
 
 FaultDisplay::FaultDisplay()
     : emfault_( 0 )
-    , displaysurface_( 0 )
+    , neareststickmarker_( visBase::IndexedPolyLine3D::create() )
+    , paneldisplay_( 0 )
+    , stickdisplay_( 0 )
     , viseditor_( 0 )
     , faulteditor_( 0 )
     , eventcatcher_( 0 )
-    , explicitsurface_( 0 )
+    , explicitpanels_( 0 )
+    , explicitsticks_( 0 )
     , displaytransform_( 0 )
-    , mousepos_( Coord3::udf() )
+    , neareststick_( mUdf(int) )
     , shapehints_( visBase::ShapeHints::create() )
 {
+    neareststickmarker_->ref();
+    neareststickmarker_->setRadius( 20 );
+    if ( !neareststickmarker_->getMaterial() )
+	neareststickmarker_->setMaterial( visBase::Material::create() );
+    addChild( neareststickmarker_->getInventorNode() );
+
     setColor( getRandomColor( false ) );
     getMaterial()->setAmbience( 0.2 );
     shapehints_->ref();
@@ -66,10 +77,14 @@ FaultDisplay::~FaultDisplay()
     if ( faulteditor_ ) faulteditor_->unRef();
     faulteditor_ = 0;
 
-    if ( displaysurface_ )
-	displaysurface_->unRef();
+    if ( paneldisplay_ )
+	paneldisplay_->unRef();
 
-    delete explicitsurface_;
+    if ( stickdisplay_ )
+	stickdisplay_->unRef();
+
+    delete explicitpanels_;
+    delete explicitsticks_;
 
     if ( emfault_ )
     {
@@ -79,6 +94,8 @@ FaultDisplay::~FaultDisplay()
 
     if ( displaytransform_ ) displaytransform_->unRef();
     shapehints_->unRef();
+
+    neareststickmarker_->unRef();
 }
 
 
@@ -125,7 +142,8 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     mDynamicCastGet( EM::Fault*, emfault, emobject.ptr() );
     if ( !emfault )
     {
-	if ( displaysurface_ ) displaysurface_->turnOn( false );
+	if ( paneldisplay_ ) paneldisplay_->turnOn( false );
+	if ( stickdisplay_ ) stickdisplay_->turnOn( false );
 	return false;
     }
 
@@ -134,32 +152,53 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     emfault_->ref();
 
     getMaterial()->setColor( emfault_->preferredColor() );
+    neareststickmarker_->getMaterial()->setColor(
+	    emfault_->preferredColor().complementaryColor() );
     if ( !emfault_->name().isEmpty() )
 	setName( emfault_->name() );
 
-    if ( !displaysurface_ )
+    if ( !paneldisplay_ )
     {
-	displaysurface_ = visBase::GeomIndexedShape::create();
-	displaysurface_->ref();
-	displaysurface_->setDisplayTransformation( displaytransform_ );
-	displaysurface_->setMaterial( 0 );
-	displaysurface_->setSelectable( false );
-	displaysurface_->setRightHandSystem( righthandsystem_ );
-	addChild( displaysurface_->getInventorNode() );
+	paneldisplay_ = visBase::GeomIndexedShape::create();
+	paneldisplay_->ref();
+	paneldisplay_->setDisplayTransformation( displaytransform_ );
+	paneldisplay_->setMaterial( 0 );
+	paneldisplay_->setSelectable( false );
+	paneldisplay_->setRightHandSystem( righthandsystem_ );
+	addChild( paneldisplay_->getInventorNode() );
     }
 
-    if ( !explicitsurface_ )
+    if ( !stickdisplay_ )
+    {
+	stickdisplay_ = visBase::GeomIndexedShape::create();
+	stickdisplay_->ref();
+	stickdisplay_->setDisplayTransformation( displaytransform_ );
+	stickdisplay_->setMaterial( 0 );
+	stickdisplay_->setSelectable( false );
+	stickdisplay_->setRightHandSystem( righthandsystem_ );
+	addChild( stickdisplay_->getInventorNode() );
+    }
+
+
+    if ( !explicitpanels_ )
     {
 	const float zscale = SI().zFactor() * scene_->getZScale();
-	explicitsurface_ = new Geometry::ExplFaultStickSurface( 0, zscale );
+	explicitpanels_ = new Geometry::ExplFaultStickSurface( 0, zscale );
+	explicitpanels_->display( false, true );
+	explicitsticks_ = new Geometry::ExplFaultStickSurface( 0, zscale );
+	explicitsticks_->display( true, false );
     }
 
     mDynamicCastGet( Geometry::FaultStickSurface*, fss,
 		     emfault_->sectionGeometry( emfault_->sectionID(0)) );
 
-    explicitsurface_->setSurface( fss ); 
-    displaysurface_->setSurface( explicitsurface_ );
-    displaysurface_->touch( true );
+    explicitpanels_->setSurface( fss ); 
+    paneldisplay_->setSurface( explicitpanels_ );
+    paneldisplay_->touch( true );
+
+    explicitsticks_->setSurface( fss ); 
+    stickdisplay_->setSurface( explicitsticks_ );
+    stickdisplay_->touch( true );
 
     if ( !viseditor_ )
     {
@@ -177,7 +216,8 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 
     viseditor_->setEditor( faulteditor_ );
     
-    displaysurface_->turnOn( true );
+    paneldisplay_->turnOn( true );
+    stickdisplay_->turnOn( true );
 
     return true;
 }
@@ -206,22 +246,23 @@ Color FaultDisplay::getColor() const
 
 void FaultDisplay::display( bool sticks, bool panels )
 {
-    if ( explicitsurface_ )
-	explicitsurface_->display( sticks, panels );
-    if ( displaysurface_ )
-	displaysurface_->touch( false );
+    if ( stickdisplay_ )
+	stickdisplay_->turnOn( sticks );
+
+    if ( paneldisplay_ )
+	paneldisplay_->turnOn( panels );
 }
 
 
 bool FaultDisplay::areSticksDisplayed() const
 {
-    return explicitsurface_ ? explicitsurface_->areSticksDisplayed() : false;
+    return stickdisplay_ ? stickdisplay_->isOn() : false;
 }
 
 
 bool FaultDisplay::arePanelsDisplayed() const
 {
-    return explicitsurface_ ? explicitsurface_->arePanelsDisplayed() : false;
+    return paneldisplay_ ? paneldisplay_->isOn() : false;
 }
 
 
@@ -260,8 +301,10 @@ int FaultDisplay::usePar( const IOPar& par )
 
 void FaultDisplay::setDisplayTransformation(visBase::Transformation* nt)
 {
-    if ( displaysurface_ ) displaysurface_->setDisplayTransformation( nt );
+    if ( paneldisplay_ ) paneldisplay_->setDisplayTransformation( nt );
+    if ( stickdisplay_ ) stickdisplay_->setDisplayTransformation( nt );
     if ( viseditor_ ) viseditor_->setDisplayTransformation( nt );
+    neareststickmarker_->setDisplayTransformation( nt );
 
     if ( displaytransform_ ) displaytransform_->unRef();
     displaytransform_ = nt;
@@ -272,7 +315,8 @@ void FaultDisplay::setDisplayTransformation(visBase::Transformation* nt)
 void FaultDisplay::setRightHandSystem(bool yn)
 {
     visBase::VisualObjectImpl::setRightHandSystem( yn );
-    if ( displaysurface_ ) displaysurface_->setRightHandSystem( yn );
+    if ( paneldisplay_ ) paneldisplay_->setRightHandSystem( yn );
+    if ( stickdisplay_ ) stickdisplay_->setRightHandSystem( yn );
 }
 
 
@@ -309,14 +353,25 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	}
     }
 
+    if ( locked_ )
+	return;
+
     Coord3 pos = eventinfo.displaypickedpos;
     pos = scene_->getZScaleTransform()->transformBack( pos ); 
     if ( displaytransform_ ) pos = displaytransform_->transformBack( pos ); 
 
-    if ( mousepos_ != pos )
+    EM::PosID nearestpid0, nearestpid1, insertpid;
+    faulteditor_->getInteractionInfo( nearestpid0, nearestpid1, insertpid,
+	    			      pos, SI().zFactor() );
+
+    const int neareststick = nearestpid0.isUdf()
+	? mUdf(int)
+	: RowCol(insertpid.subID()).row;
+
+    if ( neareststick_!=neareststick )
     {
-	mousepos_ = pos;
-	//updateKnotMarkerColor( pos );
+	neareststick_ = neareststick;
+	updateNearestStickMarker();
     }
 
     if ( !pos.isDefined() )
@@ -334,11 +389,12 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 		viseditor_->mouseClickDragger( eventinfo.pickedobjids );
 	    if ( !pid.isUdf() )
 	    {
-		const int stick = RowCol(pid.subID()).row;
-		if ( emfault_->geometry().nrKnots(pid.sectionID(),stick)==1 )
+		const int removestick = RowCol(pid.subID()).row;
+		if ( emfault_->geometry().nrKnots(
+			    pid.sectionID(),removestick)==1 )
 		{
-		    emfault_->geometry().removeStick( pid.sectionID(), stick,
-			    			      true );
+		    emfault_->geometry().removeStick( pid.sectionID(),
+			    			      removestick, true );
 		}
 		else
 		{
@@ -346,7 +402,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 			    			     pid.subID(), true );
 		}
 
-		displaysurface_->touch( false );
+		paneldisplay_->touch( false );
+		stickdisplay_->touch( false );
 	    }
 	}
 	eventcatcher_->setHandled();
@@ -359,10 +416,6 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	 !OD::leftMouseButton(eventinfo.buttonstate_) )
 	return;
 
-    EM::PosID nearestpid0, nearestpid1, insertpid;
-    faulteditor_->getInteractionInfo( nearestpid0, nearestpid1, insertpid,
-	    			      pos, SI().zFactor() );
-
     if ( insertpid.isUdf() )
 	return;
 
@@ -370,16 +423,22 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     {
 	//Add Stick
 	Coord3 editnormal(0,0,1);
+	if ( mouseplanecs.isEmpty() )
+	    return;
+
+	const int insertstick = insertpid.isUdf()
+	    ? mUdf(int)
+	    : RowCol(insertpid.subID()).row;
+
 	if (  mouseplanecs.defaultDir()==CubeSampling::Inl )
 	    editnormal = Coord3( SI().binID2Coord().rowDir(), 0);
 	else if ( mouseplanecs.defaultDir()==CubeSampling::Crl ) 
 	    editnormal = Coord3( SI().binID2Coord().colDir(), 0 );
 
-	const RowCol rc( insertpid.subID() );
-    
-	emfault_->geometry().insertStick( insertpid.sectionID(), rc.row,
+	emfault_->geometry().insertStick( insertpid.sectionID(), insertstick,
 					  pos, editnormal, true );
-	displaysurface_->touch( false );
+	paneldisplay_->touch( false );
+	stickdisplay_->touch( false );
 	faulteditor_->editpositionchange.trigger();
     }
     else
@@ -401,172 +460,64 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
 	 cbdata.event==EM::EMObjectCallbackData::SectionChange ||
 	 cbdata.event==EM::EMObjectCallbackData::PositionChange )
     {
-	displaysurface_->touch( false );
+	if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
+	{
+	     if ( RowCol(cbdata.pid0.subID()).row==neareststick_ )
+		updateNearestStickMarker();
+	}
+	else
+	    updateNearestStickMarker();
+
+	paneldisplay_->touch( false );
+	stickdisplay_->touch( false );
     }
 }
 
 
-static int stickNrDist( const EM::PosID& knot1, const EM::PosID& knot2 )
+void FaultDisplay::updateNearestStickMarker()
 {
-   if ( knot1.objectID()!=knot2.objectID() || knot1.objectID()==-1 )
-       return mUdf(int);
-   if ( knot1.sectionID() != knot2.sectionID() )
-       return mUdf(int);
-   RowCol rc1; rc1.setSerialized( knot1.subID() );
-   RowCol rc2; rc2.setSerialized( knot2.subID() );
-   return abs( rc1.row-rc2.row );
-}
-
-
-bool FaultDisplay::segmentInPlane( const EM::PosID& knot1,
-				   const EM::PosID& knot2,
-				   const CubeSampling* plane ) const
-{
-    if ( !emfault_ || stickNrDist(knot1,knot2) )
-	return false;
-    if ( !plane )
-	return true;
-
-    RowCol rc; rc.setSerialized( knot1.subID() );
-    Coord3 editnormal =
-	emfault_->geometry().getEditPlaneNormal( knot1.sectionID(), rc.row );
-    CubeSampling::Dir dir = plane->defaultDir();
-
-    if ( dir==CubeSampling::Z && fabs(editnormal.z)<0.5 )
-	return false;
-    
-    editnormal.z = 0;
-    editnormal.normalize();
-    const float abscos = fabs( SI().binID2Coord().rowDir().dot(editnormal) );
-
-    if ( dir==CubeSampling::Inl && abscos<M_SQRT1_2 ||
-	 dir==CubeSampling::Crl && abscos>=M_SQRT1_2 )
-	return false;
-   
-    CubeSampling wideplane( *plane );
-    wideplane.zrg.widen( 0.5*wideplane.zrg.step );
-	    
-    const Coord3 pos1 = emfault_->getPos( knot1 );
-    const BinID bid1 = SI().transform( pos1 );
-    if ( wideplane.hrg.includes(bid1) && wideplane.zrg.includes(pos1.z) )
-	return true;	
-    
-    const Coord3 pos2 = emfault_->getPos( knot2 );
-    const BinID bid2 = SI().transform( pos2 );
-    if ( wideplane.hrg.includes(bid2) && wideplane.zrg.includes(pos2.z) )
-	return true;	
-
-    // TODO: intersecting segments with both end points outside cubesampling
-
-    return false;
-}
-
-
-float FaultDisplay::nearestStickSegment( const Coord3& displaypos,
-					 Coord3& nearestpos,
-       					 EM::PosID& knot1, EM::PosID& knot2,
-					 const CubeSampling* plane,
-					 const bool* verticaldir,
-					 const EM::PosID* stickpid ) const
-{
-    nearestpos = Coord3::udf();
-    knot1=EM::PosID::udf(); knot2=EM::PosID::udf();
-    
-    EM::PosID prevpid( EM::PosID::udf() );
-    Coord3 prevpos;
-    
-    float mindist=MAXFLOAT; float mincos=0;
-
-    if ( !emfault_ )
-	return mindist;
-
-    PtrMan<EM::EMObjectIterator> iter = emfault_->geometry().createIterator(-1);
-    while ( true )
+    if ( mIsUdf(neareststick_) )
+	neareststickmarker_->turnOn( false );
+    else
     {
-	const EM::PosID pid = iter->next();
+	mDynamicCastGet( Geometry::FaultStickSurface*, fss,
+			 emfault_->sectionGeometry( emfault_->sectionID(0)) );
 
-	if ( pid.objectID() != -1 )
+	const StepInterval<int> rowrg = fss->rowRange();
+	if ( rowrg.isUdf() || !rowrg.includes(neareststick_) )
 	{
-	    const bool onverticalstick = 
-		emfault_->geometry().areSticksVertical( pid.sectionID() );
-
-	    if ( verticaldir && *verticaldir!=onverticalstick )
-	       continue;	
-	    if ( stickpid && stickNrDist(*stickpid,pid) )
-		continue;
+	    neareststickmarker_->turnOn( false );
+	    return;
 	}
 
-	Coord3 pos = emfault_->getPos( pid ); 
-	if ( displaytransform_ ) 
-	    pos = displaytransform_->transform( pos ); 
-	pos = scene_->getZScaleTransform()->transform( pos ); 
-	
-	const Coord3 vec1 = displaypos - prevpos;
-	const Coord3 vec2 = displaypos - pos;
-	const float d1 = vec1.abs();
-	const float d2 = vec2.abs();
-	
-	if ( stickNrDist(prevpid,pid) )
+	const StepInterval<int> colrg = fss->colRange( neareststick_ );
+	if ( colrg.isUdf() || colrg.start==colrg.stop )
 	{
-	    if ( d1<=mindist && segmentInPlane(prevpid,prevpid,plane) )
-	    {							
-		mindist=d1; mincos=0;			 /* Stick end */
-		nearestpos = prevpos;
-		knot1=prevpid; knot2=knot1;
-		knot2.setSubID( knot1.subID()+1 );
-	    }	
-
-	    if ( pid.objectID() == -1 )
-		break;
-
-	    if ( d2 <= mindist && segmentInPlane(pid,pid,plane) )			
-	    {
-		mindist=d2; mincos=0;			 /* Stick begin */
-		nearestpos = pos;
-		knot1=pid; knot2=knot1;
-		knot2.setSubID( knot1.subID()-1 );
-	    }	
+	    neareststickmarker_->turnOn( false );
+	    return;
 	}
-	else if ( segmentInPlane(prevpid,pid,plane) )
+
+	neareststickmarker_->removeCoordIndexAfter(-1);
+	neareststickmarker_->getCoordinates()->removeAfter(-1);
+
+	int idx = 0;
+	RowCol rc( neareststick_, 0 );
+	for ( rc.col=colrg.start; rc.col<=colrg.stop; rc.col += colrg.step )
 	{
-	    const Coord3 vec0 = prevpos - pos;		/* Stick segment */
-	    const float d0 = vec0.abs();
-	    const float cos1 = d1*d0 ?  vec1.dot(vec0)/(d1*d0) : 0;
-	    const float cos2 = d2*d0 ? -vec2.dot(vec0)/(d2*d0) : 0;
-
-	    const Coord3 cross = vec1.cross( vec2 );
-	    float dist = d0 ? cross.abs()/d0 : d1;
-	    float cos = 0;
-
-	    if ( cos1 > 0 )
-	    {
-		dist=d1; cos=cos1;
-	    }
-	    else if ( cos2 > 0 )
-	    {
-		dist=d2; cos=cos2;
-	    }
-
-	    if ( dist<mindist || dist==mindist && cos<mincos )
-	    {
-		mindist = dist; mincos = cos;
-		knot1 = d1 < d2 ? prevpid : pid;
-		knot2 = d1 < d2 ? pid : prevpid;
-		
-		nearestpos = dist==d1 ? prevpos :
-		   ( dist==d2 ? pos : pos + vec0*(sqrt(d2*d2-dist*dist)/d0) ); 
-	    }
+	    const Coord3 pos = fss->getKnot( rc );
+	    const int ci = neareststickmarker_->getCoordinates()->addPos( pos );
+	    neareststickmarker_->setCoordIndex( idx++, ci );
 	}
-	prevpid=pid; prevpos=pos;
+
+	neareststickmarker_->turnOn( true );
     }
-
-    return mindist;
 }
 
 
 void FaultDisplay::showManipulator( bool yn )
 {
     viseditor_->turnOn( yn );
+    neareststickmarker_->turnOn( yn );
 }
 
 

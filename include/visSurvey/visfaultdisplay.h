@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.4 2008-05-15 20:28:25 cvskris Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.5 2008-05-16 22:36:04 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -26,6 +26,7 @@ namespace visBase
     class GeomIndexedShape;
     class Transformation;
     class ShapeHints;
+    class IndexedPolyLine3D;
 };
 
 namespace EM { class Fault; }
@@ -37,7 +38,7 @@ namespace visSurvey
 {
 class MPEEditor;
 
-/*!\brief Used for displaying welltracks, markers and logs
+/*!\brief 
 
 
 */
@@ -101,34 +102,24 @@ protected:
     void			mouseCB(CallBacker*);
     void			emChangeCB(CallBacker*);
 
-    bool			segmentInPlane(const EM::PosID& knot1,
-	                                       const EM::PosID& knot2,
-					       const CubeSampling* plane) const;
+    void 			updateNearestStickMarker();
 
-    float			nearestStickSegment(const Coord3& displaypos,
-	    				Coord3& nearestpos,
-					EM::PosID& knot1,EM::PosID& knot2,
-					const CubeSampling* plane=0,
-					const bool* verticaldir=0,
-					const EM::PosID* stickpid=0) const;
-
-    void			getNearestKnots(TypeSet<EM::PosID>&) const;
-
-    EM::PosID			getMarkerPid( const Coord3& markerpos );
-    void			setEditID(const EM::PosID&);
-
-    void 			updateKnotMarkers();
-    void			updateKnotMarkerColor( const Coord3& mousepos );
-
-    visBase::GeomIndexedShape*		displaysurface_;
     visBase::EventCatcher*		eventcatcher_;
-
-    Geometry::ExplFaultStickSurface*	explicitsurface_;
-    EM::Fault*				emfault_;
-    visSurvey::MPEEditor*		viseditor_;
-    MPE::FaultEditor*			faulteditor_;
-    visBase::ShapeHints*		shapehints_;
     visBase::Transformation*		displaytransform_;
+    visBase::ShapeHints*		shapehints_;
+
+    visBase::GeomIndexedShape*		paneldisplay_;
+    Geometry::ExplFaultStickSurface*	explicitpanels_;
+
+    visBase::GeomIndexedShape*		stickdisplay_;
+    Geometry::ExplFaultStickSurface*	explicitsticks_;
+
+    visBase::IndexedPolyLine3D*		neareststickmarker_;
+    int					neareststick_;
+
+    EM::Fault*				emfault_;
+    MPE::FaultEditor*			faulteditor_;
+    visSurvey::MPEEditor*		viseditor_;
 
     Coord3				mousepos_;
 };
