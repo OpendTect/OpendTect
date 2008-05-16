@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.6 2008-05-15 20:23:14 cvskris Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.7 2008-05-16 14:53:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "indexedshape.h"
 #include "position.h"
+#include "rowcol.h"
+#include "datapack.h"
 
 class RCol;
 
@@ -44,6 +46,13 @@ public:
     bool		areSticksDisplayed() const    { return displaysticks_; }
     bool		arePanelsDisplayed() const    { return displaypanels_; }
 
+    void		setMaximumTextureSize(const RowCol&);
+    void		setTexturePowerOfTwo(bool yn);
+    void		setTextureSampling(const BinIDValue&);
+    const RowCol&	getTextureSize() const;
+
+    DataPack::ID	getDataPointSet() const;
+
 protected:
     friend		class ExplFaultStickSurfaceUpdater;    
 
@@ -67,6 +76,7 @@ protected:
     void		surfaceChange(CallBacker*);
     void		surfaceMovement(CallBacker*);
 
+    bool		updateTextureSize() 			{ return true; }
 
     bool		displaysticks_;
     bool		displaypanels_;
@@ -77,8 +87,14 @@ protected:
     bool					needsupdate_;
 
     ObjectSet<IndexedGeometry>			sticks_;
+    TypeSet<int>				texturerows_;
     ObjectSet<IndexedGeometry>			paneltriangles_;
     ObjectSet<IndexedGeometry>			panellines_;
+
+    RowCol					maximumtexturesize_;
+    RowCol					texturesize_;
+    bool					textrurepot_;
+    BinIDValue					texturesampling_;
 };
 
 };

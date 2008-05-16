@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.13 2008-05-15 22:04:57 cvskris Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.14 2008-05-16 14:53:57 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -86,6 +86,9 @@ ExplFaultStickSurface::ExplFaultStickSurface( FaultStickSurface* surf,
     , displaypanels_( true )
     , scalefacs_( 1, 1, zscale )
     , needsupdate_( true )
+    , maximumtexturesize_( 1024, 1024 )
+    , texturesize_( mUdf(int), mUdf(int) )
+    , textrurepot_( true )
 {
     paneltriangles_.allowNull( true );
     panellines_.allowNull( true );
@@ -173,6 +176,9 @@ bool ExplFaultStickSurface::update( bool forceall, TaskRunner* tr )
     if ( (tr && !tr->execute( *updater ) ) || !updater->execute() )
 	return false;
 
+    if ( !updateTextureSize() )
+	return false;
+
     //Now do panels
     updater = new ExplFaultStickSurfaceUpdater( *this, false );
 
@@ -218,6 +224,22 @@ void ExplFaultStickSurface::display( bool ynsticks, bool ynpanels )
 
     displaypanels_ = ynpanels;
 }
+
+
+void ExplFaultStickSurface::setMaximumTextureSize( const RowCol& rc )
+{ maximumtexturesize_=rc; }
+
+
+void ExplFaultStickSurface::setTexturePowerOfTwo( bool yn )
+{ textrurepot_ = yn; }
+
+
+const RowCol& ExplFaultStickSurface::getTextureSize() const
+{ return texturesize_; }
+
+
+DataPack::ID ExplFaultStickSurface::getDataPointSet() const
+{ return DataPack::cNoID; }
 
 
 void ExplFaultStickSurface::addToGeometries( IndexedGeometry* piece )
