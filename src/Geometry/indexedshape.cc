@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: indexedshape.cc,v 1.4 2008-05-16 13:37:31 cvskris Exp $";
+static const char* rcsID = "$Id: indexedshape.cc,v 1.5 2008-05-16 16:03:29 cvskris Exp $";
 
 #include "indexedshape.h"
 
@@ -16,7 +16,7 @@ namespace Geometry
 
 IndexedGeometry::IndexedGeometry( Type type, NormalBinding nb,
 				  Coord3List* coords, Coord3List* normals,
-				  Coord2List* texturecoordlist )
+				  Coord3List* texturecoordlist )
     : coordlist_( coords )
     , type_( type )
     , normalbinding_( nb )
@@ -94,17 +94,17 @@ bool IndexedGeometry::isEmpty() const
 IndexedShape::IndexedShape()
     : coordlist_( 0 )
     , normallist_( 0 )
+    , texturecoordlist_( 0 )
     , righthandednormals_( true )
 {}
 
 
 IndexedShape::~IndexedShape()
-{
-    setCoordList( 0, 0 );
-}
+{ setCoordList( 0, 0, 0 ); }
 
 
-void IndexedShape::setCoordList( Coord3List* cl,Coord3List* nl )
+void IndexedShape::setCoordList( Coord3List* cl, Coord3List* nl,
+       				 Coord3List* tcl )
 {
     removeAll();
 
@@ -115,6 +115,10 @@ void IndexedShape::setCoordList( Coord3List* cl,Coord3List* nl )
     if ( normallist_ ) normallist_->unRef();
     normallist_ = nl;
     if ( normallist_ ) normallist_->ref();
+
+    if ( texturecoordlist_ ) texturecoordlist_->unRef();
+    texturecoordlist_ = tcl;
+    if ( texturecoordlist_ ) texturecoordlist_->ref();
 }
 
 
