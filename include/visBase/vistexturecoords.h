@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vistexturecoords.h,v 1.4 2004-11-16 14:24:20 kristofer Exp $
+ RCS:		$Id: vistexturecoords.h,v 1.5 2008-05-16 16:04:10 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visdata.h"
+#include "positionlist.h"
 
 class SoTextureCoordinate3;
 class Coord3;
@@ -38,7 +39,10 @@ public:
     void			setCoord( int,  const Coord& );
     int				addCoord( const Coord3& );
     int				addCoord( const Coord& );
+    Coord3			getCoord( int ) const;
     void			removeCoord( int );
+
+    int				nextID(int previd) const;
 
     SoNode*			getInventorNode();
 
@@ -47,11 +51,29 @@ protected:
     int				getFreeIdx();
     				/*!< Object should be locked before calling */
 
-    SoTextureCoordinate3*	coords;
-    TypeSet<int>		unusedcoords;
-    Threads::Mutex&		mutex;
+    SoTextureCoordinate3*	coords_;
+    TypeSet<int>		unusedcoords_;
+    Threads::Mutex&		mutex_;
 };
 
+
+class TextureCoordListAdapter : public Coord3List
+{
+public:
+    			TextureCoordListAdapter(TextureCoords&);
+
+    int			nextID(int previd) const;
+    Coord3		get(int id) const;
+    void		set(int id,const Coord3&);
+    int			add(const Coord3&);
+    void		remove(int id);
+
+protected:
+    			~TextureCoordListAdapter();
+
+    TextureCoords&	texturecoords_;
 };
+
+}; //namespace
 
 #endif
