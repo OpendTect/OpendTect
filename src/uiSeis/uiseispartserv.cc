@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.86 2008-05-13 13:58:23 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.87 2008-05-16 11:38:10 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ ________________________________________________________________________
 #include "uiseisiosimple.h"
 #include "uiseisfileman.h"
 #include "uiseisioobjinfo.h"
+#include "uiseisrandto2dline.h"
 #include "uiseissegyimpexp.h"
 #include "uiseissel.h"
 #include "uiseiswvltimp.h"
@@ -243,5 +244,6 @@ void uiSeisPartServer::getStoredGathersList( bool for3d,
 
 void uiSeisPartServer::storeRlnAs2DLine( const Geometry::RandomLine& rln ) const
 {
-    uiMSG().error( "TODO" );
+    uiSeisRandTo2DLineDlg dlg( appserv().parent(), rln );
+    dlg.go();
 }
