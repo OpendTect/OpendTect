@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          December 2005
- RCS:           $Id: visgridlines.cc,v 1.10 2008-05-13 05:34:32 cvssatyaki Exp $
+ RCS:           $Id: visgridlines.cc,v 1.11 2008-05-16 06:26:59 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,38 +96,48 @@ void GridLines::adjustGridCS()
 {
     if ( !planecs_.isDefined() || !gridcs_.isDefined() )
 	return;
-    while ( planecs_.hrg.start.inl > gridcs_.hrg.start.inl ) 
-	gridcs_.hrg.start.inl += gridcs_.hrg.step.inl;
-    while( planecs_.hrg.start.inl < gridcs_.hrg.start.inl -
-				    gridcs_.hrg.step.inl )
-	gridcs_.hrg.start.inl -= gridcs_.hrg.step.inl;
 
-    while( planecs_.hrg.stop.inl > gridcs_.hrg.stop.inl +
-				   gridcs_.hrg.step.inl )
-	gridcs_.hrg.stop.inl += gridcs_.hrg.step.inl;
-    while( planecs_.hrg.stop.inl < gridcs_.hrg.stop.inl )
-	gridcs_.hrg.stop.inl -= gridcs_.hrg.step.inl;
+    const HorSampling& phs = planecs_.hrg;
+    HorSampling& ghs = gridcs_.hrg;
+
+    while ( phs.start.inl > ghs.start.inl ) 
+	ghs.start.inl += ghs.step.inl;
     
-    while( planecs_.hrg.start.crl > gridcs_.hrg.start.crl )
-	gridcs_.hrg.start.crl += gridcs_.hrg.step.crl;
-    while( planecs_.hrg.start.crl < gridcs_.hrg.start.crl -
-				    gridcs_.hrg.step.crl )
-	gridcs_.hrg.start.crl -= gridcs_.hrg.step.crl;
-    while( planecs_.hrg.stop.crl > gridcs_.hrg.stop.crl +
-				    gridcs_.hrg.step.crl )
-	gridcs_.hrg.stop.crl += gridcs_.hrg.step.crl;
-    while( planecs_.hrg.stop.crl < gridcs_.hrg.stop.crl )
-	gridcs_.hrg.stop.crl -= gridcs_.hrg.step.crl;
+    while ( phs.start.inl < ghs.start.inl -
+			    ghs.step.inl )
+	ghs.start.inl -= ghs.step.inl;
 
-    while( planecs_.zrg.start > gridcs_.zrg.start )
+    while ( phs.stop.inl > ghs.stop.inl +
+			   ghs.step.inl )
+	ghs.stop.inl += ghs.step.inl;
+
+    while ( phs.stop.inl < ghs.stop.inl )
+	ghs.stop.inl -= ghs.step.inl;
+    
+    while ( phs.start.crl > ghs.start.crl )
+	ghs.start.crl += ghs.step.crl;
+
+    while ( phs.start.crl < ghs.start.crl -
+			    ghs.step.crl )
+	ghs.start.crl -= ghs.step.crl;
+
+    while ( phs.stop.crl > ghs.stop.crl +
+				    ghs.step.crl )
+	ghs.stop.crl += ghs.step.crl;
+
+    while ( phs.stop.crl < ghs.stop.crl )
+	ghs.stop.crl -= ghs.step.crl;
+
+    while ( planecs_.zrg.start > gridcs_.zrg.start )
 	gridcs_.zrg.start += gridcs_.zrg.step;
-    while( planecs_.zrg.start < gridcs_.zrg.start -
-				gridcs_.zrg.step )
+
+    while ( planecs_.zrg.start < gridcs_.zrg.start - gridcs_.zrg.step )
 	gridcs_.zrg.start -= gridcs_.zrg.step;
-    while( planecs_.zrg.stop > gridcs_.zrg.stop +
-			       gridcs_.zrg.step )
+    
+    while ( planecs_.zrg.stop > gridcs_.zrg.stop + gridcs_.zrg.step )
 	gridcs_.zrg.stop += gridcs_.zrg.step;
-    while( planecs_.zrg.stop < gridcs_.zrg.stop )
+
+    while ( planecs_.zrg.stop < gridcs_.zrg.stop )
 	gridcs_.zrg.stop -= gridcs_.zrg.step;
 }
     
