@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          May 2007
- RCS:           $Id: tutorialattrib.cc,v 1.4 2007-07-05 06:36:21 cvsraman Exp $
+ RCS:           $Id: tutorialattrib.cc,v 1.5 2008-05-19 13:04:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 #include "tutorialattrib.h"
 #include "attribdataholder.h"
 #include "attribdesc.h"
+#include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribparamgroup.h"

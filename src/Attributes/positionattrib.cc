@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2002
- RCS:           $Id: positionattrib.cc,v 1.24 2007-11-09 16:53:52 cvshelene Exp $
+ RCS:           $Id: positionattrib.cc,v 1.25 2008-05-19 13:04:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "attribdataholder.h"
 #include "attribdesc.h"
+#include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribsteering.h"

@@ -4,11 +4,12 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.24 2007-11-09 16:53:52 cvshelene Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.25 2008-05-19 13:04:49 cvshelene Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
 #include "attribdesc.h"
+#include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribsteering.h"

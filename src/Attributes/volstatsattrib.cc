@@ -4,12 +4,13 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.38 2007-11-09 16:53:52 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.39 2008-05-19 13:04:49 cvshelene Exp $";
 
 #include "volstatsattrib.h"
 
 #include "attribdataholder.h"
 #include "attribdesc.h"
+#include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "attribsteering.h"

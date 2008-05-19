@@ -4,12 +4,13 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: coherencyattrib.cc,v 1.22 2008-04-16 09:42:42 cvshelene Exp $";
+static const char* rcsID = "$Id: coherencyattrib.cc,v 1.23 2008-05-19 13:04:49 cvshelene Exp $";
 
 
 #include "coherencyattrib.h"
 #include "attribdataholder.h"
 #include "attribdesc.h"
+#include "attribdescset.h"
 #include "attribfactory.h"
 #include "attribparam.h"
 #include "ptrman.h"
