@@ -14,6 +14,8 @@
 #include <Inventor/elements/SoModelMatrixElement.h>
 #include <Inventor/elements/SoTextureCoordinateBindingElement.h>
 #include <Inventor/elements/SoViewingMatrixElement.h>
+#include <Inventor/elements/SoViewVolumeElement.h>
+#include <Inventor/elements/SoViewportRegionElement.h>
 #include <Inventor/system/gl.h>
 
 
@@ -29,6 +31,7 @@ SoIndexedLineSet3D::SoIndexedLineSet3D()
 {
     SO_NODE_CONSTRUCTOR(SoIndexedLineSet3D);
     SO_NODE_ADD_FIELD( radius, (5.0) );
+    SO_NODE_ADD_FIELD( screenSize, (true) );
 }
 
 
@@ -93,7 +96,7 @@ void SoIndexedLineSet3D::generateCoordinates( SoAction* action,
     mat.multVecMatrix(celem->get3(index2), c2 );
 
     SbVec3f squarecoords1[4];
-    if ( !getEdgeStartCoords( c1, c2, squarecoords1) )
+    if ( !getEdgeStartCoords( c1, c2, squarecoords1, action->getState() ) )
 	return;
 
     mSaveJoint( nrjoints, squarecoords1, false, c1-c2 );
@@ -141,7 +144,7 @@ void SoIndexedLineSet3D::generateCoordinates( SoAction* action,
 }
 
 bool SoIndexedLineSet3D::getEdgeStartCoords( const SbVec3f& edgecoord,
-		const SbVec3f& coord2, SbVec3f* res )
+		const SbVec3f& coord2, SbVec3f* res, SoState* state )
 {
     if ( edgecoord==coord2 ) return false;
 
@@ -168,11 +171,24 @@ bool SoIndexedLineSet3D::getEdgeStartCoords( const SbVec3f& edgecoord,
 
     const SbVec3f counternormal = line.getDirection().cross(planenormal);
 
-    float rad = radius.getValue();
-    res[0] = edgecoord-planenormal*rad;
-    res[1] = edgecoord+counternormal*rad;
-    res[2] = edgecoord+planenormal*rad;
-    res[3] = edgecoord-counternormal*rad;
+    const float rad = radius.getValue();
+    float scaleby = rad;
+    if ( screenSize.getValue() )
+    {
+	const SbViewportRegion& vp = SoViewportRegionElement::get(state);
+
+	const float nsize = rad/ float(vp.getViewportSizePixels()[1]);
+
+	const SbViewVolume& vv = SoViewVolumeElement::get(state);
+	float scalefactor = vv.getWorldToScreenScale(edgecoord, nsize);
+	scaleby = scaleby * scalefactor;
+    }
+
+    res[0] = edgecoord-planenormal*scaleby;
+    res[1] = edgecoord+counternormal*scaleby;
+    res[2] = edgecoord+planenormal*scaleby;
+    res[3] = edgecoord-counternormal*scaleby;
+
     return true;
 }
 

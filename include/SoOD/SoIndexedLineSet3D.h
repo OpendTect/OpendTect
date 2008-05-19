@@ -4,6 +4,7 @@
 #include <Inventor/nodes/SoIndexedShape.h>
 
 #include <Inventor/fields/SoSFFloat.h>
+#include <Inventor/fields/SoSFBool.h>
 
 class SbBox3f;
 class SbVec3f;
@@ -17,6 +18,7 @@ public:
     			SoIndexedLineSet3D();
 
     SoSFFloat		radius;
+    SoSFBool		screenSize;
 
 protected:
     void		generatePrimitives(SoAction*);
@@ -26,7 +28,7 @@ protected:
 private:
     bool	getEdgeStartCoords( const SbVec3f& edgecoord,
 	    			    const SbVec3f& coord2,
-				    SbVec3f* res);
+				    SbVec3f* res, SoState* );
     void	generateTriangles( SoAction*, bool render );
     void	generateCoordinates( SoAction*, int startindex,
 	    			     SbList<SbVec3f>&, SbList<SbVec3f>&,
