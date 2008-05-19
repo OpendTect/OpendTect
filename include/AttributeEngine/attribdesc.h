@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attribdesc.h,v 1.42 2008-04-18 14:56:22 cvshelene Exp $
+ RCS:           $Id: attribdesc.h,v 1.43 2008-05-19 11:29:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,17 +18,13 @@ ________________________________________________________________________
 #include "seistype.h"
 #include "attribdescid.h"
 
-//only usefull for backward compatibility 2.4
-#include "attribdescset.h"
-
-class DataInpSpec;
-class MultiID;
 
 namespace Attrib
 {
 
 class Desc;
 class Param;
+class DescSet;
 class ValParam;
 
 typedef void(*DescStatusUpdater)(Desc&);
