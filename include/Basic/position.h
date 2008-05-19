@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.50 2008-05-16 11:31:25 cvsraman Exp $
+ RCS:		$Id: position.h,v 1.51 2008-05-19 06:24:12 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,7 +50,6 @@ public:
 
     void	fill(char*) const;
     bool	use(const char*);
-    double	distTo( const Coord& b ) const;
     
     static const Coord&		udf();
 };
