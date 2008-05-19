@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: posfilterstd.h,v 1.3 2008-02-28 08:25:25 cvsbert Exp $
+ RCS:           $Id: posfilterstd.h,v 1.4 2008-05-19 15:53:49 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -30,8 +30,8 @@ public:
 			RandomFilter( const RandomFilter& rf )
 			    : passratio_(rf.passratio_)	{}
 
-    bool		initialize()	{ reset(); return true; }
-    void		reset()		{ initStats(); }
+    bool		initialize( TaskRunner* tr=0 )	{ reset(); return true; }
+    void		reset()				{ initStats(); }
 
     virtual void	usePar(const IOPar&);
     virtual void	fillPar(IOPar&) const;
