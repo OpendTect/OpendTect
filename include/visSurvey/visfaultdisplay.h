@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.5 2008-05-16 22:36:04 cvskris Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.6 2008-05-19 21:16:03 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -25,6 +25,7 @@ namespace visBase
 {
     class GeomIndexedShape;
     class Transformation;
+    class PickStyle;
     class ShapeHints;
     class IndexedPolyLine3D;
 };
@@ -114,6 +115,7 @@ protected:
     visBase::GeomIndexedShape*		stickdisplay_;
     Geometry::ExplFaultStickSurface*	explicitsticks_;
 
+    visBase::PickStyle*			neareststickmarkerpickstyle_;
     visBase::IndexedPolyLine3D*		neareststickmarker_;
     int					neareststick_;
 

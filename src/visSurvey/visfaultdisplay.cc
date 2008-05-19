@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.12 2008-05-16 22:36:04 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.13 2008-05-19 21:16:03 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -27,6 +27,7 @@ static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.12 2008-05-16 22:36:04 c
 #include "vismarker.h"
 #include "vismultitexture2.h"
 #include "vismpeeditor.h"
+#include "vispickstyle.h"
 #include "visplanedatadisplay.h"
 #include "vispolyline.h"
 #include "visshapehints.h"
@@ -53,11 +54,16 @@ FaultDisplay::FaultDisplay()
     , displaytransform_( 0 )
     , neareststick_( mUdf(int) )
     , shapehints_( visBase::ShapeHints::create() )
+    , neareststickmarkerpickstyle_( visBase::PickStyle::create() )
 {
+    neareststickmarkerpickstyle_->ref();
+    neareststickmarkerpickstyle_->setStyle( visBase::PickStyle::Unpickable );
+
     neareststickmarker_->ref();
-    neareststickmarker_->setRadius( 20 );
+    neareststickmarker_->setRadius( 1, true );
     if ( !neareststickmarker_->getMaterial() )
 	neareststickmarker_->setMaterial( visBase::Material::create() );
+    neareststickmarker_->insertNode( neareststickmarkerpickstyle_->getInventorNode() );
     addChild( neareststickmarker_->getInventorNode() );
 
     setColor( getRandomColor( false ) );
@@ -96,6 +102,7 @@ FaultDisplay::~FaultDisplay()
     shapehints_->unRef();
 
     neareststickmarker_->unRef();
+    neareststickmarkerpickstyle_->unRef();
 }
 
 
@@ -151,9 +158,9 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     emfault_->change.notify( mCB(this,FaultDisplay,emChangeCB) );
     emfault_->ref();
 
-    getMaterial()->setColor( emfault_->preferredColor() );
+    getMaterial()->setColor( emfault_->preferredColor() * 0.8);
     neareststickmarker_->getMaterial()->setColor(
-	    emfault_->preferredColor().complementaryColor() );
+	    emfault_->preferredColor() );
     if ( !emfault_->name().isEmpty() )
 	setName( emfault_->name() );
 
@@ -192,12 +199,12 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     mDynamicCastGet( Geometry::FaultStickSurface*, fss,
 		     emfault_->sectionGeometry( emfault_->sectionID(0)) );
 
-    explicitpanels_->setSurface( fss ); 
     paneldisplay_->setSurface( explicitpanels_ );
+    explicitpanels_->setSurface( fss ); 
     paneldisplay_->touch( true );
 
-    explicitsticks_->setSurface( fss ); 
     stickdisplay_->setSurface( explicitsticks_ );
+    explicitsticks_->setSurface( fss ); 
     stickdisplay_->touch( true );
 
     if ( !viseditor_ )
@@ -232,7 +239,8 @@ MultiID FaultDisplay::getMultiID() const
 void FaultDisplay::setColor( Color nc )
 {
     if ( emfault_ ) emfault_->setPreferredColor(nc);
-    getMaterial()->setColor( nc );
+    getMaterial()->setColor( nc*0.8 );
+    neareststickmarker_->getMaterial()->setColor( nc );
 }
 
 
@@ -241,7 +249,7 @@ NotifierAccess* FaultDisplay::materialChange()
 
 
 Color FaultDisplay::getColor() const
-{ return getMaterial()->getColor(); }
+{ return neareststickmarker_->getMaterial()->getColor(); }
 
 
 void FaultDisplay::display( bool sticks, bool panels )
