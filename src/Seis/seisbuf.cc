@@ -4,11 +4,13 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.40 2008-04-14 21:15:24 cvskris Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.41 2008-05-19 15:54:33 cvsbert Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
 #include "seistrc.h"
+#include "seisread.h"
+#include "seisselection.h"
 #include "ptrman.h"
 #include "sorting.h"
 #include "flatposdata.h"
@@ -470,4 +472,32 @@ bool SeisTrcBufDataPack::getCubeSampling( CubeSampling& cs ) const
 const char* SeisTrcBufDataPack::dimName( bool dim0 ) const
 {
     return dim0 ? eString(SeisTrcInfo::Fld,posfld_) : "Z";
+}
+
+
+SeisBufReader::SeisBufReader( SeisTrcReader& rdr, SeisTrcBuf& buf )
+    : Executor("Collecting traces")
+    , rdr_(rdr)
+    , buf_(buf)
+    , totnr_(-1)
+    , msg_("Reading traces")
+{
+    if ( rdr.selData() && !rdr.selData()->isAll() )
+	totnr_ = rdr.selData()->expectedNrTraces( rdr.is2D() );
+}
+
+
+int SeisBufReader::nextStep()
+{
+    SeisTrc* newtrc = new SeisTrc;
+
+    int res = rdr_.get( newtrc->info() );
+    if ( res > 1 ) return Executor::MoreToDo;
+    if ( res == 0 ) return Executor::Finished;
+
+    if ( res < 0 || !rdr_.get(*newtrc) )
+	{ msg_ = rdr_.errMsg(); return Executor::ErrorOccurred; }
+
+    buf_.add( newtrc );
+    return Executor::MoreToDo;
 }

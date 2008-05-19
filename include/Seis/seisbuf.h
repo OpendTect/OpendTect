@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.17 2007-10-17 04:46:59 cvsnanne Exp $
+ RCS:		$Id: seisbuf.h,v 1.18 2008-05-19 15:54:33 cvsbert Exp $
 ________________________________________________________________________
 
 */
 
 
 #include "seisinfo.h"
+#include "executor.h"
+class SeisTrcReader;
 
 
 /*!\brief set of seismic traces.
@@ -76,6 +78,27 @@ protected:
     bool		owner_;
 
     int			probableIdx(const BinID&,bool is2d) const;
+
+};
+
+
+class SeisBufReader : public Executor
+{
+public:
+    			SeisBufReader(SeisTrcReader&,SeisTrcBuf&);
+
+    const char*		message() const		{ return msg_.buf(); }
+    const char*		nrDoneText() const	{ return "Traces read"; }
+    int			nrDone() const		{ return buf_.size(); }
+    int			totalNr() const		{ return totnr_; }
+    int			nextStep();
+
+protected:
+
+    SeisTrcReader&	rdr_;
+    SeisTrcBuf&		buf_;
+    int			totnr_;
+    BufferString	msg_;
 
 };
 
