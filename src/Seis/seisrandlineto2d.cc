@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: seisrandlineto2d.cc,v 1.1 2008-05-16 11:35:20 cvsraman Exp $
+ RCS:		$Id: seisrandlineto2d.cc,v 1.2 2008-05-19 06:25:43 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,7 @@ SeisRandLineTo2D::SeisRandLineTo2D( IOObj* inobj, IOObj* outobj,
 	Coord stoppos = SI().transform( stopbid );
 	const double dist = startpos.distTo( stoppos );
 	const double unitdist = SI().inlDistance();
-	const int nrsegs = (int) ( dist / unitdist );
+	const int nrsegs = mNINT( dist / unitdist );
 	const float unitx = ( stoppos.x - startpos.x ) / nrsegs;
 	const float unity = ( stoppos.y - startpos.y ) / nrsegs;
 	for ( int nidx=1; nidx<nrsegs; nidx++ )
