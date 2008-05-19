@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: uiseisrandto2dline.cc,v 1.1 2008-05-16 11:38:10 cvsraman Exp $
+ RCS:		$Id: uiseisrandto2dline.cc,v 1.2 2008-05-19 06:27:05 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "linekey.h"
 #include "seisrandlineto2d.h"
 #include "seistrctr.h"
+#include "survinfo.h"
 #include "uigeninput.h"
 #include "uimsg.h"
 #include "uiseissel.h"
@@ -72,6 +73,13 @@ bool uiSeisRandTo2DLineDlg::acceptOK( CallBacker* )
     LineKey lk( linenm, attrnm );
     SeisRandLineTo2D exec( inctio_.ioobj, outctio_.ioobj, lk, trcinp, randln_ );
     uiTaskRunner dlg( this );
-    return dlg.execute( exec );
+    if ( !dlg.execute(exec) )
+	return false;
+    
+    if ( !SI().has2D() )
+	uiMSG().warning( "You need to change survey type to 'Both 2D and 3D'"
+	       		 " to display the 2D line" );
+
+    return true;
 }
 
