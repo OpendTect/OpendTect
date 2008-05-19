@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: shiftattrib.cc,v 1.25 2008-05-19 13:04:49 cvshelene Exp $";
+static const char* rcsID = "$Id: shiftattrib.cc,v 1.26 2008-05-19 13:14:13 cvsbert Exp $";
 
 #include "shiftattrib.h"
 #include "attribdataholder.h"
@@ -61,6 +61,19 @@ Shift::Shift( Desc& desc_ )
     mGetFloat( time_, timeStr() );
     mGetBool( dosteer_, steeringStr() );
 
+    init();
+}
+
+
+void Shift::set( const BinID& bid, float z, bool dosteer )
+{
+    pos_ = bid; time_ = z; dosteer_ = dosteer;
+    init();
+}
+
+
+void Shift::init()
+{
     stepout_ = BinID( abs(pos_.inl), abs(pos_.crl) );
 
     interval_.start = time_<0 ? time_/zFactor() : 0;

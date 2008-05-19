@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: shiftattrib.h,v 1.13 2007-11-09 16:53:51 cvshelene Exp $
+ RCS:           $Id: shiftattrib.h,v 1.14 2008-05-19 13:14:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,10 +48,13 @@ public:
 
     void			prepPriorToBoundsCalc();
 
+    void			set(const BinID&,float,bool dosteer);
+
 protected:
     				~Shift() {}
     static Provider*		createInstance(Desc&);
     static void			updateDesc(Desc&);
+    void			init();
 
     bool			allowParallelComputation() const
     				{ return false; }
