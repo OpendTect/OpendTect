@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolyline.h,v 1.10 2007-07-02 12:10:24 cvsraman Exp $
+ RCS:		$Id: vispolyline.h,v 1.11 2008-05-19 21:15:03 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -65,7 +65,7 @@ public:
 				mCreateDataObj(IndexedPolyLine3D);
 
     float			getRadius() const;
-    void			setRadius(float);
+    void			setRadius(float,bool constantonscreen=true);
 };
 
 
