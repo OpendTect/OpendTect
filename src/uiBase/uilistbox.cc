@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.88 2008-03-31 16:36:00 cvsjaap Exp $
+ RCS:           $Id: uilistbox.cc,v 1.89 2008-05-20 12:19:57 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -175,16 +175,21 @@ void uiListBoxBody::activateSelect( const TypeSet<int>& selectset )
 }
 
 
+#define mSetCurListItem() \
+    if ( maxSelectable()>0 ) \
+    { \
+	clearSelection(); \
+	item( actidx_ )->setSelected( true ); \
+	handle_.selectionChanged.trigger(); \
+    }
+
 bool uiListBoxBody::event( QEvent* ev )
 {
     if ( ev->type() == sQEventActClick ) 
     {
-	if ( maxSelectable()>0 && actidx_>=0 && actidx_<count() )
+	if ( actidx_>=0 && actidx_<count() )
 	{
-	    clearSelection();
-	    item( actidx_ )->setSelected( true );
-	    handle_.selectionChanged.trigger();
-
+	    mSetCurListItem();
 	    if ( actdoubleclick_ )
 		handle_.doubleClicked.trigger();
 	    else if ( actleftclick_ )
@@ -198,9 +203,7 @@ bool uiListBoxBody::event( QEvent* ev )
 	if ( handle_.isItemCheckable(actidx_) )
 	{
 	    handle_.setItemChecked( actidx_, !handle_.isItemChecked(actidx_) );
-	    clearSelection();
-	    item( actidx_ )->setSelected( true );
-	    handle_.selectionChanged.trigger();
+	    mSetCurListItem();
 	}
     }
     else if ( ev->type() == sQEventActSelect )
