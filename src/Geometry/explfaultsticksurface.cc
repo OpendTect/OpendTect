@@ -4,16 +4,108 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.15 2008-05-16 18:11:05 cvskris Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.16 2008-05-20 17:00:49 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
+#include "arrayndinfo.h"
 #include "task.h"
 #include "faultsticksurface.h"
 #include "positionlist.h"
 #include "sorting.h"
 
 namespace Geometry {
+
+
+class ExplFaultStickTexturePositionExtracter : public ParallelTask
+{
+public:
+ExplFaultStickTexturePositionExtracter( ExplFaultStickSurface& efss )
+    : explsurf_( efss )
+    , sz_( efss.getTextureSize() )
+{}
+
+    
+int totalNr() const
+{
+    const RowCol& sz = explsurf_.getTextureSize();
+    return sz.row * sz.col;
+}
+
+
+int minThreadSize() const { return 100; }
+
+#define mStick	0
+#define mKnot	1
+
+bool doWork( int start, int stop, int )
+{
+    const RowCol& sz = explsurf_.getTextureSize();
+    const Array2DInfoImpl ainfo( sz.row, sz.col );
+
+    int curpos[2];
+    if ( !ainfo.getArrayPos( start, curpos ) )
+	return false;
+
+    ArrayNDIter iter( ainfo );
+    iter.setPos( curpos );
+
+    const TypeSet<int>& texturerows = explsurf_.texturerows_;
+
+    for ( int idx=start; idx<=stop; idx++, reportNrDone() )
+    {
+	int panelidx = -1;
+	int stickidx = -1;
+	for ( int idy=0; idy<texturerows.size()-1; idy++ )
+	{
+	    if ( texturerows[idy]==curpos[mStick] )
+	    {
+		panelidx = -1;
+		stickidx = idy;
+		break;
+	    }
+
+	    if ( texturerows[idy+1]>curpos[mStick] )
+	    {
+		panelidx = idy;
+		break;
+	    }
+	}
+
+	if ( stickidx!=-1 )
+	    processPixelOnStick( stickidx, curpos[mKnot] );
+	else if ( panelidx!=-1 )
+	    processPixelOnPanel( panelidx, curpos[mStick], curpos[mKnot] );
+	else
+	    return false;
+
+	if ( idx<stop && !iter.next() )
+	    return false;
+    }
+
+    return true;
+}
+
+
+bool processPixelOnStick( int i, int j )
+{
+    return true;
+}
+
+
+bool processPixelOnPanel( int panelidx, int i, int j )
+{
+    return true;
+}
+
+    ExplFaultStickSurface&	explsurf_;
+    RowCol			sz_;
+
+};
+
+
+#undef mStick
+#undef mKnot
 
 
 class ExplFaultStickSurfaceUpdater : public ParallelTask
@@ -320,7 +412,7 @@ void ExplFaultStickSurface::insertStick( int stickidx )
 
     sticks_.insertAt(
 	new IndexedGeometry(IndexedGeometry::Lines,
-	    IndexedGeometry::PerFace,coordlist_,normallist_),
+	    IndexedGeometry::PerFace,coordlist_,0,0),
 	stickidx);
 
     if ( displaysticks_ ) addToGeometries( sticks_[stickidx] );
@@ -357,9 +449,9 @@ void ExplFaultStickSurface::emptyPanel( int panelidx )
 
 #define mAddTriangle( a, b, c ) \
 {									\
-    triangles->coordindices_ += coordlist_->add( coordlist_->get(a) );	\
-    triangles->coordindices_ += coordlist_->add( coordlist_->get(b) );	\
-    triangles->coordindices_ += coordlist_->add( coordlist_->get(c) );	\
+    triangles->coordindices_ += (a);					\
+    triangles->coordindices_ += (b);					\
+    triangles->coordindices_ += (c);					\
     triangles->coordindices_ += -1;					\
     Coord3 vec1 = coordlist_->get( a );					\
     const Coord3 vec2 = coordlist_->get( b )-vec1;			\
@@ -398,7 +490,7 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 	if ( !lines )
 	{
 	    lines = new IndexedGeometry( IndexedGeometry::Lines,
-		    IndexedGeometry::PerFace, coordlist_, normallist_ );
+		    IndexedGeometry::PerFace, 0, normallist_, 0 );
 	    panellines_.replace( panelidx, lines );
 	    if ( displaypanels_ ) addToGeometries( lines );
 	}
@@ -413,7 +505,7 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
     {
 	triangles = new IndexedGeometry( IndexedGeometry::TriangleStrip,
 					 IndexedGeometry::PerFace,
-					 coordlist_, normallist_ );
+					 0, normallist_, 0 );
 	paneltriangles_.replace( panelidx, triangles );
 	if ( displaypanels_ ) addToGeometries( triangles );
     }

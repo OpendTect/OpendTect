@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.7 2008-05-16 14:53:57 cvskris Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.8 2008-05-20 17:00:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ namespace Geometry
 {
 
 class FaultStickSurface;
+class ExplFaultStickTexturePositionExtracter;
 
 /*!A triangulated representation of a faultsticksurface */
 
@@ -55,6 +56,7 @@ public:
 
 protected:
     friend		class ExplFaultStickSurfaceUpdater;    
+    friend		class ExplFaultStickTexturePositionExtracter;    
 
     void		removeAll();
     void		insertAll();
