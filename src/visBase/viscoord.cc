@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: viscoord.cc,v 1.28 2008-01-18 15:39:20 cvskris Exp $
+ RCS:           $Id: viscoord.cc,v 1.29 2008-05-20 17:00:25 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -278,7 +278,7 @@ void Coordinates::removePos( int idx, bool keepidxafter )
 void Coordinates::removeAfter( int idx )
 {
     Threads::MutexLocker lock( mutex_ );
-    if ( idx<0 || idx>=coords_->point.getNum()-1 )
+    if ( idx<-1 || idx>=coords_->point.getNum()-1 )
 	return;
 
     coords_->point.deleteValues( idx+1 );
