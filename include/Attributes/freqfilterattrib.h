@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.h,v 1.10 2008-04-30 03:13:16 cvssatyaki Exp $
+ RCS:           $Id: freqfilterattrib.h,v 1.11 2008-05-20 11:47:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,12 +74,11 @@ protected:
     float                       maxfreq;
     int				nrpoles;
     bool			isfftfilter;
-    ArrayNDWindow*              window;
-    
-    ArrayNDWindow::WindowType  	windowtype;
     FFT                         fft;
     FFT                         fftinv;
     int                         fftsz;
+
+    ArrayNDWindow*              window_;
     BufferString                windowtype_;
     float                       variable_;
 
