@@ -4,15 +4,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.42 2008-05-14 20:51:23 cvskris Exp $
+ RCS:           $Id: emfault.cc,v 1.43 2008-05-20 14:41:06 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emfault.h"
+
 #include "emsurfacetr.h"
 #include "emmanager.h"
 #include "emrowcoliterator.h"
+#include "undo.h"
 #include "errh.h"
 #include "survinfo.h"
 
@@ -20,6 +22,140 @@ namespace EM {
 
 mImplementEMObjFuncs( Fault, EMFaultTranslatorGroup::keyword ) 
 
+class FaultStickUndoEvent : public UndoEvent
+{
+public:
+
+//Interface for insert
+FaultStickUndoEvent( const EM::PosID& posid )
+    : posid_( posid )
+    , remove_( false )
+{
+    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    mDynamicCastGet( Fault*, fault, emobj.ptr() );
+    if ( !fault ) return;
+
+    pos_ = fault->getPos( posid_ );
+    const int row = RowCol(posid_.subID()).row;
+    normal_ = fault->geometry().getEditPlaneNormal( posid_.sectionID(), row );
+}
+
+
+//Interface for removal
+FaultStickUndoEvent( const EM::PosID& posid, const Coord3& oldpos,
+		     const Coord3& oldnormal )
+    : posid_( posid )
+    , pos_( oldpos )
+    , normal_( oldnormal )
+    , remove_( true )
+{ }
+
+
+const char* getStandardDesc() const
+{ return remove_ ? "Remove stick" : "Insert stick"; }
+
+
+bool unDo()
+{
+    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    mDynamicCastGet( Fault*, fault, emobj.ptr() );
+    if ( !fault ) return false;
+
+    const int row = RowCol(posid_.subID()).row;
+
+    return remove_
+	? fault->geometry().insertStick( posid_.sectionID(), row, pos_, normal_,
+					 false )
+	: fault->geometry().removeStick( posid_.sectionID(), row, false );
+}
+
+
+bool reDo()
+{
+    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    mDynamicCastGet( Fault*, fault, emobj.ptr() );
+    if ( !fault ) return false;
+
+    const int row = RowCol(posid_.subID()).row;
+
+    return remove_
+	? fault->geometry().removeStick( posid_.sectionID(), row, false )
+	: fault->geometry().insertStick( posid_.sectionID(), row, pos_, normal_,
+					 false );
+}
+
+protected:
+
+    Coord3	pos_;
+    Coord3	normal_;
+    EM::PosID	posid_;
+    bool	remove_;
+};
+
+    
+class FaultKnotUndoEvent : public UndoEvent
+{
+public:
+
+//Interface for insert
+FaultKnotUndoEvent( const EM::PosID& posid )
+    : posid_( posid )
+    , remove_( false )
+{
+    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    if ( !emobj ) return;
+    pos_ = emobj->getPos( posid_ );
+}
+
+
+//Interface for removal
+FaultKnotUndoEvent( const EM::PosID& posid, const Coord3& oldpos )
+    : posid_( posid )
+    , pos_( oldpos )
+    , remove_( true )
+{ }
+
+
+const char* getStandardDesc() const
+{ return remove_ ? "Remove knot" : "Insert knot"; }
+
+
+bool unDo()
+{
+    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    mDynamicCastGet( Fault*, fault, emobj.ptr() );
+    if ( !fault ) return false;
+
+    return remove_
+	? fault->geometry().insertKnot( posid_.sectionID(), posid_.subID(),
+					pos_, false )
+	: fault->geometry().removeKnot( posid_.sectionID(), posid_.subID(),
+					false );
+}
+
+
+bool reDo()
+{
+    RefMan<EMObject> emobj = EMM().getObject( posid_.objectID() );
+    mDynamicCastGet( Fault*, fault, emobj.ptr() );
+    if ( !fault ) return false;
+
+    return remove_
+	? fault->geometry().removeKnot( posid_.sectionID(), posid_.subID(),
+					false )
+	: fault->geometry().insertKnot( posid_.sectionID(), posid_.subID(),
+					pos_, false );
+}
+
+protected:
+
+    Coord3	pos_;
+    Coord3	normal_;
+    EM::PosID	posid_;
+    bool	remove_;
+};
+
+    
 Fault::Fault( EMManager& em )
     : Surface(em)
     , geometry_( *this )
@@ -101,11 +237,18 @@ bool FaultGeometry::insertStick( const SectionID& sid, int sticknr,
     if ( !fss || !fss->insertStick(pos,editnormal,sticknr) )
 	return false;
 
+
+    if ( addtohistory )
+    {
+	const PosID posid( surface_.id(),sid,RowCol(sticknr,0).getSerialized());
+	UndoEvent* undo = new FaultStickUndoEvent( posid );
+	EMM().undo().addEvent( undo, 0 );
+    }
+
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::BurstAlert;
     surface_.change.trigger( cbdata );
 
-    // TODO: addtohistory
     return true;
 }
 
@@ -114,14 +257,35 @@ bool FaultGeometry::removeStick( const SectionID& sid, int sticknr,
 				 bool addtohistory )
 {
     Geometry::FaultStickSurface* fss = sectionGeometry( sid );
-    if ( !fss || !fss->removeStick(sticknr) )
+    if ( !fss )
+	return false;
+
+    const StepInterval<int> colrg = fss->colRange( sticknr );
+    if ( colrg.isUdf() || colrg.width() )
+	return false;
+
+    const RowCol rc( sticknr, colrg.start );
+
+    const Coord3 pos = fss->getKnot( rc );
+    const Coord3 normal = getEditPlaneNormal( sid, sticknr );
+    if ( !normal.isDefined() || !pos.isDefined() )
 	return false;
     
+    if ( !fss->removeStick(sticknr) )
+	return false;
+
+    if ( addtohistory )
+    {
+	const PosID posid( surface_.id(), sid, rc.getSerialized() );
+
+	UndoEvent* undo = new FaultStickUndoEvent( posid, pos, normal );
+	EMM().undo().addEvent( undo, 0 );
+    }
+
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::BurstAlert;
     surface_.change.trigger( cbdata );
 
-    // TODO: addtohistory
     return true;
 }
 
@@ -135,11 +299,17 @@ bool FaultGeometry::insertKnot( const SectionID& sid, const SubID& subid,
     if ( !fss || !fss->insertKnot(rc,pos) )
 	return false;
 
+    if ( addtohistory )
+    {
+	const PosID posid( surface_.id(), sid, subid );
+	UndoEvent* undo = new FaultKnotUndoEvent( posid );
+	EMM().undo().addEvent( undo, 0 );
+    }
+
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::BurstAlert;
     surface_.change.trigger( cbdata );
 
-    // TODO: addtohistory
     return true;
 }
 
@@ -163,16 +333,27 @@ bool FaultGeometry::removeKnot( const SectionID& sid, const SubID& subid,
 				bool addtohistory )
 {
     Geometry::FaultStickSurface* fss = sectionGeometry( sid );
+    if ( !fss ) return false;
+
     RowCol rc;
     rc.setSerialized( subid );
-    if ( !fss || !fss->removeKnot(rc) )
+    const Coord3 pos = fss->getKnot( rc );
+
+    if ( !pos.isDefined() || !fss->removeKnot(rc) )
 	return false;
+
+    if ( addtohistory )
+    {
+	const PosID posid( surface_.id(), sid, subid );
+
+	UndoEvent* undo = new FaultKnotUndoEvent( posid, pos );
+	EMM().undo().addEvent( undo, 0 );
+    }
 
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::BurstAlert;
     surface_.change.trigger( cbdata );
 
-    // TODO: addtohistory
     return true;
 }
 
@@ -218,5 +399,6 @@ bool FaultGeometry::usePar( const IOPar& par )
     }
     return true;
 }
-    
+
+
 }; //namespace
