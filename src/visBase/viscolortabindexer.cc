@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: viscolortabindexer.cc,v 1.6 2007-11-15 13:17:32 cvskris Exp $";
+static const char* rcsID = "$Id: viscolortabindexer.cc,v 1.7 2008-05-20 12:09:27 cvsbert Exp $";
 
 #include "viscolortabindexer.h"
 
@@ -94,7 +94,8 @@ bool ColorTabIndexer::doWork( int start, int stop, int threadid )
     {
 	for ( int idx=start; idx<=stop; idx++, reportNrDone() )
 	{
-	    const int colorindex = colortab_->colIndex( datacacheptr_[idx] );
+	    int colorindex = colortab_->colIndex( datacacheptr_[idx] );
+	    if ( colorindex < 0 ) colorindex = 0;
 	    indexcache_[idx] = colorindex;
 	    histogram[colorindex]++;
 	}
@@ -103,7 +104,8 @@ bool ColorTabIndexer::doWork( int start, int stop, int threadid )
     {
 	for ( int idx=start; idx<=stop; idx++ )
 	{
-	    const int colorindex = colortab_->colIndex(datacache_->value(idx));
+	    int colorindex = colortab_->colIndex(datacache_->value(idx));
+	    if ( colorindex < 0 ) colorindex = 0;
 	    indexcache_[idx] = colorindex;
 	    histogram[colorindex]++;
 	}
