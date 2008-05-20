@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.13 2008-05-19 21:16:03 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.14 2008-05-20 14:41:56 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.13 2008-05-19 21:16:03 c
 #include "mpeengine.h"
 #include "randcolor.h"
 #include "survinfo.h"
+#include "undo.h"
 #include "viscoord.h"
 #include "visdragger.h"
 #include "visevent.h"
@@ -398,20 +399,20 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	    if ( !pid.isUdf() )
 	    {
 		const int removestick = RowCol(pid.subID()).row;
-		if ( emfault_->geometry().nrKnots(
-			    pid.sectionID(),removestick)==1 )
-		{
-		    emfault_->geometry().removeStick( pid.sectionID(),
-			    			      removestick, true );
-		}
-		else
-		{
-		    emfault_->geometry().removeKnot( pid.sectionID(),
-			    			     pid.subID(), true );
-		}
+		const bool res =
+		   emfault_->geometry().nrKnots( pid.sectionID(),removestick)==1
+		    ? emfault_->geometry().removeStick( pid.sectionID(),
+			    			        removestick, true )
+		    : emfault_->geometry().removeKnot( pid.sectionID(),
+			    			       pid.subID(), true );
 
-		paneldisplay_->touch( false );
-		stickdisplay_->touch( false );
+		if ( res )
+		{
+		    EM::EMM().undo().setUserInteractionEnd(
+			    EM::EMM().undo().currentEventID() );
+		    paneldisplay_->touch( false );
+		    stickdisplay_->touch( false );
+		}
 	    }
 	}
 	eventcatcher_->setHandled();
@@ -443,17 +444,24 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	else if ( mouseplanecs.defaultDir()==CubeSampling::Crl ) 
 	    editnormal = Coord3( SI().binID2Coord().colDir(), 0 );
 
-	emfault_->geometry().insertStick( insertpid.sectionID(), insertstick,
-					  pos, editnormal, true );
-	paneldisplay_->touch( false );
-	stickdisplay_->touch( false );
-	faulteditor_->editpositionchange.trigger();
+	if ( emfault_->geometry().insertStick( insertpid.sectionID(),
+	       insertstick, pos, editnormal, true ) )
+	{
+	    EM::EMM().undo().setUserInteractionEnd( EM::EMM().undo().currentEventID() );
+
+	    paneldisplay_->touch( false );
+	    stickdisplay_->touch( false );
+	    faulteditor_->editpositionchange.trigger();
+	}
     }
     else
     {
-	emfault_->geometry().insertKnot( insertpid.sectionID(),
-		insertpid.subID(), pos, true );
-	faulteditor_->editpositionchange.trigger();
+	if ( emfault_->geometry().insertKnot( insertpid.sectionID(),
+		insertpid.subID(), pos, true ) )
+	{
+	    EM::EMM().undo().setUserInteractionEnd( EM::EMM().undo().currentEventID() );
+	    faulteditor_->editpositionchange.trigger();
+	}
     }
 
     eventcatcher_->setHandled();
