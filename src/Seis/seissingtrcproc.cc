@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.44 2008-05-16 08:08:19 cvshelene Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.45 2008-05-20 08:32:33 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -407,7 +407,7 @@ bool SeisSingleTraceProc::writeTrc()
     }
 
     if ( wrr_ && !wrr_->put(*worktrc_) )
-	{ curmsg_ = wrr_->errMsg(); return Executor::ErrorOccurred; }
+	{ curmsg_ = wrr_->errMsg(); return false; }
 
     nrwr_++;
     return true;
