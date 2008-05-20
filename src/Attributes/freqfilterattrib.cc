@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.28 2008-04-30 03:13:16 cvssatyaki Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.29 2008-05-20 11:44:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -252,6 +252,15 @@ void FreqFilter::updateDesc( Desc& desc )
     Attrib::ValParam* valpar = desc.getValParam( FreqFilter::paramvalStr() );
     Attrib::ValParam* winpar = desc.getValParam( FreqFilter::windowStr() );
     if ( !valpar || !winpar ) return;
+
+    BufferString winstr = winpar->getStringValue();
+    if ( winstr == "CosTaper5" )
+    { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.05 ); }
+    else if ( winstr == "CosTaper10" )
+    { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.1 ); }
+    else if ( winstr == "CosTaper20" )
+    { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.2 ); }
+
     const ValParam* ftype = desc.getValParam( filtertypeStr() );
     const BufferString type = ftype->getStringValue();
     desc.setParamEnabled( minfreqStr(),
@@ -283,7 +292,7 @@ FreqFilter::FreqFilter( Desc& ds )
     , freqdomain(0)
     , tmpfreqdomain(0)
     , timecplxoutp(0)
-    , window(0)
+    , window_(0)
     , windowtype_(0)
     , variable_(0)
 {
@@ -311,11 +320,9 @@ FreqFilter::FreqFilter( Desc& ds )
     int wtype;
     mGetString( windowtype_, windowStr() );
     mGetFloat( variable_, paramvalStr() );
-    mGetEnum( wtype, windowStr() );
-    windowtype = (ArrayNDWindow::WindowType)wtype;
 
-    if ( isfftfilter )
-	window = new ArrayNDWindow( Array1DInfoImpl(100),
+    if ( isfftfilter && strcmp(windowtype_,"None") )
+	window_ = new ArrayNDWindow( Array1DInfoImpl(100),
 				    false, windowtype_, variable_ );
 	
     zmargin = Interval<int>( -mNINT(mMINNRSAMPLES/2), mNINT(mMINNRSAMPLES/2) );
@@ -324,7 +331,7 @@ FreqFilter::FreqFilter( Desc& ds )
 
 FreqFilter::~FreqFilter()
 {
-    delete window;
+    delete window_;
 }
 
 
@@ -444,9 +451,10 @@ void FreqFilter::fftFilter( const DataHolder& output,
 	
 	setSz(nrsamp);
 
-	delete window;
-	window = new ArrayNDWindow( Array1DInfoImpl(nrsamp),
-	                 false, (ArrayNDWindow::WindowType) windowtype );
+	delete window_;
+	if ( strcmp(windowtype_,"None") )
+	    window_ = new ArrayNDWindow( Array1DInfoImpl(nrsamp),
+					 false, windowtype_, variable_ );
     }
 
     for ( int idx=0; idx<fftsz; idx++ )
@@ -474,7 +482,7 @@ void FreqFilter::fftFilter( const DataHolder& output,
         signal.set( idx, float_complex(real,imag) );
     }
 
-    window->apply( &signal );
+    if ( window_ ) window_->apply( &signal );
     float avg = computeAvg( &signal ).real();
     removeBias( &signal );
     for ( int idy=0; idy<nrsamp; idy++ )
