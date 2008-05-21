@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.26 2008-05-14 15:09:26 cvshelene Exp $
+ RCS:           $Id: mathattrib.cc,v 1.27 2008-05-21 11:38:33 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,11 @@ void Math::initClass()
     desc->addParam( cstset );
 
     desc->addParam( new FloatParam(recstartStr()) );
-    desc->addParam( new FloatParam(recstartposStr()) );
+
+    FloatParam* recstartpos = new FloatParam( recstartposStr() );
+    recstartpos->setDefaultValue( 0 );
+    recstartpos->setRequired( false );
+    desc->addParam( recstartpos );
     
     desc->addInput( InputSpec("Data",true) );
     desc->addOutputDataType( Seis::UnknowData );
@@ -104,6 +108,7 @@ void Math::updateDesc( Desc& desc )
 Math::Math( Desc& dsc )
     : Provider( dsc )
     , desintv_( Interval<float>(0,0) )
+    , recstartpos_( 0 )
 {
     if ( !isOK() ) return;
 
@@ -179,10 +184,9 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
     if ( (nrxvars + nrcstvars) != nrvar ) 
 	return false;
 
-    //TODO: handle prev formulas where recstartpos_ did not exist
     const int recstartidx = mNINT( recstartpos_/refstep );
 
-    //in case first samp is undef prevent result=undef
+    //in case first sample is undef prevent result=undef
     //on whole trace for recursive formulas
     bool hasudf = isrec ? true : false;
     
@@ -194,10 +198,10 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
     }
     
     const int loopstartidx = isrec ? recstartidx : z0;
-    const int loopstopidx = z0+nrsamples-1;
+    const int loopstopidx = z0 + nrsamples;
 
     //A temp DataHolder is needed for recursive formulas
-    const int tmpholdersz = loopstopidx-recstartidx+1;
+    const int tmpholdersz = loopstopidx - recstartidx;
     DataHolder* tmpholder = isrec ? new DataHolder(recstartidx, tmpholdersz): 0;
     if ( tmpholder ) tmpholder->add();
     
@@ -207,9 +211,8 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 	if ( isrec && sampidx == 0 )
 	{
 	    setOutputValue( *tmpholder, 0, sampidx, recstartidx, recstartval_ );
-	    if ( idx == z0 || ( recstartidx>z0 && idx==recstartidx) )
-		setOutputValue( output, 0, sampidx+loopstartidx-z0,
-				z0, recstartval_ );
+	    if ( idx == z0 || recstartidx>z0 )
+		setOutputValue( output, 0, idx-z0, z0, recstartval_ );
 
 	    continue;
 	}
@@ -221,19 +224,28 @@ bool Math::computeData( const DataHolder& output, const BinID& relpos,
 	    const int shift = varstable_[xvaridx].shift_;
 	    const DataHolder* inpdata = inpidx == -1 ? tmpholder 
 						    : inputdata_[inpidx];
-	    const int refdhidx = inpidx == -1 ? recstartidx : z0;
-	    const int inpsampidx = inpidx == -1 ? sampidx 
-						: sampidx+loopstartidx-z0;
+	    const int refdhidx = inpidx == -1 ? recstartidx : 0;
+	    const int inpsampidx = inpidx == -1 ? sampidx : idx;
 	    int compidx = inpidx == -1 ? 0 : inputidxs_[inpidx];
-	    const float val = inpidx==-1 && shift+idx-loopstartidx<0
+	    float val = inpidx==-1 && shift+idx-loopstartidx<0
 		? recstartval_
 		: getInputValue(*inpdata, compidx, inpsampidx+shift, refdhidx);
+	    
+	    //in case first samp is undef prevent result=undef
+	    //on whole trace for recursive formulas
+	    if ( inpidx == -1 && mIsUdf( val ) && hasudf )
+		val = recstartval_;
+	    
 	    mathobj->setVariable( variableidx, val );
 	}
 	for ( int cstidx=0; cstidx<nrcstvars; cstidx++ )
 	    mathobj->setVariable( cstsinputtable_[cstidx], csts_[cstidx] );
 
-	const float result = mathobj->getValue(); 
+	const float result = mathobj->getValue();
+	
+	if ( hasudf && !mIsUdf( result ) )
+	    hasudf = false;
+	
 	if ( tmpholder )
 	    tmpholder->series(0)->setValue( sampidx, result );
 	
