@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.h,v 1.3 2008-02-18 11:00:47 cvsbert Exp $
+ RCS:           $Id: uiimpfault.h,v 1.4 2008-05-21 06:30:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,8 +18,9 @@ class CtxtIOObj;
 class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
-class uiScaler;
+class uiTableImpDataSel;
 
+namespace Table { class FormatDesc; }
 
 /*! \brief Dialog for fault selection */
 
@@ -40,6 +41,10 @@ protected:
     bool		handleAscii();
 
     CtxtIOObj&		ctio;
+
+    Table::FormatDesc&	fd_;
+    uiTableImpDataSel*	dataselfld_;
+
 };
 
 

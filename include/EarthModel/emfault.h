@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.31 2008-05-07 12:37:11 cvsnanne Exp $
+ RCS:		$Id: emfault.h,v 1.32 2008-05-21 06:30:38 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -15,8 +15,9 @@ ________________________________________________________________________
 #include "emsurface.h"
 #include "emsurfacegeometry.h"
 #include "faultsticksurface.h"
+#include "tableascio.h"
 
-
+namespace Table { class FormatDesc; }
 template <class T> class SortedList;
 
 namespace EM
@@ -83,7 +84,23 @@ protected:
 };
 
 
-}; // Namespace
+class FaultAscIO : public Table::AscIO
+{
+public:
+    				FaultAscIO( const Table::FormatDesc& fd,
+					    std::istream& strm )
+				    : Table::AscIO(fd)
+				    , strm_(strm)			{}
+
+    static Table::FormatDesc*	getDesc();
+
+protected:
+
+    std::istream&		strm_;
+};
+
+
+} // namespace EM
 
 
 #endif

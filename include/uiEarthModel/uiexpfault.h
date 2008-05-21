@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2008
- RCS:           $Id: uiexpfault.h,v 1.1 2008-05-12 03:57:24 cvsnanne Exp $
+ RCS:           $Id: uiexpfault.h,v 1.2 2008-05-21 06:30:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,11 +30,12 @@ public:
 protected:
 
     uiSurfaceRead*	infld_;
-    uiGenInput*		typfld_;
+    uiGenInput*		coordfld_;
+    uiGenInput*		stickfld_;
+    uiGenInput*		nodefld_;
     uiFileInput*	outfld_;
 
     virtual bool	acceptOK(CallBacker*);
-    void		typeChg(CallBacker*);
     bool		writeAscii();
 };
 

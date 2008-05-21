@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2008
- RCS:           $Id: uiexpfault.cc,v 1.1 2008-05-12 03:57:24 cvsnanne Exp $
+ RCS:           $Id: uiexpfault.cc,v 1.2 2008-05-21 06:30:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,6 @@ ________________________________________________________________________
 
 #include <stdio.h>
 
-static const char* exptyps[] = { "X/Y", "Inl/Crl", 0 };
-
 uiExportFault::uiExportFault( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Export Fault",
 				     "Specify output format","104.0.1"))
@@ -40,17 +38,20 @@ uiExportFault::uiExportFault( uiParent* p )
 	    uiSurfaceRead::Setup(EMFaultTranslatorGroup::keyword)
 	    .withattribfld(false).withsubsel(false).withsectionfld(false) );
 
-    typfld_ = new uiGenInput( this, "Output type", StringListInpSpec(exptyps) );
-    typfld_->attach( alignedBelow, infld_ );
-    typfld_->valuechanged.notify( mCB(this,uiExportFault,typeChg) );
+    coordfld_ = new uiGenInput( this, "Write coordinates as",
+				BoolInpSpec(true,"X/Y","Inl/Crl") );
+    coordfld_->attach( alignedBelow, infld_ );
+
+    stickfld_ = new uiGenInput( this, "Write stick index", BoolInpSpec(true) );
+    stickfld_->attach( alignedBelow, coordfld_ );
+    nodefld_ = new uiGenInput( this, "Write node index", BoolInpSpec(true) );
+    nodefld_->attach( alignedBelow, stickfld_ );
 
     outfld_ = new uiFileInput( this, "Output Ascii file",
 	    		       uiFileInput::Setup().forread(false) );
     outfld_->setDefaultSelectionDir(
 		IOObjContext::getDataDirName(IOObjContext::Surf) );
-    outfld_->attach( alignedBelow, typfld_ );
-
-    typeChg( 0 );
+    outfld_->attach( alignedBelow, nodefld_ );
 }
 
 
@@ -61,26 +62,23 @@ uiExportFault::~uiExportFault()
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-
 bool uiExportFault::writeAscii()
 {
-    const bool doxy = typfld_->getIntValue() == 0;
-
     const IOObj* ioobj = infld_->selIOObj();
-    if ( !ioobj ) mErrRet("Cannot find horizon object");
+    if ( !ioobj ) mErrRet("Cannot find fault in database");
 
     RefMan<EM::EMObject> emobj = EM::EMM().createTempObject( ioobj->group() );
-    if ( !emobj ) mErrRet("Cannot create horizon")
+    if ( !emobj ) mErrRet("Cannot add fault to EarthModel")
 
     emobj->setMultiID( ioobj->key() );
     mDynamicCastGet(EM::Fault*,fault,emobj.ptr())
     PtrMan<Executor> loader = fault->geometry().loader();
-    if ( !loader ) mErrRet("Cannot read horizon")
+    if ( !loader ) mErrRet("Cannot read fault")
 
     uiTaskRunner taskrunner( this );
     if ( !taskrunner.execute(*loader) ) return false;
 
-    BufferString fname = outfld_->fileName();
+    const BufferString fname = outfld_->fileName();
     StreamData sdo = StreamProvider( fname ).makeOStream();
     if ( !sdo.usable() )
     {
@@ -88,35 +86,51 @@ bool uiExportFault::writeAscii()
 	mErrRet( "Cannot open output file" );
     }
 
+    const bool doxy = coordfld_->getBoolValue();
+    const bool inclstickidx = stickfld_->getBoolValue();
+    const bool inclknotidx = nodefld_->getBoolValue();
+
     const EM::SectionID sectionid = fault->sectionID( 0 );
-    PtrMan<EM::EMObjectIterator> it = fault->createIterator( sectionid );
+    const Geometry::FaultStickSurface* fltgeom =
+	fault->geometry().sectionGeometry( sectionid );
+
     BufferString str;
-    while ( true )
+    const int nrsticks = fault->geometry().nrSticks( sectionid );
+    for ( int stickidx=0; stickidx<nrsticks; stickidx++ )
     {
-	const EM::PosID posid = it->next();
-	if ( posid.objectID()==-1 )
-	    break;
-
-	const Coord3 crd = fault->getPos( posid );
-
-	if ( !doxy )
+	const int nrknots = fault->geometry().nrKnots( sectionid, stickidx );
+	for ( int knotidx=0; knotidx<nrknots; knotidx++ )
 	{
-	    const BinID bid = SI().transform( crd );
-	    *sdo.ostrm << bid.inl << '\t' << bid.crl;
-	}
-	else
-	{
-	    // ostreams print doubles awfully
-	    str.setEmpty();
-	    str += crd.x; str += "\t"; str += crd.y;
-	    *sdo.ostrm << str;
-	}
+	    const Coord3 crd = fltgeom->getKnot( RowCol(stickidx,knotidx) );
+	    if ( !crd.isDefined() )
+		continue;
 
-	*sdo.ostrm << '\t' << crd.z << '\n';
+	    if ( !doxy )
+	    {
+		const BinID bid = SI().transform( crd );
+		*sdo.ostrm << bid.inl << '\t' << bid.crl;
+	    }
+	    else
+	    {
+		// ostreams print doubles awfully
+		str.setEmpty();
+		str += crd.x; str += "\t"; str += crd.y;
+		*sdo.ostrm << str;
+	    }
+
+	    *sdo.ostrm << '\t' << crd.z;
+
+	    if ( inclstickidx )
+		*sdo.ostrm << '\t' << stickidx;
+	    if ( inclknotidx )
+		*sdo.ostrm << '\t' << knotidx;
+
+	    *sdo.ostrm << '\n';
+
+	}
     }
 
     sdo.close();
-
     return true;
 }
 
@@ -131,9 +145,4 @@ bool uiExportFault::acceptOK( CallBacker* )
 	return false;
 
     return writeAscii();
-}
-
-
-void uiExportFault::typeChg( CallBacker* cb )
-{
 }

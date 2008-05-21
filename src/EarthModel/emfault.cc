@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.43 2008-05-20 14:41:06 cvskris Exp $
+ RCS:           $Id: emfault.cc,v 1.44 2008-05-21 06:30:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "undo.h"
 #include "errh.h"
 #include "survinfo.h"
+#include "tabledef.h"
 
 namespace EM {
 
@@ -401,4 +402,27 @@ bool FaultGeometry::usePar( const IOPar& par )
 }
 
 
-}; //namespace
+Table::FormatDesc* FaultAscIO::getDesc()
+{
+    Table::FormatDesc* fd = new Table::FormatDesc( "Fault3D" );
+
+    Table::TargetInfo* posinfo =
+	new Table::TargetInfo( "", FloatInpSpec(), Table::Required );
+    Table::TargetInfo::Form* form =
+	new Table::TargetInfo::Form( "Inl/Crl", FloatInpSpec() );
+    form->add( FloatInpSpec() );
+    posinfo->add( form );
+    posinfo->form(0).setName( "X/Y");
+    posinfo->form(0).add( FloatInpSpec() );
+    fd->bodyinfos_ += posinfo;
+    Table::TargetInfo* zti = new Table::TargetInfo( "Z", FloatInpSpec(),
+	    				     Table::Required );
+    zti->setPropertyType( PropertyRef::surveyZType() );
+    fd->bodyinfos_ += zti;
+    fd->bodyinfos_ += new Table::TargetInfo( "Stick index", IntInpSpec(),
+	    				     Table::Required );
+    return fd;
+}
+
+
+} // namespace EM
