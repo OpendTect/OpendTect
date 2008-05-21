@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Oct 2006
- RCS:		$Id: tabledef.h,v 1.16 2008-03-20 21:45:03 cvskris Exp $
+ RCS:		$Id: tabledef.h,v 1.17 2008-05-21 08:06:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,7 @@ public:
 	Form*		duplicate( const char* nm ) const
 	    		{
 			    Form* ret = new Form( nm, *specs_[0] );
-			    for ( int idx=0; idx<specs_.size(); idx++ )
+			    for ( int idx=1; idx<specs_.size(); idx++ )
 				ret->specs_ += specs_[idx]->clone();
 			    return ret;
 			}
