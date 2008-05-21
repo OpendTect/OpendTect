@@ -1,0 +1,188 @@
+/*+
+________________________________________________________________________
+
+ CopyRight:     (C) dGB Beheer B.V.
+ Author:        Bert
+ Date:          May 2008
+________________________________________________________________________
+
+-*/
+
+static const char* rcsID = "$Id: uiflattenedcube.cc,v 1.1 2008-05-21 09:24:24 cvsbert Exp $";
+
+#include "uiflattenedcube.h"
+
+#include "emmanager.h"
+#include "emhorizon3d.h"
+#include "emsurfaceposprov.h"
+#include "seistrctr.h"
+#include "seistrc.h"
+#include "seisread.h"
+#include "seiswrite.h"
+#include "seisselectionimpl.h"
+#include "survinfo.h"
+#include "executor.h"
+#include "datapointset.h"
+
+#include "uiseissel.h"
+#include "uigeninput.h"
+#include "uitaskrunner.h"
+#include "uimsg.h"
+
+#include <math.h>
+
+
+uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
+	: uiDialog(p,Setup("Create flattened seismics",
+			    BufferString("Create seismics flattened on '",
+					 getHorNm(horid),"'")
+		    	  ,"0.0.0"))
+	, inctio_(*mMkCtxtIOObj(SeisTrc))
+	, outctio_(*mMkCtxtIOObj(SeisTrc))
+	, hormid_(EM::EMM().getMultiID(horid))
+{
+    uiSeisSel::Setup su( Seis::Vol );
+    seisselin_ = new uiSeisSel( this, inctio_, su );
+
+    BufferString txt( SI().zIsTime() ? "Time" : "Depth", " value of horizon" );
+    defzval_ = SI().zRange(true).center() * SI().zFactor();
+    defzval_ = mNINT(defzval_);
+    zvalfld_ = new uiGenInput( this, txt, FloatInpSpec(defzval_) );
+    zvalfld_->attach( alignedBelow, seisselin_ );
+
+    outctio_.ctxt.forread = false;
+    seisselout_ = new uiSeisSel( this, outctio_, su );
+    seisselout_->attach( alignedBelow, zvalfld_ );
+}
+
+
+BufferString uiWriteFlattenedCube::getHorNm( EM::ObjectID horid )
+{
+    MultiID mid( EM::EMM().getMultiID( horid ) );
+    return EM::EMM().objectName( mid );
+}
+
+
+uiWriteFlattenedCube::~uiWriteFlattenedCube()
+{
+    delete inctio_.ioobj; delete &inctio_;
+    delete outctio_.ioobj; delete &outctio_;
+}
+
+
+#define mErrRet(s) { uiMSG().error(s); return false; }
+
+bool uiWriteFlattenedCube::acceptOK( CallBacker* )
+{
+    seisselin_->commitInput( false );
+    if ( !inctio_.ioobj )
+	mErrRet("Please provide the input seismic cube")
+
+    float zval = zvalfld_->getfValue();
+    if ( mIsUdf(zval) ) zval = defzval_;
+    zval /= SI().zFactor();
+    if ( !SI().zRange(false).includes(zval) )
+	mErrRet("Please provide a Z value inside the survey Z Range")
+
+    seisselout_->commitInput( true );
+    if ( !outctio_.ioobj )
+	mErrRet("Please enter a name for the new cube")
+
+    return doWork( zval );
+}
+
+
+class uiWriteFlattenedCubeMaker : public Executor
+{
+public:
+
+uiWriteFlattenedCubeMaker( SeisTrcReader& rdr, SeisTrcWriter& wrr,
+			   Pos::Provider3D& pp, Interval<float> hzrg,
+       			   float zval )
+    : Executor("Create flattened cube")
+    , rdr_(rdr)
+    , wrr_(wrr)
+    , pp_(pp)
+    , horzrg_(hzrg)
+    , msg_("Creating cube")
+    , nrdone_(0)
+    , totnr_(pp.estNrPos())
+    , zval_(zval)
+{
+}
+
+const char* message() const	{ return msg_.buf(); }
+const char* nrDoneText() const	{ return "Traces written"; }
+int nrDone() const		{ return nrdone_; }
+int totalNr() const		{ return totnr_; }
+
+int nextStep()
+{
+    if ( !rdr_.get(intrc_) )
+	{ msg_ = rdr_.errMsg(); return msg_.isEmpty() ? Finished:ErrorOccurred; }
+
+    if ( outtrc_.size() < 1 )
+    {
+	outtrc_ = intrc_; // get all components + info
+	const Interval<float> inzrg( intrc_.samplePos( 0 ),
+					intrc_.samplePos( intrc_.size() - 1 ) );
+	const StepInterval<float> outzrg( zval_ + inzrg.start - horzrg_.stop,
+					  zval_ + inzrg.stop - horzrg_.start,
+					  intrc_.info().sampling.step );
+	const int nrsamps = outzrg.nrSteps() + 1;
+	outtrc_.reSize( nrsamps, false );
+	outtrc_.info().sampling.start = outzrg.start;
+    }
+
+    const float horz = pp_.adjustedZ( intrc_.info().coord, zval_ );
+    outtrc_.info().binid = intrc_.info().binid;
+    outtrc_.info().coord = intrc_.info().coord;
+    outtrc_.info().nr = intrc_.info().nr;
+    for ( int icomp=0; icomp<outtrc_.nrComponents(); icomp++ )
+    {
+    for ( int isamp=0; isamp<outtrc_.size(); isamp++ )
+    {
+	const float z = outtrc_.samplePos( isamp ) - zval_ + horz;
+	outtrc_.set( isamp, intrc_.getValue(z,icomp), icomp );
+    }
+    }
+
+    if ( !wrr_.put(outtrc_) )
+	{ msg_ = wrr_.errMsg(); return ErrorOccurred; }
+
+    nrdone_++;
+    return MoreToDo;
+}
+
+    SeisTrcReader&	rdr_;
+    SeisTrcWriter&	wrr_;
+    Pos::Provider3D&	pp_;
+    const float		zval_;
+    const Interval<float> horzrg_;
+    SeisTrc		intrc_;
+    SeisTrc		outtrc_;
+    int			nrdone_;
+    int			totnr_;
+    BufferString	msg_;
+};
+
+
+bool uiWriteFlattenedCube::doWork( float zval )
+{
+    IOPar iop;
+    iop.set( IOPar::compKey(sKey::Surface,Pos::EMSurfaceProvider::id1Key()),
+	     hormid_ );
+    Pos::EMSurfaceProvider3D pp; pp.usePar( iop );
+    uiTaskRunner tr( this );
+    if ( !pp.initialize(&tr) ) return false;
+
+    DataPointSet dps( pp, ObjectSet<DataColDef>(), 0, true );
+    const float zwdth = SI().zRange(false).width();
+    const Interval<float> maxzrg( -zwdth, zwdth );
+    Seis::TableSelData* tsd = new Seis::TableSelData( dps.bivSet(), &maxzrg );
+    SeisTrcReader rdr( inctio_.ioobj );
+    rdr.setSelData( tsd );
+    SeisTrcWriter wrr( outctio_.ioobj );
+    uiWriteFlattenedCubeMaker cm( rdr, wrr, pp, dps.bivSet().valRange(0), zval );
+    return tr.execute( cm );
+}
