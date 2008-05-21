@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.22 2008-05-07 05:39:21 cvsnageswara Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.23 2008-05-21 06:11:33 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -257,14 +257,11 @@ bool uiSeisBrowser::doSetPos( const BinID& bid, bool force )
     const bool canread = havetrc && tr_->read( ctrc_ );
     if ( !canread )
     {
+	binid = ctrc_.info().binid;
 	uiMSG().error( "Cannot read data at specified location" );
-	return false;
     }
     if ( !havetrc || !canread )
-    {	
-	ctrc_.info().binid = bid;
-	fillUdf( ctrc_ );
-    }
+	binid = ctrc_.info().binid;
 
     for ( int idx=1; idx<stepout_+1; idx++ )
     {
@@ -393,9 +390,11 @@ bool acceptOK( CallBacker* )
 };
 
 
-void uiSeisBrowser::goTo( const BinID& bid )
+bool uiSeisBrowser::goTo( const BinID& bid )
 {
-    doSetPos( bid, true );
+    if ( doSetPos( bid, true ) )
+	return true;
+    return false;
 }
 
 
@@ -434,7 +433,8 @@ void uiSeisBrowser::goToPush( CallBacker* cb )
 
 void uiSeisBrowser::rightArrowPush( CallBacker* cb )
 {
-    goTo( getNextBid(curBinID(),stepout_,false) );
+    if ( !goTo( getNextBid(curBinID(),stepout_,false) ) )
+	return;
     setTrcBufViewTitle();
     if (strcbufview_)
 	strcbufview_->handleBufChange();
@@ -444,7 +444,8 @@ void uiSeisBrowser::rightArrowPush( CallBacker* cb )
 
 void uiSeisBrowser::leftArrowPush( CallBacker* cb )
 {
-    goTo( getNextBid(curBinID(),stepout_,true) );
+    if ( !goTo( getNextBid(curBinID(),stepout_,true) ) )
+	return;
     setTrcBufViewTitle();
     if (strcbufview_)
 	strcbufview_->handleBufChange();
@@ -646,6 +647,11 @@ void uiSeisBrowser::showWigglePush( CallBacker* )
 	strcbufview_ = new uiSeisTrcBufViewer( this, stbvsetup );
 	SeisTrcBufDataPack* dp = strcbufview_->setTrcBuf
 	                            ( &tbuf_, setup_.geom_, "Seismics", name);
+	if ( (dp->trcBuf().isEmpty()) )
+	{
+	    uiMSG().error( "No data present in the specified position " );
+	    return;
+	}
 	dp->trcBufArr2D().setBufMine( false );
 	strcbufview_->getViewer()->usePack( true, dp->id() );
 	strcbufview_->start();
