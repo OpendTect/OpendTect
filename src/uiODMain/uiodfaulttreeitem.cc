@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodfaulttreeitem.cc,v 1.5 2008-05-15 21:58:59 cvskris Exp $
+ RCS:		$Id: uiodfaulttreeitem.cc,v 1.6 2008-05-21 16:14:20 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ___________________________________________________________________
 #include "emmanager.h"
 
 #include "mousecursor.h"
+#include "randcolor.h"
 #include "uiempartserv.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
@@ -61,7 +62,12 @@ bool uiODFaultParentTreeItem::showSubMenu()
 
 	//uiMPEPartServer* mps = applMgr()->mpeServer();
 	//mps->addTracker( emo->id(), Coord3::udf() );
-	emo->setName( "<Fault>" );
+	emo->setPreferredColor( getRandomColor(false) );
+	BufferString newname = "<New fault ";
+	static int faultnr = 1;
+	newname += faultnr++;
+	newname += ">";
+	emo->setName( newname.buf() );
 	addChild( new uiODFaultTreeItem( emo->id() ), false );
 
 	uiVisPartServer* visserv = applMgr()->visServer();
