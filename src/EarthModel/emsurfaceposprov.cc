@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.5 2008-03-25 11:41:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.6 2008-05-21 10:28:37 cvsbert Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -78,6 +78,32 @@ const char* Pos::EMSurfaceProvider::type() const
 }
 
 
+static void getSurfZRg( const EM::Surface& surf, Interval<float>& zrg )
+{
+    bool veryfirst = true;
+    for ( int idx=0; idx<surf.nrSections(); idx++ )
+    {
+	EM::RowColIterator it( surf, surf.sectionID(idx) );
+	EM::PosID posid = it.next();
+	while ( posid.objectID() != -1 )
+	{
+	    Coord3 coord = surf.getPos( posid );
+	    if ( veryfirst )
+	    {
+		veryfirst = false;
+		zrg.start = zrg.stop = coord.z;
+	    }
+	    else
+	    {
+		if ( coord.z < zrg.start ) zrg.start = coord.z;
+		if ( coord.z > zrg.stop ) zrg.stop = coord.z;
+	    }
+	    posid = it.next();
+	}
+    }
+}
+
+
 bool Pos::EMSurfaceProvider::initialize( TaskRunner* tr )
 {
     if ( nrSurfaces() == 0 ) return false;
@@ -86,6 +112,7 @@ bool Pos::EMSurfaceProvider::initialize( TaskRunner* tr )
     mDynamicCastGet(EM::Surface*,surf1,emobj)
     if ( !surf1 ) return false;
     surf1_ = surf1; surf1_->ref();
+    getSurfZRg( *surf1_, zrg1_ );
 
     if ( !id2_.isEmpty() )
     {
@@ -93,10 +120,10 @@ bool Pos::EMSurfaceProvider::initialize( TaskRunner* tr )
 	mDynamicCastGet(EM::Surface*,surf2,emobj)
 	if ( !surf2 ) return false;
 	surf2_ = surf2; surf2_->ref();
+	getSurfZRg( *surf2_, zrg2_ );
     }
 
-    if ( !iterator_ )
-	iterator_ = new EM::RowColIterator( *surf1_, surf1_->sectionID(0) );
+    reset();
     return true;
 }
 
@@ -104,6 +131,8 @@ bool Pos::EMSurfaceProvider::initialize( TaskRunner* tr )
 void Pos::EMSurfaceProvider::reset()
 {
     delete iterator_; iterator_ = 0;
+    if ( surf1_ )
+	iterator_ = new EM::RowColIterator( *surf1_, surf1_->sectionID(0) );
     curpos_ = EM::PosID( -1, -1, -1 );
 }
 
