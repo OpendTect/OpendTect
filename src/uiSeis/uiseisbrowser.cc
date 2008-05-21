@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.23 2008-05-21 06:11:33 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.24 2008-05-21 08:59:32 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -392,9 +392,7 @@ bool acceptOK( CallBacker* )
 
 bool uiSeisBrowser::goTo( const BinID& bid )
 {
-    if ( doSetPos( bid, true ) )
-	return true;
-    return false;
+    return doSetPos( bid, true ); 
 }
 
 
