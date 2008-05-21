@@ -1,7 +1,7 @@
 #---------------------------------------------------------
 # Author: dGB Earth Sciences ( A.H.Bril )
 # Pmake Environment bash initialization shell script
-# $Id: PMinit.sh,v 1.6 2006-01-10 14:41:12 cvsbert Exp $
+# $Id: PMinit.sh,v 1.7 2008-05-21 13:40:15 cvsbert Exp $
 #---------------------------------------------------------
 
 if [ "$HDIR" = "" ]; then
@@ -15,11 +15,9 @@ if [ "$HDIR" = "" ]; then
     fi
     if [ "$HDIR" == "Darwin" ]; then
 	HDIR=mac
-    fi
-    if [ "$HDIR" == "IRIX" -o "$HDIR" == "IRIX64" ]; then
-	HDIR=sgi
-    fi
-    if [ $?COMSPEC ]; then
+    elif [ "$COMSPEC" == "" ]; then
+	HDIR=unknown
+    else
 	HDIR=win
     fi
     export HDIR
