@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.h,v 1.14 2008-05-05 11:44:00 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.h,v 1.15 2008-05-21 08:40:40 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,7 +77,7 @@ public :
     void		setCrlWise( bool yn=true )	{ crlwise_ = yn; }
     void 		commitChanges();
     bool 		storeChgdData();
-    void		goTo(const BinID&);
+    bool		goTo(const BinID&);
 	
 
     int			stepOut()			{ return stepout_; }
