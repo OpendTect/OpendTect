@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		August 2006
- RCS:		$Id: uid2tmodelgrp.cc,v 1.2 2007-02-05 14:32:25 cvsnanne Exp $
+ RCS:		$Id: uid2tmodelgrp.cc,v 1.3 2008-05-21 12:22:06 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "uifileinput.h"
 #include "uigeninput.h"
+#include "uilabel.h"
 
 #include "ctxtioobj.h"
 #include "survinfo.h"
@@ -27,10 +28,13 @@ uiD2TModelGroup::uiD2TModelGroup( uiParent* p, bool withunit, const char* lbl )
     filefld_->setDefaultSelectionDir(
 			IOObjContext::getDataDirName(IOObjContext::WllInf) );
 
-    tvdfld_ = new uiGenInput( this, "Depth is",
+    tvdfld_ = new uiGenInput( this, "Depth in D2T model file is",
 			      BoolInpSpec(true,"TVDSS","MD") );
     tvdfld_->setValue( false );
     tvdfld_->attach( alignedBelow, filefld_ );
+    uiLabel* uilbl = new uiLabel( this,
+	    	"(TVDSS won't work with horizontal sections)" );
+    uilbl->attach( rightOf, tvdfld_ );
 
     if ( withunit )
     {
