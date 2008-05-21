@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.32 2008-05-21 06:30:38 cvsnanne Exp $
+ RCS:		$Id: emfault.h,v 1.33 2008-05-21 10:31:07 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -87,16 +87,12 @@ protected:
 class FaultAscIO : public Table::AscIO
 {
 public:
-    				FaultAscIO( const Table::FormatDesc& fd,
-					    std::istream& strm )
-				    : Table::AscIO(fd)
-				    , strm_(strm)			{}
+    				FaultAscIO( const Table::FormatDesc& fd )
+				    : Table::AscIO(fd)		{}
 
     static Table::FormatDesc*	getDesc();
 
-protected:
-
-    std::istream&		strm_;
+    Fault*			get(std::istream&) const;
 };
 
 

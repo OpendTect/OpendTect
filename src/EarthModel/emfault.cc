@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.44 2008-05-21 06:30:38 cvsnanne Exp $
+ RCS:           $Id: emfault.cc,v 1.45 2008-05-21 10:31:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "errh.h"
 #include "survinfo.h"
 #include "tabledef.h"
+#include "unitofmeasure.h"
 
 namespace EM {
 
@@ -406,22 +407,29 @@ Table::FormatDesc* FaultAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Fault3D" );
 
-    Table::TargetInfo* posinfo =
-	new Table::TargetInfo( "", FloatInpSpec(), Table::Required );
-    Table::TargetInfo::Form* form =
-	new Table::TargetInfo::Form( "Inl/Crl", FloatInpSpec() );
-    form->add( FloatInpSpec() );
-    posinfo->add( form );
-    posinfo->form(0).setName( "X/Y");
+    Table::TargetInfo* posinfo = new Table::TargetInfo( "X/Y", FloatInpSpec(),
+	    						Table::Required );
     posinfo->form(0).add( FloatInpSpec() );
+    posinfo->add( posinfo->form(0).duplicate("Inl/Crl") );
     fd->bodyinfos_ += posinfo;
+
     Table::TargetInfo* zti = new Table::TargetInfo( "Z", FloatInpSpec(),
-	    				     Table::Required );
+						    Table::Required );
     zti->setPropertyType( PropertyRef::surveyZType() );
+    zti->selection_.unit_ = UoMR().get( SI().getZUnit(false) );
     fd->bodyinfos_ += zti;
     fd->bodyinfos_ += new Table::TargetInfo( "Stick index", IntInpSpec(),
 	    				     Table::Required );
     return fd;
+}
+
+
+Fault* FaultAscIO::get( std::istream& strm ) const
+{
+    if ( !getHdrVals(strm) )
+	return 0;
+
+    return 0;
 }
 
 
