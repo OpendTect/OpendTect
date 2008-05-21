@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.89 2008-05-20 12:19:57 cvsjaap Exp $
+ RCS:           $Id: uilistbox.cc,v 1.90 2008-05-21 07:42:55 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,9 +178,10 @@ void uiListBoxBody::activateSelect( const TypeSet<int>& selectset )
 #define mSetCurListItem() \
     if ( maxSelectable()>0 ) \
     { \
+	handle_.selectionChanged.disable(); \
 	clearSelection(); \
-	item( actidx_ )->setSelected( true ); \
-	handle_.selectionChanged.trigger(); \
+	handle_.selectionChanged.enable(); \
+	setCurrentRow( actidx_ ); \
     }
 
 bool uiListBoxBody::event( QEvent* ev )
@@ -210,12 +211,14 @@ bool uiListBoxBody::event( QEvent* ev )
     {
 	if ( maxSelectable()>0 && actselset_->size()<=maxSelectable() )
 	{
+	    handle_.selectionChanged.disable();
 	    clearSelection();
 	    for ( int idx=0; idx<actselset_->size(); idx++ )
 	    {
 		if ( (*actselset_)[idx]>=0 && (*actselset_)[idx]<count() )
 		    item( (*actselset_)[idx] )->setSelected( true );
 	    }
+	    handle_.selectionChanged.enable();
 	    handle_.selectionChanged.trigger();
 	}
     }
