@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.64 2008-05-12 04:19:22 cvsnanne Exp $
+ RCS:           $Id: uitable.cc,v 1.65 2008-05-21 16:14:01 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "i_layoutitem.h"
 #include "i_qtable.h"
 
+#include <QApplication>
 #include <QHeaderView>
 #include <QMouseEvent>
 
@@ -58,6 +59,15 @@ public:
     void		setCellObject(const RowCol&,uiObject*);
     RowCol		getCell(uiObject*);
 
+    int			maxSelectable() const;
+    uiTable::SelectionBehavior getSelBehavior() const;
+    
+    void		activateClick(const RowCol&,bool leftclick,
+				      bool doubleclick);
+    void		activateInput(const RowCol&,const char* txt);
+    void		activateSelect(const TypeSet<RowCol>&);
+    bool		event(QEvent*);
+
 protected:
     virtual void	mouseReleaseEvent(QMouseEvent*);
 
@@ -65,6 +75,13 @@ protected:
 
     BoolTypeSet		columnsreadonly;
     BoolTypeSet		rowsreadonly;
+
+    RowCol		actrc_;
+    bool		actleftclick_;
+    bool		actdoubleclick_;
+    const char*		acttext_;
+
+    const TypeSet<RowCol>* actselset_;
 
 private:
 
@@ -206,6 +223,121 @@ void uiTableBody::clearCellObject( const RowCol& rc )
 }
 
 
+uiTable::SelectionBehavior uiTableBody::getSelBehavior() const
+{
+    return (uiTable::SelectionBehavior) selectionBehavior();
+}
+
+
+int uiTableBody::maxSelectable() const
+{
+    if ( selectionMode()==QAbstractItemView::NoSelection )
+	return 0;
+    if ( selectionMode()==QAbstractItemView::SingleSelection )
+       	return 1;
+    if ( getSelBehavior()==uiTable::SelectRows )
+	return rowCount();
+    if ( getSelBehavior()==uiTable::SelectColumns )
+	return columnCount();
+
+    return rowCount()*columnCount();
+}
+
+
+static const QEvent::Type sQEventActClick  = (QEvent::Type) (QEvent::User+0);
+static const QEvent::Type sQEventActInput  = (QEvent::Type) (QEvent::User+1);
+static const QEvent::Type sQEventActSelect = (QEvent::Type) (QEvent::User+2);
+
+
+void uiTableBody::activateClick( const RowCol& rc, bool leftclick,
+				 bool doubleclick )
+{
+    actrc_ = rc;
+    actleftclick_ = leftclick;
+    actdoubleclick_ = doubleclick;
+    QEvent* actevent = new QEvent( sQEventActClick );
+    QApplication::postEvent( this, actevent );
+}
+
+
+void uiTableBody::activateInput( const RowCol& rc, const char* txt )
+{
+    actrc_ = rc;
+    acttext_ = txt;
+    QEvent* actevent = new QEvent( sQEventActInput );
+    QApplication::postEvent( this, actevent );
+}
+
+
+void uiTableBody::activateSelect( const TypeSet<RowCol>& selectset )
+{
+    actselset_ = &selectset;
+    QEvent* actevent = new QEvent( sQEventActSelect );
+    QApplication::postEvent( this, actevent );
+}
+
+
+#define mClearSelSilent() \
+    handle_.selectionChanged.disable(); \
+    clearSelection(); \
+    handle_.selectionChanged.enable();
+
+bool uiTableBody::event( QEvent* ev )
+{
+    if ( ev->type() == sQEventActClick )
+    {
+	if ( actrc_.row<rowCount() && actrc_.col<columnCount() )
+	{
+	    if ( actrc_.row==-1 && actrc_.col>=0 )
+	    {
+		if ( maxSelectable()>0 &&
+		     getSelBehavior()!=uiTable::SelectRows )
+		{
+		    mClearSelSilent();
+		    selectColumn( actrc_.col );
+		}
+		handle_.columnClicked.trigger( actrc_.row );
+	    }
+	    else if ( actrc_.row>=0 && actrc_.col==-1 )
+	    {
+		if ( maxSelectable()>0 &&
+		     getSelBehavior()!=uiTable::SelectColumns )
+		{
+		    mClearSelSilent();
+		    selectRow( actrc_.row );
+		}
+		handle_.rowClicked.trigger( actrc_.row );
+	    }
+	    else if ( actrc_.row>=0 && actrc_.col>=0 )
+	    {
+		if ( maxSelectable()>0 )
+		{
+		    mClearSelSilent();
+		    handle_.setCurrentCell( actrc_ );
+		}
+		handle_.setNotifiedCell( actrc_ );
+		if ( actdoubleclick_ )
+		    handle_.doubleClicked.trigger();
+		else if ( actleftclick_ )
+		    handle_.leftClicked.trigger();
+		else
+		    handle_.rightClicked.trigger();
+	    }
+	}
+    }
+    else if ( ev->type() == sQEventActInput )
+    {
+    }
+    else if ( ev->type() == sQEventActSelect )
+    {
+    }
+    else
+	return QTableWidget::event( ev );
+
+    handle_.activatedone.trigger();
+    return true;
+}
+
 
 uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     : uiObject(p,nm,mkbody(p,nm,s.size_.row,s.size_.col))
@@ -222,6 +354,7 @@ uiTable::uiTable( uiParent* p, const Setup& s, const char* nm )
     , selectionChanged(this)
     , rowClicked(this)
     , columnClicked(this)
+    , activatedone(this)
 {
     rightClicked.notify( mCB(this,uiTable,popupMenu) );
     setGeometry.notify( mCB(this,uiTable,geometrySet_) );
@@ -566,6 +699,13 @@ bool uiTable::isColumnHidden( int col ) const
 
 bool uiTable::isRowHidden( int row ) const
 { return body_->isRowHidden(row); }
+
+
+bool uiTable::isTopHeaderHidden() const
+{ return !body_->horizontalHeader()->isVisible(); }
+
+bool uiTable::isLeftHeaderHidden() const
+{ return !body_->verticalHeader()->isVisible(); }
 
 
 void uiTable::setColumnResizeMode( ResizeMode mode )
@@ -1048,3 +1188,28 @@ const ObjectSet<uiTable::SelectionRange>& uiTable::selectedRanges() const
 
     return selranges_;
 }
+
+
+uiTable::SelectionBehavior uiTable::getSelBehavior() const
+{
+    return body_->getSelBehavior();
+}
+
+
+int uiTable::maxSelectable() const
+{
+    return body_->maxSelectable();
+}
+
+
+void uiTable::activateClick( const RowCol& rc, bool leftclick,
+			     bool doubleclick )
+{ body_->activateClick( rc, leftclick, doubleclick ); }
+
+
+void uiTable::activateInput( const RowCol& rc, const char* txt )
+{ body_->activateInput( rc, txt ); }
+
+
+void uiTable::activateSelect( const TypeSet<RowCol>& selection )
+{ body_->activateSelect( selection ); }

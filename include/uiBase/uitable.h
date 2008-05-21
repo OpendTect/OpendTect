@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.42 2008-05-08 12:30:15 cvshelene Exp $
+ RCS:           $Id: uitable.h,v 1.43 2008-05-21 16:14:01 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,6 +153,9 @@ public:
     bool		isColumnHidden(int) const;
     bool		isRowHidden(int) const;
 
+    bool		isTopHeaderHidden() const;
+    bool		isLeftHeaderHidden() const;
+
     void		insertRows(int row,int count);
     inline void		insertRows( const RowCol& rc, int count )
 			    { insertRows( rc.row, count ); }
@@ -203,6 +206,9 @@ public:
     const Setup&	setup() const		{ return setup_; }
 
     const RowCol&	notifiedCell() const	{ return notifcell_; }
+    void		setNotifiedCell(const RowCol& rc)
+						{ notifcell_=rc; } 
+    
     Notifier<uiTable>	valueChanged;
     Notifier<uiTable>	leftClicked;
     Notifier<uiTable>	rightClicked;
@@ -251,6 +257,16 @@ public:
 
 
     const ObjectSet<SelectionRange>&	selectedRanges() const;
+
+    SelectionBehavior	getSelBehavior() const;
+    int			maxSelectable() const;
+
+    			//! Force activation in GUI thread
+    void		activateClick(const RowCol&,bool leftclick=true,
+				      bool doubleclick=false);
+    void		activateInput(const RowCol&,const char* txt);
+    void		activateSelect(const TypeSet<RowCol>&);
+    Notifier<uiTable>	activatedone;
 
 protected:
 
