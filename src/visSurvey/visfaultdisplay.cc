@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.14 2008-05-20 14:41:56 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.15 2008-05-21 16:14:58 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -17,7 +17,6 @@ static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.14 2008-05-20 14:41:56 c
 #include "faulteditor.h"
 #include "iopar.h"
 #include "mpeengine.h"
-#include "randcolor.h"
 #include "survinfo.h"
 #include "undo.h"
 #include "viscoord.h"
@@ -67,7 +66,6 @@ FaultDisplay::FaultDisplay()
     neareststickmarker_->insertNode( neareststickmarkerpickstyle_->getInventorNode() );
     addChild( neareststickmarker_->getInventorNode() );
 
-    setColor( getRandomColor( false ) );
     getMaterial()->setAmbience( 0.2 );
     shapehints_->ref();
     addChild( shapehints_->getInventorNode() );
