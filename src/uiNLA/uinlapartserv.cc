@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.52 2008-04-17 13:41:24 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.53 2008-05-21 12:46:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ ________________________________________________________________________
 #include "uitaskrunner.h"
 #include "uigeninput.h"
 #include "uidatapointset.h"
+#include "uilabel.h"
 #include "uimsg.h"
 
 
@@ -122,9 +123,16 @@ public:
 
 uiPrepNLAData( uiParent* p, const DataPointSet& dps )
     : uiDialog(p,uiDialog::Setup("Data preparation",gtTitle(dps),"0.4.3"))
+    , statsfld_(0)
 {
     const BinIDValueSet& bvs = dps.dataSet().data();
     bvs.getColumn( bvs.nrVals() - 1, datavals, false );
+    if ( datavals.isEmpty() )
+    {
+	setCtrlStyle( uiDialog::LeaveOnly );
+	new uiLabel( this, "No valid log data values extracted" );
+	return;
+    }
     sort_array( datavals.arr(), datavals.size() );
 
     uiGroup* graphgrp = new uiGroup( this, "Graph group" );
@@ -200,6 +208,7 @@ void valrgChg( CallBacker* )
 
 bool acceptOK( CallBacker* )
 {
+    if ( !statsfld_ ) return true;
     dobal_ = dobalfld->getBoolValue();
     if ( dobal_ )
     {
