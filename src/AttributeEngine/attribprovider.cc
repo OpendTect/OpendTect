@@ -4,7 +4,7 @@
  * DATE     : Sep 2003
 -*/
 
-static const char* rcsID = "$Id: attribprovider.cc,v 1.106 2008-03-17 13:15:21 cvskris Exp $";
+static const char* rcsID = "$Id: attribprovider.cc,v 1.107 2008-05-21 10:44:52 cvshelene Exp $";
 
 #include "attribprovider.h"
 #include "attribstorprovider.h"
@@ -1434,8 +1434,8 @@ float Provider::getInputValue( const DataHolder& input, int inputidx,
 			       int sampleidx, int z0 ) const
 {
     const int sidx = z0 - input.z0_ + sampleidx;
-    return input.series(inputidx) ? input.series(inputidx)->value( sidx )
-				  : mUdf(float);
+    return input.series(inputidx) && sidx>=0 && sidx<input.nrsamples_
+		? input.series(inputidx)->value( sidx ) : mUdf(float);
 }
 
 
