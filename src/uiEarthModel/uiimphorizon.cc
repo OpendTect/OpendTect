@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.104 2008-05-05 05:42:29 cvsnageswara Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.105 2008-05-21 08:53:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -412,7 +412,7 @@ bool uiImportHorizon::checkInpFlds()
     if ( !getFileNames(filenames) ) return false;
 
     if ( !dataselfld_->commit() )
-	mErrRet( "Please specify data format" );
+	mErrRet( "Please define data format" );
 
     const char* outpnm = outputfld_->getInput();
     if ( !outpnm || !*outpnm )
