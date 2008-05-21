@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.6 2008-05-19 21:16:03 cvskris Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.7 2008-05-21 10:39:09 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -124,6 +124,8 @@ protected:
     visSurvey::MPEEditor*		viseditor_;
 
     Coord3				mousepos_;
+
+    TypeSet<DataPack::ID>		datapackids_;
 };
 
 };
