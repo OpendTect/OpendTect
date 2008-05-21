@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          May 2008
- RCS:           $Id: uiflattenedcube.h,v 1.1 2008-05-21 09:24:24 cvsbert Exp $
+ RCS:           $Id: uiflattenedcube.h,v 1.2 2008-05-21 10:30:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class uiSeisSel;
 class uiGenInput;
 class CtxtIOObj;
 namespace EM { class Horizon3D; }
+namespace Pos { class EMSurfaceProvider3D; }
 
 
 /*! \brief UI for Quick UVQ on horizon */
@@ -40,6 +41,8 @@ protected:
     CtxtIOObj&		inctio_;
     CtxtIOObj&		outctio_;
     float		defzval_;
+    Interval<float>	horzrg_;
+    Pos::EMSurfaceProvider3D& pp_;
 
     bool		acceptOK(CallBacker*);
     BufferString	getHorNm(EM::ObjectID);

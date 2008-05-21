@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiflattenedcube.cc,v 1.1 2008-05-21 09:24:24 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflattenedcube.cc,v 1.2 2008-05-21 10:30:42 cvsbert Exp $";
 
 #include "uiflattenedcube.h"
 
@@ -27,7 +27,9 @@ static const char* rcsID = "$Id: uiflattenedcube.cc,v 1.1 2008-05-21 09:24:24 cv
 #include "uiseissel.h"
 #include "uigeninput.h"
 #include "uitaskrunner.h"
+#include "uilabel.h"
 #include "uimsg.h"
+#include "mousecursor.h"
 
 #include <math.h>
 
@@ -40,12 +42,28 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
 	, inctio_(*mMkCtxtIOObj(SeisTrc))
 	, outctio_(*mMkCtxtIOObj(SeisTrc))
 	, hormid_(EM::EMM().getMultiID(horid))
+    	, pp_(*new Pos::EMSurfaceProvider3D)
+    	, seisselin_(0)
 {
+    IOPar iop;
+    iop.set( IOPar::compKey(sKey::Surface,Pos::EMSurfaceProvider::id1Key()),
+	     hormid_ );
+    pp_.usePar( iop );
+    uiTaskRunner tr( p );
+    if ( !pp_.initialize(&tr) )
+    {
+	new uiLabel( this, "Cannot initialize horizon" );
+	return;
+    }
+
     uiSeisSel::Setup su( Seis::Vol );
     seisselin_ = new uiSeisSel( this, inctio_, su );
 
     BufferString txt( SI().zIsTime() ? "Time" : "Depth", " value of horizon" );
-    defzval_ = SI().zRange(true).center() * SI().zFactor();
+    MouseCursorManager::setOverride( MouseCursor::Wait );
+    pp_.getZRange( horzrg_ );
+    MouseCursorManager::restoreOverride();
+    defzval_ = horzrg_.center() * SI().zFactor();
     defzval_ = mNINT(defzval_);
     zvalfld_ = new uiGenInput( this, txt, FloatInpSpec(defzval_) );
     zvalfld_->attach( alignedBelow, seisselin_ );
@@ -74,6 +92,8 @@ uiWriteFlattenedCube::~uiWriteFlattenedCube()
 
 bool uiWriteFlattenedCube::acceptOK( CallBacker* )
 {
+    if ( !seisselin_ ) return true;
+
     seisselin_->commitInput( false );
     if ( !inctio_.ioobj )
 	mErrRet("Please provide the input seismic cube")
@@ -97,16 +117,15 @@ class uiWriteFlattenedCubeMaker : public Executor
 public:
 
 uiWriteFlattenedCubeMaker( SeisTrcReader& rdr, SeisTrcWriter& wrr,
-			   Pos::Provider3D& pp, Interval<float> hzrg,
-       			   float zval )
+			   Pos::Provider3D& pp, Interval<float> hz, float zval )
     : Executor("Create flattened cube")
     , rdr_(rdr)
     , wrr_(wrr)
     , pp_(pp)
-    , horzrg_(hzrg)
     , msg_("Creating cube")
     , nrdone_(0)
     , totnr_(pp.estNrPos())
+    , horzrg_(hz)
     , zval_(zval)
 {
 }
@@ -138,6 +157,7 @@ int nextStep()
     outtrc_.info().binid = intrc_.info().binid;
     outtrc_.info().coord = intrc_.info().coord;
     outtrc_.info().nr = intrc_.info().nr;
+    outtrc_.info().refpos = horz;
     for ( int icomp=0; icomp<outtrc_.nrComponents(); icomp++ )
     {
     for ( int isamp=0; isamp<outtrc_.size(); isamp++ )
@@ -158,7 +178,7 @@ int nextStep()
     SeisTrcWriter&	wrr_;
     Pos::Provider3D&	pp_;
     const float		zval_;
-    const Interval<float> horzrg_;
+    Interval<float>	horzrg_;
     SeisTrc		intrc_;
     SeisTrc		outtrc_;
     int			nrdone_;
@@ -169,20 +189,16 @@ int nextStep()
 
 bool uiWriteFlattenedCube::doWork( float zval )
 {
-    IOPar iop;
-    iop.set( IOPar::compKey(sKey::Surface,Pos::EMSurfaceProvider::id1Key()),
-	     hormid_ );
-    Pos::EMSurfaceProvider3D pp; pp.usePar( iop );
-    uiTaskRunner tr( this );
-    if ( !pp.initialize(&tr) ) return false;
-
-    DataPointSet dps( pp, ObjectSet<DataColDef>(), 0, true );
+    MouseCursorManager::setOverride( MouseCursor::Wait );
+    DataPointSet dps( pp_, ObjectSet<DataColDef>(), 0, true );
     const float zwdth = SI().zRange(false).width();
     const Interval<float> maxzrg( -zwdth, zwdth );
     Seis::TableSelData* tsd = new Seis::TableSelData( dps.bivSet(), &maxzrg );
     SeisTrcReader rdr( inctio_.ioobj );
     rdr.setSelData( tsd );
     SeisTrcWriter wrr( outctio_.ioobj );
-    uiWriteFlattenedCubeMaker cm( rdr, wrr, pp, dps.bivSet().valRange(0), zval );
+    uiWriteFlattenedCubeMaker cm( rdr, wrr, pp_, horzrg_, zval );
+    uiTaskRunner tr( this );
+    MouseCursorManager::restoreOverride();
     return tr.execute( cm );
 }
