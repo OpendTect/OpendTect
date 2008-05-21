@@ -1,7 +1,7 @@
 #---------------------------------------------------------
 # Author: dGB Earth Sciences ( A.H.Bril )
 # Pmake Environment bash initialization shell script
-# $Id: PMinit.sh,v 1.7 2008-05-21 13:40:15 cvsbert Exp $
+# $Id: PMinit.sh,v 1.8 2008-05-21 13:42:54 cvsbert Exp $
 #---------------------------------------------------------
 
 if [ "$HDIR" = "" ]; then
@@ -9,11 +9,9 @@ if [ "$HDIR" = "" ]; then
     HDIR=`uname`
     if [ "$HDIR" == "SunOS" ]; then
 	HDIR=sun5
-    fi
-    if [ "$HDIR" == "Linux" ]; then
+    elif [ "$HDIR" == "Linux" ]; then
 	HDIR=lux
-    fi
-    if [ "$HDIR" == "Darwin" ]; then
+    elif [ "$HDIR" == "Darwin" ]; then
 	HDIR=mac
     elif [ "$COMSPEC" == "" ]; then
 	HDIR=unknown
