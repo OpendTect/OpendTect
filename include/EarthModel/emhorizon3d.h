@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon3d.h,v 1.56 2007-12-13 06:08:06 cvsraman Exp $
+ RCS:		$Id: emhorizon3d.h,v 1.57 2008-05-21 06:26:59 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ class BufferStringSet;
 class HorSampling;
 class Scaler;
 class ZAxisTransform;
-namespace Table { class FormatDesc; class AscIO; }
+namespace Table { class FormatDesc; }
 
 namespace EM
 {
@@ -135,14 +135,13 @@ public:
     float			getUdfVal();
     bool			isXY() const;
     int				getNextLine(TypeSet<float>&);
+
 protected:
 
     std::istream&		strm_;
 };
 
 
-}; 
-
-// namespace EarthModel
+} // namespace EM
 
 #endif
