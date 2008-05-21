@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.42 2008-04-22 16:19:39 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.43 2008-05-21 14:14:22 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -477,16 +477,11 @@ void Well::LogDataExtracter::getGenTrackData( DataPointSet& dps,
 					      const Well::Log& wl,
 					      int dpscolidx )
 {
-    if ( !dps.isEmpty() || track.isEmpty() )
+    if ( dps.isEmpty() || track.isEmpty() )
 	return;
 
-    const BinID firstbid = dps.binID( 0 );
-    BinID b( firstbid.inl+SI().inlStep(), firstbid.crl+SI().crlStep() );
-    const float dtol = SI().transform(firstbid).distTo( SI().transform(b) );
-    const float ztol = SI().zStep() * 5;
     const float startdah = track.dah(0);
     const float dahstep = wl.dahStep(true);
-
     float prevdah = mUdf(float);
     float prevwinsz = mDefWinSz;
     DataPointSet::RowID dpsrowidx = 0;
@@ -495,14 +490,12 @@ void Well::LogDataExtracter::getGenTrackData( DataPointSet& dps,
     {
 	biv.binid = dps.binID( dpsrowidx );
 	biv.value = dps.z( dpsrowidx );
-	float dah = findNearest( track, biv, startdah, dahstep );
+	float dah = findNearest( track, biv, startdah, dahstep, prevdah );
 	if ( mIsUdf(dah) )
 	    continue;
 
 	Coord3 pos = track.getPos( dah );
 	Coord coord = dps.coord( dpsrowidx );
-	if ( coord.distTo(pos) > dtol || fabs(pos.z-biv.value) > ztol )
-	    continue;
 
 	const float winsz = mIsUdf(prevdah) ? prevwinsz : dah - prevdah;
 	addValAtDah( dah, wl, winsz, dps, dpscolidx, dpsrowidx );
@@ -512,21 +505,50 @@ void Well::LogDataExtracter::getGenTrackData( DataPointSet& dps,
 }
 
 float Well::LogDataExtracter::findNearest( const Well::Track& track,
-		    const BinIDValue& biv, float startdah, float dahstep ) const
+		    const BinIDValue& biv, float startdah, float dahstep,
+       		    float prevdah ) const
 {
     if ( mIsUdf(dahstep) || mIsZero(dahstep,mDefEps) )
 	return mUdf(float);
 
-    const float zfac = SI().zIsTime() ? 10000 : 1;
-		// Use a distance criterion weighing the Z a lot
+    const float zfac = SI().zIsTime() ? 10 : 1;
+		// Use a distance criterion weighing the Z more
     float dah = startdah;
-    const float lastdah = track.dah( track.size() - 1 );
     Coord3 tpos = track.getPos(dah); tpos.z *= zfac;
     Coord coord = SI().transform( biv.binid );
-    Coord3 bivpos( coord.x, coord.y, biv.value * zfac );
+    TypeSet<float> dists; TypeSet<int> idxs;
+    const Coord3 bivpos( coord.x, coord.y, biv.value * zfac );
+    if ( !mIsUdf(prevdah) )
+    {
+	// Try to find near previous
+	for ( int idx=-4; idx<5; idx++ )
+	{
+	    dah = prevdah + idx * dahstep;
+	    if ( dah < track.dah(0) || dah > track.dah(track.size()-1) )
+		continue;
+	    tpos = track.getPos(dah); tpos.z *= zfac;
+	    dists += tpos.distTo( bivpos );
+	    idxs += idx;
+	}
+
+	if ( !dists.isEmpty() )
+	{
+	    float mindist = dists[0]; int mindistidx = 0;
+	    for ( int idx=0; idx<dists.size(); idx++ )
+	    {
+		if ( dists[idx] < mindist )
+		    { mindist = dists[idx]; mindistidx = idx; }
+	    }
+	    if ( mindistidx > 0 && mindistidx < dists.size() - 1 )
+		return prevdah + idxs[mindistidx] * dahstep;
+	}
+    }
+
+    // Do extensive search
+    const float lastdah = track.dah( track.size() - 1 );
     float mindist = tpos.distTo( bivpos );
     float mindah = dah;
-    for ( dah = dah + dahstep; dah <= lastdah; dah += dahstep )
+    for ( dah = startdah; dah <= lastdah; dah += dahstep )
     {
 	tpos = track.getPos(dah); tpos.z *= zfac;
 	float dist = tpos.distTo( bivpos );
