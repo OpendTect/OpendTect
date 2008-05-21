@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.67 2008-05-12 03:58:34 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.68 2008-05-21 10:30:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,8 +80,6 @@ public:
     int			loadAuxData(const EM::ObjectID&,const char*);
     			/*!<Loads the specified data into memory and returns
 			    its auxdatanr. */
-
-    bool		importLMKFault();
 
     void		manageSurfaces(const char* typ);
     bool		loadSurface(const MultiID&,

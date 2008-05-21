@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.h,v 1.4 2008-05-21 06:30:38 cvsnanne Exp $
+ RCS:           $Id: uiimpfault.h,v 1.5 2008-05-21 10:30:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,29 +22,31 @@ class uiTableImpDataSel;
 
 namespace Table { class FormatDesc; }
 
-/*! \brief Dialog for fault selection */
+/*! \brief Dialog for fault import */
 
-class uiImportLMKFault : public uiDialog
+class uiImportFault : public uiDialog
 {
 public:
-			uiImportLMKFault(uiParent*);
-			~uiImportLMKFault();
+			uiImportFault(uiParent*);
+			~uiImportFault();
 
 protected:
 
-    uiFileInput*	infld;
-    uiFileInput*	formatfilefld;
-    uiIOObjSel*		outfld;
+    uiFileInput*	infld_;
+    uiFileInput*	formatfld_;
+    uiGenInput*		typefld_;
+    uiIOObjSel*		outfld_;
 
+    void		typeSel(CallBacker*);
     virtual bool	acceptOK(CallBacker*);
     bool		checkInpFlds();
     bool		handleAscii();
+    bool		handleLMKAscii();
 
-    CtxtIOObj&		ctio;
+    CtxtIOObj&		ctio_;
 
     Table::FormatDesc&	fd_;
     uiTableImpDataSel*	dataselfld_;
-
 };
 
 

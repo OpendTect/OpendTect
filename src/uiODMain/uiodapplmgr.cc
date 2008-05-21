@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.246 2008-05-12 04:07:51 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.247 2008-05-21 10:30:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -240,6 +240,7 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
     case Flt:
 	switch( at )
 	{
+	case Imp:	emserv_->importFault();		break;
 	case Exp:	emserv_->exportFault();		break;
 	case Man:
 	    emserv_->manageSurfaces( EMFaultTranslatorGroup::keyword );	break;
@@ -292,10 +293,6 @@ void uiODApplMgr::manStrat()
 {
     const_cast<uiStratTreeWin&>(StratTWin()).show();
 }
-
-
-void uiODApplMgr::importLMKFault()
-{ emserv_->importLMKFault(); }
 
 
 void uiODApplMgr::enableMenusAndToolBars( bool yn )

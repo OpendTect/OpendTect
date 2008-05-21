@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.121 2008-05-16 07:00:48 cvshelene Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.122 2008-05-21 10:30:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -183,10 +183,7 @@ void uiODMenuMgr::fillImportMenu()
     uiPopupMenu* impwell = new uiPopupMenu( &appl_, "&Wells" );
     impmnu_->insertItem( impseis );
     impmnu_->insertItem( imphor );
-#ifdef __debug__
     impmnu_->insertItem( impfault );
-    mInsertItem( impfault, "&Landmark ...", mImpLmkFaultMnuItm );
-#endif
     impmnu_->insertItem( impwell );
     mInsertItem( impmnu_, "&Picksets ...", mImpPickMnuItm );
     mInsertItem( impmnu_, "&Wavelets ...", mImpWvltMnuItm );
@@ -206,9 +203,11 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( impseis, "&CBVS ...", mImpSeisCBVSMnuItm );
 
     uiPopupMenu* imphorasc = new uiPopupMenu( &appl_, "&Ascii" );
-    mInsertItem( imphorasc, "Geometry ...", mImpHorAsciiMnuItm );
-    mInsertItem( imphorasc, "Attributes ...", mImpHorAsciiAttribMnuItm );
+    mInsertItem( imphorasc, "&Geometry 3D ...", mImpHorAsciiMnuItm );
+    mInsertItem( imphorasc, "&Attributes 3D ...", mImpHorAsciiAttribMnuItm );
     imphor->insertItem( imphorasc );
+
+    mInsertItem( impfault, "&Ascii ...", mImpFaultMnuItm );
 
     uiPopupMenu* impwellasc = new uiPopupMenu( &appl_, "&Ascii" );
     mInsertItem( impwellasc, "&Track ...", mImpWellAsciiTrackMnuItm );
@@ -583,7 +582,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpPickMnuItm: 	mDoOp(Imp,Pick,0); break;
     case mExpPickMnuItm: 	mDoOp(Exp,Pick,0); break;
     case mImpWvltMnuItm: 	mDoOp(Imp,Wvlt,0); break;
-    case mImpLmkFaultMnuItm: 	applMgr().importLMKFault(); break;
+    case mImpFaultMnuItm: 	mDoOp(Imp,Flt,0); break;
 
     case mManSeisMnuItm: 	mDoOp(Man,Seis,0); break;
     case mManHor3DMnuItm: 	mDoOp(Man,Hor,2); break;

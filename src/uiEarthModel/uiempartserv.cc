@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.139 2008-05-12 03:58:34 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.140 2008-05-21 10:30:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,7 +105,7 @@ EM::ObjectID uiEMPartServer::getObjectID( const MultiID& mid ) const
 
 void uiEMPartServer::manageSurfaces( const char* typ )
 {
-    uiSurfaceMan dlg( appserv().parent(), typ );
+    uiSurfaceMan dlg( parent(), typ );
     dlg.go();
 }
 
@@ -115,7 +115,7 @@ bool uiEMPartServer::ioHorizon( bool imp, bool isgeom )
     bool res = false;
     if ( imp )
     {
-	uiImportHorizon dlg( appserv().parent(), isgeom );
+	uiImportHorizon dlg( parent(), isgeom );
 	res = dlg.go();
 	if ( res && dlg.doDisplay() )
 	{
@@ -126,7 +126,7 @@ bool uiEMPartServer::ioHorizon( bool imp, bool isgeom )
     }
     else
     {
-	uiExportHorizon dlg( appserv().parent() );
+	uiExportHorizon dlg( parent() );
 	res = dlg.go();
     }
 
@@ -140,11 +140,16 @@ bool uiEMPartServer::importHorizon( bool isgeom )
 }
 
 
-bool uiEMPartServer::exportHorizon() { return ioHorizon( false ); }
+bool uiEMPartServer::exportHorizon()
+{ return ioHorizon( false ); }
 
 
 bool uiEMPartServer::importFault()
-{ return true; }
+{
+    uiImportFault dlg( parent() );
+    return dlg.go();
+}
+
 
 bool uiEMPartServer::exportFault()
 {
@@ -225,7 +230,7 @@ bool uiEMPartServer::isShifted( const EM::ObjectID& emid ) const
 void uiEMPartServer::fillHoles( const EM::ObjectID& emid )
 {
     mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(emid))
-    uiInterpolHorizonDlg dlg( appserv().parent(), hor3d );
+    uiInterpolHorizonDlg dlg( parent(), hor3d );
     dlg.go();
 }
 
@@ -233,7 +238,7 @@ void uiEMPartServer::fillHoles( const EM::ObjectID& emid )
 void uiEMPartServer::filterSurface( const EM::ObjectID& emid )
 {
     mDynamicCastGet(EM::Horizon3D*,hor3d,em_.getObject(emid))
-    uiFilterHorizonDlg dlg( appserv().parent(), hor3d );
+    uiFilterHorizonDlg dlg( parent(), hor3d );
     dlg.go();
 }
 
@@ -260,7 +265,7 @@ EM::EMObject* uiEMPartServer::selEMObject()
 void uiEMPartServer::deriveHor3DFrom2D( const EM::ObjectID& emid )
 {
     mDynamicCastGet(EM::Horizon2D*,h2d,em_.getObject(emid))
-    uiHor3DFrom2DDlg dlg( appserv().parent(), *h2d, this );
+    uiHor3DFrom2DDlg dlg( parent(), *h2d, this );
 
     if ( dlg.go() && dlg.doDisplay() )
     {
@@ -308,7 +313,7 @@ void uiEMPartServer::selectMarchingCubes( TypeSet<EM::ObjectID>& ids )
     CtxtIOObj context( EMMarchingCubesSurfaceTranslatorGroup::ioContext() );
     context.ctxt.forread = true;
 
-    uiIOObjSelDlg dlg( appserv().parent(), context );
+    uiIOObjSelDlg dlg( parent(), context );
     if ( !dlg.go() )
 	return;
 
@@ -324,7 +329,7 @@ void uiEMPartServer::selectMarchingCubes( TypeSet<EM::ObjectID>& ids )
     object->setMultiID( dlg.ioObj()->key() );
     Executor* exec = object->loader();
 
-    uiTaskRunner execdlg( appserv().parent() );
+    uiTaskRunner execdlg( parent() );
     if ( !execdlg.execute(*exec) )
     {
 	object->unRef();
@@ -344,7 +349,7 @@ void uiEMPartServer::selectSurfaces( TypeSet<EM::ObjectID>& objids,
 				     const char* typ )
 {
     BufferString lbl( typ ); lbl += " selection";
-    uiDialog dlg( appserv().parent(), uiDialog::Setup(lbl,0,"104.3.1") );
+    uiDialog dlg( parent(), uiDialog::Setup(lbl,0,"104.3.1") );
     uiMultiSurfaceRead* uiobj = new uiMultiSurfaceRead( &dlg, typ );
     uiobj->singleSurfaceSelected.notify( mCB(&dlg,uiDialog,accept) );
     if ( !dlg.go() ) return;
@@ -365,7 +370,7 @@ void uiEMPartServer::selectSurfaces( TypeSet<EM::ObjectID>& objids,
 	obj->ref();
     }
 
-    uiTaskRunner execdlg( appserv().parent() );
+    uiTaskRunner execdlg( parent() );
     if ( !execdlg.execute(*exec) )
     {
 	for ( int idx=0; idx<surfaceids.size(); idx++ )
@@ -402,7 +407,7 @@ bool uiEMPartServer::loadAuxData( const EM::ObjectID& id,
     for ( int idx=0; idx<selattribs.size(); idx++ )
 	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
 
-    uiTaskRunner exdlg( appserv().parent() );
+    uiTaskRunner exdlg( parent() );
     return exdlg.execute( exgrp );
 }
 
@@ -444,7 +449,7 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
     setup.dlgtitle( "Select one or more attributes to be displayed\n"
 	    	    "on the horizon. After loading, use 'Page Up'\n"
 		    "and 'Page Down' buttons to scroll." );
-    uiSelectFromList dlg( appserv().parent(), setup );
+    uiSelectFromList dlg( parent(), setup );
     if ( dlg.selFld() )
 	dlg.selFld()->setMultiSelect( true );
     if ( !dlg.go() || !dlg.selFld() ) return false;
@@ -459,7 +464,7 @@ bool uiEMPartServer::showLoadAuxDataDlg( const EM::ObjectID& id )
     for ( int idx=0; idx<selattribs.size(); idx++ )
 	exgrp.add( hor3d->auxdata.auxDataLoader(selattribs[idx]) );
 
-    uiTaskRunner exdlg( appserv().parent() );
+    uiTaskRunner exdlg( parent() );
     return exdlg.execute( exgrp );
 }
 
@@ -475,7 +480,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas ) const
     {
 	if ( surface )
 	{
-	    uiWriteSurfaceDlg dlg( appserv().parent(), *surface );
+	    uiWriteSurfaceDlg dlg( parent(), *surface );
 	    if ( !dlg.go() ) return false;
 
 	    EM::SurfaceIOData sd;
@@ -494,7 +499,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas ) const
 
 	    context.ctxt.forread = false;
 
-	    uiIOObjSelDlg dlg( appserv().parent(), context );
+	    uiIOObjSelDlg dlg( parent(), context );
 	    if ( !dlg.go() )
 		return false;
 
@@ -510,7 +515,7 @@ bool uiEMPartServer::storeObject( const EM::ObjectID& id, bool storeas ) const
     if ( !exec )
 	return false;
 
-    uiTaskRunner exdlg( appserv().parent() );
+    uiTaskRunner exdlg( parent() );
     return exdlg.execute( *exec );
 }
 
@@ -525,7 +530,7 @@ bool uiEMPartServer::storeAuxData( const EM::ObjectID& id,
     bool overwrite = false;
     if ( storeas )
     {
-	uiStoreAuxData dlg( appserv().parent(), *hor3d );
+	uiStoreAuxData dlg( parent(), *hor3d );
 	if ( !dlg.go() ) return false;
 
 	dataidx = 0;
@@ -540,7 +545,7 @@ bool uiEMPartServer::storeAuxData( const EM::ObjectID& id,
 	return false;
     }
 
-    uiTaskRunner exdlg( appserv().parent() );
+    uiTaskRunner exdlg( parent() );
     return exdlg.execute( *saver );
 }
 
@@ -772,7 +777,7 @@ bool uiEMPartServer::loadSurface( const MultiID& mid,
 
     EM::EMObject* obj = em_.getObject( em_.getObjectID(mid) );
     obj->ref();
-    uiTaskRunner exdlg( appserv().parent() );
+    uiTaskRunner exdlg( parent() );
     if ( exdlg.execute(*exec) <= 0 )
     {
 	obj->unRef();
@@ -785,31 +790,24 @@ bool uiEMPartServer::loadSurface( const MultiID& mid,
 }
 
 
-bool uiEMPartServer::importLMKFault()
-{
-    uiImportLMKFault dlg( appserv().parent() );
-    return dlg.go();
-}
-
-
 const char* uiEMPartServer::genRandLine( int opt )
 {
     const char* res = 0;
     if ( opt == 0 )
     {
-	uiGenRanLinesByShift dlg( appserv().parent() );
+	uiGenRanLinesByShift dlg( parent() );
 	if ( dlg.go() )
 	    res = dlg.getNewSetID();
     }
     else if ( opt == 1 )
     {
-	uiGenRanLinesByContour dlg( appserv().parent() );
+	uiGenRanLinesByContour dlg( parent() );
 	if ( dlg.go() )
 	    res = dlg.getNewSetID();
     }
     else
     {
-	uiGenRanLineFromPolygon dlg( appserv().parent() );
+	uiGenRanLineFromPolygon dlg( parent() );
 	if ( dlg.go() )
 	    res = dlg.getNewSetID();
     }

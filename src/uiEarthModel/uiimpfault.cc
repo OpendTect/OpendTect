@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.22 2008-05-21 06:30:38 cvsnanne Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.23 2008-05-21 10:30:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,43 +32,57 @@ ________________________________________________________________________
 #include <iostream>
 
 
-uiImportLMKFault::uiImportLMKFault( uiParent* p )
-	: uiDialog(p,uiDialog::Setup("Import Landmark Fault",
-				     "Specify fault parameters","104.1.2"))
-	, ctio(*mMkCtxtIOObj(EMFault))
-	, fd_(*EM::FaultAscIO::getDesc())
+uiImportFault::uiImportFault( uiParent* p )
+    : uiDialog(p,uiDialog::Setup("Import Faults","Specify fault parameters",
+				 "104.1.2"))
+    , ctio_(*mMkCtxtIOObj(EMFault))
+    , fd_(*EM::FaultAscIO::getDesc())
 {
-    infld = new uiFileInput( this, "Input file" );
-    infld->setDefaultSelectionDir(
-	    IOObjContext::getDataDirName(IOObjContext::Surf) );
+    infld_ = new uiFileInput( this, "Input ascii file",
+		uiFileInput::Setup().withexamine(true)
+		.defseldir(IOObjContext::getDataDirName(IOObjContext::Surf)) );
 
-    formatfilefld = new uiFileInput( this, "Input Landmark formatfile",
-	    			     uiFileInput::Setup()
-				     .filter("*.fault_fmt") );
-    formatfilefld->setDefaultSelectionDir(
-	    IOObjContext::getDataDirName(IOObjContext::Surf) );
-    formatfilefld->attach( alignedBelow, infld );
+    BufferStringSet types; types.add( "Plain ascii" ).add( "Landmark format" );
+    typefld_ = new uiGenInput( this, "Type", StringListInpSpec(types) );
+    typefld_->valuechanged.notify( mCB(this,uiImportFault,typeSel) );
+    typefld_->attach( alignedBelow, infld_ );
+
+    formatfld_ = new uiFileInput( this, "Input Landmark formatfile",
+	    			  uiFileInput::Setup().filter("*.fault_fmt") );
+    formatfld_->setDefaultSelectionDir(
+		IOObjContext::getDataDirName(IOObjContext::Surf) );
+    formatfld_->attach( alignedBelow, typefld_ );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_, "100.0.0" );
-    dataselfld_->attach( alignedBelow, formatfilefld );
+    dataselfld_->attach( alignedBelow, typefld_ );
 
-    ctio.ctxt.forread = false;
-    outfld = new uiIOObjSel( this, ctio, "Output Fault" );
-    outfld->attach( alignedBelow, dataselfld_ );
+    ctio_.ctxt.forread = false;
+    outfld_ = new uiIOObjSel( this, ctio_, "Output Fault" );
+    outfld_->attach( alignedBelow, dataselfld_ );
+
+    typeSel( 0 );
 }
 
 
-uiImportLMKFault::~uiImportLMKFault()
+uiImportFault::~uiImportFault()
 {
-    delete ctio.ioobj; delete &ctio;
+    delete ctio_.ioobj; delete &ctio_;
+}
+
+
+void uiImportFault::typeSel( CallBacker* )
+{
+    const int tp = typefld_->getIntValue();
+    dataselfld_->display( tp == 0 );
+    formatfld_->display( tp == 1 );
 }
 
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool uiImportLMKFault::handleAscii()
+bool uiImportFault::handleLMKAscii()
 {
-    const char* faultnm = outfld->getInput();
+    const char* faultnm = outfld_->getInput();
 
     EM::EMManager& em = EM::EMM();
     const EM::ObjectID key = em.createObject( EM::Fault::typeStr(), faultnm );
@@ -79,11 +93,11 @@ bool uiImportLMKFault::handleAscii()
     fault->ref();
 
     PtrMan<lmkEMFaultTranslator> transl = lmkEMFaultTranslator::getInstance();
-    StreamData sd = StreamProvider( infld->fileName() ).makeIStream();
+    StreamData sd = StreamProvider( infld_->fileName() ).makeIStream();
     Conn* conn = new StreamConn( sd.istrm );
 
     PtrMan<Executor> exec =
-	transl->reader( *fault, conn, formatfilefld->fileName() ); 
+	transl->reader( *fault, conn, formatfld_->fileName() ); 
 
     if ( !exec )
     {
@@ -97,15 +111,6 @@ bool uiImportLMKFault::handleAscii()
 	fault->unRef();
 	mErrRet( taskrunner.lastMsg() );
     }
-/*
-    PtrMan<Executor> saveexec = fault->geometry.saver();
-    uiTaskRunner taskrunner( this );
-    if ( !taskrunner.execute(*saveexec) )
-    {
-	fault->unRef();
-	mErrRet( savedlg.lastMsg() );
-    }
-    */
 
     fault->unRef();
 
@@ -113,27 +118,43 @@ bool uiImportLMKFault::handleAscii()
 }
 
 
-bool uiImportLMKFault::acceptOK( CallBacker* )
+bool uiImportFault::handleAscii()
 {
-    bool ret = checkInpFlds() && handleAscii();
-    return ret;
+    return true;
 }
 
 
-bool uiImportLMKFault::checkInpFlds()
+bool uiImportFault::acceptOK( CallBacker* )
 {
-    if ( !*infld->fileName() )
+    if ( !checkInpFlds() ) return false;
+
+    if ( typefld_->getIntValue() == 0 )
+	return handleAscii();
+
+    return handleLMKAscii();
+}
+
+
+bool uiImportFault::checkInpFlds()
+{
+    if ( !*infld_->fileName() )
 	mErrRet( "Please select the input file" )
-    else if ( !File_exists(infld->fileName()) )
+    else if ( !File_exists(infld_->fileName()) )
 	mErrRet( "Input file does not exist" )
 
-    if ( !*formatfilefld->fileName() )
-	mErrRet( "Please select the format file" )
-    else if ( !File_exists(formatfilefld->fileName()) )
-	mErrRet( "Format file does not exist" )
+    if ( typefld_->getIntValue() == 1 )
+    {
+	if ( !*formatfld_->fileName() )
+	    mErrRet( "Please select the format file" )
+	else if ( !File_exists(formatfld_->fileName()) )
+	    mErrRet( "Format file does not exist" )
+    }
 
-    if ( !outfld->commitInput(true) )
+    if ( !outfld_->commitInput(true) )
 	mErrRet( "Please select the output" )
+
+    if ( !dataselfld_->commit() )
+	mErrRet( "Please define data format" );
 
     return true;
 }
