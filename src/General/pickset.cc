@@ -4,7 +4,7 @@
  * DATE     : Mar 2001
 -*/
 
-static const char* rcsID = "$Id: pickset.cc,v 1.56 2008-05-13 14:00:38 cvsbert Exp $";
+static const char* rcsID = "$Id: pickset.cc,v 1.57 2008-05-22 12:04:45 cvsnanne Exp $";
 
 #include "pickset.h"
 
@@ -527,7 +527,7 @@ bool PickSetAscIO::isXY() const
 #define mErrRet(s) { if ( s ) errmsg_ = s; return 0; }
 
 bool PickSetAscIO::get( std::istream& strm, Pick::Set& ps,
-			bool iszreq, const float constz ) const
+			bool iszreq, float constz ) const
 {
     while ( true )
     {
@@ -556,4 +556,3 @@ bool PickSetAscIO::get( std::istream& strm, Pick::Set& ps,
 
     return true;
 }
-
