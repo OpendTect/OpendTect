@@ -14,8 +14,6 @@
 #include "stattype.h"
 
 class IOObj;
-class RunCalc;
-class RunCalcSetup;
 class SeisTrc;
 class SeisTrcReader;
 class uiCalcStratAmp;
