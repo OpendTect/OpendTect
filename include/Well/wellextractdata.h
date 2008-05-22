@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.15 2008-04-22 14:19:20 cvsbert Exp $
+ RCS:		$Id: wellextractdata.h,v 1.16 2008-05-22 08:02:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -172,7 +172,7 @@ protected:
 	    			    DataPointSet&,int,int) const;
     float		calcVal(const Log&,float,float) const;
     float		findNearest(const Track&,const BinIDValue&,
-	    			    float,float) const;
+	    			    float,float,float) const;
 };
 
 
