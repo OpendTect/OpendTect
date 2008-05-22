@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.26 2008-02-29 11:22:21 cvsnanne Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.27 2008-05-22 15:07:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,12 +40,12 @@ IOPar& uiSteeringSel::inpselhist = *new IOPar( "Steering selection history" );
 uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads, 
 			      bool is2d, bool withconstdir)
     : uiGroup(p,"Steering selection")
-    , ctio_(*mMkCtxtIOObj(SeisTrc))
+    , ctio_( *new CtxtIOObj(uiSteerCubeSel::ioContext()) )
     , descset_(ads)
-    , typfld(0)
-    , inpfld(0)
-    , dirfld(0)
-    , dipfld(0)
+    , typfld_(0)
+    , inpfld_(0)
+    , dirfld_(0)
+    , dipfld_(0)
     , notypechange_(false)
     , is2d_(is2d)
 {
@@ -60,22 +60,22 @@ uiSteeringSel::uiSteeringSel( uiParent* p, const Attrib::DescSet* ads,
     BufferStringSet steertyps;
     steertyps.add( "None" ).add( "Central" ).add( "Full" );
     if ( withconstdir ) steertyps.add ( "Constant direction" );
-    typfld = new uiGenInput( this, "Steering", StringListInpSpec(steertyps) );
-    typfld->valuechanged.notify( mCB(this,uiSteeringSel,typeSel));
+    typfld_ = new uiGenInput( this, "Steering", StringListInpSpec(steertyps) );
+    typfld_->valuechanged.notify( mCB(this,uiSteeringSel,typeSel));
 
     ctio_.ctxt.forread = true;
-    inpfld = new uiSteerCubeSel( this, ctio_, ads, is2d_ );
-    inpfld->getHistory( inpselhist );
-    inpfld->attach( alignedBelow, typfld );
+    inpfld_ = new uiSteerCubeSel( this, ctio_, ads, is2d_ );
+    inpfld_->getHistory( inpselhist );
+    inpfld_->attach( alignedBelow, typfld_ );
 
-    dirfld = new uiGenInput( this, "Azimuth", FloatInpSpec() );
-    dirfld->attach( alignedBelow, typfld );
+    dirfld_ = new uiGenInput( this, "Azimuth", FloatInpSpec() );
+    dirfld_->attach( alignedBelow, typfld_ );
     BufferString dipstr( "Apparent dip " );
     dipstr += SI().zIsTime() ? "(us/m)" : "(degrees)";
-    dipfld = new uiGenInput( this, dipstr, FloatInpSpec() );
-    dipfld->attach( alignedBelow, dirfld );
+    dipfld_ = new uiGenInput( this, dipstr, FloatInpSpec() );
+    dipfld_->attach( alignedBelow, dirfld_ );
 
-    setHAlignObj( inpfld );
+    setHAlignObj( inpfld_ );
     mainObject()->finaliseStart.notify( mCB(this,uiSteeringSel,doFinalise) );
 }
 
@@ -94,29 +94,29 @@ void uiSteeringSel::doFinalise(CallBacker*)
 
 void uiSteeringSel::typeSel( CallBacker* )
 {
-    if ( !typfld ) return; 
+    if ( !typfld_ ) return; 
 
-    int typ = typfld->getIntValue();
-    inpfld->display( typ > 0 && typ < 3 );
-    dirfld->display( typ == 3 && !is2d_ );
-    dipfld->display( typ == 3 );
+    int typ = typfld_->getIntValue();
+    inpfld_->display( typ > 0 && typ < 3 );
+    dirfld_->display( typ == 3 && !is2d_ );
+    dipfld_->display( typ == 3 );
 }
 
 
 bool uiSteeringSel::willSteer() const
 {
-    return typfld && typfld->getIntValue() > 0;
+    return typfld_ && typfld_->getIntValue() > 0;
 }
 
 
 void uiSteeringSel::setDesc( const Attrib::Desc* ad )
 {
-    if ( !typfld )
+    if ( !typfld_ )
 	return;
     
     if ( !ad )
     {
-	typfld->setValue( 0 );
+	typfld_->setValue( 0 );
 	return;
     }
 
@@ -128,37 +128,37 @@ void uiSteeringSel::setDesc( const Attrib::Desc* ad )
     {
 	type = 3;
 	const Attrib::Desc& desc = *ad;
-	mIfGetFloat( "dip", dip, dipfld->setValue( dip ) );
-	mIfGetFloat( "azi", azi, dirfld->setValue( azi ) );
+	mIfGetFloat( "dip", dip, dipfld_->setValue( dip ) );
+	mIfGetFloat( "azi", azi, dirfld_->setValue( azi ) );
     }
     else if ( attribname == "CentralSteering" )
     {
 	type = 1;
-	inpfld->setDesc( ad->getInput(0) );
-	inpfld->updateHistory( inpselhist );
+	inpfld_->setDesc( ad->getInput(0) );
+	inpfld_->updateHistory( inpselhist );
     }
     else if ( attribname == "FullSteering" )
     {
 	type = 2;
-	inpfld->setDesc( ad->getInput(0) );
-	inpfld->updateHistory( inpselhist );
+	inpfld_->setDesc( ad->getInput(0) );
+	inpfld_->updateHistory( inpselhist );
     }
 
     if ( !notypechange_ )
-	typfld->setValue( type );
+	typfld_->setValue( type );
     typeSel( 0 );
 }
 
 
 void uiSteeringSel::setDescSet( const DescSet* ads )
 {
-    if ( !inpfld ) return;
+    if ( !inpfld_ ) return;
 
     descset_ = ads;
-    inpfld->setDescSet( ads );
+    inpfld_->setDescSet( ads );
     if ( !notypechange_ )
     {
-	typfld->setValue( 0 );
+	typfld_->setValue( 0 );
 	typeSel( 0 );
     }
 }
@@ -166,9 +166,9 @@ void uiSteeringSel::setDescSet( const DescSet* ads )
 
 DescID uiSteeringSel::descID()
 {
-    if ( !typfld ) return DescID::undef();
+    if ( !typfld_ ) return DescID::undef();
 
-    const int type = typfld->getIntValue();
+    const int type = typfld_->getIntValue();
     if ( type==0 ) return DescID::undef();
 
     if ( type==3 )
@@ -184,15 +184,15 @@ DescID uiSteeringSel::descID()
 	    float dip, azi;
 	    mGetFloat( dip, "dip" );
 	    mGetFloat( azi, "azi" );
-	    if ( mIsEqual(dip,dipfld->getfValue(),mDefEps) &&
-		 mIsEqual(azi,dirfld->getfValue(),mDefEps) )
+	    if ( mIsEqual(dip,dipfld_->getfValue(),mDefEps) &&
+		 mIsEqual(azi,dirfld_->getfValue(),mDefEps) )
 		return descid;
 	}
 
 	Desc* desc = PF().createDescCopy( attribnm );
 	if ( !desc ) return DescID::undef();
-	desc->getValParam("dip")->setValue( dipfld->getfValue() );
-	desc->getValParam("azi")->setValue( dirfld->getfValue() );
+	desc->getValParam("dip")->setValue( dipfld_->getfValue() );
+	desc->getValParam("azi")->setValue( dirfld_->getfValue() );
 
 	DescSet* ads = const_cast<DescSet*>(descset_);
 	BufferString userref = attribnm;
@@ -201,9 +201,9 @@ DescID uiSteeringSel::descID()
 	return ads->addDesc( desc );
     }
 
-    inpfld->processInput();
-    const DescID inldipid = inpfld->inlDipID();
-    const DescID crldipid = inpfld->crlDipID();
+    inpfld_->processInput();
+    const DescID inldipid = inpfld_->inlDipID();
+    const DescID crldipid = inpfld_->crlDipID();
     if ( inldipid < 0 && crldipid < 0 )
     {
 	uiMSG().error( "Selected Steering input is not valid" );
@@ -246,9 +246,9 @@ DescID uiSteeringSel::descID()
 
 void uiSteeringSel::setType( int nr, bool nochg )
 {
-    if ( !typfld ) return;
-    typfld->setValue( nr );
-    typfld->setSensitive( !nochg );
+    if ( !typfld_ ) return;
+    typfld_->setValue( nr );
+    typfld_->setSensitive( !nochg );
     notypechange_ = nochg;
     typeSel(0);
 }
@@ -256,9 +256,9 @@ void uiSteeringSel::setType( int nr, bool nochg )
 
 uiSteerCubeSel::uiSteerCubeSel( uiParent* p, CtxtIOObj& c,
 				const DescSet* ads, bool is2d, const char* txt )
-	: uiSeisSel( p, getCtio(c), uiSeisSel::Setup(is2d,false)
+	: uiSeisSel( p, c, uiSeisSel::Setup(is2d,false)
 				   .selattr(false).seltxt("Steering Data") )
-	, attrdata( ads )
+	, attrdata_( ads )
 {
     attachObj()->finaliseStart.notify( mCB(this,uiSteerCubeSel,doFinalise) );
 }
@@ -275,19 +275,25 @@ void uiSteerCubeSel::doFinalise( CallBacker* c )
 }
 
 
-CtxtIOObj& uiSteerCubeSel::getCtio( CtxtIOObj& c )
+const IOObjContext& uiSteerCubeSel::ioContext()
 {
-    c.ctxt.parconstraints.set( sKey::Type, sKey::Steering );
-    c.ctxt.includeconstraints = true;
-    c.ctxt.allowcnstrsabsent = false;
-    c.ctxt.forread = true;
-    return c;
+    static PtrMan<IOObjContext> ctxt = 0;
+    if ( !ctxt )
+    {
+	ctxt = new IOObjContext( SeisTrcTranslatorGroup::ioContext() );
+	ctxt->deftransl = "CBVS";
+	ctxt->parconstraints.set( sKey::Type, sKey::Steering );
+	ctxt->includeconstraints = true;
+	ctxt->allowcnstrsabsent = false;
+    }
+
+    return *ctxt;
 }
 
 
 DescID uiSteerCubeSel::getDipID( int dipnr ) const
 {
-    const DescSet* ads = attrdata.attrset;
+    const DescSet* ads = attrdata_.attrset;
     if ( !ads )
     {
 	pErrMsg( "No attribdescset set");
@@ -330,7 +336,7 @@ DescID uiSteerCubeSel::getDipID( int dipnr ) const
 
 void uiSteerCubeSel::setDescSet( const DescSet* ads )
 {
-    attrdata.attrset = ads;
+    attrdata_.attrset = ads;
 }
 
 
@@ -353,5 +359,5 @@ void uiSteerCubeSel::setDesc( const Desc* desc )
 void uiSteerCubeSel::fillSelSpec( SelSpec& as, bool inldip )
 {
     as.set( 0, inldip ? inlDipID() : crlDipID(), false, "" );
-    as.setRefFromID( *attrdata.attrset );
+    as.setRefFromID( *attrdata_.attrset );
 }

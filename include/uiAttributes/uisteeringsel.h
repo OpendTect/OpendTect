@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uisteeringsel.h,v 1.10 2007-06-07 05:29:22 cvsraman Exp $
+ RCS:           $Id: uisteeringsel.h,v 1.11 2008-05-22 15:07:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,30 +26,30 @@ class uiSteerCubeSel : public uiSeisSel
 {
 public:
 
-			uiSteerCubeSel(uiParent*,CtxtIOObj&,
+				uiSteerCubeSel(uiParent*,CtxtIOObj&,
 				       const Attrib::DescSet*,bool,
 				       const char* txt="Steering Data" );
 
-    inline Attrib::DescID inlDipID() const	{ return getDipID(0); }
-			// Returns -2 when selected is not a dip
-    inline Attrib::DescID crlDipID() const	{ return getDipID(1); }
-			// Returns -2 when selected is not a dip
+    inline Attrib::DescID	inlDipID() const	{ return getDipID(0); }
+				// Returns -2 when selected is not a dip
+    inline Attrib::DescID 	crlDipID() const	{ return getDipID(1); }
+				// Returns -2 when selected is not a dip
 
-    void		setDesc(const Attrib::Desc*);
-    void		setDescSet(const Attrib::DescSet*);
+    void			setDesc(const Attrib::Desc*);
+    void			setDescSet(const Attrib::DescSet*);
 
-    void		fillSelSpec(Attrib::SelSpec&,bool inl);
-    			/* inl=true: AttribSelSpec for inline component
-    			   inl=false: AttribSelSpec for crossline component */
+    void			fillSelSpec(Attrib::SelSpec&,bool inl);
+    				/* inl=true: AttribSelSpec for inline comp
+    				   inl=false: AttribSelSpec for crossline comp*/
+
+    static const IOObjContext&	ioContext();
 
 protected:
 
-    uiAttrSelData	attrdata;
+    Attrib::DescID		getDipID(int) const;
+    void			doFinalise(CallBacker*);
 
-    Attrib::DescID	getDipID(int) const;
-    CtxtIOObj&		getCtio(CtxtIOObj&);
-
-    void		doFinalise(CallBacker*);
+    uiAttrSelData		attrdata_;
 };
 
 
@@ -79,10 +79,10 @@ protected:
     CtxtIOObj&			ctio_;
 
     uiLabel*			nosteerlbl_;
-    uiGenInput*			typfld;
-    uiSteerCubeSel*		inpfld;
-    uiGenInput*			dirfld;
-    uiGenInput*			dipfld;
+    uiGenInput*			typfld_;
+    uiSteerCubeSel*		inpfld_;
+    uiGenInput*			dirfld_;
+    uiGenInput*			dipfld_;
 
     bool			is2d_;
     bool			notypechange_;
