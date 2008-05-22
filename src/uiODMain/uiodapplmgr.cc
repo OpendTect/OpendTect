@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.247 2008-05-21 10:30:06 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.248 2008-05-22 11:16:21 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uiodmenumgr.h"
+#include "uiodtreeitem.h"
 
 #include "uiconvpos.h"
 #include "mousecursor.h"
@@ -881,29 +882,8 @@ bool uiODApplMgr::handleWellServEv( int evid )
 	TypeSet<Coord> coords;
 	wellserv_->getRdmLineCoordinates( coords );
 	setupRdmLinePreview( coords );
-	enableTree( false );
-	enableMenusAndToolBars( false );
-    }
-    if ( evid == uiWellPartServer::evCreateRdmLine )
-    {
-	TypeSet<Coord> coords;
-	wellserv_->getRdmLineCoordinates( coords );
-	cleanPreview();
-
-	TypeSet<BinID> bidset;
-	for ( int idx=0; idx<coords.size(); idx++ )
-	{
-	    BinID bid = SI().transform( coords[idx] );
-	    if ( bidset.indexOf(bid) < 0 )
-		bidset += bid;
-	}
-
-	const int rdmlineid = visserv_->getSelObjectId();
-	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
-			visserv_->getObject(rdmlineid));
-	rtd->setKnotPositions( bidset );
-	enableTree( true );
-	enableMenusAndToolBars( true );
+	//enableTree( false );
+	//enableMenusAndToolBars( false );
     }
     if ( evid == uiWellPartServer::evCleanPreview )
     {
