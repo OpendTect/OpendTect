@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.43 2008-05-21 14:14:22 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.44 2008-05-22 14:09:42 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -106,7 +106,8 @@ int Well::InfoCollector::nextStep()
 
 
 Well::TrackSampler::TrackSampler( const BufferStringSet& i,
-				  ObjectSet<DataPointSet>& d )
+				  ObjectSet<DataPointSet>& d,
+       				  bool ztm )
 	: Executor("Well data extraction")
 	, topmrkr(sKeyDataStart)
 	, botmrkr(sKeyDataEnd)
@@ -116,7 +117,7 @@ Well::TrackSampler::TrackSampler( const BufferStringSet& i,
     	, ids(i)
     	, dpss(d)
     	, curid(0)
-    	, timesurv(SI().zIsTime())
+    	, zistime(ztm)
     	, for2d(false)
     	, minidps(false)
 {
@@ -161,7 +162,7 @@ int Well::TrackSampler::nextStep()
     Well::Data wd;
     Well::Reader wr( ioobj->fullUserExpr(true), wd );
     if ( !wr.getInfo() ) mRetNext()
-    if ( timesurv && !wr.getD2T() )
+    if ( zistime && !wr.getD2T() )
 	mRetNext()
 
     fulldahrg.start = mUdf(float);
@@ -319,57 +320,58 @@ void Well::TrackSampler::addPosns( DataPointSet& dps, const BinIDValue& biv,
 
 
 Well::LogDataExtracter::LogDataExtracter( const BufferStringSet& i,
-					  ObjectSet<DataPointSet>& d )
+					  ObjectSet<DataPointSet>& d,
+       					  bool ztm )
 	: Executor("Well log data extraction")
-	, ids(i)
-	, dpss(d)
-    	, samppol(Med)
-	, curid(0)
-    	, timesurv(SI().zIsTime())
+	, ids_(i)
+	, dpss_(d)
+    	, samppol_(Med)
+	, curid_(0)
+	, zistime_(ztm)
 {
 }
 
 
 void Well::LogDataExtracter::usePar( const IOPar& pars )
 {
-    pars.get( sKeyLogNm, lognm );
+    pars.get( sKeyLogNm, lognm_ );
     const char* res = pars.find( sKeySamplePol );
-    if ( res && *res ) samppol = eEnum(SamplePol,res);
+    if ( res && *res ) samppol_ = eEnum(SamplePol,res);
 }
 
 
 #undef mRetNext
 #define mRetNext() { \
     delete ioobj; \
-    curid++; \
-    return curid >= ids.size() ? Finished : MoreToDo; }
+    curid_++; \
+    return curid_ >= ids_.size() ? Finished : MoreToDo; }
 
 int Well::LogDataExtracter::nextStep()
 {
-    if ( curid >= ids.size() )
+    if ( curid_ >= ids_.size() )
 	return 0;
     if ( msg_.isEmpty() )
-	{ msg_ = "Extracting '"; msg_ += lognm; msg_ += "'"; return MoreToDo; }
+	{ msg_ = "Extracting '"; msg_ += lognm_; msg_ += "'"; return MoreToDo; }
 
     IOObj* ioobj = 0;
-    if ( dpss.size() <= curid ) mRetNext()
-    DataPointSet& dps = *dpss[curid];
+    if ( dpss_.size() <= curid_ ) mRetNext()
+    DataPointSet& dps = *dpss_[curid_];
     if ( dps.isEmpty() ) mRetNext()
 
-    ioobj = IOM().get( MultiID(ids.get(curid)) );
+    ioobj = IOM().get( MultiID(ids_.get(curid_)) );
     if ( !ioobj ) mRetNext()
     Well::Data wd;
     Well::Reader wr( ioobj->fullUserExpr(true), wd );
     if ( !wr.getInfo() ) mRetNext()
 
     PtrMan<Well::Track> timetrack = 0;
-    if ( timesurv )
+    if ( zistime_ )
     {
 	if ( !wr.getD2T() ) mRetNext()
 	timetrack = new Well::Track( wd.track() );
 	timetrack->toTime( *wd.d2TModel() );
     }
-    const Well::Track& track = timesurv ? *timetrack : wd.track();
+    const Well::Track& track = zistime_ ? *timetrack : wd.track();
     if ( track.size() < 2 ) mRetNext()
     if ( !wr.getLogs() ) mRetNext()
     
@@ -385,15 +387,15 @@ void Well::LogDataExtracter::getData( DataPointSet& dps,
 				      const Well::Data& wd,
 				      const Well::Track& track )
 {
-    int wlidx = wd.logs().indexOf( lognm );
+    int wlidx = wd.logs().indexOf( lognm_ );
     if ( wlidx < 0 )
 	return;
 
     const Well::Log& wl = wd.logs().getLog( wlidx );
-    DataPointSet::ColID dpscolidx = dps.indexOf( lognm );
+    DataPointSet::ColID dpscolidx = dps.indexOf( lognm_ );
     if ( dpscolidx < 0 )
     {
-	dps.dataSet().add( new DataColDef(lognm) );
+	dps.dataSet().add( new DataColDef(lognm_) );
 	dpscolidx = dps.nrCols() - 1;
 	if ( dpscolidx < 0 ) return;
     }
@@ -494,9 +496,6 @@ void Well::LogDataExtracter::getGenTrackData( DataPointSet& dps,
 	if ( mIsUdf(dah) )
 	    continue;
 
-	Coord3 pos = track.getPos( dah );
-	Coord coord = dps.coord( dpsrowidx );
-
 	const float winsz = mIsUdf(prevdah) ? prevwinsz : dah - prevdah;
 	addValAtDah( dah, wl, winsz, dps, dpscolidx, dpsrowidx );
 	prevwinsz = winsz;
@@ -511,50 +510,48 @@ float Well::LogDataExtracter::findNearest( const Well::Track& track,
     if ( mIsUdf(dahstep) || mIsZero(dahstep,mDefEps) )
 	return mUdf(float);
 
-    const float zfac = SI().zIsTime() ? 10 : 1;
-		// Use a distance criterion weighing the Z more
-    float dah = startdah;
-    Coord3 tpos = track.getPos(dah); tpos.z *= zfac;
+    const float zfac = zistime_ ? 1000 : 1;
     Coord coord = SI().transform( biv.binid );
-    TypeSet<float> dists; TypeSet<int> idxs;
-    const Coord3 bivpos( coord.x, coord.y, biv.value * zfac );
+    TypeSet<float> sqdists; TypeSet<int> idxs;
+    const Coord3 bivpos( coord.x, coord.y, biv.value*zfac );
     if ( !mIsUdf(prevdah) )
     {
 	// Try to find near previous
 	for ( int idx=-4; idx<5; idx++ )
 	{
-	    dah = prevdah + idx * dahstep;
+	    float dah = prevdah + idx * dahstep;
 	    if ( dah < track.dah(0) || dah > track.dah(track.size()-1) )
 		continue;
-	    tpos = track.getPos(dah); tpos.z *= zfac;
-	    dists += tpos.distTo( bivpos );
+	    Coord3 tpos( track.getPos(dah) ); tpos.z *= zfac;
+	    sqdists += tpos.sqDistTo( bivpos );
 	    idxs += idx;
 	}
 
-	if ( !dists.isEmpty() )
+	if ( !sqdists.isEmpty() )
 	{
-	    float mindist = dists[0]; int mindistidx = 0;
-	    for ( int idx=0; idx<dists.size(); idx++ )
+	    float minsqdist = sqdists[0]; int minsqdistidx = 0;
+	    for ( int idx=0; idx<sqdists.size(); idx++ )
 	    {
-		if ( dists[idx] < mindist )
-		    { mindist = dists[idx]; mindistidx = idx; }
+		if ( sqdists[idx] < minsqdist )
+		    { minsqdist = sqdists[idx]; minsqdistidx = idx; }
 	    }
-	    if ( mindistidx > 0 && mindistidx < dists.size() - 1 )
-		return prevdah + idxs[mindistidx] * dahstep;
+	    if ( minsqdistidx > 0 && minsqdistidx < sqdists.size() - 1 )
+		return prevdah + idxs[minsqdistidx] * dahstep;
 	}
     }
 
     // Do extensive search
     const float lastdah = track.dah( track.size() - 1 );
-    float mindist = tpos.distTo( bivpos );
-    float mindah = dah;
-    for ( dah = startdah; dah <= lastdah; dah += dahstep )
+    Coord3 tpos( track.getPos(startdah) ); tpos.z *= zfac;
+    float minsqdist = tpos.sqDistTo( bivpos );
+    float mindah = startdah;
+    for ( float dah = startdah+dahstep; dah<=lastdah; dah+=dahstep )
     {
 	tpos = track.getPos(dah); tpos.z *= zfac;
-	float dist = tpos.distTo( bivpos );
-	if ( dist < mindist )
+	float sqdist = tpos.sqDistTo( bivpos );
+	if ( sqdist < minsqdist )
 	{
-	    mindist = dist;
+	    minsqdist = sqdist;
 	    mindah = dah;
 	}
     }
@@ -566,7 +563,7 @@ void Well::LogDataExtracter::addValAtDah( float dah, const Well::Log& wl,
 					  float winsz, DataPointSet& dps,
        					  int dpscolidx, int dpsrowidx ) const
 {
-    float val = samppol == Nearest ? wl.getValue( dah )
+    float val = samppol_ == Nearest ? wl.getValue( dah )
 				   : calcVal(wl,dah,winsz);
     dps.getValues(dpsrowidx)[dpscolidx] = val;
 }
@@ -591,22 +588,22 @@ float Well::LogDataExtracter::calcVal( const Well::Log& wl, float dah,
     }
     if ( vals.size() < 1 ) return mUdf(float);
     if ( vals.size() == 1 ) return vals[0];
-    if ( vals.size() == 2 ) return samppol == Avg ? (vals[0]+vals[1])/2
+    if ( vals.size() == 2 ) return samppol_ == Avg ? (vals[0]+vals[1])/2
 						  : vals[0];
     const int sz = vals.size();
-    if ( samppol == Med )
+    if ( samppol_ == Med )
     {
 	sort_array( vals.arr(), sz );
 	return vals[sz/2];
     }
-    else if ( samppol == Avg )
+    else if ( samppol_ == Avg )
     {
 	float val = 0;
 	for ( int idx=0; idx<sz; idx++ )
 	    val += vals[idx];
 	return val / sz;
     }
-    else if ( samppol == MostFreq )
+    else if ( samppol_ == MostFreq )
     {
 	TypeSet<float> valsseen;
 	TypeSet<int> valsseencount;

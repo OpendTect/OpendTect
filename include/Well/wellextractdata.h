@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.16 2008-05-22 08:02:35 cvsbert Exp $
+ RCS:		$Id: wellextractdata.h,v 1.17 2008-05-22 14:09:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,7 +81,8 @@ class TrackSampler : public ::Executor
 public:
 
 			TrackSampler(const BufferStringSet& ioobjids,
-				     ObjectSet<DataPointSet>&);
+				     ObjectSet<DataPointSet>&,
+				     bool zvalsintime);
 
     BufferString	topmrkr;
     BufferString	botmrkr;
@@ -117,7 +118,7 @@ protected:
     const BufferStringSet&	ids;
     ObjectSet<DataPointSet>&	dpss;
     int				curid;
-    const bool			timesurv;
+    const bool			zistime;
     Interval<float>		fulldahrg;
 
     void		getData(const Data&,DataPointSet&);
@@ -140,10 +141,11 @@ public:
     			DeclareEnumUtils(SamplePol)
 
 			LogDataExtracter(const BufferStringSet& ioobjids,
-					 ObjectSet<DataPointSet>&);
+					 ObjectSet<DataPointSet>&,
+					 bool zvalsintime);
 
-    BufferString	lognm;
-    SamplePol		samppol;
+    BufferString	lognm_;
+    SamplePol		samppol_;
     static const char*	sKeySamplePol;
     static const char*	sKeyLogNm; //!< equals address of TrackSampler's
 
@@ -152,17 +154,17 @@ public:
     int			nextStep();
     const char*		message() const	   { return msg_.buf(); }
     const char*		nrDoneText() const { return "Wells handled"; }
-    int			nrDone() const	   { return curid; }
-    int			totalNr() const	   { return ids.size(); }
+    int			nrDone() const	   { return curid_; }
+    int			totalNr() const	   { return ids_.size(); }
 
-    const BufferStringSet&	ioObjIds() const	{ return ids; }
+    const BufferStringSet&	ioObjIds() const	{ return ids_; }
 
 protected:
 
-    const BufferStringSet&	ids;
-    ObjectSet<DataPointSet>&	dpss;
-    int				curid;
-    const bool			timesurv;
+    const BufferStringSet&	ids_;
+    ObjectSet<DataPointSet>&	dpss_;
+    int				curid_;
+    const bool			zistime_;
     BufferString		msg_;
 
     void		getData(DataPointSet&,const Data&,const Track&);

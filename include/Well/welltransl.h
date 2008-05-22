@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: welltransl.h,v 1.7 2008-04-03 11:18:47 cvsbert Exp $
+ RCS:		$Id: welltransl.h,v 1.8 2008-05-22 14:09:42 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -47,7 +47,8 @@ public:
     			//!< Implemented using TrackSampler
     static Executor*	createDataPointSets(const BufferStringSet&,
 					    const IOPar&,bool for2d,
-					    ObjectSet<DataPointSet>&);
+					    ObjectSet<DataPointSet>&,
+					    bool zvalsintime);
 };
 
 

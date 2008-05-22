@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uiwellattribxplot.cc,v 1.7 2008-04-22 16:20:39 cvsbert Exp $
+ RCS:           $Id: uiwellattribxplot.cc,v 1.8 2008-05-22 14:09:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -193,7 +193,7 @@ bool uiWellAttribCrossPlot::extractWellData( const BufferStringSet& ioobjids,
 					     const BufferStringSet& lognms,
 					     ObjectSet<DataPointSet>& dpss )
 {
-    Well::TrackSampler wts( ioobjids, dpss );
+    Well::TrackSampler wts( ioobjids, dpss, SI().zIsTime() );
     wts.for2d = ads_.is2D(); wts.lognms = lognms;
     wts.locradius = radiusfld_->getfValue();
     wts.topmrkr = topmarkfld_->text(); wts.botmrkr = botmarkfld_->text();
@@ -207,9 +207,9 @@ bool uiWellAttribCrossPlot::extractWellData( const BufferStringSet& ioobjids,
 
     for ( int idx=0; idx<lognms.size(); idx++ )
     {
-	Well::LogDataExtracter wlde( ioobjids, dpss );
-	wlde.lognm = lognms.get(idx);
-	wlde.samppol = (Well::LogDataExtracter::SamplePol)
+	Well::LogDataExtracter wlde( ioobjids, dpss, SI().zIsTime() );
+	wlde.lognm_ = lognms.get(idx);
+	wlde.samppol_ = (Well::LogDataExtracter::SamplePol)
 	    				logresamplfld_->getIntValue();
 	if ( !tr.execute(wlde) )
 	    return false;

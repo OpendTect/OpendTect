@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.53 2008-05-21 12:46:39 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.54 2008-05-22 14:09:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,7 +97,8 @@ void uiNLAPartServer::getDataPointSets( ObjectSet<DataPointSet>& dpss ) const
     else
     {
 	PtrMan<Executor> ex = WellTranslator::createDataPointSets(
-				crdesc.outids, crdesc.pars, is2devent, dpss );
+				crdesc.outids, crdesc.pars, is2devent, dpss,
+	       			SI().zIsTime() );
 	if ( !ex ) return;
 	uiTaskRunner uiex( appserv().parent() );
 	if ( !uiex.execute(*ex) )
@@ -254,7 +255,7 @@ bool uiNLAPartServer::extractDirectData( ObjectSet<DataPointSet>& dpss )
 	return false;
     }
 
-    Well::LogDataExtracter lde( crdesc.outids, dpss );
+    Well::LogDataExtracter lde( crdesc.outids, dpss, SI().zIsTime() );
     lde.usePar( crdesc.pars );
     uiTaskRunner uiex( appserv().parent() );
     return uiex.execute(lde);
