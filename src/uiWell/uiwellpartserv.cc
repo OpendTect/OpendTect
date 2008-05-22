@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.cc,v 1.29 2008-04-30 04:01:02 cvssatyaki Exp $
+ RCS:           $Id: uiwellpartserv.cc,v 1.30 2008-05-22 11:08:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,14 +39,17 @@ const int uiWellPartServer::evCleanPreview			=2;
 uiWellPartServer::uiWellPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , rdmlinedlg_(0)
+    , cursceneid_(-1)
+    , disponcreation_(false)
+    , multiid_(0)
+    , randLineDlgClosed(this)
 {
 }
 
 
 uiWellPartServer::~uiWellPartServer()
 {
-    if ( rdmlinedlg_ )
-	delete rdmlinedlg_;
+    delete rdmlinedlg_;
 }
 
 
@@ -116,6 +119,7 @@ void uiWellPartServer::manageWells()
 
 void uiWellPartServer::selectWellCoordsForRdmLine()
 {
+    delete rdmlinedlg_;
     rdmlinedlg_ = new uiWell2RandomLineDlg( parent(), this );
     rdmlinedlg_->windowClosed.notify(mCB(this,uiWellPartServer,rdmlnDlgClosed));
     rdmlinedlg_->go();
@@ -124,10 +128,10 @@ void uiWellPartServer::selectWellCoordsForRdmLine()
 
 void uiWellPartServer::rdmlnDlgClosed( CallBacker* )
 {
-    if ( rdmlinedlg_->uiResult() == 0 )
-	sendEvent( evCleanPreview );
-    else
-	sendEvent( evCreateRdmLine );
+    multiid_ = rdmlinedlg_->getRandLineID();
+    disponcreation_ = rdmlinedlg_->dispOnCreation();
+    sendEvent( evCleanPreview );
+    randLineDlgClosed.trigger();
 }
 
 

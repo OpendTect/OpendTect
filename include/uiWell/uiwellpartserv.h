@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellpartserv.h,v 1.23 2007-10-04 12:04:44 cvsnanne Exp $
+ RCS:           $Id: uiwellpartserv.h,v 1.24 2008-05-22 11:08:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,10 +44,13 @@ public:
 						Well::LogDisplayParSet*&);
     bool			hasLogs(const MultiID&) const;
 
+    bool			dispLineOnCreation(){ return disponcreation_; }
+    const char*			getRandLineMultiID()   { return multiid_; }
     void			selectWellCoordsForRdmLine();
     void			getRdmLineCoordinates(TypeSet<Coord>&);
     void			sendPreviewEvent();
     void			rdmlnDlgClosed(CallBacker*);
+    Notifier<uiWellPartServer>	randLineDlgClosed;
     void			setPreviewIds( const TypeSet<int>& ids )
 				{ previewids_ = ids; }
     TypeSet<int>&		getPreviewIds() 	{ return previewids_; }
@@ -59,6 +62,9 @@ public:
     bool			storeWell(const TypeSet<Coord3>&,const char* nm,
 	    				  MultiID&);
 
+    void			setSceneID( int id )	{ cursceneid_ = id; }
+    int				getSceneID() const	{ return cursceneid_; }
+
     static const int            evPreviewRdmLine;
     static const int            evCreateRdmLine;
     static const int		evCleanPreview;
@@ -67,6 +73,10 @@ protected:
 
     uiWell2RandomLineDlg*	rdmlinedlg_;
     TypeSet<int>		previewids_;
+
+    int				cursceneid_;
+    bool			disponcreation_;
+    const char*			multiid_;
 
 };
 

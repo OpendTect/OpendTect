@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.h,v 1.5 2006-02-17 17:45:22 cvshelene Exp $
+ RCS:           $Id: uiwellrdmlinedlg.h,v 1.6 2008-05-22 11:08:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,10 @@ ________________________________________________________________________
 
 class MultiID;
 class IOObj;
+class CtxtIOObj;
 class Coord;
+class uiCheckBox;
+class uiIOObjSel;
 class uiTable;
 class uiGenInput;
 class uiListBox;
@@ -37,8 +40,11 @@ class uiWell2RandomLineDlg : public uiDialog
 {
 public:
     			uiWell2RandomLineDlg(uiParent*,uiWellPartServer*);
+    			~uiWell2RandomLineDlg();
 
     void 		getCoordinates(TypeSet<Coord>&);
+    const char*		getRandLineID() const;
+    bool		dispOnCreation();
 
 protected:
     void		fillListBox();
@@ -55,6 +61,7 @@ protected:
     void		previewPush(CallBacker*);
     int			getFirstEmptyRow();
     void		ptsSel(CallBacker*);
+    bool		acceptOK(CallBacker*);
 
     BufferStringSet	allwellsnames_;
     TypeSet<MultiID>	allwellsids_;
@@ -64,6 +71,10 @@ protected:
     uiListBox*		wellsbox_;
     uiTable*		selwellsbox_;
     uiGenInput*		onlytopfld_;
+    uiIOObjSel* 	outfld_;
+    uiCheckBox* 	dispfld_;
+
+    CtxtIOObj&		outctio_;
 
     uiToolButton*	toselect_;
     uiToolButton*	fromselect_;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.cc,v 1.16 2008-05-07 05:39:21 cvsnageswara Exp $
+ RCS:           $Id: uiwellrdmlinedlg.cc,v 1.17 2008-05-22 11:08:57 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,9 @@ ________________________________________________________________________
 #include "ctxtioobj.h"
 #include "iodir.h"
 #include "iodirentry.h"
+#include "randomlinegeom.h"
+#include "randomlinetr.h"
+#include "survinfo.h"
 #include "welldata.h"
 #include "wellman.h"
 #include "welltrack.h"
@@ -47,7 +50,9 @@ uiWell2RandomLineDlg::uiWell2RandomLineDlg( uiParent* p, uiWellPartServer* ws )
     : uiDialog(p,uiDialog::Setup("Random line - Wells relations","",
 				 "109.0.0").modal(false))
     , wellsbox_(0), selwellsbox_(0), wellserv_(ws)
+    , outctio_(*mMkCtxtIOObj(RandomLineSet))
 {
+    outctio_.ctxt.forread = false;
     BufferString title( "Select wells to set up the random line path" );
     setTitleText( title );
 
@@ -61,6 +66,12 @@ uiWell2RandomLineDlg::uiWell2RandomLineDlg( uiParent* p, uiWellPartServer* ws )
 
     fillListBox();
     ptsSel(0);
+}
+
+
+uiWell2RandomLineDlg::~uiWell2RandomLineDlg()
+{
+    delete outctio_.ioobj; delete &outctio_;
 }
 
 
@@ -85,6 +96,8 @@ void uiWell2RandomLineDlg::createFields( uiGroup* topgrp )
 
     CallBack cb = mCB(this,uiWell2RandomLineDlg,previewPush);
     previewbutton_ = new uiPushButton( this, "&Preview", cb, true );
+    outfld_ = new uiIOObjSel( this, outctio_, "Output Random line(s)" );
+    dispfld_ = new uiCheckBox( this, "Display Random Line on creation" );
 }
 
 
@@ -131,6 +144,14 @@ void uiWell2RandomLineDlg::attachFields( uiGroup* selbuttons, uiGroup* topgrp,
     movebuttons->attach( centeredRightOf, selwellsbox_ );
     onlytopfld_->attach( centeredBelow, topgrp );
     previewbutton_->attach( centeredBelow, onlytopfld_ );
+    outfld_->attach( alignedBelow, previewbutton_ );
+    dispfld_->attach( alignedBelow, outfld_ );
+}
+
+
+bool uiWell2RandomLineDlg::dispOnCreation()
+{
+    return dispfld_->isChecked();
 }
 
 
@@ -265,16 +286,32 @@ void uiWell2RandomLineDlg::getCoordinates( TypeSet<Coord>& coords )
 	    {
 		for ( int posidx=wd->track().size()-1; posidx>=0; posidx-- )
 		{
+		    if ( posidx == wd->track().size()-1 )
+		    {
+			Coord3 coord3 = wd->track().pos( posidx );
+			coords += Coord( coord3.x, coord3.y );
+			continue;
+		    }
+		    Coord3 prevcoord3 = wd->track().pos( posidx + 1 );
 		    Coord3 coord3 = wd->track().pos( posidx );
-		    coords += Coord( coord3.x, coord3.y );
+		    if ( prevcoord3 != coord3 )
+			coords += Coord( coord3.x, coord3.y );
 		}
 	    }
 	    else
 	    {
 		for ( int posidx=0; posidx<wd->track().size(); posidx++ )
 		{
+		    if ( posidx == 0 )
+		    {
+			Coord3 coord3 = wd->track().pos( posidx );
+			coords += Coord( coord3.x, coord3.y );
+			continue;
+		    }
+		    Coord3 prevcoord3 = wd->track().pos( posidx + 1 );
 		    Coord3 coord3 = wd->track().pos( posidx );
-		    coords += Coord( coord3.x, coord3.y );
+		    if ( prevcoord3 != coord3 )
+			coords += Coord( coord3.x, coord3.y );
 		}
 	    }
 	}
@@ -354,4 +391,40 @@ void uiWell2RandomLineDlg::ptsSel( CallBacker* cb )
 			selwellsbox_->getCellObject(RowCol(idx,1)))
 	if ( box ) box->setSensitive( !onlytopfld_->getBoolValue() );
     }
+}
+
+
+bool uiWell2RandomLineDlg::acceptOK( CallBacker* )
+{
+    if ( !outfld_->getInput() || !outctio_.ioobj )
+    {
+	uiMSG().error( " Please specify the output " );
+	return false;
+    }
+    Geometry::RandomLine* rl = new Geometry::RandomLine;
+    TypeSet<Coord> wellcoord;
+    getCoordinates( wellcoord );
+    BinID wellbid;
+    for ( int idx=0; idx<wellcoord.size(); idx++ )
+    {
+	wellbid = SI().transform( wellcoord[idx] );
+	rl->addNode( wellbid );
+    }
+
+    BufferString msg;
+    Geometry::RandomLineSet outrls;
+    outrls.addLine( rl );
+    if ( !RandomLineSetTranslator::store(outrls,outctio_.ioobj,msg) )
+	uiMSG().error(msg);
+
+    return true;
+}
+
+
+const char* uiWell2RandomLineDlg::getRandLineID() const
+{
+    if ( !outctio_.ioobj )
+	return 0;
+    BufferString* multid = new BufferString( outctio_.ioobj->key().buf() );
+    return multid->buf();
 }
