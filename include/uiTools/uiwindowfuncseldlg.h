@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		August 2007
- RCS:		$Id: uiwindowfuncseldlg.h,v 1.3 2008-04-30 03:13:16 cvssatyaki Exp $
+ RCS:		$Id: uiwindowfuncseldlg.h,v 1.4 2008-05-22 10:46:27 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,8 @@ public:
 
     void		setCurrentWindowFunc(const char*,float);
     bool		getCurrentWindowName(BufferString&);
+    void		setVariable(float); 
+    float		getVariable();
     void		createLine(const WindowFunction&,bool replace=false);
 
 protected:
@@ -42,6 +44,7 @@ protected:
     void		reDraw(CallBacker*);
     void		taperSelChg(CallBacker*);
     void		variableChanged(CallBacker*);
+    //bool		rejectOK(CallBacker*);
 
     uiCanvas*		canvas_;
     uiGenInput*		varinpfld_;

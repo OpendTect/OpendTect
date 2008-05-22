@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2007
- RCS:           $Id: uiwindowfuncseldlg.cc,v 1.5 2008-04-30 03:13:16 cvssatyaki Exp $
+ RCS:           $Id: uiwindowfuncseldlg.cc,v 1.6 2008-05-22 10:46:27 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -168,6 +168,23 @@ bool uiWindowFuncSelDlg::getCurrentWindowName( BufferString& windowname )
 	return false;
 }
 
+
+float uiWindowFuncSelDlg::getVariable()
+{
+    BufferString winname;
+    getCurrentWindowName( winname );
+    for ( int idx=0; idx<winfunc_.size(); idx++ )
+    {
+	if( !strcmp(winname.buf(),winfunc_[idx]->name()) )
+	{
+	    if( winfunc_[idx]->hasVariable() ) 
+		return variable_;
+	}
+    }
+    return mUdf(float);
+}
+
+
 void uiWindowFuncSelDlg::taperSelChg( CallBacker* )
 {
     pointlistset_.erase();
@@ -180,10 +197,10 @@ void uiWindowFuncSelDlg::taperSelChg( CallBacker* )
 	if ( winfunc_[ idx ]->hasVariable() )
 	{
 	    isvartappresent = true;
-	    if ( mIsUdf(variable_) )
-		variable_ = varinpfld_->getfValue(0);
+	    mIsUdf(variable_) ? variable_ = 0.05 : 
+		 		variable_ = varinpfld_->getfValue(0);
 	    winfunc_[ idx ]->setVariable( variable_ );
-	    variable_ = mUdf(float);
+	    varinpfld_->setValue( variable_ );
 	}
 	createLine( *winfunc_[idx] );
     }
@@ -192,3 +209,20 @@ void uiWindowFuncSelDlg::taperSelChg( CallBacker* )
 		      varinpfld_->display( false );
     canvas_->update();
 }
+
+
+void uiWindowFuncSelDlg::setVariable( float variable )
+{
+    variable_ = variable;
+    varinpfld_->setValue( variable_ );
+    taperSelChg(0);
+}
+/*
+
+bool uiWindowFuncSelDlg::rejectOK( CallBacker* )
+{
+    varinpfld_->valuechanged.remove( mCB(this,uiWindowFuncSelDlg,taperSelChg) );
+    taperlistfld_->selectionChanged.remove( mCB(this,uiWindowFuncSelDlg,
+						taperSelChg) );
+    return true;
+}*/
