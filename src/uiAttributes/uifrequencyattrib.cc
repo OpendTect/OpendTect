@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.cc,v 1.15 2008-05-05 05:42:18 cvsnageswara Exp $
+ RCS:           $Id: uifrequencyattrib.cc,v 1.16 2008-05-22 11:01:54 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ uiFrequencyAttrib::uiFrequencyAttrib( uiParent* p, bool is2d )
     normfld = new uiGenInput( this, "Normalize", BoolInpSpec(false) );
     normfld->attach( alignedBelow, gatefld );
 
-    winfld = new uiWindowFunctionSel( this, "Window/Taper" );
+    winfld = new uiWindowFunctionSel( this, "Window/Taper", "CosTaper", .05 );
     winfld->attach( alignedBelow, normfld ); 
 
     outpfld = new uiGenInput( this, "Output", StringListInpSpec(outpstrs) );

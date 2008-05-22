@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2007
- RCS:           $Id: uiwindowfunctionsel.cc,v 1.4 2008-04-30 03:13:16 cvssatyaki Exp $
+ RCS:           $Id: uiwindowfunctionsel.cc,v 1.5 2008-05-22 11:01:54 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const char* label,
 	    if ( !firstvarfld )
 		firstvarfld = varinp;
 	    varinp->valuechanged.notify( mCB(this,uiWindowFunctionSel,
-					     winfuncseldlgCB) );
+					     windowChangedCB) );
 	}
 	else
 	    windowvariable_ += 0;
@@ -85,7 +85,6 @@ const char* uiWindowFunctionSel::windowName() const
 void uiWindowFunctionSel::setWindowName( const char* nm )
 {
     windowtypefld_->setText( nm );
-    windowChangedCB( 0 );
 }
 
 
@@ -121,9 +120,15 @@ void uiWindowFunctionSel::winfuncseldlgCB( CallBacker* )
 {
     if ( !winfuncseldlg_ )
 	winfuncseldlg_ = new uiWindowFuncSelDlg( this, windowName(), windowParamValue() );
-    winfuncseldlg_->show();
+    else
+    {
+	winfuncseldlg_->setCurrentWindowFunc( windowName(),windowParamValue() );
+	windowParamValue() ? winfuncseldlg_->setVariable( windowParamValue() ) :
+	    		     winfuncseldlg_->setVariable( 0.05 );
+    }
     winfuncseldlg_->windowClosed.notify( mCB(this,uiWindowFunctionSel,
 					     windowClosed) );
+    winfuncseldlg_->show();
 }
 
 
@@ -132,6 +137,15 @@ void uiWindowFunctionSel::windowClosed( CallBacker* )
     BufferString winname( windowName() );
     if ( winfuncseldlg_->getCurrentWindowName( winname ) )
 	setWindowName( winname );
+    if( !mIsUdf(winfuncseldlg_->getVariable()) )
+	setWindowParamValue( winfuncseldlg_->getVariable() );
+    
+    const int winidx = windowtypefld_->getIntValue( 0 )-1;
+    for ( int idx=0; idx<windowvariable_.size(); idx++ )
+    {
+	if ( windowvariable_[idx] )
+	     windowvariable_[idx]->display( idx==winidx );
+    }
 }
 
 
@@ -147,6 +161,4 @@ void uiWindowFunctionSel::windowChangedCB( CallBacker* )
 	     windowvariable_[idx]->display( idx==winidx );
     }
 
-    if ( winfuncseldlg_ )
-	winfuncseldlg_->setCurrentWindowFunc( windowName(),windowParamValue() );
-}
+};
