@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Nov 2007
- RCS:           $Id: uirandlinegen.h,v 1.3 2008-02-14 09:45:31 cvsbert Exp $
+ RCS:           $Id: uirandlinegen.h,v 1.4 2008-05-22 11:05:54 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ public:
 			~uiGenRanLinesByContour();
 
     const char*		getNewSetID() const;
+    bool		dispOnCreation();
 
 protected:
 
@@ -44,6 +45,7 @@ protected:
     uiGenInput*		relzrgfld_;
     uiGenInput*		abszrgfld_;
     uiCheckBox*		isrelfld_;
+    uiCheckBox*		dispfld_;
 
     void		isrelChg(CallBacker*);
 
@@ -61,6 +63,7 @@ public:
 			~uiGenRanLinesByShift();
 
     const char*		getNewSetID() const;
+    bool		dispOnCreation();
 
 protected:
 
@@ -71,6 +74,7 @@ protected:
     uiIOObjSel*		outfld_;
     uiGenInput*		distfld_;
     uiGenInput*		sidefld_;
+    uiCheckBox*		dispfld_;
 
     bool		acceptOK(CallBacker*);
 
@@ -86,6 +90,7 @@ public:
 			~uiGenRanLineFromPolygon();
 
     const char*		getNewSetID() const;
+    bool		dispOnCreation();
 
 protected:
 
@@ -95,6 +100,7 @@ protected:
     uiIOObjSel*		infld_;
     uiIOObjSel*		outfld_;
     uiSelZRange*	zrgfld_;
+    uiCheckBox*		dispfld_;
 
     bool		acceptOK(CallBacker*);
 

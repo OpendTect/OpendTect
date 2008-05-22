@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uirandlinegen.cc,v 1.9 2008-02-14 09:45:31 cvsbert Exp $
+ RCS:           $Id: uirandlinegen.cc,v 1.10 2008-05-22 11:05:54 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,6 +74,9 @@ uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
 
     outfld_ = new uiIOObjSel( this, rlsctio_, "Random Line set" );
     outfld_->attach( alignedBelow, relzrgfld_ );
+    
+    dispfld_ = new uiCheckBox( this, "Display Random Line on creation" );
+    dispfld_->attach( alignedBelow, outfld_ );
 
     finaliseDone.notify( cb );
 }
@@ -87,9 +90,16 @@ uiGenRanLinesByContour::~uiGenRanLinesByContour()
 }
 
 
+bool uiGenRanLinesByContour::dispOnCreation()
+{
+    return dispfld_->isChecked();
+}
+
+
 const char* uiGenRanLinesByContour::getNewSetID() const
 {
-    return rlsctio_.ioobj ? rlsctio_.ioobj->key().buf() : 0;
+    BufferString* multid = new BufferString( rlsctio_.ioobj->key().buf() );
+    return rlsctio_.ioobj ? multid->buf() : 0;
 }
 
 
@@ -182,6 +192,9 @@ uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
 
     outfld_ = new uiIOObjSel( this, outctio_, "Output Random line(s)" );
     outfld_->attach( alignedBelow, sidefld_ );
+    
+    dispfld_ = new uiCheckBox( this, "Display Random Line on creation" );
+    dispfld_->attach( alignedBelow, outfld_ );
 }
 
 
@@ -192,9 +205,16 @@ uiGenRanLinesByShift::~uiGenRanLinesByShift()
 }
 
 
+bool uiGenRanLinesByShift::dispOnCreation()
+{
+    return dispfld_->isChecked();
+}
+
+
 const char* uiGenRanLinesByShift::getNewSetID() const
 {
-    return outctio_.ioobj ? outctio_.ioobj->key().buf() : 0;
+    BufferString* multid = new BufferString( outctio_.ioobj->key().buf() );
+    return outctio_.ioobj ? multid->buf() : 0;
 }
 
 
@@ -251,6 +271,8 @@ uiGenRanLineFromPolygon::uiGenRanLineFromPolygon( uiParent* p )
     zrgfld_->attach( alignedBelow, infld_ );
     outfld_ = new uiIOObjSel( this, outctio_, "Output Random Line" );
     outfld_->attach( alignedBelow, zrgfld_ );
+    dispfld_ = new uiCheckBox( this, "Display Random Line on creation" );
+    dispfld_->attach( alignedBelow, outfld_ );
 }
 
 
@@ -263,7 +285,14 @@ uiGenRanLineFromPolygon::~uiGenRanLineFromPolygon()
 
 const char* uiGenRanLineFromPolygon::getNewSetID() const
 {
-    return outctio_.ioobj ? outctio_.ioobj->key().buf() : 0;
+    BufferString* multid = new BufferString( outctio_.ioobj->key().buf() );
+    return outctio_.ioobj ? multid->buf() : 0;
+}
+
+
+bool uiGenRanLineFromPolygon::dispOnCreation()
+{
+    return dispfld_->isChecked();
 }
 
 
