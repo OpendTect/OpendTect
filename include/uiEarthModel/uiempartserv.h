@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.68 2008-05-21 10:30:06 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.h,v 1.69 2008-05-22 11:12:29 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -109,6 +109,7 @@ public:
     BinIDValueSet*	filterAuxData(const EM::ObjectID&,const char* nm);
 
     const char*		genRandLine(int opt);
+    bool 		dispLineOnCreation()	{ return disponcreation_; }
 
     void		removeUndo();
 
@@ -132,8 +133,9 @@ protected:
 
     EM::ObjectID	selemid_;
     EM::EMManager&	em_;
-
+    
     bool		ioHorizon(bool,bool isgeom=true);
+    bool		disponcreation_;
 };
 
 

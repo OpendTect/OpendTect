@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.140 2008-05-21 10:30:06 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.141 2008-05-22 11:12:29 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,7 @@ uiEMPartServer::uiEMPartServer( uiApplService& a )
     : uiApplPartServer(a)
     , selemid_(-1)
     , em_(EM::EMM())
+    , disponcreation_(false)
 {
     em_.syncGeomReq.notify( mCB(this,uiEMPartServer,syncGeometry) );
 }
@@ -797,21 +798,30 @@ const char* uiEMPartServer::genRandLine( int opt )
     {
 	uiGenRanLinesByShift dlg( parent() );
 	if ( dlg.go() )
+	{
 	    res = dlg.getNewSetID();
+	    disponcreation_ = dlg.dispOnCreation();
+	}
     }
     else if ( opt == 1 )
     {
 	uiGenRanLinesByContour dlg( parent() );
 	if ( dlg.go() )
+	{
 	    res = dlg.getNewSetID();
+	    disponcreation_ = dlg.dispOnCreation();
+	}
     }
     else
     {
 	uiGenRanLineFromPolygon dlg( parent() );
 	if ( dlg.go() )
+	{
 	    res = dlg.getNewSetID();
+	    disponcreation_ = dlg.dispOnCreation();
+	}
     }
-    return MultiID( res );
+    return res;
 }
 
 
