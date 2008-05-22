@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Aug 2007
- RCS:           $Id: export_hor2d.cc,v 1.2 2008-02-19 08:51:16 cvsbert Exp $
+ RCS:           $Id: export_hor2d.cc,v 1.3 2008-05-22 09:46:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,9 +21,9 @@ ________________________________________________________________________
 #include "initearthmodel.h"
 #include "iodirentry.h"
 #include "ioman.h"
+#include "linesetposinfo.h"
 #include "position.h"
 #include "ptrman.h"
-#include "segposinfo.h"
 #include "seis2dline.h"
 #include "strmprov.h"
 #include "survinfo.h"

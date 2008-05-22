@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Aug 2007
- RCS:           $Id: import_hor2d.cc,v 1.6 2008-02-19 10:00:03 cvsnanne Exp $
+ RCS:           $Id: import_hor2d.cc,v 1.7 2008-05-22 09:46:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,9 +19,9 @@ ________________________________________________________________________
 #include "emsurfacegeometry.h"
 #include "initearthmodel.h"
 #include "ioman.h"
+#include "posinfo.h"
 #include "position.h"
 #include "ptrman.h"
-#include "segposinfo.h"
 #include "seis2dline.h"
 #include "strmprov.h"
 #include "survinfo.h"

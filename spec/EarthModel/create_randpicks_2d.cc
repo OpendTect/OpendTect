@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: create_randpicks_2d.cc,v 1.5 2007-04-12 06:51:10 cvsdgb Exp $
+ RCS:           $Id: create_randpicks_2d.cc,v 1.6 2008-05-22 09:46:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,8 +19,8 @@ ________________________________________________________________________
 #include "executor.h"
 #include "ioobj.h"
 #include "ioman.h"
+#include "posinfo.h"
 #include "ptrman.h"
-#include "segposinfo.h"
 #include "seis2dline.h"
 #include "statrand.h"
 #include "strmprov.h"
