@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.129 2008-05-12 05:32:16 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.130 2008-05-22 10:48:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -813,6 +813,21 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 	return itm->displayID();
     }
 
+    return -1;
+}
+
+
+int uiODSceneMgr::addRandomLineItem( int visid, int sceneid )
+{
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+    {
+	Scene& scene = *scenes_[idx];
+	if ( sceneid>=0 && sceneid!=scene.sovwr_->sceneID() ) continue;
+
+	uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( visid );
+	scene.itemmanager_->addChild( itm, false );
+	return itm->displayID();
+    }
     return -1;
 }
 

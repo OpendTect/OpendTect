@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.53 2008-01-18 16:27:44 cvsjaap Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.54 2008-05-22 10:48:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,6 +114,7 @@ public:
     void			disabTrees( bool yn );
 
     int				addEMItem(const EM::ObjectID&,int);
+    int 			addRandomLineItem(int,int);
     void			removeTreeItem(int displayid);
     uiTreeItem*			findItem(int displayid);
     void			findItems(const char*,ObjectSet<uiTreeItem>&);
