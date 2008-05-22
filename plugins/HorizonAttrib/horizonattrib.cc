@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: horizonattrib.cc,v 1.9 2007-10-12 14:26:51 cvshelene Exp $
+ RCS:		$Id: horizonattrib.cc,v 1.10 2008-05-22 09:15:16 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,15 +121,33 @@ void Horizon::prepareForComputeData()
 {
     EM::EMManager& em = EM::EMM();
     EM::ObjectID objid = em.getObjectID( horid_ );
+    BufferStringSet loadedauxdatanms;
     if ( objid > -1 )
     {
 	mDynamicCastGet(EM::Horizon3D*,hor,em.getObject(objid))
-	if ( hor && hor->isFullyLoaded() 
-	     && ( outtype_!=mOutTypeSurfData || hor->auxdata.nrAuxData() ) )
+	if ( hor && hor->isFullyLoaded() )
 	{
-	    horizon_ = hor;
-	    horizon_->ref();
-	    return;
+	    if ( outtype_!=mOutTypeSurfData )
+	    {
+		horizon_ = hor;
+		horizon_->ref();
+		return;
+	    }
+	    else
+	    {
+		for ( int idx=0; idx<hor->auxdata.nrAuxData(); idx++ )
+		{
+		    const char* auxnm = hor->auxdata.auxDataName(idx);
+		    if ( !strcmp( auxnm, surfdatanm_ ) )
+		    {
+			horizon_ = hor;
+			horizon_->ref();
+			return;
+		    }
+		    
+		    loadedauxdatanms.add( auxnm );
+		}
+	    }
 	}
     }
 
@@ -144,6 +162,13 @@ void Horizon::prepareForComputeData()
     else if ( surfdtidx >= 0 )
 	sel.selvalues += surfdtidx;
 
+    for ( int idx=0; idx<loadedauxdatanms.size(); idx++ )
+    {
+	int tmpsurfdtidx = sd.valnames.indexOf( loadedauxdatanms.get(idx) );
+	if ( tmpsurfdtidx >= 0 )
+	    sel.selvalues += tmpsurfdtidx;
+    }
+    
     PtrMan<Executor> loader = em.objectLoader( horid_, &sel );
     if ( !loader ) return;
 
