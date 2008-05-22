@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodrandlinetreeitem.h,v 1.7 2008-05-13 13:57:50 cvsbert Exp $
+ RCS:		$Id: uiodrandlinetreeitem.h,v 1.8 2008-05-22 11:10:53 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -15,11 +15,16 @@ ________________________________________________________________________
 
 #include "uioddisplaytreeitem.h"
 
+class IOObj;
 
 mDefineItem( RandomLineParent, TreeItem, TreeTop, mShowMenu \
-    bool load(); \
+    bool load(const IOObj&); \
+    const IOObj* selRandomLine(); \
     void genRandLine(int); \
+    void genRandLineFromWell();\
+    void loadRandLineFromWell(CallBacker*);\
 );
+
 namespace visSurvey { class RandomTrackDisplay; };
 
 

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.19 2008-05-13 13:57:50 cvsbert Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.20 2008-05-22 11:10:53 cvssatyaki Exp $
 ___________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ ___________________________________________________________________
 #include "uiselsimple.h"
 #include "uivispartserv.h"
 #include "uiwellpartserv.h"
+#include "uiwellrdmlinedlg.h"
 #include "uiseispartserv.h"
 #include "visrandomtrackdisplay.h"
 
@@ -67,32 +68,41 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     genmnu->insertItem( new uiMenuItem("From &Existing ..."), 2 );
     genmnu->insertItem( new uiMenuItem("Along &Contours ..."), 3 );
     genmnu->insertItem( new uiMenuItem("From &Polygon ..."), 4 );
+    genmnu->insertItem( new uiMenuItem("From &Wells ..."), 5 );
     mnu.insertItem( genmnu );
     addStandardItems( mnu );
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
 	addChild( new uiODRandomLineTreeItem(-1), false );
     else if ( mnuid == 1 )
-	load();
+    {
+	const IOObj* ioobj = selRandomLine();
+	load( *ioobj );
+    }
     else if ( mnuid>1 && mnuid<5 )
 	genRandLine( mnuid-2 );
+    else if ( mnuid == 5 )
+	genRandLineFromWell();
 
     handleStandardItems( mnuid );
     return true;
 }
 
 
-bool uiODRandomLineParentTreeItem::load()
+const IOObj* uiODRandomLineParentTreeItem::selRandomLine()
 {
     PtrMan<CtxtIOObj> ctio = mMkCtxtIOObj( RandomLineSet );
     ctio->ctxt.forread = true;
     uiIOObjSelDlg dlg( getUiParent(), *ctio, "Select", false );
-    if ( !dlg.go() )
-	return false;
+    return dlg.go() && dlg.ioObj() ? dlg.ioObj()->clone() : 0;
+}
 
+
+bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj )
+{
     Geometry::RandomLineSet lset;
     BufferString errmsg;
-    if ( !RandomLineSetTranslator::retrieve(lset,dlg.ioObj(),errmsg) )
+    if ( !RandomLineSetTranslator::retrieve(lset,&ioobj,errmsg) )
 	{ uiMSG().error( errmsg ); return false; }
 
     const ObjectSet<Geometry::RandomLine>& lines = lset.lines();
@@ -134,8 +144,8 @@ bool uiODRandomLineParentTreeItem::load()
 	const Geometry::RandomLine& rln = *lset.lines()[ selitms[idx] ];
 	rln.allNodePositions( bids ); rtd->setKnotPositions( bids );
 	rtd->setDepthInterval( rln.zRange() );
-	BufferString rlnm = dlg.ioObj()->name();
-	if ( !rln.name().isEmpty() )
+	BufferString rlnm = ioobj.name();
+	if ( lines.size()>1 && !rln.name().isEmpty() )
 	{ rlnm += ": "; rlnm += rln.name(); }
 	rtd->setName( rlnm );
 	rtd->lockGeometry( lockgeom );
@@ -147,7 +157,35 @@ bool uiODRandomLineParentTreeItem::load()
 
 void uiODRandomLineParentTreeItem::genRandLine( int opt )
 {
-    const char* res = applMgr()->EMServer()->genRandLine( opt );
+    const char* multiid = applMgr()->EMServer()->genRandLine( opt );
+    if ( multiid && applMgr()->EMServer()->dispLineOnCreation() )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( multiid );
+	load( *ioobj );
+    }
+}
+
+
+void uiODRandomLineParentTreeItem::genRandLineFromWell()
+{
+    applMgr()->wellServer()->setSceneID( sceneID() );
+    applMgr()->wellServer()->selectWellCoordsForRdmLine();
+    applMgr()->wellServer()->randLineDlgClosed.notify(
+	    mCB(this,uiODRandomLineParentTreeItem,loadRandLineFromWell) );
+}
+
+
+void uiODRandomLineParentTreeItem::loadRandLineFromWell( CallBacker* )
+{
+    const char* multiid =  applMgr()->wellServer()->getRandLineMultiID();
+    if ( multiid && applMgr()->wellServer()->dispLineOnCreation() )
+    {
+	PtrMan<IOObj> ioobj = IOM().get( multiid );
+	load( *ioobj );
+    }
+
+    applMgr()->wellServer()->randLineDlgClosed.remove(
+	    mCB(this,uiODRandomLineParentTreeItem,loadRandLineFromWell) );
 }
 
 
