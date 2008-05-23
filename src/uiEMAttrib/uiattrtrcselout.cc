@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.39 2008-05-23 05:20:27 cvsnageswara Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.40 2008-05-23 09:26:11 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -330,11 +330,11 @@ bool uiAttrTrcSelOut::prepareProcessing()
 bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 {
     uiAttrEMOut::fillPar( iopar );
+    const bool is2d = ads_.is2D();
     fillOutPar( iopar, Output::tskey, SeisTrcStorOutput::seisidkey,
 	    	ctioout_.ioobj->key() );
     
-    BufferString outnm = ads_.is2D() ? attrfld_->getAttrName()
-				     : outpfld_->getInput();
+    BufferString outnm = is2d ? attrfld_->getAttrName() : outpfld_->getInput();
     iopar.set( "Target value", outnm );
 
     BufferString tmpkey = IOPar::compKey( LocationOutput::surfidkey, 0);
@@ -357,14 +357,22 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 
     BufferString typestr;
     subselpar->get( sKey::Type, typestr );
-    const bool usesamp = strcmp( typestr.buf(), "None" );
+    const bool issubsel = strcmp( typestr.buf(), "None" );
+    const bool usesamp = !is2d || issubsel;
+    if ( !issubsel && !is2d )
+	subselpar->set( sKey::Type, "Range" );
+    
     if ( usesamp )
     {
-	key = IOPar::compKey(sKey::Geometry,SeisTrcStorOutput::inlrangekey);
-	iopar.set( key, horsamp.start.inl, horsamp.stop.inl );
+	mDynamicCastGet( uiSeis2DSubSel* , seis2dsubsel, seissubselfld_ );
+	if ( !is2d || ( seis2dsubsel && seis2dsubsel->isSingLine() ) )
+	{
+	    key = IOPar::compKey(sKey::Geometry,SeisTrcStorOutput::inlrangekey);
+	    iopar.set( key, horsamp.start.inl, horsamp.stop.inl );
 
-	key = IOPar::compKey(sKey::Geometry,SeisTrcStorOutput::crlrangekey);
-	iopar.set( key, horsamp.start.crl, horsamp.stop.crl );
+	    key = IOPar::compKey(sKey::Geometry,SeisTrcStorOutput::crlrangekey);
+	    iopar.set( key, horsamp.start.crl, horsamp.stop.crl );
+	}
     }
 
     CubeSampling::removeInfo( *subselpar );
