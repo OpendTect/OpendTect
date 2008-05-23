@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.65 2008-05-05 05:42:29 cvsnageswara Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.66 2008-05-23 11:05:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -335,8 +335,10 @@ uiExportLogs::uiExportLogs( uiParent* p, const Well::Data& wd_,
     typefld->valuechanged.notify( mCB(this,uiExportLogs,typeSel) );
     typefld->attach( alignedBelow, zrangefld );
 
-    zunitgrp = new uiButtonGroup( this, "Output Z-unit", false );
+    zunitgrp = new uiButtonGroup( this, "", false );
     zunitgrp->attach( alignedBelow, typefld );
+    uiLabel* zlbl = new uiLabel( this, "Output Z-unit" );
+    zlbl->attach( leftOf, zunitgrp );
     uiRadioButton* meterbut = new uiRadioButton( zunitgrp, "meter" );
     uiRadioButton* feetbut = new uiRadioButton( zunitgrp, "feet" );
     if ( SI().zIsTime() )
@@ -414,13 +416,13 @@ void uiExportLogs::writeHeader( StreamData& sdo )
     const char* units[] = { "(m)", "(ft)", "(s)", "(ms)", 0 };
     
     if ( typefld->getIntValue() == 1 )
-	*sdo.ostrm << "X\tY\t";
+	*sdo.ostrm << "\"X\"\t\"Y\"\t";
     else if ( typefld->getIntValue() == 2 )
-	*sdo.ostrm << "Inline\tCrossline\t";
+	*sdo.ostrm << "\"Inline\"\t\"Crossline\"\t";
 
     const int unitid = zunitgrp->selectedId();
     BufferString zstr( unitid<2 ? "Depth" : "Time" );
-    *sdo.ostrm << zstr << units[unitid];
+    *sdo.ostrm << '"' << zstr << units[unitid] << '"';
     for ( int idx=0; idx<wd.logs().size(); idx++ )
     {
 	if ( !logsel[idx] ) continue;
@@ -429,9 +431,10 @@ void uiExportLogs::writeHeader( StreamData& sdo )
 	cleanupString( lognm.buf(), 0, 0, 0 );
 	replaceCharacter( lognm.buf(), '+', '_' );
 	replaceCharacter( lognm.buf(), '-', '_' );
-	*sdo.ostrm << '\t' << lognm;
+	*sdo.ostrm << "\t\"" << lognm;
 	if ( *log.unitMeasLabel() )
 	    *sdo.ostrm << "(" << log.unitMeasLabel() << ")";
+	*sdo.ostrm << "\"";
     }
     
     *sdo.ostrm << '\n';
@@ -446,14 +449,16 @@ void uiExportLogs::writeLogs( StreamData& sdo )
     bool inmsec = zunitgrp->selectedId() == 3;
 
     const bool zinft = SI().depthsInFeetByDefault();
-
-    StepInterval<float> intv = zrangefld->getFStepInterval();
+    const int outtypesel = typefld->getIntValue();
+    const bool dobinid = outtypesel == 2;
+    const StepInterval<float> intv = zrangefld->getFStepInterval();
     const int nrsteps = intv.nrSteps();
+
     for ( int idx=0; idx<nrsteps; idx++ )
     {
 	float md = intv.atIndex( idx );
 	if ( zinft ) md *= mFromFeetFac;
-	if ( !typefld->getIntValue() )
+	if ( outtypesel == 0 )
 	{
 	    const float mdout = infeet ? md/mFromFeetFac : md;
 	    *sdo.ostrm << mdout;
@@ -463,14 +468,16 @@ void uiExportLogs::writeLogs( StreamData& sdo )
 	    const Coord3 pos = wd.track().getPos( md );
 	    if ( !pos.x && !pos.y && !pos.z ) continue;
 
-	    bool dobinid = typefld->getIntValue() == 2;
 	    if ( dobinid )
 	    {
 		const BinID bid = SI().transform( pos );
 		*sdo.ostrm << bid.inl << '\t' << bid.crl;
 	    }
 	    else
-		*sdo.ostrm << pos.x << '\t' << pos.y;
+	    {
+		*sdo.ostrm << getStringFromDouble(0,pos.x) << '\t';
+		*sdo.ostrm << getStringFromDouble(0,pos.y);
+	    }
 
 	    float z = pos.z;
 	    if ( infeet ) z /= mFromFeetFac;
@@ -482,7 +489,11 @@ void uiExportLogs::writeLogs( StreamData& sdo )
 	for ( int logidx=0; logidx<wd.logs().size(); logidx++ )
 	{
 	    if ( !logsel[logidx] ) continue;
-	    *sdo.ostrm << '\t' << wd.logs().getLog(logidx).getValue( md );
+	    const float val = wd.logs().getLog(logidx).getValue( md );
+	    if ( mIsUdf(val) )
+		*sdo.ostrm << '\t' << "1e30";
+	    else
+		*sdo.ostrm << '\t' << val;
 	}
 
 	*sdo.ostrm << '\n';

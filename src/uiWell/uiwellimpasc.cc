@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.36 2007-11-13 16:21:11 cvsbert Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.37 2008-05-23 11:05:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 {
     setCtrlStyle( DoAndStay );
 
-    infld = new uiFileInput( this, "Well Track file", 
+    infld = new uiFileInput( this, "Well Track file (X Y TVDSS [MD])", 
 	    		     uiFileInput::Setup().withexamine(true) );
     infld->setDefaultSelectionDir(
 	    IOObjContext::getDataDirName(IOObjContext::WllInf) );
