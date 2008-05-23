@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2008
- RCS:           $Id: uiexpfault.cc,v 1.2 2008-05-21 06:30:38 cvsnanne Exp $
+ RCS:           $Id: uiexpfault.cc,v 1.3 2008-05-23 11:20:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,40 +23,45 @@ ________________________________________________________________________
 #include "strmdata.h"
 #include "strmprov.h"
 #include "survinfo.h"
+#include "uibutton.h"
 #include "uifileinput.h"
-#include "uiiosurface.h"
+#include "uiioobjsel.h"
+#include "uilabel.h"
 #include "uimsg.h"
 #include "uitaskrunner.h"
 
 #include <stdio.h>
 
 uiExportFault::uiExportFault( uiParent* p )
-	: uiDialog(p,uiDialog::Setup("Export Fault",
-				     "Specify output format","104.0.1"))
+    : uiDialog(p,uiDialog::Setup("Export Fault",
+				 "Specify output format","104.1.1"))
+    , ctio_(*mMkCtxtIOObj(EMFault))
 {
-    infld_ = new uiSurfaceRead( this,
-	    uiSurfaceRead::Setup(EMFaultTranslatorGroup::keyword)
-	    .withattribfld(false).withsubsel(false).withsectionfld(false) );
+    infld_ = new uiIOObjSel( this, ctio_, "Input Fault" );
 
     coordfld_ = new uiGenInput( this, "Write coordinates as",
 				BoolInpSpec(true,"X/Y","Inl/Crl") );
     coordfld_->attach( alignedBelow, infld_ );
 
-    stickfld_ = new uiGenInput( this, "Write stick index", BoolInpSpec(true) );
+    stickfld_ = new uiCheckBox( this, "stick index" );
+    stickfld_->setChecked( true );
     stickfld_->attach( alignedBelow, coordfld_ );
-    nodefld_ = new uiGenInput( this, "Write node index", BoolInpSpec(true) );
-    nodefld_->attach( alignedBelow, stickfld_ );
+    nodefld_ = new uiCheckBox( this, "node index" );
+    nodefld_->setChecked( false );
+    nodefld_->attach( rightTo, stickfld_ );
+    uiLabel* lbl = new uiLabel( this, "Write", stickfld_ );
 
     outfld_ = new uiFileInput( this, "Output Ascii file",
 	    		       uiFileInput::Setup().forread(false) );
     outfld_->setDefaultSelectionDir(
 		IOObjContext::getDataDirName(IOObjContext::Surf) );
-    outfld_->attach( alignedBelow, nodefld_ );
+    outfld_->attach( alignedBelow, stickfld_ );
 }
 
 
 uiExportFault::~uiExportFault()
 {
+    delete ctio_.ioobj; delete &ctio_;
 }
 
 
@@ -64,7 +69,7 @@ uiExportFault::~uiExportFault()
 
 bool uiExportFault::writeAscii()
 {
-    const IOObj* ioobj = infld_->selIOObj();
+    const IOObj* ioobj = ctio_.ioobj;
     if ( !ioobj ) mErrRet("Cannot find fault in database");
 
     RefMan<EM::EMObject> emobj = EM::EMM().createTempObject( ioobj->group() );
@@ -87,8 +92,8 @@ bool uiExportFault::writeAscii()
     }
 
     const bool doxy = coordfld_->getBoolValue();
-    const bool inclstickidx = stickfld_->getBoolValue();
-    const bool inclknotidx = nodefld_->getBoolValue();
+    const bool inclstickidx = stickfld_->isChecked();
+    const bool inclknotidx = nodefld_->isChecked();
 
     const EM::SectionID sectionid = fault->sectionID( 0 );
     const Geometry::FaultStickSurface* fltgeom =

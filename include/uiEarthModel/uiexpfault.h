@@ -7,16 +7,18 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2008
- RCS:           $Id: uiexpfault.h,v 1.2 2008-05-21 06:30:38 cvsnanne Exp $
+ RCS:           $Id: uiexpfault.h,v 1.3 2008-05-23 11:20:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 
+class CtxtIOObj;
+class uiCheckBox;
 class uiFileInput;
 class uiGenInput;
-class uiSurfaceRead;
+class uiIOObjSel;
 
 
 /*! \brief Dialog for horizon export */
@@ -29,11 +31,13 @@ public:
 
 protected:
 
-    uiSurfaceRead*	infld_;
+    uiIOObjSel*		infld_;
     uiGenInput*		coordfld_;
-    uiGenInput*		stickfld_;
-    uiGenInput*		nodefld_;
+    uiCheckBox*		stickfld_;
+    uiCheckBox*		nodefld_;
     uiFileInput*	outfld_;
+
+    CtxtIOObj&		ctio_;
 
     virtual bool	acceptOK(CallBacker*);
     bool		writeAscii();

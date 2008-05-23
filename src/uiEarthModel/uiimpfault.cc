@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.23 2008-05-21 10:30:06 cvsnanne Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.24 2008-05-23 11:20:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,10 +34,12 @@ ________________________________________________________________________
 
 uiImportFault::uiImportFault( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Faults","Specify fault parameters",
-				 "104.1.2"))
+				 "104.1.0"))
     , ctio_(*mMkCtxtIOObj(EMFault))
     , fd_(*EM::FaultAscIO::getDesc())
 {
+    setCtrlStyle( DoAndStay );
+
     infld_ = new uiFileInput( this, "Input ascii file",
 		uiFileInput::Setup().withexamine(true)
 		.defseldir(IOObjContext::getDataDirName(IOObjContext::Surf)) );
@@ -78,15 +80,24 @@ void uiImportFault::typeSel( CallBacker* )
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return false; }
+#define mErrRet(s) { \
+    uiMSG().error(s); \
+    if ( fault ) fault->unRef(); \
+    return false; }
+
+EM::Fault* uiImportFault::createFault() const
+{
+    const char* faultnm = outfld_->getInput();
+    EM::EMManager& em = EM::EMM();
+    const EM::ObjectID emid = em.createObject( EM::Fault::typeStr(), faultnm );
+    mDynamicCastGet(EM::Fault*,fault,em.getObject(emid))
+    return fault;
+}
+
 
 bool uiImportFault::handleLMKAscii()
 {
-    const char* faultnm = outfld_->getInput();
-
-    EM::EMManager& em = EM::EMM();
-    const EM::ObjectID key = em.createObject( EM::Fault::typeStr(), faultnm );
-    mDynamicCastGet( EM::Fault*, fault, em.getObject( key ) );
+    EM::Fault* fault = createFault();
     if ( !fault )
 	mErrRet( "Cannot create fault" );
 
@@ -100,27 +111,42 @@ bool uiImportFault::handleLMKAscii()
 	transl->reader( *fault, conn, formatfld_->fileName() ); 
 
     if ( !exec )
-    {
-	fault->unRef();
 	mErrRet( "Cannot import fault" );
-    }
 
     uiTaskRunner taskrunner( this );
     if ( !taskrunner.execute(*exec) )
-    {
-	fault->unRef();
 	mErrRet( taskrunner.lastMsg() );
-    }
 
     fault->unRef();
-
     return true;
 }
 
 
 bool uiImportFault::handleAscii()
 {
-    return true;
+    EM::Fault* fault = createFault();
+    if ( !fault )
+	mErrRet( "Cannot create fault" )
+
+    fault->ref();
+
+    StreamData sd( StreamProvider(infld_->fileName()).makeIStream() );
+    if ( !sd.usable() )
+	mErrRet( "Cannot open input file" )
+
+    EM::FaultAscIO ascio( fd_ );
+    bool res = ascio.get( *sd.istrm, *fault );
+    if ( !res )
+	mErrRet( "Cannot import fault" )
+
+    PtrMan<Executor> exec = fault->saver();
+    res = exec->execute();
+    if ( !res )
+	mErrRet( "Cannot save fault" )
+
+    fault->unRef();
+    uiMSG().message( "Fault successfully imported" );
+    return false;
 }
 
 
@@ -134,6 +160,9 @@ bool uiImportFault::acceptOK( CallBacker* )
     return handleLMKAscii();
 }
 
+
+#undef mErrRet
+#define mErrRet(msg) { uiMSG().error( msg ); return false; }
 
 bool uiImportFault::checkInpFlds()
 {

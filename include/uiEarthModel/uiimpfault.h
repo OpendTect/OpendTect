@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.h,v 1.5 2008-05-21 10:30:06 cvsnanne Exp $
+ RCS:           $Id: uiimpfault.h,v 1.6 2008-05-23 11:20:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class uiGenInput;
 class uiIOObjSel;
 class uiTableImpDataSel;
 
+namespace EM { class Fault; }
 namespace Table { class FormatDesc; }
 
 /*! \brief Dialog for fault import */
@@ -42,6 +43,7 @@ protected:
     bool		checkInpFlds();
     bool		handleAscii();
     bool		handleLMKAscii();
+    EM::Fault*		createFault() const;
 
     CtxtIOObj&		ctio_;
 
