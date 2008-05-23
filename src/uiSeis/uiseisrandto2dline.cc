@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: uiseisrandto2dline.cc,v 1.2 2008-05-19 06:27:05 cvsraman Exp $
+ RCS:		$Id: uiseisrandto2dline.cc,v 1.3 2008-05-23 07:13:37 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "linekey.h"
+#include "randomlinegeom.h"
 #include "seisrandlineto2d.h"
 #include "seistrctr.h"
 #include "survinfo.h"
@@ -35,11 +36,11 @@ uiSeisRandTo2DLineDlg::uiSeisRandTo2DLineDlg( uiParent* p,
     outpfld_ = new uiSeisSel( this, outctio_, uiSeisSel::Setup(Seis::Line) );
     outpfld_->attach( alignedBelow, inpfld_ );
 
-    linenmfld_ = new uiGenInput( this, "Line Name", StringInpSpec() );
+    linenmfld_ = new uiGenInput( this, "Line Name", StringInpSpec(rln.name()) );
     linenmfld_->attach( alignedBelow, outpfld_ );
 
     trcnrfld_ = new uiGenInput( this, "Trace Nr (Start/Step)",
-	    			IntInpIntervalSpec() );
+	    			IntInpIntervalSpec( Interval<int>(1,1) ) );
     trcnrfld_->attach( alignedBelow, linenmfld_ );
 }
 
