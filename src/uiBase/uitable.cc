@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.65 2008-05-21 16:14:01 cvsjaap Exp $
+ RCS:           $Id: uitable.cc,v 1.66 2008-05-23 15:55:15 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,7 @@ public:
     
     void		activateClick(const RowCol&,bool leftclick,
 				      bool doubleclick);
-    void		activateInput(const RowCol&,const char* txt);
+    void		activateFill(const RowCol&,const char* txt);
     void		activateSelect(const TypeSet<RowCol>&);
     bool		event(QEvent*);
 
@@ -245,7 +245,7 @@ int uiTableBody::maxSelectable() const
 
 
 static const QEvent::Type sQEventActClick  = (QEvent::Type) (QEvent::User+0);
-static const QEvent::Type sQEventActInput  = (QEvent::Type) (QEvent::User+1);
+static const QEvent::Type sQEventActFill   = (QEvent::Type) (QEvent::User+1);
 static const QEvent::Type sQEventActSelect = (QEvent::Type) (QEvent::User+2);
 
 
@@ -260,11 +260,11 @@ void uiTableBody::activateClick( const RowCol& rc, bool leftclick,
 }
 
 
-void uiTableBody::activateInput( const RowCol& rc, const char* txt )
+void uiTableBody::activateFill( const RowCol& rc, const char* txt )
 {
     actrc_ = rc;
     acttext_ = txt;
-    QEvent* actevent = new QEvent( sQEventActInput );
+    QEvent* actevent = new QEvent( sQEventActFill );
     QApplication::postEvent( this, actevent );
 }
 
@@ -281,6 +281,14 @@ void uiTableBody::activateSelect( const TypeSet<RowCol>& selectset )
     handle_.selectionChanged.disable(); \
     clearSelection(); \
     handle_.selectionChanged.enable();
+
+#define mSetCurrentCell( actrc ) \
+    if ( maxSelectable()>0 ) \
+    { \
+	mClearSelSilent(); \
+	handle_.setCurrentCell( actrc ); \
+    } \
+    handle_.setNotifiedCell( actrc );
 
 bool uiTableBody::event( QEvent* ev )
 {
@@ -310,12 +318,8 @@ bool uiTableBody::event( QEvent* ev )
 	    }
 	    else if ( actrc_.row>=0 && actrc_.col>=0 )
 	    {
-		if ( maxSelectable()>0 )
-		{
-		    mClearSelSilent();
-		    handle_.setCurrentCell( actrc_ );
-		}
-		handle_.setNotifiedCell( actrc_ );
+		mSetCurrentCell( actrc_ );
+
 		if ( actdoubleclick_ )
 		    handle_.doubleClicked.trigger();
 		else if ( actleftclick_ )
@@ -325,8 +329,16 @@ bool uiTableBody::event( QEvent* ev )
 	    }
 	}
     }
-    else if ( ev->type() == sQEventActInput )
+    else if ( ev->type() == sQEventActFill )
     {
+	if ( actrc_.row>=0 && actrc_.row<rowCount() && actrc_.col>=0 &&
+	     actrc_.col<columnCount() && !handle_.isTableReadOnly() && 
+	     !handle_.isRowReadOnly(actrc_.row) &&
+	     !handle_.isColumnReadOnly(actrc_.col) )
+	{
+		mSetCurrentCell( actrc_ );
+		handle_.setText( actrc_, acttext_ );
+	}
     }
     else if ( ev->type() == sQEventActSelect )
     {
@@ -1207,8 +1219,8 @@ void uiTable::activateClick( const RowCol& rc, bool leftclick,
 { body_->activateClick( rc, leftclick, doubleclick ); }
 
 
-void uiTable::activateInput( const RowCol& rc, const char* txt )
-{ body_->activateInput( rc, txt ); }
+void uiTable::activateFill( const RowCol& rc, const char* txt )
+{ body_->activateFill( rc, txt ); }
 
 
 void uiTable::activateSelect( const TypeSet<RowCol>& selection )

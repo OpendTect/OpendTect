@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.43 2008-05-21 16:14:01 cvsjaap Exp $
+ RCS:           $Id: uitable.h,v 1.44 2008-05-23 15:55:15 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -264,7 +264,7 @@ public:
     			//! Force activation in GUI thread
     void		activateClick(const RowCol&,bool leftclick=true,
 				      bool doubleclick=false);
-    void		activateInput(const RowCol&,const char* txt);
+    void		activateFill(const RowCol&,const char* txt);
     void		activateSelect(const TypeSet<RowCol>&);
     Notifier<uiTable>	activatedone;
 
