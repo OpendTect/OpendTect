@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.47 2008-03-28 11:26:38 cvsnanne Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.48 2008-05-23 09:24:48 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -477,7 +477,7 @@ bool BatchProgram::go( std::ostream& strm )
 	    	 : aem.createTrcSelOutput( errmsg, bivs, seisoutp, outval,
 					   zboundsset ? &zbounds : 0 ); 
 	if ( !proc ) mErrRet( errmsg );
-	if ( !process( strm, proc, is2d ) ) return false;
+	if ( !process( strm, proc, is2d, outpid, &seisoutp ) ) return false;
 	
 	delete dtps;
     }
