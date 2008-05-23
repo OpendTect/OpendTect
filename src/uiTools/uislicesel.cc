@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uislicesel.cc,v 1.46 2007-11-15 13:17:32 cvskris Exp $
+ RCS:           $Id: uislicesel.cc,v 1.47 2008-05-23 05:20:27 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,8 +73,10 @@ uiSliceSel::uiSliceSel( uiParent* p, const CubeSampling& curcs,
 void uiSliceSel::createInlFld()
 {
     BufferString label( isinl_ ? "Inline nr" : "Inline range" );
-    inl0fld = new uiLabeledSpinBox( this, label );
-    inl1fld = new uiSpinBox( this );
+    const char* nm = label;
+    inl0fld = new uiLabeledSpinBox( this, label, 0,
+			BufferString(isinl_ ? "Inl nr" : "Inl Start") );
+    inl1fld = new uiSpinBox( this, 0, "Inl Stop" );
     inl1fld->attach( rightTo, inl0fld );
     inl1fld->display( !isinl_ );
 }
@@ -84,8 +86,9 @@ void uiSliceSel::createCrlFld()
 {
     BufferString label = is2d_ ? "Trace range" 
 			       : ( iscrl_ ? "Xline nr" : "Xline range" );
-    crl0fld = new uiLabeledSpinBox( this, label );
-    crl1fld = new uiSpinBox( this );
+    crl0fld = new uiLabeledSpinBox( this, label, 0,
+	   		 BufferString( iscrl_ ? "Crl nr" : "Crl Start ") );
+    crl1fld = new uiSpinBox( this, 0, "Crl Stop" );
     crl1fld->attach( rightTo, crl0fld );
     crl1fld->display( !iscrl_ );
     if ( inl0fld ) crl0fld->attach( alignedBelow, inl0fld );
@@ -94,10 +97,15 @@ void uiSliceSel::createCrlFld()
 
 void uiSliceSel::createZFld()
 {
-    BufferString label = SI().zIsTime() ? "Time " : "Depth ";
-    if ( !istsl_ ) label += "range "; label += SI().getZUnit();
-    z0fld = new uiLabeledSpinBox( this, label );
-    z1fld = new uiSpinBox( this );
+    BufferString label = SI().zIsTime() ? "Time" : "Depth";
+    BufferString nm = "Z";
+    if ( !istsl_ )
+    {
+	label += " range "; label += SI().getZUnit();
+	nm += " Start";
+    }
+    z0fld = new uiLabeledSpinBox( this, label, 0, nm );
+    z1fld = new uiSpinBox( this, 0, "Z Stop" );
     z1fld->attach( rightTo, z0fld );
     z1fld->display( !istsl_ );
     z0fld->attach( alignedBelow, crl0fld );

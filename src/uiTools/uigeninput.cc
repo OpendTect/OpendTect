@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.83 2008-05-05 07:08:44 cvsnanne Exp $
+ RCS:           $Id: uigeninput.cc,v 1.84 2008-05-23 05:20:27 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -822,6 +822,7 @@ void uiGenInput::doFinalise()
     if ( !selText.isEmpty() )
     {
 	selbut = new uiPushButton( this, selText, false );
+	selbut->setName( BufferString(selText," ",name()) );
 	selbut->activated.notify( mCB(this,uiGenInput,doSelect_) );
 	selbut->attach( rightOf, lastElem );
     }
@@ -829,6 +830,7 @@ void uiGenInput::doFinalise()
     if ( withclr )
     {
 	clrbut = new uiPushButton( this, "&Clear", true );
+	clrbut->setName( BufferString("Clear ",name()) );
 	clrbut->attach( rightOf, selbut ? selbut : lastElem );
 	clrbut->activated.notify( mCB(this,uiGenInput,doClear) );
     }

@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.11 2008-05-13 14:00:38 cvsbert Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.12 2008-05-23 05:20:27 cvsnageswara Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -123,7 +123,7 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     {
 	isxyfld = new uiGenInput( this, isimp_ ? "Position in file is"
 					       : "Position in file will be",
-				  BoolInpSpec(true,"X Y","Inline Xline") );
+				 BoolInpSpec(true,"X Y","Inline Xline") );
 	isxyfld->setValue( data().isxy_ );
 	isxyfld->attach( alignedBelow, attachobj );
 	if ( !isimp_ ) attachobj = isxyfld->attachObj();
@@ -134,23 +134,23 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	if ( !is2d )
 	{
 	    inldeffld = new uiGenInput( this, "Inline definition: start, step",
-					      IntInpSpec(data().inldef_.start),
-					      IntInpSpec(data().inldef_.step) );
+			  IntInpSpec(data().inldef_.start).setName("Start"),
+			  IntInpSpec(data().inldef_.step).setName("Step") );
 	    inldeffld->attach( alignedBelow, attachobj );
 	    crldeffld = new uiGenInput( this,
-				"Xline definition: start, step, # per inline",
-				IntInpSpec(data().crldef_.start),
-				IntInpSpec(data().crldef_.step),
-				IntInpSpec(data().nrcrlperinl_) );
+			"Xline definition: start, step, # per inline",
+			   IntInpSpec(data().crldef_.start).setName("Start"),
+			   IntInpSpec(data().crldef_.step).setName("Step"),
+			   IntInpSpec(data().nrcrlperinl_).setName("per Inl") );
 	    crldeffld->attach( alignedBelow, inldeffld );
 	    attachobj = crldeffld->attachObj();
 	}
 	else
 	{
 	    nrdeffld = new uiGenInput( this,
-		    		"Trace number definition: start, step",
-				 IntInpSpec(data().nrdef_.start),
-				 IntInpSpec(data().nrdef_.step) );
+		    	   "Trace number definition: start, step",
+			   IntInpSpec(data().nrdef_.start).setName("Start"),
+			   IntInpSpec(data().nrdef_.step).setName("Step") );
 	    nrdeffld->attach( alignedBelow, attachobj );
 	    startposfld = new uiGenInput( this,
 					  "Start position (X, Y, Trace number)",
@@ -182,10 +182,10 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	    const float stopoffs =
 			data().offsdef_.atIndex(data().nroffsperpos_-1);
 	    offsdeffld = new uiGenInput( this,
-		    		"Offset definition: start, stop, step",
-				 FloatInpSpec(data().offsdef_.start),
-				 FloatInpSpec(stopoffs),
-		   		 FloatInpSpec(data().offsdef_.step) );
+		    	   "Offset definition: start, stop, step",
+			   FloatInpSpec(data().offsdef_.start).setName("Start"),
+			   FloatInpSpec(stopoffs).setName("Stop"),
+		   	   FloatInpSpec(data().offsdef_.step).setName("Step") );
 	    offsdeffld->attach( alignedBelow, haveoffsbut );
 	    attachobj = offsdeffld->attachObj();
 	}
@@ -194,7 +194,9 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     havesdfld = new uiGenInput( this, isimp_
 	    			    ? "File start contains sampling info"
 				    : "Put sampling info in file start",
-	    			    BoolInpSpec(true) );
+				    BoolInpSpec(true)
+				      .setName("Info in file start Yes",0)
+	   			      .setName("Info in file start No",1) );
     havesdfld->setValue( data().havesd_ );
     havesdfld->attach( alignedBelow, attachobj );
     havesdfld->valuechanged.notify( mCB(this,uiSeisIOSimple,havesdSel) );
@@ -207,8 +209,10 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	SamplingData<float> sd( data().sd_ );
 	if ( SI().zIsTime() )
 	    { sd.start *= 1000; sd.step *= 1000; }
-	sdfld = new uiGenInput( this, txt, DoubleInpSpec(sd.start),
-		    DoubleInpSpec(sd.step), IntInpSpec(data().nrsamples_) );
+	sdfld = new uiGenInput( this, txt, 
+			DoubleInpSpec(sd.start).setName("Start"),
+			DoubleInpSpec(sd.step).setName("Step"),
+			IntInpSpec(data().nrsamples_).setName("Nr samples") );
 	sdfld->attach( alignedBelow, havesdfld );
 	sep = mkDataManipFlds();
 	seisfld = new uiSeisSel( this, ctio, uiSeisSel::Setup(geom_));

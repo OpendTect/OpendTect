@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.38 2008-04-18 14:56:22 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.39 2008-05-23 05:20:27 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,7 +163,9 @@ uiAttrTrcSelOut::~uiAttrTrcSelOut()
 void uiAttrTrcSelOut::createZIntervalFld( uiParent* prnt )
 {
     const char* gatelabel = "Z Interval required around surfaces";
-    gatefld_ = new uiGenInput( prnt, gatelabel, FloatInpIntervalSpec() );
+    gatefld_ = new uiGenInput( prnt, gatelabel,
+	    		FloatInpIntervalSpec().setName("Z Interval Start",0)
+	   				      .setName("Z Interval Stop",1) );
     gatefld_->attach( alignedBelow, seissubselfld_ );
     uiLabel* lbl = new uiLabel( prnt, SI().getZUnit() );
     lbl->attach( rightOf, (uiObject*)gatefld_ );
@@ -230,7 +232,8 @@ void uiAttrTrcSelOut::createInterpFld( uiParent* prnt )
 void uiAttrTrcSelOut::createNrSampFld( uiParent* prnt )
 {
     const char* nrsamplabel = "Interpolate if hole is smaller than N traces";
-    nrsampfld_ = new uiGenInput( prnt, nrsamplabel, IntInpSpec() );
+    nrsampfld_ = new uiGenInput( prnt, nrsamplabel, 
+	    				  IntInpSpec().setName("Interpolate") );
     nrsampfld_->attach( alignedBelow, interpfld_ );
 }
 
@@ -276,8 +279,9 @@ void uiAttrTrcSelOut::createCubeBoundsFlds( uiParent* prnt )
     setcubeboundsfld_->valuechanged.notify( mCB(this,uiAttrTrcSelOut,
 		                                cubeBoundsSel) );
 
-    cubeboundsfld_ = new uiGenInput ( prnt, "Z start/stop", 
-	    			      FloatInpIntervalSpec() );
+    cubeboundsfld_ = new uiGenInput ( prnt, "Z Range", FloatInpIntervalSpec()
+	    						.setName("Z Start",0)
+	   						.setName("Z Stop",1) );
     cubeboundsfld_->attach( alignedBelow, setcubeboundsfld_ );
 }
 
@@ -353,18 +357,14 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 
     BufferString typestr;
     subselpar->get( sKey::Type, typestr );
-    bool usesamp = strcmp( typestr.buf(), "None" );
+    const bool usesamp = strcmp( typestr.buf(), "None" );
     if ( usesamp )
     {
-	mDynamicCastGet( uiSeis2DSubSel* , seis2dsubsel, seissubselfld_ );
-	if ( seis2dsubsel && seis2dsubsel->isSingLine() )
-	{
-	    key = IOPar::compKey(sKey::Geometry,SeisTrcStorOutput::inlrangekey);
-	    iopar.set( key, horsamp.start.inl, horsamp.stop.inl );
+	key = IOPar::compKey(sKey::Geometry,SeisTrcStorOutput::inlrangekey);
+	iopar.set( key, horsamp.start.inl, horsamp.stop.inl );
 
-	    key = IOPar::compKey(sKey::Geometry,SeisTrcStorOutput::crlrangekey);
-	    iopar.set( key, horsamp.start.crl, horsamp.stop.crl );
-	}
+	key = IOPar::compKey(sKey::Geometry,SeisTrcStorOutput::crlrangekey);
+	iopar.set( key, horsamp.start.crl, horsamp.stop.crl );
     }
 
     CubeSampling::removeInfo( *subselpar );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uiwellattribxplot.cc,v 1.8 2008-05-22 14:09:42 cvsbert Exp $
+ RCS:           $Id: uiwellattribxplot.cc,v 1.9 2008-05-23 05:20:27 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,7 +83,9 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
     botmarkfld_->attach( rightOf, llc0 );
     BufferString txt = "Distance above/below ";
     txt += SI().depthsInFeetByDefault() ? "(ft)" : "(m)";
-    abovefld_ = new uiGenInput( this, txt, FloatInpSpec(0) );
+    abovefld_ = new uiGenInput( this, txt, FloatInpSpec(0)
+	   				   .setName("Distance above",0)
+	   				   .setName("Distance below",1) );
     abovefld_->attach( alignedBelow, llc0 );
     belowfld_ = new uiGenInput( this, "", FloatInpSpec(0) );
     belowfld_->attach( rightOf, abovefld_ );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.93 2008-05-07 05:39:21 cvsnageswara Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.94 2008-05-23 05:20:27 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -222,16 +222,16 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     rglbl->attach( ensureBelow, horsep1 );
     uiGroup* rangegrp = new uiGroup( this, "Survey ranges" );
     inlfld = new uiGenInput( rangegrp, "In-line range",
-			     IntInpIntervalSpec(true).setName("Inl from",0)
-			     			     .setName("Inl to",1)
+			     IntInpIntervalSpec(true).setName("Inl Start",0)
+			     			     .setName("Inl Stop",1)
 	   					     .setName("Inl step",2) );
     crlfld = new uiGenInput( rangegrp, "Cross-line range",
-			     IntInpIntervalSpec(true).setName("Crl from",0)
-				 		     .setName("Crl to",1) 
+			     IntInpIntervalSpec(true).setName("Crl Start",0)
+				 		     .setName("Crl Stop",1) 
 						     .setName("Crl step",2) );
     zfld = new uiGenInput( rangegrp, "Z range", 
-	    	 	   DoubleInpIntervalSpec(true).setName("Z from",0)
-	   					      .setName("Z to",1) 
+	    	 	   DoubleInpIntervalSpec(true).setName("Z Start",0)
+	   					      .setName("Z Stop",1) 
 						      .setName("Z step",2) );
     rangegrp->setHAlignObj( inlfld );
     if ( sipobj )
@@ -273,14 +273,14 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	   				     .setName("Crl Position3",1) ); 
     psetup.wantcoords_ = true;
     xy0fld = new uiGenInput( crdgrp, "= (X,Y)", 
-	    			PositionInpSpec(psetup).setName("X",0)
-	   					       .setName("Y",1) );
+	    			PositionInpSpec(psetup).setName("X1",0)
+	   					       .setName("Y1",1) );
     xy1fld = new uiGenInput( crdgrp, "= (X,Y)",
-	    			PositionInpSpec(psetup).setName("X",0)
-	   					       .setName("Y",1) );
+	    			PositionInpSpec(psetup).setName("X2",0)
+	   					       .setName("Y2",1) );
     xy2fld = new uiGenInput( crdgrp, "= (X,Y)",
-	    			PositionInpSpec(psetup).setName("X",0)
-	   					       .setName("Y",1) );
+	    			PositionInpSpec(psetup).setName("X3",0)
+	   					       .setName("Y3",1) );
     crdgrp->setHAlignObj( ic0fld );
     crdgrp->attach( alignedBelow, rangegrp );
     crdgrp->attach( ensureBelow, coordset );

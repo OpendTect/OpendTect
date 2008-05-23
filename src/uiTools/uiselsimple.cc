@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.cc,v 1.12 2008-05-08 05:03:10 cvsnanne Exp $
+ RCS:           $Id: uiselsimple.cc,v 1.13 2008-05-23 05:20:27 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ uiSelectFromList::uiSelectFromList( uiParent* p, const Setup& sup )
 	{ new uiLabel(this,"No items available for selection"); return; }
 
     selfld_ = new uiListBox( this );
+    selfld_->setName("Select Data from List");
     selfld_->addItems( sup.items_ );
     if ( sup.current_ < 1 )
 	selfld_->setCurrentItem( 0 );

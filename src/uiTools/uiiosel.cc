@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.47 2008-05-07 05:39:21 cvsnageswara Exp $
+ RCS:           $Id: uiiosel.cc,v 1.48 2008-05-23 05:20:27 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,7 @@ uiIOSelect::uiIOSelect( uiParent* p, const CallBack& butcb, const char* txt,
     lbl_->setAlignment( uiLabel::AlignRight );
 
     selbut_ = new uiPushButton( this, buttontxt, false );
+    selbut_->setName( BufferString( buttontxt, " ",  txt ) );
     selbut_->activated.notify( mCB(this,uiIOSelect,doSel) );
     selbut_->attach( rightOf, lcb );
 
