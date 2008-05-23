@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.20 2008-05-22 11:10:53 cvssatyaki Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.21 2008-05-23 07:12:45 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -294,6 +294,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
     {
 	TypeSet<BinID> bids; rtd->getAllKnotPos( bids );
 	Geometry::RandomLine* rln = new Geometry::RandomLine;
+	rln->setZRange( rtd->getDepthInterval() );
 	for ( int idx=0; idx<bids.size(); idx++ )
 	    rln->addNode( bids[idx] );
 	    
@@ -306,7 +307,6 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	    if ( !dlg.go() )
 		{ delete rln; return; }
 		
-	    rln->setZRange( rtd->getDepthInterval() );
 	    Geometry::RandomLineSet lset; lset.addLine( rln );
 	    BufferString bs;
 	    if ( !RandomLineSetTranslator::store(lset,dlg.ioObj(),bs) )
@@ -314,6 +314,7 @@ void uiODRandomLineTreeItem::handleMenuCB( CallBacker* cb )
 	}
 	else if ( mnuid == saveas2dmnuitem_.id )
 	{
+	    rln->setName( rtd->name() );
 	    applMgr()->seisServer()->storeRlnAs2DLine( *rln );
 	    delete rln;
 	}
