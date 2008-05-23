@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.114 2008-05-09 09:13:56 cvsnanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.115 2008-05-23 12:02:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -86,7 +86,7 @@ void relocStart( const char* msg )
 };
 
 
-static bool sAskToOverwrite = true;
+static bool sAskedToOverwrite = false;
 
 uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 			      const char* seltxt, bool multisel )
@@ -97,6 +97,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
     , manipgrpsubj(0)
     , newStatusMsg(this)
     , selectionChg(this)
+    , confirmoverwrite_(true)
 {
     IOM().to( ctio_.ctxt.getSelKey() );
 
@@ -157,7 +158,7 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 	selChg( this );
     setHAlignObj( topgrp );
 
-    sAskToOverwrite = true;
+    sAskedToOverwrite = false;
 }
 
 
@@ -361,17 +362,17 @@ bool uiIOObjSelGrp::processInput()
 	    uiMSG().error( "Object is read-only" );
 	    ret = false;
 	}
-	else if ( sAskToOverwrite )
+	else if ( confirmoverwrite_ && !sAskedToOverwrite )
 	    ret = uiMSG().askGoOn( "Overwrite existing object?" );
 
 	if ( !ret )
 	{
-	    sAskToOverwrite = true;
+	    sAskedToOverwrite = false;
 	    delete ioobj;
 	    return false;
 	}
 
-	sAskToOverwrite = false;
+	sAskedToOverwrite = true;
     }
 
     ctio_.setObj( ioobj );

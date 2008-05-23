@@ -7,23 +7,24 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.52 2008-02-29 11:27:10 cvsnanne Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.53 2008-05-23 12:02:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uiiosel.h"
 #include "uidialog.h"
-#include "multiid.h"
+#include "uiiosel.h"
 #include "ctxtioobj.h"
+#include "multiid.h"
+
+class IODirEntryList;
 class IOObj;
 class IOStream;
 class uiGenInput;
-class uiIOObjSelGrp;
-class IODirEntryList;
-class uiListBox;
 class uiIOObjManipGroup;
+class uiIOObjSelGrp;
 class uiIOObjSelGrpManipSubj;
+class uiListBox;
 
 
 /*! \brief Dialog letting the user select an object.
@@ -48,9 +49,9 @@ public:
 class uiIOObjSelGrp : public uiGroup
 {
 public:
-				uiIOObjSelGrp( uiParent*, const CtxtIOObj& ctio,
-					       const char* seltxt=0,
-					       bool multisel=false );
+				uiIOObjSelGrp(uiParent*,const CtxtIOObj& ctio,
+					      const char* seltxt=0,
+					      bool multisel=false);
 				~uiIOObjSelGrp();
 
     void			fullUpdate(const MultiID& kpselected);
@@ -77,6 +78,8 @@ public:
     uiListBox*			getListField()		{ return listfld; }
     uiIOObjManipGroup*		getManipGroup();
     const ObjectSet<MultiID>&	getIOObjIds() const	{ return ioobjids_; }
+    void			setConfirmOverwrite( bool yn )
+				{ confirmoverwrite_ = yn; }
 
     virtual bool		fillPar(IOPar&) const;
     virtual void		usePar(const IOPar&);
@@ -87,6 +90,7 @@ protected:
     ObjectSet<MultiID>	ioobjids_;
     BufferStringSet	ioobjnms_;
     bool		ismultisel_;
+    bool		confirmoverwrite_;
 
     friend class	uiIOObjSelDlg;
     friend class	uiIOObjSelGrpManipSubj;
