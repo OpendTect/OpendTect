@@ -4,7 +4,7 @@
  * DATE     : 12-1-2004
 -*/
 
-static const char* rcsID = "$Id: datainpspec.cc,v 1.26 2008-05-05 04:53:41 cvsnageswara Exp $";
+static const char* rcsID = "$Id: datainpspec.cc,v 1.27 2008-05-23 04:52:24 cvsnageswara Exp $";
 
 #include "datainpspec.h"
 #include "iopar.h"
@@ -239,6 +239,10 @@ BoolInpSpec::BoolInpSpec( bool yesno, const char* truetxt,
     , isset(setyn)
 {
     if ( falsetxt ) falsetext = falsetxt;
+    if ( !truetext.isEmpty() )
+	setName( truetext, 0 );
+    if ( !falsetext.isEmpty() )
+	setName( falsetext, 1 );
 }
 
 
@@ -266,7 +270,14 @@ const char* BoolInpSpec::trueFalseTxt( bool tf ) const
 
 
 void BoolInpSpec::setTrueFalseTxt( bool tf, const char* txt )
-{ if ( tf ) truetext=txt; else falsetext=txt; }
+{
+    if ( tf )
+	truetext=txt;
+    else
+	falsetext=txt;
+
+    setName( txt, tf ? 0 : 1 );
+}
 
 
 bool BoolInpSpec::checked() const 
