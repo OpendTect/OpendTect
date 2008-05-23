@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID = "$Id: uistratamp.cc,v 1.2 2008-04-09 04:14:52 cvsraman Exp $";
+static const char* rcsID = "$Id: uistratamp.cc,v 1.3 2008-05-23 05:20:44 cvsnageswara Exp $";
 
 #include "uistratamp.h"
 #include "stratamp.h"
@@ -46,17 +46,18 @@ uiCalcStratAmp::uiCalcStratAmp( uiParent* p )
     winoption_->valuechanged.notify( mCB(this,uiCalcStratAmp,choiceSel) );
     winoption_->attach( alignedBelow, inpfld_ );
 
-    horfld1_ = new uiIOObjSel( this, horctio1_, "Select Top Horizon" );
+    horfld1_ = new uiIOObjSel( this, horctio1_, "Horizon" );
     horfld1_->selectiondone.notify( mCB(this,uiCalcStratAmp,inpSel) );
     horfld1_->attach( alignedBelow, winoption_ );
 
-    horfld2_ = new uiIOObjSel( this, horctio2_, "Select Bottom Horizon" );
+    horfld2_ = new uiIOObjSel( this, horctio2_, "Bottom Horizon" );
     horfld2_->selectiondone.notify( mCB(this,uiCalcStratAmp,inpSel) );
     horfld2_->attach( alignedBelow, horfld1_ );
 
     BufferString lbltxt = "Z Offset ";
     lbltxt += SI().getZUnit(); lbltxt += " Top";
-    tophorshiftfld_ = new uiGenInput( this, lbltxt, FloatInpSpec(0) );
+    tophorshiftfld_ = new uiGenInput( this, lbltxt,
+	    			            FloatInpSpec(0).setName("Top") );
     tophorshiftfld_->attach( alignedBelow, horfld2_ );
     tophorshiftfld_->setElemSzPol( uiObject::Small );
     bothorshiftfld_ = new uiGenInput( this, "Bottom", FloatInpSpec(0) );
@@ -92,8 +93,8 @@ uiCalcStratAmp::~uiCalcStratAmp()
 void uiCalcStratAmp::choiceSel( CallBacker* )
 {
     usesingle_ = winoption_->getBoolValue();
-    horfld1_->setLabelText( usesingle_ ? "Select Horizon  " 
-				       : "Select Top Horizon" );
+    horfld1_->setLabelText( usesingle_ ? "Horizon  " 
+				       : "  Top Horizon" );
     horfld2_->display( !usesingle_ );
     selfld_->display( !usesingle_ );
 }
