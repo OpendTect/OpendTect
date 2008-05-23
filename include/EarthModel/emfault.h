@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.33 2008-05-21 10:31:07 cvsnanne Exp $
+ RCS:		$Id: emfault.h,v 1.34 2008-05-23 11:19:53 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -33,14 +33,14 @@ public:
     int			nrSticks(const SectionID&) const;
     int			nrKnots(const SectionID&,int sticknr) const;
 
-    bool		insertStick(const SectionID&, int sticknr,
+    bool		insertStick(const SectionID&,int sticknr,
 	    			    const Coord3& pos,const Coord3& editnormal,
 				    bool addtohistory);
-    bool		removeStick(const SectionID&, int sticknr,
+    bool		removeStick(const SectionID&,int sticknr,
 				    bool addtohistory);
-    bool		insertKnot(const SectionID&, const SubID&,
+    bool		insertKnot(const SectionID&,const SubID&,
 	    			   const Coord3& pos,bool addtohistory);
-    bool		removeKnot(const SectionID&, const SubID&,
+    bool		removeKnot(const SectionID&,const SubID&,
 	    			   bool addtohistory);
     
     bool		areSticksVertical(const SectionID&) const;
@@ -69,10 +69,8 @@ protected:
 class Fault : public Surface
 { mDefineEMObjFuncs( Fault );
 public:
-
     FaultGeometry&		geometry();
     const FaultGeometry&	geometry() const;
-
 
 protected:
     const IOObjContext&		getIOObjContext() const;
@@ -89,10 +87,12 @@ class FaultAscIO : public Table::AscIO
 public:
     				FaultAscIO( const Table::FormatDesc& fd )
 				    : Table::AscIO(fd)		{}
-
     static Table::FormatDesc*	getDesc();
 
-    Fault*			get(std::istream&) const;
+    bool			get(std::istream&,EM::Fault&) const;
+
+protected:
+    bool			isXY() const;
 };
 
 

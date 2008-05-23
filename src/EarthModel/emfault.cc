@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.45 2008-05-21 10:31:07 cvsnanne Exp $
+ RCS:           $Id: emfault.cc,v 1.46 2008-05-23 11:19:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -424,12 +424,54 @@ Table::FormatDesc* FaultAscIO::getDesc()
 }
 
 
-Fault* FaultAscIO::get( std::istream& strm ) const
+bool FaultAscIO::isXY() const
 {
-    if ( !getHdrVals(strm) )
-	return 0;
+    const Table::TargetInfo* posinfo = fd_.bodyinfos_[0];
+    if ( !posinfo ) return true;
 
-    return 0;
+    return posinfo->selection_.form_ == 0;
+}
+
+
+bool FaultAscIO::get( std::istream& strm, EM::Fault& flt ) const
+{
+    getHdrVals( strm );
+
+    Coord3 crd;
+    Coord3 normal( 1, 0, 0 );
+    const SectionID sid = flt.sectionID( 0 );
+    int curstickidx = -1;
+    int knotidx = 0;
+    while ( true )
+    {
+	const int ret = getNextBodyVals( strm );
+	if ( ret < 0 ) return false;
+	if ( ret == 0 ) break;
+
+	crd.x = getfValue( 0 );
+	crd.y = getfValue( 1 );
+	crd.z = getfValue( 2 );
+	const int stickidx = getIntValue( 3 );
+
+	if ( !crd.isDefined() )
+	    continue;
+
+	if ( stickidx != curstickidx )
+	{
+	    flt.geometry().insertStick( sid, stickidx, crd, normal, false );
+	    curstickidx = stickidx;
+	    knotidx = 0;
+	}
+	else
+	{
+	    const RowCol rc( stickidx, knotidx );
+	    flt.geometry().insertKnot( sid, rc.getSerialized(), crd, false );
+	}
+
+	knotidx++;
+    }
+
+    return true;
 }
 
 
