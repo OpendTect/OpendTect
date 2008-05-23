@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.90 2008-05-21 07:42:55 cvsjaap Exp $
+ RCS:           $Id: uilistbox.cc,v 1.91 2008-05-23 04:57:17 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -256,6 +256,7 @@ uiListBox::uiListBox( uiParent* p, const BufferStringSet& items,
     , activatedone(this)
 {
     addItems( items );
+    setName( "Select Data" );
 }
 
 
