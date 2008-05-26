@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.44 2007-02-22 18:14:40 cvskris Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.45 2008-05-26 12:05:55 cvsbert Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -260,6 +260,7 @@ Well::Track& Well::Track::operator =( const Track& t )
 	setName( t.name() );
 	dah_ = t.dah_;
 	pos_ = t.pos_;
+	zistime_ = t.zistime_;
     }
     return *this;
 }
@@ -449,6 +450,9 @@ Coord3 Well::Track::coordAfterIdx( float dh, int idx1 ) const
 
 float Well::Track::getDahForTVD( float z, float prevdah ) const
 {
+    if ( zistime_ )
+	{ pErrMsg("Cannot compare TVD to time"); return dah_[0]; }
+
     bool haveprevdah = !mIsUdf(prevdah);
     int foundidx = -1;
     for ( int idx=0; idx<pos_.size(); idx++ )
@@ -473,6 +477,50 @@ float Well::Track::getDahForTVD( float z, float prevdah ) const
 }
 
 
+float Well::Track::nearestDah( const Coord3& posin ) const
+{
+    if ( dah_.isEmpty() ) return 0;
+
+    if ( dah_.size() < 2 ) return dah_[1];
+
+    const float zfac = zistime_ ? 2000 : 1;
+    Coord3 pos( posin ); pos.z *= zfac;
+    Coord3 curpos( getPos( dah_[0] ) ); curpos.z *= zfac;
+    float sqneardist = curpos.sqDistTo( pos );
+    float sqsecdist = sqneardist;
+    int nearidx = 0; int secondidx = 0;
+    curpos = getPos( dah_[1] ); curpos.z *= zfac;
+    float sqdist = curpos.sqDistTo( pos );
+    if ( sqdist < sqneardist )
+	{ nearidx = 1; sqneardist = sqdist; }
+    else
+	{ secondidx = 1; sqsecdist = sqdist; }
+	
+    for ( int idah=2; idah<dah_.size(); idah++ )
+    {
+	curpos = getPos( dah_[idah] ); curpos.z *= zfac;
+	sqdist = curpos.sqDistTo( pos );
+	if ( sqdist < 0.1 ) return dah_[idah];
+
+	if ( sqdist < sqneardist )
+	{
+	    secondidx = nearidx; sqsecdist = sqneardist;
+	    nearidx = idah; sqneardist = sqdist;
+	}
+	else if ( sqdist < sqsecdist )
+	    { secondidx = idah; sqsecdist = sqdist; }
+
+	if ( sqdist > 2 * sqneardist ) // safe for 'reasonable wells'
+	    break;
+    }
+
+    const float neardist = sqrt( sqneardist );
+    const float secdist = sqrt( sqsecdist );
+    return (neardist*dah_[secondidx] + secdist * dah_[nearidx])
+         / (neardist + secdist);
+}
+
+
 bool Well::Track::alwaysDownward() const
 {
     if ( pos_.size() < 2 )
@@ -482,7 +530,7 @@ bool Well::Track::alwaysDownward() const
     for ( int idx=1; idx<pos_.size(); idx++ )
     {
 	float curz = pos_[idx].z;
-	if ( curz < prevz )
+	if ( curz <= prevz )
 	    return false;
 	prevz = curz;
     }
@@ -541,6 +589,8 @@ void Well::Track::toTime( const D2TModel& d2t )
 	Coord3& pt = pos_[idx];
 	pt.z = d2t.getTime( dah_[idx] );
     }
+
+    zistime_ = true;
 }
 
 
