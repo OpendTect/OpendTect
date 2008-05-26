@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: welltrack.h,v 1.13 2006-03-12 13:39:10 cvsbert Exp $
+ RCS:		$Id: welltrack.h,v 1.14 2008-05-26 12:05:15 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -25,7 +25,7 @@ class Track : public DahObj
 public:
 
 			Track( const char* nm=0 )
-			: DahObj(nm)			{}
+			: DahObj(nm), zistime_(false)	{}
 			Track( const Track& t )
 			: DahObj("")			{ *this = t; }
     Track&		operator =(const Track&);
@@ -33,6 +33,7 @@ public:
     const Coord3&	pos( int idx ) const		{ return pos_[idx]; }
     float		value( int idx ) const		{ return pos_[idx].z; }
     int			nrPoints() const		{ return pos_.size(); }
+    bool		zIsTime() const			{ return zistime_; }
 
     int			insertPoint(const Coord&,float z);
     			//!< a 'good' place will be found
@@ -50,6 +51,9 @@ public:
     Coord3		getPos(float d_ah) const;
     float		getDahForTVD(float,float prevdah=mUdf(float)) const;
     			//!< Non-unique. previous DAH may be helpful
+    			//!< Don;t use is track is in time
+    float		nearestDah(const Coord3&) const;
+    			// If zIsTime() z must be time
 
     			// If you know what you're doing:
     Coord3		coordAfterIdx(float d_ah,int) const;
@@ -62,6 +66,7 @@ protected:
 
 
     TypeSet<Coord3>	pos_;
+    bool		zistime_;
 
     void		removeAux( int idx )		{ pos_.remove(idx); }
     void		eraseAux()			{ pos_.erase(); }
