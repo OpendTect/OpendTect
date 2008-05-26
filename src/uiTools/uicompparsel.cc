@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2006
- RCS:           $Id: uicompparsel.cc,v 1.3 2008-05-26 05:43:19 cvsnanne Exp $
+ RCS:           $Id: uicompparsel.cc,v 1.4 2008-05-26 06:22:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,15 +15,15 @@ ________________________________________________________________________
 
 
 uiCompoundParSel::uiCompoundParSel( uiParent* p, const char* seltxt,
-				    const char* buttxt )
+				    const char* btxt )
     : uiGroup(p,seltxt)
     , butPush(this)
 {
     txtfld = new uiGenInput( this, seltxt, "" );
     txtfld->setReadOnly( true );
 
-    uiPushButton* but = new uiPushButton( this, buttxt ? buttxt : "Select",
-	    				  false );
+    const char* buttxt = btxt ? btxt : "Select";
+    uiPushButton* but = new uiPushButton( this, buttxt, false );
     but->setName( BufferString(buttxt," ",seltxt).buf() );
     but->activated.notify( mCB(this,uiCompoundParSel,doSel) );
     but->attach( rightOf, txtfld );
