@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          August 2001
- RCS:           $Id: od_ProgressViewer.cc,v 1.13 2008-05-09 13:06:37 cvsraman Exp $
+ RCS:           $Id: od_ProgressViewer.cc,v 1.14 2008-05-26 11:20:55 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ uiProgressViewer::uiProgressViewer( uiParent* p, std::istream& s, int i )
 	, delay(0)
 	, newlineseen(false)
 {
+    fullline[0] = '\0';
     topGroup()->setBorder(0);
     topGroup()->setSpacing(0);
 
