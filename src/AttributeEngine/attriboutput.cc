@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.81 2008-05-15 15:31:57 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.82 2008-05-26 08:27:07 cvsbert Exp $";
 
 #include "attriboutput.h"
 
@@ -35,23 +35,23 @@ static const char* rcsID = "$Id: attriboutput.cc,v 1.81 2008-05-15 15:31:57 cvsh
 namespace Attrib
 {
 
-const char* Output::outputstr = "Output";
-const char* Output::cubekey = "Cube";
-const char* Output::surfkey = "Surface";
+const char* Output::outputstr = sKey::Output;
+const char* Output::cubekey = sKey::Cube;
+const char* Output::surfkey = sKey::Surface;
 const char* Output::tskey = "Trace Selection";
-const char* Output::scalekey = "Scale";
+const char* Output::scalekey = sKey::Scale;
 const char* Output::varzlinekey = "Variable Z Line";
 
-const char* SeisTrcStorOutput::seisidkey = "Seismic ID";
-const char* SeisTrcStorOutput::attribkey = "Attributes";
+const char* SeisTrcStorOutput::seisidkey = "Seismic.ID";
+const char* SeisTrcStorOutput::attribkey = sKey::Attributes;
 const char* SeisTrcStorOutput::inlrangekey = "In-line range";
 const char* SeisTrcStorOutput::crlrangekey = "Cross-line range";
 const char* SeisTrcStorOutput::depthrangekey = "Depth range";
 
-const char* LocationOutput::filenamekey = "Output Filename";
+const char* LocationOutput::filenamekey = "Output.File name";
 const char* LocationOutput::locationkey = "Locations";
-const char* LocationOutput::attribkey = "Attribute";
-const char* LocationOutput::surfidkey = "Surface ID";
+const char* LocationOutput::attribkey = sKey::Attribute;
+const char* LocationOutput::surfidkey = "Surface.ID";
 
 
 Output::Output()
