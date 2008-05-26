@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2002
- RCS:           $Id: uisurfaceman.h,v 1.16 2008-02-26 09:13:41 cvsnanne Exp $
+ RCS:           $Id: uisurfaceman.h,v 1.17 2008-05-26 12:16:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ protected:
     uiListBox*		attribfld;
 
     bool		isCur2D() const;
+    bool		isCurFault() const;
 
     void		copyCB(CallBacker*);
     void		setRelations(CallBacker*);
