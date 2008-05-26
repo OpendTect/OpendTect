@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/05/2000
- RCS:           $Id: uigeninput.cc,v 1.84 2008-05-23 05:20:27 cvsnageswara Exp $
+ RCS:           $Id: uigeninput.cc,v 1.85 2008-05-26 05:48:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -509,8 +509,8 @@ protected:
 };
 
 template<class T>
-uiIntervalInpFld<T>::uiIntervalInpFld(uiGenInput* p, const DataInpSpec& dis,
-				    const char* nm) 
+uiIntervalInpFld<T>::uiIntervalInpFld( uiGenInput* p, const DataInpSpec& dis,
+				       const char* nm ) 
     : uiInputFld( p, dis )
     , intvalGrp( *new uiGroup(p,nm) ) 
     , start( *new uiLineEdit(&intvalGrp,mName(dis,0,nm)) )
@@ -519,6 +519,12 @@ uiIntervalInpFld<T>::uiIntervalInpFld(uiGenInput* p, const DataInpSpec& dis,
 {
     mDynamicCastGet(const NumInpIntervalSpec<T>*,spc,&dis)
     if (!spc) { pErrMsg("Huh"); return; }
+
+    if ( (!dis.name(0) || !dis.name(1)) && nm && *nm )
+    {
+	start.setName( BufferString(nm," start").buf() );
+	stop.setName( BufferString(nm," stop").buf() );
+    }
 
     start.notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
     stop.notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
@@ -532,6 +538,8 @@ uiIntervalInpFld<T>::uiIntervalInpFld(uiGenInput* p, const DataInpSpec& dis,
     if ( spc->hasStep() )
     {
 	step = new uiLineEdit(&intvalGrp,mName(dis,2,nm));
+	if ( !dis.name(2) && nm && *nm )
+	    step->setName( BufferString(nm," step").buf() );
 
 	step->notifyValueChanging( mCB(this,uiInputFld,valChangingNotify) );
 	step->notifyValueChanged( mCB(this,uiInputFld,valChangedNotify) );
@@ -648,13 +656,13 @@ uiInputFld& uiGenInput::createInpFld( const DataInpSpec& desc )
 	    {
 
 	    case DataType::intTp:
-		fld = new uiIntervalInpFld<int>( this, desc ); 
+		fld = new uiIntervalInpFld<int>( this, desc, name() ); 
 	    break;
 	    case DataType::floatTp:
-		fld = new uiIntervalInpFld<float>( this, desc ); 
+		fld = new uiIntervalInpFld<float>( this, desc, name() ); 
 	    break;
 	    case DataType::doubleTp:
-		fld = new uiIntervalInpFld<double>( this, desc ); 
+		fld = new uiIntervalInpFld<double>( this, desc, name() ); 
 	    break;
 	    }
 	}
