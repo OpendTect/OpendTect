@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.28 2008-05-09 14:05:03 cvshelene Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.29 2008-05-26 08:28:25 cvsbert Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -209,7 +209,7 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
     IOPar* subselpar = iopar_.subselect( "Output.1.Sub" );
 
     mSetInlsPerJob( nrinlperjob );
-    InlineSplitJobDescProv jdp( subselpar ? *subselpar : iopar_, 0 );
+    InlineSplitJobDescProv jdp( iopar_, 0 );
     jdp.getRange( todoinls_ );
 
     if ( havetempdir )
