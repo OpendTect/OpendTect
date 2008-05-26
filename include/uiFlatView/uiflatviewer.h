@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.h,v 1.21 2008-04-23 09:36:19 cvshelene Exp $
+ RCS:           $Id: uiflatviewer.h,v 1.22 2008-05-26 04:11:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,7 @@ public:
 
     Notifier<uiFlatViewer> viewChanged; //!< setView
     Notifier<uiFlatViewer> dataChanged; //!< WVA or VD data changed
+    Notifier<uiFlatViewer> dispParsChanged; //!< WVA or VD disppars changed
 
     uiFlatViewControl*	control()	{ return control_; }
     Interval<float>     getDataRange(bool) const;

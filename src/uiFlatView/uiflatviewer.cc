@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.52 2008-05-15 18:36:03 cvsyuancheng Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.53 2008-05-26 04:11:52 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,6 +39,7 @@ uiFlatViewer::uiFlatViewer( uiParent* p )
     , annotsz_(50,20) //TODO: should be dep on font size
     , viewChanged(this)
     , dataChanged(this)
+    , dispParsChanged(this)
     , control_(0)
 {
     bmp2rgb_ = new FlatView::BitMap2RGB( appearance(), canvas_.rgbArray() );
@@ -177,6 +178,9 @@ void uiFlatViewer::handleChange( DataChangeType dct )
 
     canvas_.setBorder( uiBorder(l,t,r,b) );
     canvas_.forceNewFill();
+
+    if ( dct == WVAPars || dct == VDPars )
+	dispParsChanged.trigger();
 }
 
 
