@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.87 2007-06-13 16:29:34 cvsbert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.88 2008-05-26 11:41:20 cvsbert Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: batchprog.cc,v 1.87 2007-06-13 16:29:34 cvsbert
 #include "ctxtioobj.h"
 #include "mmsockcommunic.h"
 #include "keystrs.h"
+#include "ascstream.h"
 
 #ifndef __msvc__
 #include <unistd.h>
@@ -121,23 +122,24 @@ BatchProgram::BatchProgram( int* pac, char** av )
     StreamData sd = StreamProvider( fn ).makeIStream();
     if ( !sd.usable() )
     {
-	BufferString msg( name() );
-	msg += ": Cannot open parameter file: ";
-	msg += fn;
-
-	errorMsg( msg );
+	errorMsg( BufferString( name(), ": Cannot open parameter file: ", fn ) );
 	return;
     }
  
-    iopar->read( *sd.istrm, sKey::Pars );
+    ascistream aistrm( *sd.istrm, YES );
+    if ( strcmp(aistrm.fileType(),sKey::Pars) )
+    {
+	errorMsg( BufferString("Input file ",fn," is not a parameter file") );
+	std::cerr << aistrm.fileType() << std::endl;
+	return;
+    }
+    parversion_ = aistrm.version();
+    iopar->getFrom( aistrm );
     sd.close();
+
     if ( iopar->size() == 0 )
     {
-	BufferString msg( argv_[0] );
-	msg += ": Invalid input file: ";
-	msg += fn;
-
-	errorMsg( msg ); 
+	errorMsg( BufferString(argv_[0],": Invalid input file: ",fn) ); 
         return;
     }
 
