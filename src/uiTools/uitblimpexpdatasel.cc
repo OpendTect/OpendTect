@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uitblimpexpdatasel.cc,v 1.39 2008-05-23 05:20:44 cvsnageswara Exp $
+ RCS:           $Id: uitblimpexpdatasel.cc,v 1.40 2008-05-26 13:14:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -154,11 +154,10 @@ void addBoxes( int iform, int ifld )
     }
 
     ObjectSet<uiSpinBox>& colboxes = *colboxes_[iform];
-    BufferString heading;
-    heading += "Col :";
-    heading += ifld+1;
-    uiSpinBox* colspinbox = new uiSpinBox( this,0,heading.buf());
-    colspinbox->setInterval( 1, 999, 1 );
+    BufferString heading; heading += "Col :"; heading += ifld+1;
+    uiSpinBox* colspinbox = new uiSpinBox( this, 0, heading.buf() );
+    const int firstcol = tinf_.isOptional() ? 0 : 1;
+    colspinbox->setInterval( firstcol, 999, 1 );
     colspinbox->setPrefix( "col:" );
     colboxes += colspinbox;
 
@@ -184,7 +183,7 @@ void addBoxes( int iform, int ifld )
 
     if ( !iskw && !isrc )
     {
-	colspinbox->setValue( defcol_ + ifld );
+	colspinbox->setValue( tinf_.isOptional() ? 0 : defcol_ + ifld );
 	if ( !ishdr_ && iform==tinf_.nrForms()-1
 	     && ifld==tinf_.form(iform).specs_.size()-1 ) defcol_ += ifld + 1;
     }

@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.18 2008-02-07 13:20:42 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.19 2008-05-26 13:14:58 cvsbert Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -320,7 +320,7 @@ struct BodyInfo
 		    : tarinf_(ti)
 		    , sel_(ti.selection_)
 		    , form_(ti.form(ti.selection_.form_))
-		    , col_(0)
+		    , col_(-1)
 		    , specnr_(specnr)
 		{
 		    if ( sel_.havePos(specnr_) )
@@ -506,13 +506,14 @@ const char* putBodyRow( const BufferStringSet& bss )
 {
     aio_.emptyVals();
 
+    const char* rv = 0;
     for ( int iinf=0; iinf<bodyinfos_.size(); iinf++ )
     {
 	const BodyInfo& bodyinf = *bodyinfos_[iinf];
-	if ( bodyinf.col_ >= bss.size() )
-	    return "";
-	else
+	if ( bss.validIdx(bodyinf.col_) )
 	    aio_.addVal( bss.get(bodyinf.col_), bodyinf.sel_.unit_ );
+	else
+	    rv = "";
     }
 
     rownr_++;
@@ -629,7 +630,7 @@ bool Table::AscIO::putNextBodyVals( std::ostream& strm ) const
 
 const char* Table::AscIO::text( int ifld ) const
 {
-    return ifld >= vals_.size() ? "" : ((const char*)vals_.get(ifld));
+    return vals_.validIdx(ifld) ? ((const char*)vals_.get(ifld)) : "";
 }
 
 
@@ -659,7 +660,7 @@ static const char* trimmedNumbStr( const char* sval, bool isint )
 
 int Table::AscIO::getIntValue( int ifld ) const
 {
-    if ( ifld >= vals_.size() )
+    if ( !vals_.validIdx(ifld) )
 	return mUdf(int);
     const char* sval = trimmedNumbStr( vals_.get(ifld), true );
     return sval && *sval ? atoi( sval ) : mUdf(int);
@@ -668,7 +669,7 @@ int Table::AscIO::getIntValue( int ifld ) const
 
 float Table::AscIO::getfValue( int ifld ) const
 {
-    if ( ifld >= vals_.size() )
+    if ( !vals_.validIdx(ifld) )
 	return mUdf(float);
 
     const char* sval = trimmedNumbStr( vals_.get(ifld), false );
@@ -683,7 +684,7 @@ float Table::AscIO::getfValue( int ifld ) const
 
 double Table::AscIO::getdValue( int ifld ) const
 {
-    if ( ifld >= vals_.size() )
+    if ( !vals_.validIdx(ifld) )
 	return mUdf(double);
 
     const char* sval = trimmedNumbStr( vals_.get(ifld), false );
