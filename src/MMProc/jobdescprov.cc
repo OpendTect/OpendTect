@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: jobdescprov.cc,v 1.10 2008-02-04 16:49:33 cvsbert Exp $
+ RCS:           $Id: jobdescprov.cc,v 1.11 2008-05-26 08:27:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,6 +100,10 @@ InlineSplitJobDescProv::~InlineSplitJobDescProv()
 }
 
 
+static const BufferString outsubselkey(
+		IOPar::compKey(sKey::Output,sKey::Subsel) );
+#define mGetSubselKey(s) IOPar::compKey(outsubselkey.buf(),sKey::s)
+
 void InlineSplitJobDescProv::getRange( StepInterval<int>& rg ) const
 {
     rg.step = 0;
@@ -108,9 +112,9 @@ void InlineSplitJobDescProv::getRange( StepInterval<int>& rg ) const
 	inpiopar_.get( singlekey_, rg );
     else
     {
-	inpiopar_.get( sKey::FirstInl, rg.start );
-	inpiopar_.get( sKey::LastInl, rg.stop );
-	inpiopar_.get( sKey::StepInl, rg.step );
+	inpiopar_.get( mGetSubselKey(FirstInl), rg.start );
+	inpiopar_.get( mGetSubselKey(LastInl), rg.stop );
+	inpiopar_.get( mGetSubselKey(StepInl), rg.step );
     }
 
     if ( rg.step < 0 ) rg.step = -rg.step;
@@ -159,8 +163,9 @@ void InlineSplitJobDescProv::getJob( int jid, IOPar& iop ) const
 	iop.set( singlekey_, firstInlNr(jid), lastInlNr(jid), inlrg_.step );
     else
     {
-	iop.set( sKey::FirstInl, firstInlNr(jid) );
-	iop.set( sKey::LastInl, lastInlNr(jid) );
+	iop.set( mGetSubselKey(Type), sKey::Range );
+	iop.set( mGetSubselKey(FirstInl), firstInlNr(jid) );
+	iop.set( mGetSubselKey(LastInl), lastInlNr(jid) );
     }
 }
 

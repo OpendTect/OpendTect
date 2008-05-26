@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.45 2008-05-15 15:31:57 cvshelene Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.46 2008-05-26 08:27:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -245,7 +245,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	}
     }
 
-    const BufferString subkey = IOPar::compKey( keybase, "Sub" );
+    const BufferString subkey = IOPar::compKey( keybase, sKey::Subsel );
     iop.mergeComp( tmpiop, subkey );
 
     CubeSampling::removeInfo( subselpar );
