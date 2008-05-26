@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2002
- RCS:		$Id: keystrs.h,v 1.32 2008-04-04 20:17:15 cvskris Exp $
+ RCS:		$Id: keystrs.h,v 1.33 2008-05-26 08:25:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ namespace sKey
     extern const char*	Attribute	mImpl("Attribute");
     extern const char*	Attributes	mImpl("Attributes");
     extern const char*	Color		mImpl("Color");
+    extern const char*	Cube		mImpl("Cube");
     extern const char*	Depth		mImpl("Depth");
     extern const char*	Desc		mImpl("Description");
     extern const char*	Factor		mImpl("Factor");
@@ -51,19 +52,23 @@ namespace sKey
     extern const char*	Name		mImpl("Name");
     extern const char*	No		mImpl("No");
     extern const char*	None		mImpl("None");
+    extern const char*	Output		mImpl("Output");
     extern const char*	Pars		mImpl("Parameters");
     extern const char*	Polygon		mImpl("Polygon");
     extern const char*	Random		mImpl("Random");
     extern const char*	Range		mImpl("Range");
+    extern const char*	Scale		mImpl("Scale");
     extern const char*	Selection	mImpl("Selection");
     extern const char*	Subsample	mImpl("Subsample");
     extern const char*	Shortcuts	mImpl("Shortcuts");
     extern const char*	Size		mImpl("Size");
     extern const char*	Steering	mImpl("Steering");
     extern const char*	StratRef	mImpl("Strat Level");
+    extern const char*	Subsel		mImpl("Subsel");
     extern const char*	Surface		mImpl("Surface");
     extern const char*	Survey		mImpl("Survey");
     extern const char*	Table		mImpl("Table");
+    extern const char*	Target		mImpl("Target");
     extern const char*	Time		mImpl("Time");
     extern const char*	Title		mImpl("Title");
     extern const char*	Type		mImpl("Type");
