@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2006
- RCS:           $Id: uicompparsel.cc,v 1.2 2008-05-23 05:20:27 cvsnageswara Exp $
+ RCS:           $Id: uicompparsel.cc,v 1.3 2008-05-26 05:43:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ uiCompoundParSel::uiCompoundParSel( uiParent* p, const char* seltxt,
 
     uiPushButton* but = new uiPushButton( this, buttxt ? buttxt : "Select",
 	    				  false );
-    but->setName( BufferString(buttxt,seltxt).buf() );
+    but->setName( BufferString(buttxt," ",seltxt).buf() );
     but->activated.notify( mCB(this,uiCompoundParSel,doSel) );
     but->attach( rightOf, txtfld );
 
