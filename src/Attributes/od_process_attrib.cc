@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: od_process_attrib.cc,v 1.23 2007-12-14 05:15:23 cvssatyaki Exp $";
+static const char* rcsID = "$Id: od_process_attrib.cc,v 1.24 2008-05-26 11:41:39 cvsbert Exp $";
 
 #include "batchprog.h"
 
@@ -76,6 +76,13 @@ defineTranslatorGroup(AttribDescSet,"Attribute definitions");
 bool BatchProgram::go( std::ostream& strm )
 {
     strm << "Processing on " << HostData::localHostName()  << '.' << std::endl;
+
+    if ( !parversion_.isEmpty() )
+    {
+	const float vsn = atof( parversion_.buf() );
+	if ( vsn < 3.2 )
+	    { errorMsg("\nCannot execute pre-3.2 par files"); return false; }
+    }
 
     const int process_id = GetPID();
     Attrib::Processor* proc = 0;

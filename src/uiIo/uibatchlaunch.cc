@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.62 2008-05-08 06:01:54 cvsnanne Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.63 2008-05-26 11:41:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "ptrman.h"
 #include "strmdata.h"
 #include "strmprov.h"
+#include "ascstream.h"
 
 static const char* sSingBaseNm = "batch_processing";
 static const char* sMultiBaseNm = "cube_processing";
@@ -310,7 +311,15 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
     else if ( !FilePath(inpfnm).isAbsolute() )
 	getProcFilename( inpfnm, sSingBaseNm, inpfnm );
 
-    if ( File_exists(inpfnm) )
+    if ( redo_ )
+    {
+	if ( File_isEmpty(inpfnm) )
+	{
+	    uiMSG().error( "Invalid (epty or not readable) specification file" );
+	    return false;
+	}
+    }
+    else if ( File_exists(inpfnm) )
     {
 	if ( !File_isWritable(inpfnm) )
 	{
@@ -336,7 +345,22 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 	    StreamData sd = StreamProvider( inpfnm ).makeIStream();
 	    if ( !sd.usable() )
 		{ uiMSG().error( "Cannot open parameter file" ); return false; }
-	    iop = new IOPar; iop->read( *sd.istrm, sKey::Pars );
+	    ascistream aistrm( *sd.istrm, YES );
+	    if ( strcmp(aistrm.fileType(),sKey::Pars) )
+	    {
+		sd.close();
+		uiMSG().error(BufferString(inpfnm," is not a parameter file"));
+		return false;
+	    }
+	    const float ver = atof( aistrm.version() );
+	    if ( ver < 3.1999 )
+	    {
+		sd.close();
+		uiMSG().error( "Invalid parameter file: pre-3.2 version");
+		return false;
+	    }
+	    iop = new IOPar; iop->getFrom( aistrm );
+	    sd.close();
 	}
     }
     else
