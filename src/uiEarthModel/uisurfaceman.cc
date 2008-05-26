@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uisurfaceman.cc,v 1.46 2008-05-07 05:39:21 cvsnageswara Exp $
+ RCS:           $Id: uisurfaceman.cc,v 1.47 2008-05-26 12:15:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,6 +113,13 @@ bool uiSurfaceMan::isCur2D() const
 {
     return curioobj_ && 
 	   !strcmp(curioobj_->group(),EMHorizon2DTranslatorGroup::keyword);
+}
+
+
+bool uiSurfaceMan::isCurFault() const
+{
+    return curioobj_ &&
+	!strcmp(curioobj_->group(),EMFaultTranslatorGroup::keyword);
 }
 
 
@@ -253,9 +260,9 @@ void uiSurfaceMan::mkFileInfo()
     if ( !res )
     {
 	fillAttribList( sd.valnames );
-	if ( isCur2D() )
+	if ( isCur2D() || isCurFault() )
 	{
-	    txt = "Nr. 2D lines: "; 
+	    txt = isCur2D() ? "Nr. 2D lines: " : "Nr. Sticks: "; 
 	    txt += sd.rg.stop.inl - sd.rg.start.inl + 1; 
 	    txt += "\n";
 	}
@@ -378,5 +385,6 @@ bool acceptOK( CallBacker* )
 void uiSurfaceMan::stratSel( CallBacker* )
 {
     const ObjectSet<MultiID>& ids = selgrp->getIOObjIds();
-    uiSurfaceStratDlg dlg( this, ids ); dlg.go();
+    uiSurfaceStratDlg dlg( this, ids );
+    dlg.go();
 }
