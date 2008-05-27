@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          May 2004
- RCS:           $Id: vishorizondisplay.h,v 1.22 2008-04-18 10:49:40 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.h,v 1.23 2008-05-27 20:40:43 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 class Executor;
 
-namespace visBase { class ParametricSurface; }
+namespace visBase { class ParametricSurface; class IndexedShape; }
 
 namespace visSurvey
 {
@@ -88,6 +88,8 @@ public:
     void			getRandomPosCache(int,DataPointSet&) const;
     void			setRandomPosData( int,const DataPointSet*);
 
+    void			setLineStyle(const LineStyle&);
+    				/*!<If ls is solid, a 3d shape will be used, otherwise 'flat' lines. */
     bool			hasStoredAttrib(int attrib) const;
 
     int				nrResolutions() const;
@@ -152,7 +154,8 @@ protected:
     ObjectSet<visBase::ParametricSurface> sections_;
     TypeSet<EM::SectionID>		sids_;
 
-    ObjectSet<visBase::IndexedPolyLine>	intersectionlines_;
+    ObjectSet<visBase::IndexedShape>	intersectionlines_;
+    float				maxintersectionlinethickness_;
     TypeSet<int>			intersectionlineids_;
     TypeSet<int>			intersectionlinevoi_;
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.47 2008-05-15 07:30:33 cvshelene Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.48 2008-05-27 20:40:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,7 @@ HorizonDisplay::HorizonDisplay()
     , validtexture_( false )
     , resolution_( 0 )
     , zaxistransform_( 0 )
+    , maxintersectionlinethickness_( 40 )
 {
     as_ += new Attrib::SelSpec;
     coltabs_ += visBase::VisColorTab::create();
@@ -1152,7 +1153,7 @@ static void drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 			const StepInterval<float>& zrg, 
 			const EM::Horizon3D* hor, const EM::SectionID&  sid, 
 			const ZAxisTransform* zaxistransform, 
-			visBase::IndexedPolyLine* line, int& cii )
+			visBase::IndexedShape* line, int& cii )
 {
     const StepInterval<int> inlrg = hor->geometry().rowRange( sid );
     const StepInterval<int> crlrg = hor->geometry().colRange( sid );
@@ -1233,7 +1234,7 @@ static void drawHorizonOnRandomTrack( const TypeSet<Coord>& trclist,
 static void drawHorizonOnTimeSlice( const CubeSampling& cs,
 			const EM::Horizon3D* hor, const EM::SectionID&  sid, 
 			const ZAxisTransform* zaxistransform, 
-			visBase::IndexedPolyLine* line, int& cii )
+			visBase::IndexedShape* line, int& cii )
 {
     const Array2D<float>* field = 
 			hor->geometry().sectionGeometry(sid)->getArray(); 
@@ -1402,9 +1403,22 @@ void HorizonDisplay::updateIntersectionLines(
 	    lineidx = intersectionlineids_.size();
 	    intersectionlineids_ += linestoupdate[idx];
 	    intersectionlinevoi_ += -2;
-	    visBase::IndexedPolyLine* newline =
-		visBase::IndexedPolyLine::create();
+
+	    const bool do3d = lineStyle()->type_==LineStyle::Solid;
+
+	    visBase::IndexedShape* newline = do3d
+		? (visBase::IndexedShape*) visBase::IndexedPolyLine3D::create()
+		: (visBase::IndexedShape*) visBase::IndexedPolyLine::create();
+
 	    newline->ref();
+
+	    if ( do3d )
+	    {
+		((visBase::IndexedPolyLine3D* ) newline)->setRadius(
+		    lineStyle()->width_, true, maxintersectionlinethickness_ );
+	    }
+
+	    newline->setRightHandSystem( righthandsystem_ );
 	    newline->setDisplayTransformation(transformation_);
 	    intersectionlines_ += newline;
 	    addChild( newline->getInventorNode() );
@@ -1430,9 +1444,9 @@ void HorizonDisplay::updateIntersectionLines(
 	    }
 	}
 	    
-	visBase::IndexedPolyLine* line = intersectionlines_[lineidx];
-	line->getCoordinates()->removeAfter(-1);
+	visBase::IndexedShape* line = intersectionlines_[lineidx];
 	line->removeCoordIndexAfter(-1);
+	line->getCoordinates()->removeAfter(-1);
 	int cii = 0;
 
 	for ( int sectionidx=0; sectionidx<horizon->nrSections(); sectionidx++ )
@@ -1462,6 +1476,56 @@ void HorizonDisplay::updateIntersectionLines(
 	}
     }
 }
+
+
+void HorizonDisplay::setLineStyle( const LineStyle& lst )
+{
+    if ( lst==*lineStyle() )
+	return;
+
+    const bool removelines =
+	(lst.type_==LineStyle::Solid) != (lineStyle()->type_==LineStyle::Solid);
+
+    EMObjectDisplay::setLineStyle( lst );
+
+    if ( removelines )
+    {
+	for ( int idx=0; idx<intersectionlines_.size(); idx++ )
+	{
+	    visBase::IndexedShape* newline = lst.type_==LineStyle::Solid
+		? (visBase::IndexedShape*) visBase::IndexedPolyLine3D::create()
+		: (visBase::IndexedShape*) visBase::IndexedPolyLine::create();
+	    newline->ref();
+	    newline->setRightHandSystem( righthandsystem_ );
+	    newline->setDisplayTransformation(transformation_);
+	    newline->copyCoordIndicesFrom( *intersectionlines_[idx] );
+	    newline->getCoordinates()->copyFrom(
+		    *intersectionlines_[idx]->getCoordinates() );
+
+	    removeChild( intersectionlines_[idx]->getInventorNode() );
+	    addChild( newline->getInventorNode() );
+
+	    intersectionlines_.replace( idx, newline )->unRef();
+
+	    if ( lst.type_==LineStyle::Solid )
+	    {
+		((visBase::IndexedPolyLine3D* ) newline )->
+		    setRadius( lineStyle()->width_, true,
+			       maxintersectionlinethickness_ );
+	    }
+	}
+    }
+    else if ( lst.type_==LineStyle::Solid )
+    {
+	for ( int idx=0; idx<intersectionlines_.size(); idx++ )
+	{
+	    visBase::IndexedPolyLine3D* pl =
+		(visBase::IndexedPolyLine3D*) intersectionlines_[idx];
+	    pl->setRadius( lineStyle()->width_, true, maxintersectionlinethickness_ );
+	}
+    }
+}
+
 
 
 void HorizonDisplay::updateSectionSeeds( 
