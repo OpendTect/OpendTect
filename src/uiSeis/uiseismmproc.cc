@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.113 2008-05-07 05:59:28 cvsnageswara Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.114 2008-05-27 11:49:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,7 @@ uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
     setTitleText( multihost ? "Multi-Machine Processing"
 		    : (is2d ? "Multi-line processing"
 			    : "Line-split processing") );
-    const char* res = iop.find( "Target value" );
+    const char* res = iop.find( sKey::Target );
     caption = "Processing";
     if ( res && *res )
 	{ caption += " '"; caption += res; caption += "'"; }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:		$Id: uiattrvolout.cc,v 1.46 2008-05-26 08:27:54 cvsbert Exp $
+ RCS:		$Id: uiattrvolout.cc,v 1.47 2008-05-27 11:49:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -203,9 +203,8 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 		 attrpar.getValue(idx) );
     }
 
-    const BufferString keybase = IOPar::compKey( Output::outputstr, 1 );
-    iop.set( IOPar::compKey(keybase,sKey::Type), "Cube" );
-
+    iop.set( IOPar::compKey(sKey::Output,sKey::Type), "Cube" );
+    const BufferString keybase = IOPar::compKey( Output::outputstr, 0 );
     const BufferString attribkey =
 	IOPar::compKey( keybase, SeisTrcStorOutput::attribkey );
     iop.set( IOPar::compKey(attribkey,DescSet::highestIDStr()), 1 );
@@ -222,7 +221,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
     CubeSampling cs;
     transffld->selfld->fillPar( tmpiop );
     BufferString typestr;
-    //Subselection type and geometry will have an extra level key: 'Sub'
+    //Subselection type and geometry will have an extra level key: 'Subsel
     if ( tmpiop.get( sKey::Type, typestr ) )
 	tmpiop.removeWithKey( sKey::Type );
     
@@ -245,12 +244,12 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	}
     }
 
-    const BufferString subkey = IOPar::compKey( keybase, sKey::Subsel );
+    const BufferString subkey = IOPar::compKey( sKey::Output, sKey::Subsel );
     iop.mergeComp( tmpiop, subkey );
 
     CubeSampling::removeInfo( subselpar );
     subselpar.removeWithKey( sKey::Type );
-    iop.mergeComp( subselpar, keybase );
+    iop.mergeComp( subselpar, sKey::Output );
 
     Scaler* sc = transffld->scfmtfld->getScaler();
     if ( sc )
@@ -259,7 +258,7 @@ bool uiAttrVolOut::fillPar( IOPar& iop )
 	delete sc;
     }
 
-    iop.set( "Target value", todofld->getAttrName() );
+    iop.set( sKey::Target, todofld->getAttrName() );
     BufferString linename;
     if ( todofld->is2D() )
     {

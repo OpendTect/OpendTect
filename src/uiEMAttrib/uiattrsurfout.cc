@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2004
- RCS:           $Id: uiattrsurfout.cc,v 1.22 2008-01-10 08:41:18 cvshelene Exp $
+ RCS:           $Id: uiattrsurfout.cc,v 1.23 2008-05-27 11:49:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,7 +98,7 @@ bool uiAttrSurfaceOut::fillPar( IOPar& iopar )
 
     BufferString attrnm = attrnmfld_->text();
     if ( attrnm.isEmpty() ) attrnm = attrfld_->getInput();
-    iopar.set( "Target value", attrnm );
+    iopar.set( sKey::Target, attrnm );
     return true;
 }
 

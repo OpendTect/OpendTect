@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: od_process_attrib_em.cc,v 1.48 2008-05-23 09:24:48 cvshelene Exp $
+ RCS:           $Id: od_process_attrib_em.cc,v 1.49 2008-05-27 11:49:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,7 +101,10 @@ static bool attribSetQuery( std::ostream& strm, const IOPar& iopar,
     if ( !initialset.usePar( *attribs ) )
 	mErrRet( initialset.errMsg() )
 
-    const char* res = iopar.find( "Output.1.Attributes.0" );
+    const BufferString tmpoutstr( IOPar::compKey( sKey::Output, 0 ) );
+    const BufferString tmpattribstr( IOPar::compKey( sKey::Attributes, 0 ) );
+    const char* res = iopar.find( IOPar::compKey( tmpoutstr.buf(),
+						  tmpattribstr.buf() ) );
     if ( !res )
 	mErrRet( "No target attribute found" )
     DescID outid( atoi( res ), true ); 
@@ -150,7 +153,8 @@ static bool prepare( std::ostream& strm, const IOPar& iopar, const char* idstr,
 		     bool iscubeoutp, MultiID& outpid  )
 {
     strm << "Preparing processing\n"; strm.flush();
-    BufferString outstr( "Output.1." ); outstr += idstr;
+    BufferString lpartstr = IOPar::compKey( sKey::Output, 0 );
+    BufferString outstr( IOPar::compKey( lpartstr.buf(), idstr ) );
 
     BufferString objidstr;
     if( !getObjectID( iopar, outstr, true, errmsg, objidstr ) ) return false;
@@ -321,7 +325,7 @@ bool BatchProgram::go( std::ostream& strm )
 				  SeisJobExecProv::sKeyWorkLS );
 
     BufferString type;
-    pars().get( "Output.1.Type",type );
+    pars().get( IOPar::compKey( sKey::Output, sKey::Type ), type );
    
     const bool iscubeoutp = !strcmp( type, Output::tskey );
 
@@ -368,14 +372,14 @@ bool BatchProgram::go( std::ostream& strm )
 
     StorageProvider::initClass();
     DescSet attribset(false,false);
-    PtrMan<IOPar> attribs = pars().subselect( "Attributes" );
+    PtrMan<IOPar> attribs = pars().subselect( sKey::Attributes );
     if ( !attribset.usePar(*attribs) )
 	mErrRetNoProc( attribset.errMsg() )
 
-    PtrMan<IOPar> output = pars().subselect( "Output.1" );
+    PtrMan<IOPar> output = pars().subselect( IOPar::compKey(sKey::Output,0) );
     if ( !output ) mErrRetNoProc( "No output specified" );
     
-    PtrMan<IOPar> attribsiopar = output->subselect("Attributes");
+    PtrMan<IOPar> attribsiopar = output->subselect( sKey::Attributes );
     if ( !attribsiopar ) mErrRetNoProc( "No output specified" );
 
     TypeSet<DescID> attribids;
@@ -403,7 +407,7 @@ bool BatchProgram::go( std::ostream& strm )
     }
 
     BufferString newattrnm;
-    pars().get( "Target value", newattrnm );
+    pars().get( sKey::Target, newattrnm );
     if ( newattrnm != "" )
 	attribrefs.get(0) = newattrnm;
 

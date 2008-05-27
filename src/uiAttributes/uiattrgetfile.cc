@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrgetfile.cc,v 1.7 2006-12-21 10:48:24 cvshelene Exp $
+ RCS:           $Id: uiattrgetfile.cc,v 1.8 2008-05-27 11:49:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,7 +123,7 @@ bool uiGetFileForAttrSet::acceptOK( CallBacker* )
 
 
 uiAttrSrchProcFiles::uiAttrSrchProcFiles( uiParent* p )
-    : uiSrchProcFiles(p,mkCtio(),"Output.1.Seismic ID")
+    : uiSrchProcFiles(p,mkCtio(),"Output.0.Seismic.ID")
 {
     setHelpID( "101.1.4" );
 }

@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.29 2008-05-26 08:28:25 cvsbert Exp $";
+static const char* rcsID = "$Id: seisjobexecprov.cc,v 1.30 2008-05-27 11:49:38 cvshelene Exp $";
 
 #include "seisjobexecprov.h"
 #include "seistrctr.h"
@@ -36,8 +36,11 @@ const char* SeisJobExecProv::sKeyOutputLS = "Output Line Set";
 const char* SeisJobExecProv::sKeyWorkLS = "Work Line Set";
 
 static const char* sKeyProcIs2D = "Processing is 2D";
-#define mOutKey(s) IOPar::compKey("Output.1",s)
-#define mOutSubKey(s) IOPar::compKey("Output.1.Sub",s)
+#define mOutKey(s) IOPar::compKey("Output.0",s)
+
+static const BufferString outsubselkey(
+				IOPar::compKey(sKey::Output,sKey::Subsel) );
+#define mOutSubKey(s) IOPar::compKey(outsubselkey.buf(),s)
 
 
 SeisJobExecProv::SeisJobExecProv( const char* prognm, const IOPar& iniop )
@@ -79,7 +82,7 @@ const char* SeisJobExecProv::outputKey( const IOPar& iopar )
 {
     static BufferString res;
     res = iopar.find( sKeySeisOutIDKey );
-    if ( res.isEmpty() ) res = mOutKey("Seismic ID");
+    if ( res.isEmpty() ) res = mOutKey("Seismic.ID");
     return res.buf();
 }
 
@@ -103,7 +106,7 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 	Seis2DLineSet* inpls = new Seis2DLineSet( ioobj->fullUserExpr(true) );
 	for ( int idx=0; idx<inpls->nrLines(); idx++ )
 	    nms.addIfNew( inpls->lineName(idx) );
-	const BufferString attrnm = iopar_.find( "Target value" );
+	const BufferString attrnm = iopar_.find( sKey::Target );
 
 	if ( isrestart )
 	{
@@ -135,7 +138,7 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
 	// ensure we have the line set ready.
 	// This is crucial in the war against NFS attribute caching
 	const char* outkeyword = iopar_.find( "Output Key" );
-	if ( !outkeyword ) outkeyword = "Output.1.Seismic ID";
+	if ( !outkeyword ) outkeyword = "Output.0.Seismic.ID";
 	ioobjkey = iopar_.find( outkeyword );
 	delete outls_; outls_ = inpls;
 	if ( ioobjkey )
@@ -153,7 +156,7 @@ JobDescProv* SeisJobExecProv::mk2DJobProv()
     }
     delete ioobj;
 
-    BufferString parkey( mOutKey("Line key") );
+    BufferString parkey( mOutKey(sKey::LineKey) );
     KeyReplaceJobDescProv* ret
 	= new KeyReplaceJobDescProv( iopar_, parkey, nms );
     ret->objtyp_ = "Line";
@@ -206,7 +209,8 @@ JobDescProv* SeisJobExecProv::mk3DJobProv( int nrinlperjob )
 
     TypeSet<int> inlnrs;
     TypeSet<int>* ptrnrs = 0;
-    IOPar* subselpar = iopar_.subselect( "Output.1.Sub" );
+    IOPar* subselpar =
+		iopar_.subselect( IOPar::compKey(sKey::Output, sKey::Subsel) );
 
     mSetInlsPerJob( nrinlperjob );
     InlineSplitJobDescProv jdp( iopar_, 0 );

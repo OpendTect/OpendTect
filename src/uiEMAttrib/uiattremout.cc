@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          January 2008
- RCS:           $Id: uiattremout.cc,v 1.3 2008-04-18 14:56:22 cvshelene Exp $
+ RCS:           $Id: uiattremout.cc,v 1.4 2008-05-27 11:49:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,20 +105,21 @@ bool uiAttrEMOut::fillPar( IOPar& iopar )
 void uiAttrEMOut::fillOutPar( IOPar& iopar, const char* outtyp,
 			      const char* idlbl, MultiID mid )
 {
-    BufferString key;
-    BufferString keybase = Output::outputstr; keybase += ".1.";
-    key = keybase; key += sKey::Type;
-    iopar.set( key, outtyp );
+    iopar.set( IOPar::compKey( sKey::Output, sKey::Type), outtyp );
 
-    key = keybase; key += SeisTrcStorOutput::attribkey;
-    key += "."; key += DescSet::highestIDStr();
+    BufferString key;
+    BufferString tmpkey;
+    static const BufferString keybase( IOPar::compKey( sKey::Output, 0 ) );
+    tmpkey = IOPar::compKey( keybase.buf(), SeisTrcStorOutput::attribkey );
+    key = IOPar::compKey( tmpkey.buf(), DescSet::highestIDStr() );
     iopar.set( key, 1 );
 
-    key = keybase; key += SeisTrcStorOutput::attribkey; key += ".0";
+    tmpkey = IOPar::compKey( keybase.buf(), SeisTrcStorOutput::attribkey );
+    key = IOPar::compKey( tmpkey.buf(), 0 );
     iopar.set( key, nladescid_ < 0 ? attrfld_->attribID().asInt() 
 	    			  : nladescid_.asInt() );
 
-    key = keybase; key += idlbl;
+    key = IOPar::compKey( keybase.buf(), idlbl );
     iopar.set( key, mid );
 }
 

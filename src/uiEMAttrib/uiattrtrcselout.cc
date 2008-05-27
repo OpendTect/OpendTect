@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          September 2005
- RCS:           $Id: uiattrtrcselout.cc,v 1.40 2008-05-23 09:26:11 cvshelene Exp $
+ RCS:           $Id: uiattrtrcselout.cc,v 1.41 2008-05-27 11:49:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -335,7 +335,7 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 	    	ctioout_.ioobj->key() );
     
     BufferString outnm = is2d ? attrfld_->getAttrName() : outpfld_->getInput();
-    iopar.set( "Target value", outnm );
+    iopar.set( sKey::Target, outnm );
 
     BufferString tmpkey = IOPar::compKey( LocationOutput::surfidkey, 0);
     BufferString key = IOPar::compKey( sKey::Geometry, tmpkey );
@@ -357,10 +357,10 @@ bool uiAttrTrcSelOut::fillPar( IOPar& iopar )
 
     BufferString typestr;
     subselpar->get( sKey::Type, typestr );
-    const bool issubsel = strcmp( typestr.buf(), "None" );
+    const bool issubsel = strcmp( typestr.buf(), sKey::None );
     const bool usesamp = !is2d || issubsel;
     if ( !issubsel && !is2d )
-	subselpar->set( sKey::Type, "Range" );
+	subselpar->set( sKey::Type, sKey::Range );
     
     if ( usesamp )
     {

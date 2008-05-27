@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.82 2008-05-26 08:27:07 cvsbert Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.83 2008-05-27 11:49:38 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -318,8 +318,8 @@ SeisTrcStorOutput::~SeisTrcStorOutput()
 bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
 {
     errmsg_ = "";
-    PtrMan<IOPar> outppar = pars.subselect("Output.1");
-    const char* storid = outppar->find("Seismic ID");
+    PtrMan<IOPar> outppar = pars.subselect(IOPar::compKey( sKey::Output, 0 ) );
+    const char* storid = outppar->find( seisidkey );
     if ( !setStorageID( storid ) )
     {
         errmsg_ = "Could not find output ID: "; errmsg_ += storid;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Apr 2002
- RCS:           $Id: jobdescprov.cc,v 1.11 2008-05-26 08:27:54 cvsbert Exp $
+ RCS:           $Id: jobdescprov.cc,v 1.12 2008-05-27 11:49:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -158,6 +158,9 @@ int InlineSplitJobDescProv::lastInlNr( int jid ) const
 
 void InlineSplitJobDescProv::getJob( int jid, IOPar& iop ) const
 {
+    //TODO: verify whether we still need to support singlekey_
+    Interval<float> tmprg;
+    const bool isfullrange = inpiopar_.get(mGetSubselKey(ZRange), tmprg);
     iop = inpiopar_;
     if ( *(const char*)singlekey_ )
 	iop.set( singlekey_, firstInlNr(jid), lastInlNr(jid), inlrg_.step );
@@ -166,6 +169,14 @@ void InlineSplitJobDescProv::getJob( int jid, IOPar& iop ) const
 	iop.set( mGetSubselKey(Type), sKey::Range );
 	iop.set( mGetSubselKey(FirstInl), firstInlNr(jid) );
 	iop.set( mGetSubselKey(LastInl), lastInlNr(jid) );
+    }
+
+    if ( !isfullrange )
+    {
+	iop.set( mGetSubselKey(FirstCrl), SI().crlRange(true).start );
+	iop.set( mGetSubselKey(LastCrl), SI().crlRange(true).stop );
+	iop.set( mGetSubselKey(StepCrl), SI().crlStep() );
+	iop.set( mGetSubselKey(ZRange), SI().zRange(true) );
     }
 }
 

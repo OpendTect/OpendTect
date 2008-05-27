@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.83 2008-05-26 08:27:54 cvsbert Exp $
+ RCS:           $Id: attribengman.cc,v 1.84 2008-05-27 11:49:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,7 +91,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
     TypeSet<DescID> ids;
     while ( true )
     {    
-	BufferString outpstr = IOPar::compKey( "Output", outputidx );
+	BufferString outpstr = IOPar::compKey( sKey::Output, outputidx );
 	PtrMan<IOPar> outputpar = iopar.subselect( outpstr );
 	if ( !outputpar )
 	{
@@ -105,7 +105,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	while ( true )
 	{
 	    BufferString attribidstr = 
-			IOPar::compKey( "Attributes", attribidx );
+			IOPar::compKey( sKey::Attributes, attribidx );
 	    int attribid;
 	    if ( !outputpar->get(attribidstr,attribid) )
 		break;
@@ -124,9 +124,8 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
     for ( int idx=1; idx<ids.size(); idx++ )
 	proc->addOutputInterest(idx);
     
-    BufferString basekey = IOPar::compKey( "Output",1 );
     PtrMan<IOPar> outpar = iopar.subselect(
-	    			IOPar::compKey(basekey,sKey::Subsel) );
+	    			IOPar::compKey(sKey::Output,sKey::Subsel) );
     if ( !outpar || !cs_.usePar( *outpar ) )
     {
 	if ( attribset.is2D() )
@@ -141,6 +140,7 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
     SeisTrcStorOutput* storeoutp = createOutput( iopar, lkey );
 
     bool exttrctosi;
+    BufferString basekey = IOPar::compKey( "Output",0 );
     if ( iopar.getYN( IOPar::compKey( basekey,SeisTrc::sKeyExtTrcToSI ),
 		      exttrctosi) )
 	storeoutp->setTrcGrow( exttrctosi );
@@ -207,9 +207,8 @@ void EngineMan::setExecutorName( Executor* ex )
 SeisTrcStorOutput* EngineMan::createOutput( const IOPar& pars, 
 					    const LineKey& lkey )
 {
-    const char* typestr = pars.find("Output.1.Type");
-
-    if ( !strcmp(typestr,"Cube") )
+    const char* typestr = pars.find(IOPar::compKey( sKey::Output, sKey::Type ));
+    if ( !strcmp(typestr,sKey::Cube) )
     {
 	SeisTrcStorOutput* outp = new SeisTrcStorOutput( cs_, lkey );
 	outp->setGeometry(cs_);
@@ -966,7 +965,7 @@ Processor* EngineMan::create2DVarZOutput( BufferString& errmsg,
 					  float outval,
        					  Interval<float>* cubezbounds )
 {
-    PtrMan<IOPar> output = pars.subselect( "Output.1" );
+    PtrMan<IOPar> output = pars.subselect( IOPar::compKey( sKey::Output,"0") );
     const char* linename = output->find(sKey::LineKey);
     if ( !linename )
 	linename = pars.find( IOPar::compKey(sKey::Geometry,sKey::LineKey) );
