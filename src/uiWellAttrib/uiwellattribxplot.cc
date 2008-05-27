@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uiwellattribxplot.cc,v 1.12 2008-05-27 14:35:16 cvsbert Exp $
+ RCS:           $Id: uiwellattribxplot.cc,v 1.13 2008-05-27 15:47:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -296,15 +296,14 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 	    if ( filt && !filt->includes(dr.pos_.coord()) )
 		continue;
 
-	    dr.data_.setSize( nrattribs + nrlogs, mUdf(float) );
+	    DataPointSet::DataRow newdr( dr );
+	    newdr.data_.setSize( nrattribs + nrlogs, mUdf(float) );
+	    for ( int iattr=0; iattr<nrattribs; iattr++ )
+		newdr.data_[iattr] = mUdf(float);
 	    for ( int ilog=0; ilog<nrlogs; ilog++ )
-	    {
-		const float val = dr.data_[ilog];
-		if ( ilog < nrattribs ) dr.data_[ilog] = mUdf(float);
-		dr.data_[nrattribs+ilog] = val;
-	    }
-	    dr.setGroup( (unsigned short)(idps+1) );
-	    dps->setRow( dr );
+		newdr.data_[nrattribs+ilog] = dr.data_[ilog];
+	    newdr.setGroup( (unsigned short)(idps+1) );
+	    dps->setRow( newdr );
 	}
     }
     deepErase( dpss );
