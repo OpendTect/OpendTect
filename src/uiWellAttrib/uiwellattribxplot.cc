@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uiwellattribxplot.cc,v 1.10 2008-05-27 10:31:42 cvsnageswara Exp $
+ RCS:           $Id: uiwellattribxplot.cc,v 1.11 2008-05-27 11:50:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -202,6 +202,7 @@ bool uiWellAttribCrossPlot::extractWellData( const BufferStringSet& ioobjids,
     wts.topmrkr = topmarkfld_->text(); wts.botmrkr = botmarkfld_->text();
     wts.above = abovefld_->getfValue(0,0);
     wts.below = belowfld_->getfValue(0,0);
+    wts.mkdahcol = true;
     uiTaskRunner tr( this );
     if ( !tr.execute(wts) )
 	return false;
@@ -247,6 +248,7 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 {
     ObjectSet<DataColDef> dcds;
     BufferStringSet attrnms; addDCDs( attrsfld_, dcds,  attrnms );
+    dcds += new DataColDef( "DAH" );
     BufferStringSet lognms; addDCDs( logsfld_, dcds, lognms );
     if ( lognms.isEmpty() )
 	mErrRet("Please select at least one log")
@@ -283,7 +285,7 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 	    				  dcds, ads_.is2D(), false );
     deepErase( dcds );
     const int nrattribs = attrnms.size();
-    const int nrlogs = attrnms.size();
+    const int nrlogs = lognms.size() + 1;
     DataPointSet::DataRow dr;
     for ( int idps=0; idps<dpss.size(); idps++ )
     {

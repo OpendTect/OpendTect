@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.45 2008-05-26 12:08:29 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.46 2008-05-27 11:50:48 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -44,7 +44,9 @@ const char* Well::TrackSampler::sKeyDataStart = "<Start of data>";
 const char* Well::TrackSampler::sKeyDataEnd = "<End of data>";
 const char* Well::TrackSampler::sKeyLogNm = "Log name";
 const char* Well::TrackSampler::sKeyFor2D = "For 2D";
+const char* Well::TrackSampler::sKeyDahCol = "Create DAH column";
 const char* Well::LogDataExtracter::sKeyLogNm = Well::TrackSampler::sKeyLogNm;
+static const char* sKeyDAHColName = "<DAH>";
 
 DefineEnumNames(Well::LogDataExtracter,SamplePol,2,
 		Well::LogDataExtracter::sKeySamplePol)
@@ -120,6 +122,8 @@ Well::TrackSampler::TrackSampler( const BufferStringSet& i,
     	, zistime(ztm)
     	, for2d(false)
     	, minidps(false)
+    	, mkdahcol(false)
+    	, dahcolnr(-1)
 {
 }
 
@@ -131,6 +135,7 @@ void Well::TrackSampler::usePar( const IOPar& pars )
     pars.get( sKeyLogNm, lognms );
     pars.get( sKeyLimits, above, below );
     pars.get( sKeySelRadius, locradius );
+    pars.getYN( sKeyDahCol, mkdahcol );
     pars.getYN( sKeyFor2D, for2d );
 }
 
@@ -156,6 +161,13 @@ int Well::TrackSampler::nextStep()
 
     DataPointSet* dps = new DataPointSet( for2d, minidps );
     dpss += dps;
+    if ( !mkdahcol )
+	dahcolnr = -1;
+    else
+    {
+	dps->dataSet().add( new DataColDef(sKeyDAHColName) );
+	dahcolnr = dps->nrCols() - 1;
+    }
 
     IOObj* ioobj = IOM().get( MultiID(ids.get(curid)) );
     if ( !ioobj ) mRetNext()
@@ -195,7 +207,7 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
 
     float dahincr = SI().zStep() * .5;
     if ( SI().zIsTime() )
-	dahincr = 1000 * dahincr; // As dx = v * dt , Using v = 1000 m/s
+	dahincr = 2000 * dahincr; // As dx = v * dt , Using v = 2000 m/s
 
     BinIDValue biv; float dah = dahrg.start - dahincr;
     int trackidx = 0; Coord3 precisepos;
@@ -212,7 +224,7 @@ void Well::TrackSampler::getData( const Well::Data& wd, DataPointSet& dps )
 	if ( biv.binid != prevbiv.binid
 	  || !mIsEqual(biv.value,prevbiv.value,mDefEps) )
 	{
-	    addPosns( dps, biv, precisepos );
+	    addPosns( dps, biv, precisepos, dah );
 	    prevbiv = biv;
 	}
     }
@@ -274,9 +286,11 @@ bool Well::TrackSampler::getSnapPos( const Well::Data& wd, float dah,
 
 
 void Well::TrackSampler::addPosns( DataPointSet& dps, const BinIDValue& biv,
-				  const Coord3& precisepos ) const
+				  const Coord3& precisepos, float dah ) const
 {
     DataPointSet::DataRow dr;
+    if ( dahcolnr >= 0 )
+	dr.data_ += dah;
 #define mAddRow(bv,pos) \
     dr.pos_.z_ = bv.value; dr.pos_.set( bv.binid, pos ); dps.addRow( dr )
 
@@ -400,15 +414,16 @@ void Well::LogDataExtracter::getData( DataPointSet& dps,
 	if ( dpscolidx < 0 ) return;
     }
 
-    bool usegenalgo = !track.alwaysDownward();
+    const int dahcolidx = dps.indexOf( sKeyDAHColName );
+    bool usegenalgo = dahcolidx >= 0 || !track.alwaysDownward();
     int opt = GetEnvVarIVal("DTECT_LOG_EXTR_ALGO",0);
     if ( opt == 1 ) usegenalgo = false;
     if ( opt == 2 ) usegenalgo = true;
 
     if ( usegenalgo )
     {
-	// Much slower, less precise but should always work
-	getGenTrackData( dps, track, wl, dpscolidx );
+	// Very fast if dahcolidx >= 0, otherwise much slower, less precise
+	getGenTrackData( dps, track, wl, dpscolidx, dahcolidx );
 	return;
     }
 
@@ -477,7 +492,7 @@ void Well::LogDataExtracter::getData( DataPointSet& dps,
 void Well::LogDataExtracter::getGenTrackData( DataPointSet& dps,
 					      const Well::Track& track,
 					      const Well::Log& wl,
-					      int dpscolidx )
+					      int dpscolidx, int dahcolidx )
 {
     if ( dps.isEmpty() || track.isEmpty() )
 	return;
@@ -489,7 +504,8 @@ void Well::LogDataExtracter::getGenTrackData( DataPointSet& dps,
     for ( ; dpsrowidx<dps.size(); dpsrowidx++ )
     {
 	Coord3 coord( dps.coord(dpsrowidx), dps.z(dpsrowidx) );
-	float dah = track.nearestDah( coord );
+	float dah = dahcolidx >= 0 ? dps.value(dahcolidx,dpsrowidx)
+	    			   : track.nearestDah( coord );
 	if ( mIsUdf(dah) )
 	    continue;
 

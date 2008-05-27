@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2004
- RCS:		$Id: wellextractdata.h,v 1.17 2008-05-22 14:09:42 cvsbert Exp $
+ RCS:		$Id: wellextractdata.h,v 1.18 2008-05-27 11:50:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,7 @@ public:
     float		locradius;
     bool		for2d;
     bool		minidps;
+    bool		mkdahcol;
 
     void		usePar(const IOPar&);
 
@@ -112,6 +113,7 @@ public:
     static const char*	sKeyDataEnd;
     static const char*	sKeyLogNm;
     static const char*	sKeyFor2D;
+    static const char*	sKeyDahCol;
 
 protected:
 
@@ -120,13 +122,14 @@ protected:
     int				curid;
     const bool			zistime;
     Interval<float>		fulldahrg;
+    int				dahcolnr;
 
     void		getData(const Data&,DataPointSet&);
     void		getLimitPos(const ObjectSet<Marker>&,bool,float&) const;
     bool		getSnapPos(const Data&,float,BinIDValue&,int&,
 	    			   Coord3&) const;
     void		addPosns(DataPointSet&,const BinIDValue&,
-				 const Coord3&) const;
+				 const Coord3&,float dah) const;
 };
 
 
@@ -169,7 +172,7 @@ protected:
 
     void		getData(DataPointSet&,const Data&,const Track&);
     void		getGenTrackData(DataPointSet&,const Track&,const Log&,
-	    				int);
+	    				int,int);
     void		addValAtDah(float,const Log&,float,
 	    			    DataPointSet&,int,int) const;
     float		calcVal(const Log&,float,float) const;
