@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visshape.h,v 1.20 2007-03-12 11:57:13 cvskris Exp $
+ RCS:		$Id: visshape.h,v 1.21 2008-05-27 19:47:55 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -165,6 +165,7 @@ public:
     void	setCoordIndices(int* idxs, int sz);
     		/*!<\note idxs are not copied, and caller must ensure
 			  they remain in memory. */
+    void	copyCoordIndicesFrom(const IndexedShape&);
     void	removeCoordIndexAfter(int);
     int		getCoordIndex(int) const;
 

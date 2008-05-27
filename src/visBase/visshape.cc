@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: visshape.cc,v 1.25 2007-10-10 03:59:24 cvsnanne Exp $";
+static const char* rcsID = "$Id: visshape.cc,v 1.26 2008-05-27 19:47:55 cvskris Exp $";
 
 #include "visshape.h"
 
@@ -447,6 +447,12 @@ setGetIndex( Coord, coordIndex );
 setGetIndex( TextureCoord, textureCoordIndex );
 setGetIndex( Normal, normalIndex );
 setGetIndex( Material, materialIndex );
+
+
+void IndexedShape::copyCoordIndicesFrom( const IndexedShape& is )
+{
+    indexedshape_->coordIndex = is.indexedshape_->coordIndex;
+}
 
 
 int IndexedShape::getClosestCoordIndex( const EventInfo& ei ) const
