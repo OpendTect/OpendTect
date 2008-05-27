@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uiwellattribxplot.cc,v 1.11 2008-05-27 11:50:48 cvsbert Exp $
+ RCS:           $Id: uiwellattribxplot.cc,v 1.12 2008-05-27 14:35:16 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -300,7 +300,7 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 	    for ( int ilog=0; ilog<nrlogs; ilog++ )
 	    {
 		const float val = dr.data_[ilog];
-		dr.data_[ilog] = mUdf(float);
+		if ( ilog < nrattribs ) dr.data_[ilog] = mUdf(float);
 		dr.data_[nrattribs+ilog] = val;
 	    }
 	    dr.setGroup( (unsigned short)(idps+1) );
