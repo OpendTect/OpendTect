@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.122 2008-05-21 10:30:06 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.123 2008-05-27 05:41:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -207,7 +207,7 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( imphorasc, "&Attributes 3D ...", mImpHorAsciiAttribMnuItm );
     imphor->insertItem( imphorasc );
 
-    mInsertItem( impfault, "&Ascii ...", mImpFaultMnuItm );
+    mInsertItem( impfault, "&Ascii 3D ...", mImpFaultMnuItm );
 
     uiPopupMenu* impwellasc = new uiPopupMenu( &appl_, "&Ascii" );
     mInsertItem( impwellasc, "&Track ...", mImpWellAsciiTrackMnuItm );
