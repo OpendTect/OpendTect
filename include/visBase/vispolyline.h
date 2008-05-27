@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vispolyline.h,v 1.12 2008-05-27 18:32:23 cvskris Exp $
+ RCS:		$Id: vispolyline.h,v 1.13 2008-05-27 19:02:31 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -68,6 +68,7 @@ public:
     void			setRadius(float,bool constantonscreen=true,
 	    				  float maxworldsize=-1);
     void			setRightHandSystem(bool yn);
+    bool			isRightHandSystem() const;
 };
 
 

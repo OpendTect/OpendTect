@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Apr 2002
- RCS:           $Id: vispolyline.cc,v 1.15 2008-05-27 18:32:23 cvskris Exp $
+ RCS:           $Id: vispolyline.cc,v 1.16 2008-05-27 19:02:31 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,6 +105,10 @@ void IndexedPolyLine3D::setRightHandSystem( bool yn )
 {
     ((SoIndexedLineSet3D*) shape_)->rightHandSystem.setValue( yn );
 }
+
+
+bool IndexedPolyLine3D::isRightHandSystem() const
+{ return ((SoIndexedLineSet3D*) shape_)->rightHandSystem.getValue(); }
 
 
 }; // namespace visBase
