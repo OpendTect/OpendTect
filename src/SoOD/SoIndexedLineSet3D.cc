@@ -50,20 +50,20 @@ void SoIndexedLineSet3D::generatePrimitives(SoAction* action)
 }
 
 
-#define mSaveJoint(jointidx, coords, dorev, jnormal ) \
+#define mSaveJoint(jointidx, center, vecs, dorev, jnormal ) \
     if ( world )\
     {\
-	corner1[jointidx] = coords[0];\
-	corner2[jointidx] = coords[1];\
-	corner3[jointidx] = coords[2];\
-	corner4[jointidx] = coords[3];\
+	corner1[jointidx] = center+vecs[0]*scaleby;\
+	corner2[jointidx] = center+vecs[1]*scaleby;\
+	corner3[jointidx] = center+vecs[2]*scaleby;\
+	corner4[jointidx] = center+vecs[3]*scaleby;\
     }\
     else\
     {\
-	invmat.multVecMatrix( coords[0], corner1[jointidx] );\
-	invmat.multVecMatrix( coords[1], corner2[jointidx] );\
-	invmat.multVecMatrix( coords[2], corner3[jointidx] );\
-	invmat.multVecMatrix( coords[3], corner4[jointidx] ); \
+	invmat.multVecMatrix( center+vecs[0]*scaleby, corner1[jointidx] );\
+	invmat.multVecMatrix( center+vecs[1]*scaleby, corner2[jointidx] );\
+	invmat.multVecMatrix( center+vecs[2]*scaleby, corner3[jointidx] );\
+	invmat.multVecMatrix( center+vecs[3]*scaleby, corner4[jointidx] ); \
     } \
     reverse[jointidx] = dorev; \
     endnormals[jointidx] = jnormal
@@ -99,7 +99,17 @@ void SoIndexedLineSet3D::generateCoordinates( SoAction* action,
     if ( !getEdgeStartCoords( c1, c2, squarecoords1, action->getState() ) )
 	return;
 
-    mSaveJoint( nrjoints, squarecoords1, false, c1-c2 );
+    const float rad = radius.getValue();
+    const SbViewportRegion& vp = SoViewportRegionElement::get(state);
+    const float nsize = rad/ float(vp.getViewportSizePixels()[1]);
+    const SbViewVolume& vv = SoViewVolumeElement::get(state);
+
+    const bool doscreensize = screenSize.getValue();
+    float scaleby = rad;
+    if ( doscreensize )
+	scaleby  = rad * vv.getWorldToScreenScale(c1, nsize );
+
+    mSaveJoint( nrjoints, c1, squarecoords1, false, c1-c2 );
     nrjoints++;
 
     while ( index2>=0 )
@@ -124,7 +134,7 @@ void SoIndexedLineSet3D::generateCoordinates( SoAction* action,
 	else
 	    jointplanenormal = c2c1;
 
-	SbPlane junctionplane = SbPlane( jointplanenormal, c2 );
+	const SbPlane junctionplane( jointplanenormal, SbVec3f(0,0,0) );
 	SbVec3f squarecoords2[4];
 	for ( int idx=0; idx<4; idx++ )
 	{
@@ -132,7 +142,9 @@ void SoIndexedLineSet3D::generateCoordinates( SoAction* action,
 	    junctionplane.intersect(projline,squarecoords2[idx]);
 	}
 
-	mSaveJoint( nrjoints, squarecoords2, doreverse, jointplanenormal );
+	if ( doscreensize )
+	    scaleby  = rad * vv.getWorldToScreenScale(c2, nsize );
+	mSaveJoint( nrjoints, c2, squarecoords2, doreverse, jointplanenormal );
 	nrjoints++;
 
 	for ( int idx=0; idx<4; idx++ )
@@ -171,23 +183,10 @@ bool SoIndexedLineSet3D::getEdgeStartCoords( const SbVec3f& edgecoord,
 
     const SbVec3f counternormal = line.getDirection().cross(planenormal);
 
-    const float rad = radius.getValue();
-    float scaleby = rad;
-    if ( screenSize.getValue() )
-    {
-	const SbViewportRegion& vp = SoViewportRegionElement::get(state);
-
-	const float nsize = rad/ float(vp.getViewportSizePixels()[1]);
-
-	const SbViewVolume& vv = SoViewVolumeElement::get(state);
-	float scalefactor = vv.getWorldToScreenScale(edgecoord, nsize);
-	scaleby = scaleby * scalefactor;
-    }
-
-    res[0] = edgecoord-planenormal*scaleby;
-    res[1] = edgecoord+counternormal*scaleby;
-    res[2] = edgecoord+planenormal*scaleby;
-    res[3] = edgecoord-counternormal*scaleby;
+    res[0] = planenormal;
+    res[1] = counternormal;
+    res[2] = -planenormal;
+    res[3] = -counternormal;
 
     return true;
 }
