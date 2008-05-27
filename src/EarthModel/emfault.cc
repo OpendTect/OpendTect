@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.46 2008-05-23 11:19:53 cvsnanne Exp $
+ RCS:           $Id: emfault.cc,v 1.47 2008-05-27 12:15:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -403,6 +403,8 @@ bool FaultGeometry::usePar( const IOPar& par )
 }
 
 
+// ***** FaultAscIO *****
+
 Table::FormatDesc* FaultAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Fault3D" );
@@ -410,7 +412,8 @@ Table::FormatDesc* FaultAscIO::getDesc()
     Table::TargetInfo* posinfo = new Table::TargetInfo( "X/Y", FloatInpSpec(),
 	    						Table::Required );
     posinfo->form(0).add( FloatInpSpec() );
-    posinfo->add( posinfo->form(0).duplicate("Inl/Crl") );
+//    posinfo->add( posinfo->form(0).duplicate("Inl/Crl") );
+//  Maybe support Inl/Crl later
     fd->bodyinfos_ += posinfo;
 
     Table::TargetInfo* zti = new Table::TargetInfo( "Z", FloatInpSpec(),
@@ -419,7 +422,7 @@ Table::FormatDesc* FaultAscIO::getDesc()
     zti->selection_.unit_ = UoMR().get( SI().getZUnit(false) );
     fd->bodyinfos_ += zti;
     fd->bodyinfos_ += new Table::TargetInfo( "Stick index", IntInpSpec(),
-	    				     Table::Required );
+	    				     Table::Optional );
     return fd;
 }
 
@@ -427,9 +430,7 @@ Table::FormatDesc* FaultAscIO::getDesc()
 bool FaultAscIO::isXY() const
 {
     const Table::TargetInfo* posinfo = fd_.bodyinfos_[0];
-    if ( !posinfo ) return true;
-
-    return posinfo->selection_.form_ == 0;
+    return !posinfo || posinfo->selection_.form_ == 0;
 }
 
 
@@ -442,6 +443,13 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt ) const
     const SectionID sid = flt.sectionID( 0 );
     int curstickidx = -1;
     int knotidx = 0;
+    bool hasstickidx = false;
+
+    bool oninl = false;
+    bool oncrl = false;
+    int linenr;
+    BinID firstbid;
+
     while ( true )
     {
 	const int ret = getNextBodyVals( strm );
@@ -452,20 +460,55 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt ) const
 	crd.y = getfValue( 1 );
 	crd.z = getfValue( 2 );
 	const int stickidx = getIntValue( 3 );
+	if ( !hasstickidx && !mIsUdf(stickidx) )
+	    hasstickidx = true;
 
 	if ( !crd.isDefined() )
 	    continue;
 
-	if ( stickidx != curstickidx )
+	if ( hasstickidx )
 	{
-	    flt.geometry().insertStick( sid, stickidx, crd, normal, false );
-	    curstickidx = stickidx;
-	    knotidx = 0;
+	    if ( stickidx != curstickidx )
+	    {
+		flt.geometry().insertStick( sid, stickidx, crd, normal, false );
+		curstickidx = stickidx;
+		knotidx = 0;
+	    }
+	    else
+	    {
+		const RowCol rc( stickidx, knotidx );
+		flt.geometry().insertKnot( sid, rc.getSerialized(), crd, false);
+	    }
 	}
 	else
 	{
-	    const RowCol rc( stickidx, knotidx );
-	    flt.geometry().insertKnot( sid, rc.getSerialized(), crd, false );
+	    const BinID curbid = SI().transform( crd );
+	    if ( flt.geometry().nrSticks(sid) == 0 )
+	    {
+		curstickidx = 0;
+		flt.geometry().insertStick( sid, 0, crd, normal, false );
+		firstbid = curbid;
+		knotidx = 0;
+	    }
+	    else if ( (oninl && curbid.inl!=firstbid.inl) || 
+		      (oncrl && curbid.crl!=firstbid.crl) )
+	    {
+		curstickidx++;
+		flt.geometry().insertStick( sid, curstickidx, crd,normal,false);
+		firstbid = curbid;
+		oninl = false;
+		oncrl = false;
+		knotidx = 0;
+	    }
+	    else
+	    {
+		const BinID bid = SI().transform( crd );
+		oninl = bid.inl == firstbid.inl;
+		oncrl = bid.crl == firstbid.crl;
+
+		const RowCol rc( curstickidx, knotidx );
+		flt.geometry().insertKnot( sid, rc.getSerialized(), crd, false);
+	    }
 	}
 
 	knotidx++;
