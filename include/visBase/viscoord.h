@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: viscoord.h,v 1.17 2008-01-18 15:39:20 cvskris Exp $
+ RCS:		$Id: viscoord.h,v 1.18 2008-05-27 19:47:24 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -52,6 +52,8 @@ public:
 			*/
 
     Transformation*	getDisplayTransformation();
+
+    void		copyFrom(const Coordinates&);
 
     void		setLocalTranslation(const Coord&);
     Coord		getLocalTranslation() const;

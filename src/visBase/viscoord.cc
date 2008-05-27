@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2002
- RCS:           $Id: viscoord.cc,v 1.29 2008-05-20 17:00:25 cvskris Exp $
+ RCS:           $Id: viscoord.cc,v 1.30 2008-05-27 19:47:24 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,27 @@ Coordinates::~Coordinates()
 {
     root_->unref();
     if ( transformation_ ) transformation_->unRef();
+}
+
+
+void Coordinates::copyFrom( const Coordinates& nc ) 
+{
+    Threads::MutexLocker lock( mutex_ );
+    Threads::MutexLocker nclock( nc.mutex_ );
+
+    coords_->point = nc.coords_->point;
+    if ( nc.utmposition_ )
+    {
+	if ( !utmposition_ )
+	{
+	    utmposition_ = new UTMPosition;
+	    root_->insertChild( utmposition_, 0 );
+	}
+
+	utmposition_->utmposition = nc.utmposition_->utmposition;
+    }
+
+    unusedcoords_ = nc.unusedcoords_;
 }
 
 
