@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.cc,v 1.8 2008-05-14 09:30:44 cvssatyaki Exp $
+ RCS:           $Id: uicoltabman.cc,v 1.9 2008-05-27 05:42:28 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -530,9 +530,10 @@ void uiColorTableMan::importColTab( CallBacker* )
     NotifyStopper notifstop( importbut_->activated );
     uiColTabAddDlg dlg( this );
     if ( dlg.go() )
+    {
 	ColTab::SM().write(false);
-    refreshColTabList( dlg.getCurrentSelColTab() );
-    tableAddRem.trigger();
-    selChg(0);
+	refreshColTabList( dlg.getCurrentSelColTab() );
+	tableAddRem.trigger();
+	selChg(0);
+    }
 }
-
