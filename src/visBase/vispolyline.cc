@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Apr 2002
- RCS:           $Id: vispolyline.cc,v 1.14 2008-05-19 21:15:03 cvskris Exp $
+ RCS:           $Id: vispolyline.cc,v 1.15 2008-05-27 18:32:23 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,14 +89,22 @@ IndexedPolyLine3D::IndexedPolyLine3D()
 
 float IndexedPolyLine3D::getRadius() const
 {
-    return reinterpret_cast<SoIndexedLineSet3D*>(shape_)->radius.getValue();
+    return ((SoIndexedLineSet3D*) shape_)->radius.getValue();
 }
 
 
-void IndexedPolyLine3D::setRadius(float nv,bool fixedonscreen)
+void IndexedPolyLine3D::setRadius(float nv,bool fixedonscreen,float maxdisplaysize)
 {
-    reinterpret_cast<SoIndexedLineSet3D*>(shape_)->radius.setValue(nv);
-    reinterpret_cast<SoIndexedLineSet3D*>(shape_)->screenSize.setValue(fixedonscreen);
+    ((SoIndexedLineSet3D*) shape_)->radius.setValue(nv);
+    ((SoIndexedLineSet3D*) shape_)->screenSize.setValue(fixedonscreen);
+    ((SoIndexedLineSet3D*) shape_)->maxRadius.setValue(maxdisplaysize);
 }
+
+
+void IndexedPolyLine3D::setRightHandSystem( bool yn )
+{
+    ((SoIndexedLineSet3D*) shape_)->rightHandSystem.setValue( yn );
+}
+
 
 }; // namespace visBase

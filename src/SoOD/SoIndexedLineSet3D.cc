@@ -32,6 +32,8 @@ SoIndexedLineSet3D::SoIndexedLineSet3D()
     SO_NODE_CONSTRUCTOR(SoIndexedLineSet3D);
     SO_NODE_ADD_FIELD( radius, (5.0) );
     SO_NODE_ADD_FIELD( screenSize, (true) );
+    SO_NODE_ADD_FIELD( maxRadius, (-1) );
+    SO_NODE_ADD_FIELD( rightHandSystem, (true) );
 }
 
 
@@ -105,9 +107,14 @@ void SoIndexedLineSet3D::generateCoordinates( SoAction* action,
     const SbViewVolume& vv = SoViewVolumeElement::get(state);
 
     const bool doscreensize = screenSize.getValue();
+    const float maxradius = maxRadius.getValue();
     float scaleby = rad;
     if ( doscreensize )
+    {
 	scaleby  = rad * vv.getWorldToScreenScale(c1, nsize );
+	if ( maxradius>=0 && scaleby>maxradius )
+	   scaleby = maxradius; 
+    }
 
     mSaveJoint( nrjoints, c1, squarecoords1, false, c1-c2 );
     nrjoints++;
@@ -143,7 +150,12 @@ void SoIndexedLineSet3D::generateCoordinates( SoAction* action,
 	}
 
 	if ( doscreensize )
+	{
 	    scaleby  = rad * vv.getWorldToScreenScale(c2, nsize );
+	    if ( maxradius>=0 && scaleby>maxradius )
+	       scaleby = maxradius; 
+	}
+
 	mSaveJoint( nrjoints, c2, squarecoords2, doreverse, jointplanenormal );
 	nrjoints++;
 
@@ -329,7 +341,6 @@ void SoIndexedLineSet3D::generateTriangles( SoAction* action, bool render )
 
 	if ( render )
 	{
-	    beginSolidShape(reinterpret_cast<SoGLRenderAction*>(action));
 	    glPushMatrix();
 	    SbMatrix m = SoViewingMatrixElement::get(state);
 	    glLoadMatrixf(m[0]);
@@ -358,7 +369,7 @@ void SoIndexedLineSet3D::generateTriangles( SoAction* action, bool render )
 		  mbind==SoMaterialBindingElement::PER_VERTEX_INDEXED )
 	    material1 = materialindexes[0];
 
-	bool isreversed = false;
+	bool isreversed = rightHandSystem.getValue();
 	mSendQuad(  corner1, 0, corner2, 0, material1,
 		    corner3, 0, corner4, 0, material1,
 		    endnormals[0], endnormals[0] );
@@ -424,7 +435,6 @@ void SoIndexedLineSet3D::generateTriangles( SoAction* action, bool render )
 	if ( render )
 	{
 	    glEnd();
-	    endSolidShape(reinterpret_cast<SoGLRenderAction*>(action));
 	    glPopMatrix();
 	}
 	else

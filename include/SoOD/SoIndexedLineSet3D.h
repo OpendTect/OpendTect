@@ -19,6 +19,16 @@ public:
 
     SoSFFloat		radius;
     SoSFBool		screenSize;
+    			//!<Specifies wether radius is on screen or in display
+			//!<Coordinates.
+    SoSFFloat		maxRadius;
+    			//!<Specifies maximum world radius if screenSize
+			//!<is enabled. Less than zero means there is no
+			//!<maximum
+			//!<Coordinates.
+    SoSFBool		rightHandSystem;
+    			//!<Specifies wether the coordinate system is
+			//!<righthanded or not.
 
 protected:
     void		generatePrimitives(SoAction*);
