@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          March 2008
- RCS:           $Id: uicreateattriblogdlg.cc,v 1.4 2008-04-30 04:01:02 cvssatyaki Exp $
+ RCS:           $Id: uicreateattriblogdlg.cc,v 1.5 2008-05-27 10:31:42 cvsnageswara Exp $
 _______________________________________________________________________
 
 -*/
@@ -67,15 +67,16 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
     markernames_.add( Well::TrackSampler::sKeyDataEnd );
 
     StringListInpSpec slis( markernames_ );
-    topmrkfld_ = new uiGenInput( this, "Extract between", slis );
-    
+    topmrkfld_ = new uiGenInput( this, "Extract between",
+	    					slis.setName("Top Marker") );
+
     if ( singlewell )
 	topmrkfld_->attach( alignedBelow, attribfld_ );
     else
 	topmrkfld_->attach( alignedBelow, welllistfld_ );
     topmrkfld_->setValue( (int)0 );
     topmrkfld_->setElemSzPol( uiObject::Medium );
-    botmrkfld_ = new uiGenInput( this, "", slis );
+    botmrkfld_ = new uiGenInput( this, "", slis.setName("Bottom Marker") );
     botmrkfld_->attach( rightOf, topmrkfld_ );
     botmrkfld_->setValue( markernames_.size()-1 );
     botmrkfld_->setElemSzPol( uiObject::Medium );

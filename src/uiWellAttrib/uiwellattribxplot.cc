@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uiwellattribxplot.cc,v 1.9 2008-05-23 05:20:27 cvsnageswara Exp $
+ RCS:           $Id: uiwellattribxplot.cc,v 1.10 2008-05-27 10:31:42 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,16 +78,17 @@ uiWellAttribCrossPlot::uiWellAttribCrossPlot( uiParent* p,
 
     uiLabeledComboBox* llc0 = new uiLabeledComboBox( this, "Extract between" );
     topmarkfld_ = llc0->box();
+    topmarkfld_->setName( "Top marker" );
     llc0->attach( alignedBelow, attgrp );
     botmarkfld_ = new uiComboBox( this, "Bottom marker" );
     botmarkfld_->attach( rightOf, llc0 );
     BufferString txt = "Distance above/below ";
     txt += SI().depthsInFeetByDefault() ? "(ft)" : "(m)";
-    abovefld_ = new uiGenInput( this, txt, FloatInpSpec(0)
-	   				   .setName("Distance above",0)
-	   				   .setName("Distance below",1) );
+    abovefld_ = new uiGenInput( this, txt,
+	    			FloatInpSpec(0).setName("Distance above") );
     abovefld_->attach( alignedBelow, llc0 );
-    belowfld_ = new uiGenInput( this, "", FloatInpSpec(0) );
+    belowfld_ = new uiGenInput( this, "", 
+	    			FloatInpSpec(0).setName("Distance below") );
     belowfld_->attach( rightOf, abovefld_ );
 
     logresamplfld_ = new uiGenInput( this, "Log resampling method",

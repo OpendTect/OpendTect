@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.12 2008-05-23 05:20:27 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.13 2008-05-27 10:31:42 cvsnageswara Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -134,23 +134,28 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	if ( !is2d )
 	{
 	    inldeffld = new uiGenInput( this, "Inline definition: start, step",
-			  IntInpSpec(data().inldef_.start).setName("Start"),
-			  IntInpSpec(data().inldef_.step).setName("Step") );
+				IntInpSpec(data().inldef_.start)
+						.setName("Inl def start"),
+			  	IntInpSpec(data().inldef_.step)
+						.setName("Inl def step") );
 	    inldeffld->attach( alignedBelow, attachobj );
 	    crldeffld = new uiGenInput( this,
 			"Xline definition: start, step, # per inline",
-			   IntInpSpec(data().crldef_.start).setName("Start"),
-			   IntInpSpec(data().crldef_.step).setName("Step"),
-			   IntInpSpec(data().nrcrlperinl_).setName("per Inl") );
+			   IntInpSpec(data().crldef_.start)
+			   			.setName("Crl def start"),
+			   IntInpSpec(data().crldef_.step)
+			   			.setName("Crl def step"),
+			   IntInpSpec(data().nrcrlperinl_)
+			   			.setName("per inl") );
 	    crldeffld->attach( alignedBelow, inldeffld );
 	    attachobj = crldeffld->attachObj();
 	}
 	else
 	{
 	    nrdeffld = new uiGenInput( this,
-		    	   "Trace number definition: start, step",
-			   IntInpSpec(data().nrdef_.start).setName("Start"),
-			   IntInpSpec(data().nrdef_.step).setName("Step") );
+		    "Trace number definition: start, step",
+		    IntInpSpec(data().nrdef_.start).setName("Trc def start"),
+		    IntInpSpec(data().nrdef_.step).setName("Trc def step") );
 	    nrdeffld->attach( alignedBelow, attachobj );
 	    startposfld = new uiGenInput( this,
 					  "Start position (X, Y, Trace number)",
@@ -210,8 +215,8 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
 	if ( SI().zIsTime() )
 	    { sd.start *= 1000; sd.step *= 1000; }
 	sdfld = new uiGenInput( this, txt, 
-			DoubleInpSpec(sd.start).setName("Start"),
-			DoubleInpSpec(sd.step).setName("Step"),
+			DoubleInpSpec(sd.start).setName("SampInfo start"),
+			DoubleInpSpec(sd.step).setName("SampInfo step"),
 			IntInpSpec(data().nrsamples_).setName("Nr samples") );
 	sdfld->attach( alignedBelow, havesdfld );
 	sep = mkDataManipFlds();
