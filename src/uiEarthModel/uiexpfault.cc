@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2008
- RCS:           $Id: uiexpfault.cc,v 1.3 2008-05-23 11:20:16 cvsnanne Exp $
+ RCS:           $Id: uiexpfault.cc,v 1.4 2008-05-27 12:11:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,7 +123,7 @@ bool uiExportFault::writeAscii()
 		*sdo.ostrm << str;
 	    }
 
-	    *sdo.ostrm << '\t' << crd.z;
+	    *sdo.ostrm << '\t' << crd.z*SI().zFactor();
 
 	    if ( inclstickidx )
 		*sdo.ostrm << '\t' << stickidx;
