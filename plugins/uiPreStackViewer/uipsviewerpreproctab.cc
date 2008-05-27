@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID = "$Id: uipsviewerpreproctab.cc,v 1.1 2008-05-15 18:48:39 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uipsviewerpreproctab.cc,v 1.2 2008-05-27 22:53:41 cvsyuancheng Exp $";
 
 #include "uipsviewerpreproctab.h"
 
@@ -19,22 +19,20 @@ namespace PreStackView
 
 
 uiPSViewerPreProcTab::uiPSViewerPreProcTab( uiParent* p, PreStackViewer& vwr,
-       					    uiPSViewerMgr& mgr )
+	uiPSViewerMgr& mgr, PreStack::ProcessManager& preprocmgr )
     : uiDlgGroup( p, "Preprocessing" )
     , vwr_( vwr )
-    , preprocmgr_( new PreStack::ProcessManager )
+    , preprocmgr_( &preprocmgr )
     , mgr_( mgr )
     , applyall_( false )
 {
-    preprocmgr_->usePar( vwr.getPreProcessingPars() );
-    uipreprocmgr_ = new PreStack::uiProcessorManager( this, *preprocmgr_ );
+    uipreprocmgr_ = new PreStack::uiProcessorManager( this, preprocmgr );
 }
 
 
 uiPSViewerPreProcTab::~uiPSViewerPreProcTab()
 {
     delete uipreprocmgr_;
-    delete preprocmgr_;
 }
 
 
@@ -49,7 +47,7 @@ bool uiPSViewerPreProcTab::acceptOK()
 	if ( !applyall_ && vwr != &vwr_ )
 	    continue;
 
-	if ( !vwr->doPreProcessing( preprocmgr_ ) )
+	if ( !vwr->setPreProcessor( preprocmgr_ ) )
 	{
 	    uiMSG().message( "Preprocessing failed!" );
 	    return false;

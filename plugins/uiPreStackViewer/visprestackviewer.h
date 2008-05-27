@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.9 2008-05-15 18:55:30 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.10 2008-05-27 22:53:41 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,8 +49,8 @@ public:
     bool			isInlCrl() const 	{ return true; }
    
     				//for 3D only at present
-    bool			doPreProcessing(PreStack::ProcessManager*);
-    IOPar			getPreProcessingPars()	{ return procpars_; }
+    bool			setPreProcessor(PreStack::ProcessManager*);
+    DataPack::ID		preProcess();
 
     bool			is3DSeis() const;
     DataPack::ID		getDataPackID() const;
@@ -110,6 +110,7 @@ protected:
     void				dataChangedCB(CallBacker*);
     void				sectionMovedCB(CallBacker*);
     void				seis2DMovedCB(CallBacker*);
+    bool				updateData();
 
     void				draggerMotion(CallBacker*);
     void				finishedCB(CallBacker*);
@@ -121,6 +122,7 @@ protected:
     visBase::FlatViewer*		flatviewer_;
     visBase::Material*			draggermaterial_;
     visBase::PickStyle*			pickstyle_;
+    PreStack::ProcessManager*		preprocmgr_;
 
     MultiID				mid_;
     visSurvey::PlaneDataDisplay*	section_;
@@ -129,7 +131,6 @@ protected:
     Coord				basedirection_;
     Coord				seis2dpos_;
     
-    IOPar				procpars_;
     bool				posside_;
     bool				autowidth_;
     float				factor_;

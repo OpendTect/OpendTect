@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2007
- RCS:		$Id: uipsviewermanager.h,v 1.5 2008-02-07 14:30:18 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.h,v 1.6 2008-05-27 22:53:41 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ ________________________________________________________________________
 class uiVisPartServer;
 class uiFlatViewWin;
 class uiMenuHandler;
+namespace PreStack { class ProcessManager; }
 
 namespace PreStackView
 {
@@ -65,7 +66,8 @@ protected:
     MenuItem			removemenuitem_;
     MenuItem			proptymenuitem_;
     MenuItem			viewermenuitem_;
-    
+
+    PreStack::ProcessManager*   preprocmgr_;    
     uiVisPartServer*		visserv_;
     ObjectSet<PreStackViewer>	viewers_;
     ObjectSet<uiFlatViewWin>	viewwindows_;

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2008
- RCS:		$Id: uipsviewerpreproctab.h,v 1.1 2008-05-15 18:48:39 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewerpreproctab.h,v 1.2 2008-05-27 22:53:41 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -29,7 +29,8 @@ class uiPSViewerPreProcTab :  public uiDlgGroup
 {
 public:
 				uiPSViewerPreProcTab(uiParent*,PreStackViewer&,
-						     uiPSViewerMgr&);
+					uiPSViewerMgr&,
+					PreStack::ProcessManager&);
 				~uiPSViewerPreProcTab();
     bool			acceptOK();
 

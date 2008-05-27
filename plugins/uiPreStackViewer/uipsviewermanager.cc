@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.17 2008-05-15 18:56:42 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.18 2008-05-27 22:53:41 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "ioobj.h"
 #include "prestackgather.h"
+#include "prestackprocessor.h"
 #include "survinfo.h"
 #include "uidlggroup.h"
 #include "uiflatviewer.h"
@@ -41,7 +42,8 @@ uiPSViewerMgr::uiPSViewerMgr()
     , proptymenuitem_( "Properties ..." )				 
     , removemenuitem_( "Remove" ) 
     , viewermenuitem_( "View in 2D Panel" )
-    , visserv_( ODMainWin()->applMgr().visServer() )  	     
+    , visserv_( ODMainWin()->applMgr().visServer() )
+    , preprocmgr_( new PreStack::ProcessManager )
 {
     visserv_->removeAllNotifier().notify( mCB(this,uiPSViewerMgr,removeAllCB) );
     RefMan<MenuHandler> menuhandler = visserv_->getMenuHandler();
@@ -70,6 +72,7 @@ uiPSViewerMgr::~uiPSViewerMgr()
 
     delete visserv_;
     removeAllCB( 0 );
+    delete preprocmgr_;
 }    
 
 
@@ -151,7 +154,7 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
     else if ( mnuid==proptymenuitem_.id )
     {
 	menu->setIsHandled( true );
-	uiPSViewerSettingDlg dlg( menu->getParent(), *psv, *this );
+	uiPSViewerSettingDlg dlg(menu->getParent(), *psv, *this, *preprocmgr_);
 	dlg.go();
     }
     else if ( mnuid==viewermenuitem_.id )
@@ -418,6 +421,12 @@ void uiPSViewerMgr::sessionRestoreCB( CallBacker* )
 	viewwindows_ += viewwin;
 	viewwin->start();
     }
+    
+    if ( preprocmgr_ )
+	preprocmgr_->usePar( *allwindowspar );
+
+    for ( int idx=0; idx<viewers_.size(); idx++ )
+	viewers_[idx]->setPreProcessor( preprocmgr_ );
 }
 
 
@@ -470,6 +479,9 @@ void uiPSViewerMgr::sessionSaveCB( CallBacker* )
 
 	allwindowpar.mergeComp( viewerpar, key );
     }
+
+    if ( preprocmgr_ )
+	preprocmgr_->fillPar( allwindowpar );
 
     allwindowpar.set( sKeyNrWindows(), nrsaved );
     ODMainWin()->sessionPars().mergeComp( allwindowpar, sKey2DViewers() );

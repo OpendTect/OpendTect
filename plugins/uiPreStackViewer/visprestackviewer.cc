@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.18 2008-05-15 18:55:30 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.19 2008-05-27 22:53:41 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -55,6 +55,7 @@ PreStackViewer::PreStackViewer()
     , zrg_( SI().zRange(true) )
     , posside_( true )
     , autowidth_( true )
+    , preprocmgr_( 0 )			
 {
     setMaterial( 0 );
     planedragger_->ref();
@@ -157,27 +158,28 @@ void  PreStackViewer::setMultiID( const MultiID& mid )
 }
 
 
-bool PreStackViewer::doPreProcessing( PreStack::ProcessManager* mgr )
+bool PreStackViewer::setPreProcessor( PreStack::ProcessManager* mgr )
 {
-    if ( !flatviewer_->pack(false) )
-	return true;
+    preprocmgr_ = mgr;
+    return updateData();
+}
 
-    if ( mgr )
-	mgr->fillPar( procpars_);
 
-    if ( !mgr || !mgr->nrProcessors() || !mgr->reset() )
-	return true;
+DataPack::ID PreStackViewer::preProcess()
+{
+    if ( !preprocmgr_ || !preprocmgr_->nrProcessors() || !preprocmgr_->reset() )
+	return -1;
 
-    const BinID stepout = mgr->getInputStepout();
-    if ( !mgr->prepareWork() )
-	return false;
+    const BinID stepout = preprocmgr_->getInputStepout();
+    if ( !preprocmgr_->prepareWork() )
+	return -1;
 
     BinID relbid;
     for ( relbid.inl=-stepout.inl; relbid.inl<=stepout.inl; relbid.inl++ )
     {
 	for ( relbid.crl=-stepout.crl; relbid.crl<=stepout.crl; relbid.crl++ )
 	{
-	    if ( !mgr->wantsInput(relbid) )
+	    if ( !preprocmgr_->wantsInput(relbid) )
 		continue;
 	 
 	    const BinID inputbid = bid_ +
@@ -190,49 +192,58 @@ bool PreStackViewer::doPreProcessing( PreStack::ProcessManager* mgr )
 	    }
 
 	    DPM( DataPackMgr::FlatID ).addAndObtain( gather );
-	    mgr->setInput( relbid, gather->id() );
+	    preprocmgr_->setInput( relbid, gather->id() );
 	    DPM( DataPackMgr::FlatID ).release( gather );
 	}
     }
    
-    if ( !mgr->process() )
-	return false;
+    if ( !preprocmgr_->process() )
+	return -1;
    
-    DataPack::ID newdpid = mgr->getOutput();
-    
-    DPM( DataPackMgr::FlatID ).obtain( newdpid );
-    flatviewer_->setPack( false, newdpid, false );
-    DPM( DataPackMgr::FlatID ).release( newdpid );
-
-    return true;
+    return preprocmgr_->getOutput();    
 }
 
 
 bool PreStackViewer::setPosition( const BinID& nb )
 {
-    if ( nb.inl==-1 || nb.crl==-1 )
+    bid_ = nb;
+    return updateData();
+}
+
+
+bool PreStackViewer::updateData()
+{
+    if ( bid_.inl==-1 || bid_.crl==-1 )
     	turnOn(false);
     else
     {
-	const bool haddata = flatviewer_->pack( false );
-	bid_ = nb;
-	PreStack::Gather* gather = new PreStack::Gather;
-	if ( !gather->readFrom( mid_, bid_ ) )
+	DataPack::ID displayid = DataPack::cNoID;
+	if ( preprocmgr_ && preprocmgr_->nrProcessors() )
+	    displayid = preProcess();
+	else
 	{
-	    delete gather;
+	    PreStack::Gather* gather = new PreStack::Gather;
+	    if ( !gather->readFrom( mid_, bid_ ) )
+		delete gather;
+	    else
+	    {
+    		DPM(DataPackMgr::FlatID).add( gather );
+    		displayid = gather->id();
+	    }
+	}
+
+	const bool haddata = flatviewer_->pack( false );
+	if ( displayid==DataPack::cNoID )
+	{
 	    if ( haddata )
 		flatviewer_->setPack( false, DataPack::cNoID, false );
 	    else
-	    {
 		dataChangedCB( 0 );
-		return false;
-	    }
+
+	    return false;
 	}
 	else
-	{
-	    DPM(DataPackMgr::FlatID).add( gather );
-	    flatviewer_->setPack( false, gather->id(), false, !haddata );
-	}
+	    flatviewer_->setPack( false, displayid, false, !haddata );
 	
 	turnOn( true );
     }
@@ -690,7 +701,10 @@ void PreStackViewer::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.set( sKeyMultiID(), mid_ );
     par.setYN( sKeyiAutoWidth(), autowidth_ );
     par.setYN( sKeySide(), posside_ );
-    
+
+    if ( flatviewer_ )
+	flatviewer_->appearance().ddpars_.fillPar( par );   
+
     if ( autowidth_ )
 	par.set( sKeyFactor(), factor_ );
     else
@@ -700,7 +714,7 @@ void PreStackViewer::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 
 int PreStackViewer::usePar( const IOPar& par )
 {
-    int res =  VisualObjectImpl::usePar( par );
+   int res =  VisualObjectImpl::usePar( par );
     if ( res!=1 ) return res;
 
     res = SurveyObject::useSOPar( par );
@@ -762,6 +776,12 @@ int PreStackViewer::usePar( const IOPar& par )
     if ( par.getYN(sKeySide(), side) )
 	displaysOnPositiveSide( side );
 	
+    if ( flatviewer_ )
+    {
+	flatviewer_->appearance().ddpars_.usePar( par );   
+	flatviewer_->handleChange( FlatView::Viewer::VDPars );
+    }
+
     return 1;
 }
 

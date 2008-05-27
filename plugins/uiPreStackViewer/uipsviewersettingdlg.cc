@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          5-11-2007
- RCS:           $Id: uipsviewersettingdlg.cc,v 1.1 2008-05-15 18:51:35 cvsyuancheng Exp $
+ RCS:           $Id: uipsviewersettingdlg.cc,v 1.2 2008-05-27 22:53:41 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,16 +17,18 @@ ________________________________________________________________________
 #include "uipsviewerpreproctab.h"
 #include "visprestackviewer.h"
 #include "visflatviewer.h"
+#include "prestackprocessor.h"
 
 namespace PreStackView
 {
 
 
 uiPSViewerSettingDlg::uiPSViewerSettingDlg( uiParent* p, 
-	PreStackViewer& viewer, uiPSViewerMgr& mgr )
+	PreStackViewer& viewer, uiPSViewerMgr& mgr, 
+	PreStack::ProcessManager& prepromgr )
     : uiTabStackDlg( p, uiDialog::Setup( "PreStack display properties", 
 		"Specify display properties", 0) ) 
-    , preproctab_( 0 )						   
+    , preproctab_( 0 )		     
 {
     shapetab_ = new uiPSViewerShapeTab( tabParent(), viewer, mgr );
     addGroup( shapetab_ );
@@ -36,7 +38,8 @@ uiPSViewerSettingDlg::uiPSViewerSettingDlg( uiParent* p,
 
     if ( viewer.is3DSeis() )
     {
-    	preproctab_ = new uiPSViewerPreProcTab( tabParent(), viewer, mgr );	
+    	preproctab_ = new uiPSViewerPreProcTab( tabParent(), viewer, mgr,
+	       prepromgr );	
     	addGroup( preproctab_ );
     }
 
