@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2007
- RCS:           $Id: uiwindowfunctionsel.cc,v 1.6 2008-05-28 09:33:30 cvssatyaki Exp $
+ RCS:           $Id: uiwindowfunctionsel.cc,v 1.7 2008-05-28 12:25:08 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,11 +91,15 @@ void uiWindowFunctionSel::setWindowName( const char* nm )
 void uiWindowFunctionSel::setWindowParamValue( float val )
 {
     const int winidx = windowtypefld_->getIntValue( 0 )-1;
-    if ( winidx<0 || !windowvariable_[winidx] ) return;
+    if ( !windowfuncs_.validIdx(winidx) ) return;
 
-    if ( windowfuncs_[winidx]->hasVariable() ) 
-	windowvariable_[winidx]->display( true );
-    windowvariable_[winidx]->setValue( val );
+    if (  windowvariable_[winidx] )
+	windowvariable_[winidx]->setValue( val );
+    for ( int idx=0; idx<windowvariable_.size(); idx++ )
+    {
+	if ( windowvariable_[idx] )
+	     windowvariable_[idx]->display( idx==winidx );
+    }
 }
 
 
