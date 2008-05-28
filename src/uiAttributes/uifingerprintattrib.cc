@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.45 2008-05-12 04:19:58 cvsnanne Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.46 2008-05-28 09:43:38 cvsnageswara Exp $
 
 ________________________________________________________________________
 
@@ -132,7 +132,7 @@ uiFingerPrintAttrib::uiFingerPrintAttrib( uiParent* p, bool is2d )
     refposzfld_->setElemSzPol( uiObject::Small );
     refposzfld_->attach( rightTo, refposfld_ );
     
-    getposbut_ = new uiToolButton( this, "", ioPixmap("pick.png"),
+    getposbut_ = new uiToolButton( this, "Interact", ioPixmap("pick.png"),
 	    			   mCB(this,uiFingerPrintAttrib,getPosPush) );
     getposbut_->attach( rightOf, refposzfld_ );
 
@@ -702,13 +702,17 @@ void uiFPAdvancedDlg::prepareNumGroup( uiGroup* attrvalsgrp,
 {
     for ( int idx=0; idx<attrrefset.size(); idx++ )
     {
-	valflds_ += new uiGenInput( attrvalsgrp, attrrefset.get(idx).buf(),
-				    FloatInpSpec() );
+	const char* attrnm = attrrefset.get(idx).buf();
+	valflds_ += new uiGenInput( attrvalsgrp, attrnm,
+			  FloatInpSpec().setName(BufferString("Val ",attrnm)) );
 	uiSpinBox* spinbox = new uiSpinBox( attrvalsgrp );
 	spinbox->setInterval( 1, 5 );
 	wgtflds_ += spinbox;
+	spinbox->setName( BufferString("Weight ",attrnm) );
 
-	minmaxflds_ += new uiGenInput( attrvalsgrp, "", FloatInpIntervalSpec());
+	minmaxflds_ += new uiGenInput( attrvalsgrp, "", FloatInpIntervalSpec()
+				      .setName(BufferString("Min ",attrnm),0)
+				      .setName(BufferString("Max ",attrnm),1));
 
 	wgtflds_[idx]->attach( rightOf, valflds_[idx] );
 	minmaxflds_[idx]->attach( rightOf, wgtflds_[idx] );
