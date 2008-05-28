@@ -4,12 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink/A.H. Bril
  Date:          Aug 2000/Oct 2001
- RCS:           $Id: uitaskrunner.cc,v 1.4 2008-05-28 12:31:54 cvsnageswara Exp $
+ RCS:           $Id: uitaskrunner.cc,v 1.5 2008-05-28 14:53:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uitaskrunner.h"
+
+#include "mousecursor.h"
 #include "uiprogressbar.h"
 #include "uistatusbar.h"
 
@@ -54,6 +56,8 @@ bool uiTaskRunner::execute( Task& t )
 {
     if ( task_ )
 	return t.execute();
+
+    MouseCursorChanger mousecursor( MouseCursor::Arrow );
 
     task_ = &t;
     state_ = 1;
