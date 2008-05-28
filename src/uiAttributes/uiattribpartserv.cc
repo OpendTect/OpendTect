@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.92 2008-05-09 13:21:08 cvsbert Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.93 2008-05-28 16:50:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -519,13 +519,14 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 }
 
 
-bool uiAttribPartServer::createOutput( DataPointSet& posvals )
+bool uiAttribPartServer::createOutput( DataPointSet& posvals, int firstcol )
 {
     PtrMan<EngineMan> aem = createEngMan();
     if ( !aem ) return false;
 
     BufferString errmsg;
-    PtrMan<Processor> process = aem->getTableOutExecutor( posvals, errmsg );
+    PtrMan<Processor> process =
+			aem->getTableOutExecutor( posvals, errmsg, firstcol );
     if ( !process )
 	{ uiMSG().error(errmsg); return false; }
 

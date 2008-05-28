@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiattribpartserv.h,v 1.39 2008-04-17 12:48:23 cvsbert Exp $
+ RCS:           $Id: uiattribpartserv.h,v 1.40 2008-05-28 16:50:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,7 +108,7 @@ public:
     DataPack::ID	createOutput(const CubeSampling&,DataPack::ID);
     const Attrib::DataCubes* createOutput(const CubeSampling&,
 				          const Attrib::DataCubes* prevslcs=0);
-    bool		createOutput(DataPointSet&);
+    bool		createOutput(DataPointSet&,int firstcol =0);
     bool		createOutput(const BinIDValueSet&,SeisTrcBuf&);
     DataPack::ID	createRdmTrcsOutput(const Interval<float>& zrg,
 	    				    TypeSet<BinID>* path);

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.37 2008-05-15 15:31:57 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.38 2008-05-28 16:50:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -288,7 +288,7 @@ protected:
 class TableOutput : public Output
 {
 public:
-    				TableOutput(DataPointSet&);
+    				TableOutput(DataPointSet&,int);
 				~TableOutput() {};
 
     bool			getDesiredVolume(CubeSampling&) const
@@ -310,6 +310,7 @@ protected:
     					      	//  1 Classification
 
     bool			arebiddupl_;	
+    int				firstattrcol_;	
 
     void			computeAndSetVals(const DataHolder&,float,
 	    					  float,float*,float&,bool&);

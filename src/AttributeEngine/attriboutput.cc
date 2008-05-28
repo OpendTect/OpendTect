@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.83 2008-05-27 11:49:38 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.84 2008-05-28 16:50:44 cvshelene Exp $";
 
 #include "attriboutput.h"
 
@@ -1057,9 +1057,10 @@ bool Trc2DVarZStorOutput::wantsOutput( const Coord& coord ) const
 }
 
 
-TableOutput::TableOutput( DataPointSet& datapointset )
+TableOutput::TableOutput( DataPointSet& datapointset, int firstcol )
     : datapointset_(datapointset)
     , classstatus_(-1)
+    , firstattrcol_(firstcol)
 {
     ensureSelType( Seis::Table );
     seldata_->setIsAll( false );
@@ -1090,7 +1091,7 @@ void TableOutput::collectData( const DataHolder& data, float refstep,
 	    return;
 	
 	for ( int comp=0; comp<desoutputs_.size(); comp++ )
-	    vals[comp] = data.series(desoutputs_[comp])->value(0);
+	    vals[comp+firstattrcol_] = data.series(desoutputs_[comp])->value(0);
 	return;
     }
 
@@ -1146,7 +1147,7 @@ void TableOutput::computeAndSetVals( const DataHolder& data, float refstep,
 	}
 	else 
 	    val = mNINT( (zval/refstep) )==lowz ? p1 : p2;
-	vals[comp] = val;
+	vals[comp+firstattrcol_] = val;
     }
     if ( isfirstz ) isfirstz = false;
 }
@@ -1216,7 +1217,6 @@ void TableOutput::addLocalInterval( TypeSet< Interval<int> >& sampintv,
 				    int rid, float zstep ) const
 {
     const float zval = datapointset_.z(rid);
-    const float* vals = datapointset_.getValues( rid );
     int zidx = mNINT( (zval/zstep) -0.5 ); 
     Interval<int> interval( zidx, zidx );
     if ( arebiddupl_ )

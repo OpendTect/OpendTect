@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.85 2008-05-28 14:52:38 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.86 2008-05-28 16:50:44 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -794,7 +794,7 @@ class AEMTableExtractor : public Executor
 {
 public:
 AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
-		   const Attrib::DescSet& descset )
+		   const Attrib::DescSet& descset, int firstcol )
     : Executor("Extracting attributes")
 {
     const int nrinps = datapointset.nrCols();
@@ -811,7 +811,7 @@ AEMTableExtractor( EngineMan& aem, DataPointSet& datapointset,
 	aem.attrspecs_.addIfNew( ss );
     }
 
-    proc = aem.getTableOutExecutor( datapointset, errmsg );
+    proc = aem.getTableOutExecutor( datapointset, errmsg, firstcol );
 }
 
 ~AEMTableExtractor()		{ delete proc; }
@@ -856,7 +856,7 @@ Executor* EngineMan::getTableExtractor( DataPointSet& datapointset,
     
     setAttribSet( &descset );
     AEMTableExtractor* tabex = new AEMTableExtractor( *this, datapointset,
-	    					      descset );
+	    					      descset, firstcol );
     if ( tabex && !tabex->errmsg.isEmpty() )
 	errmsg = tabex->errmsg;
     return tabex;
@@ -864,7 +864,7 @@ Executor* EngineMan::getTableExtractor( DataPointSet& datapointset,
 
 
 Processor* EngineMan::getTableOutExecutor( DataPointSet& datapointset,
-					   BufferString& errmsg )
+					   BufferString& errmsg, int firstcol )
 {
     if ( datapointset.size() == 0 ) mErrRet("No locations to extract data on");
 
@@ -875,7 +875,7 @@ Processor* EngineMan::getTableOutExecutor( DataPointSet& datapointset,
     ObjectSet<BinIDValueSet> bidsets;
     bidsets += &datapointset.bivSet();
     computeIntersect2D( bidsets );
-    TableOutput* tableout = new TableOutput( datapointset );
+    TableOutput* tableout = new TableOutput( datapointset, firstcol );
     if ( !tableout ) return 0;
 
     proc->addOutput( tableout );
