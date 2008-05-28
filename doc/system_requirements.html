@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	June 2007
   - Contents:	OpendTect hardware requirements
-  - RCS:	$Id: system_requirements.html,v 1.3 2007-12-18 11:26:56 cvsbert Exp $
+  - RCS:	$Id: system_requirements.html,v 1.4 2008-05-28 08:16:02 cvsdgb Exp $
  -->
 
 <body bgcolor="#eeeeee"><title>OpendTect Hardware and OS requirements</title>
@@ -16,8 +16,8 @@ OpendTect runs on 3 hardware platforms:
 
 <ol>
 <li><a href="http://www.intel.com">Intel</a>/<a href="http://www.amd.com">AMD</a> under Linux (32 or 64 bits) or MS Windows (2000 and XP)
-<li><a href="http://www.sun.com">Sun</a>/Sparc under Solaris 8 or up
-<li><a href="http://www.apple.com/dotmac">Mac</a>/PowerPC under OS X (10.4.4) and up
+<li><a href="http://www.sun.com">Sun</a>/Sparc under Solaris 8 or up (Batch programs only)
+<li><a href="http://www.apple.com/dotmac">Mac</a>/PowerPC under OS X (10.5.2) and up
 </ol>
 
 
@@ -25,11 +25,10 @@ OpendTect runs on 3 hardware platforms:
 
 <h3>Graphics:</h3>
 
-OpendTect requires a recent well-patched <a href="http://opengl.org">OpenGL</a> installation. OpenGL drivers should be updated at least every half year to ensure optimal performance and compliance.
+OpendTect requires a recent well-patched <a href="http://opengl.org">OpenGL</a> installation (On Sun/Sparc, there is no user interface available). OpenGL drivers should be updated at least every half year to ensure optimal performance and compliance.
 <br><br>
 <b>Intel/AMD:</b> Recent <a href="http://www.nvidia.com">nVidia</a> and <a href="http://www.amd.com">AMD (ATI)</a> graphics cards/chipsets. Well behaved are nVidia GeForce 6, 7 and 8 series and AMD (ATI) Radeon X1xx and X2xx series.<br>
 <b>Mac/PowerPC:</b>Similar to te Intel/AMD platform.<br>
-<b>Sun/Sparc:</b> Graphics cards like the XVR 2500 or better.<br>
 <br>
 Main stream and high-end GPUs within the series are recommended, since low-level GPUs keep showing poor performances through the generations.<br>
 Since OpendTect 3.0, shading functionaly requires special GPU features, present in the cards listed above.
@@ -51,8 +50,7 @@ Although OpendTect will run on 2 GHz processors or even less, we
 recommend 3 GHz dual core for a good working environment.<br>
 The Solaris/Sparc platform performs a lot less; therefore, only high end
 processors like the Sun ultraSPARC IIIi and up will give tolerable
-performance. Solaris support will stop after the 3.0 and 3.1 versions, some
-time in 2008.
+performance. Solaris support for teh OpendTect GUI main program was stopped after the 3.0 and 3.1 versions.
 
 
 <h2>Operating systems</h2>
@@ -70,11 +68,11 @@ available. OpendTect is known to work under <a href="http://www.debian.org">Debi
 
 <h3>Solaris</h3>
 
-Solaris 8 and up are supported. In 2008, support will be stopped.
+Solaris 8 and up are supported. No GUI support.
 
 <h3>Mac OS X</h3>
 
-Minimum is Mac OS X (10.4.4). Mac/Intel is not supported at this point in time.
+Minimum is Mac OS X (10.5) - thus Mac/Intel. Mac/PowerPC support is not available in 3.2 or higher.
 
 <h3>MS Windows</h3>
 Windows 2000, XP and Vista are supported.
