@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.31 2008-05-16 08:34:03 cvshelene Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.32 2008-05-28 14:20:32 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -157,10 +157,20 @@ void uiODEarthModelSurfaceDataTreeItem::createMenuCB( CallBacker* cb )
     loadsurfacedatamnuitem_.text = itmtxt;
     mAddMenuItem( &selattrmnuitem_, &loadsurfacedatamnuitem_,
 		  !islocked && nrsurfdata>0, false );
-    mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
+    if ( uivisemobj_ )
+    {
+	mAddMenuItem( &selattrmnuitem_, &depthattribmnuitem_, !islocked,
 		  as->id()==Attrib::SelSpec::cNoAttrib() );
+    }
+    else
+    {
+	mResetMenuItem( &depthattribmnuitem_ );
+    }
 
-    const bool enabsave = changed_ || (as && as->id()>=0); 
+    const bool enabsave = changed_ ||
+	(as && as->id()!=Attrib::SelSpec::cNoAttrib() &&
+	 as->id()!=Attrib::SelSpec::cAttribNotSel() ); 
+
     mAddMenuItem( menu, &savesurfacedatamnuitem_, enabsave, false );
     mAddMenuItem( menu, &algomnuitem_, true, false );
     mAddMenuItem( &algomnuitem_, &fillholesmnuitem_, true, false );
