@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uiwellattribxplot.cc,v 1.14 2008-05-28 12:10:46 cvsbert Exp $
+ RCS:           $Id: uiwellattribxplot.cc,v 1.15 2008-05-28 15:09:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -222,7 +222,7 @@ bool uiWellAttribCrossPlot::extractWellData( const BufferStringSet& ioobjids,
 }
 
 
-bool uiWellAttribCrossPlot::extractAttribData( DataPointSet& dps )
+bool uiWellAttribCrossPlot::extractAttribData( DataPointSet& dps, int c1 )
 {
     IOPar descsetpars;
     ads_.fillPar( descsetpars );
@@ -230,7 +230,7 @@ bool uiWellAttribCrossPlot::extractAttribData( DataPointSet& dps )
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     Attrib::EngineMan aem; BufferString errmsg;
-    PtrMan<Executor> tabextr = aem.getTableExtractor( dps, ads_, errmsg );
+    PtrMan<Executor> tabextr = aem.getTableExtractor( dps, ads_, errmsg, c1 );
     MouseCursorManager::restoreOverride();
     if ( !errmsg.isEmpty() )
 	mErrRet(errmsg)
@@ -246,17 +246,20 @@ bool uiWellAttribCrossPlot::extractAttribData( DataPointSet& dps )
 bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 {
     ObjectSet<DataColDef> dcds;
-    BufferStringSet attrnms; addDCDs( attrsfld_, dcds,  attrnms );
     dcds += new DataColDef( "DAH" );
     BufferStringSet lognms; addDCDs( logsfld_, dcds, lognms );
+    BufferStringSet attrnms; addDCDs( attrsfld_, dcds,  attrnms );
     if ( lognms.isEmpty() )
 	mErrRet("Please select at least one log")
 
-    BufferStringSet ioobjids;
+    BufferStringSet ioobjids, wellnms;
     for ( int idx=0; idx<wellsfld_->size(); idx++ )
     {
 	if ( wellsfld_->isSelected(idx) )
+	{
 	    ioobjids.add( wellobjs_[idx]->key() );
+	    wellnms.add( wellobjs_[idx]->name() );
+	}
     }
     if ( ioobjids.isEmpty() )
 	mErrRet("Please select at least one well")
@@ -297,10 +300,10 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 
 	    DataPointSet::DataRow newdr( dr );
 	    newdr.data_.setSize( nrattribs + nrlogs, mUdf(float) );
-	    for ( int iattr=0; iattr<nrattribs; iattr++ )
-		newdr.data_[iattr] = mUdf(float);
 	    for ( int ilog=0; ilog<nrlogs; ilog++ )
-		newdr.data_[nrattribs+ilog] = dr.data_[ilog];
+		newdr.data_[ilog] = dr.data_[ilog];
+	    for ( int iattr=0; iattr<nrattribs; iattr++ )
+		newdr.data_[nrlogs+iattr] = mUdf(float);
 	    newdr.setGroup( (unsigned short)(idps+1) );
 	    dps->setRow( newdr );
 	}
@@ -315,12 +318,14 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
     if ( !attrnms.isEmpty() )
     {
 	dpsnm += " / Attributes";
-	if ( !extractAttribData(*dps) )
+	if ( !extractAttribData(*dps,nrlogs) )
 	    return false;
     }
 
     dps->setName( dpsnm );
     uiDataPointSet* dlg = new uiDataPointSet( this, *dps,
 			uiDataPointSet::Setup("Attribute data") );
+    dlg->setGroupType( "well" );
+    dlg->setGroupNames( wellnms );
     return dlg->go() ? true : false;
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.15 2008-05-28 09:52:47 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.16 2008-05-28 15:09:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,6 +35,7 @@ ________________________________________________________________________
 #include "uitoolbar.h"
 #include "uiioobjsel.h"
 #include "uifileinput.h"
+#include "uistatusbar.h"
 #include "uimsg.h"
 
 static const int cNrPosCols = 3;
@@ -47,6 +48,7 @@ uiDataPointSet::Setup::Setup( const char* wintitl, bool ismodal )
     , initialmaxnrlines_(4000)
 {
     modal_ = ismodal;
+    nrstatusflds_ = 1;
 }
 
 
@@ -98,6 +100,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     tbl_->attach( ensureBelow, titllbl );
     tbl_->valueChanged.notify( mCB(this,uiDataPointSet,valChg) );
     tbl_->rowClicked.notify( mCB(this,uiDataPointSet,rowSel) );
+    tbl_->selectionChanged.notify( mCB(this,uiDataPointSet,selChg) );
     tbl_->setTableReadOnly( setup_.isconst_ );
 
     setPrefWidth( 800 ); setPrefHeight( 600 );
@@ -407,6 +410,29 @@ void uiDataPointSet::rowSel( CallBacker* cb )
 {
     mCBCapsuleUnpack(int,trid,cb);
     setStatsMarker( dRowID(trid) );
+    handleGroupChg( dRowID(trid) );
+}
+
+
+void uiDataPointSet::selChg( CallBacker* )
+{
+    const RowCol rc( tbl_->notifiedCell() );
+    handleGroupChg( dRowID(rc.r()) );
+}
+
+
+void uiDataPointSet::handleGroupChg( uiDataPointSet::DRowID drid )
+{
+    const int grp = dps_.group( drid );
+    if ( grp < 1 ) return;
+    const char* grpnm = groupName( grp );
+    if ( grpnm && *grpnm )
+    {
+	BufferString txt( grptype_ );
+	if ( !txt.isEmpty() ) txt += ": ";
+	txt += grpnm;
+	statusBar()->message( txt, 0 );
+    }
 }
 
 
@@ -725,6 +751,14 @@ void uiDataPointSet::setSortCol( CallBacker* )
 	redoAll();
 	setCurrent( dColID(sortcol_), drid );
     }
+}
+
+
+const char* uiDataPointSet::groupName( int idx ) const
+{
+    if ( idx < 1 || idx > grpnames_.size() )
+	return "";
+    return grpnames_.get( idx-1 );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          June 2005
- RCS:           $Id: uiwellattribxplot.h,v 1.3 2008-04-22 16:20:04 cvsbert Exp $
+ RCS:           $Id: uiwellattribxplot.h,v 1.4 2008-05-28 15:09:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ protected:
     bool		extractWellData(const BufferStringSet&,
 	    				const BufferStringSet&,
 					ObjectSet<DataPointSet>&);
-    bool		extractAttribData(DataPointSet&);
+    bool		extractAttribData(DataPointSet&,int);
 
     void		initWin(CallBacker*);
 

@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.10 2008-05-13 13:57:15 cvsbert Exp $
+ RCS:           $Id: uidatapointset.h,v 1.11 2008-05-28 15:09:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 #include "datapointset.h"
-#include "rowcol.h"
+#include "bufstringset.h"
 #include "iopar.h"
 class uiTable;
 class uiSpinBox;
@@ -90,6 +90,15 @@ public:
     void			setCurrent(DColID,DRowID);
     void			setCurrent(const DataPointSet::Pos&,DColID);
 
+    				// Note that groups start at 1!
+				// Thus bss.get(0) => group 1.
+    void			setGroupNames( 	const BufferStringSet& bss )
+							{ grpnames_ = bss; }
+    const BufferStringSet&	groupNames() const	{ return grpnames_; }
+    const char*			groupName(int) const;
+    void			setGroupType( const char* nm )
+							{ grptype_ = nm; }
+
 protected:
 
     DataPointSet&		dps_;
@@ -97,6 +106,8 @@ protected:
     float			zfac_;
     BufferString		zunitnm_;
     IOPar			storepars_;
+    BufferStringSet		grpnames_;
+    BufferString		grptype_;
 
     TypeSet<DRowID>		drowids_;
     TypeSet<TRowID>		trowids_;	//!< often -1
@@ -148,6 +159,7 @@ protected:
     void			colStepL(CallBacker*);
     void			colStepR(CallBacker*);
     void			rowSel(CallBacker*);
+    void			selChg(CallBacker*);
     void			valChg(CallBacker*);
     void			eachChg(CallBacker*);
     void			toggleXYZ(CallBacker*);
@@ -175,6 +187,7 @@ protected:
     bool			isDisp(bool) const;
     void			handleSelRows();
     void			setStatsMarker(DRowID);
+    void			handleGroupChg(DRowID);
 
 private:
 
