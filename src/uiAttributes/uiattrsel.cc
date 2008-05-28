@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.27 2008-02-19 08:03:41 cvshelene Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.28 2008-05-28 12:10:08 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -280,6 +280,8 @@ void uiAttrSelDlg::filtChg( CallBacker* c )
 
 void uiAttrSelDlg::cubeSel( CallBacker* c )
 {
+    if ( !storoutfld_ ) return;
+
     const int seltyp = selType();
     if ( seltyp )
     {
@@ -287,7 +289,7 @@ void uiAttrSelDlg::cubeSel( CallBacker* c )
 	return;
     }
 
-    int selidx = storoutfld_->currentItem();
+    int selidx = storoutfld_ ? storoutfld_->currentItem() : -1;
     bool is2d = false;
     BufferString ioobjkey;
     if ( selidx >= 0 )
@@ -318,7 +320,7 @@ bool uiAttrSelDlg::getAttrData( bool needattrmatch )
     if ( seltyp==1 )		selidx = attroutfld_->currentItem();
     else if ( seltyp==2 )	selidx = nlaoutfld_->currentItem();
     else if ( seltyp==3 )	selidx = zdomoutfld_->currentItem();
-    else			selidx = storoutfld_->currentItem();
+    else if ( storoutfld_ )	selidx = storoutfld_->currentItem();
     if ( selidx < 0 )
 	return false;
 
