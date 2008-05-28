@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uistatsdisplay.cc,v 1.12 2008-04-02 10:57:08 cvsbert Exp $
+ RCS:           $Id: uistatsdisplay.cc,v 1.13 2008-05-28 07:18:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
     if ( setup_.withplot_ )
     {
 	uiFunctionDisplay::Setup fsu;
-	fsu.yrg_.start = 0; fsu.annoty( false ).fillbelow( true );
+	fsu.yrg_.start = 0; fsu.annoty( setup_.vertaxis_ ).fillbelow( true );
 	funcdisp_ = new uiFunctionDisplay( this, fsu );
     }
 

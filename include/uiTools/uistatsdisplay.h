@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra / Bert
  Date:          Aug 2007
- RCS:           $Id: uistatsdisplay.h,v 1.7 2008-04-02 10:57:08 cvsbert Exp $
+ RCS:           $Id: uistatsdisplay.h,v 1.8 2008-05-28 07:18:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,10 +29,12 @@ public:
 				Setup()
 				    : withplot_(true)
 				    , withtext_(true)
-				    , countinplot_(true)	{}
+				    , vertaxis_(true)
+				    , countinplot_(false)	{}
 
 	mDefSetupMemb(bool,withplot)
 	mDefSetupMemb(bool,withtext)
+	mDefSetupMemb(bool,vertaxis)
 	mDefSetupMemb(bool,countinplot)
     };
 				uiStatsDisplay(uiParent*,const Setup&);
