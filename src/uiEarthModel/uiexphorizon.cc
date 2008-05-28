@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.52 2008-03-14 14:35:45 cvskris Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.53 2008-05-28 12:08:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,6 +42,8 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
 	: uiDialog(p,uiDialog::Setup("Export Horizon",
 				     "Specify output format","104.0.1"))
 {
+    setCtrlStyle( DoAndStay );
+
     infld = new uiSurfaceRead( this, EMHorizon3DTranslatorGroup::keyword );
     infld->attrSelChange.notify( mCB(this,uiExportHorizon,attrSel) );
 
@@ -285,7 +287,8 @@ bool uiExportHorizon::acceptOK( CallBacker* )
 			!uiMSG().askGoOn( "Output file exists. Continue?" ) )
 	return false;
 
-    return writeAscii();
+    writeAscii();
+    return false;
 }
 
 
