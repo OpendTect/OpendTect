@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.h,v 1.29 2008-04-04 15:31:37 cvshelene Exp $
+ RCS:           $Id: attribengman.h,v 1.30 2008-05-28 14:52:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,7 +101,7 @@ public:
     Processor*		getTableOutExecutor(DataPointSet& datapointset,
 	    				    BufferString& errmsg);
     Executor*		getTableExtractor(DataPointSet&,const Attrib::DescSet&,
-	    				  BufferString& errmsg);
+	    				  BufferString& errmsg,int firstcol =0);
     static bool		ensureDPSAndADSPrepared(DataPointSet&,
 	    					const Attrib::DescSet&,
 						BufferString&);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.84 2008-05-27 11:49:38 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.85 2008-05-28 14:52:38 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -849,7 +849,7 @@ int nextStep()
 
 Executor* EngineMan::getTableExtractor( DataPointSet& datapointset,
        					const Attrib::DescSet& descset,
-       					BufferString& errmsg )
+       					BufferString& errmsg, int firstcol )
 {
     if ( !ensureDPSAndADSPrepared( datapointset, descset, errmsg ) )
 	return 0;
