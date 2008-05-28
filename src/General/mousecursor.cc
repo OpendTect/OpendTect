@@ -4,7 +4,7 @@
  * DATE     : Mar 2008
 -*/
 
-static const char* rcsID = "$Id: mousecursor.cc,v 1.3 2008-03-21 15:00:08 cvskris Exp $";
+static const char* rcsID = "$Id: mousecursor.cc,v 1.4 2008-05-28 14:56:57 cvskris Exp $";
 
 #include "mousecursor.h"
 
@@ -69,4 +69,27 @@ MouseCursorManager* MouseCursorManager::mgr()
 void MouseCursorManager::setMgr( MouseCursorManager* mgr )
 {
     MouseCursorManager::mgr_ = mgr;
+}
+
+
+MouseCursorChanger::MouseCursorChanger(const char* fnm, int hotx, int hoty)
+    : active_( true )
+{
+    MouseCursorManager::setOverride(fnm,hotx,hoty);
+}
+
+
+MouseCursorChanger::MouseCursorChanger(MouseCursor::Shape cs)
+    : active_( true )
+{ MouseCursorManager::setOverride(cs); }
+
+
+MouseCursorChanger::~MouseCursorChanger()
+{ restore(); }
+
+
+void MouseCursorChanger::restore()
+{
+    if ( active_ ) MouseCursorManager::restoreOverride();
+    active_ = false;
 }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2008
- RCS:           $Id: mousecursor.h,v 1.3 2008-03-21 14:37:24 cvskris Exp $
+ RCS:           $Id: mousecursor.h,v 1.4 2008-05-28 14:56:57 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,11 +121,14 @@ protected:
 class MouseCursorChanger
 {
 public:
-		MouseCursorChanger(const char* fnm, int hotx, int hoty)
-		{ MouseCursorManager::setOverride(fnm,hotx,hoty); }
-		MouseCursorChanger(MouseCursor::Shape cs)
-		{ MouseCursorManager::setOverride(cs); }
-		~MouseCursorChanger() { MouseCursorManager::restoreOverride(); }
+		MouseCursorChanger(const char* fnm, int hotx, int hoty);
+		MouseCursorChanger(MouseCursor::Shape cs);
+		~MouseCursorChanger();
+
+    void	restore();
+
+protected:
+    bool	active_;
 };
 
 
