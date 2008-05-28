@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.6 2008-05-21 10:28:37 cvsbert Exp $";
+static const char* rcsID = "$Id: emsurfaceposprov.cc,v 1.7 2008-05-28 09:52:15 cvsbert Exp $";
 
 #include "emsurfaceposprov.h"
 
@@ -78,7 +78,8 @@ const char* Pos::EMSurfaceProvider::type() const
 }
 
 
-static void getSurfZRg( const EM::Surface& surf, Interval<float>& zrg )
+static void getSurfRanges( const EM::Surface& surf, HorSampling& hs,
+			   Interval<float>& zrg )
 {
     bool veryfirst = true;
     for ( int idx=0; idx<surf.nrSections(); idx++ )
@@ -87,16 +88,19 @@ static void getSurfZRg( const EM::Surface& surf, Interval<float>& zrg )
 	EM::PosID posid = it.next();
 	while ( posid.objectID() != -1 )
 	{
-	    Coord3 coord = surf.getPos( posid );
+	    const Coord3 coord = surf.getPos( posid );
+	    const BinID bid( SI().transform(coord) );
 	    if ( veryfirst )
 	    {
 		veryfirst = false;
+		hs.start = hs.stop = bid;
 		zrg.start = zrg.stop = coord.z;
 	    }
 	    else
 	    {
 		if ( coord.z < zrg.start ) zrg.start = coord.z;
 		if ( coord.z > zrg.stop ) zrg.stop = coord.z;
+		hs.include( bid );
 	    }
 	    posid = it.next();
 	}
@@ -108,19 +112,26 @@ bool Pos::EMSurfaceProvider::initialize( TaskRunner* tr )
 {
     if ( nrSurfaces() == 0 ) return false;
 
-    EM::EMObject* emobj = EM::EMM().loadIfNotFullyLoaded( id1_, tr );
+    EM::EMObject* emobj = EM::EMM().getObject( EM::EMM().getObjectID(id1_) );
+    if ( !emobj )
+	emobj = EM::EMM().loadIfNotFullyLoaded( id1_, tr );
     mDynamicCastGet(EM::Surface*,surf1,emobj)
     if ( !surf1 ) return false;
     surf1_ = surf1; surf1_->ref();
-    getSurfZRg( *surf1_, zrg1_ );
+
+    getSurfRanges( *surf1_, hs_, zrg1_ );
 
     if ( !id2_.isEmpty() )
     {
-	emobj = EM::EMM().loadIfNotFullyLoaded( id2_, tr );
+	emobj = EM::EMM().getObject( EM::EMM().getObjectID(id2_) );
+	if ( !emobj )
+	    emobj = EM::EMM().loadIfNotFullyLoaded( id2_, tr );
 	mDynamicCastGet(EM::Surface*,surf2,emobj)
 	if ( !surf2 ) return false;
 	surf2_ = surf2; surf2_->ref();
-	getSurfZRg( *surf2_, zrg2_ );
+	HorSampling hs( hs_ );
+	getSurfRanges( *surf2_, hs, zrg2_ );
+	hs_.limitTo( hs );
     }
 
     reset();
