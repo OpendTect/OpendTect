@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.14 2008-05-13 13:59:31 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.15 2008-05-28 09:52:47 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -496,10 +496,13 @@ void uiDataPointSet::xplotRemReq( CallBacker* )
 {
     int drid, dcid; getXplotPos( dcid, drid );
     if ( drid < 0 ) return;
+
     dps_.setInactive( drid, true );
     const TRowID trid = tRowID( drid );
     if ( trid >= 0 )
 	redoAll();
+
+    delete runcalcs_.replace( dcid, 0 );
 }
 
 
@@ -575,8 +578,6 @@ Stats::RunCalc<float>& uiDataPointSet::getRunCalc(
     }
 
     return *rc;
-
-
 }
 
 
