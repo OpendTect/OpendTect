@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.6 2008-04-08 04:30:00 cvssatyaki Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.7 2008-05-28 08:27:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,7 +83,7 @@ public:
     const TypeSet<float>&	xVals() const	{ return xvals_; }
     const TypeSet<float>&	yVals() const	{ return yvals_; }
     uiAxisHandler*		xAxis()		{ return xax_; }
-    uiAxisHandler*		yAxis( bool y2 ) { return y2 ? yax_ : y2ax_; }
+    uiAxisHandler*		yAxis( bool y2) { return y2 ? y2ax_ : yax_; }
     Setup&			setup()		{ return setup_; }
 
     int				size() const	{ return xvals_.size(); }
