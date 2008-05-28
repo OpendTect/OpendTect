@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.h,v 1.3 2008-03-04 11:56:59 cvsbert Exp $
+ RCS:           $Id: uirgbarraycanvas.h,v 1.4 2008-05-28 06:31:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ class uiRGBArrayCanvas : public uiCanvas
 {
 public:
     			uiRGBArrayCanvas(uiParent*,uiRGBArray&);
+			~uiRGBArrayCanvas();
 
     void		setBorder(const uiBorder&);
     void		setBGColor(const Color&); //!< everything

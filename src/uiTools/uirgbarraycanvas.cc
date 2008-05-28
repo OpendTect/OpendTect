@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uirgbarraycanvas.cc,v 1.9 2008-04-04 04:29:05 cvsnanne Exp $
+ RCS:           $Id: uirgbarraycanvas.cc,v 1.10 2008-05-28 06:31:09 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -25,6 +25,12 @@ uiRGBArrayCanvas::uiRGBArrayCanvas( uiParent* p, uiRGBArray& a )
 	, pixmap_(0)
 {
     preDraw.notify( mCB(this,uiRGBArrayCanvas,beforeDraw) );
+}
+
+
+uiRGBArrayCanvas::~uiRGBArrayCanvas()
+{
+    delete pixmap_;
 }
 
 
