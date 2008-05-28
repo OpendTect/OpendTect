@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Mar 2002
- RCS:           $Id: vishingeline.cc,v 1.17 2008-02-20 21:21:37 cvskris Exp $
+ RCS:           $Id: vishingeline.cc,v 1.18 2008-05-28 15:13:37 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,7 @@ EdgeLineSetDisplay::~EdgeLineSetDisplay()
 void EdgeLineSetDisplay::setRadius( float nr )
 {
     for ( int idx=0; idx<polylines.size(); idx++ )
-	polylines[idx]->setRadius(nr);
+	polylines[idx]->setRadius(nr, true, 40 );
 }
 
 
@@ -168,6 +168,7 @@ void EdgeLineSetDisplay::updateEdgeLineSetChangeCB(CallBacker*)
 		    visBase::Shape::cPerVertexMaterialBinding() );
 	    polylinesegments += new TypeSet<int>;
 	    polylinesegmentpos += new TypeSet<int>;
+	    polyline->setRadius( getRadius(), true, 40 );
 	}
 
 	visBase::IndexedPolyLine3D* polyline = polylines[lineidx];
