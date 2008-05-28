@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.48 2008-05-27 20:40:43 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.49 2008-05-28 15:00:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -1414,8 +1414,9 @@ void HorizonDisplay::updateIntersectionLines(
 
 	    if ( do3d )
 	    {
-		((visBase::IndexedPolyLine3D* ) newline)->setRadius(
-		    lineStyle()->width_, true, maxintersectionlinethickness_ );
+		const float radius = ((float) lineStyle()->width_) / 2;
+		((visBase::IndexedPolyLine3D* ) newline)->setRadius( radius,
+		    true, maxintersectionlinethickness_ );
 	    }
 
 	    newline->setRightHandSystem( righthandsystem_ );
@@ -1509,9 +1510,9 @@ void HorizonDisplay::setLineStyle( const LineStyle& lst )
 
 	    if ( lst.type_==LineStyle::Solid )
 	    {
+		const float radius = ((float) lineStyle()->width_) / 2;
 		((visBase::IndexedPolyLine3D* ) newline )->
-		    setRadius( lineStyle()->width_, true,
-			       maxintersectionlinethickness_ );
+		    setRadius( radius, true, maxintersectionlinethickness_ );
 	    }
 	}
     }
@@ -1519,9 +1520,10 @@ void HorizonDisplay::setLineStyle( const LineStyle& lst )
     {
 	for ( int idx=0; idx<intersectionlines_.size(); idx++ )
 	{
+	    const float radius = ((float) lineStyle()->width_) / 2;
 	    visBase::IndexedPolyLine3D* pl =
 		(visBase::IndexedPolyLine3D*) intersectionlines_[idx];
-	    pl->setRadius( lineStyle()->width_, true, maxintersectionlinethickness_ );
+	    pl->setRadius( radius, true, maxintersectionlinethickness_ );
 	}
     }
 }
