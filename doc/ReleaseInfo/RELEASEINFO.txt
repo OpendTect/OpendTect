@@ -1,10 +1,10 @@
-Opendtect 3.1.6 release info
+Opendtect 3.2 release info
 
 Build platforms/distributions:
 
 Linux 32: Fedora Core 3
 Linux 64: CentOS 4.5 (CentOS is a RH-clone)
-Mac:	  Mac OS X 10.4 (Tiger)
+Mac:	  Mac OS X 10.5.2 (Leopard, Intel)
 Solaris:  SunOS 5.8
 Windows:  CYGWIN_NT-5.0
 
@@ -22,8 +22,8 @@ SoQt 1.4.2a
 simage 1.6.2a
 SIMVoleon 2.0.2a
 
-Qt: 4.3.2
+Qt: 4.3.4
 
 FFTW: 3.0.1
 
-# $Id: RELEASEINFO.txt,v 1.1 2007-12-21 08:48:51 cvsnanne Exp $
+# $Id: RELEASEINFO.txt,v 1.2 2008-05-28 07:06:17 cvsnanne Exp $
