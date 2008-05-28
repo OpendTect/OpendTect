@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.cc,v 1.7 2008-03-29 11:20:44 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.cc,v 1.8 2008-05-28 10:46:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -279,10 +279,14 @@ void uiAxisHandler::drawName() const
     else
     {
 	const bool isleft = setup_.side_ == uiRect::Left;
-	const int y = 2;
-	const int x = isleft ? pixToEdge() : dt_.getDevWidth()-pixToEdge()-1;
-	const Alignment al( isleft ? Alignment::Start : Alignment::Stop,
-	       		    Alignment::Start );
-	dt_.drawText( x, y, name(), al );
+	const int x = isleft ? 2 : dt_.getDevWidth()-3;
+	const int y = dt_.getDevHeight() / 2;
+	const Alignment al( Alignment::Middle, isleft ? Alignment::Start
+						      : Alignment::Stop);
+	dt_.translate( x, y );
+	dt_.rotate( -90 );
+	dt_.drawText( 0, 0, name(), al );
+	dt_.rotate( 90 );
+	dt_.translate( -x, -y );
     }
 }
