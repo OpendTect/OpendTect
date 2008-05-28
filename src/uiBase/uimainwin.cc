@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.144 2008-05-12 05:33:45 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.145 2008-05-28 11:06:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -1252,6 +1252,7 @@ uiDialog::uiDialog( uiParent* p, const uiDialog::Setup& s )
     cw->setStretch( 2, 2 );
     mBody->setDlgGrp( cw );
     setTitleText( s.dlgtitle_ );
+    ctrlstyle_ = DoAndLeave;
 }
 
 
@@ -1272,6 +1273,8 @@ void uiDialog::setCtrlStyle( uiDialog::CtrlStyle cs )
 	setCancelText( "&Dismiss" );
     break;
     }
+
+    ctrlstyle_ = cs;
 }
 
 
