@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.7 2008-05-16 16:03:29 cvskris Exp $
+RCS:           $Id: indexedshape.h,v 1.8 2008-05-28 19:15:36 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,21 +42,21 @@ public:
     bool	isEmpty() const;
 
 
-    Threads::Mutex	lock_;
+    mutable Threads::Mutex	lock_;
 
-    Type		type_;
-    NormalBinding	normalbinding_;
+    Type			type_;
+    NormalBinding		normalbinding_;
 
-    TypeSet<int>	coordindices_;
-    TypeSet<int>	texturecoordindices_;
-    TypeSet<int>	normalindices_;
+    TypeSet<int>		coordindices_;
+    TypeSet<int>		texturecoordindices_;
+    TypeSet<int>		normalindices_;
 
-    mutable bool	ischanged_;
+    mutable bool		ischanged_;
 
 protected:
-    Coord3List*		coordlist_;
-    Coord3List*		texturecoordlist_;
-    Coord3List*		normallist_;
+    Coord3List*			coordlist_;
+    Coord3List*			texturecoordlist_;
+    Coord3List*			normallist_;
 };
 
 
@@ -78,6 +78,9 @@ public:
     virtual void	removeAll();
 
     const ObjectSet<IndexedGeometry>&	getGeometry() const;
+
+    const Coord3List*		coordList() const 	{ return coordlist_; }
+    Coord3List*			coordList()	 	{ return coordlist_; }
 
 protected:
     				IndexedShape();
