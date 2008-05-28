@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.64 2008-05-28 08:15:31 cvsnanne Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.65 2008-05-28 11:07:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -368,7 +368,8 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
     if ( !issing && !redo_ && !writeProcFile(*iop,inpfnm) )
 	return false;
 
-    return issing ? singLaunch( *iop, inpfnm ) : multiLaunch( inpfnm );
+    bool res = issing ? singLaunch( *iop, inpfnm ) : multiLaunch( inpfnm );
+    return ctrlstyle_ == DoAndStay ? false : res; 
 }
 
 
