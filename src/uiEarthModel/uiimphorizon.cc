@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimphorizon.cc,v 1.105 2008-05-21 08:53:31 cvsnanne Exp $
+ RCS:           $Id: uiimphorizon.cc,v 1.106 2008-05-28 14:44:46 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,7 +136,7 @@ uiImportHorizon::uiImportHorizon( uiParent* p, bool isgeom )
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, attrlistfld_ );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, "100.0.0" );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, "104.0.8" );
     dataselfld_->attach( alignedBelow, attrlistfld_ );
     dataselfld_->attach( ensureBelow, sep );
     dataselfld_->descChanged.notify( mCB(this,uiImportHorizon,descChg) );

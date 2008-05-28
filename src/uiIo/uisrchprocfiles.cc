@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Feb 2006
- RCS:           $Id: uisrchprocfiles.cc,v 1.6 2007-09-06 18:46:43 cvskris Exp $
+ RCS:           $Id: uisrchprocfiles.cc,v 1.7 2008-05-28 14:44:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,7 +29,7 @@ ________________________________________________________________________
 uiSrchProcFiles::uiSrchProcFiles( uiParent* p, CtxtIOObj& c, const char* iopky )
     : uiDialog(p,uiDialog::Setup("Find job specification file",
 			       "Select appropriate job specification file",
-				 "0.4.4").nrstatusflds(1))
+				 "0.4.3").nrstatusflds(1))
     , ctio_(c)
     , iopkey_(iopky)
 {

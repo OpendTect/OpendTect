@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.31 2008-05-05 05:42:29 cvsnageswara Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.32 2008-05-28 14:44:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,7 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
 	uiSeparator* sep = new uiSeparator( this, "H sep" );
 	sep->attach( stretchedBelow, constzfld_ );
 
-	dataselfld_ = new uiTableImpDataSel( this, fd_, "100.0.0" );
+	dataselfld_ = new uiTableImpDataSel( this, fd_, "105.0.5" );
 	dataselfld_->attach( alignedBelow, constzfld_ );
 	dataselfld_->attach( ensureBelow, sep );
 

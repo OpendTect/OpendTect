@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uinlapartserv.cc,v 1.54 2008-05-22 14:09:42 cvsbert Exp $
+ RCS:           $Id: uinlapartserv.cc,v 1.55 2008-05-28 14:44:47 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,7 +123,7 @@ class uiPrepNLAData : public uiDialog
 public:
 
 uiPrepNLAData( uiParent* p, const DataPointSet& dps )
-    : uiDialog(p,uiDialog::Setup("Data preparation",gtTitle(dps),"0.4.3"))
+    : uiDialog(p,uiDialog::Setup("Data preparation",gtTitle(dps),"dgb:102.2.3"))
     , statsfld_(0)
 {
     const BinIDValueSet& bvs = dps.dataSet().data();
@@ -270,7 +270,7 @@ uiLithCodeMan( uiParent* p, const TypeSet<int>& codes, BufferStringSet& usels,
        		const char* lognm )
     	: uiDialog(p,uiDialog::Setup("Manage codes",
 				     "Specify how to handle codes",
-				     "0.4.6"))
+				     "dgb:102.2.2"))
 	, usrsels(usels)
 {
     BufferStringSet opts;

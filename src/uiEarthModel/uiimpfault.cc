@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2002
- RCS:           $Id: uiimpfault.cc,v 1.24 2008-05-23 11:20:16 cvsnanne Exp $
+ RCS:           $Id: uiimpfault.cc,v 1.25 2008-05-28 14:44:46 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ uiImportFault::uiImportFault( uiParent* p )
 		IOObjContext::getDataDirName(IOObjContext::Surf) );
     formatfld_->attach( alignedBelow, typefld_ );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, "100.0.0" );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, "104.1.2" );
     dataselfld_->attach( alignedBelow, typefld_ );
 
     ctio_.ctxt.forread = false;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.29 2008-05-15 18:36:03 cvsyuancheng Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.30 2008-05-28 14:44:46 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -677,7 +677,7 @@ uiFlatViewPropDlg::uiFlatViewPropDlg( uiParent* p, FlatView::Viewer& vwr,
        				      int selannot, bool withwva )
     : uiTabStackDlg(p,uiDialog::Setup("Display properties",
 				      "Specify display properties",
-				      "51.0.0"))
+				      "51.0.1"))
     , vwr_(vwr)
     , applycb_(applcb)
     , selannot_(selannot)
