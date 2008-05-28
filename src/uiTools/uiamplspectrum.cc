@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:          September 2007
- RCS:           $Id: uiamplspectrum.cc,v 1.5 2008-04-18 11:06:58 cvsnanne Exp $
+ RCS:           $Id: uiamplspectrum.cc,v 1.6 2008-05-28 12:38:52 cvsnanne Exp $
 _______________________________________________________________________
                    
 -*/   
@@ -31,10 +31,11 @@ uiAmplSpectrum::uiAmplSpectrum( uiParent* p )
     , fft_(0)
 {
     uiFunctionDisplay::Setup su;
-    su.annoty(false).fillbelow(true).canvaswidth(600).canvasheight(400);
+    su.fillbelow(true).canvaswidth(600).canvasheight(400);
     disp_ = new uiFunctionDisplay( this, su );
     disp_->xAxis()->setName( SI().zIsTime() ? "Frequency (Hz)" 
 	    				    : "Wavenumber (/m)" );
+    disp_->yAxis(false)->setName( "Power (dB)" );
 }
 
 
@@ -148,7 +149,7 @@ void uiAmplSpectrum::putDispData()
     const int fftsz = freqdomainsum_->info().getSize(0) / 2;
     TypeSet<float> vals( fftsz, 0 );
     for ( int idx=0; idx<fftsz; idx++ )
-	vals[idx] = abs(freqdomainsum_->get(idx)) / nrtrcs_;
+	vals[idx] = 20 * Math::Log10( abs(freqdomainsum_->get(idx)) / nrtrcs_ );
 
     const float maxfreq = mNINT( fft_->getNyqvist( SI().zStep() ) );
     disp_->setVals( Interval<float>(0,maxfreq), vals.arr(), fftsz );
