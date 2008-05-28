@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.29 2008-04-09 11:10:09 cvsnanne Exp $
+ RCS:           $Id: iodrawtool.h,v 1.30 2008-05-28 08:26:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,8 @@ public:
     Color		backgroundColor() const;
     void		setBackgroundColor(const Color&);
     void		clear(const uiRect* r=0,const Color* c=0);
+    void		translate(float dx,float dy);
+    void		rotate(float angle);
 
     void		setLineStyle(const LineStyle&);
     void		setPenColor(const Color&);

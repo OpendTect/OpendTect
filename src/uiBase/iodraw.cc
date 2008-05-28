@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.41 2008-04-15 10:33:39 cvsnanne Exp $
+ RCS:           $Id: iodraw.cc,v 1.42 2008-05-28 08:26:29 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,20 @@ ioDrawTool::~ioDrawTool()
 	delete qpainter_;
 
     delete &qpen_;
+}
+
+
+void ioDrawTool::translate( float dx, float dy )
+{
+    preparePainter();
+    qpainter_->translate( dx, dy );
+}
+
+
+void ioDrawTool::rotate( float angle )
+{
+    preparePainter();
+    qpainter_->rotate( angle );
 }
 
 
