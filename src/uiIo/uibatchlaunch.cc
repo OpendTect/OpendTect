@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.63 2008-05-26 11:41:39 cvsbert Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.64 2008-05-28 08:15:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -327,11 +327,6 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 		"\nPlease select another file, or make sure file is writable.");
 	    uiMSG().error( msg );
 	    return false;
-	}
-	else
-	{
-	    if ( !uiMSG().askGoOn("Overwrite existing specification file?") )
-		return false;
 	}
     }
 
