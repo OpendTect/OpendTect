@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink/A.H. Bril
  Date:          Aug 2000/Oct 2001
- RCS:           $Id: uitaskrunner.cc,v 1.3 2008-03-27 11:26:25 cvsbert Exp $
+ RCS:           $Id: uitaskrunner.cc,v 1.4 2008-05-28 12:31:54 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ uiTaskRunner::uiTaskRunner( uiParent* p )
     , execnm_("")
     , statemutex_( *new Threads::Mutex )
 {
-    progbar_ = new uiProgressBar( this, "", 0, 0 );
+    progbar_ = new uiProgressBar( this, "ProgressBar", 0, 0 );
     progbar_->setPrefWidthInChar( 50 );
 
     tim_.tick.notify( mCB( this, uiTaskRunner, timerTick ) );
