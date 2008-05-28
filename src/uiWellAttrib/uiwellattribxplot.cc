@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uiwellattribxplot.cc,v 1.13 2008-05-27 15:47:36 cvsbert Exp $
+ RCS:           $Id: uiwellattribxplot.cc,v 1.14 2008-05-28 12:10:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -117,6 +117,7 @@ void uiWellAttribCrossPlot::initWin( CallBacker* )
     if ( !tr.execute(wic) ) return;
 
     BufferStringSet markernms, lognms;
+    markernms.add( Well::TrackSampler::sKeyDataStart );
     for ( int iid=0; iid<wic.ids().size(); iid++ )
     {
 	IOObj* ioobj = IOM().get( *wic.ids()[iid] );
@@ -131,8 +132,6 @@ void uiWellAttribCrossPlot::initWin( CallBacker* )
 	for ( int imrk=0; imrk<mrkrs.size(); imrk++ )
 	    markernms.addIfNew( mrkrs[imrk]->name() );
     }
-    markernms.sort();
-    markernms.insertAt( new BufferString(Well::TrackSampler::sKeyDataStart), 0);
     markernms.add( Well::TrackSampler::sKeyDataEnd );
 
     for ( int idx=0; idx<lognms.size(); idx++ )
