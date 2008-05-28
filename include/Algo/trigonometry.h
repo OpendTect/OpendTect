@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.20 2008-04-18 16:47:09 cvsyuancheng Exp $
+ RCS:		$Id: trigonometry.h,v 1.21 2008-05-28 19:18:59 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 
 template <class T> class TypeSet;
 template <class T> class ObjectSet;
+class Plane3;
 
 /*!\brief
 Here are some commonly used functions to judge the position relation between 
@@ -150,28 +151,33 @@ class Line3
 {
 public:			
     			Line3();
-    			Line3(	float x0, float y0, float z0,
-				float alpha, float beta, float gamma );
+    			Line3(	double x0, double y0, double z0,
+				double alpha, double beta, double gamma );
     			Line3( const Coord3&, const Vector3& );
 
     Vector3		direction() const
     			{
-			    Vector3 res( alpha, beta, gamma );
-			    res.normalize(); 
-			    return res;
+			    const Vector3 res( alpha_, beta_, gamma_ );
+			    return res.normalize();
 			}
+
+    Coord3		getPoint(double t) const;
+    bool		intersectWith( const Plane3&, double& t ) const;
+    			/*!<Calculates the intersection between the line
+			    and the plane. If success, it sets t. */
+    			
  
-    float               distanceToPoint( const Coord3& point ) const;
+    double		distanceToPoint( const Coord3& point ) const;
     Coord3		closestPoint( const Coord3& point ) const;
     			/*!<\returns the point on the line that is closest to
 			 	     the given point */
  
-    float		x0;
-    float		y0;
-    float		z0;
-    float		alpha;
-    float		beta;
-    float		gamma;
+    double		x0_;
+    double		y0_;
+    double		z0_;
+    double		alpha_;
+    double		beta_;
+    double		gamma_;
 };
 
 /*!\brief
@@ -188,7 +194,7 @@ class Plane3
 {
 public:
 			Plane3();
-			Plane3(float, float, float, float);
+			Plane3(double, double, double, double);
 			Plane3( const Coord3& vectors, const Coord3&,
 				bool twovectors );
 			/*!<\param twovectors	Specifies if the second argument
@@ -212,9 +218,9 @@ public:
     bool		operator==(const Plane3&) const;
     bool		operator!=(const Plane3&) const;
 
-    Coord3		normal() const { return Coord3( A, B, C ); }
+    Coord3		normal() const { return Coord3( A_, B_, C_ ); }
  
-    float               distanceToPoint( const Coord3&,
+    double		distanceToPoint( const Coord3&,
 	    				bool wichside=false ) const;
     			/*!<\param wichside if true, the distance along the
 			  	   normal will be returned, wich can be
@@ -227,10 +233,48 @@ public:
     			/*!< Returns true if the planes intersects.
 			     If it returns true, the Line3 is set */
 
-    float		A;
-    float		B;
-    float		C;
-    float		D;
+    double		A_;
+    double		B_;
+    double		C_;
+    double		D_;
+};
+
+
+/*!Defines a 2D coordinate system on a 3D plane, and transforms between the
+   3D space and the coordiante system. */
+
+
+class Plane3CoordSystem
+{
+public:
+    			Plane3CoordSystem(const Coord3& normal,
+					  const Coord3& origin,
+				          const Coord3& pt10);
+			/*!<\param normal The normal of the plane
+			    \param origin A point on the plane
+			    \param pt10   A point on the plane, not identical
+			    		  to origin. */
+    virtual 		~Plane3CoordSystem() {}
+    bool		isOK() const;
+    			/*!<\returns false if two identical points were given
+			             in the constructor. */
+
+    const Plane3&	plane() const { return plane_; }
+
+    Coord		transform(const Coord3&,bool project) const;
+    			/*!<\param project should be true if the coord is
+			           not located on the plane. If true, the
+				   point will be projected onto the plane. */
+			
+    Coord3		transform(const Coord&) const;
+
+protected:
+
+    const Plane3	plane_;
+    const Coord3	origin_;
+    Coord3		vec10_;
+    Coord3		vec01_;
+    bool		isok_;
 };
 
 

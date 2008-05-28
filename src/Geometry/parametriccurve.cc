@@ -4,7 +4,7 @@
  * DATE     : Dec 2004
 -*/
 
-static const char* rcsID = "$Id: parametriccurve.cc,v 1.9 2007-01-29 20:36:34 cvskris Exp $";
+static const char* rcsID = "$Id: parametriccurve.cc,v 1.10 2008-05-28 19:18:59 cvskris Exp $";
 
 #include "parametriccurve.h"
 
@@ -85,7 +85,7 @@ bool ParametricCurve::findClosestIntersection( float& p, const Plane3& plane,
 	{
 	    const Coord3 pos = getPosition(idx);
 	    const float dist =
-		plane.A*pos.x+plane.B*pos.y+plane.C*pos.z+plane.D;
+		plane.A_*pos.x+plane.B_*pos.y+plane.C_*pos.z+plane.D_;
 	    if ( fabs(dist)<closestdist )
 	    {
 		closestdist = dist;
@@ -98,10 +98,10 @@ bool ParametricCurve::findClosestIntersection( float& p, const Plane3& plane,
     for ( int idx=0; idx<20; idx++ )
     {
 	const Coord3 pos = computePosition(p);
-	float fp = plane.A*pos.x+plane.B*pos.y+plane.C*pos.z+plane.D;
+	float fp = plane.A_*pos.x+plane.B_*pos.y+plane.C_*pos.z+plane.D_;
 
 	const Coord3 dir = computeTangent(p);
-	float dp = plane.A*dir.x+plane.B*dir.y+plane.C*dir.z+plane.D;
+	float dp = plane.A_*dir.x+plane.B_*dir.y+plane.C_*dir.z+plane.D_;
 
 	const float diff = dp/fp;
 	p = p - diff;

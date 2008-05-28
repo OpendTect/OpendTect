@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.22 2007-01-29 20:36:34 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.23 2008-05-28 19:18:59 cvskris Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -120,8 +120,8 @@ Coord3 CubicBezierSurfacePatch::computeNormal( float u, float v ) const
 bool CubicBezierSurfacePatch::intersectWithLine( const Line3& line,
 				float& u, float& v, float eps ) const
 {
-    const Coord3 linepoint(line.x0, line.y0, line.z0 );
-    const Coord3 linedir( line.alpha, line.beta, line.gamma );
+    const Coord3 linepoint(line.x0_, line.y0_, line.z0_ );
+    const Coord3 linedir( line.alpha_, line.beta_, line.gamma_ );
     for ( int idx=0; idx<20; idx++ )
     {
 	const Coord3 currentpos = computePos(u,v);
@@ -300,8 +300,8 @@ bool CubicBezierSurface::intersectWithLine(const Line3& line, Coord& res) const
 
 		patch = dummypatch;
 
-		intersectionline.z0 *= zfactor;
-		intersectionline.gamma *= zfactor;
+		intersectionline.z0_ *= zfactor;
+		intersectionline.gamma_ *= zfactor;
 	    }
 
 	    float u = res.x;

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.33 2008-01-15 16:19:43 cvsbert Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.34 2008-05-28 19:18:59 cvskris Exp $";
 
 #include "trigonometry.h"
 
@@ -210,31 +210,31 @@ Quaternion Quaternion::inverse() const
 
 Line3::Line3() {}
 
-Line3::Line3( float _x0, float _y0, float _z0, float _alpha, float _beta,
-	      float _gamma )
-    : x0( _x0 )
-    , y0( _y0 )
-    , z0( _z0 )
-    , alpha( _alpha )
-    , beta( _beta )
-    , gamma( _gamma )
+Line3::Line3( double x0, double y0, double z0, double alpha, double beta,
+	      double gamma )
+    : x0_( x0 )
+    , y0_( y0 )
+    , z0_( z0 )
+    , alpha_( alpha )
+    , beta_( beta )
+    , gamma_( gamma )
 {}
 
 
 Line3::Line3( const Coord3& point, const Vector3& vector )
-    : x0( point.x )
-    , y0( point.y )
-    , z0( point.z )
-    , alpha( vector.x )
-    , beta(vector.y )
-    , gamma( vector.z )
+    : x0_( point.x )
+    , y0_( point.y )
+    , z0_( point.z )
+    , alpha_( vector.x )
+    , beta_(vector.y )
+    , gamma_( vector.z )
 {}
 
 
-float Line3::distanceToPoint( const Coord3& point ) const
+double Line3::distanceToPoint( const Coord3& point ) const
 {
-   Vector3 p0p1( point.x - x0, point.y - y0, point.z - z0 );
-   Vector3 v( alpha, beta, gamma );
+   const Vector3 p0p1( point.x - x0_, point.y - y0_, point.z - z0_ );
+   const Vector3 v( alpha_, beta_, gamma_ );
 
    return v.cross( p0p1 ).abs() / v.abs();
 }
@@ -270,20 +270,38 @@ B = dir/|dir| * dir.AC / |dir|
 
 Coord3 Line3::closestPoint( const Coord3& point ) const
 {
-    Coord3 AC( point.x - x0, point.y - y0, point.z - z0 );
+    const Coord3 AC( point.x - x0_, point.y - y0_, point.z - z0_ );
     Coord3 dir = direction(); 
     return dir*dir.dot(AC);
+}
+
+
+bool Line3::intersectWith( const Plane3& b, double& t ) const
+{
+    const double denominator = ( alpha_*b.A_ + beta_*b.B_ + gamma_*b.C_ );
+    if ( mIsZero(denominator,mDefEps) )
+	return false;
+
+    t = -( b.A_*x0_ + b.B_*y0_ + b.C_*z0_ + b.D_ ) / denominator;
+
+    return true;
+}
+
+
+Coord3 Line3::getPoint( double t ) const
+{
+    return Coord3( x0_+alpha_*t, y0_+beta_*t, z0_+gamma_*t ); 
 }
 
 
 Plane3::Plane3() {}
 
 							     
-Plane3::Plane3( float A_, float B_, float C_, float D_ )
-    : A( A_ )
-    , B( B_ )
-    , C( C_ )
-    , D( D_ )
+Plane3::Plane3( double A, double B, double C, double D )
+    : A_( A )
+    , B_( B )
+    , C_( C )
+    , D_( D )
 {}
 
 
@@ -310,17 +328,17 @@ void Plane3::set( const Vector3& norm, const Coord3& point, bool istwovec )
     if ( istwovec )
     {
 	Vector3 cross = point.cross( norm );
-	A = cross.x;
-	B = cross.y;
-	C = cross.z;
-	D = 0;
+	A_ = cross.x;
+	B_ = cross.y;
+	C_ = cross.z;
+	D_ = 0;
     }
     else
     {
-	A = norm.x;
-	B = norm.y;
-	C = norm.z;
-	D =  -(norm.x*point.x) - (norm.y*point.y) - ( norm.z*point.z );
+	A_ = norm.x;
+	B_ = norm.y;
+	C_ = norm.z;
+	D_ =  -(norm.x*point.x) - (norm.y*point.y) - ( norm.z*point.z );
     }
 }
 
@@ -332,10 +350,10 @@ void Plane3::set( const Coord3& a, const Coord3& b, const Coord3& c )
 
     Vector3 n = ab.cross( ac );
 
-    A = n.x;
-    B = n.y;
-    C = n.z;
-    D = A*(-a.x)  - B*a.y - C*a.z;
+    A_ = n.x;
+    B_ = n.y;
+    C_ = n.z;
+    D_ = A_*(-a.x)  - B_*a.y - C_*a.z;
 }
 
 
@@ -344,7 +362,7 @@ float Plane3::set( const TypeSet<Coord3>& pts )
     const int nrpts = pts.size();
     if ( nrpts<3 )
     {
-	A = 0; B=0; C=0; D=0;
+	A_ = 0; B_=0; C_=0; D_=0;
 	return 0;
     }
     if ( nrpts==3 )
@@ -394,11 +412,11 @@ bool Plane3::operator==(const Plane3& b ) const
 	return false;
     }
 
-    float cross = 1-a_vec.dot(b_vec);
+    const double cross = 1-a_vec.dot(b_vec);
 
     if ( !mIsZero(cross,mDefEps) ) return false;
 
-    const double ddiff = D/a_len - b.D/b_len;
+    const double ddiff = D_/a_len - b.D_/b_len;
 
     return mIsZero(ddiff,mDefEps);
 }
@@ -412,7 +430,7 @@ bool Plane3::operator!=(const Plane3& b ) const
 
 
 
-float Plane3::distanceToPoint( const Coord3& point, bool whichside ) const
+double Plane3::distanceToPoint( const Coord3& point, bool whichside ) const
 {
     Vector3 norm( normal().normalize() );
     const Line3 linetoplane( point, norm );
@@ -430,14 +448,11 @@ float Plane3::distanceToPoint( const Coord3& point, bool whichside ) const
 
 bool Plane3::intersectWith( const Line3& b, Coord3& res ) const
 {
-    const float denominator = ( b.alpha*A + b.beta*B + b.gamma*C );
-    if ( mIsZero(denominator,mDefEps) )
+    double t;
+    if ( !b.intersectWith( *this, t ) )
 	return false;
 
-    const float t = -( A*b.x0 + B*b.y0 + C*b.z0 + D ) / denominator;
-    
-    Coord3 intersect( b.x0+b.alpha*t, b.y0+b.beta*t, b.z0+b.gamma*t ); 
-    res = intersect;
+    res = b.getPoint( t );
 
     return true;
 }
@@ -445,26 +460,78 @@ bool Plane3::intersectWith( const Line3& b, Coord3& res ) const
 
 bool Plane3::intersectWith( const Plane3& b, Line3& res ) const
 {
-    const float detbc = B*b.C-b.C*B;
-    const float detca = C*b.A-b.C*A;
-    const float detab = A*b.B-b.A*B;
+    const double detbc = B_*b.C_-b.C_*B_;
+    const double detca = C_*b.A_-b.C_*A_;
+    const double detab = A_*b.B_-b.A_*B_;
 
     if ( mIsZero(detbc,mDefEps) && mIsZero(detca,mDefEps)
 	    && mIsZero(detab,mDefEps) ) return false; 
 
-    res.alpha = detbc; res.beta=detca; res.gamma=detab;
+    res.alpha_ = detbc; res.beta_=detca; res.gamma_=detab;
 
-    const float denumerator = detbc*detbc+detca*detca+detab*detab;
+    const double denumerator = detbc*detbc+detca*detca+detab*detab;
 
-    const float detdc = D*b.C-b.D*C;
-    const float detdb = D*b.B-b.D*B;
-    const float detda = D*b.A-b.D*A;
+    const double detdc = D_*b.C_-b.D_*C_;
+    const double detdb = D_*b.B_-b.D_*B_;
+    const double detda = D_*b.A_-b.D_*A_;
 
-    res.x0 = (res.beta*detdc-res.gamma*detdb)/denumerator;
-    res.y0 = (res.gamma*detda-res.alpha*detdc)/denumerator;
-    res.z0 = (res.alpha*detdb-res.beta*detda)/denumerator;
+    res.x0_ = (res.beta_*detdc-res.gamma_*detdb)/denumerator;
+    res.y0_ = (res.gamma_*detda-res.alpha_*detdc)/denumerator;
+    res.z0_ = (res.alpha_*detdb-res.beta_*detda)/denumerator;
 
     return true;
+}
+
+
+Plane3CoordSystem::Plane3CoordSystem(const Coord3& normal, const Coord3& origin,
+				     const Coord3& pt10)
+    : origin_( origin )
+    , plane_( normal, origin, false )
+{
+    vec10_ = pt10-origin;
+    const double vec10len = vec10_.abs();
+    isok_ = !mIsZero(vec10len, 1e-5 );
+    if ( isok_ )
+	vec10_ /= vec10len;
+
+    vec01_ = normal.cross( vec10_ ).normalize();
+}
+
+
+bool Plane3CoordSystem::isOK() const { return isok_; }
+
+
+Coord Plane3CoordSystem::transform( const Coord3& pt, bool project ) const
+{
+    if ( !isok_ )
+	return Coord3::udf();
+
+    Coord3 v0;
+    if ( project )
+    {
+	const Line3 line( pt, plane_.normal() );
+	plane_.intersectWith( line, v0 );
+	v0 -= origin_;
+    }
+    else
+	v0 = pt-origin_;
+	
+    const double len = v0.abs();
+    if ( !len )
+	return Coord( 0, 0 );
+    const Coord3 dir = v0 / len;
+
+    const double cosphi = vec10_.dot( dir );
+    const double sinphi = vec01_.dot( dir );
+
+    return Coord( cosphi * len, sinphi * len );
+}
+
+
+Coord3 Plane3CoordSystem::transform( const Coord& coord ) const
+{
+    const double len = coord.abs();
+    return vec01_*coord.x + vec10_*coord.y;
 }
 
 	
