@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.31 2008-04-08 09:23:43 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.32 2008-05-28 11:26:55 cvsbert Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -284,7 +284,7 @@ void uiVisColTabEd::fillPar( IOPar& par )
 // ----- uiColorBarDialog -----
 uiColorBarDialog::uiColorBarDialog( uiParent* p, int coltabid,
 				    const char* title )
-    	: uiDialog(p, uiDialog::Setup(title,0,"50.0.6").modal(false)
+    	: uiDialog(p, uiDialog::Setup(title,0,0).modal(false)
 		   .oktext("Exit").dlgtitle("").canceltext(""))
 	, winClosing( this )
 	, coltabed_( new uiVisColTabEd(this,true) )
