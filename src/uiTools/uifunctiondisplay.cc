@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uifunctiondisplay.cc,v 1.11 2008-04-29 07:38:20 cvsnanne Exp $
+ RCS:           $Id: uifunctiondisplay.cc,v 1.12 2008-05-28 08:28:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ uiFunctionDisplay::~uiFunctionDisplay()
 {
     delete xax_;
     delete yax_;
+    delete y2ax_;
 }
 
 
@@ -111,6 +112,13 @@ void uiFunctionDisplay::setMarkValue( float val, bool is_x )
 }
 
 
+#define mSetRange( axis, rg ) \
+    axlyo.setDataRange( rg ); rg.step = axlyo.sd.step; \
+    if ( !mIsEqual(rg.start,axlyo.sd.start,axlyo.sd.step*1e-6) ) \
+	axlyo.sd.start += axlyo.sd.step; \
+    axis->setRange( rg, &axlyo.sd.start );
+
+
 void uiFunctionDisplay::gatherInfo()
 {
     if ( yvals_.isEmpty() ) return;
@@ -121,20 +129,14 @@ void uiFunctionDisplay::gatherInfo()
     StepInterval<float> xrg, yrg;
     getRanges( xvals_, yvals_, setup_.xrg_, setup_.yrg_, xrg, yrg );
 
-    AxisLayout axlyo; axlyo.setDataRange( xrg );
-    xrg.step = axlyo.sd.step;
-    if ( !mIsEqual(xrg.start,axlyo.sd.start,axlyo.sd.step*1e-6) )
-	axlyo.sd.start += axlyo.sd.step;
-    xax_->setRange( xrg, &axlyo.sd.start );
-
-    axlyo.setDataRange( yrg ); yrg.step = axlyo.sd.step;
-    yax_->setRange( yrg );
+    AxisLayout axlyo;
+    mSetRange( xax_, xrg );
+    mSetRange( yax_, yrg );
 
     if ( havey2 )
     {
 	getRanges( y2xvals_, y2yvals_, setup_.xrg_, setup_.y2rg_, xrg, yrg );
-	axlyo.setDataRange( yrg ); yrg.step = axlyo.sd.step;
-	y2ax_->setRange( yrg );
+	mSetRange( y2ax_, yrg );
     }
 }
 
