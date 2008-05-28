@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          Jan 2008
- RCS:		$Id: uiprestackattrib.cc,v 1.7 2008-01-22 15:04:17 cvsbert Exp $
+ RCS:		$Id: uiprestackattrib.cc,v 1.8 2008-05-28 09:06:41 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,8 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
     xlbl_ = new uiLabel( this, "X:" );
     xlbl_->attach( rightOf, valaxtypefld_ );
     offsaxtypefld_ = new uiGenInput( this, "",
-		    StringListInpSpec(SeisPSPropCalc::AxisTypeNames) );
+		    StringListInpSpec(SeisPSPropCalc::AxisTypeNames)
+	   			      .setName("X") );
     offsaxtypefld_->attach( rightOf, xlbl_ );
 
     useazimfld_ = new uiGenInput( this, "X = Azimuth", BoolInpSpec(false) );
