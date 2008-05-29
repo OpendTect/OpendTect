@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.87 2008-05-16 11:38:10 cvsraman Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.88 2008-05-29 12:08:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,6 @@ ________________________________________________________________________
 #include "seistrc.h"
 #include "seistrcprop.h"
 
-//#include "uiexecutor.h"
-#include "uitaskrunner.h"
 #include "uiflatviewer.h"
 #include "uiflatviewstdcontrol.h"
 #include "uiflatviewmainwin.h"
@@ -51,6 +49,7 @@ ________________________________________________________________________
 #include "uiseiswvltman.h"
 #include "uiselsimple.h"
 #include "uisurvey.h"
+#include "uitaskrunner.h"
 
 
 uiSeisPartServer::uiSeisPartServer( uiApplService& a )
