@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.34 2008-05-28 19:18:59 cvskris Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.35 2008-05-29 17:53:38 cvsyuancheng Exp $";
 
 #include "trigonometry.h"
 
@@ -268,11 +268,29 @@ B = dir/|dir| * dir.AC / |dir|
 */
 
 
-Coord3 Line3::closestPoint( const Coord3& point ) const
+bool Line3::closestPoint( const Line3& line, double& t ) const
 {
-    const Coord3 AC( point.x - x0_, point.y - y0_, point.z - z0_ );
-    Coord3 dir = direction(); 
-    return dir*dir.dot(AC);
+    const Coord3 dir0 = direction().normalize();
+    const Coord3 dir1 = line.direction().normalize();
+    const double cosalpha =  dir0.dot( dir1 );
+    if ( mIsEqual(cosalpha,1,mDefEps) )
+	return false;
+
+    Coord3 diff = line.getPoint(0)-Coord3(x0_,y0_,z0_);
+    double deter = dir1.x*dir0.y-dir1.y*dir0.x;
+    double u = (diff.x*dir0.y-diff.y*dir0.x)/deter;
+    t = (dir1.x*diff.y-dir1.y*diff.x)/deter;
+    
+    if ( mIsEqual(t*dir0.z-u*dir1.z, diff.z, mDefEps) )
+	return true;
+
+    const Coord3 crs = dir0.cross( dir1 );
+    Coord3 v2 = -diff.cross(crs);
+    Coord3 v0 = dir0.cross(crs);
+    Coord3 v1 = dir1.cross(crs);
+    
+    t = (v2.x*v1.y-v1.x*v2.y)/(v1.x*v0.y-v0.x*v1.y);
+    return true;
 }
 
 
