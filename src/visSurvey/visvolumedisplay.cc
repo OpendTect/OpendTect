@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.83 2008-04-25 07:30:17 cvsnanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.84 2008-05-29 10:20:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,8 @@ VolumeDisplay::~VolumeDisplay()
 		mCB(this,VolumeDisplay,colTabChange) );
     }
 
-    getMaterial()->change.remove( mCB(this,VolumeDisplay,materialChange) );
+    if ( getMaterial() )
+	getMaterial()->change.remove( mCB(this,VolumeDisplay,materialChange) );
 
     delete &as_;
     DPM( DataPackMgr::CubeID ).release( cacheid_ );
