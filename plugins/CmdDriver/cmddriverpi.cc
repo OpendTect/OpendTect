@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2003
- RCS:           $Id: cmddriverpi.cc,v 1.16 2008-05-05 05:03:15 cvsnageswara Exp $
+ RCS:           $Id: cmddriverpi.cc,v 1.17 2008-05-29 10:53:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -214,6 +214,9 @@ void uiCmdDriverMgr::autoStart( CallBacker* cb )
 
 void uiCmdDriverMgr::survChg( CallBacker* cb )
 {
+    if ( CmdDriver::nowExecuting() )
+	return;
+
     const BufferString fnm( GetProcFileName(autoexecfnm) );
     if ( File_exists(fnm) )
     {
