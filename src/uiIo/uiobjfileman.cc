@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiobjfileman.cc,v 1.17 2007-12-19 06:50:00 cvsnanne Exp $
+ RCS:           $Id: uiobjfileman.cc,v 1.18 2008-05-29 05:46:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,10 +16,12 @@ ________________________________________________________________________
 #include "ioman.h"
 #include "dirlist.h"
 #include "ctxtioobj.h"
-#include "uitextedit.h"
 #include "filegen.h"
 #include "filepath.h"
 #include "streamconn.h"
+
+#include "uilistbox.h"
+#include "uitextedit.h"
 
 
 static const int cPrefHeight = 10;
@@ -48,6 +50,7 @@ void uiObjFileMan::createDefaultUI()
     IOM().to( 0 ); IOM().to( ctxt_.getSelKey() );
     selgrp = new uiIOObjSelGrp( this, CtxtIOObj(ctxt_), 0, false );
     selgrp->selectionChg.notify( mCB(this,uiObjFileMan,selChg) );
+    selgrp->getListField()->setHSzPol( uiObject::Medium );
 
     infofld = new uiTextEdit( this, "Object Info", true );
     infofld->attach( ensureBelow, selgrp );
