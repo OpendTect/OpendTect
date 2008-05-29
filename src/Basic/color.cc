@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID = "$Id: color.cc,v 1.1 2008-05-19 19:58:45 cvskris Exp $";
+static const char* rcsID = "$Id: color.cc,v 1.2 2008-05-29 11:18:56 cvsbert Exp $";
 
 #include "color.h"
 
@@ -281,16 +281,27 @@ void Color::setStdStr( const char* str )
 }
 
 
-char toHexVal( unsigned char c )
+static char toHexVal( unsigned char c )
 {
     return c < 10 ? '0' + c : 'a' + (c-10);
 }
 
 
-void addCompToStr( char* str, unsigned char comp )
+static void addCompToStr( char* str, unsigned char comp )
 {
     *str = toHexVal( comp / 16 );
     *(str+1) = toHexVal( comp % 16 );
+}
+
+
+static void addTranspToStr( char* str, unsigned char val, int transpopt,
+			    int& curidx )
+{
+    if ( transpopt == 0 ) return;
+
+    if ( transpopt < 0 )
+	val = 255 - val;
+    addCompToStr( str+curidx, val ); curidx += 2;
 }
 
 
@@ -298,18 +309,13 @@ const char* Color::getStdStr( bool withhash, int transpopt ) const
 {
     static char buf[10];
     int curidx = 0;
+    const bool isrev = !withhash;
     if ( withhash ) { buf[curidx] = '#'; curidx++; }
-    addCompToStr( buf+curidx, r() ); curidx += 2;
+    if ( isrev ) addTranspToStr( buf, t(), transpopt, curidx );
+    addCompToStr( buf+curidx, withhash ? r() : b() ); curidx += 2;
     addCompToStr( buf+curidx, g() ); curidx += 2;
-    addCompToStr( buf+curidx, b() ); curidx += 2;
-    if ( transpopt != 0 )
-    {
-	unsigned char val = t();
-	if ( transpopt < 0 )
-	    val = 255 - val;
-	addCompToStr( buf+curidx, val ); curidx += 2;
-    }
-
+    addCompToStr( buf+curidx, withhash ? b() : r() ); curidx += 2;
+    if ( !isrev ) addTranspToStr( buf, t(), transpopt, curidx );
     buf[curidx] = '\0';
     return buf;
 }
