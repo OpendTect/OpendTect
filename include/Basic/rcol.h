@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.13 2007-10-22 15:32:35 cvskris Exp $
+ RCS:		$Id: rcol.h,v 1.14 2008-05-29 13:25:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,7 +124,7 @@ inline od_int64 RCol::getSerialized() const
 
 inline void RCol::setSerialized( od_int64 serialized )
 {
-    r() = serialized>>32;
+    r() = (od_int32) (serialized>>32);
     c() = (od_int32) (serialized & 0xFFFFFFFF);
 }
 
