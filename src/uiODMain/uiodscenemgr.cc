@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.130 2008-05-22 10:48:19 cvssatyaki Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.131 2008-05-29 12:04:17 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -886,6 +886,7 @@ void uiODSceneMgr::displayIn2DViewer( int visid, int attribid, bool dowva )
     curvwr->setUpView( visServ().getDataPackID(visid,attribid), dowva, isvert );
     appl_.applMgr().visServer()->fillDispPars( visid, attribid,
 	    curvwr->viewwin_->viewer().appearance().ddpars_ );
+    curvwr->viewwin_->viewer().handleChange( FlatView::Viewer::All );
 }
 
 
