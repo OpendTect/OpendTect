@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2006
- RCS:           $Id: array2dbitmap.h,v 1.14 2008-03-26 19:40:04 cvskris Exp $
+ RCS:           $Id: array2dbitmap.h,v 1.15 2008-05-29 11:32:02 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -198,6 +198,8 @@ public:
     const A2DBitMapGenPars&	pars() const	{ return pars_; }
     const A2DBitMapInpData&	data() const	{ return data_; }
     const A2DBitMapPosSetup&	setup() const	{ return setup_; }
+
+    const Interval<float>	getScaleRange() const	{ return scalerg_; }
 
 protected:
 
