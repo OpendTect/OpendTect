@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.45 2008-05-29 08:54:54 cvsnanne Exp $
+ RCS:           $Id: uitable.h,v 1.46 2008-05-29 14:14:49 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -172,6 +172,7 @@ public:
     				{ removeColumn( rc.col ); }
     void		removeColumns(const TypeSet<int>&);
 
+    bool		isSelected(const RowCol&) const;
     bool		isRowSelected(int) const;
     bool		isColumnSelected(int) const;
     int			currentRow() const;

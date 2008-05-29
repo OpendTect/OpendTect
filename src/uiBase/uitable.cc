@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.67 2008-05-29 08:54:54 cvsnanne Exp $
+ RCS:           $Id: uitable.cc,v 1.68 2008-05-29 14:14:49 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -1131,6 +1131,14 @@ void uiTable::clearTable()
 
 void uiTable::removeAllSelections()
 { body_->clearSelection(); }
+
+
+bool uiTable::isSelected ( const RowCol& rc ) const
+{
+    QItemSelectionModel* model = body_->selectionModel();
+    QModelIndex idx = body_->rootIndex().child( rc.row, rc.col );
+    return model ? model->isSelected( idx ) : false;
+}
 
 
 bool uiTable::isRowSelected( int row ) const
