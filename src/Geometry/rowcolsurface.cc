@@ -4,9 +4,11 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: rowcolsurface.cc,v 1.3 2007-08-24 07:01:53 cvsjaap Exp $";
+static const char* rcsID = "$Id: rowcolsurface.cc,v 1.4 2008-05-29 13:28:41 cvskris Exp $";
 
 #include "rowcolsurface.h"
+
+#include <limits.h>
 
 
 namespace Geometry
