@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.h,v 1.44 2008-05-23 15:55:15 cvsjaap Exp $
+ RCS:           $Id: uitable.h,v 1.45 2008-05-29 08:54:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,9 @@ ________________________________________________________________________
 #include "uiobj.h"
 
 #include "color.h"
-#include "rowcol.h"
 #include "keyenum.h"
+#include "rowcol.h"
+#include "uienums.h"
 
 class BufferStringSet;
 class ioPixmap;
@@ -201,6 +202,9 @@ public:
 			    { setColumnLabel( rc.col, lbl ); }
     void		setDefaultRowLabels();
     void		setDefaultColLabels();
+    void		setColumnLabelAlignment(OD::Alignment);
+    void		setRowLabelAlignment(OD::Alignment);
+
 
     Setup&		setup() 		{ return setup_; }
     const Setup&	setup() const		{ return setup_; }
@@ -225,7 +229,7 @@ public:
 
     void		setPixmap(const RowCol&,const ioPixmap&);
     void		setColor(const RowCol&,const Color&);
-    const Color		getColor(const RowCol&) const;
+    Color		getColor(const RowCol&) const;
 
     int			getIntValue(const RowCol&) const;
     double		getValue(const RowCol&) const;

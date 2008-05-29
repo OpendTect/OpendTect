@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.66 2008-05-23 15:55:15 cvsjaap Exp $
+ RCS:           $Id: uitable.cc,v 1.67 2008-05-29 08:54:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -775,7 +775,7 @@ void uiTable::setColor( const RowCol& rc, const Color& col )
 }
 
 
-const Color uiTable::getColor( const RowCol& rc ) const
+Color uiTable::getColor( const RowCol& rc ) const
 {
     QTableWidgetItem* itm = body_->getItem( rc, false );
     if ( !itm ) return Color(255,255,255);
@@ -857,6 +857,20 @@ void uiTable::setColumnLabels( const BufferStringSet& labels )
 
     for ( int i=0; i<labels.size(); i++ )
         setColumnLabel( i, labels[i]->buf() );
+}
+
+
+void uiTable::setColumnLabelAlignment( OD::Alignment al )
+{
+    QHeaderView* hdr = body_->horizontalHeader();
+    if ( hdr ) hdr->setDefaultAlignment( (Qt::Alignment)al );
+}
+
+
+void uiTable::setRowLabelAlignment( OD::Alignment al )
+{
+    QHeaderView* hdr = body_->verticalHeader();
+    if ( hdr ) hdr->setDefaultAlignment( (Qt::Alignment)al );
 }
 
 
