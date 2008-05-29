@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellman.h,v 1.5 2003-11-07 12:21:52 bert Exp $
+ RCS:		$Id: wellman.h,v 1.6 2008-05-29 13:19:19 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -53,14 +53,15 @@ protected:
 
 };
 
+inline Man& MGR()
+{
+    if ( !::Well::Man::mgr_ ) ::Well::Man::mgr_ = new ::Well::Man;
+    return *::Well::Man::mgr_;
+}
+
 }; // namespace Well
 
 
-inline Well::Man& Well::MGR()
-{
-    if ( !Well::Man::mgr_ ) Well::Man::mgr_ = new Well::Man;
-    return *Well::Man::mgr_;
-}
 
 
 #endif
