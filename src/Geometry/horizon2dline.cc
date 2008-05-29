@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2006
- RCS:		$Id: horizon2dline.cc,v 1.8 2008-03-12 09:48:03 cvsbert Exp $
+ RCS:		$Id: horizon2dline.cc,v 1.9 2008-05-29 13:27:58 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "posinfo.h"
 #include "undefval.h"
+#include <limits.h>
 
 namespace Geometry
 {
