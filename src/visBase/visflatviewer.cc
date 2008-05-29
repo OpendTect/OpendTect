@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.cc,v 1.9 2008-05-15 19:04:28 cvsyuancheng Exp $
+ RCS:		$Id: visflatviewer.cc,v 1.10 2008-05-29 11:59:02 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,8 +94,8 @@ void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt )
 	case VDPars : 	
 		visBase::VisColorTab& vct = texture_->getColorTab( 0 );
 		vct.setAutoScale( appearance().ddpars_.vd_.autoscale_ );
-		if ( !mIsUdf(appearance().ddpars_.vd_.midvalue_) )
-    		    vct.setSymMidval( appearance().ddpars_.vd_.midvalue_ );
+		if ( !mIsUdf(appearance().ddpars_.vd_.symmidvalue_) )
+    		    vct.setSymMidval( appearance().ddpars_.vd_.symmidvalue_ );
 
 		const Interval<float>& range = appearance().ddpars_.vd_.rg_;
 		if ( mIsUdf( range.start ) || mIsUdf( range.stop ) )

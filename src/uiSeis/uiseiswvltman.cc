@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.26 2008-04-18 09:08:35 cvsnanne Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.27 2008-05-29 11:59:02 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,7 @@ uiSeisWvltMan::uiSeisWvltMan( uiParent* p )
     app.ddpars_.wva_.clipperc_.start = app.ddpars_.wva_.clipperc_.stop = 0;
     app.ddpars_.wva_.left_ = Color( 250, 250, 0 );
     app.ddpars_.wva_.mid_ = Color( 150, 150, 150 );
-    app.ddpars_.wva_.midvalue_ = mUdf(float);
+    app.ddpars_.wva_.symmidvalue_ = mUdf(float);
     app.setDarkBG( false );
 
     wvltfld->setPrefWidth( 60 );

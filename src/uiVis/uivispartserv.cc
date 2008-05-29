@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.369 2008-05-08 07:28:15 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.370 2008-05-29 11:59:02 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -716,7 +716,7 @@ void uiVisPartServer::fillDispPars( int id, int attr,
 	Interval<float>( coltab->clipRate()*100, mUdf(float) );
     pars.vd_.autoscale_ = pars.wva_.autoscale_ = coltab->autoScale();
     pars.vd_.rg_ = pars.wva_.rg_ = coltab->getInterval();
-    pars.vd_.midvalue_ = pars.wva_.midvalue_ = coltab->symMidval();
+    pars.vd_.symmidvalue_ = pars.wva_.symmidvalue_ = coltab->symMidval();
 }
 
 

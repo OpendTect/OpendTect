@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewbitmap.cc,v 1.17 2008-04-22 10:15:27 cvsraman Exp $
+ RCS:           $Id: flatviewbitmap.cc,v 1.18 2008-05-29 11:59:02 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,7 @@ void FlatView::BitMapMgr::setupChg()
     gen_->pars().clipratio_.stop = mIsUdf(pars->clipperc_.stop)
 	? mUdf(float)
 	: pars->clipperc_.stop * 0.01;
-    gen_->pars().midvalue_ = pars->midvalue_;
+    gen_->pars().midvalue_ = pars->symmidvalue_;
 
     gen_->pars().nointerpol_ = pars->blocky_;
     gen_->pars().fliplr_ = app.annot_.x1_.reversed_;
