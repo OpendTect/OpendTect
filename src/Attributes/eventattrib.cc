@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Helene Payraudeau
  Date:		February 2005
- RCS:		$Id: eventattrib.cc,v 1.24 2007-11-09 16:53:52 cvshelene Exp $
+ RCS:		$Id: eventattrib.cc,v 1.25 2008-05-29 10:01:06 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "genericnumer.h"
 #include "valseriesinterpol.h"
 
-#define SGWIDTH 100
+#define SGWIDTH 500
 
 namespace Attrib
 {
