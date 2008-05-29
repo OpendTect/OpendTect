@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.h,v 1.11 2008-05-28 15:09:58 cvsbert Exp $
+ RCS:           $Id: uidatapointset.h,v 1.12 2008-05-29 07:38:39 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,7 @@ public:
     const char*			groupName(int) const;
     void			setGroupType( const char* nm )
 							{ grptype_ = nm; }
+    const char*			groupType() const	{ return grptype_; }
 
 protected:
 
