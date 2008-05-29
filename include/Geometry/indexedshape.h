@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.8 2008-05-28 19:15:36 cvskris Exp $
+RCS:           $Id: indexedshape.h,v 1.9 2008-05-29 13:54:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,6 +82,8 @@ public:
     const Coord3List*		coordList() const 	{ return coordlist_; }
     Coord3List*			coordList()	 	{ return coordlist_; }
 
+    int				getVersion() const	{ return version_; }
+
 protected:
     				IndexedShape();
 
@@ -92,6 +94,13 @@ protected:
     Coord3List*			normallist_;
     Coord3List*			texturecoordlist_;
     bool			righthandednormals_;
+
+    void			addVersion();
+    				/*!<Should be called every time object is
+				    changed. */
+private:
+
+    int				version_;
 };
 
 }; //namespace

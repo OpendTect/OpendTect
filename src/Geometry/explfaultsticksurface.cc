@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.16 2008-05-20 17:00:49 cvskris Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.17 2008-05-29 13:54:09 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -642,6 +642,8 @@ void ExplFaultStickSurface::surfaceChange( CallBacker* cb )
 	    removeStick( stickidx );
 	}
     }
+
+    addVersion();
 }
 
 

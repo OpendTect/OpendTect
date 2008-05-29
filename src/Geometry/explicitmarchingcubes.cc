@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.21 2007-12-27 16:13:04 cvskris Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.22 2008-05-29 13:54:09 cvskris Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -573,11 +573,11 @@ void ExplicitMarchingCubesSurface::surfaceChange(CallBacker*)
 
     //convert to bucket-ranges
     ranges[mX] = Interval<int>( getBucketPos( ranges[mX].start),
-	    			getBucketPos( ranges[mX].stop ) );
+	getBucketPos( ranges[mX].stop ) );
     ranges[mY] = Interval<int>( getBucketPos( ranges[mY].start),
-	    			getBucketPos( ranges[mY].stop ) );
+	getBucketPos( ranges[mY].stop ) );
     ranges[mZ] = Interval<int>( getBucketPos( ranges[mZ].start),
-	    			getBucketPos( ranges[mZ].stop ) );
+	getBucketPos( ranges[mZ].stop ) );
 
     if ( !changedbucketranges_[mX] )
     {
@@ -590,7 +590,9 @@ void ExplicitMarchingCubesSurface::surfaceChange(CallBacker*)
 	changedbucketranges_[mX]->include( ranges[mX] );
 	changedbucketranges_[mY]->include( ranges[mY] );
 	changedbucketranges_[mZ]->include( ranges[mZ] );
-   }
+    }
+
+    addVersion();
 }
 
 

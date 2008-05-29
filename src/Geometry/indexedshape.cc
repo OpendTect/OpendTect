@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: indexedshape.cc,v 1.5 2008-05-16 16:03:29 cvskris Exp $";
+static const char* rcsID = "$Id: indexedshape.cc,v 1.6 2008-05-29 13:54:09 cvskris Exp $";
 
 #include "indexedshape.h"
 
@@ -96,6 +96,7 @@ IndexedShape::IndexedShape()
     , normallist_( 0 )
     , texturecoordlist_( 0 )
     , righthandednormals_( true )
+    , version_( 0 )
 {}
 
 
@@ -136,6 +137,13 @@ void IndexedShape::removeAll()
 
 const ObjectSet<IndexedGeometry>& IndexedShape::getGeometry() const
 { return geometries_; }
+
+
+void IndexedShape::addVersion()
+{
+    version_++;
+    if ( version_<0 ) version_ = 0;  //If it goes beyond INT_MAX
+}
 
 
 }; //namespace
