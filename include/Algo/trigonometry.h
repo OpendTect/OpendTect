@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.22 2008-05-29 16:13:11 cvskris Exp $
+ RCS:		$Id: trigonometry.h,v 1.23 2008-05-29 18:31:47 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -168,7 +168,7 @@ public:
     			
  
     double		distanceToPoint( const Coord3& point ) const;
-    Coord3		closestPoint( const Coord3& point ) const;
+    bool		closestPoint( const Coord3& point, double& t ) const;
     			/*!<\returns the point on the line that is closest to
 			 	     the given point */
     bool		closestPoint( const Line3& line, double& t ) const;

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.35 2008-05-29 17:53:38 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.36 2008-05-29 18:31:47 cvsyuancheng Exp $";
 
 #include "trigonometry.h"
 
@@ -266,6 +266,14 @@ dir.AC / |dir| = |AC|*cos(a)
 B = dir/|dir| * dir.AC / |dir|
 
 */
+
+bool Line3::closestPoint( const Coord3& point, double& t ) const
+{
+    const Coord3 dir = direction();
+    const Coord3 diff = point-Coord3(x0_,y0_,z0_);
+    t = diff.dot(dir)/dir.dot(dir);
+    return true;
+}
 
 
 bool Line3::closestPoint( const Line3& line, double& t ) const
