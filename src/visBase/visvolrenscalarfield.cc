@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.15 2008-04-21 04:08:46 cvsnanne Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.16 2008-05-29 11:23:28 cvsnanne Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -159,7 +159,10 @@ void VolumeRenderScalarField::setScalarField( const Array3D<float>* sc )
     if ( ctab_->autoScale() )
 	clipData();
     else
+    {
+	makeColorTables();
 	makeIndices( doset );
+    }
 }
 
 
