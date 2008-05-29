@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2006
- RCS:           $Id: uidlggroup.cc,v 1.4 2008-01-17 16:05:00 cvskris Exp $
+ RCS:           $Id: uidlggroup.cc,v 1.5 2008-05-29 11:56:46 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ void uiTabStackDlg::showGroup( int idx )
 
 bool uiTabStackDlg::acceptOK(CallBacker*)
 {
+    const int curpage = currentGroupID();
     for ( int idx=groups_.size()-1; idx>=0; idx-- )
     {
 	tabstack_->setCurrentPage( groups_[idx] );
@@ -57,6 +58,7 @@ bool uiTabStackDlg::acceptOK(CallBacker*)
 	    return false;
 	}
     }
+    showGroup( curpage );
 
     return true;
 }

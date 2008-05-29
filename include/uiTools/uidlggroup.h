@@ -7,15 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uidlggroup.h,v 1.6 2008-01-17 16:05:00 cvskris Exp $
+ RCS:           $Id: uidlggroup.h,v 1.7 2008-05-29 11:56:46 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
 #include "uigroup.h"
+#include "uitabstack.h"
 
-class uiTabStack;
 
 /*!
 Dialog that either can be used standalone (with uiSingleGroupDlg) or
@@ -76,6 +76,8 @@ public:
     uiDlgGroup&		getGroup(int idx)	{ return *groups_[idx]; }
     const uiDlgGroup&	getGroup(int idx) const { return *groups_[idx]; }
     void		showGroup(int idx);
+    const int		currentGroupID()	
+    			{ return tabstack_->currentPageId(); }
 
 protected:
 
