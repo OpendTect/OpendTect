@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewproptabs.h,v 1.9 2008-05-15 18:36:03 cvsyuancheng Exp $
+ RCS:           $Id: uiflatviewproptabs.h,v 1.10 2008-05-29 11:46:21 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ protected:
 class uiFlatViewDataDispPropTab : public uiFlatViewPropTab
 {
 public:
+    			~uiFlatViewDataDispPropTab();
 
     void		setDataNames();
     virtual void	setData()			= 0;
@@ -66,7 +67,7 @@ protected:
     uiGenInput*		useclipfld_;
     uiGenInput*		symclipratiofld_;
     uiGenInput*		assymclipratiofld_;
-    uiGenInput*		midvalfld_;
+    uiGenInput*		symmidvalfld_;
     uiGenInput*		usemidvalfld_;
     uiGenInput*		rgfld_;
     uiGenInput*		blockyfld_;
@@ -74,9 +75,10 @@ protected:
 
     uiObject*		lastcommonfld_;
 
-    void		useMidVakSel(CallBacker*);
+    void		useMidValSel(CallBacker*);
     void		dispSel(CallBacker*);
     void		clipSel(CallBacker*);
+    void		dispParsChanged(CallBacker*);
     virtual void	handleFieldDisplay(bool)	= 0;
 
     void		putCommonToScreen();

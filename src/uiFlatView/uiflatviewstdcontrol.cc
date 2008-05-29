@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.cc,v 1.9 2008-05-12 05:32:16 cvsnanne Exp $
+ RCS:           $Id: uiflatviewstdcontrol.cc,v 1.10 2008-05-29 11:46:21 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiflatviewstdcontrol.h"
+#include "uiflatviewcoltabed.h"
 #include "flatviewzoommgr.h"
 #include "uiflatviewer.h"
 #include "uiflatviewthumbnail.h"
@@ -29,6 +30,7 @@ ________________________________________________________________________
 uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 					    const Setup& setup )
     : uiFlatViewControl(vwr,setup.parent_,true,setup.withwva_)
+    , vwr_(vwr)
     , manipbut_(0)
     , menu_(*new uiMenuHandler(&vwr,-1))	//TODO multiple menus ?
     , propertiesmnuitem_("Properties...",100)
@@ -51,6 +53,11 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     tb_->addSeparator();
     mDefBut(parsbut_,"2ddisppars.png",parsCB,"Set display parameters");
 
+    toolbar_ = new uiToolBar( mainwin(), "Color Table" );
+    ctabed_ = new uiFlatViewColTabEd( this, vwr );
+    ctabed_->colTabChged.notify( mCB(this,uiFlatViewStdControl,coltabChg) );
+    toolbar_->addObject( ctabed_->colTabGrp()->attachObj() );
+
     if ( !setup.helpid_.isEmpty() )
     {
 	uiToolButton* mDefBut(helpbut,"contexthelp.png",helpCB,"Help");
@@ -58,6 +65,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
     }
 
     vwr.viewChanged.notify( mCB(this,uiFlatViewStdControl,vwChgCB) );
+    vwr.dispParsChanged.notify( mCB(this,uiFlatViewStdControl,setColTab) );
 
     menu_.ref();
     menu_.createnotifier.notify(mCB(this,uiFlatViewStdControl,createMenuCB));
@@ -90,6 +98,12 @@ void uiFlatViewStdControl::finalPrepare()
 void uiFlatViewStdControl::updatePosButtonStates()
 {
     zoomoutbut_->setSensitive( !zoommgr_.atStart() );
+}
+
+
+void uiFlatViewStdControl::setColTab( CallBacker* )
+{
+    ctabed_->setColTab();
 }
 
 
@@ -236,4 +250,11 @@ void uiFlatViewStdControl::handleMenuCB( CallBacker* cb )
 	ishandled = false;
 
     menu->setIsHandled( ishandled );
+}
+
+
+void uiFlatViewStdControl::coltabChg( CallBacker* )
+{
+    vwr_.handleChange( FlatView::Viewer::VDPars );
+    vwr_.handleChange( FlatView::Viewer::VDData );
 }

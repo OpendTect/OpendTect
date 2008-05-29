@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.h,v 1.7 2008-05-12 05:32:16 cvsnanne Exp $
+ RCS:           $Id: uiflatviewstdcontrol.h,v 1.8 2008-05-29 11:46:21 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "menuhandler.h"
 class uiMenuHandler;
 class uiToolButton;
+class uiFlatViewColTabEd;
 class uiToolBar;
 
 
@@ -44,11 +45,15 @@ public:
 protected:
 
     uiToolBar*		tb_;
+    uiToolBar*		toolbar_;
     uiToolButton*	zoominbut_;
     uiToolButton*	zoomoutbut_;
     uiToolButton*	manipbut_;
     uiToolButton*	drawbut_;
     uiToolButton*	parsbut_;
+
+    uiFlatViewer&	vwr_;
+    uiFlatViewColTabEd*	ctabed_;
 
     virtual void	finalPrepare();
     void		updatePosButtonStates();
@@ -62,6 +67,8 @@ protected:
     void		parsCB(CallBacker*);
     void		stateCB(CallBacker*);
     void		helpCB(CallBacker*);
+    void		coltabChg(CallBacker*);
+    void		setColTab(CallBacker*);
 
     bool		handleUserClick();
 

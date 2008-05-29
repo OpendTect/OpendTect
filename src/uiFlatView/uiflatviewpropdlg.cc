@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.30 2008-05-28 14:44:46 cvshelene Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.31 2008-05-29 11:46:21 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uicombobox.h"
 #include "uilabel.h"
+#include "uiflatviewer.h"
 #include "uibutton.h"
 #include "uisellinest.h"
 #include "uiseparator.h"
@@ -69,13 +70,13 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     usemidvalfld_->attach( alignedBelow, symclipratiofld_ );
     usemidvalfld_->display( useclipfld_->getIntValue()==1 );
     usemidvalfld_->valuechanged.notify(
-	    mCB(this, uiFlatViewDataDispPropTab, useMidVakSel) );
+	    mCB(this,uiFlatViewDataDispPropTab,useMidValSel) );
     
-    midvalfld_ = new uiGenInput( this, "Mid value", FloatInpSpec() );
-    midvalfld_->setElemSzPol(uiObject::Small);
-    midvalfld_->attach( alignedBelow, usemidvalfld_ );
-    midvalfld_->display( useclipfld_->getIntValue()==1 && 
-	    usemidvalfld_->getBoolValue() );
+    symmidvalfld_ = new uiGenInput( this, "Mid value", FloatInpSpec() );
+    symmidvalfld_->setElemSzPol(uiObject::Small);
+    symmidvalfld_->attach( alignedBelow, usemidvalfld_ );
+    symmidvalfld_->display( useclipfld_->getIntValue()==1 && 
+			    usemidvalfld_->getBoolValue() );
 
     assymclipratiofld_ = new uiGenInput( this,"Percentage clip",
 	    				  FloatInpIntervalSpec() );
@@ -91,19 +92,39 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
     {
     	blockyfld_ = new uiGenInput( this,
 		"Display blocky (no interpolation)", BoolInpSpec(true) );
-    	blockyfld_->attach( alignedBelow, midvalfld_ );
+    	blockyfld_->attach( alignedBelow, symmidvalfld_ );
     }
 
     lastcommonfld_ = blockyfld_ ? blockyfld_->attachObj() : 0;
+
+    mDynamicCastGet(uiFlatViewer*,uivwr,&vwr)
+    if ( uivwr )
+	uivwr->dispParsChanged.notify( 
+	    mCB(this,uiFlatViewDataDispPropTab,dispParsChanged ) );
 }
 
 
-void uiFlatViewDataDispPropTab::useMidVakSel( CallBacker* )
+uiFlatViewDataDispPropTab::~uiFlatViewDataDispPropTab()
 {
-    midvalfld_->display( useclipfld_->getIntValue()==1 && 
-	    		 usemidvalfld_->getBoolValue() );
-    commonPars().midvalue_ = mUdf( float );
-    midvalfld_->setValue( mUdf( float ) );
+    mDynamicCastGet(uiFlatViewer*,uivwr,&vwr_)
+    if ( uivwr )
+	uivwr->dispParsChanged.remove( 
+	    mCB(this,uiFlatViewDataDispPropTab,dispParsChanged ) );
+}
+
+
+void uiFlatViewDataDispPropTab::dispParsChanged( CallBacker* )
+{
+    putCommonToScreen();
+}
+
+
+void uiFlatViewDataDispPropTab::useMidValSel( CallBacker* )
+{
+    symmidvalfld_->display( useclipfld_->getIntValue()==1 && 
+			    usemidvalfld_->getBoolValue() );
+    commonPars().symmidvalue_ = mUdf( float );
+    symmidvalfld_->setValue( mUdf( float ) );
 }
 
 
@@ -118,7 +139,8 @@ void uiFlatViewDataDispPropTab::clipSel(CallBacker*)
     const bool dodisp = doDisp();
     const int clip = useclipfld_->getIntValue();
     symclipratiofld_->display( dodisp && clip==1 );
-    midvalfld_->display( dodisp && clip==1 && usemidvalfld_->getBoolValue() );
+    symmidvalfld_->display( dodisp && clip==1 && 
+	    		    usemidvalfld_->getBoolValue() );
     usemidvalfld_->display( dodisp && clip==1 );
     assymclipratiofld_->display( dodisp && clip==2 );
     rgfld_->display( dodisp && !clip );
@@ -187,11 +209,11 @@ void uiFlatViewDataDispPropTab::putCommonToScreen()
     assymclipratiofld_->setValue( pars.clipperc_ );
 
     const bool show = doDisp() && useclipfld_->getIntValue()==1 && 
-		      !mIsUdf(pars.midvalue_);
-    midvalfld_->display( show ); 
-    midvalfld_->setValue( pars.midvalue_ );
-    usemidvalfld_->setValue( !mIsUdf(pars.midvalue_) );
-    usemidvalfld_->display( pars.midvalue_ );
+		      !mIsUdf(pars.symmidvalue_);
+    symmidvalfld_->display( show ); 
+    symmidvalfld_->setValue( pars.symmidvalue_ );
+    usemidvalfld_->setValue( !mIsUdf(pars.symmidvalue_) );
+    usemidvalfld_->display( pars.symmidvalue_ );
     if ( blockyfld_ )
 	blockyfld_->setValue( pars.blocky_ );
 
@@ -234,7 +256,8 @@ bool uiFlatViewDataDispPropTab::acceptOK()
     {
 	pars.clipperc_.start = symclipratiofld_->getfValue();
 	pars.clipperc_.stop = mUdf(float);
-	pars.midvalue_ = midvalfld_->getfValue();
+	pars.symmidvalue_ = usemidvalfld_->getBoolValue() ?
+				symmidvalfld_->getfValue() : mUdf(float);
     }
     else
     {
@@ -321,8 +344,8 @@ void uiFVWVAPropTab::midlineSel(CallBacker*)
 void uiFVWVAPropTab::putToScreen()
 {
     overlapfld_->setValue( pars_.overlap_ );
-    midlinefld_->setValue( !mIsUdf(pars_.midvalue_) );
-    midvalfld_->setValue( pars_.midvalue_ );
+    midlinefld_->setValue( !mIsUdf(pars_.midlinevalue_) );
+    midvalfld_->setValue( pars_.midlinevalue_ );
 
 #define mSetCol(fld,memb) \
     havecol = pars_.memb.isVisible(); \
@@ -349,8 +372,8 @@ bool uiFVWVAPropTab::acceptOK()
     if ( !pars_.show_ ) return true;
 
     pars_.overlap_ = overlapfld_->getfValue();
-    pars_.midvalue_ = midlinefld_->getBoolValue() ? midvalfld_->getfValue() 
-						  : mUdf(float);
+    pars_.midlinevalue_ = midlinefld_->getBoolValue() ? midvalfld_->getfValue() 
+						      : mUdf(float);
 #define mSetCol(fld,memb) \
     pars_.memb = fld->doDraw() ? fld->color(): Color::NoColor
     mSetCol(leftcolsel_,left_);
@@ -368,7 +391,7 @@ uiFVVDPropTab::uiFVVDPropTab( uiParent* p, FlatView::Viewer& vwr )
     , pars_(ddpars_.vd_)
     , ctab_( ddpars_.vd_.ctab_.buf() )
 {
-    uicoltab_ = new uiColorTable( this, ctab_.name(), false );
+    uicoltab_ = new uiColorTable( this, ctab_.name().buf(), false );
     uicoltablbl_ = new uiLabel( this, "Color table", uicoltab_ );
     uicoltab_->attach( alignedBelow, lastcommonfld_ );
 }
