@@ -4,12 +4,13 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID = "$Id: color.cc,v 1.2 2008-05-29 11:18:56 cvsbert Exp $";
+static const char* rcsID = "$Id: color.cc,v 1.3 2008-05-29 13:27:16 cvskris Exp $";
 
 #include "color.h"
 
 #include "separstr.h"
 #include "stdlib.h"
+#include "string.h"
 
 Color Color::NoColor	= Color( 0, 0, 0, 255 );
 Color Color::Black	= Color( 0, 0, 0 );
