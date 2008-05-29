@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.27 2008-05-15 19:06:22 cvsyuancheng Exp $
+ RCS:		$Id: simpnumer.h,v 1.28 2008-05-29 13:18:19 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "undefval.h"
 #include "math2.h"
 #include <math.h>
+#include <limits.h>
 
 #ifndef M_PI
 # define M_PI           3.14159265358979323846
