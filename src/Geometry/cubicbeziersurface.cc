@@ -4,7 +4,7 @@
  * DATE     : Nov 2004
 -*/
 
-static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.23 2008-05-28 19:18:59 cvskris Exp $";
+static const char* rcsID = "$Id: cubicbeziersurface.cc,v 1.24 2008-05-29 18:59:05 cvskris Exp $";
 
 #include "cubicbeziersurface.h"
 
@@ -265,7 +265,7 @@ bool CubicBezierSurface::intersectWithLine(const Line3& line, Coord& res) const
 
     Coord3 center( bbox.getRange(0).center(), bbox.getRange(1).center(),
 			 bbox.getRange(2).center() );
-    Coord3 closestpointonline = line.closestPoint(center);
+    Coord3 closestpointonline = line.getPoint( line.closestPoint(center) );
     if ( !bbox.includes(closestpointonline) )
 	return false;
 
@@ -285,7 +285,7 @@ bool CubicBezierSurface::intersectWithLine(const Line3& line, Coord& res) const
 	    center.y = bbox.getRange(1).center();
 	    center.z = bbox.getRange(2).center();
 
-	    closestpointonline = line.closestPoint(center);
+	    closestpointonline = line.getPoint( line.closestPoint(center) );
 	    if ( !bbox.includes(closestpointonline) )
 		continue;
 
