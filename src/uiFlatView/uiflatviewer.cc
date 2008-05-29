@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.53 2008-05-26 04:11:52 cvsnanne Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.54 2008-05-29 11:33:12 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -179,8 +179,6 @@ void uiFlatViewer::handleChange( DataChangeType dct )
     canvas_.setBorder( uiBorder(l,t,r,b) );
     canvas_.forceNewFill();
 
-    if ( dct == WVAPars || dct == VDPars )
-	dispParsChanged.trigger();
 }
 
 
@@ -204,12 +202,18 @@ void uiFlatViewer::drawBitMaps()
     {
 	DataChangeType dct = reportedchanges_[idx];
 	if ( dct == All || dct == WVAData || dct == VDData )
-	    { datachgd = true; break; }
+	{ 
+	    datachgd = true;
+	    dispParsChanged.trigger();
+	    break;
+	}
     }
     reportedchanges_.erase();
     if ( datachgd )
 	dataChanged.trigger();
 
+    const bool hasdata = packID(false)!=DataPack::cNoID ||
+			 packID(true)!=DataPack::cNoID;
     uiPoint offs( mUdf(int), mUdf(int) );
     if ( !wvabmpmgr_ )
     {
@@ -217,7 +221,7 @@ void uiFlatViewer::drawBitMaps()
 	wvabmpmgr_ = new FlatView::BitMapMgr(*this,true);
 	vdbmpmgr_ = new FlatView::BitMapMgr(*this,false);
     }
-    else if ( !datachgd )
+    else if ( !datachgd && hasdata )
     {
 	const uiRGBArray& rgbarr = canvas_.rgbArray();
 	const uiSize uisz( uiSize(rgbarr.getSize(true),rgbarr.getSize(false)) );
@@ -226,8 +230,6 @@ void uiFlatViewer::drawBitMaps()
 	    offs = vdbmpmgr_->dataOffs( wr_, uisz );
     }
 
-    const bool hasdata = packID(false)!=DataPack::cNoID ||
-			 packID(true)!=DataPack::cNoID;
 
     if ( hasdata )
     {
@@ -238,6 +240,15 @@ void uiFlatViewer::drawBitMaps()
 	    uiMSG().error( "No memory for bitmaps" );
 	    return;
 	}
+	if ( vdbmpmgr_->bitMapGen() )
+	{
+	    appearance().ddpars_.vd_.rg_ =
+		vdbmpmgr_->bitMapGen()->getScaleRange();
+	    dispParsChanged.trigger();
+	}
+	if ( wvabmpmgr_->bitMapGen() )
+	    appearance().ddpars_.wva_.rg_ =
+		wvabmpmgr_->bitMapGen()->getScaleRange();
     }
 
     if ( mIsUdf(offs.x) )

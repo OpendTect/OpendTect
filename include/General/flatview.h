@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.30 2008-05-15 19:02:20 cvsyuancheng Exp $
+ RCS:           $Id: flatview.h,v 1.31 2008-05-29 11:33:12 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -155,7 +155,7 @@ public:
 	Interval<float>	clipperc_; // default from ColorTable
 				   // stop=undef
 	bool		blocky_;   // default=false
-	float		midvalue_; //!< undef => auto data mid
+	float		symmidvalue_; //!< undef => auto data mid
     };
 
     //!\brief Variable Density (=color-bar driven) parameters
@@ -178,13 +178,14 @@ public:
 			, mid_(Color::NoColor)
 			, left_(Color::NoColor)
 			, right_(Color::DgbColor)
-			, overlap_(1)		{ midvalue_ = 0; }
+			, overlap_(1)		{ midlinevalue_ = 0; }
 
 	Color		wigg_;
 	Color		mid_;
 	Color		left_;
 	Color		right_;
 	float		overlap_;
+	float		midlinevalue_;
     };
 
     			DataDispPars()		{}
@@ -210,7 +211,8 @@ public:
     static const char*	sKeyLeftCol;
     static const char*	sKeyRightCol;
     static const char*	sKeyOverlap;
-    static const char*	sKeyMidValue;
+    static const char*	sKeySymMidValue;
+    static const char*	sKeyMidLineValue;
 };
 
 
