@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K.Tingdahl
  Date:		Jan 2006
- RCS:		$Id: multidimstorage.h,v 1.2 2007-10-15 18:20:04 cvskris Exp $
+ RCS:		$Id: multidimstorage.h,v 1.3 2008-05-29 13:26:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "sets.h"
 #include "errh.h"
+#include <limits.h>
 
 /*! Stores one or more values of type T that are associated with a discrete
 position in a N dimenstional space. */
