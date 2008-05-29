@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.24 2008-05-29 18:59:05 cvskris Exp $
+ RCS:		$Id: trigonometry.h,v 1.25 2008-05-29 22:02:25 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -155,10 +155,10 @@ public:
 				double alpha, double beta, double gamma );
     			Line3( const Coord3&, const Vector3& );
 
-    Vector3		direction() const
+    Vector3		direction( bool normalize = true ) const
     			{
 			    const Vector3 res( alpha_, beta_, gamma_ );
-			    return res.normalize();
+			    return normalize ? res.normalize() : res;
 			}
 
     Coord3		getPoint(double t) const;
@@ -171,7 +171,8 @@ public:
     double		closestPoint( const Coord3& point ) const;
     			/*!<\returns the point on the line that is closest to
 			 	     the given point */
-    bool		closestPoint( const Line3& line, double& t ) const;
+    bool		closestPoint( const Line3& line, double& t_this,
+	   			      double& t_line ) const;
     			/*!<\returns the t for the point point on the line
 			   	     that is closest to the given line*/
  

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.37 2008-05-29 18:59:05 cvskris Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.38 2008-05-29 22:02:25 cvskris Exp $";
 
 #include "trigonometry.h"
 
@@ -275,28 +275,31 @@ double Line3::closestPoint( const Coord3& point ) const
 }
 
 
-bool Line3::closestPoint( const Line3& line, double& t ) const
+bool Line3::closestPoint( const Line3& line, double& t_this,
+			  double& t_line ) const
 {
-    const Coord3 dir0 = direction().normalize();
-    const Coord3 dir1 = line.direction().normalize();
-    const double cosalpha =  dir0.dot( dir1 );
+    const Coord3 dir0 = direction( false );
+    const Coord3 dir1 = line.direction( false );
+    const double cosalpha =  dir0.normalize().dot( dir1.normalize() );
     if ( mIsEqual(cosalpha,1,mDefEps) )
 	return false;
 
-    Coord3 diff = line.getPoint(0)-Coord3(x0_,y0_,z0_);
+    const Coord3 diff(line.x0_-x0_,line.y0_-y0_,line.z0_-z0_);
     double deter = dir1.x*dir0.y-dir1.y*dir0.x;
-    double u = (diff.x*dir0.y-diff.y*dir0.x)/deter;
-    t = (dir1.x*diff.y-dir1.y*diff.x)/deter;
+    t_line = -(diff.x*dir0.y-diff.y*dir0.x)/deter;
+    t_this = (dir1.x*diff.y-dir1.y*diff.x)/deter;
     
-    if ( mIsEqual(t*dir0.z-u*dir1.z, diff.z, mDefEps) )
+    if ( mIsEqual(t_this*dir0.z-t_line*dir1.z, diff.z, mDefEps) )
 	return true;
 
     const Coord3 crs = dir0.cross( dir1 );
-    Coord3 v2 = -diff.cross(crs);
-    Coord3 v0 = dir0.cross(crs);
-    Coord3 v1 = dir1.cross(crs);
+    const Coord3 v2 = -diff.cross(crs);
+    const Coord3 v0 = dir0.cross(crs);
+    const Coord3 v1 = dir1.cross(crs);
     
-    t = (v2.x*v1.y-v1.x*v2.y)/(v1.x*v0.y-v0.x*v1.y);
+    deter = v1.x*v0.y-v0.x*v1.y;
+    t_this = (v2.x*v1.y-v1.x*v2.y)/deter;
+    t_line = (v2.x*v0.y-v0.x*v2.y)/deter;
     return true;
 }
 
