@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.51 2008-05-19 06:24:12 cvsraman Exp $
+ RCS:		$Id: position.h,v 1.52 2008-05-29 13:21:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,9 +37,9 @@ public:
     bool	operator!=( const Coord& crd ) const
 		{ return ! (crd == *this); }
     bool	operator<(const Coord&crd) const
-		{ return x<crd.x || x==crd.x && y<crd.y; }
+		{ return x<crd.x || (x==crd.x && y<crd.y); }
     bool	operator>(const Coord&crd) const
-		{ return x>crd.x || x==crd.x && y>crd.y; }
+		{ return x>crd.x || (x==crd.x && y>crd.y); }
 
     double	angle(const Coord& from,const Coord& to) const;
     double	cosAngle(const Coord& from,const Coord& to) const;
