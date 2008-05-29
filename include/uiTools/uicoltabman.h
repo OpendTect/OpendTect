@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.h,v 1.5 2008-05-12 07:43:44 cvssatyaki Exp $
+ RCS:           $Id: uicoltabman.h,v 1.6 2008-05-29 11:55:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,8 @@ protected:
 
     void			segmentSel(CallBacker*);
     void			nrSegmentsCB(CallBacker*);
+    void			updateSegmentFields();
+
     void			undefColSel(CallBacker*);
     void			rightClick(CallBacker*);
     void			doSegmentize();
@@ -85,6 +87,7 @@ protected:
     void			transptSel(CallBacker*);
     void			transptChg(CallBacker*);
     void			sequenceChange(CallBacker*);
+    void			markerChange(CallBacker*);
 };
 
 #endif

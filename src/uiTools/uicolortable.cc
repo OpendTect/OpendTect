@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.17 2008-05-05 05:42:29 cvsnageswara Exp $
+ RCS:           $Id: uicolortable.cc,v 1.18 2008-05-29 11:55:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "color.h"
 #include "coltabsequence.h"
 #include "datainpspec.h"
+#include "flatview.h"
 #include "iopar.h"
 #include "pixmap.h"
 #include "settings.h"
@@ -37,7 +38,8 @@ ________________________________________________________________________
 	  seqChanged(this) \
 	, scaleChanged(this) \
 	, minfld_(0) \
-	, maxfld_(0)
+	, maxfld_(0) \
+	, enabmanage_(true)
 
 
 uiColorTable::uiColorTable( uiParent* p, ColTab::Sequence& colseq, bool vert )
@@ -106,6 +108,25 @@ uiColorTable::uiColorTable( uiParent* p, const char* ctnm, bool vert )
 uiColorTable::~uiColorTable()
 {
     delete &coltabseq_;
+}
+
+
+void uiColorTable::setDispPars( const FlatView::DataDispPars::VD& disppar )
+{
+    setAutoScale( disppar.autoscale_ );
+    setClipRate( disppar.clipperc_.start * 0.01 );
+    setSymMidval( disppar.symmidvalue_ );
+    setInterval( disppar.rg_ );
+}
+
+
+void uiColorTable::getDispPars( FlatView::DataDispPars::VD& disppar ) const
+{
+    disppar.autoscale_ = autoScale();
+    disppar.clipperc_ = Interval<float>( getClipRate() * 100, mUdf(float) );
+    disppar.symmidvalue_ = getSymMidval();
+    if ( !disppar.autoscale_ )
+	disppar.rg_ = getInterval();
 }
 
 
@@ -185,10 +206,13 @@ void uiColorTable::canvasClick( CallBacker* )
 	mCB(this,uiColorTable,doFlip)), 0 );
     mnu->insertItem( new uiMenuItem("Ranges/Clipping ...",
 	mCB(this,uiColorTable,editScaling)), 1 );
-    mnu->insertItem( new uiMenuItem("Manage ...",
-	mCB(this,uiColorTable,doManage)), 2 );
-    mnu->insertItem( new uiMenuItem("Set as default",
-	mCB(this,uiColorTable,setAsDefault)), 3 );
+    if ( enabmanage_ )
+    {
+	mnu->insertItem( new uiMenuItem("Manage ...",
+	    mCB(this,uiColorTable,doManage)), 2 );
+	mnu->insertItem( new uiMenuItem("Set as default",
+	    mCB(this,uiColorTable,setAsDefault)), 3 );
+    }
     mnu->exec();
 
     canvas_->getMouseEventHandler().setHandled( true );

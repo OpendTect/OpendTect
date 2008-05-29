@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.cc,v 1.9 2008-05-27 05:42:28 cvsnanne Exp $
+ RCS:           $Id: uicoltabman.cc,v 1.10 2008-05-29 11:55:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,7 +122,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
     savebut->attach( rightBorder, 0 );
 
     markercanvas_->markerChanged.notify( mCB(this,
-					     uiColorTableMan,sequenceChange) );
+					     uiColorTableMan,markerChange) );
     ctab_.colorChanged.notify( mCB(this,uiColorTableMan,sequenceChange) );
     ctab_.transparencyChanged.notify( mCB(this,uiColorTableMan,sequenceChange));
     finaliseStart.notify( mCB(this,uiColorTableMan,doFinalise) );
@@ -206,11 +206,7 @@ void uiColorTableMan::selChg( CallBacker* cb )
     delete orgctab_;
     orgctab_ = new ColTab::Sequence( ctab_ );
     issaved_ = true;
-    segmentfld_->setChecked( markercanvas_->isSegmentized() );
-    if ( markercanvas_->isSegmentized() )
-	nrsegbox_->setValue( ctab_.size()/2 );
-    else
-	nrsegbox_->setValue( 8 );
+    updateSegmentFields();
     tableChanged.trigger();
 }
 
@@ -251,8 +247,11 @@ void uiColorTableMan::removeCB( CallBacker* )
 
 void uiColorTableMan::saveCB( CallBacker* )
 {
-   if (  saveColTab( true ) )
-       ColTab::SM().write();
+    if (  saveColTab( true ) )
+    {
+        ColTab::SM().write();
+	ColTab::SM().refresh();
+    }
     tableAddRem.trigger();
 }
 
@@ -307,6 +306,8 @@ bool uiColorTableMan::saveColTab( bool saveas )
     IOPar* ctpar = new IOPar;
     newctab.fillPar( *ctpar );
     ColTab::SM().set(newctab);
+    ColTab::SM().write();
+    ColTab::SM().refresh();
 
     refreshColTabList( newctab.name() );
 
@@ -362,17 +363,30 @@ void uiColorTableMan::setHistogram( const TypeSet<float>& hist )
 }
 
 
+void uiColorTableMan::updateSegmentFields()
+{
+    NotifyStopper ns1( segmentfld_->activated );
+    NotifyStopper ns2( nrsegbox_->valueChanging );
+    segmentfld_->setChecked( markercanvas_->isSegmentized() );
+    nrsegbox_->setSensitive( segmentfld_->isChecked() );
+
+    if ( markercanvas_->isSegmentized() )
+	nrsegbox_->setValue( ctab_.size()/2 );
+    else
+	nrsegbox_->setValue( 8 );
+}
+
+
 void uiColorTableMan::segmentSel( CallBacker* )
 {
     nrsegbox_->setSensitive( segmentfld_->isChecked() );
-    if ( markercanvas_->isSegmentized() )
-	nrsegbox_->setValue( ctab_.size()/2 );
     doSegmentize();
 }
 
 
 void uiColorTableMan::nrSegmentsCB( CallBacker* )
 {
+    NotifyStopper( ctab_.colorChanged );
     ColTab::SM().get( orgctab_->name(), ctab_ );
     doSegmentize();
 }
@@ -448,6 +462,13 @@ void uiColorTableMan::rightClick( CallBacker* )
     }
 
     ctabcanvas_->getMouseEventHandler().setHandled( true );
+}
+
+
+void uiColorTableMan::markerChange( CallBacker* )
+{
+    updateSegmentFields();
+    sequenceChange( 0 );
 }
 
 
