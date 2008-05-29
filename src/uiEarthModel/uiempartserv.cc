@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.141 2008-05-22 11:12:29 cvssatyaki Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.142 2008-05-29 07:47:04 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -602,6 +602,7 @@ bool uiEMPartServer::getAuxData( const EM::ObjectID& oid, int auxdatanr,
 	return false;
 
     auxdata.setName( hor3d->auxdata.auxDataName( auxdatanr ) );
+    auxdata.bivSet().setNrVals( 2 );
     for ( int idx=0; idx<hor3d->nrSections(); idx++ )
     {
 	const EM::SectionID sid = hor3d->sectionID( idx );
