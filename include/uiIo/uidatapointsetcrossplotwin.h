@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.1 2008-04-03 08:28:30 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.2 2008-05-29 07:38:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uidatapointsetcrossplot.h"
 #include "uimainwin.h"
 class uiToolBar;
+class uiComboBox;
 
 /*!\brief Data Point Set Cross Plotter Main window */
 
@@ -38,6 +39,7 @@ protected:
     uiToolBar&			disptb_;
     uiToolBar&			maniptb_;
     uiSpinBox*			eachfld_;
+    uiComboBox*			grpfld_;
 
     bool			rbissel_;
 
@@ -49,6 +51,7 @@ protected:
     void			showY2(CallBacker*);
     void			showBD(CallBacker*);
     void			eachChg(CallBacker*);
+    void			grpChg(CallBacker*);
     void			selZoom(CallBacker*);
     void			delSel(CallBacker*);
     void			unZoom(CallBacker*);

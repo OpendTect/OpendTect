@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.5 2008-04-24 09:22:32 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.6 2008-05-29 07:38:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uirgbarray.h"
 #include "uitoolbar.h"
 #include "uispinbox.h"
+#include "uicombobox.h"
 #include "uilabel.h"
 #include "iodrawtool.h"
 #include "randcolor.h"
@@ -122,6 +123,7 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , doy2_(true)
     , dobd_(false)
     , eachrow_(1)
+    , curgrp_(0)
 {
     dodraw_ = false;
     x_.defsu_.style_ = setup_.xstyle_;
@@ -172,7 +174,8 @@ int uiDataPointSetCrossPlotter::getRow(
     int row = -1; float mindistsq = 1e30;
     for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
     {
-	if ( rid % eachrow_ ) continue;
+	if ( rid % eachrow_ || (curgrp_ > 0 && dps_.group(rid) != curgrp_) )
+	    continue;
 
 	const float xval = uidps_.getVal( x_.colid_, rid, true );
 	const float yval = uidps_.getVal( ad.colid_, rid, true );
@@ -291,14 +294,19 @@ void uiDataPointSetCrossPlotter::drawData(
     const uiAxisHandler& yah = *yad.axis_;
     drawTool().setPenColor( yah.setup().style_.color_ );
 
+    int estpts = dps_.size() / eachrow_;
+    if ( curgrp_ > 0 ) estpts = cMaxPtsForMarkers;
+
     MarkerStyle2D mstyle( setup_.markerstyle_ );
-    if ( dps_.size()/eachrow_ > cMaxPtsForMarkers )
+    if ( estpts > cMaxPtsForMarkers )
 	mstyle.type_ = MarkerStyle2D::None;
     mstyle.color_ = yah.setup().style_.color_;
 
     for ( uiDataPointSet::DRowID rid=0; rid<nrrows; rid++ )
     {
-	if ( rid % eachrow_ || dps_.isInactive(rid) ) continue;
+	if ( rid % eachrow_ || dps_.isInactive(rid)
+	  || (curgrp_ > 0 && dps_.group(rid) != curgrp_) )
+	    continue;
 
 	const float xval = uidps_.getVal( x_.colid_, rid, true );
 	const float yval = uidps_.getVal( yad.colid_, rid, true );
@@ -325,6 +333,7 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     , disptb_(*new uiToolBar(this,"Crossplot display toolbar"))
     , maniptb_(*new uiToolBar(this,"Crossplot manipulation toolbar"))
     , rbissel_(true)
+    , grpfld_(0)
 {
     windowClosed.notify( mCB(this,uiDataPointSetCrossPlotWin,closeNotif) );
 
@@ -366,6 +375,19 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 			"Delete selected", false );
 */
 
+    if ( uidps_.groupNames().size() > 1 )
+    {
+	grpfld_ = new uiComboBox( grp, "Group selection" );
+	BufferString txt( "All " ); txt += uidps_.groupType(); txt += "s";
+	grpfld_->addItem( txt );
+	for ( int idx=0; idx<uidps_.groupNames().size(); idx++ )
+	    grpfld_->addItem( uidps_.groupNames().get(idx) );
+	grpfld_->attach( rightOf, eachfld_ );
+	grpfld_->setCurrentItem( 0 );
+	grpfld_->selectionChanged.notify(
+			    mCB(this,uiDataPointSetCrossPlotWin,grpChg) );
+    }
+
     setPrefWidth( 600 );
     setPrefHeight( 500 );
 }
@@ -400,6 +422,14 @@ void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
     int neweachrow = eachfld_->getValue();
     if ( neweachrow < 1 ) neweachrow = 1;
     plotter_.eachrow_ = neweachrow;
+    plotter_.update();
+}
+
+
+void uiDataPointSetCrossPlotWin::grpChg( CallBacker* )
+{
+    if ( !grpfld_ ) return;
+    plotter_.curgrp_ = grpfld_->currentItem();
     plotter_.update();
 }
 

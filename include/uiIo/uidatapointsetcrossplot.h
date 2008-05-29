@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.2 2008-04-08 16:18:38 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.3 2008-05-29 07:38:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,7 @@ protected:
     bool			doy2_;
     bool			dobd_;
     int				eachrow_;
+    int				curgrp_;
     const DataPointSet::ColID	mincolid_;
     DataPointSet::RowID		selrow_;
     bool			isy2_;
