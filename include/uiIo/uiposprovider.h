@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovider.h,v 1.9 2008-04-24 10:32:01 cvsraman Exp $
+ RCS:           $Id: uiposprovider.h,v 1.10 2008-05-29 15:14:54 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,7 +80,7 @@ public:
     Pos::Provider*	curProvider()			{ return prov_; }
     const Pos::Provider* curProvider() const		{ return prov_; }
 
-    const CubeSampling&	envelope() const		{ return cs_; }
+    const CubeSampling&	envelope() const;
     void		setInput(const CubeSampling&,bool chgtype=true);
     void		setInputLimit(const CubeSampling&);
 
