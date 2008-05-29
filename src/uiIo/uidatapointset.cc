@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.16 2008-05-28 15:09:58 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.17 2008-05-29 11:31:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,7 @@ uiDataPointSet::uiDataPointSet( uiParent* p, const DataPointSet& dps,
     tbl_->rowClicked.notify( mCB(this,uiDataPointSet,rowSel) );
     tbl_->selectionChanged.notify( mCB(this,uiDataPointSet,selChg) );
     tbl_->setTableReadOnly( setup_.isconst_ );
+    tbl_->setColumnLabelAlignment( OD::AlignLeft );
 
     setPrefWidth( 800 ); setPrefHeight( 600 );
     eachrow_ = -1; // force refill
