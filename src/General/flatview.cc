@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.36 2008-04-22 10:14:22 cvsraman Exp $
+ RCS:           $Id: flatview.cc,v 1.37 2008-05-29 12:02:25 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,8 @@ const char* DataDispPars::sKeyMidCol = "Mid color";
 const char* DataDispPars::sKeyLeftCol = "Left color";
 const char* DataDispPars::sKeyRightCol = "Right color";
 const char* DataDispPars::sKeyOverlap = "Overlap";
-const char* DataDispPars::sKeyMidValue = "Mid value";
+const char* DataDispPars::sKeySymMidValue = "Sym Mid value";
+const char* DataDispPars::sKeyMidLineValue = "Mid Line value";
 
 }
 
@@ -135,7 +136,7 @@ FlatView::DataDispPars::Common::Common()
     , rg_(mUdf(float),mUdf(float))
     , clipperc_(ColTab::defClipRate()*100,mUdf(float))
     , blocky_(false)
-    , midvalue_( mUdf(float) )
+    , symmidvalue_(mUdf(float))
 {}
 
 
@@ -271,7 +272,7 @@ void FlatView::DataDispPars::fillPar( IOPar& iop ) const
     mIOPDoVD( setYN, sKeyBlocky, vd_.blocky_ );
     mIOPDoVD( setYN, sKeyAutoScale, vd_.autoscale_ );
     mIOPDoVD( set, sKeyClipPerc, vd_.clipperc_ );
-    mIOPDoVD( set, sKeyMidValue, vd_.midvalue_ );
+    mIOPDoVD( set, sKeySymMidValue, vd_.symmidvalue_ );
 
     mIOPDoWVA( setYN, sKeyShow, wva_.show_ );
     mIOPDoWVA( set, sKeyDispRg, wva_.rg_ );
@@ -283,7 +284,8 @@ void FlatView::DataDispPars::fillPar( IOPar& iop ) const
     mIOPDoWVA( set, sKeyLeftCol, wva_.left_ );
     mIOPDoWVA( set, sKeyRightCol, wva_.right_ );
     mIOPDoWVA( set, sKeyOverlap, wva_.overlap_ );
-    mIOPDoWVA( set, sKeyMidValue, wva_.midvalue_ );
+    mIOPDoWVA( set, sKeySymMidValue, wva_.symmidvalue_ );
+    mIOPDoWVA( set, sKeyMidLineValue, wva_.midlinevalue_ );
 }
 
 
@@ -295,7 +297,7 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
     mIOPDoVD( getYN, sKeyBlocky, vd_.blocky_ );
     mIOPDoVD( getYN, sKeyAutoScale, vd_.autoscale_ );
     mIOPDoVD( get, sKeyClipPerc, vd_.clipperc_ );
-    mIOPDoVD( get, sKeyMidValue, vd_.midvalue_ );
+    mIOPDoVD( get, sKeySymMidValue, vd_.symmidvalue_ );
 
     mIOPDoWVA( getYN, sKeyShow, wva_.show_ );
     mIOPDoWVA( get, sKeyDispRg, wva_.rg_ );
@@ -307,7 +309,8 @@ void FlatView::DataDispPars::usePar( const IOPar& iop )
     mIOPDoWVA( get, sKeyLeftCol, wva_.left_ );
     mIOPDoWVA( get, sKeyRightCol, wva_.right_ );
     mIOPDoWVA( get, sKeyOverlap, wva_.overlap_ );
-    mIOPDoWVA( get, sKeyMidValue, wva_.midvalue_ );
+    mIOPDoWVA( get, sKeySymMidValue, wva_.symmidvalue_ );
+    mIOPDoWVA( get, sKeyMidLineValue, wva_.midlinevalue_ );
 }
 
 
