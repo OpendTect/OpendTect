@@ -24,9 +24,9 @@ uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurvey* uisurv )
 				      "Specify output parameters","0.0.0") )
     , si_(uisurv->curSurvInfo())
 {
+    const Color defcol( 255, 170, 0, 100 );
     colfld_ = new uiColorInput( this,
-	    			uiColorInput::Setup(Color(255,170,0,255) ).
-			       	lbltxt("Color") );
+	    			uiColorInput::Setup(defcol).lbltxt("Color") );
     colfld_->enableAlphaSetting( true );
 
     hghtfld_ = new uiGenInput( this, "Border height", FloatInpSpec(50) );
