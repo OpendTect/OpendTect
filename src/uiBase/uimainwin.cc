@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.145 2008-05-28 11:06:46 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.146 2008-05-29 08:51:50 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -230,7 +230,7 @@ Qt::WFlags uiMainWinBody::getFlags( bool hasparent, bool modal ) const
 
 void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 {
-    centralWidget_ = new uiGroup( &handle(), "uiMainWin central widget" );
+    centralWidget_ = new uiGroup( &handle(), "OpendTect Main Window" );
     setCentralWidget( centralWidget_->body()->qwidget() ); 
 
     centralWidget_->setIsMain(true);
