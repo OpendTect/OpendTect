@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiioobjsel.h,v 1.53 2008-05-23 12:02:06 cvsnanne Exp $
+ RCS:           $Id: uiioobjsel.h,v 1.54 2008-05-29 12:30:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,6 +80,10 @@ public:
     const ObjectSet<MultiID>&	getIOObjIds() const	{ return ioobjids_; }
     void			setConfirmOverwrite( bool yn )
 				{ confirmoverwrite_ = yn; }
+    void			setAskedToOverwrite( bool yn )
+				{ asked2overwrite_ = yn; }
+    bool			askedToOverwrite() const
+    				{ return asked2overwrite_; }
 
     virtual bool		fillPar(IOPar&) const;
     virtual void		usePar(const IOPar&);
@@ -91,6 +95,7 @@ protected:
     BufferStringSet	ioobjnms_;
     bool		ismultisel_;
     bool		confirmoverwrite_;
+    bool		asked2overwrite_;
 
     friend class	uiIOObjSelDlg;
     friend class	uiIOObjSelGrpManipSubj;
