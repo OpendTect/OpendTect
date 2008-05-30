@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.15 2008-05-21 16:14:58 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.16 2008-05-30 03:53:22 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.15 2008-05-21 16:14:58 c
 #include "emmanager.h"
 #include "executor.h"
 #include "explfaultsticksurface.h"
+#include "explplaneintersection.h"
 #include "faultsticksurface.h"
 #include "faulteditor.h"
 #include "iopar.h"
@@ -46,15 +47,18 @@ FaultDisplay::FaultDisplay()
     , neareststickmarker_( visBase::IndexedPolyLine3D::create() )
     , paneldisplay_( 0 )
     , stickdisplay_( 0 )
+    , intersectiondisplay_( 0 )
     , viseditor_( 0 )
     , faulteditor_( 0 )
     , eventcatcher_( 0 )
     , explicitpanels_( 0 )
     , explicitsticks_( 0 )
+    , explicitintersections_( 0 )
     , displaytransform_( 0 )
     , neareststick_( mUdf(int) )
     , shapehints_( visBase::ShapeHints::create() )
     , neareststickmarkerpickstyle_( visBase::PickStyle::create() )
+    , showmanipulator_( false )
 {
     neareststickmarkerpickstyle_->ref();
     neareststickmarkerpickstyle_->setStyle( visBase::PickStyle::Unpickable );
@@ -88,8 +92,12 @@ FaultDisplay::~FaultDisplay()
     if ( stickdisplay_ )
 	stickdisplay_->unRef();
 
+    if ( intersectiondisplay_ )
+	intersectiondisplay_->unRef();
+
     delete explicitpanels_;
     delete explicitsticks_;
+    delete explicitintersections_;
 
     if ( emfault_ )
     {
@@ -149,6 +157,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     if ( !emfault )
     {
 	if ( paneldisplay_ ) paneldisplay_->turnOn( false );
+	if ( intersectiondisplay_ ) intersectiondisplay_->turnOn( false );
 	if ( stickdisplay_ ) stickdisplay_->turnOn( false );
 	return false;
     }
@@ -174,6 +183,18 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	addChild( paneldisplay_->getInventorNode() );
     }
 
+    if ( !intersectiondisplay_ )
+    {
+	intersectiondisplay_ = visBase::GeomIndexedShape::create();
+	intersectiondisplay_->ref();
+	intersectiondisplay_->setDisplayTransformation( displaytransform_ );
+	intersectiondisplay_->setMaterial( 0 );
+	intersectiondisplay_->setSelectable( false );
+	intersectiondisplay_->setRightHandSystem( righthandsystem_ );
+	addChild( intersectiondisplay_->getInventorNode() );
+	intersectiondisplay_->turnOn( false );
+    }
+
     if ( !stickdisplay_ )
     {
 	stickdisplay_ = visBase::GeomIndexedShape::create();
@@ -191,8 +212,11 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	const float zscale = SI().zFactor() * scene_->getZScale();
 	explicitpanels_ = new Geometry::ExplFaultStickSurface( 0, zscale );
 	explicitpanels_->display( false, true );
+
 	explicitsticks_ = new Geometry::ExplFaultStickSurface( 0, zscale );
 	explicitsticks_->display( true, false );
+
+	explicitintersections_ = new Geometry::ExplPlaneIntersection;
     }
 
     mDynamicCastGet( Geometry::FaultStickSurface*, fss,
@@ -201,6 +225,9 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     paneldisplay_->setSurface( explicitpanels_ );
     explicitpanels_->setSurface( fss ); 
     paneldisplay_->touch( true );
+
+    explicitintersections_->setShape( *explicitpanels_ );
+    intersectiondisplay_->setSurface( explicitintersections_ );
 
     stickdisplay_->setSurface( explicitsticks_ );
     explicitsticks_->setSurface( fss ); 
@@ -256,6 +283,11 @@ void FaultDisplay::display( bool sticks, bool panels )
     if ( stickdisplay_ )
 	stickdisplay_->turnOn( sticks );
 
+    if ( neareststickmarker_ )
+	neareststickmarker_->turnOn( sticks );
+
+    viseditor_->turnOn( yn && showmanipulator_ );
+
     if ( paneldisplay_ )
 	paneldisplay_->turnOn( panels );
 }
@@ -310,6 +342,8 @@ void FaultDisplay::setDisplayTransformation(visBase::Transformation* nt)
 {
     if ( paneldisplay_ ) paneldisplay_->setDisplayTransformation( nt );
     if ( stickdisplay_ ) stickdisplay_->setDisplayTransformation( nt );
+    if ( intersectiondisplay_ )
+	intersectiondisplay_->setDisplayTransformation( nt );
     if ( viseditor_ ) viseditor_->setDisplayTransformation( nt );
     neareststickmarker_->setDisplayTransformation( nt );
 
@@ -324,6 +358,7 @@ void FaultDisplay::setRightHandSystem(bool yn)
     visBase::VisualObjectImpl::setRightHandSystem( yn );
     if ( paneldisplay_ ) paneldisplay_->setRightHandSystem( yn );
     if ( stickdisplay_ ) stickdisplay_->setRightHandSystem( yn );
+    if ( intersectiondisplay_ ) intersectiondisplay_->setRightHandSystem( yn );
 }
 
 
@@ -410,6 +445,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 			    EM::EMM().undo().currentEventID() );
 		    paneldisplay_->touch( false );
 		    stickdisplay_->touch( false );
+		    if ( intersectiondisplay_ )
+			intersectiondisplay_->touch( false );
 		}
 	    }
 	}
@@ -449,6 +486,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 
 	    paneldisplay_->touch( false );
 	    stickdisplay_->touch( false );
+	    intersectiondisplay_->touch( false );
 	    faulteditor_->editpositionchange.trigger();
 	}
     }
@@ -484,6 +522,7 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
 
 	paneldisplay_->touch( false );
 	stickdisplay_->touch( false );
+	intersectiondisplay_->touch( false );
     }
 }
 
@@ -530,8 +569,9 @@ void FaultDisplay::updateNearestStickMarker()
 
 void FaultDisplay::showManipulator( bool yn )
 {
-    viseditor_->turnOn( yn );
-    neareststickmarker_->turnOn( yn );
+    showmanipulator_ = yn;
+    viseditor_->turnOn( yn && areSticksDisplayed() );
+    neareststickmarker_->turnOn( yn && areSticksDisplayed() );
 }
 
 
@@ -577,6 +617,89 @@ void FaultDisplay::emptyCache( int attrib )
 
 bool FaultDisplay::hasCache( int attrib ) const
 { return false; }
+
+
+void FaultDisplay::displayIntersections( bool yn )
+{
+    if ( intersectiondisplay_ )
+    {
+	if ( yn ) intersectiondisplay_->touch( false );
+	intersectiondisplay_->turnOn( yn );
+    }
+}
+
+
+bool FaultDisplay::areIntersectionsDisplayed() const
+{ return intersectiondisplay_ ? intersectiondisplay_->isOn() : false; }
+
+
+void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
+				      int whichobj )
+{
+    ObjectSet<const SurveyObject> usedobjects;
+    TypeSet<int> planeids;
+
+    for ( int idx=0; idx<objs.size(); idx++ )
+    {
+
+	mDynamicCastGet( const PlaneDataDisplay*, plane, objs[idx] );
+	if ( !plane || !plane->isOn() )
+	    continue;
+
+	const CubeSampling cs = plane->getCubeSampling(true,true,-1);
+	const BinID b00 = cs.hrg.start, b11 = cs.hrg.stop;
+	BinID b01, b10;
+
+	if ( plane->getOrientation()==PlaneDataDisplay::Timeslice )
+	{
+	    b01 = BinID( cs.hrg.start.inl, cs.hrg.stop.crl );
+	    b10 = BinID( cs.hrg.stop.inl, cs.hrg.start.crl );
+	}
+	else
+	{
+	    b01 = b00;
+	    b10 = b11;
+	}
+
+	const Coord3 c00( SI().transform(b00),cs.zrg.start );
+	const Coord3 c01( SI().transform(b01),cs.zrg.stop );
+	const Coord3 c11( SI().transform(b11),cs.zrg.stop );
+	const Coord3 c10( SI().transform(b10),cs.zrg.start );
+
+	const Coord3 normal = (c01-c00).cross(c10-c00).normalize();
+
+	TypeSet<Coord3> positions;
+	positions += c00;
+	positions += c01;
+	positions += c11;
+	positions += c10;
+
+	const int idy = intersectionobjs_.indexOf( objs[idx] );
+	if ( idy==-1 )
+	{
+	    usedobjects += plane;
+	    planeids += explicitintersections_->addPlane(normal,positions);
+	}
+	else
+	{
+	    usedobjects += plane;
+	    explicitintersections_->setPlane( planeids_[idy],
+					      normal, positions );
+	    planeids += planeids_[idy];
+
+	    intersectionobjs_.remove( idy );
+	    planeids_.remove( idy );
+	}
+    }
+
+    for ( int idx=planeids_.size()-1; idx>=0; idx-- )
+	explicitintersections_->removePlane( planeids_[idx] );
+
+    intersectionobjs_ = usedobjects;
+    planeids_ = planeids;
+
+    if ( areIntersectionsDisplayed() ) intersectiondisplay_->touch( false );
+}
 
 
 }; // namespace visSurvey

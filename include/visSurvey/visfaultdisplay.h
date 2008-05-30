@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.7 2008-05-21 10:39:09 cvsnanne Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.8 2008-05-30 03:53:22 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -32,7 +32,7 @@ namespace visBase
 
 namespace EM { class Fault; }
 namespace MPE { class FaultEditor; }
-namespace Geometry { class ExplFaultStickSurface; }
+namespace Geometry { class ExplFaultStickSurface; class ExplPlaneIntersection; }
 
 
 namespace visSurvey
@@ -86,9 +86,15 @@ public:
     bool			setEMID(const EM::ObjectID&);
     EM::ObjectID		getEMID() const;
 
+    void			displayIntersections(bool yn);
+    bool			areIntersectionsDisplayed() const;
+
 protected:
 
     virtual			~FaultDisplay();
+    void			otherObjectsMoved(
+	    			    const ObjectSet<const SurveyObject>&,
+				    int whichobj);
 
     virtual bool		getCacheValue(int attrib,int version,
 					      const Coord3&,float&) const;
@@ -115,6 +121,11 @@ protected:
     visBase::GeomIndexedShape*		stickdisplay_;
     Geometry::ExplFaultStickSurface*	explicitsticks_;
 
+    visBase::GeomIndexedShape*		intersectiondisplay_;
+    Geometry::ExplPlaneIntersection*	explicitintersections_;
+    ObjectSet<const SurveyObject>	intersectionobjs_;
+    TypeSet<int>			planeids_;
+
     visBase::PickStyle*			neareststickmarkerpickstyle_;
     visBase::IndexedPolyLine3D*		neareststickmarker_;
     int					neareststick_;
@@ -126,6 +137,7 @@ protected:
     Coord3				mousepos_;
 
     TypeSet<DataPack::ID>		datapackids_;
+    bool				showmanipulator_;
 };
 
 };
