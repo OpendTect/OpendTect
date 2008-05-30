@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.16 2008-05-30 03:53:22 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.17 2008-05-30 05:10:14 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -286,7 +286,7 @@ void FaultDisplay::display( bool sticks, bool panels )
     if ( neareststickmarker_ )
 	neareststickmarker_->turnOn( sticks );
 
-    viseditor_->turnOn( yn && showmanipulator_ );
+    viseditor_->turnOn( sticks && showmanipulator_ );
 
     if ( paneldisplay_ )
 	paneldisplay_->turnOn( panels );
