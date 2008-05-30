@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jul 2005
- RCS:		$Id: picksettr.cc,v 1.15 2008-04-11 13:22:25 cvsbert Exp $
+ RCS:		$Id: picksettr.cc,v 1.16 2008-05-30 09:49:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -256,10 +256,10 @@ ODPolygon<float>* PickSetTranslator::getPolygon( const IOObj& ioobj,
 	emsg += "':\n"; emsg += msg;
 	return 0;
     }
-    if ( ps.size() < 3 )
+    if ( ps.size() < 2 )
     {
 	emsg = "Polygon '"; emsg += ioobj.name();
-	emsg += "' contains less than 3 points";
+	emsg += "' contains less than 2 points";
 	return 0;
     }
 
