@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uiwellattribxplot.cc,v 1.15 2008-05-28 15:09:58 cvsbert Exp $
+ RCS:           $Id: uiwellattribxplot.cc,v 1.16 2008-05-30 07:09:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -196,7 +196,7 @@ bool uiWellAttribCrossPlot::extractWellData( const BufferStringSet& ioobjids,
 					     ObjectSet<DataPointSet>& dpss )
 {
     Well::TrackSampler wts( ioobjids, dpss, SI().zIsTime() );
-    wts.for2d = ads_.is2D(); wts.lognms = lognms;
+    wts.for2d = false; wts.lognms = lognms;
     wts.locradius = radiusfld_->getfValue();
     wts.topmrkr = topmarkfld_->text(); wts.botmrkr = botmarkfld_->text();
     wts.above = abovefld_->getfValue(0,0);
