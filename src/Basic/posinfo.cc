@@ -4,12 +4,13 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.3 2008-05-09 13:04:08 cvsraman Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.4 2008-05-30 07:03:32 cvsraman Exp $";
 
 #include "math2.h"
 #include "posinfo.h"
 #include "survinfo.h"
 
+static const float cThresholdDist = 25;
 
 int PosInfo::LineData::size() const
 {
@@ -420,6 +421,47 @@ bool PosInfo::CubeDataIterator::next( BinID& bid )
 PosInfo::Line2DData::Line2DData()
 {
     zrg = SI().sampling(false).zrg;
+}
+
+
+bool PosInfo::Line2DData::getPos( const Coord& coord,
+				  PosInfo::Line2DPos& pos ) const
+{
+    int posidx = -1;
+    double mindist = mUdf(float);
+    for ( int idx=0; idx<posns.size(); idx++ )
+    {
+	const Coord& curpos = posns[idx].coord_;
+	const float offset = curpos.distTo( coord );
+	if ( offset > cThresholdDist ) continue;
+	if ( offset < mindist )
+	{
+	    mindist = offset;
+	    posidx = idx;
+	}
+    }
+
+    if ( posidx < 0 ) return false;
+
+    pos.nr_ = posns[posidx].nr_;
+    pos.coord_ = posns[posidx].coord_;
+    return true;
+}
+
+
+bool PosInfo::Line2DData::getPos( int trcnr, PosInfo::Line2DPos& pos ) const
+{
+    for ( int idx=0; idx<posns.size(); idx++ )
+    {
+	if ( posns[idx].nr_ == trcnr )
+	{
+	    pos.nr_ = posns[idx].nr_;
+	    pos.coord_ = posns[idx].coord_;
+	    return true;
+	}
+    }
+
+    return false;
 }
 
 
