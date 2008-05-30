@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.39 2008-05-30 03:51:14 cvskris Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.40 2008-05-30 14:50:26 cvsyuancheng Exp $";
 
 #include "trigonometry.h"
 
@@ -286,7 +286,7 @@ bool Line3::closestPoint( const Line3& line, double& t_this,
 
     const Coord3 diff(line.x0_-x0_,line.y0_-y0_,line.z0_-z0_);
     double deter = dir1.x*dir0.y-dir1.y*dir0.x;
-    t_line = -(diff.x*dir0.y-diff.y*dir0.x)/deter;
+    t_line = (dir0.x*diff.y-diff.x*dir0.y)/deter;
     t_this = (dir1.x*diff.y-dir1.y*diff.x)/deter;
     
     if ( mIsEqual(t_this*dir0.z-t_line*dir1.z, diff.z, mDefEps) )
