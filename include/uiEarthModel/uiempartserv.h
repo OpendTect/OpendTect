@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.69 2008-05-22 11:12:29 cvssatyaki Exp $
+ RCS:           $Id: uiempartserv.h,v 1.70 2008-05-30 07:06:03 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,7 +85,7 @@ public:
     bool		loadSurface(const MultiID&,
 	    			    const EM::SurfaceIODataSelection* s=0);
     void		getSurfaceInfo(ObjectSet<SurfaceInfo>&);
-    void                getAllSurfaceInfo(ObjectSet<SurfaceInfo>&,bool);
+    static void         getAllSurfaceInfo(ObjectSet<SurfaceInfo>&,bool);
     void		getSurfaceDef3D(const TypeSet<EM::ObjectID>&,
 	    			        BinIDValueSet&,
 				        const HorSampling&) const;
