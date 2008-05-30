@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.116 2008-05-29 12:30:08 cvsnanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.117 2008-05-30 07:38:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -611,6 +611,8 @@ void uiIOObjSel::doObjSel( CallBacker* )
     uiIOObjRetDlg* dlg = mkDlg();
     if ( !dlg ) return;
 
+    if ( !helpid_.isEmpty() )
+	dlg->setHelpID( helpid_ );
     if ( dlg->go() && dlg->ioObj() )
     {
 	ctio.setObj( dlg->ioObj()->clone() );
