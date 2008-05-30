@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.69 2008-05-07 12:34:30 cvsnanne Exp $
+ RCS:		$Id: emobject.h,v 1.70 2008-05-30 03:47:13 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -188,6 +188,7 @@ public:
     virtual Executor*		saver()			{ return 0; }
     virtual bool		isChanged() const	{ return changed_; }
     virtual bool		isEmpty() const;
+    virtual void		setChangedFlag()	{ changed_=true; }
     virtual void		resetChangedFlag()	{ changed_=false; }
     bool			isFullyLoaded() const	{ return fullyloaded_; }
     void			setFullyLoaded(bool yn) { fullyloaded_=yn; }
