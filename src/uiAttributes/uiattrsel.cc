@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uiattrsel.cc,v 1.28 2008-05-28 12:10:08 cvsbert Exp $
+ RCS:           $Id: uiattrsel.cc,v 1.29 2008-05-30 07:05:21 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -638,6 +638,14 @@ bool uiAttrSel::checkOutput( const IOObj& ioobj ) const
 */
 
     return true;
+}
+
+
+void uiAttrSel::setObjectName( const char* nm )
+{
+    inp_->setName( nm );
+    const char* butnm = selbut_->name();
+    selbut_->setName( BufferString(butnm," ",nm) );
 }
 
 

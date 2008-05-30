@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrsel.h,v 1.10 2008-01-31 19:06:38 cvskris Exp $
+ RCS:           $Id: uiattrsel.h,v 1.11 2008-05-30 07:05:21 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,6 +152,8 @@ public:
     void		fillSelSpec(Attrib::SelSpec&) const;
     bool		checkOutput(const IOObj&) const;
     const char*		getAttrName() const;
+
+    void		setObjectName(const char*);
     
 protected:
 
