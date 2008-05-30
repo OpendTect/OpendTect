@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2007
- RCS:           $Id: uitaskrunner.h,v 1.5 2008-05-29 12:28:19 cvsnanne Exp $
+ RCS:           $Id: uitaskrunner.h,v 1.6 2008-05-30 04:09:10 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ public:
 
     bool		execute(Task& t);
     const char*		lastMsg() const		{ return prevmessage_.buf(); }
-    int			state() const		{ return state_; }
+    int			getState() const	{ return state_; }
 
 protected:
 
