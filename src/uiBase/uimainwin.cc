@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.146 2008-05-29 08:51:50 cvsnageswara Exp $
+ RCS:           $Id: uimainwin.cc,v 1.147 2008-05-30 07:39:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,8 +28,10 @@ ________________________________________________________________________
 
 #include "envvars.h"
 #include "errh.h"
+#include "filepath.h"
 #include "helpview.h"
 #include "msgh.h"
+#include "oddirs.h"
 #include "pixmap.h"
 #include "timer.h"
 
@@ -526,9 +528,21 @@ void uiMainWinBody::renewToolbarsMenu()
 }
 
 
+BufferString getSettingsFileName()
+{
+    FilePath fp( GetSettingsDir() );
+    fp.add( "qtsettings" );
+    const char* swusr = GetSoftwareUser();
+    if ( swusr )
+	fp.setExtension( swusr );
+    return fp.fullPath();
+}
+
+
 void uiMainWinBody::saveSettings()
 {
-    QSettings settings;
+    const BufferString fnm = getSettingsFileName();
+    QSettings settings( fnm.buf(), QSettings::IniFormat );
     settings.beginGroup( NamedObject::name().buf() );
     settings.setValue( "size", size() );
     settings.setValue( "state", saveState() );
@@ -538,7 +552,8 @@ void uiMainWinBody::saveSettings()
 
 void uiMainWinBody::readSettings()
 {
-    QSettings settings;
+    const BufferString fnm = getSettingsFileName();
+    QSettings settings( fnm.buf(), QSettings::IniFormat );
     settings.beginGroup( NamedObject::name().buf() );
     QSize qsz( settings.value("size",QSize(200,200)).toSize() );
     prefsz_ = uiSize( qsz.width(), qsz.height() );
