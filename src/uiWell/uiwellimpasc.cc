@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.37 2008-05-23 11:05:57 cvsbert Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.38 2008-05-30 07:14:52 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,8 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
     }
 
     coordfld = new uiGenInput( this, "Surface coordinate",
-			PositionInpSpec( PositionInpSpec::Setup(true) ) );
+			PositionInpSpec( PositionInpSpec::Setup(true))
+			   		 .setName("X",0).setName("Y",1) );
     coordfld->attach( alignedBelow, zistime ? (uiObject*)d2tgrp
 	   				    : (uiObject*)infld );
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.129 2008-05-12 08:30:52 cvsnanne Exp $
+ RCS:           $Id: uimpeman.cc,v 1.130 2008-05-30 07:14:03 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,7 +134,7 @@ void uiMPEMan::addButtons()
     toolbar->addSeparator();
 */
 
-    attribfld = new uiComboBox( toolbar, "Attribute" );
+    attribfld = new uiComboBox( toolbar, "QC Attribute" );
     attribfld->setToolTip( "QC Attribute" );
     attribfld->selectionChanged.notify( mCB(this,uiMPEMan,attribSel) );
     toolbar->addObject( attribfld );
@@ -142,7 +142,7 @@ void uiMPEMan::addButtons()
     clrtabidx = mAddButton( "colorbar.png", setColorbarCB,
 			    "Set track plane colorbar", true );
 
-    transfld = new uiSlider( toolbar, "Slider", 2 );
+    transfld = new uiSlider( toolbar, "Transparency", 2 );
     transfld->setOrientation( uiSlider::Horizontal );
     transfld->setMaxValue( 1 );
     transfld->setToolTip( "Transparency" );
@@ -158,7 +158,7 @@ void uiMPEMan::addButtons()
 	    			   "Track forward ( key: ']' )", false );
     toolbar->setShortcut(trackbackwardidx,"]");
 
-    nrstepsbox = new uiSpinBox( toolbar );
+    nrstepsbox = new uiSpinBox( toolbar, 0, "Nr of track steps" );
     nrstepsbox->setToolTip( "Nr of track steps" );
     nrstepsbox->setMinValue( 1 );
     toolbar->addObject( nrstepsbox );
