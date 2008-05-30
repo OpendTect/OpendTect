@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.cc,v 1.10 2008-05-29 11:55:19 cvssatyaki Exp $
+ RCS:           $Id: uicoltabman.cc,v 1.11 2008-05-30 04:10:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,9 +20,9 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uicolor.h"
+#include "uicoltabimport.h"
+#include "uicoltabmarker.h"
 #include "uicoltabtools.h"
-#include "uicolmarkerdlg.h"
-#include "uicoltabadddlg.h"
 #include "uifunctiondisplay.h"
 #include "uigeninput.h"
 #include "uigeninputdlg.h"
@@ -549,7 +549,7 @@ void uiColorTableMan::transptSel( CallBacker* )
 void uiColorTableMan::importColTab( CallBacker* )
 {
     NotifyStopper notifstop( importbut_->activated );
-    uiColTabAddDlg dlg( this );
+    uiColTabImport dlg( this );
     if ( dlg.go() )
     {
 	ColTab::SM().write(false);
