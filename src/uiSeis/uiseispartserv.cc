@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.88 2008-05-29 12:08:42 cvsnanne Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.89 2008-05-30 07:07:16 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -133,7 +133,7 @@ bool uiSeisPartServer::select2DSeis( MultiID& mid, bool with_attr )
 
 
 void uiSeisPartServer::get2DLineSetName( const MultiID& mid, 
-					 BufferString& setname ) const
+					 BufferString& setname )
 {
     mGet2DLineSet()
     setname = lineset.name();
@@ -182,7 +182,7 @@ void uiSeisPartServer::get2DLineInfo( BufferStringSet& linesets,
 
 bool uiSeisPartServer::get2DLineGeometry( const MultiID& mid,
 					  const char* linenm,
-					  PosInfo::Line2DData& geom ) const
+					  PosInfo::Line2DData& geom )
 {
     mGet2DLineSet(false)
     int lineidx = lineset.indexOf( linenm );
@@ -201,7 +201,7 @@ bool uiSeisPartServer::get2DLineGeometry( const MultiID& mid,
 
 void uiSeisPartServer::get2DStoredAttribs( const MultiID& mid, 
 					   const char* linenm,
-					   BufferStringSet& attribs ) const
+					   BufferStringSet& attribs )
 {
     uiSeisIOObjInfo objinfo( mid );
     objinfo.getAttribNamesForLine( linenm, attribs );

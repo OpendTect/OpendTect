@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.29 2008-05-13 13:58:23 cvsbert Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.30 2008-05-30 07:06:55 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,13 +46,13 @@ public:
 
     bool		select2DSeis(MultiID&,bool with_attr=false);
     bool		select2DLines(const MultiID&,BufferStringSet&);
-    bool		get2DLineGeometry(const MultiID& mid,const char* linenm,
-	    				  PosInfo::Line2DData&) const;
-    void		get2DLineSetName(const MultiID&,BufferString&) const;
-    void		get2DLineInfo(BufferStringSet&,TypeSet<MultiID>&,
+    static bool		get2DLineGeometry(const MultiID& mid,const char* linenm,
+	    				  PosInfo::Line2DData&);
+    static void		get2DLineSetName(const MultiID&,BufferString&);
+    static void		get2DLineInfo(BufferStringSet&,TypeSet<MultiID>&,
 	    			      TypeSet<BufferStringSet>&);
-    void		get2DStoredAttribs(const MultiID&,const char* linenm,
-	    				   BufferStringSet&) const;
+    static void		get2DStoredAttribs(const MultiID&,const char* linenm,
+	    				   BufferStringSet&);
     bool		create2DOutput(const MultiID&,const char* linekey,
 				       CubeSampling&,SeisTrcBuf&);
     void 		getStoredGathersList(bool for3d,BufferStringSet&) const;
