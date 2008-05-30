@@ -7,9 +7,8 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: visgeomindexedshape.h,v 1.4 2008-02-05 21:55:46 cvskris Exp $
+ RCS:		$Id: visgeomindexedshape.h,v 1.5 2008-05-30 04:31:40 cvskris Exp $
 ________________________________________________________________________
-
 
 -*/
 
@@ -45,6 +44,12 @@ public:
 
     void			touch(bool forall,TaskRunner* =0);
 
+    void			set3DLineRadius(float radius,
+	    					bool constantonscreen=true,
+						float maxworldsize=-1);
+    				/*!<If radius is less than 0, a normal
+				    line will be drawn. */
+
 protected:
 						~GeomIndexedShape();
 
@@ -54,6 +59,9 @@ protected:
     ObjectSet<SoIndexedShape>			strips_;
     ObjectSet<const Geometry::IndexedGeometry>	stripgeoms_;
 
+    float					lineradius_;
+    bool					lineconstantonscreen_;
+    float					linemaxsize_;
     ObjectSet<SoIndexedShape>			lines_;
     ObjectSet<const Geometry::IndexedGeometry>	linegeoms_;
 

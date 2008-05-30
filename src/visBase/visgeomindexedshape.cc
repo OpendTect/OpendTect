@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: visgeomindexedshape.cc,v 1.10 2008-05-14 20:48:19 cvskris Exp $
+ RCS:           $Id: visgeomindexedshape.cc,v 1.11 2008-05-30 04:31:40 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,8 @@ ________________________________________________________________________
 #include <Inventor/nodes/SoNormalBinding.h>
 #include <Inventor/SoDB.h>
 
+#include "SoIndexedLineSet3D.h"
+
 mCreateFactoryEntry( visBase::GeomIndexedShape );
 
 namespace visBase
@@ -32,6 +34,9 @@ GeomIndexedShape::GeomIndexedShape()
     , coords_( Coordinates::create() )
     , normals_( Normals::create() )
     , shape_( 0 )
+    , lineradius_( -1 )
+    , lineconstantonscreen_( false )
+    , linemaxsize_( -1 )
 {
     coords_->ref();
     addChild( coords_->getInventorNode() );
@@ -66,6 +71,15 @@ void GeomIndexedShape::setRightHandSystem( bool yn )
 
     VisualObjectImpl::setRightHandSystem( yn );
     if ( shape_ ) shape_->setRightHandedNormals( yn );
+
+    for ( int idx=lines_.size()-1; idx>=0; idx-- )
+    {
+	mDynamicCastGet( SoIndexedLineSet3D*, line3d, lines_[idx] );
+	if ( !line3d )
+	    continue;
+
+	line3d->rightHandSystem = righthandsystem_;
+    }
 }
 
 
@@ -141,7 +155,20 @@ void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
 	    SoIndexedShape* shape = 0;
 	    mHandleType( TriangleStrip, SoIndexedTriangleStripSet, strip )
             else mHandleType( TriangleFan, SoIndexedTriangleFanSet, fan )
- 	    else mHandleType( Lines, SoIndexedLineSet, line )
+ 	    else if ( lineradius_>0 )
+	    {
+		mHandleType( Lines, SoIndexedLineSet3D, line );
+		mDynamicCastGet( SoIndexedLineSet3D*, line3d, shape );
+		if ( line3d )
+		{
+		    line3d->radius = lineradius_;
+		    line3d->screenSize = lineconstantonscreen_;
+		    line3d->maxRadius = linemaxsize_;
+		    line3d->rightHandSystem = righthandsystem_;
+		}
+	    }
+	    else
+		mHandleType( Lines, SoIndexedLineSet, line )
 
 	    if ( !shape )
 		continue;
