@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.3 2008-05-09 13:03:41 cvsraman Exp $
+ RCS:		$Id: posinfo.h,v 1.4 2008-05-30 07:02:49 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,6 +136,8 @@ public:
     StepInterval<float> zrg;
     TypeSet<Line2DPos>  posns;
 
+    bool		getPos(const Coord&,Line2DPos&) const;
+    bool		getPos(int,Line2DPos&) const;
     void		limitTo(Interval<int> trcrg);
     void                dump(std::ostream&,bool pretty=true) const;
     bool		read(std::istream&);
