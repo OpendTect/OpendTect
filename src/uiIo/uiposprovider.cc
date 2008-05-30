@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.15 2008-05-30 07:31:44 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.16 2008-05-30 08:23:16 cvsbert Exp $";
 
 #include "uiposprovider.h"
 #include "uipossubsel.h"
@@ -218,8 +218,6 @@ void uiPosProvSel::setProvFromCS()
 
 const CubeSampling& uiPosProvSel::envelope() const
 {
-    if ( prov_ )
-	prov_->getCubeSampling( cs_ );
     return cs_;
 }
 
