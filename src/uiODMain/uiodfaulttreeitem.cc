@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodfaulttreeitem.cc,v 1.6 2008-05-21 16:14:20 cvskris Exp $
+ RCS:		$Id: uiodfaulttreeitem.cc,v 1.7 2008-05-30 03:54:04 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -93,14 +93,20 @@ uiTreeItem* uiODFaultTreeItemFactory::create( int visid, uiTreeItem* ) const
 #define mCommonInit \
     , savemnuitem_("Save") \
     , saveasmnuitem_("Save as ...") \
-    , dispsticksonlymnuitem_("Display sticks only")
+    , displaymnuitem_( "Display ..." ) \
+    , displayplanemnuitem_ ( "Fault planes" ) \
+    , displaystickmnuitem_ ( "Fault sticks" ) \
+    , displayintersectionmnuitem_( "At sections only" )
+
 
 uiODFaultTreeItem::uiODFaultTreeItem( const EM::ObjectID& oid )
     : uiODDisplayTreeItem()
     , emid_( oid )
     mCommonInit
 {
-    dispsticksonlymnuitem_.checkable = true;
+    displayplanemnuitem_.checkable = true;
+    displaystickmnuitem_.checkable = true;
+    displayintersectionmnuitem_.checkable = true;
 }
 
 
@@ -110,7 +116,9 @@ uiODFaultTreeItem::uiODFaultTreeItem( int id, bool dummy )
     , faultdisplay_(0)
     mCommonInit
 {
-    dispsticksonlymnuitem_.checkable = true;
+    displayplanemnuitem_.checkable = true;
+    displaystickmnuitem_.checkable = true;
+    displayintersectionmnuitem_.checkable = true;
     displayid_ = id;
 }
 
@@ -190,8 +198,15 @@ void uiODFaultTreeItem::createMenuCB( CallBacker* cb )
     if ( !fd )
 	return;
 
-    mAddMenuItem( menu, &dispsticksonlymnuitem_, true,
-		  !faultdisplay_->arePanelsDisplayed() );
+    mAddMenuItem( &displaymnuitem_, &displayplanemnuitem_, true,
+		  faultdisplay_->arePanelsDisplayed() );
+    mAddMenuItem( &displaymnuitem_, &displaystickmnuitem_, true,
+		  !faultdisplay_->arePanelsDisplayed() &&
+		   faultdisplay_->areSticksDisplayed() );
+    mAddMenuItem( &displaymnuitem_, &displayintersectionmnuitem_, true,
+		  faultdisplay_->areIntersectionsDisplayed() );
+    mAddMenuItem( menu, &displaymnuitem_, true, true );
+
     mAddMenuItem( menu, &savemnuitem_,
 		  applMgr()->EMServer()->isChanged(emid_) &&
 		  applMgr()->EMServer()->isFullyLoaded(emid_) &&
@@ -224,9 +239,23 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	applMgr()->EMServer()->storeObject(emid_,false);
     }
-    else if ( mnuid==dispsticksonlymnuitem_.id )
+    else if ( mnuid==displayplanemnuitem_.id )
     {
 	menu->setIsHandled(true);
-	faultdisplay_->display( true, dispsticksonlymnuitem_.checked );
+	faultdisplay_->display( true, true );
+	faultdisplay_->displayIntersections( false );
+    }
+    else if ( mnuid==displaystickmnuitem_.id )
+    {
+	menu->setIsHandled(true);
+	faultdisplay_->display( true, false );
+	faultdisplay_->displayIntersections( false );
+    }
+    else if ( mnuid==displayintersectionmnuitem_.id )
+    {
+	menu->setIsHandled(true);
+	faultdisplay_->display( false, false );
+	faultdisplay_->displayIntersections( true );
     }
 }
+
