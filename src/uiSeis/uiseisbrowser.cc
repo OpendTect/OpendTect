@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.24 2008-05-21 08:59:32 cvssatyaki Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.25 2008-05-30 07:12:47 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -711,7 +711,8 @@ uiSeisBrowserInfoDlg::uiSeisBrowserInfoDlg( uiParent* p, const SeisTrc& trc,
     uiGroup* valgrp = new uiGroup( this, "Values group" );
 
     PositionInpSpec coordinpspec( PositionInpSpec::Setup(true,is2d_,false) ); 
-    coordfld_ = new uiGenInput( valgrp, "Coordinate", coordinpspec );
+    coordfld_ = new uiGenInput( valgrp, "Coordinate",
+	   			 coordinpspec.setName("X", 0).setName("Y", 0) );
     coordfld_->setReadOnly();
 
     BufferString label( is2d_ ? "Trace Number" : "BinID" );
