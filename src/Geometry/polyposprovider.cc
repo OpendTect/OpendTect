@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: polyposprovider.cc,v 1.7 2008-05-30 08:32:58 cvsbert Exp $";
+static const char* rcsID = "$Id: polyposprovider.cc,v 1.8 2008-05-30 09:49:52 cvsbert Exp $";
 
 #include "polyposprovider.h"
 #include "keystrs.h"
@@ -192,7 +192,7 @@ void Pos::PolyProvider3D::fillPar( IOPar& iop ) const
 
 void Pos::PolyProvider3D::getSummary( BufferString& txt ) const
 {
-    if ( poly_.isEmpty() ) return;
+    if ( poly_.isEmpty() ) { txt += "No points. Unsaved?"; return; }
     txt += "area "; BufferString tmp;
     hs_.start.fill( tmp.buf() ); txt += tmp; txt += "-";
     hs_.stop.fill( tmp.buf() ); txt += tmp;
