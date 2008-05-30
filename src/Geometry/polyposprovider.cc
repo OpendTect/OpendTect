@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: polyposprovider.cc,v 1.6 2008-03-10 16:33:49 cvsbert Exp $";
+static const char* rcsID = "$Id: polyposprovider.cc,v 1.7 2008-05-30 08:32:58 cvsbert Exp $";
 
 #include "polyposprovider.h"
 #include "keystrs.h"
@@ -205,6 +205,15 @@ void Pos::PolyProvider3D::getSummary( BufferString& txt ) const
 void Pos::PolyProvider3D::getExtent( BinID& start, BinID& stop ) const
 {
     start = hs_.start; stop = hs_.stop;
+}
+
+
+void Pos::PolyProvider3D::getZRange( Interval<float>& zrg ) const
+{
+    assign( zrg, zrg_ );
+    mDynamicCastGet(StepInterval<float>*,szrg,&zrg)
+    if ( szrg )
+	szrg->step = zrg_.step;
 }
 
 
