@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.47 2008-05-27 12:15:13 cvsnanne Exp $
+ RCS:           $Id: emfault.cc,v 1.48 2008-05-30 03:52:14 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -247,6 +247,7 @@ bool FaultGeometry::insertStick( const SectionID& sid, int sticknr,
 	EMM().undo().addEvent( undo, 0 );
     }
 
+    surface_.setChangedFlag();
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::BurstAlert;
     surface_.change.trigger( cbdata );
@@ -284,6 +285,7 @@ bool FaultGeometry::removeStick( const SectionID& sid, int sticknr,
 	EMM().undo().addEvent( undo, 0 );
     }
 
+    surface_.setChangedFlag();
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::BurstAlert;
     surface_.change.trigger( cbdata );
@@ -308,6 +310,7 @@ bool FaultGeometry::insertKnot( const SectionID& sid, const SubID& subid,
 	EMM().undo().addEvent( undo, 0 );
     }
 
+    surface_.setChangedFlag();
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::BurstAlert;
     surface_.change.trigger( cbdata );
@@ -352,6 +355,7 @@ bool FaultGeometry::removeKnot( const SectionID& sid, const SubID& subid,
 	EMM().undo().addEvent( undo, 0 );
     }
 
+    surface_.setChangedFlag();
     EMObjectCallbackData cbdata;
     cbdata.event = EMObjectCallbackData::BurstAlert;
     surface_.change.trigger( cbdata );
