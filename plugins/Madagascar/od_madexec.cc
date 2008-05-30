@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		March 2008
- RCS:		$Id: od_madexec.cc,v 1.7 2008-05-09 13:08:56 cvsraman Exp $
+ RCS:		$Id: od_madexec.cc,v 1.8 2008-05-30 07:20:19 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,15 @@ const char* getProcString( IOPar& pars, BufferString& errmsg )
 
 
 #undef mErrRet
-#define mErrRet(s) { strm << "Error: " << s << std::endl; return false; }
+#define mErrRet(s) \
+{ \
+    BufferString dispmsg = GetExecScript( false ); \
+    dispmsg += " DispMsg --err "; \
+    dispmsg += s; \
+    if ( !StreamProvider(dispmsg).executeCommand() ) \
+	strm << "Error: " << s << std::endl; \
+    return false; \
+}
 
 bool processMad( IOPar& pars, std::ostream& strm )
 {
