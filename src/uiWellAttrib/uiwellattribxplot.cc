@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uiwellattribxplot.cc,v 1.16 2008-05-30 07:09:35 cvsbert Exp $
+ RCS:           $Id: uiwellattribxplot.cc,v 1.17 2008-05-30 13:22:58 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -284,7 +284,7 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 
     MouseCursorManager::setOverride( MouseCursor::Wait );
     DataPointSet* dps = new DataPointSet( TypeSet<DataPointSet::DataRow>(),
-	    				  dcds, ads_.is2D(), false );
+	    				  dcds, false, false );
     deepErase( dcds );
     const int nrattribs = attrnms.size();
     const int nrlogs = lognms.size() + 1;
