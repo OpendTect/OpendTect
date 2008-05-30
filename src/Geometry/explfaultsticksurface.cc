@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.17 2008-05-29 13:54:09 cvskris Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.18 2008-05-30 03:50:21 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -660,6 +660,8 @@ void ExplFaultStickSurface::surfaceMovement( CallBacker* cb )
 	emptyPanel( stickidx );
 	emptyStick( stickidx );
     }
+
+    addVersion();
 }
 
 }; // namespace Geometry
