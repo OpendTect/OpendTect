@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.46 2008-05-28 09:43:38 cvsnageswara Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.47 2008-05-30 07:11:54 cvsnageswara Exp $
 
 ________________________________________________________________________
 
@@ -208,6 +208,13 @@ uiFingerPrintAttrib::~uiFingerPrintAttrib()
 }
 
 
+static void setAttrSelName( ObjectSet<uiAttrSel>& flds )
+{
+    for ( int idx=0; idx<flds.size(); idx++ )
+	flds[idx]->setObjectName( BufferString("Attribute ",idx) );
+}
+
+
 void uiFingerPrintAttrib::initTable( int nrrows )
 {
     attribflds_.erase(); 
@@ -218,6 +225,8 @@ void uiFingerPrintAttrib::initTable( int nrrows )
 	attribflds_ += attrbox;
 	table_->setCellObject( RowCol(idx,0), attrbox->attachObj() );
     }
+
+    setAttrSelName( attribflds_ );
 }
 
 
@@ -233,6 +242,7 @@ void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
     weights.insert( newrow, 1);
 
     calcobj_->setWeights( weights );
+    setAttrSelName( attribflds_ );
 }
 
 
@@ -244,7 +254,8 @@ void uiFingerPrintAttrib::deleteRowCB( CallBacker* cb )
 
     delete attribflds_[row2rm];
     attribflds_.remove( row2rm );
-    
+    setAttrSelName( attribflds_ );
+
     TypeSet<int> weights = calcobj_->getWeights();
     weights.remove( row2rm );
 
