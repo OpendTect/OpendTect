@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: genc.h,v 1.31 2007-09-14 07:13:24 cvsbert Exp $
+ RCS:		$Id: genc.h,v 1.32 2008-05-30 12:49:38 cvsbert Exp $
 ________________________________________________________________________
 
 Some general utilities, that need to be accessible in many places:
@@ -37,6 +37,10 @@ int		ExitProgram( int ret );
 		     Return value is convenience only, so you can use like:
 		     return exitProgram( retval );
                 */
+
+typedef void	(*PtrAllVoidFn)(void);
+void		NotifyExitProgram(PtrAllVoidFn);
+		/*!< Function will be called on 'ExitProgram' */
 
 void		PutIsLittleEndian(unsigned char*);
 		/*!< Puts into 1 byte: 0=SunSparc/SGI (big), 1=PC (little) */

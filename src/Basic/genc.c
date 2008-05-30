@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.90 2008-01-15 16:19:43 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.91 2008-05-30 12:49:51 cvsbert Exp $";
 
 #include "genc.h"
 #include "string2.h"
@@ -75,11 +75,31 @@ int GetPID()
 }
 
 
+void NotifyExitProgram( PtrAllVoidFn fn )
+{
+    static int nrfns = 0;
+    static PtrAllVoidFn fns[100];
+    int idx;
+    if ( (int)fn == -1 )
+    {
+	for ( idx=0; idx<nrfns; idx++ )
+	    (*(fns[idx]))();
+    }
+    else
+    {
+	fns[nrfns] = fn;
+	nrfns++;
+    }
+}
+
+
 int ExitProgram( int ret )
 {
     if ( od_debug_isOn(DBG_PROGSTART) )
 	printf( "\nExitProgram (PID: %d) at %s\n",
 		GetPID(), Time_getFullDateString() );
+
+    NotifyExitProgram( (PtrAllVoidFn)(-1) );
 
 // On Mac OpendTect crashes when calling the usual exit and shows error message:
 // dyld: odmain bad address of lazy symbol pointer passed to stub_binding_helper
