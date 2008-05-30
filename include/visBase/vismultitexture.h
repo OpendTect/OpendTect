@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture.h,v 1.11 2007-01-26 17:54:58 cvskris Exp $
+ RCS:		$Id: vismultitexture.h,v 1.12 2008-05-30 05:00:52 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -55,7 +55,7 @@ public:
 				    angles, i.e. -PI==PI */
     int				insertTexture(int,const char* name);
     void			removeTexture(int);
-    void			swapTextures(int,int);
+    virtual void		swapTextures(int,int);
     virtual void		setTextureTransparency(int,unsigned char)= 0;
     virtual unsigned char	getTextureTransparency(int) const 	= 0;
     bool			hasTransparency(int) const;

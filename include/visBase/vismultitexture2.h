@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture2.h,v 1.15 2008-01-07 20:48:50 cvsyuancheng Exp $
+ RCS:		$Id: vismultitexture2.h,v 1.16 2008-05-30 05:00:52 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -56,6 +56,7 @@ public:
 
     void			setTextureTransparency(int, unsigned char);
     unsigned char		getTextureTransparency(int) const;
+    void			swapTextures(int,int);
     void			setOperation(int texture,Operation);
     Operation			getOperation(int texture) const;
     void			setTextureRenderQuality(float);
