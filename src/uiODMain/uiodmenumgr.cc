@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.123 2008-05-27 05:41:12 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.124 2008-05-30 07:13:14 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -205,6 +205,7 @@ void uiODMenuMgr::fillImportMenu()
     uiPopupMenu* imphorasc = new uiPopupMenu( &appl_, "&Ascii" );
     mInsertItem( imphorasc, "&Geometry 3D ...", mImpHorAsciiMnuItm );
     mInsertItem( imphorasc, "&Attributes 3D ...", mImpHorAsciiAttribMnuItm );
+    mInsertItem( imphorasc, "&Geometry 2D ...", mImpHor2DAsciiMnuItm );
     imphor->insertItem( imphorasc );
 
     mInsertItem( impfault, "&Ascii 3D ...", mImpFaultMnuItm );
@@ -574,6 +575,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpSeisSimple2DMnuItm: mDoOp(Exp,Seis,6); break;
     case mImpHorAsciiMnuItm: mDoOp(Imp,Hor,0); break;
     case mImpHorAsciiAttribMnuItm: mDoOp(Imp,Hor,1); break;
+    case mImpHor2DAsciiMnuItm: mDoOp(Imp,Hor,2); break;
     case mExpHorAsciiMnuItm: 	mDoOp(Exp,Hor,0); break;
     case mExpFltAsciiMnuItm: 	mDoOp(Exp,Flt,0); break;
     case mImpWellAsciiTrackMnuItm: mDoOp(Imp,Wll,0); break;

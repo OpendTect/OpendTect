@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.248 2008-05-22 11:16:21 cvssatyaki Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.249 2008-05-30 07:13:13 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uiattribpartserv.h"
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
+#include "uiimphorizon2d.h"
 #include "uinlapartserv.h"
 #include "uiseispartserv.h"
 #include "uiwellpartserv.h"
@@ -225,6 +226,11 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 		emserv_->importHorizon( true );
 	    else if ( opt == 1 )
 		emserv_->importHorizon( false );
+	    else if ( opt == 2 )
+	    {
+		uiImportHorizon2D dlg( &appl_ );
+		dlg.go();
+	    }
 	    break;
 	case Exp:	emserv_->exportHorizon(); break;
 	case Man:
