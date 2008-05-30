@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		September 2007
- RCS:		$Id: visgeomindexedshape.h,v 1.5 2008-05-30 04:31:40 cvskris Exp $
+ RCS:		$Id: visgeomindexedshape.h,v 1.6 2008-05-30 04:55:52 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ namespace visBase
 
 class Coordinates;
 class Normals;
+class TextureCoords;
 
 /*!Visualisation for Geometry::IndexedShape. */
 
@@ -55,6 +56,7 @@ protected:
 
     Coordinates*				coords_;
     Normals*					normals_;
+    TextureCoords*				texturecoords_;
 
     ObjectSet<SoIndexedShape>			strips_;
     ObjectSet<const Geometry::IndexedGeometry>	stripgeoms_;
