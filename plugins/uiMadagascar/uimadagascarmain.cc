@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.19 2008-05-09 13:09:37 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.20 2008-05-30 07:18:54 cvsraman Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.19 2008-05-09 13:09:37 
 #include "uilistbox.h"
 #include "uibutton.h"
 #include "uibuttongroup.h"
+#include "uigeninput.h"
 #include "uimenu.h"
 #include "uitoolbar.h"
 #include "uiseparator.h"
@@ -24,10 +25,12 @@ static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.19 2008-05-09 13:09:37 
 #include "uifiledlg.h"
 #include "uimsg.h"
 #include "pixmap.h"
+#include "keystrs.h"
 #include "ioman.h"
 #include "oddirs.h"
 #include "strmprov.h"
 
+const char* sKeySeisOutIDKey = "Output Seismics Key";
 
 uiMadagascarMain::uiMadagascarMain( uiParent* p )
 	: uiFullBatchDialog(p,Setup("Madagascar processing").menubar(true)
@@ -36,7 +39,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
 	, bldfld_(0)
 {
     setCtrlStyle( uiDialog::DoAndStay );
-    addStdFields( false, true );
+    addStdFields( false, false );
     createMenus();
 
     uiGroup* maingrp = new uiGroup( uppgrp_, "Main group" );
@@ -48,6 +51,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     procgrp->attach( alignedBelow, infld_ );
 
     outfld_ = new uiMadIOSel( maingrp, false );
+    outfld_->selectionMade.notify( mCB(this,uiMadagascarMain,inpSel) );
     outfld_->attach( alignedBelow, procgrp );
 
     bldfld_ = new uiMadagascarBldCmd( uppgrp_ );
@@ -58,6 +62,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
     bldfld_->attach( rightTo, sep );
     uppgrp_->setHAlignObj( sep );
 
+    setParFileNmDef( "Mad_Proc" );
     finaliseDone.notify( mCB(this,uiMadagascarMain,setButStates) );
 }
 
@@ -100,7 +105,7 @@ uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
     uiGroup* procgrp = new uiGroup( grp, "Proc group" );
     const CallBack butpushcb( mCB(this,uiMadagascarMain,butPush) );
 
-    uiLabeledListBox* pfld = new uiLabeledListBox( procgrp, "WORK", false,
+    uiLabeledListBox* pfld = new uiLabeledListBox( procgrp, "FLOW", false,
 						   uiLabeledListBox::LeftMid );
     procsfld_ = pfld->box();
     procsfld_->setPrefWidthInChar( 20 );
@@ -129,6 +134,19 @@ void uiMadagascarMain::inpSel( CallBacker* )
     IOPar inpar;
     infld_->fillPar( inpar );
     outfld_->useParIfNeeded( inpar );
+
+    IOPar outpar;
+    outfld_->fillPar( outpar );
+    BufferString inptyp = inpar.find( sKey::Type );
+    BufferString outptyp = outpar.find( sKey::Type );
+
+    if ( inptyp==Seis::nameOf(Seis::Vol) && outptyp==Seis::nameOf(Seis::Vol) )
+	singmachfld_->setSensitive( true );
+    else
+    {
+	singmachfld_->setValue( true );
+	singmachfld_->setSensitive( false );
+    }
 }
 
 #undef mErrRet
@@ -226,6 +244,7 @@ void uiMadagascarMain::setButStates( CallBacker* cb )
     const bool havesel = !procsfld_->isEmpty();
     rmbut_->setSensitive( havesel );
     selChg( cb );
+    inpSel(0);
 }
 
 
@@ -295,5 +314,6 @@ bool uiMadagascarMain::fillPar( IOPar& iop )
 	return false;
 
     pf.fillPar( iop );
+    iop.set( sKeySeisOutIDKey, "Output.ID" );
     return true;
 }
