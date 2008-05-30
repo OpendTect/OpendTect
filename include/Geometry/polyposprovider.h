@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: polyposprovider.h,v 1.5 2008-03-10 16:33:49 cvsbert Exp $
+ RCS:           $Id: polyposprovider.h,v 1.6 2008-05-30 08:33:12 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -47,8 +47,7 @@ public:
     virtual void	getSummary(BufferString&) const;
 
     virtual void	getExtent(BinID&,BinID&) const;
-    virtual void	getZRange( Interval<float>& zrg ) const
-						{ zrg = zrg_; }
+    virtual void	getZRange(Interval<float>&) const;
     virtual int		estNrPos() const;
     virtual int		estNrZPerPos() const	{ return zrg_.nrSteps()+1; }
 
