@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.16 2008-03-20 21:36:32 cvskris Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.17 2008-05-30 07:04:33 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,9 @@ ________________________________________________________________________
 #include "errh.h"
 #include "horizon2dline.h"
 #include "ioman.h"
+#include "survinfo.h"
+#include "tabledef.h"
+#include "unitofmeasure.h"
 
 namespace EM
 {
@@ -324,5 +327,87 @@ void Horizon2D::syncGeometry()
 
 const IOObjContext& Horizon2D::getIOObjContext() const
 { return EMHorizon2DTranslatorGroup::ioContext(); }
+
+
+Table::FormatDesc* Horizon2DAscIO::getDesc() 
+{
+    Table::FormatDesc* fd = new Table::FormatDesc( "Horizon2D" );
+    fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
+	    		StringInpSpec(sKey::FloatUdf), Table::Required );
+    BufferStringSet hornms;
+    createDescBody( fd, hornms );
+    return fd;
+}
+
+
+void Horizon2DAscIO::createDescBody( Table::FormatDesc* fd,
+				     const BufferStringSet& hornms )
+{
+    fd->bodyinfos_ += new Table::TargetInfo( "Line name", StringInpSpec(),
+	    				     Table::Required );
+
+    Table::TargetInfo* posinfo = new Table::TargetInfo( "", FloatInpSpec(),
+	   						Table::Required );
+    Table::TargetInfo::Form* form = new Table::TargetInfo::Form( "Trace Nr",
+	    							 IntInpSpec());
+    posinfo->add( form );
+    posinfo->form(0).setName( "X/Y");
+    posinfo->form(0).add( FloatInpSpec() );
+    fd->bodyinfos_ += posinfo;
+
+    for ( int idx=0; idx<hornms.size(); idx++ )
+    {
+	BufferString fldname = hornms.get( idx );
+	Table::TargetInfo* ti = new Table::TargetInfo( fldname.buf(),
+		FloatInpSpec(), Table::Required, PropertyRef::surveyZType() );
+	const char* un = SI().zIsTime() ? "Milliseconds"
+					: SI().zInFeet() ? "Feet" : "Meter";
+	ti->selection_.unit_ = UoMR().get( un );
+	fd->bodyinfos_ += ti;
+    }
+}
+
+
+void Horizon2DAscIO::updateDesc( Table::FormatDesc& fd,
+				 const BufferStringSet& hornms )
+{
+    fd.bodyinfos_.erase();
+    createDescBody( &fd, hornms );
+}
+
+
+#define mErrRet(s) { if ( s ) errmsg_ = s; return 0; }
+
+float Horizon2DAscIO::getUdfVal()
+{   
+    if ( !getHdrVals(strm_) )
+	return mUdf(float);
+
+    return getfValue( 0 );
+}
+
+
+bool Horizon2DAscIO::isXY() const
+{
+    const Table::TargetInfo* xinfo = fd_.bodyinfos_[0];
+    if ( !xinfo ) return false;
+
+    const int sel = xinfo->selection_.form_;
+    return !sel;
+}
+
+
+int Horizon2DAscIO::getNextLine( BufferString& lnm, TypeSet<float>& data )
+{
+    data.erase();
+    int ret = getNextBodyVals( strm_ );
+    if ( ret <= 0 ) return ret;
+
+    lnm = text(0);
+    for ( int idx=1; idx<=fd_.bodyinfos_.size(); idx++ )
+	data += getfValue( idx );
+
+    return ret;
+}
 
 } // namespace EM

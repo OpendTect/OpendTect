@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.11 2007-09-03 16:19:45 cvsjaap Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.12 2008-05-30 07:04:14 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -16,8 +16,10 @@ ________________________________________________________________________
 #include "emhorizon.h"
 #include "bufstringset.h"
 #include "horizon2dline.h"
+#include "tableascio.h"
 
 namespace Geometry { class Horizon2DLine; }
+namespace Table { class FormatDesc; }
 
 namespace EM
 {
@@ -101,6 +103,30 @@ protected:
 
     const IOObjContext&		getIOObjContext() const;
     Horizon2DGeometry		geometry_;
+};
+
+
+class Horizon2DAscIO : public Table::AscIO
+{
+public:
+    				Horizon2DAscIO( const Table::FormatDesc& fd,
+						std::istream& strm )
+				    : Table::AscIO(fd)
+				    , strm_(strm)      		    {}
+
+    static Table::FormatDesc*   getDesc();
+    static void			updateDesc(Table::FormatDesc&,
+	    				   const BufferStringSet&);
+    static void                 createDescBody(Table::FormatDesc*,
+	    				   const BufferStringSet&);
+
+    float			getUdfVal();
+    bool			isXY() const;
+    int				getNextLine(BufferString&,TypeSet<float>&);
+
+protected:
+
+    std::istream&		strm_;
 };
 
 } // namespace EM
