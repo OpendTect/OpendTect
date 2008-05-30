@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl
 Date:          September 2007
-RCS:           $Id: indexedshape.h,v 1.9 2008-05-29 13:54:09 cvskris Exp $
+RCS:           $Id: indexedshape.h,v 1.10 2008-05-30 04:53:57 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,6 +76,10 @@ public:
 
     virtual void	setRightHandedNormals(bool);
     virtual void	removeAll();
+
+
+    virtual bool	createsNormals() const 		{ return false; }
+    virtual bool	createsTextureCoords() const 	{ return false; }
 
     const ObjectSet<IndexedGeometry>&	getGeometry() const;
 
