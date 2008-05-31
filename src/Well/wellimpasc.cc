@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.44 2008-05-15 13:41:49 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.45 2008-05-31 07:54:08 cvsbert Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -256,9 +256,7 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
 	    else
 	    {
 		BufferString lognm( info );
-		if ( lognm.isEmpty() )
-		    lognm = keyw;
-		else if ( *lognm.buf() >= '0' && *lognm.buf() <= '9' )
+		if ( *lognm.buf() >= '0' && *lognm.buf() <= '9' )
 		{
 		    // Leading curve number. Remove it.
 		    BufferString newnm( lognm );
@@ -281,6 +279,8 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
 			newptr += 10; lognm += newptr; lognm += ")";
 		    }
 		}
+		if ( lognm.isEmpty() )
+		    lognm = keyw;
 		lfi.lognms += new BufferString( lognm );
 	    }
 
