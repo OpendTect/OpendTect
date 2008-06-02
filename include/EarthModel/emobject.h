@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.70 2008-05-30 03:47:13 cvskris Exp $
+ RCS:		$Id: emobject.h,v 1.71 2008-06-02 10:21:42 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -63,8 +63,8 @@ public:
     virtual		~EMObjectIterator() {}
     virtual EM::PosID	next() 		= 0;
     			/*!<posid.objectID()==-1 when there are no more pids*/
-    virtual int		aproximateSize() const { return -1; }
-    virtual int		maximumSize() const { return -1; }
+    virtual int		approximateSize() const	{ return maximumSize(); }
+    virtual int		maximumSize() const	{ return -1; }
 };
 
 
