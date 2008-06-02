@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.54 2008-05-29 11:33:12 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.55 2008-06-02 10:32:13 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -280,6 +280,7 @@ bool uiFlatViewer::mkBitmaps( uiPoint& offs )
     mChkBound(left,<,left,Left); mChkBound(left,>,right,Left);
     mChkBound(right,<,left,Right); mChkBound(right,>,right,Right);
     mChkBound(bottom,<,bottom,Bottom); mChkBound(top,<,bottom,Top);
+    mChkBound(top,>,top,Top); mChkBound(bottom,>,top,Bottom);
 
     // Calculate buffer size, snap buffer world rect
     Geom::Size2D<double> bufwrsz( bufwr.size() );
