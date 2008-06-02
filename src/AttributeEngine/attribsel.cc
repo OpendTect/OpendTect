@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.27 2008-05-28 04:55:58 cvsnanne Exp $
+ RCS:           $Id: attribsel.cc,v 1.28 2008-06-02 12:14:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -246,6 +246,7 @@ void SelInfo::fillStored( const char* filter )
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj& ioobj = *ioobjs[idx];
+	if ( *ioobj.group() == 'W' ) continue;
 	if ( SeisTrcTranslator::isPS( ioobj ) ) continue;
 	const bool is2d = SeisTrcTranslator::is2D(ioobj,true);
 	const bool isvalid3d = !is2d && ioobj.isReadDefault();
