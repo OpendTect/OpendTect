@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra / Bert Bril
  Date:		Sep 2005 / Nov 2006
- RCS:		$Id: uichangesurfacedlg.cc,v 1.19 2008-03-14 14:35:45 cvskris Exp $
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.20 2008-06-02 06:51:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,7 +147,6 @@ bool uiChangeSurfaceDlg::doProcessing()
 	if ( !dlg.execute(*worker) )
 	{
 	    delete arr;
-	    horizon_->unRef();
 	    return false;
 	}
 
