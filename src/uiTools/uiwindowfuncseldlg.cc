@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2007
- RCS:           $Id: uiwindowfuncseldlg.cc,v 1.6 2008-05-22 10:46:27 cvssatyaki Exp $
+ RCS:           $Id: uiwindowfuncseldlg.cc,v 1.7 2008-06-02 08:40:59 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,11 +46,11 @@ uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* windowname,
 
     taperlistfld_->setCurrentItem( windowname );
 
-    varinpfld_ = new uiGenInput( this, "Taper Length", FloatInpSpec() );
+    varinpfld_ = new uiGenInput( this, "Taper Length (%)", FloatInpSpec() );
     varinpfld_->attach( rightAlignedBelow, taperlistfld_ );
     !strcmp(windowname,"CosTaper") ? varinpfld_->display( true ) : 
 				     varinpfld_->display( false );
-    varinpfld_->setValue( variable_ );
+    varinpfld_->setValue( variable_ * 100 );
     varinpfld_->valuechanged.notify(
 	    mCB(this,uiWindowFuncSelDlg,taperSelChg) );
 
@@ -197,10 +197,15 @@ void uiWindowFuncSelDlg::taperSelChg( CallBacker* )
 	if ( winfunc_[ idx ]->hasVariable() )
 	{
 	    isvartappresent = true;
+	    float prevvariable = variable_;
 	    mIsUdf(variable_) ? variable_ = 0.05 : 
-		 		variable_ = varinpfld_->getfValue(0);
+		 		variable_ = varinpfld_->getfValue(0)/100;
+	    variable_ > 1 ? varinpfld_->setValue( prevvariable * 100 ) :
+			      varinpfld_->setValue( variable_ * 100 );
+	    if ( variable_ > 1 )
+	       	variable_ = prevvariable; 
 	    winfunc_[ idx ]->setVariable( variable_ );
-	    varinpfld_->setValue( variable_ );
+	    varinpfld_->setValue( variable_ * 100 );
 	}
 	createLine( *winfunc_[idx] );
     }
@@ -213,8 +218,12 @@ void uiWindowFuncSelDlg::taperSelChg( CallBacker* )
 
 void uiWindowFuncSelDlg::setVariable( float variable )
 {
+    float prevvariable = variable_;
     variable_ = variable;
-    varinpfld_->setValue( variable_ );
+    variable_ > 1 ? varinpfld_->setValue( prevvariable * 100 ) :
+       		    varinpfld_->setValue( variable_ * 100 );
+    if ( variable_ > 1 )
+	variable_ = prevvariable; 
     taperSelChg(0);
 }
 /*

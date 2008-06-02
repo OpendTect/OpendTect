@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2007
- RCS:           $Id: uiwindowfunctionsel.cc,v 1.7 2008-05-28 12:25:08 cvssatyaki Exp $
+ RCS:           $Id: uiwindowfunctionsel.cc,v 1.8 2008-06-02 08:40:59 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,12 +46,14 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const char* label,
 	WindowFunction* winfunc = WinFuncs().create( funcnames[idx]->buf());
 	if ( winfunc && winfunc->hasVariable() )
 	{
+	    BufferString windowname( winfunc->variableName() );
+	    windowname += " (%)";
 	    uiGenInput* varinp = new uiGenInput( this,
-		winfunc->variableName(), FloatInpSpec(winfunc->getVariable()) );
+		windowname.buf(), FloatInpSpec(winfunc->getVariable()) );
 
 	    if ( prevwinname && !strcmp(prevwinname, winfunc->name() ) )
 	    {
-		varinp->setValue( prevwinparam );
+		varinp->setValue( prevwinparam * 100 );
 	    }
 
 	    varinp->attach( alignedBelow, windowtypefld_ );
@@ -94,7 +96,7 @@ void uiWindowFunctionSel::setWindowParamValue( float val )
     if ( !windowfuncs_.validIdx(winidx) ) return;
 
     if (  windowvariable_[winidx] )
-	windowvariable_[winidx]->setValue( val );
+	windowvariable_[winidx]->setValue( val * 100 );
     for ( int idx=0; idx<windowvariable_.size(); idx++ )
     {
 	if ( windowvariable_[idx] )
@@ -109,7 +111,7 @@ float uiWindowFunctionSel::windowParamValue() const
     if ( winidx<0 || !windowvariable_[winidx] )
 	return mUdf(float);
 
-    return windowvariable_[winidx]->getfValue( 0 );
+    return windowvariable_[winidx]->getfValue( 0 )/100;
 }
 
 
