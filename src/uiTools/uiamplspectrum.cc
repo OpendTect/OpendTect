@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:          September 2007
- RCS:           $Id: uiamplspectrum.cc,v 1.6 2008-05-28 12:38:52 cvsnanne Exp $
+ RCS:           $Id: uiamplspectrum.cc,v 1.7 2008-06-03 11:34:35 cvsbert Exp $
 _______________________________________________________________________
                    
 -*/   
@@ -24,7 +24,7 @@ _______________________________________________________________________
 
 
 uiAmplSpectrum::uiAmplSpectrum( uiParent* p )
-    : uiMainWin( p,"Amplitude Spectrum", 0, false, true )
+    : uiMainWin( p,"Amplitude Spectrum", 0, false, false )
     , timedomain_(0)
     , freqdomain_(0)
     , freqdomainsum_(0)

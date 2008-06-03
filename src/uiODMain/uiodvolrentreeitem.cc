@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.26 2008-04-02 10:27:07 cvsbert Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.27 2008-06-03 11:34:35 cvsbert Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.26 2008-04-02 10:27:0
 #include "uislicesel.h"
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
+#include "uiobjdisposer.h"
 #include "vismarchingcubessurface.h"
 #include "vismarchingcubessurfacedisplay.h"
 #include "uiviscoltabed.h"
@@ -251,18 +252,23 @@ void uiODVolrenTreeItem::handleMenuCB( CallBacker* cb )
         const DataPack::ID dpid = visserv_->getDataPackID( displayID(), 0 );
         const DataPackMgr::ID dmid = visserv_->getDataPackMgrID( displayID() );
 	uiStatsDisplay::Setup su; su.countinplot( false );
-	uiStatsDisplayWin dwin( applMgr()->applService().parent(), su, true );
-	dwin.statsDisplay().setDataPackID( dpid, dmid );
-	dwin.setDataName( DPM(dmid).nameOf(dpid)  );
-	dwin.show();
+	uiStatsDisplayWin* dwin = new uiStatsDisplayWin(
+				applMgr()->applService().parent(), su, false );
+	dwin->statsDisplay().setDataPackID( dpid, dmid );
+	dwin->setDataName( DPM(dmid).nameOf(dpid)  );
+	dwin->windowClosed.notify( mCB(uiOBJDISP(),uiObjDisposer,go) );
+	dwin->show();
         menu->setIsHandled( true );
     }	
     else if ( mnuid==amplspectrummnuitem_.id )
     {
 	const DataPack::ID dpid = visserv_->getDataPackID( displayID(), 0 );
 	const DataPackMgr::ID dmid = visserv_->getDataPackMgrID( displayID() );
-	uiAmplSpectrum asd( applMgr()->applService().parent() );
-	asd.setDataPackID( dpid, dmid ); asd.show();
+	uiAmplSpectrum* asd = new uiAmplSpectrum(
+					applMgr()->applService().parent() );
+	asd->setDataPackID( dpid, dmid );
+	asd->windowClosed.notify( mCB(uiOBJDISP(),uiObjDisposer,go) );
+	asd->show();
 	menu->setIsHandled( true );
     }
 

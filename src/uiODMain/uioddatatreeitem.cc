@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.25 2008-05-07 09:42:31 cvsnanne Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.26 2008-06-03 11:34:35 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ___________________________________________________________________
 #include "uivispartserv.h"
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
+#include "uiobjdisposer.h"
 #include "uiamplspectrum.h"
 #include "attribsel.h"
 #include "pixmap.h"
@@ -318,10 +319,12 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 							  attribNr() );
 	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
 	uiStatsDisplay::Setup su; su.countinplot( false );
-	uiStatsDisplayWin dwin( applMgr()->applService().parent(), su, true );
-	dwin.statsDisplay().setDataPackID( dpid, dmid );
-	dwin.setDataName( DPM(dmid).nameOf(dpid)  );
-	dwin.show();
+	uiStatsDisplayWin* dwin = new uiStatsDisplayWin(
+				  applMgr()->applService().parent(), su, false);
+	dwin->statsDisplay().setDataPackID( dpid, dmid );
+	dwin->setDataName( DPM(dmid).nameOf(dpid)  );
+	dwin->windowClosed.notify( mCB(uiOBJDISP(),uiObjDisposer,go) );
+	dwin->show();
 	menu->setIsHandled( true );
     }
     else if ( mnuid==amplspectrumitem_.id )
@@ -329,8 +332,10 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	const DataPack::ID dpid = visserv->getDataPackID( displayID(),
 							  attribNr() );
 	const DataPackMgr::ID dmid = visserv->getDataPackMgrID( displayID() );
-	uiAmplSpectrum asd( applMgr()->applService().parent() );
-	asd.setDataPackID( dpid, dmid ); asd.show();
+	uiAmplSpectrum* asd = new uiAmplSpectrum(
+					applMgr()->applService().parent() );
+	asd->windowClosed.notify( mCB(uiOBJDISP(),uiObjDisposer,go) );
+	asd->setDataPackID( dpid, dmid ); asd->show();
 	menu->setIsHandled( true );
     }
     else if ( mnuid==view2dwvaitem_.id || mnuid==view2dvditem_.id )
