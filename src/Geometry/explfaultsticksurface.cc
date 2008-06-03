@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.18 2008-05-30 03:50:21 cvskris Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.19 2008-06-03 21:40:57 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -470,12 +470,20 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
     IndexedGeometry* triangles = paneltriangles_[panelidx];
     IndexedGeometry* lines = panellines_[panelidx];
 
-    if ( triangles && !triangles->isEmpty() )
-	triangles->removeAll();
+    if ( triangles )
+    {
+	if ( !triangles->isEmpty() )
+	    triangles->removeAll();
+	triangles->ischanged_ = true;
+    }
 
-    if ( lines && !lines->isEmpty() )
-	lines->removeAll();
-    
+    if ( lines )
+    {
+	if ( !lines->isEmpty() )
+	    lines->removeAll();
+	lines->ischanged_ = true;
+    }
+
     const TypeSet<int>& lknots = sticks_[panelidx]->coordindices_;
     const TypeSet<int>& rknots = sticks_[panelidx+1]->coordindices_;
 
