@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.1 2008-06-03 08:47:12 cvsbert Exp $";
+static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.2 2008-06-03 08:50:22 cvsbert Exp $";
 
 #include "uiisopachmaker.h"
 
@@ -32,7 +32,7 @@ static const char* rcsID = "$Id: uiisopachmaker.cc,v 1.1 2008-06-03 08:47:12 cvs
 uiIsopachMaker::uiIsopachMaker( uiParent* p, EM::ObjectID horid )
 	: uiDialog(p,Setup("Create isopach",
 			    BufferString("Create isopach from '",
-					 getHorNm(horid),"'"), "0.0.0"))
+					 getHorNm(horid),"'"), "104.4.4"))
 	, ctio_(*mMkCtxtIOObj(EMHorizon3D))
 	, horid_(horid)
 	, dps_(*new DataPointSet(false,true))
