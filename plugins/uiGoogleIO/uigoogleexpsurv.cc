@@ -21,7 +21,7 @@ static const char* rcsID = "$Id";
 
 uiGoogleExportSurvey::uiGoogleExportSurvey( uiSurvey* uisurv )
     : uiDialog(uisurv,uiDialog::Setup("Export Survey boundaries to KML",
-				      "Specify output parameters","0.0.0") )
+				      "Specify output parameters","0.3.10") )
     , si_(uisurv->curSurvInfo())
 {
     const Color defcol( 255, 170, 0, 100 );
