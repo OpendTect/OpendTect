@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: visgeomindexedshape.cc,v 1.11 2008-05-30 04:31:40 cvskris Exp $
+ RCS:           $Id: visgeomindexedshape.cc,v 1.12 2008-06-03 20:01:13 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -195,6 +195,7 @@ void GeomIndexedShape::touch( bool forall, TaskRunner* tr )
 		    geom->normalindices_.size(), geom->normalindices_.arr() );
 		shape->normalIndex.setNum( geom->normalindices_.size() );
 		shape->normalIndex.enableNotify( oldstatus );
+		shape->touch();
 	    }
 
 	    const int idy = childIndex( shape );
