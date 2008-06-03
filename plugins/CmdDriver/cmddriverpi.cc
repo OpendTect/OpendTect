@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2003
- RCS:           $Id: cmddriverpi.cc,v 1.17 2008-05-29 10:53:58 cvsbert Exp $
+ RCS:           $Id: cmddriverpi.cc,v 1.18 2008-06-03 15:04:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,7 @@ public:
 
 uiCmdDriverInps( uiParent* p, CmdDriver& d )
         : uiDialog(p,Setup("Command execution","Specify the file with commands"
-			    " to execute","0.0.0"))
+			    " to execute","0.4.6"))
 	, drv_(d)
 {
     fnmfld = new uiFileInput( this, "Command file", uiFileInput::Setup(lastinp_)
