@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explplaneintersection.cc,v 1.1 2008-05-30 03:49:10 cvskris Exp $";
+static const char* rcsID = "$Id: explplaneintersection.cc,v 1.2 2008-06-03 19:56:21 cvskris Exp $";
 
 #include "explplaneintersection.h"
 
@@ -309,23 +309,38 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 	    if ( ci1idx==-1 )
 	    {
 		if ( output_->coordindices_.size() )
+		{
 		    output_->coordindices_ += -1;
-		output_->coordindices_ += ci0;
-		output_->coordindices_ += ci1;
+		    output_->coordindices_ += ci0;
+		    output_->coordindices_ += ci1;
+		    output_->ischanged_ = true;
+		}
 	    }
 	    else if ( ci1idx==0 || output_->coordindices_[ci1idx-1]==-1 )
+	    {
 		output_->coordindices_.insert( ci1idx, ci0 );
+		output_->ischanged_ = true;
+	    }
 	    else if ( ci1idx==output_->coordindices_.size()-1 ||
 		      output_->coordindices_[ci1idx+1]==-1 )
+	    {
 		output_->coordindices_.insert( ci1idx+1, ci0 );
+		output_->ischanged_ = true;
+	    }
 	    else
 		pErrMsg("Hmm");
 	}
 	else if ( ci0idx==0 || output_->coordindices_[ci0idx-1]==-1 )
+	{
 	    output_->coordindices_.insert( ci0idx, ci1 );
+	    output_->ischanged_ = true;
+	}
 	else if ( ci0idx==output_->coordindices_.size()-1 ||
 		  output_->coordindices_[ci0idx+1]==-1 )
+	{
 	    output_->coordindices_.insert( ci0idx+1, ci1 );
+	    output_->ischanged_ = true;
+	}
 	else
 	    pErrMsg("Hmm");
     }
