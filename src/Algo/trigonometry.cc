@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.40 2008-05-30 14:50:26 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.41 2008-06-03 15:15:35 cvsyuancheng Exp $";
 
 #include "trigonometry.h"
 
@@ -286,7 +286,7 @@ bool Line3::closestPoint( const Line3& line, double& t_this,
 
     const Coord3 diff(line.x0_-x0_,line.y0_-y0_,line.z0_-z0_);
     double deter = dir1.x*dir0.y-dir1.y*dir0.x;
-    t_line = (dir0.x*diff.y-diff.x*dir0.y)/deter;
+    t_line = -(diff.x*dir0.y-diff.y*dir0.x)/deter;
     t_this = (dir1.x*diff.y-dir1.y*diff.x)/deter;
     
     if ( mIsEqual(t_this*dir0.z-t_line*dir1.z, diff.z, mDefEps) )
@@ -488,24 +488,40 @@ bool Plane3::intersectWith( const Line3& b, Coord3& res ) const
 
 bool Plane3::intersectWith( const Plane3& b, Line3& res ) const
 {
-    const double detbc = B_*b.C_-b.C_*B_;
-    const double detca = C_*b.A_-b.C_*A_;
-    const double detab = A_*b.B_-b.A_*B_;
+    const Coord3 normal0(A_, B_, C_);
+    const Coord3 normal1(b.A_, b.B_, b.C_);
+    const Coord3 dir = normal0.cross( normal1 );
+    if ( mIsZero(dir.abs(),mDefEps) )
+	return false;
+    
+    res.alpha_ = dir.x; 
+    res.beta_ = dir.y; 
+    res.gamma_ = dir.z;
 
-    if ( mIsZero(detbc,mDefEps) && mIsZero(detca,mDefEps)
-	    && mIsZero(detab,mDefEps) ) return false; 
-
-    res.alpha_ = detbc; res.beta_=detca; res.gamma_=detab;
-
-    const double denumerator = detbc*detbc+detca*detca+detab*detab;
-
-    const double detdc = D_*b.C_-b.D_*C_;
-    const double detdb = D_*b.B_-b.D_*B_;
-    const double detda = D_*b.A_-b.D_*A_;
-
-    res.x0_ = (res.beta_*detdc-res.gamma_*detdb)/denumerator;
-    res.y0_ = (res.gamma_*detda-res.alpha_*detdc)/denumerator;
-    res.z0_ = (res.alpha_*detdb-res.beta_*detda)/denumerator;
+    double deter;
+    if ( mIsZero(dir.x,mDefEps) && mIsZero(dir.z,mDefEps) )
+    {
+	deter = -dir.y;
+	res.x0_ = (-D_*b.C_+C_*b.D_)/deter; 
+	res.y0_ = 0;
+	res.z0_ = (-A_*b.D_+D_*b.A_)/deter;
+	return true;
+    }
+    else if ( mIsZero(dir.y,mDefEps) && mIsZero(dir.z,mDefEps) )
+    {
+	deter = dir.x;
+	res.x0_ = 0; 
+	res.y0_ = (-D_*b.C_+C_*b.D_)/deter;
+	res.z0_ = (-B_*b.D_+D_*b.B_)/deter;;
+	return true;
+    }
+    else
+    {   
+	deter = dir.z;
+    	res.x0_ = (-D_*b.B_+B_*b.D_)/deter;
+    	res.y0_ = (-A_*b.D_+D_*b.A_)/deter;
+    	res.z0_ = 0;
+    }
 
     return true;
 }
