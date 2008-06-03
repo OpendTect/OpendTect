@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Raman Singh
  Date:          May 2008
- RCS:           $Id: uiimphorizon2d.cc,v 1.1 2008-05-30 07:08:52 cvsraman Exp $
+ RCS:           $Id: uiimphorizon2d.cc,v 1.2 2008-06-03 16:12:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,7 +80,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 	    			mCB(this,uiImportHorizon2D,addHor), false );
     addbut->attach( rightTo, horbox );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, "100.0.0" );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, "104.0.9" );
     dataselfld_->attach( alignedBelow, horbox );
     dataselfld_->descChanged.notify( mCB(this,uiImportHorizon2D,descChg) );
 

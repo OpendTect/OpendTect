@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          June 2007
- RCS:           $Id: uiautoattrdescset.cc,v 1.3 2007-12-06 11:07:53 cvsraman Exp $
+ RCS:           $Id: uiautoattrdescset.cc,v 1.4 2008-06-03 16:12:42 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ using namespace Attrib;
 uiAutoAttrSelDlg::uiAutoAttrSelDlg( uiParent* p, bool is2d )
         : uiDialog(p,uiDialog::Setup("Auto-load Attribute Set",
 		                     "Set auto-load Attribute-Set",
-				     "100.0.0"))
+				     "101.1.5"))
         , ctio_(*mMkCtxtIOObj(AttribDescSet))
 	, is2d_(is2d)
 {
