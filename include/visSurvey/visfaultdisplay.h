@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.8 2008-05-30 03:53:22 cvskris Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.9 2008-06-03 14:56:06 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -75,6 +75,7 @@ public:
     void			setRightHandSystem(bool);
 
     void			setSceneEventCatcher(visBase::EventCatcher*);
+    void			setScene( Scene* );
 
     void			display(bool sticks,bool panels);
     bool			areSticksDisplayed() const;
@@ -95,6 +96,8 @@ protected:
     void			otherObjectsMoved(
 	    			    const ObjectSet<const SurveyObject>&,
 				    int whichobj);
+
+    void			zScaleChangeCB(CallBacker*);
 
     virtual bool		getCacheValue(int attrib,int version,
 					      const Coord3&,float&) const;

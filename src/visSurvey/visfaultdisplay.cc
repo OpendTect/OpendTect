@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.17 2008-05-30 05:10:14 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.18 2008-06-03 14:56:06 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -79,6 +79,8 @@ FaultDisplay::FaultDisplay()
 
 FaultDisplay::~FaultDisplay()
 {
+    setScene( 0 );
+
     setSceneEventCatcher( 0 );
     if ( viseditor_ ) viseditor_->unRef();
 
@@ -130,6 +132,29 @@ void FaultDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
     }
 
     if ( viseditor_ ) viseditor_->setSceneEventCatcher( eventcatcher_ );
+}
+
+
+void FaultDisplay::zScaleChangeCB( CallBacker* )
+{
+    if ( !scene_ )
+	return;
+
+    const float zscale = SI().zFactor() * scene_->getZScale();
+    if ( explicitpanels_ ) explicitpanels_->setZScale( zscale );
+    if ( explicitsticks_ ) explicitpanels_->setZScale( zscale );
+}
+
+
+void FaultDisplay::setScene( Scene* sc )
+{
+    if ( scene_ )
+	scene_->zscalechange.remove( mCB(this,FaultDisplay,zScaleChangeCB) );
+    SurveyObject::setScene( sc );
+    if ( scene_ )
+	scene_->zscalechange.notify( mCB(this,FaultDisplay,zScaleChangeCB) );
+
+    zScaleChangeCB( 0 );
 }
 
 
@@ -209,7 +234,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 
     if ( !explicitpanels_ )
     {
-	const float zscale = SI().zFactor() * scene_->getZScale();
+	const float zscale = SI().zFactor() * (scene_?scene_->getZScale():1);
 	explicitpanels_ = new Geometry::ExplFaultStickSurface( 0, zscale );
 	explicitpanels_->display( false, true );
 
@@ -636,6 +661,9 @@ bool FaultDisplay::areIntersectionsDisplayed() const
 void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 				      int whichobj )
 {
+    if ( !explicitintersections_ )
+	return;
+
     ObjectSet<const SurveyObject> usedobjects;
     TypeSet<int> planeids;
 
