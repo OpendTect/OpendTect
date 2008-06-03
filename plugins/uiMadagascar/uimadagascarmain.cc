@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.20 2008-05-30 07:18:54 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.21 2008-06-03 14:59:01 cvsbert Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -39,6 +39,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
 	, bldfld_(0)
 {
     setCtrlStyle( uiDialog::DoAndStay );
+    setHelpID( "103.5.0" );
     addStdFields( false, false );
     createMenus();
 

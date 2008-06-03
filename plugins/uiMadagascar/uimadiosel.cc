@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.15 2008-05-30 07:18:54 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.16 2008-06-03 14:59:01 cvsbert Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -29,7 +29,7 @@ static const char* rcsID = "$Id: uimadiosel.cc,v 1.15 2008-05-30 07:18:54 cvsram
 uiMadIOSelDlg::uiMadIOSelDlg( uiParent* p, IOPar& iop, bool isinp )
 	: uiDialog(p, Setup(BufferString("Processing ",isinp?"input":"output"),
 		    BufferString("Specify the ",isinp?"input to":"output of",
-					 " the processing flow"),"0.0.0") )
+					 " the processing flow"),"103.5.1") )
 	, ctio3d_(*mMkCtxtIOObj(SeisTrc))
     	, ctio2d_(*mMkCtxtIOObj(SeisTrc))
 	, ctiops3d_(*mMkCtxtIOObj(SeisPS3D))
