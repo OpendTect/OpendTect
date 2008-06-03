@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiflattenedcube.cc,v 1.2 2008-05-21 10:30:42 cvsbert Exp $";
+static const char* rcsID = "$Id: uiflattenedcube.cc,v 1.3 2008-06-03 14:19:36 cvsbert Exp $";
 
 #include "uiflattenedcube.h"
 
@@ -38,7 +38,7 @@ uiWriteFlattenedCube::uiWriteFlattenedCube( uiParent* p, EM::ObjectID horid )
 	: uiDialog(p,Setup("Create flattened seismics",
 			    BufferString("Create seismics flattened on '",
 					 getHorNm(horid),"'")
-		    	  ,"0.0.0"))
+		    	  ,"104.0.9"))
 	, inctio_(*mMkCtxtIOObj(SeisTrc))
 	, outctio_(*mMkCtxtIOObj(SeisTrc))
 	, hormid_(EM::EMM().getMultiID(horid))
