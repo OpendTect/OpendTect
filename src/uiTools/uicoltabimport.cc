@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          April 2008
- RCS:           $Id: uicoltabimport.cc,v 1.1 2008-05-30 04:10:33 cvsnanne Exp $
+ RCS:           $Id: uicoltabimport.cc,v 1.2 2008-06-03 13:48:51 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ ________________________________________________________________________
 
 
 uiColTabImport::uiColTabImport( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Import color table",0,0))
+    : uiDialog(p,uiDialog::Setup("Import color table",0,"50.1.4"))
 {
     FilePath fp( GetPersonalDir() ); fp.setFileName( 0 );
     homedirfld_ = new uiFileInput( this, "User's HOME directory",
