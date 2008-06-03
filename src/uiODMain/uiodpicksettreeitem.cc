@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.42 2008-05-30 07:30:52 cvsnanne Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.43 2008-06-03 09:57:47 cvssatyaki Exp $
 ___________________________________________________________________
 
 -*/
@@ -74,6 +74,7 @@ void uiODPickSetParentTreeItem::removeChild( uiTreeItem* child )
 
 void uiODPickSetParentTreeItem::setAdd( CallBacker* cb )
 {
+    display_on_add = true;
     mDynamicCastGet(Pick::Set*,ps,cb)
     if ( !ps ) return;
 
