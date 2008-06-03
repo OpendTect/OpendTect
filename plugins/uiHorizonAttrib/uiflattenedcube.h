@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          May 2008
- RCS:           $Id: uiflattenedcube.h,v 1.2 2008-05-21 10:30:42 cvsbert Exp $
+ RCS:           $Id: uiflattenedcube.h,v 1.3 2008-06-03 08:46:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ namespace EM { class Horizon3D; }
 namespace Pos { class EMSurfaceProvider3D; }
 
 
-/*! \brief UI for Quick UVQ on horizon */
+/*! \brief Create flattened cube from horizon */
 
 class uiWriteFlattenedCube : public uiDialog
 {
