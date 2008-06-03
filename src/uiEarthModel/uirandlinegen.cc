@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          January 2007
- RCS:           $Id: uirandlinegen.cc,v 1.10 2008-05-22 11:05:54 cvssatyaki Exp $
+ RCS:           $Id: uirandlinegen.cc,v 1.11 2008-06-03 14:00:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ ________________________________________________________________________
 
 uiGenRanLinesByContour::uiGenRanLinesByContour( uiParent* p )
     : uiDialog( p, Setup("Create Random Lines","Specify generation parameters",
-			 "0.0.0") )
+			 "109.0.1") )
     , horctio_(*mGetCtxtIOObj(EMHorizon3D,Surf))
     , polyctio_(*mMkCtxtIOObj(PickSet))
     , rlsctio_(*mMkCtxtIOObj(RandomLineSet))
@@ -169,7 +169,7 @@ bool uiGenRanLinesByContour::acceptOK( CallBacker* )
 
 uiGenRanLinesByShift::uiGenRanLinesByShift( uiParent* p )
     : uiDialog( p, Setup("Create Random Lines","Specify generation parameters",
-			 "0.0.0") )
+			 "109.0.2") )
     , inctio_(*mGetCtxtIOObj(RandomLineSet,Loc))
     , outctio_(*mMkCtxtIOObj(RandomLineSet))
 {
@@ -257,7 +257,7 @@ bool uiGenRanLinesByShift::acceptOK( CallBacker* )
 
 uiGenRanLineFromPolygon::uiGenRanLineFromPolygon( uiParent* p )
     : uiDialog( p, Setup("Create Random Lines","Specify generation parameters",
-			 "0.0.0") )
+			 "109.0.3") )
     , inctio_(*mMkCtxtIOObj(PickSet))
     , outctio_(*mMkCtxtIOObj(RandomLineSet))
 {
