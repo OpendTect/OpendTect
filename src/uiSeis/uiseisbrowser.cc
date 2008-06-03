@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.25 2008-05-30 07:12:47 cvsnageswara Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.26 2008-06-03 14:13:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -364,8 +364,7 @@ class uiSeisBrowserGoToDlg : public uiDialog
 public:
 
 uiSeisBrowserGoToDlg( uiParent* p, BinID cur, bool is2d, bool isps=false )
-    : uiDialog( p, uiDialog::Setup("Reposition","Specify a new position",
-				   "0.0.0") )
+    : uiDialog( p, uiDialog::Setup("Reposition","Specify a new position",0) )
 {
     PositionInpSpec inpspec(
 	    PositionInpSpec::Setup(false,is2d,isps).binid(cur) );
@@ -704,8 +703,8 @@ void uiSeisBrowser::setTrcBufViewTitle()
 
 uiSeisBrowserInfoDlg::uiSeisBrowserInfoDlg( uiParent* p, const SeisTrc& trc,
 					    bool is2d )
-    : uiDialog(p,uiDialog::Setup("Selected Trace Information",
-	       "","0.0.0").modal(false) )
+    : uiDialog(p,uiDialog::Setup("Selected Trace Information","",0)
+	    	.modal(false) )
     , is2d_(is2d)  
 {
     uiGroup* valgrp = new uiGroup( this, "Values group" );
