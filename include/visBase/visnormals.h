@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visnormals.h,v 1.9 2008-05-14 20:27:19 cvskris Exp $
+ RCS:		$Id: visnormals.h,v 1.10 2008-06-03 21:36:28 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -51,6 +51,9 @@ public:
     Transformation*	getDisplayTransformation() { return transformation_; }
 
 protected:
+    void		transformNormal(const Transformation*,Coord3&,
+	    				bool todisplay) const;
+
     			~Normals();
     int			getFreeIdx();
     			/*!< Object should be locked when calling */
