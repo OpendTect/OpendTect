@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.10 2008-03-17 14:40:09 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.11 2008-06-03 20:23:21 cvskris Exp $";
 
 #include "task.h"
 
@@ -253,6 +253,9 @@ Threads::ThreadWorkManager& ParallelTask::twm()
 bool ParallelTask::execute( bool parallel )
 {
     totalnrcache_ = totalNr();
+    if ( totalnrcache_<=0 )
+	return true;
+
     if ( progressmeter_ )
     {
 	progressmeter_->setName( name() );
