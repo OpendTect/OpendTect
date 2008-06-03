@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          December 2007
- RCS:           $Id: uitaskrunner.h,v 1.6 2008-05-30 04:09:10 cvsnanne Exp $
+ RCS:           $Id: uitaskrunner.h,v 1.7 2008-06-03 03:20:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ protected:
     				// 0 finished without error
 				// 1 running
     Threads::Thread*	thread_;
+    Threads::Mutex	uitaskrunnerthreadmutex_;
     void		doWork(CallBacker*);	//!< Method with work thread
 
     void		updateFields();

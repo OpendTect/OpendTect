@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink/A.H. Bril
  Date:          Aug 2000/Oct 2001
- RCS:           $Id: uitaskrunner.cc,v 1.5 2008-05-28 14:53:26 cvskris Exp $
+ RCS:           $Id: uitaskrunner.cc,v 1.6 2008-06-03 03:20:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,6 +79,7 @@ void uiTaskRunner::onFinalise( CallBacker* )
 
     tim_.start( 100, true );
 
+    Threads::MutexLocker lock( uitaskrunnerthreadmutex_ );
     thread_ = new Threads::Thread( mCB(this,uiTaskRunner,doWork) );
 }
 
@@ -168,8 +169,13 @@ void uiTaskRunner::timerTick( CallBacker* )
 
     if ( state<1 )
     {
-	thread_->stop();
-	thread_ = 0;
+	if ( uitaskrunnerthreadmutex_.tryLock() )
+	{
+	    thread_->stop();
+	    thread_ = 0;
+	    uitaskrunnerthreadmutex_.unLock();
+	}
+
 
 	if ( state<0 )
 	    uiMSG().error( task_->message() );
@@ -206,8 +212,16 @@ bool uiTaskRunner::acceptOK( CallBacker* )
 bool uiTaskRunner::rejectOK( CallBacker* )
 {
     task_->controlWork( Task::Stop );
-    thread_->stop();
-    thread_ = 0;
+    if ( uitaskrunnerthreadmutex_.tryLock() )
+    {
+	if ( thread_ )
+	{
+	    thread_->stop();
+	    thread_ = 0;
+	}
+
+	uitaskrunnerthreadmutex_.unLock();
+    }
 
     return true;
 }
