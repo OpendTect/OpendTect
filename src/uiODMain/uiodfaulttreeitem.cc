@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodfaulttreeitem.cc,v 1.7 2008-05-30 03:54:04 cvskris Exp $
+ RCS:		$Id: uiodfaulttreeitem.cc,v 1.8 2008-06-03 14:55:13 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -143,8 +143,8 @@ bool uiODFaultTreeItem::init()
 	faultdisplay_ = fd;
 	faultdisplay_->ref();
 
-	visserv_->addObject( fd, sceneID(), true );
 	fd->setEMID( emid_ );
+	visserv_->addObject( fd, sceneID(), true );
     }
     else
     {
