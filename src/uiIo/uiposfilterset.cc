@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposfilterset.cc,v 1.8 2008-03-31 16:36:00 cvsjaap Exp $";
+static const char* rcsID = "$Id: uiposfilterset.cc,v 1.9 2008-06-03 14:09:06 cvsbert Exp $";
 
 #include "uiposfilterset.h"
 #include "posfilterset.h"
@@ -203,7 +203,7 @@ BufferString uiPosFilterSetSel::getSummary() const
 void uiPosFilterSetSel::doDlg( CallBacker* )
 {
     uiDialog dlg( this, uiDialog::Setup("Filters","Specify Filters",
-					"0.0.0" ) );
+					"0.4.5" ) );
     uiPosFilterSet* pfs = new uiPosFilterSet( &dlg, setup_ );
     pfs->usePar( iop_ );
     if ( dlg.go() )
