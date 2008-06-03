@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: volproctrans.cc,v 1.1 2008-02-25 19:14:55 cvskris Exp $
+ RCS:		$Id: volproctrans.cc,v 1.2 2008-06-03 12:15:43 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ bool VolProcessingTranslator::retrieve( VolProc::Chain& vr,
     mDynamicCastGet(VolProcessingTranslator*,t,ioobj->getTranslator())
     if ( !t )
     {
-	bs = "Selected object is not a Velocity Render Setup";
+	bs = "Selected object is not a Volume Processing Setup";
 	return false;
     }
     PtrMan<VolProcessingTranslator> tr = t;
@@ -55,7 +55,7 @@ bool VolProcessingTranslator::store( const VolProc::Chain& vr,
     mDynamicCastGet(VolProcessingTranslator*,tr,ioobj->getTranslator())
     if ( !tr )
     {
-	bs = "Selected object is not a Velocity Render Setup";
+	bs = "Selected object is not a Volume Processing Setup";
 	return false;
     }
 
@@ -82,7 +82,7 @@ const char* dgbVolProcessingTranslator::read( VolProc::Chain& tr,
     if ( !strm.good() )
 	return "Cannot read from input file";
     if ( !astrm.isOfFileType(mTranslGroupName(VolProcessing)) )
-	return "Input file is not a Velocity Render setup file";
+	return "Input file is not a Volume Processing setup file";
     if ( atEndOfSection(astrm) ) astrm.next();
 
     IOPar par;
@@ -106,12 +106,12 @@ const char* dgbVolProcessingTranslator::write( const VolProc::Chain& tr,
     astrm.putHeader( mTranslGroupName(VolProcessing) );
     std::ostream& strm = astrm.stream();
     if ( !strm.good() )
-	return "Cannot write to output Velocity Render setup file";
+	return "Cannot write to output Volume Processing setup file";
 
     IOPar par;
     tr.fillPar( par );
     par.putTo( astrm );
 
     return strm.good() ? 0
-	:  "Error during write to output Velocity Render setup file";
+	:  "Error during write to output Volume Processing setup file";
 }
