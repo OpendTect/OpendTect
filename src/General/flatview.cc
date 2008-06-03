@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.37 2008-05-29 12:02:25 cvssatyaki Exp $
+ RCS:           $Id: flatview.cc,v 1.38 2008-06-03 09:59:04 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -381,7 +381,13 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
 				   IOPar& iop ) const
 {
     const FlatDataPack* dp = pack( iswva );
-    if ( !dp ) return;
+    if ( !dp ) 
+    {
+	iswva ? iop.remove( "Wiggle/VA data" )
+	      : iop.remove( "Variable density data" );
+	iswva ? iop.remove( "WVA Value" ) : iop.remove( "VD Value" );
+	    return;
+    }
     const Array2D<float>& arr = dp->data();
 
     const char* nm = dp->name();
@@ -394,7 +400,7 @@ void FlatView::Viewer::addAuxInfo( bool iswva, const Point& pt,
     if ( !ix.inundef_ && !iy.inundef_ )
     {
 	const float val = arr.get( ix.nearest_, iy.nearest_ );
-	iop.set( "Value", val );
+	iop.set( iswva ? "WVA Value" : "VD Value", val );
 	dp->getAuxInfo( ix.nearest_, iy.nearest_, iop );
     }
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Sep 2006
- RCS:           $Id: uiflatviewwin.cc,v 1.10 2008-04-08 20:06:04 cvskris Exp $
+ RCS:           $Id: uiflatviewwin.cc,v 1.11 2008-06-03 09:59:04 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,34 +64,56 @@ void uiFlatViewMainWin::displayInfo( CallBacker* cb )
 {
     mCBCapsuleUnpack(IOPar,pars,cb);
     BufferString str;
-    for ( int idx=3; idx<pars.size(); idx++ ) // 0 is the positioning
+    BufferString tooltip;
+					      // 0 is the positioning
 					      // 1 is the VD/WVA user reference
 					      // 2 is the VD/WVA value
+    if ( pars.indexOf( "X-coordinate" ) > 0 )
     {
-	char* ptrout = str.buf() + str.size();
-	const char* ptrin = pars.getKey(idx);
-	while ( *ptrin )
-	{
-	    if ( isupper(*ptrin) )
-	    {
-		*ptrout = *ptrin;
-		*ptrout++;
-	    }
-	    *ptrin++;
-	}
-	*ptrout = '\0';
-	str += ": ";
-	str += pars.getValue(idx);
+	str += "X :";
+	str += pars.find( "X-coordinate" );
+	str += "; ";
+    }
+    if ( pars.indexOf( "Y-coordinate" ) > 0 )
+    {
+	str += "Y :";
+	str += pars.find( "Y-coordinate" );
+	str += "; ";
+    }
+    if ( pars.indexOf( "Z" ) > 0 )
+    {
+	str += "Z :";
+	str += pars.find( "Z" );
 	str += "; ";
     }
     const char* vdstr = pars.find("Variable density data");
-    const char* tooltip = vdstr ? vdstr : pars.find("Wiggle/VA data");
-    statusBar()->setToolTip( 0, tooltip );
+    const int vdstridx = pars.indexOf("Variable density data");
+    const char* wvastr = vdstr ? vdstr : pars.find("Wiggle/VA data");
+    const int wvastridx = pars.indexOf("Wiggle/VA data");
     if ( pars.size()>2 )
     {
-	str += vdstr ? "VD Value: " : "WVA Value: ";
-	str += pars.getValue(2);
+	if ( pars.find("VD Value") )
+	{
+	    tooltip += "VD :";
+	    tooltip += pars.getValue( vdstridx );
+	    tooltip += "; ";
+	    const int index = pars.indexOf( "VD Value" );
+	    str += "VD Value: ";
+	    str += pars.getValue( index );
+	    str += "; ";
+	}
+	if ( pars.find("WVA Value") && wvastr )
+	{
+	    tooltip += "WVA :";
+	    tooltip += pars.getValue( wvastridx );
+	    tooltip += "; ";
+	    const int index = pars.indexOf( "WVA Value" );
+	    str += "WVA Value: ";
+	    str += pars.getValue( index );
+	    str += "; ";
+	}
     }
+    statusBar()->setToolTip( 0, tooltip.buf() );
     statusBar()->message( str.buf() );
 }
 
