@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: uihorattribpi.cc,v 1.7 2008-05-21 09:24:24 cvsbert Exp $
+ RCS:		$Id: uihorattribpi.cc,v 1.8 2008-06-03 08:47:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,11 +12,15 @@ ________________________________________________________________________
 #include "uihorizonattrib.h"
 #include "uistratamp.h"
 #include "uiflattenedcube.h"
+#include "uiisopachmaker.h"
 #include "uimenu.h"
 #include "uiodmenumgr.h"
+#include "uiodscenemgr.h"
+#include "uiodemsurftreeitem.h"
 #include "vishorizondisplay.h"
 #include "uivismenuitemhandler.h"
 #include "uivispartserv.h"
+#include "attribsel.h"
 #include "plugins.h"
 
 extern "C" int GetuiHorizonAttribPluginType()
@@ -48,9 +52,11 @@ public:
     void		updateMenu(CallBacker*);
     void		makeStratAmp(CallBacker*);
     void		doFlattened(CallBacker*);
+    void		doIsopach(CallBacker*);
 
     uiODMain*		appl_;
     uiVisMenuItemHandler flattenmnuitemhndlr_;
+    uiVisMenuItemHandler isopachmnuitemhndlr_;
 };
 
 
@@ -60,6 +66,10 @@ uiHorAttribPIMgr::uiHorAttribPIMgr( uiODMain* a )
 				*a->applMgr().visServer(),
 				"Write &Flattened cube ...",
 				mCB(this,uiHorAttribPIMgr,doFlattened))
+    	, isopachmnuitemhndlr_(visSurvey::HorizonDisplay::getStaticClassName(),
+				*a->applMgr().visServer(),
+				"Calculate &Isopach ...",
+				mCB(this,uiHorAttribPIMgr,doIsopach))
 {
     uiODMenuMgr& mnumgr = appl_->menuMgr();
     mnumgr.dTectMnuChanged.notify(mCB(this,uiHorAttribPIMgr,updateMenu));
@@ -98,6 +108,32 @@ void uiHorAttribPIMgr::doFlattened( CallBacker* )
 
     uiWriteFlattenedCube dlg( appl_, hd->getObjectID() );
     dlg.go();
+}
+
+
+void uiHorAttribPIMgr::doIsopach( CallBacker* )
+{
+    const int displayid = isopachmnuitemhndlr_.getDisplayID();
+    uiVisPartServer* visserv = appl_->applMgr().visServer();
+    mDynamicCastGet(visSurvey::HorizonDisplay*,hd,visserv->getObject(displayid))
+    if ( !hd ) return;
+    uiTreeItem* parent = appl_->sceneMgr().findItem( displayid );
+    if ( !parent ) return;
+
+    uiIsopachMaker dlg( appl_, hd->getObjectID() );
+    if ( !dlg.go() )
+	return;
+
+    const int attrid = visserv->addAttrib( displayid );
+    Attrib::SelSpec selspec( dlg.attrName(), Attrib::SelSpec::cOtherAttrib(),
+	    		     false, 0 );
+    visserv->setSelSpec( displayid, attrid, selspec );
+    visserv->setRandomPosData( displayid, attrid, &dlg.getDPS() );
+    uiODAttribTreeItem* itm = new uiODEarthModelSurfaceDataTreeItem(
+	    	hd->getObjectID(), 0, typeid(*parent).name() );
+    parent->addChild( itm, false );
+    parent->updateColumnText( uiODSceneMgr::cNameColumn() );
+    parent->updateColumnText( uiODSceneMgr::cColorColumn() );
 }
 
 
