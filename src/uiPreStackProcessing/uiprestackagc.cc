@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackagc.cc,v 1.4 2008-04-01 18:20:36 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackagc.cc,v 1.5 2008-06-04 09:12:33 cvsbert Exp $";
 
 #include "uiprestackagc.h"
 
@@ -32,7 +32,7 @@ uiDialog* uiAGC::create( uiParent* p, Processor* sgp )
 
 
 uiAGC::uiAGC( uiParent* p, AGC* sgagc )
-    : uiDialog( p, uiDialog::Setup("AGC setup",0,"dgb:104.2.0") )
+    : uiDialog( p, uiDialog::Setup("AGC setup",0,"103.2.1") )
     , processor_( sgagc )
 {
     BufferString label = "Window width ";
