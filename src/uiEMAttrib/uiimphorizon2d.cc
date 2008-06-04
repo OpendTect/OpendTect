@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Raman Singh
  Date:          May 2008
- RCS:           $Id: uiimphorizon2d.cc,v 1.2 2008-06-03 16:12:42 cvshelene Exp $
+ RCS:           $Id: uiimphorizon2d.cc,v 1.3 2008-06-04 07:15:19 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,14 +19,15 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseispartserv.h"
-#include "uiseparator.h"
 #include "uitaskrunner.h"
 #include "uitblimpexpdatasel.h"
 
+#include "binidvalset.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "horizon2dscanner.h"
 #include "randcolor.h"
+#include "seis2dline.h"
 #include "strmdata.h"
 #include "strmprov.h"
 #include "surfaceinfo.h"
@@ -36,6 +37,193 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 
 #include <math.h>
+
+
+class Horizon2DScannerImpl : public Horizon2DScanner
+{
+public:
+
+Horizon2DScannerImpl( const BufferStringSet& fnms, const MultiID& setid,
+		  Table::FormatDesc& fd )
+    : Horizon2DScanner(fnms,setid,fd)
+{}
+
+bool getLineNames( BufferStringSet& nms ) const
+{
+    deepErase( nms );
+    nms = validnms_;
+    return nms.size();
+}
+
+
+BinIDValueSet* getVals()
+{ return bvalset_; }
+
+};
+
+
+class Horizon2DImporter : public Executor
+{
+public:
+
+Horizon2DImporter( const BufferStringSet& lnms,
+		   ObjectSet<EM::Horizon2D>& hors,
+		   const MultiID& setid, const BinIDValueSet* valset )
+    : Executor("2D Horizon Importer")
+    , linenames_(lnms)
+    , hors_(hors)
+    , setid_(setid)
+    , bvalset_(valset)
+    , lineset_(0)
+    , prevlineidx_(-1)
+    , nrdone_(0)
+{
+    lineidset_.setSize( hors_.size(), -1 );
+    PtrMan<IOObj> ioobj = IOM().get( setid );
+    if ( ioobj )
+	lineset_ = new Seis2DLineSet( *ioobj );
+}
+
+
+const char* message() const
+{ return "Horizon Import"; }
+
+int totalNr() const
+{ return bvalset_ ? bvalset_->totalSize() : 0; }
+
+const char* nrDoneText() const
+{ return "Positions written:"; }
+
+int nrDone() const
+{ return nrdone_; }
+
+int nextStep()
+{
+    if ( !bvalset_ || !lineset_ ) return Executor::ErrorOccurred;
+    if ( !bvalset_->next(pos_) ) return Executor::Finished;
+
+    BinID bid;
+    const int nrvals = bvalset_->nrVals();
+    float vals[nrvals];
+    for ( int idx=0; idx<nrvals; idx++ )
+	vals[idx] = mUdf(float);
+
+    bvalset_->get( pos_, bid, vals );
+    if ( bid.inl < 0 ) return Executor::ErrorOccurred;
+
+    BufferString linenm = linenames_.get( bid.inl );
+    if ( bid.inl != prevlineidx_ )
+    {
+	prevlineidx_ = bid.inl;
+	prevtrcnr_ = -1;
+	linegeom_.posns.erase();
+	LineKey lk( linenm, LineKey::sKeyDefAttrib, true );
+	const int lidx = lineset_->indexOf( lk );
+	if ( lidx < 0 )
+	    return Executor::ErrorOccurred;
+
+	if ( !lineset_->getGeometry(lidx,linegeom_) )
+	    return Executor::ErrorOccurred;
+
+	for ( int hdx=0; hdx<hors_.size(); hdx++ )
+	{
+	    const int lidx = hors_[hdx]->geometry().lineIndex( linenm );
+	    if ( lidx >= 0 )
+	    {
+		const int lineid = hors_[hdx]->geometry().lineID( lidx );
+		hors_[hdx]->geometry().removeLine( lineid );
+	    }
+	    
+	    lineidset_[hdx] = hors_[hdx]->geometry().addLine( setid_, linenm );
+	}
+    }
+
+    curtrcnr_ = bid.crl;
+    float prevvals[nrvals];
+    BinID prevbid;
+    bool dointerpol = false;
+    if ( prevtrcnr_ >= 0 && abs(curtrcnr_-prevtrcnr_) > 1 )
+    {
+	dointerpol = true;
+	for ( int idx=0; idx<nrvals; idx++ )
+	    prevvals[idx] = mUdf(float);
+
+	BinIDValueSet::Pos prevpos = pos_;
+	bvalset_->prev( prevpos );
+	bvalset_->get( prevpos, prevbid, prevvals );
+    }
+
+    Coord coord( 0, 0 );
+    for ( int vdx=2; vdx<nrvals; vdx++ )
+    {
+	const int hdx = vdx-2;
+	if ( hdx >= hors_.size() || !hors_[hdx] )
+	    break;
+
+	const float val = vals[vdx];
+	if ( mIsUdf(val) || lineidset_[hdx] < 0 )
+	    continue;
+
+	EM::SubID subid = RowCol( lineidset_[hdx], curtrcnr_ ).getSerialized();
+	Coord3 posval( coord, val );
+	hors_[hdx]->setPos( hors_[hdx]->sectionID(0), subid, posval, false );
+	if ( dointerpol && !mIsUdf(prevvals[vdx]) )
+	    interpolateAndSetVals( hdx, lineidset_[hdx], curtrcnr_, prevtrcnr_,
+		    		   val, prevvals[vdx] );
+    }
+
+    prevtrcnr_ = curtrcnr_;
+    nrdone_++;
+    return Executor::MoreToDo;
+}
+
+
+void interpolateAndSetVals( int hidx, int lineid, int curtrcnr, int prevtrcnr,
+			    float curval, float prevval )
+{
+    if ( !linegeom_.posns.size() ) return;
+
+    const int nrpos = abs( curtrcnr - prevtrcnr ) - 1;
+    const bool isrev = curtrcnr < prevtrcnr;
+    PosInfo::Line2DPos curpos, prevpos;
+    if ( !linegeom_.getPos(curtrcnr,curpos)
+	|| !linegeom_.getPos(prevtrcnr,prevpos) )
+	return;
+
+    const Coord vec = curpos.coord_ - prevpos.coord_;
+    for ( int idx=1; idx<=nrpos; idx++ )
+    {
+	const int trcnr = isrev ? prevtrcnr - idx : prevtrcnr + idx;
+	PosInfo::Line2DPos pos;
+	if ( !linegeom_.getPos(trcnr,pos) )
+	    continue;
+
+	const Coord newvec = pos.coord_ - prevpos.coord_;
+	const float sq = vec.sqAbs();
+	const float prod = vec.dot(newvec);
+	const float factor = mIsZero(sq,mDefEps) ? 0 : prod / sq;
+	const float val = prevval + factor * ( curval - prevval );
+	const Coord3 posval( 0, 0, val );
+	EM::SubID subid = RowCol( lineid, trcnr ).getSerialized();
+	hors_[hidx]->setPos( hors_[hidx]->sectionID(0), subid, posval, false );
+    }
+}
+
+protected:
+
+    const BufferStringSet&	linenames_;
+    ObjectSet<EM::Horizon2D>&	hors_;
+    const MultiID&		setid_;
+    const BinIDValueSet*	bvalset_;
+    TypeSet<int>		lineidset_;
+    PosInfo::Line2DData		linegeom_;
+    Seis2DLineSet*		lineset_;
+    int				nrdone_;
+    int				prevtrcnr_;
+    int				curtrcnr_;
+    int				prevlineidx_;
+    BinIDValueSet::Pos		pos_;
+};
 
 
 uiImportHorizon2D::uiImportHorizon2D( uiParent* p ) 
@@ -80,7 +268,7 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 	    			mCB(this,uiImportHorizon2D,addHor), false );
     addbut->attach( rightTo, horbox );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, "104.0.9" );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, "100.0.0" );
     dataselfld_->attach( alignedBelow, horbox );
     dataselfld_->descChanged.notify( mCB(this,uiImportHorizon2D,descChg) );
 
@@ -88,16 +276,6 @@ uiImportHorizon2D::uiImportHorizon2D( uiParent* p )
 	    			 mCB(this,uiImportHorizon2D,scanPush), false );
     scanbut_->attach( alignedBelow, dataselfld_);
 
-    uiSeparator* sep = new uiSeparator( this, "H sep" );
-    sep->attach( stretchedBelow, scanbut_ );
-
-    interpolfld_ = new uiGenInput( this, "Interpolate",
-	    			   BoolInpSpec(true,"Yes","No",true) );
-    interpolfld_->attach( alignedBelow, scanbut_ );
-    interpolfld_->attach( ensureBelow, sep );
-
-    displayfld_ = new uiCheckBox( this, "Display after import" );
-    displayfld_->attach( alignedBelow, interpolfld_ );
     finaliseDone.notify( mCB(this,uiImportHorizon2D,formatSel) );
 }
 
@@ -148,23 +326,30 @@ void uiImportHorizon2D::addHor( CallBacker* )
 }
 
 
-void uiImportHorizon2D::scanPush( CallBacker* )
+void uiImportHorizon2D::scanPush( CallBacker* cb )
 {
     if ( !horselfld_->nrSelected() )
     { uiMSG().error("Please select at least one horizon"); return; }
 
     if ( !dataselfld_->commit() ) return;
-    if ( scanner_ ) return;
+    if ( scanner_ ) 
+    {
+	if ( cb )
+	    scanner_->launchBrowser();
+
+	return;
+    }
 
     BufferStringSet filenms;
     if ( !getFileNames(filenms) ) return;
 
     const char* setnm = linesetfld_->text();
     const int setidx = linesetnms_.indexOf( setnm );
-    scanner_ = new Horizon2DScanner( filenms, setids_[setidx], fd_ );
+    scanner_ = new Horizon2DScannerImpl( filenms, setids_[setidx], fd_ );
     uiTaskRunner taskrunner( this );
     taskrunner.execute( *scanner_ );
-    scanner_->launchBrowser();
+    if ( cb )
+	scanner_->launchBrowser();
 }
 
 
@@ -176,78 +361,83 @@ bool uiImportHorizon2D::doDisplay() const
 
 #define mErrRet(s) { uiMSG().error(s); return 0; }
 #define mErrRetUnRef(s) { horizon->unRef(); mErrRet(s) }
-#define mSave() \
-    if ( !exec ) \
-    { \
-	delete exec; \
-	horizon->unRef(); \
-	return false; \
-    } \
-    uiTaskRunner taskrunner( this ); \
-    rv = taskrunner.execute( *exec ); \
-    delete exec; 
 
 bool uiImportHorizon2D::doImport()
 {
-/*    BufferStringSet attrnms;
-    attrlistfld_->box()->getSelectedItems( attrnms );
-    if ( isgeom_ ) attrnms.insertAt( new BufferString(sZVals), 0 );
-    if ( !attrnms.size() ) mErrRet( "No Attributes Selected" );
+    scanPush(0);
+    if ( !scanner_ ) return false;
 
-    EM::Horizon3D* horizon = isgeom_ ? createHor() : loadHor();
-    if ( !horizon ) return false;
+    BufferStringSet linenms;
+    mDynamicCastGet(Horizon2DScannerImpl*,scanner,scanner_)
+    if ( !scanner ) return false;
 
-    if ( !scanner_ && !doScan() ) return false;
-
-    ObjectSet<BinIDValueSet> sections = scanner_->getSections();
-
-    if ( sections.isEmpty() )
+    scanner->getLineNames( linenms );
+    BufferStringSet hornms;
+    horselfld_->getSelectedItems( hornms );
+    ObjectSet<EM::Horizon2D> horizons;
+    IOM().to( MultiID(IOObjContext::getStdDirData(IOObjContext::Surf)->id) );
+    EM::EMManager& em = EM::EMM();
+    for ( int idx=0; idx<hornms.size(); idx++ )
     {
-	horizon->unRef();
-	mErrRet( "Nothing to import" );
+	BufferString nm = hornms.get( idx );
+	PtrMan<IOObj> ioobj = IOM().getLocal( nm );
+	if ( !ioobj )
+	{
+	    EM::ObjectID id = em.createObject( EM::Horizon2D::typeStr(), nm );
+	    mDynamicCastGet(EM::Horizon2D*,hor,em.getObject(id));
+	    hor->ref();
+	    horizons += hor;
+	    continue;
+	}
+
+	EM::EMObject* obj = em.getObject( em.getObjectID(ioobj->key()) );
+	if ( !obj )
+	{
+	    PtrMan<Executor> exec = em.objectLoader( ioobj->key() );
+	    if ( !exec ) continue;
+
+	    obj = em.getObject( em.getObjectID(ioobj->key()) );
+	    if ( !exec->execute() )
+		continue;
+
+	    mDynamicCastGet(EM::Horizon2D*,hor,obj);
+	    for ( int ldx=0; ldx<linenms.size(); ldx++ )
+	    {
+		BufferString linenm = linenms.get( ldx );
+		if ( hor->geometry().lineIndex(linenm) < 0 )
+		    continue;
+
+		BufferString msg = "Horizon ";
+		msg += nm;
+		msg += " already exists for line ";
+		msg += linenm;
+		msg += ". Overwrite?";
+		if ( !uiMSG().askGoOn(msg) )
+		    return false;
+	    }
+
+	    obj->ref();
+	    horizons += hor;
+	}
     }
 
-    const bool dofill = filludffld_ && filludffld_->getBoolValue();
-    if ( dofill )
-	fillUdfs( sections );
+    const char* setnm = linesetfld_->text();
+    const int setidx = linesetnms_.indexOf( setnm );
+    const BinIDValueSet* valset = scanner->getVals();
+    PtrMan<Horizon2DImporter> exec = new Horizon2DImporter( linenms, horizons,
+	    						    setids_[setidx],
+							    valset );
+    uiTaskRunner impdlg( this );
+    impdlg.execute( *exec );
 
-    HorSampling hs = subselfld_->envelope().hrg;
-    ExecutorGroup importer( "Importing horizon" );
-    importer.setNrDoneText( "Nr positions done" );
-    int startidx = 0;
-    if ( isgeom_ )
+    for ( int idx=0; idx<horizons.size(); idx++ )
     {
-	importer.add( horizon->importer(sections,hs) );
-	attrnms.remove( 0 );
-	startidx = 1;
+	PtrMan<Executor> saver = horizons[idx]->saver();
+	saver->execute();
+	horizons[idx]->unRef();
     }
-
-    if ( attrnms.size() )
-	importer.add( horizon->auxDataImporter(sections,attrnms,startidx,hs) );
-
-    uiTaskRunner taskrunner( this );
-    const bool success = taskrunner.execute( importer );
-    deepErase( sections );
-    if ( !success )
-	mErrRetUnRef("Cannot import horizon")
-
-    bool rv;
-    if ( isgeom_ )
-    {
-	Executor* exec = horizon->saver();
-	mSave();
-    }
-    else
-    {
-	mDynamicCastGet(ExecutorGroup*,exec,horizon->auxdata.auxDataSaver(-1))
-	mSave();
-    }
-    if ( !doDisplay() )
-	horizon->unRef();
-    else
-	horizon->unRefNoDelete();
-    return rv;*/
-    return false;
+	    					
+    return true;
 }
 
 
@@ -285,6 +475,9 @@ bool uiImportHorizon2D::checkInpFlds()
 {
     BufferStringSet filenames;
     if ( !getFileNames(filenames) ) return false;
+
+    if ( !horselfld_->nrSelected() )
+	mErrRet("Please select at least one horizon") 
 
     if ( !dataselfld_->commit() )
 	mErrRet( "Please define data format" );

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizon2dscanner.cc,v 1.1 2008-05-30 07:08:52 cvsraman Exp $
+ RCS:           $Id: horizon2dscanner.cc,v 1.2 2008-06-04 07:15:19 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,10 +79,10 @@ int Horizon2DScanner::totalNr() const
 	StreamData sd = sp.makeIStream();
 	if ( !sd.usable() ) continue;
 
-	char buf[80];
+	char buf[180];
 	while ( *sd.istrm )
 	{
-	    sd.istrm->getline( buf, 80 );
+	    sd.istrm->getline( buf, 180 );
 	    totalnr_++;
 	}
 
@@ -107,25 +107,45 @@ void Horizon2DScanner::report( IOPar& iopar ) const
     iopar.setName( str.buf() );
 
     iopar.add( "->", "Geometry" );
-    iopar.set( "Valid lines found", validnms_.size() );
+    const int nrlines = validnms_.size();
+    if ( !nrlines )
+    {
+	iopar.add( "No valid line names found",
+		   "Make sure the line names match with those in survey" );
+	return;
+    }
+
+    iopar.set( "Valid lines found", nrlines );
     BufferString msg;
     for ( int idx=0; idx<validnms_.size(); idx++ )
     {
+	if ( idx ) msg += ", ";
 	msg += validnms_.get( idx );
-	msg += ", ";
     }
 
     iopar.add( "Line names", msg );
-    msg = "";
-    for ( int idx=0; idx<invalidnms_.size(); idx++ )
-    {
-	msg += invalidnms_.get( idx );
-	msg += ", ";
+    const int nrinvalids = invalidnms_.size();
+    if ( nrinvalids )
+	{
+	msg = "";
+	for ( int idx=0; idx<nrinvalids; idx++ )
+	{
+	    if ( idx ) msg += ", ";
+	    msg += invalidnms_.get( idx );
+	}
+
+	iopar.add( "Rejected Line names", msg );
     }
 
-    iopar.add( "Rejected Line names", msg );
+    const int nrpos = bvalset_ ? bvalset_->totalSize() : 0;
+    if ( !nrpos )
+    {
+	iopar.add( "No valid positions found",
+		   "Please re-examine input files and format definition" );
+	return;
+    }
 
-    iopar.set( "Total postions", bvalset_ ? bvalset_->totalSize() : 0 );
+    iopar.set( "Total Number of positions: ", nrpos );
     iopar.add( "Value ranges", "" );
     for ( int idx=0; idx<valranges_.size(); idx++ )
 	iopar.set( fd_.bodyinfos_[idx+2]->name(), valranges_[idx] );
@@ -171,6 +191,7 @@ bool Horizon2DScanner::reInitAscIO( const char* fnm )
 }
 
 
+#define mIsUndefined(val) mIsEqual(val,udfval_,1e-6)
 int Horizon2DScanner::nextStep()
 {
     if ( fileidx_ >= filenames_.size() )
@@ -212,10 +233,6 @@ int Horizon2DScanner::nextStep()
     if ( !linegeom_.posns.size() )
 	return Executor::ErrorOccurred;
 
-    const int firstvalidx = isxy_ ? 2 : 1;
-    if ( !bvalset_ )
-	bvalset_ = new BinIDValueSet( data.size() - firstvalidx, false );
-
     PosInfo::Line2DPos pos;
     if ( !isxy_ )
     {
@@ -233,22 +250,36 @@ int Horizon2DScanner::nextStep()
 	    return Executor::MoreToDo;
     }
 
+    if ( !bvalset_ )
+	bvalset_ = new BinIDValueSet( data.size(), false );
+
     int validx = 0;
-    const int nrvals = data.size()-firstvalidx;
+    const int nrvals = data.size() - 2;
+    int nrvalidvals = 0;
     while ( validx < nrvals )
     {
 	while ( valranges_.size() < nrvals )
 	    valranges_ += Interval<float>(mUdf(float),-mUdf(float));
 
-	const float val = data[validx+firstvalidx];
+	const float val = data[validx+2];
 
-	if ( !mIsUdf(val) )
+	if ( mIsUndefined(val) || !linegeom_.zrg.includes(val) )
+	    data[validx+2] = mUdf(float);
+	else
+	{
+	    nrvalidvals++;
 	    valranges_[validx].include( val, false );
+	}
+
 	validx++;
     }
     
-    const BinID bid( 0, pos.nr_ );
-    bvalset_->add( bid, data.arr() );
+    if ( nrvalidvals )
+    {
+	const int lineidx = validnms_.indexOf( linenm );
+	const BinID bid( lineidx, pos.nr_ );
+	bvalset_->add( bid, data.arr() );
+    }
 
     return Executor::MoreToDo;
 }
