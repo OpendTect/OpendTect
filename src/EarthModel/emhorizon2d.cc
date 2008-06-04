@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.17 2008-05-30 07:04:33 cvsraman Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.18 2008-06-04 07:16:40 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -333,7 +333,11 @@ Table::FormatDesc* Horizon2DAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Horizon2D" );
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
-	    		StringInpSpec(sKey::FloatUdf), Table::Required );
+	    		StringInpSpec(sKey::FloatUdf), Table::Required,
+	   		PropertyRef::surveyZType() );
+    const char* un = SI().zIsTime() ? "Milliseconds"
+				    : SI().zInFeet() ? "Feet" : "Meter";
+    fd->headerinfos_[0]->selection_.unit_ = UoMR().get( un );
     BufferStringSet hornms;
     createDescBody( fd, hornms );
     return fd;
@@ -389,7 +393,7 @@ float Horizon2DAscIO::getUdfVal()
 
 bool Horizon2DAscIO::isXY() const
 {
-    const Table::TargetInfo* xinfo = fd_.bodyinfos_[0];
+    const Table::TargetInfo* xinfo = fd_.bodyinfos_[1];
     if ( !xinfo ) return false;
 
     const int sel = xinfo->selection_.form_;
@@ -404,7 +408,9 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, TypeSet<float>& data )
     if ( ret <= 0 ) return ret;
 
     lnm = text(0);
-    for ( int idx=1; idx<=fd_.bodyinfos_.size(); idx++ )
+    const int lastvalidx = isXY() ? fd_.bodyinfos_.size()
+				  : fd_.bodyinfos_.size() - 1;
+    for ( int idx=1; idx<=lastvalidx; idx++ )
 	data += getfValue( idx );
 
     return ret;
