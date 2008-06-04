@@ -5,7 +5,7 @@
  * DATE     : NOv 2003
 -*/
 
-static const char* rcsID = "$Id: uitutpi.cc,v 1.10 2008-04-30 03:31:48 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uitutpi.cc,v 1.11 2008-06-04 09:43:46 cvssatyaki Exp $";
 
 #include "uitutorialattrib.h"
 #include "uituthortools.h"
@@ -76,9 +76,9 @@ uiTutMgr::uiTutMgr( uiODMain* a )
     uiODMenuMgr& mnumgr = appl_->menuMgr();
     uiPopupMenu* mnu = new uiPopupMenu( appl_, "&Tut Tools" );
     if ( SI().has2D() && SI().has3D() ) 
-    {	mnuseis_ = new uiPopupMenu( appl_, "&Seismic (Direct)" );
+    {	mnuseis_ = new uiPopupMenu( appl_, "3D" );
     	mnu->insertMenu( mnuseis_, mnu );
-    	mnuhor_ = new uiPopupMenu( appl_, "Horizon" );
+    	mnuhor_ = new uiPopupMenu( appl_, "2D" );
     	mnu->insertMenu( mnuhor_, mnu );
 	insertSubMenu();
     }	
