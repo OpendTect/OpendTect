@@ -4,7 +4,7 @@
  * DATE     : 1996 / Jul 2007
 -*/
 
-static const char* rcsID = "$Id: coltabmapper.cc,v 1.6 2008-04-11 11:33:36 cvsnanne Exp $";
+static const char* rcsID = "$Id: coltabmapper.cc,v 1.7 2008-06-04 06:11:06 cvssatyaki Exp $";
 
 #include "coltabmapper.h"
 #include "dataclipper.h"
@@ -57,6 +57,8 @@ float ColTab::defSymMidval()
 
 void ColTab::setMapperDefaults( float cr, float sm )
 {
+    defcliprate_ = cr;
+    defsymmidval_ = sm;
     Settings::common().set( sKeyDefClipPerc, cr*100 );
     Settings::common().set( sKeyDefSymmZero, sm );
     Settings::common().write();
