@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.26 2008-06-03 11:34:35 cvsbert Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.27 2008-06-04 10:19:22 cvshelene Exp $
 ___________________________________________________________________
 
 -*/
@@ -229,9 +229,12 @@ void uiODDataTreeItem::createMenuCB( CallBacker* cb )
 	                applMgr()->visServer()->getObject(sceneID()));
     const bool hasztransform = scene && scene->getDataTransform();
 //TODO:remove when Z-transformed scenes are ok for 2D Viewer
- 
+
+//TODO remove after version 3.2:
+    const bool isvertical = visserv->isVerticalDisp( displayID() );
+    
     if ( visserv->canBDispOn2DViewer(displayID()) && !hasztransform
-	    && dpid>DataPack::cNoID )
+	    && dpid>DataPack::cNoID && isvertical )
     {
 	const Attrib::SelSpec* as =
 	    visserv->getSelSpec( displayID(), attribNr() );
