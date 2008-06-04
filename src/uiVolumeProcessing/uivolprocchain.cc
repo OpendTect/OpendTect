@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.1 2008-02-25 19:14:55 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.2 2008-06-04 09:17:09 cvsbert Exp $";
 
 #include "uivolprocchain.h"
 
@@ -29,7 +29,7 @@ mImplFactory2Param( uiDialog, uiParent*, Step*, uiPS );
 
 
 uiChain::uiChain( uiParent* p, Chain& man )
-    : uiDialog( p, uiDialog::Setup("Volume Processing Setup",0,"dgb:104.1.3")
+    : uiDialog( p, uiDialog::Setup("Volume Processing Setup",0,"103.2.4")
 	    .savetext("Save on OK").savebutton(true).savechecked(true)
 	    .menubar(true) )
     , chain_( man )
