@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		September 2006
- RCS:		$Id: uihorattribpi.cc,v 1.8 2008-06-03 08:47:12 cvsbert Exp $
+ RCS:		$Id: uihorattribpi.cc,v 1.9 2008-06-04 06:54:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,7 @@ void uiHorAttribPIMgr::updateMenu( CallBacker* )
 
 void uiHorAttribPIMgr::makeStratAmp( CallBacker* )
 {
-    uiCalcStratAmp dlg( appl_ );
+    uiStratAmpCalc dlg( appl_ );
     dlg.go();
 }
 

@@ -1,44 +1,51 @@
-/*
- * COPYRIGHT: (C) dGB Beheer B.V.
- * AUTHOR   : Nageswara*
- *DATE     : Mar 2008
+/*+
+________________________________________________________________________
+
+ CopyRight:	(C) dGB Beheer B.V.
+ Author:	Nageswara Rao
+ Date:		March 2008
+ RCS:		$Id: stratamp.cc,v 1.2 2008-06-04 06:54:03 cvsnanne Exp $
+________________________________________________________________________
+
 -*/
 
 #include "stratamp.h"
 
+#include "cubesampling.h"
 #include "emhorizon3d.h"
+#include "emsurfaceauxdata.h"
 #include "ioobj.h"
-#include "seisselectionimpl.h"
-#include "seisioobjinfo.h"
 #include "seisread.h"
-#include "seistrc.h"
 #include "statruncalc.h"
+#include "seisselectionimpl.h"
+#include "seistrc.h"
 
-CalcStratAmp::CalcStratAmp(const IOObj* seisobj, const EM::Horizon3D* tophor,
-			   const EM::Horizon3D* bothor,
-			   Stats::Type stattyp, const HorSampling& hs)
+
+StratAmpCalc::StratAmpCalc( const IOObj& seisobj, const EM::Horizon3D* tophor,
+			    const EM::Horizon3D* bothor,
+			    Stats::Type stattyp, const HorSampling& hs )
     : Executor("Computing Stratal amplitude...")
     , rdr_(0) 
     , tophorizon_(tophor)
     , bothorizon_(bothor)
-    , usesinglehor_(true)
     , stattyp_(stattyp)
     , dataidx_(-1)
+    , nrdone_(0)
 {
-    if ( !seisobj ) return;
-
-    rdr_= new SeisTrcReader( seisobj );
+    rdr_ = new SeisTrcReader( &seisobj );
     CubeSampling cs;
     cs.hrg = hs;
-    Seis::RangeSelData* sd = new Seis::RangeSelData( cs );
-    rdr_->setSelData( sd );
+    rdr_->setSelData( new Seis::RangeSelData(cs) );
     rdr_->prepareWork();
 
     totnr_ = hs.nrInl() * hs.nrCrl();
+
+    if ( tophor ) tophor->ref();
+    if ( bothor ) bothor->ref();
 }
 
 
-CalcStratAmp::~CalcStratAmp()
+StratAmpCalc::~StratAmpCalc()
 {
     delete rdr_;
     if ( tophorizon_ ) tophorizon_->unRef();
@@ -46,14 +53,7 @@ CalcStratAmp::~CalcStratAmp()
 }
 
 
-int CalcStratAmp::totalNr() const
-{
-    
-    return totnr_ < 0 ? -1 : totnr_;
-}
-
-
-int CalcStratAmp::init( const char* attribnm, bool addtotop )
+int StratAmpCalc::init( const char* attribnm, bool addtotop )
 {
     addtotop_ = addtotop;
     const EM::Horizon3D* addtohor_ = addtotop ? tophorizon_ : bothorizon_;
@@ -67,12 +67,10 @@ int CalcStratAmp::init( const char* attribnm, bool addtotop )
 }
 
 
-int CalcStratAmp::nextStep()
+int StratAmpCalc::nextStep()
 {
-    if ( !rdr_ || !tophorizon_ || ( !usesinglehor_ && !bothorizon_ ) )
+    if ( !rdr_ || !tophorizon_ || dataidx_<0 )
 	return Executor::ErrorOccurred;
-
-    if ( dataidx_ < 0 ) return Executor::ErrorOccurred;
 
     SeisTrc trc;
     const int rv = rdr_->get( trc.info() );
@@ -84,45 +82,41 @@ int CalcStratAmp::nextStep()
 
     const EM::SubID subid = bid.getSerialized();
     float z1 = tophorizon_->getPos(tophorizon_->sectionID(0),subid).z;
-    float z2 = usesinglehor_ ? z1
+    float z2 = !bothorizon_ ? z1
 		     : bothorizon_->getPos(bothorizon_->sectionID(0),subid).z;
     z1 += tophorshift_;
     z2 += bothorshift_;
-    const bool isrev = z1 > z2;
-    Interval<int> sampintv( trc.info().nearestSample( isrev ? z2 : z1 ),
-	    		    trc.info().nearestSample( isrev ? z1 : z2 ) );
+    Interval<int> sampintv( trc.info().nearestSample(z1),
+	    		    trc.info().nearestSample(z2) );
 
-    if ( sampintv.start < 0 || sampintv.stop >= trc.info().nr )
-	return Executor::MoreToDo;
+    if ( sampintv.start < 0 )
+	sampintv.start = 0;
+    if ( sampintv.stop >= trc.size() )
+	sampintv.stop = trc.size()-1;
 
     Stats::RunCalcSetup rcsetup;
     rcsetup.require( stattyp_ );
     Stats::RunCalc<float> runcalc( rcsetup );
     for ( int idx=sampintv.start; idx<=sampintv.stop; idx++ )
     {
-	 const float val = trc.get( idx, 0 );
-	 if ( mIsUdf(val) ) continue;
-
-	 runcalc.addValue( val );
+	const float val = trc.get( idx, 0 );
+	if ( !mIsUdf(val) )
+	    runcalc.addValue( val );
     }
 
-    float outval;
-    switch( stattyp_ )
+    float outval = mUdf( float );
+    switch ( stattyp_ )
     {
 	case Stats::Min: outval = runcalc.min(); break;
-
 	case Stats::Max: outval = runcalc.max(); break;
-
 	case Stats::Average: outval = runcalc.average(); break;
-	    
 	case Stats::RMS: outval = runcalc.rms(); break;  
-      
 	default: break;
     }
 
     const EM::Horizon3D* addtohor_ = addtotop_ ? tophorizon_ : bothorizon_;
     posid_.setSubID( subid );
     addtohor_->auxdata.setAuxDataVal( dataidx_, posid_, outval );
-
+    nrdone_++;
     return Executor::MoreToDo;
 }

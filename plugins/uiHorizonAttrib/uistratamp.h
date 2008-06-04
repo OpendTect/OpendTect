@@ -21,14 +21,12 @@ class uiGenInput;
 
 namespace EM { class Horizon3D; }
 
-class uiCalcStratAmp : public uiDialog
+class uiStratAmpCalc : public uiDialog
 {
 public:
-			uiCalcStratAmp(uiParent*);
-			~uiCalcStratAmp();
+			uiStratAmpCalc(uiParent*);
+			~uiStratAmpCalc();
 		      
-//		bool    saveData( bool addtotop, int attribidx,bool overwrite );
-
 protected:
 
     CtxtIOObj&		seisctio_;

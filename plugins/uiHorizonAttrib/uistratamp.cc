@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID = "$Id: uistratamp.cc,v 1.3 2008-05-23 05:20:44 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uistratamp.cc,v 1.4 2008-06-04 06:54:03 cvsnanne Exp $";
 
 #include "uistratamp.h"
 #include "stratamp.h"
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: uistratamp.cc,v 1.3 2008-05-23 05:20:44 cvsnage
 #include "cubesampling.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
+#include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
 #include "ioobj.h"
@@ -31,27 +32,27 @@ static const char* rcsID = "$Id: uistratamp.cc,v 1.3 2008-05-23 05:20:44 cvsnage
 
 static const char* statstrs[] = { "Min", "Max", "Average", "RMS", 0 };
 
-uiCalcStratAmp::uiCalcStratAmp( uiParent* p )
+uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     : uiDialog( p, Setup("Stratal Amplitude","Specify process parameters","") )
     , seisctio_(*mMkCtxtIOObj(SeisTrc))
     , horctio1_(*mMkCtxtIOObj(EMHorizon3D))
     , horctio2_(*mMkCtxtIOObj(EMHorizon3D))
 {
     inpfld_ = new uiSeisSel( this, seisctio_, uiSeisSel::Setup(Seis::Vol) );
-    inpfld_->selectiondone.notify( mCB(this,uiCalcStratAmp,inpSel) );
+    inpfld_->selectiondone.notify( mCB(this,uiStratAmpCalc,inpSel) );
 
     winoption_= new uiGenInput( this, "Window Option",
 	                        BoolInpSpec(true, "Single Horizon",
 				"Double Horizon") );
-    winoption_->valuechanged.notify( mCB(this,uiCalcStratAmp,choiceSel) );
+    winoption_->valuechanged.notify( mCB(this,uiStratAmpCalc,choiceSel) );
     winoption_->attach( alignedBelow, inpfld_ );
 
     horfld1_ = new uiIOObjSel( this, horctio1_, "Horizon" );
-    horfld1_->selectiondone.notify( mCB(this,uiCalcStratAmp,inpSel) );
+    horfld1_->selectiondone.notify( mCB(this,uiStratAmpCalc,inpSel) );
     horfld1_->attach( alignedBelow, winoption_ );
 
     horfld2_ = new uiIOObjSel( this, horctio2_, "Bottom Horizon" );
-    horfld2_->selectiondone.notify( mCB(this,uiCalcStratAmp,inpSel) );
+    horfld2_->selectiondone.notify( mCB(this,uiStratAmpCalc,inpSel) );
     horfld2_->attach( alignedBelow, horfld1_ );
 
     BufferString lbltxt = "Z Offset ";
@@ -78,11 +79,11 @@ uiCalcStratAmp::uiCalcStratAmp( uiParent* p )
 			             StringInpSpec("Stratal Amplitude") );
     attribnamefld_->attach( alignedBelow, selfld_ );
 
-    finaliseDone.notify( mCB(this,uiCalcStratAmp,choiceSel) );
+    finaliseDone.notify( mCB(this,uiStratAmpCalc,choiceSel) );
 }
 
 
-uiCalcStratAmp::~uiCalcStratAmp()
+uiStratAmpCalc::~uiStratAmpCalc()
 {
     delete seisctio_.ioobj; delete &seisctio_;
     delete horctio1_.ioobj; delete &horctio1_;
@@ -90,7 +91,7 @@ uiCalcStratAmp::~uiCalcStratAmp()
 }
 
 
-void uiCalcStratAmp::choiceSel( CallBacker* )
+void uiStratAmpCalc::choiceSel( CallBacker* )
 {
     usesingle_ = winoption_->getBoolValue();
     horfld1_->setLabelText( usesingle_ ? "Horizon  " 
@@ -100,7 +101,7 @@ void uiCalcStratAmp::choiceSel( CallBacker* )
 }
 
 
-void uiCalcStratAmp::inpSel( CallBacker* )
+void uiStratAmpCalc::inpSel( CallBacker* )
 {
     HorSampling hs;
     getAvailableRange( hs );
@@ -110,7 +111,7 @@ void uiCalcStratAmp::inpSel( CallBacker* )
 }
 
 
-void uiCalcStratAmp::getAvailableRange( HorSampling& hs )
+void uiStratAmpCalc::getAvailableRange( HorSampling& hs )
 {
     if ( inpfld_->commitInput(false) )
     {
@@ -138,7 +139,7 @@ void uiCalcStratAmp::getAvailableRange( HorSampling& hs )
 
 #define mErrRet(s) { uiMSG().error(s); return false; }
 
-bool uiCalcStratAmp::checkInpFlds()
+bool uiStratAmpCalc::checkInpFlds()
 {
     if ( !inpfld_->commitInput(false) )
 	mErrRet( "Missing Input\nPlease select the input seismics" );
@@ -158,7 +159,7 @@ bool uiCalcStratAmp::checkInpFlds()
 }
 
 
-bool uiCalcStratAmp::acceptOK( CallBacker* )
+bool uiStratAmpCalc::acceptOK( CallBacker* )
 {
     if ( !checkInpFlds() ) return false;
 
@@ -191,22 +192,24 @@ bool uiCalcStratAmp::acceptOK( CallBacker* )
     if ( !usesingle_ && !bothor )  mErrRet( "Error loading horizon" );
 
     Stats::Type typ = eEnum( Stats::Type, ampoptionfld_->box()->text() );
-    CalcStratAmp exec( seisctio_.ioobj, tophor, usesingle_ ? 0 : bothor,
+    StratAmpCalc exec( *seisctio_.ioobj, tophor, usesingle_ ? 0 : bothor,
 	    	       typ, hs );
     exec.setOffsets( tophorshiftfld_->getfValue() / SI().zFactor(),
 	    	     bothorshiftfld_->getfValue() / SI().zFactor() );
     
-    int attribidx = exec.init( attribnm, addtotop );
+    const int attribidx = exec.init( attribnm, addtotop );
     if ( attribidx < 0 )
 	mErrRet( "Cannot add attribute to Horizon" );
 
     uiTaskRunner taskrunner( this );
-    if ( !taskrunner.execute(exec) ) mErrRet( "Cannot compute attribute" )
+    if ( !taskrunner.execute(exec) )
+	mErrRet( "Cannot compute attribute" )
+
     return saveData( addtotop ? tophor : bothor , attribidx, overwrite );
 }
 
 
-bool uiCalcStratAmp::saveData( const EM::Horizon3D* hor, int attribidx,
+bool uiStratAmpCalc::saveData( const EM::Horizon3D* hor, int attribidx,
 			       bool overwrite )
 {
     PtrMan<Executor> datasaver = 
@@ -218,7 +221,7 @@ bool uiCalcStratAmp::saveData( const EM::Horizon3D* hor, int attribidx,
 }
 
 
-EM::Horizon3D* uiCalcStratAmp::loadHor( const IOObj* ioobj,
+EM::Horizon3D* uiStratAmpCalc::loadHor( const IOObj* ioobj,
 					const HorSampling& hs )
 {
     if ( !ioobj )
@@ -226,17 +229,18 @@ EM::Horizon3D* uiCalcStratAmp::loadHor( const IOObj* ioobj,
 
     EM::EMManager& em = EM::EMM();
     EM::SurfaceIOData sd;
-    em.getSurfaceData( ioobj->key(), sd );
     EM::SurfaceIODataSelection sdsel( sd );
     sdsel.rg = hs;
-    PtrMan<Executor> exec = em.objectLoader( ioobj->key(), &sdsel );
+    TypeSet<MultiID> mids; mids += ioobj->key();
+    PtrMan<Executor> exec = em.objectLoader( mids, &sdsel );
     if ( !exec )
     {
-	BufferString errmsg = "Cannot Find Object  ";
+	BufferString errmsg = "Cannot load ";
         errmsg += ioobj->name();
         uiMSG().error( errmsg );
 	return 0;
     }
+
     uiTaskRunner taskrunner( this );
     taskrunner.execute( *exec );
     EM::EMObject* emobj = em.getObject( em.getObjectID(ioobj->key()) );
