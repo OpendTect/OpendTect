@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.49 2008-05-28 15:00:26 cvskris Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.50 2008-06-04 06:10:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -451,7 +451,11 @@ bool HorizonDisplay::addAttrib()
 {
     as_ += new Attrib::SelSpec;
     coltabs_ += visBase::VisColorTab::create();
-    coltabs_[coltabs_.size()-1]->ref();
+    const int curattrib = coltabs_.size()-1;
+    coltabs_[curattrib]->ref();
+    coltabs_[curattrib]->setAutoScale( true );
+    coltabs_[curattrib]->setClipRate( 0.025 );
+    coltabs_[curattrib]->setSymMidval( mUdf(float) );
     enabled_ += true;
     datapackids_ += -1;
 
@@ -461,8 +465,7 @@ bool HorizonDisplay::addAttrib()
 	if ( psurf )
 	{
 	    psurf->addTexture();
-	    psurf->setColorTab( coltabs_.size()-1,
-		    		*coltabs_[coltabs_.size()-1] );
+	    psurf->setColorTab( curattrib, *coltabs_[curattrib] );
 	}
     }
 
@@ -599,7 +602,6 @@ void HorizonDisplay::setDepthAsAttrib( int attrib )
     coltabs_[attrib]->setAutoScale( true );
     coltabs_[attrib]->setClipRate( 0 );
     coltabs_[attrib]->setSymMidval( mUdf(float) );
-
 
     TypeSet<DataPointSet::DataRow> pts;
     BufferStringSet nms;
