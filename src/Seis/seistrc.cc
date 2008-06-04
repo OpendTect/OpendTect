@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrc.cc,v 1.38 2008-05-15 15:27:16 cvshelene Exp $";
+static const char* rcsID = "$Id: seistrc.cc,v 1.39 2008-06-04 11:35:42 cvssatyaki Exp $";
 
 #include "seistrc.h"
 #include "simpnumer.h"
@@ -133,6 +133,10 @@ SeisTrc* SeisTrc::getRelTrc( const ZGate& zgate, float sr ) const
 
     const int nrsamps = (int)( (zg.stop - zg.start) / sr + 1.5);
     ret->reSize( nrsamps, false );
+
+    while ( ret->nrComponents() < nrComponents() )
+	ret->data_.addComponent( ret->size(),
+		data_.getInterpreter( ret->nrComponents() )->dataChar() );
 
     for ( int idx=0; idx<nrsamps; idx++ )
     {
