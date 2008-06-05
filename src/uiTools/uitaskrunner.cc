@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink/A.H. Bril
  Date:          Aug 2000/Oct 2001
- RCS:           $Id: uitaskrunner.cc,v 1.7 2008-06-05 18:10:44 cvskris Exp $
+ RCS:           $Id: uitaskrunner.cc,v 1.8 2008-06-05 19:55:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -161,39 +161,6 @@ void uiTaskRunner::updateFields()
 }
 
 
-void uiTaskRunner::timerTick( CallBacker* )
-{
-    statemutex_.lock();
-    const int state = state_;
-    statemutex_.unLock();
-
-    if ( state<1 )
-    {
-	if ( uitaskrunnerthreadmutex_.tryLock() )
-	{
-	    if ( thread_ )
-	    {
-		thread_->stop();
-		thread_ = 0;
-	    }
-
-	    uitaskrunnerthreadmutex_.unLock();
-	}
-
-	if ( state<0 )
-	    uiMSG().error( task_->message() );
-
-	task_ = 0;
-
-	done( state<0 ? 0 : 1 );
-	return;
-    }
-
-    updateFields();
-    tim_.start( 250, true );
-}
-
-
 bool uiTaskRunner::acceptOK( CallBacker* )
 {
     Task::Control state = task_->getState();
@@ -212,19 +179,57 @@ bool uiTaskRunner::acceptOK( CallBacker* )
 }
 
 
-bool uiTaskRunner::rejectOK( CallBacker* )
+void uiTaskRunner::timerTick( CallBacker* )
 {
-    task_->controlWork( Task::Stop );
-    if ( uitaskrunnerthreadmutex_.tryLock() )
+    statemutex_.lock();
+    const int state = state_;
+    statemutex_.unLock();
+
+    if ( state<1 )
     {
-	if ( thread_ )
+	BufferString message;
+	if ( uitaskrunnerthreadmutex_.tryLock() )
 	{
-	    thread_->stop();
-	    thread_ = 0;
+	    message = finalizeTask();
+	    uitaskrunnerthreadmutex_.unLock();
 	}
 
-	uitaskrunnerthreadmutex_.unLock();
+	if ( state<0 )
+	    uiMSG().error( message );
+
+	done( state<0 ? 0 : 1 );
+	return;
     }
+
+    updateFields();
+    tim_.start( 250, true );
+}
+
+
+BufferString uiTaskRunner::finalizeTask()
+{
+    BufferString message;
+    if ( thread_ )
+    {
+	thread_->stop();
+	thread_ = 0;
+    }
+
+    if ( task_ ) message = task_->message();
+    task_ = 0;
+
+    uitaskrunnerthreadmutex_.unLock();
+
+    return message;
+}
+
+
+bool uiTaskRunner::rejectOK( CallBacker* )
+{
+    uitaskrunnerthreadmutex_.lock();
+    if ( task_ ) task_->controlWork( Task::Stop );
+    finalizeTask();
+    uitaskrunnerthreadmutex_.unLock();
 
     return true;
 }
