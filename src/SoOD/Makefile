@@ -2,7 +2,7 @@
 #
 #	Makefile : 	General utilities
 # 	Mar 2004	Nanne Hemstra
-#	RCS :		$Id: Makefile,v 1.22 2007-12-14 05:15:23 cvssatyaki Exp $
+#	RCS :		$Id: Makefile,v 1.23 2008-06-05 17:57:53 cvskris Exp $
 #_______________________________________________________________________________
 
 
@@ -36,7 +36,7 @@ SRC.cc	:=	initsood.cc \
 		UTMElement.cc \
 		UTMPosition.cc 
 
-PROG.cc := oifileviewer.cc
+PROG.cc := oifileviewer.cc oifileviewer_clean.cc
 
 
 USECOIN := yes
