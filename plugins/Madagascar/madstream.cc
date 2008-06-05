@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.8 2008-05-12 06:48:55 cvsraman Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.9 2008-06-05 12:01:31 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -114,7 +114,7 @@ void MadStream::initRead( IOPar* par )
     PtrMan<IOObj> ioobj = IOM().get( inpid );
     if ( !ioobj ) mErrRet( "Cannot find input data" );
 
-    PtrMan<IOPar> subpar = par->subselect( sKey::Selection );
+    PtrMan<IOPar> subpar = par->subselect( sKey::Subsel );
     Seis::SelData* seldata = Seis::SelData::get( *subpar );
     if ( !isps_ )
     {
@@ -153,7 +153,7 @@ void MadStream::initWrite( IOPar* par )
     PtrMan<IOObj> ioobj = IOM().get( outpid );
     if ( !ioobj ) mErrRet( "Cannot find output object" );
 
-    PtrMan<IOPar> subpar = par->subselect( sKey::Selection );
+    PtrMan<IOPar> subpar = par->subselect( sKey::Subsel );
     Seis::SelData* seldata = subpar ? Seis::SelData::get(*subpar) : 0;
     if ( !isps_ )
     {
