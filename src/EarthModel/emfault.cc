@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.48 2008-05-30 03:52:14 cvskris Exp $
+ RCS:           $Id: emfault.cc,v 1.49 2008-06-05 12:24:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -235,6 +235,7 @@ bool FaultGeometry::insertStick( const SectionID& sid, int sticknr,
 				 const Coord3& pos, const Coord3& editnormal,
 				 bool addtohistory )
 {
+std::cout << editnormal.x << '\t' << editnormal.y << '\t' << editnormal.z << std::endl;
     Geometry::FaultStickSurface* fss = sectionGeometry( sid );
     if ( !fss || !fss->insertStick(pos,editnormal,sticknr) )
 	return false;
@@ -438,6 +439,35 @@ bool FaultAscIO::isXY() const
 }
 
 
+struct FaultStick
+{
+    			FaultStick(int idx)	: stickidx_(idx)	{}
+
+    int			stickidx_;
+    TypeSet<Coord3>	crds_;
+
+Coord3 getNormal() const
+{
+    int oninl = 0;
+    int oncrl = 0;
+    const BinID firstbid = SI().transform( crds_[0] );
+    for ( int idx=1; idx<crds_.size(); idx++ )
+    {
+	const BinID bid = SI().transform( crds_[idx] );
+	if ( bid.inl == firstbid.inl ) oninl++;
+	if ( bid.crl == firstbid.crl ) oncrl++;
+    }
+
+    if ( oninl == 0 && oncrl == 0 )
+	return Coord3( 0, 0, 1 );
+
+    return oninl>oncrl ? Coord3( SI().binID2Coord().rowDir(), 0 )
+		       : Coord3( SI().binID2Coord().colDir(), 0 );
+}
+
+};
+
+
 bool FaultAscIO::get( std::istream& strm, EM::Fault& flt ) const
 {
     getHdrVals( strm );
@@ -446,13 +476,14 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt ) const
     Coord3 normal( 1, 0, 0 );
     const SectionID sid = flt.sectionID( 0 );
     int curstickidx = -1;
-    int knotidx = 0;
     bool hasstickidx = false;
 
     bool oninl = false;
     bool oncrl = false;
     int linenr;
     BinID firstbid;
+
+    ObjectSet<FaultStick> sticks;
 
     while ( true )
     {
@@ -474,35 +505,38 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt ) const
 	{
 	    if ( stickidx != curstickidx )
 	    {
-		flt.geometry().insertStick( sid, stickidx, crd, normal, false );
+		FaultStick* stick = new FaultStick( stickidx );
+		stick->crds_ += crd;
+		sticks += stick;
 		curstickidx = stickidx;
-		knotidx = 0;
 	    }
 	    else
 	    {
-		const RowCol rc( stickidx, knotidx );
-		flt.geometry().insertKnot( sid, rc.getSerialized(), crd, false);
+		FaultStick* stick = sticks[ sticks.size()-1 ];
+		stick->crds_ += crd;
 	    }
 	}
 	else
 	{
 	    const BinID curbid = SI().transform( crd );
-	    if ( flt.geometry().nrSticks(sid) == 0 )
+	    if ( sticks.isEmpty() )
 	    {
 		curstickidx = 0;
-		flt.geometry().insertStick( sid, 0, crd, normal, false );
+		FaultStick* stick = new FaultStick( curstickidx );
+		stick->crds_ += crd;
+		sticks += stick;
 		firstbid = curbid;
-		knotidx = 0;
 	    }
 	    else if ( (oninl && curbid.inl!=firstbid.inl) || 
 		      (oncrl && curbid.crl!=firstbid.crl) )
 	    {
 		curstickidx++;
-		flt.geometry().insertStick( sid, curstickidx, crd,normal,false);
+		FaultStick* stick = new FaultStick( curstickidx );
+		stick->crds_ += crd;
+		sticks += stick;
 		firstbid = curbid;
 		oninl = false;
 		oncrl = false;
-		knotidx = 0;
 	    }
 	    else
 	    {
@@ -510,14 +544,31 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt ) const
 		oninl = bid.inl == firstbid.inl;
 		oncrl = bid.crl == firstbid.crl;
 
-		const RowCol rc( curstickidx, knotidx );
-		flt.geometry().insertKnot( sid, rc.getSerialized(), crd, false);
+		FaultStick* stick = sticks[ sticks.size()-1 ];
+		stick->crds_ += crd;
 	    }
 	}
-
-	knotidx++;
     }
 
+    for ( int idx=0; idx<sticks.size(); idx++ )
+    {
+	FaultStick* stick = sticks[idx];
+	if ( stick->crds_.isEmpty() )
+	    continue;
+
+	// TODO: sort sticks
+
+	flt.geometry().insertStick( sid, stick->stickidx_, stick->crds_[0],
+				    stick->getNormal(), false );
+	for ( int crdidx=1; crdidx<stick->crds_.size(); crdidx++ )
+	{
+	    const RowCol rc( stick->stickidx_, crdidx );
+	    flt.geometry().insertKnot( sid, rc.getSerialized(),
+		    		       stick->crds_[crdidx], false );
+	}
+    }
+
+    deepErase( sticks );
     return true;
 }
 
