@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodhelpmenumgr.cc,v 1.14 2008-05-07 09:44:41 cvsnanne Exp $
+ RCS:           $Id: uiodhelpmenumgr.cc,v 1.15 2008-06-05 09:17:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,7 +73,7 @@ bool uiODHelpDocInfo::getFrom( std::istream& strm, const char* dirnm )
 {
     ascistream astrm( strm );
 
-    starturl = "index.html"; nm = "";
+    starturl = "index.htm"; nm = "";
     while ( !atEndOfSection(astrm.next()) )
     {
 	if ( astrm.hasKeyword("Menu name") )
@@ -110,9 +110,13 @@ void uiODHelpMenuMgr::scanEntries( const char* docdir )
 	StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
 	if ( !sd.usable() || !di->getFrom(*sd.istrm,fulldirnm) )
 	{
-	    fp.setFileName( "index.html" );
+	    fp.setFileName( "index.htm" );
 	    if ( !File_exists(fp.fullPath()) )
-		{ delete di; sd.close(); continue; }
+	    {
+		fp.setFileName( "index.html" );
+		if ( !File_exists(fp.fullPath()) )
+		    { delete di; sd.close(); continue; }
+	    }
 	    di->starturl = fp.fullPath();
 	    FilePath iconfp( docdir );
 	    di->iconfnm = iconfp.add( "defhelpicon.png" ).fullPath();
@@ -227,7 +231,7 @@ void uiODHelpMenuMgr::handle( int id, const char* itemname )
     case mAdminMnuItm:
     {
 	fp = mGetSysAdmDocDir();
-	helpurl = fp.add("base").add("index.html").fullPath();
+	helpurl = fp.add("base").add("index.htm").fullPath();
     } break;
     case mProgrammerMnuItm:
     {
