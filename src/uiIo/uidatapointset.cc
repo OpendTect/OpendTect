@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.18 2008-06-03 08:45:59 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.19 2008-06-05 14:19:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uifileinput.h"
 #include "uistatusbar.h"
+#include "uiobjdisposer.h"
 #include "uimsg.h"
 
 static const int cNrPosCols = 3;
@@ -555,14 +556,16 @@ void uiDataPointSet::redoAll()
 
 void uiDataPointSet::xplotClose( CallBacker* )
 {
-    delete xplotwin_; xplotwin_ = 0;
+    uiOBJDISP()->go( xplotwin_ );
     disptb_->setSensitive( xplottbid_, true );
+    xplotwin_ = 0;
 }
 
 
 void uiDataPointSet::statsClose( CallBacker* )
 {
-    delete statswin_; statswin_ = 0;
+    uiOBJDISP()->go( statswin_ );
+    statswin_ = 0;
 }
 
 
