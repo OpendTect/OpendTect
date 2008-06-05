@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.131 2008-05-29 12:04:17 cvssatyaki Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.132 2008-06-05 07:34:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -856,14 +856,13 @@ uiTreeItem* uiODSceneMgr::findItem( int displayid )
 }
 
 
-void uiODSceneMgr::findItems(const char* nm, ObjectSet<uiTreeItem>& items )
+void uiODSceneMgr::findItems( const char* nm, ObjectSet<uiTreeItem>& items )
 {
     deepErase( items );
     for ( int idx=0; idx<scenes_.size(); idx++ )
     {
 	Scene& scene = *scenes_[idx];
-	uiTreeItem* itm = scene.itemmanager_->findChild( nm );
-	if ( itm ) items += itm;
+	scene.itemmanager_->findChildren( nm, items );
     }
 }
 
