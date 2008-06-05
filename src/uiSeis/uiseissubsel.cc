@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.52 2008-04-25 11:13:39 cvsraman Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.53 2008-06-05 06:03:11 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -315,7 +315,7 @@ void uiSeis2DSubSel::lineChg( CallBacker* )
     if ( isSingLine() )
     {
 	const int lidx = lnmsfld_->getIntValue();
-	if ( lidx >= trcrgs_.size() || lidx >= zrgs_.size() )
+	if ( lidx < 0 || lidx >= trcrgs_.size() || lidx >= zrgs_.size() )
 	    return;
 
 	CubeSampling cs;
