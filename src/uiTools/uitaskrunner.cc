@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink/A.H. Bril
  Date:          Aug 2000/Oct 2001
- RCS:           $Id: uitaskrunner.cc,v 1.6 2008-06-03 03:20:39 cvskris Exp $
+ RCS:           $Id: uitaskrunner.cc,v 1.7 2008-06-05 18:10:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -171,11 +171,14 @@ void uiTaskRunner::timerTick( CallBacker* )
     {
 	if ( uitaskrunnerthreadmutex_.tryLock() )
 	{
-	    thread_->stop();
-	    thread_ = 0;
+	    if ( thread_ )
+	    {
+		thread_->stop();
+		thread_ = 0;
+	    }
+
 	    uitaskrunnerthreadmutex_.unLock();
 	}
-
 
 	if ( state<0 )
 	    uiMSG().error( task_->message() );
