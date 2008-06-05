@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.18 2008-05-27 22:53:41 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.19 2008-06-05 20:01:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -214,15 +214,13 @@ bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu,
     RefMan<visBase::DataObject> dataobj = visserv_->
 	getObject( menu->menuID() );
 		
-    Coord3 pickedpos = menu->getPickedPos();
-    if ( !pickedpos.isDefined() )
-	mErrReturn( "Position is not defined." )
-
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, dataobj.ptr() );
     mDynamicCastGet( visSurvey::Seis2DDisplay*, s2d, dataobj.ptr() );
     if ( !pdd && !s2d )
 	mErrReturn( "Display panel is not set." )
-	
+
+    Coord3 pickedpos = menu->getPickedPos();
+
     PreStackViewer* viewer = PreStackViewer::create();
     viewer->ref();
     viewer->setMultiID( ioobj->key() );
@@ -232,21 +230,26 @@ bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu,
     if ( pdd )
     {  
 	viewer->setSectionDisplay( pdd ); 
-	BinID bid = SI().transform( pickedpos );
+	BinID bid;
 	if (  menu->getMenuType() != uiMenuHandler::fromScene ) 
 	{
-	    CubeSampling cs = pdd->getCubeSampling();
-	    cs.snapToSurvey();
-	    bid = BinID( (cs.hrg.stop.inl + cs.hrg.start.inl + 1)/2,
-		    (cs.hrg.stop.crl + cs.hrg.start.crl + 1)/2 );
+	    HorSampling hrg = pdd->getCubeSampling().hrg;
+	    bid = SI().transform((SI().transform(hrg.start)
+				 +SI().transform(hrg.stop))/2);
 	}
+	else bid = SI().transform( pickedpos );
 
 	if ( !viewer->setPosition( bid ) )
 	    mErrReturn( "No prestack data at this position" )
     } 
     else if ( s2d )
     {
-	int trcnr = s2d->getNearestTraceNr( pickedpos );
+	int trcnr;
+	if ( menu->getMenuType() != uiMenuHandler::fromScene )
+	    trcnr = s2d->getTraceNrRange().center();
+	else
+	    trcnr = s2d->getNearestTraceNr( pickedpos );
+
 	viewer->setSeis2DDisplay( s2d, trcnr );
 	if ( !viewer->setSeis2DData( ioobj ) )
 	    mErrReturn( "No prestack data at this position" )
