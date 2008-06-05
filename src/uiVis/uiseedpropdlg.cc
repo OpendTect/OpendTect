@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseedpropdlg.cc,v 1.2 2007-07-09 16:47:00 cvsbert Exp $
+ RCS:           $Id: uiseedpropdlg.cc,v 1.3 2008-06-05 12:21:22 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,14 +24,15 @@ uiSeedPropDlg::uiSeedPropDlg( uiParent* p, EM::EMObject* emobj )
     : uiMarkerStyleDlg( p, "Seed properties" )
     , emobject_( emobj )
     , markerstyle_( emobject_->getPosAttrMarkerStyle(EM::EMObject::sSeedNode) )
-{}
+{
+}
 
 
 void uiSeedPropDlg::doFinalise( CallBacker* )
 {
     sliderfld->sldr()->setValue( markerstyle_.size_ );
     colselfld->setColor( markerstyle_.color_ );
-    typefld->setValue( markerstyle_.type_ );
+    typefld->setValue( markerstyle_.type_ - MarkerStyle3D::None );
 }
 
 
@@ -49,7 +50,7 @@ void uiSeedPropDlg::sliderMove( CallBacker* )
 void uiSeedPropDlg::typeSel( CallBacker* )
 {
     const MarkerStyle3D::Type newtype = 
-			      (MarkerStyle3D::Type) typefld->getIntValue();
+	(MarkerStyle3D::Type) (MarkerStyle3D::None + typefld->getIntValue());
     if ( markerstyle_.type_ == newtype ) 
 	return;
     markerstyle_.type_ = newtype;
