@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.26 2008-03-26 19:40:04 cvskris Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.27 2008-06-05 15:09:12 cvshelene Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -49,7 +49,7 @@ Interval<float> A2DBitMapInpData::scale( const Interval<float>& clipratio,
 float A2DBitMapInpData::midVal() const
 {
     const TypeSet<float>& statpts = clipper_.statPts();
-    return statpts[statpts.size()/2];
+    return statpts.size() ? statpts[statpts.size()/2] : mUdf(float);
 }
 
 
