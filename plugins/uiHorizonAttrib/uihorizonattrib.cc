@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:		$Id: uihorizonattrib.cc,v 1.9 2007-12-10 12:59:52 cvsbert Exp $
+ RCS:		$Id: uihorizonattrib.cc,v 1.10 2008-06-05 08:53:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ ________________________________________________________________________
 using namespace Attrib;
 
 static const char* sDefHorOut[] = { "Z", "Surface Data", 0 };
+static const char* sDefHorNoSurfdtOut[] = { "Z", 0 };
 
 mInitAttribUI(uiHorizonAttrib,Horizon,"Horizon",sKeyPositionGrp)
 
@@ -36,6 +37,7 @@ mInitAttribUI(uiHorizonAttrib,Horizon,"Horizon",sKeyPositionGrp)
 uiHorizonAttrib::uiHorizonAttrib( uiParent* p, bool is2d )
     : uiAttrDescEd(p,is2d,"101.0.100")
     , horctio_(*mGetCtxtIOObj(EMHorizon3D,Surf))
+    , nrouttypes_( 2 )
 {
     inpfld_ = getInpFld();
 
@@ -106,8 +108,11 @@ bool uiHorizonAttrib::getParameters( Attrib::Desc& desc )
     if ( typ==1 )
     {
 	int surfdataidx = surfdatafld_->getIntValue();
-	const char* surfdatanm = surfdatanms_.get(surfdataidx);
-	mSetString( Horizon::sKeySurfDataName(), surfdatanm )
+	if ( surfdatanms_.size() )
+	{
+	    const char* surfdatanm = surfdatanms_.get(surfdataidx);
+	    mSetString( Horizon::sKeySurfDataName(), surfdatanm )
+	}
     }
     
     return true;
@@ -142,6 +147,16 @@ void uiHorizonAttrib::horSel( CallBacker* )
     for ( int idx=0; idx<iodata.valnames.size(); idx++ )
 	surfdatanms_.add( iodata.valnames.get(idx).buf() );
     surfdatafld_->newSpec( StringListInpSpec(surfdatanms_), 0 );
+    
+    const bool actionreq = (surfdatanms_.size() && nrouttypes_<2) ||
+			   (!surfdatanms_.size() && nrouttypes_>1);
+    if ( actionreq )
+    {
+	nrouttypes_ = surfdatanms_.size() ? 2 : 1;
+	typefld_->newSpec( StringListInpSpec(surfdatanms_.size() 
+		    			? sDefHorOut : sDefHorNoSurfdtOut), 0);
+	typeSel(0);
+    }
 }
 
 

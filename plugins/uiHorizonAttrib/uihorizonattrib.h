@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uihorizonattrib.h,v 1.5 2007-04-05 14:37:17 cvshelene Exp $
+ RCS:           $Id: uihorizonattrib.h,v 1.6 2008-06-05 08:53:07 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ protected:
 
     CtxtIOObj&		horctio_;
     BufferStringSet	surfdatanms_;
+    int			nrouttypes_;
 
     virtual bool	setParameters(const Attrib::Desc&);
     virtual bool	setInput(const Attrib::Desc&);
