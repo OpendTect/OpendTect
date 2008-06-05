@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2002
- RCS:           $Id: uiexphorizon.cc,v 1.53 2008-05-28 12:08:46 cvsbert Exp $
+ RCS:           $Id: uiexphorizon.cc,v 1.54 2008-06-05 12:02:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,9 @@ uiExportHorizon::uiExportHorizon( uiParent* p )
 {
     setCtrlStyle( DoAndStay );
 
-    infld = new uiSurfaceRead( this, EMHorizon3DTranslatorGroup::keyword );
+    infld = new uiSurfaceRead( this,
+	    uiSurfaceRead::Setup(EMHorizon3DTranslatorGroup::keyword)
+	    .withsubsel(true) );
     infld->attrSelChange.notify( mCB(this,uiExportHorizon,attrSel) );
 
     typfld = new uiGenInput( this, "Output type", StringListInpSpec(exptyps) );
