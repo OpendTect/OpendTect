@@ -76,10 +76,12 @@ bool uiGoogleExportSurvey::acceptOK( CallBacker* )
 	    "\t\t\t\t<LinearRing>\n";
 
     const float hght = hghtfld_->getfValue();
-    const Coord corner1( si_->minCoord(false) );
-    const Coord corner3( si_->maxCoord(false) );
-    const Coord corner2( corner3.x, corner1.y );
-    const Coord corner4( corner1.x, corner3.y );
+    StepInterval<int> inlrg = si_->inlRange( false );
+    StepInterval<int> crlrg = si_->crlRange( false );
+    const Coord corner1( si_->transform(BinID(inlrg.start,crlrg.start)) );
+    const Coord corner2( si_->transform(BinID(inlrg.start,crlrg.stop)) );
+    const Coord corner3( si_->transform(BinID(inlrg.stop,crlrg.stop)) );
+    const Coord corner4( si_->transform(BinID(inlrg.stop,crlrg.start)) );
     const LatLong ll1( si_->latlong2Coord().transform(corner1) );
     const LatLong ll2( si_->latlong2Coord().transform(corner2) );
     const LatLong ll3( si_->latlong2Coord().transform(corner3) );
