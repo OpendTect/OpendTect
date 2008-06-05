@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Nov 2007
- RCS:           $Id: latlong.cc,v 1.8 2008-03-18 15:39:16 cvsbert Exp $
+ RCS:           $Id: latlong.cc,v 1.9 2008-06-05 08:29:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,6 +128,7 @@ void LatLong2Coord::fill( char* s ) const
 
 bool LatLong2Coord::use( const char* s )
 {
+    lngdist_ = mUdf(float);
     if ( !s || !*s ) return false;
 
     BufferString str( s );
@@ -136,6 +137,8 @@ bool LatLong2Coord::use( const char* s )
     *ptr++ = '\0';
     Coord c; LatLong l;
     if ( !c.use(str) || !l.use(ptr) )
+	return false;
+    else if ( mIsZero(c.x,1e-3) && mIsZero(c.y,1e-3) )
 	return false;
 
     set( l, c );
