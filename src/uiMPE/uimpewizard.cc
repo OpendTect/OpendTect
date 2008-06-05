@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpewizard.cc,v 1.83 2008-05-05 05:42:29 cvsnageswara Exp $
+ RCS:           $Id: uimpewizard.cc,v 1.84 2008-06-05 08:39:51 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -327,6 +327,7 @@ bool Wizard::leaveNamePage( bool process )
 	    return false;
     }
 
+    objselgrp->setConfirmOverwrite( false );
     if ( !objselgrp->processInput() )
     {
 	pErrMsg("Could not process input");
