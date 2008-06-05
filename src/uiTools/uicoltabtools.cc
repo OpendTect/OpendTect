@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
 Date:		Aug 2007
- RCS:           $Id: uicoltabtools.cc,v 1.6 2008-04-30 04:06:18 cvssatyaki Exp $
+ RCS:           $Id: uicoltabtools.cc,v 1.7 2008-06-05 10:59:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,7 @@ void uiColorTableCanvas::reFill( CallBacker* )
 	for ( int idy=0; idy<sz1; idy++ )
 	{
 	    if ( vertical_ )
-		rgbarr_->set( idy, idx, color );
+		rgbarr_->set( idy, sz0 - idx, color );
 	    else
 		rgbarr_->set( idx, idy, color );
 	}
