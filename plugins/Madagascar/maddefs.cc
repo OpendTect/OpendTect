@@ -4,7 +4,7 @@
  * DATE     : June 2007
 -*/
 
-static const char* rcsID = "$Id: maddefs.cc,v 1.11 2008-01-09 13:54:34 cvsbert Exp $";
+static const char* rcsID = "$Id: maddefs.cc,v 1.12 2008-06-05 05:17:25 cvsraman Exp $";
 
 #include "maddefs.h"
 #include "envvars.h"
@@ -177,6 +177,8 @@ void ODMad::ProgInfo::addEntry( const char* fnm )
 
     static char buf[1024];
     sd.istrm->getline( buf, 1024 );
+    if ( strncmp(buf,"Program",7) )
+	return;
 
     char* ptr = buf; ptr += 8; // Skip 'Program '
     char* word = ptr;

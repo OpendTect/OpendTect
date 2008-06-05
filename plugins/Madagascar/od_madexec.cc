@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	R. K. Singh
  Date:		March 2008
- RCS:		$Id: od_madexec.cc,v 1.8 2008-05-30 07:20:19 cvsraman Exp $
+ RCS:		$Id: od_madexec.cc,v 1.9 2008-06-05 05:17:25 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,7 +38,7 @@ const char* getProcString( IOPar& pars, BufferString& errmsg )
 
     BufferStringSet procs;
     pars.get( sKeyProc, procs );
-    const bool isprocessing = procs.size() && !procs.get(0).isEmpty();
+    const bool hasprocessing = procs.size() && !procs.get(0).isEmpty();
     for ( int pidx=0; pidx<procs.size(); pidx++ )
     {
 	BufferString proc = procs.get( pidx );
@@ -52,10 +52,16 @@ const char* getProcString( IOPar& pars, BufferString& errmsg )
     { errmsg = "No Output parameters"; return 0; }
 
     BufferString outptyp = outpar->find( sKey::Type );
-    if ( outptyp == sKey::None ) return StreamProvider::sStdIO;
+    if ( outptyp == sKey::None )
+    {
+	if ( hasprocessing )
+	    return ret.buf();
+	else
+	    return StreamProvider::sStdIO;
+    }
     else if ( outptyp == sKeyMadagascar )
     {
-	if ( isprocessing )
+	if ( hasprocessing )
 	{
 	    ret += " out=stdout";
 	    ret += " > ";
@@ -75,7 +81,7 @@ const char* getProcString( IOPar& pars, BufferString& errmsg )
 	pars.set( "Log file", StreamProvider::sStdErr );
 	BufferString fname = FilePath::getTempName( "par" );
 	pars.write( fname, sKey::Pars );
-	if ( isprocessing ) ret += " | ";
+	if ( hasprocessing ) ret += " | ";
 
 	BufferString comm = GetExecScript( false );
 	comm += " ";
@@ -106,6 +112,7 @@ const char* getProcString( IOPar& pars, BufferString& errmsg )
 
 bool processMad( IOPar& pars, std::ostream& strm )
 {
+    pars.write( strm, sKey::Pars );
     ODMad::MadStream mstrm( pars );
     if ( !mstrm.isOK() )
 	mErrRet( mstrm.errMsg() );
