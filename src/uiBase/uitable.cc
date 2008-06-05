@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.69 2008-06-05 08:15:28 cvsjaap Exp $
+ RCS:           $Id: uitable.cc,v 1.70 2008-06-05 13:59:24 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ class CellObject
 			    : qwidget_(qw)
 			    , object_(obj)
 			    , rowcol_(rc)    {}
+			~CellObject()			{ delete object_; }
 
     uiObject*		object_;
     QWidget*		qwidget_;
