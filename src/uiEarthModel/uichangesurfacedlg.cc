@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra / Bert Bril
  Date:		Sep 2005 / Nov 2006
- RCS:		$Id: uichangesurfacedlg.cc,v 1.20 2008-06-02 06:51:31 cvsnanne Exp $
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.21 2008-06-05 15:43:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,6 +143,8 @@ bool uiChangeSurfaceDlg::doProcessing()
 	PtrMan<Executor> worker = getWorker( *arr,
 			horizon_->geometry().rowRange(sid),
 			horizon_->geometry().colRange(sid) );
+	if ( !worker ) return false;
+
 	uiTaskRunner dlg( this );
 	if ( !dlg.execute(*worker) )
 	{
@@ -238,6 +240,13 @@ Executor* uiInterpolHorizonDlg::getWorker( Array2D<float>& a2d,
 {
     Array2DInterpolator<float>* ret = new Array2DInterpolator<float>( a2d );
     ret->pars() = a2dInterp()->getInput();
+    if ( !ret->pars().useextension_ && ret->pars().srchrad_ < 0 )
+    {
+	if ( !uiMSG().askGoOn("Setting no search radius is only recommended if"
+		    " you have no more than a few defined points.\n"
+		    "Are you sure you want to continue?" ) )
+		return 0;
+    }
     ret->setDist( true, SI().crlDistance()*colrg.step );
     ret->setDist( false, SI().inlDistance()*rowrg.step );
     return ret;
