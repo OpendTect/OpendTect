@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : May 2007
- * ID       : $Id: uimadagascarmain.h,v 1.14 2008-05-09 13:09:37 cvsraman Exp $
+ * ID       : $Id: uimadagascarmain.h,v 1.15 2008-06-05 12:02:08 cvsraman Exp $
 -*/
 
 #include "uibatchlaunch.h"
@@ -31,6 +31,7 @@ public:
 protected:
 
     CtxtIOObj&		ctio_;
+    bool		needsave_;
 
     uiMadIOSel*		infld_;
     uiMadIOSel*		outfld_;
@@ -40,6 +41,7 @@ protected:
     uiToolButton*	rmbut_;
     uiMadagascarBldCmd*	bldfld_;
 
+    bool		rejectOK(CallBacker*);
     void		cmdAvail(CallBacker*);
     void		hideReq(CallBacker*);
     void		butPush(CallBacker*);

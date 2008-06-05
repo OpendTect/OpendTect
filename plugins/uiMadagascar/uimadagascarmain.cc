@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.21 2008-06-03 14:59:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.22 2008-06-05 12:02:08 cvsraman Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -24,10 +24,12 @@ static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.21 2008-06-03 14:59:01 
 #include "uiioobjsel.h"
 #include "uifiledlg.h"
 #include "uimsg.h"
+#include "cubesampling.h"
 #include "pixmap.h"
 #include "keystrs.h"
 #include "ioman.h"
 #include "oddirs.h"
+#include "seisioobjinfo.h"
 #include "strmprov.h"
 
 const char* sKeySeisOutIDKey = "Output Seismics Key";
@@ -37,6 +39,7 @@ uiMadagascarMain::uiMadagascarMain( uiParent* p )
 				   .procprognm("odmadexec") )
 	, ctio_(*mMkCtxtIOObj(ODMadProcFlow))
 	, bldfld_(0)
+	, needsave_(false)
 {
     setCtrlStyle( uiDialog::DoAndStay );
     setHelpID( "103.5.0" );
@@ -132,6 +135,7 @@ uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
 
 void uiMadagascarMain::inpSel( CallBacker* )
 {
+    needsave_ = true;
     IOPar inpar;
     infld_->fillPar( inpar );
     outfld_->useParIfNeeded( inpar );
@@ -156,14 +160,48 @@ void uiMadagascarMain::inpSel( CallBacker* )
 bool uiMadagascarMain::getFlow( ODMad::ProcFlow& pf )
 {
     if ( !infld_->fillPar(pf.input()) )
-	mErrRet( "Please specify input parameters" );
+	mErrRet("Please specify input parameters");
     if ( !outfld_->fillPar(pf.output()) )
-	mErrRet( "Please specify output parameters" );
+	mErrRet("Please specify output parameters");
 
     pf.procs().deepErase();
     const int nrprocs = procsfld_->size();
     for ( int idx=0; idx<nrprocs; idx++ )
 	pf.addProc( procsfld_->textOfItem(idx) );
+
+    const bool issinglemach = singmachfld_->getBoolValue();
+    if ( !issinglemach )
+    {
+	IOPar& inpar = pf.input();
+	IOPar& outpar = pf.output();
+	BufferString inptyp = inpar.find( sKey::Type );
+	BufferString outptyp = outpar.find( sKey::Type );
+	BufferString vol3dtypnm = Seis::nameOf( Seis::Vol );
+	if ( inptyp != vol3dtypnm || outptyp != vol3dtypnm )
+	    mErrRet("Multi-Machine processing supported for 3D volumes only")
+	
+	IOPar* subselpar = inpar.subselect( sKey::Subsel );
+	if ( !subselpar )
+	    subselpar = new IOPar;
+
+	BufferString subseltyp = subselpar->find( sKey::Type );
+	if ( subseltyp != sKey::Range )
+	{
+	    MultiID inpid;
+	    if ( !inpar.get(sKey::ID,inpid) )
+		mErrRet("Input ID missing")
+
+	    const SeisIOObjInfo info( inpid );
+	    CubeSampling cs;
+	    info.getRanges( cs );
+	    subselpar->set( sKey::Type, sKey::Range );
+	    cs.fillPar( *subselpar );
+	    inpar.mergeComp( *subselpar, sKey::Subsel );
+	}
+
+	outpar.mergeComp( *subselpar, sKey::Subsel );
+	delete subselpar;
+    }
 
     return true;
 }
@@ -187,12 +225,14 @@ void uiMadagascarMain::cmdAvail( CallBacker* cb )
     if ( bldfld_->isAdd() )
     {
 	procsfld_->addItem( cmd );
+	needsave_ = true;
 	procsfld_->setCurrentItem( procsfld_->size() - 1 );
     }
     else
     {
 	const int curidx = procsfld_->currentItem();
 	if ( curidx < 0 ) return;
+	needsave_ = true;
 	procsfld_->setItemText( curidx, cmd );
     }
 
@@ -215,6 +255,7 @@ void uiMadagascarMain::butPush( CallBacker* cb )
     if ( tb == rmbut_ )
     {
 	if ( curidx < 0 ) return;
+	needsave_ = true;
 	procsfld_->removeItem( curidx );
 	if ( curidx >= procsfld_->size() )
 	    curidx--;
@@ -230,6 +271,7 @@ void uiMadagascarMain::butPush( CallBacker* cb )
 	    procsfld_->setItemText( newcur, procsfld_->getText() );
 	    procsfld_->setItemText( curidx, tmp );
 	    curidx = newcur;
+	    needsave_ = true;
 	}
     }
 
@@ -270,6 +312,12 @@ void uiMadagascarMain::newFlow( CallBacker* )
 
 void uiMadagascarMain::openFlow( CallBacker* )
 {
+    if ( needsave_ )
+    {
+	if ( !uiMSG().askGoOn("Current flow has not been saved, continue?") )
+	    return;
+    }
+
     ctio_.ctxt.forread = true;
     uiIOObjSelDlg dlg( this, ctio_ );
     if ( dlg.go() )
@@ -279,7 +327,10 @@ void uiMadagascarMain::openFlow( CallBacker* )
 	if ( !ODMadProcFlowTranslator::retrieve(pf,ctio_.ioobj,emsg) )
 	    uiMSG().error( emsg );
 	else
+	{
 	    setFlow( pf );
+	    needsave_ = false;
+	}
     }
 }
 
@@ -294,6 +345,8 @@ void uiMadagascarMain::saveFlow( CallBacker* )
 	BufferString emsg; ODMad::ProcFlow pf; getFlow( pf );
 	if ( !ODMadProcFlowTranslator::store(pf,ctio_.ioobj,emsg) )
 	    uiMSG().error( emsg );
+	else
+	    needsave_ = false;
     }
 }
 
@@ -316,5 +369,17 @@ bool uiMadagascarMain::fillPar( IOPar& iop )
 
     pf.fillPar( iop );
     iop.set( sKeySeisOutIDKey, "Output.ID" );
+    return true;
+}
+
+
+bool uiMadagascarMain::rejectOK( CallBacker* )
+{
+    if ( needsave_ )
+    {
+	if ( !uiMSG().askGoOn("Current flow has not been saved, quit anyway?") )
+	    return false;
+    }
+
     return true;
 }

@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadiosel.cc,v 1.16 2008-06-03 14:59:01 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadiosel.cc,v 1.17 2008-06-05 12:02:08 cvsraman Exp $";
 
 #include "uimadiosel.h"
 #include "madio.h"
@@ -208,15 +208,19 @@ void uiMadIOSelDlg::selChg( CallBacker* )
 
 void uiMadIOSelDlg::usePar( const IOPar& iop )
 {
-    ODMad::ProcFlow::IOType iot = ODMad::ProcFlow::ioType( iop );
-    const Seis::GeomType gt = (Seis::GeomType)iot;
-
-    if ( iot == ODMad::ProcFlow::None )
+    bool istypselected = false;
+    if ( !iop.find(sKey::Type) )
 	typfld_->setValue( 0 );
     else
+	istypselected = true;
+
+    ODMad::ProcFlow::IOType iot = ODMad::ProcFlow::ioType( iop );
+    const Seis::GeomType gt = (Seis::GeomType)iot;
+    if ( istypselected )
 	typfld_->setText( iot == ODMad::ProcFlow::Madagascar
 			? ODMad::sKeyMadagascar
-			: Seis::nameOf(gt) );
+			: iot == ODMad::ProcFlow::None ? sKey::None
+						       : Seis::nameOf(gt) );
     typSel( this );
     if ( iot == ODMad::ProcFlow::None ) return;
 
@@ -233,7 +237,7 @@ void uiMadIOSelDlg::usePar( const IOPar& iop )
     uiSeisSubSel* subsel = seisSubSel( gt );
     if ( subsel )
     {
-	PtrMan<IOPar> subpar = iop.subselect( sKey::Selection );
+	PtrMan<IOPar> subpar = iop.subselect( sKey::Subsel );
 	if ( subpar ) subsel->usePar( *subpar );
     }
 }
@@ -257,7 +261,7 @@ bool uiMadIOSelDlg::fillPar( IOPar& iop )
 		return false;
 
 	    if ( subpar.size() )
-		iop.mergeComp( subpar, sKey::Selection );
+		iop.mergeComp( subpar, sKey::Subsel );
 	}
     }
 
@@ -323,6 +327,8 @@ void uiMadIOSel::usePar( const IOPar& iop )
 
 void uiMadIOSel::useParIfNeeded( const IOPar& iop )
 {
+    if ( iop_.find(sKey::Type) ) return;
+
     BufferString typ = iop.find( sKey::Type );
     if ( typ.isEmpty() || typ != Seis::nameOf(Seis::Line) ) return;
 
@@ -331,7 +337,7 @@ void uiMadIOSel::useParIfNeeded( const IOPar& iop )
 	iop_.set( sKey::ID, idval );
 
     iop_.set( sKey::Type, typ );
-    const char* lkey = IOPar::compKey( sKey::Selection, sKey::LineKey );
+    const char* lkey = IOPar::compKey( sKey::Subsel, sKey::LineKey );
     BufferString lnm = iop.find( lkey );
     if ( !lnm.isEmpty() && !iop_.find(lkey) )
 	iop_.set( lkey, lnm );
@@ -352,10 +358,15 @@ BufferString uiMadIOSel::getSummary() const
 {
     BufferString ret( "-" );
 
+    if ( !iop_.find(sKey::Type) )
+	return ret;
+
     ODMad::ProcFlow::IOType iot = ODMad::ProcFlow::ioType( iop_ );
-    if ( iot == ODMad::ProcFlow::Madagascar )
+    if ( iot == ODMad::ProcFlow::None )
+	ret = sKey::None;
+    else if ( iot == ODMad::ProcFlow::Madagascar )
 	ret = iop_.find( sKey::FileName );
-    else if ( iot != ODMad::ProcFlow::None )
+    else
 	ret = IOM().nameOf( iop_.find("ID") );
 
     return ret;
