@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.70 2008-05-19 13:09:59 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.71 2008-06-05 14:35:13 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,6 +59,7 @@ ________________________________________________________________________
 #include "uisplitter.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
+#include "uiobjdisposer.h"
 
 
 const char* uiAttribDescSetEd::sKeyUseAutoAttrSet = "dTect.Auto Attribute set";
@@ -1009,7 +1010,7 @@ void uiAttribDescSetEd::crossPlot( CallBacker* )
 
 void uiAttribDescSetEd::launchedWinClose( CallBacker* cb )
 {
-    delete cb;
+    uiOBJDISP()->go( cb );
 }
 
 
