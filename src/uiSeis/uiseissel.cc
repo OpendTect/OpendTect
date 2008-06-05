@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.51 2008-05-14 13:15:48 cvsbert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.52 2008-06-05 12:00:26 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -225,6 +225,7 @@ void uiSeisSel::usePar( const IOPar& iop )
 {
     uiIOObjSel::usePar( iop );
     dlgiopar.merge( iop );
+    attrnm = iop.find( sKey::Attribute );
 }
 
 
