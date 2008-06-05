@@ -51,3 +51,21 @@ Body.Z values.Unit: Seconds
 Body.Selection.Z values: P`-1/2
 Group: Horizon3D
 !
+X Y Z (msec)
+Header.Size: 0
+Header.Token: -1`
+Body.Form: X/Y
+Body.Selection: P`-1/0`P`-1/1
+Body.Z Values.Unit: Milliseconds
+Body.Selection.Z Values: P`-1/2
+Group: PickSet
+!
+Inl Crl Z (msec)
+Header.Size: 0
+Header.Token: -1`
+Body.Form: Inl/Crl
+Body.Selection: P`-1/0`P`-1/1
+Body.Z Values.Unit: Milliseconds
+Body.Selection.Z Values: P`-1/2
+Group: PickSet
+!
