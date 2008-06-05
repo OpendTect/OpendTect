@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jul 2006
- RCS:		$Id: uiarray2dchg.cc,v 1.4 2008-02-06 14:33:52 cvsbert Exp $
+ RCS:		$Id: uiarray2dchg.cc,v 1.5 2008-06-05 15:56:24 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,7 @@ uiArr2DInterpolPars::uiArr2DInterpolPars( uiParent* p,
     isdef = pars.srchrad_ > 0;
     srchradfld_ = new uiGenInput( this, "Search radius",
 	    			  FloatInpSpec(isdef ? pars.srchrad_ : 1000) );
-    srchradfld_->setWithCheck( true ); srchradfld_->setChecked( isdef );
+    srchradfld_->setWithCheck( true ); srchradfld_->setChecked( true );
     srchradfld_->attach( alignedBelow, doextendfld_ );
 
     setHAlignObj( extrapolatefld_ );
