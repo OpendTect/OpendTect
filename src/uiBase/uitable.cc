@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.68 2008-05-29 14:14:49 cvsjaap Exp $
+ RCS:           $Id: uitable.cc,v 1.69 2008-06-05 08:15:28 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -290,6 +290,19 @@ void uiTableBody::activateSelect( const TypeSet<RowCol>& selectset )
     } \
     handle_.setNotifiedCell( actrc );
 
+#define mSelectCell( rc ) \
+    if ( rc.row>=0 && rc.row<rowCount() && rc.col>=0 && rc.col<columnCount() ) \
+    { \
+	QItemSelectionModel* selmodel = selectionModel(); \
+	const QAbstractItemModel* model = selmodel ? selmodel->model() : 0; \
+	if ( model ) \
+	{ \
+	    QModelIndex modidx = rootIndex(); \
+	    modidx = model->index( rc.row, rc.col, modidx ); \
+	    selmodel->select( modidx, QItemSelectionModel::Select ); \
+	} \
+    }
+
 bool uiTableBody::event( QEvent* ev )
 {
     if ( ev->type() == sQEventActClick )
@@ -342,6 +355,32 @@ bool uiTableBody::event( QEvent* ev )
     }
     else if ( ev->type() == sQEventActSelect )
     {
+	if ( maxSelectable()>0 && ( actselset_->size()<=maxSelectable() ||
+				    getSelBehavior()!=uiTable::SelectItems ) )
+	{
+	    handle_.selectionChanged.disable();
+	    clearSelection();
+	    int idx = 0;
+	    while ( idx<actselset_->size() )
+	    {
+		if ( (*actselset_)[idx].col < 0 )
+		{
+		    for ( int row=(*actselset_)[idx].row;
+			  row<=(*actselset_)[idx+1].row;
+			  row-=(*actselset_)[idx].col )
+		    {
+			mSelectCell( RowCol(row,(*actselset_)[idx+1].col) );
+		    }
+		    idx++;
+		}
+		else
+		    mSelectCell( (*actselset_)[idx] );
+
+		idx++;
+	    }
+	    handle_.selectionChanged.enable();
+	    handle_.selectionChanged.trigger();
+	}
     }
     else
 	return QTableWidget::event( ev );
@@ -1135,9 +1174,14 @@ void uiTable::removeAllSelections()
 
 bool uiTable::isSelected ( const RowCol& rc ) const
 {
-    QItemSelectionModel* model = body_->selectionModel();
-    QModelIndex idx = body_->rootIndex().child( rc.row, rc.col );
-    return model ? model->isSelected( idx ) : false;
+    const QItemSelectionModel* selmodel = body_->selectionModel();
+    const QAbstractItemModel* model = selmodel ? selmodel->model() : 0;
+    if ( !model )
+	return false;
+
+    QModelIndex idx = body_->rootIndex();
+    idx = model->index( rc.row, rc.col, idx );
+    return selmodel->isSelected( idx );
 }
 
 
