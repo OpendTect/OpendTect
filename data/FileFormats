@@ -1,4 +1,4 @@
-dTect V3.0
+dTect V3.2
 File Formats
 Wed Jan 24 11:16:50 2007
 !
@@ -11,7 +11,7 @@ Header.Selection.Center sample: K`~TZ`1
 Body.Selection.Data samples: P`-1/0
 Group: Wavelet
 !
-Inl Crl Time(ms)
+Inl Crl Z (ms)
 Header.Size: 0
 Header.Token: -1`
 Header.Selection.Undefined Value: R`1e30
@@ -21,7 +21,7 @@ Body.Z values.Unit: Milliseconds
 Body.Selection.Z values: P`-1/2
 Group: Horizon3D
 !
-Inl Crl Time(s)
+Inl Crl Z (s)
 Header.Size: 0
 Header.Token: -1`
 Header.Selection.Undefined Value: R`1e30
@@ -31,7 +31,7 @@ Body.Z values.Unit: Seconds
 Body.Selection.Z values: P`-1/2
 Group: Horizon3D
 !
-X Y Time(ms)
+X Y Z (ms)
 Header.Size: 0
 Header.Token: -1`
 Header.Selection.Undefined Value: R`1e30
@@ -41,7 +41,7 @@ Body.Z values.Unit: Milliseconds
 Body.Selection.Z values: P`-1/2
 Group: Horizon3D
 !
-X Y Time(s)
+X Y Z (s)
 Header.Size: 0
 Header.Token: -1`
 Header.Selection.Undefined Value: R`1e30
@@ -51,7 +51,7 @@ Body.Z values.Unit: Seconds
 Body.Selection.Z values: P`-1/2
 Group: Horizon3D
 !
-X Y Z (msec)
+X Y Z (ms)
 Header.Size: 0
 Header.Token: -1`
 Body.Form: X/Y
@@ -60,7 +60,7 @@ Body.Z Values.Unit: Milliseconds
 Body.Selection.Z Values: P`-1/2
 Group: PickSet
 !
-Inl Crl Z (msec)
+Inl Crl Z (ms)
 Header.Size: 0
 Header.Token: -1`
 Body.Form: Inl/Crl
@@ -68,4 +68,38 @@ Body.Selection: P`-1/0`P`-1/1
 Body.Z Values.Unit: Milliseconds
 Body.Selection.Z Values: P`-1/2
 Group: PickSet
+!
+X Y Z (s)
+Header.Size: 0
+Header.Token: -1`
+Body.Form: X/Y
+Body.Selection: P`-1/0`P`-1/1
+Body.Z Values.Unit: Seconds
+Body.Selection.Z Values: P`-1/2
+Group: PickSet
+!
+Inl Crl Z (s)
+Header.Size: 0
+Header.Token: -1`
+Body.Form: Inl/Crl
+Body.Selection: P`-1/0`P`-1/1
+Body.Z Values.Unit: Seconds
+Body.Selection.Z Values: P`-1/2
+Group: PickSet
+!
+X Y Z (ms)
+Header.Size: 0
+Header.Token: -1`
+Body.Selection.X/Y: P`-1/0`P`-1/1
+Body.Z.Unit: Milliseconds
+Body.Selection.Z: P`-1/2
+Group: Fault3D
+!
+X Y Z (s)
+Header.Size: 0
+Header.Token: -1`
+Body.Selection.X/Y: P`-1/0`P`-1/1
+Body.Z.Unit: Seconds
+Body.Selection.Z: P`-1/2
+Group: Fault3D
 !
