@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink/A.H. Bril
  Date:          Aug 2000/Oct 2001
- RCS:           $Id: uitaskrunner.cc,v 1.8 2008-06-05 19:55:22 cvskris Exp $
+ RCS:           $Id: uitaskrunner.cc,v 1.9 2008-06-06 16:34:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,7 +163,18 @@ void uiTaskRunner::updateFields()
 
 bool uiTaskRunner::acceptOK( CallBacker* )
 {
-    Task::Control state = task_->getState();
+    uitaskrunnerthreadmutex_.lock();
+    Task::Control state;
+    if ( task_ )
+	state = task_->getState();
+    else
+    {
+	uitaskrunnerthreadmutex_.unLock();
+	return false;
+    }
+
+    uitaskrunnerthreadmutex_.unLock();
+
     if ( state==Task::Pause )
     {
 	task_->controlWork( Task::Run );
