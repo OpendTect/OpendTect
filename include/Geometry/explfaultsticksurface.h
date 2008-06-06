@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        J.C. Glas
  Date:          October 2007
- RCS:           $Id: explfaultsticksurface.h,v 1.8 2008-05-20 17:00:49 cvskris Exp $
+ RCS:           $Id: explfaultsticksurface.h,v 1.9 2008-06-06 16:32:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "datapack.h"
 
 class RCol;
+class DataPointSet;
 
 namespace Geometry
 {
@@ -47,12 +48,22 @@ public:
     bool		areSticksDisplayed() const    { return displaysticks_; }
     bool		arePanelsDisplayed() const    { return displaypanels_; }
 
-    void		setMaximumTextureSize(const RowCol&);
+    bool		createsNormals() const 		{ return true; }
+    bool		createsTextureCoords() const 	{ return true; }
+
+    void		setMaximumTextureSize(int);
     void		setTexturePowerOfTwo(bool yn);
     void		setTextureSampling(const BinIDValue&);
     const RowCol&	getTextureSize() const;
+    void		needUpdateTextureSize(bool yn);
+    void		setRightHandedNormals(bool yn);
 
-    DataPack::ID	getDataPointSet() const;
+
+    bool		setTexturePositions(DataPointSet&);
+    const BinIDValue	getBinIDValue() { return texturesampling_; }
+
+    static const char*  sKeyTextureI() { return "Fault texture i column"; }
+    static const char*  sKeyTextureJ() { return "Fault texture j column"; }
 
 protected:
     friend		class ExplFaultStickSurfaceUpdater;    
@@ -78,7 +89,12 @@ protected:
     void		surfaceChange(CallBacker*);
     void		surfaceMovement(CallBacker*);
 
-    bool		updateTextureSize() 			{ return true; }
+    void		updateTextureCoords();
+    bool		updateTextureSize();
+    int			textureColSz(const int panelidx);
+    int			point2LineSampleSz(const Coord3& point,
+	    				   const Coord3& linept0,
+					   const Coord3& linept1);
 
     bool		displaysticks_;
     bool		displaypanels_;
@@ -89,13 +105,14 @@ protected:
     bool					needsupdate_;
 
     ObjectSet<IndexedGeometry>			sticks_;
-    TypeSet<int>				texturerows_;
     ObjectSet<IndexedGeometry>			paneltriangles_;
     ObjectSet<IndexedGeometry>			panellines_;
 
-    RowCol					maximumtexturesize_;
+    TypeSet<int>				texturerowcoords_;
+    ObjectSet< TypeSet<int> >			textureknotcoords_;	
+    int						maximumtexturesize_;
     RowCol					texturesize_;
-    bool					textrurepot_;
+    bool					texturepot_;
     BinIDValue					texturesampling_;
 };
 
