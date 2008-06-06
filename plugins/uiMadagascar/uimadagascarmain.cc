@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.22 2008-06-05 12:02:08 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadagascarmain.cc,v 1.23 2008-06-06 11:15:44 cvsraman Exp $";
 
 #include "uimadagascarmain.h"
 #include "uimadiosel.h"
@@ -133,9 +133,11 @@ uiGroup* uiMadagascarMain::crProcGroup( uiGroup* grp )
 }
 
 
-void uiMadagascarMain::inpSel( CallBacker* )
+void uiMadagascarMain::inpSel( CallBacker* cb )
 {
-    needsave_ = true;
+    if ( cb )
+	needsave_ = true;
+
     IOPar inpar;
     infld_->fillPar( inpar );
     outfld_->useParIfNeeded( inpar );
