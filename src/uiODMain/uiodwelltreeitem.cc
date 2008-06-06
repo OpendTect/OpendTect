@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodwelltreeitem.cc,v 1.22 2008-05-14 09:28:28 cvssatyaki Exp $
+ RCS:		$Id: uiodwelltreeitem.cc,v 1.23 2008-06-06 16:29:41 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -285,6 +285,7 @@ bool uiODWellTreeItem::init()
 	if ( !wd->setMultiID(mid) )
 	{
 	    visserv_->removeObject( wd, sceneID() );
+	    uiMSG().error("Could not load well");
 	    return false;
 	}
     }
