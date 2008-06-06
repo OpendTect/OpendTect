@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodfaulttreeitem.cc,v 1.8 2008-06-03 14:55:13 cvskris Exp $
+ RCS:		$Id: uiodfaulttreeitem.cc,v 1.9 2008-06-06 16:57:26 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -96,7 +96,9 @@ uiTreeItem* uiODFaultTreeItemFactory::create( int visid, uiTreeItem* ) const
     , displaymnuitem_( "Display ..." ) \
     , displayplanemnuitem_ ( "Fault planes" ) \
     , displaystickmnuitem_ ( "Fault sticks" ) \
-    , displayintersectionmnuitem_( "At sections only" )
+    , displayintersectionmnuitem_( "At sections only" ) \
+    , singlecolmnuitem_( "Use single &color" )
+
 
 
 uiODFaultTreeItem::uiODFaultTreeItem( const EM::ObjectID& oid )
@@ -107,6 +109,7 @@ uiODFaultTreeItem::uiODFaultTreeItem( const EM::ObjectID& oid )
     displayplanemnuitem_.checkable = true;
     displaystickmnuitem_.checkable = true;
     displayintersectionmnuitem_.checkable = true;
+    singlecolmnuitem_.checkable = true;
 }
 
 
@@ -119,6 +122,7 @@ uiODFaultTreeItem::uiODFaultTreeItem( int id, bool dummy )
     displayplanemnuitem_.checkable = true;
     displaystickmnuitem_.checkable = true;
     displayintersectionmnuitem_.checkable = true;
+    singlecolmnuitem_.checkable = true;
     displayid_ = id;
 }
 
@@ -198,6 +202,8 @@ void uiODFaultTreeItem::createMenuCB( CallBacker* cb )
     if ( !fd )
 	return;
 
+    mAddMenuItem( menu, &singlecolmnuitem_, faultdisplay_->arePanelsDisplayed(),
+		  !faultdisplay_->usesTexture() );
     mAddMenuItem( &displaymnuitem_, &displayplanemnuitem_, true,
 		  faultdisplay_->arePanelsDisplayed() );
     mAddMenuItem( &displaymnuitem_, &displaystickmnuitem_, true,
@@ -242,7 +248,7 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==displayplanemnuitem_.id )
     {
 	menu->setIsHandled(true);
-	faultdisplay_->display( true, true );
+	faultdisplay_->display( false, true );
 	faultdisplay_->displayIntersections( false );
     }
     else if ( mnuid==displaystickmnuitem_.id )
@@ -257,5 +263,12 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 	faultdisplay_->display( false, false );
 	faultdisplay_->displayIntersections( true );
     }
+    else if ( mnuid==singlecolmnuitem_.id )
+    {
+	menu->setIsHandled(true);
+	faultdisplay_->useTexture( !faultdisplay_->usesTexture(), true );
+	visserv_->triggerTreeUpdate();
+    }
+
 }
 
