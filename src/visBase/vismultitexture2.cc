@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.46 2008-05-30 05:00:52 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.47 2008-06-06 04:23:26 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -317,6 +317,10 @@ bool MultiTexture2::getInterpolation() const
 { return complexity_->textureQuality.getValue() > 0.2; }
 
 
+int MultiTexture2::getMaxTextureSize()
+{ return SoColTabMultiTexture2::getMaxSize(); }
+
+
 bool MultiTexture2::setDataOversample( int texture, int version,
 				       int resolution, bool interpol,
 	                               const Array2D<float>* data, bool copy )
@@ -331,7 +335,7 @@ bool MultiTexture2::setDataOversample( int texture, int version,
 	return setData( texture, version, data, copy );
 
     const static int minpix2d = 128;
-    const int maxpix2d = SoColTabMultiTexture2::getMaxSize();
+    const int maxpix2d = getMaxTextureSize();
 
     const int newx0 = getPow2Sz( datax0size*resolution, true, minpix2d, maxpix2d );
     const int newx1 = getPow2Sz( datax1size*resolution, true, minpix2d, maxpix2d );

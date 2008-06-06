@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture2.h,v 1.16 2008-05-30 05:00:52 cvskris Exp $
+ RCS:		$Id: vismultitexture2.h,v 1.17 2008-06-06 04:23:27 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -48,6 +48,7 @@ public:
     bool			canUseShading() const;
     bool			usesShading() const   { return useshading_; }
     void			allowShading(bool yn) { allowshading_ = yn; }
+    static int			getMaxTextureSize();
    
     bool			splitsTexture();
     void			splitTexture(bool yn); 
