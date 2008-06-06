@@ -4,10 +4,13 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.18 2008-06-03 14:56:06 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.19 2008-06-06 16:58:33 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
+#include "arrayndimpl.h"
+#include "datacoldef.h"
+#include "datapointset.h"
 #include "emeditor.h"
 #include "emfault.h"
 #include "emmanager.h"
@@ -18,11 +21,13 @@ static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.18 2008-06-03 14:56:06 c
 #include "faulteditor.h"
 #include "iopar.h"
 #include "mpeengine.h"
+#include "posvecdataset.h"
 #include "survinfo.h"
 #include "undo.h"
 #include "viscoord.h"
 #include "visdragger.h"
 #include "visevent.h"
+#include "viscolortab.h"
 #include "visgeomindexedshape.h"
 #include "vismaterial.h"
 #include "vismarker.h"
@@ -45,6 +50,7 @@ namespace visSurvey
 FaultDisplay::FaultDisplay()
     : emfault_( 0 )
     , neareststickmarker_( visBase::IndexedPolyLine3D::create() )
+    , validtexture_( false )
     , paneldisplay_( 0 )
     , stickdisplay_( 0 )
     , intersectiondisplay_( 0 )
@@ -59,6 +65,9 @@ FaultDisplay::FaultDisplay()
     , shapehints_( visBase::ShapeHints::create() )
     , neareststickmarkerpickstyle_( visBase::PickStyle::create() )
     , showmanipulator_( false )
+    , colorchange( this )
+    , usestexture_( false )
+    , displaysticks_( false )
 {
     neareststickmarkerpickstyle_->ref();
     neareststickmarkerpickstyle_->setStyle( visBase::PickStyle::Unpickable );
@@ -67,7 +76,8 @@ FaultDisplay::FaultDisplay()
     neareststickmarker_->setRadius( 1, true );
     if ( !neareststickmarker_->getMaterial() )
 	neareststickmarker_->setMaterial( visBase::Material::create() );
-    neareststickmarker_->insertNode( neareststickmarkerpickstyle_->getInventorNode() );
+    neareststickmarker_->insertNode(
+	    neareststickmarkerpickstyle_->getInventorNode() );
     addChild( neareststickmarker_->getInventorNode() );
 
     getMaterial()->setAmbience( 0.2 );
@@ -79,8 +89,6 @@ FaultDisplay::FaultDisplay()
 
 FaultDisplay::~FaultDisplay()
 {
-    setScene( 0 );
-
     setSceneEventCatcher( 0 );
     if ( viseditor_ ) viseditor_->unRef();
 
@@ -135,29 +143,6 @@ void FaultDisplay::setSceneEventCatcher( visBase::EventCatcher* vec )
 }
 
 
-void FaultDisplay::zScaleChangeCB( CallBacker* )
-{
-    if ( !scene_ )
-	return;
-
-    const float zscale = SI().zFactor() * scene_->getZScale();
-    if ( explicitpanels_ ) explicitpanels_->setZScale( zscale );
-    if ( explicitsticks_ ) explicitpanels_->setZScale( zscale );
-}
-
-
-void FaultDisplay::setScene( Scene* sc )
-{
-    if ( scene_ )
-	scene_->zscalechange.remove( mCB(this,FaultDisplay,zScaleChangeCB) );
-    SurveyObject::setScene( sc );
-    if ( scene_ )
-	scene_->zscalechange.notify( mCB(this,FaultDisplay,zScaleChangeCB) );
-
-    zScaleChangeCB( 0 );
-}
-
-
 EM::ObjectID FaultDisplay::getEMID() const
 { return emfault_ ? emfault_->id() : -1; }
 
@@ -191,9 +176,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     emfault_->change.notify( mCB(this,FaultDisplay,emChangeCB) );
     emfault_->ref();
 
-    getMaterial()->setColor( emfault_->preferredColor() * 0.8);
-    neareststickmarker_->getMaterial()->setColor(
-	    emfault_->preferredColor() );
+
     if ( !emfault_->name().isEmpty() )
 	setName( emfault_->name() );
 
@@ -225,21 +208,35 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	stickdisplay_ = visBase::GeomIndexedShape::create();
 	stickdisplay_->ref();
 	stickdisplay_->setDisplayTransformation( displaytransform_ );
-	stickdisplay_->setMaterial( 0 );
-	stickdisplay_->setSelectable( false );
+	if ( !stickdisplay_->getMaterial() )
+	    stickdisplay_->setMaterial( visBase::Material::create() ); stickdisplay_->setSelectable( false );
 	stickdisplay_->setRightHandSystem( righthandsystem_ );
-	addChild( stickdisplay_->getInventorNode() );
+	insertChild( childIndex(texture_->getInventorNode() ),
+		     stickdisplay_->getInventorNode() );
     }
 
 
     if ( !explicitpanels_ )
     {
-	const float zscale = SI().zFactor() * (scene_?scene_->getZScale():1);
+	const float zscale = SI().zFactor()* (scene_ ? scene_->getZScale() : 1);
 	explicitpanels_ = new Geometry::ExplFaultStickSurface( 0, zscale );
 	explicitpanels_->display( false, true );
+	explicitpanels_->setMaximumTextureSize( texture_->getMaxTextureSize() );
+	explicitpanels_->setTexturePowerOfTwo( true );
+	explicitpanels_->setTextureSampling(
+		BinIDValue( BinID(SI().inlRange(true).step,
+				  SI().crlRange(true).step),
+				  SI().zStep() ) );
+
 
 	explicitsticks_ = new Geometry::ExplFaultStickSurface( 0, zscale );
 	explicitsticks_->display( true, false );
+	explicitsticks_->setMaximumTextureSize( texture_->getMaxTextureSize() );
+	explicitsticks_->setTexturePowerOfTwo( true );
+	explicitsticks_->setTextureSampling(
+		BinIDValue( BinID(SI().inlRange(true).step,
+				  SI().crlRange(true).step),
+				  SI().zStep() ) );
 
 	explicitintersections_ = new Geometry::ExplPlaneIntersection;
     }
@@ -275,7 +272,11 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     viseditor_->setEditor( faulteditor_ );
     
     paneldisplay_->turnOn( true );
-    stickdisplay_->turnOn( true );
+    displaysticks_ = false;
+
+    nontexturecol_ = emfault_->preferredColor();
+    updateSingleColor();
+    updateStickDisplay();
 
     return true;
 }
@@ -290,9 +291,80 @@ MultiID FaultDisplay::getMultiID() const
 void FaultDisplay::setColor( Color nc )
 {
     if ( emfault_ ) emfault_->setPreferredColor(nc);
-    getMaterial()->setColor( nc*0.8 );
-    neareststickmarker_->getMaterial()->setColor( nc );
+    else
+    {
+	nontexturecol_ = nc;
+	updateSingleColor();
+    }
 }
+
+
+void FaultDisplay::updateSingleColor()
+{
+    const bool usesinglecolor = !validtexture_ || !usestexture_;
+
+    const Color prevcol = getMaterial()->getColor();
+    const Color newcol = usesinglecolor ? nontexturecol_*0.8 : Color::White;
+    if ( newcol==prevcol )
+	return;
+
+    getMaterial()->setColor( newcol );
+    neareststickmarker_->getMaterial()->setColor( nontexturecol_ );
+    if ( stickdisplay_ )
+	stickdisplay_->getMaterial()->setColor( nontexturecol_ );
+
+    texture_->turnOn( !usesinglecolor );
+    colorchange.trigger();
+}
+
+
+void FaultDisplay::useTexture( bool yn, bool trigger )
+{
+    if ( yn && !validtexture_ )
+    {
+	for ( int idx=0; idx<nrAttribs(); idx++ )
+	{
+	    if ( getSelSpec(idx) &&
+		 getSelSpec(idx)->id()==Attrib::SelSpec::cNoAttrib() )
+	    {
+		usestexture_ = yn;
+		setDepthAsAttrib(idx);
+		return;
+	    }
+	}
+    }
+
+    usestexture_ = yn;
+
+    updateSingleColor();
+
+    if ( trigger )
+	colorchange.trigger();
+}
+
+
+void FaultDisplay::setDepthAsAttrib( int attrib )
+{
+    const Attrib::SelSpec as( "", Attrib::SelSpec::cNoAttrib(), false, "" );
+    setSelSpec( attrib, as );
+
+    texture_->getColorTab( attrib ).setAutoScale( true );
+    texture_->getColorTab( attrib ).setClipRate( 0 );
+    texture_->getColorTab( attrib ).setSymMidval( mUdf(float) );
+
+    TypeSet<DataPointSet::DataRow> pts; 
+    BufferStringSet nms; 
+    DataPointSet positions( pts, nms, false, true ); 
+    getRandomPos( positions ); 
+
+    if ( !positions.size() ) return;
+
+    setRandomPosData( attrib, &positions );
+}
+
+
+bool FaultDisplay::usesTexture() const
+{ return usestexture_; }
 
 
 NotifierAccess* FaultDisplay::materialChange()
@@ -303,10 +375,22 @@ Color FaultDisplay::getColor() const
 { return neareststickmarker_->getMaterial()->getColor(); }
 
 
+void FaultDisplay::updateStickDisplay()
+{
+    if ( !stickdisplay_ )
+	return;
+
+    const bool dodisplay = displaysticks_ ||
+			   (arePanelsDisplayed() && isManipulatorShown() );
+    
+    stickdisplay_->turnOn( dodisplay );
+}
+
+
 void FaultDisplay::display( bool sticks, bool panels )
 {
-    if ( stickdisplay_ )
-	stickdisplay_->turnOn( sticks );
+    displaysticks_ = sticks;
+    updateStickDisplay();
 
     if ( neareststickmarker_ )
 	neareststickmarker_->turnOn( sticks );
@@ -318,10 +402,7 @@ void FaultDisplay::display( bool sticks, bool panels )
 }
 
 
-bool FaultDisplay::areSticksDisplayed() const
-{
-    return stickdisplay_ ? stickdisplay_->isOn() : false;
-}
+bool FaultDisplay::areSticksDisplayed() const { return displaysticks_; }
 
 
 bool FaultDisplay::arePanelsDisplayed() const
@@ -507,7 +588,8 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	if ( emfault_->geometry().insertStick( insertpid.sectionID(),
 	       insertstick, pos, editnormal, true ) )
 	{
-	    EM::EMM().undo().setUserInteractionEnd( EM::EMM().undo().currentEventID() );
+	    EM::EMM().undo().setUserInteractionEnd(
+		    EM::EMM().undo().currentEventID() );
 
 	    paneldisplay_->touch( false );
 	    stickdisplay_->touch( false );
@@ -537,6 +619,8 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
 	 cbdata.event==EM::EMObjectCallbackData::SectionChange ||
 	 cbdata.event==EM::EMObjectCallbackData::PositionChange )
     {
+	validtexture_ = false;
+	updateSingleColor();
 	if ( cbdata.event==EM::EMObjectCallbackData::PositionChange )
 	{
 	     if ( RowCol(cbdata.pid0.subID()).row==neareststick_ )
@@ -549,12 +633,17 @@ void FaultDisplay::emChangeCB( CallBacker* cb )
 	stickdisplay_->touch( false );
 	intersectiondisplay_->touch( false );
     }
+    else if ( cbdata.event==EM::EMObjectCallbackData::PrefColorChange )
+    {
+	nontexturecol_ = emfault_->preferredColor();
+	updateSingleColor();
+    }
 }
 
 
 void FaultDisplay::updateNearestStickMarker()
 {
-    if ( mIsUdf(neareststick_) )
+    if ( mIsUdf(neareststick_) || !isManipulatorShown() )
 	neareststickmarker_->turnOn( false );
     else
     {
@@ -595,18 +684,85 @@ void FaultDisplay::updateNearestStickMarker()
 void FaultDisplay::showManipulator( bool yn )
 {
     showmanipulator_ = yn;
-    viseditor_->turnOn( yn && areSticksDisplayed() );
-    neareststickmarker_->turnOn( yn && areSticksDisplayed() );
+    updateStickDisplay();
+    updateManipulator();
+}
+
+
+void FaultDisplay::updateManipulator()
+{
+    const bool show = showmanipulator_ &&
+    		      (areSticksDisplayed() || arePanelsDisplayed() );
+    viseditor_->turnOn( show );
+    neareststickmarker_->turnOn( show );
 }
 
 
 bool  FaultDisplay::isManipulatorShown() const
-{ return viseditor_->isOn(); }
+{ return showmanipulator_; }
 
 
 int FaultDisplay::nrResolutions() const
+{ return 1; }
+
+
+void FaultDisplay::getRandomPos( DataPointSet& dpset ) const
 {
-    return texture_->canUseShading() ? 1 : 3;
+    if ( explicitpanels_ )
+	explicitpanels_->setTexturePositions( dpset );
+}
+
+
+void FaultDisplay::setRandomPosData( int attrib, const DataPointSet* dpset )
+{
+    const DataColDef texturej(Geometry::ExplFaultStickSurface::sKeyTextureJ());
+    const int columnj =
+	dpset->dataSet().findColDef(texturej,PosVecDataSet::NameExact);
+
+    setRandomPosDataInternal( attrib, dpset, columnj+1 );
+}
+
+
+void FaultDisplay::setRandomPosDataInternal( int attrib,
+    const DataPointSet* dpset, int column )
+{
+    if ( attrib>=nrAttribs() || !dpset || dpset->nrCols()<3 ||
+	 !explicitpanels_ )
+    {
+	validtexture_ = false;
+	updateSingleColor();
+	return;
+    }
+
+    const BinIDValueSet& bidvset = dpset->bivSet();
+    RowCol sz = explicitpanels_->getTextureSize();
+    PtrMan<Array2D<float> > texturedata = new Array2DImpl<float>(sz.col,sz.row);
+
+    float* texturedataptr = texturedata->getData();
+    for ( int idy=0; idy<texturedata->info().getTotalSz(); idy++ )
+	(*texturedataptr++) = mUdf(float);
+
+    const DataColDef texturei(Geometry::ExplFaultStickSurface::sKeyTextureI());
+    const DataColDef texturej(Geometry::ExplFaultStickSurface::sKeyTextureJ());
+    const int columni =
+	dpset->dataSet().findColDef(texturei,PosVecDataSet::NameExact);
+    const int columnj =
+	dpset->dataSet().findColDef(texturej,PosVecDataSet::NameExact);
+
+    const BinIDValueSet& vals = dpset->bivSet();
+    BinIDValueSet::Pos pos;
+    while ( vals.next( pos ) )
+    {
+	const float* ptr = vals.getVals( pos );
+	const float i = ptr[columni];
+	const float j = ptr[columnj];
+	texturedata->set( mNINT(j), mNINT(i), ptr[column] );
+    }
+
+    texture_->setData( attrib, 0, texturedata, true );
+    validtexture_ = true;
+    usestexture_ = true;
+    updateSingleColor();
 }
 
 
@@ -661,8 +817,7 @@ bool FaultDisplay::areIntersectionsDisplayed() const
 void FaultDisplay::otherObjectsMoved( const ObjectSet<const SurveyObject>& objs,
 				      int whichobj )
 {
-    if ( !explicitintersections_ )
-	return;
+    if ( !explicitintersections_ ) return;
 
     ObjectSet<const SurveyObject> usedobjects;
     TypeSet<int> planeids;

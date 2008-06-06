@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visfaultdisplay.h,v 1.9 2008-06-03 14:56:06 cvskris Exp $
+ RCS:		$Id: visfaultdisplay.h,v 1.10 2008-06-06 16:58:33 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -58,14 +58,18 @@ public:
 
     SurveyObject::AttribFormat	getAttributeFormat() const
 				{ return SurveyObject::RandomPos; }
-    void			getRandomPos(DataPointSet&) const	{}
-    void			setRandomPosData(int,const DataPointSet*) {}
+    void			getRandomPos(DataPointSet&) const;
+    void			setRandomPosData(int,const DataPointSet*); 
 
     bool			hasColor() const		{ return true; }
     Color			getColor() const;
     void			setColor(Color);
     bool			allowMaterialEdit() const	{ return true; }
     NotifierAccess*		materialChange();
+
+    void			useTexture( bool yn, bool trigger );
+    bool			usesTexture() const;
+    void			setDepthAsAttrib(int);
 
     void			showManipulator(bool);
     bool			isManipulatorShown() const;
@@ -75,7 +79,6 @@ public:
     void			setRightHandSystem(bool);
 
     void			setSceneEventCatcher(visBase::EventCatcher*);
-    void			setScene( Scene* );
 
     void			display(bool sticks,bool panels);
     bool			areSticksDisplayed() const;
@@ -90,14 +93,21 @@ public:
     void			displayIntersections(bool yn);
     bool			areIntersectionsDisplayed() const;
 
+    Notifier<FaultDisplay>	colorchange;
+
 protected:
 
     virtual			~FaultDisplay();
     void			otherObjectsMoved(
 	    			    const ObjectSet<const SurveyObject>&,
 				    int whichobj);
+    void			setRandomPosDataInternal(int attrib,
+	    						 const DataPointSet*,
+							 int column); 
 
-    void			zScaleChangeCB(CallBacker*);
+    void			updateStickDisplay();
+    void			updateSingleColor();
+    void			updateManipulator();
 
     virtual bool		getCacheValue(int attrib,int version,
 					      const Coord3&,float&) const;
@@ -141,6 +151,12 @@ protected:
 
     TypeSet<DataPack::ID>		datapackids_;
     bool				showmanipulator_;
+
+    bool				validtexture_;
+    Color				nontexturecol_;
+    bool				usestexture_;
+
+    bool				displaysticks_;
 };
 
 };
