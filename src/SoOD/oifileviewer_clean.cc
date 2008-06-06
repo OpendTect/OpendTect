@@ -54,9 +54,8 @@ int main( int narg, char** argv )
     if ( !myGraph ) return 1;
     mySceneInput.closeFile();
 
-    SoQtExaminerViewer* myViewer= new SoQtExaminerViewer(myWindow);
-    myViewer->setTransparencyType(
-	    	SoGLRenderAction::SORTED_OBJECT_SORTED_TRIANGLE_BLEND );
+    SoQtExaminerViewer* myViewer = new SoQtExaminerViewer(myWindow);
+    myViewer->setTransparencyType( SoGLRenderAction::SORTED_OBJECT_BLEND );
 
     myViewer->setSceneGraph( myGraph );
     myViewer->show();
