@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackmute.cc,v 1.3 2008-06-04 09:12:33 cvsbert Exp $";
+static const char* rcsID = "$Id: uiprestackmute.cc,v 1.4 2008-06-06 16:59:26 cvskris Exp $";
 
 #include "uiprestackmute.h"
 
@@ -40,7 +40,7 @@ uiMute::uiMute( uiParent* p, Mute* sgmute )
 {
     mutedeffld_ = new uiIOObjSel( this, ctio_ );
     topfld_ = new uiGenInput( this, "Mute type",
-	    		      BoolInpSpec(true,"Top","Tail") );
+	    		      BoolInpSpec(true,"Outer","Inner") );
     topfld_->attach( alignedBelow, mutedeffld_ );
     taperlenfld_ = new uiGenInput( this, "Taper length (in samples)",
 	    			   FloatInpSpec() );
