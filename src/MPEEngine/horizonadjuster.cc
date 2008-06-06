@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.47 2008-02-07 18:59:33 cvskris Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.48 2008-06-06 07:36:07 cvsjaap Exp $";
 
 #include "horizonadjuster.h"
 
@@ -213,6 +213,9 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 		    cube.info().getOffset( frominlidx, fromcrlidx, 0 ) ); 
 	const float fromz = horizon_.getPos(sectionid_,from.getSerialized()).z;
 	tracker_->setSource( &fromarr, zsz, sd.getIndex(fromz) );
+
+	if ( !tracker_->isOK() )
+	    return false;
 
 	const bool res = tracker_->track();
 	if ( res ) targetz = sd.atIndex( tracker_->targetDepth() );
