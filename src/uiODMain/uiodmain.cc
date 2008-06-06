@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.102 2008-05-14 05:01:13 cvsnanne Exp $
+ RCS:           $Id: uiodmain.cc,v 1.103 2008-06-06 04:57:38 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -254,8 +254,6 @@ bool uiODMain::buildUI()
 
     const char* s = GetEnvVar( "DTECT_CBAR_POS" );
     bool isvert = s && (*s == 'v' || *s == 'V');
-    bool isontop = s && *s
-		&& (*s == 't' || *s == 'T' || *(s+1) == 't' || *(s+1) == 'T');
     if ( !s )
     {
 	PtrMan<IOPar> iopar = Settings::common().subselect( mCBarKey );
@@ -263,13 +261,10 @@ bool uiODMain::buildUI()
 
 	bool insettings = false;
 	insettings |= iopar->getYN( mHVKey, isvert );
-	insettings |= iopar->getYN( mTopKey, isontop );
 
 	if ( !insettings )
 	{
 	    iopar->setYN( mHVKey, isvert );
-	    iopar->setYN( mTopKey, isontop );
-
 	    Settings::common().mergeComp( *iopar, mCBarKey );
 	    Settings::common().write();
 	}
@@ -281,8 +276,7 @@ bool uiODMain::buildUI()
 	ctabed_ = new uiVisColTabEd( ctabwin_, true );
 	ctabed_->coltabChange.notify( mCB(applmgr_,uiODApplMgr,coltabChg) );
 	ctabed_->colTabGrp()->attach( hCentered );
-	addDockWindow( *ctabwin_, isontop ? uiMainWin::TornOff
-					  : uiMainWin::Left );
+	addDockWindow( *ctabwin_, uiMainWin::Left );
     }
     else
     {

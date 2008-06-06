@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.29 2008-05-28 12:31:54 cvsnageswara Exp $
+ RCS:           $Id: uisettings.cc,v 1.30 2008-06-06 04:57:38 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,14 +127,11 @@ uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
 			mCB(this,uiLooknFeelSettings,ctOrientChange) );
     colbarhvfld->attach( alignedBelow, iconszfld );
 
-    colbarontopfld = new uiGenInput( this, "Color bar starts on top",
-				     BoolInpSpec(lfsetts.isontop) );
-    colbarontopfld->attach( alignedBelow, colbarhvfld );
 
     setts.getYN( "dTect.No shading", lfsetts.noshading );
     useshadingfld = new uiGenInput( this, "Use OpenGL shading when available",
 				    BoolInpSpec(!lfsetts.noshading) );
-    useshadingfld->attach( alignedBelow, colbarontopfld );
+    useshadingfld->attach( alignedBelow, colbarhvfld );
     useshadingfld->valuechanged.notify(
 	    		mCB(this,uiLooknFeelSettings,shadingChange) );
     setts.getYN( "dTect.Use VolRen shading", lfsetts.volrenshading );
@@ -154,7 +151,6 @@ uiLooknFeelSettings::~uiLooknFeelSettings()
 
 void uiLooknFeelSettings::ctOrientChange( CallBacker* )
 {
-    colbarontopfld->display( colbarhvfld->getBoolValue() );
 }
 
 
@@ -169,7 +165,7 @@ bool uiLooknFeelSettings::acceptOK( CallBacker* )
     LooknFeelSettings newsetts;
     newsetts.iconsz = iconszfld->getIntValue();
     newsetts.isvert = colbarhvfld->getBoolValue();
-    newsetts.isontop = newsetts.isvert ? colbarontopfld->getBoolValue() : false;
+    newsetts.isontop = false;
 
     if ( newsetts.iconsz < 10 || newsetts.iconsz > 64 )
     {
