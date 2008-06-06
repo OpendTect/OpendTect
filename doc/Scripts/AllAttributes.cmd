@@ -8,9 +8,12 @@ Comment "----------Applying Attributes on all Tree items"
 
 Case Insensitive
 
+
 Menu "processing`Attributes"
 Window "Attribute Set 3D"
-
+Button "New attribute set" 
+Button "No"
+Combo "Attribute group" "<All>"
 Button "Save on OK" off
 # Add all attributes
 
@@ -35,12 +38,12 @@ Ok
 
 Comment "--------Applying above Attributes on Tree items--------"
 
-Include "/dsk/d12/nageswara/dev/od/doc/Scripts/Attrib_onInl.cmd"
-Include "/dsk/d12/nageswara/dev/od/doc/Scripts/Attrib_onCrl.cmd"
-Include "/dsk/d12/nageswara/dev/od/doc/Scripts/Attrib_onTimeSlice.cmd"
-Include "/dsk/d12/nageswara/dev/od/doc/Scripts/Attrib_onVol.cmd"
-Include "/dsk/d12/nageswara/dev/od/doc/Scripts/Attrib_onRandLine.cmd"
-Include "/dsk/d12/nageswara/dev/od/doc/Scripts/PickSet.cmd"
+#Include "/dsk/d12/nageswara/dev/od/doc/Scripts/Attrib_onInl.cmd"
+#Include "/dsk/d12/nageswara/dev/od/doc/Scripts/Attrib_onCrl.cmd"
+#Include "/dsk/d12/nageswara/dev/od/doc/Scripts/Attrib_onTimeSlice.cmd"
+#Include "/dsk/d12/nageswara/dev/od/doc/Scripts/Attrib_onVol.cmd"
+#Include "/dsk/d12/nageswara/dev/od/doc/Scripts/Attrib_onRandLine.cmd"
+#Include "/dsk/d12/nageswara/dev/od/doc/Scripts/PickSet.cmd"
 Include "/dsk/d12/nageswara/dev/od/doc/Scripts/Attrib_onHorizon.cmd"
 Include "/dsk/d12/nageswara/dev/od/doc/Scripts/Attrib_onWell.cmd"
 
