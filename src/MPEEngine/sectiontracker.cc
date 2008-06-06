@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: sectiontracker.cc,v 1.20 2008-03-10 15:40:58 cvsjaap Exp $";
+static const char* rcsID = "$Id: sectiontracker.cc,v 1.21 2008-06-06 04:46:36 cvssatyaki Exp $";
 
 #include "sectiontracker.h"
 
@@ -258,15 +258,18 @@ bool SectionTracker::adjust()
 	adjuster_->setPositions( extender_->getAddedPositions(),
     				 &extender_->getAddedPositionsSource() );
 
+    emobject.setBurstAlert( true );
     while ( int res = adjuster_->nextStep() )
     {
 	if ( res==-1 )
 	{
 	    errmsg = adjuster_->errMsg();
+	    emobject.setBurstAlert( false );
 	    return false;
 	}
     }
 
+    emobject.setBurstAlert( false );
     return true;
 }
 
