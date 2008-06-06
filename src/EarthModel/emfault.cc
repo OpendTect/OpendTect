@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.49 2008-06-05 12:24:17 cvsnanne Exp $
+ RCS:           $Id: emfault.cc,v 1.50 2008-06-06 05:21:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -235,7 +235,6 @@ bool FaultGeometry::insertStick( const SectionID& sid, int sticknr,
 				 const Coord3& pos, const Coord3& editnormal,
 				 bool addtohistory )
 {
-std::cout << editnormal.x << '\t' << editnormal.y << '\t' << editnormal.z << std::endl;
     Geometry::FaultStickSurface* fss = sectionGeometry( sid );
     if ( !fss || !fss->insertStick(pos,editnormal,sticknr) )
 	return false;
