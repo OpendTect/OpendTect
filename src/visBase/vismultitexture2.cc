@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.47 2008-06-06 04:23:26 cvskris Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.48 2008-06-09 15:48:19 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -24,6 +24,7 @@ static const char* rcsID = "$Id: vismultitexture2.cc,v 1.47 2008-06-06 04:23:26 
 
 #include "Inventor/nodes/SoShaderProgram.h"
 #include "Inventor/nodes/SoFragmentShader.h"
+#include "Inventor/nodes/SoVertexShader.h"
 #include "Inventor/nodes/SoShaderParameter.h"
 #include "Inventor/nodes/SoSwitch.h"
 #include "Inventor/nodes/SoComplexity.h"
@@ -764,6 +765,12 @@ void MultiTexture2::createShadingVars()
 
 	shaderprogram_ = new SoShaderProgram();
 
+	SoVertexShader* vertexshader = new SoVertexShader;
+	vertexshader->sourceType = SoShaderObject::GLSL_PROGRAM;
+	vertexshader->sourceProgram.setValue( sVertexShaderProgram() );
+
+	shaderprogram_->shaderObject.addNode( vertexshader );
+
 	fragmentshader_ = new SoFragmentShader;
 	fragmentshader_->sourceType = SoShaderObject::GLSL_PROGRAM;
 	BufferString shadingprog;
@@ -835,6 +842,29 @@ void MultiTexture2::createShadingVars()
 }
 
 
+const char* MultiTexture2::sVertexShaderProgram()
+{
+    return 
+	"varying vec3 ecPosition3;\n"
+	"varying vec3 fragmentNormal;\n"
+
+	"void main(void)\n"
+	"{\n"
+	    "vec4 ecPosition = gl_ModelViewMatrix * gl_Vertex;\n"
+	    "ecPosition3 = ecPosition.xyz / ecPosition.w;\n"
+	    "fragmentNormal = normalize(gl_NormalMatrix * gl_Normal);\n"
+
+	    "gl_Position = ftransform();\n"
+	    "gl_FrontColor = gl_Color;\n"
+	    "gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"
+	"}";
+}
+
+
+
+
+
+
 void MultiTexture2::reviewShading()
 {
     bool res = false;
@@ -871,28 +901,49 @@ void  MultiTexture2::createShadingProgram( int nrlayers,
 "#extension GL_ARB_texture_rectangle : enable				\n\
 uniform sampler2DRect   ctabunit;					\n\
 uniform int             startlayer;					\n\
+varying vec3		ecPosition3;					\n\
+varying vec3		fragmentNormal;					\n\
 uniform int             numlayers;\n";
 
     const char* functions = 
 
-"void processLayer( in float val, in float layeropacity, in int layer )	\n\
-{									\n\
-    if ( layer==startlayer )						\n\
-    {									\n\
-	gl_FragColor = texture2DRect( ctabunit,				\n\
-				  vec2(val*255.0, float(layer)+0.5) );	\n\
-	gl_FragColor.a *= layeropacity;					\n\
-    }									\n\
-    else if ( layeropacity>0.0 )					\n\
-    {									\n\
-	vec4 col = texture2DRect( ctabunit, 				\n\
-				   vec2(val*255.0, float(layer)+0.5) );	\n\
-	layeropacity *= col.a;						\n\
-	gl_FragColor.rgb = mix(gl_FragColor.rgb,col.rgb,layeropacity);	\n\
-	if ( layeropacity>gl_FragColor.a )				\n\
-	    gl_FragColor.a = layeropacity;				\n\
-    } 									\n\
-}\n\n";
+"void processLayer( in float val, in float layeropacity, in int layer )	\n"
+"{									\n"
+    "if ( layer==startlayer )						\n"
+    "{									\n"
+	"gl_FragColor = texture2DRect( ctabunit,			\n"
+				  "vec2(val*255.0, float(layer)+0.5) );	\n"
+	"gl_FragColor.a *= layeropacity;				\n"
+    "}									\n"
+    "else if ( layeropacity>0.0 )					\n"
+    "{									\n"
+	"vec4 col = texture2DRect( ctabunit, 				\n"
+				   "vec2(val*255.0, float(layer)+0.5) );\n"
+	"layeropacity *= col.a;						\n"
+	"gl_FragColor.rgb = mix(gl_FragColor.rgb,col.rgb,layeropacity);	\n"
+	"if ( layeropacity>gl_FragColor.a )				\n"
+	    "gl_FragColor.a = layeropacity;				\n"
+    "} 									\n"
+"}\n\n"
+"void DirectionalLight(in int i, in vec3 normal, inout vec3 ambient,	\n"
+		      "inout vec3 diffuse, inout vec3 specular)		\n"
+"{									\n"
+    "float nDotVP; // normal . light direction				\n"
+    "float nDotHV; // normal . light half vector			\n"
+    "float pf;     // power factor					\n"
+
+    "nDotVP = abs( dot(normal, normalize(vec3(gl_LightSource[i].position))));\n"
+    "nDotHV = abs( dot(normal, vec3(gl_LightSource[i].halfVector)));	\n"
+
+    "if (nDotVP == 0.0)							\n"
+	"pf = 0.0;							\n"
+    "else								\n"
+	"pf = pow(nDotHV, gl_FrontMaterial.shininess);			\n"
+
+    "ambient += gl_LightSource[i].ambient.rgb;				\n"
+    "diffuse += gl_LightSource[i].diffuse.rgb * nDotVP;			\n"
+    "specular += gl_LightSource[i].specular.rgb * pf;			\n"
+"} \n";
 
 
     BufferString mainprogstart =
@@ -962,7 +1013,21 @@ uniform int             numlayers;\n";
     }
 
     res += "    }\n";
-    res += "    gl_FragColor.a *= gl_FrontMaterial.diffuse.a;";
+    res += "    gl_FragColor.a *= gl_FrontMaterial.diffuse.a;\n";
+    res += "vec3 ambient = vec3(0.0);\n"
+	   "vec3 diffuse = vec3(0.0);\n"
+	   "vec3 specular = vec3(0.0);\n"
+
+	   "DirectionalLight(0, fragmentNormal, ambient, diffuse, specular);\n"
+
+	   "vec3 lightning =\n"
+	       "gl_FrontLightModelProduct.sceneColor.rgb +\n"
+	       "ambient.rgb * gl_FrontMaterial.ambient.rgb +\n"
+	       "diffuse.rgb * gl_Color.rgb +\n"
+	       "specular.rgb * gl_FrontMaterial.specular.rgb;\n"
+
+	   "gl_FragColor.rgb *= lightning;\n";
+
     //TODO lightning?
     res += "}";
 }

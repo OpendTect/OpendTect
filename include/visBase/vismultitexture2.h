@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		Dec 2005
- RCS:		$Id: vismultitexture2.h,v 1.17 2008-06-06 04:23:27 cvskris Exp $
+ RCS:		$Id: vismultitexture2.h,v 1.18 2008-06-09 15:48:19 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -131,6 +131,7 @@ protected:
     SoShaderParameter1i*	ctabunit_;
     TypeSet<float>		opacity_;
     SoComplexity*		shadingcomplexity_;
+    static const char*		sVertexShaderProgram();
 };
 
 }; // Namespace
