@@ -12,7 +12,7 @@ Button "New"
 
 Input "Survey directory*" "TestTutorial"
 Input "Full Survey name" "TestSurvey"
-Input "Location on disk" "/dsk/d12/nageswara"
+Input "Location on disk" "$DATADIR$/Misc/"
 Combo "Survey type" "Only 3D"
 Comment "------------"
 
