@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.20 2008-06-06 16:32:27 cvskris Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.21 2008-06-10 19:42:25 cvsyuancheng Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -240,7 +240,7 @@ bool processPixelOnPanel( int panelidx, int stickpos, int knotpos, Coord3& pos )
 
 
 	bool intriangle = pointInTriangle2D( checkpos, texture0, texture1, 
-					     texture2 );
+					     texture2, 1e-5 );
 	if ( !intriangle )
 	{
 	    const bool v01onend = (v0==lidx[0] && v1==ridx[0]) ||
