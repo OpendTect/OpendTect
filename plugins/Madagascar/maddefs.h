@@ -4,7 +4,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Bert
  * DATE     : June 2007
- * ID       : $Id: maddefs.h,v 1.4 2007-07-04 09:44:54 cvsbert Exp $
+ * ID       : $Id: maddefs.h,v 1.5 2008-06-10 09:47:01 cvsbert Exp $
 -*/
 
 #include "bufstringset.h"
@@ -27,7 +27,7 @@ public:
 };
 
 
-/* Scans $RSFROOT/defs directory for program definitions */
+/* Scans $RSFROOT/doc/txt directory for program definitions */
 
 class ProgInfo
 {
