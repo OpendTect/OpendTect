@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2006
- RCS:           $Id: explicitmarchingcubes.h,v 1.12 2008-01-18 15:39:20 cvskris Exp $
+ RCS:           $Id: explicitmarchingcubes.h,v 1.13 2008-06-10 19:38:13 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,8 @@ public:
     				/*!<If set, the coordinates in each dim will be
 				    scaled with these scales. */
     const SamplingData<float>&	getAxisScale( int dim ) const;
+
+    bool			createsNormals() const { return true; }
 
 protected:
 
