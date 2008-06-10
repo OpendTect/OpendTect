@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.25 2008-05-29 22:02:25 cvskris Exp $
+ RCS:		$Id: trigonometry.h,v 1.26 2008-06-10 19:35:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -52,37 +52,36 @@ inline bool isInsideCircle( const Coord& pt,
 }
 
 
+/*! Check p1, p2 are on the same side of the edge AB or not.*/
 inline bool sameSide2D( const Coord& p1, const Coord& p2, 
-			const Coord& a, const Coord& b )
-    /*!< Check p1, p2 are on the same side of the edge AB or not.*/
+			const Coord& a, const Coord& b, double epsilon )
 {
     return ((p1.x-a.x)*(b.y-a.y)-(p1.y-a.y)*(b.x-a.x))*
-	((p2.x-a.x)*(b.y-a.y)-(p2.y-a.y)*(b.x-a.x))>=0 ? true : false;
+	((p2.x-a.x)*(b.y-a.y)-(p2.y-a.y)*(b.x-a.x))>=-epsilon;
 }
 
 
-inline bool pointInTriangle2D( const Coord& p, 
-			       const Coord& a, const Coord& b, const Coord& c )
-    /*!< Check the point p is in the triangle ABC or not.*/
+/*!< Check the point p is in the triangle ABC or not.*/
+inline bool pointInTriangle2D( const Coord& p, const Coord& a, const Coord& b, 
+			       const Coord& c, double epsilon )
 {
-    if ( sameSide2D(p,a,b,c) && sameSide2D(p,b,a,c) && sameSide2D(p,c,a,b) )
-	return true;
-    else
-	return false;
+    return sameSide2D(p,a,b,c,epsilon) && sameSide2D(p,b,a,c,epsilon) && 
+	   sameSide2D(p,c,a,b,epsilon);
 }
 
 
+/*!< Check to see if the point P is on the edge AB or not.*/
 inline bool pointOnEdge2D( const Coord& p, const Coord& a, const Coord& b, 
 			   double epsilon )
-    /*!< Check to see if the point P in on the edge AB or not.*/
 {
-    if ( (p-a).x*(b-p).x<0 || (p-a).y*(b-p).y<0 )
+    const Coord3 pa(a-p,0);
+    const Coord3 ba(b-a,0);
+    const double t = -pa.dot(ba)/ba.dot(ba);
+    if ( t<0 || t>1 )
 	return false;
 
-    if ( mIsZero((p-a).x*(b-p).y-(b-p).x*(p-a).y, epsilon) )
-	return true;
-    else
-	return false;
+    const double disttoline = pa.cross(ba).abs() / ba.abs();
+    return disttoline<epsilon; 
 }
 
 
