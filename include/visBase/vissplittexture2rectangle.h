@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		2-28-2008
- RCS:		$Id: vissplittexture2rectangle.h,v 1.3 2008-04-03 19:13:16 cvsyuancheng Exp $
+ RCS:		$Id: vissplittexture2rectangle.h,v 1.4 2008-06-10 19:26:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,9 @@ ________________________________________________________________________
 #include "visobject.h"
 
 class SoSeparator;
+class SoIndexedFaceSet;
+class SoTextureCoordinate2;
+class SoSplitTexture2Part;
 
 namespace visBase
 {
@@ -52,6 +55,9 @@ protected:
     			~SplitTexture2Rectangle();
     void		updateFaceSets(); 
     void		updateCoordinates(); 
+    void		updateSeparator(SoSeparator*, SoIndexedFaceSet*&,
+			    SoTextureCoordinate2*&,SoSplitTexture2Part*&) const;
+    void		updateSeparator(SoSeparator*, SoIndexedFaceSet*&) const;
 
     TypeSet<float>	c00factors_;
     TypeSet<float>	c01factors_;
