@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Contents:	Defines that encapsulate system things
- RCS:		$Id: plfdefs.h,v 1.20 2008-05-28 10:57:03 cvsdgb Exp $
+ RCS:		$Id: plfdefs.h,v 1.21 2008-06-10 09:14:39 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -140,7 +140,9 @@ Always defined:
 #endif
 #ifdef mac
 # define __mac__ 1
-# define __pc__ 1
+# ifndef macppc
+#  define __pc__ 1
+# endif
 #endif
 
 #ifdef __pc__
