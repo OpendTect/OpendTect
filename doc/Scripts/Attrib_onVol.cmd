@@ -23,88 +23,88 @@ ListClick "Select Data" "CoherencyAttrib"
 Ok
 TreeButton "Volume`CoherencyAttrib`Volren" On
 Button "Make snapshot"
-Input "Select filename" "vol_coherencyatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/vol_coherencyatt.jpg"
 Ok
 
 TreeMenu "Volume`CoherencyAttr*" "Sel*`Att*`ConvolveAtt*"
 Button "Make snapshot"
-Input "Select filename" "vol_convolveatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/vol_convolveatt.jpg"
 Ok
 
 
 TreeMenu "Volume`ConvolveAtt*" "Sel*`Att*`CurvatureAtt*"
 Button "Make snapshot"
-Input "Select filename" "vol_curvatureatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/vol_curvatureatt.jpg"
 Ok
 
 TreeMenu "Volume`CurvatureAttr*" "Sel*`Att*`DipAtt*"
 Button "Make snapshot"
-Input "Select filename" "vol_dipatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/vol_dipatt.jpg"
 Ok
 
 TreeMenu "Volume`DipAttr*" "Sel*`Att*`DipAngleAtt*"
 Button "Make snapshot"
-Input "Select filename" "vol_dipanglett.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/vol_dipanglett.jpg"
 Ok
 
 TreeMenu "Volume`DipAngleAtt*" "Sel*`Att*`EnergyAtt*"
 Button "Make snapshot"
-Input "Select filename" "vol_energyatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/vol_energyatt.jpg"
 Ok
 
 TreeMenu "Volume`EnergyAttr*" "Sel*`Att*`EventAtt*"
 Button "Make snapshot"
-Input "Select filename" "vol_eventatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/vol_eventatt.jpg"
 Ok
 
 TreeMenu "Volume`EventAttr*" "Sel*`Att*`FrequencyAtt*"
 Button "Make snapshot"
-Input "Select filename" "vol_frequencyatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/vol_frequencyatt.jpg"
 Ok
 
 #TreeMenu "Volume`FrequencyAtt*" "Sel*`Att*`FrequencyFilterAtt*"
 #Button "Make snapshot"
-#Input "Select filename" "vol_freqencyfilteratt.jpg"
+#Input "Select filename" "$SCRIPTSDIR$/Snapshots/vol_freqencyfilteratt.jpg"
 #Ok
 
 TreeMenu "Volume`FrequencyAtt*" "Sel*`Att*`Instant*"
 Button "Make snapshot"
-Input "Select filename" "vol_instantaneousatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/vol_instantaneousatt.jpg"
 Ok
 
 TreeMenu "Volume`Instant*" "Sel*`Att*`PositionAtt*"
 Button "Make snapshot"
-Input "Select filename" "vol_positionatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/vol_positionatt.jpg"
 Ok
 
 TreeMenu "Volume`PositionAtt*" "Sel*`Att*`ReferenceShi*"
 Button "Make snapshot"
-Input "Select filename" "vol_refshiftatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/vol_refshiftatt.jpg"
 Ok
 
 TreeMenu "Volume`ReferenceSh*" "Sel*`Att*`ScalingAtt*"
 Button "Make snapshot"
-Input "Select filename" "vol_scalingatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/vol_scalingatt.jpg"
 Ok
 
 TreeMenu "Volume`ScalingAtt*" "Sel*`Att*`SimilarityAtt*"
 Button "Make snapshot"
-Input "Select filename" "vol_similarityatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/vol_similarityatt.jpg"
 Ok
 
 TreeMenu "Volume`SimilarityAtt*" "Sel*`Att*`SpectralDecomp*"
 Button "Make snapshot"
-Input "Select filename" "vol_spectrapdecompatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/vol_spectrapdecompatt.jpg"
 Ok
 
 TreeMenu "Volume`SpectralDecomp*" "Sel*`Att*`VelocityFan*"
 Button "Make snapshot"
-Input "Select filename" "vol_velfanfilteratt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/vol_velfanfilteratt.jpg"
 Ok
 
 TreeMenu "Volume`VelocityFan*" "Sel*`Att*`VolumeStatistics*"
 Button "Make snapshot"
-Input "Select filename" "vol_volumestatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/vol_volumestatt.jpg"
 Ok
 
 Wheel "vRotate" -10

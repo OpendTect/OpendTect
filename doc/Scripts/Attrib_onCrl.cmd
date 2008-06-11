@@ -22,7 +22,7 @@ Ok
 ListClick "Select Data" "CoherencyAttrib"
 Ok
 Button "Make snapshot"
-Input "Select filename" "crl_750_coherencyatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_coherencyatt.jpg"
 Ok
 TreeButton "Crossline`750`CoherencyAttr*" Off
 
@@ -30,28 +30,28 @@ OnError Continue
 TreeMenu "Crossline`750" "Add attribute"
 TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`ConvolveAttrib"
 #Button "Make snapshot"
-#Input "Select filename" "crl_750_convolveatt.jpg"
+#Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_convolveatt.jpg"
 #Ok
 TreeButton "Crossline`750`ConvolveAtt*" Off
 
 TreeMenu "Crossline`750" "Add attribute"
 TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`CurvatureAttrib"
 Button "Make snapshot"
-Input "Select filename" "crl_750_curvatureatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_curvatureatt.jpg"
 Ok
 TreeButton "Crossline`750`CurvatureAtt*" Off
 
 TreeMenu "Crossline`750" "Add attribute"
 TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`DipAttrib"
 Button "Make snapshot"
-Input "Select filename" "crl_750_dipatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_dipatt.jpg"
 Ok
 TreeButton "Crossline`750`DipAtt*" Off
 
 TreeMenu "Crossline`750" "Add attribute"
 TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`DipAngleAttrib"
 Button "Make snapshot"
-Input "Select filename" "crl_750_dipangleatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_dipangleatt.jpg"
 Ok
 TreeButton "Crossline`750`DipAngleAttrib*" Off
 
@@ -63,35 +63,35 @@ TreeMenu "Crossline`750`DipAtt*" "Remove"
 TreeMenu "Crossline`750" "Add attribute"
 TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`EnergyAttrib"
 Button "Make snapshot"
-Input "Select filename" "crl_750_energyatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_energyatt.jpg"
 Ok
 TreeButton "Crossline`750`EnergyAtt*" Off
 
 TreeMenu "Crossline`750" "Add attribute"
 TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`EventAttrib"
 Button "Make snapshot"
-Input "Select filename" "crl_750_eventatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_eventatt.jpg"
 Ok
 TreeButton "Crossline`750`EventAtt*" Off
 
 TreeMenu "Crossline`750" "Add attribute"
 TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`FrequencyAttrib"
 Button "Make snapshot"
-Input "Select filename" "crl_750_frequencyatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_frequencyatt.jpg"
 Ok
 TreeButton "Crossline`750`FrequencyAtt*" Off
 
 TreeMenu "Crossline`750" "Add attribute"
 TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`FrequencyFilterAttrib"
 Button "Make snapshot"
-Input "Select filename" "crl_750_frequencyfilterattatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_frequencyfilterattatt.jpg"
 Ok
 TreeButton "Crossline`750`FrequencyFilterAtt*" Off
 
 TreeMenu "Crossline`750" "Add attribute"
 TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`InstantaneousAttrib"
 Button "Make snapshot"
-Input "Select filename" "crl_750_instantaneousatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_instantaneousatt.jpg"
 Ok
 TreeButton "Crossline`750`InstantaneousAtt*" Off
 
@@ -105,35 +105,35 @@ TreeMenu "Crossline`750`FrequencyFil*" "Remove"
 TreeMenu "Crossline`750" "Add attribute"
 TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`PositionAttrib"
 Button "Make snapshot"
-Input "Select filename" "crl_750_positionatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_positionatt.jpg"
 Ok
 TreeButton "Crossline`750`PositionAtt*" Off
 
 TreeMenu "Crossline`750" "Add attribute"
 TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`ReferenceShiftAttrib"
 Button "Make snapshot"
-Input "Select filename" "crl_750_refshiftatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_refshiftatt.jpg"
 Ok
 TreeButton "Crossline`750`ReferenceShiftAtt*" Off
 
 TreeMenu "Crossline`750" "Add attribute"
 TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`ScalingAttrib"
 Button "Make snapshot"
-Input "Select filename" "crl_750_scalingatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_scalingatt.jpg"
 Ok
 TreeButton "Crossline`750`ScalingAtt*" Off
 
 TreeMenu "Crossline`750" "Add attribute"
 TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`SimilarityAttrib"
 Button "Make snapshot"
-Input "Select filename" "crl_750_similarityatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_similarityatt.jpg"
 Ok
 TreeButton "Crossline`750`SimilarityAtt*" Off
 
 TreeMenu "Crossline`750" "Add attribute"
 TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`SpectralDecompAttrib"
 Button "Make snapshot"
-Input "Select filename" "crl_750_spectraldecompatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_spectraldecompatt.jpg"
 Ok
 TreeButton "Crossline`750`SpectralDecompAtt*" Off
 
@@ -146,14 +146,14 @@ TreeMenu "Crossline`750`SimilarityAttr*" "Remove"
 TreeMenu "Crossline`750" "Add attribute"
 TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`VelocityFanFilterAttrib"
 Button "Make snapshot"
-Input "Select filename" "crl_750_velocityfanfilteratt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_velocityfanfilteratt.jpg"
 Ok
 TreeButton "Crossline`750`VelocityFanFilterAtt*" Off
 
 TreeMenu "Crossline`750" "Add attribute"
 TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`VolumeStatisticsAttrib"
 Button "Make snapshot"
-Input "Select filename" "crl_750_volumestatisticsatt.jpg"
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_volumestatisticsatt.jpg"
 Ok
 TreeButton "Crossline`750`VolumeStatisticsA*" Off
 
