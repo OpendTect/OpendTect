@@ -21,11 +21,12 @@ Input "Z Stop" 1400
 Ok
 ListClick "Select Data" "CoherencyAttrib"
 Ok
-#Button "Make snapshot"
-#Input "Select filename" "crl_750_coherencyatt.jpg"
-#Ok
+Button "Make snapshot"
+Input "Select filename" "crl_750_coherencyatt.jpg"
+Ok
 TreeButton "Crossline`750`CoherencyAttr*" Off
 
+OnError Continue
 TreeMenu "Crossline`750" "Add attribute"
 TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`ConvolveAttrib"
 #Button "Make snapshot"

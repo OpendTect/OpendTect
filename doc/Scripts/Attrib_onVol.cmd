@@ -8,7 +8,7 @@ Wheel "hRotate" 40
 Slider "Zoom Slider" 8
 #Assigning Values to Volume
 
-Comment "----------Assigning Values to Volume----------"
+Comment "----------Assigning Values to Tree item Volume----------"
 
 TreeMenu "Volume" "Add"
 TreeMenu "Volume`<right-click>" "Position"
@@ -106,5 +106,8 @@ TreeMenu "Volume`VelocityFan*" "Sel*`Att*`VolumeStatistics*"
 Button "Make snapshot"
 Input "Select filename" "vol_volumestatt.jpg"
 Ok
+
+Wheel "vRotate" -10
+Wheel "hRotate" -40
 
 End

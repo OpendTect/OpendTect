@@ -18,6 +18,8 @@ Input "Z" 400
 Ok
 ListClick "Select Data" "CoherencyAttrib"
 Ok
+
+OnError Continue
 Button "Make snapshot"
 Input "Select filename" "ts_400_coherencyatt.jpg"
 Ok

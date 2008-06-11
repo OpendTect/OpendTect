@@ -15,6 +15,7 @@ Input "Z Start" 900
 Input "Z Stop" 1500
 Ok
 
+OnError Continue
 ListClick "Select Data" "CoherencyAttrib"
 Ok
 Button "Make snapshot"
