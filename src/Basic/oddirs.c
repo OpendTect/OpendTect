@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: oddirs.c,v 1.3 2008-02-26 10:26:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: oddirs.c,v 1.4 2008-06-11 11:40:09 cvsnageswara Exp $";
 
 #include "genc.h"
 #include "oddirs.h"
@@ -200,6 +200,23 @@ const char* GetProcFileName( const char* fname )
     strcpy( filenamebuf, mkFullPath( GetDataDir(), "Proc" ) );
     if ( fname && *fname )
 	strcpy( filenamebuf, mkFullPath( filenamebuf, fname ) );
+    return filenamebuf;
+}
+
+
+const char* GetScriptsDir( const char* subdir )
+{
+    static FileNameString filenamebuf;
+    const char* ret = GetEnvVar( "DTECT_SCRIPTS_DIR" );
+    if ( ret && *ret )
+	strcpy( filenamebuf, ret );
+    else
+    {
+	strcpy( filenamebuf, GetDocFileDir("Scripts") );
+	if ( subdir && *subdir )
+	    strcpy( filenamebuf, mkFullPath(filenamebuf,subdir) );
+    }
+
     return filenamebuf;
 }
 
