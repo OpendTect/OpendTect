@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.20 2008-06-11 14:39:27 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.21 2008-06-11 17:27:59 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -209,7 +209,8 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	stickdisplay_->ref();
 	stickdisplay_->setDisplayTransformation( displaytransform_ );
 	if ( !stickdisplay_->getMaterial() )
-	    stickdisplay_->setMaterial( visBase::Material::create() ); stickdisplay_->setSelectable( false );
+	    stickdisplay_->setMaterial( visBase::Material::create() );
+	stickdisplay_->setSelectable( false );
 	stickdisplay_->setRightHandSystem( righthandsystem_ );
 	insertChild( childIndex(texture_->getInventorNode() ),
 		     stickdisplay_->getInventorNode() );
@@ -380,8 +381,11 @@ void FaultDisplay::updateStickDisplay()
     if ( !stickdisplay_ )
 	return;
 
+    const EM::SectionID sid = emfault_->sectionID( 0 );
+
     const bool dodisplay = displaysticks_ ||
-			   (arePanelsDisplayed() && isManipulatorShown() );
+       (arePanelsDisplayed() && isManipulatorShown() ) ||
+       (arePanelsDisplayed() && emfault_->geometry().nrSticks(sid)==1 );
     
     stickdisplay_->turnOn( dodisplay );
 }
