@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.5 2008-04-21 19:47:08 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.6 2008-06-11 08:53:11 cvsbert Exp $";
 
 #include "delaunay.h"
 
@@ -873,7 +873,8 @@ char DAGTriangleTree::isInside( int ci, int ti ) const
 	return -1;
 
     const int* crds = triangles_[ti].coordindices_;
-    if ( pointInTriangle2D(mCrd(ci),mCrd(crds[0]),mCrd(crds[1]),mCrd(crds[2])) )
+    if ( pointInTriangle2D(mCrd(ci),mCrd(crds[0]),mCrd(crds[1]),mCrd(crds[2]),
+         mDefEps) )
 	return 1;
 
     if ( pointOnEdge2D( mCrd(ci), mCrd(crds[0]), mCrd(crds[1]), epsilon_ ) || 
