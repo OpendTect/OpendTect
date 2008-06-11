@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodfaulttreeitem.cc,v 1.9 2008-06-06 16:57:26 cvskris Exp $
+ RCS:		$Id: uiodfaulttreeitem.cc,v 1.10 2008-06-11 17:15:28 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -15,6 +15,8 @@ ___________________________________________________________________
 #include "visfaultdisplay.h"
 #include "emfault.h"
 #include "emmanager.h"
+#include "ioman.h"
+#include "ioobj.h"
 
 #include "mousecursor.h"
 #include "randcolor.h"
@@ -68,6 +70,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	newname += faultnr++;
 	newname += ">";
 	emo->setName( newname.buf() );
+	emo->setFullyLoaded( true );
 	addChild( new uiODFaultTreeItem( emo->id() ), false );
 
 	uiVisPartServer* visserv = applMgr()->visServer();
@@ -213,10 +216,10 @@ void uiODFaultTreeItem::createMenuCB( CallBacker* cb )
 		  faultdisplay_->areIntersectionsDisplayed() );
     mAddMenuItem( menu, &displaymnuitem_, true, true );
 
-    mAddMenuItem( menu, &savemnuitem_,
-		  applMgr()->EMServer()->isChanged(emid_) &&
-		  applMgr()->EMServer()->isFullyLoaded(emid_) &&
-		  !applMgr()->EMServer()->isShifted(emid_), false );
+    const bool enablesave = applMgr()->EMServer()->isChanged(emid_) &&
+			    applMgr()->EMServer()->isFullyLoaded(emid_);
+
+    mAddMenuItem( menu, &savemnuitem_, enablesave, false );
     mAddMenuItem( menu, &saveasmnuitem_, true, false );
 }
 
@@ -229,21 +232,26 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
     if ( menu->isHandled() || menu->menuID()!=displayID() || mnuid==-1 )
 	return;
 
-    if ( mnuid==saveasmnuitem_.id )
+    if ( mnuid==saveasmnuitem_.id ||  mnuid==savemnuitem_.id )
     {
 	menu->setIsHandled(true);
-	applMgr()->EMServer()->storeObject(emid_,true);
+	bool saveas = mnuid==saveasmnuitem_.id ||
+		      applMgr()->EMServer()->getStorageID(emid_).isEmpty();
+	if ( !saveas )
+	{
+	    PtrMan<IOObj> ioobj =
+		IOM().get( applMgr()->EMServer()->getStorageID(emid_) );
+	    saveas = !ioobj;
+	}
 
-	if ( faultdisplay_ && !applMgr()->EMServer()->getName(emid_).isEmpty() )
+	applMgr()->EMServer()->storeObject( emid_, saveas );
+
+	if ( saveas && faultdisplay_ &&
+	     !applMgr()->EMServer()->getName(emid_).isEmpty() )
 	{
 	    faultdisplay_->setName( applMgr()->EMServer()->getName(emid_));
 	    updateColumnText( uiODSceneMgr::cNameColumn() );
 	}
-    }
-    else if ( mnuid==savemnuitem_.id )
-    {
-	menu->setIsHandled(true);
-	applMgr()->EMServer()->storeObject(emid_,false);
     }
     else if ( mnuid==displayplanemnuitem_.id )
     {
