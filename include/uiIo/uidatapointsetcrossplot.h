@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.3 2008-05-29 07:38:45 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.4 2008-06-11 13:35:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,6 +78,7 @@ protected:
 	StepInterval<float>	rg_;
 
 	bool			needautoscale_;
+	float			clipratio_;
 	void			handleAutoScale();
 	void			newDevSize();
     };
