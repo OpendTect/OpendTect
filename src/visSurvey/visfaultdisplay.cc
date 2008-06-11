@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.19 2008-06-06 16:58:33 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.20 2008-06-11 14:39:27 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -509,8 +509,9 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     if ( displaytransform_ ) pos = displaytransform_->transformBack( pos ); 
 
     EM::PosID nearestpid0, nearestpid1, insertpid;
+    const float zscale = SI().zFactor()* (scene_ ? scene_->getZScale() : 1);
     faulteditor_->getInteractionInfo( nearestpid0, nearestpid1, insertpid,
-	    			      pos, SI().zFactor() );
+	    			      pos, zscale );
 
     const int neareststick = nearestpid0.isUdf()
 	? mUdf(int)
@@ -525,25 +526,26 @@ void FaultDisplay::mouseCB( CallBacker* cb )
     if ( !pos.isDefined() )
 	return;
 
-    if ( eventinfo.type==visBase::MouseClick &&
-	 OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
-	 !OD::altKeyboardButton(eventinfo.buttonstate_) &&
-	 !OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
-	 OD::leftMouseButton(eventinfo.buttonstate_) )
+    const EM::PosID pid =
+	viseditor_->mouseClickDragger( eventinfo.pickedobjids );
+    if ( !pid.isUdf() )
     {
-	if ( !eventinfo.pressed )
+	if ( eventinfo.type==visBase::MouseClick &&
+	     OD::ctrlKeyboardButton(eventinfo.buttonstate_) &&
+	     !OD::altKeyboardButton(eventinfo.buttonstate_) &&
+	     !OD::shiftKeyboardButton(eventinfo.buttonstate_) &&
+	     OD::leftMouseButton(eventinfo.buttonstate_) )
 	{
-	    const EM::PosID pid =
-		viseditor_->mouseClickDragger( eventinfo.pickedobjids );
-	    if ( !pid.isUdf() )
+	    eventcatcher_->setHandled();
+	    if ( !eventinfo.pressed )
 	    {
 		const int removestick = RowCol(pid.subID()).row;
 		const bool res =
 		   emfault_->geometry().nrKnots( pid.sectionID(),removestick)==1
 		    ? emfault_->geometry().removeStick( pid.sectionID(),
-			    			        removestick, true )
+							removestick, true )
 		    : emfault_->geometry().removeKnot( pid.sectionID(),
-			    			       pid.subID(), true );
+						       pid.subID(), true );
 
 		if ( res )
 		{
@@ -556,10 +558,9 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 		}
 	    }
 	}
-	eventcatcher_->setHandled();
+
 	return;
     }
-
 
     if ( eventinfo.type!=visBase::MouseClick || eventinfo.pressed ||
 	 OD::altKeyboardButton(eventinfo.buttonstate_) ||
