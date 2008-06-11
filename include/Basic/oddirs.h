@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: oddirs.h,v 1.10 2008-02-26 10:26:06 cvsnanne Exp $
+ RCS:		$Id: oddirs.h,v 1.11 2008-06-11 11:40:54 cvsnageswara Exp $
 ________________________________________________________________________
 
 OpendTect directories.
@@ -152,6 +152,8 @@ const char* SearchODFile(const char*);
  
   Starts with user-specific, then system, then survey data.
  */
+
+const char* GetScriptsDir(const char*);
 
 
 #ifdef __cpp__
