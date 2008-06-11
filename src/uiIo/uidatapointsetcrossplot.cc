@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.6 2008-05-29 07:38:45 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.7 2008-06-11 13:35:28 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ uiDataPointSetCrossPlotter::AxisData::AxisData( uiDataPointSetCrossPlotter& cp,
     , axis_(0)
     , defsu_(s)
     , rg_(0,1,1)
+    , clipratio_(0)
 {
     stop();
 }
@@ -97,7 +98,13 @@ void uiDataPointSetCrossPlotter::AxisData::handleAutoScale()
     if ( !axis_ || !needautoscale_ ) return;
 
     const Stats::RunCalc<float>& rc = cp_.uidps_.getRunCalc( colid_ );
-    AxisLayout al( Interval<float>(rc.min(),rc.max()) );
+    Interval<float> rg( rc.min(), rc.max() );
+    if ( !mIsZero(clipratio_,1e-5) )
+    {
+	rg.start = rc.clipVal( clipratio_, false );
+	rg.stop = rc.clipVal( clipratio_, true );
+    }
+    AxisLayout al( rg );
     rg_ = StepInterval<float>( al.sd.start, al.stop, al.sd.step );
 
     axis_->setRange( rg_ );
