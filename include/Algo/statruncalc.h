@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.12 2008-02-18 16:29:30 cvsbert Exp $
+ RCS:           $Id: statruncalc.h,v 1.13 2008-06-11 13:36:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -121,6 +121,10 @@ public:
     inline T		sqSum() const;
     inline double	rms() const;
     inline double	stdDev() const;
+
+    inline T		clipVal(float ratio,bool upper) const;
+    			//!< require median; 0 <= ratio <= 1
+
     TypeSet<T>		vals_;
 
 protected:
@@ -597,6 +601,18 @@ inline T RunCalc<T>::max( int* index_of_max ) const
     mChkEmpty(T);
 
     return maxval_;
+}
+
+
+template <class T>
+inline T RunCalc<T>::clipVal( float ratio, bool upper ) const
+{
+    mChkEmpty(T);
+    (void)median();
+    const int lastidx = vals_.size();
+    const float fidx = ratio * lastidx;
+    const int idx = fidx <= 0 ? 0 : (fidx > lastidx ? lastidx : (int)fidx);
+    return vals_[upper ? lastidx - idx : idx];
 }
 
 
