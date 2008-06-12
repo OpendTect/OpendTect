@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          January 2003
- RCS:           $Id: visrandomtrackdisplay.cc,v 1.101 2008-04-08 05:05:08 cvssatyaki Exp $
+ RCS:           $Id: visrandomtrackdisplay.cc,v 1.102 2008-06-12 12:57:57 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -78,7 +78,7 @@ RandomTrackDisplay::RandomTrackDisplay()
 
     material_->setColor( Color::White );
     material_->setAmbience( 0.8 );
-    material_->setDiffIntensity( 0.8 );
+    material_->setDiffIntensity( 0.2 );
 
     dragger_->ref();
     addChild( dragger_->getInventorNode() );
