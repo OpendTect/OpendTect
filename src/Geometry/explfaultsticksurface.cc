@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.21 2008-06-10 19:42:25 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.22 2008-06-12 03:12:35 cvskris Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -305,50 +305,28 @@ public:
 	    			  bool updatesticksnotpanels )
     : explsurf_( efss )
     , updatesticksnotpanels_( updatesticksnotpanels )
+{}
+
+
+int totalNr() const
 {
-    if ( updatesticksnotpanels_ )
-    {
-	if ( explsurf_.displaysticks_ || explsurf_.displaypanels_ )
-	{
-	    for ( int idx=0; idx<explsurf_.sticks_.size(); idx++ )
-	    {
-		if ( explsurf_.sticks_[idx]->coordindices_.isEmpty() )
-		    updatelist_ += idx;
-	    }
-	}
-    }
-    else if ( explsurf_.displaypanels_ )
-    {
-	for ( int idx=0; idx<explsurf_.paneltriangles_.size()-1; idx++ )
-	{
-	    if ( explsurf_.paneltriangles_[idx] &&
-		 !explsurf_.paneltriangles_[idx]->isEmpty() )
-		continue;
-
-	    if ( explsurf_.panellines_[idx] &&
-		 !explsurf_.panellines_[idx]->isEmpty() )
-		continue;
-
-	    updatelist_ += idx;
-	}
-    }
+    return updatesticksnotpanels_
+	? explsurf_.sticks_.size()
+	: explsurf_.paneltriangles_.size()-1;
 }
 
-
-int totalNr() const { return updatelist_.size(); }
 
 int minThreadSize() const { return 1; }
 
 
 bool doWork( int start, int stop, int )
 {
-    for ( int idx=start; idx<=stop && idx<updatelist_.size();
-	  idx++, reportNrDone() )
+    for ( int idx=start; idx<=stop; idx++, reportNrDone() )
     {
 	if ( updatesticksnotpanels_ )
-	    explsurf_.fillStick( updatelist_[idx] );
+	    explsurf_.fillStick( idx );
 	else
-	    explsurf_.fillPanel( updatelist_[idx] );
+	    explsurf_.fillPanel( idx );
     }
     return true;
 }
@@ -357,7 +335,6 @@ protected:
 
     ExplFaultStickSurface&	explsurf_;
     bool			updatesticksnotpanels_;
-    TypeSet<int>		updatelist_;
 };
 
 
@@ -743,34 +720,34 @@ bool ExplFaultStickSurface::updateTextureSize()
     texturerowcoords_ += po2colsz-1;
 
     deepErase( textureknotcoords_ );
+    const float rowfactor = (float)po2rowsz/texturerowsz;
     for ( int idx=0; idx<sticksegments.size(); idx++ )
     {
-    	TypeSet<int>& segmentsizes = *new TypeSet<int>;
-    	textureknotcoords_ += &segmentsizes;
+    	TypeSet<int>& segmentpositions = *new TypeSet<int>;
+    	textureknotcoords_ += &segmentpositions;
 
 	if ( (*sticksegments[idx]).size()==1 && (*sticksegments[idx])[0]==1 )
 	{
-	    segmentsizes += po2rowsz/2;
+	    segmentpositions += po2rowsz/2;
 	    continue; 
 	}
 
-	sum = 0;
+	float sticklength = 0;
 	for ( int idy=0; idy<(*sticksegments[idx]).size(); idy++ )
-	    sum += (*sticksegments[idx])[idy];
+	    sticklength += (*sticksegments[idx])[idy];
 
-	const float rowfactor = (float)po2rowsz/sum;
-	const float st0 = (float)po2rowsz*(texturerowsz-sum)/(2*texturerowsz);
+	const float st0 = (po2rowsz-sticklength)/2;
 	const int start = mNINT( st0 );
-	segmentsizes += start;
+	segmentpositions += start;
 
-	sum = 0;
+	int pos = 0;
 	for ( int idy=0; idy<(*sticksegments[idx]).size()-1; idy++ )
 	{
-	    sum += (*sticksegments[idx])[idy];
-	    segmentsizes += mNINT( rowfactor*sum )+start;
+	    pos += (*sticksegments[idx])[idy];
+	    segmentpositions += mNINT( rowfactor*pos )+start;
 	}
 
-	segmentsizes += po2rowsz-1-start;
+	segmentpositions += po2rowsz-1-start;
     }
    
     deepErase( sticksegments );
@@ -863,9 +840,10 @@ void ExplFaultStickSurface::fillStick( int stickidx )
     if ( !surface_ || !coordlist_ || !sticks_.validIdx(stickidx) )
 	return;
 
+    emptyStick( stickidx );
+
     TypeSet<int>& knots = sticks_[stickidx]->coordindices_;
-    if ( !knots.isEmpty() )
-	return;
+    TypeSet<int>& normals = sticks_[stickidx]->normalindices_;
 
     const int sticknr = surface_->rowRange().atIndex( stickidx );
     const StepInterval<int> colrg = surface_->colRange( sticknr );
@@ -874,6 +852,7 @@ void ExplFaultStickSurface::fillStick( int stickidx )
     {
 	const Coord3 pos = surface_->getKnot( RowCol(sticknr,knotnr) );
 	knots += coordlist_->add( pos );
+	normals += normallist_->add( Coord3(0,0,0) );
     }
 
     sticks_[stickidx]->ischanged_ = true;
@@ -898,7 +877,7 @@ void ExplFaultStickSurface::insertStick( int stickidx )
 
     sticks_.insertAt(
 	new IndexedGeometry(IndexedGeometry::Lines,
-	    IndexedGeometry::PerFace,coordlist_,0,0),
+	    IndexedGeometry::PerFace,coordlist_,normallist_,0),
 	stickidx);
 
     if ( displaysticks_ ) addToGeometries( sticks_[stickidx] );
@@ -933,17 +912,23 @@ void ExplFaultStickSurface::emptyPanel( int panelidx )
     mSqDistArr( il, ir ) = mUdf(float); \
 }
 
-#define mAddTriangle( a, b, c ) \
+#define mAddTriangle( a, b, c, na, nb, nc )				\
 {									\
     triangles->coordindices_ += (a);					\
     triangles->coordindices_ += (b);					\
     triangles->coordindices_ += (c);					\
     triangles->coordindices_ += -1;					\
+    triangles->normalindices_ += (na);					\
+    triangles->normalindices_ += (nb);					\
+    triangles->normalindices_ += (nc);					\
+    triangles->normalindices_ += -1;           				\
     Coord3 vec1 = coordlist_->get( a );					\
     const Coord3 vec2 = coordlist_->get( b )-vec1;			\
     vec1 = coordlist_->get( c ) - vec1;					\
     const Coord3 normal = vec1.cross( vec2 );				\
-    triangles->normalindices_ += normallist_->add( normal );		\
+    normallist_->set( na, normallist_->get(na)+normal );		\
+    normallist_->set( nb, normallist_->get(nb)+normal );		\
+    normallist_->set( nc, normallist_->get(nc)+normal );		\
 }
 
 void ExplFaultStickSurface::setRightHandedNormals( bool yn )
@@ -985,6 +970,8 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
     
     const TypeSet<int>& lknots = sticks_[panelidx]->coordindices_;
     const TypeSet<int>& rknots = sticks_[panelidx+1]->coordindices_;
+    const TypeSet<int>& lnormals = sticks_[panelidx]->normalindices_;
+    const TypeSet<int>& rnormals = sticks_[panelidx+1]->normalindices_;
 
     const int lsize = lknots.size(); 
     const int rsize = rknots.size();
@@ -997,7 +984,7 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 	if ( !lines )
 	{
 	    lines = new IndexedGeometry( IndexedGeometry::Lines,
-		    IndexedGeometry::PerFace, 0, normallist_,texturecoordlist_);
+		    IndexedGeometry::PerFace, 0, 0, texturecoordlist_);
 	    panellines_.replace( panelidx, lines );
 	    if ( displaypanels_ ) addToGeometries( lines );
 	}
@@ -1011,8 +998,8 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
     if ( !triangles )
     {
 	triangles = new IndexedGeometry( IndexedGeometry::TriangleStrip,
-					 IndexedGeometry::PerFace,
-					 0, normallist_, texturecoordlist_ );
+					 IndexedGeometry::PerVertex,
+					 0, 0, texturecoordlist_ );
 	paneltriangles_.replace( panelidx, triangles );
 	if ( displaypanels_ ) addToGeometries( triangles );
     }
@@ -1089,10 +1076,12 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 	sort_array( conns.arr(), conns.size() );
 
 	if ( lidx )
-	    mAddTriangle( lknots[lidx], rknots[conns[0]], lknots[lidx-1] );
+	    mAddTriangle( lknots[lidx], rknots[conns[0]], lknots[lidx-1],
+		          lnormals[lidx], rnormals[conns[0]], lnormals[lidx-1]);
 
 	for ( int idx=1; idx<conns.size(); idx++ )
-	    mAddTriangle(lknots[lidx],rknots[conns[idx]],rknots[conns[idx-1]]);
+	    mAddTriangle(lknots[lidx],rknots[conns[idx]],rknots[conns[idx-1]],
+		    lnormals[lidx],rnormals[conns[idx]],rnormals[conns[idx-1]]);
     }
 }
 
