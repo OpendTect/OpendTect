@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.38 2008-03-24 15:54:29 cvsyuancheng Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.39 2008-06-12 14:59:16 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@
 #include "viscoord.h"
 #include "visdataman.h"
 #include "vismultitexture2.h"
+#include "vismaterial.h"
 #include "vistext.h"
 #include "vistexturecoords.h"
 #include "vistransform.h"
@@ -72,6 +73,10 @@ Seis2DDisplay::Seis2DDisplay()
     linename_ = visBase::Text2::create();
     linename_->ref();
     addChild( linename_->getInventorNode() );
+
+    getMaterial()->setColor( Color::White );
+    getMaterial()->setAmbience( 0.8 );
+    getMaterial()->setDiffIntensity( 0.2 );
 }
 
 
