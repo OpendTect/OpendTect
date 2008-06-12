@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.10 2008-05-27 22:53:41 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.11 2008-06-12 13:47:29 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,6 @@ public:
     static PreStackViewer*	create()
 				mCreateDataObj( PreStackViewer );
     void			allowShading(bool yn);
-    void			setColor(Color);			
     void			setMultiID(const MultiID& mid);
     bool			isInlCrl() const 	{ return true; }
    

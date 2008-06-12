@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.19 2008-05-27 22:53:41 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.20 2008-06-12 13:47:29 cvskris Exp $
 _______________________________________________________________________________
 
  -*/
@@ -95,6 +95,9 @@ PreStackViewer::PreStackViewer()
     flatviewer_->setSelectable( false );
     flatviewer_->removeSwitch();
     flatviewer_->appearance().setGeoDefaults( true );
+    flatviewer_->getMaterial()->setDiffIntensity( 0.2 );
+    flatviewer_->getMaterial()->setAmbience( 0.8 );
+    flatviewer_->appearance().ddpars_.vd_.symmidval_ = 0;
 
     flatviewer_->dataChange.notify( mCB( this,PreStackViewer,dataChangedCB ) );
     addChild( flatviewer_->getInventorNode() );
@@ -138,10 +141,6 @@ PreStackViewer::~PreStackViewer()
 
 void PreStackViewer::allowShading( bool yn )
 { flatviewer_->allowShading( yn ); }
-
-
-void PreStackViewer::setColor( Color nc )
-{ getMaterial()->setColor(nc); }
 
 
 void  PreStackViewer::setMultiID( const MultiID& mid )
