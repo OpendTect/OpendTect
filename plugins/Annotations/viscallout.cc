@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Jan 2005
- RCS:           $Id: viscallout.cc,v 1.21 2007-10-12 19:14:34 cvskris Exp $
+ RCS:           $Id: viscallout.cc,v 1.22 2008-06-12 08:14:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -658,6 +658,13 @@ CalloutDisplay::~CalloutDisplay()
 }
 
 
+void CalloutDisplay::setDisplayTransformation( mVisTrans* tr )
+{
+    visSurvey::LocationDisplay::setDisplayTransformation( tr );
+    fullRedraw();
+}
+
+
 void CalloutDisplay::setScale( float ns )
 {
     scale_ = ns*10;
@@ -685,6 +692,8 @@ void CalloutDisplay::setScene( visSurvey::Scene* scene )
 
     if ( scene_ )
 	scene_->zscalechange.notify( mCB(this,CalloutDisplay,zScaleChangeCB) );
+
+    zScaleChangeCB( 0 );
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2005
- RCS:		$Id: viscallout.h,v 1.9 2007-10-12 19:14:34 cvskris Exp $
+ RCS:		$Id: viscallout.h,v 1.10 2008-06-12 08:14:51 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -45,6 +45,8 @@ public:
 
     void			setBoxColor(const Color&);
     const Color&		getBoxColor() const;
+
+    void			setDisplayTransformation(mVisTrans*);
 
     static const char*		sKeyText() 		{ return "T"; }
     static const char*		sKeyURL() 		{ return "U"; }

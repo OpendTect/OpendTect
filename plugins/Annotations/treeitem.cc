@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.33 2008-05-05 05:42:18 cvsnageswara Exp $
+ RCS:           $Id: treeitem.cc,v 1.34 2008-06-12 08:14:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -581,12 +581,13 @@ bool TextSubItem::init()
 	visserv_->addObject( cd, sceneID(), true );
 	displayid_ = cd->id();
 	cd->setName( name_ );
-	defscale_ = set_->disp_.pixsize_;
-	cd->setScale( defscale_ );
     }
 
     mDynamicCastGet(CalloutDisplay*,cd,visserv_->getObject(displayid_))
     if ( !cd ) return false;
+
+    defscale_ = set_->disp_.pixsize_;
+    cd->setScale( defscale_ );
 
     //Read Old format orientation
     const Coord3 inldirvec( SI().binID2Coord().colDir(), 0 );
@@ -829,6 +830,8 @@ bool ArrowSubItem::init()
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
     const int setidx = mgr.indexOf( *set_ );
     PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
+    if ( !ioobj ) return false;
+
     if ( ioobj->pars().get(sKeyArrowType(),arrowtype_) )
 	ad->setType( (ArrowDisplay::Type)arrowtype_ );
 
