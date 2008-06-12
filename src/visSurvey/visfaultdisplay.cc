@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.21 2008-06-11 17:27:59 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.22 2008-06-12 03:17:13 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -78,7 +78,8 @@ FaultDisplay::FaultDisplay()
 	neareststickmarker_->setMaterial( visBase::Material::create() );
     neareststickmarker_->insertNode(
 	    neareststickmarkerpickstyle_->getInventorNode() );
-    addChild( neareststickmarker_->getInventorNode() );
+    insertChild( childIndex(texture_->getInventorNode() ),
+		 neareststickmarker_->getInventorNode() );
 
     getMaterial()->setAmbience( 0.2 );
     shapehints_->ref();
@@ -199,7 +200,8 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	intersectiondisplay_->setMaterial( 0 );
 	intersectiondisplay_->setSelectable( false );
 	intersectiondisplay_->setRightHandSystem( righthandsystem_ );
-	addChild( intersectiondisplay_->getInventorNode() );
+	insertChild( childIndex(texture_->getInventorNode() ),
+		     intersectiondisplay_->getInventorNode() );
 	intersectiondisplay_->turnOn( false );
     }
 
@@ -262,7 +264,8 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 	viseditor_->ref();
 	viseditor_->setSceneEventCatcher( eventcatcher_ );
 	viseditor_->setDisplayTransformation( displaytransform_ );
-	addChild( viseditor_->getInventorNode() );
+	insertChild( childIndex(texture_->getInventorNode() ),
+		viseditor_->getInventorNode() );
     }
 
     RefMan<MPE::ObjectEditor> editor = MPE::engine().getEditor( emid, true );
