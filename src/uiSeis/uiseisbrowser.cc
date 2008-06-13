@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.26 2008-06-03 14:13:05 cvsbert Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.27 2008-06-13 11:16:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -650,7 +650,7 @@ void uiSeisBrowser::showWigglePush( CallBacker* )
 	    return;
 	}
 	dp->trcBufArr2D().setBufMine( false );
-	strcbufview_->getViewer()->usePack( true, dp->id() );
+	strcbufview_->getViewer()->usePack( true, dp->id(), false );
 	strcbufview_->start();
 	strcbufview_->handleBufChange();
 	strcbufview_->windowClosed.notify(
@@ -707,11 +707,12 @@ uiSeisBrowserInfoDlg::uiSeisBrowserInfoDlg( uiParent* p, const SeisTrc& trc,
 	    	.modal(false) )
     , is2d_(is2d)  
 {
+    setCtrlStyle( LeaveOnly );
     uiGroup* valgrp = new uiGroup( this, "Values group" );
 
     PositionInpSpec coordinpspec( PositionInpSpec::Setup(true,is2d_,false) ); 
     coordfld_ = new uiGenInput( valgrp, "Coordinate",
-	   			 coordinpspec.setName("X", 0).setName("Y", 0) );
+	   			coordinpspec.setName("X",0).setName("Y",0) );
     coordfld_->setReadOnly();
 
     BufferString label( is2d_ ? "Trace Number" : "BinID" );
@@ -720,7 +721,8 @@ uiSeisBrowserInfoDlg::uiSeisBrowserInfoDlg( uiParent* p, const SeisTrc& trc,
     trcnrbinidfld_->attach( alignedBelow, coordfld_ );
     trcnrbinidfld_->setReadOnly();
 
-    zrangefld_ = new uiGenInput( valgrp, "Z-Range", FloatInpIntervalSpec(true));
+    const BufferString lbl( "Z-Range ", SI().getZUnit() );
+    zrangefld_ = new uiGenInput( valgrp, lbl, FloatInpIntervalSpec(true) );
     zrangefld_->attach( alignedBelow, trcnrbinidfld_ );
     zrangefld_->setReadOnly();
 
@@ -735,13 +737,14 @@ uiSeisBrowserInfoDlg::uiSeisBrowserInfoDlg( uiParent* p, const SeisTrc& trc,
 void uiSeisBrowserInfoDlg::setTrace( const SeisTrc& trc )
 {
     coordfld_->setValue( trc.info().coord );
+    if ( is2d_ )
+	trcnrbinidfld_->setValue( trc.info().binid.crl );
+    else
+	trcnrbinidfld_->setValue( trc.info().binid );
 
-    is2d_ ? trcnrbinidfld_->setValue( trc.info().binid.crl ) : 
-	    trcnrbinidfld_->setValue( trc.info().binid );
-    
-    StepInterval<float> intv( trc.info().sampling.start, trc.info().sampling.
-	    		      start + trc.info().sampling.step * (trc.size()-1),
+    StepInterval<float> intv( trc.startPos(), trc.samplePos(trc.size()-1),
 			      trc.info().sampling.step );
+    intv.scale( SI().zFactor() );
     zrangefld_->setValue( intv );
     samplefld_->setValue( trc.size() );
 }
