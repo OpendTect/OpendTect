@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.6 2008-04-21 19:47:08 cvsyuancheng Exp $
+ RCS:           $Id: delaunay.h,v 1.7 2008-06-13 16:47:43 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -91,15 +91,24 @@ protected:
 };
 
 
-/*!For the triangulation, it will skip undefined or duplicated pointsi, all the 
-   points should be in random order. We use pessimistic method to triangulate.*/
+/*!For the triangulation, it will skip undefined or duplicated points, all the 
+   points should be in random order. We use Optimistic method to triangulate.*/
 class DAGTriangleTree
 {
 public:
-    			DAGTriangleTree(const TypeSet<Coord>&);
-    virtual		~DAGTriangleTree()	{}	
+    			DAGTriangleTree();
+    virtual		~DAGTriangleTree();
 
-    bool		insertPoint(int pointidx);
+    bool		setCoordList(TypeSet<Coord>&,bool copy);
+    const TypeSet<Coord>& coordList() const { return *coordlist_; }
+
+    bool		setBBox(const Interval<double>& xrg,
+	    			const Interval<double>& yrg);
+
+    bool		init();
+
+    bool		insertPoint(int pointidx, unsigned char lockid);
+    bool		insertPoint(const Coord&, unsigned char lockid);
     bool		getCoordIndices(TypeSet<int>&) const;
     			/*!<Coord indices are sorted in threes, i.e
 			    ci[0], ci[1], ci[2] is the first triangle
@@ -107,31 +116,44 @@ public:
     void		setEpsilon(double err)	{ epsilon_ = err; }
 
 protected:
+    static char		cIsOnEdge() 	{ return 0; }
+    static char		cNotOnEdge() 	{ return 1; }
+    static char		cIsInside()	{ return 2; }
+    static char		cIsDuplicate()	{ return 3; }
+    static char		cIsOutside()	{ return 4; }
+    static char		cError()	{ return -1; }
 
-    char		searchTriangle(int ci,int start, int& t0,int& t1) const;
-    			/*!<return t0, t1 as the index of two triangles which
-			    share on one edge of ci. if ci is in only one 
-			    triangle, then t1=-1. */
-    char		searchFurther( int ci,int ti0,int ti1,
-				       int& nti0, int& nti1 ) const; 
-    bool		searchTriangleOnEdge(int ci,int ti,int& resti) const;
+    static int		cNoTriangle()	{ return -1; }
+    static int		cNoVertex()	{ return -1; }
+    static int		cInitVertex0()	{ return -2; }
+    static int		cInitVertex1()	{ return -3; }
+    static int		cInitVertex2()	{ return -4; }
+
+    char		searchTriangle(int ci,int start, int& t0,int& t1,
+	    			       unsigned char threadid);
+    char		searchFurther( int ci,int ti0,int ti1,int& nti0,
+	    			       int& nti1,unsigned char threadid); 
+    bool		searchTriangleOnEdge(int ci,int ti,int& resti,
+	    				     unsigned char threadid);
    			/*!<assume ci is on the edge of ti.*/
 
-    void		splitTriangleInside(int ci,int ti);
+    void		splitTriangleInside(int ci,int ti,unsigned char lockid);
     			/*!ci is assumed to be inside the triangle ti. */
-    void		splitTriangleOnEdge(int ci,int ti0,int ti1);
+    void		splitTriangleOnEdge(int ci,int ti0,int ti1,
+	    				    unsigned char lockid);
     			/*!ci is on the shared edge of triangles ti0, ti1. */
     void		legalizeTriangles(TypeSet<char>& v0s,TypeSet<char>& v1s,
-					  TypeSet<int>& tis);
+				TypeSet<int>& tis,unsigned char lockid);
     			/*!Check neighbor triangle of the edge v0-v1 in ti, 
 			   where v0, v1 are local vetex indices 0, 1, 2. */
-    
-    void		setNeighbors(const int& vetexid, const int& crd,
-				     const int& ti,int& nb0,int& nb1);
-    int			searchChild(int v0,int v1,int ti) const;
-    char		isInside(int ci,int ti) const;
-    			/*!<\assume ci is not a vertex of ti;
-			     return -1 outside; 0 on one edge; 1 inside; */
+
+    const int		getNeighbor(const int v0,const int v1,const int ti,
+	    			    unsigned char lockid); 
+    int			searchChild(int v0,int v1,int ti,unsigned char lockid);
+    char		isOnEdge(const Coord& p,const Coord& a,
+	    			 const Coord& b) const;
+    char		isInside(int ci,int ti);
+
     struct DAGTriangle
     {
 			DAGTriangle();
@@ -140,39 +162,64 @@ protected:
 	int		coordindices_[3];
 	int		childindices_[3];
 	int		neighbors_[3];
+
+	bool		readLock(Threads::ConditionVar&,unsigned char lockid);
+	void		readUnLock(Threads::ConditionVar&);
+	bool		writeLock(Threads::ConditionVar&, unsigned char lockid);
+	void		writeUnLock(Threads::ConditionVar&);
+
+     protected:	
+	char		lockcounts_; /*<writelock -1, otherwise, nrlocks. */
     };
 
-    Threads::ReadWriteLock	rwlock_; 
     double			epsilon_;
     TypeSet<DAGTriangle>	triangles_;
-    const TypeSet<Coord>*	coordlist_;
+
+    TypeSet<Coord>*		coordlist_;
+    bool			ownscoordlist_;
+    Threads::ConditionVar	condvar_;
+    Threads::ReadWriteLock	coordlock_;
+
     Coord			initialcoords_[3]; 
     				/*!<-2,-3,-4 are their indices.*/
 };
 
-
-class ParallelDelaunayTriangulator : public ParallelTask
+/*!<The parallel DTriangulation works for only one processor now.*/
+class ParallelDTriangulator : public ParallelTask
 {
 public:
-			ParallelDelaunayTriangulator(const TypeSet<Coord>&);
+			ParallelDTriangulator(DAGTriangleTree&);
 	
-    bool		getCoordIndices(TypeSet<int>&) const;
     bool		isDataRandom()		{ return israndom_; }
     void		dataIsRandom(bool yn)	{ israndom_ = yn; }
 
 protected:
 
-    int			totalNr() const 	{ return nrcoords_; }
+    int			totalNr() const		{ return tree_.coordList().size(); }
     bool		doWork( int, int, int );
     bool		doPrepare(int);
 
-    DAGTriangleTree	dagtritree_;
     TypeSet<int>	permutation_;
-    int			nrcoords_;
     bool		israndom_;
+    DAGTriangleTree&	tree_;
 };
 
 
+class SequentialDTriangulator : public SequentialTask
+{
+public:
+			SequentialDTriangulator(DAGTriangleTree&);
+	
+    int			totalNr() const 	{ return tree_.coordList().size(); }
+    int			nrDone() const		{ return insertptidx_; }
+
+protected:
+
+    int			nextStep();
+
+    int			insertptidx_;
+    DAGTriangleTree&	tree_;
+};
 
 #endif
 
