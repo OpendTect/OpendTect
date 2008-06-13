@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Y.C.Liu & K. Tingdahl
  Date:		January 2008
- RCS:		$Id: gridder2d.h,v 1.1 2008-03-24 20:15:38 cvskris Exp $
+ RCS:		$Id: gridder2d.h,v 1.2 2008-06-13 20:42:08 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 
 template<class T> class Interval;
 class IOPar;
+class DAGTriangleTree;
 
 /*! Generic interface for 2D gridding. */
 
@@ -120,6 +121,9 @@ protected:
 class TriangulatedGridder2D : public Gridder2D
 {
 public:
+    			TriangulatedGridder2D();
+			~TriangulatedGridder2D();
+
     static Gridder2D*	create(); 
     static void		initClass();
     const char*		name() const		{ return sName(); }
@@ -128,6 +132,8 @@ public:
     Gridder2D*		clone() const;
     
     bool		init();
+protected:
+    DAGTriangleTree*	triangles_;
 };
 
 

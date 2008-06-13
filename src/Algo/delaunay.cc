@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.7 2008-06-13 16:47:43 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.8 2008-06-13 20:42:08 cvskris Exp $";
 
 #include "delaunay.h"
 
@@ -580,8 +580,14 @@ ParallelDTriangulator::ParallelDTriangulator( DAGTriangleTree& dagt )
 {}
 
 
-bool ParallelDTriangulator::doPrepare( int )
+bool ParallelDTriangulator::doPrepare( int nrthreads )
 {
+    if ( nrthreads!=1 )
+    {
+	pErrMsg( "Not debugged yet." );
+	return false;
+    }
+
     const int nrcoords = totalNr();
     if ( israndom_ )
 	permutation_.erase();
@@ -605,30 +611,12 @@ bool ParallelDTriangulator::doWork( int start, int stop, int threadid )
     for ( int idx=start; idx<=stop && shouldContinue(); idx++, reportNrDone(1) )
     {
 	const int insertptid = permutation_.size() ? permutation_[idx] : idx;
-       	if ( !tree_.insertPoint( insertptid, threadid ) )
+	int dupid;
+       	if ( !tree_.insertPoint( insertptid, dupid, threadid ) )
 	    return false;
     }
 
     return true;
-}
-
-
-SequentialDTriangulator::SequentialDTriangulator( DAGTriangleTree& dagt )
-    : tree_( dagt )
-    , insertptidx_( 0 )	  
-{}
-
-
-int SequentialDTriangulator::nextStep()
-{
-    if ( insertptidx_>=totalNr() )
-	return cFinished();
-
-    if ( !tree_.insertPoint( insertptidx_, 0 ) )
-	return cErrorOccurred();
-    
-    insertptidx_++;
-    return cMoreToDo();
 }
 
 
@@ -639,13 +627,44 @@ DAGTriangleTree::DAGTriangleTree()
 {}
 
 
+DAGTriangleTree::DAGTriangleTree( const DAGTriangleTree& b )
+    : coordlist_( 0 )
+    , epsilon_( 1e-5 )
+    , ownscoordlist_( true )
+{
+    *this = b;
+}
+
+
+DAGTriangleTree& DAGTriangleTree::operator=( const DAGTriangleTree& b )
+{
+    epsilon_ = b.epsilon_;
+    if ( ownscoordlist_ )
+	delete coordlist_;
+
+    if ( b.ownscoordlist_ )
+	coordlist_ = b.coordlist_ ? new TypeSet<Coord>( *b.coordlist_ ) : 0;
+    else
+	coordlist_ = b.coordlist_;
+
+    ownscoordlist_ = b.ownscoordlist_;
+
+    triangles_ = b.triangles_;
+
+    initialcoords_[0] = b.initialcoords_[0];
+    initialcoords_[1] = b.initialcoords_[1];
+    initialcoords_[2] = b.initialcoords_[2];
+    return *this;
+}
+
+
 DAGTriangleTree::~DAGTriangleTree()
 {
     if ( ownscoordlist_ && coordlist_ )
 	coordlist_->erase();
 }
 
-bool DAGTriangleTree::setCoordList( TypeSet<Coord>& coordlist, bool copy )
+bool DAGTriangleTree::setCoordList( const TypeSet<Coord>& coordlist, bool copy )
 {
     coordlock_.writeLock();
     if ( coordlist_ && ownscoordlist_ )
@@ -678,7 +697,7 @@ bool DAGTriangleTree::setCoordList( TypeSet<Coord>& coordlist, bool copy )
     }
     else
     {
-	coordlist_ = &coordlist;
+	coordlist_ = const_cast<TypeSet<Coord>* >( &coordlist );
 	ownscoordlist_ = false;
     }
 
@@ -729,32 +748,34 @@ bool DAGTriangleTree::init()
 }
 
 
-bool DAGTriangleTree::insertPoint( const Coord& coord, unsigned char threadid )
+int DAGTriangleTree::insertPoint( const Coord& coord, int& dupid, 
+				   unsigned char threadid )
 {
     if ( !ownscoordlist_ )
-	return false;
+	return cNoVertex();
 
     coordlock_.writeLock();
     const int ci = coordlist_->size();
     (*coordlist_) += coord;
     coordlock_.writeUnLock();
 
-    if ( !insertPoint( ci, threadid ) )
+    if ( !insertPoint( ci, dupid, threadid ) )
     {
 	coordlock_.writeLock();
 	if ( coordlist_->size()==ci+1 )
 	    coordlist_->remove( ci );
 	coordlock_.writeUnLock();
 
-	return false;
+	return cNoVertex();
     }
 
-    return true;
+    return ci;
 }
 
 
-bool DAGTriangleTree::insertPoint( int ci, unsigned char lockerid )
+bool DAGTriangleTree::insertPoint( int ci, int& dupid, unsigned char lockerid )
 {
+    dupid = cNoVertex();
     coordlock_.readLock();
     if ( mIsUdf((*coordlist_)[ci].x) || mIsUdf((*coordlist_)[ci].y) ) 
     {
@@ -769,7 +790,7 @@ bool DAGTriangleTree::insertPoint( int ci, unsigned char lockerid )
     coordlock_.readUnLock();
 
     int ti0, ti1;
-    const char res = searchTriangle( ci, 0, ti0, ti1, lockerid );
+    const char res = searchTriangle( ci, 0, ti0, ti1, dupid, lockerid );
     
     if ( res==cIsInside() || res==cIsOnEdge() )
     {
@@ -778,7 +799,8 @@ bool DAGTriangleTree::insertPoint( int ci, unsigned char lockerid )
 	bool writelocked1 = ti1==-1 ? false :
 	    triangles_[ti1].writeLock( condvar_, lockerid );	
 
-	const char nres = searchFurther( ci, ti0, ti1, nti0, nti1, lockerid );
+	const char nres = searchFurther( ci, ti0, ti1, nti0, nti1, dupid,
+					 lockerid );
 
 	if ( nres==cIsInside() || nres==cIsOnEdge() )
 	{
@@ -834,14 +856,15 @@ bool DAGTriangleTree::insertPoint( int ci, unsigned char lockerid )
 
 
 char DAGTriangleTree::searchFurther( int ci, int ti0, int ti1, int& nti0, 
-				     int& nti1, unsigned char lockid ) 
+				     int& nti1, int& dupid,
+				     unsigned char lockid ) 
 {
     if ( ti1==-1 )
-	return searchTriangle( ci, ti0, nti0, nti1, lockid );
+	return searchTriangle( ci, ti0, nti0, nti1, dupid, lockid );
 
     nti0 = ti0;
     nti1 = -1;
-    if ( searchTriangleOnEdge( ci, ti0, nti0, lockid ) )
+    if ( searchTriangleOnEdge( ci, ti0, nti0, dupid, lockid ) )
     {
 	const bool didlock = triangles_[nti0].readLock( condvar_, lockid );
 	const int* crd = triangles_[nti0].coordindices_;
@@ -863,13 +886,13 @@ char DAGTriangleTree::searchFurther( int ci, int ti0, int ti1, int& nti0,
     }
     else
     {
-	return searchTriangle( ci, nti0, nti0, nti1, lockid );
+	return searchTriangle( ci, nti0, nti0, nti1, dupid, lockid );
     }
 }
 
 
 char DAGTriangleTree::searchTriangle( int ci, int startti, int& ti0, int& ti1,
-				      unsigned char lockid )
+				      int& dupid, unsigned char lockid )
 {
     if ( startti<0 )
 	startti = 0;
@@ -885,7 +908,7 @@ char DAGTriangleTree::searchTriangle( int ci, int startti, int& ti0, int& ti1,
 	const int curchild = children[childidx];
 	if ( curchild==cNoTriangle() ) continue;
 
-	const char mode = isInside( ci, curchild );
+	const char mode = isInside( ci, curchild, dupid  );
 	if ( mode==cIsOutside() ) 
 	    continue;
 
@@ -904,7 +927,7 @@ char DAGTriangleTree::searchTriangle( int ci, int startti, int& ti0, int& ti1,
 	}
 	else if ( mode==cIsOnEdge() )
 	{
-	    if ( !searchTriangleOnEdge( ci, curchild, ti0, lockid ) )
+	    if ( !searchTriangleOnEdge( ci, curchild, ti0, dupid, lockid ) )
 	    {
 		if ( didlock ) triangles_[curchild].readUnLock( condvar_ );
 		if ( ti0==cNoTriangle() ) return cError();
@@ -953,7 +976,7 @@ char DAGTriangleTree::searchTriangle( int ci, int startti, int& ti0, int& ti1,
 
 
 bool DAGTriangleTree::searchTriangleOnEdge( int ci, int ti, int& resti,
-       					    unsigned char lockid ) 
+					    int& dupid, unsigned char lockid ) 
 {
     bool didlock = triangles_[ti].readLock( condvar_, lockid );
     const int* child = triangles_[ti].childindices_;
@@ -969,12 +992,12 @@ bool DAGTriangleTree::searchTriangleOnEdge( int ci, int ti, int& resti,
     for ( int idx=0; idx<3; idx++ )
     {
     	const char inchild = child[idx]!=cNoTriangle()
-	    ? isInside(ci,child[idx])
+	    ? isInside(ci,child[idx],dupid)
 	    : cNoTriangle();
     	if ( inchild==cIsOnEdge() )
 	{
 	    if ( didlock ) triangles_[ti].readUnLock( condvar_ );
-	    return searchTriangleOnEdge( ci, child[idx], resti, lockid );
+	    return searchTriangleOnEdge( ci, child[idx], resti, dupid, lockid );
 	}
 	else if ( inchild==cIsInside() )
 	{
@@ -994,7 +1017,7 @@ bool DAGTriangleTree::searchTriangleOnEdge( int ci, int ti, int& resti,
 
 
 char DAGTriangleTree::isOnEdge( const Coord& p, const Coord& a, 
-				const Coord& b ) const
+				const Coord& b, bool& duponfirst ) const
 {
     const Coord3 pa(a-p,0);
     const Coord3 ba(b-a,0);
@@ -1002,15 +1025,23 @@ char DAGTriangleTree::isOnEdge( const Coord& p, const Coord& a,
     if ( t<0 || t>1 )
 	return cNotOnEdge();
 
-    if ( mIsZero( t, 1e-4 ) || mIsEqual( t, 1.0, 1e-4 ) )
+    if ( mIsZero( t, 1e-4 ) )
+    {
+	duponfirst = true;
 	return cIsDuplicate();
+    }
+    else if ( mIsEqual( t, 1.0, 1e-4 ) )
+    {
+	duponfirst = false;
+	return cIsDuplicate();
+    }
 
     const double disttoline = pa.cross(ba).abs() / ba.abs();
     return disttoline<epsilon_ ? cIsOnEdge() : cNotOnEdge();
 }
 
 
-char DAGTriangleTree::isInside( int ci, int ti ) 
+char DAGTriangleTree::isInside( int ci, int ti, int& dupid ) const
 {
     if ( ti==cNoTriangle() )
 	return cIsOutside();
@@ -1024,25 +1055,31 @@ char DAGTriangleTree::isInside( int ci, int ti )
     if ( pointInTriangle2D( coord, tricoord0, tricoord1, tricoord2, 0 ) )
 	return cIsInside();
 
-    char res = isOnEdge( coord, tricoord0, tricoord1 );
+    bool duponfirst;
+    char res = isOnEdge( coord, tricoord0, tricoord1, duponfirst );
     if ( res!=cNotOnEdge() )
     {
+	if ( res==cIsDuplicate() ) dupid = duponfirst ? crds[0] : crds[1];
 	coordlock_.readUnLock();
 	return res;
     }
 
-    res = isOnEdge( coord, tricoord1, tricoord2 );
+    res = isOnEdge( coord, tricoord1, tricoord2, duponfirst );
     if ( res!=cNotOnEdge() )
     {
+	if ( res==cIsDuplicate() ) dupid = duponfirst ? crds[1] : crds[2];
 	coordlock_.readUnLock();
 	return res;
     }
 
-    res = isOnEdge( coord, tricoord2, tricoord0 );
+    res = isOnEdge( coord, tricoord2, tricoord0, duponfirst );
     coordlock_.readUnLock();
 
     if ( res!=cNotOnEdge() )
+    {
+	if ( res==cIsDuplicate() ) dupid = duponfirst ? crds[2] : crds[0];
 	return res;
+    }
 
     return cIsOutside();
 }
@@ -1541,4 +1578,15 @@ bool DAGTriangleTree::DAGTriangle::operator==(
 }
 
 
+DAGTriangleTree::DAGTriangle&
+DAGTriangleTree::DAGTriangle::operator=( const DAGTriangleTree::DAGTriangle& b )
+{
+    for ( int idx=0; idx<3; idx++ )
+    {
+	coordindices_[idx] = b.coordindices_[idx];
+	childindices_[idx] = b.childindices_[idx];
+	neighbors_[idx] = b.neighbors_[idx];
+    }
 
+    return *this;
+}

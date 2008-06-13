@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.7 2008-06-13 16:47:43 cvsyuancheng Exp $
+ RCS:           $Id: delaunay.h,v 1.8 2008-06-13 20:42:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,24 +97,31 @@ class DAGTriangleTree
 {
 public:
     			DAGTriangleTree();
+    			DAGTriangleTree(const DAGTriangleTree&);
     virtual		~DAGTriangleTree();
+    DAGTriangleTree&	operator=(const DAGTriangleTree&);
 
-    bool		setCoordList(TypeSet<Coord>&,bool copy);
+    bool		setCoordList(const TypeSet<Coord>&,bool copy);
     const TypeSet<Coord>& coordList() const { return *coordlist_; }
 
     bool		setBBox(const Interval<double>& xrg,
 	    			const Interval<double>& yrg);
 
+    bool		isOK() const { return triangles_.size(); }
+
     bool		init();
 
-    bool		insertPoint(int pointidx, unsigned char lockid);
-    bool		insertPoint(const Coord&, unsigned char lockid);
+    bool		insertPoint(int pointidx, int& dupid,
+	    			    unsigned char lockid=0);
+    int			insertPoint(const Coord&, int& dupid,
+	    			    unsigned char lockid=0);
     bool		getCoordIndices(TypeSet<int>&) const;
     			/*!<Coord indices are sorted in threes, i.e
 			    ci[0], ci[1], ci[2] is the first triangle
 			    ci[3], ci[4], ci[5] is the second triangle. */
     void		setEpsilon(double err)	{ epsilon_ = err; }
 
+    static int		cNoVertex()	{ return -1; }
 protected:
     static char		cIsOnEdge() 	{ return 0; }
     static char		cNotOnEdge() 	{ return 1; }
@@ -124,17 +131,17 @@ protected:
     static char		cError()	{ return -1; }
 
     static int		cNoTriangle()	{ return -1; }
-    static int		cNoVertex()	{ return -1; }
     static int		cInitVertex0()	{ return -2; }
     static int		cInitVertex1()	{ return -3; }
     static int		cInitVertex2()	{ return -4; }
 
     char		searchTriangle(int ci,int start, int& t0,int& t1,
-	    			       unsigned char threadid);
+	    			       int& dupid, unsigned char lockid);
     char		searchFurther( int ci,int ti0,int ti1,int& nti0,
-	    			       int& nti1,unsigned char threadid); 
-    bool		searchTriangleOnEdge(int ci,int ti,int& resti,
-	    				     unsigned char threadid);
+	    			       int& nti1, int& dupid,
+				       unsigned char lockid); 
+    bool		searchTriangleOnEdge(int ci,int ti,int& resti,int& did,
+	    				     unsigned char lockid);
    			/*!<assume ci is on the edge of ti.*/
 
     void		splitTriangleInside(int ci,int ti,unsigned char lockid);
@@ -151,13 +158,14 @@ protected:
 	    			    unsigned char lockid); 
     int			searchChild(int v0,int v1,int ti,unsigned char lockid);
     char		isOnEdge(const Coord& p,const Coord& a,
-	    			 const Coord& b) const;
-    char		isInside(int ci,int ti);
+	    			 const Coord& b, bool& duponfirst ) const;
+    char		isInside(int ci,int ti,int& dupid) const;
 
     struct DAGTriangle
     {
 			DAGTriangle();
 	bool		operator==(const DAGTriangle&) const;
+	DAGTriangle&	operator=(const DAGTriangle&);
 
 	int		coordindices_[3];
 	int		childindices_[3];
@@ -172,16 +180,16 @@ protected:
 	char		lockcounts_; /*<writelock -1, otherwise, nrlocks. */
     };
 
-    double			epsilon_;
-    TypeSet<DAGTriangle>	triangles_;
+    double				epsilon_;
+    TypeSet<DAGTriangle>		triangles_;
 
-    TypeSet<Coord>*		coordlist_;
-    bool			ownscoordlist_;
-    Threads::ConditionVar	condvar_;
-    Threads::ReadWriteLock	coordlock_;
+    TypeSet<Coord>*			coordlist_;
+    bool				ownscoordlist_;
+    Threads::ConditionVar		condvar_;
+    mutable Threads::ReadWriteLock	coordlock_;
 
-    Coord			initialcoords_[3]; 
-    				/*!<-2,-3,-4 are their indices.*/
+    Coord				initialcoords_[3]; 
+    					/*!<-2,-3,-4 are their indices.*/
 };
 
 /*!<The parallel DTriangulation works for only one processor now.*/
@@ -204,22 +212,6 @@ protected:
     DAGTriangleTree&	tree_;
 };
 
-
-class SequentialDTriangulator : public SequentialTask
-{
-public:
-			SequentialDTriangulator(DAGTriangleTree&);
-	
-    int			totalNr() const 	{ return tree_.coordList().size(); }
-    int			nrDone() const		{ return insertptidx_; }
-
-protected:
-
-    int			nextStep();
-
-    int			insertptidx_;
-    DAGTriangleTree&	tree_;
-};
 
 #endif
 

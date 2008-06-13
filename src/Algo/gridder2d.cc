@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.1 2008-03-24 20:15:38 cvskris Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.2 2008-06-13 20:42:08 cvskris Exp $";
 
 #include "gridder2d.h"
 
@@ -243,6 +243,15 @@ void InverseDistanceGridder2D::fillPar( IOPar& par ) const
 }
 
 
+TriangulatedGridder2D::TriangulatedGridder2D()
+    : triangles_( 0 )
+{}
+
+
+TriangulatedGridder2D::~TriangulatedGridder2D()
+{ delete triangles_; }
+
+
 Gridder2D* TriangulatedGridder2D::create()
 {
     return new TriangulatedGridder2D;
@@ -268,7 +277,7 @@ bool TriangulatedGridder2D::init()
 
     if ( !points_ || !points_->size() || !gridpoint_.isDefined() )
 	return true;
-    
+
     if ( points_->size()==1 )
     {
 	usedvalues_ += 0;
@@ -277,120 +286,83 @@ bool TriangulatedGridder2D::init()
 	return true;
     }
 
-    Coord2ListImpl coords;
-    TypeSet<float> coordweights; //per point
-    for ( int idx=0; idx<points_->size(); idx++ )
+    if ( !triangles_ )
     {
-	const Coord& point = (*points_)[idx];
-	if ( !point.isDefined() )
+	triangles_ = new DAGTriangleTree;
+	if ( !triangles_->setCoordList( *points_, true ) )
+	    return false;
+
+	ParallelDTriangulator triangulator( *triangles_ );
+	triangulator.dataIsRandom( false );
+	if ( !triangulator.execute( false ) )
 	{
-	    coordweights += mUdf(float);
-	    continue;
+	    delete triangles_;
+	    triangles_ = false;
+	    return false;
 	}
-
-	const float sqdist = gridpoint_.sqDistTo( point );
-	if ( mIsZero( sqdist, mEpsilon) )
-	{
-	    usedvalues_.erase();
-	    weights_.erase();
-	    usedvalues_ += idx;
-	    weights_ += 1;
-	    inited_ = true;
-
-	    return true;
-	}
-
-	coordweights += 1/Math::Sqrt(sqdist);
-	coords.set( idx, point );
     }
-    
-    const int gridpointid = coords.add( gridpoint_ );
 
-    DelaunayTriangulation dtri( coords );
-    const int res = dtri.triangulate();
+    DAGTriangleTree interpoltriangles( *triangles_ );
+    int dupid = -1;
+    const int gridptid = interpoltriangles.insertPoint( gridpoint_, dupid );
+    if ( gridptid==DAGTriangleTree::cNoVertex() )
+	return false;
+
+    if ( dupid!=DAGTriangleTree::cNoVertex() )
+    {
+	usedvalues_ += dupid;
+	weights_ += 1;
+	inited_ = true;
+	return true;
+    }
+
+    TypeSet<int> indices;
+    interpoltriangles.getCoordIndices( indices );
+    const int nrindices = indices.size();
+
+    int iidx = 0;
     double weightsum = 0;
-    if ( res == -2 )
-	return false;
-    else if ( !res )
+    while ( iidx<nrindices )
     {
-	pErrMsg("Should never happen");
-	return false;
-    }
-    else if ( res==-1 )
-    {
-	TypeSet<int> coordindices;
-	for ( int idx=0; idx<coordweights.size(); idx++ )
-	    coordindices += idx;
+	iidx = indices.indexOf( gridptid, true, iidx );
+	if ( iidx==-1 )
+	    break;
 
-	for ( int idx=coordweights.size()-1; idx>=0; idx-- )
+	const int triangle = iidx/3;
+
+	for ( int idx=0; idx<3; idx++ )
 	{
-	    if ( !mIsUdf(coordweights[idx]) )
+	    const int ci = indices[triangle*3+idx];
+	    if ( ci==gridptid )
 		continue;
 
-	    coordweights.remove( idx );
-	    coordindices.remove( idx );
-	}
+	    const int ciidx = usedvalues_.indexOf( ci );
+	    if ( ciidx!=-1 )
+		continue;
 
-	const int nrcoords = coordindices.size();
-
-	sort_coupled( coordweights.arr(), coordindices.arr(), nrcoords );
-
-	//Always include closest pt
-	const int closestidx = coordindices[nrcoords-1];
-
-	usedvalues_ += closestidx;
-	weights_ += coordweights[nrcoords-1];
-	weightsum = weights_[0];
-
-	const Coord v1 = (*points_)[closestidx] - gridpoint_;
-
-	//Search for closest pt not on the same side as first pt.
-	for ( int idx=nrcoords-2; idx>=0; idx-- )
-	{
-	    const Coord v2 = (*points_)[coordindices[idx]] - gridpoint_;
-	    if ( v1.dot( v2 )<0 )
+	    const Coord& point = interpoltriangles.coordList()[ci];
+	    const float sqdist = gridpoint_.sqDistTo( point );
+	    if ( !sqdist ) //Should not be neccesary here.
 	    {
-		usedvalues_ += coordindices[idx];
-		weights_ += coordweights[idx];
-		weightsum += coordweights[idx];
-		break;
+		usedvalues_.erase();
+		weights_.erase();
+		usedvalues_ += idx;
+		weights_ += 1;
+		inited_ = true;
+
+		return true;
 	    }
+
+	    const float weight = 1/Math::Sqrt(sqdist);
+
+	    usedvalues_ += ci;
+	    weights_ += weight;
+	    weightsum += weight;
 	}
+
+	iidx++;
     }
-    else
-    {
-	const TypeSet<int>& indices = dtri.getCoordIndices();
-	const int nrindices = indices.size();
-
-	int iidx = 0;
-	while ( iidx<nrindices )
-	{
-	    iidx = indices.indexOf( gridpointid, true, iidx );
-	    if ( iidx==-1 )
-		break;
-
-	    const int triangle = iidx/3;
-#define mAddCoordIndex( offset ) \
-{ \
-    const int ci = indices[triangle*3+offset]; \
-    const int ciidx = usedvalues_.indexOf( ci ); \
-    if ( ciidx==-1 ) \
-    { \
-	usedvalues_ += ci; \
-	const double weight = coordweights[ci]; \
-	weights_ += weight; \
-	weightsum += weight; \
-    } \
-}
-
-	    mAddCoordIndex( 0 );
-	    mAddCoordIndex( 1 );
-	    mAddCoordIndex( 2 );
-
-	    iidx++;
-	}
-    }
-
+    
     for ( int idx=weights_.size()-1; idx>=0; idx-- )
         weights_[idx] /= weightsum;
 
