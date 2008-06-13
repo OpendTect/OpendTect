@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.39 2008-06-12 14:59:16 cvskris Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.40 2008-06-13 12:24:51 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -298,8 +298,9 @@ void Seis2DDisplay::setData( int attrib,
 	    if ( !dh )
 		continue;
 
-	    const float firstdhsamplef = sd.getIndex( arrayzrg.start );
-	    const int firstdhsample = sd.nearestIndex( arrayzrg.start );
+	    const float firstz = data2dh.dataset_[0]->z0_ * sd.step;
+	    const float firstdhsamplef = sd.getIndex( firstz );
+	    const int firstdhsample = sd.nearestIndex( firstz );
 	    const bool samplebased = mIsEqual(firstdhsamplef,firstdhsample,1e-3)
 				 &&  mIsEqual(sd.step,geometry_.zrg.step,1e-3 );
 	    const ValueSeries<float>* dataseries =
@@ -307,7 +308,7 @@ void Seis2DDisplay::setData( int attrib,
 
 	    if ( samplebased )
 	    {
-		const int nrsamp = arr->info().getSize( 1 );
+		const int nrsamp = data2dh.dataset_[0]->nrsamples_;
 		for ( int idx=0; idx<nrsamp; idx++ )
 		{
 		    const int sample = firstdhsample+idx;
