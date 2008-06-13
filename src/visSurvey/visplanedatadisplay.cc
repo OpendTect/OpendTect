@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.197 2008-06-10 19:26:06 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.198 2008-06-13 20:07:36 cvsyuancheng Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -846,6 +846,9 @@ void PlaneDataDisplay::setDisplayDataPackIDs( int attrib,
 	DPM(DataPackMgr::FlatID).release( dpids[idx] );
 
     dpids = newdpids;
+    for ( int idx=dpids.size()-1; idx>=0; idx-- )
+	DPM(DataPackMgr::FlatID).obtain( dpids[idx] );
+
     updateFromDisplayIDs( attrib );
 }
 
