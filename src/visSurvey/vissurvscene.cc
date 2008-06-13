@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.102 2008-03-25 20:27:32 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.103 2008-06-13 04:01:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,11 +33,12 @@ mCreateFactoryEntry( visSurvey::Scene );
 
 namespace visSurvey {
 
-const char* Scene::sKeyShowAnnot()			{ return "Show text"; }
-const char* Scene::sKeyShowScale()			{ return "Show scale"; }
-const char* Scene::sKeyShowCube()			{ return "Show cube"; }
-const char* Scene::sKeyZScale()				{ return "ZScale"; }
-const char* Scene::sKeyZDataTransform()			{ return "ZTransform"; }
+const char* Scene::sKeyShowAnnot()		{ return "Show text"; }
+const char* Scene::sKeyShowScale()		{ return "Show scale"; }
+const char* Scene::sKeyShowCube()		{ return "Show cube"; }
+const char* Scene::sKeyZScale()			{ return "ZScale"; }
+const char* Scene::sKeyZDataTransform()		{ return "ZTransform"; }
+const char* Scene::sKeyAllowShading()		{ return "Allow shading"; }
 
 Scene::Scene()
     : inlcrl2disptransform_(0)
@@ -532,6 +533,7 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     par.setYN( sKeyShowScale(), isAnnotScaleShown() );
     par.setYN( sKeyShowCube(), isAnnotShown() );
     par.set( sKeyZScale(), curzscale_ );
+    par.setYN( sKeyAllowShading(), allowshading_ );
 
     if ( datatransform_ )
     {
@@ -555,6 +557,8 @@ int Scene::usePar( const IOPar& par )
 {
     removeAll();
     init();
+
+    par.getYN( sKeyAllowShading(), allowshading_ );
 
     int res = visBase::DataObjectGroup::usePar( par );
     if ( res!=1 ) return res;

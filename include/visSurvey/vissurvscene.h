@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.48 2008-03-18 17:14:24 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.49 2008-06-13 04:01:54 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -161,6 +161,7 @@ protected:
     static const char*		sKeyShowCube();
     static const char*		sKeyZScale();
     static const char*		sKeyZDataTransform();
+    static const char*		sKeyAllowShading();
 };
 
 }; // namespace visSurvey
