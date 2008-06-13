@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.32 2008-04-01 22:03:47 cvskris Exp $
+ RCS:           $Id: geometry.h,v 1.33 2008-06-13 20:41:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gendefs.h"
 #include "ranges.h"
-#include <math.h>
+#include "math2.h"
 
 namespace Geom
 {
@@ -335,7 +335,7 @@ bool Point2D<T>::isDefined() const
 
 template <class T> inline
 double Point2D<T>::abs() const
-{ return sqrt( (double)sqAbs() ); }
+{ return Math::Sqrt( (double)sqAbs() ); }
 
 
 template <class T> inline
@@ -345,7 +345,7 @@ T Point2D<T>::sqAbs() const
 
 template <class T> inline
 double Point2D<T>::distTo( const Point2D<T>& pt ) const
-{ return sqrt( (double)sqDistTo(pt) ); }
+{ return Math::Sqrt( (double)sqDistTo(pt) ); }
 
 
 template <class T> inline
