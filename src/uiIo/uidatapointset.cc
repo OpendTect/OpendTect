@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.19 2008-06-05 14:19:15 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.20 2008-06-13 12:28:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -457,7 +457,9 @@ void uiDataPointSet::toggleXYZ( CallBacker* )
 
 void uiDataPointSet::showCrossPlot( CallBacker* )
 {
-    if ( !xplotwin_ )
+    if ( xplotwin_ )
+	xplotwin_->plotter().dataChanged();
+    else
     {
 	xplotwin_ = new uiDataPointSetCrossPlotWin( *this );
 	uiDataPointSetCrossPlotter& xpl = xplotwin_->plotter();
@@ -479,7 +481,7 @@ void uiDataPointSet::getXplotPos( uiDataPointSet::DColID& dcid,
     if ( !xplotwin_ ) return;
     const uiDataPointSetCrossPlotter& xpl = xplotwin_->plotter();
     drid = xpl.selRow();
-    TColID tcid = xpl.isY2() ? y2col_ : ycol_;
+    TColID tcid = xpl.selRowIsY2() ? y2col_ : ycol_;
     if ( tcid >= 0 )
 	dcid = dColID( tcid );
 }

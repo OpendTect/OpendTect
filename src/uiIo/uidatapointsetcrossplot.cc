@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.7 2008-06-11 13:35:28 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.8 2008-06-13 12:28:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,10 +23,13 @@ ________________________________________________________________________
 #include "statruncalc.h"
 #include "linear.h"
 #include "draw.h"
+#include "settings.h"
+#include "envvars.h"
 #include "uimsg.h"
 
 static const int cMaxPtsForMarkers = 20000;
 static const int cMaxPtsForDisplay = 100000;
+float uiDataPointSetCrossPlotter::AutoScalePars::defclipratio_ = -1;
 
 
 uiDataPointSetCrossPlotter::Setup uiDataPointSetCrossPlotWin::defsetup_;
@@ -42,13 +45,25 @@ uiDataPointSetCrossPlotter::Setup::Setup()
 }
 
 
+uiDataPointSetCrossPlotter::AutoScalePars::AutoScalePars()
+    : doautoscale_(true)
+{
+    if ( defclipratio_ == -1 )
+    {
+	const char* res = Settings::common().find( "AxisData.Clip Ratio" );
+	const float val = res && *res ? atof( res )
+		        : GetEnvVarDVal( "OD_DEFAULT_AXIS_CLIPRATIO", 0 );
+	defclipratio_ = val < 0 || val >= 1 ? 0 : val;
+    }
+    clipratio_ = defclipratio_;
+}
+
+
 uiDataPointSetCrossPlotter::AxisData::AxisData( uiDataPointSetCrossPlotter& cp,
 						uiRect::Side s )
     : cp_(cp)
     , axis_(0)
-    , defsu_(s)
-    , rg_(0,1,1)
-    , clipratio_(0)
+    , defaxsu_(s)
 {
     stop();
 }
@@ -66,7 +81,7 @@ void uiDataPointSetCrossPlotter::AxisData::stop()
     needautoscale_ = false;
     if ( !axis_ ) return;
 
-    defsu_ = axis_->setup();
+    defaxsu_ = axis_->setup();
     delete axis_; axis_ = 0;
 }
 
@@ -76,12 +91,20 @@ void uiDataPointSetCrossPlotter::AxisData::setCol( DataPointSet::ColID cid )
     if ( axis_ && cid == colid_ )
 	return;
 
+    colid_ = cid;
+    newColID();
+}
+
+
+void uiDataPointSetCrossPlotter::AxisData::newColID()
+{
+    const DataPointSet::ColID cid = colid_;
     stop();
     colid_ = cid;
     if ( colid_ < cp_.mincolid_ )
 	return;
 
-    axis_ = new uiAxisHandler( cp_.drawTool(), defsu_ );
+    axis_ = new uiAxisHandler( cp_.drawTool(), defaxsu_ );
     axis_->setName( cp_.uidps_.userName(colid_) );
     needautoscale_ = true;
 }
@@ -95,19 +118,19 @@ void uiDataPointSetCrossPlotter::AxisData::newDevSize()
 
 void uiDataPointSetCrossPlotter::AxisData::handleAutoScale()
 {
-    if ( !axis_ || !needautoscale_ ) return;
+    if ( !axis_ || !needautoscale_ || !autoscalepars_.doautoscale_ )
+	return;
 
     const Stats::RunCalc<float>& rc = cp_.uidps_.getRunCalc( colid_ );
     Interval<float> rg( rc.min(), rc.max() );
-    if ( !mIsZero(clipratio_,1e-5) )
+    if ( !mIsZero(autoscalepars_.clipratio_,1e-5) )
     {
-	rg.start = rc.clipVal( clipratio_, false );
-	rg.stop = rc.clipVal( clipratio_, true );
+	rg.start = rc.clipVal( autoscalepars_.clipratio_, false );
+	rg.stop = rc.clipVal( autoscalepars_.clipratio_, true );
     }
     AxisLayout al( rg );
-    rg_ = StepInterval<float>( al.sd.start, al.stop, al.sd.step );
-
-    axis_->setRange( rg_ );
+    axis_->setRange( StepInterval<float>( al.sd.start, al.stop, al.sd.step ) );
+    needautoscale_ = false;
 }
 
 
@@ -126,19 +149,19 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , y2_(*this,uiRect::Right)
     , selectionChanged( this )
     , removeRequest( this )
-    , isy2_(false)
     , doy2_(true)
     , dobd_(false)
     , eachrow_(1)
     , curgrp_(0)
+    , selrowisy2_(false)
 {
     dodraw_ = false;
-    x_.defsu_.style_ = setup_.xstyle_;
-    y_.defsu_.style_ = setup_.ystyle_;
-    y2_.defsu_.style_ = setup_.y2style_;
-    x_.defsu_.border_ = setup_.minborder_;
-    y_.defsu_.border_ = setup_.minborder_;
-    y2_.defsu_.border_ = setup_.minborder_;
+    x_.defaxsu_.style_ = setup_.xstyle_;
+    y_.defaxsu_.style_ = setup_.ystyle_;
+    y2_.defaxsu_.style_ = setup_.y2style_;
+    x_.defaxsu_.border_ = setup_.minborder_;
+    y_.defaxsu_.border_ = setup_.minborder_;
+    y2_.defaxsu_.border_ = setup_.minborder_;
 
     meh_.buttonPressed.notify( mCB(this,uiDataPointSetCrossPlotter,mouseClick));
     meh_.buttonReleased.notify( mCB(this,uiDataPointSetCrossPlotter,mouseRel));
@@ -157,14 +180,33 @@ uiDataPointSetCrossPlotter::~uiDataPointSetCrossPlotter()
 }
 
 
+void uiDataPointSetCrossPlotter::dataChanged()
+{
+    x_.newColID(); y_.newColID(); y2_.newColID();
+}
+
+
 bool uiDataPointSetCrossPlotter::selNearest( const MouseEvent& ev )
 {
     const uiPoint pt( ev.pos() );
     selrow_ = getRow( y_, pt );
-    isy2_ = selrow_ < 0;
-    if ( isy2_ )
+    selrowisy2_ = selrow_ < 0;
+    if ( selrowisy2_ )
 	selrow_ = getRow( y2_, pt );
     return selrow_ >= 0;
+}
+
+
+uiDataPointSetCrossPlotter::AutoScalePars&
+uiDataPointSetCrossPlotter::autoScalePars( int ax )
+{
+    return (ax == 2 ? y2_ : (ax == 1 ? y_ : x_)).autoscalepars_;
+}
+
+
+uiAxisHandler* uiDataPointSetCrossPlotter::axisHandler( int ax )
+{
+    return (ax == 2 ? y2_ : (ax == 1 ? y_ : x_)).axis_;
 }
 
 

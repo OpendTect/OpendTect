@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.4 2008-06-11 13:35:49 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.5 2008-06-13 12:28:25 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,15 +49,27 @@ public:
 	    			DataPointSet::ColID y,
 				DataPointSet::ColID y2);
 
-    void		setRange(int ax,StepInterval<float>);
+    struct AutoScalePars
+    {
+			AutoScalePars();
 
+	bool		doautoscale_;
+	float		clipratio_;
+
+	static float	defclipratio_;
+			//!< 1) settings "AxisData.Clip Ratio"
+			//!< 2) env "OD_DEFAULT_AXIS_CLIPRATIO"
+			//!< 3) zero
+    };
+    AutoScalePars&	autoScalePars(int ax);		//!< 0=x 1=y 2=y2
+    uiAxisHandler*	axisHandler(int ax);		//!< 0=x 1=y 2=y2
 
     Notifier<uiDataPointSetCrossPlotter>	selectionChanged;
     Notifier<uiDataPointSetCrossPlotter>	removeRequest;
     DataPointSet::RowID	selRow() const		{ return selrow_; }
-    bool			isY2() const	{ return isy2_; }
+    bool		selRowIsY2() const	{ return selrowisy2_; }
 
-    void			dataChanged();
+    void		dataChanged();
 
 protected:
 
@@ -74,13 +86,14 @@ protected:
 	uiDataPointSetCrossPlotter& cp_;
 	DataPointSet::ColID	colid_;
 	uiAxisHandler*		axis_;
-	uiAxisHandler::Setup	defsu_;
-	StepInterval<float>	rg_;
+	AutoScalePars		autoscalepars_;
 
 	bool			needautoscale_;
-	float			clipratio_;
+	uiAxisHandler::Setup	defaxsu_;
+
 	void			handleAutoScale();
 	void			newDevSize();
+	void			newColID();
     };
 
     uiDataPointSet&		uidps_;
@@ -96,7 +109,7 @@ protected:
     int				curgrp_;
     const DataPointSet::ColID	mincolid_;
     DataPointSet::RowID		selrow_;
-    bool			isy2_;
+    bool			selrowisy2_;
 
     void 			initDraw(CallBacker*);
     virtual void		mkNewFill();
