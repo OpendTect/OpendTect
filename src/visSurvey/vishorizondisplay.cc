@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.50 2008-06-04 06:10:16 cvssatyaki Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.51 2008-06-13 04:05:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -667,7 +667,7 @@ void HorizonDisplay::getRandomPosCache( int attrib, DataPointSet& data ) const
 	mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[idx]);
 	if ( !psurf ) continue;
 
-	data.bivSet().append( *psurf->getCache( attrib ) );
+	data.bivSet() = *psurf->getCache( attrib );
     }
     data.dataChanged();
 }
@@ -951,7 +951,11 @@ void HorizonDisplay::setResolution( int res )
 
 int HorizonDisplay::getColTabID(int attrib) const
 {
-    return usesTexture() ? coltabs_[attrib]->id() : -1;
+    if ( !usesTexture() || sections_.isEmpty() )
+	return -1;
+
+    mDynamicCastGet(const visBase::ParametricSurface*,psurf,sections_[0]);
+    return psurf->getColTabID( attrib );
 }
 
 
