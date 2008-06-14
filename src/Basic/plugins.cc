@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2003
- RCS:           $Id: plugins.cc,v 1.53 2007-08-31 10:34:28 cvsbert Exp $
+ RCS:           $Id: plugins.cc,v 1.54 2008-06-14 06:19:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -415,9 +415,9 @@ static bool loadPlugin( SharedLibAccess* sla, int argc, char** argv,
     if ( ret )
     {
 	const BufferString libnmonly = FilePath(libnm).fileName();
-	BufferString msg( "Error loading " );
-	msg += libnm; msg += ":\n"; msg += ret;
-	ErrMsg( msg );
+	BufferString msg( "Message from " );
+	msg += libnm; msg += ":\n\t"; msg += ret;
+	UsrMsg( msg );
 	return false;
     }
 
