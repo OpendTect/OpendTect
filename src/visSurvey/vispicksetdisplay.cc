@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.96 2007-09-12 16:02:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: vispicksetdisplay.cc,v 1.97 2008-06-16 19:46:46 cvskris Exp $";
 
 #include "vispicksetdisplay.h"
 
@@ -142,7 +142,7 @@ int PickSetDisplay::usePar( const IOPar& par )
 	int res =  visBase::VisualObjectImpl::usePar( par );
 	if ( res != 1 ) return res;
 
-	Pick::Set* newps = new Pick::Set;
+	mDeclareAndTryAlloc( Pick::Set*, newps, Pick::Set );
 	for ( int idx=0; idx<nopicks; idx++ )
 	{
 	    BufferString str;

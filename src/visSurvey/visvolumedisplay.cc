@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.84 2008-05-29 10:20:15 cvsnanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.85 2008-06-16 19:46:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -346,7 +346,8 @@ int VolumeDisplay::addIsoSurface( TaskRunner* tr )
 				    visBase::MarchingCubesSurface::create();
     isosurface->ref();
     isosurface->setRightHandSystem( righthandsystem_ );
-    RefMan<MarchingCubesSurface> surface = new MarchingCubesSurface();
+    mDeclareAndTryAlloc( RefMan<MarchingCubesSurface>, surface,
+	    		 MarchingCubesSurface() );
     isosurface->setSurface( *surface );
     isosurface->setName( "Iso surface" );
 
@@ -640,7 +641,7 @@ bool VolumeDisplay::setDataVolume( int attrib,
     else
     {
 	if ( !datatransformer_ )
-	    datatransformer_ = new ZAxisTransformer( *datatransform_, true );
+	    mTryAlloc( datatransformer_,ZAxisTransformer(*datatransform_,true));
 
 //	datatransformer_->setInterpolate( !isClassification(attrib) );
 	datatransformer_->setInterpolate( true );

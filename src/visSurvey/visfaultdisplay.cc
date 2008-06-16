@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.22 2008-06-12 03:17:13 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.23 2008-06-16 19:46:46 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -222,7 +222,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     if ( !explicitpanels_ )
     {
 	const float zscale = SI().zFactor()* (scene_ ? scene_->getZScale() : 1);
-	explicitpanels_ = new Geometry::ExplFaultStickSurface( 0, zscale );
+	mTryAlloc( explicitpanels_,Geometry::ExplFaultStickSurface(0,zscale));
 	explicitpanels_->display( false, true );
 	explicitpanels_->setMaximumTextureSize( texture_->getMaxTextureSize() );
 	explicitpanels_->setTexturePowerOfTwo( true );
@@ -232,7 +232,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 				  SI().zStep() ) );
 
 
-	explicitsticks_ = new Geometry::ExplFaultStickSurface( 0, zscale );
+	mTryAlloc( explicitsticks_,Geometry::ExplFaultStickSurface(0,zscale) );
 	explicitsticks_->display( true, false );
 	explicitsticks_->setMaximumTextureSize( texture_->getMaxTextureSize() );
 	explicitsticks_->setTexturePowerOfTwo( true );
@@ -241,7 +241,7 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
 				  SI().crlRange(true).step),
 				  SI().zStep() ) );
 
-	explicitintersections_ = new Geometry::ExplPlaneIntersection;
+	mTryAlloc( explicitintersections_, Geometry::ExplPlaneIntersection );
     }
 
     mDynamicCastGet( Geometry::FaultStickSurface*, fss,
@@ -744,7 +744,8 @@ void FaultDisplay::setRandomPosDataInternal( int attrib,
 
     const BinIDValueSet& bidvset = dpset->bivSet();
     RowCol sz = explicitpanels_->getTextureSize();
-    PtrMan<Array2D<float> > texturedata = new Array2DImpl<float>(sz.col,sz.row);
+    mDeclareAndTryAlloc( PtrMan<Array2D<float> >, texturedata,
+	    		 Array2DImpl<float>(sz.col,sz.row) );
 
     float* texturedataptr = texturedata->getData();
     for ( int idy=0; idy<texturedata->info().getTotalSz(); idy++ )

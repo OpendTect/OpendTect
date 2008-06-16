@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.40 2008-06-13 12:24:51 cvsnanne Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.41 2008-06-16 19:46:46 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -266,8 +266,8 @@ void Seis2DDisplay::setData( int attrib,
     StepInterval<int> arraysrg( mNINT(arrayzrg.start/sd.step),
 	    			mNINT(arrayzrg.stop/sd.step), 1 );
 
-    PtrMan<Array2DImpl<float> > arr =
-	new Array2DImpl<float>( trcnrrg_.width()+1, arrzsz );
+    mDeclareAndTryAlloc( PtrMan<Array2DImpl<float> >, arr,
+			 Array2DImpl<float>( trcnrrg_.width()+1, arrzsz ) );
     if ( !arr->isOK() )
 	return;
 
@@ -349,7 +349,7 @@ void Seis2DDisplay::setData( int attrib,
 
 	    ZAxisTransformSampler outpsampler( *datatransform_,true,BinID(0,0),
 				SamplingData<double>(cs.zrg.start,cs.zrg.step));
-	    tmparr = new Array2DImpl<float>( cs.nrCrl(), cs.nrZ() );
+	    mTryAlloc( tmparr, Array2DImpl<float>( cs.nrCrl(), cs.nrZ() ) );
 	    usedarr = tmparr;
 	    for ( int crlidx=0; crlidx<cs.nrCrl(); crlidx++ )
 	    {

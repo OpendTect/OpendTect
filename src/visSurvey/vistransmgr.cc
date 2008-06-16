@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2005
- RCS:           $Id: vistransmgr.cc,v 1.1 2005-10-07 15:31:53 cvsnanne Exp $
+ RCS:           $Id: vistransmgr.cc,v 1.2 2008-06-16 19:46:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,7 +25,7 @@ namespace visSurvey
 SceneTransformManager& STM()
 {
     static SceneTransformManager* tm = 0;
-    if ( !tm ) tm = new SceneTransformManager;
+    if ( !tm ) mTryAlloc( tm, SceneTransformManager );
     return *tm;
 }
 

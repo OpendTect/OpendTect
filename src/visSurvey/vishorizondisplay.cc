@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.51 2008-06-13 04:05:14 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.52 2008-06-16 19:46:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -627,8 +627,10 @@ void HorizonDisplay::setDepthAsAttrib( int attrib )
 	    vals[1] = vals[0];
     }
 
-    BIDValSetArrAdapter* bvsarr = new BIDValSetArrAdapter(positions.bivSet(),0);
-    MapDataPack* newpack = new MapDataPack( "Geometry", "Depth", bvsarr);
+    mDeclareAndTryAlloc( BIDValSetArrAdapter*, bvsarr, 
+	    		 BIDValSetArrAdapter(positions.bivSet(),0) );
+    mDeclareAndTryAlloc( MapDataPack*, newpack,
+	    		 MapDataPack( "Geometry", "Depth", bvsarr) );
     StepInterval<double> inlrg( bvsarr->inlrg_.start, bvsarr->inlrg_.stop,
 				SI().inlStep() );
     StepInterval<double> crlrg( bvsarr->crlrg_.start, bvsarr->crlrg_.stop,

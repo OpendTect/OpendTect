@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.15 2007-12-14 16:34:57 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.16 2008-06-16 19:46:46 cvskris Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -177,7 +177,7 @@ bool MarchingCubesDisplay::setVisSurface(
     if ( !surface || !surface->getSurface() )
 	return false;
 
-    emsurface_ = new EM::MarchingCubesSurface( EM::EMM() );
+    mTryAlloc( emsurface_, EM::MarchingCubesSurface( EM::EMM() ) );
 
     if ( !emsurface_ )
 	return false;
@@ -356,9 +356,9 @@ bool MarchingCubesDisplay::createInitialBody( bool allowswap )
     const float hxsz = (float)xsz/2-0.5;
     const float hysz = (float)ysz/2-0.5;
     const float hzsz = (float)zsz/2-0.5;
-    
-    PtrMan<Array3DImpl<float> > array = new Array3DImpl<float> (
-	    				xsz+2, ysz+2, zsz+2 );
+   
+    mDeclareAndTryAlloc( PtrMan<Array3DImpl<float> >, array,
+	    		 Array3DImpl<float>( xsz+2, ysz+2, zsz+2 ) );
     if ( !array || !array->isOK() )
 	return false;
     
@@ -624,7 +624,8 @@ void MarchingCubesDisplay::setDragDirection( CallBacker* cb )
 	 	   mNINT(width.z/emsurface_->zSampling().step) };
     
     if ( !surfaceeditor_ )
-	surfaceeditor_ = new MarchingCubesSurfaceEditor(emsurface_->surface());
+	mTryAlloc( surfaceeditor_,
+		   MarchingCubesSurfaceEditor(emsurface_->surface()) );
     
     PtrMan<Array3D<unsigned char> > kernel =
 	createKernel( size[0], size[1], size[2] );
@@ -718,7 +719,8 @@ void MarchingCubesDisplay::factorDrag( CallBacker* )
 Array3D<unsigned char>*
 MarchingCubesDisplay::createKernel( int xsz, int ysz, int zsz ) const
 {
-    Array3D<unsigned char>* res = new Array3DImpl<unsigned char>(xsz,ysz,zsz);
+    mDeclareAndTryAlloc( Array3D<unsigned char>*, res,
+	    		 Array3DImpl<unsigned char>(xsz,ysz,zsz) )
     if ( !res || !res->isOK() )
     {
 	delete res;

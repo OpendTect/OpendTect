@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: viswelldisplay.cc,v 1.75 2008-03-17 21:09:14 cvskris Exp $";
+static const char* rcsID = "$Id: viswelldisplay.cc,v 1.76 2008-06-16 19:46:46 cvskris Exp $";
 
 #include "viswelldisplay.h"
 
@@ -129,7 +129,7 @@ TypeSet<Coord3> WellDisplay::getTrackPos( Well::Data* wd )
     PtrMan<Well::Track> ttrack = 0;
     if ( zistime_ )
     {
-	ttrack = new Well::Track( wd->track() );
+	mTryAlloc( ttrack, Well::Track( wd->track() ) );
 	ttrack->toTime( *d2t );
     }
     Well::Track& track = zistime_ ? *ttrack : wd->track();
@@ -287,8 +287,8 @@ void WellDisplay::displayLog( const BufferString lognm, bool logarthm,
     int logidx = wd->logs().indexOf( lognm );
 
     if ( logidx < 0 ) return; // TODO: errmsg
-    
-    Interval<float>* rgptr = new Interval<float>( range );    
+   
+    mDeclareAndTryAlloc( Interval<float>*, rgptr, Interval<float>( range ) );
     displayLog( logidx, rgptr, logarthm, lognr );
 }
 
@@ -305,7 +305,9 @@ void WellDisplay::displayLog( Well::LogDisplayPars* logpar, int lognr )
 	well_->showLog( false, lognr );
 	return;
     }
-    Interval<float>* rgptr = new Interval<float>( logpar->getRange() );    
+
+    mDeclareAndTryAlloc( Interval<float>*, rgptr,
+	    		 Interval<float>( logpar->getRange() ) );
     displayLog( logidx, rgptr, logpar->getLogScale(), lognr );
     setLogColor( logpar->getColor(), lognr );
 }
@@ -665,7 +667,7 @@ void WellDisplay::setupPicking( bool yn )
     if ( !group_ )
     {
 	group_ = visBase::DataObjectGroup::create();
-	pseudotrack_ = new Well::Track();
+	mTryAlloc( pseudotrack_, Well::Track() );
 	addChild( group_->getInventorNode() );
     }
 

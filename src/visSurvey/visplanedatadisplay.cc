@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.198 2008-06-13 20:07:36 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.199 2008-06-16 19:46:46 cvskris Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -756,8 +756,8 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	}
 	else
 	{
-	    Attrib::Flat3DDataPack* ndp =
-		new Attrib::Flat3DDataPack(f3ddp->descID(),f3ddp->cube(),idx);
+	    mDeclareAndTryAlloc( Attrib::Flat3DDataPack*, ndp,
+		 Attrib::Flat3DDataPack(f3ddp->descID(),f3ddp->cube(),idx) );
 	    DPM( DataPackMgr::FlatID ).addAndObtain( ndp );
 	    displaypacks += ndp;
 	    attridpids += ndp->id();
@@ -773,9 +773,9 @@ void PlaneDataDisplay::setVolumeDataPackNoCache( int attrib,
 	attridpids.erase();
 	for ( int idx=0; idx<displaypacks.size(); idx++ )
 	{
-	    ZAxisTransformDataPack*  ztransformdp = 
-		new ZAxisTransformDataPack( *displaypacks[idx], 
-			f3ddp->cube().cubeSampling(), *datatransform_ ); 
+	    mDeclareAndTryAlloc( ZAxisTransformDataPack*, ztransformdp,
+		ZAxisTransformDataPack( *displaypacks[idx], 
+		f3ddp->cube().cubeSampling(), *datatransform_ ) );
 
 	    ztransformdp->setInterpolate( !isClassification(attrib) );
 	    ztransformdp->setOutputCS( getCubeSampling(true,true) );
@@ -810,10 +810,10 @@ void PlaneDataDisplay::setRandomPosDataNoCache( int attrib,
     TypeSet<DataPack::ID> attridpids;
     for ( int idx=1; idx<bivset->nrVals(); idx++ )
     {
-	Array2DImpl<float>* arr = 
-	    new Array2DImpl<float> ( cs.hrg.nrInl(), cs.hrg.nrCrl() );
-	FlatDataPack* fdp = new FlatDataPack( 
-		Attrib::DataPackCommon::categoryStr(false), arr );	
+	mDeclareAndTryAlloc( Array2DImpl<float>*, arr,
+			Array2DImpl<float> ( cs.hrg.nrInl(), cs.hrg.nrCrl() ) );
+	mDeclareAndTryAlloc( FlatDataPack*, fdp,
+	    FlatDataPack( Attrib::DataPackCommon::categoryStr(false), arr ) );
         DPM(DataPackMgr::FlatID).addAndObtain( fdp );
         attridpids += fdp->id();
 

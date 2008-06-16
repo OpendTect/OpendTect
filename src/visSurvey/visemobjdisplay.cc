@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: visemobjdisplay.cc,v 1.105 2008-03-17 21:09:14 cvskris Exp $
+ RCS:           $Id: visemobjdisplay.cc,v 1.106 2008-06-16 19:46:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -247,7 +247,11 @@ BufferStringSet EMObjectDisplay::displayedSections() const
    
     BufferStringSet res; 
     for ( int idx=emobject_->nrSections()-1; idx>=0; idx-- )
-	res +=new BufferString(emobject_->sectionName(emobject_->sectionID(idx)));
+    {
+	mDeclareAndTryAlloc( BufferString*, buf,
+	    BufferString(emobject_->sectionName(emobject_->sectionID(idx))) );
+	res += buf;
+    }
 
     return res;
 }
