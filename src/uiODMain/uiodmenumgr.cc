@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.124 2008-05-30 07:13:14 cvsraman Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.125 2008-06-16 06:05:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -258,9 +258,7 @@ void uiODMenuMgr::fillManMenu()
 {
     manmnu_->clear();
     mInsertItem( manmnu_, "&AttributeSets ...", mManAttrMnuItm );
-#ifdef __debug__
     mInsertItem( manmnu_, "&Faults ...", mManFaultMnuItm );
-#endif
     if ( SI().getSurvDataType() == SurveyInfo::No2D )
 	mInsertItem( manmnu_, "&Horizons ...", mManHor3DMnuItm );
     else
@@ -500,9 +498,7 @@ void uiODMenuMgr::fillManTB()
 {
     mAddTB(mantb_,"man_seis.png","Manage seismic data",false,manSeis);
     mAddTB(mantb_,"man_hor.png","Manage horizons",false,manHor);
-#ifdef __debug__
     mAddTB(mantb_,"man_flt.png","Manage faults",false,manFlt);
-#endif
     mAddTB(mantb_,"man_wll.png","Manage well data",false,manWll);
     mAddTB(mantb_,"man_picks.png","Manage Pick Sets",false,manPick);
     mAddTB(mantb_,"man_wvlt.png","Manage Wavelets",false,manWvlt);
