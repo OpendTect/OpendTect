@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.cc,v 1.22 2008-05-14 15:09:26 cvshelene Exp $
+ RCS:           $Id: uimathattrib.cc,v 1.23 2008-06-16 07:08:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,9 +22,11 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uitable.h"
 
+#include <math.h>
+
 using namespace Attrib;
 
-mInitAttribUI(uiMathAttrib,Math,"Mathematics",sKeyBasicGrp)
+mInitAttribUI(uiMathAttrib,Attrib::Math,"Mathematics",sKeyBasicGrp)
 
 uiMathAttrib::uiMathAttrib( uiParent* p, bool is2d )
 	: uiAttrDescEd(p,is2d,"101.0.9")
@@ -151,7 +153,7 @@ void uiMathAttrib::updateDisplay( bool userecfld )
 
 
 void uiMathAttrib::checkVarSpelAndShift( MathExpression* expr,
-					  bool& foundvar, bool& correctshifts )
+					 bool& foundvar, bool& correctshifts )
 {
     nrxvars_= nrcstvars_ = 0;
     if ( !expr ) return;
@@ -194,16 +196,16 @@ void uiMathAttrib::checkVarSpelAndShift( MathExpression* expr,
 
 bool uiMathAttrib::setParameters( const Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Math::attribName()) )
+    if ( strcmp(desc.attribName(),Attrib::Math::attribName()) )
 	return false;
 
-    mIfGetString( Math::expressionStr(), expression, 
+    mIfGetString( Attrib::Math::expressionStr(), expression, 
 	    	  inpfld_->setText(expression) );
     parsePush(0);
 
-    if ( desc.getParam(Math::cstStr()) )
+    if ( desc.getParam(Attrib::Math::cstStr()) )
     {
-	mDescGetConstParamGroup(FloatParam,cstset,desc,Math::cstStr());
+	mDescGetConstParamGroup(FloatParam,cstset,desc,Attrib::Math::cstStr());
 	for ( int idx=0; idx<cstset->size(); idx++ )
 	{
 	    if ( ctable_->nrRows() < idx+1 )
@@ -214,17 +216,18 @@ bool uiMathAttrib::setParameters( const Desc& desc )
 	}
     }
     
-    if ( desc.getValParam( Math::recstartStr() ) )
+    if ( desc.getValParam( Attrib::Math::recstartStr() ) )
     {
-	float recstart = desc.getValParam( Math::recstartStr() )->getfValue(0);
+	float recstart =
+	    desc.getValParam( Attrib::Math::recstartStr() )->getfValue(0);
 	if ( !mIsUdf( recstart ) )
 	    recstartfld_->setValue( recstart );
     }
     
-    if ( desc.getValParam( Math::recstartposStr() ) )
+    if ( desc.getValParam( Attrib::Math::recstartposStr() ) )
     {
-	float recstartpos = desc.getValParam( Math::recstartposStr() )
-	    						->getfValue(0);
+	float recstartpos =
+	    desc.getValParam( Attrib::Math::recstartposStr() )->getfValue(0);
 	if ( !mIsUdf( recstartpos ) )
 	    recstartposfld_->setValue( recstartpos * SI().zFactor() );
     }
@@ -244,21 +247,21 @@ bool uiMathAttrib::setInput( const Desc& desc )
 
 bool uiMathAttrib::getParameters( Desc& desc )
 {
-    if ( strcmp(desc.attribName(),Math::attribName()) )
+    if ( strcmp(desc.attribName(),Attrib::Math::attribName()) )
 	return false;
 
-    mSetString( Math::expressionStr(), inpfld_->text() );
+    mSetString( Attrib::Math::expressionStr(), inpfld_->text() );
     
     MathExpression* expr = MathExpression::parse( inpfld_->text() );
     if ( !expr )
 	mErrRet( "Could not parse this equation", false )
 
     TypeSet<int> cstinptable, xinptable;
-    Math::getInputTable( expr, cstinptable, true );
-    Math::getInputTable( expr, xinptable, false );
+    Attrib::Math::getInputTable( expr, cstinptable, true );
+    Attrib::Math::getInputTable( expr, xinptable, false );
     int nrcsts = cstinptable.size();
     int nrxvars = expr->getNrDiffVariables();
-    mDescGetParamGroup(FloatParam,cstset,desc,Math::cstStr())
+    mDescGetParamGroup(FloatParam,cstset,desc,Attrib::Math::cstStr())
     cstset->setSize( nrcsts );
     if ( ctable_->nrRows() < nrcsts ) return false;
     
@@ -268,8 +271,8 @@ bool uiMathAttrib::getParameters( Desc& desc )
 	fparam.setValue( ctable_->getfValue( RowCol(idx,0) ) );
     }
     
-    mSetFloat( Math::recstartStr(), recstartfld_->getfValue() );
-    mSetFloat( Math::recstartposStr(),
+    mSetFloat( Attrib::Math::recstartStr(), recstartfld_->getfValue() );
+    mSetFloat( Attrib::Math::recstartposStr(),
 	       recstartposfld_->getfValue() / SI().zFactor() );
     return true;
 }
@@ -289,12 +292,13 @@ bool uiMathAttrib::getInput( Desc& desc )
 
 void uiMathAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
-    mDescGetConstParamGroup(FloatParam,cstset,(*curDesc()),Math::cstStr());
+    mDescGetConstParamGroup(FloatParam,cstset,(*curDesc()),
+	    		    Attrib::Math::cstStr());
     BufferString constantbase = "constant c";
     for ( int idx=0; idx<cstset->size(); idx++ )
     {
 	BufferString constantstr = constantbase;
 	constantstr +=idx;
-	params += EvalParam( constantstr, Math::cstStr(), 0, idx );
+	params += EvalParam( constantstr, Attrib::Math::cstStr(), 0, idx );
     }
 }
