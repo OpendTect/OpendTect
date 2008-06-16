@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visboxdragger.cc,v 1.14 2008-03-25 20:29:45 cvskris Exp $
+ RCS:           $Id: visboxdragger.cc,v 1.15 2008-06-16 12:25:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,7 @@ BoxDragger::BoxDragger()
 
     setOwnShapeHints();
 
+#ifdef __debug__
     SoSeparator* boxsep = new SoSeparator;
     boxsep->ref();
 
@@ -106,7 +107,7 @@ BoxDragger::BoxDragger()
 
     boxdragger_->setPart( "boxGeom", boxsep );
     boxsep->unref();
-
+#endif
 }
 
 
