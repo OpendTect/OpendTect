@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.28 2008-04-08 05:05:08 cvssatyaki Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.29 2008-06-16 12:24:37 cvsnanne Exp $";
 
 #include "vismultitexture2.h"
 
@@ -418,8 +418,26 @@ bool TextureInfo::hasTransparency( int version ) const
 
 void TextureInfo::rangeChangeCB( CallBacker* cb )
 {
-    const int version = versioncoltab_.indexOf( (visBase::VisColorTab*)cb );
+    mDynamicCastGet(visBase::VisColorTab*,ct,cb)
+    if ( !ct ) return;
+
+    const int version = versioncoltab_.indexOf( ct );
     createIndexes( version );
+
+    if ( ct->autoScale() )
+	return;
+
+    for ( int idx=0; idx<nrVersions(); idx++ )
+    {
+	if ( idx==version || !versioncoltab_[idx] ) continue;
+
+	NotifyStopper nsas( versioncoltab_[idx]->autoscalechange );
+	NotifyStopper nsrg( versioncoltab_[idx]->rangechange );
+	versioncoltab_[idx]->setAutoScale( ct->autoScale() );
+	versioncoltab_[idx]->scaleTo( ct->getInterval() );
+	createIndexes( idx );
+    }
+
 }
 
 
@@ -433,7 +451,21 @@ void TextureInfo::sequenceChangeCB( CallBacker* cb )
 
 void TextureInfo::autoscaleChangeCB( CallBacker* cb )
 {
-    const int version = versioncoltab_.indexOf( (visBase::VisColorTab*)cb );
+    mDynamicCastGet(visBase::VisColorTab*,ct,cb)
+    if ( !ct ) return;
+
+    const int version = versioncoltab_.indexOf( ct );
+    for ( int idx=0; idx<nrVersions(); idx++ )
+    {
+	if ( idx==version || !versioncoltab_[idx] ) continue;
+
+	NotifyStopper ns( versioncoltab_[idx]->autoscalechange );
+	versioncoltab_[idx]->setAutoScale( ct->autoScale() );
+	versioncoltab_[idx]->setClipRate( ct->clipRate() );
+	versioncoltab_[idx]->setSymMidval( ct->symMidval() );
+	clipData( idx );
+    }
+
     clipData( version );
 }
 
