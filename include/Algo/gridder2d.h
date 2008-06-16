@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Y.C.Liu & K. Tingdahl
  Date:		January 2008
- RCS:		$Id: gridder2d.h,v 1.2 2008-06-13 20:42:08 cvskris Exp $
+ RCS:		$Id: gridder2d.h,v 1.3 2008-06-16 19:41:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,7 +122,11 @@ class TriangulatedGridder2D : public Gridder2D
 {
 public:
     			TriangulatedGridder2D();
+    			TriangulatedGridder2D(const TriangulatedGridder2D&);
 			~TriangulatedGridder2D();
+
+    void		setGridArea(const Interval<float>&,
+	    			    const Interval<float>&);
 
     static Gridder2D*	create(); 
     static void		initClass();
@@ -133,7 +137,10 @@ public:
     
     bool		init();
 protected:
+
     DAGTriangleTree*	triangles_;
+    Interval<float>	xrg_;
+    Interval<float>	yrg_;
 };
 
 

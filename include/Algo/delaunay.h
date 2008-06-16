@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.8 2008-06-13 20:42:07 cvskris Exp $
+ RCS:           $Id: delaunay.h,v 1.9 2008-06-16 19:41:17 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,9 @@ public:
     virtual		~DAGTriangleTree();
     DAGTriangleTree&	operator=(const DAGTriangleTree&);
 
+    static bool		computeCoordRanges(const TypeSet<Coord>&,
+	    		    Interval<double>&,Interval<double>&);
+
     bool		setCoordList(const TypeSet<Coord>&,bool copy);
     const TypeSet<Coord>& coordList() const { return *coordlist_; }
 
@@ -119,6 +122,7 @@ public:
     			/*!<Coord indices are sorted in threes, i.e
 			    ci[0], ci[1], ci[2] is the first triangle
 			    ci[3], ci[4], ci[5] is the second triangle. */
+    bool		getConnections(int pointidx,TypeSet<int>&) const;
     void		setEpsilon(double err)	{ epsilon_ = err; }
 
     static int		cNoVertex()	{ return -1; }

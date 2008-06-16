@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.8 2008-06-13 20:42:08 cvskris Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.9 2008-06-16 19:41:17 cvskris Exp $";
 
 #include "delaunay.h"
 
@@ -664,6 +664,27 @@ DAGTriangleTree::~DAGTriangleTree()
 	coordlist_->erase();
 }
 
+
+bool DAGTriangleTree::computeCoordRanges( const TypeSet<Coord>& coordlist, 
+					  Interval<double>& xrg,
+					  Interval<double>& yrg )
+{
+    if ( !coordlist.size() )
+	return false;
+
+    xrg.start = xrg.stop = coordlist[0].x;
+    yrg.start = yrg.stop = coordlist[0].y;
+
+    for ( int idx=1; idx<coordlist.size(); idx++ )
+    {
+	xrg.include( coordlist[idx].x );
+	yrg.include( coordlist[idx].y );
+    }
+
+    return true;
+}
+
+
 bool DAGTriangleTree::setCoordList( const TypeSet<Coord>& coordlist, bool copy )
 {
     coordlock_.writeLock();
@@ -676,17 +697,8 @@ bool DAGTriangleTree::setCoordList( const TypeSet<Coord>& coordlist, bool copy )
     if ( coordlist.size()<3 )
 	return false;
 
-    Interval<double> xrg( coordlist[0].x, coordlist[0].x );
-    Interval<double> yrg( coordlist[0].y, coordlist[0].y );
-
-    for ( int idx=1; idx<coordlist.size(); idx++ )
-    {
-	xrg.include( coordlist[idx].x );
-	yrg.include( coordlist[idx].y );
-    }
-
-    if ( !xrg.width() || !yrg.width() )
-	return false;
+    Interval<double> xrg, yrg;
+    computeCoordRanges( coordlist, xrg, yrg );
 
     coordlock_.writeLock();
 
@@ -703,7 +715,8 @@ bool DAGTriangleTree::setCoordList( const TypeSet<Coord>& coordlist, bool copy )
 
     coordlock_.writeUnLock();
 
-    return setBBox( xrg, yrg );
+    setBBox( xrg, yrg );
+    return true;
 }
 
 
@@ -1441,6 +1454,31 @@ bool DAGTriangleTree::getCoordIndices( TypeSet<int>& result ) const
 	result += c[0];
 	result += c[1];
 	result += c[2];
+    }
+
+    return result.size();
+}
+
+
+bool DAGTriangleTree::getConnections( int vertex, TypeSet<int>& result ) const
+{
+    for ( int idx=triangles_.size()-1; idx>=0; idx-- )
+    {
+	const int* child = triangles_[idx].childindices_;
+	if ( child[0]>=0 || child[1]>=0 || child[2]>=0 )
+	    continue;
+
+	const int* c = triangles_[idx].coordindices_;
+	if ( c[0]!=vertex && c[1]!=vertex && c[2]!=vertex )
+	    continue;
+
+	for ( int idy=0; idy<3; idy++ )
+	{
+	    if ( c[idy]<0 || c[idy]==vertex || result.indexOf(c[idy])!=-1 )
+		continue;
+
+	    result += c[idy];
+	}
     }
 
     return result.size();
