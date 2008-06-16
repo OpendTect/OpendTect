@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H. Bril
  Date:		23-10-1996
  Contents:	Extension of genc.h with C++ stuff.
- RCS:		$Id: general.h,v 1.14 2008-06-11 12:51:51 cvskris Exp $
+ RCS:		$Id: general.h,v 1.15 2008-06-16 19:42:19 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ enum Pol2D3D	{ Only3D=-1, Both2DAnd3D=0, Only2D=1 };
 
 //! Catches bad_alloc and sets ptr to null as normal.
 #define mTryAlloc(var,stmt) \
-	try { var = new stmt; } catch ( std::bad_alloc ) { var = 0; }
+{ try { var = new stmt; } catch ( std::bad_alloc ) { var = 0; } }
 
 //!Creates variable, try to alloc and catch bad_alloc.
 #define mDeclareAndTryAlloc(tp,var,stmt)				\
