@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.42 2008-05-28 08:26:29 cvsnanne Exp $
+ RCS:           $Id: iodraw.cc,v 1.43 2008-06-16 07:07:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,8 @@ ________________________________________________________________________
 #include <QPainter>
 #include <QPen>
 #include <QPolygon>
+
+#include <math.h>
 
 
 ioDrawTool::ioDrawTool( QPaintDevice* pd )

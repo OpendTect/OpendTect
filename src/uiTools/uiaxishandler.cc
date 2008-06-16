@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.cc,v 1.8 2008-05-28 10:46:16 cvsnanne Exp $
+ RCS:           $Id: uiaxishandler.cc,v 1.9 2008-06-16 07:07:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,8 @@ ________________________________________________________________________
 #include "iodrawtool.h"
 #include "uifont.h"
 #include "draw.h"
+
+#include <math.h>
 
 static const float logof2 = log(2);
 
