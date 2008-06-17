@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          August 2001
- RCS:           $Id: od_ProgressViewer.cc,v 1.15 2008-06-17 08:40:48 cvsnanne Exp $
+ RCS:           $Id: od_ProgressViewer.cc,v 1.16 2008-06-17 09:02:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,6 +112,8 @@ void uiProgressViewer::appendToText()
 void uiProgressViewer::doWork( CallBacker* )
 {
     bool ateof = strm.eof();
+
+#ifndef __win__
     if ( kill(ppid,0) )
     {
 	txtfld->append( "Program Terminated" );
@@ -119,6 +121,7 @@ void uiProgressViewer::doWork( CallBacker* )
 	ppid = 0;
 	return;
     }
+#endif
 
     if ( strm.eof() || strm.fail() )
     {
