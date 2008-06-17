@@ -4,19 +4,21 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          August 2001
- RCS:           $Id: od_ProgressViewer.cc,v 1.14 2008-05-26 11:20:55 cvsbert Exp $
+ RCS:           $Id: od_ProgressViewer.cc,v 1.15 2008-06-17 08:40:48 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidesktopservices.h"
+#include "uifiledlg.h"
 #include "uifont.h"
 #include "uigroup.h"
 #include "uimain.h"
 #include "uimainwin.h"
-#include "uimenu.h"
 #include "uistatusbar.h"
 #include "uitextedit.h"
+#include "uitoolbar.h"
+
 #include <iostream>
 #include <ctype.h>
 #include <signal.h>
@@ -25,6 +27,7 @@ ________________________________________________________________________
 #include "oddirs.h"
 #include "prog.h"
 #include "sighndl.h"
+#include "strmprov.h"
 #include "timer.h"
 
 #define mBufLen 81
@@ -41,10 +44,13 @@ protected:
 
     void	quitFn(CallBacker*);
     void	helpFn(CallBacker*);
+    void	saveFn(CallBacker*);
+
+    uiToolBar*	tb_;
 
     std::istream& strm;
     uiTextEdit*	txtfld;
-    uiMenuItem*	quitmi;
+    int		quitid_;
     Timer*	tim;
     int		ppid;
     int		delay;
@@ -56,6 +62,9 @@ protected:
     void	appendToText();
 };
 
+
+#define mAddButton(fnm,txt,fn) \
+    tb_->addButton( fnm, mCB(this,uiProgressViewer,fn), txt, false );
 
 uiProgressViewer::uiProgressViewer( uiParent* p, std::istream& s, int i )
 	: uiMainWin(p,"Progress",1)
@@ -69,14 +78,10 @@ uiProgressViewer::uiProgressViewer( uiParent* p, std::istream& s, int i )
     topGroup()->setBorder(0);
     topGroup()->setSpacing(0);
 
-    uiPopupMenu* popmnu = new uiPopupMenu( this, "&File" );
-    menuBar()->insertItem( popmnu );
-    uiMenuItem* mi = new uiMenuItem( "Help", mCB(this,uiProgressViewer,helpFn));
-    popmnu->insertItem( mi );
-    popmnu->insertSeparator();
-    quitmi = new uiMenuItem( ppid ? "Stop process and &Quit" : "&Quit",
-	    		 mCB(this,uiProgressViewer,quitFn) );
-    popmnu->insertItem( quitmi );
+    tb_ = new uiToolBar( this, "ToolBar" );
+    quitid_ = mAddButton( "stop.png", "Stop process and Quit", quitFn );
+    mAddButton( "saveflow.png", "Save log", saveFn );
+    mAddButton( "contexthelp.png", "Help", helpFn );
 
     txtfld = new uiTextEdit( this, "", true );
     txtfld->setPrefHeightInChar(6);
@@ -110,7 +115,7 @@ void uiProgressViewer::doWork( CallBacker* )
     if ( kill(ppid,0) )
     {
 	txtfld->append( "Program Terminated" );
-	quitmi->setText( "&Quit" );
+	tb_->setToolTip( quitid_, "Close" );
 	ppid = 0;
 	return;
     }
@@ -119,7 +124,7 @@ void uiProgressViewer::doWork( CallBacker* )
     {
 	appendToText();
 	statusBar()->message( fullline );
-	quitmi->setText( "&Quit" );
+	tb_->setToolTip( quitid_, "Close" );
 	ppid = 0;
 	return;
     }
@@ -200,6 +205,21 @@ void uiProgressViewer::helpFn( CallBacker* )
 }
 
 
+void uiProgressViewer::saveFn( CallBacker* )
+{
+    uiFileDialog dlg( this, false, GetProcFileName("log.txt"),
+	    	      "*.txt", "Save log" );
+    dlg.setAllowAllExts( true );
+    if ( dlg.go() )
+    {
+	StreamData sd( StreamProvider(dlg.fileName()).makeOStream() );
+	if ( sd.usable() )
+	   *sd.ostrm << txtfld->text() << std::endl;
+	sd.close();
+    }
+}
+
+
 int main( int argc, char** argv )
 {
     uiMain app( argc, argv );
@@ -210,5 +230,3 @@ int main( int argc, char** argv )
     pv->show();
     ExitProgram( app.exec() ); return 0;
 }
-
-
