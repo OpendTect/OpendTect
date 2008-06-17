@@ -19,7 +19,7 @@ Comment "------------"
 Combo "Input parameters" "Scan SEG-Y*"
 Button "Go"
 
-Input "Input file""/d12/nageswara/dev/dgb/data/tut.sgy"
+Input "Input file" "/d12/nageswara/dev/dgb/data/tut.sgy"
 Input "X-coord byte" 81
 Input "Y-coord byte" 85
 
