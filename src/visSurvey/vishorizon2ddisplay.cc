@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizon2ddisplay.cc,v 1.11 2008-02-25 16:12:47 cvsjaap Exp $
+ RCS:           $Id: vishorizon2ddisplay.cc,v 1.12 2008-06-17 05:20:26 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -240,7 +240,7 @@ void Horizon2DDisplay::updateLinesOnSections(
     if ( !displayonlyatsections_ )
     {
 	for ( int sidx=0; sidx<sids_.size(); sidx++ )
-	    updateSection( sids_[sidx] );
+	    updateSection( sidx );
 	return;
     }
 
@@ -283,7 +283,7 @@ void Horizon2DDisplay::updateLinesOnSections(
     }
     
     for ( int sidx=0; sidx<sids_.size(); sidx++ )
-	updateSection( sids_[sidx], &linergs );
+	updateSection( sidx, &linergs );
 }
 
 
