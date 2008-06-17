@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.2 2008-06-13 20:42:08 cvskris Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.3 2008-06-17 14:23:38 cvskris Exp $";
 
 #include "gridder2d.h"
 
@@ -245,11 +245,30 @@ void InverseDistanceGridder2D::fillPar( IOPar& par ) const
 
 TriangulatedGridder2D::TriangulatedGridder2D()
     : triangles_( 0 )
+    , xrg_( mUdf(float), mUdf(float) )
+    , yrg_( mUdf(float), mUdf(float) )
 {}
+
+
+TriangulatedGridder2D::TriangulatedGridder2D( const TriangulatedGridder2D& b )
+    : triangles_( 0 )
+    , xrg_( b.xrg_ )
+    , yrg_( b.yrg_ )
+{
+    if ( b.triangles_ )
+	triangles_ = new DAGTriangleTree( *b.triangles_ );
+}
 
 
 TriangulatedGridder2D::~TriangulatedGridder2D()
 { delete triangles_; }
+
+void TriangulatedGridder2D::setGridArea( const Interval<float>& xrg,
+	                                 const Interval<float>& yrg)
+{
+    xrg_ = xrg;
+    yrg_ = yrg;
+}
 
 
 Gridder2D* TriangulatedGridder2D::create()
@@ -289,7 +308,17 @@ bool TriangulatedGridder2D::init()
     if ( !triangles_ )
     {
 	triangles_ = new DAGTriangleTree;
+	Interval<double> xrg, yrg;
+	if ( !DAGTriangleTree::computeCoordRanges( *points_, xrg, yrg ) ) 
+	    return false;
+
 	if ( !triangles_->setCoordList( *points_, true ) )
+	    return false;
+
+	xrg.include( xrg_.start ); xrg.include( xrg_.stop );
+	yrg.include( yrg_.start ); yrg.include( yrg_.stop );
+
+	if ( !triangles_->setBBox( xrg, yrg ) )
 	    return false;
 
 	ParallelDTriangulator triangulator( *triangles_ );
@@ -316,51 +345,29 @@ bool TriangulatedGridder2D::init()
 	return true;
     }
 
-    TypeSet<int> indices;
-    interpoltriangles.getCoordIndices( indices );
-    const int nrindices = indices.size();
-
-    int iidx = 0;
     double weightsum = 0;
-    while ( iidx<nrindices )
+    TypeSet<int> connections;
+    interpoltriangles.getConnections( gridptid, connections );
+    for ( int idx=connections.size()-1; idx>=0; idx-- )
     {
-	iidx = indices.indexOf( gridptid, true, iidx );
-	if ( iidx==-1 )
-	    break;
-
-	const int triangle = iidx/3;
-
-	for ( int idx=0; idx<3; idx++ )
+	const Coord& point = interpoltriangles.coordList()[connections[idx]];
+	const float sqdist = gridpoint_.sqDistTo( point );
+	if ( !sqdist ) //Should not be neccesary here.
 	{
-	    const int ci = indices[triangle*3+idx];
-	    if ( ci==gridptid )
-		continue;
+	    usedvalues_.erase();
+	    weights_.erase();
+	    usedvalues_ += connections[idx];
+	    weights_ += 1;
+	    inited_ = true;
 
-	    const int ciidx = usedvalues_.indexOf( ci );
-	    if ( ciidx!=-1 )
-		continue;
-
-	    const Coord& point = interpoltriangles.coordList()[ci];
-	    const float sqdist = gridpoint_.sqDistTo( point );
-	    if ( !sqdist ) //Should not be neccesary here.
-	    {
-		usedvalues_.erase();
-		weights_.erase();
-		usedvalues_ += idx;
-		weights_ += 1;
-		inited_ = true;
-
-		return true;
-	    }
-
-	    const float weight = 1/Math::Sqrt(sqdist);
-
-	    usedvalues_ += ci;
-	    weights_ += weight;
-	    weightsum += weight;
+	    return true;
 	}
 
-	iidx++;
+	const float weight = 1/Math::Sqrt(sqdist);
+
+	usedvalues_ += connections[idx];
+	weights_ += weight;
+	weightsum += weight;
     }
     
     for ( int idx=weights_.size()-1; idx>=0; idx-- )
