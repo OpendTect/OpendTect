@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          Jan 2004
- RCS:           $Id: uicrdevenv.cc,v 1.24 2008-02-26 10:58:04 cvsnanne Exp $
+ RCS:           $Id: uicrdevenv.cc,v 1.25 2008-06-17 10:31:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,8 @@ ________________________________________________________________________
 
 static void showProgrDoc()
 {
-    FilePath fp( "dTectDoc" );
-    fp.add( "Programmer" ).add( __iswin__ ? "windows.html" : "unix.html" );
+    FilePath fp( mGetProgrammerDocDir() );
+    fp.add( __iswin__ ? "windows.html" : "unix.html" );
     uiDesktopServices::openUrl( fp.fullPath() );
 }
 
