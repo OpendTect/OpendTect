@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.142 2008-05-29 07:47:04 cvsnanne Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.143 2008-06-18 11:43:48 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,7 @@ ________________________________________________________________________
 #include "uihor3dfrom2ddlg.h"
 #include "uiimpfault.h"
 #include "uiimphorizon.h"
+#include "uiexport2dhorizon.h"
 #include "uiioobjsel.h"
 #include "uiiosurfacedlg.h"
 #include "uilistbox.h"
@@ -111,19 +112,30 @@ void uiEMPartServer::manageSurfaces( const char* typ )
 }
 
 
-bool uiEMPartServer::ioHorizon( bool imp, bool isgeom )
+bool uiEMPartServer::importHorizon( bool isgeom )
+{
+    uiImportHorizon dlg( parent(), isgeom );
+    const bool res = dlg.go();
+    if ( res && dlg.doDisplay() )
+    {
+	const MultiID mid = dlg.getSelID();	
+	selemid_ = em_.getObjectID(mid);
+	sendEvent( evDisplayHorizon );
+    }
+
+    return res;
+}
+
+
+bool uiEMPartServer::exportHorizon( bool is2d )
 {
     bool res = false;
-    if ( imp )
+    if ( is2d )
     {
-	uiImportHorizon dlg( parent(), isgeom );
+	ObjectSet<SurfaceInfo> hinfos;
+	getAllSurfaceInfo( hinfos, true );
+	uiExport2DHorizon dlg( parent(), hinfos );
 	res = dlg.go();
-	if ( res && dlg.doDisplay() )
-	{
-	    const MultiID mid = dlg.getSelID();	
-	    selemid_ = em_.getObjectID(mid);
-	    sendEvent( evDisplayHorizon );
-	}
     }
     else
     {
@@ -131,18 +143,8 @@ bool uiEMPartServer::ioHorizon( bool imp, bool isgeom )
 	res = dlg.go();
     }
 
-    return res;    
+    return res;
 }
-
-
-bool uiEMPartServer::importHorizon( bool isgeom )
-{ 
-    return ioHorizon( true, isgeom );
-}
-
-
-bool uiEMPartServer::exportHorizon()
-{ return ioHorizon( false ); }
 
 
 bool uiEMPartServer::importFault()
