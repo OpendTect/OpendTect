@@ -4,7 +4,7 @@
  * DATE     : Nov 2006
 -*/
 
-static const char* rcsID = "$Id: tableascio.cc,v 1.19 2008-05-26 13:14:58 cvsbert Exp $";
+static const char* rcsID = "$Id: tableascio.cc,v 1.20 2008-06-18 06:32:26 cvsraman Exp $";
 
 #include "tableascio.h"
 #include "tabledef.h"
@@ -658,16 +658,19 @@ static const char* trimmedNumbStr( const char* sval, bool isint )
 }
 
 
-int Table::AscIO::getIntValue( int ifld ) const
+int Table::AscIO::getIntValue( int ifld, int udf ) const
 {
     if ( !vals_.validIdx(ifld) )
 	return mUdf(int);
     const char* sval = trimmedNumbStr( vals_.get(ifld), true );
-    return sval && *sval ? atoi( sval ) : mUdf(int);
+    if ( !sval || !*sval )
+	return mUdf(int);
+    int val = atoi( sval );
+    return val == udf ? mUdf(int) : val;
 }
 
 
-float Table::AscIO::getfValue( int ifld ) const
+float Table::AscIO::getfValue( int ifld, float udf ) const
 {
     if ( !vals_.validIdx(ifld) )
 	return mUdf(float);
@@ -675,14 +678,15 @@ float Table::AscIO::getfValue( int ifld ) const
     const char* sval = trimmedNumbStr( vals_.get(ifld), false );
     if ( !sval ) return mUdf(float);
     float val = atof( sval );
-    if ( mIsUdf(val) ) return val;
+    if ( mIsEqual(val,udf,mDefEps) )
+	return mUdf(float);
 
     const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : 0;
     return unit ? unit->internalValue( val ) : val;
 }
 
 
-double Table::AscIO::getdValue( int ifld ) const
+double Table::AscIO::getdValue( int ifld, double udf ) const
 {
     if ( !vals_.validIdx(ifld) )
 	return mUdf(double);
@@ -690,7 +694,8 @@ double Table::AscIO::getdValue( int ifld ) const
     const char* sval = trimmedNumbStr( vals_.get(ifld), false );
     if ( !sval ) return mUdf(double);
     double val = atof( sval );
-    if ( mIsUdf(val) ) return val;
+    if ( mIsEqual(val,udf,mDefEps) )
+	return mUdf(double);
 
     const UnitOfMeasure* unit = units_.size() > ifld ? units_[ifld] : 0;
     return unit ? unit->internalValue( val ) : val;
