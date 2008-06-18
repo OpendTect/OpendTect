@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Nov 2006
- RCS:		$Id: tableascio.h,v 1.6 2008-03-20 21:45:03 cvskris Exp $
+ RCS:		$Id: tableascio.h,v 1.7 2008-06-18 06:32:01 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,9 +74,9 @@ protected:
     bool			putNextBodyVals(std::ostream&) const;
 
     const char*			text(int) const; // Never returns null
-    int				getIntValue(int) const;
-    float			getfValue(int) const;
-    double			getdValue(int) const;
+    int				getIntValue(int,int udf=mUdf(int)) const;
+    float			getfValue(int,float udf=mUdf(float)) const;
+    double			getdValue(int,double udf=mUdf(double)) const;
     				// For more, use Conv:: stuff
 
 };
