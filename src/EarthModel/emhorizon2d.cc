@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.18 2008-06-04 07:16:40 cvsraman Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.19 2008-06-18 06:16:28 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -407,11 +407,12 @@ int Horizon2DAscIO::getNextLine( BufferString& lnm, TypeSet<float>& data )
     int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return ret;
 
+    float udfval = getUdfVal();
     lnm = text(0);
     const int lastvalidx = isXY() ? fd_.bodyinfos_.size()
 				  : fd_.bodyinfos_.size() - 1;
     for ( int idx=1; idx<=lastvalidx; idx++ )
-	data += getfValue( idx );
+	data += getfValue( idx, udfval );
 
     return ret;
 }

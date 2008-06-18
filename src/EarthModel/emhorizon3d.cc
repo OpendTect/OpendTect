@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.102 2008-04-30 06:51:54 cvsraman Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.103 2008-06-18 06:16:28 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -664,8 +664,9 @@ int Horizon3DAscIO::getNextLine( TypeSet<float>& data )
     int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return ret;
 
+    float udfval = getUdfVal();
     for ( int idx=0; idx<=fd_.bodyinfos_.size(); idx++ )
-	data += getfValue( idx );
+	data += getfValue( idx, udfval );
 
     return ret;
 }
