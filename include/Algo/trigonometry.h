@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.26 2008-06-10 19:35:03 cvsyuancheng Exp $
+ RCS:		$Id: trigonometry.h,v 1.27 2008-06-18 13:34:00 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -18,6 +18,34 @@ ________________________________________________________________________
 template <class T> class TypeSet;
 template <class T> class ObjectSet;
 class Plane3;
+
+/*!\brief
+Given a point pt in a triangle ABC, we calculate the interpolation weights for
+each vertex.
+ */
+inline void interpolateOnTriangle2D( const Coord pt, 
+			const Coord a, const Coord b, const Coord c, 
+			float& weight_a, float& weight_b, float& weight_c )
+{
+    const Coord d0 = b-a;
+    const Coord d1 = pt-a;
+    const Coord d2 = b-c;
+    const float para_pt = (d0.x*d2.y-d0.y*d2.x)/(d1.x*d2.y-d1.y*d2.x);
+    const float para_bc = (d1.x*d0.y-d1.y*d0.x)/(d1.x*d2.y-d1.y*d2.x);
+
+    if ( mIsZero(para_pt, 1e-5) )
+    {
+	weight_a = 1;
+	weight_b = 0;
+	weight_c = 0;
+	return;
+    }
+
+    weight_a = 1-1/para_pt;
+    weight_b = (1-para_bc)/para_pt;
+    weight_c = para_bc/para_pt;
+}
+
 
 /*!\brief
 Here are some commonly used functions to judge the position relation between 
@@ -74,14 +102,29 @@ inline bool pointInTriangle2D( const Coord& p, const Coord& a, const Coord& b,
 inline bool pointOnEdge2D( const Coord& p, const Coord& a, const Coord& b, 
 			   double epsilon )
 {
-    const Coord3 pa(a-p,0);
-    const Coord3 ba(b-a,0);
-    const double t = -pa.dot(ba)/ba.dot(ba);
-    if ( t<0 || t>1 )
+    const Coord pa = p-a;
+    const Coord pb = p-b;
+    const Coord ba = b-a;
+    if ( mIsZero(ba.x, epsilon) ) //AB is parallel to y-axis.
+    {
+	if ( fabs(pa.x)>epsilon )
+	    return false;
+	else
+	{
+	    if (b.y>a.y && (pb.y>0 || pa.y<0) || b.y<a.y && (pb.y<0 || pa.y>0))
+		return false;
+	    else 
+		return true;
+	}
+    }
+    
+    const double slope = ba.y/ba.x;
+    const double yonline = a.y+slope*pa.x;
+    if ( fabs(yonline-p.y)>epsilon || a.x<b.x && (pa.x<0 || pb.x>0) ||
+	    			      b.x<a.x && (pb.x<0 || pa.x>0) )
 	return false;
-
-    const double disttoline = pa.cross(ba).abs() / ba.abs();
-    return disttoline<epsilon; 
+    
+    return true;
 }
 
 
