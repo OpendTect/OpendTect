@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.h,v 1.15 2008-02-25 16:31:37 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.h,v 1.16 2008-06-18 08:20:40 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -119,7 +119,7 @@ protected:
     bool		doSave(bool);
     void		replaceStoredAttr();
     void		removeNotUsedAttr();
-    bool		hasInput(const Attrib::Desc&,const Attrib::DescID&);
+    //bool		hasInput(const Attrib::Desc&,const Attrib::DescID&);
 
     bool		acceptOK(CallBacker*);
     bool		rejectOK(CallBacker*);

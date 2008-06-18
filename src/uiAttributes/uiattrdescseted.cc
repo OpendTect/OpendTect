@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.71 2008-06-05 14:35:13 cvsbert Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.72 2008-06-18 08:20:40 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,7 @@ ________________________________________________________________________
 #include "uiselsimple.h"
 #include "uiseparator.h"
 #include "uisplitter.h"
+#include "uistoredattrreplacer.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
 #include "uiobjdisposer.h"
@@ -1053,7 +1054,7 @@ void uiAttribDescSetEd::changeInput( CallBacker* )
 }
 
 
-bool uiAttribDescSetEd::hasInput( const Desc& desc, const DescID& id )
+/*bool uiAttribDescSetEd::hasInput( const Desc& desc, const DescID& id )
 {
     for ( int idx=0; idx<desc.nrInputs(); idx++ )
     {
@@ -1077,77 +1078,13 @@ bool uiAttribDescSetEd::hasInput( const Desc& desc, const DescID& id )
     }
 
     return false;
-}
+}*/
 
 
 void uiAttribDescSetEd::replaceStoredAttr()
 {
-    TypeSet<DescID> storedids;
-    TypeSet<LineKey> linekeys;
-    for ( int idx=0; idx<attrset->nrDescs(); idx++ )
-    {
-	const DescID descid = attrset->getID( idx );
-        Desc* ad = attrset->getDesc( descid );
-        if ( !ad || !ad->isStored() ) continue;
-
-	const ValParam* keypar = ad->getValParam( StorageProvider::keyStr() );
-	LineKey lk( keypar->getStringValue() );
-	if ( !linekeys.addIfNew(lk) ) continue;
-
-	storedids += descid;
-    }
-
     const bool is2d = adsman ? adsman->is2D() : attrset->is2D();
-    BufferStringSet usrrefs;
-    bool found2d = false;
-    for ( int idnr=0; idnr<storedids.size(); idnr++ )
-    {
-	usrrefs.erase();
-	const DescID storedid = storedids[idnr];
-
-	for ( int idx=0; idx<attrset->nrDescs(); idx++ )
-	{
-	    const DescID descid = attrset->getID( idx );
-	    Desc* ad = attrset->getDesc( descid );
-            if ( !ad || ad->isStored() || ad->isHidden() ) continue;
-
-	    if ( hasInput(*ad,storedid) )
-		usrrefs.addIfNew( ad->userRef() );
-        }
-
-	if ( usrrefs.isEmpty() )
-	    continue;
-
-	Desc* ad = attrset->getDesc( storedid );
-	const bool issteer = ad->dataType() == Seis::Dip;
-        uiAttrInpDlg dlg( this, usrrefs, issteer, is2d );
-        if ( dlg.go() )
-        {
-            ad->changeStoredID( dlg.getKey() );
-            ad->setUserRef( dlg.getUserRef() );
-	    if ( issteer )
-	    {
-		Desc* adcrld = 
-		    	attrset->getDesc( DescID(storedid.asInt()+1, true) );
-		if ( ad && ad->isStored() )
-		{
-		    adcrld->changeStoredID( dlg.getKey() );
-		    BufferString bfstr = dlg.getUserRef();
-		    bfstr += "_crline_dip";
-		    adcrld->setUserRef( bfstr.buf() );
-		}
-	    }
-	    if ( !found2d && dlg.is2D() )
-		found2d = true;
-	}
-    }
-
-    attrset->removeUnused( true );
-    if ( found2d )
-    {
-	for ( int idx=0; idx< attrset->nrDescs(); idx++ )
-	    attrset->desc(idx)->set2D(true);
-    }
+    uiStoredAttribReplacer replacer( this, *attrset, is2d );
 }
 
 
