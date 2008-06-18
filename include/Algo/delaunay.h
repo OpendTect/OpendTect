@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.9 2008-06-16 19:41:17 cvskris Exp $
+ RCS:           $Id: delaunay.h,v 1.10 2008-06-18 18:07:17 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,6 +118,10 @@ public:
 	    			    unsigned char lockid=0);
     int			insertPoint(const Coord&, int& dupid,
 	    			    unsigned char lockid=0);
+    bool		getTriangle(const Coord&,int& dupid,
+	    			    TypeSet<int>& vertexindices,
+				    unsigned char lockid=0);
+    			/*!<search triangle contains the point.return crds. */
     bool		getCoordIndices(TypeSet<int>&) const;
     			/*!<Coord indices are sorted in threes, i.e
 			    ci[0], ci[1], ci[2] is the first triangle

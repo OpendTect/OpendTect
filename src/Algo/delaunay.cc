@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.9 2008-06-16 19:41:17 cvskris Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.10 2008-06-18 18:07:17 cvsyuancheng Exp $";
 
 #include "delaunay.h"
 
@@ -714,9 +714,7 @@ bool DAGTriangleTree::setCoordList( const TypeSet<Coord>& coordlist, bool copy )
     }
 
     coordlock_.writeUnLock();
-
-    setBBox( xrg, yrg );
-    return true;
+    return setBBox( xrg, yrg );
 }
 
 
@@ -726,11 +724,11 @@ bool DAGTriangleTree::setBBox(const Interval<double>& xrg,
     triangles_.erase();
     const double xlength = xrg.width();
     const double ylength = yrg.width();
-    if ( !xlength || !ylength )
+    if ( mIsZero(xlength,1e-4) || mIsZero(ylength,1e-4) )
 	return false;
 
     const Coord center( xrg.center(), yrg.center() );
-    const double radius = 0.6*sqrt( xlength*xlength+ylength*ylength );
+    const double radius = 2*sqrt( xlength*xlength+ylength*ylength );
     initialcoords_[0] = Coord( center.x-radius*sqrt(3), center.y-radius );
     initialcoords_[1] = Coord( center.x+radius*sqrt(3), center.y-radius );
     initialcoords_[2] = Coord( center.x, center.y+2*radius );
@@ -783,6 +781,49 @@ int DAGTriangleTree::insertPoint( const Coord& coord, int& dupid,
     }
 
     return ci;
+}
+
+
+bool DAGTriangleTree::getTriangle( const Coord& coord, int& dupid,
+			TypeSet<int>& vertices, unsigned char lockerid )
+{
+    dupid = cNoVertex();
+    vertices.erase();
+    if ( !ownscoordlist_ )
+	return false;
+
+    coordlock_.writeLock();
+    const int ci = coordlist_->size();
+    (*coordlist_) += coord;
+    coordlock_.writeUnLock();
+
+    int ti0, ti1;
+    const char res = searchTriangle( ci, 0, ti0, ti1, dupid, lockerid );
+    if ( dupid!=cNoVertex() )
+	return true;
+
+    if ( ti0==cNoVertex() && ti1==cNoVertex() )
+	return false;
+
+    const int* crds0 = triangles_[ti0].coordindices_;
+    const int* crds1 = ti1!=cNoVertex() ? triangles_[ti1].coordindices_ : 0;
+    if ( crds0[0]>=0 && crds0[1]>=0 && crds0[2]>=0 )
+    {
+    	vertices += crds0[0];
+    	vertices += crds0[1];
+    	vertices += crds0[2];
+	return true;
+    }
+    
+    if ( crds1 && crds1[0]>=0 && crds1[1]>=0 && crds1[2]>=0 )
+    {
+    	vertices += crds1[0];
+    	vertices += crds1[1];
+    	vertices += crds1[2];
+	return true;
+    }
+
+   return false;
 }
 
 
@@ -1032,25 +1073,50 @@ bool DAGTriangleTree::searchTriangleOnEdge( int ci, int ti, int& resti,
 char DAGTriangleTree::isOnEdge( const Coord& p, const Coord& a, 
 				const Coord& b, bool& duponfirst ) const
 {
-    const Coord3 pa(a-p,0);
-    const Coord3 ba(b-a,0);
-    const double t = -pa.dot(ba)/ba.dot(ba);
-    if ( t<0 || t>1 )
-	return cNotOnEdge();
+    const Coord pa = p-a;
+    const Coord pb = p-b;
+    const Coord ba = b-a;
+    if ( mIsZero(ba.x, epsilon_) ) //AB is parallel to y-axis.
+    {
+	if ( fabs(pa.x)>epsilon_ )
+	    return cNotOnEdge();
+	else 
+	{
+	    if ( b.y>a.y && (pb.y>0 || pa.y<0) || 
+		 b.y<a.y && (pb.y<0 || pa.y>0) )
+		return cNotOnEdge();
+	    else if mIsZero( pb.y, epsilon_ )
+	    {
+		duponfirst = false;
+		return cIsDuplicate();
+	    }
+	    else if mIsZero( pa.y, epsilon_ )
+	    {
+		duponfirst = true;
+		return cIsDuplicate();
+	    }
 
-    if ( mIsZero( t, 1e-4 ) )
+	    return cIsOnEdge();
+	}
+    }
+
+    const double slope = ba.y/ba.x;
+    const double yonline = a.y+slope*pa.x;
+    if ( fabs(yonline-p.y)>epsilon_ || a.x<b.x && (pa.x<0 || pb.x>0) ||
+	 b.x<a.x && (pb.x<0 || pa.x>0) )
+	return cNotOnEdge();
+    else if ( mIsZero(pa.x,epsilon_) )
     {
 	duponfirst = true;
 	return cIsDuplicate();
     }
-    else if ( mIsEqual( t, 1.0, 1e-4 ) )
+    else if ( mIsZero(pb.x,epsilon_) )
     {
 	duponfirst = false;
 	return cIsDuplicate();
     }
 
-    const double disttoline = pa.cross(ba).abs() / ba.abs();
-    return disttoline<epsilon_ ? cIsOnEdge() : cNotOnEdge();
+    return cIsOnEdge();
 }
 
 
@@ -1066,7 +1132,10 @@ char DAGTriangleTree::isInside( int ci, int ti, int& dupid ) const
     const Coord& tricoord1 = mCrd(crds[1]);
     const Coord& tricoord2 = mCrd(crds[2]);
     if ( pointInTriangle2D( coord, tricoord0, tricoord1, tricoord2, 0 ) )
+    {
+	coordlock_.readUnLock();
 	return cIsInside();
+    }
 
     bool duponfirst;
     char res = isOnEdge( coord, tricoord0, tricoord1, duponfirst );
@@ -1462,6 +1531,7 @@ bool DAGTriangleTree::getCoordIndices( TypeSet<int>& result ) const
 
 bool DAGTriangleTree::getConnections( int vertex, TypeSet<int>& result ) const
 {
+    result.erase();
     for ( int idx=triangles_.size()-1; idx>=0; idx-- )
     {
 	const int* child = triangles_[idx].childindices_;
