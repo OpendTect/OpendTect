@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.370 2008-05-29 11:59:02 cvssatyaki Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.371 2008-06-18 22:18:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "vismpeseedcatcher.h"
 #include "visobject.h"
 #include "visselman.h"
+#include "vispolygonselection.h"
 #include "vissurvobj.h"
 #include "vissurvscene.h"
 #include "vistransform.h"
@@ -96,6 +97,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , slicepostools_(0)
     , pickretriever_( new uiVisPickRetriever )
     , nrsceneschange_( this )
+    , seltype_( (int) visBase::PolygonSelection::Off )
 {
     menu_.ref();
     menu_.createnotifier.notify( mCB(this,uiVisPartServer,createMenuCB) );
@@ -157,6 +159,8 @@ int uiVisPartServer::addScene( visSurvey::Scene* newscene )
     newscene->mouseposchange.notify( mCB(this,uiVisPartServer,mouseMoveCB) );
     newscene->ref();
     scenes_ += newscene;
+    newscene->getSelection()->setSelectionType(
+	    (visBase::PolygonSelection::SelectionType) seltype_ );
     pickretriever_->addScene( newscene );
     nrsceneschange_.trigger();
     return newscene->id();
@@ -822,6 +826,41 @@ void uiVisPartServer::setSoloMode( bool yn, TypeSet< TypeSet<int> > dispids,
     displayids_ = dispids;
     issolomode_ ? updateDisplay( true, selid ) : updateDisplay( false, selid );
 }
+
+
+void uiVisPartServer::setSelectionMode( uiVisPartServer::SelectionMode mode )
+{
+    visBase::PolygonSelection::SelectionType type;
+    if ( mode==Off )
+	type = visBase::PolygonSelection::Off;
+    else if ( mode==Rectangle )
+	type = visBase::PolygonSelection::Rectangle;
+    else
+	type = visBase::PolygonSelection::Polygon;
+
+    seltype_ = (int) type;
+
+    for ( int sceneidx=0; sceneidx<scenes_.size(); sceneidx++ )
+    {
+	visSurvey::Scene* scene = scenes_[sceneidx];
+	scene->getSelection()->setSelectionType( type );
+    }
+}
+
+
+uiVisPartServer::SelectionMode uiVisPartServer::getSelectionMode() const
+{
+    visBase::PolygonSelection::SelectionType type =
+	(visBase::PolygonSelection::SelectionType) seltype_;
+
+    if ( type==visBase::PolygonSelection::Off )
+	return Off;
+    if ( type==visBase::PolygonSelection::Rectangle )
+	return Rectangle;
+
+    return Polygon;
+}
+
 
 
 int uiVisPartServer::getTypeSetIdx( int selid )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.103 2008-06-13 04:01:54 cvsnanne Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.104 2008-06-18 22:18:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "visevent.h"
 #include "vismarker.h"
 #include "vismaterial.h"
+#include "vispolygonselection.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
 #include "vissurvobj.h"
@@ -54,6 +55,7 @@ Scene::Scene()
     , datatransform_( 0 )
     , allowshading_(true)
     , mousecursor_( 0 )
+    , polyselector_( 0 )
 {
     events_.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
     setAmbientLight( 1 );
@@ -86,6 +88,10 @@ void Scene::init()
 
     setAnnotationCube( cs );
     addInlCrlTObject( annot_ );
+
+    polyselector_ = visBase::PolygonSelection::create();
+    addUTMObject( polyselector_ );
+    polyselector_->getMaterial()->setColor( Color(255,0,0) );
 }
 
 
@@ -516,7 +522,8 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     for ( ; kid<size(); kid++ )
     {
 	if ( getObject(kid)==annot_ || (marker_ && getObject(kid)==marker_) ||
-	     getObject(kid)==inlcrl2disptransform_ ) continue;
+	     getObject(kid)==inlcrl2disptransform_ ||
+	     getObject(kid)==polyselector_ ) continue;
 
 	const int objid = getObject(kid)->id();
 	if ( saveids.indexOf(objid) == -1 )
@@ -549,6 +556,7 @@ void Scene::removeAll()
 {
     visBase::DataObjectGroup::removeAll();
     zscaletransform_ = 0; inlcrl2disptransform_ = 0; annot_ = 0;
+    polyselector_= 0;
     curzscale_ = -1;
 }
 

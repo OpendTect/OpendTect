@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.203 2008-05-08 07:28:15 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.204 2008-06-18 22:18:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -248,6 +248,9 @@ public:
     void			setSoloMode(bool,TypeSet< TypeSet<int> >,int);
     bool                        isSoloMode() const;
     bool			isViewMode() const;
+    enum			SelectionMode { Off, Rectangle, Polygon };
+    void			setSelectionMode(SelectionMode);
+    SelectionMode		getSelectionMode() const;
     void			turnOn(int,bool,bool doclean=false);
     bool			isOn(int) const;
     void			updateDisplay(bool,int,int refid=-1);
@@ -344,6 +347,7 @@ protected:
     int				eventobjid_;
     int				eventattrib_;
     int				selattrib_;
+    int				seltype_;
 
     void			rightClickCB(CallBacker*);
     void			selectObjCB(CallBacker*);

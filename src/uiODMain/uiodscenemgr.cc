@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.132 2008-06-05 07:34:17 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.133 2008-06-18 22:18:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -524,6 +524,19 @@ void uiODSceneMgr::mkSnapshot( CallBacker* )
     dlg.go();
     // TODO: save settings in iopar
 }
+
+
+void uiODSceneMgr::selectionMode( CallBacker* )
+{
+    uiVisPartServer::SelectionMode selmode = visServ().getSelectionMode();
+    if ( selmode==uiVisPartServer::Off )
+	selmode = uiVisPartServer::Polygon;
+    else
+	selmode = uiVisPartServer::Off;
+
+    visServ().setSelectionMode( selmode );
+}
+
 
 
 void uiODSceneMgr::soloMode( CallBacker* )

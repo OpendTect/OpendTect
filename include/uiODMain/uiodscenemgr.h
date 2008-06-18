@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.54 2008-05-22 10:48:19 cvssatyaki Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.55 2008-06-18 22:18:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,6 +85,7 @@ public:
     void			viewCrl(CallBacker*);
     void			switchCameraType(CallBacker*);
     void			mkSnapshot(CallBacker*);
+    void			selectionMode(CallBacker*);
     void			soloMode(CallBacker*);
 
     void			setZoomValue(float);

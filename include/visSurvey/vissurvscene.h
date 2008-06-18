@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.49 2008-06-13 04:01:54 cvsnanne Exp $
+ RCS:		$Id: vissurvscene.h,v 1.50 2008-06-18 22:18:51 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -30,6 +30,7 @@ namespace visBase
     class Transformation;
     class VisualObject;
     class Marker;
+    class PolygonSelection;
 };
 
 namespace visSurvey
@@ -91,6 +92,8 @@ public:
     bool			isAnnotShown() const;
     void			setAnnotText(int dim,const char*);
 
+    visBase::PolygonSelection*	getSelection() { return polyselector_; }
+
     Notifier<Scene>		mouseposchange;
     Coord3			getMousePos(bool xyt) const;
     				/*! If not xyt it is inlcrlt */
@@ -147,6 +150,7 @@ protected:
 
     visBase::Annotation*	annot_;
     visBase::Marker*		marker_;
+    visBase::PolygonSelection*	polyselector_;
 
     Coord3			xytmousepos_;
     BufferString		mouseposval_;

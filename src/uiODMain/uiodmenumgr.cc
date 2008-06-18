@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.126 2008-06-18 11:40:07 cvsraman Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.127 2008-06-18 22:19:39 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -526,6 +526,7 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     axisid_ = mAddTB(cointb_,"axis.png","Display rotation axis",
 	    	     true,showRotAxis);
     mAddTB(cointb_,"snapshot.png","Make snapshot",false,mkSnapshot);
+    mAddTB(cointb_,"polygonselect.png","Selection mode",true,selectionMode);
     soloid_ = mAddTB(cointb_,"solo.png","Display current element only",
 		     true,soloMode);
 
