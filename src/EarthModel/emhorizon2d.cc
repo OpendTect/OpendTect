@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.19 2008-06-18 06:16:28 cvsraman Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.20 2008-06-18 06:39:12 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -333,11 +333,7 @@ Table::FormatDesc* Horizon2DAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Horizon2D" );
     fd->headerinfos_ += new Table::TargetInfo( "Undefined Value",
-	    		StringInpSpec(sKey::FloatUdf), Table::Required,
-	   		PropertyRef::surveyZType() );
-    const char* un = SI().zIsTime() ? "Milliseconds"
-				    : SI().zInFeet() ? "Feet" : "Meter";
-    fd->headerinfos_[0]->selection_.unit_ = UoMR().get( un );
+	    		StringInpSpec(sKey::FloatUdf), Table::Required );
     BufferStringSet hornms;
     createDescBody( fd, hornms );
     return fd;
