@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.40 2008-05-30 07:10:58 cvsraman Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.41 2008-06-18 11:41:11 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -64,7 +64,8 @@ ________________________________________________________________________
 #define mExpSeisSEGY2DMnuItm	(mFileExpMnu + 11)
 #define mExpSeisSimple3DMnuItm	(mFileExpMnu + 14)
 #define mExpSeisSimple2DMnuItm	(mFileExpMnu + 15)
-#define mExpHorAsciiMnuItm	(mFileExpMnu + 20)
+#define mExpHorAscii3DMnuItm	(mFileExpMnu + 20)
+#define mExpHorAscii2DMnuItm	(mFileExpMnu + 21)
 #define mExpFltAsciiMnuItm	(mFileExpMnu + 30)
 #define mExpPickMnuItm		(mFileExpMnu + 50)
 #define mManSeisMnuItm		(mFileManMnu + 10)

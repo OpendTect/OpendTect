@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.249 2008-05-30 07:13:13 cvsraman Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.250 2008-06-18 11:40:07 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -232,7 +232,12 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 		dlg.go();
 	    }
 	    break;
-	case Exp:	emserv_->exportHorizon(); break;
+	case Exp:
+	    if ( opt == 0 )
+		emserv_->exportHorizon( false );
+	    else if ( opt == 1 )
+		emserv_->exportHorizon( true );
+	    break;
 	case Man:
 	    if ( opt == 0 )
 		emserv_->manageSurfaces(

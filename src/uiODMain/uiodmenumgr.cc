@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.125 2008-06-16 06:05:26 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.126 2008-06-18 11:40:07 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -238,7 +238,8 @@ void uiODMenuMgr::fillExportMenu()
     expmnu_->insertItem( expseis );
 
     uiPopupMenu* exphor = new uiPopupMenu( &appl_, "&Horizons" );
-    mInsertItem( exphor, "&Ascii ...", mExpHorAsciiMnuItm );
+    mInsertItem( exphor, "Ascii &3D...", mExpHorAscii3DMnuItm );
+    mInsertItem( exphor, "Ascii &2D...", mExpHorAscii2DMnuItm );
     expmnu_->insertItem( exphor );
 
     uiPopupMenu* expflt = new uiPopupMenu( &appl_, "&Faults" );
@@ -572,7 +573,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpHorAsciiMnuItm: mDoOp(Imp,Hor,0); break;
     case mImpHorAsciiAttribMnuItm: mDoOp(Imp,Hor,1); break;
     case mImpHor2DAsciiMnuItm: mDoOp(Imp,Hor,2); break;
-    case mExpHorAsciiMnuItm: 	mDoOp(Exp,Hor,0); break;
+    case mExpHorAscii3DMnuItm: 	mDoOp(Exp,Hor,0); break;
+    case mExpHorAscii2DMnuItm:    mDoOp(Exp,Hor,1); break;
     case mExpFltAsciiMnuItm: 	mDoOp(Exp,Flt,0); break;
     case mImpWellAsciiTrackMnuItm: mDoOp(Imp,Wll,0); break;
     case mImpWellAsciiLogsMnuItm: mDoOp(Imp,Wll,1); break;
