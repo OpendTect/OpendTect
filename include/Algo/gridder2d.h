@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Y.C.Liu & K. Tingdahl
  Date:		January 2008
- RCS:		$Id: gridder2d.h,v 1.3 2008-06-16 19:41:17 cvskris Exp $
+ RCS:		$Id: gridder2d.h,v 1.4 2008-06-18 18:46:09 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -143,6 +143,30 @@ protected:
     Interval<float>	yrg_;
 };
 
+
+/*Use Delaunay triangulation to find a triangle which contains a given point,
+ then apply interpolation to the point. */
+class TriangleInterpolateGridder2D: public Gridder2D
+{
+public:
+    			TriangleInterpolateGridder2D();
+			TriangleInterpolateGridder2D(
+				const TriangleInterpolateGridder2D&);
+			~TriangleInterpolateGridder2D();
+
+    static Gridder2D*	create(); 
+    static void		initClass();
+    const char*		name() const		{ return sName(); }
+    static const char* 	sName() 		{ return "TriangInterpolate"; }
+    static const char* 	sUserName() 		{ return "TriangInterpolation";}
+    Gridder2D*		clone() const;
+    
+    bool		init();
+
+protected:
+
+    DAGTriangleTree*	triangles_;
+};
 
 
 

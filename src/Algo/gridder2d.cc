@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.3 2008-06-17 14:23:38 cvskris Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.4 2008-06-18 18:46:09 cvsyuancheng Exp $";
 
 #include "gridder2d.h"
 
@@ -13,6 +13,7 @@ static const char* rcsID = "$Id: gridder2d.cc,v 1.3 2008-06-17 14:23:38 cvskris 
 #include "positionlist.h"
 #include "math2.h"
 #include "sorting.h"
+#include "trigonometry.h"
 
 #define mEpsilon 0.0001
 
@@ -372,6 +373,110 @@ bool TriangulatedGridder2D::init()
     
     for ( int idx=weights_.size()-1; idx>=0; idx-- )
         weights_[idx] /= weightsum;
+
+    inited_ = true;
+    return true;
+}
+
+
+TriangleInterpolateGridder2D::TriangleInterpolateGridder2D()
+    : triangles_( 0 )
+{}
+
+
+TriangleInterpolateGridder2D::TriangleInterpolateGridder2D( 
+				const TriangleInterpolateGridder2D& b )
+    : triangles_( 0 )
+{
+    if ( b.triangles_ )
+	triangles_ = new DAGTriangleTree( *b.triangles_ );
+}
+
+
+TriangleInterpolateGridder2D::~TriangleInterpolateGridder2D()
+{ delete triangles_; }
+
+
+Gridder2D* TriangleInterpolateGridder2D::create()
+{
+    return new TriangleInterpolateGridder2D;
+}
+
+
+void TriangleInterpolateGridder2D::initClass()
+{
+    Gridder2D::factory().addCreator( create, sName(), sUserName() );
+}
+
+
+Gridder2D* TriangleInterpolateGridder2D::clone() const
+{ return new TriangleInterpolateGridder2D( *this ); }
+
+
+bool TriangleInterpolateGridder2D::init()
+{
+    usedvalues_.erase();
+    weights_.erase();
+
+    inited_ = false;
+
+    if ( !points_ || !points_->size() || !gridpoint_.isDefined() )
+	return true;
+
+    if ( points_->size()==1 )
+    {
+	usedvalues_ += 0;
+	weights_ += 1;
+	inited_ = true;
+	return true;
+    }
+
+    if ( !triangles_ )
+    {
+	triangles_ = new DAGTriangleTree;
+	if ( !triangles_->setCoordList( *points_, true ) )
+	    return false;
+
+	ParallelDTriangulator triangulator( *triangles_ );
+	triangulator.dataIsRandom( true ); //false );
+	if ( !triangulator.execute( false ) )
+	{
+	    delete triangles_;
+	    triangles_ = false;
+	    return false;
+	}
+    }
+
+    DAGTriangleTree interpoltriangles( *triangles_ );
+    TypeSet<int> vertices;
+    int dupid;
+    if ( !interpoltriangles.getTriangle( gridpoint_, dupid, vertices ) )
+	return false;
+
+    if ( dupid!=DAGTriangleTree::cNoVertex() )
+    {
+	usedvalues_ += dupid;
+	weights_ += 1;
+	inited_ = true;
+	return true;
+    }
+
+    if ( vertices.size()<3 || vertices[0]<0 || vertices[1]<0 || vertices[2]<0 )
+    {
+	pErrMsg("Hmm");
+	return false;
+    }
+
+    for ( int idx=0; idx<3; idx++ )
+	usedvalues_ += vertices[idx];
+   
+    const TypeSet<Coord>& crds = interpoltriangles.coordList(); 
+    float weight0, weight1, weight2;
+    interpolateOnTriangle2D( gridpoint_, crds[vertices[0]], crds[vertices[1]],
+	    		     crds[vertices[2]], weight0, weight1, weight2 ); 
+    weights_ += weight0;
+    weights_ += weight1;
+    weights_ += weight2;
 
     inited_ = true;
     return true;
