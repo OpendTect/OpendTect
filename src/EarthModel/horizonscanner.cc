@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizonscanner.cc,v 1.22 2008-03-20 21:36:32 cvskris Exp $
+ RCS:           $Id: horizonscanner.cc,v 1.23 2008-06-18 06:22:21 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -199,7 +199,6 @@ bool HorizonScanner::analyzeData()
 {
     if ( !reInitAscIO( filenames_.get(0).buf() ) ) return false;
 
-    udfval_ = ascio_->getUdfVal();
     const float fac = SI().zIsTime() ? 0.001
 				     : (SI().zInMeter() ? .3048 : 3.28084);
     Interval<float> validrg( SI().zRange(false) );

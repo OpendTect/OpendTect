@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: horizon2dscanner.h,v 1.1 2008-05-30 07:08:08 cvsraman Exp $
+ RCS:		$Id: horizon2dscanner.h,v 1.2 2008-06-18 06:23:48 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,8 +38,10 @@ public:
     virtual int		nrDone() const;
     virtual const char*	nrDoneText() const;
 
+    bool		getLineNames(BufferStringSet&) const;
+    BinIDValueSet*	getVals()			{ return bvalset_; }
+
     bool		reInitAscIO(const char*);
-    void		setUndefValue(float udf)	{ udfval_ = udf; }
     void		setPosIsXY(bool yn)		{ isxy_ = yn; }
     bool		posIsXY() const			{ return isxy_; }
 
@@ -61,7 +63,6 @@ protected:
     BufferString	curline_;
     bool		isgeom_;
     bool		isxy_;
-    float		udfval_;
     TypeSet<Interval<float> > valranges_;
     Table::FormatDesc&	fd_;
 

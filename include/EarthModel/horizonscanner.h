@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		Feb 2004
- RCS:		$Id: horizonscanner.h,v 1.9 2007-12-13 06:07:06 cvsraman Exp $
+ RCS:		$Id: horizonscanner.h,v 1.10 2008-06-18 06:21:57 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,6 @@ public:
     virtual const char*	nrDoneText() const;
 
     bool		reInitAscIO(const char*);
-    void		setUndefValue(float udf)	{ udfval_ = udf; }
     void		setPosIsXY(bool yn)		{ isxy_ = yn; }
     bool		posIsXY() const			{ return isxy_; }
     bool		analyzeData();
@@ -69,7 +68,6 @@ protected:
     bool		isxy_;
     bool		selxy_;
     bool		doscale_;
-    float		udfval_;
     TypeSet<Interval<float> > valranges_;
     Table::FormatDesc&	fd_;
 
