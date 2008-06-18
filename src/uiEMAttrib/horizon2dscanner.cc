@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizon2dscanner.cc,v 1.2 2008-06-04 07:15:19 cvsraman Exp $
+ RCS:           $Id: horizon2dscanner.cc,v 1.3 2008-06-18 06:29:16 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -186,12 +186,10 @@ bool Horizon2DScanner::reInitAscIO( const char* fnm )
     if ( !ascio_ ) return false;
 
     isxy_ = ascio_->isXY();
-    udfval_ = ascio_->getUdfVal();
     return true;
 }
 
 
-#define mIsUndefined(val) mIsEqual(val,udfval_,1e-6)
 int Horizon2DScanner::nextStep()
 {
     if ( fileidx_ >= filenames_.size() )
@@ -263,7 +261,7 @@ int Horizon2DScanner::nextStep()
 
 	const float val = data[validx+2];
 
-	if ( mIsUndefined(val) || !linegeom_.zrg.includes(val) )
+	if ( mIsUdf(val) || !linegeom_.zrg.includes(val) )
 	    data[validx+2] = mUdf(float);
 	else
 	{
@@ -285,3 +283,9 @@ int Horizon2DScanner::nextStep()
 }
 
 
+bool Horizon2DScanner::getLineNames( BufferStringSet& nms ) const
+{
+    deepErase( nms );
+    nms = validnms_;
+    return nms.size();
+}

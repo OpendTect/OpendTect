@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Raman Singh
  Date:          May 2008
- RCS:           $Id: uiimphorizon2d.cc,v 1.4 2008-06-04 13:25:48 cvshelene Exp $
+ RCS:           $Id: uiimphorizon2d.cc,v 1.5 2008-06-18 06:29:16 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,29 +37,6 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 
 #include <math.h>
-
-
-class Horizon2DScannerImpl : public Horizon2DScanner
-{
-public:
-
-Horizon2DScannerImpl( const BufferStringSet& fnms, const MultiID& setid,
-		  Table::FormatDesc& fd )
-    : Horizon2DScanner(fnms,setid,fd)
-{}
-
-bool getLineNames( BufferStringSet& nms ) const
-{
-    deepErase( nms );
-    nms = validnms_;
-    return nms.size();
-}
-
-
-BinIDValueSet* getVals()
-{ return bvalset_; }
-
-};
 
 
 class Horizon2DImporter : public Executor
@@ -345,7 +322,7 @@ void uiImportHorizon2D::scanPush( CallBacker* cb )
 
     const char* setnm = linesetfld_->text();
     const int setidx = linesetnms_.indexOf( setnm );
-    scanner_ = new Horizon2DScannerImpl( filenms, setids_[setidx], fd_ );
+    scanner_ = new Horizon2DScanner( filenms, setids_[setidx], fd_ );
     uiTaskRunner taskrunner( this );
     taskrunner.execute( *scanner_ );
     if ( cb )
@@ -368,10 +345,7 @@ bool uiImportHorizon2D::doImport()
     if ( !scanner_ ) return false;
 
     BufferStringSet linenms;
-    mDynamicCastGet(Horizon2DScannerImpl*,scanner,scanner_)
-    if ( !scanner ) return false;
-
-    scanner->getLineNames( linenms );
+    scanner_->getLineNames( linenms );
     BufferStringSet hornms;
     horselfld_->getSelectedItems( hornms );
     ObjectSet<EM::Horizon2D> horizons;
@@ -423,7 +397,7 @@ bool uiImportHorizon2D::doImport()
 
     const char* setnm = linesetfld_->text();
     const int setidx = linesetnms_.indexOf( setnm );
-    const BinIDValueSet* valset = scanner->getVals();
+    const BinIDValueSet* valset = scanner_->getVals();
     PtrMan<Horizon2DImporter> exec = new Horizon2DImporter( linenms, horizons,
 	    						    setids_[setidx],
 							    valset );
