@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne and Kristofer
  Date:          December 2007
- RCS:           $Id: initsood.cc,v 1.1 2007-12-14 05:10:16 cvssatyaki Exp $
+ RCS:           $Id: initsood.cc,v 1.2 2008-06-18 21:53:08 cvskris Exp $
  ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@
 #include "SoInvisibleLineDragger.h"
 #include "SoPerspectiveSel.h"
 #include "SoPlaneWellLog.h"
+#include "SoPolygonSelect.h"
 #include "SoIndexedLineSet3D.h"
 #include "SoScale3Dragger.h"
 #include "SoShapeScale.h"
@@ -66,6 +67,7 @@ void SoOD::initStdClasses()
     SoInvisibleLineDragger::initClass();
     SoPerspectiveSel::initClass();
     SoPlaneWellLog::initClass();
+    SoPolygonSelect::initClass();
     SoIndexedLineSet3D::initClass();
     SoShapeScale::initClass();
     SoText2Set::initClass();

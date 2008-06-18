@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: initvisbase.cc,v 1.5 2008-05-14 20:28:21 cvskris Exp $";
+static const char* rcsID = "$Id: initvisbase.cc,v 1.6 2008-06-18 21:53:08 cvskris Exp $";
 
 
 #include "initvisbase.h"
@@ -48,6 +48,7 @@ static const char* rcsID = "$Id: initvisbase.cc,v 1.5 2008-05-14 20:28:21 cvskri
 #include "vispickstyle.h"
 #include "vispointset.h"
 #include "vispolygonoffset.h"
+#include "vispolygonselection.h"
 #include "vispolyline.h"
 #include "visrandomtrack.h"
 #include "visrandomtrackdragger.h"
@@ -115,6 +116,7 @@ void initStdClasses()
     PickStyle::initClass();
     PointSet::initClass();
     PolygonOffset::initClass();
+    PolygonSelection::initClass();
     PolyLine::initClass();
     IndexedPolyLine::initClass();
     IndexedPolyLine3D::initClass();
