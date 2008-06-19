@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoPolygonSelect.cc,v 1.2 2008-06-19 03:58:00 cvsnageswara Exp $";
+static const char* rcsID = "$Id: SoPolygonSelect.cc,v 1.3 2008-06-19 15:43:27 cvskris Exp $";
 
 
 #include "SoPolygonSelect.h"
@@ -167,6 +167,9 @@ void SoPolygonSelect::handleEvent( SoHandleEventAction* action )
 	}
 	else
 	{
+	    if ( polygon_.getLength()>10000 )
+		return;
+
 	    polygon_.append( pt );
 	}
 
