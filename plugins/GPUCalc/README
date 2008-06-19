@@ -1,0 +1,7 @@
+Contains experiemental code that performs FFTs on NVIDIA graphic cards
+(Geoforce 8800 and up). Tests show that the speed is lower than FFTW for
+steering volumes, since the data io is too high, and the fft-time is relatively
+short.
+
+To compile, you need to have CUDA installed for your system and set the
+OD_CUDADIR to the installation.
