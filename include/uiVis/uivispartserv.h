@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.204 2008-06-18 22:18:51 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.205 2008-06-19 15:52:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ class uiSlicePos;
 class uiToolBar;
 class uiVisModeMgr;
 class uiVisPickRetriever;
+template <class T> class Selector;
 
 namespace Attrib    { class SelSpec; class DataCubes; }
 namespace FlatView  { class DataDispPars; }
@@ -251,6 +252,7 @@ public:
     enum			SelectionMode { Off, Rectangle, Polygon };
     void			setSelectionMode(SelectionMode);
     SelectionMode		getSelectionMode() const;
+    const Selector<Coord3>*	getCoordSelector(int scene) const;
     void			turnOn(int,bool,bool doclean=false);
     bool			isOn(int) const;
     void			updateDisplay(bool,int,int refid=-1);

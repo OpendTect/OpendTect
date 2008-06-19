@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.371 2008-06-18 22:18:51 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.372 2008-06-19 15:52:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -159,7 +159,7 @@ int uiVisPartServer::addScene( visSurvey::Scene* newscene )
     newscene->mouseposchange.notify( mCB(this,uiVisPartServer,mouseMoveCB) );
     newscene->ref();
     scenes_ += newscene;
-    newscene->getSelection()->setSelectionType(
+    newscene->getPolySelection()->setSelectionType(
 	    (visBase::PolygonSelection::SelectionType) seltype_ );
     pickretriever_->addScene( newscene );
     nrsceneschange_.trigger();
@@ -843,7 +843,7 @@ void uiVisPartServer::setSelectionMode( uiVisPartServer::SelectionMode mode )
     for ( int sceneidx=0; sceneidx<scenes_.size(); sceneidx++ )
     {
 	visSurvey::Scene* scene = scenes_[sceneidx];
-	scene->getSelection()->setSelectionType( type );
+	scene->getPolySelection()->setSelectionType( type );
     }
 }
 
@@ -861,6 +861,14 @@ uiVisPartServer::SelectionMode uiVisPartServer::getSelectionMode() const
     return Polygon;
 }
 
+
+const Selector<Coord3>* uiVisPartServer::getCoordSelector( int sceneid ) const
+{
+    const visSurvey::Scene* scene = getScene( sceneid );
+    if ( !scene ) return 0;
+
+    return scene->getSelector();
+}
 
 
 int uiVisPartServer::getTypeSetIdx( int selid )
