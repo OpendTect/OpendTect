@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.91 2008-05-30 12:49:51 cvsbert Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.92 2008-06-19 08:25:15 cvsraman Exp $";
 
 #include "genc.h"
 #include "string2.h"
@@ -23,6 +23,7 @@ static const char* rcsID = "$Id: genc.c,v 1.91 2008-05-30 12:49:51 cvsbert Exp $
 #ifndef __win__
 # include <unistd.h>
 #else
+# include <windows.h>
 # include <float.h>
 #endif
 
@@ -92,6 +93,13 @@ void NotifyExitProgram( PtrAllVoidFn fn )
     }
 }
 
+
+int isProcessAlive( int pid )
+{
+    const int res = kill( pid, 0 );
+    if ( res == 0 ) return 1;
+    else return 0;
+}
 
 int ExitProgram( int ret )
 {

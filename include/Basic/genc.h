@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		23-10-1996
- RCS:		$Id: genc.h,v 1.32 2008-05-30 12:49:38 cvsbert Exp $
+ RCS:		$Id: genc.h,v 1.33 2008-06-19 08:25:28 cvsraman Exp $
 ________________________________________________________________________
 
 Some general utilities, that need to be accessible in many places:
@@ -30,6 +30,9 @@ int		GetPID();
 
 const char*	GetLocalHostName();
 		/*!< returns (as expected) local host name */
+
+int		isProcessAlive(int pid);
+		/*!< returns 1 if the process is still running */
 
 int		ExitProgram( int ret );
 		/*!< Win32: kills progam itself and ignores ret.
