@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.38 2008-06-16 19:46:46 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.39 2008-06-19 15:48:54 cvskris Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -618,10 +618,11 @@ void LocationDisplay::removePick( int removeidx )
     if ( !picksetmgr_ )
 	return;
 
-    set_->remove( removeidx );
     Pick::SetMgr::ChangeData cd( Pick::SetMgr::ChangeData::ToBeRemoved,
 				 set_, removeidx );
     picksetmgr_->reportChange( 0, cd );
+
+    set_->remove( removeidx );
 }
 
 
@@ -814,6 +815,20 @@ const SurveyObject* LocationDisplay::getPickedSurveyObject() const
     const DataObject* pickedobj = visBase::DM().getObject( pickedsobjid_ );
     mDynamicCastGet(const SurveyObject*,so,pickedobj);
     return so;
+}
+
+
+void LocationDisplay::removeSelected( const Selector<Coord3>& selector )
+{
+    if ( !selector.isOK() )
+	return;
+
+    for ( int idx=set_->size()-1; idx>=0; idx-- )
+    {
+	const Pick::Location& loc = (*set_)[idx];
+	if ( selector.includes( loc.pos ) )
+	    removePick( idx );
+    }
 }
 
 

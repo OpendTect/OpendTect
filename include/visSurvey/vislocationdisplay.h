@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		June 2006
- RCS:		$Id: vislocationdisplay.h,v 1.15 2008-01-07 08:16:54 cvsnanne Exp $
+ RCS:		$Id: vislocationdisplay.h,v 1.16 2008-06-19 15:48:54 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 class Sphere;
 class SoSeparator;
 namespace Pick { class Set; class Location; class SetMgr; }
+template <class T> class Selector;
 
 namespace visBase
 {
@@ -80,6 +81,8 @@ public:
     int				getPickIdx(visBase::DataObject*) const;
 
     const SurveyObject*		getPickedSurveyObject() const;
+
+    void			removeSelected(const Selector<Coord3>&);
 
     bool			setDataTransform(ZAxisTransform*);
     const ZAxisTransform*	getDataTransform() const;
