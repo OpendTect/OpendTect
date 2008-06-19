@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.93 2008-03-28 09:22:30 cvshelene Exp $
+ RCS:           $Id: survinfo.cc,v 1.94 2008-06-19 13:20:30 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -743,12 +743,14 @@ bool SurveyInfo::has3D() const
 
 float SurveyInfo::computeAngleXInl() const
 {
-    Coord mincoord = minCoord(false);
-    Coord maxcoord = maxCoord(false);
-    float isz = inlRange(false).width() * inlDistance();
-    float csz = crlRange(false).width() * crlDistance();
-    float xsz = fabs( maxcoord.x - mincoord.x );
-    float ysz = fabs( maxcoord.y - mincoord.y );
-    return acos( ( xsz - isz*ysz/csz ) / ( csz - isz*isz/csz) );
+    Coord xy1 = transform( BinID(inlRange(false).start, crlRange(false).start));
+    Coord xy2 = transform( BinID(inlRange(false).start, crlRange(false).stop) );
+    Coord xy3 = transform( BinID(inlRange(false).stop, crlRange(false).start) );
+    Coord xy4 = transform( BinID(inlRange(false).stop, crlRange(false).stop) );
+    const bool isxinlclockw = fabs( xy3.x - xy2.x) > fabs( xy4.x - xy1.x);
+    const float safedenom = mIsZero( xy2.x-xy1.x, 1e-3 ) ? 1e-3
+							 : fabs( xy2.x - xy1.x);
+    const float clockangle = atan( fabs( xy2.y - xy1.y) / safedenom );
+    return isxinlclockw ? clockangle : M_PI/2 - clockangle;
 }
 
