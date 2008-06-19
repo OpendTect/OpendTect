@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.92 2008-06-19 08:25:15 cvsraman Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.93 2008-06-19 09:42:44 cvsdgb Exp $";
 
 #include "genc.h"
 #include "string2.h"
@@ -23,7 +23,6 @@ static const char* rcsID = "$Id: genc.c,v 1.92 2008-06-19 08:25:15 cvsraman Exp 
 #ifndef __win__
 # include <unistd.h>
 #else
-# include <windows.h>
 # include <float.h>
 #endif
 
@@ -94,12 +93,19 @@ void NotifyExitProgram( PtrAllVoidFn fn )
 }
 
 
+#define isBadHandle(h) ( (h) == NULL || (h) == INVALID_HANDLE_VALUE )
+
 int isProcessAlive( int pid )
 {
+#ifdef __win__
+    HANDLE hProcess = OpenProcess( PROCESS_QUERY_INFORMATION, FALSE, GetPID() );
+    return isBadHandle(hProcess) ? 0 : 1;
+#else
     const int res = kill( pid, 0 );
-    if ( res == 0 ) return 1;
-    else return 0;
+    return res == 0 ? 1 : 0;
+#endif
 }
+
 
 int ExitProgram( int ret )
 {
@@ -119,7 +125,6 @@ int ExitProgram( int ret )
 
 #ifdef __win__
 
-#define isBadHandle(h) ( (h) == NULL || (h) == INVALID_HANDLE_VALUE )
 
     // open process
     HANDLE hProcess = OpenProcess( PROCESS_TERMINATE, FALSE, GetPID() );
