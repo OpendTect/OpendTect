@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.50 2008-06-18 22:18:51 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.51 2008-06-19 15:49:52 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -22,6 +22,7 @@ class CubeSampling;
 class MouseCursor;
 class ZAxisTransform;
 class Color;
+template <class T> class Selector;
 
 namespace visBase
 {
@@ -92,7 +93,8 @@ public:
     bool			isAnnotShown() const;
     void			setAnnotText(int dim,const char*);
 
-    visBase::PolygonSelection*	getSelection() { return polyselector_; }
+    visBase::PolygonSelection*	getPolySelection() { return polyselector_; }
+    const Selector<Coord3>*	getSelector() const { return coordselector_; }
 
     Notifier<Scene>		mouseposchange;
     Coord3			getMousePos(bool xyt) const;
@@ -151,6 +153,7 @@ protected:
     visBase::Annotation*	annot_;
     visBase::Marker*		marker_;
     visBase::PolygonSelection*	polyselector_;
+    Selector<Coord3>*		coordselector_;
 
     Coord3			xytmousepos_;
     BufferString		mouseposval_;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.104 2008-06-18 22:18:51 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.105 2008-06-19 15:49:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,7 @@ Scene::Scene()
     , allowshading_(true)
     , mousecursor_( 0 )
     , polyselector_( 0 )
+    , coordselector_( 0 )
 {
     events_.eventhappened.notify( mCB(this,Scene,mouseMoveCB) );
     setAmbientLight( 1 );
@@ -92,6 +93,7 @@ void Scene::init()
     polyselector_ = visBase::PolygonSelection::create();
     addUTMObject( polyselector_ );
     polyselector_->getMaterial()->setColor( Color(255,0,0) );
+    mTryAlloc( coordselector_, visBase::PolygonCoord3Selector( *polyselector_ ) );
 }
 
 
@@ -120,6 +122,8 @@ Scene::~Scene()
 	    so->getMovementNotifier()->remove( mCB(this,Scene,objectMoved) );
 	so->setScene( 0 );
     }
+
+    delete coordselector_;
 }
 
 
@@ -557,6 +561,7 @@ void Scene::removeAll()
     visBase::DataObjectGroup::removeAll();
     zscaletransform_ = 0; inlcrl2disptransform_ = 0; annot_ = 0;
     polyselector_= 0;
+    delete coordselector_; coordselector_ = 0;
     curzscale_ = -1;
 }
 
