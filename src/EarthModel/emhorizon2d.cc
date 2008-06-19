@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.20 2008-06-18 06:39:12 cvsraman Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.21 2008-06-19 07:40:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -302,6 +302,13 @@ Horizon2D::Horizon2D( EMManager& emm )
 
 Horizon2D::~Horizon2D()
 {}
+
+
+void Horizon2D::removeAll()
+{
+    Surface::removeAll();
+    geometry_.removeAll();
+}
 
 
 bool Horizon2D::unSetPos( const PosID& pid, bool addtoundo )

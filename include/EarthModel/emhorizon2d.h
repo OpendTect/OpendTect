@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.12 2008-05-30 07:04:14 cvsraman Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.13 2008-06-19 07:40:05 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -98,6 +98,7 @@ public:
     const Horizon2DGeometry&	geometry() const	{ return geometry_; }
 
     void			syncGeometry();
+    virtual void		removeAll();
 
 protected:
 
