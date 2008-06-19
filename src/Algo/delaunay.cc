@@ -4,13 +4,15 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.10 2008-06-18 18:07:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.11 2008-06-19 14:25:03 cvskris Exp $";
 
 #include "delaunay.h"
 
 #include "positionlist.h"
 #include "sorting.h"
 #include "trigonometry.h"
+
+#include "iostream"
 
 
 DelaunayTriangulation::DelaunayTriangulation( const Coord2List& coords )
@@ -1553,6 +1555,20 @@ bool DAGTriangleTree::getConnections( int vertex, TypeSet<int>& result ) const
 
     return result.size();
 }
+
+
+void DAGTriangleTree::dumpTo(std::ostream& stream) const
+{
+    for ( int idx=0; idx<triangles_.size(); idx++ )
+    {
+	const DAGTriangle& triangle = triangles_[idx];
+	stream << (int) triangle.coordindices_[0] << '\t'
+	       << (int) triangle.coordindices_[1] << '\t'
+	       << (int) triangle.coordindices_[2] << '\n';
+    }
+}
+
+
 
 
 #define mSearch( child ) \

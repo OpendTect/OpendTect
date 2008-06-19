@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.10 2008-06-18 18:07:17 cvsyuancheng Exp $
+ RCS:           $Id: delaunay.h,v 1.11 2008-06-19 14:25:02 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,6 +128,9 @@ public:
 			    ci[3], ci[4], ci[5] is the second triangle. */
     bool		getConnections(int pointidx,TypeSet<int>&) const;
     void		setEpsilon(double err)	{ epsilon_ = err; }
+
+    void		dumpTo(std::ostream&) const;
+    			//!<Dumps all triangles to stream;
 
     static int		cNoVertex()	{ return -1; }
 protected:
