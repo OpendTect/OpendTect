@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		18-10-1995
  Contents:	Selectors
- RCS:		$Id: selector.h,v 1.6 2003-11-07 12:21:51 bert Exp $
+ RCS:		$Id: selector.h,v 1.7 2008-06-19 15:44:50 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ public:
 
     virtual		~Selector()				{}
     virtual const char*	selectorType() const			= 0;
+    virtual bool	isOK() const				{ return true; }
     bool		isEqual( const Selector<T>& s ) const
 			{
 			    return selectorType() == s.selectorType()
@@ -40,7 +41,7 @@ public:
     virtual bool	includes(const T&) const		= 0;
     virtual bool	include(const T&,const char* =0)       { return false; }
 
-protected:
+private:
 
     virtual bool	isEq(const Selector<T>&) const		= 0;
 
