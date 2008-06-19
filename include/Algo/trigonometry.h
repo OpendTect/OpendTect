@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.28 2008-06-19 16:32:30 cvskris Exp $
+ RCS:		$Id: trigonometry.h,v 1.29 2008-06-19 21:57:50 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -52,7 +52,7 @@ Here are some commonly used functions to judge the position relation between
 point and line, point and triangle, point and circle.
 */
 
-inline float deter33( const float* matrix )
+inline double deter33( const double* matrix )
 /*!<calculate the determinant of matrix. the 1st row is m0, m1, m2,
  					 the 2nd row is m3, m4, m5,
 					 the 3rd row is m6, m7, m8. */
@@ -67,14 +67,14 @@ inline bool isInsideCircle( const Coord& pt,
 			    const Coord& p1, const Coord& p2, const Coord& p3 )
     /*!<Check the point pt is inside the circumcircle of p1, p2, p3 or not. */
 {
-    float m0[] = { p1.x, p1.y, 1, p2.x, p2.y, 1, p3.x, p3.y, 1 };
-    const float a = deter33( m0 );
-    float m1[] = { p1.dot(p1), p1.y, 1, p2.dot(p2), p2.y, 1, 
-		   p3.dot(p3), p3.y, 1 };
-    float m2[] = { p1.dot(p1), p1.x, 1, p2.dot(p2), p2.x, 1, 
-		   p3.dot(p3), p3.x, 1 };
-    float m3[] = { p1.dot(p1), p1.x, p1.y, p2.dot(p2), p2.x, p2.y, 
-		   p3.dot(p3), p3.x, p3.y };
+    double m0[] = { p1.x, p1.y, 1, p2.x, p2.y, 1, p3.x, p3.y, 1 };
+    const double a = deter33( m0 );
+    double m1[] = { p1.dot(p1), p1.y, 1, p2.dot(p2), p2.y, 1, 
+		    p3.dot(p3), p3.y, 1 };
+    double m2[] = { p1.dot(p1), p1.x, 1, p2.dot(p2), p2.x, 1, 
+		    p3.dot(p3), p3.x, 1 };
+    double m3[] = { p1.dot(p1), p1.x, p1.y, p2.dot(p2), p2.x, p2.y, 
+		    p3.dot(p3), p3.x, p3.y };
 
     return a*( a*(pt.x*pt.x+pt.y*pt.y)-deter33(m1)*pt.x+deter33(m2)*pt.y-
 	    deter33(m3) )<0;
