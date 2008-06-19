@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: SoPolygonSelect.cc,v 1.1 2008-06-18 21:53:08 cvskris Exp $";
+static const char* rcsID = "$Id: SoPolygonSelect.cc,v 1.2 2008-06-19 03:58:00 cvsnageswara Exp $";
 
 
 #include "SoPolygonSelect.h"
@@ -57,7 +57,7 @@ SoPolygonSelect::~SoPolygonSelect()
 SbVec2f SoPolygonSelect::projectPoint( const SbVec3f& pt ) const
 {
     SbVec3f modelpt;
-    modelmat_.multMatrixVec( pt, modelpt );
+    modelmatrix_.multMatrixVec( pt, modelpt );
 
     SbVec3f res;
     vv_.projectToScreen( modelpt, res );
