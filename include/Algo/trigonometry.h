@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.27 2008-06-18 13:34:00 cvsyuancheng Exp $
+ RCS:		$Id: trigonometry.h,v 1.28 2008-06-19 16:32:30 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -76,7 +76,8 @@ inline bool isInsideCircle( const Coord& pt,
     float m3[] = { p1.dot(p1), p1.x, p1.y, p2.dot(p2), p2.x, p2.y, 
 		   p3.dot(p3), p3.x, p3.y };
 
-    return a*( a*pt.dot(pt)-deter33(m1)*pt.x+deter33(m2)*pt.y-deter33(m3) )<0;
+    return a*( a*(pt.x*pt.x+pt.y*pt.y)-deter33(m1)*pt.x+deter33(m2)*pt.y-
+	    deter33(m3) )<0;
 }
 
 
