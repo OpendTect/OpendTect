@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2008
- RCS:           $Id: vispolygonselection.cc,v 1.1 2008-06-18 21:53:08 cvskris Exp $
+ RCS:           $Id: vispolygonselection.cc,v 1.2 2008-06-19 15:46:35 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,12 +87,18 @@ const LineStyle& PolygonSelection::getLineStyle() const
 { return drawstyle_->lineStyle(); }
 
 
+bool PolygonSelection::hasPolygon() const
+{
+    return selector_->getPolygon().getLength()>2;
+}
+
+
 bool PolygonSelection::isInside( const Coord3& crd, bool displayspace ) const
 {
     if ( selector_->mode.getValue() == SoPolygonSelect::OFF )
 	return false;
 
-    if ( !selector_->getPolygon().getLength() )
+    if ( !hasPolygon() )
 	return false;
 
     Coord3 checkcoord3d = crd;
@@ -147,6 +153,45 @@ void PolygonSelection::setDisplayTransformation( Transformation* nt )
 
 Transformation* PolygonSelection::getDisplayTransformation()
 { return transformation_; }
+
+
+PolygonCoord3Selector::PolygonCoord3Selector( const PolygonSelection& vs )
+    : vissel_( vs )
+{
+    vissel_.ref();
+}
+
+
+PolygonCoord3Selector::~PolygonCoord3Selector()
+{ vissel_.unRef(); }
+
+
+Selector<Coord3>* PolygonCoord3Selector::clone() const
+{
+    mDeclareAndTryAlloc(Selector<Coord3>*,res,PolygonCoord3Selector(vissel_));
+    return res;
+}
+
+
+const char* PolygonCoord3Selector::selectorType() const
+{ return "PolygonCoord3Selector"; }
+
+
+bool PolygonCoord3Selector::isOK() const
+{ return vissel_.hasPolygon(); }
+
+
+bool PolygonCoord3Selector::includes( const Coord3& c ) const
+{ return vissel_.isInside( c, false ); }
+
+
+bool PolygonCoord3Selector::isEq( const Selector<Coord3>& comp ) const
+{
+    mDynamicCastGet( const PolygonCoord3Selector*, b, &comp );
+    if ( !b ) return false;
+
+    return &b->vissel_ == &vissel_;
+}
 
 
 }; // namespace visBase

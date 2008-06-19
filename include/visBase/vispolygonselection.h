@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		June 2008
- RCS:		$Id: vispolygonselection.h,v 1.1 2008-06-18 21:53:08 cvskris Exp $
+ RCS:		$Id: vispolygonselection.h,v 1.2 2008-06-19 15:46:35 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visobject.h"
+#include "selector.h"
 #include "draw.h"
 #include "thread.h"
 
@@ -45,11 +46,13 @@ public:
     void			setLineStyle(const LineStyle&);
     const LineStyle&		getLineStyle() const;
 
+    bool			hasPolygon() const;
     bool			isInside(const Coord3&,
 	    				 bool displayspace=false) const;
 
     void			setDisplayTransformation( Transformation* );
     Transformation*		getDisplayTransformation();
+
 
 protected:
 
@@ -62,6 +65,24 @@ protected:
     mutable Threads::ReadWriteLock	polygonlock_;
 
     SoPolygonSelect*			selector_;
+};
+
+
+class PolygonCoord3Selector : public Selector<Coord3>
+{
+public:
+				PolygonCoord3Selector(const PolygonSelection&);
+				~PolygonCoord3Selector();
+
+    Selector<Coord3>*		clone() const;
+    const char*			selectorType() const;
+    bool			isOK() const;
+    bool			includes(const Coord3&) const;
+
+protected:
+    bool			isEq(const Selector<Coord3>&) const;
+
+    const PolygonSelection&	vissel_;
 };
 
 };
