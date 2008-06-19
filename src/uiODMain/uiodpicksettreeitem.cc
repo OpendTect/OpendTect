@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.43 2008-06-03 09:57:47 cvssatyaki Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.44 2008-06-19 16:07:55 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ___________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uivispartserv.h"
 
+#include "selector.h"
 #include "pickset.h"
 #include "survinfo.h"
 #include "uimenuhandler.h"
@@ -219,6 +220,7 @@ uiODPickSetTreeItem::uiODPickSetTreeItem( int did, Pick::Set& ps )
     , onlyatsectmnuitem_("Display &only at sections")
     , propertymnuitem_("&Properties ...")
     , closepolyitem_("&Close Polygon")
+    , removeselectionmnuitem_( "&Remove selection" )
 {
     displayid_ = did;
     Pick::Mgr().setChanged.notify( mCB(this,uiODPickSetTreeItem,setChg) );
@@ -288,12 +290,16 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
     if ( set_.disp_.connect_ == Pick::Set::Disp::Open )
 	mAddMenuItem( menu, &closepolyitem_, true, false )
     else
-	mResetMenuItem( &closepolyitem_ )
+	mResetMenuItem( &closepolyitem_ );
+
+    const Selector<Coord3>* selector = visserv_->getCoordSelector( sceneID() );
 
     mAddMenuItem( menu, &propertymnuitem_, true, false );
     mAddMenuItem( menu, &onlyatsectmnuitem_, true, !psd->allShown() );
     mAddMenuItem( menu, &storemnuitem_, true, false );
     mAddMenuItem( menu, &storeasmnuitem_, true, false );
+    mAddMenuItem( menu, &removeselectionmnuitem_, selector && selector->isOK(),
+	    	  false );
 }
 
 
@@ -315,12 +321,12 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
 	set_.disp_.connect_ = Pick::Set::Disp::Close;
 	Pick::Mgr().reportDispChange( this, set_ );
     }
-    if ( mnuid==storemnuitem_.id )
+    else if ( mnuid==storemnuitem_.id )
     {
 	menu->setIsHandled( true );
 	applMgr()->storePickSet( set_ );
-    }
-    if ( mnuid==storeasmnuitem_.id )
+    } 
+    else if ( mnuid==storeasmnuitem_.id )
     {
 	menu->setIsHandled( true );
 	applMgr()->storePickSetAs( set_ );
@@ -332,13 +338,20 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     }
     else if ( mnuid==onlyatsectmnuitem_.id )
     {
+	menu->setIsHandled( true );
 	if ( psd )
 	    showAllPicks( !psd->allShown() );
     }
     else if ( mnuid==propertymnuitem_.id )
     {
+	menu->setIsHandled( true );
 	uiPickPropDlg dlg( getUiParent(), set_ );
 	dlg.go();
+    }
+    else if( mnuid==removeselectionmnuitem_.id )
+    {
+	menu->setIsHandled( true );
+	psd->removeSelected( *visserv_->getCoordSelector( sceneID() ) );
     }
 
     updateColumnText( uiODSceneMgr::cNameColumn() );
