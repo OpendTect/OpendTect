@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: envvars.h,v 1.1 2005-08-26 18:19:27 cvsbert Exp $
+ RCS:		$Id: envvars.h,v 1.2 2008-06-20 12:23:52 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,9 @@ char*		GetOSEnvVar(const char*);
 		/*!< Raw 'getenv' call */
 int		SetEnvVar(const char* env,const char* val);
 		/*!< sets environment variable to a value. */
+
+char		GetEnvSeparChar();
+		/*!< The character separating entries in an env variable */
 
 #ifdef __cpp__
 }
