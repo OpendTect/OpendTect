@@ -5,7 +5,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.8 2008-06-20 11:41:41 cvsraman Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.9 2008-06-20 12:20:33 cvsraman Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiodmenumgr.h"
@@ -57,7 +57,7 @@ bool checkEnvVars( BufferString& msg )
 	return false;
     }
 
-    SeparString pathstr( pathvar, SeparString::getPathSepChar() );
+    SeparString pathstr( pathvar, GetEnvSeparChar() );
     const int nrpaths = pathstr.size();
     for ( int idx=0; idx<pathstr.size(); idx++ )
     {
