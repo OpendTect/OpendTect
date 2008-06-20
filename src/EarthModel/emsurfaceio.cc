@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.100 2008-06-19 10:05:21 cvsnanne Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.101 2008-06-20 04:48:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -957,8 +957,7 @@ bool dgbSurfaceReader::readVersion3Row( std::istream& strm,
 void dgbSurfaceReader::createSection( const SectionID& sectionid )
 {
     const int index = sectionids_.indexOf(sectionid);
-    surface_->geometry().addSection( sectionnames_[index]->buf()
-	    ? sectionnames_[index]->buf() : 0, sectionid, false );
+    surface_->geometry().addSection( sectionName(index), sectionid, false );
     mDynamicCastGet( Geometry::BinIDSurface*,bidsurf,
 	    	     surface_->geometry().sectionGeometry(sectionid) );
     if ( !bidsurf )
