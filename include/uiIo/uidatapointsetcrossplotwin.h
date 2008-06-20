@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.2 2008-05-29 07:38:45 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplotwin.h,v 1.3 2008-06-20 13:39:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,6 @@ protected:
     bool			rbissel_;
 
     int				showy2tbid_;
-    int				showbdtbid_;
     int				selzoomtbid_;
 
     void			closeNotif(CallBacker*);
@@ -55,6 +54,7 @@ protected:
     void			selZoom(CallBacker*);
     void			delSel(CallBacker*);
     void			unZoom(CallBacker*);
+    void			editProps(CallBacker*);
 };
 
 

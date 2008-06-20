@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.8 2008-06-13 12:28:25 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.9 2008-06-20 13:39:31 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidatapointsetcrossplotwin.h"
+#include "uidpscrossplotpropdlg.h"
 #include "uidatapointset.h"
 #include "datapointset.h"
 #include "uiaxishandler.h"
@@ -386,18 +387,6 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 {
     windowClosed.notify( mCB(this,uiDataPointSetCrossPlotWin,closeNotif) );
 
-    showy2tbid_ = disptb_.addButton( "showy2.png",
-	    	  mCB(this,uiDataPointSetCrossPlotWin,showY2),
-		  "Toggle show Y2", true );
-    disptb_.turnOn( showy2tbid_, plotter_.doy2_ );
-
-    /*
-    showbdtbid_ = disptb_.addButton( "showbackdrop.png",
-	    	  mCB(this,uiDataPointSetCrossPlotWin,showBD),
-		      "Toggle data density backdrop", true );
-    disptb_.turnOn( showbdtbid_, plotter_.dobd_ );
-    */
-
     const int nrpts = uidps.pointSet().size();
     const int eachrow = 1 + nrpts / cMaxPtsForDisplay;
     uiGroup* grp = new uiGroup( &disptb_, "Each grp" );
@@ -409,6 +398,11 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     new uiLabel( grp, "Plot each", eachfld_ );
     disptb_.addObject( grp->attachObj() );
     plotter_.eachrow_ = eachrow;
+
+    showy2tbid_ = disptb_.addButton( "showy2.png",
+	    	  mCB(this,uiDataPointSetCrossPlotWin,showY2),
+		  "Toggle show Y2", true );
+    disptb_.turnOn( showy2tbid_, plotter_.doy2_ );
 
 /*
     disptb_.addButton( "zoombackward.png",
@@ -423,6 +417,9 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
 			mCB(this,uiDataPointSetCrossPlotWin,delSel),
 			"Delete selected", false );
 */
+    maniptb_.addButton( "xplotprop.png",
+			mCB(this,uiDataPointSetCrossPlotWin,editProps),
+			"Properties", false );
 
     if ( uidps_.groupNames().size() > 1 )
     {
@@ -458,7 +455,7 @@ void uiDataPointSetCrossPlotWin::showY2( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::showBD( CallBacker* )
 {
-    plotter_.dobd_ = disptb_.isOn( showbdtbid_ );
+    // plotter_.dobd_ = disptb_.isOn( showbdtbid_ );
     plotter_.update();
     uiMSG().message( "Under construction: data density backdrop" );
 }
@@ -496,4 +493,11 @@ void uiDataPointSetCrossPlotWin::delSel( CallBacker* )
 
 void uiDataPointSetCrossPlotWin::unZoom( CallBacker* )
 {
+}
+
+
+void uiDataPointSetCrossPlotWin::editProps( CallBacker* )
+{
+    uiDataPointSetCrossPlotterPropDlg dlg( &plotter_ );
+    dlg.go();
 }
