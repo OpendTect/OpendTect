@@ -5,7 +5,7 @@
  * FUNCTION : general utilities
 -*/
 
-static const char* rcsID = "$Id: genc.c,v 1.93 2008-06-19 09:42:44 cvsdgb Exp $";
+static const char* rcsID = "$Id: genc.c,v 1.94 2008-06-20 12:23:49 cvsraman Exp $";
 
 #include "genc.h"
 #include "string2.h"
@@ -259,4 +259,14 @@ int SetEnvVar( const char* env, const char* val )
 
     putenv( buf );
     return YES;
+}
+
+
+char GetEnvSeparChar()
+{
+#ifdef __win__
+    return ';';
+#else
+    return ':';
+#endif
 }
