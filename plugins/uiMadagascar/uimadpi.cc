@@ -5,12 +5,16 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: uimadpi.cc,v 1.7 2007-12-20 16:18:54 cvsbert Exp $";
+static const char* rcsID = "$Id: uimadpi.cc,v 1.8 2008-06-20 11:41:41 cvsraman Exp $";
 
 #include "uimadagascarmain.h"
 #include "uiodmenumgr.h"
 #include "uimenu.h"
 #include "uitoolbar.h"
+#include "envvars.h"
+#include "filegen.h"
+#include "filepath.h"
+#include "separstr.h"
 #include "maddefs.h"
 #include "madio.h"
 #include "uimsg.h"
@@ -31,6 +35,39 @@ extern "C" PluginInfo* GetuiMadagascarPluginInfo()
 	"3.0",
     	"Enables the Madagascar link." };
     return &retpi;
+}
+
+
+bool checkEnvVars( BufferString& msg )
+{
+    BufferString rsfdir = GetEnvVar( "RSFROOT" );
+    if ( rsfdir.isEmpty() || !File_isDirectory(rsfdir.buf()) )
+    {
+	msg = "RSFROOT is either not set or invalid";
+	return false;
+    }
+
+    FilePath fp( rsfdir );
+    fp.add( "bin" );
+    rsfdir = fp.fullPath();
+    BufferString pathvar = GetEnvVar( "PATH" );
+    if ( pathvar.isEmpty() )
+    {
+	msg = "Could not retrieve environment variable PATH";
+	return false;
+    }
+
+    SeparString pathstr( pathvar, SeparString::getPathSepChar() );
+    const int nrpaths = pathstr.size();
+    for ( int idx=0; idx<pathstr.size(); idx++ )
+    {
+	if ( rsfdir == pathstr[idx] )
+	    return true;
+    }
+
+    msg = "RSF bin directory is not included in PATH. ";
+    msg += "Please add $RSFROOT/bin to your PATH variable and try again.";
+    return false;
 }
 
 
@@ -67,6 +104,13 @@ void uiMadagascarLink::insertItems( CallBacker* )
 
 void uiMadagascarLink::doMain( CallBacker* )
 {
+    BufferString errmsg;
+    if ( !checkEnvVars(errmsg) )
+    {
+	uiMSG().error( errmsg );
+	return;
+    }
+
     uiMadagascarMain dlg( &appl );
     dlg.go();
 }
