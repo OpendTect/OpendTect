@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.9 2008-06-05 12:01:31 cvsraman Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.10 2008-06-20 11:39:14 cvsraman Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -410,7 +410,7 @@ void MadStream::fillHeaderParsFromPS( const Seis::SelData* seldata )
 
 void MadStream::fillHeaderParsFromStream()
 {
-    if ( headerpars_ ) delete headerpars_; headerpars_ = 0;
+    delete headerpars_; headerpars_ = 0;
 
     headerpars_ = new IOPar;
     char linebuf[256], tag[4], *ptr;
@@ -419,6 +419,9 @@ void MadStream::fillHeaderParsFromStream()
 	int idx = 0, nullcount = 0;
 	while( nullcount<3 )
 	{
+	    if ( idx >= 255 )
+		mErrRet("Error reading RSF header")
+
 	    char c;
 	    istrm_->get( c );
 	    if ( c == '\n' ) { linebuf[idx] = '\0'; break; }
@@ -443,6 +446,9 @@ void MadStream::fillHeaderParsFromStream()
 
 	headerpars_->set( ptr, valptr );
     }
+
+    if ( !headerpars_->size() )
+	mErrRet("Empty or corrupt RSF Header")
 }
 
 
