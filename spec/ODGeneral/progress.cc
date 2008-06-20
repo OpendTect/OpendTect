@@ -1,17 +1,31 @@
 #include <iostream>
 #include <stdlib.h>
 #include "progressmeter.h"
+#include "timefun.h"
 #include "prog.h"
 
-const int chunksz = 1024;
 
 int main( int argc, char** argv )
 {
-    const int totnr = argc > 1 ? atoi(argv[1]) : 0;
-    TextStreamProgressMeter progressmeter( std::cerr );
+    int delayms = 0;
+    int curarg = 1;
+    int chunksz = 1024;
+    if ( argc > curarg )
+    {
+	if ( !strcmp(argv[curarg],"--delay") )
+	    { curarg++; delayms = atoi( argv[curarg] ); curarg++; }
+	if ( !strcmp(argv[curarg],"--blocksz") )
+	    { curarg++; chunksz = atoi( argv[curarg] ); curarg++; }
+    }
+    int totnr = argc > curarg ? atoi(argv[curarg]) : 0;
+    if ( totnr < 0 ) totnr = 0;
 
-    char buf[chunksz];
-    while ( 1 )
+    if ( delayms ) std::cerr << "Delay in ms: " << delayms << std::endl;
+    std::cerr << "Blocks of " << chunksz << " bytes\n" << std::endl;
+
+    TextStreamProgressMeter progressmeter( std::cerr );
+    char* buf = new char [chunksz];
+    while ( true )
     {
 	std::cin.read( buf, chunksz );
 	int bytesread = std::cin.gcount();
@@ -20,6 +34,9 @@ int main( int argc, char** argv )
 
 	if ( totnr )	progressmeter.setNrDone( totnr );
 	else		++progressmeter;
+
+	if ( delayms )
+	    Time_sleep( delayms*0.001 );
     }
 
     ExitProgram( 0 ); return 0;
