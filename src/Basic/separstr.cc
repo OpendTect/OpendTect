@@ -5,7 +5,7 @@
  * FUNCTION : Functions concerning delimiter separated string lists
 -*/
 
-static const char* rcsID = "$Id: separstr.cc,v 1.12 2008-06-20 11:40:57 cvsraman Exp $";
+static const char* rcsID = "$Id: separstr.cc,v 1.13 2008-06-20 12:08:38 cvsraman Exp $";
 
 #include <string.h>
 #include <stdlib.h>
@@ -137,11 +137,3 @@ void SeparString::replaceSepChar( char newchar )
 }
 
 
-char SeparString::getPathSepChar()
-{
-#ifdef __win__
-    return ';';
-#else
-    return ':';
-#endif
-}
