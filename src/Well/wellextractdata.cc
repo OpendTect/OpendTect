@@ -4,7 +4,7 @@
  * DATE     : May 2004
 -*/
 
-static const char* rcsID = "$Id: wellextractdata.cc,v 1.46 2008-05-27 11:50:48 cvsbert Exp $";
+static const char* rcsID = "$Id: wellextractdata.cc,v 1.47 2008-06-20 13:40:14 cvsbert Exp $";
 
 #include "wellextractdata.h"
 #include "wellreader.h"
@@ -401,11 +401,6 @@ void Well::LogDataExtracter::getData( DataPointSet& dps,
 				      const Well::Data& wd,
 				      const Well::Track& track )
 {
-    int wlidx = wd.logs().indexOf( lognm_ );
-    if ( wlidx < 0 )
-	return;
-
-    const Well::Log& wl = wd.logs().getLog( wlidx );
     DataPointSet::ColID dpscolidx = dps.indexOf( lognm_ );
     if ( dpscolidx < 0 )
     {
@@ -413,6 +408,11 @@ void Well::LogDataExtracter::getData( DataPointSet& dps,
 	dpscolidx = dps.nrCols() - 1;
 	if ( dpscolidx < 0 ) return;
     }
+
+    int wlidx = wd.logs().indexOf( lognm_ );
+    if ( wlidx < 0 )
+	return;
+    const Well::Log& wl = wd.logs().getLog( wlidx );
 
     const int dahcolidx = dps.indexOf( sKeyDAHColName );
     bool usegenalgo = dahcolidx >= 0 || !track.alwaysDownward();
