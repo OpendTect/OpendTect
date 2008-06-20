@@ -8,14 +8,17 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faulteditor.cc,v 1.6 2008-05-16 22:12:11 cvskris Exp $";
+static const char* rcsID = "$Id: faulteditor.cc,v 1.7 2008-06-20 16:27:26 cvskris Exp $";
 
 #include "faulteditor.h"
 
 #include "emfault.h"
+#include "emmanager.h"
 #include "faultsticksurfedit.h"
 #include "mpeengine.h"
+#include "selector.h"
 #include "trigonometry.h"
+#include "undo.h"
 
 namespace MPE
 {
@@ -114,6 +117,61 @@ void FaultEditor::getInteractionInfo( EM::PosID& nearestpid0,
 
     getPidsOnStick( nearestpid0, nearestpid1, insertpid, stick, sid, mousepos,
 	            zfactor );
+}
+
+
+bool FaultEditor::removeSelection( const Selector<Coord3>& selector )
+{
+    mDynamicCastGet(EM::Fault*,fault,&emobject);
+    bool change = false;
+    for ( int sectionidx=fault->nrSections()-1; sectionidx>=0; sectionidx--)
+    {
+	const EM::SectionID currentsid = fault->sectionID( sectionidx );
+	const Geometry::Element* ge = fault->sectionGeometry( currentsid );
+	if ( !ge ) continue;
+
+	mDynamicCastGet(const Geometry::FaultStickSurface*,surface,ge);
+	if ( !surface ) continue;
+
+	const StepInterval<int> rowrange = surface->rowRange();
+	if ( rowrange.isUdf() )
+	    continue;
+
+	for ( int stickidx=rowrange.nrSteps(); stickidx>=0; stickidx-- )
+	{
+	    Coord3 avgpos( 0, 0, 0 );
+	    int count = 0;
+	    const int curstick = rowrange.atIndex(stickidx);
+	    const StepInterval<int> colrange = surface->colRange( curstick );
+	    if ( colrange.isUdf() )
+		continue;
+
+	    for ( int knotidx=colrange.nrSteps(); knotidx>=0; knotidx-- )
+	    {
+		const RowCol rc( curstick,colrange.atIndex(knotidx) );
+		const Coord3 pos = surface->getKnot( rc );
+
+		if ( !pos.isDefined() || !selector.includes(pos) )
+		    continue;
+
+		EM::FaultGeometry& fg = fault->geometry();
+		const bool res = fg.nrKnots( currentsid,curstick)==1
+		   ? fg.removeStick( currentsid, curstick, true )
+		   : fg.removeKnot( currentsid, rc.getSerialized(), true );
+
+		if ( res )
+		    change = true;
+	    }
+	}
+    }
+
+    if ( change )
+    {
+	EM::EMM().undo().setUserInteractionEnd(
+		                            EM::EMM().undo().currentEventID() );
+    }
+
+    return change;
 }
 
 

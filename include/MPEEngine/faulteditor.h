@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2005
- RCS:           $Id: faulteditor.h,v 1.3 2008-05-15 20:26:12 cvskris Exp $
+ RCS:           $Id: faulteditor.h,v 1.4 2008-06-20 16:27:26 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "emeditor.h"
 
 namespace EM { class Fault; };
+template <class T> class Selector;
 
 namespace MPE
 {
@@ -31,6 +32,7 @@ public:
 					   EM::PosID& insertpid,
 					   const Coord3&,
 					   float zfactor) const;
+    bool			removeSelection(const Selector<Coord3>&);
 protected:
     float		getNearestStick( int& stick, EM::SectionID& sid,
 	    				 const Coord3&, float zfactor) const;
