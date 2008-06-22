@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodfaulttreeitem.cc,v 1.10 2008-06-11 17:15:28 cvskris Exp $
+ RCS:		$Id: uiodfaulttreeitem.cc,v 1.11 2008-06-22 03:11:37 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ___________________________________________________________________
 
 #include "mousecursor.h"
 #include "randcolor.h"
+#include "selector.h"
 #include "uiempartserv.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
@@ -100,7 +101,8 @@ uiTreeItem* uiODFaultTreeItemFactory::create( int visid, uiTreeItem* ) const
     , displayplanemnuitem_ ( "Fault planes" ) \
     , displaystickmnuitem_ ( "Fault sticks" ) \
     , displayintersectionmnuitem_( "At sections only" ) \
-    , singlecolmnuitem_( "Use single &color" )
+    , singlecolmnuitem_( "Use single &color" ) \
+    , removeselectedmnuitem_( "&Remove selection" )
 
 
 
@@ -216,6 +218,9 @@ void uiODFaultTreeItem::createMenuCB( CallBacker* cb )
 		  faultdisplay_->areIntersectionsDisplayed() );
     mAddMenuItem( menu, &displaymnuitem_, true, true );
 
+    const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
+    mAddMenuItem( menu, &removeselectedmnuitem_, sel && sel->isOK(), true );
+
     const bool enablesave = applMgr()->EMServer()->isChanged(emid_) &&
 			    applMgr()->EMServer()->isFullyLoaded(emid_);
 
@@ -277,6 +282,10 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
 	faultdisplay_->useTexture( !faultdisplay_->usesTexture(), true );
 	visserv_->triggerTreeUpdate();
     }
-
+    else if ( mnuid==removeselectedmnuitem_.id )
+    {
+	menu->setIsHandled(true);
+	faultdisplay_->removeSelection(*visserv_->getCoordSelector(sceneID()) );
+    }
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodfaulttreeitem.h,v 1.4 2008-06-06 16:57:26 cvskris Exp $
+ RCS:		$Id: uiodfaulttreeitem.h,v 1.5 2008-06-22 03:11:37 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -59,6 +59,7 @@ protected:
     MenuItem			displaystickmnuitem_;
     MenuItem			displayintersectionmnuitem_;
     MenuItem			singlecolmnuitem_;
+    MenuItem			removeselectedmnuitem_;
     visSurvey::FaultDisplay*	faultdisplay_;
 };
 

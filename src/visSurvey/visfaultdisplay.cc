@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.23 2008-06-16 19:46:46 cvskris Exp $";
+static const char* rcsID = "$Id: visfaultdisplay.cc,v 1.24 2008-06-22 03:11:37 cvskris Exp $";
 
 #include "visfaultdisplay.h"
 
@@ -283,6 +283,13 @@ bool FaultDisplay::setEMID( const EM::ObjectID& emid )
     updateStickDisplay();
 
     return true;
+}
+
+
+void FaultDisplay::removeSelection( const Selector<Coord3>& selector )
+{
+    if ( faulteditor_ )
+	faulteditor_->removeSelection( selector );
 }
 
 
@@ -594,7 +601,7 @@ void FaultDisplay::mouseCB( CallBacker* cb )
 	    editnormal = Coord3( SI().binID2Coord().colDir(), 0 );
 
 	if ( emfault_->geometry().insertStick( insertpid.sectionID(),
-	       insertstick, pos, editnormal, true ) )
+	       insertstick, 0, pos, editnormal, true ) )
 	{
 	    EM::EMM().undo().setUserInteractionEnd(
 		    EM::EMM().undo().currentEventID() );
