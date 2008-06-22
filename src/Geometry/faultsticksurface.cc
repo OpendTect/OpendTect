@@ -4,7 +4,7 @@
  * DATE     : September 2007
 -*/
 
-static const char* rcsID = "$Id: faultsticksurface.cc,v 1.9 2008-05-14 20:43:11 cvskris Exp $";
+static const char* rcsID = "$Id: faultsticksurface.cc,v 1.10 2008-06-22 02:54:04 cvskris Exp $";
 
 #include "faultsticksurface.h"
 
@@ -53,7 +53,8 @@ Element* FaultStickSurface::clone() const
 
 
 bool FaultStickSurface::insertStick( const Coord3& firstpos, 
-				     const Coord3& editnormal, int sticknr )
+				     const Coord3& editnormal, int sticknr,
+				     int firstcol )
 {
     if ( !firstpos.isDefined() )
 	return false;
@@ -83,13 +84,13 @@ bool FaultStickSurface::insertStick( const Coord3& firstpos,
     {
 	sticks_ += new TypeSet<Coord3>;
 	editplanenormals_ += normvec;
-	firstcols_ += 0;
+	firstcols_ += firstcol;
     }
     else
     {
 	sticks_.insertAt( new TypeSet<Coord3>, stickidx );
 	editplanenormals_.insert( stickidx, normvec );
-	firstcols_.insert( stickidx, 0 );
+	firstcols_.insert( stickidx, firstcol );
     }
 
     sticks_[stickidx]->insert( 0, firstpos );

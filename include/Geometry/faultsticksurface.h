@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        K. Tingdahl / J.C. Glas
 Date:          September 2007
-RCS:           $Id: faultsticksurface.h,v 1.10 2008-05-16 22:13:29 cvskris Exp $
+RCS:           $Id: faultsticksurface.h,v 1.11 2008-06-22 02:54:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,8 @@ public:
     Element*		clone() const;
 
     bool		insertStick(const Coord3& firstpos,
-				    const Coord3& editnormal,int stick=0);
+				    const Coord3& editnormal,int stick=0,
+				    int firstcol=0);
     bool		removeStick(int stick);
 
     bool		insertKnot(const RCol&,const Coord3&);
