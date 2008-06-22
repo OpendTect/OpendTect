@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		9-04-2002
- RCS:		$Id: emfault.h,v 1.34 2008-05-23 11:19:53 cvsnanne Exp $
+ RCS:		$Id: emfault.h,v 1.35 2008-06-22 02:54:47 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -33,7 +33,7 @@ public:
     int			nrSticks(const SectionID&) const;
     int			nrKnots(const SectionID&,int sticknr) const;
 
-    bool		insertStick(const SectionID&,int sticknr,
+    bool		insertStick(const SectionID&,int sticknr,int firstcol,
 	    			    const Coord3& pos,const Coord3& editnormal,
 				    bool addtohistory);
     bool		removeStick(const SectionID&,int sticknr,

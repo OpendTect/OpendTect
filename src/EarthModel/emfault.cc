@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.50 2008-06-06 05:21:17 cvsnanne Exp $
+ RCS:           $Id: emfault.cc,v 1.51 2008-06-22 02:54:47 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,8 +66,8 @@ bool unDo()
     const int row = RowCol(posid_.subID()).row;
 
     return remove_
-	? fault->geometry().insertStick( posid_.sectionID(), row, pos_, normal_,
-					 false )
+	? fault->geometry().insertStick( posid_.sectionID(), row,
+		RowCol(posid_.subID()).col, pos_, normal_, false )
 	: fault->geometry().removeStick( posid_.sectionID(), row, false );
 }
 
@@ -82,8 +82,8 @@ bool reDo()
 
     return remove_
 	? fault->geometry().removeStick( posid_.sectionID(), row, false )
-	: fault->geometry().insertStick( posid_.sectionID(), row, pos_, normal_,
-					 false );
+	: fault->geometry().insertStick( posid_.sectionID(), row,
+		RowCol(posid_.subID()).col, pos_, normal_, false );
 }
 
 protected:
@@ -231,12 +231,12 @@ int FaultGeometry::nrKnots( const SectionID& sid, int sticknr ) const
 }
 
 
-bool FaultGeometry::insertStick( const SectionID& sid, int sticknr,
-				 const Coord3& pos, const Coord3& editnormal,
-				 bool addtohistory )
+bool FaultGeometry::insertStick( const SectionID& sid, int sticknr, 
+				 int firstcol, const Coord3& pos,
+				 const Coord3& editnormal, bool addtohistory )
 {
     Geometry::FaultStickSurface* fss = sectionGeometry( sid );
-    if ( !fss || !fss->insertStick(pos,editnormal,sticknr) )
+    if ( !fss || !fss->insertStick(pos,editnormal,sticknr, firstcol) )
 	return false;
 
 
@@ -557,7 +557,7 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt ) const
 
 	// TODO: sort sticks
 
-	flt.geometry().insertStick( sid, stick->stickidx_, stick->crds_[0],
+	flt.geometry().insertStick( sid, stick->stickidx_, 0, stick->crds_[0],
 				    stick->getNormal(), false );
 	for ( int crdidx=1; crdidx<stick->crds_.size(); crdidx++ )
 	{
