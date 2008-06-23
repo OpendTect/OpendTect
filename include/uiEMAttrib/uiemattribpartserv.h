@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiemattribpartserv.h,v 1.3 2006-10-19 11:53:45 cvsbert Exp $
+ RCS:           $Id: uiemattribpartserv.h,v 1.4 2008-06-23 06:37:57 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,8 @@ public:
 				{ nlamodel_ = mdl; nlaid_ = id; }
     void			setDescSet( const Attrib::DescSet* ads )
 				{ descset_ = ads; }
+
+    void			import2DHorizon() const;
 
 protected:
 
