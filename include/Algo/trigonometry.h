@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.29 2008-06-19 21:57:50 cvsyuancheng Exp $
+ RCS:		$Id: trigonometry.h,v 1.30 2008-06-23 18:31:45 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -52,32 +52,20 @@ Here are some commonly used functions to judge the position relation between
 point and line, point and triangle, point and circle.
 */
 
-inline double deter33( const double* matrix )
-/*!<calculate the determinant of matrix. the 1st row is m0, m1, m2,
- 					 the 2nd row is m3, m4, m5,
-					 the 3rd row is m6, m7, m8. */
-{
-    return matrix[0]*matrix[4]*matrix[8]+matrix[1]*matrix[5]*matrix[6]+
-	   matrix[2]*matrix[3]*matrix[7]-matrix[2]*matrix[4]*matrix[6]-
-   	   matrix[0]*matrix[5]*matrix[7]-matrix[1]*matrix[3]*matrix[8];	   
-}
-
-
 inline bool isInsideCircle( const Coord& pt, 
 			    const Coord& p1, const Coord& p2, const Coord& p3 )
     /*!<Check the point pt is inside the circumcircle of p1, p2, p3 or not. */
 {
-    double m0[] = { p1.x, p1.y, 1, p2.x, p2.y, 1, p3.x, p3.y, 1 };
-    const double a = deter33( m0 );
-    double m1[] = { p1.dot(p1), p1.y, 1, p2.dot(p2), p2.y, 1, 
-		    p3.dot(p3), p3.y, 1 };
-    double m2[] = { p1.dot(p1), p1.x, 1, p2.dot(p2), p2.x, 1, 
-		    p3.dot(p3), p3.x, 1 };
-    double m3[] = { p1.dot(p1), p1.x, p1.y, p2.dot(p2), p2.x, p2.y, 
-		    p3.dot(p3), p3.x, p3.y };
-
-    return a*( a*(pt.x*pt.x+pt.y*pt.y)-deter33(m1)*pt.x+deter33(m2)*pt.y-
-	    deter33(m3) )<0;
+    Coord center;
+    const Coord d12 = p1-p2;
+    const Coord d13 = p1-p3;
+    const Coord d = p1-pt;
+    const double deter=d13.x*d12.y-d13.y*d12.x;
+    const double a12 = ( p1.dot(p1)-p2.dot(p2) )/2;
+    const double a13 = ( p1.dot(p1)-p3.dot(p3) )/2;
+    center.x = (a13*d12.y-a12*d13.y)/deter;
+    center.y = (d13.x*a12-d12.x*a13)/deter;
+    return pt.sqAbs()-p1.sqAbs()+2*center.dot(d)<0;
 }
 
 
@@ -104,28 +92,14 @@ inline bool pointOnEdge2D( const Coord& p, const Coord& a, const Coord& b,
 			   double epsilon )
 {
     const Coord pa = p-a;
-    const Coord pb = p-b;
     const Coord ba = b-a;
-    if ( mIsZero(ba.x, epsilon) ) //AB is parallel to y-axis.
-    {
-	if ( fabs(pa.x)>epsilon )
-	    return false;
-	else
-	{
-	    if (b.y>a.y && (pb.y>0 || pa.y<0) || b.y<a.y && (pb.y<0 || pa.y>0))
-		return false;
-	    else 
-		return true;
-	}
-    }
-    
-    const double slope = ba.y/ba.x;
-    const double yonline = a.y+slope*pa.x;
-    if ( fabs(yonline-p.y)>epsilon || a.x<b.x && (pa.x<0 || pb.x>0) ||
-	    			      b.x<a.x && (pb.x<0 || pa.x>0) )
+    const double t = pa.dot(ba)/ba.sqAbs();
+    if ( t<0 || t>1 )
 	return false;
-    
-    return true;
+
+    const Coord intersectpt = a+t*ba;
+    const double sqdist = p.sqDisTo( intersectpt );
+    return sqdist<epsilon*epsilon 
 }
 
 
