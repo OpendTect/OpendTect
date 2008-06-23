@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.251 2008-06-23 05:52:07 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.252 2008-06-23 06:35:33 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -220,20 +220,18 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 	{
 	case Imp:	
 	    if ( opt == 0 )
-		emserv_->importHorizon( true );
+		emserv_->import3DHorizon( true );
 	    else if ( opt == 1 )
-		emserv_->importHorizon( false );
+		emserv_->import3DHorizon( false );
 	    else if ( opt == 2 )
-	    {
-		uiImportHorizon2D dlg( &appl_ );
-		dlg.go();
-	    }
+		emattrserv_->import2DHorizon();
+
 	    break;
 	case Exp:
 	    if ( opt == 0 )
-		emserv_->exportHorizon( false );
+		emserv_->export3DHorizon();
 	    else if ( opt == 1 )
-		emserv_->exportHorizon( true );
+		emserv_->export2DHorizon();
 	    break;
 	case Man:
 	    if ( opt == 0 )
