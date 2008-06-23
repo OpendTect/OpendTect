@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.250 2008-06-18 11:40:07 cvsraman Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.251 2008-06-23 05:52:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,6 @@ ________________________________________________________________________
 #include "uiseispartserv.h"
 #include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
-#include "visfaultdisplay.h"
 #include "vishorizondisplay.h"
 #include "vispicksetdisplay.h"
 #include "vispolylinedisplay.h"
@@ -61,23 +60,21 @@ ________________________________________________________________________
 #include "seisbuf.h"
 #include "survinfo.h"
 
-#include "uimsg.h"
-#include "uifontsel.h"
-#include "uitoolbar.h"
 #include "uibatchlaunch.h"
-#include "uipluginman.h"
 #include "uibatchprogs.h"
-#include "uiviscoltabed.h"
 #include "uifiledlg.h"
-#include "uisurvey.h"
-#include "uistereodlg.h"
+#include "uifontsel.h"
+#include "uimsg.h"
+#include "uipluginman.h"
 #include "uishortcuts.h"
-
+#include "uistereodlg.h"
 #include "uistrattreewin.h"
+#include "uisurvey.h"
+#include "uitoolbar.h"
+#include "uiviscoltabed.h"
 
 
 static BufferString retstr;
-
 
 class uiODApplService : public uiApplService
 {
@@ -463,57 +460,6 @@ bool uiODApplMgr::storePickSet( const Pick::Set& ps )
 
 bool uiODApplMgr::storePickSetAs( const Pick::Set& ps )
 { return pickserv_->storeSetAs( ps ); }
-
-
-#include "emfault.h"
-#include "emmanager.h"
-#include "executor.h"
-#include "uitaskrunner.h"
-bool uiODApplMgr::storePolyAsFault( const Pick::Set& ps )
-{ 
-    int stickinl = mUdf(int);
-    int stickcrl = mUdf(int);
-    double stickz = mUdf(double);
-
-    EM::ObjectID objid = 
-	EM::EMM().createObject( EM::Fault::typeStr(), ps.name() );
-    EM::EMObject* emobj = EM::EMM().getObject( objid );
-    mDynamicCastGet( EM::Fault*, flt, emobj );
-    EM::FaultGeometry& fgeom = flt->geometry();
-    EM::SectionID sid = flt->sectionID( 0 );
-
-    for ( int idx=0; idx<ps.size(); idx++ )
-    {
-	const BinID bid = SI().transform( ps[idx].pos );
-	if ( bid.inl != stickinl ) stickinl = mUdf(int);
-	if ( bid.crl != stickcrl ) stickcrl = mUdf(int);
-	if ( ps[idx].pos.z != stickz ) stickz = mUdf(double);
-	
-	if ( mIsUdf(stickinl) && mIsUdf(stickcrl) && mIsUdf(stickz) )
-	{
-	    fgeom.insertStick( sid, 0, ps[idx].pos, Coord3(0,0,1), false );
-	    stickinl = bid.inl;
-	    stickcrl = bid.crl;
-	    stickz = ps[idx].pos.z;
-	}
-	else
-	{
-	    RowCol rc( 0, 0 );
-	    fgeom.insertKnot( sid, rc.getSerialized(), ps[idx].pos, false );
-	}
-    }
-
-    PtrMan<Executor> exec = flt->saver();
-    if ( exec )
-    {
-	uiTaskRunner dlg( &appl_ );
-	dlg.execute( *exec );
-    }
-    EM::EMM().removeObject( emobj );
-    
-    return true;
-}
-
 
 bool uiODApplMgr::setPickSetDirs( Pick::Set& ps )
 { return attrserv_->setPickSetDirs(ps, nlaserv_ ? &nlaserv_->getModel():0);}

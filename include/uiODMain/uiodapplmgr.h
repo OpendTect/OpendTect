@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.59 2008-05-21 10:30:06 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.60 2008-06-23 05:52:07 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,8 @@ public:
 
     // Survey menu operations
     int				manageSurvey();
-    enum ObjType		{ Seis, Hor, Flt, Wll, Attr, NLA, Pick, Sess, Strat, Wvlt };
+    enum ObjType		{ Seis, Hor, Flt, Wll, Attr, NLA, Pick, Sess,
+				  Strat, Wvlt };
     enum ActType		{ Imp, Exp, Man };
     void			doOperation(ObjType,ActType,int opt=0);
     				//!< Not all combinations are available ...!
@@ -113,7 +114,6 @@ public:
     bool			storePickSets();
     bool			storePickSet(const Pick::Set&);
     bool			storePickSetAs(const Pick::Set&);
-    bool			storePolyAsFault(const Pick::Set&);
     bool			setPickSetDirs(Pick::Set&);
     bool			pickSetsStored() const;
 
