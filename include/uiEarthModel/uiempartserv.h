@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.71 2008-06-18 11:42:47 cvsraman Exp $
+ RCS:           $Id: uiempartserv.h,v 1.72 2008-06-23 06:37:16 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,8 +45,9 @@ public:
     const char*		name() const			{ return "EarthModel"; }
 
 			// Services
-    bool		importHorizon(bool isgeom);
-    bool		exportHorizon(bool is2d);
+    bool		import3DHorizon(bool isgeom);
+    bool		export3DHorizon();
+    bool		export2DHorizon();
     bool		importFault();
     bool		exportFault();
 
