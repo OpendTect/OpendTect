@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emhorizon2d.h,v 1.13 2008-06-19 07:40:05 cvsnanne Exp $
+ RCS:		$Id: emhorizon2d.h,v 1.14 2008-06-23 06:41:14 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -113,6 +113,8 @@ public:
     				Horizon2DAscIO( const Table::FormatDesc& fd,
 						std::istream& strm )
 				    : Table::AscIO(fd)
+				    , udfval_(mUdf(float))
+				    , finishedreadingheader_(false)
 				    , strm_(strm)      		    {}
 
     static Table::FormatDesc*   getDesc();
@@ -121,13 +123,14 @@ public:
     static void                 createDescBody(Table::FormatDesc*,
 	    				   const BufferStringSet&);
 
-    float			getUdfVal();
     bool			isXY() const;
     int				getNextLine(BufferString&,TypeSet<float>&);
 
 protected:
 
     std::istream&		strm_;
+    float			udfval_;
+    bool			finishedreadingheader_;
 };
 
 } // namespace EM
