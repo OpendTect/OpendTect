@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.60 2008-06-23 05:52:07 cvsnanne Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.61 2008-06-23 06:55:35 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,7 +75,7 @@ public:
     // Survey menu operations
     int				manageSurvey();
     enum ObjType		{ Seis, Hor, Flt, Wll, Attr, NLA, Pick, Sess,
-				  Strat, Wvlt };
+				  Strat, Wvlt, MDef };
     enum ActType		{ Imp, Exp, Man };
     void			doOperation(ObjType,ActType,int opt=0);
     				//!< Not all combinations are available ...!
