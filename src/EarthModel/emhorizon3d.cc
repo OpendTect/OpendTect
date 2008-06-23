@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon3d.cc,v 1.103 2008-06-18 06:16:28 cvsraman Exp $
+ RCS:           $Id: emhorizon3d.cc,v 1.104 2008-06-23 06:42:43 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -639,15 +639,6 @@ void Horizon3DAscIO::updateDesc( Table::FormatDesc& fd,
 
 #define mErrRet(s) { if ( s ) errmsg_ = s; return 0; }
 
-float Horizon3DAscIO::getUdfVal()
-{   
-    if ( !getHdrVals(strm_) )
-	return mUdf(float);
-
-    return getfValue( 0 );
-}
-
-
 bool Horizon3DAscIO::isXY() const
 {
     const Table::TargetInfo* xinfo = fd_.bodyinfos_[0];
@@ -661,12 +652,20 @@ bool Horizon3DAscIO::isXY() const
 int Horizon3DAscIO::getNextLine( TypeSet<float>& data )
 {
     data.erase();
+    if ( !finishedreadingheader_ )
+    {
+	if ( !getHdrVals(strm_) )
+	    return -1;
+	
+	udfval_ = getfValue( 0 );
+	finishedreadingheader_ = true;
+    }
+
     int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return ret;
 
-    float udfval = getUdfVal();
     for ( int idx=0; idx<=fd_.bodyinfos_.size(); idx++ )
-	data += getfValue( idx, udfval );
+	data += getfValue( idx, udfval_ );
 
     return ret;
 }

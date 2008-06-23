@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizon2d.cc,v 1.21 2008-06-19 07:40:05 cvsnanne Exp $
+ RCS:           $Id: emhorizon2d.cc,v 1.22 2008-06-23 06:42:43 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -385,15 +385,6 @@ void Horizon2DAscIO::updateDesc( Table::FormatDesc& fd,
 
 #define mErrRet(s) { if ( s ) errmsg_ = s; return 0; }
 
-float Horizon2DAscIO::getUdfVal()
-{   
-    if ( !getHdrVals(strm_) )
-	return mUdf(float);
-
-    return getfValue( 0 );
-}
-
-
 bool Horizon2DAscIO::isXY() const
 {
     const Table::TargetInfo* xinfo = fd_.bodyinfos_[1];
@@ -407,15 +398,23 @@ bool Horizon2DAscIO::isXY() const
 int Horizon2DAscIO::getNextLine( BufferString& lnm, TypeSet<float>& data )
 {
     data.erase();
+    if ( !finishedreadingheader_ )
+    {
+	if ( !getHdrVals(strm_) )
+	    return -1;
+
+	udfval_ =  getfValue( 0 );
+	finishedreadingheader_ = true;
+    }
+
     int ret = getNextBodyVals( strm_ );
     if ( ret <= 0 ) return ret;
 
-    float udfval = getUdfVal();
     lnm = text(0);
     const int lastvalidx = isXY() ? fd_.bodyinfos_.size()
 				  : fd_.bodyinfos_.size() - 1;
     for ( int idx=1; idx<=lastvalidx; idx++ )
-	data += getfValue( idx, udfval );
+	data += getfValue( idx, udfval_ );
 
     return ret;
 }
