@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.60 2008-03-12 09:48:03 cvsbert Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.61 2008-06-23 06:42:16 cvsraman Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -176,6 +176,19 @@ int Seis2DLineSet::indexOf( const char* key ) const
     }
     return -1;
 }
+
+
+int Seis2DLineSet::indexOfFirstOccurrence( const char* linenm ) const
+{
+    for ( int idx=0; idx<pars_.size(); idx++ )
+    {
+	if ( pars_[idx]->name() == linenm )
+	    return idx;
+    }
+
+    return -1;
+}
+
 
 static const char* sKeyFileType = "2D Line Group Data";
 
