@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Raman Singh
  Date:          June 2008
- RCS:           $Id: uiexport2dhorizon.cc,v 1.1 2008-06-18 11:43:48 cvsraman Exp $
+ RCS:           $Id: uiexport2dhorizon.cc,v 1.2 2008-06-23 06:36:48 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,7 +114,8 @@ bool uiExport2DHorizon::doExport()
     if ( !hor )
 	mErrRet("Cannot load horizon")
     
-    const Geometry::Horizon2DLine* geom = hor->geometry().sectionGeometry( 0 );
+    EM::SectionID sid = hor->sectionID( 0 );
+    const Geometry::Horizon2DLine* geom = hor->geometry().sectionGeometry(sid);
     if ( !geom ) mErrRet("Error Reading Horizon")
 
     for ( int idx=0; idx< linenms.size(); idx++ )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.143 2008-06-18 11:43:48 cvsraman Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.144 2008-06-23 06:36:48 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,7 +112,7 @@ void uiEMPartServer::manageSurfaces( const char* typ )
 }
 
 
-bool uiEMPartServer::importHorizon( bool isgeom )
+bool uiEMPartServer::import3DHorizon( bool isgeom )
 {
     uiImportHorizon dlg( parent(), isgeom );
     const bool res = dlg.go();
@@ -127,23 +127,19 @@ bool uiEMPartServer::importHorizon( bool isgeom )
 }
 
 
-bool uiEMPartServer::exportHorizon( bool is2d )
+bool uiEMPartServer::export2DHorizon()
 {
-    bool res = false;
-    if ( is2d )
-    {
-	ObjectSet<SurfaceInfo> hinfos;
-	getAllSurfaceInfo( hinfos, true );
-	uiExport2DHorizon dlg( parent(), hinfos );
-	res = dlg.go();
-    }
-    else
-    {
-	uiExportHorizon dlg( parent() );
-	res = dlg.go();
-    }
+    ObjectSet<SurfaceInfo> hinfos;
+    getAllSurfaceInfo( hinfos, true );
+    uiExport2DHorizon dlg( parent(), hinfos );
+    return dlg.go();
+}
 
-    return res;
+
+bool uiEMPartServer::export3DHorizon()
+{
+    uiExportHorizon dlg( parent() );
+    return dlg.go();
 }
 
 
