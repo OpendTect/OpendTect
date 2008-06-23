@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.38 2008-05-14 11:13:05 cvsbert Exp $
+ RCS:		$Id: seis2dline.h,v 1.39 2008-06-23 06:40:28 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,7 @@ public:
     LineKey		lineKey( int idx ) const
     			{ return LineKey( lineName(idx), attribute(idx) ); }
     int			indexOf(const char* linekey) const;
+    int			indexOfFirstOccurrence(const char* linenm) const;
     void		getAvailableAttributes(BufferStringSet&) const;
 
     bool		getGeometry(PosInfo::LineSet2DData&) const;
