@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          September 2006
- RCS:           $Id: uiemattribpartserv.cc,v 1.3 2006-10-19 11:53:45 cvsbert Exp $
+ RCS:           $Id: uiemattribpartserv.cc,v 1.4 2008-06-23 06:38:52 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 
 #include "uiattrsurfout.h"
 #include "uiattrtrcselout.h"
+#include "uiimphorizon2d.h"
 #include "uiseiseventsnapper.h"
 #include "emmanager.h"
 #include "ioman.h"
@@ -54,4 +55,8 @@ void uiEMAttribPartServer::snapHorizon( const EM::ObjectID& emid )
 }
 
 
-#define mErrRet(msg) { uiMSG().error(msg); return false; }
+void uiEMAttribPartServer::import2DHorizon() const
+{
+    uiImportHorizon2D dlg( parent() );
+    dlg.go();
+}

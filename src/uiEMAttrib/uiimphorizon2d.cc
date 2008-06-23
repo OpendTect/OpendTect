@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Raman Singh
  Date:          May 2008
- RCS:           $Id: uiimphorizon2d.cc,v 1.5 2008-06-18 06:29:16 cvsraman Exp $
+ RCS:           $Id: uiimphorizon2d.cc,v 1.6 2008-06-23 06:38:52 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,7 +95,10 @@ int nextStep()
 	prevtrcnr_ = -1;
 	linegeom_.posns.erase();
 	LineKey lk( linenm, LineKey::sKeyDefAttrib, true );
-	const int lidx = lineset_->indexOf( lk );
+	int lidx = lineset_->indexOf( lk );
+	if ( lidx < 0 )
+	    lidx = lineset_->indexOfFirstOccurrence( linenm );
+
 	if ( lidx < 0 )
 	    return Executor::ErrorOccurred;
 

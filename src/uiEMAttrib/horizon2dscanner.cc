@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizon2dscanner.cc,v 1.3 2008-06-18 06:29:16 cvsraman Exp $
+ RCS:           $Id: horizon2dscanner.cc,v 1.4 2008-06-23 06:38:52 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -214,7 +214,10 @@ int Horizon2DScanner::nextStep()
     {
 	linegeom_.posns.erase();
 	LineKey lk( linenm, LineKey::sKeyDefAttrib, true );
-	const int lidx = lineset_->indexOf( lk );
+	int lidx = lineset_->indexOf( lk );
+	if ( lidx < 0 )
+	    lidx = lineset_->indexOfFirstOccurrence( linenm );
+
 	if ( lidx < 0 )
 	{
 	    invalidnms_.addIfNew( linenm );
