@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:          September 2007
- RCS:           $Id: uiamplspectrum.cc,v 1.7 2008-06-03 11:34:35 cvsbert Exp $
+ RCS:           $Id: uiamplspectrum.cc,v 1.8 2008-06-23 06:53:57 cvssatyaki Exp $
 _______________________________________________________________________
                    
 -*/   
@@ -151,6 +151,8 @@ void uiAmplSpectrum::putDispData()
     for ( int idx=0; idx<fftsz; idx++ )
 	vals[idx] = 20 * Math::Log10( abs(freqdomainsum_->get(idx)) / nrtrcs_ );
 
-    const float maxfreq = mNINT( fft_->getNyqvist( SI().zStep() ) );
+    float maxfreq = fft_->getNyqvist( SI().zStep() );
+    if ( SI().zIsTime() )
+	maxfreq = mNINT( maxfreq );
     disp_->setVals( Interval<float>(0,maxfreq), vals.arr(), fftsz );
 }
