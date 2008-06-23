@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
 Date:		June 2008
- RCS:		$Id: uiprestackimpmute.cc,v 1.2 2008-06-23 10:18:45 cvsumesh Exp $
+ RCS:		$Id: uiprestackimpmute.cc,v 1.3 2008-06-23 11:33:13 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,13 +35,13 @@ uiImportMute::uiImportMute( uiParent* p )
 	                      uiFileInput::Setup().withexamine(true)
 			      .defseldir( GetDataDir() ) );
 
-    extpoltypefld_ = new uiGenInput( this, "Extrapolate Type",
+    extpolatefld_ = new uiGenInput( this, "Extrapolate",
 	    				BoolInpSpec( true ) );
-    extpoltypefld_->attach( alignedBelow, inpfld_ );
+    extpolatefld_->attach( alignedBelow, inpfld_ );
 
-    intpoltypefld_ = new uiGenInput( this,"Interpolate Type",
+    intpoltypefld_ = new uiGenInput( this,"Interpolation Type",
 	                          StringListInpSpec(interpoltypes) );
-    intpoltypefld_->attach( alignedBelow, extpoltypefld_ );
+    intpoltypefld_->attach( alignedBelow, extpolatefld_ );
 
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, intpoltypefld_ );
@@ -80,7 +80,7 @@ bool uiImportMute::acceptOK( CallBacker* )
     StreamData sd = StreamProvider( inpfld_->fileName() ).makeIStream();
     PreStack::MuteAscIO muteascio( fd_, *sd.istrm );
 
-    if ( !muteascio.getMuteDef( mutedef, extpoltypefld_->getBoolValue(),
+    if ( !muteascio.getMuteDef( mutedef, extpolatefld_->getBoolValue(),
 	       			getInterpolType() ) )
 	mErrRet( "Failed to convert into compatible data" );
 

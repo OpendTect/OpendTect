@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2008
- RCS:		$Id: uiprestackimpmute.h,v 1.2 2008-06-23 10:17:23 cvsumesh Exp $
+ RCS:		$Id: uiprestackimpmute.h,v 1.3 2008-06-23 11:31:48 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ public:
 protected:
     
     uiFileInput*	inpfld_;
-    uiGenInput*		extpoltypefld_;
+    uiGenInput*		extpolatefld_;
     uiGenInput*		intpoltypefld_;
     uiIOObjSel*		outfld_;
 
