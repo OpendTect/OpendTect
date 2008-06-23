@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.30 2008-06-23 18:31:45 cvskris Exp $
+ RCS:		$Id: trigonometry.h,v 1.31 2008-06-23 18:48:44 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -97,9 +97,9 @@ inline bool pointOnEdge2D( const Coord& p, const Coord& a, const Coord& b,
     if ( t<0 || t>1 )
 	return false;
 
-    const Coord intersectpt = a+t*ba;
-    const double sqdist = p.sqDisTo( intersectpt );
-    return sqdist<epsilon*epsilon 
+    const Coord intersectpt = a+Coord(t*ba.x, t*ba.y);
+    const Coord pq = p-intersectpt;
+    return pq.sqAbs()<epsilon*epsilon;
 }
 
 
