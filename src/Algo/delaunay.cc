@@ -4,582 +4,20 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.11 2008-06-19 14:25:03 cvskris Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.12 2008-06-23 20:17:32 cvskris Exp $";
 
 #include "delaunay.h"
-
-#include "positionlist.h"
-#include "sorting.h"
 #include "trigonometry.h"
-
-#include "iostream"
-
-
-DelaunayTriangulation::DelaunayTriangulation( const Coord2List& coords )
-    : coordlist_( coords )
-    , totalsz_( 0 )  
-{
-    int sz = 0;
-    int previd = -1;
-    while ( coordlist_.nextID(previd)!= -1 )
-    {
-	sz++;
-	previd = coordlist_.nextID(previd);
-    }
-    
-    totalsz_ = sz;
-}
-
-
-DelaunayTriangulation::~DelaunayTriangulation()
-{}
-
-
-int DelaunayTriangulation::triangulate()
-{
-    stack_.erase();
-    result_.erase();
-    neighbours_.setSize( 6*totalsz_-6, 0 );
-
-    createPermutation();
-
-    if ( totalsz_ < 3 )
-	return 0;
-
-    if ( !ensureDistinctness() )
-	return -2;
-
-    int lr;
-    const int firsttriidx = findHealthyTriangle( 0, 1, 2, lr );
-    if ( lr == 0 )
-	return -1;
-
-    if ( !createInitialTriangles( firsttriidx, lr ) )
-	return -2;
-
-    int ledg = 2;
-    int ltri = lr == -1 ? result_.size()/3 - 1 : 0;
-    for ( int idx=firsttriidx+1; idx<totalsz_; idx++ )
-    {
-	if ( !insertTriangle( idx, ledg, ltri ) )
-	    return -2;
-    }
-  
-    return 1;
-}
-
-
-bool DelaunayTriangulation::insertTriangle( int i0, int& ledg, int& ltri )
-{
-    const int pi0 = permutation_[i0];
-    const int pi1 = result_[3*ltri+ledg-1];
-    const int pi2 = ledg > 2 ? result_[3*ltri] : result_[3*ltri+ledg];
-    const int lr = getSideOfLine( pi1, pi2, pi0 );
-    int rtri;
-    int redg;
-    if ( lr > 0 )
-    {
-	rtri = ltri;
-	redg = ledg;
-	ltri = -1;
-    }
-    else
-    {
-	const int idx = -neighbours_[3*ltri+ledg-1];
-	rtri = idx/3-1;
-	redg = (idx%3)+1;
-    }
-
-    visibleEdge( pi0, ltri, ledg, rtri, redg );
-    const int firstnewtriangle = result_.size()/3;
-    int link = -neighbours_[3*ltri+ledg-1];
-    for ( ; ; )
-    {
-	const int tri = link/3-1;
-	const int edg = (link % 3) + 1;
-	link = -neighbours_[3*tri+edg-1];
-	
-	const int c2 = result_[3*tri+edg-1];
-	const int c1 = edg <= 2 ? result_[3*tri+edg] : result_[3*tri];
-	const int trinr = result_.size()/3;
-
-	neighbours_[3*tri+edg-1] = trinr+1;
-	result_ += c1;
-	result_ += c2;
-	result_ += pi0;
-
-	neighbours_[3*trinr] = tri+1;
-	neighbours_[3*trinr+1] = trinr;
-	neighbours_[3*trinr+2] = trinr+2;
-	
-	stack_ += result_.size()/3;
-
-	if ( permutation_.size() < stack_.size() )
-	    return false;
-
-    	if ( tri == rtri && edg == redg )
-	    break;
-    }
-
-    neighbours_[3*ltri+ledg-1] = -3*firstnewtriangle-4;
-    neighbours_[3*firstnewtriangle+1] = -result_.size()-2;
-    neighbours_[result_.size()-1] = -link;
-    ltri = firstnewtriangle;
-    ledg = 2;
-  
-    const int error= swapEdge( pi0, ltri, ledg );
-    if ( error != 0 )
-	return false;
-
-    return true;
-}
-
-
-#define mGetVertice0( triidx ) ((triidx)*3)
-#define mGetVertice1( triidx ) ((triidx)*3+1)
-#define mGetVertice2( triidx ) ((triidx)*3+2)
-
-int DelaunayTriangulation::swapEdge( int pid, int& ltri, int& ledg )
-{
-    for ( ; ; )
-    {
-	if ( !stack_.size() )
-	    break;
-
-	const int lastidx = stack_.size()-1;
-	const int tri = stack_[lastidx]-1;
-	stack_.remove( lastidx );
-
-	int edg;
-	int c2;
-	if ( result_[mGetVertice0(tri)] == pid )
-	{
-	    edg = 2;
-	    c2 = result_[mGetVertice2(tri)];
-	}
-	else if ( result_[mGetVertice1(tri)] == pid )
-	{
-	    edg = 3;
-	    c2 = result_[mGetVertice0(tri)];
-	}
-	else
-	{
-	    edg = 1;
-	    c2 = result_[mGetVertice1(tri)];
-	}
-
-	const int c0 = result_[3*tri+edg-1];
-	const int nbid = neighbours_[3*tri+edg-1];
-	int idx;
-	int c1;
-	if ( neighbours_[3*(nbid-1)] == tri+1 )
-	{
-	    idx = 1;
-	    c1 = result_[3*(nbid-1)+2];
-	}
-	else if ( neighbours_[3*(nbid-1)+1] == tri+1 )
-	{
-	    idx = 2;
-	    c1 = result_[3*(nbid-1)];
-	}
-	else
-	{
-	    idx = 3;
-	    c1 = result_[3*(nbid-1)+1];
-	}
-
-	const int swap = selectDiagonal( pid, c0, c1, c2 );
-
-	if ( swap == 1 )
-	{
-	   const int wedg0 = wrap ( edg-1, 1, 3 ); 
-	   const int wedg1 = wrap ( edg+1, 1, 3 ); 
-	   const int widx0 = wrap ( idx-1, 1, 3 ); 
-	   const int widx1 = wrap ( idx+1, 1, 3 ); 
-
-	   result_[3*tri+wedg1-1] = c1;
-	   result_[3*(nbid-1)+widx1-1] = pid;
-	   const int r = neighbours_[3*tri+wedg1-1];
-	   const int s = neighbours_[3*(nbid-1)+widx1-1];
-	   neighbours_[3*tri+wedg1-1] = nbid;
-	   neighbours_[3*(nbid-1)+widx1-1] = tri+1;
-	   neighbours_[3*tri+edg-1] = s;
-	   neighbours_[3*(nbid-1)+idx-1] = r;
-
-	   if ( 0 < neighbours_[3*(nbid-1)+widx0-1] )
-	       stack_ +=nbid; 
-
-	   if ( 0 < s )
-	   {
-	       if ( neighbours_[3*(s-1)] == nbid )
-		   neighbours_[3*(s-1)] = tri+1;
-	       else if ( neighbours_[3*(s-1)+1] == nbid )
-		   neighbours_[3*(s-1)+1] = tri+1;
-	       else
-		   neighbours_[3*(s-1)+2] = tri+1;
-	       
-	       stack_ += tri+1;
-	       if ( permutation_.size() < stack_.size() )
-		   return 8;
-	   }
-	   else
-	   {
-	       if ( nbid == ltri+1 && widx1 == ledg )
-	       {
-		   ltri = tri;
-		   ledg = edg;
-	       }
-	       
-	       int l = - ( 3*(tri+1)+edg-1 );
-	       int tt = tri;
-	       int ee = wedg0;
-	       
-	       while ( 0 < neighbours_[3*tt+ee-1] )
-	       {
-		   tt = neighbours_[3*tt+ee-1]-1;
-		   if ( result_[3*tt] == c0 )
-		       ee = 3;
-		   else if ( result_[3*tt+1] == c0 )
-		       ee = 1;
-		   else
-		       ee = 2;
-	       }
-	       
-	       neighbours_[3*tt+ee-1] = l;
-	   }
-	  
-	   if ( 0 < r )
-	   {
-  	       if ( neighbours_[3*(r-1)] == tri+1 )
-    		   neighbours_[3*(r-1)] = nbid;
-  	       else if ( neighbours_[3*(r-1)+1] == tri+1 )
-    		   neighbours_[3*(r-1)+1] = nbid;
-  	       else
-    		   neighbours_[3*(r-1)+2] = nbid;
-	   }
-	   else
-	   {
-  	       if ( tri == ltri && wedg1 == ledg )
-  	       {
-    		   ltri = nbid-1;
-    		   ledg = idx;
-  	       }
-	       
-  	       int l = - ( 3*nbid+idx-1 );
-  	       int tt = nbid-1;
-  	       int ee = widx0;
-	       
-  	       while ( 0 < neighbours_[3*tt+ee-1] )
-  	       {
-    		   tt = neighbours_[3*tt+ee-1]-1;
-		   
-    		   if ( result_[3*tt] == c2 )
-      		       ee = 3;
-    		   else if ( result_[3*tt+1] == c2 )
-      		       ee = 1;
-    		   else
-      		       ee = 2;
- 	       }
-  	       
-  	       neighbours_[3*tt+ee-1] = l;
-	   }
-	}
-    }
-
-    return 0;
-}
-
-
-void DelaunayTriangulation::visibleEdge( int pi0, int& ltri, int& ledg, 
-					 int& rtri, int& redg )
-{
-    bool done = true;
-    if ( ltri < 0 )
-    {
-	done = false;
-	ltri = rtri;
-	ledg = redg;
-    }
-
-    findRightMostEdge( rtri, redg, pi0 );
-    if ( done ) return;
-    
-    findLeftMostEdge( ltri, ledg, pi0 );
-}
-
-
-void DelaunayTriangulation::findRightMostEdge( int& rtri, int& redg, int pid )
-{
-    for ( ; ; )
-    {
-    	const int link = -neighbours_[3*rtri+redg-1];
-    	const int tri = link/3-1;
-    	const int edg = 1+link%3;
-    	const int c0 = result_[3*tri+edg-1];
-    	const int c1 = edg <= 2 ? result_[3*tri+edg] : result_[3*tri];
-    	
-	if ( getSideOfLine(c0, c1, pid) <= 0 )
-	    break;   
-
-	rtri = tri;
-    	redg = edg;
-    }
-}
-
-
-void DelaunayTriangulation::findLeftMostEdge( int& ltri, int& ledg, int pid )
-{
-    int tri = ltri;
-    int edg = ledg;
-    for ( ; ; )
-    {
-	const int c1 = result_[3*tri+edg-1];
-	edg = wrap( edg-1, 1, 3 );
-
-	while ( 0 < neighbours_[3*tri+edg-1] )
-	{
-	    tri = neighbours_[3*tri+edg-1]-1;
-	    if ( result_[3*tri] == c1 )
-		edg = 3;
-	    else if ( result_[3*tri+1] == c1 )
-		edg = 1;
-	    else
-		edg = 2;
-	}
-   
-	const int c0 = result_[3*tri+edg-1];
-	if ( getSideOfLine(c0, c1, pid) <= 0 )
-	    break;
-    }
-
-    ltri = tri;
-    ledg = edg;
-}
-
-
-bool DelaunayTriangulation::createInitialTriangles( int firstidx, int lr )
-{
-    if ( firstidx < 2 )
-	return false;
-
-    if ( lr == -1 )
-    {
-	result_ += permutation_[0];
-	result_ += permutation_[1];
-	result_ += permutation_[firstidx];
-	neighbours_[2] = -3;
-
-	int c0 = 0;
-	int c1 = 1;
-	for ( int idx=1; idx<firstidx-1; idx++ )
-	{
-	    c0 = c1;
-	    c1 = idx+1;
-	    result_ += permutation_[c0];
-	    result_ += permutation_[c1];
-	    result_ += permutation_[firstidx];
-	    neighbours_[3*idx] = -3*(idx+1);
-	    neighbours_[3*idx+1] = idx+1;
-	    neighbours_[3*idx+2] = idx;
-	}
-
-	const int nr = result_.size()/3;
-	neighbours_[3*(nr-1)] = -3*nr-1;
-	neighbours_[3*(nr-1)+1] = -5;
-    }
-    else 
-    {
-	result_ += permutation_[1];
-	result_ += permutation_[0];
-	result_ += permutation_[firstidx];
-	neighbours_[0] = -4;
-
-	int c0 = 0;
-	int c1 = 1;
-	for ( int idx=1; idx<firstidx-1; idx++ )
-	{
-	    c0 = c1;
-	    c1 = idx+1;
-	    result_ += permutation_[c1];
-	    result_ += permutation_[c0];
-	    result_ += permutation_[firstidx];
-	    neighbours_[3*(idx-1)+2] = idx+1;
-	    neighbours_[3*idx] = -3*(idx+1)-3;
-	    neighbours_[3*idx+1] = idx;
-	}
-
-	const int nr = result_.size()/3;
-	neighbours_[3*(nr-1)+2] = -3*nr;
-	neighbours_[1] = -3*nr-2;
-    }
-    
-    return true;
-}
-
-
-void DelaunayTriangulation::createPermutation()
-{
-    permutation_.erase();
-    for ( int idx=0; idx<totalsz_; idx++ )
-	permutation_ += idx;
-
-    TypeSet<Coord> coordcopy;
-    int previd = -1;
-    while ( coordlist_.nextID(previd)!= -1 )
-    {
-	int nextid = coordlist_.nextID(previd);
-	if ( nextid != -1 )
-    	    coordcopy += coordlist_.get( nextid );
-
-	previd = nextid;
-    }
-
-    sort_coupled( coordcopy.arr(), permutation_.arr(), permutation_.size() );
-}
-
-
-bool DelaunayTriangulation::ensureDistinctness() 
-{
-    int p0 = permutation_[0];
-    for ( int idx = 1; idx < totalsz_; idx++ )
-    {
-	int p1 = p0;
-	p0 = permutation_[idx];
-	
-	int id = -1;
-	const Coord c1 = coordlist_.get( p1 );
-	const Coord c0 = coordlist_.get( p0 );
-	
-	for ( int idy = 0; idy <= 1; idy++ )
-	{
-	    double max = fabs(c0.x) > fabs(c1.x) ? fabs(c0.x) : fabs(c1.x);
-	    double diff = c0.x - c1.x;
-	    if ( idy == 1)
-	    {
-		max = fabs(c0.y) > fabs(c1.y) ? fabs(c0.y) : fabs(c1.y);
-		diff = c0.y - c1.y;
-	    }
-
-	    if ( 100.0 * mEpsilon() * ( max+1.0 ) < fabs( diff ) )
-	    {
-		id = idy;
-		break;
-	    }
-	}
-
-	if ( id == -1 )
-      	    return false;
-    }
-    
-    return true;
-}
-
-
-int DelaunayTriangulation::findHealthyTriangle(int i0, int i1, int id, int& lr) 
-{
-    const int nrcoords = permutation_.size();
-    for ( int idx=id; idx<nrcoords; idx++ )
-    {
-	lr = getSideOfLine(permutation_[i0],permutation_[i1],permutation_[idx]);
-	if ( lr )
-	    return idx;
-    }
-
-    return -1;
-}
-
-
-int DelaunayTriangulation::getSideOfLine( int pi0, int pi1, int pid )
-{
-    const Coord v01 = coordlist_.get( pi1 ) - coordlist_.get( pi0 );
-    const Coord vt = coordlist_.get( pid ) - coordlist_.get( pi0 );
-
-    double tolabs = fabs(v01.x) > fabs(v01.y) ? fabs(v01.x) : fabs(v01.y);
-    tolabs = tolabs > fabs(vt.x) ? tolabs : fabs(vt.x);
-    tolabs = 0.000001 * ( tolabs > fabs(vt.y) ? tolabs : fabs(vt.y) );
-    
-    double prod = v01.y * vt.x - v01.x * vt.y;
-    int res;
-
-    if ( tolabs < prod )
-    	res = 1;
-    else if ( -tolabs <= prod )
-    	res = 0;
-    else if ( prod < -tolabs )
-    	res = -1;
-
-    return res;
-}
-
-
-int DelaunayTriangulation::selectDiagonal(int c0, int c1, int c2, int c3) const
-{
-  Coord d10 = coordlist_.get( c1 ) - coordlist_.get( c0 );
-  Coord d12 = coordlist_.get( c1 ) - coordlist_.get( c2 );
-  Coord d30 = coordlist_.get( c3 ) - coordlist_.get( c0 );
-  Coord d32 = coordlist_.get( c3 ) - coordlist_.get( c2 );
-  
-  double maxxy301 = fabs(d30.x) > fabs(d30.y) ? fabs(d30.x) : fabs(d30.y);
-  maxxy301 = maxxy301 > fabs(d10.y) ? maxxy301 : fabs(d10.y);
-  maxxy301 = 100.0*mEpsilon()*(maxxy301>fabs(d10.x) ? maxxy301 : fabs(d10.x));
-  
-  double maxxy123 = fabs(d32.x) > fabs(d32.y) ? fabs(d32.x) : fabs(d32.y);
-  maxxy123 = maxxy123 > fabs(d12.y) ? maxxy123 : fabs(d12.y);
-  maxxy123 = 100.0*mEpsilon()*(maxxy123>fabs(d12.x) ? maxxy123 : fabs(d12.x));
-
-  const double inpro301 = d10.x * d30.x + d10.y * d30.y;
-  const double inpro123 = d12.x * d32.x + d12.y * d32.y;
-
-  if ( maxxy301 < inpro301 && maxxy123 < inpro123 )
-      return -1;  
-  else if ( inpro301 < -maxxy301 && inpro123 < -maxxy123 )
-      return 1;
-  else
-  {
-    double max = maxxy301 > maxxy123 ? maxxy301 : maxxy123;
-    double determ = ( d10.x * d30.y - d30.x * d10.y ) * inpro123 
-		  + ( d32.x * d12.y - d12.x * d32.y ) * inpro301;
-
-    if ( max < determ )
-      return -1;
-    else if ( determ < -max )
-      return 1;
-    else
-	return 0;
-    }
-}
-
-
-int DelaunayTriangulation::wrap( int val, int vallo, int valhi )
-{
-    const int low = vallo < valhi ? vallo : valhi;
-    const int hig = vallo > valhi ? vallo : valhi;
-    const int width = hig - low + 1;
-    if ( width == 1 )
-	return low;
-
-    int posmod = (val-low) % width;
-    if ( posmod < 0 )
-	posmod += abs(width);
-
-    return low+posmod;
-}
-
-
-double DelaunayTriangulation::mEpsilon() const
-{
-    double r = 1.0;
-    while ( 1.0 < 1.0 + r )
-	r = r / 2.0;
-    
-    return 2.0 * r;
-}
 
 
 ParallelDTriangulator::ParallelDTriangulator( DAGTriangleTree& dagt )
     : tree_( dagt )  
     , israndom_( true )
 {}
+
+
+int ParallelDTriangulator::totalNr() const                
+{ return tree_.coordList().size(); }
 
 
 bool ParallelDTriangulator::doPrepare( int nrthreads )
@@ -762,7 +200,7 @@ bool DAGTriangleTree::init()
 
 
 int DAGTriangleTree::insertPoint( const Coord& coord, int& dupid, 
-				   unsigned char threadid )
+				  unsigned char threadid )
 {
     if ( !ownscoordlist_ )
 	return cNoVertex();
@@ -850,13 +288,12 @@ bool DAGTriangleTree::insertPoint( int ci, int& dupid, unsigned char lockerid )
     
     if ( res==cIsInside() || res==cIsOnEdge() )
     {
-	int nti0, nti1;
 	bool writelocked0 = triangles_[ti0].writeLock( condvar_, lockerid );	
-	bool writelocked1 = ti1==-1 ? false :
+	bool writelocked1 = ti1==cNoTriangle() ? false :
 	    triangles_[ti1].writeLock( condvar_, lockerid );	
 
-	const char nres = searchFurther( ci, ti0, ti1, nti0, nti1, dupid,
-					 lockerid );
+	int nti0 = ti0, nti1 = ti1;
+	const char nres = searchFurther( ci, nti0, nti1, dupid, lockerid );
 
 	if ( nres==cIsInside() || nres==cIsOnEdge() )
 	{
@@ -864,10 +301,10 @@ bool DAGTriangleTree::insertPoint( int ci, int& dupid, unsigned char lockerid )
 	    if ( writelocked1 )	triangles_[ti1].writeUnLock( condvar_ );
 
 	    bool locked0 = triangles_[nti0].writeLock( condvar_, lockerid );
-	    bool locked1 = nti1==-1 ? false : 
+	    bool locked1 = nti1==cNoTriangle() ? false : 
 		triangles_[nti1].writeLock( condvar_, lockerid );
 
-	    if ( nti1==-1 )
+	    if ( nti1==cNoTriangle() )
 		splitTriangleInside( ci, nti0, lockerid );
 	    else
 		splitTriangleOnEdge( ci, nti0, nti1, lockerid );
@@ -911,39 +348,29 @@ bool DAGTriangleTree::insertPoint( int ci, int& dupid, unsigned char lockerid )
 	(idx>=0 ? (*coordlist_)[idx] : initialcoords_[-idx-2])
 
 
-char DAGTriangleTree::searchFurther( int ci, int ti0, int ti1, int& nti0, 
-				     int& nti1, int& dupid,
-				     unsigned char lockid ) 
+int DAGTriangleTree::searchNeighbor( int ti, char edge,
+				     unsigned char lockid ) const
 {
-    if ( ti1==-1 )
-	return searchTriangle( ci, ti0, nti0, nti1, dupid, lockid );
+    const bool didlock = triangles_[ti].readLock( condvar_, lockid );
+    const int* crd = triangles_[ti].coordindices_;
+    const int* nbor = triangles_[ti].neighbors_;
 
-    nti0 = ti0;
-    nti1 = -1;
-    if ( searchTriangleOnEdge( ci, ti0, nti0, dupid, lockid ) )
-    {
-	const bool didlock = triangles_[nti0].readLock( condvar_, lockid );
-	const int* crd = triangles_[nti0].coordindices_;
-	const int* nbor = triangles_[nti0].neighbors_;
+    int neighbor = cNoTriangle();
 
-	coordlock_.readLock();
-
-	if ( pointOnEdge2D( mCrd(ci), mCrd(crd[0]), mCrd(crd[1]), epsilon_ ) )
-	    nti1 = searchChild( crd[0], crd[1], nbor[0], lockid );
-	else if ( pointOnEdge2D(mCrd(ci),mCrd(crd[0]),mCrd(crd[2]),epsilon_) )
-	    nti1 = searchChild( crd[0], crd[2], nbor[2], lockid );
-	else
-	    nti1 = searchChild( crd[1], crd[2], nbor[1], lockid );
-
-	if ( didlock ) triangles_[nti0].readUnLock( condvar_ );
-	coordlock_.readUnLock();
-
-	return cIsOnEdge();
-    }
+    if ( edge==0 )
+	neighbor = searchChild( crd[0], crd[1], nbor[0], lockid );
+    else if ( edge==1 )
+	neighbor = searchChild( crd[1], crd[2], nbor[1], lockid );
+    else if ( edge==2 )
+	neighbor = searchChild( crd[2], crd[0], nbor[2], lockid );
     else
     {
-	return searchTriangle( ci, nti0, nti0, nti1, dupid, lockid );
+	pErrMsg("Should not happen");
     }
+
+    if ( didlock ) triangles_[ti].readUnLock( condvar_ );
+
+    return neighbor;
 }
 
 
@@ -956,111 +383,222 @@ char DAGTriangleTree::searchTriangle( int ci, int startti, int& ti0, int& ti1,
     ti0 = startti;
     ti1 = cNoTriangle();
 
-    bool didlock = triangles_[ti0].readLock( condvar_, lockid );
-    const int* children = triangles_[startti].childindices_;
-    
-    for ( int childidx = 0; childidx<3; childidx++ )
-    {
-	const int curchild = children[childidx];
-	if ( curchild==cNoTriangle() ) continue;
-
-	const char mode = isInside( ci, curchild, dupid  );
-	if ( mode==cIsOutside() ) 
-	    continue;
-
-	if ( didlock ) triangles_[ti0].readUnLock( condvar_ );
-	if ( mode==cIsDuplicate() )
-	    return mode;
-
-	didlock = triangles_[curchild].readLock( condvar_, lockid );
-	
-	if ( mode==cIsInside() )
-	{
-	    children = triangles_[curchild].childindices_;
-	    startti = curchild;
-	    ti0 = curchild;
-	    childidx = cNoTriangle();
-	}
-	else if ( mode==cIsOnEdge() )
-	{
-	    if ( !searchTriangleOnEdge( ci, curchild, ti0, dupid, lockid ) )
-	    {
-		if ( didlock ) triangles_[curchild].readUnLock( condvar_ );
-		if ( ti0==cNoTriangle() ) return cError();
-
-		didlock = triangles_[ti0].readLock( condvar_, lockid );
-		
-		children = triangles_[ti0].childindices_;
-		childidx = cNoTriangle();
-	    }
-	    else
-	    {
-		if ( didlock ) triangles_[curchild].readUnLock( condvar_ );
-		didlock = triangles_[ti0].readLock( condvar_, lockid );
-
-		const int* crd = triangles_[ti0].coordindices_;
-		const int* nbor = triangles_[ti0].neighbors_;
-		coordlock_.readLock();
-		if ( pointOnEdge2D( mCrd(ci), mCrd(crd[0]), mCrd(crd[1]),
-			    epsilon_ ) )
-		    ti1 = searchChild( crd[0], crd[1], nbor[0], lockid );
-		else if ( pointOnEdge2D( mCrd(ci), mCrd(crd[0]), mCrd(crd[2]),
-			    epsilon_ ) )
-		    ti1 = searchChild( crd[0], crd[2], nbor[2], lockid );
-		else
-		    ti1 = searchChild( crd[1], crd[2], nbor[1], lockid );
-		coordlock_.readUnLock();
-
-		if ( didlock ) triangles_[ti0].readUnLock( condvar_ );
-		return cIsOnEdge();
-	    }
-	}
-    }
-
-    if ( ti0==ti1 )
-	ti1 = cNoTriangle();
-
-    if ( didlock ) triangles_[ti0].readUnLock( condvar_ );
-    if ( ti0==cNoTriangle() )
-    {
-	pErrMsg("Initial triangle is wrong");
-	return cError();
-    }
-
-    return cIsInside();
+    return searchFurther( ci,  ti0, ti1, dupid, lockid );
 }
 
 
-bool DAGTriangleTree::searchTriangleOnEdge( int ci, int ti, int& resti,
-					    int& dupid, unsigned char lockid ) 
+char DAGTriangleTree::searchFurther( int ci, int& ti0, int& ti1,
+				     int& dupid, unsigned char lockid )
+{
+    while ( true )
+    {
+	const int curtriangle = ti0;
+	bool didlock = triangles_[curtriangle].readLock(condvar_,lockid);
+
+	if ( ti1==cNoTriangle() ) //I.e I must be inside my ti0
+	{
+	    if (  !triangles_[curtriangle].hasChildren() )
+	    {
+		if ( didlock ) triangles_[curtriangle].readUnLock( condvar_ );
+		return cIsInside();
+	    }
+
+	    const int* children = triangles_[curtriangle].childindices_;
+	   
+	    bool found = false; 
+	    for ( int childidx = 0; childidx<3; childidx++ )
+	    {
+		const int curchild = children[childidx];
+		if ( curchild==cNoTriangle() ) continue;
+
+		const bool didlockchild =
+		    triangles_[curchild].readLock(condvar_,lockid);
+
+		char edge;
+		const char mode = isInside( ci, curchild, edge, dupid  );
+		if ( mode==cIsOutside() ) 
+		{
+		    if ( didlockchild )
+			triangles_[curchild].readUnLock( condvar_ );
+		    continue;
+		}
+
+		if ( mode==cIsDuplicate() )
+		{
+		    if ( didlock )
+			triangles_[curtriangle].readUnLock( condvar_ );
+		    if ( didlockchild )
+			triangles_[curchild].readUnLock( condvar_ );
+		    return mode;
+		}
+
+		if ( mode==cIsInside() )
+		{
+		    ti0 = curchild;
+		    ti1 = cNoTriangle();
+
+		    const bool haschildren = triangles_[curchild].hasChildren();
+		    found = true;
+		    if ( didlockchild )
+			triangles_[curchild].readUnLock( condvar_ );
+
+		    if ( !haschildren )
+		    {
+			if ( didlock )
+			    triangles_[curtriangle].readUnLock( condvar_ );
+			return cIsInside();
+		    }
+
+		    break;
+		}
+		else if ( mode==cIsOnEdge() )
+		{
+		    ti0 = curchild;
+		    ti1 = triangles_[curchild].neighbors_[edge];
+		    found = true;
+		    if ( didlockchild )
+			triangles_[curchild].readUnLock( condvar_ );
+		    break;
+		}
+		else
+		{
+		    pErrMsg("Hmm");
+		    if ( didlockchild )
+			triangles_[curchild].readUnLock( condvar_ );
+		    if ( didlock )
+			triangles_[curtriangle].readUnLock( condvar_ );
+		}
+	    }
+
+	    if ( !found )
+	    {
+		if ( didlock ) triangles_[curtriangle].readUnLock( condvar_ );
+		pErrMsg("No child found");
+		return cError();
+	    }
+	}
+	else
+	{
+	    if (  !triangles_[curtriangle].hasChildren() )
+	    {
+		if ( didlock ) triangles_[curtriangle].readUnLock( condvar_ );
+		didlock = triangles_[ti1].readLock( condvar_, lockid);
+		if ( triangles_[ti1].hasChildren()  )
+		{
+		    const char edge = getCommonEdge( ti0, ti1, lockid );
+		    if ( edge<0 )
+		    {
+			pErrMsg("Hmm");
+			if ( didlock )
+			    triangles_[ti1].readUnLock( condvar_ );
+			return cError();
+		    }
+
+		    ti1 = searchNeighbor( ti0, edge, lockid );
+		    if ( ti1==cNoTriangle() )
+		    {
+			pErrMsg("Hmm");
+			if ( didlock )
+			    triangles_[ti1].readUnLock( condvar_ );
+			return cError();
+		    }
+		}
+
+		if ( didlock )
+		    triangles_[ti1].readUnLock( condvar_ );
+
+		return cIsOnEdge();
+	    }
+
+	    char edge;
+	    const char res =
+		searchTriangleOnEdge( ci, curtriangle,ti0, edge, dupid, lockid);
+	    if ( res==cIsInside() )
+	    {
+		if ( ti0==cNoTriangle() )
+		{
+		    if ( didlock ) 
+			triangles_[curtriangle].readUnLock( condvar_ );
+		    return cError();
+		}
+
+		ti1 = cNoTriangle();
+	    }
+	    else if ( res==cIsDuplicate() )
+	    {
+		if ( didlock ) triangles_[curtriangle].readUnLock( condvar_ );
+		return res;
+	    }
+	    else if ( res==cIsOnEdge() )
+	    {
+		ti1 = searchNeighbor( ti0, edge, lockid );
+		if ( ti1==cNoTriangle() )
+		{
+		    if ( didlock ) 
+			triangles_[curtriangle].readUnLock( condvar_ );
+		    return cError();
+		}
+
+		if ( didlock ) triangles_[curtriangle].readUnLock( condvar_ );
+		return cIsOnEdge();
+	    }
+	    else
+	    {
+		if ( didlock ) triangles_[curtriangle].readUnLock( condvar_ );
+		pErrMsg( "Should not happen" );
+		    return cError();
+	    }
+	}
+
+	if ( didlock ) triangles_[curtriangle].readUnLock( condvar_ );
+    }
+
+    return cError();
+}
+
+
+char DAGTriangleTree::searchTriangleOnEdge( int ci, int ti, int& resti,
+				char& edge, int& dupid, unsigned char lockid ) 
 {
     bool didlock = triangles_[ti].readLock( condvar_, lockid );
     const int* child = triangles_[ti].childindices_;
-    if ( child[0]==cNoTriangle() && child[1]==cNoTriangle() &&
-	 child[2]==cNoTriangle() )
+    if ( !triangles_[ti].hasChildren() )
     {
-	resti = ti;
 	if ( didlock ) triangles_[ti].readUnLock( condvar_ );
-
-	return true;
+	return cError();
     }
 
     for ( int idx=0; idx<3; idx++ )
     {
-    	const char inchild = child[idx]!=cNoTriangle()
-	    ? isInside(ci,child[idx],dupid)
-	    : cNoTriangle();
-    	if ( inchild==cIsOnEdge() )
+	const int curchild = child[idx];
+	if ( curchild==cNoTriangle() )
+	    continue;
+
+    	const char inchild = isInside( ci, curchild, edge, dupid );
+	if ( inchild==cIsDuplicate() )
 	{
 	    if ( didlock ) triangles_[ti].readUnLock( condvar_ );
-	    return searchTriangleOnEdge( ci, child[idx], resti, dupid, lockid );
+	    return cIsDuplicate();
+	}
+	else if ( inchild==cIsOnEdge() )
+	{
+	    if ( didlock ) triangles_[ti].readUnLock( condvar_ );
+	    didlock = triangles_[curchild].readLock( condvar_, lockid );
+	    const bool haschildren = triangles_[curchild].hasChildren();
+	    if ( didlock ) triangles_[curchild].readUnLock( condvar_ );
+
+	    if ( haschildren )
+		return searchTriangleOnEdge( ci, curchild, resti, edge,
+					     dupid,lockid);
+	    resti = curchild;
+	    return cIsOnEdge();
 	}
 	else if ( inchild==cIsInside() )
 	{
-	    resti = child[idx];
+	    resti = curchild;
 	    if ( didlock ) triangles_[ti].readUnLock( condvar_ );
 
-	    return false;
+	    return cIsInside();
 	}
     }
 
@@ -1068,51 +606,29 @@ bool DAGTriangleTree::searchTriangleOnEdge( int ci, int ti, int& resti,
     resti = cNoTriangle();
     if ( didlock ) triangles_[ti].readUnLock( condvar_ );
 
-    return false;
+    return cError();
 }
 
 
 char DAGTriangleTree::isOnEdge( const Coord& p, const Coord& a, 
 				const Coord& b, bool& duponfirst ) const
 {
-    const Coord pa = p-a;
-    const Coord pb = p-b;
-    const Coord ba = b-a;
-    if ( mIsZero(ba.x, epsilon_) ) //AB is parallel to y-axis.
-    {
-	if ( fabs(pa.x)>epsilon_ )
-	    return cNotOnEdge();
-	else 
-	{
-	    if ( b.y>a.y && (pb.y>0 || pa.y<0) || 
-		 b.y<a.y && (pb.y<0 || pa.y>0) )
-		return cNotOnEdge();
-	    else if mIsZero( pb.y, epsilon_ )
-	    {
-		duponfirst = false;
-		return cIsDuplicate();
-	    }
-	    else if mIsZero( pa.y, epsilon_ )
-	    {
-		duponfirst = true;
-		return cIsDuplicate();
-	    }
-
-	    return cIsOnEdge();
-	}
-    }
-
-    const double slope = ba.y/ba.x;
-    const double yonline = a.y+slope*pa.x;
-    if ( fabs(yonline-p.y)>epsilon_ || a.x<b.x && (pa.x<0 || pb.x>0) ||
-	 b.x<a.x && (pb.x<0 || pa.x>0) )
+    const Line3 line( Coord3(a,0), Coord3(b,0)-Coord3(a,0) );
+    double t = line.closestPoint( Coord3(p,0) );
+    if ( t<0 || t>1 )
 	return cNotOnEdge();
-    else if ( mIsZero(pa.x,epsilon_) )
+
+    const Coord interectpos = line.getPoint( t );
+    const double sqdist = p.sqDistTo( interectpos );
+    if ( sqdist>epsilon_*epsilon_ )
+	return cNotOnEdge();
+
+    if ( mIsZero(t,1e-5) )
     {
 	duponfirst = true;
 	return cIsDuplicate();
     }
-    else if ( mIsZero(pb.x,epsilon_) )
+    else if ( mIsEqual(t,1,1e-5) )
     {
 	duponfirst = false;
 	return cIsDuplicate();
@@ -1122,7 +638,7 @@ char DAGTriangleTree::isOnEdge( const Coord& p, const Coord& a,
 }
 
 
-char DAGTriangleTree::isInside( int ci, int ti, int& dupid ) const
+char DAGTriangleTree::isInside( int ci, int ti, char& edge, int& dupid ) const
 {
     if ( ti==cNoTriangle() )
 	return cIsOutside();
@@ -1144,6 +660,7 @@ char DAGTriangleTree::isInside( int ci, int ti, int& dupid ) const
     if ( res!=cNotOnEdge() )
     {
 	if ( res==cIsDuplicate() ) dupid = duponfirst ? crds[0] : crds[1];
+	else edge = 0;
 	coordlock_.readUnLock();
 	return res;
     }
@@ -1152,6 +669,7 @@ char DAGTriangleTree::isInside( int ci, int ti, int& dupid ) const
     if ( res!=cNotOnEdge() )
     {
 	if ( res==cIsDuplicate() ) dupid = duponfirst ? crds[1] : crds[2];
+	else edge = 1;
 	coordlock_.readUnLock();
 	return res;
     }
@@ -1162,6 +680,7 @@ char DAGTriangleTree::isInside( int ci, int ti, int& dupid ) const
     if ( res!=cNotOnEdge() )
     {
 	if ( res==cIsDuplicate() ) dupid = duponfirst ? crds[2] : crds[0];
+	else edge = 2;
 	return res;
     }
 
@@ -1299,8 +818,8 @@ void DAGTriangleTree::splitTriangleOnEdge( int ci, int ti0, int ti1,
 	    }
 	    else if ( idx==1 )
 	    {           
-		shared0 = crds0[0];
-		shared1 = crds0[2];
+		shared0 = crds0[2];
+		shared1 = crds0[0];
 	    }
 	    else
 	    {
@@ -1413,34 +932,61 @@ void DAGTriangleTree::legalizeTriangles( TypeSet<char>& v0s, TypeSet<char>& v1s,
 	else
   	    start++;
 
-	int ci;
+
+	int shared0, shared1, crdci;
 	int checkti = cNoTriangle();
 	bool readlockti = triangles_[ti].readLock( condvar_, lockid );
 	if ( v0==0 && v1==1 || v0==1 && v1==0 )
 	{
 	    checkti = triangles_[ti].neighbors_[0];
-	    ci = 2;
+	    crdci = triangles_[ti].coordindices_[2];
+	    if ( v0==0 && v1==1 )
+	    {
+		shared0 =  triangles_[ti].coordindices_[0];
+		shared1 =  triangles_[ti].coordindices_[1];  
+	    }
+	    else
+	    {
+		shared0 = triangles_[ti].coordindices_[1];
+		shared1 = triangles_[ti].coordindices_[0];   
+	    }
 	}
 	else if ( v0==0 && v1==2 || v0==2 && v1==0 )
 	{
 	    checkti = triangles_[ti].neighbors_[2];
-	    ci = 1;
+	    crdci = triangles_[ti].coordindices_[1];
+	    if ( v0==0 && v1==2 )
+	    {
+		shared0 = triangles_[ti].coordindices_[2];
+		shared1 = triangles_[ti].coordindices_[0];   
+	    }
+	    else
+	    {
+		shared0 = triangles_[ti].coordindices_[0];
+		shared1 = triangles_[ti].coordindices_[2];   
+	    }
 	}
 	else if ( v0==1 && v1==2 || v0==2 && v1==1 )
 	{
 	    checkti = triangles_[ti].neighbors_[1];
-	    ci = 0;
+	    crdci = triangles_[ti].coordindices_[0];
+	    if ( v0==1 && v1==2 )
+	    {
+		shared0 = triangles_[ti].coordindices_[1];
+		shared1 = triangles_[ti].coordindices_[2];   
+	    }
+	    else
+	    {
+		shared0 = triangles_[ti].coordindices_[2];
+		shared1 = triangles_[ti].coordindices_[1];   
+	    }
 	}
 	
 	if ( readlockti ) triangles_[ti].readUnLock( condvar_ );
 	if ( checkti==cNoTriangle() )
 	    continue;
 
-	const int shared0 = triangles_[ti].coordindices_[v0];
-	const int shared1 = triangles_[ti].coordindices_[v1];
-	const int crdci = triangles_[ti].coordindices_[ci];
 	const int* checkcrds = triangles_[checkti].coordindices_;
-
 	int checkpt =cNoVertex();
 	for ( int idx=0; idx<3; idx++ )
 	{
@@ -1465,6 +1011,7 @@ void DAGTriangleTree::legalizeTriangles( TypeSet<char>& v0s, TypeSet<char>& v1s,
 	    continue;
 	}
 
+
 	coordlock_.readUnLock();
 	
 	bool writelockti = triangles_[ti].writeLock(condvar_,lockid); 
@@ -1472,14 +1019,14 @@ void DAGTriangleTree::legalizeTriangles( TypeSet<char>& v0s, TypeSet<char>& v1s,
    
 	DAGTriangle triangle;
 	triangle.coordindices_[0] = crdci;
-	triangle.coordindices_[1] = checkpt;
-	triangle.coordindices_[2] = shared0; 
+	triangle.coordindices_[1] = shared0; 
+	triangle.coordindices_[2] = checkpt;
 	triangles_ += triangle;
 	const int nti1 = triangles_.size()-1;
 
 	triangle.coordindices_[0] = shared1;
-	triangle.coordindices_[1] = checkpt;
-	triangle.coordindices_[2] = crdci; 
+	triangle.coordindices_[1] = crdci; 
+	triangle.coordindices_[2] = checkpt; 
 	triangles_ += triangle;
 	const int nti2 = triangles_.size()-1;
 
@@ -1490,14 +1037,14 @@ void DAGTriangleTree::legalizeTriangles( TypeSet<char>& v0s, TypeSet<char>& v1s,
 
 	bool locknti1 = triangles_[nti1].writeLock( condvar_, lockid );
 	bool locknti2 = triangles_[nti2].writeLock( condvar_, lockid );
-	triangles_[nti1].neighbors_[0] = nti2;
+	triangles_[nti1].neighbors_[0] = getNeighbor(shared0,crdci,ti,lockid);
 	triangles_[nti1].neighbors_[1] = getNeighbor(checkpt,shared0,
 						     checkti, lockid );
-	triangles_[nti1].neighbors_[2] = getNeighbor(shared0,crdci,ti,lockid);
-	triangles_[nti2].neighbors_[0] = getNeighbor(shared1,checkpt,
-						     checkti,lockid);
+	triangles_[nti1].neighbors_[2] = nti2;
+	triangles_[nti2].neighbors_[0] = getNeighbor(crdci,shared1,ti,lockid);
 	triangles_[nti2].neighbors_[1] = nti1;
-	triangles_[nti2].neighbors_[2] = getNeighbor(crdci,shared1,ti,lockid);
+	triangles_[nti2].neighbors_[2] = getNeighbor(shared1,checkpt,
+	       					     checkti,lockid);
 
 	if ( writelockchkti ) triangles_[checkti].writeUnLock( condvar_ );
 	if ( writelockti ) triangles_[ti].writeUnLock( condvar_ );
@@ -1505,7 +1052,7 @@ void DAGTriangleTree::legalizeTriangles( TypeSet<char>& v0s, TypeSet<char>& v1s,
        	if ( locknti2 ) triangles_[nti2].writeUnLock( condvar_ );
 
 	v0s += 1; v1s += 2; tis += nti1;
-	v0s += 0; v1s += 1; tis += nti2;
+	v0s += 0; v1s += 2; tis += nti2;
     }
 }
 
@@ -1569,8 +1116,6 @@ void DAGTriangleTree::dumpTo(std::ostream& stream) const
 }
 
 
-
-
 #define mSearch( child ) \
 if ( child!=cNoTriangle() ) \
 { \
@@ -1586,7 +1131,8 @@ if ( child!=cNoTriangle() ) \
 }
 
 
-int DAGTriangleTree::searchChild( int v0, int v1, int ti, unsigned char lockid) 
+int DAGTriangleTree::searchChild( int v0, int v1, int ti, 
+				  unsigned char lockid) const 
 {
     if ( ti==cNoTriangle() )
 	return cError();
@@ -1624,8 +1170,52 @@ DAGTriangleTree::DAGTriangle::DAGTriangle()
 }
 
 
+char DAGTriangleTree::getCommonEdge( int ti0, int ti1, int lockid ) const
+{
+    const bool didlock0 = triangles_[ti0].readLock( condvar_, lockid );
+    const bool didlock1 = triangles_[ti1].readLock( condvar_, lockid );
+    const int* crds0 = triangles_[ti0].coordindices_;
+    const int* crds1 = triangles_[ti1].coordindices_;
+    for ( int idx=0; idx<3; idx++ )
+    {
+	if ( crds0[idx]!=crds1[0] && crds0[idx]!=crds1[1] && 
+	     crds0[idx]!=crds1[2] )
+	{
+	    if ( idx==0 )
+	    {
+		if ( didlock0 ) triangles_[ti0].readUnLock( condvar_ );
+		if ( didlock1 ) triangles_[ti1].readUnLock( condvar_ );
+		return 1;
+	    }
+	    else if ( idx==1)
+	    {
+		if ( didlock0 ) triangles_[ti0].readUnLock( condvar_ );
+		if ( didlock1 ) triangles_[ti1].readUnLock( condvar_ );
+		return 2;
+	    }
+	    else
+	    {
+		if ( didlock0 ) triangles_[ti0].readUnLock( condvar_ );
+		if ( didlock1 ) triangles_[ti1].readUnLock( condvar_ );
+		return 0;
+	    }
+	}
+    }
+
+    if ( didlock0 ) triangles_[ti0].readUnLock( condvar_ );
+    if ( didlock1 ) triangles_[ti1].readUnLock( condvar_ );
+    return cNoTriangle();
+}
+
+
+bool DAGTriangleTree::DAGTriangle::hasChildren() const
+{
+    return childindices_[0]!=-1 || childindices_[1]!=-1 ||childindices_[2]!=-1;
+}
+
+
 bool DAGTriangleTree::DAGTriangle::readLock( Threads::ConditionVar& cv,
-       					     unsigned char lockerid )
+       					     unsigned char lockerid ) const
 {
     return false; //only works for one processor now, to be removed.
     const char mylockcount = -lockerid-1;
@@ -1645,7 +1235,7 @@ bool DAGTriangleTree::DAGTriangle::readLock( Threads::ConditionVar& cv,
 }
 
 
-void DAGTriangleTree::DAGTriangle::readUnLock( Threads::ConditionVar& cv )
+void DAGTriangleTree::DAGTriangle::readUnLock( Threads::ConditionVar& cv ) const
 {
     cv.lock();
     if ( lockcounts_<=0 )
@@ -1658,7 +1248,7 @@ void DAGTriangleTree::DAGTriangle::readUnLock( Threads::ConditionVar& cv )
 
 
 bool DAGTriangleTree::DAGTriangle::writeLock( Threads::ConditionVar& cv,
-       					      unsigned char lockerid )
+       					      unsigned char lockerid ) const
 {
     return false; //only works for one processor now, to be removed.
     cv.lock();
@@ -1678,7 +1268,7 @@ bool DAGTriangleTree::DAGTriangle::writeLock( Threads::ConditionVar& cv,
 }
     
 
-void DAGTriangleTree::DAGTriangle::writeUnLock( Threads::ConditionVar& cv )
+void DAGTriangleTree::DAGTriangle::writeUnLock( Threads::ConditionVar& cv ) const
 {
     cv.lock();
     if ( lockcounts_>=0 )
