@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2008
- RCS:		$Id: prestackmuteasciio.h,v 1.1 2008-06-23 06:48:39 cvsumesh Exp $
+ RCS:		$Id: prestackmuteasciio.h,v 1.2 2008-06-23 10:13:04 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,6 @@ ________________________________________________________________________
 
 #include "tableascio.h"
 #include "mathfunc.h"
-#include "survinfo.h"
 
 namespace Table { class FormatDesc; }
 
@@ -34,16 +33,16 @@ public:
 		 		    , strm_(stm)		{}
    static Table::FormatDesc*	getDesc();
 
-   float			getUdfVal();
+   float			getUdfVal() const;
    bool				isXY() const;
-   int 				getMuteDef(MuteDef&, bool, 
-	                        PointBasedMathFunction::InterpolType );
+   bool				getMuteDef(MuteDef&,bool extrapol, 
+					PointBasedMathFunction::InterpolType);
 
 protected:
 	
    std::istream&		strm_;	
 };
 
-}; //namespace
+} // namespace PreStack
 
 #endif
