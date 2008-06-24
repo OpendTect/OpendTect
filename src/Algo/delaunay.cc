@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.13 2008-06-24 18:45:19 cvskris Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.14 2008-06-24 21:55:49 cvskris Exp $";
 
 #include "delaunay.h"
 #include "trigonometry.h"
@@ -550,8 +550,8 @@ char DAGTriangleTree::searchTriangleOnEdge( int ci, int ti, int& resti,
 char DAGTriangleTree::isOnEdge( const Coord& p, const Coord& a, 
 				const Coord& b, bool& duponfirst ) const
 {
-    const Line3 line( Coord3(a,0), Coord3(b,0)-Coord3(a,0) );
-    double t = line.closestPoint( Coord3(p,0) );
+    const Line2 line( a, b-a );
+    double t = line.closestPoint( p );
     if ( t<0 || t>1 )
 	return cNotOnEdge();
 
