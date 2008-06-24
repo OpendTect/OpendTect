@@ -4,7 +4,7 @@
  * DATE     : Dec 2005
 -*/
 
-static const char* rcsID = "$Id: task.cc,v 1.11 2008-06-03 20:23:21 cvskris Exp $";
+static const char* rcsID = "$Id: task.cc,v 1.12 2008-06-24 19:00:11 cvskris Exp $";
 
 #include "task.h"
 
@@ -270,7 +270,7 @@ bool ParallelTask::execute( bool parallel )
 
     const int minthreadsize = minThreadSize();
     const int maxnrthreads = parallel
-	? mMAX( totalnrcache_/minthreadsize, 1 )
+	? mMIN( totalnrcache_/minthreadsize, maxNrThreads() )
 	: 1;
 
     if ( Threads::getNrProcessors()==1 || maxnrthreads==1 )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril/K.Tingdahl
  Date:		13-10-1999
- RCS:		$Id: task.h,v 1.10 2008-03-17 14:40:09 cvskris Exp $
+ RCS:		$Id: task.h,v 1.11 2008-06-24 19:00:11 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -145,7 +145,8 @@ class ParallelTask : public Task
 public:
     virtual		~ParallelTask();
 
-    virtual int		minThreadSize() const			{ return 10; }
+    virtual int		maxNrThreads() const		{ return totalNr(); }
+    virtual int		minThreadSize() const		{ return 10; }
     			/*!<\returns the minimum number of computations that
 			     effectively can be run in a separate thread.
 			     A small number will give a large overhead for when
