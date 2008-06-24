@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.41 2008-06-03 15:15:35 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.42 2008-06-24 21:54:11 cvskris Exp $";
 
 #include "trigonometry.h"
 
@@ -207,6 +207,43 @@ Quaternion Quaternion::inverse() const
 {
     return Quaternion( s_, -vec_.x, -vec_.y, -vec_.z );
 }
+
+
+Line2::Line2() {}
+
+Line2::Line2( double x0, double y0, double alpha, double beta )
+    : origin_( x0, y0 )
+    , dir_( alpha, beta )
+{}
+
+
+Line2::Line2( const Coord& point, const Coord& vector )
+    : origin_( point )
+    , dir_( vector )
+{}
+
+
+double Line2::distanceToPoint( const Coord& point ) const
+{
+    const Coord p0p1( point.x - origin_.x, point.y - origin_.y );
+
+    double crossproductabs = dir_.x*p0p1.y-dir_.y*p0p1.x;
+
+    return Math::Sqrt(crossproductabs*crossproductabs / dir_.sqAbs());
+}
+
+
+double Line2::closestPoint( const Coord& point ) const
+{
+    const Coord diff = point-origin_;
+    return diff.dot(dir_)/dir_.sqAbs();
+}
+
+
+Coord Line2::getPoint( double t ) const
+{ return Coord( origin_.x+dir_.x*t, origin_.y+dir_.y ); }
+
+
 
 Line3::Line3() {}
 

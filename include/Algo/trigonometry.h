@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.31 2008-06-23 18:48:44 cvskris Exp $
+ RCS:		$Id: trigonometry.h,v 1.32 2008-06-24 21:54:11 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -73,8 +73,10 @@ inline bool isInsideCircle( const Coord& pt,
 inline bool sameSide2D( const Coord& p1, const Coord& p2, 
 			const Coord& a, const Coord& b, double epsilon )
 {
-    return ((p1.x-a.x)*(b.y-a.y)-(p1.y-a.y)*(b.x-a.x))*
-	((p2.x-a.x)*(b.y-a.y)-(p2.y-a.y)*(b.x-a.x))>=-epsilon;
+    double xdiff = b.x-a.x;
+    double ydiff = b.y-a.y;
+    return ((p1.x-a.x)*ydiff-(p1.y-a.y)*xdiff)*
+	((p2.x-a.x)*ydiff-(p2.y-a.y)*xdiff)>=-epsilon;
 }
 
 
@@ -151,6 +153,35 @@ public:
 
     float		s_;
     Vector3		vec_;
+};
+
+class Line2
+{
+public:			
+    			Line2();
+    			Line2( double x0, double y0,
+			       double alpha, double beta );
+    			Line2( const Coord&, const Coord& dir );
+
+    Coord		direction( bool normalize = true ) const
+    			{
+			    const Coord res( dir_ );
+			    return normalize ? res.normalize() : res;
+			}
+
+    Coord		getPoint(double t) const;
+
+    double		distanceToPoint( const Coord& point ) const;
+    double		closestPoint( const Coord& point ) const;
+    			/*!<\returns the point on the line that is closest to
+			 	     the given point */
+
+    Coord		origin_; 
+    Coord		dir_;
+    double		x0_;
+    double		y0_;
+    double		alpha_;
+    double		beta_;
 };
 
 /*!\brief
