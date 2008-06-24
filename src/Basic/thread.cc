@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.33 2008-06-24 18:16:56 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.34 2008-06-24 18:49:28 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -132,7 +132,7 @@ void Threads::ReadWriteLock::readUnLock()
     }
 
     if ( !nrreaders_ )
-	statuscond_.signal( false );
+	statuscond_.signal( true );
 
     statuscond_.unLock();
 }
