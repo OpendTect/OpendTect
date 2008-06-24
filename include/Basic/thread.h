@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.29 2008-03-17 19:13:32 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.30 2008-06-24 18:16:56 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -168,20 +168,33 @@ public:
     virtual		~ReadWriteLock();
 
     void		readLock();
+    			//!<No writers will be active.
+    void		writeLock();
+    			//!<No readers will be active.
+    void		permissiveWriteLock();
+    			/*!<Same as readlock, but I'm guaranteed to convert to
+			    writelock without giving up my lock. Only one
+			    thread may have the permissive write lock
+			    at any given time. */
     void		readUnLock();
-    bool		convToWriteLock();
+    void		writeUnLock();
+    void		permissiveWriteUnLock();
+
+    bool		convReadToWriteLock();
     			/*!<Lock MUST be readLocked when calling. Object Will
 			    always be in write-lock status on return.
 			    \returns false if it had to release the readlock
 			             when switching to writelock.*/
-    void		convToReadLock();
+    void		convWriteToReadLock();
     			//!<Lock MUST be writeLocked when calling.
-    void		writeLock();
-    void		writeUnLock();
+
+    void		convPermissiveToWriteLock();
+    void		convWriteToPermissive();
 
 protected:
-    int			status_;
-    			//0 not locked, -1 write lock, else nr of readers
+    int			nrreaders_;
+    char		status_;
+    			//0 not writelocked, -2 write lock, -1 permissive lock
     ConditionVar	statuscond_;
 };
 

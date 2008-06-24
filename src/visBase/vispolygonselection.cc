@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2008
- RCS:           $Id: vispolygonselection.cc,v 1.2 2008-06-19 15:46:35 cvskris Exp $
+ RCS:           $Id: vispolygonselection.cc,v 1.3 2008-06-24 18:16:56 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,7 +113,7 @@ bool PolygonSelection::isInside( const Coord3& crd, bool displayspace ) const
     polygonlock_.readLock();
     if ( !polygon_ )
     {
-	polygonlock_.convToWriteLock();
+	polygonlock_.convReadToWriteLock();
 	if ( !polygon_ )
 	{
 	    polygon_ = new ODPolygon<double>;
@@ -122,7 +122,7 @@ bool PolygonSelection::isInside( const Coord3& crd, bool displayspace ) const
 		polygon_->add( Coord( sopolygon[idx][0], sopolygon[idx][1] ) );
 	}
 
-	polygonlock_.convToReadLock();
+	polygonlock_.convWriteToReadLock();
     }
 
     const bool res = polygon_->isInside( checkcoord2d, true, 1e-3 );

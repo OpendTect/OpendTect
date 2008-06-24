@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explplaneintersection.cc,v 1.2 2008-06-03 19:56:21 cvskris Exp $";
+static const char* rcsID = "$Id: explplaneintersection.cc,v 1.3 2008-06-24 18:16:56 cvskris Exp $";
 
 #include "explplaneintersection.h"
 
@@ -368,7 +368,7 @@ int getCoordIndex( const int* arraypos, const Line3& intersectionline,
 	return res;
     }
 
-    if ( !tablelock_.convToWriteLock() )
+    if ( !tablelock_.convReadToWriteLock() )
     {
 	if ( intersectioncoordids_.findFirst( arraypos, idxs ) )
 	{

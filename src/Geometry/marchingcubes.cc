@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: marchingcubes.cc,v 1.14 2007-12-07 22:36:33 cvskris Exp $";
+static const char* rcsID = "$Id: marchingcubes.cc,v 1.15 2008-06-24 18:16:56 cvskris Exp $";
 
 #include "marchingcubes.h"
 
@@ -477,7 +477,7 @@ bool Implicit2MarchingCubes::doWork( int start, int stop, int )
 		    continue;
 		}
 
-		if ( surface_.modelslock_.convToWriteLock() ||
+		if ( surface_.modelslock_.convReadToWriteLock() ||
 		     surface_.models_.findFirst( pos, idxs ) )
 		{
 		    surface_.models_.remove( idxs );
@@ -954,7 +954,7 @@ void  MarchingCubes2Implicit::setValue( int xpos,int ypos,int zpos,int newval )
 	return;
     }
 
-    if ( !resultlock_.convToWriteLock() &&
+    if ( !resultlock_.convReadToWriteLock() &&
 	 !shouldSetResult( newval, result_.get(idx,idy,idz) ) )
     {
 	resultlock_.writeUnLock();

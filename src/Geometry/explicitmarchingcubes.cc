@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.22 2008-05-29 13:54:09 cvskris Exp $";
+static const char* rcsID = "$Id: explicitmarchingcubes.cc,v 1.23 2008-06-24 18:16:56 cvskris Exp $";
 
 #include "explicitmarchingcubes.h"
 
@@ -414,7 +414,7 @@ bool ExplicitMarchingCubesSurface::updateIndices( const int* pos )
     }
     else
     {
-	if ( !geometrieslock_.convToWriteLock() &&
+	if ( !geometrieslock_.convReadToWriteLock() &&
 	      ibuckets_.findFirst( indicesbucket, bucketidx ) )
 	{
 	    bucket = ibuckets_.getRef( bucketidx, 0 );
@@ -681,7 +681,7 @@ bool ExplicitMarchingCubesSurface::updateCoordinates( const int* modelidxs )
 	    return false;
 	}
 
-	if ( coordindiceslock_.convToWriteLock() ||
+	if ( coordindiceslock_.convReadToWriteLock() ||
 	     !coordindices_.findFirst( pos, cidxs ) )
 	    coordindices_.add( indices, pos );
 
