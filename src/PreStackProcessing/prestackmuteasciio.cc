@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2008
- RCS:		$Id: prestackmuteasciio.cc,v 1.3 2008-06-25 06:40:28 cvsumesh Exp $
+ RCS:		$Id: prestackmuteasciio.cc,v 1.4 2008-06-25 07:15:37 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,7 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 #include "survinfo.h"
 
-static const char* extrapoltypes[] = {"Linear","Poly","Snap",0};
+static const char* extrapoltypes[] = { "Linear", "Poly", "Snap", 0};
 
 namespace PreStack
 {
@@ -23,7 +23,7 @@ namespace PreStack
 Table::FormatDesc* MuteAscIO::getDesc()
 {
     Table::FormatDesc* fd = new Table::FormatDesc( "Mute" );
-    createDescBody( *fd, true);
+    createDescBody( *fd, true );
     return fd;
 }
 
@@ -116,7 +116,8 @@ bool MuteAscIO::getMuteDef( MuteDef& mutedef, const BinID& binid, bool extrapol,
 	if ( ret < 0 ) return false;
 	if ( ret == 0) break;
 
-	mutedef.getFn(mutedef.indexOf(binid)).add( getfValue(0), getfValue(1) );
+	mutedef.getFn( mutedef.indexOf(binid)).add( getfValue(0), 
+						    getfValue(1) );
     }
 
     return true;
