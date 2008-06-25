@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uiwellattribxplot.cc,v 1.17 2008-05-30 13:22:58 cvshelene Exp $
+ RCS:           $Id: uiwellattribxplot.cc,v 1.18 2008-06-25 12:17:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -324,7 +324,7 @@ bool uiWellAttribCrossPlot::acceptOK( CallBacker* )
 
     dps->setName( dpsnm );
     uiDataPointSet* dlg = new uiDataPointSet( this, *dps,
-			uiDataPointSet::Setup("Attribute data") );
+			uiDataPointSet::Setup("Well attribute data") );
     dlg->setGroupType( "well" );
     dlg->setGroupNames( wellnms );
     return dlg->go() ? true : false;
