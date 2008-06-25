@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2008
- RCS:		$Id: prestackmuteasciio.h,v 1.2 2008-06-23 10:13:04 cvsumesh Exp $
+ RCS:		$Id: prestackmuteasciio.h,v 1.3 2008-06-25 06:38:19 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,14 +32,18 @@ public:
 				    : Table::AscIO(fd)
 		 		    , strm_(stm)		{}
    static Table::FormatDesc*	getDesc();
+   static void 			updateDesc(Table::FormatDesc&,bool haveposinfo);
 
    float			getUdfVal() const;
    bool				isXY() const;
    bool				getMuteDef(MuteDef&,bool extrapol, 
 					PointBasedMathFunction::InterpolType);
+   bool				getMuteDef(MuteDef&,const BinID&,bool extrapol,
+	   				PointBasedMathFunction::InterpolType);
 
 protected:
 	
+   static void 			createDescBody(Table::FormatDesc&,bool havepos);
    std::istream&		strm_;	
 };
 
