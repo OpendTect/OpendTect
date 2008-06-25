@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.7 2008-03-31 20:38:12 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.8 2008-06-25 12:16:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -75,6 +75,7 @@ public:
     int			getPix(float absval) const;
 
     void		plotAxis() const; //!< draws gridlines if appropriate
+    void		annotAtEnd(const char*) const;
 
     const Setup&	setup() const	{ return setup_; }
     StepInterval<float>	range() const	{ return rg_; }

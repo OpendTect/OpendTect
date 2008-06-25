@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.cc,v 1.9 2008-06-16 07:07:19 cvsnanne Exp $
+ RCS:           $Id: uiaxishandler.cc,v 1.10 2008-06-25 12:16:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -204,12 +204,39 @@ void uiAxisHandler::drawAxisLine() const
     else
     {
 	const int startpix = pixAfter();
-	const int endpix = devsz_-pixBefore();
+	const int endpix = devsz_ - pixBefore();
 	const int pixpos = setup_.side_ == uiRect::Left
 	    		 ? edgepix : dt_.getDevWidth() - edgepix;
 
 	dt_.drawLine( pixpos, startpix, pixpos, endpix );
     }
+}
+
+
+void uiAxisHandler::annotAtEnd( const char* txt ) const
+{
+    const int edgepix = pixToEdge();
+    int xpix, ypix; Alignment al;
+    if ( isHor() )
+    {
+	xpix = devsz_ - pixAfter() - 2;
+	ypix = setup_.side_ == uiRect::Top
+			     ? edgepix + 2 : dt_.getDevHeight() - edgepix - 2;
+	al.hor_ = Alignment::Stop;
+	al.ver_ = setup_.side_ == uiRect::Top ? Alignment::Stop
+	    				      : Alignment::Start;
+    }
+    else
+    {
+	xpix = setup_.side_ == uiRect::Left
+			     ? edgepix + 2 : dt_.getDevWidth() - edgepix - 2;
+	ypix = pixAfter() + 2;
+	al.hor_ = setup_.side_ == uiRect::Left ? Alignment::Start
+	    					: Alignment::Stop;
+	al.ver_ = Alignment::Start;
+    }
+
+    dt_.drawText( xpix, ypix, txt, al );
 }
 
 
