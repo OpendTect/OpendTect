@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.14 2008-06-24 19:02:33 cvskris Exp $
+ RCS:           $Id: delaunay.h,v 1.15 2008-06-25 14:38:34 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,9 +20,11 @@ ________________________________________________________________________
 /*!Reference: "Parallel Incremental Delaunay Triangulation", by Kohout J.2005.
    For the triangulation, it will skip undefined or duplicated points, all the 
    points should be in random order. We use Kohout's pessimistic method to
-   triangulate.
-
+   triangulate. The problem is that the pessimistic method only give a 10% speed   increase, while the locks slows it down. The paralell code is thus
+   disabled with a macro.
 */
+
+#define mDAGTriangleForceSingleThread
 class DAGTriangleTree
 {
 public:
@@ -111,13 +113,18 @@ protected:
 	bool		hasChildren() const;
     };
 
-    mutable Threads::ReadWriteLock	rwlock_;
+#ifndef mDAGTriangleForceSingleThread
+    mutable Threads::ReadWriteLock	trianglelock_;
+#endif
     double				epsilon_;
     TypeSet<DAGTriangle>		triangles_;
 
     TypeSet<Coord>*			coordlist_;
     bool				ownscoordlist_;
+
+#ifndef mDAGTriangleForceSingleThread
     mutable Threads::ReadWriteLock	coordlock_;
+#endif
 
     Coord				initialcoords_[3]; 
     					/*!<-2,-3,-4 are their indices.*/
@@ -134,7 +141,9 @@ public:
 
 protected:
 
-    int			maxNrThreads() const	{ return 2; }
+#ifdef mDAGTriangleForceSingleThread
+    int			maxNrThreads() const { return 1; }
+#endif
     int			totalNr() const;
     bool		doWork( int, int, int );
     bool		doPrepare(int);
