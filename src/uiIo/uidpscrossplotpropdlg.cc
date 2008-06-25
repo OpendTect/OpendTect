@@ -4,13 +4,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Jun 2008
- RCS:           $Id: uidpscrossplotpropdlg.cc,v 1.1 2008-06-20 13:39:31 cvsbert Exp $
+ RCS:           $Id: uidpscrossplotpropdlg.cc,v 1.2 2008-06-25 12:18:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidpscrossplotpropdlg.h"
 #include "uidatapointsetcrossplot.h"
+
+#include "linear.h"
 
 #include "uigeninput.h"
 #include "uilabel.h"
@@ -69,7 +71,7 @@ uiDPSCPScalingTab( uiDataPointSetCrossPlotterPropDlg* p )
 	flds->rgfld_->attach( alignedBelow, flds->doclipfld_ );
     }
 
-    finaliseDone.notify( axselcb );
+    p->finaliseDone.notify( axselcb );
 }
 
 void axSel( CallBacker* )
@@ -147,22 +149,74 @@ uiDPSCPStatsTab( uiDataPointSetCrossPlotterPropDlg* p )
     : uiDlgGroup(p->tabParent(),"Statistics")
     , plotter_(p->plotter())
 {
-    a0fld = new uiLineEdit( this, FloatInpSpec(0), "A0" );
-    new uiLabel( this, "Y =", a0fld );
-    a1fld = new uiLineEdit( this, FloatInpSpec(1), "A1" );
-    new uiLabel( this, "+ ", a1fld );
-    uiLabel* xlbl = new uiLabel( this, "* X", a0fld );
-    xlbl->attach( rightOf, a1fld );
+    uiLabel* ylbl = new uiLabel( this, "Y =" );
+    a0fld_ = new uiLineEdit( this, FloatInpSpec(0), "A0" );
+    a0fld_->attach( rightOf, ylbl );
+    uiLabel* pluslbl = new uiLabel( this, "+ " );
+    pluslbl->attach( rightOf, a0fld_ );
+
+    a1fld_ = new uiLineEdit( this, FloatInpSpec(1), "A1" );
+    a1fld_->attach( rightOf, pluslbl );
+    uiLabel* xlbl = new uiLabel( this, "* X" );
+    xlbl->attach( rightOf, a1fld_ );
+
+    d0fld_ = new uiLineEdit( this, FloatInpSpec(0), "D0" );
+    d0fld_->attach( alignedBelow, a0fld_ );
+    uiLabel* dlbl = new uiLabel( this, "Errors" );
+    dlbl->attach( leftOf, d0fld_ );
+    d1fld_ = new uiLineEdit( this, FloatInpSpec(0), "D1" );
+    d1fld_->attach( alignedBelow, a1fld_ );
+
+    ccfld_ = new uiLineEdit( this, FloatInpSpec(0), "CC" );
+    ccfld_->attach( alignedBelow, d0fld_ );
+    uiLabel* cclbl = new uiLabel( this, "Correlation coefficient" );
+    cclbl->attach( leftOf, ccfld_ );
+    ccdispbut_ = new uiCheckBox( this, "Put in plot" );
+    ccdispbut_->attach( rightOf, ccfld_ );
+    shwregrlnbut_ = new uiCheckBox( this, "Show regression line" );
+    shwregrlnbut_->attach( alignedBelow, ccfld_ );
+
+    a0fld_->setReadOnly( true );
+    a1fld_->setReadOnly( true );
+    d0fld_->setReadOnly( true );
+    d1fld_->setReadOnly( true );
+    ccfld_->setReadOnly( true );
+
+    p->finaliseDone.notify( mCB(this,uiDPSCPStatsTab,initFlds) );
+}
+
+void initFlds( CallBacker* )
+{
+    uiAxisHandler* xaxh = plotter_.axisHandler( 0 );
+    uiAxisHandler* yaxh = plotter_.axisHandler( 1 );
+    if ( !plotter_.axisHandler(0) || !plotter_.axisHandler(1) ) return;
+
+    const LinStats2D& ls = plotter_.linStats();
+    a0fld_->setValue( ls.lp.a0 );
+    a1fld_->setValue( ls.lp.ax );
+    d0fld_->setValue( ls.sd.a0 );
+    d1fld_->setValue( ls.sd.ax );
+    ccfld_->setValue( ls.corrcoeff );
+    ccdispbut_->setChecked( plotter_.setup().showcc_ );
+    shwregrlnbut_->setChecked( plotter_.setup().showregrline_ );
 }
 
 bool acceptOK()
 {
+    plotter_.setup().showcc( ccdispbut_->isChecked() );
+    plotter_.setup().showregrline( shwregrlnbut_->isChecked() );
     return true;
 }
 
     uiDataPointSetCrossPlotter&		plotter_;
-    uiLineEdit*	a0fld;
-    uiLineEdit*	a1fld;
+
+    uiLineEdit*		a0fld_;
+    uiLineEdit*		a1fld_;
+    uiLineEdit*		d0fld_;
+    uiLineEdit*		d1fld_;
+    uiLineEdit*		ccfld_;
+    uiCheckBox*		ccdispbut_;
+    uiCheckBox*		shwregrlnbut_;
 
 };
 

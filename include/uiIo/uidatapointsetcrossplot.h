@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.5 2008-06-13 12:28:25 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.6 2008-06-25 12:18:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "uirgbarraycanvas.h"
 class ioDrawTool;
 class MouseEvent;
+class LinStats2D;
 class uiDataPointSet;
 
 /*!\brief Data Point Set Cross Plotter */
@@ -36,6 +37,8 @@ public:
 	mDefSetupMemb(LineStyle,xstyle)
 	mDefSetupMemb(LineStyle,ystyle)
 	mDefSetupMemb(LineStyle,y2style)
+	mDefSetupMemb(bool,showcc)		// corr coefficient
+	mDefSetupMemb(bool,showregrline)
     };
 
     			uiDataPointSetCrossPlotter(uiParent*,uiDataPointSet&,
@@ -63,6 +66,8 @@ public:
     };
     AutoScalePars&	autoScalePars(int ax);		//!< 0=x 1=y 2=y2
     uiAxisHandler*	axisHandler(int ax);		//!< 0=x 1=y 2=y2
+    const LinStats2D&	linStats( bool y1=true ) const
+    						{ return y1 ? lsy1_ : lsy2_; }
 
     Notifier<uiDataPointSetCrossPlotter>	selectionChanged;
     Notifier<uiDataPointSetCrossPlotter>	removeRequest;
@@ -87,6 +92,7 @@ protected:
 	DataPointSet::ColID	colid_;
 	uiAxisHandler*		axis_;
 	AutoScalePars		autoscalepars_;
+	Interval<float>		rg_;
 
 	bool			needautoscale_;
 	uiAxisHandler::Setup	defaxsu_;
@@ -103,6 +109,8 @@ protected:
     AxisData			x_;
     AxisData			y_;
     AxisData			y2_;
+    LinStats2D&			lsy1_;
+    LinStats2D&			lsy2_;
     bool			doy2_;
     bool			dobd_;
     int				eachrow_;
@@ -114,6 +122,7 @@ protected:
     void 			initDraw(CallBacker*);
     virtual void		mkNewFill();
     void 			drawContent(CallBacker*);
+    void 			calcStats();
 
     int				getRow(const AxisData&,uiPoint) const;
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.9 2008-06-20 13:39:31 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.10 2008-06-25 12:18:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ uiDataPointSetCrossPlotter::AxisData::AxisData( uiDataPointSetCrossPlotter& cp,
     : cp_(cp)
     , axis_(0)
     , defaxsu_(s)
+    , rg_(0,1)
 {
     stop();
 }
@@ -123,13 +124,13 @@ void uiDataPointSetCrossPlotter::AxisData::handleAutoScale()
 	return;
 
     const Stats::RunCalc<float>& rc = cp_.uidps_.getRunCalc( colid_ );
-    Interval<float> rg( rc.min(), rc.max() );
+    rg_ = Interval<float>( rc.min(), rc.max() );
     if ( !mIsZero(autoscalepars_.clipratio_,1e-5) )
     {
-	rg.start = rc.clipVal( autoscalepars_.clipratio_, false );
-	rg.stop = rc.clipVal( autoscalepars_.clipratio_, true );
+	rg_.start = rc.clipVal( autoscalepars_.clipratio_, false );
+	rg_.stop = rc.clipVal( autoscalepars_.clipratio_, true );
     }
-    AxisLayout al( rg );
+    AxisLayout al( rg_ );
     axis_->setRange( StepInterval<float>( al.sd.start, al.stop, al.sd.step ) );
     needautoscale_ = false;
 }
@@ -155,6 +156,8 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
     , eachrow_(1)
     , curgrp_(0)
     , selrowisy2_(false)
+    , lsy1_(*new LinStats2D)
+    , lsy2_(*new LinStats2D)
 {
     dodraw_ = false;
     x_.defaxsu_.style_ = setup_.xstyle_;
@@ -178,12 +181,32 @@ uiDataPointSetCrossPlotter::uiDataPointSetCrossPlotter( uiParent* p,
 uiDataPointSetCrossPlotter::~uiDataPointSetCrossPlotter()
 {
     delete &rgbarr_;
+    delete &lsy1_;
+    delete &lsy2_;
 }
 
 
 void uiDataPointSetCrossPlotter::dataChanged()
 {
     x_.newColID(); y_.newColID(); y2_.newColID();
+    calcStats();
+    update();
+}
+
+
+void uiDataPointSetCrossPlotter::calcStats()
+{
+    if ( !x_.axis_ || !y_.axis_ )
+	return;
+
+    const Stats::RunCalc<float>& xrc = uidps_.getRunCalc( x_.colid_ );
+    const Stats::RunCalc<float>& yrc = uidps_.getRunCalc( y_.colid_ );
+    lsy1_.use( xrc.vals_.arr(), yrc.vals_.arr(), xrc.vals_.size() );
+    if ( y2_.axis_ && doy2_ )
+    {
+	const Stats::RunCalc<float>& y2rc = uidps_.getRunCalc( y2_.colid_ );
+	lsy2_.use( xrc.vals_.arr(), y2rc.vals_.arr(), xrc.vals_.size() );
+    }
 }
 
 
@@ -300,6 +323,7 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
 	x_.axis_->setEnd( 0 );
 
     x_.handleAutoScale(); y_.handleAutoScale(); y2_.handleAutoScale();
+    calcStats();
 
     update();
 }
@@ -371,6 +395,21 @@ void uiDataPointSetCrossPlotter::drawData(
 	    mstyle.size_ = issel ? 4 : 2;
 	    drawTool().drawMarker( pt, mstyle );
 	}
+    }
+
+    if ( setup_.showcc_ )
+    {
+	int r100 = (int)((y_.axis_ == &yah ? lsy1_ : lsy2_)
+					    .corrcoeff * 100 + .5);
+	BufferString txt( "r=" );
+	if ( r100 == 0 )	txt += "0";
+	else if ( r100 == 100 )	txt += "1";
+	else
+	{
+	    txt += "0.";
+	    txt += r100%10 ? r100 : r100 / 10;
+	}
+	yah.annotAtEnd( txt );
     }
 }
 
