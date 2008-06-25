@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.34 2008-06-24 18:49:28 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.35 2008-06-25 14:39:37 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -94,6 +94,8 @@ bool Threads::MutexLocker::isLocked() const
 Threads::ReadWriteLock::ReadWriteLock()
     : status_( 0 )
     , nrreaders_( 0 )
+    , nrreaderswaiters_( 0 )
+    , nrstatuswaiters_( 0 )
 {}
 
 
@@ -101,6 +103,8 @@ Threads::ReadWriteLock::ReadWriteLock()
 Threads::ReadWriteLock::ReadWriteLock( const ReadWriteLock& )
     : status_( 0 )
     , nrreaders_( 0 )
+    , nrreaderswaiters_( 0 )
+    , nrstatuswaiters_( 0 )
 {}
 
 
@@ -112,16 +116,22 @@ void Threads::ReadWriteLock::readLock()
 {
     statuscond_.lock();
     while ( status_==mWriteLocked )
+    {
+	nrstatuswaiters_++;
 	statuscond_.wait();
- 
+	nrstatuswaiters_--;
+    }
+
+    nrreaderscond_.lock();
     nrreaders_++; 
+    nrreaderscond_.unLock();
     statuscond_.unLock();
 }
 
 
 void Threads::ReadWriteLock::readUnLock()
 {
-    statuscond_.lock();
+    nrreaderscond_.lock();
     if ( nrreaders_<1 )
     {
 	pErrMsg( "Object is not readlocked.");
@@ -131,20 +141,45 @@ void Threads::ReadWriteLock::readUnLock()
 	nrreaders_--;
     }
 
-    if ( !nrreaders_ )
-	statuscond_.signal( true );
+    if ( !nrreaders_ && nrreaderswaiters_ )
+	nrreaderscond_.signal( nrreaderswaiters_>1 );
 
-    statuscond_.unLock();
+    nrreaderscond_.unLock();
 }
 
 
 void Threads::ReadWriteLock::writeLock()
 {
     statuscond_.lock();
-    while ( status_!=mUnLocked && nrreaders_!=0 )
-	statuscond_.wait();
+    nrreaderscond_.lock();
+    while ( status_!=mUnLocked && nrreaders_ )
+    {
+	if ( status_!=mUnLocked )
+	{
+	    nrreaderscond_.unLock();
+	    nrstatuswaiters_++;
+	    statuscond_.wait();
+	    nrstatuswaiters_--;
+	    nrreaderscond_.lock();
+	}
+	if ( nrreaders_ )
+	{
+	    statuscond_.unLock();
+	    nrreaderswaiters_++;
+	    nrreaderscond_.wait();
+	    nrreaderswaiters_--;
+	    if ( !statuscond_.tryLock() )
+	    {
+		nrreaderscond_.unLock();
+		statuscond_.lock();
+		nrreaderscond_.lock();
+	    }
+	}
+    }
     
     status_ = mWriteLocked;
+
+    nrreaderscond_.unLock();
     statuscond_.unLock();
 }
     
@@ -169,17 +204,21 @@ void Threads::ReadWriteLock::writeUnLock()
 bool Threads::ReadWriteLock::convReadToWriteLock()
 {
     statuscond_.lock();
+    nrreaderscond_.lock();
     if ( status_==mUnLocked && nrreaders_==1 )
     {
 	status_ = mWriteLocked;
 	nrreaders_ = 0;
 	statuscond_.unLock();
+	nrreaderscond_.unLock();
 	return true;
     }
     else if ( !nrreaders_ )
 	pErrMsg( "Object is not readlocked.");
 
     statuscond_.unLock();
+    nrreaderscond_.unLock();
+
     readUnLock();
     writeLock();
     return false;
@@ -189,12 +228,15 @@ bool Threads::ReadWriteLock::convReadToWriteLock()
 void Threads::ReadWriteLock::convWriteToReadLock()
 {
     statuscond_.lock();
+    nrreaderscond_.lock();
     if ( status_!=mWriteLocked )
 	pErrMsg( "Object is not writelocked.");
     status_ = mUnLocked;
     nrreaders_ = 1;
-    statuscond_.signal( true );
+    if ( nrstatuswaiters_ )
+	statuscond_.signal( nrstatuswaiters_>1 );
     statuscond_.unLock();
+    nrreaderscond_.unLock();
 }
 
 
@@ -202,7 +244,11 @@ void Threads::ReadWriteLock::permissiveWriteLock()
 {
     statuscond_.lock();
     while ( status_!=mUnLocked )
+    {
+	nrstatuswaiters_++;
 	statuscond_.wait();
+	nrstatuswaiters_--;
+    }
 
     status_ = mPermissive;
     statuscond_.unLock();
@@ -219,7 +265,8 @@ void Threads::ReadWriteLock::permissiveWriteUnLock()
     else
     {
 	status_ = mUnLocked;
-	statuscond_.signal( true );
+	if ( nrstatuswaiters_ )
+	    statuscond_.signal( nrstatuswaiters_>1 );
     }
 
     statuscond_.unLock();
@@ -228,7 +275,7 @@ void Threads::ReadWriteLock::permissiveWriteUnLock()
 
 void Threads::ReadWriteLock::convPermissiveToWriteLock()
 {
-    statuscond_.lock();
+    nrreaderscond_.lock();
     if ( status_!=mPermissive )
     {
 	pErrMsg("Wrong lock");
@@ -236,11 +283,16 @@ void Threads::ReadWriteLock::convPermissiveToWriteLock()
     else
     {
 	while ( nrreaders_ )
-	    statuscond_.wait();
+	{
+	    nrreaderswaiters_++;
+	    nrreaderscond_.wait();
+	    nrreaderswaiters_--;
+	}
+
 	status_ = mWriteLocked;
     }
 
-    statuscond_.unLock();
+    nrreaderscond_.unLock();
 }
 
 
@@ -254,7 +306,8 @@ void Threads::ReadWriteLock::convWriteToPermissive()
     else
     {
 	status_ = mPermissive;
-	statuscond_.signal( true );
+	if ( nrstatuswaiters_ )
+	    statuscond_.signal( nrstatuswaiters_>1 );
     }
 
     statuscond_.unLock();

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: thread.h,v 1.30 2008-06-24 18:16:56 cvskris Exp $
+ RCS:		$Id: thread.h,v 1.31 2008-06-25 14:39:37 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -193,8 +193,11 @@ public:
 
 protected:
     int			nrreaders_;
+    int			nrreaderswaiters_;
+    ConditionVar	nrreaderscond_;
     char		status_;
     			//0 not writelocked, -2 write lock, -1 permissive lock
+    int			nrstatuswaiters_;
     ConditionVar	statuscond_;
 };
 
