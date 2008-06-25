@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.14 2008-06-24 21:55:49 cvskris Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.15 2008-06-25 13:46:50 cvskris Exp $";
 
 #include "delaunay.h"
 #include "trigonometry.h"
@@ -586,6 +586,23 @@ char DAGTriangleTree::isInside( int ci, int ti, char& edge, int& dupid ) const
     const Coord& tricoord0 = mCrd(crds[0]);
     const Coord& tricoord1 = mCrd(crds[1]);
     const Coord& tricoord2 = mCrd(crds[2]);
+
+    Interval<double> rg( tricoord0.x, tricoord0.x );
+    rg.include( tricoord1.x, false ); rg.include( tricoord2.x, false );
+    if ( !rg.includes(coord.x, false) )
+    {
+	coordlock_.readUnLock();
+	return cIsOutside();
+    }
+
+    rg.start = rg.stop = tricoord0.y;
+    rg.include( tricoord1.y, false ); rg.include( tricoord2.y, false );
+    if ( !rg.includes(coord.y, false) )
+    {
+	coordlock_.readUnLock();
+	return cIsOutside();
+    }
+
     if ( pointInTriangle2D( coord, tricoord0, tricoord1, tricoord2, 0 ) )
     {
 	coordlock_.readUnLock();
