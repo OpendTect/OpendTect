@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.cc,v 1.10 2008-06-25 12:16:45 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.cc,v 1.11 2008-06-26 16:18:02 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,6 +151,15 @@ int uiAxisHandler::pixAfter() const
 {
     if ( endhndlr_ ) return endhndlr_->pixToEdge();
     return setup_.border_.get( isHor() ? uiRect::Right : uiRect::Top );
+}
+
+
+Interval<int> uiAxisHandler::pixRange() const
+{
+    if ( isHor() )
+	return Interval<int>( pixBefore(), devsz_ - pixAfter() );
+    else
+	return Interval<int>( pixAfter(), devsz_ - pixBefore() );
 }
 
 
