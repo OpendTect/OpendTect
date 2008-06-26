@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2008
- RCS:		$Id: uiprestackimpmute.h,v 1.4 2008-06-25 06:41:54 cvsumesh Exp $
+ RCS:		$Id: uiprestackimpmute.h,v 1.5 2008-06-26 05:28:05 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,8 +33,6 @@ public:
 protected:
     
     uiFileInput*	inpfld_;
-    uiGenInput*		extpolatefld_;
-    uiGenInput*		intpoltypefld_;
     uiGenInput*		inpfilehaveposfld_;
     uiGenInput*		posdatainfld_;
     uiGenInput*		inlcrlfld_;
@@ -45,7 +43,6 @@ protected:
     Table::FormatDesc&	fd_;
     uiTableImpDataSel*	dataselfld_;
 
-    PointBasedMathFunction::InterpolType	getInterpolType();
     bool		haveInpPosData() const;
     
     void 		formatSel(CallBacker*);
