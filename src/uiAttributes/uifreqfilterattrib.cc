@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.cc,v 1.16 2008-05-05 05:42:18 cvsnageswara Exp $
+ RCS:           $Id: uifreqfilterattrib.cc,v 1.17 2008-06-26 13:56:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,20 +21,6 @@ ________________________________________________________________________
 #include "uiwindowfunctionsel.h"
 
 using namespace Attrib;
-
-
-static const char* winstrs[] =
-{
-    	"None",
-	"Hamming",
-	"Hanning",
-	"Blackman",
-	"Bartlett",
-	"CosTaper5",
-	"CosTaper10",
-	"CosTaper20",
-	0
-};
 
 
 static const char* typestrs[] =
@@ -125,7 +111,8 @@ bool uiFreqFilterAttrib::setParameters( const Desc& desc )
     mIfGetString( FreqFilter::windowStr(), window,
 			    winfld->setWindowName(window) );
     mIfGetFloat( FreqFilter::paramvalStr(), variable,
-			     winfld->setWindowParamValue(variable) );
+	    	 const float resvar = float( mNINT((1-variable)*1000) )/1000.0;
+		 winfld->setWindowParamValue(resvar) );
     mIfGetBool( FreqFilter::isfftfilterStr(), isfftfilter, 
 	    	isfftfld->setValue(isfftfilter) );
 
@@ -152,7 +139,9 @@ bool uiFreqFilterAttrib::getParameters( Desc& desc )
     mSetFloat( FreqFilter::maxfreqStr(), freqfld->getfValue(1) );
     mSetInt( FreqFilter::nrpolesStr(), polesfld->box()->getValue() );
     mSetString( FreqFilter::windowStr(), winfld->windowName() );
-    mSetFloat( FreqFilter::paramvalStr(), winfld->windowParamValue() );
+    const float resvar =
+		float( mNINT((1-winfld->windowParamValue())*1000) )/1000.0;
+    mSetFloat( FreqFilter::paramvalStr(), resvar );
     mSetBool( FreqFilter::isfftfilterStr(), isfftfld->getBoolValue() );
 
     return true;

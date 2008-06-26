@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          February 2003
- RCS:           $Id: freqfilterattrib.cc,v 1.29 2008-05-20 11:44:58 cvsnanne Exp $
+ RCS:           $Id: freqfilterattrib.cc,v 1.30 2008-06-26 13:56:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -232,7 +232,7 @@ void FreqFilter::initClass()
     desc->addParam( window );
 
     FloatParam* variable = new FloatParam( paramvalStr() );
-    const float defval = 0.05;
+    const float defval = 0.95;
     variable->setDefaultValue( defval );
     variable->setRequired( false );
     desc->addParam(variable);
@@ -255,11 +255,11 @@ void FreqFilter::updateDesc( Desc& desc )
 
     BufferString winstr = winpar->getStringValue();
     if ( winstr == "CosTaper5" )
-    { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.05 ); }
+    { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.95 ); }
     else if ( winstr == "CosTaper10" )
-    { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.1 ); }
+    { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.9 ); }
     else if ( winstr == "CosTaper20" )
-    { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.2 ); }
+    { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.8 ); }
 
     const ValParam* ftype = desc.getValParam( filtertypeStr() );
     const BufferString type = ftype->getStringValue();

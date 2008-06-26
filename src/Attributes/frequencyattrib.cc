@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.19 2008-04-03 13:45:16 cvskris Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.20 2008-06-26 13:56:22 cvshelene Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -49,7 +49,7 @@ void Frequency::initClass()
     desc->addParam( window );
 
     FloatParam* variable = new FloatParam( paramvalStr() );
-    const float defval = 0.05;
+    const float defval = 0.95;
     variable->setDefaultValue( defval );
     variable->setRequired( false );
     desc->addParam(variable);
@@ -77,11 +77,11 @@ void Frequency::updateDesc( Desc& desc )
 
     BufferString winstr = winpar->getStringValue();
     if ( winstr == "CosTaper5" )
-    { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.05 ); }
+    { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.95 ); }
     else if ( winstr == "CosTaper10" )
-    { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.1 ); }
+    { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.9 ); }
     else if ( winstr == "CosTaper20" )
-    { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.2 ); }
+    { winpar->setValue( "CosTaper" ); valpar->setValue( (float)0.8 ); }
 }
 
 

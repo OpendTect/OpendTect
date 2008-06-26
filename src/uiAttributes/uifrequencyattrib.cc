@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.cc,v 1.16 2008-05-22 11:01:54 cvssatyaki Exp $
+ RCS:           $Id: uifrequencyattrib.cc,v 1.17 2008-06-26 13:56:22 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -74,7 +74,8 @@ bool uiFrequencyAttrib::setParameters( const Attrib::Desc& desc )
     mIfGetString( Frequency::windowStr(), window,
 	        winfld->setWindowName(window) );
     mIfGetFloat( Frequency::paramvalStr(), variable,
-	         winfld->setWindowParamValue(variable) );
+	    	 const float resvar = float( mNINT((1-variable)*1000) )/1000.0;
+	         winfld->setWindowParamValue(resvar) );
 
     return true;
 }
@@ -102,7 +103,9 @@ bool uiFrequencyAttrib::getParameters( Attrib::Desc& desc )
     mSetFloatInterval( Frequency::gateStr(), gatefld->getFInterval() );
     mSetBool( Frequency::normalizeStr(), normfld->getBoolValue() );
     mSetString( Frequency::windowStr(), winfld->windowName() );
-    mSetFloat( Frequency::paramvalStr(), winfld->windowParamValue() );
+    const float resvar =
+		float( mNINT( (1-winfld->windowParamValue())*1000) )/1000.0;
+    mSetFloat( Frequency::paramvalStr(), resvar );
 
     return true;
 }
