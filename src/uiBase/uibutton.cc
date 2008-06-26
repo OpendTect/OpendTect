@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.45 2007-12-31 12:14:59 cvsnanne Exp $
+ RCS:           $Id: uibutton.cc,v 1.46 2008-06-26 10:04:09 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -397,7 +397,17 @@ void uiToolButton::setPixmap( const ioPixmap& pm )
 
 void uiToolButton::setArrowType( ArrowType type )
 {
+#ifdef __win__
+    switch ( type )
+    {
+	case UpArrow: setPixmap( ioPixmap("uparrow.png") ); break;
+	case DownArrow: setPixmap( ioPixmap("downarrow.png") ); break;
+	case LeftArrow: setPixmap( ioPixmap("leftarrow.png") ); break;
+	case RightArrow: setPixmap( ioPixmap("rightarrow.png") ); break;
+    }
+#else
     body_->setArrowType( (Qt::ArrowType)(int)type );
+#endif
 }
 
 
