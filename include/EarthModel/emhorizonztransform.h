@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		April 2006
- RCS:		$Id: emhorizonztransform.h,v 1.8 2007-10-17 12:21:58 cvsnanne Exp $
+ RCS:		$Id: emhorizonztransform.h,v 1.9 2008-06-26 05:06:31 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -17,7 +17,7 @@ ________________________________________________________________________
 
 namespace EM
 {
-class Horizon3D;
+class Horizon;
 
 /*!Z-transform that flatterns a horizon. Everything else will also be flatterned
 accordingly. In case of reverse faulting, the area between the two patches will
@@ -32,8 +32,8 @@ public:
     static const char*	sName()			{ return "HorizonZTransform"; }
     static const char*	sKeyHorizonID()		{ return "Horizon"; }
 
-    			HorizonZTransform(const Horizon3D* = 0);
-    void		setHorizon(const Horizon3D&);
+    			HorizonZTransform(const Horizon* = 0);
+    void		setHorizon(const Horizon&);
     void		transform(const BinID&,const SamplingData<float>&,
 				  int sz,float* res) const;
     void		transformBack(const BinID&,const SamplingData<float>&,
@@ -45,17 +45,20 @@ public:
 
     Interval<float>	getDepthRange() const		{ return depthrange_; }
 
+    int			lineIndex(const char* lnm) const;
+
     void		fillPar(IOPar&) const;
     bool		usePar(const IOPar&);
 
 protected:
     static ZAxisTransform* create() { return new HorizonZTransform( 0 ); }
+
     			~HorizonZTransform();
     void		calculateHorizonRange();
     void		horChangeCB( CallBacker* );
     bool		getTopBottom(const BinID&,float&top,float&bottom) const;
 
-    const Horizon3D*	horizon_;
+    const Horizon*	horizon_;
     Interval<float>	depthrange_;
     bool		horchanged_;
 };

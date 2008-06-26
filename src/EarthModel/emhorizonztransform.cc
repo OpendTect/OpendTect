@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: emhorizonztransform.cc,v 1.7 2007-06-21 19:35:21 cvskris Exp $
+ RCS:           $Id: emhorizonztransform.cc,v 1.8 2008-06-26 05:06:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "emhorizonztransform.h"
 
 #include "emmanager.h"
+#include "emhorizon2d.h"
 #include "emhorizon3d.h"
 #include "executor.h"
 #include "iopar.h"
@@ -28,7 +29,7 @@ void HorizonZTransform::initClass()
 }
 
 
-HorizonZTransform::HorizonZTransform( const Horizon3D* hor )
+HorizonZTransform::HorizonZTransform( const Horizon* hor )
     : horizon_( 0 )
     , horchanged_( false )
 {
@@ -42,18 +43,18 @@ HorizonZTransform::~HorizonZTransform()
 
 
 
-void HorizonZTransform::setHorizon( const Horizon3D& hor )
+void HorizonZTransform::setHorizon( const Horizon& hor )
 {
     if ( horizon_ )
     {
-	const_cast<Horizon3D*>(horizon_)
+	const_cast<Horizon*>(horizon_)
 	    ->change.remove( mCB(this,HorizonZTransform,horChangeCB) );
 	horizon_->unRef();
     }
 
     horizon_ = &hor;
     horizon_->ref();
-    const_cast<Horizon3D*>(horizon_)
+    const_cast<Horizon*>(horizon_)
 	->change.notify( mCB(this,HorizonZTransform,horChangeCB) );
 
     horchanged_ = true;
@@ -135,6 +136,14 @@ Interval<float> HorizonZTransform::getZInterval( bool from ) const
 }
 
 
+int HorizonZTransform::lineIndex( const char* lnm ) const
+{
+    mDynamicCastGet(const Horizon2D*,hor2d,horizon_)
+    return hor2d ? hor2d->geometry().lineIndex( lnm ) : 0;
+
+}
+
+
 void HorizonZTransform::fillPar( IOPar& par ) const
 {
     ZAxisTransform::fillPar( par );
@@ -164,7 +173,7 @@ bool HorizonZTransform::usePar( const IOPar& par )
 	emobj = EM::EMM().getObject( emid );
     }
 
-    mDynamicCastGet( EM::Horizon3D*, hor, emobj.ptr() );
+    mDynamicCastGet(EM::Horizon*,hor,emobj.ptr())
     if ( !hor )
 	return false;
 
@@ -215,13 +224,22 @@ void HorizonZTransform::calculateHorizonRange()
 bool HorizonZTransform::getTopBottom( const BinID& bid, float& top,
 				      float& bottom ) const
 {
+    mDynamicCastGet(const Horizon3D*,hor3d,horizon_)
+    mDynamicCastGet(const Horizon2D*,hor2d,horizon_)
     TypeSet<float> depths;
     for ( int idx=horizon_->nrSections()-1; idx>=0; idx-- )
     {
 	const SectionID sid = horizon_->sectionID( idx );
-	const Geometry::BinIDSurface* geom =
-	    horizon_->geometry().sectionGeometry(sid);
-	const float depth = geom->computePosition( Coord(bid.inl,bid.crl) ).z;
+	float depth = mUdf(float);
+	if ( hor3d )
+	{
+	    const Geometry::BinIDSurface* geom =
+		hor3d->geometry().sectionGeometry(sid);
+	    depth = geom->computePosition( Coord(bid.inl,bid.crl) ).z;
+	}
+	else if ( hor2d )
+	    depth = horizon_->getPos( sid, bid.getSerialized() ).z;
+
 	if ( !mIsUdf(depth) )
 	    depths += depth;
     }
