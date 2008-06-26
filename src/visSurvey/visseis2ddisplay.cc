@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.41 2008-06-16 19:46:46 cvskris Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.42 2008-06-26 08:00:04 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -146,7 +146,7 @@ bool Seis2DDisplay::setZRange( const Interval<float>& nzrg )
     if ( mIsUdf(geometry_.zrg.start) )
 	return false;
 
-    const StepInterval<float> maxzrg = getMaxZRange( true );
+    const StepInterval<float> maxzrg = getMaxZRange( false );
     const Interval<float> zrg( mMAX(maxzrg.start,nzrg.start),
 			       mMIN(maxzrg.stop,nzrg.stop) );
     if ( curzrg_.isEqual(zrg,mDefEps) )
@@ -351,9 +351,11 @@ void Seis2DDisplay::setData( int attrib,
 				SamplingData<double>(cs.zrg.start,cs.zrg.step));
 	    mTryAlloc( tmparr, Array2DImpl<float>( cs.nrCrl(), cs.nrZ() ) );
 	    usedarr = tmparr;
-	    for ( int crlidx=0; crlidx<cs.nrCrl(); crlidx++ )
+	    const int inl = datatransform_->lineIndex( name() );
+	    for ( int crlidx=0; crlidx<cs.nrCrl() && inl>=0; crlidx++ )
 	    {
-		const BinID bid = cs.hrg.atIndex( 0, crlidx );
+		BinID bid = cs.hrg.atIndex( 0, crlidx );
+		bid.inl = inl;
 		outpsampler.setBinID( bid );
 		outpsampler.computeCache( Interval<int>(0,cs.nrZ()-1) );
 
