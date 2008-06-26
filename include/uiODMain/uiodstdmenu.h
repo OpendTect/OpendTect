@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2003
- RCS:		$Id: uiodstdmenu.h,v 1.42 2008-06-23 06:56:08 cvsumesh Exp $
+ RCS:		$Id: uiodstdmenu.h,v 1.43 2008-06-26 11:06:35 cvsumesh Exp $
 ________________________________________________________________________
 
 
@@ -60,7 +60,6 @@ ________________________________________________________________________
 #define mImpFaultMnuItm		(mFileImpMnu + 50)
 #define mImpPickMnuItm		(mFileImpMnu + 60)
 #define mImpWvltMnuItm		(mFileImpMnu + 70)
-#define mImpMuteDefMnuItm	(mFileImpMnu + 80)
 #define mExpSeisSEGY3DMnuItm	(mFileExpMnu + 10)
 #define mExpSeisSEGY2DMnuItm	(mFileExpMnu + 11)
 #define mExpSeisSimple3DMnuItm	(mFileExpMnu + 14)
