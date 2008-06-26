@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          October 2006
- RCS:           $Id: zaxistransform.h,v 1.16 2008-02-13 12:25:34 cvsnanne Exp $
+ RCS:           $Id: zaxistransform.h,v 1.17 2008-06-26 04:41:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,11 +55,15 @@ public:
     float			transformBack(const Coord3&) const;
 
     virtual Interval<float>	getZInterval(bool from) const		= 0;
-    				/*!<\returns the z interval in either to
+    				/*!<\Returns the z interval in either to
 				     or from domain. */
     virtual float		getZIntervalCenter(bool from) const;
-    				/*!\returns a position within the
+    				/*!\Returns a position within the
 				    z-range that is a logical 'center' */
+
+    virtual int			lineIndex( const char* linename ) const
+				{ return 0; }
+    				//!\Returns the index of a line in a 2D lineset.
 
     virtual NotifierAccess*	changeNotifier()		{ return 0; }
     virtual void		fillPar(IOPar&) const		{}
