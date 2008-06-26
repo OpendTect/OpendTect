@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Jan 2005
- RCS:		$Id: linear.h,v 1.5 2007-12-18 07:30:26 cvsnanne Exp $
+ RCS:		$Id: linear.h,v 1.6 2008-06-26 16:16:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,9 @@ public:
 		: a0(i0), ax(i1)		{}
  
     float	getValue( float x ) const
-		{ return (float)(a0 + ax * x); }
+		{ return a0 + ax * x; }
+    float	getXValue( float y ) const
+		{ return ax ? (y - a0) / ax : 0; }
  
     float	a0, ax;
 };
