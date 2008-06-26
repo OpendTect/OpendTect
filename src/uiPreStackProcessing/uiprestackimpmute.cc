@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
 Date:		June 2008
- RCS:		$Id: uiprestackimpmute.cc,v 1.4 2008-06-25 06:44:40 cvsumesh Exp $
+ RCS:		$Id: uiprestackimpmute.cc,v 1.5 2008-06-26 05:30:51 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,6 @@ ________________________________________________________________________
 #include "horsampling.h"
 #include "survinfo.h"
 
-static const char* interpoltypes[] = { "Linear", "Poly", "Snap", 0 };
 
 uiImportMute::uiImportMute( uiParent* p )
     : uiDialog( p,uiDialog::Setup("Import Mute","Specify Parameters",0) )
@@ -41,16 +40,9 @@ uiImportMute::uiImportMute( uiParent* p )
 	                       uiFileInput::Setup().withexamine(true)
 			       .defseldir(GetDataDir()) );
 
-    extpolatefld_ = new uiGenInput( this, "Extrapolate", BoolInpSpec(true) );
-    extpolatefld_->attach( alignedBelow, inpfld_ );
-
-    intpoltypefld_ = new uiGenInput( this, "Interpolation Type",
-				     StringListInpSpec(interpoltypes) );
-    intpoltypefld_->attach( alignedBelow, extpolatefld_ );
-
     inpfilehaveposfld_ = new uiGenInput( this, "File contains position",
 	   				 BoolInpSpec(true) );
-    inpfilehaveposfld_->attach( alignedBelow, intpoltypefld_ );
+    inpfilehaveposfld_->attach( alignedBelow, inpfld_ );
     inpfilehaveposfld_->valuechanged.notify(
 	      			mCB(this,uiImportMute,changePrefPosInfo) );
   
@@ -119,8 +111,7 @@ bool uiImportMute::acceptOK( CallBacker* )
 
     if ( haveInpPosData() )
     {
-	if ( !muteascio.getMuteDef(mutedef,extpolatefld_->getBoolValue(),
-				   getInterpolType()) )
+	if ( !muteascio.getMuteDef(mutedef) )
 	    mErrRet( "Failed to convert into compatible data" );
     }
     else
@@ -133,9 +124,7 @@ bool uiImportMute::acceptOK( CallBacker* )
 	else if ( !hs.includes(inlcrlfld_->getBinID()) )
 	    mErrRet( "Please enter Inl/Crl within survey range" )
 
-	else if ( !muteascio.getMuteDef( mutedef, inlcrlfld_->getBinID(),
-		                    extpolatefld_->getBoolValue(),
-				    getInterpolType() ) )
+	else if ( !muteascio.getMuteDef(mutedef, inlcrlfld_->getBinID()) )
 	    mErrRet( "Failed to convert into compatible data" )
     }
 
@@ -154,21 +143,6 @@ bool uiImportMute::acceptOK( CallBacker* )
 
     uiMSG().message( "Import finished successfully" );
     return false;
-}
-
-
-PointBasedMathFunction::InterpolType uiImportMute::getInterpolType()
-{
-    PointBasedMathFunction::InterpolType iptype = 
-	                                       PointBasedMathFunction::Linear;
-    
-    const int typeval = intpoltypefld_->getIntValue();
-     if ( typeval == 1 )
-	 iptype = PointBasedMathFunction::Poly;
-     if ( typeval == 2 )
-	 iptype = PointBasedMathFunction::Snap;
-
-      return iptype;
 }
 
 
