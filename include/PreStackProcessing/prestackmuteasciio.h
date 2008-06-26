@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2008
- RCS:		$Id: prestackmuteasciio.h,v 1.3 2008-06-25 06:38:19 cvsumesh Exp $
+ RCS:		$Id: prestackmuteasciio.h,v 1.4 2008-06-26 05:27:02 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,10 +36,12 @@ public:
 
    float			getUdfVal() const;
    bool				isXY() const;
-   bool				getMuteDef(MuteDef&,bool extrapol, 
-					PointBasedMathFunction::InterpolType);
-   bool				getMuteDef(MuteDef&,const BinID&,bool extrapol,
-	   				PointBasedMathFunction::InterpolType);
+   bool				getMuteDef(MuteDef&,bool extrapol=true, 
+					   PointBasedMathFunction::InterpolType=
+					   PointBasedMathFunction::Linear);
+   bool				getMuteDef(MuteDef&,const BinID&,
+	   				   bool extrapol=true,
+	   				   PointBasedMathFunction::InterpolType=					   PointBasedMathFunction::Linear);
 
 protected:
 	
