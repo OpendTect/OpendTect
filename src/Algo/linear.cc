@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: linear.cc,v 1.12 2008-01-15 16:19:43 cvsbert Exp $";
+static const char* rcsID = "$Id: linear.cc,v 1.13 2008-06-26 16:17:37 cvsbert Exp $";
 
 
 #include "linear.h"
@@ -25,8 +25,8 @@ static void calcLS( LinStats2D& ls, const float* xvals, const float* yvals,
     }
 
     ls.lp.a0 = (float)sumx; ls.lp.ax = 0;
-    ls.sd.a0 = 0; Values::setUdf(ls.sd.ax);
-    ls.corrcoeff = 1;
+    Values::setUdf(ls.sd.a0); Values::setUdf(ls.sd.ax);
+    ls.corrcoeff = 0;
     if ( nrpts < 2 )
 	return;
 
@@ -45,10 +45,9 @@ static void calcLS( LinStats2D& ls, const float* xvals, const float* yvals,
     if ( sumx2 < 1e-30 )
     {
 	// No x range
-	ls.lp.a0 = 0;
+	ls.lp.a0 = avgx;
 	Values::setUdf(ls.lp.ax);
-	Values::setUdf(ls.sd.a0); ls.sd.ax = 0;
-	ls.corrcoeff = 1;
+	ls.sd.ax = 0; ls.corrcoeff = 1;
 	return;
     }
     else if ( sumy2 < 1e-30 )
@@ -56,8 +55,8 @@ static void calcLS( LinStats2D& ls, const float* xvals, const float* yvals,
 	// No y range
 	ls.lp.a0 = avgy;
 	ls.lp.ax = 0;
-	ls.corrcoeff = 1;
 	ls.sd.a0 = ls.sd.ax = 0;
+	ls.corrcoeff = 1;
 	return;
     }
 
