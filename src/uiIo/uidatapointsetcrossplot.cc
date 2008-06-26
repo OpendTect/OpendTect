@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.10 2008-06-25 12:18:10 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.11 2008-06-26 16:18:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "randcolor.h"
 #include "statruncalc.h"
 #include "linear.h"
+#include "sorting.h"
 #include "draw.h"
 #include "settings.h"
 #include "envvars.h"
@@ -109,6 +110,7 @@ void uiDataPointSetCrossPlotter::AxisData::newColID()
     axis_ = new uiAxisHandler( cp_.drawTool(), defaxsu_ );
     axis_->setName( cp_.uidps_.userName(colid_) );
     needautoscale_ = true;
+    handleAutoScale();
 }
 
 
@@ -130,6 +132,7 @@ void uiDataPointSetCrossPlotter::AxisData::handleAutoScale()
 	rg_.start = rc.clipVal( autoscalepars_.clipratio_, false );
 	rg_.stop = rc.clipVal( autoscalepars_.clipratio_, true );
     }
+
     AxisLayout al( rg_ );
     axis_->setRange( StepInterval<float>( al.sd.start, al.stop, al.sd.step ) );
     needautoscale_ = false;
@@ -188,25 +191,96 @@ uiDataPointSetCrossPlotter::~uiDataPointSetCrossPlotter()
 
 void uiDataPointSetCrossPlotter::dataChanged()
 {
-    x_.newColID(); y_.newColID(); y2_.newColID();
+    x_.handleAutoScale(); y_.handleAutoScale(); y2_.handleAutoScale();
     calcStats();
     update();
 }
 
 
+static void updLS( const TypeSet<float>& inpxvals,
+		   const TypeSet<float>& inpyvals,
+		   const uiDataPointSetCrossPlotter::AxisData& axdx,
+		   const uiDataPointSetCrossPlotter::AxisData& axdy,
+		   LinStats2D& ls )
+{
+    const int inpsz = inpxvals.size();
+    if ( inpsz < 2 ) { ls = LinStats2D(); return; }
+
+    int firstxidx = 0, firstyidx = 0;
+    if ( axdx.autoscalepars_.doautoscale_ && axdy.autoscalepars_.doautoscale_ )
+    {
+	firstxidx = (int)(axdx.autoscalepars_.clipratio_ * inpsz + .5);
+	firstyidx = (int)(axdy.autoscalepars_.clipratio_ * inpsz + .5);
+	if ( firstxidx < 1 && firstyidx < 1 )
+	{
+	    ls.use( inpxvals.arr(), inpyvals.arr(), inpsz );
+	    return;
+	}
+    }
+
+    Interval<float> xrg; assign( xrg, axdx.axis_->range() );
+    if ( firstxidx > 0 )
+    {
+	TypeSet<float> sortvals( inpxvals );
+	sortFor( sortvals.arr(), inpsz, firstxidx );
+	xrg.start = sortvals[firstxidx]; xrg.stop = sortvals[inpsz-firstxidx-1];
+    }
+    Interval<float> yrg; assign( yrg, axdy.axis_->range() );
+    if ( firstyidx > 0 )
+    {
+	TypeSet<float> sortvals( inpyvals );
+	sortFor( sortvals.arr(), inpsz, firstyidx );
+	yrg.start = sortvals[firstyidx]; yrg.stop = sortvals[inpsz-firstyidx-1];
+    }
+
+    TypeSet<float> xvals, yvals;
+    for ( int idx=0; idx<inpxvals.size(); idx++ )
+    {
+	const float x = inpxvals[idx]; const float y = inpyvals[idx];
+	if ( xrg.includes(x) && yrg.includes(y) )
+	    { xvals += x; yvals += y; }
+    }
+
+    ls.use( xvals.arr(), yvals.arr(), xvals.size() );
+}
+
+
 void uiDataPointSetCrossPlotter::calcStats()
 {
-    if ( !x_.axis_ || !y_.axis_ )
+    if ( !x_.axis_ || (!y_.axis_ && !y2_.axis_) )
 	return;
 
-    const Stats::RunCalc<float>& xrc = uidps_.getRunCalc( x_.colid_ );
-    const Stats::RunCalc<float>& yrc = uidps_.getRunCalc( y_.colid_ );
-    lsy1_.use( xrc.vals_.arr(), yrc.vals_.arr(), xrc.vals_.size() );
-    if ( y2_.axis_ && doy2_ )
+    const Interval<int> udfrg( 0, 1 );
+    const Interval<int> xpixrg( x_.axis_->pixRange() ),
+	  		ypixrg( y_.axis_ ? y_.axis_->pixRange() : udfrg ),
+			y2pixrg( y2_.axis_ ? y2_.axis_->pixRange() : udfrg );
+    TypeSet<float> xvals, yvals, x2vals, y2vals;
+
+    for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
     {
-	const Stats::RunCalc<float>& y2rc = uidps_.getRunCalc( y2_.colid_ );
-	lsy2_.use( xrc.vals_.arr(), y2rc.vals_.arr(), xrc.vals_.size() );
+	if ( dps_.isInactive(rid)
+	  || (curgrp_ > 0 && dps_.group(rid) != curgrp_) )
+	    continue;
+
+	const float xval = uidps_.getVal( x_.colid_, rid, true );
+	if ( mIsUdf(xval) ) continue;
+
+	if ( y_.axis_ )
+	{
+	    const float yval = uidps_.getVal( y_.colid_, rid, true );
+	    if ( !mIsUdf(yval) )
+		{ xvals += xval; yvals += yval; }
+	}
+	if ( y2_.axis_ )
+	{
+	    const float yval = uidps_.getVal( y2_.colid_, rid, true );
+	    if ( !mIsUdf(yval) )
+		{ x2vals += xval; y2vals += yval; }
+	}
     }
+
+    updLS( xvals, yvals, x_, y_, lsy1_ );
+    updLS( x2vals, y2vals, x_, y2_, lsy2_ );
 }
 
 
@@ -218,19 +292,6 @@ bool uiDataPointSetCrossPlotter::selNearest( const MouseEvent& ev )
     if ( selrowisy2_ )
 	selrow_ = getRow( y2_, pt );
     return selrow_ >= 0;
-}
-
-
-uiDataPointSetCrossPlotter::AutoScalePars&
-uiDataPointSetCrossPlotter::autoScalePars( int ax )
-{
-    return (ax == 2 ? y2_ : (ax == 1 ? y_ : x_)).autoscalepars_;
-}
-
-
-uiAxisHandler* uiDataPointSetCrossPlotter::axisHandler( int ax )
-{
-    return (ax == 2 ? y2_ : (ax == 1 ? y_ : x_)).axis_;
 }
 
 
@@ -363,7 +424,6 @@ void uiDataPointSetCrossPlotter::drawContent( CallBacker* cb )
 void uiDataPointSetCrossPlotter::drawData(
 			    const uiDataPointSetCrossPlotter::AxisData& yad )
 {
-    const int nrrows = dps_.size();
     const uiAxisHandler& xah = *x_.axis_;
     const uiAxisHandler& yah = *yad.axis_;
     drawTool().setPenColor( yah.setup().style_.color_ );
@@ -376,7 +436,11 @@ void uiDataPointSetCrossPlotter::drawData(
 	mstyle.type_ = MarkerStyle2D::None;
     mstyle.color_ = yah.setup().style_.color_;
 
-    for ( uiDataPointSet::DRowID rid=0; rid<nrrows; rid++ )
+    const Interval<int> xpixrg( xah.pixRange() ), ypixrg( yah.pixRange() );
+
+    int nrptsdisp = 0;
+    Interval<int> usedxpixrg, usedypixrg;
+    for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
     {
 	if ( rid % eachrow_ || dps_.isInactive(rid)
 	  || (curgrp_ > 0 && dps_.group(rid) != curgrp_) )
@@ -387,6 +451,9 @@ void uiDataPointSetCrossPlotter::drawData(
 	if ( mIsUdf(xval) || mIsUdf(yval) ) continue;
 
 	const uiPoint pt( xah.getPix(xval), yah.getPix(yval) );
+	if ( !xpixrg.includes(pt.x) || !ypixrg.includes(pt.y) )
+	    continue;
+
 	const bool issel = dps_.isSelected( rid );
 	if ( mstyle.type_ == MarkerStyle2D::None )
 	    drawTool().drawPoint( pt, issel );
@@ -395,7 +462,20 @@ void uiDataPointSetCrossPlotter::drawData(
 	    mstyle.size_ = issel ? 4 : 2;
 	    drawTool().drawMarker( pt, mstyle );
 	}
+
+	nrptsdisp++;
+	if ( nrptsdisp > 1 )
+	    { usedxpixrg.include( pt.x ); usedypixrg.include( pt.y ); }
+	else
+	{
+	    usedxpixrg = Interval<int>( pt.x, pt.x );
+	    usedypixrg = Interval<int>( pt.y, pt.y );
+	}
+
     }
+
+    if ( nrptsdisp < 1 )
+	return;
 
     if ( setup_.showcc_ )
     {
@@ -411,6 +491,66 @@ void uiDataPointSetCrossPlotter::drawData(
 	}
 	yah.annotAtEnd( txt );
     }
+
+    if ( setup_.showregrline_ )
+	drawRegrLine( yah, usedxpixrg, usedypixrg );
+}
+
+
+void uiDataPointSetCrossPlotter::drawRegrLine( const uiAxisHandler& yah,
+				    Interval<int> xpixrg, Interval<int> ypixrg )
+{
+    const uiAxisHandler& xah = *x_.axis_;
+    const LinStats2D& ls = y_.axis_ == &yah ? lsy1_ : lsy2_;
+    Interval<float> xvalrg( xah.getVal(xpixrg.start), xah.getVal(xpixrg.stop) );
+    Interval<float> yvalrg( yah.getVal(ypixrg.start), yah.getVal(ypixrg.stop) );
+
+    uiPoint from(xpixrg.start,ypixrg.start), to(xpixrg.stop,ypixrg.stop);
+    if ( ls.lp.ax == 0 )
+    {
+	const int ypix = yah.getPix( ls.lp.a0 );
+	if ( !ypixrg.includes( ypix ) ) return;
+	from.x = xpixrg.start; to.x = xpixrg.stop;
+	from.y = to.y = ypix;
+    }
+    else
+    {
+	const float xx0 = xvalrg.start; const float yx0 = ls.lp.getValue( xx0 );
+	const float xx1 = xvalrg.stop; const float yx1 = ls.lp.getValue( xx1 );
+	const float yy0 = yvalrg.start; const float xy0 = ls.lp.getXValue( yy0);
+	const float yy1 = yvalrg.stop; const float xy1 = ls.lp.getXValue( yy1 );
+
+	const bool yx0hi = yx0 > yvalrg.stop;
+	const bool yx0lo = yx0 < yvalrg.start;
+	const bool yx1hi = yx1 > yvalrg.stop;
+	const bool yx1lo = yx1 < yvalrg.start;
+	const bool xy0hi = xx0 > xvalrg.stop;
+	const bool xy0lo = xx0 < xvalrg.start;
+	const bool xy1hi = xx1 > xvalrg.stop;
+	const bool xy1lo = xx1 < xvalrg.start;
+	if ( (yx0hi && yx1hi) || (yx0lo && yx1lo) )
+	    return; // line doesn't cross rectangle
+	if ( !yx0hi && !yx1hi && !yx0lo && !yx1lo )
+	    { from.y = yah.getPix( yx0 ); to.x = yah.getPix( yx1 ); }
+	    // line goes through left and right sides
+	else if ( !xy0hi && !xy1hi && !xy0lo && !xy1lo )
+	    { from.x = xah.getPix( xy0 ); to.x = xah.getPix( xy1 ); }
+	    // line goes through top and bottom
+	else
+	{
+	    // line goes through two perpendicular sides
+	    if ( yx0lo )
+		{ from.x = xah.getPix( xy0 ); to.y = yah.getPix( yx1 ); }
+	    else if ( yx0hi )
+		{ from.x = xah.getPix( xy1 ); to.y = yah.getPix( yx1 ); }
+	    else if ( xy0lo )
+		{ from.y = yah.getPix( yx0 ); to.x = xah.getPix( xy1 ); }
+	    else if ( xy1lo )
+		{ from.y = yah.getPix( yx0 ); to.x = xah.getPix( xy0 ); }
+	}
+    }
+
+    drawTool().drawLine( from, to );
 }
 
 

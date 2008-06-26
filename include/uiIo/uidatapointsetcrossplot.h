@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.6 2008-06-25 12:18:10 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.7 2008-06-26 16:18:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,10 +64,13 @@ public:
 			//!< 2) env "OD_DEFAULT_AXIS_CLIPRATIO"
 			//!< 3) zero
     };
-    AutoScalePars&	autoScalePars(int ax);		//!< 0=x 1=y 2=y2
-    uiAxisHandler*	axisHandler(int ax);		//!< 0=x 1=y 2=y2
+
+    AutoScalePars&	autoScalePars( int ax )		//!< 0=x 1=y 2=y2
+			{ return axisData(ax).autoscalepars_; }
+    uiAxisHandler*	axisHandler( int ax )		//!< 0=x 1=y 2=y2
+			{ return axisData(ax).axis_; }
     const LinStats2D&	linStats( bool y1=true ) const
-    						{ return y1 ? lsy1_ : lsy2_; }
+			{ return y1 ? lsy1_ : lsy2_; }
 
     Notifier<uiDataPointSetCrossPlotter>	selectionChanged;
     Notifier<uiDataPointSetCrossPlotter>	removeRequest;
@@ -78,7 +81,32 @@ public:
 
 protected:
 
-    struct AxisData
+    uiDataPointSet&		uidps_;
+    const DataPointSet&		dps_;
+    Setup			setup_;
+    MouseEventHandler&		meh_;
+    LinStats2D&			lsy1_;
+    LinStats2D&			lsy2_;
+    bool			doy2_;
+    bool			dobd_;
+    int				eachrow_;
+    int				curgrp_;
+    const DataPointSet::ColID	mincolid_;
+    DataPointSet::RowID		selrow_;
+    bool			selrowisy2_;
+
+    void 			initDraw(CallBacker*);
+    virtual void		mkNewFill();
+    void 			drawContent(CallBacker*);
+    void 			calcStats();
+
+    bool			selNearest(const MouseEvent&);
+    void 			mouseClick(CallBacker*);
+    void 			mouseRel(CallBacker*);
+
+public:
+
+    struct AxisData //!< Only use if you know what you're doing
     {
 				AxisData(uiDataPointSetCrossPlotter&,
 					 uiRect::Side);
@@ -102,38 +130,19 @@ protected:
 	void			newColID();
     };
 
-    uiDataPointSet&		uidps_;
-    const DataPointSet&		dps_;
-    Setup			setup_;
-    MouseEventHandler&		meh_;
     AxisData			x_;
     AxisData			y_;
     AxisData			y2_;
-    LinStats2D&			lsy1_;
-    LinStats2D&			lsy2_;
-    bool			doy2_;
-    bool			dobd_;
-    int				eachrow_;
-    int				curgrp_;
-    const DataPointSet::ColID	mincolid_;
-    DataPointSet::RowID		selrow_;
-    bool			selrowisy2_;
-
-    void 			initDraw(CallBacker*);
-    virtual void		mkNewFill();
-    void 			drawContent(CallBacker*);
-    void 			calcStats();
-
     int				getRow(const AxisData&,uiPoint) const;
-
-    bool			selNearest(const MouseEvent&);
-    void 			mouseClick(CallBacker*);
-    void 			mouseRel(CallBacker*);
-
     void 			drawData(const AxisData&);
+    void 			drawRegrLine(const uiAxisHandler&,
+	    				     Interval<int>,Interval<int>);
 
     friend class		uiDataPointSetCrossPlotWin;
     friend class		AxisData;
+
+    AxisData&			axisData( int ax )
+				{ return ax ? (ax == 2 ? y2_ : y_) : x_; }
 };
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Jun 2008
- RCS:           $Id: uidpscrossplotpropdlg.cc,v 1.2 2008-06-25 12:18:10 cvsbert Exp $
+ RCS:           $Id: uidpscrossplotpropdlg.cc,v 1.3 2008-06-26 16:18:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -129,8 +129,9 @@ bool acceptOK()
 	    asp.clipratio_ = cr;
 	}
 
-	asp.doautoscale_ = doas;
+	asp.doautoscale_ = plotter_.axisData(idx).needautoscale_ = doas;
     }
+
     return true;
 }
 
@@ -227,12 +228,18 @@ uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 	, plotter_(*p)
     	, bdroptab_(0)
 {
-    addGroup( new uiDPSCPScalingTab(this) );
-    addGroup( new uiDPSCPStatsTab(this) );
+    scaletab_ = new uiDPSCPScalingTab( this );
+    addGroup( scaletab_ );
+    statstab_ = new uiDPSCPStatsTab( this );
+    addGroup( statstab_ );
 }
 
 
 bool uiDataPointSetCrossPlotterPropDlg::acceptOK( CallBacker* )
 {
+    if ( scaletab_ ) scaletab_->acceptOK();
+    if ( statstab_ ) statstab_->acceptOK();
+
+    plotter_.dataChanged();
     return true;
 }
