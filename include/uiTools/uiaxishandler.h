@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.8 2008-06-25 12:16:45 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.9 2008-06-26 16:18:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,6 +84,7 @@ public:
     int			pixToEdge() const;
     int			pixBefore() const;
     int			pixAfter() const;
+    Interval<int>	pixRange() const;
 
     void		newDevSize(); //!< Call this when appropriate
 
