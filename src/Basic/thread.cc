@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: thread.cc,v 1.35 2008-06-25 14:39:37 cvskris Exp $";
+static const char* rcsID = "$Id: thread.cc,v 1.36 2008-06-27 18:43:31 cvskris Exp $";
 
 #include "thread.h"
 #include "callback.h"
@@ -152,7 +152,7 @@ void Threads::ReadWriteLock::writeLock()
 {
     statuscond_.lock();
     nrreaderscond_.lock();
-    while ( status_!=mUnLocked && nrreaders_ )
+    while ( status_!=mUnLocked || nrreaders_ )
     {
 	if ( status_!=mUnLocked )
 	{
