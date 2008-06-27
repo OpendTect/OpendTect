@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2008
- RCS:		$Id: uiprestackimpmute.h,v 1.5 2008-06-26 05:28:05 cvsumesh Exp $
+ RCS:		$Id: uiprestackimpmute.h,v 1.6 2008-06-27 04:33:59 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,8 @@ class uiTableImpDataSel;
 
 namespace Table { class FormatDesc; }
 
+namespace PreStack
+{
 class uiImportMute : public uiDialog
 {
 public:
@@ -51,4 +53,6 @@ protected:
     virtual bool	acceptOK(CallBacker*);    
 };
 
+
+}; //namespace Prestack
 #endif
