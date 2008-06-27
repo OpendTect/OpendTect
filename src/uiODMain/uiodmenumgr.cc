@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.129 2008-06-26 11:11:51 cvsumesh Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.130 2008-06-27 04:41:25 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -187,6 +187,7 @@ void uiODMenuMgr::fillImportMenu()
     impmnu_->insertItem( impwell );
     mInsertItem( impmnu_, "&Picksets ...", mImpPickMnuItm );
     mInsertItem( impmnu_, "&Wavelets ...", mImpWvltMnuItm );
+    mInsertItem( impmnu_, "&Mute Function ...", mImpMuteDefMnuItm );
 
     uiPopupMenu* impseissgy = new uiPopupMenu( &appl_, "&SEG-Y" );
     mInsertItem( impseissgy, "&3D ...", mImpSeisSEGY3DMnuItm );
@@ -584,6 +585,7 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpPickMnuItm: 	mDoOp(Exp,Pick,0); break;
     case mImpWvltMnuItm: 	mDoOp(Imp,Wvlt,0); break;
     case mImpFaultMnuItm: 	mDoOp(Imp,Flt,0); break;
+    case mImpMuteDefMnuItm:	mDoOp(Imp,MDef,0); break;				
 
     case mManSeisMnuItm: 	mDoOp(Man,Seis,0); break;
     case mManHor3DMnuItm: 	mDoOp(Man,Hor,2); break;

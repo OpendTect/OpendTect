@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.254 2008-06-26 11:11:51 cvsumesh Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.255 2008-06-27 04:41:25 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "uiempartserv.h"
 #include "uiimphorizon2d.h"
 #include "uinlapartserv.h"
+#include "uiprestackimpmute.h"
 #include "uiseispartserv.h"
 #include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
@@ -284,6 +285,13 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 	{
 	case Imp:	seisserv_->importWavelets();	break;
 	default:	seisserv_->manageWavelets();	break;
+	}
+    break;
+    case MDef:
+        if ( at == Imp )
+	{
+	    PreStack:: uiImportMute dlg( &appl_ );
+	    dlg.go();
 	}
     break;
     case Strat:
