@@ -4,18 +4,16 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2008
- RCS:		$Id: prestackmuteasciio.cc,v 1.4 2008-06-25 07:15:37 cvsumesh Exp $
+ RCS:		$Id: prestackmuteasciio.cc,v 1.5 2008-06-27 06:47:39 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "prestackmuteasciio.h"
-#include "tabledef.h"
 #include "prestackmutedef.h"
-#include "unitofmeasure.h"
 #include "survinfo.h"
-
-static const char* extrapoltypes[] = { "Linear", "Poly", "Snap", 0};
+#include "tabledef.h"
+#include "unitofmeasure.h"
 
 namespace PreStack
 {

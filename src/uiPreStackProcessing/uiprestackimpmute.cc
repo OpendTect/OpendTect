@@ -5,28 +5,29 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
 Date:		June 2008
- RCS:		$Id: uiprestackimpmute.cc,v 1.6 2008-06-27 04:35:20 cvsumesh Exp $
+ RCS:		$Id: uiprestackimpmute.cc,v 1.7 2008-06-27 06:48:34 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiprestackimpmute.h"
-
-#include "prestackmutedeftransl.h"
-#include "prestackmuteasciio.h"
-#include "ctxtioobj.h"
-#include "uiseparator.h"
-#include "tabledef.h"
 #include "uifileinput.h"
-#include "oddirs.h"
-#include "uitblimpexpdatasel.h"
 #include "uiioobjsel.h"
 #include "uigeninput.h"
+#include "uimsg.h"
+#include "uiseparator.h"
+#include "uitblimpexpdatasel.h"
+
+#include "ctxtioobj.h"
+#include "horsampling.h"
+#include "oddirs.h"
+#include "prestackmutedeftransl.h"
+#include "prestackmuteasciio.h"
 #include "prestackmutedef.h"
 #include "strmprov.h"
-#include "uimsg.h"
-#include "horsampling.h"
 #include "survinfo.h"
+#include "tabledef.h"
+
 
 namespace PreStack
 {
