@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2006
- RCS:           $Id: uidesktopservices.cc,v 1.7 2008-01-17 11:00:45 cvsnanne Exp $
+ RCS:           $Id: uidesktopservices.cc,v 1.8 2008-06-27 12:30:46 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ ________________________________________________________________________
 bool uiDesktopServices::openUrl( const char* url )
 {
     BufferString myurl = url;
-    if ( !strncasecmp(url,"c:",2) )
+    if ( myurl[1] == ':' )
     {
 	myurl = "file:///";
 	myurl += url;
