@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.70 2008-06-05 13:59:24 cvsjaap Exp $
+ RCS:           $Id: uitable.cc,v 1.71 2008-06-27 10:27:36 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,12 +36,23 @@ class CellObject
 			    : qwidget_(qw)
 			    , object_(obj)
 			    , rowcol_(rc)    {}
-			~CellObject()			{ delete object_; }
+			~CellObject();
 
     uiObject*		object_;
     QWidget*		qwidget_;
     RowCol		rowcol_;
 };
+
+
+CellObject::~CellObject()
+{
+    mDynamicCastGet(uiGroupObj*,grpobj,object_);
+
+    if ( grpobj && grpobj->group() )
+	delete grpobj->group();
+    else
+	delete object_;
+}
 
 
 class uiTableBody : public uiObjBodyImplNoQtNm<uiTable,QTableWidget>
@@ -582,7 +593,13 @@ void uiTable::removeRCs( const TypeSet<int>& idxs, bool col )
 
 
 void uiTable::removeRow( int row )
-{ body_->removeRow( row ); updateRow(row); }
+{ 
+    for ( int col=0; col<nrCols(); col++ )
+	clearCellObject( RowCol(row,col) );
+    body_->removeRow( row );
+    updateRow(row);
+}
+
 
 void uiTable::removeColumn( int col )
 { body_->removeColumn( col );  updateCol(col); }

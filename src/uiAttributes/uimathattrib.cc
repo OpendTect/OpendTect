@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          October 2001
- RCS:           $Id: uimathattrib.cc,v 1.23 2008-06-16 07:08:09 cvsnanne Exp $
+ RCS:           $Id: uimathattrib.cc,v 1.24 2008-06-27 10:27:36 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -139,7 +139,7 @@ void uiMathAttrib::updateDisplay( bool userecfld )
 	    uiAttrSel* attrbox = new uiAttrSel( 0, 0, is2d_, "" );
 	    attrbox->setDescSet( ads_ );
 	    attribflds_ += attrbox;
-	    xtable_->setCellObject( RowCol(idx,0), attrbox->attachObj() );
+	    xtable_->setCellGroup( RowCol(idx,0), attrbox );
 	}
     }
     xtable_->display( nrxvars_ );

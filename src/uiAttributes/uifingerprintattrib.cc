@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          February  2006
- RCS:           $Id: uifingerprintattrib.cc,v 1.47 2008-05-30 07:11:54 cvsnageswara Exp $
+ RCS:           $Id: uifingerprintattrib.cc,v 1.48 2008-06-27 10:27:36 cvsjaap Exp $
 
 ________________________________________________________________________
 
@@ -223,7 +223,7 @@ void uiFingerPrintAttrib::initTable( int nrrows )
 	uiAttrSel* attrbox = new uiAttrSel( 0, 0, is2d_, "" );
 	attrbox->setBorder( 0 );
 	attribflds_ += attrbox;
-	table_->setCellObject( RowCol(idx,0), attrbox->attachObj() );
+	table_->setCellGroup( RowCol(idx,0), attrbox );
     }
 
     setAttrSelName( attribflds_ );
@@ -236,7 +236,7 @@ void uiFingerPrintAttrib::insertRowCB( CallBacker* cb )
     uiAttrSel* attrbox = new uiAttrSel( 0, 0, is2d_, "" );
     attrbox->setDescSet( ads_ );
     attribflds_.insertAt( attrbox, newrow );
-    table_->setCellObject( RowCol(newrow,0), attrbox->attachObj() );
+    table_->setCellGroup( RowCol(newrow,0), attrbox );
     
     TypeSet<int> weights = calcobj_->getWeights();
     weights.insert( newrow, 1);
@@ -252,7 +252,6 @@ void uiFingerPrintAttrib::deleteRowCB( CallBacker* cb )
     if ( row2rm<0 || row2rm >= attribflds_.size() )
 	return;
 
-    delete attribflds_[row2rm];
     attribflds_.remove( row2rm );
     setAttrSelName( attribflds_ );
 
