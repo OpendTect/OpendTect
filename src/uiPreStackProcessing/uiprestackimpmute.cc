@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
 Date:		June 2008
- RCS:		$Id: uiprestackimpmute.cc,v 1.5 2008-06-26 05:30:51 cvsumesh Exp $
+ RCS:		$Id: uiprestackimpmute.cc,v 1.6 2008-06-27 04:35:20 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,11 +28,14 @@ ________________________________________________________________________
 #include "horsampling.h"
 #include "survinfo.h"
 
+namespace PreStack
+{
+
 
 uiImportMute::uiImportMute( uiParent* p )
     : uiDialog( p,uiDialog::Setup("Import Mute","Specify Parameters",0) )
     , ctio_( *mMkCtxtIOObj(MuteDef) )
-    , fd_( *PreStack::MuteAscIO::getDesc() )
+    , fd_( *MuteAscIO::getDesc() )
 {
     setCtrlStyle( DoAndStay );
 
@@ -79,7 +82,7 @@ uiImportMute::~uiImportMute()
 void uiImportMute::formatSel( CallBacker* )
 {
     inlcrlfld_->display( !haveInpPosData() );
-    PreStack::MuteAscIO::updateDesc( fd_, haveInpPosData() );
+    MuteAscIO::updateDesc( fd_, haveInpPosData() );
 }
 
 
@@ -98,7 +101,7 @@ void uiImportMute::changePrefPosInfo( CallBacker* cb )
 
 bool uiImportMute::acceptOK( CallBacker* )
 {
-    PreStack::MuteDef mutedef;
+    MuteDef mutedef;
 
     if ( !*inpfld_->fileName() )
 	mErrRet( "Please select the input file" );
@@ -107,7 +110,7 @@ bool uiImportMute::acceptOK( CallBacker* )
     if ( !sd.usable() )
 	mErrRet( "Cannot open input file" )
 
-    PreStack::MuteAscIO muteascio( fd_, *sd.istrm );
+    MuteAscIO muteascio( fd_, *sd.istrm );
 
     if ( haveInpPosData() )
     {
@@ -151,4 +154,4 @@ bool uiImportMute::haveInpPosData() const
     return inpfilehaveposfld_->getBoolValue();
 }
 
-
+};// namespace PreStack
