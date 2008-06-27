@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2004
- RCS:           $Id: uimpepartserv.cc,v 1.68 2008-03-31 10:42:02 cvsnageswara Exp $
+ RCS:           $Id: uimpepartserv.cc,v 1.69 2008-06-27 06:10:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -515,9 +515,10 @@ bool uiMPEPartServer::saveSetup( const MultiID& mid )
 	if ( attrset->getDesc(descid) )
 	    usedattribids += descid;
     }
-    Attrib::DescSet* ads = attrset->optimizeClone( usedattribids );
+
+    PtrMan<Attrib::DescSet> ads = attrset->optimizeClone( usedattribids );
     IOPar attrpar;
-    if ( ads ) 
+    if ( ads.ptr() ) 
 	ads->fillPar( attrpar );
     iopar.mergeComp( attrpar, "Attribs" );
 
