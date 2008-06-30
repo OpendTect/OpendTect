@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.13 2008-06-30 10:46:20 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.14 2008-06-30 12:47:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -570,7 +570,6 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     , plotter_(*new uiDataPointSetCrossPlotter(this,uidps,defsetup_))
     , disptb_(*new uiToolBar(this,"Crossplot display toolbar"))
     , maniptb_(*new uiToolBar(this,"Crossplot manipulation toolbar"))
-    , rbissel_(true)
     , grpfld_(0)
 {
     windowClosed.notify( mCB(this,uiDataPointSetCrossPlotWin,closeNotif) );
@@ -593,14 +592,6 @@ uiDataPointSetCrossPlotWin::uiDataPointSetCrossPlotWin( uiDataPointSet& uidps )
     disptb_.turnOn( showy2tbid_, plotter_.doy2_ );
 
 /*
-    disptb_.addButton( "zoombackward.png",
-			mCB(this,uiDataPointSetCrossPlotWin,unZoom),
-			"Unzoom", false );
-
-    selzoomtbid_ = maniptb_.addButton( "selzoom.png",
-	    	  mCB(this,uiDataPointSetCrossPlotWin,selZoom),
-		      "Toggle zoom/select", true );
-    maniptb_.turnOn( selzoomtbid_, rbissel_ );
     maniptb_.addButton( "delsel.png",
 			mCB(this,uiDataPointSetCrossPlotWin,delSel),
 			"Delete selected", false );
@@ -641,14 +632,6 @@ void uiDataPointSetCrossPlotWin::showY2( CallBacker* )
 }
 
 
-void uiDataPointSetCrossPlotWin::showBD( CallBacker* )
-{
-    // plotter_.dobd_ = disptb_.isOn( showbdtbid_ );
-    plotter_.update();
-    uiMSG().message( "Under construction: data density backdrop" );
-}
-
-
 void uiDataPointSetCrossPlotWin::eachChg( CallBacker* )
 {
     if ( mIsUdf(plotter_.eachrow_) ) return; // window is closing
@@ -669,18 +652,9 @@ void uiDataPointSetCrossPlotWin::grpChg( CallBacker* )
 }
 
 
-void uiDataPointSetCrossPlotWin::selZoom( CallBacker* )
-{
-    rbissel_ = maniptb_.isOn( selzoomtbid_ );
-}
 
 
 void uiDataPointSetCrossPlotWin::delSel( CallBacker* )
-{
-}
-
-
-void uiDataPointSetCrossPlotWin::unZoom( CallBacker* )
 {
 }
 
