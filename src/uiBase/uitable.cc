@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          12/02/2003
- RCS:           $Id: uitable.cc,v 1.71 2008-06-27 10:27:36 cvsjaap Exp $
+ RCS:           $Id: uitable.cc,v 1.72 2008-06-30 09:38:42 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -728,7 +728,7 @@ bool uiTable::isColumnReadOnly( int col ) const
 	}
     }
 
-    return nrro == nritems;
+    return nritems && nritems==nrro;
 }
 
 
@@ -747,7 +747,7 @@ bool uiTable::isRowReadOnly( int row ) const
 	}
     }
 
-    return nrro == nritems;
+    return nritems && nritems==nrro;
 }
 
 
