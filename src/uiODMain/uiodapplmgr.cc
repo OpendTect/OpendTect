@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.255 2008-06-27 04:41:25 cvsumesh Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.256 2008-06-30 06:22:45 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ________________________________________________________________________
 #include "uiimphorizon2d.h"
 #include "uinlapartserv.h"
 #include "uiprestackimpmute.h"
+#include "uiprestackexpmute.h"
 #include "uiseispartserv.h"
 #include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
@@ -290,8 +291,14 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
     case MDef:
         if ( at == Imp )
 	{
-	    PreStack:: uiImportMute dlg( &appl_ );
-	    dlg.go();
+	    PreStack:: uiImportMute dlgimp( &appl_ );
+	    dlgimp.go();
+	}
+
+	if ( at == Exp )
+	{
+	    PreStack::uiExportMute dlgexp( &appl_ );
+	    dlgexp.go();
 	}
     break;
     case Strat:

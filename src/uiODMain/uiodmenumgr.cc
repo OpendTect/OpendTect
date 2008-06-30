@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.130 2008-06-27 04:41:25 cvsumesh Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.131 2008-06-30 06:22:46 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -248,6 +248,8 @@ void uiODMenuMgr::fillExportMenu()
     expmnu_->insertItem( expflt );
 
     mInsertItem( expmnu_, "&Picksets ...", mExpPickMnuItm );
+
+    mInsertItem( expmnu_, "&Mute Function ...", mExpMuteDefMnuItm );
 
     expmnus_.erase();
     expmnus_.allowNull();
@@ -585,7 +587,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mExpPickMnuItm: 	mDoOp(Exp,Pick,0); break;
     case mImpWvltMnuItm: 	mDoOp(Imp,Wvlt,0); break;
     case mImpFaultMnuItm: 	mDoOp(Imp,Flt,0); break;
-    case mImpMuteDefMnuItm:	mDoOp(Imp,MDef,0); break;				
+    case mImpMuteDefMnuItm:	mDoOp(Imp,MDef,0); break;
+    case mExpMuteDefMnuItm:     mDoOp(Exp,MDef,0); break;				
 
     case mManSeisMnuItm: 	mDoOp(Man,Seis,0); break;
     case mManHor3DMnuItm: 	mDoOp(Man,Hor,2); break;
