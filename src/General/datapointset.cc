@@ -4,7 +4,7 @@
  * DATE     : Jan 2005
 -*/
 
-static const char* rcsID = "$Id: datapointset.cc,v 1.22 2008-04-08 16:16:33 cvsbert Exp $";
+static const char* rcsID = "$Id: datapointset.cc,v 1.23 2008-06-30 12:47:54 cvsbert Exp $";
 
 #include "datapointset.h"
 #include "datacoldef.h"
@@ -181,6 +181,7 @@ DataPointSet::DataPointSet( const PosVecDataSet& pdvs, bool is2d, bool mini )
     	, mAddMembs(is2d,mini)
 {
     initPVDS();
+    data_.pars() = pdvs.pars();
 
     const BinIDValueSet& bvs = pdvs.data();
     const int bvssz = bvs.nrVals();
