@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.12 2008-06-30 09:32:56 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.13 2008-06-30 10:46:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -43,6 +43,8 @@ uiDataPointSetCrossPlotter::Setup::Setup()
     , ystyle_(LineStyle::Solid,1,Color::stdDrawColor(0))
     , y2style_(LineStyle::Dot,1,Color::stdDrawColor(1))
     , minborder_(10,20,20,5)
+    , showcc_(true)
+    , showregrline_(true)
 {
 }
 
