@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.11 2008-06-26 16:18:36 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.12 2008-06-30 09:32:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -438,8 +438,7 @@ void uiDataPointSetCrossPlotter::drawData(
 
     const Interval<int> xpixrg( xah.pixRange() ), ypixrg( yah.pixRange() );
 
-    int nrptsdisp = 0;
-    Interval<int> usedxpixrg, usedypixrg;
+    int nrptsdisp = 0; Interval<int> usedxpixrg;
     for ( uiDataPointSet::DRowID rid=0; rid<dps_.size(); rid++ )
     {
 	if ( rid % eachrow_ || dps_.isInactive(rid)
@@ -465,12 +464,9 @@ void uiDataPointSetCrossPlotter::drawData(
 
 	nrptsdisp++;
 	if ( nrptsdisp > 1 )
-	    { usedxpixrg.include( pt.x ); usedypixrg.include( pt.y ); }
+	    usedxpixrg.include( pt.x );
 	else
-	{
 	    usedxpixrg = Interval<int>( pt.x, pt.x );
-	    usedypixrg = Interval<int>( pt.y, pt.y );
-	}
 
     }
 
@@ -493,15 +489,16 @@ void uiDataPointSetCrossPlotter::drawData(
     }
 
     if ( setup_.showregrline_ )
-	drawRegrLine( yah, usedxpixrg, usedypixrg );
+	drawRegrLine( yah, usedxpixrg );
 }
 
 
 void uiDataPointSetCrossPlotter::drawRegrLine( const uiAxisHandler& yah,
-				    Interval<int> xpixrg, Interval<int> ypixrg )
+						const Interval<int>& xpixrg )
 {
     const uiAxisHandler& xah = *x_.axis_;
     const LinStats2D& ls = y_.axis_ == &yah ? lsy1_ : lsy2_;
+    const Interval<int> ypixrg( yah.pixRange() );
     Interval<float> xvalrg( xah.getVal(xpixrg.start), xah.getVal(xpixrg.stop) );
     Interval<float> yvalrg( yah.getVal(ypixrg.start), yah.getVal(ypixrg.stop) );
 
@@ -520,33 +517,43 @@ void uiDataPointSetCrossPlotter::drawRegrLine( const uiAxisHandler& yah,
 	const float yy0 = yvalrg.start; const float xy0 = ls.lp.getXValue( yy0);
 	const float yy1 = yvalrg.stop; const float xy1 = ls.lp.getXValue( yy1 );
 
-	const bool yx0hi = yx0 > yvalrg.stop;
-	const bool yx0lo = yx0 < yvalrg.start;
-	const bool yx1hi = yx1 > yvalrg.stop;
-	const bool yx1lo = yx1 < yvalrg.start;
-	const bool xy0hi = xx0 > xvalrg.stop;
-	const bool xy0lo = xx0 < xvalrg.start;
-	const bool xy1hi = xx1 > xvalrg.stop;
-	const bool xy1lo = xx1 < xvalrg.start;
-	if ( (yx0hi && yx1hi) || (yx0lo && yx1lo) )
-	    return; // line doesn't cross rectangle
-	if ( !yx0hi && !yx1hi && !yx0lo && !yx1lo )
-	    { from.y = yah.getPix( yx0 ); to.x = yah.getPix( yx1 ); }
-	    // line goes through left and right sides
-	else if ( !xy0hi && !xy1hi && !xy0lo && !xy1lo )
-	    { from.x = xah.getPix( xy0 ); to.x = xah.getPix( xy1 ); }
-	    // line goes through top and bottom
-	else
+	const bool yx0ok = yvalrg.includes( yx0 );
+	const bool yx1ok = yvalrg.includes( yx1 );
+	const bool xy0ok = xvalrg.includes( xy0 );
+	const bool xy1ok = xvalrg.includes( xy1 );
+
+	if ( !yx0ok && !yx1ok && !xy0ok && !xy1ok )
+	    return;
+
+	if ( yx0ok )
 	{
-	    // line goes through two perpendicular sides
-	    if ( yx0lo )
-		{ from.x = xah.getPix( xy0 ); to.y = yah.getPix( yx1 ); }
-	    else if ( yx0hi )
-		{ from.x = xah.getPix( xy1 ); to.y = yah.getPix( yx1 ); }
-	    else if ( xy0lo )
-		{ from.y = yah.getPix( yx0 ); to.x = xah.getPix( xy1 ); }
-	    else if ( xy1lo )
-		{ from.y = yah.getPix( yx0 ); to.x = xah.getPix( xy0 ); }
+	    from.x = xah.getPix( xx0 ); from.y = yah.getPix( yx0 );
+	    if ( yx1ok )
+		{ to.x = xah.getPix( xx1 ); to.y = yah.getPix( yx1 ); }
+	    else if ( xy0ok )
+		{ to.x = xah.getPix( xy0 ); to.y = yah.getPix( yy0 ); }
+	    else if ( xy1ok )
+		{ to.x = xah.getPix( xy1 ); to.y = yah.getPix( yy1 ); }
+	    else
+		return;
+	}
+	else if ( yx1ok )
+	{
+	    from.x = xah.getPix( xx1 ); from.y = yah.getPix( yx1 );
+	    if ( xy0ok )
+		{ to.x = xah.getPix( xy0 ); to.y = yah.getPix( yy0 ); }
+	    else if ( xy1ok )
+		{ to.x = xah.getPix( xy1 ); to.y = yah.getPix( yy1 ); }
+	    else
+		return;
+	}
+	else if ( xy0ok )
+	{
+	    from.x = xah.getPix( xy0 ); from.y = yah.getPix( yy0 );
+	    if ( xy1ok )
+		{ to.x = xah.getPix( xy1 ); to.y = yah.getPix( yy1 ); }
+	    else
+		return;
 	}
     }
 
@@ -655,6 +662,7 @@ void uiDataPointSetCrossPlotWin::grpChg( CallBacker* )
 {
     if ( !grpfld_ ) return;
     plotter_.curgrp_ = grpfld_->currentItem();
+    plotter_.dataChanged();
     plotter_.update();
 }
 

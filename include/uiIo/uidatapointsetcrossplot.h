@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.h,v 1.7 2008-06-26 16:18:36 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.h,v 1.8 2008-06-30 09:32:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -136,7 +136,7 @@ public:
     int				getRow(const AxisData&,uiPoint) const;
     void 			drawData(const AxisData&);
     void 			drawRegrLine(const uiAxisHandler&,
-	    				     Interval<int>,Interval<int>);
+	    				     const Interval<int>&);
 
     friend class		uiDataPointSetCrossPlotWin;
     friend class		AxisData;
