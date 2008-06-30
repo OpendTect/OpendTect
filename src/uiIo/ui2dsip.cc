@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Oct 2004
- RCS:		$Id: ui2dsip.cc,v 1.5 2006-12-20 13:40:41 cvsbert Exp $
+ RCS:		$Id: ui2dsip.cc,v 1.6 2008-06-30 13:02:19 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,9 +72,9 @@ bool ui2DSurvInfoProvider::getInfo( uiDialog* din, CubeSampling& cs,
     if ( nrcrl < 2 )
 	mErrRet("Y distance is less than one trace distance")
 
-    cs.hrg.start.inl = cs.hrg.start.crl = 1000;
+    cs.hrg.start.inl = cs.hrg.start.crl = 10000;
     cs.hrg.step.inl = cs.hrg.step.crl = 1;
-    cs.hrg.stop.inl = 1000 + nrinl - 1; cs.hrg.stop.crl = 1000 + nrcrl - 1;
+    cs.hrg.stop.inl = 10000 + nrinl - 1; cs.hrg.stop.crl = 10000 + nrcrl - 1;
 
     Coord cmax( c0.x + tdist*(nrinl-1), c0.y + tdist*(nrcrl-1) );
     if ( cmax.x < c0.x ) Swap( cmax.x, c0.x );
