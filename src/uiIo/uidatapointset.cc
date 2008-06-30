@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.20 2008-06-13 12:28:25 cvsbert Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.21 2008-06-30 12:48:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,6 +40,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 
 static const int cNrPosCols = 3;
+static const char* sKeyGroups = "Groups";
 
 
 uiDataPointSet::Setup::Setup( const char* wintitl, bool ismodal )
@@ -832,6 +833,8 @@ void uiDataPointSet::retrieve( CallBacker* )
     MouseCursorManager::setOverride( MouseCursor::Wait );
     tbl_->clearTable();
     dps_ = *newdps;
+    grpnames_.deepErase();
+    dps_.dataSet().pars().get( sKeyGroups, grpnames_ );
 
     const int nrcols = initVars();
     tbl_->setNrRows( size() );
@@ -938,6 +941,8 @@ bool uiDataPointSet::doSave()
     MouseCursorManager::setOverride( MouseCursor::Wait );
     DataPointSet savedps( dps_ );
     savedps.dataSet().pars() = storepars_;
+    if ( !grpnames_.isEmpty() )
+	savedps.dataSet().pars().set( sKeyGroups, grpnames_ );
     savedps.purgeInactive();
     BufferString errmsg;
     const bool ret = savedps.dataSet().
