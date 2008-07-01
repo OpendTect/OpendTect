@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.cc,v 1.11 2008-05-30 04:10:33 cvsnanne Exp $
+ RCS:           $Id: uicoltabman.cc,v 1.12 2008-07-01 04:13:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,7 +102,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
     nrsegbox_->attach( rightTo, segmentfld_ );
 
     undefcolfld_ = new uiColorInput( maingrp, uiColorInput::
-	    Setup( ctab_.undefColor()).lbltxt("Select color") );
+	    Setup( ctab_.undefColor()).lbltxt("Undefined color") );
     undefcolfld_->enableAlphaSetting( true );
     undefcolfld_->colorchanged.notify( mCB(this,uiColorTableMan,undefColSel) );
     undefcolfld_->attach( alignedBelow, nrsegbox_ );
