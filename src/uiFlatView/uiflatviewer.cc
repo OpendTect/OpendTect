@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.55 2008-06-02 10:32:13 cvshelene Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.56 2008-07-01 21:29:00 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -230,8 +230,7 @@ void uiFlatViewer::drawBitMaps()
 	    offs = vdbmpmgr_->dataOffs( wr_, uisz );
     }
 
-
-    if ( hasdata )
+    if ( hasdata && (datachgd || mIsUdf(offs.x)) )
     {
 	wvabmpmgr_->setupChg(); vdbmpmgr_->setupChg();
 	if ( !mkBitmaps(offs) )
