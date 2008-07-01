@@ -4,14 +4,15 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.199 2008-06-16 19:46:46 cvskris Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.200 2008-07-01 09:13:24 cvsnanne Exp $";
 
 #include "visplanedatadisplay.h"
 
 #include "arrayndimpl.h"
-#include "attribsel.h"
 #include "attribdatacubes.h"
 #include "attribdatapack.h"
+#include "attribsel.h"
+#include "coltabsequence.h"
 #include "cubesampling.h"
 #include "datapointset.h"
 #include "iopar.h"
@@ -19,8 +20,8 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.199 2008-06-16 19:46
 #include "settings.h"
 #include "simpnumer.h"
 #include "survinfo.h"
-#include "vismaterial.h"
-#include "vistexturecoords.h"
+
+#include "viscolortab.h"
 #include "viscoord.h"
 #include "visdataman.h"
 #include "visdepthtabplanedragger.h"
@@ -28,9 +29,11 @@ static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.199 2008-06-16 19:46
 #include "visfaceset.h"
 #include "visevent.h"
 #include "visgridlines.h"
+#include "vismaterial.h"
 #include "vismultitexture2.h"
 #include "vispickstyle.h"
 #include "vissplittexture2rectangle.h"
+#include "vistexturecoords.h"
 #include "vistransform.h"
 #include "zaxistransform.h"
 #include "zaxistransformdatapack.h"
@@ -414,27 +417,6 @@ void PlaneDataDisplay::coltabChanged( CallBacker* )
     showManipulator( true );
     showManipulator( false );
 }
-
-
-/*
-SurveyObject* PlaneDataDisplay::duplicate() const
-{
-    PlaneDataDisplay* pdd = create();
-    pdd->setOrientation( orientation_ );
-    pdd->setCubeSampling( getCubeSampling() );
-    pdd->setResolution( getResolution() );
-
-    int ctid = pdd->getColTabID();
-    visBase::DataObject* obj = ctid>=0 ? visBase::DM().getObject( ctid ) : 0;
-    mDynamicCastGet(visBase::VisColorTab*,nct,obj);
-    if ( nct )
-    {
-	const char* ctnm = texture_->getColorTab().colorSeq().colors().name();
-	nct->colorSeq().loadFromStorage( ctnm );
-    }
-    return pdd;
-}
-*/
 
 
 void PlaneDataDisplay::showManipulator( bool yn )
@@ -1058,55 +1040,6 @@ bool PlaneDataDisplay::getCacheValue( int attrib, int version,
 }
 
 
-void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
-{
-    MultiTextureSurveyObject::fillPar( par, saveids );
-
-    par.set( sKeyOrientation(), eString(Orientation,orientation_) );
-    getCubeSampling( false, true ).fillPar( par );
-
-    const int gridlinesid = gridlines_->id();
-    par.set( sKeyGridLinesID(), gridlinesid );
-    if ( saveids.indexOf(gridlinesid) == -1 ) saveids += gridlinesid;
-}
-
-
-int PlaneDataDisplay::usePar( const IOPar& par )
-{
-    const int res =  MultiTextureSurveyObject::usePar( par );
-    if ( res!=1 ) return res;
-
-    const char* orires = par.find( sKeyOrientation() );
-    if ( orires && *orires )
-	setOrientation( eEnum(Orientation,orires) );
-
-    CubeSampling cs;
-    if ( cs.usePar( par ) )
-    {
-	csfromsession_ = cs;
-	setCubeSampling( cs );
-    }
-
-    int gridlinesid;
-    if ( par.get(sKeyGridLinesID(),gridlinesid) )
-    { 
-        DataObject* dataobj = visBase::DM().getObject( gridlinesid );
-        if ( !dataobj ) return 0;
-        mDynamicCastGet(visBase::GridLines*,gl,dataobj)
-        if ( !gl ) return -1;
-	removeChild( gridlines_->getInventorNode() );
-	gridlines_->unRef();
-	gridlines_ = gl;
-	gridlines_->ref();
-	gridlines_->setPlaneCubeSampling( cs );
-	insertChild( childIndex(texture_->getInventorNode()),
-		     gridlines_->getInventorNode() );
-    }
-
-    return 1;
-}
-
-
 bool PlaneDataDisplay::isVerticalPlane() const
 {
     return orientation_ != PlaneDataDisplay::Timeslice;
@@ -1157,6 +1090,83 @@ void PlaneDataDisplay::updateMouseCursorCB( CallBacker* cb )
     if ( !newstatus ) mousecursor_.shape_ = MouseCursor::NotSet;
     else if ( newstatus==1 ) mousecursor_.shape_ = MouseCursor::PointingHand;
     else mousecursor_.shape_ = MouseCursor::SizeAll;
+}
+
+
+SurveyObject* PlaneDataDisplay::duplicate() const
+{
+    PlaneDataDisplay* pdd = create();
+    pdd->setOrientation( orientation_ );
+    pdd->setCubeSampling( getCubeSampling(false,true,0) );
+
+    while ( nrAttribs() > pdd->nrAttribs() )
+	pdd->addAttrib();
+
+    for ( int idx=0; idx<nrAttribs(); idx++ )
+    {
+	if ( !getSelSpec(idx) ) continue;
+
+	pdd->setSelSpec( idx, *getSelSpec(idx) );
+	pdd->setDataPackID( idx, getDataPackID(idx) );
+
+	const int ctid = pdd->getColTabID( idx );
+	visBase::DataObject* obj = ctid>=0 ? visBase::DM().getObject(ctid) : 0;
+	mDynamicCastGet(visBase::VisColorTab*,vct,obj);
+	if ( vct )
+	    vct->colorSeq().loadFromStorage(
+		    texture_->getColorTab(idx).colorSeq().colors().name() );
+    }
+
+    return pdd;
+}
+
+
+void PlaneDataDisplay::fillPar( IOPar& par, TypeSet<int>& saveids ) const
+{
+    MultiTextureSurveyObject::fillPar( par, saveids );
+
+    par.set( sKeyOrientation(), eString(Orientation,orientation_) );
+    getCubeSampling( false, true ).fillPar( par );
+
+    const int gridlinesid = gridlines_->id();
+    par.set( sKeyGridLinesID(), gridlinesid );
+    if ( saveids.indexOf(gridlinesid) == -1 ) saveids += gridlinesid;
+}
+
+
+int PlaneDataDisplay::usePar( const IOPar& par )
+{
+    const int res =  MultiTextureSurveyObject::usePar( par );
+    if ( res!=1 ) return res;
+
+    const char* orires = par.find( sKeyOrientation() );
+    if ( orires && *orires )
+	setOrientation( eEnum(Orientation,orires) );
+
+    CubeSampling cs;
+    if ( cs.usePar( par ) )
+    {
+	csfromsession_ = cs;
+	setCubeSampling( cs );
+    }
+
+    int gridlinesid;
+    if ( par.get(sKeyGridLinesID(),gridlinesid) )
+    { 
+        DataObject* dataobj = visBase::DM().getObject( gridlinesid );
+        if ( !dataobj ) return 0;
+        mDynamicCastGet(visBase::GridLines*,gl,dataobj)
+        if ( !gl ) return -1;
+	removeChild( gridlines_->getInventorNode() );
+	gridlines_->unRef();
+	gridlines_ = gl;
+	gridlines_->ref();
+	gridlines_->setPlaneCubeSampling( cs );
+	insertChild( childIndex(texture_->getInventorNode()),
+		     gridlines_->getInventorNode() );
+    }
+
+    return 1;
 }
 
 

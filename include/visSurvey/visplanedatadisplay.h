@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kris Tingdahl
  Date:		Jan 2002
- RCS:		$Id: visplanedatadisplay.h,v 1.107 2008-03-25 16:38:32 cvsnanne Exp $
+ RCS:		$Id: visplanedatadisplay.h,v 1.108 2008-07-01 09:13:24 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -127,6 +127,9 @@ public:
 						 returned.
 				    \returns	combination of OD::ButtonState*/
     bool                	isVerticalPlane() const;
+
+    virtual bool		canDuplicate() const	{ return true; }
+    virtual SurveyObject*	duplicate() const;
    
     const TypeSet<DataPack::ID>* getDisplayDataPackIDs(int attrib);
 
