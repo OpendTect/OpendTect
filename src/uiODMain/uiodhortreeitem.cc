@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodhortreeitem.cc,v 1.2 2008-02-15 07:40:12 cvsnanne Exp $
+ RCS:		$Id: uiodhortreeitem.cc,v 1.3 2008-07-01 10:04:35 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -13,8 +13,6 @@ ___________________________________________________________________
 
 #include "emhorizon2d.h"
 #include "emhorizon3d.h"
-#include "emhorizonztransform.h"
-#include "emmanager.h"
 #include "survinfo.h"
 
 #include "uiattribpartserv.h"
@@ -135,7 +133,6 @@ uiODHorizonTreeItem::uiODHorizonTreeItem( int id, bool )
 
 void uiODHorizonTreeItem::initMenuItems()
 {
-    createflatscenemnuid_.text = "&Create flattened scene";
     algomnuitem_.text = "&Algorithms";
     fillholesmnuitem_.text = "Fill &holes ...";
     filterhormnuitem_.text = "&Filter ...";
@@ -191,11 +188,11 @@ void uiODHorizonTreeItem::createMenuCB( CallBacker* cb )
 	mResetMenuItem( &fillholesmnuitem_ );
 	mResetMenuItem( &filterhormnuitem_ );
 	mResetMenuItem( &snapeventmnuitem_ );
-	mResetMenuItem( &createflatscenemnuid_ );
+	mResetMenuItem( &createflatscenemnuitem_ );
     }
     else
     {
-	mAddMenuItem( menu, &createflatscenemnuid_, true, false );
+	mAddMenuItem( menu, &createflatscenemnuitem_, true, false );
 
 	const bool islocked = visserv_->isLocked( displayID() );
 	mAddMenuItem( menu, &algomnuitem_, true, false );
@@ -225,29 +222,6 @@ void uiODHorizonTreeItem::handleMenuCB( CallBacker* cb )
 	applMgr()->visServer()->setObjectName( displayid_,
 		(const char*) applMgr()->EMServer()->getName(emid_) );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
-    }
-    else if ( mnuid==createflatscenemnuid_.id )
-    {
-	const int sceneid = ODMainWin()->sceneMgr().addScene( false );
-    	mDynamicCastGet(visSurvey::EMObjectDisplay*,
-	    	    emd,visserv_->getObject(displayid_));
-	const EM::ObjectID objectid = emd->getObjectID();
-	mDynamicCastGet(const EM::Horizon3D*,horizon,
-			EM::EMM().getObject( objectid ) );
-
-	if ( !horizon ) return;
-	RefMan<ZAxisTransform> transform = new EM::HorizonZTransform(horizon);
-	mDynamicCastGet(visSurvey::Scene*,scene,
-	    applMgr()->visServer()->getObject(sceneid));
-	if ( !scene ) return;
-
-	BufferString scenenm = "Flattened on '";
-	scenenm += horizon->name(); scenenm += "'";
-
-	ODMainWin()->sceneMgr().setSceneName( sceneid, scenenm );
-	scene->setDataTransform( transform );
-	ODMainWin()->sceneMgr().viewAll( 0 );
-	ODMainWin()->sceneMgr().tile();
     }
     else
 	handled = false;
@@ -378,11 +352,13 @@ void uiODHorizon2DTreeItem::createMenuCB( CallBacker* cb )
     if ( menu->menuID()!=displayID() )
     {
 	mResetMenuItem( &derive3dhormnuitem_ );
+	mResetMenuItem( &createflatscenemnuitem_ );
     }
     else
     {
 	const bool isempty = applMgr()->EMServer()->isEmpty(emid_);
 	mAddMenuItem( menu, &derive3dhormnuitem_, !isempty, false );
+	mAddMenuItem( menu, &createflatscenemnuitem_, !isempty, false );
     }
 	
 }

@@ -4,27 +4,28 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.32 2008-05-28 14:20:32 cvskris Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.33 2008-07-01 10:04:35 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
 
 #include "uiodemsurftreeitem.h"
 
-#include "uimenu.h"
-#include "uiodapplmgr.h"
-#include "uivispartserv.h"
-#include "uilistview.h"
-#include "uimenuhandler.h"
-
 #include "datapointset.h"
+#include "emhorizon.h"
+#include "emhorizonztransform.h"
+#include "emmanager.h"
 
 #include "uiattribpartserv.h"
 #include "uiempartserv.h"
+#include "uimenu.h"
+#include "uimenuhandler.h"
 #include "uimpepartserv.h"
 #include "uimsg.h"
+#include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uivisemobj.h"
+#include "uivispartserv.h"
 #include "visemobjdisplay.h"
 
 
@@ -46,6 +47,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     : uiODDisplayTreeItem()
     , emid_(nemid)
     , uivisemobj_(0)
+    , createflatscenemnuitem_("&Create flattened scene")
     , savemnuitem_("Save")
     , saveasmnuitem_("Save as ...")
     , enabletrackingmnuitem_("Enable tracking")
@@ -342,6 +344,7 @@ void uiODEarthModelSurfaceTreeItem::createMenuCB( CallBacker* cb )
 #else
     mResetMenuItem( &reloadmnuitem_ );
 #endif
+    mResetMenuItem( &createflatscenemnuitem_ );
 }
 
 
@@ -446,5 +449,28 @@ void uiODEarthModelSurfaceTreeItem::handleMenuCB( CallBacker* cb )
 	const int trackerid = mps->getTrackerID(emid_);
 	mps->enableTracking( trackerid, !mps->isTrackingEnabled(trackerid) );
 	applMgr()->visServer()->updateMPEToolbar();
+    }
+    else if ( mnuid==createflatscenemnuitem_.id )
+    {
+	const int sceneid = ODMainWin()->sceneMgr().addScene( false );
+    	mDynamicCastGet(visSurvey::EMObjectDisplay*,
+			emd,visserv_->getObject(displayid_));
+	const EM::ObjectID objectid = emd->getObjectID();
+	mDynamicCastGet(const EM::Horizon*,horizon,
+			EM::EMM().getObject( objectid ) );
+
+	if ( !horizon ) return;
+	RefMan<ZAxisTransform> transform = new EM::HorizonZTransform(horizon);
+	mDynamicCastGet(visSurvey::Scene*,scene,
+	    applMgr()->visServer()->getObject(sceneid));
+	if ( !scene ) return;
+
+	BufferString scenenm = "Flattened on '";
+	scenenm += horizon->name(); scenenm += "'";
+
+	ODMainWin()->sceneMgr().setSceneName( sceneid, scenenm );
+	scene->setDataTransform( transform );
+	ODMainWin()->sceneMgr().viewAll( 0 );
+	ODMainWin()->sceneMgr().tile();
     }
 }

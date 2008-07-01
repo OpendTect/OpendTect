@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		May 2006
- RCS:		$Id: uiodhortreeitem.h,v 1.2 2008-02-07 19:38:57 cvsyuancheng Exp $
+ RCS:		$Id: uiodhortreeitem.h,v 1.3 2008-07-01 10:04:35 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -46,7 +46,6 @@ protected:
     virtual void	createMenuCB(CallBacker*);
     virtual void	handleMenuCB(CallBacker*);
 
-    MenuItem		createflatscenemnuid_;
     MenuItem		algomnuitem_;
     MenuItem		fillholesmnuitem_;
     MenuItem		filterhormnuitem_;
