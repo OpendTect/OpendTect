@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		May 2008
- RCS:		$Id: horizon2dscanner.h,v 1.2 2008-06-18 06:23:48 cvsraman Exp $
+ RCS:		$Id: horizon2dscanner.h,v 1.3 2008-07-02 08:54:36 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,11 +16,10 @@ ________________________________________________________________________
 #include "bufstringset.h"
 #include "posinfo.h"
 #include "ranges.h"
+#include "multiid.h"
 
 class IOPar;
-class MultiID;
 class BinIDValueSet;
-class Seis2DLineSet;
 namespace PosInfo { class Line2DData; }
 namespace EM { class Horizon2DAscIO; }
 namespace Table { class FormatDesc; }
@@ -59,7 +58,7 @@ protected:
     BufferStringSet	filenames_;
     int			fileidx_;
 
-    Seis2DLineSet*	lineset_;
+    MultiID		setid_;
     BufferString	curline_;
     bool		isgeom_;
     bool		isxy_;
