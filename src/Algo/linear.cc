@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: linear.cc,v 1.13 2008-06-26 16:17:37 cvsbert Exp $";
+static const char* rcsID = "$Id: linear.cc,v 1.14 2008-07-02 21:04:05 cvskris Exp $";
 
 
 #include "linear.h"
@@ -12,9 +12,9 @@ static const char* rcsID = "$Id: linear.cc,v 1.13 2008-06-26 16:17:37 cvsbert Ex
 #include "math2.h"
 #include <math.h>
 
-#define mArrVal(arr) (*(arr + idx * offs))
+#define mArrVal(arr) (*(float*)(arr + idx * offs))
 
-static void calcLS( LinStats2D& ls, const float* xvals, const float* yvals,
+static void calcLS( LinStats2D& ls, const char* xvals, const char* yvals,
 		    int nrpts, int offs )
 {
     double sumx = 0, sumy = 0;
@@ -83,14 +83,16 @@ static void calcLS( LinStats2D& ls, const float* xvals, const float* yvals,
 
 void LinStats2D::use( const float* xvals, const float* yvals, int nrpts )
 {
-    calcLS( *this, xvals, yvals, nrpts, 1 );
+    calcLS( *this, (const char*) xvals, (const char*) yvals,
+	    nrpts, sizeof(float) );
 }
 
 
 void LinStats2D::use( const Geom::Point2D<float>* vals, int nrpts )
 {
     if ( nrpts < 1 ) return;
-    calcLS( *this, &vals[0].x, &vals[0].y, nrpts, 2 );
+    calcLS( *this, (const char*) &vals[0].x, (const char*) &vals[0].y, nrpts,
+	    sizeof(Geom::Point2D<float>) );
 }
 
 
