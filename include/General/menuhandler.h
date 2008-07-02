@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2003
- RCS:           $Id: menuhandler.h,v 1.9 2008-03-07 20:58:16 cvskris Exp $
+ RCS:           $Id: menuhandler.h,v 1.10 2008-07-02 12:10:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,11 +59,11 @@ protected:
     virtual void		assignItemID( MenuItem& );
     				/*!< Get a unique id for this item. */
 
-    MenuItemHolder*		parent;
+    MenuItemHolder*		parent_;
 
 private:
-    ObjectSet<MenuItem>		items;
-    BoolTypeSet			manageitems;
+    ObjectSet<MenuItem>		items_;
+    BoolTypeSet			manageitems_;
 };
 
 /*!A generic representation of an item in a menu. */
@@ -90,6 +90,10 @@ public:
     bool			enabled;
     				/*!< If false, the item will be visble, but
 				    not selectable. */
+    BufferString		iconfnm;
+    				//*!< Filename of icon
+    BufferString		tooltip;
+    				//*!< Tooltip if item is used in toolbar
 };
 
 
