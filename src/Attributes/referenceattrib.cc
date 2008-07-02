@@ -4,7 +4,7 @@
  * DATE     : July 2005
 -*/
 
-static const char* rcsID = "$Id: referenceattrib.cc,v 1.20 2007-11-23 11:59:06 cvsbert Exp $";
+static const char* rcsID = "$Id: referenceattrib.cc,v 1.21 2008-07-02 14:23:12 cvshelene Exp $";
 
 
 #include "referenceattrib.h"
@@ -67,8 +67,9 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 {
     const float step = refstep ? refstep : SI().zStep();
     Coord coord;
+    const BinID truepos = currentbid + relpos;
     if ( isOutputEnabled(0) || isOutputEnabled(1) ) 
-	coord = SI().transform( currentbid );
+	coord = SI().transform( truepos );
 
     for ( int idx=0; idx<nrsamples; idx++ )
     {
@@ -90,17 +91,17 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 
 	if ( !is2d_ )
 	{
-	    setOutputValue( output, 3, idx, z0, currentbid.inl );
-	    setOutputValue( output, 4, idx, z0, currentbid.crl );
+	    setOutputValue( output, 3, idx, z0, truepos.inl );
+	    setOutputValue( output, 4, idx, z0, truepos.crl );
 	    setOutputValue( output, 5, idx, z0, z0+idx+1 );
 	    if ( isOutputEnabled(6) )
 	    {
-		const int val = currentbid.inl - SI().inlRange(0).start + 1;
+		const int val = truepos.inl - SI().inlRange(0).start + 1;
 		setOutputValue( output, 6, idx, z0, val );
 	    }
 	    if ( isOutputEnabled(7) )
 	    {
-		const int val = currentbid.crl - SI().crlRange(0).start + 1;
+		const int val = truepos.crl - SI().crlRange(0).start + 1;
 		setOutputValue( output, 7, idx, z0, val );
 	    }
 	    if ( isOutputEnabled(8) )
@@ -111,10 +112,10 @@ bool Reference::computeData( const DataHolder& output, const BinID& relpos,
 	}
 	else
 	{
-	    setOutputValue( output, 3, idx, z0, currentbid.crl );
+	    setOutputValue( output, 3, idx, z0, truepos.crl );
 	    setOutputValue( output, 4, idx, z0, z0+idx+1 );
 	    setOutputValue( output, 5, idx, z0,
-			currentbid.crl - desiredvolume->hrg.start.crl + 1 );
+			    truepos.crl - desiredvolume->hrg.start.crl + 1 );
 	    if ( isOutputEnabled(6) )
 	    {
 		const int val = z0 - mNINT(SI().zRange(0).start/step) + idx + 1;
