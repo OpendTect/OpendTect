@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kris
  Date:          Mar 2007
- RCS:           $Id: flatauxdataeditor.h,v 1.11 2007-10-10 01:13:12 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.h,v 1.12 2008-07-02 14:37:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,6 +50,7 @@ public:
     			/*!<User of the class must ensure that both
 			    the wv and the mouserect are up to date at
 			    all times. */
+    const Geom::PixRectangle<int>& getMouseArea() const { return mousearea_; }
     Rect		getWorldRect(int dataid) const;
     void		limitMovement(const Rect*);
     			/*!<When movement starts, the movement is unlimited.
