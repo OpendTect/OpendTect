@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Feb 2005
- RCS:           $Id: horizon2dscanner.cc,v 1.4 2008-06-23 06:38:52 cvsraman Exp $
+ RCS:           $Id: horizon2dscanner.cc,v 1.5 2008-07-02 08:58:04 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,13 +14,13 @@ ________________________________________________________________________
 #include "emhorizon2d.h"
 #include "ioman.h"
 #include "iopar.h"
-#include "seis2dline.h"
 #include "strmprov.h"
 #include "survinfo.h"
 #include "oddirs.h"
 #include "cubesampling.h"
 #include "keystrs.h"
 #include "tabledef.h"
+#include "uiseispartserv.h"
 
 
 Horizon2DScanner::Horizon2DScanner( const BufferStringSet& fnms,
@@ -29,16 +29,12 @@ Horizon2DScanner::Horizon2DScanner( const BufferStringSet& fnms,
     : Executor("Scan horizon file(s)")
     , fd_(fd)
     , ascio_(0)
-    , lineset_(0)
+    , setid_(setid)
     , isxy_(false)
     , bvalset_(0)
     , fileidx_(0)
 {
     filenames_ = fnms;
-    PtrMan<IOObj> ioobj = IOM().get( setid );
-    if ( ioobj )
-	lineset_ = new Seis2DLineSet( *ioobj );
-
     init();
 }
 
@@ -212,20 +208,15 @@ int Horizon2DScanner::nextStep()
 
     if ( curline_.isEmpty() || curline_ != linenm )
     {
-	linegeom_.posns.erase();
-	LineKey lk( linenm, LineKey::sKeyDefAttrib, true );
-	int lidx = lineset_->indexOf( lk );
-	if ( lidx < 0 )
-	    lidx = lineset_->indexOfFirstOccurrence( linenm );
+	if ( invalidnms_.indexOf(linenm) >= 0 )
+	    return Executor::MoreToDo;
 
-	if ( lidx < 0 )
+	linegeom_.posns.erase();
+	if ( !uiSeisPartServer::get2DLineGeometry(setid_,linenm,linegeom_) )
 	{
 	    invalidnms_.addIfNew( linenm );
 	    return Executor::MoreToDo;
 	}
-
-	if ( !lineset_->getGeometry(lidx,linegeom_) )
-	    return Executor::ErrorOccurred;
 
 	validnms_.addIfNew( linenm );
 	curline_ = linenm;

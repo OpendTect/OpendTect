@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Raman Singh
  Date:          May 2008
- RCS:           $Id: uiimphorizon2d.cc,v 1.6 2008-06-23 06:38:52 cvsraman Exp $
+ RCS:           $Id: uiimphorizon2d.cc,v 1.7 2008-07-02 08:58:04 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,14 +51,10 @@ Horizon2DImporter( const BufferStringSet& lnms,
     , hors_(hors)
     , setid_(setid)
     , bvalset_(valset)
-    , lineset_(0)
     , prevlineidx_(-1)
     , nrdone_(0)
 {
     lineidset_.setSize( hors_.size(), -1 );
-    PtrMan<IOObj> ioobj = IOM().get( setid );
-    if ( ioobj )
-	lineset_ = new Seis2DLineSet( *ioobj );
 }
 
 
@@ -76,7 +72,7 @@ int nrDone() const
 
 int nextStep()
 {
-    if ( !bvalset_ || !lineset_ ) return Executor::ErrorOccurred;
+    if ( !bvalset_ ) return Executor::ErrorOccurred;
     if ( !bvalset_->next(pos_) ) return Executor::Finished;
 
     BinID bid;
@@ -94,15 +90,7 @@ int nextStep()
 	prevlineidx_ = bid.inl;
 	prevtrcnr_ = -1;
 	linegeom_.posns.erase();
-	LineKey lk( linenm, LineKey::sKeyDefAttrib, true );
-	int lidx = lineset_->indexOf( lk );
-	if ( lidx < 0 )
-	    lidx = lineset_->indexOfFirstOccurrence( linenm );
-
-	if ( lidx < 0 )
-	    return Executor::ErrorOccurred;
-
-	if ( !lineset_->getGeometry(lidx,linegeom_) )
+	if ( !uiSeisPartServer::get2DLineGeometry(setid_,linenm,linegeom_) )
 	    return Executor::ErrorOccurred;
 
 	for ( int hdx=0; hdx<hors_.size(); hdx++ )
@@ -197,7 +185,6 @@ protected:
     const BinIDValueSet*	bvalset_;
     TypeSet<int>		lineidset_;
     PosInfo::Line2DData		linegeom_;
-    Seis2DLineSet*		lineset_;
     int				nrdone_;
     int				prevtrcnr_;
     int				curtrcnr_;
