@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          03/03/2000
- RCS:           $Id: uidrawable.cc,v 1.7 2007-03-28 12:20:46 cvsbert Exp $
+ RCS:           $Id: uidrawable.cc,v 1.8 2008-07-03 13:07:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,3 +33,11 @@ ioDrawTool& uiDrawableObj::drawTool()
     if ( !drwbl ) pErrMsg("body() is not ioDrawArea. Crash follows");
     return drwbl->drawTool();
 }
+
+
+MouseEventHandler& uiDrawableObj::getMouseEventHandler()
+{ return mousehandler_; }
+
+
+KeyboardEventHandler& uiDrawableObj::getKeyboardEventHandler()
+{ return keyboardhandler_; }

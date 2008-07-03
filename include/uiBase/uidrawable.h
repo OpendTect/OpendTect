@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: uidrawable.h,v 1.12 2007-03-28 12:20:46 cvsbert Exp $
+ RCS:           $Id: uidrawable.h,v 1.13 2008-07-03 13:07:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiobj.h"
 #include "iodrawtool.h"
 #include "mouseevent.h"
+#include "keyboardevent.h"
 
 class uiDrawableObj : public uiObject, public ioDrawArea
 {
@@ -37,12 +38,12 @@ public:
     OD::ButtonState	rubberBandButton()
     			{ return rubberbandbutton_; }
 
-    MouseEventHandler&	getMouseEventHandler()
-			{ return mousehandler_; }
+    MouseEventHandler&		getMouseEventHandler();
+    KeyboardEventHandler&	getKeyboardEventHandler();
 
-    Notifier<uiDrawableObj> preDraw;
-    Notifier<uiDrawableObj> postDraw;
-    Notifier<uiDrawableObj> reSized;
+    Notifier<uiDrawableObj>	preDraw;
+    Notifier<uiDrawableObj>	postDraw;
+    Notifier<uiDrawableObj>	reSized;
 
 mProtected:
 
@@ -75,7 +76,8 @@ Subclasses can override this method to do some additional drawing.
 
 private:
 
-    MouseEventHandler	mousehandler_;
+    MouseEventHandler		mousehandler_;
+    KeyboardEventHandler 	keyboardhandler_;
 
 };
 
