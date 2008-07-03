@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2007
- RCS:           $Id: keyboardevent.h,v 1.1 2007-10-26 05:33:13 cvsnanne Exp $
+ RCS:           $Id: keyboardevent.h,v 1.2 2008-07-03 13:02:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,17 +20,12 @@ class KeyboardEvent
 public:
  				KeyboardEvent();
 
-    const Geom::Point2D<int>&	pos() const	{ return pos_; }
-    int				x() const	{ return pos_.x; }
-    int				y() const	{ return pos_.y; }
+    OD::KeyboardKey		key_;		
+    OD::ButtonState		modifier_;	//Alt/Ctrl/Shift++
+    bool			isrepeat_;
 
     bool			operator ==(const KeyboardEvent&) const;
-    bool			operator !=( const KeyboardEvent& ev ) const
-				{ return !(*this==ev); }
-
-protected:
-
-    Geom::Point2D<int>		pos_;
+    bool			operator !=( const KeyboardEvent& ev ) const;
 };
 
 
