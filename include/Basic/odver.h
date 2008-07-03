@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: odver.h,v 1.5 2008-05-15 13:42:04 cvsbert Exp $
+ RCS:		$Id: odver.h,v 1.6 2008-07-03 05:46:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #define mODMajorVersion		3
-#define mODMinorVersion		2
+#define mODMinorVersion		3
 
 #include "gendefs.h"
 
