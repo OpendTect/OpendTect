@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.43 2008-06-16 07:07:19 cvsnanne Exp $
+ RCS:           $Id: iodraw.cc,v 1.44 2008-07-03 13:37:48 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -320,6 +320,7 @@ void ioDrawTool::drawMarker( const uiPoint& pt, const MarkerStyle2D& mstyle,
     switch ( mstyle.type_ )
     {
     case MarkerStyle2D::Square:
+	setLineStyle( LineStyle(LineStyle::None ) );
 	drawRect( pt.x-mstyle.size_, pt.y-mstyle.size_,
 		  2 * mstyle.size_, 2 * mstyle.size_ );
     break;
