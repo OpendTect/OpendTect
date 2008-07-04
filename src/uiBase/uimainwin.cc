@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.147 2008-05-30 07:39:21 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.148 2008-07-04 05:36:39 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,8 +152,8 @@ protected:
     virtual void	finalise( bool trigger_finalise_start_stop=true );
     void		closeEvent(QCloseEvent*);
     void 		closeQDlgChild(int retval,bool parentcheck=true);
-    void		grabAndSave(const char* filenm, int zoom=1,
-				    const char* format=0, int quality=-1 );
+    bool		grabAndSave(const char* filenm,int zoom=1,
+				    const char* format=0,int quality=-1) const;
     bool		event(QEvent*);
 
     void		renewToolbarsMenu();
@@ -350,8 +350,8 @@ void uiMainWinBody::closeQDlgChild( int retval, bool parentcheck )
 }
 
 
-void uiMainWinBody::grabAndSave( const char* filenm, int zoom,
-				 const char* format, int quality )
+bool uiMainWinBody::grabAndSave( const char* filenm, int zoom,
+				 const char* format, int quality ) const
 {
     WId winid = winId();
     if ( zoom <= 0 )
@@ -360,7 +360,7 @@ void uiMainWinBody::grabAndSave( const char* filenm, int zoom,
 	winid = qApp->activeModalWidget()->winId();
 
     QPixmap snapshot = QPixmap::grabWindow( winid );
-    snapshot.save( QString(filenm), format, quality );
+    return snapshot.save( QString(filenm), format, quality );
 }
 
 
