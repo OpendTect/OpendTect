@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2007
- RCS:           $Id: uiaction.cc,v 1.2 2007-10-01 12:11:48 cvsnanne Exp $
+ RCS:           $Id: uiaction.cc,v 1.3 2008-07-04 04:19:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,11 +12,12 @@ ________________________________________________________________________
 #include "uiaction.h"
 #include "i_qaction.h"
 
+#include "menuhandler.h"
 #include "pixmap.h"
 
+
 uiAction::uiAction( const char* txt )
-    : checked_(false)
-    , toggled(this)
+    : toggled(this)
     , triggered(this)
 {
     init( txt );
@@ -24,8 +25,7 @@ uiAction::uiAction( const char* txt )
 
 
 uiAction::uiAction( const char* txt, const CallBack& cb )
-    : checked_(false)
-    , cb_(cb)
+    : cb_(cb)
     , toggled(this)
     , triggered(this)
 {
@@ -34,13 +34,26 @@ uiAction::uiAction( const char* txt, const CallBack& cb )
 
 
 uiAction::uiAction( const char* txt, const CallBack& cb, const ioPixmap& pm )
-    : checked_(false)
-    , cb_(cb)
+    : cb_(cb)
     , toggled(this)
     , triggered(this)
 {
     init( txt );
     setPixmap( pm );
+}
+
+
+uiAction::uiAction( const MenuItem& itm )
+    : toggled(this)
+    , triggered(this)
+{
+    init( itm.text );
+    setToolTip( itm.tooltip );
+    setCheckable( itm.checkable );
+    setChecked( itm.checked );
+    setEnabled( itm.enabled );
+    if ( !itm.iconfnm.isEmpty() )
+	setPixmap( ioPixmap(itm.iconfnm) );
 }
 
 

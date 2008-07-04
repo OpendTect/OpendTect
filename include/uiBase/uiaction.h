@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2007
- RCS:           $Id: uiaction.h,v 1.2 2007-10-01 12:11:48 cvsnanne Exp $
+ RCS:           $Id: uiaction.h,v 1.3 2008-07-04 04:19:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 
 class QAction;
 class ioPixmap;
+class MenuItem;
 
 class uiAction : public CallBacker
 {
@@ -24,6 +25,7 @@ public:
                         uiAction(const char*);
                         uiAction(const char*,const CallBack&);
                         uiAction(const char*,const CallBack&,const ioPixmap&);
+			uiAction(const MenuItem&);
 
     void		setText(const char*);
     const char*		text() const;
@@ -51,9 +53,8 @@ public:
 private:
 
     QAction*		qaction_;
-
-    bool		checked_;
     CallBack		cb_;
+    bool		checked_;
 
     void		init(const char*);
 };
