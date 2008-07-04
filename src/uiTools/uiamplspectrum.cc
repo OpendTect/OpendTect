@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:          September 2007
- RCS:           $Id: uiamplspectrum.cc,v 1.8 2008-06-23 06:53:57 cvssatyaki Exp $
+ RCS:           $Id: uiamplspectrum.cc,v 1.9 2008-07-04 04:25:13 cvsnanne Exp $
 _______________________________________________________________________
                    
 -*/   
@@ -52,6 +52,9 @@ void uiAmplSpectrum::setDataPackID( DataPack::ID dpid, DataPackMgr::ID dmid )
 {
     DataPackMgr& dpman = DPM( dmid );
     const DataPack* datapack = dpman.obtain( dpid );
+    if ( datapack )
+	setCaption( !datapack ? "No data" 
+	    : BufferString("Amplitude Spectrum for ",datapack->name()).buf() );
 
     if ( dmid == DataPackMgr::CubeID )
     {
