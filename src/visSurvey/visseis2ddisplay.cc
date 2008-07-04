@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.42 2008-06-26 08:00:04 cvsnanne Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.43 2008-07-04 04:08:35 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -141,24 +141,20 @@ StepInterval<float> Seis2DDisplay::getMaxZRange( bool displayspace ) const
 }
 
 
-bool Seis2DDisplay::setZRange( const Interval<float>& nzrg )
+void Seis2DDisplay::setZRange( const Interval<float>& nzrg )
 {
     if ( mIsUdf(geometry_.zrg.start) )
-	return false;
+	return;
 
     const StepInterval<float> maxzrg = getMaxZRange( false );
     const Interval<float> zrg( mMAX(maxzrg.start,nzrg.start),
 			       mMIN(maxzrg.stop,nzrg.stop) );
     if ( curzrg_.isEqual(zrg,mDefEps) )
-	return true;
+	return;
 
-    const bool usecache = curzrg_.includes( zrg.start ) &&
-			  curzrg_.includes( zrg.stop );
     curzrg_.setFrom( zrg );
     updateVizPath();
     geomchanged_.trigger();
-    
-    return usecache;
 }
 
 
@@ -179,26 +175,22 @@ const Interval<int> Seis2DDisplay::getSampleRange() const
 }
 
 
-bool Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
+void Seis2DDisplay::setTraceNrRange( const Interval<int>& trcrg )
 {
     if ( maxtrcnrrg_.isRev() )
     {
 	pErrMsg("Geometry not set");
-	return false;
+	return;
     }
 
     const Interval<int> rg( maxtrcnrrg_.limitValue(trcrg.start),
 			    maxtrcnrrg_.limitValue(trcrg.stop) );
 
     if ( !rg.width() || trcnrrg_==rg )
-	return false;
+	return;
 
-    const bool isbigger = !trcnrrg_.includes( rg.start, false ) ||
-			  !trcnrrg_.includes( rg.stop, false );
     trcnrrg_ = rg;
     updateVizPath();
-
-    return !isbigger;
 }
 
 
@@ -303,8 +295,7 @@ void Seis2DDisplay::setData( int attrib,
 	    const int firstdhsample = sd.nearestIndex( firstz );
 	    const bool samplebased = mIsEqual(firstdhsamplef,firstdhsample,1e-3)
 				 &&  mIsEqual(sd.step,geometry_.zrg.step,1e-3 );
-	    const ValueSeries<float>* dataseries =
-		dh->series( valididxs[sidx] );
+	    const ValueSeries<float>* dataseries = dh->series( valididxs[sidx]);
 
 	    if ( samplebased )
 	    {
@@ -312,12 +303,8 @@ void Seis2DDisplay::setData( int attrib,
 		for ( int idx=0; idx<nrsamp; idx++ )
 		{
 		    const int sample = firstdhsample+idx;
-		    float val;
-		    if ( dh->dataPresent(sample) )
-			val = dataseries->value( sample-dh->z0_ );
-		    else
-			val=mUdf(float);
-
+		    const float val = dh->dataPresent(sample) ?
+			dataseries->value( sample-dh->z0_ ) : mUdf(float);
 		    const int arrzidx = arraysrg.getIndex( sample );
 		    arr->set( trcidx, arrzidx, val );
 		}

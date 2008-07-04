@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		January 2003
- RCS:		$Id: visseis2ddisplay.h,v 1.21 2008-04-18 10:49:40 cvsnanne Exp $
+ RCS:		$Id: visseis2ddisplay.h,v 1.22 2008-07-04 04:08:35 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -47,12 +47,10 @@ public:
 
     void			setGeometry(const PosInfo::Line2DData&);
     StepInterval<float>		getMaxZRange(bool displayspace) const;
-    bool			setZRange(const Interval<float>&);
-    				//!<\returns whether a cache update is enough.
+    void			setZRange(const Interval<float>&);
     Interval<float>		getZRange(bool displayspace) const;
 
-    bool			setTraceNrRange(const Interval<int>&);
-    				//!<\returns whether a cache update is enough.
+    void			setTraceNrRange(const Interval<int>&);
     const Interval<int>&	getTraceNrRange() const;
     const Interval<int>&	getMaxTraceNrRange() const;
 

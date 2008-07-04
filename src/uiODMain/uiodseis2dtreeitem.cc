@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.38 2008-03-14 14:35:45 cvskris Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.39 2008-07-04 04:08:35 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -553,34 +553,26 @@ void uiOD2DLineSetSubItem::handleMenuCB( CallBacker* cb )
 	const CubeSampling newcs = positiondlg.getCubeSampling();
 
 	bool doupdate = false;
-	bool usecache = false; // TODO: move cache handling to AE
 	const Interval<float> newzrg( newcs.zrg.start, newcs.zrg.stop );
 	if ( !newzrg.isEqual(s2d->getZRange(true),mDefEps) )
 	{
 	    doupdate = true;
-	    if ( !s2d->setZRange(newzrg) )
-		usecache = false;
+	    s2d->setZRange( newzrg );
 	}
 
 	const Interval<int> ntrcnrrg( newcs.hrg.start.crl, newcs.hrg.stop.crl );
 	if ( ntrcnrrg != s2d->getTraceNrRange() )
 	{
 	    doupdate = true;
-	    if ( !s2d->setTraceNrRange( ntrcnrrg ) )
-		usecache = false;
+	    s2d->setTraceNrRange( ntrcnrrg );
 	}
 
 	if ( doupdate )
 	{
-	    if ( usecache )
-		s2d->updateDataFromCache();
-	    else
+	    for ( int idx=s2d->nrAttribs()-1; idx>=0; idx-- )
 	    {
-		for ( int idx=s2d->nrAttribs()-1; idx>=0; idx-- )
-		{
-		    if ( s2d->getSelSpec(idx) && s2d->getSelSpec(idx)->id()>=0 )
-			visserv_->calculateAttrib( displayid_, idx, false );
-		}
+		if ( s2d->getSelSpec(idx) && s2d->getSelSpec(idx)->id()>=0 )
+		    visserv_->calculateAttrib( displayid_, idx, false );
 	    }
 	}
     }
@@ -676,15 +668,11 @@ void uiOD2DLineSetSubItem::setZRange( const Interval<float> newzrg )
 		    visserv_->getObject(displayid_))
     if ( !s2d ) return;
 
-    if ( s2d->setZRange(newzrg) )
-	s2d->updateDataFromCache();
-    else
+    s2d->setZRange( newzrg );
+    for ( int idx=s2d->nrAttribs()-1; idx>=0; idx-- )
     {
-	for ( int idx=s2d->nrAttribs()-1; idx>=0; idx-- )
-	{
-	    if ( s2d->getSelSpec(idx) && s2d->getSelSpec(idx)->id()>=0 )
-		visserv_->calculateAttrib( displayid_, idx, false );
-	}
+	if ( s2d->getSelSpec(idx) && s2d->getSelSpec(idx)->id()>=0 )
+	    visserv_->calculateAttrib( displayid_, idx, false );
     }
 }
 
