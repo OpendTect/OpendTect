@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.46 2008-07-04 04:21:34 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.47 2008-07-04 09:46:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -198,6 +198,16 @@ bool uiToolBarBody::isSensitive() const
 
 
 
+ObjectSet<uiToolBar>& uiToolBar::toolBars()
+{
+    static ObjectSet<uiToolBar>* ret = 0;
+    if ( !ret )
+    ret = new ObjectSet<uiToolBar>;
+    return *ret;
+}
+
+
+
 uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarArea tba,
 		      bool newline )
     : uiParent(nm,0)
@@ -214,6 +224,8 @@ uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarArea tba,
 	if ( newline ) uimw->addToolBarBreak();
 	uimw->addToolBar( this );
     }
+
+    toolBars() += this;
 }
 
 
@@ -224,6 +236,8 @@ uiToolBar::~uiToolBar()
 
     delete body_;
     delete qtoolbar_;
+
+    toolBars() -= this;
 }
 
 
