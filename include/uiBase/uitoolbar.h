@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.33 2008-05-12 08:30:24 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.h,v 1.34 2008-07-04 04:21:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uiparent.h"
 
 class ioPixmap;
+class MenuItem;
 class uiObject;
 class uiToolBarBody;
 class QToolBar;
@@ -44,6 +45,7 @@ public:
 				  const char* tooltip,bool toggle=false);
     int 		addButton(const ioPixmap&,const CallBack&,
 				  const char* tooltip,bool toggle=false);
+    int			addButton(const MenuItem&);
     void		addObject(uiObject*);
 
     void		setLabel(const char*);

@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.45 2008-01-30 10:20:29 cvsjaap Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.46 2008-07-04 04:21:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uitoolbar.h"
 
+#include "uiaction.h"
 #include "uibody.h"
 #include "uibutton.h"
 #include "uimainwin.h"
@@ -36,6 +37,7 @@ public:
     int 		addButton(const ioPixmap&,const CallBack&, 
 				  const char*,bool);
     int 		addButton(const char*,const CallBack&,const char*,bool);
+    int			addButton(const MenuItem&);
     void		addObject(uiObject*);
     void		clear();
     void		turnOn(int idx, bool yn );
@@ -113,6 +115,14 @@ int uiToolBarBody::addButton( const ioPixmap& pm, const CallBack& cb,
 }
 
 
+int uiToolBarBody::addButton( const MenuItem& itm )
+{
+    uiAction* action = new uiAction( itm );
+    qbar_->addAction( action->qaction() );
+    return qbar_->actions().size()-1;
+}
+
+
 void uiToolBarBody::addObject( uiObject* obj )
 {
     if ( obj && obj->body() )
@@ -187,14 +197,6 @@ bool uiToolBarBody::isSensitive() const
 { return qwidget() ? qwidget()->isEnabled() : false; }
 
 
-ObjectSet<uiToolBar>& uiToolBar::toolBars()
-{
-    static ObjectSet<uiToolBar>* ret = 0;
-    if ( !ret )
-	ret = new ObjectSet<uiToolBar>;
-    return *ret;
-}
-
 
 uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarArea tba,
 		      bool newline )
@@ -206,7 +208,6 @@ uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarArea tba,
     qtoolbar_->setObjectName( nm );
     setBody( &mkbody(nm,*qtoolbar_) );
 
-    toolBars() += this;
     mDynamicCastGet(uiMainWin*,uimw,parnt)
     if ( uimw )
     {
@@ -218,7 +219,6 @@ uiToolBar::uiToolBar( uiParent* parnt, const char* nm, ToolBarArea tba,
 
 uiToolBar::~uiToolBar()
 {
-    toolBars() -= this;
     mDynamicCastGet(uiMainWin*,uimw,parent_)
     if ( uimw ) uimw->removeToolBar( this );
 
@@ -242,6 +242,10 @@ int uiToolBar::addButton( const char* fnm, const CallBack& cb,
 int uiToolBar::addButton( const ioPixmap& pm, const CallBack& cb,
 			  const char* nm, bool toggle )
 { return body_->addButton( pm, cb, nm, toggle ); }
+
+
+int uiToolBar::addButton( const MenuItem& itm )
+{ return body_->addButton( itm ); }
 
 
 void uiToolBar::addObject( uiObject* obj )
