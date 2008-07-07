@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.cc,v 1.12 2008-07-01 04:13:14 cvsnanne Exp $
+ RCS:           $Id: uicoltabman.cc,v 1.13 2008-07-07 09:45:42 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,8 +55,11 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
     uiGroup* maingrp = new uiGroup( this, "Main");
 
     coltablistfld_ = new uiListView( maingrp );
-    coltablistfld_->addColumn( "Color table" );
-    coltablistfld_->addColumn( "Status" );
+    BufferStringSet labels;
+    labels.add( "Color table" );
+    labels.add( "Status" );
+    coltablistfld_->addColumns( labels );
+    coltablistfld_->setSorting( 0, true );
     coltablistfld_->setRootDecorated( false );
     coltablistfld_->setHScrollBarMode( uiListView::AlwaysOff );
     coltablistfld_->setStretch( 2, 2 );
@@ -153,7 +156,7 @@ void uiColorTableMan::refreshColTabList( const char* selctnm )
     ColTab::SM().getSequenceNames( allctnms );
     allctnms.sort();
     coltablistfld_->clear();
-    for ( int idx=allctnms.size()-1; idx>=0; idx-- )
+    for ( int idx=0; idx<allctnms.size(); idx++ )
     {
 	const int seqidx = ColTab::SM().indexOf( allctnms.get(idx) );
 	if ( seqidx<0 ) continue;
@@ -171,7 +174,7 @@ void uiColorTableMan::refreshColTabList( const char* selctnm )
 		uiListViewItem::Setup().label(seq->name()).label(status) );
     }
 
-    uiListViewItem* itm = coltablistfld_->findItem( selctnm, 0 );
+    uiListViewItem* itm = coltablistfld_->findItem( selctnm, 0, true );
     if ( !itm ) return;
 
     coltablistfld_->setCurrentItem( itm );
