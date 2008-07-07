@@ -5,7 +5,7 @@
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Nageswara
  * DATE     : Mar 2008
- * ID       : $Id $
+ * ID       : $Id: uistratamp.h,v 1.3 2008-07-07 04:56:16 cvsraman Exp $
 -*/
 
 #include "uidialog.h"
