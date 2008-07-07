@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodfaulttreeitem.cc,v 1.11 2008-06-22 03:11:37 cvskris Exp $
+ RCS:		$Id: uiodfaulttreeitem.cc,v 1.12 2008-07-07 09:35:15 cvssatyaki Exp $
 ___________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	for ( int idx=0; idx<emids.size(); idx++ )
 	{
 	    if ( emids[idx]<0 ) continue;
-	    addChild( new uiODFaultTreeItem(emids[idx]), false );
+	    addChild( new uiODFaultTreeItem(emids[idx]), false, true, true );
 	}
     }
     else if ( mnuid == mNewMnuID )
@@ -72,7 +72,7 @@ bool uiODFaultParentTreeItem::showSubMenu()
 	newname += ">";
 	emo->setName( newname.buf() );
 	emo->setFullyLoaded( true );
-	addChild( new uiODFaultTreeItem( emo->id() ), false );
+	addChild( new uiODFaultTreeItem( emo->id() ), false, true, true );
 
 	uiVisPartServer* visserv = applMgr()->visServer();
 	visserv->showMPEToolbar();

@@ -7,15 +7,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.26 2008-02-01 05:43:15 cvsnanne Exp $
+ RCS:           $Id: uitreeview.h,v 1.27 2008-07-07 09:35:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobj.h"
 #include "bufstringset.h"
+#include "keyenum.h"
 
-class Q3ListViewItem;
+class QTreeWidget;
+class QTreeWidgetItem;
 class uiListViewBody;
 class uiListViewItem;
 class ioPixmap;
@@ -24,7 +26,7 @@ class uiListView : public uiObject
 {
     friend class		i_listVwMessenger;
     friend class		uiListViewBody;
-    friend class		uiListViewItemBody;
+    friend class		uiListViewItem;
 
 public:
 			uiListView(uiParent* parnt,
@@ -35,24 +37,29 @@ public:
     virtual		~uiListView()			{}
 
 			// 0: use nr itms in list
+    uiListViewBody& 	mkbody(uiParent*,const char*,int);
     void		setLines(int prefNrLines);
 
-    enum		ScrollMode { AlwaysOn, AlwaysOff, Auto };
+    enum		ScrollMode { Auto, AlwaysOff, AlwaysOn };
     void		setHScrollBarMode(ScrollMode);
     void		setVScrollBarMode(ScrollMode);
 
-    int			treeStepSize() const;
+    //int			treeStepSize() const;
     void		setTreeStepSize(int);
+
+    QTreeWidget*	qtreeWidget()			{ return (QTreeWidget*)body_; }
+    const QTreeWidget*	qtreeWidget() const		
+    			{ return (const QTreeWidget*)body_; }
 
     bool		rootDecorated() const;
     void		setRootDecorated(bool yn);
 
     // take & insert are meant to MOVE an item to another point in the tree 
     void		takeItem(uiListViewItem*);
-    void		insertItem(uiListViewItem*);
+    void		insertItem(int,uiListViewItem*);
 
 			// returns index of new column
-    int			addColumn(const char* label,int size=-1);
+    void		addColumns(const BufferStringSet&);
 
     void		removeColumn(int index );
     void		setColumnText(int column,const char* label);
@@ -75,8 +82,12 @@ public:
     bool		isMultiSelection() const;
 
     enum		SelectionMode { Single, Multi, Extended, NoSelection };
+    enum		SelectionBehavior 
+    				{ SelectItems, SelectRows, SelectColumns };
     void		setSelectionMode(SelectionMode);
     SelectionMode	selectionMode() const;
+    void		setSelectionBehavior(SelectionBehavior);
+    SelectionBehavior	selectionBehavior() const;
 
     void		clearSelection();
     void		setSelected(uiListViewItem*,bool);
@@ -101,12 +112,13 @@ public:
     void		setSorting(int column,bool increasing=true);
     void		sort();
 
-    void		setShowSortIndicator(bool);
-    bool		showSortIndicator() const;
+    //void		setShowSortIndicator(bool);
+    //bool		showSortIndicator() const;
     void		setShowToolTips(bool);
     bool		showToolTips() const;
 
-    uiListViewItem*	findItem(const char*,int column) const;
+    uiListViewItem*	findItem(const char*,int,bool) const;
+    uiParent*		parent()		{ return parent_; }
 
     void		clear();
     void		invertSelection();
@@ -116,17 +128,17 @@ public:
     void		triggerUpdate();
 
 			//! item last notified. See notifiers below
-    uiListViewItem*	itemNotified()		{ return lastitemnotified; }
-    void		unNotify()		{ lastitemnotified = 0; }
+    uiListViewItem*	itemNotified()		{ return lastitemnotified_; }
+    void		unNotify()		{ lastitemnotified_ = 0; }
     int			columnNotified()	{ return column_; }
 
     Notifier<uiListView> selectionChanged;
     Notifier<uiListView> currentChanged;
+    Notifier<uiListView> itemChanged;
     Notifier<uiListView> clicked;
     Notifier<uiListView> pressed;
-    Notifier<uiListView> doubleClicked;
+    //Notifier<uiListView> doubleClicked;
     Notifier<uiListView> returnPressed;
-    Notifier<uiListView> spacePressed;
     Notifier<uiListView> rightButtonClicked;
     Notifier<uiListView> rightButtonPressed;
     Notifier<uiListView> mouseButtonPressed;
@@ -148,49 +160,52 @@ public:
 protected:
 
     mutable BufferString rettxt;
-    uiListViewItem*	lastitemnotified;
+    uiListViewItem*	lastitemnotified_;
+    uiParent*		parent_;
     int			column_;
+    OD::ButtonState     buttonstate_;
 
-    void		setNotifiedItem( Q3ListViewItem* );
+    void 		cursorSelectionChanged( CallBacker* );
+    void		setNotifiedItem( QTreeWidgetItem* );
     void		setNotifiedColumn( int col )	{ column_ = col; }
 
-    uiListViewBody*	lvbody()	{ return body_; }
+    uiListViewBody*		lvbody()	{ return body_; }
+    const uiListViewBody*	lvbody() const	{ return body_; }
 
 private:
 
     uiListViewBody*	body_;
-    uiListViewBody&	mkbody(uiParent*,const char*,int);
 
 };
 
 
-class uiListViewItemBody;
-
 /*!
 
 */
-class uiListViewItem : public uiHandle<uiListViewItemBody>
+
+class uiListViewItem : public CallBacker
 {
-friend class			uiListViewItemBody;
 public:
 
-    enum			Type { Standard, Controller, RadioButton, 
-				       CheckBox };
+    enum			Type { Standard, CheckBox };
 
     class Setup
     {
     public:
 				Setup( const char* txt=0, 
 				       uiListViewItem::Type tp = 
-					    uiListViewItem::Standard  )
+				       uiListViewItem::Standard,
+				       bool setcheckbox = true )
 				: type_(tp)
 				, after_(0)
 				, pixmap_(0)
+				, setcheck_(setcheckbox)
 				{ label( txt ); }
 
 	mDefSetupMemb(uiListViewItem::Type,type)
 	mDefSetupMemb(uiListViewItem*,after)
 	mDefSetupMemb(const ioPixmap*,pixmap)
+	mDefSetupMemb(bool,setcheck)
 	BufferStringSet		labels_;
 
 	Setup& 			label( const char* txt ) 
@@ -201,21 +216,19 @@ public:
 				}
     };
 
+			uiListViewItem(uiListViewItem* parent,const Setup&); 
+			uiListViewItem(uiListView* parent,const Setup&);
+			~uiListViewItem();
 
-			uiListViewItem( uiListViewItem* prnt, const char* txt);
-			uiListViewItem( uiListView* prnt, const char* txt);
-
-			uiListViewItem( uiListViewItem* parent, const Setup& ); 
-			uiListViewItem( uiListView* parent, const Setup& );
+    QTreeWidgetItem*	qItem()			{ return qtreeitem_; }
+    const QTreeWidgetItem* qItem() const	{ return qtreeitem_; }
 
     bool		isCheckable() const;
     void		setChecked(bool,bool trigger=false);
     			//!< does nothing if not checkable
     bool		isChecked() const;  //!< returns false if not checkable
 
-    virtual		~uiListViewItem() {}
-
-    void		insertItem( uiListViewItem* );
+    void		insertItem( int, uiListViewItem* );
     void		takeItem( uiListViewItem* );
     void		removeItem( uiListViewItem* );
     int			siblingIndex() const;
@@ -233,9 +246,7 @@ public:
 
     const char*		text( int column=0 ) const;
 
-    void		setPixmap( int column, const ioPixmap& );
-			//! returns NEW ioPixmap, constructed from Qt's pixmap
-    const ioPixmap* 	pixmap( int column ) const; // becomes yours
+    void		setPixmap(int column,const ioPixmap&);
 
     virtual const char* key(int,bool) const		{ return 0; }
     virtual int		compare( uiListViewItem*,int column,bool) const
@@ -244,7 +255,7 @@ public:
     int			childCount() const;
 
     bool		isOpen() const;
-    void		setOpen(bool yn);
+    void		setOpen( bool yn = true );
 
     void		setSelected(bool yn);
     bool		isSelected() const;
@@ -266,7 +277,6 @@ public:
 
     void		moveItem( uiListViewItem* after );
 
-
     void		setDragEnabled(bool);
     void		setDropEnabled(bool);
     bool		dragEnabled() const;
@@ -281,33 +291,24 @@ public:
     void		setEnabled(bool);
     bool		isEnabled() const;
 
-    void		setMultiLinesEnabled(bool);
-    bool		multiLinesEnabled() const;
 
     Notifier<uiListViewItem> stateChanged; //!< only works for CheckBox type
     Notifier<uiListViewItem> keyPressed;
     			//!< passes CBCapsule<const char*>* cb
     			//!< If you handle it, set cb->data = 0;
 
-    static Q3ListViewItem*	 qitemFor(uiListViewItem*);
-    static const Q3ListViewItem* qitemFor(const uiListViewItem*);
+    static QTreeWidgetItem*	 qitemFor(uiListViewItem*);
+    static const QTreeWidgetItem*  qitemFor(const uiListViewItem*);
 
-    static uiListViewItem* 	 itemFor(Q3ListViewItem*);
-    static const uiListViewItem* itemFor(const Q3ListViewItem*);
+    static uiListViewItem* 	 itemFor(QTreeWidgetItem*);
+    static const uiListViewItem* itemFor(const QTreeWidgetItem*);
 
 protected:
 
+    QTreeWidgetItem*		qtreeitem_;
     mutable BufferString	rettxt;
 
-    uiListViewItemBody*		itmbody()	{ return body_; }
-
-private:
-
-    uiListViewItemBody*		body_;
-    uiListViewItemBody&		mkbody(uiListView*,uiListViewItem*,
-								const Setup&);
     void			init(const Setup&);
-
 };
 
 #endif

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddisplaytreeitem.cc,v 1.18 2008-05-07 09:43:17 cvsnanne Exp $
+ RCS:		$Id: uioddisplaytreeitem.cc,v 1.19 2008-07-07 09:35:15 cvssatyaki Exp $
 ___________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
 	uiTreeItem* res = itmcreater->create( displayid, treeitem );
 	if ( res )
 	{
-	    treeitem->addChild( res, false );
+	    treeitem->addChild( res, false, false, true );
 	    return true;
 	}
     }
@@ -76,9 +76,6 @@ uiODDisplayTreeItem::~uiODDisplayTreeItem()
 	menu->handlenotifier.remove(mCB(this,uiODDisplayTreeItem,handleMenuCB));
     }
 
-    if ( uilistviewitem_->pixmap(0) )
-	delete uilistviewitem_->pixmap(0);
-
     ODMainWin()->sceneMgr().remove2DViewer( displayid_ );
 }
 
@@ -110,7 +107,7 @@ void uiODDisplayTreeItem::addAttribItem()
 {
     uiODDataTreeItem* newitem = createAttribItem(0);
     visserv_->addAttrib( displayid_ );
-    addChild( newitem, false );
+    addChild( newitem, false, true, true );
     updateColumnText( uiODSceneMgr::cNameColumn() );
     updateColumnText( uiODSceneMgr::cColorColumn() );
 }
@@ -127,7 +124,7 @@ bool uiODDisplayTreeItem::init()
 	    uiODDataTreeItem* item = createAttribItem( as );
 	    if ( item )
 	    {
-		addChild( item, false );
+		addChild( item, false, true, true );
 		item->setChecked( visserv_->isAttribEnabled(displayid_,attrib));
 	    }
 	}
@@ -302,7 +299,7 @@ void uiODDisplayTreeItem::handleMenuCB( CallBacker* cb )
     {
 	uiODDataTreeItem* newitem = createAttribItem(0);
 	visserv_->addAttrib( displayid_ );
-	addChild( newitem, false );
+	addChild( newitem, false, true, true );
 	updateColumnText( uiODSceneMgr::cNameColumn() );
 	updateColumnText( uiODSceneMgr::cColorColumn() );
 	newitem->select();

@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.36 2008-02-01 10:59:19 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.37 2008-07-07 09:35:15 cvssatyaki Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -33,9 +33,7 @@ uiTreeItem::~uiTreeItem()
 
 
 const char* uiTreeItem::name() const
-{
-    return name_.buf();
-}
+{ return name_.buf(); }
 
 
 
@@ -88,21 +86,15 @@ void uiTreeItem::updateSelection( int selid, bool downward )
 
 
 bool uiTreeItem::shouldSelect( int selid ) const
-{
-    return selid!=-1 && selid==selectionKey();
-}
+{ return selid!=-1 && selid==selectionKey(); }
 
 
 bool uiTreeItem::select(int selkey)
-{
-    return parent_ ? parent_->select(selkey) : false;
-}
+{ return parent_ ? parent_->select(selkey) : false; }
 
 
 bool uiTreeItem::select()
-{
-    return select(selectionKey());
-}
+{ return select(selectionKey()); }
 
 
 void uiTreeItem::prepareForShutdown()
@@ -115,8 +107,10 @@ void uiTreeItem::prepareForShutdown()
 void uiTreeItem::setChecked( bool yn, bool trigger )
 { if ( uilistviewitem_ ) uilistviewitem_->setChecked( yn, trigger ); }
 
+
 bool uiTreeItem::isChecked() const
 { return uilistviewitem_ ? uilistviewitem_->isChecked() : false; } 
+
 
 NotifierAccess* uiTreeItem::checkStatusChange() 
 { return uilistviewitem_ ? &uilistviewitem_->stateChanged : 0; }
@@ -207,7 +201,7 @@ void uiTreeItem::moveItemToTop()
     {
 	uiListViewItem* item = getItem();
 	parent_->getItem()->takeItem( item );
-	parent_->getItem()->insertItem( item );
+	parent_->getItem()->insertItem( 0, item );
     }
 }
 	
@@ -278,20 +272,19 @@ if ( !strcmp(newitem->parentType(), typeid(*this).name()) ) \
 { \
     children_ += newitem; \
     newitem->parent_ = this; \
- \
-    uiListViewItem* item = new uiListViewItem(uiparentlist, \
-		  uiListViewItem::Setup(newitem->name(), \
-		  (uiListViewItem::Type)newitem->uiListViewItemType())); \
+    uiListViewItem::Setup setup( newitem->name(), \
+				 checkable ? uiListViewItem::CheckBox : \
+					     uiListViewItem::Standard, \
+				 setcheck ); \
+    uiListViewItem* item = new uiListViewItem(uiparentlist, setup ); \
     newitem->setListViewItem( item ); \
-    while ( below && item->nextSibling() ) \
+    while ( below && item->nextSibling() )  \
         item->moveItem( item->nextSibling() ); \
- \
     if ( !newitem->init() ) \
     { \
 	removeChild( newitem ); \
 	return true; \
     } \
- \
     if ( uilistviewitem_ ) uilistviewitem_->setOpen( true ); \
     updateColumnText(0); updateColumnText(1); \
     return true; \
@@ -301,23 +294,27 @@ if ( downwards ) \
 { \
     for ( int idx=0; idx<children_.size(); idx++ ) \
     { \
-	if ( children_[idx]->addChild( newitem, below, downwards ) ) \
+	if ( children_[idx]->addChild( \
+		    newitem,below,downwards,checkable,setcheck) ) \
 	    return true; \
     } \
 } \
 else if ( parent_ ) \
-    return parent_->addChild( newitem, below, downwards ); \
+    return parent_->addChild( \
+		    newitem, below, downwards, checkable, setcheck ); \
  \
 return false; 
 
 
-bool uiTreeItem::addChild( uiTreeItem* newitem, bool below )
+bool uiTreeItem::addChild( uiTreeItem* newitem, bool below, bool checkable,
+			   bool setcheck )
 {
-    return addChild( newitem, below, false );
+    return addChild( newitem, below, false, checkable, setcheck );
 }
 
 
-bool uiTreeItem::addChild( uiTreeItem* newitem, bool below, bool downwards )
+bool uiTreeItem::addChild( uiTreeItem* newitem, bool below, bool downwards,
+			   bool checkable, bool setcheck )
 {
     mAddChildImpl( uilistviewitem_ );
 }
@@ -368,13 +365,15 @@ uiTreeTopItem::~uiTreeTopItem()
 }
 
 
-bool uiTreeTopItem::addChild( uiTreeItem* newitem, bool below )
+bool uiTreeTopItem::addChild( uiTreeItem* newitem, bool below, bool checkable,
+			      bool setcheck )
 {
-    return addChild( newitem, below, true );
+    return addChild( newitem, below, true, checkable, setcheck );
 }
 
 
-bool uiTreeTopItem::addChild( uiTreeItem* newitem, bool below, bool downwards )
+bool uiTreeTopItem::addChild( uiTreeItem* newitem, bool below, bool downwards,
+			      bool checkable, bool setcheck )
 {
     downwards = true;		//We are at the top, so we should go downwards
     mAddChildImpl( listview_ );

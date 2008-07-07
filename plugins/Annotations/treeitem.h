@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.h,v 1.15 2007-09-14 07:41:33 cvsnanne Exp $
+ RCS:           $Id: treeitem.h,v 1.16 2008-07-07 09:35:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -95,7 +95,7 @@ protected:
     void		removeStuff();
     bool		init();
     virtual const char*	parentType() const		=0;
-    virtual void	fillStoragePar(IOPar&) const;
+    virtual void	fillStoragePar(IOPar&) const	{}
 
     virtual void	clickCB(CallBacker*)		{}
     virtual void	mouseMoveCB(CallBacker*)	{}
@@ -142,8 +142,12 @@ protected:
 
     bool		editText(BufferString& str, BufferString& url,
 	    			 bool& enab);
+    void		fillStoragePar(IOPar&) const;
     BufferString	prevtxt_;
+    Color		boxcolor_;
 
+    static const char*	sKeyBoxColor()		{ return "Box Color"; }
+    
     bool		hasScale() const		{ return true; }
     void		setScale(float);
     

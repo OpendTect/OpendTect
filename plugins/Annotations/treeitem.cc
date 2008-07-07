@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.34 2008-06-12 08:14:51 cvsnanne Exp $
+ RCS:           $Id: treeitem.cc,v 1.35 2008-07-07 09:35:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,9 +81,9 @@ bool ParentTreeItem::init()
     bool ret = uiTreeItem::init();
     if ( !ret ) return false;
     
-    addChild( new ArrowParentItem(), true );
-    addChild( new ImageParentItem(), true );
-    addChild( new TextParentItem(), true );
+    addChild( new ArrowParentItem(), true, false, true );
+    addChild( new ImageParentItem(), true, false, true );
+    addChild( new TextParentItem(), true, false, true );
     getItem()->setOpen( false );
     return true;
 }
@@ -162,7 +162,7 @@ bool AnnotTreeItem::init()
 	visserv->findObject( mid, dispids );
 	uiTreeItem* item = createSubItem( dispids.size() ? dispids[0] : -1,
 					  mgr.get(idx) );
-	addChild( item, true );
+	addChild( item, true, false, true );
 	item->setChecked( true );
     }
 
@@ -182,7 +182,7 @@ void AnnotTreeItem::setAddedCB( CallBacker* cb )
     if ( !ps ) return;
 
     uiTreeItem* item = createSubItem( -1, *ps );
-    addChild( item, true );
+    addChild( item, true, true, true );
 }
 
 
@@ -320,12 +320,6 @@ SubItem::~SubItem()
 {}
 
 
-void SubItem::fillStoragePar( IOPar& par ) const
-{
-    par.set( sKey::Type, managerName() );
-}
-
-
 void SubItem::prepareForShutdown()
 {
     Pick::SetMgr& mgr = Pick::SetMgr::getMgr( managerName() );
@@ -425,10 +419,10 @@ void SubItem::store() const
 	return;
     }
 
-    fillStoragePar( ioobj->pars() );
-
+    ioobj->pars().set( sKey::Type, managerName() );
     IOM().commitChanges( *ioobj );
 
+    fillStoragePar( set_->pars_ );
     BufferString bs;
     if ( !PickSetTranslator::store( *set_, ioobj, bs ) )
 	uiMSG().error(bs);
@@ -584,6 +578,8 @@ bool TextSubItem::init()
     }
 
     mDynamicCastGet(CalloutDisplay*,cd,visserv_->getObject(displayid_))
+    if ( set_->pars_.get(sKeyBoxColor(),boxcolor_) )
+	cd->setBoxColor( boxcolor_ );
     if ( !cd ) return false;
 
     defscale_ = set_->disp_.pixsize_;
@@ -675,9 +671,12 @@ void TextSubItem::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled( true );
 	mDynamicCastGet(CalloutDisplay*,cd,visserv_->getObject(displayid_))
 	if ( !cd ) return;
-	Color col = cd->getBoxColor();
-	if ( selectColor(col) )
-	    cd->setBoxColor( col );
+	boxcolor_ = cd->getBoxColor();
+	if ( selectColor(boxcolor_) )
+	{
+	    cd->setBoxColor( boxcolor_ );
+	    Pick::SetMgr::getMgr(managerName()).reportDispChange( this, *set_ );
+	}
     }
 }
 
@@ -799,6 +798,15 @@ void TextSubItem::setScale( float newscale )
 }
 
 
+void TextSubItem::fillStoragePar( IOPar& par ) const
+{
+    SubItem::fillStoragePar( par );
+    BufferString colstr;
+    boxcolor_.fill( colstr.buf() );
+    par.set( sKeyBoxColor(), colstr.buf() );
+}
+
+
 const char* ArrowSubItem::parentType() const
 { return typeid(ArrowParentItem).name(); }
 
@@ -832,12 +840,14 @@ bool ArrowSubItem::init()
     PtrMan<IOObj> ioobj = IOM().get( mgr.id(setidx) );
     if ( !ioobj ) return false;
 
-    if ( ioobj->pars().get(sKeyArrowType(),arrowtype_) )
-	ad->setType( (ArrowDisplay::Type)arrowtype_ );
+    if ( !ioobj->pars().get(sKeyArrowType(),arrowtype_) )
+	set_->pars_.get( sKeyArrowType(), arrowtype_ );
+    ad->setType( (ArrowDisplay::Type)arrowtype_ );
 
-    int linewidth;
-    if ( ioobj->pars().get(sKeyLineWidth(),linewidth) )
-	ad->setLineWidth( linewidth );
+    int linewidth = 2;
+    if ( !ioobj->pars().get(sKeyLineWidth(),linewidth) )
+	set_->pars_.get( sKeyLineWidth(), linewidth );
+    ad->setLineWidth( linewidth );
 
     //Read Old format orientation
     for ( int idx=set_->size()-1; idx>=0; idx-- )

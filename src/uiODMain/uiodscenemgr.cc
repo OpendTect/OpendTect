@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.133 2008-06-18 22:18:51 cvskris Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.134 2008-07-07 09:35:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -655,18 +655,21 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     uiDockWin* dw = new uiDockWin( &appl_, capt );
 
     scn.lv_ = new uiListView( dw, capt );
-    scn.lv_->addColumn( "Elements" );
-    scn.lv_->addColumn( "Color" );
-    scn.lv_->setColumnWidthMode( cNameColumn(), uiListView::Manual );
-    scn.lv_->setColumnWidthMode( cColorColumn(), uiListView::Manual );
+    BufferStringSet labels;
+    labels.add( "Elements" );
+    labels.add( "Color" );
+    scn.lv_->addColumns( labels );
 
     scn.lv_->setColumnWidth( cColorColumn(), 38 );
     scn.lv_->setColumnWidth( cNameColumn(), 152 );
     scn.lv_->setPrefWidth( 190 );
-
     scn.lv_->setStretch( 2, 2 );
 
     scn.itemmanager_ = new uiODTreeTop( scn.sovwr_, scn.lv_, &applMgr(), tifs_);
+
+    uiODSceneTreeItem* sceneitm =
+	new uiODSceneTreeItem( scn.wsgrp_->getTitle(), scn.sovwr_->sceneID() );
+    scn.itemmanager_->addChild( sceneitm, false, false, true );
 
     TypeSet<int> idxs;
     TypeSet<int> placeidxs;
@@ -687,12 +690,10 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     for ( int idx=0; idx<idxs.size(); idx++ )
     {
 	const int fidx = idxs[idx];
-	scn.itemmanager_->addChild( tifs_->getFactory(fidx)->create(), true );
+	scn.itemmanager_->addChild(
+		tifs_->getFactory(fidx)->create(), true, false, true );
     }
 
-    uiODSceneTreeItem* sceneitm =
-	new uiODSceneTreeItem( scn.wsgrp_->getTitle(), scn.sovwr_->sceneID() );
-    scn.itemmanager_->addChild( sceneitm, false );
     scn.lv_->display();
     appl_.addDockWindow( *dw, uiMainWin::Left );
     scn.treeWin()->display();
@@ -771,7 +772,7 @@ void uiODSceneMgr::updateSelectedTreeItem()
 	    }
 	}
 
-	scene.itemmanager_->updateSelection( id );
+//	scene.itemmanager_->updateSelection( id );
 	scene.itemmanager_->updateColumnText( cNameColumn() );
 	scene.itemmanager_->updateColumnText( cColorColumn() );
     }
@@ -822,7 +823,7 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 	else if ( !strcmp(type,"Fault" ) ) 
 	    itm = new uiODFaultTreeItem(emid);
 
-	scene.itemmanager_->addChild( itm, false );
+	scene.itemmanager_->addChild( itm, false, true, true );
 	return itm->displayID();
     }
 
@@ -838,7 +839,7 @@ int uiODSceneMgr::addRandomLineItem( int visid, int sceneid )
 	if ( sceneid>=0 && sceneid!=scene.sovwr_->sceneID() ) continue;
 
 	uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( visid );
-	scene.itemmanager_->addChild( itm, false );
+	scene.itemmanager_->addChild( itm, false, true, true );
 	return itm->displayID();
     }
     return -1;

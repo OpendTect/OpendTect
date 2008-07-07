@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodhortreeitem.cc,v 1.3 2008-07-01 10:04:35 cvsnanne Exp $
+ RCS:		$Id: uiodhortreeitem.cc,v 1.4 2008-07-07 09:35:15 cvssatyaki Exp $
 ___________________________________________________________________
 
 -*/
@@ -66,7 +66,7 @@ bool uiODHorizonParentTreeItem::showSubMenu()
 	for ( int idx=0; idx<emids.size(); idx++ )
 	{
 	    if ( emids[idx] < 0 ) continue;
-	    addChild( new uiODHorizonTreeItem(emids[idx]), false );
+	    addChild( new uiODHorizonTreeItem(emids[idx]), false, true, true );
 	}
     }
     else if ( mnuid == 1 )
@@ -262,7 +262,7 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 	for ( int idx=0; idx<emids.size(); idx++ )
 	{
 	    if ( emids[idx] < 0 ) continue;
-	    addChild( new uiODHorizon2DTreeItem(emids[idx]), false );
+	    addChild( new uiODHorizon2DTreeItem(emids[idx]), false, true, true );
 	}
     }
     else if ( mnuid == 1 )

@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodwelltreeitem.cc,v 1.23 2008-06-06 16:29:41 cvskris Exp $
+ RCS:		$Id: uiodwelltreeitem.cc,v 1.24 2008-07-07 09:35:15 cvssatyaki Exp $
 ___________________________________________________________________
 
 -*/
@@ -93,7 +93,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	    return false;
 
 	for ( int idx=emwellids.size()-1; idx>=0; idx-- )
-	    addChild( new uiODWellTreeItem(*emwellids[idx]), false );
+	    addChild(new uiODWellTreeItem(*emwellids[idx]), false, true, true);
 
 	deepErase( emwellids );
     }
@@ -109,7 +109,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	wd->setLineStyle( LineStyle(LineStyle::Solid,1,color) );
 	wd->setName( wellname );
 	visserv->addObject( wd, sceneID(), true );
-	addChild( new uiODWellTreeItem(wd->id()), false );
+	addChild( new uiODWellTreeItem(wd->id()), false, true, true );
     }
 
     else if ( mnuid == 2 )

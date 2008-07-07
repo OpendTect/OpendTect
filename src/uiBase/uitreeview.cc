@@ -4,30 +4,35 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.35 2008-03-20 21:44:15 cvskris Exp $
+ RCS:           $Id: uitreeview.cc,v 1.36 2008-07-07 09:35:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uilistview.h"
-#include "uifont.h"
-#include "uilabel.h"
 #include "uiobjbody.h"
-#include "pixmap.h"
 #include "uishortcutsmgr.h"
 
+#include "odqtobjset.h"
+#include "pixmap.h"
+
 #include <QApplication>
+#include <QHeaderView>
 #include <QKeyEvent>
 #include <QPixmap>
 #include <QSize>
+#include <QString>
+#include <QTreeWidgetItem>
 
 #include "i_qlistview.h"
+
+static ODQtObjectSet<uiListViewItem,QTreeWidgetItem> odqtobjects_;
 
 
 #define mQitemFor(itm)		uiListViewItem::qitemFor(itm)
 #define mItemFor(itm)		uiListViewItem::itemFor(itm)
 
-class uiListViewBody : public uiObjBodyImpl<uiListView,Q3ListView>
+class uiListViewBody : public uiObjBodyImplNoQtNm<uiListView,QTreeWidget>
 {
 
 public:
@@ -60,6 +65,9 @@ protected:
 
     void		keyPressEvent(QKeyEvent*);
     bool		moveItem(QKeyEvent*);
+    void		mousePressEvent(QMouseEvent*);
+    void		mouseReleaseEvent(QMouseEvent*);
+    void 		setSorting(int,bool increasing = true );
 
     uiListViewItem*	actitem_;
     bool		actexpand_;
@@ -72,34 +80,47 @@ private:
 
 
 
-uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parnt, 
-			const char* nm, int nrl )
-    : uiObjBodyImpl<uiListView,Q3ListView>( handle, parnt, nm )
-    , messenger_ (*new i_listVwMessenger(*this, handle))
+uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parent, 
+    const char* nm, int nrl )
+    : uiObjBodyImplNoQtNm<uiListView,QTreeWidget>( handle, parent, nm )
+    , messenger_ ( *new i_listVwMessenger(*this,handle) )
     , prefnrlines( nrl )
     , lvhandle_(handle)
     , actitem_( 0 )
     , actexpand_( true )
 {
-    setStretch( 1, ( nrTxtLines()== 1) ? 0 : 1 );
+    setStretch( 1, (nrTxtLines()== 1) ? 0 : 1 );
     setHSzPol( uiObject::MedVar ) ;
 
     setSorting( -1 );
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
+    setSelectionBehavior( QTreeWidget::SelectItems );
+    setMouseTracking( true );
 
+    if ( header() )
+	header()->setResizeMode( QHeaderView::Interactive );
 }
+
 
 uiListViewBody::~uiListViewBody()
-{
-    delete &messenger_;
-}
+{ delete &messenger_; }
+
+
+void uiListViewBody::setSorting( int column, bool increasing )
+{ sortByColumn(column,increasing ? Qt::AscendingOrder : Qt::DescendingOrder); }
 
 
 void uiListViewBody::keyPressEvent( QKeyEvent* event )
 {
     if ( moveItem(event) ) return;
-    
+
+    if ( event->key() == Qt::Key_Return )
+    {
+	lvhandle_.returnPressed.trigger();
+	return;
+    }
+
     uiListViewItem* currentitem = lvhandle_.currentItem();
     uiKeyDesc kd( event );
     CBCapsule<uiKeyDesc> cbc( kd, this );
@@ -107,8 +128,46 @@ void uiListViewBody::keyPressEvent( QKeyEvent* event )
     if ( cbc.data.key() != 0 )
     {
 	lvhandle_.unusedKey.trigger();
-	Q3ListView::keyPressEvent( event );
+	QTreeWidget::keyPressEvent( event );
     }
+}
+
+
+void uiListViewBody::mouseReleaseEvent( QMouseEvent* event )
+{
+    if ( !event ) return;
+
+    if ( event->button() == Qt::RightButton )
+	lvhandle_.buttonstate_ = OD::RightButton;
+    else if ( event->button() == Qt::LeftButton )
+	lvhandle_.buttonstate_ = OD::LeftButton;
+    else
+	lvhandle_.buttonstate_ = OD::NoButton;
+
+    QTreeWidget::mouseReleaseEvent( event );
+    lvhandle_.buttonstate_ = OD::NoButton;
+}
+
+
+void uiListViewBody::mousePressEvent( QMouseEvent* event )
+{
+    if ( !event ) return;
+
+    if ( event->button() == Qt::RightButton )
+    {
+	lvhandle_.rightButtonPressed.trigger();
+	lvhandle_.buttonstate_ = OD::RightButton;
+    }
+    else if ( event->button() == Qt::LeftButton )
+    {
+	lvhandle_.mouseButtonPressed.trigger();
+	lvhandle_.buttonstate_ = OD::LeftButton;
+    }
+    else
+	lvhandle_.buttonstate_ = OD::NoButton;
+
+    QTreeWidget::mousePressEvent( event );
+    lvhandle_.buttonstate_ = OD::NoButton;
 }
 
 
@@ -117,37 +176,32 @@ bool uiListViewBody::moveItem( QKeyEvent* event )
     if ( event->state() != Qt::ShiftButton )
 	return false;
 
-    Q3ListViewItem* currentitem = currentItem();
+    QTreeWidgetItem* currentitem = currentItem();
     if ( !currentitem ) return false;
 
-    Q3ListViewItem* parent = currentitem->parent();
+    QTreeWidgetItem* parent = currentitem->parent();
     if ( !parent ) return false;
 
-    Q3ListViewItem* moveafteritem = 0;
+    QTreeWidget* treewidget = currentitem->treeWidget();
+    QTreeWidgetItem* moveafteritem = 0;
     if ( event->key() == Qt::Key_Up )
     {
-	Q3ListViewItem* itmabove = currentitem->itemAbove();
-	moveafteritem = itmabove ? itmabove->itemAbove() : 0;
+	QTreeWidgetItem* itmabove = treewidget->itemAbove( currentitem );
+	moveafteritem = itmabove ? treewidget->itemAbove( itmabove ) : 0;
     }
     else if ( event->key() == Qt::Key_Down )
-	moveafteritem = currentitem->itemBelow();
+	moveafteritem = currentitem->treeWidget()->itemBelow( currentitem );
 
     if ( !moveafteritem )
 	return false;
 
-    bool res = true;
-    if ( moveafteritem->parent() == parent )
-	currentitem->moveItem( moveafteritem );
-    else if ( moveafteritem == parent )
-    {
-	parent->takeItem( currentitem );
-	parent->insertItem( currentitem );
-	setCurrentItem( currentitem );
-    }
-    else
-	res = false;
-
-    return res;
+    const int moveafteritemid = moveafteritem->indexOfChild( moveafteritem );
+    const int currentitemid = moveafteritem->indexOfChild( currentitem );
+    parent->takeChild( currentitemid );
+    parent->insertChild( moveafteritemid, currentitem );
+    setCurrentItem( currentitem );
+    
+    return true;
 }
 
 
@@ -187,7 +241,7 @@ bool uiListViewBody::event( QEvent* ev )
     {
 	if ( actitem_ && actitem_->listView()==&lvhandle_ )
 	{
-	    lvhandle_.lastitemnotified = actitem_;
+	    lvhandle_.lastitemnotified_ = actitem_;
 	    lvhandle_.mouseButtonClicked.trigger();
 	}
     }
@@ -201,7 +255,7 @@ bool uiListViewBody::event( QEvent* ev )
 	    }
 	    else
 	    {
-		lvhandle_.lastitemnotified = actitem_;
+		lvhandle_.lastitemnotified_ = actitem_;
 		lvhandle_.mouseButtonClicked.trigger();
 		actitem_->setChecked( !actitem_->isChecked(), true );
 	    }
@@ -211,12 +265,12 @@ bool uiListViewBody::event( QEvent* ev )
     {
 	if ( actitem_->listView()==&lvhandle_ )
 	{
-	    lvhandle_.lastitemnotified = actitem_;
+	    lvhandle_.lastitemnotified_ = actitem_;
 	    lvhandle_.rightButtonClicked.trigger();
 	}
     }
     else
-	return Q3ListView::event( ev );
+	return QTreeWidget::event( ev );
 
     lvhandle_.activatedone.trigger();
     return true;
@@ -229,11 +283,10 @@ uiListView::uiListView( uiParent* p, const char* nm, int nl, bool dec )
     : uiObject( p, nm, mkbody(p,nm,nl) )
     , selectionChanged(this)
     , currentChanged(this)
+    , itemChanged(this)
     , clicked(this)
     , pressed(this)
-    , doubleClicked(this)
     , returnPressed(this)
-    , spacePressed(this)
     , rightButtonClicked(this)
     , rightButtonPressed(this)
     , mouseButtonPressed(this)
@@ -244,36 +297,38 @@ uiListView::uiListView( uiParent* p, const char* nm, int nl, bool dec )
     , expanded(this)
     , collapsed(this)
     , unusedKey(this)
-    , lastitemnotified(0) 
+    , lastitemnotified_(0) 
     , activatedone(this)
+    , parent_(p)
 {
+    itemChanged.notify( mCB(this,uiListView,cursorSelectionChanged) );
     setRootDecorated( dec );
 }
 
 
-uiListViewBody& uiListView::mkbody( uiParent* p, const char* nm, int nl)
+void uiListView::cursorSelectionChanged( CallBacker* )
 {
-    body_ = new uiListViewBody(*this,p,nm,nl);
+    if ( lastitemnotified_->isCheckable() )
+    {
+	lastitemnotified_->setChecked( 
+	    lastitemnotified_->qItem()->checkState(0) == Qt::Checked, true );
+    }
+}
+
+   
+uiListViewBody& uiListView::mkbody( uiParent* p, const char* nm, int nl )
+{
+    body_ = new uiListViewBody( *this, p, nm, nl );
     return *body_;
 }
 
 
 void uiListView::setHScrollBarMode( ScrollMode mode )
-{
-    Q3ScrollView::ScrollBarMode qmode;
-    if ( mode==AlwaysOn ) qmode = Q3ScrollView::AlwaysOn;
-    else if ( mode==AlwaysOff ) qmode = Q3ScrollView::AlwaysOff;
-    body_->setHScrollBarMode( qmode );
-}
+{ body_->setHorizontalScrollBarPolicy( (Qt::ScrollBarPolicy)(int)mode ); }
 
 
 void uiListView::setVScrollBarMode( ScrollMode mode )
-{
-    Q3ScrollView::ScrollBarMode qmode;
-    if ( mode==AlwaysOn ) qmode = Q3ScrollView::AlwaysOn;
-    else if ( mode==AlwaysOff ) qmode = Q3ScrollView::AlwaysOff;
-    body_->setVScrollBarMode( qmode );
-}
+{ body_->setVerticalScrollBarPolicy( (Qt::ScrollBarPolicy)(int)mode ); }
 
 
 /*! \brief Set preferred number of lines. 
@@ -282,23 +337,23 @@ void uiListView::setVScrollBarMode( ScrollMode mode )
     therefore can not grow/shrink vertically.
 */
 void uiListView::setLines( int prefNrLines )
-    { body_->setLines(prefNrLines); }
+{ body_->setLines(prefNrLines); }
 
 
-int  uiListView::treeStepSize() const
-    { return body_->treeStepSize(); }
+void uiListView::setTreeStepSize( int stepsize )
+{//TODO
+}
 
-
-void uiListView::setTreeStepSize(int sz)
-    { body_->setTreeStepSize(sz); }
-
+void uiListView::setColumnWidthMode( int column, uiListView::WidthMode )
+{//TODO
+}
 
 bool uiListView::rootDecorated() const
-    { return body_->rootIsDecorated(); }
+{ return body_->rootIsDecorated(); }
 
 
 void uiListView::setRootDecorated( bool yn )
-    { body_->setRootIsDecorated(yn); }
+{ body_->setRootIsDecorated(yn); }
 
 /*! \brief insert an already existing item in this object's list of children
 
@@ -308,8 +363,8 @@ void uiListView::setRootDecorated( bool yn )
 
     \sa uiListView::takeItem
 */
-void uiListView::insertItem( uiListViewItem* itm )
-    { body_->insertItem( mQitemFor(itm) ); }
+void uiListView::insertItem(int item, uiListViewItem* itm )
+{ itm->qItem()->insertChild( item, itm->qItem() ); }
 
 
 /*! \brief take an item from this object's list of children
@@ -331,7 +386,10 @@ void uiListView::insertItem( uiListViewItem* itm )
     \sa uiListView::insertItem
 */
 void uiListView::takeItem( uiListViewItem* itm )
-    { body_->takeItem( mQitemFor(itm) ); }
+{ 
+     const int childid = itm->qItem()->indexOfChild( itm->qItem() );
+     itm->qItem()->takeChild( childid );
+}
 
 
 /*! \brief Adds a column
@@ -339,226 +397,177 @@ void uiListView::takeItem( uiListViewItem* itm )
     and returns the index of the new column.
     All columns apart from the first one are inserted to the right of the
     existing ones.
-
     \return index of the new column
 */
-int uiListView::addColumn( const char* label, int size)
-    { return body_->addColumn( label, size ); }
 
 
-void uiListView::removeColumn(int idx)
-    { body_->removeColumn(idx); }
+void uiListView::addColumns( const BufferStringSet& lbls )
+{
+    QStringList qlist;
+    for ( int idx=0; idx<body_->columnCount(); idx++ )
+	body_->model()->removeColumn( idx, body_->currentIndex() );
+    for ( int idx=0; idx<lbls.size(); idx++ )
+	qlist.append( QString(lbls.get(idx).buf()) );
+    for ( int idx=0; idx<qlist.size(); idx++ )
+    {
+	if ( idx != 0 )
+	    body_->model()->insertColumn( idx );
+	body_->headerItem()->setText( idx, qlist[idx] ); 
+    }
+}
+
+
+void uiListView::removeColumn( int idx )
+{ body_->model()->removeColumn( idx, body_->currentIndex() ); }
 
 
 void uiListView::setColumnText( int column, const char* label )
-    { body_->setColumnText( column, label ); }
+{
+    QString qlabel = QString( label );
+    selectedItem()->qItem()->setText( column, label );
+}
 
 
 const char* uiListView::columnText( int idx ) const
 {
     if ( idx < 0  ) return "";
 
-    rettxt = (const char*) body_->columnText(idx);
-    return rettxt;
+    QString qlabel = selectedItem()->qItem()->text(idx);
+    return qlabel.toAscii().data();
 }
 
 
 void uiListView::setColumnWidth( int column, int width )
-    { body_->setColumnWidth( column, width ); }
+{ body_->setColumnWidth ( column, width ); }
 
 
 int uiListView::columnWidth( int column ) const
-    { return body_->columnWidth(column); }
-
-
-void uiListView::setColumnWidthMode( int column, WidthMode mod )
-{
-    switch( mod )
-    {
-    case Manual : 
-	body_->setColumnWidthMode( column, Q3ListView::Manual );
-    break;
-
-    default:
-    case Maximum : 
-	body_->setColumnWidthMode( column, Q3ListView::Maximum );
-    break;
-    }
-}
-
-
-uiListView::WidthMode uiListView::columnWidthMode( int column ) const
-{
-    switch( body_->columnWidthMode(column) )
-    {
-    case Q3ListView::Manual :
-	return Manual;
-
-    default:
-    case Q3ListView::Maximum : 
-	return Maximum;
-    }
-}
+{ return body_->columnWidth(column); }
 
 
 int uiListView::columns() const			
-    { return body_->columns(); }
+{ return body_->model()->columnCount(); }
 
 
 void uiListView::setColumnAlignment( int idx , int al )
-    { body_->setColumnAlignment(idx, al); }
+{ selectedItem()->qItem()->setTextAlignment(idx, al); }
 
 
 int uiListView::columnAlignment( int idx) const 
-    { return body_->columnAlignment(idx); }
+{ return selectedItem()->qItem()->textAlignment(idx); }
 
 
 void uiListView::ensureItemVisible( const uiListViewItem* itm )
-    { body_->ensureItemVisible( mQitemFor(itm) ); }
+{
+// TODO: Causes a Bus error
+//    body_->scrollToItem( itm->qItem() );
+}
 
 
 void uiListView::setMultiSelection( bool yn )
-    { body_->setMultiSelection( yn ); }
+{
+    if ( yn )
+	body_->setSelectionMode( QTreeWidget::MultiSelection ); 
+}
 
 
 bool uiListView::isMultiSelection() const
-    { return body_->isMultiSelection(); }
+{ return body_->selectionMode() == QTreeWidget::MultiSelection; }
 
 
 void uiListView::setSelectionMode( SelectionMode mod )
-{
-    switch( mod )
-    {
-    case Single : 
-	body_->setSelectionMode( Q3ListView::Single );
-    break;
+{ body_->setSelectionMode( (QTreeWidget::SelectionMode)int(mod) ); }
 
-    case Multi : 
-	body_->setSelectionMode( Q3ListView::Multi );
-    break;
 
-    case Extended : 
-	body_->setSelectionMode( Q3ListView::Extended );
-    break;
+void uiListView::setSelectionBehavior( SelectionBehavior behavior )
+{ body_->setSelectionBehavior( (QTreeWidget::SelectionBehavior)int(behavior)); }
 
-    default:
-    case NoSelection : 
-	body_->setSelectionMode( Q3ListView::NoSelection );
-    break;
-    }
-}
 
 uiListView::SelectionMode uiListView::selectionMode() const
-{
-    switch( body_->selectionMode() )
-    {
-    case Q3ListView::Single :
-	return Single;
+{ return (uiListView::SelectionMode)int(body_->selectionMode()); }
 
-    case Q3ListView::Multi :
-	return Multi;
 
-    case Q3ListView::Extended :
-	return Extended;
-
-    default:
-    case Q3ListView::NoSelection : 
-	return NoSelection;
-    }
-}
+uiListView::SelectionBehavior uiListView::selectionBehavior() const
+{ return (uiListView::SelectionBehavior)int(body_->selectionBehavior()); }
 
 
 void uiListView::clearSelection()
-    { body_->clearSelection(); }
+{ body_->clearSelection(); }
 
 
 void uiListView::setSelected( uiListViewItem* itm, bool yn )
-    { body_->setSelected( mQitemFor(itm), yn); }
+{ itm->qItem()->setSelected( yn ); }
 
 
 bool uiListView::isSelected( const uiListViewItem* itm ) const
-    { return body_->isSelected( mQitemFor(itm) ); }
+{ return  itm->qItem()->isSelected(); }
 
 
 uiListViewItem* uiListView::selectedItem() const
-    { return mItemFor( body_->selectedItem() ); }
+{ return mItemFor( body_->currentItem() ); }
 
 
 void uiListView::setOpen( uiListViewItem* itm, bool yn )
-    { body_->setOpen( mQitemFor(itm), yn ); }
+{ body_->expandItem( itm->qItem() ); }
 
 
 bool uiListView::isOpen( const uiListViewItem* itm ) const
-    { return body_->isOpen( mQitemFor(itm) ); }
+{ return body_->isExpanded( qtreeWidget()->currentIndex() ); }
 
 
 void uiListView::setCurrentItem( uiListViewItem* itm )
-    { body_->setCurrentItem( mQitemFor(itm) ); }
+{ body_->setCurrentItem( itm->qItem() ); }
 
 
 uiListViewItem* uiListView::currentItem() const
-    { return mItemFor( body_->currentItem() ); }
+{ return mItemFor( body_->currentItem() ); }
 
 
 uiListViewItem* uiListView::firstChild() const
-    { return mItemFor( body_->firstChild() ); }
+{ return currentItem() ? mItemFor( currentItem()->qItem()->child(0) ) : 0; }
 
 
 uiListViewItem* uiListView::lastItem() const
-    { return mItemFor( body_->lastItem() ); }
+{ return currentItem() ? mItemFor(currentItem()->qItem()->child(childCount()-1)) 		       : 0; }
 
 
 int uiListView::childCount() const
-    { return body_->childCount(); }
-
-
-void uiListView::setItemMargin( int mrg )
-    { body_->setItemMargin( mrg ); }
-
-
-int uiListView::itemMargin() const
-    { return body_->itemMargin(); }
+{ return selectedItem()->qItem()->childCount(); }
 
 
 void uiListView::setSorting( int column, bool increasing )
-    { body_->setSorting( column, increasing ); }
+{ body_->sortByColumn( column, (Qt::SortOrder)int(increasing) ); }
 
 
 void uiListView::sort()
-    { body_->sort(); }
+{ body_->sortColumn(); }
 
 
-void uiListView::setShowSortIndicator( bool yn )
-    { body_->setShowSortIndicator( yn ); }
+uiListViewItem* uiListView::findItem( const char* text, int column,
+				      bool casesensitive ) const
+{
+    Qt::MatchFlags flags =
+	casesensitive ? Qt::MatchFixedString | Qt::MatchCaseSensitive
+		      : Qt::MatchFixedString;
+    QList<QTreeWidgetItem*> items =
+	lvbody()->findItems( QString(text), flags, column );
 
+    return items.isEmpty() ? 0 : mItemFor( items[0] );
+}
 
-bool uiListView::showSortIndicator() const
-    { return body_->showSortIndicator(); }
-
-
-void uiListView::setShowToolTips( bool yn )
-    { body_->setShowToolTips( yn ); }
-
-
-bool uiListView::showToolTips() const
-    { return body_->showToolTips(); }
-
-
-uiListViewItem* uiListView::findItem( const char* text, int column ) const
-    { return mItemFor( body_->findItem(text, column) ); }
 
 /*!
     Removes and deletes all the items in this list view and triggers an
     update.
 */
 void uiListView::clear()
-    { body_->Q3ListView::clear(); }
+{ body_->QTreeWidget::clear(); }
 
-void uiListView::invertSelection()
-    { body_->invertSelection(); }
+/*void uiListView::invertSelection()
+    { body_->invertSelection(); }*/
 
 void uiListView::selectAll( bool yn )
-    { body_->selectAll(yn); }
+{ body_->selectAll(); }
 
 /*! \brief Triggers contents update.
     Triggers a size, geometry and content update during the next
@@ -566,10 +575,10 @@ void uiListView::selectAll( bool yn )
     just one update to avoid flicker.
 */
 void uiListView::triggerUpdate()
-    { body_->triggerUpdate(); }
+{ body_->updateGeometry(); }
 
-void uiListView::setNotifiedItem( Q3ListViewItem* itm)
-    { lastitemnotified = mItemFor( itm ); }
+void uiListView::setNotifiedItem( QTreeWidgetItem* itm)
+{ lastitemnotified_ = mItemFor( itm ); }
 
 
 void uiListView::activateClick( uiListViewItem& uilvwitm )
@@ -584,232 +593,64 @@ void uiListView::activateMenu( uiListViewItem& uilvwitm )
 { body_->activateMenu( uilvwitm ); }
 
 
-class uiQListViewItem : public Q3ListViewItem
-{
-public:
-				uiQListViewItem( uiListViewItem& it, 
-						 Q3ListViewItem* parent ) 
-				: Q3ListViewItem( parent )
-				, item_( it )
-				{}
-
-				uiQListViewItem( uiListViewItem& it, 
-						 Q3ListView* parent ) 
-				: Q3ListViewItem( parent )
-				, item_( it )
-				{}
-
-    uiListViewItem&		uiItem() 	{ return item_; }
-    const uiListViewItem&	uiItem() const 	{ return item_; }
-
-#define mBaseItemClsss		Q3ListViewItem
-#include			"i_uilistview.h"
-
-protected:
-    uiListViewItem&		item_;
-};
-
-class uiQCheckListItem : public Q3CheckListItem
-{
-public:
-				uiQCheckListItem( uiListViewItem& it, 
-						  Q3ListViewItem* parent,
-						  Type tt) 
-				: Q3CheckListItem( parent, QString(), tt )
-				, item_( it )
-				{}
-
-				uiQCheckListItem( uiListViewItem& it, 
-						  uiQCheckListItem* parent,
-						  Type tt) 
-				: Q3CheckListItem( parent, QString(), tt )
-				, item_( it )
-				{}
-
-				uiQCheckListItem( uiListViewItem& it, 
-						  Q3ListView* parent,
-						  Type tt) 
-				: Q3CheckListItem( parent, QString(), tt )
-				, item_( it )
-				{}
-
-    uiListViewItem&		uiItem() 	{ return item_; }
-    const uiListViewItem&	uiItem() const 	{ return item_; }
-
-    virtual void 		stateChange ( bool )
-				    { item_.stateChanged.trigger(&item_); }
-
-
-#define mBaseItemClsss		Q3CheckListItem
-#include			"i_uilistview.h"
-
-protected:
-    uiListViewItem&		item_;
-};
-
-
-class uiListViewItemBody
-{
-public:
-				uiListViewItemBody(uiListViewItem&,
-						uiListView*, uiListViewItem*,
-						const uiListViewItem::Setup& );
-
-    Q3ListViewItem&		item()			{ return itm; }
-    const Q3ListViewItem&	item() const		{ return itm; }
-    uiQCheckListItem*		chklstitem()		{ return clitm; }
-    const uiQCheckListItem*	chklstitem() const	{ return clitm; }
-
-private:
-
-    Q3ListViewItem& 		mkitem( uiListViewItem&, uiListView*, 
-					uiListViewItem*, 
-					const uiListViewItem::Setup& setup );
-
-    Q3ListViewItem&		itm;
-    uiQCheckListItem*		clitm;
-
-};
-
-uiListViewItemBody::uiListViewItemBody( uiListViewItem& handle,uiListView* lv,
-		     uiListViewItem* lvitm, const uiListViewItem::Setup& setup )
-: itm( mkitem(handle,lv,lvitm,setup) )
-, clitm( 0 )
-{
-    clitm = dynamic_cast<uiQCheckListItem*>( &itm );
-}
-
-Q3ListViewItem& uiListViewItemBody::mkitem( uiListViewItem& handle,
-    uiListView* lv, uiListViewItem* lvitm, const uiListViewItem::Setup& setup )
-{
-    if( setup.type_ == uiListViewItem::Standard )
-    {
-	if( lv ) return *new uiQListViewItem( handle, lv->lvbody() );
-
-	if( lvitm && lvitm->itmbody() )
-	    return *new uiQListViewItem( handle, &lvitm->itmbody()->item() );
-
-	return *new uiQListViewItem( handle, (Q3ListView*)0 );
-
-    }
-    else
-    {
-	Q3CheckListItem::Type tt = Q3CheckListItem::Controller;
-	switch( setup.type_ )
-	{
-	case uiListViewItem::RadioButton : tt = Q3CheckListItem::RadioButton; 
-	break;
-	case uiListViewItem::CheckBox	 : tt = Q3CheckListItem::CheckBox; 
-	break;
-	}
-
-	if( lv ) return *new uiQCheckListItem( handle, lv->lvbody(), tt );
-
-	if( lvitm && lvitm->itmbody() )
-	{
-	    uiQCheckListItem* cli = lvitm->itmbody()->chklstitem();
-	    if( cli )
-		return *new uiQCheckListItem( handle, cli, tt );
-
-	    return *new uiQCheckListItem(handle, &lvitm->itmbody()->item(),tt);
-	}
-
-	return *new uiQCheckListItem( handle, (Q3ListView*)0, tt );
-    }
-}
 
 #define mQthing()		body()->item()
 
 
-
-uiListViewItem::uiListViewItem( uiListView*  parent, const char* txt )
-: uiHandle<uiListViewItemBody>( txt, &mkbody( parent, 0, Setup(txt) ) )
-, stateChanged( this )
-, keyPressed( this )
-{ 
-    init(Setup(txt)); 
-}
-
-
-uiListViewItem::uiListViewItem( uiListViewItem*  parent, const char* txt )
-: uiHandle<uiListViewItemBody>( txt, &mkbody( 0, parent, Setup(txt) ) )
-, stateChanged( this )
-, keyPressed( this )
-{ 
-    init(Setup(txt)); 
-}
-
-
-uiListViewItem::uiListViewItem( uiListView*  parent, const Setup& setup )
-    : uiHandle<uiListViewItemBody>( setup.labels_.size()? *setup.labels_[0] : 0,
-	    			    &mkbody( parent, 0, setup ) )
-    , stateChanged( this )
+uiListViewItem::uiListViewItem( uiListView* parent, const Setup& setup )
+    : stateChanged( this )
     , keyPressed( this )
 { 
-    init(setup); 
+    qtreeitem_ = new QTreeWidgetItem( parent ? parent->lvbody() : 0 );
+    odqtobjects_.add( this, qtreeitem_ );
+    init( setup );
 }
 
 
-uiListViewItem::uiListViewItem( uiListViewItem*  parent, const Setup& setup )
-    : uiHandle<uiListViewItemBody>( setup.labels_.size()? *setup.labels_[0] : 0,
-				    &mkbody( 0, parent, setup ) )
-    , stateChanged( this )
+uiListViewItem::uiListViewItem( uiListViewItem* parent, const Setup& setup )
+    : stateChanged( this )
     , keyPressed( this )
 { 
-    init(setup); 
+    qtreeitem_ = new QTreeWidgetItem( parent ? parent->qItem() : 0 );
+    odqtobjects_.add( this, qtreeitem_ );
+    init( setup );
 }
 
-uiListViewItemBody& uiListViewItem::mkbody( uiListView* p1,uiListViewItem* p2, 
-					    const Setup& setup )
-{
-    body_= new uiListViewItemBody( *this, p1, p2, setup ) ;
-    return *body_;
-}
 
 void uiListViewItem::init( const Setup& setup )
 {
-    if ( setup.after_ )		moveItem( setup.after_ );
-    if ( setup.pixmap_ )	setPixmap( 0, *setup.pixmap_ );
+    if ( setup.after_ )         moveItem( setup.after_ );
+    if ( setup.pixmap_ )        setPixmap( 0, *setup.pixmap_ );
+    if ( setup.type_ == uiListViewItem::CheckBox )
+	qtreeitem_->setCheckState( 0, setup.setcheck_ ? Qt::Checked :
+							Qt::Unchecked );
+    else
+	qtreeitem_->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable );
+
     if ( setup.labels_.size() )
     {
 	for( int idx=0; idx < setup.labels_.size() ; idx++ )
-	    { setText( *setup.labels_[idx], idx ); }
+	{ setText( *setup.labels_[idx], idx ); }
     }
 }
 
 
-void uiListViewItem::insertItem( uiListViewItem* itm )
-    { mQthing().insertItem( mQitemFor(itm) ); }
-
-
-void uiListViewItem::takeItem( uiListViewItem* itm )
-    { mQthing().takeItem( mQitemFor(itm) ); }
-
-
-void uiListViewItem::removeItem( uiListViewItem* itm)
-    { mQthing().removeItem( mQitemFor(itm) ); }
-
-
-int uiListViewItem::siblingIndex() const
+uiListViewItem::~uiListViewItem()
 {
-    const Q3ListViewItem* thisp = &mQthing();
-    const Q3ListViewItem* parentitem = mQthing().parent();
-    const Q3ListView* parentlistview = mQthing().listView();
-    if ( !parentitem && !parentlistview )
-	return -1;
-    
-    Q3ListViewItem* curitem = parentitem ? parentitem->firstChild()  
-					 : parentlistview->firstChild();
-    int idx=0;
-    while ( curitem && curitem!=thisp )
+    odqtobjects_.remove( *this );
+    delete qtreeitem_;
+}
+
+/*
+while ( curitem && curitem!=thisp )
     {
 	idx++;
-	curitem = curitem->nextSibling();
+	curitem = curitem->child(curitem->indexOfChild(qtreeitem_)+1);
     }
 
     if ( !curitem ) return -1;
     return idx;
-}
+}*/
 
 
 /*! \brief depth in the tree
@@ -817,204 +658,208 @@ int uiListViewItem::siblingIndex() const
     with -1 == the hidden root
 */
 int uiListViewItem::depth() const
-    { return mQthing().depth(); }
-
+{ return qItem()->treeWidget()->depth(); }
 
 void uiListViewItem::setText( const char* txt, int column )
 { 
-    QString txt_(txt);
-    Q3ListViewItem& itm = mQthing();
-
-    itm.setText(column,txt_); 
+    qItem()->setText( column, QString(txt) );
+    qtreeitem_->setToolTip( column, QString(txt) );
 }
 
 
 const char* uiListViewItem::text( int column ) const
 { 
-    rettxt = (const char*)mQthing().text( column );
+    rettxt = (const char*)qItem()->text( column );
     return rettxt;
 }
 
 
 void uiListViewItem::setPixmap( int column, const ioPixmap& pm )
 {
-    mQthing().setPixmap( column, pm.qpixmap() ? *pm.qpixmap() : QPixmap() );
-}
-
-/*!
-    Creates a new ioPixmap, which becomes yours,
-    so you have to delete it..
-*/
-const ioPixmap* uiListViewItem::pixmap( int column ) const
-{ 
-    const QPixmap* pm = mQthing().pixmap(column);
-    return pm ? new ioPixmap( *pm ) : 0;
+    qItem()->setIcon( column, pm.qpixmap() ? *pm.qpixmap() : QPixmap() );
 }
 
 
 int uiListViewItem::childCount() const
-    { return mQthing().childCount(); }
+{ return qItem()->childCount(); }
 
 
 bool uiListViewItem::isOpen() const
-    { return mQthing().isOpen(); }
+{ return qItem()->isExpanded(); }
 
 
 void uiListViewItem::setOpen( bool yn )
-    { mQthing().setOpen(yn); }
+{ qItem()->setExpanded(yn); }
 
 
 void uiListViewItem::setSelected( bool yn )
-    { mQthing().setSelected(yn); }
+{ qItem()->setSelected(yn); }
 
 
 bool uiListViewItem::isSelected() const
-    { return mQthing().isSelected(); }
+{ return qItem()->isSelected(); }
 
 
 uiListViewItem* uiListViewItem::firstChild() const
-    { return mItemFor( mQthing().firstChild() ); }
+{ return mItemFor( qItem()->child(0) ); }
+
+
+int uiListViewItem::siblingIndex() const
+{
+    QTreeWidgetItem* itm = const_cast<QTreeWidgetItem*> (qItem());
+    return itm && itm->parent() ? itm->parent()->indexOfChild(itm) : -1;
+}
 
 
 uiListViewItem* uiListViewItem::nextSibling() const
-    { return mItemFor( mQthing().nextSibling() ); }
+{ 
+    QTreeWidgetItem* itm = const_cast<QTreeWidgetItem*> (qItem());
+    return mItemFor( itm->child(itm->indexOfChild(itm)+1) ); 
+}
 
 
 uiListViewItem* uiListViewItem::parent() const
-    { return mItemFor( mQthing().parent() ); }
+{ return mItemFor( qItem()->parent() ); }
 
-
+ 
 uiListViewItem* uiListViewItem::itemAbove()
-    { return mItemFor( mQthing().itemAbove() ); }
+{ return mItemFor( qItem()->treeWidget()->itemAbove(qItem()) ); }
 
 
 uiListViewItem* uiListViewItem::itemBelow()
-    { return mItemFor( mQthing().itemBelow() ); }
+{ return mItemFor( qItem()->treeWidget()->itemBelow(qItem()) ); }
 
 
 uiListView* uiListViewItem::listView() const
 {
-    Q3ListView* lv = mQthing().listView();
-    uiListViewBody* lvb = dynamic_cast<uiListViewBody*>(lv);
-    if ( !lvb ) return 0;
-
-    return &lvb->lvhandle();
+    return &( listView()->lvbody()->lvhandle() );
 }
 
+
 void uiListViewItem::setSelectable( bool yn )
-    { mQthing().setSelectable(yn); }
+{
+    qItem()->treeWidget()->setSelectionMode(yn ? QTreeWidget::SingleSelection
+					     : QTreeWidget::NoSelection);
+    qItem()->treeWidget()->setSelectionBehavior( QTreeWidget::SelectItems );
+}
 
 
 bool uiListViewItem::isSelectable() const
-    { return mQthing().isSelectable(); }
+{ return qItem()->treeWidget()->selectionMode() != QTreeWidget::NoSelection ; }
 
 
 void uiListViewItem::setExpandable( bool yn )
-    { mQthing().setExpandable(yn); }
+{ qItem()->setExpanded(yn); }
 
 
 bool uiListViewItem::isExpandable() const
-    { return mQthing().isExpandable(); }
+{ return qItem()->isExpanded(); }
+
+
+void uiListViewItem::takeItem( uiListViewItem* itm )
+{ 
+     const int childid = itm->qItem()->indexOfChild( itm->qItem() );
+     itm->qItem()->takeChild( childid );
+}
+
+
+void uiListViewItem::insertItem(int item, uiListViewItem* itm )
+{ itm->qItem()->insertChild( item, itm->qItem() ); }
+
+
+void uiListViewItem::removeItem( uiListViewItem* itm )
+{
+    const int idx = qItem()->indexOfChild( itm->qItem() );
+    qItem()->removeChild( itm->qItem() );
+}
 
 
 void uiListViewItem::moveItem( uiListViewItem* after )
-    { mQthing().moveItem(mQitemFor(after)); }
+{
+    parent()->takeItem(this);
+    const int afterid = after->qItem()->indexOfChild( after->qItem() );
+    parent()->insertItem( afterid, this );
+}
 
 
 void uiListViewItem::setDragEnabled( bool yn )
-{ mQthing().setDragEnabled( yn ); }
+{
+    if ( yn )
+	qItem()->treeWidget()->setDragDropMode( QTreeWidget::DragOnly ); 
+}
 
 
 void uiListViewItem::setDropEnabled( bool yn )
-{ mQthing().setDropEnabled( yn ); }
+{
+    if ( yn )
+	qItem()->treeWidget()->setDragDropMode( QTreeWidget::DropOnly ); 
+}
 
 bool uiListViewItem::dragEnabled() const
-{ return mQthing().dragEnabled(); }
+{
+    return qItem()->treeWidget()->dragDropMode() == QTreeWidget::DragOnly || 
+						    QTreeWidget::DragDrop;
+}
 
 bool uiListViewItem::dropEnabled() const
-{ return mQthing().dropEnabled(); }
+{
+    return qItem()->treeWidget()->dragDropMode() == QTreeWidget::DropOnly || 
+						    QTreeWidget::DragDrop;
+}
 
 
 void uiListViewItem::setVisible( bool yn )
-    { mQthing().setVisible(yn); }
+{ qItem()->setHidden(!yn); }
 
 
 bool uiListViewItem::isVisible() const
-    { return mQthing().isVisible(); }
+{ return !qItem()->isHidden(); }
 
 
 void uiListViewItem::setRenameEnabled( int column, bool yn )
-    { mQthing().setRenameEnabled(column,yn); }
+{ qItem()->setFlags( yn ? Qt::ItemIsEditable : Qt::ItemIsSelectable ); }
 
 
 bool uiListViewItem::renameEnabled( int column ) const
-    { return mQthing().renameEnabled(column); }
+{ return qItem()->flags() == Qt::ItemIsEditable; }
 
 
 void uiListViewItem::setEnabled( bool yn )
-    { mQthing().setEnabled(yn); }
+{ qItem()->setDisabled(!yn); }
 
 
 bool uiListViewItem::isEnabled() const
-    { return mQthing().isEnabled(); }
+{ return !qItem()->isDisabled(); }
 
 
-void uiListViewItem::setMultiLinesEnabled( bool yn )
-    { mQthing().setMultiLinesEnabled(yn); }
-
-
-bool uiListViewItem::multiLinesEnabled() const
-    { return mQthing().multiLinesEnabled(); }
-
-
-
-Q3ListViewItem* uiListViewItem::qitemFor( uiListViewItem* itm )
+uiListViewItem* uiListViewItem::itemFor( QTreeWidgetItem* itm )
 {
-    return &itm->body_->item();
+    return odqtobjects_.getODObject( *itm );
 }
 
-const Q3ListViewItem*  uiListViewItem::qitemFor( const uiListViewItem* itm )
+const uiListViewItem* uiListViewItem::itemFor( const QTreeWidgetItem* itm )
 {
-    return &itm->body_->item();
+    return odqtobjects_.getODObject( *itm );
 }
 
-
-uiListViewItem*  uiListViewItem::itemFor( Q3ListViewItem* itm )
-{
-    uiQListViewItem* uiql = dynamic_cast<uiQListViewItem*>(itm);
-    if( uiql )  return &uiql->uiItem();
-
-    uiQCheckListItem* uiqcl = dynamic_cast<uiQCheckListItem*>(itm);
-    if( uiqcl ) return &uiqcl->uiItem();
-
-    return 0;
-}
-
-const uiListViewItem* uiListViewItem::itemFor( const Q3ListViewItem* itm )
-{
-    const uiQListViewItem* uiql = dynamic_cast<const uiQListViewItem*>(itm);
-    if( uiql )  return &uiql->uiItem();
-
-    const uiQCheckListItem* uiqcl = dynamic_cast<const uiQCheckListItem*>(itm);
-    if( uiqcl ) return &uiqcl->uiItem();
-
-    return 0;
-}
-
-
-#define mChkthing()	body()->chklstitem()
 
 bool uiListViewItem::isCheckable() const
-    { return mChkthing() ? true : false; }
+{
+    return qItem()->flags().testFlag( Qt::ItemIsUserCheckable );
+}
 
 
 void uiListViewItem::setChecked( bool yn, bool trigger )
 {
     NotifyStopper ns( stateChanged );
     if ( trigger ) ns.restore();
-    if ( mChkthing() ) mChkthing()->setOn( yn );
+    qItem()->setCheckState( qItem()->indexOfChild(qItem()), 
+	    		    yn ? Qt::Checked : Qt::Unchecked );
+    stateChanged.trigger();
 }
 
 
 bool uiListViewItem::isChecked() const
-    { return mChkthing() ? mChkthing()->isOn() : false; }
+{
+    return qItem()->checkState( 0 ) == Qt::Checked;
+}

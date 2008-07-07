@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.34 2008-02-01 10:59:19 cvsnanne Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.35 2008-07-07 09:35:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 
@@ -60,7 +60,8 @@ public:
     virtual void		moveItem( uiTreeItem* after );
     virtual void		moveItemToTop();
 				 
-    virtual bool		addChild( uiTreeItem* child, bool below );
+    virtual bool		addChild( uiTreeItem* child, bool below,
+	    				  bool checkable, bool setcheck );
     				/*!<Adds a child. If the child does not fit
 				    (i.e. the child's parentType() is not
 				    the same as this), it will try to find
@@ -133,7 +134,8 @@ protected:
     virtual uiParent*		getUiParent() const;
 
     virtual bool		addChild(uiTreeItem*, bool below,
-	    				 bool downwards);
+	    				 bool downwards,bool checkable,
+					 bool setcheck );
     				/*!< Adds a child to this item. If the child
 				    does not fit (i.e. its parentType() is not
 				    equal to this), the object tries to add
@@ -186,7 +188,8 @@ class uiTreeTopItem : public uiTreeItem
 {
 public:
     			uiTreeTopItem(uiListView*);
-    virtual bool	addChild(uiTreeItem*, bool below);
+    virtual bool	addChild(uiTreeItem*, bool below,
+	    			 bool checkable, bool setcheck);
     virtual void	updateSelection(int selectionkey, bool=false );
     			/*!< Does only update the display */
     virtual void	updateColumnText(int col);
@@ -197,7 +200,8 @@ public:
 
 			~uiTreeTopItem();
 protected:
-    virtual bool	addChild(uiTreeItem*, bool below, bool downwards);
+    virtual bool	addChild(uiTreeItem*, bool below, bool downwards,
+	    			 bool checkable, bool setcheck );
 
     void		selectionChanged(CallBacker*);
     void		rightClickCB(CallBacker*);

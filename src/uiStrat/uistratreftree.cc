@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.20 2008-04-18 14:37:28 cvshelene Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.21 2008-07-07 09:35:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,9 +21,7 @@ ________________________________________________________________________
 #include "uistratmgr.h"
 #include "uistratutildlgs.h"
 
-#define mAddCol(nm,wdth,nr) \
-    lv_->addColumn( nm ); \
-    lv_->setColumnWidthMode( nr, uiListView::Manual ); \
+#define mAddCol(wdth,nr) \
     lv_->setColumnWidth( nr, wdth )
 
 #define PMWIDTH		11
@@ -40,9 +38,14 @@ uiStratRefTree::uiStratRefTree( uiParent* p, uiStratMgr* uistratmgr )
     , uistratmgr_(uistratmgr)
 {
     lv_ = new uiListView( p, "RefTree viewer" );
-    mAddCol( "Unit", 300, 0 );
-    mAddCol( "Description", 200, 1 );
-    mAddCol( "Lithology", 150, 2 );
+    BufferStringSet labels;
+    labels.add( "Unit" );
+    labels.add( "Description" );
+    labels.add( "Lithology" );
+    lv_->addColumns( labels );
+    mAddCol( 300, 0 );
+    mAddCol( 200, 1 );
+    mAddCol( 150, 2 );
     lv_->setPrefWidth( 650 );
     lv_->setPrefHeight( 400 );
     lv_->setStretch( 2, 2 );
@@ -87,7 +90,7 @@ void uiStratRefTree::addNode( uiListViewItem* parlvit,
 	delete pm;
     }
     
-    for ( int iref=nur.nrRefs()-1; iref>=0; iref-- )
+    for ( int iref=0; iref<nur.nrRefs(); iref++ )
     {
 	const UnitRef& ref = nur.ref( iref );
 	if ( ref.isLeaf() )
@@ -292,7 +295,7 @@ void uiStratRefTree::updateLvlsPixmaps()
     UnitRef::Iter it( *uistratmgr_->getCurTree() );
     const UnitRef* firstun = it.unit();
     ioPixmap* pm = createLevelPixmap( firstun );
-    uiListViewItem* firstlvit = lv_->findItem( firstun->code(), 0 );
+    uiListViewItem* firstlvit = lv_->findItem( firstun->code().buf(),0,false );
     if ( firstlvit )
 	firstlvit->setPixmap( 0, *pm );
     delete pm;
@@ -300,7 +303,7 @@ void uiStratRefTree::updateLvlsPixmaps()
     {
 	const UnitRef* un = it.unit();
 	ioPixmap* pm = createLevelPixmap( un );
-	uiListViewItem* lvit = lv_->findItem( un->code(), 0 );
+	uiListViewItem* lvit = lv_->findItem( un->code().buf(), 0, false );
 	if ( lvit )
 	    lvit->setPixmap( 0, *pm );
 	delete pm;

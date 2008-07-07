@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: i_qtreeview.h,v 1.7 2008-02-01 05:22:25 cvsnanne Exp $
+ RCS:           $Id: i_qtreeview.h,v 1.8 2008-07-07 09:35:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,7 @@ ________________________________________________________________________
 
 #include <QObject>
 #include <string.h>
-#include <q3listview.h>
+#include <qtreewidget.h>
 
 
 
@@ -30,188 +30,165 @@ class i_listVwMessenger : public QObject
     friend class	uiListViewBody;
 
 protected:
-			i_listVwMessenger( Q3ListView&  sender, 
-					   uiListView& receiver )
-			    : _sender( sender ) , _receiver( receiver )
-    { 
 
-	connect( &sender, SIGNAL( selectionChanged( Q3ListViewItem* )), 
-		 this, SLOT( selectionChanged( Q3ListViewItem* )));
+i_listVwMessenger( QTreeWidget& sender, uiListView& receiver )
+    : sender_(sender)
+    , receiver_(receiver)
+{ 
+    connect( &sender, SIGNAL(itemSelectionChanged()),
+	     this, SLOT(itemSelectionChanged()) );
 
-	connect( &sender, SIGNAL( currentChanged( Q3ListViewItem* )), 
-		 this, SLOT( currentChanged( Q3ListViewItem* )));
+    connect( &sender, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
+	     this, SLOT(itemChanged(QTreeWidgetItem*,int)) );
 
-	connect( &sender, SIGNAL( clicked( Q3ListViewItem* )), 
-		 this, SLOT( clicked( Q3ListViewItem* )));
+    connect( &sender,
+	     SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)), 
+	     this,
+	     SLOT(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)) );
 
-	connect( &sender, SIGNAL( pressed( Q3ListViewItem* )), 
-		 this, SLOT( pressed( Q3ListViewItem* )));
+    connect( &sender, SIGNAL(itemClicked(QTreeWidgetItem*,int)), 
+	     this, SLOT(itemClicked(QTreeWidgetItem*,int)) );
 
-	connect( &sender, SIGNAL( doubleClicked( Q3ListViewItem* )), 
-		 this, SLOT( doubleClicked( Q3ListViewItem* )));
+    connect( &sender, SIGNAL(itemPressed(QTreeWidgetItem*,int)), 
+	     this, SLOT(itemPressed(QTreeWidgetItem*,int)) );
 
-	connect( &sender, SIGNAL( returnPressed( Q3ListViewItem* )), 
-		 this, SLOT( returnPressed( Q3ListViewItem* )));
+    //connect( &sender, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), 
+	//     this, SLOT(itemDoubleClicked(QTreeWidgetItem*,int)) );
 
-	connect( &sender, SIGNAL( spacePressed( Q3ListViewItem* )), 
-		 this, SLOT( spacePressed( Q3ListViewItem* )));
 
-	connect( &sender, SIGNAL( 
-		    rightButtonClicked( Q3ListViewItem* , const QPoint&, int )), 
-		 this, SLOT( 
-		    rightButtonClicked(Q3ListViewItem* , const QPoint&, int )));
+    connect( &sender, SIGNAL(customContextMenuRequested(const QPoint &)), 
+	     this, SLOT(customContextMenuRequested(const QPoint &)) );
 
-	connect( &sender, SIGNAL( 
-		    rightButtonPressed( Q3ListViewItem* , const QPoint&, int )), 
-		 this, SLOT( 
-		    rightButtonPressed(Q3ListViewItem* , const QPoint&, int )));
+    //connect( &sender, SIGNAL( onItem( QTreeWidgetItem* )), 
+	    // this, SLOT( onItem( QTreeWidgetItem* )));
 
-	connect( &sender, SIGNAL( 
-		    mouseButtonPressed(int,Q3ListViewItem*,const QPoint&,int)),
-		 this, SLOT( 
-		    mouseButtonPressed(int,Q3ListViewItem*,const QPoint&,int)));
+    connect( &sender, SIGNAL(itemExpanded(QTreeWidgetItem*)), 
+	     this, SLOT(itemExpanded(QTreeWidgetItem*)) );
 
-	connect( &sender, SIGNAL( 
-		    mouseButtonClicked(int,Q3ListViewItem*,const QPoint&,int)), 
-		 this, SLOT( 
-		    mouseButtonClicked(int,Q3ListViewItem*,const QPoint&,int)));
+    connect( &sender, SIGNAL(itemCollapsed(QTreeWidgetItem*)), 
+	     this, SLOT(itemCollapsed(QTreeWidgetItem*)) );
 
-	connect( &sender, SIGNAL( 
-		    contextMenuRequested(Q3ListViewItem*,const QPoint &,int)), 
-		 this, SLOT( 
-		    contextMenuRequested(Q3ListViewItem*, const QPoint &,int)));
-
-	connect( &sender, SIGNAL( onItem( Q3ListViewItem* )), 
-		 this, SLOT( onItem( Q3ListViewItem* )));
-
-	connect( &sender, SIGNAL( expanded( Q3ListViewItem* )), 
-		 this, SLOT( expanded( Q3ListViewItem* )));
-
-	connect( &sender, SIGNAL(collapsed(Q3ListViewItem*)), 
-		 this, SLOT( collapsed( Q3ListViewItem* )));
-
-	connect( &sender, SIGNAL( itemRenamed( Q3ListViewItem*, int )), 
-		 this, SLOT( itemRenamed( Q3ListViewItem*, int )));
-	
-    }
+    //connect( &sender, SIGNAL( itemRenamed( QTreeWidgetItem*, int )), 
+	     //this, SLOT( itemRenamed( QTreeWidgetItem*, int )));
+}
 
     virtual		~i_listVwMessenger() {}
 
-    void		setNotifiedItem( Q3ListViewItem* item )
-			    { _receiver.setNotifiedItem(item); }
-private:
+    void		setNotifiedItem( QTreeWidgetItem* item )
+			{ receiver_.setNotifiedItem(item); }
+    private:
 
-    uiListView&		_receiver;
-    Q3ListView& 	_sender;
+    uiListView&		receiver_;
+    QTreeWidget& 	sender_;
 
 private slots:
 
-    void	selectionChanged( Q3ListViewItem* item )
+    void	itemSelectionChanged()
 		{
-		    setNotifiedItem( item );
-		    _receiver.selectionChanged.trigger(_receiver);
+		    QList<QTreeWidgetItem*> items = sender_.selectedItems();
+		    if ( items.size() > 0 )
+			setNotifiedItem( items[0] );
+		    receiver_.selectionChanged.trigger(receiver_);
 		}
 
-    void	currentChanged( Q3ListViewItem* item )
+    void	itemChanged( QTreeWidgetItem* item, int column )
 		{
 		    setNotifiedItem( item );
-		    _receiver.currentChanged.trigger(_receiver);
+		    receiver_.itemChanged.trigger(receiver_);
 		}
-
-    void	clicked( Q3ListViewItem* item )
+    void	currentItemChanged( QTreeWidgetItem* item, QTreeWidgetItem* )
 		{
 		    setNotifiedItem( item );
-		    _receiver.clicked.trigger(_receiver);
+		    receiver_.currentChanged.trigger(receiver_);
 		}
 
-    void	pressed( Q3ListViewItem* item )
+    void	itemClicked( QTreeWidgetItem* item, int )
 		{
 		    setNotifiedItem( item );
-		    _receiver.pressed.trigger(_receiver);
+		    if ( receiver_.buttonstate_ == OD::RightButton )
+			receiver_.rightButtonClicked.trigger( receiver_ );
+		    else if ( receiver_.buttonstate_ == OD::NoButton )
+			receiver_.mouseButtonClicked.trigger( receiver_ );
 		}
 
-    void	doubleClicked( Q3ListViewItem* item )
+    void	itemPressed( QTreeWidgetItem* item, int )
 		{
 		    setNotifiedItem( item );
-		    _receiver.doubleClicked.trigger(_receiver);
+		    if ( receiver_.buttonstate_ == OD::RightButton )
+			receiver_.rightButtonPressed.trigger( receiver_ );
+		    else if ( receiver_.buttonstate_ == OD::NoButton )
+			receiver_.mouseButtonPressed.trigger( receiver_ );
 		}
 
-    void	returnPressed( Q3ListViewItem* item )
+ /**   void	itemDoubleClicked( QTreeWidgetItem* item, int )
 		{
 		    setNotifiedItem( item );
-		    _receiver.returnPressed.trigger(_receiver);
+		    receiver_.doubleClicked.trigger(receiver_);
 		}
 
-    void	spacePressed( Q3ListViewItem* item )
-		{
-		    setNotifiedItem( item );
-		    _receiver.spacePressed.trigger(_receiver);
-		}
-
-    void	rightButtonClicked( Q3ListViewItem* item, const QPoint&,
+   void	rightButtonClicked( QTreeWidgetItem* item, const QPoint&,
 	    			    int col )
 		{
 		    setNotifiedItem( item );
-		    _receiver.setNotifiedColumn( col );
-		    _receiver.rightButtonClicked.trigger(_receiver);
+		    receiver_.setNotifiedColumn( col );
+		    receiver_.rightButtonClicked.trigger(receiver_);
 		}
 
-    void	rightButtonPressed( Q3ListViewItem* item, const QPoint&,
+    void	rightButtonPressed( QTreeWidgetItem* item, const QPoint&,
 	    			    int col )
 		{
 		    setNotifiedItem( item );
-		    _receiver.setNotifiedColumn( col );
-		    _receiver.rightButtonPressed.trigger(_receiver);
+		    receiver_.setNotifiedColumn( col );
+		    receiver_.rightButtonPressed.trigger(receiver_);
 		}
 
-    void	mouseButtonPressed( int, Q3ListViewItem* item,const QPoint&,
+    void	mouseButtonPressed( int, QTreeWidgetItem* item,const QPoint&,
 	    			    int col )
 		{
 		    setNotifiedItem( item );
-		    _receiver.setNotifiedColumn( col );
-		    _receiver.mouseButtonPressed.trigger(_receiver);
+		    receiver_.setNotifiedColumn( col );
+		    receiver_.mouseButtonPressed.trigger(receiver_);
 		}
 
-    void	mouseButtonClicked( int, Q3ListViewItem* item, const QPoint&,
+    void	mouseButtonClicked( int, QTreeWidgetItem* item, const QPoint&,
 	    			    int col )
 		{
 		    setNotifiedItem( item );
-		    _receiver.setNotifiedColumn( col );
-		    _receiver.mouseButtonClicked.trigger(_receiver);
+		    receiver_.setNotifiedColumn( col );
+		    receiver_.mouseButtonClicked.trigger(receiver_);
+		}*/
+
+    void	customContextMenuRequested( const QPoint& qpoint )
+		{
+		    setNotifiedItem( sender_.itemAt(qpoint) );
+		    receiver_.setNotifiedColumn( sender_.columnAt(qpoint.x()) );
+		    receiver_.contextMenuRequested.trigger(receiver_);
 		}
 
-    void	contextMenuRequested( Q3ListViewItem* item, const QPoint&,
-	    			      int col )
+/*    void	onItem( QTreeWidgetItem* item )
 		{
 		    setNotifiedItem( item );
-		    _receiver.setNotifiedColumn( col );
-		    _receiver.contextMenuRequested.trigger(_receiver);
+		    receiver_.onItem.trigger(receiver_);
+		}*/
+
+    void	itemExpanded( QTreeWidgetItem* item )
+		{
+		    setNotifiedItem( item );
+		    receiver_.expanded.trigger(receiver_);
 		}
 
-    void	onItem( Q3ListViewItem* item )
+    void	itemCollapsed( QTreeWidgetItem* item )
 		{
 		    setNotifiedItem( item );
-		    _receiver.onItem.trigger(_receiver);
+		    receiver_.collapsed.trigger(receiver_);
 		}
 
-    void	expanded( Q3ListViewItem* item )
+ /*   void	itemRenamed( QTreeWidgetItem* item, int col  )
 		{
 		    setNotifiedItem( item );
-		    _receiver.expanded.trigger(_receiver);
-		}
-
-    void	collapsed( Q3ListViewItem* item )
-		{
-		    setNotifiedItem( item );
-		    _receiver.collapsed.trigger(_receiver);
-		}
-
-    void	itemRenamed( Q3ListViewItem* item, int col  )
-		{
-		    setNotifiedItem( item );
-		    _receiver.setNotifiedColumn( col );
-		    _receiver.itemRenamed.trigger(_receiver);
-		}
+		    receiver_.setNotifiedColumn( col );
+		    receiver_.itemRenamed.trigger(receiver_);
+		}*/
 };
 
 #endif
