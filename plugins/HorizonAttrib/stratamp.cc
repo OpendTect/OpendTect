@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nageswara Rao
  Date:		March 2008
- RCS:		$Id: stratamp.cc,v 1.2 2008-06-04 06:54:03 cvsnanne Exp $
+ RCS:		$Id: stratamp.cc,v 1.3 2008-07-08 14:23:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -111,6 +111,7 @@ int StratAmpCalc::nextStep()
 	case Stats::Max: outval = runcalc.max(); break;
 	case Stats::Average: outval = runcalc.average(); break;
 	case Stats::RMS: outval = runcalc.rms(); break;  
+	case Stats::Sum: outval = runcalc.sum(); break;  
 	default: break;
     }
 

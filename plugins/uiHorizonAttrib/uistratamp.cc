@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID = "$Id: uistratamp.cc,v 1.4 2008-06-04 06:54:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: uistratamp.cc,v 1.5 2008-07-08 14:23:10 cvshelene Exp $";
 
 #include "uistratamp.h"
 #include "stratamp.h"
@@ -30,10 +30,11 @@ static const char* rcsID = "$Id: uistratamp.cc,v 1.4 2008-06-04 06:54:03 cvsnann
 #include "uitaskrunner.h"
 
 
-static const char* statstrs[] = { "Min", "Max", "Average", "RMS", 0 };
+static const char* statstrs[] = { "Min", "Max", "Average", "RMS", "Sum", 0 };
 
 uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
-    : uiDialog( p, Setup("Stratal Amplitude","Specify process parameters","") )
+    : uiDialog( p, Setup("Stratal Amplitude","Specify process parameters",
+			 "104.4.3") )
     , seisctio_(*mMkCtxtIOObj(SeisTrc))
     , horctio1_(*mMkCtxtIOObj(EMHorizon3D))
     , horctio2_(*mMkCtxtIOObj(EMHorizon3D))
