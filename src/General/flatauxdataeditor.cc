@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.22 2008-07-03 13:06:31 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.cc,v 1.23 2008-07-08 00:39:01 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -268,7 +268,7 @@ void AuxDataEditor::removePolygonSelected( int dataid )
 		}
 	    }
 
-	    seldatasetidx_ = ids_.indexOf( curdataid );
+	    seldatasetidx_ = 0;
 	    removeSelected.trigger();
 	}
 	else
