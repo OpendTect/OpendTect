@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.32 2008-06-24 21:54:11 cvskris Exp $
+ RCS:		$Id: trigonometry.h,v 1.33 2008-07-08 18:22:40 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -49,12 +49,34 @@ inline void interpolateOnTriangle2D( const Coord pt,
 
 /*!\brief
 Here are some commonly used functions to judge the position relation between 
-point and line, point and triangle, point and circle.
+point and line, point and triangle, point and circle or sphere.
 */
 
+/*Calculate a 3x3 matrix's determinent given by v[0]-v[8] with 9 elements. */
+inline const double determinent33( const double* v )
+{
+    return v[0]*(v[4]*v[8]-v[5]*v[7])+v[1]*(v[5]*v[6]-v[3]*v[8])+
+	v[2]*(v[3]*v[7]-v[4]*v[6]);
+}
+
+
+/*Calculate a 4x4 matrix's determinent given by rows r0, r1, r2, r3 with the 
+  last column 1, 1, 1, 1. */
+inline const double determinent44( const Coord3& r0, const Coord3& r1, 
+				   const Coord3& r2, const Coord3& r3 )
+{
+    const double d0[9] = { r1.y, r1.z, 1, r2.y, r2.z, 1, r3.y, r3.z, 1 };
+    const double d1[9] = { r1.x, r1.z, 1, r2.x, r2.z, 1, r3.x, r3.z, 1 };
+    const double d2[9] = { r1.x, r1.y, 1, r2.x, r2.y, 1, r3.x, r3.y, 1 };
+    const double d3[9] = { r1.x, r1.y, r1.z, r2.x, r2.y, r2.z, r3.x, r3.y,r3.z};
+    return r0.x*determinent33( d0 )-r0.y*determinent33( d1 )+
+	   r0.z*determinent33( d2 )-determinent33( d3 );
+}
+
+
+/*!<Check the point pt is inside the circumcircle of p1, p2, p3 or not. */
 inline bool isInsideCircle( const Coord& pt, 
 			    const Coord& p1, const Coord& p2, const Coord& p3 )
-    /*!<Check the point pt is inside the circumcircle of p1, p2, p3 or not. */
 {
     Coord center;
     const Coord d12 = p1-p2;
@@ -69,6 +91,32 @@ inline bool isInsideCircle( const Coord& pt,
 }
 
 
+/*!<Check the point p is inside the circumsphere of a, b, c, d or not. */
+inline bool isInsideCircumSphere( const Coord3& p, const Coord3& a,
+	const Coord3& b, const Coord3& c, const Coord3& d )
+{
+    const Coord3 ab = a-b;
+    const Coord3 ac = a-c;
+    const Coord3 ad = a-d;
+    const double t[9] = { ab.x, ab.y, ab.z, ac.x, ac.y, ac.z, ad.x, ad.y, ad.z};
+    const double deter = determinent33( t );
+    
+    const double sqra = a.x*a.x+a.y*a.y+a.z*a.z;
+    const double d0 = (sqra-(b.x*b.x+b.y*b.y+b.z*b.z))/2;
+    const double d1 = (sqra-(c.x*c.x+c.y*c.y+c.z*c.z))/2;
+    const double d2 = (sqra-(d.x*d.x+d.y*d.y+d.z*d.z))/2;
+    const double t0[9] = { d0, ab.y, ab.z, d1, ac.y, ac.z, d2, ad.y, ad.z };
+    const double t1[9] = { ab.x, d0, ab.z, ac.x, d1, ac.z, ad.x, d2, ad.z };
+    const double t2[9] = { ab.x, ab.y, d0, ac.x, ac.y, d1, ad.x, ad.y, d2 };
+    const double centerx = determinent33(t0)/deter;
+    const double centery = determinent33(t1)/deter;
+    const double centerz = determinent33(t2)/deter;
+    
+    return p.x*p.x+p.y*p.y+p.z*p.z-sqra+
+	2*(centerx*(a.x-p.x)+centery*(a.y-p.y)+centerz*(a.z-p.z))<0;
+}
+
+
 /*! Check p1, p2 are on the same side of the edge AB or not.*/
 inline bool sameSide2D( const Coord& p1, const Coord& p2, 
 			const Coord& a, const Coord& b, double epsilon )
@@ -80,12 +128,27 @@ inline bool sameSide2D( const Coord& p1, const Coord& p2,
 }
 
 
-/*!< Check the point p is in the triangle ABC or not.*/
+inline bool sameSide3D( const Coord3& p1, const Coord3& p2, 
+			const Coord3& a, const Coord3& b )
+{
+    const Coord3 cpp1 = (b-a).cross(p1-a);
+    const Coord3 cpp2 = (b-a).cross(p2-a);
+    return cpp1.dot(cpp2)>=0;
+}
+
+
 inline bool pointInTriangle2D( const Coord& p, const Coord& a, const Coord& b, 
 			       const Coord& c, double epsilon )
 {
     return sameSide2D(p,a,b,c,epsilon) && sameSide2D(p,b,a,c,epsilon) && 
 	   sameSide2D(p,c,a,b,epsilon);
+}
+
+
+inline bool pointInTriangle3D( const Coord3& p, const Coord3& a, 
+			       const Coord3& b, const Coord3& c )
+{
+    return sameSide3D(p,a,b,c) && sameSide3D(p,b,a,c) && sameSide3D(p,c,a,b);
 }
 
 
@@ -101,6 +164,21 @@ inline bool pointOnEdge2D( const Coord& p, const Coord& a, const Coord& b,
 
     const Coord intersectpt = a+Coord(t*ba.x, t*ba.y);
     const Coord pq = p-intersectpt;
+    return pq.sqAbs()<epsilon*epsilon;
+}
+
+
+inline bool pointOnEdge3D( const Coord3& p, const Coord3& a, const Coord3& b, 
+			   double epsilon )
+{
+    const Coord3 pa = p-a;
+    const Coord3 ba = b-a;
+    const double t = pa.dot(ba)/ba.sqAbs();
+    if ( t<0 || t>1 )
+	return false;
+
+    const Coord3 intersectpt = a+t*ba;
+    const Coord3 pq = p-intersectpt;
     return pq.sqAbs()<epsilon*epsilon;
 }
 
