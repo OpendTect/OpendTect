@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.21 2008-07-07 09:35:15 cvssatyaki Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.22 2008-07-09 06:26:17 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,6 @@ uiStratRefTree::uiStratRefTree( uiParent* p, uiStratMgr* uistratmgr )
     lv_->setPrefWidth( 650 );
     lv_->setPrefHeight( 400 );
     lv_->setStretch( 2, 2 );
-    lv_->setTreeStepSize(30);
     lv_->rightButtonClicked.notify( mCB( this,uiStratRefTree,rClickCB ) );
 
     setTree( uistratmgr_->getCurTree() );

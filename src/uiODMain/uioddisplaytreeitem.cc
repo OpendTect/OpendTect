@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddisplaytreeitem.cc,v 1.19 2008-07-07 09:35:15 cvssatyaki Exp $
+ RCS:		$Id: uioddisplaytreeitem.cc,v 1.20 2008-07-09 06:26:17 cvssatyaki Exp $
 ___________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ bool uiODDisplayTreeItem::create( uiTreeItem* treeitem, uiODApplMgr* appl,
 	uiTreeItem* res = itmcreater->create( displayid, treeitem );
 	if ( res )
 	{
-	    treeitem->addChild( res, false, false, true );
+	    treeitem->addChild( res, true, false, true );
 	    return true;
 	}
     }
@@ -124,7 +124,7 @@ bool uiODDisplayTreeItem::init()
 	    uiODDataTreeItem* item = createAttribItem( as );
 	    if ( item )
 	    {
-		addChild( item, false, true, true );
+		addChild( item, true, true, true );
 		item->setChecked( visserv_->isAttribEnabled(displayid_,attrib));
 	    }
 	}

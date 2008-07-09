@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: i_qtreeview.h,v 1.8 2008-07-07 09:35:15 cvssatyaki Exp $
+ RCS:           $Id: i_qtreeview.h,v 1.9 2008-07-09 06:26:17 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,9 @@ ________________________________________________________________________
 #include "uilistview.h"
 
 #include <QObject>
+#include <QTreeWidget>
+
 #include <string.h>
-#include <qtreewidget.h>
 
 
 
@@ -52,24 +53,14 @@ i_listVwMessenger( QTreeWidget& sender, uiListView& receiver )
     connect( &sender, SIGNAL(itemPressed(QTreeWidgetItem*,int)), 
 	     this, SLOT(itemPressed(QTreeWidgetItem*,int)) );
 
-    //connect( &sender, SIGNAL(itemDoubleClicked(QTreeWidgetItem*,int)), 
-	//     this, SLOT(itemDoubleClicked(QTreeWidgetItem*,int)) );
-
-
     connect( &sender, SIGNAL(customContextMenuRequested(const QPoint &)), 
 	     this, SLOT(customContextMenuRequested(const QPoint &)) );
-
-    //connect( &sender, SIGNAL( onItem( QTreeWidgetItem* )), 
-	    // this, SLOT( onItem( QTreeWidgetItem* )));
 
     connect( &sender, SIGNAL(itemExpanded(QTreeWidgetItem*)), 
 	     this, SLOT(itemExpanded(QTreeWidgetItem*)) );
 
     connect( &sender, SIGNAL(itemCollapsed(QTreeWidgetItem*)), 
 	     this, SLOT(itemCollapsed(QTreeWidgetItem*)) );
-
-    //connect( &sender, SIGNAL( itemRenamed( QTreeWidgetItem*, int )), 
-	     //this, SLOT( itemRenamed( QTreeWidgetItem*, int )));
 }
 
     virtual		~i_listVwMessenger() {}
@@ -107,7 +98,7 @@ private slots:
 		    setNotifiedItem( item );
 		    if ( receiver_.buttonstate_ == OD::RightButton )
 			receiver_.rightButtonClicked.trigger( receiver_ );
-		    else if ( receiver_.buttonstate_ == OD::NoButton )
+		    else if ( receiver_.buttonstate_ == OD::LeftButton )
 			receiver_.mouseButtonClicked.trigger( receiver_ );
 		}
 
@@ -120,56 +111,12 @@ private slots:
 			receiver_.mouseButtonPressed.trigger( receiver_ );
 		}
 
- /**   void	itemDoubleClicked( QTreeWidgetItem* item, int )
-		{
-		    setNotifiedItem( item );
-		    receiver_.doubleClicked.trigger(receiver_);
-		}
-
-   void	rightButtonClicked( QTreeWidgetItem* item, const QPoint&,
-	    			    int col )
-		{
-		    setNotifiedItem( item );
-		    receiver_.setNotifiedColumn( col );
-		    receiver_.rightButtonClicked.trigger(receiver_);
-		}
-
-    void	rightButtonPressed( QTreeWidgetItem* item, const QPoint&,
-	    			    int col )
-		{
-		    setNotifiedItem( item );
-		    receiver_.setNotifiedColumn( col );
-		    receiver_.rightButtonPressed.trigger(receiver_);
-		}
-
-    void	mouseButtonPressed( int, QTreeWidgetItem* item,const QPoint&,
-	    			    int col )
-		{
-		    setNotifiedItem( item );
-		    receiver_.setNotifiedColumn( col );
-		    receiver_.mouseButtonPressed.trigger(receiver_);
-		}
-
-    void	mouseButtonClicked( int, QTreeWidgetItem* item, const QPoint&,
-	    			    int col )
-		{
-		    setNotifiedItem( item );
-		    receiver_.setNotifiedColumn( col );
-		    receiver_.mouseButtonClicked.trigger(receiver_);
-		}*/
-
     void	customContextMenuRequested( const QPoint& qpoint )
 		{
 		    setNotifiedItem( sender_.itemAt(qpoint) );
 		    receiver_.setNotifiedColumn( sender_.columnAt(qpoint.x()) );
 		    receiver_.contextMenuRequested.trigger(receiver_);
 		}
-
-/*    void	onItem( QTreeWidgetItem* item )
-		{
-		    setNotifiedItem( item );
-		    receiver_.onItem.trigger(receiver_);
-		}*/
 
     void	itemExpanded( QTreeWidgetItem* item )
 		{
@@ -182,13 +129,6 @@ private slots:
 		    setNotifiedItem( item );
 		    receiver_.collapsed.trigger(receiver_);
 		}
-
- /*   void	itemRenamed( QTreeWidgetItem* item, int col  )
-		{
-		    setNotifiedItem( item );
-		    receiver_.setNotifiedColumn( col );
-		    receiver_.itemRenamed.trigger(receiver_);
-		}*/
 };
 
 #endif

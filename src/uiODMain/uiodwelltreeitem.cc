@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodwelltreeitem.cc,v 1.24 2008-07-07 09:35:15 cvssatyaki Exp $
+ RCS:		$Id: uiodwelltreeitem.cc,v 1.25 2008-07-09 06:26:17 cvssatyaki Exp $
 ___________________________________________________________________
 
 -*/
@@ -92,7 +92,7 @@ bool uiODWellParentTreeItem::handleSubMenu( int mnuid )
 	if ( emwellids.isEmpty() )
 	    return false;
 
-	for ( int idx=emwellids.size()-1; idx>=0; idx-- )
+	for ( int idx = 0; idx < emwellids.size(); idx++ )
 	    addChild(new uiODWellTreeItem(*emwellids[idx]), false, true, true);
 
 	deepErase( emwellids );

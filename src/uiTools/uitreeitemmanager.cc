@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.37 2008-07-07 09:35:15 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.38 2008-07-09 06:26:17 cvssatyaki Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -278,8 +278,8 @@ if ( !strcmp(newitem->parentType(), typeid(*this).name()) ) \
 				 setcheck ); \
     uiListViewItem* item = new uiListViewItem(uiparentlist, setup ); \
     newitem->setListViewItem( item ); \
-    while ( below && item->nextSibling() )  \
-        item->moveItem( item->nextSibling() ); \
+    if ( below )  \
+        moveItemToTop(); \
     if ( !newitem->init() ) \
     { \
 	removeChild( newitem ); \
@@ -316,7 +316,44 @@ bool uiTreeItem::addChild( uiTreeItem* newitem, bool below, bool checkable,
 bool uiTreeItem::addChild( uiTreeItem* newitem, bool below, bool downwards,
 			   bool checkable, bool setcheck )
 {
-    mAddChildImpl( uilistviewitem_ );
+    if ( !strcmp(newitem->parentType(), typeid(*this).name()) ) 
+    { 
+	children_ += newitem; 
+	newitem->parent_ = this; 
+	uiListViewItem::Setup setup( newitem->name(), 
+				     checkable ? uiListViewItem::CheckBox : 
+						 uiListViewItem::Standard, 
+				     setcheck );
+	uiListViewItem* item = new uiListViewItem(uilistviewitem_, setup ); 
+	newitem->setListViewItem( item ); 
+	if ( below )  
+	    moveItemToTop(); 
+	if ( !newitem->init() ) 
+	{ 
+	    removeChild( newitem ); 
+	    return true; 
+	} 
+	if ( uilistviewitem_ ) uilistviewitem_->setOpen( true ); 
+	updateColumnText(0); updateColumnText(1); 
+	return true; 
+    } 
+     
+    if ( downwards ) 
+    { 
+	for ( int idx=0; idx<children_.size(); idx++ ) 
+	{ 
+	    if ( children_[idx]->addChild( 
+			newitem,below,downwards,checkable,setcheck) ) 
+		return true; 
+	} 
+    } 
+    else if ( parent_ ) 
+	return parent_->addChild( 
+			newitem, below, downwards, checkable, setcheck ); 
+     
+    return false; 
+
+    //mAddChildImpl( uilistviewitem_ );
 }
 
 
@@ -331,7 +368,8 @@ void uiTreeItem::removeChild( uiTreeItem* treeitem )
 	return;
     }
 
-    if ( uilistviewitem_ ) uilistviewitem_->removeItem( treeitem->getItem() );
+    if ( uilistviewitem_ )
+	uilistviewitem_->removeItem( treeitem->getItem() );
     uiTreeItem* child = children_[idx];
     children_.remove( idx );
     delete child;

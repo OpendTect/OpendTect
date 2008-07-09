@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.27 2008-07-07 09:35:15 cvssatyaki Exp $
+ RCS:           $Id: uitreeview.h,v 1.28 2008-07-09 06:26:17 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,10 +44,10 @@ public:
     void		setHScrollBarMode(ScrollMode);
     void		setVScrollBarMode(ScrollMode);
 
-    //int			treeStepSize() const;
     void		setTreeStepSize(int);
 
-    QTreeWidget*	qtreeWidget()			{ return (QTreeWidget*)body_; }
+    QTreeWidget*	qtreeWidget()
+    			{ return (QTreeWidget*)body_; }
     const QTreeWidget*	qtreeWidget() const		
     			{ return (const QTreeWidget*)body_; }
 
@@ -112,8 +112,6 @@ public:
     void		setSorting(int column,bool increasing=true);
     void		sort();
 
-    //void		setShowSortIndicator(bool);
-    //bool		showSortIndicator() const;
     void		setShowToolTips(bool);
     bool		showToolTips() const;
 
@@ -135,9 +133,6 @@ public:
     Notifier<uiListView> selectionChanged;
     Notifier<uiListView> currentChanged;
     Notifier<uiListView> itemChanged;
-    Notifier<uiListView> clicked;
-    Notifier<uiListView> pressed;
-    //Notifier<uiListView> doubleClicked;
     Notifier<uiListView> returnPressed;
     Notifier<uiListView> rightButtonClicked;
     Notifier<uiListView> rightButtonPressed;
