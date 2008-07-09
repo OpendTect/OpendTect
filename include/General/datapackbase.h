@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra and Helene Huck
  Date:		January 2007
- RCS:		$Id: datapackbase.h,v 1.10 2008-03-28 09:34:29 cvshelene Exp $
+ RCS:		$Id: datapackbase.h,v 1.11 2008-07-09 11:37:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,8 +65,10 @@ public:
 				{ return const_cast<FlatDataPack*>(this)
 				    			->data(); }
 
-    FlatPosData&		posData()		{ return posdata_; }
-    const FlatPosData&		posData() const		{ return posdata_; }
+    virtual FlatPosData&	posData()		{ return posdata_; }
+    const FlatPosData&		posData() const
+				{ return const_cast<FlatDataPack*>(this)
+				    			->posData(); }
     virtual const char*		dimName( bool dim0 ) const
 				{ return dim0 ? "X1" : "X2"; }
 
@@ -113,10 +115,9 @@ public:
 				~MapDataPack();
 
     Array2D<float>&		data();
-    void			setDimNames( const char* xlbl,const char* ylbl)
-				{ xlbl_ = xlbl; ylbl_ = ylbl; }
-    const char*			dimName( bool dim0 ) const
-				{ return dim0 ? xlbl_.buf() : ylbl_.buf(); }
+    FlatPosData&		posData();
+    void			setDimNames(const char*,const char*,bool set1);
+    const char*			dimName( bool dim0 ) const;
 
     				//!< Alternatively, it can be in Inl/Crl
     bool			posDataIsCoord() const	{ return isposcoord_; }
@@ -134,11 +135,10 @@ protected:
     float			getValAtIdx(int,int) const;
     
     Array2D<float>*		xyrotarr2d_;
+    FlatPosData&		fakeposdata_;
     bool			isposcoord_;
-    bool			wantxy_;
-    BufferString		xlbl_;
-    BufferString		ylbl_;
-
+    bool			mainisset1_; //for maps X/Y is the default set1
+    TypeSet<BufferString>	axeslbls_;
 };
 
 /*!\brief DataPack for volume data. */

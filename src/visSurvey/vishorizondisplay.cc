@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.53 2008-07-04 04:29:27 cvsnanne Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.54 2008-07-09 11:37:33 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -636,7 +636,7 @@ void HorizonDisplay::setDepthAsAttrib( int attrib )
     StepInterval<double> crlrg( bvsarr->crlrg_.start, bvsarr->crlrg_.stop,
 				SI().crlStep() );
     BufferStringSet dimnames;
-    dimnames.add( "In-Line" ).add( "Cross-line" );
+    dimnames.add("X").add("Y").add("In-Line").add("Cross-line");
     newpack->setPropsAndInit( inlrg, crlrg, false, &dimnames );
     DataPackMgr& dpman = DPM( DataPackMgr::FlatID );
     dpman.add( newpack );
