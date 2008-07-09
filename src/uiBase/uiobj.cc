@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.cc,v 1.77 2008-05-07 06:06:33 cvsnanne Exp $
+ RCS:           $Id: uiobj.cc,v 1.78 2008-07-09 05:25:11 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,13 +125,7 @@ void uiParentBody::clearChildren()
 
 bool uiObject::nametooltipactive_ = false;
 
-static TypeSet<uiObject*>& getUiObjList()
-{
-    static TypeSet<uiObject*>* theinst = 0;
-    if ( !theinst )
-	theinst = new TypeSet<uiObject*>();
-    return *theinst;
-}
+static ObjectSet<uiObject> uiobjectlist_;
 
 uiObject::uiObject( uiParent* p, const char* nm )
     : uiObjHandle( nm, 0 )
@@ -141,7 +135,7 @@ uiObject::uiObject( uiParent* p, const char* nm )
     , normaltooltiptxt_("")
 { 
     if ( p ) p->addChild( *this );  
-    getUiObjList() += this;
+    uiobjectlist_ += this;
     doSetToolTip();
 }
 
@@ -153,13 +147,13 @@ uiObject::uiObject( uiParent* p, const char* nm, uiObjectBody& b )
     , normaltooltiptxt_("")
 { 
     if ( p ) p->manageChld( *this, b );  
-    getUiObjList() += this;
+    uiobjectlist_ += this;
     doSetToolTip(); 
 }
 
 uiObject::~uiObject()
 {
-    getUiObjList() -= this;
+    uiobjectlist_ -= this;
 }
 
 
@@ -414,6 +408,6 @@ void uiObject::useNameToolTip( bool yn )
 {
     nametooltipactive_ = yn;
 
-    for ( int idx=getUiObjList().size()-1; idx>=0; idx-- )
-	getUiObjList()[idx]->doSetToolTip();
+    for ( int idx=uiobjectlist_.size()-1; idx>=0; idx-- )
+	uiobjectlist_[idx]->doSetToolTip();
 }
