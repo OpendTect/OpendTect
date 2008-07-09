@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.37 2008-07-09 06:26:17 cvssatyaki Exp $
+ RCS:           $Id: uitreeview.cc,v 1.38 2008-07-09 11:09:20 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -285,8 +285,6 @@ uiListView::uiListView( uiParent* p, const char* nm, int nl, bool dec )
     , selectionChanged(this)
     , currentChanged(this)
     , itemChanged(this)
-    , clicked(this)
-    , pressed(this)
     , returnPressed(this)
     , rightButtonClicked(this)
     , rightButtonPressed(this)
@@ -712,8 +710,8 @@ void uiListViewItem::takeItem( uiListViewItem* itm )
 }
 
 
-void uiListViewItem::insertItem(int item, uiListViewItem* itm )
-{ qItem()->insertChild( item, itm->qItem() ); }
+void uiListViewItem::insertItem( int idx, uiListViewItem* itm )
+{ qItem()->insertChild( idx, itm->qItem() ); }
 
 
 void uiListViewItem::removeItem( uiListViewItem* itm )
