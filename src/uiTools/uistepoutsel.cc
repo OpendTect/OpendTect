@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uistepoutsel.cc,v 1.9 2008-05-05 05:01:53 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uistepoutsel.cc,v 1.10 2008-07-09 10:48:48 cvsraman Exp $";
 
 #include "uistepoutsel.h"
 #include "uispinbox.h"
@@ -26,6 +26,7 @@ inline static BufferString mkPrefx( const char* lbl )
 uiStepOutSel::uiStepOutSel( uiParent* p, const uiStepOutSel::Setup& setup )
     : uiGroup(p,setup.seltxt_)
     , valueChanged(this)
+    , valueChanging(this)
     , fld2(0)
 {
     init( setup );
@@ -35,6 +36,7 @@ uiStepOutSel::uiStepOutSel( uiParent* p, const uiStepOutSel::Setup& setup )
 uiStepOutSel::uiStepOutSel( uiParent* p, bool single, const char* seltxt )
     : uiGroup(p,seltxt)
     , valueChanged(this)
+    , valueChanging(this)
     , fld2(0)
 {
     uiStepOutSel::Setup setup( single );
@@ -62,7 +64,8 @@ void uiStepOutSel::init( const uiStepOutSel::Setup& setup )
     fld1->setPrefix( mkPrefx(setup.lbl1_) );
     fld1->attach( rightOf, lbl );
     fld1->setInterval( intv );
-    fld1->valueChanged.notify( mCB(this,uiStepOutSel,valChg) );
+    fld1->valueChanged.notify( mCB(this,uiStepOutSel,valChanged) );
+    fld1->valueChanging.notify( mCB(this,uiStepOutSel,valChanging) );
 
     if ( !setup.single_ )
     {
@@ -70,7 +73,8 @@ void uiStepOutSel::init( const uiStepOutSel::Setup& setup )
 	fld2->setPrefix( mkPrefx(setup.lbl2_) );
 	fld2->attach( rightOf, fld1 );
 	fld2->setInterval( intv );
-	fld2->valueChanged.notify( mCB(this,uiStepOutSel,valChg) );
+	fld2->valueChanged.notify( mCB(this,uiStepOutSel,valChanged) );
+	fld2->valueChanging.notify( mCB(this,uiStepOutSel,valChanging) );
     }
 
     setHAlignObj( fld1 );
@@ -130,7 +134,13 @@ BinID uiStepOutSel::getBinID() const
 }
 
 
-void uiStepOutSel::valChg( CallBacker* cb )
+void uiStepOutSel::valChanged( CallBacker* cb )
 {
     valueChanged.trigger( cb );
+}
+
+
+void uiStepOutSel::valChanging( CallBacker* cb )
+{
+    valueChanging.trigger( cb );
 }
