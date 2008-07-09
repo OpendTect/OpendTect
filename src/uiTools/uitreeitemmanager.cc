@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.38 2008-07-09 06:26:17 cvssatyaki Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.39 2008-07-09 11:07:00 cvssatyaki Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -204,7 +204,7 @@ void uiTreeItem::moveItemToTop()
 	parent_->getItem()->insertItem( 0, item );
     }
 }
-	
+
 
 int uiTreeItem::uiListViewItemType() const
 {
@@ -278,14 +278,14 @@ if ( !strcmp(newitem->parentType(), typeid(*this).name()) ) \
 				 setcheck ); \
     uiListViewItem* item = new uiListViewItem(uiparentlist, setup ); \
     newitem->setListViewItem( item ); \
-    if ( below )  \
-        moveItemToTop(); \
     if ( !newitem->init() ) \
     { \
 	removeChild( newitem ); \
 	return true; \
     } \
     if ( uilistviewitem_ ) uilistviewitem_->setOpen( true ); \
+    if ( !below )  \
+        moveItemToTop(); \
     updateColumnText(0); updateColumnText(1); \
     return true; \
 } \
@@ -316,44 +316,7 @@ bool uiTreeItem::addChild( uiTreeItem* newitem, bool below, bool checkable,
 bool uiTreeItem::addChild( uiTreeItem* newitem, bool below, bool downwards,
 			   bool checkable, bool setcheck )
 {
-    if ( !strcmp(newitem->parentType(), typeid(*this).name()) ) 
-    { 
-	children_ += newitem; 
-	newitem->parent_ = this; 
-	uiListViewItem::Setup setup( newitem->name(), 
-				     checkable ? uiListViewItem::CheckBox : 
-						 uiListViewItem::Standard, 
-				     setcheck );
-	uiListViewItem* item = new uiListViewItem(uilistviewitem_, setup ); 
-	newitem->setListViewItem( item ); 
-	if ( below )  
-	    moveItemToTop(); 
-	if ( !newitem->init() ) 
-	{ 
-	    removeChild( newitem ); 
-	    return true; 
-	} 
-	if ( uilistviewitem_ ) uilistviewitem_->setOpen( true ); 
-	updateColumnText(0); updateColumnText(1); 
-	return true; 
-    } 
-     
-    if ( downwards ) 
-    { 
-	for ( int idx=0; idx<children_.size(); idx++ ) 
-	{ 
-	    if ( children_[idx]->addChild( 
-			newitem,below,downwards,checkable,setcheck) ) 
-		return true; 
-	} 
-    } 
-    else if ( parent_ ) 
-	return parent_->addChild( 
-			newitem, below, downwards, checkable, setcheck ); 
-     
-    return false; 
-
-    //mAddChildImpl( uilistviewitem_ );
+    mAddChildImpl( uilistviewitem_ );
 }
 
 
