@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodplanedatatreeitem.cc,v 1.20 2008-07-09 06:26:17 cvssatyaki Exp $
+ RCS:		$Id: uiodplanedatatreeitem.cc,v 1.21 2008-07-09 12:33:41 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -330,7 +330,7 @@ uiODInlineParentTreeItem::uiODInlineParentTreeItem()
 
 bool uiODInlineParentTreeItem::showSubMenu()
 {
-    mParentShowSubMenu( addChild(new uiODInlineTreeItem(-1),true,true,true); );
+    mParentShowSubMenu( addChild(new uiODInlineTreeItem(-1),false) );
 }
 
 
@@ -355,8 +355,7 @@ uiODCrosslineParentTreeItem::uiODCrosslineParentTreeItem()
 
 bool uiODCrosslineParentTreeItem::showSubMenu()
 {
-    mParentShowSubMenu(
-	    addChild(new uiODCrosslineTreeItem(-1),false,true,true); );
+    mParentShowSubMenu( addChild(new uiODCrosslineTreeItem(-1),false) );
 }
 
 
@@ -381,8 +380,7 @@ uiODTimesliceParentTreeItem::uiODTimesliceParentTreeItem()
 
 bool uiODTimesliceParentTreeItem::showSubMenu()
 {
-    mParentShowSubMenu(
-	    addChild(new uiODTimesliceTreeItem(-1),false,true,true); );
+    mParentShowSubMenu( addChild(new uiODTimesliceTreeItem(-1),false) );
 }
 
 

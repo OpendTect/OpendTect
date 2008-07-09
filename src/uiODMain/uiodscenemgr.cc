@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.135 2008-07-09 11:11:44 cvssatyaki Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.136 2008-07-09 12:33:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -669,7 +669,7 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 
     uiODSceneTreeItem* sceneitm =
 	new uiODSceneTreeItem( scn.wsgrp_->getTitle(), scn.sovwr_->sceneID() );
-    scn.itemmanager_->addChild( sceneitm, false, false, true );
+    scn.itemmanager_->addChild( sceneitm, false );
 
     TypeSet<int> idxs;
     TypeSet<int> placeidxs;
@@ -691,7 +691,7 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     {
 	const int fidx = idxs[idx];
 	scn.itemmanager_->addChild(
-		tifs_->getFactory(fidx)->create(), false, false, true );
+		tifs_->getFactory(fidx)->create(), true );
     }
 
     scn.lv_->display();
@@ -823,7 +823,7 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 	else if ( !strcmp(type,"Fault" ) ) 
 	    itm = new uiODFaultTreeItem(emid);
 
-	scene.itemmanager_->addChild( itm, false, true, true );
+	scene.itemmanager_->addChild( itm, false );
 	return itm->displayID();
     }
 
@@ -839,7 +839,7 @@ int uiODSceneMgr::addRandomLineItem( int visid, int sceneid )
 	if ( sceneid>=0 && sceneid!=scene.sovwr_->sceneID() ) continue;
 
 	uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem( visid );
-	scene.itemmanager_->addChild( itm, false, true, true );
+	scene.itemmanager_->addChild( itm, false );
 	return itm->displayID();
     }
     return -1;

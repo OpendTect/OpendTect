@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodtreeitem.cc,v 1.202 2008-07-07 09:35:15 cvssatyaki Exp $
+ RCS:		$Id: uiodtreeitem.cc,v 1.203 2008-07-09 12:33:41 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -212,7 +212,7 @@ void uiODTreeTop::addFactoryCB( CallBacker* cb )
     }
 
     uiTreeItem* newitm = tfs->getFactory(factidx)->create();
-    addChild( newitm, false, false, true );
+    addChild( newitm, false );
     if ( itmbefore )
 	newitm->moveItem( itmbefore );
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.35 2008-07-07 09:35:15 cvssatyaki Exp $
+ RCS:           $Id: treeitem.cc,v 1.36 2008-07-09 12:33:41 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -81,9 +81,9 @@ bool ParentTreeItem::init()
     bool ret = uiTreeItem::init();
     if ( !ret ) return false;
     
-    addChild( new ArrowParentItem(), true, false, true );
-    addChild( new ImageParentItem(), true, false, true );
-    addChild( new TextParentItem(), true, false, true );
+    addChild( new ArrowParentItem(), true );
+    addChild( new ImageParentItem(), true );
+    addChild( new TextParentItem(), true );
     getItem()->setOpen( false );
     return true;
 }
@@ -162,7 +162,7 @@ bool AnnotTreeItem::init()
 	visserv->findObject( mid, dispids );
 	uiTreeItem* item = createSubItem( dispids.size() ? dispids[0] : -1,
 					  mgr.get(idx) );
-	addChild( item, true, false, true );
+	addChild( item, true );
 	item->setChecked( true );
     }
 
@@ -182,7 +182,7 @@ void AnnotTreeItem::setAddedCB( CallBacker* cb )
     if ( !ps ) return;
 
     uiTreeItem* item = createSubItem( -1, *ps );
-    addChild( item, true, true, true );
+    addChild( item, true );
 }
 
 

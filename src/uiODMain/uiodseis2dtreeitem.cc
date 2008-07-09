@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.41 2008-07-09 06:26:17 cvssatyaki Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.42 2008-07-09 12:33:41 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ bool uiODSeis2DParentTreeItem::showSubMenu()
     if ( !success ) return false;
 
     uiOD2DLineSetTreeItem* newitm = new uiOD2DLineSetTreeItem( mid );
-    addChild( newitm, false, false, false );
+    addChild( newitm, false );
     newitm->selectAddLines();
 
     return true;
@@ -85,13 +85,13 @@ uiTreeItem* Seis2DTreeItemFactory::create( int visid,
     uiTreeItem* linesetitm = treeitem->findChild( linesetname );
     if ( linesetitm )
     {
-	linesetitm->addChild( newsubitm, true, true, true );
+	linesetitm->addChild( newsubitm, true);
 	return 0;
     }
 
     uiOD2DLineSetTreeItem* newlinesetitm = new uiOD2DLineSetTreeItem( setid );
-    treeitem->addChild( newlinesetitm, true, true, true );
-    newlinesetitm->addChild( newsubitm, true, true, true );
+    treeitem->addChild( newlinesetitm, true );
+    newlinesetitm->addChild( newsubitm, true );
     return 0;
 }
 
@@ -157,8 +157,7 @@ void uiOD2DLineSetTreeItem::selectAddLines()
 
     MouseCursorChanger cursorchgr( MouseCursor::Wait );
     for ( int idx=linenames.size()-1; idx>=0; idx-- )
-	addChild( new uiOD2DLineSetSubItem(linenames.get(idx)),
-		  false, true, true );
+	addChild( new uiOD2DLineSetSubItem(linenames.get(idx)), false );
 }
 
 

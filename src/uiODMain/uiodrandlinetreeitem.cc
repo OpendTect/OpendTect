@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodrandlinetreeitem.cc,v 1.22 2008-07-07 09:35:15 cvssatyaki Exp $
+ RCS:		$Id: uiodrandlinetreeitem.cc,v 1.23 2008-07-09 12:33:41 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -73,7 +73,7 @@ bool uiODRandomLineParentTreeItem::showSubMenu()
     addStandardItems( mnu );
     const int mnuid = mnu.exec();
     if ( mnuid == 0 )
-	addChild( new uiODRandomLineTreeItem(-1), false, true, true );
+	addChild( new uiODRandomLineTreeItem(-1), false );
     else if ( mnuid == 1 )
     {
 	const IOObj* ioobj = selRandomLine();
@@ -134,7 +134,7 @@ bool uiODRandomLineParentTreeItem::load( const IOObj& ioobj )
     for ( int idx=0; idx<selitms.size(); idx++ )
     {
 	uiODRandomLineTreeItem* itm = new uiODRandomLineTreeItem(-1);
-	addChild( itm, false, true, true );
+	addChild( itm, false );
 	mDynamicCastGet(visSurvey::RandomTrackDisplay*,rtd,
 	    ODMainWin()->applMgr().visServer()->getObject(itm->displayID()));
 	if ( !rtd )
