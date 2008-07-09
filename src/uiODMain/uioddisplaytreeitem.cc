@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddisplaytreeitem.cc,v 1.20 2008-07-09 06:26:17 cvssatyaki Exp $
+ RCS:		$Id: uioddisplaytreeitem.cc,v 1.21 2008-07-09 11:11:44 cvssatyaki Exp $
 ___________________________________________________________________
 
 -*/
@@ -124,7 +124,7 @@ bool uiODDisplayTreeItem::init()
 	    uiODDataTreeItem* item = createAttribItem( as );
 	    if ( item )
 	    {
-		addChild( item, true, true, true );
+		addChild( item, false, true, true );
 		item->setChecked( visserv_->isAttribEnabled(displayid_,attrib));
 	    }
 	}

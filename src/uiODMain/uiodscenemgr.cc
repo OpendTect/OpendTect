@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.134 2008-07-07 09:35:15 cvssatyaki Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.135 2008-07-09 11:11:44 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -691,7 +691,7 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     {
 	const int fidx = idxs[idx];
 	scn.itemmanager_->addChild(
-		tifs_->getFactory(fidx)->create(), true, false, true );
+		tifs_->getFactory(fidx)->create(), false, false, true );
     }
 
     scn.lv_->display();
