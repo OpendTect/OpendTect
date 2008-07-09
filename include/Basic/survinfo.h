@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.67 2008-07-08 04:22:43 cvsraman Exp $
+ RCS:		$Id: survinfo.h,v 1.68 2008-07-09 12:14:44 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,7 +113,7 @@ public:
     			/*!< Orientation is determined by rotating the
 			     inline axis to the crossline axis. */
     float		computeAngleXInl() const;
-    			/*!< It's the angle (-pi/2 to pi/2) between
+    			/*!< It's the angle (0 to pi/2) between
 			     the X-axis and the Inl-axis (not an inline) */
 
     Coord		minCoord(bool work) const;
