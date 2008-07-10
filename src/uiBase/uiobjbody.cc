@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.cc,v 1.17 2008-04-08 12:19:16 cvsnanne Exp $
+ RCS:           $Id: uiobjbody.cc,v 1.18 2008-07-10 08:04:10 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -524,15 +524,17 @@ void uiObjectBody::uisetFont( const uiFont& f )
     qwidget()->setFont( font_->qFont() );
 }
 
+
 int uiObjectBody::fontWdtFor( const char* str ) const
 {
     gtFntWdtHgt();
     const QWidget* qw = qwidget();
-    if ( !qw || __iswin__ )
+    if ( !qw )
 	{ gtFntWdtHgt(); return strlen(str) * fnt_wdt; }
 
     return qw->fontMetrics().width( QString( str ) );
 }
+
 
 bool uiObjectBody::itemInited() const
 {
@@ -546,32 +548,28 @@ void uiObjectBody::gtFntWdtHgt() const
 	return;
 
     uiObjectBody& self = *const_cast<uiObjectBody*>(this);
-    const QWidget* qw = qwidget();
 
-//TODO: QFontMetrics simply crashes on windows
-    if ( !qw || __iswin__ )
-    {
-	self.fnt_hgt = 14; self.fnt_wdt = 10; self.fnt_maxwdt = 15;
-	return;
-    }
-
+#ifdef __win__
+    QFont qft = QFont();
+    QFontMetrics fm( qft );
+#else
     QFontMetrics fm( qw->fontMetrics() );
-
+#endif
     self.fnt_hgt = fm.lineSpacing() + 2;
     self.fnt_wdt = fm.width( QChar('x') );
     self.fnt_maxwdt = fm.maxWidth();
 
-    if ( fnt_hgt <= 0 || fnt_hgt > 100 )
+    if ( fnt_hgt<=0 || fnt_hgt>100 )
     { 
 	pErrMsg( "Font heigt no good. Taking 15." ); 
 	self.fnt_hgt = 15;
     }
-    if ( fnt_wdt <= 0 || fnt_wdt > 100 )
+    if ( fnt_wdt<=0 || fnt_wdt>100 )
     { 
 	pErrMsg( "Font width no good. Taking 10." ); 
 	self.fnt_wdt = 10;
     }
-    if ( fnt_maxwdt <= 0 || fnt_maxwdt > 100 )
+    if ( fnt_maxwdt<=0 || fnt_maxwdt>100 )
     { 
 	pErrMsg( "Font maxwidth no good. Taking 15." ); 
 	self.fnt_maxwdt = 15;
