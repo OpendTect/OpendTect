@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.cc,v 1.18 2008-07-10 08:04:10 cvsdgb Exp $
+ RCS:           $Id: uiobjbody.cc,v 1.19 2008-07-10 10:33:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -549,12 +549,8 @@ void uiObjectBody::gtFntWdtHgt() const
 
     uiObjectBody& self = *const_cast<uiObjectBody*>(this);
 
-#ifdef __win__
     QFont qft = QFont();
     QFontMetrics fm( qft );
-#else
-    QFontMetrics fm( qw->fontMetrics() );
-#endif
     self.fnt_hgt = fm.lineSpacing() + 2;
     self.fnt_wdt = fm.width( QChar('x') );
     self.fnt_maxwdt = fm.maxWidth();
