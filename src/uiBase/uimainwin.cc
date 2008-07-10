@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.148 2008-07-04 05:36:39 cvsnageswara Exp $
+ RCS:           $Id: uimainwin.cc,v 1.149 2008-07-10 08:04:50 cvsdgb Exp $
 ________________________________________________________________________
 
 -*/
@@ -544,7 +544,9 @@ void uiMainWinBody::saveSettings()
     const BufferString fnm = getSettingsFileName();
     QSettings settings( fnm.buf(), QSettings::IniFormat );
     settings.beginGroup( NamedObject::name().buf() );
-    settings.setValue( "size", size() );
+    QSize qsz( frameGeometry().width(), frameGeometry().height() );
+    settings.setValue( "size", qsz );
+    settings.setValue( "pos", pos() );
     settings.setValue( "state", saveState() );
     settings.endGroup();
 }
