@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.31 2008-05-29 11:33:12 cvssatyaki Exp $
+ RCS:           $Id: flatview.h,v 1.32 2008-07-10 14:57:40 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -223,7 +223,9 @@ class Appearance
 public:
     			Appearance( bool drkbg=true )
 			    : darkbg_(drkbg)
-			    , annot_(drkbg)	{}
+			    , annot_(drkbg)
+			    , secondsetaxes_(drkbg)
+			    , anglewithset1_(0)		{}
 
     virtual void	fillPar(IOPar&) const;
     virtual void	usePar(const IOPar&);
@@ -231,6 +233,10 @@ public:
     Annotation		annot_;
     DataDispPars	ddpars_;
 
+    //Second set of axes, especially handy in case flat viewer is horizontal
+    Annotation		secondsetaxes_;
+    float		anglewithset1_;
+    
     void		setDarkBG(bool yn);
     bool		darkBG() const		{ return darkbg_; }
 
