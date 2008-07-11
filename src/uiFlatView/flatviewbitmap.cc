@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewbitmap.cc,v 1.18 2008-05-29 11:59:02 cvssatyaki Exp $
+ RCS:           $Id: flatviewbitmap.cc,v 1.19 2008-07-11 20:26:52 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,10 +108,10 @@ Geom::Point2D<int> FlatView::BitMapMgr::dataOffs(
     // Now check whether we have a pan outside buffered area:
     const bool xrev = wr_.right() < wr_.left();
     const bool yrev = wr_.top() < wr_.bottom();
-    const double xoffs = fabs(xrev ? inpwr.right() - wr_.right()
-	    			   : inpwr.left() - wr_.left()) / xratio;
-    const double yoffs = fabs(yrev ? inpwr.top() - wr_.top()
-	    			   : inpwr.bottom() - wr_.bottom()) / yratio;
+    const double xoffs = (xrev ? inpwr.right() - wr_.right()
+			       : inpwr.left() - wr_.left()) / xratio;
+    const double yoffs = (yrev ? inpwr.top() - wr_.top()
+			       : inpwr.bottom() - wr_.bottom()) / yratio;
     if ( xoffs <= -0.5 || yoffs <= -0.5 )
 	return ret;
     const double maxxoffs = sz_.width() - inpsz.width() + .5;
