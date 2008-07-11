@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodemsurftreeitem.cc,v 1.33 2008-07-01 10:04:35 cvsnanne Exp $
+ RCS:		$Id: uiodemsurftreeitem.cc,v 1.34 2008-07-11 11:20:35 cvsjaap Exp $
 ___________________________________________________________________
 
 -*/
@@ -54,6 +54,7 @@ uiODEarthModelSurfaceTreeItem::uiODEarthModelSurfaceTreeItem(
     , changesetupmnuitem_("Change setup ...")
     , reloadmnuitem_("Reload")
     , starttrackmnuitem_("Start tracking ...")
+    , prevtrackstatus_(true)
 {
     enabletrackingmnuitem_.checkable = true;
 }
