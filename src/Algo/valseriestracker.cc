@@ -4,7 +4,7 @@
  * DATE     : May 2007
 -*/
 
-static const char* rcsID = "$Id: valseriestracker.cc,v 1.6 2008-04-21 04:27:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: valseriestracker.cc,v 1.7 2008-07-11 17:45:05 cvskris Exp $";
 
 #include "valseriestracker.h"
 
@@ -22,8 +22,8 @@ const char** EventTracker::sEventNames()
  
 const VSEvent::Type* EventTracker::cEventTypes() 
 { 
-    static const VSEvent::Type event_types[] = { VSEvent::Min, VSEvent::Max, 
-						 VSEvent::ZCPosNeg, VSEvent::ZCNegPos };
+    static const VSEvent::Type event_types[] =
+	{ VSEvent::Min, VSEvent::Max, VSEvent::ZCPosNeg, VSEvent::ZCNegPos };
 	 
     return event_types; 
 } 
@@ -109,6 +109,14 @@ bool EventTracker::isOK() const
 }
 
 
+void EventTracker::setSource( const ValueSeries<float>* vs, int sz,
+				  float depth )
+{
+    ValSeriesTracker::setSource( vs, sz, depth );
+    setSourceAmpl( mUdf(float) );
+}
+
+
 const Interval<float>& EventTracker::permittedRange() const
 { return permrange_; }
 
@@ -184,7 +192,7 @@ bool EventTracker::track()
 {
     if ( !usesimilarity_ )
     {
-	if ( useAbsThreshold() )
+	if ( useAbsThreshold() && !mIsUdf(ampthreshold_) )
 	    return snap( amplitudeThreshold() );
 
 	float refampl;

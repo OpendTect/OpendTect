@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Dec 2006
- RCS:		$Id: valseriestracker.h,v 1.5 2008-02-07 18:59:33 cvskris Exp $
+ RCS:		$Id: valseriestracker.h,v 1.6 2008-07-11 17:45:05 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,27 +70,67 @@ public:
 
     virtual bool		isOK() const;
 
+    void			setSource(const ValueSeries<float>*,int sz,
+	    				  float depth);
+    				//!<Will set sourceampl to udf
+    void			setSourceAmpl(float v)	{ sourceampl_ = v; }
+    				//!<If udf, sourceampl will be extracted from
+				//!<source vs.
+				
+    float			getSourceAmpl() const	{ return sourceampl_; }
+
     void			setRangeStep(float step) { rangestep_ = step; }
     float			getRangeStep() const { return rangestep_; }
     void			setPermittedRange(const Interval<float>& rg);
     				//<!Is divided by rangestep to get nrof samples
     const Interval<float>&	permittedRange() const;
     void			setTrackEvent(VSEvent::Type ev);
+    				/*!<
+				    - VSEvent::Max
+				       Will find max event within the permitted
+				       range where the amplitude is higher than
+				       the threshold.
+    				    - VSEvent::Min
+				       Will find minimum event within the
+				       permitted range where the amplitude is
+				       lower than the threshold.
+    				    - VSEvent::ZCNegPos
+				       Will find zerocrossing (Neg to Pos )
+				       event within the permitted range. No
+				       amplitude threshold is used.
+    				    - VSEvent::ZCPosNeg
+				       Will find zerocrossing (Pos to Neg)
+				       event within the permitted range. No
+				       amplitude threshold is used. */
     VSEvent::Type		trackEvent() const;
     bool			snap(float threshold);
-				/*!Snaps at nearest event. Only
-				   needs target data.*/
+				/*!Snaps at nearest event that is in permitted
+				   range and where the amplitude meets the
+				   threshold criterion. Only needs target
+				   data.*/
 
     void			useSimilarity(bool yn);
     bool			usesSimilarity() const;
     void			normalizeSimilarityValues(bool yn);
     bool			normalizesSimilarityValues() const;
-    void			setAmplitudeThreshold(float th);
-    float			amplitudeThreshold() const;
-    void			setAllowedVariance(float v);
-    float			allowedVariance() const;
+
     void			setUseAbsThreshold(bool abs);
+    				/*!<If on, the amplitude threshold
+				    is set by setAmplitudeThreshold().
+				    If off, the amplitude threshold
+				    is set by (1-allowedVariance()) *
+				    sourceamplitude. The source amplitude is
+				    either set by setSourceAmpl or extracted
+				    from source valseries. */
     bool			useAbsThreshold() const; 
+
+    void			setAmplitudeThreshold(float th);
+    				//!<Must be set if using absolute threshold.
+    float			amplitudeThreshold() const;
+
+    void			setAllowedVariance(float v);
+    				//!<Only used if not using absolute threshold
+    float			allowedVariance() const;
 
     void			setSimilarityWindow(const Interval<float>& rg);
     const Interval<float>&	similarityWindow() const;
@@ -121,6 +161,7 @@ protected:
     float		similaritythreshold_;
     bool		usesimilarity_;
     bool		normalizesimi_;
+    bool		sourceampl_;
 
     float		quality_;
 
