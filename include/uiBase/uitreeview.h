@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.28 2008-07-09 06:26:17 cvssatyaki Exp $
+ RCS:           $Id: uitreeview.h,v 1.29 2008-07-11 09:33:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "uiobj.h"
 #include "bufstringset.h"
 #include "keyenum.h"
+#include "uienums.h"
+
 
 class QTreeWidget;
 class QTreeWidgetItem;
@@ -46,11 +48,6 @@ public:
 
     void		setTreeStepSize(int);
 
-    QTreeWidget*	qtreeWidget()
-    			{ return (QTreeWidget*)body_; }
-    const QTreeWidget*	qtreeWidget() const		
-    			{ return (const QTreeWidget*)body_; }
-
     bool		rootDecorated() const;
     void		setRootDecorated(bool yn);
 
@@ -58,12 +55,11 @@ public:
     void		takeItem(uiListViewItem*);
     void		insertItem(int,uiListViewItem*);
 
-			// returns index of new column
     void		addColumns(const BufferStringSet&);
+    int			nrColumns() const;
 
     void		removeColumn(int index );
     void		setColumnText(int column,const char* label);
-
     const char*		columnText(int column) const;
     void		setColumnWidth(int column,int width);
     int			columnWidth(int column) const;
@@ -71,19 +67,16 @@ public:
     enum		WidthMode { Manual, Maximum };
     void		setColumnWidthMode(int column,WidthMode);
     WidthMode		columnWidthMode(int column) const;
-    int			columns() const;
 
-    void		setColumnAlignment(int,int);
-    int			columnAlignment(int) const;
+    void		setColumnAlignment(int,OD::Alignment);
+    OD::Alignment	columnAlignment(int) const;
 
     void		ensureItemVisible(const uiListViewItem*);
 
-    void		setMultiSelection(bool yn);
-    bool		isMultiSelection() const;
-
-    enum		SelectionMode { Single, Multi, Extended, NoSelection };
+    enum		SelectionMode
+    			{ NoSelection=0, Single, Multi, Extended, Contiguous };
     enum		SelectionBehavior 
-    				{ SelectItems, SelectRows, SelectColumns };
+			{ SelectItems, SelectRows, SelectColumns };
     void		setSelectionMode(SelectionMode);
     SelectionMode	selectionMode() const;
     void		setSelectionBehavior(SelectionBehavior);
@@ -94,23 +87,16 @@ public:
     bool		isSelected(const uiListViewItem*) const;
     uiListViewItem*	selectedItem() const;
 
-			//! shows or hides an item's children
-    void		setOpen(uiListViewItem*,bool);
-    bool		isOpen(const uiListViewItem*) const;
-
     void		setCurrentItem(uiListViewItem*);
 
     uiListViewItem*	currentItem() const;
-    uiListViewItem*	firstChild() const;
+    uiListViewItem*	firstItem() const;
     uiListViewItem*	lastItem() const;
 
-    int			childCount() const;
+    int			nrItems() const;
 
     void		setItemMargin(int);
     int			itemMargin() const;
-
-    void		setSorting(int column,bool increasing=true);
-    void		sort();
 
     void		setShowToolTips(bool);
     bool		showToolTips() const;
@@ -120,7 +106,9 @@ public:
 
     void		clear();
     void		invertSelection();
-    void		selectAll(bool yn);
+    void		selectAll();
+    void		expandAll();
+    void		collapseAll();
 
 			//! re-draws at next X-loop
     void		triggerUpdate();
@@ -188,13 +176,13 @@ public:
     {
     public:
 				Setup( const char* txt=0, 
-				       uiListViewItem::Type tp = 
-				       uiListViewItem::Standard,
-				       bool setcheckbox = true )
+				       uiListViewItem::Type tp=
+						uiListViewItem::Standard,
+				       bool setchecked=true )
 				: type_(tp)
 				, after_(0)
 				, pixmap_(0)
-				, setcheck_(setcheckbox)
+				, setcheck_(setchecked)
 				{ label( txt ); }
 
 	mDefSetupMemb(uiListViewItem::Type,type)
@@ -218,14 +206,18 @@ public:
     QTreeWidgetItem*	qItem()			{ return qtreeitem_; }
     const QTreeWidgetItem* qItem() const	{ return qtreeitem_; }
 
+    int			nrChildren() const;
+
+    void		setCheckable(bool);
     bool		isCheckable() const;
     void		setChecked(bool,bool trigger=false);
     			//!< does nothing if not checkable
     bool		isChecked() const;  //!< returns false if not checkable
 
-    void		insertItem( int, uiListViewItem* );
-    void		takeItem( uiListViewItem* );
-    void		removeItem( uiListViewItem* );
+    void		insertItem(int,uiListViewItem*);
+    void		takeItem(uiListViewItem*);
+    void		removeItem(uiListViewItem*);
+    void		moveItem(uiListViewItem* after);
     int			siblingIndex() const;
     			/*!<\returns this items index of it's siblings. */
 
@@ -247,15 +239,14 @@ public:
     virtual int		compare( uiListViewItem*,int column,bool) const
 							{ return mUdf(int); }
 
-    int			childCount() const;
-
+    void		setOpen(bool yn=true);
     bool		isOpen() const;
-    void		setOpen( bool yn = true );
 
     void		setSelected(bool yn);
     bool		isSelected() const;
 
     uiListViewItem*	firstChild() const;
+    uiListViewItem*	lastChild() const;
     uiListViewItem*	nextSibling() const;
     uiListViewItem*	parent() const;
 
@@ -266,11 +257,6 @@ public:
 
     void		setSelectable(bool yn);
     bool		isSelectable() const;
-
-    void		setExpandable(bool yn);
-    bool		isExpandable() const;
-
-    void		moveItem( uiListViewItem* after );
 
     void		setDragEnabled(bool);
     void		setDropEnabled(bool);
@@ -304,6 +290,15 @@ protected:
     mutable BufferString	rettxt;
 
     void			init(const Setup&);
+
+    bool			isselectable_;
+    bool			iseditable_;
+    bool			isdragenabled_;
+    bool			isdropenabled_;
+    bool			ischeckable_;
+    bool			isenabled_;
+    void			updateFlags();
+
 };
 
 #endif

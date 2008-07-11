@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.40 2008-07-09 12:33:41 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.41 2008-07-11 09:33:22 cvsnanne Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -221,8 +221,7 @@ uiParent* uiTreeItem::getUiParent() const
 void uiTreeItem::setListViewItem( uiListViewItem* item )
 {
     uilistviewitem_ = item;
-    uilistviewitem_->setExpandable(isExpandable());
-    uilistviewitem_->setSelectable(isSelectable());
+    uilistviewitem_->setSelectable( isSelectable() );
 }
 
 
@@ -267,6 +266,21 @@ uiTreeItem* uiTreeItem::siblingBelow()
 }
 
 
+uiTreeItem* uiTreeItem::lastChild()
+{
+    if ( !uilistviewitem_ ) return 0;
+    uiListViewItem* lastchild = uilistviewitem_->lastChild();
+
+    for ( int idx=0; idx<children_.size(); idx++ )
+    {
+	if ( children_[idx]->getItem()==lastchild )
+	    return children_[idx];
+    }
+
+    return 0;
+}
+
+
 #define mAddChildImpl( uiparentlist ) \
 if ( !strcmp(newitem->parentType(), typeid(*this).name()) ) \
 { \
@@ -282,9 +296,9 @@ if ( !strcmp(newitem->parentType(), typeid(*this).name()) ) \
 	return true; \
     } \
  \
-    if ( uilistviewitem_ ) uilistviewitem_->setOpen( true ); \
     if ( !below )  \
         moveItemToTop(); \
+    if ( uilistviewitem_ ) uilistviewitem_->setOpen( true ); \
     updateColumnText(0); updateColumnText(1); \
     return true; \
 } \

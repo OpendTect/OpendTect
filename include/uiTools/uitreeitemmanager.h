@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.36 2008-07-09 12:33:40 cvsnanne Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.37 2008-07-11 09:33:21 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -57,8 +57,9 @@ public:
 
     virtual uiTreeItem*		siblingAbove();
     virtual uiTreeItem*		siblingBelow();
-    virtual void		moveItem( uiTreeItem* after );
+    virtual void		moveItem(uiTreeItem* after);
     virtual void		moveItemToTop();
+    uiTreeItem*			lastChild();
 				 
     virtual bool		addChild(uiTreeItem* child,bool below);
     				/*!<Adds a child. If the child does not fit
@@ -151,7 +152,8 @@ protected:
     virtual bool		rightClick(uiListViewItem* item);
     virtual bool		anyButtonClick(uiListViewItem* item);
     virtual void		setListViewItem( uiListViewItem* );
-    uiListViewItem*		getItem() { return uilistviewitem_; }
+    uiListViewItem*		getItem()	{ return uilistviewitem_; }
+    const uiListViewItem*	getItem() const { return uilistviewitem_; }
 
     const ObjectSet<uiTreeItem>& getChildren() const	{ return children_; }
 

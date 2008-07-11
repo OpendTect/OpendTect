@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.cc,v 1.13 2008-07-07 09:45:42 cvssatyaki Exp $
+ RCS:           $Id: uicoltabman.cc,v 1.14 2008-07-11 09:33:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,6 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
     labels.add( "Color table" );
     labels.add( "Status" );
     coltablistfld_->addColumns( labels );
-    coltablistfld_->setSorting( 0, true );
     coltablistfld_->setRootDecorated( false );
     coltablistfld_->setHScrollBarMode( uiListView::AlwaysOff );
     coltablistfld_->setStretch( 2, 2 );

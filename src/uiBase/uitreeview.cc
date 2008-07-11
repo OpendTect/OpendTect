@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.38 2008-07-09 11:09:20 cvssatyaki Exp $
+ RCS:           $Id: uitreeview.cc,v 1.39 2008-07-11 09:33:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,11 +36,10 @@ class uiListViewBody : public uiObjBodyImplNoQtNm<uiListView,QTreeWidget>
 {
 
 public:
-
-                        uiListViewBody( uiListView& handle, uiParent* parnt, 
-					const char* nm, int nrl);
-
+                        uiListViewBody(uiListView& handle,uiParent* parnt, 
+				       const char* nm,int nrl);
     virtual 		~uiListViewBody();
+
     void 		setLines( int prefNrLines )
 			{ 
 			    if ( prefNrLines >= 0 )
@@ -68,7 +67,6 @@ protected:
     bool		moveItem(QKeyEvent*);
     void		mousePressEvent(QMouseEvent*);
     void		mouseReleaseEvent(QMouseEvent*);
-    void 		setSorting(int,bool increasing=true);
 
     uiListViewItem*	actitem_;
     bool		actexpand_;
@@ -93,7 +91,6 @@ uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parent,
     setStretch( 1, (nrTxtLines()== 1) ? 0 : 1 );
     setHSzPol( uiObject::MedVar ) ;
 
-    setSorting( -1 );
     setAcceptDrops( true );
     viewport()->setAcceptDrops( true );
     setSelectionBehavior( QTreeWidget::SelectItems );
@@ -106,10 +103,6 @@ uiListViewBody::uiListViewBody( uiListView& handle, uiParent* parent,
 
 uiListViewBody::~uiListViewBody()
 { delete &messenger_; }
-
-
-void uiListViewBody::setSorting( int column, bool increasing )
-{ sortByColumn(column,increasing ? Qt::AscendingOrder : Qt::DescendingOrder); }
 
 
 void uiListViewBody::keyPressEvent( QKeyEvent* event )
@@ -351,21 +344,21 @@ void uiListView::setRootDecorated( bool yn )
 
     \sa uiListView::takeItem
 */
-void uiListView::insertItem(int item, uiListViewItem* itm )
-{ itm->qItem()->parent()->insertChild( item, itm->qItem() ); }
+void uiListView::insertItem( int idx, uiListViewItem* itm )
+{ body_->insertTopLevelItem( idx, itm->qItem() ); }
 
 
 void uiListView::takeItem( uiListViewItem* itm )
 { 
-     const int childid = itm->qItem()->parent()->indexOfChild( itm->qItem() );
-     itm->qItem()->parent()->takeChild( childid );
+     const int childid = body_->indexOfTopLevelItem( itm->qItem() );
+     body_->takeTopLevelItem( childid );
 }
 
 
 void uiListView::addColumns( const BufferStringSet& lbls )
 {
-    const int columncount = body_->columnCount();
-    for ( int idx=0; idx < columncount; idx++ )
+    const int nrcol = nrColumns();
+    for ( int idx=0; idx<nrcol; idx++ )
 	body_->model()->removeColumn( idx, body_->currentIndex() );
 
     QStringList qlist;
@@ -373,49 +366,43 @@ void uiListView::addColumns( const BufferStringSet& lbls )
 	qlist.append( QString(lbls.get(idx).buf()) );
 
     body_->setHeaderLabels( qlist );
-    /*for ( int idx=0; idx<qlist.size(); idx++ )
-    {
-	if ( idx != 0 )
-	    body_->model()->insertColumn( idx );
-	body_->headerItem()->setText( idx, qlist[idx] ); 
-    }*/
 }
 
 
-void uiListView::removeColumn( int idx )
-{ body_->model()->removeColumn( idx, body_->currentIndex() ); }
+void uiListView::removeColumn( int col )
+{ body_->model()->removeColumn( col, body_->currentIndex() ); }
 
 
-void uiListView::setColumnText( int column, const char* label )
-{ body_->headerItem()->setText( column, QString(label) ); }
+void uiListView::setColumnText( int col, const char* label )
+{ body_->headerItem()->setText( col, QString(label) ); }
 
 
-const char* uiListView::columnText( int idx ) const
+const char* uiListView::columnText( int col ) const
 {
-    if ( idx < 0  ) return "";
-    QString qlabel = body_->headerItem()->text( idx );
+    if ( col < 0  ) return "";
+    QString qlabel = body_->headerItem()->text( col );
     return qlabel.toAscii().data();
 }
 
 
-void uiListView::setColumnWidth( int column, int width )
-{ body_->setColumnWidth ( column, width ); }
+void uiListView::setColumnWidth( int col, int width )
+{ body_->setColumnWidth( col, width ); }
 
 
-int uiListView::columnWidth( int column ) const
-{ return body_->columnWidth( column ); }
+int uiListView::columnWidth( int col ) const
+{ return body_->columnWidth( col ); }
 
 
-int uiListView::columns() const			
+int uiListView::nrColumns() const
 { return body_->columnCount(); }
 
 
-void uiListView::setColumnAlignment( int idx , int al )
-{ body_->headerItem()->setTextAlignment( idx, al ); }
+void uiListView::setColumnAlignment( int col, OD::Alignment al )
+{ body_->headerItem()->setTextAlignment( col, al ); }
 
 
-int uiListView::columnAlignment( int idx) const 
-{ return  body_->headerItem()->textAlignment( idx ); }
+OD::Alignment uiListView::columnAlignment( int col ) const 
+{ return (OD::Alignment)body_->headerItem()->textAlignment( col ); }
 
 
 void uiListView::ensureItemVisible( const uiListViewItem* itm )
@@ -425,27 +412,14 @@ void uiListView::ensureItemVisible( const uiListViewItem* itm )
 }
 
 
-void uiListView::setMultiSelection( bool yn )
-{
-    if ( yn )
-	body_->setSelectionMode( QTreeWidget::MultiSelection ); 
-}
-
-
-bool uiListView::isMultiSelection() const
-{ return body_->selectionMode() == QTreeWidget::MultiSelection; }
-
-
 void uiListView::setSelectionMode( SelectionMode mod )
 { body_->setSelectionMode( (QTreeWidget::SelectionMode)int(mod) ); }
 
+uiListView::SelectionMode uiListView::selectionMode() const
+{ return (uiListView::SelectionMode)int(body_->selectionMode()); }
 
 void uiListView::setSelectionBehavior( SelectionBehavior behavior )
 { body_->setSelectionBehavior( (QTreeWidget::SelectionBehavior)int(behavior)); }
-
-
-uiListView::SelectionMode uiListView::selectionMode() const
-{ return (uiListView::SelectionMode)int(body_->selectionMode()); }
 
 
 uiListView::SelectionBehavior uiListView::selectionBehavior() const
@@ -468,14 +442,6 @@ uiListViewItem* uiListView::selectedItem() const
 { return mItemFor( body_->currentItem() ); }
 
 
-void uiListView::setOpen( uiListViewItem* itm, bool yn )
-{ body_->expandItem( itm->qItem() ); }
-
-
-bool uiListView::isOpen( const uiListViewItem* itm ) const
-{ return body_->isExpanded( qtreeWidget()->currentIndex() ); }
-
-
 void uiListView::setCurrentItem( uiListViewItem* itm )
 { body_->setCurrentItem( itm->qItem() ); }
 
@@ -484,27 +450,16 @@ uiListViewItem* uiListView::currentItem() const
 { return mItemFor( body_->currentItem() ); }
 
 
-uiListViewItem* uiListView::firstChild() const
-{ return currentItem() ? mItemFor( currentItem()->qItem()->child(0) ) : 0; }
+uiListViewItem* uiListView::firstItem() const
+{ return nrItems() < 1 ? 0 : mItemFor( body_->topLevelItem(0) ); }
 
 
 uiListViewItem* uiListView::lastItem() const
-{
-    return currentItem() ?
-		mItemFor( currentItem()->qItem()->child(childCount()-1) ) : 0;
-}
+{ return nrItems() < 1 ? 0 : mItemFor( body_->topLevelItem(nrItems()-1) ); }
 
 
-int uiListView::childCount() const
-{ return body_->children().size(); }
-
-
-void uiListView::setSorting( int column, bool increasing )
-{ body_->sortByColumn( column, (Qt::SortOrder)int(increasing) ); }
-
-
-void uiListView::sort()
-{ body_->sortColumn(); }
+int uiListView::nrItems() const
+{ return body_->topLevelItemCount(); }
 
 
 uiListViewItem* uiListView::findItem( const char* text, int column,
@@ -525,14 +480,17 @@ uiListViewItem* uiListView::findItem( const char* text, int column,
     update.
 */
 void uiListView::clear()
-{ body_->QTreeWidget::clear(); }
+{ ((QTreeWidget*)body_)->clear(); }
 
+void uiListView::selectAll()
+{ body_->selectAll(); }
 
-void uiListView::selectAll( bool yn )
-{
-   if ( yn )
-       body_->selectAll();
-}
+void uiListView::expandAll()
+{ body_->expandAll(); }
+
+void uiListView::collapseAll()
+{ body_->collapseAll(); }
+
 
 /*! \brief Triggers contents update.
     Triggers a size, geometry and content update during the next
@@ -560,8 +518,8 @@ void uiListView::activateMenu( uiListViewItem& uilvwitm )
 
 
 uiListViewItem::uiListViewItem( uiListView* parent, const Setup& setup )
-    : stateChanged( this )
-    , keyPressed( this )
+    : stateChanged(this)
+    , keyPressed(this)
 { 
     qtreeitem_ = new QTreeWidgetItem( parent ? parent->lvbody() : 0 );
     odqtobjects_.add( this, qtreeitem_ );
@@ -570,8 +528,8 @@ uiListViewItem::uiListViewItem( uiListView* parent, const Setup& setup )
 
 
 uiListViewItem::uiListViewItem( uiListViewItem* parent, const Setup& setup )
-    : stateChanged( this )
-    , keyPressed( this )
+    : stateChanged(this)
+    , keyPressed(this)
 { 
     qtreeitem_ = new QTreeWidgetItem( parent ? parent->qItem() : 0 );
     odqtobjects_.add( this, qtreeitem_ );
@@ -581,17 +539,22 @@ uiListViewItem::uiListViewItem( uiListViewItem* parent, const Setup& setup )
 
 void uiListViewItem::init( const Setup& setup )
 {
-    if ( setup.after_ )         moveItem( setup.after_ );
-    if ( setup.pixmap_ )        setPixmap( 0, *setup.pixmap_ );
-    if ( setup.type_ == uiListViewItem::CheckBox )
-	qtreeitem_->setCheckState( 0, setup.setcheck_ ? Qt::Checked :
-							Qt::Unchecked );
-    else
-	qtreeitem_->setFlags( Qt::ItemIsEnabled | Qt::ItemIsSelectable );
+    if ( setup.after_ )
+	moveItem( setup.after_ );
+    if ( setup.pixmap_ )
+	setPixmap( 0, *setup.pixmap_ );
+
+    isselectable_ = isenabled_ = true;
+    iseditable_ = isdragenabled_ = isdropenabled_ = false;
+    ischeckable_ = setup.type_ == uiListViewItem::CheckBox;
+    updateFlags();
+
+    if ( ischeckable_ )
+	setChecked( setup.setcheck_ );
 
     if ( setup.labels_.size() )
     {
-	for( int idx=0; idx < setup.labels_.size() ; idx++ )
+	for( int idx=0; idx<setup.labels_.size() ; idx++ )
 	{ setText( *setup.labels_[idx], idx ); }
     }
 }
@@ -607,10 +570,11 @@ uiListViewItem::~uiListViewItem()
 int uiListViewItem::depth() const
 { return qItem()->treeWidget()->depth(); }
 
+
 void uiListViewItem::setText( const char* txt, int column )
 { 
-    qItem()->setText( column, QString(txt) );
-    qtreeitem_->setToolTip( column, QString(txt) );
+    qtreeitem_->setText( column, QString(txt) );
+    qtreeitem_->setStatusTip( column, QString(txt) );
 }
 
 
@@ -622,46 +586,42 @@ const char* uiListViewItem::text( int column ) const
 
 
 void uiListViewItem::setPixmap( int column, const ioPixmap& pm )
-{
-    qItem()->setIcon( column, pm.qpixmap() ? *pm.qpixmap() : QPixmap() );
-}
+{ qItem()->setIcon( column, pm.qpixmap() ? *pm.qpixmap() : QPixmap() ); }
 
-
-int uiListViewItem::childCount() const
+int uiListViewItem::nrChildren() const
 { return qItem()->childCount(); }
-
 
 bool uiListViewItem::isOpen() const
 { return qItem()->isExpanded(); }
 
-
 void uiListViewItem::setOpen( bool yn )
 { qItem()->setExpanded( yn ); }
-
 
 void uiListViewItem::setSelected( bool yn )
 { qItem()->setSelected( yn ); }
 
-
 bool uiListViewItem::isSelected() const
 { return qItem()->isSelected(); }
-
 
 uiListViewItem* uiListViewItem::firstChild() const
 { return mItemFor( qItem()->child(0) ); }
 
+uiListViewItem* uiListViewItem::lastChild() const
+{ return mItemFor( qItem()->child( nrChildren()-1 ) ); }
+
 
 int uiListViewItem::siblingIndex() const
 {
-    QTreeWidgetItem* itm = const_cast<QTreeWidgetItem*> (qItem());
-    return itm && itm->parent() ? itm->parent()->indexOfChild(itm) : -1;
+    return qtreeitem_ && qtreeitem_->parent() ?
+	qtreeitem_->parent()->indexOfChild(qtreeitem_) : -1;
 }
 
 
 uiListViewItem* uiListViewItem::nextSibling() const
-{ 
-    QTreeWidgetItem* itm = const_cast<QTreeWidgetItem*> (qItem());
-    return mItemFor( itm->parent()->child(itm->parent()->indexOfChild(itm)+1)); 
+{
+    if ( !qtreeitem_ || !qtreeitem_->parent() ) return 0;
+
+    return mItemFor( qtreeitem_->parent()->child( siblingIndex()+1 ) );
 }
 
 
@@ -679,28 +639,10 @@ uiListViewItem* uiListViewItem::itemBelow()
 
 uiListView* uiListViewItem::listView() const
 {
-    return &( listView()->lvbody()->lvhandle() );
+    QTreeWidget* lv = qtreeitem_->treeWidget();
+    uiListViewBody* lvb = dynamic_cast<uiListViewBody*>(lv);
+    return lvb ? &lvb->lvhandle() : 0;
 }
-
-
-void uiListViewItem::setSelectable( bool yn )
-{
-    if ( yn )
-	qItem()->setFlags( Qt::ItemIsSelectable | Qt::ItemIsEnabled | 
-	       		   Qt::ItemIsUserCheckable );
-}
-
-
-bool uiListViewItem::isSelectable() const
-{ return qItem()->flags().testFlag( Qt::ItemIsSelectable ); }
-
-
-void uiListViewItem::setExpandable( bool yn )
-{ qItem()->setExpanded( yn ); }
-
-
-bool uiListViewItem::isExpandable() const
-{ return qItem()->isExpanded(); }
 
 
 void uiListViewItem::takeItem( uiListViewItem* itm )
@@ -715,46 +657,39 @@ void uiListViewItem::insertItem( int idx, uiListViewItem* itm )
 
 
 void uiListViewItem::removeItem( uiListViewItem* itm )
-{
-    const int idx = qItem()->indexOfChild( itm->qItem() );
-    qItem()->removeChild( itm->qItem() );
-}
+{ qItem()->removeChild( itm->qItem() ); }
 
 
 void uiListViewItem::moveItem( uiListViewItem* after )
 {
-    parent()->takeItem( this );
-    const int afterid = after->qItem()->indexOfChild( after->qItem() );
-    parent()->insertItem( afterid, this );
+    uiListViewItem* prnt = parent();
+    if ( !prnt ) return;
+
+    prnt->takeItem( this );
+    const int afterid = prnt->qItem()->indexOfChild( after->qItem() );
+    prnt->insertItem( afterid, this );
 }
 
 
 void uiListViewItem::setDragEnabled( bool yn )
 {
-    if ( yn )
-	qItem()->treeWidget()->setDragDropMode( QTreeWidget::DragOnly ); 
+    isdragenabled_ = yn;
+    updateFlags();
 }
 
 
 void uiListViewItem::setDropEnabled( bool yn )
 {
-    if ( yn )
-	qItem()->treeWidget()->setDragDropMode( QTreeWidget::DropOnly ); 
+    isdropenabled_ = yn;
+    updateFlags();
 }
 
 
 bool uiListViewItem::dragEnabled() const
-{
-    return qItem()->treeWidget()->dragDropMode() == QTreeWidget::DragOnly || 
-						    QTreeWidget::DragDrop;
-}
-
+{ return qItem()->flags().testFlag( Qt::ItemIsDragEnabled ); }
 
 bool uiListViewItem::dropEnabled() const
-{
-    return qItem()->treeWidget()->dragDropMode() == QTreeWidget::DropOnly || 
-						    QTreeWidget::DragDrop;
-}
+{ return qItem()->flags().testFlag( Qt::ItemIsDropEnabled ); }
 
 
 void uiListViewItem::setVisible( bool yn )
@@ -766,11 +701,14 @@ bool uiListViewItem::isVisible() const
 
 
 void uiListViewItem::setRenameEnabled( int column, bool yn )
-{ qItem()->setFlags( yn ? Qt::ItemIsEditable : Qt::ItemIsSelectable ); }
+{
+    iseditable_ = yn;
+    updateFlags();
+}
 
 
 bool uiListViewItem::renameEnabled( int column ) const
-{ return qItem()->flags() == Qt::ItemIsEditable; }
+{ return qItem()->flags().testFlag( Qt::ItemIsEditable ); }
 
 
 void uiListViewItem::setEnabled( bool yn )
@@ -781,22 +719,26 @@ bool uiListViewItem::isEnabled() const
 { return !qItem()->isDisabled(); }
 
 
-uiListViewItem* uiListViewItem::itemFor( QTreeWidgetItem* itm )
+void uiListViewItem::setSelectable( bool yn )
 {
-    return odqtobjects_.getODObject( *itm );
+    isselectable_ = yn;
+    updateFlags();
 }
 
 
-const uiListViewItem* uiListViewItem::itemFor( const QTreeWidgetItem* itm )
+bool uiListViewItem::isSelectable() const
+{ return qItem()->flags().testFlag( Qt::ItemIsSelectable ); }
+
+
+void uiListViewItem::setCheckable( bool yn )
 {
-    return odqtobjects_.getODObject( *itm );
+    ischeckable_ = yn;
+    updateFlags();
 }
 
 
 bool uiListViewItem::isCheckable() const
-{
-    return qItem()->flags().testFlag( Qt::ItemIsUserCheckable );
-}
+{ return qItem()->flags().testFlag( Qt::ItemIsUserCheckable ); }
 
 
 void uiListViewItem::setChecked( bool yn, bool trigger )
@@ -809,6 +751,33 @@ void uiListViewItem::setChecked( bool yn, bool trigger )
 
 
 bool uiListViewItem::isChecked() const
+{ return qtreeitem_->checkState( 0 ) == Qt::Checked; }
+
+
+void uiListViewItem::updateFlags()
 {
-    return qItem()->checkState( 0 ) == Qt::Checked;
+    Qt::ItemFlags itmflags;
+    if ( isselectable_ )
+	itmflags |= Qt::ItemIsSelectable;
+    if ( iseditable_ )
+	itmflags |= Qt::ItemIsEditable;
+    if ( isdragenabled_ )
+	itmflags |= Qt::ItemIsDragEnabled;
+    if ( isdropenabled_ )
+	itmflags |= Qt::ItemIsDropEnabled;
+    if ( ischeckable_ )
+	itmflags |= Qt::ItemIsUserCheckable;
+    if ( isenabled_ )
+	itmflags |= Qt::ItemIsEnabled;
+
+    qtreeitem_->setFlags( itmflags );
 }
+
+
+uiListViewItem* uiListViewItem::itemFor( QTreeWidgetItem* itm )
+{ return odqtobjects_.getODObject( *itm ); }
+
+const uiListViewItem* uiListViewItem::itemFor( const QTreeWidgetItem* itm )
+{ return odqtobjects_.getODObject( *itm ); }
+
+

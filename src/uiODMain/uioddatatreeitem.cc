@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uioddatatreeitem.cc,v 1.29 2008-07-07 09:35:15 cvssatyaki Exp $
+ RCS:		$Id: uioddatatreeitem.cc,v 1.30 2008-07-11 09:33:21 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
@@ -154,7 +154,8 @@ int uiODDataTreeItem::attribNr() const
 {
     const uiVisPartServer* visserv = applMgr()->visServer();
     const int nrattribs = visserv->getNrAttribs( displayID() );
-    return nrattribs-siblingIndex()-1 < 0 ? 0 : nrattribs-siblingIndex()-1;
+    const int attribnr = nrattribs-siblingIndex()-1;
+    return attribnr<0 || attribnr>=nrattribs ? 0 : attribnr;
 }
 
 
@@ -280,8 +281,7 @@ void uiODDataTreeItem::handleMenuCB( CallBacker* cb )
 	for ( int idx=attribNr(); idx; idx-- )
 	    visserv->swapAttribs( displayID(), idx, idx-1 );
 
-	while ( siblingIndex()<nrattribs-1 )
-	    moveItem( siblingBelow() );
+	moveItem( parent_->lastChild() );
 	menu->setIsHandled( true );
     }
     else if ( mnuid==moveupmnuitem_.id )

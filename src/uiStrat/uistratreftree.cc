@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.22 2008-07-09 06:26:17 cvssatyaki Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.23 2008-07-11 09:33:22 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,18 +122,16 @@ void uiStratRefTree::addNode( uiListViewItem* parlvit,
 
 void uiStratRefTree::expand( bool yn ) const
 {
-    uiListViewItem* lvit = lv_->firstChild();
-    while ( lvit )
-    {
-	lvit->setOpen( yn );
-	lvit = lvit->itemBelow();
-    }
+    if ( yn )
+	lv_->expandAll();
+    else
+	lv_->collapseAll();
 }
 
 
 void uiStratRefTree::makeTreeEditable( bool yn ) const
 {
-    uiListViewItem* lvit = lv_->firstChild();
+    uiListViewItem* lvit = lv_->firstItem();
     while ( lvit )
     {
 	lvit->setRenameEnabled( sUnitsCol, yn );
