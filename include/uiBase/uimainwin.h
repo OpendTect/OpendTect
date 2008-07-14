@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.58 2008-02-05 10:24:14 cvsjaap Exp $
+ RCS:           $Id: uimainwin.h,v 1.59 2008-07-14 09:00:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,11 +37,11 @@ public:
 			    if no parent, then modal is ignored
 			     (always non-modal).
 			*/
-			uiMainWin( uiParent* parnt=0, 
-				   const char* nm="uiMainWin",
-				   int nrStatusFlds = 1, 
-				   bool wantMenuBar = true,
-				   bool modal=false );
+			uiMainWin(uiParent* parnt=0, 
+				  const char* nm="uiMainWin",
+				  int nrStatusFlds=1, 
+				  bool wantMenuBar=true,
+				  bool modal=false);
 
     virtual		~uiMainWin();
 
@@ -81,7 +81,7 @@ public:
 
     void		activateClose();    //! Force activation in GUI thread
     void		activateQDlg(int retval);
-    void		activateGrab(const char* filenm, int zoom=1,
+    void		activateGrab(const char* filenm,int zoom=1,
 				     const char* format=0,int quality=-1);
     Notifier<uiMainWin> activatedone;
 
@@ -99,7 +99,8 @@ public:
     bool		shrinkAllowed();
 
 			//! automatically set by uiMain::setTopLevel
-    void		setExitAppOnClose( bool yn );
+    void		setExitAppOnClose(bool yn);
+    void		setDeleteOnClose(bool yn);
 
     void		moveDockWindow(uiDockWin&,Dock d=Top,int index=-1);
     void		removeDockWindow(uiDockWin*);

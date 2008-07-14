@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.149 2008-07-10 08:04:50 cvsdgb Exp $
+ RCS:           $Id: uimainwin.cc,v 1.150 2008-07-14 09:00:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,15 +54,17 @@ ________________________________________________________________________
 
 #include "dtect.xpm"
 
+
+
 class uiMainWinBody : public uiParentBody
 		    , public QMainWindow
 {
 friend class		uiMainWin;
 public:
-			uiMainWinBody( uiMainWin& handle, uiParent* parnt,
-				       const char* nm, bool modal );
+			uiMainWinBody(uiMainWin& handle,uiParent* parnt,
+				      const char* nm,bool modal);
 
-    void		construct( int nrstatusflds, bool wantmenubar );
+    void		construct(int nrstatusflds,bool wantmenubar);
 
     virtual		~uiMainWinBody();
 
@@ -84,14 +86,10 @@ public:
     void		reDraw( bool deep )
 			{
 			    update();
-			    centralWidget_->reDraw(deep);
+			    centralWidget_->reDraw( deep );
 			}
 
-    void		go()			
-			{ 
-			    finalise(); 
-			    show(); 
-			}
+    void		go()	{ finalise(); show(); }
 
     virtual void	show() 
 			{
@@ -189,20 +187,22 @@ private:
     bool		popped_up;
     uiSize		prefsz_;
 
-
     ObjectSet<uiDockWin>	wins2move;
     TypeSet<uiMainWin::Dock>	docks4wins;
     void			moveDockWindows();
+
+    bool		deletefrombody_;
+    bool		deletefromod_;
 };
 
 
 
-uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* p, 
+uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p, 
 			      const char* nm, bool modal )
 	: uiParentBody(nm)
 	, QMainWindow(p && p->pbody() ? p->pbody()->qwidget() : 0,
 		      nm,getFlags(p,modal) )
-	, handle_(handle__)
+	, handle_(uimw)
 	, initing(true)
 	, centralWidget_(0)
 	, statusbar(0)
@@ -221,6 +221,8 @@ uiMainWinBody::uiMainWinBody( uiMainWin& handle__, uiParent* p,
     setIconSize( QSize(iconsz_,iconsz_) );
 
     setWindowModality( modal ? Qt::WindowModal : Qt::NonModal );
+
+    deletefrombody_ = deletefromod_ = false;
 }
 
 
@@ -274,12 +276,14 @@ uiMainWinBody::~uiMainWinBody()
 {
     deleteAllChildren(); //delete them now to make sure all ui objects
     			 //are deleted before their body counterparts
-    
-    for ( int idx=toolbars_.size()-1; idx>=0; idx-- )
-	delete toolbars_.remove(idx);
 
     toolbarsmnu_->clear();
     delete toolbarsmnu_;
+    if ( !deletefromod_ )
+    {
+	deletefrombody_ = true;
+	delete &handle_;
+    }
 }
 
 
@@ -575,7 +579,7 @@ uiMainWin::uiMainWin( uiParent* parnt, const char* nm,
     , windowClosed(this)
     , activatedone(this)
 { 
-    body_= new uiMainWinBody( *this, parnt, nm, modal ); 
+    body_ = new uiMainWinBody( *this, parnt, nm, modal ); 
     setBody( body_ );
     body_->construct( nrstatusflds, wantMBar );
     if ( !parnt )
@@ -593,7 +597,17 @@ uiMainWin::uiMainWin( const char* nm, uiParent* parnt )
 
 
 uiMainWin::~uiMainWin()
-{ delete body_; }
+{
+    while ( body_->toolbars_.size() )
+	delete body_->toolbars_[0];
+
+    if ( !body_->deletefrombody_ )
+    {
+	body_->deletefromod_ = true;
+	delete body_;
+    }
+}
+
 
 QWidget* uiMainWin::qWidget() const
 { return body_; }
@@ -619,6 +633,10 @@ bool uiMainWin::finalised() const		{ return body_->finalised(); }
 void uiMainWin::setExitAppOnClose( bool yn )	{ body_->exitapponclose_ = yn; }
 bool uiMainWin::isHidden() const		{ return body_->isHidden(); }
 bool uiMainWin::isModal() const			{ return body_->isModal(); }
+
+
+void uiMainWin::setDeleteOnClose( bool yn )
+{ body_->setAttribute( Qt::WA_DeleteOnClose, yn ); }
 
 
 void uiMainWin::activateGrab( const char* filenm, int zoom,
