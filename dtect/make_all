@@ -3,7 +3,6 @@
 set mods=.mods
 set shallow=no
 set dodeps=yes
-set docpdeps=yes
 set doupd=yes
 set dodoc=no
 
@@ -14,9 +13,6 @@ if ( "$1" == "--shallow" ) then
     set shallow=yes
 else if ( "$1" == "--nodep" ) then
     set dodeps=no
-else if ( "$1" == "--mkdep" ) then
-    set dodeps=yes
-    set docpdeps=no
 else if ( "$1" == "--noupd" ) then
     set doupd=no
 else if ( "$1" == "--od" ) then
@@ -52,17 +48,21 @@ if ( $hostnm == dgb3 ) then
 	dvs update $oddir $dgbdir
     endif
     cdw
-    /users/dgb/bin/publish_all
     goto programmer_doc
+endif
+
+if ( $hostnm == dgb26 ) then
+    cdw; cd src; ./cpdeps
+    cdw; cd plugins; ./cpdeps
+    cdw; cd spec; ./cpdeps
+    set mods=.mods.noui
 endif
 
 if ( ! -d $WORK/dtect/build ) then
     mkdir $WORK/dtect/build
 endif
 
-set depsdonefile="$WORK/dtect/build/deps_done"
 set makedonefile="$WORK/dtect/build/make_done"
-if ( -e $depsdonefile ) rm $depsdonefile
 if ( -e $makedonefile ) rm $makedonefile
 
 if ( $shallow == no ) then
@@ -97,7 +97,6 @@ if ( $dodeps == yes ) then
     cd plugins ; make dep
     cd ../spec ; make dep
     cd ..
-    touch $depsdonefile
 endif
 
 make lib MODS=$mods
