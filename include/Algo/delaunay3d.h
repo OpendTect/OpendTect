@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          June 2008
- RCS:           $Id: delaunay3d.h,v 1.2 2008-07-14 19:01:36 cvsyuancheng Exp $
+ RCS:           $Id: delaunay3d.h,v 1.3 2008-07-14 19:38:21 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ public:
     void		setEpsilon(double err)	{ epsilon_ = err; }
     static int		cNoVertex()	{ return -1; }
 
-//protected:
+protected:
 
     static char		cIsInside()	{ return 0; }
     static char		cIsOnFace()	{ return 1; }
@@ -113,7 +113,7 @@ public:
 
     TypeSet<DAGTetrahedra>		tetrahedras_;
     TypeSet<Coord3>*			coordlist_;
-    Coord3				initialcoords_[8]; 
+    Coord3				initialcoords_[4]; 
     					/*!<-2,-3,-4, -5 are their indices.*/
     bool				ownscoordlist_;
     double				epsilon_;

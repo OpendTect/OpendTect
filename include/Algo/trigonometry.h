@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.33 2008-07-08 18:22:40 cvsyuancheng Exp $
+ RCS:		$Id: trigonometry.h,v 1.34 2008-07-14 19:38:21 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -73,6 +73,21 @@ inline const double determinent44( const Coord3& r0, const Coord3& r1,
 	   r0.z*determinent33( d2 )-determinent33( d3 );
 }
 
+/*!<Each ri represents a row of 4 elements. */
+inline const double determinent44( const double* r0, const double* r1, 
+				   const double* r2, const double* r3 )
+{
+    const double d0[9] = { r1[1], r1[2], r1[3], r2[1], r2[2], r2[3], 
+			   r3[1], r3[2], r3[3] };
+    const double d1[9] = { r1[0], r1[2], r1[3], r2[0], r2[2], r2[3], 
+			   r3[0], r3[2], r3[3] };
+    const double d2[9] = { r1[0], r1[1], r1[3], r2[0], r2[1], r2[3], 
+			   r3[0], r3[1], r3[3] };
+    const double d3[9] = { r1[0], r1[1], r1[2], r2[0], r2[1], r2[2], 
+			   r3[0], r3[1], r3[2] };
+    return r0[0]*determinent33( d0 )-r0[1]*determinent33( d1 )+
+	   r0[2]*determinent33( d2 )-r0[3]*determinent33( d3 );
+}
 
 /*!<Check the point pt is inside the circumcircle of p1, p2, p3 or not. */
 inline bool isInsideCircle( const Coord& pt, 
@@ -112,8 +127,8 @@ inline bool isInsideCircumSphere( const Coord3& p, const Coord3& a,
     const double centery = determinent33(t1)/deter;
     const double centerz = determinent33(t2)/deter;
     
-    return p.x*p.x+p.y*p.y+p.z*p.z-sqra+
-	2*(centerx*(a.x-p.x)+centery*(a.y-p.y)+centerz*(a.z-p.z))<0;
+    return (p.x*p.x+p.y*p.y+p.z*p.z-sqra+
+	2*(centerx*(a.x-p.x)+centery*(a.y-p.y)+centerz*(a.z-p.z)))<0;
 }
 
 
@@ -128,15 +143,17 @@ inline bool sameSide2D( const Coord& p1, const Coord& p2,
 }
 
 
+/*!<Only when four points are coplanar. */
 inline bool sameSide3D( const Coord3& p1, const Coord3& p2, 
-			const Coord3& a, const Coord3& b )
+			const Coord3& a, const Coord3& b, double epsilon )
 {
     const Coord3 cpp1 = (b-a).cross(p1-a);
     const Coord3 cpp2 = (b-a).cross(p2-a);
-    return cpp1.dot(cpp2)>=0;
+    return cpp1.dot(cpp2)>=-epsilon;
 }
 
 
+/*!<Use this function only when the 4 points are all in a plane. */
 inline bool pointInTriangle2D( const Coord& p, const Coord& a, const Coord& b, 
 			       const Coord& c, double epsilon )
 {
@@ -145,10 +162,15 @@ inline bool pointInTriangle2D( const Coord& p, const Coord& a, const Coord& b,
 }
 
 
+/*!<Only when four points are coplanar. */
 inline bool pointInTriangle3D( const Coord3& p, const Coord3& a, 
-			       const Coord3& b, const Coord3& c )
+			const Coord3& b, const Coord3& c, double epsilon )
 {
-    return sameSide3D(p,a,b,c) && sameSide3D(p,b,a,c) && sameSide3D(p,c,a,b);
+    if ( !mIsZero(determinent44(p,a,b,c), epsilon) )
+	return false;
+    
+    return sameSide3D(p,a,b,c,epsilon) && sameSide3D(p,b,a,c,epsilon) && 
+	   sameSide3D(p,c,a,b,epsilon);
 }
 
 
@@ -177,8 +199,7 @@ inline bool pointOnEdge3D( const Coord3& p, const Coord3& a, const Coord3& b,
     if ( t<0 || t>1 )
 	return false;
 
-    const Coord3 intersectpt = a+t*ba;
-    const Coord3 pq = p-intersectpt;
+    const Coord3 pq = pa-t*ba;
     return pq.sqAbs()<epsilon*epsilon;
 }
 
