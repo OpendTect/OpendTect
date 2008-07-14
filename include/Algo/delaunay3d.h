@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          June 2008
- RCS:           $Id: delaunay3d.h,v 1.1 2008-07-08 18:20:15 cvsyuancheng Exp $
+ RCS:           $Id: delaunay3d.h,v 1.2 2008-07-14 19:01:36 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,7 +58,7 @@ public:
     void		setEpsilon(double err)	{ epsilon_ = err; }
     static int		cNoVertex()	{ return -1; }
 
-protected:
+//protected:
 
     static char		cIsInside()	{ return 0; }
     static char		cIsOnFace()	{ return 1; }
@@ -80,6 +80,7 @@ protected:
     static int		cInitVertex2()	{ return -4; }
     static int		cInitVertex3()	{ return -5; }
 
+    void	splitInitialBox(int ci);
     void	splitTetrahedraInside(int ci,int ti);
     void	splitTetrahedraOnFace(int ci,int ti0,int ti1,char face);
     void	splitTetrahedraOnEdge(int ci,const TypeSet<int>& tis,
@@ -94,8 +95,8 @@ protected:
 	    			 const TypeSet<int>& tis) const;
     char	location(int ci,int ti,char& face,int& dupid,
 	    		 int&edgeend0,int&edgeend1) const;
-    char	isIntersect(const Coord3 p,const Coord3 q,const Coord3 a,
-	   		const Coord3 b,const Coord3 c,char& edge) const;
+    char	isIntersect(const Coord3& p,const Coord3& q,const Coord3& a,
+	   		const Coord3& b,const Coord3& c,char& edge) const;
     		/*!<ret inside, outside, on edge, or duplicate. edge will be
 		  defined if pq intersects ABC on edge 0, 1, 2 in order. */
 
@@ -112,7 +113,7 @@ protected:
 
     TypeSet<DAGTetrahedra>		tetrahedras_;
     TypeSet<Coord3>*			coordlist_;
-    Coord3				initialcoords_[4]; 
+    Coord3				initialcoords_[8]; 
     					/*!<-2,-3,-4, -5 are their indices.*/
     bool				ownscoordlist_;
     double				epsilon_;
