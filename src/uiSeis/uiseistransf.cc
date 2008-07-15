@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.44 2008-05-15 15:31:57 cvshelene Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.45 2008-07-15 13:29:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,6 +156,11 @@ Executor* uiSeisTransfer::getTrcProc( const IOObj& inobj,
 	    seldata->lineKey().setLineName( linenm2d );
 	seldata->lineKey().setAttrName( attrnm2d );
 	seldata->fillPar( iop );
+    }
+    else if ( setup_.is2d_ )
+    {
+	LineKey lk( linenm2d, attrnm2d );
+	iop.set( sKey::LineKey, lk );
     }
 
     SeisSingleTraceProc* stp = new SeisSingleTraceProc( &inobj, &outobj,
