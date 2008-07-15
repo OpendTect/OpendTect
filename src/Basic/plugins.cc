@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2003
- RCS:           $Id: plugins.cc,v 1.54 2008-06-14 06:19:31 cvsbert Exp $
+ RCS:           $Id: plugins.cc,v 1.55 2008-07-15 18:46:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,11 +125,11 @@ void* SharedLibAccess::getFunction( const char* fnnm )
 }
 
 
-static char* errargv[] = { "<not set>", 0 };
+static const char* errargv[] = { "<not set>", 0 };
 
 PluginManager::PluginManager()
     : argc_(1)
-    , argv_(errargv)
+    , argv_(const_cast<char**>(errargv))
 {
     getDefDirs();
 }
