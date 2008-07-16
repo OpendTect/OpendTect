@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocchain.cc,v 1.1 2008-02-25 19:14:54 cvskris Exp $";
+static const char* rcsID = "$Id: volprocchain.cc,v 1.2 2008-07-16 16:57:29 cvskris Exp $";
 
 #include "volprocchain.h"
 
@@ -228,6 +228,7 @@ bool ChainExecutor::prepareNewStep()
     if ( steps_[currentstep_]->setInput( curinput_ ) )
 	curinput_ = 0;
 
+    Threads::MutexLocker lock( curtasklock_ );
     if ( curtask_ ) delete curtask_;
     curtask_ = steps_[currentstep_]->createTask();
     if ( !curtask_ )
@@ -237,8 +238,50 @@ bool ChainExecutor::prepareNewStep()
     }
 
     curtask_->setProgressMeter( progressmeter_ );
+    curtask_->enableNrDoneCounting( true );
+    curtask_->enableWorkContol( true );
 
     return true;
+}
+
+
+void ChainExecutor::controlWork( Task::Control ctrl )
+{
+    Task::controlWork( ctrl );
+
+    Threads::MutexLocker lock( curtasklock_ );
+    if ( curtask_ )
+	curtask_->controlWork( ctrl );
+}
+
+
+int ChainExecutor::nrDone() const
+{
+    Threads::MutexLocker lock( curtasklock_ );
+    if ( curtask_ )
+	return curtask_->nrDone();
+
+    return -1;
+}
+
+
+int ChainExecutor::totalNr() const
+{
+    Threads::MutexLocker lock( curtasklock_ );
+    if ( curtask_ )
+	return curtask_->totalNr();
+
+    return -1;
+}
+
+
+const char* ChainExecutor::message() const
+{
+    Threads::MutexLocker lock( curtasklock_ );
+    if ( curtask_ )
+	return curtask_->message();
+
+    return 0;
 }
 
 

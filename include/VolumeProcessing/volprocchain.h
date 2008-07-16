@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: volprocchain.h,v 1.1 2008-02-25 19:14:54 cvskris Exp $
+ RCS:		$Id: volprocchain.h,v 1.2 2008-07-16 16:57:29 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,6 +19,7 @@ ________________________________________________________________________
 #include "factory.h"
 #include "refcount.h"
 #include "samplingdata.h"
+#include "thread.h"
 
 namespace Attrib { class DataCubes; }
 
@@ -145,7 +146,12 @@ public:
 
 protected:
     bool			prepareNewStep();
+    void			controlWork(Task::Control);
+    int				nrDone() const;
+    int				totalNr() const;
+    const char*			message() const;
 
+    mutable Threads::Mutex	curtasklock_;
     Task*			curtask_;
     ObjectSet<Step>		steps_;
     int				currentstep_;
