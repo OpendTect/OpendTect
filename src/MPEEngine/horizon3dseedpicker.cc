@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.26 2007-10-10 04:32:48 cvsnanne Exp $";
+static const char* rcsID = "$Id: horizon3dseedpicker.cc,v 1.27 2008-07-16 18:05:17 cvsnanne Exp $";
 
 #include "horizon3dseedpicker.h"
 
@@ -427,7 +427,7 @@ bool Horizon3DSeedPicker::lineTrackDirection( BinID& dir,
     if ( !inltracking && !crltracking )
 	return false;
 
-    if ( !perptotrackdir && inltracking  ||  perptotrackdir && crltracking )
+    if ( (!perptotrackdir && inltracking) || (perptotrackdir && crltracking) )
 	dir.inl = 0; 
     else
 	dir.crl = 0;

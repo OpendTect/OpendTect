@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.22 2008-06-12 03:12:35 cvskris Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.23 2008-07-16 18:05:17 cvsnanne Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -179,8 +179,8 @@ bool processPixelOnPanel( int panelidx, int stickpos, int knotpos, Coord3& pos )
 
     const TypeSet<int>& lknots = *explsurf_.textureknotcoords_[panelidx];
     const TypeSet<int>& rknots = *explsurf_.textureknotcoords_[panelidx+1];
-    if ( knotpos<lknots[0] && knotpos<rknots[0] || 
-	 knotpos>lknots[lknots.size()-1] && knotpos>rknots[rknots.size()-1] )
+    if ( (knotpos<lknots[0] && knotpos<rknots[0]) || 
+	 (knotpos>lknots[lknots.size()-1] && knotpos>rknots[rknots.size()-1]) )
 	return false;
 
     const Coord checkpos( stickpos, knotpos );
@@ -1054,7 +1054,7 @@ void ExplFaultStickSurface::fillPanel( int panelidx )
 		if ( idy==minr )
 		    continue;
 
-		if ( idx>minl == idy>minr )
+		if ( (idx>minl) == (idy>minr) )
 		    continue;
 
 		mSqDistArr( idx, idy ) = mUdf(float);

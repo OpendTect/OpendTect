@@ -4,7 +4,7 @@
  * DATE     : Jan 2007
 -*/
 
-static const char* rcsID = "$Id: seiscubeprov.cc,v 1.13 2007-11-23 11:59:06 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscubeprov.cc,v 1.14 2008-07-16 18:05:17 cvsnanne Exp $";
 
 #include "seismscprov.h"
 #include "seistrc.h"
@@ -396,7 +396,7 @@ bool SeisMSCProvider::doAdvance()
 	    {
 		mCalcBoxDistances(0,0,desstepout_);
 		
-		if ( bottomdist<0 || bottomdist==0 && leftdist<=0 )
+		if ( bottomdist<0 || (bottomdist==0 && leftdist<=0) )
 		    break;
 	    }
 
@@ -421,7 +421,7 @@ bool SeisMSCProvider::doAdvance()
 	    const int lastidy = tbufs_[lastidx]->size()-1;
 	    mCalcBoxDistances(lastidx,lastidy,desstepout_);
 
-	    if ( topdist<0 || topdist==0 && rightdist<0 )
+	    if ( topdist<0 || (topdist==0 && rightdist<0) )
 		return false;
 	}
 

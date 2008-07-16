@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2000
- RCS:           $Id: geometry.h,v 1.33 2008-06-13 20:41:04 cvskris Exp $
+ RCS:           $Id: geometry.h,v 1.34 2008-07-16 18:05:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -570,8 +570,8 @@ void Rectangle<T>::setBottom( T val )
 template <class T> inline
 void Rectangle<T>::checkCorners( bool leftislow, bool topislow )
 { 
-    if ( leftislow == left() > right() )  swapHor(); 
-    if( topislow  == top()  > bottom() ) swapVer(); 
+    if ( leftislow == (left() > right()) ) swapHor(); 
+    if ( topislow  == (top() > bottom()) ) swapVer(); 
 }
 
 

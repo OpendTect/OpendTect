@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.36 2008-03-20 21:36:32 cvskris Exp $";
+static const char* rcsID = "$Id: emsurfaceedgeline.cc,v 1.37 2008-07-16 18:05:17 cvsnanne Exp $";
    
 
 #include "emsurfaceedgeline.h"
@@ -215,7 +215,7 @@ bool EdgeLineSegment::isByPassed( int idx, const EdgeLineSegment* prev,
 				  const EdgeLineSegment* next ) const
 {
     if ( (!idx && (!prev || !prev->isContinuedBy(this) )) ||
-	   idx==size()-1 && (!next || !isContinuedBy(next) ) )
+	   (idx==size()-1 && (!next || !isContinuedBy(next))) )
 	return false;
 
     const RowCol& prevrc = idx ? nodes[idx-1] : (*prev)[prev->size()-1];
@@ -1016,7 +1016,7 @@ int EdgeLine::computeArea() const
 		for ( int col=-step.col; col<=step.col; col+=step.col )
 		{
 		    //Only add with 4-connectivity
-		    if ( col && row || (!row&&!col) ) continue;
+		    if ( (col && row) || (!row && !col) ) continue;
 
 		    const RowCol rc(currc.row+row, currc.col+col );
 		    if ( nodesinside.indexOf(rc,false)!=-1 )

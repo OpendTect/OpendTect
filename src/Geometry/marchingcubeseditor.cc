@@ -4,7 +4,7 @@
  * DATE     : August 2007
 -*/
 
-static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.10 2007-11-02 20:42:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: marchingcubeseditor.cc,v 1.11 2008-07-16 18:05:17 cvsnanne Exp $";
 
 #include "marchingcubeseditor.h"
 #include "marchingcubes.h"
@@ -136,7 +136,7 @@ const Coord3& MarchingCubesSurfaceEditor::getCenterNormal() const
 
 bool MarchingCubesSurfaceEditor::setFactor( int nf )
 {
-    if ( factor_==prevfactor_==nf )
+    if ( factor_==nf && prevfactor_==nf )
 	return true;
 
     if ( nf>mMaxFactor || nf<-mMaxFactor )

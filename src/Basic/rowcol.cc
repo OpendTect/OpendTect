@@ -4,7 +4,7 @@
  * DATE     : 31/05/04
 -*/
 
-static const char* rcsID = "$Id: rowcol.cc,v 1.15 2007-07-27 14:44:14 cvskris Exp $";
+static const char* rcsID = "$Id: rowcol.cc,v 1.16 2008-07-16 18:05:17 cvsnanne Exp $";
 
 #include "rowcol.h"
 #include "bufstring.h"
@@ -45,7 +45,8 @@ bool RCol::isNeighborTo( const RCol& rc, const RCol& step,
     if ( eightconnectivity )
 	return areeightconnected;
 
-    return areeightconnected && (diff.row>0+diff.col>0)<2;
+    const int res = int(diff.row>0) + int(diff.col>0);
+    return areeightconnected && res<2;
 }
 
 

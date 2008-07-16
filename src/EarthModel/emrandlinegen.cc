@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2007
- RCS:           $Id: emrandlinegen.cc,v 1.10 2008-03-20 21:36:32 cvskris Exp $
+ RCS:           $Id: emrandlinegen.cc,v 1.11 2008-07-16 18:05:17 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -171,8 +171,8 @@ void EM::RandomLineByShiftGenerator::crLine( const Geometry::RandomLine& rl,
 	    const Coord c2 = atend ? c1 : basecoords[idx+1];
 
 	    Coord cs0, cs10, cs12, cs2;
-	    if ( !atstart && !getShifted(c0,c1,cs0,cs10,isleft)
-	      || !atend && !getShifted(c1,c2,cs12,cs2,isleft) )
+	    if ( (!atstart && !getShifted(c0,c1,cs0,cs10,isleft))
+	      || (!atend && !getShifted(c1,c2,cs12,cs2,isleft)) )
 		continue;
 
 	    Coord nodec;
