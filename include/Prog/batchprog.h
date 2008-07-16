@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.35 2008-05-26 11:41:20 cvsbert Exp $
+ RCS:		$Id: batchprog.h,v 1.36 2008-07-16 15:03:27 cvsbert Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -29,8 +29,8 @@ class MMSockCommunic;
 /*!\brief Main object for 'standard' batch programs.
 
   Most 'interesting' batch programs need a lot of parameters to do the work.
-  In dTect, these accept a 'parameter file', with all the info needed in
-  IOPar format, i.e. keyword/value pairs.
+  Therefore, in OpendTect, BatchPrograms need a 'parameter file', with all
+  the info needed in IOPar format, i.e. keyword/value pairs.
 
   This object takes over the details of reading that file, extracting
   'standard' components from the parameters, opening sockets, etc. etc.
@@ -60,8 +60,8 @@ public:
 
 			// For situations where you need the old-style stuff
     char**		argv()			{ return argv_; }
-    int			argc()			{ return *pargc; }
-    int&		argc_r()		{ return *pargc; }
+    int&		argc()			{ return *pargc; }
+    int			argc() const		{ return *pargc; }
     int			realArgsStartAt() const	{ return argshift; }
     BufferStringSet&	cmdLineOpts()		{ return opts; }
 
@@ -96,6 +96,7 @@ protected:
     IOPar*		iopar;
     BufferStringSet	opts;
     BufferString	parversion_;
+    BufferStringSet	requests_;
 
     bool		initOutput();
     void		progKilled(CallBacker*);
