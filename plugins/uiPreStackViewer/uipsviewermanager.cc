@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.19 2008-06-05 20:01:27 cvskris Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.20 2008-07-16 18:08:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,7 +84,7 @@ void uiPSViewerMgr::createMenuCB( CallBacker* cb )
 
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, dataobj.ptr() );
     mDynamicCastGet( visSurvey::Seis2DDisplay*, s2d, dataobj.ptr() );
-    if ( pdd && pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Timeslice 
+    if ( (pdd && pdd->getOrientation()!=visSurvey::PlaneDataDisplay::Timeslice) 
 	   || s2d ) 
     {
 	uiSeisPartServer* seisserv = ODMainWin()->applMgr().seisServer();
