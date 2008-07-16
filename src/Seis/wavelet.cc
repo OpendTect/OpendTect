@@ -5,7 +5,7 @@
  * FUNCTION : Wavelet
 -*/
 
-static const char* rcsID = "$Id: wavelet.cc,v 1.30 2007-01-04 15:18:13 cvsbert Exp $";
+static const char* rcsID = "$Id: wavelet.cc,v 1.31 2008-07-16 11:16:54 cvsnanne Exp $";
 
 #include "wavelet.h"
 #include "seisinfo.h"
@@ -183,9 +183,9 @@ int WaveletTranslatorGroup::selector( const char* key )
 mDefSimpleTranslatorioContext(Wavelet,Seis)
 
 
-static char* sLength	= "Length";
-static char* sIndex	= "Index First Sample";
-static char* sSampRate	= "Sample Rate";
+static const char* sLength	= "Length";
+static const char* sIndex	= "Index First Sample";
+static const char* sSampRate	= "Sample Rate";
 
 
 bool dgbWaveletTranslator::read( Wavelet* wv, Conn& conn )

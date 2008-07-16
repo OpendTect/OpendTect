@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.25 2008-05-12 04:05:05 cvsnanne Exp $
+ RCS:           $Id: uiiosurface.h,v 1.26 2008-07-16 11:16:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,8 +83,8 @@ public:
     class Setup
     {
     public:
-			Setup( const char* typ )
-			    : typ_(typ)
+			Setup( const char* surftyp )
+			    : typ_(surftyp)
 			    , withsubsel_(false)
 			    , withcolorfld_(false)
 			    , withstratfld_(false)
@@ -126,8 +126,8 @@ public:
     class Setup
     {
     public:
-			Setup( const char* typ )
-			    : typ_(typ)
+			Setup( const char* surftyp )
+			    : typ_(surftyp)
 			    , withsubsel_(false)
 			    , withattribfld_(true)
 			    , withsectionfld_(true)

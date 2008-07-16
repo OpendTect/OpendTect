@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          April 2003
- RCS:           $Id: attribsetcreator.cc,v 1.7 2008-01-09 13:54:34 cvsbert Exp $
+ RCS:           $Id: attribsetcreator.cc,v 1.8 2008-07-16 11:16:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -236,8 +236,7 @@ static void addGate( BufferString& defstr, const char* gdidesc )
 {
     BufferString gdistr( gdidesc );
     char* ptr = strchr( gdistr.buf(), '[' );
-    if ( !ptr ) ptr = "[-32,32]";
-    BufferString gatestr( ptr );
+    BufferString gatestr( ptr ? ptr : "[-32,32]" );
     ptr = strchr( gatestr.buf(), ']' );
     if ( ptr ) *(ptr+1) = '\0';
     defstr += " gate=";

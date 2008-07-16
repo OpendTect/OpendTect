@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.h,v 1.59 2008-07-14 09:00:09 cvsnanne Exp $
+ RCS:           $Id: uimainwin.h,v 1.60 2008-07-16 11:16:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,7 @@ public:
     static ActModalTyp	activeModalType();
     static uiMainWin*	activeModalWindow();
 
-    static char*	activeModalQDlgButTxt(int butnr);
+    static const char*	activeModalQDlgButTxt(int butnr);
     static int		activeModalQDlgRetVal(int butnr);
 
     static void		getTopLevelWindows(ObjectSet<uiMainWin>&);

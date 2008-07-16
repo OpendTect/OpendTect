@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.150 2008-07-14 09:00:08 cvsnanne Exp $
+ RCS:           $Id: uimainwin.cc,v 1.151 2008-07-16 11:16:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -748,7 +748,7 @@ uiMainWin* uiMainWin::activeModalWindow()
 }
 
 
-char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
+const char* uiMainWin::activeModalQDlgButTxt( int buttonnr )
 {
     const ActModalTyp typ = activeModalType();
     QWidget* amw = qApp->activeModalWidget();
