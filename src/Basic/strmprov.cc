@@ -41,7 +41,7 @@
 #include "errh.h"
 
 
-static const char* rcsID = "$Id: strmprov.cc,v 1.71 2008-01-09 13:54:34 cvsbert Exp $";
+static const char* rcsID = "$Id: strmprov.cc,v 1.72 2008-07-16 05:13:38 cvsnanne Exp $";
 
 static FixedString<1024> oscommand;
 
@@ -128,7 +128,12 @@ bool ExecuteScriptCommand( const char* prognm, const char* filenm )
     static BufferString cmd;
     cmd = GetExecCommand( prognm, filenm );
     StreamProvider strmprov( cmd );
-    if ( !strmprov.executeCommand(false) )
+#if defined( __win__ ) || defined( __mac__ )
+    bool inbg = true;
+#else
+    bool inbg = false;
+#endif
+    if ( !strmprov.executeCommand(inbg) )
     {
 	BufferString s( "Failed to submit command '" );
 	s += strmprov.command(); s += "'";
