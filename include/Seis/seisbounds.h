@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisbounds.h,v 1.2 2007-10-10 15:31:44 cvsbert Exp $
+ RCS:		$Id: seisbounds.h,v 1.3 2008-07-16 11:05:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,8 @@ namespace Seis
 class Bounds
 {
 public:
+
+    virtual		~Bounds()			{}
 
     virtual bool	is2D() const			{ return false; }
     int			expectedNrTraces() const;
