@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.45 2008-05-31 07:54:08 cvsbert Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.46 2008-07-16 18:14:37 cvsnanne Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -335,7 +335,7 @@ const char* Well::AscImporter::getLogInfo( std::istream& strm,
 void Well::AscImporter::parseHeader( char* startptr, char*& val1, char*& val2,
 				     char*& info ) const
 {
-    val1 = 0; val2 = 0; info = "";
+    val1 = 0; val2 = 0; info = 0;
     char* ptr = strchr( startptr, '.' );
     if ( ptr ) *ptr++ = '\0';
     removeTrailingBlanks( startptr );
