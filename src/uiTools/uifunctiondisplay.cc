@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uifunctiondisplay.cc,v 1.13 2008-07-16 05:31:33 cvsnanne Exp $
+ RCS:           $Id: uifunctiondisplay.cc,v 1.14 2008-07-16 09:22:55 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ uiFunctionDisplay::uiFunctionDisplay( uiParent* p,
     setStretch( 2, 2 );
     preDraw.notify( mCB(this,uiFunctionDisplay,gatherInfo) );
     uiAxisHandler::Setup asu( uiRect::Bottom );
+    asu.noannot( !setup_.annotx_ );
     asu.border_ = setup_.border_;
     xax_ = new uiAxisHandler( drawTool(), asu );
     asu.side( uiRect::Left ).noannot( !setup_.annoty_ );
