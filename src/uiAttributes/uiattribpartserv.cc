@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.93 2008-05-28 16:50:44 cvshelene Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.94 2008-07-16 18:10:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -363,7 +363,7 @@ Attrib::DescSet* uiAttribPartServer::getUserPrefDescSet() const
 
     const int nr3d = ds3d->nrDescs( false );
     const int nr2d = ds2d->nrDescs( false );
-    if ( nr3d>0 != nr2d>0 ) return nr2d > 0 ? ds2d : ds3d;
+    if ( (nr3d>0) != (nr2d>0) ) return nr2d > 0 ? ds2d : ds3d;
 
     int res = uiMSG().askGoOnAfter( "Do you want to use 3D attributes (Yes)\n"
 				    "or 2D attributes (No)?" );

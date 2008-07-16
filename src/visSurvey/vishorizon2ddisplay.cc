@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizon2ddisplay.cc,v 1.12 2008-06-17 05:20:26 cvsnanne Exp $
+ RCS:           $Id: vishorizon2ddisplay.cc,v 1.13 2008-07-16 18:10:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -156,7 +156,7 @@ void Horizon2DDisplay::updateSection( int idx, const LineRanges* lineranges )
 		continue;
 
 	    if ( !pos.isDefined() || 
-		 lineranges && !withinRanges(rc,pos.z,*lineranges) )
+		 (lineranges && !withinRanges(rc,pos.z,*lineranges)) )
 	    {
 		if ( indexinline==1 )
 		{
