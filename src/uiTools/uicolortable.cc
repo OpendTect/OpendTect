@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.19 2008-06-05 10:59:19 cvssatyaki Exp $
+ RCS:           $Id: uicolortable.cc,v 1.20 2008-07-16 09:30:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,8 @@ ________________________________________________________________________
 	, scaleChanged(this) \
 	, minfld_(0) \
 	, maxfld_(0) \
-	, enabmanage_(true)
+	, enabmanage_(true) \
+	, autoscale_(true)
 
 
 uiColorTable::uiColorTable( uiParent* p, ColTab::Sequence& colseq, bool vert )

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          April 2008
- RCS:           $Id: uicoltabmarker.h,v 1.1 2008-05-30 04:10:33 cvsnanne Exp $
+ RCS:           $Id: uicoltabmarker.h,v 1.2 2008-07-16 09:30:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ protected:
 
     uiTable*			table_;
     ColTab::Sequence&		ctab_;
+
     void			fillTable();
     void			rebuildColTab();
     void			mouseClick(CallBacker*);
@@ -45,12 +46,12 @@ protected:
 class uiColTabMarkerCanvas : public uiCanvas
 {
 public:
-					uiColTabMarkerCanvas(uiParent*,
-					    ColTab::Sequence&,const int);
-					~uiColTabMarkerCanvas();
-    bool                        	isSegmentized();
-    
-    Notifier<uiColTabMarkerCanvas>	markerChanged;
+				uiColTabMarkerCanvas(uiParent*,
+						     ColTab::Sequence&);
+				~uiColTabMarkerCanvas();
+
+    bool                       	isSegmentized();
+    Notifier<uiColTabMarkerCanvas> markerChanged;
 
 protected:
 
@@ -70,6 +71,5 @@ protected:
     void                        mouseMove(CallBacker*);
     void                        markerChgd(CallBacker*);
 };
-
 
 #endif

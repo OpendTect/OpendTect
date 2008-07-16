@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.cc,v 1.14 2008-07-11 09:33:22 cvsnanne Exp $
+ RCS:           $Id: uicoltabman.cc,v 1.15 2008-07-16 09:30:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uimenu.h"
 #include "uispinbox.h"
+#include "uisplitter.h"
 #include "uiworld2ui.h"
 
 #define mTransHeight	150
@@ -52,40 +53,38 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
 {
     setShrinkAllowed( false );
 
-    uiGroup* maingrp = new uiGroup( this, "Main");
+    uiGroup* leftgrp = new uiGroup( this, "Left" );
 
-    coltablistfld_ = new uiListView( maingrp );
+    coltablistfld_ = new uiListView( leftgrp );
     BufferStringSet labels;
-    labels.add( "Color table" );
-    labels.add( "Status" );
+    labels.add( "Color table" ).add( "Status" );
     coltablistfld_->addColumns( labels );
     coltablistfld_->setRootDecorated( false );
     coltablistfld_->setHScrollBarMode( uiListView::AlwaysOff );
     coltablistfld_->setStretch( 2, 2 );
+    coltablistfld_->setSelectionBehavior( uiListView::SelectRows );
     coltablistfld_->selectionChanged.notify( mCB(this,uiColorTableMan,selChg) );
 
-    uiGroup* colgrp = new uiGroup( maingrp, "Colors" );
-    colgrp->attach( rightTo, coltablistfld_ );
+    uiGroup* rightgrp = new uiGroup( this, "Right" );
 
-    const uiBorder uiborder( 0, 10, 0, 0 );
     uiFunctionDisplay::Setup su;
-    su.annotx(false).annoty(false).border(uiborder)
+    su.annotx(false).annoty(false).border(uiBorder(0,0,0,2))
       .xrg(Interval<float>(0,1)).yrg(Interval<float>(0,255))
       .canvaswidth(mTransWidth).canvasheight(mTransHeight)
       .ycol(Color(255,0,0)).y2col(Color(190,190,190))
-      .fillbelowy2(true).editable(true).pointsz(2);
-    cttranscanvas_ = new uiFunctionDisplay( colgrp, su );
-    cttranscanvas_->setStretch( 0, 0 );
+      .fillbelowy2(true).editable(true).pointsz(3);
+    cttranscanvas_ = new uiFunctionDisplay( rightgrp, su );
     cttranscanvas_->pointChanged.notify( mCB(this,uiColorTableMan,transptChg) );
     cttranscanvas_->pointSelected.notify( mCB(this,uiColorTableMan,transptSel));
 
-    markercanvas_ = new uiColTabMarkerCanvas( colgrp, ctab_, mTransWidth );
+    markercanvas_ = new uiColTabMarkerCanvas( rightgrp, ctab_ );
     markercanvas_->setPrefWidth( mTransWidth );
     markercanvas_->setPrefHeight( mTransWidth/15 );
+    markercanvas_->setStretch( 2, 0 );
     markercanvas_->attach( alignedBelow, cttranscanvas_ );
 
-    ctabcanvas_ = new uiColorTableCanvas( colgrp, ctab_, false, false );
-    ctabcanvas_->setStretch( 0, 0 );
+    ctabcanvas_ = new uiColorTableCanvas( rightgrp, ctab_, false, false );
+    ctabcanvas_->setStretch( 2, 0 );
     ctabcanvas_->getMouseEventHandler().buttonPressed.notify( 
         	    mCB(this,uiColorTableMan,rightClick) );
     w2uictabcanvas_ = new uiWorld2Ui( uiWorldRect(0,255,1,0),
@@ -93,26 +92,30 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
     ctabcanvas_->attach( alignedBelow, markercanvas_, 0 );
     ctabcanvas_->attach( widthSameAs, markercanvas_ );
 
-    segmentfld_ = new uiCheckBox( maingrp, "Segmentize" );
+    segmentfld_ = new uiCheckBox( rightgrp, "Segmentize" );
     segmentfld_->setChecked( markercanvas_->isSegmentized() );
     segmentfld_->activated.notify( mCB(this,uiColorTableMan,segmentSel) );
-    segmentfld_->attach( leftAlignedBelow, colgrp );
-    nrsegbox_ = new uiSpinBox( maingrp );
+    segmentfld_->attach( leftAlignedBelow, ctabcanvas_ );
+    nrsegbox_ = new uiSpinBox( rightgrp );
     nrsegbox_->setInterval( 2, 25 ); nrsegbox_->setValue( 8 );
     nrsegbox_->setSensitive( false );
     nrsegbox_->valueChanging.notify( mCB(this,uiColorTableMan,nrSegmentsCB) );
     nrsegbox_->attach( rightTo, segmentfld_ );
 
-    undefcolfld_ = new uiColorInput( maingrp, uiColorInput::
+    undefcolfld_ = new uiColorInput( rightgrp, uiColorInput::
 	    Setup( ctab_.undefColor()).lbltxt("Undefined color") );
     undefcolfld_->enableAlphaSetting( true );
     undefcolfld_->colorchanged.notify( mCB(this,uiColorTableMan,undefColSel) );
     undefcolfld_->attach( alignedBelow, nrsegbox_ );
     undefcolfld_->attach( ensureBelow, segmentfld_ );
 
+    uiSplitter* splitter = new uiSplitter( this, "Splitter", true );
+    splitter->addGroup( leftgrp );
+    splitter->addGroup( rightgrp );
+
     removebut_ = new uiPushButton( this, "&Remove", false );
     removebut_->activated.notify( mCB(this,uiColorTableMan,removeCB) );
-    removebut_->attach( alignedBelow, maingrp );
+    removebut_->attach( alignedBelow, splitter );
 
     importbut_ = new uiPushButton( this, "&Import", false );
     importbut_->activated.notify( mCB(this,uiColorTableMan,importColTab) );

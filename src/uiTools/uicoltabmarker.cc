@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          April 2008
- RCS:           $Id: uicoltabmarker.cc,v 1.1 2008-05-30 04:10:33 cvsnanne Exp $
+ RCS:           $Id: uicoltabmarker.cc,v 1.2 2008-07-16 09:30:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,9 +102,10 @@ void uiColTabMarkerDlg::markerInserted( CallBacker* )
     if ( rcvalue.row-1 < 0 || rcvalue.row >= ctab_.size() )
     {
 	table_->removeRow( rcvalue );
-	uiMSG().error( "Cannot insert markers at extreme positions " );
+	uiMSG().error( "Cannot insert markers at extreme positions" );
 	return;
     }
+
     RowCol rccolor = ( rcvalue.row, 1 );
     const float newpos = ctab_.position(rcvalue.row-1) +
 			 ( ctab_.position(rcvalue.row) - 
@@ -179,26 +180,22 @@ bool uiColTabMarkerDlg::acceptOK( CallBacker* )
 	Color col( table_->getColor( RowCol(idx,1) ) );
 	ctab_.changeColor( idx, col.r(), col.g(), col.b() );
     }
+
     return true;
 }
 
 
 // ***** uiColTabMarkerCanvas ****
-uiColTabMarkerCanvas::uiColTabMarkerCanvas( uiParent* p, ColTab::Sequence& ctab,
-					    const int prefwidth )
+uiColTabMarkerCanvas::uiColTabMarkerCanvas( uiParent* p, ColTab::Sequence& ctab)
     : uiCanvas(p,Color::White,"Marker Canvas")
     , parent_(p)
     , ctab_(ctab)
     , markerChanged(this)
 {
     selidx_ = mUdf(int);
-    w2ui_ = new uiWorld2Ui( uiWorldRect(0,255,1,0),
-	    		    uiSize(prefwidth,prefwidth/15) );
-    setStretch( 0, 0 );
-    setPrefWidth( prefwidth );
-    setPrefHeight( prefwidth/15 );
+    w2ui_ = new uiWorld2Ui( uiWorldRect(0,255,1,0), uiSize(1,1) );
 
-    postDraw.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers));
+    preDraw.notify( mCB(this,uiColTabMarkerCanvas,drawMarkers));
 
     MouseEventHandler& meh = getMouseEventHandler();
     meh.buttonPressed.notify(mCB(this,uiColTabMarkerCanvas,mouseClk) );
@@ -217,22 +214,17 @@ uiColTabMarkerCanvas::~uiColTabMarkerCanvas()
 void uiColTabMarkerCanvas::drawMarkers( CallBacker* )
 {
     ioDrawTool& dt = drawTool();
-    dt.setPenColor( Color::Black );
-    dt.setBackgroundColor( Color::White );
-    dt.clear();
-    dt.setFillColor( Color::Black );
-    LineStyle ls( LineStyle::Solid );
-    ls.width_ = 3;
-    dt.setLineStyle( ls );
+    w2ui_->set( uiWorldRect(0,255,1,0),
+	        uiSize(dt.getDevWidth(),dt.getDevHeight()) );
 
+    dt.setLineStyle( LineStyle(LineStyle::Solid,3) );
     for ( int idx=0; idx<ctab_.size(); idx++ )
     {
-	float val = ctab_.position(idx);
-	uiWorldPoint wpt = uiWorldPoint(val,0);
+	const float val = ctab_.position(idx);
+	uiWorldPoint wpt = uiWorldPoint( val, 0 );
 	uiPoint pt( w2ui_->transform(wpt) );
 	dt.drawLine( pt.x, 0, pt.x, 15 );
     }
-
 }
 
 
@@ -261,7 +253,7 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* cb )
     }
 
     if ( OD::RightButton != ev.buttonState() )
-    return;
+	return;
 
     uiPopupMenu mnu( parent_, "Action" );
     if ( selidx_>=0 )
@@ -289,12 +281,12 @@ void uiColTabMarkerCanvas::mouseClk( CallBacker* cb )
 	uiColTabMarkerDlg dlg( parent_, ctab_ );
 	dlg.markersChanged.notify( mCB(this,uiColTabMarkerCanvas,markerChgd) );
 	if ( !dlg.go() )
+	{
 	    ctab_ = coltab;
-	markerChanged.trigger();
-	update();
+	    markerChgd(0);
+	}
     }
 
-    update();
     selidx_ = -1;
     getMouseEventHandler().setHandled( true );
 }
@@ -318,6 +310,8 @@ void uiColTabMarkerCanvas::addMarker( float pos, bool withcolsel )
 	if ( !changeColor( markeridx ) )
 	    ctab_ = coltab;
     }
+
+    update();
 }
 
 
@@ -332,14 +326,12 @@ void uiColTabMarkerCanvas::removeMarker( int markeridx )
 bool uiColTabMarkerCanvas::changeColor( int markeridx )
 {
     Color col = ctab_.color( ctab_.position(markeridx) );
-    if ( selectColor(col,parent_,"Color selection",false) )
-    {
-	ctab_.changeColor( markeridx, col.r(), col.g(), col.b() );
-	markerChanged.trigger();
-	update();
-	return true;
-    }
-    return false;
+    if ( !selectColor(col,parent_,"Color selection",false) )
+	return false;
+
+    ctab_.changeColor( markeridx, col.r(), col.g(), col.b() );
+    markerChanged.trigger();
+    return true;
 }
 
 
@@ -351,7 +343,6 @@ void uiColTabMarkerCanvas::mouse2Clk( CallBacker* cb )
     const MouseEvent& ev = getMouseEventHandler().event();
     uiWorldPoint wpt = w2ui_->transform( ev.pos() );
     addMarker( wpt.x, true );
-    update();
     selidx_ = -1;
     getMouseEventHandler().setHandled( true );
 }
@@ -380,24 +371,24 @@ void uiColTabMarkerCanvas::mouseMove( CallBacker* cb )
     float changepos = wpt.x;
 
     const int sz = ctab_.size();
-     if ( selidx_<0 || selidx_>=sz ) return;
+    if ( selidx_<0 || selidx_>=sz ) return;
 
-     if ( changepos > 1 ) changepos = 1;
-     if ( changepos < 0 ) changepos = 0;
+    if ( changepos > 1 ) changepos = 1;
+    if ( changepos < 0 ) changepos = 0;
 
-     if ( !isSegmentized() )
-     {
-	 float position = mUdf(float); 
-	 if ( (selidx_ > 0 && ctab_.position(selidx_-1)>=changepos) )
-	     position = ctab_.position(selidx_-1) + 1.01*mEps;
-	 else if ( (selidx_ < sz-1 && ctab_.position(selidx_+1)<=changepos) )
-	     position = ctab_.position( selidx_+1 ) - 1.01*mEps;
-	 else
-	     position = changepos;
-	 ctab_.changePos( selidx_, position );
-	 update();
-	 return;
-     }
+    if ( !isSegmentized() )
+    {
+	float position = mUdf(float); 
+	if ( (selidx_ > 0 && ctab_.position(selidx_-1)>=changepos) )
+	    position = ctab_.position(selidx_-1) + 1.01*mEps;
+	else if ( (selidx_ < sz-1 && ctab_.position(selidx_+1)<=changepos) )
+	    position = ctab_.position( selidx_+1 ) - 1.01*mEps;
+	else
+	    position = changepos;
+	ctab_.changePos( selidx_, position );
+	update();
+	return;
+    }
 
     int rightidx = mUdf(int);
     int leftidx = mUdf(int);
