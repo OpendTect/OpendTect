@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uifunctiondisplay.cc,v 1.14 2008-07-16 09:22:55 cvsnanne Exp $
+ RCS:           $Id: uifunctiondisplay.cc,v 1.15 2008-07-16 15:04:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -281,8 +281,6 @@ void uiFunctionDisplay::reDrawHandler( uiRect )
     const bool isoth = ev.shiftStatus() || ev.altStatus(); \
     const bool isnorm = !isctrl && !isoth
 
-static const float cRelTol = 0.01; // 1% of axis size
-
 
 bool uiFunctionDisplay::setSelPt()
 {
@@ -300,7 +298,7 @@ bool uiFunctionDisplay::setSelPt()
 	    { newsel = idx; mindistsq = distsq; }
     }
     selpt_ = -1;
-    if ( mindistsq > cRelTol*cRelTol ) return false;
+    if ( mindistsq > setup_.ptsnaptol_*setup_.ptsnaptol_ ) return false;
     selpt_ = newsel;
     return true;
 }

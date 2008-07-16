@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.cc,v 1.15 2008-07-16 09:30:39 cvsnanne Exp $
+ RCS:           $Id: uicoltabman.cc,v 1.16 2008-07-16 15:04:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
       .xrg(Interval<float>(0,1)).yrg(Interval<float>(0,255))
       .canvaswidth(mTransWidth).canvasheight(mTransHeight)
       .ycol(Color(255,0,0)).y2col(Color(190,190,190))
-      .fillbelowy2(true).editable(true).pointsz(3);
+      .fillbelowy2(true).editable(true).pointsz(3).ptsnaptol(0.1);
     cttranscanvas_ = new uiFunctionDisplay( rightgrp, su );
     cttranscanvas_->pointChanged.notify( mCB(this,uiColorTableMan,transptChg) );
     cttranscanvas_->pointSelected.notify( mCB(this,uiColorTableMan,transptSel));
