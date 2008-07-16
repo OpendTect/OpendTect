@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uifunctiondisplay.cc,v 1.12 2008-05-28 08:28:05 cvsnanne Exp $
+ RCS:           $Id: uifunctiondisplay.cc,v 1.13 2008-07-16 05:31:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -171,7 +171,6 @@ void uiFunctionDisplay::getRanges(
 
 void uiFunctionDisplay::reDrawHandler( uiRect )
 {
-    ioDrawTool& dt = drawTool();
     if ( yvals_.isEmpty() ) return;
     const bool havey2 = !y2xvals_.isEmpty();
 
@@ -224,6 +223,8 @@ void uiFunctionDisplay::reDrawHandler( uiRect )
 	    y2ptlist += uiPoint( xpixintv.stop, closept.y );
     }
 
+    ioDrawTool& dt = drawTool();
+    dt.setLineStyle( LineStyle() );
     if ( havey2 )
 	dt.setPenColor( setup_.y2col_ );
     dt.setFillColor( havey2 && setup_.fillbelowy2_ ? setup_.y2col_ 
@@ -253,6 +254,7 @@ void uiFunctionDisplay::reDrawHandler( uiRect )
 	}
     }
 
+    dt.setLineStyle( LineStyle() );
     if ( !mIsUdf(xmarkval_) )
     {
 	dt.setPenColor( setup_.xmarkcol_ );
