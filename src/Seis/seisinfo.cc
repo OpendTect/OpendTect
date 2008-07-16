@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace informtaion
 -*/
 
-static const char* rcsID = "$Id: seisinfo.cc,v 1.47 2008-04-25 11:21:42 cvsraman Exp $";
+static const char* rcsID = "$Id: seisinfo.cc,v 1.48 2008-07-16 06:42:42 cvsnanne Exp $";
 
 #include "seisinfo.h"
 #include "seisbounds.h"
@@ -126,7 +126,11 @@ Seis::GeomType Seis::geomTypeOf( const char* s )
 { return eEnum(SeisEnum::GeomType,s); }
 
 Seis::DataType Seis::dataTypeOf( const char* s )
-{ return eEnum(SeisEnum::DataType,s); }
+{
+    if ( !strcmp(s,sKey::Steering) )
+	return Seis::Dip;
+    return eEnum(SeisEnum::DataType,s);
+}
 
 Seis::WaveType Seis::waveTypeOf( const char* s )
 { return eEnum(SeisEnum::WaveType,s); }
