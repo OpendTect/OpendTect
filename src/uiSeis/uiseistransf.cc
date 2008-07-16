@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          May 2002
- RCS:		$Id: uiseistransf.cc,v 1.45 2008-07-15 13:29:37 cvsbert Exp $
+ RCS:		$Id: uiseistransf.cc,v 1.46 2008-07-16 12:29:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -90,11 +90,12 @@ int uiSeisTransfer::maxBytesPerSample() const
 
 SeisIOObjInfo::SpaceInfo uiSeisTransfer::spaceInfo() const
 {
-    int ntr = selfld->expectedNrTraces();
-    SeisIOObjInfo::SpaceInfo si( selfld->expectedNrSamples(), ntr,
-				   maxBytesPerSample() );
+    const int ntr = selfld->expectedNrTraces();
+    SeisIOObjInfo::SpaceInfo si( selfld->expectedNrSamples(),
+	    	selfld->expectedNrTraces(), maxBytesPerSample() );
+
     if ( setup_.is2d_ )
-	si.expectednrtrcs = ntr;
+	si.expectednrtrcs = -1;
 
     return si;
 }
