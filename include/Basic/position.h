@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		21-6-1996
  Contents:	Positions: Inline/crossline and Coordinate
- RCS:		$Id: position.h,v 1.52 2008-05-29 13:21:03 cvskris Exp $
+ RCS:		$Id: position.h,v 1.53 2008-07-16 17:59:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -257,7 +257,7 @@ protected:
 
 inline bool Coord3::operator==( const Coord3& b ) const
 {
-    const float dx = x-b.x; const float dy = y-b.y; const float dz = z-b.z;
+    const double dx = x-b.x; const double dy = y-b.y; const double dz = z-b.z;
     return mIsZero(dx,mDefEps) && mIsZero(dy,mDefEps) && mIsZero(dz,mDefEps);
 }
 

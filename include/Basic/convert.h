@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/01/2005
- RCS:           $Id: convert.h,v 1.7 2007-10-05 11:28:56 cvsnanne Exp $
+ RCS:           $Id: convert.h,v 1.8 2008-07-16 17:59:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,12 +105,12 @@ inline void set( type& _to, const char* const& s ) \
 	    Values::setUdf( _to ); \
 } 
 
-mSetFromStrTo( int, strtol(s, &endptr, 0) );
-mSetFromStrTo( od_uint32, strtoul(s, &endptr, 0) );
-mSetFromStrTo( od_int64, strtoll(s, &endptr, 0) );
-mSetFromStrTo( od_uint64, strtoull(s, &endptr, 0) );
-mSetFromStrTo( double, strtod(s, &endptr ) );
-mSetFromStrTo( float, strtod(s, &endptr ) );
+mSetFromStrTo( int, strtol(s,&endptr,0) );
+mSetFromStrTo( od_uint32, strtoul(s,&endptr,0) );
+mSetFromStrTo( od_int64, strtoll(s,&endptr,0) );
+mSetFromStrTo( od_uint64, strtoull(s,&endptr,0) );
+mSetFromStrTo( double, strtod(s,&endptr) );
+mSetFromStrTo( float, strtof(s,&endptr) );
 
     
 template <>

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2005
- RCS:		$Id: math2.h,v 1.6 2008-04-25 11:15:03 cvsraman Exp $
+ RCS:		$Id: math2.h,v 1.7 2008-07-16 17:59:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ float		Exp(float);
 
 inline float	degFromNorth( float azimuth )
 		{
-		    const float deg = 90 - 57.2957795131 * azimuth;
+		    const float deg = 90 - 57.2957795131f * azimuth;
 		    return deg < 0 ? deg + 360 : deg;
 		}
 
