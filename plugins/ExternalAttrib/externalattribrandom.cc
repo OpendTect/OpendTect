@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: externalattribrandom.cc,v 1.1 2008-05-07 20:16:40 cvskris Exp $";
+static const char* rcsID = "$Id: externalattribrandom.cc,v 1.2 2008-07-16 17:00:28 cvskris Exp $";
 
 #include "externalattribrandom.h"
 
@@ -61,7 +61,8 @@ bool Random::setTargetSelSpec( const Attrib::SelSpec& ss )
 
 
 DataPack::ID Random::createAttrib( const CubeSampling& cs,
-				   DataPack::ID cacheid )
+				   DataPack::ID cacheid,
+       				   TaskRunner* tr)
 {
     const Attrib::DataCubes* dc = 0;
     const Attrib::DataCubes* output = createAttrib( cs, dc );
@@ -107,20 +108,20 @@ Random::createAttrib( const CubeSampling& cs, const Attrib::DataCubes* dc )
 }
 
 
-bool Random::createAttrib(ObjectSet<BinIDValueSet>&)
+bool Random::createAttrib(ObjectSet<BinIDValueSet>&,TaskRunner*)
 {
     return false;
 }
 
 
-bool Random::createAttrib(const BinIDValueSet&, SeisTrcBuf&)
+bool Random::createAttrib(const BinIDValueSet&, SeisTrcBuf&, TaskRunner*)
 {
     return false;
 }
 
 
-DataPack::ID Random::createAttrib( const CubeSampling&,
-						     const LineKey&)
+DataPack::ID Random::createAttrib( const CubeSampling&, const LineKey&,
+				   TaskRunner*)
 { return DataPack::cNoID; }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2008
- RCS:		$Id: externalattribrandom.h,v 1.1 2008-05-07 20:16:40 cvskris Exp $
+ RCS:		$Id: externalattribrandom.h,v 1.2 2008-07-16 17:00:28 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -35,13 +35,16 @@ public:
     static const char*		sAttribName()	{ return "Random"; }
 
     bool			setTargetSelSpec(const Attrib::SelSpec&);
-    DataPack::ID		createAttrib(const CubeSampling&,DataPack::ID);
+    DataPack::ID		createAttrib(const CubeSampling&,DataPack::ID,
+	    				     TaskRunner*);
     const Attrib::DataCubes*	createAttrib(const CubeSampling&,
 	    				     const Attrib::DataCubes*);
-    bool			createAttrib(ObjectSet<BinIDValueSet>&);
-    bool			createAttrib(const BinIDValueSet&, SeisTrcBuf&);
+    bool			createAttrib(ObjectSet<BinIDValueSet>&,
+	    				     TaskRunner*);
+    bool			createAttrib(const BinIDValueSet&, SeisTrcBuf&,
+	    				     TaskRunner*);
     DataPack::ID		createAttrib(const CubeSampling&,
-	    				     const LineKey&);
+	    				     const LineKey&,TaskRunner*);
 
     bool			isIndexes() const;
 
