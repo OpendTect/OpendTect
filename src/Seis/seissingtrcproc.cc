@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.46 2008-06-09 11:34:38 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.47 2008-07-16 12:30:49 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -153,6 +153,13 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 	    {
 		totnr_ = rdr_->selData()->expectedNrTraces( !is3d );
 		szdone = true;
+	    }
+	    else if ( !is3d )
+	    {
+		// 2D, so let's make sure the line key is set
+		Seis::SelData* sd = Seis::SelData::get(Seis::Range);
+		sd->usePar( *iops[idx] );
+		rdr_->setSelData( sd );
 	    }
 	}
 	if ( is3d && !wrr_->isPS() && !szdone )
