@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.52 2008-06-05 12:00:26 cvsraman Exp $
+ RCS:		$Id: uiseissel.cc,v 1.53 2008-07-16 05:05:59 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,6 +96,8 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 
     selgrp->getListField()->selectionChanged.notify(
 	    			mCB(this,uiSeisSelDlg,entrySel) );
+    if ( !selgrp->getCtxtIOObj().ctxt.forread && Seis::is2D(setup.geom_) )
+	selgrp->setConfirmOverwrite( false );
     entrySel(0);
 }
 
