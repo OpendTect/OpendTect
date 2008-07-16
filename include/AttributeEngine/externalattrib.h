@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Nov 2004
- RCS:		$Id: externalattrib.h,v 1.9 2008-05-07 20:06:25 cvskris Exp $
+ RCS:		$Id: externalattrib.h,v 1.10 2008-07-16 16:59:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class BinIDValueSet;
 class CubeSampling;
 class LineKey;
 class SeisTrcBuf;
+class TaskRunner;
 
 
 namespace Attrib
@@ -38,13 +39,22 @@ public:
     virtual bool		setTargetSelSpec(const SelSpec&)	= 0;
     				/*!<\returns if this object can 
 				     compute it or not. */
-    virtual DataPack::ID	createAttrib(const CubeSampling&,
-					     DataPack::ID=DataPack::cNoID);
-    				//!<Utilizes createAttrib(CS,DC)
+    //Old Interface, use functions with progressmeter instead
+    virtual DataPack::ID	createAttrib(const CubeSampling&, DataPack::ID);
     virtual bool		createAttrib(ObjectSet<BinIDValueSet>&);
     virtual bool		createAttrib(const BinIDValueSet&, SeisTrcBuf&);
     virtual DataPack::ID	createAttrib(const CubeSampling&,
 	    				     const LineKey&);
+
+    //New interface
+    virtual DataPack::ID	createAttrib(const CubeSampling&,
+					     DataPack::ID, TaskRunner*);
+    virtual bool		createAttrib(ObjectSet<BinIDValueSet>&,
+	    				     TaskRunner*);
+    virtual bool		createAttrib(const BinIDValueSet&, SeisTrcBuf&,
+					     TaskRunner*);
+    virtual DataPack::ID	createAttrib(const CubeSampling&,
+	    				     const LineKey&, TaskRunner*);
 
     virtual bool		isIndexes() const;
 

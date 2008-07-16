@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.257 2008-07-09 11:37:32 cvshelene Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.258 2008-07-16 16:59:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "uiprestackimpmute.h"
 #include "uiprestackexpmute.h"
 #include "uiseispartserv.h"
+#include "uitaskrunner.h"
 #include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
 #include "vishorizondisplay.h"
@@ -550,7 +551,8 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		}
 
 		MouseCursorChanger cursorchgr( MouseCursor::Wait );
-		const DataPack::ID dpid = calc->createAttrib( cs, cacheid );
+		uiTaskRunner progm( &appl_ );
+		const DataPack::ID dpid = calc->createAttrib( cs, cacheid, &progm );
 		if ( dpid==DataPack::cNoID && !calc->errmsg_.isEmpty() )
 		{
 		    uiMSG().error( calc->errmsg_ );

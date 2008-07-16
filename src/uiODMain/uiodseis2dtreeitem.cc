@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.42 2008-07-09 12:33:41 cvsnanne Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.43 2008-07-16 16:59:41 cvskris Exp $
 ___________________________________________________________________
 
 -*/
@@ -25,6 +25,7 @@ ___________________________________________________________________
 #include "uiseispartserv.h"
 #include "uislicesel.h"
 #include "uivispartserv.h"
+#include "uitaskrunner.h"
 #include "visseis2ddisplay.h"
 
 #include "attribdataholder.h"
@@ -637,7 +638,8 @@ void uiOD2DLineSetSubItem::getNewData( CallBacker* cb )
 	    return;
 	}
 
-	dpid = calc->createAttrib( cs, lk );
+	uiTaskRunner taskrunner( ODMainWin() );
+	dpid = calc->createAttrib( cs, lk, &taskrunner );
     }
     else
     {

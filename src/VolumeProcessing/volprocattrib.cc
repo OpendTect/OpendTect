@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocattrib.cc,v 1.3 2008-05-07 20:06:25 cvskris Exp $";
+static const char* rcsID = "$Id: volprocattrib.cc,v 1.4 2008-07-16 16:59:41 cvskris Exp $";
 
 #include "volprocattrib.h"
 
@@ -160,7 +160,10 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
     MultiID mid = midstring.buf();
     PtrMan<IOObj>  ioobj = IOM().get( mid );
     if ( !ioobj )
+    {
+	errmsg_ = "Cannot find the processing setup.";
 	return false;
+    }
 
     chain_ = new Chain();
     chain_->ref();
@@ -169,6 +172,13 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
     {
 	chain_->unRef();
 	chain_ = 0;
+	errmsg_ = "Cannot read processing setup.";
+	if ( !errmsg.isEmpty() )
+	{
+	    errmsg_ += " Reason given: ";
+	    errmsg_ += errmsg;
+	}   
+
 	return false;
     }
 
@@ -177,21 +187,43 @@ bool ExternalAttribCalculator::setTargetSelSpec( const Attrib::SelSpec& ss )
 
 
 DataPack::ID ExternalAttribCalculator::createAttrib( const CubeSampling& cs,
-						     DataPack::ID dpid )
+						     DataPack::ID dpid,
+       						     TaskRunner* tr )
 {
     if ( !chain_ || !chain_->nrSteps() )
+    {
+	errmsg_ = "There are no steps in the processing chain.";
 	return DataPack::cNoID;
+    }
 
     chain_->setZSampling( SamplingData<float>( cs.zrg ), SI().zIsTime() );
     RefMan<Attrib::DataCubes> datacubes = new Attrib::DataCubes::DataCubes();
     if ( !datacubes->setSizeAndPos(cs) )
+    {
+	errmsg_ = "Cannot allocate enough memory.";
 	return DataPack::cNoID;
+    }
 
     ChainExecutor executor( *chain_ );
-    if ( !executor.setCalculationScope(datacubes) || !executor.execute() )
+    if ( !executor.setCalculationScope(datacubes) ) 
+    {
+	errmsg_ = "Cannot calculate at this location";
 	return DataPack::cNoID;
+    }
 
-    if ( !datacubes->nrCubes() ) return DataPack::cNoID;
+    if ( (tr && !tr->execute(executor)) || (!tr && !executor.execute() ) )
+    {
+	if ( executor.errMsg() )
+	    errmsg_ = executor.errMsg();
+	else
+	    errmsg_ = "Error while calculating.";
+    }
+
+    if ( !datacubes->nrCubes() )
+    {
+	errmsg_ = "No output produced";
+	return DataPack::cNoID;
+    }
 
     const Attrib::DescID did = Attrib::SelSpec::cOtherAttrib();
     Attrib::Flat3DDataPack* ndp = new Attrib::Flat3DDataPack(did,*datacubes,0);
