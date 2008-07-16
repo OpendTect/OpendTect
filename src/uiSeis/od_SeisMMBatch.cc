@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2002
- RCS:           $Id: od_SeisMMBatch.cc,v 1.20 2008-05-08 16:11:01 cvsbert Exp $
+ RCS:           $Id: od_SeisMMBatch.cc,v 1.21 2008-07-16 05:14:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,10 +55,15 @@ int main( int argc, char ** argv )
     }
     sdin.close();
 
-#ifndef __win__
+    bool dofork = true;
+#if defined( __mac__ ) || defined( __win__ )
+    dofork = false;
+#endif
+
     if ( bgadd )
     {
-	switch ( fork() )
+	const int forkres = dofork ? fork() : 0;
+	switch ( forkres )
 	{
 	case -1:
 	    std::cerr << argv[0] << ": cannot fork: "
@@ -68,7 +73,6 @@ int main( int argc, char ** argv )
 	default:	return 0;
 	}
     }
-#endif 
 
     const char* res = iop.find( sKey::Survey );
     if ( res && *res && SI().getDirName() != res )

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Jan 2003
- RCS:           $Id: od_FileBrowser.cc,v 1.9 2006-12-19 18:17:09 cvsbert Exp $
+ RCS:           $Id: od_FileBrowser.cc,v 1.10 2008-07-16 05:14:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,9 +47,11 @@ int main( int argc, char ** argv )
     }
     argidx--;
 
-#ifndef __win__
+#if defined( __mac__ ) || defined( __win__ )
+    dofork = false;
+#endif
 
-    int forkres = dofork ? fork() : 0;
+    const int forkres = dofork ? fork() : 0;
     switch ( forkres )
     {
     case -1:
@@ -59,8 +61,6 @@ int main( int argc, char ** argv )
     case 0:	break;
     default:	return 0;
     }
-
-#endif
 
     BufferString fnm = argidx > 0 ? argv[argidx] : "";
     replaceCharacter( fnm.buf(), (char)128, ' ' );

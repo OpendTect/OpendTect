@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2001
- RCS:		$Id: od_SEGYExaminer.cc,v 1.10 2007-05-08 16:38:21 cvsbert Exp $
+ RCS:		$Id: od_SEGYExaminer.cc,v 1.11 2008-07-16 05:14:44 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -184,9 +184,13 @@ int main( int argc, char ** argv )
 	ExitProgram( 1 );
     }
 
-#ifndef __win__
+    bool dofork = true;
+#if defined( __mac__ ) || defined( __win__ )
+    dofork = false;
+#endif
 
-    switch ( fork() )
+    const int forkres = dofork ? fork() : 0;
+    switch ( forkres )
     {
     case -1:
 	std::cerr << argv[0] << ": cannot fork: " << errno_message()
@@ -195,8 +199,6 @@ int main( int argc, char ** argv )
     case 0:	break;
     default:	return 0;
     }
-
-#endif
 
     char* fnm = argv[argidx];
     replaceCharacter( fnm, (char)128, ' ' );
@@ -208,8 +210,8 @@ int main( int argc, char ** argv )
 	fnm = const_cast<char*>(File_linkTarget(fnm));
 #endif
 
-    uiSeisSEGYExamine* sgyex = new uiSeisSEGYExamine( 0, fnm, multi, ns, fmt,
-						      nrtrcs );
+    uiSeisSEGYExamine* sgyex =
+	new uiSeisSEGYExamine( 0, fnm, multi, ns, fmt, nrtrcs );
     app.setTopLevel( sgyex );
     sgyex->show();
     ExitProgram( app.exec() ); return 0;
