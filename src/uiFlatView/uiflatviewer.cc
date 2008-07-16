@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.56 2008-07-01 21:29:00 cvskris Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.57 2008-07-16 17:57:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -147,9 +147,9 @@ void uiFlatViewer::setView( uiWorldRect wr )
     anysetviewdone_ = true;
 
     wr_ = wr;
-    if ( wr_.left() > wr.right() != appearance().annot_.x1_.reversed_ )
+    if ( (wr_.left() > wr.right()) != appearance().annot_.x1_.reversed_ )
 	wr_.swapHor();
-    if ( wr_.bottom() > wr.top() != appearance().annot_.x2_.reversed_ )
+    if ( (wr_.bottom() > wr.top()) != appearance().annot_.x2_.reversed_ )
 	wr_.swapVer();
 
     viewChanged.trigger();

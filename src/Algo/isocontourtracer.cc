@@ -4,7 +4,7 @@
  * DATE     : November 2007
 -*/
 
-static const char* rcsID = "$Id: isocontourtracer.cc,v 1.2 2008-01-14 12:54:15 cvsjaap Exp $";
+static const char* rcsID = "$Id: isocontourtracer.cc,v 1.3 2008-07-16 17:52:59 cvsnanne Exp $";
 
 #include "isocontourtracer.h"
 
@@ -214,7 +214,7 @@ void IsoContourTracer::traceContours( Array3DImpl<float>& crossings,
 		}
 
 		const int sz = contour->size();
-		if ( sz<2 || closedonly && !contour->isClosed() )
+		if ( sz<2 || (closedonly && !contour->isClosed()) )
 		    delete contour;
 		else
 		{

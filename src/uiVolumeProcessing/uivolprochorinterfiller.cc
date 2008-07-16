@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.1 2008-02-25 19:14:55 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.2 2008-07-16 17:57:13 cvsnanne Exp $";
 
 #include "uivolprochorinterfiller.h"
 #include "uimsg.h"
@@ -107,15 +107,18 @@ bool uiHorInterFiller::acceptOK( CallBacker* )
 	return false;
     }
     
-    if ( usetopvalfld_->getBoolValue() && !tophorfld_->existingTyped() ||
-	 usebottomvalfld_->getBoolValue() && !bottomhorfld_->existingTyped() )
+    if ( (usetopvalfld_->getBoolValue() && !tophorfld_->existingTyped()) ||
+	 (usebottomvalfld_->getBoolValue() && !bottomhorfld_->existingTyped()) )
     {
 	uiMSG().error("Non-existing horizon selected");
 	return false;
     }
 
-    if ( usetopvalfld_->getBoolValue() && mIsUdf( topvalfld_->getfValue() ) ||
-	 usebottomvalfld_->getBoolValue() && mIsUdf(bottomvalfld_->getfValue()))
+    const bool istopudf = usetopvalfld_->getBoolValue() &&
+			  mIsUdf(topvalfld_->getfValue());
+    const bool isbotudf = usebottomvalfld_->getBoolValue() &&
+			  mIsUdf(bottomvalfld_->getfValue());
+    if ( istopudf || isbotudf )
     {
 	uiMSG().error("No value specified");
 	return false;

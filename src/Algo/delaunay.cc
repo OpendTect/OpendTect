@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.17 2008-06-25 21:46:39 cvskris Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.18 2008-07-16 17:52:58 cvsnanne Exp $";
 
 #include "delaunay.h"
 #include "trigonometry.h"
@@ -810,11 +810,11 @@ int DAGTriangleTree::getNeighbor( int v0, int v1, int ti ) const
 
     int res;
     
-    if ( id0==0 && id1==1 || id0==1 && id1==0 )
+    if ( (id0==0 && id1==1) || (id0==1 && id1==0) )
 	res = searchChild( v0, v1, triangles_[ti].neighbors_[0] );
-    if ( id0==0 && id1==2 || id0==2 && id1==0 )
+    if ( (id0==0 && id1==2) || (id0==2 && id1==0) )
 	res = searchChild( v0, v1, triangles_[ti].neighbors_[2] );
-    else if ( id0==1 && id1==2 || id0==2 && id1==1 )
+    else if ( (id0==1 && id1==2) || (id0==2 && id1==1) )
 	res = searchChild( v0, v1, triangles_[ti].neighbors_[1] );
 
     return res;
@@ -957,7 +957,7 @@ void DAGTriangleTree::legalizeTriangles( TypeSet<char>& v0s, TypeSet<char>& v1s,
 
 	int shared0, shared1, crdci;
 	int checkti = cNoTriangle();
-	if ( v0==0 && v1==1 || v0==1 && v1==0 )
+	if ( (v0==0 && v1==1) || (v0==1 && v1==0) )
 	{
 	    checkti = triangles_[ti].neighbors_[0];
 	    crdci = triangles_[ti].coordindices_[2];
@@ -972,7 +972,7 @@ void DAGTriangleTree::legalizeTriangles( TypeSet<char>& v0s, TypeSet<char>& v1s,
 		shared1 = triangles_[ti].coordindices_[0];   
 	    }
 	}
-	else if ( v0==0 && v1==2 || v0==2 && v1==0 )
+	else if ( (v0==0 && v1==2) || (v0==2 && v1==0) )
 	{
 	    checkti = triangles_[ti].neighbors_[2];
 	    crdci = triangles_[ti].coordindices_[1];
@@ -987,7 +987,7 @@ void DAGTriangleTree::legalizeTriangles( TypeSet<char>& v0s, TypeSet<char>& v1s,
 		shared1 = triangles_[ti].coordindices_[2];   
 	    }
 	}
-	else if ( v0==1 && v1==2 || v0==2 && v1==1 )
+	else if ( (v0==1 && v1==2) || (v0==2 && v1==1) )
 	{
 	    checkti = triangles_[ti].neighbors_[1];
 	    crdci = triangles_[ti].coordindices_[0];
@@ -1142,9 +1142,9 @@ void DAGTriangleTree::dumpTo(std::ostream& stream) const
 if ( child!=cNoTriangle() ) \
 { \
     const int* gc = triangles_[child].coordindices_; \
-    if ( gc[0]==v0 && gc[1]==v1 || gc[1]==v0 && gc[0]==v1 || \
-	 gc[0]==v0 && gc[2]==v1 || gc[2]==v0 && gc[0]==v1 || \
-	 gc[1]==v0 && gc[2]==v1 || gc[2]==v0 && gc[1]==v1 )  \
+    if ( (gc[0]==v0 && gc[1]==v1) || (gc[1]==v0 && gc[0]==v1) || \
+	 (gc[0]==v0 && gc[2]==v1) || (gc[2]==v0 && gc[0]==v1) || \
+	 (gc[1]==v0 && gc[2]==v1) || (gc[2]==v0 && gc[1]==v1) )  \
     { \
 	const int res = searchChild( v0, v1, child ); \
 	return res; \
@@ -1225,9 +1225,13 @@ bool DAGTriangleTree::DAGTriangle::operator==(
     const int d0 = dag.coordindices_[0];
     const int d1 = dag.coordindices_[1];
     const int d2 = dag.coordindices_[2];
-    return d0==coordindices_[0] && d1==coordindices_[1] && d2==coordindices_[2]
-	|| d0==coordindices_[0] && d1==coordindices_[2] && d2==coordindices_[1]
-	|| d0==coordindices_[1] && d1==coordindices_[0] && d2==coordindices_[2] 	|| d0==coordindices_[1] && d1==coordindices_[2] && d2==coordindices_[0] 	|| d0==coordindices_[2] && d1==coordindices_[1] && d2==coordindices_[0] 	|| d0==coordindices_[2] && d1==coordindices_[0] && d2==coordindices_[1];
+    return
+       (d0==coordindices_[0] && d1==coordindices_[1] && d2==coordindices_[2]) ||
+       (d0==coordindices_[0] && d1==coordindices_[2] && d2==coordindices_[1]) ||
+       (d0==coordindices_[1] && d1==coordindices_[0] && d2==coordindices_[2]) ||
+       (d0==coordindices_[1] && d1==coordindices_[2] && d2==coordindices_[0]) ||
+       (d0==coordindices_[2] && d1==coordindices_[1] && d2==coordindices_[0]) ||
+       (d0==coordindices_[2] && d1==coordindices_[0] && d2==coordindices_[1]);
 }
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: uiflatviewcontrol.cc,v 1.35 2008-04-08 17:33:52 cvskris Exp $
+ RCS:           $Id: uiflatviewcontrol.cc,v 1.36 2008-07-16 17:57:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -266,9 +266,9 @@ void uiFlatViewControl::applyProperties( CallBacker* cb )
 
     const uiWorldRect cv( vwr->curView() );
     FlatView::Annotation& annot = vwr->appearance().annot_;
-    if ( cv.right() > cv.left() == annot.x1_.reversed_ )
+    if ( (cv.right() > cv.left()) == annot.x1_.reversed_ )
 	{ annot.x1_.reversed_ = !annot.x1_.reversed_; flip( true ); }
-    if ( cv.top() > cv.bottom() == annot.x2_.reversed_ )
+    if ( (cv.top() > cv.bottom()) == annot.x2_.reversed_ )
 	{ annot.x2_.reversed_ = !annot.x2_.reversed_; flip( false ); }
 
     const int selannot = propdlg_->selectedAnnot();

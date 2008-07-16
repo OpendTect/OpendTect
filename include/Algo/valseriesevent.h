@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		May 2005
- RCS:		$Id: valseriesevent.h,v 1.11 2007-09-28 05:43:08 cvsnanne Exp $
+ RCS:		$Id: valseriesevent.h,v 1.12 2008-07-16 17:52:58 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -146,8 +146,8 @@ inline ValueSeriesEvent<VT,PT> ValueSeriesEvFinder<VT,PT>::getZC(
 	    v1 = vs_.value( idx );
 	    if ( v1 != 0 )
 	    {
-		if ( ( v1 < 0 != frompositive && needtoneg )
-		  || ( v1 > 0 != frompositive && needtopos ) )
+		if ( ( (v1<0) != frompositive && needtoneg )
+		  || ( (v1>0) != frompositive && needtopos ) )
 		    mDecrOccAtZero(idx-inc)
 
 		mIncSampIdx(idx)

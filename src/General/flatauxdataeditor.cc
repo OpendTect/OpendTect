@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatauxdataeditor.cc,v 1.23 2008-07-08 00:39:01 cvskris Exp $
+ RCS:           $Id: flatauxdataeditor.cc,v 1.24 2008-07-16 17:52:58 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -515,7 +515,7 @@ void AuxDataEditor::mouseMoveCB( CallBacker* cb )
 		RowCol( mousearea_.topRight().x, mousearea_.topRight().y ),
 		mousearea_.bottomLeft().y );
 
-	if ( !hasmoved_ && !ev.shiftStatus() || !polygonsel_.size() )
+	if ( (!hasmoved_ && !ev.shiftStatus()) || !polygonsel_.size() )
 	{
 	    Annotation::AuxData* polysel = new Annotation::AuxData( 0 );
 	    polysel->linestyle_ = polygonsellst_;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/02/2003
- RCS:           $Id: i_layoutitem.cc,v 1.9 2007-02-14 12:38:00 cvsnanne Exp $
+ RCS:           $Id: i_layoutitem.cc,v 1.10 2008-07-16 17:57:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,7 +62,7 @@ uiSize i_LayoutItem::actualsize( bool include_border ) const
 
 int i_LayoutItem::stretch( bool hor ) const
 { 
-    if ( hor && hsameas || !hor && vsameas ) return 0;
+    if ( (hor && hsameas) || (!hor && vsameas) ) return 0;
 
     const uiObjectBody* blo = bodyLayouted();
     return blo ? blo->stretch( hor ) : 0; 

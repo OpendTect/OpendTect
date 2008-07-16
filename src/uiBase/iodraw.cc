@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.44 2008-07-03 13:37:48 cvskris Exp $
+ RCS:           $Id: iodraw.cc,v 1.45 2008-07-16 17:57:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -418,7 +418,8 @@ static void drawArrowHead( ioDrawTool& dt, const ArrowHeadStyle& hs,
 		const float dy = comingfrom.y - pos.y;
 		const float t = ((endpt.x-pos.x)*dx + (endpt.y-pos.y)*dy)
 			      / (dx*dx + dy*dy);
-		const Geom::Point2D<float> fpp( pos.x + t*dx, pos.y + t*dy );
+		const Geom::Point2D<float> fpp( (float)pos.x + t*dx,
+						(float)pos.y + t*dy );
 		const uiPoint pp( mNINT(fpp.x), mNINT(fpp.y) ); // projected pt
 		dt.drawLine( endpt, pp );
 	    }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          18/08/1999
- RCS:           $Id: i_layout.cc,v 1.77 2008-04-15 12:03:31 cvsnanne Exp $
+ RCS:           $Id: i_layout.cc,v 1.78 2008-07-16 17:57:13 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -570,7 +570,7 @@ void i_LayoutMngr::setGeometry( const QRect &extRect )
 	int hdif = abs( extRect.width() - mPos.hNrPics() );
 	int vdif = abs( extRect.height() - mPos.vNrPics() );
 
-	store2prefpos = !prefposStored || hdif < 10 && vdif < 10;
+	store2prefpos = !prefposStored || (hdif<10 && vdif<10);
 
 #ifdef __extensive_debug__
 	if( !store2prefpos )
