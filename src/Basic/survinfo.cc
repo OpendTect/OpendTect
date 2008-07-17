@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.95 2008-07-08 04:24:51 cvsraman Exp $
+ RCS:           $Id: survinfo.cc,v 1.96 2008-07-17 14:39:33 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,6 +68,7 @@ SurveyInfo::SurveyInfo()
     , valid_(false)
     , zistime_(true)
     , zinfeet_(false)
+    , xyinfeet_(false)
     , pars_(*new IOPar(sKeySurvDefs))
     , ll2c_(*new LatLong2Coord)
     , workRangeChg(this)
@@ -112,6 +113,7 @@ SurveyInfo& SurveyInfo::operator =( const SurveyInfo& si )
     wspwd_ = si.wspwd_;
     zistime_ = si.zistime_;
     zinfeet_ = si.zinfeet_;
+    xyinfeet_ = si.xyinfeet_;
     b2c_ = si.b2c_;
     survdatatype_ = si.survdatatype_;
     survdatatypeknown_ = si.survdatatypeknown_;
