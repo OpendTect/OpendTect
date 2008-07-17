@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.h,v 1.25 2007-10-23 11:33:31 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.h,v 1.26 2008-07-17 15:10:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -106,7 +106,8 @@ protected:
     uiGroup*		crdgrp;
     uiGroup*		trgrp;
     uiComboBox*		sipfld;
-    uiCheckBox*		overrule;
+    uiCheckBox*		overrulefld;
+    uiCheckBox*		xyinftfld;
     uiPushButton*	applybut;
     ObjectSet<CallBacker> sipbuts;
 

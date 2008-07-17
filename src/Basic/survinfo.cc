@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.96 2008-07-17 14:39:33 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.97 2008-07-17 15:10:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ const char* SurveyInfo::sKeyYRange = "Y range";
 const char* SurveyInfo::sKeyZRange = "Z range";
 const char* SurveyInfo::sKeyWSProjName = "Workstation Project Name";
 const char* SurveyInfo::sKeyDpthInFt = "Show depth in feet";
+const char* SurveyInfo::sKeyXYInFt = "XY in feet";
 const char* SurveyInfo::sKeySurvDataType = "Survey Data Type";
 
 
@@ -201,6 +202,8 @@ SurveyInfo* SurveyInfo::read( const char* survdir )
 	    si->setSurvDataType( eEnum( Pol2D, astream.value()) );
 	    si->survdatatypeknown_ = true;
 	}
+	else if ( keyw == sKeyXYInFt )
+	    si->xyinfeet_ = astream.getYN();
 	else
 	    si->handleLineRead( keyw, astream.value() );
 
@@ -721,6 +724,7 @@ void SurveyInfo::writeSpecLines( ascostream& astream ) const
 	ll2c_.fill( buf );
 	astream.put( sKeyLatLongAnchor, buf );
     }
+    astream.putYN( sKeyXYInFt, xyinfeet_ );
 }
 
 

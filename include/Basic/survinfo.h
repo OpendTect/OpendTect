@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.69 2008-07-17 14:39:33 cvsbert Exp $
+ RCS:		$Id: survinfo.h,v 1.70 2008-07-17 15:10:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,6 +85,7 @@ public:
     inline bool		zIsTime() const		{ return zistime_; }
     inline bool		zInMeter() const	{ return !zistime_ &&!zinfeet_;}
     inline bool		zInFeet() const		{ return !zistime_ && zinfeet_;}
+    void		setXYInFeet( bool yn=true ) { xyinfeet_ = yn; }
     void		setZUnit(bool istime,bool infeet=false);
     const char*		getZUnit(bool withparens=true) const;
     float		zFactor() const		{ return zistime_ ? 1000 : 1; }
@@ -130,7 +131,8 @@ public:
     static const char*	sKeyYRange;
     static const char*	sKeyZRange;
     static const char*	sKeyWSProjName;
-    static const char*	sKeyDpthInFt; //!< 'Depth in feet' Y/N (UI default)
+    static const char*	sKeyXYInFt;
+    static const char*	sKeyDpthInFt; //!< Not used by SI, just a UI default
     static const char*	sKeySurvDataType;
 
     const IOPar&	pars() const			{ return pars_; }

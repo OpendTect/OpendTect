@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.94 2008-05-23 05:20:27 cvsnageswara Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.95 2008-07-17 15:10:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -307,8 +307,8 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     ycrlfld = new uiGenInput ( trgrp, "+ cross-line *",
 	    			      DoubleInpSpec() .setName("Crl"));
     ycrlfld->setElemSzPol( uiObject::Small );
-    overrule= new uiCheckBox( trgrp, "Overrule easy settings" );
-    overrule->setChecked( false );
+    overrulefld = new uiCheckBox( trgrp, "Overrule easy settings" );
+    overrulefld->setChecked( false );
     trgrp->setHAlignObj( xinlfld );
     trgrp->attach( alignedBelow, rangegrp );
     trgrp->attach( ensureBelow, coordset );
@@ -317,11 +317,14 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     y0fld->attach( alignedBelow, x0fld );
     yinlfld->attach( rightOf, y0fld );
     ycrlfld->attach( rightOf, yinlfld );
-    overrule->attach( alignedBelow, ycrlfld );
+    overrulefld->attach( alignedBelow, ycrlfld );
 
     applybut = new uiPushButton( this, "&Apply", true ); 
     applybut->activated.notify( mCB(this,uiSurveyInfoEditor,appButPushed) );
     applybut->attach( alignedBelow, crdgrp );
+    xyinftfld = new uiCheckBox( this, "Coordinates are in feet" );
+    xyinftfld->attach( rightTo, applybut );
+    xyinftfld->attach( rightBorder );
 
     finaliseDone.notify( mCB(this,uiSurveyInfoEditor,doFinalise) );
 }
@@ -382,6 +385,8 @@ void uiSurveyInfoEditor::setValues()
 	xy1fld->setValue( c[2] );
 	xy2fld->setValue( c[1] );
     }
+
+    xyinftfld->setChecked( si_.xyInFeet() );
 }
 
 
@@ -462,7 +467,7 @@ bool uiSurveyInfoEditor::renameSurv( const char* path, const char* indirnm,
 }
 
 
-#define mUseAdvanced() (overrule->isChecked() && !coordset->getBoolValue())
+#define mUseAdvanced() (overrulefld->isChecked() && !coordset->getBoolValue())
 
 bool uiSurveyInfoEditor::appButPushed()
 {
@@ -478,7 +483,7 @@ bool uiSurveyInfoEditor::appButPushed()
 	y0fld->setValue( si_.b2c_.getTransform(false).a );
 	yinlfld->setValue( si_.b2c_.getTransform(false).b );
 	ycrlfld->setValue( si_.b2c_.getTransform(false).c );
-	overrule->setChecked( false );
+	overrulefld->setChecked( false );
     }
     else
 	if ( !setRelation() ) return false;
@@ -661,6 +666,7 @@ bool uiSurveyInfoEditor::setRanges()
 	mErrRet("Please specify a valid Z range")
 
     si_.setRange( cs, false );
+    si_.setXYInFeet( xyinftfld->isChecked() );
     return true;
 }
 
