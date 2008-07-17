@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.34 2008-07-14 19:38:21 cvsyuancheng Exp $
+ RCS:		$Id: trigonometry.h,v 1.35 2008-07-17 14:24:23 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -277,10 +277,6 @@ public:
 
     Coord		origin_; 
     Coord		dir_;
-    double		x0_;
-    double		y0_;
-    double		alpha_;
-    double		beta_;
 };
 
 /*!\brief
