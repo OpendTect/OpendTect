@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.4 2008-06-18 18:46:09 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.5 2008-07-17 15:21:10 cvskris Exp $";
 
 #include "gridder2d.h"
 
@@ -244,14 +244,15 @@ void InverseDistanceGridder2D::fillPar( IOPar& par ) const
 }
 
 
-TriangulatedGridder2D::TriangulatedGridder2D()
+TriangledNeighborhoodGridder2D::TriangledNeighborhoodGridder2D()
     : triangles_( 0 )
     , xrg_( mUdf(float), mUdf(float) )
     , yrg_( mUdf(float), mUdf(float) )
 {}
 
 
-TriangulatedGridder2D::TriangulatedGridder2D( const TriangulatedGridder2D& b )
+TriangledNeighborhoodGridder2D::TriangledNeighborhoodGridder2D(
+	const TriangledNeighborhoodGridder2D& b )
     : triangles_( 0 )
     , xrg_( b.xrg_ )
     , yrg_( b.yrg_ )
@@ -261,34 +262,34 @@ TriangulatedGridder2D::TriangulatedGridder2D( const TriangulatedGridder2D& b )
 }
 
 
-TriangulatedGridder2D::~TriangulatedGridder2D()
+TriangledNeighborhoodGridder2D::~TriangledNeighborhoodGridder2D()
 { delete triangles_; }
 
-void TriangulatedGridder2D::setGridArea( const Interval<float>& xrg,
-	                                 const Interval<float>& yrg)
+void TriangledNeighborhoodGridder2D::setGridArea( const Interval<float>& xrg,
+						  const Interval<float>& yrg)
 {
     xrg_ = xrg;
     yrg_ = yrg;
 }
 
 
-Gridder2D* TriangulatedGridder2D::create()
+Gridder2D* TriangledNeighborhoodGridder2D::create()
 {
-    return new TriangulatedGridder2D;
+    return new TriangledNeighborhoodGridder2D;
 }
 
 
-void TriangulatedGridder2D::initClass()
+void TriangledNeighborhoodGridder2D::initClass()
 {
     Gridder2D::factory().addCreator( create, sName(), sUserName() );
 }
 
 
-Gridder2D* TriangulatedGridder2D::clone() const
-{ return new TriangulatedGridder2D( *this ); }
+Gridder2D* TriangledNeighborhoodGridder2D::clone() const
+{ return new TriangledNeighborhoodGridder2D( *this ); }
 
 
-bool TriangulatedGridder2D::init()
+bool TriangledNeighborhoodGridder2D::init()
 {
     usedvalues_.erase();
     weights_.erase();
@@ -379,13 +380,13 @@ bool TriangulatedGridder2D::init()
 }
 
 
-TriangleInterpolateGridder2D::TriangleInterpolateGridder2D()
+TriangulatedGridder2D::TriangulatedGridder2D()
     : triangles_( 0 )
 {}
 
 
-TriangleInterpolateGridder2D::TriangleInterpolateGridder2D( 
-				const TriangleInterpolateGridder2D& b )
+TriangulatedGridder2D::TriangulatedGridder2D( 
+				const TriangulatedGridder2D& b )
     : triangles_( 0 )
 {
     if ( b.triangles_ )
@@ -393,27 +394,27 @@ TriangleInterpolateGridder2D::TriangleInterpolateGridder2D(
 }
 
 
-TriangleInterpolateGridder2D::~TriangleInterpolateGridder2D()
+TriangulatedGridder2D::~TriangulatedGridder2D()
 { delete triangles_; }
 
 
-Gridder2D* TriangleInterpolateGridder2D::create()
+Gridder2D* TriangulatedGridder2D::create()
 {
-    return new TriangleInterpolateGridder2D;
+    return new TriangulatedGridder2D;
 }
 
 
-void TriangleInterpolateGridder2D::initClass()
+void TriangulatedGridder2D::initClass()
 {
     Gridder2D::factory().addCreator( create, sName(), sUserName() );
 }
 
 
-Gridder2D* TriangleInterpolateGridder2D::clone() const
-{ return new TriangleInterpolateGridder2D( *this ); }
+Gridder2D* TriangulatedGridder2D::clone() const
+{ return new TriangulatedGridder2D( *this ); }
 
 
-bool TriangleInterpolateGridder2D::init()
+bool TriangulatedGridder2D::init()
 {
     usedvalues_.erase();
     weights_.erase();
@@ -442,15 +443,14 @@ bool TriangleInterpolateGridder2D::init()
 	if ( !triangulator.execute( false ) )
 	{
 	    delete triangles_;
-	    triangles_ = false;
+	    triangles_ = 0;
 	    return false;
 	}
     }
 
-    DAGTriangleTree interpoltriangles( *triangles_ );
-    TypeSet<int> vertices;
     int dupid;
-    if ( !interpoltriangles.getTriangle( gridpoint_, dupid, vertices ) )
+    TypeSet<int> vertices;
+    if ( !triangles_->getTriangle( gridpoint_, dupid, vertices ) )
 	return false;
 
     if ( dupid!=DAGTriangleTree::cNoVertex() )
@@ -470,7 +470,7 @@ bool TriangleInterpolateGridder2D::init()
     for ( int idx=0; idx<3; idx++ )
 	usedvalues_ += vertices[idx];
    
-    const TypeSet<Coord>& crds = interpoltriangles.coordList(); 
+    const TypeSet<Coord>& crds = triangles_->coordList(); 
     float weight0, weight1, weight2;
     interpolateOnTriangle2D( gridpoint_, crds[vertices[0]], crds[vertices[1]],
 	    		     crds[vertices[2]], weight0, weight1, weight2 ); 

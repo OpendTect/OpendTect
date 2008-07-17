@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Y.C.Liu & K. Tingdahl
  Date:		January 2008
- RCS:		$Id: gridder2d.h,v 1.4 2008-06-18 18:46:09 cvsyuancheng Exp $
+ RCS:		$Id: gridder2d.h,v 1.5 2008-07-17 15:21:10 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,12 +118,16 @@ protected:
 
 /*!Uses Delaunay triangulation to find a points neighbors and does inverse
    distance between the neighbors. */
-class TriangulatedGridder2D : public Gridder2D
+class TriangledNeighborhoodGridder2D : public Gridder2D
 {
 public:
-    			TriangulatedGridder2D();
-    			TriangulatedGridder2D(const TriangulatedGridder2D&);
-			~TriangulatedGridder2D();
+    			TriangledNeighborhoodGridder2D();
+    			TriangledNeighborhoodGridder2D(
+				const TriangledNeighborhoodGridder2D&);
+			~TriangledNeighborhoodGridder2D();
+
+    static const char* 	sName() 	{ return "TriangulatedNeighborhood"; }
+    static const char* 	sUserName() 	{ return "Triangulated Neighborhood";}
 
     void		setGridArea(const Interval<float>&,
 	    			    const Interval<float>&);
@@ -131,8 +135,6 @@ public:
     static Gridder2D*	create(); 
     static void		initClass();
     const char*		name() const		{ return sName(); }
-    static const char* 	sName() 		{ return "Triangulated"; }
-    static const char* 	sUserName() 		{ return "Triangulation"; }
     Gridder2D*		clone() const;
     
     bool		init();
@@ -144,21 +146,23 @@ protected:
 };
 
 
-/*Use Delaunay triangulation to find a triangle which contains a given point,
- then apply interpolation to the point. */
-class TriangleInterpolateGridder2D: public Gridder2D
+/*!Use Delaunay triangulation to triangulate all points, including the point
+  of investigation, and use inverse distance among the point of investigation's
+  neighborhood. */
+class TriangulatedGridder2D: public Gridder2D
 {
 public:
-    			TriangleInterpolateGridder2D();
-			TriangleInterpolateGridder2D(
-				const TriangleInterpolateGridder2D&);
-			~TriangleInterpolateGridder2D();
+    			TriangulatedGridder2D();
+			TriangulatedGridder2D(
+				const TriangulatedGridder2D&);
+			~TriangulatedGridder2D();
+
+    static const char* 	sName() 		{ return "Triangulated"; }
+    static const char* 	sUserName() 		{ return "Triangulation"; }
 
     static Gridder2D*	create(); 
     static void		initClass();
-    const char*		name() const		{ return sName(); }
-    static const char* 	sName() 		{ return "TriangInterpolate"; }
-    static const char* 	sUserName() 		{ return "TriangInterpolation";}
+    const char*		name() const	{ return sName(); }
     Gridder2D*		clone() const;
     
     bool		init();
