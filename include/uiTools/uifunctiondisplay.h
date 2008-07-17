@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.8 2008-07-16 15:04:26 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.9 2008-07-17 11:53:30 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,7 +68,7 @@ public:
 	mDefSetupMemb(bool,editable)		//!< Add/remove/change Y1 pts
 	mDefSetupMemb(bool,fillbelow)		//!< Y1 will get fill
 	mDefSetupMemb(bool,fillbelowy2)		//!< Y2 will get fill
-	mDefSetupMemb(bool,ptsnaptol)		//!< Snap tol ratio of axis size
+	mDefSetupMemb(float,ptsnaptol)		//!< Snap tol ratio of axis size
     };
 
 				uiFunctionDisplay(uiParent*,const Setup&);
