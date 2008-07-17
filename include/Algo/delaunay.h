@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.15 2008-06-25 14:38:34 cvskris Exp $
+ RCS:           $Id: delaunay.h,v 1.16 2008-07-17 14:21:56 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,9 +96,10 @@ protected:
 
     int		getNeighbor(int v0,int v1,int ti) const;
     int		searchChild(int v0,int v1,int ti) const;
-    char	isOnEdge(const Coord& p,const Coord& a,
-	    		 const Coord& b, bool& duponfirst ) const;
-    char	isInside(int ci,int ti,char& edge,int& dupid) const;
+    char	isOnEdge(const Coord& p,const Coord& a,const Coord& b,
+			 bool& duponfirst,double& signedsqdist ) const;
+    char	isInside(int ci,int ti,char& edge,double& disttoedge,
+	    		 int& dupid) const;
 
     struct DAGTriangle
     {
@@ -126,6 +127,8 @@ protected:
     mutable Threads::ReadWriteLock	coordlock_;
 #endif
 
+    bool				planedirection_;
+    					/*!All triangles have the same sign. */
     Coord				initialcoords_[3]; 
     					/*!<-2,-3,-4 are their indices.*/
 };

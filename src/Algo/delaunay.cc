@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.18 2008-07-16 17:52:58 cvsnanne Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.19 2008-07-17 14:21:56 cvsyuancheng Exp $";
 
 #include "delaunay.h"
 #include "trigonometry.h"
@@ -57,6 +57,7 @@ bool ParallelDTriangulator::doWork( int start, int stop, int threadid )
 DAGTriangleTree::DAGTriangleTree()
     : coordlist_( 0 )
     , epsilon_( 1e-5 )
+    , planedirection_( true )		       
     , ownscoordlist_( true )
 {}
 
@@ -64,6 +65,7 @@ DAGTriangleTree::DAGTriangleTree()
 DAGTriangleTree::DAGTriangleTree( const DAGTriangleTree& b )
     : coordlist_( 0 )
     , epsilon_( 1e-5 )
+    , planedirection_( true )		       
     , ownscoordlist_( true )
 {
     *this = b;
@@ -73,6 +75,7 @@ DAGTriangleTree::DAGTriangleTree( const DAGTriangleTree& b )
 DAGTriangleTree& DAGTriangleTree::operator=( const DAGTriangleTree& b )
 {
     epsilon_ = b.epsilon_;
+    planedirection_ = b.planedirection_;		       
     if ( ownscoordlist_ )
 	delete coordlist_;
 
@@ -181,6 +184,12 @@ bool DAGTriangleTree::setBBox(const Interval<double>& xrg,
     initnode.coordindices_[1] = cInitVertex1();
     initnode.coordindices_[2] = cInitVertex2();
     triangles_ +=initnode;
+
+    epsilon_ = Math::Sqrt( xlength*xlength+ylength*ylength) * 1e-5;
+    planedirection_ = ( (initialcoords_[1]-initialcoords_[0]).x*
+			(initialcoords_[2]-initialcoords_[1]).y-
+   			(initialcoords_[1]-initialcoords_[0]).y*
+   			(initialcoords_[2]-initialcoords_[1]).x ) > 0;
 
     return true;
 }
@@ -435,14 +444,34 @@ char DAGTriangleTree::searchFurther( int ci, int& ti0, int& ti1,
 		if ( curchild==cNoTriangle() ) continue;
 
 		char edge;
-		const char mode = isInside( ci, curchild, edge, dupid  );
+		double disttoedge;
+		const char mode = isInside( ci, curchild, edge, disttoedge,
+					    dupid );
 		if ( mode==cIsOutside() ) 
 		    continue;
 
 		if ( mode==cIsDuplicate() )
 		    return mode;
 
-		if ( mode==cIsInside() )
+		if ( mode==cIsOnEdge() )
+		{
+		    const int sharedtriangle =
+			triangles_[curchild].neighbors_[edge];
+		    
+		    if ( disttoedge<0 &&
+			    (children[0]==sharedtriangle ||
+			     children[1]==sharedtriangle ||
+			     children[2]==sharedtriangle ) )
+		    {
+			continue;
+		    }
+
+		    ti0 = curchild;
+		    ti1 = sharedtriangle;
+		    found = true;
+		    break;
+		}
+		else if ( mode==cIsInside() )
 		{
 		    ti0 = curchild;
 		    ti1 = cNoTriangle();
@@ -459,13 +488,6 @@ char DAGTriangleTree::searchFurther( int ci, int& ti0, int& ti1,
 		    if ( !haschildren )
 			return cIsInside();
 
-		    break;
-		}
-		else if ( mode==cIsOnEdge() )
-		{
-		    ti0 = curchild;
-		    ti1 = triangles_[curchild].neighbors_[edge];
-		    found = true;
 		    break;
 		}
 		else
@@ -507,9 +529,11 @@ char DAGTriangleTree::searchFurther( int ci, int& ti0, int& ti1,
 		    }
 		}
 		else
+		{
 #ifndef mDAGTriangleForceSingleThread
 		    trianglelock_.readUnLock();
 #endif
+		}
 
 		return cIsOnEdge();
 	    }
@@ -578,7 +602,8 @@ char DAGTriangleTree::searchTriangleOnEdge( int ci, int ti, int& resti,
 	if ( curchild==cNoTriangle() )
 	    continue;
 
-    	const char inchild = isInside( ci, curchild, edge, dupid );
+	double disttoedge;
+    	const char inchild = isInside( ci, curchild, edge, disttoedge, dupid );
 	if ( inchild==cIsDuplicate() )
 	    return cIsDuplicate();
 	else if ( inchild==cIsOnEdge() )
@@ -591,10 +616,10 @@ char DAGTriangleTree::searchTriangleOnEdge( int ci, int ti, int& resti,
 	    trianglelock_.readUnLock();
 #endif
 
+	    resti = curchild;
 	    if ( haschildren )
 		return searchTriangleOnEdge( ci, curchild, resti, edge,
 					     dupid );
-	    resti = curchild;
 	    return cIsOnEdge();
 	}
 	else if ( inchild==cIsInside() )
@@ -612,25 +637,25 @@ char DAGTriangleTree::searchTriangleOnEdge( int ci, int ti, int& resti,
 }
 
 
-char DAGTriangleTree::isOnEdge( const Coord& p, const Coord& a, 
-				const Coord& b, bool& duponfirst ) const
+char DAGTriangleTree::isOnEdge( const Coord& p, const Coord& a,	const Coord& b,
+       				bool& duponfirst, double& signedsqdist ) const
 {
     const Line2 line( a, b-a );
-    double t = line.closestPoint( p );
-    if ( t<0 || t>1 )
+    const double t = line.closestPoint( p );
+
+    const Coord vec = line.getPoint( t )-p;
+    const double sqdist = vec.sqAbs();
+    const bool sign = Coord(line.dir_.y, -line.dir_.x).dot( vec ) > 0;
+    signedsqdist = sign==planedirection_ ? sqdist : -sqdist;
+    if ( t<0 || t>1 || sqdist>epsilon_*epsilon_ )
 	return cNotOnEdge();
 
-    const Coord interectpos = line.getPoint( t );
-    const double sqdist = p.sqDistTo( interectpos );
-    if ( sqdist>epsilon_*epsilon_ )
-	return cNotOnEdge();
-
-    if ( mIsZero(t,1e-5) )
+    if ( mIsZero(t,1e-3) )
     {
 	duponfirst = true;
 	return cIsDuplicate();
     }
-    else if ( mIsEqual(t,1,1e-5) )
+    else if ( mIsEqual(t,1,1e-3) )
     {
 	duponfirst = false;
 	return cIsDuplicate();
@@ -640,7 +665,8 @@ char DAGTriangleTree::isOnEdge( const Coord& p, const Coord& a,
 }
 
 
-char DAGTriangleTree::isInside( int ci, int ti, char& edge, int& dupid ) const
+char DAGTriangleTree::isInside( int ci, int ti, char& edge, double& disttoedge,
+				int& dupid ) const
 {
     if ( ti==cNoTriangle() )
 	return cIsOutside();
@@ -674,49 +700,87 @@ char DAGTriangleTree::isInside( int ci, int ti, char& edge, int& dupid ) const
 	return cIsOutside();
     }
 
-    if ( pointInTriangle2D( coord, tricoord0, tricoord1, tricoord2, 0 ) )
+    char bestedge = -1;
+    bool duponfirst;
+    double nearestedgedist;
+    double signedsqdist[3];
+    const char res0 = isOnEdge( coord, tricoord0, tricoord1, duponfirst, 
+	    			signedsqdist[0] );
+    if ( res0==cIsDuplicate() )
+    {
+	dupid = duponfirst ? crds[0] : crds[1];
+#ifndef mDAGTriangleForceSingleThread
+	coordlock_.readUnLock();
+#endif
+	return res0;
+    }
+    else if ( res0==cIsOnEdge() )
+    {
+	bestedge = 0;
+	nearestedgedist = Math::Sqrt(fabs(signedsqdist[0]));
+    }
+
+    const char res1 = isOnEdge( coord, tricoord1, tricoord2, duponfirst, 
+	    			signedsqdist[1] );
+    if ( res1==cIsDuplicate() )
+    {
+	dupid = duponfirst ? crds[1] : crds[2];
+#ifndef mDAGTriangleForceSingleThread
+	coordlock_.readUnLock();
+#endif
+	return res1;
+    }
+    else if ( res1==cIsOnEdge() )
+    {
+	const double dist = Math::Sqrt(fabs(signedsqdist[1]));
+	if ( bestedge==-1 || dist<nearestedgedist )
+	{
+	    bestedge = 1;
+	    nearestedgedist = dist;
+	}
+    }
+
+    const char res2 = isOnEdge( coord, tricoord2, tricoord0, duponfirst, 
+	    			signedsqdist[2] );
+    if ( res2==cIsDuplicate() )
+    {
+	dupid = duponfirst ? crds[2] : crds[0];
+#ifndef mDAGTriangleForceSingleThread
+	coordlock_.readUnLock();
+#endif
+	return res2;
+    }
+    else if ( res2==cIsOnEdge() )
+    {
+	const double dist = Math::Sqrt(fabs(signedsqdist[2]));
+	if ( bestedge==-1 || dist<nearestedgedist )
+	{
+	    bestedge = 2;
+	    nearestedgedist = dist;
+	}
+    }
+
+    if ( signedsqdist[0]>0 && signedsqdist[1]>0 && signedsqdist[2]>0 )
     {
 #ifndef mDAGTriangleForceSingleThread
 	coordlock_.readUnLock();
 #endif
 	return cIsInside();
     }
-
-    bool duponfirst;
-    char res = isOnEdge( coord, tricoord0, tricoord1, duponfirst );
-    if ( res!=cNotOnEdge() )
+   
+    if ( bestedge!=-1 )
     {
-	if ( res==cIsDuplicate() ) dupid = duponfirst ? crds[0] : crds[1];
-	else edge = 0;
+	edge = bestedge;
+	disttoedge = signedsqdist[edge];
 #ifndef mDAGTriangleForceSingleThread
 	coordlock_.readUnLock();
 #endif
-	return res;
+	return cIsOnEdge();
     }
 
-    res = isOnEdge( coord, tricoord1, tricoord2, duponfirst );
-    if ( res!=cNotOnEdge() )
-    {
-	if ( res==cIsDuplicate() ) dupid = duponfirst ? crds[1] : crds[2];
-	else edge = 1;
-#ifndef mDAGTriangleForceSingleThread
-	coordlock_.readUnLock();
-#endif
-	return res;
-    }
-
-    res = isOnEdge( coord, tricoord2, tricoord0, duponfirst );
 #ifndef mDAGTriangleForceSingleThread
     coordlock_.readUnLock();
 #endif
-
-    if ( res!=cNotOnEdge() )
-    {
-	if ( res==cIsDuplicate() ) dupid = duponfirst ? crds[2] : crds[0];
-	else edge = 2;
-	return res;
-    }
-
     return cIsOutside();
 }
 
