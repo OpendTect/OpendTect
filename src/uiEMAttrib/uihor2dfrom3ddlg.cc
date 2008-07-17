@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		July 2008
- RCS:		$Id: uihor2dfrom3ddlg.cc,v 1.1 2008-07-17 10:06:57 cvssatyaki Exp $
+ RCS:		$Id: uihor2dfrom3ddlg.cc,v 1.2 2008-07-17 11:42:17 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,7 +93,7 @@ bool uiHor2DFrom3DDlg::checkFlds()
     if ( linesetinpsel_->getSummary().isEmpty() )
 	mErrRet( "Pease select a valid Lineset. " )
     if ( !out2dfld_->getObjSel()->commitInput(false) )
-	mErrRet( "Pease select a valid 3d Horizon. " )
+	mErrRet( "Enter the output surface where you want to write. " )
     return true;
 }
 
