@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2008
- RCS:           $Id: uigridder2d.cc,v 1.1 2008-03-24 20:15:38 cvskris Exp $
+ RCS:           $Id: uigridder2d.cc,v 1.2 2008-07-17 15:57:38 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "gridder2d.h"
 #include "uigeninput.h"
+#include "survinfo.h"
 
 mImplFactory2Param( uiDlgGroup, uiParent*, Gridder2D*, uiGridder2DFact );
 
@@ -118,7 +119,10 @@ uiInverseDistanceGridder2D::uiInverseDistanceGridder2D ( uiParent* p,
     , idg_( idg )
     , initialsearchradius_( idg.getSearchRadius() )
 {
-    searchradiusfld_ = new uiGenInput( this, "Search radius", FloatInpSpec() );
+    BufferString radius = "Search radius [";
+    radius += (SI().xyInFeet() ? "ft" : "m" );
+    radius += "]";
+    searchradiusfld_ = new uiGenInput( this, radius.buf(), FloatInpSpec() );
     searchradiusfld_->setValue( initialsearchradius_ );
     setHAlignObj( searchradiusfld_ );
 }
