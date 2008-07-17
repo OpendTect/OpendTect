@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: trigonometry.cc,v 1.42 2008-06-24 21:54:11 cvskris Exp $";
+static const char* rcsID = "$Id: trigonometry.cc,v 1.43 2008-07-17 13:07:30 cvsyuancheng Exp $";
 
 #include "trigonometry.h"
 
@@ -241,7 +241,7 @@ double Line2::closestPoint( const Coord& point ) const
 
 
 Coord Line2::getPoint( double t ) const
-{ return Coord( origin_.x+dir_.x*t, origin_.y+dir_.y ); }
+{ return Coord( origin_.x+dir_.x*t, origin_.y+dir_.y*t ); }
 
 
 
