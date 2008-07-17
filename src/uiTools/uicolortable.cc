@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.20 2008-07-16 09:30:39 cvsnanne Exp $
+ RCS:           $Id: uicolortable.cc,v 1.21 2008-07-17 07:39:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,10 @@ uiColorTable::uiColorTable( uiParent* p, ColTab::Sequence& colseq, bool vert )
 			mCB(this,uiColorTable,canvasClick) );
     canvas_->setDrawArr( true );
     if ( !vert )
+    {
 	canvas_->setPrefHeight( minfld_->prefVNrPics()-2 );
+	canvas_->setStretch( 0, 0 );
+    }
 
     maxfld_ = new uiLineEdit( this, "Max" );
     maxfld_->setHSzPol( uiObject::Small );
