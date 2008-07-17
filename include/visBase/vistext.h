@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-22-2002
- RCS:		$Id: vistext.h,v 1.12 2006-07-03 19:03:38 cvskris Exp $
+ RCS:		$Id: vistext.h,v 1.13 2008-07-17 06:29:33 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -73,6 +73,7 @@ class Text2 : public Text
 public:
     static Text2*		create()
     				mCreateDataObj(Text2);
+    				~Text2();
 
     void			setText(const char*);
     const char*			getText() const;
@@ -93,6 +94,7 @@ class TextBox : public Text
 public:
     static TextBox*		create()
     				mCreateDataObj(TextBox);
+    				~TextBox();
 
     void			setText(const char*);
     const char*			getText() const;

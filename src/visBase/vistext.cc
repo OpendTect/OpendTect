@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Apr 2002
- RCS:           $Id: vistext.cc,v 1.15 2007-08-07 04:57:40 cvsnanne Exp $
+ RCS:           $Id: vistext.cc,v 1.16 2008-07-17 06:29:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,8 +35,8 @@ const char* Text::sKeyPosition() 	{ return "Position"; }
 
 Text::Text()
     : VisualObjectImpl( false )
-    , textpos_( new SoTranslation )
-    , font_( new SoFont )
+    , textpos_(new SoTranslation)
+    , font_(new SoFont)
     , transformation_( 0 )
 {
     addChild( textpos_ );
@@ -47,6 +47,8 @@ Text::Text()
 Text::~Text()
 {
     if ( transformation_ ) transformation_->unRef();
+    removeChild( textpos_ );
+    removeChild( font_ );
 }
 
 
@@ -140,6 +142,14 @@ Text2::Text2()
     , text_(new SoText2)
 {
     addChild( text_ );
+    text_->ref();
+}
+
+
+Text2::~Text2()
+{
+    removeChild( text_ );
+    text_->unref();
 }
 
 
@@ -185,9 +195,17 @@ Text::Justification Text2::justification() const
 
 TextBox::TextBox()
     : Text()
-    , text_( new SoAsciiText )
+    , text_(new SoAsciiText)
 {
     addChild( text_ );
+    text_->ref();
+}
+
+
+TextBox::~TextBox()
+{
+    removeChild( text_ );
+    text_->unref();
 }
 
 
