@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.54 2008-05-12 04:05:05 cvsnanne Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.55 2008-07-17 10:12:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,58 +41,58 @@ const int cListHeight = 5;
     !strcmp(typ,EMHorizon3DTranslatorGroup::keyword) ? \
 			*mMkCtxtIOObj(EMHorizon3D) : *mMkCtxtIOObj(EMFault)
 
-uiIOSurface::uiIOSurface( uiParent* p, bool forread_, const char* typ )
+uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* typ )
     : uiGroup(p,"Surface selection")
-    , ctio( mMakeCtxtIOObj(typ) )
-    , sectionfld(0)
-    , attribfld(0)
-    , rgfld(0)
+    , ctio_( mMakeCtxtIOObj(typ) )
+    , sectionfld_(0)
+    , attribfld_(0)
+    , rgfld_(0)
     , attrSelChange(this)
-    , forread(forread_)
+    , forread_(forread)
 {
 }
 
 
 uiIOSurface::~uiIOSurface()
 {
-    delete ctio.ioobj; delete &ctio;
+    delete ctio_.ioobj; delete &ctio_;
 }
 
 
 void uiIOSurface::mkAttribFld()
 {
-    attribfld = new uiLabeledListBox( this, "Calculated attributes", true,
+    attribfld_ = new uiLabeledListBox( this, "Calculated attributes", true,
 				      uiLabeledListBox::AboveMid );
-    attribfld->setStretch( 1, 1 );
-    attribfld->box()->selectionChanged.notify( mCB(this,uiIOSurface,attrSel) );
+    attribfld_->setStretch( 1, 1 );
+    attribfld_->box()->selectionChanged.notify( mCB(this,uiIOSurface,attrSel) );
 }
 
 
 void uiIOSurface::mkSectionFld( bool labelabove )
 {
-    sectionfld = new uiLabeledListBox( this, "Available patches", true,
+    sectionfld_ = new uiLabeledListBox( this, "Available patches", true,
 				     labelabove ? uiLabeledListBox::AboveMid 
 				     		: uiLabeledListBox::LeftTop );
-//  sectionfld->setPrefHeightInChar( cListHeight );
-    sectionfld->setStretch( 1, 1 );
-    sectionfld->box()->selectionChanged.notify( 
+//  sectionfld_->setPrefHeightInChar( cListHeight );
+    sectionfld_->setStretch( 1, 1 );
+    sectionfld_->box()->selectionChanged.notify( 
 	    				mCB(this,uiIOSurface,ioDataSelChg) );
 }
 
 
 void uiIOSurface::mkRangeFld()
 {
-    rgfld = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
-    rgfld->selChange.notify( mCB(this,uiIOSurface,ioDataSelChg) );
+    rgfld_ = new uiPosSubSel( this, uiPosSubSel::Setup(false,false) );
+    rgfld_->selChange.notify( mCB(this,uiIOSurface,ioDataSelChg) );
 }
 
 
 void uiIOSurface::mkObjFld( const char* lbl )
 {
-    ctio.ctxt.forread = forread;
-    objfld = new uiIOObjSel( this, ctio, lbl );
-    if ( forread )
-	objfld->selectiondone.notify( mCB(this,uiIOSurface,objSel) );
+    ctio_.ctxt.forread = forread_;
+    objfld_ = new uiIOObjSel( this, ctio_, lbl );
+    if ( forread_ )
+	objfld_->selectiondone.notify( mCB(this,uiIOSurface,objSel) );
 }
 
 
@@ -100,7 +100,7 @@ void uiIOSurface::fillFields( const MultiID& id )
 {
     EM::SurfaceIOData sd;
 
-    if ( forread )
+    if ( forread_ )
     {
 	const char* res = EM::EMM().getSurfaceData( id, sd );
 	if ( res )
@@ -127,38 +127,38 @@ void uiIOSurface::fillFields( const MultiID& id )
 
 void uiIOSurface::fillAttribFld( const BufferStringSet& valnames )
 {
-    if ( !attribfld ) return;
+    if ( !attribfld_ ) return;
 
-    attribfld->box()->empty();
+    attribfld_->box()->empty();
     for ( int idx=0; idx<valnames.size(); idx++)
-	attribfld->box()->addItem( valnames[idx]->buf() );
+	attribfld_->box()->addItem( valnames[idx]->buf() );
 }
 
 
 void uiIOSurface::fillSectionFld( const BufferStringSet& sections )
 {
-    if ( !sectionfld ) return;
+    if ( !sectionfld_ ) return;
 
-    sectionfld->box()->empty();
+    sectionfld_->box()->empty();
     for ( int idx=0; idx<sections.size(); idx++ )
-	sectionfld->box()->addItem( sections[idx]->buf() );
-    sectionfld->box()->selectAll( true );
+	sectionfld_->box()->addItem( sections[idx]->buf() );
+    sectionfld_->box()->selectAll( true );
 }
 
 
 void uiIOSurface::fillRangeFld( const HorSampling& hrg )
 {
-    if ( !rgfld ) return;
-    CubeSampling cs( rgfld->envelope() );
-    cs.hrg = hrg; rgfld->setInput( cs );
+    if ( !rgfld_ ) return;
+    CubeSampling cs( rgfld_->envelope() );
+    cs.hrg = hrg; rgfld_->setInput( cs );
 }
 
 
 bool uiIOSurface::haveAttrSel() const
 {
-    for ( int idx=0; idx<attribfld->box()->size(); idx++ )
+    for ( int idx=0; idx<attribfld_->box()->size(); idx++ )
     {
-	if ( attribfld->box()->isSelected(idx) )
+	if ( attribfld_->box()->isSelected(idx) )
 	    return true;
     }
     return false;
@@ -167,10 +167,10 @@ bool uiIOSurface::haveAttrSel() const
 
 void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels ) const
 {
-    if ( !rgfld || rgfld->isAll() )
+    if ( !rgfld_ || rgfld_->isAll() )
 	sels.rg.init( false );
     else
-	sels.rg = rgfld->envelope().hrg;
+	sels.rg = rgfld_->envelope().hrg;
 
     if ( SI().sampling(true) != SI().sampling(false) )
     {
@@ -180,18 +180,18 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels ) const
     }
 	
     sels.selsections.erase();
-    int nrsections = sectionfld ? sectionfld->box()->size() : 1;
+    int nrsections = sectionfld_ ? sectionfld_->box()->size() : 1;
     for ( int idx=0; idx<nrsections; idx++ )
     {
-	if ( nrsections == 1 || sectionfld->box()->isSelected(idx) )
+	if ( nrsections == 1 || sectionfld_->box()->isSelected(idx) )
 	    sels.selsections += idx;
     }
 
     sels.selvalues.erase();
-    int nrattribs = attribfld ? attribfld->box()->size() : 0;
+    int nrattribs = attribfld_ ? attribfld_->box()->size() : 0;
     for ( int idx=0; idx<nrattribs; idx++ )
     {
-	if ( attribfld->box()->isSelected(idx) )
+	if ( attribfld_->box()->isSelected(idx) )
 	    sels.selvalues += idx;
     }
 }
@@ -199,13 +199,13 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels ) const
 
 IOObj* uiIOSurface::selIOObj() const
 {
-    return ctio.ioobj;
+    return ctio_.ioobj;
 }
 
 
 void uiIOSurface::objSel( CallBacker* )
 {
-    IOObj* ioobj = objfld->ctxtIOObj().ioobj;
+    IOObj* ioobj = objfld_->ctxtIOObj().ioobj;
     if ( !ioobj ) return;
 
     fillFields( ioobj->key() );
@@ -229,21 +229,18 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
     {
 	if ( setup.withsubsel_ )
     	    mkRangeFld();
-	if ( sectionfld && rgfld )
-	    rgfld->attach( alignedBelow, sectionfld );
+	if ( sectionfld_ && rgfld_ )
+	    rgfld_->attach( alignedBelow, sectionfld_ );
     }
     
     mkObjFld( "Output Surface" );
-    if ( rgfld )
-    {
-	objfld->attach( alignedBelow, rgfld );
-	setHAlignObj( rgfld );
-    }
+    if ( rgfld_ )
+	objfld_->attach( alignedBelow, rgfld_ );
 
     if ( setup.withstratfld_ )
     {
 	stratlvlfld_ = new uiStratLevelSel( this );
-	stratlvlfld_->attach( alignedBelow, objfld );
+	stratlvlfld_->attach( alignedBelow, objfld_ );
 	stratlvlfld_->levelChanged.notify(
 		mCB(this,uiSurfaceWrite,stratLvlChg) );
     }
@@ -252,19 +249,20 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p,
     {
 	colbut_ = new uiColorInput( this, 
 	    uiColorInput::Setup(getRandStdDrawColor()).lbltxt("Base color") );
-	colbut_->attach( alignedBelow, objfld );
+	colbut_->attach( alignedBelow, objfld_ );
 	if ( stratlvlfld_ ) colbut_->attach( ensureBelow, stratlvlfld_ );
     }
 
     if ( setup.withdisplayfld_ )
     {
        displayfld_ = new uiCheckBox( this, setup.displaytext_ );
-       displayfld_->attach( alignedBelow, objfld );
+       displayfld_->attach( alignedBelow, objfld_ );
        if ( stratlvlfld_ ) displayfld_->attach( ensureBelow, stratlvlfld_ );
        if ( colbut_ ) displayfld_->attach( ensureBelow, colbut_ );
        displayfld_->setChecked( true );
     }
 
+    setHAlignObj( objfld_ );
     ioDataSelChg( 0 );
 }
 
@@ -284,21 +282,21 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_,
 
 	if ( setup.withsubsel_ )
     	    mkRangeFld();
-	if ( sectionfld && rgfld )
-	    rgfld->attach( alignedBelow, sectionfld );
+	if ( sectionfld_ && rgfld_ )
+	    rgfld_->attach( alignedBelow, sectionfld_ );
     }
     
     mkObjFld( "Output Surface" );
-    if ( rgfld )
+    if ( rgfld_ )
     {
-	objfld->attach( alignedBelow, rgfld );
-	setHAlignObj( rgfld );
+	objfld_->attach( alignedBelow, rgfld_ );
+	setHAlignObj( rgfld_ );
     }
 
     if ( setup.withdisplayfld_ )
     {
        displayfld_ = new uiCheckBox( this, "Replace in tree" );
-       displayfld_->attach( alignedBelow, objfld );
+       displayfld_->attach( alignedBelow, objfld_ );
        displayfld_->setChecked( true );
     }
 
@@ -310,13 +308,13 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_,
 
 bool uiSurfaceWrite::processInput()
 {
-    if ( sectionfld && !sectionfld->box()->nrSelected() )
+    if ( sectionfld_ && !sectionfld_->box()->nrSelected() )
     {
 	uiMSG().error( "Please select at least one patch" );
 	return false;
     }
 
-    if ( !objfld->commitInput(true) )
+    if ( !objfld_->commitInput(true) )
     {
 	uiMSG().error( "Please select an output surface" );
 	return false;
@@ -351,12 +349,12 @@ Color uiSurfaceWrite::getColor() const
 
 void uiSurfaceWrite::ioDataSelChg( CallBacker* )
 {
-    bool issubsel = sectionfld &&
-		    sectionfld->box()->size()!=sectionfld->box()->nrSelected();
+    bool issubsel = sectionfld_ &&
+		    sectionfld_->box()->size()!=sectionfld_->box()->nrSelected();
 
-    if ( rgfld && !rgfld->isAll() )
+    if ( rgfld_ && !rgfld_->isAll() )
     {
-	const HorSampling& hrg = rgfld->envelope().hrg;
+	const HorSampling& hrg = rgfld_->envelope().hrg;
 	const HorSampling& maxhrg = SI().sampling(false).hrg;
 	issubsel = issubsel || hrg.inlRange()!=maxhrg.inlRange();
 	issubsel = issubsel || hrg.crlRange()!=maxhrg.crlRange();
@@ -379,54 +377,54 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
     : uiIOSurface(p,true,setup.typ_)
 {
     mkObjFld( "Input Surface" );
-    uiGroup* attachobj = objfld;
+    uiGroup* attachobj = objfld_;
 
     if ( setup.withsectionfld_ )
 	mkSectionFld( setup.withattribfld_ );
 
-    if ( objfld->ctxtIOObj().ioobj )
+    if ( objfld_->ctxtIOObj().ioobj )
 	objSel(0);
 
     if ( setup.withattribfld_ )
     {
 	mkAttribFld();
-	attribfld->attach( alignedBelow, objfld );
-	sectionfld->attach( rightTo, attribfld );
-	attachobj = attribfld;
+	attribfld_->attach( alignedBelow, objfld_ );
+	sectionfld_->attach( rightTo, attribfld_ );
+	attachobj = attribfld_;
     }
     else if ( setup.withsectionfld_ )
     {
-	sectionfld->attach( alignedBelow, objfld );
-	attachobj = sectionfld;
+	sectionfld_->attach( alignedBelow, objfld_ );
+	attachobj = sectionfld_;
     }
 
     if ( setup.withsubsel_ )
     {
 	mkRangeFld();
-	rgfld->attach( alignedBelow, attachobj );
+	rgfld_->attach( alignedBelow, attachobj );
     }
 
-    setHAlignObj( objfld );
+    setHAlignObj( objfld_ );
 }
 
 
 void uiSurfaceRead::setIOObj( const MultiID& mid )
 {
-    ctio.setObj( mid );
-    objfld->updateInput();
+    ctio_.setObj( mid );
+    objfld_->updateInput();
     objSel( 0 );
 }
 
 
 bool uiSurfaceRead::processInput()
 {
-    if ( !objfld->commitInput(false) )
+    if ( !objfld_->commitInput(false) )
     {
 	uiMSG().error( "Please select input" );
 	return false;
     }
 
-    if ( sectionfld && !sectionfld->box()->nrSelected() )
+    if ( sectionfld_ && !sectionfld_->box()->nrSelected() )
     {
 	uiMSG().error( "Please select at least one patch" );
 	return false;

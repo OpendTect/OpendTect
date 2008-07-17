@@ -7,24 +7,27 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.h,v 1.22 2008-04-24 10:34:20 cvsraman Exp $
+ RCS:           $Id: uiseissubsel.h,v 1.23 2008-07-17 10:12:10 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uicompoundparsel.h"
+#include "bufstringset.h"
 #include "seisselection.h"
 #include "uidialog.h"
 #include "ranges.h"
 class IOPar;
 class IOObj;
+class CtxtIOObj;
 class uiGenInput;
 class HorSampling;
 class CubeSampling;
-class uiSelSubline;
+class uiListBox;
 class uiPosSubSel;
 class uiSeis2DSubSel;
-class BufferStringSet;
+class uiSeisSel;
+class uiSelSubline;
 
 
 class uiSeisSubSel : public uiGroup
@@ -110,5 +113,26 @@ protected:
 
 };
 
+
+class uiSelection2DParSel : public uiCompoundParSel
+{
+public:
+    				uiSelection2DParSel(uiParent*);
+    				~uiSelection2DParSel();
+
+    BufferString		getSummary() const;
+    void			doDlg(CallBacker*);
+    void			lineSetSel(CallBacker*);
+    IOObj*			getIOObj();
+    const BufferStringSet&	getSelLines() const	{ return sellines_; }
+
+protected:
+    int			        nroflines_;
+    BufferStringSet 		sellines_;
+
+    uiSeisSel*			linesetfld_;
+    uiListBox*			lnmsfld_;
+    CtxtIOObj*			lsctio_;
+};
 
 #endif
