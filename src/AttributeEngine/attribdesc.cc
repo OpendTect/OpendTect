@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdesc.cc,v 1.66 2008-05-19 12:43:23 cvsbert Exp $";
+static const char* rcsID = "$Id: attribdesc.cc,v 1.67 2008-07-17 08:09:22 cvsbert Exp $";
 
 #include "attribdesc.h"
 
@@ -652,12 +652,21 @@ BufferString Desc::getStoredID() const
 
 bool Desc::isIdentifiedBy( const char* str ) const
 {
-    if ( userref_==str )
+    if ( userref_ == str )
 	return true;
+    else if ( !str || !*str )
+	return false;
 
     if ( isStored() )
     {
 	LineKey lk( str );
+	if ( *str == '[' && *(str+lk.size()-1) == ']' )
+	{
+	    lk = str + 1;
+	    lk[ lk.size()-1 ] = '\0';
+	    if ( userref_ == lk )
+		return true;
+	}
 	BufferString defstr; getDefStr(defstr);
 	BufferString parstr;
 	if ( !getParamString(defstr,params_[0]->getKey(),parstr) )
