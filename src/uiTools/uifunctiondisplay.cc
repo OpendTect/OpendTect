@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uifunctiondisplay.cc,v 1.16 2008-07-17 11:53:30 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.cc,v 1.17 2008-07-17 11:57:34 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -299,7 +299,6 @@ bool uiFunctionDisplay::setSelPt()
 	    { newsel = idx; mindistsq = distsq; }
     }
     selpt_ = -1;
-std::cerr << "mindistsq=" << mindistsq << " snaptolsq=" << setup_.ptsnaptol_*setup_.ptsnaptol_ << std::endl;
     if ( mindistsq > setup_.ptsnaptol_*setup_.ptsnaptol_ ) return false;
     selpt_ = newsel;
     return true;
