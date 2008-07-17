@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodhortreeitem.cc,v 1.5 2008-07-09 12:33:41 cvsnanne Exp $
+ RCS:		$Id: uiodhortreeitem.cc,v 1.6 2008-07-17 10:59:20 cvssatyaki Exp $
 ___________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ___________________________________________________________________
 #include "uiattribpartserv.h"
 #include "uiemattribpartserv.h"
 #include "uiempartserv.h"
+#include "uihor2dfrom3ddlg.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
 #include "uimpepartserv.h"
@@ -245,12 +246,13 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
     mnu.insertItem( new uiMenuItem("&Load ..."), 0 );
     uiMenuItem* newmenu = new uiMenuItem("&New ...");
     mnu.insertItem( newmenu, 1 );
+    mnu.insertItem( new uiMenuItem("&Create from 3D ..."), 2 );
     newmenu->setEnabled( !hastransform );
     if ( children_.size() )
     {
 	mnu.insertSeparator();
-	mnu.insertItem( new uiMenuItem("&Display all only at sections"), 2 );
-	mnu.insertItem( new uiMenuItem("&Show all in full"), 3 );
+	mnu.insertItem( new uiMenuItem("&Display all only at sections"), 3 );
+	mnu.insertItem( new uiMenuItem("&Show all in full"), 4 );
     }
     addStandardItems( mnu );
 
@@ -280,7 +282,12 @@ bool uiODHorizon2DParentTreeItem::showSubMenu()
 	mps->addTracker( EM::Horizon2D::typeStr(), sceneID() );
 	return true;
     }
-    else if ( mnuid == 2 || mnuid == 3 )
+    else if ( mnuid == 2 )
+    {
+	uiHor2DFrom3DDlg dlg( getUiParent() );
+	dlg.go();
+    }
+    else if ( mnuid == 3 || mnuid == 4 )
     {
 	const bool onlyatsection = mnuid == 2;
 	for ( int idx=0; idx<children_.size(); idx++ )
