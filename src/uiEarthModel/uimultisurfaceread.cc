@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uimultisurfaceread.cc,v 1.13 2008-05-26 12:15:33 cvsnanne Exp $
+ RCS:           $Id: uimultisurfaceread.cc,v 1.14 2008-07-17 16:14:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,8 +28,8 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* type )
     : uiIOSurface(p,true,type)
     , singleSurfaceSelected(this)
 {
-    IOM().to( ctio.ctxt.getSelKey() );
-    entrylist_ = new IODirEntryList( IOM().dirPtr(), ctio.ctxt );
+    IOM().to( ctio_.ctxt.getSelKey() );
+    entrylist_ = new IODirEntryList( IOM().dirPtr(), ctio_.ctxt );
     entrylist_->sort();
 
     BufferString lbl( "Select " ); lbl += type; lbl += "(s)";
@@ -44,16 +44,16 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* type )
 	    				mCB(this,uiMultiSurfaceRead,dClck) );
 
     mkSectionFld( true );
-    sectionfld->attach( rightTo, surfacefld_ );
+    sectionfld_->attach( rightTo, surfacefld_ );
 
     mkRangeFld();
-    rgfld->attach( leftAlignedBelow, surfacefld_ );
+    rgfld_->attach( leftAlignedBelow, surfacefld_ );
 
     if ( !strcmp(type,EMHorizon2DTranslatorGroup::keyword) ||
 	 !strcmp(type,EMFaultTranslatorGroup::keyword) )
     {
-	sectionfld->display( false, true );
-	rgfld->display( false, true );
+	sectionfld_->display( false, true );
+	rgfld_->display( false, true );
     }
 
     selCB(0);
@@ -95,7 +95,7 @@ void uiMultiSurfaceRead::selCB( CallBacker* )
 	}
 
 	fillRangeFld( hs );
-	sectionfld->box()->empty();
+	sectionfld_->box()->empty();
 	return;
     }
 
