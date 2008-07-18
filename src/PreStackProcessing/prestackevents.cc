@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackevents.cc,v 1.1 2008-07-01 21:32:01 cvskris Exp $";
+static const char* rcsID = "$Id: prestackevents.cc,v 1.2 2008-07-18 14:24:11 cvskris Exp $";
 
 #include "prestackevents.h"
 
@@ -212,9 +212,10 @@ EventManager::EventManager()
     , changebidmutex_( *new Threads::Mutex )
     , eventmutex_( *new Threads::Mutex )
     , nexthorid_( 0 )
-    , arehorizonschanged_( false )
+    , auxdatachanged_( false )
     , primarydipreader_( 0 )
     , secondarydipreader_( 0 )
+    , color_( getRandomColor() )
 {
     events_.allowDuplicates( true );
     emhorizons_.allowNull( true );
@@ -237,23 +238,7 @@ EventManager::~EventManager()
 }
 
 
-const char* EventManager::horizonName( int id ) const
-{
-    const int idx = horids_.indexOf(id);
-    if ( idx<0 ) return 0;
-    return hornames_[idx]->buf();
-}
-
-
-void EventManager::setHorizonName( int id, const char* nm )
-{
-    *hornames_[horids_.indexOf(id)] = nm;
-    arehorizonschanged_ = true;
-    reportChange( BinID(-1,-1) );
-}
-
-
-int EventManager::addHorizon( const char* nm, int id )
+int EventManager::addHorizon( int id )
 {
     if ( id!=-1 && horids_.indexOf( id )!=-1 )
     {
@@ -261,14 +246,12 @@ int EventManager::addHorizon( const char* nm, int id )
 	id = -1;
     }
 
-    hornames_.add( nm );
     const int res = id==-1 ? nextHorizonID( true ) : id;
     horids_ += res;
-    horcolors_ += getRandomColor();
     horrefs_ += MultiID();
     emhorizons_ += 0;
 
-    arehorizonschanged_ = true;
+    auxdatachanged_ = true;
     reportChange( BinID(-1,-1) );
 
     return  res;
@@ -280,9 +263,7 @@ bool EventManager::removeHorizon( int id )
     const int idx = horids_.indexOf( id );
     if ( idx<0 ) return false;
 
-    hornames_.remove( idx );
     horids_.remove( idx );
-    horcolors_.remove( idx );
     horrefs_.remove( idx );
     if ( emhorizons_[idx] ) emhorizons_[idx]->unRef();
     emhorizons_.remove( idx );
@@ -339,14 +320,10 @@ void EventManager::setNextHorizonID( int ni )
 }
 
 
-const Color& EventManager::horizonColor( int id ) const
-{ return horcolors_[horids_.indexOf(id)]; }
-
-
-void EventManager::setHorizonColor( int id, const Color& col )
+void EventManager::setColor( const Color& col )
 {
-    horcolors_[horids_.indexOf(id)] = col;
-    arehorizonschanged_ = true;
+    color_ = col;
+    auxdatachanged_ = true;
     reportChange( BinID(-1,-1) );
 }
 
@@ -361,7 +338,7 @@ void EventManager::setHorizonEMReference( int id, const MultiID& mid )
 	return;
 
     horrefs_[horids_.indexOf(id)] = mid;
-    arehorizonschanged_ = true;
+    auxdatachanged_ = true;
     reportChange( BinID(-1,-1) );
 }
 
@@ -387,16 +364,18 @@ Executor* EventManager::setStorageID( const MultiID& mid, bool reload )
 	return 0;
 
     horids_.erase();
-    horcolors_.erase();
-    hornames_.erase();
     horrefs_.erase();
     deepUnRef( emhorizons_ );
     nexthorid_ = 0;
-    arehorizonschanged_ = false;
+    auxdatachanged_ = false;
 
     forceReload.trigger();
     cleanUp( false );
-    return load( reloadbids_ );
+    Executor* loader = load( reloadbids_ );
+    if ( !loader )
+	reportChange( BinID(-1,-1) );
+
+    return loader;
 }
 
 
@@ -493,7 +472,7 @@ Executor* EventManager::load( const BinIDValueSet& bidset )
 
 bool EventManager::isChanged() const
 {
-    if ( arehorizonschanged_ ) return true;
+    if ( auxdatachanged_ ) return true;
 
     RowCol pos( -1, -1 );
     while ( events_.next( pos, false ) )
@@ -509,7 +488,7 @@ bool EventManager::isChanged() const
 
 void EventManager::resetChangedFlag( bool horflagonly )
 {
-    arehorizonschanged_ = false;
+    auxdatachanged_ = false;
     if ( !horflagonly )
     {
 	RowCol pos( -1, -1 );

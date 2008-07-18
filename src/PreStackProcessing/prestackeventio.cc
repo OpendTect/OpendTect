@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackeventio.cc,v 1.1 2008-07-01 21:32:01 cvskris Exp $";
+static const char* rcsID = "$Id: prestackeventio.cc,v 1.2 2008-07-18 14:24:11 cvskris Exp $";
 
 #include "prestackeventio.h"
 
@@ -19,6 +19,7 @@ static const char* rcsID = "$Id: prestackeventio.cc,v 1.1 2008-07-01 21:32:01 cv
 #include "iopar.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "keystrs.h"
 #include "prestackevents.h"
 #include "prestackeventtransl.h"
 #include "rowcol.h"
@@ -374,20 +375,19 @@ bool EventReader::readHorizonIDs(const char* fnm)
 	    return false;
 
 	int id;
-	BufferString nm;
-	Color col;
-	if ( !horpar->get( EventReader::sKeyHorizonID(), id ) ||
-	     !horpar->get( EventReader::sKeyHorizonName(), nm ) ||
-	     !horpar->get( EventReader::sKeyHorizonColor(), col ))
+	if ( !horpar->get( EventReader::sKeyHorizonID(), id ) )
 	    return false;
 
-	eventmanager_->addHorizon( nm.buf(), id );
-	eventmanager_->setHorizonColor( id, col );
+	eventmanager_->addHorizon( id );
 
 	MultiID emref;
 	if ( horpar->get( EventReader::sKeyHorizonRef(), emref ) )
 	    eventmanager_->setHorizonEMReference( id, emref );
     }
+
+    Color col = Color(255,0,0); //Todo: Make mandatory to have color
+    par.get( sKey::Color, col );
+    eventmanager_->setColor( col );
 
     eventmanager_->setNextHorizonID( nexthor );
     eventmanager_->resetChangedFlag( true );
@@ -585,24 +585,24 @@ bool EventWriter::writeHorizonIDs( const char* fnm ) const
 	IOPar horpar;
 	const int id =  eventmanager_.getHorizonIDs()[idx];
 	horpar.set( EventReader::sKeyHorizonID(), id );
-	horpar.set( EventReader::sKeyHorizonName(),
-		    eventmanager_.horizonName( id ) );
-	horpar.set( EventReader::sKeyHorizonColor(),
-		    eventmanager_.horizonColor( id ) );
 
 	par.mergeComp( horpar, key.buf() );
     }
 
     BufferString dipsource;
     eventmanager_.getDipSource( true ).fill( dipsource );
-    par.set( EventReader::sKeyPrimaryDipSource(), dipsource.buf() );
+    if ( !dipsource.isEmpty() )
+	par.set( EventReader::sKeyPrimaryDipSource(), dipsource.buf() );
 
     eventmanager_.getDipSource( false ).fill( dipsource );
-    par.set( EventReader::sKeySecondaryDipSource(), dipsource.buf() );
+    if ( !dipsource.isEmpty() )
+	par.set( EventReader::sKeySecondaryDipSource(), dipsource.buf() );
 
     FilePath horidfnm;
     horidfnm.setPath( fnm );
     horidfnm.setFileName( EventReader::sHorizonFileName() );
+
+    par.set( sKey::Color, eventmanager_.getColor() );
 
     return par.write( horidfnm.fullPath().buf(),
 	              EventReader::sHorizonFileType() );
@@ -1076,10 +1076,7 @@ int EventPatchReader::nextStep()
 	    pse->offsetazimuth_[idy].setFrom( readInt32( strm ) );
 	}
 
-	if ( eventmanager_->horizonName( pse->horid_ ) )
-	    ge->events_ += pse;
-	else
-	    delete pse;
+	ge->events_ += pse;
     }
 
     if ( !strm )

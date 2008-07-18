@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackevents.h,v 1.1 2008-07-01 21:32:01 cvskris Exp $
+ RCS:		$Id: prestackevents.h,v 1.2 2008-07-18 14:24:11 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -15,6 +15,7 @@ ________________________________________________________________________
 
 #include "bufstringset.h"
 #include "callback.h"
+#include "color.h"
 #include "multiid.h"
 #include "multidimstorage.h"
 #include "position.h"
@@ -109,21 +110,18 @@ public:
 				EventManager();
 
     const TypeSet<int>&		getHorizonIDs() const { return horids_; }
-    const char*			horizonName(int id) const;
-    void			setHorizonName(int id, const char*);
-    int				addHorizon(const char* nm, int id=-1);
+    int				addHorizon(int id=-1);
     				//!<\returns horid
 				//!<\note id argument is only for internal use
 				//!<	  i.e. the reader
     bool			removeHorizon(int id);
+    const MultiID&		horizonEMReference(int id) const;
+    void 			setHorizonEMReference(int id,const MultiID&);
     int				nextHorizonID(bool usethis);
     void			setNextHorizonID(int);
 
-    const Color&		horizonColor(int id) const;
-    void			setHorizonColor(int id, const Color&);
-
-    const MultiID&		horizonEMReference(int id) const;
-    void 			setHorizonEMReference(int id,const MultiID&);
+    const Color&		getColor() const	{ return color_; }
+    void			setColor(const Color&);
 
     void			setDipSource(const DipSource&,bool primary);
     const DipSource&		getDipSource(bool primary) const;
@@ -193,9 +191,9 @@ protected:
     MultiID			storageid_;
     VelocityPicks*		velpicks_;
 
+    Color			color_;
+
     TypeSet<int>		horids_;
-    TypeSet<Color>		horcolors_;
-    BufferStringSet		hornames_;
     TypeSet<MultiID>		horrefs_;
     ObjectSet<EM::Horizon3D>	emhorizons_;
 
@@ -204,7 +202,7 @@ protected:
     BinIDValueSet&		reloadbids_;
 
     int				nexthorid_;
-    int				arehorizonschanged_;
+    int				auxdatachanged_;
 
     DipSource			primarydipsource_;
     DipSource			secondarydipsource_;

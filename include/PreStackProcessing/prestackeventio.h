@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackeventio.h,v 1.1 2008-07-01 21:32:01 cvskris Exp $
+ RCS:		$Id: prestackeventio.h,v 1.2 2008-07-18 14:24:11 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -67,8 +67,6 @@ public:
     static const char*	sKeyNrHorizons()	{ return "Nr Horizons"; }
     static const char*	sKeyHorizonID()		{ return "Horizon ID"; }
     static const char*	sKeyNextHorizonID()	{ return "Next Horizon ID"; }
-    static const char*	sKeyHorizonName()	{ return "Horizon Name"; }
-    static const char*	sKeyHorizonColor()	{ return "Horizon Color"; }
     static const char*	sKeyHorizonRef()	{ return "Horizon EM Reference"; }
     static const char*	sHorizonFileName()	{ return "horizoninfo"; }
     static const char*	sHorizonFileType()	{ return "PS Horizon info"; }
