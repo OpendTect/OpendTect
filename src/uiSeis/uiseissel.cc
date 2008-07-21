@@ -4,27 +4,30 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.53 2008-07-16 05:05:59 cvsnanne Exp $
+ RCS:		$Id: uiseissel.cc,v 1.54 2008-07-21 08:54:39 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiseissel.h"
-#include "uiseisioobjinfo.h"
-#include "uilistbox.h"
+
 #include "uicombobox.h"
-#include "uilabel.h"
 #include "uigeninput.h"
+#include "uilabel.h"
+#include "uilistbox.h"
+
 #include "ctxtioobj.h"
-#include "iopar.h"
-#include "ioobj.h"
-#include "iodirentry.h"
-#include "survinfo.h"
 #include "cubesampling.h"
-#include "separstr.h"
-#include "seisselection.h"
-#include "linekey.h"
+#include "iodirentry.h"
+#include "ioobj.h"
+#include "iopar.h"
 #include "keystrs.h"
+#include "linekey.h"
+#include "seisioobjinfo.h"
+#include "seisselection.h"
+#include "seistype.h"
+#include "separstr.h"
+#include "survinfo.h"
 
 
 static const char* gtSelTxt( const uiSeisSel::Setup& setup, bool forread )
@@ -55,13 +58,10 @@ static void adaptCtxt( const IOObjContext& c, const uiSeisSel::Setup& s,
 	ctxt.allowcnstrsabsent = true;	//change required to get any 2D LineSet
 }
 
-static bool kp_allowcnstrsabsent = true; /* hack but should always be OK */
-
 
 static const CtxtIOObj& getDlgCtio( const CtxtIOObj& c,
 				    const uiSeisSel::Setup& s )
 {
-    kp_allowcnstrsabsent = c.ctxt.allowcnstrsabsent;
     adaptCtxt( c.ctxt, s, true );
     return c;
 }
@@ -75,7 +75,11 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 {
     const bool is2d = Seis::is2D( setup.geom_ );
     const bool isps = Seis::isPS( setup.geom_ );
-    allowcnstrsabsent_ = kp_allowcnstrsabsent;
+
+    if ( setup.datatype_ )     datatype_ = setup.datatype_;
+    allowcnstrsabsent_ = setup.allowcnstrsabsent_;
+    include_ = setup.include_;
+
     setTitleText( isps ? "Select Data Store"
 	    	: (is2d ? "Select Line Set" : "Select Cube") );
 
@@ -84,14 +88,28 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
     if ( setup.selattr_ && is2d && !isps )
     {
 	if ( selgrp->getCtxtIOObj().ctxt.forread )
+	{
 	    attrfld_ = new uiGenInput( selgrp,"Attribute",StringListInpSpec() );
+
+	    if ( selgrp->getNameField() )
+		 attrfld_->attach( alignedBelow, selgrp->getNameField() );
+	    else
+		attrfld_->attach( ensureBelow, topgrp );
+	}
 	else
+	{
 	    attrfld_ = new uiGenInput( selgrp, "Attribute",
-		    		       StringInpSpec(LineKey::sKeyDefAttrib) );
-	if ( selgrp->getNameField() )
-	    attrfld_->attach( alignedBelow, selgrp->getNameField() );
-	else
-	    attrfld_->attach( ensureBelow, topgrp );
+		    		       StringInpSpec(sKey::Steering) );
+	    attrlistfld_ = new uiListBox( selgrp, "Existing List" );
+
+	    if ( selgrp->getNameField() )
+		attrlistfld_->attach( alignedBelow, selgrp->getNameField() );
+	    else
+		attrlistfld_->attach( ensureBelow, topgrp );
+
+	    attrlistfld_->selectionChanged.notify(		                                                  mCB(this,uiSeisSelDlg,dataTypeSelChnaged) );
+	    attrfld_->attach( alignedBelow, attrlistfld_ );
+	}
     }
 
     selgrp->getListField()->selectionChanged.notify(
@@ -118,35 +136,79 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     if ( !ioobj || !attrfld_ )
 	return;
 
-    uiSeisIOObjInfo oinf( *ioobj, false );
+    SeisIOObjInfo oinf( *ioobj );
     const bool is2d = oinf.is2D();
     const bool isps = oinf.isPS();
     attrfld_->display( is2d && !isps );
-    if ( !selgrp->getCtxtIOObj().ctxt.forread ) return;
 
     BufferStringSet nms;
-    oinf.getAttribNames( nms );
-    filter2DStoredNames( nms );
+    oinf.getAttribNames( nms, true, 0, getDataType(), 
+	    		 allowcnstrsabsent_, include_ );
+
+    if ( !selgrp->getCtxtIOObj().ctxt.forread )
+    {
+        attrlistfld_->empty();
+	attrlistfld_->addItems( nms ); 
+	return;
+    }
     attrfld_->newSpec( StringListInpSpec(nms), 0 );
 }
 
 
-void uiSeisSelDlg::filter2DStoredNames( BufferStringSet& nms ) const
+void uiSeisSelDlg::dataTypeSelChnaged( CallBacker* )
 {
-    BufferString tcstraint;
-    if ( selgrp->getCtxtIOObj().ctxt.parconstraints.get( sKey::Type, tcstraint)
-         && !strcmp( tcstraint, sKey::Steering ) )
-    {
-	bool inccstraints = selgrp->getCtxtIOObj().ctxt.includeconstraints;
-	for ( int idx=nms.size()-1; idx>=0; idx-- )
+    attrfld_->setText( attrlistfld_->getText() );
+}
+
+
+const char* uiSeisSelDlg::getDataType()
+{
+    if ( !datatype_ )
+	return 0;
+	static BufferString typekey;
+	typekey.setEmpty();
+	switch( Seis::dataTypeOf(datatype_) )
 	{
-	    int cmp = strncmp( sKey::Steering, nms[idx]->buf(), 8 );
-	    if ( inccstraints && cmp && !allowcnstrsabsent_ )
-		nms.remove( idx );
-	    else if ( !cmp && !inccstraints )
-		nms.remove( idx );
+	    case Seis::Ampl:
+		// TODO implement Amlp filter;
+		break;
+
+	    case Seis::Dip:
+    		typekey += sKey::Steering ;
+                break;
+
+	    case Seis::Frequency:
+                // TODO implement Frequency filter;
+                break;
+
+            case Seis::Phase:
+                // TODO implement Phase filter;
+		break;
+
+            case Seis::AVOGradient:
+		// TODO implement AVOGradient filter;
+		break;
+
+	    case Seis::Azimuth:
+		// TODO implement Azimuth filter;
+		break;
+
+	    case Seis::Classification:
+		// TODO implement Classification filter;
+		break;
+
+	    case Seis::UnknowData:
+        	// TODO implement UnknownData filter;
+		break;
+
+	    default :
+		// TODO implement general behaviour; 	    
+               	typekey += "Nothing";
 	}
-    }
+
+	if ( typekey.isEmpty() || typekey=="Nothing") 
+	    return 0;
+	else return typekey.buf();
 }
 
 

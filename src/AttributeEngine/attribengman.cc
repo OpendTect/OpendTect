@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H.Payraudeau
  Date:          04/2005
- RCS:           $Id: attribengman.cc,v 1.86 2008-05-28 16:50:44 cvshelene Exp $
+ RCS:           $Id: attribengman.cc,v 1.87 2008-07-21 09:05:49 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -134,9 +134,8 @@ Processor* EngineMan::usePar( const IOPar& iopar, DescSet& attribset,
 	    cs_.init();
     }
 
-    const Attrib::Desc* curdesc = attribset.getDesc( ids[0] );
-    BufferString attribname = curdesc->isStored() ? "" : curdesc->userRef();
-    LineKey lkey( linename, attribname );
+      LineKey lkey( linename );
+
     SeisTrcStorOutput* storeoutp = createOutput( iopar, lkey );
 
     bool exttrctosi;

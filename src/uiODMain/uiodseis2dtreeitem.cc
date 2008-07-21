@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		May 2006
- RCS:		$Id: uiodseis2dtreeitem.cc,v 1.43 2008-07-16 16:59:41 cvskris Exp $
+ RCS:		$Id: uiodseis2dtreeitem.cc,v 1.44 2008-07-21 09:09:56 cvsumesh Exp $
 ___________________________________________________________________
 
 -*/
@@ -728,9 +728,8 @@ void uiOD2DLineSetAttribItem::createMenuCB( CallBacker* cb )
     const char* objnm = visserv_->getObjectName( displayID() );
 
     BufferStringSet attribnames;
-    seisserv->get2DStoredAttribs( s2d->lineSetID(), objnm, attribnames );
-    const int steeridx = attribnames.indexOf( "Steering" );
-    if ( steeridx>=0 ) attribnames.remove( steeridx );
+    seisserv->get2DStoredAttribsPartingDataType( s2d->lineSetID(),
+	    			objnm, attribnames, "Steering");
 
     const Attrib::DescSet* ads = attrserv->curDescSet(true);
     const Attrib::Desc* desc = ads->getDesc( as.id() );

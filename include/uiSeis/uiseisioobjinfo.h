@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseisioobjinfo.h,v 1.9 2005-06-02 14:11:52 cvsbert Exp $
+ RCS:           $Id: uiseisioobjinfo.h,v 1.10 2008-07-21 08:49:38 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,11 +42,20 @@ public:
 	    				const BinIDValueSet* bvs=0 ) const
 				{ sii.getLineNames(b,add,bvs); }
     void		getAttribNames( BufferStringSet& b, bool add=true,
-	    				const BinIDValueSet* bvs=0) const
-				{ sii.getAttribNames(b,add,bvs); }
+	    				const BinIDValueSet* bvs=0,
+	   				const char* datatyp=0,
+	   				bool allowcnstabsent=false,
+	   				bool incl=true ) const
+				{ sii.getAttribNames(b,add,bvs,datatyp,
+					             allowcnstabsent,incl); }
     void		getAttribNamesForLine( const char* nm,
-					BufferStringSet& b, bool add=true) const
-				{ sii.getAttribNamesForLine(nm,b,add); }
+					BufferStringSet& b, bool add=true,
+					const char* datatyp=0,
+	    				bool allowcnstabsent=false,
+	   				bool incl=true ) const
+				{ sii.getAttribNamesForLine(nm,b,add,datatyp,
+							    allowcnstabsent,
+							    incl); }
     void		getLineNamesWithAttrib( const char* nm,
 					BufferStringSet& b, bool add=true) const
 				{ sii.getLineNamesWithAttrib(nm,b,add); }

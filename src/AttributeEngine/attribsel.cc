@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: attribsel.cc,v 1.28 2008-06-02 12:14:28 cvsbert Exp $
+ RCS:           $Id: attribsel.cc,v 1.29 2008-07-21 09:03:47 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -316,10 +316,7 @@ void SelInfo::getAttrNames( const char* defstr, BufferStringSet& nms )
 	return;
 
     Seis2DLineSet ls( ioobj->fullUserExpr(true) );
-    ls.getAvailableAttributes( nms );
-    int idx = nms.indexOf( sKey::Steering );
-    if ( idx >= 0 )
-	nms.remove( idx );
+    ls.getAvailableAttributes( nms, sKey::Steering, true, false );
 }
 
 

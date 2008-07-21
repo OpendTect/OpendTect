@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.84 2008-05-28 16:50:44 cvshelene Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.85 2008-07-21 09:07:32 cvsumesh Exp $";
 
 #include "attriboutput.h"
 
@@ -29,6 +29,7 @@ static const char* rcsID = "$Id: attriboutput.cc,v 1.84 2008-05-28 16:50:44 cvsh
 #include "seistrctr.h"
 #include "seiswrite.h"
 #include "simpnumer.h"
+#include "separstr.h"
 #include "survinfo.h"
 
 
@@ -326,6 +327,14 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
         return false;
     }
 
+    SeparString sepstr( storid, '|' );
+
+    if ( sepstr[1] && *sepstr[1] )
+	attribname_ = sepstr[1];
+
+    if ( sepstr[2] && *sepstr[2] && !strcmp(sepstr[2],sKey::Steering) )
+	hasdatatype_ = true;
+
     const char* res = outppar->find( scalekey );
     if ( res )
     {
@@ -356,6 +365,11 @@ bool SeisTrcStorOutput::doInit()
 
 	writer_ = new SeisTrcWriter( ioseisout );
 	is2d_ = writer_->is2D();
+
+	if ( is2d_ && hasdatatype_ )
+	    writer_->setHasdatatype( hasdatatype_ );
+	    
+
 	if ( auxpars_ )
 	{
 	    writer_->lineAuxPars().merge( *auxpars_ );

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiseispartserv.h,v 1.30 2008-05-30 07:06:55 cvsraman Exp $
+ RCS:           $Id: uiseispartserv.h,v 1.31 2008-07-21 08:55:52 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,9 @@ public:
 	    			      TypeSet<BufferStringSet>&);
     static void		get2DStoredAttribs(const MultiID&,const char* linenm,
 	    				   BufferStringSet&);
+    static void		get2DStoredAttribsPartingDataType(const MultiID&,
+	                             const char* libenm,BufferStringSet& attribs,
+				                     const char* datatypenm);
     bool		create2DOutput(const MultiID&,const char* linekey,
 				       CubeSampling&,SeisTrcBuf&);
     void 		getStoredGathersList(bool for3d,BufferStringSet&) const;

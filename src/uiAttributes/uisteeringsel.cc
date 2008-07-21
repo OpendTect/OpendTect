@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.27 2008-05-22 15:07:45 cvskris Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.28 2008-07-21 09:02:38 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -257,7 +257,10 @@ void uiSteeringSel::setType( int nr, bool nochg )
 uiSteerCubeSel::uiSteerCubeSel( uiParent* p, CtxtIOObj& c,
 				const DescSet* ads, bool is2d, const char* txt )
 	: uiSeisSel( p, c, uiSeisSel::Setup(is2d,false)
-				   .selattr(false).seltxt("Steering Data") )
+				   .selattr(is2d).seltxt("Steering Data")
+	       			   .datatype(is2d ? "Steering":0)
+				   .allowcnstrsabsent(is2d ? false:0)
+				   .include(is2d ? true:0) )
 	, attrdata_( ads )
 {
     attachObj()->finaliseStart.notify( mCB(this,uiSteerCubeSel,doFinalise) );

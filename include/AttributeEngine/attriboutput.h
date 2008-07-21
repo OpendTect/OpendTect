@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: attriboutput.h,v 1.38 2008-05-28 16:50:44 cvshelene Exp $
+ RCS:           $Id: attriboutput.h,v 1.39 2008-07-21 08:59:24 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -165,6 +165,7 @@ protected:
     Scaler*                     scaler_;
     TypeSet<Seis::DataType>	outptypes_;
     bool			growtrctosi_;
+    bool			hasdatatype_;
 };
 
 

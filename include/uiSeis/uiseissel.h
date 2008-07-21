@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.28 2008-01-24 12:22:48 cvsbert Exp $
+ RCS:           $Id: uiseissel.h,v 1.29 2008-07-21 08:53:16 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "seistype.h"
 
+class uiSeisIOObjInfo;
+class uiListBox;
 
 class uiSeisSel : public uiIOObjSel
 {
@@ -25,17 +27,26 @@ public:
 			    : geom_(gt)
 			    , selattr_(gt==Seis::Line)
 			    , withclear_(false)
-			    , seltxt_(0)	{}
+			    , seltxt_(0)
+			    , datatype_(0)
+			    , allowcnstrsabsent_(0)
+			    , include_(0)	{}
 			Setup( bool is2d, bool isps )
 			    : geom_(Seis::geomTypeOf(is2d,isps))
 			    , selattr_(is2d && !isps)
 			    , withclear_(false)
-			    , seltxt_(0)	{}
+			    , seltxt_(0)
+			    , datatype_(0)
+			    , allowcnstrsabsent_(0)
+			    , include_(0)	{}
 
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(bool,selattr)
 	mDefSetupMemb(bool,withclear)
 	mDefSetupMemb(const char*,seltxt)
+	mDefSetupMemb(const char*,datatype)
+	mDefSetupMemb(bool,allowcnstrsabsent)
+	mDefSetupMemb(bool,include)
     };
 
 			uiSeisSel(uiParent*,CtxtIOObj&,const Setup&);
@@ -82,11 +93,15 @@ public:
 
 protected:
 
+    uiListBox*		attrlistfld_;
     uiGenInput*		attrfld_;
     bool		allowcnstrsabsent_;	//2D only
+    const char*		datatype_;		//2D only
+    bool		include_;		//2D only, datatype_ companion
 
     void		entrySel(CallBacker*);
-    void		filter2DStoredNames(BufferStringSet&) const;
+    void 		dataTypeSelChnaged(CallBacker*);
+    const char*		getDataType();
 };
 
 
