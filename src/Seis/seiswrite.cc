@@ -28,6 +28,7 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const LineKeyProvider* l )
 	: SeisStoreAccess(ioob)
     	, lineauxiopar(*new IOPar)
 	, lkp(l)
+	, hasdatetype(false)	
 {
     init();
 }
@@ -37,6 +38,7 @@ SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is2d, bool isps )
 	: SeisStoreAccess(fnm,is2d,isps)
     	, lineauxiopar(*new IOPar)
 	, lkp(0)
+	,hasdatetype(false)	
 {
     init();
 }
@@ -205,6 +207,9 @@ bool SeisTrcWriter::next2DLine()
 
     IOPar* lineiopar = new IOPar;
     lk.fillPar( *lineiopar, true );
+
+    if ( hasdatetype )
+	lineiopar->set( "DataType", "Steering" );
     lineiopar->merge( lineauxiopar );
     putter = lset->linePutter( lineiopar );
     if ( !putter )

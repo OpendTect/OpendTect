@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.16 2008-05-12 06:46:21 cvsraman Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.17 2008-07-21 08:43:32 cvsumesh Exp $";
 
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
@@ -223,7 +223,9 @@ void SeisIOObjInfo::getDefKeys( BufferStringSet& bss, bool add ) const
 
 
 void SeisIOObjInfo::getNms( BufferStringSet& bss, bool add, bool attr,
-				const BinIDValueSet* bvs ) const
+				const BinIDValueSet* bvs,
+       				const char* datatype,
+				bool allowcnstabsent, bool incl ) const
 {
     if ( isPS() )
     {
@@ -250,6 +252,21 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss, bool add, bool attr,
 	    }
 	}
 
+	if ( attr && datatype )
+	{
+	    const char* founddatatype = lset->datatype(idx);
+
+	    if ( !founddatatype)
+	    {
+		if ( allowcnstabsent ) bss.add( nm );
+	    }
+	    else
+	    {
+		if ( !strcmp(datatype,founddatatype) && incl )
+		    bss.add( nm );
+	    }
+	}
+	else
 	bss.add( nm );
     }
 
@@ -258,7 +275,9 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss, bool add, bool attr,
 
 
 void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
-				    bool add, bool l4a ) const
+				    bool add, bool l4a,
+       				    const char* datatype,
+				    bool allowcnstabsent, bool incl ) const
 {
     mGetLineSet;
     if ( !nm || !*nm ) return;
@@ -272,7 +291,24 @@ void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
 	const char* listadd = l4a ? lnm : anm;
 
 	if ( target == requested )
+	{
+	    if ( !l4a && datatype )
+	    {
+		const char* founddatatype = lset->datatype(idx);
+
+		if ( !founddatatype)
+		{
+		    if ( allowcnstabsent )	bss.addIfNew( listadd );
+		}
+		else
+		{
+		    if ( !strcmp(datatype,founddatatype) && incl )
+			bss.addIfNew( listadd );
+		}
+	    }
+	    else
 	    bss.addIfNew( listadd );
+	}
     }
 
     bss.sort();

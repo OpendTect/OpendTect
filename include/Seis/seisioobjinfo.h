@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		25-10-1996
- RCS:		$Id: seisioobjinfo.h,v 1.8 2008-04-24 10:40:50 cvsraman Exp $
+ RCS:		$Id: seisioobjinfo.h,v 1.9 2008-07-21 08:41:51 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,12 +69,20 @@ public:
 	    				const BinIDValueSet* bvs=0 ) const
 				{ getNms(b,add,false,bvs); }
     void		getAttribNames( BufferStringSet& b, bool add=true,
-	    				const BinIDValueSet* bvs=0 ) const
-				{ getNms(b,add,true,bvs); }
+	    				const BinIDValueSet* bvs=0,
+	   				const char* datatyp=0,
+	   				bool allowcnstabsent=false,
+	   				bool incl=true ) const
+				{ getNms(b,add,true,bvs,
+					 datatyp,allowcnstabsent,incl); }
     void		getAttribNamesForLine( const char* nm,
 	    				       BufferStringSet& b,
-					       bool add=true ) const
-				{ getNmsSubSel(nm,b,add,false); }
+					       bool add=true,
+	   				       const char* datatyp=0,
+	   				       bool allowcnstabsent=false,
+	   				       bool incl=true ) const
+				{ getNmsSubSel(nm,b,add,false,
+					       datatyp,allowcnstabsent,incl); }
     void		getLineNamesWithAttrib( const char* nm,
 	    				       BufferStringSet& b,
 					       bool add=true ) const
@@ -96,9 +104,15 @@ protected:
     void		setType();
 
     void		getNms(BufferStringSet&,bool,bool,
-	    			const BinIDValueSet*) const;
+	    			const BinIDValueSet*,
+				const char* datatype=0,
+				bool allowcnstabsent=false,
+				bool incl=true) const;
     void		getNmsSubSel(const char*,BufferStringSet&,
-	    				bool,bool) const;
+	    				bool,bool,
+					const char* datatype=0,
+					bool allowcnstabsent=false,
+					bool incl=true) const;
 
 };
 
