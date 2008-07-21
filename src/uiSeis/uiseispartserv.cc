@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.90 2008-06-23 09:49:04 cvsraman Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.91 2008-07-21 08:57:17 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -219,6 +219,17 @@ void uiSeisPartServer::get2DStoredAttribs( const MultiID& mid,
 {
     uiSeisIOObjInfo objinfo( mid );
     objinfo.getAttribNamesForLine( linenm, attribs );
+}
+
+
+void uiSeisPartServer::get2DStoredAttribsPartingDataType( const MultiID& mid,
+						          const char* linenm,
+					             BufferStringSet& attribs,
+						     const char* datatypenm )
+{
+    uiSeisIOObjInfo objinfo( mid );
+    objinfo.getAttribNamesForLine( linenm, attribs, true, datatypenm,
+	   			   true, false );
 }
 
 
