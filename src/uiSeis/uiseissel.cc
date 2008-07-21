@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.54 2008-07-21 08:54:39 cvsumesh Exp $
+ RCS:		$Id: uiseissel.cc,v 1.55 2008-07-21 09:47:54 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -165,50 +165,22 @@ const char* uiSeisSelDlg::getDataType()
 {
     if ( !datatype_ )
 	return 0;
-	static BufferString typekey;
-	typekey.setEmpty();
-	switch( Seis::dataTypeOf(datatype_) )
-	{
-	    case Seis::Ampl:
-		// TODO implement Amlp filter;
-		break;
 
-	    case Seis::Dip:
-    		typekey += sKey::Steering ;
-                break;
+    static BufferString typekey;
+    typekey.setEmpty();
+    switch ( Seis::dataTypeOf(datatype_) )
+    {
+	case Seis::Dip:
+	    typekey += sKey::Steering;
+	    break;
 
-	    case Seis::Frequency:
-                // TODO implement Frequency filter;
-                break;
+	// TODO: support other datatypes
 
-            case Seis::Phase:
-                // TODO implement Phase filter;
-		break;
-
-            case Seis::AVOGradient:
-		// TODO implement AVOGradient filter;
-		break;
-
-	    case Seis::Azimuth:
-		// TODO implement Azimuth filter;
-		break;
-
-	    case Seis::Classification:
-		// TODO implement Classification filter;
-		break;
-
-	    case Seis::UnknowData:
-        	// TODO implement UnknownData filter;
-		break;
-
-	    default :
-		// TODO implement general behaviour; 	    
-               	typekey += "Nothing";
-	}
-
-	if ( typekey.isEmpty() || typekey=="Nothing") 
+	default:
 	    return 0;
-	else return typekey.buf();
+    }
+
+    return typekey.buf();
 }
 
 
