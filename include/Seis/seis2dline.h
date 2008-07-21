@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.39 2008-06-23 06:40:28 cvsraman Exp $
+ RCS:		$Id: seis2dline.h,v 1.40 2008-07-21 08:36:34 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -68,11 +68,17 @@ public:
     bool		isEmpty(int) const;
     const char*		lineName(int) const;	//!< returns pars_[idx]->name()
     const char*		attribute(int) const;
+    const char*		datatype(int) const;
     LineKey		lineKey( int idx ) const
     			{ return LineKey( lineName(idx), attribute(idx) ); }
     int			indexOf(const char* linekey) const;
+//    int                 indexOfAttribute(const char* attrib) const;
     int			indexOfFirstOccurrence(const char* linenm) const;
-    void		getAvailableAttributes(BufferStringSet&) const;
+    void		getAvailableAttributes(BufferStringSet&,
+	    				       const char* datatyp=0,
+					       bool allowcnstabsent = false,
+	    				       bool incl=true) const;
+    void		getLineNamesWithAttrib(BufferStringSet&,const char*);
 
     bool		getGeometry(PosInfo::LineSet2DData&) const;
     bool		getGeometry(int,PosInfo::Line2DData&) const;

@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.61 2008-06-23 06:42:16 cvsraman Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.62 2008-07-21 08:38:34 cvsumesh Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -164,6 +164,14 @@ const char* Seis2DLineSet::attribute( int idx ) const
     const char* res = idx >= 0 && idx < pars_.size()
 		    ? pars_[idx]->find(sKey::Attribute) : 0;
     return res ? res : LineKey::sKeyDefAttrib;
+}
+
+
+const char* Seis2DLineSet::datatype( int idx ) const
+{
+    const char* res = idx >=0 && idx < pars_.size()
+		    ? pars_[idx]->find(sKey::DataType) : 0;
+    return res;
 }
 
 
@@ -595,12 +603,50 @@ bool Seis2DLineSet::getRanges( int ipar, StepInterval<int>& sii,
 }
 
 
-void Seis2DLineSet::getAvailableAttributes( BufferStringSet& nms ) const
+void Seis2DLineSet::getAvailableAttributes( BufferStringSet& nms,
+       					    const char* datatyp,
+					    bool allowcnstabsent, 
+					    bool incl ) const
 {
     nms.erase();
     const int sz = nrLines();
     for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( datatyp )
+	{
+	    const char* founddatatype = datatype(idx);
+
+	    if ( !founddatatype)
+	    {
+		if ( allowcnstabsent )	nms.addIfNew( attribute(idx) );
+	    }
+	    else
+	    {
+		if ( !strcmp(datatyp,founddatatype) && incl )
+		    nms.addIfNew( attribute(idx) );
+	    }
+	}
+	else
 	nms.addIfNew( attribute(idx) );
+    }
+}
+
+
+void Seis2DLineSet::getLineNamesWithAttrib( BufferStringSet& nms,
+					    const char* attrnm)
+{
+    nms.erase();
+    const int sz = nrLines();
+    for ( int idx=0; idx<sz; idx++ )
+    {
+	if ( attrnm )
+	{
+	    const char* foundattbnm = attribute(idx);
+	    
+	    if ( !strcmp(attrnm,foundattbnm) )
+		    nms.addIfNew( lineName(idx) );
+	}
+    }
 }
 
 
