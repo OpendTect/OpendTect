@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2008
- RCS:           $Id: sampledextremefindernd.h,v 1.1 2008-07-11 17:45:19 cvskris Exp $
+ RCS:           $Id: sampledextremefindernd.h,v 1.2 2008-07-22 15:38:53 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,7 +92,7 @@ bool SampledExtremeFinderND<T>::doWork( int start, int stop, int )
 	    continue;
 	}
 
-	if ( !lock_.convToWriteLock() )
+	if ( !lock_.convReadToWriteLock() )
 	{
 	    extremeidx = indexOf( currentextreme );
 	    if ( extremeidx!=-1 )
