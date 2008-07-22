@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.h,v 1.41 2008-03-31 16:36:00 cvsjaap Exp $
+ RCS:           $Id: uilistbox.h,v 1.42 2008-07-22 07:07:40 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -97,9 +97,12 @@ public:
     void		setItemChecked(int,bool);
     bool		isItemCheckable(int) const;
     bool		isItemChecked(int) const;
+    int			nrChecked() const;
 
     void		getSelectedItems(BufferStringSet&);
     void		getSelectedItems(TypeSet<int>&);
+    void		getCheckedItems(BufferStringSet&);
+    void		getCheckedItems(TypeSet<int>&);
 
     void		setFieldWidth(int);
     int			optimumFieldWidth(int minwdth=20,int maxwdth=40) const;
