@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodmain.cc,v 1.103 2008-06-06 04:57:38 cvssatyaki Exp $
+ RCS:           $Id: uiodmain.cc,v 1.104 2008-07-22 17:39:21 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -71,6 +71,8 @@ ________________________________________________________________________
 #include "initvisbase.h"
 #include "initvissurvey.h"
 #include "initvolumeprocessing.h"
+#include "initvelocity.h"
+#include "inituivelocity.h"
 
 
 static const int cCTHeight = 200;
@@ -102,6 +104,7 @@ static void initNonUiStdClasses()
     VolumeProcessing::initStdClasses();
     Attributes::initStdClasses();
     MPEEngine::initStdClasses();
+    Velocity::initStdClasses();
 }
 
 
@@ -115,6 +118,7 @@ static void initUiStdClasses()
     uiVolumeProcessing::initStdClasses();
     uiPreStackProcessing::initStdClasses();
     uiMPE::initStdClasses();
+    uiVelocity::initStdClasses();
 
     SoOD::initStdClasses();
     visBase::initStdClasses();

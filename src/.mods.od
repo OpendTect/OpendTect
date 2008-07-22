@@ -11,6 +11,7 @@ AttributeEngine
 PreStackProcessing
 VolumeProcessing
 Attributes
+Velocity
 MPEEngine
 Well
 uiBase
@@ -21,6 +22,7 @@ uiStrat
 uiEarthModel
 uiNLA
 uiSeis
+uiVelocity
 uiAttributes
 uiPreStackProcessing
 uiVolumeProcessing
