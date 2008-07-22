@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.72 2008-06-18 08:20:40 cvssatyaki Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.73 2008-07-22 09:30:04 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -176,8 +176,8 @@ void uiAttribDescSetEd::createGroups()
     {
 	uiAttrDescEd::DomainType dt =
 	    	(uiAttrDescEd::DomainType)uiAF().domainType( idx );
-	if ( dt == uiAttrDescEd::Depth && SI().zIsTime()
-		|| dt == uiAttrDescEd::Time && !SI().zIsTime() )
+	if ( (dt == uiAttrDescEd::Depth && SI().zIsTime())
+		|| (dt == uiAttrDescEd::Time && !SI().zIsTime()) )
 	    continue;
 
 	const char* attrnm = uiAF().getDisplayName(idx);
@@ -760,10 +760,10 @@ bool uiAttribDescSetEd::doSetIO( bool forread )
     }
 
     BufferString bs;
-    if ( forread && 
-	 !AttribDescSetTranslator::retrieve(*attrset,setctio.ioobj,bs)
-    ||  !forread && 
-	!AttribDescSetTranslator::store(*attrset,setctio.ioobj,bs) )
+    if ( ( forread && 
+	   !AttribDescSetTranslator::retrieve(*attrset,setctio.ioobj,bs) )
+    || ( !forread && 
+	 !AttribDescSetTranslator::store(*attrset,setctio.ioobj,bs) ) )
 	mErrRetFalse(bs)
     if ( !bs.isEmpty() )
 	pErrMsg( bs );
