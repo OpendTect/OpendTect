@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.66 2008-05-23 11:05:57 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.67 2008-07-22 08:22:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -416,9 +416,9 @@ void uiExportLogs::writeHeader( StreamData& sdo )
     const char* units[] = { "(m)", "(ft)", "(s)", "(ms)", 0 };
     
     if ( typefld->getIntValue() == 1 )
-	*sdo.ostrm << "\"X\"\t\"Y\"\t";
+	*sdo.ostrm << "X\tY\t";
     else if ( typefld->getIntValue() == 2 )
-	*sdo.ostrm << "\"Inline\"\t\"Crossline\"\t";
+	*sdo.ostrm << "Inline\tCrossline\t";
 
     const int unitid = zunitgrp->selectedId();
     BufferString zstr( unitid<2 ? "Depth" : "Time" );
@@ -431,10 +431,9 @@ void uiExportLogs::writeHeader( StreamData& sdo )
 	cleanupString( lognm.buf(), 0, 0, 0 );
 	replaceCharacter( lognm.buf(), '+', '_' );
 	replaceCharacter( lognm.buf(), '-', '_' );
-	*sdo.ostrm << "\t\"" << lognm;
+	*sdo.ostrm << "\t" << lognm;
 	if ( *log.unitMeasLabel() )
 	    *sdo.ostrm << "(" << log.unitMeasLabel() << ")";
-	*sdo.ostrm << "\"";
     }
     
     *sdo.ostrm << '\n';
