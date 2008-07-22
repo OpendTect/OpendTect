@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Dec 2005
- RCS:           $Id: SoColTabMultiTexture2.cc,v 1.3 2008-02-13 21:54:05 cvskris Exp $
+ RCS:           $Id: SoColTabMultiTexture2.cc,v 1.4 2008-07-22 08:53:14 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -359,7 +359,7 @@ bool SoColTabMultiTextureProcessor::process( int start, int stop )
 				     (int)pixelcolor[comp] * invtrans)/255;
 	    }
 	    else if ( imageoper_==SoColTabMultiTexture2::ADD )
-		oldval[comp] = (int)oldval[comp] + pixelcolor[comp] >> 1;
+		oldval[comp] = ((int)oldval[comp] + pixelcolor[comp]) >> 1;
 	    else 
 		oldval[comp] =  pixelcolor[comp];
 	}
