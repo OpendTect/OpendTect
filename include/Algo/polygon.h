@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.11 2008-03-20 21:42:10 cvskris Exp $
+ RCS:		$Id: polygon.h,v 1.12 2008-07-22 09:46:56 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,8 +49,10 @@ public:
     bool	windowOverlaps(const Interval<T>& xrange,
 			       const Interval<T>& yrange,T eps) const;
 
+    				// defined for closed polygon
     const Geom::Point2D<T>&	getVertex(int idx) const;
     const Geom::Point2D<T>&	nextVertex(int idx) const; 
+    const Geom::Point2D<T>&	prevVertex(int idx) const;
 
     void	setClosed( bool yn )			{ closed_ = yn; }
     bool	isClosed() const			{ return closed_; }
@@ -61,6 +63,10 @@ public:
     Interval<T>	getRange(bool of_x) const;
     void	getData(bool of_x,TypeSet<T>&) const;
 
+    void	removeZeroLengths();
+    bool	isUTurn(int idx) const;
+    bool	isSelfIntersecting() const;
+    
     		// not for self-intersecting polygons
     float	area() const			{ return fabs(sgnArea()); } 	
     bool	clockwise() const		{ return sgnArea()<0; } 
@@ -170,6 +176,11 @@ const Geom::Point2D<T>& ODPolygon<T>::nextVertex( int idx ) const
 
 
 template <class T> inline
+const Geom::Point2D<T>& ODPolygon<T>::prevVertex( int idx ) const
+{ return getVertex( idx ? idx-1 : size()-1 ); }
+
+
+template <class T> inline
 Interval<T> ODPolygon<T>::getRange( bool forx ) const
 {
     if ( poly_.isEmpty() ) return Interval<T>( udf_.x, udf_.y );
@@ -258,6 +269,67 @@ bool ODPolygon<T>::windowOverlaps( const Interval<T>& xrange,
 
 
 template <class T> inline
+void ODPolygon<T>::removeZeroLengths()
+{
+    const int startidx = isClosed() ? size()-1 : size()-2;
+    for ( int idx=startidx; idx>=0; idx-- )
+    {
+	if ( getVertex(idx)==nextVertex(idx) && size()>1 )
+	    remove(idx);
+    }
+}
+	
+
+template <class T> inline
+bool ODPolygon<T>::isUTurn( int idx ) const
+{
+    if ( !validIdx(idx) || !isClosed() && (idx==0 || idx==size()-1) )
+	return false;
+
+    const Geom::Point2D<T>& vec1 = prevVertex(idx) - getVertex(idx);
+    const Geom::Point2D<T>& vec2 = nextVertex(idx) - getVertex(idx);
+
+    return vec1.x*vec2.y-vec1.y*vec2.x==0 && vec1.x*vec2.x+vec1.y*vec2.y>0;
+}
+
+
+template <class T> inline
+bool ODPolygon<T>::isSelfIntersecting() const
+{
+    ODPolygon<T> plg = *this;
+    plg.removeZeroLengths();
+
+    const int stopidx = plg.isClosed() ? plg.size() : plg.size()-1;
+    for ( int idx=0; idx<stopidx; idx++ )
+    {
+	if ( plg.isUTurn(idx) )
+	    return true;
+
+	const Geom::Point2D<T>& vtxcurr = plg.getVertex( idx );
+	const Geom::Point2D<T>& vtxnext = plg.nextVertex( idx );
+
+	for ( int idy=0; idy<stopidx; idy++ )
+	{
+	    const int dif = abs( idx-idy );
+	    if ( dif<=1 || dif>=plg.size()-1 )
+		continue;
+
+	    const Geom::Point2D<T>& pt1 = plg.getVertex( idy );
+	    const Geom::Point2D<T>& pt2 = plg.nextVertex( idy );
+
+	    if ( vtxcurr==pt1 || vtxcurr==pt2 )
+		return true;
+
+	    if ( isEdgeCrossing(vtxnext-vtxcurr, vtxcurr, pt1, pt2) &&
+		 isEdgeCrossing(vtxcurr-vtxnext, vtxnext, pt1, pt2) )
+		return true;
+	}
+    }
+    return false;
+}
+
+
+template <class T> inline
 bool ODPolygon<T>::isOnSegment( const Geom::Point2D<T>& pt,
 				const Geom::Point2D<T>& pt0,
 				const Geom::Point2D<T>& pt1,
@@ -293,9 +365,9 @@ bool ODPolygon<T>::isEdgeCrossing( const Geom::Point2D<T>& raydir,
     const bool vtx2right = isRightOfLine( vtx2, raydir, raysrc );
 
     if ( vtx1right && !vtx2right )
-	return isRightOfLine( raysrc, vtx2-vtx1, vtx1 );
+	return !isRightOfLine( raysrc, vtx2-vtx1, vtx1 );
     if ( !vtx1right && vtx2right )
-	return isRightOfLine( raysrc, vtx1-vtx2, vtx2 );
+	return !isRightOfLine( raysrc, vtx1-vtx2, vtx2 );
     return false;
 }
 
