@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.55 2008-07-21 09:47:54 cvsumesh Exp $
+ RCS:		$Id: uiseissel.cc,v 1.56 2008-07-22 09:50:15 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,6 +72,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 			    const uiSeisSel::Setup& setup )
     : uiIOObjSelDlg(p,getDlgCtio(c,setup),"",false)
     , attrfld_(0)
+    , datatype_(0)
 {
     const bool is2d = Seis::is2D( setup.geom_ );
     const bool isps = Seis::isPS( setup.geom_ );
