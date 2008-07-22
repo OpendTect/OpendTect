@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.21 2008-06-17 14:29:10 cvskris Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.22 2008-07-22 14:35:56 cvsbert Exp $
 _______________________________________________________________________________
 
  -*/
@@ -292,7 +292,7 @@ void PreStackViewer::setWidth( float width )
 
 void PreStackViewer::dataChangedCB( CallBacker* )
 {
-    if ( !section_ && !seis2d_ || factor_<0 || width_<0 )
+    if ( (!section_ && !seis2d_) || factor_<0 || width_<0 )
 	return;
 
     const Coord direction = posside_ ? basedirection_ : -basedirection_;
@@ -551,8 +551,8 @@ void  PreStackViewer::otherObjectsMoved( const ObjectSet<const SurveyObject>&
 	return; 
     }
 
-    if ( section_ && section_->id() != whichobj ||
-	 seis2d_ && seis2d_->id() != whichobj )
+    if ( (section_ && section_->id() != whichobj) ||
+	 (seis2d_ && seis2d_->id() != whichobj) )
 	return;
     
     if ( section_ )
