@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          October 2003
- RCS:           $Id: uiwelldlgs.cc,v 1.67 2008-07-22 08:22:21 cvsbert Exp $
+ RCS:           $Id: uiwelldlgs.cc,v 1.68 2008-07-22 08:29:01 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -422,7 +422,7 @@ void uiExportLogs::writeHeader( StreamData& sdo )
 
     const int unitid = zunitgrp->selectedId();
     BufferString zstr( unitid<2 ? "Depth" : "Time" );
-    *sdo.ostrm << '"' << zstr << units[unitid] << '"';
+    *sdo.ostrm << zstr << units[unitid];
     for ( int idx=0; idx<wd.logs().size(); idx++ )
     {
 	if ( !logsel[idx] ) continue;
