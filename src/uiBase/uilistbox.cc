@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2000
- RCS:           $Id: uilistbox.cc,v 1.91 2008-05-23 04:57:17 cvsnageswara Exp $
+ RCS:           $Id: uilistbox.cc,v 1.92 2008-07-22 06:49:28 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -588,6 +588,15 @@ bool uiListBox::isItemChecked( int idx ) const
 }
 
 
+int uiListBox::nrChecked() const
+{
+    int res = 0;
+    for ( int idx=0; idx<size(); idx++ )
+	{ if ( isItemChecked(idx) ) res++; }
+    return res;
+}
+
+
 void uiListBox::setItemText( int idx, const char* txt )
 {
     if ( validIndex(idx) )
@@ -606,6 +615,20 @@ void uiListBox::getSelectedItems( TypeSet<int>& items )
 {
     for ( int idx=0; idx<this->size(); idx++ )
 	if ( isSelected(idx) ) items += idx;
+}
+
+
+void uiListBox::getCheckedItems( BufferStringSet& items )
+{
+    for ( int idx=0; idx<this->size(); idx++ )
+	if ( isItemChecked(idx) ) items.add( textOfItem(idx) );
+}
+
+
+void uiListBox::getCheckedItems( TypeSet<int>& items )
+{
+    for ( int idx=0; idx<this->size(); idx++ )
+	if ( isItemChecked(idx) ) items += idx;
 }
 
 
