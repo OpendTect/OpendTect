@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.22 2008-07-22 14:35:56 cvsbert Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.23 2008-07-23 20:11:14 cvskris Exp $
 _______________________________________________________________________________
 
  -*/
@@ -591,7 +591,7 @@ void  PreStackViewer::finishedCB( CallBacker* )
 	return;
 
     int inl = SI().inlRange( true ).snap( planedragger_->center().x );
-    int crl = SI().inlRange( true ).snap( planedragger_->center().y );
+    int crl = SI().crlRange( true ).snap( planedragger_->center().y );
     BinID newpos = BinID( inl, crl );
     
     if ( section_->getOrientation() == visSurvey::PlaneDataDisplay::Inline )
