@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.29 2008-07-21 08:53:16 cvsumesh Exp $
+ RCS:           $Id: uiseissel.h,v 1.30 2008-07-23 09:40:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -100,7 +100,7 @@ protected:
     bool		include_;		//2D only, datatype_ companion
 
     void		entrySel(CallBacker*);
-    void 		dataTypeSelChnaged(CallBacker*);
+    void 		attrNmSel(CallBacker*);
     const char*		getDataType();
 };
 

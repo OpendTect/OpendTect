@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.56 2008-07-22 09:50:15 cvsbert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.57 2008-07-23 09:40:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,7 +108,8 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 	    else
 		attrlistfld_->attach( ensureBelow, topgrp );
 
-	    attrlistfld_->selectionChanged.notify(		                                                  mCB(this,uiSeisSelDlg,dataTypeSelChnaged) );
+	    attrlistfld_->selectionChanged.notify(
+		    		mCB(this,uiSeisSelDlg,attrNmSel) );
 	    attrfld_->attach( alignedBelow, attrlistfld_ );
 	}
     }
@@ -146,17 +147,19 @@ void uiSeisSelDlg::entrySel( CallBacker* )
     oinf.getAttribNames( nms, true, 0, getDataType(), 
 	    		 allowcnstrsabsent_, include_ );
 
-    if ( !selgrp->getCtxtIOObj().ctxt.forread )
+    if ( selgrp->getCtxtIOObj().ctxt.forread )
+	attrfld_->newSpec( StringListInpSpec(nms), 0 );
+    else
     {
+	const BufferString attrnm( attrfld_->text() );
         attrlistfld_->empty();
 	attrlistfld_->addItems( nms ); 
-	return;
+	attrfld_->setText( attrnm );
     }
-    attrfld_->newSpec( StringListInpSpec(nms), 0 );
 }
 
 
-void uiSeisSelDlg::dataTypeSelChnaged( CallBacker* )
+void uiSeisSelDlg::attrNmSel( CallBacker* )
 {
     attrfld_->setText( attrlistfld_->getText() );
 }
@@ -229,6 +232,10 @@ void uiSeisSel::newSelection( uiIOObjRetDlg* dlg )
 void uiSeisSel::setAttrNm( const char* nm )
 {
     attrnm = nm;
+    if ( attrnm.isEmpty() )
+	dlgiopar.removeWithKey( sKey::Attribute );
+    else
+	dlgiopar.set( sKey::Attribute, nm );
     updateInput();
 }
 
@@ -268,8 +275,9 @@ void uiSeisSel::usePar( const IOPar& iop )
 
 void uiSeisSel::updateInput()
 {
-    if ( !ctio.ioobj ) return;
-    setInput( LineKey(ctio.ioobj->key(),attrnm) );
+    BufferString ioobjkey;
+    if ( ctio.ioobj ) ioobjkey = ctio.ioobj->key();
+    setInput( LineKey(ioobjkey,attrnm) );
 }
 
 
