@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.cc,v 1.19 2008-05-05 05:42:29 cvsnageswara Exp $
+ RCS:           $Id: uisellinest.cc,v 1.20 2008-07-23 08:45:47 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
     {
 	colinp = new uiColorInput( this,
 				   uiColorInput::Setup(linestyle.color_).
-				   lbltxt("Input Color") );
+				   lbltxt(wdraw ? "Color" : "Line color") );
 	colinp->colorchanged.notify( mCB(this,uiSelLineStyle,changeCB) );
 	if ( stylesel )
 	    colinp->attach( rightTo, stylesel );
