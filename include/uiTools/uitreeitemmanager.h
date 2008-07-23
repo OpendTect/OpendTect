@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: uitreeitemmanager.h,v 1.37 2008-07-11 09:33:21 cvsnanne Exp $
+ RCS:		$Id: uitreeitemmanager.h,v 1.38 2008-07-23 08:05:39 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -180,6 +180,9 @@ protected:
     friend			class uiTreeTopItem;
     friend			class uiODTreeTop;
     friend			class CmdDriver;
+
+private:
+    bool			addChildImpl(CallBacker*,uiTreeItem*,bool,bool);
 };
 
 

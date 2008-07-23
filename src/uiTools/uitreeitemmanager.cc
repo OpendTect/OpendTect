@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.41 2008-07-11 09:33:22 cvsnanne Exp $";
+static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.42 2008-07-23 08:05:39 cvsnanne Exp $";
 
 
 #include "uitreeitemmanager.h"
@@ -16,6 +16,10 @@ static const char* rcsID = "$Id: uitreeitemmanager.cc,v 1.41 2008-07-11 09:33:22
 #include "errh.h"
 #include "uilistview.h"
 
+
+#define mEnabSelChg(yn) \
+   if ( uilistviewitem_ && uilistviewitem_->listView() ) \
+	uilistviewitem_->listView()->selectionChanged.enable( yn );
 
 uiTreeItem::uiTreeItem( const char* name__ )
     : parent_( 0 )
@@ -191,18 +195,22 @@ uiTreeItem* uiTreeItem::findChild( int selkey )
 
 void uiTreeItem::moveItem( uiTreeItem* below )
 {
+    mEnabSelChg( false )
     getItem()->moveItem( below->getItem() );
+    mEnabSelChg( true )
 }
 
 
 void uiTreeItem::moveItemToTop()
 {
+    mEnabSelChg( false )
     if ( parent_ && parent_->getItem() && getItem() )
     {
 	uiListViewItem* item = getItem();
 	parent_->getItem()->takeItem( item );
 	parent_->getItem()->insertItem( 0, item );
     }
+    mEnabSelChg( true )
 }
 
 
@@ -281,51 +289,68 @@ uiTreeItem* uiTreeItem::lastChild()
 }
 
 
-#define mAddChildImpl( uiparentlist ) \
-if ( !strcmp(newitem->parentType(), typeid(*this).name()) ) \
-{ \
-    children_ += newitem; \
-    newitem->parent_ = this; \
-    uiListViewItem::Setup setup( newitem->name(), \
-		(uiListViewItem::Type)newitem->uiListViewItemType() ); \
-    uiListViewItem* item = new uiListViewItem(uiparentlist, setup ); \
-    newitem->setListViewItem( item ); \
-    if ( !newitem->init() ) \
-    { \
-	removeChild( newitem ); \
-	return true; \
-    } \
- \
-    if ( !below )  \
-        moveItemToTop(); \
-    if ( uilistviewitem_ ) uilistviewitem_->setOpen( true ); \
-    updateColumnText(0); updateColumnText(1); \
-    return true; \
-} \
- \
-if ( downwards ) \
-{ \
-    for ( int idx=0; idx<children_.size(); idx++ ) \
-    { \
-	if ( children_[idx]->addChild(newitem,below,downwards) ) \
-	    return true; \
-    } \
-} \
-else if ( parent_ ) \
-    return parent_->addChild( newitem, below, downwards ); \
- \
-return false; 
+bool uiTreeItem::addChildImpl( CallBacker* parent, uiTreeItem* newitem,
+			       bool below, bool downwards )
+{
+    mEnabSelChg( false )
+
+    if ( !strcmp(newitem->parentType(),typeid(*this).name()) )
+    {
+	children_ += newitem;
+	newitem->parent_ = this;
+	uiListViewItem::Setup setup( newitem->name(),
+		    (uiListViewItem::Type)newitem->uiListViewItemType() );
+	mDynamicCastGet(uiListViewItem*,lvi,parent)
+	mDynamicCastGet(uiListView*,lv,parent)
+	uiListViewItem* item = 0;
+	if ( lvi )
+	    item = new uiListViewItem( lvi, setup );
+	else if ( lv )
+	    item = new uiListViewItem( lv, setup );
+	newitem->setListViewItem( item );
+	if ( !newitem->init() )
+	{
+	    removeChild( newitem );
+	    mEnabSelChg( true );
+	    return true;
+	}
+ 
+	const bool itmisopen = item->isOpen();
+	if ( !below ) newitem->moveItemToTop();
+	item->setOpen( itmisopen );
+
+	if ( uilistviewitem_ && !uilistviewitem_->isOpen() )
+	    uilistviewitem_->setOpen( true );
+	newitem->updateColumnText(0); newitem->updateColumnText(1);
+	mEnabSelChg( true );
+	return true;
+    }
+ 
+    if ( downwards )
+    {
+	for ( int idx=0; idx<children_.size(); idx++ )
+	{
+	    if ( children_[idx]->addChild(newitem,below,downwards) )
+		return true;
+	}
+    }
+    else if ( parent_ )
+	return parent_->addChild( newitem, below, downwards );
+ 
+    return false; 
+}
 
 
 bool uiTreeItem::addChild( uiTreeItem* newitem, bool below )
 { return addChild( newitem, below, false ); }
 
 bool uiTreeItem::addChild( uiTreeItem* newitem, bool below, bool downwards )
-{ mAddChildImpl( uilistviewitem_ ); }
+{ return addChildImpl( uilistviewitem_, newitem, below, downwards ); }
 
 
 void uiTreeItem::removeChild( uiTreeItem* treeitem )
 {
+    mEnabSelChg( false )
     const int idx=children_.indexOf( treeitem );
     if ( idx<0 )
     {
@@ -340,6 +365,7 @@ void uiTreeItem::removeChild( uiTreeItem* treeitem )
     uiTreeItem* child = children_[idx];
     children_.remove( idx );
     delete child;
+    mEnabSelChg( true )
 }
 
 
@@ -379,7 +405,7 @@ bool uiTreeTopItem::addChild( uiTreeItem* newitem, bool below )
 bool uiTreeTopItem::addChild( uiTreeItem* newitem, bool below, bool downwards )
 {
     downwards = true;		//We are at the top, so we should go downwards
-    mAddChildImpl( listview_ );
+    return addChildImpl( listview_, newitem, below, downwards );
 }
 
 
