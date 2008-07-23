@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.73 2008-07-22 09:30:04 cvshelene Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.74 2008-07-23 07:29:08 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,6 @@ ________________________________________________________________________
 #include "uistoredattrreplacer.h"
 #include "uitextedit.h"
 #include "uitoolbar.h"
-#include "uiobjdisposer.h"
 
 
 const char* uiAttribDescSetEd::sKeyUseAutoAttrSet = "dTect.Auto Attribute set";
@@ -142,7 +141,6 @@ void uiAttribDescSetEd::createToolBar()
 	    	"Redisplay element with current attribute");
     mAddButton( "evalattr.png", evalAttribute, "Evaluate attribute" );
     mAddButton( "xplot.png", crossPlot, "Cross-Plot attributes" );
-    toolbar->display();
 }
 
 
@@ -1003,15 +1001,9 @@ void uiAttribDescSetEd::crossPlot( CallBacker* )
 {
     if ( !adsman || !adsman->descSet() ) return;
 
-    uiAttribCrossPlot* dlg = new uiAttribCrossPlot( this, *adsman->descSet() );
-    dlg->windowClosed.notify( mCB(this,uiAttribDescSetEd,launchedWinClose) );
+    uiAttribCrossPlot* dlg = new uiAttribCrossPlot( 0, *adsman->descSet() );
+    dlg->setDeleteOnClose( true );
     dlg->show();
-}
-
-
-void uiAttribDescSetEd::launchedWinClose( CallBacker* cb )
-{
-    uiOBJDISP()->go( cb );
 }
 
 
@@ -1052,33 +1044,6 @@ void uiAttribDescSetEd::changeInput( CallBacker* )
     newList(-1);
     adsman->setSaved( false );
 }
-
-
-/*bool uiAttribDescSetEd::hasInput( const Desc& desc, const DescID& id )
-{
-    for ( int idx=0; idx<desc.nrInputs(); idx++ )
-    {
-	const Desc* inp = desc.getInput( idx );
-	if ( !inp )
-	{
-	    if ( desc.inputSpec(idx).enabled )
-		return false;
-	    else
-		continue;
-	}
-
-	if ( inp->id() == id ) return true;
-    }
-
-    for ( int idx=0; idx<desc.nrInputs(); idx++ )
-    {
-	const Desc* inp = desc.getInput( idx );
-	if ( inp && inp->isHidden() && inp->nrInputs() )
-	    return hasInput( *inp, id );
-    }
-
-    return false;
-}*/
 
 
 void uiAttribDescSetEd::replaceStoredAttr()
