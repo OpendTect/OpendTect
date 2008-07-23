@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.117 2008-05-30 07:38:09 cvsnanne Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.118 2008-07-23 09:23:29 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "ctxtioobj.h"
+#include "linekey.h"
 #include "transl.h"
 #include "ioman.h"
 #include "iostrm.h"
@@ -134,8 +135,9 @@ uiIOObjSelGrp::uiIOObjSelGrp( uiParent* p, const CtxtIOObj& c,
 	nmfld->setElemSzPol( uiObject::SmallMax );
 	nmfld->setStretch( 2, 0 );
 
-	const char* nm = ctio_.name();
-	if ( nm && *nm )
+	LineKey lk( ctio_.name() );
+	const BufferString nm( lk.lineName() );
+	if ( !nm.isEmpty() )
 	{
 	    nmfld->setText( nm );
 	    if ( listfld->isPresent( nm ) )
