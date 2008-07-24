@@ -7,20 +7,20 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.h,v 1.23 2007-09-18 14:24:01 cvsjaap Exp $
+ RCS:           $Id: uibutton.h,v 1.24 2008-07-24 07:07:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiobj.h"
 
-class uiButtonGroup;
 class uiButtonBody;
-
+class uiCheckBoxBody;
 class uiPushButtonBody;
 class uiRadioButtonBody;
-class uiCheckBoxBody;
 class uiToolButtonBody;
+
+class uiPopupMenu;
 class ioPixmap;
 class QEvent;
 
@@ -151,7 +151,9 @@ public:
     void			setPixmap(const ioPixmap&);
     void			setArrowType(ArrowType);
 
-    void			setShortcut( const char* sc );
+    void			setShortcut(const char*);
+
+    void			setMenu(uiPopupMenu*);
     
     void			click();
 

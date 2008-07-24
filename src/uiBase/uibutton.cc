@@ -4,22 +4,25 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.46 2008-06-26 10:04:09 cvsdgb Exp $
+ RCS:           $Id: uibutton.cc,v 1.47 2008-07-24 07:07:54 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uibutton.h"
 #include "i_qbutton.h"
+
+#include "uimenu.h"
 #include "uiobjbody.h"
 #include "pixmap.h"
 #include "settings.h"
 
 
 #include <QApplication>
+#include <QCheckBox>
+#include <QMenu>
 #include <QPushButton>
 #include <QRadioButton>
-#include <QCheckBox>
 #include <QToolButton>
 
 static const QEvent::Type sQEventActivate = (QEvent::Type) (QEvent::User + 0);
@@ -414,4 +417,20 @@ void uiToolButton::setArrowType( ArrowType type )
 void uiToolButton::setShortcut( const char* sc )
 {
     body_->setShortcut( QString(sc) );
+}
+
+
+void uiToolButton::setMenu( uiPopupMenu* mnu )
+{
+    if ( !mnu ) return;
+
+    QMenu* qmenu = new QMenu;
+    for ( int idx=0; idx<mnu->nrItems(); idx++ )
+    {
+	QAction* qact = const_cast<QAction*>( mnu->items()[idx]->qAction() );
+	qmenu->addAction( qact );
+    }
+
+    body_->setPopupMode( QToolButton::MenuButtonPopup );
+    body_->setMenu( qmenu );
 }
