@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.118 2008-07-23 09:23:29 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.119 2008-07-24 08:28:57 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -346,8 +346,9 @@ bool uiIOObjSelGrp::processInput()
 	return true;
     }
 
-    const char* seltxt = nmfld->text();
-    int itmidx = ioobjnms_.indexOf( seltxt );
+    LineKey lk( nmfld->text() );
+    const BufferString seltxt( lk.lineName() );
+    int itmidx = ioobjnms_.indexOf( seltxt.buf() );
     if ( itmidx < 0 )
 	return createEntry( seltxt );
 
@@ -545,7 +546,8 @@ const char* uiIOObjSel::userNameFromKey( const char* ky ) const
 
 void uiIOObjSel::obtainIOObj()
 {
-    const char* inp = getInput();
+    LineKey lk( getInput() );
+    const BufferString inp( lk.lineName() );
     if ( specialitems.findKeyFor(inp) )
     {
 	ctio.setObj( 0 );
@@ -556,11 +558,11 @@ void uiIOObjSel::obtainIOObj()
     if ( selidx >= 0 )
     {
 	const char* itemusrnm = userNameFromKey( getItem(selidx) );
-	if ( !strcmp(inp,itemusrnm) && ctio.ioobj ) return;
+	if ( inp == itemusrnm && ctio.ioobj ) return;
     }
 
     IOM().to( ctio.ctxt.getSelKey() );
-    const IOObj* ioobj = (*IOM().dirPtr())[inp];
+    const IOObj* ioobj = (*IOM().dirPtr())[inp.buf()];
     ctio.setObj( ioobj && ctio.ctxt.validIOObj(*ioobj) ? ioobj->clone() : 0 );
 }
 
@@ -582,12 +584,15 @@ bool uiIOObjSel::existingUsrName( const char* nm ) const
 
 bool uiIOObjSel::commitInput( bool mknew )
 {
-    const char* inp = getInput();
+    LineKey lk( getInput() );
+    const BufferString inp( lk.lineName() );
     if ( specialitems.findKeyFor(inp) )
     {
 	ctio.setObj( 0 );
 	return true;
     }
+    if ( inp.isEmpty() )
+	return false;
 
     processInput();
     if ( existingTyped() )
