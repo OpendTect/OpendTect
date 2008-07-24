@@ -7,12 +7,15 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.2 2008-04-21 04:27:34 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.3 2008-07-24 03:57:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "callback.h"
+
+class Color;
+class LineStyle;
 
 class QGraphicsItem;
 class QGraphicsItemGroup;
@@ -34,6 +37,8 @@ public:
     void		rotate(float angle);
     void		scale(float x,float y);
 
+    void		setPenStyle(const LineStyle&);
+    void		setFillColor(const Color&);
 
 protected:
     			uiGraphicsItem( QGraphicsItem* itm )

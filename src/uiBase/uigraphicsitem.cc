@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsitem.cc,v 1.2 2008-04-21 04:27:34 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitem.cc,v 1.3 2008-07-24 03:57:24 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,12 @@ ________________________________________________________________________
 
 #include "uigraphicsitem.h"
 
+#include "color.h"
+#include "draw.h"
+
+#include <QBrush>
 #include <QGraphicsItemGroup>
+#include <QPen>
 
 
 void uiGraphicsItem::show()	{ qgraphicsitem_->show(); }
@@ -32,6 +37,26 @@ void uiGraphicsItem::rotate( float angle )
 
 void uiGraphicsItem::scale( float x, float y )
 { qgraphicsitem_->scale( x, y ); }
+
+void uiGraphicsItem::setPenStyle( const LineStyle& ls )
+{
+    mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
+    if ( !agsitm ) return;
+
+    QBrush qbrush( QColor(QRgb(ls.color_.rgb())) );
+    QPen qpen( qbrush, ls.width_, (Qt::PenStyle)ls.type_ );
+    agsitm->setPen( qpen );
+}
+
+
+void uiGraphicsItem::setFillColor( const Color& col )
+{
+    mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
+    if ( !agsitm ) return;
+
+    QBrush qbrush( QColor(QRgb(col.rgb())) );
+    agsitm->setBrush( qbrush );
+}
 
 
 // +++++ uiGraphicsItemGroup +++++
