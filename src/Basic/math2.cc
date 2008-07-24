@@ -4,22 +4,20 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: math2.cc,v 1.4 2008-05-20 09:08:08 cvsdgb Exp $";
+static const char* rcsID = "$Id: math2.cc,v 1.5 2008-07-24 05:40:39 cvsnanne Exp $";
 
 #include "math2.h"
 #include "undefval.h"
 
+#include <float.h>
+#include <limits.h>
 #include <math.h>
-#ifndef __mac__
-# include <values.h>
-#endif
+
 #ifndef __win__
 # include <unistd.h>
 # ifdef sun5
 #  include <ieeefp.h>
 # endif
-#else
-# include <float.h>
 #endif
 
 #define mTYPE float
