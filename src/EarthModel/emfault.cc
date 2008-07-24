@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Fredman
  Date:          Sep 2002
- RCS:           $Id: emfault.cc,v 1.51 2008-06-22 02:54:47 cvskris Exp $
+ RCS:           $Id: emfault.cc,v 1.52 2008-07-24 07:27:42 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -557,8 +557,11 @@ bool FaultAscIO::get( std::istream& strm, EM::Fault& flt ) const
 
 	// TODO: sort sticks
 
-	flt.geometry().insertStick( sid, stick->stickidx_, 0, stick->crds_[0],
-				    stick->getNormal(), false );
+	bool res = flt.geometry().insertStick( sid, stick->stickidx_, 0,
+					       stick->crds_[0],
+					       stick->getNormal(), false );
+	if ( !res ) continue;
+
 	for ( int crdidx=1; crdidx<stick->crds_.size(); crdidx++ )
 	{
 	    const RowCol rc( stick->stickidx_, crdidx );
