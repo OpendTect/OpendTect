@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.39 2008-07-11 09:33:21 cvsnanne Exp $
+ RCS:           $Id: uitreeview.cc,v 1.40 2008-07-24 11:04:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -574,7 +574,6 @@ int uiListViewItem::depth() const
 void uiListViewItem::setText( const char* txt, int column )
 { 
     qtreeitem_->setText( column, QString(txt) );
-    qtreeitem_->setStatusTip( column, QString(txt) );
 }
 
 
