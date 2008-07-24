@@ -4,7 +4,7 @@
  * DATE     : 7-7-1994
 -*/
 
-static const char* rcsID = "$Id: ascstream.cc,v 1.23 2008-02-01 18:42:37 cvskris Exp $";
+static const char* rcsID = "$Id: ascstream.cc,v 1.24 2008-07-24 06:46:44 cvsnanne Exp $";
 
 #include "ascstream.h"
 #include "string2.h"
@@ -297,14 +297,11 @@ bool ascistream::getYN() const
 
 int ascistream::getVal() const
 {
-    return atoi( valbuf );
+    return valbuf.isEmpty() ? mUdf(int) : atoi( valbuf.buf() );
 }
 
 
 double ascistream::getValue() const
 {
-    double res;
-    Conv::udfset( res, valbuf.buf() );
-   
-    return res;
+    return valbuf.isEmpty() ? mUdf(double) : atof( valbuf.buf() );
 }
