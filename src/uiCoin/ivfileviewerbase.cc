@@ -18,13 +18,10 @@
 #ifdef USESOODCLASSES
 #include "initsood.h"
 #endif
+
 int main( int narg, char** argv )
 {
-#ifdef USEQT3
-    QWidget* myWindow = SoQt::init( argv[0] );
-#else
     QWidget* myWindow = SoQt::init( narg, argv, argv[0] );
-#endif
 
 #ifdef USESOODCLASSES
     SoOD::initStdClasses();
@@ -38,38 +35,37 @@ int main( int narg, char** argv )
 
     while ( filename.isEmpty() || !File_exists( filename.buf() ) )
     {
-	uiFileDialog dlg( myWindow, uiFileDialog::ExistingFile, true, 0,
-			  "*.iv", "Select file to view" );
+	uiFileDialog dlg( 0, uiFileDialog::ExistingFile, 0,
+			  "IV files (*.iv)", "Select file to view" );
+	dlg.setAllowAllExts( true );
 	if ( !dlg.go() )
 	    return 1;
 
 	filename = dlg.fileName();
     }
 
-    myViewer->setTitle( filename.buf() );
-
     SoInput mySceneInput;
-
     //SoInput::addDirectoryFirst( "." ); // Add additional directories.
     SbStringList dirlist = SoInput::getDirectories();
     for ( int idx=0; idx<dirlist.getLength(); idx++ )
-	printf( "Looking for \"%s\" in %s\n", argv[1],
+	printf( "Looking for \"%s\" in %s\n", filename.buf(),
 		dirlist[idx]->getString() );
 
-    if ( !mySceneInput.openFile( argv[1] ))
+    if ( !mySceneInput.openFile(filename.buf()) )
 	return 1;
 
-    SoSeparator* myGraph = SoDB::readAll(&mySceneInput);
+    SoSeparator* myGraph = SoDB::readAll( &mySceneInput );
     if ( !myGraph ) return 1;
     mySceneInput.closeFile();
 
-    SoQtExaminerViewer* myViewer = new SoQtExaminerViewer(myWindow);
+    SoQtExaminerViewer* myViewer = new SoQtExaminerViewer( myWindow );
+    myViewer->setTitle( filename.buf() );
     myViewer->setTransparencyType( SoGLRenderAction::SORTED_OBJECT_BLEND );
 
     myViewer->setSceneGraph( myGraph );
     myViewer->show();
 
-    SoQt::show(myWindow);
+    SoQt::show( myWindow );
     SoQt::mainLoop();
 
     return 0;
