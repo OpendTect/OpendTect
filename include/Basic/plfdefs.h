@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Contents:	Defines that encapsulate system things
- RCS:		$Id: plfdefs.h,v 1.21 2008-06-10 09:14:39 cvsbert Exp $
+ RCS:		$Id: plfdefs.h,v 1.22 2008-07-24 13:35:48 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -67,8 +67,10 @@ Byte order:
 
 Always defined:
 
-	__islittle__	'true' if __little__ defined, else 'false'
-	__iswin__	'true' on windows, 'false' otherwise
+	__islittle__	'true' if little endian machine, false otherwise
+	__islinux__	'true' on Linux, 'false' otherwise
+	__ismac__	'true' on Mac, 'false' otherwise
+	__iswin__	'true' on Windows, 'false' otherwise
 
 */
 
@@ -103,6 +105,16 @@ Always defined:
 #endif
 #endif
 
+#ifdef lux
+# define __islinux__ true
+#else
+# define __islinux__ false
+#endif
+#ifdef mac
+# define __ismac__ true
+#else
+# define __ismac__ false
+#endif
 #ifdef __win__
 # define __iswin__ true
 #else
