@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.h,v 1.18 2008-05-05 05:42:18 cvsnageswara Exp $
+ RCS:           $Id: uislider.h,v 1.19 2008-07-25 07:08:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,6 +62,8 @@ public:
 
     Notifier<uiSlider>	valueChanged;
     Notifier<uiSlider>	sliderMoved;
+    Notifier<uiSlider>	sliderPressed;
+    Notifier<uiSlider>	sliderReleased;
     
     float		getLinearFraction() const;
     			//! Force activation in GUI thread

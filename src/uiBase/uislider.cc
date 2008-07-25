@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          01/02/2001
- RCS:           $Id: uislider.cc,v 1.34 2008-05-05 05:42:29 cvsnageswara Exp $
+ RCS:           $Id: uislider.cc,v 1.35 2008-07-25 07:08:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -99,6 +99,8 @@ uiSlider::uiSlider( uiParent* p, const char* nm, int dec, bool logsc,
     , logscale(logsc)
     , valueChanged(this)
     , sliderMoved(this)
+    , sliderPressed(this)
+    , sliderReleased(this)
     , activatedone(this)
 {
     body_->setOrientation( vert ? Qt::Vertical : Qt::Horizontal );
@@ -138,9 +140,11 @@ float uiSlider::getLinearFraction() const
 
 int uiSlider::sliderValue( float fval ) const
 {
-    if ( fval <= 0 ) return 0;
-
-    if ( logscale ) fval = log10( fval );
+    if ( logscale )
+    {
+	if ( fval <= 0 ) return 0;
+	fval = log10( fval );
+    }
 
     return mNINT( scaler_->unScale(fval) );
 }
