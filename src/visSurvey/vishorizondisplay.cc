@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: vishorizondisplay.cc,v 1.54 2008-07-09 11:37:33 cvshelene Exp $
+ RCS:           $Id: vishorizondisplay.cc,v 1.55 2008-07-25 12:39:25 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -724,6 +724,12 @@ bool HorizonDisplay::hasStoredAttrib( int attrib ) const
     const char* userref = as_[attrib]->userRef();
     return as_[attrib]->id()==Attrib::SelSpec::cOtherAttrib() &&
 	   userref && *userref;
+}
+
+
+bool HorizonDisplay::hasDepth( int attrib ) const
+{
+    return as_[attrib]->id()==Attrib::SelSpec::cNoAttrib();
 }
 
 
