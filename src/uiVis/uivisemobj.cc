@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Jan 2005
- RCS:           $Id: uivisemobj.cc,v 1.68 2008-04-08 13:43:42 cvsjaap Exp $
+ RCS:           $Id: uivisemobj.cc,v 1.69 2008-07-25 07:18:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,17 +18,20 @@ ________________________________________________________________________
 #include "emmanager.h"
 #include "emobject.h"
 #include "emsurfaceiodata.h"
-#include "survinfo.h"
 #include "executor.h"
-#include "uitaskrunner.h"
 #include "mousecursor.h"
+#include "survinfo.h"
+
 #include "uigeninputdlg.h"
+#include "uihorizonshiftdlg.h"
 #include "uimenu.h"
 #include "uimpe.h"
 #include "uimsg.h"
 #include "uimenuhandler.h"
 #include "uiseedpropdlg.h"
+#include "uitaskrunner.h"
 #include "uivispartserv.h"
+
 #include "visdataman.h"
 #include "vishorizondisplay.h"
 #include "vishorizon2ddisplay.h"
@@ -477,31 +480,26 @@ void uiVisEMObject::handleMenuCB( CallBacker* cb )
 	menu->setIsHandled(true);
 	if ( hordisp )
 	{
-	    Coord3 shift = hordisp->getTranslation();
-	    BufferString lbl( "Shift " ); lbl += SI().getZUnit();
-	    DataInpSpec* inpspec = new FloatInpSpec( shift.z );
-	    uiGenInputDlg dlg( uiparent_,"Specify horizon shift", lbl, inpspec );
-	    if ( !dlg.go() ) return;
+	    uiHorizonShiftDialog dlg( uiparent_, hordisp );
+	    bool res = dlg.go();
+	    if ( !res ) return;
 
-	    double newshift = dlg.getfValue();
-	    if ( shift.z == newshift ) return;
-
-	    shift.z = newshift;
-	    hordisp->setTranslation( shift );
 	    for ( int attrib=0; attrib<hordisp->nrAttribs(); attrib++ )
 	    {
-		if ( !hordisp->hasStoredAttrib( attrib ) )
+		if ( hordisp->hasDepth(attrib) )
+		    setDepthAsAttrib( attrib );
+		else if ( !hordisp->hasStoredAttrib(attrib) )
 		    visserv_->calculateAttrib( displayid_, attrib, false );
 		else
 		{
 		    uiMSG().error( "Cannot calculate this attribute on "
 			    	   "new location"
 				   "\nDepth will be displayed instead" );
-		    hordisp->setDepthAsAttrib( attrib );
+		    setDepthAsAttrib( attrib );
 		}
 	    }
 
-	    if ( newshift )
+	    if ( res )
 	    {
 		emod->showPosAttrib( EM::EMObject::sSeedNode, false );
 		emod->enableEditing( false );
