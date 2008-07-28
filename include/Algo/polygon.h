@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.12 2008-07-22 09:46:56 cvsjaap Exp $
+ RCS:		$Id: polygon.h,v 1.13 2008-07-28 09:10:07 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -125,8 +125,9 @@ void ODPolygon<T>::getData( bool forx, TypeSet<T>& ts ) const
 
 
 template <class T> inline
-void fillPar( IOPar& iop, const ODPolygon<T>& poly, const char* key )
+void fillPar( IOPar& iop, const ODPolygon<T>& poly, const char* inpkey )
 {
+    const BufferString keywd( inpkey ); const char* key = keywd.buf();
     iop.setYN( IOPar::compKey(key,"Closed"), poly.isClosed() );
     iop.set( IOPar::compKey(key,"Undef"), poly.getUdf().x, poly.getUdf().y );
     TypeSet<T> ts; poly.getData( true, ts );
@@ -137,8 +138,9 @@ void fillPar( IOPar& iop, const ODPolygon<T>& poly, const char* key )
 
 
 template <class T> inline
-void usePar( const IOPar& iop, ODPolygon<T>& poly, const char* key )
+void usePar( const IOPar& iop, ODPolygon<T>& poly, const char* inpkey )
 {
+    const BufferString keywd( inpkey ); const char* key = keywd.buf();
     bool yn = false; iop.getYN( IOPar::compKey(key,"Closed"), yn );
     poly.setClosed( yn );
     Geom::Point2D<T> pt; iop.get( IOPar::compKey(key,"Undef"), pt.x, pt.y );
