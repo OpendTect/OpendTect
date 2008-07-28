@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data keys
 -*/
 
-static const char* rcsID = "$Id: seisselection.cc,v 1.19 2008-05-30 09:17:04 cvsbert Exp $";
+static const char* rcsID = "$Id: seisselection.cc,v 1.20 2008-07-28 09:09:10 cvsbert Exp $";
 
 #include "seisselectionimpl.h"
 #include "cubesampling.h"
@@ -633,9 +633,10 @@ void Seis::PolySelData::fillPar( IOPar& iop ) const
 
 void Seis::PolySelData::usePar( const IOPar& iop )
 {
-    deepErase( polys_ );
     Seis::SelData::usePar( iop );
-    if ( isall_ ) return; 
+    if ( isall_ ) { deepErase( polys_ ); return; }
+
+    const bool wasfilled = !polys_.isEmpty();
 
     iop.get( mGetPolyKey(sKey::ZRange), zrg_ );
     iop.get( mGetPolyKey("Stepoutreach"), stepoutreach_ );
@@ -649,16 +650,19 @@ void Seis::PolySelData::usePar( const IOPar& iop )
 	{
 	    deepErase( polys_ );
 	    polys_ += poly;
+	    return;
 	}
     }
-    else
+
+    if ( nrpolys == 0 && wasfilled )
+	return;
+
+    deepErase( polys_ );
+    for ( int idx=0; idx<nrpolys; idx++ )
     {
-	deepErase( polys_ );
-	for ( int idx=0; idx<nrpolys; idx++ )
-	{
-	    polys_ += new ODPolygon<float>;
-	    ::usePar( iop, *polys_[idx], mGetPolyKey(idx) );
-	}
+	ODPolygon<float>* poly = new ODPolygon<float>;
+	::usePar( iop, *poly, mGetPolyKey(idx) );
+	polys_ += poly;
     }
 }
 
