@@ -8,13 +8,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2008
- RCS:		$Id: uiprestackimpmute.h,v 1.6 2008-06-27 04:33:59 cvsumesh Exp $
+ RCS:		$Id: uiprestackimpmute.h,v 1.7 2008-07-28 05:43:21 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-#include "mathfunc.h"
 
 class uiFileInput;
 class CtxtIOObj;
