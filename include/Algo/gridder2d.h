@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Y.C.Liu & K. Tingdahl
  Date:		January 2008
- RCS:		$Id: gridder2d.h,v 1.5 2008-07-17 15:21:10 cvskris Exp $
+ RCS:		$Id: gridder2d.h,v 1.6 2008-07-29 20:54:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -129,6 +129,8 @@ public:
     static const char* 	sName() 	{ return "TriangulatedNeighborhood"; }
     static const char* 	sUserName() 	{ return "Triangulated Neighborhood";}
 
+    bool		setPoints(const TypeSet<Coord>&);
+
     void		setGridArea(const Interval<float>&,
 	    			    const Interval<float>&);
 
@@ -140,6 +142,7 @@ public:
     bool		init();
 protected:
 
+    TypeSet<Coord>	mycoords_;
     DAGTriangleTree*	triangles_;
     Interval<float>	xrg_;
     Interval<float>	yrg_;

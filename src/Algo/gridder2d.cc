@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.5 2008-07-17 15:21:10 cvskris Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.6 2008-07-29 20:54:30 cvskris Exp $";
 
 #include "gridder2d.h"
 
@@ -278,6 +278,20 @@ Gridder2D* TriangledNeighborhoodGridder2D::create()
     return new TriangledNeighborhoodGridder2D;
 }
 
+bool TriangledNeighborhoodGridder2D::setPoints( const TypeSet<Coord>& pts )
+{
+    if ( !Gridder2D::setPoints( pts ) )
+    {
+	mycoords_.erase();
+	return false;
+    }
+
+    mycoords_ = pts;
+    mycoords_ += Coord::udf();
+
+    return true;
+}
+
 
 void TriangledNeighborhoodGridder2D::initClass()
 {
@@ -314,7 +328,7 @@ bool TriangledNeighborhoodGridder2D::init()
 	if ( !DAGTriangleTree::computeCoordRanges( *points_, xrg, yrg ) ) 
 	    return false;
 
-	if ( !triangles_->setCoordList( *points_, true ) )
+	if ( !triangles_->setCoordList( mycoords_, false ) )
 	    return false;
 
 	xrg.include( xrg_.start ); xrg.include( xrg_.stop );
@@ -325,6 +339,7 @@ bool TriangledNeighborhoodGridder2D::init()
 
 	ParallelDTriangulator triangulator( *triangles_ );
 	triangulator.dataIsRandom( false );
+	triangulator.setCalcScope( Interval<int>( 0, points_->size()-1 ) );
 	if ( !triangulator.execute( false ) )
 	{
 	    delete triangles_;
@@ -335,8 +350,10 @@ bool TriangledNeighborhoodGridder2D::init()
 
     DAGTriangleTree interpoltriangles( *triangles_ );
     int dupid = -1;
-    const int gridptid = interpoltriangles.insertPoint( gridpoint_, dupid );
-    if ( gridptid==DAGTriangleTree::cNoVertex() )
+    const int gridptid = mycoords_.size()-1;
+    mycoords_[gridptid] = gridpoint_;
+
+    if ( !interpoltriangles.insertPoint( gridptid, dupid) )
 	return false;
 
     if ( dupid!=DAGTriangleTree::cNoVertex() )
