@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.48 2008-06-06 07:36:07 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.49 2008-07-29 08:08:51 cvsjaap Exp $";
 
 #include "horizonadjuster.h"
 
@@ -191,6 +191,8 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 		    const_cast<ValueSeries<float>&>(*storage), 
 		    cube.info().getOffset( toinlidx, tocrlidx, 0 ) ); 
 
+    if ( !horizon_.isDefined(sectionid_, to.getSerialized()) )
+	return false;
     const float startz = horizon_.getPos( sectionid_, to.getSerialized() ).z;
     tracker_->setRangeStep( sd.step );
 
@@ -211,6 +213,8 @@ bool HorizonAdjuster::track( const BinID& from, const BinID& to,
 	const OffsetValueSeries<float> fromarr( 
 		    const_cast<ValueSeries<float>&>(*storage), 
 		    cube.info().getOffset( frominlidx, fromcrlidx, 0 ) ); 
+	if ( !horizon_.isDefined(sectionid_, from.getSerialized()) )
+	    return false;
 	const float fromz = horizon_.getPos(sectionid_,from.getSerialized()).z;
 	tracker_->setSource( &fromarr, zsz, sd.getIndex(fromz) );
 
