@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.16 2008-07-17 14:21:56 cvsyuancheng Exp $
+ RCS:           $Id: delaunay.h,v 1.17 2008-07-29 20:53:18 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,6 +141,7 @@ public:
 	
     bool		isDataRandom()		{ return israndom_; }
     void		dataIsRandom(bool yn)	{ israndom_ = yn; }
+    void		setCalcScope(const Interval<int>& rg);
 
 protected:
 
@@ -154,6 +155,7 @@ protected:
     TypeSet<int>	permutation_;
     bool		israndom_;
     DAGTriangleTree&	tree_;
+    Interval<int>	calcscope_;
 };
 
 

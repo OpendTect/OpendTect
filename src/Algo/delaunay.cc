@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.19 2008-07-17 14:21:56 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.20 2008-07-29 20:53:18 cvskris Exp $";
 
 #include "delaunay.h"
 #include "trigonometry.h"
@@ -13,11 +13,19 @@ static const char* rcsID = "$Id: delaunay.cc,v 1.19 2008-07-17 14:21:56 cvsyuanc
 ParallelDTriangulator::ParallelDTriangulator( DAGTriangleTree& dagt )
     : tree_( dagt )  
     , israndom_( true )
+    , calcscope_( 0, dagt.coordList().size()-1 )
 {}
 
 
+void ParallelDTriangulator::setCalcScope(const Interval<int>& rg)
+{
+    calcscope_.start =  mMAX( 0, rg.start );
+    calcscope_.stop =  mMIN( tree_.coordList().size()-1, rg.stop );
+}
+
+
 int ParallelDTriangulator::totalNr() const                
-{ return tree_.coordList().size(); }
+{ return calcscope_.width()+1; }
 
 
 bool ParallelDTriangulator::doPrepare( int nrthreads )
@@ -44,9 +52,10 @@ bool ParallelDTriangulator::doWork( int start, int stop, int threadid )
 {
     for ( int idx=start; idx<=stop && shouldContinue(); idx++, reportNrDone(1) )
     {
-	const int insertptid = permutation_.size() ? permutation_[idx] : idx;
+	const int scopeidx = permutation_.size() ? permutation_[idx] : idx;
+	const int coordid = calcscope_.atIndex( scopeidx, 1 );
 	int dupid;
-       	if ( !tree_.insertPoint( insertptid, dupid ) )
+       	if ( !tree_.insertPoint( coordid, dupid ) )
 	    return false;
     }
 
@@ -97,8 +106,8 @@ DAGTriangleTree& DAGTriangleTree::operator=( const DAGTriangleTree& b )
 
 DAGTriangleTree::~DAGTriangleTree()
 {
-    if ( ownscoordlist_ && coordlist_ )
-	coordlist_->erase();
+    if ( ownscoordlist_ )
+	delete coordlist_;
 }
 
 
