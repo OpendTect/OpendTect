@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.79 2008-07-04 04:10:16 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.80 2008-07-29 12:32:58 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seispsread.h"
@@ -61,9 +61,9 @@ SeisTrcReader::SeisTrcReader( const char* fname )
 
 SeisTrcReader::~SeisTrcReader()
 {
-    mDelOuter;
+    mDelOuter; outer = 0;
+    init();
     delete tbuf;
-    delete fetcher;
 }
 
 
@@ -129,14 +129,14 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 
 void SeisTrcReader::startWork()
 {
-    if ( !psrdr_ && !trl ) return;
-
     outer = 0;
     if ( is2d )
     {
 	tbuf = new SeisTrcBuf( true );
 	return;
     }
+
+    if ( psrdr_ || !trl ) return;
 
     SeisTrcTranslator& sttrl = *strl();
     if ( forcefloats )
@@ -257,6 +257,11 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 
     if ( is2d )
 	return get2D(ti);
+    if ( psrdr_ )
+    {
+	errmsg = "Cannot read Pre-Stack data via SeisTrcReader (yet)";
+	return -1;
+    }
 
     SeisTrcTranslator& sttrl = *strl();
     bool needsk = needskip; needskip = false;
@@ -331,6 +336,11 @@ bool SeisTrcReader::get( SeisTrc& trc )
 	startWork();
     if ( is2d )
 	return get2D(trc);
+    if ( psrdr_ )
+    {
+	errmsg = "Cannot read Pre-Stack data via SeisTrcReader (yet)";
+	return -1;
+    }
 
     if ( !strl()->read(trc) )
     {

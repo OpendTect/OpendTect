@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.29 2008-01-22 15:04:17 cvsbert Exp $
+ RCS:		$Id: seisread.h,v 1.30 2008-07-29 12:32:58 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,8 @@ you cannot use SeisTrcTranslator facilities then.
 
 Then, the routine is: get(trc.info()) possibly followed by get(trc).
 Not keeping this sequence is at your own risk.
+
+Note: Pre-Stack data cannot (yet) be read via this class.
 
 */
 
