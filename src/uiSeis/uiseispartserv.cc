@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.91 2008-07-21 08:57:17 cvsumesh Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.92 2008-07-30 12:22:56 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -167,7 +167,7 @@ void uiSeisPartServer::get2DLineInfo( BufferStringSet& linesets,
     for ( int idx=0; idx<ioobjs.size(); idx++ )
     {
 	const IOObj& ioobj = *ioobjs[idx];
-	if ( !SeisTrcTranslator::is2D(ioobj)
+	if ( !SeisTrcTranslator::is2D(ioobj,true)
 	  || SeisTrcTranslator::isPS(ioobj) ) continue;
 
 	uiSeisIOObjInfo oinf(ioobj,false);
