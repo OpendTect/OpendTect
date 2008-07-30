@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.95 2008-07-17 15:10:48 cvsbert Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.96 2008-07-30 05:40:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "filepath.h"
 #include "ioobj.h" // for GetFreeMBOnDiskMsg
+#include "mousecursor.h"
 #include "oddirs.h"
 #include "ptrman.h"
 #include "survinfo.h"
@@ -24,13 +25,11 @@ ________________________________________________________________________
 
 #include "uibutton.h"
 #include "uicombobox.h"
-#include "mousecursor.h"
 #include "uifiledlg.h"
 #include "uigeninput.h"
 #include "uigroup.h"
 #include "uilabel.h"
 #include "uilistbox.h"
-#include "uimain.h"
 #include "uimsg.h"
 #include "uiselsimple.h"
 #include "uiseparator.h"
@@ -38,6 +37,7 @@ ________________________________________________________________________
 
 
 extern "C" const char* GetBaseDataDir();
+extern "C" void SetSurveyName(const char*);
 
 
 static ObjectSet<uiSurvInfoProvider>& survInfoProvs()
@@ -140,6 +140,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 		       orgstorepath,orgdirname) )
 	    return;
 	File_makeWritable( dirnm, YES, YES );
+	SetSurveyName( orgdirname );
     }
 
     dirnmfld = new uiGenInput( this, "Survey directory name", 
