@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.83 2008-05-08 09:34:38 cvsnanne Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.84 2008-07-30 11:54:07 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -33,6 +33,7 @@ extern "C" void SetSurveyName(const char*);
 extern "C" const char* GetSurveyName();
 extern "C" void SetSurveyNameDirty();
 extern "C" const char* GetBaseDataDir();
+bool IOMAN_no_survchg_triggers = false;
 
 
 IOMan::IOMan( const char* rd )
@@ -174,7 +175,7 @@ bool IOMan::isReady() const
 
 
 #define mDestroyInst(dotrigger) \
-    if ( dotrigger ) \
+    if ( dotrigger && !IOMAN_no_survchg_triggers ) \
 	IOM().surveyToBeChanged.trigger(); \
     CallBackSet s2bccbs = IOM().surveyToBeChanged.cbs; \
     CallBackSet sccbs = IOM().surveyChanged.cbs; \
@@ -194,8 +195,11 @@ bool IOMan::isReady() const
     if ( dotrigger ) \
     { \
 	setupCustomDataDirs(-1); \
-	IOM().surveyChanged.trigger(); \
-	IOM().afterSurveyChange.trigger(); \
+	if ( dotrigger && !IOMAN_no_survchg_triggers ) \
+	{ \
+	    IOM().surveyChanged.trigger(); \
+	    IOM().afterSurveyChange.trigger(); \
+	} \
     }
 
 
