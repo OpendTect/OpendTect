@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiimppickset.cc,v 1.33 2008-06-05 10:24:13 cvsbert Exp $
+ RCS:           $Id: uiimppickset.cc,v 1.34 2008-07-30 04:11:45 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -56,6 +56,8 @@ uiImpExpPickSet::uiImpExpPickSet( uiPickPartServer* p, bool imp )
     , constzfld_(0)
     , dataselfld_(0)
 {
+    setCtrlStyle( DoAndStay );
+
     BufferString label( import_ ? "Input " : "Output " );
     label += "Ascii file";
     filefld_ = new uiFileInput( this, label, uiFileInput::Setup()
@@ -212,7 +214,11 @@ bool uiImpExpPickSet::acceptOK( CallBacker* )
 {
     if ( !checkInpFlds() ) return false;
     bool ret = import_ ? doImport() : doExport();
-    return ret;
+    if ( !ret ) return false;
+
+    uiMSG().message( BufferString("Pickset successfully ",
+				  import_ ? "imported" : "exported") );
+    return false;
 }
 
 
@@ -228,17 +234,20 @@ bool uiImpExpPickSet::checkInpFlds()
     if ( !objfld_->commitInput( true ) )
 	mErrRet( "Please select PickSet" );
 
-    if ( !dataselfld_->commit() )
-	mErrRet( "Please specify data format" );
-
-    const int zchoice = zfld_->box()->currentItem();
-    if ( zchoice == 1 )
+    if ( import_ )
     {
-	float constz = constzfld_->getfValue();
-	if ( SI().zIsTime() ) constz /= 1000;
+	if ( !dataselfld_->commit() )
+	    mErrRet( "Please specify data format" );
 
-	if ( !SI().zRange(false).includes( constz ) )
-	    mErrRet( "Please Enter a valid Z value" );
+	const int zchoice = zfld_->box()->currentItem();
+	if ( zchoice == 1 )
+	{
+	    float constz = constzfld_->getfValue();
+	    if ( SI().zIsTime() ) constz /= 1000;
+
+	    if ( !SI().zRange(false).includes( constz ) )
+		mErrRet( "Please Enter a valid Z value" );
+	}
     }
 
     return true;
