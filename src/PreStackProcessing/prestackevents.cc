@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackevents.cc,v 1.2 2008-07-18 14:24:11 cvskris Exp $";
+static const char* rcsID = "$Id: prestackevents.cc,v 1.3 2008-07-30 22:55:32 cvskris Exp $";
 
 #include "prestackevents.h"
 
@@ -17,7 +17,6 @@ static const char* rcsID = "$Id: prestackevents.cc,v 1.2 2008-07-18 14:24:11 cvs
 #include "rowcol.h"
 #include "prestackeventtransl.h"
 #include "prestackeventio.h"
-#include "offsetazimuth.h"
 #include "separstr.h"
 #include "survinfo.h"
 #include "seisread.h"
@@ -775,6 +774,148 @@ bool EventManager::DipSource::use( const char* str )
     }
 
     type_ = typeenum;
+    return true;
+}
+
+
+SetPickUndo::SetPickUndo( EventManager& man, const BinID& bid, int horidx,
+			  const OffsetAzimuth& oa,
+			  float depth, unsigned char pickquality )
+    : manager_( man )
+    , oa_( oa )
+    , bid_( bid )
+    , horidx_( horidx )
+    , olddepth_( depth )
+    , oldquality_( pickquality )
+{
+    RefMan<EventSet> events = manager_.getEvents( bid, false, false );
+    Event* event = events->events_[horidx_];
+    const int idx = event->indexOf( oa_ );
+    newdepth_ = event->pick_[idx];
+    if ( event->pickquality_ )
+	newquality_ = event->pickquality_[idx];
+}
+
+
+bool SetPickUndo::unDo() 
+{
+    return doWork( olddepth_, oldquality_ );
+}
+
+
+bool SetPickUndo::reDo() 
+{
+    return doWork( newdepth_, newquality_ );
+}
+
+
+bool SetPickUndo::doWork( float nd, unsigned char nq )
+{
+    RefMan<EventSet> events = manager_.getEvents( bid_, true, false );
+    if ( !events )
+	return false;
+
+    if ( events->events_.size()<=horidx_ )
+	return false;
+
+    Event* event = events->events_[horidx_];
+    int idx = event->indexOf( oa_ );
+    const bool isdefined = !mIsUdf(nd);
+    if ( idx==-1 )
+    {
+	if ( !isdefined )
+	    return true;
+
+	idx = event->sz_;
+	event->addPick();
+    }
+
+    if ( !isdefined )
+    {
+	event->removePick( idx );
+    }
+    else
+    {
+	event->pick_[idx] = nd;
+	if ( event->pickquality_ )
+	    event->pickquality_[idx] = nq;
+    }
+
+    return true;
+}
+
+
+SetEventUndo::SetEventUndo( EventManager& man, const BinID& bid, int horidx,
+			  short horid, VSEvent::Type evt,
+			  unsigned char quality )
+    : manager_( man )
+    , bid_( bid )
+    , horidx_( horidx )
+    , horid_( horid )
+    , eventtype_( evt )
+    , quality_( quality )
+    , isremove_( true )
+{
+}
+
+
+SetEventUndo::SetEventUndo( EventManager& man, const BinID& bid, int horidx )
+    : manager_( man )
+    , bid_( bid )
+    , horidx_( horidx )
+    , isremove_( false )
+{
+    RefMan<EventSet> events = manager_.getEvents( bid, false, false );
+    Event* event = events->events_[horidx_];
+    quality_ = event->quality_;
+    eventtype_ = event->eventtype_;
+    horid_ = event->horid_;
+}
+
+
+bool SetEventUndo::unDo()
+{
+    if ( isremove_ )
+	return addEvent();
+
+    return removeEvent();
+}
+
+
+bool SetEventUndo::reDo()
+{
+    if ( isremove_ )
+	return removeEvent();
+
+    return addEvent();
+}
+
+
+bool SetEventUndo::addEvent()
+{
+    RefMan<EventSet> events = manager_.getEvents( bid_, true, false );
+    if ( !events )
+	return false;
+
+    Event* ev = new Event( 0, true );
+    ev->quality_ = quality_;
+    ev->horid_ = horid_;
+    ev->eventtype_ = eventtype_;
+
+    events->events_.insertAt( ev, horidx_ );
+
+    return true;
+}
+
+
+bool SetEventUndo::removeEvent()
+{
+    RefMan<EventSet> events = manager_.getEvents( bid_, true, false );
+    if ( !events )
+	return false;
+
+    delete events->events_.remove( horidx_ );
+
     return true;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackevents.h,v 1.2 2008-07-18 14:24:11 cvskris Exp $
+ RCS:		$Id: prestackevents.h,v 1.3 2008-07-30 22:55:32 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -18,8 +18,10 @@ ________________________________________________________________________
 #include "color.h"
 #include "multiid.h"
 #include "multidimstorage.h"
+#include "offsetazimuth.h"
 #include "position.h"
 #include "refcount.h"
+#include "undo.h"
 #include "valseriesevent.h"
 
 class Executor;
@@ -142,6 +144,9 @@ public:
     bool			getHorRanges(HorSampling&) const;
     bool			getLocations(BinIDValueSet&) const;
 
+    Undo&			history()	{ return history_; }
+    const Undo&			history() const	{ return history_; }
+
 
     Executor*			commitChanges();
     Executor*			load(const BinIDValueSet&);
@@ -209,6 +214,65 @@ protected:
 
     SeisTrcReader*		primarydipreader_;
     SeisTrcReader*		secondarydipreader_;
+
+    Undo			history_;
+};
+
+
+class SetPickUndo : public BinIDUndoEvent
+{
+public:
+    			SetPickUndo(EventManager&,const BinID&,int horidx,
+				    const OffsetAzimuth&,float depth,
+				    unsigned char pickquality);
+    const char*		getStandardDesc()	{ return "prestack pick"; }
+    const BinID&	getBinID() const	{ return bid_; }
+
+    bool		unDo();
+    bool		reDo();
+
+protected:
+
+    bool		doWork( float, unsigned char );
+
+    EventManager&	manager_;
+    const BinID&	bid_;
+    const int		horidx_;
+    const OffsetAzimuth	oa_;
+    const float		olddepth_;
+    const unsigned char	oldquality_;
+    float		newdepth_;
+    unsigned char	newquality_;
+};
+
+
+class SetEventUndo : public UndoEvent
+{
+public:
+    			SetEventUndo(EventManager&,const BinID&,int horidx,
+				    short horid,VSEvent::Type,
+				    unsigned char pickquality);
+    			SetEventUndo(EventManager&,const BinID&,int horidx);
+    const char*		getStandardDesc()	{ return "prestack pick"; }
+    const BinID&	getBinID() const	{ return bid_; }
+
+    bool		unDo();
+    bool		reDo();
+
+protected:
+
+    bool		addEvent();
+    bool		removeEvent();
+
+    EventManager&	manager_;
+    const BinID&	bid_;
+    const int		horidx_;
+
+    unsigned char	quality_;
+    short		horid_;
+    VSEvent::Type	eventtype_;
+
+    bool		isremove_;
 };
 
 
