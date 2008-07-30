@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: undo.cc,v 1.2 2007-09-21 10:11:09 cvsjaap Exp $
+ RCS:           $Id: undo.cc,v 1.3 2008-07-30 22:55:09 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "errh.h"
 #include "iopar.h"
+#include "position.h"
 
 
 Undo::Undo()
@@ -295,6 +296,13 @@ void Undo::removeOldEvents()
     }
 
     removeStartToAndIncluding( firstkepteventidx+firsteventid_-1 );
+}
+
+
+const BinID& BinIDUndoEvent::getBinID() const
+{
+    static BinID res( mUdf(int), mUdf(int) );
+    return res;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: undo.h,v 1.2 2007-09-21 10:11:09 cvsjaap Exp $
+ RCS:		$Id: undo.h,v 1.3 2008-07-30 22:55:09 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "callback.h"
 
 class UndoEvent;
+class BinID;
 
 /*! Class to handle undo/redo information. Events that can be undone/redone
     are added to the Undo. One user operation may involve thouthands
@@ -105,6 +106,13 @@ public:
     virtual const char*		getStandardDesc() const	 	= 0;
     virtual bool		unDo()				= 0;
     virtual bool		reDo()				= 0;
+};
+
+
+class BinIDUndoEvent : public UndoEvent
+{
+public:
+    virtual const BinID&	getBinID() const;
 };
 
 #endif
