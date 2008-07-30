@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Sep 2005
- RCS:		$Id: horizon2dseedpicker.cc,v 1.8 2007-10-10 04:32:48 cvsnanne Exp $
+ RCS:		$Id: horizon2dseedpicker.cc,v 1.9 2008-07-30 10:10:24 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -404,7 +404,7 @@ bool Horizon2DSeedPicker::retrackFromSeedList()
 	adjuster->setPositions(addedpos, &addedpossrc);
 	while ( adjuster->nextStep()>0 );
 
-	for ( int idx=0; idx<addedpos.size(); idx++ )
+	for ( int idx=addedpos.size()-1; idx>=0; idx-- )
 	{
 	    if ( !hor->isDefined(sectionid_,addedpos[idx]) )
 		addedpos.remove(idx);
