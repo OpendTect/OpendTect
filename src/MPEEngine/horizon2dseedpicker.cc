@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Sep 2005
- RCS:		$Id: horizon2dseedpicker.cc,v 1.9 2008-07-30 10:10:24 cvsjaap Exp $
+ RCS:		$Id: horizon2dseedpicker.cc,v 1.10 2008-07-30 11:56:34 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,6 @@ namespace MPE
 
 Horizon2DSeedPicker::Horizon2DSeedPicker( MPE::EMTracker& t )
     : tracker_( t )
-    , data2d_( 0 )
     , sectionid_( -1 )
     , lineid_( -1 )
     , addrmseed_( this )
@@ -38,23 +37,10 @@ Horizon2DSeedPicker::Horizon2DSeedPicker( MPE::EMTracker& t )
 { }
 
 
-Horizon2DSeedPicker::~Horizon2DSeedPicker()
+void Horizon2DSeedPicker::setLine( const MultiID& lineset, const char* linenm )
 {
-    if ( data2d_ ) data2d_->unRef();
-}
-
-
-void Horizon2DSeedPicker::setLine( const MultiID& lineset, const char* linename,
-				   const Attrib::Data2DHolder* data )
-{
-     if ( data2d_ )
-	 data2d_->unRef();
-
-     data2d_ = data;
-     if ( data2d_ ) data2d_->ref();
-
      lineset_ = lineset;
-     linename_ = linename;
+     linename_ = linenm;
 }
 
 
@@ -81,51 +67,21 @@ EM::SectionID Horizon2DSeedPicker::getSectionID() const
 
 bool Horizon2DSeedPicker::startSeedPick()
 {
-    if ( !data2d_ ) return false;
-
     mGetHorizon(hor,false);
     didchecksupport_ = hor->enableGeometryChecks( false );
 
-    bool found = false;
     for ( int idx=0; idx<hor->geometry().nrLines(); idx++ )
     {
 	const int lineid = hor->geometry().lineID( idx );
 	if ( hor->geometry().lineSet(lineid)==lineset_ &&
 	     !strcmp(hor->geometry().lineName(lineid),linename_) )
 	{
-	    found = true;
 	    lineid_ = lineid;
-	    break;
+	    return true;
 	}
     }
 
-    if ( !found )
-    {
-	TypeSet<Coord> coords;
-	const CubeSampling cs = data2d_->getCubeSampling();
-	const StepInterval<int> trcrg( cs.hrg.start.crl, cs.hrg.stop.crl,
-				       cs.hrg.step.crl );
-
-	for ( int trcnr=trcrg.start; trcnr<=trcrg.stop; trcnr+= trcrg.step )
-	{
-	    found = false;
-	    for ( int idx=0; idx<data2d_->size(); idx++ )
-	    {
-		if ( data2d_->trcinfoset_[idx]->nr == trcnr )
-		{
-		    coords += data2d_->trcinfoset_[idx]->coord;
-		    found = true;
-		    break;
-		}
-	    }
-
-	    if ( !found ) coords += Coord::udf();
-	}
-
-	lineid_ = hor->geometry().addLine( coords, trcrg.start, trcrg.step,
-					   lineset_, linename_ );
-    }
-
+    lineid_ = hor->geometry().addLine( lineset_, linename_ );
     return true;
 }
 

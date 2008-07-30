@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          March 2004
- RCS:           $Id: uimpeman.cc,v 1.130 2008-05-30 07:14:03 cvsnageswara Exp $
+ RCS:           $Id: uimpeman.cc,v 1.131 2008-07-30 11:56:34 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -303,7 +303,7 @@ void uiMPEMan::seedClick( CallBacker* )
 	}
 
 	mDynamicCastGet( MPE::Horizon2DSeedPicker*, h2dsp, seedpicker );
-	h2dsp->setLine( lset, lname, clickcatcher->info().getObjLineData() );
+	h2dsp->setLine( lset, lname );
 
 	if ( !h2dsp->startSeedPick() )
 	    return;
@@ -851,8 +851,10 @@ MPE::EMTracker* uiMPEMan::getSelectedTracker()
     const EM::ObjectID oid = EM::EMM().getObjectID( mid );
     const int trackerid = MPE::engine().getTrackerByObject( oid );
     MPE::EMTracker* tracker = MPE::engine().getTracker( trackerid );
+    if ( tracker  && tracker->isEnabled() )
+	return tracker;
 
-    return tracker && tracker->isEnabled() ? tracker : 0;
+    return 0; 
 }
 
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: horizon2dseedpicker.h,v 1.4 2007-03-29 11:34:37 cvsjaap Exp $
+ RCS:           $Id: horizon2dseedpicker.h,v 1.5 2008-07-30 11:56:34 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,9 +24,8 @@ class Horizon2DSeedPicker : public EMSeedPicker
 {
 public:
     			Horizon2DSeedPicker(MPE::EMTracker&);
-    			~Horizon2DSeedPicker();
-    void		setLine(const MultiID& lineset,const char*linename,
-	    			const Attrib::Data2DHolder*);
+    			~Horizon2DSeedPicker()		{}
+    void		setLine(const MultiID& lineset,const char*linename);
 
     bool		canSetSectionID() const;
     bool		setSectionID(const EM::SectionID&);
@@ -90,7 +89,6 @@ protected:
     bool			didchecksupport_;
     int				lineid_;
 
-    const Attrib::Data2DHolder* data2d_;
     BufferString		linename_;
     MultiID			lineset_;
 
