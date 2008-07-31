@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.14 2008-06-30 12:47:11 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.15 2008-07-31 10:45:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,8 +31,6 @@ ________________________________________________________________________
 
 static const int cMaxPtsForMarkers = 20000;
 static const int cMaxPtsForDisplay = 100000;
-float uiDataPointSetCrossPlotter::AutoScalePars::defclipratio_ = -1;
-
 
 uiDataPointSetCrossPlotter::Setup uiDataPointSetCrossPlotWin::defsetup_;
 
@@ -49,45 +47,19 @@ uiDataPointSetCrossPlotter::Setup::Setup()
 }
 
 
-uiDataPointSetCrossPlotter::AutoScalePars::AutoScalePars()
-    : doautoscale_(true)
-{
-    if ( defclipratio_ == -1 )
-    {
-	const char* res = Settings::common().find( "AxisData.Clip Ratio" );
-	const float val = res && *res ? atof( res )
-		        : GetEnvVarDVal( "OD_DEFAULT_AXIS_CLIPRATIO", 0 );
-	defclipratio_ = val < 0 || val >= 1 ? 0 : val;
-    }
-    clipratio_ = defclipratio_;
-}
-
-
 uiDataPointSetCrossPlotter::AxisData::AxisData( uiDataPointSetCrossPlotter& cp,
 						uiRect::Side s )
-    : cp_(cp)
-    , axis_(0)
-    , defaxsu_(s)
-    , rg_(0,1)
+    : uiAxisData( s )
+    , cp_( cp )
 {
-    stop();
-}
-
-
-uiDataPointSetCrossPlotter::AxisData::~AxisData()
-{
-    delete axis_;
 }
 
 
 void uiDataPointSetCrossPlotter::AxisData::stop()
 {
+    if ( isreset_ ) return;
     colid_ = cp_.mincolid_ - 1;
-    needautoscale_ = false;
-    if ( !axis_ ) return;
-
-    defaxsu_ = axis_->setup();
-    delete axis_; axis_ = 0;
+    uiAxisData::stop();
 }
 
 
@@ -96,6 +68,7 @@ void uiDataPointSetCrossPlotter::AxisData::setCol( DataPointSet::ColID cid )
     if ( axis_ && cid == colid_ )
 	return;
 
+    stop();
     colid_ = cid;
     newColID();
 }
@@ -103,41 +76,11 @@ void uiDataPointSetCrossPlotter::AxisData::setCol( DataPointSet::ColID cid )
 
 void uiDataPointSetCrossPlotter::AxisData::newColID()
 {
-    const DataPointSet::ColID cid = colid_;
-    stop();
-    colid_ = cid;
     if ( colid_ < cp_.mincolid_ )
 	return;
 
-    axis_ = new uiAxisHandler( cp_.drawTool(), defaxsu_ );
-    axis_->setName( cp_.uidps_.userName(colid_) );
-    needautoscale_ = true;
-    handleAutoScale();
-}
-
-
-void uiDataPointSetCrossPlotter::AxisData::newDevSize()
-{
-    if ( axis_ ) axis_->newDevSize();
-}
-
-
-void uiDataPointSetCrossPlotter::AxisData::handleAutoScale()
-{
-    if ( !axis_ || !needautoscale_ || !autoscalepars_.doautoscale_ )
-	return;
-
-    const Stats::RunCalc<float>& rc = cp_.uidps_.getRunCalc( colid_ );
-    rg_ = Interval<float>( rc.min(), rc.max() );
-    if ( !mIsZero(autoscalepars_.clipratio_,1e-5) )
-    {
-	rg_.start = rc.clipVal( autoscalepars_.clipratio_, false );
-	rg_.stop = rc.clipVal( autoscalepars_.clipratio_, true );
-    }
-
-    AxisLayout al( rg_ );
-    axis_->setRange( StepInterval<float>( al.sd.start, al.stop, al.sd.step ) );
-    needautoscale_ = false;
+    renewAxis( cp_.uidps_.userName(colid_), cp_.drawTool(), 0 );
+    handleAutoScale( cp_.uidps_.getRunCalc( colid_ ) );
 }
 
 
@@ -190,10 +133,14 @@ uiDataPointSetCrossPlotter::~uiDataPointSetCrossPlotter()
     delete &lsy2_;
 }
 
+#define mHandleAxisAutoScale(axis) \
+    axis.handleAutoScale( uidps_.getRunCalc( axis.colid_ ) ); \
 
 void uiDataPointSetCrossPlotter::dataChanged()
 {
-    x_.handleAutoScale(); y_.handleAutoScale(); y2_.handleAutoScale();
+    mHandleAxisAutoScale( x_ )
+    mHandleAxisAutoScale( y_ )
+    mHandleAxisAutoScale( y2_ )
     calcStats();
     update();
 }
@@ -385,7 +332,9 @@ void uiDataPointSetCrossPlotter::setCols( DataPointSet::ColID x,
     else if ( x_.axis_ )
 	x_.axis_->setEnd( 0 );
 
-    x_.handleAutoScale(); y_.handleAutoScale(); y2_.handleAutoScale();
+    mHandleAxisAutoScale(x_);
+    mHandleAxisAutoScale(y_);
+    mHandleAxisAutoScale(y2_);
     calcStats();
 
     update();

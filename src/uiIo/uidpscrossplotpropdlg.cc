@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Jun 2008
- RCS:           $Id: uidpscrossplotpropdlg.cc,v 1.3 2008-06-26 16:18:36 cvsbert Exp $
+ RCS:           $Id: uidpscrossplotpropdlg.cc,v 1.4 2008-07-31 10:45:49 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,8 +55,7 @@ uiDPSCPScalingTab( uiDataPointSetCrossPlotterPropDlg* p )
 	uiAxisHandler* axhndlr = plotter_.axisHandler( idx );
 	if ( !axhndlr ) continue;
 
-	const uiDataPointSetCrossPlotter::AutoScalePars& asp
-	    					= plotter_.autoScalePars(idx);
+	const uiAxisData::AutoScalePars& asp = plotter_.autoScalePars(idx);
 	flds->doclipfld_ = new uiGenInput( this, "Use clipping",
 				    BoolInpSpec(asp.doautoscale_) );
 	flds->doclipfld_->valuechanged.notify(
@@ -113,8 +112,7 @@ bool acceptOK()
 	if ( !axh ) continue;
 
 	uiDPSCPScalingTabAxFlds& axflds = *axflds_[idx];
-	uiDataPointSetCrossPlotter::AutoScalePars& asp
-	    			= plotter_.autoScalePars( idx );
+	uiAxisData::AutoScalePars& asp = plotter_.autoScalePars( idx );
 	const bool doas = axflds.doclipfld_->getBoolValue();
 	if ( !doas )
 	    axh->setRange( axflds.rgfld_->getFStepInterval() );
