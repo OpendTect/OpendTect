@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Raman Singh
  Date:          May 2008
- RCS:           $Id: uiimphorizon2d.cc,v 1.7 2008-07-02 08:58:04 cvsraman Exp $
+ RCS:           $Id: uiimphorizon2d.cc,v 1.8 2008-07-31 11:41:11 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -282,11 +282,11 @@ void uiImportHorizon2D::setSel( CallBacker* )
 
 void uiImportHorizon2D::addHor( CallBacker* )
 {
-    uiGenInputDlg* dlg = new uiGenInputDlg( this, "Add Horizon",
+    uiGenInputDlg dlg( this, "Add Horizon",
 	    				    "Name", new StringInpSpec() );
-    if ( !dlg->go() ) return;
+    if ( !dlg.go() ) return;
 
-    const char* hornm = dlg->text();
+    const char* hornm = dlg.text();
     horselfld_->addItem( hornm );
     const int idx = horselfld_->size() - 1;
     horselfld_->setSelected( idx, true );
