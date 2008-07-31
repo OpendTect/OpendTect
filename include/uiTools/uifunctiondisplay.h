@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Apr 2008
- RCS:           $Id: uifunctiondisplay.h,v 1.9 2008-07-17 11:53:30 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.h,v 1.10 2008-07-31 16:07:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,8 @@ public:
 				    , ptsnaptol_(0.01)
 				    , editable_(false)
 				    , fillbelow_(false)
-				    , fillbelowy2_(false)	{}
+				    , fillbelowy2_(false)
+				    , drawline_(true)	{}
 
 	mDefSetupMemb(Interval<float>,xrg)	//!< if fixed start or end
 	mDefSetupMemb(Interval<float>,yrg)	//!< if fixed start or end
@@ -68,6 +69,7 @@ public:
 	mDefSetupMemb(bool,editable)		//!< Add/remove/change Y1 pts
 	mDefSetupMemb(bool,fillbelow)		//!< Y1 will get fill
 	mDefSetupMemb(bool,fillbelowy2)		//!< Y2 will get fill
+	mDefSetupMemb(bool,drawline)
 	mDefSetupMemb(float,ptsnaptol)		//!< Snap tol ratio of axis size
     };
 

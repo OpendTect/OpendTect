@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uifunctiondisplay.cc,v 1.17 2008-07-17 11:57:34 cvsbert Exp $
+ RCS:           $Id: uifunctiondisplay.cc,v 1.18 2008-07-31 16:07:03 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -233,14 +233,14 @@ void uiFunctionDisplay::reDrawHandler( uiRect )
 	    					   : Color::NoColor );
     if ( setup_.fillbelowy2_ )
 	dt.drawPolygon( y2ptlist );
-    else
+    else if ( setup_.drawline_ )
 	dt.drawPolyline( y2ptlist );
 
     dt.setPenColor( setup_.ycol_ );
     dt.setFillColor( setup_.fillbelow_ ? setup_.ycol_ : Color::NoColor );
     if ( setup_.fillbelow_ )
 	dt.drawPolygon( yptlist );
-    else
+    else if ( setup_.drawline_ )
 	dt.drawPolyline( yptlist );
 
     dt.setFillColor( Color::NoColor );
