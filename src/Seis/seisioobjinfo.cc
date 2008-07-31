@@ -4,7 +4,7 @@
  * DATE     : June 2005
 -*/
 
-static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.17 2008-07-21 08:43:32 cvsumesh Exp $";
+static const char* rcsID = "$Id: seisioobjinfo.cc,v 1.18 2008-07-31 09:30:40 cvsumesh Exp $";
 
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
@@ -258,7 +258,14 @@ void SeisIOObjInfo::getNms( BufferStringSet& bss, bool add, bool attr,
 
 	    if ( !founddatatype)
 	    {
-		if ( allowcnstabsent ) bss.add( nm );
+		if ( allowcnstabsent )
+		{
+		    if ( strcmp(datatype,nm) )  	bss.add( nm );
+		}
+		else
+		{
+		    if ( !strcmp(datatype,nm) )		bss.add( nm );
+		}
 	    }
 	    else
 	    {
@@ -298,7 +305,16 @@ void SeisIOObjInfo::getNmsSubSel( const char* nm, BufferStringSet& bss,
 
 		if ( !founddatatype)
 		{
-		    if ( allowcnstabsent )	bss.addIfNew( listadd );
+		    if ( allowcnstabsent )
+		    {
+			if ( strcmp(datatype,listadd) )
+		    	    bss.addIfNew( listadd );
+		    }
+		    else
+		    {
+			if ( !strcmp(datatype,listadd) )
+			    bss.addIfNew( listadd );
+		    }
 		}
 		else
 		{
