@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvinfoed.cc,v 1.96 2008-07-30 05:40:30 cvsnanne Exp $
+ RCS:           $Id: uisurvinfoed.cc,v 1.97 2008-07-31 05:51:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "errh.h"
 #include "filegen.h"
 #include "filepath.h"
+#include "ioman.h"
 #include "ioobj.h" // for GetFreeMBOnDiskMsg
 #include "mousecursor.h"
 #include "oddirs.h"
@@ -37,7 +38,7 @@ ________________________________________________________________________
 
 
 extern "C" const char* GetBaseDataDir();
-extern "C" void SetSurveyName(const char*);
+extern bool IOMAN_no_survchg_triggers;
 
 
 static ObjectSet<uiSurvInfoProvider>& survInfoProvs()
@@ -105,6 +106,7 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
     orgstorepath = si_.datadir.buf();
     isnew = orgdirname.isEmpty();
 
+    BufferString fulldirpath;
     if ( !isnew )
     {
 	BufferString storagedir = FilePath(orgstorepath)
@@ -127,6 +129,8 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 	    orgstorepath = fp.pathOnly();
 	    orgdirname = fp.fileName();
 	}
+
+	fulldirpath = storagedir;
     }
     else
     {
@@ -140,8 +144,14 @@ uiSurveyInfoEditor::uiSurveyInfoEditor( uiParent* p, SurveyInfo& si )
 		       orgstorepath,orgdirname) )
 	    return;
 	File_makeWritable( dirnm, YES, YES );
-	SetSurveyName( orgdirname );
+
+	fulldirpath = dirnm;
     }
+
+    IOMAN_no_survchg_triggers = true;
+    IOMan::setSurvey( orgdirname );
+    SurveyInfo::theinst_ = SurveyInfo::read( fulldirpath );
+    IOMAN_no_survchg_triggers = false;
 
     dirnmfld = new uiGenInput( this, "Survey directory name", 
 			       StringInpSpec( isnew ? "" : orgdirname.buf()) );
