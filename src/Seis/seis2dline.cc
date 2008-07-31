@@ -4,7 +4,7 @@
  * DATE     : June 2004
 -*/
 
-static const char* rcsID = "$Id: seis2dline.cc,v 1.62 2008-07-21 08:38:34 cvsumesh Exp $";
+static const char* rcsID = "$Id: seis2dline.cc,v 1.63 2008-07-31 09:29:47 cvsumesh Exp $";
 
 #include "seis2dline.h"
 #include "seistrctr.h"
@@ -618,7 +618,16 @@ void Seis2DLineSet::getAvailableAttributes( BufferStringSet& nms,
 
 	    if ( !founddatatype)
 	    {
-		if ( allowcnstabsent )	nms.addIfNew( attribute(idx) );
+		if ( allowcnstabsent )	
+		{
+		    if ( strcmp(datatyp,attribute(idx)) )
+			nms.addIfNew( attribute(idx) );
+		}
+		else
+		{
+		    if ( !strcmp(datatyp,attribute(idx)) )
+			nms.addIfNew( attribute(idx) );
+		}
 	    }
 	    else
 	    {
