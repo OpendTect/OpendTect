@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		June 2004
- RCS:		$Id: seis2dline.h,v 1.40 2008-07-21 08:36:34 cvsumesh Exp $
+ RCS:		$Id: seis2dline.h,v 1.41 2008-07-31 08:57:28 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,6 @@ public:
     LineKey		lineKey( int idx ) const
     			{ return LineKey( lineName(idx), attribute(idx) ); }
     int			indexOf(const char* linekey) const;
-//    int                 indexOfAttribute(const char* attrib) const;
     int			indexOfFirstOccurrence(const char* linenm) const;
     void		getAvailableAttributes(BufferStringSet&,
 	    				       const char* datatyp=0,
