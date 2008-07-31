@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: undo.h,v 1.3 2008-07-30 22:55:09 cvskris Exp $
+ RCS:		$Id: undo.h,v 1.4 2008-07-31 22:09:49 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -79,7 +79,7 @@ public:
     bool			canReDo() const;
     bool			reDo(int nrtimes=1,bool userinteraction=true);
 
-    Notifier<Undo>		changenotifier;
+    Notifier<Undo>		changenotifier; //Any change
 
 protected:
     int				indexOf(int eventid) const;
@@ -91,8 +91,6 @@ protected:
     int				maxsize_;
 
     ObjectSet<UndoEvent>	events_;
-    BufferStringSet		descs_;
-    BoolTypeSet			userinteractionends_;
     int				userendscount_;
 };
 
@@ -101,11 +99,22 @@ protected:
 class UndoEvent
 {
 public:
-    virtual			~UndoEvent() {}
+    				UndoEvent();
+    virtual			~UndoEvent();
+
+    BufferString		getDesc() const;
+    void			setDesc(const char*);
+
+    void			setUserInteractionEnd(bool=true);
+    bool			isUserInteractionEnd() const;
 
     virtual const char*		getStandardDesc() const	 	= 0;
     virtual bool		unDo()				= 0;
     virtual bool		reDo()				= 0;
+
+protected:
+    BufferString*		desc_;
+    bool			isuserinteractionend_;
 };
 
 

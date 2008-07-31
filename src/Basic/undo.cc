@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: undo.cc,v 1.3 2008-07-30 22:55:09 cvskris Exp $
+ RCS:           $Id: undo.cc,v 1.4 2008-07-31 22:09:49 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,23 +22,18 @@ Undo::Undo()
     , maxsize_( 1000 )
     , userendscount_(0)
     , changenotifier(this)
-{
-    descs_.allowNull( true );
-}
+{ }
 
 
 Undo::~Undo()
 {
     deepErase( events_ );
-    deepErase( descs_ );
 }
 
 
 void Undo::removeAll()
 {
     deepErase( events_ );
-    deepErase( descs_ );
-    userinteractionends_.erase();
     userendscount_ = 0;
 
     currenteventid_ = -1;
@@ -63,12 +58,12 @@ void Undo::setMaxLength( int maxsize )
 bool Undo::isUserInteractionEnd( int eventid ) const
 {
     const int idx = indexOf( eventid );
-    return idx<0 ? 0 : userinteractionends_[idx];
+    return idx<0 ? 0 : events_[idx]->isUserInteractionEnd();
 }
 
 
 #define mUpdateUserEndsCount( idx, newboolval ) \
-    if ( userinteractionends_[idx] != newboolval ) \
+    if ( events_[idx]->isUserInteractionEnd() != newboolval ) \
 	userendscount_ += newboolval ? 1 : -1;
 
 
@@ -77,7 +72,7 @@ void Undo::setUserInteractionEnd( int eventid, bool yn )
     const int idx = indexOf( eventid );
     if ( idx<0 ) return;
     mUpdateUserEndsCount(idx,yn); 
-    userinteractionends_[idx] = yn;
+    events_[idx]->setUserInteractionEnd( yn );
 }
 
 
@@ -86,10 +81,10 @@ int Undo::getNextUserInteractionEnd( int startid ) const
     int idx = indexOf( startid );
     if ( idx<0 ) return -1;
 
-    while ( idx<userinteractionends_.size() && !userinteractionends_[idx] )
+    while ( idx<events_.size() && !events_[idx]->isUserInteractionEnd() )
 	idx++;
 
-    if ( idx>=userinteractionends_.size() )
+    if ( idx>=events_.size() )
 	return -1;
 
     return idx+firsteventid_;
@@ -121,9 +116,7 @@ void Undo::removeAllAfterCurrentEvent()
 	const int idx = indexOf(event);
 
 	delete events_.remove(idx);
-	delete descs_.remove(idx);
 	mUpdateUserEndsCount(idx,false);
-	userinteractionends_.remove(idx);
     }
 
     changenotifier.trigger();
@@ -134,9 +127,7 @@ BufferString Undo::getDesc( int eventid ) const
 {
     const int idx = indexOf( eventid );
     if ( idx<0 ) return BufferString("");
-    if ( descs_[idx] ) return *descs_[idx];
-
-    return events_[idx]->getStandardDesc();
+    return events_[idx]->getDesc();
 }
 
 
@@ -156,9 +147,7 @@ BufferString Undo::reDoDesc() const
 void Undo::setDesc( int eventid, const char* d )
 {
     const int idx = indexOf( eventid );
-    if ( descs_[idx] ) delete descs_[idx];
-
-    descs_.replace( idx, d ? new BufferString( d ) : 0 );
+    events_[idx]->setDesc( d );
     changenotifier.trigger();
 }
 
@@ -170,10 +159,9 @@ int Undo::addEvent( UndoEvent* event, const char* description )
 	NotifyStopper stop( changenotifier );
 	removeAllAfterCurrentEvent();
     }
-	
+
+    event->setDesc( description );    
     events_ += event;
-    descs_ += description ? new BufferString( description ) : 0;
-    userinteractionends_ += false;
     currenteventid_++;
 
     removeOldEvents();
@@ -206,12 +194,15 @@ bool Undo::unDo( int nrtimes, bool userinteraction )
 	currenteventid_--;
 	change = true;
 
-	if ( !userinteraction || (idx && userinteractionends_[idx-1]) )
+	if ( !userinteraction ||
+	     (idx && events_[idx-1]->isUserInteractionEnd() ) )
 	    nrtimes--;
     }
 
     if ( change )
+    {
 	changenotifier.trigger();
+    }
 
     return true;
 }
@@ -241,12 +232,14 @@ bool Undo::reDo( int nrtimes, bool userinteraction )
 	currenteventid_++;
 	change = true;
 
-	if ( !userinteraction || userinteractionends_[idx] )
+	if ( !userinteraction || events_[idx]->isUserInteractionEnd() )
 	    nrtimes--;
     }
 
     if ( change )
+    {
 	changenotifier.trigger();
+    }
 
     return true;
 }
@@ -267,9 +260,7 @@ void Undo::removeStartToAndIncluding( int eventid )
     while ( firsteventid_<=eventid )
     {
 	delete events_.remove(0);
-	delete descs_.remove(0);
 	mUpdateUserEndsCount(0,false);
-	userinteractionends_.remove(0);
 	firsteventid_++;
     }
 
@@ -288,7 +279,8 @@ void Undo::removeOldEvents()
     for ( int nrkept=0; nrkept<maxsize_; nrkept++ )
     {
 	firstkepteventidx--;
-	while (firstkepteventidx>=0 && !userinteractionends_[firstkepteventidx])
+	while ( firstkepteventidx>=0 &&
+		!events_[firstkepteventidx]->isUserInteractionEnd() )
 	    firstkepteventidx--;
 
 	if ( firstkepteventidx<0 )
@@ -296,6 +288,46 @@ void Undo::removeOldEvents()
     }
 
     removeStartToAndIncluding( firstkepteventidx+firsteventid_-1 );
+}
+
+
+UndoEvent::UndoEvent() 
+    : desc_( 0 ) 
+    , isuserinteractionend_( false ) 
+{} 
+
+
+UndoEvent::~UndoEvent() { delete desc_; } 
+
+
+void UndoEvent::setUserInteractionEnd( bool yn )
+{ isuserinteractionend_=yn; }
+
+
+bool UndoEvent::isUserInteractionEnd() const
+{ return isuserinteractionend_; }
+
+
+void UndoEvent::setDesc( const char* d )
+{
+    if ( d && !desc_ )
+    {
+	mTryAlloc( desc_, BufferString( d ) );
+    }
+    else if ( !d && desc_ )
+    {
+	delete desc_;
+	desc_ = 0;
+    }
+    else if ( d && desc_ )
+	*desc_ = d;
+}
+
+
+BufferString UndoEvent::getDesc() const
+{
+    if ( desc_ ) return *desc_;
+    return getStandardDesc();
 }
 
 
