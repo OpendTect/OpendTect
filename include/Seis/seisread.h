@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seisread.h,v 1.30 2008-07-29 12:32:58 cvsbert Exp $
+ RCS:		$Id: seisread.h,v 1.31 2008-07-31 10:24:27 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,8 +18,8 @@ ________________________________________________________________________
 class Executor;
 class HorSampling;
 class SeisTrcBuf;
-class SeisPSReader;
-namespace PosInfo { class Line2DData; }
+class SeisPS3DReader;
+namespace PosInfo { class Line2DData; class CubeDataIterator; }
 namespace Seis { class Bounds; class Bounds2D; }
 
 
@@ -33,7 +33,7 @@ you cannot use SeisTrcTranslator facilities then.
 Then, the routine is: get(trc.info()) possibly followed by get(trc).
 Not keeping this sequence is at your own risk.
 
-Note: Pre-Stack data cannot (yet) be read via this class.
+Note: 2D Pre-Stack data cannot (yet) be read via this class.
 
 */
 
@@ -59,9 +59,8 @@ public:
 			      0 = End
 			      1 = Usable info
 			      2 = Not usable (trace needs to be skipped)
-			      If get(SeisTrc) is not called, get(SeisTrcInfo)
-			      will automatically skip over the trace data
-			      if necessary. */
+			      If 1 is returned, then you should also call
+			      get(SeisTrc&). */
 			
     bool		get(SeisTrc&);
 			/*!< It is possible to directly call this without
@@ -93,12 +92,14 @@ protected:
     int			curlineidx;
     int			nrfetchers;
     HorSampling*	outer;
-    SeisTrcBuf*		tbuf;
+    SeisTrcBuf*		tbuf_;
     Executor*		fetcher;
     Seis::ReadMode	readmode;
     bool		entryis2d;
     StepInterval<int>	curtrcnrrg;
-    SeisPSReader*	psrdr_;
+    SeisPS3DReader*	psrdr_;
+    PosInfo::CubeDataIterator* pscditer_;
+    BinID		curpsbid_;
 
     void		init();
     Conn*		openFirst();
@@ -111,6 +112,9 @@ protected:
     bool		binidInConn(int) const;
     bool		isMultiConn() const;
     void		startWork();
+
+    int			getPS(SeisTrcInfo&);
+    bool		getPS(SeisTrc&);
 
     int			get2D(SeisTrcInfo&);
     bool		get2D(SeisTrc&);
