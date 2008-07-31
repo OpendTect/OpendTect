@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.29 2008-05-12 04:05:05 cvsnanne Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.30 2008-07-31 16:42:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -153,7 +153,8 @@ uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj )
     , ctio_(mkCtxtIOObj(ioobj))
 {
     inpfld = new uiSurfaceRead( this,
-	    uiSurfaceRead::Setup(ioobj.group()).withattribfld(false) );
+	    uiSurfaceRead::Setup(ioobj.group()).withattribfld(true)
+	   				       .withsubsel(true) );
     inpfld->setIOObj( ioobj.key() );
 
     ctio_.ctxt.forread = false;
