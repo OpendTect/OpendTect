@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.80 2008-07-29 12:32:58 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.81 2008-07-31 10:24:06 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seispsread.h"
@@ -37,7 +37,8 @@ SeisTrcReader::SeisTrcReader( const IOObj* ioob )
     	, outer(mUndefPtr(HorSampling))
     	, fetcher(0)
     	, psrdr_(0)
-    	, tbuf(0)
+    	, tbuf_(0)
+    	, pscditer_(0)
 {
     init();
     if ( ioobj )
@@ -51,7 +52,7 @@ SeisTrcReader::SeisTrcReader( const char* fname )
     	, outer(mUndefPtr(HorSampling))
     	, fetcher(0)
     	, psrdr_(0)
-    	, tbuf(0)
+    	, tbuf_(0)
 {
     init();
 }
@@ -63,7 +64,7 @@ SeisTrcReader::~SeisTrcReader()
 {
     mDelOuter; outer = 0;
     init();
-    delete tbuf;
+    delete tbuf_;
 }
 
 
@@ -73,10 +74,11 @@ void SeisTrcReader::init()
     new_packet = inforead = needskip = prepared = forcefloats = false;
     prev_inl = mUdf(int);
     readmode = Seis::Prod;
-    if ( tbuf ) tbuf->deepErase();
+    if ( tbuf_ ) tbuf_->deepErase();
     mDelOuter; outer = mUndefPtr(HorSampling);
     delete fetcher; fetcher = 0;
     delete psrdr_; psrdr_ = 0;
+    delete pscditer_; pscditer_ = 0;
     nrfetchers = 0; curlineidx = -1;
 }
 
@@ -92,11 +94,13 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
     {
 	const char* fnm = ioobj->fullUserExpr(Conn::Read);
 	if ( is2d )
-	    psrdr_ = psioprov->make2DReader( fnm, lineKey() );
-	else
-	    psrdr_ = psioprov->make3DReader( fnm );
+	{
+	    errmsg = "SeisTrcReader cannot read from 2D Pre-Stack data store";
+	    return false;
+	}
+	psrdr_ = psioprov->make3DReader( fnm );
     }
-    if ( (is2d && !lset) || (!is2d && !trl) )
+    if ( (is2d && !lset) || (!is2d && !trl) || (psioprov && !psrdr_) )
     {
 	errmsg = "No data interpreter available for '";
 	errmsg += ioobj->name(); errmsg += "'";
@@ -104,16 +108,15 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
     }
 
     readmode = rm;
-    Conn* conn = 0;
-    if ( !is2d )
+    if ( is2d || psrdr_ )
+	return (prepared = true);
+
+    Conn* conn = openFirst();
+    if ( !conn )
     {
-	conn = openFirst();
-	if ( !conn )
-	{
-	    errmsg = "Cannot open data files for '";
-	    errmsg += ioobj->name(); errmsg += "'";
-	    return false;
-	}
+	errmsg = "Cannot open data files for '";
+	errmsg += ioobj->name(); errmsg += "'";
+	return false;
     }
 
     if ( !initRead(conn) )
@@ -130,13 +133,24 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 void SeisTrcReader::startWork()
 {
     outer = 0;
-    if ( is2d )
+    if ( psrdr_ )
     {
-	tbuf = new SeisTrcBuf( true );
+	pscditer_ = new PosInfo::CubeDataIterator( psrdr_->posData() );
+	if ( !pscditer_->next(curpsbid_) )
+	{
+	    errmsg = "Pre-stack data storage is empty";
+	    return;
+	}
+	pscditer_->reset();
+	return;
+    }
+    else if ( is2d )
+    {
+	tbuf_ = new SeisTrcBuf( false );
 	return;
     }
 
-    if ( psrdr_ || !trl ) return;
+    if ( !trl ) return;
 
     SeisTrcTranslator& sttrl = *strl();
     if ( forcefloats )
@@ -191,28 +205,23 @@ Conn* SeisTrcReader::openFirst()
 
 bool SeisTrcReader::initRead( Conn* conn )
 {
-    if ( psioprov || is2d )
-	return true;
-    else
-    {
-	if ( !trl )
-	    { pErrMsg("Should be a translator there"); return false; }
-	mDynamicCastGet(SeisTrcTranslator*,sttrl,trl)
-	if ( !sttrl )
-	{
-	    errmsg = trl->userName();
-	    errmsg +=  "found where seismic cube was expected";
-	    cleanUp(); return false;
-	}
-    }
+    if ( !trl )
+	{ pErrMsg("Should be a translator there"); return false; }
 
-    SeisTrcTranslator& sttrl = *strl();
-    if ( !sttrl.initRead(conn,readmode) )
+    mDynamicCastGet(SeisTrcTranslator*,sttrl,trl)
+    if ( !sttrl )
     {
-	errmsg = sttrl.errMsg();
+	errmsg = trl->userName();
+	errmsg +=  "found where seismic cube was expected";
 	cleanUp(); return false;
     }
-    const int nrcomp = sttrl.componentInfo().size();
+
+    if ( !sttrl->initRead(conn,readmode) )
+    {
+	errmsg = sttrl->errMsg();
+	cleanUp(); return false;
+    }
+    const int nrcomp = sttrl->componentInfo().size();
     if ( nrcomp < 1 )
     {
 	// Why didn't the translator return false?
@@ -225,7 +234,7 @@ bool SeisTrcReader::initRead( Conn* conn )
     bool foundone = false;
     for ( int idx=0; idx<nrcomp; idx++ )
     {
-	if ( sttrl.componentInfo()[idx]->destidx >= 0 )
+	if ( sttrl->componentInfo()[idx]->destidx >= 0 )
 	    { foundone = true; break; }
     }
     if ( !foundone )
@@ -233,14 +242,14 @@ bool SeisTrcReader::initRead( Conn* conn )
 	for ( int idx=0; idx<nrcomp; idx++ )
 	{
 	    if ( selcomp == -1 )
-		sttrl.componentInfo()[idx]->destidx = idx;
+		sttrl->componentInfo()[idx]->destidx = idx;
 	    else
-		sttrl.componentInfo()[idx]->destidx = selcomp == idx ? 0 : 1;
-	    if ( sttrl.componentInfo()[idx]->destidx >= 0 )
+		sttrl->componentInfo()[idx]->destidx = selcomp == idx ? 0 : 1;
+	    if ( sttrl->componentInfo()[idx]->destidx >= 0 )
 		foundone = true;
 	}
 	if ( !foundone )
-	    sttrl.componentInfo()[0]->destidx = 0;
+	    sttrl->componentInfo()[0]->destidx = 0;
     }
 
     needskip = false;
@@ -258,10 +267,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
     if ( is2d )
 	return get2D(ti);
     if ( psrdr_ )
-    {
-	errmsg = "Cannot read Pre-Stack data via SeisTrcReader (yet)";
-	return -1;
-    }
+	return getPS(ti);
 
     SeisTrcTranslator& sttrl = *strl();
     bool needsk = needskip; needskip = false;
@@ -337,10 +343,7 @@ bool SeisTrcReader::get( SeisTrc& trc )
     if ( is2d )
 	return get2D(trc);
     if ( psrdr_ )
-    {
-	errmsg = "Cannot read Pre-Stack data via SeisTrcReader (yet)";
-	return -1;
-    }
+	return getPS(trc);
 
     if ( !strl()->read(trc) )
     {
@@ -348,6 +351,55 @@ bool SeisTrcReader::get( SeisTrc& trc )
 	strl()->skip();
 	return false;
     }
+    return true;
+}
+
+
+int SeisTrcReader::getPS( SeisTrcInfo& ti )
+{
+    if ( !tbuf_ )
+	tbuf_ = new SeisTrcBuf( false );
+
+    if ( tbuf_->isEmpty() )
+    {
+	int selres = 2;
+	while ( selres % 256 == 2 )
+	{
+	    if ( !pscditer_->next(curpsbid_) )
+	    {
+		delete psrdr_; psrdr_ = 0;
+		return 0;
+	    }
+	    selres = seldata ? seldata->selRes( curpsbid_ ) : 0;
+	}
+
+	if ( seldata && !seldata->isOK(curpsbid_) )
+	    return 2;
+
+	if ( !psrdr_->getGather(curpsbid_,*tbuf_) )
+	    { errmsg = psrdr_->errMsg(); return -1; }
+    }
+
+    ti = tbuf_->get(0)->info();
+    inforead = true;
+    return 1;
+}
+
+
+bool SeisTrcReader::getPS( SeisTrc& trc )
+{
+    if ( !inforead && getPS(trc.info()) <= 0 )
+	return false;
+
+    inforead = false;
+    const SeisTrc* buftrc = tbuf_->get( 0 );
+    if ( !buftrc )
+	{ pErrMsg("Huh"); return false; }
+    trc.info() = buftrc->info();
+    trc.copyDataFrom( *buftrc, -1, forcefloats );
+
+    delete tbuf_->remove(0);
+    nrtrcs++;
     return true;
 }
 
@@ -403,7 +455,7 @@ bool SeisTrcReader::ensureCurLineAttribOK( const BufferString& attrnm )
 
 bool SeisTrcReader::mkNextFetcher()
 {
-    curlineidx++; tbuf->deepErase();
+    curlineidx++; tbuf_->deepErase();
     LineKey lk( seldata ? seldata->lineKey() : "" );
     const BufferString attrnm = lk.attrName();
     const bool islinesel = !lk.lineName().isEmpty();
@@ -457,7 +509,7 @@ bool SeisTrcReader::mkNextFetcher()
     }
 
     prev_inl = mUdf(int);
-    fetcher = lset->lineFetcher( curlineidx, *tbuf, 1, seldata );
+    fetcher = lset->lineFetcher( curlineidx, *tbuf_, 1, seldata );
     nrfetchers++;
     return fetcher;
 }
@@ -465,8 +517,8 @@ bool SeisTrcReader::mkNextFetcher()
 
 bool SeisTrcReader::readNext2D()
 {
-    if ( tbuf->size() )
-	tbuf->deepErase();
+    if ( tbuf_->size() )
+	tbuf_->deepErase();
 
     int res = fetcher->doStep();
     if ( res == Executor::ErrorOccurred )
@@ -481,11 +533,11 @@ bool SeisTrcReader::readNext2D()
 	return readNext2D();
     }
 
-    return tbuf->size();
+    return tbuf_->size();
 }
 
 
-#define mNeedNextFetcher() (tbuf->size() == 0 && !fetcher)
+#define mNeedNextFetcher() (tbuf_->size() == 0 && !fetcher)
 
 
 int SeisTrcReader::get2D( SeisTrcInfo& ti )
@@ -497,7 +549,7 @@ int SeisTrcReader::get2D( SeisTrcInfo& ti )
 	return errmsg.isEmpty() ? 0 : -1;
 
     inforead = true;
-    SeisTrcInfo& trcti = tbuf->get( 0 )->info();
+    SeisTrcInfo& trcti = tbuf_->get( 0 )->info();
     trcti.new_packet = mIsUdf(prev_inl);
     ti = trcti;
     prev_inl = 0;
@@ -522,13 +574,14 @@ bool SeisTrcReader::get2D( SeisTrc& trc )
 	return false;
 
     inforead = false;
-    const SeisTrc* buftrc = tbuf->get( 0 );
+    const SeisTrc* buftrc = tbuf_->get( 0 );
     if ( !buftrc )
 	{ pErrMsg("Huh"); return false; }
     trc.info() = buftrc->info();
     trc.copyDataFrom( *buftrc, -1, forcefloats );
 
-    delete tbuf->remove(0);
+    delete tbuf_->remove(0);
+    nrtrcs++;
     return true;
 }
 
