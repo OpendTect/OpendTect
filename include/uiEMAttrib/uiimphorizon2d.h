@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Raman Singh
  Date:          May 2008
- RCS:           $Id: uiimphorizon2d.h,v 1.1 2008-05-30 07:08:08 cvsraman Exp $
+ RCS:           $Id: uiimphorizon2d.h,v 1.2 2008-07-31 11:48:05 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,6 @@ class SurfaceInfo;
 class uiCheckBox;
 class uiComboBox;
 class uiFileInput;
-class uiGenInput;
 class uiListBox;
 class uiPushButton;
 class uiTableImpDataSel;
@@ -44,7 +43,6 @@ protected:
     uiPushButton*       scanbut_;
     uiListBox*		horselfld_;
     uiTableImpDataSel*  dataselfld_;
-    uiGenInput*		interpolfld_;
     uiCheckBox*         displayfld_;
 
     virtual bool	acceptOK(CallBacker*);
