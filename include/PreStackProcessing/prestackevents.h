@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackevents.h,v 1.3 2008-07-30 22:55:32 cvskris Exp $
+ RCS:		$Id: prestackevents.h,v 1.4 2008-07-31 12:57:33 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -62,6 +62,7 @@ public:
 
     static unsigned char cBestQuality()		{ return 254; }
     static unsigned char cManPickQuality()	{ return 255; }
+    static unsigned char cDefaultQuality()	{ return 0; }
     unsigned char*	pickquality_;
     			//255	= manually picked
 			//0-254 = tracked
@@ -225,7 +226,7 @@ public:
     			SetPickUndo(EventManager&,const BinID&,int horidx,
 				    const OffsetAzimuth&,float depth,
 				    unsigned char pickquality);
-    const char*		getStandardDesc()	{ return "prestack pick"; }
+    const char*		getStandardDesc() const	{ return "prestack pick"; }
     const BinID&	getBinID() const	{ return bid_; }
 
     bool		unDo();
@@ -253,7 +254,7 @@ public:
 				    short horid,VSEvent::Type,
 				    unsigned char pickquality);
     			SetEventUndo(EventManager&,const BinID&,int horidx);
-    const char*		getStandardDesc()	{ return "prestack pick"; }
+    const char*		getStandardDesc() const	{ return "prestack pick"; }
     const BinID&	getBinID() const	{ return bid_; }
 
     bool		unDo();
