@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture2.cc,v 1.49 2008-07-16 18:10:23 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismultitexture2.cc,v 1.50 2008-08-01 19:50:43 cvskris Exp $";
 
 
 #include "vismultitexture2.h"
@@ -166,7 +166,7 @@ void MultiTexture2::clearAll()
 
 bool MultiTexture2::canUseShading() const
 {
-    return allowshading_ && SoOD::supportsFragShading()==1;
+    return allowshading_;
 }
 
 
@@ -845,19 +845,35 @@ void MultiTexture2::createShadingVars()
 const char* MultiTexture2::sVertexShaderProgram()
 {
     return 
-	"varying vec3 ecPosition3;\n"
-	"varying vec3 fragmentNormal;\n"
-
-	"void main(void)\n"
-	"{\n"
-	    "vec4 ecPosition = gl_ModelViewMatrix * gl_Vertex;\n"
-	    "ecPosition3 = ecPosition.xyz / ecPosition.w;\n"
-	    "fragmentNormal = normalize(gl_NormalMatrix * gl_Normal);\n"
-
-	    "gl_Position = ftransform();\n"
-	    "gl_FrontColor = gl_Color;\n"
-	    "gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"
-	"}";
+"varying vec3 ecPosition3;\n"
+"varying vec3 fragmentNormal;\n"
+"void main(void)\n"
+"{\n"
+"    vec4 ecPosition = gl_ModelViewMatrix * gl_Vertex;\n"
+"    ecPosition3 = ecPosition.xyz / ecPosition.w;\n"
+"    fragmentNormal = normalize(gl_NormalMatrix * gl_Normal);\n"
+"    vec3 lightDir = normalize(vec3(gl_LightSource[0].position));\n"
+"    float NdotL = abs( dot(fragmentNormal, lightDir) );\n"
+"\n"
+"    vec4 diffuse = gl_FrontMaterial.diffuse * gl_LightSource[0].diffuse * NdotL;\n"
+"    vec4 ambient = gl_FrontMaterial.ambient * gl_LightSource[0].ambient;\n"
+"    float pf = 0.0;\n"
+"    if (NdotL != 0.0)\n"
+"    {\n"
+"	float nDotHV = abs( dot(fragmentNormal, vec3(gl_LightSource[0].halfVector)));\n"
+"	pf = pow(nDotHV, gl_FrontMaterial.shininess);\n"
+"    }\n"
+"    vec4 specular = gl_FrontMaterial.specular * gl_LightSource[0].specular * pf;\n"
+"\n"
+"    vec3 lightning =\n"
+"	gl_FrontLightModelProduct.sceneColor.rgb +\n"
+"	ambient.rgb * gl_FrontMaterial.ambient.rgb +\n"
+"	diffuse.rgb * gl_Color.rgb +\n"
+"	specular.rgb * gl_FrontMaterial.specular.rgb;\n"
+"    gl_Position = ftransform();\n"
+"    gl_FrontColor.rgb = lightning;\n"
+"    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"
+"}\n";
 }
 
 
@@ -924,27 +940,7 @@ uniform int             numlayers;\n";
 	"if ( layeropacity>gl_FragColor.a )				\n"
 	    "gl_FragColor.a = layeropacity;				\n"
     "} 									\n"
-"}\n\n"
-"void DirectionalLight(in int i, in vec3 normal, inout vec3 ambient,	\n"
-		      "inout vec3 diffuse, inout vec3 specular)		\n"
-"{									\n"
-    "float nDotVP; // normal . light direction				\n"
-    "float nDotHV; // normal . light half vector			\n"
-    "float pf;     // power factor					\n"
-
-    "nDotVP = abs( dot(normal, normalize(vec3(gl_LightSource[i].position))));\n"
-    "nDotHV = abs( dot(normal, vec3(gl_LightSource[i].halfVector)));	\n"
-
-    "if (nDotVP == 0.0)							\n"
-	"pf = 0.0;							\n"
-    "else								\n"
-	"pf = pow(nDotHV, gl_FrontMaterial.shininess);			\n"
-
-    "ambient += gl_LightSource[i].ambient.rgb;				\n"
-    "diffuse += gl_LightSource[i].diffuse.rgb * nDotVP;			\n"
-    "specular += gl_LightSource[i].specular.rgb * pf;			\n"
-"} \n";
-
+"}\n\n";
 
     BufferString mainprogstart =
 "void main()								\n\
@@ -1014,21 +1010,8 @@ uniform int             numlayers;\n";
 
     res += "    }\n";
     res += "    gl_FragColor.a *= gl_FrontMaterial.diffuse.a;\n";
-    res += "vec3 ambient = vec3(0.0);\n"
-	   "vec3 diffuse = vec3(0.0);\n"
-	   "vec3 specular = vec3(0.0);\n"
+    res += "    gl_FragColor.rgb *= gl_Color.rgb;\n";
 
-	   "DirectionalLight(0, fragmentNormal, ambient, diffuse, specular);\n"
-
-	   "vec3 lightning =\n"
-	       "gl_FrontLightModelProduct.sceneColor.rgb +\n"
-	       "ambient.rgb * gl_FrontMaterial.ambient.rgb +\n"
-	       "diffuse.rgb * gl_Color.rgb +\n"
-	       "specular.rgb * gl_FrontMaterial.specular.rgb;\n"
-
-	   "gl_FragColor.rgb *= lightning;\n";
-
-    //TODO lightning?
     res += "}";
 }
 
