@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.70 2008-07-17 15:10:48 cvsbert Exp $
+ RCS:		$Id: survinfo.h,v 1.71 2008-08-01 08:24:02 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,6 +87,7 @@ public:
     inline bool		zInFeet() const		{ return !zistime_ && zinfeet_;}
     void		setXYInFeet( bool yn=true ) { xyinfeet_ = yn; }
     void		setZUnit(bool istime,bool infeet=false);
+    const char*		getXYUnit(bool withparens=true) const;
     const char*		getZUnit(bool withparens=true) const;
     float		zFactor() const		{ return zistime_ ? 1000 : 1; }
     			//!< Factor between real and displayed unit

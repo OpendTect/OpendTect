@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.97 2008-07-17 15:10:48 cvsbert Exp $
+ RCS:           $Id: survinfo.cc,v 1.98 2008-08-01 08:24:02 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -439,6 +439,14 @@ bool SurveyInfo::includes( const BinID& bid, const float z, bool work ) const
     const float eps = 1e-8;
     return cs.hrg.includes( bid )
 	&& cs.zrg.start < z + eps && cs.zrg.stop > z - eps;
+}
+
+
+const char* SurveyInfo::getXYUnit( bool wb ) const
+{
+    static BufferString lbl;
+    lbl = BufferString( wb ? "(" : "", xyinfeet_ ? "ft" : "m", wb ? ")" : "" );
+    return lbl.buf();
 }
 
 
