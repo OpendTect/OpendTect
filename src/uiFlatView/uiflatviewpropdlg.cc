@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.31 2008-05-29 11:46:21 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.32 2008-08-01 12:16:50 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -392,6 +392,7 @@ uiFVVDPropTab::uiFVVDPropTab( uiParent* p, FlatView::Viewer& vwr )
     , ctab_( ddpars_.vd_.ctab_.buf() )
 {
     uicoltab_ = new uiColorTable( this, ctab_.name().buf(), false );
+    uicoltab_->setStretch( 0, 0 );
     uicoltablbl_ = new uiLabel( this, "Color table", uicoltab_ );
     uicoltab_->attach( alignedBelow, lastcommonfld_ );
 }
