@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackevents.h,v 1.4 2008-07-31 12:57:33 cvskris Exp $
+ RCS:		$Id: prestackevents.h,v 1.5 2008-08-01 00:06:24 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -237,7 +237,7 @@ protected:
     bool		doWork( float, unsigned char );
 
     EventManager&	manager_;
-    const BinID&	bid_;
+    const BinID		bid_;
     const int		horidx_;
     const OffsetAzimuth	oa_;
     const float		olddepth_;
@@ -266,7 +266,7 @@ protected:
     bool		removeEvent();
 
     EventManager&	manager_;
-    const BinID&	bid_;
+    const BinID		bid_;
     const int		horidx_;
 
     unsigned char	quality_;

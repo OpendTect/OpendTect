@@ -4,7 +4,7 @@
  * DATE     : March 2007
 -*/
 
-static const char* rcsID = "$Id: prestackevents.cc,v 1.3 2008-07-30 22:55:32 cvskris Exp $";
+static const char* rcsID = "$Id: prestackevents.cc,v 1.4 2008-08-01 00:06:24 cvskris Exp $";
 
 #include "prestackevents.h"
 
@@ -828,6 +828,7 @@ bool SetPickUndo::doWork( float nd, unsigned char nq )
 
 	idx = event->sz_;
 	event->addPick();
+	event->offsetazimuth_[idx] = oa_;
     }
 
     if ( !isdefined )
@@ -840,6 +841,8 @@ bool SetPickUndo::doWork( float nd, unsigned char nq )
 	if ( event->pickquality_ )
 	    event->pickquality_[idx] = nq;
     }
+
+    manager_.reportChange( bid_ );
 
     return true;
 }
@@ -904,6 +907,8 @@ bool SetEventUndo::addEvent()
 
     events->events_.insertAt( ev, horidx_ );
 
+    manager_.reportChange( bid_ );
+
     return true;
 }
 
@@ -915,6 +920,8 @@ bool SetEventUndo::removeEvent()
 	return false;
 
     delete events->events_.remove( horidx_ );
+
+    manager_.reportChange( bid_ );
 
     return true;
 }
