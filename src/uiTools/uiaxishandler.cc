@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.cc,v 1.11 2008-06-26 16:18:02 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.cc,v 1.12 2008-08-01 15:50:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiaxishandler.h"
 #include "iodrawtool.h"
 #include "uifont.h"
+#include "linear.h"
 #include "draw.h"
 
 #include <math.h>
@@ -219,6 +220,83 @@ void uiAxisHandler::drawAxisLine() const
 
 	dt_.drawLine( pixpos, startpix, pixpos, endpix );
     }
+}
+
+
+void drawLine( const LinePars& lp,
+	       const uiAxisHandler& xah, const uiAxisHandler& yah,
+	       const Interval<float>* extxvalrg )
+{
+    const Interval<int> ypixrg( yah.pixRange() );
+    const Interval<float> yvalrg( yah.getVal(ypixrg.start),
+	    			  yah.getVal(ypixrg.stop) );
+    Interval<int> xpixrg( xah.pixRange() );
+    Interval<float> xvalrg( xah.getVal(xpixrg.start), xah.getVal(xpixrg.stop) );
+    if ( extxvalrg )
+    {
+	xvalrg = *extxvalrg;
+	xpixrg.start = xah.getPix( xvalrg.start );
+	xpixrg.stop = xah.getPix( xvalrg.stop );
+	xpixrg.sort();
+	xvalrg.start = xah.getVal(xpixrg.start);
+	xvalrg.stop = xah.getVal(xpixrg.stop);
+    }
+
+    uiPoint from(xpixrg.start,ypixrg.start), to(xpixrg.stop,ypixrg.stop);
+    if ( lp.ax == 0 )
+    {
+	const int ypix = yah.getPix( lp.a0 );
+	if ( !ypixrg.includes( ypix ) ) return;
+	from.x = xpixrg.start; to.x = xpixrg.stop;
+	from.y = to.y = ypix;
+    }
+    else
+    {
+	const float xx0 = xvalrg.start; const float yx0 = lp.getValue( xx0 );
+ 	const float xx1 = xvalrg.stop; const float yx1 = lp.getValue( xx1 );
+	const float yy0 = yvalrg.start; const float xy0 = lp.getXValue( yy0 );
+ 	const float yy1 = yvalrg.stop; const float xy1 = lp.getXValue( yy1 );
+	const bool yx0ok = yvalrg.includes( yx0 );
+	const bool yx1ok = yvalrg.includes( yx1 );
+	const bool xy0ok = xvalrg.includes( xy0 );
+	const bool xy1ok = xvalrg.includes( xy1 );
+
+	if ( !yx0ok && !yx1ok && !xy0ok && !xy1ok )
+	    return;
+
+	if ( yx0ok )
+	{
+	    from.x = xah.getPix( xx0 ); from.y = yah.getPix( yx0 );
+	    if ( yx1ok )
+		{ to.x = xah.getPix( xx1 ); to.y = yah.getPix( yx1 ); }
+	    else if ( xy0ok )
+		{ to.x = xah.getPix( xy0 ); to.y = yah.getPix( yy0 ); }
+	    else if ( xy1ok )
+		{ to.x = xah.getPix( xy1 ); to.y = yah.getPix( yy1 ); }
+	    else
+		return;
+	}
+	else if ( yx1ok )
+	{
+	    from.x = xah.getPix( xx1 ); from.y = yah.getPix( yx1 );
+	    if ( xy0ok )
+		{ to.x = xah.getPix( xy0 ); to.y = yah.getPix( yy0 ); }
+	    else if ( xy1ok )
+		{ to.x = xah.getPix( xy1 ); to.y = yah.getPix( yy1 ); }
+	    else
+		return;
+	}
+	else if ( xy0ok )
+	{
+	    from.x = xah.getPix( xy0 ); from.y = yah.getPix( yy0 );
+	    if ( xy1ok )
+		{ to.x = xah.getPix( xy1 ); to.y = yah.getPix( yy1 ); }
+	    else
+		return;
+	}
+    }
+
+    const_cast<ioDrawTool&>(xah.drawTool()).drawLine( from, to );
 }
 
 

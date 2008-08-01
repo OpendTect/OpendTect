@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uiaxishandler.h,v 1.9 2008-06-26 16:18:10 cvsbert Exp $
+ RCS:           $Id: uiaxishandler.h,v 1.10 2008-08-01 15:50:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ ________________________________________________________________________
 #include "namedobj.h"
 #include "uigeom.h"
 class ioDrawTool;
+class LinePars;
 
 /*!\brief Handles an axis on a plot
 
@@ -90,6 +91,9 @@ public:
 
     void		drawGridLine(int) const; //!< Already called by plotAxis
 
+    ioDrawTool&		drawTool()		{ return dt_; }
+    const ioDrawTool&	drawTool() const	{ return dt_; }
+
 protected:
 
     ioDrawTool&		dt_;
@@ -119,6 +123,10 @@ protected:
     void		drawName() const;
 
 };
+
+//! draws line not outside box defined by X and Y value ranges
+void drawLine(const LinePars&,const uiAxisHandler& xah,const uiAxisHandler& yah,
+	      const Interval<float>* xvalrg = 0);
 
 
 #endif

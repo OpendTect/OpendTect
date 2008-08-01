@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.15 2008-07-31 10:45:49 cvshelene Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.16 2008-08-01 15:50:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -452,63 +452,7 @@ void uiDataPointSetCrossPlotter::drawRegrLine( const uiAxisHandler& yah,
     const Interval<int> ypixrg( yah.pixRange() );
     Interval<float> xvalrg( xah.getVal(xpixrg.start), xah.getVal(xpixrg.stop) );
     Interval<float> yvalrg( yah.getVal(ypixrg.start), yah.getVal(ypixrg.stop) );
-
-    uiPoint from(xpixrg.start,ypixrg.start), to(xpixrg.stop,ypixrg.stop);
-    if ( ls.lp.ax == 0 )
-    {
-	const int ypix = yah.getPix( ls.lp.a0 );
-	if ( !ypixrg.includes( ypix ) ) return;
-	from.x = xpixrg.start; to.x = xpixrg.stop;
-	from.y = to.y = ypix;
-    }
-    else
-    {
-	const float xx0 = xvalrg.start; const float yx0 = ls.lp.getValue( xx0 );
-	const float xx1 = xvalrg.stop; const float yx1 = ls.lp.getValue( xx1 );
-	const float yy0 = yvalrg.start; const float xy0 = ls.lp.getXValue( yy0);
-	const float yy1 = yvalrg.stop; const float xy1 = ls.lp.getXValue( yy1 );
-
-	const bool yx0ok = yvalrg.includes( yx0 );
-	const bool yx1ok = yvalrg.includes( yx1 );
-	const bool xy0ok = xvalrg.includes( xy0 );
-	const bool xy1ok = xvalrg.includes( xy1 );
-
-	if ( !yx0ok && !yx1ok && !xy0ok && !xy1ok )
-	    return;
-
-	if ( yx0ok )
-	{
-	    from.x = xah.getPix( xx0 ); from.y = yah.getPix( yx0 );
-	    if ( yx1ok )
-		{ to.x = xah.getPix( xx1 ); to.y = yah.getPix( yx1 ); }
-	    else if ( xy0ok )
-		{ to.x = xah.getPix( xy0 ); to.y = yah.getPix( yy0 ); }
-	    else if ( xy1ok )
-		{ to.x = xah.getPix( xy1 ); to.y = yah.getPix( yy1 ); }
-	    else
-		return;
-	}
-	else if ( yx1ok )
-	{
-	    from.x = xah.getPix( xx1 ); from.y = yah.getPix( yx1 );
-	    if ( xy0ok )
-		{ to.x = xah.getPix( xy0 ); to.y = yah.getPix( yy0 ); }
-	    else if ( xy1ok )
-		{ to.x = xah.getPix( xy1 ); to.y = yah.getPix( yy1 ); }
-	    else
-		return;
-	}
-	else if ( xy0ok )
-	{
-	    from.x = xah.getPix( xy0 ); from.y = yah.getPix( yy0 );
-	    if ( xy1ok )
-		{ to.x = xah.getPix( xy1 ); to.y = yah.getPix( yy1 ); }
-	    else
-		return;
-	}
-    }
-
-    drawTool().drawLine( from, to );
+    drawLine( ls.lp, xah, yah, &xvalrg );
 }
 
 
