@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.136 2008-07-09 12:33:41 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.137 2008-08-01 12:04:16 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -639,6 +639,12 @@ void uiODSceneMgr::getSceneNames( BufferStringSet& nms, int& active )
     wsp_->getWindowNames( nms );
     const char* activenm = wsp_->getActiveWin();
     active = nms.indexOf( activenm );
+}
+
+
+void uiODSceneMgr::getActiveSceneName( BufferString& nm )
+{
+    nm = wsp_->getActiveWin();
 }
 
 
