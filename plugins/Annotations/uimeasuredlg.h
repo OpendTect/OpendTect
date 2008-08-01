@@ -4,7 +4,7 @@ ________________________________________________________________________
     CopyRight:     (C) dGB Beheer B.V.
     Author:        Nageswara
     Date:          0
-    RCS:           $Id: uimeasuredlg.h,v 1.1 2008-08-01 07:49:29 cvsnageswara Exp $
+    RCS:           $Id: uimeasuredlg.h,v 1.2 2008-08-01 12:12:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,4 +41,5 @@ protected:
 
     void			changeCB(CallBacker*);
     void			clearCB(CallBacker*);
+    void			styleCB(CallBacker*);
 };

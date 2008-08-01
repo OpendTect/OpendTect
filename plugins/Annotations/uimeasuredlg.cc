@@ -4,7 +4,7 @@ ________________________________________________________________________
     CopyRight:     (C) dGB Beheer B.V.
     Author:        Nageswara
     Date:          May 2008
-    RCS:           $Id: uimeasuredlg.cc,v 1.1 2008-08-01 07:49:29 cvsnageswara Exp $
+    RCS:           $Id: uimeasuredlg.cc,v 1.2 2008-08-01 12:12:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,12 +60,15 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
 	    			     IntInpIntervalSpec(Interval<int>(0,0))
 				     .setName("InlDist",0)
 				     .setName("CrlDist",1) );
-    inlcrldistfld_->setReadOnly( true );
+    inlcrldistfld_->setReadOnly( true, -1 );
     inlcrldistfld_->attach( alignedBelow, distfld_ );
 
     uiPushButton* clearbut = new uiPushButton( this, "&Clear",
-	    			  mCB(this,uiMeasureDlg,clearCB), true );
+				mCB(this,uiMeasureDlg,clearCB), true );
     clearbut->attach( alignedBelow, inlcrldistfld_ );
+    uiPushButton* propbut = new uiPushButton( this, "&Line style",
+				mCB(this,uiMeasureDlg,styleCB), false );
+    propbut->attach( rightTo, clearbut );
 }
 
 
@@ -86,6 +89,11 @@ void uiMeasureDlg::changeCB( CallBacker* cb )
 
 void uiMeasureDlg::clearCB( CallBacker* cb )
 { clearPressed.trigger( cb ); }
+
+
+void uiMeasureDlg::styleCB( CallBacker* )
+{
+}
 
 
 void uiMeasureDlg::reset()
