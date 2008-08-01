@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.56 2008-08-01 12:05:07 cvsnageswara Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.57 2008-08-01 13:42:46 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ class uiThumbWheel;
 class uiTreeFactorySet;
 class uiTreeItem;
 class uiVisPartServer;
+class uiWindowGrabber;
 class uiWorkSpace;
 class uiWorkSpaceGroup;
 
@@ -182,6 +183,7 @@ protected:
     float			lasthrot_, lastvrot_, lastdval_;
     uiTreeFactorySet*		tifs_;
     uiSliderExtra*		zoomslider_;
+    uiWindowGrabber*		wingrabber_;
 
     void			wheelMoved(CallBacker*,int wh,float&);
 
