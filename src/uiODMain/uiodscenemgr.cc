@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.137 2008-08-01 12:04:16 cvsnageswara Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.138 2008-08-01 12:15:03 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "uiattribpartserv.h"
 
 #include "uibutton.h"
+#include "uibuttongroup.h"
 #include "uidockwin.h"
 #include "uilabel.h"
 #include "uislider.h"
@@ -36,6 +37,7 @@ ________________________________________________________________________
 #include "uiflatviewmainwin.h"
 #include "uitreeitemmanager.h"
 #include "uimsg.h"
+#include "uiwindowgrabber.h"
 
 #include "coltabsequence.h"
 #include "ptrman.h"
@@ -83,6 +85,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , tifs_(new uiTreeFactorySet)
     , sceneClosed(this)
     , treeToBeAdded(this)
+    , wingrabber_(new uiWindowGrabber(a))
 {
     tifs_->addFactory( new uiODInlineTreeItemFactory, 1000,
 	    	       SurveyInfo::No2D );
@@ -154,6 +157,7 @@ uiODSceneMgr::~uiODSceneMgr()
     cleanUp( false );
     delete tifs_;
     delete wsp_;
+    delete wingrabber_;
 }
 
 
@@ -514,15 +518,58 @@ void uiODSceneMgr::showRotAxis( CallBacker* cb )
 }
 
 
+class uiSnapshotDlg : public uiDialog
+{
+public:
+			uiSnapshotDlg(uiParent*);
+
+    enum		SnapshotType { Scene=0, Window, Desktop };
+    SnapshotType	getSnapshotType() const;
+
+protected:
+    uiButtonGroup* 	butgrp_;
+};
+
+
+uiSnapshotDlg::uiSnapshotDlg( uiParent* p )
+    : uiDialog( p, uiDialog::Setup("Specify snapshot",
+				   "Select area to take snapshot","0.0.0") )
+{
+    butgrp_ = new uiButtonGroup( this, "Area type" );
+    butgrp_->setRadioButtonExclusive( true );
+    uiRadioButton* but0 = new uiRadioButton( butgrp_, "Scene" );
+    uiRadioButton* but1 = new uiRadioButton( butgrp_, "Window" );
+    uiRadioButton* but2 = new uiRadioButton( butgrp_, "Desktop" );
+    butgrp_->selectButton( 0 );
+}
+
+
+uiSnapshotDlg::SnapshotType uiSnapshotDlg::getSnapshotType() const
+{ return (uiSnapshotDlg::SnapshotType) butgrp_->selectedId(); }
+
+
 void uiODSceneMgr::mkSnapshot( CallBacker* )
 {
-    ObjectSet<uiSoViewer> viewers;
-    getSoViewers( viewers );
-    if ( viewers.size() == 0 ) return;
+    uiSnapshotDlg snapdlg( &appl_ );
+    if ( !snapdlg.go() ) 
+	return;
 
-    uiPrintSceneDlg dlg( &appl_, viewers );
-    dlg.go();
-    // TODO: save settings in iopar
+    if ( snapdlg.getSnapshotType() == uiSnapshotDlg::Scene )
+    {
+	ObjectSet<uiSoViewer> viewers;
+	getSoViewers( viewers );
+	if ( viewers.size() == 0 ) return;
+
+	uiPrintSceneDlg printdlg( &appl_, viewers );
+	printdlg.go();
+	// TODO: save settings in iopar
+    }
+    else 
+    {
+	const bool desktop = snapdlg.getSnapshotType()==uiSnapshotDlg::Desktop;
+	wingrabber_->grabDesktop( desktop );
+	wingrabber_->go();
+    }
 }
 
 
