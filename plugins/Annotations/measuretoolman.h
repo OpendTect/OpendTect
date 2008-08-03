@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2008
- RCS:		$Id: measuretoolman.h,v 1.1 2008-08-01 12:12:38 cvsnanne Exp $
+ RCS:		$Id: measuretoolman.h,v 1.2 2008-08-03 18:08:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,10 +17,11 @@ ________________________________________________________________________
 class uiMeasureDlg;
 class uiODMain;
 
+namespace Pick { class SetMgr; }
+namespace visSurvey { class PickSetDisplay; }
+
 namespace Annotations
 {
-
-class MeasureDisplay;
 
 class MeasureToolMan : public CallBacker
 {
@@ -33,13 +34,14 @@ protected:
     void		sceneAdded(CallBacker*);
     void		sceneClosed(CallBacker*);
     void		changeCB(CallBacker*);
-    void		propChangeCB(CallBacker*);
+    void		lineStyleChangeCB(CallBacker*);
     void		clearCB(CallBacker*);
 
     uiODMain&		appl_;
 
+    Pick::SetMgr&	picksetmgr_;
     TypeSet<int>	sceneids_;
-    ObjectSet<MeasureDisplay>	measureobjs_;
+    ObjectSet<visSurvey::PickSetDisplay>	displayobjs_;
 
     uiMeasureDlg*	measuredlg_;
 };

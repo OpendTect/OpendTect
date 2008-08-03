@@ -4,7 +4,7 @@ ________________________________________________________________________
     CopyRight:     (C) dGB Beheer B.V.
     Author:        Nageswara
     Date:          0
-    RCS:           $Id: uimeasuredlg.h,v 1.2 2008-08-01 12:12:38 cvsnanne Exp $
+    RCS:           $Id: uimeasuredlg.h,v 1.3 2008-08-03 18:08:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,15 +22,18 @@ public:
 				uiMeasureDlg(uiParent*);
 				~uiMeasureDlg();
 
-    const LineStyle&		getLineStyle() const;
+    void			setLineStyle(const LineStyle&);
+    const LineStyle&		getLineStyle() const	{ return ls_; }
 
     void			fill(TypeSet<Coord3>&);
     void			reset();
 
-    Notifier<uiMeasureDlg>	propertyChange;
+    Notifier<uiMeasureDlg>	lineStyleChange;
     Notifier<uiMeasureDlg>	clearPressed;
 
 protected:
+
+    LineStyle&			ls_;
 
     uiGenInput*			hdistfld_;
     uiGenInput*			zdistfld_;
@@ -39,7 +42,7 @@ protected:
     uiGenInput*			inlcrldistfld_;
     uiSelLineStyle*		linestylefld_;
 
-    void			changeCB(CallBacker*);
+    void			lsChangeCB(CallBacker*);
     void			clearCB(CallBacker*);
-    void			styleCB(CallBacker*);
+    void			stylebutCB(CallBacker*);
 };

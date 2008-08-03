@@ -4,7 +4,7 @@ ________________________________________________________________________
     CopyRight:     (C) dGB Beheer B.V.
     Author:        Nageswara
     Date:          May 2008
-    RCS:           $Id: uimeasuredlg.cc,v 1.2 2008-08-01 12:12:38 cvsnanne Exp $
+    RCS:           $Id: uimeasuredlg.cc,v 1.3 2008-08-03 18:08:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,22 +24,20 @@ ________________________________________________________________________
 
 uiMeasureDlg::uiMeasureDlg( uiParent* p )
     : uiDialog( p, Setup("Measured Distance","","").modal(true) )
+    , ls_(*new LineStyle)
     , appvelfld_(0)
-    , propertyChange(this)
+    , lineStyleChange(this)
     , clearPressed(this)
 {
-    LineStyle ls;
-    linestylefld_ = new uiSelLineStyle( this, ls, "Line Properties",
-	    				true, false, true );
-    linestylefld_->changed.notify( mCB(this,uiMeasureDlg,changeCB));
+    setOkText( "" );
+    setCancelText( "" );
 
     BufferString hdistlbl ( "Horizontal Distance ", SI().getXYUnit() );
-    hdistfld_ = new uiGenInput( this, hdistlbl, DoubleInpSpec(0) );
+    hdistfld_ = new uiGenInput( this, hdistlbl, FloatInpSpec(0) );
     hdistfld_->setReadOnly( true );
-    hdistfld_->attach( alignedBelow, linestylefld_ );
 
     BufferString zdistlbl ( "Vertical Distance ", SI().getZUnit() ); 
-    zdistfld_ = new uiGenInput( this, zdistlbl, DoubleInpSpec(0) );
+    zdistfld_ = new uiGenInput( this, zdistlbl, FloatInpSpec(0) );
     zdistfld_->setReadOnly( true );
     zdistfld_->attach( alignedBelow, hdistfld_ );
 
@@ -47,12 +45,12 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     {
 	BufferString lbl( "(", SI().getXYUnit(false), "/sec)" );
 	BufferString vellbl( "Velocity ", lbl );
-	appvelfld_ = new uiGenInput( this, vellbl, DoubleInpSpec(0) );
+	appvelfld_ = new uiGenInput( this, vellbl, FloatInpSpec(2000) );
 	appvelfld_->attach( alignedBelow, zdistfld_ );
     }
 
     BufferString distlbl( "Distance ", SI().getXYUnit() );
-    distfld_ = new uiGenInput( this, distlbl, DoubleInpSpec(0) );
+    distfld_ = new uiGenInput( this, distlbl, FloatInpSpec(0) );
     distfld_->setReadOnly( true );
     distfld_->attach( alignedBelow, appvelfld_ ? appvelfld_ : zdistfld_ );
 
@@ -66,34 +64,40 @@ uiMeasureDlg::uiMeasureDlg( uiParent* p )
     uiPushButton* clearbut = new uiPushButton( this, "&Clear",
 				mCB(this,uiMeasureDlg,clearCB), true );
     clearbut->attach( alignedBelow, inlcrldistfld_ );
-    uiPushButton* propbut = new uiPushButton( this, "&Line style",
-				mCB(this,uiMeasureDlg,styleCB), false );
-    propbut->attach( rightTo, clearbut );
+    uiPushButton* stylebut = new uiPushButton( this, "&Line style",
+				mCB(this,uiMeasureDlg,stylebutCB), false );
+    stylebut->attach( rightTo, clearbut );
 }
 
 
 uiMeasureDlg::~uiMeasureDlg()
 {
+    delete &ls_;
 }
 
 
-const LineStyle& uiMeasureDlg::getLineStyle() const
+void uiMeasureDlg::lsChangeCB( CallBacker* cb )
 {
-    return linestylefld_->getStyle();
+    ls_ = linestylefld_->getStyle();
+    lineStyleChange.trigger(cb);
 }
-
-
-void uiMeasureDlg::changeCB( CallBacker* cb )
-{ propertyChange.trigger(cb); }
 
 
 void uiMeasureDlg::clearCB( CallBacker* cb )
 { clearPressed.trigger( cb ); }
 
 
-void uiMeasureDlg::styleCB( CallBacker* )
+void uiMeasureDlg::stylebutCB( CallBacker* )
 {
+    uiDialog dlg( this, uiDialog::Setup("","","") );
+    linestylefld_ = new uiSelLineStyle( &dlg, ls_, "", false, true, true );
+    linestylefld_->changed.notify( mCB(this,uiMeasureDlg,lsChangeCB));
+    dlg.go();
 }
+
+
+void uiMeasureDlg::setLineStyle( const LineStyle& ls )
+{ ls_ = ls; }
 
 
 void uiMeasureDlg::reset()
@@ -101,18 +105,24 @@ void uiMeasureDlg::reset()
     hdistfld_->setValue( 0 );
     zdistfld_->setValue( 0 );
     if ( SI().zIsTime() )
-    	appvelfld_->setValue( 0 );
+    	appvelfld_->setValue( 2000 );
     distfld_->setValue( 0 );
     inlcrldistfld_->setValue( Interval<int>(0,0) );
 }
 
 
+static const double mtoft2 = 0.09290304;
+static const double fttom2 = 10.76391;
+
 void uiMeasureDlg::fill( TypeSet<Coord3>& points )
 {
-    float velocity = SI().zIsTime() ? appvelfld_->getfValue() : 0 ;
+    const float velocity = SI().zIsTime() ? appvelfld_->getfValue() : 0 ;
     const int size = points.size();
     if ( size<2 )
+    {
+	reset();
 	return;
+    }
 
     int inldist = 0, crldist = 0;
     double hdist = 0, zdist = 0, realdist = 0;
@@ -126,18 +136,19 @@ void uiMeasureDlg::fill( TypeSet<Coord3>& points )
 	inldist += abs( posbid.r() - prevposbid.r() );
 	crldist += abs( posbid.c() - prevposbid.c() );
 	hdist += posxy.distTo( prevposxy );
-	zdist += fabs( (points[idx].z - points[idx-1].z) * 1000 );
+	zdist += fabs( (points[idx].z - points[idx-1].z) * SI().zFactor() );
     
-	double x1 = posxy.x; double x2 = prevposxy.x;
-	double z1 = points[idx].z; //z1 is in sec now
-	double z2 = points[idx-1].z;//z2 is in sec now
-	if( SI().zIsTime() )
+	double x1 = posxy.x;
+	double x2 = prevposxy.x;
+	double z1 = points[idx].z;
+	double z2 = points[idx-1].z;
+	if ( SI().zIsTime() )
 	    realdist += sqrt( (x2-x1) * (x2-x1) +
 		    	     (velocity*(z2-z1) * velocity*(z2-z1)) );
-	else if( SI().zInMeter() )
+	else if ( SI().zInMeter() )
 	{
 	   if (  SI().xyInFeet() )
-	       realdist += sqrt( (x2-x1) * (x2-x1) + 0.09*((z2-z1)*(z2-z1)) );
+	       realdist += sqrt( (x2-x1) * (x2-x1) + mtoft2*((z2-z1)*(z2-z1)) );
 	   else
 	       realdist += sqrt( (x2-x1) * (x2-x1) +(z2-z1)*(z2-z1) );
 	}
@@ -146,7 +157,7 @@ void uiMeasureDlg::fill( TypeSet<Coord3>& points )
 	    if (  SI().xyInFeet() )
 		realdist += sqrt( (x2-x1) * (x2-x1) + (z2-z1)*(z2-z1) );
 	    else
-		 realdist += sqrt( 10.89*((x2-x1)*(x2-x1)) + (z2-z1)*(z2-z1) );
+		 realdist += sqrt( fttom2*((x2-x1)*(x2-x1)) + (z2-z1)*(z2-z1) );
 	}
     }
 
