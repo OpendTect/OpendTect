@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		January 2008
- RCS:		$Id: seiszaxisstretcher.h,v 1.1 2008-01-04 22:45:59 cvskris Exp $
+ RCS:		$Id: seiszaxisstretcher.h,v 1.2 2008-08-04 11:42:12 cvsnanne Exp $
 ________________________________________________________________________
 
 */
@@ -44,6 +44,8 @@ public:
     int			nrDone() const			{ return nrdone_; }
     int			totalNr() const			{ return totalnr_; }
 
+    void		setLineKey(const char*);
+
 protected:
 
     void				nextChunk();
@@ -56,6 +58,7 @@ protected:
     int 				voiid_;
     ZAxisTransformSampler*		sampler_;
     bool				forward_;
+    bool				is2d_;
 
     SeisTrc*				outtrc_;
     float*				outputptr_;

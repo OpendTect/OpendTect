@@ -4,11 +4,12 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.1 2008-01-04 22:45:59 cvskris Exp $";
+static const char* rcsID = "$Id: seiszaxisstretcher.cc,v 1.2 2008-08-04 11:42:12 cvsnanne Exp $";
 
 #include "seiszaxisstretcher.h"
 
 #include "genericnumer.h"
+#include "seisioobjinfo.h"
 #include "seisread.h"
 #include "seisselectionimpl.h"
 #include "seistrc.h"
@@ -35,6 +36,9 @@ SeisZAxisStretcher::SeisZAxisStretcher( const IOObj& in, const IOObj& out,
     , voiid_( -1 )
     , forward_( forward )
 {
+    SeisIOObjInfo info( in );
+    is2d_ = info.is2D();
+
     ztransform_.ref();
 
     CubeSampling cs( true );
@@ -82,13 +86,38 @@ bool SeisZAxisStretcher::isOK() const
 }
 
 
+void SeisZAxisStretcher::setLineKey( const char* lk )
+{
+    Seis::RangeSelData sd; sd.copyFrom( *seisreader_->selData() );
+    sd.lineKey() = lk;
+    seisreader_->setSelData( sd.clone() );
+    if ( !seisreader_->prepareWork() )
+    {
+	delete seisreader_;
+	seisreader_ = 0;
+	return;
+    }
+
+    sd.copyFrom( seiswriter_->selData() ? *seiswriter_->selData()
+	    				: *new Seis::RangeSelData(true) );
+    sd.lineKey() = lk;
+    seiswriter_->setSelData( sd.clone() );
+}
+
+
 int SeisZAxisStretcher::nextStep()
 {
     SeisTrc intrc;
     if ( !seisreader_->get(intrc) )
 	return Finished;
 
-    const BinID curbid = intrc.info().binid;
+    BinID curbid = intrc.info().binid;
+    if ( is2d_ )
+    {
+	curbid.inl = ztransform_.lineIndex(
+				seisreader_->selData()->lineKey().lineName() );
+	curbid.crl = intrc.info().nr;
+    }
 
     sampler_->setBinID( curbid );
 
@@ -103,8 +132,9 @@ int SeisZAxisStretcher::nextStep()
     for ( int idx=outtrc_->size()-1; idx>=0; idx-- )
 	outtrc_->set( idx, outputptr_[idx], 0 );
 
-    outtrc_->info().binid = curbid;
-    outtrc_->info().coord = SI().transform( curbid );
+    outtrc_->info().nr = intrc.info().nr;
+    outtrc_->info().binid = intrc.info().binid;
+    outtrc_->info().coord = intrc.info().coord;
     if ( !seiswriter_->put( *outtrc_ ) )
 	return ErrorOccurred;
 
@@ -112,8 +142,8 @@ int SeisZAxisStretcher::nextStep()
     return MoreToDo;
 }
 
-#define mMaxNrTrc	5000
 
+#define mMaxNrTrc	5000
 
 void SeisZAxisStretcher::nextChunk()
 {
