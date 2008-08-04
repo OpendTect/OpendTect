@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.138 2008-08-01 12:15:03 cvsjaap Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.139 2008-08-04 07:30:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -83,9 +83,10 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     , vwridx_(0)
     , lasthrot_(0), lastvrot_(0), lastdval_(0)
     , tifs_(new uiTreeFactorySet)
+    , wingrabber_(new uiWindowGrabber(a))
+    , activeSceneChanged(this)
     , sceneClosed(this)
     , treeToBeAdded(this)
-    , wingrabber_(new uiWindowGrabber(a))
 {
     tifs_->addFactory( new uiODInlineTreeItemFactory, 1000,
 	    	       SurveyInfo::No2D );
@@ -280,8 +281,8 @@ void uiODSceneMgr::setSceneName( int sceneid, const char* nm )
 }
 
 
-const char* uiODSceneMgr::getSceneName( int sceneid )
-{ return visServ().getObjectName( sceneid ); }
+const char* uiODSceneMgr::getSceneName( int sceneid ) const
+{ return const_cast<uiODSceneMgr*>(this)->visServ().getObjectName( sceneid ); }
 
 
 void uiODSceneMgr::storePositions()
@@ -681,7 +682,7 @@ uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiListView* lv ) const
 }
 
 
-void uiODSceneMgr::getSceneNames( BufferStringSet& nms, int& active )
+void uiODSceneMgr::getSceneNames( BufferStringSet& nms, int& active ) const
 {
     wsp_->getWindowNames( nms );
     const char* activenm = wsp_->getActiveWin();
@@ -689,17 +690,38 @@ void uiODSceneMgr::getSceneNames( BufferStringSet& nms, int& active )
 }
 
 
-void uiODSceneMgr::getActiveSceneName( BufferString& nm )
+void uiODSceneMgr::getActiveSceneName( BufferString& nm ) const
+{ nm = wsp_->getActiveWin(); }
+
+
+int uiODSceneMgr::getActiveSceneID() const
 {
-    nm = wsp_->getActiveWin();
+    const BufferString scenenm = wsp_->getActiveWin();
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+    {
+	if ( !scenes_[idx] || !scenes_[idx]->itemmanager_ )
+	    continue;
+
+	if ( scenenm == getSceneName(scenes_[idx]->itemmanager_->sceneID()) )
+	    return scenes_[idx]->itemmanager_->sceneID();
+    }
+
+    return -1;
 }
 
 
 void uiODSceneMgr::wspChanged( CallBacker* )
-{ menuMgr().updateWindowsMenu(); }
+{
+    menuMgr().updateWindowsMenu();
+    activeSceneChanged.trigger();
+}
+
 
 void uiODSceneMgr::setActiveScene( const char* scenenm )
-{ wsp_->setActiveWin( scenenm ); }
+{
+    wsp_->setActiveWin( scenenm );
+    activeSceneChanged.trigger();
+}
 
 
 void uiODSceneMgr::initTree( Scene& scn, int vwridx )

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.57 2008-08-01 13:42:46 cvsjaap Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.58 2008-08-04 07:30:15 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,8 +48,7 @@ public:
     int				addScene(bool maximized);
     void			removeScene(CallBacker*);
     void			setSceneName(int sceneid,const char*);
-    void			getActiveSceneName(BufferString& nm);//Added
-    const char*			getSceneName(int sceneid);
+    const char*			getSceneName(int sceneid) const;
     CNotifier<uiODSceneMgr,int>	sceneClosed;
     CNotifier<uiODSceneMgr,int>	treeToBeAdded;
 
@@ -99,8 +98,11 @@ public:
     void			dWheelMoved(CallBacker*);
 
     void			getSoViewers(ObjectSet<uiSoViewer>&);
-    void			getSceneNames(BufferStringSet&,int& active);
+    void			getSceneNames(BufferStringSet&,int& act) const;
     void			setActiveScene(const char* scenenm);
+    void			getActiveSceneName(BufferString&) const;
+    int				getActiveSceneID() const;
+    Notifier<uiODSceneMgr>	activeSceneChanged;
 
     uiODTreeTop*		getTreeItemMgr(const uiListView*) const;
 
