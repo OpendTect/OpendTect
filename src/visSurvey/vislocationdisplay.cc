@@ -4,7 +4,7 @@
  * DATE     : Feb 2002
 -*/
 
-static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.39 2008-06-19 15:48:54 cvskris Exp $";
+static const char* rcsID = "$Id: vislocationdisplay.cc,v 1.40 2008-08-04 07:41:21 cvsnanne Exp $";
 
 #include "vislocationdisplay.h"
 
@@ -623,6 +623,7 @@ void LocationDisplay::removePick( int removeidx )
     picksetmgr_->reportChange( 0, cd );
 
     set_->remove( removeidx );
+    if ( needline_ ) createLine();
 }
 
 
