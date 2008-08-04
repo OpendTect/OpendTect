@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.27 2008-06-13 11:16:02 cvsnanne Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.28 2008-08-04 17:33:02 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,6 +101,8 @@ uiSeisBrowser::~uiSeisBrowser()
     delete &tbufbefore_;
     delete &tbufafter_;
     delete &ctrc_;
+
+    delete strcbufview_;
 }
 
 
