@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		8-11-1995
  Contents:	Notification and Callbacks
- RCS:		$Id: callback.h,v 1.37 2006-12-04 14:47:28 cvskris Exp $
+ RCS:		$Id: callback.h,v 1.38 2008-08-04 10:43:23 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,7 +32,7 @@ interested in).
 */
 
 
-struct CallBacker { virtual void _a_dummy_virtual_enabling_dynamic_cast_() {} };
+struct CallBacker { virtual ~CallBacker() {} };
 
 
 typedef void (CallBacker::*CallBackFunction)(CallBacker*);
