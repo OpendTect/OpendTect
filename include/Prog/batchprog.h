@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		14-9-1998
- RCS:		$Id: batchprog.h,v 1.36 2008-07-16 15:03:27 cvsbert Exp $
+ RCS:		$Id: batchprog.h,v 1.37 2008-08-04 12:19:41 cvsraman Exp $
 ________________________________________________________________________
 
  Batch programs should include this header, and define a BatchProgram::go().
@@ -97,6 +97,7 @@ protected:
     BufferStringSet	opts;
     BufferString	parversion_;
     BufferStringSet	requests_;
+    BufferString	finishmsg_;
 
     bool		initOutput();
     void		progKilled(CallBacker*);

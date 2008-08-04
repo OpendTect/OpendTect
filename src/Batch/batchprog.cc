@@ -5,7 +5,7 @@
  * FUNCTION : Batch Program 'driver'
 -*/
  
-static const char* rcsID = "$Id: batchprog.cc,v 1.88 2008-05-26 11:41:20 cvsbert Exp $";
+static const char* rcsID = "$Id: batchprog.cc,v 1.89 2008-08-04 12:19:14 cvsraman Exp $";
 
 #include "batchprog.h"
 #include "ioman.h"
@@ -49,6 +49,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 	, argshift(2)
 	, stillok(false)
 	, fullpath(av[0])
+	, finishmsg_("Finished batch processing.")
 	, inbg(NO)
 	, sdout(*new StreamData)
 	, iopar(new IOPar)
@@ -169,7 +170,7 @@ BatchProgram::BatchProgram( int* pac, char** av )
 
 BatchProgram::~BatchProgram()
 {
-    infoMsg( "Finished batch processing." );
+    infoMsg( finishmsg_ );
 
     if( comm )
     {
