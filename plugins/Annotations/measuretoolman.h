@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2008
- RCS:		$Id: measuretoolman.h,v 1.2 2008-08-03 18:08:30 cvsnanne Exp $
+ RCS:		$Id: measuretoolman.h,v 1.3 2008-08-04 06:56:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,9 +30,11 @@ public:
 
 protected:
 
+    void		objSelected(CallBacker*);
     void		buttonClicked(CallBacker*);
     void		sceneAdded(CallBacker*);
     void		sceneClosed(CallBacker*);
+    void		sceneChanged(CallBacker*);
     void		changeCB(CallBacker*);
     void		lineStyleChangeCB(CallBacker*);
     void		clearCB(CallBacker*);
@@ -44,6 +46,7 @@ protected:
     ObjectSet<visSurvey::PickSetDisplay>	displayobjs_;
 
     uiMeasureDlg*	measuredlg_;
+    int			butidx_;
 };
 
 } // namespace Annotations

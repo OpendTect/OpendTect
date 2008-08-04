@@ -3,8 +3,8 @@ ________________________________________________________________________
 
     CopyRight:     (C) dGB Beheer B.V.
     Author:        Nageswara
-    Date:          0
-    RCS:           $Id: uimeasuredlg.h,v 1.3 2008-08-03 18:08:30 cvsnanne Exp $
+    Date:          July 2008
+    RCS:           $Id: uimeasuredlg.h,v 1.4 2008-08-04 06:56:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,4 +45,5 @@ protected:
     void			lsChangeCB(CallBacker*);
     void			clearCB(CallBacker*);
     void			stylebutCB(CallBacker*);
+    void			velocityChgd(CallBacker*);
 };

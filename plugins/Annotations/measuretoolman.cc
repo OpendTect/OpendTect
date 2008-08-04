@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2008
- RCS:		$Id: measuretoolman.cc,v 1.2 2008-08-03 18:08:30 cvsnanne Exp $
+ RCS:		$Id: measuretoolman.cc,v 1.3 2008-08-04 06:56:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,30 +33,55 @@ MeasureToolMan::MeasureToolMan( uiODMain& appl )
     , measuredlg_(0)
 {
     const CallBack cb( mCB(this,MeasureToolMan,buttonClicked) );
-    appl.menuMgr().coinTB()->addButton( "measure.png", cb, 
-	    				"Display Distance", true );
+    butidx_ = appl.menuMgr().coinTB()->addButton( "measure.png", cb, 
+						  "Display Distance", true );
 
     appl.sceneMgr().treeToBeAdded.notify(
 			mCB(this,MeasureToolMan,sceneAdded) );
     appl.sceneMgr().sceneClosed.notify(
 			mCB(this,MeasureToolMan,sceneClosed) );
+    appl.sceneMgr().activeSceneChanged.notify(
+			mCB(this,MeasureToolMan,sceneChanged) );
+    visBase::DM().selMan().selnotifier.notify(
+	    		mCB(this,MeasureToolMan,objSelected) );
+}
+
+
+void MeasureToolMan::objSelected( CallBacker* cb )
+{
+    mCBCapsuleUnpack(int,sel,cb);
+    bool isownsel = false;
+    for ( int idx=0; idx<displayobjs_.size(); idx++ )
+	if ( displayobjs_[idx]->id() == sel )
+	    isownsel = true;
+
+    appl_.menuMgr().coinTB()->turnOn( butidx_, isownsel );
 }
 
 
 void MeasureToolMan::buttonClicked( CallBacker* cb )
 {
-    appl_.sceneMgr().setToViewMode( false );
+    const bool ison = appl_.menuMgr().coinTB()->isOn( butidx_ );
+    if ( ison )
+	appl_.sceneMgr().setToViewMode( false );
 
     for ( int idx=0; idx<displayobjs_.size(); idx++ )
     {
-	if ( true )
+	if ( ison )
 	    visBase::DM().selMan().select( displayobjs_[idx]->id() );
 	else
 	    visBase::DM().selMan().deSelect( displayobjs_[idx]->id() );
     }
 }
 
-static int id = 0;
+
+static MultiID getMultiID( int sceneid )
+{
+    // Create dummy multiid, I don't want to save these picks
+    BufferString mid( "9999.", sceneid );
+    return MultiID( mid.buf() );
+}
+
 
 void MeasureToolMan::sceneAdded( CallBacker* cb )
 {
@@ -69,8 +94,7 @@ void MeasureToolMan::sceneAdded( CallBacker* cb )
     ps->disp_.color_ = Color( 255, 0, 0 );
     psd->setSet( ps );
     psd->setSetMgr( &picksetmgr_ );
-    BufferString mid( "9999.", ++id );
-    picksetmgr_.set( MultiID(mid.buf()), ps );
+    picksetmgr_.set( getMultiID(sceneid), ps );
     picksetmgr_.locationChanged.notify( mCB(this,MeasureToolMan,changeCB) );
 
     appl_.applMgr().visServer()->addObject( psd, sceneid, false );
@@ -89,7 +113,34 @@ void MeasureToolMan::sceneClosed( CallBacker* cb )
     appl_.applMgr().visServer()->removeObject( displayobjs_[sceneidx], sceneid);
     displayobjs_[sceneidx]->unRef();
     displayobjs_.remove( sceneidx );
-} 
+}
+
+
+static void giveCoordsToDialog( const Pick::Set& set, uiMeasureDlg& dlg )
+{
+    TypeSet<Coord3> crds;
+    for ( int idx=0; idx<set.size(); idx++ )
+	crds += set[idx].pos;
+    dlg.fill( crds );
+}
+
+
+void MeasureToolMan::sceneChanged( CallBacker* cb )
+{
+    const bool ison = appl_.menuMgr().coinTB()->isOn( butidx_ );
+    if ( !ison ) return;
+
+    const int sceneid = appl_.sceneMgr().getActiveSceneID();
+    if ( sceneid < 0 ) return;
+
+    const int sceneidx = sceneids_.indexOf( sceneid );
+    if ( !displayobjs_.validIdx(sceneidx) ) return;
+
+    visBase::DM().selMan().select( displayobjs_[sceneidx]->id() );
+
+    if ( displayobjs_[sceneidx]->getSet() && measuredlg_ )
+	giveCoordsToDialog( *displayobjs_[sceneidx]->getSet(), *measuredlg_ );
+}
 
 
 void MeasureToolMan::changeCB( CallBacker* cb )
@@ -110,14 +161,11 @@ void MeasureToolMan::changeCB( CallBacker* cb )
     }
 
     measuredlg_->show();
-    TypeSet<Coord3> crds;
     Pick::Set chgdset( *cd->set_ );
     if ( cd->ev_ == Pick::SetMgr::ChangeData::ToBeRemoved )
 	chgdset.remove( cd->loc_ );
 
-    for ( int idx=0; idx<chgdset.size(); idx++ )
-	crds += chgdset[idx].pos;
-    measuredlg_->fill( crds );
+    giveCoordsToDialog( chgdset, *measuredlg_ );
 }
 
 
@@ -133,7 +181,8 @@ void MeasureToolMan::clearCB( CallBacker* )
 	displayobjs_[idx]->createLine();
     }
 
-    measuredlg_->reset();
+    if ( measuredlg_ )
+	measuredlg_->reset();
 }
 
 
