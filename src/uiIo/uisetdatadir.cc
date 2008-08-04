@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          June 2002
- RCS:           $Id: uisetdatadir.cc,v 1.22 2008-05-09 12:41:04 cvsnanne Exp $
+ RCS:           $Id: uisetdatadir.cc,v 1.23 2008-08-04 08:42:47 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,9 +85,6 @@ uiSetDataDir::uiSetDataDir( uiParent* p )
 				: "Location";
     basedirfld = new uiFileInput( this, basetxt,
 			      uiFileInput::Setup(basedirnm).directories(true) );
-    if ( oldok )
-	basedirfld->valuechanged.notify( mCB(this,uiSetDataDir,accept) );
-
     if ( !oldok )
     {
 	oddirfld = new uiGenInput( this, "Directory name", oddirnm );
