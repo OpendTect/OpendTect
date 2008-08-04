@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.86 2008-04-04 04:29:05 cvsnanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.87 2008-08-04 09:19:19 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -555,6 +555,7 @@ rest = nr%100; bininfo += rest < 10 ? ".0" : "."; bininfo += rest; \
     bool anysvy = dirlist.size();
     rmbut->setSensitive( anysvy );
     editbut->setSensitive( anysvy );
+    if ( button(OK) ) button(OK)->setSensitive( anysvy );
     for ( int idx=0; idx<utilbuts.size(); idx++ )
 	utilbuts[idx]->setSensitive( anysvy );
 }
