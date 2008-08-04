@@ -4,7 +4,7 @@ ________________________________________________________________________
     CopyRight:     (C) dGB Beheer B.V.
     Author:        Nageswara
     Date:          May 2008
-    RCS:           $Id: uimeasuredlg.cc,v 1.4 2008-08-04 06:56:39 cvsnanne Exp $
+    RCS:           $Id: uimeasuredlg.cc,v 1.5 2008-08-04 11:11:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,7 @@ ________________________________________________________________________
 
 
 uiMeasureDlg::uiMeasureDlg( uiParent* p )
-    : uiDialog( p, Setup("Measured Distance","","").modal(true) )
+    : uiDialog( p, Setup("Measured Distance","","").modal(false) )
     , ls_(*new LineStyle)
     , appvelfld_(0)
     , lineStyleChange(this)

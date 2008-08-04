@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2004
- RCS:           $Id: annotationspi.cc,v 1.5 2008-08-04 06:56:39 cvsnanne Exp $
+ RCS:           $Id: annotationspi.cc,v 1.6 2008-08-04 11:11:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "measuretoolman.h"
 #include "plugins.h"
+#include "measuretoolman.h"
 #include "treeitem.h"
 #include "uiodscenemgr.h"
 
@@ -38,10 +39,11 @@ extern "C" PluginInfo* GetAnnotationsPluginInfo()
 
 extern "C" const char* InitAnnotationsPlugin( int, char** )
 {
-    new Annotations::MeasureToolMan( *ODMainWin() );
-
     ODMainWin()->sceneMgr().treeItemFactorySet()->addFactory(
 	    			new Annotations::TreeItemFactory, 10000 );
+
+    Annotations::MeasureToolMan* mgr =
+	new Annotations::MeasureToolMan( *ODMainWin() );
 
     Annotations::ImageDisplay::initClass();
     Annotations::Image::initClass();

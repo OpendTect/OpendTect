@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2008
- RCS:		$Id: measuretoolman.cc,v 1.3 2008-08-04 06:56:39 cvsnanne Exp $
+ RCS:		$Id: measuretoolman.cc,v 1.4 2008-08-04 11:11:31 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -150,7 +150,7 @@ void MeasureToolMan::changeCB( CallBacker* cb )
 
     if ( !measuredlg_ )
     {
-	measuredlg_ = new uiMeasureDlg( 0 );
+	measuredlg_ = new uiMeasureDlg( &appl_ );
 	LineStyle ls;
 	ls.color_ = cd->set_->disp_.color_;
 	ls.width_ = cd->set_->disp_.pixsize_;
