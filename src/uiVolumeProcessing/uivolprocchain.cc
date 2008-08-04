@@ -4,17 +4,19 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.2 2008-06-04 09:17:09 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.3 2008-08-04 22:31:16 cvskris Exp $";
 
 #include "uivolprocchain.h"
 
 #include "ctxtioobj.h"
+#include "datainpspec.h"
 #include "ioman.h"
 #include "ioobj.h"
 #include "volprocchain.h"
 #include "volproctrans.h"
 #include "uibutton.h"
 #include "uiioobjsel.h"
+#include "uigeninput.h"
 #include "uilabel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
@@ -24,8 +26,38 @@ static const char* rcsID = "$Id: uivolprocchain.cc,v 1.2 2008-06-04 09:17:09 cvs
 namespace VolProc
 {
 
-mImplFactory2Param( uiDialog, uiParent*, Step*, uiPS );
+mImplFactory2Param( uiStepDialog, uiParent*, Step*, uiChain::factory );
 
+
+uiStepDialog::uiStepDialog(uiParent* p,const uiDialog::Setup& s,Step* step)
+    : uiDialog( p, s )
+    , step_( step )
+{
+    const char* key = step_->type();
+    const char* username = step_->userName();
+    const int keyidx = PS().getNames(false).indexOf( key );
+    const char* displayname = username
+	? username
+	: PS().getNames(true)[keyidx]->buf();
+
+    namefld_ = new uiGenInput( this, sKey::Name,
+	    		       StringInpSpec( displayname ) );
+}
+
+
+bool uiStepDialog::acceptOK( CallBacker* )
+{
+    const char* key = step_->type();
+    const int keyidx = PS().getNames(false).indexOf( key );
+
+    BufferString nm = namefld_->text();
+    if ( nm==PS().getNames(true)[keyidx]->buf() )
+	step_->setUserName( 0 );
+    else
+	step_->setUserName( nm.buf() );
+
+    return true;
+}
 
 
 uiChain::uiChain( uiParent* p, Chain& man )
@@ -149,11 +181,16 @@ void uiChain::updateList()
     for ( ; idx<chain_.nrSteps(); idx ++ )
     {
 	const char* key = chain_.getStep(idx)->type();
+	const char* username = chain_.getStep(idx)->userName();
 	const int keyidx = PS().getNames(false).indexOf( key );
+	const char* displayname = username
+	    ? username
+	    : PS().getNames(true)[keyidx]->buf();
+
 	if ( idx>=steplist_->size() )
-	    steplist_->addItem( PS().getNames(true)[keyidx]->buf(), false);
+	    steplist_->addItem( displayname, false);
 	else
-	    steplist_->setItemText( idx, PS().getNames(true)[keyidx]->buf() );
+	    steplist_->setItemText( idx, displayname );
     }
 
     for ( ; idx<steplist_->size(); )
@@ -183,7 +220,7 @@ bool uiChain::hasPropDialog(int idx) const
     const Step* step = chain_.getStep( idx );
     if ( !step ) return false;
 
-    return uiPS().getNames(false).indexOf( step->type() )!=-1;
+    return factory().getNames(false).indexOf( step->type() )!=-1;
 }
 
 
@@ -192,12 +229,14 @@ void uiChain::showPropDialog( int idx )
     Step* step = chain_.getStep( idx );
     if ( !step ) return;
 
-    PtrMan<uiDialog> dlg = uiPS().create( step->type(), this, step );
+    PtrMan<uiStepDialog> dlg = factory().create( step->type(), this, step );
 
     if ( !dlg )
 	return;
 
-    dlg->go();
+    if ( dlg->go() )
+	updateList();
+
 }
 
 

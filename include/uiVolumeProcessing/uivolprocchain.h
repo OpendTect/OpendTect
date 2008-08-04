@@ -7,29 +7,47 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uivolprocchain.h,v 1.1 2008-02-25 19:14:54 cvskris Exp $
+ RCS:		$Id: uivolprocchain.h,v 1.2 2008-08-04 22:31:16 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "iopar.h"
-#include "uidialog.h"
 #include "factory.h"
+#include "uidialog.h"
 
 class uiListBox;
 class uiButton;
 class uiMenuItem;
+class uiGenInput;
 
 namespace VolProc
 {
 
 class Chain;
 class Step;
+class uiStepDialog;
+
+class uiStepDialog : public uiDialog
+{
+public:
+    			uiStepDialog(uiParent*,const uiDialog::Setup&,
+				     Step*);
+
+    bool		acceptOK(CallBacker*);
+protected:
+
+    uiGenInput*		namefld_;
+    Step*		step_;
+};
+
 
 class uiChain : public uiDialog
 {
 public:
+    mDefineFactory2ParamInClass( uiStepDialog, uiParent*, Step*, factory );
+
 				uiChain(uiParent*,Chain&);
 
 protected:
@@ -72,9 +90,6 @@ protected:
     uiButton*			movedownbutton_;
     uiButton*			propertiesbutton_;
 };
-
-
-mDefineFactory2Param( uiDialog, uiParent*, Step*, uiPS );
 
 
 }; //namespace

@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		February 2008
- RCS:		$Id: uivolprocsmoother.h,v 1.1 2008-02-26 23:02:58 cvskris Exp $
+ RCS:		$Id: uivolprocsmoother.h,v 1.2 2008-08-04 22:31:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uidialog.h"
+#include "uivolprocchain.h"
 
 class uiWindowFunctionSel;
 class uiLabeledSpinBox;
@@ -23,7 +23,7 @@ namespace VolProc
 class Smoother;
 class Step;
 
-class uiSmoother : public uiDialog
+class uiSmoother : public uiStepDialog
 {
 public:
    static void			initClass();
@@ -32,7 +32,7 @@ public:
 				uiSmoother(uiParent*,Smoother*);
 
 protected:
-    static uiDialog*		create(uiParent*, Step*);
+    static uiStepDialog*	create(uiParent*, Step*);
     bool			acceptOK(CallBacker*);
     void			updateFlds(CallBacker*);
 

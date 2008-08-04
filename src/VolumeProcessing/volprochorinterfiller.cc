@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.1 2008-02-25 19:14:54 cvskris Exp $";
+static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.2 2008-08-04 22:31:16 cvskris Exp $";
 
 #include "volprochorinterfiller.h"
 
@@ -237,6 +237,7 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 
 void HorInterFiller::fillPar( IOPar& pars ) const
 {
+    Step::fillPar( pars );
     if ( tophorizon_ )
     {
 	pars.set( sKeyTopHorID(), tophorizon_->multiID() );
@@ -253,6 +254,9 @@ void HorInterFiller::fillPar( IOPar& pars ) const
 
 bool HorInterFiller::usePar( const IOPar& pars )
 {
+    if ( !Step::usePar( pars ) )
+	return false;
+
     float topvalue;
     MultiID tophorid;
 

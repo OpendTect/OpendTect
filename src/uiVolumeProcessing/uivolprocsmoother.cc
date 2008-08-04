@@ -4,13 +4,14 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: uivolprocsmoother.cc,v 1.1 2008-02-26 23:02:59 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocsmoother.cc,v 1.2 2008-08-04 22:31:16 cvskris Exp $";
 
 #include "uivolprocsmoother.h"
 
 #include "survinfo.h"
 #include "uimsg.h"
 #include "volprocsmoother.h"
+#include "uigeninput.h"
 #include "uispinbox.h"
 #include "uiwindowfunctionsel.h"
 #include "uivolprocchain.h"
@@ -25,17 +26,18 @@ namespace VolProc
 
 void uiSmoother::initClass()
 {
-    VolProc::uiPS().addCreator( create, Smoother::sKeyType() );
+    VolProc::uiChain::factory().addCreator( create, Smoother::sKeyType() );
 }    
 
 
 uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
-    : uiDialog( p, uiDialog::Setup( "Smoother", 0, "helpid" ) )
+    : uiStepDialog( p, uiDialog::Setup( "Smoother", 0, "helpid" ), hf )
     , smoother_( hf )
 {
     operatorselfld_ = new uiWindowFunctionSel( this, "Operator",
 	    		smoother_->getOperatorName(),
 			smoother_->getOperatorParam() );
+    operatorselfld_->attach( alignedBelow, namefld_ );
 
     inllenfld_ = new uiLabeledSpinBox( this, "In-line width", 0,
 	    			  	"Inline_spinbox" );
@@ -67,7 +69,7 @@ uiSmoother::~uiSmoother()
 }
 
 
-uiDialog* uiSmoother::create( uiParent* parent, Step* ps )
+uiStepDialog* uiSmoother::create( uiParent* parent, Step* ps )
 {
     mDynamicCastGet( Smoother*, hf, ps );
     if ( !hf ) return 0;
@@ -76,8 +78,11 @@ uiDialog* uiSmoother::create( uiParent* parent, Step* ps )
 }
 
 
-bool uiSmoother::acceptOK( CallBacker* )
+bool uiSmoother::acceptOK( CallBacker* cb )
 {
+    if ( !uiStepDialog::acceptOK( cb ) )
+	return false;
+
     const int inlsz = mNINT((inllenfld_->box()->getFValue()-1)/SI().inlStep() )+1;
     const int crlsz = mNINT((crllenfld_->box()->getFValue()-1)/SI().crlStep() )+1;
     const int zsz = mNINT(zlenfld_->box()->getFValue()/SI().zStep() )+1;

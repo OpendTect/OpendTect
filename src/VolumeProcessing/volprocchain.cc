@@ -4,11 +4,12 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: volprocchain.cc,v 1.2 2008-07-16 16:57:29 cvskris Exp $";
+static const char* rcsID = "$Id: volprocchain.cc,v 1.3 2008-08-04 22:31:16 cvskris Exp $";
 
 #include "volprocchain.h"
 
 #include "iopar.h"
+#include "keystrs.h"
 #include "survinfo.h"
 
 namespace VolProc
@@ -418,6 +419,14 @@ bool Step::enabled() const
 { return enabled_; }
 
 
+const char* Step::userName() const
+{ return username_.isEmpty() ? 0 : username_.buf(); }
+
+
+void Step::setUserName( const char* nm )
+{ username_ = nm; }
+
+
 HorSampling Step::getInputHRg(const HorSampling& hr) const
 { return hr; }
 
@@ -448,12 +457,16 @@ void Step::setOutput( Attrib::DataCubes* ni )
 void Step::fillPar( IOPar& par ) const
 {
     par.setYN( sKeyEnabled(), enabled_ );
+    if ( !username_.isEmpty() )
+	par.set( sKey::Name, username_.buf() );
 }
 
 
 bool Step::usePar( const IOPar& par )
 {
     par.getYN( sKeyEnabled(), enabled_ );
+    username_.empty();
+    par.get( sKey::Name, username_ );
     return true;
 }
 

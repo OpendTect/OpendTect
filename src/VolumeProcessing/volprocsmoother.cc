@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID = "$Id: volprocsmoother.cc,v 1.2 2008-02-26 23:01:57 cvskris Exp $";
+static const char* rcsID = "$Id: volprocsmoother.cc,v 1.3 2008-08-04 22:31:16 cvskris Exp $";
 
 #include "volprocsmoother.h"
 
@@ -70,6 +70,7 @@ float Smoother::getOperatorParam() const
 
 void Smoother::fillPar( IOPar& pars ) const
 {
+    Step::fillPar( pars );
     pars.set( smoother_->sKeyWinFunc(), getOperatorName() );
     pars.set( smoother_->sKeyWinParam(), getOperatorParam() );
     pars.set( sKey::StepOutInl, inlSz()*SI().inlStep()*SI().inlDistance()/2 );
@@ -80,6 +81,9 @@ void Smoother::fillPar( IOPar& pars ) const
 
 bool Smoother::usePar( const IOPar& pars )
 {
+    if ( !Step::usePar( pars ) )
+	return false;
+
     BufferString opname;
     float winparam, inlstepout, crlstepout, zstepout;
 

@@ -7,14 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uivelocitygridder.h,v 1.1 2008-07-22 19:44:22 cvskris Exp $
+ RCS:		$Id: uivelocitygridder.h,v 1.2 2008-08-04 22:31:16 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "iopar.h"
-#include "uidialog.h"
+#include "uivolprocchain.h"
 
 class uiGridder2DSel;
 namespace VolProc { class Step; }
@@ -26,7 +26,7 @@ namespace VolProc
 
 class VelGriddingStep;
 
-class uiVelocityGridder : public uiDialog
+class uiVelocityGridder : public uiStepDialog
 {
 public:
     static void		initClass();
@@ -35,7 +35,7 @@ public:
 
 protected:
     bool			acceptOK(CallBacker*);
-    static uiDialog*		create(uiParent*,VolProc::Step*);
+    static uiStepDialog*	create(uiParent*,VolProc::Step*);
 
     void			pickSelChange(CallBacker*);
     uiGridder2DSel*		griddersel_;

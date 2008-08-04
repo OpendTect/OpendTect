@@ -7,12 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Y.C. Liu
  Date:		April 2007
- RCS:		$Id: uivolprochorinterfiller.h,v 1.1 2008-02-25 19:14:54 cvskris Exp $
+ RCS:		$Id: uivolprochorinterfiller.h,v 1.2 2008-08-04 22:31:16 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "uidialog.h"
+#include "uivolprocchain.h"
 
 class uiGenInput;
 class uiIOObjSel;
@@ -24,7 +24,7 @@ namespace VolProc
 class Step;
 class HorInterFiller;
 
-class uiHorInterFiller : public uiDialog
+class uiHorInterFiller : public uiStepDialog
 {
 public:
    static void			initClass();
@@ -33,7 +33,7 @@ public:
 				uiHorInterFiller(uiParent*,HorInterFiller*);
 
 protected:
-    static uiDialog*		create(uiParent*, Step*);
+    static uiStepDialog*	create(uiParent*, Step*);
     bool			acceptOK(CallBacker*);
     void			updateFlds(CallBacker*);
 

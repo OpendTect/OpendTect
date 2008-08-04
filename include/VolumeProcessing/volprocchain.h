@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: volprocchain.h,v 1.2 2008-07-16 16:57:29 cvskris Exp $
+ RCS:		$Id: volprocchain.h,v 1.3 2008-08-04 22:31:16 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -85,6 +85,8 @@ public:
     virtual			~Step();
 
     virtual const char*		type() const 				= 0;
+    virtual const char*		userName() const;
+    virtual void		setUserName(const char* nm);
 
     void			enable(bool yn);
     bool			enabled() const;
@@ -126,6 +128,7 @@ protected:
 
     Attrib::DataCubes*		output_;
     const Attrib::DataCubes*	input_;
+    BufferString		username_;
 };
 
 

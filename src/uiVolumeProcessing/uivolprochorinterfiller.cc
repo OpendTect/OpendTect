@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.2 2008-07-16 17:57:13 cvsnanne Exp $";
+static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.3 2008-08-04 22:31:16 cvskris Exp $";
 
 #include "uivolprochorinterfiller.h"
 #include "uimsg.h"
@@ -24,12 +24,13 @@ namespace VolProc
 
 void uiHorInterFiller::initClass()
 {
-    VolProc::uiPS().addCreator( create, HorInterFiller::sKeyType() );
+    VolProc::uiChain::factory().addCreator( create, HorInterFiller::sKeyType() );
 }    
 
 
 uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
-    : uiDialog( p, uiDialog::Setup( "Horizon Inter-Filler", 0, "helpid" ) )
+    : uiStepDialog( p, uiDialog::Setup( "Horizon Inter-Filler", 0, "helpid" ),
+	            hf )
     , horinterfiller_( hf )
     , topctxt_( 0 )
     , bottomctxt_( 0 )
@@ -37,6 +38,7 @@ uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
     usetopvalfld_ = new uiGenInput( this, "Use top value",
 	    			    BoolInpSpec(hf->getTopHorizonID()) );
     usetopvalfld_->valuechanged.notify(mCB(this, uiHorInterFiller,updateFlds));
+    usetopvalfld_->attach( alignedBelow, namefld_ );
     topctxt_ = mGetCtxtIOObj(EMHorizon3D,Surf);
     topctxt_->ctxt.forread = true;
     if ( hf->getTopHorizonID() )
@@ -87,7 +89,7 @@ void uiHorInterFiller::updateFlds( CallBacker* )
 }
 
 
-uiDialog* uiHorInterFiller::create( uiParent* parent, Step* ps )
+uiStepDialog* uiHorInterFiller::create( uiParent* parent, Step* ps )
 {
     mDynamicCastGet( HorInterFiller*, hf, ps );
     if ( !hf ) return 0;
@@ -96,8 +98,11 @@ uiDialog* uiHorInterFiller::create( uiParent* parent, Step* ps )
 }
 
 
-bool uiHorInterFiller::acceptOK( CallBacker* )
+bool uiHorInterFiller::acceptOK( CallBacker* cb )
 {
+    if ( !uiStepDialog::acceptOK( cb ) )
+	return false;
+
     tophorfld_->processInput();
     bottomhorfld_->processInput();
 
