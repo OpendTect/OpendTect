@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		March 2007
- RCS:		$Id: prestackevents.h,v 1.5 2008-08-01 00:06:24 cvskris Exp $
+ RCS:		$Id: prestackevents.h,v 1.6 2008-08-04 14:48:30 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -145,8 +145,8 @@ public:
     bool			getHorRanges(HorSampling&) const;
     bool			getLocations(BinIDValueSet&) const;
 
-    Undo&			history()	{ return history_; }
-    const Undo&			history() const	{ return history_; }
+    Undo&			undo()		{ return undo_; }
+    const Undo&			undo() const	{ return undo_; }
 
 
     Executor*			commitChanges();
@@ -216,7 +216,7 @@ protected:
     SeisTrcReader*		primarydipreader_;
     SeisTrcReader*		secondarydipreader_;
 
-    Undo			history_;
+    Undo			undo_;
 };
 
 
