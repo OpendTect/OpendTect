@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.65 2008-05-28 11:07:37 cvsnanne Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.66 2008-08-04 11:41:56 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -305,46 +305,48 @@ void uiFullBatchDialog::singTogg( CallBacker* cb )
 bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 {
     if ( !prepareProcessing() ) return false;
-    BufferString inpfnm = parfnamefld_->fileName();
-    if ( inpfnm.isEmpty() )
-	getProcFilename( 0, "tmp_proc", inpfnm );
-    else if ( !FilePath(inpfnm).isAbsolute() )
-	getProcFilename( inpfnm, sSingBaseNm, inpfnm );
+    const bool issing = !singmachfld_ || singmachfld_->getBoolValue();
+
+    BufferString fnm = parfnamefld_ ? parfnamefld_->fileName()
+				    : ( issing ? singparfname_.buf()
+					       : multiparfname_.buf() );
+    if ( fnm.isEmpty() )
+	getProcFilename( 0, "tmp_proc", fnm );
+    else if ( !FilePath(fnm).isAbsolute() )
+	getProcFilename( fnm, sSingBaseNm, fnm );
 
     if ( redo_ )
     {
-	if ( File_isEmpty(inpfnm) )
+	if ( File_isEmpty(fnm) )
 	{
 	    uiMSG().error( "Invalid (epty or not readable) specification file" );
 	    return false;
 	}
     }
-    else if ( File_exists(inpfnm) )
+    else if ( File_exists(fnm) )
     {
-	if ( !File_isWritable(inpfnm) )
+	if ( !File_isWritable(fnm) )
 	{
-	    BufferString msg( "Cannot write specifications to\n", inpfnm.buf(),
+	    BufferString msg( "Cannot write specifications to\n", fnm.buf(),
 		"\nPlease select another file, or make sure file is writable.");
 	    uiMSG().error( msg );
 	    return false;
 	}
     }
 
-    const bool issing = !singmachfld_ || singmachfld_->getBoolValue();
-
     PtrMan<IOPar> iop = 0;
     if ( redo_ )
     {
 	if ( issing )
 	{
-	    StreamData sd = StreamProvider( inpfnm ).makeIStream();
+	    StreamData sd = StreamProvider( fnm ).makeIStream();
 	    if ( !sd.usable() )
 		{ uiMSG().error( "Cannot open parameter file" ); return false; }
 	    ascistream aistrm( *sd.istrm, YES );
 	    if ( strcmp(aistrm.fileType(),sKey::Pars) )
 	    {
 		sd.close();
-		uiMSG().error(BufferString(inpfnm," is not a parameter file"));
+		uiMSG().error(BufferString(fnm," is not a parameter file"));
 		return false;
 	    }
 	    const float ver = atof( aistrm.version() );
@@ -365,10 +367,10 @@ bool uiFullBatchDialog::acceptOK( CallBacker* cb )
 	    return false;
     }
 
-    if ( !issing && !redo_ && !writeProcFile(*iop,inpfnm) )
+    if ( !issing && !redo_ && !writeProcFile(*iop,fnm) )
 	return false;
 
-    bool res = issing ? singLaunch( *iop, inpfnm ) : multiLaunch( inpfnm );
+    bool res = issing ? singLaunch( *iop, fnm ) : multiLaunch( fnm );
     return ctrlstyle_ == DoAndStay ? false : res; 
 }
 
