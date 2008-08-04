@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.29 2008-07-11 09:33:21 cvsnanne Exp $
+ RCS:           $Id: uitreeview.h,v 1.30 2008-08-04 10:47:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -124,6 +124,8 @@ public:
     Notifier<uiListView> returnPressed;
     Notifier<uiListView> rightButtonClicked;
     Notifier<uiListView> rightButtonPressed;
+    Notifier<uiListView> leftButtonClicked;
+    Notifier<uiListView> leftButtonPressed;
     Notifier<uiListView> mouseButtonPressed;
     Notifier<uiListView> mouseButtonClicked;
     Notifier<uiListView> contextMenuRequested;

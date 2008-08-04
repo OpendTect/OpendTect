@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: i_qtreeview.h,v 1.9 2008-07-09 06:26:17 cvssatyaki Exp $
+ RCS:           $Id: i_qtreeview.h,v 1.10 2008-08-04 10:47:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,11 +17,8 @@ ________________________________________________________________________
 #include <QObject>
 #include <QTreeWidget>
 
-#include <string.h>
 
-
-
-//! Helper class for uilistview to relay Qt's 'activated' messages to uiMenuItem.
+//!brief Helper class for uilistview to relay Qt's 'activated' messages to uiMenuItem.
 /*!
     Internal object, to hide Qt's signal/slot mechanism.
 */
@@ -63,72 +60,77 @@ i_listVwMessenger( QTreeWidget& sender, uiListView& receiver )
 	     this, SLOT(itemCollapsed(QTreeWidgetItem*)) );
 }
 
-    virtual		~i_listVwMessenger() {}
+private:
 
-    void		setNotifiedItem( QTreeWidgetItem* item )
-			{ receiver_.setNotifiedItem(item); }
-    private:
+void setNotifiedItem( QTreeWidgetItem* item )
+{ receiver_.setNotifiedItem(item); }
 
-    uiListView&		receiver_;
-    QTreeWidget& 	sender_;
+uiListView&	receiver_;
+QTreeWidget& 	sender_;
 
 private slots:
 
-    void	itemSelectionChanged()
-		{
-		    QList<QTreeWidgetItem*> items = sender_.selectedItems();
-		    if ( items.size() > 0 )
-			setNotifiedItem( items[0] );
-		    receiver_.selectionChanged.trigger(receiver_);
-		}
+void itemSelectionChanged()
+{
+    QList<QTreeWidgetItem*> items = sender_.selectedItems();
+    if ( items.size() > 0 )
+	setNotifiedItem( items[0] );
+    receiver_.selectionChanged.trigger(receiver_);
+}
 
-    void	itemChanged( QTreeWidgetItem* item, int column )
-		{
-		    setNotifiedItem( item );
-		    receiver_.itemChanged.trigger(receiver_);
-		}
-    void	currentItemChanged( QTreeWidgetItem* item, QTreeWidgetItem* )
-		{
-		    setNotifiedItem( item );
-		    receiver_.currentChanged.trigger(receiver_);
-		}
+void itemChanged( QTreeWidgetItem* item, int column )
+{
+    setNotifiedItem( item );
+    receiver_.itemChanged.trigger(receiver_);
+}
 
-    void	itemClicked( QTreeWidgetItem* item, int )
-		{
-		    setNotifiedItem( item );
-		    if ( receiver_.buttonstate_ == OD::RightButton )
-			receiver_.rightButtonClicked.trigger( receiver_ );
-		    else if ( receiver_.buttonstate_ == OD::LeftButton )
-			receiver_.mouseButtonClicked.trigger( receiver_ );
-		}
+void currentItemChanged( QTreeWidgetItem* item, QTreeWidgetItem* )
+{
+    setNotifiedItem( item );
+    receiver_.currentChanged.trigger(receiver_);
+}
 
-    void	itemPressed( QTreeWidgetItem* item, int )
-		{
-		    setNotifiedItem( item );
-		    if ( receiver_.buttonstate_ == OD::RightButton )
-			receiver_.rightButtonPressed.trigger( receiver_ );
-		    else if ( receiver_.buttonstate_ == OD::NoButton )
-			receiver_.mouseButtonPressed.trigger( receiver_ );
-		}
+void itemClicked( QTreeWidgetItem* item, int )
+{
+    setNotifiedItem( item );
+    if ( receiver_.buttonstate_ == OD::RightButton )
+	receiver_.rightButtonClicked.trigger( receiver_ );
+    else if ( receiver_.buttonstate_ == OD::LeftButton )
+	receiver_.leftButtonClicked.trigger( receiver_ );
 
-    void	customContextMenuRequested( const QPoint& qpoint )
-		{
-		    setNotifiedItem( sender_.itemAt(qpoint) );
-		    receiver_.setNotifiedColumn( sender_.columnAt(qpoint.x()) );
-		    receiver_.contextMenuRequested.trigger(receiver_);
-		}
+    receiver_.mouseButtonClicked.trigger( receiver_ );
+}
 
-    void	itemExpanded( QTreeWidgetItem* item )
-		{
-		    setNotifiedItem( item );
-		    receiver_.expanded.trigger(receiver_);
-		}
+void itemPressed( QTreeWidgetItem* item, int )
+{
+    setNotifiedItem( item );
+    if ( receiver_.buttonstate_ == OD::RightButton )
+	receiver_.rightButtonPressed.trigger( receiver_ );
+    else if ( receiver_.buttonstate_ == OD::NoButton )
+	receiver_.leftButtonPressed.trigger( receiver_ );
 
-    void	itemCollapsed( QTreeWidgetItem* item )
-		{
-		    setNotifiedItem( item );
-		    receiver_.collapsed.trigger(receiver_);
-		}
+    receiver_.mouseButtonPressed.trigger( receiver_ );
+}
+
+void customContextMenuRequested( const QPoint& qpoint )
+{
+    setNotifiedItem( sender_.itemAt(qpoint) );
+    receiver_.setNotifiedColumn( sender_.columnAt(qpoint.x()) );
+    receiver_.contextMenuRequested.trigger(receiver_);
+}
+
+void itemExpanded( QTreeWidgetItem* item )
+{
+    setNotifiedItem( item );
+    receiver_.expanded.trigger(receiver_);
+}
+
+void itemCollapsed( QTreeWidgetItem* item )
+{
+    setNotifiedItem( item );
+    receiver_.collapsed.trigger(receiver_);
+}
+
 };
 
 #endif

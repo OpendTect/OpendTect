@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.40 2008-07-24 11:04:01 cvsnanne Exp $
+ RCS:           $Id: uitreeview.cc,v 1.41 2008-08-04 10:47:09 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -279,6 +279,8 @@ uiListView::uiListView( uiParent* p, const char* nm, int nl, bool dec )
     , currentChanged(this)
     , itemChanged(this)
     , returnPressed(this)
+    , leftButtonClicked(this)
+    , leftButtonPressed(this)
     , rightButtonClicked(this)
     , rightButtonPressed(this)
     , mouseButtonPressed(this)
@@ -574,6 +576,7 @@ int uiListViewItem::depth() const
 void uiListViewItem::setText( const char* txt, int column )
 { 
     qtreeitem_->setText( column, QString(txt) );
+    qtreeitem_->setToolTip( column, QString(txt) );
 }
 
 
