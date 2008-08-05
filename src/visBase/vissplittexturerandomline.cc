@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		3-12-2008
- RCS:		$Id: vissplittexturerandomline.cc,v 1.4 2008-08-05 19:18:40 cvsyuancheng Exp $
+ RCS:		$Id: vissplittexturerandomline.cc,v 1.5 2008-08-05 19:47:20 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -305,21 +305,21 @@ void SplitTextureRandomLine::updateDisplay( )
 		}
 
 		triangle->coordIndex.set1Value( curknotidx, 
-			usedpts.indexOf(pt0) );
+			usedpts.indexOf(start) );
 		triangle->textureCoordIndex.set1Value( curknotidx,curknot);	
 		curknotidx++;
 		curknot++;
 
-		const Coord3 pt1 = Coord3(coord,blockzrg.stop);
-		if ( usedpts.indexOf(pt1)==-1 )
+		const Coord3 stop = Coord3(coord,blockzrg.stop);
+		if ( usedpts.indexOf(stop)==-1 )
 		{
-		    usedpts += pt1;
-		    coords_->setPos( coordidx, pt1 );
+		    usedpts += stop;
+		    coords_->setPos( coordidx, stop );
 		    coordidx++;		
 		}
 
 		triangle->coordIndex.set1Value( curknotidx, 
-		       usedpts.indexOf(pt1) );
+		       usedpts.indexOf(stop) );
 		triangle->textureCoordIndex.set1Value( curknotidx,curknot );
 		curknotidx++; 
 		curknot++;
