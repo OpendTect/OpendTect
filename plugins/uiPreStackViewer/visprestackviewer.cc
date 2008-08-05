@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.23 2008-07-23 20:11:14 cvskris Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.24 2008-08-05 21:52:09 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -13,6 +13,7 @@ _______________________________________________________________________________
 
 #include "ioman.h"
 #include "iopar.h"
+#include "posinfo.h"
 #include "prestackgather.h"
 #include "prestackprocessor.h"
 #include "seispsioprov.h"
@@ -46,6 +47,7 @@ PreStackViewer::PreStackViewer()
     , mid_( 0 )		
     , section_( 0 )
     , seis2d_( 0 )
+    , sectionreader_( 0 )
     , factor_( 1 )
     , trcnr_( 0 )
     , basedirection_( mUdf(float), mUdf(float) )		 
@@ -146,6 +148,9 @@ void PreStackViewer::allowShading( bool yn )
 void  PreStackViewer::setMultiID( const MultiID& mid )
 { 
     mid_ = mid;
+
+    delete sectionreader_;
+    sectionreader_ = SPSIOPF().get3DReader( *IOM().get(mid_) );
 
     if ( seis2d_ && seis2d_->getMovementNotifier() )
 	seis2d_->getMovementNotifier()->notify( 
@@ -381,9 +386,7 @@ void PreStackViewer::setSectionDisplay( visSurvey::PlaneDataDisplay* pdd )
     }
 
     section_ = pdd;
-    if ( !section_ )
-	return;
-
+    if ( !section_ ) return;
     section_->ref();
 
     const bool offsetalonginl = 
@@ -432,7 +435,7 @@ bool PreStackViewer::setSeis2DData( const IOObj* ioobj )
 
     if ( !seis2d_ || trcnr_<0 )
 	return false;
-
+    
     const bool haddata = flatviewer_->pack( false );
     PreStack::Gather* gather = new PreStack::Gather;
     if ( !gather->readFrom( *ioobj, trcnr_, seis2d_->name() ) )
@@ -451,7 +454,7 @@ bool PreStackViewer::setSeis2DData( const IOObj* ioobj )
 	DPM(DataPackMgr::FlatID).add( gather );
 	flatviewer_->setPack( false, gather->id(), false, !haddata );
     }
-    
+   
     turnOn( true );
     return true;
 }
@@ -567,9 +570,16 @@ void PreStackViewer::draggerMotion( CallBacker* )
 {
     if ( !section_ )
 	return;
-    
-    const int newinl = SI().inlRange( true ).snap( planedragger_->center().x );
-    const int newcrl = SI().inlRange( true ).snap( planedragger_->center().y );
+
+    const PosInfo::CubeData& cubedata = sectionreader_->posData();
+    const int newinlidx = cubedata.indexOf(
+	    SI().transform(planedragger_->center()).inl );
+    if ( newinlidx==-1 )
+	return;
+
+    const int newinl = cubedata[newinlidx]->linenr_;
+    const int newcrl = cubedata[newinlidx]->getIndexInfo(
+	    planedragger_->center().y).nearest_;
 
     const visSurvey::PlaneDataDisplay::Orientation orientation =
 	    section_->getOrientation();
@@ -577,7 +587,7 @@ void PreStackViewer::draggerMotion( CallBacker* )
     bool showplane = false;
     if ( orientation==visSurvey::PlaneDataDisplay::Inline && newcrl!=bid_.crl )
         showplane = true;
-    else if ( orientation==visSurvey::PlaneDataDisplay::Crossline &&
+    else if ( orientation==visSurvey::PlaneDataDisplay::Crossline && 
 	      newinl!=bid_.inl )
 	showplane = true;
 
@@ -590,15 +600,35 @@ void  PreStackViewer::finishedCB( CallBacker* )
     if ( !section_ )
 	return;
 
-    int inl = SI().inlRange( true ).snap( planedragger_->center().x );
-    int crl = SI().crlRange( true ).snap( planedragger_->center().y );
-    BinID newpos = BinID( inl, crl );
-    
+    const PosInfo::CubeData& cubedata = sectionreader_->posData();
+
+    BinID newpos;
     if ( section_->getOrientation() == visSurvey::PlaneDataDisplay::Inline )
+    {
 	newpos.inl = section_->getCubeSampling( -1 ).hrg.start.inl;
-    else if (section_->getOrientation() == 
-	    visSurvey::PlaneDataDisplay::Crossline )
+	const int newinlidx = cubedata.indexOf( newpos.inl );
+	if ( newinlidx!=-1 )
+	{
+	    newpos.crl = cubedata[newinlidx]->getIndexInfo(
+		    planedragger_->center().y).nearest_;
+	}
+	else
+	{
+	    newpos.crl = SI().crlRange(true).snap( planedragger_->center().y );
+	}
+    }
+    else if ( section_->getOrientation() ==
+	      visSurvey::PlaneDataDisplay::Crossline )
+    {
 	newpos.crl = section_->getCubeSampling( -1 ).hrg.start.crl;
+
+	const int centerinl = SI().transform(planedragger_->center()).inl;
+	const int newinlidx = cubedata.indexOf( centerinl );
+	if ( newinlidx!=-1 )
+	    newpos.inl = cubedata[newinlidx]->linenr_;
+	else
+	    newpos.inl = SI().inlRange(true).snap( planedragger_->center().x );
+    }
     else
 	return;
 
