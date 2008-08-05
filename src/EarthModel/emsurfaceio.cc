@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.102 2008-08-05 05:01:03 cvsraman Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.103 2008-08-05 10:33:07 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -362,9 +362,6 @@ const StepInterval<int>& dgbSurfaceReader::colInterval() const
 
 const Interval<float>& dgbSurfaceReader::zInterval() const
 {
-    if ( zrange_.isUdf() )
-	return SI().zRange( false );
-
     return zrange_;
 }
 
