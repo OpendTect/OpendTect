@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispscubetr.h,v 1.1 2008-01-16 16:16:29 cvsbert Exp $
+ RCS:		$Id: seispscubetr.h,v 1.2 2008-08-05 12:21:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,7 @@ public:
 							{ return false; }
 
     const char*		connType() const;
+    virtual bool	isReadDefault() const           { return true; }
 
 protected:
 
