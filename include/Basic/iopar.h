@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		21-12-1995
- RCS:		$Id: iopar.h,v 1.47 2008-02-04 16:19:58 cvsbert Exp $
+ RCS:		$Id: iopar.h,v 1.48 2008-08-05 10:04:48 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -159,6 +159,7 @@ public:
 			{ bool b = false; return getYN(key,b) && b; }
     bool		get(const char*,Interval<int>&) const;
     bool		get(const char*,Interval<float>&) const;
+    bool		get(const char*,Interval<double>&) const;
     bool		get(const char*,BinID&) const;
     bool		get(const char*,Coord&) const;
     bool		get(const char*,Coord3&) const;
@@ -193,6 +194,7 @@ public:
 
     void		set(const char*,const Interval<int>&);
     void		set(const char*,const Interval<float>&);
+    void		set(const char*,const Interval<double>&);
     void		set(const char*,const BinID&);
     void		set(const char*,const Coord&);
     void		set(const char*,const Coord3&);

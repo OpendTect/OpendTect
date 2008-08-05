@@ -4,7 +4,7 @@
  * DATE     : 21-12-1995
 -*/
 
-static const char* rcsID = "$Id: iopar.cc,v 1.67 2008-05-15 18:32:43 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: iopar.cc,v 1.68 2008-08-05 10:04:48 cvsbert Exp $";
 
 #include "iopar.h"
 #include "multiid.h"
@@ -936,6 +936,15 @@ bool IOPar::get( const char* s, Interval<float>& rg ) const
 	return get( s, rg.start, rg.stop );
 }
 
+bool IOPar::get( const char* s, Interval<double>& rg ) const
+{
+    mDynamicCastGet(StepInterval<double>*,si,&rg)
+    if ( si )
+	return get( s, rg.start, rg.stop, si->step );
+    else
+	return get( s, rg.start, rg.stop );
+}
+
 void IOPar::set( const char* s, const Interval<int>& rg )
 {
     mDynamicCastGet(const StepInterval<int>*,si,&rg)
@@ -948,6 +957,15 @@ void IOPar::set( const char* s, const Interval<int>& rg )
 void IOPar::set( const char* s, const Interval<float>& rg )
 {
     mDynamicCastGet(const StepInterval<float>*,si,&rg)
+    if ( si )
+	set( s, rg.start, rg.stop, si->step );
+    else
+	set( s, rg.start, rg.stop );
+}
+
+void IOPar::set( const char* s, const Interval<double>& rg )
+{
+    mDynamicCastGet(const StepInterval<double>*,si,&rg)
     if ( si )
 	set( s, rg.start, rg.stop, si->step );
     else
