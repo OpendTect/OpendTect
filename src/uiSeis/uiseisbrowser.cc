@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.28 2008-08-04 17:33:02 cvsnanne Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.29 2008-08-05 07:11:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -693,7 +693,7 @@ void uiSeisBrowser::valChgReDraw( CallBacker* )
 
 void uiSeisBrowser::setTrcBufViewTitle()
 {
-    BufferString title( "Central Trace :" );
+    BufferString title( "Central Trace: " );
     title += curBinID().inl; title += "/";
     title += curBinID().crl;
     if ( strcbufview_ )
