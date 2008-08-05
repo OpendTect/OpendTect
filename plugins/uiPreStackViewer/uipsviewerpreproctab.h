@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2008
- RCS:		$Id: uipsviewerpreproctab.h,v 1.2 2008-05-27 22:53:41 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewerpreproctab.h,v 1.3 2008-08-05 21:50:49 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uidlggroup.h"
 
 class uiGenInput;
+class uiPushButton;
 
 namespace PreStack { class ProcessManager; class uiProcessorManager; }
 
@@ -38,12 +39,16 @@ public:
     bool			applyToAll()		{ return applyall_; }
 
 protected:
+    
+    void				applyButPushedCB(CallBacker*);
+    void				processorChangeCB(CallBacker*);
 
     PreStackViewer&			vwr_;
     uiPSViewerMgr&			mgr_;
     PreStack::ProcessManager*		preprocmgr_;
     PreStack::uiProcessorManager*	uipreprocmgr_;
-    
+
+    uiPushButton*			applybut_;    
     bool				applyall_;
 };
 
