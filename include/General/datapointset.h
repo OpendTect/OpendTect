@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Jan 2008
- RCS:		$Id: datapointset.h,v 1.20 2008-07-16 17:52:58 cvsnanne Exp $
+ RCS:		$Id: datapointset.h,v 1.21 2008-08-05 10:26:37 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -198,7 +198,7 @@ public:
 			//!< use dataSet() to add columns
 
     // DataPack interface impl
-    bool		simpleCoords() const		{ return false; }
+    bool		simpleCoords() const		{ return minimal_; }
     float		nrKBytes() const;
     void		dumpInfo(IOPar&) const;
 
