@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.57 2008-08-05 09:20:39 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.58 2008-08-05 14:54:37 cvsjaap Exp $";
 
 #include "vismpe.h"
 
@@ -801,6 +801,49 @@ float MPEDisplay::maxDist() const
     float maxzdist = SI().zFactor() * scene_->getZScale() * SI().zStep() / 2;
     return engine_.trackPlane().boundingBox().nrZ()==1 
 					? maxzdist : SurveyObject::sDefMaxDist;
+}
+
+
+void MPEDisplay::getMousePosInfo( const visBase::EventInfo&, const Coord3& pos,
+				  BufferString& val, BufferString& info ) const
+{
+    val = "undef";
+    info = "";
+
+    const BinID bid( SI().transform(pos) );
+    RefMan<const Attrib::DataCubes> attrdata = engine_.getAttribCache( as_ );
+    if ( !attrdata )
+	return;
+
+    const CubeSampling& datacs = attrdata->cubeSampling();
+    if ( !datacs.hrg.includes(bid) || !datacs.zrg.includes(pos.z) )
+	return;
+    const float fval = attrdata->getCube(0).get( datacs.inlIdx(bid.inl),
+	    					 datacs.crlIdx(bid.crl),
+						 datacs.zIdx(pos.z) );
+    if ( !mIsUdf(fval) )
+	val = fval;
+
+    const int dim = dragger_->getDim();
+    CubeSampling planecs;
+    getPlanePosition( planecs );
+
+    if ( !dim )
+    {
+	info = "Inline: ";
+	info += planecs.hrg.start.inl;
+    }
+    else if ( dim==1 )
+    {
+	info = "Crossline: ";
+	info += planecs.hrg.start.crl;
+    }
+    else
+    {
+	info = SI().zIsTime() ? "Time: " : "Depth: ";
+	const float z = planecs.zrg.start;
+	info += SI().zIsTime() ? mNINT( z * 1000) : z;
+    }
 }
 
 

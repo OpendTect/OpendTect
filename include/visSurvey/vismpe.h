@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: vismpe.h,v 1.35 2007-05-22 04:42:27 cvsnanne Exp $
+ RCS:		$Id: vismpe.h,v 1.36 2008-08-05 14:54:37 cvsjaap Exp $
 ________________________________________________________________________
 
 
@@ -77,6 +77,11 @@ public:
     
     virtual float               calcDist(const Coord3&) const;
     virtual float               maxDist() const;
+
+    void			getMousePosInfo(const visBase::EventInfo&,
+	    					const Coord3&,
+						BufferString& val,
+						BufferString& info) const;
 
     void			fillPar(IOPar&,TypeSet<int>&) const;
     int				usePar( const IOPar&);
