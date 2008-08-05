@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.cc,v 1.10 2008-05-29 11:59:02 cvssatyaki Exp $
+ RCS:		$Id: visflatviewer.cc,v 1.11 2008-08-05 21:52:55 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,12 +98,12 @@ void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt )
     		    vct.setSymMidval( appearance().ddpars_.vd_.symmidvalue_ );
 
 		const Interval<float>& range = appearance().ddpars_.vd_.rg_;
-		if ( mIsUdf( range.start ) || mIsUdf( range.stop ) )
+		if ( mIsUdf(range.start) || mIsUdf(range.stop) || 
+			appearance().ddpars_.vd_.autoscale_ )
 		    vct.setClipRate( 
 			    appearance().ddpars_.vd_.clipperc_.start*0.01 );
 		else 
-		    vct.scaleTo( Interval<float>(range.start*0.01,
-			       			 range.stop*0.01) );
+		    vct.scaleTo( range );
 		
 		const char* ctabname = appearance().ddpars_.vd_.ctab_.buf();
 		vct.colorSeq().loadFromStorage( ctabname );
