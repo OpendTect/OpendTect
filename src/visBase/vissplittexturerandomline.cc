@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		3-12-2008
- RCS:		$Id: vissplittexturerandomline.cc,v 1.3 2008-08-05 13:45:52 cvsyuancheng Exp $
+ RCS:		$Id: vissplittexturerandomline.cc,v 1.4 2008-08-05 19:18:40 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -146,6 +146,7 @@ void SplitTextureRandomLine::updateDisplay( )
     ObjectSet<SoSeparator> unusedseparators = separators_;
 
     int coordidx = 0;
+    TypeSet<Coord3> usedpts;
     for ( int horidx=0; horidx<nrhorblocks; horidx++ )
     {
 	const int startpathidx = horidx * (mMaxHorSz-1);
@@ -295,21 +296,33 @@ void SplitTextureRandomLine::updateDisplay( )
 	    for ( int idx=0; idx<knots.size(); idx++ )
 	    {
 		const Coord coord( knots[idx].inl, knots[idx].crl );
-		if ( !repeated )
-    		    coords_->setPos( coordidx, Coord3(coord,blockzrg.start) );
-		triangle->coordIndex.set1Value( curknotidx, coordidx );
+		const Coord3 start(coord,blockzrg.start);
+		if ( usedpts.indexOf(start)==-1 )
+		{
+		    usedpts += start;
+		    coords_->setPos( coordidx, start );
+		    coordidx++;		
+		}
+
+		triangle->coordIndex.set1Value( curknotidx, 
+			usedpts.indexOf(pt0) );
 		triangle->textureCoordIndex.set1Value( curknotidx,curknot);	
 		curknotidx++;
 		curknot++;
- 		coordidx++;		
 
-		if ( !repeated )
-    		    coords_->setPos( coordidx, Coord3(coord,blockzrg.stop) );
-		triangle->coordIndex.set1Value( curknotidx, coordidx );
+		const Coord3 pt1 = Coord3(coord,blockzrg.stop);
+		if ( usedpts.indexOf(pt1)==-1 )
+		{
+		    usedpts += pt1;
+		    coords_->setPos( coordidx, pt1 );
+		    coordidx++;		
+		}
+
+		triangle->coordIndex.set1Value( curknotidx, 
+		       usedpts.indexOf(pt1) );
 		triangle->textureCoordIndex.set1Value( curknotidx,curknot );
 		curknotidx++; 
 		curknot++;
- 		coordidx++;		
 
 		if ( idx!=0 && idx!=knots.size()-1 && !repeated )
 		{
@@ -317,7 +330,6 @@ void SplitTextureRandomLine::updateDisplay( )
 		    triangle->textureCoordIndex.set1Value( curknotidx, -1 );
 		    curknotidx ++;
 		    curknot -= 2;
-		    coordidx -= 2; 
 		    idx--;
 		    repeated = true;
 		}
