@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: frequencyattrib.cc,v 1.20 2008-06-26 13:56:22 cvshelene Exp $";
+static const char* rcsID = "$Id: frequencyattrib.cc,v 1.21 2008-08-05 08:47:45 cvshelene Exp $";
 
 #include "frequencyattrib.h"
 #include "arrayndimpl.h"
@@ -35,30 +35,14 @@ void Frequency::initClass()
 {
     mAttrStartInitClassWithUpdate
 
-    ZGateParam* gate = new ZGateParam( gateStr() );
-    gate->setLimits( Interval<float>(-mLargestZGate,mLargestZGate) );
-    gate->setDefaultValue( Interval<float>(-28, 28) );
+    ZGateParam* gate = new ZGateParam( gateStr(), Interval<float>(-28, 28) );
+    gate->setLimits( -mLargestZGate, mLargestZGate);
     desc->addParam( gate );
 
-    BoolParam* normalize = new BoolParam( normalizeStr() );
-    normalize->setDefaultValue( false );
-    desc->addParam( normalize );
-
-    StringParam* window = new StringParam( windowStr() );
-    window->setDefaultValue( "CosTaper" );
-    desc->addParam( window );
-
-    FloatParam* variable = new FloatParam( paramvalStr() );
-    const float defval = 0.95;
-    variable->setDefaultValue( defval );
-    variable->setRequired( false );
-    desc->addParam(variable);
-
-    BoolParam* dumptofile = new BoolParam( dumptofileStr() );
-    dumptofile->setDefaultValue( false );
-    dumptofile->setValue( false );
-    dumptofile->setRequired( false );
-    desc->addParam( dumptofile );
+    desc->addParam( new BoolParam( normalizeStr(), false ) );
+    desc->addParam( new StringParam( windowStr(), "CosTaper" ) );
+    desc->addParam( new FloatParam( paramvalStr(), 0.95, false ) );
+    desc->addParam( new BoolParam( dumptofileStr(), false, false ) );
 
     desc->addInput( InputSpec("Real data",true) );
     desc->addInput( InputSpec("Imag data",true) );
