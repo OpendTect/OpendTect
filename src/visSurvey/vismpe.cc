@@ -1,10 +1,10 @@
-    /*+
-     * COPYRIGHT: (C) dGB Beheer B.V.
-     * AUTHOR   : K. Tingdahl
-     * DATE     : Oct 1999
-    -*/
+/*+
+ * COPYRIGHT: (C) dGB Beheer B.V.
+ * AUTHOR   : K. Tingdahl
+ * DATE     : Oct 1999
+-*/
 
-    static const char* rcsID = "$Id: vismpe.cc,v 1.56 2008-03-17 21:09:14 cvskris Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.57 2008-08-05 09:20:39 cvsjaap Exp $";
 
 #include "vismpe.h"
 
@@ -341,13 +341,18 @@ void MPEDisplay::moveMPEPlane( int nr )
 
     const int dim = dragger_->getDim();
     Coord3 center = dragger_->center();
-    center.x = SI().inlRange(true).snap( center.x );
-    center.y = SI().crlRange(true).snap( center.y );
-    center.z = SI().zRange(true).snap( center.z );
+    Coord3 width = boxdragger_->width();
+    
+    center.x = 0.5 * ( SI().inlRange(true).snap( center.x - width.x/2 ) +
+	    	       SI().inlRange(true).snap( center.x + width.x/2 ) );
+    center.y = 0.5 * ( SI().crlRange(true).snap( center.y - width.y/2 ) +
+	    	       SI().crlRange(true).snap( center.y + width.y/2 ) );
+    center.z = 0.5 * ( SI().zRange(true).snap( center.z - width.z/2 ) +
+		       SI().zRange(true).snap( center.z + width.z/2 ) );
 
     Interval<float> sx, sy, sz;
     dragger_->getSpaceLimits( sx, sy, sz );
-
+    
     const int nrsteps = abs(nr);
     const float sign = nr > 0 ? 1.001 : -1.001;
     // sign is slightly to big to avoid that it does not trigger a track
