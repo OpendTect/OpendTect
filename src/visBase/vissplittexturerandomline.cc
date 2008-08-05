@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		3-12-2008
- RCS:		$Id: vissplittexturerandomline.cc,v 1.2 2008-04-03 19:13:16 cvsyuancheng Exp $
+ RCS:		$Id: vissplittexturerandomline.cc,v 1.3 2008-08-05 13:45:52 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -289,21 +289,40 @@ void SplitTextureRandomLine::updateDisplay( )
 			      ? zrg_.stop : blockzrg.start+(versz-1)*zstep;
 	    }
 
-	    int curknotidx=0;
+	    int curknotidx = 0;
+	    int curknot = 0;
+	    bool repeated = false;
 	    for ( int idx=0; idx<knots.size(); idx++ )
 	    {
 		const Coord coord( knots[idx].inl, knots[idx].crl );
-		coords_->setPos( coordidx, Coord3(coord,blockzrg.start) );
+		if ( !repeated )
+    		    coords_->setPos( coordidx, Coord3(coord,blockzrg.start) );
 		triangle->coordIndex.set1Value( curknotidx, coordidx );
-		triangle->textureCoordIndex.set1Value( curknotidx,curknotidx );	
-		curknotidx++; 
-		coordidx++;
-		
-		coords_->setPos( coordidx, Coord3(coord,blockzrg.stop) );
+		triangle->textureCoordIndex.set1Value( curknotidx,curknot);	
+		curknotidx++;
+		curknot++;
+ 		coordidx++;		
+
+		if ( !repeated )
+    		    coords_->setPos( coordidx, Coord3(coord,blockzrg.stop) );
 		triangle->coordIndex.set1Value( curknotidx, coordidx );
-		triangle->textureCoordIndex.set1Value( curknotidx,curknotidx );
+		triangle->textureCoordIndex.set1Value( curknotidx,curknot );
 		curknotidx++; 
-		coordidx++;
+		curknot++;
+ 		coordidx++;		
+
+		if ( idx!=0 && idx!=knots.size()-1 && !repeated )
+		{
+		    triangle->coordIndex.set1Value( curknotidx, -1 );
+		    triangle->textureCoordIndex.set1Value( curknotidx, -1 );
+		    curknotidx ++;
+		    curknot -= 2;
+		    coordidx -= 2; 
+		    idx--;
+		    repeated = true;
+		}
+		else
+		    repeated = false;
 	    }
 
 	    triangle->coordIndex.deleteValues( curknotidx, -1 );
