@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2008
- RCS:           $Id: uigridder2d.cc,v 1.2 2008-07-17 15:57:38 cvskris Exp $
+ RCS:           $Id: uigridder2d.cc,v 1.3 2008-08-05 19:59:51 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,7 @@ uiGridder2DSel::uiGridder2DSel( uiParent* p, const Gridder2D* g )
     if ( selidx<0 ) selidx=0;
 
     griddingsel_->setValue( selidx );
+    setHAlignObj( griddingsel_ );
     selChangeCB( 0 );
 }
 
