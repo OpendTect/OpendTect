@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2005
- RCS:		$Id: uivolprocchain.h,v 1.2 2008-08-04 22:31:16 cvskris Exp $
+ RCS:		$Id: uivolprocchain.h,v 1.3 2008-08-05 20:01:29 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -27,7 +27,6 @@ namespace VolProc
 
 class Chain;
 class Step;
-class uiStepDialog;
 
 class uiStepDialog : public uiDialog
 {
@@ -56,7 +55,6 @@ protected:
     bool			doSaveAs();
     void			updateList();
     void			updateButtons();
-    bool			hasPropDialog(int) const;
     void			showPropDialog(int);
 
     void			newButtonCB(CallBacker*) {}

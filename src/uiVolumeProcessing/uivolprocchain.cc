@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.3 2008-08-04 22:31:16 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.4 2008-08-05 20:01:29 cvskris Exp $";
 
 #include "uivolprocchain.h"
 
@@ -210,17 +210,7 @@ void uiChain::updateButtons()
     movedownbutton_->setSensitive( stepsel!=-1 &&
 	    stepsel!=steplist_->size()-1 );
 
-    propertiesbutton_->setSensitive( stepsel!=-1 &&
-	    hasPropDialog(stepsel) );
-}
-
-
-bool uiChain::hasPropDialog(int idx) const
-{
-    const Step* step = chain_.getStep( idx );
-    if ( !step ) return false;
-
-    return factory().getNames(false).indexOf( step->type() )!=-1;
+    propertiesbutton_->setSensitive( stepsel!=-1 );
 }
 
 
@@ -232,7 +222,12 @@ void uiChain::showPropDialog( int idx )
     PtrMan<uiStepDialog> dlg = factory().create( step->type(), this, step );
 
     if ( !dlg )
-	return;
+    {
+	mTryAlloc( dlg, uiStepDialog( this,
+		    uiDialog::Setup("Select name", "Select name", 0 ), step ) );
+	if ( !dlg )
+	    return;
+    }
 
     if ( dlg->go() )
 	updateList();
