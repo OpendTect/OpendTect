@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfaceio.h,v 1.27 2007-09-13 19:38:39 cvsnanne Exp $
+ RCS:		$Id: emsurfaceio.h,v 1.28 2008-08-05 05:01:06 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -89,6 +89,7 @@ public:
 
     const StepInterval<int>&	rowInterval() const;
     const StepInterval<int>&	colInterval() const;
+    const Interval<float>&	zInterval() const;
     void			setRowInterval(const StepInterval<int>&);
     void			setColInterval(const StepInterval<int>&);
     void			setReadOnlyZ(bool yn=true);
@@ -111,6 +112,7 @@ public:
     static const char*		sKeyDepthOnly();
     static const char*		sKeyRowRange();
     static const char*		sKeyColRange();
+    static const char*		sKeyZRange();
     static const char*		sKeyInt16DataChar();
     static const char*		sKeyInt32DataChar();
     static const char*		sKeyInt64DataChar();
@@ -175,6 +177,7 @@ protected:
 
     StepInterval<int>		rowrange_;
     StepInterval<int>		colrange_;
+    Interval<float>		zrange_;
 
     StepInterval<int>*		readrowrange_;
     StepInterval<int>*		readcolrange_;
@@ -306,6 +309,7 @@ protected:
 
     StepInterval<int>		rowrange_;
     StepInterval<int>		colrange_;
+    Interval<float>		zrange_;
 
     StepInterval<int>*		writerowrange_;
     StepInterval<int>*		writecolrange_;

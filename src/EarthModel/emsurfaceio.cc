@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.101 2008-06-20 04:48:07 cvsnanne Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.102 2008-08-05 05:01:03 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ const char* dgbSurfaceReader::sKeyNrSectionsV1()  { return "Nr Subhorizons" ; }
 const char* dgbSurfaceReader::sKeyNrSections()    { return "Nr Patches"; }
 const char* dgbSurfaceReader::sKeyRowRange()	  { return "Row range"; }
 const char* dgbSurfaceReader::sKeyColRange()	  { return "Col range"; }
+const char* dgbSurfaceReader::sKeyZRange()	  { return "Z range"; }
 const char* dgbSurfaceReader::sKeyDepthOnly()	  { return "Depth only"; }
 const char* dgbSurfaceReader::sKeyDBInfo()	  { return "DB info"; }
 const char* dgbSurfaceReader::sKeyVersion()	  { return "Format version"; }
@@ -80,6 +81,7 @@ dgbSurfaceReader::dgbSurfaceReader( const IOObj& ioobj,
     , setsurfacepar_( false )
     , readrowrange_( 0 )
     , readcolrange_( 0 )
+    , zrange_(mUdf(float),mUdf(float))
     , int16interpreter_( 0 )
     , int32interpreter_( 0 )
     , int64interpreter_( 0 )
@@ -217,6 +219,7 @@ bool dgbSurfaceReader::readHeaders( const char* filetype )
 
     par_->get( sKeyRowRange(), rowrange_ );
     par_->get( sKeyColRange(), colrange_ );
+    par_->get( sKeyZRange(), zrange_ );
 
     for ( int idx=0; idx<nrSections(); idx++ )
 	sectionsel_ += sectionID(idx);
@@ -354,6 +357,15 @@ const StepInterval<int>& dgbSurfaceReader::rowInterval() const
 const StepInterval<int>& dgbSurfaceReader::colInterval() const
 {
     return colrange_;
+}
+
+
+const Interval<float>& dgbSurfaceReader::zInterval() const
+{
+    if ( zrange_.isUdf() )
+	return SI().zRange( false );
+
+    return zrange_;
 }
 
 
@@ -1094,6 +1106,7 @@ dgbSurfaceWriter::dgbSurfaceWriter( const IOObj* ioobj,
     , writecolrange_( 0 )
     , writtenrowrange_( INT_MAX, INT_MIN )
     , writtencolrange_( INT_MAX, INT_MIN )
+    , zrange_(SI().zRange(false).stop,SI().zRange(false).start)
     , nrdone_( 0 )
     , sectionindex_( 0 )
     , oldsectionindex_( -1 )
@@ -1155,6 +1168,8 @@ dgbSurfaceWriter::~dgbSurfaceWriter()
 	par_.set( dgbSurfaceReader::sKeyColRange(),
 		  writtencolrange_.start, writtencolrange_.stop, colrgstep );
 	
+	par_.set( dgbSurfaceReader::sKeyZRange(), zrange_ );
+			      
 	for (int idx=firstrow_; idx<firstrow_+rowrgstep*nrrows_; idx+=rowrgstep)
 	{
 	    const int idxcolstep = geometry_.colRange(idx).step;
@@ -1567,6 +1582,7 @@ bool dgbSurfaceWriter::writeRow( std::ostream& strm )
 	if ( colcoords.isEmpty() && !pos.isDefined() )
 	    continue;
 
+	zrange_.include( pos.z, false );
 	if ( colcoords.isEmpty() )
 	    firstcol = col;
 

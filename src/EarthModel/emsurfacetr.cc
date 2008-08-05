@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.22 2008-03-20 21:36:32 cvskris Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.23 2008-08-05 05:01:03 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -275,6 +275,8 @@ bool dgbEMSurfaceTranslator::prepRead()
 	sd_.rg.start.crl = reader_->colInterval().start;
 	sd_.rg.stop.crl = reader_->colInterval().stop;
 	sd_.rg.step.crl = reader_->colInterval().step;
+	sd_.zrg.start = reader_->zInterval().start;
+	sd_.zrg.stop = reader_->zInterval().stop;
 
 	sd_.dbinfo = reader_->dbInfo();
     }

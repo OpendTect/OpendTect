@@ -4,7 +4,7 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.74 2008-06-26 04:41:55 cvsnanne Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.75 2008-08-05 05:01:02 cvsraman Exp $";
 
 #include "emmanager.h"
 
@@ -334,6 +334,7 @@ const char* EMManager::getSurfaceData( const MultiID& id, SurfaceIOData& sd )
 
 	const SurfaceIOData& newsd = tr->selections().sd;
 	sd.rg = newsd.rg;
+	sd.zrg = newsd.zrg;
 	deepCopy( sd.sections, newsd.sections );
 	deepCopy( sd.valnames, newsd.valnames );
 	return 0;

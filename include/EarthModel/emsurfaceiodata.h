@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Jun 2003
- RCS:		$Id: emsurfaceiodata.h,v 1.6 2004-08-16 16:25:03 bert Exp $
+ RCS:		$Id: emsurfaceiodata.h,v 1.7 2008-08-05 05:01:06 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ public:
 
     BufferString	dbinfo;
     HorSampling		rg;
+    Interval<float>	zrg;
     BufferStringSet	valnames;
     BufferStringSet	sections;
 
