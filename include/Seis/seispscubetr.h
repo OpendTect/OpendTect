@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seispscubetr.h,v 1.2 2008-08-05 12:21:49 cvsbert Exp $
+ RCS:		$Id: seispscubetr.h,v 1.3 2008-08-06 12:05:46 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,8 @@ protected:
 
     bool		doRead(SeisTrc&);
     bool		toNext();
+
+    int			trcnr_;
 
 };
 

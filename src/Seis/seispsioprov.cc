@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seispsioprov.cc,v 1.19 2008-05-12 06:46:21 cvsraman Exp $";
+static const char* rcsID = "$Id: seispsioprov.cc,v 1.20 2008-08-06 12:05:35 cvsbert Exp $";
 
 #include "seispsioprov.h"
 #include "seispsread.h"
@@ -179,6 +179,7 @@ SeisPSCubeSeisTrcTranslator::SeisPSCubeSeisTrcTranslator( const char* nm,
     	, psrdr_(0)
     	, inforead_(false)
     	, posdata_(*new PosInfo::CubeData)
+    	, trcnr_(0)
 {
 }
 
@@ -196,6 +197,8 @@ const char* SeisPSCubeSeisTrcTranslator::connType() const
     return XConn::sType;
 }
 
+static const char* sKeyOffsNr = "Default trace nr";
+
 
 bool SeisPSCubeSeisTrcTranslator::initRead_()
 {
@@ -204,6 +207,7 @@ bool SeisPSCubeSeisTrcTranslator::initRead_()
 	mDynamicCastGet(IOX*,iox,conn->ioobj)
 	IOObj* useioobj = iox ? iox->getIOObj() : conn->ioobj->clone();
 	psrdr_ = SPSIOPF().get3DReader( *useioobj );
+	useioobj->pars().get( sKeyOffsNr, trcnr_ );
 	delete useioobj;
     }
     else
@@ -271,7 +275,7 @@ bool SeisPSCubeSeisTrcTranslator::toNext()
 bool SeisPSCubeSeisTrcTranslator::doRead( SeisTrc& trc )
 {
     if ( !toNext() ) return false;
-    SeisTrc* newtrc = psrdr_->getTrace( curbinid_ );
+    SeisTrc* newtrc = psrdr_->getTrace( curbinid_, trcnr_ );
     if ( !newtrc ) return false;
     if ( !seldata || seldata->isAll() )
 	trc = *newtrc;
