@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.19 2007-05-08 16:38:21 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.20 2008-08-06 12:06:24 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -26,7 +26,7 @@ public:
 			SEGYSeisTrcTranslator(const char*,const char*);
 			~SEGYSeisTrcTranslator();
 
-    int			dataBytes() const;
+    virtual int		dataBytes() const;
 
     void		toSupported(DataCharacteristics&) const;
     void		usePar(const IOPar&);
@@ -50,6 +50,7 @@ public:
     static const char*	sUseOffset;
     static const char*	sForceRev0;
 
+    bool		isRev1() const		{ return trhead.isrev1; }
     int			numbfmt;
 
 protected:
