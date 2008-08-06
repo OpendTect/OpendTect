@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Dec 2004
- RCS:		$Id: uisettings.h,v 1.11 2007-06-07 15:21:26 cvsbert Exp $
+ RCS:		$Id: uisettings.h,v 1.12 2008-08-06 07:50:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uidialog.h"
+
 class Settings;
 class uiGenInput;
 class LooknFeelSettings;
@@ -28,10 +29,10 @@ public:
 
 protected:
 
-    Settings&		setts;
+    Settings&		setts_;
 
-    uiGenInput*		keyfld;
-    uiGenInput*		valfld;
+    uiGenInput*		keyfld_;
+    uiGenInput*		valfld_;
 
     void		selPush(CallBacker*);
     bool		acceptOK(CallBacker*);
@@ -45,25 +46,26 @@ public:
 			uiLooknFeelSettings(uiParent*,const char* titl);
     virtual		~uiLooknFeelSettings();
 
-    bool		isChanged() const	{ return changed; }
+    bool		isChanged() const	{ return changed_; }
 
 protected:
 
-    Settings&		setts;
-    LooknFeelSettings&	lfsetts;
-    bool		changed;
+    Settings&		setts_;
+    LooknFeelSettings&	lfsetts_;
+    bool		changed_;
 
-    uiGenInput*		iconszfld;
-    uiGenInput*		colbarhvfld;
-    uiGenInput*		colbarontopfld;
-    uiGenInput*		useshadingfld;
-    uiGenInput*		volrenshadingfld;
+    uiGenInput*		iconszfld_;
+    uiGenInput*		colbarhvfld_;
+    uiGenInput*		colbarontopfld_;
+    uiGenInput*		showwheelsfld_;
+    uiGenInput*		showprogressfld_;
+    uiGenInput*		useshadingfld_;
+    uiGenInput*		volrenshadingfld_;
 
-    void		ctOrientChange(CallBacker*);
+    void		updateSettings(bool oldval,bool newval,const char* key);
+
     void		shadingChange(CallBacker*);
-
     bool		acceptOK(CallBacker*);
-
 };
 
 #endif

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          November 2001
- RCS:           $Id: uisettings.cc,v 1.30 2008-06-06 04:57:38 cvssatyaki Exp $
+ RCS:           $Id: uisettings.cc,v 1.31 2008-08-06 07:50:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,16 +23,16 @@ ________________________________________________________________________
 
 uiSettings::uiSettings( uiParent* p, const char* nm, const char* settskey )
 	: uiDialog(p,uiDialog::Setup(nm,"Default User Settings","0.2.1"))
-	, setts(Settings::fetch(settskey))
+	, setts_(Settings::fetch(settskey))
 {
-    keyfld = new uiGenInput( this, "Settings keyword", StringInpSpec() );
+    keyfld_ = new uiGenInput( this, "Settings keyword", StringInpSpec() );
     uiButton* pb = new uiPushButton( this, "&Select",
 	    			     mCB(this,uiSettings,selPush), false );
     pb->setName( "Select Keyword" );
-    pb->attach( rightOf, keyfld );
+    pb->attach( rightOf, keyfld_ );
 
-    valfld = new uiGenInput( this, "Value", StringInpSpec() );
-    valfld->attach( alignedBelow, keyfld );
+    valfld_ = new uiGenInput( this, "Value", StringInpSpec() );
+    valfld_->attach( alignedBelow, keyfld_ );
 }
 
 
@@ -43,13 +43,13 @@ uiSettings::~uiSettings()
 
 void uiSettings::selPush( CallBacker* )
 {
-    PtrMan<IOPar> dtectsetts = setts.subselect( "dTect" );
+    PtrMan<IOPar> dtectsetts = setts_.subselect( "dTect" );
     BufferStringSet keys;
     for ( int idx=0; idx<dtectsetts->size(); idx++ )
 	keys.add( dtectsetts->getKey(idx) );
     keys.sort();
     uiSelectFromList::Setup listsetup( "Setting selection", keys );
-    listsetup.dlgtitle( keyfld->text() );
+    listsetup.dlgtitle( keyfld_->text() );
     uiSelectFromList dlg( this, listsetup );
     dlg.selFld()->setHSzPol( uiObject::Wide );
     if ( !dlg.go() ) return;
@@ -57,22 +57,22 @@ void uiSettings::selPush( CallBacker* )
     if ( selidx < 0 ) return;
 
     const char* key = keys.get( selidx ).buf();
-    keyfld->setText( key );
-    valfld->setText( dtectsetts->find(key) );
+    keyfld_->setText( key );
+    valfld_->setText( dtectsetts->find(key) );
 }
 
 
 bool uiSettings::acceptOK( CallBacker* )
 {
-    const BufferString ky = keyfld->text();
+    const BufferString ky = keyfld_->text();
     if ( ky.isEmpty() )
     {
 	uiMSG().error( "Please enter a keyword to set" );
 	return false;
     }
 
-    setts.set( IOPar::compKey("dTect",ky), valfld->text() );
-    if ( !setts.write() )
+    setts_.set( IOPar::compKey("dTect",ky), valfld_->text() );
+    if ( !setts_.write() )
     {
 	uiMSG().error( "Cannot write settings" );
 	return false;
@@ -82,24 +82,29 @@ bool uiSettings::acceptOK( CallBacker* )
 }
 
 
-static int iconsize = -1;
-#define mIconsKey	"dTect.Icons"
-#define mCBarKey        "dTect.ColorBar"
-#define mHVKey          "show vertical"
-#define mTopKey         "show on top"
+static int sIconSize = -1;
+// TODO: Move these keys to a header file in Basic
+#define mIconsKey		"dTect.Icons"
+#define mCBarKey		"dTect.ColorBar.show vertical"
+#define mShowInlProgress	"dTect.Show inl progress"
+#define mShowWheels		"dTect.Show wheels"
+#define mNoShading		"dTect.No shading"
+#define mVolRenShading		"dTect.Use VolRen shading"
 
 struct LooknFeelSettings
 {
     		LooknFeelSettings()
-		    : iconsz(iconsize < 0 ? uiObject::iconSize() : iconsize)
+		    : iconsz(sIconSize < 0 ? uiObject::iconSize() : sIconSize)
 		    , isvert(true)
-		    , isontop(false)
-		    , noshading(false)	
+		    , showwheels(true)
+		    , showinlprogress(true)
+		    , noshading(false)
 		    , volrenshading(false)		{}
 
     int		iconsz;
     bool	isvert;
-    bool	isontop;
+    bool	showwheels;
+    bool	showinlprogress;
     bool	noshading;
     bool	volrenshading;
 };
@@ -108,117 +113,105 @@ struct LooknFeelSettings
 
 uiLooknFeelSettings::uiLooknFeelSettings( uiParent* p, const char* nm )
 	: uiDialog(p,uiDialog::Setup(nm,"Look and Feel Settings","0.2.3"))
-	, setts(Settings::common())
-    	, lfsetts(*new LooknFeelSettings)
-	, changed(false)
+	, setts_(Settings::common())
+    	, lfsetts_(*new LooknFeelSettings)
+	, changed_(false)
 {
-    IOPar* iopar = setts.subselect( mCBarKey );
-    if ( iopar )
-    {
-	iopar->getYN( mHVKey, lfsetts.isvert );
-	iopar->getYN( mTopKey, lfsetts.isontop );
-	delete iopar;
-    }
-   
-    iconszfld = new uiGenInput( this, "Icon Size", IntInpSpec(lfsetts.iconsz) );
-    colbarhvfld = new uiGenInput( this, "Color bar orientation",
-			BoolInpSpec(lfsetts.isvert,"Vertical","Horizontal") );
-    colbarhvfld->valuechanged.notify(
-			mCB(this,uiLooknFeelSettings,ctOrientChange) );
-    colbarhvfld->attach( alignedBelow, iconszfld );
+    iconszfld_ = new uiGenInput( this, "Icon Size",
+	    			 IntInpSpec(lfsetts_.iconsz) );
 
+    setts_.getYN( mCBarKey, lfsetts_.isvert );
+    colbarhvfld_ = new uiGenInput( this, "Color bar orientation",
+			BoolInpSpec(lfsetts_.isvert,"Vertical","Horizontal") );
+    colbarhvfld_->attach( alignedBelow, iconszfld_ );
 
-    setts.getYN( "dTect.No shading", lfsetts.noshading );
-    useshadingfld = new uiGenInput( this, "Use OpenGL shading when available",
-				    BoolInpSpec(!lfsetts.noshading) );
-    useshadingfld->attach( alignedBelow, colbarhvfld );
-    useshadingfld->valuechanged.notify(
+    setts_.getYN( mShowInlProgress, lfsetts_.showinlprogress );
+    showprogressfld_ = new uiGenInput( this,
+	    "Show progress when loading stored data on inlines",
+	    BoolInpSpec(lfsetts_.showinlprogress) );
+    showprogressfld_->attach( alignedBelow, colbarhvfld_ );
+
+    setts_.getYN( mShowWheels, lfsetts_.showwheels );
+    showwheelsfld_ = new uiGenInput( this, "Show Zoom/Rotation tools",
+	    			    BoolInpSpec(lfsetts_.showwheels) );
+    showwheelsfld_->attach( alignedBelow, showprogressfld_ );
+
+    setts_.getYN( mNoShading, lfsetts_.noshading );
+    useshadingfld_ = new uiGenInput( this, "Use OpenGL shading when available",
+				    BoolInpSpec(!lfsetts_.noshading) );
+    useshadingfld_->attach( alignedBelow, showwheelsfld_ );
+    useshadingfld_->valuechanged.notify(
 	    		mCB(this,uiLooknFeelSettings,shadingChange) );
-    setts.getYN( "dTect.Use VolRen shading", lfsetts.volrenshading );
-    volrenshadingfld = new uiGenInput( this, "Also for volume rendering?",
-				    BoolInpSpec(lfsetts.volrenshading) );
-    volrenshadingfld->attach( alignedBelow, useshadingfld );
+    setts_.getYN( mVolRenShading, lfsetts_.volrenshading );
+    volrenshadingfld_ = new uiGenInput( this, "Also for volume rendering?",
+				    BoolInpSpec(lfsetts_.volrenshading) );
+    volrenshadingfld_->attach( alignedBelow, useshadingfld_ );
 
-    ctOrientChange(0);
     shadingChange(0);
 }
 
+
 uiLooknFeelSettings::~uiLooknFeelSettings()
 {
-    delete &lfsetts;
-}
-
-
-void uiLooknFeelSettings::ctOrientChange( CallBacker* )
-{
+    delete &lfsetts_;
 }
 
 
 void uiLooknFeelSettings::shadingChange( CallBacker* )
 {
-    volrenshadingfld->display( useshadingfld->getBoolValue() );
+    volrenshadingfld_->display( useshadingfld_->getBoolValue() );
+}
+
+
+void uiLooknFeelSettings::updateSettings( bool oldval, bool newval,
+					  const char* key )
+{
+    if ( oldval != newval )
+    {
+	changed_ = true;
+	setts_.setYN( key, newval );
+    }
 }
 
 
 bool uiLooknFeelSettings::acceptOK( CallBacker* )
 {
-    LooknFeelSettings newsetts;
-    newsetts.iconsz = iconszfld->getIntValue();
-    newsetts.isvert = colbarhvfld->getBoolValue();
-    newsetts.isontop = false;
-
-    if ( newsetts.iconsz < 10 || newsetts.iconsz > 64 )
+    const int newiconsz = iconszfld_->getIntValue();
+    if ( newiconsz < 10 || newiconsz > 64 )
     {
 	uiMSG().setNextCaption( "Yeah right" );
 	uiMSG().error( "Please specify an icon size in the range 10-64" );
 	return false;
     }
 
-    if ( newsetts.iconsz != lfsetts.iconsz )
+    if ( newiconsz != lfsetts_.iconsz )
     {
-	IOPar* iopar = setts.subselect( mIconsKey );
+	IOPar* iopar = setts_.subselect( mIconsKey );
 	if ( !iopar ) iopar = new IOPar;
-	iopar->set( "size", newsetts.iconsz );
-	setts.mergeComp( *iopar, mIconsKey );
-	changed = true;
+	iopar->set( "size", newiconsz );
+	setts_.mergeComp( *iopar, mIconsKey );
+	changed_ = true;
 	delete iopar;
-	iconsize = newsetts.iconsz;
+	sIconSize = newiconsz;
     }
 
-    if ( newsetts.isvert != lfsetts.isvert ||
-	 newsetts.isontop != lfsetts.isontop )
-    {
-	IOPar* iopar = setts.subselect( mCBarKey );
-	if ( !iopar ) iopar = new IOPar;
-
-	iopar->setYN( mHVKey, newsetts.isvert );
-	iopar->setYN( mTopKey, newsetts.isontop );
-
-	setts.mergeComp( *iopar, mCBarKey );
-	changed = true;
-	delete iopar;
-    }
-
-    const bool newnoshading = !useshadingfld->getBoolValue();
-    if ( lfsetts.noshading != newnoshading )
-    {
-	changed = true;
-	setts.setYN( "dTect.No shading", newnoshading );
-    }
+    updateSettings( lfsetts_.isvert, colbarhvfld_->getBoolValue(), mCBarKey );
+    const bool newnoshading = !useshadingfld_->getBoolValue();
+    updateSettings( lfsetts_.noshading, newnoshading, mNoShading );
 
     bool newvolrenshading = !newnoshading;
     if ( newvolrenshading )
-	newvolrenshading = volrenshadingfld->getBoolValue();
+	newvolrenshading = volrenshadingfld_->getBoolValue();
+    updateSettings( lfsetts_.volrenshading, newvolrenshading, mVolRenShading );
 
-    if ( lfsetts.volrenshading != newvolrenshading )
-    {
-	changed = true;
-	setts.setYN( "dTect.Use VolRen shading", newvolrenshading );
-    }
+    updateSettings( lfsetts_.showwheels, showwheelsfld_->getBoolValue(),
+	    	    mShowWheels );
+    updateSettings( lfsetts_.showinlprogress, showprogressfld_->getBoolValue(),
+	    	    mShowInlProgress );
 
-    if ( changed && !setts.write() )
+    if ( changed_ && !setts_.write() )
     {
-	changed = false;
+	changed_ = false;
 	uiMSG().error( "Cannot write settings" );
 	return false;
     }
