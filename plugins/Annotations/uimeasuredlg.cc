@@ -4,7 +4,7 @@ ________________________________________________________________________
     CopyRight:     (C) dGB Beheer B.V.
     Author:        Nageswara
     Date:          May 2008
-    RCS:           $Id: uimeasuredlg.cc,v 1.5 2008-08-04 11:11:31 cvsnanne Exp $
+    RCS:           $Id: uimeasuredlg.cc,v 1.6 2008-08-06 11:15:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,8 +122,8 @@ void uiMeasureDlg::reset()
 }
 
 
-static const double sM2Ft2 = 0.09290304;
-static const double sFt2M2 = 10.76391;
+static const double sM2Ft2 = 10.76391;
+static const double sFt2M2 = 0.09290304;
 
 void uiMeasureDlg::fill( TypeSet<Coord3>& points )
 {
@@ -135,45 +135,42 @@ void uiMeasureDlg::fill( TypeSet<Coord3>& points )
 	return;
     }
 
-    int inldist = 0, crldist = 0;
-    double hdist = 0, zdist = 0, realdist = 0;
+    int totinldist = 0, totcrldist = 0;
+    double tothdist = 0, totzdist = 0, totrealdist = 0;
     for ( int idx=1; idx<size; idx++ )
     {
-	const Coord posxy = points[idx].coord();
-	const Coord prevposxy = points[idx-1].coord();
-	const BinID posbid = SI().transform( posxy );
-	const BinID prevposbid = SI().transform( prevposxy );
+	const Coord xy = points[idx].coord();
+	const Coord prevxy = points[idx-1].coord();
+	const BinID bid = SI().transform( xy );
+	const BinID prevbid = SI().transform( prevxy );
+	const float zdist = fabs( points[idx-1].z - points[idx].z );
 
-	inldist += abs( posbid.r() - prevposbid.r() );
-	crldist += abs( posbid.c() - prevposbid.c() );
-	hdist += posxy.distTo( prevposxy );
-	zdist += fabs( (points[idx].z - points[idx-1].z) * SI().zFactor() );
+	totinldist += abs( bid.r() - prevbid.r() );
+	totcrldist += abs( bid.c() - prevbid.c() );
+	const double hdist = xy.distTo( prevxy );
+	tothdist += hdist;
+	totzdist += zdist;
     
-	double x1 = posxy.x;
-	double x2 = prevposxy.x;
-	double z1 = points[idx].z;
-	double z2 = points[idx-1].z;
 	if ( SI().zIsTime() )
-	    realdist += sqrt( (x2-x1) * (x2-x1) +
-		    	     (velocity*(z2-z1) * velocity*(z2-z1)) );
+	    totrealdist += sqrt( hdist*hdist + velocity*velocity*zdist*zdist );
 	else if ( SI().zInMeter() )
 	{
-	   if (  SI().xyInFeet() )
-	       realdist += sqrt( (x2-x1) * (x2-x1) + sM2Ft2*((z2-z1)*(z2-z1)) );
+	   if ( SI().xyInFeet() )
+		totrealdist += sqrt( hdist*hdist + sM2Ft2*zdist*zdist );
 	   else
-	       realdist += sqrt( (x2-x1) * (x2-x1) +(z2-z1)*(z2-z1) );
+		totrealdist += sqrt( hdist*hdist + zdist*zdist );
 	}
 	else
 	{
-	    if (  SI().xyInFeet() )
-		realdist += sqrt( (x2-x1) * (x2-x1) + (z2-z1)*(z2-z1) );
+	    if ( SI().xyInFeet() )
+		totrealdist += sqrt( hdist*hdist + zdist*zdist );
 	    else
-		 realdist += sqrt( sFt2M2*((x2-x1)*(x2-x1)) + (z2-z1)*(z2-z1) );
+		totrealdist += sqrt( sFt2M2*hdist*hdist + zdist*zdist );
 	}
     }
 
-    hdistfld_->setValue( hdist );
-    zdistfld_->setValue( zdist );
-    distfld_->setValue( realdist );
-    inlcrldistfld_->setValue( Interval<int>(inldist,crldist) );
+    hdistfld_->setValue( tothdist );
+    zdistfld_->setValue( totzdist*SI().zFactor() );
+    distfld_->setValue( totrealdist );
+    inlcrldistfld_->setValue( Interval<int>(totinldist,totcrldist) );
 }
