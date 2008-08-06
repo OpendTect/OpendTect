@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          June 2008
- RCS:           $Id: delaunay3d.h,v 1.3 2008-07-14 19:38:21 cvsyuancheng Exp $
+ RCS:           $Id: delaunay3d.h,v 1.4 2008-08-06 22:03:30 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,11 @@ public:
     			/*<Coord indices are sorted in threes, i.e.
 			   ci[0], ci[1], ci[2] is the first triangle
 			   ci[3], ci[4], ci[5] is the second triangle. */
-    
+
+    bool		getSurfaceNoTriangle(const int& v0,const int& v1,
+	    			const int& v2, TypeSet<int>& result) const;
+    bool		getSurfaceNoTriangle(const Coord3& v0,const Coord3& v1,
+	    			const Coord3& v2, TypeSet<int>& result) const;
     void		setEpsilon(double err)	{ epsilon_ = err; }
     static int		cNoVertex()	{ return -1; }
 
@@ -113,6 +117,7 @@ protected:
 
     TypeSet<DAGTetrahedra>		tetrahedras_;
     TypeSet<Coord3>*			coordlist_;
+    Coord3				center_;
     Coord3				initialcoords_[4]; 
     					/*!<-2,-3,-4, -5 are their indices.*/
     bool				ownscoordlist_;
