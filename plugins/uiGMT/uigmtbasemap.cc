@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: uigmtbasemap.cc,v 1.1 2008-08-01 08:31:21 cvsraman Exp $
+ RCS:		$Id: uigmtbasemap.cc,v 1.2 2008-08-06 09:58:05 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,7 +14,9 @@ ________________________________________________________________________
 #include "gmtpar.h"
 #include "linear.h"
 #include "survinfo.h"
+#include "uibutton.h"
 #include "uigeninput.h"
+#include "uimsg.h"
 
 uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
     : uiDlgGroup(p,"Basemap")
@@ -30,6 +32,10 @@ uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
 	    		      FloatInpIntervalSpec(false) );
     yrgfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,xyrgChg) );
     yrgfld_->attach( alignedBelow, xrgfld_ );
+
+    resetbut_ = new uiPushButton( this, "&Reset to Survey",
+	    			  mCB(this,uiGMTBaseMapGrp,resetCB), false );
+    resetbut_->attach( rightTo, yrgfld_ );
 
     xdimfld_ = new uiGenInput( this, "Map width (cm)", FloatInpSpec() );
     xdimfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,dimChg) );
@@ -64,18 +70,43 @@ void uiGMTBaseMapGrp::dimChg( CallBacker* cb )
 	return;
 
     mDynamicCastGet(uiGenInput*,fld,cb);
+    float xdim, ydim;
     if ( fld == xdimfld_ )
     {
-	const float xdim = xdimfld_->getfValue();
-	const float ydim = xdim / aspectratio_;
+	xdim = xdimfld_->getfValue();
+	if ( xdim < 1 || xdim > 200 )
+	{
+	    ydim = ydimfld_->getfValue();
+	    xdim = ydim * aspectratio_;
+	    xdimfld_->setValue( xdim );
+	    uiMSG().error( "Map width is beyond permissible limits" );
+	    return;
+	}
+
+	ydim = xdim / aspectratio_;
 	ydimfld_->setValue( ydim );
     }
     else if ( fld == ydimfld_ )
     {
-	const float ydim = ydimfld_->getfValue();
-	const float xdim = ydim * aspectratio_;
+	ydim = ydimfld_->getfValue();
+	if ( ydim < 1 || ydim > 200 )
+	{
+	    xdim = xdimfld_->getfValue();
+	    ydim = xdim * aspectratio_;
+	    ydimfld_->setValue( ydim );
+	    uiMSG().error( "Map height is beyond permissible limits" );
+	    return;
+	}
+
+	xdim = ydim * aspectratio_;
 	xdimfld_->setValue( xdim );
     }
+}
+
+
+void uiGMTBaseMapGrp::resetCB( CallBacker* )
+{
+    updateFlds( true );
 }
 
 
@@ -98,7 +129,20 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
 	yrg = yrgfld_->getFInterval();
     }
 
+    if ( mIsZero(yrg.width(),mDefEps) )
+    {
+	uiMSG().error( "Y range is beyond permissible limits" );
+	return;
+    }
+
     aspectratio_ = xrg.width() / yrg.width();
+    if ( aspectratio_ < 0.01 || aspectratio_ > 100 )
+    {
+	uiMSG().error( "Unreasonable aspect ratio",
+		       "Please check the X and Y ranges" );
+	return;
+    }
+
     xdimfld_->setValue( aspectratio_ > 1 ? 16 : 16 * aspectratio_ );
     ydimfld_->setValue( aspectratio_ > 1 ? 16 / aspectratio_ : 16 );
     const AxisLayout xaxis( xrg );
@@ -114,6 +158,12 @@ bool uiGMTBaseMapGrp::fillPar( IOPar& par ) const
 
     const Interval<float> xrg = xrgfld_->getFInterval();
     const Interval<float> yrg = yrgfld_->getFInterval();
+    if ( xrg.isRev() || yrg.isRev() )
+    {
+	uiMSG().error( "Invalid X or Y range" );
+	return false;
+    }
+
     par.set( ODGMT::sKeyXRange, xrg );
     par.set( ODGMT::sKeyYRange, yrg );
 

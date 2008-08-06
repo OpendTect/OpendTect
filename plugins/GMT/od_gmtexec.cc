@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: od_gmtexec.cc,v 1.1 2008-08-01 08:28:27 cvsraman Exp $
+ RCS:		$Id: od_gmtexec.cc,v 1.2 2008-08-06 09:58:20 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ ________________________________________________________________________
 bool BatchProgram::go( std::ostream& strm )
 {
     initStdGMTClasses();
+    finishmsg_ = "Map created successfully";
     const char* psfilenm = pars().find( sKey::FileName );
     if ( !psfilenm || !*psfilenm )
 	mErrStrmRet("Output PS file missing")
@@ -41,6 +42,7 @@ bool BatchProgram::go( std::ostream& strm )
 	    strm << msg << std::endl;
 	    *sd.ostrm << "Failed" << std::endl;
 	    sd.close();
+	    finishmsg_ = "Failed to create map";
 	    return false;
 	}
     }

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtbasemap.h,v 1.1 2008-08-01 08:31:21 cvsraman Exp $
+ RCS:		$Id: uigmtbasemap.h,v 1.2 2008-08-06 09:58:05 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "uidlggroup.h"
 
 class uiGenInput;
+class uiPushButton;
 
 class uiGMTBaseMapGrp : public uiDlgGroup
 {
@@ -32,10 +33,12 @@ protected:
     uiGenInput*		ydimfld_;
     uiGenInput*		xrgfld_;
     uiGenInput*		yrgfld_;
+    uiPushButton*	resetbut_;
     uiGenInput*		lebelintvfld_;
 
     float		aspectratio_;
 
+    void		resetCB(CallBacker*);
     void		xyrgChg(CallBacker*);
     void		dimChg(CallBacker*);
     void		updateFlds(bool);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtlocations.cc,v 1.1 2008-08-01 08:28:27 cvsraman Exp $
+ RCS:		$Id: gmtlocations.cc,v 1.2 2008-08-06 09:58:20 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,6 +47,26 @@ const char* GMTLocations::userRef() const
 }
 
 
+bool GMTLocations::fillLegendPar( IOPar& par ) const
+{
+    BufferString str = find( sKey::Name );
+    par.set( sKey::Name, str );
+    str = find( ODGMT::sKeyShape );
+    par.set( ODGMT::sKeyShape, str );
+    str = find( sKey::Size );
+    par.set( sKey::Size, str );
+    str = find( sKey::Color );
+    par.set( sKey::Color, str );
+    str = find( ODGMT::sKeyFill );
+    par.set( ODGMT::sKeyFill, str );
+    str = find( ODGMT::sKeyFillColor );
+    if ( !str.isEmpty() )
+	par.set( ODGMT::sKeyFillColor, str );
+
+    return true;
+}
+
+
 bool GMTLocations::execute( std::ostream& strm, const char* fnm )
 {
     MultiID id;
@@ -54,6 +74,7 @@ bool GMTLocations::execute( std::ostream& strm, const char* fnm )
     const IOObj* setobj = IOM().get( id );
     if ( !setobj ) mErrStrmRet("Cannot find pickset")
 
+    strm << "Posting Locations " << setobj->name() << " ...  ";
     Pick::Set set;
     BufferString errmsg;
     if ( !PickSetTranslator::retrieve(set,setobj,errmsg) )
@@ -90,6 +111,7 @@ bool GMTLocations::execute( std::ostream& strm, const char* fnm )
 	*sd.ostrm << set[idx].pos.x << " " << set[idx].pos.y << std::endl;
 
     sd.close();
+    strm << "Done" << std::endl;
     return true;
 }
 
@@ -139,6 +161,22 @@ void getStyleString( LineStyle::Type typ, BufferString& str )
 }
 
 
+bool GMTPolyline::fillLegendPar( IOPar& par ) const
+{
+    BufferString str = find( sKey::Name );
+    par.set( sKey::Name, str );
+    str = find( ODGMT::sKeyLineStyle );
+    par.set( ODGMT::sKeyLineStyle, str );
+    str = find( ODGMT::sKeyFill );
+    par.set( ODGMT::sKeyFill, str );
+    str = find( ODGMT::sKeyFillColor );
+    if ( !str.isEmpty() )
+	par.set( ODGMT::sKeyFillColor, str );
+
+    return true;
+}
+
+
 bool GMTPolyline::execute( std::ostream& strm, const char* fnm )
 {
     MultiID id;
@@ -146,6 +184,7 @@ bool GMTPolyline::execute( std::ostream& strm, const char* fnm )
     const IOObj* setobj = IOM().get( id );
     if ( !setobj ) mErrStrmRet("Cannot find pickset")
 
+    strm << "posting Polyline " << setobj->name() << " ...  ";
     Pick::Set set;
     BufferString errmsg;
     if ( !PickSetTranslator::retrieve(set,setobj,errmsg) )
@@ -188,6 +227,7 @@ bool GMTPolyline::execute( std::ostream& strm, const char* fnm )
 
     sd.close();
 
+    strm << "Done" << std::endl;
     return true;
 }
 

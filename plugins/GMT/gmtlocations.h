@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtlocations.h,v 1.1 2008-08-01 08:28:27 cvsraman Exp $
+ RCS:		$Id: gmtlocations.h,v 1.2 2008-08-06 09:58:20 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,8 +27,8 @@ public:
 			    : GMTPar(par) {}
 
     virtual bool	execute(std::ostream&,const char*);
-    virtual const char*	progName() const		{ return "psxy"; }
     virtual const char* userRef() const;
+    bool		fillLegendPar(IOPar&) const;
 
 protected:
 
@@ -49,8 +49,8 @@ public:
 			    : GMTPar(par) {}
 
     virtual bool	execute(std::ostream&,const char*);
-    virtual const char*	progName() const		{ return "psxy"; }
     virtual const char* userRef() const;
+    bool		fillLegendPar(IOPar&) const;
 
 protected:
 

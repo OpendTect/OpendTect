@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtbasemap.h,v 1.1 2008-08-01 08:28:27 cvsraman Exp $
+ RCS:		$Id: gmtbasemap.h,v 1.2 2008-08-06 09:58:20 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,6 @@ public:
 			    : GMTPar(par) {}
 
     virtual bool	execute(std::ostream&,const char*);
-    virtual const char*	progName() const		{ return "psbasemap"; }
     virtual const char* userRef() const			{ return 0; }
 
 protected:
@@ -49,7 +48,6 @@ public:
 			    : GMTPar(par) {}
 
     virtual bool	execute(std::ostream&,const char*);
-    virtual const char*	progName() const		{ return "pslegend"; }
     virtual const char* userRef() const			{ return 0; }
 
 protected:

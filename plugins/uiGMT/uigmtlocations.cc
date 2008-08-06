@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtlocations.cc,v 1.1 2008-08-01 08:31:21 cvsraman Exp $
+ RCS:		$Id: uigmtlocations.cc,v 1.2 2008-08-06 09:58:05 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ uiGMTLocationsGrp::uiGMTLocationsGrp( uiParent* p )
     sizefld_->attach( rightTo, lcb );
 
     outcolfld_ = new uiColorInput( this,
-	    			   uiColorInput::Setup(Color::DgbColor)
+	    			   uiColorInput::Setup(Color::Black)
 				   .lbltxt("Outline color") );
     outcolfld_->attach( alignedBelow, lcb );
 
@@ -72,7 +72,7 @@ uiGMTLocationsGrp::uiGMTLocationsGrp( uiParent* p )
     fillfld_->attach( rightTo, outcolfld_ );
 
     fillcolfld_ = new uiColorInput( this,
-	    			    uiColorInput::Setup(Color::DgbColor) );
+	    			    uiColorInput::Setup(Color::White) );
     fillcolfld_->attach( rightOf, fillfld_ );
     fillSel(0);
 }

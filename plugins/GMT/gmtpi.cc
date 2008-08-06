@@ -4,14 +4,14 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: gmtpi.cc,v 1.1 2008-08-01 08:28:27 cvsraman Exp $";
+static const char* rcsID = "$Id: gmtpi.cc,v 1.2 2008-08-06 09:58:20 cvsraman Exp $";
 
 #include "initstdgmt.h"
 #include "plugins.h"
 
 extern "C" int GetGMTPluginType()
 {
-    return PI_AUTO_INIT_LATE;
+    return PI_AUTO_INIT_EARLY;
 }
 
 

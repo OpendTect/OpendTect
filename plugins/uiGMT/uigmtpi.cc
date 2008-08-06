@@ -4,19 +4,16 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: uigmtpi.cc,v 1.2 2008-08-01 08:31:21 cvsraman Exp $";
+static const char* rcsID = "$Id: uigmtpi.cc,v 1.3 2008-08-06 09:58:05 cvsraman Exp $";
 
+#include "uigmtcontour.h"
 #include "uigmtlocations.h"
 #include "uigmtmainwin.h"
-#include "uigmtplotter.h"
 #include "uigmtpolyline.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmenumgr.h"
-#include "vishorizondisplay.h"
 #include "uitoolbar.h"
-#include "uivismenuitemhandler.h"
-#include "uivispartserv.h"
 
 #include "plugins.h"
 
@@ -44,12 +41,8 @@ public:
 			~uiGMTMgr();
 
     uiODMain*		appl_;
-    uiVisMenuItemHandler	mnuitmhandler_;
     uiGMTMainWin*	dlg_;
 
-    void 		insertSubMenu();
-
-    void		doWork(CallBacker*);
     void		createMap(CallBacker*);
 };
 
@@ -57,9 +50,6 @@ public:
 uiGMTMgr::uiGMTMgr( uiODMain* a )
 	: appl_(a)
 	, dlg_(0)
-	, mnuitmhandler_(visSurvey::HorizonDisplay::getStaticClassName(),
-		  	 *a->applMgr().visServer(),"Create Contour &Map ...",
-			 mCB(this,uiGMTMgr,doWork))
 {
     appl_->menuMgr().coinTB()->addButton( "gmt_logo.png",
 	    				  mCB(this,uiGMTMgr,createMap),
@@ -70,14 +60,6 @@ uiGMTMgr::uiGMTMgr( uiODMain* a )
 uiGMTMgr::~uiGMTMgr()
 {
     delete dlg_;
-}
-
-
-void uiGMTMgr::doWork( CallBacker* )
-{
-    const int displayid = mnuitmhandler_.getDisplayID();
-    uiGMTPlotter dlg( appl_, displayid );
-    dlg.go();
 }
 
 
@@ -97,6 +79,7 @@ extern "C" const char* InituiGMTPlugin( int, char** )
 
     uiGMTLocationsGrp::initClass();
     uiGMTPolylineGrp::initClass();
+    uiGMTContourGrp::initClass();
 
     return 0;
 }

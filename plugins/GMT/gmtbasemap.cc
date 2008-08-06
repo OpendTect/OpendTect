@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: gmtbasemap.cc,v 1.1 2008-08-01 08:28:27 cvsraman Exp $
+ RCS:		$Id: gmtbasemap.cc,v 1.2 2008-08-06 09:58:20 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ GMTPar* GMTBaseMap::createInstance( const IOPar& iop )
 
 bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
 {
+    strm << "Creating the Basemap ...  ";
     BufferString maptitle = find( ODGMT::sKeyMapTitle );
     Interval<float> xrg, yrg, mapdim, lblintv;
     if ( !get(ODGMT::sKeyXRange,xrg) || !get(ODGMT::sKeyYRange,yrg)
@@ -60,6 +61,7 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     if ( system(comm) )
 	mErrStrmRet("Failed to create Basemap")
 
+    strm << "Done" << std::endl;
     return true;
 }
 
@@ -80,6 +82,7 @@ GMTPar* GMTLegend::createInstance( const IOPar& iop )
 
 bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 {
+    strm << "Posting legends ...  ";
     ObjectSet<IOPar> parset;
     for ( int idx=0; idx<100; idx++ )
     {
@@ -158,6 +161,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
     }
 
     sd.close();
+    strm << "Done" << std::endl;
     return true;
 }
 

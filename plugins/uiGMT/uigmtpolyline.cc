@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtpolyline.cc,v 1.1 2008-08-01 08:31:21 cvsraman Exp $
+ RCS:		$Id: uigmtpolyline.cc,v 1.2 2008-08-06 09:58:05 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,7 @@ uiGMTPolylineGrp::uiGMTPolylineGrp( uiParent* p )
     fillfld_->attach( alignedBelow, lsfld_ );
 
     fillcolfld_ = new uiColorInput( this,
-	    			    uiColorInput::Setup(Color::DgbColor) );
+	    			    uiColorInput::Setup(Color::White) );
     fillcolfld_->attach( rightOf, fillfld_ );
     fillSel(0);
 }

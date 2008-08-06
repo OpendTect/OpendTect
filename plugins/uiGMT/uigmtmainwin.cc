@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtmainwin.cc,v 1.1 2008-08-01 08:31:21 cvsraman Exp $
+ RCS:		$Id: uigmtmainwin.cc,v 1.2 2008-08-06 09:58:05 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,6 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 {
     setTitleText( "" );
     setCtrlStyle( LeaveOnly );
-    addStdFields( false, true );
 
     uiGroup* rightgrp = new uiGroup( uppgrp_, "Right group" );
     tabstack_ = new uiTabStack( rightgrp, "Tab" );
@@ -258,10 +257,7 @@ void uiGMTMainWin::createPush( CallBacker* )
 {
     viewbut_->setSensitive( false );
     if ( !acceptOK(0) )
-    {
-	uiMSG().error("Cannot create map");
 	return;
-    }
 
     tim_ = new Timer( "Status" );
     tim_->tick.notify( mCB(this,uiGMTMainWin,checkFileCB) );
@@ -313,18 +309,26 @@ bool uiGMTMainWin::fillPar( IOPar& par )
     int idx = 0;
     IOPar basemappar;
     basemappar.set( ODGMT::sKeyGroupName, "Basemap" );
-    basemapgrp_->fillPar( basemappar );
+    if ( !basemapgrp_->fillPar(basemappar) )
+	 return false;
+
     basemappar.setYN( ODGMT::sKeyClosePS, !pars_.size() );
     BufferString numkey = idx++;
     par.mergeComp( basemappar, numkey );
+    IOPar legendpar;
+    makeLegendPar( legendpar );
+    const bool haslegends = legendpar.size() > 1;
     for ( int ldx=0; ldx<pars_.size(); ldx++ )
     {
 	numkey = idx++;
+	const bool closeps = !haslegends && ( ldx == pars_.size() - 1 );
+	pars_[ldx]->setYN( ODGMT::sKeyClosePS, closeps );
 	par.mergeComp( *pars_[ldx], numkey );
     }
 
-    IOPar legendpar;
-    makeLegendPar( legendpar );
+    if ( !pars_.size() )
+	return true;
+
     numkey = idx;
     par.mergeComp( legendpar, numkey );
     return true;
@@ -334,36 +338,15 @@ bool uiGMTMainWin::fillPar( IOPar& par )
 void uiGMTMainWin::makeLegendPar( IOPar& legpar ) const
 {
     legpar.set( ODGMT::sKeyGroupName, "Legend" );
+    int pdx = 0;
     for ( int idx=0; idx<pars_.size(); idx++ )
     {
 	IOPar par;
-	BufferString str = pars_[idx]->find( sKey::Name );
-	par.set( sKey::Name, str );
-	str = pars_[idx]->find( ODGMT::sKeyShape );
-	if ( str.isEmpty() )
-	{
-	    str = pars_[idx]->find( ODGMT::sKeyLineStyle );
-	    if ( str.isEmpty() )
-		continue;
+	if ( !pars_[idx]->fillLegendPar(par) )
+	    continue;
 
-	    par.set( ODGMT::sKeyLineStyle, str );
-	}
-	else
-	{
-	    par.set( ODGMT::sKeyShape, str );
-	    str = pars_[idx]->find( sKey::Size );
-	    par.set( sKey::Size, str );
-	    str = pars_[idx]->find( sKey::Color );
-	    par.set( sKey::Color, str );
-	}
-
-	str = pars_[idx]->find( ODGMT::sKeyFill );
-	par.set( ODGMT::sKeyFill, str );
-	str = pars_[idx]->find( ODGMT::sKeyFillColor );
-	if ( !str.isEmpty() )
-	    par.set( ODGMT::sKeyFillColor, str );
-
-	BufferString numkey = idx;
+	BufferString numkey = pdx++;
 	legpar.mergeComp( par, numkey );
     }
 }
+
