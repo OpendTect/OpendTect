@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.139 2008-08-04 07:30:15 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.140 2008-08-06 07:49:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -120,10 +120,10 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     dollywheel->wheelMoved.notify( mWSMCB(dWheelMoved) );
     dollywheel->wheelPressed.notify( mWSMCB(anyWheelStart) );
     dollywheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
-    uiLabel* dollylbl = new uiLabel( leftgrp, "Mov" );
+    dollylbl = new uiLabel( leftgrp, "Mov" );
     dollylbl->attach( centeredBelow, dollywheel );
 
-    uiLabel* dummylbl = new uiLabel( leftgrp, "" );
+    dummylbl = new uiLabel( leftgrp, "" );
     dummylbl->attach( centeredBelow, dollylbl );
     dummylbl->setStretch( 0, 2 );
     vwheel = new uiThumbWheel( leftgrp, "vRotate", false );
@@ -132,7 +132,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     vwheel->wheelReleased.notify( mWSMCB(anyWheelStop) );
     vwheel->attach( centeredBelow, dummylbl );
 
-    uiLabel* rotlbl = new uiLabel( &appl_, "Rot" );
+    rotlbl = new uiLabel( &appl_, "Rot" );
     rotlbl->attach( centeredBelow, leftgrp );
 
     hwheel = new uiThumbWheel( &appl_, "hRotate", true );
@@ -228,9 +228,16 @@ int uiODSceneMgr::addScene( bool maximized )
 
 void uiODSceneMgr::afterFinalise( CallBacker* )
 {
-    dollywheel->display( true );
-    hwheel->display( true );
-    vwheel->display( true );
+    bool showwheels = true;
+    Settings::common().getYN( "dTect.Show wheels", showwheels );
+
+    dollywheel->display( showwheels, true );
+    vwheel->display( showwheels, true );
+    hwheel->display( showwheels, true );
+    dollylbl->display( showwheels, true );
+    dummylbl->display( showwheels, true );
+    rotlbl->display( showwheels, true );
+    zoomslider_->display( showwheels, true );
 }
 
 

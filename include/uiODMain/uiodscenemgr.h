@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.58 2008-08-04 07:30:15 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.59 2008-08-06 07:49:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,7 @@ class MultiID;
 class uiDockWin;
 class uiFlatViewWin;
 class uiGroup;
+class uiLabel;
 class uiListView;
 class uiODTreeTop;
 class uiSliderExtra;
@@ -140,6 +141,9 @@ protected:
     uiThumbWheel*		dollywheel;
     uiThumbWheel*		hwheel;
     uiThumbWheel*		vwheel;
+    uiLabel*			dollylbl;
+    uiLabel*			dummylbl;
+    uiLabel*			rotlbl;
 
     class Scene
     {
