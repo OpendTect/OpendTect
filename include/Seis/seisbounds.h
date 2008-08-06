@@ -7,12 +7,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		20-1-98
- RCS:		$Id: seisbounds.h,v 1.3 2008-07-16 11:05:44 cvsnanne Exp $
+ RCS:		$Id: seisbounds.h,v 1.4 2008-08-06 12:04:22 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "ranges.h"
+#include "position.h"
 class CubeSampling;
 
 
