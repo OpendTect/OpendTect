@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiattribpartserv.cc,v 1.94 2008-07-16 18:10:23 cvsnanne Exp $
+ RCS:           $Id: uiattribpartserv.cc,v 1.95 2008-08-06 07:48:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -474,10 +474,12 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
 
     BufferString defstr;
     const DescSet* attrds = adsman3d_->descSet();
-    if ( attrds && attrds->nrDescs() && attrds->getDesc(targetspecs_[0].id()) )
+    const Desc* targetdesc = attrds && attrds->nrDescs() ?
+	attrds->getDesc( targetspecs_[0].id() ) : 0;
+    if ( targetdesc )
     {
 	attrds->getDesc(targetspecs_[0].id())->getDefStr(defstr);
-	if ( strcmp (defstr, targetspecs_[0].defString()) )
+	if ( strcmp(defstr,targetspecs_[0].defString()) )
 	    cache = 0;
     }
 
@@ -486,11 +488,22 @@ const Attrib::DataCubes* uiAttribPartServer::createOutput(
     if ( !process )
 	{ uiMSG().error(errmsg); return 0; }
 
+    bool showinlprogress = true;
+    Settings::common().getYN( "dTect.Show inl progress", showinlprogress );
+
+    const bool isstoredinl = cs.isFlat() && cs.defaultDir() == CubeSampling::Inl
+	&& targetdesc && targetdesc->isStored();
+
     bool success = true;
     if ( aem->getNrOutputsToBeProcessed(*process) != 0 )
     {
-	uiTaskRunner taskrunner( parent() );
-	success = taskrunner.execute( *process );
+	if ( isstoredinl && !showinlprogress )
+	    process->execute();
+	else
+	{
+	    uiTaskRunner taskrunner( parent() );
+	    success = taskrunner.execute( *process );
+	}
     }
 
     const DataCubes* output = aem->getDataCubesOutput( *process );
