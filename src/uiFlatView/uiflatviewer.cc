@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.57 2008-07-16 17:57:13 cvsnanne Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.58 2008-08-07 09:47:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -198,6 +198,7 @@ void uiFlatViewer::drawBitMaps()
     canvas_.setBGColor( color(false) );
 
     bool datachgd = false;
+    bool parschgd = false;
     for ( int idx=0; idx<reportedchanges_.size(); idx++ )
     {
 	DataChangeType dct = reportedchanges_[idx];
@@ -205,8 +206,10 @@ void uiFlatViewer::drawBitMaps()
 	{ 
 	    datachgd = true;
 	    dispParsChanged.trigger();
-	    break;
+	    continue;
 	}
+	if ( dct == WVAPars || dct == VDPars )
+	    parschgd = true;
     }
     reportedchanges_.erase();
     if ( datachgd )
@@ -230,7 +233,7 @@ void uiFlatViewer::drawBitMaps()
 	    offs = vdbmpmgr_->dataOffs( wr_, uisz );
     }
 
-    if ( hasdata && (datachgd || mIsUdf(offs.x)) )
+    if ( hasdata && (datachgd || mIsUdf(offs.x) || parschgd) )
     {
 	wvabmpmgr_->setupChg(); vdbmpmgr_->setupChg();
 	if ( !mkBitmaps(offs) )
