@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.32 2008-05-28 11:26:55 cvsbert Exp $";
+static const char* rcsID = "$Id: uiviscoltabed.cc,v 1.33 2008-08-07 03:48:27 cvsnanne Exp $";
 
 #include "uiviscoltabed.h"
 
@@ -33,14 +33,14 @@ const char* uiVisColTabEd::sKeySymmetry()	{ return "Symmetry"; }
 const char* uiVisColTabEd::sKeySymMidval()	{ return "Symmetry Midvalue"; }
 
 uiVisColTabEd::uiVisColTabEd( uiParent* p, bool vert )
-    : uicoltab_(0)
-    , viscoltab_(0)
+    : viscoltab_(0)
     , colseq_(*new ColTab::Sequence(""))
     , coltabcb(mCB(this,uiVisColTabEd,colTabChangedCB))
     , sequenceChange(this)
     , coltabChange(this)
 {
     uicoltab_ = new uiColorTable( p, colseq_, vert );
+    if ( !vert ) uicoltab_->setStretch( 0, 0 );
     uicoltab_->seqChanged.notify( mCB(this,uiVisColTabEd,colTabEdChangedCB) );
     uicoltab_->scaleChanged.notify( mCB(this,uiVisColTabEd,colTabEdChangedCB) );
     visBase::DM().removeallnotify.notify( mCB(this,uiVisColTabEd,delColTabCB) );
