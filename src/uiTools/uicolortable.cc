@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uicolortable.cc,v 1.21 2008-07-17 07:39:56 cvsnanne Exp $
+ RCS:           $Id: uicolortable.cc,v 1.22 2008-08-07 03:49:30 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,14 +40,15 @@ ________________________________________________________________________
 	, minfld_(0) \
 	, maxfld_(0) \
 	, enabmanage_(true) \
-	, autoscale_(true)
+	, autoscale_(true) \
+	, symmidval_(mUdf(float)) \
+	, cliprate_(ColTab::defClipRate())
 
 
 uiColorTable::uiColorTable( uiParent* p, ColTab::Sequence& colseq, bool vert )
-	: uiGroup(p,"Color table display/edit")
-	, mStdInitList
-	, coltabseq_(*new ColTab::Sequence(colseq))
-	, symmidval_(0)
+    : uiGroup(p,"Color table display/edit")
+    , mStdInitList
+    , coltabseq_(*new ColTab::Sequence(colseq))
 {
     minfld_ = new uiLineEdit( this, "Min" );
     minfld_->returnPressed.notify( mCB(this,uiColorTable,rangeEntered) );
@@ -92,9 +93,9 @@ uiColorTable::uiColorTable( uiParent* p, ColTab::Sequence& colseq, bool vert )
 
 
 uiColorTable::uiColorTable( uiParent* p, const char* ctnm, bool vert )
-	: uiGroup(p,"Color table display")
-	, mStdInitList
-	, coltabseq_(*new ColTab::Sequence())
+    : uiGroup(p,"Color table display")
+    , mStdInitList
+    , coltabseq_(*new ColTab::Sequence())
 {
     ColTab::SM().get( ctnm, coltabseq_ );
     canvas_ = new uiColorTableCanvas( this, coltabseq_, true, vert );
