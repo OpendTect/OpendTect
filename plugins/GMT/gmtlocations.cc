@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtlocations.cc,v 1.2 2008-08-06 09:58:20 cvsraman Exp $
+ RCS:		$Id: gmtlocations.cc,v 1.3 2008-08-07 12:10:18 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -137,27 +137,6 @@ const char* GMTPolyline::userRef() const
     const char* nm = find( sKey::Name );
     *str += nm;
     return str->buf();
-}
-
-
-void getStyleString( LineStyle::Type typ, BufferString& str )
-{
-    switch( typ )
-    {
-	case LineStyle::Dash:
-	    str = "-";
-	    break;
-	case LineStyle::Dot:
-	    str = ".";
-	    break;
-	case LineStyle::DashDot:
-	    str = "-.";
-	    break;
-	case LineStyle::DashDotDot:
-	    str = "-..";
-	default:
-	    break;
-    }
 }
 
 

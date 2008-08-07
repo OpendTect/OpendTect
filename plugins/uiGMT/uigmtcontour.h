@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtcontour.h,v 1.1 2008-08-06 09:58:05 cvsraman Exp $
+ RCS:		$Id: uigmtcontour.h,v 1.2 2008-08-07 12:10:23 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ class uiComboBox;
 class uiGenInput;
 class uiIOObjSel;
 class uiPosSubSel;
+class uiSelLineStyle;
 
 namespace EM { class SurfaceIOData; class Horizon3D; }
 
@@ -51,6 +52,7 @@ protected:
     uiPushButton*	resetbut_;
     uiGenInput*		nrcontourfld_;
     uiCheckBox*		linefld_;
+    uiSelLineStyle*	lsfld_;
     uiCheckBox*		fillfld_;
 
     void		readCB(CallBacker*);
@@ -58,6 +60,7 @@ protected:
     void		rgChg(CallBacker*);
     void		selChg(CallBacker*);
     void		objSel(CallBacker*);
+    void		drawSel(CallBacker*);
 
     bool		loadHor();
 };

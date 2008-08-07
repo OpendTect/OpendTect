@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtdef.h,v 1.2 2008-08-06 09:58:20 cvsraman Exp $
+ RCS:		$Id: gmtdef.h,v 1.3 2008-08-07 12:10:18 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,7 @@ namespace ODGMT
     static const char*	sKeyLineStyle = "Line Style";
     static const char*	sKeyMapDim = "Map Dimension";
     static const char*	sKeyMapTitle = "Map Title";
+    static const char*	sKeyPostColorBar = "Post Color bar";
     static const char*	sKeyShape = "Shape";
     static const char*	sKeyXRange = "X Range";
     static const char*	sKeyYRange = "Y Range";

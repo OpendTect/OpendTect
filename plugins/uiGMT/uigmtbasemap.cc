@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: uigmtbasemap.cc,v 1.2 2008-08-06 09:58:05 cvsraman Exp $
+ RCS:		$Id: uigmtbasemap.cc,v 1.3 2008-08-07 12:10:22 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,6 +114,8 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
 {
     Interval<float> xrg;
     Interval<float> yrg;
+    xrgfld_->valuechanged.disable();
+    yrgfld_->valuechanged.disable();
     if ( fromsurvey )
     {
 	const Coord survmin = SI().minCoord( false );
@@ -148,6 +150,8 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
     const AxisLayout xaxis( xrg );
     const AxisLayout yaxis( yrg );
     lebelintvfld_->setValue( Interval<float>(xaxis.sd.step,yaxis.sd.step) );
+    xrgfld_->valuechanged.enable();
+    yrgfld_->valuechanged.enable();
 }
 
 

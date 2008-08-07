@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtmainwin.cc,v 1.2 2008-08-06 09:58:05 cvsraman Exp $
+ RCS:		$Id: uigmtmainwin.cc,v 1.3 2008-08-07 12:10:23 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -307,17 +307,22 @@ bool uiGMTMainWin::fillPar( IOPar& par )
     fp.setExtension( "ps" );
     par.set( sKey::FileName, fp.fullPath() );
     int idx = 0;
+    Interval<float> mapdim;
     IOPar basemappar;
     basemappar.set( ODGMT::sKeyGroupName, "Basemap" );
     if ( !basemapgrp_->fillPar(basemappar) )
 	 return false;
 
     basemappar.setYN( ODGMT::sKeyClosePS, !pars_.size() );
+    basemappar.get( ODGMT::sKeyMapDim, mapdim );
     BufferString numkey = idx++;
     par.mergeComp( basemappar, numkey );
     IOPar legendpar;
     makeLegendPar( legendpar );
     const bool haslegends = legendpar.size() > 1;
+    if ( haslegends )
+	legendpar.set( ODGMT::sKeyMapDim, mapdim );
+
     for ( int ldx=0; ldx<pars_.size(); ldx++ )
     {
 	numkey = idx++;

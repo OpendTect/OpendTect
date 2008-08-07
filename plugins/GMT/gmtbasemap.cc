@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: gmtbasemap.cc,v 1.2 2008-08-06 09:58:20 cvsraman Exp $
+ RCS:		$Id: gmtbasemap.cc,v 1.3 2008-08-07 12:10:18 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "color.h"
 #include "draw.h"
+#include "filepath.h"
 #include "gmtbasemap.h"
 #include "keystrs.h"
 #include "strmdata.h"
@@ -44,7 +45,7 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
 
     const float xmargin = mapdim.start > 30 ? mapdim.start/10 : 3;
     const float ymargin = mapdim.stop > 30 ? mapdim.stop/10 : 3;
-    const float pagewidth = mapdim.start + 4 * xmargin;
+    const float pagewidth = mapdim.start + ( closeps ? 2 : 4 ) * xmargin;
     const float pageheight = mapdim.stop + 3 * ymargin;
     BufferString comm = "psbasemap -R";
     comm += xrg.start; comm += "/"; comm += xrg.stop; comm += "/";
@@ -55,7 +56,8 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     comm += " --X_ORIGIN="; comm += xmargin;
     comm += "c --Y_ORIGIN="; comm += ymargin;
     comm += "c --PAPER_MEDIA=Custom_";
-    comm += pageheight; comm += "cx"; comm += pagewidth; comm += "c ";
+    comm += pageheight < 21 ? 21 : pageheight; comm += "cx";
+    comm += pagewidth < 21 ? 21 : pagewidth; comm += "c ";
     if ( !closeps ) comm += "-K ";
     comm += "> "; comm += fnm;
     if ( system(comm) )
@@ -83,11 +85,39 @@ GMTPar* GMTLegend::createInstance( const IOPar& iop )
 bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 {
     strm << "Posting legends ...  ";
+    Interval<float> mapdim;
+    get( ODGMT::sKeyMapDim, mapdim );
+    const float xmargin = mapdim.start > 30 ? mapdim.start/10 : 3;
+    const float ymargin = mapdim.stop > 30 ? mapdim.stop/10 : 3;
+    bool hascolbar = false;
     ObjectSet<IOPar> parset;
     for ( int idx=0; idx<100; idx++ )
     {
 	IOPar* par = subselect( idx );
 	if ( !par ) break;
+
+	if ( par->find(ODGMT::sKeyPostColorBar) )
+	{
+	    hascolbar = true;
+	    StepInterval<float> rg;
+	    par->get( ODGMT::sKeyDataRange, rg );
+	    FilePath fp( fnm );
+	    fp.setExtension( "cpt" );
+	    BufferString colbarcomm = "psscale --LABEL_FONT_SIZE=14 -D";
+	    colbarcomm += mapdim.start + xmargin; colbarcomm += "c/";
+	    colbarcomm += ymargin; colbarcomm += "c/";
+	    colbarcomm += mapdim.stop / 2; colbarcomm += "c/";
+	    colbarcomm += mapdim.start / 10; colbarcomm += "c -O -C";
+	    colbarcomm += fp.fullPath(); colbarcomm += " -B";
+	    colbarcomm += rg.step * 5; colbarcomm += ":\"";
+	    colbarcomm += par->find( sKey::Name ); colbarcomm += "\": -K >> ";
+	    colbarcomm += fnm;
+	    if ( system(colbarcomm) )
+		mErrStrmRet("Failed to post color bar")
+
+	    if ( !par->find(ODGMT::sKeyLineStyle) )
+		continue;
+	}
 
 	parset += par;
     }
@@ -95,7 +125,10 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
     if ( !parset.size() )
 	mErrStrmRet("No legends to post")
 
-    BufferString comm = "@pslegend -R1/10/1/10 -J -O -D12/1/8c/";
+    BufferString comm = "@pslegend -R -J -O -Dx";
+    comm += mapdim.start + xmargin; comm += "c/";
+    comm += ymargin + ( hascolbar ? mapdim.stop / 2 : 0 ); comm += "c/";
+    comm += 10; comm += "c/";
     comm += parset.size(); comm += "c/BL ";
     
     comm += ">> "; comm += fnm;
@@ -134,7 +167,8 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	    LineStyle ls;
 	    ls.fromString( lsstr );
 	    symbstr = "n";
-	    mGetLineStyleString( ls, penstr );
+	    if ( ls.type_ != LineStyle::None )
+	    { mGetLineStyleString( ls, penstr ); }
 	}
 
 	bool dofill;
@@ -154,10 +188,16 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	else
 	    legendstring += "-";
 
-	legendstring += " "; legendstring += penstr;
+	legendstring += " ";
+	if ( penstr.isEmpty() )
+	    legendstring += "-";
+	else
+	    legendstring += penstr;
+
 	legendstring += " "; legendstring += 1.3;
 	legendstring += " "; legendstring += namestr;
 	*sd.ostrm << legendstring << std::endl;
+	*sd.ostrm << "G0.2c" << std::endl;
     }
 
     sd.close();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtcontour.cc,v 1.1 2008-08-06 09:58:05 cvsraman Exp $
+ RCS:		$Id: uigmtcontour.cc,v 1.2 2008-08-07 12:10:23 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,6 +27,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uimsg.h"
 #include "uipossubsel.h"
+#include "uisellinest.h"
 #include "uitaskrunner.h" 
 
 
@@ -51,6 +52,7 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     , ctio_(*mMkCtxtIOObj(EMHorizon3D))
     , sd_(*new EM::SurfaceIOData)
     , hor_(0)
+    , lsfld_(0)
 {
     inpfld_ = new uiIOObjSel( this, ctio_,"Select Horizon" );
     inpfld_->selectiondone.notify( mCB(this,uiGMTContourGrp,objSel) );
@@ -78,12 +80,16 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     resetbut_->attach( rightTo, nrcontourfld_ );
     resetbut_->setSensitive( false );
 
-    linefld_ = new uiCheckBox( this, "Draw contour lines" );
+    linefld_ = new uiCheckBox( this, "Draw contour lines",
+	   		       mCB(this,uiGMTContourGrp,drawSel) );
     linefld_->attach( alignedBelow, nrcontourfld_ );
     linefld_->setChecked( true );
 
     fillfld_ = new uiCheckBox( this, "Fill Color" );
     fillfld_->attach( rightTo, linefld_ );
+
+    lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );
+    lsfld_->attach( alignedBelow, linefld_ );
 }
 
 
@@ -91,6 +97,14 @@ uiGMTContourGrp::~uiGMTContourGrp()
 {
     delete &sd_; delete &ctio_;
     if ( hor_ ) hor_->unRef();
+}
+
+
+void uiGMTContourGrp::drawSel( CallBacker* )
+{
+    if ( !lsfld_ ) return;
+
+    lsfld_->display( linefld_->isChecked() );
 }
 
 
@@ -150,6 +164,7 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 
     mDynamicCastGet(uiGenInput*,fld,cb)
     StepInterval<float> datarg = rgfld_->getFStepInterval();
+    rgfld_->valuechanged.disable();
     if ( fld == rgfld_ )
     {
 	int nrcontours = datarg.nrSteps() + 1;
@@ -159,6 +174,7 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 	    nrcontours = nrcontourfld_->getIntValue();
 	    datarg.step = ( datarg.stop - datarg.start ) / ( nrcontours - 1 );
 	    rgfld_->setValue( datarg );
+	    rgfld_->valuechanged.enable();
 	    return;
 	}
 
@@ -172,6 +188,7 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 	    uiMSG().warning( "Too many or too few contours" );
 	    nrcontours = datarg.nrSteps() + 1;
 	    nrcontourfld_->setValue( nrcontours );
+	    rgfld_->valuechanged.enable();
 	    return;
 	}
 
@@ -179,6 +196,7 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
 	rgfld_->setValue( datarg );
     }
 
+    rgfld_->valuechanged.enable();
     if ( !sd_.zrg.isUdf() )
 	resetbut_->setSensitive( true );
 }
@@ -252,7 +270,6 @@ bool uiGMTContourGrp::loadHor()
 	return false;
 
     hor_ = hor3d;
-    hor_->ref();
     return true;
 }
 
@@ -268,6 +285,9 @@ bool uiGMTContourGrp::fillPar( IOPar& par ) const
     subselfld_->fillPar( subpar );
     par.mergeComp( subpar, sKey::Selection );
     StepInterval<float> rg = rgfld_->getFStepInterval();
+    if ( mIsUdf(rg.start) || mIsUdf(rg.stop) || mIsUdf(rg.step) )
+	mErrRet("Invalid data range")
+
     par.set( ODGMT::sKeyDataRange, rg );
     const bool drawcontour = linefld_->isChecked();
     const bool dofill = fillfld_->isChecked();
@@ -275,6 +295,13 @@ bool uiGMTContourGrp::fillPar( IOPar& par ) const
 	mErrRet("Check at least one of the drawing options")
 
     par.setYN( ODGMT::sKeyDrawContour, drawcontour );
+    if ( drawcontour )
+    {
+	BufferString lskey;
+	lsfld_->getStyle().toString( lskey );
+	par.set( ODGMT::sKeyLineStyle, lskey );
+    }
+
     par.setYN( ODGMT::sKeyFill, dofill );
     return true;
 }
@@ -296,6 +323,14 @@ bool uiGMTContourGrp::usePar( const IOPar& par )
     par.getYN( ODGMT::sKeyDrawContour, drawcontour );
     par.getYN( ODGMT::sKeyFill, dofill );
     linefld_->setChecked( drawcontour );
+    if ( drawcontour )
+    {
+	BufferString lskey = par.find( ODGMT::sKeyLineStyle );
+	LineStyle ls; ls.fromString( lskey.buf() );
+	lsfld_->setStyle( ls );
+    }
+
     fillfld_->setChecked( dofill );
+    drawSel( 0 );
     return true;
 }

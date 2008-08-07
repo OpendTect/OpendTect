@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: gmtcontour.cc,v 1.1 2008-08-06 09:58:20 cvsraman Exp $
+ RCS:		$Id: gmtcontour.cc,v 1.2 2008-08-07 12:10:18 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,15 +49,26 @@ const char* GMTContour::userRef() const
 
 bool GMTContour::fillLegendPar( IOPar& par ) const
 {
-/*    bool drawcontour = false;
+    BufferString str = find( sKey::Name );
+    par.set( sKey::Name, str );
+    bool drawcontour = false;
     getYN( ODGMT::sKeyDrawContour, drawcontour );
-    if ( !drawcontour )
-	return false;
+    if ( drawcontour )
+    {
+	str = find( ODGMT::sKeyLineStyle );
+	par.set( ODGMT::sKeyLineStyle, str );
+    }
 
-    BufferString hornm = find( sKey::Name );
-    par.set( sKey::Name, hornm );
-    return true; */
-    return false;
+    bool dofill = false;
+    getYN( ODGMT::sKeyFill, dofill );
+    if ( dofill )
+    {
+	par.set( ODGMT::sKeyPostColorBar, true );
+	str = find( ODGMT::sKeyDataRange );
+	par.set( ODGMT::sKeyDataRange, str );
+    }
+
+    return true;
 }
 
 
@@ -128,6 +139,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 	*sdata.ostrm << pos.x << " " << pos.y << " " << pos.z << std::endl;
     }
 
+    obj->unRef();
     sdata.close();
     strm << "Done" << std::endl;
     strm << "Regridding 25 X 25 ...  ";
@@ -157,8 +169,13 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     if ( drawcontour )
     {
 	strm << "Drawing contours ...  ";
+	BufferString lskey = find( ODGMT::sKeyLineStyle );
+	LineStyle ls; ls.fromString( lskey.buf() );
+	BufferString lsstr;
+	mGetLineStyleString( ls, lsstr );
 	comm = "grdcontour "; comm += fp.fullPath();
 	comm += " -R -J -O -C"; comm += cptfnm;
+	comm += " -W"; comm += lsstr;
 	if ( !closeps )
 	    comm += " -K";
 
@@ -171,7 +188,6 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 
     strm << "Removing temporary grid files ...  ";
     StreamProvider( grd100fnm ).remove();
-    StreamProvider( cptfnm ).remove();
     StreamProvider( fp.fullPath() ).remove();
     strm << "Done" << std::endl;
     return true;

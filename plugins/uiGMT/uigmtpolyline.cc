@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtpolyline.cc,v 1.2 2008-08-06 09:58:05 cvsraman Exp $
+ RCS:		$Id: uigmtpolyline.cc,v 1.3 2008-08-07 12:10:23 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,6 +46,8 @@ uiGMTPolylineGrp::uiGMTPolylineGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"Polyline")
     , ctio_(*mMkCtxtIOObj(PickSet))
 {
+    ctio_.ctxt.parconstraints.set( sKey::Type, sKey::Polygon );
+    ctio_.ctxt.allowcnstrsabsent = false;
     inpfld_ = new uiIOObjSel( this, ctio_,"Select Polygon" );
     inpfld_->selectiondone.notify( mCB(this,uiGMTPolylineGrp,objSel) );
 
