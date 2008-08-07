@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.87 2008-08-04 09:19:19 cvsnanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.88 2008-08-07 12:04:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uisurvey.h"
+
 #include "survinfo.h"
 #include "uibutton.h"
 #include "uicanvas.h"
@@ -40,12 +41,14 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "odver.h"
 #include "pixmap.h"
+
 #include <iostream>
 #include <math.h>
 
 extern "C" const char* GetSurveyName();
 extern "C" const char* GetSurveyFileName();
 extern "C" void SetSurveyName(const char*);
+extern bool IOMAN_no_survchg_triggers;
 
 static ObjectSet<uiSurvey::Util>& getUtils()
 {
@@ -128,6 +131,7 @@ uiSurvey::uiSurvey( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Survey selection",
 	       "Select and setup survey","0.3.1"))
     , initialdatadir(GetBaseDataDir())
+    , initialsurvey(GetSurveyName())
     , survinfo(0)
     , survmap(0)
     , mapcanvas(0)
@@ -609,6 +613,12 @@ bool uiSurvey::rejectOK( CallBacker* )
 	    return false;
 	}
     }
+
+    IOMAN_no_survchg_triggers = true;
+    IOMan::setSurvey( initialsurvey );
+    SurveyInfo::theinst_ = SurveyInfo::read(
+	FilePath(initialdatadir).add(initialsurvey).fullPath() );
+    IOMAN_no_survchg_triggers = false;
 
     SurveyInfo::produceWarnings( true );
     return true;
