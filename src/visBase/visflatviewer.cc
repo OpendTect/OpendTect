@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.cc,v 1.11 2008-08-05 21:52:55 cvsyuancheng Exp $
+ RCS:		$Id: visflatviewer.cc,v 1.12 2008-08-07 22:12:51 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,20 +93,21 @@ void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt )
 	    }
 	case VDPars : 	
 		visBase::VisColorTab& vct = texture_->getColorTab( 0 );
-		vct.setAutoScale( appearance().ddpars_.vd_.autoscale_ );
-		if ( !mIsUdf(appearance().ddpars_.vd_.symmidvalue_) )
-    		    vct.setSymMidval( appearance().ddpars_.vd_.symmidvalue_ );
+		vct.setAutoScale( false ); //To trigger clipping update.
+		const bool autoscal = appearance().ddpars_.vd_.autoscale_;
+		if ( !mIsUdf(appearance().ddpars_.vd_.symmidvalue_) && autoscal)
+		    vct.setSymMidval( appearance().ddpars_.vd_.symmidvalue_ );
 
 		const Interval<float>& range = appearance().ddpars_.vd_.rg_;
-		if ( mIsUdf(range.start) || mIsUdf(range.stop) || 
-			appearance().ddpars_.vd_.autoscale_ )
+		if ( mIsUdf(range.start) || mIsUdf(range.stop) || autoscal )
 		    vct.setClipRate( 
 			    appearance().ddpars_.vd_.clipperc_.start*0.01 );
-		else 
-		    vct.scaleTo( range );
+		else
+	    	    vct.scaleTo( range );
 		
 		const char* ctabname = appearance().ddpars_.vd_.ctab_.buf();
 		vct.colorSeq().loadFromStorage( ctabname );
+		vct.setAutoScale( autoscal );
     }			
 }
 
