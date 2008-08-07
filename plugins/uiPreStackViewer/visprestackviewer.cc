@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.24 2008-08-05 21:52:09 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.25 2008-08-07 22:13:46 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -143,6 +143,12 @@ PreStackViewer::~PreStackViewer()
 
 void PreStackViewer::allowShading( bool yn )
 { flatviewer_->allowShading( yn ); }
+
+
+BufferString PreStackViewer::getObjectName() const
+{
+    return IOM().get(mid_)->name();
+}
 
 
 void  PreStackViewer::setMultiID( const MultiID& mid )

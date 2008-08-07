@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          5-11-2007
- RCS:           $Id: uipsviewersettingdlg.cc,v 1.3 2008-06-04 08:55:20 cvshelene Exp $
+ RCS:           $Id: uipsviewersettingdlg.cc,v 1.4 2008-08-07 22:13:46 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,8 +26,8 @@ namespace PreStackView
 uiPSViewerSettingDlg::uiPSViewerSettingDlg( uiParent* p, 
 	PreStackViewer& viewer, uiPSViewerMgr& mgr, 
 	PreStack::ProcessManager& prepromgr )
-    : uiTabStackDlg( p, uiDialog::Setup( "PreStack display properties", 
-		"Specify display properties", "50.0.8") ) 
+    : uiTabStackDlg( p, uiDialog::Setup( viewer.getObjectName(), 
+		"Prestack display properties", "50.0.8") ) 
     , preproctab_( 0 )		     
 {
     shapetab_ = new uiPSViewerShapeTab( tabParent(), viewer, mgr );
