@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Huck
  Date:          Dec 2006
- RCS:           $Id: uiflatviewpropdlg.cc,v 1.32 2008-08-01 12:16:50 cvsnanne Exp $
+ RCS:           $Id: uiflatviewpropdlg.cc,v 1.33 2008-08-07 04:54:23 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ uiFlatViewDataDispPropTab::uiFlatViewDataDispPropTab( uiParent* p,
 			    mCB(this,uiFlatViewDataDispPropTab,dispSel) );
     }
 
-    const char* clipmodes[] = { "None", "Symmetrical", "Assymetrical", 0 };
+    const char* clipmodes[] = { "None", "Symmetrical", "Asymmetrical", 0 };
 
     useclipfld_ = new uiGenInput( this, "Use clipping",
 	    			  StringListInpSpec( clipmodes ) );
