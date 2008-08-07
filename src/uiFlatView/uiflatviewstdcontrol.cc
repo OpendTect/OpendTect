@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: uiflatviewstdcontrol.cc,v 1.10 2008-05-29 11:46:21 cvssatyaki Exp $
+ RCS:           $Id: uiflatviewstdcontrol.cc,v 1.11 2008-08-07 03:51:21 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiflatviewstdcontrol.h"
+
 #include "uiflatviewcoltabed.h"
 #include "flatviewzoommgr.h"
 #include "uiflatviewer.h"
@@ -55,7 +56,7 @@ uiFlatViewStdControl::uiFlatViewStdControl( uiFlatViewer& vwr,
 
     toolbar_ = new uiToolBar( mainwin(), "Color Table" );
     ctabed_ = new uiFlatViewColTabEd( this, vwr );
-    ctabed_->colTabChged.notify( mCB(this,uiFlatViewStdControl,coltabChg) );
+    ctabed_->colTabChgd.notify( mCB(this,uiFlatViewStdControl,coltabChg) );
     toolbar_->addObject( ctabed_->colTabGrp()->attachObj() );
 
     if ( !setup.helpid_.isEmpty() )

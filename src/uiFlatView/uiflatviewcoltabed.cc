@@ -3,7 +3,7 @@ ___________________________________________________________________
  * COPYRIGHT: (C) dGB Beheer B.V.
  * AUTHOR   : Satyaki Maitra
  * DATE     : May 2008
- * RCS	    : $Id: uiflatviewcoltabed.cc,v 1.1 2008-05-29 11:36:25 cvssatyaki Exp $
+ * RCS	    : $Id: uiflatviewcoltabed.cc,v 1.2 2008-08-07 03:51:21 cvsnanne Exp $
 ___________________________________________________________________
 -*/
 
@@ -21,7 +21,7 @@ ___________________________________________________________________
 uiFlatViewColTabEd::uiFlatViewColTabEd( uiParent* p, FlatView::Viewer& vwr )
     : ddpars_(vwr.appearance().ddpars_)
     , colseq_(*new ColTab::Sequence())
-    , colTabChged(this)
+    , colTabChgd(this)
 {
     ColTab::SM().get( ddpars_.vd_.ctab_.buf(), colseq_ );
     uicoltab_ = new uiColorTable( p, colseq_, false );
@@ -29,7 +29,7 @@ uiFlatViewColTabEd::uiFlatViewColTabEd( uiParent* p, FlatView::Viewer& vwr )
     uicoltab_->setInterval( vwr.getDataRange(false) );
     uicoltab_->seqChanged.notify( mCB(this,uiFlatViewColTabEd,colTabChanged) );
     uicoltab_->scaleChanged.notify( mCB(this,uiFlatViewColTabEd,colTabChanged));
-    colTabChanged(0);
+    setColTab();
 }
 
 
@@ -50,5 +50,5 @@ void uiFlatViewColTabEd::colTabChanged( CallBacker* )
 {
     ddpars_.vd_.ctab_ = uicoltab_->colTabSeq().name();
     uicoltab_->getDispPars( ddpars_.vd_ );
-    colTabChged.trigger();
+    colTabChgd.trigger();
 }
