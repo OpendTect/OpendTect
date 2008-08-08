@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.141 2008-08-08 08:52:05 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.142 2008-08-08 12:16:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -736,7 +736,7 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     BufferString capt( "Tree scene " ); capt += vwridx;
 
     scn.dw_ = new uiDockWin( &appl_, capt );
-    scn.lv_ = new uiListView( 0, capt );
+    scn.lv_ = new uiListView( scn.dw_, capt );
     BufferStringSet labels;
     labels.add( "Elements" );
     labels.add( "Color" );
