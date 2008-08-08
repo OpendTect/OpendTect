@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2007
- RCS:           $Id: uiwindowfuncseldlg.cc,v 1.7 2008-06-02 08:40:59 cvssatyaki Exp $
+ RCS:           $Id: uiwindowfuncseldlg.cc,v 1.8 2008-08-08 13:56:32 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -204,7 +204,7 @@ void uiWindowFuncSelDlg::taperSelChg( CallBacker* )
 			      varinpfld_->setValue( variable_ * 100 );
 	    if ( variable_ > 1 )
 	       	variable_ = prevvariable; 
-	    winfunc_[ idx ]->setVariable( variable_ );
+	    winfunc_[ idx ]->setVariable( 1.0 - variable_ );
 	    varinpfld_->setValue( variable_ * 100 );
 	}
 	createLine( *winfunc_[idx] );
