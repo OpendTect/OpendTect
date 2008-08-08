@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.131 2008-06-30 06:22:46 cvsumesh Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.132 2008-08-08 10:19:52 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -188,6 +188,7 @@ void uiODMenuMgr::fillImportMenu()
     mInsertItem( impmnu_, "&Picksets ...", mImpPickMnuItm );
     mInsertItem( impmnu_, "&Wavelets ...", mImpWvltMnuItm );
     mInsertItem( impmnu_, "&Mute Function ...", mImpMuteDefMnuItm );
+    mInsertItem( impmnu_, "&Velocity ...", mImpVelocityMnuItm );
 
     uiPopupMenu* impseissgy = new uiPopupMenu( &appl_, "&SEG-Y" );
     mInsertItem( impseissgy, "&3D ...", mImpSeisSEGY3DMnuItm );
@@ -588,7 +589,8 @@ void uiODMenuMgr::handleClick( CallBacker* cb )
     case mImpWvltMnuItm: 	mDoOp(Imp,Wvlt,0); break;
     case mImpFaultMnuItm: 	mDoOp(Imp,Flt,0); break;
     case mImpMuteDefMnuItm:	mDoOp(Imp,MDef,0); break;
-    case mExpMuteDefMnuItm:     mDoOp(Exp,MDef,0); break;				
+    case mExpMuteDefMnuItm:     mDoOp(Exp,MDef,0); break;
+    case mImpVelocityMnuItm:	mDoOp(Imp,Vel,0); break;			
 
     case mManSeisMnuItm: 	mDoOp(Man,Seis,0); break;
     case mManHor3DMnuItm: 	mDoOp(Man,Hor,2); break;

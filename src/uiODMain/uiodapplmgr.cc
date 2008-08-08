@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.259 2008-07-17 08:10:18 cvsbert Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.260 2008-08-08 10:19:52 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,6 +28,7 @@ ________________________________________________________________________
 #include "uiprestackexpmute.h"
 #include "uiseispartserv.h"
 #include "uitaskrunner.h"
+#include "uivelocityfunctionimp.h"
 #include "uiwellpartserv.h"
 #include "uiwellattribpartserv.h"
 #include "vishorizondisplay.h"
@@ -300,6 +301,13 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
 	{
 	    PreStack::uiExportMute dlgexp( &appl_ );
 	    dlgexp.go();
+	}
+    break;
+    case Vel:
+        if ( at == Imp)
+	{
+	    Vel::uiImportVelFunc dlgvimp( &appl_ );
+	    dlgvimp.go();
 	}
     break;
     case Strat:
