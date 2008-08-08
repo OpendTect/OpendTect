@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiattrdescseted.cc,v 1.74 2008-07-23 07:29:08 cvsnanne Exp $
+ RCS:           $Id: uiattrdescseted.cc,v 1.75 2008-08-08 11:00:44 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -1048,8 +1048,8 @@ void uiAttribDescSetEd::changeInput( CallBacker* )
 
 void uiAttribDescSetEd::replaceStoredAttr()
 {
-    const bool is2d = adsman ? adsman->is2D() : attrset->is2D();
-    uiStoredAttribReplacer replacer( this, *attrset, is2d );
+    uiStoredAttribReplacer replacer( this, *attrset );
+    replacer.go();
 }
 
 
