@@ -7,13 +7,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          13/02/2002
- RCS:           $Id: uidockwin.h,v 1.17 2008-01-30 10:20:29 cvsjaap Exp $
+ RCS:           $Id: uidockwin.h,v 1.18 2008-08-08 08:47:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uiparent.h"
-#include "uihandle.h"
 
 class uiDockWinBody;
 class uiGroup;
@@ -27,6 +26,9 @@ public:
 			uiDockWin(uiParent* parnt=0, 
 				  const char* nm="uiDockWin");
     virtual		~uiDockWin();
+
+    void		setGroup(uiGroup*);
+    void		setObject(uiObject*);
 
     void		setDockName(const char*);
     const char*		getDockName() const;
