@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.140 2008-08-06 07:49:38 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.141 2008-08-08 08:52:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -259,7 +259,7 @@ void uiODSceneMgr::removeScene( CallBacker* cb )
     uiODSceneMgr::Scene* scene = scenes_[idxnr];
     scene->itemmanager_->prepareForShutdown();
     visServ().removeScene( scene->itemmanager_->sceneID() );
-    appl_.removeDockWindow( scene->treeWin() );
+    appl_.removeDockWindow( scene->dw_ );
 
     scene->wsgrp_->closed().remove( mWSMCB(removeScene) );
     scenes_ -= scene;
@@ -278,7 +278,7 @@ void uiODSceneMgr::setSceneName( int sceneid, const char* nm )
 	if ( scene.itemmanager_->sceneID() == sceneid )
 	{
 	    scene.wsgrp_->setTitle( nm );
-	    scene.treeWin()->setDockName( nm );
+	    scene.dw_->setDockName( nm );
 	    uiTreeItem* itm = scene.itemmanager_->findChild( sceneid );
 	    if ( itm )
 		itm->updateColumnText( uiODSceneMgr::cNameColumn() );
@@ -734,9 +734,9 @@ void uiODSceneMgr::setActiveScene( const char* scenenm )
 void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 {
     BufferString capt( "Tree scene " ); capt += vwridx;
-    uiDockWin* dw = new uiDockWin( &appl_, capt );
 
-    scn.lv_ = new uiListView( dw, capt );
+    scn.dw_ = new uiDockWin( &appl_, capt );
+    scn.lv_ = new uiListView( 0, capt );
     BufferStringSet labels;
     labels.add( "Elements" );
     labels.add( "Color" );
@@ -746,6 +746,7 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     scn.lv_->setColumnWidth( cNameColumn(), 152 );
     scn.lv_->setPrefWidth( 190 );
     scn.lv_->setStretch( 2, 2 );
+    scn.dw_->setObject( scn.lv_ );
 
     scn.itemmanager_ = new uiODTreeTop( scn.sovwr_, scn.lv_, &applMgr(), tifs_);
 
@@ -777,8 +778,8 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     }
 
     scn.lv_->display();
-    appl_.addDockWindow( *dw, uiMainWin::Left );
-    scn.treeWin()->display();
+    appl_.addDockWindow( *scn.dw_, uiMainWin::Left );
+    scn.dw_->display();
 }
 
 
@@ -1008,6 +1009,7 @@ uiODSceneMgr::Viewer2D& uiODSceneMgr::addViewer2D( int visid )
 
 uiODSceneMgr::Scene::Scene( uiWorkSpace* wsp )
         : lv_(0)
+	, dw_(0)
 	, wsgrp_(0)
         , sovwr_(0)
     	, itemmanager_(0)
@@ -1027,13 +1029,7 @@ uiODSceneMgr::Scene::~Scene()
 {
     delete sovwr_;
     delete itemmanager_;
-    delete treeWin();
-}
-
-
-uiDockWin* uiODSceneMgr::Scene::treeWin()
-{
-    return lv_ ? (uiDockWin*)lv_->parent() : 0;
+    delete dw_;
 }
 
 

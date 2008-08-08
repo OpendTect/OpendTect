@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.59 2008-08-06 07:49:39 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.60 2008-08-08 08:52:05 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -151,12 +151,11 @@ protected:
 			Scene(uiWorkSpace*);
 			~Scene();
        
+	uiDockWin*	dw_;
 	uiListView*	lv_;
 	uiWorkSpaceGroup* wsgrp_;
 	uiSoViewer*	sovwr_;
 	uiODTreeTop*	itemmanager_;
-
-	uiDockWin*	treeWin();
     };
 
     class Viewer2D
