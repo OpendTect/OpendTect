@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		June 2008
- RCS:		$Id: uistoredattrreplacer.h,v 1.1 2008-06-18 08:19:58 cvssatyaki Exp $
+ RCS:		$Id: uistoredattrreplacer.h,v 1.2 2008-08-08 10:57:45 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,9 +26,9 @@ class uiStoredAttribReplacer
 {
 public:
     				uiStoredAttribReplacer(uiParent*,
-						       Attrib::DescSet&,bool);
+						       Attrib::DescSet&);
+	void 			go();
 protected:
-	void 			replaceStoredAtrributes(bool);
 	void			getUserRef(const Attrib::DescID&,
 					   BufferStringSet&) const;
 	void			getStoredIds();
@@ -38,6 +38,9 @@ protected:
 	TypeSet<Attrib::DescID>	storedids_;
 	bool		 	is2d_;
 	uiParent*	 	parent_;
+	int			noofsteer_;
+	int			noofseis_;
+	bool			multiinpcube_;
 };
 
 #endif

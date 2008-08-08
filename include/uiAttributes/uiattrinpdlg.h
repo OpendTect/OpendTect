@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.h,v 1.6 2008-06-18 08:20:40 cvssatyaki Exp $
+ RCS:           $Id: uiattrinpdlg.h,v 1.7 2008-08-08 10:57:45 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,11 +23,13 @@ class uiAttrInpDlg : public uiDialog
 {
 public:
 			uiAttrInpDlg(uiParent*,const BufferStringSet& attrnms,
-				     bool issteer,bool is2d,bool multiinpcube);
+				     bool issteer,bool is2d);
+			uiAttrInpDlg(uiParent*,bool issteer,bool is2d);
 			~uiAttrInpDlg();
 
     bool		is2D() const;
 
+    void 		setCtxtIO();
     const char*		getUserRef() const;
     const char*		getSeisRef() const;
     const char*		getSteerRef() const;
@@ -37,13 +39,12 @@ public:
 
 protected:
 
-    uiTextEdit*		txtfld;
-    uiSeisSel*		inpfld;
-    uiSeisSel*		seisinpfld;
-    uiSeisSel*		steerinpfld;
+    uiSeisSel*		inpfld_;
+    uiSeisSel*		seisinpfld_;
+    uiSeisSel*		steerinpfld_;
 
-    CtxtIOObj&		ctio;
-    CtxtIOObj&		ctiosteer;
+    CtxtIOObj&		ctio_;
+    CtxtIOObj&		ctiosteer_;
     bool		issteer_;
     bool		multiinpcube_;
 
