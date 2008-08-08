@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          10/12/1999
- RCS:           $Id: uimain.cc,v 1.45 2008-07-04 09:49:16 cvsdgb Exp $
+ RCS:           $Id: uimain.cc,v 1.46 2008-08-08 08:48:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,7 @@ ________________________________________________________________________
 
 #ifdef __win__
 # include <QWindowsXPStyle>
+# include <QWindowsVistaStyle>
 #endif
 
 
@@ -139,7 +140,8 @@ void uiMain::init( QApplication* qap, int& argc, char **argv )
 
     QApplication::setStyle( new QCleanlooksStyle );
 #ifdef __win__
-    QApplication::setStyle( new QWindowsXPStyle );
+    QApplication::setStyle( QSysInfo::WindowsVersion == QSysInfo::WV_VISTA ?
+	    new QWindowsVistaStyle : new QWindowsXPStyle );
 #endif
 #ifdef __mac__
     QApplication::setStyle( new QMacStyle );
