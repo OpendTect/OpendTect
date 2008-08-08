@@ -10,7 +10,7 @@ Attribute Descriptions
 1.UserRef: _Seismic Data_imag
 1.Hidden: Yes
 1.Input.0: 0
-2.Definition: Frequency gate=[-28,28] normalize=no window=CosTaper paramval=0.05 dumptofile=no output=7
+2.Definition: Frequency gate=[-28,28] normalize=no window=CosTaper paramval=0.95 dumptofile=no output=7
 2.UserRef: Q factor
 2.Hidden: No
 2.Input.0: 0
@@ -45,7 +45,7 @@ Attribute Descriptions
 9.Hidden: No
 9.Input.0: 7
 9.Input.1: 8
-10.Definition: Frequency gate=[-28,28] normalize=no window=CosTaper paramval=0.05 dumptofile=no output=0
+10.Definition: Frequency gate=[-28,28] normalize=no window=CosTaper paramval=0.95 dumptofile=no output=0
 10.UserRef: Frequency
 10.Hidden: No
 10.Input.0: 0
