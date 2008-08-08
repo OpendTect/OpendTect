@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          July 2007
- RCS:           $Id: uiwindowfunctionsel.cc,v 1.8 2008-06-02 08:40:59 cvssatyaki Exp $
+ RCS:           $Id: uiwindowfunctionsel.cc,v 1.9 2008-08-08 13:24:46 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,15 +46,13 @@ uiWindowFunctionSel::uiWindowFunctionSel( uiParent* p, const char* label,
 	WindowFunction* winfunc = WinFuncs().create( funcnames[idx]->buf());
 	if ( winfunc && winfunc->hasVariable() )
 	{
-	    BufferString windowname( winfunc->variableName() );
-	    windowname += " (%)";
+	    BufferString varname( winfunc->variableName() );
+	    varname += " (%)";
 	    uiGenInput* varinp = new uiGenInput( this,
-		windowname.buf(), FloatInpSpec(winfunc->getVariable()) );
+		varname.buf(), FloatInpSpec(winfunc->getVariable() * 100) );
 
 	    if ( prevwinname && !strcmp(prevwinname, winfunc->name() ) )
-	    {
 		varinp->setValue( prevwinparam * 100 );
-	    }
 
 	    varinp->attach( alignedBelow, windowtypefld_ );
 	    windowvariable_ += varinp;
