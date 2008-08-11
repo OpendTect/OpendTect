@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.142 2008-08-08 12:16:51 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.143 2008-08-11 12:01:34 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -201,7 +201,7 @@ int uiODSceneMgr::addScene( bool maximized )
     title += vwridx_;
     scn.wsgrp_->setTitle( title );
     visServ().setObjectName( sceneid, title );
-    scn.sovwr_->display();
+    scn.sovwr_->display( true );
     scn.sovwr_->viewAll();
     scn.sovwr_->setHomePos();
     scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
@@ -333,7 +333,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	BufferString title( scenestr );
 	title += vwridx_;
   	scn.wsgrp_->setTitle( title );
-	scn.sovwr_->display();
+	scn.sovwr_->display( true );
 	scn.sovwr_->viewmodechanged.notify( mWSMCB(viewModeChg) );
 	scn.sovwr_->pageupdown.notify(mCB(this,uiODSceneMgr,pageUpDownPressed));
 	scn.wsgrp_->display( true, false );
@@ -777,9 +777,9 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
 		tifs_->getFactory(fidx)->create(), true );
     }
 
-    scn.lv_->display();
+    scn.lv_->display( true );
     appl_.addDockWindow( *scn.dw_, uiMainWin::Left );
-    scn.dw_->display();
+    scn.dw_->display( true );
 }
 
 
