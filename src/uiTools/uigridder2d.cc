@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          March 2008
- RCS:           $Id: uigridder2d.cc,v 1.3 2008-08-05 19:59:51 cvskris Exp $
+ RCS:           $Id: uigridder2d.cc,v 1.4 2008-08-11 11:58:49 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -94,7 +94,7 @@ void uiGridder2DSel::selChangeCB( CallBacker* )
     const int selidx = griddingsel_->getIntValue();
 
     if ( griddingparams_[selidx] )
-	griddingparams_[selidx]->display();
+	griddingparams_[selidx]->display( true );
 }
 
 
