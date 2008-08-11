@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2008
- RCS:		$Id: measuretoolman.cc,v 1.4 2008-08-04 11:11:31 cvsnanne Exp $
+ RCS:		$Id: measuretoolman.cc,v 1.5 2008-08-11 06:15:43 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -113,6 +113,7 @@ void MeasureToolMan::sceneClosed( CallBacker* cb )
     appl_.applMgr().visServer()->removeObject( displayobjs_[sceneidx], sceneid);
     displayobjs_[sceneidx]->unRef();
     displayobjs_.remove( sceneidx );
+    sceneids_.remove( sceneidx );
 }
 
 
