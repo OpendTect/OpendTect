@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.cc,v 1.19 2008-07-10 10:33:13 cvsnanne Exp $
+ RCS:           $Id: uiobjbody.cc,v 1.20 2008-08-11 12:03:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,9 +52,9 @@ uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
     , hszpol( uiObject::Undef )
     , vszpol( uiObject::Undef )
 #ifdef USE_DISPLAY_TIMER
-    , displTim( *new Timer("Display timer"))
+    , displaytimer( *new Timer("Display timer"))
 { 
-    displTim.tick.notify(mCB(this,uiObjectBody,doDisplay));
+    displaytimer.tick.notify( mCB(this,uiObjectBody,doDisplay) );
 }
 #else
 {}
@@ -64,7 +64,7 @@ uiObjectBody::uiObjectBody( uiParent* parnt, const char* nm )
 uiObjectBody::~uiObjectBody() 
 {
 #ifdef USE_DISPLAY_TIMER
-    delete &displTim;
+    delete &displaytimer;
 #endif
     delete layoutItem_;
 }
@@ -76,37 +76,35 @@ void uiObjectBody::display( bool yn, bool shrink, bool maximised )
     display_maximised = maximised;
 
     if ( !display_ && shrink )
-
     {
 	pref_width_  = 0;
 	pref_height_ = 0;
-
 	is_hidden = true;
-
 	qwidget()->hide();
     }
     else
     {
 #ifdef USE_DISPLAY_TIMER
-	if ( displTim.isActive() ) displTim.stop();
-	displTim.start( 1, true );
+	if ( displaytimer.isActive() ) displaytimer.stop();
+	displaytimer.start( 0, true );
 #else
 	doDisplay(0);
 #endif
     }
 }
 
-void uiObjectBody::doDisplay(CallBacker*)
+
+void uiObjectBody::doDisplay( CallBacker* )
 {
     if ( !finalised_ ) finalise();
-
 
     if ( display_ )
     {
 	is_hidden = false;
-
-	if ( display_maximised )	qwidget()->showMaximized();
-	else			qwidget()->show();
+	if ( display_maximised )
+	    qwidget()->showMaximized();
+	else
+	    qwidget()->show();
     }
     else
     {
@@ -115,7 +113,6 @@ void uiObjectBody::doDisplay(CallBacker*)
 	    int sz = prefHNrPics();
 	    sz = prefVNrPics();
 	    is_hidden = true;
-
 	    qwidget()->hide();
 	}
     }

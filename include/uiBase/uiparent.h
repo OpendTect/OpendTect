@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          16/05/2001
- RCS:           $Id: uiparent.h,v 1.18 2008-04-08 12:20:46 cvsnanne Exp $
+ RCS:           $Id: uiparent.h,v 1.19 2008-08-11 12:03:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -63,7 +63,7 @@ public:
                             { attach_(t,oth,margin,reciprocal); }
 
 
-    virtual void	display( bool yn = true, bool shrk=false,
+    virtual void	display( bool yn, bool shrk=false,
 				 bool maximize=false )
 			    { finalise(); mIfMO()->display(yn,shrk,maximize); }
 

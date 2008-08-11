@@ -1,5 +1,5 @@
-#ifndef uiobjbody_H
-#define uiobjbody_H
+#ifndef uiobjbody_h
+#define uiobjbody_h
 
 /*+
 ________________________________________________________________________
@@ -7,26 +7,27 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/06/2001
- RCS:           $Id: uiobjbody.h,v 1.45 2008-02-26 06:20:20 cvsnanne Exp $
+ RCS:           $Id: uiobjbody.h,v 1.46 2008-08-11 12:03:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 
 #include "uibody.h"
-#include "uiparentbody.h"
-#include "uiobj.h"
 #include "uifont.h"
+#include "uiobj.h"
+#include "uiparentbody.h"
 
 class uiButtonGroup;
-class QWidget;
-class QCloseEvent;
 class i_LayoutItem;
 class i_LayoutMngr;
-class Timer;
-class QFontMetrics;
 class ioPixmap;
 class Color;
+class Timer;
+
+class QCloseEvent;
+class QFontMetrics;
+class QWidget;
 
 #define USE_DISPLAY_TIMER 1
 
@@ -43,11 +44,11 @@ public:
 
     void		setToolTip(const char*);
 
-    void 		display(bool yn=true,bool shrink=false,
-				 bool maximised=false);
+    void 		display(bool yn,bool shrink=false,
+				bool maximised=false);
     void		uisetFocus();
     bool		uihasFocus() const;
-    bool		uiCloseOK() { return uiObjHandle().closeOK(); }
+    bool		uiCloseOK()	{ return uiObjHandle().closeOK(); }
     bool		isDisplayed() const { return display_; }
 
     const Color&	uibackgroundColor() const;
@@ -171,7 +172,7 @@ private:
     void		getSzHint();
 
 #ifdef USE_DISPLAY_TIMER
-    Timer&		displTim;
+    Timer&		displaytimer;
 #endif
 };
 

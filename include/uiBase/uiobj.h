@@ -1,5 +1,5 @@
-#ifndef uiobj_H
-#define uiobj_H
+#ifndef uiobj_h
+#define uiobj_h
 
 /*+
 ________________________________________________________________________
@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          25/08/1999
- RCS:           $Id: uiobj.h,v 1.57 2008-05-07 06:06:23 cvsnanne Exp $
+ RCS:           $Id: uiobj.h,v 1.58 2008-08-11 12:03:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,8 +69,7 @@ public:
 
     static void		useNameToolTip(bool);
     
-    void		display(bool yn = true,bool shrink=false,
-				bool maximised=false);
+    void		display(bool yn,bool shrink=false,bool maximised=false);
     void		setFocus();
     bool		hasFocus() const;
 
