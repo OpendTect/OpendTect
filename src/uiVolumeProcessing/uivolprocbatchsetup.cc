@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.1 2008-02-25 19:14:55 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocbatchsetup.cc,v 1.2 2008-08-12 18:16:07 cvskris Exp $";
 
 #include "uivolprocbatchsetup.h"
 #include "volproctrans.h"
@@ -31,6 +31,7 @@ uiBatchSetup::uiBatchSetup( uiParent* p, const IOPar* extraomf )
     , setupctxt_(*mGetCtxtIOObj(VolProcessing,Misc))
     , outputctxt_(*mMkCtxtIOObj(SeisTrc))
 {
+    setTitleText( "Create volume output" );
     setupctxt_.ctxt.forread = true;
     setupsel_ = new uiIOObjSel( uppgrp_, setupctxt_ );
 
