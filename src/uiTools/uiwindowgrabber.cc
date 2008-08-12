@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        J.C. Glas
  Date:          July 2008
- RCS:           $Id: uiwindowgrabber.cc,v 1.2 2008-08-01 12:04:30 cvsjaap Exp $ 
+ RCS:           $Id: uiwindowgrabber.cc,v 1.3 2008-08-12 17:51:35 cvsnanne Exp $ 
 ________________________________________________________________________
 
 -*/
@@ -171,7 +171,7 @@ const char* uiWindowGrabDlg::getExtension() const
     if ( ifmt < 0 )
     {
 	const char* selectedfilter = fileinputfld_->selectedFilter();
-	for ( ; filters[ifmt]; ifmt++ )
+	for ( ifmt=0; filters[ifmt]; ifmt++ )
 	{
 	    if ( !strcmp(selectedfilter,filters[ifmt]) )
 		break;
