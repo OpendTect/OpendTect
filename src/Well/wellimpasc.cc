@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.46 2008-07-16 18:14:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.47 2008-08-12 06:39:32 cvsumesh Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -48,15 +48,16 @@ const char* Well::AscImporter::getTrack( const char* fnm, bool tosurf,
     Coord3 c, c0, prevc;
     Coord3 surfcoord;
     float dah = 0;
+    const float xyfac = SI().xyInFeet() ? 0.3048 : 1;
     const float zfac = zinfeet ? 0.3048 : 1;
     char buf[1024]; char valbuf[256];
     while ( *sd.istrm )
     {
 	sd.istrm->getline( buf, 1024 );
 	const char* ptr = getNextWord( buf, valbuf );
-	c.x = atof( valbuf );
+	c.x = atof( valbuf ) * xyfac;
 	ptr = getNextWord( ptr, valbuf );
-	c.y = atof( valbuf );
+	c.y = atof( valbuf ) * xyfac;
 	if ( !*ptr ) break;
 	ptr = getNextWord( ptr, valbuf );
 	c.z = atof( valbuf );
