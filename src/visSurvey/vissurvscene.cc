@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.105 2008-06-19 15:49:52 cvskris Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.106 2008-08-12 11:17:12 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -529,7 +529,11 @@ void Scene::fillPar( IOPar& par, TypeSet<int>& saveids ) const
 	     getObject(kid)==inlcrl2disptransform_ ||
 	     getObject(kid)==polyselector_ ) continue;
 
-	const int objid = getObject(kid)->id();
+	const visBase::DataObject* dobj = getObject( kid );
+	const bool saveinsess = dobj->saveInSessions();
+	if ( !dobj || !dobj->saveInSessions() ) continue;
+
+	const int objid = dobj->id();
 	if ( saveids.indexOf(objid) == -1 )
 	    saveids += objid;
 
