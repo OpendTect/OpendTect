@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: vismultitexture.cc,v 1.29 2008-06-16 12:24:37 cvsnanne Exp $";
+static const char* rcsID = "$Id: vismultitexture.cc,v 1.30 2008-08-12 14:00:22 cvskris Exp $";
 
 #include "vismultitexture2.h"
 
@@ -309,6 +309,7 @@ void TextureInfo::setColorTab( int version, VisColorTab& ct )
     {
 	VisColorTab* ct0 = versioncoltab_[0];
 	ct.setColorSeq( &ct0->colorSeq() );
+	ct.setSymMidval( ct0->symMidval() );
 	ct.setAutoScale( ct0->autoScale() );
 	ct.setClipRate( ct0->clipRate() );
 	ct.scaleTo( ct0->getInterval() );
