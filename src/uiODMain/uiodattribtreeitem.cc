@@ -4,34 +4,32 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodattribtreeitem.cc,v 1.17 2008-05-14 05:03:23 cvsnanne Exp $
+ RCS:		$Id: uiodattribtreeitem.cc,v 1.18 2008-08-12 12:13:10 cvsnanne Exp $
 ___________________________________________________________________
 
 -*/
 
 #include "uiodattribtreeitem.h"
 
-#include "uimenu.h"
-#include "uiodapplmgr.h"
-#include "uivispartserv.h"
-#include "uiviscoltabed.h"
-
 #include "attribsel.h"
 #include "filepath.h"
-#include "ptrman.h"
 #include "ioobj.h"
 #include "ioman.h"
 #include "keystrs.h"
+#include "ptrman.h"
 #include "survinfo.h"
 
 #include "uiattribpartserv.h"
 #include "uilistview.h"
+#include "uimenu.h"
 #include "uimenuhandler.h"
+#include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
-#include "vissurvscene.h"
-#include "viscolortab.h"
+#include "uiviscoltabed.h"
+#include "uivispartserv.h"
 #include "vissurvobj.h"
-#include "visdataman.h"
+#include "vissurvscene.h"
+
 
 
 const char* uiODAttribTreeItem::sKeySelAttribMenuTxt()
