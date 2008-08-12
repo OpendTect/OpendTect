@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: visdata.h,v 1.51 2008-03-25 20:28:36 cvskris Exp $
+ RCS:		$Id: visdata.h,v 1.52 2008-08-12 11:16:18 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -111,6 +111,11 @@ public:
 				    0, and it doesn't help to retry.  */
 
     virtual void		fillPar(IOPar&, TypeSet<int>&) const;
+
+    void			doSaveInSessions( bool yn )
+				{ saveinsessions_ = yn; }
+    bool			saveInSessions() const
+    				{ return saveinsessions_; }
 			
     static const char*		sKeyType();
     static const char*		sKeyName();
@@ -129,6 +134,8 @@ protected:
     
 				DataObject();
     virtual bool		_init();
+
+    bool			saveinsessions_;
 
 private:
     int				id_;

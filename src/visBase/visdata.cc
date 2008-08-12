@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: visdata.cc,v 1.27 2007-10-18 19:14:33 cvskris Exp $";
+static const char* rcsID = "$Id: visdata.cc,v 1.28 2008-08-12 11:16:17 cvsnanne Exp $";
 
 #include "visdata.h"
 
@@ -49,6 +49,7 @@ void DataObject::setName( const char* nm )
 DataObject::DataObject()
     : id_( -1 )
     , name_( 0 )
+    , saveinsessions_(true)
 {}
 
 
