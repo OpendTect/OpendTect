@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explplaneintersection.cc,v 1.3 2008-06-24 18:16:56 cvskris Exp $";
+static const char* rcsID = "$Id: explplaneintersection.cc,v 1.4 2008-08-12 21:07:59 cvskris Exp $";
 
 #include "explplaneintersection.h"
 
@@ -309,12 +309,11 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
 	    if ( ci1idx==-1 )
 	    {
 		if ( output_->coordindices_.size() )
-		{
 		    output_->coordindices_ += -1;
-		    output_->coordindices_ += ci0;
-		    output_->coordindices_ += ci1;
-		    output_->ischanged_ = true;
-		}
+
+		output_->coordindices_ += ci0;
+		output_->coordindices_ += ci1;
+		output_->ischanged_ = true;
 	    }
 	    else if ( ci1idx==0 || output_->coordindices_[ci1idx-1]==-1 )
 	    {
