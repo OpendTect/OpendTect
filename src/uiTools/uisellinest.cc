@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.cc,v 1.20 2008-07-23 08:45:47 cvsraman Exp $
+ RCS:           $Id: uisellinest.cc,v 1.21 2008-08-12 09:06:08 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -92,6 +92,11 @@ void uiSelLineStyle::setStyle( const LineStyle& ls )
     setColor( ls.color_ );
     setWidth( ls.width_ );
     setType( (int)ls.type_ );
+    if ( colinp )
+	colinp->setSensitive( linestyle.type_ != LineStyle::None );
+
+    if ( widthbox )
+	widthbox->setSensitive( linestyle.type_ != LineStyle::None );
 }
 
 
@@ -138,10 +143,19 @@ void uiSelLineStyle::changeCB( CallBacker* cb )
 {
     if ( stylesel )
 	linestyle.type_ = (LineStyle::Type)stylesel->currentItem();
-    if ( colinp ) 
+
+    if ( colinp )
+    {
 	linestyle.color_ = colinp->color();
-    if ( widthbox ) 
+	colinp->setSensitive( linestyle.type_ != LineStyle::None );
+    }
+
+    if ( widthbox )
+    {
 	linestyle.width_ = widthbox->box()->getValue();
+	widthbox->setSensitive( linestyle.type_ != LineStyle::None );
+    }
+
     changed.trigger(cb);
 }
 
