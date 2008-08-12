@@ -4,7 +4,7 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.2 2008-08-04 22:31:16 cvskris Exp $";
+static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.3 2008-08-12 19:22:30 cvskris Exp $";
 
 #include "volprochorinterfiller.h"
 
@@ -18,7 +18,7 @@ namespace VolProc
 void HorInterFiller::initClass()
 {
     VolProc::PS().addCreator( create, HorInterFiller::sKeyType(),
-	    		      "Horizon based painter");
+	    		      HorInterFiller::sUserName() );
 }
     
     

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivelocitygridder.cc,v 1.2 2008-08-04 22:31:16 cvskris Exp $";
+static const char* rcsID = "$Id: uivelocitygridder.cc,v 1.3 2008-08-12 19:22:30 cvskris Exp $";
 
 #include "uivelocitygridder.h"
 
@@ -36,8 +36,8 @@ uiStepDialog* uiVelocityGridder::create( uiParent* p, VolProc::Step* ro )
 
 
 uiVelocityGridder::uiVelocityGridder( uiParent* p, VelGriddingStep* ro )
-    : uiStepDialog( p, uiDialog::Setup("Gridding parameters",0,"dgb:104.1.2"),
-	            ro )
+    : uiStepDialog( p, uiDialog::Setup(VelGriddingStep::sUserName(),
+		VelGriddingStep::sUserName(),"dgb:104.1.2"), ro )
     , operation_( ro )
 {
     griddersel_ = new uiGridder2DSel( this, ro->getGridder() );

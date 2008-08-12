@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		October 2006
- RCS:		$Id: velocitygridder.h,v 1.1 2008-07-22 19:44:22 cvskris Exp $
+ RCS:		$Id: velocitygridder.h,v 1.2 2008-08-12 19:22:30 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -53,6 +53,7 @@ public:
     bool		usePar(const IOPar&);
 
     static const char*	sType()			{ return "Gridding"; }
+    static const char*	sUserName()		{ return sType(); }
     static const char*	sKeyType()		{ return "Type"; }
     static const char*	sKeyID()		{ return "ID"; }
     static const char*	sKeyNrSources()		{ return "NrSources"; }

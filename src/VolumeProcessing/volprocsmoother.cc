@@ -4,7 +4,7 @@
  *Date:		Feb 2008
 -*/
 
-static const char* rcsID = "$Id: volprocsmoother.cc,v 1.3 2008-08-04 22:31:16 cvskris Exp $";
+static const char* rcsID = "$Id: volprocsmoother.cc,v 1.4 2008-08-12 19:22:30 cvskris Exp $";
 
 #include "volprocsmoother.h"
 
@@ -19,7 +19,7 @@ namespace VolProc
 void Smoother::initClass()
 {
     VolProc::PS().addCreator( create, Smoother::sKeyType(),
-	    		      "Smoother");
+	    Smoother::sUserName() );
 }
     
     

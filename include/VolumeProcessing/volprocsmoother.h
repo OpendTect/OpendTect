@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		Feb 2008
- RCS:		$Id: volprocsmoother.h,v 1.2 2008-02-26 23:01:57 cvskris Exp $
+ RCS:		$Id: volprocsmoother.h,v 1.3 2008-08-12 19:22:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ public:
     bool		usePar(const IOPar&);
     
     static const char*	sKeyType()			{ return "Smoother"; }
+    static const char*	sUserName()			{ return sKeyType(); }
 
     Task*		createTask();
 

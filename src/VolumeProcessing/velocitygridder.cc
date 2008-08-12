@@ -4,7 +4,7 @@
  * DATE     : October 2006
 -*/
 
-static const char* rcsID = "$Id: velocitygridder.cc,v 1.2 2008-08-05 20:01:29 cvskris Exp $";
+static const char* rcsID = "$Id: velocitygridder.cc,v 1.3 2008-08-12 19:22:30 cvskris Exp $";
 
 #include "velocitygridder.h"
 
@@ -19,7 +19,9 @@ namespace VolProc
 
 void VelGriddingStep::initClass()
 {
-    VolProc::PS().addCreator( create, VelGriddingStep::sType() );
+    VolProc::PS().addCreator( create, VelGriddingStep::sType(),
+	    		      VelGriddingStep::sUserName() );
+
 }
 
 

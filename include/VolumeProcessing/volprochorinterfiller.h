@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Y.C. Liu
  Date:		April 2007
- RCS:		$Id: volprochorinterfiller.h,v 1.1 2008-02-25 19:14:54 cvskris Exp $
+ RCS:		$Id: volprochorinterfiller.h,v 1.2 2008-08-12 19:22:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,8 @@ public:
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
     
-    static const char*		sKeyType()	{ return "HorInterFiller"; }
+    static const char*		sKeyType() { return "HorInterFiller"; }
+    static const char*		sUserName() { return "Horizon based painter"; }
     
 protected:
     bool			prefersBinIDWise() const        { return true; }
