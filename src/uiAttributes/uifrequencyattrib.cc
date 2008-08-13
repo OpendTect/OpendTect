@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifrequencyattrib.cc,v 1.17 2008-06-26 13:56:22 cvshelene Exp $
+ RCS:           $Id: uifrequencyattrib.cc,v 1.18 2008-08-13 14:58:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -128,4 +128,21 @@ bool uiFrequencyAttrib::getOutput( Attrib::Desc& desc )
 void uiFrequencyAttrib::getEvalParams( TypeSet<EvalParam>& params ) const
 {
     params += EvalParam( timegatestr, Frequency::gateStr() );
+}
+
+
+bool uiFrequencyAttrib::areUIParsOK()
+{
+    if ( !strcmp( winfld->windowName(), "CosTaper" ) )
+    {
+	float paramval = winfld->windowParamValue();
+	if ( paramval<0 || paramval>1  )
+	{
+	    errmsg_ = "Variable 'Taper length' is not\n";
+	    errmsg_ += "within the allowed range: 0 to 100 (%).";
+	    return false;
+	}
+    }
+
+    return true;
 }

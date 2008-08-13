@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2001
- RCS:           $Id: uifreqfilterattrib.h,v 1.8 2008-04-30 03:13:16 cvssatyaki Exp $
+ RCS:           $Id: uifreqfilterattrib.h,v 1.9 2008-08-13 14:58:56 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,8 @@ protected:
 
     bool		getParameters(Attrib::Desc&);
     bool		getInput(Attrib::Desc&);
+
+    virtual bool        areUIParsOK();
 
     			mDeclReqAttribUIFns
 };
