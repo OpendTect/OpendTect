@@ -4,15 +4,16 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uistatsdisplay.cc,v 1.13 2008-05-28 07:18:21 cvsbert Exp $
+ RCS:           $Id: uistatsdisplay.cc,v 1.14 2008-08-13 03:56:16 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uistatsdisplay.h"
 #include "uistatsdisplaywin.h"
-#include "uifunctiondisplay.h"
 
+#include "uiaxishandler.h"
+#include "uifunctiondisplay.h"
 #include "uigeninput.h"
 #include "uiseparator.h"
 #include "uistatusbar.h"
@@ -20,8 +21,8 @@ ________________________________________________________________________
 #include "arraynd.h"
 #include "bufstring.h"
 #include "datapackbase.h"
-#include "statruncalc.h"
 #include "errh.h"
+#include "statruncalc.h"
 
 static const int cCanvasHeight = 250;
 static const int cCanvasWidth = 400;
@@ -43,6 +44,8 @@ uiStatsDisplay::uiStatsDisplay( uiParent* p, const uiStatsDisplay::Setup& su )
 	uiFunctionDisplay::Setup fsu;
 	fsu.yrg_.start = 0; fsu.annoty( setup_.vertaxis_ ).fillbelow( true );
 	funcdisp_ = new uiFunctionDisplay( this, fsu );
+	funcdisp_->xAxis()->setName( "Value" );
+	funcdisp_->yAxis(false)->setName( "Count" );
     }
 
     uiSeparator* sep = 0;
