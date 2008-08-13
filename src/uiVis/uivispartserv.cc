@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.372 2008-06-19 15:52:34 cvskris Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.373 2008-08-13 07:59:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -95,6 +95,7 @@ uiVisPartServer::uiVisPartServer( uiApplService& a )
     , zfactor_(1)
     , mpetools_(0)
     , slicepostools_(0)
+    , itemtools_(0)
     , pickretriever_( new uiVisPickRetriever )
     , nrsceneschange_( this )
     , seltype_( (int) visBase::PolygonSelection::Off )
@@ -332,7 +333,7 @@ void uiVisPartServer::addObject( visBase::DataObject* dobj, int sceneid,
 {
     mDynamicCastGet(visSurvey::Scene*,scene,visBase::DM().getObject(sceneid))
     scene->addObject( dobj );
-    //TODO: Handle saveinsessions
+    dobj->doSaveInSessions( saveinsessions );
 
     setUpConnections( dobj->id() );
     if ( isSoloMode() )
@@ -430,9 +431,7 @@ void uiVisPartServer::getChildIds( int id, TypeSet<int>& childids ) const
     if ( scene )
     {
 	for ( int idx=0; idx<scene->size(); idx++ )
-	{
 	    childids += scene->getObject( idx )->id();
-	}
 
 	return;
     }

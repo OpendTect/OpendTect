@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.205 2008-06-19 15:52:34 cvskris Exp $
+ RCS:           $Id: uivispartserv.h,v 1.206 2008-08-13 07:59:38 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -293,6 +293,8 @@ public:
     uiSlicePos*			getUiSlicePos() const
     				{ return slicepostools_; }
 
+    uiToolBar*			getItemTB() const	{ return itemtools_; }
+
     bool			dumpOI(int id,const char* dlgtitle) const;
     
     bool			usePar(const IOPar&);
@@ -336,6 +338,7 @@ protected:
 
     uiMPEMan*			mpetools_;
     uiSlicePos*			slicepostools_;
+    uiToolBar*			itemtools_;
 
     Coord3			xytmousepos_;
     Coord3			inlcrlmousepos_;
