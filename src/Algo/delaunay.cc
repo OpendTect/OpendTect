@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.20 2008-07-29 20:53:18 cvskris Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.21 2008-08-13 15:29:17 cvsyuancheng Exp $";
 
 #include "delaunay.h"
 #include "trigonometry.h"
@@ -281,25 +281,11 @@ bool DAGTriangleTree::getTriangle( const Coord& coord, int& dupid,
     if ( ti0==cNoVertex() && ti1==cNoVertex() )
 	return false;
 
-    const int* crds0 = triangles_[ti0].coordindices_;
-    const int* crds1 = ti1!=cNoVertex() ? triangles_[ti1].coordindices_ : 0;
-    if ( crds0[0]>=0 && crds0[1]>=0 && crds0[2]>=0 )
-    {
-    	vertices += crds0[0];
-    	vertices += crds0[1];
-    	vertices += crds0[2];
-	return true;
-    }
-    
-    if ( crds1 && crds1[0]>=0 && crds1[1]>=0 && crds1[2]>=0 )
-    {
-    	vertices += crds1[0];
-    	vertices += crds1[1];
-    	vertices += crds1[2];
-	return true;
-    }
+    vertices += triangles_[ti0].coordindices_[0];
+    vertices += triangles_[ti0].coordindices_[1];
+    vertices += triangles_[ti0].coordindices_[2];
 
-   return false;
+   return true;
 }
 
 
