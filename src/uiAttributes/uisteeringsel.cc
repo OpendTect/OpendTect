@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: uisteeringsel.cc,v 1.28 2008-07-21 09:02:38 cvsumesh Exp $
+ RCS:           $Id: uisteeringsel.cc,v 1.29 2008-08-13 07:06:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -258,11 +258,12 @@ uiSteerCubeSel::uiSteerCubeSel( uiParent* p, CtxtIOObj& c,
 				const DescSet* ads, bool is2d, const char* txt )
 	: uiSeisSel( p, c, uiSeisSel::Setup(is2d,false)
 				   .selattr(is2d).seltxt("Steering Data")
-	       			   .datatype(is2d ? "Steering":0)
-				   .allowcnstrsabsent(is2d ? false:0)
-				   .include(is2d ? true:0) )
+	       			   .datatype(is2d ? sKey::Steering : 0)
+				   .allowcnstrsabsent(!is2d)
+				   .include(is2d) )
 	, attrdata_( ads )
 {
+    c.ctxt.allowcnstrsabsent = is2d;
     attachObj()->finaliseStart.notify( mCB(this,uiSteerCubeSel,doFinalise) );
 }
 
@@ -307,7 +308,7 @@ DescID uiSteerCubeSel::getDipID( int dipnr ) const
 	return DescID::undef();
 
     LineKey linekey( ctio.ioobj->key() );
-    if ( is2D() ) linekey.setAttrName( sKey::Steering );
+    if ( is2D() ) linekey.setAttrName( attrNm() );
 
     for ( int idx=0; idx<ads->nrDescs(); idx++ )
     {
@@ -352,10 +353,13 @@ void uiSteerCubeSel::setDesc( const Desc* desc )
     setDescSet( desc->descSet() );
 
     const ValParam* keypar = desc->getValParam( StorageProvider::keyStr() );
-    const MultiID mid( keypar->getStringValue() );
+    const LineKey lk( keypar->getStringValue() );
+    const MultiID mid( lk.lineName() );
     PtrMan<IOObj> ioobj = IOM().get( mid );
     ctio.setObj( ioobj ? ioobj->clone() : 0 );
     updateInput();
+    if ( is2D() )
+	setAttrNm( lk.attrName() );
 }
 
 

@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.76 2008-04-18 14:56:58 cvshelene Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.77 2008-08-13 07:06:03 cvsnanne Exp $";
 
 #include "attribstorprovider.h"
 
@@ -75,7 +75,10 @@ void StorageProvider::updateDesc( Desc& desc )
 //	    desc.setErrMsg( errmsg );
 	    return;
 	}
-	const bool issteering = attrnm == sKey::Steering;
+
+	BufferStringSet steernms;
+	rdr.lineSet()->getAvailableAttributes( steernms, sKey::Steering );
+	const bool issteering = steernms.indexOf( attrnm ) >= 0;
 	if ( !issteering )
 	{
 	    SeisTrcTranslator* transl = rdr.seisTranslator();
