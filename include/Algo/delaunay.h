@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.17 2008-07-29 20:53:18 cvskris Exp $
+ RCS:           $Id: delaunay.h,v 1.18 2008-08-13 19:06:15 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,8 @@ public:
 
     bool		insertPoint(int pointidx, int& dupid);
     int			insertPoint(const Coord&, int& dupid);
+    
+    const Coord		getInitCoord(int vetexidx);
     bool		getTriangle(const Coord&,int& dupid,
 	    			    TypeSet<int>& vertexindices) const;
     			/*!<search triangle contains the point.return crds. */
@@ -56,6 +58,9 @@ public:
 			    ci[0], ci[1], ci[2] is the first triangle
 			    ci[3], ci[4], ci[5] is the second triangle. */
     bool		getConnections(int pointidx,TypeSet<int>&) const;
+    bool		getConnectionWeights(int pointidx,TypeSet<int>& conns,
+	    				     TypeSet<double>& weights) const;
+    			/*!Calculate inverse distance weight for each conns.*/
     void		setEpsilon(double err)	{ epsilon_ = err; }
 
     void		dumpTo(std::ostream&) const;

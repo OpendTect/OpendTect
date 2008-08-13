@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.21 2008-08-13 15:29:17 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.22 2008-08-13 19:06:15 cvsyuancheng Exp $";
 
 #include "delaunay.h"
 #include "trigonometry.h"
@@ -203,6 +203,18 @@ bool DAGTriangleTree::setBBox(const Interval<double>& xrg,
     return true;
 }
 
+
+const Coord DAGTriangleTree::getInitCoord( int vetexidx )
+{
+    if ( vetexidx==cInitVertex0() )
+	return initialcoords_[0];
+    else if ( vetexidx==cInitVertex1() )
+	return initialcoords_[1];
+    else if ( vetexidx==cInitVertex2() )
+	return initialcoords_[2];
+
+    return Coord( mUdf(float), mUdf(float) );
+}
 
 bool DAGTriangleTree::init()
 {
@@ -1182,6 +1194,29 @@ bool DAGTriangleTree::getConnections( int vertex, TypeSet<int>& result ) const
     }
 
     return result.size();
+}
+
+
+bool DAGTriangleTree::getConnectionWeights( int vertex, TypeSet<int>& conns,
+					    TypeSet<double>& weights) const
+{
+    if ( !getConnections( vertex, conns ) )
+	return false;
+
+    for ( int knot=0; knot<conns.size(); knot++ )
+    {
+	const Coord diff = mCrd(vertex)-mCrd(conns[knot]);
+	weights += 1/(diff.x*diff.x+diff.y*diff.y);
+    }
+
+    double sum = 0;
+    for ( int knot=0; knot<weights.size(); knot++ )
+	sum += weights[knot];
+
+    for ( int knot=0; knot<weights.size(); knot++ )
+	weights[knot] /= sum;
+
+    return true;
 }
 
 
