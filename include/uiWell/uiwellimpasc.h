@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.h,v 1.7 2006-08-24 19:10:46 cvsnanne Exp $
+ RCS:           $Id: uiwellimpasc.h,v 1.8 2008-08-13 09:27:50 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,9 @@ class uiD2TModelGroup;
 class uiFileInput;
 class uiGenInput;
 class uiIOObjSel;
+class uiTableImpDataSel;
+
+namespace Table { class FormatDesc; }
 
 
 /*! \brief Dialog for well import from Ascii */
@@ -31,7 +34,10 @@ public:
 
 protected:
 
-    uiFileInput*	infld;
+    uiFileInput*	wtinfld;
+
+    Table::FormatDesc&  fd;
+    uiTableImpDataSel*  dataselfld;
     uiD2TModelGroup*	d2tgrp;
 
     uiGenInput*		unitfld;

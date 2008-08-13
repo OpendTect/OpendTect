@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: wellimpasc.cc,v 1.47 2008-08-12 06:39:32 cvsumesh Exp $";
+static const char* rcsID = "$Id: wellimpasc.cc,v 1.48 2008-08-13 09:23:19 cvsumesh Exp $";
 
 #include "wellimpasc.h"
 #include "welldata.h"
@@ -17,6 +17,7 @@ static const char* rcsID = "$Id: wellimpasc.cc,v 1.47 2008-08-12 06:39:32 cvsume
 #include "strmprov.h"
 #include "unitofmeasure.h"
 #include "survinfo.h"
+#include "tabledef.h"
 #include <iostream>
 
 
@@ -39,59 +40,6 @@ Well::AscImporter::~AscImporter()
 	StreamData sd = sp.makeIStream(); \
 	if ( !sd.usable() ) \
 	    return "Cannot open input file"
-
-const char* Well::AscImporter::getTrack( const char* fnm, bool tosurf, 
-					 bool zinfeet )
-{
-    mOpenFile( fnm );
-
-    Coord3 c, c0, prevc;
-    Coord3 surfcoord;
-    float dah = 0;
-    const float xyfac = SI().xyInFeet() ? 0.3048 : 1;
-    const float zfac = zinfeet ? 0.3048 : 1;
-    char buf[1024]; char valbuf[256];
-    while ( *sd.istrm )
-    {
-	sd.istrm->getline( buf, 1024 );
-	const char* ptr = getNextWord( buf, valbuf );
-	c.x = atof( valbuf ) * xyfac;
-	ptr = getNextWord( ptr, valbuf );
-	c.y = atof( valbuf ) * xyfac;
-	if ( !*ptr ) break;
-	ptr = getNextWord( ptr, valbuf );
-	c.z = atof( valbuf );
-	c.z *= zfac;
-	if ( c.distTo(c0) < 1 ) break;
-
-	if ( wd.track().size() == 0 )
-	{
-	    if ( !SI().isReasonable(wd.info().surfacecoord) )
-		wd.info().surfacecoord = c;
-	    if ( mIsUdf(wd.info().surfaceelev) )
-		wd.info().surfaceelev = -c.z;
-
-	    surfcoord.x = wd.info().surfacecoord.x;
-	    surfcoord.y = wd.info().surfacecoord.y;
-	    surfcoord.z = -wd.info().surfaceelev;
-
-	    prevc = tosurf ? surfcoord : c;
-	}
-
-	ptr = getNextWord( ptr, valbuf );
-	if ( *ptr )
-	    dah = atof(valbuf) * zfac;
-	else
-	    dah += c.distTo( prevc );
-
-	wd.track().addPoint( c, c.z, dah );
-	prevc = c;
-    }
-
-    sd.close();
-    return wd.track().size() ? 0 : "No valid well track points found";
-}
-
 
 const char* Well::AscImporter::getD2T( const char* fnm, bool istvd, bool istwt,
 				       bool zinfeet )
@@ -484,4 +432,77 @@ const char* Well::AscImporter::getLogData( std::istream& strm,
 
     wd.logs().updateDahIntvs();
     return 0;
+}
+
+
+//****** WellAscIO ********
+
+Table::FormatDesc* Well::WellAscIO::getDesc()
+{
+    Table::FormatDesc* fd = new Table::FormatDesc( "WellTrack" );
+
+    Table::TargetInfo* posinfo = new Table::TargetInfo( "X/Y", FloatInpSpec(),
+	    						Table::Required );
+    posinfo->form(0).add( FloatInpSpec() );
+    fd->bodyinfos_ += posinfo;
+
+    Table::TargetInfo* zti = new Table::TargetInfo( "Z", FloatInpSpec(),
+	    					    Table::Required );
+    zti->setPropertyType( PropertyRef::Dist );
+    fd->bodyinfos_ += zti;
+
+    Table::TargetInfo* mdti = new Table::TargetInfo( "MD", IntInpSpec(),
+						     Table::Optional );
+    mdti->setPropertyType( PropertyRef::Dist );
+    fd->bodyinfos_ += mdti;
+
+    return fd;
+}
+
+
+bool  Well::WellAscIO::getData( Well::Data& wd, bool tosurf ) const
+{
+    Coord3 c, c0, prevc;
+    Coord3 surfcoord;
+    float dah = 0;
+    const float xyfac = SI().xyInFeet() ? 0.3048 : 1;
+    
+    char buf[1024]; char valbuf[256];
+
+    while ( true )
+    {
+	const int ret = getNextBodyVals( strm_ );
+	if ( ret < 0 ) return false;
+	if ( ret == 0) break;
+
+	c.x = getfValue(0) * xyfac;
+	c.y = getfValue(1) * xyfac;
+	c.z = getfValue(2);
+
+	if ( c.distTo(c0) < 1 ) break;
+
+	if ( wd.track().size() == 0 )
+	{
+	    if ( !SI().isReasonable(wd.info().surfacecoord) )
+		wd.info().surfacecoord = c;
+	    if ( mIsUdf(wd.info().surfaceelev) )
+		wd.info().surfaceelev = -c.z;
+
+	    surfcoord.x = wd.info().surfacecoord.x;
+	    surfcoord.y = wd.info().surfacecoord.y;
+	    surfcoord.z = -wd.info().surfaceelev;
+
+	    prevc = tosurf ? surfcoord : c;
+	}
+
+	if ( !mIsUdf(getfValue(3)) )
+	    dah = getfValue(3);
+	else
+	    dah = c.distTo( prevc );
+
+	wd.track().addPoint( c, c.z, dah );
+	prevc = c;
+    }
+
+    return wd.track().size();
 }

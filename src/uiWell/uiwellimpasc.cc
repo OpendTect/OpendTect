@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2003
- RCS:           $Id: uiwellimpasc.cc,v 1.38 2008-05-30 07:14:52 cvsnageswara Exp $
+ RCS:           $Id: uiwellimpasc.cc,v 1.39 2008-08-13 09:29:00 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "strmprov.h"
+#include "tabledef.h"
 #include "welldata.h"
 #include "wellimpasc.h"
 #include "welltrack.h"
@@ -29,32 +31,43 @@ ________________________________________________________________________
 #include "uilabel.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uitblimpexpdatasel.h"
 
 
 uiWellImportAsc::uiWellImportAsc( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Import Well Track",
 				 "Specify well parameters","107.0.0"))
-    , ctio(*mMkCtxtIOObj(Well))
+    , ctio( *mMkCtxtIOObj(Well) )
+    , fd( *Well::WellAscIO::getDesc() )			       
 {
     setCtrlStyle( DoAndStay );
 
-    infld = new uiFileInput( this, "Well Track file (X Y TVDSS [MD])", 
-	    		     uiFileInput::Setup().withexamine(true) );
-    infld->setDefaultSelectionDir(
-	    IOObjContext::getDataDirName(IOObjContext::WllInf) );
+    wtinfld = new uiFileInput( this, "Well Track File",
+	    			   uiFileInput::Setup().withexamine(true) );
+    wtinfld->setDefaultSelectionDir(
+	    	  IOObjContext::getDataDirName(IOObjContext::WllInf) );
+
+    dataselfld = new uiTableImpDataSel( this, fd, 0 );
+    dataselfld->attach( alignedBelow, wtinfld );
+
+    uiSeparator* sep = new uiSeparator( this, "H sep" );
+    sep->attach( stretchedBelow, dataselfld );
 
     const bool zistime = SI().zIsTime();
     if ( zistime )
     {
 	d2tgrp = new uiD2TModelGroup( this, false );
-	d2tgrp->attach( alignedBelow, infld );
+	d2tgrp->attach( alignedBelow, dataselfld );
+	d2tgrp->attach( ensureBelow, sep );
     }
 
     coordfld = new uiGenInput( this, "Surface coordinate",
 			PositionInpSpec( PositionInpSpec::Setup(true))
 			   		 .setName("X",0).setName("Y",1) );
     coordfld->attach( alignedBelow, zistime ? (uiObject*)d2tgrp
-	   				    : (uiObject*)infld );
+	   				    : (uiObject*)dataselfld );
+    if ( !zistime )
+	coordfld->attach( ensureBelow, sep );
 
     elevfld = new uiGenInput( this, "Elevation above surface", FloatInpSpec() );
     elevfld->attach( alignedBelow, coordfld );
@@ -95,6 +108,7 @@ uiWellImportAsc::uiWellImportAsc( uiParent* p )
 uiWellImportAsc::~uiWellImportAsc()
 {
     delete ctio.ioobj; delete &ctio;
+    delete &fd;
 }
 
 
@@ -125,13 +139,22 @@ bool uiWellImportAsc::doWork()
     if ( zinfeet && !mIsUdf(info.surfaceelev) ) 
 	info.surfaceelev *= 0.3048;
 
+    StreamData sd = StreamProvider( wtinfld->fileName() ).makeIStream();
+    if ( !sd.usable() )
+	mErrRet( "Cannot open input file" )
+
+    Well::WellAscIO wellascio(fd, *sd.istrm );
+
+    if ( !wellascio.getData( *well, true ) )
+	mErrRet( "Failed to convert into compatible data" );
+
+    sd.close();
+
     Well::AscImporter ascimp( *well );
-    const char* errmsg = ascimp.getTrack( infld->fileName(), true, zinfeet );
-    if ( errmsg ) mErrRet( errmsg );
 
     if ( SI().zIsTime() )
     {
-	errmsg = ascimp.getD2T( d2tgrp->fileName(), d2tgrp->isTVD(),
+	const char* errmsg = ascimp.getD2T( d2tgrp->fileName(), d2tgrp->isTVD(),
 				d2tgrp->isTWT(), zinfeet );
 	if ( errmsg ) mErrRet( errmsg );
     }
@@ -150,7 +173,7 @@ bool uiWellImportAsc::doWork()
 
 bool uiWellImportAsc::checkInpFlds()
 {
-    if ( ! *infld->fileName() )
+    if ( ! *wtinfld->fileName() )
 	mErrRet( "Please select 'Well Track' file" )
 
     if ( SI().zIsTime() && ! *d2tgrp->fileName() )
