@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.6 2008-07-29 20:54:30 cvskris Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.7 2008-08-13 15:30:31 cvsyuancheng Exp $";
 
 #include "gridder2d.h"
 
@@ -399,12 +399,16 @@ bool TriangledNeighborhoodGridder2D::init()
 
 TriangulatedGridder2D::TriangulatedGridder2D()
     : triangles_( 0 )
+    , xrg_( mUdf(float), mUdf(float) )
+    , yrg_( mUdf(float), mUdf(float) )
 {}
 
 
 TriangulatedGridder2D::TriangulatedGridder2D( 
 				const TriangulatedGridder2D& b )
     : triangles_( 0 )
+    , xrg_( b.xrg_ )
+    , yrg_( b.yrg_ )
 {
     if ( b.triangles_ )
 	triangles_ = new DAGTriangleTree( *b.triangles_ );
@@ -418,6 +422,14 @@ TriangulatedGridder2D::~TriangulatedGridder2D()
 Gridder2D* TriangulatedGridder2D::create()
 {
     return new TriangulatedGridder2D;
+}
+
+
+void TriangulatedGridder2D::setGridArea( const Interval<float>& xrg,
+					 const Interval<float>& yrg )
+{
+    xrg_ = xrg;
+    yrg_ = yrg;
 }
 
 
@@ -449,11 +461,33 @@ bool TriangulatedGridder2D::init()
 	return true;
     }
 
+    Coord initc0, initc1, initc2;
     if ( !triangles_ )
     {
 	triangles_ = new DAGTriangleTree;
+	Interval<double> xrg, yrg;
+	if ( !DAGTriangleTree::computeCoordRanges( *points_, xrg, yrg ) )
+	    return false;
+	
 	if ( !triangles_->setCoordList( *points_, true ) )
 	    return false;
+	
+	xrg.include( xrg_.start ); xrg.include( xrg_.stop );
+	yrg.include( yrg_.start ); yrg.include( yrg_.stop );
+
+	const double xlength = xrg.width();
+	const double ylength = yrg.width();
+	if ( mIsZero(xlength,1e-4) || mIsZero(ylength,1e-4) )
+	    return false;
+	
+	const Coord center( xrg.center(), yrg.center() );
+	const double radius = 2*sqrt( xlength*xlength+ylength*ylength );
+	initc0 = Coord( center.x-radius*sqrt(3), center.y-radius );
+	initc1 = Coord( center.x+radius*sqrt(3), center.y-radius );
+	initc2 = Coord( center.x, center.y+2*radius );
+	
+	if ( !triangles_->setBBox( xrg, yrg ) )
+	    return false;	    
 
 	ParallelDTriangulator triangulator( *triangles_ );
 	triangulator.dataIsRandom( true ); //false );
@@ -478,23 +512,108 @@ bool TriangulatedGridder2D::init()
 	return true;
     }
 
-    if ( vertices.size()<3 || vertices[0]<0 || vertices[1]<0 || vertices[2]<0 )
+    if ( vertices.size()<3 )
     {
 	pErrMsg("Hmm");
 	return false;
     }
 
-    for ( int idx=0; idx<3; idx++ )
-	usedvalues_ += vertices[idx];
-   
     const TypeSet<Coord>& crds = triangles_->coordList(); 
-    float weight0, weight1, weight2;
-    interpolateOnTriangle2D( gridpoint_, crds[vertices[0]], crds[vertices[1]],
-	    		     crds[vertices[2]], weight0, weight1, weight2 ); 
-    weights_ += weight0;
-    weights_ += weight1;
-    weights_ += weight2;
+    if ( vertices[0]>=0 && vertices[1]>=0 && vertices[2]>=0 )
+    {
+    	for ( int idx=0; idx<3; idx++ )
+    	    usedvalues_ += vertices[idx];
+     	
+    	float weight0, weight1, weight2;
+    	interpolateOnTriangle2D( gridpoint_, crds[vertices[0]], 
+				 crds[vertices[1]], crds[vertices[2]], 
+				 weight0, weight1, weight2 ); 
+    	weights_ += weight0;
+    	weights_ += weight1;
+    	weights_ += weight2;
+    }
+    else
+    { 
+	TypeSet<int> conns[3];
+	TypeSet<double> w[3];
+	triangles_->getConnections( -2, conns[0] );
+	triangles_->getConnections( -3, conns[1] );
+	triangles_->getConnections( -4, conns[2] );
+	for ( int idx=0; idx<3; idx++ )
+	{
+	    for ( int knot=0; knot<conns[idx].size(); knot++ )
+	    {
+		const Coord diff = (idx==0 ? initc0 :
+			(idx==1 ? initc1 : initc2))-crds[conns[idx][knot]];
+		w[idx] += 1/(diff.x*diff.x+diff.y*diff.y);
+	    }
+	    
+	    double sum = 0;
+	    for ( int knot=0; knot<w[idx].size(); knot++ )
+		sum += w[idx][knot];
+	    
+	    for ( int knot=0; knot<w[idx].size(); knot++ )
+		w[idx][knot] /= sum;
+	}
+
+	const Coord dif0 = ( vertices[0]>=0 ? crds[vertices[0]] : 
+		(vertices[0]==-2 ? initc0: 
+		(vertices[0]==-3 ? initc1: initc2)) )-gridpoint_;
+	const Coord dif1 = ( vertices[1]>=0 ? crds[vertices[1]] : 
+		(vertices[1]==-2 ? initc0: 
+		(vertices[1]==-3 ? initc1: initc2)) )-gridpoint_;
+	const Coord dif2 = (vertices[2]>=0 ? crds[vertices[2]] : 
+		(vertices[2]==-2 ? initc0: 
+		(vertices[2]==-3 ? initc1: initc2)) )-gridpoint_;
+	const double d0 = 1/(dif0.x*dif0.x+dif0.y*dif0.y);
+	const double d1 = 1/(dif1.x*dif1.x+dif1.y*dif1.y);
+	const double d2 = 1/(dif2.x*dif2.x+dif2.y*dif2.y);
+	const double w0 = d0/(d0+d1+d2);
+	const double w1 = d1/(d0+d1+d2);
+	const double w2 = d2/(d0+d1+d2);
+    
+	if ( vertices[0]<0 )
+    	{
+    	    for ( int idx=0; idx<w[-vertices[0]-2].size(); idx++ )
+	    {
+		usedvalues_ += conns[-vertices[0]-2][idx];
+		weights_ += w0*w[-vertices[0]-2][idx];
+	    }
+    	}
+    	else
+	{
+	    usedvalues_ += vertices[0]; weights_ += w0;
+    	}
+	
+    	if ( vertices[1]<0 )
+	{
+	    for ( int idx=0; idx<w[-vertices[1]-2].size(); idx++ )
+	    {
+    		usedvalues_ += conns[-vertices[1]-2][idx];
+    		weights_ += w1*w[-vertices[1]-2][idx];
+    	    }
+    	}
+    	else
+	{
+	    usedvalues_ += vertices[1]; weights_ += w1;
+    	}
+	
+    	if ( vertices[2]<0 )
+	{
+	    for ( int idx=0; idx<w[-vertices[2]-2].size(); idx++ )
+	    {
+    		usedvalues_ += conns[-vertices[2]-2][idx];
+    		weights_ += w2*w[-vertices[2]-2][idx];
+    	    }
+    	}
+    	else
+	{
+	    usedvalues_ += vertices[2]; weights_ += w2;
+    	}	
+    }
 
     inited_ = true;
     return true;
 }
+
+

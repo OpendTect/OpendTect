@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Y.C.Liu & K. Tingdahl
  Date:		January 2008
- RCS:		$Id: gridder2d.h,v 1.6 2008-07-29 20:54:30 cvskris Exp $
+ RCS:		$Id: gridder2d.h,v 1.7 2008-08-13 15:30:31 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,6 +163,9 @@ public:
     static const char* 	sName() 		{ return "Triangulated"; }
     static const char* 	sUserName() 		{ return "Triangulation"; }
 
+    void		setGridArea(const Interval<float>&,
+	    			    const Interval<float>&);
+
     static Gridder2D*	create(); 
     static void		initClass();
     const char*		name() const	{ return sName(); }
@@ -173,6 +176,8 @@ public:
 protected:
 
     DAGTriangleTree*	triangles_;
+    Interval<float>	xrg_;
+    Interval<float>	yrg_;
 };
 
 
