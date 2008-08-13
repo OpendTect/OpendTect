@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert Bril
  Date:		Aug 2003
- RCS:		$Id: wellimpasc.h,v 1.18 2006-10-06 11:48:32 cvsbert Exp $
+ RCS:		$Id: wellimpasc.h,v 1.19 2008-08-13 09:21:58 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,9 +15,11 @@ ________________________________________________________________________
 #include "ranges.h"
 #include "strmdata.h"
 #include "bufstringset.h"
+#include "tableascio.h"
 
 #include <iosfwd>
 
+namespace Table { class FormatDesc; }
 class UnitOfMeasure;
 
 
@@ -32,8 +34,6 @@ public:
 			AscImporter( Data& d ) : wd(d), useconvs_(false) {}
 			~AscImporter();
 
-    const char*		getTrack(const char*,bool first_is_surface,
-	    			 bool depthinfeet);
     const char*		getD2T(const char*,bool istvd,bool istwt,
 	    		       bool depthinfeet);
     const char*		getMarkers(const char*,bool istvd,
@@ -82,6 +82,22 @@ protected:
     const char*		getLogData(std::istream&,const BoolTypeSet&,
 	    			   const LasFileInfo&,bool,int,int);
 
+};
+
+
+class WellAscIO : public Table::AscIO
+{
+public:
+    				WellAscIO( const Table::FormatDesc& fd,
+					   std::istream& strm )
+				    : Table::AscIO(fd)
+	      		    	    , strm_(strm)	{}
+
+    static Table::FormatDesc*	getDesc();
+    bool 			getData(Data&,bool first_is_surface) const;
+
+protected:
+    std::istream&		strm_;
 };
 
 }; // namespace Well
