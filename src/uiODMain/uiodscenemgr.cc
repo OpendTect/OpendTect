@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.143 2008-08-11 12:01:34 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.144 2008-08-13 07:40:01 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,11 +39,11 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiwindowgrabber.h"
 
-#include "coltabsequence.h"
 #include "ptrman.h"
 #include "settings.h"
 #include "sorting.h"
 #include "survinfo.h"
+#include "visdata.h"
 
 // For factories
 #include "uiodhortreeitem.h"
@@ -338,6 +338,7 @@ void uiODSceneMgr::useScenePars( const IOPar& sessionpar )
 	scn.sovwr_->pageupdown.notify(mCB(this,uiODSceneMgr,pageUpDownPressed));
 	scn.wsgrp_->display( true, false );
 	setZoomValue( scn.sovwr_->getCameraZoom() );
+	treeToBeAdded.trigger( scn.sovwr_->sceneID() );
 	initTree( scn, vwridx_ );
     }
 
@@ -745,7 +746,6 @@ void uiODSceneMgr::initTree( Scene& scn, int vwridx )
     scn.lv_->setColumnWidth( cColorColumn(), 38 );
     scn.lv_->setColumnWidth( cNameColumn(), 152 );
     scn.lv_->setPrefWidth( 190 );
-    scn.lv_->setStretch( 2, 2 );
     scn.dw_->setObject( scn.lv_ );
 
     scn.itemmanager_ = new uiODTreeTop( scn.sovwr_, scn.lv_, &applMgr(), tifs_);
@@ -804,8 +804,12 @@ void uiODSceneMgr::rebuildTrees()
 	TypeSet<int> visids; visServ().getChildIds( sceneid, visids );
 
 	for ( int idy=0; idy<visids.size(); idy++ )
+	{
+	    if ( !visServ().getObject(visids[idy])->saveInSessions() )
+		continue;
 	    uiODDisplayTreeItem::create( scene.itemmanager_, &applMgr(), 
 		    			 visids[idy] );
+	}
     }
     updateSelectedTreeItem();
 }
