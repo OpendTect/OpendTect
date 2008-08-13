@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.260 2008-08-08 10:19:52 cvsumesh Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.261 2008-08-13 18:54:27 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -547,6 +547,7 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 
 	    if ( myas.id()==Attrib::SelSpec::cOtherAttrib() )
 	    {
+		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		PtrMan<Attrib::ExtAttribCalc> calc = 
 			    Attrib::ExtAttrFact().create( 0, myas, false );
 
@@ -558,7 +559,6 @@ bool uiODApplMgr::getNewData( int visid, int attrib )
 		    return false;
 		}
 
-		MouseCursorChanger cursorchgr( MouseCursor::Wait );
 		uiTaskRunner progm( &appl_ );
 		const DataPack::ID dpid = calc->createAttrib( cs, cacheid, &progm );
 		if ( dpid==DataPack::cNoID && !calc->errmsg_.isEmpty() )
