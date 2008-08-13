@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Aug 2008
- RCS:		$Id: uivelocityfunctionimp.cc,v 1.1 2008-08-08 10:15:25 cvsumesh Exp $
+ RCS:		$Id: uivelocityfunctionimp.cc,v 1.2 2008-08-13 05:27:33 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ namespace Vel
 
 
 uiImportVelFunc::uiImportVelFunc( uiParent* p )
-    : uiDialog( p,uiDialog::Setup("Import Velocity","Specify Parameters",0) )
+    : uiDialog( p,uiDialog::Setup( "Import Velocity","Specify Parameters",0) )
     , ctio_( *mMkCtxtIOObj(VelocityAscData) )  
     , fd_( *VelocityAscIO::getDesc() )
 {
