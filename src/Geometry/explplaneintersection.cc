@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explplaneintersection.cc,v 1.4 2008-08-12 21:07:59 cvskris Exp $";
+static const char* rcsID = "$Id: explplaneintersection.cc,v 1.5 2008-08-13 15:51:56 cvsyuancheng Exp $";
 
 #include "explplaneintersection.h"
 
@@ -41,8 +41,8 @@ struct ExplPlaneIntersectionExtractorPlane
 	    yrg.start = mMIN(yrg.start,pt.y); yrg.stop = mMAX(yrg.stop,pt.y);
 	}
 
-	bbox_.setTopLeft( Coord( xrg.start, yrg.start) );
-	bbox_.setBottomRight( Coord( xrg.stop, yrg.stop) );
+	bbox_.setTopLeft( Coord(xrg.start, yrg.stop) );
+	bbox_.setBottomRight( Coord(xrg.stop, yrg.start) );
     }
 
     void cutLine( const Line3& line, double& t0, double& t1,
@@ -192,7 +192,7 @@ bool doWork( int start, int stop, int )
 }
 
 
-void intersectTriangle( int lci0, int lci1, int lci2 )
+void intersectTriangle( int lci0, int lci1, int lci2 ) 
 {
     RefMan<const Coord3List> coordlist = explsurf_.getShape()->coordList();
 
@@ -202,7 +202,7 @@ void intersectTriangle( int lci0, int lci1, int lci2 )
     Coord3 c1 = coordlist->get( lci1 ); c1.z *= zscale;
     Coord3 c2 = coordlist->get( lci2 ); c2.z *= zscale;
 
-    const Coord3 trianglenormal = (c1-c0).cross(c2-c0);
+    const Coord3 trianglenormal = ((c1-c0).cross(c2-c0)).normalize();
 
     const Plane3 triangleplane( trianglenormal, c0, false );
 
@@ -392,7 +392,6 @@ int getCoordIndex( const int* arraypos, const Line3& intersectionline,
 
     IndexedGeometry*					output_;
     ObjectSet<ExplPlaneIntersectionExtractorPlane>	planes_;
-
     ExplPlaneIntersection&				explsurf_;
 };
 
@@ -516,7 +515,7 @@ bool ExplPlaneIntersection::update( bool forceall, TaskRunner* tr )
 {
     if ( !forceall && !needsUpdate() )
 	return true;
-
+    
     if ( !intersection_ )
     {
 	intersection_ = new IndexedGeometry( IndexedGeometry::Lines,
@@ -532,10 +531,11 @@ bool ExplPlaneIntersection::update( bool forceall, TaskRunner* tr )
     if ( (tr && !tr->execute( *updater ) ) || !updater->execute() )
 	return false;
 
-    needsupdate_ = false;
     shapeversion_ = shape_->getVersion();
+    needsupdate_ = true;
     return true;
 }
+
 
 
 }; // namespace Geometry
