@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		27-1-98
- RCS:		$Id: seiswrite.h,v 1.23 2008-07-21 08:45:00 cvsumesh Exp $
+ RCS:		$Id: seiswrite.h,v 1.24 2008-08-14 09:22:53 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,7 +64,7 @@ public:
     void		setAttrib( const char* a )	{ attrib = a; }
 				//!< if set, overrules attrib in linekey
     IOPar&		lineAuxPars()			{ return lineauxiopar; }
-    void		setHasdatatype( bool yn = false ){ hasdatetype = yn; } 
+    void 		setDataType( const char* dt ) 	{ datatype += dt; } 
 
 protected:
 
@@ -90,7 +90,7 @@ protected:
     LineKey		prevlk;
     const LineKeyProvider* lkp;
     bool		next2DLine();
-    bool		hasdatetype;
+    BufferString	datatype;
     bool		put2D(const SeisTrc&);
 
 };
