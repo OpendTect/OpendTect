@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.92 2008-07-30 12:22:56 cvsraman Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.93 2008-08-14 04:26:18 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -197,13 +197,16 @@ bool uiSeisPartServer::get2DLineGeometry( const MultiID& mid,
 	int maxnrtrcs = 0;
 	for ( int idx=0; idx<attribs.size(); idx++ )
 	{
-	    lineidx = lineset.indexOf( LineKey(linenm,attribs.get(idx)) );
-	    if ( !lineset.getRanges(lineidx,trcrg,zrg) || !trcrg.step )
+	    int indx = lineset.indexOf( LineKey(linenm,attribs.get(idx)) );
+	    if ( indx<0 || !lineset.getRanges(indx,trcrg,zrg) || !trcrg.step )
 		continue;
 
 	    const int nrtrcs = trcrg.nrSteps() + 1;
 	    if ( nrtrcs > maxnrtrcs )
+	    {
 		maxnrtrcs = nrtrcs;
+		lineidx = indx;
+	    }
 	}
 
 	if ( lineidx < 0 ) return false;
