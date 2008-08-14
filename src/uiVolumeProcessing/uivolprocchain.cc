@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.4 2008-08-05 20:01:29 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.5 2008-08-14 21:34:42 cvskris Exp $";
 
 #include "uivolprocchain.h"
 
@@ -121,7 +121,7 @@ uiChain::uiChain( uiParent* p, Chain& man )
 	    mCB(this,uiChain,moveDownCB), true);
     movedownbutton_->attach( alignedBelow, moveupbutton_ );
 
-    propertiesbutton_ = new uiPushButton( this, "Properties",
+    propertiesbutton_ = new uiPushButton( this, "Settings",
 	    mCB(this,uiChain,propertiesCB), false );
     propertiesbutton_->attach( alignedBelow, movedownbutton_ );
 
