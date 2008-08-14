@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.86 2008-08-14 09:24:53 cvsumesh Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.87 2008-08-14 10:11:53 cvsumesh Exp $";
 
 #include "attriboutput.h"
 
@@ -498,9 +498,7 @@ void SeisTrcStorOutput::writeTrc()
     {
 	if ( writer_->is2D() )
 	{
-	    if ( attribname_ == "inl_dip" || attribname_ == "crl_dip" )
-		attribname_ = sKey::Steering;
-	    else if ( IOObj::isKey(attribname_) )
+	    if ( IOObj::isKey(attribname_) )
 		attribname_ = IOM().nameOf(attribname_);
 
 	    writer_->setLineKeyProvider( 
