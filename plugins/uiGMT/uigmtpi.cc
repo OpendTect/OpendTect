@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: uigmtpi.cc,v 1.4 2008-08-07 12:38:39 cvsraman Exp $";
+static const char* rcsID = "$Id: uigmtpi.cc,v 1.5 2008-08-14 10:52:52 cvsraman Exp $";
 
 #include "uigmtcoastline.h"
 #include "uigmtcontour.h"
@@ -12,6 +12,7 @@ static const char* rcsID = "$Id: uigmtpi.cc,v 1.4 2008-08-07 12:38:39 cvsraman E
 #include "uigmtmainwin.h"
 #include "uigmtpolyline.h"
 #include "uigmtwells.h"
+#include "uigmt2dlines.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmenumgr.h"
@@ -84,5 +85,6 @@ extern "C" const char* InituiGMTPlugin( int, char** )
     uiGMTContourGrp::initClass();
     uiGMTCoastlineGrp::initClass();
     uiGMTWellsGrp::initClass();
+    uiGMT2DLinesGrp::initClass();
     return 0;
 }

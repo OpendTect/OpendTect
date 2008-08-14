@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtcontour.cc,v 1.2 2008-08-07 12:10:23 cvsraman Exp $
+ RCS:		$Id: uigmtcontour.cc,v 1.3 2008-08-14 10:52:52 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigmtcontour.h"
 
+#include "coltabsequence.h"
 #include "ctxtioobj.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
@@ -19,6 +20,7 @@ ________________________________________________________________________
 #include "gmtpar.h"
 #include "ioobj.h"
 #include "linear.h"
+#include "pixmap.h"
 #include "survinfo.h"
 #include "uibutton.h"
 #include "uicolor.h"
@@ -66,7 +68,9 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     readbut_->attach( alignedBelow, subselfld_ );
     readbut_->setSensitive( false );
 
-    rgfld_ = new uiGenInput( this, "Data Range", FloatInpIntervalSpec(true) );
+    BufferString ztag = "Z range ";
+    ztag += SI().getZUnit( true );
+    rgfld_ = new uiGenInput( this, ztag, IntInpIntervalSpec(true) );
     rgfld_->valuechanged.notify( mCB(this,uiGMTContourGrp,rgChg) );
     rgfld_->attach( alignedBelow, readbut_ );
 
@@ -85,11 +89,17 @@ uiGMTContourGrp::uiGMTContourGrp( uiParent* p )
     linefld_->attach( alignedBelow, nrcontourfld_ );
     linefld_->setChecked( true );
 
-    fillfld_ = new uiCheckBox( this, "Fill Color" );
+    fillfld_ = new uiCheckBox( this, "Fill Color",
+	    		       mCB(this,uiGMTContourGrp,drawSel) );
     fillfld_->attach( rightTo, linefld_ );
+
+    colseqfld_ = new uiComboBox( this, "Col Seq" );
+    colseqfld_->attach( rightOf, fillfld_ );
+    fillColSeqs();
 
     lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );
     lsfld_->attach( alignedBelow, linefld_ );
+    drawSel( 0 );
 }
 
 
@@ -100,11 +110,24 @@ uiGMTContourGrp::~uiGMTContourGrp()
 }
 
 
+void uiGMTContourGrp::fillColSeqs()
+{
+    const int nrseq = ColTab::SM().size();
+    for ( int idx=0; idx<nrseq; idx++ )
+    {
+	const ColTab::Sequence& seq = *ColTab::SM().get( idx );
+	colseqfld_->addItem( seq.name() );
+	colseqfld_->setPixmap( ioPixmap(seq,16,10), idx );
+    }
+}
+
+
 void uiGMTContourGrp::drawSel( CallBacker* )
 {
     if ( !lsfld_ ) return;
 
-    lsfld_->display( linefld_->isChecked() );
+    lsfld_->setSensitive( linefld_->isChecked() );
+    colseqfld_->setSensitive( fillfld_->isChecked() );
 }
 
 
@@ -137,10 +160,17 @@ void uiGMTContourGrp::resetCB( CallBacker* )
 	rgfld_->clear();
 	nrcontourfld_->clear();
 	readbut_->setSensitive( true );
+	return;
     }
 
-    AxisLayout zaxis( sd_.zrg );
-    StepInterval<float> zrg( sd_.zrg.start, sd_.zrg.stop, zaxis.sd.step/5 );
+    const float fac = SI().zFactor();
+    const float samp = SI().zStep() * fac;
+    Interval<float> zintv( sd_.zrg.start*fac, sd_.zrg.stop*fac );
+    zintv.start = samp * mNINT(zintv.start/samp);
+    zintv.stop = samp * mNINT(zintv.stop/samp);
+    AxisLayout zaxis( zintv );
+    const StepInterval<int> zrg( mNINT(zintv.start), mNINT(zintv.stop),
+	    		   mNINT(zaxis.sd.step/5) );
     rgfld_->setValue( zrg );
     nrcontourfld_->setValue( zrg.nrSteps() + 1 );
     resetbut_->setSensitive( false );
@@ -163,7 +193,7 @@ void uiGMTContourGrp::rgChg( CallBacker* cb )
     if ( !cb || !rgfld_ || !nrcontourfld_ ) return;
 
     mDynamicCastGet(uiGenInput*,fld,cb)
-    StepInterval<float> datarg = rgfld_->getFStepInterval();
+    StepInterval<int> datarg = rgfld_->getIStepInterval();
     rgfld_->valuechanged.disable();
     if ( fld == rgfld_ )
     {
@@ -210,11 +240,12 @@ void uiGMTContourGrp::readCB( CallBacker* )
     IOObj* ioobj = ctio_.ioobj;
     if ( !ioobj ) return;
 
+    HorSampling hs = subselfld_->envelope().hrg;
     if ( ( !hor_ || hor_->multiID()!=ioobj->key() ) && !loadHor() )
 	return;
 
     Interval<float> rg( SI().zRange(false).stop, SI().zRange(false).start );
-    HorSamplingIterator iter( subselfld_->envelope().hrg );
+    HorSamplingIterator iter( hs );
     BinID bid;
     EM::SectionID sid = hor_->sectionID( 0 );
     while ( iter.next(bid) )
@@ -241,12 +272,10 @@ bool uiGMTContourGrp::loadHor()
     IOObj* ioobj = ctio_.ioobj;
     EM::EMObject* obj = 0;
     EM::ObjectID id = EM::EMM().getObjectID( ioobj->key() );
-    if ( id < 0 )
+    if ( id < 0 || !EM::EMM().getObject(id)->isFullyLoaded() )
     {
-	EM::SurfaceIOData sd;
-	sd.rg = subselfld_->envelope().hrg;
 	PtrMan<EM::SurfaceIODataSelection> sel =
-	    				new EM::SurfaceIODataSelection( sd );
+	    				new EM::SurfaceIODataSelection( sd_ );
 	PtrMan<Executor> exec = EM::EMM().objectLoader( ioobj->key(), sel );
 	if ( !exec )
 	    return false;
@@ -284,7 +313,7 @@ bool uiGMTContourGrp::fillPar( IOPar& par ) const
     IOPar subpar;
     subselfld_->fillPar( subpar );
     par.mergeComp( subpar, sKey::Selection );
-    StepInterval<float> rg = rgfld_->getFStepInterval();
+    StepInterval<int> rg = rgfld_->getIStepInterval();
     if ( mIsUdf(rg.start) || mIsUdf(rg.stop) || mIsUdf(rg.step) )
 	mErrRet("Invalid data range")
 
@@ -303,6 +332,8 @@ bool uiGMTContourGrp::fillPar( IOPar& par ) const
     }
 
     par.setYN( ODGMT::sKeyFill, dofill );
+    par.set( ODGMT::sKeyColSeq, colseqfld_->text() );
+
     return true;
 }
 
@@ -315,7 +346,7 @@ bool uiGMTContourGrp::usePar( const IOPar& par )
 	return false;
 
     subselfld_->usePar( *subpar );
-    StepInterval<float> rg;
+    StepInterval<int> rg;
     par.get( ODGMT::sKeyDataRange, rg );
     rgfld_->setValue( rg );
     nrcontourfld_->setValue( rg.nrSteps() + 1 );
@@ -331,6 +362,9 @@ bool uiGMTContourGrp::usePar( const IOPar& par )
     }
 
     fillfld_->setChecked( dofill );
+    if ( dofill )
+	colseqfld_->setCurrentItem( par.find(ODGMT::sKeyColSeq) );
+
     drawSel( 0 );
     return true;
 }

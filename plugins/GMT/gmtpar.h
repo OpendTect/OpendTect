@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtpar.h,v 1.2 2008-08-06 09:58:20 cvsraman Exp $
+ RCS:		$Id: gmtpar.h,v 1.3 2008-08-14 10:52:47 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -66,6 +66,19 @@ GMTParFactory& GMTPF();
 
 
 #define mErrStrmRet(s) { strm << s << std::endl; return false; }
+
+#define mGetRangeProjString( str, projkey ) \
+    Interval<float> xrg, yrg, mapdim; \
+    get( ODGMT::sKeyXRange, xrg ); \
+    get( ODGMT::sKeyYRange, yrg ); \
+    get( ODGMT::sKeyMapDim, mapdim ); \
+    const float xmargin = mapdim.start > 30 ? mapdim.start/10 : 3; \
+    const float ymargin = mapdim.stop > 30 ? mapdim.stop/10 : 3; \
+    str = "-R"; str += xrg.start; str += "/"; \
+    str += xrg.stop; str += "/"; \
+    str += yrg.start; str += "/"; str += yrg.stop; str += " -J"; \
+    str += projkey; str += mapdim.start; str += "c/"; \
+    str += mapdim.stop; str += "c";
 
 #define mGetColorString( col, str ) \
     str = (int) col.r(); \

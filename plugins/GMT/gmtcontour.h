@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: gmtcontour.h,v 1.1 2008-08-06 09:58:20 cvsraman Exp $
+ RCS:		$Id: gmtcontour.h,v 1.2 2008-08-14 10:52:47 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,8 @@ protected:
 
     static GMTPar*	createInstance(const IOPar&);
     static int		factoryid_;
+
+    bool		makeCPT(const char*) const;
 };
 
 #endif

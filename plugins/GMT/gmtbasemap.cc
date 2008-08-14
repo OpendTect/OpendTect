@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: gmtbasemap.cc,v 1.3 2008-08-07 12:10:18 cvsraman Exp $
+ RCS:		$Id: gmtbasemap.cc,v 1.4 2008-08-14 10:52:47 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "strmdata.h"
 #include "strmprov.h"
+#include "survinfo.h"
 
 int GMTBaseMap::factoryid_ = -1;
 
@@ -35,27 +36,27 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
 {
     strm << "Creating the Basemap ...  ";
     BufferString maptitle = find( ODGMT::sKeyMapTitle );
-    Interval<float> xrg, yrg, mapdim, lblintv;
-    if ( !get(ODGMT::sKeyXRange,xrg) || !get(ODGMT::sKeyYRange,yrg)
-      || !get(ODGMT::sKeyMapDim,mapdim) || !get(ODGMT::sKeyLabelIntv,lblintv) )
+    Interval<float> lblintv;
+    if ( !get(ODGMT::sKeyLabelIntv,lblintv) )
 	mErrStrmRet("Incomplete data for basemap creation")
 
-    bool closeps;
+    bool closeps = false, dogrid = false;
     getYN( ODGMT::sKeyClosePS, closeps );
+    getYN( ODGMT::sKeyDrawGridLines, dogrid );
 
-    const float xmargin = mapdim.start > 30 ? mapdim.start/10 : 3;
-    const float ymargin = mapdim.stop > 30 ? mapdim.stop/10 : 3;
-    const float pagewidth = mapdim.start + ( closeps ? 2 : 4 ) * xmargin;
-    const float pageheight = mapdim.stop + 3 * ymargin;
-    BufferString comm = "psbasemap -R";
-    comm += xrg.start; comm += "/"; comm += xrg.stop; comm += "/";
-    comm += yrg.start; comm += "/"; comm += yrg.stop; comm += " -JX";
-    comm += mapdim.start; comm += "c/"; comm += mapdim.stop; comm += "c -B";
-    comm += lblintv.start; comm += "/"; comm += lblintv.stop;
+    BufferString comm = "psbasemap ";
+    BufferString str; mGetRangeProjString( str, "X" );
+    comm += str; comm += " -Ba";
+    comm += lblintv.start;
+    if ( dogrid ) { comm += "g"; comm += lblintv.start; }
+    comm += "/a"; comm += lblintv.stop;
+    if ( dogrid ) { comm += "g"; comm += lblintv.stop; }
     comm += ":\"."; comm += maptitle; comm += "\":";
     comm += " --X_ORIGIN="; comm += xmargin;
     comm += "c --Y_ORIGIN="; comm += ymargin;
     comm += "c --PAPER_MEDIA=Custom_";
+    const float pagewidth = mapdim.start + ( closeps ? 2 : 4 ) * xmargin;
+    const float pageheight = mapdim.stop + 3 * ymargin;
     comm += pageheight < 21 ? 21 : pageheight; comm += "cx";
     comm += pagewidth < 21 ? 21 : pagewidth; comm += "c ";
     if ( !closeps ) comm += "-K ";
@@ -110,7 +111,8 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	    colbarcomm += mapdim.start / 10; colbarcomm += "c -O -C";
 	    colbarcomm += fp.fullPath(); colbarcomm += " -B";
 	    colbarcomm += rg.step * 5; colbarcomm += ":\"";
-	    colbarcomm += par->find( sKey::Name ); colbarcomm += "\": -K >> ";
+	    colbarcomm += par->find( sKey::Name ); colbarcomm += "\":/:";
+	    colbarcomm += SI().getZUnit(false); colbarcomm += ": -K >> ";
 	    colbarcomm += fnm;
 	    if ( system(colbarcomm) )
 		mErrStrmRet("Failed to post color bar")
@@ -142,40 +144,39 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	if ( namestr.isEmpty() )
 	    continue;
 
-	float size = 0.5;
+	float size = 1;
 	BufferString symbstr, penstr;
 	const char* shapestr = par->find( ODGMT::sKeyShape );
-	if ( shapestr )
-	{
-	    const int shape = eEnum( ODGMT::Shape, shapestr );
-	    if ( shape < 0 ) continue;
+	const ODGMT::Shape shape = eEnum( ODGMT::Shape, shapestr );
+	if ( shape < 0 ) continue;
 
-	    symbstr = ODGMT::sShapeKeys[shape];
-	    par->get( sKey::Size, size );
+	symbstr = ODGMT::sShapeKeys[(int)shape];
+	par->get( sKey::Size, size );
+	if ( shape == ODGMT::Polygon || shape == ODGMT::Line )
+	{
+	    const char* lsstr = par->find( ODGMT::sKeyLineStyle );
+	    if ( !lsstr ) continue;
+
+	    LineStyle ls;
+	    ls.fromString( lsstr );
+	    if ( ls.type_ != LineStyle::None )
+	    { mGetLineStyleString( ls, penstr ); }
+
+	}
+	else
+	{
 	    Color pencol;
 	    par->get( sKey::Color, pencol );
 	    BufferString colstr;
 	    mGetColorString( pencol, colstr );
 	    penstr = "1p,"; penstr += colstr;
 	}
-	else
-	{
-	    const char* lsstr = par->find( ODGMT::sKeyLineStyle );
-	    if ( !lsstr ) continue;
-
-	    symbstr = "-";
-	    LineStyle ls;
-	    ls.fromString( lsstr );
-	    symbstr = "n";
-	    if ( ls.type_ != LineStyle::None )
-	    { mGetLineStyleString( ls, penstr ); }
-	}
 
 	bool dofill;
 	par->getYN( ODGMT::sKeyFill, dofill );
 	BufferString legendstring = "S 0.6c ";
 	legendstring += symbstr; legendstring += " "; 
-	legendstring += size > 0.5 ? 0.5 : size;
+	legendstring += size > 1 ? 1 : size;
 	legendstring += "c ";
 	if ( dofill )
 	{

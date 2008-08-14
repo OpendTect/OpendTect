@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtdef.h,v 1.3 2008-08-07 12:10:18 cvsraman Exp $
+ RCS:		$Id: gmtdef.h,v 1.4 2008-08-14 10:52:47 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,24 +15,43 @@ ________________________________________________________________________
 
 namespace ODGMT
 {
-    enum Shape		{ Star, Circle, Diamond, Square, Triangle, Cross };
+    enum Shape		{ Star, Circle, Diamond, Square, Triangle, Cross,
+   			  Polygon, Line };
     			DeclareNameSpaceEnumUtils(Shape)
+    enum Resolution	{ Full, High, Intermediate, Low, Crude };
+			DeclareNameSpaceEnumUtils(Resolution)
+    enum Alignment	{ Above, Below, Left, Right };
+			DeclareNameSpaceEnumUtils(Alignment);
 
-    static const char*	sShapeKeys[] = { "a", "c", "d", "s", "t", "x", 0 };
+    static const char*	sShapeKeys[] = { "a", "c", "d", "s", "t", "x", "n",
+					 "-", 0 };
+    static const char*	sResolKeys[] = { "f", "h", "i", "l", "c" };
 
     static const char*	sKeyClosePS = "Close PostScript";
+    static const char*	sKeyColSeq = "Color sequence";
     static const char*	sKeyDataRange = "Data range";
     static const char*	sKeyDrawContour = "Draw contour";
+    static const char*	sKeyDrawGridLines = "Draw gridlines";
+    static const char*	sKeyDryFill = "Fill Dry";
+    static const char*	sKeyDryFillColor = "Fill Color Dry";
     static const char*	sKeyFill = "Fill";
     static const char*	sKeyFillColor = "Fill Color";
     static const char*	sKeyGroupName = "Group Name";
+    static const char*	sKeyLabelAlignment = "Label alignment";
     static const char*	sKeyLabelIntv = "Label Interval";
     static const char*	sKeyLegendParams = "Legend Parameters";
+    static const char*	sKeyLineNames = "Line names";
     static const char*	sKeyLineStyle = "Line Style";
     static const char*	sKeyMapDim = "Map Dimension";
     static const char*	sKeyMapTitle = "Map Title";
+    static const char*	sKeyPostLabel = "Post label";
     static const char*	sKeyPostColorBar = "Post Color bar";
+    static const char*	sKeyResolution = "Resolution";
     static const char*	sKeyShape = "Shape";
+    static const char*	sKeyUTMZone = "UTM zone";
+    static const char*	sKeyWetFill = "Fill Wet";
+    static const char*	sKeyWetFillColor = "Fill Color Wet";
+    static const char*	sKeyWellNames = "Well names";
     static const char*	sKeyXRange = "X Range";
     static const char*	sKeyYRange = "Y Range";
 };

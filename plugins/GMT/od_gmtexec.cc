@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: od_gmtexec.cc,v 1.2 2008-08-06 09:58:20 cvsraman Exp $
+ RCS:		$Id: od_gmtexec.cc,v 1.3 2008-08-14 10:52:47 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,8 @@ ________________________________________________________________________
 #include "batchprog.h"
 #include "filepath.h"
 #include "gmtpar.h"
+#include "initearthmodel.h"
+#include "initgeneral.h"
 #include "initstdgmt.h"
 #include "keystrs.h"
 #include "timefun.h"
@@ -20,6 +22,8 @@ ________________________________________________________________________
 
 bool BatchProgram::go( std::ostream& strm )
 {
+    General::initStdClasses();
+    EarthModel::initStdClasses();
     initStdGMTClasses();
     finishmsg_ = "Map created successfully";
     const char* psfilenm = pars().find( sKey::FileName );

@@ -4,23 +4,24 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: gmtcontour.cc,v 1.2 2008-08-07 12:10:18 cvsraman Exp $
+ RCS:		$Id: gmtcontour.cc,v 1.3 2008-08-14 10:52:47 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "gmtcontour.h"
 
+#include "coltabsequence.h"
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emsurfacetr.h"
 #include "executor.h"
 #include "filepath.h"
-#include "initearthmodel.h"
 #include "ioobj.h"
 #include "keystrs.h"
 #include "strmdata.h"
 #include "strmprov.h"
+#include "survinfo.h"
 
 
 
@@ -55,6 +56,8 @@ bool GMTContour::fillLegendPar( IOPar& par ) const
     getYN( ODGMT::sKeyDrawContour, drawcontour );
     if ( drawcontour )
     {
+	par.set( ODGMT::sKeyShape, "Line" );
+	par.set( sKey::Size, 1 );
 	str = find( ODGMT::sKeyLineStyle );
 	par.set( ODGMT::sKeyLineStyle, str );
     }
@@ -74,11 +77,8 @@ bool GMTContour::fillLegendPar( IOPar& par ) const
 
 bool GMTContour::execute( std::ostream& strm, const char* fnm )
 {
-    EarthModel::initStdClasses();
     MultiID id;
     get( sKey::ID, id );
-    StepInterval<float> rg;
-    get( ODGMT::sKeyDataRange, rg );
     bool closeps, drawcontour, dofill;
     getYN( ODGMT::sKeyClosePS, closeps );
     getYN( ODGMT::sKeyDrawContour, drawcontour );
@@ -110,25 +110,34 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
     fp.setExtension( "cpt" );
     BufferString cptfnm = fp.fullPath();
     strm << "Creating color pallette file ...  ";
-    BufferString comm = "makecpt -Crainbow -T";
-    comm += rg.start; comm += "/"; comm += rg.stop;
-    comm += "/"; comm += rg.step;
-    comm += " > "; comm += cptfnm;
-    if ( system(comm) )
+    if ( !makeCPT(cptfnm.buf()) )
 	mErrStrmRet("Failed")
 
     strm << "Done" << std::endl;
     strm << "Creating grid 100 X 100 ...  ";
+    Coord spt1 = SI().transform( BinID(sd.rg.start.inl,sd.rg.start.crl) );
+    Coord spt2 = SI().transform( BinID(sd.rg.start.inl,sd.rg.stop.crl) );
+    Coord spt3 = SI().transform( BinID(sd.rg.stop.inl,sd.rg.start.crl) );
+    Coord spt4 = SI().transform( BinID(sd.rg.stop.inl,sd.rg.stop.crl) );
+    Coord botleft( mMIN( mMIN( spt1.x, spt2.x ), mMIN( spt3.x, spt4.x ) ),
+	    	   mMIN( mMIN( spt1.y, spt2.y ), mMIN( spt3.y, spt4.y ) ) );
+    Coord topright( mMAX( mMAX( spt1.x, spt2.x ), mMAX( spt3.x, spt4.x ) ),
+	    	    mMAX( mMAX( spt1.y, spt2.y ), mMAX( spt3.y, spt4.y ) ) );
     fp.setExtension( "gd1" );
     BufferString grd100fnm = fp.fullPath();
-    comm = "@blockmean -R -I100 | surface -R -I100 -T0.5 -N250 -G";
+    BufferString rstr = "-R";
+    rstr += botleft.x; rstr += "/"; rstr += topright.x; rstr += "/";
+    rstr += botleft.y; rstr += "/"; rstr += topright.y;
+    BufferString comm = "@blockmean "; comm += rstr;
+    comm += " -I100 | surface "; comm += rstr; comm += " -I100 -T0.7 -N250 -G";
     comm += grd100fnm;
     StreamData sdata = StreamProvider(comm).makeOStream();
     if ( !sdata.usable() ) mErrStrmRet("Failed")
 
-    EM::SectionID sid = obj->sectionID( 0 );
     HorSamplingIterator iter( sd.rg );
     BinID bid;
+    EM::SectionID sid = obj->sectionID( 0 );
+    const float fac = SI().zFactor();
     while ( iter.next(bid) )
     {
 	EM::SubID subid = bid.getSerialized();
@@ -136,7 +145,7 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 	if ( !pos.isDefined() )
 	    continue;
 
-	*sdata.ostrm << pos.x << " " << pos.y << " " << pos.z << std::endl;
+	*sdata.ostrm << pos.x << " " << pos.y << " " << fac*pos.z << std::endl;
     }
 
     obj->unRef();
@@ -151,11 +160,14 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 	mErrStrmRet("Failed")
 
     strm << "Done" << std::endl;
+    BufferString mapprojstr;
+    mGetRangeProjString( mapprojstr, "X" );
     if ( dofill )
     {
 	strm << "Filling colors ...  ";
 	comm = "grdimage "; comm += fp.fullPath();
-	comm += " -R -J -O -C"; comm += cptfnm;
+	comm += " "; comm += mapprojstr;
+	comm += " -O -Q -C"; comm += cptfnm;
 	if ( !closeps || drawcontour )
 	    comm += " -K";
 
@@ -174,7 +186,10 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 	BufferString lsstr;
 	mGetLineStyleString( ls, lsstr );
 	comm = "grdcontour "; comm += fp.fullPath();
-	comm += " -R -J -O -C"; comm += cptfnm;
+	comm += " "; comm += mapprojstr;
+	comm += " -O -C"; comm += cptfnm;
+	BufferString colstr; mGetColorString( ls.color_, colstr );
+	comm += " -A+k"; comm += colstr;
 	comm += " -W"; comm += lsstr;
 	if ( !closeps )
 	    comm += " -K";
@@ -194,4 +209,49 @@ bool GMTContour::execute( std::ostream& strm, const char* fnm )
 }
 
 
+#define mPrintCol( col, endchar ) \
+    *sd.ostrm << (int)col.r() << "\t"; \
+    *sd.ostrm << (int)col.g() << "\t"; \
+    *sd.ostrm << (int)col.b() << endchar;
+
+bool GMTContour::makeCPT( const char* cptfnm ) const
+{
+    StepInterval<float> rg;
+    get( ODGMT::sKeyDataRange, rg );
+    const char* seqname = find( ODGMT::sKeyColSeq );
+    if ( !seqname || !*seqname ) return false;
+
+    ColTab::Sequence seq;
+    if ( !ColTab::SM().get(seqname,seq) ) return false;
+
+    StreamData sd = StreamProvider(cptfnm).makeOStream();
+    if ( !sd.usable() ) return false;
+
+    *sd.ostrm << "#COLOR_MODEL = RGB" << std::endl;
+    const int nrsteps = rg.nrSteps();
+    for ( int idx=0; idx<=nrsteps; idx++ )
+    {
+	const float val = rg.start + rg.step * idx;
+	const float frac = (float)idx / (float)nrsteps;
+	const Color col = seq.color( frac );
+	if ( idx )
+	{
+	    *sd.ostrm << val << "\t";
+	    mPrintCol( col, std::endl );
+	}
+
+	if ( idx < nrsteps )
+	{
+	    *sd.ostrm << val << "\t";
+	    mPrintCol( col, "\t" );
+	}
+    }
+
+    const Color bgcol = seq.color( 0 );
+    const Color fgcol = seq.color( 1 );
+    *sd.ostrm << "B" << "\t";  mPrintCol( bgcol, std::endl );
+    *sd.ostrm << "F" << "\t";  mPrintCol( fgcol, std::endl );
+    sd.close();
+    return true;
+}
 

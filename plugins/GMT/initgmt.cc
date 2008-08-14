@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: initgmt.cc,v 1.2 2008-08-06 09:58:20 cvsraman Exp $
+ RCS:		$Id: initgmt.cc,v 1.3 2008-08-14 10:52:47 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "gmtbasemap.h"
 #include "gmtlocations.h"
 #include "gmtcontour.h"
+#include "gmtcoastline.h"
+#include "gmt2dlines.h"
 
 
 void initStdGMTClasses()
@@ -23,4 +25,7 @@ void initStdGMTClasses()
     GMTLocations::initClass();
     GMTPolyline::initClass();
     GMTContour::initClass();
+    GMTCoastline::initClass();
+    GMTWells::initClass();
+    GMT2DLines::initClass();
 }

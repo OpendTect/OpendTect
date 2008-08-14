@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: uigmtbasemap.cc,v 1.3 2008-08-07 12:10:22 cvsraman Exp $
+ RCS:		$Id: uigmtbasemap.cc,v 1.4 2008-08-14 10:52:52 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,12 +24,12 @@ uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
     titlefld_ = new uiGenInput( this, "Map title", StringInpSpec("Basemap") );
 
     xrgfld_ = new uiGenInput( this, "X range",
-	    		      FloatInpIntervalSpec(false) );
+	    		      IntInpIntervalSpec(false) );
     xrgfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,xyrgChg) );
     xrgfld_->attach( alignedBelow, titlefld_ );
 
     yrgfld_ = new uiGenInput( this, "Y range",
-	    		      FloatInpIntervalSpec(false) );
+	    		      IntInpIntervalSpec(false) );
     yrgfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,xyrgChg) );
     yrgfld_->attach( alignedBelow, xrgfld_ );
 
@@ -49,8 +49,10 @@ uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
 
     lebelintvfld_ = new uiGenInput( this, "Label interval (X/Y)",
 	    			    IntInpIntervalSpec(false) );
-    lebelintvfld_ ->attach( alignedBelow, xdimfld_ );
+    lebelintvfld_->attach( alignedBelow, xdimfld_ );
 
+    gridlinesfld_ = new uiCheckBox( this, "Draw Gridlines" );
+    gridlinesfld_->attach( rightTo, lebelintvfld_ );
     updateFlds( true );
 }
 
@@ -116,23 +118,29 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
     Interval<float> yrg;
     xrgfld_->valuechanged.disable();
     yrgfld_->valuechanged.disable();
+    Interval<int> xintv, yintv;
     if ( fromsurvey )
     {
 	const Coord survmin = SI().minCoord( false );
 	const Coord survmax = SI().maxCoord( false );
 	xrg.start = survmin.x; xrg.stop = survmax.x;
 	yrg.start = survmin.y; yrg.stop = survmax.y;
-	xrgfld_->setValue( xrg );
-	yrgfld_->setValue( yrg );
+	xintv.setFrom( xrg ); yintv.setFrom( yrg );
+	xrgfld_->setValue( xintv );
+	yrgfld_->setValue( yintv );
     }
     else
     {
-	xrg = xrgfld_->getFInterval();
-	yrg = yrgfld_->getFInterval();
+	xintv = xrgfld_->getIInterval();
+	yintv = yrgfld_->getIInterval();
+	xrg.setFrom( xintv );
+	yrg.setFrom( yintv );
     }
 
     if ( mIsZero(yrg.width(),mDefEps) )
     {
+	xrgfld_->valuechanged.enable();
+	yrgfld_->valuechanged.enable();
 	uiMSG().error( "Y range is beyond permissible limits" );
 	return;
     }
@@ -142,6 +150,8 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
     {
 	uiMSG().error( "Unreasonable aspect ratio",
 		       "Please check the X and Y ranges" );
+	xrgfld_->valuechanged.enable();
+	yrgfld_->valuechanged.enable();
 	return;
     }
 
@@ -160,8 +170,8 @@ bool uiGMTBaseMapGrp::fillPar( IOPar& par ) const
     BufferString maptitle = titlefld_->text();
     par.set( ODGMT::sKeyMapTitle, maptitle );
 
-    const Interval<float> xrg = xrgfld_->getFInterval();
-    const Interval<float> yrg = yrgfld_->getFInterval();
+    const Interval<int> xrg = xrgfld_->getIInterval();
+    const Interval<int> yrg = yrgfld_->getIInterval();
     if ( xrg.isRev() || yrg.isRev() )
     {
 	uiMSG().error( "Invalid X or Y range" );
@@ -177,6 +187,7 @@ bool uiGMTBaseMapGrp::fillPar( IOPar& par ) const
 
     const Interval<float> lblintv = lebelintvfld_->getFInterval();
     par.set( ODGMT::sKeyLabelIntv, lblintv );
+    par.setYN( ODGMT::sKeyDrawGridLines, gridlinesfld_->isChecked() );
     return true;
 }
 

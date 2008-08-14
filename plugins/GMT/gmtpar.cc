@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Raman Singh
  Date:          July 2008
- RCS:           $Id: gmtpar.cc,v 1.1 2008-08-01 08:28:27 cvsraman Exp $
+ RCS:           $Id: gmtpar.cc,v 1.2 2008-08-14 10:52:47 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,7 +15,8 @@ ________________________________________________________________________
 
 
 DefineNameSpaceEnumNames(ODGMT,Shape,3,"Shapes")
-{ "Star", "Circle", "Diamond", "Square", "Triangle", "Cross", 0 };
+{ "Star", "Circle", "Diamond", "Square", "Triangle", "Cross", "Polygon",
+  "Line", 0 };
 
 
 GMTParFactory& GMTPF()

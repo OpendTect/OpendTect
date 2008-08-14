@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtbasemap.h,v 1.2 2008-08-06 09:58:05 cvsraman Exp $
+ RCS:		$Id: uigmtbasemap.h,v 1.3 2008-08-14 10:52:52 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidlggroup.h"
 
+class uiCheckBox;
 class uiGenInput;
 class uiPushButton;
 
@@ -35,6 +36,7 @@ protected:
     uiGenInput*		yrgfld_;
     uiPushButton*	resetbut_;
     uiGenInput*		lebelintvfld_;
+    uiCheckBox*		gridlinesfld_;
 
     float		aspectratio_;
 

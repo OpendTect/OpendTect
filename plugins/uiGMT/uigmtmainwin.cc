@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtmainwin.cc,v 1.3 2008-08-07 12:10:23 cvsraman Exp $
+ RCS:		$Id: uigmtmainwin.cc,v 1.4 2008-08-14 10:52:52 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,7 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "filepath.h"
 #include "gmtpar.h"
+#include "oddirs.h"
 #include "strmdata.h"
 #include "strmprov.h"
 #include "timer.h"
@@ -88,9 +89,11 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 
 
     flowgrp_->setHAlignObj( flowfld_ );
+    BufferString defseldir = FilePath(GetDataDir()).add("Misc").fullPath();
     filefld_ = new uiFileInput( uppgrp_, "Select output file",
 	    			uiFileInput::Setup().forread(false)
-						    .filter("*.ps") );
+						    .filter("*.ps")
+	   					    .defseldir(defseldir) );
     filefld_->attach( alignedBelow, flowgrp_ );
     filefld_->attach( ensureLeftOf, sep );
 
@@ -307,7 +310,7 @@ bool uiGMTMainWin::fillPar( IOPar& par )
     fp.setExtension( "ps" );
     par.set( sKey::FileName, fp.fullPath() );
     int idx = 0;
-    Interval<float> mapdim;
+    Interval<float> mapdim, xrg, yrg;
     IOPar basemappar;
     basemappar.set( ODGMT::sKeyGroupName, "Basemap" );
     if ( !basemapgrp_->fillPar(basemappar) )
@@ -315,6 +318,8 @@ bool uiGMTMainWin::fillPar( IOPar& par )
 
     basemappar.setYN( ODGMT::sKeyClosePS, !pars_.size() );
     basemappar.get( ODGMT::sKeyMapDim, mapdim );
+    basemappar.get( ODGMT::sKeyXRange, xrg );
+    basemappar.get( ODGMT::sKeyYRange, yrg );
     BufferString numkey = idx++;
     par.mergeComp( basemappar, numkey );
     IOPar legendpar;
@@ -328,6 +333,9 @@ bool uiGMTMainWin::fillPar( IOPar& par )
 	numkey = idx++;
 	const bool closeps = !haslegends && ( ldx == pars_.size() - 1 );
 	pars_[ldx]->setYN( ODGMT::sKeyClosePS, closeps );
+	pars_[ldx]->set( ODGMT::sKeyMapDim, mapdim );
+	pars_[ldx]->set( ODGMT::sKeyXRange, xrg );
+	pars_[ldx]->set( ODGMT::sKeyYRange, yrg );
 	par.mergeComp( *pars_[ldx], numkey );
     }
 
