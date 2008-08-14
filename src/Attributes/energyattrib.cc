@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: energyattrib.cc,v 1.27 2008-03-13 16:16:26 cvshelene Exp $";
+static const char* rcsID = "$Id: energyattrib.cc,v 1.28 2008-08-14 11:08:46 cvshelene Exp $";
 
 #include "energyattrib.h"
 
@@ -68,6 +68,12 @@ bool Energy::getInputData( const BinID& relpos, int zintv )
     inputdata_ = inputs[0]->getData( relpos, zintv );
     dataidx_ = getDataIndex( 0 );
     return inputdata_;
+}
+
+
+bool Energy::allowParallelComputation() const
+{
+    return !dograd_;
 }
 
 

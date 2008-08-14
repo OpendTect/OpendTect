@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: energyattrib.h,v 1.12 2008-03-13 16:16:26 cvshelene Exp $
+ RCS:           $Id: energyattrib.h,v 1.13 2008-08-14 11:08:46 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,7 +52,7 @@ protected:
     			~Energy() {}
     static Provider*    createInstance(Desc&);
 
-    bool		allowParallelComputation() const	{ return true; }
+    bool		allowParallelComputation() const;
     bool		getInputOutput(int input,TypeSet<int>& res) const;
     bool		getInputData(const BinID&, int idx);
     bool		computeData(const DataHolder&,const BinID& relpos,
