@@ -1,6 +1,6 @@
 dTect V3.2
 OpendTect commands
-Mon Jun 28 11:36:39 2008
+Mon Jun 18 11:36:39 2008
 !
 
 Case Insensitive
@@ -14,35 +14,34 @@ Ok
 Button "define SEG-Y Output"
 Input "Output file" "/$SCRIPTSDIR$/Export/SeisExpo.sgy"
 Ok
-OnError Continue
-Button "Yes"
 Ok
-OnError Stop
 
 Comment "----------Exporting Horizons---------------"
 
-Menu "Survey`Export`Horizons`Ascii"
+Menu "Survey`Export`Horizons`Ascii 3D"
 Button "Select Input Surface"
-ListClick "Objects list" 2 Double
-Input "Output Ascii file" "/$SCRIPTSDIR$/Export/HorizonExpo"
-Ok
-OnError Continue
+ListClick "Objects list" 1 Double
 Button "Yes"
-OnError Stop
-Sleep 1
+Input "Output Ascii file" "$SCRIPTSDIR$/Export/HorizonExpo.asc"
+Ok
 Button "Dismiss"
 
-Comment "------------Exporting Fault----------------"
+Comment "-----------Exporting PickSet--------------------"
 
-Menu "Survey`Export`Faults`Ascii"
-Button "Select Input Fault"
-ListClick "Objects list" "1000 between 4 and 8" Double
-Input "Output Ascii file" "/$SCRIPTSDIR$/Export/FaultExpo"
+Menu "Survey`Export`Picksets"
+Button "Select Input PickSet"
+ListClick "Objects list" 1 Double
+Input "Output Ascii file" "$SCRIPTSDIR$/Export/pickset.asc"
+Button "Go"
 Ok
-OnError Continue
-Button "Yes"
-Ok
-OnError Stop
+Button "Dismiss"
 
+Comment "-----------Exporting Fault--------------------"
+
+#Menu "Survey`Export`Faults`Ascii"
+#Button "Select Input Fault"
+#ListClick "Objects list" "TestFault" Double
+#Input "Output Ascii file" "$SCRIPTSDIR$/Export/ExpoTestFault.asc"
+#Ok
 
 End

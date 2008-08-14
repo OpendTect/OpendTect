@@ -17,147 +17,131 @@ Input "Inl Stop" 450
 Input "Crl nr" 750
 Input "Z Start" 750
 Input "Z Stop" 1400
-
 Ok
+
 ListClick "Select Data" "CoherencyAttrib"
 Ok
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_coherencyatt.jpg"
 Ok
-TreeButton "Crossline`750`CoherencyAttr*" Off
 
-OnError Continue
-TreeMenu "Crossline`750" "Add attribute"
-TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`ConvolveAttrib"
-#Button "Make snapshot"
-#Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_convolveatt.jpg"
-#Ok
-TreeButton "Crossline`750`ConvolveAtt*" Off
-
-TreeMenu "Crossline`750" "Add attribute"
-TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`CurvatureAttrib"
+TreeMenu "Crossline`750`CoherencyAttr*" "Sel*`Attributes`ConvolveAttrib"
 Button "Make snapshot"
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_curvatureatt.jpg"
+Button "Scene"
 Ok
-TreeButton "Crossline`750`CurvatureAtt*" Off
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl750_convolveatt.jpg"
+Ok
 
-TreeMenu "Crossline`750" "Add attribute"
-TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`DipAttrib"
+TreeMenu "Crossline`750`ConvolveAttr*" "Sel*`Attributes`CurvatureAttrib"
 Button "Make snapshot"
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_dipatt.jpg"
+Button "Scene"
 Ok
-TreeButton "Crossline`750`DipAtt*" Off
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl750_curvatureatt.jpg"
+Ok
 
-TreeMenu "Crossline`750" "Add attribute"
-TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`DipAngleAttrib"
+TreeMenu "Crossline`750`CurvatureAttrib" "Sel*`Attributes`DipAttrib"
 Button "Make snapshot"
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_dipangleatt.jpg"
+Button "Scene"
 Ok
-TreeButton "Crossline`750`DipAngleAttrib*" Off
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl750_dipatt.jpg"
+Ok
 
-TreeMenu "Crossline`750`CoherencyAttr*" "Remove"
-TreeMenu "Crossline`750`ConvolveAttr*" "Remove"
-TreeMenu "Crossline`750`CurvatureAtt*" "Remove"
-TreeMenu "Crossline`750`DipAtt*" "Remove"
-
-TreeMenu "Crossline`750" "Add attribute"
-TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`EnergyAttrib"
+TreeMenu "Crossline`750`DipAttrib" "Sel*`Attributes`DipAngleAttrib"
 Button "Make snapshot"
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_energyatt.jpg"
+Button "Scene"
 Ok
-TreeButton "Crossline`750`EnergyAtt*" Off
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl750_dipangleatt.jpg"
+Ok
 
-TreeMenu "Crossline`750" "Add attribute"
-TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`EventAttrib"
+TreeMenu "Crossline`750`DipAngleAttrib" "Sel*`Attributes`EnergyAttrib"
 Button "Make snapshot"
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_eventatt.jpg"
+Button "Scene"
 Ok
-TreeButton "Crossline`750`EventAtt*" Off
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl750_energyatt.jpg"
+Ok
 
-TreeMenu "Crossline`750" "Add attribute"
-TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`FrequencyAttrib"
+TreeMenu "Crossline`750`EnergyAttrib" "Sel*`Attributes`EventAttrib"
 Button "Make snapshot"
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_frequencyatt.jpg"
+Button "Scene"
 Ok
-TreeButton "Crossline`750`FrequencyAtt*" Off
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl750_eventatt.jpg"
+Ok
 
-TreeMenu "Crossline`750" "Add attribute"
-TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`FrequencyFilterAttrib"
+TreeMenu "Crossline`750`EventAttrib" "Sel*`Attributes`FrequencyAttrib"
 Button "Make snapshot"
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_frequencyfilterattatt.jpg"
+Button "Scene"
 Ok
-TreeButton "Crossline`750`FrequencyFilterAtt*" Off
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl750_frequencytatt.jpg"
+Ok
 
-TreeMenu "Crossline`750" "Add attribute"
-TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`InstantaneousAttrib"
+TreeMenu "Crossline`750`FrequencyAttrib" "Sel*`Attributes`FrequencyFilterAttrib"
 Button "Make snapshot"
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_instantaneousatt.jpg"
+Button "Scene"
 Ok
-TreeButton "Crossline`750`InstantaneousAtt*" Off
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl750_frequencyfilteratt.jpg"
+Ok
 
-TreeMenu "Crossline`750`DipAngleAtt*" "Remove"
-TreeMenu "Crossline`750`EnergyAttr*" "Remove"
-TreeMenu "Crossline`750`EventAttr*" "Remove"
-TreeMenu "Crossline`750`FrequencyAttr*" "Remove"
-TreeMenu "Crossline`750`FrequencyFil*" "Remove"
-
-
-TreeMenu "Crossline`750" "Add attribute"
-TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`PositionAttrib"
+TreeMenu "Crossline`750`FrequencyFilterAttrib" "Sel*`Attributes`InstantaneousA*"
 Button "Make snapshot"
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_positionatt.jpg"
+Button "Scene"
 Ok
-TreeButton "Crossline`750`PositionAtt*" Off
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl750_instantaneoustatt.jpg"
+Ok
 
-TreeMenu "Crossline`750" "Add attribute"
-TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`ReferenceShiftAttrib"
+TreeMenu "Crossline`750`InstantaneousAttrib" "Sel*`Attributes`PositionAttrib"
 Button "Make snapshot"
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_refshiftatt.jpg"
+Button "Scene"
 Ok
-TreeButton "Crossline`750`ReferenceShiftAtt*" Off
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl750_positionatt.jpg"
+Ok
 
-TreeMenu "Crossline`750" "Add attribute"
-TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`ScalingAttrib"
+TreeMenu "Crossline`750`PositionAttrib" "Sel*`Attributes`ReferenceShiftAttrib"
 Button "Make snapshot"
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_scalingatt.jpg"
+Button "Scene"
 Ok
-TreeButton "Crossline`750`ScalingAtt*" Off
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl750_referenceshiftatt.jpg"
+Ok
 
-TreeMenu "Crossline`750" "Add attribute"
-TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`SimilarityAttrib"
+TreeMenu "Crossline`750`ReferenceShiftAttrib" "Sel*`Attributes`ScalingAttrib"
 Button "Make snapshot"
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_similarityatt.jpg"
+Button "Scene"
 Ok
-TreeButton "Crossline`750`SimilarityAtt*" Off
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl750_scalingatt.jpg"
+Ok
 
-TreeMenu "Crossline`750" "Add attribute"
-TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`SpectralDecompAttrib"
+TreeMenu "Crossline`750`ScalingAttrib" "Sel*`Attributes`SimilarityAttrib"
 Button "Make snapshot"
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_spectraldecompatt.jpg"
+Button "Scene"
 Ok
-TreeButton "Crossline`750`SpectralDecompAtt*" Off
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl750_similarityatt.jpg"
+Ok
 
-TreeMenu "Crossline`750`Instantaneous*" "Remove"
-TreeMenu "Crossline`750`PositionAttr*" "Remove"
-TreeMenu "Crossline`750`ReferenceShift*" "Remove"
-TreeMenu "Crossline`750`ScalingAttr*" "Remove"
-TreeMenu "Crossline`750`SimilarityAttr*" "Remove"
-
-TreeMenu "Crossline`750" "Add attribute"
-TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`VelocityFanFilterAttrib"
+TreeMenu "Crossline`750`SimilarityAttrib" "Sel*`Attributes`SpectralDecompAttrib"
 Button "Make snapshot"
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_velocityfanfilteratt.jpg"
+Button "Scene"
 Ok
-TreeButton "Crossline`750`VelocityFanFilterAtt*" Off
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl750_spectraldecompatt.jpg"
+Ok
 
-TreeMenu "Crossline`750" "Add attribute"
-TreeMenu "Crossline`750`<right-click>" "Sel*`Attributes`VolumeStatisticsAttrib"
+
+TreeMenu "Crossline`750`SpectralDecomp*" "Sel*`Attributes`VelocityFanFilter*"
 Button "Make snapshot"
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl_750_volumestatisticsatt.jpg"
 Ok
-TreeButton "Crossline`750`VolumeStatisticsA*" Off
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl750_velocityfanfilteratt.jpg"
+Ok
 
-TreeMenu "Crossline`750`SpectralDecomp*" "Remove"
-TreeMenu "Crossline`750`VelocityFan*" "Remove"
+TreeMenu "Crossline`750`VelocityFanFilter*" "Sel*`Attributes`VolumeStatistics*"
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/crl750_volumestatisticsatt.jpg"
+Ok
+
+TreeMenu "Crossline`750" "Remove"
+
+Wheel "hRotate" -90
+Slider "Zoom Slider" 29
 
 End

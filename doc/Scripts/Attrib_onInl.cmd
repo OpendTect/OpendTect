@@ -15,144 +15,126 @@ Input "Z Start" 900
 Input "Z Stop" 1500
 Ok
 
-OnError Continue
 ListClick "Select Data" "CoherencyAttrib"
 Ok
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_coherencyatt.jpg"
 Ok
-TreeButton "Inline`320`CoherencyAttr*" Off
 
-TreeMenu "Inline`320" "Add attribute"
-TreeMenu "Inline`320`<right-click>" "Sel*`Attributes`ConvolveAttrib"
+TreeMenu "Inline`320`CoherencyAttr*" "Sel*`Attributes`ConvolveAttrib"
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_convolveatt.jpg"
 Ok
-TreeButton "Inline`320`ConvolveAtt*" Off
 
-TreeMenu "Inline`320" "Add attribute"
-TreeMenu "Inline`320`<right-click>" "Sel*`Attributes`CurvatureAttrib"
+TreeMenu "Inline`320`ConvolveAttr*" "Sel*`Attributes`CurvatureAttrib"
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_curvatureatt.jpg"
 Ok
-TreeButton "Inline`320`CurvatureAtt*" Off
 
-TreeMenu "Inline`320" "Add attribute"
-TreeMenu "Inline`320`<right-click>" "Sel*`Attributes`DipAttrib"
+TreeMenu "Inline`320`CurvatureAttrib" "Sel*`Attributes`DipAttrib"
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_dipatt.jpg"
 Ok
-TreeButton "Inline`320`DipAtt*" Off
 
-TreeMenu "Inline`320" "Add attribute"
-TreeMenu "Inline`320`<right-click>" "Sel*`Attributes`DipAngleAttrib"
+TreeMenu "Inline`320`DipAttrib" "Sel*`Attributes`DipAngleAttrib"
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_dipangleatt.jpg"
 Ok
-TreeButton "Inline`320`DipAngleAtt*" Off
 
-TreeMenu "Inline`320`CoherencyAttr*" "Remove"
-TreeMenu "Inline`320`ConvolveAttr*" "Remove"
-TreeMenu "Inline`320`CurvatureAtt*" "Remove"
-TreeMenu "Inline`320`DipAtt*" "Remove"
-
-TreeMenu "Inline`320" "Add attribute"
-TreeMenu "Inline`320`<right-click>" "Sel*`Attributes`EnergyAttrib"
+TreeMenu "Inline`320`DipAngleAttrib" "Sel*`Attributes`EnergyAttrib"
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_energyatt.jpg"
 Ok
-TreeButton "Inline`320`EnergyAtt*" Off
 
-TreeMenu "Inline`320" "Add attribute"
-TreeMenu "Inline`320`<right-click>" "Sel*`Attributes`EventAttrib"
+TreeMenu "Inline`320`EnergyAttrib" "Sel*`Attributes`EventAttrib"
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_eventatt.jpg"
 Ok
-TreeButton "Inline`320`EventAtt*" Off
 
-TreeMenu "Inline`320" "Add attribute"
-TreeMenu "Inline`320`<right-click>" "Sel*`Attributes`FrequencyAttrib"
+TreeMenu "Inline`320`EventAttrib" "Sel*`Attributes`FrequencyAttrib"
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_frequencytatt.jpg"
 Ok
-TreeButton "Inline`320`FrequencyAtt*" Off
 
-TreeMenu "Inline`320" "Add attribute"
-TreeMenu "Inline`320`<right-click>" "Sel*`Attributes`FrequencyFil*"
+TreeMenu "Inline`320`FrequencyAttrib" "Sel*`Attributes`FrequencyFilterAttrib"
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_frequencyfilteratt.jpg"
 Ok
-TreeButton "Inline`320`FrequencyFilterAtt*" Off
 
-TreeMenu "Inline`320" "Add attribute"
-TreeMenu "Inline`320`<right-click>" "Sel*`Attributes`InstantaneousAttrib"
+TreeMenu "Inline`320`FrequencyFilterAttrib" "Sel*`Attributes`InstantaneousA*"
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_instantaneoustatt.jpg"
 Ok
-TreeButton "Inline`320`InstantaneousAtt*" Off
 
-TreeMenu "Inline`320`DipAngleAtt*" "Remove"
-TreeMenu "Inline`320`EnergyAttr*" "Remove"
-TreeMenu "Inline`320`EventAttr*" "Remove"
-TreeMenu "Inline`320`FrequencyAttr*" "Remove"
-TreeMenu "Inline`320`FrequencyFil*" "Remove"
-
-TreeMenu "Inline`320" "Add attribute"
-TreeMenu "Inline`320`<right-click>" "Sel*`Attributes`PositionAttrib"
+TreeMenu "Inline`320`InstantaneousAttrib" "Sel*`Attributes`PositionAttrib"
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_positionatt.jpg"
 Ok
-TreeButton "Inline`320`PositionAtt*" Off
 
-TreeMenu "Inline`320" "Add attribute"
-TreeMenu "Inline`320`<right-click>" "Sel*`Attributes`ReferenceShiftAttrib"
+TreeMenu "Inline`320`PositionAttrib" "Sel*`Attributes`ReferenceShiftAttrib"
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_referenceshiftatt.jpg"
 Ok
-TreeButton "Inline`320`ReferenceShiftAtt*" Off
 
-TreeMenu "Inline`320" "Add attribute"
-TreeMenu "Inline`320`<right-click>" "Sel*`Attributes`ScalingAttrib"
+TreeMenu "Inline`320`ReferenceShiftAttrib" "Sel*`Attributes`ScalingAttrib"
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_scalingatt.jpg"
 Ok
-TreeButton "Inline`320`ScalingAtt*" Off
 
-TreeMenu "Inline`320" "Add attribute"
-TreeMenu "Inline`320`<right-click>" "Sel*`Attributes`SimilarityAttrib"
+TreeMenu "Inline`320`ScalingAttrib" "Sel*`Attributes`SimilarityAttrib"
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_similarityatt.jpg"
 Ok
-TreeButton "Inline`320`SimilarityAtt*" Off
 
-TreeMenu "Inline`320" "Add attribute"
-TreeMenu "Inline`320`<right-click>" "Sel*`Attributes`SpectralDecompAttrib"
+TreeMenu "Inline`320`SimilarityAttrib" "Sel*`Attributes`SpectralDecompAttrib"
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_spectraldecompatt.jpg"
 Ok
-TreeButton "Inline`320`SpectralDecompAtt*" Off
 
-TreeMenu "Inline`320`Instantaneous*" "Remove"
-TreeMenu "Inline`320`PositionAttr*" "Remove"
-TreeMenu "Inline`320`ReferenceShift*" "Remove"
-TreeMenu "Inline`320`ScalingAttr*" "Remove"
-TreeMenu "Inline`320`SimilarityAttr*" "Remove"
 
-TreeMenu "Inline`320" "Add attribute"
-TreeMenu "Inline`320`<right-click>" "Sel*`Attributes`VelocityFanFilterAttrib"
+TreeMenu "Inline`320`SpectralDecomp*" "Sel*`Attributes`VelocityFanFilter*"
 Button "Make snapshot"
+Ok
 Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_velocityfanfilteratt.jpg"
 Ok
-TreeButton "Inline`320`VelocityFanFilterAtt*" Off
 
-TreeMenu "Inline`320" "Add attribute"
-TreeMenu "Inline`320`<right-click>" "Sel*`Attributes`VolumeStatisticsAttrib"
+TreeMenu "Inline`320`VelocityFanFilter*" "Sel*`Attributes`VolumeStatisticsAt*"
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_volumestatisticsatt.jpg"
 Ok
-TreeButton "Inline`320`VolumeStatisticsAtt*" Off
 
-TreeMenu "Inline`320`SpectralDecomp*" "Remove"
-TreeMenu "Inline`320`VelocityFan*" "Remove"
+TreeMenu "Inline`320" "Remove"
 
 End

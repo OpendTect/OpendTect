@@ -12,38 +12,30 @@ Button "New"
 
 Input "Survey directory*" "TestTutorial"
 Input "Full Survey name" "TestSurvey"
-Input "Location on disk" "$DATADIR$/Misc/"
+Input "Location on disk" "$BASEDIR$/F3_Demo_for_Test"
 Combo "Survey type" "Only 3D"
 Comment "------------"
 
 Combo "Input parameters" "Scan SEG-Y*"
 Button "Go"
 
+# CHANGE_FILEPATH
 Input "Input file" "/d12/nageswara/dev/dgb/data/tut.sgy"
 Input "X-coord byte" 81
 Input "Y-coord byte" 85
 
 Ok
 Ok
-
-#If TestTutorial Survey is already existed then TestTutorial-1 is created.
-
-OnError Continue
-Button "Ok"
-Input "Survey directory*" "TestTutorial-1"
 Ok
-Ok
-OnError Stop
 
-#Importing SEG-Y data or Converting SEG-Y to CBVS format
+#Importing SEG-Y data or Converting SEG-Y to CBVS_format
 
 Comment "---------Importing SEG-Y data-------------"
 
 Menu "Survey`Import`Seismics`SEG-Y`3D"
 Button "Define SEG-Y*"
+# CHANGE_FILEPATH
 Input "Input file" "/d12/nageswara/dev/dgb/data/tut.sgy"
-Input "In-line byte" 9
-Input "Cross-line byte" 21
 Ok
 Button "Select Volume*"
 Combo "Volume subselection" "All"
@@ -54,11 +46,9 @@ Button "Select Output Cube"
 Input "Name" "test-tut-survey"
 Ok
 
-OnError Continue
-Button "Yes"
 Ok
 Ok
-OnError Stop
+
 Comment "---------Displaying the Loaded SEG-Y data-----------"
 
 TreeMenu "Inline" "Add"

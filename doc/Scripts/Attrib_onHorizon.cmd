@@ -23,92 +23,127 @@ Ok
 TreeMenu "Horizon`Demo 1*" "Add attribute"
 TreeMenu "Horizon`Demo 1*`<right-click>" "Select*`Att*`Coherency*"
 Combo "Table selection" "Brown 4grades"
-Snapshot "$SCRIPTSDIR$/Snapshots/horDemo1_CoherencyAtt.png"
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_CoherencyAtt.jpg"
+Ok
 
-Wheel "vRotate" -85
+TreeMenu "Horizon`Demo 1*`Coherency*" "Select*`Att*`Convolve*"
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_ConvolveAtt.jpg"
+Ok
 
-TreeMenu "Horizon`Demo 1*" "Add attribute"
-TreeMenu "Horizon`Demo 1*`<right-click>" "Select*`Att*`Convolve*"
-Snapshot "$SCRIPTSDIR$/Snapshots/horDemo1_ConvolveAtt.png"
+TreeMenu "Horizon`Demo 1*`Convolve*" "Select*`Att*`Curvature*"
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_CurvatureAtt.jpg"
+Ok
 
-TreeMenu "Horizon`Demo 1*" "Add attribute"
-TreeMenu "Horizon`Demo 1*`<right-click>" "Select*`Att*`Curvature*"
-Snapshot "$SCRIPTSDIR$/Snapshots/horDemo1_CurvatureAtt.png"
+TreeMenu "Horizon`Demo 1*`Curvature*" "Select*`Att*`DipAtt*"
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_DipAtt.jpg"
+Ok
 
-TreeMenu "Horizon`Demo 1*" "Add attribute"
-TreeMenu "Horizon`Demo 1*`<right-click>" "Select*`Att*`dipatt*"
-Snapshot "$SCRIPTSDIR$/Snapshots/horDemo1_DipAtt.png"
+TreeMenu "Horizon`Demo 1*`DipAtt*" "Select*`Att*`DipAngle*"
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_DipangleAtt.jpg"
+Ok
 
-TreeMenu "Horizon`Demo 1*" "Add attribute"
-TreeMenu "Horizon`Demo 1*`<right-click>" "Select*`Att*`dipangle*"
-Snapshot "$SCRIPTSDIR$/Snapshots/horDemo1_DipAngleAttt.png"
+TreeMenu "Horizon`Demo 1*`DipAngle*" "Select*`Att*`Energy*"
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_EnergyAtt.jpg"
+Ok
 
-TreeMenu "Horizon`Demo 1*`CoherencyAtt*" "Remove"
-TreeMenu "Horizon`Demo 1*`ConvolveAtt*" "Remove"
-TreeMenu "Horizon`Demo 1*`CurvatureAtt*" "Remove"
-TreeMenu "Horizon`Demo 1*`DipAtt*" "Remove"
-TreeMenu "Horizon`Demo 1*`DipAngleAtt*" "Remove"
+TreeMenu "Horizon`Demo 1*`Energy*" "Select*`Att*`Event*"
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_EventAtt.jpg"
+Ok
 
-TreeMenu "Horizon`Demo 1*"  "Add attribute"
-TreeMenu "Horizon`Demo 1*`<right-click>" "Select*`Att*`energy*"
-Snapshot "$SCRIPTSDIR$/Snapshots/horDemo1_EnergyAtt.png"
+TreeMenu "Horizon`Demo 1*`Event*" "Select*`Att*`FrequencyAtt*"
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_FrequencyAtt.jpg"
+Ok
 
-TreeMenu "Horizon`Demo 1*" "Add attribute"
-TreeMenu "Horizon`Demo 1*`<right-click>" "Select*`Att*`event*"
-Snapshot "$SCRIPTSDIR$/Snapshots/horDemo1_EventAtt.png"
+TreeMenu "Horizon`Demo 1*`FrequencyAtt*" "Select*`Att*`FrequencyFil*"
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_FreqFilterAtt.jpg"
+Ok
 
-TreeMenu "Horizon`Demo 1*" "Add attribute"
-TreeMenu "Horizon`Demo 1*`<right-click>" "Select*`Att*`FrequencyAtt*"
-Snapshot "$SCRIPTSDIR$/Snapshots/horDemo1_FrequencyAtt.png"
+TreeMenu "Horizon`Demo 1*`FrequencyFil*" "Select*`Att*`Instantaneous*"
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_InstantaAtt.jpg"
+Ok
 
-TreeMenu "Horizon`Demo 1*" "Add attribute"
-TreeMenu "Horizon`Demo 1*`<right-click>" "Select*`Att*`FrequencyFil*"
-Snapshot "$SCRIPTSDIR$/Snapshots/horDemo1_FrequencyfilAtt.png"
+TreeMenu "Horizon`Demo 1*`Instantaneous*" "Select*`Att*`Position*"
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_PositionAtt.jpg"
+Ok
 
-TreeMenu "Horizon`Demo 1*" "Add attribute"
-TreeMenu "Horizon`Demo 1*`<right-click>" "Select*`Att*`Instantaneous*"
-Snapshot "$SCRIPTSDIR$/Snapshots/horDemo1_InstantaneousAtt.png"
+TreeMenu "Horizon`Demo 1*`Position*" "Select*`Att*`ReferenceShiftA*"
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_ReferShiftAtt.jpg"
+Ok
 
-TreeMenu "Horizon`Demo 1*`EnergyAtt*" "Remove"
-TreeMenu "Horizon`Demo 1*`EventAtt*" "Remove"
-TreeMenu "Horizon`Demo 1*`FrequencyAtt*" "Remove"
-TreeMenu "Horizon`Demo 1*`FrequencyFil*" "Remove"
-TreeMenu "Horizon`Demo 1*`InstantaneousAtt*" "Remove"
+TreeMenu "Horizon`Demo 1*`ReferenceShiftA*" "Select*`Att*`ScalingAt*"
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_ScalingAtt.jpg"
+Ok
 
-TreeMenu "Horizon`Demo 1*" "Add attribute"
-TreeMenu "Horizon`Demo 1*`<right-click>" "Select*`Att*`Position*"
-Snapshot "$SCRIPTSDIR$/Snapshots/horDemo1_PositionAtt.png"
+TreeMenu "Horizon`Demo 1*`ScalingAt*" "Select*`Att*`SimilarityAtt*"
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_SimilarityAtt.jpg"
+Ok
 
-TreeMenu "Horizon`Demo 1*" "Add attribute"
-TreeMenu "Horizon`Demo 1*`<right-click>" "Select*`Att*`Referenceshifta*"
-Snapshot "$SCRIPTSDIR$/Snapshots/horDemo1_ReferenceshiftAtt.png"
+TreeMenu "Horizon`Demo 1*`SimilarityAtt*" "Select*`Att*`SpectralDec*"
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_SpectralDecAtt.jpg"
+Ok
 
-TreeMenu "Horizon`Demo 1*" "Add attribute"
-TreeMenu "Horizon`Demo 1*`<right-click>" "Select*`Att*`scalingat*"
-Snapshot "$SCRIPTSDIR$/Snapshots/horDemo1_ScalingAtt.png"
+TreeMenu "Horizon`Demo 1*`SpectralDec*" "Select*`Att*`VelocityFanFi*"
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_VelFanfilAtt.jpg"
+Ok
 
-TreeMenu "Horizon`Demo 1*" "Add attribute"
-TreeMenu "Horizon`Demo 1*`<right-click>" "Select*`Att*`SimilarityAtt*"
-Snapshot "$SCRIPTSDIR$/Snapshots/horDemo1_SimilarityAtt.png"
+TreeMenu "Horizon`Demo 1*`VelocityFanFi*" "Select*`Att*`Volumestatistics*"
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_VolStatiAtt.jpg"
+Ok
 
-TreeMenu "Horizon`Demo 1*" "Add attribute"
-TreeMenu "Horizon`Demo 1*`<right-click>" "Select*`Att*`SpectralDec*"
-Snapshot "$SCRIPTSDIR$/Snapshots/horDemo1_SpectralDecAtt.png"
+TreeMenu "Horizon`Demo 1*" "Remove"
 
-TreeMenu "Horizon`Demo 1*`PositionAtt*" "Remove"
-TreeMenu "Horizon`Demo 1*`ReferenceShiftAtt*" "Remove"
-TreeMenu "Horizon`Demo 1*`ScalingAtt*" "Remove"
-TreeMenu "Horizon`Demo 1*`SimilarityAtt*" "Remove"
-TreeMenu "Horizon`Demo 1*`SpectralDecompAtt*" "Remove"
-
-TreeMenu "Horizon`Demo 1*" "Add attribute"
-TreeMenu "Horizon`Demo 1*`<right-click>" "Select*`Att*`VelocityFanFi*"
-Snapshot "$SCRIPTSDIR$/Snapshots/horDemo1_VelocityFanFilAtt.png"
-
-TreeMenu "Horizon`Demo 1*" "Add attribute"
-TreeMenu "Horizon`Demo 1*`<right-click>" "Select*`Att*`Volumestatistics*"
-Snapshot "$SCRIPTSDIR$/Snapshots/horDemo1_VolumestatisticsAtt.png"
-
+Slider "Zoom Slider" 29 
 Wheel "vRotate" -85
 
 End
