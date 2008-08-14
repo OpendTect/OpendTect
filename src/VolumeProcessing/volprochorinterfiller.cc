@@ -4,13 +4,15 @@
  *Date:		April 2007
 -*/
 
-static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.3 2008-08-12 19:22:30 cvskris Exp $";
+static const char* rcsID = "$Id: volprochorinterfiller.cc,v 1.4 2008-08-14 21:52:44 cvskris Exp $";
 
 #include "volprochorinterfiller.h"
 
 #include "arraynd.h"
 #include "emhorizon.h"
 #include "emmanager.h"
+#include "mousecursor.h"
+#include "survinfo.h"
 
 namespace VolProc
 {
@@ -28,6 +30,8 @@ HorInterFiller::HorInterFiller(Chain& pc)
     , bottomvalue_( mUdf(float) )
     , tophorizon_( 0 )
     , bottomhorizon_( 0 )
+    , gradient_( mUdf(float) )
+    , usegradient_( true )
 {}
 
 
@@ -38,12 +42,11 @@ HorInterFiller::~HorInterFiller()
 }    
 
 
-bool HorInterFiller::setTopHorizon( const MultiID* tmid,  float tv )
+bool HorInterFiller::setTopHorizon( const MultiID* tmid )
 {
     if ( !tmid )
     {
 	tophorizon_ = 0;
-	topvalue_ = mUdf(float);
 	return true;
     }
 
@@ -53,8 +56,6 @@ bool HorInterFiller::setTopHorizon( const MultiID* tmid,  float tv )
     tophorizon_ = newhor;
     tophorizon_->ref();
 
-    topvalue_ = tv;
-    
     return true;
 }    
 
@@ -75,12 +76,35 @@ float HorInterFiller::getBottomValue() const
 { return bottomvalue_; }
 
 
-bool HorInterFiller::setBottomHorizon( const MultiID* bmid, float bv )
+void HorInterFiller::setBottomValue( float bv )
+{ bottomvalue_ = bv; }
+
+
+void HorInterFiller::setTopValue( float tv )
+{ topvalue_ = tv; }
+
+
+bool HorInterFiller::usesGradient() const
+{ return usegradient_; }
+
+
+void HorInterFiller::useGradient( bool yn )
+{ usegradient_ = yn; }
+
+
+float HorInterFiller::getGradient() const
+{ return gradient_; }
+
+
+void HorInterFiller::setGradient( float g )
+{ gradient_ = g; }
+
+
+bool HorInterFiller::setBottomHorizon( const MultiID* bmid )
 {
     if ( !bmid )
     {
 	bottomhorizon_ = 0;
-	bottomvalue_ = mUdf(float);
 	return true;
     }
 
@@ -89,8 +113,6 @@ bool HorInterFiller::setBottomHorizon( const MultiID* bmid, float bv )
  
     bottomhorizon_ = newhor;
     bottomhorizon_->ref();
-
-    bottomvalue_ = bv;
 
     return true;
 }
@@ -115,7 +137,7 @@ Step*  HorInterFiller::create( Chain& pc )
 
 bool HorInterFiller::computeBinID( const BinID& bid, int )
 {
-    if ( !output_ || !output_->nrCubes() )
+    if ( !output_ || !output_->nrCubes() || !isOK() )
 	return false;
 
     const StepInterval<int> outputinlrg( output_->inlsampling.start,
@@ -136,12 +158,12 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 
     const double topdepth = tophorizon_
 	? tophorizon_->getPos(tophorizon_->sectionID(0), bid.getSerialized()).z
-	: mUdf(float);
-    
+	: SI().zRange(true).start;
+
     const double bottomdepth = bottomhorizon_
 	? bottomhorizon_->getPos(
 		bottomhorizon_->sectionID(0), bid.getSerialized() ).z
-	: mUdf(float);
+	: SI().zRange(true).stop;
 
     const int topsample = mIsUdf(topdepth)
 	? mUdf(int)
@@ -151,28 +173,13 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 	? mUdf(int)
 	: chain_.getZSampling().nearestIndex( bottomdepth );
 
-
     SamplingData<double> cursampling;
-    if ( !mIsUdf( topsample ) && !mIsUdf( bottomsample ) )
-    { 
-	cursampling.step = (topvalue_-bottomvalue_)/(topsample-bottomsample);
-	cursampling.start = topvalue_-topsample*cursampling.step;
-    }	
-    else if ( !mIsUdf( topsample ) )
-    {
-	cursampling.start = topvalue_;
-	cursampling.step = 0;
-    }
-    else if ( !mIsUdf( bottomsample ) )
-    {
-	cursampling.start = bottomvalue_;
-	cursampling.step = 0;
-    }
+    if ( usegradient_ )
+	cursampling.step = gradient_ * output_->zstep;
     else
-    {
-	cursampling.start = mUdf(float);
-	cursampling.step = 0;
-    }
+	cursampling.step = (topvalue_-bottomvalue_)/(topsample-bottomsample);
+
+    cursampling.start = topvalue_-topsample*cursampling.step;
 
     const Array3D<float>* inputarr = input_ && input_->nrCubes()
        	? &input_->getCube( 0 ) : 0;
@@ -238,17 +245,14 @@ bool HorInterFiller::computeBinID( const BinID& bid, int )
 void HorInterFiller::fillPar( IOPar& pars ) const
 {
     Step::fillPar( pars );
-    if ( tophorizon_ )
-    {
-	pars.set( sKeyTopHorID(), tophorizon_->multiID() );
-	pars.set( sKeyTopValue(), topvalue_ );
-    }
 
-    if ( bottomhorizon_ )
-    {
-	pars.set( sKeyBotHorID(), bottomhorizon_->multiID() );
-	pars.set( sKeyBotValue(), bottomvalue_ );
-    }
+    if ( tophorizon_ ) pars.set( sKeyTopHorID(), tophorizon_->multiID() );
+    if ( bottomhorizon_ ) pars.set( sKeyBotHorID(), bottomhorizon_->multiID() );
+
+    pars.set( sKeyTopValue(), topvalue_ );
+    pars.set( sKeyBotValue(), bottomvalue_ );
+    pars.set( sKeyGradient(), gradient_ );
+    pars.setYN( sKeyUseGradient(), usegradient_ );
 }
 
 
@@ -257,23 +261,43 @@ bool HorInterFiller::usePar( const IOPar& pars )
     if ( !Step::usePar( pars ) )
 	return false;
 
-    float topvalue;
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
+
+    topvalue_ = mUdf(float);
+    bottomvalue_ = mUdf(float);
+    gradient_ = mUdf(float);
+    usegradient_ = false;
+
+    pars.getYN( sKeyUseGradient(), usegradient_ );
+    pars.get( sKeyGradient(), gradient_ );
+    pars.get( sKeyBotValue(), bottomvalue_ );
+    pars.get( sKeyTopValue(), topvalue_ );
+
     MultiID tophorid;
+    if ( pars.get( sKeyTopHorID(), tophorid) && !setTopHorizon( &tophorid ) )
+	return false;
 
-    if ( pars.get( sKeyTopValue(), topvalue ) &&
-	 pars.get( sKeyTopHorID(), tophorid) &&
-	 !setTopHorizon( &tophorid, topvalue ) )
-    {
-	return true;
-    }
-
-    float bottomvalue;
     MultiID bottomhorid;
+    if ( pars.get( sKeyBotHorID(), bottomhorid ) &&
+	 !setBottomHorizon( &bottomhorid ) )
+	return false;
 
-    return !pars.get( sKeyBotValue(), bottomvalue ) ||
-	   !pars.get( sKeyBotHorID(), bottomhorid ) || 
-	   setBottomHorizon( &bottomhorid, bottomvalue );
+    return isOK();
 }
 
+
+bool HorInterFiller::isOK() const
+{
+    if ( mIsUdf(topvalue_) )
+	return false;
+
+    if ( usegradient_ && mIsUdf(gradient_) )
+	return false;
+
+    if ( !usegradient_ && mIsUdf(bottomvalue_) )
+	return false;
+
+    return true;
+}
 
 }; //namespace

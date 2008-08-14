@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.4 2008-08-12 19:22:30 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.5 2008-08-14 21:52:44 cvskris Exp $";
 
 #include "uivolprochorinterfiller.h"
 #include "uimsg.h"
@@ -12,6 +12,8 @@ static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.4 2008-08-12 19:
 
 #include "ctxtioobj.h"
 #include "emsurfacetr.h"
+#include "mousecursor.h"
+#include "survinfo.h"
 #include "uigeninput.h"
 #include "uiioobjsel.h"
 #include "uivolprocchain.h"
@@ -30,40 +32,55 @@ void uiHorInterFiller::initClass()
 
 uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
     : uiStepDialog( p, uiDialog::Setup( HorInterFiller::sUserName(),
-		    HorInterFiller::sUserName(), "helpid" ), hf )
+		HorInterFiller::sUserName(), "helpid" ),
+		    hf )
     , horinterfiller_( hf )
     , topctxt_( 0 )
     , bottomctxt_( 0 )
 {
-    usetopvalfld_ = new uiGenInput( this, "Use top value",
-	    			    BoolInpSpec(hf->getTopHorizonID()) );
-    usetopvalfld_->valuechanged.notify(mCB(this, uiHorInterFiller,updateFlds));
-    usetopvalfld_->attach( alignedBelow, namefld_ );
+    const char* hortxt = "Horizon";
+    usetophorfld_ = new uiGenInput( this, "Top boundary",
+		    BoolInpSpec(hf->getTopHorizonID(),hortxt, "Survey top") );
+    usetophorfld_->valuechanged.notify(mCB(this, uiHorInterFiller,updateFlds));
+    usetophorfld_->attach( alignedBelow, namefld_ );
     topctxt_ = mGetCtxtIOObj(EMHorizon3D,Surf);
     topctxt_->ctxt.forread = true;
     if ( hf->getTopHorizonID() )
 	topctxt_->setObj( *hf->getTopHorizonID() );
     tophorfld_ = new uiIOObjSel( this, *topctxt_, "Top Horizon" );
-    tophorfld_->attach( alignedBelow, usetopvalfld_ );
+    tophorfld_->attach( alignedBelow, usetophorfld_ );
     topvalfld_ = new uiGenInput( this, "Top Value", 
 	    			 FloatInpSpec( hf->getTopValue() ) );
     topvalfld_->attach( alignedBelow, tophorfld_ );
     
-    usebottomvalfld_ = new uiGenInput( this, "Use bottom value",
-	    			    BoolInpSpec(hf->getBottomHorizonID()) );
-    usebottomvalfld_->valuechanged.notify(
+    usebottomhorfld_ = new uiGenInput( this, "Bottom boundary",
+		BoolInpSpec(hf->getBottomHorizonID(),hortxt,"Survey bottom") );
+    usebottomhorfld_->valuechanged.notify(
 	    mCB(this, uiHorInterFiller,updateFlds) );
-    usebottomvalfld_->attach( alignedBelow, topvalfld_ );
+    usebottomhorfld_->attach( alignedBelow, topvalfld_ );
 
     bottomctxt_ = mGetCtxtIOObj(EMHorizon3D,Surf);
     bottomctxt_->ctxt.forread = true;
     if ( hf->getBottomHorizonID() )
 	bottomctxt_->setObj( *hf->getBottomHorizonID() );
     bottomhorfld_ = new uiIOObjSel( this, *bottomctxt_, "Bottom Horizon" );
-    bottomhorfld_->attach( alignedBelow, usebottomvalfld_ );
+    bottomhorfld_->attach( alignedBelow, usebottomhorfld_ );
+
+    usegradientfld_ = new uiGenInput( this, "Slope type",
+	    BoolInpSpec(hf->usesGradient(), "Gradient" , "Bottom value" ));
+    usegradientfld_->attach( alignedBelow, bottomhorfld_ );
+    usegradientfld_->valuechanged.notify(mCB(this,uiHorInterFiller,updateFlds));
+
+    BufferString gradientlabel = "Gradient [/";
+    gradientlabel += SI().getZUnit( false );
+    gradientlabel += "]";
+    gradientfld_ = new uiGenInput( this, gradientlabel.buf(),
+	    			   FloatInpSpec( hf->getGradient() ) );
+    gradientfld_->attach( alignedBelow, usegradientfld_ );
+
     bottomvalfld_ = new uiGenInput( this, "Bottom Value",
 	                            FloatInpSpec( hf->getBottomValue() ) ); 
-    bottomvalfld_->attach( alignedBelow, bottomhorfld_ );
+    bottomvalfld_->attach( alignedBelow, usegradientfld_ );
 
     updateFlds( 0 );
 }
@@ -81,11 +98,10 @@ uiHorInterFiller::~uiHorInterFiller()
 
 void uiHorInterFiller::updateFlds( CallBacker* )
 {
-    tophorfld_->display( usetopvalfld_->getBoolValue() );
-    topvalfld_->display( usetopvalfld_->getBoolValue() );
-
-    bottomhorfld_->display( usebottomvalfld_->getBoolValue() );
-    bottomvalfld_->display( usebottomvalfld_->getBoolValue() );
+    tophorfld_->display( usetophorfld_->getBoolValue() );
+    bottomhorfld_->display( usebottomhorfld_->getBoolValue() );
+    bottomvalfld_->display( !usegradientfld_->getBoolValue() );
+    gradientfld_->display( usegradientfld_->getBoolValue() );
 }
 
 
@@ -100,36 +116,36 @@ uiStepDialog* uiHorInterFiller::create( uiParent* parent, Step* ps )
 
 bool uiHorInterFiller::acceptOK( CallBacker* cb )
 {
+    MouseCursorChanger cursorlock( MouseCursor::Wait );
     if ( !uiStepDialog::acceptOK( cb ) )
 	return false;
 
-    tophorfld_->processInput();
-    bottomhorfld_->processInput();
-
-    if ( !usetopvalfld_->getBoolValue() && !usebottomvalfld_->getBoolValue() )
+    if ( mIsUdf( topvalfld_->getfValue() ) )
     {
-	uiMSG().error( "Either top or bottom horizon must be entered" );
+	uiMSG().error("Top value must be set");
 	return false;
     }
-    
-    if ( (usetopvalfld_->getBoolValue() && !tophorfld_->existingTyped()) ||
-	 (usebottomvalfld_->getBoolValue() && !bottomhorfld_->existingTyped()) )
+
+    if ( usegradientfld_->getBoolValue() && mIsUdf(gradientfld_->getfValue() ) )
+    {
+	uiMSG().error("Gradient must be set");
+	return false;
+    }
+
+    if ( !usegradientfld_->getBoolValue() && mIsUdf(bottomvalfld_->getfValue()))
+    {
+	uiMSG().error("Bottom value must be set");
+	return false;
+    }
+
+    if ( usetophorfld_->getBoolValue() && !tophorfld_->existingTyped() ||
+	 usebottomhorfld_->getBoolValue() && !bottomhorfld_->existingTyped() )
     {
 	uiMSG().error("Non-existing horizon selected");
 	return false;
     }
 
-    const bool istopudf = usetopvalfld_->getBoolValue() &&
-			  mIsUdf(topvalfld_->getfValue());
-    const bool isbotudf = usebottomvalfld_->getBoolValue() &&
-			  mIsUdf(bottomvalfld_->getfValue());
-    if ( istopudf || isbotudf )
-    {
-	uiMSG().error("No value specified");
-	return false;
-    }
-   
-    if ( usetopvalfld_->getBoolValue() && usebottomvalfld_->getBoolValue() &&
+    if ( usetophorfld_->getBoolValue() && usebottomhorfld_->getBoolValue() &&
 	 tophorfld_->ctxtIOObj().ioobj->key()==
 	 bottomhorfld_->ctxtIOObj().ioobj->key() )
     {
@@ -137,30 +153,34 @@ bool uiHorInterFiller::acceptOK( CallBacker* cb )
 	return false;
     }
 
-    if ( usetopvalfld_->getBoolValue() )
+    if ( usetophorfld_->getBoolValue() )
     {
 	const MultiID mid = tophorfld_->ctxtIOObj().ioobj->key();
-	if ( !horinterfiller_->setTopHorizon( &mid, topvalfld_->getfValue() ) )
+	if ( !horinterfiller_->setTopHorizon( &mid ) )
 	{
 	    uiMSG().error( "Could not set top horizon" );
 	    return false;
 	}
     }
     else
-	horinterfiller_->setTopHorizon( 0, mUdf(float) );
+	horinterfiller_->setTopHorizon( 0 );
 
-    if ( usebottomvalfld_->getBoolValue() )
+    if ( usebottomhorfld_->getBoolValue() )
     {
 	const MultiID mid = bottomhorfld_->ctxtIOObj().ioobj->key();
-	if ( !horinterfiller_->setBottomHorizon( &mid,
-		bottomvalfld_->getfValue()  ) )
+	if ( !horinterfiller_->setBottomHorizon( &mid ) )
 	{
 	    uiMSG().error( "Could not set bottom horizon" );
 	    return false;
 	}
     }
     else
-	horinterfiller_->setBottomHorizon( 0, mUdf(float) );
+	horinterfiller_->setBottomHorizon( 0 );
+
+    horinterfiller_->setTopValue( topvalfld_->getfValue() );
+    horinterfiller_->setBottomValue( bottomvalfld_->getfValue() );
+    horinterfiller_->setGradient( gradientfld_->getfValue() );
+    horinterfiller_->useGradient( usegradientfld_->getBoolValue() );
 
     return true;
 }

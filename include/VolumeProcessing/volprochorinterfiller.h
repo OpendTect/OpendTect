@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Y.C. Liu
  Date:		April 2007
- RCS:		$Id: volprochorinterfiller.h,v 1.2 2008-08-12 19:22:30 cvskris Exp $
+ RCS:		$Id: volprochorinterfiller.h,v 1.3 2008-08-14 21:52:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,6 +21,11 @@ namespace EM { class EMObject; class Horizon; }
 
 namespace VolProc
 {
+/*! Fills a volume with values. The top and bottom of the volume are either
+    the survey top/bottom or horizons. The values are fixed at the top
+    boundary (either horizon or survey top) and change either with a fixed
+    gradient or to a fixed value at the bottom boundary. */
+
     
 class HorInterFiller : public Step
 {
@@ -30,17 +35,30 @@ public:
     				~HorInterFiller();
 				HorInterFiller(Chain&);
 
+    bool			isOK() const;
+
     const char*			type() const { return sKeyType(); }
     bool			needsInput(const HorSampling& ) const
                                 	{ return true; }			
 
-    bool 			setTopHorizon(const MultiID*,float tv);
+    bool 			setTopHorizon(const MultiID*);
     const MultiID*		getTopHorizonID() const;
-    float			getTopValue() const;
     
-    bool			setBottomHorizon(const MultiID*,float bv);	
+    bool			setBottomHorizon(const MultiID*);	
     const MultiID*		getBottomHorizonID() const;
+
+    float			getTopValue() const;
+    void			setTopValue(float);
+
+    bool			usesGradient() const;
+    void			useGradient(bool);
+    				//!<If false, bottom value will be used
+
     float			getBottomValue() const;
+    void			setBottomValue(float);
+    				
+    float			getGradient() const;
+    void			setGradient(float);
     
     void			fillPar(IOPar&) const;
     bool			usePar(const IOPar&);
@@ -57,6 +75,9 @@ protected:
     static const char*		sKeyBotHorID()	{ return "Bottom horizon"; }
     static const char*		sKeyTopValue()	{ return "Top Value"; }
     static const char*		sKeyBotValue()	{ return "Bottom Value"; }
+    static const char*		sKeyGradient()  { return "Gradient"; }
+    static const char*		sKeyUseGradient() { return "Use Gradient"; }
+
   
     EM::Horizon*		loadHorizon(const MultiID&) const;
     static Step*      		create(Chain&);
@@ -65,6 +86,8 @@ protected:
     float			bottomvalue_;
     EM::Horizon*		tophorizon_;
     EM::Horizon*		bottomhorizon_; 
+    bool			usegradient_;
+    float			gradient_;
 };
 
 }; //namespace

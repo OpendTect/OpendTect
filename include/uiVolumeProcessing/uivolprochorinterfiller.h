@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Y.C. Liu
  Date:		April 2007
- RCS:		$Id: uivolprochorinterfiller.h,v 1.2 2008-08-04 22:31:16 cvskris Exp $
+ RCS:		$Id: uivolprochorinterfiller.h,v 1.3 2008-08-14 21:52:44 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,14 +39,18 @@ protected:
 
     HorInterFiller*		horinterfiller_;
 
-    uiGenInput*			usetopvalfld_;
+    uiGenInput*			usetophorfld_;
     CtxtIOObj*			topctxt_;
     uiIOObjSel*			tophorfld_;
     uiGenInput*			topvalfld_;
 
-    uiGenInput*			usebottomvalfld_;
+    uiGenInput*			usebottomhorfld_;
     uiIOObjSel*			bottomhorfld_;
     CtxtIOObj*			bottomctxt_;
+
+    uiGenInput*			usegradientfld_;
+
+    uiGenInput*			gradientfld_;
     uiGenInput*			bottomvalfld_;
 };
 
