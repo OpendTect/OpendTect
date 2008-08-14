@@ -6,6 +6,7 @@
 -*/
 
 #include "seiswrite.h"
+#include "keystrs.h"
 #include "seistrctr.h"
 #include "seistrc.h"
 #include "seisselection.h"
@@ -28,7 +29,6 @@ SeisTrcWriter::SeisTrcWriter( const IOObj* ioob, const LineKeyProvider* l )
 	: SeisStoreAccess(ioob)
     	, lineauxiopar(*new IOPar)
 	, lkp(l)
-	, hasdatetype(false)	
 {
     init();
 }
@@ -38,7 +38,6 @@ SeisTrcWriter::SeisTrcWriter( const char* fnm, bool is2d, bool isps )
 	: SeisStoreAccess(fnm,is2d,isps)
     	, lineauxiopar(*new IOPar)
 	, lkp(0)
-	,hasdatetype(false)	
 {
     init();
 }
@@ -208,8 +207,9 @@ bool SeisTrcWriter::next2DLine()
     IOPar* lineiopar = new IOPar;
     lk.fillPar( *lineiopar, true );
 
-    if ( hasdatetype )
-	lineiopar->set( "DataType", "Steering" );
+    if ( !datatype.isEmpty() )
+	lineiopar->set( sKey::DataType, datatype.buf() );
+
     lineiopar->merge( lineauxiopar );
     putter = lset->linePutter( lineiopar );
     if ( !putter )

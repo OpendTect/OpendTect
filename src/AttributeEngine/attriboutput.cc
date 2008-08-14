@@ -5,15 +5,16 @@
 -*/
 
 
-static const char* rcsID = "$Id: attriboutput.cc,v 1.85 2008-07-21 09:07:32 cvsumesh Exp $";
+static const char* rcsID = "$Id: attriboutput.cc,v 1.86 2008-08-14 09:24:53 cvsumesh Exp $";
 
 #include "attriboutput.h"
 
 #include "arraynd.h"
 #include "attribdatacubes.h"
 #include "attribdataholder.h"
-#include "convmemvalseries.h"
+#include "bufstringset.h"
 #include "binidvalset.h"
+#include "convmemvalseries.h"
 #include "datapointset.h"
 #include "interpol1d.h"
 #include "ioman.h"
@@ -27,6 +28,7 @@ static const char* rcsID = "$Id: attriboutput.cc,v 1.85 2008-07-21 09:07:32 cvsu
 #include "seistrc.h"
 #include "seisselectionimpl.h"
 #include "seistrctr.h"
+#include "seistype.h"
 #include "seiswrite.h"
 #include "simpnumer.h"
 #include "separstr.h"
@@ -332,8 +334,8 @@ bool SeisTrcStorOutput::doUsePar( const IOPar& pars )
     if ( sepstr[1] && *sepstr[1] )
 	attribname_ = sepstr[1];
 
-    if ( sepstr[2] && *sepstr[2] && !strcmp(sepstr[2],sKey::Steering) )
-	hasdatatype_ = true;
+    if ( sepstr[2] && *sepstr[2] && isDataType(sepstr[2]) )
+	datatype_ += sepstr[2];
 
     const char* res = outppar->find( scalekey );
     if ( res )
@@ -366,8 +368,8 @@ bool SeisTrcStorOutput::doInit()
 	writer_ = new SeisTrcWriter( ioseisout );
 	is2d_ = writer_->is2D();
 
-	if ( is2d_ && hasdatatype_ )
-	    writer_->setHasdatatype( hasdatatype_ );
+	if ( is2d_ && !datatype_.isEmpty() )
+	    writer_->setDataType( datatype_.buf() );
 	    
 
 	if ( auxpars_ )
@@ -385,6 +387,24 @@ bool SeisTrcStorOutput::doInit()
 	CubeSampling& cs = ((Seis::RangeSelData*)seldata_)->cubeSampling();
 	desiredvolume_.limitTo( cs );
     }
+
+    return true;
+}
+
+
+bool SeisTrcStorOutput::isDataType( const char* reqdatatype) const
+{
+    BufferString datatypeinques;
+
+    if ( !strcmp(reqdatatype, sKey::Steering) )
+	datatypeinques += "Dip";
+    else
+	datatypeinques += reqdatatype;
+
+    BufferStringSet datatypes( Seis::dataTypeNames() );
+
+    if ( datatypes.indexOf(datatypeinques.buf()) < 0 )
+	return false;
 
     return true;
 }
