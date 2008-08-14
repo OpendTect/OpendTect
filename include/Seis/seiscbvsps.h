@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seiscbvsps.h,v 1.13 2008-05-14 13:14:58 cvsbert Exp $
+ RCS:		$Id: seiscbvsps.h,v 1.14 2008-08-14 14:08:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,6 +89,8 @@ public:
     bool		getSampleNames( BufferStringSet& bss ) const
 			{ return SeisCBVSPSIO::getSampleNames(bss); }
 
+    void		usePar( const IOPar& i ) { SeisCBVSPSIO::usePar(i); }
+
 protected:
 
     PosInfo::CubeData&	posdata_;
@@ -122,6 +124,8 @@ public:
     bool		getSampleNames( BufferStringSet& bss ) const
 			{ return SeisCBVSPSIO::getSampleNames(bss); }
 
+    void		usePar( const IOPar& i ) { SeisCBVSPSIO::usePar(i); }
+
 protected:
 
     PosInfo::Line2DData& posdata_;
@@ -152,6 +156,8 @@ public:
     bool		setSampleNames( const BufferStringSet& bss ) const
 			{ return SeisCBVSPSIO::setSampleNames(bss); }
 
+    void		usePar( const IOPar& i ) { SeisCBVSPSIO::usePar(i); }
+
 protected:
 
     BinID&		prevbid_;
@@ -181,6 +187,8 @@ public:
 
     bool		setSampleNames( const BufferStringSet& bss ) const
 			{ return SeisCBVSPSIO::setSampleNames(bss); }
+
+    void		usePar( const IOPar& i ) { SeisCBVSPSIO::usePar(i); }
 
 protected:
 
