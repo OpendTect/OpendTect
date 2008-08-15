@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.9 2008-08-15 15:42:30 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.10 2008-08-15 16:21:04 cvsyuancheng Exp $";
 
 #include "gridder2d.h"
 
@@ -475,21 +475,17 @@ bool TriangulatedGridder2D::init()
 	for ( int idx=0; idx<points_->size(); idx++ )
 	    pts += (*points_)[idx];
 
-	const Coord center( xrg.center(), yrg.center() );
-	const double xlength = xrg.width();
-	const double ylength = yrg.width();
-	const float radius = sqrt( xlength*xlength+ylength*ylength );
-	const double xunit = xlength/10;
-        const double yunit = ylength/10;
-	for ( int idx=0; idx<10; idx++ )
+	const float radius = sqrt( xrg.width()*xrg.width() + 
+				   yrg.width()*yrg.width() )+1;
+	const int nrptsinsert = 40;
+	for ( int idx=0; idx<nrptsinsert/2; idx++ )
 	{
-	    pts += Coord( xrg.start, yrg.start+idx*yunit );
-	    pts += Coord( xrg.stop, yrg.start+idx*yunit );
-	    if ( idx )
-	    {
-    		pts += Coord( xrg.start+idx*xunit, yrg.start );
-    		pts += Coord( xrg.start+idx*xunit, yrg.stop );
-	    }
+	    const double length = radius*(idx*0.1-1);
+	    const double x = xrg.center()+length;
+	    const double y = sqrt( radius*radius-length*length ); 
+	    pts += Coord( x, y );
+	    if ( idx && idx<nrptsinsert/2-1 )
+		pts += Coord( x, -y );
 	}
 
 	if ( !triangles_->setCoordList( pts, true ) )
