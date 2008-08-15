@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.22 2008-08-13 19:06:15 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.23 2008-08-15 18:36:58 cvsyuancheng Exp $";
 
 #include "delaunay.h"
 #include "trigonometry.h"
@@ -1201,6 +1201,56 @@ bool DAGTriangleTree::getConnectionWeights( int vertex, TypeSet<int>& conns,
 					    TypeSet<double>& weights) const
 {
     if ( !getConnections( vertex, conns ) )
+	return false;
+
+    for ( int knot=0; knot<conns.size(); knot++ )
+    {
+	const Coord diff = mCrd(vertex)-mCrd(conns[knot]);
+	weights += 1/(diff.x*diff.x+diff.y*diff.y);
+    }
+
+    double sum = 0;
+    for ( int knot=0; knot<weights.size(); knot++ )
+	sum += weights[knot];
+
+    for ( int knot=0; knot<weights.size(); knot++ )
+	weights[knot] /= sum;
+
+    return true;
+}
+
+
+bool DAGTriangleTree::getConnExceptPts( int vertex, TypeSet<int>& conns,
+	TypeSet<double>& weights, const TypeSet<int>& exceptions ) const
+{
+    for ( int idx=triangles_.size()-1; idx>=0; idx-- )
+    {
+	const int* child = triangles_[idx].childindices_;
+	if ( child[0]>=0 || child[1]>=0 || child[2]>=0 )
+	    continue;
+
+	const int* c = triangles_[idx].coordindices_;
+	if ( c[0]!=vertex && c[1]!=vertex && c[2]!=vertex )
+	    continue;
+	
+	for ( int idy=0; idy<3; idy++ )
+	{
+	    if ( c[idy]<0 || c[idy]==vertex || conns.indexOf(c[idy])!=-1 )
+		continue;
+
+	    bool found = false;
+	    for ( int expt=0; expt<exceptions.size(); expt++ )
+	    {
+		if ( c[idy]==exceptions[expt] )
+		    found = true;
+	    }
+
+	    if ( !found )
+    		conns += c[idy];
+	}
+    }
+
+    if ( !conns.size() )
 	return false;
 
     for ( int knot=0; knot<conns.size(); knot++ )

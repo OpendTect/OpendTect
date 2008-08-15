@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.18 2008-08-13 19:06:15 cvsyuancheng Exp $
+ RCS:           $Id: delaunay.h,v 1.19 2008-08-15 18:36:58 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -58,6 +58,9 @@ public:
 			    ci[0], ci[1], ci[2] is the first triangle
 			    ci[3], ci[4], ci[5] is the second triangle. */
     bool		getConnections(int pointidx,TypeSet<int>&) const;
+    bool		getConnExceptPts(int pointidx,TypeSet<int>& conns,
+	    				 TypeSet<double>& weights, 
+					 const TypeSet<int>& exceptions) const;
     bool		getConnectionWeights(int pointidx,TypeSet<int>& conns,
 	    				     TypeSet<double>& weights) const;
     			/*!Calculate inverse distance weight for each conns.*/
