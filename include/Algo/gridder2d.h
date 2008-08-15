@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Y.C.Liu & K. Tingdahl
  Date:		January 2008
- RCS:		$Id: gridder2d.h,v 1.7 2008-08-13 15:30:31 cvsyuancheng Exp $
+ RCS:		$Id: gridder2d.h,v 1.8 2008-08-15 18:37:31 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -178,6 +178,7 @@ protected:
     DAGTriangleTree*	triangles_;
     Interval<float>	xrg_;
     Interval<float>	yrg_;
+    TypeSet<int>	addedindices_;
 };
 
 

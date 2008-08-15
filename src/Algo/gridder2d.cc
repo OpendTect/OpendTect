@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.10 2008-08-15 16:21:04 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.11 2008-08-15 18:37:31 cvsyuancheng Exp $";
 
 #include "gridder2d.h"
 
@@ -488,6 +488,10 @@ bool TriangulatedGridder2D::init()
 		pts += Coord( x, -y );
 	}
 
+	addedindices_.erase();
+    	for ( int idx=pts.size()-1; idx>=points_->size(); idx-- )
+    	    addedindices_ += idx;
+
 	if ( !triangles_->setCoordList( pts, true ) )
 	    return false;
 	
@@ -535,13 +539,14 @@ bool TriangulatedGridder2D::init()
     float weight[3];
     interpolateOnTriangle2D( gridpoint_, vertex[0], vertex[1], vertex[2], 
 			     weight[0], weight[1], weight[2] );
+
     for ( int idx=0; idx<3; idx++ )
     {
-    	if ( vertices[idx]<0 )
+    	if ( vertices[idx]<0 || vertices[idx]>=points_->size() )
     	{
 	    TypeSet<int> conns;
 	    TypeSet<double> ws;
-	    triangles_->getConnectionWeights( vertices[idx], conns, ws );
+	    triangles_->getConnExceptPts(vertices[idx],conns,ws,addedindices_);
 
     	    for ( int idy=0; idy<ws.size(); idy++ )
     	    {
