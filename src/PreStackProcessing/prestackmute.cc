@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: prestackmute.cc,v 1.9 2008-01-23 20:56:59 cvskris Exp $";
+static const char* rcsID = "$Id: prestackmute.cc,v 1.10 2008-08-15 12:20:59 cvskris Exp $";
 
 #include "prestackmute.h"
 
@@ -39,8 +39,7 @@ Mute::Mute()
     , muter_(0)
     , tail_(false)
     , taperlen_(10)
-{
-}
+{}
 
 
 Mute::~Mute()
@@ -62,6 +61,14 @@ bool Mute::prepareWork()
 
     muter_ = new Muter( taperlen_, tail_ );
     return true;
+}
+
+
+void Mute::setEmptyMute()
+{
+    id_ = MultiID();
+    while ( def_.size() )
+	def_.remove( 0 );
 }
 
 
