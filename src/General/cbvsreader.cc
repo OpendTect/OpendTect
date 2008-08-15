@@ -5,7 +5,7 @@
  * FUNCTION : CBVS I/O
 -*/
 
-static const char* rcsID = "$Id: cbvsreader.cc,v 1.72 2008-01-08 11:53:52 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsreader.cc,v 1.73 2008-08-15 12:23:26 cvsbert Exp $";
 
 /*!
 
@@ -112,6 +112,9 @@ bool CBVSReader::readInfo( bool wanttrailer )
     bool needtrailer = !geom.fullyrectandreg || coordpol_ == InTrailer;
     if ( wanttrailer && needtrailer && !readTrailer() )
 	return false;
+
+    if ( wanttrailer )
+	geom.reCalcBounds();
 
     firstbinid = geom.start; lastbinid = geom.stop;
     if ( geom.fullyrectandreg || !wanttrailer )

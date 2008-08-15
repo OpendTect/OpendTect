@@ -5,7 +5,7 @@
  * FUNCTION : CBVS File pack reading
 -*/
 
-static const char* rcsID = "$Id: cbvsinfo.cc,v 1.23 2007-11-29 14:36:04 cvsbert Exp $";
+static const char* rcsID = "$Id: cbvsinfo.cc,v 1.24 2008-08-15 12:23:26 cvsbert Exp $";
 
 #include "cbvsinfo.h"
 #include "cubesampling.h"
@@ -252,9 +252,10 @@ void CBVSInfo::SurvGeom::reCalcBounds()
 
     HorSampling hs(false);
     hs.start = start; hs.stop = stop;
-    for ( int idx=0; idx<cubedata.size(); idx++ )
+    bool firstpos = true;
+    for ( int icd=0; icd<cubedata.size(); icd++ )
     {
-	const PosInfo::LineData& ii = *cubedata[idx];
+	const PosInfo::LineData& ii = *cubedata[icd];
 	for ( int iseg=0; iseg<ii.segments_.size(); iseg++ )
 	{
 	    const PosInfo::LineData::Segment& seg = ii.segments_[iseg];
@@ -267,6 +268,11 @@ void CBVSInfo::SurvGeom::reCalcBounds()
 		continue;
 	    }
 
+	    if ( firstpos )
+	    {
+		hs.start = hs.stop = BinID( ii.linenr_, seg.start );
+		firstpos = false;
+	    }
 	    hs.include( BinID(ii.linenr_,seg.start) );
 	    hs.include( BinID(ii.linenr_,seg.stop) );
 	}
