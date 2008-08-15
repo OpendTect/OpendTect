@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.8 2008-08-13 19:09:21 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.9 2008-08-15 15:42:30 cvsyuancheng Exp $";
 
 #include "gridder2d.h"
 
@@ -468,15 +468,33 @@ bool TriangulatedGridder2D::init()
 	if ( !DAGTriangleTree::computeCoordRanges( *points_, xrg, yrg ) )
 	    return false;
 	
-	if ( !triangles_->setCoordList( *points_, true ) )
-	    return false;
-	
 	xrg.include( xrg_.start ); xrg.include( xrg_.stop );
 	yrg.include( yrg_.start ); yrg.include( yrg_.stop );
 
-	if ( !triangles_->setBBox( xrg, yrg ) )
-	    return false;	    
+	TypeSet<Coord> pts;
+	for ( int idx=0; idx<points_->size(); idx++ )
+	    pts += (*points_)[idx];
 
+	const Coord center( xrg.center(), yrg.center() );
+	const double xlength = xrg.width();
+	const double ylength = yrg.width();
+	const float radius = sqrt( xlength*xlength+ylength*ylength );
+	const double xunit = xlength/10;
+        const double yunit = ylength/10;
+	for ( int idx=0; idx<10; idx++ )
+	{
+	    pts += Coord( xrg.start, yrg.start+idx*yunit );
+	    pts += Coord( xrg.stop, yrg.start+idx*yunit );
+	    if ( idx )
+	    {
+    		pts += Coord( xrg.start+idx*xunit, yrg.start );
+    		pts += Coord( xrg.start+idx*xunit, yrg.stop );
+	    }
+	}
+
+	if ( !triangles_->setCoordList( pts, true ) )
+	    return false;
+	
 	ParallelDTriangulator triangulator( *triangles_ );
 	triangulator.dataIsRandom( true ); //false );
 	if ( !triangulator.execute( false ) )
