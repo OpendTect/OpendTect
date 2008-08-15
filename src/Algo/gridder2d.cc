@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.11 2008-08-15 18:37:31 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.12 2008-08-15 22:23:06 cvskris Exp $";
 
 #include "gridder2d.h"
 
@@ -211,7 +211,7 @@ bool InverseDistanceGridder2D::init()
 	    return true;
 	}
 
-	const double dist = sqrt( sqdist );
+	const double dist = Math::Sqrt( sqdist );
 	const double weight = 1/dist;
 
 	weightsum += weight;
@@ -475,17 +475,17 @@ bool TriangulatedGridder2D::init()
 	for ( int idx=0; idx<points_->size(); idx++ )
 	    pts += (*points_)[idx];
 
-	const float radius = sqrt( xrg.width()*xrg.width() + 
-				   yrg.width()*yrg.width() )+1;
-	const int nrptsinsert = 40;
+	const float radius = Math::Sqrt( xrg.width()*xrg.width() + 
+				   yrg.width()*yrg.width() )/2*1.05;
+	const int nrptsinsert = 10;
 	for ( int idx=0; idx<nrptsinsert/2; idx++ )
 	{
 	    const double length = radius*(idx*0.1-1);
 	    const double x = xrg.center()+length;
-	    const double y = sqrt( radius*radius-length*length ); 
-	    pts += Coord( x, y );
+	    const double y = Math::Sqrt( radius*radius-length*length ); 
+	    pts += Coord( x, yrg.center()+y );
 	    if ( idx && idx<nrptsinsert/2-1 )
-		pts += Coord( x, -y );
+		pts += Coord( x, yrg.center()-y );
 	}
 
 	addedindices_.erase();
