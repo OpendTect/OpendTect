@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.30 2008-05-12 06:46:21 cvsraman Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.31 2008-08-15 12:28:31 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -441,8 +441,9 @@ bool SeisCBVSPS3DWriter::put( const SeisTrc& trc )
     {
 	if ( !newInl(trc) )
 	    return false;
+	nringather_ = 1;
     }
-    if ( trcbid.crl != prevbid_.crl )
+    else if ( trcbid.crl != prevbid_.crl )
 	nringather_ = 1;
     prevbid_ = trcbid;
 
