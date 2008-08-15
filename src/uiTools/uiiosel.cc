@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          start of 2001
- RCS:           $Id: uiiosel.cc,v 1.48 2008-05-23 05:20:27 cvsnageswara Exp $
+ RCS:           $Id: uiiosel.cc,v 1.49 2008-08-15 12:19:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -173,6 +173,14 @@ void uiIOSelect::addSpecialItem( const char* key, const char* value )
     if ( !value ) value = key;
     specialitems.set( key, value );
 }
+
+
+bool uiIOSelect::isEmpty() const
+{
+    const char* inp = getInput();
+    return !inp || !*inp;
+}
+    
 
 
 const char* uiIOSelect::getInput() const

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.32 2008-02-07 13:17:59 cvsbert Exp $
+ RCS:           $Id: uiiosel.h,v 1.33 2008-08-15 12:19:04 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
 				   bool keepmytxt=false);
 			~uiIOSelect();
 
+    bool		isEmpty() const;
     const char*		getInput() const;
     const char*		getKey() const;
     void		setInput(const char* key);
