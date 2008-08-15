@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uiprestackmute.cc,v 1.4 2008-06-06 16:59:26 cvskris Exp $";
+static const char* rcsID = "$Id: uiprestackmute.cc,v 1.5 2008-08-15 12:21:29 cvskris Exp $";
 
 #include "uiprestackmute.h"
 
@@ -55,13 +55,17 @@ uiMute::uiMute( uiParent* p, Mute* sgmute )
 bool uiMute::acceptOK(CallBacker*)
 {
     if ( !processor_ ) return true;
-    if ( !mutedeffld_->commitInput(false) || !ctio_.ioobj )
+
+    if ( mutedeffld_->isEmpty() )
+	processor_->setEmptyMute();
+    else if ( !mutedeffld_->commitInput(false) || !ctio_.ioobj )
     {
-	uiMSG().error( "Please select a Mute Definition" );
+	uiMSG().error("Cannot find mute");
 	return false;
     }
+    else
+	processor_->setMuteDefID( ctio_.ioobj->key() );
 
-    processor_->setMuteDefID( ctio_.ioobj->key() );
     processor_->setTaperLength( taperlenfld_->getfValue() );
     processor_->setTailMute( !topfld_->getBoolValue() );
     return true;
