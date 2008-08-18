@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.12 2008-08-15 22:23:06 cvskris Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.13 2008-08-18 16:31:53 cvsyuancheng Exp $";
 
 #include "gridder2d.h"
 
@@ -477,10 +477,10 @@ bool TriangulatedGridder2D::init()
 
 	const float radius = Math::Sqrt( xrg.width()*xrg.width() + 
 				   yrg.width()*yrg.width() )/2*1.05;
-	const int nrptsinsert = 10;
+	const int nrptsinsert = 10; //should be >2.
 	for ( int idx=0; idx<nrptsinsert/2; idx++ )
 	{
-	    const double length = radius*(idx*0.1-1);
+	    const double length = radius*((float)idx*4/(nrptsinsert-2)-1);
 	    const double x = xrg.center()+length;
 	    const double y = Math::Sqrt( radius*radius-length*length ); 
 	    pts += Coord( x, yrg.center()+y );
