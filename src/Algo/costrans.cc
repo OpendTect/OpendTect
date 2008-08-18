@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: costrans.cc,v 1.6 2003-11-07 12:21:57 bert Exp $";
+static const char* rcsID = "$Id: costrans.cc,v 1.7 2008-08-18 13:36:41 cvsyuancheng Exp $";
 
 
 #include "costrans.h"
@@ -24,7 +24,7 @@ bool CosineTransform::CosineTransform1D::init()
     }
 
     two_over_size = 2.0/(double)size;
-    root2_over_rootsize = sqrt(2.0/(double)size);
+    root2_over_rootsize = Math::Sqrt(2.0/(double)size);
 
     return true;
 }

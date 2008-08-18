@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rcol.h,v 1.14 2008-05-29 13:25:29 cvskris Exp $
+ RCS:		$Id: rcol.h,v 1.15 2008-08-18 13:32:23 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 /*!\brief Object with row and col, which are accesable through r() and c(). */
 
 #include "gendefs.h"
+#include "math2.h"
 #include "plftypes.h"
 #include "undefval.h"
 
@@ -164,7 +165,7 @@ RColLineBuilder<T,TT>::RColLineBuilder( const TT& start,
    , dir_( dir )
    , step_( step )
    , line_( line )
-   , dirlen_( sqrt(float(dir_[0]*dir_[0]+dir_[1]*dir_[1])) )
+   , dirlen_( Math::Sqrt(float(dir_[0]*dir_[0]+dir_[1]*dir_[1])) )
 {}
 
 

@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		17-11-1999
  Contents:	Mathematical Functions
- RCS:		$Id: mathfunc.h,v 1.22 2007-10-05 10:38:34 cvsnanne Exp $
+ RCS:		$Id: mathfunc.h,v 1.23 2008-08-18 13:32:23 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -275,7 +275,7 @@ public:
 			    if ( squareterm<0 )
 				return 0;
 
-			    const double sq = sqrt(squareterm);
+			    const double sq = Math::Sqrt(squareterm);
 
 
 			    pos0 = -halfp+sq;

@@ -6,17 +6,17 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl (org) / Bert Bril (rev)
  Date:          10-12-1999 / Sep 2006
- RCS:           $Id: statruncalc.h,v 1.13 2008-06-11 13:36:01 cvsbert Exp $
+ RCS:           $Id: statruncalc.h,v 1.14 2008-08-18 13:32:23 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "convert.h"
+#include "math2.h"
 #include "stattype.h"
 #include "sorting.h"
 #include "sets.h"
-#include "convert.h"
 
-#include <math.h>
 
 #define mUndefReplacement 0
 
@@ -466,7 +466,7 @@ inline double RunCalc<T>::stdDev() const
     mChkEmpty(double);
 
     double v = variance();
-    return v > 0 ? sqrt( v ) : 0;
+    return v > 0 ? Math::Sqrt( v ) : 0;
 }
 
 
@@ -550,9 +550,9 @@ inline double RunCalc<T>::rms() const
     mChkEmpty(double);
 
     if ( !setup_.weighted_ )
-	return sqrt( ((double)sum_xx) / nrused_ );
+	return Math::Sqrt( ((double)sum_xx) / nrused_ );
 
-    return isZero(sum_w) ? mUdf(double) : sqrt( ((double)sum_wxx) / sum_w );
+    return isZero(sum_w) ? mUdf(double) : Math::Sqrt( ((double)sum_wxx)/sum_w );
 }
 
 

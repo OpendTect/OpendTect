@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: valwitherror.h,v 1.6 2004-06-16 14:54:18 bert Exp $
+ RCS:           $Id: valwitherror.h,v 1.7 2008-08-18 13:32:23 cvsyuancheng Exp $
 ________________________________________________________________________
 
 ValWithError is a value with a known error (variance), and that knows
@@ -45,7 +45,8 @@ public:
     template<class B> void     		operator /= (B b) 
 					{ val_ /= b; variance_ /= fabs(b);} 
 
-    A					stDev() const { return sqrt(variance_);}
+    A					stDev() const 
+    					{ return Math::Sqrt(variance_);}
     A					var() const { return variance_; }
     A	        			val() const { return val_; }
 

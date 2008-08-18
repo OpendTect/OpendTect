@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	Bert BRil & Kris Tingdahl
  Date:		12-4-1999
  Contents:	'Simple' numerical functions
- RCS:		$Id: simpnumer.h,v 1.28 2008-05-29 13:18:19 cvskris Exp $
+ RCS:		$Id: simpnumer.h,v 1.29 2008-08-18 13:32:23 cvsyuancheng Exp $
 ________________________________________________________________________
 
 */
@@ -290,8 +290,8 @@ inline int solve3DPoly( double a, double b, double c,
 
     if ( r2<q3 )
     {
-	const double minus_twosqrt_q = -2*sqrt(q);
-	const double theta = Math::ACos(r/sqrt(q3));
+	const double minus_twosqrt_q = -2*Math::Sqrt(q);
+	const double theta = Math::ACos(r/Math::Sqrt(q3));
 	static const double twopi = 2*M_PI;
 
 
@@ -301,14 +301,14 @@ inline int solve3DPoly( double a, double b, double c,
 	return 3;
     }
 
-    const double A=(r>0?-1:1)*pow(fabs(r)+sqrt(r2-q3),1/3);
+    const double A=(r>0?-1:1)*pow(fabs(r)+Math::Sqrt(r2-q3),1/3);
     const double B=mIsZero(A,mDefEps)?0:q/A;
 
     root0 = A+B+minus_a_through_3;
 
     /*!
     The complex roots can be calculated as follows:
-    static const double sqrt3_through_2 = sqrt(3)/2;
+    static const double sqrt3_through_2 = Math::Sqrt(3)/2;
 
     root1 = complex_double( 0.5*(A+B)+minus_a_through_3,
 			   sqrt3_through_2*(A-B));

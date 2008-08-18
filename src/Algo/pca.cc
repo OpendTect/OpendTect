@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: pca.cc,v 1.11 2007-11-02 19:14:01 cvskris Exp $";
+static const char* rcsID = "$Id: pca.cc,v 1.12 2008-08-18 13:36:41 cvsyuancheng Exp $";
 
 
 #include "pca.h"
@@ -132,7 +132,7 @@ bool PCA::tqli( float d[], float e[], int n, ObjectSet<float>& z )
 		}
 
 		float g = (d[idx+1]-d[idx])/(2.0*e[idx]);
-		float r = sqrt((g*g)+1.0);
+		float r = Math::Sqrt((g*g)+1.0);
 		g = d[idy]-d[idx]+e[idx]/(g+SIGN(r,g));
 
 		float c = 1;
@@ -145,14 +145,14 @@ bool PCA::tqli( float d[], float e[], int n, ObjectSet<float>& z )
 		    if ( fabs(f)>=fabs(g) )
 		    {
 			c= g/f;
-			r = sqrt((c*c)+1.0);
+			r = Math::Sqrt((c*c)+1.0);
 			e[idz+1] = f*r;
 			c *= (s=1.0/r);
 		    }
 		    else
 		    {
 			s = f/g;
-			r = sqrt((s*s)+1.0);
+			r = Math::Sqrt((s*s)+1.0);
 			e[idz+1] = g*r;
 			s *= (c=1.0/r);
 		    }
@@ -205,7 +205,7 @@ void PCA::tred2( ObjectSet<float>& a, int n, float d[], float e[])
 		    h += a[idx][idy]*a[idx][idy];
 		}
 		f = a[idx][last];
-		g = f>0 ? -sqrt(h) : sqrt(h);
+		g = f>0 ? -Math::Sqrt(h) : Math::Sqrt(h);
 		e[idx] = scale*g;
 		h -= f*g;
 		a[idx][last] = f-g;

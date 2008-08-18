@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
  
-static const char* rcsID = "$Id: linear.cc,v 1.14 2008-07-02 21:04:05 cvskris Exp $";
+static const char* rcsID = "$Id: linear.cc,v 1.15 2008-08-18 13:36:41 cvsyuancheng Exp $";
 
 
 #include "linear.h"
@@ -62,7 +62,7 @@ static void calcLS( LinStats2D& ls, const char* xvals, const char* yvals,
 
     ls.lp.ax = sumxy / sumx2;
     ls.lp.a0 = (sumy - sumx*ls.lp.ax) / nrpts;
-    ls.corrcoeff = sumxy / (sqrt( sumx2 ) * sqrt( sumy2 ));
+    ls.corrcoeff = sumxy / (Math::Sqrt( sumx2 ) * Math::Sqrt( sumy2 ));
 
     double sumd2 = 0;
     for ( int idx=0; idx<nrpts; idx++ )
@@ -75,8 +75,8 @@ static void calcLS( LinStats2D& ls, const char* xvals, const char* yvals,
 	ls.sd.ax = ls.sd.a0 = 0;
     else
     {
-	ls.sd.ax = sqrt( sumd2 / ((nrpts-2) * sumx2) );
-	ls.sd.a0 = sqrt( (sumx2 * sumd2) / (nrpts * (nrpts-2) * sumx2) );
+	ls.sd.ax = Math::Sqrt( sumd2 / ((nrpts-2) * sumx2) );
+	ls.sd.a0 = Math::Sqrt( (sumx2 * sumd2) / (nrpts * (nrpts-2) * sumx2) );
     }
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Kristofer Tingdahl
  Date:          07-10-1999
- RCS:           $Id: genericnumer.h,v 1.22 2007-07-17 16:08:10 cvsbert Exp $
+ RCS:           $Id: genericnumer.h,v 1.23 2008-08-18 13:32:23 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -85,8 +85,8 @@ inline float similarity( const A& a, const B& b, int sz, bool normalize=false,
 		bsum += bdiff*bdiff;
 	    }
 
-	    stddeva = sqrt(asum/(sz-1));
-	    stddevb = sqrt(bsum/(sz-1));
+	    stddeva = Math::Sqrt(asum/(sz-1));
+	    stddevb = Math::Sqrt(bsum/(sz-1));
 
 	    if ( mIsZero(stddeva,mDefEps) || mIsZero(stddevb,mDefEps) )
 		normalize=false;
@@ -114,7 +114,7 @@ inline float similarity( const A& a, const B& b, int sz, bool normalize=false,
     if ( mIsZero(sq1,mDefEps) || mIsZero(sq1,mDefEps) )
 	return 0;
 
-    const float rt = sqrt(sqdist) / (sqrt(sq1) + sqrt(sq2));
+    const float rt = Math::Sqrt(sqdist) / (Math::Sqrt(sq1) + Math::Sqrt(sq2));
     return 1 - rt;
 }
 

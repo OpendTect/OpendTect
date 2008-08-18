@@ -4,7 +4,7 @@
  * DATE     : Mar 2000
 -*/
 
-static const char* rcsID = "$Id: wavelettrans.cc,v 1.15 2007-10-05 10:38:34 cvsnanne Exp $";
+static const char* rcsID = "$Id: wavelettrans.cc,v 1.16 2008-08-18 13:36:41 cvsyuancheng Exp $";
 
 
 #include "wavelettrans.h"
@@ -572,7 +572,7 @@ void CWT::transform( int nrsamples, float curscale, int scaleidx,
     for ( int idx=0; idx<nrsamples; idx++ )
     {
 	float_complex cval = (freqdom.get(idx) * wavelet[idx])
-			   / (float)sqrt(curscale);
+			   / (float)Math::Sqrt(curscale);
 	filtered.set( idx, cval );
     }
 
@@ -583,7 +583,7 @@ void CWT::transform( int nrsamples, float curscale, int scaleidx,
     {
 	float real = newsignal.get(idx).real();
 	float imag = newsignal.get(idx).imag();
-	float val = sqrt( real*real + imag*imag );
+	float val = Math::Sqrt( real*real + imag*imag );
 	outp.set( idx, scaleidx, val );
     }
 }

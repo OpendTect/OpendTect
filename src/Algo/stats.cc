@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: stats.cc,v 1.5 2008-07-01 13:24:38 cvsbert Exp $";
+static const char* rcsID = "$Id: stats.cc,v 1.6 2008-08-18 13:36:41 cvsyuancheng Exp $";
 
 #include "statruncalc.h"
 #include "statrand.h"
@@ -107,7 +107,7 @@ double Stats::RandGen::getNormal( double ex, double sd )
         } while (r >= 1.0 || r <= 0.0);
 
 	arg = (double)(-2.0*log(r)/r);
-        fac = sqrt( arg );
+        fac = Math::Sqrt( arg );
         gset = v1 * fac;
         retval = v2 * fac;
     }

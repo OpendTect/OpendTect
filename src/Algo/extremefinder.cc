@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: extremefinder.cc,v 1.14 2006-05-01 08:31:52 cvsnanne Exp $";
+static const char* rcsID = "$Id: extremefinder.cc,v 1.15 2008-08-18 13:36:41 cvsyuancheng Exp $";
 
 #include "extremefinder.h"
 #include "mathfunc.h"
@@ -465,7 +465,7 @@ int ExtremeFinderND::nextStep()
     if ( fptt<fp )
     {
 	const float t =
-	    2.0*(fp-2.0*fret+fptt)*sqrt(fp-fret-del)-del*sqrt(fp-fptt);
+	    2.0*(fp-2.0*fret+fptt)*Math::Sqrt(fp-fret-del)-del*Math::Sqrt(fp-fptt);
 	if ( t<0 )
 	{
 	    fret = linExtreme( xit );

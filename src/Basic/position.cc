@@ -4,7 +4,7 @@
  * DATE     : 21-6-1996
 -*/
 
-static const char* rcsID = "$Id: position.cc,v 1.62 2008-05-19 06:24:33 cvsraman Exp $";
+static const char* rcsID = "$Id: position.cc,v 1.63 2008-08-18 13:36:41 cvsyuancheng Exp $";
 
 #include "position.h"
 #include "bufstring.h"
@@ -42,7 +42,7 @@ double Coord::cosAngle( const Coord& from, const Coord& to ) const
     if ( !rsq || !lsq ) return 1;
 
     double osq = from.sqDistTo( to );
-    return (rsq +  lsq - osq) / (2 * sqrt(rsq) * sqrt(lsq));
+    return (rsq +  lsq - osq) / (2 * Math::Sqrt(rsq) * Math::Sqrt(lsq));
 }
 
 
@@ -98,7 +98,7 @@ bool getDirectionStr( const Coord& coord, BufferString& res )
     if ( mIsZero(coord.x,mDefEps) && mIsZero(coord.y,mDefEps) )
 	return false;
 
-    const double len = sqrt(coord.x*coord.x+coord.y*coord.y);
+    const double len = Math::Sqrt(coord.x*coord.x+coord.y*coord.y);
     const double x = coord.x/len;
     const double y = coord.y/len;
 
@@ -119,7 +119,7 @@ bool getDirectionStr( const Coord& coord, BufferString& res )
 
 double Coord3::abs() const
 {
-    return sqrt( x*x + y*y + z*z );
+    return Math::Sqrt( x*x + y*y + z*z );
 }
 
 
@@ -167,7 +167,7 @@ bool Coord3::use(const char* str)
 
 double Coord3::distTo( const Coord3& b ) const
 {
-    return sqrt( Coord3::sqDistTo( b ) );
+    return Math::Sqrt( Coord3::sqDistTo( b ) );
 }
 
 
