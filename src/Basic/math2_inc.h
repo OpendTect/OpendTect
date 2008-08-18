@@ -89,5 +89,5 @@ mTYPE Math::Log10( mTYPE s )
 
 mTYPE Math::Sqrt( mTYPE s )
 {
-    return s <= 0 ? 0 : Math::Sqrt( s );
+    return s <= 0 ? 0 :sqrt( s );
 }
