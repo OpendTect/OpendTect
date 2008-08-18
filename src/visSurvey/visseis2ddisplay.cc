@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2004
- RCS:           $Id: visseis2ddisplay.cc,v 1.43 2008-07-04 04:08:35 cvsnanne Exp $
+ RCS:           $Id: visseis2ddisplay.cc,v 1.44 2008-08-18 14:44:51 cvsyuancheng Exp $
  ________________________________________________________________________
 
 -*/
@@ -451,7 +451,7 @@ float Seis2DDisplay::calcDist( const Coord3& pos ) const
 	zdif *= SI().zFactor() * scene_->getZScale();
     }
 
-    return sqrt( mindist + zdif*zdif );
+    return Math::Sqrt( mindist + zdif*zdif );
 }
 
 
@@ -711,7 +711,7 @@ Coord Seis2DDisplay::getNormal( int trcnr ) const
 	return Coord( 0, 1 );
     else
     {
-	float length = sqrt( v1.x*v1.x + v1.y*v1.y );
+	float length = Math::Sqrt( v1.x*v1.x + v1.y*v1.y );
 	return Coord( -v1.y/length, v1.x/length );
     }
 }
