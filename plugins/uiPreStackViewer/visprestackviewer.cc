@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.25 2008-08-07 22:13:46 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.26 2008-08-18 17:58:55 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -667,7 +667,7 @@ void PreStackViewer::getMousePosInfo( const visBase::EventInfo& ei,
 
     const FlatPosData& posdata = fdp->posData();
     const BinID bid = SI().transform( pos );
-    const float distance = sqrt(bid_.sqDistTo( bid ));
+    const float distance = Math::Sqrt((float)bid_.sqDistTo( bid ));
     float offset = mUdf(float);
     
     if ( SI().inlDistance()==0 || SI().crlDistance()==0 || width_==0 )

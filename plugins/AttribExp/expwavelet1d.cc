@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expwavelet1d.cc,v 1.7 2004-06-16 14:54:18 bert Exp $";
+static const char* rcsID = "$Id: expwavelet1d.cc,v 1.8 2008-08-18 17:58:55 cvsyuancheng Exp $";
 
 
 #include "expwavelet1d.h"
@@ -179,8 +179,8 @@ int Wavelet1DAttrib::Task::nextStep()
 
 	if ( outp[6] ) (outp[6])[idx] = sumbeforemax/sum;
 	if ( outp[7] ) (outp[7])[idx] = sumaftermax/sum;
-	if ( outp[8] ) (outp[8])[idx] = sqrt((sqsum-sum*sum/nrstatscales) /
-	    				(nrstatscales-1));
+	if ( outp[8] ) (outp[8])[idx] = Math::Sqrt(
+		(sqsum-sum*sum/nrstatscales) / (nrstatscales-1));
 
     }
 

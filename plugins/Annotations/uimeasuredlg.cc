@@ -4,7 +4,7 @@ ________________________________________________________________________
     CopyRight:     (C) dGB Beheer B.V.
     Author:        Nageswara
     Date:          May 2008
-    RCS:           $Id: uimeasuredlg.cc,v 1.6 2008-08-06 11:15:57 cvsnanne Exp $
+    RCS:           $Id: uimeasuredlg.cc,v 1.7 2008-08-18 17:58:55 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -152,20 +152,21 @@ void uiMeasureDlg::fill( TypeSet<Coord3>& points )
 	totzdist += zdist;
     
 	if ( SI().zIsTime() )
-	    totrealdist += sqrt( hdist*hdist + velocity*velocity*zdist*zdist );
+	    totrealdist += 
+		Math::Sqrt( hdist*hdist + velocity*velocity*zdist*zdist );
 	else if ( SI().zInMeter() )
 	{
 	   if ( SI().xyInFeet() )
-		totrealdist += sqrt( hdist*hdist + sM2Ft2*zdist*zdist );
+		totrealdist += Math::Sqrt( hdist*hdist + sM2Ft2*zdist*zdist );
 	   else
-		totrealdist += sqrt( hdist*hdist + zdist*zdist );
+		totrealdist += Math::Sqrt( hdist*hdist + zdist*zdist );
 	}
 	else
 	{
 	    if ( SI().xyInFeet() )
-		totrealdist += sqrt( hdist*hdist + zdist*zdist );
+		totrealdist += Math::Sqrt( hdist*hdist + zdist*zdist );
 	    else
-		totrealdist += sqrt( sFt2M2*hdist*hdist + zdist*zdist );
+		totrealdist += Math::Sqrt( sFt2M2*hdist*hdist + zdist*zdist );
 	}
     }
 

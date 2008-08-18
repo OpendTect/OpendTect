@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expdipview.cc,v 1.4 2003-11-07 12:21:56 bert Exp $";
+static const char* rcsID = "$Id: expdipview.cc,v 1.5 2008-08-18 17:58:55 cvsyuancheng Exp $";
 
 
 #include "expdipview.h"
@@ -118,7 +118,7 @@ int DipViewAttrib::Task::nextStep()
 	    c4 = tan( aspect.inl / M_360_2_PI );
 	}
 
-	float val = 1 - (a3*a4+b3*b4+c3*c4)/ sqrt( (a3*a3+b3*b3+c3*c3) *
+	float val = 1 - (a3*a4+b3*b4+c3*c4)/ Math::Sqrt( (a3*a3+b3*b3+c3*c3) *
 					  (a4*a4+b4*b4+c4*c4 ));	
 	outp[idx] = val > 0 ? val : 0;
     }

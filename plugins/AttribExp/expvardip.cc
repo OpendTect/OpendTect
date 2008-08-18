@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: expvardip.cc,v 1.7 2004-06-16 14:54:18 bert Exp $";
+static const char* rcsID = "$Id: expvardip.cc,v 1.8 2008-08-18 17:58:55 cvsyuancheng Exp $";
 
 
 #include "expvardip.h"
@@ -200,7 +200,7 @@ int MinVarianceDipAttrib::Task::nextStep()
 
 
 			float rho = atan2( qic, p ); 
-			float r = sqrt( qic*qic + p*p );
+			float r = Math::Sqrt( qic*qic + p*p );
 
 			float crl = r*cos(angle0+rho);
 			float inl = r*sin(angle0+rho);

@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: exppcadip.cc,v 1.7 2004-06-16 14:54:18 bert Exp $";
+static const char* rcsID = "$Id: exppcadip.cc,v 1.8 2008-08-18 17:58:55 cvsyuancheng Exp $";
 
 
 #include "exppcadip.h"
@@ -223,7 +223,7 @@ float PCADipAttrib::Task::getMinEigenVector( const int* inlines,
     else
 	ev0 = 1;
    
-    float length = sqrt(ev0*ev0+ev1*ev1+ev2*ev2);
+    float length = Math::Sqrt(ev0*ev0+ev1*ev1+ev2*ev2);
     ev0 /= length;     
     ev1 /= length;     
     ev2 /= length;     
@@ -274,7 +274,7 @@ int PCADipAttrib::Task::nextStep()
     const int limit = stepout2.inl*stepout2.inl*sg2;
 
     const int nrtraces = inlsz*crlsz; 
-    const double dmaxweight = sqrt( (double)(stepout2.inl+stepout2.inl+sg2) );
+    const double dmaxweight = Math::Sqrt( (double)(stepout2.inl+stepout2.inl+sg2) );
     const int maxweight = mNINT(dmaxweight);
     const int maxnrsamples = nrtraces * (sg.width()+1)*maxweight;
 
@@ -322,7 +322,7 @@ int PCADipAttrib::Task::nextStep()
 		    continue;
 
 		    int weight = 1+mNINT(maxweight *
-					(1 -sqrt(((double)dist2)/limit)));
+					(1 -Math::Sqrt(((double)dist2)/limit)));
 
 		for ( int idx=0; idx<weight; idx++ )
 		{
@@ -359,7 +359,7 @@ int PCADipAttrib::Task::nextStep()
 			continue;
 
 		    int weight = 1+mNINT(maxweight *
-					(1 -sqrt(((double)dist2)/limit)));
+					(1 -Math::Sqrt(((double)dist2)/limit)));
 
 		    const SeisTrc* trc = trcs.get(idi+stepout.inl,
 						     idc+stepout.crl);
