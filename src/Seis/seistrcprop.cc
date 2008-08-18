@@ -5,7 +5,7 @@
  * FUNCTION : Seismic trace functions
 -*/
 
-static const char* rcsID = "$Id: seistrcprop.cc,v 1.16 2007-02-19 16:41:46 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrcprop.cc,v 1.17 2008-08-18 13:42:58 cvsyuancheng Exp $";
 
 #include "seistrcprop.h"
 #include "seistrc.h"
@@ -155,7 +155,7 @@ void SeisTrcPropChg::corrNormalize()
         val = trc.get( idx, icomp );
 	autocorr += val*val;
     }
-    double sqrtacorr = sqrt( autocorr );
+    double sqrtacorr = Math::Sqrt( autocorr );
 
     if ( sqrtacorr < 1e-30 )
     {
@@ -337,7 +337,7 @@ double SeisTrcPropCalc::corr( const SeisTrc& t2, const SampleGate& sgin,
 	ccorr += val1 * val2;
     }
  
-    return ccorr / sqrt( acorr1 * acorr2 );
+    return ccorr / Math::Sqrt( acorr1 * acorr2 );
 }
 
 
@@ -368,5 +368,5 @@ double SeisTrcPropCalc::dist( const SeisTrc& t2, const SampleGate& sgin,
 	sqdist += (val1-val2) * (val1-val2);
     }
     if ( sq1 + sq2 < 1e-10 ) return 0;
-    return 1 - (sqrt(sqdist) / (sqrt(sq1) + sqrt(sq2)));
+    return 1 - (Math::Sqrt(sqdist) / (Math::Sqrt(sq1) + Math::Sqrt(sq2)));
 }

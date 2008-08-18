@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uipluginsel.cc,v 1.8 2007-03-14 12:01:15 cvsbert Exp $
+ RCS:           $Id: uipluginsel.cc,v 1.9 2008-08-18 13:42:58 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,7 +51,7 @@ uiPluginSel::uiPluginSel( uiParent* p )
     const int maxlen = piusrnms.maxLength();
     const float rowspercol = maxlen / 10.;
     const int nrplugins = pluginnms_.size();
-    int nrcols = (int)(sqrt( rowspercol * nrplugins ) + .5);
+    int nrcols = (int)(Math::Sqrt( rowspercol * nrplugins ) + .5);
     if ( nrcols < 1 ) nrcols = 1;
     if ( nrcols > 3 ) nrcols = 3;
     int nrows = nrplugins / nrcols;

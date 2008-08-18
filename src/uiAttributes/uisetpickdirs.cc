@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Nov 2003
- RCS:           $Id: uisetpickdirs.cc,v 1.10 2008-02-06 04:22:04 cvsraman Exp $
+ RCS:           $Id: uisetpickdirs.cc,v 1.11 2008-08-18 13:42:58 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -369,7 +369,7 @@ float uiSetPickDirs::calcPhi( float inldip, float crldip )
 float uiSetPickDirs::calcTheta( float inldip, float crldip )
 {
     const float velocity = 2000;
-    const float poldip = sqrt( inldip*inldip + crldip*crldip );
+    const float poldip = Math::Sqrt( inldip*inldip + crldip*crldip );
     
     float theta = atan( poldip * velocity * 1e-6 );
     return theta;

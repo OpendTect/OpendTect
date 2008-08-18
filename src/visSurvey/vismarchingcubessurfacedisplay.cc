@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.16 2008-06-16 19:46:46 cvskris Exp $";
+static const char* rcsID = "$Id: vismarchingcubessurfacedisplay.cc,v 1.17 2008-08-18 13:42:58 cvsyuancheng Exp $";
 
 #include "vismarchingcubessurfacedisplay.h"
 
@@ -371,7 +371,7 @@ bool MarchingCubesDisplay::createInitialBody( bool allowswap )
 		const float diffx = ((float)idx-1-hxsz)/hxsz;
 		const float diffy = ((float)idy-1-hysz)/hysz;
 		const float diffz = ((float)idz-1-hzsz)/hzsz;
-		const float diff = sqrt( diffx*diffx+diffy*diffy+diffz*diffz );
+		const float diff = Math::Sqrt( diffx*diffx+diffy*diffy+diffz*diffz );
 		array->set( idx, idy, idz, diff );
 	    }
 	}
@@ -739,7 +739,7 @@ MarchingCubesDisplay::createKernel( int xsz, int ysz, int zsz ) const
 	    {
 		float zval = idz-hzsz; zval /= hzsz; zval *= zval;
 
-		int invdist = mNINT((1-sqrt( xval+yval+zval ))*255);
+		int invdist = mNINT((1-Math::Sqrt( xval+yval+zval ))*255);
 		if ( invdist<0 ) invdist = 0;
 		res->set( idx, idy, idz, invdist );
 	    }

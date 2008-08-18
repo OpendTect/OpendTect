@@ -4,7 +4,7 @@
  * DATE     : Aug 2003
 -*/
 
-static const char* rcsID = "$Id: well.cc,v 1.45 2008-05-26 12:05:55 cvsbert Exp $";
+static const char* rcsID = "$Id: well.cc,v 1.46 2008-08-18 13:42:58 cvsyuancheng Exp $";
 
 #include "welldata.h"
 #include "welltrack.h"
@@ -514,8 +514,8 @@ float Well::Track::nearestDah( const Coord3& posin ) const
 	    break;
     }
 
-    const float neardist = sqrt( sqneardist );
-    const float secdist = sqrt( sqsecdist );
+    const float neardist = Math::Sqrt( sqneardist );
+    const float secdist = Math::Sqrt( sqsecdist );
     return (neardist*dah_[secondidx] + secdist * dah_[nearidx])
          / (neardist + secdist);
 }

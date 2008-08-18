@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.17 2008-06-11 16:13:31 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.18 2008-08-18 13:42:58 cvsyuancheng Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -16,14 +16,14 @@ static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.17 2008-06-11 16:13:31 cv
 #include "uiselsurvranges.h"
 #include "uimsg.h"
 #include "cubesampling.h"
-#include "picksettr.h"
 #include "ctxtioobj.h"
-#include "survinfo.h"
-#include "keystrs.h"
+#include "filegen.h"
 #include "ioobj.h"
 #include "iopar.h"
+#include "keystrs.h"
 #include "oddirs.h"
-#include "filegen.h"
+#include "picksettr.h"
+#include "survinfo.h"
 
 mImplFactory2Param(uiPosProvGroup,uiParent*,const uiPosProvGroup::Setup&,
 		   uiPosProvGroup::factory);
@@ -107,7 +107,7 @@ static void getExtrDefCubeSampling( CubeSampling& cs )
 
     const int nrextr = cs.hrg.totalNr() * nrsamps;
     int blocks = nrextr / 50000;
-    float fstepfac = sqrt( blocks );
+    float fstepfac = Math::Sqrt( (double)blocks );
     int stepfac = mNINT(fstepfac);
     cs.hrg.step.inl *= stepfac;
     cs.hrg.step.crl *= stepfac;

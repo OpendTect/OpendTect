@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: vismpe.cc,v 1.58 2008-08-05 14:54:37 cvsjaap Exp $";
+static const char* rcsID = "$Id: vismpe.cc,v 1.59 2008-08-18 13:42:57 cvsyuancheng Exp $";
 
 #include "vismpe.h"
 
@@ -633,7 +633,7 @@ void MPEDisplay::updateBoxPosition( CallBacker* )
 		     cube.hrg.stop.crl-cube.hrg.start.crl,
 		     cube.zrg.stop-cube.zrg.start );
 
-    // Workaround for deadlock in COIN's polar_decomp() or sqrt(), which
+    // Workaround for deadlock in COIN's polar_decomp() or Math::Sqrt(), which
     // occasionally occurs in case the box has one side of zero length.
     if ( cube.hrg.nrInl()==1 )
 	newwidth.x = 0.1 * cube.hrg.step.inl;
@@ -792,7 +792,7 @@ float MPEDisplay::calcDist( const Coord3& pos ) const
     float inldiff = inlcrldist.inl * inldist;
     float crldiff = inlcrldist.crl * crldist;
 
-    return sqrt( inldiff*inldiff + crldiff*crldiff + zdiff*zdiff );
+    return Math::Sqrt( inldiff*inldiff + crldiff*crldiff + zdiff*zdiff );
 }
 
     
