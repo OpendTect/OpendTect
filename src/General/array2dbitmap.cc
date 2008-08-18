@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.27 2008-06-05 15:09:12 cvshelene Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.28 2008-08-18 07:56:46 cvssatyaki Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -319,13 +319,9 @@ void WVAA2DBitMapGenerator::drawTrace( int idim0 )
     }
 }
 
-#define mApplyValClipping(val) \
-    if ( val < scalerg_.start ) val = scalerg_.start; \
-    else if ( val > scalerg_.stop ) val = scalerg_.stop
-
 #define mPrepVal() \
     if ( mIsUdf(val) ) return; \
-    mApplyValClipping(val)
+    val = scalerg_.limitValue( val )
 
 
 void WVAA2DBitMapGenerator::drawVal( int idim0, int iy, float val,
@@ -362,7 +358,7 @@ void WVAA2DBitMapGenerator::drawVal( int idim0, int iy, float val,
     if ( wvapars().drawwiggles_ && setup_.isInside(0,valdim0pos) )
     {
 	if ( mIsUdf(prevval) ) prevval = val;
-	mApplyValClipping( prevval );
+	prevval = scalerg_.limitValue( prevval );
 
 	const float prevvalratio = (prevval - scalerg_.start) / scalewidth_;
 	const float prevvaldim0offs = (prevvalratio-0.5) * stripwidth_;
