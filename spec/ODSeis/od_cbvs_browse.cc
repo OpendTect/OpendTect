@@ -2,10 +2,10 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_browse.cc,v 1.27 2007-04-12 06:52:57 cvsdgb Exp $
+ * RCS      : $Id: od_cbvs_browse.cc,v 1.28 2008-08-18 08:54:30 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.27 2007-04-12 06:52:57 cvsdgb Exp $";
+static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.28 2008-08-18 08:54:30 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -67,7 +67,8 @@ int main( int argc, char** argv )
         fp.insert( File_getCurrentDir() );
     }
 
-    BufferString fname=fp.fullPath();
+    const BufferString fname = fp.fullPath();
+    std::cerr << "Browsing '" << fname << "'\n" << std::endl;
 
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
     if ( !tri->initRead( new StreamConn(fname,Conn::Read) ) )
