@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          14-01-2008
- RCS:           $Id: prestackattrib.h,v 1.3 2008-01-18 11:37:02 cvsbert Exp $
+ RCS:           $Id: prestackattrib.h,v 1.4 2008-08-18 08:54:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,6 +45,7 @@ public:
 			PreStack(Desc&);
 
     static const char*  attribName()		{ return "PreStack"; }
+    static const char*  offsRgStr()		{ return "offsrg"; }
     static const char*  calctypeStr()		{ return "calctype"; }
     static const char*  stattypeStr()		{ return "stattype"; }
     static const char*  lsqtypeStr()		{ return "lsqtype"; }
@@ -70,6 +71,7 @@ protected:
     void		prepPriorToBoundsCalc();
 
     MultiID		psid_;
+    Interval<float>	offsrg_;
     SeisPSPropCalc::Setup setup_;
     SeisPSReader*	psrdr_;
     SeisPSPropCalc*	propcalc_;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          Jan 2008
- RCS:		$Id: uiprestackattrib.cc,v 1.8 2008-05-28 09:06:41 cvsnageswara Exp $
+ RCS:		$Id: uiprestackattrib.cc,v 1.9 2008-08-18 08:54:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,10 +33,13 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 	, ctio_(is2d?*mMkCtxtIOObj(SeisPS2D):*mMkCtxtIOObj(SeisPS3D))
 {
     inpfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(is2d,true) );
+    offsrgfld_ = new uiGenInput( this, "Offset range (empty=all)",
+		     FloatInpIntervalSpec(Interval<float>(0,mUdf(float))) );
+    offsrgfld_->attach( alignedBelow, inpfld_ );
 
     calctypefld_ = new uiGenInput( this, "Calculation type",
 		   StringListInpSpec(SeisPSPropCalc::CalcTypeNames) );
-    calctypefld_->attach( alignedBelow, inpfld_ );
+    calctypefld_->attach( alignedBelow, offsrgfld_ );
     calctypefld_->valuechanged.notify( mCB(this,uiPreStackAttrib,calcTypSel) );
 
     stattypefld_ = new uiGenInput( this, "Statistics type",
@@ -77,6 +80,7 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
     RefMan<Attrib::PreStack> aps = new Attrib::PreStack( *tmpdesc );
 
     inpfld_->setInput( aps->psID() );
+    offsrgfld_->setValue( aps->setup().offsrg_ );
     calctypefld_->setValue( (int)aps->setup().calctype_ );
     stattypefld_->setValue( (int)aps->setup().stattype_ );
     lsqtypefld_->setValue( (int)aps->setup().lsqtype_ );
@@ -96,6 +100,7 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
 	{ errmsg_ = "Please select the input data store"; return false; }
 
     mSetString("id",ctio_.ioobj->key())
+    mSetFloatInterval(Attrib::PreStack::offsRgStr(),offsrgfld_->getFInterval())
     const int calctyp = calctypefld_->getIntValue();
     mSetEnum(Attrib::PreStack::calctypeStr(),calctyp)
     const bool isnorm = calctyp == 0;

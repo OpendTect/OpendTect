@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          Jan 2008
- RCS:           $Id: uiprestackattrib.h,v 1.5 2008-01-18 14:40:37 cvsbert Exp $
+ RCS:           $Id: uiprestackattrib.h,v 1.6 2008-08-18 08:54:52 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
 protected:
 
     uiSeisSel*		inpfld_;
+    uiGenInput*		offsrgfld_;
     uiGenInput*		calctypefld_;
     uiGenInput*		stattypefld_;
     uiGenInput*		lsqtypefld_;
