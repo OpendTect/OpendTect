@@ -4,7 +4,7 @@
  * DATE     : Jan 2002
 -*/
 
-static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.200 2008-07-01 09:13:24 cvsnanne Exp $";
+static const char* rcsID = "$Id: visplanedatadisplay.cc,v 1.201 2008-08-18 14:46:24 cvsyuancheng Exp $";
 
 #include "visplanedatadisplay.h"
 
@@ -286,7 +286,7 @@ float PlaneDataDisplay::calcDist( const Coord3& pos ) const
     float inldiff = inlcrldist.inl * inldist;
     float crldiff = inlcrldist.crl * crldist;
 
-    return sqrt( inldiff*inldiff + crldiff*crldiff + zdiff*zdiff );
+    return Math::Sqrt( inldiff*inldiff + crldiff*crldiff + zdiff*zdiff );
 }
 
 
