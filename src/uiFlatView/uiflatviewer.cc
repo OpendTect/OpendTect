@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.58 2008-08-07 09:47:32 cvsnanne Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.59 2008-08-19 20:09:30 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -274,15 +274,10 @@ bool uiFlatViewer::mkBitmaps( uiPoint& offs )
     const double xratio = wrsz.width() / uisz.width();
     const double yratio = wrsz.height() / uisz.height();
 
-    // Extend the viewed worldrect; check bounds
+    // Extend the viewed worldrect; 
+    // Don't limit here - the generators should fill with udf if outiside
+    // available range.
     uiWorldRect bufwr( wr_.grownBy(1+bufextendratio_) );
-    const uiWorldRect bb( boundingBox() );
-    #define mChkBound(bufside,op,bbside,Side) \
-    if ( bufwr.bufside() op bb.bbside() ) bufwr.set##Side( bb.bbside() )
-    mChkBound(left,<,left,Left); mChkBound(left,>,right,Left);
-    mChkBound(right,<,left,Right); mChkBound(right,>,right,Right);
-    mChkBound(bottom,<,bottom,Bottom); mChkBound(top,<,bottom,Top);
-    mChkBound(top,>,top,Top); mChkBound(bottom,>,top,Bottom);
 
     // Calculate buffer size, snap buffer world rect
     Geom::Size2D<double> bufwrsz( bufwr.size() );
