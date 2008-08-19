@@ -4,7 +4,7 @@
  * DATE     : Sep 2006
 -*/
 
-static const char* rcsID = "$Id: array2dbitmap.cc,v 1.28 2008-08-18 07:56:46 cvssatyaki Exp $";
+static const char* rcsID = "$Id: array2dbitmap.cc,v 1.29 2008-08-19 19:44:05 cvskris Exp $";
 
 #include "array2dbitmapimpl.h"
 #include "arraynd.h"
@@ -299,6 +299,9 @@ void WVAA2DBitMapGenerator::drawTrace( int idim0 )
 	const int idim1 = (int)floor( fdim1 + 1e-6 );
 	const float dim1offs = fdim1 - idim1;
 
+	if ( idim1<0 || idim1>=szdim1_ )
+	    continue;
+
 	const float v0 = inpdata.get( idim0, idim1 );
 	const float v1 = idim1 < szdim1_-1
 		       ? inpdata.get( idim0, idim1+1 ) : v0;
@@ -581,11 +584,33 @@ void VDA2DBitMapGenerator::drawPixLines( int stripdim0,
 			val = dim0offs > 0.5 ? v[2] : v[1];
 		}
 	    }
+
 	    drawVal( ix, iy, val );
 
 	    previdim1 = idim1;
 	}
     }
+}
+
+
+#define mGetAll \
+{ \
+    v[0] = mGet( 0, 0 ); \
+    v[1] = mGet( 0, 1 ); \
+    v[2] = mGet( 1, 0 ); \
+    v[3] = mGet( 1, 1 ); \
+ \
+    if ( !vdpars().lininterp_ ) \
+    { \
+	v[4] = mGet( -1, 0 ); \
+	v[5] = mGet( -1, 1 ); \
+	v[6] = mGet( 0, -1 ); \
+	v[7] = mGet( 0, 2 ); \
+	v[8] = mGet( 1, -1 ); \
+	v[9] = mGet( 1, 2 ); \
+	v[10] = mGet( 2, 0 ); \
+	v[11] = mGet( 2, 1 ); \
+    } \
 }
 
 
@@ -601,60 +626,28 @@ void VDA2DBitMapGenerator::fillInterpPars(
     {
 	const Array2DInfo& info = inpdata.info();
 	storageptr += info.getOffset( idim0, idim1 );
-	int offset11 = 0;
-	int offset01 = 0;
-	int offset10 = 0;
-	if ( idim1 < szdim1_-1 ) { offset01++; offset11++; }
-	if ( idim0 < szdim0_-1 ) { offset10 += szdim1_; offset11 += szdim1_; }
+#define mGet( i0, i1 ) \
+    (idim0+i0)<szdim0_ && (idim0+i0)>=0 && (idim1+i1)<szdim1_ && (idim1+i1)>=0 \
+	? storageptr[i0*szdim1_+i1] : mUdf(float);
 
-	v[0] = *storageptr;
-	v[1] = storageptr[offset01];
-	v[2] = storageptr[offset10];
-	v[3] = storageptr[offset11];
-
-	if ( !vdpars().lininterp_ )
-	{
-	    v[4] = idim0 > 0 ? storageptr[-szdim1_] : v[0];
-	    v[5] = idim0 > 0 ? (idim1 < szdim1_-1
-			     ? storageptr[-szdim1_+1] : v[4]) : v[1];
-	    v[6] = idim1 > 0 ? storageptr[-1] : v[0];
-	    v[7]  = idim1 < szdim1_-2 ? storageptr[2] : v[1];
-	    v[8] = idim0 < szdim0_-1 ? (idim1 > 0
-			     ? storageptr[szdim1_-1] : v[4]) : v[2];
-	    v[9]  = idim0 < szdim0_-1 ? (idim1 < szdim1_-2
-			     ? storageptr[szdim1_+2] : v[3] ) : v[7];
-	    v[10]  = idim0 < szdim0_-2
-			     ? storageptr[szdim1_*2] : v[2];
-	    v[11]  = idim0 < szdim0_-2 ? (idim1 < szdim1_-1 
-			     ? storageptr[szdim1_*2+1] : v[2]) : v[10];
-	}
+	mGetAll;
+#undef mGet
+    }
+    else if ( storage )
+    {
+#define mGet( i0, i1 ) \
+    (idim0+i0)<szdim0_ && (idim0+i0)>=0 && (idim1+i1)<szdim1_ && (idim1+i1)>=0 \
+	? storage->value( i0*szdim1_+i1 ) : mUdf(float);
+	mGetAll;
+#undef mGet
     }
     else
     {
-	v[0] = mV00Val;
-	v[1] = mV01Val;
-	v[2] = mV10Val;
-	v[3] = mV11Val;
-
-	if ( !vdpars().lininterp_ )
-	{
-	    v[4] = idim0 > 0
-			     ? inpdata.get(idim0-1,idim1) : v[0];
-	    v[5] = idim0 > 0 ? (idim1 < szdim1_-1
-			     ? inpdata.get(idim0-1,idim1+1) : v[4]) : v[1];
-	    v[6] = idim1 > 0
-			     ? inpdata.get(idim0,idim1-1) : v[0];
-	    v[7]  = idim1 < szdim1_-2
-			     ? inpdata.get(idim0,idim1+2) : v[1];
-	    v[8] = idim0 < szdim0_-1 ? (idim1 > 0
-			     ? inpdata.get(idim0+1,idim1-1) : v[4]) : v[2];
-	    v[9]  = idim0 < szdim0_-1 ? (idim1 < szdim1_-2
-			     ? inpdata.get(idim0+1,idim1+2) : v[3]) : v[7];
-	    v[10]  = idim0 < szdim0_-2
-			     ? inpdata.get(idim0+2,idim1) : v[2];
-	    v[11]  = idim0 < szdim0_-2 ? (idim1 < szdim1_-1
-			     ? inpdata.get(idim0+2,idim1+1) : v[2]) : v[10];
-	}
+#define mGet( i0, i1 ) \
+    (idim0+i0)<szdim0_ && (idim0+i0)>=0 && (idim1+i1)<szdim1_ && (idim1+i1)>=0 \
+	? inpdata.get( idim0+i0, idim1+i1 ) : mUdf(float);
+	mGetAll;
+#undef mGet
     }
 
     interp.set( v );
