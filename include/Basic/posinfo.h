@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.4 2008-05-30 07:02:49 cvsraman Exp $
+ RCS:		$Id: posinfo.h,v 1.5 2008-08-19 09:16:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -85,8 +85,8 @@ public:
     void		limitTo(const HorSampling&);
     void		sort();
 
-    bool		read(std::istream&);
-    bool		write(std::ostream&) const;
+    bool		read(std::istream&,bool asc);
+    bool		write(std::ostream&,bool asc) const;
 };
 
 
@@ -140,8 +140,8 @@ public:
     bool		getPos(int,Line2DPos&) const;
     void		limitTo(Interval<int> trcrg);
     void                dump(std::ostream&,bool pretty=true) const;
-    bool		read(std::istream&);
-    bool		write(std::ostream&) const;
+    bool		read(std::istream&,bool asc);
+    bool		write(std::ostream&,bool asc) const;
 
 };
 

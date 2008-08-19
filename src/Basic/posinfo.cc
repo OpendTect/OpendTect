@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.4 2008-05-30 07:03:32 cvsraman Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.5 2008-08-19 09:16:36 cvsbert Exp $";
 
 #include "math2.h"
 #include "posinfo.h"
@@ -311,27 +311,47 @@ bool PosInfo::CubeData::haveCrlStepInfo() const
 }
 
 
-bool PosInfo::CubeData::read( std::istream& strm )
+bool PosInfo::CubeData::read( std::istream& strm, bool asc )
 {
     const int intsz = sizeof(int);
-    int buf[4];
-    strm.read( (char*)buf, intsz );
-    const int nrinl = buf[0];
+    int buf[4]; int itmp = 0;
+    if ( asc )
+	strm >> itmp;
+    else
+    {
+	strm.read( (char*)buf, intsz );
+	itmp = buf[0];
+    }
+    const int nrinl = itmp;
     if ( nrinl <= 0 ) return false;
 
     for ( int iinl=0; iinl<nrinl; iinl++ )
     {
-	strm.read( (char*)buf, 2 * intsz );
-	PosInfo::LineData* iinf = new PosInfo::LineData( buf[0] );
-	const int nrseg = buf[1];
+	int linenr = 0, nrseg = 0;
+	if ( asc )
+	    strm >> linenr >> nrseg;
+	else
+	{
+	    strm.read( (char*)buf, 2 * intsz );
+	    linenr = buf[0];
+	    nrseg = buf[1];
+	}
+	if ( linenr == 0 ) continue;
+
+	PosInfo::LineData* iinf = new PosInfo::LineData( linenr );
+
 	PosInfo::LineData::Segment crls;
 	for ( int iseg=0; iseg<nrseg; iseg++ )
 	{
-	    strm.read( (char*)buf, 3 * intsz );
-
-	    crls.start = buf[0];
-	    crls.stop = buf[1];
-	    crls.step = buf[2];
+	    if ( asc )
+		strm >> crls.start >> crls.stop >> crls.step;
+	    else
+	    {
+		strm.read( (char*)buf, 3 * intsz );
+		crls.start = buf[0];
+		crls.stop = buf[1];
+		crls.step = buf[2];
+	    }
 	    iinf->segments_ += crls;
 	}
 
@@ -342,23 +362,40 @@ bool PosInfo::CubeData::read( std::istream& strm )
 }
 
 
-bool PosInfo::CubeData::write( std::ostream& strm ) const
+bool PosInfo::CubeData::write( std::ostream& strm, bool asc ) const
 {
     const int intsz = sizeof( int );
     const int nrinl = this->size();
-    strm.write( (const char*)&nrinl, intsz );
+    if ( asc )
+	strm << nrinl << '\n';
+    else
+	strm.write( (const char*)&nrinl, intsz );
+
     for ( int iinl=0; iinl<nrinl; iinl++ )
     {
 	const PosInfo::LineData& inlinf = *(*this)[iinl];
-	strm.write( (const char*)&inlinf.linenr_, intsz );
 	const int nrcrl = inlinf.segments_.size();
-	strm.write( (const char*)&nrcrl, intsz );
+	if ( asc )
+	    strm << inlinf.linenr_ << ' ' << nrcrl;
+	else
+	{
+	    strm.write( (const char*)&inlinf.linenr_, intsz );
+	    strm.write( (const char*)&nrcrl, intsz );
+	}
+
 	for ( int icrl=0; icrl<nrcrl; icrl++ )
 	{
 	    const PosInfo::LineData::Segment& seg = inlinf.segments_[icrl];
-	    strm.write( (const char*)&seg.start, intsz );
-	    strm.write( (const char*)&seg.stop, intsz );
-	    strm.write( (const char*)&seg.step, intsz );
+	    if ( asc )
+		strm << ' ' << seg.start << ' ' << seg.stop << ' ' << seg.step;
+	    else
+	    {
+		strm.write( (const char*)&seg.start, intsz );
+		strm.write( (const char*)&seg.stop, intsz );
+		strm.write( (const char*)&seg.step, intsz );
+	    }
+	    if ( asc )
+		strm << '\n';
 	}
 
 	if ( !strm.good() ) return false;
@@ -495,30 +532,44 @@ void PosInfo::Line2DData::dump( std::ostream& strm, bool pretty ) const
 }
 
 
-bool PosInfo::Line2DData::read( std::istream& strm )
+bool PosInfo::Line2DData::read( std::istream& strm, bool asc )
 {
-    float buf[3];
-    strm.read( (char*) buf, 3 * sizeof(float) );
-    zrg.start = buf[0];
-    zrg.stop = buf[1];
-    zrg.step = buf[2];
-
     int linesz = 0;
-    strm.read( (char*) &linesz, sizeof(int) );
-    if ( !linesz ) return false;
+    if ( asc )
+	strm >> zrg.start >> zrg.stop >> zrg.step >> linesz;
+    else
+    {
+	float buf[3];
+	strm.read( (char*) buf, 3 * sizeof(float) );
+	zrg.start = buf[0];
+	zrg.stop = buf[1];
+	zrg.step = buf[2];
+	strm.read( (char*) &linesz, sizeof(int) );
+    }
+    if ( linesz <= 0 )
+	return false;
 
     posns.erase();
     for ( int idx=0; idx<linesz; idx++ )
     {
 	int trcnr = -1;
-	strm.read( (char*) &trcnr, sizeof(int) );
+	if ( asc )
+	    strm >> trcnr;
+	else
+	    strm.read( (char*) &trcnr, sizeof(int) );
 	if ( trcnr<0 || strm.bad() || strm.eof() )
 	    return false;
 
 	PosInfo::Line2DPos pos( trcnr );
-	strm.read( (char*) buf, 2 * sizeof(float) );
-	pos.coord_.x = buf[0];
-	pos.coord_.y = buf[1];
+	if ( asc )
+	    strm >> pos.nr_ >> pos.coord_.x >> pos.coord_.y;
+	else
+	{
+	    double dbuf[2];
+	    strm.read( (char*) &pos.nr_, sizeof(int) );
+	    strm.read( (char*) dbuf, 2 * sizeof(double) );
+	    pos.coord_.x = dbuf[0]; pos.coord_.y = dbuf[1];
+	}
 	posns += pos;
     }
 
@@ -526,20 +577,35 @@ bool PosInfo::Line2DData::read( std::istream& strm )
 }
 
 
-bool PosInfo::Line2DData::write( std::ostream& strm ) const
+bool PosInfo::Line2DData::write( std::ostream& strm, bool asc ) const
 {
-    float buf[] = { zrg.start, zrg.stop, zrg.step };
-    strm.write( (const char*) buf, 3 * sizeof(float) );
-
     const int linesz = posns.size();
-    strm.write( (const char*) &linesz, sizeof(int) );
+    if ( asc )
+	strm << zrg.start << ' ' << zrg.stop << ' ' << zrg.step
+	     << ' ' << linesz;
+    else
+    {
+	float buf[] = { zrg.start, zrg.stop, zrg.step };
+	strm.write( (const char*) buf, 3 * sizeof(float) );
+	strm.write( (const char*) &linesz, sizeof(int) );
+    }
 
     for ( int idx=0; idx<linesz; idx++ )
     {
 	const PosInfo::Line2DPos& pos = posns[idx];
-	strm.write( (const char*) &pos.nr_, sizeof(int) );
-	buf[0] = pos.coord_.x; buf[1] = pos.coord_.y;
-	strm.write( (const char*) buf, 2 * sizeof(float) );
+	if ( asc )
+	{
+	    strm << ' ' << pos.nr_
+		 << ' ' << getStringFromDouble(0,pos.coord_.x);
+	    strm << ' ' << getStringFromDouble(0,pos.coord_.y);
+	}
+	else
+	{
+	    double dbuf[2];
+	    dbuf[0] = pos.coord_.x; dbuf[1] = pos.coord_.y;
+	    strm.write( (const char*) &pos.nr_, sizeof(int) );
+	    strm.write( (const char*) dbuf, 2 * sizeof(double) );
+	}
     }
 
     return strm.good();
