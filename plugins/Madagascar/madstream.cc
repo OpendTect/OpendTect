@@ -4,7 +4,7 @@
  * DATE     : March 2008
 -*/
 
-static const char* rcsID = "$Id: madstream.cc,v 1.10 2008-06-20 11:39:14 cvsraman Exp $";
+static const char* rcsID = "$Id: madstream.cc,v 1.11 2008-08-19 09:21:58 cvsbert Exp $";
 
 #include "madstream.h"
 #include "cubesampling.h"
@@ -230,7 +230,7 @@ BufferString MadStream::getPosFileName( bool forread ) const
 #define mWriteToPosFile( obj ) \
     StreamData sd = StreamProvider( posfnm ).makeOStream(); \
     if ( !sd.usable() ) mErrRet( "Cannot create Pos file" ); \
-    if ( !obj.write(*sd.ostrm) ) \
+    if ( !obj.write(*sd.ostrm,false) ) \
     { sd.close(); mErrRet( "Cannot write to Pos file" ); } \
     sd.close(); \
     pars_.set( sKeyPosFileName, posfnm );
@@ -575,7 +575,8 @@ bool MadStream::getNextTrace( float* arr )
 	StreamProvider sp( posfnm ); \
 	StreamData possd = sp.makeIStream(); \
 	if ( !possd.usable() ) mErrBoolRet("Cannot Open Pos File"); \
-       	if ( !obj.read(*possd.istrm) ) mErrBoolRet("Cannot Read Pos File"); \
+       	if ( !obj.read(*possd.istrm,false) ) \
+	    mErrBoolRet("Cannot Read Pos File"); \
 	possd.close(); \
 	FilePath fp( posfnm ); \
 	if ( fp.pathOnly() == FilePath::getTempDir() ) \
