@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Jan 2008
- RCS:		$Id: seisimpps.h,v 1.2 2008-01-17 14:36:26 cvsbert Exp $
+ RCS:		$Id: seisimpps.h,v 1.3 2008-08-19 09:32:53 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ public:
 
     void		add(SeisTrc*);		//!< trc becomes mine
     void		endReached();		//!< call after last 'add'
-    bool		needWrite() const	{ return writeupto_ >= 0; }
+    bool		needWrite() const	{ return !towrite_.isEmpty(); }
     bool		writeGather();
     			//!< Write possibly incomplete gather if !needWrite()
     bool		isEmpty() const		{ return lines_.isEmpty(); }
@@ -61,7 +61,7 @@ protected:
     MultiID			wrid_;
     SeisTrcWriter*		wrr_;
     int				maxinloffs_;
-    int				writeupto_;
+    TypeSet<int>		towrite_;
     BufferStringSet		samplenms_;
 
     int				gathersize_;

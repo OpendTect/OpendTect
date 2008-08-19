@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisimpps.cc,v 1.2 2008-01-17 14:36:26 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimpps.cc,v 1.3 2008-08-19 09:32:53 cvsbert Exp $";
 
 #include "seisimpps.h"
 #include "seispsioprov.h"
@@ -14,7 +14,11 @@ static const char* rcsID = "$Id: seisimpps.cc,v 1.2 2008-01-17 14:36:26 cvsbert 
 #include "seistrc.h"
 #include "ioman.h"
 #include "ioobj.h"
+#include "debug.h"
 #include <iostream>
+
+#define mDBGmask 0x1110
+
 
 class SeisPSImpLineBuf
 {
@@ -59,7 +63,6 @@ SeisPSImpDataMgr::SeisPSImpDataMgr( const MultiID& pswrid )
     : wrid_(pswrid)
     , wrr_(0)
     , maxinloffs_(-1)
-    , writeupto_(-1)
     , gathersize_(0)
 {
 }
@@ -74,7 +77,8 @@ SeisPSImpDataMgr::~SeisPSImpDataMgr()
 
 void SeisPSImpDataMgr::endReached()
 {
-    writeupto_ = lines_.size() - 1;
+    for ( int idx=0; idx<lines_.size(); idx++ )
+	towrite_ += lines_[idx]->inl_;
 }
 
 
@@ -91,6 +95,12 @@ void SeisPSImpDataMgr::add( SeisTrc* trc )
 	    { bufidx = idx; break; }
     }
 
+    if ( DBG::isOn(mDBGmask) )
+    {
+	BufferString str( "Adding inl=" ); str += inl;
+	str += ";\tNew nr lines="; str += lines_.size();
+	DBG::message( str );
+    }
     SeisPSImpLineBuf* newbuf = new SeisPSImpLineBuf( inl );
     newbuf->add( trc );
     if ( bufidx != -1 )
@@ -107,17 +117,22 @@ void SeisPSImpDataMgr::add( SeisTrc* trc )
 
 void SeisPSImpDataMgr::updateStatus( int bufidx )
 {
-    if ( maxinloffs_ < 0 || bufidx < maxinloffs_ ) return;
+    if ( maxinloffs_ < 0 ) return;
 
     const int nrlines = lines_.size();
-    for ( int idx=0;
-	  lines_[nrlines-1]->inl_ - lines_[idx]->inl_ > maxinloffs_; idx++ )
-	writeupto_ = idx;
+    for ( int idx=0; idx<nrlines; idx++ )
+    {
+	const int inloffs = abs( lines_[idx]->inl_ - lines_[bufidx]->inl_ );
+	if ( inloffs > maxinloffs_ )
+	    towrite_ += lines_[idx]->inl_;
+    }
 }
 
 
 bool SeisPSImpDataMgr::writeGather()
 {
+    if ( towrite_.isEmpty() ) return true;
+
     bool wrsampnms = false;
     if ( !wrr_ )
     {
@@ -131,12 +146,27 @@ bool SeisPSImpDataMgr::writeGather()
 	wrsampnms = true;
     }
 
-    SeisPSImpLineBuf& lbuf = *lines_[0];
-    SeisTrcBuf* gath2write = lbuf.gathers_.remove( 0 );
-    if ( lbuf.gathers_.isEmpty() )
+    const int curinl = towrite_[0];
+    SeisPSImpLineBuf* lbuf = 0;
+    for ( int idx=0; idx<lines_.size(); idx++ )
     {
-	delete lines_.remove( 0 );
-	writeupto_--;
+	if ( lines_[idx]->inl_ == curinl )
+	    { lbuf = lines_[idx]; break; }
+    }
+    if ( !lbuf || lbuf->gathers_.isEmpty() )
+	{ delete lbuf; towrite_.remove(0); return true; } // shouldn't happen
+
+    SeisTrcBuf* gath2write = lbuf->gathers_.remove( 0 );
+    const bool lbufempty = lbuf->gathers_.isEmpty();
+    if ( lbufempty )
+    {
+	if ( DBG::isOn(mDBGmask) )
+	{
+	    BufferString str( "Written inl=" ); str += lbuf->inl_;
+	    str += ";\tNew nr lines="; str += lines_.size();
+	    DBG::message( str );
+	}
+	lines_ -= lbuf;
     }
 
     bool res = true;
@@ -153,6 +183,8 @@ bool SeisPSImpDataMgr::writeGather()
 	gathersize_ = -1;
 
     delete gath2write;
+    if ( lbufempty ) delete lbuf;
+
     if ( wrsampnms )
 	wrr_->psWriter()->setSampleNames( samplenms_ );
     return res;
