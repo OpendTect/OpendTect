@@ -2,7 +2,7 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : Bert
  * DATE     : July 2007
- * RCS      : $Id: imp_bpsif.cc,v 1.3 2008-06-30 13:23:50 cvsbert Exp $
+ * RCS      : $Id: imp_bpsif.cc,v 1.4 2008-08-19 09:24:41 cvsbert Exp $
 -*/
 
 #include "seisimpbpsif.h"
@@ -20,6 +20,9 @@ static int doWork( int argc, char** argv )
     }
 
     SeisImpBPSIF imp( argv[1], MultiID(argv[2]) );
+    const int maxinloffs = argc < 4 ? -1 : atoi(argv[3]);
+    if ( maxinloffs > 0 )
+	std::cerr << "Max inl offset: " << maxinloffs << std::endl;
     imp.setMaxInlOffset( argc < 4 ? -1 : atoi(argv[3]) );
 
     return imp.execute( &std::cout ) ? 0 : 1;
