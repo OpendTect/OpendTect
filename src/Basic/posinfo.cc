@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.5 2008-08-19 09:16:36 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.6 2008-08-19 11:00:11 cvsraman Exp $";
 
 #include "math2.h"
 #include "posinfo.h"
@@ -562,11 +562,10 @@ bool PosInfo::Line2DData::read( std::istream& strm, bool asc )
 
 	PosInfo::Line2DPos pos( trcnr );
 	if ( asc )
-	    strm >> pos.nr_ >> pos.coord_.x >> pos.coord_.y;
+	    strm >> pos.coord_.x >> pos.coord_.y;
 	else
 	{
 	    double dbuf[2];
-	    strm.read( (char*) &pos.nr_, sizeof(int) );
 	    strm.read( (char*) dbuf, 2 * sizeof(double) );
 	    pos.coord_.x = dbuf[0]; pos.coord_.y = dbuf[1];
 	}
