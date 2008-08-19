@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seiscbvsps.cc,v 1.31 2008-08-15 12:28:31 cvsbert Exp $";
+static const char* rcsID = "$Id: seiscbvsps.cc,v 1.32 2008-08-19 09:31:52 cvsbert Exp $";
 
 #include "seiscbvsps.h"
 #include "seispsioprov.h"
@@ -21,6 +21,10 @@ static const char* rcsID = "$Id: seiscbvsps.cc,v 1.31 2008-08-15 12:28:31 cvsber
 #include "strmoper.h"
 #include "iopar.h"
 #include "errh.h"
+
+static const char* cSampNmsFnm = "samplenames.txt";
+static const char* cPosDataFnm = "posdata.txt";
+
 
 class CBVSSeisPSIOProvider : public SeisPSIOProvider
 {
@@ -109,7 +113,7 @@ BufferString SeisCBVSPSIO::get2DFileName( const char* lnm ) const
 
 bool SeisCBVSPSIO::getSampleNames( BufferStringSet& nms ) const
 {
-    FilePath fp( dirnm_ ); fp.add( "samplenames.txt" );
+    FilePath fp( dirnm_ ); fp.add( cSampNmsFnm );
     const BufferString fnm( fp.fullPath() );
 
     StreamData sd( StreamProvider(fp.fullPath()).makeIStream() );
@@ -127,7 +131,7 @@ bool SeisCBVSPSIO::getSampleNames( BufferStringSet& nms ) const
 
 bool SeisCBVSPSIO::setSampleNames( const BufferStringSet& nms ) const
 {
-    FilePath fp( dirnm_ ); fp.add( "samplenames.txt" );
+    FilePath fp( dirnm_ ); fp.add( cSampNmsFnm );
     const BufferString fnm( fp.fullPath() );
     if ( nms.isEmpty() )
     {
@@ -241,6 +245,18 @@ bool SeisCBVSPSIO::startWrite( const char* fnm, const SeisTrc& trc )
 }
 
 
+static const char* posdataFileName( const char* dirnm )
+{
+    FilePath fp( dirnm );
+    fp.add( cPosDataFnm );
+    static BufferString ret;
+    ret = fp.fullPath();
+    return ret.buf();
+}
+
+#define mRemoveCache(fnm) File_remove( fnm, NO )
+
+
 SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
     	: SeisCBVSPSIO(dirnm)
     	, posdata_(*new PosInfo::CubeData)
@@ -248,31 +264,55 @@ SeisCBVSPS3DReader::SeisCBVSPS3DReader( const char* dirnm, int inl )
 {
     if ( !dirNmOK(true) ) return;
 
+    const BufferString cachefnm( posdataFileName(dirnm_) );
     if ( mIsUdf(inl) )
     {
-	DirList dl( dirnm_, DirList::FilesOnly, selmask_.buf() );
-	for ( int idx=0; idx<dl.size(); idx++ )
+	StreamData sd = StreamProvider(cachefnm).makeIStream();
+	if ( sd.usable() )
 	{
-	    BufferString fnm( dl.get(idx) );
-	    char* ptr = fnm.buf();
-	    while ( *ptr && !isdigit(*ptr) ) ptr++;
-	    while ( *ptr && isdigit(*ptr) ) ptr++;
-	    *ptr = '\0';
-	    if ( fnm.isEmpty() ) continue;
-
-	    addInl( atoi(fnm.buf()) );
+	    bool posdataok = posdata_.read( *sd.istrm, true );
+	    sd.close();
+	    if ( !posdataok )
+		mRemoveCache(cachefnm);
+	    else
+		return;
 	}
-
-	if ( posdata_.size() < 1 )
-	{
-	    errmsg_ = "Directory '"; errmsg_ += dirnm_;
-	    errmsg_ += "' contains no usable pre-stack data files";
-	    return;
-	}
-	posdata_.sort();
     }
-    else if ( inl >= 0 )
-	addInl( inl );
+    else
+    {
+	if ( inl >= 0 )
+	    addInl( inl );
+	return;
+    }
+
+    DirList dl( dirnm_, DirList::FilesOnly, selmask_.buf() );
+    for ( int idx=0; idx<dl.size(); idx++ )
+    {
+	BufferString fnm( dl.get(idx) );
+	char* ptr = fnm.buf();
+	while ( *ptr && !isdigit(*ptr) ) ptr++;
+	while ( *ptr && isdigit(*ptr) ) ptr++;
+	*ptr = '\0';
+	if ( fnm.isEmpty() ) continue;
+
+	addInl( atoi(fnm.buf()) );
+    }
+
+    if ( posdata_.size() < 1 )
+    {
+	errmsg_ = "Directory '"; errmsg_ += dirnm_;
+	errmsg_ += "' contains no usable pre-stack data files";
+	return;
+    }
+
+    posdata_.sort();
+    StreamData sd = StreamProvider(cachefnm).makeOStream();
+    if ( sd.usable() )
+    {
+	if ( !posdata_.write(*sd.ostrm,true) )
+	    mRemoveCache(cachefnm);
+    }
+    sd.close();
 }
 
 
@@ -415,8 +455,11 @@ SeisCBVSPS3DWriter::~SeisCBVSPS3DWriter()
 
 void SeisCBVSPS3DWriter::close()
 {
-    SeisCBVSPSIO::close();
+    if ( !mIsUdf(prevbid_.inl) )
+	mRemoveCache( posdataFileName(dirnm_) );
     prevbid_ = BinID( mUdf(int), mUdf(int) );
+
+    SeisCBVSPSIO::close();
 }
 
 
@@ -555,8 +598,8 @@ bool SeisCBVSPS2DWriter::ensureTr( const SeisTrc& trc )
 
 void SeisCBVSPS2DWriter::close()
 {
-    SeisCBVSPSIO::close();
     prevnr_ = mUdf(int);
+    SeisCBVSPSIO::close();
 }
 
 
