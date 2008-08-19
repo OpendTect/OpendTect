@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackattrib.cc,v 1.8 2008-08-18 08:54:52 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackattrib.cc,v 1.9 2008-08-19 10:37:59 cvshelene Exp $";
 
 #include "prestackattrib.h"
 
@@ -53,8 +53,6 @@ void PreStack::initClass()
 
     FloatGateParam* fgpar = new FloatGateParam( offsRgStr(),
 	    		    Interval<float>(0,mUdf(float)) , false );
-    desc->addParam( fgpar );
-    fgpar = fgpar->clone(); fgpar->setKey( offsRgStr() );
     desc->addParam( fgpar );
 
     desc->addOutputDataType( Seis::UnknowData );
