@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:           $Id: uiseissel.h,v 1.30 2008-07-23 09:40:48 cvsbert Exp $
+ RCS:           $Id: uiseissel.h,v 1.31 2008-08-19 11:14:36 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,16 +29,16 @@ public:
 			    , withclear_(false)
 			    , seltxt_(0)
 			    , datatype_(0)
-			    , allowcnstrsabsent_(0)
-			    , include_(0)	{}
+			    , allowcnstrsabsent_(false)
+			    , include_(true)	{}
 			Setup( bool is2d, bool isps )
 			    : geom_(Seis::geomTypeOf(is2d,isps))
 			    , selattr_(is2d && !isps)
 			    , withclear_(false)
 			    , seltxt_(0)
 			    , datatype_(0)
-			    , allowcnstrsabsent_(0)
-			    , include_(0)	{}
+			    , allowcnstrsabsent_(false)
+			    , include_(true)	{}
 
 	mDefSetupMemb(Seis::GeomType,geom)
 	mDefSetupMemb(bool,selattr)
