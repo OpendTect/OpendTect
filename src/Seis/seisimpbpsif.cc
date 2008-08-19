@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.8 2008-05-14 13:16:17 cvsbert Exp $";
+static const char* rcsID = "$Id: seisimpbpsif.cc,v 1.9 2008-08-19 09:30:59 cvsbert Exp $";
 
 #include "seisimpbpsif.h"
 #include "seisimpps.h"
@@ -276,7 +276,10 @@ int SeisImpBPSIF::addTrcsAscii( const SeisTrc& tmpltrc, char* data )
 	if ( SI().sampling(false).hrg.includes(newtrc->info().binid) )
 	    datamgr_.add( newtrc );
 	else
+	{
+	    delete newtrc;
 	    nrrejected_++;
+	}
 
 	nrfound++;
     }
@@ -307,7 +310,10 @@ bool SeisImpBPSIF::addTrcsBinary( const SeisTrc& tmpltrc )
 	if ( SI().sampling(false).hrg.includes(newtrc->info().binid) )
 	    datamgr_.add( newtrc );
 	else
+	{
+	    delete newtrc;
 	    nrrejected_++;
+	}
     }
 
     return true;
