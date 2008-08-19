@@ -2,10 +2,10 @@
  * COPYRIGHT: (C) de Groot-Bril Earth Sciences B.V.
  * AUTHOR   : A.H. Bril
  * DATE     : 2000
- * RCS      : $Id: od_cbvs_browse.cc,v 1.28 2008-08-18 08:54:30 cvsbert Exp $
+ * RCS      : $Id: od_cbvs_browse.cc,v 1.29 2008-08-19 09:24:53 cvsbert Exp $
 -*/
 
-static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.28 2008-08-18 08:54:30 cvsbert Exp $";
+static const char* rcsID = "$Id: od_cbvs_browse.cc,v 1.29 2008-08-19 09:24:53 cvsbert Exp $";
 
 #include "seistrc.h"
 #include "seiscbvs.h"
@@ -55,19 +55,15 @@ int main( int argc, char** argv )
     }
 
     FilePath fp( argv[1] );
-    
-    if ( !File_exists(fp.fullPath()) )
+    if ( !fp.isAbsolute() )
+        fp.insert( File_getCurrentDir() );
+    const BufferString fname = fp.fullPath();
+    if ( !File_exists(fname) )
     {
-        std::cerr << fp.fullPath() << " does not exist" << std::endl;
+        std::cerr << fname << " does not exist" << std::endl;
         ExitProgram( 1 );
     }
-    
-    if ( !fp.isAbsolute() )
-    {
-        fp.insert( File_getCurrentDir() );
-    }
 
-    const BufferString fname = fp.fullPath();
     std::cerr << "Browsing '" << fname << "'\n" << std::endl;
 
     PtrMan<CBVSSeisTrcTranslator> tri = CBVSSeisTrcTranslator::getInstance();
