@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.5 2008-08-14 21:52:44 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.6 2008-08-19 09:10:47 cvshelene Exp $";
 
 #include "uivolprochorinterfiller.h"
 #include "uimsg.h"
@@ -138,8 +138,8 @@ bool uiHorInterFiller::acceptOK( CallBacker* cb )
 	return false;
     }
 
-    if ( usetophorfld_->getBoolValue() && !tophorfld_->existingTyped() ||
-	 usebottomhorfld_->getBoolValue() && !bottomhorfld_->existingTyped() )
+    if ( (usetophorfld_->getBoolValue() && !tophorfld_->existingTyped()) ||
+	 (usebottomhorfld_->getBoolValue() && !bottomhorfld_->existingTyped()) )
     {
 	uiMSG().error("Non-existing horizon selected");
 	return false;
