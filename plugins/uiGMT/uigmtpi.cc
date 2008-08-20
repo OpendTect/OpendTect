@@ -4,8 +4,12 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: uigmtpi.cc,v 1.6 2008-08-20 05:26:14 cvsraman Exp $";
+static const char* rcsID = "$Id: uigmtpi.cc,v 1.7 2008-08-20 08:37:51 cvsraman Exp $";
 
+#include "gmtdef.h"
+#include "pixmap.h"
+#include "uibutton.h"
+#include "uidesktopservices.h"
 #include "uigmtcoastline.h"
 #include "uigmtcontour.h"
 #include "uigmtlocations.h"
@@ -13,6 +17,7 @@ static const char* rcsID = "$Id: uigmtpi.cc,v 1.6 2008-08-20 05:26:14 cvsraman E
 #include "uigmtpolyline.h"
 #include "uigmtwells.h"
 #include "uigmt2dlines.h"
+#include "uilabel.h"
 #include "uimenu.h"
 #include "uimsg.h"
 #include "uiodmenumgr.h"
@@ -35,6 +40,50 @@ extern "C" PluginInfo* GetuiGMTPluginInfo()
     	"Plots Surface data using GMT mapping tool" };
     return &retpi;
 }
+
+
+class uiGMTIntro : public uiDialog
+{
+public:
+
+uiGMTIntro( uiParent* p )
+    : uiDialog(p,uiDialog::Setup("GMT Mapping Tool","",""))
+{
+    setOkText( "Continue" );
+
+    BufferString msg = "You need to install the GMT mapping tool package\n";
+    msg += "before you can use this utility\n";
+    msg += "Also make sure that your PATH variable includes\n";
+    msg += "the GMT bin directory";
+
+    uiLabel* lbl = new uiLabel( this, msg );
+    lbl->setAlignment( uiLabel::AlignHCenter );
+
+    uiToolButton* gmtbut = new uiToolButton( this, "GMT Home",
+	    				     ioPixmap("gmt_logo.png"),
+					     mCB(this,uiGMTIntro,gmtPush) );
+    gmtbut->setToolTip( "Go to GMT Home page" );
+    gmtbut->attach( centeredBelow, lbl );
+
+    skipfld_ = new uiCheckBox( this, "Don't show this message again" );
+    skipfld_->attach( centeredBelow, gmtbut );
+}
+
+protected:
+
+void gmtPush( CallBacker* )
+{
+    uiDesktopServices::openUrl( "http://www.soest.hawaii.edu/gmt" );
+}
+
+bool acceptOK( CallBacker* )
+{
+    mSetDefault( ODGMT::sKeySkipWarning, setYN, skipfld_->isChecked() );
+    return true;
+}
+
+    uiCheckBox*		skipfld_;
+};
 
 
 class uiGMTMgr :  public CallBacker
@@ -65,7 +114,7 @@ void uiGMTMgr::updateMenu( CallBacker* )
     delete dlg_; dlg_ = 0;
     appl_->menuMgr().dtectTB()->addButton( "gmt_logo.png",
 	    				  mCB(this,uiGMTMgr,createMap),
-					  "Create PostScript Map" );
+					  "GMT Mapping Tool" );
 }
 
 
@@ -78,7 +127,18 @@ uiGMTMgr::~uiGMTMgr()
 void uiGMTMgr::createMap( CallBacker* )
 {
     if ( !dlg_ )
+    {
+	bool skipwarning = false;
+	mGetDefault( ODGMT::sKeySkipWarning, getYN, skipwarning );
+	if ( !skipwarning )
+	{
+	    uiGMTIntro introdlg( appl_ );
+	    if ( !introdlg.go() )
+		return;
+	}
+
 	dlg_ = new uiGMTMainWin( 0 );
+    }
 
     dlg_->show();
 }
