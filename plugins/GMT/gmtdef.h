@@ -7,11 +7,12 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtdef.h,v 1.5 2008-08-20 05:26:09 cvsraman Exp $
+ RCS:		$Id: gmtdef.h,v 1.6 2008-08-20 08:37:46 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "settings.h"
 
 namespace ODGMT
 {
@@ -49,6 +50,7 @@ namespace ODGMT
     static const char*	sKeyPostColorBar = "Post Color bar";
     static const char*	sKeyResolution = "Resolution";
     static const char*	sKeyShape = "Shape";
+    static const char*	sKeySkipWarning = "Skip Warning";
     static const char*	sKeyUTMZone = "UTM zone";
     static const char*	sKeyWetFill = "Fill Wet";
     static const char*	sKeyWetFillColor = "Fill Color Wet";
@@ -57,5 +59,13 @@ namespace ODGMT
     static const char*	sKeyYRange = "Y Range";
 };
 
+
+#define mGetDefault( key, fn, var ) \
+    Settings::fetch("GMT").fn(key,var); \
+    
+
+#define mSetDefault( key, fn, var ) \
+    Settings::fetch("GMT").fn(key,var); \
+    Settings::fetch("GMT").write();
 
 #endif
