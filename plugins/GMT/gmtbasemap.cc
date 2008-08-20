@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: gmtbasemap.cc,v 1.4 2008-08-14 10:52:47 cvsraman Exp $
+ RCS:		$Id: gmtbasemap.cc,v 1.5 2008-08-20 05:26:09 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -160,8 +160,11 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	    LineStyle ls;
 	    ls.fromString( lsstr );
 	    if ( ls.type_ != LineStyle::None )
-	    { mGetLineStyleString( ls, penstr ); }
-
+	    {
+		mGetLineStyleString( ls, penstr );
+	    }
+	    else if ( shape == ODGMT::Line )
+		continue;
 	}
 	else
 	{

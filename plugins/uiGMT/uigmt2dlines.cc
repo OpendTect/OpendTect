@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: uigmt2dlines.cc,v 1.1 2008-08-18 11:24:25 cvsraman Exp $
+ RCS:		$Id: uigmt2dlines.cc,v 1.2 2008-08-20 05:26:14 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,13 +60,15 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
     lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );
     lsfld_->attach( alignedBelow, llb );
 
-    labelfld_ = new uiCheckBox( this, "Label font size",
+    labelfld_ = new uiCheckBox( this, "Post label",
 	   			mCB(this,uiGMT2DLinesGrp,labelSel) );
     labelfld_->attach( alignedBelow, lsfld_ );
 
-    labelfontfld_ = new uiSpinBox( this );
-    labelfontfld_->attach( rightOf, labelfld_ );
+    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this, "Font size" );
+    labelfontfld_ = lsb->box();
+    lsb->attach( rightOf, labelfld_ );
     labelfontfld_->setInterval( 8, 20 );
+    labelfontfld_->setValue( 10 );
     labelSel( 0 );
 }
 
@@ -113,7 +115,7 @@ bool uiGMT2DLinesGrp::fillPar( IOPar& par ) const
     lsfld_->getStyle().toString( lskey );
     par.set( ODGMT::sKeyLineStyle, lskey );
     par.setYN( ODGMT::sKeyPostLabel, labelfld_->isChecked() );
-    par.set( sKey::Size, labelfontfld_->getValue() );
+    par.set( ODGMT::sKeyFontSize, labelfontfld_->getValue() );
     return true;
 }
 
@@ -142,8 +144,8 @@ bool uiGMT2DLinesGrp::usePar( const IOPar& par )
     bool postlabel = false;
     par.getYN( ODGMT::sKeyPostLabel, postlabel );
     labelfld_->setChecked( postlabel );
-    int size = 8;
-    par.get( sKey::Size, size );
+    int size = 10;
+    par.get( ODGMT::sKeyFontSize, size );
     labelfontfld_->setValue( size );
     labelSel( 0 );
     

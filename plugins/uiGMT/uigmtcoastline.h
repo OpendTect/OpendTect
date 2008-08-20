@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: uigmtcoastline.h,v 1.2 2008-08-14 10:52:52 cvsraman Exp $
+ RCS:		$Id: uigmtcoastline.h,v 1.3 2008-08-20 05:26:14 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class uiCheckBox;
 class uiColorInput;
 class uiComboBox;
+class uiGenInput;
 class uiSelLineStyle;
 class uiSpinBox;
 
@@ -36,6 +37,8 @@ protected:
     static int			factoryid_;
 
     uiSpinBox*		utmfld_;
+    uiSpinBox*		cmfld_;
+    uiGenInput*		ewfld_;
     uiComboBox*		resolutionfld_;
     uiSelLineStyle*	lsfld_;
     uiCheckBox*		fillwetfld_;
@@ -44,6 +47,7 @@ protected:
     uiColorInput*	drycolfld_;
 
     void		fillSel(CallBacker*);
+    void		utmSel(CallBacker*);
 };
 
 #endif

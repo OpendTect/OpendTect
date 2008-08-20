@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: uigmtwells.cc,v 1.2 2008-08-14 10:52:52 cvsraman Exp $
+ RCS:		$Id: uigmtwells.cc,v 1.3 2008-08-20 05:26:14 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 #include "uigeninput.h"
 #include "uilistbox.h"
 #include "uimsg.h"
+#include "uispinbox.h"
 
 
 int uiGMTWellsGrp::factoryid_ = -1;
@@ -85,6 +86,12 @@ uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
     lebelalignfld_ = new uiComboBox( this, "Alignment" );
     lebelalignfld_->attach( rightTo, lebelfld_ );
 
+    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this, "Font size" );
+    labelfontszfld_ = lsb->box();
+    lsb->attach( rightTo, lebelalignfld_ );
+    labelfontszfld_->setInterval( 8, 20 );
+    labelfontszfld_->setValue( 10 );
+
     fillItems();
     choiceSel(0);
 }
@@ -117,6 +124,7 @@ void uiGMTWellsGrp::choiceSel( CallBacker* )
 
     fillcolfld_->setSensitive( fillfld_->isChecked() );
     lebelalignfld_->setSensitive( lebelfld_->isChecked() );
+    labelfontszfld_->setSensitive( lebelfld_->isChecked() );
 }
 
 
@@ -141,6 +149,7 @@ bool uiGMTWellsGrp::fillPar( IOPar& par ) const
     par.set( ODGMT::sKeyFillColor, fillcolfld_->color() );
     par.setYN( ODGMT::sKeyPostLabel, lebelfld_->isChecked() );
     par.set( ODGMT::sKeyLabelAlignment, lebelalignfld_->text() );
+    par.set( ODGMT::sKeyFontSize, labelfontszfld_->getValue() );
     return true;
 }
 
@@ -186,6 +195,10 @@ bool uiGMTWellsGrp::usePar( const IOPar& par )
     par.getYN( ODGMT::sKeyPostLabel, postlabel );
     lebelfld_->setChecked( postlabel );
     lebelalignfld_->setCurrentItem( par.find(ODGMT::sKeyLabelAlignment) );
+    int fontsize = 10;
+    par.get( ODGMT::sKeyFontSize, fontsize );
+    labelfontszfld_->setValue( fontsize );
+    choiceSel( 0 );
     return true;
 }
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: uigmtwells.h,v 1.2 2008-08-14 10:52:52 cvsraman Exp $
+ RCS:		$Id: uigmtwells.h,v 1.3 2008-08-20 05:26:14 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class uiColorInput;
 class uiComboBox;
 class uiGenInput;
 class uiListBox;
+class uiSpinBox;
 
 class uiGMTWellsGrp : public uiGMTOverlayGrp
 {
@@ -44,6 +45,7 @@ protected:
     uiColorInput*	fillcolfld_;
     uiCheckBox*		lebelfld_;
     uiComboBox*		lebelalignfld_;
+    uiSpinBox*		labelfontszfld_;
 
     void		choiceSel(CallBacker*);
     void		fillItems();

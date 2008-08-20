@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtlocations.cc,v 1.4 2008-08-14 10:52:47 cvsraman Exp $
+ RCS:		$Id: gmtlocations.cc,v 1.5 2008-08-20 05:26:09 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -342,6 +342,8 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
 	case ODGMT::Right:	alstr = "LM"; dx = 0.6 * size; break;
     }
 
+    int fontsz = 10;
+    get( ODGMT::sKeyFontSize, fontsz );
     comm = "@pstext "; comm += rgstr;
     comm += " -D"; comm += dx; comm += "/"; comm += dy;
     comm += " -G"; comm += outcolstr;
@@ -353,7 +355,7 @@ bool GMTWells::execute( std::ostream& strm, const char* fnm )
     for ( int idx=0; idx<wellnms.size(); idx++ )
     {
 	Coord pos = surfcoords[idx];
-	*sd.ostrm << pos.x << " " << pos.y << " " << 12 << " " << 0 << " ";
+	*sd.ostrm << pos.x << " " << pos.y << " " << fontsz << " " << 0 << " ";
 	*sd.ostrm << 4 << " " << alstr << " " << wellnms.get(idx) << std::endl;
     }
 

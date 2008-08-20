@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: uigmtcoastline.cc,v 1.2 2008-08-14 10:52:52 cvsraman Exp $
+ RCS:		$Id: uigmtcoastline.cc,v 1.3 2008-08-20 05:26:14 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uicolor.h"
 #include "uicombobox.h"
+#include "uigeninput.h"
 #include "uimsg.h"
 #include "uisellinest.h"
 #include "uispinbox.h"
@@ -40,9 +41,23 @@ uiGMTOverlayGrp* uiGMTCoastlineGrp::createInstance( uiParent* p )
 uiGMTCoastlineGrp::uiGMTCoastlineGrp( uiParent* p )
     : uiGMTOverlayGrp(p,"Coastline")
 {
-    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this, "Select UTM zone" );
+    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this,
+	    			"UTM zone / CM" );
     utmfld_ = lsb->box();
     utmfld_->setInterval( 1, 60 );
+    utmfld_->setPrefix( "Zone " );
+    utmfld_->setValue( 31 );
+    utmfld_->valueChanging.notify( mCB(this,uiGMTCoastlineGrp,utmSel) );
+    cmfld_ = new uiSpinBox( this );
+    cmfld_->setInterval( 3, 177 );
+    cmfld_->setStep( 6, true );
+    cmfld_->attach( rightTo, lsb );
+    cmfld_->setSuffix( " deg" );
+    cmfld_->setValue( 3 );
+    cmfld_->valueChanging.notify( mCB(this,uiGMTCoastlineGrp,utmSel) );
+    ewfld_ = new uiGenInput( this, 0, BoolInpSpec(true,"East","West") );
+    ewfld_->attach( rightTo, cmfld_ );
+    ewfld_->valuechanged.notify( mCB(this,uiGMTCoastlineGrp,utmSel) );
 
     uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Resolution" );
     resolutionfld_ = lcb->box();
@@ -76,6 +91,37 @@ void uiGMTCoastlineGrp::fillSel( CallBacker* )
 {
     wetcolfld_->setSensitive( fillwetfld_->isChecked() );
     drycolfld_->setSensitive( filldryfld_->isChecked() );
+}
+
+
+void uiGMTCoastlineGrp::utmSel( CallBacker* cb )
+{
+    if ( !cb ) return;
+
+    utmfld_->valueChanging.disable();
+    cmfld_->valueChanging.disable();
+    ewfld_->valuechanged.disable();
+    mDynamicCastGet(uiSpinBox*,box,cb)
+    if ( box == utmfld_ )
+    {
+	const int utmzone = utmfld_->getValue();
+	const int relzone = utmzone - 30;
+	const int cm = 6 * relzone - 3;
+	cmfld_->setValue( cm > 0 ? cm : -cm );
+	ewfld_->setValue( cm > 0 );
+    }
+    else
+    {
+	const int cm = cmfld_->getValue();
+	const bool iseast = ewfld_->getBoolValue();
+	const int relcm = iseast ? cm : -cm;
+	const int utmzone = 30 + ( relcm + 3 ) / 6;
+	utmfld_->setValue( utmzone );
+    }
+
+    utmfld_->valueChanging.enable();
+    cmfld_->valueChanging.enable();
+    ewfld_->valuechanged.enable();
 }
 
 #define mErrRet(s) { uiMSG().error(s); return false; }

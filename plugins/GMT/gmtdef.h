@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtdef.h,v 1.4 2008-08-14 10:52:47 cvsraman Exp $
+ RCS:		$Id: gmtdef.h,v 1.5 2008-08-20 05:26:09 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,6 +36,7 @@ namespace ODGMT
     static const char*	sKeyDryFillColor = "Fill Color Dry";
     static const char*	sKeyFill = "Fill";
     static const char*	sKeyFillColor = "Fill Color";
+    static const char*	sKeyFontSize = "Font size";
     static const char*	sKeyGroupName = "Group Name";
     static const char*	sKeyLabelAlignment = "Label alignment";
     static const char*	sKeyLabelIntv = "Label Interval";

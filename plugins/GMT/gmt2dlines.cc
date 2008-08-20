@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: gmt2dlines.cc,v 1.1 2008-08-18 11:23:18 cvsraman Exp $
+ RCS:		$Id: gmt2dlines.cc,v 1.2 2008-08-20 05:26:09 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -123,8 +123,8 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 	return true;
     }
 
-    int size = 12;
-    get( sKey::Size, size );
+    int size = 10;
+    get( ODGMT::sKeyFontSize, size );
     comm = "@pstext "; comm += rgstr;
     BufferString colstr; mGetColorString( ls.color_, colstr );
     comm += " -G"; comm += colstr;

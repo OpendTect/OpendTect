@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: gmtcoastline.cc,v 1.1 2008-08-18 11:22:43 cvsraman Exp $
+ RCS:		$Id: gmtcoastline.cc,v 1.2 2008-08-20 05:26:09 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -50,23 +50,9 @@ const char* GMTCoastline::userRef() const
 bool GMTCoastline::fillLegendPar( IOPar& par ) const
 {
     par.set( sKey::Name, "Coastline" );
-    bool drawcontour = false; BufferString str;
-    getYN( ODGMT::sKeyDrawContour, drawcontour );
-    if ( drawcontour )
-    {
-	str = find( ODGMT::sKeyLineStyle );
-	par.set( ODGMT::sKeyLineStyle, str );
-    }
-
-    bool dofill = false;
-    getYN( ODGMT::sKeyFill, dofill );
-    if ( dofill )
-    {
-	par.set( ODGMT::sKeyPostColorBar, true );
-	str = find( ODGMT::sKeyDataRange );
-	par.set( ODGMT::sKeyDataRange, str );
-    }
-
+    const char* str = find( ODGMT::sKeyLineStyle );
+    par.set( ODGMT::sKeyLineStyle, str );
+    par.set( ODGMT::sKeyShape, "Line" );
     return true;
 }
 
@@ -76,7 +62,6 @@ bool GMTCoastline::execute( std::ostream& strm, const char* fnm )
     bool drawcontour, dryfill, wetfill;
     Interval<float> mapdim;
     get( ODGMT::sKeyMapDim, mapdim );
-    getYN( ODGMT::sKeyDrawContour, drawcontour );
     getYN( ODGMT::sKeyDryFill, dryfill );
     getYN( ODGMT::sKeyWetFill, wetfill );
 
@@ -97,9 +82,10 @@ bool GMTCoastline::execute( std::ostream& strm, const char* fnm )
     comm += " -JM"; comm += mapdim.start; comm += "c -D";
     const int res = eEnum( ODGMT::Resolution, find(ODGMT::sKeyResolution) );
     comm += sResKeys[res];
+    LineStyle ls; ls.fromString( find(ODGMT::sKeyLineStyle) );
+    drawcontour = ls.type_ != LineStyle::None;
     if ( drawcontour )
     {
-	LineStyle ls; ls.fromString( find(ODGMT::sKeyLineStyle) );
 	BufferString lsstr; mGetLineStyleString( ls, lsstr );
 	comm += " -W"; comm += lsstr;
     }
@@ -135,11 +121,11 @@ bool GMTCoastline::makeLLRangeFile( const char* fnm ) const
     get( ODGMT::sKeyXRange, xrg );
     get( ODGMT::sKeyYRange, yrg );
     get( ODGMT::sKeyUTMZone, zone );
-    int relzone = zone - 31;
-    if ( relzone < 0 )
+    int relzone = zone - 30;
+    if ( relzone < 1 )
 	relzone += 60;
 
-    const int minlong = relzone * 6;
+    const int minlong = 6 * ( relzone - 1 );
     BufferString comm = "@mapproject -R";
     comm += minlong; comm += "/";
     comm += minlong + 6; comm += "/0/80 -Ju";
