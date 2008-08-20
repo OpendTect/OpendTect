@@ -7,15 +7,33 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.1 2008-02-22 12:26:24 cvsnanne Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.2 2008-08-20 03:42:11 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
+#include "color.h"
+#include "keyboardevent.h"
+#include "mouseevent.h"
 #include "namedobj.h"
+#include "uigeom.h"
 
-class ioPixmap;
 class QGraphicsScene;
+class ODGraphicsScene;
+
+class ArrowStyle;
+class ioPixmap;
+class MarkerStyle2D;
+
+class uiArrowItem;
+class uiEllipseItem;
+class uiLineItem;
+class uiMarkerItem;
+class uiPointItem;
+class uiPolygonItem;
+class uiPixmapItem;
+class uiRectItem;
+class uiTextItem;
 
 class uiGraphicsScene : public NamedObject
 {
@@ -23,15 +41,48 @@ public:
 				uiGraphicsScene(const char*);
 				~uiGraphicsScene();
 
-    void			addText(const char*);
-    void			addPixmap(const ioPixmap&);
-    void			addRect(float x,float y,float w,float h);
+    uiTextItem*			addText(const char*);
+    uiPixmapItem*		addPixmap(const ioPixmap&);
+    uiRectItem*			addRect(float x,float y,float w,float h);
+    uiEllipseItem*		addEllipse(float x,float y,float w,float h);
+    uiEllipseItem*		addEllipse(const uiPoint& center,
+	    				   const uiSize& sz);
+    uiEllipseItem*		addCircle( const uiPoint& p, int r )
+	                        { return addEllipse( p, uiSize(r,r) ); };
+
+    uiLineItem*			addLine(float x1,float y1,float x2,float y2);
+    uiLineItem*	                addLine(const uiPoint& pt1,const uiPoint& pt2);
+    uiLineItem*        	        addLine(const uiPoint&,double angle,double len);
+    uiPolygonItem*		addPolygon(const TypeSet<uiPoint>&,bool fill);
+    uiPointItem*		addPoint(bool);
+    uiMarkerItem*       	addMarker(const MarkerStyle2D&,int side=0);
+
+    /*uiLineItem*               	addLine(const TypeSet<uiPoint>&,
+	    				bool close);*/
+    uiArrowItem*		addArrow( const uiPoint& head,
+	    				  const uiPoint& tail,
+					  const ArrowStyle& );
+
+    void			useBackgroundPattern(bool);
+    void			removeAllItems();
+    void 			setBackGroundColor(const Color&);
+    const Color			backGroundColor() const;
+
+    MouseEventHandler&		getMouseEventHandler()	
+    				{ return mousehandler_; }
+    KeyboardEventHandler&	getKeyboardEventHandler()
+    				{ return keyboardhandler_; }
+
 
     QGraphicsScene*		qGraphicsScene()
     				{ return qgraphicsscene_; }
 protected:
 
     QGraphicsScene*		qgraphicsscene_;
+    ODGraphicsScene*		odgraphicsscene_;
+
+    MouseEventHandler		mousehandler_;
+    KeyboardEventHandler	keyboardhandler_;
 };
 
 #endif
