@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          January 2007
- RCS:           $Id: visvolrenscalarfield.h,v 1.6 2007-10-12 19:14:34 cvskris Exp $
+ RCS:           $Id: visvolrenscalarfield.h,v 1.7 2008-08-21 10:35:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -40,7 +40,7 @@ public:
     bool			turnOn(bool);
     bool			isOn() const;
 
-    void			setScalarField(const Array3D<float>*);
+    void			setScalarField(const Array3D<float>*,bool mine);
 
     void			setColorTab(VisColorTab&);
     VisColorTab&		getColorTab();

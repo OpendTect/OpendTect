@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.85 2008-06-16 19:46:46 cvskris Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.86 2008-08-21 10:35:06 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -595,7 +595,7 @@ void VolumeDisplay::setSelSpec( int attrib, const Attrib::SelSpec& as )
     DPM( DataPackMgr::CubeID ).release( cacheid_ );
     cacheid_ = DataPack::cNoID;
 
-    scalarfield_->setScalarField( 0 );
+    scalarfield_->setScalarField( 0, true );
 
     for ( int idx=0; idx<isosurfaces_.size(); idx++ )
 	updateIsoSurface( idx );
@@ -634,8 +634,8 @@ bool VolumeDisplay::setDataVolume( int attrib,
     if ( attrib || !attribdata )
 	return false;
 
-    PtrMan<Array3D<float> > tmparray = 0;
     const Array3D<float>* usedarray = 0;
+    bool arrayismine = true;
     if ( alreadyTransformed(attrib) || !datatransform_ )
 	usedarray = &attribdata->getCube(0);
     else
@@ -655,16 +655,17 @@ bool VolumeDisplay::setDataVolume( int attrib,
 	    return false;
 	}
 
-	tmparray = datatransformer_->getOutput( true );
-	if ( !tmparray )
+	usedarray = datatransformer_->getOutput( true );
+	if ( !usedarray )
 	{
 	    pErrMsg( "No output from transform" );
 	    return false;
 	}
-	usedarray = tmparray;
+
+	arrayismine = false;
     }
 
-    scalarfield_->setScalarField( usedarray );
+    scalarfield_->setScalarField( usedarray, !arrayismine );
 
     setCubeSampling( getCubeSampling(true,true,0) );
 

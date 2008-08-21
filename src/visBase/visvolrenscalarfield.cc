@@ -4,7 +4,7 @@
  * DATE     : April 2004
 -*/
 
-static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.16 2008-05-29 11:23:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: visvolrenscalarfield.cc,v 1.17 2008-08-21 10:35:06 cvsnanne Exp $";
 
 #include "visvolrenscalarfield.h"
 
@@ -102,7 +102,8 @@ bool VolumeRenderScalarField::isOn() const
 }
 
 
-void VolumeRenderScalarField::setScalarField( const Array3D<float>* sc )
+void VolumeRenderScalarField::setScalarField( const Array3D<float>* sc,
+					      bool mine )
 {
     if ( !sc )
     {
@@ -132,7 +133,7 @@ void VolumeRenderScalarField::setScalarField( const Array3D<float>* sc )
 
     if ( ownsdatacache_ ) delete datacache_;
 
-    ownsdatacache_ = false;
+    ownsdatacache_ = mine;
     datacache_ = sc->getStorage();
     if ( !datacache_ )
     {
