@@ -41,6 +41,8 @@ Slider "Slice Slider" 0
 Sleep 1
 Window "OpendTect*"
 Button "Make snapshot"
+Button "Scene" 
+Ok
 Input "Select filename" "/$SCRIPTSDIR$/Snapshots/eval_energy10-10"
 Ok
 Sleep 1
@@ -49,6 +51,8 @@ Sleep 2
 Slider "Slice Slider" 20
 Window "OpendTect*"
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "/$SCRIPTSDIR$/Snapshots/eval_energy15-15"
 Ok
 Sleep 1
@@ -57,6 +61,8 @@ Sleep 2
 Slider "Slice Slider" 40 
 Window "OpendTect*"
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "/$SCRIPTSDIR$/Snapshots/eval_energy20-20"
 Ok
 Sleep 1
@@ -65,6 +71,8 @@ Sleep 2
 Slider "Slice Slider" 80 
 Window "OpendTect*"
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "/$SCRIPTSDIR$/Snapshots/eval_energy25-25"
 Ok
 Sleep 1
@@ -73,8 +81,13 @@ Sleep 2
 Slider "Slice Slider" 100 
 Window "OpendTect*"
 Button "Make snapshot"
+Button "Scene"
+Ok
 Input "Select filename" "/$SCRIPTSDIR$/Snapshots/eval_energy30-30"
 Ok
-Window "OpendTect*"
-
+Window "Evaluate attribute"
+Button "Accept"
+Window "Attribute Set 3D"
+Button "Cancel"
+TreeMenu "Inline`*" "Remove"
 End
