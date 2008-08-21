@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.13 2008-08-18 16:31:53 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.14 2008-08-21 12:44:01 cvskris Exp $";
 
 #include "gridder2d.h"
 
@@ -326,16 +326,28 @@ bool TriangledNeighborhoodGridder2D::init()
 	triangles_ = new DAGTriangleTree;
 	Interval<double> xrg, yrg;
 	if ( !DAGTriangleTree::computeCoordRanges( *points_, xrg, yrg ) ) 
+	{
+	    delete triangles_;
+	    triangles_ = 0;
 	    return false;
+	}
 
 	if ( !triangles_->setCoordList( mycoords_, false ) )
+	{
+	    delete triangles_;
+	    triangles_ = 0;
 	    return false;
+	}
 
 	xrg.include( xrg_.start ); xrg.include( xrg_.stop );
 	yrg.include( yrg_.start ); yrg.include( yrg_.stop );
 
 	if ( !triangles_->setBBox( xrg, yrg ) )
+	{
+	    delete triangles_;
+	    triangles_ = 0;
 	    return false;
+	}
 
 	ParallelDTriangulator triangulator( *triangles_ );
 	triangulator.dataIsRandom( false );
@@ -343,7 +355,7 @@ bool TriangledNeighborhoodGridder2D::init()
 	if ( !triangulator.execute( false ) )
 	{
 	    delete triangles_;
-	    triangles_ = false;
+	    triangles_ = 0;
 	    return false;
 	}
     }
@@ -466,7 +478,11 @@ bool TriangulatedGridder2D::init()
 	triangles_ = new DAGTriangleTree;
 	Interval<double> xrg, yrg;
 	if ( !DAGTriangleTree::computeCoordRanges( *points_, xrg, yrg ) )
+	{
+	    delete triangles_;
+	    triangles_ = 0;
 	    return false;
+	}
 	
 	xrg.include( xrg_.start ); xrg.include( xrg_.stop );
 	yrg.include( yrg_.start ); yrg.include( yrg_.stop );
@@ -493,7 +509,11 @@ bool TriangulatedGridder2D::init()
     	    addedindices_ += idx;
 
 	if ( !triangles_->setCoordList( pts, true ) )
+	{
+	    delete triangles_;
+	    triangles_ = 0;
 	    return false;
+	}
 	
 	ParallelDTriangulator triangulator( *triangles_ );
 	triangulator.dataIsRandom( true ); //false );
