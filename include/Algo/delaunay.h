@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          January 2008
- RCS:           $Id: delaunay.h,v 1.19 2008-08-15 18:36:58 cvsyuancheng Exp $
+ RCS:           $Id: delaunay.h,v 1.20 2008-08-21 10:33:32 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,7 +60,8 @@ public:
     bool		getConnections(int pointidx,TypeSet<int>&) const;
     bool		getConnExceptPts(int pointidx,TypeSet<int>& conns,
 	    				 TypeSet<double>& weights, 
-					 const TypeSet<int>& exceptions) const;
+					 const TypeSet<int>& exceptions) const
+			{ return true; }
     bool		getConnectionWeights(int pointidx,TypeSet<int>& conns,
 	    				     TypeSet<double>& weights) const;
     			/*!Calculate inverse distance weight for each conns.*/
