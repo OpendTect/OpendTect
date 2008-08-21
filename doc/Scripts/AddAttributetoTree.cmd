@@ -7,6 +7,7 @@ Comment "----------Tour of  All Tree items----------"
 
 Case Insensitive
 
+TreeMenu "Well" "Remove all items"
 TreeMenu "Scene 1" "Properties"
 Button "Background color"
 ColorOK Cyan 4
@@ -215,7 +216,7 @@ Wheel "vRotate" -40
 Wheel "hRotate" -30
 
 TreeMenu "Random line`*" "Remove"
-TreeMenu "Well`Remove all items"
+TreeMenu "Well" "Remove all items"
 Button "Yes"
 
 End
