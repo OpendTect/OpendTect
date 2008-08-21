@@ -7,7 +7,6 @@ Comment "----------Tour of  All Tree items----------"
 
 Case Insensitive
 
-TreeMenu "Well" "Remove all items"
 TreeMenu "Scene 1" "Properties"
 Button "Background color"
 ColorOK Cyan 4
