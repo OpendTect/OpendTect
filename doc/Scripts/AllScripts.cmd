@@ -12,6 +12,7 @@ Case Insensitive
 Menu "View`Toolbars`Graphical tools" On
 
 Include "$SCRIPTSDIR$/AddAttributetoTree.cmd"
+Include "$SCRIPTSDIR$/EvalutionEnergyAttrib.cmd"
 Include "$SCRIPTSDIR$/AllAttributes.cmd"
 Include "$SCRIPTSDIR$/Attrib_onInl.cmd"
 Include "$SCRIPTSDIR$/Attrib_onCrl.cmd"
