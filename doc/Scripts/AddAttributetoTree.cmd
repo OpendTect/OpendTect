@@ -3,13 +3,17 @@ OpendTect commands
 Mon Jun 19 10:36:39 2008
 !
 
-Comment "----------Adding One StoredAttribute to All Tree items----------"
+Comment "----------Tour of  All Tree items----------"
 
 Case Insensitive
 
 TreeMenu "Scene 1" "Properties"
 Button "Background color"
 ColorOK Cyan 4
+Ok
+TreeMenu "Scene 1" "Properties"
+Button "Background color"
+ColorOK Black 4
 Ok
 
 Comment "------Adding MedianDipFilteredSeismic to Trree item Inline----"
@@ -19,7 +23,7 @@ Input "Slice position" 320
 Button "Stored"
 ListClick "Select Data" "Median Dip*" Double
 #Color_Apply
-Combo "Table selection" "3D_UVQ6" Double
+Combo "Table selection" "Grey scales" Double
 TreeMenu "Inline`*`Median Dip*" "Show Amplitude Spectrum" 
 Window "Amplitude Spectrum*"
 Snapshot "$SCRIPTSDIR$/Snapshots/Inl320-AmpSpect.png" CurWin
@@ -99,13 +103,13 @@ TableFill "BinID Table" 3 2 1200
 Ok
 Button "Stored"
 ListClick "Select Data" "Median Dip*" Double
-Combo "Table selection" "Red-White-Black"
+Combo "Table selection" "Red-White-Blue"
 TreeMenu "Random line`*`Median Dip*" "Show Amplitude Spectrum"
 Window "Amplitude Spectrum*"
 Snapshot "$SCRIPTSDIR$/Snapshots/Randomline-AmpSpect.png" CurWin
 Close
 TreeMenu "Random line`*`Median Dip*" "Show Histogram"
-Window "Histogram*"
+Window "Data statistics"
 Snapshot "$SCRIPTSDIR$/Snapshots/Randomline-Histogram.png" CurWin
 Close
 
@@ -116,7 +120,21 @@ ListClick "Objects list" 1 Double
 
 Comment "------------Loading Horizon-------------------"
 
-Include "$SCRIPTSDIR$/TreeitemHorizon.cmd"
+TreeMenu "Horizon" "Load"
+ListClick "Select Horizon*" 1 Double
+
+TreeMenu "Horizon`*" "Add attribute"
+TreeMenu "Horizon`*`<right-click>" "Select Att*`Stored*`Median Dip*"
+TreeMenu "Horizon`*`Median*" "Show Histogram"
+Window "Data statistics"
+Snapshot "$SCRIPTSDIR$/Snapshots/Hor-histogram.png"
+Close
+TreeMenu "Horizon`*`Median*" "Show Amplitude*"
+Window "Amplitude Spectrum*"
+Snapshot "$SCRIPTSDIR$/Snapshots/Hor-Amplitudespectrum.png"
+Close
+TreeMenu "Horizon`*" "Tracking`Wireframe"
+
 
 Comment "--------------Loading Well---------------"
 
@@ -169,6 +187,7 @@ TreeMenu "Random line`*" "Remove"
 TreeMenu "PickSet`*" "Remove"
 TreeMenu "Horizon`*" "Remove"
 TreeMenu "Well`*" "Remove"
+TreeButton "Annotations`Arrows`*" Off
 
 #RandomLine Create from Wells
 Comment "-----------RandomLine Create From wells-----------------"
