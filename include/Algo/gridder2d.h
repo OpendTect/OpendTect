@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Y.C.Liu & K. Tingdahl
  Date:		January 2008
- RCS:		$Id: gridder2d.h,v 1.8 2008-08-15 18:37:31 cvsyuancheng Exp $
+ RCS:		$Id: gridder2d.h,v 1.9 2008-08-21 19:59:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -118,13 +118,13 @@ protected:
 
 /*!Uses Delaunay triangulation to find a points neighbors and does inverse
    distance between the neighbors. */
-class TriangledNeighborhoodGridder2D : public Gridder2D
+class TriangulatedNeighborhoodGridder2D : public Gridder2D
 {
 public:
-    			TriangledNeighborhoodGridder2D();
-    			TriangledNeighborhoodGridder2D(
-				const TriangledNeighborhoodGridder2D&);
-			~TriangledNeighborhoodGridder2D();
+    			TriangulatedNeighborhoodGridder2D();
+    			TriangulatedNeighborhoodGridder2D(
+				const TriangulatedNeighborhoodGridder2D&);
+			~TriangulatedNeighborhoodGridder2D();
 
     static const char* 	sName() 	{ return "TriangulatedNeighborhood"; }
     static const char* 	sUserName() 	{ return "Triangulated Neighborhood";}

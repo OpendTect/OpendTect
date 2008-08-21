@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne and Kristofer
  Date:          December 2007
- RCS:           $Id: initalgo.cc,v 1.11 2008-08-15 12:20:03 cvskris Exp $
+ RCS:           $Id: initalgo.cc,v 1.12 2008-08-21 19:59:12 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ void Algo::initStdClasses()
     HanningWindow::initClass();
 
     InverseDistanceGridder2D::initClass();
-    TriangledNeighborhoodGridder2D::initClass();
+    TriangulatedNeighborhoodGridder2D::initClass();
     TriangulatedGridder2D::initClass();
 
     Pos::RandomFilter3D::initClass();

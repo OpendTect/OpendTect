@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: gridder2d.cc,v 1.14 2008-08-21 12:44:01 cvskris Exp $";
+static const char* rcsID = "$Id: gridder2d.cc,v 1.15 2008-08-21 19:59:12 cvskris Exp $";
 
 #include "gridder2d.h"
 
@@ -169,7 +169,7 @@ void InverseDistanceGridder2D::setSearchRadius( float r )
 
 
 bool InverseDistanceGridder2D::isPointUsable( const Coord& calcpt,
-					     const Coord& datapt ) const
+					      const Coord& datapt ) const
 {
     if ( !datapt.isDefined() || !calcpt.isDefined() )
 	return false;
@@ -244,15 +244,15 @@ void InverseDistanceGridder2D::fillPar( IOPar& par ) const
 }
 
 
-TriangledNeighborhoodGridder2D::TriangledNeighborhoodGridder2D()
+TriangulatedNeighborhoodGridder2D::TriangulatedNeighborhoodGridder2D()
     : triangles_( 0 )
     , xrg_( mUdf(float), mUdf(float) )
     , yrg_( mUdf(float), mUdf(float) )
 {}
 
 
-TriangledNeighborhoodGridder2D::TriangledNeighborhoodGridder2D(
-	const TriangledNeighborhoodGridder2D& b )
+TriangulatedNeighborhoodGridder2D::TriangulatedNeighborhoodGridder2D(
+	const TriangulatedNeighborhoodGridder2D& b )
     : triangles_( 0 )
     , xrg_( b.xrg_ )
     , yrg_( b.yrg_ )
@@ -262,23 +262,24 @@ TriangledNeighborhoodGridder2D::TriangledNeighborhoodGridder2D(
 }
 
 
-TriangledNeighborhoodGridder2D::~TriangledNeighborhoodGridder2D()
+TriangulatedNeighborhoodGridder2D::~TriangulatedNeighborhoodGridder2D()
 { delete triangles_; }
 
-void TriangledNeighborhoodGridder2D::setGridArea( const Interval<float>& xrg,
-						  const Interval<float>& yrg)
+
+void TriangulatedNeighborhoodGridder2D::setGridArea( const Interval<float>& xrg,
+						     const Interval<float>& yrg)
 {
     xrg_ = xrg;
     yrg_ = yrg;
 }
 
 
-Gridder2D* TriangledNeighborhoodGridder2D::create()
+Gridder2D* TriangulatedNeighborhoodGridder2D::create()
 {
-    return new TriangledNeighborhoodGridder2D;
+    return new TriangulatedNeighborhoodGridder2D;
 }
 
-bool TriangledNeighborhoodGridder2D::setPoints( const TypeSet<Coord>& pts )
+bool TriangulatedNeighborhoodGridder2D::setPoints( const TypeSet<Coord>& pts )
 {
     if ( !Gridder2D::setPoints( pts ) )
     {
@@ -293,17 +294,17 @@ bool TriangledNeighborhoodGridder2D::setPoints( const TypeSet<Coord>& pts )
 }
 
 
-void TriangledNeighborhoodGridder2D::initClass()
+void TriangulatedNeighborhoodGridder2D::initClass()
 {
     Gridder2D::factory().addCreator( create, sName(), sUserName() );
 }
 
 
-Gridder2D* TriangledNeighborhoodGridder2D::clone() const
-{ return new TriangledNeighborhoodGridder2D( *this ); }
+Gridder2D* TriangulatedNeighborhoodGridder2D::clone() const
+{ return new TriangulatedNeighborhoodGridder2D( *this ); }
 
 
-bool TriangledNeighborhoodGridder2D::init()
+bool TriangulatedNeighborhoodGridder2D::init()
 {
     usedvalues_.erase();
     weights_.erase();
