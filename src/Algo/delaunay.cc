@@ -4,10 +4,11 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.24 2008-08-15 22:23:06 cvskris Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.25 2008-08-21 06:18:56 cvsumesh Exp $";
 
 #include "delaunay.h"
 #include "trigonometry.h"
+#include "varlenarray.h"
 
 
 ParallelDTriangulator::ParallelDTriangulator( DAGTriangleTree& dagt )
@@ -35,7 +36,7 @@ bool ParallelDTriangulator::doPrepare( int nrthreads )
 	permutation_.erase();
     else
     {
-	int arr[nrcoords];
+	mVariableLengthArr( int, arr, nrcoords);
 	for ( int idx=0; idx<nrcoords; idx++ )
 	    arr[idx] = idx;
 
@@ -183,7 +184,7 @@ bool DAGTriangleTree::setBBox(const Interval<double>& xrg,
 	return false;
 
     const Coord center( xrg.center(), yrg.center() );
-    const double radius = sqrt( xlength*xlength+ylength*ylength )/2;
+    const double radius = 2*sqrt( xlength*xlength+ylength*ylength );
     initialcoords_[0] = Coord( center.x-radius*sqrt(3), center.y-radius );
     initialcoords_[1] = Coord( center.x+radius*sqrt(3), center.y-radius );
     initialcoords_[2] = Coord( center.x, center.y+2*radius );
@@ -1201,56 +1202,6 @@ bool DAGTriangleTree::getConnectionWeights( int vertex, TypeSet<int>& conns,
 					    TypeSet<double>& weights) const
 {
     if ( !getConnections( vertex, conns ) )
-	return false;
-
-    for ( int knot=0; knot<conns.size(); knot++ )
-    {
-	const Coord diff = mCrd(vertex)-mCrd(conns[knot]);
-	weights += 1/(diff.x*diff.x+diff.y*diff.y);
-    }
-
-    double sum = 0;
-    for ( int knot=0; knot<weights.size(); knot++ )
-	sum += weights[knot];
-
-    for ( int knot=0; knot<weights.size(); knot++ )
-	weights[knot] /= sum;
-
-    return true;
-}
-
-
-bool DAGTriangleTree::getConnExceptPts( int vertex, TypeSet<int>& conns,
-	TypeSet<double>& weights, const TypeSet<int>& exceptions ) const
-{
-    for ( int idx=triangles_.size()-1; idx>=0; idx-- )
-    {
-	const int* child = triangles_[idx].childindices_;
-	if ( child[0]>=0 || child[1]>=0 || child[2]>=0 )
-	    continue;
-
-	const int* c = triangles_[idx].coordindices_;
-	if ( c[0]!=vertex && c[1]!=vertex && c[2]!=vertex )
-	    continue;
-	
-	for ( int idy=0; idy<3; idy++ )
-	{
-	    if ( c[idy]<0 || c[idy]==vertex || conns.indexOf(c[idy])!=-1 )
-		continue;
-
-	    bool found = false;
-	    for ( int expt=0; expt<exceptions.size(); expt++ )
-	    {
-		if ( c[idy]==exceptions[expt] )
-		    found = true;
-	    }
-
-	    if ( !found )
-    		conns += c[idy];
-	}
-    }
-
-    if ( !conns.size() )
 	return false;
 
     for ( int knot=0; knot<conns.size(); knot++ )

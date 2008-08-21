@@ -4,10 +4,11 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.3 2008-08-06 22:03:30 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.4 2008-08-21 06:18:56 cvsumesh Exp $";
 
 #include "delaunay3d.h"
 #include "trigonometry.h"
+#include "varlenarray.h"
 
 
 ParallelDTetrahedralator::ParallelDTetrahedralator( DAGTetrahedraTree& dagt )
@@ -27,7 +28,7 @@ bool ParallelDTetrahedralator::doPrepare( int nrthreads )
 	permutation_.erase();
     else
     {
-	int arr[nrcoords];
+	mVariableLengthArr( int, arr, nrcoords);
 	for ( int idx=0; idx<nrcoords; idx++ )
 	    arr[idx] = idx;
 	
