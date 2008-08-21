@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2003
- RCS:           $Id: cmddriverpi.cc,v 1.18 2008-06-03 15:04:19 cvsbert Exp $
+ RCS:           $Id: cmddriverpi.cc,v 1.19 2008-08-21 12:35:53 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,7 +80,7 @@ uiCmdDriverInps( uiParent* p, CmdDriver& d )
 				.filter("*.cmd")
 				.forread(true)
 				.withexamine(true) );
-    fnmfld->setDefaultSelectionDir( drv_.outputDir() );
+    fnmfld->setDefaultSelectionDir( GetScriptsDir(0) );
 
     FilePath fp( drv_.outputDir() ); fp.add( drv_.logFileName() );
     logfnmfld = new uiFileInput( this, "Output log file",
