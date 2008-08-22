@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          April 2001
- RCS:           $Id: uiiosel.h,v 1.33 2008-08-15 12:19:04 cvskris Exp $
+ RCS:           $Id: uiiosel.h,v 1.34 2008-08-22 13:30:12 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -141,7 +141,7 @@ protected:
   Some commonly used classes:
 <ul>
  <li>uiGenInput is the most common user interface element we use. It represents a generalized input field for strings, numbers, bools, positions and more. The idea is to tell the class the characteristics of the data you need to input. uiGenInput will then select the best user interfac element for that type of data.
- <li>uiExecutor executes the work encapsulated in an Executor object. An Executor object holds an amount of work that is probably too big to be finished instantly, hence the user must be able to see the progress and must be able to stop it.
+ <li>uiTaskRunner executes the work encapsulated in any Task object, like Executor's. An Executor object holds an amount of work that is probably too big to be finished instantly, hence the user must be able to see the progress and must be able to stop it.
  <li>uiFileBrowser shows the contents of text files. If editable, the user can edit the text and save it.
 </ul>
 
