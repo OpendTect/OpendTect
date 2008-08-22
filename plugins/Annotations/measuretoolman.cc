@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		July 2008
- RCS:		$Id: measuretoolman.cc,v 1.5 2008-08-11 06:15:43 cvsnanne Exp $
+ RCS:		$Id: measuretoolman.cc,v 1.6 2008-08-22 06:52:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,9 +32,9 @@ MeasureToolMan::MeasureToolMan( uiODMain& appl )
     , picksetmgr_(Pick::SetMgr::getMgr("MeasureTool"))
     , measuredlg_(0)
 {
-    const CallBack cb( mCB(this,MeasureToolMan,buttonClicked) );
-    butidx_ = appl.menuMgr().coinTB()->addButton( "measure.png", cb, 
-						  "Display Distance", true );
+    butidx_ = appl.menuMgr().coinTB()->addButton(
+	    "measure.png", mCB(this,MeasureToolMan,buttonClicked),
+	    "Display Distance", true );
 
     appl.sceneMgr().treeToBeAdded.notify(
 			mCB(this,MeasureToolMan,sceneAdded) );
