@@ -15,16 +15,19 @@ OnError Stop
 Combo "Attribute group" "<All>"
 Button "Save on OK" off
 Include "$SCRIPTSDIR$/coherency.cmd"
+Include "$SCRIPTSDIR$/convolve.cmd"
+Include "$SCRIPTSDIR$/energy.cmd"
+Include "$SCRIPTSDIR$/frequency.cmd"
 
 Button "Cross-Plot attributes"
 Window "Attribute cross-plotting"
-ListClick "Attributes to*" "CoherencyA*"
+ListSelect "Attributes to*" 1 4 On
 Combo "Select locations by" "Range"
 Input "Inline start" 300
-Input "Inline stop" 600
+Input "Inline stop" 350
 Input "Crossline start" 500
-Input "Crossline stop" 1000
-Input "Z start" 100
+Input "Crossline stop" 1200
+Input "Z start" 0
 Input "Z stop" 1800
 Button "Select Location*"
 ListButton "Filter selection" "Subsample" On
@@ -39,6 +42,39 @@ TableClick "Data Table" ColHead "CoherencyAttrib"
 Button "Select as Y data"
 Button "Show crossplot"
 Snapshot "$SCRIPTSDIR$/Snapshots/attribcrossplot.png" CurWin
+Sleep 5
+Window "300/500*"
+Close
+
+Window "Attribute data"
+Button "UnSelect as Y data" 
+TableClick "Data Table" ColHead "ConvolveAtt*"
+Button "Select as Y data"
+Button "Show crossplot"
+Snapshot "$SCRIPTSDIR$/Snapshots/ConvAttrCrossplot.png"
+Sleep 5
+Window "300/500*"
+Close
+
+Window "Attribute data"
+Button "UnSelect as Y data"
+TableClick "Data Table" ColHead "EnergyAttr*"
+Button "Select as Y data"
+Button "Show crossplot"
+Snapshot "$SCRIPTSDIR$/Snapshots/EnergyAttrCrossplot.png"
+Sleep 5
+Window "300/500*"
+Close
+
+Window "Attribute data"
+Button "UnSelect as Y data"
+TableClick "Data Table" ColHead "FrequencyAttr*"
+Button "Select as Y data"
+Button "Show crossplot"
+Snapshot "$SCRIPTSDIR$/Snapshots/FreqAttrCrossplot.png"
+Sleep 5
+Window "300/500*"
+Close
 
 Window "Attribute data"
 Button "Dismiss"
