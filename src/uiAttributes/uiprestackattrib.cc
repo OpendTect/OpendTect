@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          Jan 2008
- RCS:		$Id: uiprestackattrib.cc,v 1.9 2008-08-18 08:54:52 cvsbert Exp $
+ RCS:		$Id: uiprestackattrib.cc,v 1.10 2008-08-22 13:30:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ uiPreStackAttrib::uiPreStackAttrib( uiParent* p, bool is2d )
 {
     inpfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(is2d,true) );
     offsrgfld_ = new uiGenInput( this, "Offset range (empty=all)",
-		     FloatInpIntervalSpec(Interval<float>(0,mUdf(float))) );
+	     FloatInpIntervalSpec(Interval<float>(mUdf(float),mUdf(float))) );
     offsrgfld_->attach( alignedBelow, inpfld_ );
 
     calctypefld_ = new uiGenInput( this, "Calculation type",
@@ -80,7 +80,10 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
     RefMan<Attrib::PreStack> aps = new Attrib::PreStack( *tmpdesc );
 
     inpfld_->setInput( aps->psID() );
-    offsrgfld_->setValue( aps->setup().offsrg_ );
+    Interval<float> offsrg = aps->setup().offsrg_;
+    if ( offsrg.start > 1e28 ) offsrg.start = mUdf(float);
+    if ( offsrg.stop > 1e28 ) offsrg.stop = mUdf(float);
+    offsrgfld_->setValue( offsrg );
     calctypefld_->setValue( (int)aps->setup().calctype_ );
     stattypefld_->setValue( (int)aps->setup().stattype_ );
     lsqtypefld_->setValue( (int)aps->setup().lsqtype_ );
@@ -100,7 +103,10 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
 	{ errmsg_ = "Please select the input data store"; return false; }
 
     mSetString("id",ctio_.ioobj->key())
-    mSetFloatInterval(Attrib::PreStack::offsRgStr(),offsrgfld_->getFInterval())
+    Interval<float> offsrg = offsrgfld_->getFInterval();
+    if ( mIsUdf(offsrg.start) ) offsrg.start = 0;
+    if ( mIsUdf(offsrg.stop) ) offsrg.start = 1e29;
+    mSetFloatInterval(Attrib::PreStack::offsRgStr(),offsrg)
     const int calctyp = calctypefld_->getIntValue();
     mSetEnum(Attrib::PreStack::calctypeStr(),calctyp)
     const bool isnorm = calctyp == 0;

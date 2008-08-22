@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackattrib.cc,v 1.9 2008-08-19 10:37:59 cvshelene Exp $";
+static const char* rcsID = "$Id: prestackattrib.cc,v 1.10 2008-08-22 13:30:42 cvsbert Exp $";
 
 #include "prestackattrib.h"
 
@@ -100,6 +100,10 @@ PreStack::~PreStack()
 
 bool PreStack::getInputOutput( int input, TypeSet<int>& res ) const
 {
+    Interval<float>& rg = const_cast<Interval<float>&>(setup_.offsrg_);
+    if ( rg.start > 1e28 ) rg.start = 0;
+    if ( rg.stop > 1e28 ) rg.stop = mUdf(float);
+
     return Provider::getInputOutput( input, res );
 }
 
