@@ -6,17 +6,19 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2002
- RCS:           $Id: uiseiscbvsimp.h,v 1.8 2005-05-10 11:25:49 cvsbert Exp $
+ RCS:           $Id: uiseiscbvsimp.h,v 1.9 2008-08-22 06:59:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
-class IOObj;
+
 class CtxtIOObj;
-class uiSeisSel;
-class uiGenInput;
+class IOObj;
+class uiCheckBox;
 class uiFileInput;
+class uiGenInput;
+class uiSeisSel;
 class uiSeisTransfer;
 
 /*!\brief Actually imports or just transfers data through selection */
@@ -37,6 +39,7 @@ protected:
 
     uiGenInput*		typefld;
     uiGenInput*		modefld;
+    uiCheckBox*		convertfld;
     uiSeisTransfer*	transffld;
     uiFileInput*	finpfld;
     uiSeisSel*		oinpfld;

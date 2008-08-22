@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Jun 2002
- RCS:		$Id: uiseiscbvsimp.cc,v 1.46 2008-05-13 13:07:25 cvsbert Exp $
+ RCS:		$Id: uiseiscbvsimp.cc,v 1.47 2008-08-22 06:59:00 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,11 +26,12 @@ ________________________________________________________________________
 #include "keystrs.h"
 #include "executor.h"
 
-#include "uimsg.h"
+#include "uibutton.h"
 #include "uifileinput.h"
 #include "uiioobjsel.h"
-#include "uiseistransf.h"
+#include "uimsg.h"
 #include "uiseisioobjinfo.h"
+#include "uiseistransf.h"
 #include "uitaskrunner.h"
 
 uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p )
@@ -62,7 +63,7 @@ uiSeisImpCBVS::uiSeisImpCBVS( uiParent* p, const IOObj* ioobj )
 
 void uiSeisImpCBVS::init( bool fromioobj )
 {
-    finpfld = 0; modefld = typefld = 0; oinpfld = 0;
+    finpfld = 0; modefld = typefld = 0; oinpfld = 0; convertfld = 0;
     setTitleText( fromioobj ? "Specify transfer parameters"
 	    		    : "Create CBVS cube definition" );
     tmpid_ = "100010."; tmpid_ += IOObj::tmpID;
@@ -95,6 +96,10 @@ void uiSeisImpCBVS::init( bool fromioobj )
 			  BoolInpSpec(false,"Copy the data","Use in-place") );
 	modefld->attach( alignedBelow, typefld );
 	modefld->valuechanged.notify( mCB(this,uiSeisImpCBVS,modeSel) );
+
+	convertfld = new uiCheckBox( this, 
+		"Convert underscores to spaces in Output Cube name",
+		mCB(this,uiSeisImpCBVS,finpSel) );
     }
 
     uiSeisTransfer::Setup sts( Seis::Vol );
@@ -108,7 +113,14 @@ void uiSeisImpCBVS::init( bool fromioobj )
     outctio_.ctxt.trglobexpr = "CBVS";
     IOM().to( outctio_.ctxt.getSelKey() );
     outfld = new uiSeisSel( this, outctio_, uiSeisSel::Setup(Seis::Vol) );
-    outfld->attach( alignedBelow, transffld );
+
+    if ( convertfld )
+    {
+	convertfld->attach( ensureBelow, transffld );
+	convertfld->attach( leftAlignedAbove, outfld );
+    }
+    else
+	outfld->attach( alignedBelow, transffld );
 }
 
 
@@ -162,7 +174,6 @@ void uiSeisImpCBVS::oinpSel( CallBacker* cb )
 void uiSeisImpCBVS::finpSel( CallBacker* )
 {
     const char* out = outfld->getInput();
-    if ( *out ) return;
     BufferString inp = finpfld->text();
     if ( !*(const char*)inp ) return;
 
@@ -175,19 +186,22 @@ void uiSeisImpCBVS::finpSel( CallBacker* )
     inp = FilePath( inp ).fileName();
     if ( !*(const char*)inp ) return;
 
-    // convert underscores to spaces
     char* ptr = inp.buf();
-    while ( *ptr )
+    if ( convertfld->isChecked() )
     {
-	if ( *ptr == '_' ) *ptr = ' ';
-	ptr++;
+	// convert underscores to spaces
+	while ( *ptr )
+	{
+	    if ( *ptr == '_' ) *ptr = ' ';
+	    ptr++;
+	}
     }
 
     // remove .cbvs extension
-    ptr--;
-    if ( *ptr == 's' && *(ptr-1) == 'v' && *(ptr-2) == 'b'
-     && *(ptr-3) == 'c' && *(ptr-4) == '.' )
-	*(ptr-4) = '\0';
+    ptr = strrchr( inp.buf(), '.' );
+    if ( ptr && *(ptr+1) == 'c' && *(ptr+2) == 'b' && *(ptr+3) == 'v' 
+	 && *(ptr+4) == 's' )
+	*(ptr) = '\0';
 
     outfld->setInputText( inp );
 }
