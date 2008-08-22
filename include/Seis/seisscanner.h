@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2004
- RCS:		$Id: seisscanner.h,v 1.10 2007-01-11 16:35:05 cvsbert Exp $
+ RCS:		$Id: seisscanner.h,v 1.11 2008-08-22 13:28:41 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -46,12 +46,12 @@ public:
     Interval<float>	zRange() const
     			{ return Interval<float>( sampling.start,
 					 sampling.atIndex(nrsamples-1) ); }
-    			//!< the range found in the cube
+    unsigned int	nrNullTraces() const	{ return nrnulltraces; }
 
     static const char*	defaultUserInfoFile(const char* translnm=0);
     void		launchBrowser(const IOPar& startpar,
 	    			      const char* fnm=0) const;
-    			//!< If nulll or empty fnm uses default file name
+    			//!< If null or empty fnm uses default file name
     			//!< for the current translator
 
 protected:
