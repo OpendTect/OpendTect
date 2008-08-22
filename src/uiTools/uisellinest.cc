@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.cc,v 1.21 2008-08-12 09:06:08 cvsraman Exp $
+ RCS:           $Id: uisellinest.cc,v 1.22 2008-08-22 06:57:14 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,13 +48,12 @@ uiSelLineStyle::uiSelLineStyle( uiParent* p, const LineStyle& ls,
 	colinp->colorchanged.notify( mCB(this,uiSelLineStyle,changeCB) );
 	if ( stylesel )
 	    colinp->attach( rightTo, stylesel );
-	else
-	    new uiLabel( this, txt, colinp );
     }
 
     if ( wwidth )
     {
-	widthbox = new uiLabeledSpinBox( this, "Width" );
+	widthbox = new uiLabeledSpinBox( this, wcol || wdraw ? "Width" 
+							     : "Line width" );
 	widthbox->box()->valueChanging.notify( 
 					mCB(this,uiSelLineStyle,changeCB) );
 	widthbox->box()->setValue( linestyle.width_ );
