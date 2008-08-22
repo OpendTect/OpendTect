@@ -6,12 +6,11 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2005
- RCS:           $Id: flatview.h,v 1.32 2008-07-10 14:57:40 cvshelene Exp $
+ RCS:           $Id: flatview.h,v 1.33 2008-08-22 12:02:05 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
-#include "flatposdata.h"
 #include "bufstring.h"
 #include "geometry.h"
 #include "position.h"

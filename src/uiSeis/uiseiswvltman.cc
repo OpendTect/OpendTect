@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseiswvltman.cc,v 1.27 2008-05-29 11:59:02 cvssatyaki Exp $
+ RCS:           $Id: uiseiswvltman.cc,v 1.28 2008-08-22 12:02:05 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ________________________________________________________________________
 #include "survinfo.h"
 #include "statruncalc.h"
 #include "arrayndimpl.h"
+#include "flatposdata.h"
 
 #include "uibutton.h"
 #include "uiioobjsel.h"

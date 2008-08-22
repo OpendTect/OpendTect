@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2000
- RCS:           $Id: flatview.cc,v 1.38 2008-06-03 09:59:04 cvssatyaki Exp $
+ RCS:           $Id: flatview.cc,v 1.39 2008-08-22 12:02:05 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "flatview.h"
+#include "flatposdata.h"
 #include "arrayndimpl.h"
 #include "settings.h"
 #include "survinfo.h"

@@ -4,13 +4,14 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.26 2008-08-18 17:58:55 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.27 2008-08-22 12:02:05 cvshelene Exp $
 _______________________________________________________________________________
 
  -*/
 
 #include "visprestackviewer.h"
 
+#include "flatposdata.h"
 #include "ioman.h"
 #include "iopar.h"
 #include "posinfo.h"

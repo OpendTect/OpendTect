@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:		Feb 2007
- RCS:           $Id: flatviewbitmap.cc,v 1.19 2008-07-11 20:26:52 cvskris Exp $
+ RCS:           $Id: flatviewbitmap.cc,v 1.20 2008-08-22 12:02:05 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
+#include "flatposdata.h"
 #include "array2dbitmapimpl.h"
 #include "arrayndimpl.h"
 #include "coltabsequence.h"

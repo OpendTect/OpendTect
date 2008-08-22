@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2007
- RCS:           $Id: uiflatviewer.cc,v 1.59 2008-08-19 20:09:30 cvskris Exp $
+ RCS:           $Id: uiflatviewer.cc,v 1.60 2008-08-22 12:02:05 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "uiflatviewer.h"
 #include "uirgbarraycanvas.h"
 #include "uirgbarray.h"
+#include "flatposdata.h"
 #include "flatviewbitmapmgr.h"
 #include "flatviewbmp2rgb.h"
 #include "flatviewaxesdrawer.h"
