@@ -4,13 +4,13 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: initgmt.cc,v 1.3 2008-08-14 10:52:47 cvsraman Exp $
+ RCS:		$Id: initgmt.cc,v 1.4 2008-08-25 09:59:52 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 
-#include "initstdgmt.h"
+#include "initgmt.h"
 #include "gmtbasemap.h"
 #include "gmtlocations.h"
 #include "gmtcontour.h"
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "gmt2dlines.h"
 
 
-void initStdGMTClasses()
+void GMT::initStdClasses()
 {
     GMTBaseMap::initClass();
     GMTLegend::initClass();
