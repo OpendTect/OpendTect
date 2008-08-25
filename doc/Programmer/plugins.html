@@ -4,7 +4,7 @@
   - Author:	A.H. Bril
   - Date:	Oct 2003
   - Contents:	Plugins
-  - RCS:	$Id: plugins.html,v 1.43 2008-02-27 08:35:55 cvsnanne Exp $
+  - RCS:	$Id: plugins.html,v 1.44 2008-08-25 05:29:58 cvsraman Exp $
  -->
 
 <body background="backg.png"><title>Plugins [OpendTect Programmer's manual V3.0]</title>
@@ -362,7 +362,7 @@ In the process, we'll see how to:
 
 <p>Let us first have a look at the independent dialog part which in turn has two parts -- one for seismic tools and the other for horizon tools. the insertion of menu item and opening of dialog is similar to that in uiHello. The only interesting part is the <code>uiIOObjSel</code> class which allows you to select an item from a set -- a horizon or a seismic cube ( subclass <code>uiSeisSel</code> is used for seismic cube selection).<p>
 
-<p> Both <code>uiSeisTools</code> and <code>uiHorTools</code> use the class <code><a href="Generated/uiTools/classuiExecutor.html">uiExecutor</a></code>, which triggers the <code>Executor</code>'s in the <b><code><a href=#tut>Tut</a></code></b> plugin. The class <code>uiExecutor</code> also displays a progress bar which keeps the user informed about the progress of the process.<p>
+<p> Both <code>uiSeisTools</code> and <code>uiHorTools</code> use the class <code><a href="Generated/uiTools/classuiTaskRunner.html">uiTaskRunner</a></code>, which triggers the <code>Executor</code>'s in the <b><code><a href=#tut>Tut</a></code></b> plugin. The class <code>uiTaskRunner</code> also displays a progress bar which keeps the user informed about the progress of the process.<p>
 
 <p> Now we come to the attribute part. In the uitutorialattrib.cc file we see that although uiAttrDescEd is not a uiDialog like the the uiHello example, it still is a valid parent (being a uiGroup) for the various UI elements. A nice feature of OpendTect is clear from the first line in the constructor: the inpfld is a special Attribute UI class which is handled just like any pre-defined uiBase or uiTools class. This illustrates that in the OpendTect GUI system, not only pre-made GUI elements are 'first class' - new objects with different shape and behavior attached will be usable transparently by any other GUI class.<p>
 
