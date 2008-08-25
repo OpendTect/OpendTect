@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.cc,v 1.15 2008-08-08 10:57:45 cvssatyaki Exp $
+ RCS:           $Id: uiattrinpdlg.cc,v 1.16 2008-08-25 11:20:09 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,6 +37,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, const BufferStringSet& refset,
     , ctiosteer_(*mMkCtxtIOObj(SeisTrc))
     , issteer_(issteer)
     , multiinpcube_(true)
+    , is2d_(is2d)
 {
     setCtxtIO();
     
@@ -73,6 +74,7 @@ uiAttrInpDlg::uiAttrInpDlg( uiParent* p, bool issteer, bool is2d )
     , ctiosteer_(*mMkCtxtIOObj(SeisTrc))
     , issteer_(issteer)
     , multiinpcube_(false)
+    , is2d_(is2d)
 {
     setCtxtIO();
     seisinpfld_ = new uiSeisSel( this, ctio_, uiSeisSel::Setup(
@@ -100,12 +102,6 @@ void uiAttrInpDlg::setCtxtIO()
     IOM().to( ctiosteer_.ctxt.getSelKey() ); 
     ctiosteer_.ctxt.forread = true;
     ctiosteer_.ctxt.parconstraints.set( sKey::Type, sKey::Steering );
-}
-
-
-bool uiAttrInpDlg::is2D() const
-{
-    return inpfld_->is2D();
 }
 
 

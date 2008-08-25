@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          June 2008
- RCS:           $Id: uistoredattrreplacer.cc,v 1.2 2008-08-08 10:57:45 cvssatyaki Exp $
+ RCS:           $Id: uistoredattrreplacer.cc,v 1.3 2008-08-25 11:20:09 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,30 +52,42 @@ void uiStoredAttribReplacer::go()
     if ( singleseissteer )
     {
 	Desc* ad = attrset_.getDesc( storedids_[0] );
-	const bool issteer = noofsteer_ > 0;
-	const int steerid = ad->dataType() == Seis::Dip ? 0 : 1;
+	const bool hassteer = noofsteer_ > 0;
+	const bool hasseis = noofseis_ > 0;
+	DescID seisid( -1, true );
+	DescID steerid( -1, true );
 
-	uiAttrInpDlg dlg( parent_, issteer, ad->is2D() );
+	const int steeridx = ad->dataType() == Seis::Dip ? 0 : 1;
+
+	uiAttrInpDlg dlg( parent_, hassteer, ad->is2D() );
 	if ( dlg.go() )
 	{
-	    if ( !issteer )
+	    if ( hasseis )
 	    {
+		seisid = ad->dataType() == Seis::Dip ? storedids_[1]
+						     : storedids_[0];
+		ad = attrset_.getDesc( seisid ); 
 		ad->changeStoredID( dlg.getSeisKey() );
 		ad->setUserRef( dlg.getSeisRef() );
 	    }
-	    else
-	    {
-		steerid == 0 ? ad = attrset_.getDesc( storedids_[1] ) : 
-			       ad = attrset_.getDesc( storedids_[0] );
-		ad->changeStoredID( dlg.getSeisKey() );
-		ad->setUserRef( dlg.getSeisRef() );
 
-		Desc* adsteer = attrset_.getDesc( 
-		    DescID(storedids_[steerid].asInt(), true) );
-		adsteer->changeStoredID( dlg.getSteerKey() );
+	    if ( hassteer )
+	    {
+		steerid = ad->dataType() == Seis::Ampl ? storedids_[1]
+						       : storedids_[0];
+		Desc* adsteerinl =
+		    attrset_.getDesc( DescID(steerid.asInt(),true) );
+		adsteerinl->changeStoredID( dlg.getSteerKey() );
 		BufferString bfstr = dlg.getSteerRef();
+		bfstr += "_inline_dip";
+		adsteerinl->setUserRef( bfstr.buf() );
+
+		Desc* adsteercrl =
+		    attrset_.getDesc( DescID(steerid.asInt()+1,true) );
+		adsteercrl->changeStoredID( dlg.getSteerKey() );
+		bfstr = dlg.getSteerRef();
 		bfstr += "_crline_dip";
-		adsteer->setUserRef( bfstr.buf() );
+		adsteercrl->setUserRef( bfstr.buf() );
 	    }
 	}
     }
@@ -103,11 +115,32 @@ void uiStoredAttribReplacer::go()
 		}
 		else
 		{
+		    Desc* adsteerinl = attrset_.getDesc( 
+			DescID(storedids_[storedid.asInt()]) );
+		    adsteerinl->changeStoredID( dlg.getKey() );
+		    BufferString bfstr = dlg.getUserRef();
+		    bfstr += "_inline_dip";
+		    adsteerinl->setUserRef( bfstr.buf() );
+
+		    Desc* adsteercrl = attrset_.getDesc( 
+			DescID(storedids_[storedid.asInt()+1]) );
+		    adsteercrl->changeStoredID( dlg.getKey() );
+		    bfstr = dlg.getUserRef();
+		    bfstr += "_crline_dip";
+		    adsteercrl->setUserRef( bfstr.buf() );
+		}
+	/*	if ( !issteer )
+		{
+		    ad->changeStoredID( dlg.getKey() );
+		    ad->setUserRef( dlg.getUserRef() );
+		}
+		else
+		{
 		    ad->changeStoredID( dlg.getKey() );
 		    BufferString bfstr = dlg.getUserRef();
 		    bfstr += "_crline_dip";
 		    ad->setUserRef( bfstr.buf() );
-		}
+		}a */
 	    }
 	}
     }

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiattrinpdlg.h,v 1.7 2008-08-08 10:57:45 cvssatyaki Exp $
+ RCS:           $Id: uiattrinpdlg.h,v 1.8 2008-08-25 11:20:15 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ public:
 			uiAttrInpDlg(uiParent*,bool issteer,bool is2d);
 			~uiAttrInpDlg();
 
-    bool		is2D() const;
+    bool		is2D() const 		{ return is2d_ ; }
 
     void 		setCtxtIO();
     const char*		getUserRef() const;
@@ -47,6 +47,7 @@ protected:
     CtxtIOObj&		ctiosteer_;
     bool		issteer_;
     bool		multiinpcube_;
+    bool		is2d_;
 
     void		doFinalise(CallBacker*);
     bool		acceptOK(CallBacker*);
