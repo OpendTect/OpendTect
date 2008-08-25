@@ -4,12 +4,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2007
- RCS:           $Id: flatviewaxesdrawer.cc,v 1.7 2008-01-28 21:48:48 cvskris Exp $
+ RCS:           $Id: flatviewaxesdrawer.cc,v 1.8 2008-08-25 06:07:34 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "flatviewaxesdrawer.h"
+#include "flatposdata.h"
 #include "flatview.h"
 #include "datapackbase.h"
 #include "iodraw.h"
