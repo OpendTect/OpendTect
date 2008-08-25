@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: SoPlaneWellLog.h,v 1.8 2004-05-24 21:04:12 bert Exp $
+ RCS:		$Id: SoPlaneWellLog.h,v 1.9 2008-08-25 10:28:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -79,17 +79,6 @@ public:
 
 protected:
     				~SoPlaneWellLog();
-
-    SoSwitch*			sw1ptr;
-    SoSwitch*			sw2ptr;
-    SoBaseColor*		col1ptr;
-    SoBaseColor*		col2ptr;
-    SoDrawStyle*		drawstyle1ptr;
-    SoDrawStyle*		drawstyle2ptr;
-    SoCoordinate3*		coord1ptr;
-    SoCoordinate3*		coord2ptr;
-    SoLineSet*			line1ptr;
-    SoLineSet*			line2ptr;
 
     bool			valchanged;
     int				currentres;

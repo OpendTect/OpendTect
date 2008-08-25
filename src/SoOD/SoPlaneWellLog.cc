@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.11 2007-10-10 05:03:45 cvsnanne Exp $";
+static const char* rcsID = "$Id: SoPlaneWellLog.cc,v 1.12 2008-08-25 10:28:56 cvsnanne Exp $";
 
 
 #include "SoPlaneWellLog.h"
@@ -75,20 +75,6 @@ SoPlaneWellLog::SoPlaneWellLog()
 	    		     group2, "",false);
     SO_KIT_INIT_INSTANCE();
 
-    sw1ptr = (SoSwitch*)getAnyPart("line1Switch",true);
-    sw2ptr = (SoSwitch*)getAnyPart("line2Switch",true);
-    col1ptr = (SoBaseColor*)getAnyPart("col1",true);
-    col2ptr = (SoBaseColor*)getAnyPart("col2",true);
-    drawstyle1ptr = (SoDrawStyle*)getAnyPart("drawstyle1",true);
-    drawstyle2ptr = (SoDrawStyle*)getAnyPart("drawstyle2",true);
-    coord1ptr = (SoCoordinate3*)getAnyPart("coords1",true);
-    coord2ptr = (SoCoordinate3*)getAnyPart("coords2",true);
-    line1ptr = (SoLineSet*)getAnyPart("lineset1",true);
-    line2ptr = (SoLineSet*)getAnyPart("lineset2",true);
-
-    sw1ptr->whichChild = -1;
-    sw2ptr->whichChild = -1;
-
     SO_KIT_ADD_FIELD( path1, (0,0,0) );
     SO_KIT_ADD_FIELD( path2, (0,0,0) );
     SO_KIT_ADD_FIELD( log1, (0) );
@@ -96,6 +82,7 @@ SoPlaneWellLog::SoPlaneWellLog()
     SO_KIT_ADD_FIELD( maxval1, (0) );
     SO_KIT_ADD_FIELD( maxval2, (0) );
     SO_KIT_ADD_FIELD( screenWidth, (40) );
+    screenWidth.setValue( 40 );
 
     valuesensor->attach( &log1 );
     valuesensor->attach( &log2 );
@@ -116,44 +103,53 @@ SoPlaneWellLog::~SoPlaneWellLog()
 
 void SoPlaneWellLog::setLineColor( const SbVec3f& col, int lognr )
 {
-    SoBaseColor* color = lognr==1 ? col1ptr : col2ptr;
+    SoBaseColor* color = SO_GET_ANY_PART( this,
+	    lognr==1 ? "col1" : "col2", SoBaseColor );
     color->rgb.setValue( col );
 }
 
 
 const SbVec3f& SoPlaneWellLog::lineColor( int lognr ) const
 {
-    SoBaseColor* color = lognr==1 ? col1ptr : col2ptr;
+    SoPlaneWellLog* myself = const_cast<SoPlaneWellLog*>(this);
+    SoBaseColor* color = SO_GET_ANY_PART( myself,
+	    lognr==1 ? "col1" : "col2", SoBaseColor );
     return color->rgb[0];
 }
 
 
 void SoPlaneWellLog::setLineWidth( float width, int lognr )
 {
-    SoDrawStyle* ds = lognr==1 ? drawstyle1ptr : drawstyle2ptr;
+    SoDrawStyle* ds = SO_GET_ANY_PART( this,
+	    lognr==1 ? "drawstyle1" : "drawstyle2", SoDrawStyle );
     ds->lineWidth.setValue( width );
 }
 
 
 float SoPlaneWellLog::lineWidth( int lognr ) const
 {
-    SoDrawStyle* ds = lognr==1 ? drawstyle1ptr : drawstyle2ptr;
+    SoPlaneWellLog* myself = const_cast<SoPlaneWellLog*>(this);
+    SoDrawStyle* ds = SO_GET_ANY_PART( myself,
+	    lognr==1 ? "drawstyle1" : "drawstyle2", SoDrawStyle );
     return ds->lineWidth.getValue();
 }
 
 
 void SoPlaneWellLog::showLog( bool yn, int lognr )
 {
-    SoSwitch* sw = lognr==1 ? sw1ptr : sw2ptr;
-    sw->whichChild = yn ? -3 : -1;
+    SoSwitch* sw = SO_GET_ANY_PART( this,
+	    lognr==1 ? "line1Switch" : "line2Switch", SoSwitch );
+    sw->whichChild = yn ? SO_SWITCH_ALL : SO_SWITCH_NONE;
     valuesensor->trigger();
 }
 
 
 bool SoPlaneWellLog::logShown( int lognr ) const
 {
-    SoSwitch* sw = lognr==1 ? sw1ptr : sw2ptr;
-    return sw->whichChild.getValue() == -3;
+    SoPlaneWellLog* myself = const_cast<SoPlaneWellLog*>(this);
+    SoSwitch* sw = SO_GET_ANY_PART( myself,
+	    lognr==1 ? "line1Switch" : "line2Switch", SoSwitch );
+    return sw->whichChild.getValue() == SO_SWITCH_ALL;
 }
 
 
@@ -183,7 +179,8 @@ void SoPlaneWellLog::setLogValue( int index, const SbVec3f& crd, float val,
 
 void SoPlaneWellLog::buildLog( int lognr, const SbVec3f& projdir, int res )
 {
-    SoCoordinate3* coords = lognr==1 ? coord1ptr : coord2ptr;
+    SoCoordinate3* coords = SO_GET_ANY_PART( this,
+	    lognr==1 ? "coords1" : "coords2", SoCoordinate3 );
     coords->point.deleteValues(0);
     SoMFVec3f& path = lognr==1 ? path1 : path2;
     SoMFFloat& log = lognr==1 ? log1 : log2;
@@ -236,8 +233,9 @@ void SoPlaneWellLog::buildLog( int lognr, const SbVec3f& projdir, int res )
     }
 
     const int nrcrds = coords->point.getNum();
-    lognr==1 ? line1ptr->numVertices.setValue( nrcrds )
-	     : line2ptr->numVertices.setValue( nrcrds );
+    SoLineSet* lineset = SO_GET_ANY_PART( this,
+	    lognr==1 ? "lineset1" : "lineset2", SoLineSet );
+    lineset->numVertices.setValue( nrcrds );
     currentres = res;
 }
 
@@ -288,14 +286,17 @@ void SoPlaneWellLog::GLRender( SoGLRenderAction* action )
 	float nsize = screenWidth.getValue() / 
 	    				float(vp.getViewportSizePixels()[1]);
 
+	SoSwitch* sw = SO_GET_ANY_PART( this, "line1Switch", SoSwitch );
 	SbVec3f projectiondir = vv.getProjectionDirection();
-	if ( path1.getNum() && sw1ptr->whichChild.getValue() == -3  )
+	if ( path1.getNum()>0 && sw->whichChild.getValue()==SO_SWITCH_ALL )
 	{
 	    const int hnum = path1.getNum() / 2;
 	    worldwidth = vv.getWorldToScreenScale( path1[hnum], nsize );
 	    buildLog( 1, projectiondir, newres );
 	}
-	if ( path2.getNum() && sw2ptr->whichChild.getValue() == -3 )
+
+	sw = SO_GET_ANY_PART( this, "line2Switch", SoSwitch );
+	if ( path2.getNum()>0 && sw->whichChild.getValue()==SO_SWITCH_ALL )
 	{
 	    const int hnum = path2.getNum() / 2;
 	    worldwidth = vv.getWorldToScreenScale( path2[hnum], nsize );
