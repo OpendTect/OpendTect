@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.34 2008-02-27 10:22:06 cvsnanne Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.35 2008-08-26 04:55:35 cvsraman Exp $";
 
 #include "helpview.h"
 
@@ -45,7 +45,7 @@ static const char* unScoped( const char* inp )
 {
     if ( !inp || !*inp ) return inp;
 
-    char* ptr = strchr( inp, ':' );
+    const char* ptr = strchr( inp, ':' );
     return ptr ? ptr + 1 : inp;
 }
 
