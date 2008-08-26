@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.72 2008-08-26 10:35:10 cvsraman Exp $
+ RCS:		$Id: survinfo.h,v 1.73 2008-08-26 12:15:18 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -174,7 +174,7 @@ protected:
     static SurveyInfo*	theinst_;
     static bool		dowarnings_;
 
-    static void		deleteInstance()  { delete theinst_; theinst_ = 0; }
+    static void		deleteInstance();
     void		handleLineRead(const BufferString&,const char*);
     bool		wrapUpRead();
     void		writeSpecLines(ascostream&) const;
