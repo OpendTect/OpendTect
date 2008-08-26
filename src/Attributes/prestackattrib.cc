@@ -4,7 +4,7 @@
  * DATE     : Jan 2008
 -*/
 
-static const char* rcsID = "$Id: prestackattrib.cc,v 1.10 2008-08-22 13:30:42 cvsbert Exp $";
+static const char* rcsID = "$Id: prestackattrib.cc,v 1.11 2008-08-26 09:57:00 cvshelene Exp $";
 
 #include "prestackattrib.h"
 
@@ -51,9 +51,8 @@ void PreStack::initClass()
     ipar = ipar->clone(); ipar->setKey( apertureStr() );
     desc->addParam( ipar );
 
-    FloatGateParam* fgpar = new FloatGateParam( offsRgStr(),
-	    		    Interval<float>(0,mUdf(float)) , false );
-    desc->addParam( fgpar );
+    desc->addParam( new FloatParam( offStartStr(), 0, false ) );
+    desc->addParam( new FloatParam( offStopStr(), mUdf(float), false ) );
 
     desc->addOutputDataType( Seis::UnknowData );
 
@@ -69,9 +68,10 @@ PreStack::PreStack( Desc& ds )
     if ( !isOK() ) return;
 
     const char* res; mGetString(res,"id") psid_ = res;
-    Interval<float> intv( setup_.offsrg_ );
-    mGetFloatInterval( intv, offsRgStr() );
-    setup_.offsrg_ = intv;
+    float offstart, offstop;
+    mGetFloat( offstart, offStartStr() );
+    mGetFloat( offstop, offStopStr() );
+    setup_.offsrg_ = Interval<float>( offstart, offstop );
 
 #define mGetSetupEnumPar(var,typ) \
     int tmp_##var = (int)setup_.var##_; \

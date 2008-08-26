@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          Jan 2008
- RCS:		$Id: uiprestackattrib.cc,v 1.10 2008-08-22 13:30:42 cvsbert Exp $
+ RCS:		$Id: uiprestackattrib.cc,v 1.11 2008-08-26 09:57:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -80,10 +80,7 @@ bool uiPreStackAttrib::setParameters( const Attrib::Desc& desc )
     RefMan<Attrib::PreStack> aps = new Attrib::PreStack( *tmpdesc );
 
     inpfld_->setInput( aps->psID() );
-    Interval<float> offsrg = aps->setup().offsrg_;
-    if ( offsrg.start > 1e28 ) offsrg.start = mUdf(float);
-    if ( offsrg.stop > 1e28 ) offsrg.stop = mUdf(float);
-    offsrgfld_->setValue( offsrg );
+    offsrgfld_->setValue( aps->setup().offsrg_ );
     calctypefld_->setValue( (int)aps->setup().calctype_ );
     stattypefld_->setValue( (int)aps->setup().stattype_ );
     lsqtypefld_->setValue( (int)aps->setup().lsqtype_ );
@@ -105,8 +102,8 @@ bool uiPreStackAttrib::getParameters( Desc& desc )
     mSetString("id",ctio_.ioobj->key())
     Interval<float> offsrg = offsrgfld_->getFInterval();
     if ( mIsUdf(offsrg.start) ) offsrg.start = 0;
-    if ( mIsUdf(offsrg.stop) ) offsrg.start = 1e29;
-    mSetFloatInterval(Attrib::PreStack::offsRgStr(),offsrg)
+    mSetFloat(Attrib::PreStack::offStartStr(),offsrg.start)
+    mSetFloat(Attrib::PreStack::offStopStr(),offsrg.stop)
     const int calctyp = calctypefld_->getIntValue();
     mSetEnum(Attrib::PreStack::calctypeStr(),calctyp)
     const bool isnorm = calctyp == 0;

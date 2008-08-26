@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        B.Bril & H.Huck
  Date:          14-01-2008
- RCS:           $Id: prestackattrib.h,v 1.4 2008-08-18 08:54:52 cvsbert Exp $
+ RCS:           $Id: prestackattrib.h,v 1.5 2008-08-26 09:57:00 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -45,7 +45,8 @@ public:
 			PreStack(Desc&);
 
     static const char*  attribName()		{ return "PreStack"; }
-    static const char*  offsRgStr()		{ return "offsrg"; }
+    static const char*  offStartStr()		{ return "offstart"; }
+    static const char*  offStopStr()		{ return "offstop"; }
     static const char*  calctypeStr()		{ return "calctype"; }
     static const char*  stattypeStr()		{ return "stattype"; }
     static const char*  lsqtypeStr()		{ return "lsqtype"; }
