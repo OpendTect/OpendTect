@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.13 2008-08-07 22:13:46 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.14 2008-08-26 14:25:58 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,7 +48,8 @@ public:
     void			setMultiID(const MultiID& mid);
     BufferString		getObjectName() const;
     bool			isInlCrl() const 	{ return true; }
-   
+    bool			isOrientationInline() const;
+
     				//for 3D only at present
     bool			setPreProcessor(PreStack::ProcessManager*);
     DataPack::ID		preProcess();
@@ -70,6 +71,7 @@ public:
     bool			setSeis2DData(const IOObj*);
    				//To use, set Seis2DDisplay first.
 
+    void			setTraceNr(int trcnr);
     int				traceNr() const 	  { return trcnr_; }
     const char*			lineName();
 

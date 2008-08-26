@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		April 2007
- RCS:		$Id: uipsviewermanager.h,v 1.6 2008-05-27 22:53:41 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.h,v 1.7 2008-08-26 14:25:58 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,7 @@ protected:
     MenuItem			selectpsdatamenuitem_;
     MenuItem			removemenuitem_;
     MenuItem			proptymenuitem_;
+    MenuItem			positionmenuitem_;
     MenuItem			viewermenuitem_;
 
     PreStack::ProcessManager*   preprocmgr_;    

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.20 2008-07-16 18:08:09 cvsnanne Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.21 2008-08-26 14:25:58 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,6 +26,7 @@ ________________________________________________________________________
 #include "uiodapplmgr.h"
 #include "uiodmain.h"
 #include "uipsviewershapetab.h"
+#include "uipsviewerposdlg.h"
 #include "uipsviewersettingdlg.h"
 #include "uiseispartserv.h"
 #include "uivispartserv.h"
@@ -39,6 +40,7 @@ namespace PreStackView
 
 uiPSViewerMgr::uiPSViewerMgr()
     : selectpsdatamenuitem_( "Display PS Gather" )
+    , positionmenuitem_( "Position ..." )  
     , proptymenuitem_( "Properties ..." )				 
     , removemenuitem_( "Remove" ) 
     , viewermenuitem_( "View in 2D Panel" )
@@ -105,13 +107,15 @@ void uiPSViewerMgr::createMenuCB( CallBacker* cb )
 
     mDynamicCastGet( PreStackView::PreStackViewer*, psv, dataobj.ptr() );
     if ( psv )
-    { 
+    {
+    	mAddMenuItem( menu, &positionmenuitem_, true, false );
 	mAddMenuItem( menu, &proptymenuitem_, true, false );
     	mAddMenuItem( menu, &removemenuitem_, true, false ); 
     	mAddMenuItem( menu, &viewermenuitem_, true, false ); 
     }
     else
     {
+	mResetMenuItem( &positionmenuitem_ );
 	mResetMenuItem( &proptymenuitem_ );
 	mResetMenuItem( &removemenuitem_ );
 	mResetMenuItem( &viewermenuitem_ );
@@ -155,6 +159,12 @@ void uiPSViewerMgr::handleMenuCB( CallBacker* cb )
     {
 	menu->setIsHandled( true );
 	uiPSViewerSettingDlg dlg(menu->getParent(), *psv, *this, *preprocmgr_);
+	dlg.go();
+    }
+    else if ( mnuid==positionmenuitem_.id )
+    {
+	menu->setIsHandled( true );
+	uiPSViewerPositionDlg dlg( menu->getParent(), *psv );
 	dlg.go();
     }
     else if ( mnuid==viewermenuitem_.id )
