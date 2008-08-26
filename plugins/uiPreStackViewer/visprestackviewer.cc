@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.28 2008-08-26 14:25:58 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.29 2008-08-26 14:52:30 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -217,6 +217,8 @@ DataPack::ID PreStackViewer::preProcess()
 bool PreStackViewer::setPosition( const BinID& nb )
 {
     bid_ = nb;
+    dataChangedCB( 0 );
+
     return updateData();
 }
 
