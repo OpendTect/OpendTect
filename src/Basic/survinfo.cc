@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          18-4-1996
- RCS:           $Id: survinfo.cc,v 1.98 2008-08-01 08:24:02 cvsnageswara Exp $
+ RCS:           $Id: survinfo.cc,v 1.99 2008-08-26 12:15:03 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -60,6 +60,13 @@ const SurveyInfo& SI()
 	SurveyInfo::theinst_ = SurveyInfo::read( GetDataDir() );
     }
     return *SurveyInfo::theinst_;
+}
+
+
+void SurveyInfo::deleteInstance()
+{
+    delete theinst_;
+    theinst_ = 0;
 }
 
 
