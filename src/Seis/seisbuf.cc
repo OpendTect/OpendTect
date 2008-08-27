@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seisbuf.cc,v 1.42 2008-07-25 12:43:18 cvsnanne Exp $";
+static const char* rcsID = "$Id: seisbuf.cc,v 1.43 2008-08-27 12:40:42 cvsbert Exp $";
 
 #include "seisbuf.h"
 #include "seisbufadapters.h"
@@ -18,6 +18,8 @@ static const char* rcsID = "$Id: seisbuf.cc,v 1.42 2008-07-25 12:43:18 cvsnanne 
 #include "iopar.h"
 #include "cubesampling.h"
 #include "bufstringset.h"
+#include "strmprov.h"
+#include <iostream>
 
 
 void SeisTrcBuf::deepErase()
@@ -269,6 +271,45 @@ int SeisTrcBuf::probableIdx( const BinID& bid, bool is2d ) const
 }
 
 
+bool SeisTrcBuf::dump( const char* fnm, bool is2d, bool isps, int icomp ) const
+{
+    if ( isEmpty() ) return false;
+
+    StreamData sd = StreamProvider( fnm ).makeOStream();
+    if ( !sd.usable() ) return false;
+    std::ostream& strm = *sd.ostrm;
+
+    const SeisTrc& trc0 = *get( 0 );
+    strm << trc0.info().sampling.start
+	 << ' ' << trc0.info().sampling.step * SI().zFactor()
+	 << ' ' << trc0.size();
+
+    for ( int itrc=0; itrc<size(); itrc++ )
+    {
+	strm << '\n';
+	const SeisTrc& trc = *get( itrc );
+	if ( !is2d )
+	    strm << trc.info().binid.inl << ' ' << trc.info().binid.crl;
+	else
+	{
+	    BufferString postxt;
+	    postxt += trc.info().nr; postxt += " ";
+	    postxt += trc.info().coord.x; postxt += " ";
+	    postxt += trc.info().coord.y;
+	    strm << postxt;
+	}
+	if ( isps )
+	    strm << ' ' << trc.info().offset;
+
+	for ( int isamp=0; isamp<trc.size(); isamp++ )
+	    strm << ' ' << trc.get( isamp, icomp );
+    }
+
+    sd.close();
+    return true;
+}
+
+
 struct SeisTrcBufArray2DInfo : public Array2DInfo
 {
 SeisTrcBufArray2DInfo( const SeisTrcBuf& tb )
@@ -319,10 +360,10 @@ SeisTrcBufArray2D::SeisTrcBufArray2D( SeisTrcBuf& tbuf, bool mine, int icomp )
 }
 
 
-SeisTrcBufArray2D::SeisTrcBufArray2D( const SeisTrcBuf& tbuf, int icomp )
+SeisTrcBufArray2D::SeisTrcBufArray2D( const SeisTrcBuf& tbuf )
     : buf_(const_cast<SeisTrcBuf&>(tbuf))
     , info_(*new SeisTrcBufArray2DInfo(tbuf))
-    , comp_(icomp)
+    , comp_(0)
     , bufmine_(false)
 {
 }

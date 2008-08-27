@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		29-1-98
- RCS:		$Id: seisbuf.h,v 1.18 2008-05-19 15:54:33 cvsbert Exp $
+ RCS:		$Id: seisbuf.h,v 1.19 2008-08-27 12:40:56 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -71,6 +71,10 @@ public:
     float*		getHdrVals(SeisTrcInfo::Fld,double& offs);
     			//!< The 'offs' ensures the values fit in floats
     			//!< returned new float [] becomes yours
+
+    bool		dump(const char* filenm,bool is2d,bool isps,
+	    		     int icomp=0) const;
+    			//!< Simple file Ascii format
 
 protected:
 
