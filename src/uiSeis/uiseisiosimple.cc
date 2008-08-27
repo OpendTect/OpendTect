@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.13 2008-05-27 10:31:42 cvsnageswara Exp $";
+static const char* rcsID = "$Id: uiseisiosimple.cc,v 1.14 2008-08-27 12:41:49 cvsbert Exp $";
 
 #include "uiseisiosimple.h"
 #include "uiseisfmtscale.h"
@@ -73,6 +73,9 @@ uiSeisIOSimple::uiSeisIOSimple( uiParent* p, Seis::GeomType gt, bool imp )
     	, lnmfld(0)
     	, isascfld(0)
     	, haveoffsbut(0)
+    	, haveazimbut(0)
+	, pspposlbl(0)
+	, offsdeffld(0)
     	, isimp_(imp)
     	, geom_(gt)
 {
@@ -349,13 +352,13 @@ void uiSeisIOSimple::havenrSel( CallBacker* cb )
 
 void uiSeisIOSimple::haveoffsSel( CallBacker* cb )
 {
-    if ( !haveoffsbut ) return;
+    if ( !pspposlbl || !haveoffsbut ) return;
     const bool havepos = haveposfld->getBoolValue();
     const bool haveoffs = haveoffsbut->isChecked();
-    pspposlbl->display( havepos );
     haveoffsbut->display( havepos );
     haveazimbut->display( havepos );
     offsdeffld->display( !havepos || !haveoffs );
+    pspposlbl->display( havepos );
 }
 
 
