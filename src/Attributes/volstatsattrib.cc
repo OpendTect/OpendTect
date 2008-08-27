@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: volstatsattrib.cc,v 1.39 2008-05-19 13:04:49 cvshelene Exp $";
+static const char* rcsID = "$Id: volstatsattrib.cc,v 1.40 2008-08-27 02:13:58 cvskris Exp $";
 
 #include "volstatsattrib.h"
 
@@ -288,11 +288,11 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 	if ( inputdata_[posidx] )
 	    statsz += gatesz;
     }
-    Stats::WindowedCalc<float> wcalc( rcsetup, statsz );
 
-    for ( int isamp=0; isamp<nrsamples; isamp++ )
+    Stats::WindowedCalc<double> wcalc( rcsetup, statsz );
+
+    for ( int idz=samplegate.start; idz<=samplegate.stop; idz++ )
     {
-	const int cursample = z0 + isamp;
 	for ( int posidx=0; posidx<nrpos; posidx++ )
 	{
 	    const DataHolder* dh = inputdata_[posidx];
@@ -301,23 +301,33 @@ bool VolStats::computeData( const DataHolder& output, const BinID& relpos,
 	    float shift = 0;
 	    if ( dosteer_ )
 		shift = getInputValue( *steeringdata_, steerindexes_[posidx],
-					isamp, z0 );
+					0, z0 );
 
 	    ValueSeriesInterpolator<float> interp( dh->nrsamples_-1 );
 
-	    if ( !isamp )
+	    const float samplepos = z0 + shift + idz;
+	    wcalc += interp.value( *dh->series(dataidx_),
+				   samplepos-dh->z0_ );
+	}
+    }
+
+    for ( int isamp=0; isamp<nrsamples; isamp++ )
+    {
+	const int cursample = z0 + isamp;
+	if ( isamp )
+	{
+	    for ( int posidx=0; posidx<nrpos; posidx++ )
 	    {
-		int s = samplegate.start;
-		for ( int idz=0; idz<gatesz; idz++ )
-		{
-		    const float samplepos = cursample + shift + s;
-		    wcalc += interp.value( *dh->series(dataidx_),
-					   samplepos-dh->z0_ );
-		    s++;
-		}
-	    }
-	    else
-	    {
+		const DataHolder* dh = inputdata_[posidx];
+		if ( !dh ) continue;
+
+		float shift = 0;
+		if ( dosteer_ )
+		    shift = getInputValue( *steeringdata_,steerindexes_[posidx],
+					    isamp, z0 );
+
+		ValueSeriesInterpolator<float> interp( dh->nrsamples_-1 );
+
 		const float samplepos = cursample + shift + samplegate.stop;
 		wcalc += interp.value( *dh->series(dataidx_),
 					samplepos-dh->z0_ );
