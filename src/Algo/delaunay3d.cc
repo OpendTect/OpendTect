@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay3d.cc,v 1.4 2008-08-21 06:18:56 cvsumesh Exp $";
+static const char* rcsID = "$Id: delaunay3d.cc,v 1.5 2008-08-27 16:53:13 cvsyuancheng Exp $";
 
 #include "delaunay3d.h"
 #include "trigonometry.h"
@@ -167,15 +167,16 @@ bool DAGTetrahedraTree::setBBox( const Interval<double>& xrg,
 	return false;
 
     center_ = Coord3( xrg.center(), yrg.center(), zrg.center() );
-    const double r = sqrt( xlength*xlength+ylength*ylength+zlength*zlength );
-    const double sqrt2r = r*sqrt(2);
-    const double sqrt6r = r*sqrt(6);
+    const double r = Math::Sqrt(
+	    xlength*xlength+ylength*ylength+zlength*zlength )/2;
     epsilon_ = r*(1e-5);
 
-    initialcoords_[0] = Coord3(center_.x, center_.y, center_.z+3*r);
-    initialcoords_[1] = Coord3(center_.x, center_.y+2*sqrt2r, center_.z-r);
-    initialcoords_[2] = Coord3(center_.x-sqrt6r, center_.y-sqrt2r, center_.z-r);
-    initialcoords_[3] = Coord3(center_.x+sqrt6r, center_.y-sqrt2r, center_.z-r);
+    initialcoords_[0] = Coord3( center_.x, center_.y, center_.z+3*r );
+    initialcoords_[1] = Coord3( center_.x, center_.y+2*r*sqrt(2), center_.z-r );
+    initialcoords_[2] = Coord3( center_.x-r*sqrt(6), center_.y-r*sqrt(2), 
+	    			center_.z-r );
+    initialcoords_[3] = Coord3( center_.x+r*sqrt(6), center_.y-r*sqrt(2), 
+	    			center_.z-r );
 
     DAGTetrahedra initnode;
     initnode.coordindices_[0] = cInitVertex0();
@@ -279,6 +280,15 @@ char DAGTetrahedraTree::searchTetrahedra( int ci, int start, TypeSet<int>& tis,
 	res = mode;
     }
 
+    if ( tetrahedras_[tis[0]].childindices_[0]!=cNoTetrahedra() ||
+         tetrahedras_[tis[0]].childindices_[1]!=cNoTetrahedra() ||
+         tetrahedras_[tis[0]].childindices_[2]!=cNoTetrahedra() ||
+         tetrahedras_[tis[0]].childindices_[3]!=cNoTetrahedra() )
+    {
+	pErrMsg("Hmm");
+	return cError();
+    }
+
     if ( res==cIsOnFace() )
     {
 	const int* crds = tetrahedras_[tis[0]].coordindices_;
@@ -340,16 +350,16 @@ char DAGTetrahedraTree::location( int ci, int ti, char& face, int& dupid,
    
     //Here we calculate the distance between the point and the face. 
     const Coord3 n0 = ((v2-v1).cross(v3-v1)).normalize();
-    const bool onface0 = mIsZero(fabs(n0.dot(pt)-n0.dot(v1)), 1e-3);
+    const bool onface0 = mIsZero(n0.dot(pt-v1), 1e-3);
 
     const Coord3 n1 = ((v2-v0).cross(v3-v0)).normalize();
-    const bool onface1 = mIsZero(fabs(n1.dot(pt)-n1.dot(v0)), 1e-3);
+    const bool onface1 = mIsZero(n1.dot(pt-v0), 1e-3);
 
     const Coord3 n2 = ((v0-v1).cross(v3-v1)).normalize();
-    const bool onface2 = mIsZero(fabs(n2.dot(pt)-n2.dot(v1)), 1e-3);
+    const bool onface2 = mIsZero(n2.dot(pt-v1), 1e-3);
 
     const Coord3 n3 = ((v2-v1).cross(v0-v1)).normalize();
-    const bool onface3 = mIsZero(fabs(n3.dot(pt)-n3.dot(v1)), 1e-3);
+    const bool onface3 = mIsZero(n3.dot(pt-v1), 1e-3);
 
     const char nrfaces = onface0 + onface1 + onface2 + onface3;
     if ( nrfaces==4 ) 
@@ -1191,6 +1201,22 @@ char DAGTetrahedraTree::isIntersect( const Coord3& p, const Coord3& q,
 }
 
 
+void DAGTetrahedraTree::addTriangle( int v0, int v1, int v2, TypeSet<int>& res )const
+{
+    for ( int t=0; t<res.size()/3; t++ )
+    {
+	if ( (res[3*t]==v0 || res[3*t+1]==v0 || res[3*t+2]==v0) &&
+	     (res[3*t]==v1 || res[3*t+1]==v1 || res[3*t+2]==v1) &&
+	     (res[3*t]==v2 || res[3*t+1]==v2 || res[3*t+2]==v2) )
+	    return;
+    }
+    
+    res += v0;
+    res += v1;
+    res += v2;
+}
+
+
 bool DAGTetrahedraTree::getTetrahedras( TypeSet<int>& result) const
 {
     for ( int idx=tetrahedras_.size()-1; idx>=0; idx-- )
@@ -1203,85 +1229,74 @@ bool DAGTetrahedraTree::getTetrahedras( TypeSet<int>& result) const
 	const int* c = tetrahedras_[idx].coordindices_;
 	if ( c[0]<0 || c[1]<0 || c[2]<0 || c[3]<0 ) continue;
 
+	result += c[0];
+	result += c[1];
+	result += c[2];
+	result += c[3];
+    }
+
+    return result.size();
+}
+
+
+bool DAGTetrahedraTree::getTetrahedraTriangles( TypeSet<int>& result) const
+{
+    for ( int idx=tetrahedras_.size()-1; idx>=0; idx-- )
+    {
+	const int* child = tetrahedras_[idx].childindices_;
+	if ( child[0]!=cNoTetrahedra() || child[1]!=cNoTetrahedra() ||
+	     child[2]!=cNoTetrahedra() || child[3]!=cNoTetrahedra() )
+	    continue;
+
+	const int* c = tetrahedras_[idx].coordindices_;
+	if ( c[0]<0 || c[1]<0 || c[2]<0 || c[3]<0 ) continue;
+
+	addTriangle( c[0], c[1], c[2], result );
+	addTriangle( c[0], c[3], c[1], result );
+	addTriangle( c[0], c[2], c[3], result );
+	addTriangle( c[1], c[3], c[2], result );
+    }
+
+    return result.size();
+}
+
+
+bool DAGTetrahedraTree::getTetrahedrasExcept( const TypeSet<int>& ts,
+					      TypeSet<int>& result) const
+{
+    for ( int idx=tetrahedras_.size()-1; idx>=0; idx-- )
+    {
+	const int* child = tetrahedras_[idx].childindices_;
+	if ( child[0]!=cNoTetrahedra() || child[1]!=cNoTetrahedra() ||
+	     child[2]!=cNoTetrahedra() || child[3]!=cNoTetrahedra() )
+	    continue;
+
+	const int* c = tetrahedras_[idx].coordindices_;
+	if ( c[0]<0 || c[1]<0 || c[2]<0 || c[3]<0 ) continue;
+
 	bool found = false;
-	int v0 = c[0], v1 = c[1], v2 = c[2];
-	for ( int t=0; t<result.size()/3; t++ )
+	for ( int t=0; t<ts.size()/4; t++ )
 	{
-	    if ( (result[3*t]==v0 || result[3*t+1]==v0 || result[3*t+2]==v0) &&
-		 (result[3*t]==v1 || result[3*t+1]==v1 || result[3*t+2]==v1) &&
-	         (result[3*t]==v2 || result[3*t+1]==v2 || result[3*t+2]==v2) )
+	    if ( (ts[4*t]==c[0] || ts[4*t]==c[1] || 
+		  ts[4*t]==c[2] || ts[4*t]==c[3]) &&
+		 (ts[4*t+1]==c[0] || ts[4*t+1]==c[1] ||   
+		  ts[4*t+1]==c[2] || ts[4*t+1]==c[3]) &&
+		 (ts[4*t+2]==c[0] || ts[4*t+2]==c[1] ||   
+		  ts[4*t+2]==c[2] || ts[4*t+2]==c[3]) &&
+		 (ts[4*t+3]==c[0] || ts[4*t+3]==c[1] ||   
+		  ts[4*t+3]==c[2] || ts[4*t+3]==c[3]) )
 	    {
 		found = true;
 		break;
 	    }
 	}
 
-	if ( !found )
-	{
-	   result += v0; 
-	   result += v1; 
-	   result += v2; 
-	}  
+	if ( found ) continue;
 
-	found = false;
-	v0 = c[0]; v1 = c[3]; v2 = c[1];
-	for ( int t=0; t<result.size()/3; t++ )
-	{
-	    if ( (result[3*t]==v0 || result[3*t+1]==v0 || result[3*t+2]==v0) &&
-		 (result[3*t]==v1 || result[3*t+1]==v1 || result[3*t+2]==v1) &&
-	         (result[3*t]==v2 || result[3*t+1]==v2 || result[3*t+2]==v2) )
-	    {
-		found = true;
-		break;
-	    }
-	}
-
-	if ( !found )
-	{
-	   result += v0; 
-	   result += v1; 
-	   result += v2; 
-	}  
-
-	found = false;
-	v0 = c[0]; v1 = c[2]; v2 = c[3];
-	for ( int t=0; t<result.size()/3; t++ )
-	{
-	    if ( (result[3*t]==v0 || result[3*t+1]==v0 || result[3*t+2]==v0) &&
-		 (result[3*t]==v1 || result[3*t+1]==v1 || result[3*t+2]==v1) &&
-	         (result[3*t]==v2 || result[3*t+1]==v2 || result[3*t+2]==v2) )
-	    {
-		found = true;
-		break;
-	    }
-	}
-
-	if ( !found )
-	{
-	   result += v0; 
-	   result += v1; 
-	   result += v2; 
-	}
-
-	found = false;
-	v0 = c[1]; v1 = c[3]; v2 = c[2];
-	for ( int t=0; t<result.size()/3; t++ )
-	{
-	    if ( (result[3*t]==v0 || result[3*t+1]==v0 || result[3*t+2]==v0) &&
-		 (result[3*t]==v1 || result[3*t+1]==v1 || result[3*t+2]==v1) &&
-	         (result[3*t]==v2 || result[3*t+1]==v2 || result[3*t+2]==v2) )
-	    {
-		found = true;
-		break;
-	    }
-	}
-
-	if ( !found )
-	{
-	   result += v0; 
-	   result += v1; 
-	   result += v2; 
-	}
+	addTriangle( c[0], c[1], c[2], result );
+	addTriangle( c[0], c[3], c[1], result );
+	addTriangle( c[0], c[2], c[3], result );
+	addTriangle( c[1], c[3], c[2], result );
     }
 
     return result.size();
@@ -1308,103 +1323,7 @@ bool DAGTetrahedraTree::getSurfaceTriangles( TypeSet<int>& result) const
 	else if ( c[2]<0 ) { v0 = c[0]; v1 = c[3]; v2 = c[1]; }
 	else if ( c[3]<0 ) { v0 = c[0]; v1 = c[1]; v2 = c[2]; }
 	
-	found = false;
-	for ( int t=0; t<result.size()/3; t++ )
-	{
-	    if ( (result[3*t]==v0 || result[3*t+1]==v0 || result[3*t+2]==v0) &&
-		 (result[3*t]==v1 || result[3*t+1]==v1 || result[3*t+2]==v1) &&
-	         (result[3*t]==v2 || result[3*t+1]==v2 || result[3*t+2]==v2) )
-	    {
-		found = true;
-		break;
-	    }
-	}
-
-	if ( !found )
-	{
-	   result += v0; 
-	   result += v1; 
-	   result += v2; 
-	}   
-    }
-
-    return result.size();
-}
-
-
-bool DAGTetrahedraTree::getSurfaceNoTriangle( const Coord3& v0, 
-	const Coord3& v1, const Coord3& v2, TypeSet<int>& result ) const
-{
-    for ( int idx=tetrahedras_.size()-1; idx>=0; idx-- )
-    {
-	const int* child = tetrahedras_[idx].childindices_;
-	if ( child[0]!=cNoTetrahedra() || child[1]!=cNoTetrahedra() ||
-	     child[2]!=cNoTetrahedra() || child[3]!=cNoTetrahedra() )
-	    continue;
-
-	const int* c = tetrahedras_[idx].coordindices_;
-	if ( c[0]<0 || c[1]<0 || c[2]<0 || c[3]<0 ) continue;
-	if ( (mIsZero( (v0-(*coordlist_)[c[0]]).sqAbs(), 1e-4 ) ||
-	      mIsZero( (v0-(*coordlist_)[c[1]]).sqAbs(), 1e-4 ) ||
-	      mIsZero( (v0-(*coordlist_)[c[2]]).sqAbs(), 1e-4 ) ||
-	      mIsZero( (v0-(*coordlist_)[c[3]]).sqAbs(), 1e-4 )) &&
-	     (mIsZero( (v1-(*coordlist_)[c[0]]).sqAbs(), 1e-4 ) ||
-	      mIsZero( (v1-(*coordlist_)[c[1]]).sqAbs(), 1e-4 ) ||
-	      mIsZero( (v1-(*coordlist_)[c[2]]).sqAbs(), 1e-4 ) ||
-	      mIsZero( (v1-(*coordlist_)[c[3]]).sqAbs(), 1e-4 )) &&
-    	     (mIsZero( (v2-(*coordlist_)[c[0]]).sqAbs(), 1e-4 ) ||
-	      mIsZero( (v2-(*coordlist_)[c[1]]).sqAbs(), 1e-4 ) ||
-	      mIsZero( (v2-(*coordlist_)[c[2]]).sqAbs(), 1e-4 ) ||
-	      mIsZero( (v2-(*coordlist_)[c[3]]).sqAbs(), 1e-4 )) )
-	    continue;
-
-	result += c[0];
-	result += c[1];
-	result += c[2];
-	result += c[0];
-	result += c[3];
-	result += c[1];
-	result += c[0];
-	result += c[2];
-	result += c[3];
-	result += c[1];
-	result += c[3];
-	result += c[2];
-    }
-
-    return result.size();
-}
-
-
-bool DAGTetrahedraTree::getSurfaceNoTriangle( const int& v0, const int& v1, 
-	const int& v2, TypeSet<int>& result ) const
-{
-    for ( int idx=tetrahedras_.size()-1; idx>=0; idx-- )
-    {
-	const int* child = tetrahedras_[idx].childindices_;
-	if ( child[0]!=cNoTetrahedra() || child[1]!=cNoTetrahedra() ||
-	     child[2]!=cNoTetrahedra() || child[3]!=cNoTetrahedra() )
-	    continue;
-
-	const int* c = tetrahedras_[idx].coordindices_;
-	if ( c[0]<0 || c[1]<0 || c[2]<0 || c[3]<0 ) continue;
-	if ( (v0==c[0] || v0==c[1] || v0==c[2] || v0==c[3]) &&
-	     (v1==c[0] || v1==c[1] || v1==c[2] || v1==c[3]) &&
-             (v2==c[0] || v2==c[1] || v2==c[2] || v2==c[3]) )
-	    continue;
-
-	result += c[0];
-	result += c[1];
-	result += c[2];
-	result += c[0];
-	result += c[3];
-	result += c[1];
-	result += c[0];
-	result += c[2];
-	result += c[3];
-	result += c[1];
-	result += c[3];
-	result += c[2];
+	addTriangle( v0, v1, v2, result );
     }
 
     return result.size();

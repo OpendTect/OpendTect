@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Y.C. Liu
  Date:          June 2008
- RCS:           $Id: delaunay3d.h,v 1.4 2008-08-06 22:03:30 cvsyuancheng Exp $
+ RCS:           $Id: delaunay3d.h,v 1.5 2008-08-27 16:53:13 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,8 +44,11 @@ public:
 
     bool		insertPoint(int pointidx, int& dupid);
     int			insertPoint(const Coord3&, int& dupid);
-   			
+    
     bool		getConnections(int pointidx,TypeSet<int>&) const;
+    bool		getTetrahedrasExcept(const TypeSet<int>& exceptions,
+	    				     TypeSet<int>& result) const;
+    bool		getTetrahedraTriangles(TypeSet<int>&) const;
     bool		getTetrahedras(TypeSet<int>&) const;
     			/*<Coord indices are sorted in fours, i.e.
 			   ci[0], ci[1], ci[2], ci[3] is the first tetrahedra
@@ -54,11 +57,6 @@ public:
     			/*<Coord indices are sorted in threes, i.e.
 			   ci[0], ci[1], ci[2] is the first triangle
 			   ci[3], ci[4], ci[5] is the second triangle. */
-
-    bool		getSurfaceNoTriangle(const int& v0,const int& v1,
-	    			const int& v2, TypeSet<int>& result) const;
-    bool		getSurfaceNoTriangle(const Coord3& v0,const Coord3& v1,
-	    			const Coord3& v2, TypeSet<int>& result) const;
     void		setEpsilon(double err)	{ epsilon_ = err; }
     static int		cNoVertex()	{ return -1; }
 
@@ -103,6 +101,8 @@ protected:
 	   		const Coord3& b,const Coord3& c,char& edge) const;
     		/*!<ret inside, outside, on edge, or duplicate. edge will be
 		  defined if pq intersects ABC on edge 0, 1, 2 in order. */
+    void	addTriangle(int v0,int v1,int v2,TypeSet<int>& triangles) const;
+    		/*!<if triangles have {v0,v1,v2}, then return, else, add it.*/
 
     struct DAGTetrahedra
     {
