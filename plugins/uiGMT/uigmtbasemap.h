@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtbasemap.h,v 1.3 2008-08-14 10:52:52 cvsraman Exp $
+ RCS:		$Id: uigmtbasemap.h,v 1.4 2008-08-27 12:35:30 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,6 +32,7 @@ protected:
     uiGenInput*		titlefld_;
     uiGenInput*		xdimfld_;
     uiGenInput*		ydimfld_;
+    uiGenInput*		scalefld_;
     uiGenInput*		xrgfld_;
     uiGenInput*		yrgfld_;
     uiPushButton*	resetbut_;
@@ -43,6 +44,7 @@ protected:
     void		resetCB(CallBacker*);
     void		xyrgChg(CallBacker*);
     void		dimChg(CallBacker*);
+    void		scaleChg(CallBacker*);
     void		updateFlds(bool);
 };
 

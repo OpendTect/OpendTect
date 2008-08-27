@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: uigmtbasemap.cc,v 1.4 2008-08-14 10:52:52 cvsraman Exp $
+ RCS:		$Id: uigmtbasemap.cc,v 1.5 2008-08-27 12:35:30 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -37,15 +37,20 @@ uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
 	    			  mCB(this,uiGMTBaseMapGrp,resetCB), false );
     resetbut_->attach( rightTo, yrgfld_ );
 
-    xdimfld_ = new uiGenInput( this, "Map width (cm)", FloatInpSpec() );
+    xdimfld_ = new uiGenInput( this, "Map Width (cm)", FloatInpSpec() );
     xdimfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,dimChg) );
     xdimfld_->setElemSzPol( uiObject::Small );
     xdimfld_->attach( alignedBelow, yrgfld_ );
 
-    ydimfld_ = new uiGenInput( this, "Map height (cm)", FloatInpSpec() );
+    ydimfld_ = new uiGenInput( this, "Height (cm)", FloatInpSpec() );
     ydimfld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,dimChg) );
     ydimfld_->setElemSzPol( uiObject::Small );
     ydimfld_->attach( rightTo, xdimfld_ );
+
+    scalefld_ = new uiGenInput( this, "Scale  1 :", IntInpSpec() );
+    scalefld_->valuechanged.notify( mCB(this,uiGMTBaseMapGrp,scaleChg) );
+    scalefld_->setElemSzPol( uiObject::Small );
+    scalefld_->attach( rightTo, ydimfld_ );
 
     lebelintvfld_ = new uiGenInput( this, "Label interval (X/Y)",
 	    			    IntInpIntervalSpec(false) );
@@ -103,12 +108,25 @@ void uiGMTBaseMapGrp::dimChg( CallBacker* cb )
 	xdim = ydim * aspectratio_;
 	xdimfld_->setValue( xdim );
     }
+
+    const Interval<int> xrg = xrgfld_->getIInterval();
+    scalefld_->setValue( mNINT( xrg.width() * 100 / xdimfld_->getfValue() ) );
 }
 
 
 void uiGMTBaseMapGrp::resetCB( CallBacker* )
 {
     updateFlds( true );
+}
+
+
+void uiGMTBaseMapGrp::scaleChg( CallBacker* cb )
+{
+    const float factor = (float)scalefld_->getIntValue();
+    const Interval<int> xrg = xrgfld_->getIInterval();
+    const Interval<int> yrg = yrgfld_->getIInterval();
+    xdimfld_->setValue( xrg.width() * 100 / factor );
+    ydimfld_->setValue( yrg.width() * 100 / factor );
 }
 
 
@@ -157,6 +175,7 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
 
     xdimfld_->setValue( aspectratio_ > 1 ? 16 : 16 * aspectratio_ );
     ydimfld_->setValue( aspectratio_ > 1 ? 16 / aspectratio_ : 16 );
+    scalefld_->setValue( xrg.width() * 100 / xdimfld_->getfValue() );
     const AxisLayout xaxis( xrg );
     const AxisLayout yaxis( yrg );
     lebelintvfld_->setValue( Interval<float>(xaxis.sd.step,yaxis.sd.step) );
