@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		23-11-2002
- RCS:		$Id: trigonometry.h,v 1.35 2008-07-17 14:24:23 cvsyuancheng Exp $
+ RCS:		$Id: trigonometry.h,v 1.36 2008-08-27 16:54:04 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -166,8 +166,8 @@ inline bool pointInTriangle2D( const Coord& p, const Coord& a, const Coord& b,
 inline bool pointInTriangle3D( const Coord3& p, const Coord3& a, 
 			const Coord3& b, const Coord3& c, double epsilon )
 {
-    if ( !mIsZero(determinent44(p,a,b,c), epsilon) )
-	return false;
+ //   if ( !mIsZero(determinent44(p,a,b,c), epsilon) )
+//	return false;
     
     return sameSide3D(p,a,b,c,epsilon) && sameSide3D(p,b,a,c,epsilon) && 
 	   sameSide3D(p,c,a,b,epsilon);
