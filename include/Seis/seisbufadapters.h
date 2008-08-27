@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Feb 2007
- RCS:		$Id: seisbufadapters.h,v 1.9 2007-11-06 09:23:48 cvssatyaki Exp $
+ RCS:		$Id: seisbufadapters.h,v 1.10 2008-08-27 12:41:14 cvsbert Exp $
 ________________________________________________________________________
 
 */
@@ -25,7 +25,7 @@ class SeisTrcBufArray2D : public Array2D<float>
 {
 public:
 
-    			SeisTrcBufArray2D(const SeisTrcBuf&,int compnr=0);
+    			SeisTrcBufArray2D(const SeisTrcBuf&);
     			SeisTrcBufArray2D(SeisTrcBuf&,bool mine,int compnr=0);
 			~SeisTrcBufArray2D();
 
@@ -41,6 +41,7 @@ public:
     SeisTrcBuf&		trcBuf()		{ return buf_; }
     const SeisTrcBuf&	trcBuf() const		{ return buf_; }
 
+    void		setComp( int ic )	{ comp_ = ic; }
     int			getComp() const		{ return comp_; }
 
     void		setBufMine( bool yn )	{ bufmine_ = yn; }
