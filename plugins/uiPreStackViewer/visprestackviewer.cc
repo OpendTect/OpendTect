@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.29 2008-08-26 14:52:30 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.30 2008-08-27 21:26:27 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -14,7 +14,6 @@ _______________________________________________________________________________
 #include "flatposdata.h"
 #include "ioman.h"
 #include "iopar.h"
-#include "posinfo.h"
 #include "prestackgather.h"
 #include "prestackprocessor.h"
 #include "seispsioprov.h"
@@ -48,7 +47,6 @@ PreStackViewer::PreStackViewer()
     , mid_( 0 )		
     , section_( 0 )
     , seis2d_( 0 )
-    , sectionreader_( 0 )
     , factor_( 1 )
     , trcnr_( 0 )
     , basedirection_( mUdf(float), mUdf(float) )		 
@@ -155,8 +153,6 @@ BufferString PreStackViewer::getObjectName() const
 void  PreStackViewer::setMultiID( const MultiID& mid )
 { 
     mid_ = mid;
-
-    sectionreader_ = SPSIOPF().get3DReader( *IOM().get(mid_) );
 
     if ( seis2d_ && seis2d_->getMovementNotifier() )
 	seis2d_->getMovementNotifier()->notify( 
@@ -319,18 +315,6 @@ void PreStackViewer::dataChangedCB( CallBacker* )
 	zrg_.setFrom( fdp->posData().range( false ) );
     }
 
-    const StepInterval<int> inlrg = SI().inlRange( true );
-    const StepInterval<int> crlrg = SI().crlRange( true );
-    if ( bid_.inl<inlrg.start || mIsUdf(bid_.inl) )
-	bid_.inl = inlrg.start;
-    else if ( bid_.inl>inlrg.stop )
-	bid_.inl = inlrg.stop;
-
-    if ( bid_.crl<crlrg.start || mIsUdf(bid_.crl) )
-	bid_.crl = crlrg.start;
-    else if ( bid_.crl>crlrg.stop )
-	bid_.crl = crlrg.stop;
-
     Coord startpos( bid_.inl, bid_.crl );
     if ( seis2d_ )
 	startpos = seis2dpos_;
@@ -363,8 +347,11 @@ void PreStackViewer::dataChangedCB( CallBacker* )
     	const Coord3 center( (startpos+stoppos)/2, (zrg_.start+zrg_.stop)/2 );
     	planedragger_->setCenter( center );
 	
-    	const Interval<float> xlim = Interval<float>( inlrg.start, inlrg.stop );
-    	const Interval<float> ylim = Interval<float>( crlrg.start, crlrg.stop );     	planedragger_->setSpaceLimits( xlim, ylim, SI().zRange( true ) );    
+    	const Interval<float> xlim = Interval<float>( 
+		SI().inlRange( true ).start, SI().inlRange( true ).stop );
+    	const Interval<float> ylim = Interval<float>( 
+		SI().crlRange( true ).start, SI().crlRange( true ).stop );
+	planedragger_->setSpaceLimits( xlim, ylim, SI().zRange( true ) );    
     }
     
     draggermaterial_->setTransparency( 1 ); 
@@ -628,34 +615,17 @@ void  PreStackViewer::finishedCB( CallBacker* )
     if ( !section_ )
 	return;
 
-    const PosInfo::CubeData& cubedata = sectionreader_->posData();
-
     BinID newpos;
     if ( section_->getOrientation() == visSurvey::PlaneDataDisplay::Inline )
     {
 	newpos.inl = section_->getCubeSampling( -1 ).hrg.start.inl;
-	const int newinlidx = cubedata.indexOf( newpos.inl );
-	if ( newinlidx!=-1 )
-	{
-	    newpos.crl = cubedata[newinlidx]->getIndexInfo(
-		    planedragger_->center().y).nearest_;
-	}
-	else
-	{
-	    newpos.crl = SI().crlRange(true).snap( planedragger_->center().y );
-	}
+	newpos.crl = SI().crlRange(true).snap( planedragger_->center().y );
     }
     else if ( section_->getOrientation() ==
 	    visSurvey::PlaneDataDisplay::Crossline )
     {
+	newpos.inl = SI().inlRange(true).snap( planedragger_->center().x );
 	newpos.crl = section_->getCubeSampling( -1 ).hrg.start.crl;
-
-	const int centerinl = SI().transform(planedragger_->center()).inl;
-	const int newinlidx = cubedata.indexOf( centerinl );
-	if ( newinlidx!=-1 )
-	    newpos.inl = cubedata[newinlidx]->linenr_;
-	else
-	    newpos.inl = SI().inlRange(true).snap( planedragger_->center().x );
     }
     else
 	return;

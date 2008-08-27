@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.14 2008-08-26 14:25:58 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.15 2008-08-27 21:26:27 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "iopar.h"
 
 class IOObj;
-class SeisPS3DReader;
 
 namespace PreStack { class ProcessManager; }
 namespace visBase 
@@ -130,7 +129,6 @@ protected:
     MultiID				mid_;
     visSurvey::PlaneDataDisplay*	section_;
     visSurvey::Seis2DDisplay*		seis2d_;
-    SeisPS3DReader*			sectionreader_;
     int 				trcnr_;
     Coord				basedirection_;
     Coord				seis2dpos_;
