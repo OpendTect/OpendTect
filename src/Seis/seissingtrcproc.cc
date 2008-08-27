@@ -4,7 +4,7 @@
  * DATE     : Oct 2001
 -*/
 
-static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.48 2008-07-16 13:09:43 cvsbert Exp $";
+static const char* rcsID = "$Id: seissingtrcproc.cc,v 1.49 2008-08-27 14:26:42 cvsbert Exp $";
 
 #include "seissingtrcproc.h"
 #include "seisread.h"
@@ -137,7 +137,7 @@ bool SeisSingleTraceProc::init( ObjectSet<IOObj>& ioobjs,
 	    delete rdr_;
 	    return false;
 	}
-	const bool is3d = !wrr_->is2D();
+	const bool is3d = !rdr_->is2D() && !wrr_->is2D();
 	if ( wrr_ && is3d && wrr_->ioObj()->key() == rdr_->ioObj()->key() )
 	{
 	    curmsg_ = "Input and output are the same.";
