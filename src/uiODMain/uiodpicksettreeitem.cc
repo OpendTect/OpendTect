@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodpicksettreeitem.cc,v 1.46 2008-07-09 12:33:41 cvsnanne Exp $
+ RCS:		$Id: uiodpicksettreeitem.cc,v 1.47 2008-08-28 11:07:08 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -298,7 +298,7 @@ void uiODPickSetTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &onlyatsectmnuitem_, true, !psd->allShown() );
     mAddMenuItem( menu, &storemnuitem_, true, false );
     mAddMenuItem( menu, &storeasmnuitem_, true, false );
-    mAddMenuItem( menu, &removeselectionmnuitem_, selector && selector->isOK(),
+    mAddMenuItem( menu, &removeselectionmnuitem_, selector,
 	    	  false );
 }
 
@@ -351,7 +351,11 @@ void uiODPickSetTreeItem::handleMenuCB( CallBacker* cb )
     else if( mnuid==removeselectionmnuitem_.id )
     {
 	menu->setIsHandled( true );
-	psd->removeSelected( *visserv_->getCoordSelector( sceneID() ) );
+	const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
+	if ( sel->isOK() )
+	    psd->removeSelected( *sel );
+	else
+	    uiMSG().error("Invalid selection : self-intersecting polygon");
     }
 
     updateColumnText( uiODSceneMgr::cNameColumn() );

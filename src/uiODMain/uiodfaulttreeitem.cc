@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	K. Tingdahl
  Date: 		Jul 2003
- RCS:		$Id: uiodfaulttreeitem.cc,v 1.13 2008-07-09 12:33:41 cvsnanne Exp $
+ RCS:		$Id: uiodfaulttreeitem.cc,v 1.14 2008-08-28 11:07:08 cvsraman Exp $
 ___________________________________________________________________
 
 -*/
@@ -24,6 +24,7 @@ ___________________________________________________________________
 #include "uiempartserv.h"
 #include "uimenu.h"
 #include "uimenuhandler.h"
+#include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodscenemgr.h"
 #include "uivispartserv.h"
@@ -219,7 +220,7 @@ void uiODFaultTreeItem::createMenuCB( CallBacker* cb )
     mAddMenuItem( menu, &displaymnuitem_, true, true );
 
     const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
-    mAddMenuItem( menu, &removeselectedmnuitem_, sel && sel->isOK(), true );
+    mAddMenuItem( menu, &removeselectedmnuitem_, sel, true );
 
     const bool enablesave = applMgr()->EMServer()->isChanged(emid_) &&
 			    applMgr()->EMServer()->isFullyLoaded(emid_);
@@ -285,7 +286,11 @@ void uiODFaultTreeItem::handleMenuCB( CallBacker* cb )
     else if ( mnuid==removeselectedmnuitem_.id )
     {
 	menu->setIsHandled(true);
-	faultdisplay_->removeSelection(*visserv_->getCoordSelector(sceneID()) );
+	const Selector<Coord3>* sel = visserv_->getCoordSelector( sceneID() );
+	if ( sel->isOK() )
+	    faultdisplay_->removeSelection( *sel );
+	else
+	    uiMSG().error( "Invalid selection : self-intersecting polygon" );
     }
 }
 
