@@ -4,7 +4,7 @@
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne and Kristofer
  Date:          December 2007
- RCS:           $Id: initsood.cc,v 1.2 2008-06-18 21:53:08 cvskris Exp $
+ RCS:           $Id: initsood.cc,v 1.3 2008-08-28 12:20:49 cvsnanne Exp $
  ________________________________________________________________________
 
 -*/
@@ -40,6 +40,9 @@
 #include "UTMCamera.h"
 #include "UTMElement.h"
 #include "UTMPosition.h"
+#include "ViewportRegion.h"
+#include "DepthBuffer.h"
+#include "LegendKit.h"
 
 
 void SoOD::initStdClasses()
@@ -80,4 +83,7 @@ void SoOD::initStdClasses()
     SoGridSurfaceDragger::initClass();
     UTMCamera::initClass();
     UTMPosition::initClass();
+    ViewportRegion::initClass();
+    DepthBuffer::initClass();
+    LegendKit::initClass();
 }
