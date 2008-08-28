@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.cc,v 1.47 2008-07-04 09:46:53 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.cc,v 1.48 2008-08-28 05:58:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ public:
     void		setShortcut(int,const char*);
     void		setPixmap(int,const char*);
     void		setPixmap(int,const ioPixmap&);
+    void		setButtonMenu(int,const uiPopupMenu&);
 
     void		display(bool yn=true);
 			//!< you must call this after all buttons are added
@@ -196,6 +197,8 @@ void uiToolBarBody::setSensitive( bool yn )
 bool uiToolBarBody::isSensitive() const
 { return qwidget() ? qwidget()->isEnabled() : false; }
 
+void uiToolBarBody::setButtonMenu( int idx, const uiPopupMenu& mnu )
+{ mToolBarBut(idx)->setMenu( mnu ); }
 
 
 ObjectSet<uiToolBar>& uiToolBar::toolBars()
@@ -296,6 +299,9 @@ void uiToolBar::setPixmap( int idx, const char* fnm )
 
 void uiToolBar::setPixmap( int idx, const ioPixmap& pm )
 { body_->setPixmap( idx, pm ); }
+
+void uiToolBar::setButtonMenu( int idx, const uiPopupMenu& mnu )
+{ body_->setButtonMenu( idx, mnu ); }
 
 
 void uiToolBar::display( bool yn, bool, bool )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          30/05/2001
- RCS:           $Id: uitoolbar.h,v 1.34 2008-07-04 04:21:34 cvsnanne Exp $
+ RCS:           $Id: uitoolbar.h,v 1.35 2008-08-28 05:58:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 class ioPixmap;
 class MenuItem;
 class uiObject;
+class uiPopupMenu;
 class uiToolBarBody;
 class QToolBar;
 
@@ -62,6 +63,7 @@ public:
     			/*!< Does only work on buttons */
     void		setSensitive(bool yn);
     			/*!< Works on complete toolbar */
+    void		setButtonMenu(int,const uiPopupMenu&);
 
     virtual void	display(bool yn=true,bool s=false,bool m=false);
 			/*!< you must call this after all buttons are added

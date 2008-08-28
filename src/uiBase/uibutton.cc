@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uibutton.cc,v 1.47 2008-07-24 07:07:54 cvsnanne Exp $
+ RCS:           $Id: uibutton.cc,v 1.48 2008-08-28 05:58:40 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -420,14 +420,12 @@ void uiToolButton::setShortcut( const char* sc )
 }
 
 
-void uiToolButton::setMenu( uiPopupMenu* mnu )
+void uiToolButton::setMenu( const uiPopupMenu& mnu )
 {
-    if ( !mnu ) return;
-
     QMenu* qmenu = new QMenu;
-    for ( int idx=0; idx<mnu->nrItems(); idx++ )
+    for ( int idx=0; idx<mnu.nrItems(); idx++ )
     {
-	QAction* qact = const_cast<QAction*>( mnu->items()[idx]->qAction() );
+	QAction* qact = const_cast<QAction*>( mnu.items()[idx]->qAction() );
 	qmenu->addAction( qact );
     }
 
