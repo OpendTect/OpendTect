@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		May 2007
- RCS:		$Id: visscenecoltab.cc,v 1.2 2008-08-28 12:22:48 cvsnanne Exp $
+ RCS:		$Id: visscenecoltab.cc,v 1.3 2008-08-28 12:25:39 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,7 +47,7 @@ SceneColTab::~SceneColTab()
 
 void SceneColTab::setColTabSequence( const ColTab::Sequence& ctseq )
 {
-    const float nrcols = 256;
+    const int nrcols = 256;
     legendkit_->clearData();
     ColTab::IndexedLookUpTable table( ctseq, nrcols );
     for ( int idx=0; idx<nrcols; idx++ )
