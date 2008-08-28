@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: visflatviewer.cc,v 1.12 2008-08-07 22:12:51 cvsyuancheng Exp $
+ RCS:		$Id: visflatviewer.cc,v 1.13 2008-08-28 16:11:59 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -78,7 +78,9 @@ void FlatViewer::handleChange( FlatView::Viewer::DataChangeType dt )
     		    texture_->splitTexture( true );
     		    texture_->setData( 0, 0, &dp->data(), true );
     		    texture_->turnOn( appearance().ddpars_.vd_.show_ );
-    		    
+
+		    appearance().ddpars_.vd_.ctab_ = 
+			texture_->getColorTab(0).colorSeq().name();	    
     		    rectangle_->enableSpliting( texture_->canUseShading() );
     		    rectangle_->setUsedTextureUnits( 
     			    texture_->getUsedTextureUnits() );
