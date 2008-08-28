@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.51 2008-06-19 15:49:52 cvskris Exp $
+ RCS:		$Id: vissurvscene.h,v 1.52 2008-08-28 11:04:22 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -94,7 +94,7 @@ public:
     void			setAnnotText(int dim,const char*);
 
     visBase::PolygonSelection*	getPolySelection() { return polyselector_; }
-    const Selector<Coord3>*	getSelector() const { return coordselector_; }
+    const Selector<Coord3>*	getSelector() const;	/*! May be NULL */
 
     Notifier<Scene>		mouseposchange;
     Coord3			getMousePos(bool xyt) const;

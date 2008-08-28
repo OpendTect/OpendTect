@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.106 2008-08-12 11:17:12 cvsnanne Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.107 2008-08-28 11:04:44 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -294,6 +294,17 @@ bool Scene::isAnnotShown() const
 void Scene::setAnnotText( int dim, const char* txt )
 {
     annot_->setText( dim, txt );
+}
+
+
+const Selector<Coord3>* Scene::getSelector() const
+{
+    if ( !coordselector_ ) return 0;
+
+    mDynamicCastGet(const visBase::PolygonCoord3Selector*,sel,coordselector_);
+    if ( !sel || !sel->hasPolygon() ) return 0;
+
+    return coordselector_;
 }
 
 
