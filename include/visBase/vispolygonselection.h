@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		June 2008
- RCS:		$Id: vispolygonselection.h,v 1.2 2008-06-19 15:46:35 cvskris Exp $
+ RCS:		$Id: vispolygonselection.h,v 1.3 2008-08-28 11:05:30 cvsraman Exp $
 ________________________________________________________________________
 
 
@@ -47,6 +47,7 @@ public:
     const LineStyle&		getLineStyle() const;
 
     bool			hasPolygon() const;
+    bool			isSelfIntersecting() const;
     bool			isInside(const Coord3&,
 	    				 bool displayspace=false) const;
 
@@ -77,6 +78,7 @@ public:
     Selector<Coord3>*		clone() const;
     const char*			selectorType() const;
     bool			isOK() const;
+    bool			hasPolygon() const;
     bool			includes(const Coord3&) const;
 
 protected:

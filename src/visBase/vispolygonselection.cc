@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2008
- RCS:           $Id: vispolygonselection.cc,v 1.3 2008-06-24 18:16:56 cvskris Exp $
+ RCS:           $Id: vispolygonselection.cc,v 1.4 2008-08-28 11:06:00 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,6 +93,23 @@ bool PolygonSelection::hasPolygon() const
 }
 
 
+bool PolygonSelection::isSelfIntersecting() const
+{
+    if ( !hasPolygon() )
+	return false;
+
+    if ( !polygon_ )
+    {
+	polygon_ = new ODPolygon<double>;
+	const SbList<SbVec2f> sopolygon = selector_->getPolygon();
+	for ( int idx=0; idx<sopolygon.getLength(); idx++ )
+	    polygon_->add( Coord( sopolygon[idx][0], sopolygon[idx][1] ) );
+    }
+
+    return polygon_->isSelfIntersecting();
+}
+
+
 bool PolygonSelection::isInside( const Coord3& crd, bool displayspace ) const
 {
     if ( selector_->mode.getValue() == SoPolygonSelect::OFF )
@@ -178,6 +195,10 @@ const char* PolygonCoord3Selector::selectorType() const
 
 
 bool PolygonCoord3Selector::isOK() const
+{ return !vissel_.isSelfIntersecting(); }
+
+
+bool PolygonCoord3Selector::hasPolygon() const
 { return vissel_.hasPolygon(); }
 
 
