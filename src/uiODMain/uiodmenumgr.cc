@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.132 2008-08-08 10:19:52 cvsumesh Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.133 2008-08-28 05:59:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -511,6 +511,8 @@ void uiODMenuMgr::fillManTB()
 }
 
 
+static bool sIsPolySelect = true;
+
 #undef mAddTB
 #define mAddTB(tb,fnm,txt,togg,fn) \
     tb->addButton( fnm, mCB(scenemgr,uiODSceneMgr,fn), txt, togg )
@@ -530,11 +532,46 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     axisid_ = mAddTB(cointb_,"axis.png","Display rotation axis",
 	    	     true,showRotAxis);
     mAddTB(cointb_,"snapshot.png","Make snapshot",false,mkSnapshot);
-    mAddTB(cointb_,"polygonselect.png","Selection mode",true,selectionMode);
+    polyselectid_ = cointb_->addButton( "polygonselect.png",
+	mCB(this,uiODMenuMgr,selectionMode), "Polygon Selection mode", true );
+    uiPopupMenu* mnu = new uiPopupMenu( &appl_, "Menu" );
+    mnu->insertItem(
+	new uiMenuItem("Polygon",mCB(this,uiODMenuMgr,handleToolClick)), 0 );
+    mnu->insertItem(
+	new uiMenuItem("Rectangle",mCB(this,uiODMenuMgr,handleToolClick)), 1 );
+    cointb_->setButtonMenu( polyselectid_, *mnu );
+
     soloid_ = mAddTB(cointb_,"solo.png","Display current element only",
 		     true,soloMode);
 
     cointb_->turnOn( actid_, true );
+}
+
+
+void uiODMenuMgr::handleToolClick( CallBacker* cb )
+{
+    mDynamicCastGet(uiMenuItem*,itm,cb)
+    if ( !itm ) return;
+
+    const bool ispoly = itm->id() == 0;
+    cointb_->setPixmap( polyselectid_, ispoly ? "polygonselect.png"
+	    				      : "rectangleselect.png" );
+    cointb_->setToolTip( polyselectid_, ispoly ? "Polygon Selection mode"
+					       : "Rectangle Selection mode" );
+    sIsPolySelect = ispoly;
+    selectionMode( 0 );
+}
+
+
+void uiODMenuMgr::selectionMode( CallBacker* )
+{
+    uiVisPartServer& visserv = *appl_.applMgr().visServer();
+    const bool ison = cointb_->isOn( polyselectid_ );
+    if ( !ison )
+	visserv.setSelectionMode( uiVisPartServer::Off );
+    else
+	visserv.setSelectionMode( sIsPolySelect ? uiVisPartServer::Polygon
+						: uiVisPartServer::Rectangle );
 }
 
 

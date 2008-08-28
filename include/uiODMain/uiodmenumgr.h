@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.h,v 1.35 2008-04-08 12:20:46 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.h,v 1.36 2008-08-28 05:59:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -112,6 +112,8 @@ protected:
     void		fillCoinTB(uiODSceneMgr*);
     void		fillManTB();
 
+    void		selectionMode(CallBacker*);
+    void		handleToolClick(CallBacker*);
     void		handleClick(CallBacker*);
     void		manSeis(CallBacker*);
     void		manHor(CallBacker*);
@@ -128,6 +130,7 @@ protected:
     uiMenuItem*		stereoquadbufitm_;
     uiMenuItem*		stereooffsetitm_;
     int			axisid_, actid_, viewid_, cameraid_, soloid_;
+    int			polyselectid_;
 
     inline uiODApplMgr&	applMgr()	{ return appl_.applMgr(); }
     inline uiODSceneMgr& sceneMgr()	{ return appl_.sceneMgr(); }
