@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          5-11-2007
- RCS:           $Id: uipsviewersettingdlg.cc,v 1.4 2008-08-07 22:13:46 cvsyuancheng Exp $
+ RCS:           $Id: uipsviewersettingdlg.cc,v 1.5 2008-08-28 16:12:56 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,7 @@ uiPSViewerSettingDlg::uiPSViewerSettingDlg( uiParent* p,
     shapetab_ = new uiPSViewerShapeTab( tabParent(), viewer, mgr );
     addGroup( shapetab_ );
 
-    coltab_ = new uiPSViewerColTab( tabParent(), *viewer.flatViewer(), mgr );
+    coltab_ = new uiPSViewerColTab( tabParent(), viewer, mgr );
     addGroup( coltab_ );
 
     if ( viewer.is3DSeis() )

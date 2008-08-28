@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.30 2008-08-27 21:26:27 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.31 2008-08-28 16:12:56 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -19,6 +19,7 @@ _______________________________________________________________________________
 #include "seispsioprov.h"
 #include "survinfo.h"
 #include "uimsg.h"
+#include "viscolortab.h"
 #include "viscoord.h"
 #include "visdataman.h"
 #include "visdepthtabplanedragger.h"
@@ -400,6 +401,15 @@ void PreStackViewer::setSectionDisplay( visSurvey::PlaneDataDisplay* pdd )
     if ( !section_ ) return;
     section_->ref();
 
+    const int ctid = pdd->getColTabID(0);
+    visBase::DataObject* obj = ctid>=0 ? visBase::DM().getObject(ctid) : 0;
+    mDynamicCastGet(visBase::VisColorTab*,vct,obj);
+    if ( vct )
+    {
+	flatviewer_->appearance().ddpars_.vd_.ctab_ = vct->colorSeq().name();
+	flatviewer_->handleChange( FlatView::Viewer::VDPars );
+    }
+
     const bool offsetalonginl = 
 	section_->getOrientation()==visSurvey::PlaneDataDisplay::Crossline;
     basedirection_ = offsetalonginl ? Coord( 0, 1  ) : Coord( 1, 0 );
@@ -523,6 +533,15 @@ void PreStackViewer::setSeis2DDisplay(visSurvey::Seis2DDisplay* s2d, int trcnr)
 
     if ( !seis2d_ )
 	return;
+
+    const int ctid = s2d->getColTabID(0);
+    visBase::DataObject* obj = ctid>=0 ? visBase::DM().getObject(ctid) : 0;
+    mDynamicCastGet(visBase::VisColorTab*,vct,obj);
+    if ( vct )
+    {
+	flatviewer_->appearance().ddpars_.vd_.ctab_ = vct->colorSeq().name();
+	flatviewer_->handleChange( FlatView::Viewer::VDPars );
+    }
 
     const Coord orig = SI().binID2Coord().transformBackNoSnap( Coord(0,0) );
     basedirection_ = SI().binID2Coord().transformBackNoSnap(
