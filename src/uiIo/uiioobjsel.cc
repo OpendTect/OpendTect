@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.119 2008-07-24 08:28:57 cvsbert Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.120 2008-08-28 10:07:55 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -558,7 +558,9 @@ void uiIOObjSel::obtainIOObj()
     if ( selidx >= 0 )
     {
 	const char* itemusrnm = userNameFromKey( getItem(selidx) );
-	if ( inp == itemusrnm && ctio.ioobj ) return;
+	if ( inp == itemusrnm && ctio.ioobj 
+			      && !strcmp(ctio.ioobj->name(), inp.buf()) )
+	    return;
     }
 
     IOM().to( ctio.ctxt.getSelKey() );
