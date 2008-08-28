@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Oct 1999
- RCS:           $Id: vissurvscene.cc,v 1.107 2008-08-28 11:04:44 cvsraman Exp $
+ RCS:           $Id: vissurvscene.cc,v 1.108 2008-08-28 12:28:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "vismarker.h"
 #include "vismaterial.h"
 #include "vispolygonselection.h"
+#include "visscenecoltab.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
 #include "vissurvobj.h"
@@ -93,7 +94,11 @@ void Scene::init()
     polyselector_ = visBase::PolygonSelection::create();
     addUTMObject( polyselector_ );
     polyselector_->getMaterial()->setColor( Color(255,0,0) );
-    mTryAlloc( coordselector_, visBase::PolygonCoord3Selector( *polyselector_ ) );
+    mTryAlloc( coordselector_, visBase::PolygonCoord3Selector(*polyselector_) );
+
+    scenecoltab_ = visBase::SceneColTab::create();
+    addUTMObject( scenecoltab_ );
+    scenecoltab_->turnOn( false );
 }
 
 

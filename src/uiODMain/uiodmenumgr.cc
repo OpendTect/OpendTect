@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodmenumgr.cc,v 1.133 2008-08-28 05:59:51 cvsnanne Exp $
+ RCS:           $Id: uiodmenumgr.cc,v 1.134 2008-08-28 12:28:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -531,6 +531,8 @@ void uiODMenuMgr::fillCoinTB( uiODSceneMgr* scenemgr )
     mAddTB(cointb_,"cube_z.png","View Z",false,viewZ);
     axisid_ = mAddTB(cointb_,"axis.png","Display rotation axis",
 	    	     true,showRotAxis);
+    coltabid_ = cointb_->addButton( "colorbar.png",
+	    mCB(this,uiODMenuMgr,dispColorBar), "Display color bar", true );
     mAddTB(cointb_,"snapshot.png","Make snapshot",false,mkSnapshot);
     polyselectid_ = cointb_->addButton( "polygonselect.png",
 	mCB(this,uiODMenuMgr,selectionMode), "Polygon Selection mode", true );
@@ -572,6 +574,13 @@ void uiODMenuMgr::selectionMode( CallBacker* )
     else
 	visserv.setSelectionMode( sIsPolySelect ? uiVisPartServer::Polygon
 						: uiVisPartServer::Rectangle );
+}
+
+
+void uiODMenuMgr::dispColorBar( CallBacker* )
+{
+    appl_.applMgr().visServer()->displaySceneColorbar(
+	    cointb_->isOn(coltabid_) );
 }
 
 

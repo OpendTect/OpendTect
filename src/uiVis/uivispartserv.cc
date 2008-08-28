@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.cc,v 1.373 2008-08-13 07:59:38 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.cc,v 1.374 2008-08-28 12:28:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,7 @@ ________________________________________________________________________
 #include "vispolygonselection.h"
 #include "vissurvobj.h"
 #include "vissurvscene.h"
+#include "visscenecoltab.h"
 #include "vistransform.h"
 #include "vistransmgr.h"
 
@@ -389,6 +390,11 @@ void uiVisPartServer::setSelObjectId( int id, int attrib )
     eventobjid_ = id;
     sendEvent( evSelection );
     sendEvent( evPickingStatusChange );
+
+    mDynamicCastGet(visSurvey::SurveyObject*,so,visBase::DM().getObject(id))
+    if ( so && so->getScene() && selattrib_>=0 )
+	so->getScene()->getSceneColTab()->setColTabID(
+		so->getColTabID(selattrib_) );
 }
 
 
@@ -1648,6 +1654,13 @@ bool uiVisPartServer::isLocked( int id ) const
     if ( !so ) return false;
 
     return so->isLocked();
+}
+
+
+void uiVisPartServer::displaySceneColorbar( bool yn )
+{
+    for ( int idx=0; idx<scenes_.size(); idx++ )
+	scenes_[idx]->getSceneColTab()->turnOn( yn );
 }
 
 

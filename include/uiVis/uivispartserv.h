@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Mar 2002
- RCS:           $Id: uivispartserv.h,v 1.206 2008-08-13 07:59:38 cvsnanne Exp $
+ RCS:           $Id: uivispartserv.h,v 1.207 2008-08-28 12:28:56 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -239,6 +239,7 @@ public:
     void			fillDispPars(int id,int attrib,
 	    				     FlatView::DataDispPars&) const;
     const TypeSet<float>*	getHistogram(int id,int attrib) const;
+    void			displaySceneColorbar(bool);
 
 				//General stuff
     bool			deleteAllObjects();

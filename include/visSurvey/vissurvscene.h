@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: vissurvscene.h,v 1.52 2008-08-28 11:04:22 cvsraman Exp $
+ RCS:		$Id: vissurvscene.h,v 1.53 2008-08-28 12:28:57 cvsnanne Exp $
 ________________________________________________________________________
 
 
@@ -28,10 +28,11 @@ namespace visBase
 {
     class Annotation;
     class EventCatcher;
-    class Transformation;
-    class VisualObject;
     class Marker;
     class PolygonSelection;
+    class SceneColTab;
+    class Transformation;
+    class VisualObject;
 };
 
 namespace visSurvey
@@ -95,6 +96,7 @@ public:
 
     visBase::PolygonSelection*	getPolySelection() { return polyselector_; }
     const Selector<Coord3>*	getSelector() const;	/*! May be NULL */
+    visBase::SceneColTab*	getSceneColTab()     { return scenecoltab_; }
 
     Notifier<Scene>		mouseposchange;
     Coord3			getMousePos(bool xyt) const;
@@ -154,6 +156,7 @@ protected:
     visBase::Marker*		marker_;
     visBase::PolygonSelection*	polyselector_;
     Selector<Coord3>*		coordselector_;
+    visBase::SceneColTab*	scenecoltab_;
 
     Coord3			xytmousepos_;
     BufferString		mouseposval_;
