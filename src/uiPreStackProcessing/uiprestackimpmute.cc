@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
 Date:		June 2008
- RCS:		$Id: uiprestackimpmute.cc,v 1.8 2008-08-29 13:19:50 cvsbert Exp $
+ RCS:		$Id: uiprestackimpmute.cc,v 1.9 2008-08-29 14:11:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,7 +57,7 @@ uiImportMute::uiImportMute( uiParent* p )
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, inlcrlfld_ );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, 0 );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, "103.2.7" );
     dataselfld_->attach( alignedBelow, inlcrlfld_ ); 
     dataselfld_->attach( ensureBelow, sep );
 

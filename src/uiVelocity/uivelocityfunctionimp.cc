@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Aug 2008
- RCS:		$Id: uivelocityfunctionimp.cc,v 1.2 2008-08-13 05:27:33 cvsumesh Exp $
+ RCS:		$Id: uivelocityfunctionimp.cc,v 1.3 2008-08-29 14:11:18 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,7 +33,8 @@ namespace Vel
 
 
 uiImportVelFunc::uiImportVelFunc( uiParent* p )
-    : uiDialog( p,uiDialog::Setup( "Import Velocity","Specify Parameters",0) )
+    : uiDialog( p,uiDialog::Setup( "Import Velocity",
+				   "Specify Parameters","103.2.8") )
     , ctio_( *mMkCtxtIOObj(VelocityAscData) )  
     , fd_( *VelocityAscIO::getDesc() )
 {
@@ -46,7 +47,7 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
     uiSeparator* sep = new uiSeparator( this, "H sep" );
     sep->attach( stretchedBelow, inpfld_ );
 
-    dataselfld_ = new uiTableImpDataSel( this, fd_, 0 );
+    dataselfld_ = new uiTableImpDataSel( this, fd_, "103.2.9" );
     dataselfld_->attach( alignedBelow, inpfld_ );
     dataselfld_->attach( ensureBelow, sep );
 
