@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.15 2008-08-27 21:26:27 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.16 2008-08-29 18:50:45 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -101,7 +101,7 @@ public:
     static const char*		sKeySeis2DID()	{ return "Seis2D ID"; }
     static const char*		sKeyFactor()	{ return "PSViewer Factor"; }
     static const char*		sKeyWidth() 	{ return "PSViewer Width"; }
-    static const char*		sKeyiAutoWidth(){ return "PSViewer AutoWidth"; }
+    static const char*		sKeyAutoWidth() { return "PSViewer AutoWidth"; }
     static const char*		sKeySide() 	{ return "PSViewer ShowSide"; }
     static const char*		sKeyTraceNr() 	{ return "Seis2D TraceNumber"; }
     static const char*		sKeyLineName() 	{ return "Seis2D LineName"; }

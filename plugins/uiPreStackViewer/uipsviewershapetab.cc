@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          5-11-2007
- RCS:           $Id: uipsviewershapetab.cc,v 1.1 2008-05-15 18:50:12 cvsyuancheng Exp $
+ RCS:           $Id: uipsviewershapetab.cc,v 1.2 2008-08-29 18:50:45 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -157,13 +157,13 @@ bool uiPSViewerShapeTab::acceptOK( )
 
     if ( saveAsDefault() )
     {
-	IOPar par;
-	par.set( PreStackViewer::sKeyFactor(), viewer_.getFactor() );
-	par.set( PreStackViewer::sKeyWidth(), viewer_.getWidth() );
-	par.set( PreStackViewer::sKeyiAutoWidth(), viewer_.displayAutoWidth() );
-	par.set( PreStackViewer::sKeySide(), viewer_.displayOnPositiveSide() );
+	Settings::common().set(
+		PreStackViewer::sKeyFactor(),viewer_.getFactor());
+	Settings::common().set( 
+		PreStackViewer::sKeyWidth(), viewer_.getWidth() );
+	Settings::common().set( 
+		PreStackViewer::sKeyAutoWidth(), viewer_.displayAutoWidth() );
 
-	Settings::common().mergeComp( par, "3D PSViewer Defaults" );
 	if ( !Settings::common().write() )
 	{
 	    uiMSG().error("Cannot write");

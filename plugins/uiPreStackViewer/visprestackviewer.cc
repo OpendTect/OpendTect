@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.31 2008-08-28 16:12:56 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.32 2008-08-29 18:50:45 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -745,7 +745,7 @@ void PreStackViewer::fillPar( IOPar& par, TypeSet<int>& saveids ) const
     }
     
     par.set( sKeyMultiID(), mid_ );
-    par.setYN( sKeyiAutoWidth(), autowidth_ );
+    par.setYN( sKeyAutoWidth(), autowidth_ );
     par.setYN( sKeySide(), posside_ );
 
     if ( flatviewer_ )
@@ -816,7 +816,7 @@ int PreStackViewer::usePar( const IOPar& par )
 	setWidth( width );
 
     bool autowidth, side;
-    if ( par.getYN(sKeyiAutoWidth(), autowidth) )
+    if ( par.getYN(sKeyAutoWidth(), autowidth) )
 	 displaysAutoWidth( autowidth );
 
     if ( par.getYN(sKeySide(), side) )

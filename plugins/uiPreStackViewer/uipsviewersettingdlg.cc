@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          5-11-2007
- RCS:           $Id: uipsviewersettingdlg.cc,v 1.5 2008-08-28 16:12:56 cvsyuancheng Exp $
+ RCS:           $Id: uipsviewersettingdlg.cc,v 1.6 2008-08-29 18:50:45 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,10 @@ uiPSViewerSettingDlg::uiPSViewerSettingDlg( uiParent* p,
 bool uiPSViewerSettingDlg::acceptOK( CallBacker* cb )
 {
    if ( saveButtonChecked() )
+   {
        shapetab_->saveAsDefault( true );
+       coltab_->saveAsDefault( true );
+   }
 
    if ( applytoallfld_->isChecked() )
    {

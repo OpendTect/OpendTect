@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.21 2008-08-26 14:25:58 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.22 2008-08-29 18:50:45 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "prestackgather.h"
 #include "prestackprocessor.h"
+#include "settings.h"
 #include "survinfo.h"
 #include "uidlggroup.h"
 #include "uiflatviewer.h"
@@ -30,9 +31,11 @@ ________________________________________________________________________
 #include "uipsviewersettingdlg.h"
 #include "uiseispartserv.h"
 #include "uivispartserv.h"
+#include "visflatviewer.h"
 #include "visplanedatadisplay.h"
 #include "visprestackviewer.h"
 #include "visseis2ddisplay.h"
+#include "uipsviewercoltab.h"
 
 
 namespace PreStackView
@@ -237,8 +240,21 @@ bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu,
     visserv_->addObject( viewer, sceneid, false );
     viewers_ += viewer;
 
+    bool autoview;
+    if ( Settings::common().getYN(PreStackViewer::sKeyAutoWidth(), autoview) )
+	viewer->displaysAutoWidth( autoview );
+
+    float factor;
+    if ( Settings::common().get( PreStackViewer::sKeyFactor(), factor ) )
+	viewer->setFactor( factor );
+   
+    float width; 
+    if ( Settings::common().get( PreStackViewer::sKeyWidth(), width ) )
+	viewer->setWidth( width );
+
     if ( pdd )
-    {  
+    {
+        viewer->displaysOnPositiveSide( true );	
 	viewer->setSectionDisplay( pdd ); 
 	BinID bid;
 	if (  menu->getMenuType() != uiMenuHandler::fromScene ) 
@@ -264,6 +280,16 @@ bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu,
 	if ( !viewer->setSeis2DData( ioobj ) )
 	    mErrReturn( "No prestack data at this position" )
     }
+
+    IOPar* par = Settings::common().subselect( 
+	    PreStackView::uiPSViewerColTab::sKeyDataPars() );
+    if ( par )
+	viewer->flatViewer()->appearance().ddpars_.usePar( *par );
+    BufferString coltab;
+    if ( Settings::common().get( FlatView::DataDispPars::sKeyColTab, coltab ) )
+	viewer->flatViewer()->appearance().ddpars_.vd_.ctab_ =  coltab;
+	
+    viewer->flatViewer()->handleChange( FlatView::Viewer::VDPars );
 
     if ( viewer->getScene() )
 	viewer->getScene()->change.notifyIfNotNotified( mCB( this, 
