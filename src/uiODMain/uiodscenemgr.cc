@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.144 2008-08-13 07:40:01 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.145 2008-08-29 09:05:53 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -222,6 +222,7 @@ int uiODSceneMgr::addScene( bool maximized )
 	    scn.sovwr_->toggleCameraType();
     }
 
+    wsp_->cursorReset();
     return sceneid;
 }
 
