@@ -4,11 +4,12 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.6 2008-08-19 11:00:11 cvsraman Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.7 2008-08-29 13:51:44 cvsbert Exp $";
 
 #include "math2.h"
 #include "posinfo.h"
 #include "survinfo.h"
+#include "position.h"
 
 static const float cThresholdDist = 25;
 
@@ -63,6 +64,123 @@ IndexInfo PosInfo::LineData::getIndexInfo( double x ) const
     return ret;
 }
 
+
+int PosInfo::LineData::segmentOf( int nr ) const
+{
+    for ( int iseg=0; iseg<segments_.size(); iseg++ )
+    {
+	if ( segments_[iseg].includes(nr) )
+	    return !((nr-segments_[iseg].start) % segments_[iseg].step);
+    }
+
+    return -1;
+}
+
+
+Interval<int> PosInfo::LineData::range() const
+{
+    if ( segments_.isEmpty() ) return Interval<int>( mUdf(int), mUdf(int) );
+
+    Interval<int> ret( segments_[0].start, segments_[0].start );
+    for ( int idx=0; idx<segments_.size(); idx++ )
+    {
+	const Segment& seg = segments_[idx];
+	if ( seg.start < ret.start ) ret.start = seg.start;
+	if ( seg.stop < ret.start ) ret.start = seg.stop;
+	if ( seg.start > ret.stop ) ret.stop = seg.start;
+	if ( seg.stop > ret.stop ) ret.stop = seg.stop;
+    }
+
+    return ret;
+}
+
+
+void PosInfo::LineData::merge( const PosInfo::LineData& ld1, bool inc )
+{
+    if ( segments_.isEmpty() )
+    {
+	if ( inc )
+	    segments_ = ld1.segments_;
+	return;
+    }
+    if ( ld1.segments_.isEmpty() )
+    {
+	if ( !inc )
+	    segments_.erase();
+	return;
+    }
+
+    const PosInfo::LineData ld2( *this );
+    segments_.erase();
+
+    Interval<int> rg( ld1.range() ); rg.include( ld2.range() );
+    const int defstep = ld1.segments_.isEmpty() ? ld2.segments_[0].step
+						: ld1.segments_[0].step;
+    if ( rg.start == rg.stop )
+    {
+	segments_ += Segment( rg.start, rg.start, defstep );
+	return;
+   }
+
+    // slow but straightforward
+    Segment curseg( mUdf(int), 0, mUdf(int) );
+    for ( int nr=rg.start; nr<=rg.stop; nr++ )
+    {
+	const bool in1 = ld1.segmentOf(nr) >= 0;
+	bool use = true;
+	if ( (!in1 && !inc) || (in1 && inc ) )
+	    use = inc;
+	else
+	    use = ld2.segmentOf(nr) >= 0;
+
+	if ( use )
+	{
+	    if ( mIsUdf(curseg.start) )
+		curseg.start = curseg.stop = nr;
+	    else
+	    {
+		int curstep = nr - curseg.stop;
+		if ( mIsUdf(curseg.step) )
+		{
+		    curseg.step = curstep;
+		    curseg.stop = nr;
+		}
+		else if ( curstep == curseg.step )
+		    curseg.stop = nr;
+		else
+		{
+		    segments_ += curseg;
+		    curseg.start = curseg.stop = nr;
+		    curseg.step = mUdf(int);
+		}
+	    }
+	}
+    }
+
+    if ( mIsUdf(curseg.start) )
+	return;
+
+    if ( mIsUdf(curseg.step) ) curseg.step = defstep;
+    segments_ += curseg;
+}
+
+
+PosInfo::CubeData::CubeData( const BinID& b1, const BinID& b2,
+			     const BinID& stp )
+{
+    BinID start( b1 ); BinID stop( b2 ); BinID step( stp );
+    if ( start.inl > stop.inl ) Swap( start.inl, stop.inl );
+    if ( start.crl > stop.crl ) Swap( start.crl, stop.crl );
+    if ( step.inl < 0 ) step.inl = -step.inl;
+    if ( step.crl < 0 ) step.crl = -step.crl;
+
+    for ( int iln=start.inl; iln<=stop.inl; iln+=step.inl )
+    {
+	LineData* ld = new LineData( iln );
+	ld->segments_ += LineData::Segment( start.crl, stop.crl, step.crl );
+	add( ld );
+    }
+}
 
 
 PosInfo::CubeData& PosInfo::CubeData::operator =( const PosInfo::CubeData& cd )
@@ -309,6 +427,39 @@ bool PosInfo::CubeData::haveCrlStepInfo() const
 
     return false;
 }
+
+
+void PosInfo::CubeData::merge( const PosInfo::CubeData& pd1, bool inc )
+{
+    PosInfo::CubeData pd2( *this );
+    deepErase( *this );
+
+    for ( int iln1=0; iln1<pd1.size(); iln1++ )
+    {
+	const PosInfo::LineData& ld1 = *pd1[iln1];
+	const int iln2 = pd2.indexOf( ld1.linenr_ );
+	if ( iln2 < 0 )
+	{
+	    if ( inc ) add( new PosInfo::LineData(ld1) );
+	    continue;
+	}
+
+	PosInfo::LineData* ld = new PosInfo::LineData( *pd2[iln2] );
+	ld->merge( ld1, inc );
+	add( ld );
+    }
+    if ( !inc ) return;
+
+    for ( int iln2=0; iln2<pd2.size(); iln2++ )
+    {
+	const PosInfo::LineData& ld2 = *pd2[iln2];
+	const int iln = indexOf( ld2.linenr_ );
+	if ( iln2 < 0 )
+	    add( new PosInfo::LineData(ld2) );
+    }
+}
+
+
 
 
 bool PosInfo::CubeData::read( std::istream& strm, bool asc )

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		2005 / Mar 2008
- RCS:		$Id: posinfo.h,v 1.5 2008-08-19 09:16:36 cvsbert Exp $
+ RCS:		$Id: posinfo.h,v 1.6 2008-08-29 13:51:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "indexinfo.h"
 #include "position.h"
+class BinID;
 
 
 /*!\brief Position info, often segmented
@@ -50,6 +51,11 @@ struct LineData
     TypeSet<Segment>		segments_;
 
     int				size() const;
+    int				segmentOf(int) const;
+    Interval<int>		range() const;
+    void			merge(const LineData&,bool incl);
+    				//!< incl=union, !incl=intersection
+
     int				nearestSegment(double) const;
     IndexInfo			getIndexInfo(double) const;
 
@@ -62,6 +68,8 @@ class CubeData : public ObjectSet<LineData>
 {
 public:
     			CubeData()		{}
+    			CubeData(const BinID& start,const BinID& stop,
+				 const BinID& step);
     			CubeData( const CubeData& cd )
 						{ *this = cd; }
 			~CubeData()		{ deepErase(*this); }
@@ -83,6 +91,8 @@ public:
     void		add( LineData* ld )	{ *this += ld; }
 
     void		limitTo(const HorSampling&);
+    void		merge(const CubeData&,bool incl);
+    				//!< incl=union, !incl=intersection
     void		sort();
 
     bool		read(std::istream&,bool asc);
