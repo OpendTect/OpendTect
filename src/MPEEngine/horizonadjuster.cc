@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: horizonadjuster.cc,v 1.49 2008-07-29 08:08:51 cvsjaap Exp $";
+static const char* rcsID = "$Id: horizonadjuster.cc,v 1.50 2008-08-29 13:53:39 cvsjaap Exp $";
 
 #include "horizonadjuster.h"
 
@@ -153,7 +153,12 @@ int HorizonAdjuster::nextStep()
 	    res = track( refbid, targetbid, targetz );
 	}
 	else
+	{
+	    const bool wasusingsim = tracker_->usesSimilarity();
+	    tracker_->useSimilarity( false );
 	    res = track( BinID(-1,-1), targetbid, targetz );
+	    tracker_->useSimilarity( wasusingsim );
+	}
 
 	if ( res )
 	    setHorizonPick( targetbid, targetz );
