@@ -1,7 +1,7 @@
 #!/bin/csh
 #__Pmake________________________________________________________________________
 #
-# $Id: get_libs,v 1.1 2007-06-28 12:40:15 cvsbert Exp $
+# $Id: get_libs,v 1.2 2008-08-29 03:37:36 cvsnanne Exp $
 # This script returns a libname for a given link directive
 #_______________________________________________________________________________
 
@@ -35,11 +35,14 @@ foreach inp ( $* )
 
     set libnm=`echo $inp|awk '{ print substr($1,3,length($1)); }'`
     set libnm=${libprfx}${libnm}.${dynext}
-    set fulllibnm="$WORK/lib/$libsubd/$libnm"
+    set fulllibnm1="$WORK/lib/$libsubd/$libnm"
+    set fulllibnm2="$WORK/bin/$libsubd/so/$libnm"
 
-    if ( $testexist == 0 || -e "$fulllibnm" ) then
-	if ( $fullnms == 1 ) then
-	    echo -n " $fulllibnm"
+    if ( $testexist == 0 || -e "$fulllibnm1" || -e "$fulllibnm2" ) then
+	if ( $fullnms == 1 && -e "$fulllibnm1" ) then
+	    echo -n " $fulllibnm1"
+	else if ( $fullnms == 1 && -e "$fulllibnm2" ) then
+	    echo -n " $fulllibnm2"
 	else
 	    echo -n " $inp"
 	endif
