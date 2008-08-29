@@ -5,7 +5,7 @@
  * FUNCTION : Seismic data reader
 -*/
 
-static const char* rcsID = "$Id: seisread.cc,v 1.83 2008-08-29 08:53:51 cvsbert Exp $";
+static const char* rcsID = "$Id: seisread.cc,v 1.84 2008-08-29 13:51:21 cvsbert Exp $";
 
 #include "seisread.h"
 #include "seispsread.h"
@@ -108,7 +108,7 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
     }
 
     readmode = rm;
-    if ( is2d || psrdr_ )
+    if ( is2d || psioprov )
 	return (prepared = true);
 
     Conn* conn = openFirst();
@@ -130,8 +130,11 @@ bool SeisTrcReader::prepareWork( Seis::ReadMode rm )
 void SeisTrcReader::startWork()
 {
     outer = 0;
-    if ( psrdr_ )
+    if ( psioprov )
     {
+	if ( !psrdr_ && !prepareWork(Seis::Prod) )
+	    { pErrMsg("Huh"); return; }
+
 	pscditer_ = new PosInfo::CubeDataIterator( psrdr_->posData() );
 	if ( !pscditer_->next(curpsbid_) )
 	{
@@ -263,7 +266,7 @@ int SeisTrcReader::get( SeisTrcInfo& ti )
 
     if ( is2d )
 	return get2D(ti);
-    if ( psrdr_ )
+    if ( psioprov )
 	return getPS(ti);
 
     SeisTrcTranslator& sttrl = *strl();
@@ -339,7 +342,7 @@ bool SeisTrcReader::get( SeisTrc& trc )
 	startWork();
     if ( is2d )
 	return get2D(trc);
-    if ( psrdr_ )
+    if ( psioprov )
 	return getPS(trc);
 
     if ( !strl()->read(trc) )
@@ -354,6 +357,8 @@ bool SeisTrcReader::get( SeisTrc& trc )
 
 int SeisTrcReader::getPS( SeisTrcInfo& ti )
 {
+    if ( !psrdr_ ) return 0;
+
     if ( !tbuf_ )
 	tbuf_ = new SeisTrcBuf( false );
 
@@ -387,15 +392,17 @@ bool SeisTrcReader::getPS( SeisTrc& trc )
 {
     if ( !inforead && getPS(trc.info()) <= 0 )
 	return false;
+
     if ( tbuf_->isEmpty() )
     {
 	while ( true )
 	{
 	    int rdres = getPS(trc.info());
-	    if ( rdres <= 0 )
-		return false;
 	    if ( rdres == 1 )
 		break;
+	    if ( rdres > 1 )
+		continue;
+	    return rdres == 0;
 	}
     }
 
