@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.27 2008-05-21 11:38:33 cvshelene Exp $
+ RCS:           $Id: mathattrib.cc,v 1.28 2008-08-29 10:30:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -108,6 +108,7 @@ void Math::updateDesc( Desc& desc )
 Math::Math( Desc& dsc )
     : Provider( dsc )
     , desintv_( Interval<float>(0,0) )
+    , reqintv_( Interval<int>(0,0) )
     , recstartpos_( 0 )
 {
     if ( !isOK() ) return;
@@ -287,11 +288,19 @@ void Math::fillInVarsSet()
 
 const Interval<int>* Math::reqZSampMargin( int inp, int ) const
 {
+    //Trick: as call to this function is not multithreaded
+    //we use a single address for reqintv_ which will be reset for every input
+    const_cast< Interval<int>* >(&reqintv_)->set(0,0);
+    bool found = false;
     for ( int idx=0; idx<varstable_.size(); idx++ )
 	if ( varstable_[idx].inputidx_ == inp )
-	    return &varstable_[idx].sampgate_;
+	{
+	    found = true;
+	    const_cast< Interval<int>* >
+		(&reqintv_)->include( varstable_[idx].sampgate_ );
+	}
     
-    return 0;
+    return found ? &reqintv_ : 0;
 }
 
 

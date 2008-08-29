@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.h,v 1.13 2008-05-14 15:09:26 cvshelene Exp $
+ RCS:           $Id: mathattrib.h,v 1.14 2008-08-29 10:30:10 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,6 +70,7 @@ private:
     float			recstartval_;
     float			recstartpos_;
     Interval<float>		desintv_;
+    Interval<int>		reqintv_;
 
     struct VAR
     {
