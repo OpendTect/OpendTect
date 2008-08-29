@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		June 2008
- RCS:		$Id: uiprestackexpmute.cc,v 1.1 2008-06-30 06:18:41 cvsumesh Exp $
+ RCS:		$Id: uiprestackexpmute.cc,v 1.2 2008-08-29 13:19:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,7 +30,7 @@ namespace PreStack
 
 uiExportMute::uiExportMute( uiParent* p )
     : uiDialog(p,uiDialog::Setup("Export Mute Function",
-	    			 "Specify output format", 0))
+	    			 "Specify output format", "103.2.6"))
     , ctio_(*mMkCtxtIOObj(MuteDef))
 {
     setCtrlStyle( DoAndStay );

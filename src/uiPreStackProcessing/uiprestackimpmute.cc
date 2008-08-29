@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
 Date:		June 2008
- RCS:		$Id: uiprestackimpmute.cc,v 1.7 2008-06-27 06:48:34 cvsumesh Exp $
+ RCS:		$Id: uiprestackimpmute.cc,v 1.8 2008-08-29 13:19:50 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,7 +34,7 @@ namespace PreStack
 
 
 uiImportMute::uiImportMute( uiParent* p )
-    : uiDialog( p,uiDialog::Setup("Import Mute","Specify Parameters",0) )
+    : uiDialog( p,uiDialog::Setup("Import Mute","Specify Parameters","103.2.5"))
     , ctio_( *mMkCtxtIOObj(MuteDef) )
     , fd_( *MuteAscIO::getDesc() )
 {
