@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		August 2008
- RCS:		$Id: visscenecoltab.h,v 1.2 2008-08-28 12:22:48 cvsnanne Exp $
+ RCS:		$Id: visscenecoltab.h,v 1.3 2008-08-29 10:48:53 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,6 +31,8 @@ public:
     void			setColTabID(int);
     void			setColTabSequence(const ColTab::Sequence&);
     void			setRange(const Interval<float>&);
+
+    void			setDisplayTransformation(Transformation*) {}
 
 protected:
 				~SceneColTab();
