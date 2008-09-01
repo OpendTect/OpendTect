@@ -22,7 +22,7 @@ ListClick "Objects list" 1 double
 ListClick "Select Data from List" 1 Double
 TreeMenu "2D Seismics`*`*`*" "Select Attribute`Stored 2D data`Seis"
 TreeClick "2D Seismics`*`*`Seis"
-Combo "Table selection" "3D_UVQ6" Double
+Combo "Table selection" "Altimetric" Double
 
 TreeMenu "PickSet" "Load"
 ListClick "Objects list" "demo*" Double
@@ -36,6 +36,11 @@ ListClick "Select Horizon*" 1 Double
 Wheel "hRotate" 45
 Sleep 5
 Slider "Zoom slider" 29
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SNAPSHOTSDIR$/2d_TreeItems"
+Ok
 
 Menu "Survey`Select\Setup"
 Ok

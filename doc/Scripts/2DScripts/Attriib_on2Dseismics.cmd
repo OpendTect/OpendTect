@@ -13,119 +13,118 @@ TreeMenu "2D Seismics`*`*`*" "Select Attribute`Attributes`CoherencyAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/2d_coherencyatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/2d_coherencyatt_i5007.jpg"
 Ok
 
 TreeMenu "2D Seismics`*`*`*" "Sel*`Attributes`ConvolveAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/2d_convolveatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/2d_convolveatt_i5007.jpg"
 Ok
 
 TreeMenu "2D Seismics`*`*`*" "Sel*`Attributes`CurvatureAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/2d_curvatureatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/2d_curvatureatt_i5007.jpg"
 Ok
 
 TreeMenu "2D Seismics`*`*`*" "Sel*`Attributes`DipAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/2d_dipatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/2d_dipatt_i5007.jpg"
 Ok
 
 TreeMenu "2D Seismics`*`*`*" "Sel*`Attributes`DipAngleAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/2d_dipangleatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/2d_dipangleatt_i5007.jpg"
 Ok
 
 TreeMenu "2D Seismics`*`*`*" "Sel*`Attributes`EnergyAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/2d_energyatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/2d_energyatt_i5007.jpg"
 Ok
 
 TreeMenu "2D Seismics`*`*`*" "Sel*`Attributes`EventAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/2d_eventatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/2d_eventatt_i5007.jpg"
 Ok
 
 TreeMenu "2D Seismics`*`*`*" "Sel*`Attributes`FrequencyAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/2d_frequencytatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/2d_frequencytatt_i5007.jpg"
 Ok
 
 TreeMenu "2D Seismics`*`*`*" "Sel*`Attributes`FrequencyFilterAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/2d_frequencyfilteratt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/2d_frequencyfilteratt_i5007.jpg"
 Ok
 
 TreeMenu "2D Seismics`*`*`*" "Sel*`Attributes`InstantaneousA*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/2d_instantaneoustatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/2d_instantaneoustatt_i5007.jpg"
 Ok
 
 TreeMenu "2D Seismics`*`*`*" "Sel*`Attributes`PositionAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/2d_positionatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/2d_positionatt_i5007.jpg"
 Ok
 
 TreeMenu "2D Seismics`*`*`*" "Sel*`Attributes`ReferenceShiftAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/2d_referenceshiftatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/2d_referenceshiftatt_i5007.jpg"
 Ok
 
 TreeMenu "2D Seismics`*`*`*" "Sel*`Attributes`ScalingAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/2d_scalingatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/2d_scalingatt_i5007.jpg"
 Ok
 
 TreeMenu "2D Seismics`*`*`*" "Sel*`Attributes`SimilarityAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/2d_similarityatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/2d_similarityatt_i5007.jpg"
 Ok
 
 TreeMenu "2D Seismics`*`*`*" "Sel*`Attributes`SpectralDecompAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/2d_spectraldecompatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/2d_spectraldecompatt_i5007.jpg"
 Ok
-
 
 TreeMenu "2D Seismics`*`*`*" "Sel*`Attributes`VelocityFanFilter*"
 Button "Make snapshot"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/2d_velocityfanfilteratt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/2d_velocityfanfilteratt_i5007.jpg"
 Ok
 
 TreeMenu "2D Seismics`*`*`*" "Sel*`Attributes`VolumeStatisticsAt*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/2d_volumestatisticsatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/2d_volumestatisticsatt_i5007.jpg"
 Ok
 
 TreeMenu "2D Seismics`*" "Remove"

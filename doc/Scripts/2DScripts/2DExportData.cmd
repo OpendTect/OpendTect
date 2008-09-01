@@ -10,7 +10,7 @@ Menu "Survey`Export`Seismics`SEG-Y`2D"
 Button "Select Input Line Set"
 ListClick "Objects list" "LS 5k" double
 Button "Define SEG-Y output"
-Input "Select Output file" "$SCRIPTSDIR$/Export/Seis2DExpo.sgy"
+Input "Select Output file" "$EXPORTDIR$/Seis2D-Export.sgy"
 Ok
 Ok
 Comment "----------Exporting 2D Horizon----------"
@@ -18,7 +18,7 @@ Comment "----------Exporting 2D Horizon----------"
 Menu "Survey`Export`Horizons`Ascii 2D"
 Combo "Select 2D Horizon" 1
 ListClick "Select lines" "i5007"
-Input "Output Ascii file" "$SCRIPTSDIR$/Export/Horizon2DExp.asc"
+Input "Output Ascii file" "$EXPORTDIR$/Horizon2D-Export.asc"
 Ok
 
 Comment "----------Exporting PickSet-------------"
@@ -26,7 +26,7 @@ Comment "----------Exporting PickSet-------------"
 Menu "Survey`Export`Picksets"
 Button "Select Input PickSet"
 ListClick "Objects list" 1 Double
-Input "Output Ascii file" "$SCRIPTSDIR$/Export/Pickset2DExp.asc"
+Input "Output Ascii file" "$EXPORTDIR$/Pickset2D-Export.asc"
 Ok
 Ok
 Button "Dismiss"
