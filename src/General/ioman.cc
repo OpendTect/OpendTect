@@ -4,7 +4,7 @@
  * DATE     : 3-8-1994
 -*/
 
-static const char* rcsID = "$Id: ioman.cc,v 1.85 2008-08-26 10:35:53 cvsraman Exp $";
+static const char* rcsID = "$Id: ioman.cc,v 1.86 2008-09-01 16:12:15 cvsbert Exp $";
 
 #include "ioman.h"
 #include "iodir.h"
@@ -806,10 +806,13 @@ bool SurveyDataTreePreparer::prepDirData()
 
 bool SurveyDataTreePreparer::prepSurv()
 {
+    if ( IOM().bad() ) { errmsg_ = "Bad directory"; return false; }
+
     PtrMan<IOObj> ioobj = IOM().get( dirdata_.selkey_ );
     if ( ioobj ) return true;
 
     IOM().to( 0 );
+    if ( IOM().bad() ) { errmsg_ = "Can't go to root of survey"; return false; }
     if ( !createDataTree() )
 	return false;
 
@@ -823,6 +826,8 @@ bool SurveyDataTreePreparer::prepSurv()
 
 bool SurveyDataTreePreparer::createDataTree()
 {
+    if ( !IOM().dirPtr() ) { errmsg_ = "Invalid current survey"; return false; }
+
     FilePath fp( IOM().dirPtr()->dirName() );
     fp.add( dirdata_.dirname_ );
     const BufferString thedirnm( fp.fullPath() );
