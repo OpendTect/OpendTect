@@ -12,5 +12,6 @@ Include "$SCRIPTSDIR$/2DScripts/2DAttributeCrossplot.cmd"
 Include "$SCRIPTSDIR$/2DScripts/2DExportData.cmd"
 Include "$SCRIPTSDIR$/2DScripts/2DImportData.cmd"
 Include "$SCRIPTSDIR$/2DScripts/2DHorizonGrid.cmd"
+Include "$SCRIPTSDIR$/2DScripts/CreateSteeringCube.cmd"
 
 End
