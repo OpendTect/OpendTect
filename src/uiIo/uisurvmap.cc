@@ -4,39 +4,50 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.cc,v 1.12 2008-04-04 04:29:05 cvsnanne Exp $
+ RCS:           $Id: uisurvmap.cc,v 1.13 2008-09-01 07:26:20 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uisurvmap.h"
 #include "survinfo.h"
-#include "uicanvas.h"
+#include "uigraphicsitem.h"
+#include "uigraphicsitemimpl.h"
+#include "uigraphicsscene.h"
+#include "uigraphicsview.h"
 #include "uifont.h"
 #include "uiworld2ui.h"
 #include "cubesampling.h"
 
 #include "draw.h"
-#include "iodrawtool.h"
 
 
-uiSurveyMap::uiSurveyMap( uiCanvas* cv )
-    : mapcanvas(cv)
+uiSurveyMap::uiSurveyMap( uiParent* parent )
+    : uiGraphicsView( parent, "Survey map view" )
+    , mapscene_(new uiGraphicsScene("Survey map scene"))
 {
+    setScene( *mapscene_ );
+}
+
+
+void uiSurveyMap::removeItems()
+{
+    mapscene_->removeAllItems();
 }
 
 
 void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
 {
-    ioDrawTool& dt = mapcanvas->drawTool();
     if ( survinfo->sampling(false).hrg.totalNr() < 2 )
     	return;
 
-    dt.setPenColor( Color::Black );
-    dt.setFont( uiFontList::get(FontData::key(FontData::GraphicsLarge)) ); 
     const char* txt = survinfo->name();
-    int w = dt.getDevWidth(); int h = dt.getDevHeight();
-    dt.drawText( w/2, h/20, txt, mAlign(Middle,Stop) );
+    uiTextItem* textitem = mapscene_->addText( txt );
+    textitem->setPenColor( Color::Black );
+    textitem->setFont( uiFontList::get(FontData::key(FontData::GraphicsLarge)));
+    textitem->setPos(  width_/2, height_/20 );
+    Alignment al( Alignment::Middle, Alignment::Stop );
+    textitem->setAlignment( al );
 
     const CubeSampling& cs = survinfo->sampling( false );
     Coord mapcnr[4];
@@ -65,39 +76,54 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
     maxcoord = center + hipart;
 
     uiWorldRect wr( mincoord.x, maxcoord.y, maxcoord.x, mincoord.y );
-    uiSize sz( w, h );
+    uiSize sz( width_, height_ );
     uiWorld2Ui w2ui( wr, sz );
     uiPoint cpt[4];
     for ( int idx=0; idx<4; idx++ )
     {
         cpt[idx] = w2ui.transform( uiWorldPoint(mapcnr[idx].x, mapcnr[idx].y) );
-        dt.drawMarker( cpt[idx], MarkerStyle2D::Square );
+        uiMarkerItem* markeritem =
+	    mapscene_->addMarker( MarkerStyle2D::Square );
+	markeritem->setPos( cpt[idx].x, cpt[idx].y );
     }
 
     Color red( 255, 0, 0, 0);
     LineStyle ls( LineStyle::Solid, 3, red );
-    dt.setLineStyle( ls );
-    for ( int idx=0; idx<4; idx++ )
-        dt.drawLine( cpt[idx], idx!=3 ? cpt[idx+1] : cpt[0] );
-
-    dt.setPenColor( Color::Black );
-    dt.setFont( uiFontList::get(FontData::key(FontData::GraphicsSmall)) );
     for ( int idx=0; idx<4; idx++ )
     {
-	bool bot = cpt[idx].y > h/2;
+	uiLineItem* lineitm = mapscene_->addLine( cpt[idx],
+						  idx!=3 ? cpt[idx+1]:cpt[0] );
+	lineitm->setPenStyle( ls );
+    }
+
+    for ( int idx=0; idx<4; idx++ )
+    {
+	bool bot = cpt[idx].y > height_/2;
 	const Alignment al( Alignment::Middle,
 			    bot ? Alignment::Middle : Alignment::Start );
         BinID bid = survinfo->transform( mapcnr[idx] );
         int spacing =  bot ? 20 : -20;
 	BufferString annot;
         annot += bid.inl; annot += "/"; annot += bid.crl;
-        dt.drawText( cpt[idx].x, cpt[idx].y+spacing, annot, al );
-        double xcoord = double( int( mapcnr[idx].x*10 + .5 ) ) / 10;
+        uiTextItem* textitm1 = mapscene_->addText( annot.buf() );
+        textitm1->moveBy( (float)(int)al.hor_, (float)(int)al.ver_ );
+	textitm1->setPos( cpt[idx].x, cpt[idx].y+spacing );
+	textitm1->setPenColor( Color::Black );
+	textitm1->setFont(
+		uiFontList::get(FontData::key(FontData::GraphicsSmall)) );
+	textitm1->setAlignment( al );
+	double xcoord = double( int( mapcnr[idx].x*10 + .5 ) ) / 10;
         double ycoord = double( int( mapcnr[idx].y*10 + .5 ) ) / 10;
         annot = "";
         annot += "("; annot += xcoord; annot += ",";
         annot += ycoord; annot += ")";
-        dt.drawText( cpt[idx].x, mNINT(cpt[idx].y+1.5*spacing), annot, al );
+        uiTextItem* textitm2 = mapscene_->addText( annot.buf() );
+        textitm2->moveBy( (float)(int)al.hor_, (float)(int)al.ver_ );
+	textitm2->setPos( cpt[idx].x, mNINT(cpt[idx].y+1.5*spacing) );
+	textitm2->setPenColor( Color::Black );
+	textitm2->setFont(
+		uiFontList::get(FontData::key(FontData::GraphicsSmall)) );
+	textitm2->setAlignment( al );
     }
 }
 
@@ -105,17 +131,19 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
 uiSurveyMapDlg::uiSurveyMapDlg( uiParent* p )
 	: uiDialog(p,Setup("Survey Map",0,"0.3.3"))
 {
-    cv = new uiCanvas( this, Color::White, "Survey map" );
-    cv->setPrefHeight( 400 );
-    cv->setPrefWidth( 400 );
-    cv->setStretch(0,0);
-    cv->preDraw.notify( mCB(this,uiSurveyMapDlg,doCanvas) );
+    scene_ = new uiGraphicsScene( "Scene" );
+    
+    view_ = new uiGraphicsView( this, "Viewer" );
+    view_->setStretch( 0, 0 );
+    view_->setPrefWidth( 400 );
+    view_->setPrefHeight( 400 );
+    view_->setScene( *scene_ );
 }
 
 
 void uiSurveyMapDlg::doCanvas( CallBacker* )
 {
-    uiSurveyMap* survmap = new uiSurveyMap( cv );
+    uiSurveyMap* survmap = new uiSurveyMap( this );
     SurveyInfo survinfo( SI() );
     survmap->drawMap( &survinfo );
 }

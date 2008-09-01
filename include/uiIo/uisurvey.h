@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.26 2008-08-07 12:04:51 cvsnanne Exp $
+ RCS:           $Id: uisurvey.h,v 1.27 2008-09-01 07:26:13 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,8 @@ ________________________________________________________________________
 #include "bufstringset.h"
 
 class uiLabel;
-class uiCanvas;
+class uiGraphicsScene;
+class uiGraphicsView;
 class uiListBox;
 class uiTextEdit;
 class SurveyInfo;
@@ -57,32 +58,34 @@ public:
     };
     static void		add(const Util&);
 
-    SurveyInfo*		curSurvInfo()		{ return survinfo; }
-    const SurveyInfo*	curSurvInfo() const	{ return survinfo; }
+    SurveyInfo*		curSurvInfo()		{ return survinfo_; }
+    const SurveyInfo*	curSurvInfo() const	{ return survinfo_; }
 
 protected:
 
-    SurveyInfo*		survinfo;
-    BufferStringSet	dirlist;
-    BufferString	initialdatadir;
-    BufferString	initialsurvey;
-    uiSurveyMap*	survmap;
+    SurveyInfo*		survinfo_;
+    BufferStringSet	dirlist_;
+    BufferString	initialdatadir_;
+    BufferString	initialsurvey_;
+    uiSurveyMap*	survmap_;
 
-    uiListBox*		listbox;
-    uiCanvas*		mapcanvas;
-    uiPushButton*	newbut;
-    uiPushButton*	editbut;
-    uiPushButton*	rmbut;
-    uiPushButton*	datarootbut;
-    uiPushButton*	copybut;
-    ObjectSet<uiToolButton> utilbuts;
-    uiLabel*		inllbl;
-    uiLabel*		crllbl; 
-    uiLabel*		zlbl;
-    uiLabel*		binlbl;
-    uiTextEdit*		notes;
+    uiListBox*		listbox_;
+    uiGraphicsScene*	mapscene_;
+    uiGraphicsView*	mapview_;
+    uiPushButton*	newbut_;
+    uiPushButton*	editbut_;
+    uiPushButton*	rmbut_;
+    uiPushButton*	datarootbut_;
+    uiPushButton*	copybut_;
+    ObjectSet<uiToolButton> utilbuts_;
+    uiLabel*		inllbl_;
+    uiLabel*		crllbl_; 
+    uiLabel*		zlbl_;
+    uiLabel*		binlbl_;
+    uiTextEdit*		notes_;
 
     bool		acceptOK(CallBacker*);  
+    void		doDrawMap(CallBacker*);  
     bool		rejectOK(CallBacker*);  
     void		newButPushed(CallBacker*);
     void		editButPushed(CallBacker*);
@@ -99,7 +102,6 @@ protected:
     bool		updateSvyFile();
     bool		writeSurveyName(const char*);
     void		selChange();
-    void		doCanvas(CallBacker*);
     void		newSurvey();
     void		mkDirList();
 
