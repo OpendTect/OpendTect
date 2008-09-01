@@ -20,119 +20,119 @@ ListClick "Select Data" "CoherencyAttrib" Double
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/rl_400_coherencyeatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/coherencyeatt_on_rl.jpg"
 Ok
 
 TreeMenu "Random line`Random Line 1`CoherencyAtt*" "Sel*`Att*`ConvolveAtt*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/rl__convolveatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/convolveatt_on_rl.jpg"
 Ok
 
 TreeMenu "Random line`Random Line 1`ConvolveAtt*" "Sel*`Att*`CurvatureAtt*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/rl__curvatureatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/curvatureatt_on_rl.jpg"
 Ok
 
 TreeMenu "Random line`Random Line 1`CurvatureAtt*" "Sel*`Att*`DipAtt*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/rl_dipatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/dipatt_on_rl.jpg"
 Ok
 
 TreeMenu "Random line`Random Line 1`DipAtt*" "Sel*`Att*`DipAngleAtt*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/rl_dipangleatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/dipangleatt_on_rl.jpg"
 Ok
 
 TreeMenu "Random line`Random Line 1`DipAngleAtt*" "Sel*`Att*`EnergyAtt*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/rl_energyatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/energyatt_on_rl.jpg"
 Ok
 
 TreeMenu "Random line`Random Line 1`EnergyAtt*" "Sel*`Att*`EventAtt*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/rl_eventatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/eventatt_on_rl.jpg"
 Ok
 
 TreeMenu "Random line`Random Line 1`EventAtt*" "Sel*`Att*`FrequencyAtt*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/rl_frequencyatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/frequencyatt_on_rl.jpg"
 Ok
 
 TreeMenu "Random line`Random Line 1`FrequencyAtt*" "Sel*`Att*`FrequencyFil*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/rl_frequencyfliteratt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/frequencyfliteratt_on_rl.jpg"
 Ok
 
 TreeMenu "Random line`Random Line 1`FrequencyFil*" "Sel*`Att*`Instan*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/rl_instantaneousatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/instantaneousatt_on_rl.jpg"
 Ok
 
 TreeMenu "Random line`Random Line 1`Instanta*" "Sel*`Att*`PositionAtt*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/rl_positionatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/positionatt_on_rl.jpg"
 Ok
 
 TreeMenu "Random line`Random Line 1`PositionAtt*" "Sel*`Att*`ReferenceSh*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/rl_refshiftatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/refshiftatt_on_rl.jpg"
 Ok
 
 TreeMenu "Random line`Random Line 1`ReferenceSh*" "Sel*`Att*`ScalingAtt*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/rl_scalingatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/scalingatt_on_rl.jpg"
 Ok
 
 TreeMenu "Random line`Random Line 1`Scaling*" "Sel*`Att*`SimilarityAtt*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/rl_similarityatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/similarityatt_on_rl.jpg"
 Ok
 
 TreeMenu "Random line`Random Line 1`SimilarityAtt*" "Sel*`Att*`SpectralDe*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/rl_spectraldecompatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/spectraldecompatt_on_rl.jpg"
 Ok
 
 TreeMenu "Random line`Random Line 1`SpectralDe*" "Sel*`Att*`VelocityFan*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/rl_velfanfilteratt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/velfanfilteratt_on_rl.jpg"
 Ok
 
 TreeMenu "Random line`Random Line 1`VelocityFan*" "Sel*`Att*`VolumeStat*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/rl_volstatatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/volstatatt_on_rl.jpg"
 Ok
 
 TreeMenu "Random line`Random Line 1" "Remove"

@@ -43,7 +43,7 @@ Window "OpendTect*"
 Button "Make snapshot"
 Button "Scene" 
 Ok
-Input "Select filename" "/$SCRIPTSDIR$/Snapshots/eval_energy10-10"
+Input "Select filename" "$SNAPSHOTSDIR$/eval_energy_10-10"
 Ok
 Sleep 1
 Window "Evaluate attribute" 
@@ -53,7 +53,7 @@ Window "OpendTect*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "/$SCRIPTSDIR$/Snapshots/eval_energy15-15"
+Input "Select filename" "$SNAPSHOTSDIR$/eval_energy_15-15"
 Ok
 Sleep 1
 Window "Evaluate attribute" 
@@ -63,7 +63,7 @@ Window "OpendTect*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "/$SCRIPTSDIR$/Snapshots/eval_energy20-20"
+Input "Select filename" "$SNAPSHOTSDIR$/eval_energy_20-20"
 Ok
 Sleep 1
 Window "Evaluate attribute" 
@@ -73,7 +73,7 @@ Window "OpendTect*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "/$SCRIPTSDIR$/Snapshots/eval_energy25-25"
+Input "Select filename" "$SNAPSHOTSDIR$/eval_energy_25-25"
 Ok
 Sleep 1
 Window "Evaluate attribute" 
@@ -83,7 +83,7 @@ Window "OpendTect*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "/$SCRIPTSDIR$/Snapshots/eval_energy30-30"
+Input "Select filename" "$SNAPSHOTSDIR$/eval_energy_30-30"
 Ok
 Window "Evaluate attribute"
 Button "Accept"

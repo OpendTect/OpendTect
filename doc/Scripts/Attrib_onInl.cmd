@@ -20,119 +20,119 @@ Ok
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_coherencyatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/coherencyatt_on_inl320.jpg"
 Ok
 
 TreeMenu "Inline`320`CoherencyAttr*" "Sel*`Attributes`ConvolveAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_convolveatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/convolveatt_on_inl320.jpg"
 Ok
 
 TreeMenu "Inline`320`ConvolveAttr*" "Sel*`Attributes`CurvatureAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_curvatureatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/curvatureatt_on_inl320.jpg"
 Ok
 
 TreeMenu "Inline`320`CurvatureAttrib" "Sel*`Attributes`DipAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_dipatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/dipatt_on_inl320.jpg"
 Ok
 
 TreeMenu "Inline`320`DipAttrib" "Sel*`Attributes`DipAngleAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_dipangleatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/dipangleatt_on_inl320.jpg"
 Ok
 
 TreeMenu "Inline`320`DipAngleAttrib" "Sel*`Attributes`EnergyAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_energyatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/energyatt_on_inl320.jpg"
 Ok
 
 TreeMenu "Inline`320`EnergyAttrib" "Sel*`Attributes`EventAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_eventatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/eventatt_on_inl320.jpg"
 Ok
 
 TreeMenu "Inline`320`EventAttrib" "Sel*`Attributes`FrequencyAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_frequencytatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/frequencytatt_on_inl320.jpg"
 Ok
 
 TreeMenu "Inline`320`FrequencyAttrib" "Sel*`Attributes`FrequencyFilterAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_frequencyfilteratt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/frequencyfilteratt_on_inl320.jpg"
 Ok
 
 TreeMenu "Inline`320`FrequencyFilterAttrib" "Sel*`Attributes`InstantaneousA*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_instantaneoustatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/instantaneoustatt_on_inl320.jpg"
 Ok
 
 TreeMenu "Inline`320`InstantaneousAttrib" "Sel*`Attributes`PositionAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_positionatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/positionatt_on_inl320.jpg"
 Ok
 
 TreeMenu "Inline`320`PositionAttrib" "Sel*`Attributes`ReferenceShiftAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_referenceshiftatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/referenceshiftatt_on_inl320.jpg"
 Ok
 
 TreeMenu "Inline`320`ReferenceShiftAttrib" "Sel*`Attributes`ScalingAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_scalingatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/scalingatt_on_inl320.jpg"
 Ok
 
 TreeMenu "Inline`320`ScalingAttrib" "Sel*`Attributes`SimilarityAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_similarityatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/similarityatt_on_inl320.jpg"
 Ok
 
 TreeMenu "Inline`320`SimilarityAttrib" "Sel*`Attributes`SpectralDecompAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_spectraldecompatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/spectraldecompatt_on_inl320.jpg"
 Ok
 
 
 TreeMenu "Inline`320`SpectralDecomp*" "Sel*`Attributes`VelocityFanFilter*"
 Button "Make snapshot"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_velocityfanfilteratt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/velocityfanfilteratt_on_inl320.jpg"
 Ok
 
 TreeMenu "Inline`320`VelocityFanFilter*" "Sel*`Attributes`VolumeStatisticsAt*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/inl320_volumestatisticsatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/volumestatisticsatt_on_inl320.jpg"
 Ok
 
 TreeMenu "Inline`320" "Remove"

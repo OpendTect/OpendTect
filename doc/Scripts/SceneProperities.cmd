@@ -43,7 +43,7 @@ Ok
 Button "Make Snapshot"
 Button "Window"
 Ok
-Input "Filename" "$SCRIPTSDIR$/Snapshots/Flatten_scene.png"
+Input "Filename" "$SNAPSHOTSDIR$/Flatten_scene.png"
 Ok
 
 Menu "Survey`Select/Setup"

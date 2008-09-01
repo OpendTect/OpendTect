@@ -44,7 +44,7 @@ ListClick "Select Data" "test-zone" Double
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename"  "$SCRIPTSDIR$/Snapshots/betHor-testzone_1.jpg" 
+Input "Select filename"  "$SNAPSHOTSDIR$/betHor-testzone_1.jpg" 
 Ok
 
 TreeMenu "Inline`*" "Remove"

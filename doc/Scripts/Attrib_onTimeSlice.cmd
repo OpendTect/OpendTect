@@ -22,119 +22,119 @@ ListClick "Select Data" "CoherencyAttrib" Double
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/ts_400_coherencyatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/coherencyatt_on_ts400.jpg"
 Ok
 
 TreeMenu "Timeslice`400`CoherencyAttr*" "Sel*`Attributes`ConvolveAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/ts_400_convolveatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/convolveatt_on_ts400.jpg"
 Ok
 
 TreeMenu "Timeslice`400`ConvolveAttr*" "Sel*`Attributes`CurvatureAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/ts_400_curvatureatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/curvatureatt_on_ts400.jpg"
 Ok
 
 TreeMenu "Timeslice`400`CurvatureAttrib" "Sel*`Attributes`DipAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/ts_400_dipatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/dipatt_on_ts400.jpg"
 Ok
 
 TreeMenu "Timeslice`400`DipAttrib" "Sel*`Attributes`DipAngleAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/ts_400_dipangleatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/dipangleatt_on_ts400.jpg"
 Ok
 
 TreeMenu "Timeslice`400`DipAngleAttrib" "Sel*`Attributes`EnergyAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/ts_400_energyatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/energyatt_on_ts400.jpg"
 Ok
 
 TreeMenu "Timeslice`400`EnergyAttrib" "Sel*`Attributes`EventAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/ts_400_eventatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/eventatt_on_ts400.jpg"
 Ok
 
 TreeMenu "Timeslice`400`EventAttrib" "Sel*`Attributes`FrequencyAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/ts_400_frequencytatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/frequencytatt_on_ts400.jpg"
 Ok
 
 TreeMenu "Timeslice`400`FrequencyAttrib" "Sel*`Attributes`FrequencyFilterAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/ts_400_frequencyfilteratt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/frequencyfilteratt_on_ts400.jpg"
 Ok
 
 TreeMenu "Timeslice`400`FrequencyFilterAttrib" "Sel*`Attributes`InstantaneousA*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/ts_400_instantaneoustatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/instantaneoustatt_on_ts400.jpg"
 Ok
 
 TreeMenu "Timeslice`400`InstantaneousAttrib" "Sel*`Attributes`PositionAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/ts_400_positionatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/positionatt_on_ts400.jpg"
 Ok
 
 TreeMenu "Timeslice`400`PositionAttrib" "Sel*`Attributes`ReferenceShiftAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/ts_400_referenceshiftatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/referenceshiftatt_on_ts400.jpg"
 Ok
 
 TreeMenu "Timeslice`400`ReferenceShiftAttrib" "Sel*`Attributes`ScalingAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/ts_400_scalingatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/scalingatt_on_ts400.jpg"
 Ok
 
 TreeMenu "Timeslice`400`ScalingAttrib" "Sel*`Attributes`SimilarityAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/ts_400_similarityatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/similarityatt_on_ts400.jpg"
 Ok
 
 TreeMenu "Timeslice`400`SimilarityAttrib" "Sel*`Attributes`SpectralDecompAttrib"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/ts_400_spectraldecompatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/spectraldecompatt_on_ts400.jpg"
 Ok
 
 
 TreeMenu "Timeslice`400`SpectralDecomp*" "Sel*`Attributes`VelocityFanFilter*"
 Button "Make snapshot"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/ts_400_velocityfanfilteratt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/velocityfanfilteratt_on_ts400.jpg"
 Ok
 
 TreeMenu "Timeslice`400`VelocityFanFilter*" "Sel*`Attributes`VolumeStatisticsAt*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/ts_400_volumestatisticsatt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/volumestatisticsatt_on_ts400.jpg"
 Ok
 
 TreeMenu "Timeslice`400" "Remove"

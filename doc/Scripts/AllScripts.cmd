@@ -23,7 +23,6 @@ Include "$SCRIPTSDIR$/PickSet.cmd"
 Include "$SCRIPTSDIR$/Attrib_onHorizon.cmd"
 Include "$SCRIPTSDIR$/Attrib_onWell.cmd"
 
-#Deleting All attributes and adding coherencyAttribute.
 
 Include "$SCRIPTSDIR$/AttributeCrossplot.cmd" 
 Include "$SCRIPTSDIR$/AttributeWellCrossplot.cmd"
@@ -33,8 +32,10 @@ Include "$SCRIPTSDIR$/HorizonSlice.cmd"
 Include "$SCRIPTSDIR$/BetweenHorizon.cmd"
 Include "$SCRIPTSDIR$/ChronoStratigraphy.cmd"
 Include "$SCRIPTSDIR$/CreateChronoStratigraphy.cmd"
+Include "$SCRIPTSDIR$/CreateSteeringCube.cmd"
 
 Include "$SCRIPTSDIR$/ExportData.cmd"
 Include "$SCRIPTSDIR$/ImportData.cmd"
+#Include "$SCRIPTSDIR$/SEGY-Load.cmd"
 
 End

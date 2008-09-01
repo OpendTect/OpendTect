@@ -41,7 +41,7 @@ Button "Set data for X"
 TableClick "Data Table" ColHead "CoherencyAttrib"
 Button "Select as Y data"
 Button "Show crossplot"
-Snapshot "$SCRIPTSDIR$/Snapshots/attribcrossplot.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/CoherencyAttrCrossplot.png" CurWin
 Sleep 5
 Window "300/500*"
 Close
@@ -51,7 +51,7 @@ Button "UnSelect as Y data"
 TableClick "Data Table" ColHead "ConvolveAtt*"
 Button "Select as Y data"
 Button "Show crossplot"
-Snapshot "$SCRIPTSDIR$/Snapshots/ConvAttrCrossplot.png"
+Snapshot "$SNAPSHOTSDIR$/ConvAttrCrossplot.png"
 Sleep 5
 Window "300/500*"
 Close
@@ -61,7 +61,7 @@ Button "UnSelect as Y data"
 TableClick "Data Table" ColHead "EnergyAttr*"
 Button "Select as Y data"
 Button "Show crossplot"
-Snapshot "$SCRIPTSDIR$/Snapshots/EnergyAttrCrossplot.png"
+Snapshot "$SNAPSHOTSDIR$/EnergyAttrCrossplot.png"
 Sleep 5
 Window "300/500*"
 Close
@@ -71,7 +71,7 @@ Button "UnSelect as Y data"
 TableClick "Data Table" ColHead "FrequencyAttr*"
 Button "Select as Y data"
 Button "Show crossplot"
-Snapshot "$SCRIPTSDIR$/Snapshots/FreqAttrCrossplot.png"
+Snapshot "$SNAPSHOTSDIR$/FreqAttrCrossplot.png"
 Sleep 5
 Window "300/500*"
 Close

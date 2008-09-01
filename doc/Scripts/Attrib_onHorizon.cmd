@@ -26,119 +26,119 @@ Combo "Table selection" "Brown 4grades"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_CoherencyAtt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/CoherencyAtti_on_horDemo1.jpg"
 Ok
 
 TreeMenu "Horizon`Demo 1*`Coherency*" "Select*`Att*`Convolve*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_ConvolveAtt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/ConvolveAtti_on_horDemo1.jpg"
 Ok
 
 TreeMenu "Horizon`Demo 1*`Convolve*" "Select*`Att*`Curvature*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_CurvatureAtt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/CurvatureAtti_on_horDemo1.jpg"
 Ok
 
 TreeMenu "Horizon`Demo 1*`Curvature*" "Select*`Att*`DipAtt*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_DipAtt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/DipAtti_on_horDemo1.jpg"
 Ok
 
 TreeMenu "Horizon`Demo 1*`DipAtt*" "Select*`Att*`DipAngle*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_DipangleAtt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/DipangleAtti_on_horDemo1.jpg"
 Ok
 
 TreeMenu "Horizon`Demo 1*`DipAngle*" "Select*`Att*`Energy*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_EnergyAtt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/EnergyAtti_on_horDemo1.jpg"
 Ok
 
 TreeMenu "Horizon`Demo 1*`Energy*" "Select*`Att*`Event*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_EventAtt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/EventAtti_on_horDemo1.jpg"
 Ok
 
 TreeMenu "Horizon`Demo 1*`Event*" "Select*`Att*`FrequencyAtt*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_FrequencyAtt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/FrequencyAtti_on_horDemo1.jpg"
 Ok
 
 TreeMenu "Horizon`Demo 1*`FrequencyAtt*" "Select*`Att*`FrequencyFil*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_FreqFilterAtt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/FreqFilterAtti_on_horDemo1.jpg"
 Ok
 
 TreeMenu "Horizon`Demo 1*`FrequencyFil*" "Select*`Att*`Instantaneous*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_InstantaAtt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/InstantaAtti_on_horDemo1.jpg"
 Ok
 
 TreeMenu "Horizon`Demo 1*`Instantaneous*" "Select*`Att*`Position*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_PositionAtt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/PositionAtti_on_horDemo1.jpg"
 Ok
 
 TreeMenu "Horizon`Demo 1*`Position*" "Select*`Att*`ReferenceShiftA*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_ReferShiftAtt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/ReferShiftAtti_on_horDemo1.jpg"
 Ok
 
 TreeMenu "Horizon`Demo 1*`ReferenceShiftA*" "Select*`Att*`ScalingAt*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_ScalingAtt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/ScalingAtti_on_horDemo1.jpg"
 Ok
 
 TreeMenu "Horizon`Demo 1*`ScalingAt*" "Select*`Att*`SimilarityAtt*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_SimilarityAtt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/SimilarityAtti_on_horDemo1.jpg"
 Ok
 
 TreeMenu "Horizon`Demo 1*`SimilarityAtt*" "Select*`Att*`SpectralDec*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_SpectralDecAtt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/SpectralDecAtti_on_horDemo1.jpg"
 Ok
 
 TreeMenu "Horizon`Demo 1*`SpectralDec*" "Select*`Att*`VelocityFanFi*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_VelFanfilAtt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/VelFanfilAtti_on_horDemo1.jpg"
 Ok
 
 TreeMenu "Horizon`Demo 1*`VelocityFanFi*" "Select*`Att*`Volumestatistics*"
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/horDemo1_VolStatiAtt.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/VolStatiAtti_on_horDemo1.jpg"
 Ok
 
 TreeMenu "Horizon`Demo 1*" "Remove"
