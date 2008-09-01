@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	J.C. Glas
  Date:		Dec 2006
- RCS:		$Id: polygon.h,v 1.13 2008-07-28 09:10:07 cvsbert Exp $
+ RCS:		$Id: polygon.h,v 1.14 2008-09-01 07:09:28 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -285,7 +285,7 @@ void ODPolygon<T>::removeZeroLengths()
 template <class T> inline
 bool ODPolygon<T>::isUTurn( int idx ) const
 {
-    if ( !validIdx(idx) || !isClosed() && (idx==0 || idx==size()-1) )
+    if ( !validIdx(idx) || ( !isClosed() && (idx==0 || idx==size()-1) ) )
 	return false;
 
     const Geom::Point2D<T>& vec1 = prevVertex(idx) - getVertex(idx);
