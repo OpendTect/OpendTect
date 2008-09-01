@@ -26,11 +26,11 @@ ListClick "Select Data" "Median Dip*" Double
 Combo "Table selection" "Grey scales" Double
 TreeMenu "Inline`*`Median Dip*" "Show Amplitude Spectrum" 
 Window "Amplitude Spectrum*"
-Snapshot "$SCRIPTSDIR$/Snapshots/Inl320-AmpSpect.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/Inl320-AmpSpect.png" CurWin
 Close
 TreeMenu "Inline`*`Median Dip*" "Show Histogram"
 Window "Data Statistics"
-Snapshot "$SCRIPTSDIR$/Snapshots/Inl320-Histogram.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/Inl320-Histogram.png" CurWin
 Close
 
 Comment "------Adding MedianDipFilteredSeismic to Trree item Crossline----"
@@ -42,11 +42,11 @@ ListClick "Select Data" "Median Dip*" Double
 Combo "Table selection" "Altimetric"
 TreeMenu "Crossline`*`Median Dip*" "Show Amplitude Spectrum"
 Window "Amplitude Spectrum*"
-Snapshot "$SCRIPTSDIR$/Snapshots/Crl825-AmpSpect.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/Crl825-AmpSpect.png" CurWin
 Close
 TreeMenu "Crossline`*`Median Dip*" "Show Histogram"
 Window "Data Statistics"
-Snapshot "$SCRIPTSDIR$/Snapshots/Crl825-Histogram.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/Crl825-Histogram.png" CurWin
 Close
 
 Comment "------Adding MedianDipFilteredSeismic to Trree item TimeSlice----"
@@ -58,11 +58,11 @@ ListClick "Select Data" "Median Dip*" Double
 Combo "Table selection" "Brown 4grades"
 TreeMenu "Timeslice`*`Median Dip*" "Show Amplitude Spectrum"
 Window "Amplitude Spectrum*"
-Snapshot "$SCRIPTSDIR$/Snapshots/TS925-AmpSpect.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/TS925-AmpSpect.png" CurWin
 Close
 TreeMenu "Timeslice`*`Median Dip*" "Show Histogram"
 Window "Data Statistics"
-Snapshot "$SCRIPTSDIR$/Snapshots/TS925-Histogram.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/TS925-Histogram.png" CurWin
 Close
 
 Comment "------Adding MedianDipFilteredSeismic to Trree item Volume----"
@@ -83,11 +83,11 @@ Sleep 3
 Combo "Table selection" "Flames"
 TreeMenu "Volume`Median Dip*" "Show Amplitude Spectrum"
 Window "Amplitude Spectrum*"
-Snapshot "$SCRIPTSDIR$/Snapshots/Vol-AmpSpect.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/Vol-AmpSpect.png" CurWin
 Close
 TreeMenu "Volume`Median Dip*" "Show Histogram"
 Window "Data Statistics"
-Snapshot "$SCRIPTSDIR$/Snapshots/Vol-Histogram.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/Vol-Histogram.png" CurWin
 Close
 
 Comment "-----Adding MedianDipFilteredSeismic to Trree item RandomLine----"
@@ -106,11 +106,11 @@ ListClick "Select Data" "Median Dip*" Double
 Combo "Table selection" "Red-White-Blue"
 TreeMenu "Random line`*`Median Dip*" "Show Amplitude Spectrum"
 Window "Amplitude Spectrum*"
-Snapshot "$SCRIPTSDIR$/Snapshots/Randomline-AmpSpect.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/Randomline-AmpSpect.png" CurWin
 Close
 TreeMenu "Random line`*`Median Dip*" "Show Histogram"
 Window "Data statistics"
-Snapshot "$SCRIPTSDIR$/Snapshots/Randomline-Histogram.png" CurWin
+Snapshot "$SNAPSHOTSDIR$/Randomline-Histogram.png" CurWin
 Close
 
 Comment "------------Loading PickSet- ---------------"
@@ -127,11 +127,11 @@ TreeMenu "Horizon`*" "Add attribute"
 TreeMenu "Horizon`*`<right-click>" "Select Att*`Stored*`Median Dip*"
 TreeMenu "Horizon`*`Median*" "Show Histogram"
 Window "Data statistics"
-Snapshot "$SCRIPTSDIR$/Snapshots/Hor-histogram.png"
+Snapshot "$SNAPSHOTSDIR$/Horizon-histogram.png"
 Close
 TreeMenu "Horizon`*`Median*" "Show Amplitude*"
 Window "Amplitude Spectrum*"
-Snapshot "$SCRIPTSDIR$/Snapshots/Hor-Amplitudespectrum.png"
+Snapshot "$SNAPSHOTSDIR$/Horizon-AmpSpect.png"
 Close
 TreeMenu "Horizon`*" "Tracking`Wireframe"
 
@@ -172,7 +172,7 @@ Sleep 8
 Menu "Survey`Session`Save"
 Input "Name" "DemoTreeItems"
 Ok
-Snapshot "$SCRIPTSDIR$/Snapshots/TreeItems.png" ODMain
+Snapshot "$SNAPSHOTSDIR$/TreeItems.png" ODMain
 Sleep 4
 
 Wheel "hRotate" -20
@@ -209,7 +209,7 @@ Ok
 
 Wheel "hRotate" 30
 Wheel "vRotate" 40
-Snapshot "$SCRIPTSDIR$/Snapshots/TreeItems.png" ODMain
+Snapshot "$SNAPSHOTSDIR$/TreeItems.png" ODMain
 Sleep 3
 Wheel "vRotate" -40
 Wheel "hRotate" -30
