@@ -8,58 +8,104 @@ Comment "----------Importing Seismic Data--------------"
 
 Menu "Survey`Import`Seismics`SEG-Y`3D"
 Button "Define SEG-Y Input" 
-Input "Input file" "$SCRIPTSDIR$/Export/SeisExpo.sgy"
+Input "Input file" "$EXPORTDIR$/SeisExport.sgy"
 Ok
 Button "Select Volume sub*"
 Input "Inline start" 320
 Input "Inline stop" 320
-#Input "Crossline start" 300
-#Input "Crossline stop" 1200
-#Input "Z start" 500
-#Input "Z stop" 1500
 Ok
 Button "Select Output Cube"
 Input "Name" "SeisImport"
 Ok
 Ok
 Ok
-Comment "-------------Importing Horizon----------"
+Comment "---------Displaying Above imported Seismics---------"
+TreeMenu "Inline" "Add"
+TreeMenu "Inline`*" "Position"
+Window "Positioning"
+Input "Inl nr" 320
+Ok
+Button "Stored"
+ListClick "Select Data" "Median Dip Filtered*" Double
 
+
+Comment "-------------Importing Horizon----------"
 Menu "Survey`Import`Horizons`Ascii`Geometry 3D"
-Input "Input ASCII File" "$SCRIPTSDIR$/Export/HorizonExpo.asc"
+Input "Input ASCII File" "$EXPORTDIR$/HorizonExport.asc"
 Button "Define Format Def*" 
 Ok
 Button "Select Horizon" 
-Input "Name" "HorozonImport.hor"
+Input "Name" "Horozon-Import"
 Ok
 Ok
+Comment "-----------Displaying Above Imported Horizon-------"
+TreeMenu "Horizon" "Load"
+ListClick "Select Horizon*" "Horozon-Import" Double
+
 
 Comment "----------------Importing Pickset------------"
-Input "Input Ascii file" "$SCRIPTSDIR$/Export/pickset.asc"
+Menu "Survey`Import`Picksets"
+Input "Input Ascii file" "$EXPORTDIR$/PicksetExport.asc"
 Button "Define Format definition" 
 Combo "Unit" "Seconds"
 Ok
 Button "Select Output PickSet"
-Input "Name" "Pickset-export"
+Input "Name" "Pickset-Import"
 Ok
 Button "Go"
 Ok
 Button "Dismiss"
+Comment "--------Displaying Above Imported pickset--------"
+TreeMenu "Pickset" "Load"
+ListClick "Objects list" "Pickset-Import" Double
+
+
+Comment "---------------Importing Well------------"
+Menu "Survey`Import`Wells`Ascii`Track"
+Input "Well Track File" "$DATADIR$/WellInfo/Track/F02-1.track"
+Button "Define Format definition"
+Input "[MD]" "col:4"
+Ok
+Input "Depth to Time model*" "$DATADIR$/WellInfo/DT_model/F02-01_TD.txt"
+Input "Elevation above*" 10
+Button "Select Output Well"
+Input "Name" "F02-1-Import"
+Ok
+Button "Go"
+Ok
+Button "Dismiss"
+Comment "---------------Displaying above Imported Well---------------"
+TreeMenu "Well" "Load"
+ListClick "Objects list" "F02-1-Import" Double
+TreeMenu "Well`*" "Properties"
+Button "Color"
+ColorOK Blue 4
+Ok
+
 
 Comment "----------------Importing Fault------------"
-Menu "Survey`Import`Faults`Ascii 3D"
-Input "Input ascii file" "/$SCRIPTSDIR$/Export/ExpoTestFault.asc"
-Button "Define Format defi*"
-Ok
-Button "Select Output Fault"
-Input "Name" "TestFaultImport.flt"
-Ok
-OnError Continue
-Ok
-Button "Go"
-Ok
-OnError Stop
+#Menu "Survey`Import`Faults`Ascii 3D"
+#Input "Input ascii file" "$EXPORTDIR$/Export/FaultExport.asc"
+#Button "Define Format defi*"
+#Ok
+#Button "Select Output Fault"
+#Input "Name" "TestFaultImport.flt"
+#Ok
+#Button "Dismiss"
 
-Button "Dismiss"
+Wheel "hRotate" 45
+Wheel "vRotate" 45
+Button "Make snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SNAPSHOTSDIR$/TreeItems-imported"
+Ok
+
+TreeMenu "Inline`*" "Remove"
+TreeMenu "PickSet`*" "Remove"
+TreeMenu "Horizon`*" "Remove"
+Treemenu "Well`*" "Remove"
+Wheel "vRotate" -45
+Wheel "hRotate" -45
 
 End
