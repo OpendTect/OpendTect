@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsitem.cc,v 1.3 2008-07-24 03:57:24 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitem.cc,v 1.4 2008-09-01 07:41:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -38,6 +38,18 @@ void uiGraphicsItem::rotate( float angle )
 void uiGraphicsItem::scale( float x, float y )
 { qgraphicsitem_->scale( x, y ); }
 
+void uiGraphicsItem::setZValue( int x )
+{ qgraphicsitem_->setZValue( x ); }
+
+void uiGraphicsItem::setPenColor( const Color& col )
+{
+    mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
+    if ( !agsitm ) return;
+
+    agsitm->pen().setColor( QColor(QRgb(col.rgb())) );
+}
+
+
 void uiGraphicsItem::setPenStyle( const LineStyle& ls )
 {
     mDynamicCastGet(QAbstractGraphicsShapeItem*,agsitm,qgraphicsitem_)
@@ -66,6 +78,12 @@ uiGraphicsItemGroup::uiGraphicsItemGroup()
 {}
 
 
+uiGraphicsItemGroup::uiGraphicsItemGroup( QGraphicsItemGroup* qtobj )
+    : uiGraphicsItem(qtobj)
+    , qgraphicsitemgrp_(qtobj)
+{}
+
+
 uiGraphicsItemGroup::~uiGraphicsItemGroup()
 {
     delete qgraphicsitemgrp_;
@@ -86,8 +104,17 @@ void uiGraphicsItemGroup::add( uiGraphicsItem* itm )
 }
 
 
-void uiGraphicsItemGroup::remove( uiGraphicsItem* itm )
+void uiGraphicsItemGroup::remove( uiGraphicsItem* itm, bool withdelete )
 {
     items_ -= itm;
     qgraphicsitemgrp_->removeFromGroup( itm->qGraphicsItem() );
+    if ( withdelete )
+	delete itm;
 }
+
+
+void uiGraphicsItemGroup::removeAll( bool withdelete )
+{
+    while ( !items_.isEmpty() )
+	remove( items_[0], withdelete );
+} 

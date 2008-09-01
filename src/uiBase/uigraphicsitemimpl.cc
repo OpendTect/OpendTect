@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.cc,v 1.1 2008-08-20 03:40:27 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitemimpl.cc,v 1.2 2008-09-01 07:41:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,7 +17,6 @@ ________________________________________________________________________
 #include "pixmap.h"
 #include "odgraphicsitem.h"
 #include "uifont.h"
-#include "uigeom.h"
 
 #include "qgraphicsitem.h"
 #include "qglobal.h"
@@ -27,6 +26,8 @@ ________________________________________________________________________
 
 #include <QRectF>
 #include <QPointF>
+#include <QPolygon>
+#include <QPolygonF>
 #include <QPen>
 #include <QRgb>
 #include <QBrush>
@@ -85,6 +86,12 @@ QGraphicsItem* uiLineItem::mkQtObj()
 {
     qlineitem_ = new QGraphicsLineItem();
     return qlineitem_;
+}
+
+
+void uiLineItem::setLine( float x1, float y1, float x2, float y2 )
+{
+    qlineitem_->setLine( x1, y1, x2, y2 );
 }
 
 
@@ -169,6 +176,15 @@ void uiPolygonItem::fill()
 }
 
 
+void uiPolygonItem::setPolygon( const TypeSet<uiPoint>& ptlist )
+{
+    QPolygon qpolygon;
+    for ( int idx=0; idx<ptlist.size(); idx++ )
+	qpolygon.setPoint( idx, ptlist[idx].x, ptlist[idx].y );
+    qpolygonitem_->setPolygon( QPolygonF(qpolygon) );
+}
+
+
 uiRectItem::uiRectItem()
     : uiGraphicsItem(mkQtObj())
 {}
@@ -191,6 +207,13 @@ QGraphicsItem* uiRectItem::mkQtObj()
     qrectitem_ = new QGraphicsRectItem();
     return qrectitem_;
 }
+
+
+void uiRectItem::setRect( int x, int y, int width, int height )
+{
+    qrectitem_->setRect( x, y, width, height );
+}
+
 
 uiTextItem::uiTextItem()
     : uiGraphicsItem(mkQtObj())
@@ -216,6 +239,12 @@ QGraphicsItem* uiTextItem::mkQtObj()
 }
 
 
+void uiTextItem::setText( const char* txt )
+{
+    qtextitem_->setPlainText( QString(txt) );
+}
+
+
 void uiTextItem::setFont( const uiFont& font )
 {
     qtextitem_->setFont( font.qFont() );
@@ -230,29 +259,42 @@ int uiTextItem::getTextWidth()
 
 void uiTextItem::setAlignment( const Alignment& al )
 {
-    QString htmltext;
-    htmltext += "<p style='align: ";
+    QFontMetrics qfm( qtextitem_->font() );
+    float movex = qfm.width( qtextitem_->toPlainText() );
+    float movey = 0;
     switch ( al.hor_ )
     {
 	case Alignment::Start:
-	    htmltext += "left";
+	    movex = -movex;
 	    break;
 	case Alignment::Middle:
-	    htmltext += "center";
+	    movex = -movex/2;
 	    break;
 	case Alignment::Stop:
-	    htmltext += "right";
 	    break;
     }
-
-    htmltext += ";'>";
-    htmltext += "<";
-    htmltext += qtextitem_->toHtml();
-    htmltext += ">";
-    qtextitem_->setHtml( htmltext.toAscii().data() );
+    
+    switch ( al.ver_ )
+    {
+	case Alignment::Start:
+	    movey = -(float)qfm.height();
+	    break;
+	case Alignment::Middle:
+	    movey = -(float)qfm.height()/2;
+	    break;
+	case Alignment::Stop:
+	    break;
+    }
+    qtextitem_->moveBy( movex, movey );
 }
 
 
+void uiTextItem::setTextColor( const Color& col )
+{
+    qtextitem_->setDefaultTextColor( QColor(QRgb(col.rgb())) );
+}
+
+    
 uiMarkerItem::uiMarkerItem()
     : uiGraphicsItem(mkQtObj())
 {}
@@ -275,6 +317,13 @@ QGraphicsItem* uiMarkerItem::mkQtObj()
     qmarkeritem_ = new ODGraphicsMarkerItem();
     return qmarkeritem_;
 }
+
+
+void uiMarkerItem::setMarkerStyle( const MarkerStyle2D& mstyle )
+{
+    qmarkeritem_->setMarkerStyle( mstyle );
+}
+
 
 uiPointItem::uiPointItem()
     : uiGraphicsItem(mkQtObj())

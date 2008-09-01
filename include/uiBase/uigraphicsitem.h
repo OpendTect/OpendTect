@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2007
- RCS:		$Id: uigraphicsitem.h,v 1.3 2008-07-24 03:57:24 cvsnanne Exp $
+ RCS:		$Id: uigraphicsitem.h,v 1.4 2008-09-01 07:41:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,8 +36,10 @@ public:
     void		moveBy(float x,float y);
     void		rotate(float angle);
     void		scale(float x,float y);
+    void		setZValue(int);
 
-    void		setPenStyle(const LineStyle&);
+    virtual void	setPenStyle(const LineStyle&);
+    virtual void	setPenColor(const Color&);
     void		setFillColor(const Color&);
 
 protected:
@@ -54,10 +56,14 @@ class uiGraphicsItemGroup : public uiGraphicsItem
 {
 public:
     			uiGraphicsItemGroup();
+			uiGraphicsItemGroup(QGraphicsItemGroup*);
 			~uiGraphicsItemGroup();
 
     void		add(uiGraphicsItem*);
-    void		remove(uiGraphicsItem*);
+    void		remove(uiGraphicsItem*,bool);
+    void		removeAll(bool);
+
+    QGraphicsItemGroup*	qGraphicsItemGroup()	{ return qgraphicsitemgrp_; }
 
 protected:
 

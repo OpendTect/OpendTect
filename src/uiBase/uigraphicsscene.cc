@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.cc,v 1.2 2008-08-20 03:42:14 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsscene.cc,v 1.3 2008-09-01 07:41:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -114,6 +114,41 @@ uiGraphicsScene::uiGraphicsScene( const char* nm )
 uiGraphicsScene::~uiGraphicsScene()
 {
     delete qgraphicsscene_;
+}
+
+
+void uiGraphicsScene::addItem( uiGraphicsItem* itm )
+{
+   qgraphicsscene_->addItem( itm->qGraphicsItem() );
+}
+
+
+void uiGraphicsScene::addItemGrp( uiGraphicsItemGroup* itmgrp )
+{
+   qgraphicsscene_->addItem( itmgrp->qGraphicsItemGroup() );
+}
+
+
+void uiGraphicsScene::removeItem( uiGraphicsItem* itm )
+{
+    qgraphicsscene_->removeItem( itm->qGraphicsItem() );
+}
+
+
+int uiGraphicsScene::sceneitemsz()
+{
+    return qgraphicsscene_->items().size();
+}
+
+
+uiGraphicsItemGroup* uiGraphicsScene::addItemGrp( ObjectSet<uiGraphicsItem> grp)
+{
+    QList<QGraphicsItem*> qitmlist;
+    for ( int idx=0; idx<grp.size(); idx++ )
+	qitmlist += grp[idx]->qGraphicsItem();
+    uiGraphicsItemGroup* itemgrp = new uiGraphicsItemGroup(
+	qgraphicsscene_->createItemGroup(qitmlist) );
+    return itemgrp;
 }
 
 

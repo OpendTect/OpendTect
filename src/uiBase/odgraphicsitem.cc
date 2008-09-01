@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Satyaki Maitra
  Date:		July 2008
- RCS:		$Id: odgraphicsitem.cc,v 1.1 2008-08-20 03:33:55 cvssatyaki Exp $
+ RCS:		$Id: odgraphicsitem.cc,v 1.2 2008-09-01 07:41:19 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -84,10 +84,10 @@ void ODGraphicsMarkerItem::paint( QPainter *painter,
 				 QWidget *widget )
 {
     
-    if ( side_ != 0 )
+   /* if ( side_ != 0 )
     pErrMsg( "TODO: implement single-sided markers" );
     if ( !mIsZero(angle_,1e-3) )
-    pErrMsg( "TODO: implement tilted markers" );
+    pErrMsg( "TODO: implement tilted markers" );*/
     
     drawMarker( *painter );
 

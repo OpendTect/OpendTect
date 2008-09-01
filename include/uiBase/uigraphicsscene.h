@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.2 2008-08-20 03:42:11 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.3 2008-09-01 07:41:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "mouseevent.h"
 #include "namedobj.h"
 #include "uigeom.h"
+#include "uigraphicsitem.h"
 
 class QGraphicsScene;
 class ODGraphicsScene;
@@ -41,6 +42,10 @@ public:
 				uiGraphicsScene(const char*);
 				~uiGraphicsScene();
 
+    void			addItem(uiGraphicsItem*);
+    void			removeItem(uiGraphicsItem*);
+    void			addItemGrp(uiGraphicsItemGroup*);
+    uiGraphicsItemGroup*	addItemGrp(ObjectSet<uiGraphicsItem>);
     uiTextItem*			addText(const char*);
     uiPixmapItem*		addPixmap(const ioPixmap&);
     uiRectItem*			addRect(float x,float y,float w,float h);
@@ -76,6 +81,7 @@ public:
 
     QGraphicsScene*		qGraphicsScene()
     				{ return qgraphicsscene_; }
+    int				sceneitemsz();		
 protected:
 
     QGraphicsScene*		qgraphicsscene_;

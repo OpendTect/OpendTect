@@ -7,17 +7,19 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: uigraphicsitemimpl.h,v 1.1 2008-08-20 03:40:19 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsitemimpl.h,v 1.2 2008-09-01 07:41:24 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigraphicsitem.h"
+#include "uigeom.h"
 
 class uiFont;
 class LineStyle;
 class ioPixmap;
 class ArrowStyle;
+class MarkerStyle2D;
 class Alignment;
 class Color;
 class uiRect;
@@ -56,12 +58,14 @@ class uiLineItem : public uiGraphicsItem
 {
 public:
     			uiLineItem();
+			uiLineItem(float x1,float y1,float x2,float y2);
     			uiLineItem(QGraphicsLineItem*);
 			~uiLineItem();
 
     QGraphicsLineItem* qLineItem()	{ return qlineitem_; }
     void 		setPenStyle(const LineStyle&);
     void		setPenColor(const Color&);
+    void		setLine(float x1,float y1,float x2,float y2);
 
 protected:
 
@@ -97,6 +101,7 @@ public:
 
     QGraphicsPolygonItem* qPolygonItem()	{ return qpolygonitem_; }
     void		fill();
+    void		setPolygon(const TypeSet<uiPoint>&);
 
 protected:
 
@@ -112,7 +117,8 @@ public:
     			uiRectItem(QGraphicsRectItem*);
 			~uiRectItem();
 
-    QGraphicsRectItem* qRectItem()	{ return qrectitem_; }
+    QGraphicsRectItem*  qRectItem()	{ return qrectitem_; }
+    void		setRect(int x, int y, int width, int height); 
 
 protected:
 
@@ -132,6 +138,8 @@ public:
     void 		setFont(const uiFont&);
     int			getTextWidth();
     void 		setAlignment(const Alignment&);
+    void 		setText(const char*); 
+    void		setTextColor(const Color&);
 
 protected:
 
@@ -148,6 +156,7 @@ public:
 				~uiMarkerItem();
 
     ODGraphicsMarkerItem*  	qMarkerItem()	{ return qmarkeritem_; }
+    void			setMarkerStyle(const MarkerStyle2D&);
 
 protected:
 
