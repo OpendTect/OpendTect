@@ -31,9 +31,15 @@ Window "OpendTect*"
 TreeMenu "Horizon" "Load"
 ListClick "Select Horizon*" 1 Double
 TreeMenu "Horizon`*`Z values" "Select Attribute`Surface data*"
-OnError Continue
 ListClick "Select Data*" "LS5k-2dHorGrid" Double
+
+Button "Make snapshot"
+Button "Scene"
 Ok
-OnError Stop
+Input "Select filename" "$SNAPSHOTSDIR$/2d-horizon-grid"
+Ok
+
+TreeMenu "Horizon`*" "Remove"
+TreeMenu "2D Horizon`*" "Remove"
 
 End
