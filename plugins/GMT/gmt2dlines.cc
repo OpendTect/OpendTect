@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: gmt2dlines.cc,v 1.3 2008-09-02 11:08:30 cvsraman Exp $
+ RCS:		$Id: gmt2dlines.cc,v 1.4 2008-09-02 11:15:50 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -263,12 +263,9 @@ bool GMTRandLines::execute( std::ostream& strm, const char* fnm )
     StreamData sd = StreamProvider(comm).makeOStream();
     if ( !sd.usable() ) mErrStrmRet("Failed")
 
-strm << comm << std::endl;
     for ( int idx=0; idx<inprls.size(); idx++ )
     {
 	const Geometry::RandomLine* rdl = inprls.lines()[idx];
-strm << linenms.get(0) << std::endl;
-strm << "On disc: " << rdl->name() << std::endl;
 	if ( !rdl || linenms.indexOf(rdl->name()) < 0 )
 	    continue;
 
@@ -277,7 +274,6 @@ strm << "On disc: " << rdl->name() << std::endl;
 	{
 	    Coord pos = SI().transform( rdl->nodePosition(tdx) );
 	    *sd.ostrm << pos.x << " " << pos.y << std::endl;
-	    strm << pos.x << " " << pos.y << std::endl;
 	}
     }
 
