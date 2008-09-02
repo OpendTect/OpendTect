@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seismulticubeps.cc,v 1.2 2008-09-02 09:36:04 cvsbert Exp $";
+static const char* rcsID = "$Id: seismulticubeps.cc,v 1.3 2008-09-02 09:38:42 cvsbert Exp $";
 
 #include "seismulticubeps.h"
 #include "seispsioprov.h"
@@ -49,6 +49,13 @@ MultiCubeSeisPSReader::MultiCubeSeisPSReader( const char* fnm )
     : posdata_(*new PosInfo::CubeData)
 {
     getFrom( fnm );
+}
+
+
+MultiCubeSeisPSReader::~MultiCubeSeisPSReader()
+{
+    deepErase( rdrs_ );
+    delete &posdata_;
 }
 
 
