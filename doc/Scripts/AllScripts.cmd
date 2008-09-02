@@ -30,7 +30,7 @@ Include "$SCRIPTSDIR$/Horizongrid.cmd"
 Include "$SCRIPTSDIR$/HorizonSlice.cmd"
 Include "$SCRIPTSDIR$/BetweenHorizon.cmd"
 Include "$SCRIPTSDIR$/Horizon-Isopach.cmd"
-
+Include "$SCRIPTSDIR$/ManageWavelet.cmd"
 Include "$SCRIPTSDIR$/ChronoStratigraphy.cmd"
 Include "$SCRIPTSDIR$/CreateChronoStratigraphy.cmd"
 Include "$SCRIPTSDIR$/CreateSteeringCube.cmd"
