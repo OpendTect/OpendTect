@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Dec 2004
- RCS:		$Id: seismulticubeps.h,v 1.1 2008-08-28 12:14:54 cvsbert Exp $
+ RCS:		$Id: seismulticubeps.h,v 1.2 2008-09-02 09:36:04 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "seispsread.h"
 class SeisTrcReader;
+class MultiID;
 
 
 /*!\brief PS data store reader based on multiple 3D CBVS cubes */
@@ -36,10 +37,24 @@ public:
 
     void		usePar(const IOPar&);
 
+    void		addReader( SeisTrcReader* rdr, float offs )
+			{ rdrs_ += rdr; offs_ += offs; }
+
+    bool		getFrom(const char* fnm);
+    bool		putTo(const char* fnm) const;
+
+    static bool		writeData(const char* fnm,const ObjectSet<MultiID>&,
+	    			  const TypeSet<float>&,BufferString& emsg);
+
 protected:
 
     PosInfo::CubeData&		posdata_;
     ObjectSet<SeisTrcReader>	rdrs_;
+    TypeSet<float>		offs_;
+    mutable BufferString	errmsg_;
+
+    void			getCubeData(const SeisTrcReader&,
+	    				    PosInfo::CubeData&) const;
 
 };
 
