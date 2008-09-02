@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtmainwin.cc,v 1.4 2008-08-14 10:52:52 cvsraman Exp $
+ RCS:		$Id: uigmtmainwin.cc,v 1.5 2008-09-02 11:07:59 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,6 +53,9 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     {
 	const char* tabname = uiGMTOF().name( idx );
 	uiGMTOverlayGrp* grp = uiGMTOF().create( tabparent, tabname );
+	if ( !grp )
+	    continue;
+
 	tabstack_->addTab( grp );
 	overlaygrps_ += grp;
     }

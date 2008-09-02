@@ -1,5 +1,5 @@
-#ifndef uigmt2dlines_h
-#define uigmt2dlines_h
+#ifndef uigmtrandlines_h
+#define uigmtrandlines_h
 
 /*+
 ________________________________________________________________________
@@ -7,26 +7,26 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: uigmt2dlines.h,v 1.2 2008-09-02 11:07:59 cvsraman Exp $
+ RCS:		$Id: uigmtrandlines.h,v 1.1 2008-09-02 11:08:27 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigmtoverlay.h"
 
+class BufferStringSet;
 class CtxtIOObj;
 class uiCheckBox;
 class uiGenInput;
-class uiListBox;
-class uiSeisSel;
+class uiIOObjSel;
 class uiSelLineStyle;
 class uiSpinBox;
 
-class uiGMT2DLinesGrp : public uiGMTOverlayGrp
+class uiGMTRandLinesGrp : public uiGMTOverlayGrp
 {
 public:
 
-    			~uiGMT2DLinesGrp();
+    			~uiGMTRandLinesGrp();
 
     static void		initClass();
 
@@ -35,22 +35,20 @@ public:
 
 protected:
 
-    			uiGMT2DLinesGrp(uiParent*);
+    			uiGMTRandLinesGrp(uiParent*);
 
     static uiGMTOverlayGrp*	createInstance(uiParent*);
     static int			factoryid_;
 
     CtxtIOObj&		ctio_;
 
-    uiSeisSel*		inpfld_;
+    uiIOObjSel*		inpfld_;
     uiGenInput*		namefld_;
-    uiListBox*		linelistfld_;
     uiSelLineStyle*	lsfld_;
     uiCheckBox*		labelfld_;
-    uiGenInput*		labelposfld_;
     uiSpinBox*		labelfontfld_;
-    uiCheckBox*		trclabelfld_;
-    uiGenInput*		trcstepfld_;
+
+    BufferStringSet&	linenms_;
 
     void		objSel(CallBacker*);
     void		labelSel(CallBacker*);

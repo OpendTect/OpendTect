@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: gmt2dlines.h,v 1.1 2008-08-18 11:23:18 cvsraman Exp $
+ RCS:		$Id: gmt2dlines.h,v 1.2 2008-09-02 11:08:30 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,28 @@ public:
     			GMT2DLines(const char* nm)
 			    : GMTPar(nm)	{}
 			GMT2DLines(const IOPar& par)
+			    : GMTPar(par) {}
+
+    virtual bool	execute(std::ostream&,const char*);
+    virtual const char* userRef() const;
+    bool		fillLegendPar(IOPar&) const;
+
+protected:
+
+    static GMTPar*	createInstance(const IOPar&);
+    static int		factoryid_;
+};
+
+
+class GMTRandLines : public GMTPar
+{
+public:
+
+    static void		initClass();
+
+    			GMTRandLines(const char* nm)
+			    : GMTPar(nm)	{}
+			GMTRandLines(const IOPar& par)
 			    : GMTPar(par) {}
 
     virtual bool	execute(std::ostream&,const char*);

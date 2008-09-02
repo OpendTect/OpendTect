@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: uigmt2dlines.cc,v 1.2 2008-08-20 05:26:14 cvsraman Exp $
+ RCS:		$Id: uigmt2dlines.cc,v 1.3 2008-09-02 11:07:59 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,13 +18,14 @@ ________________________________________________________________________
 #include "ioobj.h"
 #include "seisioobjinfo.h"
 #include "seistrctr.h"
+#include "survinfo.h"
 #include "uibutton.h"
 #include "uigeninput.h"
 #include "uilistbox.h"
+#include "uimsg.h"
 #include "uiseissel.h"
 #include "uisellinest.h"
 #include "uispinbox.h"
-#include "uimsg.h"
 
 
 int uiGMT2DLinesGrp::factoryid_ = -1;
@@ -38,9 +39,7 @@ void uiGMT2DLinesGrp::initClass()
 
 
 uiGMTOverlayGrp* uiGMT2DLinesGrp::createInstance( uiParent* p )
-{
-    return new uiGMT2DLinesGrp( p );
-}
+{ return SI().has2D() ? new uiGMT2DLinesGrp( p ) : 0 ; }
 
 
 uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
@@ -64,25 +63,40 @@ uiGMT2DLinesGrp::uiGMT2DLinesGrp( uiParent* p )
 	   			mCB(this,uiGMT2DLinesGrp,labelSel) );
     labelfld_->attach( alignedBelow, lsfld_ );
 
+    const char* posoptions [] = { "Start", "End", "Both", 0 };
+    labelposfld_ = new uiGenInput( this, "", StringListInpSpec(posoptions) );
+    labelposfld_->attach( rightOf, labelfld_ );
+
     uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this, "Font size" );
     labelfontfld_ = lsb->box();
-    lsb->attach( rightOf, labelfld_ );
+    lsb->attach( rightOf, labelposfld_ );
     labelfontfld_->setInterval( 8, 20 );
     labelfontfld_->setValue( 10 );
+
+    trclabelfld_ = new uiCheckBox( this, "Post Trace numbers",
+	    			   mCB(this,uiGMT2DLinesGrp,labelSel) );
+    trclabelfld_->attach( alignedBelow, labelfld_ );
+
+    trcstepfld_ = new uiGenInput( this, "Steps", IntInpSpec(100) );
+    trcstepfld_->attach( rightOf, trclabelfld_ );
+
     labelSel( 0 );
+}
+
+
+uiGMT2DLinesGrp::~uiGMT2DLinesGrp()
+{
+    delete &ctio_;
 }
 
 
 void uiGMT2DLinesGrp::objSel( CallBacker* )
 {
-    if ( !inpfld_->commitInput(false) )
+    if ( !inpfld_->commitInput(false) || !ctio_.ioobj )
 	return;
 
-    IOObj* ioobj = ctio_.ioobj;
-    if ( !ioobj ) return;
-
-    namefld_->setText( ioobj->name() );
-    SeisIOObjInfo info( *ioobj );
+    namefld_->setText( ctio_.ioobj->name() );
+    SeisIOObjInfo info( *ctio_.ioobj );
     BufferStringSet linenms;
     info.getLineNames( linenms );
     linelistfld_->empty();
@@ -92,7 +106,11 @@ void uiGMT2DLinesGrp::objSel( CallBacker* )
 
 void uiGMT2DLinesGrp::labelSel( CallBacker* )
 {
-    labelfontfld_->setSensitive( labelfld_->isChecked() );
+    const bool dolabel = labelfld_->isChecked();
+    labelposfld_->setSensitive( dolabel );
+    labelfontfld_->setSensitive( dolabel );
+    trclabelfld_->setSensitive( dolabel );
+    trcstepfld_->setSensitive( dolabel && trclabelfld_->isChecked());
 }
 
 
@@ -114,8 +132,20 @@ bool uiGMT2DLinesGrp::fillPar( IOPar& par ) const
     BufferString lskey;
     lsfld_->getStyle().toString( lskey );
     par.set( ODGMT::sKeyLineStyle, lskey );
-    par.setYN( ODGMT::sKeyPostLabel, labelfld_->isChecked() );
-    par.set( ODGMT::sKeyFontSize, labelfontfld_->getValue() );
+    const bool dolabel = labelfld_->isChecked();
+    par.setYN( ODGMT::sKeyPostLabel, dolabel );
+    if ( dolabel )
+    {
+	par.set( ODGMT::sKeyFontSize, labelfontfld_->getValue() );
+	const int pos = labelposfld_->getIntValue();
+	par.setYN( ODGMT::sKeyPostStart, pos == 0 || pos == 2 );
+	par.setYN( ODGMT::sKeyPostStop, pos == 1 || pos == 2 );
+	const bool dotrc = trclabelfld_->isChecked();
+	par.setYN( ODGMT::sKeyPostTraceNrs, dotrc );
+	if ( dotrc )
+	    par.set( ODGMT::sKeyLabelIntv, trcstepfld_->getIntValue() );
+    }
+
     return true;
 }
 
@@ -148,7 +178,16 @@ bool uiGMT2DLinesGrp::usePar( const IOPar& par )
     par.get( ODGMT::sKeyFontSize, size );
     labelfontfld_->setValue( size );
     labelSel( 0 );
-    
+    bool poststart = false, poststop = false, dotrc = false;
+    par.getYN( ODGMT::sKeyPostStart, poststart );
+    par.getYN( ODGMT::sKeyPostStop, poststop );
+    par.getYN( ODGMT::sKeyPostTraceNrs, dotrc );
+    const int pos = poststart ? ( poststop ? 2 : 0 ) : 1;
+    labelposfld_->setValue( pos );
+    trclabelfld_->setChecked( dotrc );
+    int labelstep = 100;
+    par.get( ODGMT::sKeyLabelIntv, labelstep );
+    trcstepfld_->setValue( labelstep );
     return true;
 }
 

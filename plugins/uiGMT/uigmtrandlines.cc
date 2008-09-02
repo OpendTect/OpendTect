@@ -1,0 +1,157 @@
+/*+
+________________________________________________________________________
+
+ CopyRight:	(C) dGB Beheer B.V.
+ Author:	Raman Singh
+ Date:		September 2008
+ RCS:		$Id: uigmtrandlines.cc,v 1.1 2008-09-02 11:08:27 cvsraman Exp $
+________________________________________________________________________
+
+-*/
+
+#include "uigmtrandlines.h"
+
+#include "ctxtioobj.h"
+#include "draw.h"
+#include "gmtpar.h"
+#include "ioman.h"
+#include "ioobj.h"
+#include "randomlinegeom.h"
+#include "randomlinetr.h"
+#include "survinfo.h"
+#include "uibutton.h"
+#include "uigeninput.h"
+#include "uilistbox.h"
+#include "uimsg.h"
+#include "uiioobjsel.h"
+#include "uisellinest.h"
+#include "uispinbox.h"
+
+
+int uiGMTRandLinesGrp::factoryid_ = -1;
+
+void uiGMTRandLinesGrp::initClass()
+{
+    if ( factoryid_ < 0 )
+	factoryid_ = uiGMTOF().add( "Random Lines",
+				    uiGMTRandLinesGrp::createInstance );
+}
+
+
+uiGMTOverlayGrp* uiGMTRandLinesGrp::createInstance( uiParent* p )
+{ return SI().has3D() ? new uiGMTRandLinesGrp( p ) : 0 ; }
+
+
+uiGMTRandLinesGrp::uiGMTRandLinesGrp( uiParent* p )
+    : uiGMTOverlayGrp(p,"Random Lines")
+    , ctio_(*mMkCtxtIOObj(RandomLineSet))
+    , linenms_(*new BufferStringSet)
+{
+    inpfld_ = new uiIOObjSel( this, ctio_, "Select Line(set)" );
+    inpfld_->selectiondone.notify( mCB(this,uiGMTRandLinesGrp,objSel) );
+
+    namefld_ = new uiGenInput( this, "Name", StringInpSpec() );
+    namefld_->attach( alignedBelow, inpfld_ );
+
+    lsfld_ = new uiSelLineStyle( this, LineStyle(), "Line Style" );
+    lsfld_->attach( alignedBelow, namefld_ );
+
+    labelfld_ = new uiCheckBox( this, "Post label",
+	   			mCB(this,uiGMTRandLinesGrp,labelSel) );
+    labelfld_->attach( alignedBelow, lsfld_ );
+
+    uiLabeledSpinBox* lsb = new uiLabeledSpinBox( this, "Font size" );
+    labelfontfld_ = lsb->box();
+    lsb->attach( rightOf, labelfld_ );
+    labelfontfld_->setInterval( 8, 20 );
+    labelfontfld_->setValue( 10 );
+
+    labelSel( 0 );
+}
+
+
+uiGMTRandLinesGrp::~uiGMTRandLinesGrp()
+{
+    delete &ctio_;
+    delete &linenms_;
+}
+
+
+void uiGMTRandLinesGrp::objSel( CallBacker* )
+{
+    if ( !inpfld_->commitInput(false) || !ctio_.ioobj )
+	return;
+
+    namefld_->setText( ctio_.ioobj->name() );
+    Geometry::RandomLineSet inprls; BufferString msg;
+    if ( !RandomLineSetTranslator::retrieve(inprls,ctio_.ioobj,msg) )
+	return;
+
+    linenms_.erase();
+    if ( inprls.size() == 1 )
+	linenms_.add( inprls.lines()[0]->name() );
+    else if ( inprls.size() > 1 )
+    {
+	uiDialog dlg( this, uiDialog::Setup("Select lines","Select lines","") );
+	uiListBox* lb = new uiListBox( &dlg, "Linelist", true );
+	for ( int idx=0; idx<inprls.size(); idx++ )
+	    lb->addItem( inprls.lines()[idx]->name() );
+
+	if ( !dlg.go() ) return;
+	lb->getSelectedItems( linenms_ );
+    }
+}
+
+
+void uiGMTRandLinesGrp::labelSel( CallBacker* )
+{
+    labelfontfld_->setSensitive( labelfld_->isChecked() );
+}
+
+
+#define mErrRet(s) { uiMSG().error(s); return false; }
+
+bool uiGMTRandLinesGrp::fillPar( IOPar& par ) const
+{
+    if ( !inpfld_->commitInput(false) || !ctio_.ioobj )
+	mErrRet("Please select the Random line(set)")
+
+    inpfld_->fillPar( par );
+    par.set( sKey::Name, namefld_->text() );
+    par.set( ODGMT::sKeyLineNames, linenms_ );
+    BufferString lskey;
+    lsfld_->getStyle().toString( lskey );
+    par.set( ODGMT::sKeyLineStyle, lskey );
+    const bool dolabel = labelfld_->isChecked();
+    par.setYN( ODGMT::sKeyPostLabel, dolabel );
+    par.set( ODGMT::sKeyFontSize, labelfontfld_->getValue() );
+
+    return true;
+}
+
+
+bool uiGMTRandLinesGrp::usePar( const IOPar& par )
+{
+    inpfld_->usePar( par );
+    const char* nm = par.find( sKey::Name );
+    if ( nm && *nm ) namefld_->setText( nm );
+
+    linenms_.erase();
+    par.get( ODGMT::sKeyLineNames, linenms_ );
+    BufferString lskey = par.find( ODGMT::sKeyLineStyle );
+    if ( !lskey.isEmpty() )
+    {
+	LineStyle ls; ls.fromString( lskey.buf() );
+	lsfld_->setStyle( ls );
+    }
+
+    bool postlabel = false;
+    par.getYN( ODGMT::sKeyPostLabel, postlabel );
+    labelfld_->setChecked( postlabel );
+    int size = 10;
+    par.get( ODGMT::sKeyFontSize, size );
+    labelfontfld_->setValue( size );
+    labelSel( 0 );
+    return true;
+}
+

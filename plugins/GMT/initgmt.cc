@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: initgmt.cc,v 1.4 2008-08-25 09:59:52 cvsraman Exp $
+ RCS:		$Id: initgmt.cc,v 1.5 2008-09-02 11:08:30 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,4 +28,5 @@ void GMT::initStdClasses()
     GMTCoastline::initClass();
     GMTWells::initClass();
     GMT2DLines::initClass();
+    GMTRandLines::initClass();
 }

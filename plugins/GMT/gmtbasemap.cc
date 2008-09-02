@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: gmtbasemap.cc,v 1.5 2008-08-20 05:26:09 cvsraman Exp $
+ RCS:		$Id: gmtbasemap.cc,v 1.6 2008-09-02 11:08:30 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -52,6 +52,7 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     comm += "/a"; comm += lblintv.stop;
     if ( dogrid ) { comm += "g"; comm += lblintv.stop; }
     comm += ":\"."; comm += maptitle; comm += "\":";
+    comm += " --Y_AXIS_TYPE=ver_text";
     comm += " --X_ORIGIN="; comm += xmargin;
     comm += "c --Y_ORIGIN="; comm += ymargin;
     comm += "c --PAPER_MEDIA=Custom_";
@@ -123,9 +124,6 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 
 	parset += par;
     }
-
-    if ( !parset.size() )
-	mErrStrmRet("No legends to post")
 
     BufferString comm = "@pslegend -R -J -O -Dx";
     comm += mapdim.start + xmargin; comm += "c/";
