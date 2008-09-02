@@ -4,7 +4,7 @@
  * DATE     : 21-1-1998
 -*/
 
-static const char* rcsID = "$Id: seismulticubeps.cc,v 1.3 2008-09-02 09:38:42 cvsbert Exp $";
+static const char* rcsID = "$Id: seismulticubeps.cc,v 1.4 2008-09-02 10:54:17 cvsbert Exp $";
 
 #include "seismulticubeps.h"
 #include "seispsioprov.h"
@@ -20,6 +20,7 @@ static const char* rcsID = "$Id: seismulticubeps.cc,v 1.3 2008-09-02 09:38:42 cv
 #include "ioman.h"
 
 static const char* sKeyFileType = "MultiCube Pre-Stack Seismics";
+
 
 class MultiCubeSeisPSIOProvider : public SeisPSIOProvider
 {
@@ -81,7 +82,7 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
     }
 
 #   define mErrCont(s) { errmsg_ = s; continue; }
-    while ( !atEndOfSection(astrm) )
+    while ( !atEndOfSection(astrm.next()) )
     {
 	MultiID mid( astrm.keyWord() );
 	if ( !IOObj::isKey(mid.buf()) )
@@ -90,10 +91,9 @@ bool MultiCubeSeisPSReader::getFrom( const char* fnm )
 	PtrMan<IOObj> ioobj = IOM().get( mid );
 	if ( !ioobj )
 	    mErrCont(BufferString("Cannot find object: '",mid.buf(),"'"))
-	    continue;
 
 	SeisTrcReader* rdr = new SeisTrcReader( ioobj );
-	if ( !rdr->ioObj() )
+	if ( !rdr->ioObj() || !rdr->prepareWork() )
 	{
 	    if ( rdr->errMsg() && *rdr->errMsg() )
 		errmsg_ = rdr->errMsg();

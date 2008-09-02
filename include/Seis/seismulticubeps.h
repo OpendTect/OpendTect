@@ -1,18 +1,19 @@
-#ifndef seiscbvsps_h
-#define seiscbvsps_h
+#ifndef seismulticubeps_h
+#define seismulticubeps_h
 
 /*+
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
- Date:		Dec 2004
- RCS:		$Id: seismulticubeps.h,v 1.2 2008-09-02 09:36:04 cvsbert Exp $
+ Date:		Aug 2008
+ RCS:		$Id: seismulticubeps.h,v 1.3 2008-09-02 10:54:17 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "seispsread.h"
+#include "seispsioprov.h"
 class SeisTrcReader;
 class MultiID;
 
@@ -56,6 +57,13 @@ protected:
     void			getCubeData(const SeisTrcReader&,
 	    				    PosInfo::CubeData&) const;
 
+};
+
+
+class MultiCubeSeisPS3DTranslator : public SeisPS3DTranslator
+{			       isTranslator(MultiCube,SeisPS3D)
+public:
+    			mDefEmptyTranslatorConstructor(MultiCube,SeisPS3D)
 };
 
 
