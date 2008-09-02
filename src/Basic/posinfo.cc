@@ -4,7 +4,7 @@
  * DATE     : July 2005 / Mar 2008
 -*/
 
-static const char* rcsID = "$Id: posinfo.cc,v 1.7 2008-08-29 13:51:44 cvsbert Exp $";
+static const char* rcsID = "$Id: posinfo.cc,v 1.8 2008-09-02 10:54:47 cvsbert Exp $";
 
 #include "math2.h"
 #include "posinfo.h"
@@ -120,7 +120,23 @@ void PosInfo::LineData::merge( const PosInfo::LineData& ld1, bool inc )
     {
 	segments_ += Segment( rg.start, rg.start, defstep );
 	return;
-   }
+    }
+    else if ( ld1.segments_.size() == 1 && ld2.segments_.size() == 1 )
+    {
+	// Very common, can be done real fast
+	if ( inc )
+	    segments_ += Segment( rg.start, rg.start, defstep );
+	else
+	{
+	    Segment seg( ld1.segments_[0] );
+	    const Segment& ld2seg = ld2.segments_[0];
+	    if ( ld2seg.start > seg.start ) seg.start = ld2seg.start;
+	    if ( ld2seg.stop < seg.stop ) seg.stop = ld2seg.stop;
+	    if ( seg.stop >= seg.start )
+		segments_ += seg;
+	}
+	return;
+    }
 
     // slow but straightforward
     Segment curseg( mUdf(int), 0, mUdf(int) );
