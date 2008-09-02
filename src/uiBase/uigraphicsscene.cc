@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.cc,v 1.3 2008-09-01 07:41:19 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsscene.cc,v 1.4 2008-09-02 12:48:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -102,6 +102,7 @@ void ODGraphicsScene::mouseDoubleClickEvent( QGraphicsSceneMouseEvent* qev )
 }
 
 
+
 uiGraphicsScene::uiGraphicsScene( const char* nm )
     : NamedObject(nm)
     , qgraphicsscene_(new ODGraphicsScene(*this))
@@ -132,12 +133,6 @@ void uiGraphicsScene::addItemGrp( uiGraphicsItemGroup* itmgrp )
 void uiGraphicsScene::removeItem( uiGraphicsItem* itm )
 {
     qgraphicsscene_->removeItem( itm->qGraphicsItem() );
-}
-
-
-int uiGraphicsScene::sceneitemsz()
-{
-    return qgraphicsscene_->items().size();
 }
 
 
@@ -310,3 +305,11 @@ void uiGraphicsScene::useBackgroundPattern( bool usebgpattern )
 	qgraphicsscene_->setBackgroundBrush( brush );
     }
 }
+
+
+double uiGraphicsScene::width() const
+{ return qgraphicsscene_->width(); }
+
+double uiGraphicsScene::height() const
+{ return qgraphicsscene_->height(); }
+

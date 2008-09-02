@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		January 2008
- RCS:		$Id: uigraphicsscene.h,v 1.3 2008-09-01 07:41:24 cvssatyaki Exp $
+ RCS:		$Id: uigraphicsscene.h,v 1.4 2008-09-02 12:48:57 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -62,11 +62,9 @@ public:
     uiPointItem*		addPoint(bool);
     uiMarkerItem*       	addMarker(const MarkerStyle2D&,int side=0);
 
-    /*uiLineItem*               	addLine(const TypeSet<uiPoint>&,
-	    				bool close);*/
-    uiArrowItem*		addArrow( const uiPoint& head,
-	    				  const uiPoint& tail,
-					  const ArrowStyle& );
+    uiArrowItem*		addArrow(const uiPoint& head,
+	    				 const uiPoint& tail,
+					 const ArrowStyle&);
 
     void			useBackgroundPattern(bool);
     void			removeAllItems();
@@ -78,10 +76,13 @@ public:
     KeyboardEventHandler&	getKeyboardEventHandler()
     				{ return keyboardhandler_; }
 
+    double			width() const;
+    double			height() const;
+
 
     QGraphicsScene*		qGraphicsScene()
     				{ return qgraphicsscene_; }
-    int				sceneitemsz();		
+
 protected:
 
     QGraphicsScene*		qgraphicsscene_;
