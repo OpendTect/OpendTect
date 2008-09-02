@@ -8,7 +8,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Aug 2008
- RCS:		$Id: uivelocityfunctionimp.h,v 1.1 2008-08-08 10:13:43 cvsumesh Exp $
+ RCS:		$Id: uivelocityfunctionimp.h,v 1.2 2008-09-02 07:16:42 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,7 @@ class uiFileInput;
 class uiIOObjSel;
 class CtxtIOObj;
 class uiTableImpDataSel;
+class uiComboBox;
 
 namespace Table { class FormatDesc; }
 
@@ -34,6 +35,7 @@ public:
 protected:
 	
     uiFileInput*	inpfld_;
+    uiComboBox*	typefld_;
     uiIOObjSel*		outfld_;
 
     CtxtIOObj&          ctio_;
