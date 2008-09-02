@@ -5,7 +5,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Umesh Sinha
  Date:		Aug 2008
- RCS:		$Id: uivelocityfunctionimp.cc,v 1.3 2008-08-29 14:11:18 cvshelene Exp $
+ RCS:		$Id: uivelocityfunctionimp.cc,v 1.4 2008-09-02 07:17:39 cvsumesh Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiseparator.h"
 #include "uitblimpexpdatasel.h"
+#include "uicombobox.h"
 
 #include "binidvalset.h"
 #include "ctxtioobj.h"
@@ -31,6 +32,15 @@ ________________________________________________________________________
 namespace Vel
 {
 
+static const char* typeoptions[] = 
+{
+    "Unknown",
+    "Interval",
+    "RMO",
+    "Avg",
+    0
+};    	
+
 
 uiImportVelFunc::uiImportVelFunc( uiParent* p )
     : uiDialog( p,uiDialog::Setup( "Import Velocity",
@@ -44,11 +54,16 @@ uiImportVelFunc::uiImportVelFunc( uiParent* p )
 	    		       uiFileInput::Setup().withexamine(true)
 			       .defseldir(GetDataDir()) );
 
+    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Type" );
+    lcb->attach( alignedBelow, inpfld_ );
+    typefld_ = lcb->box();
+    typefld_->addItems( typeoptions );
+
     uiSeparator* sep = new uiSeparator( this, "H sep" );
-    sep->attach( stretchedBelow, inpfld_ );
+    sep->attach( stretchedBelow, lcb );
 
     dataselfld_ = new uiTableImpDataSel( this, fd_, "103.2.9" );
-    dataselfld_->attach( alignedBelow, inpfld_ );
+    dataselfld_->attach( alignedBelow, lcb );
     dataselfld_->attach( ensureBelow, sep );
 
     sep = new uiSeparator( this, "H sep" );
@@ -82,6 +97,8 @@ bool uiImportVelFunc::acceptOK( CallBacker* )
 {
     BinIDValueSet bidvalset( 2, true);
     VelocityAscData veldata( bidvalset );
+    veldata.setType( BufferString(
+		         typefld_->textOfItem(typefld_->currentItem())) );
 
     if ( !*inpfld_->fileName() )
 	mErrRet( "Please select the input file" );
