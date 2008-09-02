@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Mar 2008
- RCS:           $Id: uidatapointsetcrossplot.cc,v 1.16 2008-08-01 15:50:21 cvsbert Exp $
+ RCS:           $Id: uidatapointsetcrossplot.cc,v 1.17 2008-09-02 13:04:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -426,9 +426,11 @@ void uiDataPointSetCrossPlotter::drawData(
 
     if ( setup_.showcc_ )
     {
-	int r100 = (int)((y_.axis_ == &yah ? lsy1_ : lsy2_)
-					    .corrcoeff * 100 + .5);
+	float fr100 = (y_.axis_ == &yah ? lsy1_ : lsy2_).corrcoeff * 100;
+	int r100 = mNINT(fr100);
 	BufferString txt( "r=" );
+	if ( r100 < 0 )
+	    { txt += "-"; r100 = -r100; }
 	if ( r100 == 0 )	txt += "0";
 	else if ( r100 == 100 )	txt += "1";
 	else
