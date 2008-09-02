@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.89 2008-09-01 07:26:20 cvssatyaki Exp $
+ RCS:           $Id: uisurvey.cc,v 1.90 2008-09-02 12:49:20 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,8 +15,6 @@ ________________________________________________________________________
 #include "uibutton.h"
 #include "uicanvas.h"
 #include "uiconvpos.h"
-#include "uigraphicsscene.h"
-#include "uigraphicsview.h"
 #include "uigroup.h"
 #include "uilabel.h"
 #include "uilistbox.h"
