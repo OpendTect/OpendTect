@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.cc,v 1.18 2008-09-03 14:53:45 cvskris Exp $
+ RCS:           $Id: uitabstack.cc,v 1.19 2008-09-03 16:31:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,20 +73,20 @@ void uiTabStack::removeTab( uiGroup* grp )
 
 void uiTabStack::setTabEnabled( uiGroup* grp, bool yn )
 {
-    int id = idOf( grp );
+    int id = indexOf( grp );
     tabbar_->setTabEnabled( id, yn );
 }
 
 
 bool uiTabStack::isTabEnabled( uiGroup* grp ) const
 {
-    int id = idOf( grp );
+    int id = indexOf( grp );
     return tabbar_->isTabEnabled( id );
 }
 
 
-int uiTabStack::idOf( uiGroup* grp ) const
-{ return tabbar_->idOf( grp ); }
+int uiTabStack::indexOf( uiGroup* grp ) const
+{ return tabbar_->indexOf( grp ); }
 
 int uiTabStack::size() const
 { return tabbar_->size(); }
@@ -102,7 +102,7 @@ void uiTabStack::setCurrentPage( int id )
 void uiTabStack::setCurrentPage( uiGroup* grp )
 {
     if( !grp ) return;
-    setCurrentPage( idOf(grp) );
+    setCurrentPage( indexOf(grp) );
 }
 
 

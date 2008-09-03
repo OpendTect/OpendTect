@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.h,v 1.9 2008-09-03 14:53:45 cvskris Exp $
+ RCS:           $Id: uitabstack.h,v 1.10 2008-09-03 16:31:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,8 +48,8 @@ public:
     void		setCurrentPage(uiGroup*);
 
     uiGroup*		currentPage() const;
-    uiGroup* 		page(int id) const;
-    int			idOf(uiGroup*) const;
+    uiGroup* 		page(int idx) const;
+    int			indexOf(uiGroup*) const;
     int			currentPageId() const;
 
     int			size() const;

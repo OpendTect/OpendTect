@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          14/02/2003
- RCS:           $Id: uitabbar.h,v 1.15 2008-01-24 18:40:53 cvsjaap Exp $
+ RCS:           $Id: uitabbar.h,v 1.16 2008-09-03 16:31:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,23 +33,23 @@ public:
     void		removeTab(uiTab*);
     void		removeTab(uiGroup*);
 
-    void		setTabEnabled(int id,bool);
-    bool		isTabEnabled(int id) const;
+    void		setTabEnabled(int idx,bool);
+    bool		isTabEnabled(int idx) const;
 
-    void		setCurrentTab(int id);
+    void		setCurrentTab(int idx);
     int			currentTabId() const;
-    const char*		textOfTab(int id) const;
+    const char*		textOfTab(int idx) const;
     
     int			size() const;
 
     Notifier<uiTabBar>  selected;
 
-    int			idOf(const uiGroup*) const;
-    int			idOf(const uiTab*) const;
-    uiGroup*		page(int id) const;
+    int			indexOf(const uiGroup*) const;
+    int			indexOf(const uiTab*) const;
+    uiGroup*		page(int idx) const;
 
     			//! Force activation in GUI thread
-    void		activate(int id);
+    void		activate(int idx);
     Notifier<uiTabBar>	activatedone;
 
 protected:

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabbar.cc,v 1.19 2008-01-24 18:40:53 cvsjaap Exp $
+ RCS:           $Id: uitabbar.cc,v 1.20 2008-09-03 16:31:07 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,11 +36,11 @@ public:
 
     virtual		~uiTabBarBody()	{ delete &messenger_; }
 
-    void		activate(int id);
+    void		activate(int idx);
     bool		event(QEvent*);
 
 protected:
-    int			activateid_;
+    int			activateidx_;
 
 private:
 
@@ -51,9 +51,9 @@ private:
 
 static const QEvent::Type sQEventActivate = (QEvent::Type) (QEvent::User+0);
 
-void uiTabBarBody::activate( int id )
+void uiTabBarBody::activate( int idx )
 {
-    activateid_ = id;
+    activateidx_ = idx;
     QEvent* actevent = new QEvent( sQEventActivate );
     QApplication::postEvent( this, actevent );
 }
@@ -63,9 +63,9 @@ bool uiTabBarBody::event( QEvent* ev )
     if ( ev->type() != sQEventActivate )
 	return QTabBar::event( ev );
 
-    if ( activateid_>=0 && activateid_<handle_.size() )
+    if ( activateidx_>=0 && activateidx_<handle_.size() )
     {
-	handle_.setCurrentTab( activateid_ );
+	handle_.setCurrentTab( activateidx_ );
 	handle_.selected.trigger();
     }
 
@@ -101,13 +101,13 @@ int uiTabBar::addTab( uiTab* tab )
 
 void uiTabBar::removeTab( uiTab* tab )
 {
-    const int id = idOf( tab );
-    if ( id < 0 ) return;
+    const int idx = indexOf( tab );
+    if ( idx < 0 ) return;
 
     tab->group().display( false );
     tabs_ -= tab;
 
-    body_->removeTab( id );
+    body_->removeTab( idx );
     delete tab;
 }
 
@@ -128,23 +128,28 @@ void uiTabBar::removeTab( uiGroup* grp )
 void uiTabBar::setTabEnabled( int idx, bool yn )
 { body_->setTabEnabled( idx, yn ); }
 
+
 bool uiTabBar::isTabEnabled( int idx ) const
 { return body_->isTabEnabled( idx ); }
 
-void uiTabBar::setCurrentTab( int id )
-{ body_->setCurrentTab( id ); }
+
+void uiTabBar::setCurrentTab( int idx )
+{ body_->setCurrentTab( idx ); }
+
 
 int uiTabBar::currentTabId() const
 { return body_->currentIndex(); }
 
-const char* uiTabBar::textOfTab( int id ) const
-{ return id>=0 && id<size() ? tabs_[id]->name().buf() : 0; }
+
+const char* uiTabBar::textOfTab( int idx ) const
+{ return idx>=0 && idx<size() ? tabs_[idx]->name().buf() : 0; }
+
 
 int uiTabBar::size() const
 { return body_->count(); }
 
 
-int uiTabBar::idOf( const uiGroup* grp ) const
+int uiTabBar::indexOf( const uiGroup* grp ) const
 {
     for ( int idx=0; idx<tabs_.size(); idx++ )
     {
@@ -156,7 +161,7 @@ int uiTabBar::idOf( const uiGroup* grp ) const
 }
 
 
-int uiTabBar::idOf( const uiTab* tab ) const
+int uiTabBar::indexOf( const uiTab* tab ) const
 {
     for ( int idx=0; idx<tabs_.size(); idx++ )
     {
@@ -167,11 +172,11 @@ int uiTabBar::idOf( const uiTab* tab ) const
 }
 
 
-uiGroup* uiTabBar::page( int id ) const
+uiGroup* uiTabBar::page( int idx ) const
 {
-    return const_cast<uiGroup*>( &tabs_[id]->group() );
+    return const_cast<uiGroup*>( &tabs_[idx]->group() );
 }
 
 
-void uiTabBar::activate( int id )
-{ body_->activate( id ); }
+void uiTabBar::activate( int idx )
+{ body_->activate( idx ); }
