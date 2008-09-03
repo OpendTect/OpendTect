@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: od_process_volume.cc,v 1.10 2008-08-18 21:32:30 cvskris Exp $";
+static const char* rcsID = "$Id: od_process_volume.cc,v 1.11 2008-09-03 20:53:02 cvskris Exp $";
 
 #include "batchprog.h"
 
@@ -48,7 +48,7 @@ bool BatchProgram::go( std::ostream& strm )
 
     CubeSampling cs( true );
     if ( !cs.usePar( pars() ) )
-	strm << "Could not read ranges - Will process full survey";
+	strm << "Could not read ranges - Will process full survey\n";
     
     VolProc::ChainExecutor pce( *chain );
     RefMan<Attrib::DataCubes> cube = new Attrib::DataCubes;
