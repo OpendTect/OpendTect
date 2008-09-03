@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		May 2007
- RCS:		$Id: visprestackviewer.h,v 1.16 2008-08-29 18:50:45 cvsyuancheng Exp $
+ RCS:		$Id: visprestackviewer.h,v 1.17 2008-09-03 14:50:34 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ public:
     BufferString		getObjectName() const;
     bool			isInlCrl() const 	{ return true; }
     bool			isOrientationInline() const;
+    const Coord			getBaseDirection() const 
 
     				//for 3D only at present
     bool			setPreProcessor(PreStack::ProcessManager*);
@@ -57,6 +58,7 @@ public:
     DataPack::ID		getDataPackID() const;
 
     visBase::FlatViewer*	flatViewer() { return flatviewer_; }
+
     				//3D case
     bool			setPosition(const BinID&);
     const BinID&		getPosition() const;

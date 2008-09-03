@@ -4,7 +4,7 @@ _______________________________________________________________________________
  COPYRIGHT:	(C) dGB Beheer B.V.
  AUTHOR:	Yuancheng Liu
  DAT:		May 2007
- RCS:           $Id: visprestackviewer.cc,v 1.32 2008-08-29 18:50:45 cvsyuancheng Exp $
+ RCS:           $Id: visprestackviewer.cc,v 1.33 2008-09-03 14:50:34 cvsyuancheng Exp $
 _______________________________________________________________________________
 
  -*/
@@ -569,6 +569,10 @@ void  PreStackViewer::seis2DMovedCB( CallBacker* )
 
     dataChangedCB(0);
 }    
+
+
+const Coord PreStackViewer::getBaseDirection() const 
+{ return basedirection_; }
 
 
 const char* PreStackViewer::lineName()

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		5-11-2007
- RCS:		$Id: uipsviewermanager.cc,v 1.22 2008-08-29 18:50:45 cvsyuancheng Exp $
+ RCS:		$Id: uipsviewermanager.cc,v 1.23 2008-09-03 14:50:34 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,15 +26,18 @@ ________________________________________________________________________
 #include "uimsg.h"
 #include "uiodapplmgr.h"
 #include "uiodmain.h"
+#include "uiodscenemgr.h"
 #include "uipsviewershapetab.h"
 #include "uipsviewerposdlg.h"
 #include "uipsviewersettingdlg.h"
 #include "uiseispartserv.h"
+#include "uisoviewer.h"
 #include "uivispartserv.h"
 #include "visflatviewer.h"
 #include "visplanedatadisplay.h"
 #include "visprestackviewer.h"
 #include "visseis2ddisplay.h"
+#include "vistransform.h"
 #include "uipsviewercoltab.h"
 
 
@@ -224,8 +227,8 @@ bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu,
     if ( !ioobj )
 	mErrReturn( "No object selected" )
 
-    RefMan<visBase::DataObject> dataobj = visserv_->
-	getObject( menu->menuID() );
+    RefMan<visBase::DataObject> dataobj =
+	visserv_->getObject( menu->menuID() );
 		
     mDynamicCastGet( visSurvey::PlaneDataDisplay*, pdd, dataobj.ptr() );
     mDynamicCastGet( visSurvey::Seis2DDisplay*, s2d, dataobj.ptr() );
@@ -240,21 +243,15 @@ bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu,
     visserv_->addObject( viewer, sceneid, false );
     viewers_ += viewer;
 
-    bool autoview;
-    if ( Settings::common().getYN(PreStackViewer::sKeyAutoWidth(), autoview) )
-	viewer->displaysAutoWidth( autoview );
-
-    float factor;
-    if ( Settings::common().get( PreStackViewer::sKeyFactor(), factor ) )
-	viewer->setFactor( factor );
-   
-    float width; 
-    if ( Settings::common().get( PreStackViewer::sKeyWidth(), width ) )
-	viewer->setWidth( width );
+    const uiSoViewer*  sovwr = ODMainWin()->sceneMgr().getSoViewer( sceneid );
+    const Coord3 campos = sovwr->getCameraPosition();
+    const Coord3 displaycampos = 
+	viewer->getScene()->getUTM2DisplayTransform()->transformBack( campos );
+    const BinID dir0 = SI().transform(displaycampos)-SI().transform(pickedpos);
+    const Coord dir( dir0.inl, dir0.crl );
 
     if ( pdd )
     {
-        viewer->displaysOnPositiveSide( true );	
 	viewer->setSectionDisplay( pdd ); 
 	BinID bid;
 	if (  menu->getMenuType() != uiMenuHandler::fromScene ) 
@@ -264,7 +261,8 @@ bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu,
 				 +SI().transform(hrg.stop))/2);
 	}
 	else bid = SI().transform( pickedpos );
-
+    	
+	viewer->displaysOnPositiveSide( viewer->getBaseDirection().dot(dir)>0 );
 	if ( !viewer->setPosition( bid ) )
 	    mErrReturn( "No prestack data at this position" )
     } 
@@ -277,10 +275,23 @@ bool uiPSViewerMgr::addNewPSViewer( const uiMenuHandler* menu,
 	    trcnr = s2d->getNearestTraceNr( pickedpos );
 
 	viewer->setSeis2DDisplay( s2d, trcnr );
+	viewer->displaysOnPositiveSide( viewer->getBaseDirection().dot(dir)>0 );
 	if ( !viewer->setSeis2DData( ioobj ) )
 	    mErrReturn( "No prestack data at this position" )
     }
+    
+    bool autoview;
+    if ( Settings::common().getYN(PreStackViewer::sKeyAutoWidth(), autoview) )
+	viewer->displaysAutoWidth( autoview );
 
+    float factor;
+    if ( Settings::common().get( PreStackViewer::sKeyFactor(), factor ) )
+	viewer->setFactor( factor );
+   
+    float width; 
+    if ( Settings::common().get( PreStackViewer::sKeyWidth(), width ) )
+	viewer->setWidth( width );
+    
     IOPar* par = Settings::common().subselect( 
 	    PreStackView::uiPSViewerColTab::sKeyDataPars() );
     if ( par )
