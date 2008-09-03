@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          November 2006
- RCS:           $Id: uidlggroup.cc,v 1.5 2008-05-29 11:56:46 cvssatyaki Exp $
+ RCS:           $Id: uidlggroup.cc,v 1.6 2008-09-03 19:43:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,6 +19,48 @@ uiTabStackDlg::uiTabStackDlg( uiParent* p, const uiDialog::Setup& dlgsetup )
     , canrevert_( true )
 {
     tabstack_ = new uiTabStack( this, "TabStack" );
+    tabstack_->selChange().notify( mCB(this,uiTabStackDlg,selChange));
+
+    finaliseDone.notify( mCB( this,uiTabStackDlg,selChange));
+}
+
+
+
+uiTabStackDlg::~uiTabStackDlg()
+{
+    tabstack_->selChange().remove( mCB(this,uiTabStackDlg,selChange));
+}
+
+
+void uiTabStackDlg::selChange( CallBacker* )
+{
+    const char* helpid = helpID();
+    setButtonSensitive( uiDialog::HELP, helpid && *helpid );
+}
+
+
+const char* uiTabStackDlg::helpID() const
+{
+    const char* helpid = uiDialog::helpID();
+    if ( helpid && *helpid )
+	return helpid;
+
+    bool hassomehelp = false;
+    for ( int idx=0; idx<tabstack_->size(); idx++ )
+    {
+	mDynamicCastGet( const uiDlgGroup*, grp, tabstack_->page(idx) );
+	if ( grp->helpID() )
+	{
+	    hassomehelp = true;
+	    break;
+	}
+    }
+
+    mDynamicCastGet( const uiDlgGroup*, grp, tabstack_->currentPage() );
+    if ( grp && grp->helpID() )
+	return grp->helpID();
+
+    return hassomehelp ? "" : 0;
 }
 
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          13/8/2000
- RCS:           $Id: uidlggroup.h,v 1.7 2008-05-29 11:56:46 cvssatyaki Exp $
+ RCS:           $Id: uidlggroup.h,v 1.8 2008-09-03 19:43:42 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,6 +41,8 @@ public:
 			    acceptOK() call, if another tab in the stack fails.
 			*/
     virtual const char*	errMsg() const			{ return 0; }
+
+    virtual const char*	helpID() const			{ return 0; }
     			
 };
 
@@ -54,6 +56,8 @@ public:
 		    , grp_(0)			{}
     void	setGroup( uiDlgGroup* grp )	{ grp_ = grp; }
 
+
+    const char*	helpID() const 			{ return grp_->helpID(); }
 protected:
     bool	acceptOK(CallBacker*)		{ return grp_->acceptOK(); }
     bool	rejectOK(CallBacker*)		{ return grp_->rejectOK(); }
@@ -67,6 +71,7 @@ class uiTabStackDlg : public uiDialog
 {
 public:
 			uiTabStackDlg(uiParent*,const uiDialog::Setup&);
+			~uiTabStackDlg();
 
     uiParent*		tabParent();
     uiObject*		tabObject()		{ return (uiObject*)tabstack_; }
@@ -79,7 +84,16 @@ public:
     const int		currentGroupID()	
     			{ return tabstack_->currentPageId(); }
 
+    const char*		helpID() const;
+    			/*!<Returns the help id for the current group, or 0 if
+			    no help available for any group, "" if there is
+			    help for one or more groups, but not the currently
+			    seleceted one. */
+			
+
 protected:
+
+    void			selChange(CallBacker*);
 
     virtual bool		acceptOK(CallBacker*);
     virtual bool		rejectOK(CallBacker*);
