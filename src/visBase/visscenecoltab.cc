@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		May 2007
- RCS:		$Id: visscenecoltab.cc,v 1.3 2008-08-28 12:25:39 cvsnanne Exp $
+ RCS:		$Id: visscenecoltab.cc,v 1.4 2008-09-03 10:57:37 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,10 +13,11 @@ ________________________________________________________________________
 
 #include "coltabindex.h"
 #include "coltabsequence.h"
+#include "linear.h"
+#include "scaler.h"
 #include "viscolortab.h"
-#include "coltabsequence.h"
-#include "LegendKit.h"
 
+#include "LegendKit.h"
 #include <Inventor/SbColor.h>
 
 mCreateFactoryEntry( visBase::SceneColTab );
@@ -64,6 +65,21 @@ void SceneColTab::setColTabSequence( const ColTab::Sequence& ctseq )
 
 void SceneColTab::setRange( const Interval<float>& rg )
 {
+    legendkit_->clearTicks();
+    AxisLayout al; al.setDataRange( rg );
+    LinScaler scaler( rg.start, 0, rg.stop, 1 );
+
+    int idx = 0;
+    while ( true )
+    {
+	const float val = al.sd.start + idx*al.sd.step;
+	if ( val > al.stop ) break;
+
+	const float normval = scaler.scale( val );
+	if ( normval>=0 && normval<=1 )
+	    legendkit_->addBigTick( normval, val );
+	idx++;
+    }
 }
 
 
