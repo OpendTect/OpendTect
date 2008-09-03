@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: seistrctr.cc,v 1.84 2008-01-23 15:42:55 cvsbert Exp $";
+static const char* rcsID = "$Id: seistrctr.cc,v 1.85 2008-09-03 10:46:51 cvshelene Exp $";
 
 #include "seistrctr.h"
 #include "seisfact.h"
@@ -21,6 +21,7 @@ static const char* rcsID = "$Id: seistrctr.cc,v 1.84 2008-01-23 15:42:55 cvsbert
 #include "scaler.h"
 #include "ptrman.h"
 #include "survinfo.h"
+#include "bufstringset.h"
 #include "cubesampling.h"
 #include "envvars.h"
 #include "errh.h"
@@ -64,6 +65,7 @@ SeisTrcTranslator::SeisTrcTranslator( const char* nm, const char* unm )
 		!GetEnvVarYN("OD_NO_SEISWRITE_REGULARISATION"))
     	, enforce_survinfo_write( // default false
 		GetEnvVarYN("OD_ENFORCE_SURVINFO_SEISWRITE"))
+	, compnms_(0)
 {
 }
 
@@ -385,6 +387,18 @@ void SeisTrcTranslator::prepareComponents( SeisTrc& trc, int actualsz ) const
 void SeisTrcTranslator::addComp( const DataCharacteristics& dc,
 				 const char* nm, int dtype )
 {
+    BufferString str( "Component " );
+    if ( !nm || !*nm )
+    {
+	if ( compnms_ && cds.size() < compnms_->size() )
+	    nm = compnms_->get(cds.size()).buf();
+	else
+	{
+	    str += cds.size() + 1;
+	    nm = str.buf();
+	}
+    }
+
     ComponentData* newcd = new ComponentData( nm );
     newcd->datachar = dc;
     newcd->datatype = dtype;
@@ -449,6 +463,12 @@ SeisTrc* SeisTrcTranslator::getEmpty()
 	toSupported( dc );
 
     return new SeisTrc( 0, dc );
+}
+
+
+void SeisTrcTranslator::setComponentNames( const BufferStringSet& bss )
+{
+    delete compnms_; compnms_ = new BufferStringSet( bss );
 }
 
 

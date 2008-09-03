@@ -5,7 +5,7 @@
  * FUNCTION : CBVS Seismic data translator
 -*/
 
-static const char* rcsID = "$Id: seiscbvs.cc,v 1.77 2008-04-25 11:21:42 cvsraman Exp $";
+static const char* rcsID = "$Id: seiscbvs.cc,v 1.78 2008-09-03 10:46:51 cvshelene Exp $";
 
 #include "seiscbvs.h"
 #include "seisinfo.h"
@@ -205,9 +205,7 @@ bool CBVSSeisTrcTranslator::initWrite_( const SeisTrc& trc )
     for ( int idx=0; idx<trc.data().nrComponents(); idx++ )
     {
 	DataCharacteristics dc(trc.data().getInterpreter(idx)->dataChar());
-	BufferString nm( "Component " );
-	nm += idx+1;
-	addComp( dc, nm );
+	addComp( dc, 0 );
 	if ( preseldatatype )
 	    tarcds[idx]->datachar = DataCharacteristics(
 			(DataCharacteristics::UserType)preseldatatype );

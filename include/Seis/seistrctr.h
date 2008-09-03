@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: seistrctr.h,v 1.50 2008-05-13 14:00:38 cvsbert Exp $
+ RCS:		$Id: seistrctr.h,v 1.51 2008-09-03 10:46:50 cvshelene Exp $
 ________________________________________________________________________
 
 Translators for seismic traces.
@@ -30,6 +30,7 @@ class SeisTrcBuf;
 class SeisTrcInfo;
 class CubeSampling;
 class SeisPacketInfo;
+class BufferStringSet;
 namespace Seis		{ class SelData; }
 
 
@@ -228,11 +229,14 @@ public:
 
     virtual bool	isReadDefault() const		{ return false; }
 
+    void		setComponentNames(const BufferStringSet&);
+
 protected:
 
     Conn*		conn;
     const char*		errmsg;
     SeisPacketInfo	pinfo;
+    BufferStringSet*	compnms_;
 
     Seis::ReadMode	read_mode;
     bool		is_2d;
