@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtmainwin.cc,v 1.5 2008-09-02 11:07:59 cvsraman Exp $
+ RCS:		$Id: uigmtmainwin.cc,v 1.6 2008-09-03 14:53:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,6 @@ ________________________________________________________________________
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseparator.h"
-#include "uitabbar.h"
 
 
 uiGMTMainWin::uiGMTMainWin( uiParent* p )
@@ -44,7 +43,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 
     uiGroup* rightgrp = new uiGroup( uppgrp_, "Right group" );
     tabstack_ = new uiTabStack( rightgrp, "Tab" );
-    tabstack_->tabBar()->selected.notify( mCB(this,uiGMTMainWin,tabSel) );
+    tabstack_->selChange().notify( mCB(this,uiGMTMainWin,tabSel) );
 
     uiParent* tabparent = tabstack_->tabGroup();
     basemapgrp_ = new uiGMTBaseMapGrp( tabparent );
@@ -118,6 +117,7 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 
 uiGMTMainWin::~uiGMTMainWin()
 {
+    tabstack_->selChange().remove( mCB(this,uiGMTMainWin,tabSel) );
     deepErase( pars_ );
     delete tim_;
 }

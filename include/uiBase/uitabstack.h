@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.h,v 1.8 2008-01-03 12:16:03 cvsnanne Exp $
+ RCS:           $Id: uitabstack.h,v 1.9 2008-09-03 14:53:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,7 +54,7 @@ public:
 
     int			size() const;
 
-    uiTabBar*		tabBar()			{ return tabbar_; }
+    NotifierAccess&	selChange();
 
 protected:
 

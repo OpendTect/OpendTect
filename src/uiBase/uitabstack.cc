@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          17/01/2002
- RCS:           $Id: uitabstack.cc,v 1.17 2008-01-03 12:16:03 cvsnanne Exp $
+ RCS:           $Id: uitabstack.cc,v 1.18 2008-09-03 14:53:45 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -33,6 +33,10 @@ uiTabStack::uiTabStack( uiParent* parnt, const char* nm, bool mnge )
 
     tabbar_->selected.notify( mCB(this,uiTabStack,tabSel) );
 }
+
+
+NotifierAccess& uiTabStack::selChange()
+{ return tabbar_->selected; }
 
 
 void uiTabStack::tabSel( CallBacker* cb )
