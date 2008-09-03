@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.44 2008-05-28 11:06:46 cvsnanne Exp $
+ RCS:           $Id: uidialog.h,v 1.45 2008-09-03 16:29:22 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -135,7 +135,7 @@ public:
 			//!< Separator between central dialog and Ok/Cancel bar?
     bool		separator() const;
     void		setHelpID(const char*);
-    const char*		helpID() const;
+    virtual const char*	helpID() const;
 
 protected:
 
