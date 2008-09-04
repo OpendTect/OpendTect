@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		12-8-1997
- RCS:		$Id: rowcol.h,v 1.22 2007-09-13 19:38:38 cvsnanne Exp $
+ RCS:		$Id: rowcol.h,v 1.23 2008-09-04 15:19:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -67,7 +67,7 @@ inline od_int64 rc2int64( const RowCol& rc )
 
 inline RowCol int642rc( const od_int64& ll )
 {
-    return RowCol( ll>>32, ((int) (ll& 0xFFFFFFFF)) );
+    return RowCol( (int)(ll>>32), (int)(ll& 0xFFFFFFFF) );
 }
 
 
