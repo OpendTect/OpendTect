@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          04/07/2001
- RCS:           $Id: iodrawtool.h,v 1.30 2008-05-28 08:26:29 cvsnanne Exp $
+ RCS:           $Id: iodrawtool.h,v 1.31 2008-09-04 13:28:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,7 @@ public:
     void		setFillColor(const Color&);
     void		setPenWidth(unsigned int);
     void		setFont(const uiFont&);
+    LineStyle		lineStyle() const;
     const uiFont*	font()			{ return font_; }
 
     void		drawText(int x,int y,const char*,const Alignment&);
