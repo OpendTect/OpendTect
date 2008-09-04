@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          July 2001
- RCS:		$Id: uiseissel.cc,v 1.57 2008-07-23 09:40:48 cvsbert Exp $
+ RCS:		$Id: uiseissel.cc,v 1.58 2008-09-04 14:06:20 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -122,7 +122,7 @@ uiSeisSelDlg::uiSeisSelDlg( uiParent* p, const CtxtIOObj& c,
 }
 
 
-static const char* trglobexprs[] = { "2D", "CBVS", "CBVS`PS Cube" };
+static const char* trglobexprs[] = { "2D", "CBVS`MultiCube", "CBVS`PS Cube" };
 
 const char* uiSeisSelDlg::standardTranslSel( Seis::GeomType geom, bool forread )
 {
