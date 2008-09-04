@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposfilterset.cc,v 1.9 2008-06-03 14:09:06 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposfilterset.cc,v 1.10 2008-09-04 10:07:51 cvsnanne Exp $";
 
 #include "uiposfilterset.h"
 #include "posfilterset.h"
@@ -55,7 +55,7 @@ uiPosFilterSet::uiPosFilterSet( uiParent* p, const uiPosFilterSet::Setup& su )
 	for ( int idx=0; idx<provnms.size(); idx++ )
 	{
 	    const BufferString& nm( provnms.get(idx) );
-	    uiPosProvGroup::Setup ppgsu( setup_.is2d_, true );
+	    uiPosProvGroup::Setup ppgsu( setup_.is2d_, true, true );
 	    uiPosProvGroup* grp = uiPosProvGroup::factory()
 				    .create(nm,this,ppgsu,true);
 	    if ( grp )

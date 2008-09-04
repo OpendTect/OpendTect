@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra / Bert
  Date:          March 2003 / Feb 2008
- RCS:           $Id: uiattribcrossplot.cc,v 1.30 2008-04-18 14:56:22 cvshelene Exp $
+ RCS:           $Id: uiattribcrossplot.cc,v 1.31 2008-09-04 10:07:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,7 +65,7 @@ uiAttribCrossPlot::uiAttribCrossPlot( uiParent* p, const Attrib::DescSet& d )
 	lnmfld_->selectionChanged.notify( mCB(this,uiAttribCrossPlot,lnmChg) );
     }
 
-    uiPosProvider::Setup psu( ads_.is2D(), true );
+    uiPosProvider::Setup psu( ads_.is2D(), true, true );
     psu.seltxt( "Select locations by" ).choicetype( uiPosProvider::Setup::All );
     posprovfld_ = new uiPosProvider( this, psu );
     posprovfld_->setExtractionDefaults();

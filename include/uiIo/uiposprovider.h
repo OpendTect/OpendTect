@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovider.h,v 1.10 2008-05-29 15:14:54 cvsbert Exp $
+ RCS:           $Id: uiposprovider.h,v 1.11 2008-09-04 10:07:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,8 +30,8 @@ public:
     {
 	enum ChoiceType	{ All, OnlySeisTypes, OnlyRanges };
 
-			Setup( bool is_2d, bool with_z )
-			    : uiPosProvGroup::Setup(is_2d,with_z)
+			Setup( bool is_2d, bool with_step, bool with_z )
+			    : uiPosProvGroup::Setup(is_2d,with_step,with_z)
 			    , seltxt_("Positions")
 			    , allownone_(false)
 			    , choicetype_(OnlyRanges)	{}

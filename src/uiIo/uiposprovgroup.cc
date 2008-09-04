@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.18 2008-08-18 13:42:58 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uiposprovgroup.cc,v 1.19 2008-09-04 10:07:51 cvsnanne Exp $";
 
 #include "uiposprovgroupstd.h"
 #include "uigeninput.h"
@@ -36,8 +36,7 @@ uiPosProvGroup::uiPosProvGroup( uiParent* p, const uiPosProvGroup::Setup& su )
 
 
 uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
-					  const uiPosProvGroup::Setup& su,
-					  bool wstep )
+					  const uiPosProvGroup::Setup& su )
     : uiPosProvGroup(p,su)
     , hrgfld_(0)
     , nrrgfld_(0)
@@ -47,18 +46,18 @@ uiRangePosProvGroup::uiRangePosProvGroup( uiParent* p,
     uiObject* attobj = 0;
     if ( su.is2d_ )
     {
-	nrrgfld_ = new uiSelNrRange( this, uiSelNrRange::Gen, wstep );
+	nrrgfld_ = new uiSelNrRange( this, uiSelNrRange::Gen, su.withstep_ );
 	nrrgfld_->setRange( su.cs_.hrg.crlRange() );
 	attobj = nrrgfld_->attachObj();
     }
     else
     {
-	hrgfld_ = new uiSelHRange( this, su.cs_.hrg, wstep );
+	hrgfld_ = new uiSelHRange( this, su.cs_.hrg, su.withstep_ );
 	attobj = hrgfld_->attachObj();
     }
     if ( setup_.withz_ )
     {
-	zrgfld_ = new uiSelZRange( this, su.cs_.zrg, wstep );
+	zrgfld_ = new uiSelZRange( this, su.cs_.zrg, su.withstep_ );
 	zrgfld_->attach( alignedBelow, attobj );
     }
 
@@ -152,19 +151,25 @@ uiPolyPosProvGroup::uiPolyPosProvGroup( uiParent* p,
     : uiPosProvGroup(p,su)
     , ctio_(*mMkCtxtIOObj(PickSet))
     , zrgfld_(0)
+    , stepfld_(0)
 {
     ctio_.ctxt.parconstraints.set( sKey::Type, sKey::Polygon );
     ctio_.ctxt.allowcnstrsabsent = false;
     ctio_.fillIfOnlyOne( IOObjContext::Loc );
     polyfld_ = new uiIOObjSel( this, ctio_, sKey::Polygon );
 
-    stepfld_ = new uiSelSteps( this, false );
-    stepfld_->attach( alignedBelow, polyfld_ );
+    uiGroup* attachobj = polyfld_;
+    if ( su.withstep_ )
+    {
+	stepfld_ = new uiSelSteps( this, false );
+	stepfld_->attach( alignedBelow, polyfld_ );
+	attachobj = stepfld_;
+    }
 
     if ( su.withz_ )
     {
 	zrgfld_ = new uiSelZRange( this, true );
-	zrgfld_->attach( alignedBelow, stepfld_ );
+	zrgfld_->attach( alignedBelow, attachobj );
     }
 
     setHAlignObj( polyfld_ );
@@ -184,10 +189,13 @@ uiPolyPosProvGroup::~uiPolyPosProvGroup()
 void uiPolyPosProvGroup::usePar( const IOPar& iop )
 {
     polyfld_->usePar( iop, sKey::Polygon );
-    BinID stps( SI().sampling(true).hrg.step );
-    iop.get( mGetPolyKey(sKey::StepInl), stps.inl );
-    iop.get( mGetPolyKey(sKey::StepCrl), stps.crl );
-    stepfld_->setSteps( stps );
+    if ( stepfld_ )
+    {
+	BinID stps( SI().sampling(true).hrg.step );
+	iop.get( mGetPolyKey(sKey::StepInl), stps.inl );
+	iop.get( mGetPolyKey(sKey::StepCrl), stps.crl );
+	stepfld_->setSteps( stps );
+    }
     if ( zrgfld_ )
     {
 	StepInterval<float> zrg( SI().zRange(true) );
@@ -202,10 +210,13 @@ bool uiPolyPosProvGroup::fillPar( IOPar& iop ) const
     iop.set( sKey::Type, sKey::Polygon );
     if ( !polyfld_->fillPar(iop,sKey::Polygon) )
 	mErrRet("Please select the polygon")
-    const BinID stps( stepfld_->getSteps() );
+
+    const BinID stps(
+	stepfld_ ? stepfld_->getSteps() : SI().sampling(true).hrg.step );
     iop.set( mGetPolyKey(sKey::StepInl), stps.inl );
     iop.set( mGetPolyKey(sKey::StepCrl), stps.crl );
-    iop.set( mGetPolyKey(sKey::ZRange), zrgfld_->getRange() );
+    iop.set( mGetPolyKey(sKey::ZRange),
+	zrgfld_ ? zrgfld_->getRange() : SI().zRange(true) );
     return true;
 }
 
@@ -219,8 +230,8 @@ void uiPolyPosProvGroup::getSummary( BufferString& txt ) const
 void uiPolyPosProvGroup::setExtractionDefaults()
 {
     CubeSampling cs( true ); getExtrDefCubeSampling( cs );
-    stepfld_->setSteps( cs.hrg.step );
-    zrgfld_->setRange( cs.zrg );
+    if ( stepfld_ ) stepfld_->setSteps( cs.hrg.step );
+    if ( zrgfld_ ) zrgfld_->setRange( cs.zrg );
 }
 
 

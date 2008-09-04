@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovgroupstd.h,v 1.9 2008-02-27 17:27:24 cvsbert Exp $
+ RCS:           $Id: uiposprovgroupstd.h,v 1.10 2008-09-04 10:07:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -32,8 +32,7 @@ class uiRangePosProvGroup : public uiPosProvGroup
 public:
 
 			uiRangePosProvGroup(uiParent*,
-					    const uiPosProvGroup::Setup&,
-					    bool wstep=true);
+					    const uiPosProvGroup::Setup&);
 
     virtual void	usePar(const IOPar&);
     virtual bool	fillPar(IOPar&) const;

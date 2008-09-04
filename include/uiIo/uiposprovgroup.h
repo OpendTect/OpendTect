@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uiposprovgroup.h,v 1.7 2008-08-27 15:17:52 cvsbert Exp $
+ RCS:           $Id: uiposprovgroup.h,v 1.8 2008-09-04 10:07:51 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -25,13 +25,15 @@ public:
 
     struct Setup : public uiPosFiltGroup::Setup
     {
-			Setup( bool is_2d, bool with_z )
+			Setup( bool is_2d, bool with_step, bool with_z )
 			    : uiPosFiltGroup::Setup(is_2d)
+			    , withstep_(with_step)
 			    , withz_(with_z)
 			    , cs_(!is_2d)
 			 { if ( is_2d ) cs_.set2DDef(); }
 
 	virtual	~Setup()				{}
+	mDefSetupMemb(bool,withstep)
 	mDefSetupMemb(bool,withz)
 	mDefSetupMemb(CubeSampling,cs)
     };

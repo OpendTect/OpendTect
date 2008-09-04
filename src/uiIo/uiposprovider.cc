@@ -8,7 +8,7 @@ ________________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: uiposprovider.cc,v 1.16 2008-05-30 08:23:16 cvsbert Exp $";
+static const char* rcsID = "$Id: uiposprovider.cc,v 1.17 2008-09-04 10:07:51 cvsnanne Exp $";
 
 #include "uiposprovider.h"
 #include "uipossubsel.h"
@@ -313,7 +313,7 @@ uiPosSubSel::uiPosSubSel( uiParent* p, const uiPosSubSel::Setup& su )
     : uiGroup(p,"uiPosSubSel")
     , selChange(this)
 {
-    uiPosProvider::Setup ppsu( su.is2d_, su.withz_ );
+    uiPosProvider::Setup ppsu( su.is2d_, su.withstep_, su.withz_ );
     ppsu.seltxt( su.seltxt_ )
 	.allownone( true )
 	.choicetype( (uiPosProvider::Setup::ChoiceType)su.choicetype_ );
