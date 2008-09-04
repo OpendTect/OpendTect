@@ -4,7 +4,7 @@
  * DATE     : somewhere around 1999
 -*/
  
-static const char* rcsID = "$Id: cubesampling.cc,v 1.34 2008-02-06 10:16:49 cvsbert Exp $";
+static const char* rcsID = "$Id: cubesampling.cc,v 1.35 2008-09-04 15:21:25 cvsnanne Exp $";
 
 #include "cubesampling.h"
 #include "survinfo.h"
@@ -251,7 +251,7 @@ static inline bool inSeries( float v, float start, float step )
 {
     float fdiff = (start - v) / step;
     int idiff = mNINT( fdiff );
-    fdiff -= idiff;
+    fdiff -= (float)idiff;
     return IsZero( fdiff, 1e-3 );
 }
 
@@ -431,14 +431,14 @@ bool CubeSampling::operator==( const CubeSampling& cs ) const
 {
    if ( cs.hrg==this->hrg )
    {
-       float diff = fabs(cs.zrg.start-this->zrg.start);
+       float diff = fabsf(cs.zrg.start-this->zrg.start);
        const float eps = SI().zIsTime() ? 1e-6 : 1e-3;
        if ( diff>eps ) return false;
 
-       diff = fabs(cs.zrg.stop-this->zrg.stop);
+       diff = fabsf(cs.zrg.stop-this->zrg.stop);
        if ( diff>eps ) return false;
 
-       diff = fabs(cs.zrg.step-this->zrg.step);
+       diff = fabsf(cs.zrg.step-this->zrg.step);
        if ( diff>eps ) return false;
 
        return true;
