@@ -4,7 +4,7 @@
  * DATE     : May 2008
 -*/
 
-static const char* rcsID = "$Id: color.cc,v 1.3 2008-05-29 13:27:16 cvskris Exp $";
+static const char* rcsID = "$Id: color.cc,v 1.4 2008-09-04 10:02:07 cvsnanne Exp $";
 
 #include "color.h"
 
@@ -113,8 +113,6 @@ Color stddrawcols[] = {
 	Color( 204, 133,  61 ), // peru
 };
 
-
-// Then Color methods ...
 
 int Color::nrStdDrawColors()
 {
