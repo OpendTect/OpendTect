@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Aug 2007
- RCS:           $Id: uiseispsman.cc,v 1.5 2008-01-22 15:04:17 cvsbert Exp $
+ RCS:           $Id: uiseispsman.cc,v 1.6 2008-09-04 13:31:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,7 @@ ________________________________________________________________________
 #include "uitextedit.h"
 #include "uiioobjmanip.h"
 #include "uiioobjsel.h"
+#include "uiseismulticubeps.h"
 
 
 uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
@@ -25,16 +26,21 @@ uiSeisPreStackMan::uiSeisPreStackMan( uiParent* p, bool is2d )
                                      "103.4.0").nrstatusflds(1),
 	    	   is2d ? SeisPS2DTranslatorGroup::ioContext()
 		        : SeisPS3DTranslatorGroup::ioContext() )
-    , mrgbut(0)
 {
     createDefaultUI();
     selgrp->setPrefWidthInChar( 50 );
     infofld->setPrefWidthInChar( 60 );
     uiIOObjManipGroup* manipgrp = selgrp->getManipGroup();
     if ( !is2d )
-	mrgbut = manipgrp->addButton( ioPixmap("mergeseis.png"),
-				    mCB(this,uiSeisPreStackMan,mergePush),
-				    "Merge cubes" );
+    {
+	manipgrp->addButton( ioPixmap("mergeseis.png"),
+			     mCB(this,uiSeisPreStackMan,mergePush),
+			     "Merge cubes" );
+	manipgrp->addButton( ioPixmap("mkmulticubeps.png"),
+			     mCB(this,uiSeisPreStackMan,mkMultiPush),
+			     "Create Multi-Cube data store" );
+    }
+
     selChg(0);
 }
 
@@ -58,6 +64,17 @@ void uiSeisPreStackMan::mergePush( CallBacker* )
 
     const MultiID key( curioobj_->key() );
     uiPreStackMergeDlg dlg( this );
+    dlg.go();
+    selgrp->fullUpdate( key );
+}
+
+
+void uiSeisPreStackMan::mkMultiPush( CallBacker* )
+{
+    if ( !curioobj_ ) return;
+
+    const MultiID key( curioobj_->key() );
+    uiSeisMultiCubePS dlg( this );
     dlg.go();
     selgrp->fullUpdate( key );
 }

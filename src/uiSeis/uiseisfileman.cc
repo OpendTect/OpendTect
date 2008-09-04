@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uiseisfileman.cc,v 1.74 2008-04-30 04:02:52 cvssatyaki Exp $
+ RCS:           $Id: uiseisfileman.cc,v 1.75 2008-09-04 13:31:45 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,6 @@ ________________________________________________________________________
 #include "cubesampling.h"
 #include "filegen.h"
 #include "filepath.h"
-#include "ioman.h"
 #include "iopar.h"
 #include "iostrm.h"
 #include "keystrs.h"
@@ -76,13 +75,8 @@ uiSeisFileMan::uiSeisFileMan( uiParent* p )
     selgrp->setPrefWidthInChar( cPrefWidth );
     infofld->setPrefWidthInChar( cPrefWidth );
 
-    IOObjContext psctxt( SeisPS3DTranslatorGroup::ioContext() );
-    IOObj* psioobj = IOM().getFirst( psctxt );
-    const bool have3d = psioobj; delete psioobj;
-    psctxt = SeisPS2DTranslatorGroup::ioContext();
-    psioobj = IOM().getFirst( psctxt );
-    const bool have2d = psioobj; delete psioobj;
-
+    const bool have2d = SI().has2D();
+    const bool have3d = SI().has3D();
     uiToolButton* ps3dbut = 0; uiToolButton* ps2dbut = 0;
     if ( have3d )
     {
