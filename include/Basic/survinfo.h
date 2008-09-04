@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		9-4-1996
- RCS:		$Id: survinfo.h,v 1.73 2008-08-26 12:15:18 cvsraman Exp $
+ RCS:		$Id: survinfo.h,v 1.74 2008-09-04 11:13:33 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -89,7 +89,7 @@ public:
     void		setZUnit(bool istime,bool infeet=false);
     const char*		getXYUnit(bool withparens=true) const;
     const char*		getZUnit(bool withparens=true) const;
-    float		zFactor() const		{ return zistime_ ? 1000 : 1; }
+    float		zFactor() const		{ return zistime_ ? 1000 : 1.f;}
     			//!< Factor between real and displayed unit
     bool		depthsInFeetByDefault() const;
     void		setSurvDataType( Pol2D typ )	{ survdatatype_ = typ; }
