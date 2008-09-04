@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.h,v 1.60 2008-08-08 08:52:05 cvsnanne Exp $
+ RCS:           $Id: uiodscenemgr.h,v 1.61 2008-09-04 13:21:26 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -98,6 +98,7 @@ public:
     void			vWheelMoved(CallBacker*);
     void			dWheelMoved(CallBacker*);
 
+    const uiSoViewer*		getSoViewer(int sceneid) const;
     void			getSoViewers(ObjectSet<uiSoViewer>&);
     void			getSceneNames(BufferStringSet&,int& act) const;
     void			setActiveScene(const char* scenenm);

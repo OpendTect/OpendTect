@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.145 2008-08-29 09:05:53 cvsjaap Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.146 2008-09-04 13:21:26 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -48,6 +48,7 @@ ________________________________________________________________________
 // For factories
 #include "uiodhortreeitem.h"
 #include "uiodfaulttreeitem.h"
+#include "uiodpolygonsurftreeitem.h"
 #include "uiodscenetreeitem.h"
 #include "uioddatatreeitem.h"
 #include "uiodpicksettreeitem.h"
@@ -105,6 +106,8 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     tifs_->addFactory( new uiODHorizon2DTreeItemFactory, 6500,
 		       SurveyInfo::Only2D );
     tifs_->addFactory( new uiODFaultTreeItemFactory, 7000, SurveyInfo::No2D );
+    tifs_->addFactory( new uiODPolygonSurfTreeItemFactory, 7200, 
+	    	       SurveyInfo::No2D );
     tifs_->addFactory( new uiODMarchingCubesTreeItemFactory, 7500,
 	    	       SurveyInfo::No2D );
     tifs_->addFactory( new uiODWellTreeItemFactory, 8000,
@@ -680,6 +683,19 @@ void uiODSceneMgr::getSoViewers( ObjectSet<uiSoViewer>& vwrs )
 }
 
 
+const uiSoViewer* uiODSceneMgr::getSoViewer( int sceneid ) const
+{
+    BufferStringSet scenenms( getSceneName( sceneid) ); 
+    
+    int vwrid;
+    getSceneNames( scenenms, vwrid );
+    if ( vwrid>-1 && vwrid<scenes_.size() )
+    	return scenes_[vwrid]->sovwr_;
+
+    return 0;
+}
+
+
 uiODTreeTop* uiODSceneMgr::getTreeItemMgr( const uiListView* lv ) const
 {
     for ( int idx=0; idx<scenes_.size(); idx++ )
@@ -910,6 +926,8 @@ int uiODSceneMgr::addEMItem( const EM::ObjectID& emid, int sceneid )
 	    itm = new uiODHorizon2DTreeItem(emid);
 	else if ( !strcmp(type,"Fault" ) ) 
 	    itm = new uiODFaultTreeItem(emid);
+	else if ( !strcmp(type,"PolygonSurf" ) ) 
+	    itm = new uiODPolygonSurfTreeItem(emid);
 
 	scene.itemmanager_->addChild( itm, false );
 	return itm->displayID();
