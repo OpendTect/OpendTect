@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/12/1999
- RCS:           $Id: iodraw.cc,v 1.45 2008-07-16 17:57:13 cvsnanne Exp $
+ RCS:           $Id: iodraw.cc,v 1.46 2008-09-04 13:29:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -320,12 +320,11 @@ void ioDrawTool::drawMarker( const uiPoint& pt, const MarkerStyle2D& mstyle,
     switch ( mstyle.type_ )
     {
     case MarkerStyle2D::Square:
-	setLineStyle( LineStyle(LineStyle::None ) );
 	drawRect( pt.x-mstyle.size_, pt.y-mstyle.size_,
-		  2 * mstyle.size_, 2 * mstyle.size_ );
+		  2*mstyle.size_, 2*mstyle.size_ );
     break;
     case MarkerStyle2D::Circle:
-	drawCircle( pt.x, pt.y, mstyle.size_ / 2 );
+	drawCircle( pt.x, pt.y, mstyle.size_/2 );
     break;
     case MarkerStyle2D::Cross:
 	drawLine( pt.x-mstyle.size_, pt.y-mstyle.size_,
@@ -434,6 +433,7 @@ static void drawArrowHead( ioDrawTool& dt, const ArrowHeadStyle& hs,
 void ioDrawTool::drawArrow( const uiPoint& tail, const uiPoint& head,
 			    const ArrowStyle& as )
 {
+    const LineStyle ls( lineStyle() );
     setLineStyle( as.linestyle_ );
 
     drawLine( tail, head );
@@ -441,6 +441,16 @@ void ioDrawTool::drawArrow( const uiPoint& tail, const uiPoint& head,
 	drawArrowHead( *this, as.headstyle_, head, tail );
     if ( as.hasTail() )
 	drawArrowHead( *this, as.tailstyle_, tail, head );
+
+    setLineStyle( ls );
+}
+
+
+LineStyle ioDrawTool::lineStyle() const
+{
+    QColor qcol( qpen_.color() );
+    Color col( qcol.red(), qcol.green(), qcol.blue() );
+    return LineStyle( (LineStyle::Type)qpen_.style(), qpen_.width(), col );
 }
 
 
