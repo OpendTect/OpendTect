@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uiseismulticubeps.h,v 1.1 2008-09-04 13:31:45 cvsbert Exp $
+ RCS:           $Id: uiseismulticubeps.h,v 1.2 2008-09-04 14:06:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,14 +29,13 @@ public:
                         uiSeisMultiCubePS(uiParent*);
                         ~uiSeisMultiCubePS();
 
-    const IOObj*	createdIOObj() const	{ return crioobj_; }
+    const IOObj*	createdIOObj() const;
 
 protected:
 
     CtxtIOObj&		ctio_;
     ObjectSet<uiSeisMultiCubePSEntry>	entries_;
     ObjectSet<uiSeisMultiCubePSEntry>	selentries_;
-    IOObj*		crioobj_;
     int			curselidx_;
 
     uiListBox*		cubefld_;

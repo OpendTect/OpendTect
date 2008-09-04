@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		Aug 2008
- RCS:		$Id: seismulticubeps.h,v 1.3 2008-09-02 10:54:17 cvsbert Exp $
+ RCS:		$Id: seismulticubeps.h,v 1.4 2008-09-04 14:06:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -64,6 +64,8 @@ class MultiCubeSeisPS3DTranslator : public SeisPS3DTranslator
 {			       isTranslator(MultiCube,SeisPS3D)
 public:
     			mDefEmptyTranslatorConstructor(MultiCube,SeisPS3D)
+
+    virtual bool	isReadDefault() const		{ return true; }
 };
 
 

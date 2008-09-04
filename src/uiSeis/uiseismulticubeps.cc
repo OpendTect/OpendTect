@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uiseismulticubeps.cc,v 1.1 2008-09-04 13:31:45 cvsbert Exp $
+ RCS:           $Id: uiseismulticubeps.cc,v 1.2 2008-09-04 14:06:42 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,7 +18,7 @@ ________________________________________________________________________
 #include "uiioobjsel.h"
 #include "uiseparator.h"
 #include "uimsg.h"
-#include "seispsioprov.h"
+#include "seismulticubeps.h"
 #include "seistrctr.h"
 #include "ctxtioobj.h"
 #include "ioman.h"
@@ -42,16 +42,17 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p )
 		   "Create MultiCube Pre-Stack data store","0.0.0"))
 	, ctio_(*mMkCtxtIOObj(SeisPS3D))
 	, cubefld_(0)
-	, crioobj_(0)
 	, curselidx_(-1)
 {
+    ctio_.ctxt.forread = false;
+    ctio_.ctxt.deftransl = ctio_.ctxt.trglobexpr = "MultiCube";
+
     fillEntries();
     if ( entries_.isEmpty() )
     {
 	new uiLabel( this, "No cubes found.\n\nPlease import data first." );
 	return;
     }
-    ctio_.ctxt.deftransl = ctio_.ctxt.trglobexpr = "MultiCube";
 
     uiLabeledListBox* cubesllb = new uiLabeledListBox( this, "Available cubes",
 					false, uiLabeledListBox::AboveMid );
@@ -93,10 +94,15 @@ uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p )
 uiSeisMultiCubePS::~uiSeisMultiCubePS()
 {
     delete ctio_.ioobj;
-    delete crioobj_;
     deepErase( entries_ );
     deepErase( selentries_ );
     delete &ctio_;
+}
+
+
+const IOObj* uiSeisMultiCubePS::createdIOObj() const
+{
+    return ctio_.ioobj;
 }
 
 
@@ -195,9 +201,27 @@ void uiSeisMultiCubePS::fullUpdate()
 }
 
 
-#define mErrRet(s) { uiMSG().error(s); return; }
+#define mErrRet(s) { uiMSG().error(s); return false; }
 
 bool uiSeisMultiCubePS::acceptOK( CallBacker* )
 {
-    return false;
+    if ( !outfld_->commitInput(true) )
+	mErrRet("Please enter the output name")
+
+    ObjectSet<MultiID> mids; TypeSet<float> offs;
+    for ( int idx=0; idx<selentries_.size(); idx++ )
+    {
+	const uiSeisMultiCubePSEntry& entry = *selentries_[idx];
+	mids += new MultiID( entry.ioobj_->key() );
+	offs += entry.offs_;
+    }
+
+    BufferString emsg;
+    bool ret = MultiCubeSeisPSReader::writeData(
+			ctio_.ioobj->fullUserExpr(false), mids, offs, emsg );
+    deepErase( mids );
+    if ( !ret )
+	mErrRet(emsg)
+
+    return true;
 }
