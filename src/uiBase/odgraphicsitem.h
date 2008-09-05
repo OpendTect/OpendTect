@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2008
- RCS:		$Id: odgraphicsitem.h,v 1.1 2008-08-20 03:33:48 cvssatyaki Exp $
+ RCS:		$Id: odgraphicsitem.h,v 1.2 2008-09-05 11:11:27 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,21 +30,21 @@ class LineStyle;
 class ODGraphicsPointItem : public QAbstractGraphicsShapeItem
 {
 public:
+    				ODGraphicsPointItem()
+				    : highlight_(false)	{}
+
     QRectF			boundingRect() const;
     void 			paint(QPainter*,const QStyleOptionGraphicsItem*,
 	    		              QWidget*);
     void 			drawPoint(QPainter*);
     void			setHighLight( bool hl )
 				{ highlight_ = hl ; }
+
 protected:
     bool			highlight_;
 };
 
 
-/*class uiGraphicsShapeItem : public QAbstractGraphicsShapeItem
-{
-public:
-}*/
 
 class ODGraphicsMarkerItem : public QAbstractGraphicsShapeItem
 {
