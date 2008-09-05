@@ -4,7 +4,7 @@
  * DATE     : January 2008
 -*/
 
-static const char* rcsID = "$Id: delaunay.cc,v 1.25 2008-08-21 06:18:56 cvsumesh Exp $";
+static const char* rcsID = "$Id: delaunay.cc,v 1.26 2008-09-05 19:04:47 cvskris Exp $";
 
 #include "delaunay.h"
 #include "trigonometry.h"
@@ -184,7 +184,7 @@ bool DAGTriangleTree::setBBox(const Interval<double>& xrg,
 	return false;
 
     const Coord center( xrg.center(), yrg.center() );
-    const double radius = 2*sqrt( xlength*xlength+ylength*ylength );
+    const double radius = sqrt( xlength*xlength+ylength*ylength )/2;
     initialcoords_[0] = Coord( center.x-radius*sqrt(3), center.y-radius );
     initialcoords_[1] = Coord( center.x+radius*sqrt(3), center.y-radius );
     initialcoords_[2] = Coord( center.x, center.y+2*radius );
