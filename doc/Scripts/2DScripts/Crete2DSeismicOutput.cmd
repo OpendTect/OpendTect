@@ -39,4 +39,10 @@ Ok
 TreeMenu "2D Seismics`*" "Remove"
 Button "Yes"
 
+Menu "Survey`Manage`Seismics"
+ListClick "Objects list" "Seis-output"
+Button "Remove this object"
+Button "Yes"
+Button "Dismiss"
+
 End
