@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arrayndimpl.h,v 1.57 2008-03-20 21:39:30 cvskris Exp $
+ RCS:		$Id: arrayndimpl.h,v 1.58 2008-09-05 19:05:30 cvskris Exp $
 ________________________________________________________________________
 
 */
@@ -62,7 +62,7 @@ protected:
 
 
 #define mDeclArrayNDProtMemb(inftyp) \
-    inftyp			in; \
+    inftyp			in_; \
     ValueSeries<T>*		stor_; \
  \
     const ValueSeries<T>*	getStorage_() const { return stor_; }
@@ -83,7 +83,7 @@ public:
     inline void			set(int pos,T);
     inline T			get(int pos) const;
 			
-    inline const Array1DInfo&	info() const			{ return in; }
+    inline const Array1DInfo&	info() const			{ return in_; }
     inline bool			canSetInfo()			{ return true; }
     inline bool			setInfo(const ArrayNDInfo&);
     inline bool			setSize(int);
@@ -350,7 +350,7 @@ void ArrayNDFileStor<T>::close()
 #define mImplCopyConstructor( clss, from ) \
 template <class T> inline \
 clss<T>::clss(const from<T>& templ) \
-    : in(templ.info())  \
+    : in_(templ.info())  \
     , stor_( 0 ) \
     , ptr_( 0 ) \
 { \
@@ -381,7 +381,7 @@ bool clss<T>::setStorage(ValueSeries<T>* s) \
 
 template <class T> inline
 Array1DImpl<T>::Array1DImpl(int nsz, bool file )
-    : in(nsz)
+    : in_(nsz)
       mImplFileConstructor;
 
 mImplCopyConstructor( Array1DImpl, Array1D );
@@ -408,7 +408,7 @@ void Array1DImpl<T>::copyFrom( const Array1D<T>& templ )
     if ( info()!=templ.info() )
 	setInfo( templ.info() );
 
-    const int nr = in.getTotalSz();
+    const int nr = in_.getTotalSz();
 
     if ( templ.getData() )
 	memcpy( this->getData(), templ.getData(),sizeof(T)*nr );
@@ -431,7 +431,7 @@ bool Array1DImpl<T>::setInfo( const ArrayNDInfo& ni )
 template <class T> inline
 bool Array1DImpl<T>::setSize( int s )
 {
-    in.setSize(0,s);
+    in_.setSize(0,s);
     if ( !stor_->setSize(s) )
     {
 	ptr_ = 0;
@@ -445,13 +445,13 @@ bool Array1DImpl<T>::setSize( int s )
 
 template <class T> inline
 Array2DImpl<T>::Array2DImpl( int sz0, int sz1, bool file )
-    : in(sz0,sz1)
+    : in_(sz0,sz1)
 mImplFileConstructor;
 
 
 template <class T> inline
 Array2DImpl<T>::Array2DImpl( const Array2DInfo& nsz, bool file )
-    : in( nsz )
+    : in_( nsz )
 mImplFileConstructor;
 
 
@@ -464,7 +464,7 @@ mImplSetStorage( Array2DImpl );
 template <class T> inline
 void Array2DImpl<T>::set( int p0, int p1, T v )
 {
-    const od_int64 offset = in.getOffset( p0, p1 );
+    const od_int64 offset = in_.getOffset( p0, p1 );
     if ( ptr_ ) ptr_[offset] = v;
     else stor_->setValue( offset, v );
 }
@@ -473,7 +473,7 @@ void Array2DImpl<T>::set( int p0, int p1, T v )
 template <class T> inline
 T Array2DImpl<T>::get( int p0, int p1 ) const
 {
-    const od_int64 offset = in.getOffset( p0, p1);
+    const od_int64 offset = in_.getOffset( p0, p1);
     return ptr_ ? ptr_[offset] : stor_->value( offset );
 }
 
@@ -486,14 +486,14 @@ void Array2DImpl<T>::copyFrom( const Array2D<T>& templ )
 
     if ( templ.getData() )
     {
-	const int nr = in.getTotalSz();
+	const int nr = in_.getTotalSz();
 	memcpy( this->getData(),
 		templ.getData(),sizeof(T)*nr );
     }
     else
     {
-	int sz0 = in.getSize(0);
-	int sz1 = in.getSize(1);
+	int sz0 = in_.getSize(0);
+	int sz1 = in_.getSize(1);
 
 	for ( int id0=0; id0<sz0; id0++ )
 	{
@@ -506,7 +506,7 @@ void Array2DImpl<T>::copyFrom( const Array2D<T>& templ )
 
 template <class T> inline
 const Array2DInfo& Array2DImpl<T>::info() const
-{ return in; }
+{ return in_; }
 
 
 template <class T> inline
@@ -525,9 +525,9 @@ bool Array2DImpl<T>::setInfo( const ArrayNDInfo& ni )
 template <class T> inline
 bool Array2DImpl<T>::setSize( int d0, int d1 )
 {
-    in.setSize(0,d0);
-    in.setSize(1,d1);
-    if ( !stor_->setSize( in.getTotalSz() ) )
+    in_.setSize(0,d0);
+    in_.setSize(1,d1);
+    if ( !stor_->setSize( in_.getTotalSz() ) )
     {
 	ptr_ = 0;
 	return false;
@@ -540,13 +540,13 @@ bool Array2DImpl<T>::setSize( int d0, int d1 )
 
 template <class T> inline
 Array3DImpl<T>::Array3DImpl( int sz0, int sz1, int sz2, bool file)
-    : in(sz0,sz1,sz2)
+    : in_(sz0,sz1,sz2)
 mImplFileConstructor;
 
 
 template <class T> inline
 Array3DImpl<T>::Array3DImpl( const Array3DInfo& nsz, bool file )
-    : in(nsz)
+    : in_(nsz)
 mImplFileConstructor;
 
 mImplCopyConstructor( Array3DImpl, Array3D );
@@ -557,7 +557,7 @@ mImplSetStorage( Array3DImpl );
 template <class T> inline
 void Array3DImpl<T>::set( int p0, int p1, int p2, T v )
 {
-    const od_int64 offset = in.getOffset( p0, p1, p2 );
+    const od_int64 offset = in_.getOffset( p0, p1, p2 );
     if ( ptr_ ) ptr_[offset] = v;
     else stor_->setValue( offset, v );
 }
@@ -567,7 +567,7 @@ void Array3DImpl<T>::set( int p0, int p1, int p2, T v )
 template <class T> inline
 T Array3DImpl<T>::get( int p0, int p1, int p2 ) const
 {
-    const od_int64 offset = in.getOffset( p0, p1, p2 );
+    const od_int64 offset = in_.getOffset( p0, p1, p2 );
     return ptr_ ? ptr_[offset] : stor_->value( offset );
 }
 
@@ -580,14 +580,14 @@ void Array3DImpl<T>::copyFrom( const Array3D<T>& templ )
 
     if ( templ.getData() )
     {
-	const int nr = in.getTotalSz();
+	const int nr = in_.getTotalSz();
 	memcpy( this->getData(), templ.getData(),sizeof(T)*nr );
     }
     else
     {
-	int sz0 = in.getSize(0);
-	int sz1 = in.getSize(1);
-	int sz2 = in.getSize(2);
+	int sz0 = in_.getSize(0);
+	int sz1 = in_.getSize(1);
+	int sz2 = in_.getSize(2);
 
 	for ( int id0=0; id0<sz0; id0++ )
 	{
@@ -603,7 +603,7 @@ void Array3DImpl<T>::copyFrom( const Array3D<T>& templ )
 
 template <class T> inline
 const Array3DInfo& Array3DImpl<T>::info() const
-{ return in; }
+{ return in_; }
 
 
 template <class T> inline
@@ -622,10 +622,10 @@ bool Array3DImpl<T>::setInfo( const ArrayNDInfo& ni )
 template <class T> inline
 bool Array3DImpl<T>::setSize( int d0, int d1, int d2 )
 {
-    in.setSize(0,d0);
-    in.setSize(1,d1);
-    in.setSize(2,d2);
-    if ( !stor_->setSize( in.getTotalSz() ) )
+    in_.setSize(0,d0);
+    in_.setSize(1,d1);
+    in_.setSize(2,d2);
+    if ( !stor_->setSize( in_.getTotalSz() ) )
     {
 	ptr_ = 0;
 	return false;
@@ -638,19 +638,24 @@ bool Array3DImpl<T>::setSize( int d0, int d1, int d2 )
 
 template <class T> inline
 ArrayNDImpl<T>::ArrayNDImpl( const ArrayNDInfo& nsz, bool file )
-    : in( nsz.clone() )
+    : in_( nsz.clone() )
 mImplFileConstructor;
 
 
 template <class T> inline
 ArrayNDImpl<T>::ArrayNDImpl( const ArrayND<T>& templ, bool file )
-    : in(templ.info().clone())
+    : in_(templ.info().clone())
 mImplFileConstructor;
 
 
-//mImplCopyConstructor( ArrayNDImpl, ArrayND );
-//mImplCopyConstructor( ArrayNDImpl, ArrayNDImpl );
-mImplDestructor( ArrayNDImpl );
+template <class T> inline
+ArrayNDImpl<T>::~ArrayNDImpl()
+{
+    delete stor_;
+    delete in_;
+}
+
+
 mImplSetStorage( ArrayNDImpl );
 
 template <class T> inline
@@ -658,18 +663,18 @@ void ArrayNDImpl<T>::copyFrom( const ArrayND<T>& templ )
 {
     if ( info()!=templ.info() )
     {
-	delete in;
-	in = templ.info().clone();
+	delete in_;
+	in_ = templ.info().clone();
     }
 
     if ( templ.getData() )
     {
-	const int nr = in->getTotalSz();
+	const int nr = in_->getTotalSz();
 	memcpy( this->getData(), templ.getData(),sizeof(T)*nr );
     }
     else
     {
-	ArrayNDIter iter( *in );
+	ArrayNDIter iter( *in_ );
 
 	do
 	{
@@ -682,7 +687,7 @@ void ArrayNDImpl<T>::copyFrom( const ArrayND<T>& templ )
 template <class T> inline
 void ArrayNDImpl<T>::set( const int* pos, T v )
 {
-    const od_int64 offset = in->getOffset(pos);
+    const od_int64 offset = in_->getOffset(pos);
     if ( ptr_ ) ptr_[offset] = v ;
     else stor_->setValue( offset, v);
 }
@@ -691,14 +696,14 @@ void ArrayNDImpl<T>::set( const int* pos, T v )
 template <class T> inline
 T ArrayNDImpl<T>::get( const int* pos ) const
 {
-    const od_int64 offset = in->getOffset(pos);
+    const od_int64 offset = in_->getOffset(pos);
     return ptr_ ? ptr_[offset] : stor_->value( offset );
 }
 
 
 template <class T> inline
 const ArrayNDInfo& ArrayNDImpl<T>::info() const
-{ return *in; }
+{ return *in_; }
 
 
 template <class T> inline
@@ -714,10 +719,10 @@ bool ArrayNDImpl<T>::canChangeNrDims() const
 template <class T> inline
 bool ArrayNDImpl<T>::setInfo( const ArrayNDInfo& ni )
 {
-    if ( ni.getNDim()!=in->getNDim() )
+    if ( ni.getNDim()!=in_->getNDim() )
 	return false;
 
-    const int ndim = in->getNDim();
+    const int ndim = in_->getNDim();
     TypeSet<int> sizes( ndim, 0 );
     for ( int idx=0; idx<ndim; idx++ )
 	sizes[idx] = ni.getSize(idx);
@@ -729,11 +734,11 @@ bool ArrayNDImpl<T>::setInfo( const ArrayNDInfo& ni )
 template <class T> inline
 bool ArrayNDImpl<T>::setSize( const int* d )
 {
-    const int ndim = in->getNDim();
+    const int ndim = in_->getNDim();
     for ( int idx=0; idx<ndim; idx++ )
-	in->setSize( idx, d[idx] );
+	in_->setSize( idx, d[idx] );
 
-    if ( stor_->setSize( in->getTotalSz() ) )
+    if ( stor_->setSize( in_->getTotalSz() ) )
     {
 	ptr_ = 0;
 	return false;
