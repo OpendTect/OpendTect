@@ -7,13 +7,15 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          July 2008
- RCS:           $Id: explpolygonsurface.h,v 1.1 2008-09-05 16:48:42 cvsyuancheng Exp $
+ RCS:           $Id: explpolygonsurface.h,v 1.2 2008-09-05 21:23:05 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "indexedshape.h"
 #include "position.h"
+
+class DAGTetrahedraTree;
 
 namespace Geometry
 {
@@ -26,22 +28,23 @@ class PolygonSurface;
 class ExplPolygonSurface: public Geometry::IndexedShape, public CallBacker
 {
 public:
-			ExplPolygonSurface(PolygonSurface*);
+			ExplPolygonSurface(const PolygonSurface*);
     			~ExplPolygonSurface();
 
-    void		setSurface(PolygonSurface*);
-    PolygonSurface*	getSurface()			{ return surface_; }
-    const PolygonSurface* getSurface() const		{ return surface_; }
-
     void		display(bool polygons,bool body);
+    void		setSurface(const PolygonSurface*);
+    const PolygonSurface* getSurface() const	     { return surface_; }
+
     bool		arePolygonsDisplayed() const { return displaypolygons_;}
     bool		isBodyDisplayed() const	     { return displaybody_; }
 
-    bool		needsUpdate() const		{ return needsupdate_; }
-
+    bool		needsUpdate() const	     { return needsupdate_; }
+    DAGTetrahedraTree*	getTetrahedraTree() const    { return tetrahedratree_; }
+    TypeSet<int>	getExcludeTetragedras()	     { return notetrahedras_; }	
+    bool		createsNormals() const       { return true; }
+    
     bool		update(bool forceall,TaskRunner*);
     void		setRightHandedNormals(bool yn);
-    bool		createsNormals() const		{ return true; }
 
 protected:
 
@@ -55,10 +58,12 @@ protected:
     bool		displaypolygons_;
     bool		displaybody_;
     bool		needsupdate_;
-    
-    PolygonSurface*	surface_;
-    IndexedGeometry*	bodytriangle_;
-    IndexedGeometry*	polygondisplay_;
+
+    DAGTetrahedraTree*		tetrahedratree_; 
+    TypeSet<int>		notetrahedras_;   
+    const PolygonSurface*	surface_;
+    IndexedGeometry*		bodytriangle_;
+    IndexedGeometry*		polygondisplay_;
 };
 
 };

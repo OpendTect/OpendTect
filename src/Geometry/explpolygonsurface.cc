@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.1 2008-09-05 16:48:42 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.2 2008-09-05 21:23:05 cvsyuancheng Exp $";
 
 #include "explpolygonsurface.h"
 
@@ -17,9 +17,9 @@ static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.1 2008-09-05 16:48:42
 namespace Geometry {
 
 
-ExplPolygonSurface::ExplPolygonSurface( PolygonSurface* surf )
-    : surface_( 0 )
-    , bodytriangle_( 0 ) 
+ExplPolygonSurface::ExplPolygonSurface( const PolygonSurface* surf )
+    : bodytriangle_( 0 )
+    , tetrahedratree_( 0 )  
     , polygondisplay_( 0 )			 
     , displaypolygons_( true )
     , displaybody_( true )
@@ -35,7 +35,7 @@ ExplPolygonSurface::~ExplPolygonSurface()
 }
 
 
-void ExplPolygonSurface::setSurface( PolygonSurface* psurf )
+void ExplPolygonSurface::setSurface( const PolygonSurface* psurf )
 {
     removeAll();
     surface_ = psurf;
@@ -210,18 +210,20 @@ void ExplPolygonSurface::updatePolygonDisplay()
 bool ExplPolygonSurface::updateBodyDisplay( const TypeSet<Coord3>&  pts )
 {
     const StepInterval<int> rrg = surface_->rowRange();
+
+    if ( !tetrahedratree_ ) 
+      tetrahedratree_ = new DAGTetrahedraTree;	
    
-    DAGTetrahedraTree dagtree;
-    if ( !dagtree.setCoordList( pts, false ) )
+    if ( !tetrahedratree_->setCoordList( pts, false ) )
 	return false;
 
-    ParallelDTetrahedralator triangulator( dagtree );
+    ParallelDTetrahedralator triangulator( *tetrahedratree_ );
     triangulator.dataIsRandom( true );
     if ( !triangulator.execute(true) )
 	return false;
 
     TypeSet<int> triangles;
-    dagtree.getTetrahedraTriangles( triangles );
+    tetrahedratree_->getTetrahedraTriangles( triangles );
     
     TypeSet<int> plgknots[rrg.nrSteps()+1];
     TypeSet<int> concaveedges;
@@ -236,7 +238,7 @@ bool ExplPolygonSurface::updateBodyDisplay( const TypeSet<Coord3>&  pts )
 	    plgknots[plg] += idx+usednrknots;
 
 	TypeSet<int> ccts;
-	surface_->getPolygonConcaveTriangles( plg, ccts );
+	surface_->getNonintersectConcaveTris( plg, ccts );
 	
 	for ( int vidx=0; vidx<ccts.size()/3; vidx++ )
 	{
