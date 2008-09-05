@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvmap.cc,v 1.14 2008-09-02 12:49:20 cvsnanne Exp $
+ RCS:           $Id: uisurvmap.cc,v 1.15 2008-09-05 14:24:03 cvsnanne Exp $
 ________________________________________________________________________
 
 -*/
@@ -96,6 +96,11 @@ void uiSurveyMap::drawMap( const SurveyInfo* survinfo )
 	uiLineItem* lineitm = mapscene_->addLine( cpt[idx],
 						  idx!=3 ? cpt[idx+1]:cpt[0] );
 	lineitm->setPenStyle( ls );
+
+	uiPointItem* ptitm = new uiPointItem();
+	ptitm->setPos( cpt[idx].x, cpt[idx].y );
+	ptitm->setZValue( 1 );
+	mapscene_->addItem( ptitm );
     }
 
     bool printxy = false;
