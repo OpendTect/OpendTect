@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.2 2008-09-05 21:23:05 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.3 2008-09-05 21:30:57 cvsyuancheng Exp $";
 
 #include "explpolygonsurface.h"
 
@@ -31,6 +31,7 @@ ExplPolygonSurface::ExplPolygonSurface( const PolygonSurface* surf )
 
 ExplPolygonSurface::~ExplPolygonSurface()
 {
+    delete tetrahedratree_;
     setSurface( 0 );
 }
 
@@ -260,6 +261,8 @@ bool ExplPolygonSurface::updateBodyDisplay( const TypeSet<Coord3>&  pts )
 	usednrknots += nrknots;
     }
 
+
+    notetrahedras_.erase();
     bodytriangle_->coordindices_.erase();
     for ( int idx=0; idx<triangles.size()/3; idx++ )
     {
