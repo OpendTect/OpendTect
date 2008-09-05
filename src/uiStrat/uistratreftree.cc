@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          June 2007
- RCS:		$Id: uistratreftree.cc,v 1.23 2008-07-11 09:33:22 cvsnanne Exp $
+ RCS:		$Id: uistratreftree.cc,v 1.24 2008-09-05 09:39:28 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -273,9 +273,12 @@ ioPixmap* uiStratRefTree::createLevelPixmap( const UnitRef* ref ) const
 
 BufferString uiStratRefTree::getCodeFromLVIt( const uiListViewItem* item ) const
 {
+    if ( !item )
+	return BufferString();
+
     BufferString bs = item->text();
-    int itemdepth = item->depth();
-    for ( int idx=itemdepth-1; idx>=0; idx-- )
+
+    while ( item->parent() )
     {
 	item = item->parent();
 	CompoundKey kc( item->text() );

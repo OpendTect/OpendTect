@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene
  Date:          July 2007
- RCS:		$Id: uistrattreewin.cc,v 1.20 2007-11-15 13:53:47 cvshelene Exp $
+ RCS:		$Id: uistrattreewin.cc,v 1.21 2008-09-05 09:39:28 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -126,19 +126,25 @@ void uiStratTreeWin::setExpCB( CallBacker* )
 
 
 void uiStratTreeWin::unitSelCB(CallBacker*)
-{
-    /*uiListViewItem* item = uitree_->listView()->selectedItem();
-    BufferString bs = item->text();
-    int itemdepth = item->depth();
-    for ( int idx=itemdepth-1; idx>=0; idx-- )
+{ /*
+    uiListViewItem* item = uitree_->listView()->selectedItem();
+    BufferString bs;
+    
+    if ( item )
     {
-	item = item->parent();
-	CompoundKey kc( item->text() );
-	kc += bs.buf();
-	bs = kc.buf();
+	bs = item->text();
+
+	while ( item->parent() )
+	{
+	    item = item->parent();
+	    CompoundKey kc( item->text() );
+	    kc += bs.buf();
+	    bs = kc.buf();
+	}
     }
+
     const Strat::UnitRef* ur = uitree_->findUnit( bs.buf() ); 
-*/}
+*/ }
 
 
 void uiStratTreeWin::editCB( CallBacker* )

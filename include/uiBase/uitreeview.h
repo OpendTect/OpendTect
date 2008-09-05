@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.30 2008-08-04 10:47:09 cvsnanne Exp $
+ RCS:           $Id: uitreeview.h,v 1.31 2008-09-05 09:39:28 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -222,8 +222,6 @@ public:
     void		moveItem(uiListViewItem* after);
     int			siblingIndex() const;
     			/*!<\returns this items index of it's siblings. */
-
-    int			depth() const; // depth in the tree.
 
     void		setText( const char*, int column=0 );
     void		setText( int i, int column=0 )

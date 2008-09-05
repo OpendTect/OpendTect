@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.42 2008-09-05 08:11:34 cvsjaap Exp $
+ RCS:           $Id: uitreeview.cc,v 1.43 2008-09-05 09:39:28 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -568,10 +568,6 @@ uiListViewItem::~uiListViewItem()
     odqtobjects_.remove( *this );
     delete qtreeitem_;
 }
-
-
-int uiListViewItem::depth() const
-{ return qItem()->treeWidget()->depth(); }
 
 
 void uiListViewItem::setText( const char* txt, int column )
