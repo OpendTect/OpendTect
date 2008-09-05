@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: i_qtreeview.h,v 1.10 2008-08-04 10:47:09 cvsnanne Exp $
+ RCS:           $Id: i_qtreeview.h,v 1.11 2008-09-05 08:11:34 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -65,6 +65,9 @@ private:
 void setNotifiedItem( QTreeWidgetItem* item )
 { receiver_.setNotifiedItem(item); }
 
+void setNotifiedColumn( int col )
+{ receiver_.setNotifiedColumn( col ); }
+
 uiListView&	receiver_;
 QTreeWidget& 	sender_;
 
@@ -90,9 +93,10 @@ void currentItemChanged( QTreeWidgetItem* item, QTreeWidgetItem* )
     receiver_.currentChanged.trigger(receiver_);
 }
 
-void itemClicked( QTreeWidgetItem* item, int )
+void itemClicked( QTreeWidgetItem* item, int col )
 {
     setNotifiedItem( item );
+    setNotifiedColumn( col );
     if ( receiver_.buttonstate_ == OD::RightButton )
 	receiver_.rightButtonClicked.trigger( receiver_ );
     else if ( receiver_.buttonstate_ == OD::LeftButton )
@@ -101,9 +105,10 @@ void itemClicked( QTreeWidgetItem* item, int )
     receiver_.mouseButtonClicked.trigger( receiver_ );
 }
 
-void itemPressed( QTreeWidgetItem* item, int )
+void itemPressed( QTreeWidgetItem* item, int col )
 {
     setNotifiedItem( item );
+    setNotifiedColumn( col );
     if ( receiver_.buttonstate_ == OD::RightButton )
 	receiver_.rightButtonPressed.trigger( receiver_ );
     else if ( receiver_.buttonstate_ == OD::NoButton )

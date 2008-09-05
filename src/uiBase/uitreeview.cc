@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.41 2008-08-04 10:47:09 cvsnanne Exp $
+ RCS:           $Id: uitreeview.cc,v 1.42 2008-09-05 08:11:34 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -291,7 +291,8 @@ uiListView::uiListView( uiParent* p, const char* nm, int nl, bool dec )
     , expanded(this)
     , collapsed(this)
     , unusedKey(this)
-    , lastitemnotified_(0) 
+    , lastitemnotified_(0)
+    , column_(0)
     , activatedone(this)
     , parent_(p)
 {
