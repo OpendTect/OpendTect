@@ -14,6 +14,7 @@ Include "$SCRIPTSDIR$/2DScripts/2DExportData.cmd"
 Include "$SCRIPTSDIR$/2DScripts/2DImportData.cmd"
 Include "$SCRIPTSDIR$/2DScripts/2DHorizonGrid.cmd"
 Include "$SCRIPTSDIR$/2DScripts/CreateSteeringCube.cmd"
+Include "$SCRIPTSDIR$/2DScripts/NNTrain.cmd"
 Include "$SCRIPTSDIR$/2DScripts/Crete2DSeismicOutput.cmd.cmd"
 
 End
