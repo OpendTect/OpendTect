@@ -4,9 +4,9 @@
 /*+
 ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
-Author:        K. Tingdahl / J.C. Glas
-Date:          September 2007
-RCS:           $Id: polygonsurface.h,v 1.1 2008-06-18 18:24:47 cvskris Exp $
+Author:        Y.C. Liu
+Date:          July 2008
+RCS:           $Id: polygonsurface.h,v 1.2 2008-09-05 16:52:20 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,7 +16,12 @@ ________________________________________________________________________
 
 namespace Geometry
 {
-
+/*<!Simple geometry for polygonsurface, for polygon plane, only three 
+    directions are defined, i.e. along XY, XZ or YZ planes. So normals are 
+    given by Coord3(0,0,1), Coord3(0,1,0) and Coord3(1,0,0) respectively.
+    For Rcol variable rc, rc.r() represents polygonidx, rc.c() represents the 
+    knots on the corresponding polygon. */
+ 
 class PolygonSurface : public RowColSurface
 {
 public:
@@ -24,41 +29,44 @@ public:
     			~PolygonSurface();
     bool		isEmpty() const		{ return !polygons_.size(); }
     Element*		clone() const;
-
-    enum		Dimension { XY, XZ, YZ };
+    enum ChangeTag      {PolygonChange=__mUndefIntVal+1,PolygonInsert,
+			 PolygonRemove};
 
     bool		insertPolygon(const Coord3& firstpos,
-	    			      Dimension,int polygon=0);
+	    			      const Coord3& normal,int polygon=0,
+				      int firstknot=0);
     bool		removePolygon(int polygon);
 
     bool		insertKnot(const RCol&,const Coord3&);
     bool		removeKnot(const RCol&);
 
+    int			nrPolygons() const { return polygons_.size(); }
     StepInterval<int>	rowRange() const;
     StepInterval<int>	colRange(int polygon) const;
-
-    void		getPolygon(int polygon,TypeSet<Coord>& pts,
-	    			   BoolTypeSet& isdefpt);
-
+    
     bool		setKnot(const RCol&,const Coord3&);
     Coord3		getKnot(const RCol&) const;
     bool		isKnotDefined(const RCol&) const;
 
-    const Coord3&	getPolygonNormal(int polygon) const;				
-    Dimension		getPolygonPlane(int polygon) const;
+    bool		getPolygonCrds(int polygon,TypeSet<Coord3>& pts) const;
+    bool		getSurfaceCrds(TypeSet<Coord3>& pts) const;
+    const Coord3&	getPolygonNormal(int polygonnr) const;
+    bool		getPolygonConcaveTriangles(int plg,TypeSet<int>&) const;
+    			/*<the TypeSet has all the triangles which are concave 
+			relative to the polygon. ret v0, v1, v2 the 1st 
+			triangle; v3, v4, v5 the 2nd. */
 
-    			// To be used by surface reader only
-    void		addUdfRow(int stickidx,int firstknotnr,int nrknots);
-    void		addEditPlaneNormal(const Coord3&);
+    void		addUdfPolygon(int polygnr,int firstknotnr,int nrknots);
+    void		addEditPlaneNormal(const Coord3& normal);
 
 protected:
 
-    int				firstrow_;
-
+    int				firstpolygon_;
+    TypeSet<int>		firstknots_;
     ObjectSet<TypeSet<Coord3> >	polygons_;
-    TypeSet<int>		firstcols_;
-    
-    TypeSet<Dimension>		polygonplanes_;
+    				/*<assume each polygon is made by connecting 
+				   the pts in order. */
+    TypeSet<Coord3>		polygonnormals_;
 };
 
 };
