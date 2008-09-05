@@ -4,15 +4,13 @@
  * DATE     : Apr 2002
 -*/
 
-static const char* rcsID = "$Id: emmanager.cc,v 1.75 2008-08-05 05:01:02 cvsraman Exp $";
+static const char* rcsID = "$Id: emmanager.cc,v 1.76 2008-09-05 18:20:17 cvsyuancheng Exp $";
 
 #include "emmanager.h"
 
 #include "ctxtioobj.h"
-#include "emfault.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
-#include "emmarchingcubessurface.h"
 #include "emhorizonztransform.h"
 #include "emobject.h"
 #include "emsurfaceio.h"
@@ -315,7 +313,8 @@ const char* EMManager::getSurfaceData( const MultiID& id, SurfaceIOData& sd )
     const char* grpname = ioobj->group();
     if ( !strcmp(grpname,EMHorizon2DTranslatorGroup::keyword) ||
 	 !strcmp(grpname,EMHorizon3DTranslatorGroup::keyword) ||
-	 !strcmp(grpname,EMFaultTranslatorGroup::keyword) )
+	 !strcmp(grpname,EMFaultTranslatorGroup::keyword) ||
+	 !strcmp(grpname,EMPolygonTranslatorGroup::keyword) )
     {
 	PtrMan<EMSurfaceTranslator> tr = 
 	    		(EMSurfaceTranslator*)ioobj->getTranslator();
@@ -327,7 +326,11 @@ const char* EMManager::getSurfaceData( const MultiID& id, SurfaceIOData& sd )
 	    static BufferString msg;
 	    msg = tr->errMsg();
 	    if ( msg.isEmpty() )
-		{ msg = "Cannot read '"; msg += ioobj->name().buf(); msg += "'"; }
+	    { 
+		msg = "Cannot read '"; 
+		msg += ioobj->name().buf(); 
+		msg += "'"; 
+	    }
 
 	    return msg.buf();
 	}
