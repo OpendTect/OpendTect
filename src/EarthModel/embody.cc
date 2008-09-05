@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Sep 2008
- RCS:           $Id: embody.cc,v 1.1 2008-09-04 13:24:00 cvskris Exp $
+ RCS:           $Id: embody.cc,v 1.2 2008-09-05 15:43:03 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,5 @@ EM::ImplicitBody* EM::Body::createImplicitBody( TaskRunner* ) const
 { return 0; }
 
 
-EM::Body::Body( EM::EMManager& emm )
-    : EMObject( emm )
-{}
+const IOObjContext& EM::Body::getBodyContext() const
+{ return EMBodyTranslatorGroup::ioContext(); }

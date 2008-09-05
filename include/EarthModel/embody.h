@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: embody.h,v 1.1 2008-09-04 13:22:42 cvskris Exp $
+ RCS:		$Id: embody.h,v 1.2 2008-09-05 15:43:03 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -38,14 +38,13 @@ struct ImplicitBody
 
 /*!A body that can deliver an implicit body. */
 
-class Body : public EMObject
+class Body
 { 
 public:
 
-    virtual ImplicitBody*	createImplicitBody(TaskRunner*) const;
-    				//!<Returned object becomes caller's.
-protected:
-    				Body(EMManager&);
+    virtual ImplicitBody*	createImplicitBody(TaskRunner*) const = 0;
+    				//!<Returned object becomes caller.
+    const IOObjContext&		getBodyContext() const;
 };
 
 
