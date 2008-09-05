@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribstorprovider.cc,v 1.77 2008-08-13 07:06:03 cvsnanne Exp $";
+static const char* rcsID = "$Id: attribstorprovider.cc,v 1.78 2008-09-05 19:08:47 cvskris Exp $";
 
 #include "attribstorprovider.h"
 
@@ -605,13 +605,12 @@ BinID StorageProvider::getStepoutStep() const
     BinID& sos = const_cast<StorageProvider*>(this)->stepoutstep_;
     if ( mscprov_ )
     {
-	Seis::Bounds* bds = mscprov_->reader().getBounds();
+	PtrMan<Seis::Bounds> bds = mscprov_->reader().getBounds();
 	if ( bds )
 	{
 	    sos.inl = bds->step( true );
 	    sos.crl = bds->step( false );
 	}
-	delete bds;
     }
     else
 	sos.inl = sos.crl = 0;
