@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		9-3-1999
- RCS:		$Id: arraynd.h,v 1.28 2008-02-29 20:34:59 cvskris Exp $
+ RCS:		$Id: arraynd.h,v 1.29 2008-09-05 12:51:51 cvskris Exp $
 ________________________________________________________________________
 
 An ArrayND is an array with a given number of dimensions and a size. The
@@ -138,6 +138,23 @@ public:
     virtual const Array3DInfo&	info() const = 0;
 };
 
+
+/*!Converter class from one type to another. */
+
+template <class T, class TT> class Array3DConv : public Array3D<T>
+{
+public:
+    		Array3DConv(Array3D<TT>* arr) : arr_( arr ) {}
+    		~Array3DConv() { delete arr_; }
+    void	set(int p0,int p1,int p2,T v)	{arr_->set( p0, p1, p2,(TT)v );}
+    T        	get(int p0,int p1,int p2) const {return (T)arr_->get(p0,p1,p2);}
+    const Array3DInfo&	info() const		{return arr_->info(); }
+
+protected:
+    Array3D<TT>*	arr_;
+};
+
+//Only implementations below
 
 template <class T> inline
 bool ArrayND<T>::isOK() const
