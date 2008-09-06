@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Aug 2007
- RCS:           $Id: emmarchingcubessurface.cc,v 1.4 2007-10-12 21:30:28 cvsyuancheng Exp $
+ RCS:           $Id: emmarchingcubessurface.cc,v 1.5 2008-09-06 14:34:41 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,6 +12,7 @@ ________________________________________________________________________
 #include "emmarchingcubessurface.h"
 #include "emmarchingcubessurfacetr.h"
 
+#include "arrayndimpl.h"
 #include "ascstream.h"
 #include "datainterp.h"
 #include "datachar.h"
@@ -264,6 +265,76 @@ bool EM::MarchingCubesSurface::isEmpty() const
 
 const IOObjContext& EM::MarchingCubesSurface::getIOObjContext() const
 { return EMMarchingCubesSurfaceTranslatorGroup::ioContext(); }
+
+
+ImplicitBody*
+EM::MarchingCubesSurface::createImplicitBody( TaskRunner* tr ) const
+{
+    if ( !mcsurface_ )
+	return 0;
+
+    mcsurface_->modelslock_.readLock();
+    Interval<int> inlrg, crlrg, zrg;
+    if ( !mcsurface_->models_.getRange( 0, inlrg ) ||
+	!mcsurface_->models_.getRange( 1, crlrg ) ||
+	!mcsurface_->models_.getRange( 2, zrg ) )
+    {
+	mcsurface_->modelslock_.readUnLock();
+	return 0;
+    }
+
+    const int inlsz = inlrg.width()+1;
+    const int crlsz = crlrg.width()+1;
+    const int zsz = zrg.width()+1;
+
+
+    mDeclareAndTryAlloc(Array3D<int>*,intarr,Array3DImpl<int>(inlsz,crlsz,zsz));
+    if ( !intarr )
+    {
+	mcsurface_->modelslock_.readUnLock();
+	return 0;
+    }
+
+    mDeclareAndTryAlloc( ImplicitBody*, res, ImplicitBody );
+    if ( !res )
+    {
+	mcsurface_->modelslock_.readUnLock();
+	delete intarr;
+	return 0;
+    }
+    Array3D<float>* arr = new Array3DConv<float,int>(intarr);
+    if ( !arr )
+    {
+	mcsurface_->modelslock_.readUnLock();
+	delete intarr;
+	delete res;
+	return 0;
+    }
+
+    res->arr_ = arr;
+    res->inlsampling_.start = inlsampling_.atIndex( inlrg.start );
+    res->inlsampling_.step = inlsampling_.step;
+
+    res->crlsampling_.start = crlsampling_.atIndex( crlrg.start );
+    res->crlsampling_.step = crlsampling_.step;
+
+    res->zsampling_.start = zsampling_.atIndex( zrg.start );
+    res->zsampling_.step = zsampling_.step;
+
+    MarchingCubes2Implicit m2i( *mcsurface_, *intarr,
+				inlrg.start, crlrg.start, zrg.start );
+    if ( !m2i.compute() )
+    {
+	delete res;
+	mcsurface_->modelslock_.readUnLock();
+	return 0;
+    }
+
+    res->threshold_ = m2i.threshold();
+    mcsurface_->modelslock_.readUnLock();
+    return res;
+}
+
 
 
 bool  EM::MarchingCubesSurface::setSurface( ::MarchingCubesSurface* ns )

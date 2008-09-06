@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emmarchingcubessurface.h,v 1.1 2007-09-04 20:58:36 cvskris Exp $
+ RCS:		$Id: emmarchingcubessurface.h,v 1.2 2008-09-06 14:34:41 cvskris Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "emobject.h"
+#include "embody.h"
 #include "samplingdata.h"
 
 class MarchingCubesSurface;
@@ -21,7 +22,7 @@ class MarchingCubesSurface;
 namespace EM
 {
 
-class MarchingCubesSurface : public EMObject
+class MarchingCubesSurface : public Body, public EMObject
 { mDefineEMObjFuncs( MarchingCubesSurface );
 public:
 
@@ -48,6 +49,8 @@ public:
     void			setInlSampling(const SamplingData<int>&);
     void			setCrlSampling(const SamplingData<int>&);
     void			setZSampling(const SamplingData<float>&);
+
+    ImplicitBody*		createImplicitBody(TaskRunner*) const;
 
 protected:
 
