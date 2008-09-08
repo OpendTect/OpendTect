@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-8-1995
- RCS:		$Id: iostrm.h,v 1.19 2008-01-08 11:53:52 cvsbert Exp $
+ RCS:		$Id: iostrm.h,v 1.20 2008-09-08 15:14:47 cvsbert Exp $
 ________________________________________________________________________
 
 
@@ -88,6 +88,7 @@ public:
     int			zeroPadding() const		{ return padzeros; }
     void		setZeroPadding( int zp )	{ padzeros = zp; }
     StepInterval<int>&	fileNumbers()			{ return fnrs; }
+    const StepInterval<int>& fileNumbers() const	{ return fnrs; }
 
     StreamProvider*	streamProvider(bool) const;
     bool		isMulti() const
