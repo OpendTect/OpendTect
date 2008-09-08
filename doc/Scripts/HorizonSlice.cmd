@@ -40,10 +40,9 @@ ListClick "Select Data" "Mediandip_HorSlice_Demo0" Double
 Button "Make snapshot"
 Button "Scene"
 Ok
-Input "Select filename" "$SCRIPTSDIR$/Snapshots/Mediandip_HorSlice.jpg"
+Input "Select filename" "$SNAPSHOTSDIR$/Mediandip_HorSlice.jpg"
 Ok
 
 TreeMenu "Inline`*" "Remove"
-
 
 End

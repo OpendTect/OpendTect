@@ -23,6 +23,11 @@ TreeMenu "Horizon" "Load"
 ListClick "Select Horizon*" 1 Double
 TreeMenu "Horizon`Demo 0*`Z values" "Select Attribute`Surface data*"
 ListClick "Select Data from List" "MedianDip-FS4" Double
+Button "Make Snapshot"
+Button "Scene"
+Ok
+Input "Select filename" "$SNAPSHOTSDIR$/Horizongrid"
+Ok
 
 Wheel "vRotate" -45
 
