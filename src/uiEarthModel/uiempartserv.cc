@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.144 2008-06-23 06:36:48 cvsraman Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.145 2008-09-08 17:41:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -21,7 +21,7 @@ ________________________________________________________________________
 #include "emhorizon3d.h"
 #include "emmanager.h"
 #include "emmarchingcubessurface.h"
-#include "emmarchingcubessurfacetr.h"
+#include "embodytr.h"
 #include "emposid.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
@@ -307,9 +307,9 @@ void uiEMPartServer::selectFaults( TypeSet<EM::ObjectID>& ids )
 { selectSurfaces( ids, EMFaultTranslatorGroup::keyword ); }
 
 
-void uiEMPartServer::selectMarchingCubes( TypeSet<EM::ObjectID>& ids )
+void uiEMPartServer::selectBody( TypeSet<EM::ObjectID>& ids )
 {
-    CtxtIOObj context( EMMarchingCubesSurfaceTranslatorGroup::ioContext() );
+    CtxtIOObj context( EMBodyTranslatorGroup::ioContext() );
     context.ctxt.forread = true;
 
     uiIOObjSelDlg dlg( parent(), context );

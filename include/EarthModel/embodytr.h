@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: embodytr.h,v 1.1 2008-09-04 13:25:07 cvskris Exp $
+ RCS:		$Id: embodytr.h,v 1.2 2008-09-08 17:41:28 cvskris Exp $
 ________________________________________________________________________
 
 
@@ -19,7 +19,7 @@ ________________________________________________________________________
 class Executor;
 class IOObj;
 
-namespace EM { class Body; }
+namespace EM { class Body; class PolygonBody; }
 
 typedef EM::Body 	EMBody;
 
@@ -36,11 +36,24 @@ public:
 class mcEMBodyTranslator : public Translator
 {				 isTranslator(mc,EMBody)
 public:
-    		mcEMBodyTranslator(const char* unm,const char* nm)
-		    : Translator(unm,nm)				{}
-    virtual	~mcEMBodyTranslator()					{}
+			mcEMBodyTranslator(const char* unm,const char* nm)
+			    : Translator(unm,nm)			{}
+			~mcEMBodyTranslator()				{}
+    static const char*  sKeyUserName() { return "MCBody"; }
 };
 
+
+class polygonEMBodyTranslator : public Translator
+{                               isTranslator(polygon,EMBody)
+public:
+			polygonEMBodyTranslator(const char* unm,const char* nm);
+			~polygonEMBodyTranslator();
+
+    static const char*  sKeyUserName();
+
+    Executor*		reader(const IOObj&,EM::PolygonBody&);
+    Executor*		writer(const EM::PolygonBody&,IOObj&);
+};
 
 
 #endif

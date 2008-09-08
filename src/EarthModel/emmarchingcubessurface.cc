@@ -4,13 +4,12 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Aug 2007
- RCS:           $Id: emmarchingcubessurface.cc,v 1.5 2008-09-06 14:34:41 cvskris Exp $
+ RCS:           $Id: emmarchingcubessurface.cc,v 1.6 2008-09-08 17:41:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emmarchingcubessurface.h"
-#include "emmarchingcubessurfacetr.h"
 
 #include "arrayndimpl.h"
 #include "ascstream.h"
@@ -264,7 +263,7 @@ bool EM::MarchingCubesSurface::isEmpty() const
 
 
 const IOObjContext& EM::MarchingCubesSurface::getIOObjContext() const
-{ return EMMarchingCubesSurfaceTranslatorGroup::ioContext(); }
+{ return EM::Body::getBodyContext(); }
 
 
 ImplicitBody*

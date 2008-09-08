@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          May 2002
- RCS:           $Id: emsurfacetr.cc,v 1.24 2008-09-05 18:20:17 cvsyuancheng Exp $
+ RCS:           $Id: emsurfacetr.cc,v 1.25 2008-09-08 17:41:28 cvskris Exp $
 ________________________________________________________________________
 
 -*/
@@ -82,11 +82,6 @@ const char* EMFaultTranslatorGroup::keyword = "Fault";
 
 mDefSimpleTranslatorSelector(EMFault,keyword)
 mDefSimpleTranslatorioContext(EMFault,Surf)
-
-const char* EMPolygonTranslatorGroup::keyword = "Polygon";
-
-mDefSimpleTranslatorSelector(EMPolygon,keyword)
-mDefSimpleTranslatorioContext(EMPolygon,Surf)
 
 EMSurfaceTranslator::~EMSurfaceTranslator()
 {
