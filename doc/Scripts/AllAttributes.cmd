@@ -4,7 +4,7 @@ Mon Jan 28 11:36:39 2008
 !
 
 # Select attribute set 'Demo attributes'
-Comment "----------Applying Attributes on all Tree items"
+Comment "----------Applying Attributes on all Tree items------------"
 
 Case Insensitive
 
