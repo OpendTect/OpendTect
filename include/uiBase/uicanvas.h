@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.h,v 1.17 2008-04-04 04:29:05 cvsnanne Exp $
+ RCS:           $Id: uicanvas.h,v 1.18 2008-09-08 12:31:06 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,10 @@ public:
     bool			hasMouseTracking() const;
 
     void			setBackgroundColor(const Color&);
+
+    				//! Force activation in GUI thread
+    void			activateMenu();
+    Notifier<uiCanvas>		activatedone;
 
 private:
 

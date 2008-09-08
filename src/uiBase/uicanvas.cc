@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          21/01/2000
- RCS:           $Id: uicanvas.cc,v 1.42 2008-04-15 10:35:00 cvsnanne Exp $
+ RCS:           $Id: uicanvas.cc,v 1.43 2008-09-08 12:31:06 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,6 +17,8 @@ ________________________________________________________________________
 #include "iodrawtool.h"
 #include "mouseevent.h"
 
+#include <QApplication>
+#include <QEvent>
 #include <Q3ScrollView>
 #include <QPainter>
 #include <QRubberBand>
@@ -36,6 +38,7 @@ class uiCanvasBody : public uiDrawableObjBody<uiCanvas,QFrame>
 public:
 uiCanvasBody( uiCanvas& handle, uiParent* p, const char *nm="uiCanvasBody")
     : uiDrawableObjBody<uiCanvas,QFrame>( handle, p, nm ) 
+    , handle_( handle )
 {
     setStretch( 2, 2 );
     setPrefWidth( sDefaultWidth );
@@ -43,10 +46,39 @@ uiCanvasBody( uiCanvas& handle, uiParent* p, const char *nm="uiCanvasBody")
     setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
 }
 
-virtual		~uiCanvasBody()		{}
-void		updateCanvas()		{ QWidget::update(); }
+    virtual		~uiCanvasBody()		{}
+    void		updateCanvas()		{ QWidget::update(); }
+
+    void		activateMenu();
+    bool		event(QEvent*);
+
+private:
+    uiCanvas&		handle_;
 };
 
+
+static const QEvent::Type sQEventActMenu = (QEvent::Type) (QEvent::User+0);
+
+void uiCanvasBody::activateMenu()
+{
+    QEvent* actevent = new QEvent( sQEventActMenu );
+    QApplication::postEvent( this, actevent );
+}
+
+
+bool uiCanvasBody::event( QEvent* ev )
+{
+    if ( ev->type() == sQEventActMenu )
+    {
+	const MouseEvent right( OD::RightButton );
+	handle_.getMouseEventHandler().triggerButtonPressed( right ); 
+    }
+    else
+	return QFrame::event( ev );
+
+    handle_.activatedone.trigger();
+    return true;
+}
 
 
 //! Derived class from QScrollView in order to handle 'n relay Qt's events
@@ -283,6 +315,7 @@ void uiScrollViewBody::contentsWheelEvent( QWheelEvent* e )
 
 uiCanvas::uiCanvas( uiParent* p, const Color& col, const char *nm )
     : uiDrawableObj( p,nm, mkbody(p,nm) )
+    , activatedone( this )
 {
     drawTool().setDrawAreaBackgroundColor( col );
 }
@@ -310,6 +343,9 @@ bool uiCanvas::hasMouseTracking() const
 void uiCanvas::setBackgroundColor( const Color& col )
 { drawTool().setDrawAreaBackgroundColor( col ); }
 
+
+void uiCanvas::activateMenu()
+{ body_->activateMenu(); }
 
 
 uiScrollView::uiScrollView( uiParent* p, const char *nm )
