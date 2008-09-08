@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          26/04/2000
- RCS:           $Id: uimenu.cc,v 1.49 2008-05-07 09:43:45 cvsnanne Exp $
+ RCS:           $Id: uimenu.cc,v 1.50 2008-09-08 12:35:19 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -492,10 +492,15 @@ int uiPopupMenu::exec()
 
     if ( interceptor_ )
     {
-	interceptionid_ = -1;
+	interceptitem_ = 0;
 	interceptor_->doCall( this );
 	resetInterceptor();
-	return interceptionid_;
+	if ( interceptitem_ )
+	{
+	    interceptitem_->activated.trigger();
+	    return interceptitem_->id();
+	}
+	return -1;
     }
 
     QAction* qaction = body_->popup()->exec( QCursor::pos() );
@@ -503,8 +508,8 @@ int uiPopupMenu::exec()
 }
 
     
-void uiPopupMenu::setInterceptionId( int id )
-{ interceptionid_ = id; }
+void uiPopupMenu::setInterceptItem( uiMenuItem* interceptitm )
+{ interceptitem_ = interceptitm; }
 
 
 void uiPopupMenu::resetInterceptor()
