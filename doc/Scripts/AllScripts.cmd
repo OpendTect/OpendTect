@@ -26,6 +26,7 @@ Include "$SCRIPTSDIR$/Attrib_onWell.cmd"
 Include "$SCRIPTSDIR$/AttributeCrossplot.cmd" 
 Include "$SCRIPTSDIR$/AttributeWellCrossplot.cmd"
 
+Include "$SCRIPTSDIR$/SceneProperities.cmd"
 Include "$SCRIPTSDIR$/Horizongrid.cmd"
 Include "$SCRIPTSDIR$/HorizonSlice.cmd"
 Include "$SCRIPTSDIR$/BetweenHorizon.cmd"
