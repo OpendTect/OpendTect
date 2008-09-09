@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.152 2008-09-03 16:29:22 cvskris Exp $
+ RCS:           $Id: uimainwin.cc,v 1.153 2008-09-09 14:45:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -1149,7 +1149,8 @@ uiObject* uiDialogBody::createChildren()
 	}
     }
     mDynamicCastGet( uiDialog&, dlg, handle_ );
-    if ( dlg.helpID() )
+    const BufferString hid( dlg.helpID() );
+    if ( !hid.isEmpty() && hid != "-" )
     {
 	const ioPixmap pixmap( "contexthelp.png" );
 	helpbut = new uiToolButton( centralWidget_, "&Help button", pixmap );
@@ -1158,8 +1159,7 @@ uiObject* uiDialogBody::createChildren()
 #ifdef __debug__
 	shwhid = true;
 #endif
-	helpbut->setToolTip( shwhid ? dlg.helpID()
-				    : "Help on this window" );
+	helpbut->setToolTip( shwhid ? hid.buf() : "Help on this window" );
     }
     if ( !setup.menubar_ && !setup.dlgtitle_.isEmpty() )
     {
