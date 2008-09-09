@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H.Bril
  Date:		Mar 2006
- RCS:		$Id: commondefs.h,v 1.11 2008-01-29 04:59:42 cvsnanne Exp $
+ RCS:		$Id: commondefs.h,v 1.12 2008-09-09 08:37:10 cvsbert Exp $
 ________________________________________________________________________
 
  Some very commonly used macros.
@@ -78,6 +78,9 @@ ________________________________________________________________________
 # define mDynamicCastGet(typ,out,in)	typ out = dynamic_cast< typ >( in );
 
 #endif
+
+#define mTODOHelpID	"0.0.0"
+#define mNoHelpID	"-"
 
 
 #endif
