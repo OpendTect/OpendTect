@@ -4,7 +4,7 @@
  * DATE     : April 2007
 -*/
 
-static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.6 2008-08-19 09:10:47 cvshelene Exp $";
+static const char* rcsID = "$Id: uivolprochorinterfiller.cc,v 1.7 2008-09-09 08:23:02 cvsbert Exp $";
 
 #include "uivolprochorinterfiller.h"
 #include "uimsg.h"
@@ -32,7 +32,7 @@ void uiHorInterFiller::initClass()
 
 uiHorInterFiller::uiHorInterFiller( uiParent* p, HorInterFiller* hf )
     : uiStepDialog( p, uiDialog::Setup( HorInterFiller::sUserName(),
-		HorInterFiller::sUserName(), "helpid" ),
+		HorInterFiller::sUserName(), "0.0.0" ),
 		    hf )
     , horinterfiller_( hf )
     , topctxt_( 0 )

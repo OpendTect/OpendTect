@@ -4,7 +4,7 @@
  * DATE		March 2007
 -*/
 
-static const char* rcsID = "$Id: uivolumereader.cc,v 1.1 2007-03-30 21:00:56 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uivolumereader.cc,v 1.2 2008-09-09 08:24:18 cvsbert Exp $";
 
 #include "uivolumereader.h"
 
@@ -25,7 +25,7 @@ void uiReader::initClass()
 
 
 uiReader::uiReader( uiParent* p, VolumeReader* vr )
-	: uiDialog( p, uiDialog::Setup( "Volume reader setup", 0, "helpid" ) )
+	: uiDialog( p, uiDialog::Setup( "Volume reader setup", 0, "0.0.0" ) )
 	, volreader_( vr )
 	, iocontext_( mMkCtxtIOObj(SeisTrc) )
 {

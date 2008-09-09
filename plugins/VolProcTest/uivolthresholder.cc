@@ -4,7 +4,7 @@
  * DATE		March 2007
 -*/
 
-static const char* rcsID = "$Id: uivolthresholder.cc,v 1.1 2007-03-30 21:00:56 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: uivolthresholder.cc,v 1.2 2008-09-09 08:24:18 cvsbert Exp $";
 
 #include "uivolthresholder.h"
 
@@ -23,7 +23,7 @@ void uiVolumeThresholder::initClass()
 
 
 uiVolumeThresholder::uiVolumeThresholder( uiParent* p, ThresholdStep* ts )
-	: uiDialog( p, uiDialog::Setup( "Volume Thresholder", 0, "helpid" ) )
+	: uiDialog( p, uiDialog::Setup( "Volume Thresholder", 0, "0.0.0" ) )
 	, thresholdstep_( ts )
 {   
     thresholdfld_ = new uiGenInput( this, "Threshold",
