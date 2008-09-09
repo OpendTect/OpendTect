@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiseispartserv.cc,v 1.93 2008-08-14 04:26:18 cvsraman Exp $
+ RCS:           $Id: uiseispartserv.cc,v 1.94 2008-09-09 08:36:49 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,7 @@ ________________________________________________________________________
 #include "uiseisioobjinfo.h"
 #include "uiseisrandto2dline.h"
 #include "uiseissegyimpexp.h"
+#include "uisegyio.h"
 #include "uiseissel.h"
 #include "uiseiswvltimp.h"
 #include "uiseiswvltman.h"
@@ -68,11 +69,20 @@ bool uiSeisPartServer::ioSeis( int opt, bool forread )
 	dlg = new uiSeisImpCBVS( appserv().parent() );
     else if ( opt < 4 )
     {
-	Seis::GeomType gt = opt == 0 ? Seis::Vol
-	    		 : (opt == 1 ? Seis::Line
-			 : (opt == 2 ? Seis::VolPS : Seis::LinePS));
-	if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) ) return true;
-	dlg = new uiSeisSegYImpExp( appserv().parent(), forread, segyid_, gt );
+	if ( GetEnvVarYN("OD_NEW_SEGY_HANDLING") )
+	{
+	    uiSEGYIO::Setup su( forread );
+	    dlg = new uiSEGYIO( appserv().parent(), forread );
+	}
+	else
+	{
+	    Seis::GeomType gt = opt == 0 ? Seis::Vol
+			     : (opt == 1 ? Seis::Line
+			     : (opt == 2 ? Seis::VolPS : Seis::LinePS));
+	    if ( !uiSurvey::survTypeOKForUser(Seis::is2D(gt)) ) return true;
+	    dlg = new uiSeisSegYImpExp( appserv().parent(), forread, segyid_,
+		    			gt );
+	}
     }
     else
     {
