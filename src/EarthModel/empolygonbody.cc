@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          July 2008
- RCS:           $Id: empolygonbody.cc,v 1.1 2008-09-08 17:41:28 cvskris Exp $
+ RCS:           $Id: empolygonbody.cc,v 1.2 2008-09-09 07:33:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,6 +24,10 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 
 namespace EM {
+
+    //TODO REMOVE THIS!!
+    Executor*  PolygonBody::loader() { return 0; }
+    Executor*  PolygonBody::saver() { return 0; }
 
 mImplementEMObjFuncs( PolygonBody, polygonEMBodyTranslator::sKeyUserName() );
 
