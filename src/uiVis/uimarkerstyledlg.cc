@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2002
- RCS:           $Id: uimarkerstyledlg.cc,v 1.3 2008-05-05 05:42:29 cvsnageswara Exp $
+ RCS:           $Id: uimarkerstyledlg.cc,v 1.4 2008-09-09 10:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,7 +20,8 @@ ________________________________________________________________________
 
 uiMarkerStyleDlg::uiMarkerStyleDlg( uiParent* p, const char* title )
 	: uiDialog(p,
-		   uiDialog::Setup(title,"Specify marker style properties",0)
+		   uiDialog::Setup(title,"Specify marker style properties",
+		       		   mNoHelpID)
 		   .canceltext(""))
 {
     typefld = new uiGenInput( this, "Type", 

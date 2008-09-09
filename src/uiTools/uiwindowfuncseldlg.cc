@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki Maitra
  Date:          August 2007
- RCS:           $Id: uiwindowfuncseldlg.cc,v 1.8 2008-08-08 13:56:32 cvshelene Exp $
+ RCS:           $Id: uiwindowfuncseldlg.cc,v 1.9 2008-09-09 10:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ ________________________________________________________________________
 
 uiWindowFuncSelDlg::uiWindowFuncSelDlg( uiParent* p, const char* windowname,
 	float variable )
-    : uiDialog( p, uiDialog::Setup("Window/Taper display",0,0).modal(true) )
+    : uiDialog( p, uiDialog::Setup("Window/Taper display",0,mNoHelpID) )
     , transform_(new uiWorld2Ui())
     , variable_(variable)
 {

@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: uivolprocchain.cc,v 1.5 2008-08-14 21:34:42 cvskris Exp $";
+static const char* rcsID = "$Id: uivolprocchain.cc,v 1.6 2008-09-09 10:52:11 cvsbert Exp $";
 
 #include "uivolprocchain.h"
 
@@ -224,7 +224,8 @@ void uiChain::showPropDialog( int idx )
     if ( !dlg )
     {
 	mTryAlloc( dlg, uiStepDialog( this,
-		    uiDialog::Setup("Select name", "Select name", 0 ), step ) );
+		    uiDialog::Setup("Select name","Select name",mNoHelpID),
+		    	step ) );
 	if ( !dlg )
 	    return;
     }

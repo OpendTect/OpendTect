@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          September 2007
- RCS:           $Id: uiveldesc.cc,v 1.10 2008-05-13 14:00:38 cvsbert Exp $
+ RCS:           $Id: uiveldesc.cc,v 1.11 2008-09-09 10:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -59,7 +59,7 @@ VelocityDesc uiVelocityDesc::get() const
 
 
 uiVelocityDescDlg::uiVelocityDescDlg( uiParent* p, const IOObj* sel )
-    : uiDialog( this, uiDialog::Setup("Edit velocity information", 0, 0 ) )
+    : uiDialog( this, uiDialog::Setup("Edit velocity information",0,mNoHelpID) )
     , ctxt_(*mGetCtxtIOObj(SeisTrc,Seis))
 {
     ctxt_.ctxt.forread = true;

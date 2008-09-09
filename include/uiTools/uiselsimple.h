@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2001
- RCS:           $Id: uiselsimple.h,v 1.10 2007-02-05 18:19:47 cvsbert Exp $
+ RCS:           $Id: uiselsimple.h,v 1.11 2008-09-09 10:52:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ public:
     {
     public:
 			Setup( const char* wintitl, const BufferStringSet& its )
-			: uiDialog::Setup(wintitl,0,0)
+			: uiDialog::Setup(wintitl,0,mNoHelpID)
 			, items_(its)
 			, current_(0)		{}
 
@@ -70,7 +70,7 @@ public:
     {
     public:
 			Setup( const char* wintitl,const BufferStringSet& its )
-			: uiDialog::Setup(wintitl,0,0)
+			: uiDialog::Setup(wintitl,0,mNoHelpID)
 			, items_(its)
 			, inptxt_("Name")	{}
 

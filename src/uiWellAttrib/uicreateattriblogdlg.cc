@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          March 2008
- RCS:           $Id: uicreateattriblogdlg.cc,v 1.5 2008-05-27 10:31:42 cvsnageswara Exp $
+ RCS:           $Id: uicreateattriblogdlg.cc,v 1.6 2008-09-09 10:52:11 cvsbert Exp $
 _______________________________________________________________________
 
 -*/
@@ -41,7 +41,7 @@ uiCreateAttribLogDlg::uiCreateAttribLogDlg( uiParent* p,
 					    const NLAModel* mdl,
 					    bool singlewell )
     : uiDialog(p,uiDialog::Setup("Create Attribute Log",
-				 "Select Wells from the list", 0) )
+				 "Select Wells from the list",mTODOHelpID) )
     , nlamodel_(mdl)
     , wellnames_(wellnames)
     , singlewell_(singlewell)

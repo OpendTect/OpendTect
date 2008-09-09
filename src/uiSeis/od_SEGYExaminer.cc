@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2001
- RCS:		$Id: od_SEGYExaminer.cc,v 1.11 2008-07-16 05:14:44 cvsnanne Exp $
+ RCS:		$Id: od_SEGYExaminer.cc,v 1.12 2008-09-09 10:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ public:
 
 uiSeisSEGYExamine( uiParent* p, const char* fnm, bool mult, int n, int f,
 		   int ntr )
-	: uiDialog(p,uiDialog::Setup("Examine SEG-Y","",0)
+	: uiDialog(p,uiDialog::Setup("Examine SEG-Y","",mTODOHelpID)
 				    .nrstatusflds(2).modal(false))
 	, fname(fnm)
 	, multi(mult)

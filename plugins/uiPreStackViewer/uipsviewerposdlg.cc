@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          Aug 2008
- RCS:           $Id: uipsviewerposdlg.cc,v 1.1 2008-08-26 14:24:44 cvsyuancheng Exp $
+ RCS:           $Id: uipsviewerposdlg.cc,v 1.2 2008-09-09 10:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,8 @@ namespace PreStackView
 
 
 uiPSViewerPositionDlg::uiPSViewerPositionDlg( uiParent* p, PreStackViewer& vwr )
-    : uiDialog( p, Setup(vwr.getObjectName(),"PreStack viewer position",0) )
+    : uiDialog( p, Setup(vwr.getObjectName(),"PreStack viewer position",
+			 mTODOHelpID) )
     , viewer_( vwr )  
 {
     const bool is3d = viewer_.is3DSeis();

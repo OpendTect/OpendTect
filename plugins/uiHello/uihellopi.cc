@@ -4,7 +4,7 @@
  * DATE     : Oct 2003
 -*/
 
-static const char* rcsID = "$Id: uihellopi.cc,v 1.10 2007-02-05 18:19:47 cvsbert Exp $";
+static const char* rcsID = "$Id: uihellopi.cc,v 1.11 2008-09-09 10:52:11 cvsbert Exp $";
 
 #include "uimsg.h"
 
@@ -73,7 +73,8 @@ class uiHelloMsgBringer : public uiDialog
 public:
 
 uiHelloMsgBringer( uiParent* p )
-    : uiDialog(p,Setup("Hello Message Window","Specify hello message",0))
+    : uiDialog(p,Setup("Hello Message Window","Specify hello message",
+			mNoHelpID))
 {
     txtfld = new uiGenInput( this, "Hello message",
 	    			StringInpSpec("Hello world") );

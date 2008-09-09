@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uisellinest.cc,v 1.22 2008-08-22 06:57:14 cvsnanne Exp $
+ RCS:           $Id: uisellinest.cc,v 1.23 2008-09-09 10:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -163,7 +163,7 @@ void uiSelLineStyle::changeCB( CallBacker* cb )
 
 LineStyleDlg::LineStyleDlg( uiParent* p, const LineStyle& ls, const char* lbl,
 			    bool wdraw, bool wcol, bool wwidth )
-        : uiDialog(p,uiDialog::Setup("Display","Select linestyle",0))
+        : uiDialog(p,uiDialog::Setup("Display","Select linestyle",mNoHelpID))
 {   
     lsfld = new uiSelLineStyle( this, ls, lbl ? lbl : "Line style", 
 				wdraw, wcol, wwidth ); 

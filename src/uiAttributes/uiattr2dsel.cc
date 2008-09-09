@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          Nov 2007
- RCS:           $Id: uiattr2dsel.cc,v 1.4 2008-02-04 07:33:04 cvsraman Exp $
+ RCS:           $Id: uiattr2dsel.cc,v 1.5 2008-09-09 10:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -42,7 +42,7 @@ using namespace Attrib;
 
 uiAttr2DSelDlg::uiAttr2DSelDlg( uiParent* p, const DescSet* ds,
 				const MultiID& lsid, const char* curnm )
-	: uiDialog(p,Setup("Select Attribute","Select Attribute",0))
+	: uiDialog(p,Setup("Select Attribute","Select Attribute",mNoHelpID))
 	, setid_(lsid)
 	, descid_(-1,true)
 	, curnm_(curnm)

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          09/02/2001
- RCS:           $Id: uitextfile.h,v 1.1 2006-12-18 17:51:40 cvsbert Exp $
+ RCS:           $Id: uitextfile.h,v 1.2 2008-09-09 10:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -93,7 +93,8 @@ public:
     public:
 
 			Setup( const char* fname=0 )
-			    : uiDialog::Setup(fname?fname:"File viewer","",0)
+			    : uiDialog::Setup(fname?fname:"File viewer",
+				    		0,mNoHelpID)
 			    , scroll2bottom_(false)
 			    , allowopen_(false)
 			    , allowsave_(false)

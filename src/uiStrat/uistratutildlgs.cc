@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Huck
  Date:          August 2007
- RCS:		$Id: uistratutildlgs.cc,v 1.7 2008-05-05 05:42:29 cvsnageswara Exp $
+ RCS:		$Id: uistratutildlgs.cc,v 1.8 2008-09-09 10:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,7 +28,7 @@ static const char* sNoLithoTxt      = "---None---";
 
 
 uiStratUnitDlg::uiStratUnitDlg( uiParent* p, uiStratMgr* uistratmgr )
-    : uiDialog(p,uiDialog::Setup("Create Stratigraphic Unit","", 0))
+    : uiDialog(p,uiDialog::Setup("Create Stratigraphic Unit","",mTODOHelpID))
     , uistratmgr_(uistratmgr)
 {
     unitnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
@@ -78,7 +78,7 @@ bool uiStratUnitDlg::acceptOK( CallBacker* )
 
 
 uiLithoDlg::uiLithoDlg( uiParent* p, uiStratMgr* uistratmgr )
-    : uiDialog(p,uiDialog::Setup("Select Lithology","", 0))
+    : uiDialog(p,uiDialog::Setup("Select Lithology","",mTODOHelpID))
     , uistratmgr_(uistratmgr)
 {
     BufferStringSet lithoset;
@@ -126,7 +126,7 @@ void uiLithoDlg::setSelectedLith( const char* lithnm )
 
 
 uiStratLevelDlg::uiStratLevelDlg( uiParent* p, uiStratMgr* uistratmgr )
-    : uiDialog(p,uiDialog::Setup("Create/Edit level","", 0))
+    : uiDialog(p,uiDialog::Setup("Create/Edit level","",mTODOHelpID))
     , uistratmgr_( uistratmgr )
 {
     lvlnmfld_ = new uiGenInput( this, "Name", StringInpSpec() );
@@ -206,7 +206,8 @@ bool uiStratLevelDlg::acceptOK( CallBacker* )
 
 uiStratLinkLvlUnitDlg::uiStratLinkLvlUnitDlg( uiParent* p, const char* urcode,
        					      uiStratMgr* uistratmgr )
-    : uiDialog(p,uiDialog::Setup("Link levels and stratigraphic unit","", 0))
+    : uiDialog(p,uiDialog::Setup("Link levels and stratigraphic unit","",
+				mTODOHelpID))
     , uistratmgr_(uistratmgr)
 {
     BufferStringSet lvlnms;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink/A.H. Bril
  Date:          Aug 2000/Oct 2001
- RCS:           $Id: uitaskrunner.cc,v 1.9 2008-06-06 16:34:49 cvskris Exp $
+ RCS:           $Id: uitaskrunner.cc,v 1.10 2008-09-09 10:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,7 +24,7 @@ ________________________________________________________________________
 
 
 uiTaskRunner::uiTaskRunner( uiParent* p ) 
-    : uiDialog( p, uiDialog::Setup("","",0)
+    : uiDialog( p, uiDialog::Setup("","",mNoHelpID)
 	.nrstatusflds( -1 )
 	.oktext("Pause")
 	.canceltext("Abort") )

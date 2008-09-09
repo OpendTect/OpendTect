@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2005
- RCS:           $Id: treeitem.cc,v 1.36 2008-07-09 12:33:41 cvsnanne Exp $
+ RCS:           $Id: treeitem.cc,v 1.37 2008-09-09 10:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -382,7 +382,8 @@ void SubItem::handleMenuCB( CallBacker* cb )
     if ( mnuid==scalemnuitem_.id )
     {
 	menu->setIsHandled(true);
-	uiDialog dlg( getUiParent(), uiDialog::Setup("Set size", "Size", 0) );
+	uiDialog dlg( getUiParent(), uiDialog::Setup("Set size","Size",
+		    				     mNoHelpID) );
 	uiSliderExtra* sliderfld = new uiSliderExtra( &dlg, 
 			uiSliderExtra::Setup("Size").nrdec(1).logscale(true),
 	       		"Size" );
@@ -747,7 +748,7 @@ class uiTextDialog : public uiDialog
 {
 public:
 uiTextDialog( uiParent* p, const char* str, const char* url, bool urlenabled )
-    : uiDialog(p,uiDialog::Setup("Text","Text",0))
+    : uiDialog(p,uiDialog::Setup("Text","Text",mNoHelpID))
 {
     textedit = new uiTextEdit( this );
     textedit->setPrefWidthInChar( 20 );

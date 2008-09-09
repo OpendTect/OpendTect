@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.29 2008-07-09 12:36:28 cvsnanne Exp $";
+static const char* rcsID = "$Id: uiodvolrentreeitem.cc,v 1.30 2008-09-09 10:52:11 cvsbert Exp $";
 
 
 #include "uiodvolrentreeitem.h"
@@ -493,7 +493,7 @@ void uiODVolrenSubTreeItem::handleMenuCB( CallBacker* cb )
 	if ( vd->getHistogram(0) ) histogram = *vd->getHistogram(0);
 
 	uiSingleGroupDlg dlg(getUiParent(),
-		uiDialog::Setup( "Iso value selection",0,0) );
+		uiDialog::Setup( "Iso value selection",0,mTODOHelpID) );
 	dlg.setGroup( new uiVisIsoSurfaceThresholdDlg( &dlg, isosurface, vd ) );
 	dlg.go();
 	updateColumnText(1);

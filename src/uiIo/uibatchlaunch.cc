@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          January 2002
- RCS:           $Id: uibatchlaunch.cc,v 1.66 2008-08-04 11:41:56 cvsraman Exp $
+ RCS:           $Id: uibatchlaunch.cc,v 1.67 2008-09-09 10:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -235,7 +235,7 @@ bool uiBatchLaunch::acceptOK( CallBacker* )
 
 
 uiFullBatchDialog::uiFullBatchDialog( uiParent* p, const Setup& s )
-    : uiDialog(p,uiDialog::Setup(s.wintxt_,"X",0).oktext("Proceed")
+    : uiDialog(p,uiDialog::Setup(s.wintxt_,"X",mNoHelpID).oktext("Proceed")
 						 .modal(s.modal_)
 						 .menubar(s.menubar_))
     , uppgrp_(new uiGroup(this,"Upper group"))

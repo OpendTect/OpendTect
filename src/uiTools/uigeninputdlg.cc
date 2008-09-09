@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2002
- RCS:           $Id: uigeninputdlg.cc,v 1.9 2007-02-05 18:19:48 cvsbert Exp $
+ RCS:           $Id: uigeninputdlg.cc,v 1.10 2008-09-09 10:52:11 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -105,7 +105,7 @@ bool uiGenInputGrp::acceptOK( CallBacker* )
 
 uiGenInputDlg::uiGenInputDlg( uiParent* p, const char* dlgtitle,
 			      const char* fldtxt, DataInpSpec* spec )
-	: uiDialog(p,Setup("Input data",dlgtitle,0))
+	: uiDialog(p,Setup("Input data",dlgtitle,mNoHelpID))
 {
     group = new uiGenInputGrp( this, dlgtitle, fldtxt, spec );
     finaliseDone.notify( mCB( this, uiGenInputDlg, setEnterClose ) );
@@ -114,7 +114,7 @@ uiGenInputDlg::uiGenInputDlg( uiParent* p, const char* dlgtitle,
 
 uiGenInputDlg::uiGenInputDlg( uiParent* p, const char* dlgtitle,
 			      ObjectSet<uiGenInputDlgEntry>* e )
-	: uiDialog(p,Setup("Input data",dlgtitle,0))
+	: uiDialog(p,Setup("Input data",dlgtitle,mNoHelpID))
 {
     group = new uiGenInputGrp( this, dlgtitle, e );
     finaliseDone.notify( mCB( this, uiGenInputDlg, setEnterClose ) );

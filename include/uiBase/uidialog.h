@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.45 2008-09-03 16:29:22 cvskris Exp $
+ RCS:           $Id: uidialog.h,v 1.46 2008-09-09 10:52:10 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -77,6 +77,13 @@ public:
 	mDefSetupMemb(bool,fixedsize)
 	mDefSetupMemb(int,nrstatusflds)
 	    //! nrstatusflds == -1: Make a statusbar, but don't add msg fields.
+
+	private:
+			Setup( const char* window_title,
+			       const char* dialog_title,
+			       int help_id )	{}
+			//!< Makes sure you cannot use '0' for help ID.
+			//!< Use mTODOHelpID or mNoHelpID instead
 
     };
 
