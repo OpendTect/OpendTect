@@ -5,7 +5,7 @@
  * FUNCTION : Help viewing
 -*/
  
-static const char* rcsID = "$Id: helpview.cc,v 1.35 2008-08-26 04:55:35 cvsraman Exp $";
+static const char* rcsID = "$Id: helpview.cc,v 1.36 2008-09-09 08:52:55 cvsbert Exp $";
 
 #include "helpview.h"
 
@@ -66,11 +66,15 @@ static BufferString getScope( const char* inp )
     return ret;
 }
 
+#define mIsInvalid(str) \
+    (!str || !*str || (*str == '-' && !*(str+1)))
+
 
 BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid,
        					      const char* docdir )
 {
-    if ( !inpwinid || !*inpwinid ) return BufferString( sMainIndex );
+    if ( mIsInvalid(inpwinid) )
+	return BufferString( sMainIndex );
 
     BufferString winid( unScoped(inpwinid) );
 
@@ -147,12 +151,13 @@ BufferString HelpViewer::getLinkNameForWinID( const char* inpwinid,
 
 BufferString HelpViewer::getURLForLinkName( const char* lnm, const char* docdir)
 {
-    BufferString linknm( lnm );
-    if ( linknm.isEmpty() )
-	linknm = sMainIndex;
+    if ( mIsInvalid(lnm) )
+	lnm = sMainIndex;
 
+    BufferString linknm( lnm );
     const bool ismainidx = linknm == sMainIndex;
     const bool istodo = linknm == "TODO";
+
     BufferString url;
     if ( ismainidx || istodo )
     {
