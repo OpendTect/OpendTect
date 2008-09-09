@@ -8,13 +8,12 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.2 2008-09-09 17:22:03 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.3 2008-09-09 18:04:32 cvskris Exp $";
 
 #include "polygonsurfeditor.h"
 
 #include "empolygonbody.h"
 #include "emmanager.h"
-#include "polygonsurfedit.h"
 #include "mpeengine.h"
 #include "selector.h"
 #include "trigonometry.h"
@@ -48,8 +47,9 @@ Geometry::ElementEditor* PolygonBodyEditor::createEditor(
     if ( !ge ) return 0;
 
     mDynamicCastGet(const Geometry::PolygonSurface*,surface,ge);
-    return !surface ? 0 : new Geometry::PolygonSurfEditor( 
-	    		  *const_cast<Geometry::PolygonSurface*>(surface) );
+    return 0;
+//    return !surface ? 0 : new Geometry::PolygonSurfEditor( 
+//	    		  *const_cast<Geometry::PolygonSurface*>(surface) );
 }
 
 
