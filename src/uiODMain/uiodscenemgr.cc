@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.148 2008-09-09 08:41:21 cvsbert Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.149 2008-09-09 19:03:07 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -53,7 +53,7 @@ ________________________________________________________________________
 #include "uiodpicksettreeitem.h"
 #include "uiodseis2dtreeitem.h"
 #include "uiodplanedatatreeitem.h"
-#include "uiodmarchingcubessurfacetreeitem.h"
+#include "uiodbodydisplaytreeitem.h"
 #include "uiodemsurftreeitem.h"
 #include "uiodrandlinetreeitem.h"
 #include "uiodvolrentreeitem.h"
@@ -105,7 +105,7 @@ uiODSceneMgr::uiODSceneMgr( uiODMain* a )
     tifs_->addFactory( new uiODHorizon2DTreeItemFactory, 6500,
 		       SurveyInfo::Only2D );
     tifs_->addFactory( new uiODFaultTreeItemFactory, 7000, SurveyInfo::No2D );
-    tifs_->addFactory( new uiODMarchingCubesTreeItemFactory, 7500,
+    tifs_->addFactory( new uiODBodyDisplayTreeItemFactory, 7500,
 	    	       SurveyInfo::No2D );
     tifs_->addFactory( new uiODWellTreeItemFactory, 8000,
 	    	       SurveyInfo::Both2DAnd3D );
