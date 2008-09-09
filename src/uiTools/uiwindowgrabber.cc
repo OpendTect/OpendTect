@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        J.C. Glas
  Date:          July 2008
- RCS:           $Id: uiwindowgrabber.cc,v 1.3 2008-08-12 17:51:35 cvsnanne Exp $ 
+ RCS:           $Id: uiwindowgrabber.cc,v 1.4 2008-09-09 08:41:21 cvsbert Exp $ 
 ________________________________________________________________________
 
 -*/
@@ -46,7 +46,7 @@ uiWindowGrabDlg::uiWindowGrabDlg( uiParent* p, bool desktop )
 					     "Window grabber"),
 				  (desktop ? "Specify image file" :
 					     "Specify window and image file"),
-				  "0.0.0") )
+				  mTODOHelpID) )
     , windowfld_(0)
 {
     getTopLevelWindows( windowlist_ );

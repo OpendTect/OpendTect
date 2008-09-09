@@ -4,7 +4,7 @@
  * DATE     : Feb 2008
 -*/
 
-static const char* rcsID = "$Id: uivolprocsmoother.cc,v 1.4 2008-09-09 08:23:02 cvsbert Exp $";
+static const char* rcsID = "$Id: uivolprocsmoother.cc,v 1.5 2008-09-09 08:41:21 cvsbert Exp $";
 
 #include "uivolprocsmoother.h"
 
@@ -32,7 +32,7 @@ void uiSmoother::initClass()
 
 uiSmoother::uiSmoother( uiParent* p, Smoother* hf )
     : uiStepDialog( p, uiDialog::Setup( Smoother::sUserName(),
-		    Smoother::sUserName(), "0.0.0" ), hf )
+		    Smoother::sUserName(), mTODOHelpID ), hf )
     , smoother_( hf )
 {
     operatorselfld_ = new uiWindowFunctionSel( this, "Operator",

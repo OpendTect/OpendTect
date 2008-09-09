@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Jun 2008
- RCS:           $Id: uidpscrossplotpropdlg.cc,v 1.4 2008-07-31 10:45:49 cvshelene Exp $
+ RCS:           $Id: uidpscrossplotpropdlg.cc,v 1.5 2008-09-09 08:41:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -222,7 +222,7 @@ bool acceptOK()
 
 uiDataPointSetCrossPlotterPropDlg::uiDataPointSetCrossPlotterPropDlg(
 		uiDataPointSetCrossPlotter* p )
-	: uiTabStackDlg( p->parent(), uiDialog::Setup("Settings",0,"0.0.0") )
+	: uiTabStackDlg( p->parent(), uiDialog::Setup("Settings",0,mTODOHelpID))
 	, plotter_(*p)
     	, bdroptab_(0)
 {

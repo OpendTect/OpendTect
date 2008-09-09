@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:           $Id: uiseismulticubeps.cc,v 1.2 2008-09-04 14:06:42 cvsbert Exp $
+ RCS:           $Id: uiseismulticubeps.cc,v 1.3 2008-09-09 08:41:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,7 @@ public:
 
 uiSeisMultiCubePS::uiSeisMultiCubePS( uiParent* p )
 	: uiDialog(p, uiDialog::Setup("MultiCube Pre-Stack data store",
-		   "Create MultiCube Pre-Stack data store","0.0.0"))
+		   "Create MultiCube Pre-Stack data store",mTODOHelpID))
 	, ctio_(*mMkCtxtIOObj(SeisPS3D))
 	, cubefld_(0)
 	, curselidx_(-1)

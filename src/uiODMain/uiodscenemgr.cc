@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Dec 2003
- RCS:           $Id: uiodscenemgr.cc,v 1.147 2008-09-04 15:09:48 cvsyuancheng Exp $
+ RCS:           $Id: uiodscenemgr.cc,v 1.148 2008-09-09 08:41:21 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -543,7 +543,7 @@ protected:
 
 uiSnapshotDlg::uiSnapshotDlg( uiParent* p )
     : uiDialog( p, uiDialog::Setup("Specify snapshot",
-				   "Select area to take snapshot","0.0.0") )
+				   "Select area to take snapshot",mTODOHelpID) )
 {
     butgrp_ = new uiButtonGroup( this, "Area type" );
     butgrp_->setRadioButtonExclusive( true );
