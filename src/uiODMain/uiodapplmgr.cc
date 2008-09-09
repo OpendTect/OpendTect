@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2002
- RCS:           $Id: uiodapplmgr.cc,v 1.261 2008-08-13 18:54:27 cvskris Exp $
+ RCS:           $Id: uiodapplmgr.cc,v 1.262 2008-09-09 17:22:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -251,10 +251,11 @@ void uiODApplMgr::doOperation( ObjType ot, ActType at, int opt )
     case Flt:
 	switch( at )
 	{
-	case Imp:	emserv_->importFault();		break;
-	case Exp:	emserv_->exportFault();		break;
+	case Imp:	emserv_->importFault();	break;
+	case Exp:	emserv_->exportFault();	break;
 	case Man:
-	    emserv_->manageSurfaces( EMFaultTranslatorGroup::keyword );	break;
+	    emserv_->manageSurfaces( EMFaultTranslatorGroup::keyword );
+	    break;
 	}
     break;
     case Wll:

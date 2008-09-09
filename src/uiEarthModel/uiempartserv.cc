@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiempartserv.cc,v 1.145 2008-09-08 17:41:28 cvskris Exp $
+ RCS:           $Id: uiempartserv.cc,v 1.146 2008-09-09 17:22:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,6 +23,7 @@ ________________________________________________________________________
 #include "emmarchingcubessurface.h"
 #include "embodytr.h"
 #include "emposid.h"
+#include "empolygonbody.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceiodata.h"
 #include "emsurfacetr.h"
@@ -73,6 +74,7 @@ const int uiEMPartServer::evSyncGeometry	= 2;
     mDynamicCastGet(EM::Horizon2D*,hor2d,object) \
     mDynamicCastGet(EM::Horizon3D*,hor3d,object) \
     mDynamicCastGet(EM::Fault*,fault,object) \
+    mDynamicCastGet(EM::PolygonBody*,polygon,object) \
     mDynamicCastGet(EM::MarchingCubesSurface*,mcsurface,object) \
 
 
@@ -307,7 +309,7 @@ void uiEMPartServer::selectFaults( TypeSet<EM::ObjectID>& ids )
 { selectSurfaces( ids, EMFaultTranslatorGroup::keyword ); }
 
 
-void uiEMPartServer::selectBody( TypeSet<EM::ObjectID>& ids )
+void uiEMPartServer::selectBodies( TypeSet<EM::ObjectID>& ids )
 {
     CtxtIOObj context( EMBodyTranslatorGroup::ioContext() );
     context.ctxt.forread = true;
@@ -319,9 +321,24 @@ void uiEMPartServer::selectBody( TypeSet<EM::ObjectID>& ids )
     if ( !dlg.ioObj() )
 	return;
 
-    EM::EMObject* object =
-	EM::EMM().createTempObject(EM::MarchingCubesSurface::typeStr());
+    const IOObj* ioobj = dlg.ioObj();
+    const char* translator = ioobj->translator();
 
+    EM::EMObject* object = 0;
+    if ( !strcmp( translator, polygonEMBodyTranslator::sKeyUserName() ) )
+    {
+	object = EM::EMM().createTempObject(EM::PolygonBody::typeStr());
+    }
+    else if ( !strcmp( translator, mcEMBodyTranslator::sKeyUserName() ) )
+    {
+	object =EM::EMM().createTempObject(EM::MarchingCubesSurface::typeStr());
+    }
+    else
+    {
+	pErrMsg("Hmm");
+	return;
+    }
+    
     if ( !object ) return;
     object->ref();
 

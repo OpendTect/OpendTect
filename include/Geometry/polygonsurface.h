@@ -6,7 +6,7 @@ ________________________________________________________________________
 CopyRight:     (C) dGB Beheer B.V.
 Author:        Y.C. Liu
 Date:          July 2008
-RCS:           $Id: polygonsurface.h,v 1.3 2008-09-05 21:39:31 cvsyuancheng Exp $
+RCS:           $Id: polygonsurface.h,v 1.4 2008-09-09 17:22:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -51,12 +51,12 @@ public:
     bool		getPolygonCrds(int polygon,TypeSet<Coord3>& pts) const;
     bool		getSurfaceCrds(TypeSet<Coord3>& pts) const;
     const Coord3&	getPolygonNormal(int polygonnr) const;
-    
+
+    void		getExceptionEdges(int plg,TypeSet<int>& edges) const;   
     void		getPolygonConcaveTriangles(int plg,TypeSet<int>&) const;
     			/*<the TypeSet has all the triangles which are concave 
 			relative to the polygon. ret v0, v1, v2 the 1st 
 			triangle; v3, v4, v5 the 2nd. */
-    void		getNonintersectConcaveTris(int plg,TypeSet<int>&) const;			/*<ConcaveTriangles without selfintersecting. */
 
     void		addUdfPolygon(int polygnr,int firstknotnr,int nrknots);
     void		addEditPlaneNormal(const Coord3& normal);
@@ -66,6 +66,8 @@ protected:
     bool			linesegmentsIntersecting(const Coord3& v0, 
 	    				const Coord3& v1,const Coord3& p0,
 					const Coord3& p1) const;
+    bool			includesEdge(const TypeSet<int> edges,
+	    				     int v0,int v1) const;
     int				firstpolygon_;
     TypeSet<int>		firstknots_;
     ObjectSet<TypeSet<Coord3> >	polygons_;

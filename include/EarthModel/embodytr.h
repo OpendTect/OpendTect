@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: embodytr.h,v 1.2 2008-09-08 17:41:28 cvskris Exp $
+ RCS:		$Id: embodytr.h,v 1.3 2008-09-09 17:22:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -50,9 +50,16 @@ public:
 			~polygonEMBodyTranslator();
 
     static const char*  sKeyUserName();
+    static const IOObjContext&	getIOObjContext();
 
     Executor*		reader(const IOObj&,EM::PolygonBody&);
     Executor*		writer(const EM::PolygonBody&,IOObj&);
+
+    const char*		errMsg() const;
+
+protected:
+
+    BufferString	errmsg_;
 };
 
 

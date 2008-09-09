@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        A.H. Bril
  Date:          23-10-1996
  Contents:      Ranges
- RCS:           $Id: emeditor.h,v 1.17 2007-09-13 06:05:29 cvskris Exp $
+ RCS:           $Id: emeditor.h,v 1.18 2008-09-09 17:22:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -146,14 +146,14 @@ protected:
     EM::EdgeLineSet*			interactionline;
     Coord3				startpos;
     TypeSet<EM::PosID>			changedpids;
+    TypeSet<EM::PosID>			alongmovingnodes;
+    TypeSet<Coord3>			alongmovingnodesstart;
+    TypeSet<float>			alongmovingnodesfactors;
 
 private:
     ObjectSet<Geometry::ElementEditor>	geeditors;
     TypeSet<EM::SectionID>		sections;
 
-    TypeSet<EM::PosID>			alongmovingnodes;
-    TypeSet<float>			alongmovingnodesfactors;
-    TypeSet<Coord3>			alongmovingnodesstart;
     bool				snapafterthisedit;
 
     bool				snapafteredit;

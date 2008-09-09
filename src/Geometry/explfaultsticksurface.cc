@@ -4,7 +4,7 @@
  * DATE     : October 2007
 -*/
 
-static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.23 2008-07-16 18:05:17 cvsnanne Exp $";
+static const char* rcsID = "$Id: explfaultsticksurface.cc,v 1.24 2008-09-09 17:22:03 cvsyuancheng Exp $";
 
 #include "explfaultsticksurface.h"
 
@@ -668,7 +668,7 @@ bool ExplFaultStickSurface::updateTextureSize()
 		const float zsamples =
 		    (bid0.value-bid1.value)/texturesampling_.value;
 
-		const float nrsamples = sqrt( inlsamples*inlsamples +
+		const float nrsamples = Math::Sqrt( inlsamples*inlsamples +
 					      crlsamples*crlsamples +
 					      zsamples*zsamples );
 

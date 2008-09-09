@@ -8,11 +8,11 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.1 2008-09-05 17:02:24 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.2 2008-09-09 17:22:03 cvsyuancheng Exp $";
 
 #include "polygonsurfeditor.h"
 
-#include "empolygonsurface.h"
+#include "empolygonbody.h"
 #include "emmanager.h"
 #include "polygonsurfedit.h"
 #include "mpeengine.h"
@@ -23,25 +23,25 @@ static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.1 2008-09-05 17:02:24 
 namespace MPE
 {
 
-PolygonSurfEditor::PolygonSurfEditor( EM::PolygonSurf& polygonsurf )
+PolygonBodyEditor::PolygonBodyEditor( EM::PolygonBody& polygonsurf )
     : ObjectEditor(polygonsurf)
 {}
 
 
-ObjectEditor* PolygonSurfEditor::create( EM::EMObject& emobj )
+ObjectEditor* PolygonBodyEditor::create( EM::EMObject& emobj )
 {
-    mDynamicCastGet(EM::PolygonSurf*,polygonsurf,&emobj);
-    return polygonsurf ? new PolygonSurfEditor( *polygonsurf ) : 0;
+    mDynamicCastGet(EM::PolygonBody*,polygonsurf,&emobj);
+    return polygonsurf ? new PolygonBodyEditor( *polygonsurf ) : 0;
 }
 
 
-void PolygonSurfEditor::initClass()
+void PolygonBodyEditor::initClass()
 { 
-    MPE::EditorFactory().addCreator( create, EM::PolygonSurf::typeStr() ); 
+    MPE::EditorFactory().addCreator( create, EM::PolygonBody::typeStr() ); 
 }
 
 
-Geometry::ElementEditor* PolygonSurfEditor::createEditor(
+Geometry::ElementEditor* PolygonBodyEditor::createEditor(
 						const EM::SectionID& sid )
 {
     const Geometry::Element* ge = emObject().sectionGeometry( sid );
@@ -56,7 +56,7 @@ Geometry::ElementEditor* PolygonSurfEditor::createEditor(
 #define mCompareCoord( crd ) Coord3( crd, crd.z*zfactor )
 
 
-void PolygonSurfEditor::getInteractionInfo( EM::PosID& nearestpid0,
+void PolygonBodyEditor::getInteractionInfo( EM::PosID& nearestpid0,
 					    EM::PosID& nearestpid1, 
 					    EM::PosID& insertpid,
 				    	    const Coord3& mousepos, 
@@ -122,9 +122,9 @@ void PolygonSurfEditor::getInteractionInfo( EM::PosID& nearestpid0,
 }
 
 
-bool PolygonSurfEditor::removeSelection( const Selector<Coord3>& selector )
+bool PolygonBodyEditor::removeSelection( const Selector<Coord3>& selector )
 {
-    mDynamicCastGet( EM::PolygonSurf*, polygonsurf, &emobject );
+    mDynamicCastGet( EM::PolygonBody*, polygonsurf, &emobject );
     if ( !polygonsurf )
 	return false;
 
@@ -159,7 +159,7 @@ bool PolygonSurfEditor::removeSelection( const Selector<Coord3>& selector )
 		if ( !pos.isDefined() || !selector.includes(pos) )
 		    continue;
 
-		EM::PolygonSurfGeometry& fg = polygonsurf->geometry();
+		EM::PolygonBodyGeometry& fg = polygonsurf->geometry();
 		const bool res = fg.nrKnots( currentsid,curpolygon)==1
 		   ? fg.removePolygon( currentsid, curpolygon, true )
 		   : fg.removeKnot( currentsid, rc.getSerialized(), true );
@@ -179,7 +179,7 @@ bool PolygonSurfEditor::removeSelection( const Selector<Coord3>& selector )
 }
 
 
-float PolygonSurfEditor::getNearestPolygon( int& polygon, EM::SectionID& sid,
+float PolygonBodyEditor::getNearestPolygon( int& polygon, EM::SectionID& sid,
 	const Coord3& mousepos, float zfactor ) const
 {
     if ( !mousepos.isDefined() )
@@ -249,7 +249,7 @@ float PolygonSurfEditor::getNearestPolygon( int& polygon, EM::SectionID& sid,
 }
 
 
-void PolygonSurfEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
+void PolygonBodyEditor::getPidsOnPolygon(  EM::PosID& nearestpid0,
 	EM::PosID& nearestpid1, EM::PosID& insertpid, int polygon,
 	const EM::SectionID& sid, const Coord3& mousepos, float zfactor ) const
 {

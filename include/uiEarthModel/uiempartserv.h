@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Sep 2002
- RCS:           $Id: uiempartserv.h,v 1.73 2008-09-08 17:41:28 cvskris Exp $
+ RCS:           $Id: uiempartserv.h,v 1.74 2008-09-09 17:22:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -76,7 +76,7 @@ public:
     void		selectHorizons(TypeSet<EM::ObjectID>&);
     void		select2DHorizons(TypeSet<EM::ObjectID>&);
     void		selectFaults(TypeSet<EM::ObjectID>&);
-    void		selectBody(TypeSet<EM::ObjectID>&);
+    void		selectBodies(TypeSet<EM::ObjectID>&);
     bool		showLoadAuxDataDlg(const EM::ObjectID&);
     int			loadAuxData(const EM::ObjectID&,const char*);
     			/*!<Loads the specified data into memory and returns

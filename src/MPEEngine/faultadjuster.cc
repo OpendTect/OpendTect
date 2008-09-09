@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: faultadjuster.cc,v 1.5 2008-02-05 21:51:15 cvskris Exp $";
+static const char* rcsID = "$Id: faultadjuster.cc,v 1.6 2008-09-09 17:22:03 cvsyuancheng Exp $";
 
 #include "faultadjuster.h"
 
@@ -157,7 +157,7 @@ void FaultAdjuster::prepareCalc( EM::SubID subid )
 
 
 #define mGetNormal( tg ) \
-    const double abs = sqrt( (double)(tg.inl*tg.inl + tg.crl*tg.crl) ); \
+    const double abs = Math::Sqrt( (double)(tg.inl*tg.inl + tg.crl*tg.crl) ); \
     BinID normal( fabs(tg.crl/abs) >= M_SQRT1_2 ? 1 : 0, \
 	    	  fabs(tg.inl/abs) >= M_SQRT1_2 ? 1 : 0 );
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          Nov 2007
- RCS:           $Id: emrandlinegen.cc,v 1.11 2008-07-16 18:05:17 cvsnanne Exp $
+ RCS:           $Id: emrandlinegen.cc,v 1.12 2008-09-09 17:22:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -248,7 +248,7 @@ bool EM::RandomLineByShiftGenerator::getShifted( Coord c1, Coord c2,
 {
     cs1 = c1; cs2 = c2;
     c2 -= c1;
-    double r0 = sqrt( c2.x*c2.x + c2.y * c2.y );
+    double r0 = Math::Sqrt( c2.x*c2.x + c2.y * c2.y );
     if ( mIsZero(r0,1e-3) ) return false;
 
     double scl = dist_ / r0;

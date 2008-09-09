@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurfacetr.h,v 1.11 2008-09-05 18:19:27 cvsyuancheng Exp $
+ RCS:		$Id: emsurfacetr.h,v 1.12 2008-09-09 17:22:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -26,7 +26,6 @@ namespace EM
     class Horizon3D;
     class Horizon2D;
     class Horizon;
-    class Polygon;
     class Surface;
 }
 
@@ -34,7 +33,6 @@ typedef EM::Horizon3D 	EMHorizon3D;
 typedef EM::Horizon2D	EMHorizon2D;
 typedef EM::Horizon	EMAnyHorizon;
 typedef EM::Fault	EMFault;
-typedef EM::Polygon	EMPolygon;
 
 
 /*!\brief Read/write EM::Horizon to storage */
@@ -76,18 +74,6 @@ public:
     			mDefEmptyTranslatorGroupConstructor(EMFault)
 
     const char*		defExtension() const { return "flt"; }
-
-    static const char*	keyword;
-
-};
-
-
-class EMPolygonTranslatorGroup : public TranslatorGroup
-{			       isTranslatorGroup(EMPolygon)
-public:
-    			mDefEmptyTranslatorGroupConstructor(EMPolygon)
-
-    const char*		defExtension() const { return "polygon"; }
 
     static const char*	keyword;
 
@@ -212,19 +198,5 @@ protected:
     virtual bool		hasRangeSelection() const	{ return false;}
 };
 
-
-class dgbEMPolygonTranslator : public dgbEMSurfaceTranslator
-{				isTranslator(dgb,EMPolygon)
-public:
-    				dgbEMPolygonTranslator(const char* unm,
-						     const char* nm)
-				    : dgbEMSurfaceTranslator(unm,nm)	{}
-    virtual			~dgbEMPolygonTranslator()		{}
-
-protected:
-    virtual bool		readOnlyZ() const		{ return false;}
-    virtual bool		writeOnlyZ() const		{ return false;}
-    virtual bool		hasRangeSelection() const	{ return false;}
-};
 
 #endif

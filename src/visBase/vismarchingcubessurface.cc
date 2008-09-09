@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          August 2006
- RCS:           $Id: vismarchingcubessurface.cc,v 1.12 2008-02-05 22:02:43 cvskris Exp $
+ RCS:           $Id: vismarchingcubessurface.cc,v 1.13 2008-09-09 17:22:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "explicitmarchingcubes.h"
 #include "marchingcubes.h"
+#include "samplingdata.h"
 #include "visgeomindexedshape.h"
 
 #include <Inventor/nodes/SoShapeHints.h>
@@ -28,6 +29,11 @@ MarchingCubesSurface::MarchingCubesSurface()
     , side_( 0 )
     , surface_( new ExplicitMarchingCubesSurface( 0 ) )
     , shape_( GeomIndexedShape::create() )
+    , displaysection_( -1 )
+    , sectionlocation_( mUdf(float) )    
+    , xrg_( mUdf(float), mUdf(float), 0 )
+    , yrg_( mUdf(float), mUdf(float), 0 )
+    , zrg_( mUdf(float), mUdf(float), 0 )
 {
     addChild( hints_ );
 
@@ -45,7 +51,6 @@ MarchingCubesSurface::MarchingCubesSurface()
 MarchingCubesSurface::~MarchingCubesSurface()
 {
     shape_->unRef();
-
     delete surface_;
 }
 
@@ -102,7 +107,103 @@ const ::MarchingCubesSurface* MarchingCubesSurface::getSurface() const
 void MarchingCubesSurface::setScales(const SamplingData<float>& xrg,
 				     const SamplingData<float>& yrg,
 				     const SamplingData<float>& zrg)
-{ surface_->setAxisScales( xrg, yrg, zrg ); }
+{
+    xrg_.start = xrg.start; xrg_.step = xrg.step;
+    yrg_.start = yrg.start; yrg_.step = yrg.step;
+    zrg_.start = zrg.start; zrg_.step = zrg.step;
+
+    updateDisplayRange();
+}
+
+void MarchingCubesSurface::enableSection( char sec ) 
+{
+    if ( displaysection_==sec )
+	return;
+
+    displaysection_ = sec;
+    updateDisplayRange();
+}
+
+
+char MarchingCubesSurface::enabledSection() const
+{ return displaysection_; }
+
+
+void MarchingCubesSurface::setSectionPosition( float pos )
+{
+    if ( sectionlocation_==pos )
+	return;
+
+    sectionlocation_ = pos;
+    if ( displaysection_>=0 )
+    	updateDisplayRange();
+}
+
+
+float MarchingCubesSurface::getSectionPosition()
+{
+    return sectionlocation_;
+}
+
+
+void MarchingCubesSurface::setBoxBoudary( float maxx, float maxy, float maxz )
+{
+    if ( xrg_.stop==maxx && yrg_.stop==maxy && zrg_.stop==maxz )
+	return;
+
+     xrg_.stop = maxx;
+     yrg_.stop = maxy;
+     zrg_.stop = maxz;
+    if ( displaysection_>=0 )    
+	updateDisplayRange();
+}
+
+
+void MarchingCubesSurface::updateDisplayRange()
+{
+    if ( displaysection_==-1 )
+    {    
+	surface_->setAxisScales( SamplingData<float>(xrg_), 
+		SamplingData<float>(yrg_), SamplingData<float>(zrg_) );   
+	return;
+    }
+
+    if ( mIsUdf(sectionlocation_) || mIsUdf(xrg_.start) || 
+	 mIsUdf(yrg_.start) || mIsUdf(zrg_.start) || mIsUdf(xrg_.stop) ||
+	 mIsUdf(yrg_.stop) || mIsUdf(zrg_.stop) )
+	return;
+    
+    if ( !displaysection_ )
+    {
+	if ( sectionlocation_>xrg_.stop )
+    	    xrg_.start = xrg_.stop;
+	else if ( sectionlocation_>xrg_.start )
+	    xrg_.start = sectionlocation_;
+
+	xrg_.step = 0;
+    }
+    else if ( displaysection_==1 )
+    {
+	if ( sectionlocation_>yrg_.stop )
+    	    yrg_.start = yrg_.stop;
+	else if ( sectionlocation_>yrg_.start )
+	    yrg_.start = sectionlocation_;
+
+	yrg_.step = 0;
+    }
+    else if ( displaysection_==2 )
+    {
+	if ( sectionlocation_>zrg_.stop )
+    	    zrg_.start = zrg_.stop;
+	else if ( sectionlocation_>zrg_.start )
+	    zrg_.start = sectionlocation_;
+
+	zrg_.step = 0;
+    }
+
+    surface_->setAxisScales( SamplingData<float>(xrg_), 
+	    SamplingData<float>(yrg_), SamplingData<float>(zrg_) );
+}
 
 
 const SamplingData<float>& MarchingCubesSurface::getScale( int dim ) const

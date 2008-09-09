@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	N. Hemstra
  Date:		August 2002
- RCS:		$Id: visvolumedisplay.h,v 1.55 2008-03-25 20:32:35 cvskris Exp $
+ RCS:		$Id: visvolumedisplay.h,v 1.56 2008-09-09 17:22:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -65,6 +65,10 @@ public:
     int				addIsoSurface(TaskRunner* = 0);
     				/*!\note return with removeChild(displayid). */
     void			removeChild(int displayid);
+    
+    void			updateIsoSurface(int,TaskRunner* = 0);
+    const int			getNrIsoSurfaces();
+    visBase::MarchingCubesSurface* getIsoSurface(int idx);
 
     void			showManipulator(bool yn);
     bool			isManipulatorShown() const;
@@ -133,7 +137,6 @@ protected:
 	    					int attrib) const;
     void			materialChange(CallBacker*);
     void			colTabChange(CallBacker*);
-    void			updateIsoSurface(int,TaskRunner* = 0);
     bool			pickable() const { return true; }
     bool			rightClickable() const { return true; }
     bool			selectable() const { return false; }
@@ -149,6 +152,7 @@ protected:
     ObjectSet<visBase::OrthogonalSlice>		slices_;
     ObjectSet<visBase::MarchingCubesSurface>	isosurfaces_;
     TypeSet<float>				isovalues_;
+    TypeSet<char>				sections_;
 
     void			manipMotionFinishCB(CallBacker*);
     void			sliceMoving(CallBacker*);

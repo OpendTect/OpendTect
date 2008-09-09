@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          July 2008
- RCS:           $Id: empolygonbody.cc,v 1.2 2008-09-09 07:33:11 cvsbert Exp $
+ RCS:           $Id: empolygonbody.cc,v 1.3 2008-09-09 17:22:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,7 @@ ________________________________________________________________________
 #include "emrowcoliterator.h"
 #include "undo.h"
 #include "errh.h"
+#include "ioman.h"
 #include "rowcol.h"
 #include "survinfo.h"
 #include "sortedtable.h"
@@ -24,10 +25,6 @@ ________________________________________________________________________
 #include "unitofmeasure.h"
 
 namespace EM {
-
-    //TODO REMOVE THIS!!
-    Executor*  PolygonBody::loader() { return 0; }
-    Executor*  PolygonBody::saver() { return 0; }
 
 mImplementEMObjFuncs( PolygonBody, polygonEMBodyTranslator::sKeyUserName() );
 
@@ -234,6 +231,75 @@ const IOObjContext& PolygonBody::getIOObjContext() const
 { return EMBodyTranslatorGroup::ioContext(); }
 
 
+Executor* PolygonBody::saver()
+{
+    return saver( 0 );
+}
+    
+
+Executor* PolygonBody::saver( IOObj* inpioobj )
+{
+    PtrMan<IOObj> myioobj = 0;
+    IOObj* ioobj = 0;
+    if ( inpioobj )
+	ioobj = inpioobj;
+    else
+    {
+	myioobj = IOM().get( multiID() );
+	ioobj = myioobj;
+    }
+
+    if ( !ioobj )
+    { 
+	errmsg_ = "Cannot find surface"; 
+	return 0; 
+    }
+
+    mDynamicCastGet( polygonEMBodyTranslator*, tr, ioobj->getTranslator() );
+    if ( !tr )
+    {
+	errmsg_ = "No Translator";
+	return 0;
+    }
+
+    Executor* exec = tr->writer( *this, *ioobj );
+    if ( !exec )
+    {
+	errmsg_ = tr->errMsg();
+	delete tr;
+
+	return 0;
+    }
+
+    return exec;
+}
+
+
+Executor* PolygonBody::loader()
+{
+    PtrMan<IOObj> ioobj = IOM().get( multiID() );
+    if ( !ioobj ) { errmsg_ = "Cannot find surface"; return 0; }
+
+    mDynamicCastGet( polygonEMBodyTranslator*, tr, ioobj->getTranslator() );
+    if ( !tr )
+    {
+	errmsg_ = "No Translator";
+	return 0;
+    }
+
+    Executor* exec = tr->reader( *ioobj, *this );
+    if ( !exec )
+    {
+	errmsg_ = tr->errMsg();
+	delete tr;
+
+	return 0;
+    }
+
+    return exec;
+}
+
+
 PolygonBodyGeometry::PolygonBodyGeometry( PolygonBody& polygon )
     : SurfaceGeometry(polygon)
 {}
@@ -242,6 +308,22 @@ PolygonBodyGeometry::PolygonBodyGeometry( PolygonBody& polygon )
 PolygonBodyGeometry::~PolygonBodyGeometry()
 {}
 
+
+Executor* PolygonBodyGeometry::saver( const SurfaceIODataSelection* newsel,
+       				      const MultiID* key )
+{
+    const MultiID& mid = key && !(*key=="") ? *key : surface_.multiID();
+    PtrMan<IOObj> ioobj = IOM().get( mid );
+    if ( !ioobj ) { surface_.setErrMsg("Cannot find surface" ); return 0; }
+
+    return surface_.saver( ioobj );
+}
+
+
+Executor* PolygonBodyGeometry::loader( const SurfaceIODataSelection* )
+{
+    return surface_.loader();
+}
 
 Geometry::PolygonSurface* 
 PolygonBodyGeometry::sectionGeometry( const SectionID& sid )

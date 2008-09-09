@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          March 2005
- RCS:           $Id: horizoneditor.cc,v 1.9 2008-02-29 11:22:21 cvsnanne Exp $
+ RCS:           $Id: horizoneditor.cc,v 1.10 2008-09-09 17:22:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -127,7 +127,7 @@ void HorizonEditor::getAlongMovingNodes( const EM::PosID&,
 	    {
 		const float relrow = (float)ridx/editarea.row;
 		const float relcol = (float)cidx/editarea.col;
-		const float curradius = sqrt(relrow*relrow+relcol*relcol);
+		const float curradius = Math::Sqrt(relrow*relrow+relcol*relcol);
 		if ( curradius>1 ) 
 		    continue;
 
@@ -135,7 +135,7 @@ void HorizonEditor::getAlongMovingNodes( const EM::PosID&,
 	    }
 	    else
 	    {
-		const float length = sqrt( (float)(ridx*ridx+cidx*cidx) );
+		const float length = Math::Sqrt( (float)(ridx*ridx+cidx*cidx) );
 
 		if ( ridx )
 		{
@@ -143,7 +143,7 @@ void HorizonEditor::getAlongMovingNodes( const EM::PosID&,
 		    const float colfactor = fabs(cidx)/rowfactor;
 
 		    const float totallength =
-			sqrt(editarea.row*editarea.row+colfactor*colfactor);
+			Math::Sqrt(editarea.row*editarea.row+colfactor*colfactor);
 
 		    effect = 1-length/totallength;
 		}
@@ -154,7 +154,7 @@ void HorizonEditor::getAlongMovingNodes( const EM::PosID&,
 		    const float rowfactor = fabs(ridx)/colfactor;
 
 		    const float totallength =
-			sqrt(editarea.col*editarea.col+rowfactor*rowfactor);
+			Math::Sqrt(editarea.col*editarea.col+rowfactor*rowfactor);
 
 		    const float neweffect = 1-length/totallength;
 		    effect = mMIN(neweffect,effect);

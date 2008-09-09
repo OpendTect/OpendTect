@@ -7,13 +7,14 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	K. Tingdahl
  Date:		August 2006
- RCS:		$Id: vismarchingcubessurface.h,v 1.11 2008-02-05 22:08:25 cvskris Exp $
+ RCS:		$Id: vismarchingcubessurface.h,v 1.12 2008-09-09 17:22:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
 -*/
 
 #include "visobject.h"
+#include "samplingdata.h"
 
 template <class T> class SamplingData;
 class MarchingCubesSurface;
@@ -26,7 +27,7 @@ namespace visBase
 
 class GeomIndexedShape;
 
-/*!Class to display ::MarchingCubesSurface. */
+/*!Class to display ::MarchingCubesSurface or body sections. */
 
 class MarchingCubesSurface : public VisualObjectImpl
 {
@@ -50,16 +51,34 @@ public:
     					/*!< 0 = visisble from both sides.
 					     1 = visisble from positive side
 					    -1 = visisble from negative side. */
+					
+    					//For body section display only. 
+    char				enabledSection() const;
+    void				enableSection(char);
+    					/*!< -1: display the whole isosurface.
+					      0: display section along inline.
+					      1: display section along crline.
+					      2: display section along z. */
+    void				setSectionPosition(float);
+    float				getSectionPosition();
+    void				setBoxBoudary(float x,float y,float z);
 
 protected:
     					~MarchingCubesSurface();
     void				updateHints();
+    void				updateDisplayRange();
 
-    SoShapeHints*				hints_;
-    GeomIndexedShape*				shape_;
+    char				displaysection_;
+    float				sectionlocation_;
+    StepInterval<float>			xrg_;
+    StepInterval<float>			yrg_;
+    StepInterval<float>			zrg_;
 
-    ExplicitMarchingCubesSurface*		surface_;
-    char					side_;
+    SoShapeHints*			hints_;
+    GeomIndexedShape*			shape_;
+
+    ExplicitMarchingCubesSurface*	surface_;
+    char				side_;
 };
 
 };

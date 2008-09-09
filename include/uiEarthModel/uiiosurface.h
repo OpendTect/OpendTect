@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.h,v 1.27 2008-07-17 10:58:04 cvssatyaki Exp $
+ RCS:           $Id: uiiosurface.h,v 1.28 2008-09-09 17:22:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -72,7 +72,7 @@ protected:
     uiPosSubSel*	rgfld_;
     uiIOObjSel*		objfld_;
 
-    CtxtIOObj&		ctio_;
+    CtxtIOObj*		ctio_;
     bool		forread_;
 };
 

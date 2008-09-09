@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emsurface.h,v 1.66 2008-03-20 21:36:32 cvskris Exp $
+ RCS:		$Id: emsurface.h,v 1.67 2008-09-09 17:22:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -50,8 +50,9 @@ public:
 
     bool			isAtEdge(const EM::PosID&) const;
     bool			isLoaded() const;
-    Executor*			saver();
-    Executor*			loader();
+    virtual Executor*		saver();
+    virtual Executor*		saver(IOObj*) { return 0;}
+    virtual Executor*		loader();
 
     const char*			dbInfo() const		 { return dbinfo.buf();}
     void			setDBInfo(const char* s) { dbinfo = s; }

@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          May 2001
- RCS:           $Id: uiodapplmgr.h,v 1.62 2008-08-08 10:17:17 cvsumesh Exp $
+ RCS:           $Id: uiodapplmgr.h,v 1.63 2008-09-09 17:22:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -107,6 +107,7 @@ public:
     void			selectWells(ObjectSet<MultiID>&);
     void			selectHorizon(MultiID&);
     void			selectFault(MultiID&);
+    void			selectPolygonSurface(MultiID&);
     void			selectStickSet(MultiID&);
     bool			selectAttrib(int id,int attrib);
 

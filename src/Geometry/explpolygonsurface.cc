@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.3 2008-09-05 21:30:57 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.4 2008-09-09 17:22:03 cvsyuancheng Exp $";
 
 #include "explpolygonsurface.h"
 
@@ -225,7 +225,9 @@ bool ExplPolygonSurface::updateBodyDisplay( const TypeSet<Coord3>&  pts )
 
     TypeSet<int> triangles;
     tetrahedratree_->getTetrahedraTriangles( triangles );
-    
+   // TypeSet<int> tetrahedras;
+   // tetrahedratree_->getTetrahedras( tetrahedras );
+   
     TypeSet<int> plgknots[rrg.nrSteps()+1];
     TypeSet<int> concaveedges;
     int usednrknots = 0;
@@ -238,32 +240,17 @@ bool ExplPolygonSurface::updateBodyDisplay( const TypeSet<Coord3>&  pts )
 	for ( int idx=0; idx<nrknots; idx++ )
 	    plgknots[plg] += idx+usednrknots;
 
-	TypeSet<int> ccts;
-	surface_->getNonintersectConcaveTris( plg, ccts );
+	TypeSet<int> edges;
+	surface_->getExceptionEdges( plg, edges );
+	for ( int vidx=0; vidx<edges.size(); vidx++ )
+	    concaveedges += edges[vidx]+usednrknots;
 	
-	for ( int vidx=0; vidx<ccts.size()/3; vidx++ )
-	{
-	    if ( ccts[3*vidx]==0 && ccts[3*vidx+2]==nrknots-1 )
-	    {
-		if ( abs(ccts[3*vidx+1]-ccts[3*vidx]) != 1 )
-		{
-		    concaveedges += ccts[3*vidx]+usednrknots;
-    		    concaveedges += ccts[3*vidx+1]+usednrknots;
-		}
-	    }
-	    else if ( abs(ccts[3*vidx+2]-ccts[3*vidx])!=1 )
-	    {
-    		concaveedges += ccts[3*vidx]+usednrknots;
-    		concaveedges += ccts[3*vidx+2]+usednrknots;
-	    }
-	}
-
 	usednrknots += nrknots;
     }
 
-
     notetrahedras_.erase();
     bodytriangle_->coordindices_.erase();
+    
     for ( int idx=0; idx<triangles.size()/3; idx++ )
     {
 	 const int v0 = triangles[3*idx]; 

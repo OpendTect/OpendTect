@@ -4,7 +4,7 @@
  * DATE     : March 2006
 -*/
 
-static const char* rcsID = "$Id: indexedshape.cc,v 1.7 2008-06-03 19:55:47 cvskris Exp $";
+static const char* rcsID = "$Id: indexedshape.cc,v 1.8 2008-09-09 17:22:03 cvsyuancheng Exp $";
 
 #include "indexedshape.h"
 
@@ -50,6 +50,12 @@ void IndexedGeometry::removeAll()
 	    if ( coordindices_[idx]<0 )
 		continue;
 
+	    if ( idx<coordindices_.size()-1 &&
+	         coordindices_.indexOf( coordindices_[idx], true, idx+1 )!=-1 )
+	    {
+		continue;
+	    }
+
 	    coordlist_->remove( coordindices_[idx] );
 	}
     }
@@ -61,6 +67,12 @@ void IndexedGeometry::removeAll()
 	    if ( normalindices_[idx]<0 )
 		continue;
 
+	    if ( idx<normalindices_.size()-1 && normalindices_.indexOf( 
+			normalindices_[idx], true, idx+1 )!=-1 )
+	    {
+		continue;
+	    }
+
 	    normallist_->remove( normalindices_[idx] );
 	}
     }
@@ -71,6 +83,12 @@ void IndexedGeometry::removeAll()
 	{
 	    if ( texturecoordindices_[idx]<0 )
 		continue;
+
+	    if ( idx<texturecoordindices_.size()-1 && texturecoordindices_.
+		    indexOf( texturecoordindices_[idx], true, idx+1 )!=-1 )
+	    {
+		continue;
+	    }
 
 	    texturecoordlist_->remove( texturecoordindices_[idx] );
 	}

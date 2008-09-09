@@ -7,23 +7,23 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          July 2008
- RCS:           $Id: polygonsurfeditor.h,v 1.1 2008-09-05 17:02:24 cvsyuancheng Exp $
+ RCS:           $Id: polygonsurfeditor.h,v 1.2 2008-09-09 17:22:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "emeditor.h"
 
-namespace EM { class PolygonSurf; };
+namespace EM { class PolygonBody; };
 template <class T> class Selector;
 
 namespace MPE
 {
 
-class PolygonSurfEditor : public ObjectEditor
+class PolygonBodyEditor : public ObjectEditor
 {
 public:
-    				PolygonSurfEditor(EM::PolygonSurf&);
+    				PolygonBodyEditor(EM::PolygonBody&);
     static ObjectEditor*	create(EM::EMObject&);
     static void			initClass();
     void			getInteractionInfo(EM::PosID& nearestpid0,

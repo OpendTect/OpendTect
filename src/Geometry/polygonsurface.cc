@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: polygonsurface.cc,v 1.2 2008-09-05 21:39:31 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: polygonsurface.cc,v 1.3 2008-09-09 17:22:03 cvsyuancheng Exp $";
 
 #include "polygonsurface.h"
 
@@ -204,7 +204,7 @@ bool PolygonSurface::setKnot( const RCol& rc, const Coord3& pos )
 
     mGetValidPolygonIdx( polygonidx, rc.r(), 0, false );
     mGetValidKnotIdx( knotidx, rc.c(), polygonidx, 0, false );
-
+/*
     //Make sure no selfintersecting when we drag points around.
     const Coord3 oldpos = (*polygons_[polygonidx])[knotidx];
     const int nrknots = (*polygons_[polygonidx]).size();
@@ -219,7 +219,7 @@ bool PolygonSurface::setKnot( const RCol& rc, const Coord3& pos )
 	if ( !sameSide3D( pos, oldpos, v0, v1, 0 ) )
 	    return false;
     }
-   
+  */ 
     (*polygons_[polygonidx])[knotidx] = pos;
     triggerMovement( RowCol(polygonidx,PolygonChange).getSerialized() );
     return true;
@@ -285,32 +285,62 @@ void PolygonSurface::getPolygonConcaveTriangles( int polygon,
 }
 
 
-void PolygonSurface::getNonintersectConcaveTris( int polygon, 
-						 TypeSet<int>& triangles ) const
+bool PolygonSurface::includesEdge( const TypeSet<int> edges, 
+				   int v0, int v1 ) const
 {
-    const StepInterval<int> colrg = colRange( polygon );
-    if ( colrg.isUdf() || colrg.nrSteps()<3 )
-	return;
-
-    const Coord3 normal = getPolygonNormal( polygon );
-
-    for ( int idx=colrg.start; idx<colrg.stop; idx += colrg.step )
+    for ( int idx=0; idx<edges.size()/2; idx++ )
     {
-	const Coord3 v0 = getKnot( RowCol(polygon,idx) );
-	const Coord3 v1 = getKnot( RowCol(polygon,idx+colrg.step) );
+	if ( (edges[2*idx]==v0 && edges[2*idx+1]==v1) ||
+	     (edges[2*idx]==v1 && edges[2*idx+1]==v0) )
+	    return true;
+    }
 
-    	for ( int idy=idx+2*colrg.step; idy<=colrg.stop; idy += colrg.step )
-    	{
-	    const Coord3 v2 = getKnot( RowCol(polygon,idy) );
-	    const Coord3 trinormal = ( (v1-v0).cross(v2-v1) ).normalize();
-	    if ( normal.dot(trinormal)>0 )
-	      continue;
-		
-	    bool intersecting = false;
-	    for ( int idz=idx+colrg.step; idz<idy; idz += colrg.step )
+    return false;
+}
+
+
+void PolygonSurface::getExceptionEdges( int plg, TypeSet<int>& edges ) const
+{
+    TypeSet<int> triangles;
+    getPolygonConcaveTriangles( plg, triangles );
+   
+    const int nrknots = colRange(plg).nrSteps()+1;
+    for ( int ti=0; ti<triangles.size()/3; ti++ )
+    {
+	if ( triangles[3*ti]==0 && triangles[3*ti+2]==nrknots-1 )
+	{
+	    if ( !includesEdge( edges, triangles[3*ti], triangles[3*ti+1] ) )
 	    {
-		const Coord3 p0 = getKnot( RowCol(polygon,idz) );
-		const Coord3 p1 = getKnot( RowCol(polygon,idz+colrg.step) );
+    		edges += triangles[3*ti];   
+    		edges += triangles[3*ti+1];
+	    }
+	}
+	else if ( abs(triangles[3*ti+2]-triangles[3*ti])!=1 )
+	{
+	    if ( !includesEdge( edges, triangles[3*ti], triangles[3*ti+2] ) )
+	    {
+    		edges += triangles[3*ti];
+    		edges += triangles[3*ti+2];
+	    }
+	}
+    }
+
+    const StepInterval<int> colrg = colRange( plg );
+    for ( int idx=colrg.start; idx<colrg.stop-colrg.step; idx += colrg.step )
+    {
+	const Coord3 v0 = getKnot( RowCol(plg,idx) );
+	for ( int idy=idx+2*colrg.step; idy<=colrg.stop; idy += colrg.step )
+	{
+	    if ( includesEdge(edges,idx,idy) )
+	       	continue;
+
+	    const Coord3 v1 = getKnot( RowCol(plg,idy) );	    
+	    bool intersecting = false;
+
+	    for ( int idz=colrg.start; idz<colrg.stop; idz += colrg.step )
+	    {
+		const Coord3 p0 = getKnot( RowCol(plg,idz) );
+		const Coord3 p1 = getKnot( RowCol(plg,idz+colrg.step) );
 		if ( linesegmentsIntersecting( v0, v1, p0, p1 ) )
 		{
 		    intersecting = true;
@@ -318,41 +348,16 @@ void PolygonSurface::getNonintersectConcaveTris( int polygon,
 		}
 	    }
 
-	    if ( !intersecting )
-	    {
-		triangles += idx;
-		triangles += idx+colrg.step;
-		triangles += idy;
-	    }
-	}
-    }
+	    if ( !intersecting ) 
+		intersecting = linesegmentsIntersecting( v0, v1,
+			getKnot( RowCol(plg,colrg.start) ), 
+			getKnot( RowCol(plg,colrg.stop) ) );
 
-    const Coord3 v0 = getKnot( RowCol(polygon,colrg.start) );
-    const Coord3 v1 = getKnot( RowCol(polygon,colrg.stop) );
-    for ( int idy=colrg.start+colrg.step; idy<colrg.stop; idy += colrg.step )
-    {
-	const Coord3 v2 = getKnot( RowCol(polygon,idy) );
-	const Coord3 trinormal = ( (v2-v0).cross(v1-v2) ).normalize();
-	if ( normal.dot(trinormal)>0 )
-	    continue;
-	
-	bool intersecting = false;
-	for ( int idz=colrg.start+colrg.step; idz<idy; idz += colrg.step )
-	{
-	    const Coord3 p0 = getKnot( RowCol(polygon,idz) );
-	    const Coord3 p1 = getKnot( RowCol(polygon,idz+colrg.step) );
-	    if ( linesegmentsIntersecting( v0, v1, p0, p1 ) )
+	    if ( intersecting )
 	    {
-		intersecting = true;
-		break;
+		edges += idx;
+		edges += idy;
 	    }
-	}
-	
-	if ( !intersecting )
-	{
-	    triangles += colrg.start;
-	    triangles += idy;
-	    triangles += colrg.stop;
 	}
     }
 }
@@ -361,8 +366,13 @@ void PolygonSurface::getNonintersectConcaveTris( int polygon,
 bool PolygonSurface::linesegmentsIntersecting( const Coord3& v0,  
 	const Coord3& v1,  const Coord3& p0,  const Coord3& p1 ) const
 {
-    const Coord3 norm0 = (v1-v0).cross(p0-v0);
-    const Coord3 norm1 = (v1-v0).cross(p1-v0);
+    Coord3 norm0 = (v1-v0).cross(p0-v0);
+    Coord3 norm1 = (v1-v0).cross(p1-v0);
+    if ( norm0.dot(norm1)>0 )
+	return false;
+
+    norm0 = (p1-p0).cross(v0-p0);
+    norm1 = (p1-p0).cross(v1-p0);
     if ( norm0.dot(norm1)>0 )
 	return false;
 

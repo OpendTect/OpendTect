@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          December 2007
- RCS:           $Id: initmpeengine.cc,v 1.2 2008-05-15 20:25:56 cvskris Exp $
+ RCS:           $Id: initmpeengine.cc,v 1.3 2008-09-09 17:22:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,8 @@ ________________________________________________________________________
 #include "horizoneditor.h"
 #include "horizon2dtracker.h"
 #include "horizon3dtracker.h"
+#include "polygonsurfeditor.h"
+//#include "polygonsurftracker.h"
 
 void MPEEngine::initStdClasses()
 {
@@ -23,4 +25,6 @@ void MPEEngine::initStdClasses()
     MPE::HorizonEditor::initClass();
     MPE::Horizon2DTracker::initClass();
     MPE::Horizon3DTracker::initClass();
+    MPE::PolygonBodyEditor::initClass();
+ //   MPE::PolygonSurfTracker::initClass();
 }

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        K. Tingdahl
  Date:          June 2003
- RCS:           $Id: emsurfaceio.cc,v 1.103 2008-08-05 10:33:07 cvsraman Exp $
+ RCS:           $Id: emsurfaceio.cc,v 1.104 2008-09-09 17:22:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,7 @@ ________________________________________________________________________
 #include "emfault.h"
 #include "emhorizon3d.h"
 #include "emhorizon2d.h"
+#include "empolygonbody.h"
 #include "emsurfacegeometry.h"
 #include "emsurfaceauxdata.h"
 #include "emsurfaceedgeline.h"
@@ -607,6 +608,13 @@ int dgbSurfaceReader::nextStep()
     {
 	flt->geometry().sectionGeometry( sectionid )->
 	    addUdfRow( currentRow(), firstcol, nrcols );
+    }
+
+    mDynamicCastGet(PolygonBody*,polygon,surface_);
+    if ( polygon )
+    {
+	polygon->geometry().sectionGeometry( sectionid )->
+	    addUdfPolygon( currentRow(), firstcol, nrcols );
     }
 
     if ( !nrcols )

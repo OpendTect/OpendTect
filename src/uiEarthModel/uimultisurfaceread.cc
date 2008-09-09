@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uimultisurfaceread.cc,v 1.14 2008-07-17 16:14:03 cvsnanne Exp $
+ RCS:           $Id: uimultisurfaceread.cc,v 1.15 2008-09-09 17:22:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -28,8 +28,8 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* type )
     : uiIOSurface(p,true,type)
     , singleSurfaceSelected(this)
 {
-    IOM().to( ctio_.ctxt.getSelKey() );
-    entrylist_ = new IODirEntryList( IOM().dirPtr(), ctio_.ctxt );
+    IOM().to( ctio_->ctxt.getSelKey() );
+    entrylist_ = new IODirEntryList( IOM().dirPtr(), ctio_->ctxt );
     entrylist_->sort();
 
     BufferString lbl( "Select " ); lbl += type; lbl += "(s)";
@@ -50,7 +50,7 @@ uiMultiSurfaceRead::uiMultiSurfaceRead( uiParent* p, const char* type )
     rgfld_->attach( leftAlignedBelow, surfacefld_ );
 
     if ( !strcmp(type,EMHorizon2DTranslatorGroup::keyword) ||
-	 !strcmp(type,EMFaultTranslatorGroup::keyword) )
+	 !strcmp(type,EMFaultTranslatorGroup::keyword ) )
     {
 	sectionfld_->display( false, true );
 	rgfld_->display( false, true );

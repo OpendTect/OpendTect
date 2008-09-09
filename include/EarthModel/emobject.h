@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Kristofer Tingdahl
  Date:		4-11-2002
- RCS:		$Id: emobject.h,v 1.71 2008-06-02 10:21:42 cvsbert Exp $
+ RCS:		$Id: emobject.h,v 1.72 2008-09-09 17:22:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -197,6 +197,7 @@ public:
     virtual void		lock(bool yn)		{ locked_=yn;}
 
     const char*			errMsg() const;
+    void			setErrMsg(const char* m) { errmsg_ = m; }
 
     virtual bool		usePar( const IOPar& );
     virtual void		fillPar( IOPar& ) const;

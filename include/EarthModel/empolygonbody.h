@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Yuancheng Liu
  Date:		July 2008
- RCS:		$Id: empolygonbody.h,v 1.1 2008-09-09 07:22:38 cvsyuancheng Exp $
+ RCS:		$Id: empolygonbody.h,v 1.2 2008-09-09 17:22:02 cvsyuancheng Exp $
 ________________________________________________________________________
 
 
@@ -55,8 +55,8 @@ public:
     EMObjectIterator*	createIterator(const SectionID&,
 	    			       const CubeSampling* =0) const;
 
-    Executor*		saver(const SurfaceIODataSelection* s=0);
-    Executor*		loader(const SurfaceIODataSelection* s=0,
+    Executor*		loader(const SurfaceIODataSelection* s=0);
+    Executor*		saver(const SurfaceIODataSelection* s=0,
 	    		       const MultiID* key=0);
 
     void		fillPar(IOPar&) const;
@@ -75,6 +75,7 @@ public:
 
     Executor*			saver();
     Executor*			loader();
+    Executor*                   saver(IOObj*);
 
     ImplicitBody*		createImplicitBody(TaskRunner*) const;
 

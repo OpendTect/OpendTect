@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          August 2002
- RCS:           $Id: visvolumedisplay.cc,v 1.86 2008-08-21 10:35:06 cvsnanne Exp $
+ RCS:           $Id: visvolumedisplay.cc,v 1.87 2008-09-09 17:22:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -430,13 +430,25 @@ void VolumeDisplay::setIsoValue( const visBase::MarchingCubesSurface* mcd,
 }
 
 
+visBase::MarchingCubesSurface* VolumeDisplay::getIsoSurface( int idx ) 
+{ return isosurfaces_.validIdx(idx) ? isosurfaces_[idx] : 0; }
+
+
+const int VolumeDisplay::getNrIsoSurfaces()
+{ return isosurfaces_.size(); }
+
+
 void VolumeDisplay::updateIsoSurface( int idx, TaskRunner* tr )
 {
     if ( !cache_ || !cache_->getCube(0).isOK() || mIsUdf(isovalues_[idx]) )
 	isosurfaces_[idx]->getSurface()->removeAll();
     else
     {
-	isosurfaces_[idx]->getSurface()->removeAll();
+	isosurfaces_[idx]->getSurface()->removeAll(); 
+	isosurfaces_[idx]->setBoxBoudary(
+		cache_->cubeSampling().hrg.inlRange().stop,
+		cache_->cubeSampling().hrg.crlRange().stop,
+		cache_->cubeSampling().zrg.stop );
 	isosurfaces_[idx]->setScales(
 		cache_->inlsampling, cache_->crlsampling,
 		SamplingData<float>( cache_->z0*cache_->zstep, cache_->zstep ));

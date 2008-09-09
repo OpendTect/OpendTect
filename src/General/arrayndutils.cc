@@ -4,7 +4,7 @@
  * DATE     : Oct 1999
 -*/
 
-static const char* rcsID = "$Id: arrayndutils.cc,v 1.21 2007-12-03 15:00:47 cvsnanne Exp $";
+static const char* rcsID = "$Id: arrayndutils.cc,v 1.22 2008-09-09 17:22:03 cvsyuancheng Exp $";
 
 #include "arrayndutils.h"
 
@@ -109,7 +109,7 @@ bool ArrayNDWindow::buildWindow( const char* winnm, float val )
 		dist += distval * distval;
 	    }
 
-	    dist = sqrt( dist );
+	    dist = Math::Sqrt( dist );
 
 	    window_[off] = windowfunc->getValue( dist );
 	    position.next();

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurface.cc,v 1.55 2008-07-17 10:12:10 cvssatyaki Exp $
+ RCS:           $Id: uiiosurface.cc,v 1.56 2008-09-09 17:22:03 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,6 +22,7 @@ ________________________________________________________________________
 
 #include "ctxtioobj.h"
 #include "emmanager.h"
+#include "embodytr.h"
 #include "emsurface.h"
 #include "emsurfacetr.h"
 #include "emsurfaceiodata.h"
@@ -35,27 +36,29 @@ ________________________________________________________________________
 
 const int cListHeight = 5;
 
-#define mMakeCtxtIOObj(typ) \
-    !strcmp(typ,EMHorizon2DTranslatorGroup::keyword) ? \
-			*mMkCtxtIOObj(EMHorizon2D) : \
-    !strcmp(typ,EMHorizon3DTranslatorGroup::keyword) ? \
-			*mMkCtxtIOObj(EMHorizon3D) : *mMkCtxtIOObj(EMFault)
-
 uiIOSurface::uiIOSurface( uiParent* p, bool forread, const char* typ )
     : uiGroup(p,"Surface selection")
-    , ctio_( mMakeCtxtIOObj(typ) )
+    , ctio_( 0 )
     , sectionfld_(0)
     , attribfld_(0)
     , rgfld_(0)
     , attrSelChange(this)
     , forread_(forread)
 {
+    if ( !strcmp(typ,EMHorizon2DTranslatorGroup::keyword) )
+	ctio_ = mMkCtxtIOObj(EMHorizon2D);
+    else if (!strcmp(typ,EMHorizon3DTranslatorGroup::keyword) )
+	ctio_ = mMkCtxtIOObj(EMHorizon3D);
+    else if ( !strcmp(typ,EMFaultTranslatorGroup::keyword) )
+	ctio_ = mMkCtxtIOObj(EMFault);
+    else
+	ctio_ = new CtxtIOObj( polygonEMBodyTranslator::getIOObjContext() );
 }
 
 
 uiIOSurface::~uiIOSurface()
 {
-    delete ctio_.ioobj; delete &ctio_;
+    delete ctio_->ioobj; delete ctio_;
 }
 
 
@@ -89,8 +92,8 @@ void uiIOSurface::mkRangeFld()
 
 void uiIOSurface::mkObjFld( const char* lbl )
 {
-    ctio_.ctxt.forread = forread_;
-    objfld_ = new uiIOObjSel( this, ctio_, lbl );
+    ctio_->ctxt.forread = forread_;
+    objfld_ = new uiIOObjSel( this, *ctio_, lbl );
     if ( forread_ )
 	objfld_->selectiondone.notify( mCB(this,uiIOSurface,objSel) );
 }
@@ -199,7 +202,7 @@ void uiIOSurface::getSelection( EM::SurfaceIODataSelection& sels ) const
 
 IOObj* uiIOSurface::selIOObj() const
 {
-    return ctio_.ioobj;
+    return ctio_->ioobj;
 }
 
 
@@ -275,7 +278,8 @@ uiSurfaceWrite::uiSurfaceWrite( uiParent* p, const EM::Surface& surf_,
     , stratlvlfld_(0)
 {
     if ( setup.typ_!=EMHorizon2DTranslatorGroup::keyword &&
-	 setup.typ_!=EMFaultTranslatorGroup::keyword )
+	 setup.typ_!=EMFaultTranslatorGroup::keyword &&
+	 setup.typ_!=polygonEMBodyTranslator::sKeyUserName() )
     {
 	if ( surf_.nrSections() > 1 )
 	    mkSectionFld( false );
@@ -410,7 +414,7 @@ uiSurfaceRead::uiSurfaceRead( uiParent* p, const Setup& setup )
 
 void uiSurfaceRead::setIOObj( const MultiID& mid )
 {
-    ctio_.setObj( mid );
+    ctio_->setObj( mid );
     objfld_->updateInput();
     objSel( 0 );
 }
