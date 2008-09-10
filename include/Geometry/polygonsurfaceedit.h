@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:        Y.C. Liu
  Date:          August 2008
  Contents:      Ranges
- RCS:           $Id: polygonsurfaceedit.h,v 1.1 2008-09-10 13:00:08 cvsyuancheng Exp $
+ RCS:           $Id: polygonsurfaceedit.h,v 1.2 2008-09-10 13:35:09 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -24,8 +24,13 @@ class PolygonSurfEditor : public ElementEditor
 public:
     		PolygonSurfEditor( Geometry::PolygonSurface& );
     		~PolygonSurfEditor();
-    bool 	mayTranslate3D( GeomPosID gpid ) const;
-    Coord3	translation2DNormal( GeomPosID gpid ) const;    
+
+    bool 	mayTranslate2D( GeomPosID gpid ) const;
+    Coord3	translation2DNormal( GeomPosID gpid ) const;   
+
+protected:
+    
+   void		addedKnots(CallBacker*);    
 };
 
 };

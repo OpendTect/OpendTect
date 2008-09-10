@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: polygonsurfaceedit.cc,v 1.1 2008-09-10 13:00:08 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: polygonsurfaceedit.cc,v 1.2 2008-09-10 13:35:09 cvsyuancheng Exp $";
 
 #include "polygonsurfaceedit.h"
 
@@ -21,16 +21,18 @@ namespace Geometry
 PolygonSurfEditor::PolygonSurfEditor( Geometry::PolygonSurface& plg )
     : ElementEditor( plg )
 {
+    plg.nrpositionnotifier.notify( mCB(this,PolygonSurfEditor,addedKnots) );
 }
 
 
 PolygonSurfEditor::~PolygonSurfEditor()
 {
     PolygonSurface& plg = reinterpret_cast<PolygonSurface&>(element);
+    plg.nrpositionnotifier.remove( mCB(this,PolygonSurfEditor,addedKnots) );
 }
 
 
-bool PolygonSurfEditor::mayTranslate3D( GeomPosID gpid ) const
+bool PolygonSurfEditor::mayTranslate2D( GeomPosID gpid ) const
 { return translation2DNormal( gpid ).isDefined(); }
 
 
@@ -41,6 +43,9 @@ Coord3 PolygonSurfEditor::translation2DNormal( GeomPosID gpid ) const
     const int plgnr = RowCol(gpid).r();
     return plg.getPolygonNormal( plgnr );
 }
+
+void PolygonSurfEditor::addedKnots(CallBacker*)
+{ editpositionchange.trigger(); }
 
 
     
