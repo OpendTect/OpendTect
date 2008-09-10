@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.4 2008-09-09 17:22:03 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: explpolygonsurface.cc,v 1.5 2008-09-10 13:48:00 cvskris Exp $";
 
 #include "explpolygonsurface.h"
 
@@ -231,17 +231,18 @@ bool ExplPolygonSurface::updateBodyDisplay( const TypeSet<Coord3>&  pts )
     TypeSet<int> plgknots[rrg.nrSteps()+1];
     TypeSet<int> concaveedges;
     int usednrknots = 0;
-    for ( int plg=0; plg<rrg.nrSteps()+1; plg++ )
+    for ( int plgidx=0; plgidx<rrg.nrSteps()+1; plgidx++ )
     {
-	if ( surface_->colRange(plg).isUdf() )
+	const StepInterval<int> colrg = surface_->colRange(rrg.atIndex(plgidx));
+	if ( colrg.isUdf() )
 	    continue;
 	
-	const int nrknots = surface_->colRange(plg).nrSteps()+1;
+	const int nrknots = colrg.nrSteps()+1;
 	for ( int idx=0; idx<nrknots; idx++ )
-	    plgknots[plg] += idx+usednrknots;
+	    plgknots[plgidx] += idx+usednrknots;
 
 	TypeSet<int> edges;
-	surface_->getExceptionEdges( plg, edges );
+	surface_->getExceptionEdges( plgidx, edges );
 	for ( int vidx=0; vidx<edges.size(); vidx++ )
 	    concaveedges += edges[vidx]+usednrknots;
 	
