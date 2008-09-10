@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.4 2008-09-10 13:58:12 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.5 2008-09-10 21:36:50 cvsyuancheng Exp $";
 
 #include "polygonsurfeditor.h"
 
@@ -247,6 +247,50 @@ float PolygonBodyEditor::getNearestPolygon( int& polygon, EM::SectionID& sid,
     polygon = selpolygon;
 
     return mindist;
+}
+
+
+bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
+{
+    if ( !mpos.isDefined() ) return false;
+
+    const Geometry::Element* ge = emObject().sectionGeometry(pid.sectionID());
+    mDynamicCastGet( const Geometry::PolygonSurface*, surface, ge );
+    if ( !surface ) return false;
+
+    const RowCol rc = pid.getRowCol();
+    const StepInterval<int> colrg = surface->colRange( rc.r() );
+    if ( colrg.isUdf() ) return false;
+	
+    const bool addtoundo = changedpids.indexOf(pid) == -1;
+    if ( addtoundo )
+	changedpids += pid;
+
+    if ( colrg.nrSteps()<3 )
+	return emobject.setPos( pid, mpos, addtoundo );
+   
+    const int previdx = rc.c()==colrg.start ? colrg.stop : rc.c()-colrg.step;
+    const int nextidx = rc.c()<colrg.stop ? rc.c()+colrg.step : colrg.start;
+    const Coord3 prevpos = surface->getKnot( RowCol(rc.r(), previdx) );
+    const Coord3 nextpos = surface->getKnot( RowCol(rc.r(), nextidx) );
+
+    for ( int knot=colrg.start; knot<=colrg.stop; knot += colrg.step )
+    {
+	const int nextknot = knot<colrg.stop ? knot+colrg.step : colrg.start;
+	if ( (knot==previdx && nextknot==rc.c()) ||
+	     (knot==rc.c() && nextknot==nextidx) )
+	    continue;
+
+	const Coord3 v0 = surface->getKnot( RowCol(rc.r(), knot) );
+	const Coord3 v1 = surface->getKnot( RowCol(rc.r(), nextknot) );
+	if ( (!sameSide3D(mpos, prevpos, v0, v1, 1e-3) && 
+	     !sameSide3D(v0, v1, mpos, prevpos, 1e-3)) ||
+	     (!sameSide3D(mpos, nextpos, v0, v1, 1e-3) &&
+	     !sameSide3D(v0, v1, mpos, nextpos, 1e-3)) )
+	    return false;
+    }
+
+    return emobject.setPos( pid, mpos, addtoundo );
 }
 
 

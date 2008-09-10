@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Yuancheng Liu
  Date:          July 2008
- RCS:           $Id: polygonsurfeditor.h,v 1.2 2008-09-09 17:22:02 cvsyuancheng Exp $
+ RCS:           $Id: polygonsurfeditor.h,v 1.3 2008-09-10 21:36:50 cvsyuancheng Exp $
 ________________________________________________________________________
 
 -*/
@@ -34,6 +34,7 @@ public:
 
 protected:
 
+    bool			setPosition(const EM::PosID&,const Coord3&);
     Geometry::ElementEditor* 	createEditor(const EM::SectionID&);
     float			getNearestPolygon(int& polygon,
 	    					  EM::SectionID& sid,

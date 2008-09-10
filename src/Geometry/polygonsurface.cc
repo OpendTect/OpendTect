@@ -4,7 +4,7 @@
  * DATE     : July 2008
 -*/
 
-static const char* rcsID = "$Id: polygonsurface.cc,v 1.3 2008-09-09 17:22:03 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: polygonsurface.cc,v 1.4 2008-09-10 21:36:50 cvsyuancheng Exp $";
 
 #include "polygonsurface.h"
 
@@ -204,22 +204,6 @@ bool PolygonSurface::setKnot( const RCol& rc, const Coord3& pos )
 
     mGetValidPolygonIdx( polygonidx, rc.r(), 0, false );
     mGetValidKnotIdx( knotidx, rc.c(), polygonidx, 0, false );
-/*
-    //Make sure no selfintersecting when we drag points around.
-    const Coord3 oldpos = (*polygons_[polygonidx])[knotidx];
-    const int nrknots = (*polygons_[polygonidx]).size();
-    for ( int idx=0; idx<nrknots; idx++ )
-    {
-	const int nextidx = idx<nrknots-1 ? idx+1 : 0;
-	if ( idx==knotidx || nextidx==knotidx )
-	    continue;
-
-	const Coord3 v0 = (*polygons_[polygonidx])[idx];
-	const Coord3 v1 = (*polygons_[polygonidx])[nextidx];
-	if ( !sameSide3D( pos, oldpos, v0, v1, 0 ) )
-	    return false;
-    }
-  */ 
     (*polygons_[polygonidx])[knotidx] = pos;
     triggerMovement( RowCol(polygonidx,PolygonChange).getSerialized() );
     return true;
