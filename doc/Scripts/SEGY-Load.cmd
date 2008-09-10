@@ -9,8 +9,7 @@ Comment "----------Loading Survey parameters-------------"
 
 Menu "Survey`Select/Setup"
 Button "New"
-
-Input "Survey directory*" "TestTutorial"
+Input "Survey directory name" "TestTutorial"
 Input "Full Survey name" "TestSurvey"
 Input "Location on disk" "$BASEDIR$"
 Combo "Survey type" "Only 3D"
@@ -18,7 +17,6 @@ Comment "------------"
 
 Combo "Input parameters" "Scan SEG-Y*"
 Button "Go"
-# CHANGE_FILEPATH
 Input "Input file" "$IMPORTDIR$/tut.sgy"
 Input "X-coord byte" 81
 Input "Y-coord byte" 85
@@ -59,12 +57,15 @@ Menu "View`Z-scale"
 Input "Z scale value" 15
 Button "Fit to scene"
 Ok
+Wheel "hRotate" 90
 
 Button "Make snapshot"
 Button "Scene"
 Ok
 Input "Select filename" "$SNAPSHOTSDIR$/tut-segy-load.jpg"
 Ok
+Wheel "hRotate" -90
+
 Menu "Survey`Select/Setup"
 Button "Remove"
 Button "Yes"
