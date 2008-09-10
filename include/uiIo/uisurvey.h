@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.h,v 1.27 2008-09-01 07:26:13 cvssatyaki Exp $
+ RCS:           $Id: uisurvey.h,v 1.28 2008-09-10 05:52:33 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -70,8 +70,6 @@ protected:
     uiSurveyMap*	survmap_;
 
     uiListBox*		listbox_;
-    uiGraphicsScene*	mapscene_;
-    uiGraphicsView*	mapview_;
     uiPushButton*	newbut_;
     uiPushButton*	editbut_;
     uiPushButton*	rmbut_;
