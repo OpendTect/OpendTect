@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2001
- RCS:           $Id: uisurvey.cc,v 1.90 2008-09-02 12:49:20 cvsnanne Exp $
+ RCS:           $Id: uisurvey.cc,v 1.91 2008-09-10 05:52:16 cvssatyaki Exp $
 ________________________________________________________________________
 
 -*/
@@ -261,7 +261,7 @@ uiSurvey::~uiSurvey()
 
 void uiSurvey::newButPushed( CallBacker* )
 {
-    if ( !survmap_ | !mapscene_) return;
+    if ( !survmap_ ) return;
     BufferString oldnm = listbox_->getText();
   
     FilePath fp( GetSoftwareDir() );
