@@ -8,15 +8,17 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.3 2008-09-09 18:04:32 cvskris Exp $";
+static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.4 2008-09-10 13:58:12 cvsyuancheng Exp $";
 
 #include "polygonsurfeditor.h"
 
 #include "empolygonbody.h"
 #include "emmanager.h"
+#include "polygonsurfaceedit.h"
 #include "mpeengine.h"
 #include "selector.h"
 #include "trigonometry.h"
+
 #include "undo.h"
 
 namespace MPE
@@ -47,9 +49,8 @@ Geometry::ElementEditor* PolygonBodyEditor::createEditor(
     if ( !ge ) return 0;
 
     mDynamicCastGet(const Geometry::PolygonSurface*,surface,ge);
-    return 0;
-//    return !surface ? 0 : new Geometry::PolygonSurfEditor( 
-//	    		  *const_cast<Geometry::PolygonSurface*>(surface) );
+    return !surface ? 0 : new Geometry::PolygonSurfEditor( 
+	    		  *const_cast<Geometry::PolygonSurface*>(surface) );
 }
 
 
