@@ -4,13 +4,14 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Satyaki
  Date:          February 2008
- RCS:           $Id: uicoltabman.cc,v 1.17 2008-07-17 11:53:30 cvsbert Exp $
+ RCS:           $Id: uicoltabman.cc,v 1.18 2008-09-11 09:33:49 cvsnageswara Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uicoltabman.h"
 
+#include "bufstring.h"
 #include "coltabindex.h"
 #include "coltabsequence.h"
 #include "draw.h"
@@ -55,7 +56,7 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
 
     uiGroup* leftgrp = new uiGroup( this, "Left" );
 
-    coltablistfld_ = new uiListView( leftgrp );
+    coltablistfld_ = new uiListView( leftgrp, "Colortable Manager" );
     BufferStringSet labels;
     labels.add( "Color table" ).add( "Status" );
     coltablistfld_->addColumns( labels );
@@ -92,11 +93,12 @@ uiColorTableMan::uiColorTableMan( uiParent* p, ColTab::Sequence& ctab )
     ctabcanvas_->attach( alignedBelow, markercanvas_, 0 );
     ctabcanvas_->attach( widthSameAs, markercanvas_ );
 
-    segmentfld_ = new uiCheckBox( rightgrp, "Segmentize" );
+    BufferString lbl = "Segmentize";
+    segmentfld_ = new uiCheckBox( rightgrp, lbl );
     segmentfld_->setChecked( markercanvas_->isSegmentized() );
     segmentfld_->activated.notify( mCB(this,uiColorTableMan,segmentSel) );
     segmentfld_->attach( leftAlignedBelow, ctabcanvas_ );
-    nrsegbox_ = new uiSpinBox( rightgrp );
+    nrsegbox_ = new uiSpinBox( rightgrp, 0, lbl );
     nrsegbox_->setInterval( 2, 25 ); nrsegbox_->setValue( 8 );
     nrsegbox_->setSensitive( false );
     nrsegbox_->valueChanging.notify( mCB(this,uiColorTableMan,nrSegmentsCB) );
