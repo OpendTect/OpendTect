@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.16 2008-03-18 13:35:27 cvsbert Exp $
+ RCS:		$Id: segyhdr.h,v 1.17 2008-09-11 13:54:56 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -41,7 +41,6 @@ public:
 
     void	putAt(int,int,int,const char*);
     void	getFrom(int,int,int,char*) const;
-    void	print(std::ostream&) const;
  
     void        setAscii();
     void        setEbcdic();
@@ -49,6 +48,8 @@ public:
     unsigned char txt[SegyTxtHeaderLength];
 
     static bool	info2d;
+
+    void	dump(std::ostream&) const;
 
 };
 
@@ -67,7 +68,6 @@ public:
 		SegyBinHeader(bool rev1=true); //!< rev1 relevant when writing
     void	getFrom(const void*);
     void	putTo(void*) const;
-    void	print(std::ostream&) const;
     int		bytesPerSample() const
 		{ return formatBytes( format ); }
     static int	formatBytes( int frmt )
@@ -105,6 +105,8 @@ public:
     unsigned short	isrev1; //!< This must be considered final
     unsigned short	fixdsz;	//!< Rev 1 only
     unsigned short	nrstzs; //!< Rev 1 only
+
+    void	dump(std::ostream&) const;
 };
 
 
@@ -132,7 +134,19 @@ public:
     int			lineseqnr;
     int			previnl;
 
-    void		print(std::ostream&) const;
+    void		dump(std::ostream&) const;
+
+    struct Val
+    {
+	Val( int byt, const char* desc, int val )
+	    : byte_(byt), desc_(desc), val_(val)		{}
+	int byte_;
+	const char* desc_;
+	int val_;
+    };
+    static int		nrVals()		{ return 86; }
+    static int		nrStdVals()		{ return 41; }
+    Val			getVal(int) const;
 
 protected:
 

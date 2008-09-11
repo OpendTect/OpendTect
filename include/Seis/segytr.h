@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.20 2008-08-06 12:06:24 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.21 2008-09-11 13:54:56 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -15,8 +15,10 @@ Translators for SEGY files traces.
 -*/
 
 #include <segylike.h>
-#include <segyhdr.h>
 class LinScaler;
+class SegyTxtHeader;
+class SegyBinHeader;
+class SegyTraceheader;
 
 
 class SEGYSeisTrcTranslator : public SegylikeSeisTrcTranslator
@@ -31,15 +33,6 @@ public:
     void		toSupported(DataCharacteristics&) const;
     void		usePar(const IOPar&);
 
-    enum DumpMode	{ None, File, String };
-    void		setTrcDumpMode( DumpMode dm )	{ dumpmode = dm; }
-    int			nrTrcsDumped() const		{ return itrc; }
-    void		setMaxTrcsDumped( int nr )	{ maxnrdump = nr; }
-    void		closeTraceDump();
-    const char*		dumpStr() const
-    			{ return dumpstr.c_str(); }
-    const char*		dumpFileName() const;
-
     virtual const char*	defExtension() const		{ return "sgy"; }
 
     static const char*	sNumberFormat;
@@ -50,14 +43,19 @@ public:
     static const char*	sUseOffset;
     static const char*	sForceRev0;
 
-    bool		isRev1() const		{ return trhead.isrev1; }
+    bool		isRev1() const;
     int			numbfmt;
+
+    const SegyTxtHeader&	txtHeader() const	{ return txthead; }
+    const SegyBinHeader&	binHeader() const	{ return binhead; }
+    const SegyTraceheader&	trcHeader() const	{ return trchead; }
 
 protected:
 
-    SegyTraceheader	trhead;
+    SegyTxtHeader&	txthead;
+    SegyBinHeader&	binhead;
+    SegyTraceheader&	trchead;
     int			itrc;
-    StreamData&		dumpsd;
     short		binhead_ns;
     float		binhead_dpos;
     LinScaler*		trcscale;
@@ -66,9 +64,6 @@ protected:
     float		ext_coord_scaling;
     float		ext_time_shift;
     float		ext_sample_rate;
-    DumpMode		dumpmode;
-    mutable std::string	dumpstr;
-    int			maxnrdump;
     bool		force_rev0;
 
     bool		readTapeHeader();
