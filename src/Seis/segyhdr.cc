@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.53 2008-04-03 09:06:26 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.54 2008-09-11 13:55:38 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -237,7 +237,7 @@ void SegyTxtHeader::putAt( int line, int pos, int endpos, const char* str )
 }
 
 
-void SegyTxtHeader::print( std::ostream& stream ) const
+void SegyTxtHeader::dump( std::ostream& stream ) const
 {
     char buf[81];
     buf[80] = '\0';
@@ -443,7 +443,7 @@ static void Ascii2Ebcdic( unsigned char *chbuf, int len )
 	    strm << '\n'; \
 	}
 
-void SegyBinHeader::print( std::ostream& strm ) const
+void SegyBinHeader::dump( std::ostream& strm ) const
 {
     mPrHead( jobid, 0, "job identification number" )
     mPrHead( lino, 4, "line number (only one line per reel)" )
@@ -502,44 +502,35 @@ SegyTraceheader::SegyTraceheader( unsigned char* b, bool rev1,
 }
 
 
-#undef mPrHead
-#define mPrHead(mem,byt,fun,nrbyts) \
+#undef mSEGYTrcDef
+#define mSEGYTrcDef(attrnr,mem,byt,fun,nrbyts) \
     strm << '\t' << #mem << '\t' << byt+1 << '\t' \
-         << IbmFormat::as##fun( getBytes(buf,needswap,byt,nrbyts) ) << '\n';
+         << IbmFormat::as##fun( getBytes(buf,needswap,byt,nrbyts) ) << '\n'
+#undef mSEGYTrcDefUnass
+#define mSEGYTrcDefUnass(attrnr,byt,fun,nrbyts) \
+    if ( IbmFormat::as##fun( getBytes(buf,needswap,byt,nrbyts) ) ) \
+	strm << '\t' << '-' << '\t' << byt+1 << '\t' \
+	     << IbmFormat::as##fun( getBytes(buf,needswap,byt,nrbyts) ) << '\n'
 
-void SegyTraceheader::print( std::ostream& strm ) const
+void SegyTraceheader::dump( std::ostream& strm ) const
 {
-    char swpbuf[4];
+#include "segyhdr.inc"
+}
 
-    mPrHead(tracl,0,Int,4); mPrHead(tracr,4,Int,4); mPrHead(fldr,8,Int,4);
-    mPrHead(tracf,12,Int,4); mPrHead(ep,16,Int,4); mPrHead(cdp,20,Int,4);
-    mPrHead(cdpt,24,Int,4); mPrHead(trid,28,Short,2); mPrHead(nvs,30,Short,2);
-    mPrHead(nhs,32,Short,2); mPrHead(duse,34,Short,2); mPrHead(offs,36,Int,4);
-    mPrHead(gelev,40,Int,4); mPrHead(selev,44,Int,4); mPrHead(sdepth,48,Int,4);
-    mPrHead(gdel,52,Int,4); mPrHead(sdel,56,Int,4); mPrHead(swdep,60,Int,4);
-    mPrHead(gwdep,64,Int,4); mPrHead(scalel,68,Short,2);
-    mPrHead(scalco,70,Short,2); mPrHead(sx,72,Int,4); mPrHead(sy,76,Int,4);
-    mPrHead(gx,80,Int,4); mPrHead(gy,84,Int,4); mPrHead(counit,88,Short,2);
-    mPrHead(wevel,90,Short,2); mPrHead(swevel,92,Short,2);
-    mPrHead(sut,94,Short,2); mPrHead(gut,96,Short,2); mPrHead(sstat,98,Short,2);
-    mPrHead(gstat,100,Short,2); mPrHead(tstat,102,Short,2);
-    mPrHead(laga,104,Short,2); mPrHead(lagb,106,Short,2);
-    mPrHead(delrt,108,Short,2); mPrHead(muts,110,Short,2);
-    mPrHead(mute,112,Short,2); mPrHead(ns,114,UnsignedShort,2);
-    mPrHead(dt,116,UnsignedShort,2); mPrHead(gain,118,Short,2);
 
-    for ( int idx=0; idx<30; idx++ )
-    {
-	const int byt = 120 + idx*2;
-	if ( *(buf+byt) || *(buf+byt+1) )
-	    mPrHead(-,byt,Short,2);
-    }
-    for ( int idx=0; idx<15; idx++ )
-    {
-	int byt = 180 + idx*4;
-	if ( *(buf+byt) || *(buf+byt+1) || *(buf+byt+2) || *(buf+byt+3) )
-	    mPrHead(-,byt,Int,4);
-    }
+#undef mSEGYTrcDef
+#define mSEGYTrcDef(attrnr,mem,byt,fun,nrbyts) \
+    if ( nr == attrnr ) \
+	return SegyTraceheader::Val( byt, #mem, \
+		IbmFormat::as##fun( getBytes(buf,needswap,byt,nrbyts) ) )
+#undef mSEGYTrcDefUnass
+#define mSEGYTrcDefUnass(attrnr,byt,fun,nrbyts) \
+    mSEGYTrcDef(attrnr,-,byt,fun,nrbyts)
+
+SegyTraceheader::Val SegyTraceheader::getVal( int nr ) const
+{
+#include "segyhdr.inc"
+    return Val( -1, "", 0 );
 }
 
 

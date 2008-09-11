@@ -5,7 +5,7 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.62 2008-03-06 10:34:51 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.63 2008-09-11 13:55:38 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
@@ -37,9 +37,10 @@ const char* SEGYSeisTrcTranslator::sExternalCoordScaling
 SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	: SegylikeSeisTrcTranslator(nm,unm)
 	, numbfmt(0)
-	, dumpsd(*new StreamData)
 	, itrc(0)
-	, trhead(headerbuf,true,hdef)
+	, trchead(*new SegyTraceheader(headerbuf,true,hdef))
+	, txthead(*new SegyTxtHeader)
+	, binhead(*new SegyBinHeader)
 	, trcscale(0)
 	, curtrcscale(0)
 	, ext_nr_samples(-1)
@@ -47,8 +48,6 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	, ext_time_shift(mUdf(float))
 	, ext_sample_rate(mUdf(float))
 	, force_rev0(false)
-	, dumpmode(None)
-    	, maxnrdump(5)
 {
 }
 
@@ -56,8 +55,10 @@ SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 SEGYSeisTrcTranslator::~SEGYSeisTrcTranslator()
 {
     SegylikeSeisTrcTranslator::cleanUp();
-    closeTraceDump();
-    delete &dumpsd;
+
+    delete &txthead;
+    delete &binhead;
+    delete &trchead;
 }
 
 
@@ -72,7 +73,6 @@ int SEGYSeisTrcTranslator::dataBytes() const
 
 bool SEGYSeisTrcTranslator::readTapeHeader()
 {
-    SegyTxtHeader txthead;
     if ( !sConn().doIO(txthead.txt,SegyTxtHeaderLength) )
 	mErrRet( "Cannot read EBCDIC header" )
     txthead.setAscii();
@@ -80,11 +80,10 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     unsigned char binheaderbuf[400];
     if ( !sConn().doIO( binheaderbuf, SegyBinHeaderLength ) )
 	mErrRet( "Cannot read EBCDIC header" )
-    SegyBinHeader binhead;
     binhead.getFrom( binheaderbuf );
-    trhead.isrev1 = force_rev0 ? false : binhead.isrev1;
+    trchead.isrev1 = force_rev0 ? false : binhead.isrev1;
 
-    if ( trhead.isrev1 )
+    if ( trchead.isrev1 )
     {
 	if ( binhead.nrstzs > 100 ) // protect against wild values
 	    binhead.nrstzs = 0;
@@ -113,34 +112,6 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
     pinfo.zrg.step = binhead.hdt * (0.001 / SI().zFactor());
     insd.step = binhead_dpos = pinfo.zrg.step;
     innrsamples = binhead_ns = binhead.hns;
-
-    if ( dumpmode != None )
-    {
-	dumpsd.close();
-	if ( dumpmode == String )
-	    dumpsd.ostrm = new std::ostringstream;
-	else
-	{
-	    const char* res = Settings::common()[ "SEG-Y.Header dump" ];
-	    if ( !res || !*res )
-		res = Settings::common()[ "Seg-Y headers" ];
-	    if ( res && *res )
-	    {
-		StreamProvider sp( res );
-		dumpsd = sp.makeOStream();
-	    }
-	}
-	if ( dumpsd.usable() )
-	{
-	    *dumpsd.ostrm << "SEG-Y Text header:\n\n-------\n";
-	    txthead.print( *dumpsd.ostrm );
-	    *dumpsd.ostrm << "-------\n\n\nSEG-Y Binary header "
-				"(non-zero values displayed only):\n\n";
-	    *dumpsd.ostrm << "\tField\tByte\tValue\n\n";
-	    binhead.print( *dumpsd.ostrm );
-	}
-    }
-
     return true;
 }
 
@@ -148,7 +119,7 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 void SEGYSeisTrcTranslator::updateCDFromBuf()
 {
     SeisTrcInfo info;
-    trhead.fill( info, ext_coord_scaling );
+    trchead.fill( info, ext_coord_scaling );
     insd = info.sampling;
     if ( !insd.step ) insd.step = binhead_dpos;
     if ( !mIsUdf(ext_time_shift) )
@@ -162,7 +133,7 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
 	innrsamples = binhead_ns;
 	if ( innrsamples <= 0 )
 	{
-	    innrsamples = trhead.nrSamples();
+	    innrsamples = trchead.nrSamples();
 	    if ( innrsamples <= 0 )
 		innrsamples = SI().zRange(false).nrSteps() + 1;
 	}
@@ -171,7 +142,7 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
     addComp( getDataChar(numbfmt)  );
     DataCharacteristics& dc = tarcds[0]->datachar;
     dc.fmt = DataCharacteristics::Ieee;
-    const float scfac = trhead.postScale( numbfmt ? numbfmt : 1 );
+    const float scfac = trchead.postScale( numbfmt ? numbfmt : 1 );
     if ( !mIsEqual(scfac,1,mDefEps)
       || (dc.isInteger() && dc.nrBytes() == BinDataDesc::N4) )
 	dc = DataCharacteristics();
@@ -180,55 +151,23 @@ void SEGYSeisTrcTranslator::updateCDFromBuf()
 
 int SEGYSeisTrcTranslator::nrSamplesRead() const
 {
-    int ret = trhead.nrSamples();
+    int ret = trchead.nrSamples();
     return ret ? ret : binhead_ns;
-}
-
-
-const char* SEGYSeisTrcTranslator::dumpFileName() const
-{
-    return dumpsd.fileName();
-}
-
-
-void SEGYSeisTrcTranslator::closeTraceDump()
-{
-    if ( dumpsd.usable() )
-    {
-	if ( dumpmode == String )
-	{
-	    mDynamicCastGet(std::ostringstream*,sstrm,dumpsd.ostrm)
-	    dumpstr = sstrm->str();
-	}
-	dumpsd.close();
-    }
 }
 
 
 void SEGYSeisTrcTranslator::interpretBuf( SeisTrcInfo& ti )
 {
     itrc++;
-    if ( dumpsd.usable() )
-    {
-	if ( itrc == 1 )
-	    *dumpsd.ostrm << "\n\n\n";
-	*dumpsd.ostrm << "\nTrace header " << itrc << ":\n\n";
-	trhead.print( *dumpsd.ostrm );
-	if ( itrc <= maxnrdump )
-	    *dumpsd.ostrm << std::endl;
-	else
-	    closeTraceDump();
-    }
-
-    trhead.fill( ti, ext_coord_scaling );
+    trchead.fill( ti, ext_coord_scaling );
     if ( is_prestack && offsazimopt == 1 )
     {
-	Coord c1( trhead.getCoord(true,ext_coord_scaling) );
-	Coord c2( trhead.getCoord(false,ext_coord_scaling) );
+	Coord c1( trchead.getCoord(true,ext_coord_scaling) );
+	Coord c2( trchead.getCoord(false,ext_coord_scaling) );
 	ti.setPSFlds( c1, c2 );
 	ti.coord = Coord( (c1.x+c2.x)*.5, (c1.y+c2.y)*.5 );
     }
-    float scfac = trhead.postScale( numbfmt ? numbfmt : 1 );
+    float scfac = trchead.postScale( numbfmt ? numbfmt : 1 );
     if ( mIsEqual(scfac,1,mDefEps) )
 	curtrcscale = 0;
     else
@@ -251,9 +190,9 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 	// Auto-detect
 	numbfmt = nrFormatFor( storinterp->dataChar() );
 
-    trhead.isrev1 = !force_rev0;
+    trchead.isrev1 = !force_rev0;
 
-    SegyTxtHeader txthead( trhead.isrev1 );
+    SegyTxtHeader txthead( trchead.isrev1 );
     txthead.setUserInfo( pinfo.usrinfo );
     hdef.linename = curlinekey.buf();
     hdef.pinfo = &pinfo;
@@ -264,7 +203,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     if ( !sConn().doIO( txthead.txt, SegyTxtHeaderLength ) )
 	mErrRet("Cannot write SEG-Y textual header")
 
-    SegyBinHeader binhead( trhead.isrev1 );
+    SegyBinHeader binhead( trchead.isrev1 );
     binhead.format = numbfmt < 2 ? 1 : numbfmt;
     numbfmt = binhead.format;
     binhead.lino = pinfo.nr;
@@ -284,11 +223,11 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 
 void SEGYSeisTrcTranslator::fillHeaderBuf( const SeisTrc& trc )
 {
-    trhead.use( trc.info() );
+    trchead.use( trc.info() );
     if ( useinpsd )
-	trhead.putSampling( trc.info().sampling, trc.size() );
+	trchead.putSampling( trc.info().sampling, trc.size() );
     else
-	trhead.putSampling( outsd, outnrsamples );
+	trchead.putSampling( outsd, outnrsamples );
 }
 
 
@@ -305,6 +244,12 @@ void SEGYSeisTrcTranslator::usePar( const IOPar& iopar )
     iopar.get( sExternalTimeShift, ext_time_shift );
     iopar.get( sExternalSampleRate, ext_sample_rate );
     iopar.getYN( sForceRev0, force_rev0 );
+}
+
+
+bool SEGYSeisTrcTranslator::isRev1() const
+{
+    return trchead.isrev1;
 }
 
 
