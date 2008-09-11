@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.5 2008-09-10 21:36:50 cvsyuancheng Exp $";
+static const char* rcsID = "$Id: polygonsurfeditor.cc,v 1.6 2008-09-11 17:47:03 cvsyuancheng Exp $";
 
 #include "polygonsurfeditor.h"
 
@@ -283,11 +283,33 @@ bool PolygonBodyEditor::setPosition( const EM::PosID& pid, const Coord3& mpos )
 
 	const Coord3 v0 = surface->getKnot( RowCol(rc.r(), knot) );
 	const Coord3 v1 = surface->getKnot( RowCol(rc.r(), nextknot) );
-	if ( (!sameSide3D(mpos, prevpos, v0, v1, 1e-3) && 
-	     !sameSide3D(v0, v1, mpos, prevpos, 1e-3)) ||
-	     (!sameSide3D(mpos, nextpos, v0, v1, 1e-3) &&
-	     !sameSide3D(v0, v1, mpos, nextpos, 1e-3)) )
+	if ( (!sameSide3D(mpos, prevpos, v0, v1, 0) && 
+	     !sameSide3D(v0, v1, mpos, prevpos, 0)) ||
+	     (!sameSide3D(mpos, nextpos, v0, v1, 0) &&
+	     !sameSide3D(v0, v1, mpos, nextpos, 0)) )
 	    return false;
+
+	if ( knot==nextidx ) 
+	{
+	    const Coord3 planenorm = surface->getPolygonNormal( rc.r() );
+	    const Coord3 nexttov1 = surface->getKnot( RowCol(rc.r(), 
+			nextknot<colrg.stop ? nextknot+colrg.step 
+					    : colrg.start) );		
+	    const Coord3 midpt = ( v0+nexttov1 )/2;
+	    const Coord3 trinorm = (v1-v0).cross(nexttov1-v1);
+    	    if ( planenorm.dot(trinorm)>0 )
+	    {
+		if ( !sameSide3D(mpos, midpt, v1, nexttov1, 0) &&
+		     !sameSide3D(mpos, midpt, v1, v0, 0) )
+		    return false;
+	    }
+	    else
+	    {
+		if ( sameSide3D(mpos, midpt, v1, nexttov1, 0) &&
+		     sameSide3D(mpos, midpt, v1, v0, 0) )
+		    return false;
+	    }
+	} 
     }
 
     return emobject.setPos( pid, mpos, addtoundo );
