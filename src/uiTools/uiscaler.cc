@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          June 2002
- RCS:           $Id: uiscaler.cc,v 1.19 2008-09-11 09:03:18 cvsbert Exp $
+ RCS:           $Id: uiscaler.cc,v 1.20 2008-09-11 09:58:14 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,8 +39,8 @@ uiScaler::uiScaler( uiParent* p, const char* lbl, bool linonly )
 
     DoubleInpSpec dis;
     linearfld = new uiGenInput( this, "Shift/Factor", 
-	   			DoubleInpSpec().setName("Shift",0),
-	   			DoubleInpSpec().setName("Factor",1) );
+	   			DoubleInpSpec().setName("Shift"),
+	   			DoubleInpSpec().setName("Factor") );
 
     if ( !typefld )
 	ynfld->attach( leftOf, linearfld );
