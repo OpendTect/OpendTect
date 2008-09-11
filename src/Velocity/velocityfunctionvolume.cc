@@ -4,7 +4,7 @@
  * DATE     : April 2005
 -*/
 
-static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.1 2008-07-22 17:39:21 cvskris Exp $";
+static const char* rcsID = "$Id: velocityfunctionvolume.cc,v 1.2 2008-09-11 07:11:25 cvskris Exp $";
 
 #include "velocityfunctionvolume.h"
 
@@ -150,12 +150,22 @@ bool VolumeFunctionSource::getVel( const BinID& bid,
 			    SamplingData<float>& sd, TypeSet<float>& trcdata )
 {
     Threads::MutexLocker lock( readerlock_ );
+    if ( !velreader_ )
+    {
+	pErrMsg("No reader available");
+	return false;
+    }
 
     mDynamicCastGet( SeisTrcTranslator*, veltranslator,
 		     velreader_->translator() );
 
-    if ( !veltranslator->supportsGoTo() ||
-	 !veltranslator->goTo(bid) )
+    if ( !veltranslator || !veltranslator->supportsGoTo() )
+    {
+	pErrMsg("Velocity translator not capable enough");
+	return false;
+    }
+
+    if ( !veltranslator->goTo(bid) )
 	return false;
 
     SeisTrc velocitytrc;
