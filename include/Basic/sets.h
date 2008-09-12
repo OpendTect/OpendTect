@@ -8,7 +8,7 @@ ________________________________________________________________________
  Author:	A.H.Bril
  Date:		April 1995
  Contents:	Sets of simple objects
- RCS:		$Id: sets.h,v 1.49 2008-05-14 20:39:21 cvskris Exp $
+ RCS:		$Id: sets.h,v 1.50 2008-09-12 14:12:33 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -73,6 +73,7 @@ public:
 				//!<Removes all items that are not present in ts
     virtual inline void		createDifference( const TypeSet<T>& ts );
 				//!<Removes all items that are present in ts.
+    				//!<Preserves order: uses remove, not removeFast
 
     inline virtual bool		addIfNew( const T& typ );
     virtual void		fill( const T& t );
@@ -469,7 +470,7 @@ inline void TypeSet<T>::createDifference( const TypeSet<T>& ts )
 	for ( int idy=0; idy<size(); idy++ )
 	{
 	    if ( tvec_[idy]==typ )
-		removeFast(idy--);
+		remove(idy--);
 	}
     }
 }

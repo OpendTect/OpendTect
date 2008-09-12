@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.28 2008-08-29 10:30:10 cvshelene Exp $
+ RCS:           $Id: mathattrib.cc,v 1.29 2008-09-12 14:12:33 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,7 +49,7 @@ void Math::initClass()
 
 
 void Math::getInputTable( const MathExpression* me, TypeSet<int>& inptab, 
-			  bool iscst )
+			  bool iscst, bool prefixonly )
 {
     const int nrvar = me->getNrVariables();
     TypeSet<int> tmpset;
@@ -70,7 +70,22 @@ void Math::getInputTable( const MathExpression* me, TypeSet<int>& inptab,
     if ( !iscst )
     {
 	tmpset.createDifference( inptab );
-	inptab = tmpset;
+	if ( prefixonly )
+	{
+	    inptab.erase();
+	    for ( int idx=0; idx<tmpset.size(); idx++ )
+	    {
+		char prefname[8];
+		snprintf( prefname, 8, "x%d", idx );
+		int prefidx = me->getPrefixIdx( prefname, false );
+		if ( prefidx > -1 )
+		    inptab += prefidx;
+		else
+		    break;
+	    }
+	}
+	else
+	    inptab = tmpset;
     }
 }
 
@@ -84,20 +99,21 @@ void Math::updateDesc( Desc& desc )
 			MathExpression::parse( expr->getStringValue() );
     if ( !formula ) return;
 
-    TypeSet<int> csttab;
-    getInputTable( formula, csttab, true );
-    int nrcstvars = csttab.size();
-    int nrdiffvars = formula->getNrDiffVariables();
-    if ( desc.nrInputs() != ( nrdiffvars-nrcstvars ) )
+    TypeSet<int> xdiffvarstab;
+    getInputTable( formula, xdiffvarstab, false, true );
+    int nrdiffxvars = xdiffvarstab.size();
+    if ( desc.nrInputs() != nrdiffxvars )
     {
 	while ( desc.nrInputs() )
 	    desc.removeInput(0);
 
-	for ( int idx=0; idx<nrdiffvars-nrcstvars; idx++ )
-	    desc.addInput(InputSpec(formula->getVarPrefixStr(idx),true));
+	for ( int idx=0; idx<nrdiffxvars; idx++ )
+	    desc.addInput( InputSpec(
+			formula->getVarPrefixStr( xdiffvarstab[idx] ), true ) );
     }
 
-    desc.setParamEnabled( cstStr(), nrcstvars );
+    int totnrdiffvars = formula->getNrDiffVariables();
+    desc.setParamEnabled( cstStr(), totnrdiffvars - nrdiffxvars );
 
     bool isrec = formula->isRecursive();
     desc.setParamEnabled( recstartStr(), isrec );
@@ -265,6 +281,8 @@ bool Math::getInputAndShift( int varidx, int& inpidx, int& shift) const
 	   			    prefix, shift );
     inpidx = expression_->getPrefixIdx( prefix, true );
     bool isrec = !strcmp(prefix,"THIS");
+    if ( inpidx>=0 )
+	inpidx = atoi( prefix.buf() +1 );
     bool inpok = inpidx>=0 || isrec;
     bool shiftok = !mIsUdf(shift) && ( !isrec || shift<=0 );
     return inpok && shiftok;

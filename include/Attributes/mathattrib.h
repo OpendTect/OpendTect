@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.h,v 1.14 2008-08-29 10:30:10 cvshelene Exp $
+ RCS:           $Id: mathattrib.h,v 1.15 2008-09-12 14:12:33 cvshelene Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,7 +39,8 @@ public:
     static const char*		recstartposStr()	{ return "recstartpos";}
 
     static void 		getInputTable(const MathExpression*,
-					      TypeSet<int>&,bool);
+					      TypeSet<int>&,bool iscst,
+					      bool prefixonly = false);
 
 protected:
     				~Math()	{}
