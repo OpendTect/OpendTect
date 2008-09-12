@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtbasemap.h,v 1.2 2008-08-06 09:58:20 cvsraman Exp $
+ RCS:		$Id: gmtbasemap.h,v 1.3 2008-09-12 11:32:25 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -49,6 +49,27 @@ public:
 
     virtual bool	execute(std::ostream&,const char*);
     virtual const char* userRef() const			{ return 0; }
+
+protected:
+
+    static GMTPar*	createInstance(const IOPar&);
+    static int		factoryid_;
+};
+
+
+class GMTCommand : public GMTPar
+{
+public:
+
+    static void		initClass();
+
+    			GMTCommand(const char* nm)
+			    : GMTPar(nm)	{}
+			GMTCommand(const IOPar& par)
+			    : GMTPar(par) {}
+
+    virtual bool	execute(std::ostream&,const char*);
+    virtual const char* userRef() const;
 
 protected:
 

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtmainwin.h,v 1.1 2008-08-01 08:31:21 cvsraman Exp $
+ RCS:		$Id: uigmtmainwin.h,v 1.2 2008-09-12 11:32:30 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,6 +15,7 @@ ________________________________________________________________________
 #include "gmtpar.h"
 #include "uibatchlaunch.h"
 
+class CtxtIOObj;
 class Timer;
 class uiGMTBaseMapGrp;
 class uiGMTOverlayGrp;
@@ -32,6 +33,7 @@ public:
 
 protected:
 
+    CtxtIOObj&		ctio_;
     uiGMTBaseMapGrp*	basemapgrp_;
     uiGroup*		flowgrp_;
     uiListBox*		flowfld_;
@@ -51,6 +53,7 @@ protected:
 
     ObjectSet<GMTPar>	pars_;
     Timer*		tim_;
+    bool		needsave_;
 
     void		createPush(CallBacker*);
     void		viewPush(CallBacker*);
@@ -61,9 +64,13 @@ protected:
     void		addCB(CallBacker*);
     void		editCB(CallBacker*);
     void		checkFileCB(CallBacker*);
+    void		newFlow(CallBacker*);
+    void		openFlow(CallBacker*);
+    void		saveFlow(CallBacker*);
 
     bool		prepareProcessing()		{ return true; }
     bool		fillPar(IOPar&);
+    bool		usePar( const IOPar&);
     void		makeLegendPar(IOPar&) const;
 };
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: gmtbasemap.cc,v 1.6 2008-09-02 11:08:30 cvsraman Exp $
+ RCS:		$Id: gmtbasemap.cc,v 1.7 2008-09-12 11:32:25 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,6 +44,8 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     getYN( ODGMT::sKeyClosePS, closeps );
     getYN( ODGMT::sKeyDrawGridLines, dogrid );
 
+    bool dotitlebox = false;
+    getYN( ODGMT::sKeyPostTitleBox, dotitlebox );
     BufferString comm = "psbasemap ";
     BufferString str; mGetRangeProjString( str, "X" );
     comm += str; comm += " -Ba";
@@ -53,18 +55,51 @@ bool GMTBaseMap::execute( std::ostream& strm, const char* fnm )
     if ( dogrid ) { comm += "g"; comm += lblintv.stop; }
     comm += ":\"."; comm += maptitle; comm += "\":";
     comm += " --Y_AXIS_TYPE=ver_text";
+    comm += " --HEADER_FONT_SIZE=24";
     comm += " --X_ORIGIN="; comm += xmargin;
     comm += "c --Y_ORIGIN="; comm += ymargin;
     comm += "c --PAPER_MEDIA=Custom_";
-    const float pagewidth = mapdim.start + ( closeps ? 2 : 4 ) * xmargin;
+    float pagewidth = mapdim.start + 2 * xmargin;
+    if ( !closeps || dotitlebox ) pagewidth += 3 * xmargin;
     const float pageheight = mapdim.stop + 3 * ymargin;
     comm += pageheight < 21 ? 21 : pageheight; comm += "cx";
     comm += pagewidth < 21 ? 21 : pagewidth; comm += "c ";
-    if ( !closeps ) comm += "-K ";
+    if ( !closeps || dotitlebox ) comm += "-K ";
+
     comm += "> "; comm += fnm;
     if ( system(comm) )
 	mErrStrmRet("Failed to create Basemap")
 
+    strm << "Done" << std::endl;
+
+    if ( !dotitlebox )
+	return true;
+
+    strm << "Posting title box ...  ";
+    comm = "@pslegend -R -J -F -O -Dx";
+    comm += mapdim.start + xmargin; comm += "c/";
+    comm += 0; comm += "c/";
+    comm += 2 * xmargin; comm += "c/";
+    comm += ymargin; comm += "c/BL ";
+    if ( !closeps ) comm += "-K ";
+
+    comm += "-UBL/0/0 ";    
+    comm += ">> "; comm += fnm;
+    StreamData sd = StreamProvider(comm).makeOStream();
+    if ( !sd.usable() ) mErrStrmRet("Failed to overlay title box")
+
+    *sd.ostrm << "H 16 4 " << maptitle << std::endl;
+    *sd.ostrm << "G 0.5l" << std::endl;
+    int scaleval = 1;
+    get( ODGMT::sKeyMapScale, scaleval );
+    *sd.ostrm << "L 10 4 C Scale  1:" << scaleval << std::endl;
+    *sd.ostrm << "D 0 1p" << std::endl;
+    const char* remarks = find( ODGMT::sKeyRemarks );
+    *sd.ostrm << "> - - 10 - 4 - - - c" << std::endl;
+    *sd.ostrm << "T " << remarks << std::endl;
+
+    *sd.ostrm << std::endl;
+    sd.close();
     strm << "Done" << std::endl;
     return true;
 }
@@ -107,7 +142,7 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	    fp.setExtension( "cpt" );
 	    BufferString colbarcomm = "psscale --LABEL_FONT_SIZE=14 -D";
 	    colbarcomm += mapdim.start + xmargin; colbarcomm += "c/";
-	    colbarcomm += ymargin; colbarcomm += "c/";
+	    colbarcomm += 2.5 * ymargin; colbarcomm += "c/";
 	    colbarcomm += mapdim.stop / 2; colbarcomm += "c/";
 	    colbarcomm += mapdim.start / 10; colbarcomm += "c -O -C";
 	    colbarcomm += fp.fullPath(); colbarcomm += " -B";
@@ -125,17 +160,18 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 	parset += par;
     }
 
+    const int nritems = parset.size();
     BufferString comm = "@pslegend -R -J -O -Dx";
     comm += mapdim.start + xmargin; comm += "c/";
-    comm += ymargin + ( hascolbar ? mapdim.stop / 2 : 0 ); comm += "c/";
+    comm += 1.5 * ymargin + ( hascolbar ? mapdim.stop / 2 : 0 ); comm += "c/";
     comm += 10; comm += "c/";
-    comm += parset.size(); comm += "c/BL ";
+    comm += nritems ? nritems : 1; comm += "c/BL ";
     
     comm += ">> "; comm += fnm;
     StreamData sd = StreamProvider(comm).makeOStream();
     if ( !sd.usable() ) mErrStrmRet("Failed to overlay legend")
 
-    for ( int idx=0; idx<parset.size(); idx++ )
+    for ( int idx=0; idx<nritems; idx++ )
     {
 	IOPar* par = parset[idx];
 	BufferString namestr = par->find( sKey::Name );
@@ -204,6 +240,61 @@ bool GMTLegend::execute( std::ostream& strm, const char* fnm )
 
     sd.close();
     strm << "Done" << std::endl;
+    return true;
+}
+
+
+
+int GMTCommand::factoryid_ = -1;
+
+void GMTCommand::initClass()
+{
+    if ( factoryid_ < 1 )
+	factoryid_ = GMTPF().add( "Advanced", GMTCommand::createInstance );
+}
+
+GMTPar* GMTCommand::createInstance( const IOPar& iop )
+{
+    return new GMTCommand( iop );
+}
+
+
+const char* GMTCommand::userRef() const
+{
+    BufferString* str = new BufferString( "GMT Command: " );
+    const char* res = find( ODGMT::sKeyCustomComm );
+    *str += res;
+    *( str->buf() + 25 ) = '\0';
+    return str->buf();
+}
+
+
+bool GMTCommand::execute( std::ostream& strm, const char* fnm )
+{
+    strm << "Executing custom command" << std::endl;
+    const char* res = find( ODGMT::sKeyCustomComm );
+    if ( !res || !*res )
+	mErrStrmRet("No command to execute")
+
+    strm << res << std::endl;
+    BufferString comm = res;
+    char* commptr = comm.buf();
+    if ( strstr(commptr,".ps") )
+    {
+	char* ptr = strstr( commptr, ">>" );
+	if ( ptr )
+	{
+	    BufferString temp = ptr;
+	    *ptr = '\0';
+	    comm += "-O -K ";
+	    comm += temp;
+	}
+    }
+
+    if ( system(comm.buf()) )
+	mErrStrmRet("... Failed")
+
+    strm << "... Done" << std::endl;
     return true;
 }
 

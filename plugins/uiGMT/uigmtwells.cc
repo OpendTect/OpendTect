@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: uigmtwells.cc,v 1.3 2008-08-20 05:26:14 cvsraman Exp $
+ RCS:		$Id: uigmtwells.cc,v 1.4 2008-09-12 11:32:30 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -17,9 +17,9 @@ ________________________________________________________________________
 #include "welldata.h"
 #include "wellextractdata.h"
 #include "uibutton.h"
-#include "uicolor.h"
 #include "uicombobox.h"
 #include "uigeninput.h"
+#include "uigmtsymbolpars.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uispinbox.h"
@@ -58,30 +58,12 @@ uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
     namefld_ = new uiGenInput( this, "Name", StringInpSpec("Wells") );
     namefld_->attach( alignedBelow, llb );
 
-    uiLabeledComboBox* lcb = new uiLabeledComboBox( this, "Symbol shape");
-    lcb->attach( alignedBelow, namefld_ );
-    shapefld_ = lcb->box();
-    shapefld_->setHSzPol( uiObject::Small );
-
-    sizefld_ = new uiGenInput( this, "Size (cm)",
-	    		       FloatInpSpec(0.2) );
-    sizefld_->setElemSzPol( uiObject::Small );
-    sizefld_->attach( rightTo, lcb );
-
-    outcolfld_ = new uiColorInput( this, uiColorInput::Setup(Color::Black)
-				   	.lbltxt("Color") );
-    outcolfld_->attach( rightTo, sizefld_ );
-
-    fillfld_ = new uiCheckBox( this, "Fill Color",
-	   		       mCB(this,uiGMTWellsGrp,choiceSel) );
-    fillfld_->attach( alignedBelow, lcb );
-
-    fillcolfld_ = new uiColorInput( this, uiColorInput::Setup(Color::White) );
-    fillcolfld_->attach( rightOf, fillfld_ );
+    symbfld_ = new uiGMTSymbolPars( this );
+    symbfld_->attach( alignedBelow, namefld_ );
 
     lebelfld_ = new uiCheckBox( this, "Post labels",
 	   			mCB(this,uiGMTWellsGrp,choiceSel) );
-    lebelfld_->attach( alignedBelow, fillfld_ );
+    lebelfld_->attach( alignedBelow, symbfld_ );
 
     lebelalignfld_ = new uiComboBox( this, "Alignment" );
     lebelalignfld_->attach( rightTo, lebelfld_ );
@@ -99,16 +81,6 @@ uiGMTWellsGrp::uiGMTWellsGrp( uiParent* p )
 
 void uiGMTWellsGrp::fillItems()
 {
-    for ( int idx=0; idx<6; idx++ )
-    {
-	BufferString shapekey = eString( ODGMT::Shape, idx );
-	if ( shapekey.isEmpty() ) break;
-
-	shapekey.buf()[0] = tolower( shapekey.buf()[0] );
-	shapekey += ".png";
-	shapefld_->insertItem( ioPixmap(shapekey), "" );
-    }
-
     for ( int idx=0; idx<4; idx++ )
     {
 	BufferString alignkey = eString( ODGMT::Alignment, idx );
@@ -119,10 +91,9 @@ void uiGMTWellsGrp::fillItems()
 
 void uiGMTWellsGrp::choiceSel( CallBacker* )
 {
-    if ( !fillcolfld_ || !lebelalignfld_ )
+    if ( !lebelalignfld_ )
 	return;
 
-    fillcolfld_->setSensitive( fillfld_->isChecked() );
     lebelalignfld_->setSensitive( lebelfld_->isChecked() );
     labelfontszfld_->setSensitive( lebelfld_->isChecked() );
 }
@@ -140,13 +111,7 @@ bool uiGMTWellsGrp::fillPar( IOPar& par ) const
     BufferStringSet selnames;
     welllistfld_->getSelectedItems( selnames );
     par.set( ODGMT::sKeyWellNames, selnames );
-    const int shp = shapefld_->currentItem();
-    BufferString shapestr = eString( ODGMT::Shape, shp );
-    par.set( ODGMT::sKeyShape, shapestr );
-    par.set( sKey::Size, sizefld_->getfValue() );
-    par.setYN( ODGMT::sKeyFill, fillfld_->isChecked() );
-    par.set( sKey::Color, outcolfld_->color() );
-    par.set( ODGMT::sKeyFillColor, fillcolfld_->color() );
+    symbfld_->fillPar( par );
     par.setYN( ODGMT::sKeyPostLabel, lebelfld_->isChecked() );
     par.set( ODGMT::sKeyLabelAlignment, lebelalignfld_->text() );
     par.set( ODGMT::sKeyFontSize, labelfontszfld_->getValue() );
@@ -169,28 +134,7 @@ bool uiGMTWellsGrp::usePar( const IOPar& par )
 	    welllistfld_->setSelected( idx, false );
     }
 
-    const char* shapestr = par.find( ODGMT::sKeyShape );
-    if ( shapestr && *shapestr )
-    {
-	ODGMT::Shape shp = eEnum( ODGMT::Shape, shapestr );
-	shapefld_->setCurrentItem( shp );
-    }
-
-    float size;
-    if ( par.get(sKey::Size,size) )
-	sizefld_->setValue( size );
-
-    Color col;
-    if ( par.get(sKey::Color,col) )
-	outcolfld_->setColor( col );
-
-    bool dofill = false;
-    par.getYN( ODGMT::sKeyFill, dofill );
-    fillfld_->setChecked( dofill );
-    fillfld_->setChecked( dofill );
-    if ( dofill && par.get(ODGMT::sKeyFillColor,col) )
-	fillcolfld_->setColor( col );
-
+    symbfld_->usePar( par );
     bool postlabel = false;
     par.getYN( ODGMT::sKeyPostLabel, postlabel );
     lebelfld_->setChecked( postlabel );

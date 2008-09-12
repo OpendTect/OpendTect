@@ -1,25 +1,22 @@
-#ifndef uigmtlocations_h
-#define uigmtlocations_h
+#ifndef uigmtadv_h
+#define uigmtadv_h
 
 /*+
 ________________________________________________________________________
 
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
- Date:		July 2008
- RCS:		$Id: uigmtlocations.h,v 1.2 2008-09-12 11:32:30 cvsraman Exp $
+ Date:		September 2008
+ RCS:		$Id: uigmtadv.h,v 1.1 2008-09-12 11:32:30 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uigmtoverlay.h"
 
-class CtxtIOObj;
-class uiGenInput;
-class uiIOObjSel;
-class uiGMTSymbolPars;
+class uiLineEdit;
 
-class uiGMTLocationsGrp : public uiGMTOverlayGrp
+class uiGMTAdvGrp : public uiGMTOverlayGrp
 {
 public:
 
@@ -29,18 +26,12 @@ public:
     bool		usePar(const IOPar&);
 protected:
 
-    			uiGMTLocationsGrp(uiParent*);
+    			uiGMTAdvGrp(uiParent*);
 
     static uiGMTOverlayGrp*	createInstance(uiParent*);
     static int			factoryid_;
 
-    CtxtIOObj&		ctio_;
-
-    uiIOObjSel*		inpfld_;
-    uiGenInput*		namefld_;
-    uiGMTSymbolPars*	symbfld_;
-
-    void		objSel(CallBacker*);
+    uiLineEdit*		inpfld_;
 };
 
 #endif

@@ -4,12 +4,14 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: uigmtpi.cc,v 1.8 2008-09-02 11:07:59 cvsraman Exp $";
+static const char* rcsID = "$Id: uigmtpi.cc,v 1.9 2008-09-12 11:32:30 cvsraman Exp $";
 
 #include "gmtdef.h"
+#include "ioman.h"
 #include "pixmap.h"
 #include "uibutton.h"
 #include "uidesktopservices.h"
+#include "uigmtadv.h"
 #include "uigmtcoastline.h"
 #include "uigmtcontour.h"
 #include "uigmtlocations.h"
@@ -150,6 +152,12 @@ extern "C" const char* InituiGMTPlugin( int, char** )
     static uiGMTMgr* mgr = 0; if ( mgr ) return 0;
     mgr = new uiGMTMgr( ODMainWin() );
 
+    IOMan::CustomDirData cdd( ODGMT::sKeyGMTSelKey, ODGMT::sKeyGMT,
+	    		      "GMT data" );
+    MultiID id = IOMan::addCustomDataDir( cdd );
+    if ( id != ODGMT::sKeyGMTSelKey )
+	return "Cannot create 'GMT' directory in survey";
+
     uiGMTLocationsGrp::initClass();
     uiGMTPolylineGrp::initClass();
     uiGMTContourGrp::initClass();
@@ -157,5 +165,6 @@ extern "C" const char* InituiGMTPlugin( int, char** )
     uiGMTWellsGrp::initClass();
     uiGMT2DLinesGrp::initClass();
     uiGMTRandLinesGrp::initClass();
+    uiGMTAdvGrp::initClass();
     return 0;
 }

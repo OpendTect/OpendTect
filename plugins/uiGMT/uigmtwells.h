@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: uigmtwells.h,v 1.3 2008-08-20 05:26:14 cvsraman Exp $
+ RCS:		$Id: uigmtwells.h,v 1.4 2008-09-12 11:32:30 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -15,11 +15,11 @@ ________________________________________________________________________
 #include "uigmtoverlay.h"
 
 class uiCheckBox;
-class uiColorInput;
 class uiComboBox;
 class uiGenInput;
 class uiListBox;
 class uiSpinBox;
+class uiGMTSymbolPars;
 
 class uiGMTWellsGrp : public uiGMTOverlayGrp
 {
@@ -38,11 +38,7 @@ protected:
 
     uiListBox*		welllistfld_;
     uiGenInput*		namefld_;
-    uiComboBox*		shapefld_;
-    uiGenInput*		sizefld_;
-    uiCheckBox*		fillfld_;
-    uiColorInput*	outcolfld_;
-    uiColorInput*	fillcolfld_;
+    uiGMTSymbolPars*	symbfld_;
     uiCheckBox*		lebelfld_;
     uiComboBox*		lebelalignfld_;
     uiSpinBox*		labelfontszfld_;

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		Jube 2008
- RCS:		$Id: uigmtbasemap.cc,v 1.5 2008-08-27 12:35:30 cvsraman Exp $
+ RCS:		$Id: uigmtbasemap.cc,v 1.6 2008-09-12 11:32:30 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -13,6 +13,7 @@ ________________________________________________________________________
 
 #include "gmtpar.h"
 #include "linear.h"
+#include "separstr.h"
 #include "survinfo.h"
 #include "uibutton.h"
 #include "uigeninput.h"
@@ -58,7 +59,16 @@ uiGMTBaseMapGrp::uiGMTBaseMapGrp( uiParent* p )
 
     gridlinesfld_ = new uiCheckBox( this, "Draw Gridlines" );
     gridlinesfld_->attach( rightTo, lebelintvfld_ );
+
+    titleboxfld_ = new uiCheckBox( this, "Post title box",
+	   			   mCB(this,uiGMTBaseMapGrp,titleSel) );
+    titleboxfld_->attach( alignedBelow, lebelintvfld_ );
+
+    remarkfld_ = new uiGenInput( this, "Remarks" );
+    remarkfld_->attach( alignedBelow, titleboxfld_ );
+
     updateFlds( true );
+    titleSel(0);
 }
 
 
@@ -120,6 +130,12 @@ void uiGMTBaseMapGrp::resetCB( CallBacker* )
 }
 
 
+void uiGMTBaseMapGrp::titleSel( CallBacker* )
+{
+    remarkfld_->setSensitive( titleboxfld_->isChecked() );
+}
+
+
 void uiGMTBaseMapGrp::scaleChg( CallBacker* cb )
 {
     const float factor = (float)scalefld_->getIntValue();
@@ -173,12 +189,13 @@ void uiGMTBaseMapGrp::updateFlds( bool fromsurvey )
 	return;
     }
 
-    xdimfld_->setValue( aspectratio_ > 1 ? 16 : 16 * aspectratio_ );
-    ydimfld_->setValue( aspectratio_ > 1 ? 16 / aspectratio_ : 16 );
-    scalefld_->setValue( xrg.width() * 100 / xdimfld_->getfValue() );
     const AxisLayout xaxis( xrg );
     const AxisLayout yaxis( yrg );
     lebelintvfld_->setValue( Interval<float>(xaxis.sd.step,yaxis.sd.step) );
+    const float scaleval = (aspectratio_>1?xaxis.sd.step:yaxis.sd.step) * 20;
+    xdimfld_->setValue( xrg.width() * 100 / scaleval );
+    ydimfld_->setValue( yrg.width() * 100 / scaleval );
+    scalefld_->setValue( scaleval );
     xrgfld_->valuechanged.enable();
     yrgfld_->valuechanged.enable();
 }
@@ -204,14 +221,54 @@ bool uiGMTBaseMapGrp::fillPar( IOPar& par ) const
     const float mapheight = ydimfld_->getfValue();
     par.set( ODGMT::sKeyMapDim, Interval<float>(mapwidth,mapheight) );
 
+    par.set( ODGMT::sKeyMapScale, scalefld_->getIntValue() );
     const Interval<float> lblintv = lebelintvfld_->getFInterval();
     par.set( ODGMT::sKeyLabelIntv, lblintv );
     par.setYN( ODGMT::sKeyDrawGridLines, gridlinesfld_->isChecked() );
+    const bool dotitle = titleboxfld_->isChecked();
+    par.setYN( ODGMT::sKeyPostTitleBox, dotitle );
+    if ( dotitle )
+	par.set( ODGMT::sKeyRemarks, remarkfld_->text() );
+
     return true;
 }
 
 
 bool uiGMTBaseMapGrp::usePar( const IOPar& par )
 {
+    const char* maptitle = par.find( ODGMT::sKeyMapTitle );
+    titlefld_->setText( maptitle );
+
+    Interval<int> xrg, yrg;
+    if ( par.get(ODGMT::sKeyXRange,xrg) )
+	xrgfld_->setValue( xrg );
+    if ( par.get(ODGMT::sKeyYRange,yrg) )
+	yrgfld_->setValue( yrg );
+
+    Interval<float> mapdim, lblintv;
+    if ( par.get(ODGMT::sKeyMapDim,mapdim) )
+    {
+	xdimfld_->setValue( mapdim.start );
+	ydimfld_->setValue( mapdim.stop );
+    }
+
+    int scaleval = 1;
+    if ( par.get(ODGMT::sKeyMapScale,scaleval) )
+	scalefld_->setValue( scaleval );
+    if ( par.get(ODGMT::sKeyLabelIntv,lblintv) )
+	lebelintvfld_->setValue( lblintv );
+
+    bool dogrdlines = false;
+    par.getYN( ODGMT::sKeyDrawGridLines, dogrdlines );
+    gridlinesfld_->setChecked( dogrdlines );
+    
+    bool dotitlebox = false;
+    par.getYN( ODGMT::sKeyPostTitleBox, dotitlebox );
+    titleboxfld_->setChecked( dotitlebox );
+
+    if ( dotitlebox )
+	remarkfld_->setText( par.find(ODGMT::sKeyRemarks) );
+    
+    titleSel(0);
     return true;
 }

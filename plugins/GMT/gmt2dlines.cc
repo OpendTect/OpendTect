@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		August 2008
- RCS:		$Id: gmt2dlines.cc,v 1.4 2008-09-02 11:15:50 cvsraman Exp $
+ RCS:		$Id: gmt2dlines.cc,v 1.5 2008-09-12 11:32:24 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -132,10 +132,10 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 
 	const int nrtrcs = geom.posns.size();
 	Coord pos = geom.posns[0].coord_;
-	Coord vec = geom.posns[10].coord_ - geom.posns[0].coord_;
+	Coord vec = geom.posns[1].coord_ - geom.posns[0].coord_;
 	float angle = atan2( vec.y, vec.x );
-	const float dy = sin( angle );
-	const float dx = cos( angle );
+	float dy = sin( angle );
+	float dx = cos( angle );
 	angle *= 180 / M_PI;
 
 	float rotangle = fabs(angle) > 90 ? 180+angle : angle;
@@ -152,13 +152,19 @@ bool GMT2DLines::execute( std::ostream& strm, const char* fnm )
 	    *sd.ostrm << " " << al.buf() << linenms.get(idx) << std::endl;
 	}
 
-	bool poststop = true;
+	bool poststop = false;
 	getYN( ODGMT::sKeyPostStop, poststop );
 	if ( poststop )
 	{
 	    pos = geom.posns[nrtrcs-1].coord_;
-	    pos += Coord( distfactor*dx, distfactor*dy );
-	    al = fabs(angle) > 90 ? "MR " : "ML ";
+	    Coord vec = geom.posns[nrtrcs-2].coord_ - pos;
+	    angle = atan2( vec.y, vec.x );
+	    dy = sin( angle );
+	    dx = cos( angle );
+	    angle *= 180 / M_PI;
+	    rotangle = fabs(angle) > 90 ? 180+angle : angle;
+	    pos -= Coord( distfactor*dx, distfactor*dy );
+	    al = fabs(angle) > 90 ? "ML " : "MR ";
 	    *sd.ostrm << pos.x << " " << pos.y << " " << size << " " ;
 	    *sd.ostrm << rotangle << " " << 4;
 	    *sd.ostrm << " " << al.buf() << linenms.get(idx) << std::endl;

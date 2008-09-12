@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: gmtdef.h,v 1.7 2008-09-02 11:08:30 cvsraman Exp $
+ RCS:		$Id: gmtdef.h,v 1.8 2008-09-12 11:32:25 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,6 +30,7 @@ namespace ODGMT
 
     static const char*	sKeyClosePS = "Close PostScript";
     static const char*	sKeyColSeq = "Color sequence";
+    static const char*	sKeyCustomComm = "Custom command";
     static const char*	sKeyDataRange = "Data range";
     static const char*	sKeyDrawContour = "Draw contour";
     static const char*	sKeyDrawGridLines = "Draw gridlines";
@@ -38,6 +39,8 @@ namespace ODGMT
     static const char*	sKeyFill = "Fill";
     static const char*	sKeyFillColor = "Fill Color";
     static const char*	sKeyFontSize = "Font size";
+    static const char*	sKeyGMT = "GMT";
+    static const char*	sKeyGMTSelKey = "808080";
     static const char*	sKeyGroupName = "Group Name";
     static const char*	sKeyLabelAlignment = "Label alignment";
     static const char*	sKeyLabelIntv = "Label Interval";
@@ -45,12 +48,15 @@ namespace ODGMT
     static const char*	sKeyLineNames = "Line names";
     static const char*	sKeyLineStyle = "Line Style";
     static const char*	sKeyMapDim = "Map Dimension";
+    static const char*	sKeyMapScale = "Map scale";
     static const char*	sKeyMapTitle = "Map Title";
     static const char*	sKeyPostLabel = "Post label";
     static const char*	sKeyPostColorBar = "Post Color bar";
     static const char*	sKeyPostStart = "Post start";
     static const char*  sKeyPostStop = "Post stop";
+    static const char*	sKeyPostTitleBox = "Post title box";
     static const char*	sKeyPostTraceNrs = "Post Trace Nrs";
+    static const char*	sKeyRemarks = "Remarks";
     static const char*	sKeyResolution = "Resolution";
     static const char*	sKeyShape = "Shape";
     static const char*	sKeySkipWarning = "Skip Warning";

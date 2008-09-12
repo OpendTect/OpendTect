@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Raman Singh
  Date:		July 2008
- RCS:		$Id: uigmtmainwin.cc,v 1.6 2008-09-03 14:53:45 cvskris Exp $
+ RCS:		$Id: uigmtmainwin.cc,v 1.7 2008-09-12 11:32:30 cvsraman Exp $
 ________________________________________________________________________
 
 -*/
@@ -14,6 +14,8 @@ ________________________________________________________________________
 #include "filegen.h"
 #include "filepath.h"
 #include "gmtpar.h"
+#include "gmtprocflow.h"
+#include "gmtprocflowtr.h"
 #include "oddirs.h"
 #include "strmdata.h"
 #include "strmprov.h"
@@ -25,9 +27,11 @@ ________________________________________________________________________
 #include "uifileinput.h"
 #include "uigmtbasemap.h"
 #include "uigmtoverlay.h"
+#include "uiioobjsel.h"
 #include "uilistbox.h"
 #include "uimsg.h"
 #include "uiseparator.h"
+#include "uitoolbar.h"
 
 
 uiGMTMainWin::uiGMTMainWin( uiParent* p )
@@ -36,7 +40,9 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
 					     .modal(false))
     , addbut_(0)
     , editbut_(0)
+    , ctio_(*mMkCtxtIOObj(ODGMTProcFlow))
     , tim_(0)
+    , needsave_(false)
 {
     setTitleText( "" );
     setCtrlStyle( LeaveOnly );
@@ -111,6 +117,15 @@ uiGMTMainWin::uiGMTMainWin( uiParent* p )
     flowgrp_->attach( ensureLeftOf, sep );
     uppgrp_->setHAlignObj( sep );
     setParFileNmDef( "GMT_Proc" );
+
+    uiToolBar* toolbar = new uiToolBar( this, "Flow Tools" );
+    toolbar->addButton( "newflow.png", mCB(this,uiGMTMainWin,newFlow),
+	    		"New Flow" );
+    toolbar->addButton( "openflow.png", mCB(this,uiGMTMainWin,openFlow),
+	    		"Open Flow" );
+    toolbar->addButton( "saveflow.png", mCB(this,uiGMTMainWin,saveFlow),
+	    		"Save Current Flow" );
+
     tabSel(0);
 }
 
@@ -138,6 +153,64 @@ void uiGMTMainWin::tabSel( CallBacker* )
 }
 
 
+void uiGMTMainWin::newFlow( CallBacker* )
+{
+    if ( needsave_ )
+    {
+	if ( !uiMSG().askGoOn("Current flow has not been saved, continue?") )
+	    return;
+    }
+
+    filefld_->clear();
+    pars_.erase();
+    flowfld_->empty();
+    needsave_ = false;
+}
+
+
+void uiGMTMainWin::openFlow( CallBacker* )
+{
+    if ( needsave_ )
+    {
+	if ( !uiMSG().askGoOn("Current flow has not been saved, continue?") )
+	    return;
+    }
+
+    ctio_.ctxt.forread = true;
+    uiIOObjSelDlg dlg( this, ctio_ );
+    if ( dlg.go() )
+    {
+	ctio_.setObj( dlg.ioObj()->clone() );
+	BufferString emsg; ODGMT::ProcFlow pf;
+	if ( !ODGMTProcFlowTranslator::retrieve(pf,ctio_.ioobj,emsg) )
+	    uiMSG().error( emsg );
+	else
+	{
+	    usePar( pf.pars() );
+	    needsave_ = false;
+	}
+    }
+}
+
+
+void uiGMTMainWin::saveFlow( CallBacker* )
+{
+    ctio_.ctxt.forread = false;
+    uiIOObjSelDlg dlg( this, ctio_ );
+    if ( dlg.go() )
+    {
+	ctio_.setObj( dlg.ioObj()->clone() );
+	BufferString emsg; ODGMT::ProcFlow pf;
+	fillPar( pf.pars() );
+	if ( !ODGMTProcFlowTranslator::store(pf,ctio_.ioobj,emsg) )
+	    uiMSG().error( emsg );
+	else
+	    needsave_ = false;
+    }
+}
+
+
+
 void uiGMTMainWin::butPush( CallBacker* cb )
 {
     mDynamicCastGet(uiToolButton*,tb,cb)
@@ -150,6 +223,7 @@ void uiGMTMainWin::butPush( CallBacker* cb )
 	flowfld_->removeItem( curidx );
 	GMTPar* tmppar = pars_.remove( curidx );
 	delete tmppar;
+	needsave_ = true;
 	if ( curidx >= flowfld_->size() )
 	    curidx--;
     }
@@ -165,6 +239,7 @@ void uiGMTMainWin::butPush( CallBacker* cb )
 	    flowfld_->setItemText( curidx, tmp );
 	    pars_.swap( curidx, newcur );
 	    curidx = newcur;
+	    needsave_ = true;
 	}
     }
 
@@ -231,6 +306,7 @@ void uiGMTMainWin::addCB( CallBacker* )
     flowfld_->addItem( par->userRef() );
     pars_ += par;
     flowfld_->setCurrentItem( flowfld_->size() - 1 );
+    needsave_ = true;
     setButStates( 0 );
 }
 
@@ -256,6 +332,7 @@ void uiGMTMainWin::editCB( CallBacker* )
     flowfld_->setItemText( selidx, par->userRef() );
     GMTPar* tmppar = pars_.replace( selidx, par );
     delete tmppar;
+    needsave_ = true;
 }
 
 
@@ -347,6 +424,37 @@ bool uiGMTMainWin::fillPar( IOPar& par )
 
     numkey = idx;
     par.mergeComp( legendpar, numkey );
+    return true;
+}
+
+
+bool uiGMTMainWin::usePar( const IOPar& par )
+{
+    const char* fnm = par.find( sKey::FileName );
+    if ( fnm && *fnm )
+	filefld_->setFileName( fnm );
+
+    int idx = 0;
+    PtrMan<IOPar> basemappar = par.subselect( idx++ );
+    if ( basemappar )
+	basemapgrp_->usePar( *basemappar );
+
+    flowfld_->empty();
+    pars_.erase();
+    while ( true )
+    {
+	PtrMan<IOPar> subpar = par.subselect( idx++ );
+	if ( !subpar )
+	    break;
+
+	GMTPar* gmtpar = GMTPF().create( *subpar );
+	if ( !gmtpar )
+	    continue;
+
+	flowfld_->addItem( gmtpar->userRef() );
+	pars_ += gmtpar;
+    }
+
     return true;
 }
 
