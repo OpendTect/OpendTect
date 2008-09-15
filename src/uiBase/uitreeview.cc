@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/01/2002
- RCS:           $Id: uitreeview.cc,v 1.43 2008-09-05 09:39:28 cvsjaap Exp $
+ RCS:           $Id: uitreeview.cc,v 1.44 2008-09-15 11:39:25 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -54,9 +54,9 @@ public:
 
     uiListView&		lvhandle()	{ return lvhandle_; }
 
-    void		activateClick(uiListViewItem&);
+    void		activateClick(uiListViewItem&,int column,
+				      bool leftclick);
     void		activateButton(uiListViewItem&,bool expand);
-    void		activateMenu(uiListViewItem&);
     bool		event(QEvent*);
 
 protected:
@@ -69,6 +69,8 @@ protected:
     void		mouseReleaseEvent(QMouseEvent*);
 
     uiListViewItem*	actitem_;
+    int			actcolumn_;
+    bool		actleftclick_;
     bool		actexpand_;
 
 private:
@@ -201,12 +203,14 @@ bool uiListViewBody::moveItem( QKeyEvent* event )
 
 static const QEvent::Type sQEventActClick  = (QEvent::Type) (QEvent::User+0);
 static const QEvent::Type sQEventActButton = (QEvent::Type) (QEvent::User+1);
-static const QEvent::Type sQEventActMenu   = (QEvent::Type) (QEvent::User+2);
 
 
-void uiListViewBody::activateClick( uiListViewItem& uilvwitm )
+void uiListViewBody::activateClick( uiListViewItem& uilvwitm, int column,
+				    bool leftclick )
 {
     actitem_ = &uilvwitm;
+    actcolumn_ = column; 
+    actleftclick_ = leftclick;
     QEvent* actevent = new QEvent( sQEventActClick );
     QApplication::postEvent( this, actevent );
 }
@@ -221,21 +225,22 @@ void uiListViewBody::activateButton( uiListViewItem& uilvwitm, bool expand )
 }
 
 
-void uiListViewBody::activateMenu( uiListViewItem& uilvwitm )
-{
-    actitem_ = &uilvwitm;
-    QEvent* actevent = new QEvent( sQEventActMenu );
-    QApplication::postEvent( this, actevent );
-}
-
-
 bool uiListViewBody::event( QEvent* ev )
 {
     if ( ev->type() == sQEventActClick )
     {
-	if ( actitem_ && actitem_->listView()==&lvhandle_ )
+	if ( actitem_ && actitem_->listView()==&lvhandle_ &&
+	     actcolumn_>=0 && actcolumn_<lvhandle_.nrColumns() )
 	{
 	    lvhandle_.lastitemnotified_ = actitem_;
+	    lvhandle_.column_ = actcolumn_;
+	    lvhandle_.setCurrentItem( actitem_, actcolumn_ );
+
+	    if ( actleftclick_ )
+		lvhandle_.leftButtonClicked.trigger();
+	    else
+		lvhandle_.rightButtonClicked.trigger();
+
 	    lvhandle_.mouseButtonClicked.trigger();
 	}
     }
@@ -250,17 +255,10 @@ bool uiListViewBody::event( QEvent* ev )
 	    else
 	    {
 		lvhandle_.lastitemnotified_ = actitem_;
-		lvhandle_.mouseButtonClicked.trigger();
+		lvhandle_.setCurrentItem( actitem_ );
 		actitem_->setChecked( !actitem_->isChecked(), true );
+		lvhandle_.mouseButtonClicked.trigger();
 	    }
-	}
-    }
-    else if ( actitem_ && ev->type() == sQEventActMenu )
-    {
-	if ( actitem_->listView()==&lvhandle_ )
-	{
-	    lvhandle_.lastitemnotified_ = actitem_;
-	    lvhandle_.rightButtonClicked.trigger();
 	}
     }
     else
@@ -445,20 +443,24 @@ uiListViewItem* uiListView::selectedItem() const
 { return mItemFor( body_->currentItem() ); }
 
 
-void uiListView::setCurrentItem( uiListViewItem* itm )
-{ body_->setCurrentItem( itm->qItem() ); }
+void uiListView::setCurrentItem( uiListViewItem* itm, int column )
+{ body_->setCurrentItem( itm->qItem(), column ); }
 
 
 uiListViewItem* uiListView::currentItem() const
 { return mItemFor( body_->currentItem() ); }
 
 
+uiListViewItem* uiListView::getItem( int idx ) const
+{ return idx<0 || idx >=nrItems() ? 0 : mItemFor( body_->topLevelItem(idx) ); }
+
+
 uiListViewItem* uiListView::firstItem() const
-{ return nrItems() < 1 ? 0 : mItemFor( body_->topLevelItem(0) ); }
+{ return getItem( 0 ); }
 
 
 uiListViewItem* uiListView::lastItem() const
-{ return nrItems() < 1 ? 0 : mItemFor( body_->topLevelItem(nrItems()-1) ); }
+{ return getItem( nrItems()-1 ); }
 
 
 int uiListView::nrItems() const
@@ -508,16 +510,13 @@ void uiListView::setNotifiedItem( QTreeWidgetItem* itm)
 { lastitemnotified_ = mItemFor( itm ); }
 
 
-void uiListView::activateClick( uiListViewItem& uilvwitm )
-{ body_->activateClick( uilvwitm ); }
+void uiListView::activateClick( uiListViewItem& uilvwitm, int column,
+				bool leftclick )
+{ body_->activateClick( uilvwitm, column, leftclick ); }
 
 
 void uiListView::activateButton( uiListViewItem& uilvwitm, bool expand )
 { body_->activateButton( uilvwitm, expand ); }
-
-
-void uiListView::activateMenu( uiListViewItem& uilvwitm )
-{ body_->activateMenu( uilvwitm ); }
 
 
 uiListViewItem::uiListViewItem( uiListView* parent, const Setup& setup )
@@ -602,11 +601,14 @@ void uiListViewItem::setSelected( bool yn )
 bool uiListViewItem::isSelected() const
 { return qItem()->isSelected(); }
 
+uiListViewItem* uiListViewItem::getChild( int idx ) const
+{ return idx<0 || idx>=nrChildren() ? 0 : mItemFor( qItem()->child( idx ) ); }
+
 uiListViewItem* uiListViewItem::firstChild() const
-{ return mItemFor( qItem()->child(0) ); }
+{ return getChild(0); }
 
 uiListViewItem* uiListViewItem::lastChild() const
-{ return mItemFor( qItem()->child( nrChildren()-1 ) ); }
+{ return getChild( nrChildren()-1 ); }
 
 
 int uiListViewItem::siblingIndex() const

@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          29/01/2002
- RCS:           $Id: uitreeview.h,v 1.31 2008-09-05 09:39:28 cvsjaap Exp $
+ RCS:           $Id: uitreeview.h,v 1.32 2008-09-15 11:39:25 cvsjaap Exp $
 ________________________________________________________________________
 
 -*/
@@ -87,9 +87,10 @@ public:
     bool		isSelected(const uiListViewItem*) const;
     uiListViewItem*	selectedItem() const;
 
-    void		setCurrentItem(uiListViewItem*);
+    void		setCurrentItem(uiListViewItem*,int column=0);
 
     uiListViewItem*	currentItem() const;
+    uiListViewItem*	getItem(int) const; 
     uiListViewItem*	firstItem() const;
     uiListViewItem*	lastItem() const;
 
@@ -137,9 +138,9 @@ public:
     Notifier<uiListView> unusedKey;
 
     			//! Force activation in GUI thread
-    void		activateClick(uiListViewItem&);
+    void		activateClick(uiListViewItem&,int column,
+				      bool leftclick=true);
     void		activateButton(uiListViewItem&,bool expand);
-    void		activateMenu(uiListViewItem&);
     Notifier<uiListView> activatedone;
 
 protected:
@@ -245,6 +246,7 @@ public:
     void		setSelected(bool yn);
     bool		isSelected() const;
 
+    uiListViewItem*	getChild(int) const;
     uiListViewItem*	firstChild() const;
     uiListViewItem*	lastChild() const;
     uiListViewItem*	nextSibling() const;
