@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          25/05/2000
- RCS:           $Id: uiioobjsel.cc,v 1.120 2008-08-28 10:07:55 cvshelene Exp $
+ RCS:           $Id: uiioobjsel.cc,v 1.121 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -427,7 +427,7 @@ uiIOObjSelDlg::uiIOObjSelDlg( uiParent* p, const CtxtIOObj& c,
 			      const char* seltxt, bool multisel )
 	: uiIOObjRetDlg(p,
 		Setup(c.ctxt.forread?"Input selection":"Output selection",
-		    	"","8.1.1")
+		    	mNoDlgTitle,"8.1.1")
 		.nrstatusflds(multisel?0:1))
 	, selgrp( 0 )
 {

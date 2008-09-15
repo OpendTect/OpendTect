@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Feb 2006
- RCS:           $Id: uipluginsel.cc,v 1.9 2008-08-18 13:42:58 cvsyuancheng Exp $
+ RCS:           $Id: uipluginsel.cc,v 1.10 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ const char* uiPluginSel::sKeyDoAtStartup = "dTect.Select Plugins";
 
 
 uiPluginSel::uiPluginSel( uiParent* p )
-	: uiDialog(p,Setup("","","0.2.6")
+	: uiDialog(p,Setup("",mNoDlgTitle,"0.2.6")
 			.savebutton(true)
 			.savetext("Show this dialog at startup"))
 {

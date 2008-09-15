@@ -4,7 +4,7 @@
  * DATE     : May 2002
 -*/
 
-static const char* rcsID = "$Id: vismpeeditor.cc,v 1.26 2008-05-15 20:27:27 cvskris Exp $";
+static const char* rcsID = "$Id: vismpeeditor.cc,v 1.27 2008-09-15 10:10:36 cvsbert Exp $";
 
 #include "vismpeeditor.h"
 
@@ -167,7 +167,7 @@ void MPEEditor::changeNumNodes( CallBacker* )
 	posids.erase();
 
     TypeSet<EM::PosID> nodestoremove( posids );
-    nodestoremove.createDifference( editnodes );
+    nodestoremove.createDifference( editnodes, false );
 
     if ( nodestoremove.indexOf(activedragger)!=-1 )
 	setActiveDragger( EM::PosID::udf() );
@@ -176,7 +176,7 @@ void MPEEditor::changeNumNodes( CallBacker* )
 	removeDragger( posids.indexOf(nodestoremove[idx]) );
 
     TypeSet<EM::PosID> nodestoadd( editnodes );
-    nodestoadd.createDifference( posids );
+    nodestoadd.createDifference( posids, false );
 
     for ( int idx=0; idx<nodestoadd.size(); idx++ )
 	addDragger( nodestoadd[idx] );

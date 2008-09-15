@@ -7,14 +7,16 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segyhdr.h,v 1.17 2008-09-11 13:54:56 cvsbert Exp $
+ RCS:		$Id: segyhdr.h,v 1.18 2008-09-15 10:10:35 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
  
 #include "seisinfo.h"
 #include "segythdef.h"
-#include "iosfwd"
+
+namespace SEGY
+{
 
 #define SegyTxtHeaderLength		3200
 #define SegyBinHeaderLength		400
@@ -29,13 +31,13 @@ ________________________________________________________________________
  */
 
 
-class SegyTxtHeader
+class TxtHeader
 {
 public:
-    		SegyTxtHeader(bool rev1=true); //!< rev1 relevant when writing
+    		TxtHeader(bool rev1=true); //!< rev1 relevant when writing
  
     void	setUserInfo(const char*);
-    void	setPosInfo(const SegyTraceheaderDef&);
+    void	setPosInfo(const TrcHeaderDef&);
     void	setStartPos(float);
     void	getText(BufferString&);
 
@@ -61,11 +63,11 @@ public:
  
  */
 
-class SegyBinHeader
+class BinHeader
 {
 public:
 
-		SegyBinHeader(bool rev1=true); //!< rev1 relevant when writing
+		BinHeader(bool rev1=true); //!< rev1 relevant when writing
     void	getFrom(const void*);
     void	putTo(void*) const;
     int		bytesPerSample() const
@@ -73,7 +75,7 @@ public:
     static int	formatBytes( int frmt )
 		{ return frmt == 3 ? 2 : (frmt == 8 ? 1 : 4); }
 
-    bool	needswap; /* overrule using OD_SEGY_DATA_SWAPPED */
+    bool	needswap;
 
     int		jobid;	/* job identification number */
     int		lino;	/* line number (only one line per reel) */
@@ -110,12 +112,11 @@ public:
 };
 
 
-class SegyTraceheader
+class TrcHeader
 {
 public:
 
-			SegyTraceheader(unsigned char*,bool rev1,
-					const SegyTraceheaderDef&);
+			TrcHeader(unsigned char*,bool rev1,const TrcHeaderDef&);
 
     unsigned short	nrSamples() const;
     void		putSampling(SamplingData<float>,unsigned short);
@@ -127,8 +128,8 @@ public:
     Coord		getCoord(bool rcv,float extcoordsc);
 
     unsigned char*	buf;
-    bool		needswap; /* overrule using OD_SEGY_DATA_SWAPPED */
-    const SegyTraceheaderDef&	hdef;
+    bool		needswap;
+    const TrcHeaderDef&	hdef;
     bool		isrev1;
     int			seqnr;
     int			lineseqnr;
@@ -154,8 +155,7 @@ protected:
 
 };
 
+} // namespace
 
-bool SEGY_NeedDataSwapping();
-	/* Default false, set by envvar OD_SEGY_DATA_SWAPPED */
 
 #endif

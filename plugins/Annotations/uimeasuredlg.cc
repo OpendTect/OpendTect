@@ -4,7 +4,7 @@ ________________________________________________________________________
     CopyRight:     (C) dGB Beheer B.V.
     Author:        Nageswara
     Date:          May 2008
-    RCS:           $Id: uimeasuredlg.cc,v 1.7 2008-08-18 17:58:55 cvsyuancheng Exp $
+    RCS:           $Id: uimeasuredlg.cc,v 1.8 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -23,7 +23,8 @@ ________________________________________________________________________
 
 
 uiMeasureDlg::uiMeasureDlg( uiParent* p )
-    : uiDialog( p, Setup("Measured Distance","","").modal(false) )
+    : uiDialog( p, Setup("Measured Distance",mNoDlgTitle,mTODOHelpID)
+	    		.modal(false) )
     , ls_(*new LineStyle)
     , appvelfld_(0)
     , lineStyleChange(this)
@@ -93,7 +94,7 @@ void uiMeasureDlg::clearCB( CallBacker* cb )
 
 void uiMeasureDlg::stylebutCB( CallBacker* )
 {
-    uiDialog dlg( this, uiDialog::Setup("","","") );
+    uiDialog dlg( this, uiDialog::Setup("Line Style",mNoDlgTitle,mNoHelpID) );
     dlg.setCtrlStyle( uiDialog::LeaveOnly );
     linestylefld_ = new uiSelLineStyle( &dlg, ls_, "", false, true, true );
     linestylefld_->changed.notify( mCB(this,uiMeasureDlg,lsChangeCB) );

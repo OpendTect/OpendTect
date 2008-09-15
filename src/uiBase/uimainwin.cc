@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.153 2008-09-09 14:45:35 cvsbert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.154 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -214,6 +214,7 @@ uiMainWinBody::uiMainWinBody( uiMainWin& uimw, uiParent* p,
 	, exitapponclose_(false)
         , prefsz_(-1,-1)
 {
+    if ( !nm || !*nm ) pErrMsg("Window without window title");
     if ( nm && *nm ) setCaption( nm );
     poptimer.tick.notify( mCB(this,uiMainWinBody,popTimTick) );
 

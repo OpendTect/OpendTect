@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          April 2002
- RCS:		$Id: uiseismmproc.cc,v 1.114 2008-05-27 11:49:38 cvshelene Exp $
+ RCS:		$Id: uiseismmproc.cc,v 1.115 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -55,7 +55,7 @@ static const char* outlskey = "Output Line Set";
 
 uiSeisMMProc::uiSeisMMProc( uiParent* p, const IOPar& ip,
 			    const char* prnm, const char* pfnm )
-	: uiDialog(p,uiDialog::Setup("Job management","","103.2.0")
+	: uiDialog(p,uiDialog::Setup("Job management",mNoDlgTitle,"103.2.0")
 		.nrstatusflds(-1)
 		.fixedsize(true))
 	, progname(prnm)

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Nanne Hemstra
  Date:          July 2003
- RCS:           $Id: uiiosurfacedlg.cc,v 1.31 2008-09-09 17:22:03 cvsyuancheng Exp $
+ RCS:           $Id: uiiosurfacedlg.cc,v 1.32 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -31,7 +31,7 @@ ________________________________________________________________________
 
 
 uiWriteSurfaceDlg::uiWriteSurfaceDlg( uiParent* p, const EM::Surface& surf )
-    : uiDialog(p,uiDialog::Setup("Output selection","","104.3.1"))
+    : uiDialog(p,uiDialog::Setup("Output selection",mNoDlgTitle,"104.3.1"))
     , surface_(surf)
 {
     mDynamicCastGet(const EM::Horizon3D*,hor,&surface_)
@@ -67,7 +67,7 @@ bool uiWriteSurfaceDlg::replaceInTree() const
 
 
 uiReadSurfaceDlg::uiReadSurfaceDlg( uiParent* p, const char* typ )
-    : uiDialog(p,uiDialog::Setup("Input selection","","104.3.0"))
+    : uiDialog(p,uiDialog::Setup("Input selection",mNoDlgTitle,"104.3.0"))
 {
     iogrp_ = new uiSurfaceRead( this,
 	    uiSurfaceRead::Setup(typ).withattribfld(false) );
@@ -150,7 +150,7 @@ bool uiStoreAuxData::checkIfAlreadyPresent( const char* attrnm )
 
 
 uiCopySurface::uiCopySurface( uiParent* p, const IOObj& ioobj )
-    : uiDialog(p,Setup("Copy surface","","104.0.0"))
+    : uiDialog(p,Setup("Copy surface",mNoDlgTitle,"104.0.0"))
     , ctio_(mkCtxtIOObj(ioobj))
 {
     inpfld = new uiSurfaceRead( this,

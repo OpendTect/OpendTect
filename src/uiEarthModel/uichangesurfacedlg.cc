@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra / Bert Bril
  Date:		Sep 2005 / Nov 2006
- RCS:		$Id: uichangesurfacedlg.cc,v 1.21 2008-06-05 15:43:00 cvsbert Exp $
+ RCS:		$Id: uichangesurfacedlg.cc,v 1.22 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -35,7 +35,7 @@ ________________________________________________________________________
 
 uiChangeSurfaceDlg::uiChangeSurfaceDlg( uiParent* p, EM::Horizon3D* hor,
 					const char* txt )
-    : uiDialog(p,Setup(txt,"","104.0.3"))
+    : uiDialog(p,Setup(txt,mNoDlgTitle,"104.0.3"))
     , horizon_(hor)
     , inputfld_(0)
     , outputfld_(0)

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        N. Hemstra
  Date:          May 2005
- RCS:           $Id: mathattrib.cc,v 1.29 2008-09-12 14:12:33 cvshelene Exp $
+ RCS:           $Id: mathattrib.cc,v 1.30 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -69,7 +69,7 @@ void Math::getInputTable( const MathExpression* me, TypeSet<int>& inptab,
     }
     if ( !iscst )
     {
-	tmpset.createDifference( inptab );
+	tmpset.createDifference( inptab, true );
 	if ( prefixonly )
 	{
 	    inptab.erase();

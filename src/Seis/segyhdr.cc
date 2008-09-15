@@ -5,7 +5,7 @@
  * FUNCTION : Seg-Y headers
 -*/
 
-static const char* rcsID = "$Id: segyhdr.cc,v 1.54 2008-09-11 13:55:38 cvsbert Exp $";
+static const char* rcsID = "$Id: segyhdr.cc,v 1.55 2008-09-15 10:10:36 cvsbert Exp $";
 
 
 #include "segyhdr.h"
@@ -27,27 +27,27 @@ static const char* rcsID = "$Id: segyhdr.cc,v 1.54 2008-09-11 13:55:38 cvsbert E
 #include <stdio.h>
 #include <math.h>
 
-const char* SegyTraceheaderDef::sXCoordByte = "X-coord byte";
-const char* SegyTraceheaderDef::sYCoordByte = "Y-coord byte";
-const char* SegyTraceheaderDef::sInlByte = "In-line byte";
-const char* SegyTraceheaderDef::sCrlByte = "Cross-line byte";
-const char* SegyTraceheaderDef::sOffsByte = "Offset byte";
-const char* SegyTraceheaderDef::sAzimByte = "Azimuth byte";
-const char* SegyTraceheaderDef::sTrNrByte = "Trace number byte";
-const char* SegyTraceheaderDef::sPickByte = "Pick byte";
-const char* SegyTraceheaderDef::sInlByteSz = "Nr bytes for In-line";
-const char* SegyTraceheaderDef::sCrlByteSz = "Nr bytes for Cross-line";
-const char* SegyTraceheaderDef::sOffsByteSz = "Nr bytes for Offset";
-const char* SegyTraceheaderDef::sAzimByteSz = "Nr bytes for Azimuth";
-const char* SegyTraceheaderDef::sTrNrByteSz = "Nr bytes for trace number";
-bool SegyTxtHeader::info2d = false;
+const char* SEGY::TrcHeaderDef::sXCoordByte = "X-coord byte";
+const char* SEGY::TrcHeaderDef::sYCoordByte = "Y-coord byte";
+const char* SEGY::TrcHeaderDef::sInlByte = "In-line byte";
+const char* SEGY::TrcHeaderDef::sCrlByte = "Cross-line byte";
+const char* SEGY::TrcHeaderDef::sOffsByte = "Offset byte";
+const char* SEGY::TrcHeaderDef::sAzimByte = "Azimuth byte";
+const char* SEGY::TrcHeaderDef::sTrNrByte = "Trace number byte";
+const char* SEGY::TrcHeaderDef::sPickByte = "Pick byte";
+const char* SEGY::TrcHeaderDef::sInlByteSz = "Nr bytes for In-line";
+const char* SEGY::TrcHeaderDef::sCrlByteSz = "Nr bytes for Cross-line";
+const char* SEGY::TrcHeaderDef::sOffsByteSz = "Nr bytes for Offset";
+const char* SEGY::TrcHeaderDef::sAzimByteSz = "Nr bytes for Azimuth";
+const char* SEGY::TrcHeaderDef::sTrNrByteSz = "Nr bytes for trace number";
+bool SEGY::TxtHeader::info2d = false;
 
 
 static void Ebcdic2Ascii(unsigned char*,int);
 static void Ascii2Ebcdic(unsigned char*,int);
 
 
-SegyTxtHeader::SegyTxtHeader( bool rev1 )
+SEGY::TxtHeader::TxtHeader( bool rev1 )
 {
     char cbuf[3];
     int nrlines = SegyTxtHeaderLength / 80;
@@ -102,13 +102,13 @@ SegyTxtHeader::SegyTxtHeader( bool rev1 )
 }
 
 
-void SegyTxtHeader::setAscii()
+void SEGY::TxtHeader::setAscii()
 { if ( txt[0] != 'C' ) Ebcdic2Ascii( txt, SegyTxtHeaderLength ); }
-void SegyTxtHeader::setEbcdic()
+void SEGY::TxtHeader::setEbcdic()
 { if ( txt[0] == 'C' ) Ascii2Ebcdic( txt, SegyTxtHeaderLength ); }
 
 
-void SegyTxtHeader::setUserInfo( const char* infotxt )
+void SEGY::TxtHeader::setUserInfo( const char* infotxt )
 {
     if ( !infotxt || !*infotxt ) return;
 
@@ -138,7 +138,7 @@ void SegyTxtHeader::setUserInfo( const char* infotxt )
     buf += " ("; buf += thd.memb##bytesz; buf += "-byte int)"; \
     putAt( line, 6, 6+buf.size(), buf )
 
-void SegyTxtHeader::setPosInfo( const SegyTraceheaderDef& thd )
+void SEGY::TxtHeader::setPosInfo( const SEGY::TrcHeaderDef& thd )
 {
     BufferString buf;
     buf = "Byte positions (in addition to REV. 1 standard positions):";
@@ -178,7 +178,7 @@ void SegyTxtHeader::setPosInfo( const SegyTraceheaderDef& thd )
 }
 
 
-void SegyTxtHeader::setStartPos( float sp )
+void SEGY::TxtHeader::setStartPos( float sp )
 {
     BufferString buf;
     if ( !mIsZero(sp,mDefEps) )
@@ -192,7 +192,7 @@ void SegyTxtHeader::setStartPos( float sp )
 }
 
 
-void SegyTxtHeader::getText( BufferString& bs )
+void SEGY::TxtHeader::getText( BufferString& bs )
 {
     char buf[80];
     bs = "";
@@ -206,7 +206,7 @@ void SegyTxtHeader::getText( BufferString& bs )
 }
 
 
-void SegyTxtHeader::getFrom( int line, int pos, int endpos, char* str ) const
+void SEGY::TxtHeader::getFrom( int line, int pos, int endpos, char* str ) const
 {
     if ( !str ) return;
 
@@ -221,7 +221,7 @@ void SegyTxtHeader::getFrom( int line, int pos, int endpos, char* str ) const
 }
 
 
-void SegyTxtHeader::putAt( int line, int pos, int endpos, const char* str )
+void SEGY::TxtHeader::putAt( int line, int pos, int endpos, const char* str )
 {
     if ( !str || !*str ) return;
 
@@ -237,7 +237,7 @@ void SegyTxtHeader::putAt( int line, int pos, int endpos, const char* str )
 }
 
 
-void SegyTxtHeader::dump( std::ostream& stream ) const
+void SEGY::TxtHeader::dump( std::ostream& stream ) const
 {
     char buf[81];
     buf[80] = '\0';
@@ -247,15 +247,6 @@ void SegyTxtHeader::dump( std::ostream& stream ) const
 	memcpy( buf, &txt[80*line], 80 );
 	stream << buf << std::endl;
     }
-}
-
-
-bool SEGY_NeedDataSwapping()
-{
-    static int val = -1;
-    if ( val == -1 )
-	val = GetEnvVarYN( "OD_SEGY_DATA_SWAPPED" ) ? 1 : 0;
-    return val == 1;
 }
 
 
@@ -273,8 +264,8 @@ static const unsigned char* getBytes( const unsigned char* inpbuf,
 #define mGetBytes(bnr,nrb) getBytes( buf, needswap, bnr, nrb )
 
 
-SegyBinHeader::SegyBinHeader( bool rev1 )
-	: needswap(SEGY_NeedDataSwapping())
+SEGY::BinHeader::BinHeader( bool rev1 )
+	: needswap(false)
     	, isrev1(rev1 ? 256 : 0)
     	, nrstzs(0)
     	, fixdsz(1)
@@ -294,7 +285,7 @@ SegyBinHeader::SegyBinHeader( bool rev1 )
     if ( needswap ) SwapBytes( b, nb ); \
     b += nb;
 
-void SegyBinHeader::getFrom( const void* buf )
+void SEGY::BinHeader::getFrom( const void* buf )
 {
     unsigned char* b = (unsigned char*)buf;
 
@@ -342,7 +333,7 @@ void SegyBinHeader::getFrom( const void* buf )
     b += nb;
 
 
-void SegyBinHeader::putTo( void* buf ) const
+void SEGY::BinHeader::putTo( void* buf ) const
 {
     unsigned char* b = (unsigned char*)buf;
 
@@ -443,7 +434,7 @@ static void Ascii2Ebcdic( unsigned char *chbuf, int len )
 	    strm << '\n'; \
 	}
 
-void SegyBinHeader::dump( std::ostream& strm ) const
+void SEGY::BinHeader::dump( std::ostream& strm ) const
 {
     mPrHead( jobid, 0, "job identification number" )
     mPrHead( lino, 4, "line number (only one line per reel)" )
@@ -473,7 +464,7 @@ void SegyBinHeader::dump( std::ostream& strm ) const
     mPrHead( polyt, 56, "impulse signal polarity code" )
     mPrHead( vpol, 58, "vibratory polarity code" )
 
-    SegyBinHeader& self = *const_cast<SegyBinHeader*>(this);
+    SEGY::BinHeader& self = *const_cast<SEGY::BinHeader*>(this);
     unsigned short tmpisrev1 = isrev1;
     if ( isrev1 ) self.isrev1 = 1;
     mPrHead( isrev1, 300, "[REV1 only] SEG-Y revision code" )
@@ -489,11 +480,11 @@ void SegyBinHeader::dump( std::ostream& strm ) const
 }
 
 
-SegyTraceheader::SegyTraceheader( unsigned char* b, bool rev1,
-				  const SegyTraceheaderDef& hd )
+SEGY::TrcHeader::TrcHeader( unsigned char* b, bool rev1,
+			    const SEGY::TrcHeaderDef& hd )
     : buf(b)
     , hdef(hd)
-    , needswap(SEGY_NeedDataSwapping())
+    , needswap(false)
     , isrev1(rev1)
     , seqnr(1)
     , lineseqnr(1)
@@ -512,7 +503,7 @@ SegyTraceheader::SegyTraceheader( unsigned char* b, bool rev1,
 	strm << '\t' << '-' << '\t' << byt+1 << '\t' \
 	     << IbmFormat::as##fun( getBytes(buf,needswap,byt,nrbyts) ) << '\n'
 
-void SegyTraceheader::dump( std::ostream& strm ) const
+void SEGY::TrcHeader::dump( std::ostream& strm ) const
 {
 #include "segyhdr.inc"
 }
@@ -521,26 +512,26 @@ void SegyTraceheader::dump( std::ostream& strm ) const
 #undef mSEGYTrcDef
 #define mSEGYTrcDef(attrnr,mem,byt,fun,nrbyts) \
     if ( nr == attrnr ) \
-	return SegyTraceheader::Val( byt, #mem, \
+	return SEGY::TrcHeader::Val( byt, #mem, \
 		IbmFormat::as##fun( getBytes(buf,needswap,byt,nrbyts) ) )
 #undef mSEGYTrcDefUnass
 #define mSEGYTrcDefUnass(attrnr,byt,fun,nrbyts) \
     mSEGYTrcDef(attrnr,-,byt,fun,nrbyts)
 
-SegyTraceheader::Val SegyTraceheader::getVal( int nr ) const
+SEGY::TrcHeader::Val SEGY::TrcHeader::getVal( int nr ) const
 {
 #include "segyhdr.inc"
     return Val( -1, "", 0 );
 }
 
 
-unsigned short SegyTraceheader::nrSamples() const
+unsigned short SEGY::TrcHeader::nrSamples() const
 {
     return IbmFormat::asUnsignedShort( getBytes(buf,needswap,114,2) );
 }
 
 
-void SegyTraceheader::putSampling( SamplingData<float> sd, unsigned short ns )
+void SEGY::TrcHeader::putSampling( SamplingData<float> sd, unsigned short ns )
 {
     const float zfac = SI().zFactor();
     float drt = sd.start * zfac;
@@ -564,7 +555,7 @@ static void putRev1Flds( const SeisTrcInfo& ti, unsigned char* buf )
 }
 
 
-void SegyTraceheader::use( const SeisTrcInfo& ti )
+void SEGY::TrcHeader::use( const SeisTrcInfo& ti )
 {
     if ( !isrev1 ) // starting default
 	putRev1Flds( ti, buf );
@@ -573,7 +564,7 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
     IbmFormat::putShort( 1, buf+34 ); // duse
     IbmFormat::putShort( 1, buf+88 ); // counit
 
-    const bool is2d = SegyTxtHeader::info2d;
+    const bool is2d = SEGY::TxtHeader::info2d;
     if ( !is2d && ti.binid.inl != previnl )
 	lineseqnr = 1;
     previnl = ti.binid.inl;
@@ -627,7 +618,7 @@ void SegyTraceheader::use( const SeisTrcInfo& ti )
 }
 
 
-float SegyTraceheader::postScale( int numbfmt ) const
+float SEGY::TrcHeader::postScale( int numbfmt ) const
 {
     if ( numbfmt != 2 && numbfmt != 3 && numbfmt != 5 ) return 1.;
 
@@ -671,7 +662,7 @@ static void getRev1Flds( SeisTrcInfo& ti, const unsigned char* buf,
 }
 
 
-void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
+void SEGY::TrcHeader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 {
     if ( mIsZero(extcoordsc,1e-8)
 	    && !GetEnvVarYN("OD_ALLOW_ZERO_COORD_SCALING") )
@@ -753,7 +744,7 @@ void SegyTraceheader::fill( SeisTrcInfo& ti, float extcoordsc ) const
 }
 
 
-double SegyTraceheader::getCoordScale( float extcoordsc ) const
+double SEGY::TrcHeader::getCoordScale( float extcoordsc ) const
 {
     if ( !mIsUdf(extcoordsc) ) return extcoordsc;
     const short scalco = IbmFormat::asShort( mGetBytes(70,2) );
@@ -761,7 +752,7 @@ double SegyTraceheader::getCoordScale( float extcoordsc ) const
 }
 
 
-Coord SegyTraceheader::getCoord( bool rcv, float extcoordsc )
+Coord SEGY::TrcHeader::getCoord( bool rcv, float extcoordsc )
 {
     double scale = getCoordScale( extcoordsc );
     Coord ret(	IbmFormat::asInt( mGetBytes(rcv?80:72,4) ),
@@ -775,7 +766,7 @@ Coord SegyTraceheader::getCoord( bool rcv, float extcoordsc )
     res = iopar.find( str ); \
     if ( res && *res ) memb = atoi( res )
 
-void SegyTraceheaderDef::usePar( const IOPar& iopar )
+void SEGY::TrcHeaderDef::usePar( const IOPar& iopar )
 {
     const char*
     mGtFromPar( sInlByte, inl );
@@ -794,7 +785,7 @@ void SegyTraceheaderDef::usePar( const IOPar& iopar )
 }
 
 
-void SegyTraceheaderDef::fromSettings()
+void SEGY::TrcHeaderDef::fromSettings()
 {
     const IOPar* useiop = &Settings::common();
     IOPar* subiop = useiop->subselect( "SEG-Y" );
@@ -808,7 +799,7 @@ void SegyTraceheaderDef::fromSettings()
     iopar.set( IOPar::compKey(key,str), memb )
 
 
-void SegyTraceheaderDef::fillPar( IOPar& iopar, const char* key ) const
+void SEGY::TrcHeaderDef::fillPar( IOPar& iopar, const char* key ) const
 {
     mPutToPar( sInlByte, inl );
     mPutToPar( sCrlByte, crl );

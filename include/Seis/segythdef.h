@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		10-5-1995
- RCS:		$Id: segythdef.h,v 1.6 2008-05-15 11:12:53 cvsbert Exp $
+ RCS:		$Id: segythdef.h,v 1.7 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -16,6 +16,9 @@ ________________________________________________________________________
 class IOPar;
 class SeisPacketInfo;
 
+namespace SEGY
+{
+
 
 /*!\brief class stores offset info in trace header.
 
@@ -23,10 +26,10 @@ The actual buffer offset needs - 1.
 
 */
 
-class SegyTraceheaderDef
+class TrcHeaderDef
 {
 public:
-			SegyTraceheaderDef(
+			TrcHeaderDef(
 				unsigned char i=9,
 				unsigned char c=21,
 				unsigned char x=73,
@@ -90,5 +93,7 @@ public:
     SeisPacketInfo*	pinfo;
 };
 
+
+} // namespace
 
 #endif

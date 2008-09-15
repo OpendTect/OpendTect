@@ -4,7 +4,7 @@ ___________________________________________________________________
  CopyRight: 	(C) dGB Beheer B.V.
  Author: 	R. K. Singh
  Date: 		Jan 2008
- RCS:		$Id: uiodeditattribcolordlg.cc,v 1.9 2008-04-18 10:32:46 cvsnanne Exp $
+ RCS:		$Id: uiodeditattribcolordlg.cc,v 1.10 2008-09-15 10:10:36 cvsbert Exp $
 ___________________________________________________________________
 
 -*/
@@ -26,7 +26,7 @@ ___________________________________________________________________
 uiODEditAttribColorDlg::uiODEditAttribColorDlg( uiParent* p,
 						ObjectSet<uiTreeItem>& set,
 						const char* attrnm )
-    : uiDialog(p,uiDialog::Setup("Color Settings","",""))
+    : uiDialog(p,uiDialog::Setup("Color Settings",mNoDlgTitle,mTODOHelpID))
     , items_(set)
     , itemusedineditor_(-1)
 {

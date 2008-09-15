@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert Bril
  Date:          Aug 2001
- RCS:		$Id: od_SEGYExaminer.cc,v 1.13 2008-09-11 13:56:09 cvsbert Exp $
+ RCS:		$Id: od_SEGYExaminer.cc,v 1.14 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -12,7 +12,6 @@ ________________________________________________________________________
 #include "uisegyexamine.h"
 
 #include "uimain.h"
-#include "separstr.h"
 #include "prog.h"
 #include <unistd.h>
 #include <iostream>
@@ -24,32 +23,23 @@ ________________________________________________________________________
 
 int main( int argc, char ** argv )
 {
-    uiSEGYExamine::Setup su( 100 );
     bool dofork = !__ismac__ && !__iswin__;
 
+    uiSEGYExamine::Setup su;
     int argidx = 1;
     while ( argc > argidx
 	 && *argv[argidx] == '-' && *(argv[argidx]+1) == '-' )
     {
 	if ( !strcmp(argv[argidx],"--ns") )
-	    { argidx++; su.ns_ = atoi( argv[argidx] ); }
+	    { argidx++; su.fp_.ns_ = atoi( argv[argidx] ); }
 	else if ( !strcmp(argv[argidx],"--fmt") )
-	    { argidx++; su.fmt_ = atoi( argv[argidx] ); }
+	    { argidx++; su.fp_.fmt_ = atoi( argv[argidx] ); }
 	else if ( !strcmp(argv[argidx],"--nrtrcs") )
 	    { argidx++; su.nrtrcs_ = atoi( argv[argidx] ); }
 	else if ( !strcmp(argv[argidx],"--filenrs") )
-	{
-	    argidx++;
-	    FileMultiString fms( argv[argidx] );
-	    const int len = fms.size();
-	    su.filenrs_.start = atoi( fms[0] );
-	    if ( len > 1 )
-		su.filenrs_.stop = atoi( fms[1] );
-	    if ( len > 2 )
-		su.filenrs_.start = atoi( fms[2] );
-	    if ( len > 3 )
-		su.nrzeropad_ = atoi( fms[3] );
-	}
+	    { argidx++; su.fs_.getMultiFromString( argv[argidx] ); }
+	else if ( !strcmp(argv[argidx],"--swapbytes") )
+	    { su.fp_.byteswapped_ = true; }
 	else if ( !strcmp(argv[argidx],"--fg") )
 	    dofork = false;
 	else
@@ -64,6 +54,7 @@ int main( int argc, char ** argv )
 		  << "\n\t[--ns #samples]""\n\t[--nrtrcs #traces]"
 		     "\n\t[--fmt segy_format_number]"
 	    	     "\n\t[--filenrs start`stop`step[`nrzeropad]]"
+		     "\n\t[--swapbytes]"
 		     "\n\tfilename\n"
 	     << "Note: filename must be with FULL path." << std::endl;
 	ExitProgram( 1 );
@@ -90,8 +81,8 @@ int main( int argc, char ** argv )
 	fnm = const_cast<char*>(File_linkTarget(fnm));
 #endif
 
-    uiSEGYExamine* sgyex =
-	new uiSEGYExamine( 0, fnm, su );
+    su.fs_.fname_ = fnm;
+    uiSEGYExamine* sgyex = new uiSEGYExamine( 0, su );
     app.setTopLevel( sgyex );
     sgyex->show();
     ExitProgram( app.exec() ); return 0;

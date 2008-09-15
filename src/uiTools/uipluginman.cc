@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          Oct 2003
- RCS:           $Id: uipluginman.cc,v 1.19 2007-03-13 13:02:31 cvsbert Exp $
+ RCS:           $Id: uipluginman.cc,v 1.20 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -27,7 +27,7 @@ ________________________________________________________________________
 
 
 uiPluginMan::uiPluginMan( uiParent* p )
-	: uiDialog(p,Setup("Plugins","","0.2.5"))
+	: uiDialog(p,Setup("Plugins",mNoDlgTitle,"0.2.5"))
 {
     setCtrlStyle( uiDialog::LeaveOnly );
     uiGroup* leftgrp = new uiGroup( this, "Left group" );

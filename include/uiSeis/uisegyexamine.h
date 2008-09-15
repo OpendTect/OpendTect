@@ -6,12 +6,13 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyexamine.h,v 1.1 2008-09-11 13:56:09 cvsbert Exp $
+ RCS:		$Id: uisegyexamine.h,v 1.2 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
 
 #include "uidialog.h"
+#include "segyfiledef.h"
 class Timer;
 class SeisTrc;
 class uiTable;
@@ -26,16 +27,17 @@ public:
 
     struct Setup : public uiDialog::Setup
     {
-			Setup(int nrtraces=100);
+				Setup(int nrtraces=100);
 
 	mDefSetupMemb(int,nrtrcs)
-	mDefSetupMemb(StepInterval<int>,filenrs)
-	mDefSetupMemb(int,nrzeropad)
-	mDefSetupMemb(int,ns)			//!< overruling header
-	mDefSetupMemb(int,fmt)			//!< overruling header
+	mDefSetupMemb(SEGY::FileSpec,fs)
+	mDefSetupMemb(SEGY::FilePars,fp)
+
+	void			usePar(const IOPar&);
+	static const char*	sKeyNrTrcs;
     };
 
-			uiSEGYExamine(uiParent*,const char*,const Setup&);
+			uiSEGYExamine(uiParent*,const Setup&);
 			~uiSEGYExamine();
 
 protected:

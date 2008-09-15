@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        H. Payraudeau
  Date:          December 2005
- RCS:           $Id: uishortcuts.cc,v 1.11 2008-05-07 05:39:21 cvsnageswara Exp $
+ RCS:           $Id: uishortcuts.cc,v 1.12 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -19,11 +19,10 @@ static const char* sSupportedStates[] =
 	{ "----", "Shift", "Control", 0 };
 
 uiShortcutsDlg::uiShortcutsDlg( uiParent* p, const char* selkey )
-    : uiDialog( p,uiDialog::Setup( "Set up shortcuts", "", "0.2.4" ) )
+    : uiDialog( p,uiDialog::Setup( "Set up shortcuts",
+				   "Select keys used as shortcuts", "0.2.4" ) )
     , scl_(*new uiShortcutsList(SCMgr().getList(selkey)))
 {
-    setTitleText( "Select keys used as shortcuts" );
-
     uiLabeledComboBox* prevlcbox = 0;
     for ( int idx=0; idx<scl_.names().size(); idx++ )
     {

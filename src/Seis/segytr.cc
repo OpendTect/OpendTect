@@ -5,11 +5,12 @@
  * FUNCTION : Seis trace translator
 -*/
 
-static const char* rcsID = "$Id: segytr.cc,v 1.63 2008-09-11 13:55:38 cvsbert Exp $";
+static const char* rcsID = "$Id: segytr.cc,v 1.64 2008-09-15 10:10:36 cvsbert Exp $";
 
 #include "segytr.h"
 #include "seistrc.h"
 #include "segyhdr.h"
+#include "segyfiledef.h"
 #include "datainterp.h"
 #include "conn.h"
 #include "settings.h"
@@ -21,10 +22,13 @@ static const char* rcsID = "$Id: segytr.cc,v 1.63 2008-09-11 13:55:38 cvsbert Ex
 #include "survinfo.h"
 #include "seisselection.h"
 #include "envvars.h"
+#include "separstr.h"
+#include "keystrs.h"
 #include <math.h>
 #include <ctype.h>
 # include <sstream>
 
+const char* SEGY::FileSpec::sKeyFileNrs = "File numbers";
 const char* SEGYSeisTrcTranslator::sNumberFormat = "Number format";
 const char* SEGYSeisTrcTranslator::sExternalNrSamples = "Nr samples overrule";
 const char* SEGYSeisTrcTranslator::sExternalTimeShift = "Start time overrule";
@@ -33,14 +37,103 @@ const char* SEGYSeisTrcTranslator::sForceRev0 = "Force Rev0";
 const char* SEGYSeisTrcTranslator::sExternalCoordScaling
 	= "Coordinate scaling overrule";
 
+static const char* allsegyfmtoptions[] = {
+    "From file header",
+    "1 - Floating point",
+    "2 - Integer (4 byte)",
+    "3 - Integer (2 byte)",
+    "5 - IEEE float (4 byte)",
+    "8 - Signed char (1 byte)",
+    0
+};
+const char** SEGY::FilePars::getFmts( bool forread )
+{
+    return forread ? allsegyfmtoptions : allsegyfmtoptions+1;
+}
+
+
+void SEGY::FileSpec::fillPar( IOPar& iop ) const
+{
+    iop.set( sKey::FileName, fname_ );
+    if ( mIsUdf(nrs_.start) )
+	iop.removeWithKey( sKeyFileNrs );
+    else
+    {
+	FileMultiString fms;
+	fms += nrs_.start; fms += nrs_.stop; fms += nrs_.step;
+	if ( zeropad_ )
+	    fms += zeropad_;
+	iop.set( sKeyFileNrs, fms );
+    }
+}
+
+
+void SEGY::FileSpec::usePar( const IOPar& iop )
+{
+    iop.get( sKey::FileName, fname_ );
+    getMultiFromString( iop.find(sKeyFileNrs) );
+}
+
+
+void SEGY::FileSpec::getMultiFromString( const char* str )
+{
+    FileMultiString fms( str );
+    const int len = fms.size();
+    nrs_.start = len > 0 ? atoi( fms[0] ) : mUdf(int);
+    if ( len > 1 )
+	nrs_.stop = atoi( fms[1] );
+    if ( len > 2 )
+	nrs_.step = atoi( fms[2] );
+    if ( len > 3 )
+	zeropad_ = atoi( fms[3] );
+}
+
+
+void SEGY::FilePars::fillPar( IOPar& iop ) const
+{
+    iop.set( SEGYSeisTrcTranslator::sExternalNrSamples, ns_ );
+    iop.set( SEGYSeisTrcTranslator::sNumberFormat, nameOfFmt(fmt_,forread_) );
+    iop.setYN( SegylikeSeisTrcTranslator::sKeyBytesSwapped, byteswapped_ );
+}
+
+
+void SEGY::FilePars::usePar( const IOPar& iop )
+{
+    iop.get( SEGYSeisTrcTranslator::sExternalNrSamples, ns_ );
+    iop.getYN( SegylikeSeisTrcTranslator::sKeyBytesSwapped, byteswapped_ );
+    fmt_ = fmtOf( iop.find(SEGYSeisTrcTranslator::sNumberFormat), forread_ );
+}
+
+
+const char* SEGY::FilePars::nameOfFmt( int fmt, bool forread )
+{
+    if ( fmt > 0 && fmt < 4 )
+	return allsegyfmtoptions[fmt];
+    if ( fmt == 5 )
+	return allsegyfmtoptions[4];
+    if ( fmt == 8 )
+	return allsegyfmtoptions[5];
+
+    return forread ? allsegyfmtoptions[0] : nameOfFmt( 1, false );
+}
+
+
+int SEGY::FilePars::fmtOf( const char* str, bool forread )
+{
+    if ( !str || !*str || !isdigit(*str) )
+	return forread ? 0 : 1;
+
+    return (int)(*str - '0');
+}
+
 
 SEGYSeisTrcTranslator::SEGYSeisTrcTranslator( const char* nm, const char* unm )
 	: SegylikeSeisTrcTranslator(nm,unm)
 	, numbfmt(0)
 	, itrc(0)
-	, trchead(*new SegyTraceheader(headerbuf,true,hdef))
-	, txthead(*new SegyTxtHeader)
-	, binhead(*new SegyBinHeader)
+	, trchead(*new SEGY::TrcHeader(headerbuf,true,hdef))
+	, txthead(*new SEGY::TxtHeader)
+	, binhead(*new SEGY::BinHeader)
 	, trcscale(0)
 	, curtrcscale(0)
 	, ext_nr_samples(-1)
@@ -64,7 +157,7 @@ SEGYSeisTrcTranslator::~SEGYSeisTrcTranslator()
 
 int SEGYSeisTrcTranslator::dataBytes() const
 {
-    return SegyBinHeader::formatBytes( numbfmt > 0 ? numbfmt : 1 );
+    return SEGY::BinHeader::formatBytes( numbfmt > 0 ? numbfmt : 1 );
 }
 
 
@@ -77,12 +170,14 @@ bool SEGYSeisTrcTranslator::readTapeHeader()
 	mErrRet( "Cannot read EBCDIC header" )
     txthead.setAscii();
 
+    binhead.needswap = bytesswapped;
     unsigned char binheaderbuf[400];
     if ( !sConn().doIO( binheaderbuf, SegyBinHeaderLength ) )
 	mErrRet( "Cannot read EBCDIC header" )
     binhead.getFrom( binheaderbuf );
-    trchead.isrev1 = force_rev0 ? false : binhead.isrev1;
 
+    trchead.needswap = bytesswapped;
+    trchead.isrev1 = force_rev0 ? false : binhead.isrev1;
     if ( trchead.isrev1 )
     {
 	if ( binhead.nrstzs > 100 ) // protect against wild values
@@ -192,7 +287,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
 
     trchead.isrev1 = !force_rev0;
 
-    SegyTxtHeader txthead( trchead.isrev1 );
+    SEGY::TxtHeader txthead( trchead.isrev1 );
     txthead.setUserInfo( pinfo.usrinfo );
     hdef.linename = curlinekey.buf();
     hdef.pinfo = &pinfo;
@@ -203,7 +298,7 @@ bool SEGYSeisTrcTranslator::writeTapeHeader()
     if ( !sConn().doIO( txthead.txt, SegyTxtHeaderLength ) )
 	mErrRet("Cannot write SEG-Y textual header")
 
-    SegyBinHeader binhead( trchead.isrev1 );
+    SEGY::BinHeader binhead( trchead.isrev1 );
     binhead.format = numbfmt < 2 ? 1 : numbfmt;
     numbfmt = binhead.format;
     binhead.lino = pinfo.nr;
@@ -293,10 +388,9 @@ int SEGYSeisTrcTranslator::nrFormatFor( const DataCharacteristics& dc ) const
 
 DataCharacteristics SEGYSeisTrcTranslator::getDataChar( int nf ) const
 {
-    static bool isswppd = GetEnvVarYN( "OD_SEGY_DATA_SWAPPED" );
     DataCharacteristics dc( true, true, BinDataDesc::N4,
 			    DataCharacteristics::Ibm,
-			    isswppd ? !__islittle__ : __islittle__ );
+			    bytesswapped ? !__islittle__ : __islittle__ );
 
     switch ( nf )
     {

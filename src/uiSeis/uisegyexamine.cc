@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2007
- RCS:		$Id: uisegyexamine.cc,v 1.1 2008-09-11 13:56:09 cvsbert Exp $
+ RCS:		$Id: uisegyexamine.cc,v 1.2 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -30,26 +30,30 @@ ________________________________________________________________________
 #include "iopar.h"
 #include "timer.h"
 #include "envvars.h"
+#include "separstr.h"
 #include <sstream>
+
+const char* uiSEGYExamine::Setup::sKeyNrTrcs = "Number of traces";
 
 
 uiSEGYExamine::Setup::Setup( int nrtraces )
-    : uiDialog::Setup("SEG-Y Examiner",0,mNoHelpID)
+    : uiDialog::Setup("SEG-Y Examiner",mNoDlgTitle,mNoHelpID)
     , nrtrcs_(nrtraces)
-    , filenrs_(mUdf(int),0,1)
-    , ns_(-1)
-    , fmt_(-1)
-    , nrzeropad_(-1)
+    , fp_(true)
 {
     nrstatusflds( 2 ).modal( false );
-    nrzeropad_ = GetEnvVarIVal( "OD_SEGY_NRZEROS_PADDING", nrzeropad_ );
 }
 
 
-uiSEGYExamine::uiSEGYExamine( uiParent* p, const char* fnm,
-			      const uiSEGYExamine::Setup& su )
+void uiSEGYExamine::Setup::usePar( const IOPar& iop )
+{
+    fp_.usePar( iop ); fs_.usePar( iop );
+    iop.get( sKeyNrTrcs, nrtrcs_ );
+}
+
+
+uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 	: uiDialog(p,su)
-	, fname_(fnm)
 	, setup_(su)
 	, timer_(*new Timer("Startup timer"))
 	, tbuf_(*new SeisTrcBuf(true))
@@ -71,7 +75,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const char* fnm,
     tb->setToolTip( "Display traces" );
     tb->attach( rightBorder );
 
-    uiTable::Setup tblsu( SegyTraceheader::nrVals(), setup_.nrtrcs_ );
+    uiTable::Setup tblsu( SEGY::TrcHeader::nrVals(), setup_.nrtrcs_ );
     tblsu.rowdesc("Header field").coldesc("Trace");
     tbl_ = new uiTable( tblgrp, tblsu, "Trace info" );
     tbl_->setPrefHeightInChar( 14 );
@@ -104,7 +108,7 @@ void uiSEGYExamine::dispSeis( CallBacker* )
     uiSeisTrcBufViewer::Setup su( "Trace display", 1 );
     uiSeisTrcBufViewer* vwr = new uiSeisTrcBufViewer( this, su );
     SeisTrcBufDataPack* dp = vwr->setTrcBuf( tbuf_, Seis::Line, "Examine",
-	    				      FilePath(fname_).fileName() );
+				      FilePath(setup_.fs_.fname_).fileName() );
     vwr->getViewer()->usePack( true, dp->id(), true );
     vwr->getViewer()->usePack( false, dp->id(), true );
     vwr->getViewer()->appearance().ddpars_.show( true, true );
@@ -119,30 +123,26 @@ void uiSEGYExamine::updateInput( CallBacker* )
     display( true );
     updateInp();
     txtfld_->setText( txtinfo_ );
-    setName( fname_ );
+    setName( setup_.fs_.fname_ );
 }
 
 
 void uiSEGYExamine::updateInp()
 {
     MultiID tmpid( "100010." ); tmpid += BufferString(IOObj::tmpID);
-    IOStream iostrm( fname_, tmpid.buf() );
-    iostrm.setFileName( fname_ );
+    IOStream iostrm( setup_.fs_.fname_, tmpid.buf() );
+    iostrm.setFileName( setup_.fs_.fname_ );
     iostrm.setGroup( "Seismic Data" );
     iostrm.setTranslator( "SEG-Y" );
-    iostrm.setFileName( fname_ );
-    bool ismulti = !mIsUdf(setup_.filenrs_.start);
+    bool ismulti = !mIsUdf(setup_.fs_.nrs_.start);
     if ( ismulti )
     {
-	iostrm.fileNumbers() = setup_.filenrs_;
-	iostrm.setZeroPadding( setup_.nrzeropad_ );
+	iostrm.fileNumbers() = setup_.fs_.nrs_;
+	iostrm.setZeroPadding( setup_.fs_.zeropad_ );
     }
-    if ( setup_.ns_ > 0 )
-	iostrm.pars().set(SEGYSeisTrcTranslator::sExternalNrSamples,setup_.ns_);
-    if ( setup_.fmt_ >= 0 )
-	iostrm.pars().set( SEGYSeisTrcTranslator::sNumberFormat, setup_.fmt_ );
+    setup_.fp_.fillPar( iostrm.pars() );
 
-    toStatusBar( fname_, 1 );
+    toStatusBar( setup_.fs_.fname_, 1 );
     outInfo( "Opening input" );
     SeisTrcReader rdr( &iostrm );
     if ( *rdr.errMsg() || !rdr.prepareWork(Seis::PreScan) )
@@ -154,12 +154,12 @@ void uiSEGYExamine::updateInp()
 
     SeisTrc trc; int nrdone = 0;
     bool stoppedatend = false;
-    const int nrvals = SegyTraceheader::nrVals();
+    const int nrvals = SEGY::TrcHeader::nrVals();
     mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr.translator())
     if ( !tr )
 	{ txtinfo_ = "Internal: cannot obtain SEG-Y Translator"; return; }
 
-    const SegyTraceheader& trhead = tr->trcHeader();
+    const SEGY::TrcHeader& trhead = tr->trcHeader();
     for ( int itrc=0; itrc<setup_.nrtrcs_; itrc++ )
     {
 	if ( !rdr.get(trc) )
@@ -170,7 +170,7 @@ void uiSEGYExamine::updateInp()
 
 	for ( int ival=0; ival<nrvals; ival++ )
 	{
-	    SegyTraceheader::Val val = trhead.getVal( ival+1 );
+	    SEGY::TrcHeader::Val val = trhead.getVal( ival+1 );
 	    RowCol rc( ival, itrc );
 	    tbl_->setValue( rc, val.val_ );
 	}
@@ -194,8 +194,8 @@ void uiSEGYExamine::updateInp()
 void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
 				      const SEGYSeisTrcTranslator& tr )
 {
-    const SegyTxtHeader& txthead = tr.txtHeader();
-    const SegyBinHeader& binhead = tr.binHeader();
+    const SEGY::TxtHeader& txthead = tr.txtHeader();
+    const SEGY::BinHeader& binhead = tr.binHeader();
     std::ostringstream thstrm, bhstrm;
     txthead.dump( thstrm );
     binhead.dump( bhstrm );
@@ -205,11 +205,11 @@ void uiSEGYExamine::handleFirstTrace( const SeisTrc& trc,
 		"Binary header info (non-zero values displayed only):\n\n";
     txtinfo_ += bhstrm.str().c_str();
 
-    const SegyTraceheader& trhead = tr.trcHeader();
-    const int nrvals = SegyTraceheader::nrVals();
+    const SEGY::TrcHeader& trhead = tr.trcHeader();
+    const int nrvals = SEGY::TrcHeader::nrVals();
     for ( int ival=0; ival<nrvals; ival++ )
     {
-	SegyTraceheader::Val val = trhead.getVal( ival+1 );
+	SEGY::TrcHeader::Val val = trhead.getVal( ival+1 );
 	BufferString rownm;
 	rownm += val.byte_+1; rownm += " [";
 	rownm += val.desc_; rownm += "]";

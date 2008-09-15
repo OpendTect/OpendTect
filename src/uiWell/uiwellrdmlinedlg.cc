@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Helene Payraudeau
  Date:          October 2005
- RCS:           $Id: uiwellrdmlinedlg.cc,v 1.17 2008-05-22 11:08:57 cvssatyaki Exp $
+ RCS:           $Id: uiwellrdmlinedlg.cc,v 1.18 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -47,14 +47,13 @@ static const char* sTypes[] =
 
 
 uiWell2RandomLineDlg::uiWell2RandomLineDlg( uiParent* p, uiWellPartServer* ws )
-    : uiDialog(p,uiDialog::Setup("Random line - Wells relations","",
+    : uiDialog(p,uiDialog::Setup("Create Random line",
+				 "Select wells to set up the random line path",
 				 "109.0.0").modal(false))
     , wellsbox_(0), selwellsbox_(0), wellserv_(ws)
     , outctio_(*mMkCtxtIOObj(RandomLineSet))
 {
     outctio_.ctxt.forread = false;
-    BufferString title( "Select wells to set up the random line path" );
-    setTitleText( title );
 
     uiGroup* topgrp = new uiGroup( this, "selection group" );
     uiGroup* selbuttons = new uiGroup( topgrp, "select buttons" );

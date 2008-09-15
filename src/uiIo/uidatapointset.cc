@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Feb 2008
- RCS:           $Id: uidatapointset.cc,v 1.23 2008-07-25 05:00:08 cvsnageswara Exp $
+ RCS:           $Id: uidatapointset.cc,v 1.24 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -44,7 +44,7 @@ static const char* sKeyGroups = "Groups";
 
 
 uiDataPointSet::Setup::Setup( const char* wintitl, bool ismodal )
-    : uiDialog::Setup(wintitl?wintitl:"Extracted data","","0.4.3")
+    : uiDialog::Setup(wintitl?wintitl:"Extracted data",mNoDlgTitle,"0.4.3")
     , isconst_(false)
     , allowretrieve_(true)
     , initialmaxnrlines_(4000)

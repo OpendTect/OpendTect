@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Bril
  Date:          June 2004
- RCS:           $Id: uiseissubsel.cc,v 1.54 2008-07-17 10:12:10 cvssatyaki Exp $
+ RCS:           $Id: uiseissubsel.cc,v 1.55 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -381,7 +381,8 @@ void uiSelection2DParSel::doDlg( CallBacker* )
 {
     sellines_.erase();
 
-    uiDialog dlg( this, uiDialog::Setup("Select 2D LineSet/LineName","","") );
+    uiDialog dlg( this, uiDialog::Setup("Select 2D LineSet/LineName",
+					mNoDlgTitle,mNoHelpID) );
     linesetfld_ = new uiSeisSel( &dlg, *lsctio_,
 				 uiSeisSel::Setup(Seis::Line).selattr(false) );
     linesetfld_->selectiondone.notify(

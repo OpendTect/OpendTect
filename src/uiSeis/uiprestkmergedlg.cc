@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        R. K. Singh
  Date:          October 2007
- RCS:           $Id: uiprestkmergedlg.cc,v 1.9 2008-03-31 08:22:51 cvsbert Exp $
+ RCS:           $Id: uiprestkmergedlg.cc,v 1.10 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -39,15 +39,13 @@ ________________________________________________________________________
 
 
 uiPreStackMergeDlg::uiPreStackMergeDlg( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("Merge Pre-Stack Data","",
+    : uiDialog(p,uiDialog::Setup("Merge Pre-Stack Data",
+				 "Select volumes to merge into one",
 				 "109.0.0"))
     , inctio_(*mMkCtxtIOObj(SeisPS3D))
     , outctio_(*mMkCtxtIOObj(SeisPS3D))
     , volsbox_(0), selvolsbox_(0)
 {
-    BufferString title( "Select volumes to merge into one" );
-    setTitleText( title );
-
     uiGroup* topgrp = new uiGroup( this, "selection group" );
     uiGroup* selbuttons = new uiGroup( topgrp, "select buttons" );
     uiGroup* movebuttons = new uiGroup( topgrp, "move buttons" );

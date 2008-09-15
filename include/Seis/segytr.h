@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	A.H. Bril
  Date:		2-4-1996
- RCS:		$Id: segytr.h,v 1.21 2008-09-11 13:54:56 cvsbert Exp $
+ RCS:		$Id: segytr.h,v 1.22 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 Translators for SEGY files traces.
@@ -16,9 +16,7 @@ Translators for SEGY files traces.
 
 #include <segylike.h>
 class LinScaler;
-class SegyTxtHeader;
-class SegyBinHeader;
-class SegyTraceheader;
+namespace SEGY { class TxtHeader; class BinHeader; class TrcHeader; }
 
 
 class SEGYSeisTrcTranslator : public SegylikeSeisTrcTranslator
@@ -46,15 +44,15 @@ public:
     bool		isRev1() const;
     int			numbfmt;
 
-    const SegyTxtHeader&	txtHeader() const	{ return txthead; }
-    const SegyBinHeader&	binHeader() const	{ return binhead; }
-    const SegyTraceheader&	trcHeader() const	{ return trchead; }
+    const SEGY::TxtHeader&	txtHeader() const	{ return txthead; }
+    const SEGY::BinHeader&	binHeader() const	{ return binhead; }
+    const SEGY::TrcHeader&	trcHeader() const	{ return trchead; }
 
 protected:
 
-    SegyTxtHeader&	txthead;
-    SegyBinHeader&	binhead;
-    SegyTraceheader&	trchead;
+    SEGY::TxtHeader&	txthead;
+    SEGY::BinHeader&	binhead;
+    SEGY::TrcHeader&	trchead;
     int			itrc;
     short		binhead_ns;
     float		binhead_dpos;

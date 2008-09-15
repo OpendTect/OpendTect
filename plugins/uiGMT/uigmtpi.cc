@@ -4,7 +4,7 @@
  * DATE     : June 2008
 -*/
 
-static const char* rcsID = "$Id: uigmtpi.cc,v 1.9 2008-09-12 11:32:30 cvsraman Exp $";
+static const char* rcsID = "$Id: uigmtpi.cc,v 1.10 2008-09-15 10:10:36 cvsbert Exp $";
 
 #include "gmtdef.h"
 #include "ioman.h"
@@ -50,7 +50,7 @@ class uiGMTIntro : public uiDialog
 public:
 
 uiGMTIntro( uiParent* p )
-    : uiDialog(p,uiDialog::Setup("GMT Mapping Tool","",""))
+    : uiDialog(p,uiDialog::Setup("GMT Mapping Tool",mNoDlgTitle,mNoHelpID))
 {
     setOkText( "Continue" );
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2006
- RCS:		$Id: uiarrowdlg.cc,v 1.2 2008-05-05 05:42:18 cvsnageswara Exp $
+ RCS:		$Id: uiarrowdlg.cc,v 1.3 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -22,7 +22,7 @@ static const char* arrowtypes[] = { "Top", "Bottom", "Both", 0 };
 
 
 uiArrowDialog::uiArrowDialog( uiParent* p )
-    : uiDialog(p,Setup("Arrow properties","",""))
+    : uiDialog(p,Setup("Arrow properties",mNoDlgTitle,mTODOHelpID))
     , propertyChange(this)
 {
     setCancelText(0);

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Nanne Hemstra
  Date:		April 2006
- RCS:		$Id: uihorizonrelations.cc,v 1.9 2008-03-14 14:35:45 cvskris Exp $
+ RCS:		$Id: uihorizonrelations.cc,v 1.10 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -36,7 +36,7 @@ ________________________________________________________________________
 
 
 uiHorizonRelationsDlg::uiHorizonRelationsDlg( uiParent* p, bool is2d )
-    : uiDialog(p,Setup("Horizon relations","",""))
+    : uiDialog(p,Setup("Horizon relations",mNoDlgTitle,mTODOHelpID))
     , is2d_( is2d )
 {
     read();
@@ -141,7 +141,7 @@ class HorizonModifyDlg : public uiDialog
 public:
 HorizonModifyDlg( uiParent* p, const MultiID& mid1, const MultiID& mid2,
 		  int nrcross )
-    : uiDialog(p,Setup("Horizon relations","Solve crossings",""))
+    : uiDialog(p,Setup("Horizon relations","Solve crossings",mTODOHelpID))
     , mid1_(mid1)
     , mid2_(mid2)
     , ctio_(*mMkCtxtIOObj(EMHorizon3D))

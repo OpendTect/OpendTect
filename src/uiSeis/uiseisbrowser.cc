@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Sulochana/Satyaki
  Date:          Oct 2007
- RCS:           $Id: uiseisbrowser.cc,v 1.30 2008-09-09 10:52:11 cvsbert Exp $
+ RCS:           $Id: uiseisbrowser.cc,v 1.31 2008-09-15 10:10:36 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -706,7 +706,8 @@ void uiSeisBrowser::setTrcBufViewTitle()
 
 uiSeisBrowserInfoDlg::uiSeisBrowserInfoDlg( uiParent* p, const SeisTrc& trc,
 					    bool is2d )
-    : uiDialog(p,uiDialog::Setup("Selected Trace Information","",mNoHelpID)
+    : uiDialog(p,uiDialog::Setup("Selected Trace Information",
+				 mNoDlgTitle,mNoHelpID)
 	    	.modal(false) )
     , is2d_(is2d)  
 {
