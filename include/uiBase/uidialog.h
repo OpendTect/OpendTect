@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          08/08/2000
- RCS:           $Id: uidialog.h,v 1.46 2008-09-09 10:52:10 cvsbert Exp $
+ RCS:           $Id: uidialog.h,v 1.47 2008-09-15 06:57:38 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -29,6 +29,8 @@ If you don't want to use the help system, simply pass null ('0').
 
 
 */
+
+#define mNoDlgTitle	""
 
 
 class uiDialog : public uiMainWin
