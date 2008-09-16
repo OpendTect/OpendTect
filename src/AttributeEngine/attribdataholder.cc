@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdataholder.cc,v 1.9 2007-08-29 19:49:14 cvskris Exp $";
+static const char* rcsID = "$Id: attribdataholder.cc,v 1.10 2008-09-16 10:03:20 cvsbert Exp $";
 
 #include "attribdataholder.h"
 
@@ -170,37 +170,35 @@ bool Data2DHolder::fillDataCube( DataCubes& res ) const
     Array3D<float>& array = res.getCube( 0 );
     float* arrptr = array.getData();
 
-    if ( arrptr )
+    for ( int idx=0; idx<trcinfoset_.size(); idx++ )
     {
-	for ( int idx=0; idx<trcinfoset_.size(); idx++ )
+	const float* srcptr = 0;
+	const int nrseries = dataset_[idx]->nrSeries();
+	for ( int idy=0; idy<nrseries; idy++ )
 	{
-	    const int offset = array.info().getOffset( 0,
-		    trcrange.nearestIndex( trcinfoset_[idx]->nr),
-		    dataset_[idx]->z0_-mNINT(cs.zrg.start/cs.zrg.step) );
-
-	    const float* srcptr = 0;
-	    const int nrseries = dataset_[idx]->nrSeries();
-
-	    for ( int idy=0; idy<nrseries; idy++ )
+	    if ( dataset_[idx]->series(idy) )
 	    {
-		if ( dataset_[idx]->series(idy) )
-		{
-		    srcptr = dataset_[idx]->series(idy)->arr();
-		    break;
-		}
+		srcptr = dataset_[idx]->series(idy)->arr();
+		break;
 	    }
+	}
+	if ( !srcptr )
+	    continue;
 
-	    if ( !srcptr )
-		continue;
-
+	const int trcidx = trcrange.nearestIndex( trcinfoset_[idx]->nr );
+	const int zpos = dataset_[idx]->z0_ - mNINT(cs.zrg.start/cs.zrg.step);
+	if ( arrptr )
+	{
+	    const int offset = array.info().getOffset( 0, trcidx, zpos );
 	    memcpy( arrptr+offset, srcptr,
 		    dataset_[idx]->nrsamples_*sizeof(float) );
 	}
-    }
-    else
-    {
-	pErrMsg( "Not implemented" );
-	return false;
+	else
+	{
+	    const int ns = dataset_[idx]->nrsamples_;
+	    for ( int isamp=0; isamp<ns; isamp++ )
+		array.set( 0, trcidx, isamp+zpos, srcptr[isamp] );
+	}
     }
 
     return true;

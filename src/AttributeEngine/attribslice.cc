@@ -8,7 +8,7 @@ ___________________________________________________________________
 
 -*/
 
-static const char* rcsID = "$Id: attribslice.cc,v 1.6 2006-08-28 09:28:47 cvskris Exp $";
+static const char* rcsID = "$Id: attribslice.cc,v 1.7 2008-09-16 10:03:20 cvsbert Exp $";
 
 #include "attribslice.h"
 
@@ -31,9 +31,8 @@ float Slice::undefValue() const
 void Slice::setUndefValue( float udfval, bool initdata )
 {
     udfval_ = udfval;
-    float* fp = getData(); if ( !fp ) return;
-    float* endfp = fp + info().getTotalSz();
-    while ( fp != endfp ) *fp++ = udfval_;
+    if ( initdata )
+	setAll( udfval );
 }
 
 

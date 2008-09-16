@@ -5,7 +5,7 @@
 -*/
 
 
-static const char* rcsID = "$Id: attribdatacubes.cc,v 1.25 2007-11-20 18:26:14 cvskris Exp $";
+static const char* rcsID = "$Id: attribdatacubes.cc,v 1.26 2008-09-16 10:03:20 cvsbert Exp $";
 
 #include "attribdatacubes.h"
 #include "arrayndimpl.h"
@@ -139,20 +139,7 @@ void DataCubes::setValue( int array, int inlidx, int crlidx, int zidx,
 
 void DataCubes::setValue( int array, float val )
 {
-    float* vals = cubes_[array]->getData();
-    if ( vals )
-    {
-	const float* stopptr = vals + cubes_[array]->info().getTotalSz();
-	while ( vals<stopptr )
-	    (*vals++) = val;
-    }
-    else
-    {
-	ValueSeries<float>* stor = cubes_[array]->getStorage();
-	const int nrsamples = cubes_[array]->info().getTotalSz();
-	for ( int idx=0; idx<nrsamples; idx++ )
-	    stor->setValue( idx, val );
-    }
+    cubes_[array]->setAll( val );
 }
 
 
