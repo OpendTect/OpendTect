@@ -6,7 +6,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2008
- RCS:		$Id: uisegyexamine.h,v 1.2 2008-09-15 10:10:36 cvsbert Exp $
+ RCS:		$Id: uisegyexamine.h,v 1.3 2008-09-16 08:24:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -18,6 +18,7 @@ class SeisTrc;
 class uiTable;
 class uiTextEdit;
 class SeisTrcBuf;
+class SeisTrcReader;
 class SEGYSeisTrcTranslator;
 
 
@@ -40,21 +41,12 @@ public:
 			uiSEGYExamine(uiParent*,const Setup&);
 			~uiSEGYExamine();
 
+    int			getRev() const; // -1 = err, 1 = Rev 1
+
 protected:
 
-    void		onStartUp(CallBacker*);
-    void		dispSeis(CallBacker*);
-    void		updateInput(CallBacker*);
-    void		vwrClose(CallBacker*);
-
-    void		updateInp();
-    void		handleFirstTrace(const SeisTrc&,
-	    				 const SEGYSeisTrcTranslator&);
-    bool		rejectOK();
-
-    void		outInfo(const char*);
-
     Setup		setup_;
+    SeisTrcReader*	rdr_;
     BufferString	txtinfo_;
     BufferString	fname_;
     SeisTrcBuf&		tbuf_;
@@ -62,6 +54,20 @@ protected:
 
     uiTextEdit*		txtfld_;
     uiTable*		tbl_;
+
+    void		onStartUp(CallBacker*);
+    void		dispSeis(CallBacker*);
+    void		updateInput(CallBacker*);
+    void		vwrClose(CallBacker*);
+
+    void		openInput();
+    void		updateInp();
+    void		handleFirstTrace(const SeisTrc&,
+	    				 const SEGYSeisTrcTranslator&);
+    bool		rejectOK();
+
+    void		outInfo(const char*);
+
 };
 
 

@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        Bert
  Date:          Sep 2007
- RCS:		$Id: uisegyexamine.cc,v 1.2 2008-09-15 10:10:36 cvsbert Exp $
+ RCS:		$Id: uisegyexamine.cc,v 1.3 2008-09-16 08:24:44 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -57,6 +57,7 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
 	, setup_(su)
 	, timer_(*new Timer("Startup timer"))
 	, tbuf_(*new SeisTrcBuf(true))
+	, rdr_(0)
 {
     setCtrlStyle( LeaveOnly );
 
@@ -85,12 +86,16 @@ uiSEGYExamine::uiSEGYExamine( uiParent* p, const uiSEGYExamine::Setup& su )
     splitter->addGroup( txtgrp );
     splitter->addGroup( tblgrp );
 
+    openInput();
+    txtfld_->setText( txtinfo_ );
+
     finaliseDone.notify( mCB(this,uiSEGYExamine,onStartUp) );
 }
 
 
 uiSEGYExamine::~uiSEGYExamine()
 {
+    delete rdr_;
     delete &timer_;
     delete &tbuf_;
 }
@@ -122,19 +127,18 @@ void uiSEGYExamine::updateInput( CallBacker* )
 {
     display( true );
     updateInp();
-    txtfld_->setText( txtinfo_ );
     setName( setup_.fs_.fname_ );
 }
 
 
-void uiSEGYExamine::updateInp()
+void uiSEGYExamine::openInput()
 {
     MultiID tmpid( "100010." ); tmpid += BufferString(IOObj::tmpID);
     IOStream iostrm( setup_.fs_.fname_, tmpid.buf() );
     iostrm.setFileName( setup_.fs_.fname_ );
     iostrm.setGroup( "Seismic Data" );
     iostrm.setTranslator( "SEG-Y" );
-    bool ismulti = !mIsUdf(setup_.fs_.nrs_.start);
+    const bool ismulti = !mIsUdf(setup_.fs_.nrs_.start);
     if ( ismulti )
     {
 	iostrm.fileNumbers() = setup_.fs_.nrs_;
@@ -144,25 +148,43 @@ void uiSEGYExamine::updateInp()
 
     toStatusBar( setup_.fs_.fname_, 1 );
     outInfo( "Opening input" );
-    SeisTrcReader rdr( &iostrm );
-    if ( *rdr.errMsg() || !rdr.prepareWork(Seis::PreScan) )
-	{ txtinfo_ = rdr.errMsg(); return; }
+    rdr_ = new SeisTrcReader( &iostrm );
+    if ( *rdr_->errMsg() || !rdr_->prepareWork(Seis::PreScan) )
+	{ txtinfo_ = rdr_->errMsg(); delete rdr_; rdr_ = 0; return; }
+
+    mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr_->translator())
+    if ( !tr )
+	{ txtinfo_ = "Internal: cannot obtain SEG-Y Translator";
+	    	delete rdr_; rdr_ = 0; return; }
 
     BufferString str( "Reading first " );
     str += setup_.nrtrcs_; str += " traces ...";
     outInfo( str );
+}
+
+
+int uiSEGYExamine::getRev() const
+{
+    if ( !rdr_ ) return -1;
+    mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr_->translator())
+    if ( !tr ) return -1;
+    return tr->isRev1() ? 1 : 0;
+}
+
+
+void uiSEGYExamine::updateInp()
+{
+    if ( !rdr_ ) return;
+
+    const int nrvals = SEGY::TrcHeader::nrVals();
+    mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr_->translator())
+    const SEGY::TrcHeader& trhead = tr->trcHeader();
 
     SeisTrc trc; int nrdone = 0;
     bool stoppedatend = false;
-    const int nrvals = SEGY::TrcHeader::nrVals();
-    mDynamicCastGet(SEGYSeisTrcTranslator*,tr,rdr.translator())
-    if ( !tr )
-	{ txtinfo_ = "Internal: cannot obtain SEG-Y Translator"; return; }
-
-    const SEGY::TrcHeader& trhead = tr->trcHeader();
     for ( int itrc=0; itrc<setup_.nrtrcs_; itrc++ )
     {
-	if ( !rdr.get(trc) )
+	if ( !rdr_->get(trc) )
 	    { stoppedatend = true; break; }
 
 	if ( nrdone == 0 )
@@ -180,7 +202,8 @@ void uiSEGYExamine::updateInp()
 	tbuf_.add( new SeisTrc(trc) );
     }
 
-    str = "\n\n";
+    BufferString str( "\n\n" );
+    const bool ismulti = !mIsUdf(setup_.fs_.nrs_.start);
     str += nrdone < 1 ? "No traces found"
 	   : (stoppedatend ? (ismulti ? "Number of traces in first file: "
 		       		      : "Total traces present in file: ")
@@ -188,6 +211,7 @@ void uiSEGYExamine::updateInp()
     if ( nrdone > 0 ) str += nrdone;
     txtinfo_ += str;
     outInfo( "" );
+    txtfld_->setText( txtinfo_ );
 }
 
 
