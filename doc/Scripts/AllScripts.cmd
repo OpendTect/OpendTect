@@ -32,6 +32,7 @@ Include "$SCRIPTSDIR$/HorizonSlice.cmd"
 Include "$SCRIPTSDIR$/BetweenHorizon.cmd"
 Include "$SCRIPTSDIR$/Horizon-Isopach.cmd"
 Include "$SCRIPTSDIR$/HorizonFillHoles.cmd"
+Include "$SCRIPTSDIR$/StratalAmp.cmd"
 
 Include "$SCRIPTSDIR$/ManageWavelet.cmd"
 Include "$SCRIPTSDIR$/ChronoStratigraphy.cmd"
