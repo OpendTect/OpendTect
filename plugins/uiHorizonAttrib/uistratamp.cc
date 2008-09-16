@@ -4,7 +4,7 @@
    * DATE     : Mar 2008
  -*/
 
-static const char* rcsID = "$Id: uistratamp.cc,v 1.5 2008-07-08 14:23:10 cvshelene Exp $";
+static const char* rcsID = "$Id: uistratamp.cc,v 1.6 2008-09-16 06:37:16 cvsraman Exp $";
 
 #include "uistratamp.h"
 #include "stratamp.h"
@@ -48,7 +48,7 @@ uiStratAmpCalc::uiStratAmpCalc( uiParent* p )
     winoption_->valuechanged.notify( mCB(this,uiStratAmpCalc,choiceSel) );
     winoption_->attach( alignedBelow, inpfld_ );
 
-    horfld1_ = new uiIOObjSel( this, horctio1_, "Horizon" );
+    horfld1_ = new uiIOObjSel( this, horctio1_, "    Horizon" );
     horfld1_->selectiondone.notify( mCB(this,uiStratAmpCalc,inpSel) );
     horfld1_->attach( alignedBelow, winoption_ );
 
@@ -95,8 +95,8 @@ uiStratAmpCalc::~uiStratAmpCalc()
 void uiStratAmpCalc::choiceSel( CallBacker* )
 {
     usesingle_ = winoption_->getBoolValue();
-    horfld1_->setLabelText( usesingle_ ? "Horizon  " 
-				       : "  Top Horizon" );
+    horfld1_->setLabelText( usesingle_ ? "    Horizon" 
+				       : "Top Horizon" );
     horfld2_->display( !usesingle_ );
     selfld_->display( !usesingle_ );
 }
@@ -189,7 +189,7 @@ bool uiStratAmpCalc::acceptOK( CallBacker* )
     const EM::Horizon3D* tophor = loadHor( horctio1_.ioobj, hs );
     if ( !tophor ) mErrRet( "Error loading horizon" );
 
-    const EM::Horizon3D* bothor = loadHor( horctio2_.ioobj, hs );
+    const EM::Horizon3D* bothor = usesingle_ ? 0 : loadHor(horctio2_.ioobj,hs);
     if ( !usesingle_ && !bothor )  mErrRet( "Error loading horizon" );
 
     Stats::Type typ = eEnum( Stats::Type, ampoptionfld_->box()->text() );
@@ -206,7 +206,11 @@ bool uiStratAmpCalc::acceptOK( CallBacker* )
     if ( !taskrunner.execute(exec) )
 	mErrRet( "Cannot compute attribute" )
 
-    return saveData( addtotop ? tophor : bothor , attribidx, overwrite );
+    const bool res = saveData( addtotop ? tophor : bothor ,
+	    		       attribidx, overwrite );
+    tophor->unRef();
+    if ( bothor ) bothor->unRef();
+    return res;
 }
 
 
