@@ -7,7 +7,7 @@ ________________________________________________________________________
  CopyRight:	(C) dGB Beheer B.V.
  Author:	Bert
  Date:		Sep 2008
- RCS:		$Id: segyfiledef.h,v 1.1 2008-09-15 10:10:35 cvsbert Exp $
+ RCS:		$Id: segyfiledef.h,v 1.2 2008-09-17 15:27:00 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -20,6 +20,17 @@ class IOPar;
 namespace SEGY
 {
 
+struct TrcFileIdx
+{
+		TrcFileIdx( int fnr=-1, int tnr=0 )
+		    : filenr_(fnr), trcnr_(tnr) {}
+
+    bool	isValid() const			{ return filenr_ >= 0; }
+
+    int		filenr_;
+    int		trcnr_;
+};
+
 /*\brief Input and output file(s)  */
 
 class FileSpec
@@ -28,7 +39,7 @@ public:
     			FileSpec( const char* fnm=0 )
 			    : fname_(fnm)
 			    , nrs_(mUdf(int),0,1)
-			    , zeropad_(0)		{}
+			    , zeropad_(0)	{}
 
     BufferString	fname_;
     StepInterval<int>	nrs_;
