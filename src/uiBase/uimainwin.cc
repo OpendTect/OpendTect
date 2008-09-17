@@ -4,7 +4,7 @@ ________________________________________________________________________
  CopyRight:     (C) dGB Beheer B.V.
  Author:        A.H. Lammertink
  Date:          31/05/2000
- RCS:           $Id: uimainwin.cc,v 1.154 2008-09-15 10:10:36 cvsbert Exp $
+ RCS:           $Id: uimainwin.cc,v 1.155 2008-09-17 11:13:05 cvsbert Exp $
 ________________________________________________________________________
 
 -*/
@@ -266,9 +266,10 @@ void uiMainWinBody::construct( int nrstatusflds, bool wantmenubar )
 				      *myBar);
 	else
 	    pErrMsg("No menubar returned from Qt");
+
+	toolbarsmnu_ = new uiPopupMenu( &handle(), "Toolbars" );
     }
 
-    toolbarsmnu_ = new uiPopupMenu( &handle_, "Toolbars" );
     initing = false;
 }
 
@@ -278,7 +279,7 @@ uiMainWinBody::~uiMainWinBody()
     deleteAllChildren(); //delete them now to make sure all ui objects
     			 //are deleted before their body counterparts
 
-    toolbarsmnu_->clear();
+    if ( toolbarsmnu_ ) toolbarsmnu_->clear();
     delete toolbarsmnu_;
     if ( !deletefromod_ )
     {
@@ -490,6 +491,8 @@ void uiMainWinBody::toggleToolbar( CallBacker* cb )
 
 void uiMainWinBody::updateToolbarsMenu()
 {
+    if ( !toolbarsmnu_ ) return;
+
     const ObjectSet<uiMenuItem>& items = toolbarsmnu_->items();
 
     for ( int idx=0; idx<toolbars_.size(); idx++ )
@@ -520,6 +523,8 @@ void uiMainWinBody::removeToolBar( uiToolBar* tb )
 
 void uiMainWinBody::renewToolbarsMenu()
 {
+    if ( !toolbarsmnu_ ) return;
+
     toolbarsmnu_->clear();
     for ( int idx=0; idx<toolbars_.size(); idx++ )
     {
